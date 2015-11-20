@@ -103,11 +103,6 @@ class Metabolism(wholecell.processes.process.Process):
 			# 	} # TODO: move to KB TODO: check reaction stoich
 			)
 
-		# self.enzymesWithKineticInfo = kb.process.metabolism.enzymesWithKineticInfo["enzymes"]
-
-		# # Load info on all reactions in the model
-		# self.constraintIDs = kb.process.metabolism.constraintIDs
-
 		# Set up enzyme kinetics object
 		self.enzymeKinetics = EnzymeKinetics(
 			enzymesWithKineticInfo = kb.process.metabolism.enzymesWithKineticInfo["enzymes"],
@@ -121,18 +116,7 @@ class Metabolism(wholecell.processes.process.Process):
 		# Determine which kinetic limits to use
 		self.reactionsWithKineticLimits = [True]*len(self.fba.reactionIDs())
 		self.activeConstraints = [self.activeConstraintsDict[x] for x in self.constraintIDs]
-		
-		# 195 --> grows just fine
-		# self.activeConstraints = [1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-
-		# 203 --> grows, maybe a hair slower
-		# self.activeConstraints = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-
-		# 205 --> grows, a small amount slower, but clearly grows (took 1:06:58 to double instead of the expected 1:00:00)
-		# self.activeConstraints = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-
-
-
+	
 		# Set constraints
 		## External molecules
 		externalMoleculeIDs = self.fba.externalMoleculeIDs()
@@ -213,29 +197,6 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Set the rate limits only if the option flag is enabled
 		if USE_RATELIMITS:
-			# # Set max reaction fluxes for enzymes for which kinetics are known
-			# for index, reactionID in enumerate(self.fba.reactionIDs()):
-			# 	# Only use this kinetic limit if it's enabled
-			# 	if self.reactionsWithKineticLimits[index]:
-			# 		# Make sure to never set negative maximum rates
-			# 		assert (self.reactionRates[0][index] >= 0 and self.reactionRates[0][index] != np.nan)
-			# 		# Set the max reaction rate for this reaction
-			# 		self.fba.maxReactionFluxIs(reactionID, self.reactionRates[0][index], raiseForReversible = False)
-			# 	else:
-			# 		self.fba.maxReactionFluxIs(reactionID, defaultRate, raiseForReversible = False)
-			
-
-			# # Set max reaction fluxes for enzymes for which kinetics are known
-			# for index, constraintID in enumerate(self.constraintIDs):
-			# 	# Only use this kinetic limit if it's enabled
-			# 	if self.activeConstraints[index]:
-			# 		# Make sure to never set negative maximum rates
-			# 		assert (self.allConstraintsLimits[index] >= 0 and self.allConstraintsLimits[index] != np.nan)
-			# 		# Set the max reaction rate for this reaction
-			# 		self.fba.maxReactionFluxIs(self.constraintToReactionDict[constraintID], self.allConstraintsLimits[index], raiseForReversible = False)
-			# 	else:
-			# 		self.fba.maxReactionFluxIs(self.constraintToReactionDict[constraintID], defaultRate, raiseForReversible = False)
-
 			currentRateLimits = {}
 			# Set reaction fluxes to be between  MAX_FLUX_COEFF and MIN_FLUX_COEFF of the predicted rate
 			for index, constraintID in enumerate(self.constraintIDs):
