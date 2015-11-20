@@ -338,7 +338,7 @@ for i in VARIANTS_TO_RUN:
 
 				# TODO: Add conditional logic here for mother vs daughter cells
 				# Simulation task
-				fw_name = "SimulationTask__Gen_%d__Cell_%d" % (k, l)
+				fw_name = "SimulationTask__Seed_%d__Gen_%d__Cell_%d" % (j, k, l)
 
 				if k == 0:
 					fw_this_variant_this_gen_this_sim = Firework(
@@ -383,7 +383,7 @@ for i in VARIANTS_TO_RUN:
 
 				if COMPRESS_OUTPUT:
 					# Output compression job
-					fw_name = "ScriptTask_compression_simulation__Gen_%d__Cell_%d" % (k, l)
+					fw_name = "ScriptTask_compression_simulation__Seed_%d__Gen_%d__Cell_%d" % (j, k, l)
 					fw_this_variant_this_gen_this_sim_compression = Firework(
 						ScriptTask(
 							script = "find %s -type f | xargs bzip2 -v" % CELL_SIM_OUT_DIRECTORY
@@ -396,7 +396,7 @@ for i in VARIANTS_TO_RUN:
 
 
 				# AnalysisSingle task
-				fw_name = "AnalysisSingleTask__Gen_%d__Cell_%d" % (k, l)
+				fw_name = "AnalysisSingleTask__Seed_%d__Gen_%d__Cell_%d" % (j, k, l)
 				fw_this_variant_this_gen_this_sim_analysis = Firework(
 					AnalysisSingleTask(
 						input_results_directory = CELL_SIM_OUT_DIRECTORY,
