@@ -69,7 +69,8 @@ def initializeProteinMonomers(bulkMolCntr, kb, randomState, timeStep):
 	# again (look at the calcProteinCounts function)
 
 	monomerExpression = normalize(
-		kb.process.transcription.rnaData["expression"][kb.relation.rnaIndexToMonomerMapping] /
+		kb.process.transcription.rnaData["expression"][kb.relation.rnaIndexToMonomerMapping] *
+		kb.process.translation.translationEfficienciesByMonomer /
 		(np.log(2) / kb.doubling_time.asNumber(units.s) + kb.process.translation.monomerData["degRate"].asNumber(1 / units.s))
 		)
 
