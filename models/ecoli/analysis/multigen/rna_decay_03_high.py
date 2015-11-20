@@ -42,6 +42,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	kb = cPickle.load(open(kbFile, "rb"))
 	allRnaIds = kb.process.transcription.rnaData["id"].tolist()
+	dt = kb.timeStepSec
 
 	rnaIds = [
 		"EG10367_RNA[c]", "EG11036_RNA[c]", "EG50002_RNA[c]", "EG10671_RNA[c]", "EG50003_RNA[c]",
@@ -125,7 +126,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		plt.ylabel("RNA degraded (counts)", size = 10)
 		plt.title(names[subplotIdx].split(" - ")[0] +
 			"\n" +
-			"kdeg meas: %0.1e\n" % kdeg +
+			"kdeg meas: %0.1e\n" % (kdeg / dt) +
 			"kdeg exp:  %0.1e" % degRates[subplotIdx].asNumber(1 / units.s),
 			size = 10,
 			)
