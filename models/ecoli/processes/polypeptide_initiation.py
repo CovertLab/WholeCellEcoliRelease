@@ -23,6 +23,7 @@ import numpy as np
 
 import wholecell.processes.process
 from wholecell.utils import units
+from wholecell.utils.fitting import normalize
 
 import itertools
 
@@ -53,7 +54,7 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 		# Load parameters
 
 		mrnaIds = kb.process.translation.monomerData["rnaId"]
-		
+
 		self.proteinLens = kb.process.translation.monomerData["length"].asNumber()
 
 		# Views
@@ -64,6 +65,7 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 		self.ribosome50S = self.bulkMoleculeView(kb.moleculeGroups.s50_fullComplex[0])
 
 		self.mRnas = self.bulkMoleculesView(mrnaIds)
+		self.translationEfficiencies = normalize(kb.process.translation.translationEfficienciesByMonomer)
 
 
 	def calculateRequest(self):
@@ -85,10 +87,9 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 		if inactiveRibosomeCount == 0:
 			return
 
-		proteinInitProb = (
-			self.mRnas.counts() /
-			self.mRnas.counts().sum()
-			).flatten()	# TODO: Is this .flatten() necessary?
+		proteinInitProb = normalize(
+			self.mRnas.counts() * self.translationEfficiencies
+			)
 
 		nNewProteins = self.randomState.multinomial(
 			inactiveRibosomeCount,
