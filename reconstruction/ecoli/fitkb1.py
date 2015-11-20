@@ -266,6 +266,7 @@ def totalCountIdDistributionProtein(kb):
 	totalMass_protein = kb.mass.avgCellSubMass["proteinMass"] / kb.mass.avgCellToInitialCellConvFactor
 	individualMasses_protein = kb.process.translation.monomerData["mw"] / kb.constants.nAvogadro
 	distribution_transcriptsByProtein = normalize(kb.process.transcription.rnaData["expression"][kb.relation.rnaIndexToMonomerMapping])
+	translation_efficienciesByProtein = normalize(kb.process.translation.translationEfficienciesByMonomer)
 
 	degradationRates = kb.process.translation.monomerData["degRate"]
 
@@ -273,6 +274,7 @@ def totalCountIdDistributionProtein(kb):
 
 	distribution_protein = proteinDistributionFrommRNA(
 		distribution_transcriptsByProtein,
+		translation_efficienciesByProtein,
 		netLossRate_protein
 		)
 
@@ -482,6 +484,8 @@ def fitExpression(kb, bulkContainer):
 	view_RNA = bulkContainer.countsView(kb.process.transcription.rnaData["id"])
 	counts_protein = bulkContainer.counts(kb.process.translation.monomerData["id"])
 
+	translation_efficienciesByProtein = normalize(kb.process.translation.translationEfficienciesByMonomer)
+
 	avgCellSubMass = kb.mass.avgCellSubMass
 	totalMass_RNA = avgCellSubMass["rnaMass"] / kb.mass.avgCellToInitialCellConvFactor
 
@@ -509,7 +513,7 @@ def fitExpression(kb, bulkContainer):
 
 	mRnaExpressionView.countsIs(
 		mRnaExpressionFrac * mRNADistributionFromProtein(
-			normalize(counts_protein), netLossRate_protein
+			normalize(counts_protein), translation_efficienciesByProtein, netLossRate_protein
 			)[kb.relation.monomerIndexToRnaMapping]
 		)
 
@@ -786,50 +790,51 @@ def totalCountFromMassesAndRatios(totalMass, individualMasses, distribution):
 	return 1 / units.dot(individualMasses, distribution) * totalMass
 
 
-def proteinDistributionFrommRNA(distribution_mRNA, netLossRate):
+def proteinDistributionFrommRNA(distribution_mRNA, translation_efficiencies, netLossRate):
 	"""
-	dP_i / dt = k * M_i - P_i * Loss_i
+	dP_i / dt = k * M_i * e_i - P_i * Loss_i
 
 	At steady state:
-	P_i = k * M_i / Loss_i
+	P_i = k * M_i * e_i / Loss_i
 
 	Fraction of mRNA for ith gene is defined as:
 	f_i = M_i / M_total
 
 	Substituting in:
-	P_i = k * f_i * M_total / Loss_i
+	P_i = k * f_i * e_i * M_total / Loss_i
 
 	Normalizing P_i by summing over all i cancels out k and M_total
 	assuming constant translation rate.
 	"""
 
 	assert np.allclose(np.sum(distribution_mRNA), 1)
-	distributionUnnormed = 1 / netLossRate * distribution_mRNA
+	assert np.allclose(np.sum(translation_efficiencies), 1)
+	distributionUnnormed = 1 / netLossRate * distribution_mRNA * translation_efficiencies
 	distributionNormed = distributionUnnormed / units.sum(distributionUnnormed)
 	distributionNormed.normalize()
 	distributionNormed.checkNoUnit()
 	return distributionNormed.asNumber()
 
 
-def mRNADistributionFromProtein(distribution_protein, netLossRate):
+def mRNADistributionFromProtein(distribution_protein, translation_efficiencies, netLossRate):
 	"""
-	dP_i / dt = k * M_i - P_i * Loss_i
+	dP_i / dt = k * M_i * e_i - P_i * Loss_i
 
 	At steady state:
-	M_i = Loss_i * P_i / k
+	M_i = Loss_i * P_i / (k * e_i)
 
 	Fraction of protein for ith gene is defined as:
 	f_i = P_i / P_total
 
 	Substituting in:
-	M_i = Loss_i * f_i * P_total / k
+	M_i = Loss_i * f_i * P_total / (k * e_i)
 
 	Normalizing M_i by summing over all i cancles out k and P_total
 	assuming a constant translation rate.
 
 	"""
 	assert np.allclose(np.sum(distribution_protein), 1)
-	distributionUnnormed = netLossRate * distribution_protein
+	distributionUnnormed = netLossRate * distribution_protein / translation_efficiencies
 	distributionNormed = distributionUnnormed / units.sum(distributionUnnormed)
 	distributionNormed.normalize()
 	distributionNormed.checkNoUnit()
