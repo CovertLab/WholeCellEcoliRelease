@@ -37,7 +37,7 @@ class State(object):
 
 
 	# Construct state-process graph, calculate constants
-	def initialize(self, sim, kb):
+	def initialize(self, sim, sim_data):
 		self._sim = sim
 
 		self._nProcesses = len(sim.processes)
@@ -46,7 +46,7 @@ class State(object):
 		self._masses = np.zeros((
 			2,
 			self._nProcesses + 1,
-			len(kb.submassNameToIndex),
+			len(sim_data.submassNameToIndex),
 			), np.float64)
 
 		self._unallocatedMassIndex = self._nProcesses + 1

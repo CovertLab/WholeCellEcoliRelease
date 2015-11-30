@@ -44,18 +44,18 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(TranscriptInitiation, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(TranscriptInitiation, self).initialize(sim, sim_data)
 
 		# Load parameters
 
-		self.fracActiveRnap = kb.fracActiveRnap
+		self.fracActiveRnap = sim_data.fracActiveRnap
 
-		self.rnaLengths = kb.process.transcription.rnaData["length"]
+		self.rnaLengths = sim_data.process.transcription.rnaData["length"]
 
-		self.rnaPolymeraseElongationRate = kb.growthRateParameters.rnaPolymeraseElongationRate
+		self.rnaPolymeraseElongationRate = sim_data.growthRateParameters.rnaPolymeraseElongationRate
 
-		self.rnaSynthProb = kb.process.transcription.rnaData["synthProb"]
+		self.rnaSynthProb = sim_data.process.transcription.rnaData["synthProb"]
 
 		# Views
 

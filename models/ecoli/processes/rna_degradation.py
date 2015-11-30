@@ -4,9 +4,9 @@
 RnaDegradation
 RNA degradation sub-model. 
 Mathematical formulation:
-dr/dt = kb - kcatEndoRNase * EndoRNase * r / (Km + r) = r * ln(2)/tau
+dr/dt = sim_data - kcatEndoRNase * EndoRNase * r / (Km + r) = r * ln(2)/tau
 	where	r = RNA counts
-			kb = RNAP synthesis rate 
+			sim_data = RNAP synthesis rate 
 			tau = doubling time
 			kcatEndoRNase = enzymatic activity for EndoRNases
 			kd = RNA degradation rates 
@@ -44,47 +44,47 @@ class RnaDegradation(wholecell.processes.process.Process):
 		super(RnaDegradation, self).__init__()
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(RnaDegradation, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(RnaDegradation, self).initialize(sim, sim_data)
 
-		rnaIds = kb.process.transcription.rnaData['id']
+		rnaIds = sim_data.process.transcription.rnaData['id']
 
 		# Load constants
-		self.nAvogadro = kb.constants.nAvogadro
-		self.cellDensity = kb.constants.cellDensity
+		self.nAvogadro = sim_data.constants.nAvogadro
+		self.cellDensity = sim_data.constants.cellDensity
 
 		#RNase
-		endoRnaseIds = kb.process.rna_decay.endoRnaseIds
-		exoRnaseIds = kb.moleculeGroups.exoRnaseIds
-		self.KcatExoRNase = kb.constants.KcatExoRNase
-		self.KcatEndoRNases = kb.process.rna_decay.kcats
+		endoRnaseIds = sim_data.process.rna_decay.endoRnaseIds
+		exoRnaseIds = sim_data.moleculeGroups.exoRnaseIds
+		self.KcatExoRNase = sim_data.constants.KcatExoRNase
+		self.KcatEndoRNases = sim_data.process.rna_decay.kcats
 
-		self.TargetEndoRNasesFullMRNA_indexes = kb.process.rna_decay.TargetEndoRNasesFullMRNA
-		self.TargetEndoRNasesFullTRNA_indexes = kb.process.rna_decay.TargetEndoRNasesFullTRNA
-		self.TargetEndoRNasesFullRRNA_indexes = kb.process.rna_decay.TargetEndoRNasesFullRRNA
+		self.TargetEndoRNasesFullMRNA_indexes = sim_data.process.rna_decay.TargetEndoRNasesFullMRNA
+		self.TargetEndoRNasesFullTRNA_indexes = sim_data.process.rna_decay.TargetEndoRNasesFullTRNA
+		self.TargetEndoRNasesFullRRNA_indexes = sim_data.process.rna_decay.TargetEndoRNasesFullRRNA
 
-		self.mrna_index = kb.process.rna_decay.mrna_index
-		self.trna_index = kb.process.rna_decay.trna_index
-		self.rrna_index = kb.process.rna_decay.rrna_index
-		self.rtrna_index = kb.process.rna_decay.rtrna_index
+		self.mrna_index = sim_data.process.rna_decay.mrna_index
+		self.trna_index = sim_data.process.rna_decay.trna_index
+		self.rrna_index = sim_data.process.rna_decay.rrna_index
+		self.rtrna_index = sim_data.process.rna_decay.rtrna_index
 
 		# Rna
-		self.rnaDegRates = kb.process.transcription.rnaData['degRate']
-		self.isMRna = kb.process.transcription.rnaData["isMRna"]
-		self.isRRna = kb.process.transcription.rnaData["isRRna"]
-		self.isTRna = kb.process.transcription.rnaData["isTRna"]
+		self.rnaDegRates = sim_data.process.transcription.rnaData['degRate']
+		self.isMRna = sim_data.process.transcription.rnaData["isMRna"]
+		self.isRRna = sim_data.process.transcription.rnaData["isRRna"]
+		self.isTRna = sim_data.process.transcription.rnaData["isTRna"]
 
-		self.rnaLens = kb.process.transcription.rnaData['length'].asNumber()
+		self.rnaLens = sim_data.process.transcription.rnaData['length'].asNumber()
 
 		# Build stoichiometric matrix
-		endCleavageMetaboliteIds = [id_ + "[c]" for id_ in kb.moleculeGroups.fragmentNT_IDs]
+		endCleavageMetaboliteIds = [id_ + "[c]" for id_ in sim_data.moleculeGroups.fragmentNT_IDs]
 		endCleavageMetaboliteIds.extend(["WATER[c]", "PPI[c]", "PROTON[c]"])
 		nmpIdxs = range(4)
 		h2oIdx = endCleavageMetaboliteIds.index("WATER[c]")
 		ppiIdx = endCleavageMetaboliteIds.index("PPI[c]")
 		hIdx = endCleavageMetaboliteIds.index("PROTON[c]")
 		self.endoDegradationSMatrix = np.zeros((len(endCleavageMetaboliteIds), len(rnaIds)), np.int64)
-		self.endoDegradationSMatrix[nmpIdxs, :] = units.transpose(kb.process.transcription.rnaData['countsACGU']).asNumber()
+		self.endoDegradationSMatrix[nmpIdxs, :] = units.transpose(sim_data.process.transcription.rnaData['countsACGU']).asNumber()
 		self.endoDegradationSMatrix[h2oIdx, :] = 0
 		self.endoDegradationSMatrix[ppiIdx, :] = 1
 		self.endoDegradationSMatrix[hIdx, :] = 0
@@ -96,13 +96,13 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.h = self.bulkMoleculesView(["PROTON[c]"])
 
 		self.fragmentMetabolites = self.bulkMoleculesView(endCleavageMetaboliteIds)
-		self.fragmentBases = self.bulkMoleculesView([id_ + "[c]" for id_ in kb.moleculeGroups.fragmentNT_IDs])
+		self.fragmentBases = self.bulkMoleculesView([id_ + "[c]" for id_ in sim_data.moleculeGroups.fragmentNT_IDs])
 
 		self.endoRnases = self.bulkMoleculesView(endoRnaseIds)
 		self.exoRnases = self.bulkMoleculesView(exoRnaseIds)
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_DEGRADATION)
 
-		self.Km = kb.process.transcription.rnaData["KmEndoRNase"]
+		self.Km = sim_data.process.transcription.rnaData["KmEndoRNase"]
 
 
 	# Calculate temporal evolution

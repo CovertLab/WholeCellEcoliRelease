@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Plot empirical Kd's (from the simulation) and their expected value (from the kb)
+Plot empirical Kd's (from the simulation) and their expected value (from the sim_data)
 
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -22,7 +22,7 @@ from wholecell.utils import units
 
 IGNORE_FIRST_PERCENTAGE = 0.1
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
+def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, metadata = None):
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
 
@@ -30,17 +30,17 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		os.mkdir(plotOutDir)
 
 	# Load data from KB
-	kb = cPickle.load(open(kbFile, "rb"))
+	sim_data = cPickle.load(open(simDataFile, "rb"))
 
-	stoichMatrix = kb.process.equilibrium.stoichMatrix().astype(np.int64)
-	ratesFwd = kb.process.equilibrium.ratesFwd
-	ratesRev = kb.process.equilibrium.ratesRev
+	stoichMatrix = sim_data.process.equilibrium.stoichMatrix().astype(np.int64)
+	ratesFwd = sim_data.process.equilibrium.ratesFwd
+	ratesRev = sim_data.process.equilibrium.ratesRev
 
-	nAvogadro = kb.constants.nAvogadro.asNumber(1 / units.mol)
-	cellDensity = kb.constants.cellDensity.asNumber(units.g / units.L)
+	nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / units.mol)
+	cellDensity = sim_data.constants.cellDensity.asNumber(units.g / units.L)
 
 
-	moleculeNames = kb.process.equilibrium.moleculeNames
+	moleculeNames = sim_data.process.equilibrium.moleculeNames
 
 
 	# Load time
@@ -183,7 +183,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	bulkMolecules.close()
 
 if __name__ == "__main__":
-	defaultKBFile = os.path.join(
+	defaultSimDataFile = os.path.join(
 			wholecell.utils.constants.SERIALIZED_KB_DIR,
 			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
 			)
@@ -192,8 +192,8 @@ if __name__ == "__main__":
 	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
 	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
 	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
+	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
 
 	args = parser.parse_args().__dict__
 
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])

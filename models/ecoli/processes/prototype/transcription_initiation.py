@@ -35,14 +35,14 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 		super(Transcription, self).__init__()
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(Transcription, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(Transcription, self).initialize(sim, sim_data)
 
 		## Load constants from Knowledge Base
-		self.rnaPolymeraseTransitionProb = kb.rnaPolymeraseTransitionProb
+		self.rnaPolymeraseTransitionProb = sim_data.rnaPolymeraseTransitionProb
 
-		self.promoterData = kb.promoters
-		# kb.promoters = numpy.array(len(promoters),
+		self.promoterData = sim_data.promoters
+		# sim_data.promoters = numpy.array(len(promoters),
 		#	dtype = [('promoterId', 'a16'),
 		#			('bindingProb','f'),
 		#			('sigmaFactor', 'a1'),
@@ -50,7 +50,7 @@ class TranscriptionInitiation(wholecell.processes.process.Process):
 		#			('direction','b')])
 
 
-		self.rnaPolymeraseFootprint = kb.parameters['rnaPolymeraseFootprint'].to('nucleotide').magnitude
+		self.rnaPolymeraseFootprint = sim_data.parameters['rnaPolymeraseFootprint'].to('nucleotide').magnitude
 
 		## Create partitions
 		# Sigma factors

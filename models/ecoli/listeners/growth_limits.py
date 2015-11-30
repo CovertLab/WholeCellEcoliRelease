@@ -29,12 +29,12 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(GrowthLimits, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(GrowthLimits, self).initialize(sim, sim_data)
 
 		# Computed, saved attributes
-		self.aaIds = kb.moleculeGroups.aaIDs
-		self.ntpIds = kb.moleculeGroups.ntpIds
+		self.aaIds = sim_data.moleculeGroups.aaIDs
+		self.ntpIds = sim_data.moleculeGroups.ntpIds
 
 		# For translation
 		self.gtpPoolSize = None

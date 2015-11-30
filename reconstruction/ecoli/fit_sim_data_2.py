@@ -11,7 +11,7 @@ from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWi
 
 N_SEEDS = 20
 
-def fitKb_2(kb, simOutDir):
+def fitSimData_2(kb, simOutDir):
 
 	subMass = kb.mass.subMass
 	proteinMass = subMass["proteinMass"].asUnit(units.g)

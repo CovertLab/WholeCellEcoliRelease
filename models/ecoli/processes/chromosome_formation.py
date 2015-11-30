@@ -29,14 +29,14 @@ class ChromosomeFormation(wholecell.processes.process.Process):
 		super(ChromosomeFormation, self).__init__()
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(ChromosomeFormation, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(ChromosomeFormation, self).initialize(sim, sim_data)
 
 		# Load constants
-		self.nAvogadro = kb.constants.nAvogadro.asNumber(1 / units.mol)
+		self.nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / units.mol)
 
-		self.partialChromosomes = self.bulkMoleculesView(kb.moleculeGroups.partialChromosome)
-		self.fullChromosome = self.bulkMoleculeView(kb.moleculeGroups.fullChromosome[0])
+		self.partialChromosomes = self.bulkMoleculesView(sim_data.moleculeGroups.partialChromosome)
+		self.fullChromosome = self.bulkMoleculeView(sim_data.moleculeGroups.fullChromosome[0])
 
 	def calculateRequest(self):
 		self.partialChromosomes.requestAll()

@@ -4,31 +4,31 @@ CONTROL_OUTPUT = dict(
 	desc = "Control simulation"
 	)
 
-def geneKnockoutTotalIndices(kb):
-	nGenes = kb.process.transcription.rnaData.fullArray().size
+def geneKnockoutTotalIndices(sim_data):
+	nGenes = sim_data.process.transcription.rnaData.fullArray().size
 	nConditions = nGenes + 1
 	return nConditions
 
 
-def geneKnockout(kb, index):
+def geneKnockout(sim_data, index):
 	# Knocks-out genes in order
 
-	nConditions = geneKnockoutTotalIndices(kb)
+	nConditions = geneKnockoutTotalIndices(sim_data)
 
 	if index % nConditions == 0:
 		return CONTROL_OUTPUT
 
 	geneIndex = (index - 1) % nConditions
 
-	synthProb = kb.process.transcription.rnaData["synthProb"]
+	synthProb = sim_data.process.transcription.rnaData["synthProb"]
 
 	synthProb[geneIndex] = 0.0
 
 	synthProb /= synthProb.sum()
 
-	kb.process.transcription.rnaData["synthProb"] = synthProb
+	sim_data.process.transcription.rnaData["synthProb"] = synthProb
 
-	geneID = kb.process.transcription.rnaData["id"][geneIndex]
+	geneID = sim_data.process.transcription.rnaData["id"][geneIndex]
 
 	return dict(
 		shortName = "{}_KO".format(geneID),

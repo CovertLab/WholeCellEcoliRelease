@@ -48,54 +48,54 @@ class Metabolism(wholecell.processes.process.Process):
 		super(Metabolism, self).__init__()
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(Metabolism, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(Metabolism, self).initialize(sim, sim_data)
 
 		# Load constants
-		self.nAvogadro = kb.constants.nAvogadro.asNumber(1 / COUNTS_UNITS)
-		self.cellDensity = kb.constants.cellDensity.asNumber(MASS_UNITS/VOLUME_UNITS)
+		self.nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / COUNTS_UNITS)
+		self.cellDensity = sim_data.constants.cellDensity.asNumber(MASS_UNITS/VOLUME_UNITS)
 
-		self.metabolitePoolIDs = kb.process.metabolism.metabolitePoolIDs
-		self.targetConcentrations = kb.process.metabolism.metabolitePoolConcentrations.asNumber(COUNTS_UNITS/VOLUME_UNITS)
+		self.metabolitePoolIDs = sim_data.process.metabolism.metabolitePoolIDs
+		self.targetConcentrations = sim_data.process.metabolism.metabolitePoolConcentrations.asNumber(COUNTS_UNITS/VOLUME_UNITS)
 
 		# Load enzyme kinetic rate information
-		self.reactionRateInfo = kb.process.metabolism.reactionRateInfo
-		self.enzymesWithKineticInfo = kb.process.metabolism.enzymesWithKineticInfo["enzymes"]
-		self.constraintIDs = kb.process.metabolism.constraintIDs
-		self.activeConstraintsDict = kb.process.metabolism.activeConstraintsDict
-		self.constraintToReactionDict = kb.process.metabolism.constraintToReactionDict
+		self.reactionRateInfo = sim_data.process.metabolism.reactionRateInfo
+		self.enzymesWithKineticInfo = sim_data.process.metabolism.enzymesWithKineticInfo["enzymes"]
+		self.constraintIDs = sim_data.process.metabolism.constraintIDs
+		self.activeConstraintsDict = sim_data.process.metabolism.activeConstraintsDict
+		self.constraintToReactionDict = sim_data.process.metabolism.constraintToReactionDict
 
 		objective = dict(zip(
 			self.metabolitePoolIDs,
 			self.targetConcentrations
 			))
 
-		# TODO: make kb method?
-		extIDs = kb.process.metabolism.externalExchangeMolecules
-		self.extMoleculeMasses = kb.getter.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS)
+		# TODO: make sim_data method?
+		extIDs = sim_data.process.metabolism.externalExchangeMolecules
+		self.extMoleculeMasses = sim_data.getter.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS)
 
 		moleculeMasses = dict(zip(
 			extIDs,
-			kb.getter.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS)
+			sim_data.getter.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS)
 			))
 
-		initWaterMass = kb.mass.avgCellWaterMassInit
-		initDryMass = kb.mass.avgCellDryMassInit
+		initWaterMass = sim_data.mass.avgCellWaterMassInit
+		initDryMass = sim_data.mass.avgCellDryMassInit
 
 		initCellMass = (
 			initWaterMass
 			+ initDryMass
 			)
 
-		energyCostPerWetMass = kb.constants.darkATP * initDryMass / initCellMass
+		energyCostPerWetMass = sim_data.constants.darkATP * initDryMass / initCellMass
 
 		# Set up FBA solver
 		self.fba = FluxBalanceAnalysis(
-			kb.process.metabolism.reactionStoich.copy(), # TODO: copy in class
-			kb.process.metabolism.externalExchangeMolecules,
+			sim_data.process.metabolism.reactionStoich.copy(), # TODO: copy in class
+			sim_data.process.metabolism.externalExchangeMolecules,
 			objective,
 			objectiveType = "pools",
-			reversibleReactions = kb.process.metabolism.reversibleReactions,
+			reversibleReactions = sim_data.process.metabolism.reversibleReactions,
 			moleculeMasses = moleculeMasses,
 			# maintenanceCost = energyCostPerWetMass.asNumber(COUNTS_UNITS/MASS_UNITS), # mmol/gDCW TODO: get real number
 			# maintenanceReaction = {
@@ -105,9 +105,9 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Set up enzyme kinetics object
 		self.enzymeKinetics = EnzymeKinetics(
-			enzymesWithKineticInfo = kb.process.metabolism.enzymesWithKineticInfo["enzymes"],
-			reactionRateInfo = kb.process.metabolism.reactionRateInfo,
-			constraintIDs = kb.process.metabolism.constraintIDs,
+			enzymesWithKineticInfo = sim_data.process.metabolism.enzymesWithKineticInfo["enzymes"],
+			reactionRateInfo = sim_data.process.metabolism.reactionRateInfo,
+			constraintIDs = sim_data.process.metabolism.constraintIDs,
 			reactionIDs = self.fba.reactionIDs(),
 			metaboliteIDs = self.fba.outputMoleculeIDs(),
 			kcatOnly=False
@@ -121,9 +121,9 @@ class Metabolism(wholecell.processes.process.Process):
 		## External molecules
 		externalMoleculeIDs = self.fba.externalMoleculeIDs()
 
-		coefficient = initDryMass / initCellMass * kb.constants.cellDensity * (self.timeStepSec * units.s)
+		coefficient = initDryMass / initCellMass * sim_data.constants.cellDensity * (self.timeStepSec * units.s)
 
-		externalMoleculeLevels = kb.process.metabolism.exchangeConstraints(
+		externalMoleculeLevels = sim_data.process.metabolism.exchangeConstraints(
 			externalMoleculeIDs,
 			coefficient,
 			COUNTS_UNITS / VOLUME_UNITS

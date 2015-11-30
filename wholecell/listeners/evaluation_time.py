@@ -27,8 +27,8 @@ class EvaluationTime(wholecell.listeners.listener.Listener):
 
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(EvaluationTime, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(EvaluationTime, self).initialize(sim, sim_data)
 
 		self.stateNames = sim.states.keys()
 		self.processNames = sim.processes.keys()
