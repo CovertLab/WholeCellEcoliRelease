@@ -14,6 +14,7 @@ import os
 FLAT_DIR = os.path.join(os.path.dirname(__file__), "flat")
 LIST_OF_DICT_FILENAMES = (
 	"taniguichi2010_table_6.tsv",
+	"houser2015_javier_table.tsv",
 	# os.path.join("rna_seq_data","rnaseq_seal_rpkm_std.tsv"),
 	)
 

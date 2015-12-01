@@ -13,7 +13,7 @@ class InitRawValidationDataTask(FireTaskBase):
 	def run_task(self, fw_spec):
 		print "%s: Instantiating validation_data_raw" % (time.ctime())
 
-		validation_data_raw = KnowledgeBaseEcoli()
+		validation_data_raw = ValidationDataRawEcoli()
 
 		print "%s: Saving validation_data_raw" % (time.ctime())
 
