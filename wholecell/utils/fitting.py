@@ -27,24 +27,24 @@ def countsFromMassAndExpression(mass, mws, relativeExpression, nAvogadro):
 	assert type(nAvogadro) != unum.Unum
 	return mass / np.dot(mws / nAvogadro, relativeExpression)
 
-def calcProteinCounts(kb, monomerMass):
-	monomerExpression = calcProteinDistribution(kb)
+def calcProteinCounts(sim_data, monomerMass):
+	monomerExpression = calcProteinDistribution(sim_data)
 
-	nMonomers = calcProteinTotalCounts(kb, monomerMass, monomerExpression)
+	nMonomers = calcProteinTotalCounts(sim_data, monomerMass, monomerExpression)
 
 	return nMonomers * monomerExpression
 
 
-def calcProteinTotalCounts(kb, monomerMass, monomerExpression):
+def calcProteinTotalCounts(sim_data, monomerMass, monomerExpression):
 	return countsFromMassAndExpression(
 		monomerMass.asNumber(units.g),
-		kb.process.translation.monomerData["mw"].asNumber(units.g / units.mol),
+		sim_data.process.translation.monomerData["mw"].asNumber(units.g / units.mol),
 		monomerExpression,
-		kb.constants.nAvogadro.asNumber(1 / units.mol)
+		sim_data.constants.nAvogadro.asNumber(1 / units.mol)
 		)
 
-def calcProteinDistribution(kb):
+def calcProteinDistribution(sim_data):
 	return normalize(
-		kb.process.transcription.rnaData["expression"][kb.relation.rnaIndexToMonomerMapping] /
-		(np.log(2) / kb.doubling_time.asNumber(units.s) + kb.process.translation.monomerData["degRate"].asNumber(1 / units.s))
+		sim_data.process.transcription.rnaData["expression"][sim_data.relation.rnaIndexToMonomerMapping] /
+		(np.log(2) / sim_data.doubling_time.asNumber(units.s) + sim_data.process.translation.monomerData["degRate"].asNumber(1 / units.s))
 		)

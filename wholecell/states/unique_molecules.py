@@ -44,20 +44,20 @@ class UniqueMolecules(wholecell.states.state.State):
 		super(UniqueMolecules, self).__init__(*args, **kwargs)
 
 
-	def initialize(self, sim, kb):
-		super(UniqueMolecules, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(UniqueMolecules, self).initialize(sim, sim_data)
 
 		# Used to store information for cell division
 		# Should not contain DEFAULT_ATTRIBUTES
-		self.uniqueMoleculeDefinitions = deepcopy(kb.state.uniqueMolecules.uniqueMoleculeDefinitions)
+		self.uniqueMoleculeDefinitions = deepcopy(sim_data.state.uniqueMolecules.uniqueMoleculeDefinitions)
 
 		# Used to send information to the container
 		# Should contain DEFAULT_ATTRIBUTES
-		molDefs = kb.state.uniqueMolecules.uniqueMoleculeDefinitions.copy()
+		molDefs = sim_data.state.uniqueMolecules.uniqueMoleculeDefinitions.copy()
 
 		defaultAttributes = DEFAULT_ATTRIBUTES.copy()
 
-		self.submassNameToIndex = kb.submassNameToIndex
+		self.submassNameToIndex = sim_data.submassNameToIndex
 
 		# Add the submass difference attributes for processes to operate
 		defaultMassAttributes = {}
@@ -75,9 +75,9 @@ class UniqueMolecules(wholecell.states.state.State):
 
 		self.container = UniqueObjectsContainer(molDefs)
 
-		self._moleculeIds = kb.state.uniqueMolecules.uniqueMoleculeMasses["id"]
+		self._moleculeIds = sim_data.state.uniqueMolecules.uniqueMoleculeMasses["id"]
 		self._moleculeMasses = (
-			kb.state.uniqueMolecules.uniqueMoleculeMasses["mass"] / kb.constants.nAvogadro
+			sim_data.state.uniqueMolecules.uniqueMoleculeMasses["mass"] / sim_data.constants.nAvogadro
 			).asNumber(units.fg)
 
 		self._unassignedPartitionedValue = self._nProcesses

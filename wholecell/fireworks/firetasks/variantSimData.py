@@ -6,12 +6,12 @@ from fireworks import FireTaskBase, explicit_serialize
 from models.ecoli.sim.variants import nameToFunctionMapping
 
 @explicit_serialize
-class VariantKbTask(FireTaskBase):
+class VariantSimDataTask(FireTaskBase):
 
-	_fw_name = "VariantKbTask"
+	_fw_name = "VariantSimDataTask"
 	required_params = [
 		"variant_function", "variant_index",
-		"input_kb", "output_kb",
+		"input_sim_data", "output_sim_data",
 		"variant_metadata_directory",
 		]
 
@@ -20,17 +20,17 @@ class VariantKbTask(FireTaskBase):
 		if self["variant_function"] not in nameToFunctionMapping:
 			raise Exception, "%s is not a valid variant function!" % self["variant_function"]
 
-		print "%s: Creating variant kb (Variant: %s Index: %d)" % (time.ctime(), self["variant_function"], self["variant_index"])
+		print "%s: Creating variant sim_data (Variant: %s Index: %d)" % (time.ctime(), self["variant_function"], self["variant_index"])
 
-		kb = cPickle.load(open(self["input_kb"], "rb"))
+		sim_data = cPickle.load(open(self["input_sim_data"], "rb"))
 
-		info = nameToFunctionMapping[self["variant_function"]](kb, self["variant_index"])
+		info = nameToFunctionMapping[self["variant_function"]](sim_data, self["variant_index"])
 
 		print info["shortName"]
 
 		cPickle.dump(
-			kb,
-			open(self["output_kb"], "wb"),
+			sim_data,
+			open(self["output_sim_data"], "wb"),
 			protocol = cPickle.HIGHEST_PROTOCOL
 			)
 

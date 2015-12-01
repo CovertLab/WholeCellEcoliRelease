@@ -35,7 +35,7 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	outputDir = None,
 	overwriteExistingFiles = False,
 	logToDiskEvery = 1,
-	kbLocation = None,
+	simDataLocation = None,
 	inheritedStatePath = None,
 	)
 
@@ -103,15 +103,15 @@ class Simulation(object):
 		self.randomState = np.random.RandomState(seed = np.uint32(self._seed % np.iinfo(np.uint32).max))
 
 		# Load KB
-		kb = cPickle.load(open(self._kbLocation, "rb"))
+		sim_data = cPickle.load(open(self._simDataLocation, "rb"))
 
 		# Initialize simulation from fit KB
-		self._initialize(kb)
+		self._initialize(sim_data)
 
 
 	# Link states and processes
-	def _initialize(self, kb):
-		self._timeStepSec = kb.timeStepSec
+	def _initialize(self, sim_data):
+		self._timeStepSec = sim_data.timeStepSec
 		self.states = _orderedAbstractionReference(self._stateClasses)
 		self.processes = _orderedAbstractionReference(self._processClasses)
 		self.listeners = _orderedAbstractionReference(self._listenerClasses + DEFAULT_LISTENER_CLASSES)
@@ -120,16 +120,16 @@ class Simulation(object):
 		self._cellCycleComplete = False
 
 		for state in self.states.itervalues():
-			state.initialize(self, kb)
+			state.initialize(self, sim_data)
 
 		for process in self.processes.itervalues():
-			process.initialize(self, kb)
+			process.initialize(self, sim_data)
 
 		for listener in self.listeners.itervalues():
-			listener.initialize(self, kb)
+			listener.initialize(self, sim_data)
 
 		for hook in self.hooks.itervalues():
-			hook.initialize(self, kb)
+			hook.initialize(self, sim_data)
 
 		for state in self.states.itervalues():
 			state.allocate()
@@ -137,7 +137,7 @@ class Simulation(object):
 		for listener in self.listeners.itervalues():
 			listener.allocate()
 
-		self._initialConditionsFunction(kb)
+		self._initialConditionsFunction(sim_data)
 
 		for hook in self.hooks.itervalues():
 			hook.postCalcInitialConditions(self)

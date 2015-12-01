@@ -35,7 +35,7 @@ def round_to_1(x):
 		x = x*-1
 	return -1*round(x, -int(floor(log10(x))))
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
+def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, metadata = None):
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
 
@@ -43,9 +43,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		os.mkdir(plotOutDir)
 
 	# Load data from KB
-	kb = cPickle.load(open(kbFile, "rb"))
-	nAvogadro = kb.constants.nAvogadro
-	cellDensity = kb.constants.cellDensity
+	sim_data = cPickle.load(open(simDataFile, "rb"))
+	nAvogadro = sim_data.constants.nAvogadro
+	cellDensity = sim_data.constants.cellDensity
 
 	# Load time
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
@@ -59,11 +59,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	cellMass = units.fg * mass.readColumn("cellMass")
 
 
-	concentrationSetpoints = kb.process.metabolism.metabolitePoolConcentrations
+	concentrationSetpoints = sim_data.process.metabolism.metabolitePoolConcentrations
 	sortedConcentrationIndex = concentrationSetpoints.asNumber().argsort()[::-1]
 	concentrationSetpoints = concentrationSetpoints[sortedConcentrationIndex]
 
-	poolIds = np.array(kb.process.metabolism.metabolitePoolIDs)[sortedConcentrationIndex]
+	poolIds = np.array(sim_data.process.metabolism.metabolitePoolIDs)[sortedConcentrationIndex]
 	poolIndexes = np.array([bulkMoleculeIds.index(x) for x in poolIds])
 	poolCounts = bulkMolecules.readColumn("counts")[:, poolIndexes]
 	poolMols = 1/nAvogadro * poolCounts
@@ -127,7 +127,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	plt.close("all")
 
 if __name__ == "__main__":
-	defaultKBFile = os.path.join(
+	defaultSimDataFile = os.path.join(
 			wholecell.utils.constants.SERIALIZED_KB_DIR,
 			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
 			)
@@ -136,8 +136,8 @@ if __name__ == "__main__":
 	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
 	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
 	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
+	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
 
 	args = parser.parse_args().__dict__
 
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])

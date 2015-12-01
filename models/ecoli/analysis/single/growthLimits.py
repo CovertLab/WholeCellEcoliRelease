@@ -20,7 +20,7 @@ from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 from wholecell.utils import units
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
+def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, metadata = None):
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
 
@@ -28,11 +28,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		os.mkdir(plotOutDir)
 
 	# Load data from KB
-	kb = cPickle.load(open(kbFile, "rb"))
-	nAvogadro = kb.constants.nAvogadro
-	moleculeIds = kb.moleculeGroups.aaIDs
+	sim_data = cPickle.load(open(simDataFile, "rb"))
+	nAvogadro = sim_data.constants.nAvogadro
+	moleculeIds = sim_data.moleculeGroups.aaIDs
 	moleculeIds.append('GTP[c] (translation)')
-	moleculeIds.extend(kb.moleculeGroups.ntpIds)
+	moleculeIds.extend(sim_data.moleculeGroups.ntpIds)
 
 	# Load time
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
@@ -140,7 +140,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	plt.close("all")
 
 if __name__ == "__main__":
-	defaultKBFile = os.path.join(
+	defaultSimDataFile = os.path.join(
 			wholecell.utils.constants.SERIALIZED_KB_DIR,
 			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
 			)
@@ -149,8 +149,8 @@ if __name__ == "__main__":
 	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
 	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
 	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
+	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
 
 	args = parser.parse_args().__dict__
 
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])

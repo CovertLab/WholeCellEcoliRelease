@@ -45,7 +45,7 @@ CMAP_OVER = [0, 1, 0.75]
 
 NUMERICAL_ZERO = 1e-10 # used to cull very small numbers; could be chosen more rationally (i.e. minimum of one reaction per average cell size)
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
+def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, metadata = None):
 	# Disabled
 	return
 
@@ -97,12 +97,12 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		/ scaling[nonzero]
 		).transpose()
 
-	# with open(kbFile, "rb") as f:
-	# 	kb = cPickle.load(f)
+	# with open(simDataFile, "rb") as f:
+	# 	sim_data = cPickle.load(f)
 
 	# idToName = {
 	# 	reaction["id"]:reaction["name"]
-	# 	for reaction in kb.process.metabolism.biochemicalReactions
+	# 	for reaction in sim_data.process.metabolism.biochemicalReactions
 	# 	}
 
 	# reactionNames = np.array([
@@ -193,7 +193,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 
 if __name__ == "__main__":
-	# defaultKBFile = os.path.join(
+	# defaultSimDataFile = os.path.join(
 	# 		wholecell.utils.constants.SERIALIZED_KB_DIR,
 	# 		wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
 	# 		)
@@ -202,11 +202,11 @@ if __name__ == "__main__":
 	# parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
 	# parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
 	# parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	# parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
+	# parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
 
 	# args = parser.parse_args().__dict__
 
-	# main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])
+	# main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
 
 	# Disabled until someone cares
 

@@ -5,21 +5,21 @@ CONTROL_OUTPUT = dict(
 	desc = "Control simulation"
 	)
 
-def timeStepTotalIndices(kb):
+def timeStepTotalIndices(sim_data):
 	nTimeSteps = len(TIME_STEPS)
 	nConditions = nTimeSteps + 1
 	return nConditions
 
 
-def timeStep(kb, index):
+def timeStep(sim_data, index):
 	# Vary time step used for simulation
 
-	nConditions = timeStepTotalIndices(kb)
+	nConditions = timeStepTotalIndices(sim_data)
 
 	if index == 0:
 		return CONTROL_OUTPUT
 
-	kb.timeStepSec = TIME_STEPS[index - 1]
+	sim_data.timeStepSec = TIME_STEPS[index - 1]
 
 	return dict(
 		shortName = "{} sec".format(TIME_STEPS[index - 1]),

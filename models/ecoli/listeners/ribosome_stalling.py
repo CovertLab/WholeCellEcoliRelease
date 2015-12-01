@@ -30,8 +30,8 @@ class RibosomeStalling(wholecell.listeners.listener.Listener):
 
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(RibosomeStalling, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(RibosomeStalling, self).initialize(sim, sim_data)
 
 		# Computed, saved attributes
 		self.stallingRateTotal = None

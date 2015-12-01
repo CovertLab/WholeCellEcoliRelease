@@ -43,7 +43,7 @@ class Process(object):
 
 
 	# Construct object graph, calculate constants
-	def initialize(self, sim, kb):
+	def initialize(self, sim, sim_data):
 		self._sim = sim
 
 		self.timeStepSec = sim.timeStepSec()

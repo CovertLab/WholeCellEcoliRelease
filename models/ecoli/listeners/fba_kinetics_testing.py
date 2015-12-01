@@ -28,8 +28,8 @@ class FbaKineticsTesting(wholecell.listeners.listener.Listener):
 		super(FbaKineticsTesting, self).__init__(*args, **kwargs)
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(FbaKineticsTesting, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(FbaKineticsTesting, self).initialize(sim, sim_data)
 
 		self.metabolism = sim.processes["Metabolism"]
 

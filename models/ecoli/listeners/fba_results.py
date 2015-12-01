@@ -27,8 +27,8 @@ class FBAResults(wholecell.listeners.listener.Listener):
 
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(FBAResults, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(FBAResults, self).initialize(sim, sim_data)
 
 		self.metabolism = sim.processes["Metabolism"]
 

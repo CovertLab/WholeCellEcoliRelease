@@ -41,28 +41,28 @@ class ProteinDegradation(wholecell.processes.process.Process):
 		super(ProteinDegradation, self).__init__()
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(ProteinDegradation, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(ProteinDegradation, self).initialize(sim, sim_data)
 
 		# Metabolite IDs for S matrix
 
 		h2oId = ["WATER[c]"]
 
-		metaboliteIds = kb.moleculeGroups.aaIDs + h2oId
+		metaboliteIds = sim_data.moleculeGroups.aaIDs + h2oId
 
-		aaIdxs = np.arange(0, len(kb.moleculeGroups.aaIDs))
+		aaIdxs = np.arange(0, len(sim_data.moleculeGroups.aaIDs))
 		h2oIdx = metaboliteIds.index('WATER[c]')
 
 		# Protein IDs for S matrix
-		proteinIds = kb.process.translation.monomerData['id']
+		proteinIds = sim_data.process.translation.monomerData['id']
 
 		# Proteins
-		self.proteinDegRates = kb.process.translation.monomerData['degRate'].asNumber(1 / units.s) * self.timeStepSec
+		self.proteinDegRates = sim_data.process.translation.monomerData['degRate'].asNumber(1 / units.s) * self.timeStepSec
 
-		self.proteinLengths = kb.process.translation.monomerData['length']
+		self.proteinLengths = sim_data.process.translation.monomerData['length']
 
 		self.proteinDegSMatrix = np.zeros((len(metaboliteIds), len(proteinIds)), np.int64)
-		self.proteinDegSMatrix[aaIdxs, :] = np.transpose(kb.process.translation.monomerData["aaCounts"].asNumber())
+		self.proteinDegSMatrix[aaIdxs, :] = np.transpose(sim_data.process.translation.monomerData["aaCounts"].asNumber())
 		self.proteinDegSMatrix[h2oIdx, :]  = -(np.sum(self.proteinDegSMatrix[aaIdxs, :], axis = 0) - 1)
 
 		# Views

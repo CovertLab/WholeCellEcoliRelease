@@ -24,7 +24,7 @@ from wholecell.io.tablereader import TableReader
 
 # TODO: account for complexation
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
+def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -34,14 +34,14 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	# Get the names of rnas from the KB
 
-	kb = cPickle.load(open(kbFile))
+	sim_data = cPickle.load(open(simDataFile))
 
-	isMRna = kb.process.transcription.rnaData["isMRna"]
-	isRRna = kb.process.transcription.rnaData["isRRna"]
-	isTRna = kb.process.transcription.rnaData["isTRna"]
-	rnaIds = kb.process.transcription.rnaData["id"][isMRna]
+	isMRna = sim_data.process.transcription.rnaData["isMRna"]
+	isRRna = sim_data.process.transcription.rnaData["isRRna"]
+	isTRna = sim_data.process.transcription.rnaData["isTRna"]
+	rnaIds = sim_data.process.transcription.rnaData["id"][isMRna]
 
-	expectedDegradationRate = kb.process.transcription.rnaData['degRate'][isMRna].asNumber()
+	expectedDegradationRate = sim_data.process.transcription.rnaData['degRate'][isMRna].asNumber()
 
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
@@ -54,20 +54,20 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	rnaCounts = rnaCountsBulk[1:,:]
 	rnaCountsTotal = rnaCounts.sum(axis = 0)
 
-	AllrnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in kb.process.transcription.rnaData["id"]], np.int)
+	AllrnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in sim_data.process.transcription.rnaData["id"]], np.int)
 	AllrnaCountsBulk = bulkMolecules.readColumn("counts")[:, AllrnaIndexes]
 	AllCounts = AllrnaCountsBulk[1:,:]
-	TotalRnaDegraded = (AllCounts * kb.process.transcription.rnaData['degRate'].asNumber()).sum(axis = 1)
+	TotalRnaDegraded = (AllCounts * sim_data.process.transcription.rnaData['degRate'].asNumber()).sum(axis = 1)
 
 
 	MrnaCounts = AllrnaCountsBulk[1:,isMRna]
-	TotalMRnaDegraded = (MrnaCounts * kb.process.transcription.rnaData['degRate'][isMRna].asNumber()).sum(axis = 1)
+	TotalMRnaDegraded = (MrnaCounts * sim_data.process.transcription.rnaData['degRate'][isMRna].asNumber()).sum(axis = 1)
 
 	RrnaCounts = AllrnaCountsBulk[1:,isRRna]
-	TotalRRnaDegraded = (RrnaCounts * kb.process.transcription.rnaData['degRate'][isRRna].asNumber()).sum(axis = 1)
+	TotalRRnaDegraded = (RrnaCounts * sim_data.process.transcription.rnaData['degRate'][isRRna].asNumber()).sum(axis = 1)
 
 	TrnaCounts = AllrnaCountsBulk[1:,isTRna] 
-	TotalTRnaDegraded = (TrnaCounts * kb.process.transcription.rnaData['degRate'][isTRna].asNumber()).sum(axis = 1)
+	TotalTRnaDegraded = (TrnaCounts * sim_data.process.transcription.rnaData['degRate'][isTRna].asNumber()).sum(axis = 1)
 
 
 	rnaDegradationListenerFile = TableReader(os.path.join(simOutDir, "RnaDegradationListener"))
@@ -98,9 +98,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		if rnaCountsTotal[i] != 0:
 			rnaDegradationRate1.append(rnaDegradedTotal[i] / rnaCountsTotal[i]) # Sum_tau(kd*r) / Sum_tau(r)
 
-			rnaDegradationRate2.append(rnaSynthesizedTotal[i] / rnaCountsTotal[i]) # Sum_tau(kb) / Sum_tau(r)
+			rnaDegradationRate2.append(rnaSynthesizedTotal[i] / rnaCountsTotal[i]) # Sum_tau(sim_data) / Sum_tau(r)
 
-			rnaDegradationRate3.append( (rnaSynthesizedTotal[i] - rnaCounts[0,i]) / rnaCountsTotal[i]) # (Sum_tau(kb) - r) / Sum_tau(r)
+			rnaDegradationRate3.append( (rnaSynthesizedTotal[i] - rnaCounts[0,i]) / rnaCountsTotal[i]) # (Sum_tau(sim_data) - r) / Sum_tau(r)
 
 			rnaDegradationRate4_t = []
 			rnaDegradationRate5_t = []
@@ -167,7 +167,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 
 if __name__ == "__main__":
-	defaultKBFile = os.path.join(
+	defaultSimDataFile = os.path.join(
 			wholecell.utils.constants.SERIALIZED_KB_DIR,
 			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
 			)
@@ -176,8 +176,8 @@ if __name__ == "__main__":
 	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
 	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
 	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
+	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
 
 	args = parser.parse_args().__dict__
 
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])

@@ -13,7 +13,7 @@ class Listener(object):
 		pass
 
 	# Construct state-process graph, calculate constants
-	def initialize(self, sim, kb):
+	def initialize(self, sim, sim_data):
 		self._sim = sim
 
 		self._nProcesses = len(sim.processes)
