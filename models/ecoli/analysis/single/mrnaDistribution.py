@@ -33,7 +33,7 @@ COLORS = [
 
 AXIS_PADDING = 0.1
 
-def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, metadata = None):
+def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
 	print "Disabled because it's slow"
 	return

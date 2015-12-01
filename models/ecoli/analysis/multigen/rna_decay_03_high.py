@@ -32,7 +32,7 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 import wholecell.utils.constants
 from wholecell.utils import units
 
-def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, metadata = None):
+def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"

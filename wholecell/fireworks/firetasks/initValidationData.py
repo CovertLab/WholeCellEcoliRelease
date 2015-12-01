@@ -16,7 +16,7 @@ class InitValidationDataTask(FireTaskBase):
 
 		raw_data = cPickle.load(open(self["input_data"], "rb"))
 		validation_data = ValidationDataEcoli()
-		validation_data.initialize(raw_data)
+		validation_data._initialize(raw_data)
 		cPickle.dump(
 			validation_data,
 			open(self["output_data"], "wb"),

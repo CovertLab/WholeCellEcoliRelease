@@ -31,7 +31,7 @@ class ValidationDataEcoli(object):
 	def __init__(self):
 		pass
 
-	def initialize(self, validation_data_raw):
+	def _initialize(self, validation_data_raw):
 
 		self._loadProteinDatasets(validation_data_raw)
 

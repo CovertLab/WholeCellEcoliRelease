@@ -18,7 +18,7 @@ PLACE_HOLDER = -1
 
 CRITICAL_N = [1, 2, 4, 8]
 
-def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, metadata = None):
+def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
