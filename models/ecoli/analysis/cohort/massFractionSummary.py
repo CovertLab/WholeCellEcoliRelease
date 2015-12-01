@@ -3,11 +3,12 @@
 import argparse
 import os
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
+
+from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 
 import wholecell.utils.constants
 
@@ -27,7 +28,22 @@ COLORS = [
 	for color in COLORS_256
 	]
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
+def main(variantDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
+
+	print "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+	print "Running"
+	print variantDir
+	print "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+
+	import ipdb; ipdb.set_trace()
+
+
+	seedOutDirs
+
+	# Get all cells in each seed
+	for idx, seedOutDir in enumerate(seedOutDirs):
+		ap = AnalysisPaths(seedOutDir)
+		seedsDict[idx] = ap.getAll()
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"

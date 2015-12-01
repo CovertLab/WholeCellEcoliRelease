@@ -7,6 +7,7 @@ from wholecell.fireworks.firetasks import FitKbTask
 from wholecell.fireworks.firetasks import VariantKbTask
 from wholecell.fireworks.firetasks import SimulationTask
 from wholecell.fireworks.firetasks import SimulationDaughterTask
+from wholecell.fireworks.firetasks import AnalysisCohortTask
 from wholecell.fireworks.firetasks import AnalysisSingleTask
 from wholecell.fireworks.firetasks import AnalysisMultiGenTask
 from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
@@ -87,6 +88,7 @@ for i in VARIANTS_TO_RUN:
 	VARIANT_DIRECTORY = os.path.join(OUT_DIRECTORY, SUBMISSION_TIME, VARIANT + "_%06d" % i)
 	VARIANT_KB_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "kb")
 	VARIANT_METADATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "metadata")
+	VARIANT_COHORT_PLOT_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "plotOut")
 
 	if not os.path.exists(VARIANT_DIRECTORY):
 		os.makedirs(VARIANT_DIRECTORY)
@@ -96,6 +98,9 @@ for i in VARIANTS_TO_RUN:
 
 	if not os.path.exists(VARIANT_METADATA_DIRECTORY):
 		os.makedirs(VARIANT_METADATA_DIRECTORY)
+
+	if not os.path.exists(VARIANT_COHORT_PLOT_DIRECTORY):
+		os.makedirs(VARIANT_COHORT_PLOT_DIRECTORY)
 
 	for j in xrange(N_INIT_SIMS):
 		SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
@@ -299,6 +304,22 @@ for i in VARIANTS_TO_RUN:
 
 		wf_fws.append(fw_this_variant_kb_compression)
 
+	# Cohort analysis
+	COHORT_PLOT_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "plotOut")
+
+	fw_name = "AnalysisCohortTask"
+	fw_this_variant_cohort_analysis = Firework(
+		AnalysisCohortTask(
+			variant_directory = VARIANT_DIRECTORY,
+			input_kb = os.path.join(VARIANT_KB_DIRECTORY, "KnowledgeBase_Modified.cPickle"),
+			output_plots_directory = COHORT_PLOT_DIRECTORY,
+			metadata = metadata,
+			),
+		name = fw_name,
+		spec = {"_queueadapter": {"job_name": fw_name}}
+		)
+	wf_fws.append(fw_this_variant_cohort_analysis)
+
 	for j in xrange(N_INIT_SIMS):
 		SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
 		SEED_PLOT_DIRECTORY = os.path.join(SEED_DIRECTORY, "plotOut")
@@ -321,6 +342,9 @@ for i in VARIANTS_TO_RUN:
 		metadata["multigen"] = '0'
 
 		if COMPRESS_OUTPUT:
+			wf_links[fw_this_variant_cohort_analysis].append(fw_this_variant_kb_compression)
+			wf_links[fw_this_variant_cohort_analysis].append(fw_kb_fit_0_compression) # Maybe not necessary
+			wf_links[fw_this_variant_cohort_analysis].append(fw_kb_fit_1_compression) # Maybe not necessary
 			wf_links[fw_this_variant_this_seed_this_analysis].append(fw_this_variant_kb_compression)
 			wf_links[fw_this_variant_this_seed_this_analysis].append(fw_kb_fit_0_compression) # Maybe not necessary
 			wf_links[fw_this_variant_this_seed_this_analysis].append(fw_kb_fit_1_compression) # Maybe not necessary
@@ -371,6 +395,7 @@ for i in VARIANTS_TO_RUN:
 
 				wf_fws.append(fw_this_variant_this_gen_this_sim)
 				wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_this_seed_this_analysis)
+				wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_cohort_analysis)
 
 				sims_this_seed[k].append(fw_this_variant_this_gen_this_sim)
 

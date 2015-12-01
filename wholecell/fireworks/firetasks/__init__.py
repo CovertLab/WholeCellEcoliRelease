@@ -4,5 +4,6 @@ from fitKb import FitKbTask
 from variantKb import VariantKbTask
 from simulation import SimulationTask
 from simulationDaughter import SimulationDaughterTask
+from analysisCohort import AnalysisCohortTask
 from analysisSingle import AnalysisSingleTask
 from analysisMultiGen import AnalysisMultiGenTask
