@@ -2,7 +2,7 @@ import cPickle
 import time
 
 from fireworks import FireTaskBase, explicit_serialize
-from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
+from validation.ecoli.validation_data_raw import ValidationDataRawEcoli
 
 @explicit_serialize
 class InitRawValidationDataTask(FireTaskBase):

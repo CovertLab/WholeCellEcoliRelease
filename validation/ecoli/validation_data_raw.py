@@ -19,7 +19,7 @@ LIST_OF_DICT_FILENAMES = (
 	)
 
 class ValidationDataRawEcoli(object):
-	""" ValidationDataEcoli """
+	""" ValidationDataRawEcoli """
 
 	def __init__(self):
 		# Load raw data from TSV files
