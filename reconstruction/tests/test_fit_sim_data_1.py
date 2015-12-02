@@ -15,7 +15,7 @@ import cPickle
 import os
 
 import wholecell.utils.constants
-from reconstruction.ecoli.fitkb1 import (totalCountFromMassesAndRatios,
+from reconstruction.ecoli.fit_sim_data_1 import (totalCountFromMassesAndRatios,
 proteinDistributionFrommRNA, mRNADistributionFromProtein,
 calculateMinPolymerizingEnzymeByProductDistribution, netLossRateFromDilutionAndDegradationProtein)
 

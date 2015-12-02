@@ -26,7 +26,7 @@ FLUX_UNITS = units.mmol / units.L / units.s
 MASS_UNITS = units.fg
 GROWTH_UNITS = units.fg / units.s
 
-def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, metadata = None):
+def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"

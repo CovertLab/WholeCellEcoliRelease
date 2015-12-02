@@ -46,7 +46,7 @@ def sparklineAxis(axis, x, y, tickPos, lineType, color):
 		tl.set_color(color)
 
 
-def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, metadata = None):
+def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
