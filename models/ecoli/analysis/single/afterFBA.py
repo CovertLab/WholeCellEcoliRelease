@@ -58,7 +58,7 @@ COLORS_SMALL = ["#FF0000", "#00FF00", "#0000FF", "#FF00FF", "#00FFFF", "#000000"
 		"#38B0DE", "#DB9370", "#5C4033", "#4F2F4F", "#CC3299", "#99CC32"]
 
 
-def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, metadata = None):
+def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
 

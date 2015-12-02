@@ -24,7 +24,7 @@ from wholecell.utils import units
 
 PLACE_HOLDER = -1
 
-def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, metadata = None):
+def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"

@@ -35,7 +35,7 @@ def round_to_1(x):
 		x = x*-1
 	return -1*round(x, -int(floor(log10(x))))
 
-def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, metadata = None):
+def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
 

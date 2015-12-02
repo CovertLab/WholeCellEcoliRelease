@@ -29,7 +29,7 @@ CMAP_COLORS_255 = [
 CMAP_COLORS = [[shade/255. for shade in color] for color in CMAP_COLORS_255]
 
 
-def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, metadata = None):
+def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"

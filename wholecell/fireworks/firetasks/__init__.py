@@ -3,6 +3,8 @@ from symlink import SymlinkTask
 from fitSimData import FitSimDataTask
 from variantSimData import VariantSimDataTask
 from simulation import SimulationTask
+from initRawValidationData import InitRawValidationDataTask
+from initValidationData import InitValidationDataTask
 from simulationDaughter import SimulationDaughterTask
 from analysisSingle import AnalysisSingleTask
 from analysisMultiGen import AnalysisMultiGenTask

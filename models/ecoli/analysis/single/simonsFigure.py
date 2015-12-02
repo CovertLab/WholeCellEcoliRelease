@@ -60,7 +60,7 @@ FIGURE_DIMENSIONS = (1.5*3, 1.5)
 TICK_PAD = 2
 LABEL_PAD = 2
 
-def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, metadata = None):
+def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"

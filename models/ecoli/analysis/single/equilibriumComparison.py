@@ -22,7 +22,7 @@ from wholecell.utils import units
 
 IGNORE_FIRST_PERCENTAGE = 0.1
 
-def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, metadata = None):
+def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
 
@@ -31,6 +31,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, metadata = None):
 
 	# Load data from KB
 	sim_data = cPickle.load(open(simDataFile, "rb"))
+	validation_data = cPickle.load(open(validationDataFile, "rb"))
 
 	stoichMatrix = sim_data.process.equilibrium.stoichMatrix().astype(np.int64)
 	ratesFwd = sim_data.process.equilibrium.ratesFwd
