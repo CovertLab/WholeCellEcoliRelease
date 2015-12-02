@@ -10,12 +10,15 @@ directly from TSV flat files.
 """
 
 import os
+import csv
+from reconstruction.spreadsheets import JsonReader
 
+CSV_DIALECT = csv.excel_tab
 FLAT_DIR = os.path.join(os.path.dirname(__file__), "flat")
 LIST_OF_DICT_FILENAMES = (
 	"taniguichi2010_table_6.tsv",
 	"houser2015_javier_table.tsv",
-	# os.path.join("rna_seq_data","rnaseq_seal_rpkm_std.tsv"),
+	"wisniewski2014_supp2.tsv",
 	)
 
 class ValidationDataRawEcoli(object):
@@ -30,14 +33,6 @@ class ValidationDataRawEcoli(object):
 		attrName = file_name.split(os.path.sep)[-1].split(".")[0]
 		setattr(self, attrName, [])
 
-
-		with open(file_name, 'r') as csvfile:
-			rows = []
-			for idx, row in enumerate(csvfile):
-				if idx == 0:
-					header_names = [x.strip("\n") for x in row.split("\t")]
-					continue
-				columns = [x.strip("\n") for x in row.split("\t")]
-				outputrow = dict(zip(header_names,columns))
-				rows.append(outputrow)
-			setattr(self, attrName, rows)
+		with open(file_name, 'rU') as csvfile:
+			reader = JsonReader(csvfile, dialect = CSV_DIALECT)
+			setattr(self, attrName, [row for row in reader])
