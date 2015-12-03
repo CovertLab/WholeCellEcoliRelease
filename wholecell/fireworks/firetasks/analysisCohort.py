@@ -51,12 +51,3 @@ class AnalysisCohortTask(FireTaskBase):
 				validationDataFile = self['input_validation_data'],
 				metadata = self["metadata"]
 				)
-
-# 				self["input_seed_directory"],
-# 				self["output_plots_directory"],
-# 				f[:-3],
-# 				self["input_sim_data"],
-# 				self["input_validation_data"],
-# 				self["metadata"]
-
-# def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
