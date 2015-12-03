@@ -9,6 +9,7 @@ from wholecell.fireworks.firetasks import FitSimDataTask
 from wholecell.fireworks.firetasks import VariantSimDataTask
 from wholecell.fireworks.firetasks import SimulationTask
 from wholecell.fireworks.firetasks import SimulationDaughterTask
+from wholecell.fireworks.firetasks import AnalysisCohortTask
 from wholecell.fireworks.firetasks import AnalysisSingleTask
 from wholecell.fireworks.firetasks import AnalysisMultiGenTask
 from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
@@ -89,6 +90,7 @@ for i in VARIANTS_TO_RUN:
 	VARIANT_DIRECTORY = os.path.join(OUT_DIRECTORY, SUBMISSION_TIME, VARIANT + "_%06d" % i)
 	VARIANT_SIM_DATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "kb")
 	VARIANT_METADATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "metadata")
+	VARIANT_COHORT_PLOT_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "plotOut")
 
 	if not os.path.exists(VARIANT_DIRECTORY):
 		os.makedirs(VARIANT_DIRECTORY)
@@ -98,6 +100,9 @@ for i in VARIANTS_TO_RUN:
 
 	if not os.path.exists(VARIANT_METADATA_DIRECTORY):
 		os.makedirs(VARIANT_METADATA_DIRECTORY)
+
+	if not os.path.exists(VARIANT_COHORT_PLOT_DIRECTORY):
+		os.makedirs(VARIANT_COHORT_PLOT_DIRECTORY)
 
 	for j in xrange(N_INIT_SIMS):
 		SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
@@ -139,7 +144,7 @@ metadata = {
 	"description": os.environ.get("DESC", ""),
 	"time": SUBMISSION_TIME,
 	"total_gens": str(N_GENS),
-	"multigen": '0',
+	"analysis_type": None,
 	}
 
 for key, value in metadata.iteritems():
@@ -184,27 +189,6 @@ if COMPRESS_OUTPUT:
 		)
 
 	wf_fws.append(fw_raw_data_compression)
-
-
-# TODO: Delete
-## Create symlink to unfit KB
-
-
-# fw_name = "SymlinkTask_RawData"
-# fw_symlink_raw_data = Firework(
-# 	SymlinkTask(
-# 		to = filename_raw_data,
-# 		link = os.path.join(KB_DIRECTORY, wholecell.utils.constants.SERIALIZED_KB_UNFIT_FILENAME),
-# 		overwrite_if_exists = True
-# 		),
-# 	name = fw_name,
-# 	spec = {"_queueadapter": {"job_name": fw_name}}
-# 	)
-
-# wf_fws.append(fw_symlink_raw_data)
-
-# wf_links[fw_init_raw_data].append(fw_symlink_raw_data)
-
 
 ### Fit (Level 1)
 
@@ -324,21 +308,6 @@ if COMPRESS_OUTPUT:
 	
 	wf_links[fw_validation_data].append(fw_raw_validation_data_compression)
 	wf_links[fw_symlink_most_fit].append(fw_raw_data_compression)
-	wf_links[fw_symlink_most_fit].append(fw_sim_data_1_compression)
-
-# # Fit Level 1 KB compression
-
-# if COMPRESS_OUTPUT:
-# 	fw_name = "ScriptTask_compression_sim_data_1"
-# 	fw_sim_data_1_compression = Firework(
-# 		ScriptTask(
-# 			script = "bzip2 " + os.path.join(KB_DIRECTORY, filename_sim_data_fit_1)
-# 			),
-# 		name = fw_name,
-# 		spec = {"_queueadapter": {"job_name": fw_name}}
-# 		)
-
-# 	wf_fws.append(fw_sim_data_1_compression)
 
 
 ### Create variants and simulations
@@ -366,6 +335,7 @@ for i in VARIANTS_TO_RUN:
 	wf_fws.append(fw_this_variant_sim_data)
 
 	wf_links[fw_symlink_most_fit].append(fw_this_variant_sim_data)
+	wf_links[fw_this_variant_sim_data].append(fw_sim_data_1_compression)
 
 	if COMPRESS_OUTPUT:
 		# Variant simData compression
@@ -380,11 +350,30 @@ for i in VARIANTS_TO_RUN:
 
 		wf_fws.append(fw_this_variant_sim_data_compression)
 
+	# Cohort analysis
+	COHORT_PLOT_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "plotOut")
+
+	metadata["analysis_type"] = "cohort"
+
+	fw_name = "AnalysisCohortTask"
+	fw_this_variant_cohort_analysis = Firework(
+		AnalysisCohortTask(
+			input_variant_directory = VARIANT_DIRECTORY,
+			input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, "simData_Modified.cPickle"),
+			input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
+			output_plots_directory = COHORT_PLOT_DIRECTORY,
+			metadata = metadata,
+			),
+		name = fw_name,
+		spec = {"_queueadapter": {"job_name": fw_name}}
+		)
+	wf_fws.append(fw_this_variant_cohort_analysis)
+
 	for j in xrange(N_INIT_SIMS):
 		SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
 		SEED_PLOT_DIRECTORY = os.path.join(SEED_DIRECTORY, "plotOut")
 		metadata["seed"] = j
-		metadata["multigen"] = '1'
+		metadata["analysis_type"] = 'multigen'
 
 		fw_name = "AnalysisMultiGenTask__Seed_%06d" % (j)
 		fw_this_variant_this_seed_this_analysis = Firework(
@@ -399,8 +388,6 @@ for i in VARIANTS_TO_RUN:
 			spec = {"_queueadapter": {"job_name": fw_name}}
 			)
 		wf_fws.append(fw_this_variant_this_seed_this_analysis)
-
-		metadata["multigen"] = '0'
 
 		if COMPRESS_OUTPUT:
 			wf_links[fw_this_variant_this_seed_this_analysis].append(fw_this_variant_sim_data_compression)
@@ -451,6 +438,7 @@ for i in VARIANTS_TO_RUN:
 
 				wf_fws.append(fw_this_variant_this_gen_this_sim)
 				wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_this_seed_this_analysis)
+				wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_cohort_analysis)
 
 				sims_this_seed[k].append(fw_this_variant_this_gen_this_sim)
 
@@ -474,6 +462,7 @@ for i in VARIANTS_TO_RUN:
 
 					wf_fws.append(fw_this_variant_this_gen_this_sim_compression)
 
+				metadata["analysis_type"] = "single"
 
 				# AnalysisSingle task
 				fw_name = "AnalysisSingleTask__Seed_%d__Gen_%d__Cell_%d" % (j, k, l)
@@ -495,12 +484,16 @@ for i in VARIANTS_TO_RUN:
 
 
 				if COMPRESS_OUTPUT:
+					# Don't compress any outputs or validation data until all analysis scripts (single gen, multigen, and cohort) have finished running
 					wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_this_variant_sim_data_compression)
-					wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_raw_data_compression) # Maybe not necessary
-					wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_sim_data_1_compression) # Maybe not necessary
+					wf_links[fw_this_variant_this_seed_this_analysis].append(fw_this_variant_sim_data_compression)
+					wf_links[fw_this_variant_cohort_analysis].append(fw_this_variant_sim_data_compression)
 					wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_validation_data_compression)
+					wf_links[fw_this_variant_this_seed_this_analysis].append(fw_validation_data_compression)
+					wf_links[fw_this_variant_cohort_analysis].append(fw_validation_data_compression)
 					wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_this_variant_this_gen_this_sim_compression)
 					wf_links[fw_this_variant_this_seed_this_analysis].append(fw_this_variant_this_gen_this_sim_compression)
+					wf_links[fw_this_variant_cohort_analysis].append(fw_this_variant_this_gen_this_sim_compression)
 
 
 ### Create workflow
