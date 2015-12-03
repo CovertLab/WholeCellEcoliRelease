@@ -33,7 +33,7 @@ COLORS = [
 
 AXIS_PADDING = 0.1
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
+def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
 	print "Disabled because it's slow"
 	return
@@ -46,11 +46,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	# Get the names of rnas from the KB
 
-	kb = cPickle.load(open(kbFile, "rb"))
+	sim_data = cPickle.load(open(simDataFile, "rb"))
 
-	isMRna = kb.process.transcription.rnaData["isMRna"]
+	isMRna = sim_data.process.transcription.rnaData["isMRna"]
 
-	rnaIds = kb.process.transcription.rnaData["id"][isMRna]
+	rnaIds = sim_data.process.transcription.rnaData["id"][isMRna]
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
@@ -62,7 +62,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	bulkMolecules.close()
 
-	expectedCountsArbitrary = kb.process.transcription.rnaData["expression"][isMRna]
+	expectedCountsArbitrary = sim_data.process.transcription.rnaData["expression"][isMRna]
 
 	expectedFrequency = expectedCountsArbitrary/expectedCountsArbitrary.sum()
 
@@ -123,7 +123,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 
 if __name__ == "__main__":
-	defaultKBFile = os.path.join(
+	defaultSimDataFile = os.path.join(
 			wholecell.utils.constants.SERIALIZED_KB_DIR,
 			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
 			)
@@ -132,10 +132,10 @@ if __name__ == "__main__":
 	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
 	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
 	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
+	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
 
 	args = parser.parse_args().__dict__
 
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
 
 

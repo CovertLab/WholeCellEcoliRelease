@@ -25,10 +25,10 @@ class TranscriptElongationListener(wholecell.listeners.listener.Listener):
 		self.countUnits = "counts"
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(TranscriptElongationListener, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(TranscriptElongationListener, self).initialize(sim, sim_data)
 
-		self.countRnaSynthesized = np.zeros(kb.process.transcription.rnaData.fullArray().size, np.int64)
+		self.countRnaSynthesized = np.zeros(sim_data.process.transcription.rnaData.fullArray().size, np.int64)
 
 	def tableCreate(self, tableWriter):
 		tableWriter.writeAttributes( # TODO: reconsider attribute names

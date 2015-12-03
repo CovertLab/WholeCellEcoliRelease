@@ -28,8 +28,8 @@ class UniqueMoleculeCounts(wholecell.listeners.listener.Listener):
 
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(UniqueMoleculeCounts, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(UniqueMoleculeCounts, self).initialize(sim, sim_data)
 
 		self.uniqueMolecules = sim.states['UniqueMolecules']
 

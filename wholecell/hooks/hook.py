@@ -24,7 +24,7 @@ class SimulationHook(object):
 		return cls._name
 
 
-	def initialize(self, sim, kb):
+	def initialize(self, sim, sim_data):
 		pass
 
 

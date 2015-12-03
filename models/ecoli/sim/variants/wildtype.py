@@ -4,10 +4,10 @@ CONTROL_OUTPUT = dict(
 	desc = "Wildtype simulation"
 	)
 
-def wildtypeTotalIndices(kb):
+def wildtypeTotalIndices(sim_data):
 	return 1
 
 
-def wildtype(kb, index):
+def wildtype(sim_data, index):
 
 	return CONTROL_OUTPUT

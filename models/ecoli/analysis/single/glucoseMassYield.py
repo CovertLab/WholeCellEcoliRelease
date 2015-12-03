@@ -26,7 +26,7 @@ FLUX_UNITS = units.mmol / units.L / units.s
 MASS_UNITS = units.fg
 GROWTH_UNITS = units.fg / units.s
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
+def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -34,7 +34,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	kb = cPickle.load(open(kbFile, "rb"))
+	sim_data = cPickle.load(open(simDataFile, "rb"))
 
 	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
@@ -56,8 +56,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 	mass.close()
 
-	cellDensity = kb.constants.cellDensity
-	glucoseMW = kb.getter.getMass([GLUCOSE_ID])[0]
+	cellDensity = sim_data.constants.cellDensity
+	glucoseMW = sim_data.getter.getMass([GLUCOSE_ID])[0]
 
 	glucoseMassFlux = glucoseFlux * glucoseMW * cellMass / cellDensity
 
@@ -74,7 +74,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 
 if __name__ == "__main__":
-	defaultKBFile = os.path.join(
+	defaultSimDataFile = os.path.join(
 			wholecell.utils.constants.SERIALIZED_KB_DIR,
 			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
 			)
@@ -83,8 +83,8 @@ if __name__ == "__main__":
 	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
 	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
 	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
+	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
 
 	args = parser.parse_args().__dict__
 
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])

@@ -19,16 +19,16 @@ from wholecell.utils import units
 class BulkChromosome(BulkMolecules):
 	_name = 'BulkChromosome'
 
-	def initialize(self, sim, kb):
-		super(BulkChromosome, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(BulkChromosome, self).initialize(sim, sim_data)
 
 		# Load constants
-		self._moleculeIDs = kb.state.bulkChromosome.bulkData['id']
-		self._compartmentIDs = kb.state.compartments['compartmentAbbreviation']
+		self._moleculeIDs = sim_data.state.bulkChromosome.bulkData['id']
+		self._compartmentIDs = sim_data.state.compartments['compartmentAbbreviation']
 
-		self._moleculeMass = kb.state.bulkChromosome.bulkData['mass'].asNumber(units.fg / units.mol) / kb.constants.nAvogadro.asNumber(1 / units.mol)
+		self._moleculeMass = sim_data.state.bulkChromosome.bulkData['mass'].asNumber(units.fg / units.mol) / sim_data.constants.nAvogadro.asNumber(1 / units.mol)
 
-		#self._compIndexes = {compartmentKey:(kb.state.bulkChromosome.bulkData['compartment'] == compartmentKey) for compartmentKey in kb.state.compartments['compartmentAbbreviation']}
+		#self._compIndexes = {compartmentKey:(sim_data.state.bulkChromosome.bulkData['compartment'] == compartmentKey) for compartmentKey in sim_data.state.compartments['compartmentAbbreviation']}
 
 		# Create the container for molecule counts
 		self.container = BulkObjectsContainer(self._moleculeIDs)

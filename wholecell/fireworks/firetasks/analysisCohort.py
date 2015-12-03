@@ -21,8 +21,9 @@ class AnalysisCohortTask(FireTaskBase):
 
 	_fw_name = "AnalysisCohortTask"
 	required_params = [
-		"variant_directory",
-		"input_kb",
+		"input_variant_directory",
+		"input_sim_data",
+		"input_validation_data",
 		"output_plots_directory",
 		"metadata",
 		]
@@ -43,11 +44,19 @@ class AnalysisCohortTask(FireTaskBase):
 
 			mod = importlib.import_module("models.ecoli.analysis.cohort." + f[:-3])
 			mod.main(
-				variantDir = self["variant_directory"],
+				variantDir = self["input_variant_directory"],
 				plotOutDir = self["output_plots_directory"],
 				plotOutFileName = f[:-3],
-				kbFile = self["input_kb"],
+				simDataFile = self["input_sim_data"],
+				validationDataFile = self['input_validation_data'],
 				metadata = self["metadata"]
 				)
 
-# def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
+# 				self["input_seed_directory"],
+# 				self["output_plots_directory"],
+# 				f[:-3],
+# 				self["input_sim_data"],
+# 				self["input_validation_data"],
+# 				self["metadata"]
+
+# def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):

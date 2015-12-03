@@ -55,23 +55,23 @@ class BulkMolecules(wholecell.states.state.State):
 		super(BulkMolecules, self).__init__(*args, **kwargs)
 
 
-	def initialize(self, sim, kb):
-		super(BulkMolecules, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(BulkMolecules, self).initialize(sim, sim_data)
 
 		self._processIDs = sim.processes.keys()
 
 		# Load constants
-		self._moleculeIDs = kb.state.bulkMolecules.bulkData['id']
-		# self._compartmentIDs = kb.state.compartments['compartmentAbbreviation']
-		# self._nCompartments = kb.nCompartments
+		self._moleculeIDs = sim_data.state.bulkMolecules.bulkData['id']
+		# self._compartmentIDs = sim_data.state.compartments['compartmentAbbreviation']
+		# self._nCompartments = sim_data.nCompartments
 
-		self._moleculeMass = kb.state.bulkMolecules.bulkData['mass'].asNumber(units.fg / units.mol) / kb.constants.nAvogadro.asNumber(1 / units.mol)
+		self._moleculeMass = sim_data.state.bulkMolecules.bulkData['mass'].asNumber(units.fg / units.mol) / sim_data.constants.nAvogadro.asNumber(1 / units.mol)
 
-		self._submassNameToIndex = kb.submassNameToIndex
+		self._submassNameToIndex = sim_data.submassNameToIndex
 
 		# self._compIndexes = {
-		# 	compartmentKey:(kb.state.bulkMolecules.bulkData['compartment'] == compartmentKey)
-		# 	for compartmentKey in kb.state.compartments['compartmentAbbreviation']
+		# 	compartmentKey:(sim_data.state.bulkMolecules.bulkData['compartment'] == compartmentKey)
+		# 	for compartmentKey in sim_data.state.compartments['compartmentAbbreviation']
 		# 	}
 
 		# Create the container for molecule counts
@@ -83,10 +83,10 @@ class BulkMolecules(wholecell.states.state.State):
 
 		# Set up ids for division into daughter cells
 		self.divisionIds = {}
-		self.divisionIds['binomial'] = kb.moleculeGroups.bulkMoleculesBinomialDivision
-		self.divisionIds['equally'] = kb.moleculeGroups.bulkMoleculesEqualDivision
-		self.divisionIds['fullChromosome'] = kb.moleculeGroups.fullChromosome
-		self.divisionIds['partialChromosome'] = kb.moleculeGroups.partialChromosome
+		self.divisionIds['binomial'] = sim_data.moleculeGroups.bulkMoleculesBinomialDivision
+		self.divisionIds['equally'] = sim_data.moleculeGroups.bulkMoleculesEqualDivision
+		self.divisionIds['fullChromosome'] = sim_data.moleculeGroups.fullChromosome
+		self.divisionIds['partialChromosome'] = sim_data.moleculeGroups.partialChromosome
 
 	def processRequestPriorityIs(self, processIndex, priorityLevel):
 		self._processPriorities[processIndex] = priorityLevel

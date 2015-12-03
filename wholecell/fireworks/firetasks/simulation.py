@@ -8,7 +8,7 @@ from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
 class SimulationTask(FireTaskBase):
 
 	_fw_name = "SimulationTask"
-	required_params = ["input_kb", "output_directory"]
+	required_params = ["input_sim_data", "output_directory"]
 	optional_params = ["seed", "length_sec", "log_to_shell", "log_to_disk_every"]
 
 	def run_task(self, fw_spec):
@@ -17,7 +17,7 @@ class SimulationTask(FireTaskBase):
 
 		options = {}
 		
-		options["kbLocation"] = self["input_kb"]
+		options["simDataLocation"] = self["input_sim_data"]
 		options["outputDir"] = self["output_directory"]
 		options["logToDisk"] = True
 		options["overwriteExistingFiles"] = False

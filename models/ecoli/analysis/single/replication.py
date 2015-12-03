@@ -24,7 +24,7 @@ from wholecell.utils import units
 
 PLACE_HOLDER = -1
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
+def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -33,11 +33,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		os.mkdir(plotOutDir)
 
 	# Load KB
-	kb = cPickle.load(open(kbFile, "rb"))
+	sim_data = cPickle.load(open(simDataFile, "rb"))
 
-	oriC = kb.constants.oriCCenter.asNumber()
-	terC = kb.constants.terCCenter.asNumber()
-	genomeLength = len(kb.process.replication.genome_sequence)
+	oriC = sim_data.constants.oriCCenter.asNumber()
+	terC = sim_data.constants.terCCenter.asNumber()
+	genomeLength = len(sim_data.process.replication.genome_sequence)
 
 	# Load time
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
@@ -68,7 +68,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	pairsOfForks = (sequenceIdx != PLACE_HOLDER).sum(axis = 1) / 4
 
 	# Count chromosome equivalents
-	chromMass = (kb.getter.getMass(['CHROM_FULL[c]'])[0] / kb.constants.nAvogadro).asNumber(units.fg)
+	chromMass = (sim_data.getter.getMass(['CHROM_FULL[c]'])[0] / sim_data.constants.nAvogadro).asNumber(units.fg)
 	chromEquivalents = dnaMass / chromMass
 
 	# Count full chromosomes
@@ -78,7 +78,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	fullChromosomeCounts = bulkMoleculesFile.readColumn("counts")[:,chromIdx]
 
 	# Count 60 min doubling time mass equivalents
-	avgCell60MinDoublingTimeTotalMassInit = kb.mass.avgCell60MinDoublingTimeTotalMassInit.asNumber(units.fg)
+	avgCell60MinDoublingTimeTotalMassInit = sim_data.mass.avgCell60MinDoublingTimeTotalMassInit.asNumber(units.fg)
 	sixtyMinDoublingInitMassEquivalents = totalMass / avgCell60MinDoublingTimeTotalMassInit
 
 	# Plot stuff
@@ -150,7 +150,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	plt.close("all")
 
 if __name__ == "__main__":
-	defaultKBFile = os.path.join(
+	defaultSimDataFile = os.path.join(
 			wholecell.utils.constants.SERIALIZED_KB_DIR,
 			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
 			)
@@ -159,8 +159,8 @@ if __name__ == "__main__":
 	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
 	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
 	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
+	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
 
 	args = parser.parse_args().__dict__
 
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])

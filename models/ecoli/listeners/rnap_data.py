@@ -29,8 +29,8 @@ class RnapData(wholecell.listeners.listener.Listener):
 
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(RnapData, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(RnapData, self).initialize(sim, sim_data)
 
 		# Computed, saved attributes
 		self.stallingRateTotal = None
