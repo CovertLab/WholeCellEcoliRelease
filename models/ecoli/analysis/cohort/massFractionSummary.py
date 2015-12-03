@@ -2,13 +2,16 @@
 
 import argparse
 import os
+import re
 
-import tables
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
+
+from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
+from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
 COLORS_256 = [ # From colorbrewer2.org, qualitative 8-class set 1
@@ -27,115 +30,82 @@ COLORS = [
 	for color in COLORS_256
 	]
 
-def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, metadata = None):
+def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
-	if not os.path.isdir(simOutDir):
-		raise Exception, "simOutDir does not currently exist as a directory"
+	massNames = [
+				"dryMass",
+				"proteinMass",
+				#"tRnaMass",
+				"rRnaMass",
+				'mRnaMass',
+				"dnaMass"
+				]
+
+	cleanNames = [
+				"Dry\nmass",
+				"Protein\nmass",
+				#"tRNA\nmass",
+				"rRNA\nmass",
+				"mRNA\nmass",
+				"DNA\nmass"
+				]
+
+	if not os.path.isdir(variantDir):
+		raise Exception, "variantDir does not currently exist as a directory"
 
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
+	
+	# Get all seed directories
+	allDirs = os.listdir(variantDir)
+	seedOutDirs = []
+	# Consider only those directories which are seed directories
+	for directory in allDirs:
+		# Accept directories which are a string of digits exactly 6 units long
+		if re.match('^\d{6}$',directory) != None:
+			seedOutDirs.append(os.path.join(variantDir, directory))
 
-	simOutSubDirs = sorted([
-		os.path.join(simOutDir, item, "simOut")
-		for item in os.listdir(simOutDir)
-		if os.path.isdir(os.path.join(simOutDir, item)) and item not in {"sim_data", "metadata"}
-		])
 
-	time = None
+	fig, axesList = plt.subplots(len(massNames), sharex = True)
 
-	for simIndex, simOutSubDir in enumerate(simOutSubDirs):
+	currentMaxTime = 0
 
-		with tables.open_file(os.path.join(simOutSubDir, "Mass.hdf")) as hdfFile:
+	# Get all cells in each seed
+	seedsDict = {}
+	for idx, seedOutDir in enumerate(seedOutDirs):
+		ap = AnalysisPaths(seedOutDir)
+		seedsDict[idx] = ap.getAll()
 
-			table = hdfFile.root.Mass
+	for seedNum in seedsDict:
+		for simDir in seedsDict[seedNum]:
+			simOutDir = os.path.join(simDir, "simOut")
 
-			if time is None:
-				time = table.col("time")
+			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+			mass = TableReader(os.path.join(simOutDir, "Mass"))
 
-				shape = (time.size, len(simOutSubDirs))
+			for idx, massType in enumerate(massNames):
+				massToPlot = mass.readColumn(massType)
+				axesList[idx].plot(((time / 60.) / 60.), massToPlot, linewidth = 2)
 
-				protein = np.empty(shape, order = "F")
-				tRna = np.empty(shape, order = "F")
-				rRna = np.empty(shape, order = "F")
-				mRna = np.empty(shape, order = "F")
-				dna = np.empty(shape, order = "F")
+				# set axes to size that shows all generations
+				cellCycleTime = ((time[-1] - time[0]) / 60. / 60. )
+				if cellCycleTime > currentMaxTime:
+					currentMaxTime = cellCycleTime
 
-			mRna[:, simIndex] = table.col("mRnaMass")
-			tRna[:, simIndex] = table.col("tRnaMass")
-			rRna[:, simIndex] = table.col("rRnaMass")
-			protein[:, simIndex] = table.col("proteinMass")
-			dna[:, simIndex] = table.col("dnaMass")
+				axesList[idx].set_xlim(0, currentMaxTime*int(metadata["total_gens"])*1.1)
+				axesList[idx].set_ylabel(cleanNames[idx] + " (fg)")
 
-	massesMean = np.vstack([
-		mRna.mean(1),
-		tRna.mean(1),
-		rRna.mean(1),
-		protein.mean(1),
-		dna.mean(1)
-		]).T
-
-	# massesStd = np.vstack([
-	# 	mRna.std(1),
-	# 	tRna.std(1),
-	# 	rRna.std(1),
-	# 	protein.std(1),
-	# 	dna.std(1)
-	# 	]).T
-
-	massesMax = np.vstack([
-		mRna.max(1),
-		tRna.max(1),
-		rRna.max(1),
-		protein.max(1),
-		dna.max(1)
-		]).T
-
-	massesMin = np.vstack([
-		mRna.min(1),
-		tRna.min(1),
-		rRna.min(1),
-		protein.min(1),
-		dna.min(1)
-		]).T
-
-	time /= 60
-
-	# Normalize
-
-	normalization = massesMean[0, :].copy()
-
-	massesMean /= normalization
-	massesMin /= normalization
-	massesMax /= normalization
-	# massesStd /= normalization
-
-	massLabels = ["mRNA", "tRNA", "rRNA", "Protein", "DNA"]
-
-	plt.figure(figsize = (8.5, 11))
-
-	# plt.rc('axes', color_cycle=COLORS)
-
-	for i in xrange(len(massLabels)):
-		plt.fill_between(time, massesMin[:, i], massesMax[:, i],
-			alpha = 0.25, facecolor = COLORS[i], edgecolor = "none")
-
-		# plt.fill_between(time, massesMean[:, i] - massesStd[:, i], massesMean[:, i] + massesStd[:, i],
-		# 	alpha = 0.5, facecolor = COLORS[i], edgecolor = "none")
-
-	plt.gca().set_color_cycle(COLORS[:len(massLabels)])
-
-	plt.plot(time, massesMean, linewidth = 2)
-	plt.xlabel("Time (min)")
-	plt.ylabel("Mass (normalized by t = 0 min)")
-	plt.title("Biomass components")
-	plt.axis([0, 60, 0.5, 2.5])
-
-	plt.legend(massLabels, loc = "best")
-
-	# plt.show()
+	for axes in axesList:
+		axes.get_ylim()
+		axes.set_yticks(list(axes.get_ylim()))
+	
+	axesList[0].set_title("Cell mass fractions")
+	axesList[len(massNames) - 1].set_xlabel("Time (hr)")
+	plt.subplots_adjust(hspace = 0.2, wspace = 0.5)
 
 	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName)
+	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+	plt.close("all")
 
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(
