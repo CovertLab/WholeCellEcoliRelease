@@ -91,7 +91,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		except ValueError:
 			# TODO: Come up with a better/more descriptive error message
 			# This is to handle errors that occurs when running short simulations
-			print "Skipping subplot %d because not enough data"
+			print "Skipping subplot %d because not enough data" % subplotIdx
 			continue
 
 		plt.scatter(
