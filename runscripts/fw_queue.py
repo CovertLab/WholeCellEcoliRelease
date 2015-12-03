@@ -521,9 +521,9 @@ for i in VARIANTS_TO_RUN:
 					wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_this_variant_sim_data_compression)
 					wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_raw_data_compression) # Maybe not necessary
 					wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_sim_data_1_compression) # Maybe not necessary
-					wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_this_variant_this_gen_this_sim_compression)
-					wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_this_variant_this_gen_this_sim_compression)
 					wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_validation_data_compression)
+					wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_this_variant_this_gen_this_sim_compression)
+					wf_links[fw_this_variant_this_seed_this_analysis].append(fw_this_variant_this_gen_this_sim_compression)
 
 
 ### Create workflow
