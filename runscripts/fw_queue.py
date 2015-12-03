@@ -148,6 +148,8 @@ metadata = {
 	}
 
 for key, value in metadata.iteritems():
+	if type(value) != str:
+		continue
 	write_file(os.path.join(METADATA_DIRECTORY, key), value)
 
 #### Create workflow
