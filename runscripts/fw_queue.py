@@ -144,7 +144,7 @@ metadata = {
 	"description": os.environ.get("DESC", ""),
 	"time": SUBMISSION_TIME,
 	"total_gens": str(N_GENS),
-	"analysis_type": 'single',
+	"analysis_type": None,
 	}
 
 for key, value in metadata.iteritems():
