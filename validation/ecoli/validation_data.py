@@ -31,7 +31,7 @@ class ValidationDataEcoli(object):
 	def __init__(self):
 		pass
 
-	def _initialize(self, validation_data_raw):
+	def initialize(self, validation_data_raw):
 
 		self._loadProteinDatasets(validation_data_raw)
 
@@ -42,8 +42,8 @@ class ValidationDataEcoli(object):
 		taniguichi_dataset = validation_data_raw.taniguichi2010_table_6
 		self.taniguichi2010counts = np.zeros(len(taniguichi_dataset), dtype=[('gene_symbol', '|S10'), ('b_number', '|S10'), ('counts_ave', np.float32), ('gamma_shape_parameter', np.float32), ('gamma_scale_parameter', np.float32)])
 		for idx, row in enumerate(taniguichi_dataset):
-			self.taniguichi2010counts[idx]["gene_symbol"] = row["Gene Name"]
-			self.taniguichi2010counts[idx]["b_number"] = row["B Number"]
+			self.taniguichi2010counts[idx]["gene_symbol"] = row["Gene_Name"]
+			self.taniguichi2010counts[idx]["b_number"] = row["B_Number"]
 			self.taniguichi2010counts[idx]["counts_ave"] = row["Mean_Protein"]
 			self.taniguichi2010counts[idx]["gamma_shape_parameter"] = row["A_Protein"]
 			self.taniguichi2010counts[idx]["gamma_scale_parameter"] = row["B_Protein"]
