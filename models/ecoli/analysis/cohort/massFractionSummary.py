@@ -95,8 +95,6 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				axesList[idx].set_xlim(0, currentMaxTime*int(metadata["total_gens"])*1.1)
 				axesList[idx].set_ylabel(cleanNames[idx] + " (fg)")
 
-			# import ipdb; ipdb.set_trace()
-
 	for axes in axesList:
 		axes.get_ylim()
 		axes.set_yticks(list(axes.get_ylim()))
