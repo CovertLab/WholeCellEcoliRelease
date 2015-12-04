@@ -311,7 +311,7 @@ if COMPRESS_OUTPUT:
 	wf_fws.append(fw_validation_data_compression)
 	
 	wf_links[fw_validation_data].append(fw_raw_validation_data_compression)
-	wf_links[fw_symlink_most_fit].append(fw_raw_data_compression)
+	wf_links[fw_validation_data].append(fw_raw_data_compression)
 
 
 ### Create variants and simulations
