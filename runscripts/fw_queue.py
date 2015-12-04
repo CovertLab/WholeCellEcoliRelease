@@ -285,7 +285,8 @@ filename_validation_data = (
 fw_name = "InitValidationData"
 fw_validation_data = Firework(
 	InitValidationDataTask(
-		input_data = os.path.join(KB_DIRECTORY, filename_raw_validation_data),
+		validation_data_input = os.path.join(KB_DIRECTORY, filename_raw_validation_data),
+		knowledge_base_raw = os.path.join(KB_DIRECTORY, filename_raw_data),
 		output_data = os.path.join(KB_DIRECTORY, filename_validation_data),
 		),
 	name = fw_name,
@@ -294,6 +295,7 @@ fw_validation_data = Firework(
 
 wf_fws.append(fw_validation_data)
 wf_links[fw_raw_validation_data].append(fw_validation_data)
+wf_links[fw_init_raw_data].append(fw_validation_data)
 
 # Full validation data compression
 if COMPRESS_OUTPUT:
@@ -309,7 +311,7 @@ if COMPRESS_OUTPUT:
 	wf_fws.append(fw_validation_data_compression)
 	
 	wf_links[fw_validation_data].append(fw_raw_validation_data_compression)
-	wf_links[fw_symlink_most_fit].append(fw_raw_data_compression)
+	wf_links[fw_validation_data].append(fw_raw_data_compression)
 
 
 ### Create variants and simulations
