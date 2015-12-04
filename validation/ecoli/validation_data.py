@@ -32,12 +32,19 @@ class ValidationDataEcoli(object):
 		pass
 
 	def initialize(self, validation_data_raw):
+		knowledge_base_raw = KnowledgeBaseEcoli()
+		self.protein = Protein(validation_data_raw, knowledge_base_raw)
 
-		self._loadProteinDatasets(validation_data_raw)
 
+class Protein(object):
+	""" Protein """
 
-	def _loadProteinDatasets(self, validation_data_raw):
+	def __init__(self, validation_data_raw, knowledge_base_raw):
+		self._loadTaniguchi2010Counts(validation_data_raw)
+		self._loadHouser2015Counts(validation_data_raw)
+		self._loadWisniewski2014Counts(validation_data_raw, knowledge_base_raw)
 
+	def _loadTaniguchi2010Counts(self, validation_data_raw):
 		# Load taniguichi Xie Science 2010 dataset
 		taniguichi_dataset = validation_data_raw.taniguichi2010_table_6
 		self.taniguichi2010counts = np.zeros(len(taniguichi_dataset), dtype=[('gene_symbol', '|S10'), ('b_number', '|S10'), ('counts_ave', np.float32), ('gamma_shape_parameter', np.float32), ('gamma_scale_parameter', np.float32)])
@@ -48,6 +55,7 @@ class ValidationDataEcoli(object):
 			self.taniguichi2010counts[idx]["gamma_shape_parameter"] = row["A_Protein"]
 			self.taniguichi2010counts[idx]["gamma_scale_parameter"] = row["B_Protein"]
 
+	def _loadHouser2015Counts(self, validation_data_raw):
 		# Load Houser Wilke PLoSCB 2015 dataset
 		houser_dataset = validation_data_raw.houser2015_javier_table
 		self.houser2015counts = np.zeros(len(houser_dataset), dtype=[
@@ -98,3 +106,30 @@ class ValidationDataEcoli(object):
 				if fieldName == "gene_symbol" or fieldName == "":
 					continue
 				self.houser2015counts[idx][fieldName] = row[fieldName]
+
+	def _loadWisniewski2014Counts(self, validation_data_raw, knowledge_base_raw):
+		dataset = validation_data_raw.wisniewski2014_supp2
+		rep1 = np.array([x["rep1"] for x in dataset])
+		rep2 = np.array([x["rep2"] for x in dataset])
+		rep3 = np.array([x["rep3"] for x in dataset])
+		avg = np.mean((rep1, rep2, rep3), axis = 0)
+		geneIds = [x["EcoCycID"].encode("utf-8") for x in dataset]
+
+		utilFunctions = getterFunctions(knowledge_base_raw, None)
+		geneIdToMonomerId = dict([(x["id"].encode("utf-8"), x["monomerId"].encode("utf-8") + "[" + utilFunctions.getLocation([x["monomerId"].encode("utf-8")])[0][0] + "]") for x in knowledge_base_raw.genes if x["type"] == "mRNA"])
+
+		monomerIds = [geneIdToMonomerId[x] for x in geneIds]
+		nEntries = len(geneIds)
+
+		wisniewski2014Data = np.zeros(
+			nEntries,
+			dtype = [
+				('monomerId', 'a50'),
+				('avgCounts', 'f8'),
+				]
+			)
+
+		wisniewski2014Data["monomerId"] = monomerIds
+		wisniewski2014Data["avgCounts"] = avg
+
+		self.wisniewski2014Data = wisniewski2014Data
