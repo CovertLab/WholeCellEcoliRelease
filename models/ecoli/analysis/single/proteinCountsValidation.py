@@ -41,12 +41,14 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	ids_complexation = sim_data.process.complexation.moleculeNames
 	ids_complexation_complexes = [ids_complexation[i] for i in np.where((sim_data.process.complexation.stoichMatrix() == 1).sum(axis = 1))[0]]
 	ids_equilibrium = sim_data.process.equilibrium.moleculeNames
+	ids_equilibrium_complexes = [ids_equilibrium[i] for i in np.where((sim_data.process.equilibrium.stoichMatrix() == 1).sum(axis = 1))[0]]
 	ids_translation = sim_data.process.translation.monomerData["id"].tolist()
 	ids_protein = sorted(set(ids_complexation + ids_equilibrium + ids_translation))
 	bulkContainer = BulkObjectsContainer(ids_protein, dtype = np.float64)
 	view_complexation = bulkContainer.countsView(ids_complexation)
 	view_complexation_complexes = bulkContainer.countsView(ids_complexation_complexes)
 	view_equilibrium = bulkContainer.countsView(ids_equilibrium)
+	view_equilibrium_complexes = bulkContainer.countsView(ids_equilibrium_complexes)
 	view_translation = bulkContainer.countsView(ids_translation)
 	view_validation = bulkContainer.countsView(validation_data.protein.wisniewski2014Data["monomerId"].tolist())
 
@@ -60,13 +62,18 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	# Account for monomers
 	bulkContainer.countsIs(proteinCountsBulk.mean(axis = 0))
 
+	# Account for small-molecule bound complexes
+	view_equilibrium.countsInc(
+		np.dot(sim_data.process.equilibrium.stoichMatrix(), view_equilibrium_complexes.counts() * -1)
+		)
+
 	# Account for monomers in complexed form
 	view_complexation.countsInc(
 		np.dot(sim_data.process.complexation.stoichMatrix(), view_complexation_complexes.counts() * -1)
 		)
 
 	# TODO: IMPORTANT
-	# TODO: Add proteins that are in bound by small molecules, are in unique molecules, etc.
+	# TODO: Add proteins that are in unique molecules, etc.
 	# TODO: IMPORTANT
 
 
