@@ -31,8 +31,7 @@ class ValidationDataEcoli(object):
 	def __init__(self):
 		pass
 
-	def initialize(self, validation_data_raw):
-		knowledge_base_raw = KnowledgeBaseEcoli()
+	def initialize(self, validation_data_raw, knowledge_base_raw):
 		self.protein = Protein(validation_data_raw, knowledge_base_raw)
 
 
