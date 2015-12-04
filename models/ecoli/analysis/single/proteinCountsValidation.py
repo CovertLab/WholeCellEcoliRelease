@@ -38,16 +38,17 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	validation_data = cPickle.load(open(validationDataFile, "rb"))
 
-	ids_complex = sim_data.process.complexation.moleculeNames
-	ids_eqBind = sim_data.process.equilibrium.moleculeNames
-	ids_monomer = sim_data.process.translation.monomerData["id"].tolist()
-	ids_protein = sorted(set(ids_complex + ids_eqBind + ids_monomer))
+	ids_complexation = sim_data.process.complexation.moleculeNames
+	ids_complexation_complexes = [ids_complexation[i] for i in np.where((sim_data.process.complexation.stoichMatrix() == 1).sum(axis = 1))[0]]
+	ids_equilibrium = sim_data.process.equilibrium.moleculeNames
+	ids_translation = sim_data.process.translation.monomerData["id"].tolist()
+	ids_protein = sorted(set(ids_complexation + ids_equilibrium + ids_translation))
 	bulkContainer = BulkObjectsContainer(ids_protein, dtype = np.float64)
-	view_complex = bulkContainer.countsView(ids_complex)
-	view_eqBind = bulkContainer.countsView(ids_eqBind)
-	view_monomer = bulkContainer.countsView(ids_monomer)
+	view_complexation = bulkContainer.countsView(ids_complexation)
+	view_complexation_complexes = bulkContainer.countsView(ids_complexation_complexes)
+	view_equilibrium = bulkContainer.countsView(ids_equilibrium)
+	view_translation = bulkContainer.countsView(ids_translation)
 	view_validation = bulkContainer.countsView(validation_data.protein.wisniewski2014Data["monomerId"].tolist())
-
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	moleculeIds = bulkMolecules.readAttribute("objectNames")
@@ -56,16 +57,20 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
 	bulkMolecules.close()
 
+	# Account for monomers
 	bulkContainer.countsIs(proteinCountsBulk.mean(axis = 0))
 
+	# Account for monomers in complexed form
+	view_complexation.countsInc(
+		np.dot(sim_data.process.complexation.stoichMatrix(), view_complexation_complexes.counts() * -1)
+		)
+
 	# TODO: IMPORTANT
-	# TODO: Add proteins that are in complexes, bound by small molecules, are in unique molecules, etc.
+	# TODO: Add proteins that are in bound by small molecules, are in unique molecules, etc.
 	# TODO: IMPORTANT
 
 
 	wisniewskiCounts = validation_data.protein.wisniewski2014Data["avgCounts"]
-
-
 
 	plt.figure(figsize = (8.5, 11))
 
