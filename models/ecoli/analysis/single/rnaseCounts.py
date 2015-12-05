@@ -86,12 +86,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 			if fft_freq[i][1] > 0.: # only positive frequencies
 				if 1. / fft_freq[i][1] < 3600.: # only periods lower than the doubling time
 					if abs(fft_freq[i][0] - M) / S > 3: # strong and significant fft
-						print RNase_IDS[rnapRnaCountsIdx], 1. / fft_freq[i][1] / 60. # period (min)
-
+						pass
+						# print RNase_IDS[rnapRnaCountsIdx], 1. / fft_freq[i][1] / 60. # period (min)
 
 	plt.subplots_adjust(hspace = 1.2, top = 0.95, bottom = 0.05)
 	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
-
 
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(

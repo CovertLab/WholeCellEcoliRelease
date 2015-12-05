@@ -69,8 +69,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	maxLine = 1.1 * max(expectedCounts.max(), counts.max())
 	ax.plot([0, maxLine], [0, maxLine], '--r')
 	ax.plot(expectedCounts, counts, 'o', markeredgecolor = 'k', markerfacecolor = 'none')
-	print expectedCounts.max()
-	print counts.max()
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
