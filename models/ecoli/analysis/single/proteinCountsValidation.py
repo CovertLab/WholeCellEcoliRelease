@@ -54,13 +54,22 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	moleculeIds = bulkMolecules.readAttribute("objectNames")
-
 	proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in ids_protein], np.int)
 	proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
 	bulkMolecules.close()
 
 	# Account for monomers
 	bulkContainer.countsIs(proteinCountsBulk.mean(axis = 0))
+
+	# Account for unique molecules
+	uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
+	ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
+	rnaPolyIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
+	nActiveRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
+	nActiveRnaPoly = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnaPolyIndex]
+	uniqueMoleculeCounts.close()
+	bulkContainer.countsInc(nActiveRibosome.mean(), sim_data.moleculeGroups.s30_fullComplex + sim_data.moleculeGroups.s50_fullComplex)
+	bulkContainer.countsInc(nActiveRnaPoly.mean(), sim_data.moleculeGroups.rnapFull)
 
 	# Account for small-molecule bound complexes
 	view_equilibrium.countsInc(
@@ -71,10 +80,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	view_complexation.countsInc(
 		np.dot(sim_data.process.complexation.stoichMatrix(), view_complexation_complexes.counts() * -1)
 		)
-
-	# TODO: IMPORTANT
-	# TODO: Add proteins that are in unique molecules, etc.
-	# TODO: IMPORTANT
 
 
 	wisniewskiCounts = validation_data.protein.wisniewski2014Data["avgCounts"]
