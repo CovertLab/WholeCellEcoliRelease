@@ -92,7 +92,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	eff_elng_rate = actualElongations / activeRibosome
 	ax.plot(time, eff_elng_rate, label="Effective elongation rate", linewidth=1, color='k')
 	ax.set_ylim([np.nanmin(eff_elng_rate) - 0.5, np.nanmax(eff_elng_rate) + 0.5])
-	print np.nanmean(eff_elng_rate)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, "R01_effective_ribosome_elongation_rate")
