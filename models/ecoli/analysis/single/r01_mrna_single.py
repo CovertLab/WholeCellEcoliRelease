@@ -83,9 +83,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		))
 	ax.set_ylim([lineRna[:, 1].min(), lineRna[:, 1].max()])
 	ax.set_xlim([stepTime[1:].min(), stepTime.max()])
-
-	print lineRna[:, 1].min(), lineRna[:, 1].max()
-	
+		
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
