@@ -451,7 +451,6 @@ class Metabolism(object):
 			new_reaction_enzymes = []
 			for reactionEnzyme in reaction["enzymeIDs"]:
 				if reactionEnzyme[-3:-2] !='[':
-					import ipdb; ipdb.set_trace()
 					if len(validEnzymeCompartments[reactionEnzyme]) > 0:
 						new_reaction_enzymes.append(reactionEnzyme +'['+str(validEnzymeCompartments[reactionEnzyme].pop())+']')
 					else:
