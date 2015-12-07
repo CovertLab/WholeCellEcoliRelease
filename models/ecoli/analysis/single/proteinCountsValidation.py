@@ -86,12 +86,12 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	plt.figure(figsize = (8.5, 11))
 
-	# maxLine = 1.1 * max(bulkContainer.counts().max(), wisniewskiCounts.max())
-	# plt.plot([0, maxLine], [0, maxLine], '--r')
 	plt.plot(np.log10(wisniewskiCounts + 1), np.log10(view_validation.counts() + 1), 'o', markeredgecolor = 'k', markerfacecolor = 'none')
 
 	plt.xlabel("log10(Wisniewski 2014 Counts)")
 	plt.ylabel("log10(Simulation Average Counts)")
+	# NOTE: This Pearson correlation goes up (at the time of writing) about 0.05 if you only
+	# include proteins that you have translational efficiencies for
 	plt.title("Pearson r: %0.2f" % pearsonr(np.log10(view_validation.counts() + 1), np.log10(wisniewskiCounts + 1))[0])
 
 	# plt.show()
