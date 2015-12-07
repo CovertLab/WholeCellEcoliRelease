@@ -11,15 +11,20 @@ from models.ecoli.sim.variants.wildtype import wildtypeTotalIndices
 from models.ecoli.sim.variants.time_step import timeStep
 from models.ecoli.sim.variants.time_step import timeStepTotalIndices
 
+from models.ecoli.sim.variants.starvation_variant import starvationVariant
+from models.ecoli.sim.variants.starvation_variant import starvationVariantTotalIndices
+
 
 nameToFunctionMapping = {
 	"geneKnockout": geneKnockout,
 	"wildtype": wildtype,
 	"timeStep": timeStep,
+	"starvationVariant": starvationVariant,
 }
 
 nameToNumIndicesMapping = {
 	"geneKnockout": geneKnockoutTotalIndices,
 	"wildtype": wildtypeTotalIndices,
 	"timeStep": timeStepTotalIndices,
+	"starvationVariant": starvationVariantTotalIndices,
 }

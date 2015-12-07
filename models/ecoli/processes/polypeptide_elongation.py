@@ -24,6 +24,8 @@ from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIn
 from wholecell.utils.random import stochasticRound
 from wholecell.utils import units
 
+SYNTHETASE_KM_SCALE = 0.1
+
 class PolypeptideElongation(wholecell.processes.process.Process):
 	""" PolypeptideElongation """
 
@@ -62,9 +64,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.elngRate = float(kb.growthRateParameters.ribosomeElongationRate.asNumber(units.aa / units.s)) * self.timeStepSec
 		self.elngRate = int(round(self.elngRate)) # TODO: Make this less of a hack by implementing in the KB
 
-		# self.aa_trna_groups = kb.aa_trna_groups
-		# self.aa_synthetase_groups = kb.aa_synthetase_groups
-		# self.synthetase_turnover = kb.trna_synthetase_rates.asNumber(units.aa/units.s)
+		self.nAvogadro = kb.constants.nAvogadro
+		self.cellDensity = kb.constants.cellDensity
 
 		enzIds = ["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"]
 
@@ -80,14 +81,19 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.gtpPerElongation = kb.constants.gtpPerTranslation
 
+		##########
+		aaIdxs = [kb.process.metabolism.metabolitePoolIDs.index(aaID) for aaID in kb.moleculeGroups.aaIDs]
+		aaConcentrations = kb.process.metabolism.metabolitePoolConcentrations[aaIdxs]
+		total_aa_concentration = units.sum(aaConcentrations)
+		self.saturation_km = SYNTHETASE_KM_SCALE * total_aa_concentration
+		##########
+
 		# Views
 
 		self.activeRibosomes = self.uniqueMoleculesView('activeRibosome')
 		self.bulkMonomers = self.bulkMoleculesView(proteinIds)
 
 		self.aas = self.bulkMoleculesView(kb.moleculeGroups.aaIDs)
-		# self.trna_groups = [self.bulkMoleculesView(x) for x in self.aa_trna_groups.itervalues()]
-		# self.synthetase_groups = [self.bulkMoleculesView(x) for x in self.aa_synthetase_groups.itervalues()]
 		self.h2o = self.bulkMoleculeView('WATER[c]')
 
 		self.gtp = self.bulkMoleculeView("GTP[c]")
@@ -98,6 +104,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.ribosome30S = self.bulkMoleculeView(kb.moleculeGroups.s30_fullComplex[0])
 		self.ribosome50S = self.bulkMoleculeView(kb.moleculeGroups.s50_fullComplex[0])
 
+		###### VARIANT CODE #######
+		self.translationSaturation = kb.translationSaturation
+		###### VARIANT CODE #######
 
 	def calculateRequest(self):
 		self.activeRibosomes.requestAll()
@@ -120,7 +129,19 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		sequenceHasAA = (sequences != PAD_VALUE)
 
-		aasRequested = np.bincount(sequences[sequenceHasAA], minlength=21)
+		aasInSequences = np.bincount(sequences[sequenceHasAA], minlength=21)
+
+		if self.translationSaturation:
+			cellMass = (self.readFromListener("Mass", "cellMass") * units.fg)
+			cellVolume = cellMass / self.cellDensity
+			aaTotalConc = units.sum((1 / self.nAvogadro) * (1 / cellVolume) * self.aas.total())
+
+			translation_machinery_saturation = (aaTotalConc / (self.saturation_km + aaTotalConc))
+			translation_machinery_saturation = units.convertNoUnitToNumber(translation_machinery_saturation)
+
+			aasRequested = np.floor(aasInSequences * translation_machinery_saturation)
+		else:
+			aasRequested = aasInSequences
 
 		self.aas.requestIs(
 			aasRequested
@@ -129,21 +150,20 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("GrowthLimits", "aaPoolSize", self.aas.total())
 		self.writeToListener("GrowthLimits", "aaRequestSize", aasRequested)
 
-		# Should essentially request all tRNAs
-		# and all synthetases
-		# trnasRequested = aasRequested
-		# for i,group in enumerate(self.trna_groups):
-		# 	group.requestIs(trnasRequested[i])
-		# synthetaseRequested = aasRequested
-		# for i,group in enumerate(self.synthetase_groups):
-		# 	group.requestIs(synthetaseRequested[i])
-
-		gtpsHydrolyzed = np.int64(np.ceil(
-			self.gtpPerElongation * np.fmin(
-				sequenceHasAA.sum(),
-				self.aas.total().sum()
-				)
-			))
+		if self.translationSaturation:
+			gtpsHydrolyzed = np.int64(np.ceil(
+				self.gtpPerElongation * np.fmin(
+					sequenceHasAA.sum(),
+					np.floor(self.aas.total().sum() * translation_machinery_saturation)
+					)
+				))
+		else:
+			gtpsHydrolyzed = np.int64(np.ceil(
+				self.gtpPerElongation * np.fmin(
+					sequenceHasAA.sum(),
+					self.aas.total().sum()
+					)
+				))
 
 		self.writeToListener("GrowthLimits", "gtpPoolSize", self.gtp.total()[0])
 		self.writeToListener("GrowthLimits", "gtpRequestSize", gtpsHydrolyzed)

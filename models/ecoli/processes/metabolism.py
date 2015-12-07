@@ -168,8 +168,8 @@ class Metabolism(wholecell.processes.process.Process):
 
 		###### VARIANT CODE #######
 		self.externalMoleculeLevelsSave = externalMoleculeLevels.copy()
+		self.glucoseLimitation = kb.glucoseLimitation
 		###### VARIANT CODE #######
-
 
 	def calculateRequest(self):
 		self.metabolites.requestAll()
@@ -183,12 +183,12 @@ class Metabolism(wholecell.processes.process.Process):
 
 		###### VARIANT CODE #######
 		# APPLY METABOLIC LIMITATION AT TIME POINT
-		if self.time() >= 2: #self.time() >= 10*60:
-			glc_idx = self.fba.externalMoleculeIDs().index('GLC[p]')
-			tempExternalMoleculeLevels = self.externalMoleculeLevelsSave.copy()
-			tempExternalMoleculeLevels[glc_idx] = tempExternalMoleculeLevels[glc_idx] * 0.5
-			#tempExternalMoleculeLevels[glc_idx] = tempExternalMoleculeLevels[glc_idx] * 1.3
-			self.fba.externalMoleculeLevelsIs(tempExternalMoleculeLevels)
+		if self.glucoseLimitation:
+			if self.time() >= 10*60:
+				glc_idx = self.fba.externalMoleculeIDs().index('GLC[p]')
+				tempExternalMoleculeLevels = self.externalMoleculeLevelsSave.copy()
+				tempExternalMoleculeLevels[glc_idx] = tempExternalMoleculeLevels[glc_idx] * 0.35
+				self.fba.externalMoleculeLevelsIs(tempExternalMoleculeLevels)
 		###### VARIANT CODE #######
 
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg).asNumber(MASS_UNITS)
