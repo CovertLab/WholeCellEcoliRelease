@@ -65,6 +65,16 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	# Account for monomers
 	bulkContainer.countsIs(proteinCountsBulk.mean(axis = 0))
 
+	# Account for unique molecules
+	uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
+	ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
+	rnaPolyIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
+	nActiveRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
+	nActiveRnaPoly = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnaPolyIndex]
+	uniqueMoleculeCounts.close()
+	bulkContainer.countsInc(nActiveRibosome.mean(), sim_data.moleculeGroups.s30_fullComplex + sim_data.moleculeGroups.s50_fullComplex)
+	bulkContainer.countsInc(nActiveRnaPoly.mean(), sim_data.moleculeGroups.rnapFull)
+
 	# Account for small-molecule bound complexes
 	view_equilibrium.countsInc(
 		np.dot(sim_data.process.equilibrium.stoichMatrix(), view_equilibrium_complexes.counts() * -1)
@@ -75,22 +85,16 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		np.dot(sim_data.process.complexation.stoichMatrix(), view_complexation_complexes.counts() * -1)
 		)
 
-	# TODO: IMPORTANT
-	# TODO: Add proteins that are in unique molecules, etc.
-	# TODO: IMPORTANT
-
-
 	wisniewskiCounts = validation_data.protein.wisniewski2014Data["avgCounts"]
-
 	proteinIds = validation_data.protein.wisniewski2014Data["monomerId"].tolist()
 
-
 	fig, ax = plt.subplots(figsize = (8.5, 11))
-
 	points = ax.scatter(np.log10(wisniewskiCounts + 1), np.log10(view_validation.counts() + 1), c='w', edgecolor = 'k', alpha=.7)
 
 	plt.xlabel("log10(Wisniewski 2014 Counts)")
 	plt.ylabel("log10(Simulation Average Counts)")
+	# NOTE: This Pearson correlation goes up (at the time of writing) about 0.05 if you only
+	# include proteins that you have translational efficiencies for
 	plt.title("Pearson r: %0.2f" % pearsonr(np.log10(view_validation.counts() + 1), np.log10(wisniewskiCounts + 1))[0])
 	plt.xlim(xmin=0)
 	plt.ylim(ymin=0)

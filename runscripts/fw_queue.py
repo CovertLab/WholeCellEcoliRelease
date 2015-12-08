@@ -184,7 +184,7 @@ if COMPRESS_OUTPUT:
 	fw_name = "ScriptTask_compression_raw_data"
 	fw_raw_data_compression = Firework(
 		ScriptTask(
-			script = "bzip2 " + os.path.join(KB_DIRECTORY, filename_raw_data)
+			script = "bzip2 -v " + os.path.join(KB_DIRECTORY, filename_raw_data)
 			),
 		name = fw_name,
 		spec = {"_queueadapter": {"job_name": fw_name}}
@@ -220,7 +220,7 @@ if COMPRESS_OUTPUT:
 	fw_name = "ScriptTask_compression_sim_data_1"
 	fw_sim_data_1_compression = Firework(
 		ScriptTask(
-			script = "bzip2 " + os.path.join(KB_DIRECTORY, filename_sim_data_fit_1)
+			script = "bzip2 -v " + os.path.join(KB_DIRECTORY, filename_sim_data_fit_1)
 			),
 		name = fw_name,
 		spec = {"_queueadapter": {"job_name": fw_name}}
@@ -268,7 +268,7 @@ if COMPRESS_OUTPUT:
 	fw_name = "ScriptTask_compression_validation_data_raw"
 	fw_raw_validation_data_compression = Firework(
 		ScriptTask(
-			script = "bzip2 " + os.path.join(KB_DIRECTORY, filename_raw_validation_data)
+			script = "bzip2 -v " + os.path.join(KB_DIRECTORY, filename_raw_validation_data)
 			),
 		name = fw_name,
 		spec = {"_queueadapter": {"job_name": fw_name}}
@@ -302,7 +302,7 @@ if COMPRESS_OUTPUT:
 	fw_name = "ScriptTask_compression_validation_data"
 	fw_validation_data_compression = Firework(
 		ScriptTask(
-			script = "bzip2 " + os.path.join(KB_DIRECTORY, filename_validation_data)
+			script = "bzip2 -v " + os.path.join(KB_DIRECTORY, filename_validation_data)
 			),
 		name = fw_name,
 		spec = {"_queueadapter": {"job_name": fw_name}}
@@ -346,7 +346,7 @@ for i in VARIANTS_TO_RUN:
 		fw_name = "ScriptTask_compression_variant_KB"
 		fw_this_variant_sim_data_compression = Firework(
 			ScriptTask(
-				script = "bzip2 " + os.path.join(VARIANT_SIM_DATA_DIRECTORY, "simData_Modified.cPickle")
+				script = "bzip2 -v " + os.path.join(VARIANT_SIM_DATA_DIRECTORY, "simData_Modified.cPickle")
 				),
 			name = fw_name,
 			spec = {"_queueadapter": {"job_name": fw_name}}
@@ -458,7 +458,7 @@ for i in VARIANTS_TO_RUN:
 					fw_name = "ScriptTask_compression_simulation__Seed_%d__Gen_%d__Cell_%d" % (j, k, l)
 					fw_this_variant_this_gen_this_sim_compression = Firework(
 						ScriptTask(
-							script = "find %s -type f | xargs bzip2 -v" % CELL_SIM_OUT_DIRECTORY
+							script = "find %s -type f | xargs bzip2 -v " % CELL_SIM_OUT_DIRECTORY
 							),
 						name = fw_name,
 						spec = {"_queueadapter": {"job_name": fw_name}}
