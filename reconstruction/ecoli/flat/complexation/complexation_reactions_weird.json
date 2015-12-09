@@ -1,0 +1,10 @@
+[
+{"id": "CPLX0-8117", "elements": [{"type": "proteincomplex", "coeff": 1.0, "molecule": "CPLX0-8117", "location": "c", "form": "mature"}]},
+{"id": "MONOMER0-2863", "elements": [{"type": "proteincomplex", "coeff": 1.0, "molecule": "MONOMER0-2863", "location": "c", "form": "mature"}]},
+{"id": "CPLX0-8002", "elements": [{"type": "proteincomplex", "coeff": 1.0, "molecule": "CPLX0-8002", "location": "p", "form": "mature"}]},
+{"id": "CPLX0-8115", "elements": [{"type": "proteincomplex", "coeff": 1.0, "molecule": "CPLX0-8115", "location": "i", "form": "mature"}]},
+{"id": "CPLX0-7978", "elements": [{"type": "proteincomplex", "coeff": 1.0, "molecule": "CPLX0-7978", "location": "x", "form": "mature"}]},
+{"id": "CPLX0-8075", "elements": [{"type": "proteincomplex", "coeff": 1.0, "molecule": "CPLX0-8075", "location": "c", "form": "mature"}]},
+{"id": "CPLX0-7657", "elements": [{"type": "proteincomplex", "coeff": 1.0, "molecule": "CPLX0-7657", "location": "c", "form": "mature"}]},
+{"id": "CPLX0-8004", "elements": [{"type": "proteincomplex", "coeff": 1.0, "molecule": "CPLX0-8004", "location": "p", "form": "mature"}]}
+]
