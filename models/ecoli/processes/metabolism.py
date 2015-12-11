@@ -121,7 +121,7 @@ class Metabolism(wholecell.processes.process.Process):
 		## External molecules
 		externalMoleculeIDs = self.fba.externalMoleculeIDs()
 
-		coefficient = initDryMass / initCellMass * sim_data.constants.cellDensity * (self.timeStepSec * units.s)
+		coefficient = initDryMass / initCellMass * sim_data.constants.cellDensity * (self.timeStepSec() * units.s)
 
 		externalMoleculeLevels = sim_data.process.metabolism.exchangeConstraints(
 			externalMoleculeIDs,
@@ -234,16 +234,16 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# TODO: report as reactions (#) per second & store volume elsewhere
 		self.writeToListener("FBAResults", "reactionFluxes",
-			self.fba.reactionFluxes() / self.timeStepSec)
+			self.fba.reactionFluxes() / self.timeStepSec())
 		self.writeToListener("FBAResults", "externalExchangeFluxes",
-			self.fba.externalExchangeFluxes() / self.timeStepSec)
+			self.fba.externalExchangeFluxes() / self.timeStepSec())
 		# self.writeToListener("FBAResults", "objectiveValue", # TODO
 		# 	self.fba.objectiveValue() / deltaMetabolites.size) # divide to normalize by number of metabolites
 		self.writeToListener("FBAResults", "outputFluxes",
-			self.fba.outputMoleculeLevelsChange() / self.timeStepSec)
+			self.fba.outputMoleculeLevelsChange() / self.timeStepSec())
 
 		self.writeToListener("FBAResults", "outputFluxes",
-			self.fba.outputMoleculeLevelsChange() / self.timeStepSec)
+			self.fba.outputMoleculeLevelsChange() / self.timeStepSec())
 
 		self.writeToListener("EnzymeKinetics", "reactionRates",
 			self.reactionRates)

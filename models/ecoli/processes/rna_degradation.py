@@ -125,7 +125,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		# Calculate total counts of RNAs to degrade according to
 		# the total counts of "active" endoRNases and their cleavage activity
-		nRNAsTotalToDegrade = np.round((units.sum(self.KcatEndoRNases * self.endoRnases.total()) * fracEndoRnaseSaturated * (units.s * self.timeStepSec)).asNumber().sum())
+		nRNAsTotalToDegrade = np.round((units.sum(self.KcatEndoRNases * self.endoRnases.total()) * fracEndoRnaseSaturated * (units.s * self.timeStepSec())).asNumber().sum())
 		
 		# Dissect RNA specificity into mRNA, tRNA, and rRNA as well as specific RNases
 		MrnaSpec = units.sum(fracEndoRnaseSaturated * self.isMRna)
@@ -156,21 +156,21 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		nMRNAsTotalToDegrade = np.round(sum(TargetEndoRNasesFullMRNA *
 				self.endoRnases.total() * 
-				self.KcatEndoRNases * (units.s * self.timeStepSec)).asNumber()
+				self.KcatEndoRNases * (units.s * self.timeStepSec())).asNumber()
 			)
 		nTRNAsTotalToDegrade = np.round(sum(TargetEndoRNasesFullTRNA *
 				self.endoRnases.total() * 
-				self.KcatEndoRNases * (units.s * self.timeStepSec)).asNumber()
+				self.KcatEndoRNases * (units.s * self.timeStepSec())).asNumber()
 			)
 		nRRNAsTotalToDegrade = np.round(sum(TargetEndoRNasesFullRRNA *
 				self.endoRnases.total() * 
-				self.KcatEndoRNases * (units.s * self.timeStepSec)).asNumber()
+				self.KcatEndoRNases * (units.s * self.timeStepSec())).asNumber()
 			)
 
 		if nRNAsTotalToDegrade != nMRNAsTotalToDegrade + nTRNAsTotalToDegrade + nRRNAsTotalToDegrade:
 			nRNAsTotalToDegrade = nMRNAsTotalToDegrade + nTRNAsTotalToDegrade + nRRNAsTotalToDegrade
 
-		# define RNA specificity across genes
+		# define RNA specificity across geness
 		RNAspecificity = (fracEndoRnaseSaturated / units.sum(fracEndoRnaseSaturated)).asNumber()
 
 		nRNAsToDegrade = np.zeros(len(RNAspecificity))
@@ -251,7 +251,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		#			3 NMP + 3 H(+)
 		# Note: Lack of -OH on 3' end of chain
 		nExoRNases = self.exoRnases.counts()
-		exoCapacity = nExoRNases.sum() * self.KcatExoRNase * (units.s * self.timeStepSec)
+		exoCapacity = nExoRNases.sum() * self.KcatExoRNase * (units.s * self.timeStepSec())
 
 		if exoCapacity >= self.fragmentBases.counts().sum():
 			self.nmps.countsInc(self.fragmentBases.counts())

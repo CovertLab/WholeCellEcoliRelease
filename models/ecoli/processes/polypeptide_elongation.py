@@ -32,7 +32,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 	# Constructor
 	def __init__(self):
 		# Parameters
-		self.elngRate = None
 		self.proteinLengths = None
 		self.proteinSequences = None
 		self.h2oWeight = None
@@ -57,11 +56,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 	def initialize(self, sim, sim_data):
 		super(PolypeptideElongation, self).initialize(sim, sim_data)
 
-		# Load parameters
-
-		self.elngRate = float(sim_data.growthRateParameters.ribosomeElongationRate.asNumber(units.aa / units.s)) * self.timeStepSec
-		self.elngRate = int(round(self.elngRate)) # TODO: Make this less of a hack by implementing in the KB
-
 		# self.aa_trna_groups = sim_data.aa_trna_groups
 		# self.aa_synthetase_groups = sim_data.aa_synthetase_groups
 		# self.synthetase_turnover = sim_data.trna_synthetase_rates.asNumber(units.aa/units.s)
@@ -79,6 +73,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.endWeight = sim_data.process.translation.translationEndWeight
 
 		self.gtpPerElongation = sim_data.constants.gtpPerTranslation
+
+		self.ribosomeElngRate = float(sim_data.growthRateParameters.ribosomeElongationRate.asNumber(units.aa / units.s))
 
 		# Views
 
@@ -115,7 +111,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			self.proteinSequences,
 			proteinIndexes,
 			peptideLengths,
-			self.elngRate
+			self._elngRate()
 			)
 
 		sequenceHasAA = (sequences != PAD_VALUE)
@@ -173,7 +169,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			self.proteinSequences,
 			proteinIndexes,
 			peptideLengths,
-			self.elngRate
+			self._elngRate()
 			)
 
 		# Calculate elongation resource capacity
@@ -260,7 +256,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		# Report stalling information
 
 		expectedElongations = np.fmin(
-			self.elngRate,
+			self._elngRate(),
 			terminalLengths - peptideLengths
 			)
 
@@ -278,3 +274,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.writeToListener("RibosomeData", "didTerminate", didTerminate.sum())
 		self.writeToListener("RibosomeData", "terminationLoss", (terminalLengths - peptideLengths)[didTerminate].sum())
+
+	def _elngRate(self):
+		return int(round(self.ribosomeElngRate * self.timeStepSec()))
