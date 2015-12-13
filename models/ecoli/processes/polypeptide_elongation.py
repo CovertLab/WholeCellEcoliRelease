@@ -24,7 +24,7 @@ from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIn
 from wholecell.utils.random import stochasticRound
 from wholecell.utils import units
 
-SYNTHETASE_KM_SCALE = 0.1
+# SYNTHETASE_KM_SCALE = 0.7
 
 class PolypeptideElongation(wholecell.processes.process.Process):
 	""" PolypeptideElongation """
@@ -85,7 +85,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		aaIdxs = [kb.process.metabolism.metabolitePoolIDs.index(aaID) for aaID in kb.moleculeGroups.aaIDs]
 		aaConcentrations = kb.process.metabolism.metabolitePoolConcentrations[aaIdxs]
 		total_aa_concentration = units.sum(aaConcentrations)
-		self.saturation_km = SYNTHETASE_KM_SCALE * total_aa_concentration
+		self.saturation_km = kb.synthetase_km_scale * total_aa_concentration
 		##########
 
 		# Views
@@ -106,6 +106,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		###### VARIANT CODE #######
 		self.translationSaturation = kb.translationSaturation
+		self.synthetase_km_scale = kb.synthetase_km_scale
 		###### VARIANT CODE #######
 
 	def calculateRequest(self):
@@ -136,7 +137,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			cellVolume = cellMass / self.cellDensity
 			aaTotalConc = units.sum((1 / self.nAvogadro) * (1 / cellVolume) * self.aas.total())
 
-			translation_machinery_saturation = (aaTotalConc / (self.saturation_km + aaTotalConc))
+			translation_machinery_saturation = (1 + self.synthetase_km_scale) * (aaTotalConc / (self.saturation_km + aaTotalConc))
 			translation_machinery_saturation = units.convertNoUnitToNumber(translation_machinery_saturation)
 
 			aasRequested = np.floor(aasInSequences * translation_machinery_saturation)
