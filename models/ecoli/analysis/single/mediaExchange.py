@@ -54,7 +54,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-	timeStep = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStep")
 	externalExchangeFluxes = fbaResults.readColumn("externalExchangeFluxes")
 
 	externalMoleculeIDs = np.array(fbaResults.readAttribute("externalMoleculeIDs"))
