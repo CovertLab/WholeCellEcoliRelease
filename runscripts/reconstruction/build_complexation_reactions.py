@@ -17,10 +17,20 @@ NEW_COMPLEXATION_REACTION_FILE = os.path.join("reconstruction", "ecoli", "flat",
 NEW_EQUILIBRIUM_REACTION_FILE = os.path.join("reconstruction", "ecoli", "flat", "equilibriumReactions_new.tsv")
 EXISTING_EQUILIBRIUM_REACTION_FILE = os.path.join("reconstruction", "ecoli", "flat", "equilibriumReactions.tsv")
 
-ECOCYC_DUMP = os.path.join("reconstruction", "ecoli", "flat", "eco_wc_test_fun_truncated.json")
+ECOCYC_DUMP = os.path.join("reconstruction", "ecoli", "flat", "eco_wc_test_fun.json")
 
 DEFAULT_EQUILIBRIUM_BINDING_RATES = (1, 1e-06)
 
+REACTION_ID_BLACKLIST = [
+	"CPLX0-3964",	# Full ribosome--this gets formed in the simulation
+	"RNAP32-CPLX",	# Full RNA Polymerase--simulation only uses apo form
+	"RNAP54-CPLX",	# Full RNA Polymerase--simulation only uses apo form
+	"RNAP70-CPLX",	# Full RNA Polymerase--simulation only uses apo form
+	"RNAPE-CPLX",	# Full RNA Polymerase--simulation only uses apo form
+	"RNAPS-CPLX",	# Full RNA Polymerase--simulation only uses apo form
+	"CPLX0-221",	# Full RNA Polymerase--simulation only uses apo form
+	"CPLX0-222",	# Full RNA Polymerase--simulation only uses apo form
+]
 
 def getMetaboliteMasses():
 	reader = JsonReader(open(METABOLITE_MASS_FILE, "r"), dialect = CSV_DIALECT)
@@ -72,6 +82,14 @@ def getMonomerLocationsFromOurData():
 	data = [row for row in reader]
 	D = dict([(x["id"].encode("utf-8"), x["location"][0].encode("utf-8")) for x in data])
 	return D
+
+def removeBlaclistedReactions(reactionData):
+	reactionDataFiltered = []
+	for reaction in reactionData:
+		if reaction["id"] in REACTION_ID_BLACKLIST:
+			continue
+		reactionDataFiltered.append(reaction)
+	return reactionDataFiltered
 
 def getMasses(idMass, reactionData):
 	def skipReaction(reaction):
@@ -160,12 +178,13 @@ idMass.update(rnaMass)
 ourLocations = getMonomerLocationsFromOurData()
 
 jsonData = yaml.load(open(ECOCYC_DUMP, "r"))
-idLocation = getLocations(jsonData["complexations"])
-getMasses(idMass, jsonData["complexations"])
+reactionDataFiltered = removeBlaclistedReactions(jsonData["complexations"])
+idLocation = getLocations(reactionDataFiltered)
+getMasses(idMass, reactionDataFiltered)
 
 complexationReactions, equilibriumReactions = getComplexationAndEquilibriumReactions(
 	idMass,
-	jsonData["complexations"]
+	reactionDataFiltered
 	)
 equilibriumBindingRates = getEquilibriumBindingRates()
 
