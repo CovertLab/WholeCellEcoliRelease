@@ -29,39 +29,37 @@ def calcInitialConditions(sim, sim_data):
 	assert sim._inheritedStatePath == None
 	randomState = sim.randomState
 
-	timeStep = sim.timeStepSec() # This is a poor solution but will suffice for now
-
 	bulkMolCntr = sim.states['BulkMolecules'].container
 	uniqueMolCntr = sim.states["UniqueMolecules"].container
 	bulkChrmCntr = sim.states["BulkChromosome"].container
 
 	# Set up states
-	initializeBulkMolecules(bulkMolCntr, sim_data, randomState, timeStep)
-	initializeBulkChromosome(bulkChrmCntr, sim_data, randomState, timeStep)
-	initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState, timeStep)
+	initializeBulkMolecules(bulkMolCntr, sim_data, randomState)
+	initializeBulkChromosome(bulkChrmCntr, sim_data, randomState)
+	initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
 
-def initializeBulkMolecules(bulkMolCntr, sim_data, randomState, timeStep):
+def initializeBulkMolecules(bulkMolCntr, sim_data, randomState):
 
 	## Set protein counts from expression
-	initializeProteinMonomers(bulkMolCntr, sim_data, randomState, timeStep)
+	initializeProteinMonomers(bulkMolCntr, sim_data, randomState)
 
 	## Set RNA counts from expression
-	initializeRNA(bulkMolCntr, sim_data, randomState, timeStep)
+	initializeRNA(bulkMolCntr, sim_data, randomState)
 
 	## Set DNA
-	initializeDNA(bulkMolCntr, sim_data, randomState, timeStep)
+	initializeDNA(bulkMolCntr, sim_data, randomState)
 
 	## Set other biomass components
-	initializeSmallMolecules(bulkMolCntr, sim_data, randomState, timeStep)
+	initializeSmallMolecules(bulkMolCntr, sim_data, randomState)
 
-def initializeBulkChromosome(bulkChrmCntr, sim_data, randomState, timeStep):
+def initializeBulkChromosome(bulkChrmCntr, sim_data, randomState):
 	## Set genes
-	initializeGenes(bulkChrmCntr, sim_data, timeStep)
+	initializeGenes(bulkChrmCntr, sim_data)
 
-def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState, timeStep):
+def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	initializeReplication(uniqueMolCntr, sim_data)
 
-def initializeProteinMonomers(bulkMolCntr, sim_data, randomState, timeStep):
+def initializeProteinMonomers(bulkMolCntr, sim_data, randomState):
 
 	monomersView = bulkMolCntr.countsView(sim_data.process.translation.monomerData["id"])
 	monomerMass = sim_data.mass.avgCellSubMass["proteinMass"] / sim_data.mass.avgCellToInitialCellConvFactor
@@ -85,7 +83,7 @@ def initializeProteinMonomers(bulkMolCntr, sim_data, randomState, timeStep):
 		randomState.multinomial(nMonomers, monomerExpression)
 		)
 
-def initializeRNA(bulkMolCntr, sim_data, randomState, timeStep):
+def initializeRNA(bulkMolCntr, sim_data, randomState):
 
 	rnaView = bulkMolCntr.countsView(sim_data.process.transcription.rnaData["id"])
 	rnaMass = sim_data.mass.avgCellSubMass["rnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
@@ -103,14 +101,14 @@ def initializeRNA(bulkMolCntr, sim_data, randomState, timeStep):
 		randomState.multinomial(nRnas, rnaExpression)
 		)
 
-def initializeDNA(bulkMolCntr, sim_data, randomState, timeStep):
+def initializeDNA(bulkMolCntr, sim_data, randomState):
 
 	chromosomeView = bulkMolCntr.countsView(sim_data.moleculeGroups.fullChromosome)
 	chromosomeView.countsIs([1])
 
 # TODO: remove checks for zero concentrations (change to assertion)
 # TODO: move any rescaling logic to KB/fitting
-def initializeSmallMolecules(bulkMolCntr, sim_data, randomState, timeStep):
+def initializeSmallMolecules(bulkMolCntr, sim_data, randomState):
 	avgCellSubMass = sim_data.mass.avgCellSubMass
 
 	mass = (avgCellSubMass["proteinMass"] + avgCellSubMass["rnaMass"] + avgCellSubMass["dnaMass"]) / sim_data.mass.avgCellToInitialCellConvFactor
@@ -143,7 +141,7 @@ def initializeSmallMolecules(bulkMolCntr, sim_data, randomState, timeStep):
 		poolIds
 		)
 
-def initializeGenes(bulkChrmCntr, sim_data, timeStep):
+def initializeGenes(bulkChrmCntr, sim_data):
 	"""
 	initializeGenes
 
