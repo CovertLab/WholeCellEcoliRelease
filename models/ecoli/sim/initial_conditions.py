@@ -31,11 +31,9 @@ def calcInitialConditions(sim, sim_data):
 
 	bulkMolCntr = sim.states['BulkMolecules'].container
 	uniqueMolCntr = sim.states["UniqueMolecules"].container
-	bulkChrmCntr = sim.states["BulkChromosome"].container
 
 	# Set up states
 	initializeBulkMolecules(bulkMolCntr, sim_data, randomState)
-	initializeBulkChromosome(bulkChrmCntr, sim_data, randomState)
 	initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
 
 def initializeBulkMolecules(bulkMolCntr, sim_data, randomState):
@@ -51,10 +49,6 @@ def initializeBulkMolecules(bulkMolCntr, sim_data, randomState):
 
 	## Set other biomass components
 	initializeSmallMolecules(bulkMolCntr, sim_data, randomState)
-
-def initializeBulkChromosome(bulkChrmCntr, sim_data, randomState):
-	## Set genes
-	initializeGenes(bulkChrmCntr, sim_data)
 
 def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	initializeReplication(uniqueMolCntr, sim_data)
@@ -141,17 +135,6 @@ def initializeSmallMolecules(bulkMolCntr, sim_data, randomState):
 		poolIds
 		)
 
-def initializeGenes(bulkChrmCntr, sim_data):
-	"""
-	initializeGenes
-
-	Purpose:
-	Initializes the counts of genes in BulkChromosome
-	"""
-
-	geneView = bulkChrmCntr.countsView(sim_data.process.replication.geneData['name'])
-	geneView.countsInc(1)
-
 def initializeReplication(uniqueMolCntr, sim_data):
 	"""
 	initializeReplication
@@ -209,9 +192,6 @@ def setDaughterInitialConditions(sim, sim_data):
 
 	bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkMolecules"))
 	sim.states["BulkMolecules"].tableLoad(bulk_table_reader, 0)
-
-	# bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkChromosome"))
-	# sim.states["BulkChromosome"].tableLoad(bulk_table_reader, 0)
 
 	unique_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "UniqueMolecules"))
 	sim.states["UniqueMolecules"].tableLoad(unique_table_reader, 0)

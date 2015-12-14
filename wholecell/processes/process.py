@@ -69,15 +69,6 @@ class Process(object):
 		return wholecell.states.bulk_molecules.BulkMoleculeView(
 			self._states['BulkMolecules'], self, moleculeIDs)
 
-	def bulkChromosomesView(self, moleculeIDs):
-		return wholecell.states.bulk_chromosome.BulkChromosomesView(
-			self._states['BulkChromosome'], self, moleculeIDs)
-
-
-	def bulkChromosomeView(self, moleculeIDs):
-		return wholecell.states.bulk_chromosome.BulkChromosomeView(
-			self._states['BulkChromosome'], self, moleculeIDs)
-
 
 	def uniqueMoleculesView(self, moleculeName, **attributes):
 		return wholecell.states.unique_molecules.UniqueMoleculesView(
