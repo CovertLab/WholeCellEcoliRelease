@@ -290,7 +290,7 @@ class Simulation(object):
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
 			time = self.time(),
-			timeStep = self.timeStep()
+			timeStepSec = self.timeStepSec()
 			)
 
 
