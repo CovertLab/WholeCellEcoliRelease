@@ -31,11 +31,11 @@ class AtpUsage(wholecell.processes.process.Process):
 		super(AtpUsage, self).__init__()
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(AtpUsage, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(AtpUsage, self).initialize(sim, sim_data)
 
 		# Load constants
-		self.nAvogadro = kb.constants.nAvogadro.asNumber(1 / units.mol)
+		self.nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / units.mol)
 
 		moleculeIds = ["ATP[c]", "WATER[c]", "Pi[c]", "ADP[c]", "PROTON[c]"]
 		self.molecules = self.bulkMoleculesView(moleculeIds)
@@ -48,7 +48,7 @@ class AtpUsage(wholecell.processes.process.Process):
 		# self.h = self.bulkMoleculeView("PROTON[c]")
 
 		self.nongrowthAssociated_reactionsPerTimestep = (
-			kb.constants.nonGrowthAssociatedMaintenance * kb.constants.nAvogadro
+			sim_data.constants.nonGrowthAssociatedMaintenance * sim_data.constants.nAvogadro
 			).asNumber(1/units.fg/units.s) * self.timeStepSec
 
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_ATP_USAGE)

@@ -28,12 +28,12 @@ class GeneCopyNumber(wholecell.listeners.listener.Listener):
 		self.countUnits = "counts"
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(GeneCopyNumber, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(GeneCopyNumber, self).initialize(sim, sim_data)
 
 		self.bulkChromosome = sim.states['BulkChromosome']
 
-		self.geneIds = kb.process.replication.geneData['name']
+		self.geneIds = sim_data.process.replication.geneData['name']
 
 		self.geneView = self.bulkChromosome.container.countsView(self.geneIds)
 

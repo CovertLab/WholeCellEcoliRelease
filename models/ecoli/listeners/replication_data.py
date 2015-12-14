@@ -29,8 +29,8 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(ReplicationData, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(ReplicationData, self).initialize(sim, sim_data)
 
 		self.uniqueMolecules = sim.states['UniqueMolecules']
 

@@ -26,27 +26,27 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		super(ReplicationElongation, self).__init__()
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(ReplicationElongation, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(ReplicationElongation, self).initialize(sim, sim_data)
 
 		# Load parameters
-		self.dnaPolymeraseElongationRate = kb.growthRateParameters.dnaPolymeraseElongationRate.asNumber(units.nt / units.s) * self.timeStepSec
+		self.dnaPolymeraseElongationRate = sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(units.nt / units.s) * self.timeStepSec
 		self.dnaPolymeraseElongationRate = int(round(self.dnaPolymeraseElongationRate)) # TODO: Make this not a hack in the KB
 
-		self.criticalInitiationMass = kb.mass.avgCell60MinDoublingTimeTotalMassInit
+		self.criticalInitiationMass = sim_data.mass.avgCell60MinDoublingTimeTotalMassInit
 
-		self.sequenceLengths = kb.process.replication.sequence_lengths
-		self.sequences = kb.process.replication.replication_sequences
-		self.polymerized_dntp_weights = kb.process.replication.replicationMonomerWeights
+		self.sequenceLengths = sim_data.process.replication.sequence_lengths
+		self.sequences = sim_data.process.replication.replication_sequences
+		self.polymerized_dntp_weights = sim_data.process.replication.replicationMonomerWeights
 
 		# Views
 		self.activeDnaPoly = self.uniqueMoleculesView('dnaPolymerase')
 
 		self.oriCs = self.uniqueMoleculesView('originOfReplication')
 
-		self.dntps = self.bulkMoleculesView(kb.moleculeGroups.dNtpIds)
+		self.dntps = self.bulkMoleculesView(sim_data.moleculeGroups.dNtpIds)
 		self.ppi = self.bulkMoleculeView('PPI[c]')
-		self.chromosomeHalves = self.bulkMoleculesView(kb.moleculeGroups.partialChromosome)
+		self.chromosomeHalves = self.bulkMoleculesView(sim_data.moleculeGroups.partialChromosome)
 
 		self.full_chromosome = self.bulkMoleculeView("CHROM_FULL[c]")
 

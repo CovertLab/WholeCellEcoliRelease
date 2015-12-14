@@ -37,43 +37,43 @@ class Mass(wholecell.listeners.listener.Listener):
 
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(Mass, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(Mass, self).initialize(sim, sim_data)
 
 		self.states = sim.states
 
 		self.processNames = list(sim.processes.keys()) + ["Unallocated"]
 
-		self.cellCycleLen = kb.doubling_time.asNumber(units.s)
+		self.cellCycleLen = sim_data.doubling_time.asNumber(units.s)
 
 		self.rnaIndexes = np.array([
-			kb.submassNameToIndex[name]
+			sim_data.submassNameToIndex[name]
 			for name in ["23srRNA", "16srRNA", "5srRNA", "tRNA", "mRNA", "miscRNA", "RNA"]
 			])
 
 		self.rRnaIndexes = np.array([
-			kb.submassNameToIndex[name]
+			sim_data.submassNameToIndex[name]
 			for name in ["23srRNA", "16srRNA", "5srRNA"]
 			])
 
 		self.smallMoleculeIndexes = np.array([
-			kb.submassNameToIndex[name]
+			sim_data.submassNameToIndex[name]
 			for name in ["metabolite"]
 			])
 
-		self.tRnaIndex = kb.submassNameToIndex["tRNA"]
+		self.tRnaIndex = sim_data.submassNameToIndex["tRNA"]
 
-		self.mRnaIndex = kb.submassNameToIndex["mRNA"]
+		self.mRnaIndex = sim_data.submassNameToIndex["mRNA"]
 
-		self.dnaIndex = kb.submassNameToIndex["DNA"]
+		self.dnaIndex = sim_data.submassNameToIndex["DNA"]
 
-		self.proteinIndex = kb.submassNameToIndex["protein"]
+		self.proteinIndex = sim_data.submassNameToIndex["protein"]
 
-		self.waterIndex = kb.submassNameToIndex["water"]
+		self.waterIndex = sim_data.submassNameToIndex["water"]
 
 		# Set total mass that should be added to cell
 		# This is an approximation for length
-		self.expectedMassIncrease = kb.mass.avgCellDryMassInit
+		self.expectedMassIncrease = sim_data.mass.avgCellDryMassInit
 
 		# Set initial values
 

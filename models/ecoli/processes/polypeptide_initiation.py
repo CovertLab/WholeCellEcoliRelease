@@ -23,6 +23,7 @@ import numpy as np
 
 import wholecell.processes.process
 from wholecell.utils import units
+from wholecell.utils.fitting import normalize
 
 import itertools
 
@@ -47,23 +48,24 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(PolypeptideInitiation, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(PolypeptideInitiation, self).initialize(sim, sim_data)
 
 		# Load parameters
 
-		mrnaIds = kb.process.translation.monomerData["rnaId"]
-		
-		self.proteinLens = kb.process.translation.monomerData["length"].asNumber()
+		mrnaIds = sim_data.process.translation.monomerData["rnaId"]
+
+		self.proteinLens = sim_data.process.translation.monomerData["length"].asNumber()
 
 		# Views
 
 		self.activeRibosomes = self.uniqueMoleculesView('activeRibosome')
 
-		self.ribosome30S = self.bulkMoleculeView(kb.moleculeGroups.s30_fullComplex[0])
-		self.ribosome50S = self.bulkMoleculeView(kb.moleculeGroups.s50_fullComplex[0])
+		self.ribosome30S = self.bulkMoleculeView(sim_data.moleculeGroups.s30_fullComplex[0])
+		self.ribosome50S = self.bulkMoleculeView(sim_data.moleculeGroups.s50_fullComplex[0])
 
 		self.mRnas = self.bulkMoleculesView(mrnaIds)
+		self.translationEfficiencies = normalize(sim_data.process.translation.translationEfficienciesByMonomer)
 
 
 	def calculateRequest(self):
@@ -85,10 +87,9 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 		if inactiveRibosomeCount == 0:
 			return
 
-		proteinInitProb = (
-			self.mRnas.counts() /
-			self.mRnas.counts().sum()
-			).flatten()	# TODO: Is this .flatten() necessary?
+		proteinInitProb = normalize(
+			self.mRnas.counts() * self.translationEfficiencies
+			)
 
 		nNewProteins = self.randomState.multinomial(
 			inactiveRibosomeCount,

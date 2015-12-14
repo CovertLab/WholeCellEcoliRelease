@@ -32,7 +32,7 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 import wholecell.utils.constants
 from wholecell.utils import units
 
-def main(seedOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
+def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
@@ -40,8 +40,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	kb = cPickle.load(open(kbFile, "rb"))
-	allRnaIds = kb.process.transcription.rnaData["id"].tolist()
+	sim_data = cPickle.load(open(simDataFile, "rb"))
+	allRnaIds = sim_data.process.transcription.rnaData["id"].tolist()
+	dt = sim_data.timeStepSec
 
 	rnaIds = [
 		"EG10367_RNA[c]", "EG11036_RNA[c]", "EG50002_RNA[c]", "EG10671_RNA[c]", "EG50003_RNA[c]",
@@ -61,7 +62,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	]
 
 	rnaIdxs = [allRnaIds.index(x) for x in rnaIds]
-	degRates = kb.process.transcription.rnaData["degRate"][rnaIdxs]
+	degRates = sim_data.process.transcription.rnaData["degRate"][rnaIdxs]
 
 	ap = AnalysisPaths(seedOutDir)
 
@@ -114,7 +115,13 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		y = rnaDegradedCountsAveraged[:, subplotIdx]
 
 		A = rnaCountsAveraged[:, subplotIdx]
-		kdeg, _, _, _ = np.linalg.lstsq(A[:, np.newaxis], y)
+		try:
+			kdeg, _, _, _ = np.linalg.lstsq(A[:, np.newaxis], y)
+		except ValueError:
+			# TODO: Come up with a better/more descriptive error message
+			# This is to handle errors that occurs when running short simulations
+			print "Skipping subplot %d because not enough data" % subplotIdx
+			continue
 
 		plt.scatter(
 			rnaCountsAveraged[::N, subplotIdx],
@@ -125,7 +132,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		plt.ylabel("RNA degraded (counts)", size = 10)
 		plt.title(names[subplotIdx].split(" - ")[0] +
 			"\n" +
-			"kdeg meas: %0.1e\n" % kdeg +
+			"kdeg meas: %0.1e\n" % (kdeg / dt) +
 			"kdeg exp:  %0.1e" % degRates[subplotIdx].asNumber(1 / units.s),
 			size = 10,
 			)
@@ -137,7 +144,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 
 if __name__ == "__main__":
-	defaultKBFile = os.path.join(
+	defaultSimDataFile = os.path.join(
 			wholecell.utils.constants.SERIALIZED_KB_DIR,
 			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
 			)
@@ -146,8 +153,8 @@ if __name__ == "__main__":
 	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
 	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
 	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
+	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
 
 	args = parser.parse_args().__dict__
 
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])

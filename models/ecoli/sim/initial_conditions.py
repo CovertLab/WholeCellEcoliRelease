@@ -25,7 +25,7 @@ from wholecell.utils import units
 
 from wholecell.io.tablereader import TableReader
 
-def calcInitialConditions(sim, kb):
+def calcInitialConditions(sim, sim_data):
 	assert sim._inheritedStatePath == None
 	randomState = sim.randomState
 
@@ -36,90 +36,91 @@ def calcInitialConditions(sim, kb):
 	bulkChrmCntr = sim.states["BulkChromosome"].container
 
 	# Set up states
-	initializeBulkMolecules(bulkMolCntr, kb, randomState, timeStep)
-	initializeBulkChromosome(bulkChrmCntr, kb, randomState, timeStep)
-	initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep)
+	initializeBulkMolecules(bulkMolCntr, sim_data, randomState, timeStep)
+	initializeBulkChromosome(bulkChrmCntr, sim_data, randomState, timeStep)
+	initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState, timeStep)
 
-def initializeBulkMolecules(bulkMolCntr, kb, randomState, timeStep):
+def initializeBulkMolecules(bulkMolCntr, sim_data, randomState, timeStep):
 
 	## Set protein counts from expression
-	initializeProteinMonomers(bulkMolCntr, kb, randomState, timeStep)
+	initializeProteinMonomers(bulkMolCntr, sim_data, randomState, timeStep)
 
 	## Set RNA counts from expression
-	initializeRNA(bulkMolCntr, kb, randomState, timeStep)
+	initializeRNA(bulkMolCntr, sim_data, randomState, timeStep)
 
 	## Set DNA
-	initializeDNA(bulkMolCntr, kb, randomState, timeStep)
+	initializeDNA(bulkMolCntr, sim_data, randomState, timeStep)
 
 	## Set other biomass components
-	initializeSmallMolecules(bulkMolCntr, kb, randomState, timeStep)
+	initializeSmallMolecules(bulkMolCntr, sim_data, randomState, timeStep)
 
-def initializeBulkChromosome(bulkChrmCntr, kb, randomState, timeStep):
+def initializeBulkChromosome(bulkChrmCntr, sim_data, randomState, timeStep):
 	## Set genes
-	initializeGenes(bulkChrmCntr, kb, timeStep)
+	initializeGenes(bulkChrmCntr, sim_data, timeStep)
 
-def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, kb, randomState, timeStep):
-	initializeReplication(uniqueMolCntr, kb)
+def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState, timeStep):
+	initializeReplication(uniqueMolCntr, sim_data)
 
-def initializeProteinMonomers(bulkMolCntr, kb, randomState, timeStep):
+def initializeProteinMonomers(bulkMolCntr, sim_data, randomState, timeStep):
 
-	monomersView = bulkMolCntr.countsView(kb.process.translation.monomerData["id"])
-	monomerMass = kb.mass.avgCellSubMass["proteinMass"] / kb.mass.avgCellToInitialCellConvFactor
+	monomersView = bulkMolCntr.countsView(sim_data.process.translation.monomerData["id"])
+	monomerMass = sim_data.mass.avgCellSubMass["proteinMass"] / sim_data.mass.avgCellToInitialCellConvFactor
 	# TODO: unify this logic with the fitter so it doesn't fall out of step
 	# again (look at the calcProteinCounts function)
 
 	monomerExpression = normalize(
-		kb.process.transcription.rnaData["expression"][kb.relation.rnaIndexToMonomerMapping] /
-		(np.log(2) / kb.doubling_time.asNumber(units.s) + kb.process.translation.monomerData["degRate"].asNumber(1 / units.s))
+		sim_data.process.transcription.rnaData["expression"][sim_data.relation.rnaIndexToMonomerMapping] *
+		sim_data.process.translation.translationEfficienciesByMonomer /
+		(np.log(2) / sim_data.doubling_time.asNumber(units.s) + sim_data.process.translation.monomerData["degRate"].asNumber(1 / units.s))
 		)
 
 	nMonomers = countsFromMassAndExpression(
 		monomerMass.asNumber(units.g),
-		kb.process.translation.monomerData["mw"].asNumber(units.g/units.mol),
+		sim_data.process.translation.monomerData["mw"].asNumber(units.g/units.mol),
 		monomerExpression,
-		kb.constants.nAvogadro.asNumber(1/units.mol)
+		sim_data.constants.nAvogadro.asNumber(1/units.mol)
 		)
 
 	monomersView.countsIs(
 		randomState.multinomial(nMonomers, monomerExpression)
 		)
 
-def initializeRNA(bulkMolCntr, kb, randomState, timeStep):
+def initializeRNA(bulkMolCntr, sim_data, randomState, timeStep):
 
-	rnaView = bulkMolCntr.countsView(kb.process.transcription.rnaData["id"])
-	rnaMass = kb.mass.avgCellSubMass["rnaMass"] / kb.mass.avgCellToInitialCellConvFactor
+	rnaView = bulkMolCntr.countsView(sim_data.process.transcription.rnaData["id"])
+	rnaMass = sim_data.mass.avgCellSubMass["rnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
 
-	rnaExpression = normalize(kb.process.transcription.rnaData["expression"])
+	rnaExpression = normalize(sim_data.process.transcription.rnaData["expression"])
 
 	nRnas = countsFromMassAndExpression(
 		rnaMass.asNumber(units.g),
-		kb.process.transcription.rnaData["mw"].asNumber(units.g/units.mol),
+		sim_data.process.transcription.rnaData["mw"].asNumber(units.g/units.mol),
 		rnaExpression,
-		kb.constants.nAvogadro.asNumber(1/units.mol)
+		sim_data.constants.nAvogadro.asNumber(1/units.mol)
 		)
 
 	rnaView.countsIs(
 		randomState.multinomial(nRnas, rnaExpression)
 		)
 
-def initializeDNA(bulkMolCntr, kb, randomState, timeStep):
+def initializeDNA(bulkMolCntr, sim_data, randomState, timeStep):
 
-	chromosomeView = bulkMolCntr.countsView(kb.moleculeGroups.fullChromosome)
+	chromosomeView = bulkMolCntr.countsView(sim_data.moleculeGroups.fullChromosome)
 	chromosomeView.countsIs([1])
 
 # TODO: remove checks for zero concentrations (change to assertion)
 # TODO: move any rescaling logic to KB/fitting
-def initializeSmallMolecules(bulkMolCntr, kb, randomState, timeStep):
-	avgCellSubMass = kb.mass.avgCellSubMass
+def initializeSmallMolecules(bulkMolCntr, sim_data, randomState, timeStep):
+	avgCellSubMass = sim_data.mass.avgCellSubMass
 
-	mass = (avgCellSubMass["proteinMass"] + avgCellSubMass["rnaMass"] + avgCellSubMass["dnaMass"]) / kb.mass.avgCellToInitialCellConvFactor
+	mass = (avgCellSubMass["proteinMass"] + avgCellSubMass["rnaMass"] + avgCellSubMass["dnaMass"]) / sim_data.mass.avgCellToInitialCellConvFactor
 
 	# We have to remove things with zero concentration because taking the inverse of zero isn't so nice.
-	poolIds = [x for idx, x in enumerate(kb.process.metabolism.metabolitePoolIDs) if kb.process.metabolism.metabolitePoolConcentrations.asNumber()[idx] > 0]
-	poolConcentrations = (units.mol / units.L) * np.array([x for x in kb.process.metabolism.metabolitePoolConcentrations.asNumber() if x > 0])
+	poolIds = [x for idx, x in enumerate(sim_data.process.metabolism.metabolitePoolIDs) if sim_data.process.metabolism.metabolitePoolConcentrations.asNumber()[idx] > 0]
+	poolConcentrations = (units.mol / units.L) * np.array([x for x in sim_data.process.metabolism.metabolitePoolConcentrations.asNumber() if x > 0])
 
-	cellDensity = kb.constants.cellDensity
-	mws = kb.getter.getMass(poolIds)
+	cellDensity = sim_data.constants.cellDensity
+	mws = sim_data.getter.getMass(poolIds)
 	concentrations = poolConcentrations.copy()
 
 	diag = (cellDensity / (mws * concentrations) - 1).asNumber()
@@ -128,12 +129,12 @@ def initializeSmallMolecules(bulkMolCntr, kb, randomState, timeStep):
 	b = mass.asNumber(units.g) * np.ones(diag.size)
 
 	massesToAdd = units.g * np.linalg.solve(A, b)
-	countsToAdd = massesToAdd / mws * kb.constants.nAvogadro
+	countsToAdd = massesToAdd / mws * sim_data.constants.nAvogadro
 
 	V = (mass + units.sum(massesToAdd)) / cellDensity
 
 	assert np.allclose(
-		(countsToAdd / kb.constants.nAvogadro / V).asNumber(units.mol / units.L),
+		(countsToAdd / sim_data.constants.nAvogadro / V).asNumber(units.mol / units.L),
 		(poolConcentrations).asNumber(units.mol / units.L)
 		)
 
@@ -142,7 +143,7 @@ def initializeSmallMolecules(bulkMolCntr, kb, randomState, timeStep):
 		poolIds
 		)
 
-def initializeGenes(bulkChrmCntr, kb, timeStep):
+def initializeGenes(bulkChrmCntr, sim_data, timeStep):
 	"""
 	initializeGenes
 
@@ -150,10 +151,10 @@ def initializeGenes(bulkChrmCntr, kb, timeStep):
 	Initializes the counts of genes in BulkChromosome
 	"""
 
-	geneView = bulkChrmCntr.countsView(kb.process.replication.geneData['name'])
+	geneView = bulkChrmCntr.countsView(sim_data.process.replication.geneData['name'])
 	geneView.countsInc(1)
 
-def initializeReplication(uniqueMolCntr, kb):
+def initializeReplication(uniqueMolCntr, sim_data):
 	"""
 	initializeReplication
 
@@ -162,10 +163,10 @@ def initializeReplication(uniqueMolCntr, kb):
 
 	## Determine the number and location of replication forks at the start of the cell cycle
 	# Find growth rate constants
-	C = kb.growthRateParameters.c_period.asUnit(units.min)
-	D = kb.growthRateParameters.d_period.asUnit(units.min)
-	tau = kb.doubling_time.asUnit(units.min)
-	genome_length = kb.process.replication.genome_length
+	C = sim_data.growthRateParameters.c_period.asUnit(units.min)
+	D = sim_data.growthRateParameters.d_period.asUnit(units.min)
+	tau = sim_data.doubling_time.asUnit(units.min)
+	genome_length = sim_data.process.replication.genome_length
 	replication_length = np.ceil(.5*genome_length) * units.nt
 
 	# Generate arrays specifying appropriate replication conditions
@@ -186,16 +187,16 @@ def initializeReplication(uniqueMolCntr, kb):
 
 	## Update polymerases mass to account for already completed DNA
 	# Determine the sequences of already-replicated DNA
-	sequences = kb.process.replication.replication_sequences
+	sequences = sim_data.process.replication.replication_sequences
 	sequenceElongations = np.array(sequenceLength, dtype=np.int64)
 	massIncreaseDna = computeMassIncrease(
 			np.tile(sequences,(len(sequenceIdx) / 4,1)),
 			sequenceElongations,
-			kb.process.replication.replicationMonomerWeights.asNumber(units.fg)	
+			sim_data.process.replication.replicationMonomerWeights.asNumber(units.fg)	
 			)
 
 	# Update the attributes of replicating DNA polymerases
-	oricCenter = kb.constants
+	oricCenter = sim_data.constants
 	dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', len(sequenceIdx))
 	dnaPoly.attrIs(
 		sequenceIdx = np.array(sequenceIdx),
@@ -205,7 +206,7 @@ def initializeReplication(uniqueMolCntr, kb):
 		massDiff_DNA = massIncreaseDna,
 		)
 
-def setDaughterInitialConditions(sim, kb):
+def setDaughterInitialConditions(sim, sim_data):
 	assert sim._inheritedStatePath != None
 
 	bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkMolecules"))

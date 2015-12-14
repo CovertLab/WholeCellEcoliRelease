@@ -27,8 +27,8 @@ class ReplicationInitiation(wholecell.processes.process.Process):
 		super(ReplicationInitiation, self).__init__()
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(ReplicationInitiation, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(ReplicationInitiation, self).initialize(sim, sim_data)
 
 		# Load parameters
 		

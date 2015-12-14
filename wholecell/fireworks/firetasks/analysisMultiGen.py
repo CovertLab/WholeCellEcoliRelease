@@ -12,7 +12,8 @@ class AnalysisMultiGenTask(FireTaskBase):
 	_fw_name = "AnalysisMultiGenTask"
 	required_params = [
 		"input_seed_directory",
-		"input_kb",
+		"input_sim_data",
+		"input_validation_data",
 		"output_plots_directory",
 		"metadata",
 		]
@@ -36,6 +37,7 @@ class AnalysisMultiGenTask(FireTaskBase):
 				self["input_seed_directory"],
 				self["output_plots_directory"],
 				f[:-3],
-				self["input_kb"],
+				self["input_sim_data"],
+				self["input_validation_data"],
 				self["metadata"]
 				)

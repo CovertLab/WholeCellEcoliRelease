@@ -33,18 +33,18 @@ class Complexation(wholecell.processes.process.Process):
 
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(Complexation, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(Complexation, self).initialize(sim, sim_data)
 
 		# Create matrices and vectors
 
-		self.stoichMatrix = kb.process.complexation.stoichMatrix().astype(np.int64, order = "F")
+		self.stoichMatrix = sim_data.process.complexation.stoichMatrix().astype(np.int64, order = "F")
 
 		self.prebuiltMatrices = mccBuildMatrices(self.stoichMatrix)
 
 		# Build views
 
-		moleculeNames = kb.process.complexation.moleculeNames
+		moleculeNames = sim_data.process.complexation.moleculeNames
 
 		self.molecules = self.bulkMoleculesView(moleculeNames)
 

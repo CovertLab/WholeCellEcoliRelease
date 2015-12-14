@@ -28,13 +28,13 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		super(EnzymeKinetics, self).__init__(*args, **kwargs)
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(EnzymeKinetics, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(EnzymeKinetics, self).initialize(sim, sim_data)
 
 		self.metabolism = sim.processes["Metabolism"]
-		self.reactionRateInfo = kb.process.metabolism.reactionRateInfo
-		self.metaboliteIDs = kb.process.metabolism.metabolitePoolIDs
-		self.constraintToReactionDict = kb.process.metabolism.constraintToReactionDict
+		self.reactionRateInfo = sim_data.process.metabolism.reactionRateInfo
+		self.metaboliteIDs = sim_data.process.metabolism.metabolitePoolIDs
+		self.constraintToReactionDict = sim_data.process.metabolism.constraintToReactionDict
 
 	# Allocate memory
 	# In case things are of unknown size, write them here

@@ -25,10 +25,10 @@ class RnaDegradationListener(wholecell.listeners.listener.Listener):
 		self.countUnits = "counts"
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(RnaDegradationListener, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(RnaDegradationListener, self).initialize(sim, sim_data)
 
-		self.countRnaDegraded = np.zeros(kb.process.transcription.rnaData.fullArray().size, np.int64)
+		self.countRnaDegraded = np.zeros(sim_data.process.transcription.rnaData.fullArray().size, np.int64)
 		self.nucleotidesFromDegradation = 0
 		self.FractionActiveEndoRNases = 0.
 

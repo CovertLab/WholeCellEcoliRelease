@@ -58,7 +58,7 @@ COLORS_SMALL = ["#FF0000", "#00FF00", "#0000FF", "#FF00FF", "#00FFFF", "#000000"
 		"#38B0DE", "#DB9370", "#5C4033", "#4F2F4F", "#CC3299", "#99CC32"]
 
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
+def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
 
@@ -81,8 +81,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 		# Check that only one plotting script is active.
 		if (findRandomRxnZero + findMaxConstraintsGreedy + findMinMaxConstraintsGreedy + findTimeCourseError) > 1:
-			print "Can only run one of %s, %s, %s, %s at a time." % ("findRandomRxnZero" + "findMaxConstraintsGreedy" + "findMinMaxConstraintsGreedy" + "findTimeCourseError")
-			assert False
+			raise Exception("Can only run one of %s, %s, %s, %s at a time." % ("findRandomRxnZero" + "findMaxConstraintsGreedy" + "findMinMaxConstraintsGreedy" + "findTimeCourseError"))
 
 		enzymeKineticsdata = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
 
@@ -118,60 +117,60 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 
 		# Load data from KB
-		kb = cPickle.load(open(kbFile, "rb"))
+		sim_data = cPickle.load(open(simDataFile, "rb"))
 
 		# Load constants
-		nAvogadro = kb.constants.nAvogadro.asNumber(1 / COUNTS_UNITS)
-		cellDensity = kb.constants.cellDensity.asNumber(MASS_UNITS/VOLUME_UNITS)
+		nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / COUNTS_UNITS)
+		cellDensity = sim_data.constants.cellDensity.asNumber(MASS_UNITS/VOLUME_UNITS)
 
-		metabolitePoolIDs = kb.process.metabolism.metabolitePoolIDs
-		targetConcentrations = kb.process.metabolism.metabolitePoolConcentrations.asNumber(COUNTS_UNITS/VOLUME_UNITS)
+		metabolitePoolIDs = sim_data.process.metabolism.metabolitePoolIDs
+		targetConcentrations = sim_data.process.metabolism.metabolitePoolConcentrations.asNumber(COUNTS_UNITS/VOLUME_UNITS)
 
 		# Load enzyme kinetic rate information
-		reactionRateInfo = kb.process.metabolism.reactionRateInfo
-		enzymesWithKineticInfo = kb.process.metabolism.enzymesWithKineticInfo["enzymes"]
-		constraintIDs = kb.process.metabolism.constraintIDs
-		constraintToReactionDict = kb.process.metabolism.constraintToReactionDict
+		reactionRateInfo = sim_data.process.metabolism.reactionRateInfo
+		enzymesWithKineticInfo = sim_data.process.metabolism.enzymesWithKineticInfo["enzymes"]
+		constraintIDs = sim_data.process.metabolism.constraintIDs
+		constraintToReactionDict = sim_data.process.metabolism.constraintToReactionDict
 
 		objective = dict(zip(
 			metabolitePoolIDs,
 			targetConcentrations
 			))
 
-		extIDs = kb.process.metabolism.externalExchangeMolecules
-		extMoleculeMasses = kb.getter.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS)
+		extIDs = sim_data.process.metabolism.externalExchangeMolecules
+		extMoleculeMasses = sim_data.getter.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS)
 
 		moleculeMasses = dict(zip(
 			extIDs,
-			kb.getter.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS)
+			sim_data.getter.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS)
 			))
 
-		initWaterMass = kb.mass.avgCellWaterMassInit
-		initDryMass = kb.mass.avgCellDryMassInit
+		initWaterMass = sim_data.mass.avgCellWaterMassInit
+		initDryMass = sim_data.mass.avgCellDryMassInit
 
 		initCellMass = (
 			initWaterMass
 			+ initDryMass
 			)
 
-		energyCostPerWetMass = kb.constants.darkATP * initDryMass / initCellMass
+		energyCostPerWetMass = sim_data.constants.darkATP * initDryMass / initCellMass
 
 		# Set up FBA solver
 		fba = FluxBalanceAnalysis(
-			kb.process.metabolism.reactionStoich.copy(), # TODO: copy in class
-			kb.process.metabolism.externalExchangeMolecules,
+			sim_data.process.metabolism.reactionStoich.copy(), # TODO: copy in class
+			sim_data.process.metabolism.externalExchangeMolecules,
 			objective,
 			objectiveType = "pools",
-			reversibleReactions = kb.process.metabolism.reversibleReactions,
+			reversibleReactions = sim_data.process.metabolism.reversibleReactions,
 			moleculeMasses = moleculeMasses,
 			)
 		
 		# Find external molecules levels
 		externalMoleculeIDs = fba.externalMoleculeIDs()
 
-		coefficient = initDryMass / initCellMass * kb.constants.cellDensity * (timeStepSec * units.s)
+		coefficient = initDryMass / initCellMass * sim_data.constants.cellDensity * (timeStepSec * units.s)
 
-		externalMoleculeLevels = kb.process.metabolism.exchangeConstraints(
+		externalMoleculeLevels = sim_data.process.metabolism.exchangeConstraints(
 			externalMoleculeIDs,
 			coefficient,
 			COUNTS_UNITS / VOLUME_UNITS
@@ -281,7 +280,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 
 
 if __name__ == "__main__":
-	defaultKBFile = os.path.join(
+	defaultSimDataFile = os.path.join(
 			wholecell.utils.constants.SERIALIZED_KB_DIR,
 			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
 			)
@@ -290,11 +289,11 @@ if __name__ == "__main__":
 	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
 	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
 	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
+	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
 
 	args = parser.parse_args().__dict__
 	
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
 
 
 def evaluatePoint(fba, metaboliteCountsInit, desiredConcentrations, countsToMolar):

@@ -56,36 +56,36 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(PolypeptideElongation, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(PolypeptideElongation, self).initialize(sim, sim_data)
 
 		# Load parameters
 
-		self.elngRate = float(kb.growthRateParameters.ribosomeElongationRate.asNumber(units.aa / units.s)) * self.timeStepSec
+		self.elngRate = float(sim_data.growthRateParameters.ribosomeElongationRate.asNumber(units.aa / units.s)) * self.timeStepSec
 		self.elngRate = int(round(self.elngRate)) # TODO: Make this less of a hack by implementing in the KB
 
-		self.nAvogadro = kb.constants.nAvogadro
-		self.cellDensity = kb.constants.cellDensity
+		self.nAvogadro = sim_data.constants.nAvogadro
+		self.cellDensity = sim_data.constants.cellDensity
 
 		enzIds = ["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"]
 
-		proteinIds = kb.process.translation.monomerData['id']
+		proteinIds = sim_data.process.translation.monomerData['id']
 
-		self.proteinLengths = kb.process.translation.monomerData["length"].asNumber()
+		self.proteinLengths = sim_data.process.translation.monomerData["length"].asNumber()
 
-		self.proteinSequences = kb.process.translation.translationSequences
+		self.proteinSequences = sim_data.process.translation.translationSequences
 
-		self.aaWeightsIncorporated = kb.process.translation.translationMonomerWeights
+		self.aaWeightsIncorporated = sim_data.process.translation.translationMonomerWeights
 
-		self.endWeight = kb.process.translation.translationEndWeight
+		self.endWeight = sim_data.process.translation.translationEndWeight
 
-		self.gtpPerElongation = kb.constants.gtpPerTranslation
+		self.gtpPerElongation = sim_data.constants.gtpPerTranslation
 
 		##########
-		aaIdxs = [kb.process.metabolism.metabolitePoolIDs.index(aaID) for aaID in kb.moleculeGroups.aaIDs]
-		aaConcentrations = kb.process.metabolism.metabolitePoolConcentrations[aaIdxs]
+		aaIdxs =  [sim_data.process.metabolism.metabolitePoolIDs.index(aaID) for aaID in sim_data.moleculeGroups.aaIDs]
+		aaConcentrations = sim_data.process.metabolism.metabolitePoolConcentrations[aaIdxs]
 		total_aa_concentration = units.sum(aaConcentrations)
-		self.saturation_km = kb.synthetase_km_scale * total_aa_concentration
+		self.saturation_km = sim_data.synthetase_km_scale * total_aa_concentration
 		##########
 
 		# Views
@@ -93,7 +93,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.activeRibosomes = self.uniqueMoleculesView('activeRibosome')
 		self.bulkMonomers = self.bulkMoleculesView(proteinIds)
 
-		self.aas = self.bulkMoleculesView(kb.moleculeGroups.aaIDs)
+		self.aas = self.bulkMoleculesView(sim_data.moleculeGroups.aaIDs)
 		self.h2o = self.bulkMoleculeView('WATER[c]')
 
 		self.gtp = self.bulkMoleculeView("GTP[c]")
@@ -101,12 +101,12 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.pi = self.bulkMoleculeView("Pi[c]")
 		self.h   = self.bulkMoleculeView("PROTON[c]")
 
-		self.ribosome30S = self.bulkMoleculeView(kb.moleculeGroups.s30_fullComplex[0])
-		self.ribosome50S = self.bulkMoleculeView(kb.moleculeGroups.s50_fullComplex[0])
+		self.ribosome30S = self.bulkMoleculeView(sim_data.moleculeGroups.s30_fullComplex[0])
+		self.ribosome50S = self.bulkMoleculeView(sim_data.moleculeGroups.s50_fullComplex[0])
 
 		###### VARIANT CODE #######
-		self.translationSaturation = kb.translationSaturation
-		self.synthetase_km_scale = kb.synthetase_km_scale
+		self.translationSaturation = sim_data.translationSaturation
+		self.synthetase_km_scale = sim_data.synthetase_km_scale
 		###### VARIANT CODE #######
 
 	def calculateRequest(self):

@@ -12,7 +12,8 @@ class AnalysisSingleTask(FireTaskBase):
 	_fw_name = "AnalysisSingleTask"
 	required_params = [
 		"input_results_directory",
-		"input_kb",
+		"input_sim_data",
+		"input_validation_data",
 		"output_plots_directory",
 		"metadata",
 		]
@@ -38,6 +39,7 @@ class AnalysisSingleTask(FireTaskBase):
 				self["input_results_directory"],
 				self["output_plots_directory"],
 				f[:-3],
-				self["input_kb"],
+				self["input_sim_data"],
+				self["input_validation_data"],
 				self["metadata"],
 				)

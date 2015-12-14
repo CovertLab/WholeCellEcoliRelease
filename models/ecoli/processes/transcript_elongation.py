@@ -51,23 +51,23 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 
 	# Construct object graph
-	def initialize(self, sim, kb):
-		super(TranscriptElongation, self).initialize(sim, kb)
+	def initialize(self, sim, sim_data):
+		super(TranscriptElongation, self).initialize(sim, sim_data)
 
 		# Load parameters
 
-		self.elngRate = kb.growthRateParameters.rnaPolymeraseElongationRate.asNumber(units.nt / units.s) * self.timeStepSec
+		self.elngRate = sim_data.growthRateParameters.rnaPolymeraseElongationRate.asNumber(units.nt / units.s) * self.timeStepSec
 		self.elngRate = int(round(self.elngRate)) # TODO: Make this less of a hack by implementing in the KB
 
-		self.rnaIds = kb.process.transcription.rnaData['id']
+		self.rnaIds = sim_data.process.transcription.rnaData['id']
 
-		self.rnaLengths = kb.process.transcription.rnaData["length"].asNumber()
+		self.rnaLengths = sim_data.process.transcription.rnaData["length"].asNumber()
 
-		self.rnaSequences = kb.process.transcription.transcriptionSequences
+		self.rnaSequences = sim_data.process.transcription.transcriptionSequences
 
-		self.ntWeights = kb.process.transcription.transcriptionMonomerWeights
+		self.ntWeights = sim_data.process.transcription.transcriptionMonomerWeights
 
-		self.endWeight = kb.process.transcription.transcriptionEndWeight
+		self.endWeight = sim_data.process.transcription.transcriptionEndWeight
 
 		# Views
 
@@ -79,9 +79,9 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		self.inactiveRnaPolys = self.bulkMoleculeView("APORNAP-CPLX[c]")
 
-		self.isMRna = kb.process.transcription.rnaData["isMRna"]
-		self.isRRna = kb.process.transcription.rnaData["isRRna"]
-		self.isTRna = kb.process.transcription.rnaData["isTRna"]
+		self.isMRna = sim_data.process.transcription.rnaData["isMRna"]
+		self.isRRna = sim_data.process.transcription.rnaData["isRRna"]
+		self.isTRna = sim_data.process.transcription.rnaData["isTRna"]
 
 
 	def calculateRequest(self):

@@ -24,7 +24,7 @@ FONT = {
 		'size'	:	8
 		}
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
+def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
 
@@ -32,13 +32,13 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 		os.mkdir(plotOutDir)
 
 	# Load data from KB
-	kb = cPickle.load(open(kbFile, "rb"))
-	proteinIds = kb.moleculeGroups.s50_proteins
-	rnaIds = [kb.process.translation.monomerData['rnaId'][np.where(kb.process.translation.monomerData['id'] == pid)[0][0]] for pid in proteinIds]
-	rRnaIds = kb.moleculeGroups.s50_23sRRNA
-	rRnaIds.extend(kb.moleculeGroups.s50_5sRRNA)
-	complexIds = kb.moleculeGroups.s50_proteinComplexes
-	complexIds.append(kb.moleculeGroups.s50_fullComplex[0])
+	sim_data = cPickle.load(open(simDataFile, "rb"))
+	proteinIds = sim_data.moleculeGroups.s50_proteins
+	rnaIds = [sim_data.process.translation.monomerData['rnaId'][np.where(sim_data.process.translation.monomerData['id'] == pid)[0][0]] for pid in proteinIds]
+	rRnaIds = sim_data.moleculeGroups.s50_23sRRNA
+	rRnaIds.extend(sim_data.moleculeGroups.s50_5sRRNA)
+	complexIds = sim_data.moleculeGroups.s50_proteinComplexes
+	complexIds.append(sim_data.moleculeGroups.s50_fullComplex[0])
 
 	# Load count data for s30 proteins, rRNA, and final 30S complex
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
@@ -115,7 +115,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	plt.close("all")
 
 if __name__ == "__main__":
-	defaultKBFile = os.path.join(
+	defaultSimDataFile = os.path.join(
 			wholecell.utils.constants.SERIALIZED_KB_DIR,
 			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
 			)
@@ -124,8 +124,8 @@ if __name__ == "__main__":
 	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
 	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
 	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
+	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
 
 	args = parser.parse_args().__dict__
 
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])

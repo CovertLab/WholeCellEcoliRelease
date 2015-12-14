@@ -311,7 +311,7 @@
 "yjhI"	"G7912"			"G7912-MONOMER"	"G7912-MONOMER"	"Predicted"
 "sgcR"	"G7913"			"G7913-MONOMER"	"G7913-MONOMER"	"Predicted"
 "uxuR"	"EG20249"	"EG20249-MONOMER"			"EG20249-MONOMER"	
-"yjiE"	"G7924"	"CPLX0-8075"			"CPLX0-8075"	
+"yjiE"	"G7924"	"G7924-MONOMER"			"G7924-MONOMER"	"Had been CPLX0-8075 but that is an oxidized form"
 "yjiR"	"G7936"			"G7936-MONOMER"	"G7936-MONOMER"	"Putative regulator"
 "yjjM"	"G7944"			"G7944-MONOMER"	"G7944-MONOMER"	"Predicted"
 "yjjQ"	"G7947"			"G7947-MONOMER"	"G7947-MONOMER"	"Predicted"

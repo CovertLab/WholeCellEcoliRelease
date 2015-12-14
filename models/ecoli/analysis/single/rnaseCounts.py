@@ -21,7 +21,7 @@ import wholecell.utils.constants
 
 from wholecell.io.tablereader import TableReader
 
-def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
+def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -32,10 +32,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	moleculeIds = bulkMolecules.readAttribute("objectNames")
 
-	kb = cPickle.load(open(kbFile, "rb"))
+	sim_data = cPickle.load(open(simDataFile, "rb"))
 
-	endoRnaseIds = kb.process.rna_decay.endoRnaseIds
-	exoRnaseIds = kb.moleculeGroups.exoRnaseIds
+	endoRnaseIds = sim_data.process.rna_decay.endoRnaseIds
+	exoRnaseIds = sim_data.moleculeGroups.exoRnaseIds
 	RNase_IDS = np.concatenate((endoRnaseIds, exoRnaseIds))
 
 	# add mRNA PNPase
@@ -86,15 +86,14 @@ def main(simOutDir, plotOutDir, plotOutFileName, kbFile, metadata = None):
 			if fft_freq[i][1] > 0.: # only positive frequencies
 				if 1. / fft_freq[i][1] < 3600.: # only periods lower than the doubling time
 					if abs(fft_freq[i][0] - M) / S > 3: # strong and significant fft
-						print RNase_IDS[rnapRnaCountsIdx], 1. / fft_freq[i][1] / 60. # period (min)
-
+						pass
+						# print RNase_IDS[rnapRnaCountsIdx], 1. / fft_freq[i][1] / 60. # period (min)
 
 	plt.subplots_adjust(hspace = 1.2, top = 0.95, bottom = 0.05)
 	plt.savefig(os.path.join(plotOutDir, plotOutFileName))
 
-
 if __name__ == "__main__":
-	defaultKBFile = os.path.join(
+	defaultSimDataFile = os.path.join(
 			wholecell.utils.constants.SERIALIZED_KB_DIR,
 			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
 			)
@@ -103,8 +102,8 @@ if __name__ == "__main__":
 	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
 	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
 	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("--kbFile", help = "KB file name", type = str, default = defaultKBFile)
+	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
 
 	args = parser.parse_args().__dict__
 
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["kbFile"])
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
