@@ -233,6 +233,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		updatedMass[didInitialize] += self.endWeight
 
+		effectiveElongationRate = sequenceElongations.sum() / len(activeRibosomes)
+		self.writeToListener("RibosomeData", "effectiveElongationRate", effectiveElongationRate)
+
 		# Update active ribosomes, terminating if neccessary
 
 		activeRibosomes.attrIs(
