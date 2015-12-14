@@ -17,7 +17,6 @@ import warnings
 # import wholecell.views.view
 
 import wholecell.states.bulk_molecules
-import wholecell.states.bulk_chromosome
 import wholecell.states.unique_molecules
 
 class Process(object):

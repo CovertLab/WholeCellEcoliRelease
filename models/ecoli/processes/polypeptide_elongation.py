@@ -61,8 +61,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		self.elngRate = float(sim_data.growthRateParameters.ribosomeElongationRate.asNumber(units.aa / units.s)) * self.timeStepSec
-		self.elngRate = int(round(self.elngRate)) # TODO: Make this less of a hack by implementing in the KB
+		self.elngRate = sim_data.constants.ribosomeElongationRate.asNumber(units.aa / units.s) * self.timeStepSec
 
 		self.nAvogadro = sim_data.constants.nAvogadro
 		self.cellDensity = sim_data.constants.cellDensity
