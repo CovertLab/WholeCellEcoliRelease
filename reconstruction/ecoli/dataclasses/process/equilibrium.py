@@ -151,6 +151,37 @@ class Equilibrium(object):
 
 		return reactionSumsArray
 
+	def stoichMatrixMonomers(self):
+		ids_complexes = [self.moleculeNames[i] for i in np.where((self.stoichMatrix() == 1).sum(axis = 1))[0]]
+
+		stoichMatrixMonomersI = []
+		stoichMatrixMonomersJ = []
+		stoichMatrixMonomersV = []
+		for colIdx, id_complex in enumerate(ids_complexes):
+			D = self.getMonomers(id_complex)
+
+			rowIdx = self.moleculeNames.index(id_complex)
+			stoichMatrixMonomersI.append(rowIdx)
+			stoichMatrixMonomersJ.append(colIdx)
+			stoichMatrixMonomersV.append(1.)
+
+			for subunitId, subunitStoich in zip(D["subunitIds"], D["subunitStoich"]):
+				rowIdx = self.moleculeNames.index(subunitId)
+				stoichMatrixMonomersI.append(rowIdx)
+				stoichMatrixMonomersJ.append(colIdx)
+				stoichMatrixMonomersV.append(-1. * subunitStoich)
+
+		stoichMatrixMonomersI = np.array(stoichMatrixMonomersI)
+		stoichMatrixMonomersJ = np.array(stoichMatrixMonomersJ)
+		stoichMatrixMonomersV = np.array(stoichMatrixMonomersV)
+		shape = (stoichMatrixMonomersI.max() + 1, stoichMatrixMonomersJ.max() + 1)
+
+		out = np.zeros(shape, np.float64)
+
+		out[stoichMatrixMonomersI, stoichMatrixMonomersJ] = stoichMatrixMonomersV
+
+		return out
+
 	def _populateDerivativeAndJacobian(self):
 		# TODO: Decide if this caching is worthwhile
 		# TODO: Unhack this--this assumes a directory structure
