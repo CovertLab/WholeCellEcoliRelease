@@ -12,7 +12,6 @@ from wholecell.utils import units
 from wholecell.utils.unit_struct_array import UnitStructArray
 
 from reconstruction.ecoli.dataclasses.state.bulkMolecules import BulkMolecules
-from reconstruction.ecoli.dataclasses.state.bulkChromosome import BulkChromosome
 from reconstruction.ecoli.dataclasses.state.uniqueMolecules import UniqueMolecules
 
 from reconstruction.ecoli.dataclasses.state import stateFunctions as sf
@@ -26,11 +25,9 @@ class State(object):
 	def __init__(self, raw_data, sim_data):
 
 		self.bulkMolecules = BulkMolecules(raw_data, sim_data)
-		self.bulkChromosome = BulkChromosome(raw_data, sim_data)
 		self.uniqueMolecules = UniqueMolecules(raw_data, sim_data)
 
 		self._buildBulkMolecules(raw_data, sim_data)
-		self._buildBulkChromosome(raw_data, sim_data)
 		self._buildUniqueMolecules(raw_data, sim_data)
 		self._buildCompartments(raw_data, sim_data)
 
@@ -87,13 +84,6 @@ class State(object):
 
 		self.bulkMolecules.addToBulkState(fragmentsIds, fragmentsMasses)
 
-
-	def _buildBulkChromosome(self, raw_data, sim_data):
-		# Set genes
-		geneIds = [x['id'] for x in raw_data.genes]
-		geneMasses = units.g / units.mol * np.zeros((len(geneIds), len(sim_data.molecular_weight_order)), np.float64)
-
-		self.bulkChromosome.addToBulkState(geneIds, geneMasses)
 
 	def _buildUniqueMolecules(self, raw_data, sim_data):
 		# Add active RNA polymerase

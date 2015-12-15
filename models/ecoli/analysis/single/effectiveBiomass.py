@@ -55,7 +55,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-	timeStep = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStep")
 
 	outputFluxes = fbaResults.readColumn("outputFluxes")
 

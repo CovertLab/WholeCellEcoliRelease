@@ -73,12 +73,12 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	# Account for small-molecule bound complexes
 	view_equilibrium.countsInc(
-		np.dot(sim_data.process.equilibrium.stoichMatrix(), view_equilibrium_complexes.counts() * -1)
+		np.dot(sim_data.process.equilibrium.stoichMatrixMonomers(), view_equilibrium_complexes.counts() * -1)
 		)
 
 	# Account for monomers in complexed form
 	view_complexation.countsInc(
-		np.dot(sim_data.process.complexation.stoichMatrix(), view_complexation_complexes.counts() * -1)
+		np.dot(sim_data.process.complexation.stoichMatrixMonomers(), view_complexation_complexes.counts() * -1)
 		)
 
 

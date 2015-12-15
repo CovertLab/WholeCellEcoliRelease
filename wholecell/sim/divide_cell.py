@@ -37,14 +37,11 @@ def divide_cell(sim):
 
 	# Create divded containers
 	d1_bulkMolCntr, d2_bulkMolCntr = divideBulkMolecules(bulkMolecules, randomState, chromosome_counts)
-	# d1_bulkChrmCntr, d2_bulkChrmCntr = divideBulkChromosome(bulkChromosome, randomState)
 	d1_uniqueMolCntr, d2_uniqueMolCntr = divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts)
 
 	# Save divded containers
 	saveContainer(d1_bulkMolCntr, os.path.join(sim._outputDir, "Daughter1", "BulkMolecules"))
 	saveContainer(d2_bulkMolCntr, os.path.join(sim._outputDir, "Daughter2", "BulkMolecules"))
-	# saveContainer(d1_bulkChrmCntr, os.path.join(sim._outputDir, "Daughter1", "BulkChromosome"))
-	# saveContainer(d2_bulkChrmCntr, os.path.join(sim._outputDir, "Daughter2", "BulkChromosome"))
 	saveContainer(d1_uniqueMolCntr, os.path.join(sim._outputDir, "Daughter1", "UniqueMolecules"))
 	saveContainer(d2_uniqueMolCntr, os.path.join(sim._outputDir, "Daughter2", "UniqueMolecules"))
 
