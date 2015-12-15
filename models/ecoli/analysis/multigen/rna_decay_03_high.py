@@ -42,7 +42,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	allRnaIds = sim_data.process.transcription.rnaData["id"].tolist()
-	dt = sim_data.timeStepSec
 
 	rnaIds = [
 		"EG10367_RNA[c]", "EG11036_RNA[c]", "EG50002_RNA[c]", "EG10671_RNA[c]", "EG50003_RNA[c]",
@@ -71,6 +70,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	rnaDegradedCounts = []
 	rnaCounts = []
+	dts = []
 
 	N = 100
 	for idx, simDir in enumerate(allDir):
@@ -78,6 +78,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 		N = np.fmin(N, time.size)
+
+		dts.append(TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec"))
 
 		rnaDegradationListener = TableReader(os.path.join(simOutDir, "RnaDegradationListener"))
 		rnaDegradedCounts.append(rnaDegradationListener.readColumn('countRnaDegraded')[:, rnaIdxs])
@@ -92,10 +94,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	rnaDegradedCountsAveraged = []
 	rnaCountsAveraged = []
 
-	for rnaDegradedCount, rnaCount in zip(rnaDegradedCounts, rnaCounts):
+	for dt, rnaDegradedCount, rnaCount in zip(dts, rnaDegradedCounts, rnaCounts):
 		tmpArray = np.nan * np.ones_like(rnaDegradedCount)
 		for colIdx in xrange(tmpArray.shape[1]):
-			tmpArray[:, colIdx] = np.convolve(rnaDegradedCount[:, colIdx], np.ones(N) / N, mode = "same")
+			tmpArray[:, colIdx] = np.convolve(rnaDegradedCount[:, colIdx] / dt, np.ones(N) / N, mode = "same")
 		rnaDegradedCountsAveraged.append(tmpArray[N:-1*N, :])
 
 		tmpArray = np.nan * np.ones_like(rnaCount)
@@ -132,7 +134,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		plt.ylabel("RNA degraded (counts)", size = 10)
 		plt.title(names[subplotIdx].split(" - ")[0] +
 			"\n" +
-			"kdeg meas: %0.1e\n" % (kdeg / dt) +
+			"kdeg meas: %0.1e\n" % (kdeg) +
 			"kdeg exp:  %0.1e" % degRates[subplotIdx].asNumber(1 / units.s),
 			size = 10,
 			)
