@@ -17,7 +17,6 @@ def divide_cell(sim):
 	randomState = sim.randomState
 
 	bulkMolecules = sim.states['BulkMolecules']
-	bulkChromosome = sim.states['BulkChromosome']
 	uniqueMolecules = sim.states['UniqueMolecules']
 
 	# Create output directories
@@ -120,29 +119,6 @@ def divideBulkMolecules(bulkMolecules, randomState, chromosome_counts):
 	d2_bulk_molecules_container.countIs(d2_chromosome_count, bulkMolecules.divisionIds['fullChromosome'][0])
 
 	return d1_bulk_molecules_container, d2_bulk_molecules_container
-
-def divideBulkChromosome(bulkChromosome, randomState):
-	chromosome_location_counts = bulkChromosome.container.counts()
-	d1_bulk_chromosome_container = bulkChromosome.container.emptyLike()
-	d2_bulk_chromosome_container = bulkChromosome.container.emptyLike()
-
-	# TODO: Delete bulkChromosome entirely!
-	# if dnaReplicationComplete:
-	# 	assert all(chromosome_location_counts == 2)
-
-	# 	d1_counts = chromosome_location_counts / 2
-	# 	d2_counts = chromosome_location_counts / 2
-
-	# 	assert all(d1_counts + d2_counts == chromosome_location_counts)
-
-	# 	d1_bulk_chromosome_container.countsIs(d1_counts)
-	# 	d2_bulk_chromosome_container.countsIs(d2_counts)
-	# elif chromosomeToDaughter1:
-	# 	d1_bulk_chromosome_container.countsIs(chromosome_location_counts)
-	# else:
-	# 	d2_bulk_chromosome_container.countsIs(chromosome_location_counts)
-
-	return d1_bulk_chromosome_container, d2_bulk_chromosome_container
 
 def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 	d1_unique_molecules_container = uniqueMolecules.container.emptyLike()
