@@ -100,7 +100,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			self.rnaSequences,
 			rnaIndexes,
 			transcriptLengths,
-			self.rnapElngRate * self.timeStepSec()
+			self._elngRate()
 			)
 
 		sequenceComposition = np.bincount(sequences[sequences != PAD_VALUE], minlength = 4)
@@ -137,7 +137,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			self.rnaSequences,
 			rnaIndexes,
 			transcriptLengths,
-			self.rnapElngRate * self.timeStepSec()
+			self._elngRate()
 			)
 
 		ntpCountInSequence = np.bincount(sequences[sequences != PAD_VALUE], minlength = 4)
@@ -196,7 +196,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.ppi.countInc(nElongations - nInitialized)
 
 		expectedElongations = np.fmin(
-			self.rnapElngRate * self.timeStepSec(),
+			self._elngRate(),
 			terminalLengths - transcriptLengths
 			)
 
@@ -213,3 +213,6 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		self.writeToListener("RnapData", "didTerminate", didTerminate.sum())
 		self.writeToListener("RnapData", "terminationLoss", (terminalLengths - transcriptLengths)[didTerminate].sum())
+
+	def _elngRate(self):
+		return self.rnapElngRate * self.timeStepSec()
