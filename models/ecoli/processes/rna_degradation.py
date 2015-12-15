@@ -170,7 +170,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		if nRNAsTotalToDegrade != nMRNAsTotalToDegrade + nTRNAsTotalToDegrade + nRRNAsTotalToDegrade:
 			nRNAsTotalToDegrade = nMRNAsTotalToDegrade + nTRNAsTotalToDegrade + nRRNAsTotalToDegrade
 
-		# define RNA specificity across geness
+		# define RNA specificity across genes
 		RNAspecificity = (fracEndoRnaseSaturated / units.sum(fracEndoRnaseSaturated)).asNumber()
 
 		nRNAsToDegrade = np.zeros(len(RNAspecificity))
