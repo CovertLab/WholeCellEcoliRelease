@@ -41,7 +41,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	allRnaIds = sim_data.process.transcription.rnaData["id"].tolist()
-	dt = sim_data.timeStepSec
 
 	rnaIds = [
 		"EG10367_RNA[c]", "EG11036_RNA[c]", "EG50002_RNA[c]", "EG10671_RNA[c]", "EG50003_RNA[c]",
@@ -75,6 +74,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+	dt = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
 
 	plt.figure(figsize = (8.5, 11))
 
@@ -83,9 +83,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 		plt.subplot(3, 3, subplotIdx)
 
-		y = np.convolve(countRnaDegraded[:, subplotIdx], np.ones(N) / N, mode = "same")
+		y = np.convolve(countRnaDegraded[:, subplotIdx] / dt, np.ones(N) / N, mode = "same")[N:-1*N]
 
-		A = rnaCounts[:, subplotIdx]
+		A = rnaCounts[N:-1*N, subplotIdx]
 		try:
 			kdeg, _, _, _ = np.linalg.lstsq(A[:, np.newaxis], y)
 		except ValueError:
@@ -96,14 +96,14 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 		plt.scatter(
 			rnaCounts[N:-1*N, subplotIdx],
-			y[N:-1*N]
+			y
 				)
 		# plt.plot(time / 60, y)
 		plt.xlabel("RNA (counts)", size = 10)
 		plt.ylabel("RNA degraded (counts)", size = 10)
 		plt.title(names[subplotIdx].split(" - ")[0] +
 			"\n" +
-			"kdeg meas: %0.1e\n" % (kdeg / dt) +
+			"kdeg meas: %0.1e\n" % kdeg +
 			"kdeg exp:  %0.1e" % degRates[subplotIdx].asNumber(1 / units.s),
 			size = 10,
 			)
