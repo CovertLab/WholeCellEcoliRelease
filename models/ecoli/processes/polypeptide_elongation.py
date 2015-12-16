@@ -275,5 +275,22 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("RibosomeData", "didTerminate", didTerminate.sum())
 		self.writeToListener("RibosomeData", "terminationLoss", (terminalLengths - peptideLengths)[didTerminate].sum())
 
+	def isTimeStepShortEnough(self, inputTimeStep, timeStepSafetyFraction):
+		'''
+		Assumes GTP is the readout for failed translation with respect to the timestep.
+		'''
+		activeRibosomes = float(self.activeRibosomes.total()[0])
+		if activeRibosomes == 0:
+			return True
+
+		dt = inputTimeStep * timeStepSafetyFraction
+		gtpExpectedUsage = activeRibosomes * self.ribosomeElngRate * self.gtpPerElongation * dt
+		gtpAvailable = float(self.gtp.total()[0])
+
+		if gtpExpectedUsage < gtpAvailable:
+			return True
+		else:
+			return False
+
 	def _elngRate(self):
 		return int(round(self.ribosomeElngRate * self.timeStepSec()))

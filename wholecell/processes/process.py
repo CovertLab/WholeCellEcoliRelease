@@ -58,6 +58,9 @@ class Process(object):
 	def timeStepSec(self):
 		return self._sim.timeStepSec()
 
+	def isTimeStepShortEnough(self, *args):
+		return True
+
 	# Construct views
 	def bulkMoleculesView(self, moleculeIDs):
 		return wholecell.states.bulk_molecules.BulkMoleculesView(
