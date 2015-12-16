@@ -61,6 +61,9 @@ class Process(object):
 	def isTimeStepShortEnough(self, *args):
 		return True
 
+	def wasTimeStepShortEnough(self, *args):
+		return True
+
 	# Construct views
 	def bulkMoleculesView(self, moleculeIDs):
 		return wholecell.states.bulk_molecules.BulkMoleculesView(

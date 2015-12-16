@@ -214,6 +214,11 @@ class Simulation(object):
 			process.randomState = np.random.RandomState(seed = process.seed)
 
 		self._adjustTimeStep()
+
+		# Check that timestep length was short enough
+		for process in self.processes.itervalues():
+			if not process.wasTimeStepShortEnough():
+				raise Exception("The timestep was too long in this step, failed on process %s" % (str(process)))
 	
 		# Run pre-evolveState hooks
 		for hook in self.hooks.itervalues():
@@ -252,6 +257,7 @@ class Simulation(object):
 			process.evolveState()
 			self._evalTime.evolveState_times[i] = time.time() - t
 
+
 		# Merge state
 		for i, state in enumerate(self.states.itervalues()):
 			t = time.time()
@@ -261,6 +267,7 @@ class Simulation(object):
 		# Calculate mass of partitioned molecules, after evolution
 		for state in self.states.itervalues():
 			state.calculatePostEvolveStateMass()
+
 
 		# Update listeners
 		for listener in self.listeners.itervalues():

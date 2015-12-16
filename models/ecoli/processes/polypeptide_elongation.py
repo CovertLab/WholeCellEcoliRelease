@@ -91,6 +91,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.pi = self.bulkMoleculeView("Pi[c]")
 		self.h   = self.bulkMoleculeView("PROTON[c]")
 
+		self.gtpUsed = 0
+		self.gtpAvailable = 0
+
 		self.ribosome30S = self.bulkMoleculeView(sim_data.moleculeGroups.s30_fullComplex[0])
 		self.ribosome50S = self.bulkMoleculeView(sim_data.moleculeGroups.s50_fullComplex[0])
 
@@ -241,17 +244,17 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.h2o.countInc(nElongations - nInitialized)
 
-		gtpUsed = np.int64(stochasticRound(
+		self.gtpUsed = np.int64(stochasticRound(
 			self.randomState,
 			nElongations * self.gtpPerElongation
 			))
 
-		self.gtp.countDec(gtpUsed)
-		self.gdp.countInc(gtpUsed)
-		self.pi.countInc(gtpUsed)
-		self.h.countInc(gtpUsed)
+		self.gtp.countDec(self.gtpUsed)
+		self.gdp.countInc(self.gtpUsed)
+		self.pi.countInc(self.gtpUsed)
+		self.h.countInc(self.gtpUsed)
 
-		self.h2o.countDec(gtpUsed)
+		self.h2o.countDec(self.gtpUsed)
 
 		# Report stalling information
 
@@ -263,7 +266,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		ribosomeStalls = expectedElongations - sequenceElongations
 
 		self.writeToListener("GrowthLimits", "aasUsed", aasUsed)
-		self.writeToListener("GrowthLimits", "gtpUsed", gtpUsed)
+		self.writeToListener("GrowthLimits", "gtpUsed", self.gtpUsed)
 
 		self.writeToListener("RibosomeData", "ribosomeStalls", ribosomeStalls)
 		self.writeToListener("RibosomeData", "aaCountInSequence", aaCountInSequence)
@@ -279,18 +282,26 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		'''
 		Assumes GTP is the readout for failed translation with respect to the timestep.
 		'''
+
 		activeRibosomes = float(self.activeRibosomes.total()[0])
 		if activeRibosomes == 0:
 			return True
 
 		dt = inputTimeStep * timeStepSafetyFraction
 		gtpExpectedUsage = activeRibosomes * self.ribosomeElngRate * self.gtpPerElongation * dt
-		gtpAvailable = float(self.gtp.total()[0])
+		self.gtpAvailable = float(self.gtp.total()[0])
 
-		if gtpExpectedUsage < gtpAvailable:
+		if gtpExpectedUsage < self.gtpAvailable:
 			return True
 		else:
 			return False
+
+	def wasTimeStepShortEnough(self):
+
+		if (self.gtpAvailable * .9 ) < self.gtpUsed:
+			return False
+		else:
+			return True
 
 	def _elngRate(self):
 		return int(round(self.ribosomeElngRate * self.timeStepSec()))
