@@ -279,13 +279,17 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("RibosomeData", "terminationLoss", (terminalLengths - peptideLengths)[didTerminate].sum())
 
 	def isTimeStepShortEnough(self, inputTimeStep, timeStepSafetyFraction):
-		'''
+		"""
 		Assumes GTP is the readout for failed translation with respect to the timestep.
-		'''
+		"""
 
 		activeRibosomes = float(self.activeRibosomes.total()[0])
+		# Without an estimate on ribosome counts, require a short timestep until estimates available
 		if activeRibosomes == 0:
-			return True
+			if inputTimeStep <= .2:
+				return True
+			else:
+				return False
 
 		dt = inputTimeStep * timeStepSafetyFraction
 		gtpExpectedUsage = activeRibosomes * self.ribosomeElngRate * self.gtpPerElongation * dt

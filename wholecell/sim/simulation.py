@@ -30,9 +30,9 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	seed = 0,
 	lengthSec = 3*60*60, # 3 hours max
 	initialTime = 0,
-	timeStepSafetyFraction = 1.4,
-	maxTimeStep = np.pi,
-	updateTimeStepFreq = 50,
+	timeStepSafetyFraction = 1.3,
+	maxTimeStep = 2.0,
+	updateTimeStepFreq = 5,
 	logToShell = True,
 	logToDisk = False,
 	outputDir = None,
@@ -339,7 +339,6 @@ class Simulation(object):
 		if resetTimeStep:
 			self._timeStepSec = validTimeSteps.min()
 
-
 	def _findTimeStep(self, minTimeStep, maxTimeStep, checkerFunction):
 		N = 10000
 		for i in xrange(N):
@@ -351,6 +350,6 @@ class Simulation(object):
 			else:
 				maxTimeStep = candidateTimeStep
 		if i == N - 1:
-			raise Exception, "Did not converge!"
+			raise Exception, "Timestep adjustment did not converge, last attempt was %f" % (candidateTimeStep)
 
 		return candidateTimeStep
