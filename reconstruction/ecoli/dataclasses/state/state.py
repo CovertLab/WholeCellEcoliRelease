@@ -70,7 +70,6 @@ class State(object):
 
 		self.bulkMolecules.addToBulkState(chromosomeIds, chromosomeMasses)
 
-
 		# Set fragments
 		test = []
 		for x in raw_data.polymerized:
@@ -83,6 +82,9 @@ class State(object):
 		fragmentsMasses = units.g / units.mol * sf.createMassesByCompartments(test)
 
 		self.bulkMolecules.addToBulkState(fragmentsIds, fragmentsMasses)
+
+		# Set rrn operon counter
+		self.bulkMolecules.addToBulkState(np.array(['rrn_operon']), units.g / units.mol * np.zeros((1,11)))
 
 
 	def _buildUniqueMolecules(self, raw_data, sim_data):

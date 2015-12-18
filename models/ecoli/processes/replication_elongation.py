@@ -39,6 +39,9 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		self.sequences = sim_data.process.replication.replication_sequences
 		self.polymerized_dntp_weights = sim_data.process.replication.replicationMonomerWeights
 
+		self.forward_strand_rrn_coordinate = sim_data.process.replication.forward_strand_rrn_coordinate
+		self.reverse_strand_rrn_coordinate = sim_data.process.replication.reverse_strand_rrn_coordinate
+
 		# Views
 		self.activeDnaPoly = self.uniqueMoleculesView('dnaPolymerase')
 
@@ -49,6 +52,8 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		self.chromosomeHalves = self.bulkMoleculesView(sim_data.moleculeGroups.partialChromosome)
 
 		self.full_chromosome = self.bulkMoleculeView("CHROM_FULL[c]")
+
+		self.rrn_operon_counts = self.bulkMoleculeView("rrn_operon")
 
 	def calculateRequest(self):
 		self.full_chromosome.requestAll()
