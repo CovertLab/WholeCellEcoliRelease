@@ -24,7 +24,9 @@ class AnalysisMultiGenTask(FireTaskBase):
 
 		directory = os.path.dirname(models.ecoli.analysis.multigen.__file__)
 
-		fileList = sorted(os.listdir(directory))
+		# Run analysis scripts in order of modification, most recently edited first
+		fileList = os.listdir(directory)
+		fileList.sort(key=lambda x: os.stat(os.path.join(directory, x)).st_mtime, reverse=True)
 
 		for f in fileList:
 			if f.endswith(".pyc") or f == "__init__.py":
