@@ -58,6 +58,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	rrnCounts_axis = plt.subplot(2,1,2)
 	rrnCounts_axis.plot(time / 60., rrn_counts, label="Rrn operon counts", linewidth=2, color='k')
+	rrnCounts_axis.set_ylim([rrn_counts.min() - 1, rrn_counts.max() + 1])
 	rrnCounts_axis.set_ylabel("Rrn operons")
 
 	# Save
