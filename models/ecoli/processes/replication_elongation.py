@@ -200,6 +200,20 @@ class ReplicationElongation(wholecell.processes.process.Process):
 			massDiff_DNA = updatedMass
 			)
 
+		# Increment any chromosome locations passed over during last elongation step
+		# Forward strand
+		forwardStrandIdx = 0
+		lessThanNewPosition = updatedLengths[forwardStrandIdx] >= self.forward_strand_rrn_coordinate
+		greaterThanPreviousPosition = sequenceLengths[forwardStrandIdx] < self.forward_strand_rrn_coordinate
+		new_rrn_forward = np.logical_and(lessThanNewPosition, greaterThanPreviousPosition).sum()
+		# Reverse strand
+		reverseStrandIdx = 1
+		lessThanNewPosition = updatedLengths[reverseStrandIdx] >= self.reverse_strand_rrn_coordinate
+		greaterThanPreviousPosition = sequenceLengths[reverseStrandIdx] < self.reverse_strand_rrn_coordinate
+		new_rrn_reverse = np.logical_and(lessThanNewPosition, greaterThanPreviousPosition).sum()
+
+		self.rrn_operon_counts.countInc(new_rrn_forward + new_rrn_reverse)
+
 		# Determine if any chromosome half finshed polymerizing
 		# and create new unique chromosomes
 		terminalLengths = self.sequenceLengths[sequenceIdx]

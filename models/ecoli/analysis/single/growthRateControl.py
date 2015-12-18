@@ -42,12 +42,23 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	ribosomeDataFile.close()
 
+	# Load bulk molecule data
+	bulkMoleculesFile = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+	bulkMoleculeIds = bulkMoleculesFile.readAttribute("objectNames")
+	rrn_idx = bulkMoleculesFile.readAttribute("objectNames").index('rrn_operon')
+	rrn_counts = bulkMoleculesFile.readColumn("counts")[:, rrn_idx]
+	bulkMoleculesFile.close()
+
 	plt.figure(figsize = (8.5, 11))
 
-	effectiveElongationRate_axis = plt.subplot(1,1,1)
+	effectiveElongationRate_axis = plt.subplot(2,1,1)
 	effectiveElongationRate_axis.plot(time / 60., effectiveElongationRate, label="Effective elongation rate", linewidth=2, color='k')
 	effectiveElongationRate_axis.plot(time / 60., max_elongationRate * np.ones(time.size), 'r--')
 	effectiveElongationRate_axis.set_ylabel("Effective elongation rate (aa/s/ribosome)")
+
+	rrnCounts_axis = plt.subplot(2,1,2)
+	rrnCounts_axis.plot(time / 60., rrn_counts, label="Rrn operon counts", linewidth=2, color='k')
+	rrnCounts_axis.set_ylabel("Rrn operons")
 
 	# Save
 	plt.subplots_adjust(hspace = 0.5, wspace = 0.6)
