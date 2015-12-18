@@ -47,9 +47,8 @@ class AtpUsage(wholecell.processes.process.Process):
 		# self.adp = self.bulkMoleculeView("ADP[c]")
 		# self.h = self.bulkMoleculeView("PROTON[c]")
 
-		self.nongrowthAssociated_reactionsPerTimestep = (
-			sim_data.constants.nonGrowthAssociatedMaintenance * sim_data.constants.nAvogadro
-			).asNumber(1/units.fg/units.s) * self.timeStepSec
+		self.nonGrowthMaintenance = (sim_data.constants.nonGrowthAssociatedMaintenance * sim_data.constants.nAvogadro
+			).asNumber(1/units.fg/units.s)
 
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_ATP_USAGE)
 
@@ -59,7 +58,7 @@ class AtpUsage(wholecell.processes.process.Process):
 		deltaMass = self.readFromListener("Mass", "growth")
 
 		expectedReactions_nongrowthAssociated = (mass
-			* self.nongrowthAssociated_reactionsPerTimestep)
+			* self._nongrowthAssociated_reactionsPerTimestep())
 
 		expectedReactions = expectedReactions_nongrowthAssociated
 
@@ -73,7 +72,7 @@ class AtpUsage(wholecell.processes.process.Process):
 		deltaMass = self.readFromListener("Mass", "growth")
 
 		expectedReactions_nongrowthAssociated = (mass
-			* self.nongrowthAssociated_reactionsPerTimestep)
+			* self._nongrowthAssociated_reactionsPerTimestep())
 
 		expectedReactions = expectedReactions_nongrowthAssociated
 
@@ -98,3 +97,5 @@ class AtpUsage(wholecell.processes.process.Process):
 		# there is some stochasticity (i.e. ATP limiting in one time step, in
 		# excess in a following time step)
 
+	def _nongrowthAssociated_reactionsPerTimestep(self):
+		return self.nonGrowthMaintenance * self.timeStepSec()

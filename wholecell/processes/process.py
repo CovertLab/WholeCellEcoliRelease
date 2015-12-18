@@ -27,7 +27,6 @@ class Process(object):
 	# Constructor
 	def __init__(self):
 		# Constants
-		self.timeStepSec = None
 		self._processIndex = None
 
 		# Simulation reference (used to access time)
@@ -45,7 +44,6 @@ class Process(object):
 	def initialize(self, sim, sim_data):
 		self._sim = sim
 
-		self.timeStepSec = sim.timeStepSec()
 		self._processIndex = sim.processes.keys().index(self._name)
 
 		self._states = sim.states
@@ -57,6 +55,14 @@ class Process(object):
 		self._states["BulkMolecules"].processRequestPriorityIs(
 			self._processIndex, priorityLevel)
 
+	def timeStepSec(self):
+		return self._sim.timeStepSec()
+
+	def isTimeStepShortEnough(self, *args):
+		return True
+
+	def wasTimeStepShortEnough(self, *args):
+		return True
 
 	# Construct views
 	def bulkMoleculesView(self, moleculeIDs):

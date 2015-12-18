@@ -69,6 +69,9 @@ VARIANTS_TO_RUN = range(FIRST_VARIANT_INDEX, LAST_VARIANT_INDEX + 1)
 ### Set other environment variables
 
 WC_LENGTHSEC = int(os.environ.get("WC_LENGTHSEC", DEFAULT_SIMULATION_KWARGS["lengthSec"]))
+TIMESTEP_SAFETY_FRAC = float(os.environ.get("TIMESTEP_SAFETY_FRAC", DEFAULT_SIMULATION_KWARGS["timeStepSafetyFraction"]))
+TIMESTEP_MAX = float(os.environ.get("TIMESTEP_MAX", DEFAULT_SIMULATION_KWARGS["maxTimeStep"]))
+TIMESTEP_UPDATE_FREQ = int(os.environ.get("TIMESTEP_UPDATE_FREQ", DEFAULT_SIMULATION_KWARGS["updateTimeStepFreq"]))
 N_INIT_SIMS = int(os.environ.get("N_INIT_SIMS", "1"))
 N_GENS = int(os.environ.get("N_GENS", "1"))
 SINGLE_DAUGHTERS = bool(int(os.environ.get("SINGLE_DAUGHTERS", "0")))
@@ -418,6 +421,9 @@ for i in VARIANTS_TO_RUN:
 							output_directory = CELL_SIM_OUT_DIRECTORY,
 							seed = j,
 							length_sec = WC_LENGTHSEC,
+							timestep_safety_frac = TIMESTEP_SAFETY_FRAC,
+							timestep_max = TIMESTEP_MAX,
+							timestep_update_freq = TIMESTEP_UPDATE_FREQ,
 							),
 						name = fw_name,
 						spec = {"_queueadapter": {"job_name": fw_name}}
@@ -435,6 +441,9 @@ for i in VARIANTS_TO_RUN:
 							inherited_state_path = DAUGHTER_STATE_DIRECTORY,
 							seed = (j + 1) * ((2**k - 1) + l),
 							length_sec = WC_LENGTHSEC,
+							timestep_safety_frac = TIMESTEP_SAFETY_FRAC,
+							timestep_max = TIMESTEP_MAX,
+							timestep_update_freq = TIMESTEP_UPDATE_FREQ,
 							),
 						name = fw_name,
 						spec = {"_queueadapter": {"job_name": fw_name}}

@@ -31,7 +31,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 	# Constructor
 	def __init__(self):
 		# Constants
-		self.elngRate = None
+		self.rnapElngRate = None
 		self.rnaIds = None
 		self.rnaLengths = None
 		self.rnaSequences = None
@@ -56,8 +56,8 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		self.elngRate = sim_data.growthRateParameters.rnaPolymeraseElongationRate.asNumber(units.nt / units.s) * self.timeStepSec
-		self.elngRate = int(round(self.elngRate)) # TODO: Make this less of a hack by implementing in the KB
+		self.rnapElngRate = sim_data.growthRateParameters.rnaPolymeraseElongationRate.asNumber(units.nt / units.s)
+		self.rnapElngRate = int(round(self.rnapElngRate)) # TODO: Make this less of a hack by implementing in the KB
 
 		self.rnaIds = sim_data.process.transcription.rnaData['id']
 
@@ -100,7 +100,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			self.rnaSequences,
 			rnaIndexes,
 			transcriptLengths,
-			self.elngRate
+			self._elngRate()
 			)
 
 		sequenceComposition = np.bincount(sequences[sequences != PAD_VALUE], minlength = 4)
@@ -137,7 +137,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			self.rnaSequences,
 			rnaIndexes,
 			transcriptLengths,
-			self.elngRate
+			self._elngRate()
 			)
 
 		ntpCountInSequence = np.bincount(sequences[sequences != PAD_VALUE], minlength = 4)
@@ -196,7 +196,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.ppi.countInc(nElongations - nInitialized)
 
 		expectedElongations = np.fmin(
-			self.elngRate,
+			self._elngRate(),
 			terminalLengths - transcriptLengths
 			)
 
@@ -213,3 +213,6 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		self.writeToListener("RnapData", "didTerminate", didTerminate.sum())
 		self.writeToListener("RnapData", "terminationLoss", (terminalLengths - transcriptLengths)[didTerminate].sum())
+
+	def _elngRate(self):
+		return self.rnapElngRate * self.timeStepSec()
