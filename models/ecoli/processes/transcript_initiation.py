@@ -57,6 +57,9 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		self.rnaSynthProb = sim_data.process.transcription.rnaData["synthProb"]
 
+		self.maxRibosomeElongationRate = sim_data.constants.ribosomeElongationRate.asNumber(units.aa / units.s) * self.timeStepSec
+		self.maxRibosomeElongationRate = int(np.round(self.maxRibosomeElongationRate))
+
 		# Views
 
 		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
@@ -70,6 +73,11 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
+
+		#### GROWTH RATE CONTROL ####
+		ribosomeElongationRate = self.readFromListener("RibosomeData", "effectiveElongationRate") * self.timeStepSec
+		#initiationRateRrn = n_rrn * 151.595 * np.exp(0.038*-0.298 * (self.maxRibosomeElongationRate - ribosomeElongationRate))
+		#### GROWTH RATE CONTROL ####
 
 		self.activationProb = self._calculateActivationProb(
 			self.fracActiveRnap,

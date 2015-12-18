@@ -34,7 +34,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 	# Constructor
 	def __init__(self):
 		# Parameters
-		self.elngRate = None
+		self.maxRibosomeElongationRate = None
 		self.proteinLengths = None
 		self.proteinSequences = None
 		self.h2oWeight = None
@@ -61,7 +61,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		self.elngRate = sim_data.constants.ribosomeElongationRate.asNumber(units.aa / units.s) * self.timeStepSec
+		self.maxRibosomeElongationRate = sim_data.constants.ribosomeElongationRate.asNumber(units.aa / units.s) * self.timeStepSec
+		self.maxRibosomeElongationRate = int(np.round(self.maxRibosomeElongationRate))
 
 		self.nAvogadro = sim_data.constants.nAvogadro
 		self.cellDensity = sim_data.constants.cellDensity
@@ -124,7 +125,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			self.proteinSequences,
 			proteinIndexes,
 			peptideLengths,
-			self.elngRate
+			self.maxRibosomeElongationRate
 			)
 
 		sequenceHasAA = (sequences != PAD_VALUE)
@@ -193,7 +194,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			self.proteinSequences,
 			proteinIndexes,
 			peptideLengths,
-			self.elngRate
+			self.maxRibosomeElongationRate
 			)
 
 		# Calculate elongation resource capacity
@@ -233,7 +234,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		updatedMass[didInitialize] += self.endWeight
 
-		effectiveElongationRate = sequenceElongations.sum() / len(activeRibosomes)
+		effectiveElongationRate = (sequenceElongations.sum() / len(activeRibosomes)) / self.timeStepSec
 		self.writeToListener("RibosomeData", "effectiveElongationRate", effectiveElongationRate)
 
 		# Update active ribosomes, terminating if neccessary
@@ -283,7 +284,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		# Report stalling information
 
 		expectedElongations = np.fmin(
-			self.elngRate,
+			self.maxRibosomeElongationRate,
 			terminalLengths - peptideLengths
 			)
 
