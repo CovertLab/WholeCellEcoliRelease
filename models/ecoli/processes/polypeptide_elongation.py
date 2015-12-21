@@ -81,6 +81,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.gtpPerElongation = sim_data.constants.gtpPerTranslation
 
+		self.rnaSynthProb = sim_data.process.transcription.rnaData["synthProb"]
+		self.is_rrn = sim_data.process.transcription.rnaData['isRRna']
+
 		##########
 		aaIdxs =  [sim_data.process.metabolism.metabolitePoolIDs.index(aaID) for aaID in sim_data.moleculeGroups.aaIDs]
 		aaConcentrations = sim_data.process.metabolism.metabolitePoolConcentrations[aaIdxs]
@@ -103,6 +106,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.ribosome30S = self.bulkMoleculeView(sim_data.moleculeGroups.s30_fullComplex[0])
 		self.ribosome50S = self.bulkMoleculeView(sim_data.moleculeGroups.s50_fullComplex[0])
+
+		self.rrn_operon = self.bulkMoleculeView("rrn_operon")
 
 		###### VARIANT CODE #######
 		self.translationSaturation = sim_data.translationSaturation
@@ -202,10 +207,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		aaCountInSequence = np.bincount(sequences[(sequences != PAD_VALUE)])
 		aaCounts = self.aas.counts()
 
-		# trnasCapacity = self.synthetase_turnover * np.array([x.counts().sum() for x in self.trna_groups],dtype = np.int64)
-		# synthetaseCapacity = self.synthetase_turnover * np.array([x.counts().sum() for x in self.synthetase_groups],dtype = np.int64)
-		# elongationResourceCapacity = np.minimum(aaCounts, synthetaseCapacity, trnasCapacity)
-
 		# Calculate update
 
 		reactionLimit = self.gtp.count() // self.gtpPerElongation
@@ -234,8 +235,26 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		updatedMass[didInitialize] += self.endWeight
 
-		effectiveElongationRate = (sequenceElongations.sum() / len(activeRibosomes)) / self.timeStepSec
-		self.writeToListener("RibosomeData", "effectiveElongationRate", effectiveElongationRate)
+
+		# Update rRNA synthesis probabilites based on elongation rate
+		prevInitRate = self.readFromListener("RibosomeData", "rrnInitRate")
+
+		currElongRate = (sequenceElongations.sum() / len(activeRibosomes)) / self.timeStepSec
+		currInitRate = self.calculateRrnInitRate(self.rrn_operon.count(), currElongRate)
+
+		if prevInitRate == 0.:
+			foldChange = 1.
+		else:
+			foldChange = currInitRate / prevInitRate
+
+		self.rnaSynthProb[self.is_rrn] = self.rnaSynthProb[self.is_rrn] * foldChange
+		self.rnaSynthProb = self.rnaSynthProb / self.rnaSynthProb.sum()
+
+		# Save current elongation rate
+		self.writeToListener("RibosomeData", "effectiveElongationRate", currElongRate)
+		self.writeToListener("RibosomeData", "rrnInitRate", currInitRate)
+
+		# NEED TO SET INITIAL RATE HERE I THINK...
 
 		# Update active ribosomes, terminating if neccessary
 
@@ -302,3 +321,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.writeToListener("RibosomeData", "didTerminate", didTerminate.sum())
 		self.writeToListener("RibosomeData", "terminationLoss", (terminalLengths - peptideLengths)[didTerminate].sum())
+
+	def calculateRrnInitRate(self, rrn_count, elngRate):
+		return rrn_count * 151.595 * np.exp(0.038*-0.298 * (self.maxRibosomeElongationRate - elngRate))
