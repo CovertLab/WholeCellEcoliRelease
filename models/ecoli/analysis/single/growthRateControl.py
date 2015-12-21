@@ -37,6 +37,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	ribosomeDataFile = TableReader(os.path.join(simOutDir, "RibosomeData"))
 
 	effectiveElongationRate = ribosomeDataFile.readColumn("effectiveElongationRate")
+	rrnInitRate = ribosomeDataFile.readColumn("rrnInitRate")
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
@@ -51,15 +52,19 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	plt.figure(figsize = (8.5, 11))
 
-	effectiveElongationRate_axis = plt.subplot(2,1,1)
+	effectiveElongationRate_axis = plt.subplot(3,1,1)
 	effectiveElongationRate_axis.plot(time / 60., effectiveElongationRate, label="Effective elongation rate", linewidth=2, color='k')
 	effectiveElongationRate_axis.plot(time / 60., max_elongationRate * np.ones(time.size), 'r--')
 	effectiveElongationRate_axis.set_ylabel("Effective elongation rate (aa/s/ribosome)")
 
-	rrnCounts_axis = plt.subplot(2,1,2)
+	rrnCounts_axis = plt.subplot(3,1,2)
 	rrnCounts_axis.plot(time / 60., rrn_counts, label="Rrn operon counts", linewidth=2, color='k')
 	rrnCounts_axis.set_ylim([rrn_counts.min() - 1, rrn_counts.max() + 1])
 	rrnCounts_axis.set_ylabel("Rrn operons")
+
+	rrnCounts_axis = plt.subplot(3,1,3)
+	rrnCounts_axis.plot(time / 60., rrnInitRate, label="Rrn init", linewidth=2, color='k')
+	rrnCounts_axis.set_ylabel("Rrn init rate")
 
 	# Save
 	plt.subplots_adjust(hspace = 0.5, wspace = 0.6)

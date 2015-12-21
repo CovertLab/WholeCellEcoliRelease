@@ -76,6 +76,7 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		self.didInitialize = 0
 		self.terminationLoss = 0
 		self.effectiveElongationRate = 0
+		self.rrnInitRate = 0
 
 	def update(self):
 		if self.ribosomeStalls.size:
@@ -112,4 +113,5 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 			didInitialize = self.didInitialize,
 			terminationLoss = self.terminationLoss,
 			effectiveElongationRate = self.effectiveElongationRate,
+			rrnInitRate = self.rrnInitRate,
 			)
