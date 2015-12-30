@@ -259,7 +259,8 @@ class Simulation(object):
 		# Check that timestep length was short enough
 		for process in self.processes.itervalues():
 			if not process.wasTimeStepShortEnough():
-				raise Exception("The timestep was too long at %.3f on step %i, failed on process %s" % (self._timeStepSec, self.simulationStep, str(process)))
+				raise Exception("The timestep (%.3f) was too long at step %i, failed on process %s" % (self._timeStepSec, self.simulationStep, str(process.name())))
+
 
 		# Merge state
 		for i, state in enumerate(self.states.itervalues()):
