@@ -33,6 +33,8 @@ COUNTS_UNITS = units.mmol
 VOLUME_UNITS = units.L
 MASS_UNITS = units.g
 USE_RATELIMITS = False # Enable/disable kinetic rate limits in the model
+
+USE_MANUAL_FLUX_COEFF = False # enable to overrid flux coefficients in the knowledgebase and use these local values instead
 MAX_FLUX_COEFF = 2 # Multiple of predicted rate at which to set the max fluxes
 MIN_FLUX_COEFF = 0 # Multiple of predicted rate at which to set the min fluxes
 
@@ -64,6 +66,13 @@ class Metabolism(wholecell.processes.process.Process):
 		self.constraintIDs = sim_data.process.metabolism.constraintIDs
 		self.activeConstraintsDict = sim_data.process.metabolism.activeConstraintsDict
 		self.constraintToReactionDict = sim_data.process.metabolism.constraintToReactionDict
+
+		if USE_MANUAL_FLUX_COEFF:
+			self.max_flux_coefficient = MAX_FLUX_COEFF
+			self.min_flux_coefficient = MIN_FLUX_COEFF
+		else:
+			self.max_flux_coefficient = sim_data.constants.kineticRateLimitFactorUpper
+			self.min_flux_coefficient = sim_data.constants.kineticRateLimitFactorLower
 
 		objective = dict(zip(
 			self.metabolitePoolIDs,
@@ -211,9 +220,9 @@ class Metabolism(wholecell.processes.process.Process):
 						continue
 
 					# Set the max reaction rate for this reaction
-					self.fba.maxReactionFluxIs(self.constraintToReactionDict[constraintID], self.allConstraintsLimits[index]*MAX_FLUX_COEFF, raiseForReversible = False)
+					self.fba.maxReactionFluxIs(self.constraintToReactionDict[constraintID], self.allConstraintsLimits[index]*self.max_flux_coefficient, raiseForReversible = False)
 					# Set the minimum reaction rate for this reaction
-					self.fba.minReactionFluxIs(self.constraintToReactionDict[constraintID], self.allConstraintsLimits[index]*MIN_FLUX_COEFF, raiseForReversible = False)
+					self.fba.minReactionFluxIs(self.constraintToReactionDict[constraintID], self.allConstraintsLimits[index]*self.min_flux_coefficient, raiseForReversible = False)
 					
 					# Record what constraint was just applied to this reaction
 					currentRateLimits[self.constraintToReactionDict[constraintID]] = self.allConstraintsLimits[index]*MAX_FLUX_COEFF
