@@ -52,6 +52,7 @@ user/*
 # C extensions #
 ################
 *.so
+*.o
 
 # Cython C source #
 ###################
