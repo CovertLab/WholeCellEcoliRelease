@@ -103,6 +103,8 @@ class Simulation(object):
 		# Set time variables
 		self.simulationStep = 0
 
+		self._timeTotal = self.initialTime()
+
 		self.randomState = np.random.RandomState(seed = np.uint32(self._seed % np.iinfo(np.uint32).max))
 
 		# Load KB
@@ -188,6 +190,8 @@ class Simulation(object):
 
 			self.simulationStep += 1
 
+			self._timeTotal += self._timeStepSec
+
 			self._evolveState()
 
 		# Run post-simulation hooks
@@ -214,12 +218,7 @@ class Simulation(object):
 			process.randomState = np.random.RandomState(seed = process.seed)
 
 		self._adjustTimeStep()
-
-		# Check that timestep length was short enough
-		for process in self.processes.itervalues():
-			if not process.wasTimeStepShortEnough():
-				raise Exception("The timestep was too long in this step, failed on process %s" % (str(process)))
-	
+		
 		# Run pre-evolveState hooks
 		for hook in self.hooks.itervalues():
 			hook.preEvolveState(self)
@@ -236,7 +235,7 @@ class Simulation(object):
 			t = time.time()
 			process.calculateRequest()
 			self._evalTime.calculateRequest_times[i] = time.time() - t
-
+	
 		# Partition states among processes
 		for i, state in enumerate(self.states.itervalues()):
 			t = time.time()
@@ -256,6 +255,11 @@ class Simulation(object):
 			t = time.time()
 			process.evolveState()
 			self._evalTime.evolveState_times[i] = time.time() - t
+
+		# Check that timestep length was short enough
+		for process in self.processes.itervalues():
+			if not process.wasTimeStepShortEnough():
+				raise Exception("The timestep (%.3f) was too long at step %i, failed on process %s" % (self._timeStepSec, self.simulationStep, str(process.name())))
 
 
 		# Merge state
@@ -309,7 +313,7 @@ class Simulation(object):
 
 
 	def time(self):
-		return self.timeStepSec() * self.simulationStep + self.initialTime()
+		return self._timeTotal
 
 
 	def timeStep(self):
