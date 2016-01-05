@@ -5,7 +5,6 @@ from wholecell.sim.simulation import Simulation
 # States
 from wholecell.states.bulk_molecules import BulkMolecules
 from wholecell.states.unique_molecules import UniqueMolecules
-from wholecell.states.bulk_chromosome import BulkChromosome
 
 # Processes
 from models.ecoli.processes.complexation import Complexation
@@ -25,7 +24,6 @@ from models.ecoli.processes.equilibrium import Equilibrium
 from models.ecoli.listeners.mass import Mass
 from models.ecoli.listeners.replication_data import ReplicationData
 from models.ecoli.listeners.ribosome_data import RibosomeData
-from models.ecoli.listeners.gene_copy_number import GeneCopyNumber
 from models.ecoli.listeners.unique_molecule_counts import UniqueMoleculeCounts
 from models.ecoli.listeners.fba_results import FBAResults
 from models.ecoli.listeners.rna_degradation_listener import RnaDegradationListener
@@ -47,7 +45,6 @@ class EcoliSimulation(Simulation):
 	_stateClasses = (
 		BulkMolecules,
 		UniqueMolecules,
-		BulkChromosome
 		)
 
 	_processClasses = (
@@ -69,7 +66,6 @@ class EcoliSimulation(Simulation):
 		Mass,
 		ReplicationData,
 		RibosomeData,
-		GeneCopyNumber,
 		UniqueMoleculeCounts,
 		FBAResults,
 		RnaDegradationListener,

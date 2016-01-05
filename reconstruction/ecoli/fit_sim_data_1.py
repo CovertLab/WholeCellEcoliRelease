@@ -148,7 +148,7 @@ def rescaleMassForSoluableMetabolites(sim_data, bulkMolCntr):
 
 	sim_data.mass.avgCellDryMassInit = newAvgCellDryMassInit
 	sim_data.mass.avgCellDryMass = sim_data.mass.avgCellDryMassInit * sim_data.mass.avgCellToInitialCellConvFactor
-	sim_data.mass.avgCellWaterMassInit = sim_data.mass.avgCellDryMass / 0.3 * 0.7
+	sim_data.mass.avgCellWaterMassInit = sim_data.mass.avgCellDryMassInit / sim_data.mass.cellDryMassFraction * sim_data.mass.cellWaterMassFraction
 
 def setInitialRnaExpression(sim_data):
 	# Set expression for all of the noncoding RNAs
@@ -268,6 +268,7 @@ def totalCountIdDistributionProtein(sim_data):
 	totalMass_protein = sim_data.mass.avgCellSubMass["proteinMass"] / sim_data.mass.avgCellToInitialCellConvFactor
 	individualMasses_protein = sim_data.process.translation.monomerData["mw"] / sim_data.constants.nAvogadro
 	distribution_transcriptsByProtein = normalize(sim_data.process.transcription.rnaData["expression"][sim_data.relation.rnaIndexToMonomerMapping])
+	translation_efficienciesByProtein = normalize(sim_data.process.translation.translationEfficienciesByMonomer)
 
 	degradationRates = sim_data.process.translation.monomerData["degRate"]
 
@@ -275,6 +276,7 @@ def totalCountIdDistributionProtein(sim_data):
 
 	distribution_protein = proteinDistributionFrommRNA(
 		distribution_transcriptsByProtein,
+		translation_efficienciesByProtein,
 		netLossRate_protein
 		)
 
@@ -484,6 +486,8 @@ def fitExpression(sim_data, bulkContainer):
 	view_RNA = bulkContainer.countsView(sim_data.process.transcription.rnaData["id"])
 	counts_protein = bulkContainer.counts(sim_data.process.translation.monomerData["id"])
 
+	translation_efficienciesByProtein = normalize(sim_data.process.translation.translationEfficienciesByMonomer)
+
 	avgCellSubMass = sim_data.mass.avgCellSubMass
 	totalMass_RNA = avgCellSubMass["rnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
 
@@ -511,7 +515,7 @@ def fitExpression(sim_data, bulkContainer):
 
 	mRnaExpressionView.countsIs(
 		mRnaExpressionFrac * mRNADistributionFromProtein(
-			normalize(counts_protein), netLossRate_protein
+			normalize(counts_protein), translation_efficienciesByProtein, netLossRate_protein
 			)[sim_data.relation.monomerIndexToRnaMapping]
 		)
 
@@ -788,50 +792,51 @@ def totalCountFromMassesAndRatios(totalMass, individualMasses, distribution):
 	return 1 / units.dot(individualMasses, distribution) * totalMass
 
 
-def proteinDistributionFrommRNA(distribution_mRNA, netLossRate):
+def proteinDistributionFrommRNA(distribution_mRNA, translation_efficiencies, netLossRate):
 	"""
-	dP_i / dt = k * M_i - P_i * Loss_i
+	dP_i / dt = k * M_i * e_i - P_i * Loss_i
 
 	At steady state:
-	P_i = k * M_i / Loss_i
+	P_i = k * M_i * e_i / Loss_i
 
 	Fraction of mRNA for ith gene is defined as:
 	f_i = M_i / M_total
 
 	Substituting in:
-	P_i = k * f_i * M_total / Loss_i
+	P_i = k * f_i * e_i * M_total / Loss_i
 
 	Normalizing P_i by summing over all i cancels out k and M_total
 	assuming constant translation rate.
 	"""
 
 	assert np.allclose(np.sum(distribution_mRNA), 1)
-	distributionUnnormed = 1 / netLossRate * distribution_mRNA
+	assert np.allclose(np.sum(translation_efficiencies), 1)
+	distributionUnnormed = 1 / netLossRate * distribution_mRNA * translation_efficiencies
 	distributionNormed = distributionUnnormed / units.sum(distributionUnnormed)
 	distributionNormed.normalize()
 	distributionNormed.checkNoUnit()
 	return distributionNormed.asNumber()
 
 
-def mRNADistributionFromProtein(distribution_protein, netLossRate):
+def mRNADistributionFromProtein(distribution_protein, translation_efficiencies, netLossRate):
 	"""
-	dP_i / dt = k * M_i - P_i * Loss_i
+	dP_i / dt = k * M_i * e_i - P_i * Loss_i
 
 	At steady state:
-	M_i = Loss_i * P_i / k
+	M_i = Loss_i * P_i / (k * e_i)
 
 	Fraction of protein for ith gene is defined as:
 	f_i = P_i / P_total
 
 	Substituting in:
-	M_i = Loss_i * f_i * P_total / k
+	M_i = Loss_i * f_i * P_total / (k * e_i)
 
 	Normalizing M_i by summing over all i cancles out k and P_total
 	assuming a constant translation rate.
 
 	"""
 	assert np.allclose(np.sum(distribution_protein), 1)
-	distributionUnnormed = netLossRate * distribution_protein
+	distributionUnnormed = netLossRate * distribution_protein / translation_efficiencies
 	distributionNormed = distributionUnnormed / units.sum(distributionUnnormed)
 	distributionNormed.normalize()
 	distributionNormed.checkNoUnit()

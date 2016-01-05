@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 """
-GeneCopyNumber
+RrnCopyNumber
 
-GeneCopyNumber listener. Tracks gene copy number changing due to replication.
+RrnCopyNumber listener. Tracks gene copy number changing due to replication.
 
 @author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -16,30 +16,30 @@ import numpy as np
 
 import wholecell.listeners.listener
 
-class GeneCopyNumber(wholecell.listeners.listener.Listener):
-	""" GeneCopyNumber """
+class RrnCopyNumber(wholecell.listeners.listener.Listener):
+	""" RrnCopyNumber """
 
-	_name = 'GeneCopyNumber'
+	_name = 'RrnCopyNumber'
 
 	# Constructor
 	def __init__(self, *args, **kwargs):
-		super(GeneCopyNumber, self).__init__(*args, **kwargs)
+		super(RrnCopyNumber, self).__init__(*args, **kwargs)
 
 		self.countUnits = "counts"
 
 	# Construct object graph
 	def initialize(self, sim, sim_data):
-		super(GeneCopyNumber, self).initialize(sim, sim_data)
+		super(RrnCopyNumber, self).initialize(sim, sim_data)
 
-		self.bulkChromosome = sim.states['BulkChromosome']
+		self.bulkMolecules = sim.states['BulkMolecules']
 
 		self.geneIds = sim_data.process.replication.geneData['name']
 
-		self.geneView = self.bulkChromosome.container.countsView(self.geneIds)
+		self.geneView = self.bulkMolecules.container.countsView(self.geneIds)
 
 	# Allocate memory
 	def allocate(self):
-		super(GeneCopyNumber, self).allocate()
+		super(RrnCopyNumber, self).allocate()
 
 		self.gene_copy_number = np.zeros(len(self.geneIds))
 		self.total_copy_number = 0

@@ -54,11 +54,15 @@ class Metabolism(wholecell.processes.process.Process):
 		super(Metabolism, self).initialize(sim, sim_data)
 
 		# Load constants
-		self.nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / COUNTS_UNITS)
-		self.cellDensity = sim_data.constants.cellDensity.asNumber(MASS_UNITS/VOLUME_UNITS)
+		self.nAvogadro = sim_data.constants.nAvogadro
+		self.cellDensity = sim_data.constants.cellDensity
 
 		self.metabolitePoolIDs = sim_data.process.metabolism.metabolitePoolIDs
 		self.targetConcentrations = sim_data.process.metabolism.metabolitePoolConcentrations.asNumber(COUNTS_UNITS/VOLUME_UNITS)
+
+		# self.constrainedExchangeMolecules = sim_data.process.metabolism.constrainedExchangeMolecules()
+		# self.unconstrainedExchangeMolecules = sim_data.process.metabolism.unconstrainedExchangeMolecules()
+		self.exchangeConstraints = sim_data.process.metabolism.exchangeConstraints
 
 		# Load enzyme kinetic rate information
 		self.reactionRateInfo = sim_data.process.metabolism.reactionRateInfo
@@ -128,18 +132,7 @@ class Metabolism(wholecell.processes.process.Process):
 	
 		# Set constraints
 		## External molecules
-		externalMoleculeIDs = self.fba.externalMoleculeIDs()
-
-		coefficient = initDryMass / initCellMass * sim_data.constants.cellDensity * (self.timeStepSec * units.s)
-
-		externalMoleculeLevels = sim_data.process.metabolism.exchangeConstraints(
-			externalMoleculeIDs,
-			coefficient,
-			COUNTS_UNITS / VOLUME_UNITS
-			)
-
-		# Set external molecule levels
-		self.fba.externalMoleculeLevelsIs(externalMoleculeLevels)
+		self.externalMoleculeIDs = self.fba.externalMoleculeIDs()
 
 		## Set enzymes unlimited
 		self.fba.enzymeLevelsIs(np.inf)
@@ -170,39 +163,51 @@ class Metabolism(wholecell.processes.process.Process):
 		# Solve for metabolic fluxes
 		metaboliteCountsInit = self.metabolites.counts()
 
-		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg).asNumber(MASS_UNITS)
+		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg)
+		dryMass = (self.readFromListener("Mass", "dryMass") * units.fg)
 
 		cellVolume = cellMass / self.cellDensity
 
 		countsToMolar = 1 / (self.nAvogadro * cellVolume)
 
+		# Set external molecule levels
+		coefficient = dryMass / cellMass * self.cellDensity * (self.timeStepSec() * units.s)
+
+
+		externalMoleculeLevels = self.exchangeConstraints(
+			self.externalMoleculeIDs,
+			coefficient,
+			COUNTS_UNITS / VOLUME_UNITS
+			)
+
+		# Set external molecule levels
+		self.fba.externalMoleculeLevelsIs(externalMoleculeLevels)
 
 		#  Find metabolite concentrations from metabolite counts
-		metaboliteConcentrations = metaboliteCountsInit * countsToMolar
+		metaboliteConcentrations =  countsToMolar * metaboliteCountsInit
 
 		self.fba.internalMoleculeLevelsIs(
-			metaboliteConcentrations
+			metaboliteConcentrations.asNumber(COUNTS_UNITS / VOLUME_UNITS)
 			)
 
 		#  Find enzyme concentrations from enzyme counts
 		enzymeCountsInit = self.enzymes.counts()
 
-		enzymeConcentrations = enzymeCountsInit * countsToMolar
+		enzymeConcentrations = countsToMolar * enzymeCountsInit
 
 		defaultRate = self.enzymeKinetics.defaultRate
 
 		# Combine the enzyme concentrations, substrate concentrations, and the default rate into one vector
-		inputConcentrations = np.concatenate((enzymeConcentrations,metaboliteConcentrations,[defaultRate]), axis=1)
+		inputConcentrations = np.concatenate((
+			enzymeConcentrations.asNumber(COUNTS_UNITS / VOLUME_UNITS),
+			metaboliteConcentrations.asNumber(COUNTS_UNITS / VOLUME_UNITS),
+			[defaultRate]), axis=1)
 
 		# Find reaction rate limits
-		self.reactionRates = self.enzymeKinetics.rateFunction(*inputConcentrations)
+		self.reactionRates = self.enzymeKinetics.rateFunction(*inputConcentrations) * self.timeStepSec()
 
 		# Find rate limits for all constraints
 		self.allConstraintsLimits = self.enzymeKinetics.allRatesFunction(*inputConcentrations)[0]
-
-		# Find per-enzyme reaction rates
-		perEnzymeInputConcentrations = np.concatenate((([1]*len(enzymeConcentrations)),metaboliteConcentrations,[defaultRate]), axis=1)
-		self.perEnzymeRates = self.enzymeKinetics.rateFunction(*perEnzymeInputConcentrations)
 
 		# Set the rate limits only if the option flag is enabled
 		if USE_RATELIMITS:
@@ -231,11 +236,11 @@ class Metabolism(wholecell.processes.process.Process):
 					self.fba.maxReactionFluxIs(self.constraintToReactionDict[constraintID], defaultRate, raiseForReversible = False)
 					
 
-		deltaMetabolites = self.fba.outputMoleculeLevelsChange() / countsToMolar
+		deltaMetabolites = (1 / countsToMolar) * (COUNTS_UNITS / VOLUME_UNITS * self.fba.outputMoleculeLevelsChange())
 
 		metaboliteCountsFinal = np.fmax(stochasticRound(
 			self.randomState,
-			metaboliteCountsInit + deltaMetabolites
+			metaboliteCountsInit + deltaMetabolites.asNumber()
 			), 0).astype(np.int64)
 
 		self.metabolites.countsIs(metaboliteCountsFinal)
@@ -243,22 +248,19 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# TODO: report as reactions (#) per second & store volume elsewhere
 		self.writeToListener("FBAResults", "reactionFluxes",
-			self.fba.reactionFluxes() / self.timeStepSec)
+			self.fba.reactionFluxes() / self.timeStepSec())
 		self.writeToListener("FBAResults", "externalExchangeFluxes",
-			self.fba.externalExchangeFluxes() / self.timeStepSec)
+			self.fba.externalExchangeFluxes() / self.timeStepSec())
 		# self.writeToListener("FBAResults", "objectiveValue", # TODO
 		# 	self.fba.objectiveValue() / deltaMetabolites.size) # divide to normalize by number of metabolites
 		self.writeToListener("FBAResults", "outputFluxes",
-			self.fba.outputMoleculeLevelsChange() / self.timeStepSec)
+			self.fba.outputMoleculeLevelsChange() / self.timeStepSec())
 
 		self.writeToListener("FBAResults", "outputFluxes",
-			self.fba.outputMoleculeLevelsChange() / self.timeStepSec)
+			self.fba.outputMoleculeLevelsChange() / self.timeStepSec())
 
 		self.writeToListener("EnzymeKinetics", "reactionRates",
 			self.reactionRates)
-
-		self.writeToListener("EnzymeKinetics", "perEnzymeRates",
-			self.perEnzymeRates)
 
 		self.writeToListener("EnzymeKinetics", "allConstraintsLimits",
 			self.allConstraintsLimits)
@@ -273,10 +275,10 @@ class Metabolism(wholecell.processes.process.Process):
 			enzymeCountsInit)
 
 		self.writeToListener("EnzymeKinetics", "metaboliteConcentrations",
-			metaboliteConcentrations)
+			metaboliteConcentrations.asNumber(COUNTS_UNITS / VOLUME_UNITS))
 
 		self.writeToListener("EnzymeKinetics", "countsToMolar",
-			countsToMolar)
+			countsToMolar.asNumber(COUNTS_UNITS / VOLUME_UNITS))
 
 		self.writeToListener("EnzymeKinetics", "counts_units",
 			str(COUNTS_UNITS))

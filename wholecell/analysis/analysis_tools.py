@@ -43,7 +43,7 @@ def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None):
 					"Desc", str(metadata["description"])])
 
 		# Add metadata signature to the bottom of the plot
-		plt.figtext(0,0, metadata_signature)
+		plt.figtext(0,0, metadata_signature, size=8)
 
 	# Make folders for holding alternate types of images
 	if not os.path.exists(os.path.join(plotOutDir, LOW_RES_DIR)):

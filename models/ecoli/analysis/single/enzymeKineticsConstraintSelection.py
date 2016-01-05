@@ -81,8 +81,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 		# Check that only one plotting script is active.
 		if (findRandomRxnZero + findMaxConstraintsGreedy + findMinMaxConstraintsGreedy + findTimeCourseError) > 1:
-			print "Can only run one of %s, %s, %s, %s at a time." % ("findRandomRxnZero" + "findMaxConstraintsGreedy" + "findMinMaxConstraintsGreedy" + "findTimeCourseError")
-			assert False
+			raise Exception("Can only run one of %s, %s, %s, %s at a time." % ("findRandomRxnZero" + "findMaxConstraintsGreedy" + "findMinMaxConstraintsGreedy" + "findTimeCourseError"))
 
 		enzymeKineticsdata = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
 
