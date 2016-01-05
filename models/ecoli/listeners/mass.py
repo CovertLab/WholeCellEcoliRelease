@@ -207,7 +207,7 @@ class Mass(wholecell.listeners.listener.Listener):
 			water_units = self.massUnits,
 			nucleoid_units = self.massUnits,
 			processNames = self.processNames,
-			smallMoleculeMass = self.smallMoleculeMass,
+			smallMoleculeMass = list(self.smallMoleculeMass),
 			)
 
 
