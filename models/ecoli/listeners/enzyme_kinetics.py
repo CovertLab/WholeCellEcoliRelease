@@ -64,7 +64,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 
 	def tableCreate(self, tableWriter):
 		tableWriter.writeAttributes(
-			reactionIDs = self.reactionIDs,
+			reactionIDs = list(self.reactionIDs),
 			constraintIDs = self.constraintIDs,
 			constraintToReactionDict = self.constraintToReactionDict,
 			)
