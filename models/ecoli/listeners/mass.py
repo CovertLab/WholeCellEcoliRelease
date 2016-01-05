@@ -187,6 +187,8 @@ class Mass(wholecell.listeners.listener.Listener):
 		self.proteinMassFoldChange = self.proteinMass / self.proteinMassInitial
 		self.rnaMassFoldChange = self.rnaMass / self.rnaMassInitial
 
+		import ipdb; ipdb.set_trace()
+
 		self.expectedMassFoldChange = np.exp(np.log(2) * self.time() / self.cellCycleLen)
 
 		# End simulation once the mass of an average cell is

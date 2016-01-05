@@ -45,8 +45,8 @@ def divide_cell(sim):
 	saveContainer(d2_uniqueMolCntr, os.path.join(sim._outputDir, "Daughter2", "UniqueMolecules"))
 
 	# Save daughter cell initial time steps
-	saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter1", "Time"))
-	saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter2", "Time"))
+	saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter1", "Time"), sim.timeStepSec())
+	saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter2", "Time"), sim.timeStepSec())
 
 def chromosomeDivision(bulkMolecules, randomState):
 	partial_chromosome_counts = bulkMolecules.container.counts(bulkMolecules.divisionIds['partialChromosome'])
@@ -271,12 +271,12 @@ def saveContainer(container, path):
 	container.tableCreate(table_writer)
 	container.tableAppend(table_writer)
 
-def saveTime(finalTime, path):
+def saveTime(finalTime, path, timeStepSec):
 	timeFile = TableWriter(path)
 
 	# Metadata
 	timeFile.writeAttributes(
-		initialTime = finalTime + 1
+		initialTime = finalTime + timeStepSec
 		)
 
 	timeFile.close()
