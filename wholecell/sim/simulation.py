@@ -235,7 +235,7 @@ class Simulation(object):
 			t = time.time()
 			process.calculateRequest()
 			self._evalTime.calculateRequest_times[i] = time.time() - t
-	
+
 		# Partition states among processes
 		for i, state in enumerate(self.states.itervalues()):
 			t = time.time()
