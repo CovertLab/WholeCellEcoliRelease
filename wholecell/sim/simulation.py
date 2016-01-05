@@ -103,8 +103,6 @@ class Simulation(object):
 		# Set time variables
 		self.simulationStep = 0
 
-		self._timeTotal = self.initialTime()
-
 		self.randomState = np.random.RandomState(seed = np.uint32(self._seed % np.iinfo(np.uint32).max))
 
 		# Load KB
@@ -143,6 +141,8 @@ class Simulation(object):
 			listener.allocate()
 
 		self._initialConditionsFunction(sim_data)
+
+		self._timeTotal = self.initialTime()
 
 		for hook in self.hooks.itervalues():
 			hook.postCalcInitialConditions(self)

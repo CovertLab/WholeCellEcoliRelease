@@ -285,6 +285,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		activeRibosomes = float(self.activeRibosomes.total()[0])
 		self.gtpAvailable = float(self.gtp.total()[0])
+
 		# Without an estimate on ribosome counts, require a short timestep until estimates available
 		if activeRibosomes == 0:
 			if inputTimeStep <= .2:
@@ -304,6 +305,10 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		"""
 		If translation used more than 90 percent of gtp, timeStep was too short.
 		"""
+
+		# If gtpAvailable is 0 and the timeStep is short, use the gtp produced this timeStep as the estimate
+		if self.gtpAvailable == 0 and self.timeStepSec() <= .2:
+			self.gtpAvailable = self.gtp.total()[0]
 
 		if (self.gtpAvailable * .9) < self.gtpUsed:
 			return False
