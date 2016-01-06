@@ -178,6 +178,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.h2o.requestIs(gtpsHydrolyzed) # note: this is roughly a 2x overestimate
 
+		self.rrn_operon.requestAll()
+
 
 	# Calculate temporal evolution
 	def evolveState(self):
