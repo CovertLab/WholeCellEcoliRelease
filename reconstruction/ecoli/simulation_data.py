@@ -68,9 +68,9 @@ class SimulationDataEcoli(object):
 
 		#### VARIANT CODE ####
 		self.glucoseLimitation = False
-		self.translationSaturation = False
-		self.fractionGlucoseLimit = 1.
-		self.synthetase_km_scale = 0.7
+		self.translationSaturation = True
+		self.fractionGlucoseLimit = 1.0
+		self.synthetase_km_scale = 1.0
 		#### VARIANT CODE ####
 
 	def _addHardCodedAttributes(self):
