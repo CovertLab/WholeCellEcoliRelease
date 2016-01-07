@@ -17,7 +17,6 @@ def divide_cell(sim):
 	randomState = sim.randomState
 
 	bulkMolecules = sim.states['BulkMolecules']
-	bulkChromosome = sim.states['BulkChromosome']
 	uniqueMolecules = sim.states['UniqueMolecules']
 
 	# Create output directories
@@ -37,20 +36,17 @@ def divide_cell(sim):
 
 	# Create divded containers
 	d1_bulkMolCntr, d2_bulkMolCntr = divideBulkMolecules(bulkMolecules, randomState, chromosome_counts)
-	# d1_bulkChrmCntr, d2_bulkChrmCntr = divideBulkChromosome(bulkChromosome, randomState)
 	d1_uniqueMolCntr, d2_uniqueMolCntr = divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts)
 
 	# Save divded containers
 	saveContainer(d1_bulkMolCntr, os.path.join(sim._outputDir, "Daughter1", "BulkMolecules"))
 	saveContainer(d2_bulkMolCntr, os.path.join(sim._outputDir, "Daughter2", "BulkMolecules"))
-	# saveContainer(d1_bulkChrmCntr, os.path.join(sim._outputDir, "Daughter1", "BulkChromosome"))
-	# saveContainer(d2_bulkChrmCntr, os.path.join(sim._outputDir, "Daughter2", "BulkChromosome"))
 	saveContainer(d1_uniqueMolCntr, os.path.join(sim._outputDir, "Daughter1", "UniqueMolecules"))
 	saveContainer(d2_uniqueMolCntr, os.path.join(sim._outputDir, "Daughter2", "UniqueMolecules"))
 
 	# Save daughter cell initial time steps
-	saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter1", "Time"))
-	saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter2", "Time"))
+	saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter1", "Time"), sim.timeStepSec())
+	saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter2", "Time"), sim.timeStepSec())
 
 def chromosomeDivision(bulkMolecules, randomState):
 	partial_chromosome_counts = bulkMolecules.container.counts(bulkMolecules.divisionIds['partialChromosome'])
@@ -123,29 +119,6 @@ def divideBulkMolecules(bulkMolecules, randomState, chromosome_counts):
 	d2_bulk_molecules_container.countIs(d2_chromosome_count, bulkMolecules.divisionIds['fullChromosome'][0])
 
 	return d1_bulk_molecules_container, d2_bulk_molecules_container
-
-def divideBulkChromosome(bulkChromosome, randomState):
-	chromosome_location_counts = bulkChromosome.container.counts()
-	d1_bulk_chromosome_container = bulkChromosome.container.emptyLike()
-	d2_bulk_chromosome_container = bulkChromosome.container.emptyLike()
-
-	# TODO: Delete bulkChromosome entirely!
-	# if dnaReplicationComplete:
-	# 	assert all(chromosome_location_counts == 2)
-
-	# 	d1_counts = chromosome_location_counts / 2
-	# 	d2_counts = chromosome_location_counts / 2
-
-	# 	assert all(d1_counts + d2_counts == chromosome_location_counts)
-
-	# 	d1_bulk_chromosome_container.countsIs(d1_counts)
-	# 	d2_bulk_chromosome_container.countsIs(d2_counts)
-	# elif chromosomeToDaughter1:
-	# 	d1_bulk_chromosome_container.countsIs(chromosome_location_counts)
-	# else:
-	# 	d2_bulk_chromosome_container.countsIs(chromosome_location_counts)
-
-	return d1_bulk_chromosome_container, d2_bulk_chromosome_container
 
 def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 	d1_unique_molecules_container = uniqueMolecules.container.emptyLike()
@@ -298,12 +271,12 @@ def saveContainer(container, path):
 	container.tableCreate(table_writer)
 	container.tableAppend(table_writer)
 
-def saveTime(finalTime, path):
+def saveTime(finalTime, path, timeStepSec):
 	timeFile = TableWriter(path)
 
 	# Metadata
 	timeFile.writeAttributes(
-		initialTime = finalTime + 1
+		initialTime = finalTime + timeStepSec
 		)
 
 	timeFile.close()

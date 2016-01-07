@@ -207,7 +207,7 @@ class Mass(wholecell.listeners.listener.Listener):
 			water_units = self.massUnits,
 			nucleoid_units = self.massUnits,
 			processNames = self.processNames,
-			smallMoleculeMass = self.smallMoleculeMass,
+			smallMoleculeMass = list(self.smallMoleculeMass),
 			)
 
 
@@ -227,5 +227,5 @@ class Mass(wholecell.listeners.listener.Listener):
 			waterMass = self.waterMass,
 			processMassDifferences = self.processMassDifferences.astype(np.float64),
 			relProcessMassDifferences = self.relProcessMassDifferences.astype(np.float64),
-			smallMoleculeMass = self.smallMoleculeMass,
+			smallMoleculeMass = list(self.smallMoleculeMass),
 			)

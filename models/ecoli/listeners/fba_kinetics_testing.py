@@ -50,10 +50,8 @@ class FbaKineticsTesting(wholecell.listeners.listener.Listener):
 
 	def tableCreate(self, tableWriter):
 		tableWriter.writeAttributes(
-			reactionIDs = self.reactionIDs,
-
+			reactionIDs = list(self.reactionIDs),
 			)
-
 
 	def tableAppend(self, tableWriter):
 		tableWriter.append(

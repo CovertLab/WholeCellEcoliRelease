@@ -17,7 +17,6 @@ import warnings
 # import wholecell.views.view
 
 import wholecell.states.bulk_molecules
-import wholecell.states.bulk_chromosome
 import wholecell.states.unique_molecules
 
 class Process(object):
@@ -28,7 +27,6 @@ class Process(object):
 	# Constructor
 	def __init__(self):
 		# Constants
-		self.timeStepSec = None
 		self._processIndex = None
 
 		# Simulation reference (used to access time)
@@ -46,7 +44,6 @@ class Process(object):
 	def initialize(self, sim, sim_data):
 		self._sim = sim
 
-		self.timeStepSec = sim.timeStepSec()
 		self._processIndex = sim.processes.keys().index(self._name)
 
 		self._states = sim.states
@@ -58,6 +55,14 @@ class Process(object):
 		self._states["BulkMolecules"].processRequestPriorityIs(
 			self._processIndex, priorityLevel)
 
+	def timeStepSec(self):
+		return self._sim.timeStepSec()
+
+	def isTimeStepShortEnough(self, *args):
+		return True
+
+	def wasTimeStepShortEnough(self, *args):
+		return True
 
 	# Construct views
 	def bulkMoleculesView(self, moleculeIDs):
@@ -68,15 +73,6 @@ class Process(object):
 	def bulkMoleculeView(self, moleculeIDs):
 		return wholecell.states.bulk_molecules.BulkMoleculeView(
 			self._states['BulkMolecules'], self, moleculeIDs)
-
-	def bulkChromosomesView(self, moleculeIDs):
-		return wholecell.states.bulk_chromosome.BulkChromosomesView(
-			self._states['BulkChromosome'], self, moleculeIDs)
-
-
-	def bulkChromosomeView(self, moleculeIDs):
-		return wholecell.states.bulk_chromosome.BulkChromosomeView(
-			self._states['BulkChromosome'], self, moleculeIDs)
 
 
 	def uniqueMoleculesView(self, moleculeName, **attributes):

@@ -1,4 +1,11 @@
 #!/usr/bin/env python
+"""
+@author: Morgan Paull
+@organization: Covert Lab, Department of Bioengineering, Stanford University
+@date: Created 12/17/2015
+"""
+
+from __future__ import division
 
 import argparse
 import os
@@ -20,43 +27,43 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	ap = AnalysisPaths(seedOutDir)
 
-	# TODO: Declutter Y-axis
+	ap = AnalysisPaths(seedOutDir)
 
 	# Get all cells
 	allDir = ap.getAll()
 
-	massNames = [
-				"dryMass",
-				]
-
-	cleanNames = [
-				"Dry\nmass",
-				]
+	plt.figure(figsize = (8.5, 11))
 
 	for simDir in allDir:
 		simOutDir = os.path.join(simDir, "simOut")
+		#initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+		timeSteps = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
 		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-		mass = TableReader(os.path.join(simOutDir, "Mass"))
+		absoluteTime = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+		relativeTime = absoluteTime - initialTime
 
-		for idx, massType in enumerate(massNames):
-			massToPlot = mass.readColumn(massNames[idx])
+		plt.subplot(3,1,1)
+		plt.title("Simulation Time Steps")
+		plt.plot(timeSteps)
+		plt.xlabel("Increment")
+		plt.ylabel("timeStep (s)")
 
-			f = plt.figure(figsize = (1.25, 0.8), frameon = False)
+		plt.subplot(3,1,2)
+		plt.plot(absoluteTime,timeSteps)
+		plt.xlabel("Cell time (s)")
+		plt.ylabel("timeStep (s)")
 
-			ax = f.add_axes([0, 0, 1, 1])
-			ax.axis("off")
+		plt.subplot(3,1,3)
+		plt.plot(relativeTime,timeSteps)
+		plt.xlabel("Relative cell time (s)")
+		plt.ylabel("timeStep (s)")
 
-			ax.plot(time, massToPlot, linewidth = 2)
-			ax.set_ylim([massToPlot.min(), massToPlot.max()])
-			ax.set_xlim([time.min(), time.max()])
 
-			from wholecell.analysis.analysis_tools import exportFigure
-			exportFigure(plt, plotOutDir, "r01_{}_gen{}".format(massType, allDir.index(simDir)))
-			plt.close("all")
 
+	from wholecell.analysis.analysis_tools import exportFigure
+	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+	plt.close("all")
 
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(

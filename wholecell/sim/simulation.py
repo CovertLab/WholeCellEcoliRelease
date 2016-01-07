@@ -30,6 +30,9 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	seed = 0,
 	lengthSec = 3*60*60, # 3 hours max
 	initialTime = 0,
+	timeStepSafetyFraction = 1.3,
+	maxTimeStep = 2.0,
+	updateTimeStepFreq = 5,
 	logToShell = True,
 	logToDisk = False,
 	outputDir = None,
@@ -139,6 +142,8 @@ class Simulation(object):
 
 		self._initialConditionsFunction(sim_data)
 
+		self._timeTotal = self.initialTime()
+
 		for hook in self.hooks.itervalues():
 			hook.postCalcInitialConditions(self)
 
@@ -185,6 +190,8 @@ class Simulation(object):
 
 			self.simulationStep += 1
 
+			self._timeTotal += self._timeStepSec
+
 			self._evolveState()
 
 		# Run post-simulation hooks
@@ -210,8 +217,8 @@ class Simulation(object):
 			process.seed = self._seedFromName(processName)
 			process.randomState = np.random.RandomState(seed = process.seed)
 
-		# TODO: randstreams for hooks?
-
+		self._adjustTimeStep()
+		
 		# Run pre-evolveState hooks
 		for hook in self.hooks.itervalues():
 			hook.preEvolveState(self)
@@ -249,6 +256,12 @@ class Simulation(object):
 			process.evolveState()
 			self._evalTime.evolveState_times[i] = time.time() - t
 
+		# Check that timestep length was short enough
+		for process in self.processes.itervalues():
+			if not process.wasTimeStepShortEnough():
+				raise Exception("The timestep (%.3f) was too long at step %i, failed on process %s" % (self._timeStepSec, self.simulationStep, str(process.name())))
+
+
 		# Merge state
 		for i, state in enumerate(self.states.itervalues()):
 			t = time.time()
@@ -258,6 +271,7 @@ class Simulation(object):
 		# Calculate mass of partitioned molecules, after evolution
 		for state in self.states.itervalues():
 			state.calculatePostEvolveStateMass()
+
 
 		# Update listeners
 		for listener in self.listeners.itervalues():
@@ -290,7 +304,7 @@ class Simulation(object):
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
 			time = self.time(),
-			timeStep = self.timeStep()
+			timeStepSec = self.timeStepSec()
 			)
 
 
@@ -299,7 +313,7 @@ class Simulation(object):
 
 
 	def time(self):
-		return self.timeStepSec() * self.simulationStep + self.initialTime()
+		return self._timeTotal
 
 
 	def timeStep(self):
@@ -316,3 +330,30 @@ class Simulation(object):
 
 	def cellCycleComplete(self):
 		self._cellCycleComplete = True
+
+
+	def _adjustTimeStep(self):
+		# Adjust timestep if needed or at a frequency of updateTimeStepFreq regardless
+		validTimeSteps = self._maxTimeStep * np.ones(len(self.processes))
+		resetTimeStep = False
+		for i, process in enumerate(self.processes.itervalues()):
+			if not process.isTimeStepShortEnough(self._timeStepSec, self._timeStepSafetyFraction) or self.simulationStep % self._updateTimeStepFreq == 0:
+				validTimeSteps[i] = self._findTimeStep(0., self._maxTimeStep, process.isTimeStepShortEnough)
+				resetTimeStep = True
+		if resetTimeStep:
+			self._timeStepSec = validTimeSteps.min()
+
+	def _findTimeStep(self, minTimeStep, maxTimeStep, checkerFunction):
+		N = 10000
+		for i in xrange(N):
+			candidateTimeStep = minTimeStep + (maxTimeStep - minTimeStep) / 2.
+			if checkerFunction(candidateTimeStep, self._timeStepSafetyFraction):
+				minTimeStep = candidateTimeStep
+				if (maxTimeStep - minTimeStep) / minTimeStep <= 1e-2:
+					break
+			else:
+				maxTimeStep = candidateTimeStep
+		if i == N - 1:
+			raise Exception, "Timestep adjustment did not converge, last attempt was %f" % (candidateTimeStep)
+
+		return candidateTimeStep

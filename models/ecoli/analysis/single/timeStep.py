@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 """
-Plots gene copy number
-
-@author: Nick Ruggero
+@author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/2/2014
+@date: Created 6/10/2014
 """
+
+from __future__ import division
 
 import argparse
 import os
@@ -26,32 +26,29 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	geneCopyNumberFile = TableReader(os.path.join(simOutDir, "GeneCopyNumber"))
-
-	# geneCopyNumber = geneCopyNumberFile.readColumn('gene_copy_number')
-	totalCopyNumber = geneCopyNumberFile.readColumn('total_copy_number')
-
+	timeSteps = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
-	geneCopyNumberFile.close()
+	meanTimeStep = np.mean(timeSteps)
+	maxTimeStep = np.max(timeSteps)
+	minTimeStep = np.min(timeSteps)
+
 
 	plt.figure(figsize = (8.5, 11))
 
-	# plt.subplot(2,1,1)
-	plt.plot(time / 60., totalCopyNumber, linewidth = 2)
-	plt.xlabel("Time (min)")
-	plt.ylabel("Count")
-	plt.title("Total gene copy number")
+	plt.subplot(2,1,1)
+	plt.title("Simulation Time Steps")
+	plt.plot(timeSteps)
+	plt.xlabel("Increment")
+	plt.ylabel("timeStep (s)")
 
+	plt.subplot(2,1,2)
+	plt.figtext(.15, .035, "Mean = %.2f, Max = %.2f, Min = %.2f" % (meanTimeStep, maxTimeStep, minTimeStep))
+	plt.plot(time,timeSteps)
+	plt.xlabel("Cell time (s)")
+	plt.ylabel("timeStep (s)")
 
-	# plt.subplot(2,1,2)
-	# plt.plot(time / 60., geneCopyNumber, linewidth = 2)
-	# plt.xlabel("Time (min)")
-	# plt.ylabel("Count")
-	# plt.title("Individual gene copy number")
-
-	# plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
