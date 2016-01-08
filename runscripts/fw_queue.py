@@ -9,6 +9,7 @@ from wholecell.fireworks.firetasks import FitSimDataTask
 from wholecell.fireworks.firetasks import VariantSimDataTask
 from wholecell.fireworks.firetasks import SimulationTask
 from wholecell.fireworks.firetasks import SimulationDaughterTask
+from wholecell.fireworks.firetasks import AnalysisVariantTask
 from wholecell.fireworks.firetasks import AnalysisCohortTask
 from wholecell.fireworks.firetasks import AnalysisSingleTask
 from wholecell.fireworks.firetasks import AnalysisMultiGenTask
@@ -316,6 +317,24 @@ if COMPRESS_OUTPUT:
 	wf_links[fw_validation_data].append(fw_raw_validation_data_compression)
 	wf_links[fw_validation_data].append(fw_raw_data_compression)
 
+# Variant analysis
+VARIANT_PLOT_DIRECTORY = os.path.join(OUT_DIRECTORY, SUBMISSION_TIME, "plotOut")
+
+metadata["analysis_type"] = "variant"
+metadata["total_variants"] = str(len(VARIANTS_TO_RUN))
+
+fw_name = "AnalysisVariantTask"
+fw_variant_analysis = Firework(
+	AnalysisVariantTask(
+		input_directory = os.path.join(OUT_DIRECTORY, SUBMISSION_TIME),
+		input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
+		output_plots_directory = VARIANT_PLOT_DIRECTORY,
+		metadata = metadata,
+		),
+	name = fw_name,
+	spec = {"_queueadapter": {"job_name": fw_name}, "_priority":5}
+	)
+wf_fws.append(fw_variant_analysis)
 
 ### Create variants and simulations
 for i in VARIANTS_TO_RUN:
@@ -452,6 +471,7 @@ for i in VARIANTS_TO_RUN:
 				wf_fws.append(fw_this_variant_this_gen_this_sim)
 				wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_this_seed_this_analysis)
 				wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_cohort_analysis)
+				wf_links[fw_this_variant_this_gen_this_sim].append(fw_variant_analysis)
 
 				sims_this_seed[k].append(fw_this_variant_this_gen_this_sim)
 
