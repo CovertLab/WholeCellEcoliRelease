@@ -74,9 +74,9 @@ reader = JsonReader(open(EXISTING_MONOMER_FILE, "r"), dialect = CSV_DIALECT)
 data = [row for row in reader]
 
 for monomer in data:
-	h.write('%s\t"%s"\t"%s"\t"%s"\t"%s"\t%s\t["%s"]\t"%s"\t"%s"\t"%s"\n' % (
+	h.write('%s\t%s\t"%s"\t"%s"\t"%s"\t%s\t["%s"]\t"%s"\t"%s"\t"%s"\n' % (
 		monomer["aaCount"],
-		monomer["name"],
+		json.dumps(monomer["name"]),
 		monomer["seq"],
 		"Location information from Ecocyc dump." if monomer["id"] in locationDifferences else monomer["comments"],
 		monomer["codingRnaSeq"],
