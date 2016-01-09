@@ -30,7 +30,8 @@ class AnalysisCohortTask(FireTaskBase):
 
 	def run_task(self, fw_spec):
 
-		print "%s: Running cohort analysis" % time.ctime()
+		startTime = time.time()
+		print "%s: Running cohort analysis" % time.ctime(startTime)
 
 		directory = os.path.dirname(models.ecoli.analysis.cohort.__file__)
 
@@ -53,3 +54,6 @@ class AnalysisCohortTask(FireTaskBase):
 				validationDataFile = self['input_validation_data'],
 				metadata = self["metadata"]
 				)
+
+		timeTotal = time.time() - startTime
+		print "Completed cohort analysis in %s" % (time.strftime("%H:%M:%S", time.gmtime(timeTotal)))

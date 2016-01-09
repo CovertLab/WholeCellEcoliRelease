@@ -208,10 +208,6 @@ class dFbaModel(object):
 		else:
 			self._v_upper[idxs] = values
 
-		# if not overrideImmutable and not np.all(self._v_upper[self.rxnGroup("upperImmutable").idxs()] == 0):
-		# 	import ipdb; ipdb.set_trace()
-		# 	raise Exception, "Attempting to change immutable bound."
-
 		self._recalculateSolution = True
 
 	def v_lower(self, idxs = None):

@@ -20,7 +20,8 @@ class AnalysisMultiGenTask(FireTaskBase):
 
 	def run_task(self, fw_spec):
 
-		print "%s: Running multiple generation analysis" % time.ctime()
+		startTime = time.time()
+		print "%s: Running multiple generation analysis" % time.ctime(startTime)
 
 		directory = os.path.dirname(models.ecoli.analysis.multigen.__file__)
 
@@ -43,3 +44,6 @@ class AnalysisMultiGenTask(FireTaskBase):
 				self["input_validation_data"],
 				self["metadata"]
 				)
+
+		timeTotal = time.time() - startTime
+		print "Completed multiple generation analysis in %s" % (time.strftime("%H:%M:%S", time.gmtime(timeTotal)))
