@@ -29,7 +29,8 @@ class AnalysisVariantTask(FireTaskBase):
 
 	def run_task(self, fw_spec):
 
-		print "%s: Running variant analysis" % time.ctime()
+		startTime = time.time()
+		print "%s: Running variant analysis" % time.ctime(startTime)
 
 		directory = os.path.dirname(models.ecoli.analysis.variant.__file__)
 
@@ -51,3 +52,6 @@ class AnalysisVariantTask(FireTaskBase):
 				validationDataFile = self['input_validation_data'],
 				metadata = self["metadata"]
 				)
+
+		timeTotal = time.time() - startTime
+		print "Completed variant analysis in %s" % (time.strftime("%H:%M:%S", time.gmtime(timeTotal)))
