@@ -87,7 +87,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		ax.plot(time / 60., deviation, linewidth=1, label="pool size", color='k')
 
 		# Highlights >15% deviation
-		flag_deviation = abs(deviation[deviation.shape[0] * IGNORE_FIRST_PERCENTAGE:].min())
+		flag_deviation = abs(deviation[int(deviation.shape[0] * IGNORE_FIRST_PERCENTAGE):].min())
 		bbox = None
 		if flag_deviation > 0.15:
 			bbox = {'facecolor':'red', 'alpha':0.5, 'pad':1}
@@ -99,8 +99,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		ax.xaxis.set_ticks_position('none')
 		ax.tick_params(which = 'both', direction = 'out', labelsize=6)
 		ax.set_xticks([])
-		ymin = deviation[deviation.shape[0] * IGNORE_FIRST_PERCENTAGE:].min()
-		ymax = deviation[deviation.shape[0] * IGNORE_FIRST_PERCENTAGE:].max()
+		ymin = deviation[int(deviation.shape[0] * IGNORE_FIRST_PERCENTAGE):].min()
+		ymax = deviation[int(deviation.shape[0] * IGNORE_FIRST_PERCENTAGE):].max()
 		ax.set_ylim([ymin, ymax])
 		ax.set_yticks([ymin, ymax])
 		ax.set_yticklabels([str(round_to_1(deviation.min())), str(round_to_1(deviation.max()))])

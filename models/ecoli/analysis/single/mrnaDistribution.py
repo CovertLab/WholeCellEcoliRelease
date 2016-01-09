@@ -33,10 +33,13 @@ COLORS = [
 
 AXIS_PADDING = 0.1
 
+DISABLED=True
+
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
-	print "Disabled because it's slow"
-	return
+	if DISABLED:
+		print "Currently disabled because it's slow"
+		return
 
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
