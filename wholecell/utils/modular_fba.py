@@ -938,5 +938,5 @@ class FluxBalanceAnalysis(object):
 	# 	return self._solutionFluxes[self._enzymeUsageRateConstrainedIndexes]
 
 
-	# def massAccumulated(self):
-	# 	return self._solutionFluxes[self._fluxIndex(self._massOutName)]
+	def massAccumulated(self):
+		return self._solver.flowRates(self._massOutName)
