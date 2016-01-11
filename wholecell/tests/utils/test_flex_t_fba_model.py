@@ -8,13 +8,14 @@ Test FlexTFbaModel.py
 @date: Created 10/15/2013
 """
 
+# TODO: DELETE THIS FILE
 from __future__ import division
 
 import unittest
 import warnings
 
 import numpy
-import wholecell.utils.flex_t_fba_model
+# import wholecell.utils.flex_t_fba_model
 
 import nose.plugins.attrib as noseAttrib
 
@@ -156,7 +157,7 @@ class Test_FlexTFbaModel(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	@noseAttrib.attr('smalltest')
+	# @noseAttrib.attr('smalltest')
 	def test_wildType(self):
 		m = self.m
 
@@ -171,7 +172,7 @@ class Test_FlexTFbaModel(unittest.TestCase):
 		# Make sure the following has no runtime errors
 		m.metaboliteProduction(m.metIdxs(m.metIds()), m.solution())
 
-	@noseAttrib.attr('smalltest')
+	# @noseAttrib.attr('smalltest')
 	def test_KO_f(self):
 		m = self.m 
 
@@ -191,7 +192,7 @@ class Test_FlexTFbaModel(unittest.TestCase):
 		# All non-F metabolites should be fine
 		self.assertTrue(numpy.allclose(sol[m.rxnIdxs(["f_C[c]", "f_H[c]", "f_ATP[c]"])], 3.51818182, rtol = 0, atol = 1e-8))
 
-	@noseAttrib.attr('smalltest')
+	# @noseAttrib.attr('smalltest')
 	def test_KO_F(self):
 		m = self.m 
 
@@ -211,7 +212,7 @@ class Test_FlexTFbaModel(unittest.TestCase):
 		# All non-F metabolites should be fine
 		self.assertTrue(numpy.allclose(sol[m.rxnIdxs(["f_C[c]", "f_H[c]", "f_ATP[c]"])], 3.51818182, rtol = 0, atol = 1e-8))
 
-	@noseAttrib.attr('smalltest')
+	# @noseAttrib.attr('smalltest')
 	def test_KO_C(self):
 		m = self.m 
 
@@ -225,7 +226,7 @@ class Test_FlexTFbaModel(unittest.TestCase):
 		# Pretty lethal
 		self.assertTrue(numpy.allclose(sol[m.rxnGroup("real").idxs()], 0, rtol = 0, atol = 1e-8))
 
-	@noseAttrib.attr('smalltest')
+	# @noseAttrib.attr('smalltest')
 	def test_KO_H(self):
 		m = self.m 
 
