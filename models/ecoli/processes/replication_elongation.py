@@ -30,9 +30,6 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		super(ReplicationElongation, self).initialize(sim, sim_data)
 
 		# Load parameters
-		self.dnaPolymeraseElongationRate = sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(units.nt / units.s) * self.timeStepSec
-		self.dnaPolymeraseElongationRate = int(round(self.dnaPolymeraseElongationRate)) # TODO: Make this not a hack in the KB
-
 		self.criticalInitiationMass = sim_data.mass.avgCell60MinDoublingTimeTotalMassInit
 
 		self.sequenceLengths = sim_data.process.replication.sequence_lengths
@@ -41,6 +38,7 @@ class ReplicationElongation(wholecell.processes.process.Process):
 
 		self.forward_strand_rrn_coordinate = sim_data.process.replication.forward_strand_rrn_coordinate
 		self.reverse_strand_rrn_coordinate = sim_data.process.replication.reverse_strand_rrn_coordinate
+		self.dnaPolyElngRate = int(round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(units.nt / units.s)))
 
 		# Views
 		self.activeDnaPoly = self.uniqueMoleculesView('dnaPolymerase')
@@ -74,7 +72,7 @@ class ReplicationElongation(wholecell.processes.process.Process):
 			self.sequences,
 			sequenceIdx,
 			sequenceLength,
-			self.dnaPolymeraseElongationRate
+			self._dnaPolymeraseElongationRate()
 			)
 
 		sequenceComposition = np.bincount(sequences[sequences != PAD_VALUE], minlength = 4)
@@ -170,7 +168,7 @@ class ReplicationElongation(wholecell.processes.process.Process):
 			self.sequences,
 			sequenceIdx,
 			sequenceLengths,
-			self.dnaPolymeraseElongationRate
+			self._dnaPolymeraseElongationRate()
 			)
 
 		reactionLimit = dNtpCounts.sum() # TODO: account for energy
@@ -238,3 +236,6 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		self.dntps.countsDec(dNtpsUsed)
 
 		self.ppi.countInc(nElongations - nInitialized)
+
+	def _dnaPolymeraseElongationRate(self):
+		return self.dnaPolyElngRate * self.timeStepSec()

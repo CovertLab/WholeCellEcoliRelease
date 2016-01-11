@@ -30,7 +30,6 @@ class ProteinDegradation(wholecell.processes.process.Process):
 	def __init__(self):
 		# Parameters
 		self.proteinLengths = None		# Protein lengths
-		self.proteinDegRates = None		# Protein degradation rates (1/s)
 		self.proteinDegSMatrix = None	# Protein degradation stoichiometry matrix [metabolite x rna]
 
 		# Views
@@ -44,8 +43,9 @@ class ProteinDegradation(wholecell.processes.process.Process):
 	def initialize(self, sim, sim_data):
 		super(ProteinDegradation, self).initialize(sim, sim_data)
 
-		# Metabolite IDs for S matrix
+		self.rawDegRate = sim_data.process.translation.monomerData['degRate'].asNumber(1 / units.s)
 
+		# Metabolite IDs for S matrix
 		h2oId = ["WATER[c]"]
 
 		metaboliteIds = sim_data.moleculeGroups.aaIDs + h2oId
@@ -57,8 +57,6 @@ class ProteinDegradation(wholecell.processes.process.Process):
 		proteinIds = sim_data.process.translation.monomerData['id']
 
 		# Proteins
-		self.proteinDegRates = sim_data.process.translation.monomerData['degRate'].asNumber(1 / units.s) * self.timeStepSec
-
 		self.proteinLengths = sim_data.process.translation.monomerData['length']
 
 		self.proteinDegSMatrix = np.zeros((len(metaboliteIds), len(proteinIds)), np.int64)
@@ -77,7 +75,7 @@ class ProteinDegradation(wholecell.processes.process.Process):
 
 	def calculateRequest(self):
 		nProteinsToDegrade = np.fmin(
-			self.randomState.poisson(self.proteinDegRates * self.proteins.total()),
+			self.randomState.poisson(self._proteinDegRates() * self.proteins.total()),
 			self.proteins.total()
 			)
 
@@ -101,3 +99,6 @@ class ProteinDegradation(wholecell.processes.process.Process):
 			))
 
 		self.proteins.countsIs(0)
+
+	def _proteinDegRates(self):
+		return self.rawDegRate * self.timeStepSec()

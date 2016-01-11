@@ -130,7 +130,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		expectedTranscriptionTime = 1. / rnaPolymeraseElongationRate * rnaLengths
 
 		expectedTranscriptionTimesteps = np.ceil(
-			(1. / (self.timeStepSec * units.s) * expectedTranscriptionTime).asNumber()
+			(1. / (self.timeStepSec() * units.s) * expectedTranscriptionTime).asNumber()
 			)
 
 		averageTranscriptionTimesteps = np.dot(synthProb, expectedTranscriptionTimesteps)
@@ -138,7 +138,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		expectedTerminationRate = 1. / averageTranscriptionTimesteps
 
 		expectedFractionTimeInactive = np.dot(
-			1 - ( 1. / (self.timeStepSec * units.s) * expectedTranscriptionTime).asNumber() / expectedTranscriptionTimesteps,
+			1 - ( 1. / (self.timeStepSec() * units.s) * expectedTranscriptionTime).asNumber() / expectedTranscriptionTimesteps,
 			synthProb
 			)
 

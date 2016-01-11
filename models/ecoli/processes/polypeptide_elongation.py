@@ -104,6 +104,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.pi = self.bulkMoleculeView("Pi[c]")
 		self.h   = self.bulkMoleculeView("PROTON[c]")
 
+		self.gtpUsed = 0
+		self.gtpAvailable = 0
+
 		self.ribosome30S = self.bulkMoleculeView(sim_data.moleculeGroups.s30_fullComplex[0])
 		self.ribosome50S = self.bulkMoleculeView(sim_data.moleculeGroups.s50_fullComplex[0])
 
@@ -130,7 +133,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			self.proteinSequences,
 			proteinIndexes,
 			peptideLengths,
-			self.maxRibosomeElongationRate
+			self._elngRate()
 			)
 
 		sequenceHasAA = (sequences != PAD_VALUE)
@@ -201,7 +204,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			self.proteinSequences,
 			proteinIndexes,
 			peptideLengths,
-			self.maxRibosomeElongationRate
+			self._elngRate()
 			)
 
 		# Calculate elongation resource capacity
@@ -290,29 +293,29 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.h2o.countInc(nElongations - nInitialized)
 
-		gtpUsed = np.int64(stochasticRound(
+		self.gtpUsed = np.int64(stochasticRound(
 			self.randomState,
 			nElongations * self.gtpPerElongation
 			))
 
-		self.gtp.countDec(gtpUsed)
-		self.gdp.countInc(gtpUsed)
-		self.pi.countInc(gtpUsed)
-		self.h.countInc(gtpUsed)
+		self.gtp.countDec(self.gtpUsed)
+		self.gdp.countInc(self.gtpUsed)
+		self.pi.countInc(self.gtpUsed)
+		self.h.countInc(self.gtpUsed)
 
-		self.h2o.countDec(gtpUsed)
+		self.h2o.countDec(self.gtpUsed)
 
 		# Report stalling information
 
 		expectedElongations = np.fmin(
-			self.maxRibosomeElongationRate,
+			self._elngRate(),
 			terminalLengths - peptideLengths
 			)
 
 		ribosomeStalls = expectedElongations - sequenceElongations
 
 		self.writeToListener("GrowthLimits", "aasUsed", aasUsed)
-		self.writeToListener("GrowthLimits", "gtpUsed", gtpUsed)
+		self.writeToListener("GrowthLimits", "gtpUsed", self.gtpUsed)
 
 		self.writeToListener("RibosomeData", "ribosomeStalls", ribosomeStalls)
 		self.writeToListener("RibosomeData", "aaCountInSequence", aaCountInSequence)
@@ -326,3 +329,43 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 	def calculateRrnInitRate(self, rrn_count, elngRate):
 		return rrn_count * 151.595 * np.exp(0.038*-0.298 * (self.maxRibosomeElongationRate - elngRate))
+
+	def isTimeStepShortEnough(self, inputTimeStep, timeStepSafetyFraction):
+		"""
+		Assumes GTP is the readout for failed translation with respect to the timestep.
+		"""
+
+		activeRibosomes = float(self.activeRibosomes.total()[0])
+		self.gtpAvailable = float(self.gtp.total()[0])
+
+		# Without an estimate on ribosome counts, require a short timestep until estimates available
+		if activeRibosomes == 0:
+			if inputTimeStep <= .2:
+				return True
+			else:
+				return False
+
+		dt = inputTimeStep * timeStepSafetyFraction
+		gtpExpectedUsage = activeRibosomes * self.maxRibosomeElongationRate * self.gtpPerElongation * dt
+
+		if gtpExpectedUsage < self.gtpAvailable:
+			return True
+		else:
+			return False
+
+	def wasTimeStepShortEnough(self):
+		"""
+		If translation used more than 90 percent of gtp, timeStep was too short.
+		"""
+
+		# If gtpAvailable is 0 and the timeStep is short, use the gtp produced this timeStep as the estimate
+		if self.gtpAvailable == 0 and self.timeStepSec() <= .2:
+			self.gtpAvailable = self.gtp.total()[0]
+
+		if (self.gtpAvailable * .9) < self.gtpUsed:
+			return False
+		else:
+			return True
+
+	def _elngRate(self):
+		return int(round(self.maxRibosomeElongationRate * self.timeStepSec()))

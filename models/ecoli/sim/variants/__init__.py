@@ -13,6 +13,8 @@ from models.ecoli.sim.variants.time_step import timeStepTotalIndices
 
 from models.ecoli.sim.variants.starvation_variant import starvationVariant
 from models.ecoli.sim.variants.starvation_variant import starvationVariantTotalIndices
+from models.ecoli.sim.variants.kinetics_flux_coeff import kineticsFluxCoeff
+from models.ecoli.sim.variants.kinetics_flux_coeff import kineticsFluxCoeffTotalIndices
 
 
 nameToFunctionMapping = {
@@ -20,6 +22,7 @@ nameToFunctionMapping = {
 	"wildtype": wildtype,
 	"timeStep": timeStep,
 	"starvationVariant": starvationVariant,
+	"kineticsFluxCoeff": kineticsFluxCoeff,
 }
 
 nameToNumIndicesMapping = {
@@ -27,4 +30,5 @@ nameToNumIndicesMapping = {
 	"wildtype": wildtypeTotalIndices,
 	"timeStep": timeStepTotalIndices,
 	"starvationVariant": starvationVariantTotalIndices,
+	"kineticsFluxCoeff": kineticsFluxCoeffTotalIndices,
 }

@@ -33,10 +33,13 @@ COUNTS_UNITS = units.mmol
 VOLUME_UNITS = units.L
 MASS_UNITS = units.g
 
-def fitSimData_1(raw_data):
+def fitSimData_1(raw_data, doubling_time = None):
 	# Initialize simulation data with growth rate
+	if not isinstance(doubling_time, units.Unum):
+		doubling_time = DOUBLING_TIME
+
 	sim_data = SimulationDataEcoli()
-	sim_data.initialize(doubling_time = DOUBLING_TIME, raw_data = raw_data, time_step_sec = TIME_STEP_SEC, media_conditions = MEDIA_CONDITIONS)
+	sim_data.initialize(doubling_time = doubling_time, raw_data = raw_data, time_step_sec = TIME_STEP_SEC, media_conditions = MEDIA_CONDITIONS)
 
 	# Increase RNA poly mRNA deg rates
 	setRnaPolymeraseCodingRnaDegradationRates(sim_data)
@@ -56,7 +59,7 @@ def fitSimData_1(raw_data):
 
 		bulkContainer = createBulkContainer(sim_data)
 
-		rescaleMassForSoluableMetabolites(sim_data, bulkContainer)
+		rescaleMassForSolubleMetabolites(sim_data, bulkContainer)
 
 		setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer)
 
@@ -109,7 +112,7 @@ def setRnaPolymeraseCodingRnaDegradationRates(sim_data):
 def setCPeriod(sim_data):
 	sim_data.growthRateParameters.c_period = sim_data.process.replication.genome_length * units.nt / sim_data.growthRateParameters.dnaPolymeraseElongationRate / 2
 
-def rescaleMassForSoluableMetabolites(sim_data, bulkMolCntr):
+def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr):
 	avgCellSubMass = sim_data.mass.avgCellSubMass
 
 	mass = (avgCellSubMass["proteinMass"] + avgCellSubMass["rnaMass"] + avgCellSubMass["dnaMass"]) / sim_data.mass.avgCellToInitialCellConvFactor
@@ -148,7 +151,8 @@ def rescaleMassForSoluableMetabolites(sim_data, bulkMolCntr):
 
 	sim_data.mass.avgCellDryMassInit = newAvgCellDryMassInit
 	sim_data.mass.avgCellDryMass = sim_data.mass.avgCellDryMassInit * sim_data.mass.avgCellToInitialCellConvFactor
-	sim_data.mass.avgCellWaterMassInit = sim_data.mass.avgCellDryMass / 0.3 * 0.7
+	sim_data.mass.avgCellWaterMassInit = sim_data.mass.avgCellDryMassInit / sim_data.mass.cellDryMassFraction * sim_data.mass.cellWaterMassFraction
+	sim_data.mass.fitAvgSolublePoolMass = units.sum(units.hstack((massesToAdd[:poolIds.index('WATER[c]')], massesToAdd[poolIds.index('WATER[c]') + 1:]))) * sim_data.mass.avgCellToInitialCellConvFactor
 
 def setInitialRnaExpression(sim_data):
 	# Set expression for all of the noncoding RNAs

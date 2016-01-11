@@ -46,7 +46,6 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 
 		self.reactionRates = np.zeros(len(self.metabolism.fba.reactionIDs()), np.float64)
 		self.allConstraintsLimits = np.zeros(len(self.reactionRateInfo), np.float64)
-		self.perEnzymeRates = np.zeros(len(self.metabolism.fba.reactionIDs()), np.float64)
 		self.reactionIDs = self.metabolism.fba.reactionIDs()
 		self.constraintIDs = self.metabolism.constraintIDs
 		self.metaboliteCountsInit = np.zeros(len(self.metaboliteIDs), np.float64)
@@ -65,7 +64,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 
 	def tableCreate(self, tableWriter):
 		tableWriter.writeAttributes(
-			reactionIDs = self.reactionIDs,
+			reactionIDs = list(self.reactionIDs),
 			constraintIDs = self.constraintIDs,
 			constraintToReactionDict = self.constraintToReactionDict,
 			)
@@ -76,7 +75,6 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 			time = self.time(),
 			timeStep = self.timeStep(),
 			reactionRates = self.reactionRates,
-			perEnzymeRates = self.perEnzymeRates,
 			allConstraintsLimits = self.allConstraintsLimits,
 			metaboliteCountsInit = self.metaboliteCountsInit,
 			metaboliteCountsFinal = self.metaboliteCountsFinal,

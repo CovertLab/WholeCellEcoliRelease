@@ -29,20 +29,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	massNames = [
 				"dryMass",
-				#"proteinMass",
-				#"tRnaMass",
-				#"rRnaMass",
-				#'mRnaMass',
-				#"dnaMass"
 				]
 
 	cleanNames = [
 				"Dry\nmass",
-				#"Protein\nmass",
-				#"tRNA\nmass",
-				#"rRNA\nmass",
-				#"mRNA\nmass",
-				#"DNA\nmass"
 				]
 
 	for simDir in allDir:
@@ -55,17 +45,13 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			massToPlot = mass.readColumn(massNames[idx])
 
 			f = plt.figure(figsize = (1.25, 0.8), frameon = False)
-			#f = plt.figure(figsize = (4, 3), frameon = False)
+
 			ax = f.add_axes([0, 0, 1, 1])
 			ax.axis("off")
 
 			ax.plot(time, massToPlot, linewidth = 2)
-			#plt.plot(time / 60. / 60., massToPlot, linewidth = 2)
 			ax.set_ylim([massToPlot.min(), massToPlot.max()])
 			ax.set_xlim([time.min(), time.max()])
-			#plt.ylim([massToPlot.min(), massToPlot.max()])
-			#plt.xlim([time.min(), time.max()])
-			print [massToPlot.min(), massToPlot.max()]
 
 			from wholecell.analysis.analysis_tools import exportFigure
 			exportFigure(plt, plotOutDir, "r01_{}_gen{}".format(massType, allDir.index(simDir)))

@@ -102,7 +102,7 @@ class NetworkFlowCvxopt(NetworkFlowProblemBase):
 			return
 
 		oldOptions = cvxopt.solvers.options.copy()
-		cvxopt.solvers.options["LPX_K_MSGLEV"] = 0
+		cvxopt.solvers.options["msg_lev"] = "GLP_MSG_OFF"
 
 		solution = cvxopt.solvers.lp(self._f, self._G, self._h, self._A, self._b, solver = "glpk")
 

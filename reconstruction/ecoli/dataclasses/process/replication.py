@@ -72,7 +72,7 @@ class Replication(object):
 
 		maxLen = np.int64(
 			self.sequence_lengths.max()
-			+ sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(units.nt / units.s)# * sim_data.timeStepSec # TODO: FIX
+			+ sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(units.nt / units.s) * 2 # * sim_data.timeStepSec # TODO: FIX
 			)
 
 		from wholecell.utils.polymerize import PAD_VALUE

@@ -16,9 +16,13 @@ import numpy as np
 from scipy import stats
 import matplotlib
 matplotlib.use("Agg")
+import matplotlib.patches as mpatches
 from matplotlib import pyplot as plt
 import cPickle
 from scipy.stats import pearsonr
+
+import mpld3
+from mpld3 import plugins, utils
 
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
@@ -81,23 +85,28 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		np.dot(sim_data.process.complexation.stoichMatrixMonomers(), view_complexation_complexes.counts() * -1)
 		)
 
-
 	wisniewskiCounts = validation_data.protein.wisniewski2014Data["avgCounts"]
+	proteinIds = validation_data.protein.wisniewski2014Data["monomerId"].tolist()
 
-	plt.figure(figsize = (8.5, 11))
-
-	plt.plot(np.log10(wisniewskiCounts + 1), np.log10(view_validation.counts() + 1), 'o', markeredgecolor = 'k', markerfacecolor = 'none')
+	fig, ax = plt.subplots(figsize = (8.5, 11))
+	points = ax.scatter(np.log10(wisniewskiCounts + 1), np.log10(view_validation.counts() + 1), c='w', edgecolor = 'k', alpha=.7)
 
 	plt.xlabel("log10(Wisniewski 2014 Counts)")
 	plt.ylabel("log10(Simulation Average Counts)")
 	# NOTE: This Pearson correlation goes up (at the time of writing) about 0.05 if you only
 	# include proteins that you have translational efficiencies for
 	plt.title("Pearson r: %0.2f" % pearsonr(np.log10(view_validation.counts() + 1), np.log10(wisniewskiCounts + 1))[0])
+	plt.xlim(xmin=0)
+	plt.ylim(ymin=0)
 
-	# plt.show()
+	labels = list(proteinIds)
+	tooltip = plugins.PointLabelTooltip(points, labels)
 
-	from wholecell.analysis.analysis_tools import exportFigure
+	plugins.connect(fig, tooltip)
+
+	from wholecell.analysis.analysis_tools import exportFigure, exportHtmlFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+	exportHtmlFigure(fig, plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
 
 if __name__ == "__main__":

@@ -30,11 +30,14 @@ class AnalysisCohortTask(FireTaskBase):
 
 	def run_task(self, fw_spec):
 
-		print "%s: Running cohort analysis" % time.ctime()
+		startTime = time.time()
+		print "%s: Running cohort analysis" % time.ctime(startTime)
 
 		directory = os.path.dirname(models.ecoli.analysis.cohort.__file__)
 
-		fileList = sorted(os.listdir(directory))
+		# Run analysis scripts in order of modification, most recently edited first
+		fileList = os.listdir(directory)
+		fileList.sort(key=lambda x: os.stat(os.path.join(directory, x)).st_mtime, reverse=True)
 
 		for f in fileList:
 			if f.endswith(".pyc") or f == "__init__.py":
@@ -51,3 +54,6 @@ class AnalysisCohortTask(FireTaskBase):
 				validationDataFile = self['input_validation_data'],
 				metadata = self["metadata"]
 				)
+
+		timeTotal = time.time() - startTime
+		print "Completed cohort analysis in %s" % (time.strftime("%H:%M:%S", time.gmtime(timeTotal)))

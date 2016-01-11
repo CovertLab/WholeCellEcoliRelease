@@ -9,6 +9,7 @@ from wholecell.fireworks.firetasks import FitSimDataTask
 from wholecell.fireworks.firetasks import VariantSimDataTask
 from wholecell.fireworks.firetasks import SimulationTask
 from wholecell.fireworks.firetasks import SimulationDaughterTask
+from wholecell.fireworks.firetasks import AnalysisVariantTask
 from wholecell.fireworks.firetasks import AnalysisCohortTask
 from wholecell.fireworks.firetasks import AnalysisSingleTask
 from wholecell.fireworks.firetasks import AnalysisMultiGenTask
@@ -69,6 +70,9 @@ VARIANTS_TO_RUN = range(FIRST_VARIANT_INDEX, LAST_VARIANT_INDEX + 1)
 ### Set other environment variables
 
 WC_LENGTHSEC = int(os.environ.get("WC_LENGTHSEC", DEFAULT_SIMULATION_KWARGS["lengthSec"]))
+TIMESTEP_SAFETY_FRAC = float(os.environ.get("TIMESTEP_SAFETY_FRAC", DEFAULT_SIMULATION_KWARGS["timeStepSafetyFraction"]))
+TIMESTEP_MAX = float(os.environ.get("TIMESTEP_MAX", DEFAULT_SIMULATION_KWARGS["maxTimeStep"]))
+TIMESTEP_UPDATE_FREQ = int(os.environ.get("TIMESTEP_UPDATE_FREQ", DEFAULT_SIMULATION_KWARGS["updateTimeStepFreq"]))
 N_INIT_SIMS = int(os.environ.get("N_INIT_SIMS", "1"))
 N_GENS = int(os.environ.get("N_GENS", "1"))
 SINGLE_DAUGHTERS = bool(int(os.environ.get("SINGLE_DAUGHTERS", "0")))
@@ -174,7 +178,7 @@ fw_init_raw_data = Firework(
 		output = os.path.join(KB_DIRECTORY, filename_raw_data)
 		),
 	name = fw_name,
-	spec = {"_queueadapter": {"job_name": fw_name}}
+	spec = {"_queueadapter": {"job_name": fw_name}, "_priority":1}
 	)
 
 wf_fws.append(fw_init_raw_data)
@@ -187,7 +191,7 @@ if COMPRESS_OUTPUT:
 			script = "bzip2 -v " + os.path.join(KB_DIRECTORY, filename_raw_data)
 			),
 		name = fw_name,
-		spec = {"_queueadapter": {"job_name": fw_name}}
+		spec = {"_queueadapter": {"job_name": fw_name}, "_priority":0}
 		)
 
 	wf_fws.append(fw_raw_data_compression)
@@ -208,7 +212,7 @@ fw_fit_level_1 = Firework(
 		output_data = os.path.join(KB_DIRECTORY, filename_sim_data_fit_1),
 		),
 	name = fw_name,
-	spec = {"_queueadapter": {"job_name": fw_name}}
+	spec = {"_queueadapter": {"job_name": fw_name}, "_priority":1}
 	)
 
 wf_fws.append(fw_fit_level_1)
@@ -223,7 +227,7 @@ if COMPRESS_OUTPUT:
 			script = "bzip2 -v " + os.path.join(KB_DIRECTORY, filename_sim_data_fit_1)
 			),
 		name = fw_name,
-		spec = {"_queueadapter": {"job_name": fw_name}}
+		spec = {"_queueadapter": {"job_name": fw_name}, "_priority":0}
 		)
 
 	wf_fws.append(fw_sim_data_1_compression)
@@ -239,7 +243,7 @@ fw_symlink_most_fit = Firework(
 		overwrite_if_exists = True
 		),
 	name = fw_name,
-	spec = {"_queueadapter": {"job_name": fw_name}}
+	spec = {"_queueadapter": {"job_name": fw_name}, "_priority":0}
 	)
 
 wf_fws.append(fw_symlink_most_fit)
@@ -258,7 +262,7 @@ fw_raw_validation_data = Firework(
 		output = os.path.join(KB_DIRECTORY, filename_raw_validation_data)
 		),
 	name = fw_name,
-	spec = {"_queueadapter": {"job_name": fw_name}}
+	spec = {"_queueadapter": {"job_name": fw_name}, "_priority":1}
 	)
 
 wf_fws.append(fw_raw_validation_data)
@@ -271,7 +275,7 @@ if COMPRESS_OUTPUT:
 			script = "bzip2 -v " + os.path.join(KB_DIRECTORY, filename_raw_validation_data)
 			),
 		name = fw_name,
-		spec = {"_queueadapter": {"job_name": fw_name}}
+		spec = {"_queueadapter": {"job_name": fw_name}, "_priority":0}
 		)
 
 	wf_fws.append(fw_raw_validation_data_compression)
@@ -290,7 +294,7 @@ fw_validation_data = Firework(
 		output_data = os.path.join(KB_DIRECTORY, filename_validation_data),
 		),
 	name = fw_name,
-	spec = {"_queueadapter": {"job_name": fw_name}}
+	spec = {"_queueadapter": {"job_name": fw_name}, "_priority":1}
 	)
 
 wf_fws.append(fw_validation_data)
@@ -305,7 +309,7 @@ if COMPRESS_OUTPUT:
 			script = "bzip2 -v " + os.path.join(KB_DIRECTORY, filename_validation_data)
 			),
 		name = fw_name,
-		spec = {"_queueadapter": {"job_name": fw_name}}
+		spec = {"_queueadapter": {"job_name": fw_name}, "_priority":0}
 		)
 
 	wf_fws.append(fw_validation_data_compression)
@@ -313,6 +317,24 @@ if COMPRESS_OUTPUT:
 	wf_links[fw_validation_data].append(fw_raw_validation_data_compression)
 	wf_links[fw_validation_data].append(fw_raw_data_compression)
 
+# Variant analysis
+VARIANT_PLOT_DIRECTORY = os.path.join(OUT_DIRECTORY, SUBMISSION_TIME, "plotOut")
+
+metadata["analysis_type"] = "variant"
+metadata["total_variants"] = str(len(VARIANTS_TO_RUN))
+
+fw_name = "AnalysisVariantTask"
+fw_variant_analysis = Firework(
+	AnalysisVariantTask(
+		input_directory = os.path.join(OUT_DIRECTORY, SUBMISSION_TIME),
+		input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
+		output_plots_directory = VARIANT_PLOT_DIRECTORY,
+		metadata = metadata,
+		),
+	name = fw_name,
+	spec = {"_queueadapter": {"job_name": fw_name}, "_priority":5}
+	)
+wf_fws.append(fw_variant_analysis)
 
 ### Create variants and simulations
 for i in VARIANTS_TO_RUN:
@@ -333,7 +355,7 @@ for i in VARIANTS_TO_RUN:
 			variant_metadata_directory = VARIANT_METADATA_DIRECTORY,
 			),
 		name = fw_name,
-		spec = {"_queueadapter": {"job_name": fw_name}}
+		spec = {"_queueadapter": {"job_name": fw_name}, "_priority":1}
 		)
 
 	wf_fws.append(fw_this_variant_sim_data)
@@ -349,7 +371,7 @@ for i in VARIANTS_TO_RUN:
 				script = "bzip2 -v " + os.path.join(VARIANT_SIM_DATA_DIRECTORY, "simData_Modified.cPickle")
 				),
 			name = fw_name,
-			spec = {"_queueadapter": {"job_name": fw_name}}
+			spec = {"_queueadapter": {"job_name": fw_name}, "_priority":0}
 			)
 
 		wf_fws.append(fw_this_variant_sim_data_compression)
@@ -369,7 +391,7 @@ for i in VARIANTS_TO_RUN:
 			metadata = metadata,
 			),
 		name = fw_name,
-		spec = {"_queueadapter": {"job_name": fw_name}}
+		spec = {"_queueadapter": {"job_name": fw_name}, "_priority":4}
 		)
 	wf_fws.append(fw_this_variant_cohort_analysis)
 
@@ -389,7 +411,7 @@ for i in VARIANTS_TO_RUN:
 				metadata = metadata,
 				),
 			name = fw_name,
-			spec = {"_queueadapter": {"job_name": fw_name}}
+			spec = {"_queueadapter": {"job_name": fw_name}, "_priority":3}
 			)
 		wf_fws.append(fw_this_variant_this_seed_this_analysis)
 
@@ -418,9 +440,12 @@ for i in VARIANTS_TO_RUN:
 							output_directory = CELL_SIM_OUT_DIRECTORY,
 							seed = j,
 							length_sec = WC_LENGTHSEC,
+							timestep_safety_frac = TIMESTEP_SAFETY_FRAC,
+							timestep_max = TIMESTEP_MAX,
+							timestep_update_freq = TIMESTEP_UPDATE_FREQ,
 							),
 						name = fw_name,
-						spec = {"_queueadapter": {"job_name": fw_name}}
+						spec = {"_queueadapter": {"job_name": fw_name}, "_priority":10}
 						)
 				elif k > 0:
 					PARENT_GEN_DIRECTORY = os.path.join(SEED_DIRECTORY, "generation_%06d" % (k - 1))
@@ -435,14 +460,18 @@ for i in VARIANTS_TO_RUN:
 							inherited_state_path = DAUGHTER_STATE_DIRECTORY,
 							seed = (j + 1) * ((2**k - 1) + l),
 							length_sec = WC_LENGTHSEC,
+							timestep_safety_frac = TIMESTEP_SAFETY_FRAC,
+							timestep_max = TIMESTEP_MAX,
+							timestep_update_freq = TIMESTEP_UPDATE_FREQ,
 							),
 						name = fw_name,
-						spec = {"_queueadapter": {"job_name": fw_name}}
+						spec = {"_queueadapter": {"job_name": fw_name}, "_priority":11}
 						)
 
 				wf_fws.append(fw_this_variant_this_gen_this_sim)
 				wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_this_seed_this_analysis)
 				wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_cohort_analysis)
+				wf_links[fw_this_variant_this_gen_this_sim].append(fw_variant_analysis)
 
 				sims_this_seed[k].append(fw_this_variant_this_gen_this_sim)
 
@@ -461,7 +490,7 @@ for i in VARIANTS_TO_RUN:
 							script = "find %s -type f | xargs bzip2 -v " % CELL_SIM_OUT_DIRECTORY
 							),
 						name = fw_name,
-						spec = {"_queueadapter": {"job_name": fw_name}}
+						spec = {"_queueadapter": {"job_name": fw_name}, "_priority":0}
 						)
 
 					wf_fws.append(fw_this_variant_this_gen_this_sim_compression)
@@ -479,7 +508,7 @@ for i in VARIANTS_TO_RUN:
 						metadata = metadata,
 						),
 					name = fw_name,
-					spec = {"_queueadapter": {"job_name": fw_name}}
+					spec = {"_queueadapter": {"job_name": fw_name}, "_priority":2}
 					)
 
 				wf_fws.append(fw_this_variant_this_gen_this_sim_analysis)

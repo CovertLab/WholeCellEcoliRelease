@@ -16,10 +16,10 @@ import numpy as np
 
 SOLVERS = {}
 S_GUROBI = "gurobi"
-S_CVXOPT = "cvxopt"
+S_GLPK = "glpk"
 _SOLVER_PREFERENCE = (
 	S_GUROBI,
-	S_CVXOPT
+	S_GLPK
 	)
 
 try:
@@ -40,13 +40,13 @@ else:
 	SOLVERS[S_GUROBI] = NetworkFlowGurobi
 
 try:
-	from ._netflow.nf_cvxopt import NetworkFlowCvxopt
+	from ._netflow.nf_glpk import NetworkFlowGLPK
 
 except ImportError:
 	pass
 
 else:
-	SOLVERS[S_CVXOPT] = NetworkFlowCvxopt
+	SOLVERS[S_GLPK] = NetworkFlowGLPK
 
 if not SOLVERS:
 	raise Exception("No solvers available.")
@@ -938,5 +938,5 @@ class FluxBalanceAnalysis(object):
 	# 	return self._solutionFluxes[self._enzymeUsageRateConstrainedIndexes]
 
 
-	# def massAccumulated(self):
-	# 	return self._solutionFluxes[self._fluxIndex(self._massOutName)]
+	def massAccumulated(self):
+		return self._solver.flowRates(self._massOutName)
