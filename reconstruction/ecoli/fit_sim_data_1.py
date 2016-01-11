@@ -152,6 +152,7 @@ def rescaleMassForSoluableMetabolites(sim_data, bulkMolCntr):
 	sim_data.mass.avgCellDryMassInit = newAvgCellDryMassInit
 	sim_data.mass.avgCellDryMass = sim_data.mass.avgCellDryMassInit * sim_data.mass.avgCellToInitialCellConvFactor
 	sim_data.mass.avgCellWaterMassInit = sim_data.mass.avgCellDryMassInit / sim_data.mass.cellDryMassFraction * sim_data.mass.cellWaterMassFraction
+	sim_data.mass.fitAvgSolublePoolMass = units.sum(units.hstack((massesToAdd[:poolIds.index('WATER[c]')], massesToAdd[poolIds.index('WATER[c]') + 1:]))) * sim_data.mass.avgCellToInitialCellConvFactor
 
 def setInitialRnaExpression(sim_data):
 	# Set expression for all of the noncoding RNAs
