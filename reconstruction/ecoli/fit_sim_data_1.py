@@ -33,10 +33,13 @@ COUNTS_UNITS = units.mmol
 VOLUME_UNITS = units.L
 MASS_UNITS = units.g
 
-def fitSimData_1(raw_data):
+def fitSimData_1(raw_data, doubling_time = None):
 	# Initialize simulation data with growth rate
+	if not isinstance(doubling_time, units.Unum):
+		doubling_time = DOUBLING_TIME
+
 	sim_data = SimulationDataEcoli()
-	sim_data.initialize(doubling_time = DOUBLING_TIME, raw_data = raw_data, time_step_sec = TIME_STEP_SEC, media_conditions = MEDIA_CONDITIONS)
+	sim_data.initialize(doubling_time = doubling_time, raw_data = raw_data, time_step_sec = TIME_STEP_SEC, media_conditions = MEDIA_CONDITIONS)
 
 	# Increase RNA poly mRNA deg rates
 	setRnaPolymeraseCodingRnaDegradationRates(sim_data)
