@@ -7,10 +7,12 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
+import matplotlib.gridspec as gridspec
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
+from wholecell.utils import units
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
@@ -22,14 +24,16 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	ap = AnalysisPaths(seedOutDir)
 
-	# TODO: Declutter Y-axis
-
 	# Get all cells
 	firstCellLineage = []
 	for gen_idx in range(ap.n_generations):
 		firstCellLineage.append(ap.getGeneration(gen_idx)[0])
 
-	fig, axesList = plt.subplots(2)
+	# fig, axesList = plt.subplots(3)
+	# fig.set_size_inches(10,20)
+
+	fig = plt.figure()
+	fig.set_size_inches(10,10)
 
 	## Create composition plot
 	massNames = [
@@ -61,24 +65,67 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				"cyan"
 			]
 
+	# Get simulation composition
 	simDir = firstCellLineage[0] # Only considering the first generation for now
 	time, massData = getMassData(simDir, massNames)
+	_, dryMass = getMassData(simDir, ["dryMass"])
+
 	massDataNorm = massData / massData.sum(axis = 0)
 
 	initialComp = massDataNorm[:,0]
 	finalComp = massDataNorm[:,-1]
-	initFinalIdx = np.arange(2)
+	initialDryMass = dryMass[0]
+	finalDryMass = dryMass[-1]
+
+	# Get expected composition based on growth rates
+	_, growthRate = getMassData(simDir, ["instantaniousGrowthRate"])
+
+	initialGrowthRate = np.mean(growthRate[1*60:6*60]) * 60
+	initialDoublingTime = np.log(2) / initialGrowthRate * units.min # Five mintues skipping the first minute
+	finalGrowthRate = (np.mean(growthRate[-5*60:]) * 60)
+	finalDoublingTime = np.log(2) / finalGrowthRate * units.min # Last five minutes
+
+	expectedInitialComp, expectedInitialMass = getExpectedComposition(initialDoublingTime)
+	expectedInitialComp = expectedInitialComp / expectedInitialComp.sum()
+	expectedFinalComp, finalCompInitMass = getExpectedComposition(finalDoublingTime)
+	expectedFinalComp = expectedFinalComp / expectedFinalComp.sum()
+	expectedFinalMass = finalCompInitMass * 2
+
+	initialDistance = np.linalg.norm(expectedInitialComp - initialComp, 2)
+	finalDistance = np.linalg.norm(expectedFinalComp - finalComp, 2)
+	distanceInitialToFinal = np.linalg.norm(initialComp - finalComp, 2)
+
+	initFinalIdx = np.arange(4)
 	barWidth = 0.75
-	oldLayerData = np.zeros(2)
+	oldLayerData = np.zeros(4)
+
+	gs = gridspec.GridSpec(4, 4)
+
+	ax1 = plt.subplot(gs[:-2, :-2])
 
 	for idx, massType in enumerate(massNames):
-		layerData = np.array([initialComp[idx], finalComp[idx]])
-		axesList[0].bar(initFinalIdx, layerData, barWidth, bottom=oldLayerData, label=cleanNames[idx], color=colors[idx])
+		layerData = np.array([initialComp[idx], expectedInitialComp[idx], finalComp[idx], expectedFinalComp[idx]])
+		ax1.bar(initFinalIdx, layerData, barWidth, bottom=oldLayerData, label=cleanNames[idx], color=colors[idx])
 		oldLayerData += layerData
-	axesList[0].legend(prop={'size':6})
-	axesList[0].set_title('Mass composition')
-	axesList[0].set_xticks(initFinalIdx + barWidth/2.)
-	axesList[0].set_xticklabels(("$t_i=${}".format(time[0]), "$t_f=${}".format(time[-1])))
+	ax1.legend(prop={'size':6})
+	ax1.set_title('Mass composition')
+	ax1.set_xticks(initFinalIdx + barWidth/2.)
+	ax1.set_xticklabels(("{}".format(time[0]), "E({})".format(time[0]), "{}".format(time[-1]), "E({})".format(time[-1])))
+	ax1.set_xlabel("Time (s)")
+
+	ax2 = plt.subplot(gs[:-2, 2])
+	ax2.bar(initFinalIdx, [initialDryMass, expectedInitialMass.asNumber(units.fg), finalDryMass, expectedFinalMass.asNumber(units.fg)], barWidth)
+	ax2.set_title('Dry mass (fg)')
+	ax2.set_xticks(initFinalIdx + barWidth/2.)
+	ax2.set_xticklabels(("{}".format(time[0]), "E({})".format(time[0]), "{}".format(time[-1]), "E({})".format(time[-1])))
+	ax2.set_xlabel("Time (s)")
+
+	ax3 = plt.subplot(gs[:-2, -1])
+	ax3.bar(np.arange(2), [initialGrowthRate * 60, finalGrowthRate * 60], barWidth)
+	ax3.set_title('Growth rate (1/hr)')
+	ax3.set_xticks(np.arange(2) + barWidth/2.)
+	ax3.set_xticklabels(("{}".format(time[0]), "{}".format(time[-1])))
+	ax3.set_xlabel("Time (s)")
 
 	## Create log growth plot
 	massNames = [
@@ -101,35 +148,23 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				"blue",
 				"green",
 			]
+
+	ax4 = plt.subplot(gs[2:, -1])
 	simDir = firstCellLineage[0] # Only considering the first generation for now
 	time, massData = getMassData(simDir, massNames)
 	for idx, massType in enumerate(massNames):
-		axesList[1].plot(time / 60., np.log(massData[idx,:]), label=cleanNames[idx], color=colors[idx])
-	axesList[1].legend(prop={'size':6})
-	axesList[1].set_xlabel('Time (min)')
-	axesList[1].set_ylabel('log(mass in fg)')
+		ax4.plot(time / 60., np.log(massData[idx,:]), label=cleanNames[idx], color=colors[idx])
+	ax4.legend(prop={'size':6})
+	ax4.set_xlabel('Time (min)')
+	ax4.set_ylabel('log(mass in fg)')
 
-	# import ipdb; ipdb.set_trace()
-	# for simDir in firstCellLineage:
-	# 	simOutDir = os.path.join(simDir, "simOut")
-	# 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-	# 	mass = TableReader(os.path.join(simOutDir, "Mass"))
+	ax5 = plt.subplot(gs[2, :-1])
+	ax5.plot(time / 60., growthRate * 3600)
+	ax5.set_ylim([0 * 3600, 0.0003 * 3600])
+	ax5.set_title("Growth rate (1/hr)")
+	ax5.set_xlabel("Time (min)")
 
-	# 	massData = np.zeros((len(massNames),time.size))
-
-	# 	for idx, massType in enumerate(massNames):
-	# 		massData[idx,:] = mass.readColumn(massNames[idx])
-
-	# 	massData = massData / massData.sum(axis = 0)
-
-	# 	for idx, massType in enumerate(massNames):
-	# 		axesList[idx].plot(time / 60, massData[idx,:])
-	# 		axesList[idx].set_ylabel(cleanNames[idx])
-
-	# for axes in axesList:
-	# 	axes.set_yticks(list(axes.get_ylim()))
-
-	# axesList[-1].set_xlabel('Time (min)')
+	fig.subplots_adjust(hspace=.5, wspace = 0.3)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName,metadata)
@@ -141,13 +176,38 @@ def getMassData(simDir, massNames):
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 	mass = TableReader(os.path.join(simOutDir, "Mass"))
 
-	massData = np.zeros((len(massNames),time.size))
+	massFractionData = np.zeros((len(massNames),time.size))
 
 	for idx, massType in enumerate(massNames):
-		massData[idx,:] = mass.readColumn(massNames[idx])
+		massFractionData[idx,:] = mass.readColumn(massNames[idx])
 
-	return time, massData
+	if len(massNames) == 1:
+		massFractionData = massFractionData.reshape(-1)
 
+	return time, massFractionData
+
+def getExpectedComposition(doubling_time):
+	#return np.ones(6), 100. * units.fg
+
+	from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
+	raw_data = KnowledgeBaseEcoli()
+
+	from reconstruction.ecoli.fit_sim_data_1 import fitSimData_1
+	sim_data = fitSimData_1(raw_data, doubling_time = doubling_time)
+
+	subMasses = sim_data.mass.avgCellSubMass
+	protein = subMasses['proteinMass'].asNumber(units.fg)
+	tRNA = subMasses['tRnaMass'].asNumber(units.fg)
+	rRnaMass = (subMasses['rRna23SMass'] + subMasses['rRna5SMass'] + subMasses['rRna16SMass']).asNumber(units.fg)
+	mRnaMass = subMasses['mRnaMass'].asNumber(units.fg)
+	dnaMass = subMasses['dnaMass'].asNumber(units.fg)
+	smallMolecules = sim_data.mass.fitAvgSolublePoolMass.asNumber(units.fg)
+
+	masses = np.array([protein, tRNA, rRnaMass, mRnaMass, dnaMass, smallMolecules]) / sim_data.mass.avgCellToInitialCellConvFactor
+
+	initialMass = sim_data.mass.avgCellDryMassInit
+
+	return masses, initialMass
 
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(
