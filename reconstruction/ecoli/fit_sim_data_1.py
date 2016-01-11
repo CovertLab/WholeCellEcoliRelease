@@ -56,7 +56,7 @@ def fitSimData_1(raw_data):
 
 		bulkContainer = createBulkContainer(sim_data)
 
-		rescaleMassForSoluableMetabolites(sim_data, bulkContainer)
+		rescaleMassForSolubleMetabolites(sim_data, bulkContainer)
 
 		setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer)
 
@@ -109,7 +109,7 @@ def setRnaPolymeraseCodingRnaDegradationRates(sim_data):
 def setCPeriod(sim_data):
 	sim_data.growthRateParameters.c_period = sim_data.process.replication.genome_length * units.nt / sim_data.growthRateParameters.dnaPolymeraseElongationRate / 2
 
-def rescaleMassForSoluableMetabolites(sim_data, bulkMolCntr):
+def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr):
 	avgCellSubMass = sim_data.mass.avgCellSubMass
 
 	mass = (avgCellSubMass["proteinMass"] + avgCellSubMass["rnaMass"] + avgCellSubMass["dnaMass"]) / sim_data.mass.avgCellToInitialCellConvFactor
