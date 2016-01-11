@@ -20,7 +20,8 @@ class AnalysisSingleTask(FireTaskBase):
 
 	def run_task(self, fw_spec):
 
-		print "%s: Running single simulation analysis" % time.ctime()
+		startTime = time.time()
+		print "%s: Running single simulation analysis" % time.ctime(startTime)
 
 		directory = os.path.dirname(models.ecoli.analysis.single.__file__)
 
@@ -43,3 +44,6 @@ class AnalysisSingleTask(FireTaskBase):
 				self["input_validation_data"],
 				self["metadata"],
 				)
+
+		timeTotal = time.time() - startTime
+		print "Completed single simulation analysis in %s" % (time.strftime("%H:%M:%S", time.gmtime(timeTotal)))

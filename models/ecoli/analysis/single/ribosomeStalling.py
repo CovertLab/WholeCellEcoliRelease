@@ -66,3 +66,4 @@ if __name__ == "__main__":
 	args = parser.parse_args().__dict__
 
 	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
+	
