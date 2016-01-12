@@ -182,21 +182,6 @@ class UniqueObjectsContainer(object):
 
 		# TODO: restore unique object IDs
 
-		# uniqueObjectIds = [
-		# 	"{}{}-{}".format(collectionName, self._timeStep, objectIndex)
-		# 	for objectIndex in objectIndexes
-		# 	]
-
-		# maxObjectIdLength = (
-		# 	len(collectionName)
-		# 	+ np.floor(np.log10(max(self._timeStep, 1))) + 1
-		# 	+ np.floor(np.log10(max(objectIndexes.max(), 1)))+ 1
-		# 	+ 1
-		# 	)
-
-		# if maxObjectIdLength > _MAX_ID_SIZE:
-		# 	warnings.warn("Maximum allowable ID size exceeded")
-
 		collection["_entryState"][objectIndexes] = self._entryActive
 		collection["_globalIndex"][objectIndexes] = globalIndexes
 		# collection["_uniqueId"][objectIndexes] = uniqueObjectIds

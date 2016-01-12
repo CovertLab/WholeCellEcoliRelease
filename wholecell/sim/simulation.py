@@ -70,7 +70,7 @@ class Simulation(object):
 	# Attributes that may be optionally overwritten by a subclass
 	_listenerClasses = ()
 	_hookClasses = ()
-	#_timeStepSec = 1
+	_timeStepSec = .2
 	_shellColumnHeaders = ("Time (s)",)
 
 	# Constructors
@@ -114,7 +114,7 @@ class Simulation(object):
 
 	# Link states and processes
 	def _initialize(self, sim_data):
-		self._timeStepSec = sim_data.timeStepSec
+		# self._timeStepSec = self._timeStepSec
 		self.states = _orderedAbstractionReference(self._stateClasses)
 		self.processes = _orderedAbstractionReference(self._processClasses)
 		self.listeners = _orderedAbstractionReference(self._listenerClasses + DEFAULT_LISTENER_CLASSES)
