@@ -83,7 +83,7 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
 			time = self.time(),
-			timeStep = self.timeStep(),
+			simulationStep = self.simulationStep(),
 			gtpPoolSize = self.gtpPoolSize,
 			gtpRequestSize = self.gtpRequestSize,
 			gtpAllocated = self.gtpAllocated,
