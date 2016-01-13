@@ -23,12 +23,12 @@ def starvationVariant(sim_data, index):
 	elif index == 3:
 		sim_data.glucoseLimitation = True
 		sim_data.translationSaturation = True
-		sim_data.fractionGlucoseLimit = 0.5
+		sim_data.fractionGlucoseLimit = 0.6
 		sim_data.synthetase_km_scale = 0.8
 	elif index == 4:
 		sim_data.glucoseLimitation = True
 		sim_data.translationSaturation = True
-		sim_data.fractionGlucoseLimit = 0.6
+		sim_data.fractionGlucoseLimit = 0.7
 		sim_data.synthetase_km_scale = 0.8
 
 	return dict(
