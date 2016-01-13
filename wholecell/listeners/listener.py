@@ -62,6 +62,9 @@ class Listener(object):
 	def time(self):
 		return self._sim.time()
 
+	def timeStepSec(self):
+		return self._sim.timeStepSec()
+
 	def simulationStep(self):
 		return self._sim.simulationStep()
 

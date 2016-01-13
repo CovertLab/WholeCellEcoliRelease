@@ -38,7 +38,7 @@ def fitSimData_1(raw_data, doubling_time = None):
 		doubling_time = DOUBLING_TIME
 
 	sim_data = SimulationDataEcoli()
-	sim_data.initialize(doubling_time = doubling_time, raw_data = raw_data, time_step_sec = TIME_STEP_SEC, media_conditions = MEDIA_CONDITIONS)
+	sim_data.initialize(doubling_time = doubling_time, raw_data = raw_data, media_conditions = MEDIA_CONDITIONS)
 
 	# Increase RNA poly mRNA deg rates
 	setRnaPolymeraseCodingRnaDegradationRates(sim_data)
