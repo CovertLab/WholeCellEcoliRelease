@@ -66,7 +66,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	bulkMolecules.close()
 
-	time /= 60.
+	time /= 60
 
 	# TODO: plots for all molecules (needs to be fast)
 	# TODO: account for complex composition, other modifications

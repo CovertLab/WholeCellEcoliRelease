@@ -176,7 +176,7 @@ class Metabolism(object):
 
 		#(massFractions,) = [item for item in raw_data.dryMassComposition if item["doublingTime"] == 60.0 * units.min]
 
-		for entry in raw_data.glycogenFractions:
+		for entry in raw_data.massFractions.glycogenFractions:
 			metaboliteID = entry["metaboliteId"]
 
 			assert metaboliteID not in metaboliteIDs
@@ -192,7 +192,7 @@ class Metabolism(object):
 			metaboliteIDs.append(metaboliteID)
 			metaboliteConcentrations.append(concentration)
 
-		for entry in raw_data.mureinFractions:
+		for entry in raw_data.massFractions.mureinFractions:
 			metaboliteID = entry["metaboliteId"]
 
 			assert metaboliteID not in metaboliteIDs
@@ -208,7 +208,7 @@ class Metabolism(object):
 			metaboliteIDs.append(metaboliteID)
 			metaboliteConcentrations.append(concentration)
 
-		for entry in raw_data.LPSFractions:
+		for entry in raw_data.massFractions.LPSFractions:
 			metaboliteID = entry["metaboliteId"]
 
 			assert metaboliteID not in metaboliteIDs
@@ -224,7 +224,7 @@ class Metabolism(object):
 			metaboliteIDs.append(metaboliteID)
 			metaboliteConcentrations.append(concentration)
 
-		for entry in raw_data.lipidFractions:
+		for entry in raw_data.massFractions.lipidFractions:
 			metaboliteID = entry["metaboliteId"]
 
 			assert metaboliteID not in metaboliteIDs
@@ -240,7 +240,7 @@ class Metabolism(object):
 			metaboliteIDs.append(metaboliteID)
 			metaboliteConcentrations.append(concentration)
 
-		for entry in raw_data.ionFractions:
+		for entry in raw_data.massFractions.ionFractions:
 			metaboliteID = entry["metaboliteId"]
 
 			assert metaboliteID not in metaboliteIDs
@@ -256,7 +256,7 @@ class Metabolism(object):
 			metaboliteIDs.append(metaboliteID)
 			metaboliteConcentrations.append(concentration)
 
-		for entry in raw_data.solubleFractions:
+		for entry in raw_data.massFractions.solubleFractions:
 			metaboliteID = entry["metaboliteId"]
 
 			if metaboliteID not in metaboliteIDs:

@@ -42,7 +42,7 @@ class RnaDegradationListener(wholecell.listeners.listener.Listener):
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
 			time = self.time(),
-			timeStep = self.timeStep(),
+			simulationStep = self.simulationStep(),
 			countRnaDegraded = self.countRnaDegraded,
 			nucleotidesFromDegradation = self.nucleotidesFromDegradation,
 			FractionActiveEndoRNases = self.FractionActiveEndoRNases,

@@ -104,7 +104,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		# Read time info from the listener
 		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-		timeStepSec = enzymeKineticsdata.readColumn("timeStep")[1] - enzymeKineticsdata.readColumn("timeStep")[0]
+		timeStepSec = enzymeKineticsdata.readColumn("timeStepSec")[1] - enzymeKineticsdata.readColumn("timeStepSec")[0]
 
 		enzymeKineticsdata.close()
 

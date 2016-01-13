@@ -521,15 +521,17 @@ for i in VARIANTS_TO_RUN:
 					wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_this_variant_sim_data_compression)
 					wf_links[fw_this_variant_this_seed_this_analysis].append(fw_this_variant_sim_data_compression)
 					wf_links[fw_this_variant_cohort_analysis].append(fw_this_variant_sim_data_compression)
+					wf_links[fw_variant_analysis].append(fw_this_variant_sim_data_compression)
 					wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_validation_data_compression)
 					wf_links[fw_this_variant_this_seed_this_analysis].append(fw_validation_data_compression)
 					wf_links[fw_this_variant_cohort_analysis].append(fw_validation_data_compression)
+					wf_links[fw_variant_analysis].append(fw_validation_data_compression)
 					wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_this_variant_this_gen_this_sim_compression)
 					wf_links[fw_this_variant_this_seed_this_analysis].append(fw_this_variant_this_gen_this_sim_compression)
 					wf_links[fw_this_variant_cohort_analysis].append(fw_this_variant_this_gen_this_sim_compression)
+					wf_links[fw_variant_analysis].append(fw_this_variant_this_gen_this_sim_compression)
 
-
-### Create workflow
+## Create workflow
 
 workflow = Workflow(wf_fws, links_dict = wf_links)
 

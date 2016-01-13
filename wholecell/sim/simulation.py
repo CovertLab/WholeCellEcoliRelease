@@ -70,7 +70,7 @@ class Simulation(object):
 	# Attributes that may be optionally overwritten by a subclass
 	_listenerClasses = ()
 	_hookClasses = ()
-	#_timeStepSec = 1
+	_timeStepSec = .2
 	_shellColumnHeaders = ("Time (s)",)
 
 	# Constructors
@@ -101,7 +101,7 @@ class Simulation(object):
 			raise SimulationException("Unknown keyword arguments: {}".format(unknownKeywords))
 
 		# Set time variables
-		self.simulationStep = 0
+		self._simulationStep = 0
 
 		self.randomState = np.random.RandomState(seed = np.uint32(self._seed % np.iinfo(np.uint32).max))
 
@@ -114,7 +114,7 @@ class Simulation(object):
 
 	# Link states and processes
 	def _initialize(self, sim_data):
-		self._timeStepSec = sim_data.timeStepSec
+		# self._timeStepSec = self._timeStepSec
 		self.states = _orderedAbstractionReference(self._stateClasses)
 		self.processes = _orderedAbstractionReference(self._processClasses)
 		self.listeners = _orderedAbstractionReference(self._listenerClasses + DEFAULT_LISTENER_CLASSES)
@@ -188,7 +188,7 @@ class Simulation(object):
 			if self._cellCycleComplete:
 				break
 
-			self.simulationStep += 1
+			self._simulationStep += 1
 
 			self._timeTotal += self._timeStepSec
 
@@ -259,7 +259,7 @@ class Simulation(object):
 		# Check that timestep length was short enough
 		for process in self.processes.itervalues():
 			if not process.wasTimeStepShortEnough():
-				raise Exception("The timestep (%.3f) was too long at step %i, failed on process %s" % (self._timeStepSec, self.simulationStep, str(process.name())))
+				raise Exception("The timestep (%.3f) was too long at step %i, failed on process %s" % (self._timeStepSec, self.simulationStep(), str(process.name())))
 
 
 		# Merge state
@@ -286,7 +286,7 @@ class Simulation(object):
 			logger.append(self)
 
 	def _seedFromName(self, name):
-		return np.uint32((self._seed + self.simulationStep + hash(name)) % np.iinfo(np.uint64).max)
+		return np.uint32((self._seed + self.simulationStep() + hash(name)) % np.iinfo(np.uint64).max)
 
 
 	def initialTime(self):
@@ -316,8 +316,8 @@ class Simulation(object):
 		return self._timeTotal
 
 
-	def timeStep(self):
-		return self.simulationStep
+	def simulationStep(self):
+		return self._simulationStep
 
 
 	def timeStepSec(self):
@@ -337,7 +337,7 @@ class Simulation(object):
 		validTimeSteps = self._maxTimeStep * np.ones(len(self.processes))
 		resetTimeStep = False
 		for i, process in enumerate(self.processes.itervalues()):
-			if not process.isTimeStepShortEnough(self._timeStepSec, self._timeStepSafetyFraction) or self.simulationStep % self._updateTimeStepFreq == 0:
+			if not process.isTimeStepShortEnough(self._timeStepSec, self._timeStepSafetyFraction) or self.simulationStep() % self._updateTimeStepFreq == 0:
 				validTimeSteps[i] = self._findTimeStep(0., self._maxTimeStep, process.isTimeStepShortEnough)
 				resetTimeStep = True
 		if resetTimeStep:

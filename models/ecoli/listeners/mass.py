@@ -167,13 +167,13 @@ class Mass(wholecell.listeners.listener.Listener):
 		self.processMassDifferences = processFinalMass - processInitialMass
 		self.relProcessMassDifferences = np.nan_to_num(self.processMassDifferences / processInitialMass)
 
-		if self.timeStep() > 0:
+		if self.simulationStep() > 0:
 			self.growth = self.dryMass - oldDryMass
 
 		else:
 			self.growth = np.nan
 
-		self.instantaniousGrowthRate = self.growth / self.timeStep() / self.dryMass
+		self.instantaniousGrowthRate = self.growth / self.timeStepSec() / self.dryMass
 
 		self.proteinMassFraction = self.proteinMass / self.dryMass
 		self.rnaMassFraction = self.rnaMass / self.dryMass
@@ -216,7 +216,7 @@ class Mass(wholecell.listeners.listener.Listener):
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
 			time = self.time(),
-			timeStep = self.timeStep(),
+			simulationStep = self.simulationStep(),
 			cellMass = self.cellMass,
 			growth = self.growth,
 			dryMass = self.dryMass,
