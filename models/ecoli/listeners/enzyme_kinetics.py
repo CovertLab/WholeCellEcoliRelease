@@ -73,7 +73,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
 			time = self.time(),
-			timeStep = self.timeStep(),
+			simulationStep = self.simulationStep(),
 			reactionRates = self.reactionRates,
 			allConstraintsLimits = self.allConstraintsLimits,
 			metaboliteCountsInit = self.metaboliteCountsInit,

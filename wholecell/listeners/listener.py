@@ -62,10 +62,8 @@ class Listener(object):
 	def time(self):
 		return self._sim.time()
 
-
-	def timeStep(self):
-		return self._sim.timeStepSec()
-
+	def simulationStep(self):
+		return self._sim.simulationStep()
 
 	# Features for shell logging
 

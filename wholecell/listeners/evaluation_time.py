@@ -101,7 +101,7 @@ class EvaluationTime(wholecell.listeners.listener.Listener):
 
 		tableWriter.append(
 			time = self.time(),
-			timeStep = self.timeStep(),
+			simulationStep = self.simulationStep(),
 			updateQueries_times = self.updateQueries_times,
 			partition_times = self.partition_times,
 			merge_times = self.merge_times,

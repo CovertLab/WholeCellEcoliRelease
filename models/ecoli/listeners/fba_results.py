@@ -62,7 +62,7 @@ class FBAResults(wholecell.listeners.listener.Listener):
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
 			time = self.time(),
-			timeStep = self.timeStep(),
+			simulationStep = self.simulationStep(),
 			reactionFluxes = self.reactionFluxes,
 			externalExchangeFluxes = self.externalExchangeFluxes,
 			outputFluxes = self.outputFluxes,

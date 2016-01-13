@@ -59,7 +59,7 @@ class RrnCopyNumber(wholecell.listeners.listener.Listener):
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
 			time = self.time(),
-			timeStep = self.timeStep(),
+			simulationStep = self.simulationStep(),
 			gene_copy_number = self.gene_copy_number,
 			total_copy_number = self.total_copy_number,
 			)

@@ -150,7 +150,7 @@ class UniqueMolecules(wholecell.states.state.State):
 	def calculatePreEvolveStateMass(self):
 		# Compute partitioned masses
 
-		if self.timeStep() == 0:
+		if self.simulationStep() == 0:
 			# Set everything to the "unassigned" value
 			# TODO: consider allowing a default value option for unique objects
 			objects = self.container.objects()
