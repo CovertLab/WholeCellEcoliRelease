@@ -153,7 +153,6 @@ class Metabolism(wholecell.processes.process.Process):
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_METABOLISM)
 
 		###### VARIANT CODE #######
-		self.externalMoleculeLevelsSave = externalMoleculeLevels.copy()
 		self.glucoseLimitation = sim_data.glucoseLimitation
 		self.fractionGlucoseLimit = sim_data.fractionGlucoseLimit
 		###### VARIANT CODE #######
@@ -167,16 +166,6 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Solve for metabolic fluxes
 		metaboliteCountsInit = self.metabolites.counts()
-
-		###### VARIANT CODE #######
-		# APPLY METABOLIC LIMITATION AT TIME POINT
-		if self.glucoseLimitation:
-			if self.time() >= 10*60:
-				glc_idx = self.fba.externalMoleculeIDs().index('GLC[p]')
-				tempExternalMoleculeLevels = self.externalMoleculeLevelsSave.copy()
-				tempExternalMoleculeLevels[glc_idx] = tempExternalMoleculeLevels[glc_idx] * self.fractionGlucoseLimit
-				self.fba.externalMoleculeLevelsIs(tempExternalMoleculeLevels)
-		###### VARIANT CODE #######
 
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg)
 		dryMass = (self.readFromListener("Mass", "dryMass") * units.fg)
@@ -194,6 +183,14 @@ class Metabolism(wholecell.processes.process.Process):
 			coefficient,
 			COUNTS_UNITS / VOLUME_UNITS
 			)
+
+		###### VARIANT CODE #######
+		# APPLY METABOLIC LIMITATION AT TIME POINT
+		if self.glucoseLimitation:
+			if self.time() >= 10*60:
+				glc_idx = self.fba.externalMoleculeIDs().index('GLC[p]')
+				externalMoleculeLevels[glc_idx] = externalMoleculeLevels[glc_idx] * self.fractionGlucoseLimit
+		###### VARIANT CODE #######
 
 		# Set external molecule levels
 		self.fba.externalMoleculeLevelsIs(externalMoleculeLevels)
