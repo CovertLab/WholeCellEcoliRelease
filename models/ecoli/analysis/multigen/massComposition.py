@@ -13,6 +13,7 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 from wholecell.utils import units
+import cPickle
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
@@ -29,11 +30,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	for gen_idx in range(ap.n_generations):
 		firstCellLineage.append(ap.getGeneration(gen_idx)[0])
 
-	# fig, axesList = plt.subplots(3)
-	# fig.set_size_inches(10,20)
+	sim_data = cPickle.load(open(simDataFile, "rb"))
+	max_elongationRate = sim_data.constants.ribosomeElongationRate.asNumber(units.aa / units.s)
+	elongationRate = float(sim_data.constants.ribosomeElongationRate.asNumber(units.aa / units.s))
 
 	fig = plt.figure()
-	fig.set_size_inches(10,10)
+	fig.set_size_inches(10,12)
 
 	## Create composition plot
 	massNames = [
@@ -65,67 +67,121 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				"cyan"
 			]
 
-	# Get simulation composition
-	simDir = firstCellLineage[0] # Only considering the first generation for now
-	time, massData = getMassData(simDir, massNames)
-	_, dryMass = getMassData(simDir, ["dryMass"])
-
-	massDataNorm = massData / massData.sum(axis = 0)
-
-	initialComp = massDataNorm[:,0]
-	finalComp = massDataNorm[:,-1]
-	initialDryMass = dryMass[0]
-	finalDryMass = dryMass[-1]
-
-	# Get expected composition based on growth rates
-	_, growthRate = getMassData(simDir, ["instantaniousGrowthRate"])
-
-	initialGrowthRate = np.mean(growthRate[1*60:6*60]) * 60
-	initialDoublingTime = np.log(2) / initialGrowthRate * units.min # Five mintues skipping the first minute
-	finalGrowthRate = (np.mean(growthRate[-5*60:]) * 60)
-	finalDoublingTime = np.log(2) / finalGrowthRate * units.min # Last five minutes
-
-	expectedInitialComp, expectedInitialMass = getExpectedComposition(initialDoublingTime)
-	expectedInitialComp = expectedInitialComp / expectedInitialComp.sum()
-	expectedFinalComp, finalCompInitMass = getExpectedComposition(finalDoublingTime)
-	expectedFinalComp = expectedFinalComp / expectedFinalComp.sum()
-	expectedFinalMass = finalCompInitMass * 2
-
-	initialDistance = np.linalg.norm(expectedInitialComp - initialComp, 2)
-	finalDistance = np.linalg.norm(expectedFinalComp - finalComp, 2)
-	distanceInitialToFinal = np.linalg.norm(initialComp - finalComp, 2)
-
-	initFinalIdx = np.arange(4)
+	# Composition plotting
+	# Create plotting indexes with some offsets to make it look nice
+	initFinalIdx = range(4 * len(firstCellLineage))
+	for idx, value in enumerate(initFinalIdx):
+		if idx % 2:
+			initFinalIdx[idx] = initFinalIdx[idx] - 0.1
+		else:
+			initFinalIdx[idx] = initFinalIdx[idx] + 0.1
+	initFinalIdx = np.array(initFinalIdx)
+	tickLabels = tuple(["$t=0$\nActual","Expected","$t=t_d$\nActual","Expected"] * len(firstCellLineage))
 	barWidth = 0.75
-	oldLayerData = np.zeros(4)
+	gs = gridspec.GridSpec(6, 4)
+	ax1 = plt.subplot(gs[:2, :-2])
+	ax2 = plt.subplot(gs[:2, 2:])
 
-	gs = gridspec.GridSpec(4, 4)
 
-	ax1 = plt.subplot(gs[:-2, :-2])
+	for gen, simDir in enumerate(firstCellLineage):
+		# Get simulation composition
+		time, massData = getMassData(simDir, massNames)
+		_, dryMass = getMassData(simDir, ["dryMass"])
 
-	for idx, massType in enumerate(massNames):
-		layerData = np.array([initialComp[idx], expectedInitialComp[idx], finalComp[idx], expectedFinalComp[idx]])
-		ax1.bar(initFinalIdx, layerData, barWidth, bottom=oldLayerData, label=cleanNames[idx], color=colors[idx])
-		oldLayerData += layerData
-	ax1.legend(prop={'size':6})
-	ax1.set_title('Mass composition')
+		massDataNorm = massData / massData.sum(axis = 0)
+
+		initialComp = massDataNorm[:,0]
+		finalComp = massDataNorm[:,-1]
+		initialDryMass = dryMass[0]
+		finalDryMass = dryMass[-1]
+
+		# Get expected composition based on growth rates
+		_, growthRate = getMassData(simDir, ["instantaniousGrowthRate"])
+
+		initialGrowthRate = np.mean(growthRate[1*60:6*60]) * 60
+		initialDoublingTime = np.log(2) / initialGrowthRate * units.min # Five mintues skipping the first minute
+		finalGrowthRate = (np.mean(growthRate[-5*60:]) * 60)
+		finalDoublingTime = np.log(2) / finalGrowthRate * units.min # Last five minutes
+
+		expectedInitialComp, expectedInitialMass = getExpectedComposition(initialDoublingTime)
+		expectedInitialComp = expectedInitialComp / expectedInitialComp.sum()
+		expectedFinalComp, finalCompInitMass = getExpectedComposition(finalDoublingTime)
+		expectedFinalComp = expectedFinalComp / expectedFinalComp.sum()
+		expectedFinalMass = finalCompInitMass * 2
+
+		initialDistance = np.linalg.norm(expectedInitialComp - initialComp, 2)
+		finalDistance = np.linalg.norm(expectedFinalComp - finalComp, 2)
+		distanceInitialToFinal = np.linalg.norm(initialComp - finalComp, 2)
+
+		oldLayerData = np.zeros(4)
+		indexesForGen = initFinalIdx[gen*4:(gen+1)*4]
+		ax1.axvline(x = indexesForGen[-1] + barWidth + 0.225, linewidth=2, color='k', linestyle='--')
+
+		for idx, massType in enumerate(massNames):
+			layerData = np.array([initialComp[idx], expectedInitialComp[idx], finalComp[idx], expectedFinalComp[idx]])
+			if gen == 0:
+				ax1.bar(left=indexesForGen, height=layerData, width=barWidth, bottom=oldLayerData, label=cleanNames[idx], color=colors[idx])
+			else:
+				ax1.bar(left=indexesForGen, height=layerData, width=barWidth, bottom=oldLayerData, color=colors[idx])
+			oldLayerData += layerData
+		ax1.legend(prop={'size':6})
+		ax1.set_title('Mass composition')
+
+		# Plot dry mass
+		ax2.bar(indexesForGen, [initialDryMass, expectedInitialMass.asNumber(units.fg), finalDryMass, expectedFinalMass.asNumber(units.fg)], barWidth)
+		ax2.set_title('Dry mass (fg)')
+		ax2.axvline(x = indexesForGen[-1] + barWidth + 0.225, linewidth=2, color='k', linestyle='--')
+
+		# Plot growth rate
+		ax3 = plt.subplot(gs[2, :-1])
+		avgGrowthRate = growthRate[1:].mean() * 3600
+		stdGrowthRate = growthRate[1:].std() * 3600
+		ax3.plot(time / 60., growthRate * 3600)
+		ax3.set_ylim([0, avgGrowthRate + 2*stdGrowthRate])
+		ax3.set_ylabel("Growth rate (1/hr)")
+		ax3.axvline(x = time.max() / 60., linewidth=2, color='k', linestyle='--')
+
+		# Plot ribosome data
+		simOutDir = os.path.join(simDir, "simOut")
+		ribosomeDataFile = TableReader(os.path.join(simOutDir, "RibosomeData"))
+		effectiveElongationRate = ribosomeDataFile.readColumn("effectiveElongationRate")
+		rrnInitRate = ribosomeDataFile.readColumn("rrnInitRate")
+		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		ribosomeDataFile.close()
+
+		ax4 = plt.subplot(gs[3, :-1])
+		ax4.plot(time / 60., effectiveElongationRate, label="Effective elongation rate", linewidth=2)
+		ax4.plot(time / 60., max_elongationRate * np.ones(time.size), 'r--')
+		ax4.set_ylabel("Effective elongation\nrate (aa/s/ribosome)")
+		ax4.axvline(x = time.max() / 60., linewidth=2, color='k', linestyle='--')
+
+		# Plot rrn counts
+		bulkMoleculesFile = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+		bulkMoleculeIds = bulkMoleculesFile.readAttribute("objectNames")
+		rrn_idx = bulkMoleculesFile.readAttribute("objectNames").index('rrn_operon')
+		rrn_counts = bulkMoleculesFile.readColumn("counts")[:, rrn_idx]
+		bulkMoleculesFile.close()
+
+		ax5 = plt.subplot(gs[4, :-1])
+		ax5.plot(time / 60., rrn_counts, label="Rrn operon counts", linewidth=2)
+		ax5.set_ylim([rrn_counts.min() - 1, rrn_counts.max() + 1])
+		ax5.set_ylabel("Rrn operons")
+		ax5.axvline(x = time.max() / 60., linewidth=2, color='k', linestyle='--')
+
+		ax6 = plt.subplot(gs[5, :-1])
+		ax6.plot(time / 60., rrnInitRate, label="Rrn init", linewidth=2)
+		ax6.axvline(x = time.max() / 60., linewidth=2, color='k', linestyle='--')
+		ax6.set_ylabel("Rrn init rate")
+		ax6.set_xlabel("Time (min)")
+
+	# Set axes labels for x-axis in plots 1 and 2
 	ax1.set_xticks(initFinalIdx + barWidth/2.)
-	ax1.set_xticklabels(("{}".format(time[0]), "E({})".format(time[0]), "{}".format(time[-1]), "E({})".format(time[-1])))
-	ax1.set_xlabel("Time (s)")
-
-	ax2 = plt.subplot(gs[:-2, 2])
-	ax2.bar(initFinalIdx, [initialDryMass, expectedInitialMass.asNumber(units.fg), finalDryMass, expectedFinalMass.asNumber(units.fg)], barWidth)
-	ax2.set_title('Dry mass (fg)')
+	ax1.set_xticklabels(tickLabels)
+	plt.setp(ax1.xaxis.get_majorticklabels(), rotation = 70, fontsize=8)
 	ax2.set_xticks(initFinalIdx + barWidth/2.)
-	ax2.set_xticklabels(("{}".format(time[0]), "E({})".format(time[0]), "{}".format(time[-1]), "E({})".format(time[-1])))
-	ax2.set_xlabel("Time (s)")
-
-	ax3 = plt.subplot(gs[:-2, -1])
-	ax3.bar(np.arange(2), [initialGrowthRate * 60, finalGrowthRate * 60], barWidth)
-	ax3.set_title('Growth rate (1/hr)')
-	ax3.set_xticks(np.arange(2) + barWidth/2.)
-	ax3.set_xticklabels(("{}".format(time[0]), "{}".format(time[-1])))
-	ax3.set_xlabel("Time (s)")
+	ax2.set_xticklabels(tickLabels)
+	plt.setp(ax2.xaxis.get_majorticklabels(), rotation = 70, fontsize=8)
 
 	## Create log growth plot
 	massNames = [
@@ -149,20 +205,16 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				"green",
 			]
 
-	ax4 = plt.subplot(gs[2:, -1])
+
+
+	ax7 = plt.subplot(gs[2:, -1])
 	simDir = firstCellLineage[0] # Only considering the first generation for now
 	time, massData = getMassData(simDir, massNames)
 	for idx, massType in enumerate(massNames):
-		ax4.plot(time / 60., np.log(massData[idx,:]), label=cleanNames[idx], color=colors[idx])
-	ax4.legend(prop={'size':6})
-	ax4.set_xlabel('Time (min)')
-	ax4.set_ylabel('log(mass in fg)')
-
-	ax5 = plt.subplot(gs[2, :-1])
-	ax5.plot(time / 60., growthRate * 3600)
-	ax5.set_ylim([0 * 3600, 0.0003 * 3600])
-	ax5.set_title("Growth rate (1/hr)")
-	ax5.set_xlabel("Time (min)")
+		ax7.plot(time / 60., np.log(massData[idx,:]), label=cleanNames[idx], color=colors[idx])
+	ax7.legend(prop={'size':6})
+	ax7.set_xlabel('Time (min)')
+	ax7.set_ylabel('log(mass in fg)')
 
 	fig.subplots_adjust(hspace=.5, wspace = 0.3)
 
