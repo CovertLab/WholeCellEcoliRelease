@@ -61,8 +61,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		self.maxRibosomeElongationRate = sim_data.constants.ribosomeElongationRate.asNumber(units.aa / units.s) * self.timeStepSec
-		self.maxRibosomeElongationRate = int(np.round(self.maxRibosomeElongationRate))
+		self.maxRibosomeElongationRate = float(sim_data.constants.ribosomeElongationRate.asNumber(units.aa / units.s))
 
 		self.nAvogadro = sim_data.constants.nAvogadro
 		self.cellDensity = sim_data.constants.cellDensity
@@ -244,7 +243,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		# Update rRNA synthesis probabilites based on elongation rate
 		prevInitRate = self.readFromListener("RibosomeData", "rrnInitRate")
 
-		currElongRate = (sequenceElongations.sum() / len(activeRibosomes)) / self.timeStepSec
+		currElongRate = (sequenceElongations.sum() / len(activeRibosomes)) / self.timeStepSec()
 		currInitRate = self.calculateRrnInitRate(self.rrn_operon.count(), currElongRate)
 
 		if prevInitRate == 0.:
