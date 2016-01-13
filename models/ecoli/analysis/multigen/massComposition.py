@@ -80,6 +80,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# Get expected composition based on growth rates
 	_, growthRate = getMassData(simDir, ["instantaniousGrowthRate"])
 
+	if time.size < 6 * 60:
+		print "Simulation isn't long enough, exiting."
+		return
+
 	initialGrowthRate = np.mean(growthRate[1*60:6*60]) * 60
 	initialDoublingTime = np.log(2) / initialGrowthRate * units.min # Five mintues skipping the first minute
 	finalGrowthRate = (np.mean(growthRate[-5*60:]) * 60)
