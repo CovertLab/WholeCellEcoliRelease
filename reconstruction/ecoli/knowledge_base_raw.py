@@ -69,6 +69,10 @@ SEQUENCE_FILE = 'sequence.fasta'
 LIST_OF_PARAMETER_FILENAMES = ("parameters.tsv", "mass_parameters.tsv")
 CONSTANTS_FILENAME = "constants.tsv"
 
+class DataStore(object):
+	def __init__(self):
+		pass
+
 class KnowledgeBaseEcoli(object):
 	""" KnowledgeBaseEcoli """
 
@@ -83,14 +87,18 @@ class KnowledgeBaseEcoli(object):
 
 		self.genome_sequence = self._load_sequence(os.path.join(FLAT_DIR, SEQUENCE_FILE))
 
-
 	def _load_tsv(self, file_name):
+		path = self
+		for subPath in file_name[len(FLAT_DIR) + 1 : ].split(os.path.sep)[:-1]:
+			if not hasattr(self, subPath):
+				setattr(path, subPath, DataStore())
+			path = getattr(path, subPath)
 		attrName = file_name.split(os.path.sep)[-1].split(".")[0]
-		setattr(self, attrName, [])
+		setattr(path, attrName, [])
 
 		with open(file_name, 'rU') as csvfile:
 			reader = JsonReader(csvfile, dialect = CSV_DIALECT)
-			setattr(self, attrName, [row for row in reader])
+			setattr(path, attrName, [row for row in reader])
 
 	def _load_sequence(self, file_path):
 		from Bio import SeqIO
