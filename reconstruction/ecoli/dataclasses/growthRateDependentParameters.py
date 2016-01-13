@@ -168,16 +168,16 @@ class Mass(object):
 		return doubling_time
 
 	def _buildTrnaData(self, raw_data, sim_data):
-		growth_rate_unit = units.getUnit(raw_data.trna_growth_rates[0]['growth rate'])
+		growth_rate_unit = units.getUnit(raw_data.trnaData.trna_growth_rates[0]['growth rate'])
 
-		self._trna_growth_rates = growth_rate_unit * np.array([x['growth rate'].asNumber() for x in raw_data.trna_growth_rates])
+		self._trna_growth_rates = growth_rate_unit * np.array([x['growth rate'].asNumber() for x in raw_data.trnaData.trna_growth_rates])
 
 		trna_ratio_to_16SrRNA_by_growth_rate = []
 		for gr in self._trna_growth_rates: # This is a little crazy...
-			trna_ratio_to_16SrRNA_by_growth_rate.append([x['ratio to 16SrRNA'] for x in getattr(raw_data, "trna_ratio_to_16SrRNA_" + str(gr.asNumber()).replace('.','p'))])
+			trna_ratio_to_16SrRNA_by_growth_rate.append([x['ratio to 16SrRNA'] for x in getattr(raw_data.trnaData, "trna_ratio_to_16SrRNA_" + str(gr.asNumber()).replace('.','p'))])
 		self._trna_ratio_to_16SrRNA_by_growth_rate = np.array(trna_ratio_to_16SrRNA_by_growth_rate)
 
-		self._trna_ids = [x['rna id'] for x in raw_data.trna_ratio_to_16SrRNA_0p4]
+		self._trna_ids = [x['rna id'] for x in raw_data.trnaData.trna_ratio_to_16SrRNA_0p4]
 
 	def getTrnaDistribution(self):
 		return self._getTrnaAbundanceAtGrowthRate(self._doubling_time)
