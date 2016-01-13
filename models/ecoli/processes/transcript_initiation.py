@@ -57,9 +57,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		self.rnaSynthProb = sim_data.process.transcription.rnaData["synthProb"]
 
-		self.maxRibosomeElongationRate = sim_data.constants.ribosomeElongationRate.asNumber(units.aa / units.s) * self.timeStepSec
-		self.maxRibosomeElongationRate = int(np.round(self.maxRibosomeElongationRate))
-
 		# Views
 
 		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
