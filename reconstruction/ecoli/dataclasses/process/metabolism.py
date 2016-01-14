@@ -385,18 +385,29 @@ class Metabolism(object):
 		unconstrainedExchangeMolecules = []
 		constrainedExchangeMolecules = {}
 
-		for nutrient in raw_data.nutrients:
-			if nutrient["lower bound"] and nutrient["upper bound"]:
-				# "non-growth associated maintenance", not included in our metabolic model
-				continue
+		envDict = {}
+		environments = [(x, getattr(raw_data.environment, x)) for x in dir(raw_data.environment) if not x.startswith("__")]
+		for envName, env in environments:
+			envDict[envName] = collections.deque()
+			setpoints = [(float(x.split("_")[-1]), getattr(env, x)) for x in dir(env) if not x.startswith("__")]
+			for time, nutrientBounds in setpoints:
+				constrainedExchangeMolecules = {}
+				unconstrainedExchangeMolecules = []
+				for nutrient in nutrientBounds:
+					if nutrient["lower bound"] and nutrient["upper bound"]:
+						continue
+					elif nutrient["upper bound"] is not None:
+						constrainedExchangeMolecules[nutrient["molecule id"]] = EXCHANGE_UNITS * nutrient["upper bound"]
+						externalExchangeMolecules.add(nutrient["molecule id"])
+					else:
+						unconstrainedExchangeMolecules.append(nutrient["molecule id"])
+						externalExchangeMolecules.add(nutrient["molecule id"])
 
-			elif nutrient["upper bound"]:
-				constrainedExchangeMolecules[nutrient["molecule id"]] = EXCHANGE_UNITS * nutrient["upper bound"]
-				externalExchangeMolecules.add(nutrient["molecule id"])
-
-			else:
-				unconstrainedExchangeMolecules.append(nutrient["molecule id"])
-				externalExchangeMolecules.add(nutrient["molecule id"])
+				D = {
+					"constrainedExchangeMolecules": constrainedExchangeMolecules,
+					"unconstrainedExchangeMolecules": unconstrainedExchangeMolecules,
+					}
+				envDict[envName].append((time, D))
 
 		for secretion in raw_data.secretions:
 			if secretion["lower bound"] and secretion["upper bound"]:
@@ -484,16 +495,20 @@ class Metabolism(object):
 
 		self.reactionStoich = reactionStoich
 		self.externalExchangeMolecules = sorted(externalExchangeMolecules)
+		self.envDict = envDict
 		self.reversibleReactions = reversibleReactions
-		self._unconstrainedExchangeMolecules = unconstrainedExchangeMolecules
-		self._constrainedExchangeMolecules = constrainedExchangeMolecules
 		self.reactionRateInfo = reactionRateInfo
 		self.enzymesWithKineticInfo = enzymesWithKineticInfoDict
 		self.constraintIDs = constraintIDs
 		self.constraintToReactionDict = constraintToReactionDict
 		self.activeConstraintsDict = activeConstraintsDict
 
-	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits):
+	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits, environment, time):
+		if len(self.envDict[environment]) and time > self.envDict[environment][0][0]:
+			self._unconstrainedExchangeMolecules = self.envDict[environment][0][1]["unconstrainedExchangeMolecules"]
+			self._constrainedExchangeMolecules = self.envDict[environment][0][1]["constrainedExchangeMolecules"]
+			self.envDict[environment].popleft()
+
 		externalMoleculeLevels = np.zeros(len(exchangeIDs), np.float64)
 
 		for index, moleculeID in enumerate(exchangeIDs):
@@ -504,5 +519,7 @@ class Metabolism(object):
 				externalMoleculeLevels[index] = (
 					self._constrainedExchangeMolecules[moleculeID] * coefficient
 					).asNumber(targetUnits)
+			else:
+				externalMoleculeLevels[index] = 0.
 
 		return externalMoleculeLevels
