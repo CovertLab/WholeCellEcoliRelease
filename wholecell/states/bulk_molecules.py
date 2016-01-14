@@ -167,7 +167,7 @@ class BulkMolecules(wholecell.states.state.State):
 	def calculatePreEvolveStateMass(self):
 		# Compute masses of partitioned molecules
 
-		if self.timeStep() == 0:
+		if self.simulationStep() == 0:
 			self._countsUnallocated = self.container._counts
 
 		self._masses[self._preEvolveStateMassIndex, ...] = np.dot(
@@ -198,7 +198,7 @@ class BulkMolecules(wholecell.states.state.State):
 	def calculatePostEvolveStateMass(self):
 		# Compute masses of partitioned molecules
 
-		if self.timeStep() == 0:
+		if self.simulationStep() == 0:
 			self._countsUnallocated = self.container._counts
 
 		self._masses[self._postEvolveStateMassIndex, ...] = np.dot(

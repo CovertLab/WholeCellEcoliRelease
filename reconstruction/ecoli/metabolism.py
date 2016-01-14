@@ -162,13 +162,6 @@ class Metabolism(object):
 		self._constrainedExchangeMolecules = constrainedExchangeMolecules
 
 
-	def reactionRates(self, timeStep):
-		return {
-			reactionID:(reactionRate * timeStep).asNumber()
-			for reactionID, reactionRate in self._reactionRates.viewitems()
-			}
-
-
 	def exchangeMasses(self, targetUnits):
 		return {
 			moleculeID:mass.asNumber(targetUnits)

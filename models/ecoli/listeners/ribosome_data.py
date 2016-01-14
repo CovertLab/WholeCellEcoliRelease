@@ -98,7 +98,7 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
 			time = self.time(),
-			timeStep = self.timeStep(),
+			simulationStep = self.simulationStep(),
 			stallingRateTotal = self.stallingRateTotal,
 			stallingRateMean = self.stallingRateMean,
 			stallingRateStd = self.stallingRateStd,
