@@ -24,7 +24,8 @@ MAX_FITTING_ITERATIONS = 100
 N_SEEDS = 20
 
 DOUBLING_TIME = 60. * units.min
-MEDIA_CONDITIONS = "M9 Glucose minus AAs"
+EXPRESSION_CONDITION = "M9 Glucose minus AAs"
+ENVIRONMENT = "wildtype"
 TIME_STEP_SEC = None # If this is None the time step will be fit for the simulation in fitTimeStep
 
 VERBOSE = False
@@ -39,7 +40,13 @@ def fitSimData_1(raw_data, doubling_time = None):
 		doubling_time = DOUBLING_TIME
 
 	sim_data = SimulationDataEcoli()
-	sim_data.initialize(doubling_time = doubling_time, raw_data = raw_data, time_step_sec = TIME_STEP_SEC, media_conditions = MEDIA_CONDITIONS)
+	sim_data.initialize(
+		doubling_time = doubling_time,
+		raw_data = raw_data,
+		time_step_sec = TIME_STEP_SEC,
+		expression_condition = EXPRESSION_CONDITION,
+		environment = ENVIRONMENT
+		)
 
 	# Increase RNA poly mRNA deg rates
 	setRnaPolymeraseCodingRnaDegradationRates(sim_data)
