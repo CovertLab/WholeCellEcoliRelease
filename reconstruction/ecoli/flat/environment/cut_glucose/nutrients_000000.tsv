@@ -1,0 +1,21 @@
+"molecule id"	"lower bound"	"upper bound"
+"ADP[c]"	3.15	3.15
+"Pi[c]"	3.15	3.15
+"PROTON[c]"	3.15	3.15
+"GLC[p]"	null	10.0
+"OXYGEN-MOLECULE[p]"	null	null
+"AMMONIUM[c]"	null	null
+"Pi[p]"	null	null
+"K+[p]"	null	null
+"SULFATE[p]"	null	null
+"FE+2[p]"	null	null
+"CA+2[p]"	null	null
+"CL-[p]"	null	null
+"CO+2[p]"	null	null
+"MG+2[p]"	null	null
+"MN+2[p]"	null	null
+"NI+2[p]"	null	null
+"ZN+2[p]"	null	null
+"WATER[p]"	null	null
+"CARBON-DIOXIDE[p]"	null	null
+"CPD0-1958[p]"	null	null
