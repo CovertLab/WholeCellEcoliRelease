@@ -35,7 +35,7 @@ class SimulationDataEcoli(object):
 		# Doubling time (used in fitting)
 		self.doubling_time = None
 
-	def initialize(self, doubling_time, raw_data, time_step_sec = None, media_conditions="M9 Glucose minus AAs"):
+	def initialize(self, doubling_time, raw_data, time_step_sec = None, expression_condition = "M9 Glucose minus AAs", environment = "wildtype"):
 		assert type(time_step_sec) == float or time_step_sec == None
 		self.timeStepSec = time_step_sec
 
@@ -44,7 +44,8 @@ class SimulationDataEcoli(object):
 		self.doubling_time = doubling_time
 
 		# TODO: Check that media condition is valid
-		self.media_conditions = media_conditions
+		self.expression_condition = expression_condition
+		self.environment = environment
 
 		self._addHardCodedAttributes()
 
