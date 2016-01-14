@@ -60,8 +60,7 @@ class Metabolism(wholecell.processes.process.Process):
 		self.metabolitePoolIDs = sim_data.process.metabolism.metabolitePoolIDs
 		self.targetConcentrations = sim_data.process.metabolism.metabolitePoolConcentrations.asNumber(COUNTS_UNITS/VOLUME_UNITS)
 
-		# self.constrainedExchangeMolecules = sim_data.process.metabolism.constrainedExchangeMolecules()
-		# self.unconstrainedExchangeMolecules = sim_data.process.metabolism.unconstrainedExchangeMolecules()
+		self.environment = sim_data.environment
 		self.exchangeConstraints = sim_data.process.metabolism.exchangeConstraints
 
 		# Load enzyme kinetic rate information
@@ -177,7 +176,9 @@ class Metabolism(wholecell.processes.process.Process):
 		externalMoleculeLevels = self.exchangeConstraints(
 			self.externalMoleculeIDs,
 			coefficient,
-			COUNTS_UNITS / VOLUME_UNITS
+			COUNTS_UNITS / VOLUME_UNITS,
+			self.environment,
+			self.time()
 			)
 
 		# Set external molecule levels
