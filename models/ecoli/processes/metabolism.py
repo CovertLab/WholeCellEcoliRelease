@@ -109,6 +109,7 @@ class Metabolism(wholecell.processes.process.Process):
 			objectiveType = "pools",
 			reversibleReactions = sim_data.process.metabolism.reversibleReactions,
 			moleculeMasses = moleculeMasses,
+			solver = "glpk",
 			# maintenanceCost = energyCostPerWetMass.asNumber(COUNTS_UNITS/MASS_UNITS), # mmol/gDCW TODO: get real number
 			# maintenanceReaction = {
 			# 	"ATP[c]":-1, "WATER[c]":-1, "ADP[c]":+1, "Pi[c]":+1
