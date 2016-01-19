@@ -448,7 +448,25 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer):
 	kcatEndoRNase = sim_data.process.rna_decay.kcats
 	totalEndoRnaseCapacity = units.sum(endoRNaseConc * kcatEndoRNase)
 	Km = ( 1 / degradationRates * totalEndoRnaseCapacity ) - rnaConc
-	
+
+	rnaCounts = bulkContainer.counts(sim_data.process.transcription.rnaData['id'])
+	endoCounts = bulkContainer.counts(sim_data.process.rna_decay.endoRnaseIds)
+	Kmcounts =  ((1 / countsToMolar) * Km).asNumber()
+	F, Fp, F2, Fp2 = sim_data.process.rna_decay.kmFunctions((1 / countsToMolar * totalEndoRnaseCapacity).asNumber(1 / units.s), rnaCounts, degradationRates.asNumber(1 / units.s))
+	L = sim_data.process.rna_decay.km1(Kmcounts, (1 / countsToMolar * totalEndoRnaseCapacity).asNumber(1 / units.s), rnaCounts, degradationRates.asNumber(1 / units.s))
+	import ipdb; ipdb.set_trace()
+	import scipy.optimize
+	import time
+	print "Start: %s" % time.ctime(time.time())
+	A = scipy.optimize.fsolve(F, Kmcounts, fprime = Fp)
+	print "Done: %s" % time.ctime(time.time())
+	print "Start: %s" % time.ctime(time.time())
+	B = scipy.optimize.fsolve(F2, Kmcounts, fprime = Fp2)
+	print "Done: %s" % time.ctime(time.time())
+	import ipdb; ipdb.set_trace()
+
+	scipy.optimize.root(sim_data.process.rna_decay.km1, Kmcounts, args = ((1 / countsToMolar * totalEndoRnaseCapacity).asNumber(1 / units.s), rnaCounts, degradationRates.asNumber(1 / units.s)))
+
 	# Set Km's
 	sim_data.process.transcription.rnaData["KmEndoRNase"] = Km
 
