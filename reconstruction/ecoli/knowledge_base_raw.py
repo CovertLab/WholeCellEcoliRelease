@@ -14,6 +14,7 @@ import os
 import csv
 from reconstruction.spreadsheets import JsonReader
 import json
+from itertools import ifilter
 
 from wholecell.utils import units
 
@@ -25,6 +26,7 @@ LIST_OF_DICT_FILENAMES = (
 	"enzymeKinetics.tsv",
 	"genes.tsv",
 	"metabolites.tsv",
+	"metaboliteConcentrations.tsv",
 	"modificationReactions.tsv",
 	"modifiedRnas.tsv",
 	"polymerized.tsv",
@@ -99,7 +101,9 @@ class KnowledgeBaseEcoli(object):
 		setattr(path, attrName, [])
 
 		with open(file_name, 'rU') as csvfile:
-			reader = JsonReader(csvfile, dialect = CSV_DIALECT)
+			reader = JsonReader(
+				ifilter(lambda x: x.lstrip()[0] != "#", csvfile), # Strip comments
+				dialect = CSV_DIALECT)
 			setattr(path, attrName, [row for row in reader])
 
 	def _load_sequence(self, file_path):
