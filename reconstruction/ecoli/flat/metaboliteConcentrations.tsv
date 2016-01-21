@@ -92,8 +92,3 @@
 "ADENINE"	1.50e-6
 "DEOXYGUANOSINE"	5.20e-7
 "ADENOSINE"	1.30e-7
-# Isoleucine and Leucine calculated from constants in metaboliteConcentrations.tsv
-# ILE_LEU_CONCENTRATION = 3.0e-4 # mmol/L
-# ILE_FRACTION = 0.360 # the fraction of iso/leucine that is isoleucine; computed from our monomer data
-"ILE"	1.08e-4
-"LEU"	1.92e-4

@@ -175,6 +175,18 @@ class Metabolism(object):
 
 				metaboliteIDs.append(metaboliteID)
 				metaboliteConcentrations.append(concentration)
+		
+		# ILE/LEU: split reported concentration according to their relative abundances
+		# TODO: more thorough estimate of abundance or some external data point (neidhardt?)
+
+		ileRelative = ILE_FRACTION
+		leuRelative = 1 - ileRelative
+
+		metaboliteIDs.append("ILE[c]")
+		metaboliteConcentrations.append(ileRelative * ILE_LEU_CONCENTRATION)
+
+		metaboliteIDs.append("LEU[c]")
+		metaboliteConcentrations.append(leuRelative * ILE_LEU_CONCENTRATION)
 
 		# CYS/SEC/GLY: fit a relative abundance:concentration line (L1 norm)
 		# with other amino acids and solve for these
