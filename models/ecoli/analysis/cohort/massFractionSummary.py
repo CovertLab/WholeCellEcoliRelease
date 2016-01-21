@@ -74,7 +74,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	seedsDict = {}
 	for idx, seedOutDir in enumerate(seedOutDirs):
 		ap = AnalysisPaths(seedOutDir)
-		seedsDict[idx] = ap.getAll()
+		seedsDict[idx] = ap.get_cells()
 
 	for seedNum in seedsDict:
 		for simDir in seedsDict[seedNum]:

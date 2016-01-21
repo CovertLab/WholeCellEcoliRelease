@@ -66,7 +66,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ap = AnalysisPaths(seedOutDir)
 
 	# Get all cells
-	allDir = ap.getAll()
+	allDir = ap.get_cells()
 
 	rnaDegradedCounts = []
 	rnaCounts = []

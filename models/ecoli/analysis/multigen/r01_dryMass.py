@@ -25,7 +25,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# TODO: Declutter Y-axis
 
 	# Get all cells
-	allDir = ap.getAll()
+	allDir = ap.get_cells()
 
 	massNames = [
 				"dryMass",

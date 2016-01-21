@@ -30,7 +30,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 
 	# Get all cells
-	allDir = ap.getAll()
+	allDir = ap.get_cells()
 
 	plt.figure(figsize = (10, 10))
 

@@ -35,7 +35,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ap = AnalysisPaths(seedOutDir)
 
 	# Get all cells
-	allDir = ap.getAll()
+	allDir = ap.get_cells()
 
 	fig, axesList = plt.subplots(6, sharex = True)
 	fig.set_size_inches(11, 11)
