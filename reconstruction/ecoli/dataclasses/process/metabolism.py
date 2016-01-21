@@ -14,7 +14,6 @@ from wholecell.utils import units
 from wholecell.utils.unit_struct_array import UnitStructArray
 import numpy as np
 import collections
-import ipdb
 
 ILE_LEU_CONCENTRATION = 3.0e-4 # mmol/L
 ILE_FRACTION = 0.360 # the fraction of iso/leucine that is isoleucine; computed from our monomer data
@@ -51,7 +50,7 @@ class Metabolism(object):
 
 		metaboliteIDs = []
 		metaboliteConcentrations = []
-		metaboliteConcentrationData = dict((m["Metabolite"], m["Concentration"]) for m in raw_data.metaboliteConcentrations)
+		metaboliteConcentrationData = dict((m["Metabolite"], m["Concentration"].asNumber(units.mol / units.L)) for m in raw_data.metaboliteConcentrations)
 
 		wildtypeIDtoCompartment = {
 			wildtypeID[:-3] : wildtypeID[-3:]
@@ -177,18 +176,6 @@ class Metabolism(object):
 				metaboliteIDs.append(metaboliteID)
 				metaboliteConcentrations.append(concentration)
 
-		# ILE/LEU: split reported concentration according to their relative abundances
-		# TODO: more thorough estimate of abundance or some external data point (neidhardt?)
-
-		ileRelative = ILE_FRACTION
-		leuRelative = 1 - ileRelative
-
-		metaboliteIDs.append("ILE[c]")
-		metaboliteConcentrations.append(ileRelative * ILE_LEU_CONCENTRATION)
-
-		metaboliteIDs.append("LEU[c]")
-		metaboliteConcentrations.append(leuRelative * ILE_LEU_CONCENTRATION)
-
 		# CYS/SEC/GLY: fit a relative abundance:concentration line (L1 norm)
 		# with other amino acids and solve for these
 
@@ -203,7 +190,6 @@ class Metabolism(object):
 		# TODO: implement L1-norm minimization
 
 		# for now: just choosing and assigning the smallest value
-
 		aaSmallestConc = min(aaConcentrations)
 
 		# HACK: min conc. doesn't work here
