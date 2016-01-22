@@ -39,32 +39,18 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	## Create composition plot
 	massNames = [
-				#"dryMass",
 				"proteinMass",
-				"tRnaMass",
-				"rRnaMass",
-				'mRnaMass',
-				"dnaMass",
-				"smallMoleculeMass",
+				"rnaMass",
 				]
 
 	cleanNames = [
-				#"Dry\nmass",
 				"Protein",
-				"tRNA",
-				"rRNA",
-				"mRNA",
-				"DNA",
-				"Small molecules"
+				"RNA",
 				]
 
 	colors = [
 				"red",
 				"blue",
-				"green",
-				"yellow",
-				"grey",
-				"cyan"
 			]
 
 	# Composition plotting
@@ -76,10 +62,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		else:
 			initFinalIdx[idx] = initFinalIdx[idx] + 0.1
 	initFinalIdx = np.array(initFinalIdx)
+	distanceInitFinalIdx = np.arange(start = 0.5, stop = 4 * len(firstCellLineage) + 0.5, step = 2)
 	tickLabels = tuple(["$t=0$\nActual","Expected","$t=t_d$\nActual","Expected"] * len(firstCellLineage))
 	barWidth = 0.75
 	gs = gridspec.GridSpec(6, 4)
-	ax1 = plt.subplot(gs[:2, :-2])
+	ax1 = plt.subplot(gs[:1, :-2])
+	ax8 = plt.subplot(gs[1, :-2])
 	ax2 = plt.subplot(gs[:2, 2:])
 
 
@@ -90,15 +78,15 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		massDataNorm = massData / massData.sum(axis = 0)
 
-		initialComp = massDataNorm[:,0] # Maybe make this not exactly the initial comp but some time a bit later for 1st gen
-		finalComp = massDataNorm[:,-1]
+		initialComp = massDataNorm[:,1:6*60+1].mean(axis=1)
+		finalComp = massDataNorm[:,-5*60:].mean(axis=1)
 		initialDryMass = dryMass[0]
 		finalDryMass = dryMass[-1]
 
 		# Get expected composition based on growth rates
 		_, growthRate = getMassData(simDir, ["instantaniousGrowthRate"])
 
-		initialGrowthRate = np.mean(growthRate[1*60:6*60]) * 60
+		initialGrowthRate = np.mean(growthRate[1:6*60+1]) * 60
 		initialDoublingTime = np.log(2) / initialGrowthRate * units.min # Five mintues skipping the first minute
 		finalGrowthRate = (np.mean(growthRate[-5*60:]) * 60)
 		finalDoublingTime = np.log(2) / finalGrowthRate * units.min # Last five minutes
@@ -109,9 +97,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		expectedFinalComp = expectedFinalComp / expectedFinalComp.sum()
 		expectedFinalMass = finalCompInitMass * 2
 
-		initialDistance = np.linalg.norm(expectedInitialComp - initialComp, 2)
-		finalDistance = np.linalg.norm(expectedFinalComp - finalComp, 2)
-		distanceInitialToFinal = np.linalg.norm(initialComp - finalComp, 2)
+		initialDistance = np.linalg.norm(expectedInitialComp - initialComp, 2) / np.linalg.norm(expectedInitialComp, 2)
+		finalDistance = np.linalg.norm(expectedFinalComp - finalComp, 2) / np.linalg.norm(expectedFinalComp, 2)
 
 		oldLayerData = np.zeros(4)
 		indexesForGen = initFinalIdx[gen*4:(gen+1)*4]
@@ -124,8 +111,14 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			else:
 				ax1.bar(left=indexesForGen, height=layerData, width=barWidth, bottom=oldLayerData, color=colors[idx])
 			oldLayerData += layerData
-		ax1.legend(prop={'size':6})
+		ax1.set_ylim([0, 1])
+		ax1.legend(prop={'size':4})
 		ax1.set_title('Mass composition')
+
+		# Plot Euclidian distance
+		distanceIdxForGen = distanceInitFinalIdx[gen*2:(gen+1)*2]
+		ax8.bar(distanceIdxForGen, [initialDistance, finalDistance])
+		ax8.set_ylabel("Relative error")
 
 		# Plot dry mass
 		ax2.bar(indexesForGen, [initialDryMass, expectedInitialMass.asNumber(units.fg), finalDryMass, expectedFinalMass.asNumber(units.fg)], barWidth)
@@ -177,9 +170,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		# ax6.set_xlabel("Time (min)")
 
 	# Set axes labels for x-axis in plots 1 and 2
-	ax1.set_xticks(initFinalIdx + barWidth/2.)
-	ax1.set_xticklabels(tickLabels)
-	plt.setp(ax1.xaxis.get_majorticklabels(), rotation = 70, fontsize=8)
+	ax8.set_xticks(initFinalIdx + barWidth/2.)
+	ax8.set_xticklabels(tickLabels)
+	plt.setp(ax8.xaxis.get_majorticklabels(), rotation = 70, fontsize=8)
 	ax2.set_xticks(initFinalIdx + barWidth/2.)
 	ax2.set_xticklabels(tickLabels)
 	plt.setp(ax2.xaxis.get_majorticklabels(), rotation = 70, fontsize=8)
@@ -240,7 +233,7 @@ def getMassData(simDir, massNames):
 	return time, massFractionData
 
 def getExpectedComposition(doubling_time):
-	#return np.ones(6), 100. * units.fg
+	# return np.ones(6), 100. * units.fg
 
 	from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 	raw_data = KnowledgeBaseEcoli()
@@ -256,8 +249,9 @@ def getExpectedComposition(doubling_time):
 	dnaMass = subMasses['dnaMass'].asNumber(units.fg)
 	smallMolecules = sim_data.mass.fitAvgSolublePoolMass.asNumber(units.fg)
 
-	masses = np.array([protein, tRNA, rRnaMass, mRnaMass, dnaMass, smallMolecules]) / sim_data.mass.avgCellToInitialCellConvFactor
-
+	#masses = np.array([protein, tRNA, rRnaMass, mRnaMass, dnaMass, smallMolecules]) / sim_data.mass.avgCellToInitialCellConvFactor
+	masses = np.array([protein, rRnaMass + tRNA + mRnaMass]) / sim_data.mass.avgCellToInitialCellConvFactor
+	
 	initialMass = sim_data.mass.avgCellDryMassInit
 
 	return masses, initialMass
