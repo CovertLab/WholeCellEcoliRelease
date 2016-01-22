@@ -32,7 +32,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	terC = sim_data.constants.terCCenter.asNumber()
 	genomeLength = len(sim_data.process.replication.genome_sequence)
 
-	ap = AnalysisPaths(seedOutDir)
+	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
 	# Get all cells
 	allDir = ap.get_cells()

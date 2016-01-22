@@ -25,8 +25,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	ap = AnalysisPaths(seedOutDir)
-
+	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
 	# Get all cells
 	allDir = ap.get_cells()

@@ -28,7 +28,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		os.mkdir(plotOutDir)
 
 
-	ap = AnalysisPaths(seedOutDir)
+	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
 	# Get all cells
 	allDir = ap.get_cells()

@@ -23,12 +23,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	ap = AnalysisPaths(seedOutDir)
+	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
-	# Get all cells
+	# Get first cell from each generation
 	firstCellLineage = []
-	for gen_idx in range(ap.n_generations):
-		firstCellLineage.append(ap.getGeneration(gen_idx)[0])
+	for gen_idx in range(ap.n_generation):
+		firstCellLineage.append(ap.get_cells(generation = [gen_idx])[0])
 
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	max_elongationRate = 21. # TODO: Fix this
@@ -112,7 +112,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		initialDistance = np.linalg.norm(expectedInitialComp - initialComp, 2)
 		finalDistance = np.linalg.norm(expectedFinalComp - finalComp, 2)
 		distanceInitialToFinal = np.linalg.norm(initialComp - finalComp, 2)
-		import ipdb; ipdb.set_trace()
+
 		oldLayerData = np.zeros(4)
 		indexesForGen = initFinalIdx[gen*4:(gen+1)*4]
 		ax1.axvline(x = indexesForGen[-1] + barWidth + 0.225, linewidth=2, color='k', linestyle='--')
