@@ -91,11 +91,13 @@ class AnalysisPaths(object):
 			("variant", "i64"),
 			("seed", "i64"),
 			("generation", "i64"),
+			("variantkb", "a500")
 			])
 
 		generations = []
 		seeds = []
 		variants = []
+		variant_kb = []
 		for filePath in generation_dirs:
 			# Find generation
 			matches = findall('generation_\d{6}', filePath)
@@ -109,10 +111,14 @@ class AnalysisPaths(object):
 			# Find variant
 			variants.append(int(filePath[filePath.rfind('generation_')-14:filePath.rfind('generation_')-8]))
 
+			# Find variant kb
+			variant_kb.append(filePath[:filePath.rfind('generation_')-8] + "/kb/simData_Modified.cPickle")
+
 		self._path_data["path"] = generation_dirs
 		self._path_data["variant"] = variants
 		self._path_data["seed"] = seeds
 		self._path_data["generation"] = generations
+		self._path_data["variantkb"] = variant_kb
 
 		self.n_generation = len(set(generations))
 		self.n_variant = len(set(variants))
@@ -135,6 +141,11 @@ class AnalysisPaths(object):
 			generationBool = self._set_match("generation", generation)
 
 		return self._path_data['path'][np.logical_and.reduce((variantBool, seedBool, generationBool))]
+
+	def get_variant_kb(self, variant):
+		kb_path = np.unique(self._path_data['variantkb'][self._path_data["variant"] == variant])
+		assert kb_path.size == 1
+		return kb_path[0]
 
 	def _get_generations(self, directory):
 		generation_files = [join(directory,f) for f in listdir(directory) if isdir(join(directory,f)) and "generation" in f]
