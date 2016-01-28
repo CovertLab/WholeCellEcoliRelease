@@ -34,11 +34,11 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	# Composition plotting
 	gs = gridspec.GridSpec(4, 3)
-	doublingTime_axis = plt.subplot(gs[0,0])#plt.subplot(4,3,1) # Growth rate
-	rnaFrac_axis = plt.subplot(gs[1,0])#plt.subplot(4,3,4) # RNA frac
-	proteinFrac_axis = plt.subplot(gs[2,0])#plt.subplot(4,3,7) # Protein frac
-	dryMassInit_axis = plt.subplot(gs[3,0])#plt.subplot(4,3,10) # Dry mass init
-	dryMassFinal_axis = plt.subplot(gs[3,1])#plt.subplot(4,3,11) # Dry mass final
+	doublingTime_axis = plt.subplot(gs[0,0])
+	rnaFrac_axis = plt.subplot(gs[1,0])
+	proteinFrac_axis = plt.subplot(gs[2,0])
+	dryMassInit_axis = plt.subplot(gs[3,0])
+	dryMassFinal_axis = plt.subplot(gs[3,1])
 
 	doublingTimeViolin_axis = plt.subplot(gs[0, 1:])
 	rnaFractionViolin_axis = plt.subplot(gs[1, 1:])
