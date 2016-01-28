@@ -7,6 +7,7 @@
 \usepackage[parfill]{parskip}
 \usepackage{listings}
 \usepackage{color}
+\usepackage{underscore}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
@@ -84,7 +85,7 @@ The code has inevitably evolved since I wrote this tutorial, so let’s get on t
 
 \lstset{language=bash}
 \begin{lstlisting}
-git checkout -b tutorial b16293cb008135425
+git checkout -b tutorial wholecell-tutorial
 \end{lstlisting}
 
 We need to make sure the output from the model goes to the SCRATCH filesystem (whcih is larger) rather than SHERLOCK\_HOME. We'll need to make a symbolic link between the output directory of your wcEcoli directory and a directory in SCRATCH. Within your wcEcoli diretory, there should be a folder named out/. The model puts its outputput in this folder, so we can basically tell the computer to send anything placed in this folder to SCRATCH instead.
@@ -150,6 +151,8 @@ First, let’s add a new elongation rate to the knowledge base. In reconstructio
 awk '{if(NR==1){print $0 "\t" "rnaPolymeraseElongationRateFast (units.nt/units.min)"}else{print $0 "\t" ($9*2)}}' growthRateDependentParameters.tsv > temp && mv temp growthRateDependentParameters.tsv  
 \end{lstlisting}
 
+Alternatively, you could open the .tsv file in a spreadsheet editor and add the new column by hand.
+
 To check that the parameter was added, examine the knowledge base object in ipython.
 
 \lstset{language=Python}
@@ -209,67 +212,101 @@ Under process classes, add TranscriptElongationFast and change TranscriptElongat
 
 \subsection{Change the model output}
 
-Now let’s change the listeners to record output from these new processes. The only listener that takes output from TranscriptElongation is ntp\_usage, so let’s modify this. Open models/ecoli/listeners/ntp\_usage.py and go to line 49. Change this line from:
+Now let’s change the listeners to record output from these new processes. We write data to listeners, and the listener is responsible for recording the data to the file, as well as transforming it as necessary (calculating averages, for example). The transcription submodels write to three listeners: GrowthLimits, RnapData, and TranscriptElongationListener. We need to make several changes in order to correctly log transcription data. The fast and slow transcription submodels need to both write to the same listener attributes, so we need to set them up to add data together, rather than overwriting one another's output.
 
-\begin{lstlisting}
-self.transcriptionProcessIdx = sim.processes.keys().index("TranscriptElongation")
-\end{lstlisting}
-to now read: 
-\begin{lstlisting}
-self.transcriptionProcessSlowIdx = sim.processes.keys().index("TranscriptElongationSlow")
-\end{lstlisting}
+First, we need to update the listeners to zero out the relevant attributes each time step, so that we can add to them from each model. Open models/ecoli/listeners/growth_limits.py and add the following lines to the end of tableAppend(...), at line 100:
 
-Under this, let’s add a process index for the fast transcription:
-
+\lstset{language=Python}
 \begin{lstlisting}
-self.transcriptionProcessFastIdx = sim.processes.keys().index("TranscriptElongationFast")
+self.ntpRequestSize = np.zeros(len(self.ntpIds), np.float64)
+self.ntpAllocated = np.zeros(len(self.ntpIds), np.float64)
+self.ntpUsed = np.zeros(len(self.ntpIds), np.float64)
 \end{lstlisting}
 
-In the update function in this file, let’s change the calculation of NTPUsageCurrent. Change it to read: 
-
+We need to make two changes to models/ecoli/listeners/rnap_data.py. At line 73, update the lines that read:
+\lstset{language=Python}
 \begin{lstlisting}
-self.transcriptionNtpUsageCurrent = (self.bulkMolecules._countsAllocatedInitial[self.metaboliteIdxs, self.transcriptionProcessSlowIdx] + self.bulkMolecules._countsAllocatedInitial[self.metaboliteIdxs, self.transcriptionProcessFastIdx] - self.bulkMolecules._countsAllocatedFinal[
-self.metaboliteIdxs, self.transcriptionProcessSlowIdx] - self.bulkMolecules._countsAllocatedFinal[self.metaboliteIdxs, self.transcriptionProcessFastIdx])
+self.rnapStalls = np.zeros(0, np.int64)
+self.ntpCountInSequence = np.zeros(21, np.int64)
+self.ntpCounts = np.zeros(21, np.int64)
+\end{lstlisting}
+
+To read:
+\lstset{language=Python}
+\begin{lstlisting}
+self.rnapStalls = np.empty(0, np.int64)
+self.ntpCountInSequence = np.empty(0, np.int64)
+self.ntpCounts = np.empty(0, np.int64)
+\end{lstlisting}
+
+This initialises some arrays we'll be writing to to be completely empty, which allows us to append to them without having a bunch of leading data we don't want. Next, we reset the relevant attributes as in GrowthLimits. Add the following to the bottom of tableAppend(...), at line 119:
+\lstset{language=Python}
+\begin{lstlisting}
+self.rnapStalls = np.empty(0, np.int64)
+self.ntpCountInSequence = np.empty(0, np.int64)
+self.ntpCounts = np.empty(0, np.int64)
+self.expectedElongations = 0
+self.actualElongations = 0
+self.didTerminate = 0
+self.terminationLoss = 0
+\end{lstlisting}
+
+Finally, we need to update models/ecoli/listeners/transcript_elongation_listener.py. Add to the bottom of tableAppend(...) at line 47:
+\lstset{language=Python}
+\begin{lstlisting}
+self.countRnaSynthesized = np.zeros(self.countRnaSynthesized.shape, self.countRnaSynthesized.dtype)
 \end{lstlisting}
 
 \subsection{Modify a process}
 
-Now let’s modify the new processes. Open models/ecoli/processes/transcript\_elongation\_slow.py and change all references of TranscriptElongation to TranscriptElongationSlow. If you’re using vi you can do this with the following command:
-
-\lstset{language=bash}
-\begin{lstlisting}
-:%s/TranscriptElongation/TranscriptElongationSlow/g
-\end{lstlisting}
+Now let’s modify the new processes. Open models/ecoli/processes/transcript\_elongation\_slow.py and change all references of TranscriptElongation to TranscriptElongationSlow.
 
 Next create a Boolean vector that is True at the indices of transcripts that should be elongated at the slow rate and False at the indices of transcripts that should be elongated at the fast rate. In the initialize function add the following line (after line 70):
 
 \lstset{language=Python}
 \begin{lstlisting}
-self.slowRnaBool = ~(kb.process.transcription.rnaData["isRRna5S"] | kb.process.transcription.rnaData["isRRna16S"] | kb.process.transcription.rnaData["isRRna23S"] | kb.process.transcription.rnaData["isTRna"])
+self.slowRnaBool = ~(sim_data.process.transcription.rnaData["isRRna5S"] | sim_data.process.transcription.rnaData["isRRna16S"] | sim_data.process.transcription.rnaData["isRRna23S"] | sim_data.process.transcription.rnaData["isTRna"])
 \end{lstlisting}
 
-“isRRna5S”, “isRRna16S”, “isRRna23S”, and “isTRna” are properties of rnaData, which is found in the knowledge base (kb). These are vectors of Boolean values. The tilde inverts the boolean value, so this creates a vector that is False for all 5S rRNA, 16S rRNA, 23S rRNA, and tRNA, and True for everything else.
+“isRRna5S”, “isRRna16S”, “isRRna23S”, and “isTRna” are properties of rnaData, which is found in the simulation data set (sim_data). These are vectors of Boolean values. The tilde inverts the boolean value, so this creates a vector that is False for all 5S rRNA, 16S rRNA, 23S rRNA, and tRNA, and True for everything else.
 Now let’s change the view onto the active rna polymerases to a view onto only the active rna polymerases that are on transcripts that should be elongated at the slow rate. Change the definition of self.activeRnaPolys (line 75) to read:
 
 \begin{lstlisting}
     self.activeRnaPolys = self.uniqueMoleculesView(
       'activeRnaPoly',
-      rnaIndex = ("in", np.where(self.slowRnaBool)[0])
-      )
+      rnaIndex = ("in", np.where(self.slowRnaBool)[0]))
 \end{lstlisting}
 
-This is all we need to change in this file. Now let’s open the fast transcript elongation file models/ecoli/processes/transcript\_elongation\_fast.py. Similarly to what we did in the slow elongation file, let’s change all references of TranscriptElongation to TranscriptElongationFast. If you’re using vi you can do this with the following command:
-
-\lstset{language=bash}
+Next, we need to update our writes to the listeners to increment or append, rather than overwrite, the attributes that are updated. First, add a new import at the top of the file (around line 25):
 \begin{lstlisting}
-:%s/TranscriptElongation/TranscriptElongationFast/g
+from wholecell.listeners.listener import WriteMethod
 \end{lstlisting}
+
+Second, we need to change our calls to writeToListener(...) to either increment (in the case of numeric attributes), or append (in the case of arrays), rather than overwriting. Modify all of the writeToListener(...) calls to have a new parameter at the end:  WriteMethod.increment, except for the writes to rnapStalls, ntpCountInSequence, and ntpCounts, which instead should have WriteMethod.append. Overall, the lines should look like the following (although in the file they are scattered around a bit):
+\begin{lstlisting}
+self.writeToListener("GrowthLimits", "ntpRequestSize", maxFractionalReactionLimit * sequenceComposition, WriteMethod.increment)
+
+self.writeToListener("GrowthLimits", "ntpAllocated", self.ntps.counts(), WriteMethod.increment)
+
+self.writeToListener("TranscriptElongationListener", "countRnaSynthesized", terminatedRnas, WriteMethod.increment)
+
+self.writeToListener("GrowthLimits", "ntpUsed", ntpsUsed, WriteMethod.increment)
+self.writeToListener("RnapData", "rnapStalls", rnapStalls, WriteMethod.append)
+self.writeToListener("RnapData", "ntpCountInSequence", ntpCountInSequence, WriteMethod.append)
+self.writeToListener("RnapData", "ntpCounts", ntpCounts, WriteMethod.append)
+self.writeToListener("RnapData", "expectedElongations", expectedElongations.sum(), WriteMethod.increment)
+self.writeToListener("RnapData", "actualElongations", sequenceElongations.sum(), WriteMethod.increment)
+self.writeToListener("RnapData", "didTerminate", didTerminate.sum(), WriteMethod.increment)
+self.writeToListener("RnapData", "terminationLoss", (terminalLengths - transcriptLengths)[didTerminate].sum(), WriteMethod.increment)
+\end{lstlisting}
+
+This is all we need to change in this file. Now let’s open the fast transcript elongation file models/ecoli/processes/transcript\_elongation\_fast.py. Similarly to what we did in the slow elongation file, let’s change all references of TranscriptElongation to TranscriptElongationFast.
 
 Now, let’s create the opposite of the Boolean vector that we created in the transcript\_elongation\_slow. In the initialize function add the following line (after line 70):
 
 \lstset{language=Python}
 \begin{lstlisting}
-self.fastRnaBool = kb.process.transcription.rnaData["isRRna5S"] | kb.process.transcription.rnaData["isRRna16S"] | kb.process.transcription.rnaData["isRRna23S"] | kb.process.transcription.rnaData["isTRna"]
+self.fastRnaBool = sim_data.process.transcription.rnaData["isRRna5S"] | sim_data.process.transcription.rnaData["isRRna16S"] | sim_data.process.transcription.rnaData["isRRna23S"] | sim_data.process.transcription.rnaData["isTRna"]
 \end{lstlisting}
 
 Now let’s change the view onto the active rna polymerases to a view onto only the active rna polymerases that are on transcripts that should be elongated at the fast rate (line 75):
@@ -287,7 +324,8 @@ Finally, let’s change the elongation rate. Change line 59 to read:
 self.elngRate = kb.rnaPolymeraseElongationRateFast.asNumber(units.nt / units.s) * self.timeStepSec
 \end{lstlisting}
 
-Now we’re done changing this file as well.
+Update the writeToListener(...) lines to match the changes you made in TranscriptElongationSlow, above. Now data from both submodels will be recorded in the whole cell output.
+
 \par
 Now we can run a simulation and rRNA and tRNA would be transcribed at the new fast rate, while everything else was transcribed at the same slow rate before. Follow these steps to run the new simulation code:
 \par
@@ -308,7 +346,7 @@ To check for the success of your simulation, open the /out/ folder, and the fold
 
 \subsection{Changing the fitting}
 
-However, the simulation would be initialized the same way as before. This is a problem because before running a simulation, we need to fit several initial parameters including the initial counts of RNA polymerases and the activation rate of the RNA polymerases. Because some things are now being transcribed at a faster rate, we should need fewer RNA polymerases to make the same number of transcripts. Additionally, if some things are being transcribed more quickly, then RNA polymerases will be inactivating more quickly. In order to maintain a constant ratio of active to inactive RNA polymerases (experimentally shown to be around 20\%), the activation rate must also increase now. 
+Even though we've changed the model, the simulation will be initialized the same way as before. This is a problem because before running a simulation, we need to fit several initial parameters including the initial counts of RNA polymerases and the activation rate of the RNA polymerases. Because some things are now being transcribed at a faster rate, we should need fewer RNA polymerases to make the same number of transcripts. Additionally, if some things are being transcribed more quickly, then RNA polymerases will be inactivating more quickly. In order to maintain a constant ratio of active to inactive RNA polymerases (experimentally shown to be around 20\%), the activation rate must also increase now. 
 
 \par
 
@@ -319,25 +357,30 @@ $$
 $$
 
 
-$L_i$ is the length of transcript $i$; $P_i$ is the number of RNA polymerases actively transcribing $R_i$ at time $t$; $h_i$ is the half life of $R_i$; $\tau_d$ is the length of the cell cycle; $k_{elong}$ is the transcript elongation rate. Right now this is a constant value for all transcripts. We want to change this to be different for rRNA and tRNA. Let’s change this in the code. Open the file reconstruction/ecoli/fitkb1.py and go to the setRNAPCountsConstrainedByPhysiology function. This is what we need to change. Let’s add the Boolean vectors for fast and slow transcripts. Right at the beginning of this function definition (after the docstring), add these two lines:
+$L_i$ is the length of transcript $i$; $P_i$ is the number of RNA polymerases actively transcribing $R_i$ at time $t$; $h_i$ is the half life of $R_i$; $\tau_d$ is the length of the cell cycle; $k_{elong}$ is the transcript elongation rate. Right now this is a constant value for all transcripts. We want to change this to be different for rRNA and tRNA. Let’s change this in the code. Open the file reconstruction/ecoli/fit_sim_data_1.py and go to the setRNAPCountsConstrainedByPhysiology function. This is what we need to change. Let’s add the Boolean vectors for fast and slow transcripts. Right at the beginning of this function definition (after the docstring), add these two lines:
 
 \lstset{language=Python}
 \begin{lstlisting}
-slowRnaBool = ~(kb.process.transcription.rnaData["isRRna5S"] | kb.process.transcription.rnaData["isRRna16S"] | kb.process.transcription.rnaData["isRRna23S"] | kb.process.transcription.rnaData["isTRna"])
-
 fastRnaBool = kb.process.transcription.rnaData["isRRna5S"] | kb.process.transcription.rnaData["isRRna16S"] | kb.process.transcription.rnaData["isRRna23S"] | kb.process.transcription.rnaData["isTRna"]
+slowRnaBool = ~fastRnaBool
 \end{lstlisting}
 
 Let’s break up the calculation of nActiveRnapNeeded into nActiveRnapNeededforFast and nActiveRnapNeededforSlow. Change the nActiveRnapNeeded calculation to read:
 
 \begin{lstlisting}
-nActiveRnapNeededforSlow = calculateMinPolymerizingEnzymeByProductDistribution(rnaLengths[slowRnaBool], kb.rnaPolymeraseElongationRate, rnaLossRate[slowRnaBool], rnaCounts[slowRnaBool])
+nActiveRnapNeededforSlow = calculateMinPolymerizingEnzymeByProductDistributionRNA(
+    rnaLengths[slowRnaBool], 
+    sim_data.growthRateParameters.rnaPolymeraseElongationRate, 
+    rnaLossRate[slowRnaBool])
 \end{lstlisting}
 
 Add a line under this for the calculation for the fast transcripts:
 
 \begin{lstlisting}
-nActiveRnapNeededforFast = calculateMinPolymerizingEnzymeByProductDistribution(rnaLengths[fastRnaBool], kb.rnaPolymeraseElongationRateFast, rnaLossRate[fastRnaBool], rnaCounts[fastRnaBool])
+nActiveRnapNeededFast = calculateMinPolymerizingEnzymeByProductDistributionRNA(
+    rnaLengths[fastRnaBool], 
+    sim_data.growthRateParameters.rnaPolymeraseElongationRateFast, 
+    rnaLossRate[fastRnaBool])
 \end{lstlisting}
 
 Below this, add a line to calculate the total number of RNA polymerases needed:
@@ -397,15 +440,18 @@ $$
 Now let’s do this in the code. In reconstruction/ecoli/fitkb1.py, in the fitRNAPolyTransitionRates function (on line 483), at the top add the following lines. The tilde operator inverts the booleans.
 
 \begin{lstlisting}
-slowRnaBool = ~(kb.process.transcription.rnaData["isRRna5S"] | kb.process.transcription.rnaData["isRRna16S"] | kb.process.transcription.rnaData["isRRna23S"] | kb.process.transcription.rnaData["isTRna"])
-
-fastRnaBool = kb.process.transcription.rnaData["isRRna5S"] | kb.process.transcription.rnaData["isRRna16S"] | kb.process.transcription.rnaData["isRRna23S"] | kb.process.transcription.rnaData["isTRna"]
+fastRnaBool = (
+    sim_data.process.transcription.rnaData["isRRna5S"] |
+    sim_data.process.transcription.rnaData["isRRna16S"] |
+    sim_data.process.transcription.rnaData["isRRna23S"] |
+    sim_data.process.transcription.rnaData["isTRna"])
+slowRnaBool = ~fastRnaBool
 \end{lstlisting}
 
 Now, delete the elngRate definition (elngRate = kb.rnaPolymeraseElongationRate) and add an elongation rate vector:
 
 \begin{lstlisting}
-elngRateVector = slowRnaBool*kb.rnaPolymeraseElongationRate + fastRnaBool*kb.rnaPolymeraseElongationRateFast
+elngRateVector = slowRnaBool * sim_data.growthRateParameters.rnaPolymeraseElongationRate + fastRnaBool * sim_data.growthRateParameters.rnaPolymeraseElongationRateFast
 \end{lstlisting}
 
 Delete the calculation of averageTranscriptLength and expectedTerminationRate and add the following three lines:
@@ -413,7 +459,7 @@ Delete the calculation of averageTranscriptLength and expectedTerminationRate an
 \begin{lstlisting}
 expectedTranscriptionTime = rnaLengths/elngRateVector
 
-weightedExpectedTranscriptionTime = units.dot(expectedTranscriptionTime, synthProb)
+weightedExpectedTranscriptionTime = units.dot(synthProb, expectedTranscriptionTime)
 
 expectedTerminationRate = 1/weightedExpectedTranscriptionTime
 \end{lstlisting}
