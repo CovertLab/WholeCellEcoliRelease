@@ -109,7 +109,11 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		expectedDryMassFinal = 2 * expectedDryMassInit
 		
 		nbins = np.ceil(np.sqrt(dryMassInit.size))
-		dryMassInit_axis.hist(dryMassInit, nbins)
+		try:
+			dryMassInit_axis.hist(dryMassInit, nbins)
+		except ValueError:
+			# Catch case when only one simulation
+			dryMassInit_axis.bar([0], dryMassInit)
 		features = np.array([dryMassInit.mean() - 3*dryMassInit.std(), expectedDryMassInit, dryMassInit.mean() + 3*dryMassInit.std()])
 		x_min = features.min()
 		x_max = features.max()
@@ -119,7 +123,11 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		dryMassInit_axis.set_title("Initial dry mass (fg) for \ngeneration {} of cells (n={})".format(gen, len(generationCells)), fontsize=FONT_SIZE)
 
 		nbins = np.ceil(np.sqrt(dryMassFinal.size))
-		dryMassFinal_axis.hist(dryMassFinal, nbins)
+		try:
+			dryMassFinal_axis.hist(dryMassFinal, nbins)
+		except ValueError:
+			# Catch case when only one simulation
+			dryMassFinal_axis.bar([0], dryMassFinal)
 		features = np.array([dryMassFinal.mean() - 3*dryMassFinal.std(), expectedDryMassFinal, dryMassFinal.mean() + 3*dryMassFinal.std()])
 		x_min = features.min()
 		x_max = features.max()
@@ -132,21 +140,30 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		downSampleDoublingTime = downSample(doublingTime.asNumber(units.min), DOWN_SAMPLE)
 		positions = np.arange(start = 0, stop = doublingTime.asNumber().shape[1], step = np.floor(doublingTime.asNumber().shape[1] / downSampleDoublingTime.shape[1]))[:downSampleDoublingTime.shape[1]]
 		width = positions.max() / positions.size
-		doublingTimeViolin_axis.violinplot(downSampleDoublingTime, widths=width, showmeans=True, positions = positions)
+		try:
+			doublingTimeViolin_axis.violinplot(dataset = downSampleDoublingTime, widths=width, showmeans=True, positions = positions)
+		except:
+			doublingTimeViolin_axis.plot(time / 60., doublingTime.asNumber(units.min))
 		doublingTimeViolin_axis.set_title("Instantanious doubling time (min) for\ngeneration {} of cells (n={})".format(gen, len(generationCells)), fontsize=FONT_SIZE)
 
 		## Create rna fraction violin plots ##
 		downSampleRnaFraction = downSample(rnaFraction, DOWN_SAMPLE)
 		positions = np.arange(start = 0, stop = rnaFraction.shape[1], step = np.floor(rnaFraction.shape[1] / downSampleRnaFraction.shape[1]))[:downSampleRnaFraction.shape[1]]
 		width = positions.max() / positions.size
-		rnaFractionViolin_axis.violinplot(downSampleRnaFraction, widths=width, showmeans=True, positions = positions)
+		try:
+			rnaFractionViolin_axis.violinplot(downSampleRnaFraction, widths=width, showmeans=True, positions = positions)
+		except:
+			rnaFractionViolin_axis.plot(time / 60., rnaFraction)
 		rnaFractionViolin_axis.set_title("Rna dry mass fraction for\ngeneration {} of cells (n={})".format(gen, len(generationCells)), fontsize=FONT_SIZE)
 
 		## Create protein fraction violin plots ##
 		downSampleProteinFraction = downSample(proteinFraction, DOWN_SAMPLE)
 		positions = np.arange(start = 0, stop = proteinFraction.shape[1], step = np.floor(proteinFraction.shape[1] / downSampleProteinFraction.shape[1]))[:downSampleProteinFraction.shape[1]]
 		width = positions.max() / positions.size
-		proteinFractionViolin_axis.violinplot(downSampleProteinFraction, widths=width, showmeans=True, positions = positions)
+		try:
+			proteinFractionViolin_axis.violinplot(downSampleProteinFraction, widths=width, showmeans=True, positions = positions)
+		except:
+			proteinFractionViolin_axis.plot(time / 60., proteinFraction)
 		proteinFractionViolin_axis.set_title("Protein dry mass fraction for\ngeneration {} of cells (n={})".format(gen, len(generationCells)), fontsize=FONT_SIZE)
 
 		## Set final formatting
