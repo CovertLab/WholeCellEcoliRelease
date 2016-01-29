@@ -25,7 +25,7 @@ N_SEEDS = 20
 
 DOUBLING_TIME = 60. * units.min
 EXPRESSION_CONDITION = "M9 Glucose minus AAs"
-ENVIRONMENT = "wildtype"
+ENVIRONMENT = "000000_wildtype"
 
 VERBOSE = False
 
