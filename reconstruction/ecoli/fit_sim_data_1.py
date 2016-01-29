@@ -87,8 +87,6 @@ def fitSimData_1(raw_data, doubling_time = None):
 
 	# Modify other properties
 
-	fitRNAPolyTransitionRates(sim_data, bulkContainer)
-
 	## Calculate and set maintenance values
 
 	# ----- Growth associated maintenance -----
@@ -486,7 +484,6 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer):
 	bulkContainer.countsIs(np.fmax(rnapCounts, minRnapSubunitCounts), rnapIds)
 
 
-
 def fitExpression(sim_data, bulkContainer):
 
 	view_RNA = bulkContainer.countsView(sim_data.process.transcription.rnaData["id"])
@@ -560,32 +557,6 @@ def fitExpression(sim_data, bulkContainer):
 	synthProb = normalize(rnaLossRate.asNumber(1 / units.min))
 
 	sim_data.process.transcription.rnaData["synthProb"][:] = synthProb
-
-
-def fitRNAPolyTransitionRates(sim_data, bulkContainer):
-	## Transcription activation rate
-
-	synthProb = sim_data.process.transcription.rnaData["synthProb"]
-
-	rnaLengths = sim_data.process.transcription.rnaData["length"]
-
-	elngRate = sim_data.growthRateParameters.rnaPolymeraseElongationRate
-
-	# In our simplified model of RNA polymerase state transition, RNAp can be
-	# active (transcribing) or inactive (free-floating).  To solve for the
-	# rate of activation, we need to calculate the average rate of termination,
-	# which is a function of the average transcript length and the
-	# transcription rate.
-
-	averageTranscriptLength = units.dot(synthProb, rnaLengths)
-
-	expectedTerminationRate = elngRate / averageTranscriptLength
-
-	sim_data.transcriptionActivationRate = expectedTerminationRate * sim_data.growthRateParameters.fractionActiveRnap / (1 - sim_data.growthRateParameters.fractionActiveRnap)
-
-	sim_data.fracActiveRnap = sim_data.growthRateParameters.fractionActiveRnap
-
-
 
 
 def fitMaintenanceCosts(sim_data, bulkContainer):
