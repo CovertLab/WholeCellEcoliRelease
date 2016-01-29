@@ -281,45 +281,9 @@ class Metabolism(object):
 		# data structures
 
 		reactionStoich = {}
-		externalExchangeMolecules = set()
 		reversibleReactions = []
 		reactionEnzymes = {}
 		reactionRates = {}
-
-		unconstrainedExchangeMolecules = []
-		constrainedExchangeMolecules = {}
-
-		envDict = {}
-		environments = [(x, getattr(raw_data.environment, x)) for x in dir(raw_data.environment) if not x.startswith("__")]
-		for envName, env in environments:
-			envDict[envName] = collections.deque()
-			setpoints = [(float(x.split("_")[-1]), getattr(env, x)) for x in dir(env) if not x.startswith("__")]
-			for time, nutrientBounds in setpoints:
-				constrainedExchangeMolecules = {}
-				unconstrainedExchangeMolecules = []
-				for nutrient in nutrientBounds:
-					if nutrient["lower bound"] and nutrient["upper bound"]:
-						continue
-					elif nutrient["upper bound"] is not None:
-						constrainedExchangeMolecules[nutrient["molecule id"]] = EXCHANGE_UNITS * nutrient["upper bound"]
-						externalExchangeMolecules.add(nutrient["molecule id"])
-					else:
-						unconstrainedExchangeMolecules.append(nutrient["molecule id"])
-						externalExchangeMolecules.add(nutrient["molecule id"])
-
-				D = {
-					"constrainedExchangeMolecules": constrainedExchangeMolecules,
-					"unconstrainedExchangeMolecules": unconstrainedExchangeMolecules,
-					}
-				envDict[envName].append((time, D))
-
-		for secretion in raw_data.secretions:
-			if secretion["lower bound"] and secretion["upper bound"]:
-				# "non-growth associated maintenance", not included in our metabolic model
-				continue
-
-			else:
-				externalExchangeMolecules.add(secretion["molecule id"])
 
 		validEnzymeIDs = set([])
 		validProteinIDs = ['{}[{}]'.format(x['id'],location) for x in raw_data.proteins for location in x['location']]
@@ -398,8 +362,7 @@ class Metabolism(object):
 		enzymesWithKineticInfoDict["enzymes"] = list(enzymesWithKineticInfo)
 
 		self.reactionStoich = reactionStoich
-		self.externalExchangeMolecules = sorted(externalExchangeMolecules)
-		self.envDict = envDict
+		self.envDict = sim_data.envDict
 		self.reversibleReactions = reversibleReactions
 		self.reactionRateInfo = reactionRateInfo
 		self.enzymesWithKineticInfo = enzymesWithKineticInfoDict
