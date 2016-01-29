@@ -83,7 +83,7 @@ class Metabolism(wholecell.processes.process.Process):
 			))
 
 		# TODO: make sim_data method?
-		extIDs = sim_data.process.metabolism.externalExchangeMolecules
+		extIDs = sim_data.externalExchangeMolecules
 		self.extMoleculeMasses = sim_data.getter.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS)
 
 		moleculeMasses = dict(zip(
@@ -104,7 +104,7 @@ class Metabolism(wholecell.processes.process.Process):
 		# Set up FBA solver
 		self.fba = FluxBalanceAnalysis(
 			sim_data.process.metabolism.reactionStoich.copy(), # TODO: copy in class
-			sim_data.process.metabolism.externalExchangeMolecules,
+			sim_data.externalExchangeMolecules,
 			objective,
 			objectiveType = "pools",
 			reversibleReactions = sim_data.process.metabolism.reversibleReactions,
