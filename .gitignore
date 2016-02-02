@@ -82,6 +82,9 @@ launcher_*
 block_*
 FW.json
 
+# Sublime Files #
+#################
+*.sublime*
 
 # Misc #
 ########
@@ -97,3 +100,5 @@ FW.json
 *.log
 
 *.hdf
+
+/build/
