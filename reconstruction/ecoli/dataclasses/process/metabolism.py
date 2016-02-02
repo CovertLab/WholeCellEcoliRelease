@@ -270,9 +270,13 @@ class Metabolism(object):
 		# Other quantities to consider:
 		# - (d)NTP byproducts not currently included
 
-		self.metabolitePoolIDs = metaboliteIDs
 		self.biomassFunction = biomassFunction
-		self.metabolitePoolConcentrations = units.mol/units.L * np.array(metaboliteConcentrations)
+		self._concentrationUpdates = ConcentrationUpdates(
+			metaboliteIDs,
+			(units.mol / units.L) * np.array(metaboliteConcentrations)
+			)
+		envFirstTimePoint = sim_data.envDict[sim_data.environment][0]
+		self.metabolitePoolIDs, self.metabolitePoolConcentrations = self._concentrationUpdates.concentrationsBasedOnNutrients(envFirstTimePoint)
 
 	def _buildMetabolism(self, raw_data, sim_data):
 		# Build the matrices/vectors for metabolism (FBA)
@@ -390,3 +394,19 @@ class Metabolism(object):
 				externalMoleculeLevels[index] = 0.
 
 		return externalMoleculeLevels
+
+class ConcentrationUpdates(object):
+	def __init__(self, poolIds, concentrations):
+		self.units = units.getUnit(concentrations)
+		self.defaultConcentrationsDict = dict(zip(poolIds, concentrations.asNumber(self.units)))
+
+	def concentrationsBasedOnNutrients(self, nutrientFluxes = None):
+		concentrationsDict = self.defaultConcentrationsDict.copy()
+
+		poolIds = sorted(concentrationsDict.keys())
+		concentrations = self.units * np.array([concentrationsDict[k] for k in poolIds])
+
+		if nutrientFluxes == None:
+			return poolIds, concentrations
+
+		return poolIds, concentrations
