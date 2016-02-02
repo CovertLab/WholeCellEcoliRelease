@@ -88,21 +88,31 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	wisniewskiCounts = validation_data.protein.wisniewski2014Data["avgCounts"]
 	proteinIds = validation_data.protein.wisniewski2014Data["monomerId"].tolist()
 
-	fig, ax = plt.subplots(figsize = (8.5, 11))
-	points = ax.scatter(np.log10(wisniewskiCounts + 1), np.log10(view_validation.counts() + 1), c='w', edgecolor = 'k', alpha=.7)
+	fig, ax = plt.subplots(2, sharey=True, figsize = (8.5, 11))
 
-	plt.xlabel("log10(Wisniewski 2014 Counts)")
-	plt.ylabel("log10(Simulation Average Counts)")
-	# NOTE: This Pearson correlation goes up (at the time of writing) about 0.05 if you only
-	# include proteins that you have translational efficiencies for
-	plt.title("Pearson r: %0.2f" % pearsonr(np.log10(view_validation.counts() + 1), np.log10(wisniewskiCounts + 1))[0])
-	plt.xlim(xmin=0)
-	plt.ylim(ymin=0)
+	# Wisniewski Counts
+	points = ax[0].scatter(np.log10(wisniewskiCounts + 1), np.log10(view_validation.counts() + 1), c='w', edgecolor = 'k', alpha=.7)
+	ax[0].xlabel("log10(Wisniewski 2014 Counts)")
+	ax[0].title("Pearson r: %0.2f" % pearsonr(np.log10(view_validation.counts() + 1), np.log10(wisniewskiCounts + 1))[0])
 
 	labels = list(proteinIds)
 	tooltip = plugins.PointLabelTooltip(points, labels)
-
 	plugins.connect(fig, tooltip)
+
+	# Schmidt Counts
+	schmidtCounts = validation_data.protein.schmidt2015Data["counts"]
+	ax[1].scatter(
+		np.log10(schmidtCounts + 1),
+		np.log10(view_validation.counts() + 1),
+		c='w', edgecolor = 'k', alpha=.7)
+	ax[1].xlabel("log10(Schmidt 2015 Counts")
+	ax[1].title("Pearson r: %0.2f" % pearsonr(np.log10(view_validation.counts() + 1), np.log10(schmidtCounts + 1))[0])
+
+	plt.ylabel("log10(Simulation Average Counts)")
+	# NOTE: This Pearson correlation goes up (at the time of writing) about 0.05 if you only
+	# include proteins that you have translational efficiencies for
+	plt.xlim(xmin=0)
+	plt.ylim(ymin=0)
 
 	from wholecell.analysis.analysis_tools import exportFigure, exportHtmlFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
