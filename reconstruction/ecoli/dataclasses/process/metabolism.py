@@ -275,7 +275,7 @@ class Metabolism(object):
 			metaboliteIDs,
 			(units.mol / units.L) * np.array(metaboliteConcentrations)
 			)
-		envFirstTimePoint = sim_data.envDict[sim_data.environment][0]
+		envFirstTimePoint = sim_data.envDict[sim_data.environment][0][-1]
 		self.metabolitePoolIDs, self.metabolitePoolConcentrations = self._concentrationUpdates.concentrationsBasedOnNutrients(envFirstTimePoint)
 
 	def _buildMetabolism(self, raw_data, sim_data):
@@ -399,6 +399,29 @@ class ConcentrationUpdates(object):
 	def __init__(self, poolIds, concentrations):
 		self.units = units.getUnit(concentrations)
 		self.defaultConcentrationsDict = dict(zip(poolIds, concentrations.asNumber(self.units)))
+		self.moleculeScaleFactors = {
+			"L-ALPHA-ALANINE[c]": 2.,
+			"ARG[c]": 2.,
+			"ASN[c]": 2.,
+			"L-ASPARTATE[c]": 2.,
+			"CYS[c]": 2.,
+			"GLT[c]": 1.1,
+			"GLN[c]": 2.,
+			"GLY[c]": 2.,
+			"HIS[c]": 2.,
+			"ILE[c]": 2.,
+			"LEU[c]": 2.,
+			"LYS[c]": 2.,
+			"MET[c]": 2.,
+			"PHE[c]": 2.,
+			"PRO[c]": 2.,
+			"SER[c]": 2.,
+			"THR[c]": 2.,
+			"TRP[c]": 2.,
+			"TYR[c]": 2.,
+			"L-SELENOCYSTEINE[c]": 2.,
+			"VAL[c]": 2.,
+		}
 
 	def concentrationsBasedOnNutrients(self, nutrientFluxes = None):
 		concentrationsDict = self.defaultConcentrationsDict.copy()
@@ -409,4 +432,18 @@ class ConcentrationUpdates(object):
 		if nutrientFluxes == None:
 			return poolIds, concentrations
 
+		for molecule, scaleFactor in self.moleculeScaleFactors.iteritems():
+			if self._isNutrientExchangePresent(nutrientFluxes, molecule):
+				concentrations[molecule] *= scaleFactor
+
 		return poolIds, concentrations
+
+	def _isNutrientExchangePresent(self, nutrientFluxes, molecule):
+		if molecule in nutrientFluxes["unconstrainedExchangeMolecules"]:
+			return True
+
+		if molecule in nutrientFluxes["constrainedExchangeMolecules"]:
+			if nutrientFluxes["constrainedExchangeMolecules"][molecule].asNumber() > 0:
+				return True
+
+		return False
