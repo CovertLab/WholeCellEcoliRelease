@@ -77,7 +77,7 @@ class Metabolism(wholecell.processes.process.Process):
 			self.max_flux_coefficient = sim_data.constants.kineticRateLimitFactorUpper
 			self.min_flux_coefficient = sim_data.constants.kineticRateLimitFactorLower
 
-		objective = dict(zip(
+		self.objective = dict(zip(
 			self.metabolitePoolIDs,
 			self.targetConcentrations
 			))
@@ -105,7 +105,7 @@ class Metabolism(wholecell.processes.process.Process):
 		self.fba = FluxBalanceAnalysis(
 			sim_data.process.metabolism.reactionStoich.copy(), # TODO: copy in class
 			sim_data.externalExchangeMolecules,
-			objective,
+			self.objective,
 			objectiveType = "pools",
 			reversibleReactions = sim_data.process.metabolism.reversibleReactions,
 			moleculeMasses = moleculeMasses,
@@ -181,6 +181,9 @@ class Metabolism(wholecell.processes.process.Process):
 			self.environment,
 			self.time()
 			)
+		if newObjective != None and newObjective != self.objective:
+			# TODO: build new fba instance
+			pass
 
 		# Set external molecule levels
 		self.fba.externalMoleculeLevelsIs(externalMoleculeLevels)
