@@ -375,10 +375,17 @@ class Metabolism(object):
 		self.activeConstraintsDict = activeConstraintsDict
 
 	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits, environment, time):
+		newObjective = None
 		if len(self.envDict[environment]) and time > self.envDict[environment][0][0]:
 			self._unconstrainedExchangeMolecules = self.envDict[environment][0][1]["unconstrainedExchangeMolecules"]
 			self._constrainedExchangeMolecules = self.envDict[environment][0][1]["constrainedExchangeMolecules"]
+			oldPoolIds, oldConcentrations = self._concentrationUpdates.concentrationsBasedOnNutrients(self.envDict[environment][0][-1])
 			self.envDict[environment].popleft()
+			newPoolIds, newConcentrations = oldPoolIds, oldConcentrations
+			if len(self.envDict[environment]):
+				newPoolIds, newConcentrations = self._concentrationUpdates.concentrationsBasedOnNutrients(self.envDict[environment][0][-1])
+				if (oldPoolIds != newPoolIds) or not np.all(oldConcentrations == newConcentrations):
+					newObjective = dict(zip(poolIds, concentrations.asNumber(targetUnits)))
 
 		externalMoleculeLevels = np.zeros(len(exchangeIDs), np.float64)
 
@@ -393,7 +400,7 @@ class Metabolism(object):
 			else:
 				externalMoleculeLevels[index] = 0.
 
-		return externalMoleculeLevels
+		return externalMoleculeLevels, newObjective
 
 class ConcentrationUpdates(object):
 	def __init__(self, poolIds, concentrations):
