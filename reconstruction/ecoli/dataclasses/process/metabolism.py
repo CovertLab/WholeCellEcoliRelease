@@ -379,13 +379,9 @@ class Metabolism(object):
 		if len(self.envDict[environment]) and time > self.envDict[environment][0][0]:
 			self._unconstrainedExchangeMolecules = self.envDict[environment][0][1]["unconstrainedExchangeMolecules"]
 			self._constrainedExchangeMolecules = self.envDict[environment][0][1]["constrainedExchangeMolecules"]
-			oldPoolIds, oldConcentrations = self._concentrationUpdates.concentrationsBasedOnNutrients(self.envDict[environment][0][-1])
+			newPoolIds, newConcentrations = self._concentrationUpdates.concentrationsBasedOnNutrients(self.envDict[environment][0][-1])
+			newObjective = dict(zip(newPoolIds, newConcentrations.asNumber(targetUnits)))
 			self.envDict[environment].popleft()
-			newPoolIds, newConcentrations = oldPoolIds, oldConcentrations
-			if len(self.envDict[environment]):
-				newPoolIds, newConcentrations = self._concentrationUpdates.concentrationsBasedOnNutrients(self.envDict[environment][0][-1])
-				if (oldPoolIds != newPoolIds) or not np.all(oldConcentrations == newConcentrations):
-					newObjective = dict(zip(poolIds, concentrations.asNumber(targetUnits)))
 
 		externalMoleculeLevels = np.zeros(len(exchangeIDs), np.float64)
 
