@@ -174,7 +174,7 @@ class Metabolism(wholecell.processes.process.Process):
 		coefficient = dryMass / cellMass * self.cellDensity * (self.timeStepSec() * units.s)
 
 
-		externalMoleculeLevels = self.exchangeConstraints(
+		externalMoleculeLevels, newObjective = self.exchangeConstraints(
 			self.externalMoleculeIDs,
 			coefficient,
 			COUNTS_UNITS / VOLUME_UNITS,
