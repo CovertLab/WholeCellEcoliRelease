@@ -86,7 +86,7 @@ class Metabolism(wholecell.processes.process.Process):
 		extIDs = sim_data.externalExchangeMolecules
 		self.extMoleculeMasses = sim_data.getter.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS)
 
-		moleculeMasses = dict(zip(
+		self.moleculeMasses = dict(zip(
 			extIDs,
 			sim_data.getter.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS)
 			))
@@ -101,14 +101,18 @@ class Metabolism(wholecell.processes.process.Process):
 
 		energyCostPerWetMass = sim_data.constants.darkATP * initDryMass / initCellMass
 
+		self.reactionStoich = sim_data.process.metabolism.reactionStoich
+		self.externalExchangeMolecules = sim_data.externalExchangeMolecules
+		self.reversibleReactions = sim_data.process.metabolism.reversibleReactions
+
 		# Set up FBA solver
 		self.fba = FluxBalanceAnalysis(
-			sim_data.process.metabolism.reactionStoich.copy(), # TODO: copy in class
-			sim_data.externalExchangeMolecules,
+			self.reactionStoich.copy(), # TODO: copy in class
+			self.externalExchangeMolecules,
 			self.objective,
 			objectiveType = "pools",
-			reversibleReactions = sim_data.process.metabolism.reversibleReactions,
-			moleculeMasses = moleculeMasses,
+			reversibleReactions = self.reversibleReactions,
+			moleculeMasses = self.moleculeMasses,
 			solver = "glpk",
 			# maintenanceCost = energyCostPerWetMass.asNumber(COUNTS_UNITS/MASS_UNITS), # mmol/gDCW TODO: get real number
 			# maintenanceReaction = {
@@ -181,9 +185,23 @@ class Metabolism(wholecell.processes.process.Process):
 			self.environment,
 			self.time()
 			)
+
 		if newObjective != None and newObjective != self.objective:
-			# TODO: build new fba instance
-			pass
+			# Build new fba instance with new objective
+			self.objective = newObjective
+			self.fba = FluxBalanceAnalysis(
+				self.reactionStoich.copy(), # TODO: copy in class
+				self.externalExchangeMolecules,
+				self.objective,
+				objectiveType = "pools",
+				reversibleReactions = self.reversibleReactions,
+				moleculeMasses = self.moleculeMasses,
+				solver = "glpk",
+				# maintenanceCost = energyCostPerWetMass.asNumber(COUNTS_UNITS/MASS_UNITS), # mmol/gDCW TODO: get real number
+				# maintenanceReaction = {
+				# 	"ATP[c]":-1, "WATER[c]":-1, "ADP[c]":+1, "Pi[c]":+1
+				# 	} # TODO: move to KB TODO: check reaction stoich
+				)
 
 		# Set external molecule levels
 		self.fba.externalMoleculeLevelsIs(externalMoleculeLevels)
