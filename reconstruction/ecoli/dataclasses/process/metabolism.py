@@ -437,7 +437,7 @@ class ConcentrationUpdates(object):
 
 		for molecule, scaleFactor in self.moleculeScaleFactors.iteritems():
 			if self._isNutrientExchangePresent(nutrientFluxes, molecule):
-				concentrations[molecule] *= scaleFactor
+				concentrations[poolIds.index(molecule)] *= scaleFactor
 
 		return poolIds, concentrations
 
