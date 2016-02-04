@@ -23,9 +23,9 @@ class Mass(object):
 		self._buildSubMasses(raw_data, sim_data)
 		self._buildCDPeriod(raw_data, sim_data)
 
-		self.avgCellDryMass = self._setAvgCellDryMass()
+		self.avgCellDryMass = self.getAvgCellDryMass(self._doubling_time)
 		self.avgCell60MinDoublingTimeTotalMassInit = 813.542227072 * units.fg
-		self.massFraction = self._setMassFraction()
+		self.massFraction = self.getMassFraction(self._doubling_time)
 		self.avgCellSubMass = self._setSubMass()
 
 		self._buildDependentConstants()
@@ -78,23 +78,23 @@ class Mass(object):
 		self.d_period = sim_data.growthRateParameters.d_period
 
 	# Set based on growth rate avgCellDryMass
-	def _setAvgCellDryMass(self):
-		doubling_time = self._clipTau_d(self._doubling_time)
+	def getAvgCellDryMass(self, doubling_time):
+		doubling_time = self._clipTau_d(doubling_time)
 		avgCellDryMass = units.fg * float(interpolate.splev(doubling_time.asNumber(units.min), self._dryMassParams))
 		return avgCellDryMass
 
 	# Set mass fractions based on growth rate
-	def _setMassFraction(self):
-		if type(self._doubling_time) != unum.Unum:
+	def getMassFraction(self, doubling_time):
+		if type(doubling_time) != unum.Unum:
 			raise Exception("Doubling time was not set!")
 
 		D = {}
-		dnaMassFraction = self._calculateGrowthRateDependentDnaMass(self._doubling_time) / self.avgCellDryMass
+		dnaMassFraction = self._calculateGrowthRateDependentDnaMass(doubling_time) / self.avgCellDryMass
 		dnaMassFraction.normalize()
 		dnaMassFraction.checkNoUnit()
 		D["dna"] = dnaMassFraction.asNumber()
 
-		doubling_time = self._clipTau_d(self._doubling_time)
+		doubling_time = self._clipTau_d(doubling_time)
 		D["protein"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._proteinMassFractionParams))
 		D["rna"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._rnaMassFractionParams))
 		D["lipid"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._lipidMassFractionParams))
