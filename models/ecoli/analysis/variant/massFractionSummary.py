@@ -53,53 +53,32 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	if not os.path.isdir(inputDir):
 		raise Exception, "inputDir does not currently exist as a directory"
 
+	ap = AnalysisPaths(inputDir, variant_plot = True)
+	all_cells = ap.get_cells()
+
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
-	
-	# Get all variant directories
-	allDirs = os.listdir(inputDir)
-	
-	variantDirs = {}
-	# Consider only those directories which are seed directories
-	for directory in allDirs:
-		# Accept directories which are a variant name (any string) followed by an underscore, followed by a string of digits exactly 6 units long
-		matches = re.match('(.*)_(\d{6})',directory)
-		if matches != None:
-			variantDirShort = directory
-			variantDirFull = os.path.join(inputDir, directory)
-			seedDirs = {}
-			for variantSubDir in os.listdir(variantDirFull):
-				matches = re.match('^\d{6}$',variantSubDir)
-				if matches != None:
-					seedDir = os.path.join(variantDirFull, variantSubDir)
-					seedIndex = variantSubDir
-					ap = AnalysisPaths(seedDir)
-					seedDirs[seedIndex] = ap.getAll()
-			variantDirs[variantDirShort] = seedDirs
 
 	fig, axesList = plt.subplots(len(massNames), sharex = True)
 
 	currentMaxTime = 0
-	for variantName in variantDirs:
-		seedsDict = variantDirs[variantName]
-		for seedNum in seedsDict:
-			for simDir in seedsDict[seedNum]:
-				simOutDir = os.path.join(simDir, "simOut")
+	for simDir in all_cells:
+		simOutDir = os.path.join(simDir, "simOut")
 
-				time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-				mass = TableReader(os.path.join(simOutDir, "Mass"))
+		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+		mass = TableReader(os.path.join(simOutDir, "Mass"))
 
-				for idx, massType in enumerate(massNames):
-					massToPlot = mass.readColumn(massType)
-					axesList[idx].plot(((time / 60.) / 60.), massToPlot, linewidth = 2)
+		for idx, massType in enumerate(massNames):
+			massToPlot = mass.readColumn(massType)
+			axesList[idx].plot(((time / 60.) / 60.), massToPlot, linewidth = 2)
 
-					# set axes to size that shows all generations
-					cellCycleTime = ((time[-1] - time[0]) / 60. / 60. )
-					if cellCycleTime > currentMaxTime:
-						currentMaxTime = cellCycleTime
+			# set axes to size that shows all generations
+			cellCycleTime = ((time[-1] - time[0]) / 60. / 60. )
+			if cellCycleTime > currentMaxTime:
+				currentMaxTime = cellCycleTime
 
-					axesList[idx].set_xlim(0, currentMaxTime*int(metadata["total_gens"])*1.1)
-					axesList[idx].set_ylabel(cleanNames[idx] + " (fg)")
+			axesList[idx].set_xlim(0, currentMaxTime*int(metadata["total_gens"])*1.1)
+			axesList[idx].set_ylabel(cleanNames[idx] + " (fg)")
 
 	for axes in axesList:
 		axes.get_ylim()

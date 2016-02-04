@@ -63,10 +63,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	rnaIdxs = [allRnaIds.index(x) for x in rnaIds]
 	degRates = sim_data.process.transcription.rnaData["degRate"][rnaIdxs]
 
-	ap = AnalysisPaths(seedOutDir)
+	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
 	# Get all cells
-	allDir = ap.getAll()
+	allDir = ap.get_cells()
 
 	rnaDegradedCounts = []
 	rnaCounts = []

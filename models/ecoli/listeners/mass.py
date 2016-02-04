@@ -73,7 +73,7 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		# Set total mass that should be added to cell
 		# This is an approximation for length
-		self.expectedMassIncrease = sim_data.mass.avgCellDryMassInit
+		self.expectedDryMassIncrease = sim_data.mass.avgCellDryMassInit
 
 		# Set initial values
 
@@ -193,7 +193,7 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		# End simulation once the mass of an average cell is
 		# added to current cell.
-		if self.dryMass - self.dryMassInitial >= self.expectedMassIncrease.asNumber(units.fg):
+		if self.dryMass - self.dryMassInitial >= self.expectedDryMassIncrease.asNumber(units.fg):
 			self._sim.cellCycleComplete()
 
 

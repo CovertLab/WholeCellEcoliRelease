@@ -19,6 +19,19 @@ count = Unum.unit('count',mol/(scipy.constants.Avogadro))
 nt = Unum.unit('nucleotide', count)
 aa = Unum.unit('amino_acid', count)
 
+def sort(a, axis=-1, kind='quicksort', order=None):
+	if not hasUnit(a):
+		raise Exception('Only works on Unum!')
+	a_unit = getUnit(a)
+	a = a.asNumber()
+	return a_unit * np.sort(a, axis=-1, kind='quicksort', order=None)
+
+def nanmean(a, axis=None, dtype=None, out=None, keepdims=False):
+	if not hasUnit(a):
+		raise Exception('Only works on Unum!')
+	a_unit = getUnit(a)
+	a = a.asNumber()
+	return a_unit * np.nanmean(a, axis=None, dtype=None, out=None, keepdims=False)
 
 def sum(array, axis = None, dtype=None, out=None, keepdims=False):
 	if not isinstance(array,Unum):
