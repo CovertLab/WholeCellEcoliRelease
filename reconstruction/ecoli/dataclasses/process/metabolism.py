@@ -264,7 +264,7 @@ class Metabolism(object):
 
 	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits, environment, time):
 		newObjective = None
-		if len(self.envDict[environment]) and time > self.envDict[environment][0][0]:
+		while len(self.envDict[environment]) and time > self.envDict[environment][0][0]:
 			self._unconstrainedExchangeMolecules = self.envDict[environment][0][1]["unconstrainedExchangeMolecules"]
 			self._constrainedExchangeMolecules = self.envDict[environment][0][1]["constrainedExchangeMolecules"]
 			newPoolIds, newConcentrations = self._concentrationUpdates.concentrationsBasedOnNutrients(self.envDict[environment][0][-1])
