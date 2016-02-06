@@ -29,6 +29,8 @@ from wholecell.utils.constants import REQUEST_PRIORITY_METABOLISM
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
 from wholecell.utils.enzymeKinetics import EnzymeKinetics
 
+from wholecell.utils.fitting import massesAndCountsToAddForPools
+
 COUNTS_UNITS = units.mmol
 VOLUME_UNITS = units.L
 MASS_UNITS = units.g
@@ -63,6 +65,8 @@ class Metabolism(wholecell.processes.process.Process):
 		self.environment = sim_data.environment
 		self.exchangeConstraints = sim_data.process.metabolism.exchangeConstraints
 
+		self.doublingTime = sim_data.doubling_time
+
 		# Load enzyme kinetic rate information
 		self.reactionRateInfo = sim_data.process.metabolism.reactionRateInfo
 		self.enzymesWithKineticInfo = sim_data.process.metabolism.enzymesWithKineticInfo["enzymes"]
@@ -84,11 +88,15 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# TODO: make sim_data method?
 		extIDs = sim_data.externalExchangeMolecules
-		self.extMoleculeMasses = sim_data.getter.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS)
+		self.extMoleculeMasses = sim_data.getter.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS) # TODO: delete this line?
+
+		self.getMass = sim_data.getter.getMass
+		self.massReconstruction = sim_data.mass
+		self.avgCellToInitialCellConvFactor = sim_data.mass.avgCellToInitialCellConvFactor
 
 		self.moleculeMasses = dict(zip(
 			extIDs,
-			sim_data.getter.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS)
+			self.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS)
 			))
 
 		initWaterMass = sim_data.mass.avgCellWaterMassInit
@@ -202,6 +210,16 @@ class Metabolism(wholecell.processes.process.Process):
 				# 	"ATP[c]":-1, "WATER[c]":-1, "ADP[c]":+1, "Pi[c]":+1
 				# 	} # TODO: move to KB TODO: check reaction stoich
 				)
+
+			massComposition = self.massReconstruction.getFractionMass(self.doublingTime)
+			massInitial = (massComposition["proteinMass"] + massComposition["rnaMass"] + massComposition["dnaMass"]) / self.avgCellToInitialCellConvFactor
+			objIds = sorted(self.objective)
+			objConc = (COUNTS_UNITS / VOLUME_UNITS) * np.array([self.objective[x] for x in objIds])
+			mws = self.getMass(objIds)
+			massesToAdd, _ = massesAndCountsToAddForPools(massInitial, objIds, objConc, mws, self.cellDensity, self.nAvogadro)
+			smallMoleculePoolsDryMass = units.hstack((massesToAdd[:objIds.index('WATER[c]')], massesToAdd[objIds.index('WATER[c]') + 1:]))
+			totalDryMass = units.sum(smallMoleculePoolsDryMass) + massInitial
+			self.writeToListener("Mass", "expectedDryMassIncrease", totalDryMass)
 
 		# Set external molecule levels
 		self.fba.externalMoleculeLevelsIs(externalMoleculeLevels)
