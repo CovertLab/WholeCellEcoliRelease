@@ -4,6 +4,8 @@ from __future__ import division
 
 import numpy as np
 import os
+import scipy.optimize
+import time
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from reconstruction.ecoli.compendium import growth_data
@@ -52,7 +54,7 @@ def fitSimData_1(raw_data, doubling_time = None):
 	# Set C-period
 	setCPeriod(sim_data)
 
-	unfitExpression = sim_data.process.transcription.rnaData["expression"].copy()
+	unfitExpression = sim_data.process.transcription.rnaData["expression"].copy()	
 
 	# Fit synthesis probabilities for RNA
 	for iteration in xrange(MAX_FITTING_ITERATIONS):
@@ -86,6 +88,10 @@ def fitSimData_1(raw_data, doubling_time = None):
 		raise Exception("Fitting did not converge")
 
 	# Modify other properties
+
+	# Re-compute Km's 
+	if sim_data.constants.EndoRNaseCooperation:
+		setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer)
 
 	fitRNAPolyTransitionRates(sim_data, bulkContainer)
 
@@ -449,24 +455,6 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer):
 	totalEndoRnaseCapacity = units.sum(endoRNaseConc * kcatEndoRNase)
 	Km = ( 1 / degradationRates * totalEndoRnaseCapacity ) - rnaConc
 
-	rnaCounts = bulkContainer.counts(sim_data.process.transcription.rnaData['id'])
-	endoCounts = bulkContainer.counts(sim_data.process.rna_decay.endoRnaseIds)
-	Kmcounts =  ((1 / countsToMolar) * Km).asNumber()
-	F, Fp, F2, Fp2 = sim_data.process.rna_decay.kmFunctions((1 / countsToMolar * totalEndoRnaseCapacity).asNumber(1 / units.s), rnaCounts, degradationRates.asNumber(1 / units.s))
-	L = sim_data.process.rna_decay.km1(Kmcounts, (1 / countsToMolar * totalEndoRnaseCapacity).asNumber(1 / units.s), rnaCounts, degradationRates.asNumber(1 / units.s))
-	import ipdb; ipdb.set_trace()
-	import scipy.optimize
-	import time
-	print "Start: %s" % time.ctime(time.time())
-	A = scipy.optimize.fsolve(F, Kmcounts, fprime = Fp)
-	print "Done: %s" % time.ctime(time.time())
-	print "Start: %s" % time.ctime(time.time())
-	B = scipy.optimize.fsolve(F2, Kmcounts, fprime = Fp2)
-	print "Done: %s" % time.ctime(time.time())
-	import ipdb; ipdb.set_trace()
-
-	scipy.optimize.root(sim_data.process.rna_decay.km1, Kmcounts, args = ((1 / countsToMolar * totalEndoRnaseCapacity).asNumber(1 / units.s), rnaCounts, degradationRates.asNumber(1 / units.s)))
-
 	# Set Km's
 	sim_data.process.transcription.rnaData["KmEndoRNase"] = Km
 
@@ -502,7 +490,6 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer):
 	if VERBOSE: print 'rnap counts set to: {}'.format(rnapLims[np.where(rnapLims.max() == rnapLims)[0]][0])
 
 	bulkContainer.countsIs(np.fmax(rnapCounts, minRnapSubunitCounts), rnapIds)
-
 
 
 def fitExpression(sim_data, bulkContainer):
@@ -855,3 +842,46 @@ def netLossRateFromDilutionAndDegradationRNA(doublingTime, totalEndoRnaseCountsC
 	rnaCounts = (1 / countsToMolar) * rnaConc
 	return (np.log(2) / doublingTime) * rnaCounts + (totalEndoRnaseCountsCapacity * fracSaturated)
 
+def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
+	cellDensity = sim_data.constants.cellDensity
+	cellVolume = sim_data.mass.avgCellDryMassInit / cellDensity / 0.3
+	countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
+
+	degradationRates = sim_data.process.transcription.rnaData["degRate"]
+	endoRNaseConc = countsToMolar * bulkContainer.counts(sim_data.process.rna_decay.endoRnaseIds)
+	kcatEndoRNase = sim_data.process.rna_decay.kcats
+	totalEndoRnaseCapacity = units.sum(endoRNaseConc * kcatEndoRNase)
+
+	isMRna = sim_data.process.transcription.rnaData["isMRna"]
+	isRna = np.zeros(len(isMRna))
+
+	endoRnaseRnaIds = sim_data.moleculeGroups.endoRnase_RnaIDs
+	isEndoRnase = np.array([x in endoRnaseRnaIds for x in sim_data.process.transcription.rnaData["id"]])
+
+	rnaCounts = bulkContainer.counts(sim_data.process.transcription.rnaData['id'])
+	endoCounts = bulkContainer.counts(sim_data.process.rna_decay.endoRnaseIds)
+
+	# Loading Km's from non-linear RNA decay without EndoR cooperation
+	Kmcounts =  ((1 / countsToMolar) * sim_data.process.transcription.rnaData['KmEndoRNase']).asNumber()
+
+	# Loss function, and derivative 
+	LossFunction, Rneg, Rbound, R, LossFunctionP = sim_data.process.rna_decay.kmLossFunction(
+				(1 / countsToMolar * totalEndoRnaseCapacity).asNumber(1 / units.s),
+				rnaCounts,
+				degradationRates.asNumber(1 / units.s),
+				isRna
+			)
+
+	# Non-linear optimization
+	KmCooperativeModel = scipy.optimize.fsolve(LossFunction, Kmcounts, fprime = LossFunctionP)
+	print "Global optimization (Km linear model) = %f" % np.sum(np.abs(LossFunction(Kmcounts)))
+	print "Global optimization (optimized Km) = %f" % np.sum(np.abs(LossFunction(KmCooperativeModel)))
+	print "Negative km ratio = %f" % np.sum(np.abs(Rneg(KmCooperativeModel)))
+	print "Bound km score = %f" % np.sum(np.abs(Rbound(KmCooperativeModel)))
+	print "Residuals = %f" % np.sum(np.abs(R(KmCooperativeModel)))
+	print "EndoR residuals = %f" % np.sum(np.abs(isEndoRnase * R(KmCooperativeModel)))
+	#import ipdb; ipdb.set_trace();
+
+	# Set Km's
+	KmCooperativeModelConc = countsToMolar * KmCooperativeModel
+	sim_data.process.transcription.rnaData["KmEndoRNase"] = units.mol / units.L * KmCooperativeModelConc.asNumber()

@@ -63,37 +63,37 @@ class RnaDecay(object):
 		self.TargetEndoRNasesFullRRNA[self.endoRnaseIds.index("G7365-MONOMER[c]")] = self.rrna_index
 		self.TargetEndoRNasesFullRRNA[self.endoRnaseIds.index("EG10862-MONOMER[c]")] = self.rrna_index
 
-	def km1(self, km, vMax, rnaConc, kDeg):
-		print "hello"
-		return  vMax * rnaConc / km / (1 + (rnaConc / km)) - kDeg * rnaConc
-
-	def km2(self, km, vMax, rnaConc, kDeg):
-		return  vMax * rnaConc / km / (1 + (rnaConc / km).sum()) - kDeg * rnaConc
-
-	def kmFunctions(self, vMax, rnaConc, kDeg):
-		assert rnaConc.size == kDeg.size
+	def kmLossFunction(self, vMax, rnaConc, kDeg, isEndoRnase):
 		N = rnaConc.size
 		km = T.dvector()
-		denominator = 1 + (rnaConc / km).sum()
-		residual = []
-		print "start"
-		residual = (vMax * rnaConc / km) / denominator - kDeg * rnaConc
-		residual2 = (vMax / km) / denominator - kDeg
-		# for i in xrange(N):
-		# 	numerator = vMax * rnaConc[i] / km[i]
-		# 	denominator = 1 + rnaConc[i] / km[i]
-		# 	residual.append(
-		# 		numerator / denominator - (kDeg[i] * rnaConc[i])
-		# 		)
-		J = theano.gradient.jacobian(residual, km)
-		J2 = theano.gradient.jacobian(residual2, km)
-		print "end"
-		# f = theano.function([km], T.stack(*residual))
-		f = theano.function([km], residual)
-		f2 = theano.function([km], residual2)
 
-		print "done"
-		fp = theano.function([km], J)
-		fp2 = theano.function([km], J2)
+		# Residuals of non-linear optimization
+		residual = (vMax / km) / (1 + (rnaConc / km).sum()) - kDeg
 
-		return f, fp, f2, fp2
+		# Counting negative Km's (first regularization term) 
+		regularizationNegativeNumbers = (np.ones(N) - km / np.abs(km)).sum() / N
+
+		# Hill-based function to bound Km values (second regularization term)
+		KM = 1.0e8 # threshold
+		regularizationBounds = (np.abs(km) / (KM + np.abs(km))).sum() / N
+
+		# Penalties for EndoR Km's, which might be potentially nonf-fitted
+		regularizationEndoR = (isEndoRnase * np.abs(residual)).sum()
+		
+		# Multi objective-based regularization
+		regularization = regularizationNegativeNumbers + regularizationBounds + regularizationEndoR
+
+		# Loss function
+		alpha = 0.5
+		#LossFunction = residual + alpha * regularization # provide sum(residuals ~ 0.09)
+		LossFunction = T.log(T.exp(residual) + T.exp(alpha * regularization)) - T.log(2)
+		#import ipdb; ipdb.set_trace();
+
+		J = theano.gradient.jacobian(LossFunction, km)
+		L = theano.function([km], LossFunction)
+		Rneg = theano.function([km], regularizationNegativeNumbers)
+		Rbound = theano.function([km], regularizationBounds)
+		R = theano.function([km], residual)
+		Lp = theano.function([km], J)
+
+		return L, Rneg, Rbound, R, Lp
