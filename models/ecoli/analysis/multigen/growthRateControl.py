@@ -76,7 +76,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		time, massData = getMassData(simDir, massNames)
 		_, dryMass = getMassData(simDir, ["dryMass"])
 
-		massDataNorm = massData / massData.sum(axis = 0)
+		# massDataNorm = massData / massData.sum(axis = 0)
+		massDataNorm = massData / dryMass
 
 		initialComp = massDataNorm[:,1:6*60+1].mean(axis=1)
 		finalComp = massDataNorm[:,-5*60:].mean(axis=1)
@@ -92,11 +93,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		finalDoublingTime = np.log(2) / finalGrowthRate * units.min # Last five minutes
 
 		expectedInitialComp, expectedInitialMass = getExpectedComposition(initialDoublingTime)
-		expectedInitialComp = expectedInitialComp / expectedInitialComp.sum()
+		#expectedInitialComp = expectedInitialComp / expectedInitialComp.sum()
+		expectedInitialComp = expectedInitialComp / expectedInitialMass.asNumber(units.fg)
 		expectedFinalComp, finalCompInitMass = getExpectedComposition(finalDoublingTime)
-		expectedFinalComp = expectedFinalComp / expectedFinalComp.sum()
+		#expectedFinalComp = expectedFinalComp / expectedFinalComp.sum()
 		expectedFinalMass = finalCompInitMass * 2
-
+		expectedFinalComp = expectedFinalComp / expectedFinalMass.asNumber(units.fg)
 		initialDistance = np.linalg.norm(expectedInitialComp - initialComp, 2) / np.linalg.norm(expectedInitialComp, 2)
 		finalDistance = np.linalg.norm(expectedFinalComp - finalComp, 2) / np.linalg.norm(expectedFinalComp, 2)
 
