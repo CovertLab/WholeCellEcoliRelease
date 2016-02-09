@@ -65,9 +65,11 @@ LIST_OF_DICT_FILENAMES = (
 	os.path.join("rna_seq_data","rnaseq_rsem_tpm_std.tsv"),
 	os.path.join("rna_seq_data","rnaseq_seal_rpkm_mean.tsv"),
 	os.path.join("rna_seq_data","rnaseq_seal_rpkm_std.tsv"),
-	os.path.join("environment", "wildtype", "nutrients_000000.tsv"),
-	os.path.join("environment", "cut_glucose", "nutrients_000000.tsv"),
-	os.path.join("environment", "cut_glucose", "nutrients_001200.tsv"),
+	os.path.join("environment", "000000_wildtype", "nutrients_000000.tsv"),
+	os.path.join("environment", "000001_cut_glucose", "nutrients_000000.tsv"),
+	os.path.join("environment", "000001_cut_glucose", "nutrients_001200.tsv"),
+	os.path.join("environment", "000002_add_aa", "nutrients_000000.tsv"),
+	os.path.join("environment", "000002_add_aa", "nutrients_001200.tsv"),
 	)
 SEQUENCE_FILE = 'sequence.fasta'
 LIST_OF_PARAMETER_FILENAMES = ("parameters.tsv", "mass_parameters.tsv")
