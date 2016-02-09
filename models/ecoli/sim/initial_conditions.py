@@ -17,7 +17,7 @@ import numpy as np
 import os
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
-from wholecell.utils.fitting import normalize, countsFromMassAndExpression, calcProteinCounts
+from wholecell.utils.fitting import normalize, countsFromMassAndExpression, calcProteinCounts, massesAndCountsToAddForPools
 from wholecell.utils.polymerize import buildSequences, computeMassIncrease
 from wholecell.utils import units
 
@@ -111,23 +111,13 @@ def initializeSmallMolecules(bulkMolCntr, sim_data, randomState):
 	poolIds = [x for idx, x in enumerate(sim_data.process.metabolism.metabolitePoolIDs) if sim_data.process.metabolism.metabolitePoolConcentrations.asNumber()[idx] > 0]
 	poolConcentrations = (units.mol / units.L) * np.array([x for x in sim_data.process.metabolism.metabolitePoolConcentrations.asNumber() if x > 0])
 
-	cellDensity = sim_data.constants.cellDensity
-	mws = sim_data.getter.getMass(poolIds)
-	concentrations = poolConcentrations.copy()
-
-	diag = (cellDensity / (mws * concentrations) - 1).asNumber()
-	A = -1 * np.ones((diag.size, diag.size))
-	A[np.diag_indices(diag.size)] = diag
-	b = mass.asNumber(units.g) * np.ones(diag.size)
-
-	massesToAdd = units.g * np.linalg.solve(A, b)
-	countsToAdd = massesToAdd / mws * sim_data.constants.nAvogadro
-
-	V = (mass + units.sum(massesToAdd)) / cellDensity
-
-	assert np.allclose(
-		(countsToAdd / sim_data.constants.nAvogadro / V).asNumber(units.mol / units.L),
-		(poolConcentrations).asNumber(units.mol / units.L)
+	massesToAdd, countsToAdd = massesAndCountsToAddForPools(
+		mass,
+		poolIds,
+		poolConcentrations,
+		sim_data.getter.getMass(poolIds),
+		sim_data.constants.cellDensity,
+		sim_data.constants.nAvogadro
 		)
 
 	bulkMolCntr.countsIs(
