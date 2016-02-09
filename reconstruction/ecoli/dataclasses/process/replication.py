@@ -22,7 +22,7 @@ class Replication(object):
 		self._buildSequence(raw_data, sim_data)
 		self._buildGeneData(raw_data, sim_data)
 		self._buildReplication(raw_data, sim_data)
-		self._determineIniationCellMasses(raw_data, sim_data)
+		self._determineInitiationCellMasses(raw_data, sim_data)
 
 	def _buildSequence(self, raw_data, sim_data):
 		self.genome_sequence = raw_data.genome_sequence
@@ -96,7 +96,7 @@ class Replication(object):
 		return (self._n_nt_types - 1) - sequenceVector
 
 
-	def _determineIniationCellMasses(self, raw_data, sim_data):
+	def _determineInitiationCellMasses(self, raw_data, sim_data):
 		if sim_data.doubling_time >= 60. * units.min:
 			self.cellMassReplicationInitiation = 1 * sim_data.mass.avgCell60MinDoublingTimeTotalMassInit
 		elif sim_data.doubling_time >= 30. * units.min:
