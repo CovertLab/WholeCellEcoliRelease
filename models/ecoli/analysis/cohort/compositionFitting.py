@@ -50,6 +50,8 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	maxTime = getMaxTime(allCells)
 
+	gigsPerArray = maxTime * allCells.size * 8 / 1e9
+
 	## Load values ##
 	time = getSingleValue(allCells, tableName = "Main", colName = "time", maxTime = maxTime)
 	growthRate = getSingleValue(allCells, tableName = "Mass", colName = "instantaniousGrowthRate", maxTime = maxTime)

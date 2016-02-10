@@ -28,13 +28,18 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	ap = AnalysisPaths(variantDir, cohort_plot = True)
 	fig = plt.figure()
-	fig.set_size_inches(10 * ap.n_generation,12)
-	outer_grid = gridspec.GridSpec(1, ap.n_generation)
+
+	n_gen = ap.n_generation
+	if ap.n_generation > 5:
+		n_gen = 5
+
+	fig.set_size_inches(10 * n_gen,12)
+	outer_grid = gridspec.GridSpec(1, n_gen)
 
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	expectedProtein, expectedRna, expectedDryMassInit = getExpectedComposition(sim_data.doubling_time)
 
-	for gen in range(ap.n_generation):
+	for gen in range(n_gen):
 		generationCells = ap.get_cells(generation = [gen])
 
 		# Composition plotting
