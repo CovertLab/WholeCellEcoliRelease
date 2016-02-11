@@ -73,7 +73,7 @@ def fitSimData_1(raw_data, doubling_time = None):
 
 		# Normalize expression and write out changes
 
-		expression = fitExpression(sim_data, bulkContainer)
+		expression, synthProb = fitExpression(sim_data, bulkContainer)
 
 		finalExpression = expression
 
@@ -86,8 +86,6 @@ def fitSimData_1(raw_data, doubling_time = None):
 	else:
 		raise Exception("Fitting did not converge")
 
-	sim_data.process.transcription.rnaData["expression"][:] = expression
-
 	# Modify other properties
 
 	## Calculate and set maintenance values
@@ -96,7 +94,10 @@ def fitSimData_1(raw_data, doubling_time = None):
 
 	fitMaintenanceCosts(sim_data, bulkContainer)
 
-	calculateBulkDistributions(sim_data, sim_data.process.transcription.rnaData["expression"])
+	calculateBulkDistributions(sim_data, expression)
+
+	sim_data.process.transcription.rnaData["expression"][:] = expression
+	sim_data.process.transcription.rnaData["synthProb"][:] = synthProb
 
 	return sim_data
 
@@ -258,6 +259,7 @@ def setInitialRnaExpression(sim_data, expression):
 	rnaExpressionContainer.countsIs(counts_mRNA, ids_mRNA)
 
 	expression = normalize(rnaExpressionContainer.counts())
+
 	return expression
 	# Note that now rnaData["synthProb"] does not match "expression"
 
@@ -550,8 +552,7 @@ def fitExpression(sim_data, bulkContainer):
 
 	synthProb = normalize(rnaLossRate.asNumber(1 / units.min))
 
-	sim_data.process.transcription.rnaData["synthProb"][:] = synthProb
-	return expression
+	return expression, synthProb
 
 
 def fitMaintenanceCosts(sim_data, bulkContainer):
