@@ -113,9 +113,9 @@ def setCPeriod(sim_data):
 	sim_data.growthRateParameters.c_period = sim_data.process.replication.genome_length * units.nt / sim_data.growthRateParameters.dnaPolymeraseElongationRate / 2
 
 def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr):
-	avgCellSubMass = sim_data.mass.avgCellSubMass
+	avgCellFractionMass = sim_data.mass.getFractionMass(sim_data.doubling_time)
 
-	mass = (avgCellSubMass["proteinMass"] + avgCellSubMass["rnaMass"] + avgCellSubMass["dnaMass"]) / sim_data.mass.avgCellToInitialCellConvFactor
+	mass = (avgCellFractionMass["proteinMass"] + avgCellFractionMass["rnaMass"] + avgCellFractionMass["dnaMass"]) / sim_data.mass.avgCellToInitialCellConvFactor
 
 	# We have to remove things with zero concentration because taking the inverse of zero isn't so nice.
 	poolIds = [x for idx, x in enumerate(sim_data.process.metabolism.metabolitePoolIDs) if sim_data.process.metabolism.metabolitePoolConcentrations.asNumber()[idx] > 0]
@@ -157,14 +157,14 @@ def setInitialRnaExpression(sim_data):
 	ids_tRNA = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isTRna"]]
 	ids_mRNA = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isMRna"]]
 
-	avgCellSubMass = sim_data.mass.avgCellSubMass
+	avgCellFractionMass = sim_data.mass.getFractionMass(sim_data.doubling_time)
 
 	## Mass fractions
-	totalMass_rRNA23S = avgCellSubMass["rRna23SMass"] / sim_data.mass.avgCellToInitialCellConvFactor
-	totalMass_rRNA16S = avgCellSubMass["rRna16SMass"] / sim_data.mass.avgCellToInitialCellConvFactor
-	totalMass_rRNA5S = avgCellSubMass["rRna5SMass"] / sim_data.mass.avgCellToInitialCellConvFactor
-	totalMass_tRNA = avgCellSubMass["tRnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
-	totalMass_mRNA = avgCellSubMass["mRnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
+	totalMass_rRNA23S = avgCellFractionMass["rRna23SMass"] / sim_data.mass.avgCellToInitialCellConvFactor
+	totalMass_rRNA16S = avgCellFractionMass["rRna16SMass"] / sim_data.mass.avgCellToInitialCellConvFactor
+	totalMass_rRNA5S = avgCellFractionMass["rRna5SMass"] / sim_data.mass.avgCellToInitialCellConvFactor
+	totalMass_tRNA = avgCellFractionMass["tRnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
+	totalMass_mRNA = avgCellFractionMass["mRnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
 
 	## Molecular weights
 	individualMasses_RNA = sim_data.getter.getMass(ids_rnas) / sim_data.constants.nAvogadro
@@ -259,7 +259,7 @@ def setInitialRnaExpression(sim_data):
 
 def totalCountIdDistributionProtein(sim_data):
 	ids_protein = sim_data.process.translation.monomerData["id"]
-	totalMass_protein = sim_data.mass.avgCellSubMass["proteinMass"] / sim_data.mass.avgCellToInitialCellConvFactor
+	totalMass_protein = sim_data.mass.getFractionMass(sim_data.doubling_time)["proteinMass"] / sim_data.mass.avgCellToInitialCellConvFactor
 	individualMasses_protein = sim_data.process.translation.monomerData["mw"] / sim_data.constants.nAvogadro
 	distribution_transcriptsByProtein = normalize(sim_data.process.transcription.rnaData["expression"][sim_data.relation.rnaIndexToMonomerMapping])
 	translation_efficienciesByProtein = normalize(sim_data.process.translation.translationEfficienciesByMonomer)
@@ -287,7 +287,7 @@ def totalCountIdDistributionProtein(sim_data):
 
 def totalCountIdDistributionRNA(sim_data):
 	ids_rnas = sim_data.process.transcription.rnaData["id"]
-	totalMass_RNA = sim_data.mass.avgCellSubMass["rnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
+	totalMass_RNA = sim_data.mass.getFractionMass(sim_data.doubling_time)["rnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
 	individualMasses_RNA = sim_data.process.transcription.rnaData["mw"] / sim_data.constants.nAvogadro
 
 	distribution_RNA = normalize(sim_data.process.transcription.rnaData["expression"])
@@ -481,8 +481,8 @@ def fitExpression(sim_data, bulkContainer):
 
 	translation_efficienciesByProtein = normalize(sim_data.process.translation.translationEfficienciesByMonomer)
 
-	avgCellSubMass = sim_data.mass.avgCellSubMass
-	totalMass_RNA = avgCellSubMass["rnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
+	avgCellFractionMass = sim_data.mass.getFractionMass(sim_data.doubling_time)
+	totalMass_RNA = avgCellFractionMass["rnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
 
 	doublingTime = sim_data.doubling_time
 	degradationRates_protein = sim_data.process.translation.monomerData["degRate"]
