@@ -21,4 +21,4 @@ def EndoKcatFullRNA(sim_data, index):
 	return dict(
 		shortName = "{} s^-1".format(KcatEndoRNaseFullRNA),
 		desc = "KcatEndoRNaseFullRNA = {} s^-1.".format(KcatEndoRNaseFullRNA)
-		)
+		), sim_data

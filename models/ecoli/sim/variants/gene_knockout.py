@@ -33,4 +33,4 @@ def geneKnockout(sim_data, index):
 	return dict(
 		shortName = "{}_KO".format(geneID),
 		desc = "Complete knockout of {}.".format(geneID)
-		)
+		), sim_data

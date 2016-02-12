@@ -2,7 +2,7 @@ from wholecell.utils import units
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 from reconstruction.ecoli.fit_sim_data_1 import fitSimData_1
 
-DOUBLING_TIMES = units.min * [100., 60., 40., 30., 24.]
+DOUBLING_TIMES = units.min * [100., 40., 30., 24.]
 
 CONTROL_OUTPUT = dict(
 	shortName = "control",
@@ -22,4 +22,4 @@ def growthRate(sim_data, index):
 	return dict(
 		shortName = "{} min".format(DOUBLING_TIMES[index]),
 		desc = "Doubling time {} min.".format(DOUBLING_TIMES[index])
-		)
+		), sim_data

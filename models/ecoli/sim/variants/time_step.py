@@ -24,4 +24,4 @@ def timeStep(sim_data, index):
 	return dict(
 		shortName = "{} sec".format(TIME_STEPS[index - 1]),
 		desc = "Simulation uses time step of {} seconds.".format(TIME_STEPS[index - 1])
-		)
+		), sim_data
