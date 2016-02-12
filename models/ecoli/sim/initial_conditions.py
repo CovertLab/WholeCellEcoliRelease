@@ -147,14 +147,14 @@ def initializeReplication(uniqueMolCntr, sim_data):
 	numOric = determineNumOriC(C, D, tau)
 	oriC = uniqueMolCntr.objectsNew('originOfReplication', numOric)
 
-	# Return if no replication is occuring at all
-	if(len(sequenceIdx) == 0):
-		return
-
 	# Check that sequenceIdx, sequenceLength, replicationRound, and
 	# chromosomeIndex are equal length, numOric should be half the
 	# size (4 DNAP/fork, only 2 oriC/fork)
 	assert(len(sequenceIdx) == len(sequenceLength) == len(replicationRound) == len(chromosomeIndex) == 4*(numOric - 1))
+
+	# Return if no replication is occuring at all
+	if(len(sequenceIdx) == 0):
+		return
 
 	## Update polymerases mass to account for already completed DNA
 	# Determine the sequences of already-replicated DNA
