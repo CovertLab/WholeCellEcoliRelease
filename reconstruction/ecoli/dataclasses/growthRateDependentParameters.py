@@ -24,7 +24,7 @@ class Mass(object):
 		self._buildCDPeriod(raw_data, sim_data)
 
 		self.avgCellDryMass = self.getAvgCellDryMass(self._doubling_time)
-		self.avgCell60MinDoublingTimeTotalMassInit = 813.542227072 * units.fg
+		self.avgCell60MinDoublingTimeTotalMassInit = 813.854708188 * units.fg
 		self.massFraction = self.getMassFraction(self._doubling_time)
 		self.avgCellSubMass = self.getFractionMass(self._doubling_time)
 
@@ -360,6 +360,9 @@ class GrowthRateParameters(object):
 		# thingsToSet = [x for x in dir(self) if x[0] != '_']
 		# for x in thingsToSet:
 		# 	setattr(sim_data.constants, x, getattr(self, x))
+		self.c_period = units.min * 40.
+		self.d_period = units.min * 20.
+		self.dnaPolymeraseElongationRate = units.nt / units.s * 967.
 
 def _getFitParameters(list_of_dicts, key):
 	# Load rows of data
