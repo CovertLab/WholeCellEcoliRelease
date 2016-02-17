@@ -55,6 +55,25 @@ def fitSimData_1(raw_data, doubling_time = None):
 	expression = sim_data.process.transcription.rnaData["expression"].copy()
 	unfitExpression = expression.copy()
 
+	expression, synthProb, bulkContainer = expressionConverge(sim_data, expression)
+
+	# Modify other properties
+
+	## Calculate and set maintenance values
+
+	# ----- Growth associated maintenance -----
+
+	fitMaintenanceCosts(sim_data, bulkContainer)
+
+	calculateBulkDistributions(sim_data, expression)
+
+	sim_data.process.transcription.rnaData["expression"][:] = expression
+	sim_data.process.transcription.rnaData["synthProb"][:] = synthProb
+
+	return sim_data
+
+
+def expressionConverge(sim_data, expression):
 	# Fit synthesis probabilities for RNA
 	for iteration in xrange(MAX_FITTING_ITERATIONS):
 		if VERBOSE: print 'Iteration: {}'.format(iteration)
@@ -86,20 +105,8 @@ def fitSimData_1(raw_data, doubling_time = None):
 	else:
 		raise Exception("Fitting did not converge")
 
-	# Modify other properties
+	return expression, synthProb, bulkContainer
 
-	## Calculate and set maintenance values
-
-	# ----- Growth associated maintenance -----
-
-	fitMaintenanceCosts(sim_data, bulkContainer)
-
-	calculateBulkDistributions(sim_data, expression)
-
-	sim_data.process.transcription.rnaData["expression"][:] = expression
-	sim_data.process.transcription.rnaData["synthProb"][:] = synthProb
-
-	return sim_data
 
 # Sub-fitting functions
 
