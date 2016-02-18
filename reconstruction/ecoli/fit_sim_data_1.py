@@ -55,7 +55,9 @@ def fitSimData_1(raw_data, doubling_time = None):
 	expression = sim_data.process.transcription.rnaData["expression"].copy()
 	unfitExpression = expression.copy()
 
-	expression, synthProb, bulkContainer = expressionConverge(sim_data, expression)
+	concDict = sim_data.process.metabolism.concDict#dict(zip(sim_data.process.metabolism.metabolitePoolIDs, sim_data.process.metabolism.metabolitePoolConcentrations))
+
+	expression, synthProb, bulkContainer = expressionConverge(sim_data, expression, concDict)
 
 	# Modify other properties
 
@@ -73,7 +75,7 @@ def fitSimData_1(raw_data, doubling_time = None):
 	return sim_data
 
 
-def expressionConverge(sim_data, expression):
+def expressionConverge(sim_data, expression, concDict):
 	# Fit synthesis probabilities for RNA
 	for iteration in xrange(MAX_FITTING_ITERATIONS):
 		if VERBOSE: print 'Iteration: {}'.format(iteration)
@@ -84,7 +86,7 @@ def expressionConverge(sim_data, expression):
 
 		bulkContainer = createBulkContainer(sim_data, expression)
 
-		rescaleMassForSolubleMetabolites(sim_data, bulkContainer)
+		rescaleMassForSolubleMetabolites(sim_data, bulkContainer, concDict)
 
 		setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer)
 
@@ -123,14 +125,14 @@ def setRnaPolymeraseCodingRnaDegradationRates(sim_data):
 def setCPeriod(sim_data):
 	sim_data.growthRateParameters.c_period = sim_data.process.replication.genome_length * units.nt / sim_data.growthRateParameters.dnaPolymeraseElongationRate / 2
 
-def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr):
+def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict):
 	avgCellFractionMass = sim_data.mass.getFractionMass(sim_data.doubling_time)
 
 	mass = (avgCellFractionMass["proteinMass"] + avgCellFractionMass["rnaMass"] + avgCellFractionMass["dnaMass"]) / sim_data.mass.avgCellToInitialCellConvFactor
 
 	# We have to remove things with zero concentration because taking the inverse of zero isn't so nice.
-	poolIds = [x for idx, x in enumerate(sim_data.process.metabolism.metabolitePoolIDs) if sim_data.process.metabolism.metabolitePoolConcentrations.asNumber()[idx] > 0]
-	poolConcentrations = (units.mol / units.L) * np.array([x for x in sim_data.process.metabolism.metabolitePoolConcentrations.asNumber() if x > 0])
+	poolIds = sorted(concDict)
+	poolConcentrations = (units.mol / units.L) * np.array([concDict[key].asNumber(units.mol / units.L) for key in poolIds])
 
 	massesToAdd, countsToAdd = massesAndCountsToAddForPools(
 		mass,
@@ -606,8 +608,8 @@ def calculateBulkDistributions(sim_data, expression):
 	totalCount_protein, ids_protein, distribution_protein = totalCountIdDistributionProtein(sim_data, expression)
 	ids_complex = sim_data.process.complexation.moleculeNames
 	ids_equilibrium = sim_data.process.equilibrium.moleculeNames
-	ids_metabolites = [x for idx, x in enumerate(sim_data.process.metabolism.metabolitePoolIDs) if sim_data.process.metabolism.metabolitePoolConcentrations.asNumber()[idx] > 0]
-	conc_metabolites = (units.mol / units.L) * np.array([x for x in sim_data.process.metabolism.metabolitePoolConcentrations.asNumber() if x > 0])
+	ids_metabolites = sorted(sim_data.process.metabolism.concDict)
+	conc_metabolites = (units.mol / units.L) * np.array([sim_data.process.metabolism.concDict[key].asNumber(units.mol / units.L) for key in ids_metabolites])
 	allMoleculesIDs = sorted(
 		set(ids_rnas) | set(ids_protein) | set(ids_complex) | set(ids_equilibrium) | set(ids_metabolites)
 		)
