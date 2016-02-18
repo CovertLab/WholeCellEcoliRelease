@@ -55,7 +55,7 @@ def fitSimData_1(raw_data, doubling_time = None):
 	expression = sim_data.process.transcription.rnaData["expression"].copy()
 	unfitExpression = expression.copy()
 
-	concDict = sim_data.process.metabolism.concDict#dict(zip(sim_data.process.metabolism.metabolitePoolIDs, sim_data.process.metabolism.metabolitePoolConcentrations))
+	concDict = sim_data.process.metabolism.concDict
 
 	expression, synthProb, bulkContainer = expressionConverge(sim_data, expression, concDict)
 
