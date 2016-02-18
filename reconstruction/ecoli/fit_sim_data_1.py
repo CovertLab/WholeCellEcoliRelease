@@ -67,7 +67,7 @@ def fitSimData_1(raw_data, doubling_time = None):
 
 	fitMaintenanceCosts(sim_data, bulkContainer)
 
-	calculateBulkDistributions(sim_data, expression)
+	calculateBulkDistributions(sim_data, expression, concDict)
 
 	sim_data.process.transcription.rnaData["expression"][:] = expression
 	sim_data.process.transcription.rnaData["synthProb"][:] = synthProb
@@ -601,15 +601,15 @@ def fitMaintenanceCosts(sim_data, bulkContainer):
 
 	sim_data.constants.darkATP = darkATP
 
-def calculateBulkDistributions(sim_data, expression):
+def calculateBulkDistributions(sim_data, expression, concDict):
 
 	# Ids
 	totalCount_RNA, ids_rnas, distribution_RNA = totalCountIdDistributionRNA(sim_data, expression)
 	totalCount_protein, ids_protein, distribution_protein = totalCountIdDistributionProtein(sim_data, expression)
 	ids_complex = sim_data.process.complexation.moleculeNames
 	ids_equilibrium = sim_data.process.equilibrium.moleculeNames
-	ids_metabolites = sorted(sim_data.process.metabolism.concDict)
-	conc_metabolites = (units.mol / units.L) * np.array([sim_data.process.metabolism.concDict[key].asNumber(units.mol / units.L) for key in ids_metabolites])
+	ids_metabolites = sorted(concDict)
+	conc_metabolites = (units.mol / units.L) * np.array([concDict[key].asNumber(units.mol / units.L) for key in ids_metabolites])
 	allMoleculesIDs = sorted(
 		set(ids_rnas) | set(ids_protein) | set(ids_complex) | set(ids_equilibrium) | set(ids_metabolites)
 		)
