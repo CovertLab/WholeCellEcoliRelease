@@ -159,12 +159,12 @@ class Metabolism(object):
 			metaboliteConcentrations.append(value.asNumber(units.mol / units.L))
 
 		self.biomassFunction = biomassFunction
-		self._concentrationUpdates = ConcentrationUpdates(
+		self._concentrationUpdates = ConcentrationUpdates(dict(zip(
 			metaboliteIDs,
 			(units.mol / units.L) * np.array(metaboliteConcentrations)
-			)
+			)))
 		envFirstTimePoint = sim_data.envDict[sim_data.environment][0][-1]
-		self.metabolitePoolIDs, self.metabolitePoolConcentrations = self._concentrationUpdates.concentrationsBasedOnNutrients(envFirstTimePoint)
+		self.concDict = self._concentrationUpdates.concentrationsBasedOnNutrients(envFirstTimePoint)
 
 	def _buildMetabolism(self, raw_data, sim_data):
 		# Build the matrices/vectors for metabolism (FBA)
@@ -267,8 +267,8 @@ class Metabolism(object):
 		while len(self.envDict[environment]) and time > self.envDict[environment][0][0]:
 			self._unconstrainedExchangeMolecules = self.envDict[environment][0][1]["unconstrainedExchangeMolecules"]
 			self._constrainedExchangeMolecules = self.envDict[environment][0][1]["constrainedExchangeMolecules"]
-			newPoolIds, newConcentrations = self._concentrationUpdates.concentrationsBasedOnNutrients(self.envDict[environment][0][-1])
-			newObjective = dict(zip(newPoolIds, newConcentrations.asNumber(targetUnits)))
+			concDict = self._concentrationUpdates.concentrationsBasedOnNutrients(self.envDict[environment][0][-1])
+			newObjective = dict((key, concDict[key].asNumber(targetUnits)) for key in concDict)
 			self.envDict[environment].popleft()
 
 		externalMoleculeLevels = np.zeros(len(exchangeIDs), np.float64)
@@ -287,9 +287,9 @@ class Metabolism(object):
 		return externalMoleculeLevels, newObjective
 
 class ConcentrationUpdates(object):
-	def __init__(self, poolIds, concentrations):
-		self.units = units.getUnit(concentrations)
-		self.defaultConcentrationsDict = dict(zip(poolIds, concentrations.asNumber(self.units)))
+	def __init__(self, concDict):
+		self.units = units.getUnit(concDict.values()[0])
+		self.defaultConcentrationsDict = dict((key, concDict[key].asNumber(self.units)) for key in concDict)
 
 		self.moleculeScaleFactors = {
 			"L-ALPHA-ALANINE[c]": 2.,
@@ -322,13 +322,13 @@ class ConcentrationUpdates(object):
 		concentrations = self.units * np.array([concentrationsDict[k] for k in poolIds])
 
 		if nutrientFluxes == None:
-			return poolIds, concentrations
+			return dict(zip(poolIds, concentrations))
 
 		for molecule, scaleFactor in self.moleculeScaleFactors.iteritems():
 			if self._isNutrientExchangePresent(nutrientFluxes, molecule):
 				concentrations[poolIds.index(molecule)] *= scaleFactor
 
-		return poolIds, concentrations
+		return dict(zip(poolIds, concentrations))
 
 	def _isNutrientExchangePresent(self, nutrientFluxes, molecule):
 		if molecule in nutrientFluxes["unconstrainedExchangeMolecules"]:

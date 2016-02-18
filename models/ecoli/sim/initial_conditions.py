@@ -108,8 +108,8 @@ def initializeSmallMolecules(bulkMolCntr, sim_data, randomState):
 	mass = (avgCellFractionMass["proteinMass"] + avgCellFractionMass["rnaMass"] + avgCellFractionMass["dnaMass"]) / sim_data.mass.avgCellToInitialCellConvFactor
 
 	# We have to remove things with zero concentration because taking the inverse of zero isn't so nice.
-	poolIds = [x for idx, x in enumerate(sim_data.process.metabolism.metabolitePoolIDs) if sim_data.process.metabolism.metabolitePoolConcentrations.asNumber()[idx] > 0]
-	poolConcentrations = (units.mol / units.L) * np.array([x for x in sim_data.process.metabolism.metabolitePoolConcentrations.asNumber() if x > 0])
+	poolIds = sorted(sim_data.process.metabolism.concDict)
+	poolConcentrations = (units.mol / units.L) * np.array([sim_data.process.metabolism.concDict[key].asNumber(units.mol / units.L) for key in poolIds])
 
 	massesToAdd, countsToAdd = massesAndCountsToAddForPools(
 		mass,

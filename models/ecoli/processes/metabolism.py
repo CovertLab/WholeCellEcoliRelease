@@ -59,8 +59,7 @@ class Metabolism(wholecell.processes.process.Process):
 		self.nAvogadro = sim_data.constants.nAvogadro
 		self.cellDensity = sim_data.constants.cellDensity
 
-		self.metabolitePoolIDs = sim_data.process.metabolism.metabolitePoolIDs
-		self.targetConcentrations = sim_data.process.metabolism.metabolitePoolConcentrations.asNumber(COUNTS_UNITS/VOLUME_UNITS)
+		self.metabolitePoolIDs = sorted(sim_data.process.metabolism.concDict)
 
 		self.environment = sim_data.environment
 		self.exchangeConstraints = sim_data.process.metabolism.exchangeConstraints
@@ -81,10 +80,9 @@ class Metabolism(wholecell.processes.process.Process):
 			self.max_flux_coefficient = sim_data.constants.kineticRateLimitFactorUpper
 			self.min_flux_coefficient = sim_data.constants.kineticRateLimitFactorLower
 
-		self.objective = dict(zip(
-			self.metabolitePoolIDs,
-			self.targetConcentrations
-			))
+		self.objective = dict(
+			(key, sim_data.process.metabolism.concDict[key].asNumber(COUNTS_UNITS / VOLUME_UNITS)) for key in sim_data.process.metabolism.concDict
+			)
 
 		# TODO: make sim_data method?
 		extIDs = sim_data.externalExchangeMolecules
