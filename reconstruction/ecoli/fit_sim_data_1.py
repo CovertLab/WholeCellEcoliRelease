@@ -56,8 +56,9 @@ def fitSimData_1(raw_data, doubling_time = None):
 	unfitExpression = expression.copy()
 
 	concDict = sim_data.process.metabolism.concDict
+	doubling_time = sim_data.doubling_time
 
-	expression, synthProb, bulkContainer = expressionConverge(sim_data, expression, concDict)
+	expression, synthProb, bulkContainer = expressionConverge(sim_data, expression, concDict, doubling_time)
 
 	# Modify other properties
 
@@ -67,7 +68,7 @@ def fitSimData_1(raw_data, doubling_time = None):
 
 	fitMaintenanceCosts(sim_data, bulkContainer)
 
-	calculateBulkDistributions(sim_data, expression, concDict)
+	calculateBulkDistributions(sim_data, expression, concDict, doubling_time)
 
 	sim_data.process.transcription.rnaData["expression"][:] = expression
 	sim_data.process.transcription.rnaData["synthProb"][:] = synthProb
@@ -75,26 +76,26 @@ def fitSimData_1(raw_data, doubling_time = None):
 	return sim_data
 
 
-def expressionConverge(sim_data, expression, concDict):
+def expressionConverge(sim_data, expression, concDict, doubling_time):
 	# Fit synthesis probabilities for RNA
 	for iteration in xrange(MAX_FITTING_ITERATIONS):
 		if VERBOSE: print 'Iteration: {}'.format(iteration)
 
 		initialExpression = expression.copy()
 
-		expression = setInitialRnaExpression(sim_data, expression)
+		expression = setInitialRnaExpression(sim_data, expression, doubling_time)
 
-		bulkContainer = createBulkContainer(sim_data, expression)
+		bulkContainer = createBulkContainer(sim_data, expression, doubling_time)
 
-		rescaleMassForSolubleMetabolites(sim_data, bulkContainer, concDict)
+		rescaleMassForSolubleMetabolites(sim_data, bulkContainer, concDict, doubling_time)
 
-		setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer)
+		setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time)
 
-		setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer)
+		setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time)
 
 		# Normalize expression and write out changes
 
-		expression, synthProb = fitExpression(sim_data, bulkContainer)
+		expression, synthProb = fitExpression(sim_data, bulkContainer, doubling_time)
 
 		finalExpression = expression
 
@@ -125,8 +126,8 @@ def setRnaPolymeraseCodingRnaDegradationRates(sim_data):
 def setCPeriod(sim_data):
 	sim_data.growthRateParameters.c_period = sim_data.process.replication.genome_length * units.nt / sim_data.growthRateParameters.dnaPolymeraseElongationRate / 2
 
-def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict):
-	avgCellFractionMass = sim_data.mass.getFractionMass(sim_data.doubling_time)
+def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict, doubling_time):
+	avgCellFractionMass = sim_data.mass.getFractionMass(doubling_time)
 
 	mass = (avgCellFractionMass["proteinMass"] + avgCellFractionMass["rnaMass"] + avgCellFractionMass["dnaMass"]) / sim_data.mass.avgCellToInitialCellConvFactor
 
@@ -157,7 +158,7 @@ def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict):
 	sim_data.mass.avgCellWaterMassInit = sim_data.mass.avgCellDryMassInit / sim_data.mass.cellDryMassFraction * sim_data.mass.cellWaterMassFraction
 	sim_data.mass.fitAvgSolublePoolMass = units.sum(units.hstack((massesToAdd[:poolIds.index('WATER[c]')], massesToAdd[poolIds.index('WATER[c]') + 1:]))) * sim_data.mass.avgCellToInitialCellConvFactor
 
-def setInitialRnaExpression(sim_data, expression):
+def setInitialRnaExpression(sim_data, expression, doubling_time):
 	# Set expression for all of the noncoding RNAs
 
 	# Load from KB
@@ -170,7 +171,7 @@ def setInitialRnaExpression(sim_data, expression):
 	ids_tRNA = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isTRna"]]
 	ids_mRNA = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isMRna"]]
 
-	avgCellFractionMass = sim_data.mass.getFractionMass(sim_data.doubling_time)
+	avgCellFractionMass = sim_data.mass.getFractionMass(doubling_time)
 
 	## Mass fractions
 	totalMass_rRNA23S = avgCellFractionMass["rRna23SMass"] / sim_data.mass.avgCellToInitialCellConvFactor
@@ -272,16 +273,16 @@ def setInitialRnaExpression(sim_data, expression):
 	return expression
 	# Note that now rnaData["synthProb"] does not match "expression"
 
-def totalCountIdDistributionProtein(sim_data, expression):
+def totalCountIdDistributionProtein(sim_data, expression, doubling_time):
 	ids_protein = sim_data.process.translation.monomerData["id"]
-	totalMass_protein = sim_data.mass.getFractionMass(sim_data.doubling_time)["proteinMass"] / sim_data.mass.avgCellToInitialCellConvFactor
+	totalMass_protein = sim_data.mass.getFractionMass(doubling_time)["proteinMass"] / sim_data.mass.avgCellToInitialCellConvFactor
 	individualMasses_protein = sim_data.process.translation.monomerData["mw"] / sim_data.constants.nAvogadro
 	distribution_transcriptsByProtein = normalize(expression[sim_data.relation.rnaIndexToMonomerMapping])
 	translation_efficienciesByProtein = normalize(sim_data.process.translation.translationEfficienciesByMonomer)
 
 	degradationRates = sim_data.process.translation.monomerData["degRate"]
 
-	netLossRate_protein = netLossRateFromDilutionAndDegradationProtein(sim_data.doubling_time, degradationRates)
+	netLossRate_protein = netLossRateFromDilutionAndDegradationProtein(doubling_time, degradationRates)
 
 	distribution_protein = proteinDistributionFrommRNA(
 		distribution_transcriptsByProtein,
@@ -300,9 +301,9 @@ def totalCountIdDistributionProtein(sim_data, expression):
 
 	return totalCount_protein, ids_protein, distribution_protein
 
-def totalCountIdDistributionRNA(sim_data, expression):
+def totalCountIdDistributionRNA(sim_data, expression, doubling_time):
 	ids_rnas = sim_data.process.transcription.rnaData["id"]
-	totalMass_RNA = sim_data.mass.getFractionMass(sim_data.doubling_time)["rnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
+	totalMass_RNA = sim_data.mass.getFractionMass(doubling_time)["rnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
 	individualMasses_RNA = sim_data.process.transcription.rnaData["mw"] / sim_data.constants.nAvogadro
 
 	distribution_RNA = normalize(expression)
@@ -317,10 +318,10 @@ def totalCountIdDistributionRNA(sim_data, expression):
 
 	return totalCount_RNA, ids_rnas, distribution_RNA
 
-def createBulkContainer(sim_data, expression):
+def createBulkContainer(sim_data, expression, doubling_time):
 
-	totalCount_RNA, ids_rnas, distribution_RNA = totalCountIdDistributionRNA(sim_data, expression)
-	totalCount_protein, ids_protein, distribution_protein = totalCountIdDistributionProtein(sim_data, expression)
+	totalCount_RNA, ids_rnas, distribution_RNA = totalCountIdDistributionRNA(sim_data, expression, doubling_time)
+	totalCount_protein, ids_protein, distribution_protein = totalCountIdDistributionProtein(sim_data, expression, doubling_time)
 	ids_molecules = sim_data.state.bulkMolecules.bulkData["id"]
 
 	## Construct bulk container
@@ -342,7 +343,7 @@ def createBulkContainer(sim_data, expression):
 	return bulkContainer
 
 
-def setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer):
+def setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time):
 	'''
 	setRibosomeCountsConstrainedByPhysiology
 
@@ -364,7 +365,7 @@ def setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer):
 	proteinCounts =  bulkContainer.counts(sim_data.process.translation.monomerData["id"])
 
 	netLossRate_protein = netLossRateFromDilutionAndDegradationProtein(
-		sim_data.doubling_time,
+		doubling_time,
 		proteinDegradationRates
 		)
 
@@ -435,7 +436,7 @@ def setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer):
 	bulkContainer.countsIs(rRna5SCounts, sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna5S"]])
 
 
-def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer):
+def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time):
 	# -- CONSTRAINT 1: Expected RNA distribution doubling -- #
 	rnaLengths = units.sum(sim_data.process.transcription.rnaData['countsACGU'], axis = 1)
 
@@ -456,7 +457,7 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer):
 	sim_data.process.transcription.rnaData["KmEndoRNase"] = Km
 
 	rnaLossRate = netLossRateFromDilutionAndDegradationRNA(
-		sim_data.doubling_time,
+		doubling_time,
 		(1 / countsToMolar) * totalEndoRnaseCapacity,
 		Km, 
 		rnaConc,
@@ -489,20 +490,19 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer):
 	bulkContainer.countsIs(np.fmax(rnapCounts, minRnapSubunitCounts), rnapIds)
 
 
-def fitExpression(sim_data, bulkContainer):
+def fitExpression(sim_data, bulkContainer, doubling_time):
 
 	view_RNA = bulkContainer.countsView(sim_data.process.transcription.rnaData["id"])
 	counts_protein = bulkContainer.counts(sim_data.process.translation.monomerData["id"])
 
 	translation_efficienciesByProtein = normalize(sim_data.process.translation.translationEfficienciesByMonomer)
 
-	avgCellFractionMass = sim_data.mass.getFractionMass(sim_data.doubling_time)
+	avgCellFractionMass = sim_data.mass.getFractionMass(doubling_time)
 	totalMass_RNA = avgCellFractionMass["rnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
 
-	doublingTime = sim_data.doubling_time
 	degradationRates_protein = sim_data.process.translation.monomerData["degRate"]
 
-	netLossRate_protein = netLossRateFromDilutionAndDegradationProtein(doublingTime, degradationRates_protein)
+	netLossRate_protein = netLossRateFromDilutionAndDegradationProtein(doubling_time, degradationRates_protein)
 
 	### Modify sim_dataFit to reflect our bulk container ###
 
@@ -552,7 +552,7 @@ def fitExpression(sim_data, bulkContainer):
 	totalEndoRnaseCapacity = units.sum(endoRNaseConc * kcatEndoRNase)
 
 	rnaLossRate = netLossRateFromDilutionAndDegradationRNA(
-		sim_data.doubling_time,
+		doubling_time,
 		(1 / countsToMolar) * totalEndoRnaseCapacity,
 		sim_data.process.transcription.rnaData["KmEndoRNase"],
 		countsToMolar * view_RNA.counts(),
@@ -601,11 +601,11 @@ def fitMaintenanceCosts(sim_data, bulkContainer):
 
 	sim_data.constants.darkATP = darkATP
 
-def calculateBulkDistributions(sim_data, expression, concDict):
+def calculateBulkDistributions(sim_data, expression, concDict, doubling_time):
 
 	# Ids
-	totalCount_RNA, ids_rnas, distribution_RNA = totalCountIdDistributionRNA(sim_data, expression)
-	totalCount_protein, ids_protein, distribution_protein = totalCountIdDistributionProtein(sim_data, expression)
+	totalCount_RNA, ids_rnas, distribution_RNA = totalCountIdDistributionRNA(sim_data, expression, doubling_time)
+	totalCount_protein, ids_protein, distribution_protein = totalCountIdDistributionProtein(sim_data, expression, doubling_time)
 	ids_complex = sim_data.process.complexation.moleculeNames
 	ids_equilibrium = sim_data.process.equilibrium.moleculeNames
 	ids_metabolites = sorted(concDict)
