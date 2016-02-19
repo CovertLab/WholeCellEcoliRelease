@@ -58,7 +58,7 @@ def fitSimData_1(raw_data, doubling_time = None):
 	concDict = sim_data.process.metabolism.concDict.copy()
 	doubling_time = sim_data.doubling_time
 
-	expression, synthProb, bulkContainer = expressionConverge(sim_data, expression, concDict, doubling_time)
+	expression, synthProb, avgCellDryMassInit, bulkContainer = expressionConverge(sim_data, expression, concDict, doubling_time)
 
 	# Modify other properties
 
@@ -68,7 +68,7 @@ def fitSimData_1(raw_data, doubling_time = None):
 
 	fitMaintenanceCosts(sim_data, bulkContainer)
 
-	calculateBulkDistributions(sim_data, expression, concDict, doubling_time)
+	calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassInit, doubling_time)
 
 	sim_data.process.transcription.rnaData["expression"][:] = expression
 	sim_data.process.transcription.rnaData["synthProb"][:] = synthProb
@@ -87,7 +87,7 @@ def expressionConverge(sim_data, expression, concDict, doubling_time):
 
 		bulkContainer = createBulkContainer(sim_data, expression, doubling_time)
 
-		rescaleMassForSolubleMetabolites(sim_data, bulkContainer, concDict, doubling_time)
+		avgCellDryMassInit = rescaleMassForSolubleMetabolites(sim_data, bulkContainer, concDict, doubling_time)
 
 		setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time)
 
@@ -108,7 +108,7 @@ def expressionConverge(sim_data, expression, concDict, doubling_time):
 	else:
 		raise Exception("Fitting did not converge")
 
-	return expression, synthProb, bulkContainer
+	return expression, synthProb, avgCellDryMassInit, bulkContainer
 
 
 # Sub-fitting functions
@@ -157,6 +157,8 @@ def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict, doubling_t
 	sim_data.mass.avgCellDryMass = sim_data.mass.avgCellDryMassInit * sim_data.mass.avgCellToInitialCellConvFactor
 	sim_data.mass.avgCellWaterMassInit = sim_data.mass.avgCellDryMassInit / sim_data.mass.cellDryMassFraction * sim_data.mass.cellWaterMassFraction
 	sim_data.mass.fitAvgSolublePoolMass = units.sum(units.hstack((massesToAdd[:poolIds.index('WATER[c]')], massesToAdd[poolIds.index('WATER[c]') + 1:]))) * sim_data.mass.avgCellToInitialCellConvFactor
+
+	return newAvgCellDryMassInit
 
 def setInitialRnaExpression(sim_data, expression, doubling_time):
 	# Set expression for all of the noncoding RNAs
@@ -601,7 +603,7 @@ def fitMaintenanceCosts(sim_data, bulkContainer):
 
 	sim_data.constants.darkATP = darkATP
 
-def calculateBulkDistributions(sim_data, expression, concDict, doubling_time):
+def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassInit, doubling_time):
 
 	# Ids
 	totalCount_RNA, ids_rnas, distribution_RNA = totalCountIdDistributionRNA(sim_data, expression, doubling_time)
@@ -628,7 +630,7 @@ def calculateBulkDistributions(sim_data, expression, concDict, doubling_time):
 
 	# Data for metabolites
 	cellDensity = sim_data.constants.cellDensity
-	cellVolume = sim_data.mass.avgCellDryMassInit / cellDensity
+	cellVolume = avgCellDryMassInit / cellDensity
 
 	# Construct bulk container
 
