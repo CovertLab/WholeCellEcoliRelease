@@ -33,7 +33,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 
 		self.metabolism = sim.processes["Metabolism"]
 		self.reactionRateInfo = sim_data.process.metabolism.reactionRateInfo
-		self.metaboliteIDs = sim_data.process.metabolism.metabolitePoolIDs
+		self.metaboliteIDs = sorted(sim_data.process.metabolism.concDict)
 		self.constraintToReactionDict = sim_data.process.metabolism.constraintToReactionDict
 
 	# Allocate memory

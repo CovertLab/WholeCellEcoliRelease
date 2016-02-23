@@ -17,7 +17,7 @@ import numpy as np
 import os
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
-from wholecell.utils.fitting import normalize, countsFromMassAndExpression, calcProteinCounts
+from wholecell.utils.fitting import normalize, countsFromMassAndExpression, calcProteinCounts, massesAndCountsToAddForPools
 from wholecell.utils.polymerize import buildSequences, computeMassIncrease
 from wholecell.utils import units
 
@@ -56,7 +56,7 @@ def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, rand
 def initializeProteinMonomers(bulkMolCntr, sim_data, randomState):
 
 	monomersView = bulkMolCntr.countsView(sim_data.process.translation.monomerData["id"])
-	monomerMass = sim_data.mass.avgCellSubMass["proteinMass"] / sim_data.mass.avgCellToInitialCellConvFactor
+	monomerMass = sim_data.mass.getFractionMass(sim_data.doubling_time)["proteinMass"] / sim_data.mass.avgCellToInitialCellConvFactor
 	# TODO: unify this logic with the fitter so it doesn't fall out of step
 	# again (look at the calcProteinCounts function)
 
@@ -80,7 +80,7 @@ def initializeProteinMonomers(bulkMolCntr, sim_data, randomState):
 def initializeRNA(bulkMolCntr, sim_data, randomState):
 
 	rnaView = bulkMolCntr.countsView(sim_data.process.transcription.rnaData["id"])
-	rnaMass = sim_data.mass.avgCellSubMass["rnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
+	rnaMass = sim_data.mass.getFractionMass(sim_data.doubling_time)["rnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
 
 	rnaExpression = normalize(sim_data.process.transcription.rnaData["expression"])
 
@@ -103,31 +103,21 @@ def initializeDNA(bulkMolCntr, sim_data, randomState):
 # TODO: remove checks for zero concentrations (change to assertion)
 # TODO: move any rescaling logic to KB/fitting
 def initializeSmallMolecules(bulkMolCntr, sim_data, randomState):
-	avgCellSubMass = sim_data.mass.avgCellSubMass
+	avgCellFractionMass = sim_data.mass.getFractionMass(sim_data.doubling_time)
 
-	mass = (avgCellSubMass["proteinMass"] + avgCellSubMass["rnaMass"] + avgCellSubMass["dnaMass"]) / sim_data.mass.avgCellToInitialCellConvFactor
+	mass = (avgCellFractionMass["proteinMass"] + avgCellFractionMass["rnaMass"] + avgCellFractionMass["dnaMass"]) / sim_data.mass.avgCellToInitialCellConvFactor
 
 	# We have to remove things with zero concentration because taking the inverse of zero isn't so nice.
-	poolIds = [x for idx, x in enumerate(sim_data.process.metabolism.metabolitePoolIDs) if sim_data.process.metabolism.metabolitePoolConcentrations.asNumber()[idx] > 0]
-	poolConcentrations = (units.mol / units.L) * np.array([x for x in sim_data.process.metabolism.metabolitePoolConcentrations.asNumber() if x > 0])
+	poolIds = sorted(sim_data.process.metabolism.concDict)
+	poolConcentrations = (units.mol / units.L) * np.array([sim_data.process.metabolism.concDict[key].asNumber(units.mol / units.L) for key in poolIds])
 
-	cellDensity = sim_data.constants.cellDensity
-	mws = sim_data.getter.getMass(poolIds)
-	concentrations = poolConcentrations.copy()
-
-	diag = (cellDensity / (mws * concentrations) - 1).asNumber()
-	A = -1 * np.ones((diag.size, diag.size))
-	A[np.diag_indices(diag.size)] = diag
-	b = mass.asNumber(units.g) * np.ones(diag.size)
-
-	massesToAdd = units.g * np.linalg.solve(A, b)
-	countsToAdd = massesToAdd / mws * sim_data.constants.nAvogadro
-
-	V = (mass + units.sum(massesToAdd)) / cellDensity
-
-	assert np.allclose(
-		(countsToAdd / sim_data.constants.nAvogadro / V).asNumber(units.mol / units.L),
-		(poolConcentrations).asNumber(units.mol / units.L)
+	massesToAdd, countsToAdd = massesAndCountsToAddForPools(
+		mass,
+		poolIds,
+		poolConcentrations,
+		sim_data.getter.getMass(poolIds),
+		sim_data.constants.cellDensity,
+		sim_data.constants.nAvogadro
 		)
 
 	bulkMolCntr.countsIs(
