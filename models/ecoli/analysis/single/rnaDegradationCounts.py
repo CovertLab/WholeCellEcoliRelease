@@ -84,6 +84,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	nucleotidesFromDegradation = rnaDegradationListenerFile.readColumn('nucleotidesFromDegradation')
 	FractionActiveEndoRNases = rnaDegradationListenerFile.readColumn('FractionActiveEndoRNases')
 	DiffRelativeFirstOrderDecay = rnaDegradationListenerFile.readColumn('DiffRelativeFirstOrderDecay')	
+	FractEndoRRnaCounts = rnaDegradationListenerFile.readColumn('FractEndoRRnaCounts')
 	rnaDegradationListenerFile.close()
 
 	# Computation
@@ -99,54 +100,59 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	plt.figure(figsize = (8.5, 11))
 	matplotlib.rc('font', **FONT)
 
-	countRnaDegraded_axis = plt.subplot(10,1,1)
+	countRnaDegraded_axis = plt.subplot(11,1,1)
 	countRnaDegraded_axis.plot(time / 60., countRnaDegraded.sum(axis = 1))
 	plt.ylabel("Counts of RNA degraded", fontsize = 7)
 	plt.xlabel("Time (min)")
 
-	nucleotidesFromDegradation_axis = plt.subplot(10,1,2)
+	nucleotidesFromDegradation_axis = plt.subplot(11,1,2)
 	nucleotidesFromDegradation_axis.plot(time / 60., nucleotidesFromDegradation)
 	plt.ylabel("Nucleotides from RNA degraded", fontsize = 7)
 	plt.xlabel("Time (min)")
 
-	totalRnaseCounts_axis = plt.subplot(10,1,3)
+	totalRnaseCounts_axis = plt.subplot(11,1,3)
 	totalRnaseCounts_axis.plot(time / 60., totalRnaseCounts)
 	plt.ylabel("Total RNAse counts", fontsize = 7)
 	plt.xlabel("Time (min)")
 
-	requiredRnaseTurnover_axis = plt.subplot(10,1,4)
+	requiredRnaseTurnover_axis = plt.subplot(11,1,4)
 	requiredRnaseTurnover_axis.plot(time / 60., requiredRnaseTurnover)
 	plt.ylabel("RNase turnover required (nt/s)", fontsize = 7)
 	plt.xlabel("Time (min)")
 
-	totalexoRnaseCounts_axis = plt.subplot(10,1,5)
+	totalexoRnaseCounts_axis = plt.subplot(11,1,5)
 	totalexoRnaseCounts_axis.plot(time / 60., totalexoRnaseCounts)
 	plt.ylabel("Counts of exoRNase", fontsize = 7)
 	plt.xlabel("Time (min)")
 
-	totalendoRnaseCounts_axis = plt.subplot(10,1,6)
+	totalendoRnaseCounts_axis = plt.subplot(11,1,6)
 	totalendoRnaseCounts_axis.plot(time / 60., totalendoRnaseCounts)
 	plt.ylabel("Counts of endoRNase", fontsize = 7)
 	plt.xlabel("Time (min)")
 
-	kcatExoRnase_axis = plt.subplot(10,1,7)
+	kcatExoRnase_axis = plt.subplot(11,1,7)
 	kcatExoRnase_axis.plot(time / 60., kcatExoRnase)
 	plt.ylabel("ExoRNase turnover required", fontsize = 7)
 	plt.xlabel("Time (min)")
 
-	kcatEndoRnase_axis = plt.subplot(10,1,8)
+	kcatEndoRnase_axis = plt.subplot(11,1,8)
 	kcatEndoRnase_axis.plot(time / 60., kcatEndoRnase)
 	plt.ylabel("EndoRNase turnover required", fontsize = 7)
 	plt.xlabel("Time (min)")
 
-	FractionActiveEndoRNases_axis = plt.subplot(10,1,9)
+	FractionActiveEndoRNases_axis = plt.subplot(11,1,9)
 	FractionActiveEndoRNases_axis.plot(time / 60., FractionActiveEndoRNases)
 	plt.ylabel("Actual decay relative to EndoR capacity", fontsize = 7)
 	plt.xlabel("Time (min)")
 
-	DiffRelativeFirstOrderDecay_axis = plt.subplot(10,1,10)
+	DiffRelativeFirstOrderDecay_axis = plt.subplot(11,1,10)
 	DiffRelativeFirstOrderDecay_axis.plot(time / 60., DiffRelativeFirstOrderDecay)
 	plt.ylabel("Residuals (actual and first-order decay)", fontsize = 7)
+	plt.xlabel("Time (min)")
+
+	FractEndoRRnaCounts_axis = plt.subplot(11,1,11)
+	FractEndoRRnaCounts_axis.plot(time / 60., FractEndoRRnaCounts)
+	plt.ylabel("EndoR / RNA total counts", fontsize = 7)
 	plt.xlabel("Time (min)")
 
 	plt.subplots_adjust(hspace = 0.9, wspace = 0.5)

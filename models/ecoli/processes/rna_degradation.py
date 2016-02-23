@@ -140,9 +140,9 @@ class RnaDegradation(wholecell.processes.process.Process):
 		Kd = self.rnaDegRates
 		Kcat = self.KcatEndoRNases
 		EndoR = sum(self.endoRnases.total())
-		KM = self.Km
 		RNA = self.rnas.total()
 		FractDiffRNAdecay = np.sum(np.abs(Kd * RNA - units.sum(self.KcatEndoRNases * self.endoRnases.total()) * fracEndoRnaseSaturated))
+		FractEndoRRnaCounts = EndoR.astype(float) / sum(RNA.astype(float))
 
 		# Calculate total counts of RNAs to degrade according to
 		# the total counts of "active" endoRNases and their cleavage activity
@@ -247,6 +247,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		self.writeToListener("RnaDegradationListener", "FractionActiveEndoRNases", sum(fracEndoRnaseSaturated))
 		self.writeToListener("RnaDegradationListener", "DiffRelativeFirstOrderDecay", FractDiffRNAdecay.asNumber())
+		self.writeToListener("RnaDegradationListener", "FractEndoRRnaCounts", FractEndoRRnaCounts)
 
 	def evolveState(self):
 

@@ -68,32 +68,32 @@ class RnaDecay(object):
 		km = T.dvector()
 
 		# Residuals of non-linear optimization
-		residual = (vMax / km) / (1 + (rnaConc / km).sum()) - kDeg
+		residual = (vMax / km / kDeg) / (1 + (rnaConc / km).sum()) - np.ones(N)
+		residual_aux = (vMax * rnaConc / km) / (1 + (rnaConc / km).sum()) - (kDeg * rnaConc)
 
 		# Counting negative Km's (first regularization term) 
 		regularizationNegativeNumbers = (np.ones(N) - km / np.abs(km)).sum() / N
-
-		# Hill-based function to bound Km values (second regularization term)
-		KM = 1.0e8 # threshold
-		regularizationBounds = (np.abs(km) / (KM + np.abs(km))).sum() / N
 
 		# Penalties for EndoR Km's, which might be potentially nonf-fitted
 		regularizationEndoR = (isEndoRnase * np.abs(residual)).sum()
 		
 		# Multi objective-based regularization
-		regularization = regularizationNegativeNumbers + regularizationBounds + regularizationEndoR
+		WFendoR = 0.1 # weighting factor to protect Km optimized of EndoRNases
+		regularization = regularizationNegativeNumbers + (WFendoR * regularizationEndoR)
 
 		# Loss function
 		alpha = 0.5
-		#LossFunction = residual + alpha * regularization # provide sum(residuals ~ 0.09)
 		LossFunction = T.log(T.exp(residual) + T.exp(alpha * regularization)) - T.log(2)
-		#import ipdb; ipdb.set_trace();
+		LossFunction_aux = T.log(T.exp(residual_aux) + T.exp(alpha * regularization)) - T.log(2)
 
 		J = theano.gradient.jacobian(LossFunction, km)
+		J_aux = theano.gradient.jacobian(LossFunction_aux, km)
 		L = theano.function([km], LossFunction)
+		L_aux = theano.function([km], LossFunction_aux)
 		Rneg = theano.function([km], regularizationNegativeNumbers)
-		Rbound = theano.function([km], regularizationBounds)
 		R = theano.function([km], residual)
 		Lp = theano.function([km], J)
+		Lp_aux = theano.function([km], J_aux)
+		R_aux = theano.function([km], residual_aux)
 
-		return L, Rneg, Rbound, R, Lp
+		return L, Rneg, R, Lp, R_aux, L_aux, Lp_aux
