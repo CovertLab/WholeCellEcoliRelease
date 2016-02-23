@@ -52,7 +52,13 @@ def fitSimData_1(raw_data, doubling_time = None):
 	# Set C-period
 	setCPeriod(sim_data)
 
-	cellSpecs = buildCellSpecifications(sim_data)
+	expression = sim_data.process.transcription.rnaData["expression"].copy()
+	unfitExpression = expression.copy()
+
+	concDict = sim_data.process.metabolism.concDict.copy()
+	doubling_time = sim_data.doubling_time
+
+	expression, synthProb, avgCellDryMassInit, bulkContainer = expressionConverge(sim_data, expression, concDict, doubling_time)
 
 	# Modify other properties
 
@@ -60,45 +66,15 @@ def fitSimData_1(raw_data, doubling_time = None):
 
 	# ----- Growth associated maintenance -----
 
-	fitMaintenanceCosts(sim_data, cellSpecs["wildtype_60_min"]["bulkContainer"])
+	fitMaintenanceCosts(sim_data, bulkContainer)
 
-	for label, spec in cellSpecs.iteritems():
-		bulkAverageContainer, bulkDeviationContainer = calculateBulkDistributions(
-			sim_data,
-			spec["expression"],
-			spec["concDict"],
-			spec["avgCellDryMassInit"],
-			spec["doubling_time"],
-			)
-		spec["bulkAverageContainer"] = bulkAverageContainer
-		spec["bulkDeviationContainer"] = bulkDeviationContainer
+	calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassInit, doubling_time)
 
-	sim_data.process.transcription.rnaData["expression"][:] = cellSpecs["wildtype_60_min"]["expression"]
-	sim_data.process.transcription.rnaData["synthProb"][:] = cellSpecs["wildtype_60_min"]["synthProb"]
+	sim_data.process.transcription.rnaData["expression"][:] = expression
+	sim_data.process.transcription.rnaData["synthProb"][:] = synthProb
 
 	return sim_data
 
-def buildCellSpecifications(sim_data):
-	cellSpecs = {}
-	cellSpecs["wildtype_60_min"] = {
-		"concDict": sim_data.process.metabolism.concDict.copy(),
-		"expression": sim_data.process.transcription.rnaData["expression"].copy(),
-		"doubling_time": sim_data.doubling_time,
-	}
-
-	for label, spec in cellSpecs.iteritems():
-		expression, synthProb, avgCellDryMassInit, bulkContainer = expressionConverge(
-			sim_data,
-			spec["expression"],
-			spec["concDict"],
-			spec["doubling_time"],
-			)
-		spec["expression"] = expression
-		spec["synthProb"] = synthProb
-		spec["avgCellDryMassInit"] = avgCellDryMassInit
-		spec["bulkContainer"] = bulkContainer
-
-	return cellSpecs
 
 def expressionConverge(sim_data, expression, concDict, doubling_time):
 	# Fit synthesis probabilities for RNA
