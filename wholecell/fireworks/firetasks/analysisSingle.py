@@ -30,11 +30,18 @@ class AnalysisSingleTask(FireTaskBase):
 		fileList = os.listdir(directory)
 		fileList.sort(key=lambda x: os.stat(os.path.join(directory, x)).st_mtime, reverse=True)
 
-		if "WC_ANALYZE_FAST" in os.environ:
+		# Run files in runlast.txt after others
+		if "runlast.txt" in fileList:
+			fileList = run_last(directory, fileList, "runlast.txt", verbose=False)
+		
+		self.analyze_fast = "WC_ANALYZE_FAST" in os.environ
+
+		if self.analyze_fast:
+			self.analyse_fast = True
 			pool = mp.Pool(processes = 8)
 
 		for f in fileList:
-			if f.endswith(".pyc") or f == "__init__.py":
+			if f == "__init__.py" or not f.endswith(".py"):
 				continue
 
 			mod = importlib.import_module("models.ecoli.analysis.single." + f[:-3])
@@ -47,17 +54,18 @@ class AnalysisSingleTask(FireTaskBase):
 				self["metadata"],
 				)
 
-			if "WC_ANALYZE_FAST" in os.environ:
+			if self.analyze_fast:
 				pool.apply_async(run_function, args = (mod.main, args, f))
 			else:
 				print "%s: Running %s" % (time.ctime(), f)
 				mod.main(*args)
 
-		if "WC_ANALYZE_FAST" in os.environ:
+		if self.analyze_fast:
 			pool.close()
 			pool.join()
 		timeTotal = time.time() - startTime
 		print "Completed single simulation analysis in %s" % (time.strftime("%H:%M:%S", time.gmtime(timeTotal)))
+
 
 def run_function(f, args, name):
 	try:
@@ -65,3 +73,22 @@ def run_function(f, args, name):
 		f(*args)
 	except KeyboardInterrupt:
 		import sys; sys.exit(1)
+
+def run_last(directory, fileList, fileName, verbose=False):
+	"""
+	Moves files mentioned in fileName to end of fileList.
+	"""
+	with open(os.path.join(directory, "runlast.txt"), 'r') as f:
+		runlast = []
+		for line in f:
+			line = line.strip("\n")
+			if line in fileList:
+				runlast.append(line)
+				idx = fileList.index(line)
+				fileList.append(fileList.pop(idx))
+			else:
+				if verbose:
+					print "\nUnknown file in runlast.txt: %s" % (line)
+	if verbose:
+		print "Running files in runlast.txt after others: \n%s\n" % (", ".join(runlast))
+	return fileList
