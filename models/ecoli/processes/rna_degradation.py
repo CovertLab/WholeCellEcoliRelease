@@ -135,13 +135,13 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		# fraction saturated based on generalized Michaelis-Menten kinetics (EndoRNase cooperation)
 		if self.EndoRNaseCoop:
-			fracEndoRnaseSaturated = (countsToMolar * self.rnas.total()) / self.Km / (1 + np.sum((countsToMolar * self.rnas.total()) / self.Km))
+			fracEndoRnaseSaturated = (countsToMolar * self.rnas.total()) / self.Km / (1 + units.sum((countsToMolar * self.rnas.total()) / self.Km))
 		
 		Kd = self.rnaDegRates
 		Kcat = self.KcatEndoRNases
 		EndoR = sum(self.endoRnases.total())
 		RNA = self.rnas.total()
-		FractDiffRNAdecay = np.sum(np.abs(Kd * RNA - units.sum(self.KcatEndoRNases * self.endoRnases.total()) * fracEndoRnaseSaturated))
+		FractDiffRNAdecay = units.sum(units.abs(Kd * RNA - units.sum(self.KcatEndoRNases * self.endoRnases.total()) * fracEndoRnaseSaturated))
 		FractEndoRRnaCounts = EndoR.astype(float) / sum(RNA.astype(float))
 
 		# Calculate total counts of RNAs to degrade according to

@@ -878,20 +878,21 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 
 	# Non-linear optimization
 	KmCooperativeModel = scipy.optimize.fsolve(LossFunction, Kmcounts, fprime = LossFunctionP)
-	
-	print "Loss function (Km inital) = %f" % np.sum(np.abs(LossFunction(Kmcounts)))
-	print "Loss function (optimized Km) = %f" % np.sum(np.abs(LossFunction(KmCooperativeModel)))
 
-	print "Negative km ratio = %f" % np.sum(np.abs(Rneg(KmCooperativeModel)))
+	if VERBOSE:
+		print "Loss function (Km inital) = %f" % np.sum(np.abs(LossFunction(Kmcounts)))
+		print "Loss function (optimized Km) = %f" % np.sum(np.abs(LossFunction(KmCooperativeModel)))
 
-	print "Residuals optimized = %f" % np.sum(np.abs(R(KmCooperativeModel)))
-	print "Residuals (Km initial) = %f" % np.sum(np.abs(R(Kmcounts)))
+		print "Negative km ratio = %f" % np.sum(np.abs(Rneg(KmCooperativeModel)))
 
-	print "EndoR residuals optimized = %f" % np.sum(np.abs(isEndoRnase * R(Kmcounts)))
-	print "EndoR residuals optimized = %f" % np.sum(np.abs(isEndoRnase * R(KmCooperativeModel)))
+		print "Residuals optimized = %f" % np.sum(np.abs(R(KmCooperativeModel)))
+		print "Residuals (Km initial) = %f" % np.sum(np.abs(R(Kmcounts)))
 
-	print "Residuals (scaled by RNAcounts) Km initial = %f" % np.sum(np.abs(R_aux(Kmcounts)))
-	print "Residuals (scaled by RNAcounts) optimized = %f" % np.sum(np.abs(R_aux(KmCooperativeModel)))
+		print "EndoR residuals optimized = %f" % np.sum(np.abs(isEndoRnase * R(Kmcounts)))
+		print "EndoR residuals optimized = %f" % np.sum(np.abs(isEndoRnase * R(KmCooperativeModel)))
+
+		print "Residuals (scaled by RNAcounts) Km initial = %f" % np.sum(np.abs(R_aux(Kmcounts)))
+		print "Residuals (scaled by RNAcounts) optimized = %f" % np.sum(np.abs(R_aux(KmCooperativeModel)))
 
 	# Set Km's
 	sim_data.process.transcription.rnaData["KmEndoRNase"] = units.mol / units.L * KmCooperativeModel
