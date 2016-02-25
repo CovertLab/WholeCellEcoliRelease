@@ -62,7 +62,7 @@ def fitSimData_1(raw_data, doubling_time = None):
 
 	# Re-compute Km's 
 	if sim_data.constants.EndoRNaseCooperation:
-		setKmCooperativeEndoRNonLinearRNAdecay(sim_data, cellSpecs["wildtype_60_min"]["bulkContainer"])
+		sim_data.process.transcription.rnaData["KmEndoRNase"] = setKmCooperativeEndoRNonLinearRNAdecay(sim_data, cellSpecs["wildtype_60_min"]["bulkContainer"])
 
 	## Calculate and set maintenance values
 
@@ -922,5 +922,4 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 		print "Residuals (scaled by RNAcounts) Km initial = %f" % np.sum(np.abs(R_aux(Kmcounts)))
 		print "Residuals (scaled by RNAcounts) optimized = %f" % np.sum(np.abs(R_aux(KmCooperativeModel)))
 
-	# Set Km's
-	sim_data.process.transcription.rnaData["KmEndoRNase"] = units.mol / units.L * KmCooperativeModel
+	return units.mol / units.L * KmCooperativeModel
