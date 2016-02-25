@@ -850,7 +850,7 @@ def netLossRateFromDilutionAndDegradationRNA(doublingTime, totalEndoRnaseCountsC
 
 def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 	cellDensity = sim_data.constants.cellDensity
-	cellVolume = sim_data.mass.avgCellDryMassInit / cellDensity / 0.3
+	cellVolume = sim_data.mass.avgCellDryMassInit / cellDensity / sim_data.mass.cellDryMassFraction
 	countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
 
 	degradationRates = sim_data.process.transcription.rnaData["degRate"]
