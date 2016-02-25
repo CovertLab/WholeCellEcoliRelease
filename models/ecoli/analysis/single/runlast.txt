@@ -1,2 +1,0 @@
-afterFBA.py
-enzymeKineticsConstraintSelection.py

@@ -159,12 +159,12 @@ class Metabolism(object):
 			metaboliteConcentrations.append(value.asNumber(units.mol / units.L))
 
 		self.biomassFunction = biomassFunction
-		self._concentrationUpdates = ConcentrationUpdates(dict(zip(
+		self.concentrationUpdates = ConcentrationUpdates(dict(zip(
 			metaboliteIDs,
 			(units.mol / units.L) * np.array(metaboliteConcentrations)
 			)))
 		envFirstTimePoint = sim_data.envDict[sim_data.environment][0][-1]
-		self.concDict = self._concentrationUpdates.concentrationsBasedOnNutrients(envFirstTimePoint)
+		self.concDict = self.concentrationUpdates.concentrationsBasedOnNutrients(envFirstTimePoint)
 
 	def _buildMetabolism(self, raw_data, sim_data):
 		# Build the matrices/vectors for metabolism (FBA)
@@ -267,7 +267,7 @@ class Metabolism(object):
 		while len(self.envDict[environment]) and time > self.envDict[environment][0][0]:
 			self._unconstrainedExchangeMolecules = self.envDict[environment][0][1]["unconstrainedExchangeMolecules"]
 			self._constrainedExchangeMolecules = self.envDict[environment][0][1]["constrainedExchangeMolecules"]
-			concDict = self._concentrationUpdates.concentrationsBasedOnNutrients(self.envDict[environment][0][-1])
+			concDict = self.concentrationUpdates.concentrationsBasedOnNutrients(self.envDict[environment][0][-1])
 			newObjective = dict((key, concDict[key].asNumber(targetUnits)) for key in concDict)
 			self.envDict[environment].popleft()
 
