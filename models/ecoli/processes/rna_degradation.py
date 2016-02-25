@@ -123,7 +123,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 	# Calculate temporal evolution
 
 	def calculateRequest(self):
-		
+
 		# load constants 
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg)
 		cellVolume = cellMass / self.cellDensity
