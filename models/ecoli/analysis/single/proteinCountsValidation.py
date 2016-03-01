@@ -102,7 +102,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	# Schmidt Counts
 	schmidtLabels = validation_data.protein.schmidt2015Data["monomerId"]
-	schmidtCounts = validation_data.protein.schmidt2015Data["counts"]
+	schmidtCounts = validation_data.protein.schmidt2015Data["glucoseCounts"]
 	schmidtPoints = ax[1].scatter(
 		np.log10(schmidtCounts + 1),
 		np.log10(view_validation_schmidt.counts() + 1),

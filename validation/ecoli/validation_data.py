@@ -158,7 +158,7 @@ class Protein(object):
 		geneIds = [x["EcoCycID"].encode("utf-8") for x in dataset]
 		monomerIds = [self.geneIdToMonomerId[x] for x in geneIds]
 
-		counts = [x["Glucose"] for x in dataset]
+		glucoseCounts = [x["Glucose"] for x in dataset]
 		
 		nEntries = len(geneIds)
 
@@ -166,11 +166,11 @@ class Protein(object):
 			nEntries,
 			dtype = [
 				('monomerId', 'a50'),
-				('counts', 'f8')
+				('glucoseCounts', 'f8')
 			])
 
 		schmidt2015Data["monomerId"] = monomerIds
-		schmidt2015Data["counts"] = counts
+		schmidt2015Data["glucoseCounts"] = glucoseCounts
 
 		self.schmidt2015Data = schmidt2015Data
 

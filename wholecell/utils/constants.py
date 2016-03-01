@@ -12,7 +12,7 @@ TEST_FIXTURE_DIR = os.path.join("fixtures", "test")
 
 OUTPUT_DIRECTORY = os.path.join("out", "simOut")
 
-SERIALIZED_KB_DIR = "kb"
+SERIALIZED_KB_DIR = os.path.join("fixtures", "kb")
 SERIALIZED_KB_PREFIX = "KnowledgeBase"
 SERIALIZED_KB_SUFFIX = ".cPickle"
 SERIALIZED_KB_MOST_FIT_FILENAME = SERIALIZED_KB_PREFIX + "_Most_Fit" + SERIALIZED_KB_SUFFIX
