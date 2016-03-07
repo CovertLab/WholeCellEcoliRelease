@@ -40,6 +40,13 @@ def sum(array, axis = None, dtype=None, out=None, keepdims=False):
 	units = getUnit(array)
 	return units * np.sum(array.asNumber(), axis, dtype, out, keepdims)		
 
+def abs(array):
+	if not isinstance(array,Unum):
+		raise Exception("Only works on Unum!")
+
+	units = getUnit(array)
+	return units * np.abs(array.asNumber())		
+
 def dot(a, b, out=None):
 	if not isinstance(a, Unum):
 		a_units = 1

@@ -55,6 +55,7 @@ class Protein(object):
 		self._loadTaniguchi2010Counts(validation_data_raw)
 		self._loadHouser2015Counts(validation_data_raw)
 		self._loadWisniewski2014Counts(validation_data_raw, knowledge_base_raw)
+		self._loadSchmidt2015Counts(validation_data_raw)
 
 	def _loadTaniguchi2010Counts(self, validation_data_raw):
 		# Load taniguichi Xie Science 2010 dataset
@@ -150,3 +151,26 @@ class Protein(object):
 		wisniewski2014Data["avgCounts"] = avg
 
 		self.wisniewski2014Data = wisniewski2014Data
+
+	def _loadSchmidt2015Counts(self, validation_data_raw):
+		dataset = validation_data_raw.schmidt2015_javier_table
+
+		geneIds = [x["EcoCycID"].encode("utf-8") for x in dataset]
+		monomerIds = [self.geneIdToMonomerId[x] for x in geneIds]
+
+		glucoseCounts = [x["Glucose"] for x in dataset]
+		
+		nEntries = len(geneIds)
+
+		schmidt2015Data = np.zeros(
+			nEntries,
+			dtype = [
+				('monomerId', 'a50'),
+				('glucoseCounts', 'f8')
+			])
+
+		schmidt2015Data["monomerId"] = monomerIds
+		schmidt2015Data["glucoseCounts"] = glucoseCounts
+
+		self.schmidt2015Data = schmidt2015Data
+
