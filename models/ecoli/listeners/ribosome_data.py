@@ -76,6 +76,9 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		self.didInitialize = 0
 		self.terminationLoss = 0
 		self.effectiveElongationRate = 0
+		self.rrn16S_produced = 0
+		self.rrn23S_produced = 0
+		self.rrn5S_produced = 0
 
 	def update(self):
 		if self.ribosomeStalls.size:
@@ -90,7 +93,6 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 			self.stallingRateMean = 0
 			self.stallingRateStd = 0
 			self.fractionStalled = 0
-
 
 	def tableCreate(self, tableWriter):
 		pass
@@ -112,4 +114,7 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 			didInitialize = self.didInitialize,
 			terminationLoss = self.terminationLoss,
 			effectiveElongationRate = self.effectiveElongationRate,
+			rrn16S_produced = self.rrn16S_produced,
+			rrn23S_produced = self.rrn23S_produced,
+			rrn5S_produced = self.rrn5S_produced,
 			)
