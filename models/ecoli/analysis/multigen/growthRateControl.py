@@ -16,7 +16,6 @@ from wholecell.utils import units
 import cPickle
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
 
@@ -72,8 +71,11 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 
 	for gen, simDir in enumerate(firstCellLineage):
+		simOutDir = os.path.join(simDir, "simOut")
+
 		# Get simulation composition
 		time, massData = getMassData(simDir, massNames)
+		timeStep = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
 		_, dryMass = getMassData(simDir, ["dryMass"])
 
 		# massDataNorm = massData / massData.sum(axis = 0)
@@ -98,9 +100,56 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		expectedFinalComp, finalCompInitMass = getExpectedComposition(finalDoublingTime)
 		#expectedFinalComp = expectedFinalComp / expectedFinalComp.sum()
 		expectedFinalMass = finalCompInitMass * 2
-		expectedFinalComp = expectedFinalComp / expectedFinalMass.asNumber(units.fg)
+		expectedFinalComp = expectedFinalComp / expectedFinalMass.asNumber(units.fg) * 2
 		initialDistance = np.linalg.norm(expectedInitialComp - initialComp, 2) / np.linalg.norm(expectedInitialComp, 2)
 		finalDistance = np.linalg.norm(expectedFinalComp - finalComp, 2) / np.linalg.norm(expectedFinalComp, 2)
+
+		# Calculate ribosomal rna doubling times
+		rrn16S_produced = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("rrn16S_produced")
+		rrn23S_produced = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("rrn23S_produced")
+		rrn5S_produced = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("rrn5S_produced")
+
+		ids_16s = []
+		ids_16s.extend(sim_data.moleculeGroups.s30_16sRRNA)
+		ids_16s.extend(sim_data.moleculeGroups.s30_fullComplex)
+
+		ids_23s = []
+		ids_23s.extend(sim_data.moleculeGroups.s50_23sRRNA)
+		ids_23s.extend(sim_data.moleculeGroups.s50_fullComplex)
+
+		ids_5s = []
+		ids_5s.extend(sim_data.moleculeGroups.s50_5sRRNA)
+		ids_5s.extend(sim_data.moleculeGroups.s50_fullComplex)
+		
+		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+		moleculeIds = bulkMolecules.readAttribute("objectNames")
+
+		idx_16s = np.array([moleculeIds.index(comp) for comp in ids_16s], np.int)
+		idx_23s = np.array([moleculeIds.index(comp) for comp in ids_23s], np.int)
+		idx_5s = np.array([moleculeIds.index(comp) for comp in ids_5s], np.int)
+
+		rrn16s_count_bulk = bulkMolecules.readColumn("counts")[:, idx_16s].sum(axis=1)
+		rrn23s_count_bulk = bulkMolecules.readColumn("counts")[:, idx_23s].sum(axis=1)
+		rrn5s_count_bulk = bulkMolecules.readColumn("counts")[:, idx_5s].sum(axis=1)
+
+		uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
+
+		ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
+		ribosome_count_unique = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
+
+		rrn16s_count = rrn16s_count_bulk + ribosome_count_unique
+		rrn23s_count = rrn23s_count_bulk + ribosome_count_unique
+		rrn5s_count = rrn5s_count_bulk + ribosome_count_unique
+
+		rrn16S_doubling_time = units.s * np.log(2) / (rrn16S_produced / timeStep / rrn16s_count)
+		rrn23S_doubling_time = units.s * np.log(2) / (rrn23S_produced / timeStep / rrn23s_count)
+		rrn5S_doubling_time = units.s * np.log(2) / (rrn5S_produced / timeStep / rrn5s_count)
+
+		rrn16S_doubling_time[rrn16S_doubling_time.asNumber() == np.inf] = np.nan * units.s
+		rrn23S_doubling_time[rrn23S_doubling_time.asNumber() == np.inf] = np.nan * units.s
+		rrn5S_doubling_time[rrn5S_doubling_time.asNumber() == np.inf] = np.nan * units.s
+
+		# Plotting
 
 		oldLayerData = np.zeros(4)
 		indexesForGen = initFinalIdx[gen*4:(gen+1)*4]
@@ -141,7 +190,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		simOutDir = os.path.join(simDir, "simOut")
 		ribosomeDataFile = TableReader(os.path.join(simOutDir, "RibosomeData"))
 		effectiveElongationRate = ribosomeDataFile.readColumn("effectiveElongationRate")
-		# rrnInitRate = ribosomeDataFile.readColumn("rrnInitRate")
 		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 		ribosomeDataFile.close()
@@ -165,11 +213,13 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		# ax5.set_ylabel("Rrn operons")
 		# ax5.axvline(x = time.max() / 60., linewidth=2, color='k', linestyle='--')
 
-		# ax6 = plt.subplot(gs[5, :-1])
-		# ax6.plot(time / 60., rrnInitRate, label="Rrn init", linewidth=2)
-		# ax6.axvline(x = time.max() / 60., linewidth=2, color='k', linestyle='--')
-		# ax6.set_ylabel("Rrn init rate")
-		# ax6.set_xlabel("Time (min)")
+		ax6 = plt.subplot(gs[5, :-1])
+		ax6.plot(time / 60., rrn16S_doubling_time.asNumber(units.min), linewidth=2)
+		ax6.plot(time / 60., rrn23S_doubling_time.asNumber(units.min), linewidth=2)
+		ax6.plot(time / 60., rrn5S_doubling_time.asNumber(units.min), linewidth=2)
+		ax6.axvline(x = time.max() / 60., linewidth=2, color='k', linestyle='--')
+		ax6.set_ylabel("rrn doubling time")
+		ax6.set_xlabel("Time (min)")
 
 	# Set axes labels for x-axis in plots 1 and 2
 	ax8.set_xticks(initFinalIdx + barWidth/2.)
@@ -235,7 +285,8 @@ def getMassData(simDir, massNames):
 	return time, massFractionData
 
 def getExpectedComposition(doubling_time):
-	# return np.ones(6), 100. * units.fg
+	if doubling_time < 24. * units.min or doubling_time > 100. * units.min:
+		return np.zeros(2), 0 * units.fg
 
 	from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 	raw_data = KnowledgeBaseEcoli()
@@ -251,7 +302,6 @@ def getExpectedComposition(doubling_time):
 	dnaMass = subMasses['dnaMass'].asNumber(units.fg)
 	smallMolecules = sim_data.mass.fitAvgSolublePoolMass.asNumber(units.fg)
 
-	#masses = np.array([protein, tRNA, rRnaMass, mRnaMass, dnaMass, smallMolecules]) / sim_data.mass.avgCellToInitialCellConvFactor
 	masses = np.array([protein, rRnaMass + tRNA + mRnaMass]) / sim_data.mass.avgCellToInitialCellConvFactor
 	
 	initialMass = sim_data.mass.avgCellDryMassInit
