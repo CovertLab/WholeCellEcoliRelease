@@ -41,10 +41,26 @@ class glpk
 		}
 		void set_col_bounds(int index, double lower, double upper)
 		{
-			if(lower == upper)
+			if(lower == upper){
 				glp_set_col_bnds(this->lp, index, GLP_FX, lower, upper);
-			else
+				return;
+			}
+			if(!isinf(lower) && !isinf(upper)){
 				glp_set_col_bnds(this->lp, index, GLP_DB, lower, upper);
+				return;
+			}
+			if(isinf(lower) && isinf(upper)){
+				glp_set_col_bnds(this->lp, index, GLP_FR, lower, upper);
+				return;
+			}
+			if(isinf(upper)){
+				glp_set_col_bnds(this->lp, index, GLP_LO, lower, upper);
+				return;
+			}
+			if(isinf(lower)){
+				glp_set_col_bnds(this->lp, index, GLP_UP, lower, upper);
+				return;
+			}
 		}
 		void set_obj_coef(int index, double value)
 		{
