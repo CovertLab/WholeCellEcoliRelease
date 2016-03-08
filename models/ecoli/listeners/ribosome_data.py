@@ -79,6 +79,10 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		self.rrn16S_produced = 0
 		self.rrn23S_produced = 0
 		self.rrn5S_produced = 0
+		self.rrn16S_init_prob = 0.
+		self.rrn23S_init_prob = 0.
+		self.rrn5S_init_prob = 0.
+		self.total_rna_init = 0
 
 	def update(self):
 		if self.ribosomeStalls.size:
@@ -117,4 +121,8 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 			rrn16S_produced = self.rrn16S_produced,
 			rrn23S_produced = self.rrn23S_produced,
 			rrn5S_produced = self.rrn5S_produced,
+			rrn16S_init_prob = self.rrn16S_init_prob,
+			rrn23S_init_prob = self.rrn23S_init_prob,
+			rrn5S_init_prob = self.rrn5S_init_prob,
+			total_rna_init = self.total_rna_init,
 			)

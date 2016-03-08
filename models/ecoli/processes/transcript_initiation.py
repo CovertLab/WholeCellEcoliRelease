@@ -99,6 +99,12 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.writeToListener("RibosomeData", "rrn23S_produced", nNewRnas[self.is_23SrRNA].sum())		
 		self.writeToListener("RibosomeData", "rrn5S_produced", nNewRnas[self.is_5SrRNA].sum())
 
+		self.writeToListener("RibosomeData", "rrn16S_init_prob", nNewRnas[self.is_16SrRNA].sum() / float(nNewRnas.sum()))
+		self.writeToListener("RibosomeData", "rrn23S_init_prob", nNewRnas[self.is_23SrRNA].sum() / float(nNewRnas.sum()))
+		self.writeToListener("RibosomeData", "rrn5S_init_prob", nNewRnas[self.is_5SrRNA].sum() / float(nNewRnas.sum()))
+
+		self.writeToListener("RibosomeData", "total_rna_init", nNewRnas.sum())
+
 		nonzeroCount = (nNewRnas > 0)
 
 		assert nNewRnas.sum() == rnaPolyToActivate
