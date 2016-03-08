@@ -320,3 +320,4 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 	def _elngRate(self):
 		return int(round(self.ribosomeElngRate * self.timeStepSec()))
+		# return int(stochasticRound(self.randomState, self.ribosomeElngRate * self.timeStepSec()))

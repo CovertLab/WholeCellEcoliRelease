@@ -63,6 +63,10 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		self.inactiveRnaPolys = self.bulkMoleculeView("APORNAP-CPLX[c]")
 
+		self.is_16SrRNA = sim_data.process.transcription.rnaData['isRRna16S']
+		self.is_23SrRNA = sim_data.process.transcription.rnaData['isRRna23S']
+		self.is_5SrRNA = sim_data.process.transcription.rnaData['isRRna5S']
+
 
 	def calculateRequest(self):
 		self.inactiveRnaPolys.requestAll()
@@ -90,6 +94,16 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		nNewRnas = self.randomState.multinomial(rnaPolyToActivate,
 			self.rnaSynthProb)
+
+		self.writeToListener("RibosomeData", "rrn16S_produced", nNewRnas[self.is_16SrRNA].sum())
+		self.writeToListener("RibosomeData", "rrn23S_produced", nNewRnas[self.is_23SrRNA].sum())		
+		self.writeToListener("RibosomeData", "rrn5S_produced", nNewRnas[self.is_5SrRNA].sum())
+
+		self.writeToListener("RibosomeData", "rrn16S_init_prob", nNewRnas[self.is_16SrRNA].sum() / float(nNewRnas.sum()))
+		self.writeToListener("RibosomeData", "rrn23S_init_prob", nNewRnas[self.is_23SrRNA].sum() / float(nNewRnas.sum()))
+		self.writeToListener("RibosomeData", "rrn5S_init_prob", nNewRnas[self.is_5SrRNA].sum() / float(nNewRnas.sum()))
+
+		self.writeToListener("RibosomeData", "total_rna_init", nNewRnas.sum())
 
 		nonzeroCount = (nNewRnas > 0)
 

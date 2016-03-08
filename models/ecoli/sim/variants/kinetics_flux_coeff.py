@@ -27,4 +27,4 @@ def kineticsFluxCoeff(sim_data, index):
 	return dict(
 		shortName = "upper_flux %.1f" % (fluxLimit),
 		desc = "Rate limit upper coefficient set to %.2f." % (fluxLimit)
-		)
+		), sim_data
