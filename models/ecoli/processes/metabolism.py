@@ -85,7 +85,7 @@ class Metabolism(wholecell.processes.process.Process):
 			)
 
 		# TODO: make sim_data method?
-		extIDs = sim_data.externalExchangeMolecules
+		extIDs = sim_data.externalExchangeMolecules[sim_data.environment]
 		self.extMoleculeMasses = sim_data.getter.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS) # TODO: delete this line?
 
 		self.getMass = sim_data.getter.getMass
@@ -108,7 +108,7 @@ class Metabolism(wholecell.processes.process.Process):
 		energyCostPerWetMass = sim_data.constants.darkATP * initDryMass / initCellMass
 
 		self.reactionStoich = sim_data.process.metabolism.reactionStoich
-		self.externalExchangeMolecules = sim_data.externalExchangeMolecules
+		self.externalExchangeMolecules = sim_data.externalExchangeMolecules[sim_data.environment]
 		self.reversibleReactions = sim_data.process.metabolism.reversibleReactions
 
 		# Set up FBA solver
