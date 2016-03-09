@@ -17,7 +17,7 @@ def timeStep(sim_data, index):
 	nConditions = timeStepTotalIndices(sim_data)
 
 	if index == 0:
-		return CONTROL_OUTPUT
+		return CONTROL_OUTPUT, sim_data
 
 	sim_data.timeStepSec = TIME_STEPS[index - 1]
 

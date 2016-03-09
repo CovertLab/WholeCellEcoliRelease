@@ -16,7 +16,7 @@ def kineticsFluxCoeff(sim_data, index):
 	nConditions = kineticsFluxCoeffTotalIndices(sim_data)
 
 	if index % nConditions == 0:
-		return CONTROL_OUTPUT
+		return CONTROL_OUTPUT, sim_data
 
 	coeffIndex = (index - 1) % nConditions
 
