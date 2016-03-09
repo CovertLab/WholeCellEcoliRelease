@@ -97,10 +97,11 @@ class SimulationDataEcoli(object):
 		self.dNtpOrder = ["A", "C", "G", "T"]
 
 	def _addEnvironments(self, raw_data):
-		externalExchangeMolecules = set()
+		externalExchangeMolecules = {}
 		envDict = {}
 		environments = [(x, getattr(raw_data.environment, x)) for x in dir(raw_data.environment) if not x.startswith("__")]
 		for envName, env in environments:
+			externalExchangeMolecules[envName] = set()
 			envDict[envName] = collections.deque()
 			setpoints = [(float(x.split("_")[-1]), getattr(env, x)) for x in dir(env) if not x.startswith("__")]
 			for time, nutrientBounds in setpoints:
@@ -111,22 +112,25 @@ class SimulationDataEcoli(object):
 						continue
 					elif not np.isnan(nutrient["upper bound"].asNumber()):
 						constrainedExchangeMolecules[nutrient["molecule id"]] = nutrient["upper bound"]
-						externalExchangeMolecules.add(nutrient["molecule id"])
+						externalExchangeMolecules[envName].add(nutrient["molecule id"])
 					else:
 						unconstrainedExchangeMolecules.append(nutrient["molecule id"])
-						externalExchangeMolecules.add(nutrient["molecule id"])
+						externalExchangeMolecules[envName].add(nutrient["molecule id"])
+
+				for secretion in raw_data.secretions:
+					if secretion["lower bound"] and secretion["upper bound"]:
+						# "non-growth associated maintenance", not included in our metabolic model
+						continue
+
+					else:
+						externalExchangeMolecules[envName].add(secretion["molecule id"])
 
 				D = {
 					"constrainedExchangeMolecules": constrainedExchangeMolecules,
 					"unconstrainedExchangeMolecules": unconstrainedExchangeMolecules,
 					}
 				envDict[envName].append((time, D))
+			externalExchangeMolecules[envName] = sorted(externalExchangeMolecules[envName])
 
-		for secretion in raw_data.secretions:
-			if secretion["lower bound"] and secretion["upper bound"]:
-				# "non-growth associated maintenance", not included in our metabolic model
-				continue
 
-			else:
-				externalExchangeMolecules.add(secretion["molecule id"])
-		return envDict, sorted(externalExchangeMolecules)
+		return envDict, externalExchangeMolecules
