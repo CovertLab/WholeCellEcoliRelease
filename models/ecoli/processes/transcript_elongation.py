@@ -216,5 +216,5 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.writeToListener("RnapData", "terminationLoss", (terminalLengths - transcriptLengths)[didTerminate].sum())
 
 	def _elngRate(self):
-		return int(self.rnapElngRate * self.timeStepSec())
-		# return int(stochasticRound(self.randomState, self.rnapElngRate * self.timeStepSec()))
+		# return int(self.rnapElngRate * self.timeStepSec())
+		return int(stochasticRound(self.randomState, self.rnapElngRate * self.timeStepSec()))
