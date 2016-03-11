@@ -16,6 +16,8 @@ from wholecell.utils import units
 import cPickle
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
+	print "Disabled because it's slow"
+	return
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
 
