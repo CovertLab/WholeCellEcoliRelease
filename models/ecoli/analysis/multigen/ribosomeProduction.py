@@ -134,7 +134,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		stdDoublingTime = doublingTime[1:].asNumber(units.min).std()
 		ax1.plot(time.asNumber(units.min), doublingTime.asNumber(units.min))
 		ax1.plot(time.asNumber(units.min), expected_doubling_time.asNumber(units.min) * np.ones(time.asNumber().size), linestyle='--')
-		ax1.set_ylim([0, avgDoublingTime + 2*stdDoublingTime])
+		ax1.set_ylim([avgDoublingTime - 2*stdDoublingTime, avgDoublingTime + 2*stdDoublingTime])
 		ax1.set_ylabel("Doubling\ntime (min)")
 		ax1.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 
