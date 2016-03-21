@@ -68,6 +68,9 @@ LIST_OF_DICT_FILENAMES = (
 	os.path.join("environment", "000000_wildtype", "nutrients_000000.tsv"),
 	os.path.join("environment", "000001_cut_glucose", "nutrients_000000.tsv"),
 	os.path.join("environment", "000001_cut_glucose", "nutrients_001200.tsv"),
+	os.path.join("environment", "000002_add_aa", "nutrients_000000.tsv"),
+	os.path.join("environment", "000002_add_aa", "nutrients_001200.tsv"),
+	os.path.join("environment", "000003_aa", "nutrients_000000.tsv"),
 	)
 SEQUENCE_FILE = 'sequence.fasta'
 LIST_OF_PARAMETER_FILENAMES = ("parameters.tsv", "mass_parameters.tsv")

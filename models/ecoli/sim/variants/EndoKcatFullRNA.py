@@ -13,7 +13,7 @@ def EndoKcatFullRNATotalIndices(sim_data):
 def EndoKcatFullRNA(sim_data, index):
 
 	if index == 0:
-		return CONTROL_OUTPUT
+		return CONTROL_OUTPUT, sim_data
 
 	KcatEndoRNaseFullRNA = index * 0.001
 	sim_data.KcatEndoRNaseFullRNA = KcatEndoRNaseFullRNA * 1 / units.s
@@ -21,4 +21,4 @@ def EndoKcatFullRNA(sim_data, index):
 	return dict(
 		shortName = "{} s^-1".format(KcatEndoRNaseFullRNA),
 		desc = "KcatEndoRNaseFullRNA = {} s^-1.".format(KcatEndoRNaseFullRNA)
-		)
+		), sim_data

@@ -23,8 +23,6 @@ from scipy.spatial import distance
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
-FLUX_UNITS = "M/s"
-
 CMAP_COLORS_255 = [
 	[103,0,31],
 	[178,24,43],

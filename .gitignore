@@ -83,8 +83,8 @@ block_*
 FW.json
 
 # Sublime Files #
-# ###############
-*.sublime-*
+#################
+*.sublime*
 
 # Misc #
 ########
@@ -100,3 +100,5 @@ FW.json
 *.log
 
 *.hdf
+
+/build/

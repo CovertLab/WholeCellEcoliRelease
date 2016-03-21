@@ -15,7 +15,7 @@ def environment(sim_data, index):
 	nEnvironments = environmentTotalIndices(sim_data)
 
 	if index % nEnvironments == 0:
-		return CONTROL_OUTPUT
+		return CONTROL_OUTPUT, sim_data
 
 	environmentNames = sorted(sim_data.envDict)
 	envName = environmentNames[index]
@@ -24,4 +24,4 @@ def environment(sim_data, index):
 	return dict(
 		shortName = "{}_env".format(envName),
 		desc = "Simulation of environment {}.".format(envName)
-		)
+		), sim_data

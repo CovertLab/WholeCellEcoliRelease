@@ -70,112 +70,6 @@ class Metabolism(object):
 
 			metaboliteConcentrations.append(concentration)
 
-		# Calculate the following assuming 60 min doubling time
-
-		initWaterMass = sim_data.mass.avgCellWaterMassInit.asNumber(units.g)
-		initDryMass = sim_data.mass.avgCellDryMassInit.asNumber(units.g)
-
-		initCellMass = initWaterMass + initDryMass
-
-		initCellVolume = initCellMass / sim_data.constants.cellDensity.asNumber(units.g / units.L) # L
-
-		#(massFractions,) = [item for item in raw_data.dryMassComposition if item["doublingTime"] == 60.0 * units.min]
-
-		for entry in raw_data.massFractions.glycogenFractions:
-			metaboliteID = entry["metaboliteId"]
-
-			assert metaboliteID not in metaboliteIDs
-
-			massFrac = entry["massFraction"] * sim_data.mass.massFraction["glycogen"]
-			molWeight = sim_data.getter.getMass([metaboliteID])[0].asNumber(units.g / units.mol)
-
-			massInit = massFrac * initDryMass
-			molesInit = massInit/molWeight
-
-			concentration = molesInit / initCellVolume
-
-			metaboliteIDs.append(metaboliteID)
-			metaboliteConcentrations.append(concentration)
-
-		for entry in raw_data.massFractions.mureinFractions:
-			metaboliteID = entry["metaboliteId"]
-
-			assert metaboliteID not in metaboliteIDs
-
-			massFrac = entry["massFraction"] * sim_data.mass.massFraction["murein"]
-			molWeight = sim_data.getter.getMass([metaboliteID])[0].asNumber(units.g / units.mol)
-
-			massInit = massFrac * initDryMass
-			molesInit = massInit/molWeight
-
-			concentration = molesInit / initCellVolume
-
-			metaboliteIDs.append(metaboliteID)
-			metaboliteConcentrations.append(concentration)
-
-		for entry in raw_data.massFractions.LPSFractions:
-			metaboliteID = entry["metaboliteId"]
-
-			assert metaboliteID not in metaboliteIDs
-
-			massFrac = entry["massFraction"] * sim_data.mass.massFraction["lps"]
-			molWeight = sim_data.getter.getMass([metaboliteID])[0].asNumber(units.g / units.mol)
-
-			massInit = massFrac * initDryMass
-			molesInit = massInit/molWeight
-
-			concentration = molesInit / initCellVolume
-
-			metaboliteIDs.append(metaboliteID)
-			metaboliteConcentrations.append(concentration)
-
-		for entry in raw_data.massFractions.lipidFractions:
-			metaboliteID = entry["metaboliteId"]
-
-			assert metaboliteID not in metaboliteIDs
-
-			massFrac = entry["massFraction"] * sim_data.mass.massFraction["lipid"]
-			molWeight = sim_data.getter.getMass([metaboliteID])[0].asNumber(units.g / units.mol)
-
-			massInit = massFrac * initDryMass
-			molesInit = massInit/molWeight
-
-			concentration = molesInit / initCellVolume
-
-			metaboliteIDs.append(metaboliteID)
-			metaboliteConcentrations.append(concentration)
-
-		for entry in raw_data.massFractions.ionFractions:
-			metaboliteID = entry["metaboliteId"]
-
-			assert metaboliteID not in metaboliteIDs
-
-			massFrac = entry["massFraction"] * sim_data.mass.massFraction["inorganicIon"]
-			molWeight = sim_data.getter.getMass([metaboliteID])[0].asNumber(units.g / units.mol)
-
-			massInit = massFrac * initDryMass
-			molesInit = massInit/molWeight
-
-			concentration = molesInit / initCellVolume
-
-			metaboliteIDs.append(metaboliteID)
-			metaboliteConcentrations.append(concentration)
-
-		for entry in raw_data.massFractions.solubleFractions:
-			metaboliteID = entry["metaboliteId"]
-
-			if metaboliteID not in metaboliteIDs:
-				massFrac = entry["massFraction"] * sim_data.mass.massFraction["solublePool"]
-				molWeight = sim_data.getter.getMass([metaboliteID])[0].asNumber(units.g / units.mol)
-
-				massInit = massFrac * initDryMass
-				molesInit = massInit/molWeight
-
-				concentration = molesInit / initCellVolume
-
-				metaboliteIDs.append(metaboliteID)
-				metaboliteConcentrations.append(concentration)
-		
 		# ILE/LEU: split reported concentration according to their relative abundances
 		# TODO: more thorough estimate of abundance or some external data point (neidhardt?)
 
@@ -231,16 +125,6 @@ class Metabolism(object):
 		metaboliteIDs.append("DGTP[c]")
 		metaboliteConcentrations.append(dntpSmallestConc)
 
-		# H2O: reported water content of E. coli
-
-		h2oMolWeight = sim_data.getter.getMass(["WATER[c]"])[0].asNumber(units.g / units.mol)
-		h2oMoles = initWaterMass/h2oMolWeight
-
-		h2oConcentration = h2oMoles / initCellVolume
-
-		metaboliteIDs.append("WATER[c]")
-		metaboliteConcentrations.append(h2oConcentration)
-
 		# H: reported pH
 
 		hydrogenConcentration = 10**(-ECOLI_PH)
@@ -270,9 +154,17 @@ class Metabolism(object):
 		# Other quantities to consider:
 		# - (d)NTP byproducts not currently included
 
-		self.metabolitePoolIDs = metaboliteIDs
+		for key, value in sim_data.mass.getBiomassAsConcentrations(sim_data.doubling_time).iteritems():
+			metaboliteIDs.append(key)
+			metaboliteConcentrations.append(value.asNumber(units.mol / units.L))
+
 		self.biomassFunction = biomassFunction
-		self.metabolitePoolConcentrations = units.mol/units.L * np.array(metaboliteConcentrations)
+		self.concentrationUpdates = ConcentrationUpdates(dict(zip(
+			metaboliteIDs,
+			(units.mol / units.L) * np.array(metaboliteConcentrations)
+			)))
+		envFirstTimePoint = sim_data.envDict[sim_data.environment][0][-1]
+		self.concDict = self.concentrationUpdates.concentrationsBasedOnNutrients(envFirstTimePoint)
 
 	def _buildMetabolism(self, raw_data, sim_data):
 		# Build the matrices/vectors for metabolism (FBA)
@@ -371,9 +263,12 @@ class Metabolism(object):
 		self.activeConstraintsDict = activeConstraintsDict
 
 	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits, environment, time):
-		if len(self.envDict[environment]) and time > self.envDict[environment][0][0]:
+		newObjective = None
+		while len(self.envDict[environment]) and time > self.envDict[environment][0][0]:
 			self._unconstrainedExchangeMolecules = self.envDict[environment][0][1]["unconstrainedExchangeMolecules"]
 			self._constrainedExchangeMolecules = self.envDict[environment][0][1]["constrainedExchangeMolecules"]
+			concDict = self.concentrationUpdates.concentrationsBasedOnNutrients(self.envDict[environment][0][-1])
+			newObjective = dict((key, concDict[key].asNumber(targetUnits)) for key in concDict)
 			self.envDict[environment].popleft()
 
 		externalMoleculeLevels = np.zeros(len(exchangeIDs), np.float64)
@@ -389,4 +284,58 @@ class Metabolism(object):
 			else:
 				externalMoleculeLevels[index] = 0.
 
-		return externalMoleculeLevels
+		return externalMoleculeLevels, newObjective
+
+class ConcentrationUpdates(object):
+	def __init__(self, concDict):
+		self.units = units.getUnit(concDict.values()[0])
+		self.defaultConcentrationsDict = dict((key, concDict[key].asNumber(self.units)) for key in concDict)
+
+		self.moleculeScaleFactors = {
+			"L-ALPHA-ALANINE[c]": 2.,
+			"ARG[c]": 2.,
+			"ASN[c]": 2.,
+			"L-ASPARTATE[c]": 2.,
+			"CYS[c]": 2.,
+			"GLT[c]": 1.1,
+			"GLN[c]": 2.,
+			"GLY[c]": 2.,
+			"HIS[c]": 2.,
+			"ILE[c]": 2.,
+			"LEU[c]": 2.,
+			"LYS[c]": 2.,
+			"MET[c]": 2.,
+			"PHE[c]": 2.,
+			"PRO[c]": 2.,
+			"SER[c]": 2.,
+			"THR[c]": 2.,
+			"TRP[c]": 2.,
+			"TYR[c]": 2.,
+			"L-SELENOCYSTEINE[c]": 2.,
+			"VAL[c]": 2.,
+		}
+
+	def concentrationsBasedOnNutrients(self, nutrientFluxes = None):
+		concentrationsDict = self.defaultConcentrationsDict.copy()
+
+		poolIds = sorted(concentrationsDict.keys())
+		concentrations = self.units * np.array([concentrationsDict[k] for k in poolIds])
+
+		if nutrientFluxes == None:
+			return dict(zip(poolIds, concentrations))
+
+		for molecule, scaleFactor in self.moleculeScaleFactors.iteritems():
+			if self._isNutrientExchangePresent(nutrientFluxes, molecule):
+				concentrations[poolIds.index(molecule)] *= scaleFactor
+
+		return dict(zip(poolIds, concentrations))
+
+	def _isNutrientExchangePresent(self, nutrientFluxes, molecule):
+		if molecule in nutrientFluxes["unconstrainedExchangeMolecules"]:
+			return True
+
+		if molecule in nutrientFluxes["constrainedExchangeMolecules"]:
+			if nutrientFluxes["constrainedExchangeMolecules"][molecule].asNumber() > 0:
+				return True
+
+		return False

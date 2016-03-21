@@ -16,7 +16,7 @@ def geneKnockout(sim_data, index):
 	nConditions = geneKnockoutTotalIndices(sim_data)
 
 	if index % nConditions == 0:
-		return CONTROL_OUTPUT
+		return CONTROL_OUTPUT, sim_data
 
 	geneIndex = (index - 1) % nConditions
 
@@ -33,4 +33,4 @@ def geneKnockout(sim_data, index):
 	return dict(
 		shortName = "{}_KO".format(geneID),
 		desc = "Complete knockout of {}.".format(geneID)
-		)
+		), sim_data
