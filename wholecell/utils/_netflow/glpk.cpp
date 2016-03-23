@@ -160,6 +160,16 @@ class glpk
 			
 
 		}
+		void set_mat_row(int row, int len, ndarray& ja_array, ndarray& ar_array)
+		{
+			ASSERT_THROW((ja_array.get_dtype() == dtype::get_builtin<int32_t>()), "Expected array of type np.int32");
+			ASSERT_THROW((ar_array.get_dtype() == dtype::get_builtin<double>()), "Expected array of type np.float64");
+			ASSERT_THROW((ja_array.shape(0) == ar_array.shape(0)), "Sizes must match!");
+			int32_t* ja = (int32_t *) ja_array.get_data();
+			double* ar = (double *) ar_array.get_data();
+
+			glp_set_mat_row(this->lp, row, len, ja, ar);
+		}
 	private:
 		glp_prob *lp;
 		glp_smcp lp_params;
@@ -178,6 +188,7 @@ BOOST_PYTHON_MODULE(glpk)
 	.def("set_col_bounds", &glpk::set_col_bounds)
 	.def("set_obj_coef", &glpk::set_obj_coef)
 	.def("add_eq_constrs", &glpk::add_eq_constrs)
+	.def("set_mat_row", &glpk::set_mat_row)
 	.def("set_sense_max", &glpk::set_sense_max)
 	.def("set_sense_min", &glpk::set_sense_min)
 	.def("set_quiet", &glpk::set_quiet)
