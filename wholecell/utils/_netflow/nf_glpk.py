@@ -84,6 +84,10 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		self._solved = False
 
 
+	def flowLowerBound(self, flow):
+		return self._lb[flow]
+
+
 	def flowUpperBoundIs(self, flow, upperBound):
 		idx = self._getVar(flow)
 		self._ub[flow] = upperBound
@@ -94,6 +98,10 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 			)
 
 		self._solved = False
+
+
+	def flowUpperBound(self, flow):
+		return self._ub[flow]
 
 
 	def flowObjectiveCoeffIs(self, flow, coefficient):
@@ -116,6 +124,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 			[self._model.get_primal_value(1 + self._getVar(flow)) for flow in flows]
 			)
 
+
 	def buildEqConst(self):
 		if self._eqConstBuilt:
 			raise Exception("Equality constraints already built.")
@@ -137,6 +146,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		self._model.add_eq_constrs(row, col, data)
 
 		self._eqConstBuilt = True
+
 
 	def _solve(self):
 		if self._solved:
