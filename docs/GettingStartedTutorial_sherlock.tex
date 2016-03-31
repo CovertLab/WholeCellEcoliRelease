@@ -40,17 +40,17 @@ This document is an introduction to running the whole-cell E.coli model on the S
 First a basic note on file locations. The knowledge base and the code that fits the knowledge base is located in the wcEcoli/reconstruction/ecoli/ directory. The input information files are in wcEcoli/reconstruction/ecoli/flat, and the code that loads it into an object is in knowledge\_base\_raw.py.
 \par
 
-Processes are located in wcEcoli/models/ecoli/processes/. Each process represents one part of the cell's function, and they are modeled separately in short time steps and then the results of each time step are integrated between modules before initiating the next time step. RNA polymerase elongation is the processed used below as an example in this tutorial. Other processes include translation elongation, transciption initiation, and metabolism.
+Processes are located in wcEcoli/models/ecoli/processes/. Each process represents one part of the cell's function, and they are modeled separately in short time steps and then the results of each time step are integrated between modules before initiating the next time step. RNA polymerase elongation is the process used below as an example. Other processes include translation elongation, transciption initiation, and metabolism.
 \par
 Each process has three components: initialize (called only once at the beginning of a simulation), calculateRequest (called at the beginning of each timestep), and evolveState (called after resources are allocated at each timestep).
 \par
-\emph{In initialize}: get needed parameters from the knowledge base, get views of bulk and unique molecules (bulk molecules are “indistinguishable” from each other, e.g. inactive RNAP molecules, unique molecules can be distinguished from each other, e.g. active RNAP molecules are each assigned to a specific transcript), create a view so that you can get counts, change counts, and change properties.
+\emph{In initialize}: get needed parameters from the knowledge base, get views of bulk and unique molecules (bulk molecules are “indistinguishable” from each other, e.g. inactive RNAP molecules, unique molecules can be distinguished from each other, e.g. active RNAP molecules are each assigned to a location on the genome), create a view so that you can get counts, change counts, and change properties.
 \par
-\emph{In calculateRequest}: request the resources that you want for that timestep (don’t request all unless you are certain that another process doesn’t need this resource as well, don’t forget about metabolism).
+\emph{In calculateRequest}: request the resources that you want for that timestep (don`t request all unless you are certain that another process doesn`t need this resource as well, don`t forget about metabolism).
 \par
-\emph{In evolveState}: resources have been allocated, perform the process, update counts, and update masses (mass must be conserved between steps).
+\emph{In evolveState}: perform the process, update counts, and update masses (mass must be conserved between steps).
 \par
-If you need new output, you must write this out as a listener. Listeners are programs which record information during the simulation. To add a listener, add the file to wcEcoli/models/ecoli/listeners/, and both add an import statement and add the listener to \_listenerClasses in wcEcoli/models/ecoli/sim/simulation.py.
+If you want to save new values to be analyzed at the end of the simulation, you must write this information out as a listener. Listeners are programs which record information during the simulation. To add a listener, add the file to wcEcoli/models/ecoli/listeners/, and both add an import statement and add the listener to \_listenerClasses in wcEcoli/models/ecoli/sim/simulation.py.
 \par
 To change the cell’s initial conditions, change wcEcoli/models/ecoli/sim/initial\_conditions.py
 \par
@@ -67,7 +67,13 @@ This tutorial assumes you have setup access to the Sherlock cluster. If necessar
 \linebreak
 http://covert.stanford.edu/computational\_resources/sherlock/home/.
 
-\item Follow all setup instructions in the wcEcoli/README.md file (also on the web at https://github.com/CovertLab/wcEcoli/blob/master/README.md).
+\item Follow all setup instructions in the wcEcoli/README.md file (also on the web at https://github.com/CovertLab/wcEcoli/blob/master/README.md). In particular, make sure you run
+\lstset{language=bash}
+\begin{lstlisting}
+cd $HOME/wcEcoli
+module load wcEcoli
+make compile
+\end{lstlisting}
 \end{enumerate}
 
 Once done with setup and these basic tutorials on Sherlock and the cluster, return to here to complete the example.
@@ -111,14 +117,14 @@ Return to wcEcoli home with
 cd $HOME/wcEcoli
 \end{lstlisting}
 
-To create the symbolic link, we first need to delete the existing out/ directory. Do this with:
+To create the symbolic link, we first need to delete the existing out/ directory if it is present. Do this with:
 
 \lstset{language=bash}
 \begin{lstlisting}
 rmdir out/
 \end{lstlisting}
 
-Now run this command to make the symbolic link. Change the name of the directory to the one you made on SCRATCH if it's different.
+If there is no out/ directory, then running the rmdir command won't hurt but isn`t necessary. Now run this command to make the symbolic link. Change the name of the directory to the one you made on SCRATCH if it's different.
 
 \lstset{language=bash}
 \begin{lstlisting}
@@ -126,7 +132,35 @@ ln -s $SCRATCH/wcEcoli_out out
 \end{lstlisting}
 
 
-Now let's try running the unmodified model to make sure it works. From within your wcEcoli directory in Sherlock, queue up a simple run of the model.
+Now let's try running the unmodified model to make sure it works. First, make sure you are on a compute node on Sherlock. If you are, you will see the computer number next to your shell cursor, something like this:
+
+\lstset{language=bash}
+\begin{lstlisting}
+sunetid@sh-8-30:~/wcEcoli\$
+\end{lstlisting}
+
+If you are on a login node, you will see
+
+\lstset{language=bash}
+\begin{lstlisting}
+sunetid@sherlock-ln03:~/wcEcoli\$
+\end{lstlisting}
+
+If so, return to the sherlock tutorial to see how to use srun to log in to a compute node. It will be something like this:
+
+\lstset{language=bash}
+\begin{lstlisting}
+srun -p mcovert --ntasks-per-node=1 --pty bash -l
+\end{lstlisting}
+
+Once you are in a compute node, ensure you are in your wcEcoli directory.
+
+\lstset{language=bash}
+\begin{lstlisting}
+cd $HOME/wcEcoli
+\end{lstlisting}
+
+Now queue up a simple run of the model.
 
 \lstset{language=bash}
 \begin{lstlisting}
