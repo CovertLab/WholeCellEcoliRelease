@@ -91,10 +91,13 @@ The code has inevitably evolved since I wrote this tutorial, so let’s get on t
 
 \lstset{language=bash}
 \begin{lstlisting}
+git checkout wholecell-tutorial
 git checkout -b tutorial wholecell-tutorial
 \end{lstlisting}
 
-We need to make sure the output from the model goes to the SCRATCH filesystem (whcih is larger) rather than SHERLOCK\_HOME. We'll need to make a symbolic link between the output directory of your wcEcoli directory and a directory in SCRATCH. Within your wcEcoli diretory, there should be a folder named out/. The model puts its outputput in this folder, so we can basically tell the computer to send anything placed in this folder to SCRATCH instead.
+(This gives you your own copy of the \texttt{wholecell-tutorial} branch named \texttt{tutorial} which you can commit to.)
+
+We need to make sure the output from the model goes to the SCRATCH filesystem (which is larger) rather than SHERLOCK\_HOME. We'll need to make a symbolic link between the output directory of your wcEcoli directory and a directory in SCRATCH. Within your wcEcoli diretory, there should be a folder named out/. The model puts its outputput in this folder, so we can basically tell the computer to send anything placed in this folder to SCRATCH instead.
 
 First go to SCRATCH and create a folder in which to place the output. Run the following command:
 
