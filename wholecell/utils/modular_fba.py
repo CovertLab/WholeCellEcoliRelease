@@ -960,8 +960,8 @@ class FluxBalanceAnalysis(object):
 		return self._solver.flowRates(self._standardObjectiveReactionName)
 
 
-	# def objectiveValue(self):
-	# 	return self._rawSolution["primal objective"]
+	def objectiveValue(self):
+		return self._solver.objectiveValue()
 
 
 	# def enzymeUsage(self):
