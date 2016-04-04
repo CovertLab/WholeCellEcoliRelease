@@ -124,6 +124,9 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 			[self._model.get_primal_value(1 + self._getVar(flow)) for flow in flows]
 			)
 
+	def objectiveValue(self):
+		return self._model.get_objective_value()
+
 
 	def buildEqConst(self):
 		if self._eqConstBuilt:
