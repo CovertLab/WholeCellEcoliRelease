@@ -171,15 +171,18 @@ class FluxBalanceAnalysis(object):
 	_generatedID_fractionBelowUnityOut = "fraction {} below unity, out"
 	_generatedID_fractionAboveUnityOut = "fraction {} above unity, out"
 
-	# Default values, for clarity
-	_lowerBoundDefault = 0
-	_upperBoundDefault = np.inf
-
 	_standardObjectiveReactionName = "Standard biomass objective reaction"
 	_massID = "Mass"
 	_massOutName = "Mass out"
 
 	_forcedUnityColName = "Column forced at unity"
+
+	_pseudometaboliteGAM = "GAM reaction pseudometabolite"
+	_reactionID_GAM = "Growth-associated maintenance reaction" # TODO: move to class def
+
+	# Default values, for clarity
+	_lowerBoundDefault = 0
+	_upperBoundDefault = np.inf
 
 	# Initialization
 
@@ -703,7 +706,6 @@ class FluxBalanceAnalysis(object):
 		# TODO: check that the mass flux stuff exists
 
 		# computed mass output produces "GAM reactions"...
-		_pseudometaboliteGAM = "GAM reactions" # TODO: move to class def
 
 		self._solver.flowMaterialCoeffIs(
 			self._massOutName,
@@ -712,17 +714,16 @@ class FluxBalanceAnalysis(object):
 			)
 
 		# ... which are consumed in a seperate flux
-		maintenanceReactionID = "Growth-associated maintenance" # TODO: move to class def
 
 		self._solver.flowMaterialCoeffIs(
-			maintenanceReactionID,
+			_reactionID_GAM,
 			_pseudometaboliteGAM,
 			-1
 			)
 
 		for moleculeID, stoichCoeff in maintenanceReaction.viewitems():
 			self._solver.flowMaterialCoeffIs(
-				maintenanceReactionID,
+				_reactionID_GAM,
 				moleculeID,
 				stoichCoeff
 				)
