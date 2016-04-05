@@ -703,11 +703,11 @@ class FluxBalanceAnalysis(object):
 		# TODO: check that the mass flux stuff exists
 
 		# computed mass output produces "GAM reactions"...
-		reactionsNeededID = "GAM reactions" # TODO: move to class def
+		_pseudometaboliteGAM = "GAM reactions" # TODO: move to class def
 
 		self._solver.flowMaterialCoeffIs(
 			self._massOutName,
-			reactionsNeededID,
+			_pseudometaboliteGAM,
 			maintenanceCost
 			)
 
@@ -716,7 +716,7 @@ class FluxBalanceAnalysis(object):
 
 		self._solver.flowMaterialCoeffIs(
 			maintenanceReactionID,
-			reactionsNeededID,
+			_pseudometaboliteGAM,
 			-1
 			)
 
