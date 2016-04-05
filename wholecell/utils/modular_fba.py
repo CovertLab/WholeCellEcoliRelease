@@ -709,21 +709,21 @@ class FluxBalanceAnalysis(object):
 
 		self._solver.flowMaterialCoeffIs(
 			self._massOutName,
-			_pseudometaboliteGAM,
+			self._pseudometaboliteGAM,
 			maintenanceCost
 			)
 
 		# ... which are consumed in a seperate flux
 
 		self._solver.flowMaterialCoeffIs(
-			_reactionID_GAM,
-			_pseudometaboliteGAM,
+			self._reactionID_GAM,
+			self._pseudometaboliteGAM,
 			-1
 			)
 
 		for moleculeID, stoichCoeff in maintenanceReaction.viewitems():
 			self._solver.flowMaterialCoeffIs(
-				_reactionID_GAM,
+				self._reactionID_GAM,
 				moleculeID,
 				stoichCoeff
 				)
