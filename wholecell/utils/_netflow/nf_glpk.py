@@ -128,6 +128,33 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		return self._model.get_objective_value()
 
 
+	def getSMatrix(self):
+		if not self._eqConstBuilt:
+			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing S matrix.")
+		A = np.zeros((len(self._materialCoeffs), len(self._flows)))
+		self._materialIdxLookup = {}
+		for materialIdx, (material, pairs) in enumerate(sorted(self._materialCoeffs.viewitems())):
+			self._materialIdxLookup[material] = materialIdx
+			for pair in pairs:
+				A[materialIdx, pair[1]] = pair[0]
+		return A
+
+	def getFlowNames(self):
+		if not self._eqConstBuilt:
+			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing flow names.")
+		return sorted(self._flows, key=self._flows.__getitem__)
+
+	def getMaterialNames(self):
+		if not self._eqConstBuilt:
+			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing material names.")
+		return sorted(self._materialIdxLookup, key=self._materialIdxLookup.__getitem__)
+
+	def getUpperBounds(self):
+		return self._ub
+
+	def getLowerBounds(self):
+		return self._lb
+
 	def buildEqConst(self):
 		if self._eqConstBuilt:
 			raise Exception("Equality constraints already built.")
@@ -138,8 +165,6 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		self._materialIdxLookup = {}
 		for materialIdx, (material, pairs) in enumerate(sorted(self._materialCoeffs.viewitems())):
 			self._materialIdxLookup[material] = materialIdx
-			# if materialIdx < 100:
-			# 	print "%03d:\t%s" % (materialIdx, material)
 			for pair in pairs:
 				A[materialIdx, pair[1]] = pair[0]
 		A_coo = coo_matrix(A)
