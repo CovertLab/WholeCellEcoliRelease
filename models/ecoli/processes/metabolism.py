@@ -97,6 +97,8 @@ class Metabolism(wholecell.processes.process.Process):
 			self.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS)
 			))
 
+		self.ngam = sim_data.constants.nonGrowthAssociatedMaintenance
+
 		initWaterMass = sim_data.mass.avgCellWaterMassInit
 		initDryMass = sim_data.mass.avgCellDryMassInit
 
@@ -120,10 +122,10 @@ class Metabolism(wholecell.processes.process.Process):
 			reversibleReactions = self.reversibleReactions,
 			moleculeMasses = self.moleculeMasses,
 			solver = "glpk",
-			# maintenanceCost = energyCostPerWetMass.asNumber(COUNTS_UNITS/MASS_UNITS), # mmol/gDCW TODO: get real number
-			# maintenanceReaction = {
-			# 	"ATP[c]":-1, "WATER[c]":-1, "ADP[c]":+1, "Pi[c]":+1
-			# 	} # TODO: move to KB TODO: check reaction stoich
+			maintenanceCostGAM = energyCostPerWetMass.asNumber(COUNTS_UNITS / MASS_UNITS),
+			maintenanceReaction = {
+				"ATP[c]": -1, "WATER[c]": -1, "ADP[c]": +1, "Pi[c]": +1, "PROTON[c]": +1,
+				} # TODO: move to KB TODO: check reaction stoich
 			)
 
 		# Set up enzyme kinetics object
@@ -180,6 +182,10 @@ class Metabolism(wholecell.processes.process.Process):
 
 		countsToMolar = 1 / (self.nAvogadro * cellVolume)
 
+		polypeptideElongationEnergy = countsToMolar * 0
+		if hasattr(self._sim.processes["PolypeptideElongation"], "gtpRequest"):
+			polypeptideElongationEnergy = countsToMolar * self._sim.processes["PolypeptideElongation"].gtpRequest
+
 		# Set external molecule levels
 		coefficient = dryMass / cellMass * self.cellDensity * (self.timeStepSec() * units.s)
 
@@ -221,6 +227,12 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Set external molecule levels
 		self.fba.externalMoleculeLevelsIs(externalMoleculeLevels)
+
+		self.fba.maxReactionFluxIs(self.fba._reactionID_NGAM, (self.ngam * coefficient).asNumber(COUNTS_UNITS / VOLUME_UNITS))
+		self.fba.minReactionFluxIs(self.fba._reactionID_NGAM, (self.ngam * coefficient).asNumber(COUNTS_UNITS / VOLUME_UNITS))
+
+		self.fba.maxReactionFluxIs(self.fba._reactionID_polypeptideElongationEnergy, polypeptideElongationEnergy.asNumber(COUNTS_UNITS / VOLUME_UNITS))
+		self.fba.minReactionFluxIs(self.fba._reactionID_polypeptideElongationEnergy, polypeptideElongationEnergy.asNumber(COUNTS_UNITS / VOLUME_UNITS))
 
 		#  Find metabolite concentrations from metabolite counts
 		metaboliteConcentrations =  countsToMolar * metaboliteCountsInit
