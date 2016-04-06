@@ -979,6 +979,15 @@ class FluxBalanceAnalysis(object):
 		return self._solver.objectiveValue()
 
 
+	def getArrayBasedModel(self):
+		return {
+		"S_matrix":self._solver.getSMatrix(),
+		"Reactions":self._solver.getFlowNames(),
+		"Metabolites":self._solver.getMaterialNames(),
+		"Upper bounds":self._solver.getUpperBounds(),
+		"Lower bounds":self._solver.getLowerBounds(),
+		}
+
 	# def enzymeUsage(self):
 	# 	return self._solutionFluxes[self._enzymeUsageRateConstrainedIndexes]
 
