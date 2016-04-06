@@ -180,6 +180,7 @@ class FluxBalanceAnalysis(object):
 	_pseudometaboliteGAM = "GAM reaction pseudometabolite"
 	_reactionID_GAM = "Growth-associated maintenance reaction"
 	_reactionID_NGAM = "Non-growth-associated maintenance reaction"
+	_reactionID_polypeptideElongationEnergy = "PolypeptideElongation energy reaction"
 
 	# Default values, for clarity
 	_lowerBoundDefault = 0
@@ -731,6 +732,12 @@ class FluxBalanceAnalysis(object):
 
 			self._solver.flowMaterialCoeffIs(
 				self._reactionID_NGAM,
+				moleculeID,
+				stoichCoeff
+				)
+
+			self._solver.flowMaterialCoeffIs(
+				self._reactionID_polypeptideElongationEnergy,
 				moleculeID,
 				stoichCoeff
 				)
