@@ -632,7 +632,7 @@ def fitMaintenanceCosts(sim_data, bulkContainer):
 
 	# Assign the growth associated "dark energy" to translation
 	# TODO: Distribute it amongst growth-related processes
-	sim_data.constants.gtpPerTranslation += additionalGtpPerTranslation
+	# sim_data.constants.gtpPerTranslation += additionalGtpPerTranslation
 
 	sim_data.constants.darkATP = darkATP
 
