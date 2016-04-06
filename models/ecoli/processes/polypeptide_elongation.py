@@ -147,9 +147,10 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("GrowthLimits", "gtpPoolSize", self.gtp.total()[0])
 		self.writeToListener("GrowthLimits", "gtpRequestSize", gtpsHydrolyzed)
 
-		self.gtp.requestIs(gtpsHydrolyzed)
+		self.gtpRequest = gtpsHydrolyzed
+		# self.gtp.requestIs(gtpsHydrolyzed)
 
-		self.h2o.requestIs(gtpsHydrolyzed) # note: this is roughly a 2x overestimate
+		# self.h2o.requestIs(gtpsHydrolyzed) # note: this is roughly a 2x overestimate
 
 
 	# Calculate temporal evolution
@@ -191,7 +192,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		sequenceElongations, aasUsed, nElongations = polymerize(
 			sequences,
 			aaCounts, # elongationResourceCapacity,
-			reactionLimit,
+			10000000,#reactionLimit,
 			self.randomState
 			)
 
@@ -247,10 +248,10 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.h2o.countInc(nElongations - nInitialized)
 
-		self.gtpUsed = np.int64(stochasticRound(
-			self.randomState,
-			nElongations * self.gtpPerElongation
-			))
+		self.gtpUsed = 0#np.int64(stochasticRound(
+		# 	self.randomState,
+		# 	nElongations * self.gtpPerElongation
+		# 	))
 
 		self.gtp.countDec(self.gtpUsed)
 		self.gdp.countInc(self.gtpUsed)
