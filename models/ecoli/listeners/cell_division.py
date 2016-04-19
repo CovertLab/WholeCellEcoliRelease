@@ -54,7 +54,8 @@ class CellDivision(wholecell.listeners.listener.Listener):
 		# TODO: set initial masses based on some calculations of the expected
 		# mother cell (divided by two) in the last time step
 
-
+		# View on full chromosomes
+		self.fullChromosomeView = self.states['BulkMolecules'].container.countView('CHROM_FULL[c]')
 
 	def update(self):
 		masses = sum(state.mass() for state in self.states.itervalues())
@@ -74,4 +75,5 @@ class CellDivision(wholecell.listeners.listener.Listener):
 		# End simulation once the mass of an average cell is
 		# added to current cell.
 		if self.dryMass - self.dryMassInitial >= self.expectedDryMassIncrease.asNumber(units.fg):
-			self._sim.cellCycleComplete()
+			if self.fullChromosomeView.count() > 1:
+				self._sim.cellCycleComplete()
