@@ -2,7 +2,7 @@ from wholecell.utils import units
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 from reconstruction.ecoli.fit_sim_data_1 import fitSimData_1
 
-DOUBLING_TIMES = units.min * [40., 30., 24.]
+DOUBLING_TIMES = units.min * [100., 40., 30., 24.]
 
 CONTROL_OUTPUT = dict(
 	shortName = "control",
