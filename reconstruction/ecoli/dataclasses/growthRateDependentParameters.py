@@ -24,7 +24,7 @@ class Mass(object):
 		self._buildCDPeriod(raw_data, sim_data)
 
 		self.avgCellDryMass = self.getAvgCellDryMass(self._doubling_time)
-		self.avgCell60MinDoublingTimeTotalMassInit = 813.854708188 * units.fg
+		self.avgCell60MinDoublingTimeTotalMassInit = 1.2 * 813.854708188 * units.fg
 		self.massFraction = self.getMassFraction(self._doubling_time)
 		self.avgCellSubMass = self.getFractionMass(self._doubling_time)
 
