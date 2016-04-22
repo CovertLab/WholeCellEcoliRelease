@@ -30,6 +30,8 @@ from models.ecoli.listeners.transcript_elongation_listener import TranscriptElon
 from models.ecoli.listeners.rnap_data import RnapData
 from models.ecoli.listeners.enzyme_kinetics import EnzymeKinetics
 from models.ecoli.listeners.growth_limits import GrowthLimits
+from models.ecoli.listeners.cell_division import CellDivision
+
 
 
 # Analysis
@@ -70,7 +72,8 @@ class EcoliSimulation(Simulation):
 		TranscriptElongationListener,
 		RnapData,
 		EnzymeKinetics,
-		GrowthLimits
+		GrowthLimits,
+		CellDivision
 		)
 
 	_hookClasses = ()

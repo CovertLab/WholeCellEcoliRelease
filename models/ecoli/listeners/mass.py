@@ -71,10 +71,6 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		self.waterIndex = sim_data.submassNameToIndex["water"]
 
-		# Set total mass that should be added to cell
-		# This is an approximation for length
-		self.expectedDryMassIncrease = sim_data.mass.avgCellDryMassInit
-
 		# Set initial values
 
 		self.setInitial = False
@@ -190,12 +186,6 @@ class Mass(wholecell.listeners.listener.Listener):
 		self.rnaMassFoldChange = self.rnaMass / self.rnaMassInitial
 
 		self.expectedMassFoldChange = np.exp(np.log(2) * self.time() / self.cellCycleLen)
-
-		# End simulation once the mass of an average cell is
-		# added to current cell.
-		if self.dryMass - self.dryMassInitial >= self.expectedDryMassIncrease.asNumber(units.fg):
-			self._sim.cellCycleComplete()
-
 
 	def tableCreate(self, tableWriter):
 		# Store units as metadata
