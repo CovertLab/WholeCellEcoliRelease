@@ -234,12 +234,19 @@ class Equilibrium(object):
 		EPS = 1e-9
 
 		S = self.stoichMatrix()
-		S1 = np.zeros_like(S)
-		S1[S < -1 * EPS] = -1
-		S1[S > EPS] = 1
 
-		Rp =  1. * (S1 < 0)
-		Pp =  1. * (S1 > 0)
+		# TODO: Check that new (uncommented) code below is right
+		# Going over things with HC, I think we don't want a boolean array
+		# I think we want an array with positive numbers
+		# S1 = np.zeros_like(S)
+		# S1[S < -1 * EPS] = -1
+		# S1[S > EPS] = 1
+
+		# Rp =  1. * (S1 < 0)
+		# Pp =  1. * (S1 > 0)
+
+		Rp = -1. * (S < -1 * EPS) * S
+		Pp =  1. * (S >  1 * EPS) * S
 
 		self.Rp = Rp
 		self.Pp = Pp
