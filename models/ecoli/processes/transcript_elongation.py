@@ -22,6 +22,7 @@ import numpy as np
 import wholecell.processes.process
 from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
 from wholecell.utils import units
+from wholecell.utils.random import stochasticRound
 
 class TranscriptElongation(wholecell.processes.process.Process):
 	""" TranscriptElongation """
@@ -215,4 +216,5 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.writeToListener("RnapData", "terminationLoss", (terminalLengths - transcriptLengths)[didTerminate].sum())
 
 	def _elngRate(self):
-		return self.rnapElngRate * self.timeStepSec()
+		# return int(self.rnapElngRate * self.timeStepSec())
+		return int(stochasticRound(self.randomState, self.rnapElngRate * self.timeStepSec()))

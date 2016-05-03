@@ -16,6 +16,12 @@ from models.ecoli.sim.variants.starvation_variant import starvationVariantTotalI
 from models.ecoli.sim.variants.kinetics_flux_coeff import kineticsFluxCoeff
 from models.ecoli.sim.variants.kinetics_flux_coeff import kineticsFluxCoeffTotalIndices
 
+from models.ecoli.sim.variants.growth_rate import growthRate
+from models.ecoli.sim.variants.growth_rate import growthRateTotalIndices
+
+from models.ecoli.sim.variants.environment import environment
+from models.ecoli.sim.variants.environment import environmentTotalIndices
+
 
 nameToFunctionMapping = {
 	"geneKnockout": geneKnockout,
@@ -23,6 +29,8 @@ nameToFunctionMapping = {
 	"timeStep": timeStep,
 	"starvationVariant": starvationVariant,
 	"kineticsFluxCoeff": kineticsFluxCoeff,
+	"growthRate": growthRate,
+	"environment": environment,
 }
 
 nameToNumIndicesMapping = {
@@ -31,4 +39,6 @@ nameToNumIndicesMapping = {
 	"timeStep": timeStepTotalIndices,
 	"starvationVariant": starvationVariantTotalIndices,
 	"kineticsFluxCoeff": kineticsFluxCoeffTotalIndices,
+	"growthRate": growthRateTotalIndices,
+	"environment": environmentTotalIndices,
 }

@@ -176,9 +176,10 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("GrowthLimits", "gtpPoolSize", self.gtp.total()[0])
 		self.writeToListener("GrowthLimits", "gtpRequestSize", gtpsHydrolyzed)
 
-		self.gtp.requestIs(gtpsHydrolyzed)
+		self.gtpRequest = gtpsHydrolyzed
+		# self.gtp.requestIs(gtpsHydrolyzed)
 
-		self.h2o.requestIs(gtpsHydrolyzed) # note: this is roughly a 2x overestimate
+		# self.h2o.requestIs(gtpsHydrolyzed) # note: this is roughly a 2x overestimate
 
 		self.rrn_operon.requestAll()
 
@@ -218,7 +219,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		sequenceElongations, aasUsed, nElongations = polymerize(
 			sequences,
 			aaCounts, # elongationResourceCapacity,
-			reactionLimit,
+			10000000,#reactionLimit,
 			self.randomState
 			)
 
@@ -262,6 +263,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		# Update active ribosomes, terminating if neccessary
 
+		currElongRate = (sequenceElongations.sum() / len(activeRibosomes)) / self.timeStepSec()
+		self.writeToListener("RibosomeData", "effectiveElongationRate", currElongRate)
+
 		activeRibosomes.attrIs(
 			peptideLength = updatedLengths,
 			massDiff_protein = updatedMass
@@ -292,10 +296,10 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.h2o.countInc(nElongations - nInitialized)
 
-		self.gtpUsed = np.int64(stochasticRound(
-			self.randomState,
-			nElongations * self.gtpPerElongation
-			))
+		self.gtpUsed = 0#np.int64(stochasticRound(
+		# 	self.randomState,
+		# 	nElongations * self.gtpPerElongation
+		# 	))
 
 		self.gtp.countDec(self.gtpUsed)
 		self.gdp.countInc(self.gtpUsed)
@@ -367,4 +371,5 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			return True
 
 	def _elngRate(self):
-		return int(round(self.maxRibosomeElongationRate * self.timeStepSec()))
+		# return int(round(self.ribosomeElngRate * self.timeStepSec()))
+		return int(stochasticRound(self.randomState, self.ribosomeElngRate * self.timeStepSec()))

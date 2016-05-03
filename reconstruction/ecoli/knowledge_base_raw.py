@@ -14,6 +14,7 @@ import os
 import csv
 from reconstruction.spreadsheets import JsonReader
 import json
+from itertools import ifilter
 
 from wholecell.utils import units
 
@@ -25,6 +26,7 @@ LIST_OF_DICT_FILENAMES = (
 	"enzymeKinetics.tsv",
 	"genes.tsv",
 	"metabolites.tsv",
+	"metaboliteConcentrations.tsv",
 	"modificationReactions.tsv",
 	"modifiedRnas.tsv",
 	"polymerized.tsv",
@@ -37,7 +39,6 @@ LIST_OF_DICT_FILENAMES = (
 	"transcriptionUnits.tsv",
 	"dryMassComposition.tsv",
 	"biomass.tsv",
-	"nutrients.tsv",
 	"secretions.tsv",
 	"water.tsv",
 	"chromosome.tsv",
@@ -64,6 +65,12 @@ LIST_OF_DICT_FILENAMES = (
 	os.path.join("rna_seq_data","rnaseq_rsem_tpm_std.tsv"),
 	os.path.join("rna_seq_data","rnaseq_seal_rpkm_mean.tsv"),
 	os.path.join("rna_seq_data","rnaseq_seal_rpkm_std.tsv"),
+	os.path.join("environment", "000000_wildtype", "nutrients_000000.tsv"),
+	os.path.join("environment", "000001_cut_glucose", "nutrients_000000.tsv"),
+	os.path.join("environment", "000001_cut_glucose", "nutrients_001200.tsv"),
+	os.path.join("environment", "000002_add_aa", "nutrients_000000.tsv"),
+	os.path.join("environment", "000002_add_aa", "nutrients_001200.tsv"),
+	os.path.join("environment", "000003_aa", "nutrients_000000.tsv"),
 	)
 SEQUENCE_FILE = 'sequence.fasta'
 LIST_OF_PARAMETER_FILENAMES = ("parameters.tsv", "mass_parameters.tsv")
@@ -90,14 +97,16 @@ class KnowledgeBaseEcoli(object):
 	def _load_tsv(self, file_name):
 		path = self
 		for subPath in file_name[len(FLAT_DIR) + 1 : ].split(os.path.sep)[:-1]:
-			if not hasattr(self, subPath):
+			if not hasattr(path, subPath):
 				setattr(path, subPath, DataStore())
 			path = getattr(path, subPath)
 		attrName = file_name.split(os.path.sep)[-1].split(".")[0]
 		setattr(path, attrName, [])
 
 		with open(file_name, 'rU') as csvfile:
-			reader = JsonReader(csvfile, dialect = CSV_DIALECT)
+			reader = JsonReader(
+				ifilter(lambda x: x.lstrip()[0] != "#", csvfile), # Strip comments
+				dialect = CSV_DIALECT)
 			setattr(path, attrName, [row for row in reader])
 
 	def _load_sequence(self, file_path):

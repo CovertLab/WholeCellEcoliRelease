@@ -59,11 +59,13 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	cellMass = units.fg * mass.readColumn("cellMass")
 
 
-	concentrationSetpoints = sim_data.process.metabolism.metabolitePoolConcentrations
+	concIds = sorted(sim_data.process.metabolism.concDict)
+	concPools = units.mol / units.L * np.array([sim_data.process.metabolism.concDict[key].asNumber(units.mol / units.L) for key in concIds])
+	concentrationSetpoints = concPools
 	sortedConcentrationIndex = concentrationSetpoints.asNumber().argsort()[::-1]
 	concentrationSetpoints = concentrationSetpoints[sortedConcentrationIndex]
 
-	poolIds = np.array(sim_data.process.metabolism.metabolitePoolIDs)[sortedConcentrationIndex]
+	poolIds = np.array(concIds)[sortedConcentrationIndex]
 	poolIndexes = np.array([bulkMoleculeIds.index(x) for x in poolIds])
 	poolCounts = bulkMolecules.readColumn("counts")[:, poolIndexes]
 	poolMols = 1/nAvogadro * poolCounts

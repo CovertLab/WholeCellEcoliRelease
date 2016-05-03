@@ -40,7 +40,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	# add mRNA PNPase
 	PNP_RNA = ["EG10743_RNA[c]"]
-	RNase_IDS = np.concatenate((RNase_IDS, PNP_RNA))	
+	Others_RNA = ["EG11620_RNA[c]", "G7175_RNA[c]", "EG10858_RNA[c]", "EG10863_RNA[c]", "EG11259_RNA[c]", "EG11547_RNA[c]", "EG10746_RNA[c]", "G7842_RNA[c]"]
+	RNase_IDS = np.concatenate((RNase_IDS, PNP_RNA))
+	RNase_IDS = np.concatenate((RNase_IDS, Others_RNA))
 
 	rnapRnaIndexes = np.array([moleculeIds.index(rnapRnaId) for rnapRnaId in RNase_IDS], np.int)
 	rnapRnaCounts = bulkMolecules.readColumn("counts")[:, rnapRnaIndexes]
@@ -52,10 +54,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	plt.rc('xtick', labelsize=5) 
 	plt.rc('ytick', labelsize=5)
 
-	for subplotIdx in xrange(0, 19):
+	for subplotIdx in xrange(0, 27):
 		rnapRnaCountsIdx = subplotIdx
 	
-		plt.subplot(19, 1, 1 + subplotIdx)
+		plt.subplot(27, 1, 1 + subplotIdx)
 
 		plt.plot(time / 60., rnapRnaCounts[:, rnapRnaCountsIdx])
 		plt.xlabel("Time (min)", fontsize = 5)
@@ -103,7 +105,8 @@ if __name__ == "__main__":
 	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
 	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
 	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
+	parser.add_argument("--validationDataFile", help = "KB file name", type = str, default = "None")
 
 	args = parser.parse_args().__dict__
 
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"], args["validationDataFile"])

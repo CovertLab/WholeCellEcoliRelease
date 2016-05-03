@@ -49,7 +49,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		self.fracActiveRnap = sim_data.fracActiveRnap
+		self.fracActiveRnap = sim_data.growthRateParameters.fractionActiveRnap
 
 		self.rnaLengths = sim_data.process.transcription.rnaData["length"]
 
@@ -88,6 +88,16 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		nNewRnas = self.randomState.multinomial(rnaPolyToActivate,
 			self.rnaSynthProb)
+
+		self.writeToListener("RibosomeData", "rrn16S_produced", nNewRnas[self.is_16SrRNA].sum())
+		self.writeToListener("RibosomeData", "rrn23S_produced", nNewRnas[self.is_23SrRNA].sum())		
+		self.writeToListener("RibosomeData", "rrn5S_produced", nNewRnas[self.is_5SrRNA].sum())
+
+		self.writeToListener("RibosomeData", "rrn16S_init_prob", nNewRnas[self.is_16SrRNA].sum() / float(nNewRnas.sum()))
+		self.writeToListener("RibosomeData", "rrn23S_init_prob", nNewRnas[self.is_23SrRNA].sum() / float(nNewRnas.sum()))
+		self.writeToListener("RibosomeData", "rrn5S_init_prob", nNewRnas[self.is_5SrRNA].sum() / float(nNewRnas.sum()))
+
+		self.writeToListener("RibosomeData", "total_rna_init", nNewRnas.sum())
 
 		nonzeroCount = (nNewRnas > 0)
 

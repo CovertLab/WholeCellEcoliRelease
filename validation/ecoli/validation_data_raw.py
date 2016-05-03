@@ -19,6 +19,7 @@ LIST_OF_DICT_FILENAMES = (
 	"taniguichi2010_table_6.tsv",
 	"houser2015_javier_table.tsv",
 	"wisniewski2014_supp2.tsv",
+	"schmidt2015_javier_table.tsv",
 	)
 
 class ValidationDataRawEcoli(object):

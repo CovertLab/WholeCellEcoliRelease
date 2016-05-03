@@ -6,6 +6,8 @@ Listener
 @date: Created 5/10/2014
 """
 
+from enum import Enum
+
 class Listener(object):
 	_name = None
 
@@ -87,3 +89,8 @@ class Listener(object):
 	@classmethod
 	def name(cls):
 		return cls._name
+
+class WriteMethod(Enum):
+	update = 1
+	increment = 2
+	append = 3

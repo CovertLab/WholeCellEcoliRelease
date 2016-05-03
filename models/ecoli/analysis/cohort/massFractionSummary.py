@@ -55,45 +55,32 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
-	
-	# Get all seed directories
-	allDirs = os.listdir(variantDir)
-	seedOutDirs = []
-	# Consider only those directories which are seed directories
-	for directory in allDirs:
-		# Accept directories which are a string of digits exactly 6 units long
-		if re.match('^\d{6}$',directory) != None:
-			seedOutDirs.append(os.path.join(variantDir, directory))
-
 
 	fig, axesList = plt.subplots(len(massNames), sharex = True)
 
 	currentMaxTime = 0
 
 	# Get all cells in each seed
-	seedsDict = {}
-	for idx, seedOutDir in enumerate(seedOutDirs):
-		ap = AnalysisPaths(seedOutDir)
-		seedsDict[idx] = ap.getAll()
+	ap = AnalysisPaths(variantDir, cohort_plot = True)
+	all_cells = ap.get_cells()
 
-	for seedNum in seedsDict:
-		for simDir in seedsDict[seedNum]:
-			simOutDir = os.path.join(simDir, "simOut")
+	for simDir in all_cells:
+		simOutDir = os.path.join(simDir, "simOut")
 
-			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-			mass = TableReader(os.path.join(simOutDir, "Mass"))
+		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+		mass = TableReader(os.path.join(simOutDir, "Mass"))
 
-			for idx, massType in enumerate(massNames):
-				massToPlot = mass.readColumn(massType)
-				axesList[idx].plot(((time / 60.) / 60.), massToPlot, linewidth = 2)
+		for idx, massType in enumerate(massNames):
+			massToPlot = mass.readColumn(massType)
+			axesList[idx].plot(((time / 60.) / 60.), massToPlot, linewidth = 2)
 
-				# set axes to size that shows all generations
-				cellCycleTime = ((time[-1] - time[0]) / 60. / 60. )
-				if cellCycleTime > currentMaxTime:
-					currentMaxTime = cellCycleTime
+			# set axes to size that shows all generations
+			cellCycleTime = ((time[-1] - time[0]) / 60. / 60. )
+			if cellCycleTime > currentMaxTime:
+				currentMaxTime = cellCycleTime
 
-				axesList[idx].set_xlim(0, currentMaxTime*int(metadata["total_gens"])*1.1)
-				axesList[idx].set_ylabel(cleanNames[idx] + " (fg)")
+			axesList[idx].set_xlim(0, currentMaxTime*int(metadata["total_gens"])*1.1)
+			axesList[idx].set_ylabel(cleanNames[idx] + " (fg)")
 
 	for axes in axesList:
 		axes.get_ylim()

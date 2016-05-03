@@ -24,7 +24,7 @@ class VariantSimDataTask(FireTaskBase):
 
 		sim_data = cPickle.load(open(self["input_sim_data"], "rb"))
 
-		info = nameToFunctionMapping[self["variant_function"]](sim_data, self["variant_index"])
+		info, sim_data = nameToFunctionMapping[self["variant_function"]](sim_data, self["variant_index"])
 
 		print info["shortName"]
 

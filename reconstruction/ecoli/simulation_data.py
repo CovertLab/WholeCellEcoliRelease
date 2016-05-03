@@ -33,14 +33,16 @@ class SimulationDataEcoli(object):
 		# Doubling time (used in fitting)
 		self.doubling_time = None
 
-	def initialize(self, doubling_time, raw_data, media_conditions="M9 Glucose minus AAs"):
+	def initialize(self, doubling_time, raw_data, expression_condition = "M9 Glucose minus AAs", environment = "wildtype"):
 
 		if type(doubling_time) != Unum:
 			raise Exception("Doubling time is not a Unum object!")
 		self.doubling_time = doubling_time
 
 		# TODO: Check that media condition is valid
-		self.media_conditions = media_conditions
+		self.expression_condition = expression_condition
+		self.envDict, self.externalExchangeMolecules = self._addEnvironments(raw_data)
+		self.environment = environment
 
 		self._addHardCodedAttributes()
 
@@ -100,3 +102,42 @@ class SimulationDataEcoli(object):
 			))
 
 		self.dNtpOrder = ["A", "C", "G", "T"]
+
+	def _addEnvironments(self, raw_data):
+		externalExchangeMolecules = {}
+		envDict = {}
+		environments = [(x, getattr(raw_data.environment, x)) for x in dir(raw_data.environment) if not x.startswith("__")]
+		for envName, env in environments:
+			externalExchangeMolecules[envName] = set()
+			envDict[envName] = collections.deque()
+			setpoints = [(float(x.split("_")[-1]), getattr(env, x)) for x in dir(env) if not x.startswith("__")]
+			for time, nutrientBounds in setpoints:
+				constrainedExchangeMolecules = {}
+				unconstrainedExchangeMolecules = []
+				for nutrient in nutrientBounds:
+					if not np.isnan(nutrient["lower bound"].asNumber()) and not np.isnan(nutrient["upper bound"].asNumber()):
+						continue
+					elif not np.isnan(nutrient["upper bound"].asNumber()):
+						constrainedExchangeMolecules[nutrient["molecule id"]] = nutrient["upper bound"]
+						externalExchangeMolecules[envName].add(nutrient["molecule id"])
+					else:
+						unconstrainedExchangeMolecules.append(nutrient["molecule id"])
+						externalExchangeMolecules[envName].add(nutrient["molecule id"])
+
+				for secretion in raw_data.secretions:
+					if secretion["lower bound"] and secretion["upper bound"]:
+						# "non-growth associated maintenance", not included in our metabolic model
+						continue
+
+					else:
+						externalExchangeMolecules[envName].add(secretion["molecule id"])
+
+				D = {
+					"constrainedExchangeMolecules": constrainedExchangeMolecules,
+					"unconstrainedExchangeMolecules": unconstrainedExchangeMolecules,
+					}
+				envDict[envName].append((time, D))
+			externalExchangeMolecules[envName] = sorted(externalExchangeMolecules[envName])
+
+
+		return envDict, externalExchangeMolecules

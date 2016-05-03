@@ -28,10 +28,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		os.mkdir(plotOutDir)
 
 
-	ap = AnalysisPaths(seedOutDir)
+	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
 	# Get all cells
-	allDir = ap.getAll()
+	allDir = ap.get_cells()
 
 	plt.figure(figsize = (8.5, 11))
 
