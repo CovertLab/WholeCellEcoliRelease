@@ -41,7 +41,7 @@ class SimulationDataEcoli(object):
 
 		# TODO: Check that media condition is valid
 		self.expression_condition = expression_condition
-		self.envDict, self.externalExchangeMolecules, self.nutrientExchangeMolecules = self._addEnvironments(raw_data)
+		self.envDict, self.externalExchangeMolecules, self.nutrientExchangeMolecules, self.secretionExchangeMolecules = self._addEnvironments(raw_data)
 		self.environment = environment
 
 		self._addHardCodedAttributes()
@@ -99,6 +99,7 @@ class SimulationDataEcoli(object):
 	def _addEnvironments(self, raw_data):
 		externalExchangeMolecules = {}
 		nutrientExchangeMolecules = {}
+		secretionExchangeMolecules = set()
 		envDict = {}
 		environments = [(x, getattr(raw_data.environment, x)) for x in dir(raw_data.environment) if not x.startswith("__")]
 		for envName, env in environments:
@@ -128,6 +129,7 @@ class SimulationDataEcoli(object):
 
 					else:
 						externalExchangeMolecules[envName].add(secretion["molecule id"])
+						secretionExchangeMolecules.add(secretion["molecule id"])
 
 				D = {
 					"constrainedExchangeMolecules": constrainedExchangeMolecules,
@@ -136,6 +138,7 @@ class SimulationDataEcoli(object):
 				envDict[envName].append((time, D))
 			externalExchangeMolecules[envName] = sorted(externalExchangeMolecules[envName])
 			nutrientExchangeMolecules[envName] = sorted(nutrientExchangeMolecules[envName])
+		secretionExchangeMolecules = sorted(secretionExchangeMolecules)
 
 
-		return envDict, externalExchangeMolecules, nutrientExchangeMolecules
+		return envDict, externalExchangeMolecules, nutrientExchangeMolecules, secretionExchangeMolecules
