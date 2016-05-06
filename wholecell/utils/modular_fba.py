@@ -254,7 +254,7 @@ class FluxBalanceAnalysis(object):
 
 		self._initEnzymeConstraints(reactionEnzymes, reactionRates)
 
-		self._initMass(externalExchangedMolecules, moleculeMasses)
+		self._initExchangeMass(externalExchangedMolecules, moleculeMasses)
 
 		self._initMaintenance(maintenanceCostGAM, maintenanceReaction)
 
@@ -661,7 +661,7 @@ class FluxBalanceAnalysis(object):
 						)
 
 
-	def _initMass(self, externalExchangedMolecules, moleculeMasses):
+	def _initExchangeMass(self, externalExchangedMolecules, moleculeMasses):
 		"""Create mass accumulation abstractions.
 
 		Tracking the mass entering the system through metabolism is crucial for
