@@ -64,14 +64,23 @@ def chromosomeDivision(bulkMolecules, randomState):
 		)
 	full_chromosome_count = bulkMolecules.container.count(bulkMolecules.divisionIds['fullChromosome'][0])
 
-	if full_chromosome_count == 1:
-		d1_chromosome_count = randomState.binomial(full_chromosome_count, p = BINOMIAL_COEFF)
-		d2_chromosome_count = full_chromosome_count - d1_chromosome_count
-	elif full_chromosome_count == 2:
-		d1_chromosome_count = 1
-		d2_chromosome_count = 1
+	# Divide evenly between both daughters if even number of chromosomes or give an extra to one cell if odd number
+	if full_chromosome_count % 2 == 0:
+		d1_chromosome_count = full_chromosome_count / 2
+		d2_chromosome_count = full_chromosome_count / 2
 	else:
-		raise Exception("Un-accounted for number of chromosomes at division!")
+		d1_chromosome_count = full_chromosome_count / 2
+		d1_chromosome_count += randomState.binomial(1, p = BINOMIAL_COEFF)
+		d2_chromosome_count = full_chromosome_count - d1_chromosome_count
+
+	# if full_chromosome_count == 1:
+	# 	d1_chromosome_count = randomState.binomial(full_chromosome_count, p = BINOMIAL_COEFF)
+	# 	d2_chromosome_count = full_chromosome_count - d1_chromosome_count
+	# elif full_chromosome_count == 2:
+	# 	d1_chromosome_count = 1
+	# 	d2_chromosome_count = 1
+	# else:
+	# 	raise Exception("Un-accounted for number of chromosomes at division!")
 
 	return {"d1_chromosome_count" : d1_chromosome_count, "d2_chromosome_count" : d2_chromosome_count}
 
