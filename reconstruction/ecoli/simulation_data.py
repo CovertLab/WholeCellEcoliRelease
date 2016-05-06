@@ -41,7 +41,7 @@ class SimulationDataEcoli(object):
 
 		# TODO: Check that media condition is valid
 		self.expression_condition = expression_condition
-		self.envDict, self.externalExchangeMolecules = self._addEnvironments(raw_data)
+		self.envDict, self.externalExchangeMolecules, self.nutrientExchangeMolecules = self._addEnvironments(raw_data)
 		self.environment = environment
 
 		self._addHardCodedAttributes()
@@ -98,10 +98,12 @@ class SimulationDataEcoli(object):
 
 	def _addEnvironments(self, raw_data):
 		externalExchangeMolecules = {}
+		nutrientExchangeMolecules = {}
 		envDict = {}
 		environments = [(x, getattr(raw_data.environment, x)) for x in dir(raw_data.environment) if not x.startswith("__")]
 		for envName, env in environments:
 			externalExchangeMolecules[envName] = set()
+			nutrientExchangeMolecules[envName] = set()
 			envDict[envName] = collections.deque()
 			setpoints = [(float(x.split("_")[-1]), getattr(env, x)) for x in dir(env) if not x.startswith("__")]
 			for time, nutrientBounds in setpoints:
@@ -113,9 +115,11 @@ class SimulationDataEcoli(object):
 					elif not np.isnan(nutrient["upper bound"].asNumber()):
 						constrainedExchangeMolecules[nutrient["molecule id"]] = nutrient["upper bound"]
 						externalExchangeMolecules[envName].add(nutrient["molecule id"])
+						nutrientExchangeMolecules[envName].add(nutrient["molecule id"])
 					else:
 						unconstrainedExchangeMolecules.append(nutrient["molecule id"])
 						externalExchangeMolecules[envName].add(nutrient["molecule id"])
+						nutrientExchangeMolecules[envName].add(nutrient["molecule id"])
 
 				for secretion in raw_data.secretions:
 					if secretion["lower bound"] and secretion["upper bound"]:
@@ -131,6 +135,7 @@ class SimulationDataEcoli(object):
 					}
 				envDict[envName].append((time, D))
 			externalExchangeMolecules[envName] = sorted(externalExchangeMolecules[envName])
+			nutrientExchangeMolecules[envName] = sorted(nutrientExchangeMolecules[envName])
 
 
-		return envDict, externalExchangeMolecules
+		return envDict, externalExchangeMolecules, nutrientExchangeMolecules
