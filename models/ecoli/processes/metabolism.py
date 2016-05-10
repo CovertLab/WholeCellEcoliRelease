@@ -31,7 +31,7 @@ from wholecell.utils.enzymeKinetics import EnzymeKinetics
 
 from wholecell.utils.fitting import massesAndCountsToAddForPools
 
-COUNTS_UNITS = units.mmol
+COUNTS_UNITS = units.dmol
 VOLUME_UNITS = units.L
 MASS_UNITS = units.g
 USE_RATELIMITS = False # Enable/disable kinetic rate limits in the model
