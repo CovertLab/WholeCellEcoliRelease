@@ -20,7 +20,7 @@ from wholecell.utils.fitting import normalize, massesAndCountsToAddForPools
 # Hacks
 RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
 FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.5  # reduce stochasticity from protein expression
-FRACTION_INCREASE_RNAP_PROTEINS = 0.1
+FRACTION_INCREASE_RNAP_PROTEINS = 0.05
 
 # TODO: establish a controlled language for function behaviors (i.e. create* set* fit*)
 
