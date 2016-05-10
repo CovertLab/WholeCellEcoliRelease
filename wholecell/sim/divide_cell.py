@@ -222,21 +222,23 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 			replicationForks = int(np.ceil(replicationRoundIndexes.sum() / 4))
 			if replicationForks >= 2:
 				for index in [0,1,2,3]:
-					## code if not possible to have uneven number of partial chromosomes
-					# num_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == index
-					# new_value = np.zeros(num_index.sum())
-					# for fork in range(replicationForks):
-					# 	new_value[fork * new_value.size / replicationForks:(fork + 1) * new_value.size / replicationForks] = fork
-
+					# if not possible to have uneven number of partial chromosomes
 					num_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == index
 					new_value = np.zeros(num_index.sum())
 					for fork in range(replicationForks):
-						ind1 = fork * new_value.size / replicationForks
-						ind2 = (fork + 1) * new_value.size / replicationForks
-						if ind2 < len(new_value):
-							new_value[ind1:ind2] = fork
-						elif ind1 < len(new_value):
-							new_value[ind1:] = fork
+						new_value[fork * new_value.size / replicationForks:(fork + 1) * new_value.size / replicationForks] = fork
+
+					# # if uneven number of partial chromosomes
+					# num_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == index
+					# new_value = np.zeros(num_index.sum())
+					# for fork in range(replicationForks):
+					# 	ind1 = fork * new_value.size / replicationForks
+					# 	ind2 = (fork + 1) * new_value.size / replicationForks
+					# 	if ind2 < len(new_value):
+					# 		new_value[ind1:ind2] = fork
+					# 	elif ind1 < len(new_value):
+					# 		new_value[ind1:] = fork
+
 					d1_dividedAttributesDict['chromosomeIndex'][num_index] = new_value
 
 				# zero_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == 0
@@ -253,15 +255,23 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 			replicationForks = int(np.ceil(replicationRoundIndexes.sum() / 4))
 			if replicationForks >= 2:
 				for index in [0,1,2,3]:
-					num_index = d2_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == index
+					# if not possible to have uneven number of partial chromosomes
+					num_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == index
 					new_value = np.zeros(num_index.sum())
 					for fork in range(replicationForks):
-						ind1 = fork * new_value.size / replicationForks
-						ind2 = (fork + 1) * new_value.size / replicationForks
-						if ind2 < len(new_value):
-							new_value[ind1:ind2] = fork
-						elif ind1 < len(new_value):
-							new_value[ind1:] = fork
+						new_value[fork * new_value.size / replicationForks:(fork + 1) * new_value.size / replicationForks] = fork
+
+					# # if uneven number of partial chromosomes
+					# num_index = d2_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == index
+					# new_value = np.zeros(num_index.sum())
+					# for fork in range(replicationForks):
+					# 	ind1 = fork * new_value.size / replicationForks
+					# 	ind2 = (fork + 1) * new_value.size / replicationForks
+					# 	if ind2 < len(new_value):
+					# 		new_value[ind1:ind2] = fork
+					# 	elif ind1 < len(new_value):
+					# 		new_value[ind1:] = fork
+					
 					d2_dividedAttributesDict['chromosomeIndex'][num_index] = new_value
 
 		d1_unique_molecules_container.objectsNew('dnaPolymerase', n_d1, **d1_dividedAttributesDict)
