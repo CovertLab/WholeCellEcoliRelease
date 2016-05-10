@@ -58,11 +58,13 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.rnaSynthProb = sim_data.process.transcription.rnaData["synthProb"]
 
 		# Views
-
+		
 		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
 
 		self.inactiveRnaPolys = self.bulkMoleculeView("APORNAP-CPLX[c]")
 
+		self.chromosomes = self.bulkMoleculeView('CHROM_FULL[c]')
+		
 		self.is_16SrRNA = sim_data.process.transcription.rnaData['isRRna16S']
 		self.is_23SrRNA = sim_data.process.transcription.rnaData['isRRna23S']
 		self.is_5SrRNA = sim_data.process.transcription.rnaData['isRRna5S']
@@ -74,6 +76,10 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
+
+		# no synthesis if no chromosome
+		if self.chromosomes.total()[0] == 0:
+			return
 
 		self.activationProb = self._calculateActivationProb(
 			self.fracActiveRnap,
