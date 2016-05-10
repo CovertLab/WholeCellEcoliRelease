@@ -147,6 +147,10 @@ class FluxBalanceAnalysis(object):
 	_generatedID_externalExchange = "{} external exchange"
 	_generatedID_internalExchange = "{} internal exchange"
 
+	_generatedID_externalExchangePos = "{} external exchange pos"
+	_generatedID_externalExchangeNeg = "{} external exchange neg"
+	_generatedID_externalExchangeAbs = "{} external exchange abs"
+
 	## Objective
 	_generatedID_moleculesToEquivalents = "molecules of {} to fractional objective equivalents"
 	_generatedID_moleculeEquivalents = "fractional objective equivalent for {}"
@@ -172,8 +176,9 @@ class FluxBalanceAnalysis(object):
 	_generatedID_fractionAboveUnityOut = "fraction {} above unity, out"
 
 	_standardObjectiveReactionName = "Standard biomass objective reaction"
-	_massID = "Mass"
-	_massOutName = "Mass out"
+
+	_massExchangeID = "Mass Exchange"
+	_massExchangeOutName = "Mass exchange out"
 
 	_forcedUnityColName = "Column forced at unity"
 
@@ -191,7 +196,7 @@ class FluxBalanceAnalysis(object):
 	def __init__(self, reactionStoich, externalExchangedMolecules, objective,
 			objectiveType = None, objectiveParameters = None,
 			internalExchangedMolecules = None, reversibleReactions = None,
-			reactionEnzymes = None, reactionRates = None,
+			secretionPenaltyCoeff = None, reactionEnzymes = None, reactionRates = None,
 			moleculeMasses = None, maintenanceCostGAM = None,
 			maintenanceReaction = None,
 			solver = DEFAULT_SOLVER):
@@ -254,7 +259,7 @@ class FluxBalanceAnalysis(object):
 
 		self._initEnzymeConstraints(reactionEnzymes, reactionRates)
 
-		self._initExchangeMass(externalExchangedMolecules, moleculeMasses)
+		self._initExchangeMass(externalExchangedMolecules, moleculeMasses, secretionPenaltyCoeff)
 
 		self._initMaintenance(maintenanceCostGAM, maintenanceReaction)
 
@@ -661,7 +666,7 @@ class FluxBalanceAnalysis(object):
 						)
 
 
-	def _initExchangeMass(self, externalExchangedMolecules, moleculeMasses):
+	def _initExchangeMass(self, externalExchangedMolecules, moleculeMasses, secretionPenaltyCoeff):
 		"""Create mass accumulation abstractions.
 
 		Tracking the mass entering the system through metabolism is crucial for
@@ -670,8 +675,8 @@ class FluxBalanceAnalysis(object):
 
 		if moleculeMasses is not None:
 			self._solver.flowMaterialCoeffIs(
-				self._massOutName,
-				self._massID,
+				self._massExchangeOutName,
+				self._massExchangeID,
 				-1
 				)
 
@@ -686,8 +691,37 @@ class FluxBalanceAnalysis(object):
 
 				self._solver.flowMaterialCoeffIs(
 					exchangeFluxID,
-					self._massID,
+					self._massExchangeID,
 					-moleculeMass # NOTE: negative because exchange fluxes point out
+					)
+
+				if secretionPenaltyCoeff is not None:
+					# Limit secretion/export
+					absID = self._generatedID_externalExchangeAbs.format(moleculeID)
+					posExchangeID = self._generatedID_externalExchangePos.format(moleculeID)
+					negExchangeID = self._generatedID_externalExchangeNeg.format(moleculeID)
+
+					self._solver.flowMaterialCoeffIs(
+						exchangeFluxID,
+						absID,
+						moleculeMass
+						)
+
+					self._solver.flowMaterialCoeffIs(
+						posExchangeID,
+						absID,
+						-1
+						)
+
+					self._solver.flowMaterialCoeffIs(
+						negExchangeID,
+						absID,
+						+1
+						)
+
+					self._solver.flowObjectiveCoeffIs(
+						posExchangeID,
+						secretionPenaltyCoeff
 					)
 
 
@@ -712,7 +746,7 @@ class FluxBalanceAnalysis(object):
 		# computed mass output produces "GAM reactions"...
 
 		self._solver.flowMaterialCoeffIs(
-			self._massOutName,
+			self._massExchangeOutName,
 			self._pseudometaboliteGAM,
 			maintenanceCostGAM
 			)
@@ -924,7 +958,7 @@ class FluxBalanceAnalysis(object):
 
 	def maxMassAccumulatedIs(self, maxAccumulation):
 		self._solver.flowUpperBoundIs(
-			self._massOutName,
+			self._massExchangeOutName,
 			maxAccumulation
 			)
 
@@ -995,4 +1029,4 @@ class FluxBalanceAnalysis(object):
 
 
 	def massAccumulated(self):
-		return self._solver.flowRates(self._massOutName)
+		return self._solver.flowRates(self._massExchangeOutName)
