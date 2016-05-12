@@ -121,6 +121,7 @@ class Metabolism(wholecell.processes.process.Process):
 			objectiveType = "pools",
 			reversibleReactions = self.reversibleReactions,
 			moleculeMasses = self.moleculeMasses,
+			secretionPenaltyCoeff = 0., # The "inconvenient constant"--limit secretion (e.g., of CO2); a value of 1e-5 seems to work
 			solver = "glpk",
 			maintenanceCostGAM = energyCostPerWetMass.asNumber(COUNTS_UNITS / MASS_UNITS),
 			maintenanceReaction = {
