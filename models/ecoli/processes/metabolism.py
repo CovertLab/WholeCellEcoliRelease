@@ -31,7 +31,7 @@ from wholecell.utils.enzymeKinetics import EnzymeKinetics
 
 from wholecell.utils.fitting import massesAndCountsToAddForPools
 
-COUNTS_UNITS = units.mmol
+COUNTS_UNITS = units.dmol
 VOLUME_UNITS = units.L
 MASS_UNITS = units.g
 USE_RATELIMITS = False # Enable/disable kinetic rate limits in the model
@@ -121,6 +121,7 @@ class Metabolism(wholecell.processes.process.Process):
 			objectiveType = "pools",
 			reversibleReactions = self.reversibleReactions,
 			moleculeMasses = self.moleculeMasses,
+			secretionPenaltyCoeff = 0., # The "inconvenient constant"--limit secretion (e.g., of CO2); a value of 1e-5 seems to work
 			solver = "glpk",
 			maintenanceCostGAM = energyCostPerWetMass.asNumber(COUNTS_UNITS / MASS_UNITS),
 			maintenanceReaction = {

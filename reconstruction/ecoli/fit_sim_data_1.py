@@ -19,7 +19,8 @@ from wholecell.utils.fitting import normalize, massesAndCountsToAddForPools
 
 # Hacks
 RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
-FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0  # reduce stochasticity from protein expression
+FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.2  # reduce stochasticity from protein expression
+FRACTION_INCREASE_RNAP_PROTEINS = 0.05
 
 # TODO: establish a controlled language for function behaviors (i.e. create* set* fit*)
 
@@ -509,7 +510,7 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time)
 
 	minRnapSubunitCounts = (
 		nRnapsNeeded * rnapStoich # Subunit stoichiometry
-		)
+		) * (1 + FRACTION_INCREASE_RNAP_PROTEINS)
 
 	# -- CONSTRAINT 2: Expected RNAP subunit counts based on distribution -- #
 	rnapCounts = bulkContainer.counts(rnapIds)
