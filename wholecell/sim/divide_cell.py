@@ -271,7 +271,7 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 					# 		new_value[ind1:ind2] = fork
 					# 	elif ind1 < len(new_value):
 					# 		new_value[ind1:] = fork
-					
+
 					d2_dividedAttributesDict['chromosomeIndex'][num_index] = new_value
 
 		d1_unique_molecules_container.objectsNew('dnaPolymerase', n_d1, **d1_dividedAttributesDict)
@@ -288,10 +288,10 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 		d1_bool = np.zeros(len(moleculeSet), dtype = bool)
 		d2_bool = np.zeros(len(moleculeSet), dtype = bool)
 
-		d1_bool[:len(d1_dividedAttributesDict['chromosomeIndex'])] = 1
+		d1_replicationForks = int(np.ceil(len(d1_unique_molecules_container.objectsInCollection('dnaPolymerase')) / 4))
+		n_d1 = d1_chromosome_count + d1_replicationForks
+		d1_bool[:n_d1] = 1
 		d2_bool = np.logical_not(d1_bool)
-				
-		n_d1 = d1_bool.sum()
 		n_d2 = d2_bool.sum()
 
 		d1_dividedAttributesDict = {}
@@ -302,7 +302,6 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 
 		d1_unique_molecules_container.objectsNew('originOfReplication', n_d1, **d1_dividedAttributesDict)
 		d2_unique_molecules_container.objectsNew('originOfReplication', n_d2, **d2_dividedAttributesDict)
-
 
 	return d1_unique_molecules_container, d2_unique_molecules_container
 
