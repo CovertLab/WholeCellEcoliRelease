@@ -73,15 +73,6 @@ def chromosomeDivision(bulkMolecules, randomState):
 		d1_chromosome_count += randomState.binomial(1, p = BINOMIAL_COEFF)
 		d2_chromosome_count = full_chromosome_count - d1_chromosome_count
 
-	# if full_chromosome_count == 1:
-	# 	d1_chromosome_count = randomState.binomial(full_chromosome_count, p = BINOMIAL_COEFF)
-	# 	d2_chromosome_count = full_chromosome_count - d1_chromosome_count
-	# elif full_chromosome_count == 2:
-	# 	d1_chromosome_count = 1
-	# 	d2_chromosome_count = 1
-	# else:
-	# 	raise Exception("Un-accounted for number of chromosomes at division!")
-
 	return {"d1_chromosome_count" : d1_chromosome_count, "d2_chromosome_count" : d2_chromosome_count}
 
 def divideBulkMolecules(bulkMolecules, randomState, chromosome_counts):
@@ -260,17 +251,6 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 					new_value = np.zeros(num_index.sum())
 					for fork in range(replicationForks):
 						new_value[fork * new_value.size / replicationForks:(fork + 1) * new_value.size / replicationForks] = fork
-
-					# # if uneven number of partial chromosomes
-					# num_index = d2_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == index
-					# new_value = np.zeros(num_index.sum())
-					# for fork in range(replicationForks):
-					# 	ind1 = fork * new_value.size / replicationForks
-					# 	ind2 = (fork + 1) * new_value.size / replicationForks
-					# 	if ind2 < len(new_value):
-					# 		new_value[ind1:ind2] = fork
-					# 	elif ind1 < len(new_value):
-					# 		new_value[ind1:] = fork
 
 					d2_dividedAttributesDict['chromosomeIndex'][num_index] = new_value
 
