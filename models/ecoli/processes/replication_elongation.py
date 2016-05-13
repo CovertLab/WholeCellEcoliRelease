@@ -94,9 +94,10 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		activePolymerasePresent = len(activeDnaPoly) > 0
 
 		oriCs = self.oriCs.molecules()
+		chromosomes = self.full_chromosome.total()[0]
 
-		if len(oriCs) == 0:
-			raise Exception, "There are no oriC's in this cell!"
+		if len(oriCs) == 0 and chromosomes == 0:
+			return
 
 		if activePolymerasePresent:
 			replicationRound = activeDnaPoly.attr('replicationRound')
