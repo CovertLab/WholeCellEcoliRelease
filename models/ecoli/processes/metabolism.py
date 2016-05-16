@@ -203,15 +203,6 @@ class Metabolism(wholecell.processes.process.Process):
 			self.time()
 			)
 
-<<<<<<< HEAD
-		###### VARIANT CODE #######
-		# APPLY METABOLIC LIMITATION AT TIME POINT
-		if self.glucoseLimitation:
-			if self.time() >= 10*60:
-				glc_idx = self.fba.externalMoleculeIDs().index('GLC[p]')
-				externalMoleculeLevels[glc_idx] = externalMoleculeLevels[glc_idx] * self.fractionGlucoseLimit
-		###### VARIANT CODE #######
-=======
 		if newObjective != None and newObjective != self.objective:
 			# Build new fba instance with new objective
 			self.objective = newObjective
@@ -238,7 +229,6 @@ class Metabolism(wholecell.processes.process.Process):
 			smallMoleculePoolsDryMass = units.hstack((massesToAdd[:objIds.index('WATER[c]')], massesToAdd[objIds.index('WATER[c]') + 1:]))
 			totalDryMass = units.sum(smallMoleculePoolsDryMass) + massInitial
 			self.writeToListener("Mass", "expectedDryMassIncrease", totalDryMass)
->>>>>>> master
 
 		# Set external molecule levels
 		self.fba.externalMoleculeLevelsIs(externalMoleculeLevels)
