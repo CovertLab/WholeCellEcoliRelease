@@ -239,7 +239,7 @@ class ReplicationElongation(wholecell.processes.process.Process):
 
 		self.dntps.countsDec(dNtpsUsed)
 
-		self.ppi.countInc(nElongations - nInitialized)
+		self.ppi.countInc(nElongations)
 
 	def _dnaPolymeraseElongationRate(self):
 		return self.dnaPolyElngRate * self.timeStepSec()
