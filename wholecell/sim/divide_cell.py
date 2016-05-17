@@ -64,14 +64,14 @@ def chromosomeDivision(bulkMolecules, randomState):
 		)
 	full_chromosome_count = bulkMolecules.container.count(bulkMolecules.divisionIds['fullChromosome'][0])
 
-	if full_chromosome_count == 1:
-		d1_chromosome_count = randomState.binomial(full_chromosome_count, p = BINOMIAL_COEFF)
-		d2_chromosome_count = full_chromosome_count - d1_chromosome_count
-	elif full_chromosome_count == 2:
-		d1_chromosome_count = 1
-		d2_chromosome_count = 1
+	# Divide evenly between both daughters if even number of chromosomes or give an extra to one cell if odd number
+	if full_chromosome_count % 2 == 0:
+		d1_chromosome_count = full_chromosome_count // 2
+		d2_chromosome_count = full_chromosome_count // 2
 	else:
-		raise Exception("Un-accounted for number of chromosomes at division!")
+		d1_chromosome_count = full_chromosome_count // 2
+		d1_chromosome_count += randomState.binomial(1, p = BINOMIAL_COEFF)
+		d2_chromosome_count = full_chromosome_count - d1_chromosome_count
 
 	return {"d1_chromosome_count" : d1_chromosome_count, "d2_chromosome_count" : d2_chromosome_count}
 
@@ -159,6 +159,7 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 	# Get set of molecules to divide and calculate number going to daugher one and daughter two
 	moleculeSet = uniqueMolecules.container.objectsInCollection('dnaPolymerase')
 	moleculeAttributeDict = uniqueMoleculesToDivide['dnaPolymerase']
+
 	if len(moleculeSet) > 0:
 		d1_chromosome_count = chromosome_counts['d1_chromosome_count']
 		d2_chromosome_count = chromosome_counts['d2_chromosome_count']
@@ -173,22 +174,29 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 
 			d1_bool[:] = d1_chromosome_count
 			d2_bool[:] = d2_chromosome_count
-		elif d1_chromosome_count + d2_chromosome_count == 2:
+		else:
 			d1_bool = np.zeros(len(moleculeSet), dtype = bool)
 			d2_bool = np.zeros(len(moleculeSet), dtype = bool)
+
+			# give polymerases associated with extra chromosome to daughter that gets the extra chromosome
+			if d1_chromosome_count < d2_chromosome_count:
+				d1Index = 1
+				d2Index = 0
+			else:
+				d1Index = 0
+				d2Index = 1
+
 			for roundIdx in np.unique(replicationRound):
 				# replicationRound indexes all dna polymerases started at the same time across all oriC
 				# chromosomeIndex indexes all dna polymerases started at the same time at EACH oriC (i.e. one should go to d1, one to d2)
 				d1_bool = np.logical_or(
-					np.logical_and(replicationRound == roundIdx, chromosomeIndex == 0),
+					np.logical_and(replicationRound == roundIdx, chromosomeIndex % 2 == d1Index),
 					d1_bool
 					)
 				d2_bool = np.logical_or(
-					np.logical_and(replicationRound == roundIdx, chromosomeIndex == 1),
+					np.logical_and(replicationRound == roundIdx, chromosomeIndex % 2 == d2Index),
 					d2_bool
 					)
-		else:
-			raise Exception("Too may chromosomes!")
 				
 		n_d1 = d1_bool.sum()
 		n_d2 = d2_bool.sum()
@@ -202,11 +210,26 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 		# Reset chromosomeIndex for next cell cycle in all forks that are divided
 		for replicationRound in np.unique(d1_dividedAttributesDict['replicationRound']):
 			replicationRoundIndexes = d1_dividedAttributesDict['replicationRound'] == replicationRound
-			if replicationRoundIndexes.sum() >= 8:
+			replicationForks = int(np.ceil(replicationRoundIndexes.sum() / 4))
+			if replicationForks >= 2:
 				for index in [0,1,2,3]:
+					# if not possible to have uneven number of partial chromosomes
 					num_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == index
 					new_value = np.zeros(num_index.sum())
-					new_value[:new_value.size / 2] = 1
+					for fork in range(replicationForks):
+						new_value[fork * new_value.size / replicationForks:(fork + 1) * new_value.size / replicationForks] = fork
+
+					# # if uneven number of partial chromosomes
+					# num_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == index
+					# new_value = np.zeros(num_index.sum())
+					# for fork in range(replicationForks):
+					# 	ind1 = fork * new_value.size / replicationForks
+					# 	ind2 = (fork + 1) * new_value.size / replicationForks
+					# 	if ind2 < len(new_value):
+					# 		new_value[ind1:ind2] = fork
+					# 	elif ind1 < len(new_value):
+					# 		new_value[ind1:] = fork
+
 					d1_dividedAttributesDict['chromosomeIndex'][num_index] = new_value
 
 				# zero_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == 0
@@ -220,17 +243,21 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 
 		for replicationRound in np.unique(d2_dividedAttributesDict['replicationRound']):
 			replicationRoundIndexes = d2_dividedAttributesDict['replicationRound'] == replicationRound
-			if replicationRoundIndexes.sum() >= 8:
+			replicationForks = int(np.ceil(replicationRoundIndexes.sum() / 4))
+			if replicationForks >= 2:
 				for index in [0,1,2,3]:
-					num_index = d2_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == index
+					# if not possible to have uneven number of partial chromosomes
+					num_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == index
 					new_value = np.zeros(num_index.sum())
-					new_value[:new_value.size / 2] = 0
+					for fork in range(replicationForks):
+						new_value[fork * new_value.size / replicationForks:(fork + 1) * new_value.size / replicationForks] = fork
+
 					d2_dividedAttributesDict['chromosomeIndex'][num_index] = new_value
 
 		d1_unique_molecules_container.objectsNew('dnaPolymerase', n_d1, **d1_dividedAttributesDict)
 		d2_unique_molecules_container.objectsNew('dnaPolymerase', n_d2, **d2_dividedAttributesDict)
 
-		# Divide oriCs with chromosome
+	# Divide oriCs with chromosome
 
 	moleculeSet = uniqueMolecules.container.objectsInCollection('originOfReplication')
 	moleculeAttributeDict = uniqueMoleculesToDivide['originOfReplication']
@@ -240,18 +267,11 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 
 		d1_bool = np.zeros(len(moleculeSet), dtype = bool)
 		d2_bool = np.zeros(len(moleculeSet), dtype = bool)
-		if d1_chromosome_count + d2_chromosome_count < 2:
-			d1_bool[:] = d1_chromosome_count
-			d2_bool[:] = d2_chromosome_count
 
-		elif d1_chromosome_count + d2_chromosome_count == 2:
-			d1_bool[:len(moleculeSet) / 2.] = 1
-			d2_bool = np.logical_not(d1_bool)
-
-		else:
-			raise Exception("Too may chromosomes!")
-				
-		n_d1 = d1_bool.sum()
+		d1_replicationForks = int(np.ceil(len(d1_unique_molecules_container.objectsInCollection('dnaPolymerase')) / 4))
+		n_d1 = d1_chromosome_count + d1_replicationForks
+		d1_bool[:n_d1] = 1
+		d2_bool = np.logical_not(d1_bool)
 		n_d2 = d2_bool.sum()
 
 		d1_dividedAttributesDict = {}
@@ -262,7 +282,6 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 
 		d1_unique_molecules_container.objectsNew('originOfReplication', n_d1, **d1_dividedAttributesDict)
 		d2_unique_molecules_container.objectsNew('originOfReplication', n_d2, **d2_dividedAttributesDict)
-
 
 	return d1_unique_molecules_container, d2_unique_molecules_container
 

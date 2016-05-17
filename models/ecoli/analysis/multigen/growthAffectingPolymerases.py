@@ -119,6 +119,11 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		uniqueMoleculeCounts.close()
 
+		# Get elongation rate data
+		ribosomeDataFile = TableReader(os.path.join(simOutDir, "RibosomeData"))
+		actualElongations = ribosomeDataFile.readColumn("actualElongations")
+		ribosomeDataFile.close()
+
 		# Calculate statistics
 		rProteinCounts = np.hstack((freeProteinCounts50S, freeProteinCounts30S))
 		limitingCountThreshold = 15
@@ -133,12 +138,15 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		ribosomeCounts = activeRibosome
 
+		effectiveElongationRate = actualElongations / ribosomeCounts
+		extraRibosomes = (ribosomeCounts - actualElongations / 21.) / (actualElongations / 21.) * 100
+
 		## Calculate statistics involving ribosomes and RNAP ##
 		ratioRNAPtoRibosome = totalRnap.astype(np.float) / ribosomeCounts.astype(np.float)
 
 		## Plotting ##
 
-		gs = gridspec.GridSpec(8, 3)
+		gs = gridspec.GridSpec(9, 3)
 
 		# Plot growth rate
 		ax1 = plt.subplot(gs[0,:2])
@@ -210,7 +218,14 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ax8.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 		ax8.set_ylabel("RNAP:Ribosome\ncounts")
 
-		ax8.set_xlabel("Time (min)")
+		# Plot number of "extra" ribosomes
+		ax9 = plt.subplot(gs[8,:2])
+		ax9.plot(time.asNumber(units.min), extraRibosomes)
+		ax9.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
+		ax9.set_ylim([0, 100])
+		ax9.set_ylabel("% extra\nribosomes")
+
+		ax9.set_xlabel("Time (min)")
 
 	fig.subplots_adjust(hspace=.5, wspace = 0.3)
 

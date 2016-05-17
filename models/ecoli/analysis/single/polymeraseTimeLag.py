@@ -38,18 +38,32 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	ribosomeSubunitIds.extend(sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.s30_fullComplex[0])['subunitIds'])
 	ribosomeSubunitMasses = sim_data.getter.getMass(ribosomeSubunitIds)
 	mass70s = (sim_data.getter.getMass(sim_data.moleculeGroups.s50_fullComplex) + sim_data.getter.getMass(sim_data.moleculeGroups.s30_fullComplex))[0]
+	rnaIds = sim_data.process.transcription.rnaData['id']
 
 	elongationRate = float(sim_data.growthRateParameters.ribosomeElongationRate.asNumber(units.aa / units.s))
+	rnaLengths = sim_data.process.transcription.rnaData['length'].asNumber()
+
+	rRnaIds = []
+	rRnaIds.append(sim_data.moleculeGroups.s30_16sRRNA[0]) # Only using the rrnA operon subunits! This is a bit of a hack...
+	rRnaIds.append(sim_data.moleculeGroups.s50_23sRRNA[0])
+	rRnaIds.append(sim_data.moleculeGroups.s50_5sRRNA[0])
+
+	rRnaIndexes = np.array([np.where(rnaIds == comp)[0][0] for comp in rRnaIds])
+	rRnaLengths = rnaLengths[rRnaIndexes]
+
+	polymerizedNtpsInActiveRibosome = rRnaLengths.sum()
 
 	# Load time
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+	timeStep = units.s * TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
 
 	# Load ribosome data
 	ribosomeDataFile = TableReader(os.path.join(simOutDir, "RibosomeData"))
 	ribosomesTerminated = ribosomeDataFile.readColumn("didTerminate")
 	ribosomesInitialized = ribosomeDataFile.readColumn("didInitialize")
 	ribosomeTerminationLoss = ribosomeDataFile.readColumn("terminationLoss")
+	actualRibosomeElongations = ribosomeDataFile.readColumn("actualElongations")
 	ribosomeDataFile.close()
 
 	# Load RNAP data
@@ -57,6 +71,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	rnapsTerminated = rnapDataFile.readColumn("didTerminate")
 	rnapsInitialized = rnapDataFile.readColumn("didInitialize")
 	rnapTerminationLoss = rnapDataFile.readColumn("terminationLoss")
+	actualRnapElongations = rnapDataFile.readColumn("actualElongations")
 	rnapDataFile.close()
 
 	# Load count data for s30 proteins, rRNA, and final 30S complex
@@ -65,9 +80,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	# Get indexes
 	moleculeIds = bulkMolecules.readAttribute("objectNames")
 	ribosomeSubunitIndexes = np.array([moleculeIds.index(comp) for comp in ribosomeSubunitIds], np.int)
+	rnaIndexes = np.array([moleculeIds.index(comp) for comp in rnaIds])
 
 	# Load data
 	ribosomeSubunitCounts = bulkMolecules.readColumn("counts")[:, ribosomeSubunitIndexes]
+	rnaCounts = bulkMolecules.readColumn("counts")[:, rnaIndexes]
 
 	bulkMolecules.close()
 
@@ -78,6 +95,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	uniqueMoleculeCounts.close()
 
+	rnaDegradationListenerFile = TableReader(os.path.join(simOutDir, "RnaDegradationListener"))
+	countRnaDegraded = rnaDegradationListenerFile.readColumn('countRnaDegraded')
+	rnaDegradationListenerFile.close()
+
 	# Calculate statistics
 	totalRibosome = (activeRibosome + np.min(ribosomeSubunitCounts))
 	totalRibosomeCapacity = totalRibosome * elongationRate
@@ -87,37 +108,49 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	totalRibosomeMass = freeSubunitMass + activeRibosomeMass
 	massFractionActive = activeRibosomeMass / totalRibosomeMass
 
+	bulkPolymerizedNtpCounts = np.dot(rnaCounts, rnaLengths)
+	uniquePolymerizedNtpCounts = activeRibosome * polymerizedNtpsInActiveRibosome
+	totalPolymerizedNtpCounts = bulkPolymerizedNtpCounts + uniquePolymerizedNtpCounts
+	polymerizedNtpsDegraded = np.dot(countRnaDegraded, rnaLengths)
+
+	growthRate = np.log(2) / sim_data.doubling_time
+	expectedGrowth = totalPolymerizedNtpCounts * (np.exp(units.convertNoUnitToNumber(growthRate * timeStep)) - 1)
+	actualGrowth = actualRnapElongations - polymerizedNtpsDegraded
+
 	plt.figure(figsize = (8.5, 11))
 
-	ribosomeInit_axis = plt.subplot(8,1,1)
-	ribosomeInit_axis.plot(time / 60., ribosomesInitialized, label="Number of ribosomes initialized", linewidth=2, color='b')
-	ribosomeInit_axis.set_ylabel("ribosomes")
-	ribosomeInit_axis.legend()#ncol=2)
+	ribosomeInit_axis = plt.subplot(9,1,1)
+	ribosomeInit_axis.plot(time / 60., ribosomesInitialized, label="Number of ribosomes initialized", linewidth=2)
+	ribosomeInit_axis.set_ylabel("Ribosomes\ninitialized")
 
-	ribosomeTerm_axis = plt.subplot(8,1,2)
-	ribosomeTerm_axis.plot(time / 60., ribosomesTerminated, label="Number of ribosomes terminated", linewidth=2, color='r')
-	ribosomeTerm_axis.set_ylabel("ribosomes")
-	ribosomeTerm_axis.legend()#ncol=2)
+	ribosomeTerm_axis = plt.subplot(9,1,2)
+	ribosomeTerm_axis.plot(time / 60., ribosomesTerminated, label="Number of ribosomes terminated", linewidth=2)
+	ribosomeTerm_axis.set_ylabel("Ribosomes\nterminated")
 
-	ribosomeTermLoss_axis = plt.subplot(8,1,3)
-	ribosomeTermLoss_axis.plot(time / 60., ribosomeTerminationLoss, label="Lost capacity due to termination", linewidth=2, color='r')
-	ribosomeTermLoss_axis.set_ylabel("lost aa capacity")
-	ribosomeTermLoss_axis.legend()#ncol=2)
+	ribosomeTermLoss_axis = plt.subplot(9,1,3)
+	ribosomeTermLoss_axis.plot(time / 60., ribosomeTerminationLoss, label="Lost capacity due to termination", linewidth=2)
+	ribosomeTermLoss_axis.set_ylabel("Ribosome\ntermination\nloss")
 
-	rnapInit_axis = plt.subplot(8,1,4)
-	rnapInit_axis.plot(time / 60., rnapsInitialized, label="Number of rnap initialized", linewidth=2, color='r')
-	rnapInit_axis.set_ylabel("rnap")
-	rnapInit_axis.legend()#ncol=2)
+	ribosomePercentLoss_axis = plt.subplot(9,1,4)
+	ribosomePercentLoss_axis.plot(time / 60., ribosomeTerminationLoss / actualRibosomeElongations.astype(np.float) * 100, label="Lost capacity due to termination", linewidth=2)
+	ribosomePercentLoss_axis.set_ylabel("Ribosome percent\nloss")
 
-	rnapTerm_axis = plt.subplot(8,1,5)
-	rnapTerm_axis.plot(time / 60., rnapsTerminated, label="Number of rnap terminated", linewidth=2, color='r')
-	rnapTerm_axis.set_ylabel("rnap")
-	rnapTerm_axis.legend()#ncol=2)
+	rnapInit_axis = plt.subplot(9,1,5)
+	rnapInit_axis.plot(time / 60., rnapsInitialized, label="Number of rnap initialized", linewidth=2)
+	rnapInit_axis.set_ylabel("Rnap\ninitalized")
 
-	ribosomeTermLoss_axis = plt.subplot(8,1,6)
-	ribosomeTermLoss_axis.plot(time / 60., rnapTerminationLoss, label="Lost capacity due to termination", linewidth=2, color='r')
-	ribosomeTermLoss_axis.set_ylabel("lost ntp capacity")
-	ribosomeTermLoss_axis.legend()#ncol=2)
+	rnapTerm_axis = plt.subplot(9,1,6)
+	rnapTerm_axis.plot(time / 60., rnapsTerminated, label="Number of rnap terminated", linewidth=2)
+	rnapTerm_axis.set_ylabel("Rnap\nterminated")
+
+	rnapTermLoss_axis = plt.subplot(9,1,7)
+	rnapTermLoss_axis.plot(time / 60., rnapTerminationLoss, label="Lost capacity due to termination", linewidth=2)
+	rnapTermLoss_axis.set_ylabel("RNAP\ntermination\nloss")
+
+	rnapActualVsExpectedGrowth_axis = plt.subplot(9,1,8)
+	rnapActualVsExpectedGrowth_axis.plot(time / 60., actualGrowth / expectedGrowth.astype(np.float), label="Lost capacity due to termination", linewidth=2)
+	rnapActualVsExpectedGrowth_axis.set_ylim([0, 2])
+	rnapActualVsExpectedGrowth_axis.set_ylabel("Actual growth/\nexpected")
 
 	# Save
 	plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
