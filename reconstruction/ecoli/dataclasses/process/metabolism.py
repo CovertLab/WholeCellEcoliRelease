@@ -162,7 +162,9 @@ class Metabolism(object):
 		self.concentrationUpdates = ConcentrationUpdates(dict(zip(
 			metaboliteIDs,
 			(units.mol / units.L) * np.array(metaboliteConcentrations)
-			)))
+			)),
+			raw_data.equilibriumReactions
+		)
 		envFirstTimePoint = sim_data.envDict[sim_data.environment][0][-1]
 		self.concDict = self.concentrationUpdates.concentrationsBasedOnNutrients(envFirstTimePoint)
 
@@ -287,7 +289,7 @@ class Metabolism(object):
 		return externalMoleculeLevels, newObjective
 
 class ConcentrationUpdates(object):
-	def __init__(self, concDict):
+	def __init__(self, concDict, equilibriumReactions):
 		self.units = units.getUnit(concDict.values()[0])
 		self.defaultConcentrationsDict = dict((key, concDict[key].asNumber(self.units)) for key in concDict)
 
@@ -315,6 +317,8 @@ class ConcentrationUpdates(object):
 			"VAL[c]": 2.,
 		}
 
+		self.moleculeSetAmounts = self._addMoleculeAmountsBasedOnKd(equilibriumReactions)
+
 	def concentrationsBasedOnNutrients(self, nutrientFluxes = None):
 		concentrationsDict = self.defaultConcentrationsDict.copy()
 
@@ -328,7 +332,13 @@ class ConcentrationUpdates(object):
 			if self._isNutrientExchangePresent(nutrientFluxes, molecule):
 				concentrations[poolIds.index(molecule)] *= scaleFactor
 
-		return dict(zip(poolIds, concentrations))
+		concDict = dict(zip(poolIds, concentrations))
+
+		for moleculeName, scaleFactor in self.moleculeSetAmounts.iteritems():
+			if self._isNutrientExchangePresent(nutrientFluxes, moleculeName):
+				concDict[moleculeName] = self.moleculeSetAmounts
+
+		return concDict
 
 	def _isNutrientExchangePresent(self, nutrientFluxes, molecule):
 		if molecule in nutrientFluxes["unconstrainedExchangeMolecules"]:
@@ -339,3 +349,23 @@ class ConcentrationUpdates(object):
 				return True
 
 		return False
+
+	def _addMoleculeAmountsBasedOnKd(self, equilibriumReactions):
+		moleculeSetAmounts = {}
+		for reaction in equilibriumReactions:
+			# We only want to do this for species with standard Michaelis-Menten kinetics initially
+			if len(reaction["stoichiometry"]) != 3:
+				continue
+
+			rev = reaction["reverse rate"]
+			fwd = reaction["forward rate"]
+			Kd = (units.mol / units.L) * (rev / fwd)
+
+			moleculeName = [x["molecule"].encode("utf-8") for x in reaction["stoichiometry"] if x["type"] == "metabolite"][0]
+			amountToSet = 0.
+			if moleculeName in moleculeSetAmounts and moleculeSetAmounts[moleculeName] > Kd.asNumber(units.mol / units.L):
+				amountToSet = moleculeSetAmounts[moleculeName]
+			else:
+				amountToSet = Kd.asNumber(units.mol / units.L)
+			moleculeSetAmounts[moleculeName] = amountToSet
+		return moleculeSetAmounts
