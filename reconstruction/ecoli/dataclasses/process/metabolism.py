@@ -336,7 +336,7 @@ class ConcentrationUpdates(object):
 
 		for moleculeName, scaleFactor in self.moleculeSetAmounts.iteritems():
 			if self._isNutrientExchangePresent(nutrientFluxes, moleculeName):
-				concDict[moleculeName] = self.moleculeSetAmounts
+				concDict[moleculeName] = np.max((concDict[moleculeName], self.moleculeSetAmounts))
 
 		return concDict
 
