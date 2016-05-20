@@ -34,6 +34,8 @@ from wholecell.utils.fitting import massesAndCountsToAddForPools
 COUNTS_UNITS = units.dmol
 VOLUME_UNITS = units.L
 MASS_UNITS = units.g
+TIME_UNITS = units.s
+
 USE_RATELIMITS = False # Enable/disable kinetic rate limits in the model
 
 USE_MANUAL_FLUX_COEFF = False # enable to overrid flux coefficients in the knowledgebase and use these local values instead
