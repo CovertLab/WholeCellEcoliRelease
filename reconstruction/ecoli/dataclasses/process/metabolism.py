@@ -340,7 +340,6 @@ class ConcentrationUpdates(object):
 					concDict.get(moleculeName, 0 * (units.mol / units.L)).asNumber(units.mol / units.L),
 					setAmount.asNumber(units.mol / units.L)
 					)) * (units.mol / units.L)
-				print moleculeName, concDict[moleculeName]
 
 		return concDict
 
