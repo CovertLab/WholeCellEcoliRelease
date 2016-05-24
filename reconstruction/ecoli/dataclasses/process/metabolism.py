@@ -334,9 +334,13 @@ class ConcentrationUpdates(object):
 
 		concDict = dict(zip(poolIds, concentrations))
 
-		for moleculeName, scaleFactor in self.moleculeSetAmounts.iteritems():
+		for moleculeName, setAmount in self.moleculeSetAmounts.iteritems():
 			if self._isNutrientExchangePresent(nutrientFluxes, moleculeName):
-				concDict[moleculeName] = np.max((concDict[moleculeName], self.moleculeSetAmounts))
+				concDict[moleculeName] = np.max((
+					concDict.get(moleculeName, 0 * (units.mol / units.L)).asNumber(units.mol / units.L),
+					setAmount.asNumber(units.mol / units.L)
+					)) * (units.mol / units.L)
+				print moleculeName, concDict[moleculeName]
 
 		return concDict
 
@@ -367,5 +371,6 @@ class ConcentrationUpdates(object):
 				amountToSet = moleculeSetAmounts[moleculeName]
 			else:
 				amountToSet = Kd.asNumber(units.mol / units.L)
-			moleculeSetAmounts[moleculeName] = amountToSet
+			moleculeSetAmounts[moleculeName + "[p]"] = amountToSet * (units.mol / units.L)
+			moleculeSetAmounts[moleculeName + "[c]"] = amountToSet * (units.mol / units.L)
 		return moleculeSetAmounts
