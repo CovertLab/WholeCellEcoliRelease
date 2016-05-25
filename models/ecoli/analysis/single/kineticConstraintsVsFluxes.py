@@ -22,6 +22,8 @@ import matplotlib.animation as animation
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
+from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS
+
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -49,7 +51,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	simulationSteps = fbaData.readColumn('simulationStep')
 	fbaData.close()
 
-	testPoint = 100
+	# Take the rough halfway point as an example point
+	testPoint = len(time)//2
 
 	fluxNamesEstimates = np.array(fluxNames)[np.where(rateEstimatesArray[testPoint] < np.inf)]
 
@@ -68,23 +71,23 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	plt.figure(figsize=(10,15))
 
 	plt.subplot(3,1,1)
-	plt.title("Reaction Fluxes and Kinetic Rates")
+	plt.title("Reaction Fluxes and Kinetic Rates at t={} {}".format(time[testPoint], TIME_UNITS.strUnit()))
 	plt.bar(xrange(len(fluxesWithEstimates)),fluxesWithEstimates, color="b", alpha=.7, label="Fluxes")
 	plt.bar(xrange(len(rateEstimates)), rateEstimates, .5, color="r", alpha=.5, label="Kinetic Rates")
 	plt.xlabel("Reaction")
-	plt.ylabel("Reaction Rate (microM/second)")
+	plt.ylabel("Reaction Rate ({counts_units}/{volume_units}.{time_units})".format(counts_units=COUNTS_UNITS.strUnit(), volume_units=VOLUME_UNITS.strUnit(), time_units=TIME_UNITS.strUnit()))
 	plt.legend(framealpha=.5)
 
 	plt.subplot(3,1,2)
-	plt.title("Log Normalized Reaction Fluxes and Kinetic Rates")
+	plt.title("Log Normalized Reaction Fluxes and Kinetic Rates at t={} {}".format(time[testPoint], TIME_UNITS.strUnit()))
 	plt.bar(xrange(len(fluxesWithEstimates)),np.log10(fluxesWithEstimates + 1), color="b", alpha=.7, label="Fluxes")
 	plt.bar(xrange(len(rateEstimates)), np.log10(rateEstimates + 1), .5, color="r", alpha=.5, label="Kinetic Rates")
 	plt.xlabel("Reaction")
-	plt.ylabel("Normalized Log10 Reaction Rate (microM/second)")
+	plt.ylabel("Reaction Rate ({counts_units}/{volume_units}.{time_units})".format(counts_units=COUNTS_UNITS.strUnit(), volume_units=VOLUME_UNITS.strUnit(), time_units=TIME_UNITS.strUnit()))
 	plt.legend(framealpha=.5)
 
 	plt.subplot(3,1,3)
-	plt.title("Kinetic Rates Divided By Reaction Fluxes")
+	plt.title("Kinetic Rates Divided By Reaction Fluxes at t={} {}".format(time[testPoint], TIME_UNITS.strUnit()))
 
 	plt.bar(xrange(len(rateEstimates)),fluxesWithEstimates / rateEstimates, color='purple', alpha=.7, label="Fold Difference")
 	plt.xlabel("Reaction")
