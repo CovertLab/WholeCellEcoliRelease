@@ -26,12 +26,15 @@ EXCHANGE_UNITS = units.mmol / units.g / units.h
 class Metabolism(object):
 	""" Metabolism """
 
-	def __init__(self, raw_data, sim_data):
-		self._buildBiomass(raw_data, sim_data)
+	def __init__(self, raw_data, sim_data, environment = None):
+		if environment == None:
+			environment = sim_data.environment
+
+		self._buildBiomass(raw_data, sim_data, environment)
 		self._buildMetabolism(raw_data, sim_data)
 
 
-	def _buildBiomass(self, raw_data, sim_data):
+	def _buildBiomass(self, raw_data, sim_data, environment):
 		wildtypeIDs = set(entry["molecule id"] for entry in raw_data.biomass)
 		# TODO: unjank this
 
@@ -165,7 +168,7 @@ class Metabolism(object):
 			)),
 			raw_data.equilibriumReactions
 		)
-		envFirstTimePoint = sim_data.envDict[sim_data.environment][0][-1]
+		envFirstTimePoint = sim_data.envDict[environment][0][-1]
 		self.concDict = self.concentrationUpdates.concentrationsBasedOnNutrients(envFirstTimePoint)
 
 	def _buildMetabolism(self, raw_data, sim_data):
