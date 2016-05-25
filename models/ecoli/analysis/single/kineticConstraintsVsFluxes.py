@@ -22,6 +22,8 @@ import matplotlib.animation as animation
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
+from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS
+
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -72,7 +74,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	plt.bar(xrange(len(fluxesWithEstimates)),fluxesWithEstimates, color="b", alpha=.7, label="Fluxes")
 	plt.bar(xrange(len(rateEstimates)), rateEstimates, .5, color="r", alpha=.5, label="Kinetic Rates")
 	plt.xlabel("Reaction")
-	plt.ylabel("Reaction Rate (microM/second)")
+	plt.ylabel("Reaction Rate ({counts_units}/{volume_units}.{time_units})".format(counts_units=COUNTS_UNITS.strUnit(), volume_units=VOLUME_UNITS.strUnit(), time_units=TIME_UNITS.strUnit()))
 	plt.legend(framealpha=.5)
 
 	plt.subplot(3,1,2)
@@ -80,7 +82,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	plt.bar(xrange(len(fluxesWithEstimates)),np.log10(fluxesWithEstimates + 1), color="b", alpha=.7, label="Fluxes")
 	plt.bar(xrange(len(rateEstimates)), np.log10(rateEstimates + 1), .5, color="r", alpha=.5, label="Kinetic Rates")
 	plt.xlabel("Reaction")
-	plt.ylabel("Normalized Log10 Reaction Rate (microM/second)")
+	plt.ylabel("Reaction Rate ({counts_units}/{volume_units}.{time_units})".format(counts_units=COUNTS_UNITS.strUnit(), volume_units=VOLUME_UNITS.strUnit(), time_units=TIME_UNITS.strUnit()))
 	plt.legend(framealpha=.5)
 
 	plt.subplot(3,1,3)

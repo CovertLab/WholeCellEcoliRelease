@@ -87,8 +87,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 			if overconstraintMultipleAverage > 1:
 				print reaction, overconstraintMultipleAverage
 
-	import ipdb; ipdb.set_trace()
-
 	plt.figure(figsize=(10,15))
 
 	plt.subplot(2,1,1)
