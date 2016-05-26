@@ -22,7 +22,7 @@ import matplotlib.animation as animation
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
-VERBOSE = True
+VERBOSE = False
 
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	if not os.path.isdir(simOutDir):
