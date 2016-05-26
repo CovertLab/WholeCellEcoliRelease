@@ -38,14 +38,10 @@ COUNTS_UNITS = units.mmol
 VOLUME_UNITS = units.L
 MASS_UNITS = units.g
 
-def fitSimData_1(raw_data, doubling_time = None):
-	# Initialize simulation data with growth rate
-	if not isinstance(doubling_time, units.Unum):
-		doubling_time = DOUBLING_TIME
+def fitSimData_1(raw_data):
 
 	sim_data = SimulationDataEcoli()
 	sim_data.initialize(
-		doubling_time = doubling_time,
 		raw_data = raw_data,
 		expression_condition = EXPRESSION_CONDITION,
 		environment = ENVIRONMENT

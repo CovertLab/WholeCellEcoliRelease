@@ -256,15 +256,15 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Combine the enzyme concentrations, substrate concentrations, and the default rate into one vector
 		inputConcentrations = np.concatenate((
-			enzymeConcentrations.asNumber(COUNTS_UNITS / VOLUME_UNITS),
-			metaboliteConcentrations.asNumber(COUNTS_UNITS / VOLUME_UNITS),
+			enzymeConcentrations.asNumber(units.umol / units.L),
+			metaboliteConcentrations.asNumber(units.umol / units.L),
 			[defaultRate]), axis=1)
 
 		# Find reaction rate limits
-		self.reactionRates = self.enzymeKinetics.rateFunction(*inputConcentrations) * self.timeStepSec()
+		self.reactionConstraints = ((units.umol / units.L) * self.enzymeKinetics.rateFunction(*inputConcentrations) * self.timeStepSec()).asNumber(COUNTS_UNITS / VOLUME_UNITS)
 
 		# Find rate limits for all constraints
-		self.allConstraintsLimits = self.enzymeKinetics.allRatesFunction(*inputConcentrations)[0]
+		self.allConstraintsLimits = ((units.umol / units.L) * self.enzymeKinetics.allRatesFunction(*inputConcentrations)[0]).asNumber(COUNTS_UNITS / VOLUME_UNITS)
 
 		# Set the rate limits only if the option flag is enabled
 		if USE_RATELIMITS:
@@ -291,7 +291,8 @@ class Metabolism(wholecell.processes.process.Process):
 
 				else:
 					self.fba.maxReactionFluxIs(self.constraintToReactionDict[constraintID], defaultRate, raiseForReversible = False)
-					
+
+		self.overconstraintMultiples = (self.fba.reactionFluxes() / self.timeStepSec()) / self.reactionConstraints
 
 		deltaMetabolites = (1 / countsToMolar) * (COUNTS_UNITS / VOLUME_UNITS * self.fba.outputMoleculeLevelsChange())
 
@@ -317,11 +318,14 @@ class Metabolism(wholecell.processes.process.Process):
 		self.writeToListener("FBAResults", "outputFluxes",
 			self.fba.outputMoleculeLevelsChange() / self.timeStepSec())
 
-		self.writeToListener("EnzymeKinetics", "reactionRates",
-			self.reactionRates)
+		self.writeToListener("EnzymeKinetics", "reactionConstraints",
+			self.reactionConstraints)
 
 		self.writeToListener("EnzymeKinetics", "allConstraintsLimits",
 			self.allConstraintsLimits)
+
+		self.writeToListener("EnzymeKinetics", "overconstraintMultiples",
+			self.overconstraintMultiples)
 
 		self.writeToListener("EnzymeKinetics", "metaboliteCountsInit",
 			metaboliteCountsInit)
@@ -346,8 +350,6 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.writeToListener("EnzymeKinetics", "volume_units",
 			str(VOLUME_UNITS))
-
-
 
 
 

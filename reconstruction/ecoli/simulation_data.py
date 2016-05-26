@@ -33,11 +33,10 @@ class SimulationDataEcoli(object):
 		# Doubling time (used in fitting)
 		self.doubling_time = None
 
-	def initialize(self, doubling_time, raw_data, expression_condition = "M9 Glucose minus AAs", environment = "wildtype"):
+	def initialize(self, raw_data, expression_condition = "M9 Glucose minus AAs", environment = "wildtype"):
 
-		if type(doubling_time) != Unum:
-			raise Exception("Doubling time is not a Unum object!")
-		self.doubling_time = doubling_time
+		self._addEnvData(raw_data)
+		self.doubling_time = self.envToDoublingTime[environment]
 
 		# TODO: Check that media condition is valid
 		self.expression_condition = expression_condition
@@ -101,7 +100,8 @@ class SimulationDataEcoli(object):
 		nutrientExchangeMolecules = {}
 		secretionExchangeMolecules = set()
 		envDict = {}
-		environments = [(x, getattr(raw_data.environment, x)) for x in dir(raw_data.environment) if not x.startswith("__")]
+		notEnvList = ["environment_doubling_time", "tf_environment"]
+		environments = [(x, getattr(raw_data.environment, x)) for x in dir(raw_data.environment) if not x.startswith("__") and x not in notEnvList]
 		for envName, env in environments:
 			externalExchangeMolecules[envName] = set()
 			nutrientExchangeMolecules[envName] = set()
@@ -142,3 +142,6 @@ class SimulationDataEcoli(object):
 
 
 		return envDict, externalExchangeMolecules, nutrientExchangeMolecules, secretionExchangeMolecules
+
+	def _addEnvData(self, raw_data):
+		self.envToDoublingTime = dict([(x["environment"].encode("utf-8"), x["initial doubling time"]) for x in raw_data.environment.environment_doubling_time])

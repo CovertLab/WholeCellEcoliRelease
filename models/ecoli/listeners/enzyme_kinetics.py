@@ -44,14 +44,15 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 	def allocate(self):
 		super(EnzymeKinetics, self).allocate()
 
-		self.reactionRates = np.zeros(len(self.metabolism.fba.reactionIDs()), np.float64)
+		self.reactionConstraints = np.zeros(len(self.metabolism.fba.reactionIDs()), np.float64)
 		self.allConstraintsLimits = np.zeros(len(self.reactionRateInfo), np.float64)
 		self.reactionIDs = self.metabolism.fba.reactionIDs()
+		self.overconstraintMultiples = np.zeros(len(self.reactionIDs), np.float64)
 		self.constraintIDs = self.metabolism.constraintIDs
 		self.metaboliteCountsInit = np.zeros(len(self.metaboliteIDs), np.float64)
 		self.metaboliteCountsFinal = np.zeros(len(self.metaboliteIDs), np.float64)
 		self.metaboliteConcentrations = np.zeros(len(self.metaboliteIDs), np.float64)
-		self.enzymeCountsInit = np.zeros(len(self.metabolism.enzymesWithKineticInfo), np.float64)
+		self.enzymeCountsInit = np.zeros(len(self.metabolism.enzymeNames), np.float64)
 
 		self.countsToMolar = np.zeros(1, np.float64)
 		self.counts_units = "                                          " # Placeholder string longer than any unit name
@@ -74,8 +75,9 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		tableWriter.append(
 			time = self.time(),
 			simulationStep = self.simulationStep(),
-			reactionRates = self.reactionRates,
+			reactionConstraints = self.reactionConstraints,
 			allConstraintsLimits = self.allConstraintsLimits,
+			overconstraintMultiples = self.overconstraintMultiples,
 			metaboliteCountsInit = self.metaboliteCountsInit,
 			metaboliteCountsFinal = self.metaboliteCountsFinal,
 			metaboliteConcentrations = self.metaboliteConcentrations,

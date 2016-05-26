@@ -26,12 +26,15 @@ EXCHANGE_UNITS = units.mmol / units.g / units.h
 class Metabolism(object):
 	""" Metabolism """
 
-	def __init__(self, raw_data, sim_data):
-		self._buildBiomass(raw_data, sim_data)
+	def __init__(self, raw_data, sim_data, environment = None):
+		if environment == None:
+			environment = sim_data.environment
+
+		self._buildBiomass(raw_data, sim_data, environment)
 		self._buildMetabolism(raw_data, sim_data)
 
 
-	def _buildBiomass(self, raw_data, sim_data):
+	def _buildBiomass(self, raw_data, sim_data, environment):
 		wildtypeIDs = set(entry["molecule id"] for entry in raw_data.biomass)
 		# TODO: unjank this
 
@@ -165,7 +168,7 @@ class Metabolism(object):
 			)),
 			raw_data.equilibriumReactions
 		)
-		envFirstTimePoint = sim_data.envDict[sim_data.environment][0][-1]
+		envFirstTimePoint = sim_data.envDict[environment][0][-1]
 		self.concDict = self.concentrationUpdates.concentrationsBasedOnNutrients(envFirstTimePoint)
 
 	def _buildMetabolism(self, raw_data, sim_data):
@@ -334,9 +337,12 @@ class ConcentrationUpdates(object):
 
 		concDict = dict(zip(poolIds, concentrations))
 
-		for moleculeName, scaleFactor in self.moleculeSetAmounts.iteritems():
+		for moleculeName, setAmount in self.moleculeSetAmounts.iteritems():
 			if self._isNutrientExchangePresent(nutrientFluxes, moleculeName):
-				concDict[moleculeName] = np.max((concDict[moleculeName], self.moleculeSetAmounts))
+				concDict[moleculeName] = np.max((
+					concDict.get(moleculeName, 0 * (units.mol / units.L)).asNumber(units.mol / units.L),
+					setAmount.asNumber(units.mol / units.L)
+					)) * (units.mol / units.L)
 
 		return concDict
 
@@ -367,5 +373,6 @@ class ConcentrationUpdates(object):
 				amountToSet = moleculeSetAmounts[moleculeName]
 			else:
 				amountToSet = Kd.asNumber(units.mol / units.L)
-			moleculeSetAmounts[moleculeName] = amountToSet
+			moleculeSetAmounts[moleculeName + "[p]"] = amountToSet * (units.mol / units.L)
+			moleculeSetAmounts[moleculeName + "[c]"] = amountToSet * (units.mol / units.L)
 		return moleculeSetAmounts
