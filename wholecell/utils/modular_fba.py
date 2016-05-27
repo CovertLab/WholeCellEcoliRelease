@@ -214,6 +214,9 @@ class FluxBalanceAnalysis(object):
 		self._outputMoleculeIDs = []
 		self._outputMoleculeCoeffs = []
 
+		# Keep track of non-standard reactions
+		self._specialFluxIDsSet = set()
+
 		# Set up reversible reactions
 		if reversibleReactions is not None:
 			for reactionID in reversibleReactions:
@@ -251,7 +254,6 @@ class FluxBalanceAnalysis(object):
 					)
 
 			internalExchangedMolecules = sorted(objective.keys())
-
 		else:
 			raise FBAError("Unrecognized objectiveType: {}".format(objectiveType))
 
@@ -289,6 +291,7 @@ class FluxBalanceAnalysis(object):
 			reactionIDs.append(reactionID)
 
 		self._reactionIDs = tuple(reactionIDs)
+		self._reactionIDsSet = set(reactionIDs)
 
 
 	def _initExternalExchange(self, externalExchangedMolecules):
@@ -313,6 +316,7 @@ class FluxBalanceAnalysis(object):
 
 			externalMoleculeIDs.append(moleculeID)
 			externalExchangeIDs.append(exchangeID)
+			self._specialFluxIDsSet.add(exchangeID)
 
 		self._externalMoleculeIDs = tuple(externalMoleculeIDs)
 		self._externalExchangeIDs = tuple(externalExchangeIDs)
@@ -551,7 +555,6 @@ class FluxBalanceAnalysis(object):
 				)
 
 			# Add the term for when the flux out is above the expected value
-
 			aboveUnityID = self._generatedID_fractionAboveUnityOut.format(moleculeID)
 
 			self._solver.flowMaterialCoeffIs(
@@ -582,6 +585,7 @@ class FluxBalanceAnalysis(object):
 					)
 
 				internalMoleculeIDs.append(moleculeID)
+				self._specialFluxIDsSet.add(exchangeID)
 
 				# TODO: functionalize
 				try:
@@ -778,6 +782,11 @@ class FluxBalanceAnalysis(object):
 				stoichCoeff
 				)
 
+		self._specialFluxIDsSet.add(self._reactionID_GAM)
+		self._specialFluxIDsSet.add(self._reactionID_NGAM)
+		self._specialFluxIDsSet.add(self._reactionID_polypeptideElongationEnergy)
+
+
 	def _buildEqConst(self):
 		try:
 			self._solver.buildEqConst()
@@ -880,6 +889,9 @@ class FluxBalanceAnalysis(object):
 		if maxFlux < 0:
 			raise InvalidBoundaryError("Maximum reaction flux must be at least 0")
 
+		if reactionID not in self._reactionIDsSet and reactionID not in self._specialFluxIDsSet:
+			raise InvalidBoundaryError("Unable to set max reaction flux: reaction '%s' not recognized." % (reactionID))
+
 		# if maxFlux < self._lowerBound[colIndex]:
 		# 	raise InvalidBoundaryError("Maximum reaction flux must be greater than or equal to the minimum flux")
 
@@ -902,6 +914,9 @@ class FluxBalanceAnalysis(object):
 	def minReactionFluxIs(self, reactionID, minFlux, raiseForReversible = True):
 		if minFlux < 0:
 			raise InvalidBoundaryError("Minimum reaction flux must be at least 0")
+
+		if reactionID not in self._reactionIDsSet and reactionID not in self._specialFluxIDsSet:
+			raise InvalidBoundaryError("Unable to set min reaction flux: reaction '%s' not recognized." % (reactionID))
 
 		# if minFlux > self._upperBound[colIndex]:
 		# 	raise InvalidBoundaryError("Minimum reaction flux must be less than or equal to the maximum flux")
