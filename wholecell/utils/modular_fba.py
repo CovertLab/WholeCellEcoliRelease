@@ -344,11 +344,10 @@ class FluxBalanceAnalysis(object):
 				+1
 				)
 
-			# TODO: functionalize
-			try:
+			# Ensure there is an external exchange for objective molecules
+			if moleculeID in self._outputMoleculeIDs:
 				i = self._outputMoleculeIDs.index(moleculeID)
-
-			except ValueError:
+			else:
 				self._outputMoleculeIDs.append(moleculeID)
 				self._outputMoleculeCoeffs.append(dict())
 				i = len(self._outputMoleculeIDs) - 1
