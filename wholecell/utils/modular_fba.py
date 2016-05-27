@@ -344,7 +344,7 @@ class FluxBalanceAnalysis(object):
 				+1
 				)
 
-			# Ensure there is an external exchange for objective molecules
+			# Objective molecules are output molecules
 			if moleculeID in self._outputMoleculeIDs:
 				i = self._outputMoleculeIDs.index(moleculeID)
 			else:

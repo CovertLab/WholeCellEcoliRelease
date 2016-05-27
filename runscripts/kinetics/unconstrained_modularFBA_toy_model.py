@@ -16,39 +16,29 @@ toyModelReactionStoich = {
 	"Rres": {"NADH":-1, "O2":-1, "ATP":1},
 }
 
-transportReactionStoich = {
-	"Tc1": {"A":1},
-	"Tf": {"F":1},
-	"Td": {"D":-1},
-	"Te": {"E":-1},
-	"Th": {"H":1},
-	"To2": {"O2":1},
-}
-
 biomassReactionStoich = {
 	"v_biomass": {"C":1, "F":1, "H":1, "ATP":10}
 }
 
 transportLimits = {
-	"Tc1": 10.5,
-	"Tf": 5.0,
-	"Td": 12.0,
-	"Te": 12.0,
-	"Th": 5.0,
-	"To2": 15.0,
+	"A": 10.5,
+	"F": 5.0,
+	# It looks like modular fba doesn't allow limits on export rates
+	# "D": -12.0,
+	# "E": -12.0,
+	"H": 5.0,
+	"O2": 15.0,
 }
-
-metaboliteToTransportReaction = {metaboliteID:rxnID for rxnID, rxnStoich in transportReactionStoich.iteritems() for metaboliteID in rxnStoich}
-
-maxReactionFlux = {metaboliteID:(coeff*transportLimits[rxnID]) for rxnID, reactionStoich in transportReactionStoich.iteritems() for metaboliteID, coeff in reactionStoich.iteritems()}
 
 fba = FluxBalanceAnalysis(
 	reactionStoich=toyModelReactionStoich,
-	externalExchangedMolecules=[molID for rxnStoich in transportReactionStoich.values() for molID in rxnStoich.keys()],
-	objective=biomassReactionStoich.values()[0],
+	externalExchangedMolecules=transportLimits.keys(),
+	objective=biomassReactionStoich["v_biomass"],
 	objectiveType="standard",
 	)
 
 exchangeMolecules = fba.externalMoleculeIDs()
 
-exchangeLimits = [maxReactionFlux[x] for x in exchangeMolecules]
+fba.externalMoleculeLevelsIs([transportLimits[molID] for molID in exchangeMolecules])
+
+biomassReactionFlux = fba.objectiveReactionFlux()[0]
