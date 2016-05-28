@@ -102,7 +102,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	ax_mat.set_xticklabels(np.round(time[xticks]/60.,decimals=1))
 	ax_mat.set_xlabel("Time (min)")
 
-	plt.title("FBA objective components")
+	plt.title("FBA Dual Values")
 
 	ax_cmap = fig.add_subplot(grid[2])
 
