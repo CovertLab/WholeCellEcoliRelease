@@ -124,6 +124,16 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 			[self._model.get_primal_value(1 + self._getVar(flow)) for flow in flows]
 			)
 
+	def dualValues(self, materials):
+		if not self._eqConstBuilt:
+			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing dual values.")
+
+		self._solve()
+
+		return np.array(
+			[self._model.get_dual_value(1 + self._materialIdxLookup[material]) for material in materials]
+			)
+
 	def objectiveValue(self):
 		return self._model.get_objective_value()
 
