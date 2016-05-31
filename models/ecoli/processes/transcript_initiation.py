@@ -116,6 +116,61 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		if rnaPolyToActivate == 0:
 			return
 
+		#### Growth control code ####
+
+		ribosomeElongationRate = self.readFromListener("RibosomeData", "effectiveElongationRate")
+		expectedRibosomeInitiationRate = self.calculateRrnInitRate(self.rrn_operon.total(), ribosomeElongationRate)
+		rRnaSynthesisProb = expectedRibosomeInitiationRate.asNumber(1/units.s) * self.timeStepSec() / rnaPolyToActivate
+		rProteinSynthesisProb = self.rProteinToRRnaRatioVector * rRnaSynthesisProb
+
+
+		totalRnapCount = self.activeRnaPolys.total() + self.inactiveRnaPolys.total() or np.array([1])
+		totalRibosomeCount = self.activeRibosomes.total() or np.array([1])
+
+		ratioRNAPToRibosome = totalRnapCount / totalRibosomeCount.astype(np.float)
+		offset = np.clip(0.25 - ratioRNAPToRibosome, -1 * self.rnaSynthProbStandard[self.isRnap].min(), 1.)
+		rnapSynthProb = self.rnaSynthProbStandard[self.isRnap] + (offset / 10)
+
+		print "Expected init rate: {}".format(expectedRibosomeInitiationRate.asNumber(1/units.s))
+		self.writeToListener("RibosomeData", "expectedInitRate", expectedRibosomeInitiationRate.asNumber(1/units.s))
+
+		totalRRnaSynthProb = (np.ceil(self.rnaSynthProb[self.isRRna]).sum() * rRnaSynthesisProb) # HACK: Only getting used ribosome rrn operons using this ceil function need to fix this.
+		totalRProteinSynthProb = rProteinSynthesisProb.sum()
+		totalRnapSynthProb = rnapSynthProb.sum()
+
+		totalPolymeraseComponent = totalRRnaSynthProb + totalRProteinSynthProb + totalRnapSynthProb
+
+
+		while totalPolymeraseComponent > 1.:
+			rRnaSynthesisProb = rRnaSynthesisProb / totalPolymeraseComponent
+			rProteinSynthesisProb = rProteinSynthesisProb / totalPolymeraseComponent
+			rnapSynthProb = rnapSynthProb / totalPolymeraseComponent
+
+			totalRRnaSynthProb = totalRRnaSynthProb / totalPolymeraseComponent
+			totalRProteinSynthProb = totalRProteinSynthProb / totalPolymeraseComponent
+			totalRnapSynthProb = totalRnapSynthProb / totalPolymeraseComponent
+
+			totalPolymeraseComponent = totalRRnaSynthProb + totalRProteinSynthProb + totalRnapSynthProb
+
+		print "Correct prob: {}".format(self.rnaSynthProbStandard[self.isRRna].sum() + self.rnaSynthProbStandard[self.isRProtein].sum())
+		print "Actual prob: {}".format(totalPolymeraseComponent)
+
+		self.rnaSynthProb[self.isRRna] = rRnaSynthesisProb * np.ceil(self.rnaSynthProb[self.isRRna]) # HACK ALERT: Only getting used ribosome rrn operons using this ceil function need to fix this.
+
+		self.rnaSynthProb[self.isRProtein] = rProteinSynthesisProb
+
+		self.rnaSynthProb[self.isRnap] = rnapSynthProb
+
+		self.rnaSynthProb[self.notPolymerase] = (1 - totalPolymeraseComponent) / self.rnaSynthProbStandard[self.notPolymerase].sum() * self.rnaSynthProbStandard[self.notPolymerase]
+
+		if not np.allclose(self.rnaSynthProb.sum(),1.):
+			import ipdb; ipdb.set_trace()
+		if not np.all(self.rnaSynthProb >= 0.):
+			import ipdb; ipdb.set_trace()
+		assert np.allclose(self.rnaSynthProb.sum(),1.)
+		assert np.all(self.rnaSynthProb >= 0.)
+
+		#### Growth control code ####
 		nNewRnas = self.randomState.multinomial(rnaPolyToActivate,
 			self.rnaSynthProb)
 
@@ -182,3 +237,15 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		effectiveFractionActive = fracActiveRnap * 1 / (1 - expectedFractionTimeInactive)
 
 		return effectiveFractionActive * expectedTerminationRate / (1 - effectiveFractionActive)
+
+	def calculateRrnInitRate(self, rrn_count, elngRate):
+		'''
+		Returns total initiation rate of rRNA across all promoters
+		In units of initiations / min
+		'''
+		fitInitiationRate = rrn_count[0] * 151.595 * np.exp(0.038*-0.298 * (self.maxRibosomeElongationRate - elngRate)) / 10.
+		fitInitiationRate = 151.595 * np.exp(0.038*-0.298 * (self.maxRibosomeElongationRate - elngRate)) / 10.
+
+	#	fitInitiationRate = rrn_count * 151.595 * np.exp(0.038*-0.298 * (self.maxRibosomeElongationRate - elngRate))
+
+		return (1 / units.min) * fitInitiationRate

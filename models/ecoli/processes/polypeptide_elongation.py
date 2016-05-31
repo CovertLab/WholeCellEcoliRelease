@@ -138,7 +138,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			cellVolume = cellMass / self.cellDensity
 			aaTotalConc = units.sum((1 / self.nAvogadro) * (1 / cellVolume) * self.aas.total())
 
-			translation_machinery_saturation = (1 + self.synthetase_km_scale) * (aaTotalConc / (self.saturation_km + aaTotalConc))
+			# translation_machinery_saturation = (1 + self.synthetase_km_scale) * (aaTotalConc / (self.saturation_km + aaTotalConc))
+			translation_machinery_saturation = (aaTotalConc / (self.saturation_km + aaTotalConc))
 			translation_machinery_saturation = units.convertNoUnitToNumber(translation_machinery_saturation)
 
 			aasRequested = np.floor(aasInSequences * translation_machinery_saturation)
@@ -229,32 +230,11 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		updatedMass[didInitialize] += self.endWeight
 
-
-		# Update rRNA synthesis probabilites based on elongation rate
-		prevInitRate = self.readFromListener("RibosomeData", "rrnInitRate")
-
+		# Write current average elongation rate for growth rate control
 		currElongRate = (sequenceElongations.sum() / len(activeRibosomes)) / self.timeStepSec()
-		currInitRate = self.calculateRrnInitRate(self.rrn_operon.count(), currElongRate)
-
-		if prevInitRate == 0.:
-			foldChange = 1.
-		else:
-			foldChange = currInitRate / prevInitRate
-
-		self.rnaSynthProb[self.is_rrn] = self.rnaSynthProb[self.is_rrn] * foldChange
-		self.rnaSynthProb = self.rnaSynthProb / self.rnaSynthProb.sum()
-
-		# Save current elongation rate
 		self.writeToListener("RibosomeData", "effectiveElongationRate", currElongRate)
-		self.writeToListener("RibosomeData", "rrnInitRate", currInitRate)
-
-		# NEED TO SET INITIAL RATE HERE I THINK...
-
+		print "Elng rate: {}".format(currElongRate)
 		# Update active ribosomes, terminating if neccessary
-
-		currElongRate = (sequenceElongations.sum() / len(activeRibosomes)) / self.timeStepSec()
-		self.writeToListener("RibosomeData", "effectiveElongationRate", currElongRate)
-
 		activeRibosomes.attrIs(
 			peptideLength = updatedLengths,
 			massDiff_protein = updatedMass
@@ -318,9 +298,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.writeToListener("RibosomeData", "didTerminate", didTerminate.sum())
 		self.writeToListener("RibosomeData", "terminationLoss", (terminalLengths - peptideLengths)[didTerminate].sum())
-
-	def calculateRrnInitRate(self, rrn_count, elngRate):
-		return rrn_count * 151.595 * np.exp(0.038*-0.298 * (self.maxRibosomeElongationRate - elngRate))
 
 	def isTimeStepShortEnough(self, inputTimeStep, timeStepSafetyFraction):
 		"""
