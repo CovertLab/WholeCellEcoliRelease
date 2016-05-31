@@ -49,7 +49,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		plt.plot(time / 60., dualValues[molIdx], label=moleculeIDs[molIdx][:15])
 
 	plt.xlabel("Time (min)")
-	plt.ylabel("Shadow Price (All molecules appearing in the top {} shadow prices for a timestep)".format(num_values))
+	plt.ylabel("Reduced Cost (All molecules appearing in the top {} reduced cost for a timestep)".format(num_values))
 	plt.legend(framealpha=.5, fontsize=6, loc='best')
 
 	from wholecell.analysis.analysis_tools import exportFigure
