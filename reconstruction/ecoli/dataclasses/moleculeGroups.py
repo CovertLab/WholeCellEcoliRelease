@@ -62,6 +62,24 @@ class moleculeGroups(object):
 			'endoRnase_RnaIDs'		:	['EG10856_RNA[c]', 'EG10857_RNA[c]', 'EG10859_RNA[c]', 'EG10860_RNA[c]', 'EG10861_RNA[c]', 'EG10862_RNA[c]', 'EG11299_RNA[c]', 'G7175_RNA[c]', 'G7365_RNA[c]'],
 			'partialChromosome'		:	["CHROM_FORWARD[c]", "CHROM_REVERSE[c]", "CHROM_FORWARD_COMPLEMENT[c]", "CHROM_REVERSE_COMPLEMENT[c]"],
 			'fullChromosome'		:	["CHROM_FULL[c]"],
+			'rProteins'				:	['EG10872-MONOMER[c]', 'EG10879-MONOMER[c]',
+										'EG11232-MONOMER[c]', 'EG10877-MONOMER[c]',
+										'EG10876-MONOMER[c]', 'EG10892-MONOMER[c]', 'EG10874-MONOMER[c]',
+										'EG50001-MONOMER[c]', 'EG10875-MONOMER[c]', 'EG10884-MONOMER[c]',
+										'EG11231-MONOMER[c]', 'EG10887-MONOMER[c]', 'EG10871-MONOMER[c]',
+										'EG10878-MONOMER[c]', 'EG10886-MONOMER[c]', 'EG10870-MONOMER[c]',
+										'EG10889-MONOMER[c]', 'EG10891-MONOMER[c]', 'EG10888-MONOMER[c]',
+										'EG50002-MONOMER[c]', 'EG10869-MONOMER[c]', 'EG10882-MONOMER[c]',
+										'EG10883-MONOMER[c]', 'EG10885-MONOMER[c]', 'EG10890-MONOMER[c]',
+										'EG10864-MONOMER[c]', 'EG10881-MONOMER[c]', 'EG10865-MONOMER[c]',
+										'EG10868-MONOMER[c]', 'EG10880-MONOMER[c]', 'EG10867-MONOMER[c]',
+										'EG10873-MONOMER[c]', 'EG10866-MONOMER[c]','EG10912-MONOMER[c]', 'EG10916-MONOMER[c]', 'EG10920-MONOMER[c]',
+										'EG10914-MONOMER[c]', 'EG10909-MONOMER[c]', 'EG10903-MONOMER[c]',
+										'EG10911-MONOMER[c]', 'EG10904-MONOMER[c]', 'EG10900-MONOMER[c]', 'EG10901-MONOMER[c]', 'EG10905-MONOMER[c]',
+										'EG10915-MONOMER[c]', 'EG10918-MONOMER[c]', 'EG10919-MONOMER[c]',
+										'EG10907-MONOMER[c]', 'EG11508-MONOMER[c]', 'EG10908-MONOMER[c]',
+										'EG10906-MONOMER[c]', 'EG10910-MONOMER[c]', 'EG10902-MONOMER[c]',
+										'EG10917-MONOMER[c]', 'EG10913-MONOMER[c]']
 		}
 
 		bulkMoleculesBinomialDivision = createIdsWithCompartments(raw_data.metabolites)

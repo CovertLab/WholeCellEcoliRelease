@@ -83,6 +83,8 @@ class Transcription(object):
 
 		maxSequenceLength = max(len(sequence) for sequence in sequences)
 
+		monomerIds = [x['monomerId'] for x in raw_data.rnas]
+
 		# TODO: Add units
 		rnaData = np.zeros(
 			size,
@@ -102,6 +104,8 @@ class Transcription(object):
 				('isRRna23S', 'bool'),
 				('isRRna16S', 'bool'),
 				('isRRna5S', 'bool'),
+				('isRProtein', 'bool'),
+				('isRnap',	'bool'),
 				('sequence', 'a{}'.format(maxSequenceLength)),
 				('geneId', 'a50'),
 				('KmEndoRNase', 'f8'),
@@ -119,6 +123,8 @@ class Transcription(object):
 		rnaData['isMiscRna'] = [rna["type"] == "miscRNA" for rna in raw_data.rnas]
 		rnaData['isRRna'] = [rna["type"] == "rRNA" for rna in raw_data.rnas]
 		rnaData['isTRna'] = [rna["type"] == "tRNA" for rna in raw_data.rnas]
+		rnaData['isRProtein'] = ["{}[c]".format(x) in sim_data.moleculeGroups.rProteins for x in monomerIds]
+		rnaData['isRnap'] = ["{}[c]".format(x) in sim_data.moleculeGroups.rnapIds for x in monomerIds]
 		rnaData['isRRna23S'] = is23S
 		rnaData['isRRna16S'] = is16S
 		rnaData['isRRna5S'] = is5S
@@ -141,6 +147,8 @@ class Transcription(object):
 			'isRRna23S'		:	None,
 			'isRRna16S'		:	None,
 			'isRRna5S'		:	None,
+			'isRProtein'	:	None,
+			'isRnap'		:	None,
 			'sequence'		:   None,
 			'geneId'		:	None,
 			'KmEndoRNase'	:	units.mol / units.L,

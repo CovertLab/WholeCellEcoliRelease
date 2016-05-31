@@ -70,9 +70,25 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		self.chromosomes = self.bulkMoleculeView('CHROM_FULL[c]')
 		
+		self.rrn_operon = self.bulkMoleculeView("rrn_operon")
+
+		self.activeRibosomes = self.uniqueMoleculesView('activeRibosome')
+
+		# ID Groups
+
 		self.is_16SrRNA = sim_data.process.transcription.rnaData['isRRna16S']
 		self.is_23SrRNA = sim_data.process.transcription.rnaData['isRRna23S']
 		self.is_5SrRNA = sim_data.process.transcription.rnaData['isRRna5S']
+
+		self.isRRna = sim_data.process.transcription.rnaData['isRRna']
+		self.isRProtein = sim_data.process.transcription.rnaData['isRProtein']
+		self.isRnap = sim_data.process.transcription.rnaData['isRnap']
+		self.notPolymerase = np.logical_and(np.logical_and(np.logical_not(self.isRRna),np.logical_not(self.isRProtein)), np.logical_not(self.isRnap))
+
+		assert (self.isRRna + self.isRProtein + self.isRnap + self.notPolymerase).sum() == self.rnaSynthProb.size
+
+		self.rProteinToRRnaRatioVector = self.rnaSynthProbStandard[self.isRProtein] / self.rnaSynthProbStandard[self.isRRna][0]
+
 
 	def calculateRequest(self):
 		self.inactiveRnaPolys.requestAll()

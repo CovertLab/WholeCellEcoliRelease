@@ -80,9 +80,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.maxRibosomeElongationRate = float(sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s))
 
 		##########
-		aaIdxs =  [sim_data.process.metabolism.metabolitePoolIDs.index(aaID) for aaID in sim_data.moleculeGroups.aaIDs]
-		aaConcentrations = sim_data.process.metabolism.metabolitePoolConcentrations[aaIdxs]
+		aaConcentrations = units.getUnit(sim_data.process.metabolism.concDict.items()[0][1]) * np.array([sim_data.process.metabolism.concDict[x].asNumber() for x in sim_data.moleculeGroups.aaIDs])
 		total_aa_concentration = units.sum(aaConcentrations)
+		sim_data.synthetase_km_scale = 0.3
 		self.saturation_km = sim_data.synthetase_km_scale * total_aa_concentration
 		##########
 
