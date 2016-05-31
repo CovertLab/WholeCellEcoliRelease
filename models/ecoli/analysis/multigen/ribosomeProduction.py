@@ -125,8 +125,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		rrn23s_actual_variance = rrn23s_fit_init_prob.std() ** 2
 		rrn5s_actual_variance = rrn5s_fit_init_prob.std() ** 2
 
+		## Load other recorded parameters ##
+		averageElongationRate = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("effectiveElongationRate")
+		fitRibosomeInitRate = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("expectedInitRate")
+
 		## Plotting ##
-		gs = gridspec.GridSpec(7, 3)
+		gs = gridspec.GridSpec(9, 3)
 
 		# Plot growth rate
 		ax1 = plt.subplot(gs[0,:2])
@@ -221,7 +225,31 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		nbins = np.ceil(np.sqrt(hist_rrn5S_init_prob.size))
 		ax7_1.hist(hist_rrn5S_init_prob, nbins)
 
-		ax7.set_xlabel("Time (min)")
+		##
+
+		ax8 = plt.subplot(gs[7,:2])
+		ax8.plot(time.asNumber(units.min), averageElongationRate)
+		ax8.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
+		ax8.set_ylabel("Average ribosome\nelongation rate (aa/s)")
+
+		ax8_1 = plt.subplot(gs[7,2])
+		hist_averageElongationRate = removeNanReshape(averageElongationRate)
+		nbins = np.ceil(np.sqrt(hist_averageElongationRate.size))
+		ax8_1.hist(hist_averageElongationRate, nbins)
+
+		##
+
+		ax9 = plt.subplot(gs[8,:2])
+		ax9.plot(time.asNumber(units.min), fitRibosomeInitRate)
+		ax9.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
+		ax9.set_ylabel("Fit rib init\nrate (init/s)")
+
+		ax9_1 = plt.subplot(gs[8,2])
+		hist_fitRibosomeInitRate = removeNanReshape(fitRibosomeInitRate)
+		nbins = np.ceil(np.sqrt(hist_fitRibosomeInitRate.size))
+		ax9_1.hist(hist_fitRibosomeInitRate, nbins)
+
+		ax9.set_xlabel("Time (min)")
 
 	fig.subplots_adjust(hspace=.5, wspace = 0.3)
 
