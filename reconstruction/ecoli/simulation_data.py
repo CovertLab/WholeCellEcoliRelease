@@ -25,6 +25,8 @@ from reconstruction.ecoli.dataclasses.process.process import Process
 from reconstruction.ecoli.dataclasses.growthRateDependentParameters import Mass, GrowthRateParameters
 from reconstruction.ecoli.dataclasses.relation import Relation
 
+VERBOSE = False
+
 class SimulationDataEcoli(object):
 	""" SimulationDataEcoli """
 
@@ -145,3 +147,53 @@ class SimulationDataEcoli(object):
 
 	def _addEnvData(self, raw_data):
 		self.envToDoublingTime = dict([(x["environment"].encode("utf-8"), x["initial doubling time"]) for x in raw_data.environment.environment_doubling_time])
+
+		abbrToActiveId = dict([(x["TF"].encode("utf-8"), x["activeId"].encode("utf-8").split(", ")) for x in raw_data.tfIds if len(x["activeId"]) > 0])
+
+		geneIdToRnaId = dict([(x["id"].encode("utf-8"), x["rnaId"].encode("utf-8")) for x in raw_data.genes])
+
+		abbrToRnaId = dict(
+			[(x["symbol"].encode("utf-8"), x["rnaId"].encode("utf-8")) for x in raw_data.genes] +
+			[(x["name"].encode("utf-8"), geneIdToRnaId[x["geneId"].encode("utf-8")]) for x in raw_data.translationEfficiency if x["geneId"] != "#N/A"]
+			)
+
+		self.tfToFC = {}
+		notFound = []
+		for row in raw_data.foldChanges:
+			tf = abbrToActiveId[row["TF"].encode("utf-8")][0]
+			try:
+				target = abbrToRnaId[row["Target"].encode("utf-8")]
+			except KeyError:
+				notFound.append(row["Target"].encode("utf-8"))
+				continue
+			if tf not in self.tfToFC:
+				self.tfToFC[tf] = {}
+			FC = row["F_avg"]
+			if row["Regulation_direct"] < 0:
+				FC *= -1.
+			FC = 2**FC
+			self.tfToFC[tf][target] = FC
+
+		if VERBOSE:
+			print "The following target genes listed in foldChanges.tsv have no corresponding entry in genes.tsv:"
+			for item in notFound:
+				print item
+
+
+		self.tfToActiveInactiveConds = {}
+		for row in raw_data.environment.tf_environment:
+			tf = row["active TF"].encode("utf-8")
+			activeGenotype = row["active genotype perturbations"]
+			activeEnv = row["active environment"].encode("utf-8")
+			inactiveGenotype = row["inactive genotype perturbations"]
+			inactiveEnv = row["inactive environment"].encode("utf-8")
+
+			if tf not in self.tfToActiveInactiveConds:
+				self.tfToActiveInactiveConds[tf] = {}
+			else:
+				print "Warning: overwriting TF fold change conditions for %s" % tf
+
+			self.tfToActiveInactiveConds[tf]["active genotype perturbations"] = activeGenotype
+			self.tfToActiveInactiveConds[tf]["active environment"] = activeEnv
+			self.tfToActiveInactiveConds[tf]["inactive genotype perturbations"] = inactiveGenotype
+			self.tfToActiveInactiveConds[tf]["inactive environment"] = inactiveEnv
