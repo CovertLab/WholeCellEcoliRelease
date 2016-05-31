@@ -22,6 +22,24 @@ import wholecell.utils.constants
 
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS
 
+COLORS = [
+	[166,206,227],
+	[31,120,180],
+	[178,223,138],
+	[51,160,44],
+	[251,154,153],
+	[227,26,28],
+	[253,191,111],
+	[255,127,0],
+	[202,178,214],
+	[106,61,154],
+	[255,255,153],
+	[177,89,40]]
+
+CMAP_COLORS = [[shade/255. for shade in color] for color in COLORS]
+
+MAX_STRLEN = 30
+
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -43,13 +61,18 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	plt.figure(figsize = (8.5, 11))
 	plt.title("FBA Dual Values")
 
-	# Get the num_values highest shadow price values at each timestep
-	partition = np.argpartition(dualValues,-num_values,axis=0)[-num_values:].T
-	for molIdx in np.unique(partition):
-		plt.plot(time / 60., dualValues[molIdx], label=moleculeIDs[molIdx][:15])
+	# Get the num_values highest reduced price values at each timestep
+	highest_partition = np.argpartition(dualValues,-num_values,axis=0)[-num_values:].T
+	for plotNum, molIdx in enumerate(np.unique(highest_partition)):
+		plt.plot(time / 60., dualValues[molIdx], '--', color=CMAP_COLORS[plotNum%len(CMAP_COLORS)], label=moleculeIDs[molIdx][:MAX_STRLEN])
+
+	# num_values lowest reduced price values at each timestep
+	lowest_partition = np.argpartition(dualValues,num_values,axis=0)[:num_values].T
+	for plotNum, molIdx in enumerate(np.unique(lowest_partition)):
+		plt.plot(time / 60., dualValues[molIdx], '.', color=CMAP_COLORS[plotNum%len(CMAP_COLORS)], label=moleculeIDs[molIdx][:MAX_STRLEN])
 
 	plt.xlabel("Time (min)")
-	plt.ylabel("Reduced Cost (All molecules appearing in the top {} reduced cost for a timestep)".format(num_values))
+	plt.ylabel("Reduced Cost (All molecules appearing in the top or bottom {} reduced cost for a timestep)".format(num_values))
 	plt.legend(framealpha=.5, fontsize=6, loc='best')
 
 	from wholecell.analysis.analysis_tools import exportFigure
