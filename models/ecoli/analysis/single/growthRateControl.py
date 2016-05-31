@@ -30,8 +30,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	# Load data from KB
 	sim_data = cPickle.load(open(simDataFile, "rb"))
-	max_elongationRate = sim_data.constants.ribosomeElongationRate.asNumber(units.aa / units.s)
-	elongationRate = float(sim_data.constants.ribosomeElongationRate.asNumber(units.aa / units.s))
+	max_elongationRate = sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s)
+	elongationRate = float(sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s))
 
 	# Load ribosome data
 	ribosomeDataFile = TableReader(os.path.join(simOutDir, "RibosomeData"))

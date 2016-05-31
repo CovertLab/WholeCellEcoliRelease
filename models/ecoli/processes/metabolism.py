@@ -165,10 +165,6 @@ class Metabolism(wholecell.processes.process.Process):
 		# Set the priority to a low value
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_METABOLISM)
 
-		###### VARIANT CODE #######
-		self.glucoseLimitation = sim_data.glucoseLimitation
-		self.fractionGlucoseLimit = sim_data.fractionGlucoseLimit
-		###### VARIANT CODE #######
 
 	def calculateRequest(self):
 		self.metabolites.requestAll()

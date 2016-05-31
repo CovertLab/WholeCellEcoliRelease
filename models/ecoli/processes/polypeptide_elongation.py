@@ -60,9 +60,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		super(PolypeptideElongation, self).initialize(sim, sim_data)
 
 		# Load parameters
-
-		self.maxRibosomeElongationRate = float(sim_data.constants.ribosomeElongationRate.asNumber(units.aa / units.s))
-
 		self.nAvogadro = sim_data.constants.nAvogadro
 		self.cellDensity = sim_data.constants.cellDensity
 
@@ -80,8 +77,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.gtpPerElongation = sim_data.constants.gtpPerTranslation
 
-		self.rnaSynthProb = sim_data.process.transcription.rnaData["synthProb"]
-		self.is_rrn = sim_data.process.transcription.rnaData['isRRna']
+		self.maxRibosomeElongationRate = float(sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s))
 
 		##########
 		aaIdxs =  [sim_data.process.metabolism.metabolitePoolIDs.index(aaID) for aaID in sim_data.moleculeGroups.aaIDs]
@@ -108,8 +104,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.ribosome30S = self.bulkMoleculeView(sim_data.moleculeGroups.s30_fullComplex[0])
 		self.ribosome50S = self.bulkMoleculeView(sim_data.moleculeGroups.s50_fullComplex[0])
-
-		self.rrn_operon = self.bulkMoleculeView("rrn_operon")
 
 		###### VARIANT CODE #######
 		self.translationSaturation = sim_data.translationSaturation
@@ -181,9 +175,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		# self.h2o.requestIs(gtpsHydrolyzed) # note: this is roughly a 2x overestimate
 
-		self.rrn_operon.requestAll()
-
-
 	# Calculate temporal evolution
 	def evolveState(self):
 		self.writeToListener("GrowthLimits", "gtpAllocated", self.gtp.count())
@@ -208,12 +199,10 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			)
 
 		# Calculate elongation resource capacity
-
 		aaCountInSequence = np.bincount(sequences[(sequences != PAD_VALUE)])
 		aaCounts = self.aas.counts()
 
 		# Calculate update
-
 		reactionLimit = self.gtp.count() // self.gtpPerElongation
 
 		sequenceElongations, aasUsed, nElongations = polymerize(
@@ -371,5 +360,4 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			return True
 
 	def _elngRate(self):
-		# return int(round(self.ribosomeElngRate * self.timeStepSec()))
-		return int(stochasticRound(self.randomState, self.ribosomeElngRate * self.timeStepSec()))
+		return int(stochasticRound(self.randomState, self.maxRibosomeElongationRate * self.timeStepSec()))

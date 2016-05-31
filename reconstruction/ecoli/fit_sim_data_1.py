@@ -405,7 +405,7 @@ def setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_t
 		)
 
 	nRibosomesNeeded = calculateMinPolymerizingEnzymeByProductDistribution(
-	proteinLengths, sim_data.constants.ribosomeElongationRate, netLossRate_protein, proteinCounts)
+	proteinLengths, sim_data.growthRateParameters.ribosomeElongationRate, netLossRate_protein, proteinCounts)
 	nRibosomesNeeded.normalize() # FIXES NO UNIT BUG
 	nRibosomesNeeded.checkNoUnit()
 	nRibosomesNeeded = nRibosomesNeeded.asNumber()

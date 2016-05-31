@@ -18,7 +18,6 @@ import cPickle
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	print "Disabled because it's slow"
 	return
-
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
 
@@ -165,7 +164,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			else:
 				ax1.bar(left=indexesForGen, height=layerData, width=barWidth, bottom=oldLayerData, color=colors[idx])
 			oldLayerData += layerData
-
 		ax1.set_ylim([0, 1])
 		ax1.legend(prop={'size':4})
 		ax1.set_title('Mass composition')
