@@ -86,7 +86,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	relativeCounts = avgCounts / avgCounts.sum()
 
 	expectedCountsArbitrary = normalize(
-		sim_data.process.transcription.rnaData["expression"][sim_data.relation.rnaIndexToMonomerMapping] *
+		sim_data.process.transcription.rnaExpression[sim_data.condition][sim_data.relation.rnaIndexToMonomerMapping] *
 		sim_data.process.translation.translationEfficienciesByMonomer /
 		(np.log(2) / sim_data.doubling_time.asNumber(units.s) + sim_data.process.translation.monomerData["degRate"].asNumber(1 / units.s))
 		)

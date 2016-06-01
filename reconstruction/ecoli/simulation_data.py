@@ -35,15 +35,17 @@ class SimulationDataEcoli(object):
 		# Doubling time (used in fitting)
 		self.doubling_time = None
 
-	def initialize(self, raw_data, expression_condition = "M9 Glucose minus AAs", environment = "wildtype"):
+	def initialize(self, raw_data, basal_expression_condition = "M9 Glucose minus AAs", environment = "000000_wildtype"):
 
 		self._addEnvData(raw_data)
 		self.doubling_time = self.envToDoublingTime[environment]
 
 		# TODO: Check that media condition is valid
-		self.expression_condition = expression_condition
+		self.basal_expression_condition = basal_expression_condition
 		self.envDict, self.externalExchangeMolecules, self.nutrientExchangeMolecules, self.secretionExchangeMolecules = self._addEnvironments(raw_data)
 		self.environment = environment
+		self.condition = environment # condition can be environment + genetic perturbation
+
 
 		self._addHardCodedAttributes()
 
