@@ -47,7 +47,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# Get all cells in each seed
 	ap = AnalysisPaths(variantDir, cohort_plot = True)
 
-	fig, axesList = plt.subplots(ap.n_seed, ap.n_generation, sharex = False)
+	fig, axesList = plt.subplots(ap.n_seed, ap.n_generation, sharex = False, figsize=(6 + 2*ap.n_generation,10 + 2*ap.n_seed))
 
 	plt.suptitle("Full Metabolic Network Reaction Fluxes")
 
