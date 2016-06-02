@@ -467,33 +467,35 @@ def setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_t
 	bulkContainer.countsIs(rRna5SCounts, sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna5S"]])
 
 
-def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time):
+def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time, Km = None):
 	# -- CONSTRAINT 1: Expected RNA distribution doubling -- #
 	rnaLengths = units.sum(sim_data.process.transcription.rnaData['countsACGU'], axis = 1)
 
-	# Get constants to compute countsToMolar factor
-	cellDensity = sim_data.constants.cellDensity
-	cellVolume = sim_data.mass.avgCellDryMassInit / cellDensity / 0.3
-	countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
-
-	# Compute Km's
-	rnaConc = countsToMolar * bulkContainer.counts(sim_data.process.transcription.rnaData['id'])
-	degradationRates = sim_data.process.transcription.rnaData["degRate"]
-	endoRNaseConc = countsToMolar * bulkContainer.counts(sim_data.process.rna_decay.endoRnaseIds)
-	kcatEndoRNase = sim_data.process.rna_decay.kcats
-	totalEndoRnaseCapacity = units.sum(endoRNaseConc * kcatEndoRNase)
-	Km = ( 1 / degradationRates * totalEndoRnaseCapacity ) - rnaConc
-
-	# Set Km's
-	sim_data.process.transcription.rnaData["KmEndoRNase"] = Km
-
-	rnaLossRate = netLossRateFromDilutionAndDegradationRNA(
-		doubling_time,
-		(1 / countsToMolar) * totalEndoRnaseCapacity,
-		Km, 
-		rnaConc,
-		countsToMolar,
+	rnaLossRate = None
+	if Km is None:
+		rnaLossRate = netLossRateFromDilutionAndDegradationRNALinear(
+			doubling_time,
+			sim_data.process.transcription.rnaData["degRate"],
+			bulkContainer.counts(sim_data.process.transcription.rnaData['id'])
 		)
+	else:
+		# Get constants to compute countsToMolar factor
+		cellDensity = sim_data.constants.cellDensity
+		cellVolume = sim_data.mass.avgCellDryMassInit / cellDensity / 0.3
+		countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
+
+		rnaConc = countsToMolar * bulkContainer.counts(sim_data.process.transcription.rnaData['id'])
+		endoRNaseConc = countsToMolar * bulkContainer.counts(sim_data.process.rna_decay.endoRnaseIds)
+		kcatEndoRNase = sim_data.process.rna_decay.kcats
+		totalEndoRnaseCapacity = units.sum(endoRNaseConc * kcatEndoRNase)
+
+		rnaLossRate = netLossRateFromDilutionAndDegradationRNA(
+			doubling_time,
+			(1 / countsToMolar) * totalEndoRnaseCapacity,
+			Km,
+			rnaConc,
+			countsToMolar,
+			)
 	
 	nActiveRnapNeeded = calculateMinPolymerizingEnzymeByProductDistributionRNA(
 		rnaLengths, sim_data.growthRateParameters.rnaPolymeraseElongationRate, rnaLossRate)
@@ -522,7 +524,7 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time)
 
 
 
-def fitExpression(sim_data, bulkContainer, doubling_time):
+def fitExpression(sim_data, bulkContainer, doubling_time, Km = None):
 
 	view_RNA = bulkContainer.countsView(sim_data.process.transcription.rnaData["id"])
 	counts_protein = bulkContainer.counts(sim_data.process.translation.monomerData["id"])
@@ -573,23 +575,33 @@ def fitExpression(sim_data, bulkContainer, doubling_time):
 
 	view_RNA.countsIs(nRnas * expression)
 
-	# Get constants to compute countsToMolar factor
-	cellDensity = sim_data.constants.cellDensity
-	cellVolume = sim_data.mass.avgCellDryMassInit / cellDensity / 0.3
-	countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
-
-	# Compute total endornase maximum capacity
-	endoRNaseConc = countsToMolar * bulkContainer.counts(sim_data.process.rna_decay.endoRnaseIds)
-	kcatEndoRNase = sim_data.process.rna_decay.kcats
-	totalEndoRnaseCapacity = units.sum(endoRNaseConc * kcatEndoRNase)
-
-	rnaLossRate = netLossRateFromDilutionAndDegradationRNA(
-		doubling_time,
-		(1 / countsToMolar) * totalEndoRnaseCapacity,
-		sim_data.process.transcription.rnaData["KmEndoRNase"],
-		countsToMolar * view_RNA.counts(),
-		countsToMolar,
+	rnaLossRate = None
+	if Km is None:
+		rnaLossRate = netLossRateFromDilutionAndDegradationRNALinear(
+			doubling_time,
+			sim_data.process.transcription.rnaData["degRate"],
+			bulkContainer.counts(sim_data.process.transcription.rnaData['id'])
 		)
+	else:
+		# Get constants to compute countsToMolar factor
+		cellDensity = sim_data.constants.cellDensity
+		cellVolume = sim_data.mass.avgCellDryMassInit / cellDensity / 0.3
+		countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
+
+		rnaConc = countsToMolar * bulkContainer.counts(sim_data.process.transcription.rnaData['id'])
+		endoRNaseConc = countsToMolar * bulkContainer.counts(sim_data.process.rna_decay.endoRnaseIds)
+		kcatEndoRNase = sim_data.process.rna_decay.kcats
+		totalEndoRnaseCapacity = units.sum(endoRNaseConc * kcatEndoRNase)
+
+		rnaLossRate = netLossRateFromDilutionAndDegradationRNA(
+			doubling_time,
+			(1 / countsToMolar) * totalEndoRnaseCapacity,
+			Km,
+			countsToMolar * view_RNA.counts(),
+			countsToMolar,
+		)
+
+
 
 	synthProb = normalize(rnaLossRate.asNumber(1 / units.min))
 
@@ -844,6 +856,9 @@ def netLossRateFromDilutionAndDegradationRNA(doublingTime, totalEndoRnaseCountsC
 	fracSaturated = rnaConc / (Km + rnaConc)
 	rnaCounts = (1 / countsToMolar) * rnaConc
 	return (np.log(2) / doublingTime) * rnaCounts + (totalEndoRnaseCountsCapacity * fracSaturated)
+
+def netLossRateFromDilutionAndDegradationRNALinear(doublingTime, degradationRates, rnaCounts):
+	return (np.log(2) / doublingTime + degradationRates) * rnaCounts
 
 def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 	cellDensity = sim_data.constants.cellDensity
