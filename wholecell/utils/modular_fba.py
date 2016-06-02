@@ -187,6 +187,17 @@ class FluxBalanceAnalysis(object):
 	_reactionID_NGAM = "Non-growth-associated maintenance reaction"
 	_reactionID_polypeptideElongationEnergy = "PolypeptideElongation energy reaction"
 
+	## Range Pools FBA
+	_generatedID_moleculesToEquivalents_low = "molecules of {} to low end fractional objective equivalents"
+	_generatedID_moleculeEquivalents_low = "Low end fractional objective equivalent for {}"
+
+	_generatedID_moleculesToEquivalents_high = "molecules of {} to high end fractional objective equivalents"
+	_generatedID_moleculeEquivalents_high = "High end fractional objective equivalent for {}"
+
+	_generatedID_fractionBelowUpperTargetOut = "fraction {} below upper target, out"
+	_generatedID_fractionAboveLowerTargetOut = "fraction {} above lower target, out"
+
+
 	# Default values, for clarity
 	_lowerBoundDefault = 0
 	_upperBoundDefault = np.inf
@@ -237,15 +248,16 @@ class FluxBalanceAnalysis(object):
 		self._initReactionNetwork(reactionStoich)
 		self._initExternalExchange(externalExchangedMolecules)
 
-		self._initObjectiveEquivalents(objective)
-
 		if objectiveType is None or objectiveType == "standard":
+			self._initObjectiveEquivalents(objective)
 			self._initObjectiveStandard(objective)
 
 		elif objectiveType == "flexible":
+			self._initObjectiveEquivalents(objective)
 			self._initObjectiveFlexible(objective, objectiveParameters)
 
 		elif objectiveType == "pools":
+			self._initObjectiveEquivalents(objective)
 			self._initObjectivePools(objective)
 
 			if internalExchangedMolecules is not None:
@@ -254,6 +266,37 @@ class FluxBalanceAnalysis(object):
 					)
 
 			internalExchangedMolecules = sorted(objective.keys())
+
+		elif objectiveType == "range_pools":
+			if any(len(x) != 2 for x in objective.values()):
+				raise FBAError(
+					"\" range_pools \" objectiveType requires an objective dict mapping metaboliteID to a list of [lower,upper] target concentrations."
+					)
+
+			objective_low = {molID:min(values) for molID, values in objective.iteritems()}
+			objective_high = {molID:max(values) for molID, values in objective.iteritems()}
+
+			# Objective pseudofluxes for the lower concentration
+			self._initObjectiveEquivalents(
+				objective_low,
+				pseudoFluxFormat=self._generatedID_moleculesToEquivalents_low,
+				objectiveEquivFormat=self._generatedID_moleculeEquivalents_low)
+
+			# Objective pseudofluxes for the higher concentration
+			self._initObjectiveEquivalents(
+				objective_high,
+				pseudoFluxFormat=self._generatedID_moleculesToEquivalents_high,
+				objectiveEquivFormat=self._generatedID_moleculeEquivalents_high)
+
+			self._initObjectiveRangePools(objective)
+
+			if internalExchangedMolecules is not None:
+				raise FBAError(
+					"Internal exchange molecules are automatically defined when using objectiveType = \"range_pools\""
+					)
+
+			internalExchangedMolecules = sorted(objective.keys())
+
 		else:
 			raise FBAError("Unrecognized objectiveType: {}".format(objectiveType))
 
@@ -322,19 +365,28 @@ class FluxBalanceAnalysis(object):
 		self._externalExchangeIDs = tuple(externalExchangeIDs)
 
 
-	def _initObjectiveEquivalents(self, objective):
+	def _initObjectiveEquivalents(self,
+								objective,
+								pseudoFluxFormat=None,
+								objectiveEquivFormat=_generatedID_moleculeEquivalents):
 		"""Create pseudo-reactions that convert molecules into their fractional
 		objective equivalents.  The objectiveType determines how these
 		fractions are used."""
+
+		# Use default format strings if none provided
+		if pseudoFluxFormat is None:
+			pseudoFluxFormat=self._generatedID_moleculesToEquivalents
+		if objectiveEquivFormat is None:
+			objectiveEquivFormat=self._generatedID_moleculeEquivalents
 
 		for moleculeID in sorted(objective):
 			coeff = objective[moleculeID]
 			if coeff == 0:
 				raise FBAError("Invalid objective coefficient - must be non-zero")
 
-			pseudoFluxID = self._generatedID_moleculesToEquivalents.format(moleculeID)
+			pseudoFluxID = pseudoFluxFormat.format(moleculeID)
 
-			objectiveEquivID = self._generatedID_moleculeEquivalents.format(moleculeID)
+			objectiveEquivID = objectiveEquivFormat.format(moleculeID)
 
 			self._solver.flowMaterialCoeffIs(
 				pseudoFluxID,
@@ -500,7 +552,6 @@ class FluxBalanceAnalysis(object):
 				-1
 				)
 
-
 	def _initObjectivePools(self, objective):
 		"""Create the abstractions needed for FBA with pools.  The objective is
 		to minimize the distance between the current metabolite level and some
@@ -567,6 +618,82 @@ class FluxBalanceAnalysis(object):
 				aboveUnityID,
 				+1
 				)
+
+	def _initObjectiveRangePools(self, objective):
+			""" Pools FBA with a range of acceptable values. The objective is
+			to minimize the distance between the current metabolite level and a range
+			of target concentrations. Within this target range, there is a small preference
+			for the higher concentraion. The low and high ends of the target range are
+			defined in the objective."""
+
+			if any(coeff < 0 for coeff_list in objective.values() for coeff in coeff_list):
+				raise FBAError("FBA with pools is not designed to use negative biomass coefficients")
+
+			self._solver.maximizeObjective(False)
+			self._forceInternalExchange = True
+
+			# By forcing a column to be at unity, we can keep the definition of
+			# the problem as b=Av where b=0.
+
+			self._solver.flowLowerBoundIs(
+				self._forcedUnityColName,
+				+1
+				)
+
+			self._solver.flowUpperBoundIs(
+				self._forcedUnityColName,
+				+1
+				)
+
+			# Minimizing an absolute value requires splitting the term into two,
+			# one for the positive values and one for the negative.
+
+			for moleculeID in sorted(objective):
+				# Add the forced -1 term so that we can define x_i = f_i - 1
+
+				# Low concentration
+				objectiveEquivID_low = self._generatedID_moleculeEquivalents_low.format(moleculeID)
+				self._solver.flowMaterialCoeffIs(
+					self._forcedUnityColName,
+					objectiveEquivID_low,
+					-1
+					)
+
+				# High concentration
+				objectiveEquivID_high = self._generatedID_moleculeEquivalents_high.format(moleculeID)
+				self._solver.flowMaterialCoeffIs(
+					self._forcedUnityColName,
+					objectiveEquivID_high,
+					-1
+					)
+
+				# Add the term for when the flux out is below the upper target concentration
+				belowUpperID = self._generatedID_fractionBelowUpperTargetOut.format(moleculeID)
+
+				self._solver.flowMaterialCoeffIs(
+					belowUpperID,
+					objectiveEquivID_high,
+					+1
+					)
+
+				self._solver.flowObjectiveCoeffIs(
+					belowUpperID,
+					+1
+					)
+
+				# Add the term for when the flux out is above the lower target concentration
+				aboveLowerID = self._generatedID_fractionAboveLowerTargetOut.format(moleculeID)
+
+				self._solver.flowMaterialCoeffIs(
+					aboveLowerID,
+					objectiveEquivID_low,
+					-1
+					)
+
+				self._solver.flowObjectiveCoeffIs(
+					aboveLowerID,
+					+1.1 # This breaks symmetry to make upper end of concentration range slightly preferred
+					)
 
 
 	def _initInternalExchange(self, internalExchangedMolecules):
