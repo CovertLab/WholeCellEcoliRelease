@@ -160,7 +160,6 @@ class Metabolism(wholecell.processes.process.Process):
 		self.poolMetabolites = self.bulkMoleculesView(self.metabolitePoolIDs)
 		self.enzymeNames = self.enzymesWithKineticInfo
 		self.enzymes = self.bulkMoleculesView(self.enzymeNames)
-
 			
 		outputMoleculeIDs = self.fba.outputMoleculeIDs()
 
@@ -315,8 +314,8 @@ class Metabolism(wholecell.processes.process.Process):
 		self.writeToListener("FBAResults", "outputFluxes",
 			self.fba.outputMoleculeLevelsChange() / self.timeStepSec())
 
-		self.writeToListener("FBAResults", "outputFluxes",
-			self.fba.outputMoleculeLevelsChange() / self.timeStepSec())
+		self.writeToListener("FBAResults", "dualValues",
+			self.fba.dualValues(self.metaboliteNames))
 
 		self.writeToListener("EnzymeKinetics", "reactionConstraints",
 			self.reactionConstraints)
