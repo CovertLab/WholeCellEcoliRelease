@@ -87,7 +87,10 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 			norm = colors.Normalize(vmin = -1, vmax = +1)
 
-			currentAxes = axesList[seedNum][generationNum]
+			if ap.n_seed + ap.n_generation > 2:
+				currentAxes = axesList[seedNum][generationNum]
+			else:
+				currentAxes = axesList
 
 			currentAxes.imshow(
 				normalized[index, :],
