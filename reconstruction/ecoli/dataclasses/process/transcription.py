@@ -148,8 +148,8 @@ class Transcription(object):
 		self.rnaExpression = {}
 		self.rnaSynthProb = {}
 
-		self.rnaExpression["000000_wildtype"] = expression
-		self.rnaSynthProb["000000_wildtype"] = synthProb
+		self.rnaExpression["basal"] = expression
+		self.rnaSynthProb["basal"] = synthProb
 
 
 		self.rnaData = UnitStructArray(rnaData, field_units)

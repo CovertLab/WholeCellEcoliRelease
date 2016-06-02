@@ -35,17 +35,16 @@ class SimulationDataEcoli(object):
 		# Doubling time (used in fitting)
 		self.doubling_time = None
 
-	def initialize(self, raw_data, basal_expression_condition = "M9 Glucose minus AAs", environment = "000000_wildtype"):
+	def initialize(self, raw_data, basal_expression_condition = "M9 Glucose minus AAs", condition = "basal"):
 
 		self._addEnvData(raw_data)
-		self.doubling_time = self.envToDoublingTime[environment]
+		self.condition = condition
+		self.environment = self.conditions[self.condition]["environment"]
+		self.doubling_time = self.envToDoublingTime[self.environment]
 
 		# TODO: Check that media condition is valid
 		self.basal_expression_condition = basal_expression_condition
 		self.envDict, self.externalExchangeMolecules, self.nutrientExchangeMolecules, self.secretionExchangeMolecules = self._addEnvironments(raw_data)
-		self.environment = environment
-		self.condition = environment # condition can be environment + genetic perturbation
-
 
 		self._addHardCodedAttributes()
 
@@ -199,3 +198,18 @@ class SimulationDataEcoli(object):
 			self.tfToActiveInactiveConds[tf]["active environment"] = activeEnv
 			self.tfToActiveInactiveConds[tf]["inactive genotype perturbations"] = inactiveGenotype
 			self.tfToActiveInactiveConds[tf]["inactive environment"] = inactiveEnv
+
+		self.conditions = {}
+		self.conditions["basal"] = {}
+		self.conditions["basal"]["environment"] = "000000_wildtype"
+		self.conditions["basal"]["perturbations"] = {}
+
+		for tf in sorted(self.tfToActiveInactiveConds):
+			activeCondition = tf + "__active"
+			inactiveCondition = tf + "__inactive"
+			self.conditions[activeCondition] = {}
+			self.conditions[inactiveCondition] = {}
+			self.conditions[activeCondition]["environment"] = self.tfToActiveInactiveConds[tf]["active environment"]
+			self.conditions[inactiveCondition]["environment"] = self.tfToActiveInactiveConds[tf]["inactive environment"]
+			self.conditions[activeCondition]["perturbations"] = self.tfToActiveInactiveConds[tf]["active genotype perturbations"]
+			self.conditions[inactiveCondition]["perturbations"] = self.tfToActiveInactiveConds[tf]["inactive genotype perturbations"]
