@@ -40,7 +40,7 @@ class SimulationDataEcoli(object):
 		self._addEnvData(raw_data)
 		self.condition = condition
 		self.environment = self.conditions[self.condition]["environment"]
-		self.doubling_time = self.envToDoublingTime[self.environment]
+		self.doubling_time = self.conditionToDoublingTime[self.condition]
 
 		# TODO: Check that media condition is valid
 		self.basal_expression_condition = basal_expression_condition
@@ -103,7 +103,7 @@ class SimulationDataEcoli(object):
 		nutrientExchangeMolecules = {}
 		secretionExchangeMolecules = set()
 		envDict = {}
-		notEnvList = ["environment_doubling_time", "tf_environment"]
+		notEnvList = ["condition_doubling_time", "tf_condition"]
 		environments = [(x, getattr(raw_data.environment, x)) for x in dir(raw_data.environment) if not x.startswith("__") and x not in notEnvList]
 		for envName, env in environments:
 			externalExchangeMolecules[envName] = set()
@@ -147,7 +147,7 @@ class SimulationDataEcoli(object):
 		return envDict, externalExchangeMolecules, nutrientExchangeMolecules, secretionExchangeMolecules
 
 	def _addEnvData(self, raw_data):
-		self.envToDoublingTime = dict([(x["environment"].encode("utf-8"), x["initial doubling time"]) for x in raw_data.environment.environment_doubling_time])
+		self.conditionToDoublingTime = dict([(x["condition"].encode("utf-8"), x["initial doubling time"]) for x in raw_data.environment.condition_doubling_time])
 
 		abbrToActiveId = dict([(x["TF"].encode("utf-8"), x["activeId"].encode("utf-8").split(", ")) for x in raw_data.tfIds if len(x["activeId"]) > 0])
 
@@ -182,7 +182,7 @@ class SimulationDataEcoli(object):
 
 
 		self.tfToActiveInactiveConds = {}
-		for row in raw_data.environment.tf_environment:
+		for row in raw_data.environment.tf_condition:
 			tf = row["active TF"].encode("utf-8")
 			activeGenotype = row["active genotype perturbations"]
 			activeEnv = row["active environment"].encode("utf-8")
