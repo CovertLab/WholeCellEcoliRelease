@@ -53,7 +53,7 @@ def fitSimData_1(raw_data):
 	# Set C-period
 	setCPeriod(sim_data)
 
-	cellSpecs = buildCellSpecifications(sim_data)
+	cellSpecs = buildInitialCellSpecifications(sim_data)
 
 	# Modify other properties
 
@@ -83,7 +83,7 @@ def fitSimData_1(raw_data):
 
 	return sim_data
 
-def buildCellSpecifications(sim_data):
+def buildInitialCellSpecifications(sim_data):
 	cellSpecs = {}
 	cellSpecs["wildtype_60_min"] = {
 		"concDict": sim_data.process.metabolism.concDict.copy(),
