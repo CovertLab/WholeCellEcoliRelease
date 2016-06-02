@@ -67,6 +67,8 @@ def fitSimData_1(raw_data):
 
 	fitMaintenanceCosts(sim_data, cellSpecs["wildtype_60_min"]["bulkContainer"])
 
+
+
 	for label, spec in cellSpecs.iteritems():
 		bulkAverageContainer, bulkDeviationContainer = calculateBulkDistributions(
 			sim_data,
@@ -105,7 +107,7 @@ def buildInitialCellSpecifications(sim_data):
 
 	return cellSpecs
 
-def expressionConverge(sim_data, expression, concDict, doubling_time):
+def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None):
 	# Fit synthesis probabilities for RNA
 	for iteration in xrange(MAX_FITTING_ITERATIONS):
 		if VERBOSE: print 'Iteration: {}'.format(iteration)
@@ -120,11 +122,11 @@ def expressionConverge(sim_data, expression, concDict, doubling_time):
 
 		setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time)
 
-		setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time)
+		setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time, Km)
 
 		# Normalize expression and write out changes
 
-		expression, synthProb = fitExpression(sim_data, bulkContainer, doubling_time)
+		expression, synthProb = fitExpression(sim_data, bulkContainer, doubling_time, Km)
 
 		finalExpression = expression
 
