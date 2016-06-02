@@ -29,7 +29,7 @@ MAX_FITTING_ITERATIONS = 100
 N_SEEDS = 20
 
 DOUBLING_TIME = 60. * units.min
-EXPRESSION_CONDITION = "M9 Glucose minus AAs"
+BASAL_EXPRESSION_CONDITION = "M9 Glucose minus AAs"
 ENVIRONMENT = "000000_wildtype"
 
 VERBOSE = False
@@ -43,7 +43,7 @@ def fitSimData_1(raw_data):
 	sim_data = SimulationDataEcoli()
 	sim_data.initialize(
 		raw_data = raw_data,
-		expression_condition = EXPRESSION_CONDITION,
+		basal_expression_condition = BASAL_EXPRESSION_CONDITION,
 		environment = ENVIRONMENT
 		)
 
@@ -78,8 +78,8 @@ def fitSimData_1(raw_data):
 		spec["bulkAverageContainer"] = bulkAverageContainer
 		spec["bulkDeviationContainer"] = bulkDeviationContainer
 
-	sim_data.process.transcription.rnaData["expression"][:] = cellSpecs["wildtype_60_min"]["expression"]
-	sim_data.process.transcription.rnaData["synthProb"][:] = cellSpecs["wildtype_60_min"]["synthProb"]
+	sim_data.process.transcription.rnaExpression["000000_wildtype"][:] = cellSpecs["wildtype_60_min"]["expression"]
+	sim_data.process.transcription.rnaSynthProb["000000_wildtype"][:] = cellSpecs["wildtype_60_min"]["synthProb"]
 
 	return sim_data
 
@@ -87,7 +87,7 @@ def buildCellSpecifications(sim_data):
 	cellSpecs = {}
 	cellSpecs["wildtype_60_min"] = {
 		"concDict": sim_data.process.metabolism.concDict.copy(),
-		"expression": sim_data.process.transcription.rnaData["expression"].copy(),
+		"expression": sim_data.process.transcription.rnaExpression["000000_wildtype"].copy(),
 		"doubling_time": sim_data.doubling_time,
 	}
 
