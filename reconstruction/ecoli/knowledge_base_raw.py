@@ -67,6 +67,7 @@ LIST_OF_DICT_FILENAMES = (
 	os.path.join("rna_seq_data","rnaseq_seal_rpkm_std.tsv"),
 	os.path.join("environment", "condition_doubling_time.tsv"),
 	os.path.join("environment", "tf_condition.tsv"),
+	os.path.join("environment", "condition_defs.tsv"),
 	os.path.join("environment", "000000_wildtype", "nutrients_000000.tsv"),
 	os.path.join("environment", "000001_cut_glucose", "nutrients_000000.tsv"),
 	os.path.join("environment", "000001_cut_glucose", "nutrients_001200.tsv"),
