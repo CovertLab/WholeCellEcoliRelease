@@ -103,7 +103,7 @@ class SimulationDataEcoli(object):
 		nutrientExchangeMolecules = {}
 		secretionExchangeMolecules = set()
 		envDict = {}
-		notEnvList = ["condition_doubling_time", "tf_condition"]
+		notEnvList = ["condition_doubling_time", "tf_condition", "condition_defs"]
 		environments = [(x, getattr(raw_data.environment, x)) for x in dir(raw_data.environment) if not x.startswith("__") and x not in notEnvList]
 		for envName, env in environments:
 			externalExchangeMolecules[envName] = set()
@@ -200,9 +200,11 @@ class SimulationDataEcoli(object):
 			self.tfToActiveInactiveConds[tf]["inactive environment"] = inactiveEnv
 
 		self.conditions = {}
-		self.conditions["basal"] = {}
-		self.conditions["basal"]["environment"] = "000000_wildtype"
-		self.conditions["basal"]["perturbations"] = {}
+		for row in raw_data.environment.condition_defs:
+			condition = row["condition"].encode("utf-8")
+			self.conditions[condition] = {}
+			self.conditions[condition]["environment"] = row["environment"].encode("utf-8")
+			self.conditions[condition]["perturbations"] = row["genotype perturbations"]
 
 		for tf in sorted(self.tfToActiveInactiveConds):
 			activeCondition = tf + "__active"
