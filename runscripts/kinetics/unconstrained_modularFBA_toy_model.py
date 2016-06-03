@@ -21,7 +21,7 @@ biomassReactionStoich = {
 }
 
 transportLimits = {
-	"A": 10.5,
+	"A": 21.0,
 	"F": 5.0,
 	"D": -12.0,
 	"E": -12.0,
@@ -43,3 +43,5 @@ exchangeMolecules = fba.externalMoleculeIDs()
 fba.externalMoleculeLevelsIs([transportLimits[molID] for molID in exchangeMolecules])
 
 biomassReactionFlux = fba.objectiveReactionFlux()[0]
+
+print biomassReactionFlux

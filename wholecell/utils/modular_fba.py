@@ -812,6 +812,8 @@ class FluxBalanceAnalysis(object):
 			flowID = self._generatedID_externalExchange.format(moleculeID)
 
 			if level < 0:
+				print "Setting a negative external molecule level - be sure this is intended behavior."
+
 				self._solver.flowUpperBoundIs(
 					flowID,
 					-level
