@@ -50,20 +50,19 @@ def fitSimData_1(raw_data):
 	# Set C-period
 	setCPeriod(sim_data)
 
-	cellSpecs = buildInitialCellSpecifications(sim_data)
+	cellSpecs = buildBasalCellSpecifications(sim_data)
 
 	# Modify other properties
 
 	# Re-compute Km's 
 	if sim_data.constants.EndoRNaseCooperation:
-		sim_data.process.transcription.rnaData["KmEndoRNase"] = setKmCooperativeEndoRNonLinearRNAdecay(sim_data, cellSpecs["wildtype_60_min"]["bulkContainer"])
+		sim_data.process.transcription.rnaData["KmEndoRNase"] = setKmCooperativeEndoRNonLinearRNAdecay(sim_data, cellSpecs["basal"]["bulkContainer"])
 
 	## Calculate and set maintenance values
 
 	# ----- Growth associated maintenance -----
 
-	fitMaintenanceCosts(sim_data, cellSpecs["wildtype_60_min"]["bulkContainer"])
-
+	fitMaintenanceCosts(sim_data, cellSpecs["basal"]["bulkContainer"])
 
 
 	for label, spec in cellSpecs.iteritems():
@@ -77,14 +76,14 @@ def fitSimData_1(raw_data):
 		spec["bulkAverageContainer"] = bulkAverageContainer
 		spec["bulkDeviationContainer"] = bulkDeviationContainer
 
-	sim_data.process.transcription.rnaExpression["basal"][:] = cellSpecs["wildtype_60_min"]["expression"]
-	sim_data.process.transcription.rnaSynthProb["basal"][:] = cellSpecs["wildtype_60_min"]["synthProb"]
+	sim_data.process.transcription.rnaExpression["basal"][:] = cellSpecs["basal"]["expression"]
+	sim_data.process.transcription.rnaSynthProb["basal"][:] = cellSpecs["basal"]["synthProb"]
 
 	return sim_data
 
-def buildInitialCellSpecifications(sim_data):
+def buildBasalCellSpecifications(sim_data):
 	cellSpecs = {}
-	cellSpecs["wildtype_60_min"] = {
+	cellSpecs["basal"] = {
 		"concDict": sim_data.process.metabolism.concDict.copy(),
 		"expression": sim_data.process.transcription.rnaExpression["basal"].copy(),
 		"doubling_time": sim_data.doubling_time,
