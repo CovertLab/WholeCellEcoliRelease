@@ -35,10 +35,10 @@ class SimulationDataEcoli(object):
 		# Doubling time (used in fitting)
 		self.doubling_time = None
 
-	def initialize(self, raw_data, basal_expression_condition = "M9 Glucose minus AAs", condition = "basal"):
+	def initialize(self, raw_data, basal_expression_condition = "M9 Glucose minus AAs"):
 
 		self._addEnvData(raw_data)
-		self.condition = condition
+		self.condition = "basal"
 		self.environment = self.conditions[self.condition]["environment"]
 		self.doubling_time = self.conditionToDoublingTime[self.condition]
 
