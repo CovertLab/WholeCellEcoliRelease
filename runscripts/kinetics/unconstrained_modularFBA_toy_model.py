@@ -23,18 +23,19 @@ biomassReactionStoich = {
 transportLimits = {
 	"A": 10.5,
 	"F": 5.0,
-	# It looks like modular fba doesn't allow limits on export rates
-	# "D": -12.0,
-	# "E": -12.0,
+	"D": -12.0,
+	"E": -12.0,
 	"H": 5.0,
 	"O2": 15.0,
 }
+
 
 fba = FluxBalanceAnalysis(
 	reactionStoich=toyModelReactionStoich,
 	externalExchangedMolecules=transportLimits.keys(),
 	objective=biomassReactionStoich["v_biomass"],
 	objectiveType="standard",
+	solver="glpk",
 	)
 
 exchangeMolecules = fba.externalMoleculeIDs()
