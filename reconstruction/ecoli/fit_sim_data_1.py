@@ -76,9 +76,6 @@ def fitSimData_1(raw_data):
 		spec["bulkAverageContainer"] = bulkAverageContainer
 		spec["bulkDeviationContainer"] = bulkDeviationContainer
 
-	sim_data.process.transcription.rnaExpression["basal"][:] = cellSpecs["basal"]["expression"]
-	sim_data.process.transcription.rnaSynthProb["basal"][:] = cellSpecs["basal"]["synthProb"]
-
 	return sim_data
 
 def buildBasalCellSpecifications(sim_data):
@@ -89,17 +86,20 @@ def buildBasalCellSpecifications(sim_data):
 		"doubling_time": sim_data.doubling_time,
 	}
 
-	for label, spec in cellSpecs.iteritems():
-		expression, synthProb, avgCellDryMassInit, bulkContainer = expressionConverge(
-			sim_data,
-			spec["expression"],
-			spec["concDict"],
-			spec["doubling_time"],
-			)
-		spec["expression"] = expression
-		spec["synthProb"] = synthProb
-		spec["avgCellDryMassInit"] = avgCellDryMassInit
-		spec["bulkContainer"] = bulkContainer
+	expression, synthProb, avgCellDryMassInit, bulkContainer = expressionConverge(
+		sim_data,
+		cellSpecs["basal"]["expression"],
+		cellSpecs["basal"]["concDict"],
+		cellSpecs["basal"]["doubling_time"],
+		)
+
+	cellSpecs["basal"]["expression"] = expression
+	cellSpecs["basal"]["synthProb"] = synthProb
+	cellSpecs["basal"]["avgCellDryMassInit"] = avgCellDryMassInit
+	cellSpecs["basal"]["bulkContainer"] = bulkContainer
+
+	sim_data.process.transcription.rnaExpression["basal"][:] = cellSpecs["basal"]["expression"]
+	sim_data.process.transcription.rnaSynthProb["basal"][:] = cellSpecs["basal"]["synthProb"]
 
 	return cellSpecs
 
