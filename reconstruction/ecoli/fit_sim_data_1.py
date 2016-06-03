@@ -64,17 +64,18 @@ def fitSimData_1(raw_data):
 
 	fitMaintenanceCosts(sim_data, cellSpecs["basal"]["bulkContainer"])
 
+	buildTfConditionCellSpecifications(sim_data, cellSpecs)
 
-	for label, spec in cellSpecs.iteritems():
-		bulkAverageContainer, bulkDeviationContainer = calculateBulkDistributions(
-			sim_data,
-			spec["expression"],
-			spec["concDict"],
-			spec["avgCellDryMassInit"],
-			spec["doubling_time"],
-			)
-		spec["bulkAverageContainer"] = bulkAverageContainer
-		spec["bulkDeviationContainer"] = bulkDeviationContainer
+	# for label, spec in cellSpecs.iteritems():
+	# 	bulkAverageContainer, bulkDeviationContainer = calculateBulkDistributions(
+	# 		sim_data,
+	# 		spec["expression"],
+	# 		spec["concDict"],
+	# 		spec["avgCellDryMassInit"],
+	# 		spec["doubling_time"],
+	# 		)
+	# 	spec["bulkAverageContainer"] = bulkAverageContainer
+	# 	spec["bulkDeviationContainer"] = bulkDeviationContainer
 
 	return sim_data
 
@@ -102,6 +103,40 @@ def buildBasalCellSpecifications(sim_data):
 	sim_data.process.transcription.rnaSynthProb["basal"][:] = cellSpecs["basal"]["synthProb"]
 
 	return cellSpecs
+
+
+def buildTfConditionCellSpecifications(sim_data, cellSpecs):
+	for tf in sorted(sim_data.tfToActiveInactiveConds)[:1]:	# Only do 1 TF while still implementing
+		for choice in ["__active", "__inactive"]:
+			conditionKey = tf + choice
+			conditionValue = sim_data.conditions[conditionKey]
+
+			cellSpecs[conditionKey] = {
+				"concDict": sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
+					sim_data.envDict[conditionValue["environment"]][0][-1]
+				),
+				"expression": sim_data.process.transcription.rnaExpression["basal"].copy(), # TODO: Scale this according to fold change data
+				"doubling_time": sim_data.conditionToDoublingTime.get(
+					conditionKey,
+					sim_data.conditionToDoublingTime["basal"]
+				)
+			}
+
+			expression, synthProb, avgCellDryMassInit, bulkContainer = expressionConverge(
+				sim_data,
+				cellSpecs[conditionKey]["expression"],
+				cellSpecs[conditionKey]["concDict"],
+				cellSpecs[conditionKey]["doubling_time"],
+				)
+
+			cellSpecs[conditionKey]["expression"] = expression
+			cellSpecs[conditionKey]["synthProb"] = synthProb
+			cellSpecs[conditionKey]["avgCellDryMassInit"] = avgCellDryMassInit
+			cellSpecs[conditionKey]["bulkContainer"] = bulkContainer
+
+			sim_data.process.transcription.rnaExpression[conditionKey] = cellSpecs[conditionKey]["expression"]
+			sim_data.process.transcription.rnaSynthProb[conditionKey] = cellSpecs[conditionKey]["synthProb"]
+
 
 def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None):
 	# Fit synthesis probabilities for RNA
