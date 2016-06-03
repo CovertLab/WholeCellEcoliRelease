@@ -28,9 +28,7 @@ FITNESS_THRESHOLD = 1e-9
 MAX_FITTING_ITERATIONS = 100
 N_SEEDS = 20
 
-DOUBLING_TIME = 60. * units.min
 BASAL_EXPRESSION_CONDITION = "M9 Glucose minus AAs"
-CONDITION = "basal"
 
 VERBOSE = False
 
@@ -44,7 +42,6 @@ def fitSimData_1(raw_data):
 	sim_data.initialize(
 		raw_data = raw_data,
 		basal_expression_condition = BASAL_EXPRESSION_CONDITION,
-		condition = CONDITION
 		)
 
 	# Increase RNA poly mRNA deg rates
