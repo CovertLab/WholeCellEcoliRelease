@@ -818,18 +818,10 @@ class FluxBalanceAnalysis(object):
 					flowID,
 					-level
 					)
-				self._solver.flowLowerBoundIs(
-					flowID,
-					0.
-					)
 			else:
 				self._solver.flowLowerBoundIs(
 					flowID,
 					-level
-					)
-				self._solver.flowUpperBoundIs(
-					flowID,
-					0.
 					)
 
 
