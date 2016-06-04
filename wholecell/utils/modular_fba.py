@@ -348,11 +348,10 @@ class FluxBalanceAnalysis(object):
 				+1
 				)
 
-			# TODO: functionalize
-			try:
+			# Objective molecules are output molecules
+			if moleculeID in self._outputMoleculeIDs:
 				i = self._outputMoleculeIDs.index(moleculeID)
-
-			except ValueError:
+			else:
 				self._outputMoleculeIDs.append(moleculeID)
 				self._outputMoleculeCoeffs.append(dict())
 				i = len(self._outputMoleculeIDs) - 1
@@ -809,16 +808,29 @@ class FluxBalanceAnalysis(object):
 		levels_array = np.empty(len(self._externalMoleculeIDs))
 		levels_array[:] = levels
 
-		if (levels_array < 0).any():
-			raise InvalidBoundaryError("Negative molecule levels not allowed")
-
 		for moleculeID, level in izip(self._externalMoleculeIDs, levels_array):
 			flowID = self._generatedID_externalExchange.format(moleculeID)
 
-			self._solver.flowLowerBoundIs(
-				flowID,
-				-level
-				)
+			if level < 0:
+				print "Setting a negative external molecule level - be sure this is intended behavior."
+
+				self._solver.flowUpperBoundIs(
+					flowID,
+					-level
+					)
+				self._solver.flowLowerBoundIs(
+					flowID,
+					0.
+					)
+			else:
+				self._solver.flowLowerBoundIs(
+					flowID,
+					-level
+					)
+				self._solver.flowUpperBoundIs(
+					flowID,
+					0.
+					)
 
 
 	def internalMoleculeIDs(self):
