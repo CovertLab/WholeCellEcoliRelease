@@ -23,7 +23,7 @@ biomassReactionStoich = {
 }
 
 transportLimits = {
-	"A": 10.5,
+	"A": 21.,
 	"F": 5.0,
 	"D": -12.0,
 	"E": -12.0,
@@ -87,8 +87,16 @@ for enzymeID in enzymeConcentrations:
 	testConcentrations[enzymeID] = 0.
 	rate = testModel(enzymeConcentrations=testConcentrations)
 	biomassRatesDict[enzymeID] = rate
+	for enzyme2ID in enzymeConcentrations:
+		if enzymeID == enzyme2ID or '('+enzyme2ID + ',' + enzymeID+')' in biomassRatesDict:
+			continue
+		testConcentrations[enzyme2ID] = 0.
+		rate = testModel(enzymeConcentrations=testConcentrations)
+		biomassRatesDict['('+enzymeID + ',' + enzyme2ID+')'] = rate
+
 
 print "Wildtype flux is {}.".format(unconstrainedFlux)
-for enzyme, rate in biomassRatesDict.iteritems():
+for enzyme in sorted(biomassRatesDict):
+	rate = biomassRatesDict[enzyme]
 	if np.abs(rate - unconstrainedFlux) > 1e-4:
-		print "{} affects growth, with knockout flux of {}.".format(enzyme, rate)
+		print "{} affects growth, when knocked out the biomass reaction flux is {}.".format(enzyme, rate)
