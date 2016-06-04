@@ -38,6 +38,19 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	fig = plt.figure()
 	fig.set_size_inches(10,12)
+	gs = gridspec.GridSpec(9, 3)
+
+	ax1 = plt.subplot(gs[0,:2])
+	ax1_1 = plt.subplot(gs[0,2])
+	ax2 = plt.subplot(gs[1,:2])
+	ax2_1 = plt.subplot(gs[1,2])
+	ax3 = plt.subplot(gs[2,:2])
+	ax4 = plt.subplot(gs[3,:2])
+	ax5 = plt.subplot(gs[4,:2])
+	ax6 = plt.subplot(gs[5,:2])
+	ax7 = plt.subplot(gs[6,:2])
+	ax8 = plt.subplot(gs[7,:2])
+	ax9 = plt.subplot(gs[8,:2])
 
 	for gen, simDir in enumerate(firstCellLineage):
 		simOutDir = os.path.join(simDir, "simOut")
@@ -146,10 +159,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		## Plotting ##
 
-		gs = gridspec.GridSpec(9, 3)
-
 		# Plot growth rate
-		ax1 = plt.subplot(gs[0,:2])
 		avgDoublingTime = doublingTime[1:].asNumber(units.min).mean()
 		stdDoublingTime = doublingTime[1:].asNumber(units.min).std()
 		ax1.plot(time.asNumber(units.min), doublingTime.asNumber(units.min))
@@ -158,32 +168,27 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ax1.set_ylabel("Doubling\ntime (min)")
 		ax1.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 
-		ax1_1 = plt.subplot(gs[0,2])
 		hist_doublingTime = removeNanReshape(doublingTime.asNumber(units.min))
 		nbins = np.ceil(np.sqrt(hist_doublingTime.size))
 		ax1_1.hist(hist_doublingTime, nbins)
 
 		# Plot RNAP active fraction
-		ax2 = plt.subplot(gs[1,:2])
 		ax2.plot(time.asNumber(units.min), fractionRnapActive)
 		ax2.plot(time.asNumber(units.min), sim_data.growthRateParameters.fractionActiveRnap * np.ones(time.asNumber().size), linestyle='--')
 		ax2.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 		ax2.set_ylabel("Fraction active\nRNAP")
 
-		ax2_1 = plt.subplot(gs[1,2])
 		hist_fractionRnapActive = removeNanReshape(fractionRnapActive)
 		nbins = np.ceil(np.sqrt(hist_fractionRnapActive.size))
 		ax2_1.hist(hist_fractionRnapActive, nbins)
 
 		# Plot RNAP active and total counts
-		ax3 = plt.subplot(gs[2,:2])
 		ax3.plot(time.asNumber(units.min), totalRnap)
 		ax3.plot(time.asNumber(units.min), rnapCountsActive)
 		ax3.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 		ax3.set_ylabel("Total & active\nRNAP")
 
 		# Plot limiting rProtein counts
-		ax4 = plt.subplot(gs[3,:2])
 		if limitingRProteinCounts.size > 0:
 			ax4.plot(time.asNumber(units.min), limitingRProteinCounts)
 		ax4.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
@@ -191,14 +196,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ax4.set_ylabel("Limiting rProtein\ncounts")
 
 		# Plot rRNA counts
-		ax5 = plt.subplot(gs[4,:2])
 		ax5.plot(time.asNumber(units.min), rRnaCounts)
 		ax5.set_ylim([0, 200])
 		ax5.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 		ax5.set_ylabel("rRNA\ncounts")
 
 		# Plot 30S and 50S counts
-		ax6 = plt.subplot(gs[5,:2])
 		ax6.plot(time.asNumber(units.min), counts30S)
 		ax6.plot(time.asNumber(units.min), counts50S)
 		ax6.set_ylim([0, np.max([counts30S[2:].max(), counts50S[2:].max()])])
@@ -206,26 +209,23 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ax6.set_ylabel("30S & 50S\ncounts")
 
 		# Plot ribosome counts
-		ax7 = plt.subplot(gs[6,:2])
 		ax7.plot(time.asNumber(units.min), ribosomeCounts)
 		ax7.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 		ax7.set_ylabel("Ribosome counts")
 
 		# Plot RNAP:ribosome ratio
-		ax8 = plt.subplot(gs[7,:2])
 		ax8.plot(time.asNumber(units.min), ratioRNAPtoRibosome)
 		ax8.plot(time.asNumber(units.min), ratioRNAPtoRibosome.mean() * np.ones(time.asNumber().size), linestyle='--')
 		ax8.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 		ax8.set_ylabel("RNAP:Ribosome\ncounts")
 
 		# Plot number of "extra" ribosomes
-		ax9 = plt.subplot(gs[8,:2])
 		ax9.plot(time.asNumber(units.min), extraRibosomes)
 		ax9.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 		ax9.set_ylim([0, 100])
 		ax9.set_ylabel("% extra\nribosomes")
 
-		ax9.set_xlabel("Time (min)")
+	ax9.set_xlabel("Time (min)")
 
 	fig.subplots_adjust(hspace=.5, wspace = 0.3)
 
