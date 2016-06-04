@@ -89,6 +89,10 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		self.rProteinToRRnaRatioVector = self.rnaSynthProbStandard[self.isRProtein] / self.rnaSynthProbStandard[self.isRRna][0]
 
+		## VARIANT CODE ##
+		# self.scaling_factor = sim_data.scaling_factor
+		self.scaling_factor = 10
+		## VARIANT CODE ##
 
 	def calculateRequest(self):
 		self.inactiveRnaPolys.requestAll()
@@ -122,7 +126,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		expectedRibosomeInitiationRate = self.calculateRrnInitRate(self.rrn_operon.total(), ribosomeElongationRate)
 		rRnaSynthesisProb = expectedRibosomeInitiationRate.asNumber(1/units.s) * self.timeStepSec() / rnaPolyToActivate
 		rProteinSynthesisProb = self.rProteinToRRnaRatioVector * rRnaSynthesisProb
-
 
 		totalRnapCount = self.activeRnaPolys.total() + self.inactiveRnaPolys.total() or np.array([1])
 		totalRibosomeCount = self.activeRibosomes.total() or np.array([1])
@@ -243,8 +246,8 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		Returns total initiation rate of rRNA across all promoters
 		In units of initiations / min
 		'''
-		fitInitiationRate = rrn_count[0] * 151.595 * np.exp(0.038*-0.298 * (self.maxRibosomeElongationRate - elngRate)) / 10.
-		fitInitiationRate = 151.595 * np.exp(0.038*-0.298 * (self.maxRibosomeElongationRate - elngRate)) / 10.
+		fitInitiationRate = rrn_count[0] * 151.595 * np.exp(0.038*-0.298 * (self.maxRibosomeElongationRate - elngRate)) / self.scaling_factor
+		# fitInitiationRate = 151.595 * np.exp(0.038*-0.298 * (self.maxRibosomeElongationRate - elngRate)) / 10.
 
 	#	fitInitiationRate = rrn_count * 151.595 * np.exp(0.038*-0.298 * (self.maxRibosomeElongationRate - elngRate))
 
