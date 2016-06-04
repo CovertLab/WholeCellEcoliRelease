@@ -36,7 +36,7 @@ class Transcription(object):
 		# Load expression from RNA-seq data
 		expression = []
 		for rna in raw_data.rnas:
-			arb_exp = [x[sim_data.expression_condition] for x in eval("raw_data.rna_seq_data.rnaseq_{}_mean".format(RNA_SEQ_ANALYSIS)) if x['Gene'] == rna['geneId']]
+			arb_exp = [x[sim_data.basal_expression_condition] for x in eval("raw_data.rna_seq_data.rnaseq_{}_mean".format(RNA_SEQ_ANALYSIS)) if x['Gene'] == rna['geneId']]
 			if len(arb_exp):
 				expression.append(arb_exp[0])
 			elif rna['type'] == 'mRNA' or rna['type'] == 'miscRNA':
@@ -90,9 +90,8 @@ class Transcription(object):
 			size,
 			dtype = [
 				('id', 'a50'),
-				# TODO: add expression to this table
-				('synthProb', 'f8'),
-				('expression', 'float64'),
+				# ('synthProb', 'f8'),
+				# ('expression', 'float64'),
 				('degRate', 'f8'),
 				('length', 'i8'),
 				('countsACGU', '4i8'),
@@ -113,8 +112,8 @@ class Transcription(object):
 			)
 
 		rnaData['id'] = rnaIds
-		rnaData["synthProb"] = synthProb
-		rnaData["expression"] = expression
+		# rnaData["synthProb"] = synthProb
+		# rnaData["expression"] = expression
 		rnaData['degRate'] = rnaDegRates
 		rnaData['length'] = rnaLens
 		rnaData['countsACGU'] = ntCounts
@@ -134,8 +133,8 @@ class Transcription(object):
 
 		field_units = {
 			'id'			:	None,
-			'synthProb' 	:	None,
-			'expression'	:	None,
+			# 'synthProb' 	:	None,
+			# 'expression'	:	None,
 			'degRate'		:	1 / units.s,
 			'length'		:	units.nt,
 			'countsACGU'	:	units.nt,
@@ -153,6 +152,12 @@ class Transcription(object):
 			'geneId'		:	None,
 			'KmEndoRNase'	:	units.mol / units.L,
 			}
+
+		self.rnaExpression = {}
+		self.rnaSynthProb = {}
+
+		self.rnaExpression["basal"] = expression
+		self.rnaSynthProb["basal"] = synthProb
 
 
 		self.rnaData = UnitStructArray(rnaData, field_units)

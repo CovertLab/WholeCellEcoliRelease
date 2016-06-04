@@ -20,6 +20,8 @@ from matplotlib import pyplot as plt
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
+from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS
+
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -29,32 +31,25 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	enzymeKineticsdata = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
 	
-	enzymeKineticsArray = enzymeKineticsdata.readColumn("reactionRates")
+	enzymeKineticsArray = enzymeKineticsdata.readColumn("reactionConstraints")
 
 	reactionIDs = enzymeKineticsdata.readAttribute("reactionIDs")
 	
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-	
-	enzymeKineticsdata.close()
 
-	reactionRateArray = np.transpose(enzymeKineticsArray)
+	enzymeKineticsdata.close()
 
 	plt.figure(figsize = (8.5, 11))
 	plt.title("Enzyme Kinetics")
 
-	lineLabels = []
-
-	i = 0
-	for timeCourse in reactionRateArray:
-		if (np.amax(timeCourse) < np.inf) and (i < len(reactionIDs)):
-			plt.plot(time / 60, timeCourse)
-			lineLabels.append(reactionIDs[i][:15])
-		i += 1
+	for idx, timeCourse in enumerate(enzymeKineticsArray.T):
+		if (np.amax(timeCourse) < np.inf) and (idx < len(reactionIDs)):
+			plt.plot(time / 60, timeCourse, label=reactionIDs[idx][:15])
 
 	plt.xlabel("Time (min)")
-	plt.ylabel("Reaction Rate (reactions/second)")
-	plt.legend(lineLabels, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+	plt.ylabel("Reaction Rate ({counts_units}/{volume_units}.{time_units})".format(counts_units=COUNTS_UNITS.strUnit(), volume_units=VOLUME_UNITS.strUnit(), time_units=TIME_UNITS.strUnit()))
+	plt.legend(framealpha=.5, fontsize=6)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)

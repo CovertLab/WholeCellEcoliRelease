@@ -34,6 +34,10 @@ from wholecell.utils.fitting import massesAndCountsToAddForPools
 COUNTS_UNITS = units.dmol
 VOLUME_UNITS = units.L
 MASS_UNITS = units.g
+TIME_UNITS = units.s
+
+SECRETION_PENALTY_COEFF = 1e-5
+
 USE_RATELIMITS = False # Enable/disable kinetic rate limits in the model
 
 USE_MANUAL_FLUX_COEFF = False # enable to overrid flux coefficients in the knowledgebase and use these local values instead
@@ -107,7 +111,7 @@ class Metabolism(wholecell.processes.process.Process):
 			+ initDryMass
 			)
 
-		energyCostPerWetMass = sim_data.constants.darkATP * initDryMass / initCellMass
+		self.energyCostPerWetMass = sim_data.constants.darkATP * initDryMass / initCellMass
 
 		self.reactionStoich = sim_data.process.metabolism.reactionStoich
 		self.externalExchangeMolecules = sim_data.externalExchangeMolecules[sim_data.environment]
@@ -121,9 +125,9 @@ class Metabolism(wholecell.processes.process.Process):
 			objectiveType = "pools",
 			reversibleReactions = self.reversibleReactions,
 			moleculeMasses = self.moleculeMasses,
-			secretionPenaltyCoeff = 0., # The "inconvenient constant"--limit secretion (e.g., of CO2); a value of 1e-5 seems to work
+			secretionPenaltyCoeff = SECRETION_PENALTY_COEFF, # The "inconvenient constant"--limit secretion (e.g., of CO2)
 			solver = "glpk",
-			maintenanceCostGAM = energyCostPerWetMass.asNumber(COUNTS_UNITS / MASS_UNITS),
+			maintenanceCostGAM = self.energyCostPerWetMass.asNumber(COUNTS_UNITS / MASS_UNITS),
 			maintenanceReaction = {
 				"ATP[c]": -1, "WATER[c]": -1, "ADP[c]": +1, "Pi[c]": +1, "PROTON[c]": +1,
 				} # TODO: move to KB TODO: check reaction stoich
@@ -156,7 +160,6 @@ class Metabolism(wholecell.processes.process.Process):
 		self.poolMetabolites = self.bulkMoleculesView(self.metabolitePoolIDs)
 		self.enzymeNames = self.enzymesWithKineticInfo
 		self.enzymes = self.bulkMoleculesView(self.enzymeNames)
-
 			
 		outputMoleculeIDs = self.fba.outputMoleculeIDs()
 
@@ -209,11 +212,12 @@ class Metabolism(wholecell.processes.process.Process):
 				objectiveType = "pools",
 				reversibleReactions = self.reversibleReactions,
 				moleculeMasses = self.moleculeMasses,
+				secretionPenaltyCoeff = SECRETION_PENALTY_COEFF,
 				solver = "glpk",
-				# maintenanceCost = energyCostPerWetMass.asNumber(COUNTS_UNITS/MASS_UNITS), # mmol/gDCW TODO: get real number
-				# maintenanceReaction = {
-				# 	"ATP[c]":-1, "WATER[c]":-1, "ADP[c]":+1, "Pi[c]":+1
-				# 	} # TODO: move to KB TODO: check reaction stoich
+				maintenanceCostGAM = self.energyCostPerWetMass.asNumber(COUNTS_UNITS / MASS_UNITS),
+				maintenanceReaction = {
+					"ATP[c]": -1, "WATER[c]": -1, "ADP[c]": +1, "Pi[c]": +1, "PROTON[c]": +1,
+					} # TODO: move to KB TODO: check reaction stoich
 				)
 
 			massComposition = self.massReconstruction.getFractionMass(self.doublingTime)
@@ -224,7 +228,7 @@ class Metabolism(wholecell.processes.process.Process):
 			massesToAdd, _ = massesAndCountsToAddForPools(massInitial, objIds, objConc, mws, self.cellDensity, self.nAvogadro)
 			smallMoleculePoolsDryMass = units.hstack((massesToAdd[:objIds.index('WATER[c]')], massesToAdd[objIds.index('WATER[c]') + 1:]))
 			totalDryMass = units.sum(smallMoleculePoolsDryMass) + massInitial
-			self.writeToListener("Mass", "expectedDryMassIncrease", totalDryMass)
+			self.writeToListener("CellDivision", "expectedDryMassIncrease", totalDryMass)
 
 		# Set external molecule levels
 		self.fba.externalMoleculeLevelsIs(externalMoleculeLevels)
@@ -251,15 +255,15 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Combine the enzyme concentrations, substrate concentrations, and the default rate into one vector
 		inputConcentrations = np.concatenate((
-			enzymeConcentrations.asNumber(COUNTS_UNITS / VOLUME_UNITS),
-			metaboliteConcentrations.asNumber(COUNTS_UNITS / VOLUME_UNITS),
+			enzymeConcentrations.asNumber(units.umol / units.L),
+			metaboliteConcentrations.asNumber(units.umol / units.L),
 			[defaultRate]), axis=1)
 
 		# Find reaction rate limits
-		self.reactionRates = self.enzymeKinetics.rateFunction(*inputConcentrations) * self.timeStepSec()
+		self.reactionConstraints = ((units.umol / units.L) * self.enzymeKinetics.rateFunction(*inputConcentrations) * self.timeStepSec()).asNumber(COUNTS_UNITS / VOLUME_UNITS)
 
 		# Find rate limits for all constraints
-		self.allConstraintsLimits = self.enzymeKinetics.allRatesFunction(*inputConcentrations)[0]
+		self.allConstraintsLimits = ((units.umol / units.L) * self.enzymeKinetics.allRatesFunction(*inputConcentrations)[0]).asNumber(COUNTS_UNITS / VOLUME_UNITS)
 
 		# Set the rate limits only if the option flag is enabled
 		if USE_RATELIMITS:
@@ -286,7 +290,8 @@ class Metabolism(wholecell.processes.process.Process):
 
 				else:
 					self.fba.maxReactionFluxIs(self.constraintToReactionDict[constraintID], defaultRate, raiseForReversible = False)
-					
+
+		self.overconstraintMultiples = (self.fba.reactionFluxes() / self.timeStepSec()) / self.reactionConstraints
 
 		deltaMetabolites = (1 / countsToMolar) * (COUNTS_UNITS / VOLUME_UNITS * self.fba.outputMoleculeLevelsChange())
 
@@ -309,14 +314,17 @@ class Metabolism(wholecell.processes.process.Process):
 		self.writeToListener("FBAResults", "outputFluxes",
 			self.fba.outputMoleculeLevelsChange() / self.timeStepSec())
 
-		self.writeToListener("FBAResults", "outputFluxes",
-			self.fba.outputMoleculeLevelsChange() / self.timeStepSec())
+		self.writeToListener("FBAResults", "dualValues",
+			self.fba.dualValues(self.metaboliteNames))
 
-		self.writeToListener("EnzymeKinetics", "reactionRates",
-			self.reactionRates)
+		self.writeToListener("EnzymeKinetics", "reactionConstraints",
+			self.reactionConstraints)
 
 		self.writeToListener("EnzymeKinetics", "allConstraintsLimits",
 			self.allConstraintsLimits)
+
+		self.writeToListener("EnzymeKinetics", "overconstraintMultiples",
+			self.overconstraintMultiples)
 
 		self.writeToListener("EnzymeKinetics", "metaboliteCountsInit",
 			metaboliteCountsInit)
@@ -341,8 +349,6 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.writeToListener("EnzymeKinetics", "volume_units",
 			str(VOLUME_UNITS))
-
-
 
 
 

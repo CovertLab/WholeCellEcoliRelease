@@ -61,7 +61,7 @@ def initializeProteinMonomers(bulkMolCntr, sim_data, randomState):
 	# again (look at the calcProteinCounts function)
 
 	monomerExpression = normalize(
-		sim_data.process.transcription.rnaData["expression"][sim_data.relation.rnaIndexToMonomerMapping] *
+		sim_data.process.transcription.rnaExpression[sim_data.condition][sim_data.relation.rnaIndexToMonomerMapping] *
 		sim_data.process.translation.translationEfficienciesByMonomer /
 		(np.log(2) / sim_data.doubling_time.asNumber(units.s) + sim_data.process.translation.monomerData["degRate"].asNumber(1 / units.s))
 		)
@@ -82,7 +82,7 @@ def initializeRNA(bulkMolCntr, sim_data, randomState):
 	rnaView = bulkMolCntr.countsView(sim_data.process.transcription.rnaData["id"])
 	rnaMass = sim_data.mass.getFractionMass(sim_data.doubling_time)["rnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
 
-	rnaExpression = normalize(sim_data.process.transcription.rnaData["expression"])
+	rnaExpression = normalize(sim_data.process.transcription.rnaExpression[sim_data.condition])
 
 	nRnas = countsFromMassAndExpression(
 		rnaMass.asNumber(units.g),

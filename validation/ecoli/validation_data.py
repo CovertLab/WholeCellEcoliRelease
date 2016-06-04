@@ -33,13 +33,14 @@ class ValidationDataEcoli(object):
 
 	def initialize(self, validation_data_raw, knowledge_base_raw):
 		self.protein = Protein(validation_data_raw, knowledge_base_raw)
+		self.reactionFlux = ReactionFlux(validation_data_raw, knowledge_base_raw)
 
 
 class Protein(object):
 	""" Protein """
 
 	def __init__(self, validation_data_raw, knowledge_base_raw):
-		
+
 		utilFunctions = getterFunctions(knowledge_base_raw, None)
 
 		# Build and save a dict from gene ID to monomerId
@@ -174,3 +175,20 @@ class Protein(object):
 
 		self.schmidt2015Data = schmidt2015Data
 
+
+class ReactionFlux(object):
+	""" ReactionFlux """
+
+	def __init__(self, validation_data_raw, knowledge_base_raw):
+
+		utilFunctions = getterFunctions(knowledge_base_raw, None)
+
+		self._loadToya2010Fluxes(validation_data_raw)
+
+	def _loadToya2010Fluxes(self, validation_data_raw):
+		# Load Toya 2010 Biotech Prog central carbon metabolism C13 flux dataset
+		toya_dataset = validation_data_raw.toya_2010_central_carbon_fluxes
+		self.toya2010fluxes = np.zeros(len(toya_dataset), dtype=[('reactionID', '|S100'), ('reactionFlux', Unum)])
+		for idx, row in enumerate(toya_dataset):
+			self.toya2010fluxes[idx]["reactionID"] = row["reactionID"]
+			self.toya2010fluxes[idx]["reactionFlux"] = row["flux"]

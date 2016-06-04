@@ -55,7 +55,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		self.rnaPolymeraseElongationRate = sim_data.growthRateParameters.rnaPolymeraseElongationRate
 
-		self.rnaSynthProb = sim_data.process.transcription.rnaData["synthProb"]
+		self.rnaSynthProb = sim_data.process.transcription.rnaSynthProb[sim_data.condition]
 
 		import copy
 		self.rnaSynthProbStandard = copy.copy(self.rnaSynthProb)

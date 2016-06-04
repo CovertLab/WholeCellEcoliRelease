@@ -20,6 +20,8 @@ DOWN_SAMPLE = 100
 
 def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
+	print "Disabled. Calls fitter with doubling_time argument which is deprecated."
+	return
 	if not os.path.isdir(variantDir):
 		raise Exception, "variantDir does not currently exist as a directory"
 

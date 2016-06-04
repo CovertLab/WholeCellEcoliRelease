@@ -25,6 +25,8 @@ from reconstruction.ecoli.dataclasses.process.process import Process
 from reconstruction.ecoli.dataclasses.growthRateDependentParameters import Mass, GrowthRateParameters
 from reconstruction.ecoli.dataclasses.relation import Relation
 
+VERBOSE = False
+
 class SimulationDataEcoli(object):
 	""" SimulationDataEcoli """
 
@@ -33,16 +35,16 @@ class SimulationDataEcoli(object):
 		# Doubling time (used in fitting)
 		self.doubling_time = None
 
-	def initialize(self, doubling_time, raw_data, expression_condition = "M9 Glucose minus AAs", environment = "wildtype"):
+	def initialize(self, raw_data, basal_expression_condition = "M9 Glucose minus AAs"):
 
-		if type(doubling_time) != Unum:
-			raise Exception("Doubling time is not a Unum object!")
-		self.doubling_time = doubling_time
+		self._addEnvData(raw_data)
+		self.condition = "basal"
+		self.environment = self.conditions[self.condition]["environment"]
+		self.doubling_time = self.conditionToDoublingTime[self.condition]
 
 		# TODO: Check that media condition is valid
-		self.expression_condition = expression_condition
+		self.basal_expression_condition = basal_expression_condition
 		self.envDict, self.externalExchangeMolecules, self.nutrientExchangeMolecules, self.secretionExchangeMolecules = self._addEnvironments(raw_data)
-		self.environment = environment
 
 		self._addHardCodedAttributes()
 
@@ -106,7 +108,8 @@ class SimulationDataEcoli(object):
 		nutrientExchangeMolecules = {}
 		secretionExchangeMolecules = set()
 		envDict = {}
-		environments = [(x, getattr(raw_data.environment, x)) for x in dir(raw_data.environment) if not x.startswith("__")]
+		notEnvList = ["condition_doubling_time", "tf_condition", "condition_defs"]
+		environments = [(x, getattr(raw_data.environment, x)) for x in dir(raw_data.environment) if not x.startswith("__") and x not in notEnvList]
 		for envName, env in environments:
 			externalExchangeMolecules[envName] = set()
 			nutrientExchangeMolecules[envName] = set()
@@ -147,3 +150,73 @@ class SimulationDataEcoli(object):
 
 
 		return envDict, externalExchangeMolecules, nutrientExchangeMolecules, secretionExchangeMolecules
+
+	def _addEnvData(self, raw_data):
+		self.conditionToDoublingTime = dict([(x["condition"].encode("utf-8"), x["initial doubling time"]) for x in raw_data.environment.condition_doubling_time])
+
+		abbrToActiveId = dict([(x["TF"].encode("utf-8"), x["activeId"].encode("utf-8").split(", ")) for x in raw_data.tfIds if len(x["activeId"]) > 0])
+
+		geneIdToRnaId = dict([(x["id"].encode("utf-8"), x["rnaId"].encode("utf-8")) for x in raw_data.genes])
+
+		abbrToRnaId = dict(
+			[(x["symbol"].encode("utf-8"), x["rnaId"].encode("utf-8")) for x in raw_data.genes] +
+			[(x["name"].encode("utf-8"), geneIdToRnaId[x["geneId"].encode("utf-8")]) for x in raw_data.translationEfficiency if x["geneId"] != "#N/A"]
+			)
+
+		self.tfToFC = {}
+		notFound = []
+		for row in raw_data.foldChanges:
+			tf = abbrToActiveId[row["TF"].encode("utf-8")][0]
+			try:
+				target = abbrToRnaId[row["Target"].encode("utf-8")]
+			except KeyError:
+				notFound.append(row["Target"].encode("utf-8"))
+				continue
+			if tf not in self.tfToFC:
+				self.tfToFC[tf] = {}
+			FC = row["F_avg"]
+			if row["Regulation_direct"] < 0:
+				FC *= -1.
+			FC = 2**FC
+			self.tfToFC[tf][target] = FC
+
+		if VERBOSE:
+			print "The following target genes listed in foldChanges.tsv have no corresponding entry in genes.tsv:"
+			for item in notFound:
+				print item
+
+
+		self.tfToActiveInactiveConds = {}
+		for row in raw_data.environment.tf_condition:
+			tf = row["active TF"].encode("utf-8")
+			activeGenotype = row["active genotype perturbations"]
+			activeEnv = row["active environment"].encode("utf-8")
+			inactiveGenotype = row["inactive genotype perturbations"]
+			inactiveEnv = row["inactive environment"].encode("utf-8")
+
+			if tf not in self.tfToActiveInactiveConds:
+				self.tfToActiveInactiveConds[tf] = {}
+			else:
+				print "Warning: overwriting TF fold change conditions for %s" % tf
+
+			self.tfToActiveInactiveConds[tf]["active genotype perturbations"] = activeGenotype
+			self.tfToActiveInactiveConds[tf]["active environment"] = activeEnv
+			self.tfToActiveInactiveConds[tf]["inactive genotype perturbations"] = inactiveGenotype
+			self.tfToActiveInactiveConds[tf]["inactive environment"] = inactiveEnv
+
+		self.conditions = {}
+		for row in raw_data.environment.condition_defs:
+			condition = row["condition"].encode("utf-8")
+			self.conditions[condition] = {}
+			self.conditions[condition]["environment"] = row["environment"].encode("utf-8")
+			self.conditions[condition]["perturbations"] = row["genotype perturbations"]
+
+		for tf in sorted(self.tfToActiveInactiveConds):
+			activeCondition = tf + "__active"
+			inactiveCondition = tf + "__inactive"
+			self.conditions[activeCondition] = {}
+			self.conditions[inactiveCondition] = {}
+			self.conditions[activeCondition]["environment"] = self.tfToActiveInactiveConds[tf]["active environment"]
+			self.conditions[inactiveCondition]["environment"] = self.tfToActiveInactiveConds[tf]["inactive environment"]
+			self.conditions[activeCondition]["perturbations"] = self.tfToActiveInactiveConds[tf]["active genotype perturbations"]
+			self.conditions[inactiveCondition]["perturbations"] = self.tfToActiveInactiveConds[tf]["inactive genotype perturbations"]
