@@ -65,10 +65,8 @@ class SimulationDataEcoli(object):
 		self.relation = Relation(raw_data, self)
 
 		#### VARIANT CODE ####
-		self.glucoseLimitation = False
 		self.translationSaturation = True
-		self.fractionGlucoseLimit = 1.0
-		self.synthetase_km_scale = 1.0
+		self.scaling_factor = 1.0
 		#### VARIANT CODE ####
 
 	def _addHardCodedAttributes(self):
