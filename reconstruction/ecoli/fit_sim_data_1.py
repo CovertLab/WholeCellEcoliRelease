@@ -111,11 +111,18 @@ def buildTfConditionCellSpecifications(sim_data, cellSpecs):
 			conditionKey = tf + choice
 			conditionValue = sim_data.conditions[conditionKey]
 
+			expression = expressionFromConditionAndFoldChange(
+				sim_data.process.transcription.rnaData["id"],
+				sim_data.process.transcription.rnaExpression["basal"],
+				conditionValue["perturbations"],
+				sim_data.tfToFC[tf],
+			)
+
 			cellSpecs[conditionKey] = {
 				"concDict": sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
 					sim_data.envDict[conditionValue["environment"]][0][-1]
 				),
-				"expression": sim_data.process.transcription.rnaExpression["basal"].copy(), # TODO: Scale this according to fold change data
+				"expression": expression,
 				"doubling_time": sim_data.conditionToDoublingTime.get(
 					conditionKey,
 					sim_data.conditionToDoublingTime["basal"]
@@ -127,6 +134,7 @@ def buildTfConditionCellSpecifications(sim_data, cellSpecs):
 				cellSpecs[conditionKey]["expression"],
 				cellSpecs[conditionKey]["concDict"],
 				cellSpecs[conditionKey]["doubling_time"],
+				sim_data.process.transcription.rnaData["KmEndoRNase"],
 				)
 
 			cellSpecs[conditionKey]["expression"] = expression
@@ -892,6 +900,10 @@ def netLossRateFromDilutionAndDegradationRNA(doublingTime, totalEndoRnaseCountsC
 
 def netLossRateFromDilutionAndDegradationRNALinear(doublingTime, degradationRates, rnaCounts):
 	return (np.log(2) / doublingTime + degradationRates) * rnaCounts
+
+def expressionFromConditionAndFoldChange(rnaIds, basalExpression, condPerturbations, tfFCs):
+	# TODO: Implement
+	return basalExpression
 
 def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 	cellDensity = sim_data.constants.cellDensity
