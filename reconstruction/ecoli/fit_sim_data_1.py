@@ -111,11 +111,14 @@ def buildTfConditionCellSpecifications(sim_data, cellSpecs):
 			conditionKey = tf + choice
 			conditionValue = sim_data.conditions[conditionKey]
 
+			fcData = {}
+			if choice == "__active":
+				fcData = sim_data.tfToFC[tf]
 			expression = expressionFromConditionAndFoldChange(
 				sim_data.process.transcription.rnaData["id"],
 				sim_data.process.transcription.rnaExpression["basal"],
 				conditionValue["perturbations"],
-				sim_data.tfToFC[tf],
+				fcData,
 			)
 
 			cellSpecs[conditionKey] = {
@@ -902,8 +905,23 @@ def netLossRateFromDilutionAndDegradationRNALinear(doublingTime, degradationRate
 	return (np.log(2) / doublingTime + degradationRates) * rnaCounts
 
 def expressionFromConditionAndFoldChange(rnaIds, basalExpression, condPerturbations, tfFCs):
-	# TODO: Implement
-	return basalExpression
+	expression = basalExpression.copy()
+
+	# TODO: Implement condPerturbations
+
+	rnaIdxs = []
+	fcs = []
+	for key in sorted(tfFCs):
+		rnaIdxs.append(np.where(rnaIds == key + "[c]")[0][0])
+		fcs.append(tfFCs[key])
+	rnaIdxsBool = np.zeros(len(rnaIds), dtype = np.bool)
+	rnaIdxsBool[rnaIdxs] = 1
+	fcs = np.array(fcs)
+	scaleTheRestBy = (1. - (expression[rnaIdxs] * fcs).sum()) / (1. - (expression[rnaIdxs]).sum())
+	expression[rnaIdxsBool] *= fcs
+	expression[~rnaIdxsBool] *= scaleTheRestBy
+
+	return expression
 
 def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 	cellDensity = sim_data.constants.cellDensity
