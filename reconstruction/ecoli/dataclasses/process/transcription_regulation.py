@@ -32,6 +32,14 @@ class TranscriptionRegulation(object):
 
 			self.tfKd[self.abbrToActiveId[D["TF"].encode("utf-8")][0]] = D["kd"]
 
+		self.targetTf = {}
+		for tf in sim_data.tfToFC:
+			targets = sim_data.tfToFC[tf]
+			for target in targets:
+				if target not in self.targetTf:
+					self.targetTf[target] = []
+				self.targetTf[target].append(tf)
+
 		self.tfNTargets = dict([(key, len(val)) for key,val in sim_data.tfToFC.iteritems()])
 		return
 
