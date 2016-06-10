@@ -18,6 +18,9 @@ import warnings
 
 import wholecell.states.bulk_molecules
 import wholecell.states.unique_molecules
+import numpy as np
+
+from wholecell.listeners.listener import WriteMethod
 
 class Process(object):
 	""" Process """
@@ -96,7 +99,7 @@ class Process(object):
 
 	# TODO: consider an object-oriented interface to reading/writing to listeners
 	# that way, processes would use object handles instead of strings
-	def writeToListener(self, listenerName, attributeName, value):
+	def writeToListener(self, listenerName, attributeName, value, writeMethod = WriteMethod.update):
 		if listenerName not in self._sim.listeners.viewkeys():
 			warnings.warn("The {} process attempted to write {} to the {} listener, but there is no listener with that name.".format(
 				self._name,
@@ -113,9 +116,26 @@ class Process(object):
 					attributeName,
 					listenerName
 					))
-
 			else:
-				setattr(listener, attributeName, value)
+				if writeMethod == WriteMethod.update:
+					setattr(listener, attributeName, value)
+				elif writeMethod == WriteMethod.increment:
+					setattr(listener, attributeName, getattr(listener, attributeName) + value)
+				elif writeMethod == WriteMethod.append:
+					data = getattr(listener, attributeName)
+					if isinstance(data, np.ndarray):
+						setattr(listener, attributeName, np.append(data, value, axis=0))
+					else:
+						warnings.warn("The {} process attempted to append to {} on the {} listener, but it is not an ndarray".format(
+							self._name,
+							attributeName,
+							listenerName))
+				else:
+					raise warnings.warn("The {} process attempted to write {} to the {} listener, but used an invalid write method: {}".format(
+						self._name,
+						attributeName,
+						listenerName,
+						writeMethod))
 
 
 	def readFromListener(self, listenerName, attributeName):

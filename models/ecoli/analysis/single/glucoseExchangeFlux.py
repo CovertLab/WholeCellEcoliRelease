@@ -33,7 +33,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	glcFlux = exFlux[:,exMolec.index("GLC[p]")]
 
 	axes.plot(time / 60. / 60., -1. * glcFlux, label="Glucose exchange flux coefficient")
-	axes.set_ylabel("External\nglucose\n(mmol/L/s)")
+	axes.set_ylabel("External\nglucose\n(mmol/gDCW/hr)")
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)

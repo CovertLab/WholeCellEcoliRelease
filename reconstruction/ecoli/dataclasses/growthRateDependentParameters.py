@@ -23,10 +23,10 @@ class Mass(object):
 		self._buildSubMasses(raw_data, sim_data)
 		self._buildCDPeriod(raw_data, sim_data)
 
-		self.avgCellDryMass = self._setAvgCellDryMass()
-		self.avgCell60MinDoublingTimeTotalMassInit = 813.542227072 * units.fg
-		self.massFraction = self._setMassFraction()
-		self.avgCellSubMass = self._setSubMass()
+		self.avgCellDryMass = self.getAvgCellDryMass(self._doubling_time)
+		self.avgCell60MinDoublingTimeTotalMassInit = 1.2 * 813.854708188 * units.fg
+		self.massFraction = self.getMassFraction(self._doubling_time)
+		self.avgCellSubMass = self.getFractionMass(self._doubling_time)
 
 		self._buildDependentConstants()
 
@@ -39,6 +39,29 @@ class Mass(object):
 
 		self.cellDryMassFraction = 1. - self.cellWaterMassFraction
 		self.avgCellToInitialCellConvFactor = np.exp(np.log(2) * self.avgCellCellCycleProgress)
+
+		self._cellDensity = sim_data.constants.cellDensity
+
+		self._glycogenFractions = raw_data.massFractions.glycogenFractions
+		self._mureinFractions = raw_data.massFractions.mureinFractions
+		self._LPSFractions = raw_data.massFractions.LPSFractions
+		self._lipidFractions = raw_data.massFractions.lipidFractions
+		self._ionFractions = raw_data.massFractions.ionFractions
+		self._solubleFractions = raw_data.massFractions.solubleFractions
+
+		metIds = (
+			[x["metaboliteId"] for x in self._glycogenFractions] +
+			[x["metaboliteId"] for x in self._mureinFractions] +
+			[x["metaboliteId"] for x in self._LPSFractions] +
+			[x["metaboliteId"] for x in self._lipidFractions] +
+			[x["metaboliteId"] for x in self._ionFractions] +
+			[x["metaboliteId"] for x in self._solubleFractions] +
+			["WATER[c]"]
+			)
+		mws = sim_data.getter.getMass(metIds)
+		self._mws = dict(zip(metIds, mws))
+
+		self._metPoolIds = [x["Metabolite"] + "[c]" for x in raw_data.metaboliteConcentrations]
 
 	def _buildDependentConstants(self):
 		self.avgCellDryMassInit = self.avgCellDryMass / self.avgCellToInitialCellConvFactor
@@ -78,23 +101,23 @@ class Mass(object):
 		self.d_period = sim_data.growthRateParameters.d_period
 
 	# Set based on growth rate avgCellDryMass
-	def _setAvgCellDryMass(self):
-		doubling_time = self._clipTau_d(self._doubling_time)
+	def getAvgCellDryMass(self, doubling_time):
+		doubling_time = self._clipTau_d(doubling_time)
 		avgCellDryMass = units.fg * float(interpolate.splev(doubling_time.asNumber(units.min), self._dryMassParams))
 		return avgCellDryMass
 
 	# Set mass fractions based on growth rate
-	def _setMassFraction(self):
-		if type(self._doubling_time) != unum.Unum:
+	def getMassFraction(self, doubling_time):
+		if type(doubling_time) != unum.Unum:
 			raise Exception("Doubling time was not set!")
 
 		D = {}
-		dnaMassFraction = self._calculateGrowthRateDependentDnaMass(self._doubling_time) / self.avgCellDryMass
+		dnaMassFraction = self._calculateGrowthRateDependentDnaMass(doubling_time) / self.getAvgCellDryMass(doubling_time)
 		dnaMassFraction.normalize()
 		dnaMassFraction.checkNoUnit()
 		D["dna"] = dnaMassFraction.asNumber()
 
-		doubling_time = self._clipTau_d(self._doubling_time)
+		doubling_time = self._clipTau_d(doubling_time)
 		D["protein"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._proteinMassFractionParams))
 		D["rna"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._rnaMassFractionParams))
 		D["lipid"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._lipidMassFractionParams))
@@ -111,10 +134,12 @@ class Mass(object):
 		assert np.absolute(np.sum([x for x in D.itervalues()]) - 1.) < 1e-3
 		return D
 
-	def _setSubMass(self):
+
+	def getFractionMass(self, doubling_time):
 		D = {}
-		for key, value in self.massFraction.iteritems():
-			D[key + "Mass"] = value * self.avgCellDryMass
+		massFraction = self.getMassFraction(doubling_time)
+		for key, value in massFraction.iteritems():
+			D[key + "Mass"] = value * self.getAvgCellDryMass(doubling_time)
 
 		D["rRna23SMass"] = D['rnaMass'] * self._rrna23s_mass_sub_fraction
 		D["rRna16SMass"] = D['rnaMass'] * self._rrna16s_mass_sub_fraction
@@ -123,6 +148,134 @@ class Mass(object):
 		D["mRnaMass"] = D['rnaMass'] * self._mrna_mass_sub_fraction
 
 		return D
+
+	def getBiomassAsConcentrations(self, doubling_time):
+
+		avgCellDryMassInit = self.getAvgCellDryMass(doubling_time) / self.avgCellToInitialCellConvFactor
+		avgCellWaterMassInit = (avgCellDryMassInit / self.cellDryMassFraction) * self.cellWaterMassFraction
+
+		initWaterMass = avgCellWaterMassInit.asNumber(units.g)
+		initDryMass = avgCellDryMassInit.asNumber(units.g)
+
+		initCellMass = initWaterMass + initDryMass
+
+		initCellVolume = initCellMass / self._cellDensity.asNumber(units.g / units.L) # L
+
+		massFraction = self.getMassFraction(doubling_time)
+
+		metaboliteIDs = []
+		metaboliteConcentrations = []
+
+		for entry in self._glycogenFractions:
+			metaboliteID = entry["metaboliteId"]
+
+			assert metaboliteID not in metaboliteIDs + self._metPoolIds
+
+			massFrac = entry["massFraction"] * massFraction["glycogen"]
+			molWeight = self._mws[metaboliteID].asNumber(units.g / units.mol)
+
+			massInit = massFrac * initDryMass
+			molesInit = massInit / molWeight
+
+			concentration = molesInit / initCellVolume
+
+			metaboliteIDs.append(metaboliteID)
+			metaboliteConcentrations.append(concentration)
+
+		for entry in self._mureinFractions:
+			metaboliteID = entry["metaboliteId"]
+
+			assert metaboliteID not in metaboliteIDs + self._metPoolIds
+
+			massFrac = entry["massFraction"] * massFraction["murein"]
+			molWeight = self._mws[metaboliteID].asNumber(units.g / units.mol)
+
+			massInit = massFrac * initDryMass
+			molesInit = massInit / molWeight
+
+			concentration = molesInit / initCellVolume
+
+			metaboliteIDs.append(metaboliteID)
+			metaboliteConcentrations.append(concentration)
+
+		for entry in self._LPSFractions:
+			metaboliteID = entry["metaboliteId"]
+
+			assert metaboliteID not in metaboliteIDs + self._metPoolIds
+
+			massFrac = entry["massFraction"] * massFraction["lps"]
+			molWeight = self._mws[metaboliteID].asNumber(units.g / units.mol)
+
+			massInit = massFrac * initDryMass
+			molesInit = massInit / molWeight
+
+			concentration = molesInit / initCellVolume
+
+			metaboliteIDs.append(metaboliteID)
+			metaboliteConcentrations.append(concentration)
+
+		for entry in self._lipidFractions:
+			metaboliteID = entry["metaboliteId"]
+
+			assert metaboliteID not in metaboliteIDs + self._metPoolIds
+
+			massFrac = entry["massFraction"] * massFraction["lipid"]
+			molWeight = self._mws[metaboliteID].asNumber(units.g / units.mol)
+
+			massInit = massFrac * initDryMass
+			molesInit = massInit / molWeight
+
+			concentration = molesInit / initCellVolume
+
+			metaboliteIDs.append(metaboliteID)
+			metaboliteConcentrations.append(concentration)
+
+		for entry in self._ionFractions:
+			metaboliteID = entry["metaboliteId"]
+
+			assert metaboliteID not in metaboliteIDs + self._metPoolIds
+
+			massFrac = entry["massFraction"] * massFraction["inorganicIon"]
+			molWeight = self._mws[metaboliteID].asNumber(units.g / units.mol)
+
+			massInit = massFrac * initDryMass
+			molesInit = massInit / molWeight
+
+			concentration = molesInit / initCellVolume
+
+			metaboliteIDs.append(metaboliteID)
+			metaboliteConcentrations.append(concentration)
+
+		for entry in self._solubleFractions:
+			metaboliteID = entry["metaboliteId"]
+
+			if metaboliteID not in self._metPoolIds:
+				massFrac = entry["massFraction"] * massFraction["solublePool"]
+				molWeight = self._mws[metaboliteID].asNumber(units.g / units.mol)
+
+				massInit = massFrac * initDryMass
+				molesInit = massInit / molWeight
+
+				concentration = molesInit / initCellVolume
+
+				metaboliteIDs.append(metaboliteID)
+				metaboliteConcentrations.append(concentration)
+
+
+		# H2O: reported water content of E. coli
+
+		h2oMolWeight = self._mws["WATER[c]"].asNumber(units.g / units.mol)
+		h2oMoles = initWaterMass / h2oMolWeight
+
+		h2oConcentration = h2oMoles / initCellVolume
+
+		metaboliteIDs.append("WATER[c]")
+		metaboliteConcentrations.append(h2oConcentration)
+
+
+		metaboliteConcentrations = (units.mol / units.L) * np.array(metaboliteConcentrations)
+
+		return dict(zip(metaboliteIDs, metaboliteConcentrations))
 
 	def _calculateGrowthRateDependentDnaMass(self, doubling_time):
 		C_PERIOD = self.c_period
@@ -168,16 +321,16 @@ class Mass(object):
 		return doubling_time
 
 	def _buildTrnaData(self, raw_data, sim_data):
-		growth_rate_unit = units.getUnit(raw_data.trna_growth_rates[0]['growth rate'])
+		growth_rate_unit = units.getUnit(raw_data.trnaData.trna_growth_rates[0]['growth rate'])
 
-		self._trna_growth_rates = growth_rate_unit * np.array([x['growth rate'].asNumber() for x in raw_data.trna_growth_rates])
+		self._trna_growth_rates = growth_rate_unit * np.array([x['growth rate'].asNumber() for x in raw_data.trnaData.trna_growth_rates])
 
 		trna_ratio_to_16SrRNA_by_growth_rate = []
 		for gr in self._trna_growth_rates: # This is a little crazy...
-			trna_ratio_to_16SrRNA_by_growth_rate.append([x['ratio to 16SrRNA'] for x in getattr(raw_data, "trna_ratio_to_16SrRNA_" + str(gr.asNumber()).replace('.','p'))])
+			trna_ratio_to_16SrRNA_by_growth_rate.append([x['ratio to 16SrRNA'] for x in getattr(raw_data.trnaData, "trna_ratio_to_16SrRNA_" + str(gr.asNumber()).replace('.','p'))])
 		self._trna_ratio_to_16SrRNA_by_growth_rate = np.array(trna_ratio_to_16SrRNA_by_growth_rate)
 
-		self._trna_ids = [x['rna id'] for x in raw_data.trna_ratio_to_16SrRNA_0p4]
+		self._trna_ids = [x['rna id'] for x in raw_data.trnaData.trna_ratio_to_16SrRNA_0p4]
 
 	def getTrnaDistribution(self):
 		return self._getTrnaAbundanceAtGrowthRate(self._doubling_time)
@@ -207,6 +360,9 @@ class GrowthRateParameters(object):
 		# thingsToSet = [x for x in dir(self) if x[0] != '_']
 		# for x in thingsToSet:
 		# 	setattr(sim_data.constants, x, getattr(self, x))
+		self.c_period = units.min * 40.
+		self.d_period = units.min * 20.
+		self.dnaPolymeraseElongationRate = units.nt / units.s * 967.
 
 def _getFitParameters(list_of_dicts, key):
 	# Load rows of data

@@ -22,7 +22,7 @@ from wholecell.utils import units
 
 GLUCOSE_ID = "GLC[p]"
 
-FLUX_UNITS = units.mmol / units.L / units.s
+FLUX_UNITS = units.mmol / units.g / units.h
 MASS_UNITS = units.fg
 GROWTH_UNITS = units.fg / units.s
 
@@ -39,6 +39,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+	timeStepSec = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
 	externalExchangeFluxes = fbaResults.readColumn("externalExchangeFluxes")
 
 	externalMoleculeIDs = np.array(fbaResults.readAttribute("externalMoleculeIDs"))
@@ -51,16 +52,14 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	mass = TableReader(os.path.join(simOutDir, "Mass"))
 	cellMass = MASS_UNITS * mass.readColumn("cellMass")
 	cellDryMass = MASS_UNITS * mass.readColumn("dryMass")
-	growth = GROWTH_UNITS * mass.readColumn("growth")
-
+	growth = GROWTH_UNITS * mass.readColumn("growth") / timeStepSec
 	mass.close()
 
-	cellDensity = sim_data.constants.cellDensity
 	glucoseMW = sim_data.getter.getMass([GLUCOSE_ID])[0]
 
-	glucoseMassFlux = glucoseFlux * glucoseMW * cellMass / cellDensity
+	glucoseMassFlux = glucoseFlux * glucoseMW * cellDryMass
 
-	glucoseMassYield = growth / glucoseMassFlux
+	glucoseMassYield = growth / -glucoseMassFlux
 
 	fig = plt.figure(figsize = (8.5, 11))
 	plt.plot(time, glucoseMassYield)

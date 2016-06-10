@@ -16,7 +16,7 @@ def kineticsFluxCoeff(sim_data, index):
 	nConditions = kineticsFluxCoeffTotalIndices(sim_data)
 
 	if index % nConditions == 0:
-		return CONTROL_OUTPUT
+		return CONTROL_OUTPUT, sim_data
 
 	coeffIndex = (index - 1) % nConditions
 
@@ -27,4 +27,4 @@ def kineticsFluxCoeff(sim_data, index):
 	return dict(
 		shortName = "upper_flux %.1f" % (fluxLimit),
 		desc = "Rate limit upper coefficient set to %.2f." % (fluxLimit)
-		)
+		), sim_data

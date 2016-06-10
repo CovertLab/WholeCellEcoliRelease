@@ -44,7 +44,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	ribosomeSubunitMasses = sim_data.getter.getMass(ribosomeSubunitIds)
 	mass70s = (sim_data.getter.getMass(sim_data.moleculeGroups.s50_fullComplex) + sim_data.getter.getMass(sim_data.moleculeGroups.s30_fullComplex))[0]
 
-	elongationRate = float(sim_data.growthRateParameters.ribosomeElongationRate.asNumber(units.aa / units.s))
+	timeStep = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
+	elongationRate = float(sim_data.growthRateParameters.ribosomeElongationRate.asNumber(units.aa / units.s)) * timeStep
 
 	# Load ribosome data
 	ribosomeDataFile = TableReader(os.path.join(simOutDir, "RibosomeData"))

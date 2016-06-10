@@ -16,7 +16,6 @@ from models.ecoli.processes.polypeptide_elongation import PolypeptideElongation
 from models.ecoli.processes.transcript_initiation import TranscriptInitiation
 from models.ecoli.processes.transcript_elongation import TranscriptElongation
 from models.ecoli.processes.protein_degradation import ProteinDegradation
-from models.ecoli.processes.atp_usage import AtpUsage
 from models.ecoli.processes.chromosome_formation import ChromosomeFormation
 from models.ecoli.processes.equilibrium import Equilibrium
 
@@ -31,6 +30,8 @@ from models.ecoli.listeners.transcript_elongation_listener import TranscriptElon
 from models.ecoli.listeners.rnap_data import RnapData
 from models.ecoli.listeners.enzyme_kinetics import EnzymeKinetics
 from models.ecoli.listeners.growth_limits import GrowthLimits
+from models.ecoli.listeners.cell_division import CellDivision
+
 
 
 # Analysis
@@ -57,7 +58,6 @@ class EcoliSimulation(Simulation):
 		ReplicationElongation,
 		ProteinDegradation,
 		Complexation,
-		AtpUsage,
 		ChromosomeFormation,
 		Equilibrium,
 		)
@@ -72,7 +72,8 @@ class EcoliSimulation(Simulation):
 		TranscriptElongationListener,
 		RnapData,
 		EnzymeKinetics,
-		GrowthLimits
+		GrowthLimits,
+		CellDivision
 		)
 
 	_hookClasses = ()

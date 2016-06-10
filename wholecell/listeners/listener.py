@@ -6,6 +6,8 @@ Listener
 @date: Created 5/10/2014
 """
 
+from enum import Enum
+
 class Listener(object):
 	_name = None
 
@@ -62,10 +64,11 @@ class Listener(object):
 	def time(self):
 		return self._sim.time()
 
+	def timeStepSec(self):
+		return self._sim.timeStepSec()
 
-	def timeStep(self):
-		return self._sim.timeStep()
-
+	def simulationStep(self):
+		return self._sim.simulationStep()
 
 	# Features for shell logging
 
@@ -86,3 +89,8 @@ class Listener(object):
 	@classmethod
 	def name(cls):
 		return cls._name
+
+class WriteMethod(Enum):
+	update = 1
+	increment = 2
+	append = 3

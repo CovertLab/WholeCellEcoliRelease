@@ -13,6 +13,12 @@ pyenv local wcEcoli
 
 Complete the one-time setup for fireworks as described in [wholecell/fireworks/README.md](wholecell/fireworks/README.md)
 
+To import the necessary shared libraries, you will need to execute the following *each time* after you log in to Sherlock (alternatively, you can add it as a line to your `$HOME/.bash_profile`):
+
+```bash
+module load wcEcoli
+```
+
 You will also need to add the following to your `$HOME/.bash_profile` (using the appropriate path):
 
 ```bash
@@ -23,12 +29,6 @@ In your cloned `wcEcoli` directory, to compile cython plugins and any C function
 
 ```bash
 make compile
-```
-
-To import the necessary shared libraries, you will need to execute the following *each time* after you log in to Sherlock (alternatively, you can add it as a line to your `$HOME/.bash_profile`):
-
-```bash
-module load wcEcoli
 ```
 
 Single simulation

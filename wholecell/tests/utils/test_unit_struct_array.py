@@ -113,10 +113,6 @@ class Test_unit_struct_array(unittest.TestCase):
 			)
 
 		with self.assertRaises(Exception) as context:
-			self.us_array['mass'] = fg*np.array([1.,2.,3.])
-		self.assertEqual(context.exception.message, 'Units do not match!\n')
-
-		with self.assertRaises(Exception) as context:
 			self.us_array['mass'] = mol*np.array([1.,2.,3.])
 		self.assertEqual(context.exception.message, 'Units do not match!\n')
 

@@ -6,6 +6,7 @@ from simulation import SimulationTask
 from initRawValidationData import InitRawValidationDataTask
 from initValidationData import InitValidationDataTask
 from simulationDaughter import SimulationDaughterTask
-from analysisCohort import AnalysisCohortTask
 from analysisSingle import AnalysisSingleTask
 from analysisMultiGen import AnalysisMultiGenTask
+from analysisCohort import AnalysisCohortTask
+from analysisVariant import AnalysisVariantTask

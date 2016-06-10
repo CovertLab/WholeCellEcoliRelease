@@ -49,19 +49,25 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		self.fracActiveRnap = sim_data.fracActiveRnap
+		self.fracActiveRnap = sim_data.growthRateParameters.fractionActiveRnap
 
 		self.rnaLengths = sim_data.process.transcription.rnaData["length"]
 
 		self.rnaPolymeraseElongationRate = sim_data.growthRateParameters.rnaPolymeraseElongationRate
 
-		self.rnaSynthProb = sim_data.process.transcription.rnaData["synthProb"]
+		self.rnaSynthProb = sim_data.process.transcription.rnaSynthProb[sim_data.condition]
 
 		# Views
-
+		
 		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
 
 		self.inactiveRnaPolys = self.bulkMoleculeView("APORNAP-CPLX[c]")
+
+		self.chromosomes = self.bulkMoleculeView('CHROM_FULL[c]')
+		
+		self.is_16SrRNA = sim_data.process.transcription.rnaData['isRRna16S']
+		self.is_23SrRNA = sim_data.process.transcription.rnaData['isRRna23S']
+		self.is_5SrRNA = sim_data.process.transcription.rnaData['isRRna5S']
 
 
 	def calculateRequest(self):
@@ -70,6 +76,10 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
+
+		# no synthesis if no chromosome
+		if self.chromosomes.total()[0] == 0:
+			return
 
 		self.activationProb = self._calculateActivationProb(
 			self.fracActiveRnap,
@@ -90,6 +100,16 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		nNewRnas = self.randomState.multinomial(rnaPolyToActivate,
 			self.rnaSynthProb)
+
+		self.writeToListener("RibosomeData", "rrn16S_produced", nNewRnas[self.is_16SrRNA].sum())
+		self.writeToListener("RibosomeData", "rrn23S_produced", nNewRnas[self.is_23SrRNA].sum())		
+		self.writeToListener("RibosomeData", "rrn5S_produced", nNewRnas[self.is_5SrRNA].sum())
+
+		self.writeToListener("RibosomeData", "rrn16S_init_prob", nNewRnas[self.is_16SrRNA].sum() / float(nNewRnas.sum()))
+		self.writeToListener("RibosomeData", "rrn23S_init_prob", nNewRnas[self.is_23SrRNA].sum() / float(nNewRnas.sum()))
+		self.writeToListener("RibosomeData", "rrn5S_init_prob", nNewRnas[self.is_5SrRNA].sum() / float(nNewRnas.sum()))
+
+		self.writeToListener("RibosomeData", "total_rna_init", nNewRnas.sum())
 
 		nonzeroCount = (nNewRnas > 0)
 

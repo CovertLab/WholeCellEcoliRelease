@@ -38,9 +38,9 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 	def allocate(self):
 		super(ReplicationData, self).allocate()
 
-		self.sequenceIdx = np.zeros(50, np.int64)
+		self.sequenceIdx = np.zeros(75, np.int64)
 		self.sequenceIdx.fill(PLACE_HOLDER)
-		self.sequenceLength = np.zeros(50, np.float64)
+		self.sequenceLength = np.zeros(75, np.float64)
 		self.sequenceLength.fill(PLACE_HOLDER)
 
 		self.refractionOver = True

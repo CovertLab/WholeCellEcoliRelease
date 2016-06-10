@@ -10,4 +10,4 @@ def wildtypeTotalIndices(sim_data):
 
 def wildtype(sim_data, index):
 
-	return CONTROL_OUTPUT
+	return CONTROL_OUTPUT, sim_data

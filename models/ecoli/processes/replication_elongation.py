@@ -94,6 +94,10 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		activePolymerasePresent = len(activeDnaPoly) > 0
 
 		oriCs = self.oriCs.molecules()
+		chromosomes = self.full_chromosome.total()[0]
+
+		if len(oriCs) == 0 and chromosomes == 0:
+			return
 
 		if activePolymerasePresent:
 			replicationRound = activeDnaPoly.attr('replicationRound')
@@ -217,7 +221,7 @@ class ReplicationElongation(wholecell.processes.process.Process):
 
 		self.dntps.countsDec(dNtpsUsed)
 
-		self.ppi.countInc(nElongations - nInitialized)
+		self.ppi.countInc(nElongations)
 
 	def _dnaPolymeraseElongationRate(self):
 		return self.dnaPolyElngRate * self.timeStepSec()

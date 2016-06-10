@@ -1,9 +1,3 @@
-//  Copyright Joel de Guzman 2002-2004. Distributed under the Boost
-//  Software License, Version 1.0. (See accompanying file LICENSE_1_0.txt
-//  or copy at http://www.boost.org/LICENSE_1_0.txt)
-//  Hello World Example from the tutorial
-//  [Joel de Guzman 10/9/2002]
-
 #include <boost/python/module.hpp>
 #include <boost/python/def.hpp>
 #include <boost/python.hpp>
@@ -25,10 +19,10 @@ class glpk
 			glp_init_smcp(&(this->lp_params));
 			this->n_eq_constraints = 0;
 			this->n_vars = 0;
-			std::cout << "HELLO GLPK " << std::endl;
 		}
-		~glpk(){glp_delete_prob(this->lp); std::cout << "BYE GLPK" << std::endl;}
-		void greet(){printf("n_eq_constaints: %d\n", this->n_eq_constraints);}
+		~glpk(){
+			glp_delete_prob(this->lp);
+		}
 		void add_rows(int n_rows)
 		{
 			glp_add_rows(this->lp, n_rows);
@@ -41,10 +35,26 @@ class glpk
 		}
 		void set_col_bounds(int index, double lower, double upper)
 		{
-			if(lower == upper)
+			if(lower == upper){
 				glp_set_col_bnds(this->lp, index, GLP_FX, lower, upper);
-			else
+				return;
+			}
+			if(!isinf(lower) && !isinf(upper)){
 				glp_set_col_bnds(this->lp, index, GLP_DB, lower, upper);
+				return;
+			}
+			if(isinf(lower) && isinf(upper)){
+				glp_set_col_bnds(this->lp, index, GLP_FR, lower, upper);
+				return;
+			}
+			if(isinf(upper)){
+				glp_set_col_bnds(this->lp, index, GLP_LO, lower, upper);
+				return;
+			}
+			if(isinf(lower)){
+				glp_set_col_bnds(this->lp, index, GLP_UP, lower, upper);
+				return;
+			}
 		}
 		void set_obj_coef(int index, double value)
 		{
@@ -61,6 +71,10 @@ class glpk
 		void set_quiet()
 		{
 			this->lp_params.msg_lev = GLP_MSG_ERR;
+		}
+		void set_quiet_quiet()
+		{
+			this->lp_params.msg_lev = GLP_MSG_OFF;
 		}
 		void set_verbose()
 		{
@@ -95,13 +109,16 @@ class glpk
 		{
 			return glp_get_col_prim(this->lp, index);
 		}
+		double get_dual_value(int index)
+		{
+			return glp_get_row_dual(this->lp, index);
+		}
 		double get_objective_value()
 		{
 			return glp_get_obj_val(this->lp);
 		}
 		void solution(ndarray& objective_value_array, ndarray& primal_variable_array)
 		{
-			printf("n_vars: %d\n", this->n_vars);
 			ASSERT_THROW((objective_value_array.get_dtype() == dtype::get_builtin<double>()), "Expected array of type np.float64");
 			ASSERT_THROW((primal_variable_array.get_dtype() == dtype::get_builtin<double>()), "Expected array of type np.float64");
 			ASSERT_THROW((objective_value_array.shape(0) == 1), "Must be of size 1!");
@@ -132,7 +149,6 @@ class glpk
 		}
 		void add_eq_constrs(ndarray& ia_array, ndarray& ja_array, ndarray& ar_array)
 		{
-			printf("hi\n");
 			ASSERT_THROW((ia_array.get_dtype() == dtype::get_builtin<int32_t>()), "Expected array of type np.int32");
 			ASSERT_THROW((ja_array.get_dtype() == dtype::get_builtin<int32_t>()), "Expected array of type np.int32");
 			ASSERT_THROW((ar_array.get_dtype() == dtype::get_builtin<double>()), "Expected array of type np.float64");
@@ -144,11 +160,19 @@ class glpk
 			for(int row = 1; row <= this->n_eq_constraints; row++)
 				glp_set_row_bnds(this->lp, row, GLP_FX, 0.0, 0.0);
 			int32_t n_elems = ia_array.shape(0);
-			printf("ia[0] = %d\n", ia[0]);
-			printf("n_elems = %d\n", n_elems);
 			glp_load_matrix(this->lp, n_elems - 1, ia, ja, ar);
 			
 
+		}
+		void set_mat_row(int row, int len, ndarray& ja_array, ndarray& ar_array)
+		{
+			ASSERT_THROW((ja_array.get_dtype() == dtype::get_builtin<int32_t>()), "Expected array of type np.int32");
+			ASSERT_THROW((ar_array.get_dtype() == dtype::get_builtin<double>()), "Expected array of type np.float64");
+			ASSERT_THROW((ja_array.shape(0) == ar_array.shape(0)), "Sizes must match!");
+			int32_t* ja = (int32_t *) ja_array.get_data();
+			double* ar = (double *) ar_array.get_data();
+
+			glp_set_mat_row(this->lp, row, len, ja, ar);
 		}
 	private:
 		glp_prob *lp;
@@ -163,19 +187,21 @@ BOOST_PYTHON_MODULE(glpk)
     initialize();
 
     class_<glpk>("glpk")
-	.def("greet", &glpk::greet)
 	.def("add_rows", &glpk::add_rows)
 	.def("add_cols", &glpk::add_cols)
 	.def("set_col_bounds", &glpk::set_col_bounds)
 	.def("set_obj_coef", &glpk::set_obj_coef)
 	.def("add_eq_constrs", &glpk::add_eq_constrs)
+	.def("set_mat_row", &glpk::set_mat_row)
 	.def("set_sense_max", &glpk::set_sense_max)
 	.def("set_sense_min", &glpk::set_sense_min)
 	.def("set_quiet", &glpk::set_quiet)
+	.def("set_quiet_quiet", &glpk::set_quiet_quiet)
 	.def("set_verbose", &glpk::set_verbose)
 	.def("set_verbose_verbose", &glpk::set_verbose_verbose)
 	.def("optimize", &glpk::optimize)
 	.def("get_primal_value", &glpk::get_primal_value)
+	.def("get_dual_value", &glpk::get_dual_value)
 	.def("get_objective_value", &glpk::get_objective_value)
 	.def("solution", &glpk::solution);
 }

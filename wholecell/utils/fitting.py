@@ -27,6 +27,24 @@ def countsFromMassAndExpression(mass, mws, relativeExpression, nAvogadro):
 	assert type(nAvogadro) != unum.Unum
 	return mass / np.dot(mws / nAvogadro, relativeExpression)
 
+def massesAndCountsToAddForPools(massInitial, poolIds, poolConcentrations, mws, cellDensity, nAvogadro):
+	diag = (cellDensity / (mws * poolConcentrations) - 1).asNumber()
+	A = -1 * np.ones((diag.size, diag.size))
+	A[np.diag_indices(diag.size)] = diag
+	b = massInitial.asNumber(units.g) * np.ones(diag.size)
+
+	massesToAdd = units.g * np.linalg.solve(A, b)
+	countsToAdd = massesToAdd / mws * nAvogadro
+
+	V = (massInitial + units.sum(massesToAdd)) / cellDensity
+
+	assert np.allclose(
+		(countsToAdd / nAvogadro / V).asNumber(units.mol / units.L),
+		(poolConcentrations).asNumber(units.mol / units.L)
+		)
+
+	return massesToAdd, countsToAdd
+
 def calcProteinCounts(sim_data, monomerMass):
 	monomerExpression = calcProteinDistribution(sim_data)
 

@@ -9,6 +9,7 @@ from wholecell.fireworks.firetasks import FitSimDataTask
 from wholecell.fireworks.firetasks import VariantSimDataTask
 from wholecell.fireworks.firetasks import SimulationTask
 from wholecell.fireworks.firetasks import SimulationDaughterTask
+from wholecell.fireworks.firetasks import AnalysisVariantTask
 from wholecell.fireworks.firetasks import AnalysisCohortTask
 from wholecell.fireworks.firetasks import AnalysisSingleTask
 from wholecell.fireworks.firetasks import AnalysisMultiGenTask
@@ -38,19 +39,6 @@ def write_file(filename, content):
 
 #### Initial setup ###
 
-### Set path variables
-
-dirname = os.path.dirname
-WC_ECOLI_DIRECTORY = dirname(dirname(os.path.abspath(__file__)))
-OUT_DIRECTORY = os.path.join(WC_ECOLI_DIRECTORY, "out")
-
-now = datetime.datetime.now()
-SUBMISSION_TIME = "%04d%02d%02d.%02d%02d%02d.%06d" % (
-	now.year, now.month, now.day,
-	now.hour, now.minute, now.second,
-	now.microsecond)
-KB_DIRECTORY = os.path.join(OUT_DIRECTORY, SUBMISSION_TIME, "kb")
-METADATA_DIRECTORY = os.path.join(OUT_DIRECTORY, SUBMISSION_TIME, "metadata")
 
 ### Set variant variables
 
@@ -77,11 +65,30 @@ N_GENS = int(os.environ.get("N_GENS", "1"))
 SINGLE_DAUGHTERS = bool(int(os.environ.get("SINGLE_DAUGHTERS", "0")))
 LAUNCHPAD_FILE = str(os.environ.get("LAUNCHPAD_FILE", "my_launchpad.yaml"))
 COMPRESS_OUTPUT = str(os.environ.get("COMPRESS_OUTPUT", "1"))
+SIM_DESCRIPTION = os.environ.get("DESC", "").replace(" ", "_")
+
+### Set path variables
+
+dirname = os.path.dirname
+WC_ECOLI_DIRECTORY = dirname(dirname(os.path.abspath(__file__)))
+OUT_DIRECTORY = os.path.join(WC_ECOLI_DIRECTORY, "out")
+
+now = datetime.datetime.now()
+SUBMISSION_TIME = "%04d%02d%02d.%02d%02d%02d.%06d" % (
+	now.year, now.month, now.day,
+	now.hour, now.minute, now.second,
+	now.microsecond)
+INDIV_OUT_DIRECTORY = os.path.join(OUT_DIRECTORY, SUBMISSION_TIME + "__" + SIM_DESCRIPTION)
+KB_DIRECTORY = os.path.join(INDIV_OUT_DIRECTORY, "kb")
+METADATA_DIRECTORY = os.path.join(INDIV_OUT_DIRECTORY, "metadata")
 
 ### Create directories
 
 if not os.path.exists(OUT_DIRECTORY):
 	os.makedirs(OUT_DIRECTORY)
+
+if not os.path.exists(INDIV_OUT_DIRECTORY):
+	os.makedirs(INDIV_OUT_DIRECTORY)
 
 if not os.path.exists(KB_DIRECTORY):
 	os.makedirs(KB_DIRECTORY)
@@ -90,7 +97,7 @@ if not os.path.exists(METADATA_DIRECTORY):
 	os.makedirs(METADATA_DIRECTORY)
 
 for i in VARIANTS_TO_RUN:
-	VARIANT_DIRECTORY = os.path.join(OUT_DIRECTORY, SUBMISSION_TIME, VARIANT + "_%06d" % i)
+	VARIANT_DIRECTORY = os.path.join(INDIV_OUT_DIRECTORY, VARIANT + "_%06d" % i)
 	VARIANT_SIM_DATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "kb")
 	VARIANT_METADATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "metadata")
 	VARIANT_COHORT_PLOT_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "plotOut")
@@ -316,10 +323,28 @@ if COMPRESS_OUTPUT:
 	wf_links[fw_validation_data].append(fw_raw_validation_data_compression)
 	wf_links[fw_validation_data].append(fw_raw_data_compression)
 
+# Variant analysis
+VARIANT_PLOT_DIRECTORY = os.path.join(INDIV_OUT_DIRECTORY, "plotOut")
+
+metadata["analysis_type"] = "variant"
+metadata["total_variants"] = str(len(VARIANTS_TO_RUN))
+
+fw_name = "AnalysisVariantTask"
+fw_variant_analysis = Firework(
+	AnalysisVariantTask(
+		input_directory = os.path.join(INDIV_OUT_DIRECTORY),
+		input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
+		output_plots_directory = VARIANT_PLOT_DIRECTORY,
+		metadata = metadata,
+		),
+	name = fw_name,
+	spec = {"_queueadapter": {"job_name": fw_name}, "_priority":5}
+	)
+wf_fws.append(fw_variant_analysis)
 
 ### Create variants and simulations
 for i in VARIANTS_TO_RUN:
-	VARIANT_DIRECTORY = os.path.join(OUT_DIRECTORY, SUBMISSION_TIME, VARIANT + "_%06d" % i)
+	VARIANT_DIRECTORY = os.path.join(INDIV_OUT_DIRECTORY, VARIANT + "_%06d" % i)
 	VARIANT_SIM_DATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "kb")
 	VARIANT_METADATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "metadata")
 	metadata["variant_function"] = VARIANT
@@ -452,6 +477,7 @@ for i in VARIANTS_TO_RUN:
 				wf_fws.append(fw_this_variant_this_gen_this_sim)
 				wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_this_seed_this_analysis)
 				wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_cohort_analysis)
+				wf_links[fw_this_variant_this_gen_this_sim].append(fw_variant_analysis)
 
 				sims_this_seed[k].append(fw_this_variant_this_gen_this_sim)
 
@@ -501,15 +527,17 @@ for i in VARIANTS_TO_RUN:
 					wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_this_variant_sim_data_compression)
 					wf_links[fw_this_variant_this_seed_this_analysis].append(fw_this_variant_sim_data_compression)
 					wf_links[fw_this_variant_cohort_analysis].append(fw_this_variant_sim_data_compression)
+					wf_links[fw_variant_analysis].append(fw_this_variant_sim_data_compression)
 					wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_validation_data_compression)
 					wf_links[fw_this_variant_this_seed_this_analysis].append(fw_validation_data_compression)
 					wf_links[fw_this_variant_cohort_analysis].append(fw_validation_data_compression)
+					wf_links[fw_variant_analysis].append(fw_validation_data_compression)
 					wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_this_variant_this_gen_this_sim_compression)
 					wf_links[fw_this_variant_this_seed_this_analysis].append(fw_this_variant_this_gen_this_sim_compression)
 					wf_links[fw_this_variant_cohort_analysis].append(fw_this_variant_this_gen_this_sim_compression)
+					wf_links[fw_variant_analysis].append(fw_this_variant_this_gen_this_sim_compression)
 
-
-### Create workflow
+## Create workflow
 
 workflow = Workflow(wf_fws, links_dict = wf_links)
 

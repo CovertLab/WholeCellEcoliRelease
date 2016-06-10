@@ -115,7 +115,7 @@ class RibosomeStalling(wholecell.listeners.listener.Listener):
 		entry = table.row
 
 		entry["time"] = self.time()
-		entry["timeStep"] = self.timeStep()
+		entry["timeStep"] = self.simulationStep()
 		entry["stallingRateTotal"] = self.stallingRateTotal
 		entry["stallingRateMean"] = self.stallingRateMean
 		entry["stallingRateStd"] = self.stallingRateStd
