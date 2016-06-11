@@ -12,6 +12,10 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
+from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS
+
+BURN_IN_SECONDS = 500
+
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
 	if not os.path.isdir(seedOutDir):
@@ -20,42 +24,33 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	ap = AnalysisPaths(seedOutDir)
+	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
 	# Get all cells
-	allDir = ap.getAll()
+	allDir = ap.get_cells()
 
-	#plt.figure(figsize = (8.5, 11))
-
-	compoundsPlotted = set()
 	for simDir in allDir:
 		simOutDir = os.path.join(simDir, "simOut")
-		#initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+
 		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 		counts = TableReader(os.path.join(simOutDir, "BulkMolecules")).readColumn("counts")
+		countsToMolar = TableReader(os.path.join(simOutDir, "EnzymeKinetics")).readColumn("countsToMolar")
 		allNames = TableReader(os.path.join(simOutDir, "BulkMolecules")).readAttribute('objectNames')
-				
+
 		compoundNames = []
 		nonZeroCounts = counts.T[np.any(counts.T, axis = 1)]
-		for idx, compound in enumerate(nonZeroCounts):
-			if idx > 100:
-				break
-			compartment = allNames[idx][-3:]
-			if compartment == '[c]':
-				compoundNames.append(allNames[idx][:-3])
-				compoundsPlotted.add(allNames[idx])
-				plt.plot(time / 60. / 60., compound)
+		for idx, counts in enumerate(nonZeroCounts):
+			if (counts[BURN_IN_SECONDS:] > 0).sum() > 100:
+				compartment = allNames[idx][-3:]
+				compoundNames.append(allNames[idx][:20])
+				concentrations = (counts * countsToMolar)
+				concentrations[:BURN_IN_SECONDS] = np.mean(concentrations[BURN_IN_SECONDS:])
+				plt.plot(time / 60., concentrations / np.mean(concentrations))
 
-		plt.legend(compoundNames)
-			
-		# # set axes to size that shows all generations
-		# cellCycleTime = ((time[-1] - time[0]) / 60. / 60. )
-		# if cellCycleTime > currentMaxTime:
-		# 	currentMaxTime = cellCycleTime
-
-		# axesList[idx].set_xlim(0, currentMaxTime*int(metadata["total_gens"])*1.1)
-		# axesList[idx].set_ylabel(cleanNames[idx] + " (fg)")
-
+		# plt.legend(compoundNames, fontsize=5)
+		plt.title("Protein Concentrations")
+		plt.xlabel("Time (min)")
+		plt.ylabel("Mean-normalized concentration")
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName,metadata)
