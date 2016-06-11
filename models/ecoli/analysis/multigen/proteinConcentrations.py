@@ -44,7 +44,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				compartment = allNames[idx][-3:]
 				compoundNames.append(allNames[idx][:20])
 				concentrations = (counts * countsToMolar)
-				concentrations[:BURN_IN_SECONDS] = np.mean(concentrations[BURN_IN_SECONDS:])
+				if time[0] < 1:
+					concentrations[:BURN_IN_SECONDS] = np.mean(concentrations[BURN_IN_SECONDS:])
 				plt.plot(time / 60., concentrations / np.mean(concentrations))
 
 		# plt.legend(compoundNames, fontsize=5)
