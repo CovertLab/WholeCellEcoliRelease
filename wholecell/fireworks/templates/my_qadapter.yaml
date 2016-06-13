@@ -7,3 +7,5 @@ account: null
 job_name: null
 pre_rocket: null
 post_rocket: null
+ntasks: 1
+cpus_per_node: 1
