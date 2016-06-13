@@ -59,7 +59,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	fbaResults.close()
 
 	plt.figure(figsize = (8.5, 11))
-	plt.title("FBA Dual Values")
+	plt.title("FBA Metabolite Shadow Prices")
 
 	# Get the NUM_VALUES highest reduced price values at each timestep
 	highest_partition = np.argpartition(metaboliteDualValues[:,BURN_IN_PERIOD:],-NUM_VALUES,axis=0)[-NUM_VALUES:].T
@@ -72,7 +72,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		plt.plot(time / 60., metaboliteDualValues[molIdx], '.', color=CMAP_COLORS[plotNum%len(CMAP_COLORS)], label=moleculeIDs[molIdx][:MAX_STRLEN])
 
 	plt.xlabel("Time (min)")
-	plt.ylabel("Reduced Cost (All molecules appearing in the top or bottom {} reduced cost for a timestep)".format(NUM_VALUES))
+	plt.ylabel("Shadow Price (All molecules appearing in the top or bottom {} shadow price for a timestep)".format(NUM_VALUES))
 	plt.legend(framealpha=.5, fontsize=6, loc='best')
 
 	from wholecell.analysis.analysis_tools import exportFigure
