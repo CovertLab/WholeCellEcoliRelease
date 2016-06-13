@@ -70,7 +70,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	lowest_partition = np.argpartition(columnDualValues[:,BURN_IN_PERIOD:],NUM_VALUES,axis=0)[:NUM_VALUES].T
 	for plotNum, molIdx in enumerate(np.unique(lowest_partition)):
 		# Only plot negative reduced costs
-		if (columnDualValues[molIdx] < -1).any():
+		if (columnDualValues[molIdx] < 0).any():
 			plt.plot(time / 60., columnDualValues[molIdx], '.', color=CMAP_COLORS[plotNum%len(CMAP_COLORS)], label=reactionIDs[molIdx][:MAX_STRLEN])
 
 	plt.xlabel("Time (min)")
