@@ -109,9 +109,13 @@ class glpk
 		{
 			return glp_get_col_prim(this->lp, index);
 		}
-		double get_dual_value(int index)
+		double get_row_dual_value(int index)
 		{
 			return glp_get_row_dual(this->lp, index);
+		}
+		double get_column_dual_value(int index)
+		{
+			return glp_get_col_dual(this->lp, index);
 		}
 		double get_objective_value()
 		{
@@ -201,7 +205,8 @@ BOOST_PYTHON_MODULE(glpk)
 	.def("set_verbose_verbose", &glpk::set_verbose_verbose)
 	.def("optimize", &glpk::optimize)
 	.def("get_primal_value", &glpk::get_primal_value)
-	.def("get_dual_value", &glpk::get_dual_value)
+	.def("get_row_dual_value", &glpk::get_row_dual_value)
+	.def("get_column_dual_value", &glpk::get_column_dual_value)
 	.def("get_objective_value", &glpk::get_objective_value)
 	.def("solution", &glpk::solution);
 }

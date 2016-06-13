@@ -39,6 +39,8 @@ COLORS = [
 CMAP_COLORS = [[shade/255. for shade in color] for color in COLORS]
 
 MAX_STRLEN = 30
+NUM_VALUES = 3
+BURN_IN_PERIOD = 500
 
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	if not os.path.isdir(simOutDir):
@@ -52,27 +54,25 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
-	dualValues = np.array(fbaResults.readColumn("dualValues")).T
+	metaboliteDualValues = np.array(fbaResults.readColumn("rowDualValues")).T
 	moleculeIDs = np.array(fbaResults.readAttribute("outputMoleculeIDs"))
 	fbaResults.close()
-
-	num_values = 3
 
 	plt.figure(figsize = (8.5, 11))
 	plt.title("FBA Dual Values")
 
-	# Get the num_values highest reduced price values at each timestep
-	highest_partition = np.argpartition(dualValues,-num_values,axis=0)[-num_values:].T
+	# Get the NUM_VALUES highest reduced price values at each timestep
+	highest_partition = np.argpartition(metaboliteDualValues[:,BURN_IN_PERIOD:],-NUM_VALUES,axis=0)[-NUM_VALUES:].T
 	for plotNum, molIdx in enumerate(np.unique(highest_partition)):
-		plt.plot(time / 60., dualValues[molIdx], '--', color=CMAP_COLORS[plotNum%len(CMAP_COLORS)], label=moleculeIDs[molIdx][:MAX_STRLEN])
+		plt.plot(time / 60., metaboliteDualValues[molIdx], '--', color=CMAP_COLORS[plotNum%len(CMAP_COLORS)], label=moleculeIDs[molIdx][:MAX_STRLEN])
 
-	# num_values lowest reduced price values at each timestep
-	lowest_partition = np.argpartition(dualValues,num_values,axis=0)[:num_values].T
+	# NUM_VALUES lowest reduced price values at each timestep
+	lowest_partition = np.argpartition(metaboliteDualValues[:BURN_IN_PERIOD:],NUM_VALUES,axis=0)[:NUM_VALUES].T
 	for plotNum, molIdx in enumerate(np.unique(lowest_partition)):
-		plt.plot(time / 60., dualValues[molIdx], '.', color=CMAP_COLORS[plotNum%len(CMAP_COLORS)], label=moleculeIDs[molIdx][:MAX_STRLEN])
+		plt.plot(time / 60., metaboliteDualValues[molIdx], '.', color=CMAP_COLORS[plotNum%len(CMAP_COLORS)], label=moleculeIDs[molIdx][:MAX_STRLEN])
 
 	plt.xlabel("Time (min)")
-	plt.ylabel("Reduced Cost (All molecules appearing in the top or bottom {} reduced cost for a timestep)".format(num_values))
+	plt.ylabel("Reduced Cost (All molecules appearing in the top or bottom {} reduced cost for a timestep)".format(NUM_VALUES))
 	plt.legend(framealpha=.5, fontsize=6, loc='best')
 
 	from wholecell.analysis.analysis_tools import exportFigure
