@@ -80,7 +80,7 @@ def fitSimData_1(raw_data):
 		spec["bulkDeviationContainer"] = bulkDeviationContainer
 
 	sim_data.pPromoterBound = calculatePromoterBoundProbability(sim_data, cellSpecs)
-	sim_data.rnapRecruitment = calculateRnapRecruitment(sim_data, cellSpecs)
+	calculateRnapRecruitment(sim_data, cellSpecs)
 
 	return sim_data
 
@@ -1003,14 +1003,50 @@ def calculateRnapRecruitment(sim_data, cellSpecs):
 	G = np.zeros(shape, np.float64)
 	G[gI, gJ] = gV
 	r = np.linalg.solve(G, k)
-	D = {}
-	for colName, r_i in zip(colNames, r):
-		rnaIdNoLoc, paramType = colName.split("__")
-		if paramType not in D:
-			D[paramType] = {}
-		D[paramType][rnaIdNoLoc] =  r_i
 
-	return D
+	hI = []
+	hJ = []
+	hV = []
+	rowNames = []
+	stateMasses = []
+	for idx, rnaId in enumerate(sim_data.process.transcription.rnaData["id"]):
+		rnaIdNoLoc = rnaId[:-3]
+
+		tfs = sim_data.process.transcription_regulation.targetTf.get(rnaIdNoLoc, [])
+		tfsWithData = []
+		for tf in tfs:
+			if tf not in sorted(sim_data.tfToActiveInactiveConds)[:N_TFS]:
+				continue
+			tfsWithData.append({"id": tf, "mass_g/mol": sim_data.getter.getMass([tf]).asNumber(units.g / units.mol)})
+		rowName = rnaIdNoLoc + "__" + condition
+		rowNames.append(rowName)
+		for tf in tfsWithData:
+			colName = rnaIdNoLoc + "__" + tf["id"]
+			hI.append(rowNames.index(rowName))
+			hJ.append(colNames.index(colName))
+			hV.append(r[colNames.index(colName)])
+			stateMasses.append([0.] * 6 + [tf["mass_g/mol"]] + [0.] * 4)
+		colName = rnaIdNoLoc + "__alpha"
+		hI.append(rowNames.index(rowName))
+		hJ.append(colNames.index(colName))
+		hV.append(r[colNames.index(colName)])
+		stateMasses.append([0.] * 11)
+
+	stateMasses = units.g / units.mol * np.array(stateMasses)
+	hI = np.array(hI)
+	hJ = np.array(hJ)
+	hV = np.array(hV)
+	shape = (hI.max() + 1, hJ.max() + 1)
+	H = np.zeros(shape, np.float64)
+	H[hI, hJ] = hV
+
+	sim_data.state.bulkMolecules.addToBulkState(colNames, stateMasses)
+	sim_data.process.transcription_regulation.recruitmentData = {
+		"hI": hI,
+		"hJ": hJ,
+		"hV": hV,
+		"shape": shape,
+	}
 
 
 def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
