@@ -15,6 +15,7 @@ import wholecell.utils.constants
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS
 
 BURN_IN_SECONDS = 500
+DISABLED = True
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
@@ -23,6 +24,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
+
+	if DISABLED:
+		print "Currently disabled because it requires too much memory."
+		return
 
 	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 

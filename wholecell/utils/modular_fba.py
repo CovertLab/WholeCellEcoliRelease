@@ -1024,8 +1024,11 @@ class FluxBalanceAnalysis(object):
 	def reactionFluxes(self):
 		return self._solver.flowRates(self._reactionIDs)
 
-	def dualValues(self, moleculeIDs):
-		return self._solver.dualValues(moleculeIDs)
+	def rowDualValues(self, moleculeIDs):
+		return self._solver.rowDualValues(moleculeIDs)
+
+	def columnDualValues(self, moleculeIDs):
+		return self._solver.columnDualValues(moleculeIDs)
 
 	def objectiveReactionFlux(self): # TODO: rename to biomassReactionFlux
 		# catch exceptions
