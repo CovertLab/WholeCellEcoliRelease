@@ -1047,6 +1047,7 @@ def calculateRnapRecruitment(sim_data, cellSpecs):
 		"hV": hV,
 		"shape": shape,
 	}
+	sim_data.process.transcription_regulation.recruitmentColNames = colNames
 
 
 def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
