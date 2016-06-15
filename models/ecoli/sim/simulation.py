@@ -18,6 +18,7 @@ from models.ecoli.processes.transcript_elongation import TranscriptElongation
 from models.ecoli.processes.protein_degradation import ProteinDegradation
 from models.ecoli.processes.chromosome_formation import ChromosomeFormation
 from models.ecoli.processes.equilibrium import Equilibrium
+from models.ecoli.processes.tf_binding import TfBinding
 
 # Listeners
 from models.ecoli.listeners.mass import Mass
@@ -60,6 +61,7 @@ class EcoliSimulation(Simulation):
 		Complexation,
 		ChromosomeFormation,
 		Equilibrium,
+		TfBinding,
 		)
 
 	_listenerClasses = (
