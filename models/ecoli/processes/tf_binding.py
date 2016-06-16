@@ -57,6 +57,7 @@ class TfBinding(wholecell.processes.process.Process):
 
 
 	def calculateRequest(self):
+		self.alphaView.requestAll()
 		for view in self.tfMoleculeViews.itervalues():
 			view.requestAll()
 		for view in self.tfBoundViews.itervalues():
@@ -67,6 +68,8 @@ class TfBinding(wholecell.processes.process.Process):
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg)
 		cellVolume = cellMass / self.cellDensity
 		countsToMolar = 1 / (self.nAvogadro * cellVolume)
+
+		self.alphaView.countsIs(1)
 
 		for tf in self.tfs:
 			tfFreeCounts = self.tfMoleculeViews[tf].count()
