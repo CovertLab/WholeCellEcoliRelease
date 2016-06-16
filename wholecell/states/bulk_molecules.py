@@ -87,6 +87,7 @@ class BulkMolecules(wholecell.states.state.State):
 		self.divisionIds['equally'] = sim_data.moleculeGroups.bulkMoleculesEqualDivision
 		self.divisionIds['fullChromosome'] = sim_data.moleculeGroups.fullChromosome
 		self.divisionIds['partialChromosome'] = sim_data.moleculeGroups.partialChromosome
+		self.divisionIds['setTo1'] = sim_data.moleculeGroups.bulkMoleculesSetTo1Division
 
 	def processRequestPriorityIs(self, processIndex, priorityLevel):
 		self._processPriorities[processIndex] = priorityLevel
