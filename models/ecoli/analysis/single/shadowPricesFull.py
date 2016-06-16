@@ -56,7 +56,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
-	dualValues = np.array(fbaResults.readColumn("dualValues"))
+	dualValues = np.array(fbaResults.readColumn("rowDualValues"))
 	moleculeIDs = np.array(fbaResults.readAttribute("outputMoleculeIDs"))
 	fbaResults.close()
 
@@ -116,7 +116,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	ax_mat.set_xticklabels(np.round(time[xticks]/60.,decimals=1))
 	ax_mat.set_xlabel("Time (min)")
 
-	plt.title("FBA Reduced Prices (Red = wants less, Blue = wants more)")
+	plt.title("FBA Shadow Costs (Red = wants less, Blue = wants more)")
 
 	ax_cmap = fig.add_subplot(grid[2])
 

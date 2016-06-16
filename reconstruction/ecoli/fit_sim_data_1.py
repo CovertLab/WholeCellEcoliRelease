@@ -26,7 +26,8 @@ FRACTION_INCREASE_RNAP_PROTEINS = 0.05
 
 FITNESS_THRESHOLD = 1e-9
 MAX_FITTING_ITERATIONS = 100
-N_SEEDS = 20
+N_SEEDS = 10
+N_TFS = 1
 
 BASAL_EXPRESSION_CONDITION = "M9 Glucose minus AAs"
 
@@ -66,16 +67,20 @@ def fitSimData_1(raw_data):
 
 	buildTfConditionCellSpecifications(sim_data, cellSpecs)
 
-	# for label, spec in cellSpecs.iteritems():
-	# 	bulkAverageContainer, bulkDeviationContainer = calculateBulkDistributions(
-	# 		sim_data,
-	# 		spec["expression"],
-	# 		spec["concDict"],
-	# 		spec["avgCellDryMassInit"],
-	# 		spec["doubling_time"],
-	# 		)
-	# 	spec["bulkAverageContainer"] = bulkAverageContainer
-	# 	spec["bulkDeviationContainer"] = bulkDeviationContainer
+	for condition in sorted(cellSpecs):
+		spec = cellSpecs[condition]
+		bulkAverageContainer, bulkDeviationContainer = calculateBulkDistributions(
+			sim_data,
+			spec["expression"],
+			spec["concDict"],
+			spec["avgCellDryMassInit"],
+			spec["doubling_time"],
+			)
+		spec["bulkAverageContainer"] = bulkAverageContainer
+		spec["bulkDeviationContainer"] = bulkDeviationContainer
+
+	sim_data.pPromoterBound = calculatePromoterBoundProbability(sim_data, cellSpecs)
+	calculateRnapRecruitment(sim_data, cellSpecs)
 
 	return sim_data
 
@@ -87,7 +92,7 @@ def buildBasalCellSpecifications(sim_data):
 		"doubling_time": sim_data.doubling_time,
 	}
 
-	expression, synthProb, avgCellDryMassInit, bulkContainer = expressionConverge(
+	expression, synthProb, avgCellDryMassInit, fitAvgSolublePoolMass, bulkContainer = expressionConverge(
 		sim_data,
 		cellSpecs["basal"]["expression"],
 		cellSpecs["basal"]["concDict"],
@@ -97,7 +102,14 @@ def buildBasalCellSpecifications(sim_data):
 	cellSpecs["basal"]["expression"] = expression
 	cellSpecs["basal"]["synthProb"] = synthProb
 	cellSpecs["basal"]["avgCellDryMassInit"] = avgCellDryMassInit
+	cellSpecs["basal"]["fitAvgSolublePoolMass"] = fitAvgSolublePoolMass
 	cellSpecs["basal"]["bulkContainer"] = bulkContainer
+
+	sim_data.mass.avgCellDryMassInit = avgCellDryMassInit
+	sim_data.mass.avgCellDryMass = sim_data.mass.avgCellDryMassInit * sim_data.mass.avgCellToInitialCellConvFactor
+	sim_data.mass.avgCellWaterMassInit = sim_data.mass.avgCellDryMassInit / sim_data.mass.cellDryMassFraction * sim_data.mass.cellWaterMassFraction
+	sim_data.mass.fitAvgSolublePoolMass = fitAvgSolublePoolMass
+
 
 	sim_data.process.transcription.rnaExpression["basal"][:] = cellSpecs["basal"]["expression"]
 	sim_data.process.transcription.rnaSynthProb["basal"][:] = cellSpecs["basal"]["synthProb"]
@@ -106,32 +118,44 @@ def buildBasalCellSpecifications(sim_data):
 
 
 def buildTfConditionCellSpecifications(sim_data, cellSpecs):
-	for tf in sorted(sim_data.tfToActiveInactiveConds)[:1]:	# Only do 1 TF while still implementing
+	for tf in sorted(sim_data.tfToActiveInactiveConds)[:N_TFS]:	# Only do 1 TF while still implementing
 		for choice in ["__active", "__inactive"]:
 			conditionKey = tf + choice
 			conditionValue = sim_data.conditions[conditionKey]
+
+			fcData = {}
+			if choice == "__active":
+				fcData = sim_data.tfToFC[tf]
+			expression = expressionFromConditionAndFoldChange(
+				sim_data.process.transcription.rnaData["id"],
+				sim_data.process.transcription.rnaExpression["basal"],
+				conditionValue["perturbations"],
+				fcData,
+			)
 
 			cellSpecs[conditionKey] = {
 				"concDict": sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
 					sim_data.envDict[conditionValue["environment"]][0][-1]
 				),
-				"expression": sim_data.process.transcription.rnaExpression["basal"].copy(), # TODO: Scale this according to fold change data
+				"expression": expression,
 				"doubling_time": sim_data.conditionToDoublingTime.get(
 					conditionKey,
 					sim_data.conditionToDoublingTime["basal"]
 				)
 			}
 
-			expression, synthProb, avgCellDryMassInit, bulkContainer = expressionConverge(
+			expression, synthProb, avgCellDryMassInit, fitAvgSolublePoolMass, bulkContainer = expressionConverge(
 				sim_data,
 				cellSpecs[conditionKey]["expression"],
 				cellSpecs[conditionKey]["concDict"],
 				cellSpecs[conditionKey]["doubling_time"],
+				sim_data.process.transcription.rnaData["KmEndoRNase"],
 				)
 
 			cellSpecs[conditionKey]["expression"] = expression
 			cellSpecs[conditionKey]["synthProb"] = synthProb
 			cellSpecs[conditionKey]["avgCellDryMassInit"] = avgCellDryMassInit
+			cellSpecs[conditionKey]["fitAvgSolublePoolMass"] = fitAvgSolublePoolMass
 			cellSpecs[conditionKey]["bulkContainer"] = bulkContainer
 
 			sim_data.process.transcription.rnaExpression[conditionKey] = cellSpecs[conditionKey]["expression"]
@@ -149,7 +173,7 @@ def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None)
 
 		bulkContainer = createBulkContainer(sim_data, expression, doubling_time)
 
-		avgCellDryMassInit = rescaleMassForSolubleMetabolites(sim_data, bulkContainer, concDict, doubling_time)
+		avgCellDryMassInit, fitAvgSolublePoolMass = rescaleMassForSolubleMetabolites(sim_data, bulkContainer, concDict, doubling_time)
 
 		setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time)
 
@@ -170,7 +194,7 @@ def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None)
 	else:
 		raise Exception("Fitting did not converge")
 
-	return expression, synthProb, avgCellDryMassInit, bulkContainer
+	return expression, synthProb, avgCellDryMassInit, fitAvgSolublePoolMass, bulkContainer
 
 
 # Sub-fitting functions
@@ -214,13 +238,9 @@ def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict, doubling_t
 	# Increase avgCellDryMassInit to match these numbers & rescale mass fractions
 	smallMoleculePoolsDryMass = units.hstack((massesToAdd[:poolIds.index('WATER[c]')], massesToAdd[poolIds.index('WATER[c]') + 1:]))
 	newAvgCellDryMassInit = units.sum(mass) + units.sum(smallMoleculePoolsDryMass)
+	fitAvgSolublePoolMass = units.sum(units.hstack((massesToAdd[:poolIds.index('WATER[c]')], massesToAdd[poolIds.index('WATER[c]') + 1:]))) * sim_data.mass.avgCellToInitialCellConvFactor
 
-	sim_data.mass.avgCellDryMassInit = newAvgCellDryMassInit
-	sim_data.mass.avgCellDryMass = sim_data.mass.avgCellDryMassInit * sim_data.mass.avgCellToInitialCellConvFactor
-	sim_data.mass.avgCellWaterMassInit = sim_data.mass.avgCellDryMassInit / sim_data.mass.cellDryMassFraction * sim_data.mass.cellWaterMassFraction
-	sim_data.mass.fitAvgSolublePoolMass = units.sum(units.hstack((massesToAdd[:poolIds.index('WATER[c]')], massesToAdd[poolIds.index('WATER[c]') + 1:]))) * sim_data.mass.avgCellToInitialCellConvFactor
-
-	return newAvgCellDryMassInit
+	return newAvgCellDryMassInit, fitAvgSolublePoolMass
 
 def setInitialRnaExpression(sim_data, expression, doubling_time):
 	# Set expression for all of the noncoding RNAs
@@ -634,8 +654,6 @@ def fitExpression(sim_data, bulkContainer, doubling_time, Km = None):
 			countsToMolar,
 		)
 
-
-
 	synthProb = normalize(rnaLossRate.asNumber(1 / units.min))
 
 	return expression, synthProb
@@ -732,15 +750,19 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 
 		allMoleculesView.countsIs(0)
 
-		rnaView.countsIs(randomState.multinomial(
-			totalCount_RNA,
-			distribution_RNA
-			))
+		# rnaView.countsIs(randomState.multinomial(
+		# 	totalCount_RNA,
+		# 	distribution_RNA
+		# 	))
 
-		proteinView.countsIs(randomState.multinomial(
-			totalCount_protein,
-			distribution_protein
-			))
+		# proteinView.countsIs(randomState.multinomial(
+		# 	totalCount_protein,
+		# 	distribution_protein
+		# 	))
+
+		rnaView.countsIs(totalCount_RNA * distribution_RNA)
+
+		proteinView.countsIs(totalCount_protein * distribution_protein)
 
 		complexationMoleculeCounts = complexationMoleculesView.counts()
 
@@ -892,6 +914,141 @@ def netLossRateFromDilutionAndDegradationRNA(doublingTime, totalEndoRnaseCountsC
 
 def netLossRateFromDilutionAndDegradationRNALinear(doublingTime, degradationRates, rnaCounts):
 	return (np.log(2) / doublingTime + degradationRates) * rnaCounts
+
+def expressionFromConditionAndFoldChange(rnaIds, basalExpression, condPerturbations, tfFCs):
+	expression = basalExpression.copy()
+
+	# TODO: Implement condPerturbations
+
+	rnaIdxs = []
+	fcs = []
+	for key in sorted(tfFCs):
+		rnaIdxs.append(np.where(rnaIds == key + "[c]")[0][0])
+		fcs.append(tfFCs[key])
+	rnaIdxsBool = np.zeros(len(rnaIds), dtype = np.bool)
+	rnaIdxsBool[rnaIdxs] = 1
+	fcs = np.array(fcs)
+	scaleTheRestBy = (1. - (expression[rnaIdxs] * fcs).sum()) / (1. - (expression[rnaIdxs]).sum())
+	expression[rnaIdxsBool] *= fcs
+	expression[~rnaIdxsBool] *= scaleTheRestBy
+
+	return expression
+
+def calculatePromoterBoundProbability(sim_data, cellSpecs):
+	D = {}
+	cellDensity = sim_data.constants.cellDensity
+	for conditionKey in sorted(cellSpecs):
+		D[conditionKey] = {}
+
+		cellVolume = cellSpecs[conditionKey]["avgCellDryMassInit"] / cellDensity / sim_data.mass.cellDryMassFraction
+		countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
+
+		for tf in sorted(sim_data.tfToActiveInactiveConds):#[:N_TFS]:
+			tfKd = sim_data.process.transcription_regulation.tfKd[tf]
+			promoterConc = countsToMolar * sim_data.process.transcription_regulation.tfNTargets[tf]
+			tfConc = countsToMolar * cellSpecs[conditionKey]["bulkAverageContainer"].count(tf + "[c]")
+
+			D[conditionKey][tf] = sim_data.process.transcription_regulation.pPromoterBound(
+				tfKd.asNumber(units.nmol / units.L),
+				promoterConc.asNumber(units.nmol / units.L),
+				tfConc.asNumber(units.nmol / units.L),
+				)
+	return D
+
+def calculateRnapRecruitment(sim_data, cellSpecs):
+	gI = []
+	gJ = []
+	gV = []
+	k = []
+	rowNames = []
+	colNames = []
+	for idx, rnaId in enumerate(sim_data.process.transcription.rnaData["id"]):
+		rnaIdNoLoc = rnaId[:-3]
+
+		tfs = sim_data.process.transcription_regulation.targetTf.get(rnaIdNoLoc, [])
+		conditions = ["basal"]
+		tfsWithData = []
+		for tf in tfs:
+			if tf not in sorted(sim_data.tfToActiveInactiveConds)[:N_TFS]:
+				continue
+			conditions.append(tf + "__active")
+			conditions.append(tf + "__inactive")
+			tfsWithData.append(tf)
+		for condition in conditions:
+			if len(tfsWithData) > 0 and condition == "basal":
+				continue
+			rowName = rnaIdNoLoc + "__" + condition
+			rowNames.append(rowName)
+			for tf in tfsWithData:
+				colName = rnaIdNoLoc + "__" + tf
+				if colName not in colNames:
+					colNames.append(colName)
+				gI.append(rowNames.index(rowName))
+				gJ.append(colNames.index(colName))
+				gV.append(sim_data.pPromoterBound[condition][tf])
+			colName = rnaIdNoLoc + "__alpha"
+			if colName not in colNames:
+				colNames.append(colName)
+			gI.append(rowNames.index(rowName))
+			gJ.append(colNames.index(colName))
+			gV.append(1.)
+			k.append(sim_data.process.transcription.rnaSynthProb[condition][idx])
+
+	gI = np.array(gI)
+	gJ = np.array(gJ)
+	gV = np.array(gV)
+	k = np.array(k)
+
+	shape = (gI.max() + 1, gJ.max() + 1)
+	G = np.zeros(shape, np.float64)
+	G[gI, gJ] = gV
+	r = np.linalg.solve(G, k)
+
+	hI = []
+	hJ = []
+	hV = []
+	rowNames = []
+	stateMasses = []
+	for idx, rnaId in enumerate(sim_data.process.transcription.rnaData["id"]):
+		rnaIdNoLoc = rnaId[:-3]
+
+		tfs = sim_data.process.transcription_regulation.targetTf.get(rnaIdNoLoc, [])
+		tfsWithData = []
+		for tf in tfs:
+			if tf not in sorted(sim_data.tfToActiveInactiveConds)[:N_TFS]:
+				continue
+			tfsWithData.append({"id": tf, "mass_g/mol": sim_data.getter.getMass([tf]).asNumber(units.g / units.mol)})
+		rowName = rnaIdNoLoc + "__" + condition
+		rowNames.append(rowName)
+		for tf in tfsWithData:
+			colName = rnaIdNoLoc + "__" + tf["id"]
+			hI.append(rowNames.index(rowName))
+			hJ.append(colNames.index(colName))
+			hV.append(r[colNames.index(colName)])
+			stateMasses.append([0.] * 6 + [tf["mass_g/mol"]] + [0.] * 4)
+		colName = rnaIdNoLoc + "__alpha"
+		hI.append(rowNames.index(rowName))
+		hJ.append(colNames.index(colName))
+		hV.append(r[colNames.index(colName)])
+		stateMasses.append([0.] * 11)
+
+	stateMasses = units.g / units.mol * np.array(stateMasses)
+	hI = np.array(hI)
+	hJ = np.array(hJ)
+	hV = np.array(hV)
+	shape = (hI.max() + 1, hJ.max() + 1)
+	H = np.zeros(shape, np.float64)
+	H[hI, hJ] = hV
+
+	sim_data.state.bulkMolecules.addToBulkState(colNames, stateMasses)
+	sim_data.process.transcription_regulation.recruitmentData = {
+		"hI": hI,
+		"hJ": hJ,
+		"hV": hV,
+		"shape": shape,
+	}
+	sim_data.process.transcription_regulation.recruitmentColNames = colNames
+
 
 def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 	cellDensity = sim_data.constants.cellDensity

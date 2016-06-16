@@ -48,7 +48,8 @@ class FBAResults(wholecell.listeners.listener.Listener):
 		self.reactionFluxes = np.zeros(len(self.reactionIDs), np.float64)
 		self.externalExchangeFluxes = np.zeros(len(self.externalMoleculeIDs), np.float64)
 		self.outputFluxes = np.zeros(len(self.outputMoleculeIDs), np.float64)
-		self.dualValues = np.zeros(len(self.outputMoleculeIDs), np.float64)
+		self.rowDualValues = np.zeros(len(self.outputMoleculeIDs), np.float64)
+		self.columnDualValues = np.zeros(len(self.reactionIDs), np.float64)
 		self.objectiveComponents = np.zeros_like(self.outputFluxes)
 
 
@@ -67,7 +68,8 @@ class FBAResults(wholecell.listeners.listener.Listener):
 			reactionFluxes = self.reactionFluxes,
 			externalExchangeFluxes = self.externalExchangeFluxes,
 			outputFluxes = self.outputFluxes,
-			dualValues = self.dualValues,
+			rowDualValues = self.rowDualValues,
+			columnDualValues = self.columnDualValues,
 			objectiveValue = self.objectiveValue,
 			objectiveComponents = self.objectiveComponents,
 			)

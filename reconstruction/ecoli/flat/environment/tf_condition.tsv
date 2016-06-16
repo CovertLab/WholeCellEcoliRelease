@@ -1,4 +1,4 @@
 "TF"	"active TF"	"active environment"	"active genotype perturbations"	"inactive environment"	"inactive genotype perturbations"
 "trpR"	"CPLX-125"	"000003_aa"	{}	"000000_wildtype"	{}
-"tyrR"	"MONOMER0-162"	"000003_aa"	{}	"000000_wildtype"	{}
+#"tyrR"	"MONOMER0-162"	"000003_aa"	{}	"000000_wildtype"	{}
 "tyrR"	"MONOMER0-163"	"000003_aa"	{}	"000000_wildtype"	{}
