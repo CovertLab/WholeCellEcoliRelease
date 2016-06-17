@@ -92,6 +92,8 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 	# Calculate temporal evolution
 	def evolveState(self):
 
+		self.writeToListener("RnaSynthProb", "rnaSynthProb", self.rnaSynthProb)
+
 		# no synthesis if no chromosome
 		if self.chromosomes.total()[0] == 0:
 			return
