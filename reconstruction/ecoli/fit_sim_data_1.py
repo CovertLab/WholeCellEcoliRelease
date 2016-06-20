@@ -1041,6 +1041,8 @@ def calculateRnapRecruitment(sim_data, cellSpecs):
 	H[hI, hJ] = hV
 
 	sim_data.state.bulkMolecules.addToBulkState(colNames, stateMasses)
+	sim_data.moleculeGroups.bulkMoleculesSetTo1Division = [x for x in colNames if x.endswith("__alpha")]
+	sim_data.moleculeGroups.bulkMoleculesBinomialDivision += [x for x in colNames if not x.endswith("__alpha")]
 	sim_data.process.transcription_regulation.recruitmentData = {
 		"hI": hI,
 		"hJ": hJ,

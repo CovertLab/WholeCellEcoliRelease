@@ -50,6 +50,9 @@ def initializeBulkMolecules(bulkMolCntr, sim_data, randomState):
 	## Set other biomass components
 	initializeSmallMolecules(bulkMolCntr, sim_data, randomState)
 
+	## Set constitutive expression
+	initializeConstitutiveExpression(bulkMolCntr, sim_data, randomState)
+
 def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data)
 
@@ -132,6 +135,12 @@ def initializeSmallMolecules(bulkMolCntr, sim_data, randomState):
 		countsToAdd,
 		poolIds
 		)
+
+def initializeConstitutiveExpression(bulkMolCntr, sim_data, randomState):
+	recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
+	alphaNames = [x for x in recruitmentColNames if x.endswith("__alpha")]
+	alphaView = bulkMolCntr.countsView(alphaNames)
+	alphaView.countsIs(1)
 
 def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 	"""
