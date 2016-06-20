@@ -53,8 +53,6 @@ class AnalysisMultiGenTask(FireTaskBase):
 				print "%s: Running %s" % (time.ctime(), f)
 				mod.main(*args)
 
-			mod.main(*args)
-
 		if "WC_ANALYZE_FAST" in os.environ:
 			pool.close()
 			pool.join()

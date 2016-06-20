@@ -20,6 +20,7 @@ TODO:
 from __future__ import division
 
 import numpy as np
+import scipy.sparse
 
 import wholecell.processes.process
 from wholecell.utils import units
@@ -55,27 +56,43 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		self.rnaPolymeraseElongationRate = sim_data.growthRateParameters.rnaPolymeraseElongationRate
 
-		self.rnaSynthProb = sim_data.process.transcription.rnaSynthProb[sim_data.condition]
+		self.rnaSynthProb = None
 
-		# Views
-		
-		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
+		recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
 
-		self.inactiveRnaPolys = self.bulkMoleculeView("APORNAP-CPLX[c]")
+		recruitmentData = sim_data.process.transcription_regulation.recruitmentData
+		self.recruitmentMatrix = scipy.sparse.csr_matrix(
+				(recruitmentData["hV"], (recruitmentData["hI"], recruitmentData["hJ"])),
+				shape = recruitmentData["shape"]
+			)
+		self.tfsBound = None
 
-		self.chromosomes = self.bulkMoleculeView('CHROM_FULL[c]')
-		
 		self.is_16SrRNA = sim_data.process.transcription.rnaData['isRRna16S']
 		self.is_23SrRNA = sim_data.process.transcription.rnaData['isRRna23S']
 		self.is_5SrRNA = sim_data.process.transcription.rnaData['isRRna5S']
 
 
+		# Views
+
+		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
+
+		self.inactiveRnaPolys = self.bulkMoleculeView("APORNAP-CPLX[c]")
+
+		self.chromosomes = self.bulkMoleculeView('CHROM_FULL[c]')
+
+		self.recruitmentView = self.bulkMoleculesView(recruitmentColNames)
+
+
 	def calculateRequest(self):
 		self.inactiveRnaPolys.requestAll()
+		self.rnaSynthProb = self.recruitmentMatrix.dot(self.recruitmentView.total())
+		self.rnaSynthProb /= self.rnaSynthProb.sum()
 
 
 	# Calculate temporal evolution
 	def evolveState(self):
+
+		self.writeToListener("RnaSynthProb", "rnaSynthProb", self.rnaSynthProb)
 
 		# no synthesis if no chromosome
 		if self.chromosomes.total()[0] == 0:

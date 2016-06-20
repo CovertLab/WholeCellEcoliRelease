@@ -35,17 +35,16 @@ class SimulationDataEcoli(object):
 		# Doubling time (used in fitting)
 		self.doubling_time = None
 
-	def initialize(self, raw_data, basal_expression_condition = "M9 Glucose minus AAs", environment = "000000_wildtype"):
+	def initialize(self, raw_data, basal_expression_condition = "M9 Glucose minus AAs"):
 
 		self._addEnvData(raw_data)
-		self.doubling_time = self.envToDoublingTime[environment]
+		self.condition = "basal"
+		self.environment = self.conditions[self.condition]["environment"]
+		self.doubling_time = self.conditionToDoublingTime[self.condition]
 
 		# TODO: Check that media condition is valid
 		self.basal_expression_condition = basal_expression_condition
 		self.envDict, self.externalExchangeMolecules, self.nutrientExchangeMolecules, self.secretionExchangeMolecules = self._addEnvironments(raw_data)
-		self.environment = environment
-		self.condition = environment # condition can be environment + genetic perturbation
-
 
 		self._addHardCodedAttributes()
 
@@ -104,7 +103,7 @@ class SimulationDataEcoli(object):
 		nutrientExchangeMolecules = {}
 		secretionExchangeMolecules = set()
 		envDict = {}
-		notEnvList = ["environment_doubling_time", "tf_environment"]
+		notEnvList = ["condition_doubling_time", "tf_condition", "condition_defs"]
 		environments = [(x, getattr(raw_data.environment, x)) for x in dir(raw_data.environment) if not x.startswith("__") and x not in notEnvList]
 		for envName, env in environments:
 			externalExchangeMolecules[envName] = set()
@@ -148,7 +147,7 @@ class SimulationDataEcoli(object):
 		return envDict, externalExchangeMolecules, nutrientExchangeMolecules, secretionExchangeMolecules
 
 	def _addEnvData(self, raw_data):
-		self.envToDoublingTime = dict([(x["environment"].encode("utf-8"), x["initial doubling time"]) for x in raw_data.environment.environment_doubling_time])
+		self.conditionToDoublingTime = dict([(x["condition"].encode("utf-8"), x["initial doubling time"]) for x in raw_data.environment.condition_doubling_time])
 
 		abbrToActiveId = dict([(x["TF"].encode("utf-8"), x["activeId"].encode("utf-8").split(", ")) for x in raw_data.tfIds if len(x["activeId"]) > 0])
 
@@ -183,7 +182,7 @@ class SimulationDataEcoli(object):
 
 
 		self.tfToActiveInactiveConds = {}
-		for row in raw_data.environment.tf_environment:
+		for row in raw_data.environment.tf_condition:
 			tf = row["active TF"].encode("utf-8")
 			activeGenotype = row["active genotype perturbations"]
 			activeEnv = row["active environment"].encode("utf-8")
@@ -199,3 +198,20 @@ class SimulationDataEcoli(object):
 			self.tfToActiveInactiveConds[tf]["active environment"] = activeEnv
 			self.tfToActiveInactiveConds[tf]["inactive genotype perturbations"] = inactiveGenotype
 			self.tfToActiveInactiveConds[tf]["inactive environment"] = inactiveEnv
+
+		self.conditions = {}
+		for row in raw_data.environment.condition_defs:
+			condition = row["condition"].encode("utf-8")
+			self.conditions[condition] = {}
+			self.conditions[condition]["environment"] = row["environment"].encode("utf-8")
+			self.conditions[condition]["perturbations"] = row["genotype perturbations"]
+
+		for tf in sorted(self.tfToActiveInactiveConds):
+			activeCondition = tf + "__active"
+			inactiveCondition = tf + "__inactive"
+			self.conditions[activeCondition] = {}
+			self.conditions[inactiveCondition] = {}
+			self.conditions[activeCondition]["environment"] = self.tfToActiveInactiveConds[tf]["active environment"]
+			self.conditions[inactiveCondition]["environment"] = self.tfToActiveInactiveConds[tf]["inactive environment"]
+			self.conditions[activeCondition]["perturbations"] = self.tfToActiveInactiveConds[tf]["active genotype perturbations"]
+			self.conditions[inactiveCondition]["perturbations"] = self.tfToActiveInactiveConds[tf]["inactive genotype perturbations"]
