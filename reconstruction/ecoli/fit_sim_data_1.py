@@ -135,7 +135,7 @@ def buildTfConditionCellSpecifications(sim_data, cellSpecs):
 
 			cellSpecs[conditionKey] = {
 				"concDict": sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
-					sim_data.envDict[conditionValue["environment"]][0][-1]
+					conditionValue["nutrients"]
 				),
 				"expression": expression,
 				"doubling_time": sim_data.conditionToDoublingTime.get(
