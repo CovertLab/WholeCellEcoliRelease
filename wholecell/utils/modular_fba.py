@@ -677,7 +677,7 @@ class FluxBalanceAnalysis(object):
 
 				self._solver.flowObjectiveCoeffIs(
 					belowUpperID,
-					+1.1 # This breaks symmetry to make upper end of concentration range slightly preferred
+					+1
 					)
 
 				# Add the term for when the flux out is above the lower target concentration

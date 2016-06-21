@@ -85,7 +85,7 @@ class Metabolism(wholecell.processes.process.Process):
 			self.min_flux_coefficient = sim_data.constants.kineticRateLimitFactorLower
 
 		objective_range = {
-			key:[.9*value.asNumber(COUNTS_UNITS / VOLUME_UNITS),1*value.asNumber(COUNTS_UNITS / VOLUME_UNITS)] for key, value in sim_data.process.metabolism.concDict.iteritems()
+			key:[.8*.5*value.asNumber(COUNTS_UNITS / VOLUME_UNITS),1.2*.5*value.asNumber(COUNTS_UNITS / VOLUME_UNITS)] for key, value in sim_data.process.metabolism.concDict.iteritems()
 		}
 
 		objective = {key:value.asNumber(COUNTS_UNITS / VOLUME_UNITS) for key, value in sim_data.process.metabolism.concDict.iteritems()}
