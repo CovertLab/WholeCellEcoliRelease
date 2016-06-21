@@ -11,7 +11,6 @@ from __future__ import division
 
 import numpy as np
 import collections
-from unum import Unum
 
 # Raw data class
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
@@ -24,6 +23,8 @@ from reconstruction.ecoli.dataclasses.state.state import State
 from reconstruction.ecoli.dataclasses.process.process import Process
 from reconstruction.ecoli.dataclasses.growthRateDependentParameters import Mass, GrowthRateParameters
 from reconstruction.ecoli.dataclasses.relation import Relation
+
+from wholecell.utils import units
 
 VERBOSE = False
 
@@ -38,7 +39,7 @@ class SimulationDataEcoli(object):
 	def initialize(self, raw_data, basal_expression_condition = "M9 Glucose minus AAs"):
 
 		self._addConditionData(raw_data)
-		nutrientData = self._getNutrientData(raw_data)
+		self.nutrientData = self._getNutrientData(raw_data)
 		self.condition = "basal"
 		self.nutrients = self.conditions[self.condition]["nutrients"]
 		self.doubling_time = self.conditionToDoublingTime[self.condition]
@@ -217,6 +218,18 @@ class SimulationDataEcoli(object):
 			self.conditions[activeCondition]["perturbations"] = self.tfToActiveInactiveConds[tf]["active genotype perturbations"]
 			self.conditions[inactiveCondition]["perturbations"] = self.tfToActiveInactiveConds[tf]["inactive genotype perturbations"]
 
+		self.conditionTimeSeries = {}
+		for label in dir(raw_data.condition.timeseries):
+			if label.startswith("__"):
+				continue
+
+			self.conditionTimeSeries[label] = collections.deque()
+			timeseries = getattr(raw_data.condition.timeseries, label)
+			for row in timeseries:
+				self.conditionTimeSeries[label].append((
+					row["time"].asNumber(units.s),
+					row["nutrients"].encode("utf-8")
+					))
 
 
 	def _getNutrientData(self, raw_data):
