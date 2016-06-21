@@ -85,6 +85,7 @@ LIST_OF_DICT_FILENAMES = (
 	os.path.join("condition", "nutrient", "minimal_plus_quercetin.tsv"),
 	os.path.join("condition", "nutrient", "minimal_plus_tungstate.tsv"),
 	os.path.join("condition", "nutrient", "minimal_succinate.tsv"),
+	os.path.join("condition", "timeseries", "000000_basal.tsv"),
 	)
 SEQUENCE_FILE = 'sequence.fasta'
 LIST_OF_PARAMETER_FILENAMES = ("parameters.tsv", "mass_parameters.tsv")
