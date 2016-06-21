@@ -65,10 +65,10 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.metabolitePoolIDs = sorted(sim_data.process.metabolism.concDict)
 
-		self.environment = sim_data.environment
 		self.exchangeConstraints = sim_data.process.metabolism.exchangeConstraints
 
 		self.doublingTime = sim_data.doubling_time
+		self.nutrientsTimeSeriesLabel = sim_data.nutrientsTimeSeriesLabel
 
 		# Load enzyme kinetic rate information
 		self.reactionRateInfo = sim_data.process.metabolism.reactionRateInfo
@@ -88,18 +88,9 @@ class Metabolism(wholecell.processes.process.Process):
 			(key, sim_data.process.metabolism.concDict[key].asNumber(COUNTS_UNITS / VOLUME_UNITS)) for key in sim_data.process.metabolism.concDict
 			)
 
-		# TODO: make sim_data method?
-		extIDs = sim_data.externalExchangeMolecules[sim_data.environment]
-		self.extMoleculeMasses = sim_data.getter.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS) # TODO: delete this line?
-
 		self.getMass = sim_data.getter.getMass
 		self.massReconstruction = sim_data.mass
 		self.avgCellToInitialCellConvFactor = sim_data.mass.avgCellToInitialCellConvFactor
-
-		self.moleculeMasses = dict(zip(
-			extIDs,
-			self.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS)
-			))
 
 		self.ngam = sim_data.constants.nonGrowthAssociatedMaintenance
 
@@ -114,7 +105,17 @@ class Metabolism(wholecell.processes.process.Process):
 		self.energyCostPerWetMass = sim_data.constants.darkATP * initDryMass / initCellMass
 
 		self.reactionStoich = sim_data.process.metabolism.reactionStoich
-		self.externalExchangeMolecules = sim_data.externalExchangeMolecules[sim_data.environment]
+		self.externalExchangeMolecules = sim_data.nutrientData["secretionExchangeMolecules"]
+		for time, nutrientsLabel in sim_data.nutrientsTimeSeries[self.nutrientsTimeSeriesLabel]:
+			self.externalExchangeMolecules += sim_data.nutrientData["importExchangeMolecules"][nutrientsLabel]
+		self.externalExchangeMolecules = sorted(self.externalExchangeMolecules)
+		self.extMoleculeMasses = self.getMass(self.externalExchangeMolecules)
+
+		self.moleculeMasses = dict(zip(
+			self.externalExchangeMolecules,
+			self.getMass(self.externalExchangeMolecules).asNumber(MASS_UNITS / COUNTS_UNITS)
+			))
+
 		self.reversibleReactions = sim_data.process.metabolism.reversibleReactions
 
 		# Set up FBA solver
@@ -198,7 +199,7 @@ class Metabolism(wholecell.processes.process.Process):
 			self.externalMoleculeIDs,
 			coefficient,
 			COUNTS_UNITS / VOLUME_UNITS,
-			self.environment,
+			self.nutrientsTimeSeriesLabel,
 			self.time()
 			)
 
