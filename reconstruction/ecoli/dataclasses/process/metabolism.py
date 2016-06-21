@@ -26,15 +26,12 @@ EXCHANGE_UNITS = units.mmol / units.g / units.h
 class Metabolism(object):
 	""" Metabolism """
 
-	def __init__(self, raw_data, sim_data, environment = None):
-		if environment == None:
-			environment = sim_data.environment
-
-		self._buildBiomass(raw_data, sim_data, environment)
+	def __init__(self, raw_data, sim_data):
+		self._buildBiomass(raw_data, sim_data)
 		self._buildMetabolism(raw_data, sim_data)
 
 
-	def _buildBiomass(self, raw_data, sim_data, environment):
+	def _buildBiomass(self, raw_data, sim_data):
 		wildtypeIDs = set(entry["molecule id"] for entry in raw_data.biomass)
 		# TODO: unjank this
 
@@ -162,14 +159,16 @@ class Metabolism(object):
 			metaboliteConcentrations.append(value.asNumber(units.mol / units.L))
 
 		self.biomassFunction = biomassFunction
+		self.nutrientData = sim_data.nutrientData
 		self.concentrationUpdates = ConcentrationUpdates(dict(zip(
 			metaboliteIDs,
 			(units.mol / units.L) * np.array(metaboliteConcentrations)
 			)),
-			raw_data.equilibriumReactions
+			raw_data.equilibriumReactions,
+			self.nutrientData,
 		)
-		envFirstTimePoint = sim_data.envDict[environment][0][-1]
-		self.concDict = self.concentrationUpdates.concentrationsBasedOnNutrients(envFirstTimePoint)
+		self.concDict = self.concentrationUpdates.concentrationsBasedOnNutrients("minimal")
+
 
 	def _buildMetabolism(self, raw_data, sim_data):
 		# Build the matrices/vectors for metabolism (FBA)
@@ -259,7 +258,7 @@ class Metabolism(object):
 		enzymesWithKineticInfoDict["enzymes"] = list(enzymesWithKineticInfo)
 
 		self.reactionStoich = reactionStoich
-		self.envDict = sim_data.envDict
+		self.nutrientsTimeSeries = sim_data.nutrientsTimeSeries
 		self.reversibleReactions = reversibleReactions
 		self.reactionRateInfo = reactionRateInfo
 		self.enzymesWithKineticInfo = enzymesWithKineticInfoDict
@@ -267,14 +266,14 @@ class Metabolism(object):
 		self.constraintToReactionDict = constraintToReactionDict
 		self.activeConstraintsDict = activeConstraintsDict
 
-	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits, environment, time):
+	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits, nutrientsTimeSeriesLabel, time):
 		newObjective = None
-		while len(self.envDict[environment]) and time > self.envDict[environment][0][0]:
-			self._unconstrainedExchangeMolecules = self.envDict[environment][0][1]["unconstrainedExchangeMolecules"]
-			self._constrainedExchangeMolecules = self.envDict[environment][0][1]["constrainedExchangeMolecules"]
-			concDict = self.concentrationUpdates.concentrationsBasedOnNutrients(self.envDict[environment][0][-1])
+		while len(self.nutrientsTimeSeries[nutrientsTimeSeriesLabel]) and time > self.nutrientsTimeSeries[nutrientsTimeSeriesLabel][0][0]:
+			_, nutrients = self.nutrientsTimeSeries[nutrientsTimeSeriesLabel].popleft()
+			self._unconstrainedExchangeMolecules = self.nutrientData["importUnconstrainedExchangeMolecules"][nutrients]
+			self._constrainedExchangeMolecules = self.nutrientData["importConstrainedExchangeMolecules"][nutrients]
+			concDict = self.concentrationUpdates.concentrationsBasedOnNutrients(nutrients)
 			newObjective = dict((key, concDict[key].asNumber(targetUnits)) for key in concDict)
-			self.envDict[environment].popleft()
 
 		externalMoleculeLevels = np.zeros(len(exchangeIDs), np.float64)
 
@@ -292,9 +291,10 @@ class Metabolism(object):
 		return externalMoleculeLevels, newObjective
 
 class ConcentrationUpdates(object):
-	def __init__(self, concDict, equilibriumReactions):
+	def __init__(self, concDict, equilibriumReactions, nutrientData):
 		self.units = units.getUnit(concDict.values()[0])
 		self.defaultConcentrationsDict = dict((key, concDict[key].asNumber(self.units)) for key in concDict)
+		self.nutrientData = nutrientData
 
 		self.moleculeScaleFactors = {
 			"L-ALPHA-ALANINE[c]": 2.,
@@ -322,14 +322,19 @@ class ConcentrationUpdates(object):
 
 		self.moleculeSetAmounts = self._addMoleculeAmountsBasedOnKd(equilibriumReactions)
 
-	def concentrationsBasedOnNutrients(self, nutrientFluxes = None):
+	def concentrationsBasedOnNutrients(self, nutrientsLabel = None):
 		concentrationsDict = self.defaultConcentrationsDict.copy()
 
 		poolIds = sorted(concentrationsDict.keys())
 		concentrations = self.units * np.array([concentrationsDict[k] for k in poolIds])
 
-		if nutrientFluxes == None:
+		if nutrientsLabel == None:
 			return dict(zip(poolIds, concentrations))
+
+		nutrientFluxes = {
+			"importConstrainedExchangeMolecules": self.nutrientData["importConstrainedExchangeMolecules"][nutrientsLabel],
+			"importUnconstrainedExchangeMolecules": self.nutrientData["importUnconstrainedExchangeMolecules"][nutrientsLabel],
+		}
 
 		for molecule, scaleFactor in self.moleculeScaleFactors.iteritems():
 			if self._isNutrientExchangePresent(nutrientFluxes, molecule):
@@ -347,11 +352,11 @@ class ConcentrationUpdates(object):
 		return concDict
 
 	def _isNutrientExchangePresent(self, nutrientFluxes, molecule):
-		if molecule in nutrientFluxes["unconstrainedExchangeMolecules"]:
+		if molecule in nutrientFluxes["importUnconstrainedExchangeMolecules"]:
 			return True
 
-		if molecule in nutrientFluxes["constrainedExchangeMolecules"]:
-			if nutrientFluxes["constrainedExchangeMolecules"][molecule].asNumber() > 0:
+		if molecule in nutrientFluxes["importConstrainedExchangeMolecules"]:
+			if nutrientFluxes["importConstrainedExchangeMolecules"][molecule].asNumber() > 0:
 				return True
 
 		return False
