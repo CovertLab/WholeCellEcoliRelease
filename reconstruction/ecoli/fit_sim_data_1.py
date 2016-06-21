@@ -90,6 +90,7 @@ def buildBasalCellSpecifications(sim_data):
 		"concDict": sim_data.process.metabolism.concDict.copy(),
 		"expression": sim_data.process.transcription.rnaExpression["basal"].copy(),
 		"doubling_time": sim_data.doubling_time,
+		"translation_km": np.zeros(len(sim_data.moleculeGroups.aaIDs))
 	}
 
 	expression, synthProb, avgCellDryMassInit, fitAvgSolublePoolMass, bulkContainer = expressionConverge(
@@ -114,8 +115,46 @@ def buildBasalCellSpecifications(sim_data):
 	sim_data.process.transcription.rnaExpression["basal"][:] = cellSpecs["basal"]["expression"]
 	sim_data.process.transcription.rnaSynthProb["basal"][:] = cellSpecs["basal"]["synthProb"]
 
+	translation_km = translationKmBasal(sim_data, bulkContainer, cellSpecs["basal"]["concDict"])
+	cellSpecs["basal"]["translation_km"] = translation_km
+
 	return cellSpecs
 
+
+def translationKmBasal(sim_data, bulkContainer, concDict):
+	# Get max elongation rate for ribosomes and and expected elongation rate for base condition
+	maxElongationRate = sim_data.constants.ribosomeElongationRateMax
+	expectedElongationRate = sim_data.growthRateParameters.ribosomeElongationRate
+
+	# Calculate fractional composition of E. coli's polymerized proteins
+	# we will assume that on average translation's polymerizations follow the
+	# same composition of amino acids
+	aaCounts = sim_data.process.translation.monomerData["aaCounts"]
+	proteinCounts = bulkContainer.counts(sim_data.process.translation.monomerData["id"])
+	initialAACounts = units.sum(aaCounts * np.tile(proteinCounts.reshape(-1, 1), (1, 21)), axis = 0)
+	aa_use_fraction = initialAACounts.asNumber() / initialAACounts.asNumber().sum()
+
+	# Get number of ribosomes calculated during expression fitting
+	rRna23SCount = bulkContainer.counts(sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna23S"]]).sum()
+	rRna16SCount = bulkContainer.counts(sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna16S"]]).sum()
+	rRna5SCount = bulkContainer.counts(sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna5S"]]).sum()
+	ribosomeCount = np.floor(np.min([rRna23SCount, rRna16SCount, rRna5SCount]))
+
+	# Calculate the rate of usage of each individual amino acid by translation polymerization
+	rate_individual_aa = expectedElongationRate * ribosomeCount * aa_use_fraction
+
+	# Get concentrations of all amino acids
+	conc_units = units.getUnit(concDict[concDict.keys()[0]])
+	base_condition_aa_concentrations = conc_units * np.array([concDict[x].asNumber(conc_units) for x in sim_data.moleculeGroups.aaIDs])
+
+	# Write Michaelis-Menton equation for each amino acid and solve for Km
+	vmax = maxElongationRate * ribosomeCount * aa_use_fraction
+	v = rate_individual_aa
+	S = base_condition_aa_concentrations
+
+	km = ((vmax - v) / v) * S
+
+	return km
 
 def buildTfConditionCellSpecifications(sim_data, cellSpecs):
 	for tf in sorted(sim_data.tfToActiveInactiveConds)[:N_TFS]:	# Only do 1 TF while still implementing
