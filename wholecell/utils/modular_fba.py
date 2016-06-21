@@ -194,8 +194,10 @@ class FluxBalanceAnalysis(object):
 	_generatedID_moleculesToEquivalents_high = "molecules of {} to high end fractional objective equivalents"
 	_generatedID_moleculeEquivalents_high = "High end fractional objective equivalent for {}"
 
+	_generatedID_fractionAboveUpperTargetOut = "fraction {} above upper target, out"
 	_generatedID_fractionBelowUpperTargetOut = "fraction {} below upper target, out"
 	_generatedID_fractionAboveLowerTargetOut = "fraction {} above lower target, out"
+	_generatedID_fractionBelowLowerTargetOut = "fraction {} below lower target, out"
 
 
 	# Default values, for clarity
@@ -666,6 +668,20 @@ class FluxBalanceAnalysis(object):
 					-1
 					)
 
+				# Add the term for when the flux out is above the upper target concentration
+				aboveUpperID = self._generatedID_fractionAboveUpperTargetOut.format(moleculeID)
+
+				self._solver.flowMaterialCoeffIs(
+					aboveUpperID,
+					objectiveEquivID_high,
+					-1
+					)
+
+				self._solver.flowObjectiveCoeffIs(
+					aboveUpperID,
+					+1
+					)
+
 				# Add the term for when the flux out is below the upper target concentration
 				belowUpperID = self._generatedID_fractionBelowUpperTargetOut.format(moleculeID)
 
@@ -677,7 +693,7 @@ class FluxBalanceAnalysis(object):
 
 				self._solver.flowObjectiveCoeffIs(
 					belowUpperID,
-					+1
+					+2
 					)
 
 				# Add the term for when the flux out is above the lower target concentration
@@ -694,6 +710,19 @@ class FluxBalanceAnalysis(object):
 					+1
 					)
 
+				# Add the term for when the flux out is below the lower target concentration
+				belowLowerID = self._generatedID_fractionBelowLowerTargetOut.format(moleculeID)
+
+				self._solver.flowMaterialCoeffIs(
+					belowLowerID,
+					objectiveEquivID_low,
+					-1
+					)
+
+				self._solver.flowObjectiveCoeffIs(
+					belowLowerID,
+					+2
+					)
 
 	def _initInternalExchange(self, internalExchangedMolecules):
 		"""Create internal (byproduct) exchange reactions."""
