@@ -41,12 +41,12 @@ class SimulationDataEcoli(object):
 		self._addConditionData(raw_data)
 		self.nutrientData = self._getNutrientData(raw_data)
 		self.condition = "basal"
-		self.nutrients = self.conditions[self.condition]["nutrients"]
+		self.nutrientsTimeSeriesLabel = "000000_basal"
 		self.doubling_time = self.conditionToDoublingTime[self.condition]
 
 		# TODO: Check that media condition is valid
 		self.basal_expression_condition = basal_expression_condition
-		self.envDict, self.externalExchangeMolecules, self.nutrientExchangeMolecules, self.secretionExchangeMolecules = self._addEnvironments(raw_data)
+		# self.envDict, self.externalExchangeMolecules, self.nutrientExchangeMolecules, self.secretionExchangeMolecules = self._addEnvironments(raw_data)
 
 		self._addHardCodedAttributes()
 
@@ -218,15 +218,15 @@ class SimulationDataEcoli(object):
 			self.conditions[activeCondition]["perturbations"] = self.tfToActiveInactiveConds[tf]["active genotype perturbations"]
 			self.conditions[inactiveCondition]["perturbations"] = self.tfToActiveInactiveConds[tf]["inactive genotype perturbations"]
 
-		self.conditionTimeSeries = {}
+		self.nutrientsTimeSeries = {}
 		for label in dir(raw_data.condition.timeseries):
 			if label.startswith("__"):
 				continue
 
-			self.conditionTimeSeries[label] = collections.deque()
+			self.nutrientsTimeSeries[label] = collections.deque()
 			timeseries = getattr(raw_data.condition.timeseries, label)
 			for row in timeseries:
-				self.conditionTimeSeries[label].append((
+				self.nutrientsTimeSeries[label].append((
 					row["time"].asNumber(units.s),
 					row["nutrients"].encode("utf-8")
 					))
