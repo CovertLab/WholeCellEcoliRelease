@@ -172,6 +172,9 @@ class Metabolism(wholecell.processes.process.Process):
 		# Set the priority to a low value
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_METABOLISM)
 
+		self.fba._solver._model.set_solver_method_dualprimal()
+		self.fba._solver._model.set_primal_feas_tolerance(1e-3)
+		self.fba._solver._model.set_dual_feas_tolerance(1e-3)
 
 	def calculateRequest(self):
 		self.metabolites.requestAll()
@@ -206,33 +209,35 @@ class Metabolism(wholecell.processes.process.Process):
 			self.time()
 			)
 
-		# if newObjective != None and newObjective != self.objective:
-		# 	# Build new fba instance with new objective
-		# 	self.objective = newObjective
-		# 	self.fba = FluxBalanceAnalysis(
-		# 		self.reactionStoich.copy(), # TODO: copy in class
-		# 		self.externalExchangeMolecules,
-		# 		self.objective,
-		# 		objectiveType = "pools",
-		# 		reversibleReactions = self.reversibleReactions,
-		# 		moleculeMasses = self.moleculeMasses,
-		# 		secretionPenaltyCoeff = SECRETION_PENALTY_COEFF,
-		# 		solver = "glpk",
-		# 		maintenanceCostGAM = self.energyCostPerWetMass.asNumber(COUNTS_UNITS / MASS_UNITS),
-		# 		maintenanceReaction = {
-		# 			"ATP[c]": -1, "WATER[c]": -1, "ADP[c]": +1, "Pi[c]": +1, "PROTON[c]": +1,
-		# 			} # TODO: move to KB TODO: check reaction stoich
-		# 		)
+		if newObjective != None:
+			newObjective = {key:[.8*.5*value,1.2*.5*value] for key, value in newObjective.iteritems()}
+			if newObjective is not self.objective:
+				# Build new fba instance with new objective
+				self.objective = newObjective
+				self.fba = FluxBalanceAnalysis(
+					self.reactionStoich.copy(), # TODO: copy in class
+					self.externalExchangeMolecules,
+					self.objective,
+					objectiveType = "range_pools",
+					reversibleReactions = self.reversibleReactions,
+					moleculeMasses = self.moleculeMasses,
+					secretionPenaltyCoeff = SECRETION_PENALTY_COEFF,
+					solver = "glpk",
+					maintenanceCostGAM = self.energyCostPerWetMass.asNumber(COUNTS_UNITS / MASS_UNITS),
+					maintenanceReaction = {
+						"ATP[c]": -1, "WATER[c]": -1, "ADP[c]": +1, "Pi[c]": +1, "PROTON[c]": +1,
+						} # TODO: move to KB TODO: check reaction stoich
+					)
 
-		# 	massComposition = self.massReconstruction.getFractionMass(self.doublingTime)
-		# 	massInitial = (massComposition["proteinMass"] + massComposition["rnaMass"] + massComposition["dnaMass"]) / self.avgCellToInitialCellConvFactor
-		# 	objIds = sorted(self.objective)
-		# 	objConc = (COUNTS_UNITS / VOLUME_UNITS) * np.array([self.objective[x] for x in objIds])
-		# 	mws = self.getMass(objIds)
-		# 	massesToAdd, _ = massesAndCountsToAddForPools(massInitial, objIds, objConc, mws, self.cellDensity, self.nAvogadro)
-		# 	smallMoleculePoolsDryMass = units.hstack((massesToAdd[:objIds.index('WATER[c]')], massesToAdd[objIds.index('WATER[c]') + 1:]))
-		# 	totalDryMass = units.sum(smallMoleculePoolsDryMass) + massInitial
-		# 	self.writeToListener("CellDivision", "expectedDryMassIncrease", totalDryMass)
+				massComposition = self.massReconstruction.getFractionMass(self.doublingTime)
+				massInitial = (massComposition["proteinMass"] + massComposition["rnaMass"] + massComposition["dnaMass"]) / self.avgCellToInitialCellConvFactor
+				objIds = sorted(self.objective)
+				objConc = (COUNTS_UNITS / VOLUME_UNITS) * np.array([self.objective[x][-1] for x in objIds])
+				mws = self.getMass(objIds)
+				massesToAdd, _ = massesAndCountsToAddForPools(massInitial, objIds, objConc, mws, self.cellDensity, self.nAvogadro)
+				smallMoleculePoolsDryMass = units.hstack((massesToAdd[:objIds.index('WATER[c]')], massesToAdd[objIds.index('WATER[c]') + 1:]))
+				totalDryMass = units.sum(smallMoleculePoolsDryMass) + massInitial
+				self.writeToListener("CellDivision", "expectedDryMassIncrease", totalDryMass)
 
 		# Set external molecule levels
 		self.fba.externalMoleculeLevelsIs(externalMoleculeLevels)
@@ -295,8 +300,6 @@ class Metabolism(wholecell.processes.process.Process):
 				else:
 					self.fba.maxReactionFluxIs(self.constraintToReactionDict[constraintID], defaultRate, raiseForReversible = False)
 
-		self.overconstraintMultiples = (self.fba.reactionFluxes() / self.timeStepSec()) / self.reactionConstraints
-
 		deltaMetabolites = (1 / countsToMolar) * (COUNTS_UNITS / VOLUME_UNITS * self.fba.outputMoleculeLevelsChange())
 
 		metaboliteCountsFinal = np.fmax(stochasticRound(
@@ -305,6 +308,8 @@ class Metabolism(wholecell.processes.process.Process):
 			), 0).astype(np.int64)
 
 		self.metabolites.countsIs(metaboliteCountsFinal)
+
+		self.overconstraintMultiples = (self.fba.reactionFluxes() / self.timeStepSec()) / self.reactionConstraints
 
 		exFluxes = ((COUNTS_UNITS / VOLUME_UNITS) * self.fba.externalExchangeFluxes() / coefficient).asNumber(units.mmol / units.g / units.h)
 

@@ -84,6 +84,26 @@ class glpk
 		{
 			this->lp_params.msg_lev = GLP_MSG_ALL;
 		}
+		void set_solver_method_primal()
+		{
+			this->lp_params.meth = GLP_PRIMAL;
+		}
+		void set_solver_method_dual()
+		{
+			this->lp_params.meth = GLP_DUAL;
+		}
+		void set_solver_method_dualprimal()
+		{
+			this->lp_params.meth = GLP_DUALP;
+		}
+		void set_primal_feas_tolerance(double tolerance)
+		{
+			this->lp_params.tol_bnd = tolerance;
+		}
+		void set_dual_feas_tolerance(double tolerance)
+		{
+			this->lp_params.tol_dj = tolerance;
+		}
 		void optimize()
 		{
         		int status = glp_simplex(this->lp, &(this->lp_params));
@@ -217,6 +237,11 @@ BOOST_PYTHON_MODULE(glpk)
 	.def("set_quiet_quiet", &glpk::set_quiet_quiet)
 	.def("set_verbose", &glpk::set_verbose)
 	.def("set_verbose_verbose", &glpk::set_verbose_verbose)
+	.def("set_solver_method_primal", &glpk::set_solver_method_primal)
+	.def("set_solver_method_dual", &glpk::set_solver_method_dual)
+	.def("set_solver_method_dualprimal", &glpk::set_solver_method_dualprimal)
+	.def("set_primal_feas_tolerance", &glpk::set_primal_feas_tolerance)
+	.def("set_dual_feas_tolerance", &glpk::set_dual_feas_tolerance)
 	.def("optimize", &glpk::optimize)
 	.def("get_primal_value", &glpk::get_primal_value)
 	.def("get_row_dual_value", &glpk::get_row_dual_value)
