@@ -86,6 +86,25 @@ LIST_OF_DICT_FILENAMES = (
 	os.path.join("condition", "nutrient", "minimal_plus_tungstate.tsv"),
 	os.path.join("condition", "nutrient", "minimal_succinate.tsv"),
 	os.path.join("condition", "timeseries", "000000_basal.tsv"),
+	os.path.join("condition", "timeseries", "000001_cut_glucose.tsv"),
+	os.path.join("condition", "timeseries", "000002_add_aa.tsv"),
+	os.path.join("condition", "timeseries", "000003_aa.tsv"),
+	os.path.join("condition", "timeseries", "000004_oxygen_absent.tsv"),
+	os.path.join("condition", "timeseries", "000005_indole_present.tsv"),
+	os.path.join("condition", "timeseries", "000006_tungstate_present.tsv"),
+	os.path.join("condition", "timeseries", "000007_quercetin_present.tsv"),
+	os.path.join("condition", "timeseries", "000008_gallate_present.tsv"),
+	os.path.join("condition", "timeseries", "000009_succinate_carbon_source.tsv"),
+	os.path.join("condition", "timeseries", "000010_acetate_carbon_source.tsv"),
+	os.path.join("condition", "timeseries", "000011_fumarate_carbon_source.tsv"),
+	os.path.join("condition", "timeseries", "000012_malate_carbon_source.tsv"),
+	os.path.join("condition", "timeseries", "000013_nitrate_present.tsv"),
+	os.path.join("condition", "timeseries", "000014_nitrite_present.tsv"),
+	os.path.join("condition", "timeseries", "000015_calcium_absent.tsv"),
+	os.path.join("condition", "timeseries", "000016_magnesium_absent.tsv"),
+	os.path.join("condition", "timeseries", "000017_phosphate_absent.tsv"),
+
+
 	)
 SEQUENCE_FILE = 'sequence.fasta'
 LIST_OF_PARAMETER_FILENAMES = ("parameters.tsv", "mass_parameters.tsv")
