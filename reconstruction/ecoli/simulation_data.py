@@ -231,6 +231,15 @@ class SimulationDataEcoli(object):
 					row["nutrients"].encode("utf-8")
 					))
 
+		self.nutrientToDoublingTime = {}
+		for condition in self.conditionToDoublingTime:
+			if len(self.conditions[condition]["perturbations"]) > 0:
+				continue
+			nutrientLabel = self.conditions[condition]["nutrients"]
+			if nutrientLabel in self.nutrientToDoublingTime and self.conditionToDoublingTime[condition] != self.nutrientToDoublingTime[nutrientLabel]:
+				raise Exception, "Multiple doubling times correspond to the same media conditions"
+			self.nutrientToDoublingTime[nutrientLabel] = self.conditionToDoublingTime[condition]
+
 
 	def _getNutrientData(self, raw_data):
 
