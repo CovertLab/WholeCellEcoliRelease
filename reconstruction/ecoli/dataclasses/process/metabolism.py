@@ -168,6 +168,8 @@ class Metabolism(object):
 			self.nutrientData,
 		)
 		self.concDict = self.concentrationUpdates.concentrationsBasedOnNutrients("minimal")
+		self.nutrientsToInternalConc = {}
+		self.nutrientsToInternalConc["minimal"] = self.concDict.copy()
 
 
 	def _buildMetabolism(self, raw_data, sim_data):
@@ -272,7 +274,7 @@ class Metabolism(object):
 			_, nutrients = self.nutrientsTimeSeries[nutrientsTimeSeriesLabel].popleft()
 			self._unconstrainedExchangeMolecules = self.nutrientData["importUnconstrainedExchangeMolecules"][nutrients]
 			self._constrainedExchangeMolecules = self.nutrientData["importConstrainedExchangeMolecules"][nutrients]
-			concDict = self.concentrationUpdates.concentrationsBasedOnNutrients(nutrients)
+			concDict = self.concentrationUpdates.concentrationsBasedOnNutrients(nutrients, self.nutrientsToInternalConc)
 			newObjective = dict((key, concDict[key].asNumber(targetUnits)) for key in concDict)
 
 		externalMoleculeLevels = np.zeros(len(exchangeIDs), np.float64)
@@ -322,7 +324,7 @@ class ConcentrationUpdates(object):
 
 		self.moleculeSetAmounts = self._addMoleculeAmountsBasedOnKd(equilibriumReactions)
 
-	def concentrationsBasedOnNutrients(self, nutrientsLabel = None):
+	def concentrationsBasedOnNutrients(self, nutrientsLabel = None, nutrientsToInternalConc = None):
 		concentrationsDict = self.defaultConcentrationsDict.copy()
 
 		poolIds = sorted(concentrationsDict.keys())
@@ -336,13 +338,20 @@ class ConcentrationUpdates(object):
 			"importUnconstrainedExchangeMolecules": self.nutrientData["importUnconstrainedExchangeMolecules"][nutrientsLabel],
 		}
 
-		for molecule, scaleFactor in self.moleculeScaleFactors.iteritems():
-			if self._isNutrientExchangePresent(nutrientFluxes, molecule):
-				concentrations[poolIds.index(molecule)] *= scaleFactor
-
-		concDict = dict(zip(poolIds, concentrations))
+		concUpdates = None
+		if nutrientsToInternalConc and nutrientsLabel in nutrientsToInternalConc:
+			concUpdates = nutrientsToInternalConc[nutrientsLabel]
+			concDict = dict(zip(poolIds, concentrations))
+			concDict.update(concUpdates)
+		else:
+			for molecule, scaleFactor in self.moleculeScaleFactors.iteritems():
+				if self._isNutrientExchangePresent(nutrientFluxes, molecule):
+					concentrations[poolIds.index(molecule)] *= scaleFactor
+			concDict = dict(zip(poolIds, concentrations))
 
 		for moleculeName, setAmount in self.moleculeSetAmounts.iteritems():
+			if concUpdates != None and moleculeName in concUpdates:
+				continue
 			if self._isNutrientExchangePresent(nutrientFluxes, moleculeName):
 				concDict[moleculeName] = np.max((
 					concDict.get(moleculeName, 0 * (units.mol / units.L)).asNumber(units.mol / units.L),
