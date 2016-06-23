@@ -146,7 +146,6 @@ def buildTfConditionCellSpecifications(sim_data, cellSpecs):
 				)
 			}
 
-			updateConcDict
 			expression, synthProb, avgCellDryMassInit, fitAvgSolublePoolMass, bulkContainer, concDict = expressionConverge(
 				sim_data,
 				cellSpecs[conditionKey]["expression"],
