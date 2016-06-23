@@ -51,6 +51,8 @@ def fitSimData_1(raw_data):
 	# Set C-period
 	setCPeriod(sim_data)
 
+	calculateInternalConcentrationsBasedOnNutrients(sim_data)
+
 	cellSpecs = buildBasalCellSpecifications(sim_data)
 
 	# Modify other properties
@@ -87,9 +89,11 @@ def fitSimData_1(raw_data):
 def buildBasalCellSpecifications(sim_data):
 	cellSpecs = {}
 	cellSpecs["basal"] = {
-		"concDict": sim_data.process.metabolism.concDict.copy(),
+		"concDict": sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
+					"minimal"
+				),
 		"expression": sim_data.process.transcription.rnaExpression["basal"].copy(),
-		"doubling_time": sim_data.doubling_time,
+		"doubling_time": sim_data.conditionToDoublingTime["basal"],
 	}
 
 	expression, synthProb, avgCellDryMassInit, fitAvgSolublePoolMass, bulkContainer = expressionConverge(
@@ -1050,6 +1054,12 @@ def calculateRnapRecruitment(sim_data, cellSpecs):
 		"shape": shape,
 	}
 	sim_data.process.transcription_regulation.recruitmentColNames = colNames
+
+
+def calculateInternalConcentrationsBasedOnNutrients(sim_data):
+	sim_data.process.metabolism.nutrientsToInternalConc["minimal"] = sim_data.process.metabolism.nutrientsToInternalConc["minimal"] # Change this to the actual calculation
+	for nutrientLabel, doublingTime in sim_data.nutrientToDoublingTime.iteritems():
+		sim_data.process.metabolism.nutrientsToInternalConc[nutrientLabel] = sim_data.process.metabolism.nutrientsToInternalConc["minimal"] # Change this to the actual calculation
 
 
 def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
