@@ -164,9 +164,10 @@ def buildTfConditionCellSpecifications(sim_data, cellSpecs):
 			sim_data.process.transcription.rnaExpression[conditionKey] = cellSpecs[conditionKey]["expression"]
 			sim_data.process.transcription.rnaSynthProb[conditionKey] = cellSpecs[conditionKey]["synthProb"]
 
-			if len(conditionValue["perturbations"]) == 0:
-				nutrientLabel = conditionValue["nutrients"]
-				sim_data.process.metabolism.nutrientsToInternalConc[nutrientLabel] = concDict
+			# Uncomment when concDict is actually calculated for non-base [AA]
+			# if len(conditionValue["perturbations"]) == 0:
+			# 	nutrientLabel = conditionValue["nutrients"]
+			# 	sim_data.process.metabolism.nutrientsToInternalConc[nutrientLabel] = concDict
 
 
 def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None, updateConcDict = False):
