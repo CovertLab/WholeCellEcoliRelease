@@ -4,24 +4,23 @@ CONTROL_OUTPUT = dict(
 	desc = "Control simulation"
 	)
 
-def environmentTotalIndices(sim_data):
-	nEnvironments = len(sim_data.envDict)
-	return nEnvironments
+def nutrientTimeSeriesTotalIndices(sim_data):
+	nNutrientTimeSeries = len(sim_data.nutrientsTimeSeries)
+	return nNutrientTimeSeries
 
 
-def environment(sim_data, index):
-	# Knocks-out genes in order
+def nutrientTimeSeries(sim_data, index):
 
-	nEnvironments = environmentTotalIndices(sim_data)
+	nNutrientTimeSeries = nutrientTimeSeriesTotalIndices(sim_data)
 
-	if index % nEnvironments == 0:
+	if index % nNutrientTimeSeries == 0:
 		return CONTROL_OUTPUT, sim_data
 
-	environmentNames = sorted(sim_data.envDict)
-	envName = environmentNames[index]
-	sim_data.environment = envName
+	nutrientTimeSeriesLabels = sorted(sim_data.nutrientsTimeSeries)
+	nutrientTimeSeriesLabel = nutrientTimeSeriesLabels[index]
+	sim_data.nutrientsTimeSeriesLabel = nutrientTimeSeriesLabel
 
 	return dict(
-		shortName = "{}_env".format(envName),
-		desc = "Simulation of environment {}.".format(envName)
+		shortName = "{}_env".format(nutrientTimeSeriesLabel),
+		desc = "Simulation of environment {}.".format(nutrientTimeSeriesLabel)
 		), sim_data
