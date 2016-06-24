@@ -187,6 +187,11 @@ class FluxBalanceAnalysis(object):
 	_reactionID_NGAM = "Non-growth-associated maintenance reaction"
 	_reactionID_polypeptideElongationEnergy = "PolypeptideElongation energy reaction"
 
+	## MOMA
+	_generatedID_amountOver = "Amount {} flux is over target"
+	_generatedID_amountUnder = "Amount {} flux is under target"
+
+
 	# Default values, for clarity
 	_lowerBoundDefault = 0
 	_upperBoundDefault = np.inf
@@ -205,6 +210,11 @@ class FluxBalanceAnalysis(object):
 			raise SolverUnavailableError(
 				"Unrecognized or unavailable solver: {}".format(solver)
 				)
+
+		self.objectiveType = objectiveType
+
+		if objectiveType is None:
+			self.objectiveType = "standard"
 
 		self._solver = SOLVERS[solver]()
 
@@ -237,25 +247,26 @@ class FluxBalanceAnalysis(object):
 		self._initReactionNetwork(reactionStoich)
 		self._initExternalExchange(externalExchangedMolecules)
 
-		self._initObjectiveEquivalents(objective)
-
-		if objectiveType is None or objectiveType == "standard":
+		if self.objectiveType == "standard":
 			self._initObjectiveStandard(objective)
 
-		elif objectiveType == "flexible":
+		elif self.objectiveType == "flexible":
 			self._initObjectiveFlexible(objective, objectiveParameters)
 
-		elif objectiveType == "pools":
+		elif self.objectiveType == "pools":
 			self._initObjectivePools(objective)
 
 			if internalExchangedMolecules is not None:
 				raise FBAError(
-					"Internal exchange molecules are automatically defined when using objectiveType = \"pools\""
+					"Internal exchange molecules are automatically defined when using self.objectiveType = \"pools\""
 					)
-
 			internalExchangedMolecules = sorted(objective.keys())
+
+		elif self.objectiveType == "moma":
+			self._initObjectiveMOMA(objective, objectiveParameters)
+
 		else:
-			raise FBAError("Unrecognized objectiveType: {}".format(objectiveType))
+			raise FBAError("Unrecognized self.objectiveType: {}".format(self.objectiveType))
 
 		self._initInternalExchange(internalExchangedMolecules)
 
@@ -364,6 +375,8 @@ class FluxBalanceAnalysis(object):
 		the standard objective, all molecules must be created/destroyed in
 		prescribed ratios."""
 
+		self._initObjectiveEquivalents(objective)
+
 		for moleculeID in objective.viewkeys():
 			objectiveEquivID = self._generatedID_moleculeEquivalents.format(moleculeID)
 
@@ -383,6 +396,8 @@ class FluxBalanceAnalysis(object):
 		"""Create the abstractions needed for the flexFBA objective.  In brief,
 		flexFBA permits partial biomass objective satisfaction for individual
 		molecules if network disruptions inhibit molecule production."""
+
+		self._initObjectiveEquivalents(objective)
 
 		# Load parameters
 		leadingMoleculeID = objectiveParameters["leading molecule ID"]
@@ -505,6 +520,8 @@ class FluxBalanceAnalysis(object):
 		to minimize the distance between the current metabolite level and some
 		target level, as defined in the objective."""
 
+		self._initObjectiveEquivalents(objective)
+
 		if any(coeff < 0 for coeff in objective.viewvalues()):
 			raise FBAError("FBA with pools is not designed to use negative biomass coefficients")
 
@@ -566,6 +583,86 @@ class FluxBalanceAnalysis(object):
 				aboveUnityID,
 				+1
 				)
+
+	def _initObjectiveMOMA(self, objective, objectiveParameters=None):
+		""" Given a dict of reaction_name:rate (objective), attempts to
+			minimize the distance between fluxes and those rates.
+		If given, reactions in the list fixedReactionNames (which must be
+			included in objective) is exactly at its specified rate.
+		Classically, fixedReactionNames is the biomass reaction, and objective
+			contains a kinetically-predicted flux distribution
+		"""
+
+		if objectiveParameters is not None and "fixedReactionNames" in objectiveParameters:
+			fixedReactionNames = objectiveParameters["fixedReactionNames"]
+		else:
+			fixedReactionNames = []
+
+		# Make single-string arguments into list
+		if isinstance(fixedReactionNames, str):
+			fixedReactionNames = [fixedReactionNames]
+
+		# This is a minimization objective problem
+		self._solver.maximizeObjective(False)
+
+		nonObjectiveReactions = set()
+		for reactionName in fixedReactionNames:
+
+			# Check that fixed reactions are in the objective dict
+			if reactionName not in objective:
+				nonObjectiveReactions.add(reactionName)
+				continue
+
+		if len(nonObjectiveReactions) > 0:
+			raise FBAError("All fixed reactions must have an entry in the objective dict. No entry found for {}.".format(nonObjectiveReactions))
+
+		reactionStoich = self.reactionStoich()
+
+		self._errorFluxNames = set()
+
+		for reactionID in objective:
+
+			if reactionID not in reactionStoich:
+				raise FBAError("{} is not in the reaction network.".format(reactionID))
+
+			# Fix reaction to target flux
+			self.minReactionFluxIs(reactionID, objective[reactionID])
+			self.maxReactionFluxIs(reactionID, objective[reactionID])
+
+			# If reaction is not in the fixed reactions set, create relaxation fluxes for it
+			if reactionID not in fixedReactionNames:
+
+				## Above
+				# Add a pseudoreaction to allow the flux to be above its target
+				overTargetFlux = self._generatedID_amountOver.format(reactionID)
+				for materialID, coeff in reactionStoich[reactionID].iteritems():
+					self._solver.flowMaterialCoeffIs(
+						overTargetFlux,
+						materialID,
+						coeff
+						)
+				# The objective is to mimimize this relaxation
+				self._solver.flowObjectiveCoeffIs(
+					overTargetFlux,
+					+1
+					)
+
+				## Below
+				# Add a pseudoreaction to allow the flux to be below its target
+				underTargetFlux = self._generatedID_amountUnder.format(reactionID )
+				for materialID, coeff in reactionStoich[reactionID].iteritems():
+					self._solver.flowMaterialCoeffIs(
+						overTargetFlux,
+						materialID,
+						-coeff
+						)
+				# The objective is to mimimize this relaxation
+				self._solver.flowObjectiveCoeffIs(
+					overTargetFlux,
+					+1
+					)
+
+				self._errorFluxNames.add(reactionID)
 
 
 	def _initInternalExchange(self, internalExchangedMolecules):
@@ -961,20 +1058,6 @@ class FluxBalanceAnalysis(object):
 		i = self._outputMoleculeIDs.index(moleculeID)
 		self._outputMoleculeCoeffs[i][pseudoFluxID] = -coeff
 
-
-
-	# TODO: determine if this is needed
-
-	# def objectiveIs(self, objective):
-	# 	for moleculeID, coeff in objective.viewitems():
-	# 		molecule_materialIndex = self._materialIndex(moleculeID)
-
-	# 		pseudoFluxID = self._generatedID_moleculesToEquivalents.format(moleculeID)
-	# 		colIndex = self._fluxIndex(pseudoFluxID)
-
-	# 		self._A[molecule_materialIndex, colIndex] = -coeff
-
-
 	def maxMassAccumulatedIs(self, maxAccumulation):
 		self._solver.flowUpperBoundIs(
 			self._massExchangeOutName,
@@ -999,27 +1082,11 @@ class FluxBalanceAnalysis(object):
 
 		return -change
 
-
-	# def externalExchangeFlux(self, moleculeID):
-	# 	return -self._solver.flowRates(
-	# 		self._generatedID_externalExchange.format(moleculeID)
-	# 		)
-
-
 	def externalExchangeFluxes(self):
 		return self._solver.flowRates(self._externalExchangeIDs)
 
-
-	# def internalExchangeFlux(self, moleculeID):
-	# 	# TODO
-	# 	return -self._solutionFluxes[
-	# 		self._fluxIndex(self._generatedID_internalExchange.format(moleculeID))
-	# 		]
-
-
 	def reactionFlux(self, reactionID):
 		return self._solver.flowRates(reactionID)
-
 
 	def reactionFluxes(self):
 		return self._solver.flowRates(self._reactionIDs)
@@ -1030,14 +1097,40 @@ class FluxBalanceAnalysis(object):
 	def columnDualValues(self, moleculeIDs):
 		return self._solver.columnDualValues(moleculeIDs)
 
-	def objectiveReactionFlux(self): # TODO: rename to biomassReactionFlux
-		# catch exceptions
-		return self._solver.flowRates(self._standardObjectiveReactionName)
+	def biomassReactionFlux(self):
+		if self.objectiveType not in ("standard", "flexible", "moma"):
+			raise FBAError("There is no biomass reaction for this objective type ({})".format(self.objectiveType))
 
+		return self._solver.flowRates(self._standardObjectiveReactionName)[0]
 
 	def objectiveValue(self):
 		return self._solver.objectiveValue()
 
+	def errorFlux(self, reactionID):
+		if self.objectiveType is not "moma":
+			print "Error fluxes only apply for MOMA."
+			return
+		if reactionID not in self._errorFluxNames:
+			print "{} does not have an error flux.".format(reactionID)
+			return 0.
+		errorAbove = self.reactionFlux(self._generatedID_amountOver.format(reactionID))
+		errorBelow = self.reactionFlux(self._generatedID_amountUnder.format(reactionID))
+		return errorAbove - errorBelow
+
+	def errorFluxes(self, reactionIDs=None):
+		if reactionIDs is None:
+			reactionIDs = self.errorFluxNames()
+		values = np.zeros(len(reactionIDs))
+		for idx, reactionID in enumerate(reactionIDs):
+			values[idx] = self.errorFlux(reactionID)
+		return values
+
+	def errorFluxNames(self):
+		if self.objectiveType is not "moma":
+			print "Error fluxes only apply for MOMA."
+			return
+		else:
+			return sorted(self._errorFluxNames)
 
 	def getArrayBasedModel(self):
 		return {
@@ -1048,9 +1141,20 @@ class FluxBalanceAnalysis(object):
 		"Lower bounds":self._solver.getLowerBounds(),
 		}
 
-	# def enzymeUsage(self):
-	# 	return self._solutionFluxes[self._enzymeUsageRateConstrainedIndexes]
-
-
 	def massAccumulated(self):
 		return self._solver.flowRates(self._massExchangeOutName)
+
+
+	def reactionStoich(self):
+		reactionIdxToReactionName = {idx:name for name, idx in self._solver._flows.iteritems()}
+
+		reconstructedReactionStoich = {}
+		for materialName, reactionsList in self._solver._materialCoeffs.iteritems():
+			for (coeff, reactionIdx) in reactionsList:
+				reactionName = reactionIdxToReactionName[reactionIdx]
+				if reactionName not in reconstructedReactionStoich:
+					reconstructedReactionStoich[reactionName] = {}
+
+				reconstructedReactionStoich[reactionName][materialName] = coeff
+
+		return reconstructedReactionStoich
