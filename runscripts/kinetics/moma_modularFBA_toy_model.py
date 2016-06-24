@@ -18,6 +18,21 @@ toyModelReactionStoich = {
 	"Rres": {"NADH":-1, "O2":-1, "ATP":1},
 }
 
+toyModelReactionStoichWithBiomass = {
+	"R1": {"A":-1, "ATP":-1, "B":1},
+	"R2a": {"B":-1, "ATP":2, "NADH":2, "C":1},
+	"R2b": {"C":-1, "ATP":-2, "NADH":-2, "B":1},
+	"R3": {"B":-1, "F":1},
+	"R4": {"C":-1, "G":1},
+	"R5": {"G":-1, "C":0.8, "NADH":2},
+	"R6": {"C":-1, "ATP":2, "D":3},
+	"R7": {"C":-1, "NADH":-4, "E":3},
+	"R8a": {"G":-1, "ATP":-1, "NADH":-2, "H":1},
+	"R8b": {"G":1, "ATP":1, "NADH":2, "H":-1},
+	"Rres": {"NADH":-1, "O2":-1, "ATP":1},
+	"v_biomass": {"C":-1, "F":-1, "H":-1, "ATP":-10}
+}
+
 biomassReactionStoich = {
 	"v_biomass": {"C":1, "F":1, "H":1, "ATP":10}
 }
@@ -59,19 +74,32 @@ enzymeConcentrations = {
 	"Eres":10.0,
 }
 
-targetFluxes = {
-	"R1": 2.0,
-	"R2a": 2.0,
-	"R2b": 2.0,
-	"R3": 2.0,
-	"R4": 2.0,
-	"R5": 2.0,
-	"R6": 2.0,
-	"R7": 2.0,
-	"R8a": 2.0,
-	"R8b": 2.0,
-	"Rres": 2.0,
+enzymeKcats = {
+	"E1":1.0,
+	"E2a":.5,
+	"E2b":.5,
+	"E3":.01,
+	"E4":.01,
+	"E5":.2,
+	"E6":.3,
+	"E7":.4,
+	"E8a":.4,
+	"E8b":.4,
+	"Eres":.2,
 }
+
+def checkErrors(targetFluxes, fixedReactionNames=["v_biomass"], reactionStoichiometry=toyModelReactionStoichWithBiomass, transportLimits=transportLimits):
+	fba_moma = FluxBalanceAnalysis(
+		reactionStoich=reactionStoichiometry,
+		externalExchangedMolecules=transportLimits.keys(),
+		objective=targetFluxes,
+		objectiveType="moma",
+		objectiveParameters={"fixedReactionNames":fixedReactionNames},
+		solver="glpk",
+	)
+	exchangeMolecules = fba_moma.externalMoleculeIDs()
+	fba_moma.externalMoleculeLevelsIs([transportLimits[molID] for molID in exchangeMolecules])
+	return fba_moma.errorFluxes(), fba_moma.errorAdjustedReactionFluxes()
 
 fba = FluxBalanceAnalysis(
 	reactionStoich=toyModelReactionStoich,
@@ -80,21 +108,21 @@ fba = FluxBalanceAnalysis(
 	objectiveType="standard",
 	solver="glpk",
 )
+exchangeMolecules = fba.externalMoleculeIDs()
+fba.externalMoleculeLevelsIs([transportLimits[molID] for molID in exchangeMolecules])
+wildtypeBiomassFlux = fba.biomassReactionFlux()
 
-targetFluxes["v_biomass"] = fba.biomassReactionFlux()
+# Adjust kcats
+targetFluxes = {}
+for reactionID, enzymeID in reactionEnzymes.iteritems():
+	targetFluxes[reactionID] = enzymeConcentrations[enzymeID] * enzymeKcats[enzymeID]
+targetFluxes["v_biomass"] = wildtypeBiomassFlux
 
-# Make biomass reaction just another reaction for MOMA
-toyModelReactionStoich.update(biomassReactionStoich)
+errors, rates = checkErrors(targetFluxes)
 
-fba_moma = FluxBalanceAnalysis(
-	reactionStoich=toyModelReactionStoich,
-	externalExchangedMolecules=transportLimits.keys(),
-	objective=targetFluxes,
-	objectiveType="moma",
-	objectiveParameters={"fixedReactionNames":["v_biomass"]},
-	solver="glpk",
-)
+errors_dict = dict(zip(enzymeKcats, errors))
 
+kcat_adjustments = {enzymeID: error / enzymeConcentrations[enzymeID] for enzymeID, error in errors_dict.iteritems()}
 
-exchangeMolecules = fba_moma.externalMoleculeIDs()
-fba_moma.externalMoleculeLevelsIs([transportLimits[molID] for molID in exchangeMolecules])
+for enzymeID, error in kcat_adjustments.iteritems():
+	print "{} kcat error is {}.".format(enzymeID, error)

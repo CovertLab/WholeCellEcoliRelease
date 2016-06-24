@@ -641,6 +641,8 @@ class FluxBalanceAnalysis(object):
 						materialID,
 						coeff
 						)
+				self._specialFluxIDsSet.add(overTargetFlux)
+
 				# The objective is to mimimize this relaxation
 				self._solver.flowObjectiveCoeffIs(
 					overTargetFlux,
@@ -652,10 +654,15 @@ class FluxBalanceAnalysis(object):
 				underTargetFlux = self._generatedID_amountUnder.format(reactionID )
 				for materialID, coeff in reactionStoich[reactionID].iteritems():
 					self._solver.flowMaterialCoeffIs(
-						overTargetFlux,
+						underTargetFlux,
 						materialID,
 						-coeff
 						)
+				self._specialFluxIDsSet.add(underTargetFlux)
+
+				# The relaxation cannot allow overall negative flux
+				self.maxReactionFluxIs(underTargetFlux, objective[reactionID])
+
 				# The objective is to mimimize this relaxation
 				self._solver.flowObjectiveCoeffIs(
 					overTargetFlux,
@@ -1088,8 +1095,10 @@ class FluxBalanceAnalysis(object):
 	def reactionFlux(self, reactionID):
 		return self._solver.flowRates(reactionID)
 
-	def reactionFluxes(self):
-		return self._solver.flowRates(self._reactionIDs)
+	def reactionFluxes(self, reactionIDs=None):
+		if reactionIDs is None:
+			reactionIDs = self._reactionIDs
+		return self._solver.flowRates(reactionIDs)
 
 	def rowDualValues(self, moleculeIDs):
 		return self._solver.rowDualValues(moleculeIDs)
@@ -1100,7 +1109,6 @@ class FluxBalanceAnalysis(object):
 	def biomassReactionFlux(self):
 		if self.objectiveType not in ("standard", "flexible", "moma"):
 			raise FBAError("There is no biomass reaction for this objective type ({})".format(self.objectiveType))
-
 		return self._solver.flowRates(self._standardObjectiveReactionName)[0]
 
 	def objectiveValue(self):
@@ -1108,11 +1116,9 @@ class FluxBalanceAnalysis(object):
 
 	def errorFlux(self, reactionID):
 		if self.objectiveType is not "moma":
-			print "Error fluxes only apply for MOMA."
-			return
+			raise FBAError("Error fluxes only apply for MOMA.")
 		if reactionID not in self._errorFluxNames:
-			print "{} does not have an error flux.".format(reactionID)
-			return 0.
+			raise FBAError("{} does not have an error flux.".format(reactionID))
 		errorAbove = self.reactionFlux(self._generatedID_amountOver.format(reactionID))
 		errorBelow = self.reactionFlux(self._generatedID_amountUnder.format(reactionID))
 		return errorAbove - errorBelow
@@ -1125,10 +1131,14 @@ class FluxBalanceAnalysis(object):
 			values[idx] = self.errorFlux(reactionID)
 		return values
 
+	def errorAdjustedReactionFluxes(self, reactionIDs=None):
+		if reactionIDs is None:
+			reactionIDs = self.errorFluxNames()
+		return self.errorFluxes(reactionIDs) + self.reactionFluxes(reactionIDs)
+
 	def errorFluxNames(self):
 		if self.objectiveType is not "moma":
-			print "Error fluxes only apply for MOMA."
-			return
+			raise FBAError("Error fluxes only apply for MOMA.")
 		else:
 			return sorted(self._errorFluxNames)
 
