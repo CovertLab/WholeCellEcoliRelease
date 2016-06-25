@@ -118,15 +118,12 @@ class Metabolism(wholecell.processes.process.Process):
 			self.getMass(self.externalExchangeMolecules).asNumber(MASS_UNITS / COUNTS_UNITS)
 			))
 
-		self.reversibleReactions = sim_data.process.metabolism.reversibleReactions
-
 		# Set up FBA solver
 		self.fba = FluxBalanceAnalysis(
 			self.reactionStoich.copy(), # TODO: copy in class
 			self.externalExchangeMolecules,
 			self.objective,
 			objectiveType = "pools",
-			reversibleReactions = self.reversibleReactions,
 			moleculeMasses = self.moleculeMasses,
 			secretionPenaltyCoeff = SECRETION_PENALTY_COEFF, # The "inconvenient constant"--limit secretion (e.g., of CO2)
 			solver = "glpk",
@@ -223,7 +220,6 @@ class Metabolism(wholecell.processes.process.Process):
 				self.externalExchangeMolecules,
 				self.objective,
 				objectiveType = "pools",
-				reversibleReactions = self.reversibleReactions,
 				moleculeMasses = self.moleculeMasses,
 				secretionPenaltyCoeff = SECRETION_PENALTY_COEFF,
 				solver = "glpk",
