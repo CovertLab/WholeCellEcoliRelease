@@ -195,7 +195,7 @@ class FluxBalanceAnalysis(object):
 
 	def __init__(self, reactionStoich, externalExchangedMolecules, objective,
 			objectiveType = None, objectiveParameters = None,
-			internalExchangedMolecules = None, reversibleReactions = None,
+			internalExchangedMolecules = None,
 			secretionPenaltyCoeff = None, reactionEnzymes = None, reactionRates = None,
 			moleculeMasses = None, maintenanceCostGAM = None,
 			maintenanceReaction = None,
@@ -216,22 +216,6 @@ class FluxBalanceAnalysis(object):
 
 		# Keep track of non-standard reactions
 		self._specialFluxIDsSet = set()
-
-		# Set up reversible reactions
-		if reversibleReactions is not None:
-			for reactionID in reversibleReactions:
-				reverseReactionID = self._generatedID_reverseReaction.format(reactionID)
-
-				reactionStoich[reverseReactionID] = {
-					moleculeID:-stoichCoeff
-					for moleculeID, stoichCoeff in reactionStoich[reactionID].viewitems()
-					}
-
-				if reactionEnzymes is not None and reactionEnzymes.has_key(reactionID):
-					reactionEnzymes[reverseReactionID] = reactionEnzymes[reactionID]
-
-				if reactionRates is not None and reactionRates.has_key(reactionID):
-					reactionRates[reverseReactionID] = reactionRates[reactionID]
 
 		# Call indivdual initialization methods
 		self._initReactionNetwork(reactionStoich)
@@ -940,6 +924,19 @@ class FluxBalanceAnalysis(object):
 			minFlux
 			)
 
+	def setMaxReactionFluxes(self, reactionIDs, reactionRates, raiseForReversible=True):
+		if len(reactionIDs) != len(reactionRates):
+			raise Exception("There must be equal numbers of reactionIDs and rates to set limits.")
+
+		for idx, reactionID in enumerate(reactionIDs):
+			self.maxReactionFluxIs(reactionID, reactionRates[idx], raiseForReversible)
+
+	def setMinReactionFluxes(self, reactionIDs, reactionRates, raiseForReversible=True):
+		if len(reactionIDs) != len(reactionRates):
+			raise Exception("There must be equal numbers of reactionIDs and rates to set limits.")
+
+		for idx, reactionID in enumerate(reactionIDs):
+			self.minReactionFluxIs(reactionID, reactionRates[idx], raiseForReversible)
 
 	def setpointIs(self, moleculeID, coeff):
 		if moleculeID not in self._outputMoleculeIDs:
