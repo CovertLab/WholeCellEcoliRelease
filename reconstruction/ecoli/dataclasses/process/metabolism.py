@@ -38,6 +38,9 @@ class Metabolism(object):
 		# Load the biomass function flat file as a dict
 		biomassFunction = {entry['molecule id']:entry['coefficient'] for entry in raw_data.biomass}
 
+		observedBiomassMeans = {entry['molecule id']:entry['mean flux'] for entry in raw_data.previousBiomassFluxes}
+		observedBiomassStds = {entry['molecule id']:entry['standard deviation'] for entry in raw_data.previousBiomassFluxes}
+
 		# Create vector of metabolite pools (concentrations)
 
 		# Since the data only covers certain metabolites, we need to rationally
@@ -159,6 +162,8 @@ class Metabolism(object):
 			metaboliteConcentrations.append(value.asNumber(units.mol / units.L))
 
 		self.biomassFunction = biomassFunction
+		self.observedBiomassMeans = observedBiomassMeans
+		self.observedBiomassStds = observedBiomassStds
 		self.nutrientData = sim_data.nutrientData
 		self.concentrationUpdates = ConcentrationUpdates(dict(zip(
 			metaboliteIDs,
