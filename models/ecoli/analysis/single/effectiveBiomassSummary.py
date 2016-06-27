@@ -27,6 +27,8 @@ MAX_LEN = 10
 SAMPLE_EVERY = 1
 BURN_IN_PERIOD = 100
 
+NUMERICAL_ZERO = 1e-9
+
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
@@ -46,13 +48,32 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 
 	# Read previous biomass fluxes from file
-	import ipdb; ipdb.set_trace()
+	observedBiomassMeans = sim_data.process.metabolism.observedBiomassMeans
+	observedBiomassStds = sim_data.process.metabolism.observedBiomassStds
+
+	# Throw an exception if this cell's biomass fluxes do not match the flat file
+	# (indicates that the flat file needs to be changed/updated)
+	differingMeans, differingStds = set(), set()
+	for molID, simulationMean, simulationStd in zip(outputMoleculeIDs, mean_biomass, std_biomass):
+		if molID not in observedBiomassMeans or molID not in observedBiomassStds:
+			continue
+		observedMean = observedBiomassMeans[molID]
+		observedStd = observedBiomassStds[molID]
+		if np.abs(simulationMean - observedMean) > NUMERICAL_ZERO:
+			differingMeans.add(molID)
+		if np.abs(simulationStd - observedStd) > NUMERICAL_ZERO:
+			differingStds.add(molID)
+	if len(differingMeans) > 0 or len(differingStds) > 0:
+		raise Exception(
+			"Biomass fluxes predicted from the flat file in reconstruction do not match simulation fluxes. Differing means: {}, Differing std: {}".format(
+				differingMeans, differingStds)
+			)
 
 	# Write current biomass fluxes to file
 	with open(os.path.join(plotOutDir, plotOutFileName + '.tsv'), 'w') as output:
-		output.write("\"Molecule ID\"\t\"Mean Flux\"\t\"Standard Deviation\"\n")
+		output.write("\"molecule id\"\t\"mean flux\"\t\"standard deviation\"\n")
 		for molID, meanFlux, stdFlux in zip(outputMoleculeIDs, mean_biomass, std_biomass):
-			output.write("\t".join(['"'+json.encode(molID)'"', str(meanFlux), str(stdFlux)]) + "\n")
+			output.write("\t".join(['"'+unicode.encode(molID)+'"', str(meanFlux), str(stdFlux)]) + "\n")
 
 	# maxFluxIdx = np.argmax(mean_biomass)
 
