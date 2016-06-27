@@ -9,6 +9,7 @@ Plots fraction of mRNAs transcribed (out of all genes to be transcribed) for all
 
 import argparse
 import os
+import cPickle
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -33,10 +34,13 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	rnaIds = sim_data.process.transcription.rnaData["id"]
 	isMRna = sim_data.process.transcription.rnaData["isMRna"]
-	mRnaIds = rnaIds[isMRna]
+
+	mRnaIds = np.where(isMRna)[0]
+	mRnaNames = np.array([rnaIds[x] for x in mRnaIds])
 
 	# Get number of mRNAs transcribed
 	numGenesTranscribed = []
+	mRnasTranscribedPerGen = []
 	for simDir in allDir:
 		simOutDir = os.path.join(simDir, "simOut")
 
@@ -44,19 +48,31 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		moleculeCounts = bulkMolecules.readColumn("counts")[:, mRnaIds]
 		bulkMolecules.close()
 
-		# import ipdb; ipdb.set_trace()
+		moleculeCountsSumOverTime = moleculeCounts.sum(axis = 0)
+		mRnasTranscribed = np.array([x != 0 for x in moleculeCountsSumOverTime])
+		numGenesTranscribed.append(sum(mRnasTranscribed))
 
-		moleculeCountsSumOverTime = moleculeCounts.sum(axis = 1)
-		mRnasProduced = np.array([x != 0 for x in moleculeCountsSumOverTime])
-
-		numGenesTranscribed.append(sum(mRnasProduced))
+		# mRnasNotTranscribed = np.logical_not(mRnasTranscribed)
+		mRnasTranscribedNames = [mRnaNames[x] for x in np.arange(mRnaNames.shape[0]) if mRnasTranscribed[x]]
+		mRnasTranscribedPerGen.append(mRnasTranscribedNames)
 
 	# Plot
-	plt.scatter(np.arange(len(numGenesTranscribed)), numGenesTranscribed)	
-	plt.xlabel("Generation")
-	plt.ylabel("mRNAs transcribed\n(%i total mRNA transcripts)") % mRNAIds.shape[0]
-	plt.title("Number of mRNAs transcribed")
-	plt.xticks(generations)
+	numGens = len(numGenesTranscribed)
+	ax = plt.subplot(1, 1, 1)
+	ax.scatter(np.arange(numGens), numGenesTranscribed)	
+	ax.set_xlabel("Generation", fontsize = 10)
+	ax.set_ylabel("mRNAs transcribed", fontsize = 10)
+	ax.set_title("Number of mRNAs transcribed\n(" + str(mRnaIds.shape[0]) + " total mRNA transcripts)", fontsize = 10)
+	ax.set_xticks(np.arange(numGens))
+	ax.set_ylim([0, 4353])
+
+	# Plot names of transcribed mRNAs on the plot
+
+	# for gen in np.arange(numGens):
+	# 	text = str()
+	# 	for mRna in mRnasTranscribedPerGen[gen]:
+	# 		text += str(mRna) + "\n"
+	# 	ax.text(gen, numGenesTranscribed[gen], text, fontsize = 6)
 
 
 	from wholecell.analysis.analysis_tools import exportFigure
