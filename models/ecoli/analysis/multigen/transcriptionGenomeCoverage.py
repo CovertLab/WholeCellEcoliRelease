@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
+from wholecell.utils import units
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
@@ -26,10 +27,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-
-
-
-
 	# Get all cells
 	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 	allDir = ap.get_cells()
@@ -38,23 +35,24 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	rnaIds = sim_data.process.transcription.rnaData["id"]
 	isMRna = sim_data.process.transcription.rnaData["isMRna"]
+	degRate = sim_data.process.transcription.rnaData["degRate"]
 	basalExpression = sim_data.process.transcription.rnaExpression["basal"]
-	# basalExpression = sim_data.process.transcription.rnaSynthProb["basal"]
-
-
-
+	synthProb = sim_data.process.transcription.rnaSynthProb["basal"]
 	mRnaIds = np.where(isMRna)[0]
+
 	mRnaBasalExpression = np.array([basalExpression[x] for x in mRnaIds])
+	mRnaSynthProb = np.array([synthProb[x] for x in mRnaIds])
+	mRnaDegRate = np.array([degRate[x] for x in mRnaIds])
 	mRnaNames = np.array([rnaIds[x] for x in mRnaIds])
 
 	# Sort in order of decreasing basal expression
 	descendingOrderIndexing = np.argsort(mRnaBasalExpression)[::-1]
 	mRnaBasalExpressionSorted = mRnaBasalExpression[descendingOrderIndexing]
+	mRnaSynthProbSorted = mRnaSynthProb[descendingOrderIndexing]
+	mRnaDegRateSorted = mRnaDegRate[descendingOrderIndexing]
 	mRnaNamesSorted = mRnaNames[descendingOrderIndexing]
 
 	# Get number of mRNAs transcribed
-	numGenesTranscribed = []
-	mRnasTranscribedPerGen = []
 	transcribedBool = []
 
 	for simDir in allDir:
@@ -68,41 +66,54 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		moleculeCountsSumOverTime = moleculeCounts.sum(axis = 0)
 		mRnasTranscribed = np.array([x != 0 for x in moleculeCountsSumOverTime])
-		numGenesTranscribed.append(np.sum(mRnasTranscribed))
 
 		mRnasTranscribedNames = [mRnaNames[x] for x in np.arange(mRnaNames.shape[0]) if mRnasTranscribed[x]]
-		mRnasTranscribedPerGen.append(mRnasTranscribedNames)
 
 		transcribedBool.append(mRnasTranscribed)
 
 	transcribedBool = np.array(transcribedBool)
-	numGenesTranscribed = np.array(numGenesTranscribed)
 
 	# Plot
-	numGens = numGenesTranscribed.shape[0]
+	numGens = allDir.shape[0]
 	numMRnas = mRnaNamesSorted.shape[0]
-	fig = plt.figure(figsize = (20, 10))
+	fig = plt.figure(figsize = (20, 15))
 
-	rows = numGens + 1
+	rows = numGens + 1 + 3
 	cols = 1
 	xvals = np.arange(numMRnas)
 	intersection = np.ones((1, numMRnas), dtype = bool)
 
-	for idx in np.arange(numGens):
-		ax = plt.subplot(rows, cols, idx + 1)
+	# Plot expression
+	ax = plt.subplot(rows, cols, 1)
+	ax.vlines(xvals, [0], mRnaBasalExpressionSorted)
+	ax.set_title("Basal expression")
+
+	# Plot synthesis prob
+	ax = plt.subplot(rows, cols, 2)
+	ax.vlines(xvals, [0], mRnaSynthProbSorted)
+	ax.set_title("Synthesis probability")
+
+	# Plot deg rate
+	ax = plt.subplot(rows, cols, 3)
+	ax.vlines(xvals, [0], np.array([x.asNumber( 1 / units.s) for x in mRnaDegRateSorted]))
+	ax.set_title("Degradation rate")
+
+	# Plot binary plot for each generation
+	for idx, subplotIdx in enumerate(np.arange(4, 4 + numGens)):
+		ax = plt.subplot(rows, cols, subplotIdx)
 		ax.vlines(xvals, [0], transcribedBool[idx], color = "0.25")
 		ax.set_title("Generation %s" % idx, fontsize = 14)
 		ax.set_yticks([])
 		ax.set_xlim([0, numMRnas])
 
-		ax.vlines(xvals[:2600], [0], np.logical_not(transcribedBool[idx][:2600]), color = "#3399ff")
+		ax.vlines(xvals[:2500], [0], np.logical_not(transcribedBool[idx][:2500]), color = "#3399ff")
 
 		intersection = np.logical_and(intersection, transcribedBool[idx])
 
 	ax = plt.subplot(rows, cols, rows)
 	ax.set_title("Intersection of all generations", fontsize = 14)
 	ax.vlines(xvals, [0], intersection[0])
-	# ax.vlines(xvals[:2500], [0], np.logical_not(intersection[idx][:2500]), color = "#3399ff")
+	ax.vlines(xvals[:2500], [0], np.logical_not(intersection[:2500]), color = "#3399ff")
 	ax.set_xlabel("mRNA transcripts\nin order of decreasing expected basal expression", fontsize = 14)
 	ax.set_yticks([])
 	ax.set_xlim([0, numMRnas])
@@ -115,29 +126,41 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	plt.close("all")
 
 
-	# Plot polar representation of the most differing set of mRNAs
-	mostDifferentlyTranscribed = []
-	for mRnaIdx in np.arange(numMRnas):
-		if np.sum(transcribedBool[:, mRnaIdx]) not in [0, 3]:
-			mostDifferentlyTranscribed.append(mRnaIdx)
+	# # Plot polar coordinate representation of the most differing set of mRNAs across generations
+	# mostDifferentlyTranscribed = []
+	# for mRnaIdx in np.arange(numMRnas):
+	# 	if np.sum(transcribedBool[:, mRnaIdx]) not in [0, numGens]:
+	# 		mostDifferentlyTranscribed.append(mRnaIdx)
 
-	mostDifferentlyTranscribed = np.array(mostDifferentlyTranscribed)
-	numMRnasPolar = mostDifferentlyTranscribed.shape[0]
+	# mostDifferentlyTranscribed = np.array(mostDifferentlyTranscribed)
+	# numMRnasPolar = mostDifferentlyTranscribed.shape[0]
 
-	fig = plt.figure(figsize = (12, 12))
-	plotOutFileName = "transcriptionGenomeCoveragePolar"
+	# fig = plt.figure(figsize = (12, 12))
+	# plotOutFileName = "transcriptionGenomeCoveragePolar"
 
-	rGen = 1
-	rSpace = 0.25
-	ax.set_ylim([0, ((rSpace + rSpace)* numGens)])
-	ax = plt.subplot(1, 1, 1, polar = True)
+	# rGen = 1
+	# rSpace = 0.25
+	# ax.set_ylim([0, ((rSpace + rSpace)* numGens)])
+	# ax = plt.subplot(1, 1, 1, polar = True)
+	# colors = ["0.2", "0.4", "0.6", "0.8"]
 
-	for idx in np.arange(numGens - 1, -1, -1):
-		radius = np.ones(numMRnasPolar) * (idx + 1) * (rGen + rSpace) * transcribedBool[idx, mostDifferentlyTranscribed]
-		ax.plot(np.linspace(0, 2*np.pi, numMRnasPolar), radius)
-		ax.fill_between(np.linspace(0, 2*np.pi, numMRnasPolar), radius, 0)
+	# for idx in np.arange(numGens - 1, -1, -1):
+	# 	radius = np.ones(numMRnasPolar) * (idx + 1) * (rGen + rSpace) * transcribedBool[idx, mostDifferentlyTranscribed]
+	# 	ax.plot(np.linspace(0, 2*np.pi, numMRnasPolar), radius, colors[idx])
+	# 	ax.fill_between(np.linspace(0, 2*np.pi, numMRnasPolar), radius, 0, color = colors[idx])
 
-	ax.plot(np.linspace(0, 2*np.pi, 2), [True, False])
+	# 	# white space
+	# 	# rWhiteSpace = np.ones(numMRnasPolar) * idx * (rGen + rSpace)
+	# 	# ax.fill_between(np.linspace(0, 2*np.pi, numMRnasPolar), rWhiteSpace + rSpace, 0, color = "white")
+
+	# radius = numGens * (rGen + rSpace)
+	# thetaVals = np.linspace(0, 2*np.pi, numMRnasPolar)
+	# for thetaIndex, idx in enumerate(mostDifferentlyTranscribed):
+	# 	ax.annotate(str(mRnaNamesSorted[mostDifferentlyTranscribed[thetaIndex]]),
+	# 				xy = (thetaVals[thetaIndex], radius),
+	# 				)
+
+
 
 	ax.grid(False)
 	ax.set_xticks([])
@@ -147,6 +170,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 
 	plt.close("all")
+	# import ipdb; ipdb.set_trace()
+
 
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(
