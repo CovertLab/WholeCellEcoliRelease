@@ -665,7 +665,7 @@ class FluxBalanceAnalysis(object):
 
 				# The objective is to mimimize this relaxation
 				self._solver.flowObjectiveCoeffIs(
-					overTargetFlux,
+					underTargetFlux,
 					+1
 					)
 
