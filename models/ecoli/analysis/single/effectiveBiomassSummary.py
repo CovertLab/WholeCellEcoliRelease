@@ -27,7 +27,8 @@ MAX_LEN = 10
 SAMPLE_EVERY = 1
 BURN_IN_PERIOD = 100
 
-NUMERICAL_ZERO = 1e-9
+PERCENT_DIFFERENCE_TOLERANCE = 1
+LOWER_CONC_RELEVANCE_BOUND = 1e-10
 
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
@@ -42,8 +43,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	outputMoleculeIDs = np.array(fbaResults.readAttribute("outputMoleculeIDs"))
 	fbaResults.close()
 
-	mean_biomass = np.mean(outputFluxes, axis=0)
-	std_biomass = np.std(outputFluxes, axis=0)
+	mean_biomass = np.mean(outputFluxes[BURN_IN_PERIOD:], axis=0)
+	std_biomass = np.std(outputFluxes[BURN_IN_PERIOD:], axis=0)
 
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 
@@ -59,14 +60,17 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 			continue
 		observedMean = observedBiomassMeans[molID]
 		observedStd = observedBiomassStds[molID]
-		if np.abs(simulationMean - observedMean) > NUMERICAL_ZERO:
-			differingMeans.add(molID)
-		if np.abs(simulationStd - observedStd) > NUMERICAL_ZERO:
-			differingStds.add(molID)
+		# print "\t".join([molID, str(observedMean), str(simulationMean), str(np.abs(simulationMean - observedMean) / observedMean)])
+		if np.abs(simulationMean - observedMean) / observedMean > PERCENT_DIFFERENCE_TOLERANCE:
+			if simulationMean - observedMean > LOWER_CONC_RELEVANCE_BOUND:
+				differingMeans.add(molID)
+		if np.abs(simulationStd - observedStd) / observedStd > PERCENT_DIFFERENCE_TOLERANCE:
+			if simulationStd - observedStd > LOWER_CONC_RELEVANCE_BOUND:
+				differingStds.add(molID)
 	if len(differingMeans) > 0 or len(differingStds) > 0:
 		raise Exception(
-			"Biomass fluxes predicted from the flat file in reconstruction do not match simulation fluxes. Differing means: {}, Differing std: {}".format(
-				differingMeans, differingStds)
+			"Biomass fluxes predicted from the flat file in reconstruction do not match simulation fluxes. {} differing means: {}\n\n, {} differing std: {}".format(
+				len(differingMeans), differingMeans, len(differingStds), differingStds)
 			)
 
 	# Write current biomass fluxes to file
