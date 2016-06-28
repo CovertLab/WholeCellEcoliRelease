@@ -224,6 +224,8 @@ class FluxBalanceAnalysis(object):
 		self._outputMoleculeIDs = []
 		self._outputMoleculeCoeffs = []
 
+		self.reactionStoich = reactionStoich
+
 		# Keep track of non-standard reactions
 		self._specialFluxIDsSet = set()
 
@@ -616,13 +618,11 @@ class FluxBalanceAnalysis(object):
 		if len(nonObjectiveReactions) > 0:
 			raise FBAError("All fixed reactions must have an entry in the objective dict. No entry found for {}.".format(nonObjectiveReactions))
 
-		reactionStoich = self.reactionStoich()
-
 		self._errorFluxNames = set()
 
 		for reactionID in objective:
 
-			if reactionID not in reactionStoich:
+			if reactionID not in self.reactionStoich:
 				raise FBAError("{} is not in the reaction network.".format(reactionID))
 
 			# Fix reaction to target flux
@@ -635,7 +635,7 @@ class FluxBalanceAnalysis(object):
 				## Above
 				# Add a pseudoreaction to allow the flux to be above its target
 				overTargetFlux = self._generatedID_amountOver.format(reactionID)
-				for materialID, coeff in reactionStoich[reactionID].iteritems():
+				for materialID, coeff in self.reactionStoich[reactionID].iteritems():
 					self._solver.flowMaterialCoeffIs(
 						overTargetFlux,
 						materialID,
@@ -652,7 +652,7 @@ class FluxBalanceAnalysis(object):
 				## Below
 				# Add a pseudoreaction to allow the flux to be below its target
 				underTargetFlux = self._generatedID_amountUnder.format(reactionID )
-				for materialID, coeff in reactionStoich[reactionID].iteritems():
+				for materialID, coeff in self.reactionStoich[reactionID].iteritems():
 					self._solver.flowMaterialCoeffIs(
 						underTargetFlux,
 						materialID,
@@ -1092,6 +1092,19 @@ class FluxBalanceAnalysis(object):
 	def externalExchangeFluxes(self):
 		return self._solver.flowRates(self._externalExchangeIDs)
 
+	def externalExchangeFlux(self, moleculeID):
+		fluxID = self._generatedID_externalExchange.format(moleculeID)
+		if fluxID not in self._externalExchangeIDs:
+			raise FBAError("{} is not a known externally exchanged molecule.".format(moleculeID))
+		return -self._solver.flowRates(fluxID)
+
+	# def internalExchangeFlux(self, moleculeID):
+	# 	if moleculeID not in self._fluxIndex:
+	# 		raise FBAError("{} is not a known internally exchanged molecule.".format(moleculeID))
+	# 	return -self._solutionFluxes[
+	# 		self._fluxIndex(self._generatedID_internalExchange.format(moleculeID))
+	# 		]
+
 	def reactionFlux(self, reactionID):
 		return self._solver.flowRates(reactionID)
 
@@ -1153,18 +1166,3 @@ class FluxBalanceAnalysis(object):
 
 	def massAccumulated(self):
 		return self._solver.flowRates(self._massExchangeOutName)
-
-
-	def reactionStoich(self):
-		reactionIdxToReactionName = {idx:name for name, idx in self._solver._flows.iteritems()}
-
-		reconstructedReactionStoich = {}
-		for materialName, reactionsList in self._solver._materialCoeffs.iteritems():
-			for (coeff, reactionIdx) in reactionsList:
-				reactionName = reactionIdxToReactionName[reactionIdx]
-				if reactionName not in reconstructedReactionStoich:
-					reconstructedReactionStoich[reactionName] = {}
-
-				reconstructedReactionStoich[reactionName][materialName] = coeff
-
-		return reconstructedReactionStoich
