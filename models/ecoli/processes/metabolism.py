@@ -134,15 +134,7 @@ class Metabolism(wholecell.processes.process.Process):
 			)
 
 		# Matrix mapping enzymes to the reactions they catalyze
-		self.enzymeReactionMatrix = np.zeros((len(self.fba.reactionIDs()),len(self.enzymeNames)))
-		for rxnIdx, reactionID in enumerate(self.fba.reactionIDs()):
-			if reactionID in self.reactionEnzymes:
-				for enzymeName in self.reactionEnzymes[reactionID]:
-					if enzymeName in self.enzymeNames:
-						enzymeIdx = self.enzymeNames.index(enzymeName)
-						self.enzymeReactionMatrix[rxnIdx, enzymeIdx] = 1
-		# Any reaction without an associated enzyme should be treated as spontaneous
-		self.enzymeReactionMatrix[np.where(np.sum(self.enzymeReactionMatrix, axis=1) == 0)] = np.inf
+		self.enzymeReactionMatrix = sim_data.process.metabolism.enzymeReactionMatrix(self.fba.reactionIDs(), self.enzymeNames, self.reactionEnzymes)
 
 		self.kcat_max = sim_data.constants.carbonicAnhydraseKcat
 

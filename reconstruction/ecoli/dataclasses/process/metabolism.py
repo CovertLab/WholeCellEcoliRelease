@@ -379,6 +379,26 @@ class Metabolism(object):
 
 		return new_reaction_enzymes
 
+	def enzymeReactionMatrix(self, reactionIDs, enzymeNames, reactionEnzymesDict):
+		"""
+		Builds a (num reactions) by (num enzymes) matrix which maps enzyme concentrations to overall reaction rate.
+		reactionEnzymesDict is a dict from reactionID:[list of enzymes catalyzing this reaction]
+		Any reactions without an associated enzyme in reactionEnzymesDict are treated as spontaneous (whole row is set to inf).
+		"""
+		assert sorted(reactionIDs) == sorted(reactionEnzymesDict.keys())
+
+		enzymeReactionMatrix = np.zeros((len(reactionIDs),len(enzymeNames)))
+		for rxnIdx, reactionID in enumerate(reactionIDs):
+			if reactionID in reactionEnzymesDict:
+				for enzymeName in reactionEnzymesDict[reactionID]:
+					if enzymeName in enzymeNames:
+						enzymeIdx = enzymeNames.index(enzymeName)
+						enzymeReactionMatrix[rxnIdx, enzymeIdx] = 1
+		# Any reaction without an associated enzyme should be treated as spontaneous
+		enzymeReactionMatrix[np.where(np.sum(enzymeReactionMatrix, axis=1) == 0)] = np.inf
+		return enzymeReactionMatrix
+
+
 class ConcentrationUpdates(object):
 	def __init__(self, concDict, equilibriumReactions, nutrientData):
 		self.units = units.getUnit(concDict.values()[0])
