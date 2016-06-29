@@ -68,7 +68,6 @@ class SimulationDataEcoli(object):
 
 		#### VARIANT CODE ####
 		self.translationSaturation = True
-		self.scaling_factor = 1.0
 		#### VARIANT CODE ####
 
 	def _addHardCodedAttributes(self):
