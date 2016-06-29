@@ -217,7 +217,7 @@ class Metabolism(object):
 
 			# Add the reverse reaction
 			if reversible:
-				reverseReactionID = reactionID.format(reverseReactionString)
+				reverseReactionID = reverseReactionString.format(reactionID)
 				reactionStoich[reverseReactionID] = {
 					moleculeID:-stoichCoeff
 					for moleculeID, stoichCoeff in reactionStoich[reactionID].viewitems()

@@ -606,13 +606,6 @@
 "RXN0-5065_2_kcat_79"	"RXN0-5065"	["CPLX0-3941"]	["4-HYDROXYPHENYLACETYL-COA"]	"standard"		[79]	[]	[]	null	null	null	null	null	1
 "RXN0-5065_3"	"RXN0-5065"	["CPLX0-3941"]	["34-DIHYDROXYPHENYLACETYL-COA"]	"standard"		[100]	[16]	[]	null	null	null	null	null	1
 "RXN0-5065_3_kcat_100"	"RXN0-5065"	["CPLX0-3941"]	["34-DIHYDROXYPHENYLACETYL-COA"]	"standard"		[100]	[]	[]	null	null	null	null	null	1
-"RXN0-5387"	"RXN0-5387"	["G7868-MONOMER"]	["NADPH"]	"standard"		[6]	[170]	[]	null	null	null	null	null	1
-"RXN0-5387_kcat_6"	"RXN0-5387"	["G7868-MONOMER"]	["NADPH"]	"standard"		[6]	[]	[]	null	null	null	null	null	1
-"RXN0-5387_2"	"RXN0-5387"	["G7868-MONOMER"]	["CPD0-1156","NADH"]	"standard"		[370,8.9]	[14,5.8]	[]	null	null	null	null	null	1
-"RXN0-5387_2_full_kcat_370"	"RXN0-5387"	["G7868-MONOMER"]	["CPD0-1156","NADH"]	"standard"		[370]	[14,5.8]	[]	null	null	null	null	null	1
-"RXN0-5387_2_full_kcat_8.9"	"RXN0-5387"	["G7868-MONOMER"]	["CPD0-1156","NADH"]	"standard"		[8.9]	[14,5.8]	[]	null	null	null	null	null	1
-"RXN0-5387_2_kcat_370"	"RXN0-5387"	["G7868-MONOMER"]	["CPD0-1156","NADH"]	"standard"		[370]	[]	[]	null	null	null	null	null	1
-"RXN0-5387_2_kcat_8.9"	"RXN0-5387"	["G7868-MONOMER"]	["CPD0-1156","NADH"]	"standard"		[8.9]	[]	[]	null	null	null	null	null	1
 "PHENDEHYD-RXN"	"PHENDEHYD-RXN"	["PHENDEHYD-CPLX"]	["PHENYLACETALDEHYDE"]	"standard"		[96.83]	[11.6]	[]	null	null	null	null	null	1
 "PHENDEHYD-RXN_kcat_96.83"	"PHENDEHYD-RXN"	["PHENDEHYD-CPLX"]	["PHENYLACETALDEHYDE"]	"standard"		[96.83]	[]	[]	null	null	null	null	null	1
 "GLYCOLALD-DEHYDROG-RXN"	"GLYCOLALD-DEHYDROG-RXN"	["ALD-CPLX"]	["GLYCOLALDEHYDE"]	"standard"		[18.33]	[140]	[]	null	null	null	null	null	1
