@@ -87,7 +87,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.isRnap = sim_data.process.transcription.rnaData['isRnap']
 		self.notPolymerase = np.logical_and(np.logical_and(np.logical_not(self.isRRna),np.logical_not(self.isRProtein)), np.logical_not(self.isRnap))
 
-		assert (self.isRRna + self.isRProtein + self.isRnap + self.notPolymerase).sum() == self.rnaSynthProb.size
+		assert (self.isRRna + self.isRProtein + self.isRnap + self.notPolymerase).sum() == self.rnaLengths.asNumber().size
 
 		self.rProteinToRRnaRatioVector = None
 
@@ -95,6 +95,8 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.inactiveRnaPolys.requestAll()
 		self.rnaSynthProb = self.recruitmentMatrix.dot(self.recruitmentView.total())
 		self.rnaSynthProb /= self.rnaSynthProb.sum()
+
+		self.rProteinToRRnaRatioVector = self.rnaSynthProb[self.isRProtein] / self.rnaSynthProb[self.isRRna][0]
 
 	# Calculate temporal evolution
 	def evolveState(self):
@@ -131,10 +133,9 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		totalRnapCount = self.activeRnaPolys.total() + self.inactiveRnaPolys.total() or np.array([1])
 		totalRibosomeCount = self.activeRibosomes.total() or np.array([1])
-
 		ratioRNAPToRibosome = totalRnapCount / totalRibosomeCount.astype(np.float)
-		offset = np.clip(0.25 - ratioRNAPToRibosome, -1 * self.rnaSynthProbStandard[self.isRnap].min(), 1.)
-		rnapSynthProb = self.rnaSynthProbStandard[self.isRnap] + (offset / 10)
+		offset = np.clip(0.25 - ratioRNAPToRibosome, -1 * self.rnaSynthProb[self.isRnap].min(), 1.)
+		rnapSynthProb = self.rnaSynthProb[self.isRnap] + (offset / 10)
 
 		print "Expected init rate: {}".format(expectedRibosomeInitiationRate.asNumber(1/units.s))
 		self.writeToListener("RibosomeData", "expectedInitRate", expectedRibosomeInitiationRate.asNumber(1/units.s))
@@ -156,7 +157,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 			totalPolymeraseComponent = totalRRnaSynthProb + totalRProteinSynthProb + totalRnapSynthProb
 
-		print "Correct prob: {}".format(self.rnaSynthProbStandard[self.isRRna].sum() + self.rnaSynthProbStandard[self.isRProtein].sum())
+		print "Correct prob: {}".format(self.rnaSynthProb[self.isRRna].sum() + self.rnaSynthProb[self.isRProtein].sum())
 		print "Actual prob: {}".format(totalPolymeraseComponent)
 
 		self.rnaSynthProb[self.isRRna] = rRnaSynthesisProb * np.ceil(self.rnaSynthProb[self.isRRna]) # HACK ALERT: Only getting used ribosome rrn operons using this ceil function need to fix this.
@@ -165,7 +166,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		self.rnaSynthProb[self.isRnap] = rnapSynthProb
 
-		self.rnaSynthProb[self.notPolymerase] = (1 - totalPolymeraseComponent) / self.rnaSynthProbStandard[self.notPolymerase].sum() * self.rnaSynthProbStandard[self.notPolymerase]
+		self.rnaSynthProb[self.notPolymerase] = (1 - totalPolymeraseComponent) / self.rnaSynthProb[self.notPolymerase].sum() * self.rnaSynthProb[self.notPolymerase]
 
 		assert np.allclose(self.rnaSynthProb.sum(),1.)
 		assert np.all(self.rnaSynthProb >= 0.)
