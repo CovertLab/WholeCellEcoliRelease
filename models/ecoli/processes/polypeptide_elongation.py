@@ -80,10 +80,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.maxRibosomeElongationRate = float(sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s))
 
 		##########
-		aaConcentrations = units.getUnit(sim_data.process.metabolism.concDict.items()[0][1]) * np.array([sim_data.process.metabolism.concDict[x].asNumber() for x in sim_data.moleculeGroups.aaIDs])
-		total_aa_concentration = units.sum(aaConcentrations)
-		sim_data.synthetase_km_scale = 0.3
-		self.saturation_km = sim_data.synthetase_km_scale * total_aa_concentration
+		self.saturation_km = sim_data.constants.translation_km
 		##########
 
 		# Views
@@ -107,7 +104,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		###### VARIANT CODE #######
 		self.translationSaturation = sim_data.translationSaturation
-		self.synthetase_km_scale = sim_data.synthetase_km_scale
 		###### VARIANT CODE #######
 
 	def calculateRequest(self):
@@ -136,10 +132,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		if self.translationSaturation:
 			cellMass = (self.readFromListener("Mass", "cellMass") * units.fg)
 			cellVolume = cellMass / self.cellDensity
-			aaTotalConc = units.sum((1 / self.nAvogadro) * (1 / cellVolume) * self.aas.total())
+			aaConc = (1 / self.nAvogadro) * (1 / cellVolume) * self.aas.total()
 
-			# translation_machinery_saturation = (1 + self.synthetase_km_scale) * (aaTotalConc / (self.saturation_km + aaTotalConc))
-			translation_machinery_saturation = (aaTotalConc / (self.saturation_km + aaTotalConc))
+			translation_machinery_saturation = (aaConc / (self.saturation_km + aaConc))
 			translation_machinery_saturation = units.convertNoUnitToNumber(translation_machinery_saturation)
 
 			aasRequested = np.floor(aasInSequences * translation_machinery_saturation)
@@ -157,7 +152,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			gtpsHydrolyzed = np.int64(np.ceil(
 				self.gtpPerElongation * np.fmin(
 					sequenceHasAA.sum(),
-					np.floor(self.aas.total().sum() * translation_machinery_saturation)
+					np.floor((self.aas.total() * translation_machinery_saturation).sum())
 					)
 				))
 		else:

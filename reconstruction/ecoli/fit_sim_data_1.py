@@ -116,7 +116,7 @@ def buildBasalCellSpecifications(sim_data):
 	sim_data.process.transcription.rnaSynthProb["basal"][:] = cellSpecs["basal"]["synthProb"]
 
 	translation_km = translationKmBasal(sim_data, bulkContainer, cellSpecs["basal"]["concDict"])
-	cellSpecs["basal"]["translation_km"] = translation_km
+	sim_data.constants.translation_km = translation_km
 
 	return cellSpecs
 
