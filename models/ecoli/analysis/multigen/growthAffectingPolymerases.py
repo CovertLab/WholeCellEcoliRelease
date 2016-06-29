@@ -38,7 +38,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	fig = plt.figure()
 	fig.set_size_inches(10,12)
-	gs = gridspec.GridSpec(9, 3)
+	gs = gridspec.GridSpec(10, 3)
 
 	ax1 = plt.subplot(gs[0,:2])
 	ax1_1 = plt.subplot(gs[0,2])
@@ -51,6 +51,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax7 = plt.subplot(gs[6,:2])
 	ax8 = plt.subplot(gs[7,:2])
 	ax9 = plt.subplot(gs[8,:2])
+	ax10 = plt.subplot(gs[9,:2])
 
 	for gen, simDir in enumerate(firstCellLineage):
 		simOutDir = os.path.join(simDir, "simOut")
@@ -82,6 +83,16 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		# Calculate statistics
 		totalRnap = rnapCountsBulk + rnapCountsActive
 		fractionRnapActive = rnapCountsActive / (rnapCountsActive + rnapCountsBulk)
+
+		## Mass fraction statistics ##
+
+		massDataFile = TableReader(os.path.join(simOutDir, "Mass"))
+		rnaMass = massDataFile.readColumn("rnaMass")
+		proteinMass = massDataFile.readColumn("proteinMass")
+		cellMass = massDataFile.readColumn("cellMass")
+
+		ratioRnaToProteinMass = rnaMass / proteinMass
+
 
 		## Ribosome counts and statistics ##
 
@@ -156,6 +167,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		## Calculate statistics involving ribosomes and RNAP ##
 		ratioRNAPtoRibosome = totalRnap.astype(np.float) / ribosomeCounts.astype(np.float)
+		ribosomeConcentration = ((1 / sim_data.constants.nAvogadro) * ribosomeCounts) / ((1.0 / sim_data.constants.cellDensity) * (units.fg * cellMass))
 
 		## Plotting ##
 
@@ -208,24 +220,30 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ax6.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 		ax6.set_ylabel("30S & 50S\ncounts")
 
-		# Plot ribosome counts
-		ax7.plot(time.asNumber(units.min), ribosomeCounts)
+		# Plot ribosome concentration
+		ax7.plot(time.asNumber(units.min), ribosomeConcentration.asNumber(units.mmol / units.L))
 		ax7.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
-		ax7.set_ylabel("Ribosome counts")
+		ax7.set_ylim([ribosomeConcentration.asNumber(units.mmol / units.L)[10:].min(), ribosomeConcentration.asNumber(units.mmol / units.L).max()])
+		ax7.set_ylabel("[Ribosome]\n(mM)")
+
+		# Plot ratio 
+		ax8.plot(time.asNumber(units.min), ratioRnaToProteinMass)
+		ax8.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
+		ax8.set_ylabel("RNA/Protein")
 
 		# Plot RNAP:ribosome ratio
-		ax8.plot(time.asNumber(units.min), ratioRNAPtoRibosome)
-		ax8.plot(time.asNumber(units.min), ratioRNAPtoRibosome.mean() * np.ones(time.asNumber().size), linestyle='--')
-		ax8.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
-		ax8.set_ylabel("RNAP:Ribosome\ncounts")
+		ax9.plot(time.asNumber(units.min), ratioRNAPtoRibosome)
+		ax9.plot(time.asNumber(units.min), ratioRNAPtoRibosome.mean() * np.ones(time.asNumber().size), linestyle='--')
+		ax9.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
+		ax9.set_ylabel("RNAP:Ribosome\ncounts")
 
 		# Plot number of "extra" ribosomes
-		ax9.plot(time.asNumber(units.min), extraRibosomes)
-		ax9.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
-		ax9.set_ylim([0, 100])
-		ax9.set_ylabel("% extra\nribosomes")
+		ax10.plot(time.asNumber(units.min), extraRibosomes)
+		ax10.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
+		ax10.set_ylim([0, 100])
+		ax10.set_ylabel("% extra\nribosomes")
 
-	ax9.set_xlabel("Time (min)")
+	ax10.set_xlabel("Time (min)")
 
 	fig.subplots_adjust(hspace=.5, wspace = 0.3)
 
