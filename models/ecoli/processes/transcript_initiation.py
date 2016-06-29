@@ -34,13 +34,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 	# Constructor
 	def __init__(self):
-		# Parameters
-		self.rnaSynthProb = None
-
-		# Views
-		self.activeRnaPolys = None
-		self.inactiveRnaPolys = None
-
 		super(TranscriptInitiation, self).__init__()
 
 
@@ -66,14 +59,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 				shape = recruitmentData["shape"]
 			)
 		self.tfsBound = None
-
-		self.is_16SrRNA = sim_data.process.transcription.rnaData['isRRna16S']
-		self.is_23SrRNA = sim_data.process.transcription.rnaData['isRRna23S']
-		self.is_5SrRNA = sim_data.process.transcription.rnaData['isRRna5S']
-
-
-		import copy
-		self.rnaSynthProbStandard = copy.copy(self.rnaSynthProb)
 
 		self.maxRibosomeElongationRate = float(sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s))
 
@@ -104,12 +89,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		assert (self.isRRna + self.isRProtein + self.isRnap + self.notPolymerase).sum() == self.rnaSynthProb.size
 
-		self.rProteinToRRnaRatioVector = self.rnaSynthProbStandard[self.isRProtein] / self.rnaSynthProbStandard[self.isRRna][0]
-
-		## VARIANT CODE ##
-		# self.scaling_factor = sim_data.scaling_factor
-		self.scaling_factor = 10
-		## VARIANT CODE ##
+		self.rProteinToRRnaRatioVector = None
 
 	def calculateRequest(self):
 		self.inactiveRnaPolys.requestAll()
@@ -165,7 +145,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		totalPolymeraseComponent = totalRRnaSynthProb + totalRProteinSynthProb + totalRnapSynthProb
 
-
 		while totalPolymeraseComponent > 1.:
 			rRnaSynthesisProb = rRnaSynthesisProb / totalPolymeraseComponent
 			rProteinSynthesisProb = rProteinSynthesisProb / totalPolymeraseComponent
@@ -188,10 +167,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		self.rnaSynthProb[self.notPolymerase] = (1 - totalPolymeraseComponent) / self.rnaSynthProbStandard[self.notPolymerase].sum() * self.rnaSynthProbStandard[self.notPolymerase]
 
-		if not np.allclose(self.rnaSynthProb.sum(),1.):
-			import ipdb; ipdb.set_trace()
-		if not np.all(self.rnaSynthProb >= 0.):
-			import ipdb; ipdb.set_trace()
 		assert np.allclose(self.rnaSynthProb.sum(),1.)
 		assert np.all(self.rnaSynthProb >= 0.)
 
@@ -241,7 +216,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.inactiveRnaPolys.countDec(nNewRnas.sum())
 
 		self.writeToListener("RnapData", "didInitialize", nNewRnas.sum())
-
 
 	def _calculateActivationProb(self, fracActiveRnap, rnaLengths, rnaPolymeraseElongationRate, synthProb):
 		expectedTranscriptionTime = 1. / rnaPolymeraseElongationRate * rnaLengths
