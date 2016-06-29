@@ -76,9 +76,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# Plot
 	numGens = allDir.shape[0]
 	numMRnas = mRnaNamesSorted.shape[0]
-	fig = plt.figure(figsize = (20, 15))
+	fig = plt.figure(figsize = (20, 20))
+	leftBorder = -50
 
-	rows = numGens + 1 + 3
+	rows = numGens + 1 + 6
 	cols = 1
 	xvals = np.arange(numMRnas)
 	intersection = np.ones((1, numMRnas), dtype = bool)
@@ -87,26 +88,53 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax = plt.subplot(rows, cols, 1)
 	ax.vlines(xvals, [0], mRnaBasalExpressionSorted)
 	ax.set_title("Basal expression")
+	ax.set_yticks([np.min(mRnaBasalExpressionSorted), np.max(mRnaBasalExpressionSorted)])
+	ax.set_xlim([leftBorder, numMRnas])
+	ax.tick_params(which = "both", direction = "out")
+
+	ax = plt.subplot(rows, cols, 2)
+	ax.vlines(xvals, [0], mRnaBasalExpressionSorted)
+	ax.set_ylim([0, 0.00001])
+	ax.set_yticks([0, 0.00001])
+	ax.set_xlim([leftBorder, numMRnas])
+	ax.tick_params(which = "both", direction = "out")
 
 	# Plot synthesis prob
-	ax = plt.subplot(rows, cols, 2)
+	ax = plt.subplot(rows, cols, 3)
 	ax.vlines(xvals, [0], mRnaSynthProbSorted)
 	ax.set_title("Synthesis probability")
+	ax.set_yticks([np.min(mRnaSynthProbSorted), np.max(mRnaSynthProbSorted)])
+	ax.set_xlim([leftBorder, numMRnas])
+	ax.tick_params(which = "both", direction = "out")
+	M = np.max(mRnaSynthProbSorted)
+	MIndex = np.where([x == M for x in mRnaSynthProbSorted])[0]
+	ax.annotate("RNA polymerase alpha subunit", xy = (MIndex, M * 0.8))
+
+	ax = plt.subplot(rows, cols, 4)
+	ax.vlines(xvals, [0], mRnaSynthProbSorted)
+	ax.set_ylim([0, 0.00025])
+	ax.set_yticks([0, 0.00025])
+	ax.set_xlim([leftBorder, numMRnas])
+	ax.tick_params(which = "both", direction = "out")
 
 	# Plot deg rate
-	ax = plt.subplot(rows, cols, 3)
+	ax = plt.subplot(rows, cols, 5)
 	ax.vlines(xvals, [0], np.array([x.asNumber( 1 / units.s) for x in mRnaDegRateSorted]))
 	ax.set_title("Degradation rate")
+	ax.set_yticks([np.min(mRnaDegRateSorted).asNumber(1 / units.s), np.max(mRnaDegRateSorted).asNumber(1 / units.s)])
+	ax.set_xlim([leftBorder, numMRnas])
+	ax.tick_params(which = "both", direction = "out")
 
 	# Plot binary plot for each generation
-	for idx, subplotIdx in enumerate(np.arange(4, 4 + numGens)):
+	for idx, subplotIdx in enumerate(np.arange(7, 7 + numGens)):
 		ax = plt.subplot(rows, cols, subplotIdx)
 		ax.vlines(xvals, [0], transcribedBool[idx], color = "0.25")
 		ax.set_title("Generation %s" % idx, fontsize = 14)
 		ax.set_yticks([])
-		ax.set_xlim([0, numMRnas])
+		ax.set_xlim([leftBorder, numMRnas])
 
 		ax.vlines(xvals[:2500], [0], np.logical_not(transcribedBool[idx][:2500]), color = "#3399ff")
+		ax.tick_params(which = "both", direction = "out")
 
 		intersection = np.logical_and(intersection, transcribedBool[idx])
 
@@ -116,15 +144,27 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax.vlines(xvals[:2500], [0], np.logical_not(intersection[:2500]), color = "#3399ff")
 	ax.set_xlabel("mRNA transcripts\nin order of decreasing expected basal expression", fontsize = 14)
 	ax.set_yticks([])
-	ax.set_xlim([0, numMRnas])
+	ax.set_xlim([leftBorder, numMRnas])
+	ax.tick_params(which = "both", direction = "out")
 
 	plt.subplots_adjust(hspace = 0.5, wspace = 0)
+
+	# Outliers in range 4000 to 4500
+	outlierIndexes = np.where(intersection[0][4000:])[0] + 4000
+	# outlierNames = ""
+	# for outlierIndex in outlierIndexes:
+	# 	outlierNames += mRnaNamesSorted[outlierIndex] + "\n"
+
+	outlierNames = "1. carbohydrate-specific\nouter membrane porin" + "\n" + "2. predicted protein\n(gene yccE)" + "\n" +	"3. L-rhamnulose kinase" + "\n" +	"4. predicted peptidase\n(gene yfbL)" + "\n" + "4. probable pilin chaperone\nsimilar to PapD" + "\n" + "chaperon-like ATPase" + "\n" + "5. predicted protein\n(gene yahL)" + "\n" + "6. conserved protein\n(gene ybhH)"
+
+	ax.annotate(outlierNames, xy = (xvals.shape[0], 0))
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 
 	plt.close("all")
 
+	import ipdb; ipdb.set_trace()
 
 	# # Plot polar coordinate representation of the most differing set of mRNAs across generations
 	# mostDifferentlyTranscribed = []
@@ -159,18 +199,16 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# 	ax.annotate(str(mRnaNamesSorted[mostDifferentlyTranscribed[thetaIndex]]),
 	# 				xy = (thetaVals[thetaIndex], radius),
 	# 				)
+	# ax.grid(False)
+	# ax.set_xticks([])
+	# ax.set_yticks([])
 
+	# from wholecell.analysis.analysis_tools import exportFigure
+	# exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 
-
-	ax.grid(False)
-	ax.set_xticks([])
-	ax.set_yticks([])
-
-	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
-
-	plt.close("all")
+	# plt.close("all")
 	# import ipdb; ipdb.set_trace()
+
 
 
 if __name__ == "__main__":
