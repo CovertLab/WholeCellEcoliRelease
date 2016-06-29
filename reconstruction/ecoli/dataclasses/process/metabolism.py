@@ -28,7 +28,7 @@ EXCHANGE_UNITS = units.mmol / units.g / units.h
 # If false, raises an exception in such a case
 raiseForUnknownRxns = False
 
-reverseReactionString = " (reverse)"
+reverseReactionString = "{} (reverse)"
 
 
 class Metabolism(object):
@@ -231,6 +231,7 @@ class Metabolism(object):
 		constraintToReactionDict = {}
 
 		directionAmbiguousRxns = set()
+		directionInferedReactions = set()
 		nonCannonicalRxns = set()
 		unknownRxns = set()
 
@@ -278,10 +279,11 @@ class Metabolism(object):
 				if reaction["direction"] == "forward":
 					continue
 				elif reaction["direction"] == "reverse":
-					reaction["reactionID"] = reactionID + " (reverse)"
-					reaction["constraintID"] = reaction["constraintID"] + " (reverse)" 
+					reaction["reactionID"] = reverseReactionString.format(reactionID)
+					reaction["constraintID"] = reverseReactionString.format(reaction["constraintID"])
 				else:
 					# Infer directionality from substrates
+					directionInferedReactions.add(reaction["reactionID"])
 					if reaction["rateEquationType"] == "standard":
 						reverseCounter = 0.
 						allCounter = 0.
@@ -297,8 +299,8 @@ class Metabolism(object):
 							continue
 
 						if reverseCounter == allCounter:
-							reaction["reactionID"] = reactionID + " (reverse)"
-							reaction["constraintID"] = reaction["constraintID"] + " (reverse)" 
+							reaction["reactionID"] = reverseReactionString.format(reactionID)
+							reaction["constraintID"] = reverseReactionString.format(reaction["constraintID"])
 						elif reverseCounter > 0:
 							if len(reaction["kI"]) == reverseCounter:
 								continue
@@ -333,6 +335,7 @@ class Metabolism(object):
 		self.reactionStoich = reactionStoich
 		self.nutrientsTimeSeries = sim_data.nutrientsTimeSeries
 		self.reversibleReactions = reversibleReactions
+		self.directionInferedReactions = sorted(list(directionInferedReactions))
 		self.reactionRateInfo = reactionRateInfo
 		self.reactionEnzymes = reactionEnzymes
 		self.enzymeNames = list(validEnzymeIDs)
@@ -383,7 +386,6 @@ class Metabolism(object):
 		"""
 		Builds a (num reactions) by (num enzymes) matrix which maps enzyme concentrations to overall reaction rate.
 		reactionEnzymesDict is a dict from reactionID:[list of enzymes catalyzing this reaction]
-		Any reactions without an associated enzyme in reactionEnzymesDict are treated as spontaneous (whole row is set to inf).
 		"""
 		assert sorted(reactionIDs) == sorted(reactionEnzymesDict.keys())
 
@@ -394,8 +396,6 @@ class Metabolism(object):
 					if enzymeName in enzymeNames:
 						enzymeIdx = enzymeNames.index(enzymeName)
 						enzymeReactionMatrix[rxnIdx, enzymeIdx] = 1
-		# Any reaction without an associated enzyme should be treated as spontaneous
-		enzymeReactionMatrix[np.where(np.sum(enzymeReactionMatrix, axis=1) == 0)] = np.inf
 		return enzymeReactionMatrix
 
 

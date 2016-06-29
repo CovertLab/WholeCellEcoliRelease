@@ -19,6 +19,7 @@ from __future__ import division
 from itertools import izip
 
 import numpy as np
+from scipy.sparse import csr_matrix
 
 import wholecell.processes.process
 from wholecell.utils import units
@@ -35,6 +36,8 @@ COUNTS_UNITS = units.dmol
 VOLUME_UNITS = units.L
 MASS_UNITS = units.g
 TIME_UNITS = units.s
+
+FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
 
 SECRETION_PENALTY_COEFF = 1e-5
 
@@ -135,8 +138,10 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Matrix mapping enzymes to the reactions they catalyze
 		self.enzymeReactionMatrix = sim_data.process.metabolism.enzymeReactionMatrix(self.fba.reactionIDs(), self.enzymeNames, self.reactionEnzymes)
-
+		self.spontaneousIndices = np.where(np.sum(self.enzymeReactionMatrix, axis=1) == 0)
+		self.enzymeReactionMatrix = csr_matrix(self.enzymeReactionMatrix)
 		self.kcat_max = sim_data.constants.carbonicAnhydraseKcat
+		self.base_rates_current = FLUX_UNITS * np.inf * np.ones(len(self.fba.reactionIDs()))
 
 		# # Set up enzyme kinetics object
 		# self.enzymeKinetics = EnzymeKinetics(
@@ -148,8 +153,11 @@ class Metabolism(wholecell.processes.process.Process):
 		# 	kcatOnly=False
 		# 	)
 
-		# Determine which kinetic limits to use
-		self.reactionsWithKineticLimits = [True]*len(self.fba.reactionIDs())
+		self.currentNgam = 1 * (COUNTS_UNITS / VOLUME_UNITS)
+		self.currentPolypeptideElongationEnergy = 1 * (COUNTS_UNITS / VOLUME_UNITS)
+
+		# # Determine which kinetic limits to use
+		# self.reactionsWithKineticLimits = [True]*len(self.fba.reactionIDs())
 	
 		# Set constraints
 		## External molecules
@@ -171,12 +179,10 @@ class Metabolism(wholecell.processes.process.Process):
 		# Set the priority to a low value
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_METABOLISM)
 
-
 	def calculateRequest(self):
 		self.metabolites.requestAll()
 		self.enzymes.requestAll()
 
-	# Calculate temporal evolution
 	def evolveState(self):
 
 		# Solve for metabolic fluxes
@@ -189,9 +195,9 @@ class Metabolism(wholecell.processes.process.Process):
 
 		countsToMolar = 1 / (self.nAvogadro * cellVolume)
 
-		polypeptideElongationEnergy = countsToMolar * 0
+		self.newPolypeptideElongationEnergy = countsToMolar * 0
 		if hasattr(self._sim.processes["PolypeptideElongation"], "gtpRequest"):
-			polypeptideElongationEnergy = countsToMolar * self._sim.processes["PolypeptideElongation"].gtpRequest
+			self.newPolypeptideElongationEnergy = countsToMolar * self._sim.processes["PolypeptideElongation"].gtpRequest
 
 		# Set external molecule levels
 		coefficient = dryMass / cellMass * self.cellDensity * (self.timeStepSec() * units.s)
@@ -234,11 +240,21 @@ class Metabolism(wholecell.processes.process.Process):
 		# Set external molecule levels
 		self.fba.externalMoleculeLevelsIs(externalMoleculeLevels)
 
-		self.fba.maxReactionFluxIs(self.fba._reactionID_NGAM, (self.ngam * coefficient).asNumber(COUNTS_UNITS / VOLUME_UNITS))
-		self.fba.minReactionFluxIs(self.fba._reactionID_NGAM, (self.ngam * coefficient).asNumber(COUNTS_UNITS / VOLUME_UNITS))
+		self.newNgam = self.ngam * coefficient
 
-		self.fba.maxReactionFluxIs(self.fba._reactionID_polypeptideElongationEnergy, polypeptideElongationEnergy.asNumber(COUNTS_UNITS / VOLUME_UNITS))
-		self.fba.minReactionFluxIs(self.fba._reactionID_polypeptideElongationEnergy, polypeptideElongationEnergy.asNumber(COUNTS_UNITS / VOLUME_UNITS))
+		# Change the ngam and polypeptide elongation energy penalty only if they are noticably different from the current value
+		ADJUSTMENT_RATIO = .01
+		ngam_diff = np.abs(self.currentNgam.asNumber() - self.newNgam.asNumber()) / (self.currentNgam.asNumber() + 1e-20)
+		if ngam_diff > ADJUSTMENT_RATIO:
+			self.currentNgam = self.newNgam
+			self.fba.maxReactionFluxIs(self.fba._reactionID_NGAM, (self.ngam * coefficient).asNumber(COUNTS_UNITS / VOLUME_UNITS))
+			self.fba.minReactionFluxIs(self.fba._reactionID_NGAM, (self.ngam * coefficient).asNumber(COUNTS_UNITS / VOLUME_UNITS))
+
+		poly_diff = np.abs((self.currentPolypeptideElongationEnergy.asNumber() - self.newPolypeptideElongationEnergy.asNumber())) / (self.currentPolypeptideElongationEnergy.asNumber() + 1e-20)
+		if poly_diff > ADJUSTMENT_RATIO:
+			self.currentPolypeptideElongationEnergy = self.newPolypeptideElongationEnergy
+			self.fba.maxReactionFluxIs(self.fba._reactionID_polypeptideElongationEnergy, self.currentPolypeptideElongationEnergy.asNumber(COUNTS_UNITS / VOLUME_UNITS))
+			self.fba.minReactionFluxIs(self.fba._reactionID_polypeptideElongationEnergy, self.currentPolypeptideElongationEnergy.asNumber(COUNTS_UNITS / VOLUME_UNITS))
 
 		#  Find metabolite concentrations from metabolite counts
 		metaboliteConcentrations =  countsToMolar * metaboliteCountsInit
@@ -257,10 +273,17 @@ class Metabolism(wholecell.processes.process.Process):
 			enzymeConcentrations = countsToMolar * (enzymeCountsInit + 1)
 
 		if USE_BASE_RATES:
+			# Calculate new rates
 			self.enzymeMaxRates = self.kcat_max * enzymeConcentrations
-			self.base_rates = (COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS) * self.enzymeReactionMatrix.dot(self.enzymeMaxRates.asNumber(COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS))
-			self.base_rates[np.isnan(self.base_rates.asNumber())] = (COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS) * np.inf
-			self.fba.setMaxReactionFluxes(self.fba.reactionIDs(), self.base_rates.asNumber(COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS), raiseForReversible = False)
+			self.base_rates_new = FLUX_UNITS * self.enzymeReactionMatrix.dot(self.enzymeMaxRates.asNumber(FLUX_UNITS))
+			self.base_rates_new[self.spontaneousIndices] = (FLUX_UNITS) * np.inf
+			# Update base_rates_current
+			updateLocations = np.where(self.base_rates_new.asNumber(FLUX_UNITS) != self.base_rates_current.asNumber(FLUX_UNITS))
+			updateReactions = self.fba.reactionIDs()[updateLocations]
+			updateValues = self.base_rates_new[updateLocations]
+			self.base_rates_current[updateLocations] = updateValues
+			# Set new reaction rate limits
+			self.fba.setMaxReactionFluxes(updateReactions, updateValues.asNumber(FLUX_UNITS), raiseForReversible = False)
 
 		# defaultRate = self.enzymeKinetics.defaultRate
 
