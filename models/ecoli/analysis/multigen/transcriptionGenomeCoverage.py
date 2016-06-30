@@ -68,7 +68,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	proteinsOfInterest = np.array([dcuRId, baeRId, narLId])
 	proteinsOfInterestNames = np.array(["dcuR", "baeR", "narL"])
 	
-	# Get number of mRNAs transcribed
+	# Get bool of mRNAs transcribed
 	transcribedBool = []
 
 	for simDir in allDir:
@@ -226,5 +226,3 @@ if __name__ == "__main__":
 	args = parser.parse_args().__dict__
 
 	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
-
-
