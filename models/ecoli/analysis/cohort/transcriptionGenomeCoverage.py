@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Plots fraction of mRNAs transcribed (out of all genes to be transcribed) for all generations.
+Plots fraction of mRNAs transcribed (out of all genes to be transcribed) for all seeds.
 
 @author: Heejo Choi
 @organization: Covert Lab, Department of Bioengineering, Stanford University
