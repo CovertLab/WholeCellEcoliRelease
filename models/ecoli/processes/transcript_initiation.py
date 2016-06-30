@@ -127,8 +127,9 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		#### Growth control code ####
 
 		ribosomeElongationRate = self.readFromListener("RibosomeData", "effectiveElongationRate")
+		cellMass = self.readFromListener("Mass", "cellMass")
 		expectedRibosomeInitiationRate = self.calculateRrnInitRate(self.rrn_operon.total(), ribosomeElongationRate)
-		rRnaSynthesisProb = expectedRibosomeInitiationRate.asNumber(1/units.s) * self.timeStepSec() / rnaPolyToActivate
+		rRnaSynthesisProb = expectedRibosomeInitiationRate.asNumber(1/units.s/units.fg) * cellMass * self.timeStepSec() / rnaPolyToActivate
 		rProteinSynthesisProb = self.rProteinToRRnaRatioVector * rRnaSynthesisProb
 
 		totalRnapCount = self.activeRnaPolys.total() + self.inactiveRnaPolys.total() or np.array([1])
@@ -137,8 +138,8 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		offset = np.clip(0.25 - ratioRNAPToRibosome, -1 * self.rnaSynthProb[self.isRnap].min(), 1.)
 		rnapSynthProb = self.rnaSynthProb[self.isRnap] + (offset / 10)
 
-		print "Expected init rate: {}".format(expectedRibosomeInitiationRate.asNumber(1/units.s))
-		self.writeToListener("RibosomeData", "expectedInitRate", expectedRibosomeInitiationRate.asNumber(1/units.s))
+		print "Expected init rate: {}".format(expectedRibosomeInitiationRate.asNumber(1/units.s/units.fg))
+		self.writeToListener("RibosomeData", "expectedInitRate", expectedRibosomeInitiationRate.asNumber(1/units.s/units.fg))
 
 		totalRRnaSynthProb = (np.ceil(self.rnaSynthProb[self.isRRna]).sum() * rRnaSynthesisProb) # HACK: Only getting used ribosome rrn operons using this ceil function need to fix this.
 		totalRProteinSynthProb = rProteinSynthesisProb.sum()
@@ -241,12 +242,13 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 	def calculateRrnInitRate(self, rrn_count, elngRate):
 		'''
 		Returns total initiation rate of rRNA across all promoters
-		In units of initiations / s
+		In units of initiations / s / fg
 		'''
-		fitInitiationRate = 42.988 * np.exp(-4.85 * (self.maxRibosomeElongationRate - elngRate))
+		# fitInitiationRate = 42.988 * np.exp(-0.485 * (self.maxRibosomeElongationRate - elngRate))
 		# fitInitiationRate = rrn_count[0] * 151.595 * np.exp(0.038*-0.298 * (self.maxRibosomeElongationRate - elngRate)) / self.scaling_factor
 		# fitInitiationRate = 151.595 * np.exp(0.038*-0.298 * (self.maxRibosomeElongationRate - elngRate)) / 10.
 
-	#	fitInitiationRate = rrn_count * 151.595 * np.exp(0.038*-0.298 * (self.maxRibosomeElongationRate - elngRate))
+		# fitInitiationRate_old = rrn_count * 151.595 * np.exp(0.038*-0.298 * (self.maxRibosomeElongationRate - elngRate)) / 60.
+		fitInitiationRate = 0.6*0.0168 * np.exp(-0.272 * (self.maxRibosomeElongationRate - elngRate))
 
-		return (1 / units.s) * fitInitiationRate
+		return (1 / units.s / units.fg) * fitInitiationRate
