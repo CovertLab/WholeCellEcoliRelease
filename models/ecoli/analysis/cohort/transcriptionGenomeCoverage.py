@@ -62,7 +62,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		transcribedFreq.append(mRnasTranscribed)
 
 	transcribedFreq = np.array(transcribedFreq)
-	transcribedFreqSumOverSeeds = transcribedFreq.sum(axis = 1)
+	transcribedFreqSumOverSeeds = transcribedFreq.sum(axis = 0)
 
 	# Get proteins of interest
 	dcuRId = np.where([x == "G7826_RNA[c]" for x in mRnaNamesSorted])[0]
@@ -74,18 +74,23 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	# Plot
 	numMRnas = mRnaNamesSorted.shape[0]
-	fig = plt.figure(figsize = (10, 10))
+	numSeeds = all_cells.shape[0]
+	fig = plt.figure(figsize = (14, 10))
 
-	ax = plt.subplots(1, 1, 1)
-	ax.scatter(numMRnas, transcribedFreqSumOverSeeds / float(transcribedFreqSumOverSeeds.shape[0]))
+	ax = plt.subplot(1, 1, 1)
+	ax.scatter(np.arange(numMRnas), transcribedFreqSumOverSeeds / float(numSeeds), facecolors = "none", edgecolors = "b")
 
-	heightOffset = 1.0 / 5
+	heightOffset = 0.01
 	for proteinIdx, protein in enumerate(proteinsOfInterest):
-		ax.vlines(np.ones(2) * protein, [0, 1], colors = "orange")
-		ax.annotate(proteinsOfInterestNames[proteinIdx], xy = (protein, 1 - proteinIdx * heightOffset))
+		ax.scatter(protein, transcribedFreqSumOverSeeds[protein] / float(numSeeds), color = "orange")
+		ax.annotate(proteinsOfInterestNames[proteinIdx], xy = (protein, transcribedFreqSumOverSeeds[protein] / float(numSeeds) + heightOffset))
 
-	ax.set_title("Frequency of producing at least 1 transcript", fontsize = 12)
+	ax.set_title("Frequency of producing at least 1 transcript\n(n = %s seeds)" % numSeeds, fontsize = 12)
 	ax.set_xlabel("mRNA transcripts\n(in order of decreasing expected basal expression)", fontsize = 10)
+	ax.set_xlim([0, numMRnas])
+	ax.set_ylim([-.05, 1.05])
+	ax.tick_params(which = "both", direction = "out", top = "off")
+	ax.spines["top"].set_visible(False)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
