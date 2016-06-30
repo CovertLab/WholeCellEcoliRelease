@@ -190,6 +190,8 @@ class Metabolism(object):
 		reactionEnzymes = {}
 		reactionRates = {}
 
+		enzymeExceptions = set()
+
 		validEnzymeIDs = set([])
 		validProteinIDs = ['{}[{}]'.format(x['id'],location) for x in raw_data.proteins for location in x['location']]
 		validProteinComplexIDs = ['{}[{}]'.format(x['id'],location) for x in raw_data.proteinComplexes for location in x['location']]
@@ -203,6 +205,10 @@ class Metabolism(object):
 
 			validEnzymeCompartments[enzyme].add(location)
 
+		# Enzymes which should not be used for enzyme-reaction pairs
+		for rxnEnzymePair in raw_data.unconstrainedReactionEnzymes:
+			enzymeExceptions.add(rxnEnzymePair["enzymeID"])
+
 		for reaction in raw_data.reactions:
 			reactionID = reaction["reaction id"]
 			stoich = reaction["stoichiometry"]
@@ -213,6 +219,11 @@ class Metabolism(object):
 				raise Exception("Invalid biochemical reaction: {}, {}".format(reactionID, stoich))
 
 			reactionStoich[reactionID] = stoich
+
+			# Remove enzyme-reaction links for any enzyme in enzymeExceptions
+			for enzymeID in enzyme_list:
+				if enzymeID in enzymeExceptions:
+					enzyme_list.remove(enzymeID)
 			reactionEnzymes[reactionID] = enzyme_list
 
 			# Add the reverse reaction
