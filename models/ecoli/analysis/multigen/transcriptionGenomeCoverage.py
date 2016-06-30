@@ -93,7 +93,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	numDataSorted = len(mRnaDataSorted)
 	numMRnas = mRnaNamesSorted.shape[0]
 	fig = plt.figure(figsize = (15, 18))
-	border = 50
+	border = 0
 
 	rows = numGens + 2*numDataSorted + 1
 	cols = 1
@@ -104,9 +104,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# Plot sorted mRNA data as top 6 subplots
 	for idx in np.arange(2*numDataSorted):
 		ax = plt.subplot(rows, cols, idx + 1)
-		ax.vlines(xvals, [0], mRnaDataSorted[idx / 2]["data"])
+		ax.vlines(xvals, [0], mRnaDataSorted[idx / 2]["data"], colors = "0.15")
 		ax.set_xlim([-border, numMRnas + border])
-		ax.tick_params(which = "both", direction = "out")
+		ax.set_ylim([np.min(mRnaDataSorted[idx / 2]["data"]), np.max(mRnaDataSorted[idx / 2]["data"])])
+		ax.tick_params(which = "both", direction = "out", right = "off", top = "off")
 		ax.spines["left"].set_visible(False)
 		ax.spines["right"].set_visible(False)
 
@@ -127,11 +128,13 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# Plot binary plot for each generation
 	for idx, subplotIdx in enumerate(np.arange(7, 7 + numGens)):
 		ax = plt.subplot(rows, cols, subplotIdx)
-		ax.vlines(xvals, [0], transcribedBool[idx], color = "0.25")
+		ax.vlines(xvals, [0], transcribedBool[idx], color = "0.15")
 		ax.set_title("Generation %s" % idx, fontsize = 14)
-		ax.tick_params(which = "both", direction = "out")
+		ax.tick_params(which = "both", direction = "out", right = "off", top = "off")
 		ax.set_yticks([])
 		ax.set_xlim([-border, numMRnas + border])
+		ax.spines["left"].set_visible(False)
+		ax.spines["right"].set_visible(False)
 
 		for protein in proteinsOfInterest:
 			if transcribedBool[idx][protein]:
@@ -150,10 +153,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax.vlines(xvals[highlightWhitespaceBoundary:], [0], intersection[0][highlightWhitespaceBoundary:])
 	
 	ax.set_title("Intersection of all generations", fontsize = 14)
-	ax.set_xlabel("mRNA transcripts\nin order of decreasing expected basal expression", fontsize = 14)
+	ax.set_xlabel("mRNA transcripts\n(in order of decreasing expected basal expression)", fontsize = 10)
 	ax.set_yticks([])
 	ax.set_xlim([-border, numMRnas + border])
-	ax.tick_params(which = "both", direction = "out")
+	ax.tick_params(which = "both", direction = "out", top = "off")
+	ax.spines["left"].set_visible(False)
+	ax.spines["right"].set_visible(False)
 
 
 	plt.subplots_adjust(hspace = 1, wspace = 0)
@@ -163,7 +168,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	plt.close("all")
 
-	import ipdb; ipdb.set_trace()
 
 	# # Plot polar coordinate representation of the most differing set of mRNAs across generations
 	# mostDifferentlyTranscribed = []
@@ -206,9 +210,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 
 	# plt.close("all")
-	# import ipdb; ipdb.set_trace()
-
-
 
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(
