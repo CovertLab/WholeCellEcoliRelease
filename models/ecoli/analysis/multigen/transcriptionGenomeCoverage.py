@@ -49,9 +49,25 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	descendingOrderIndexing = np.argsort(mRnaBasalExpression)[::-1]
 	mRnaBasalExpressionSorted = mRnaBasalExpression[descendingOrderIndexing]
 	mRnaSynthProbSorted = mRnaSynthProb[descendingOrderIndexing]
-	mRnaDegRateSorted = mRnaDegRate[descendingOrderIndexing]
+	mRnaDegRateSortedUnits = mRnaDegRate[descendingOrderIndexing]
 	mRnaNamesSorted = mRnaNames[descendingOrderIndexing]
 
+	# Remove units on degradation rates
+	mRnaDegRateSorted = np.array([x.asNumber(1 / units.s) for x in mRnaDegRateSortedUnits])
+
+	mRnaDataSorted = {	0: {"name": "Basal expression", "data": mRnaBasalExpressionSorted, "zoomMax": 0.000005}, 
+						1: {"name": "Synthesis probability", "data": mRnaSynthProbSorted, "zoomMax": 0.0001},
+						2: {"name": "Degradation rate", "data": mRnaDegRateSorted, "zoomMax": 0.005},
+					}
+
+	# Get proteins of interest
+	dcuRId = np.where([x == "G7826_RNA[c]" for x in mRnaNamesSorted])[0]
+	baeRId = np.where([x == "EG11618_RNA[c]" for x in mRnaNamesSorted])[0]
+	narLId = np.where([x == "EG10643_RNA[c]" for x in mRnaNamesSorted])[0]
+
+	proteinsOfInterest = np.array([dcuRId, baeRId, narLId])
+	proteinsOfInterestNames = np.array(["dcuR", "baeR", "narL"])
+	
 	# Get number of mRNAs transcribed
 	transcribedBool = []
 
@@ -68,96 +84,79 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		mRnasTranscribed = np.array([x != 0 for x in moleculeCountsSumOverTime])
 
 		mRnasTranscribedNames = [mRnaNames[x] for x in np.arange(mRnaNames.shape[0]) if mRnasTranscribed[x]]
-
 		transcribedBool.append(mRnasTranscribed)
 
 	transcribedBool = np.array(transcribedBool)
 
 	# Plot
 	numGens = allDir.shape[0]
+	numDataSorted = len(mRnaDataSorted)
 	numMRnas = mRnaNamesSorted.shape[0]
-	fig = plt.figure(figsize = (20, 20))
-	leftBorder = -50
+	fig = plt.figure(figsize = (15, 18))
+	border = 50
 
-	rows = numGens + 1 + 6
+	rows = numGens + 2*numDataSorted + 1
 	cols = 1
 	xvals = np.arange(numMRnas)
 	intersection = np.ones((1, numMRnas), dtype = bool)
 
-	# Plot expression
-	ax = plt.subplot(rows, cols, 1)
-	ax.vlines(xvals, [0], mRnaBasalExpressionSorted)
-	ax.set_title("Basal expression")
-	ax.set_yticks([np.min(mRnaBasalExpressionSorted), np.max(mRnaBasalExpressionSorted)])
-	ax.set_xlim([leftBorder, numMRnas])
-	ax.tick_params(which = "both", direction = "out")
 
-	ax = plt.subplot(rows, cols, 2)
-	ax.vlines(xvals, [0], mRnaBasalExpressionSorted)
-	ax.set_ylim([0, 0.00001])
-	ax.set_yticks([0, 0.00001])
-	ax.set_xlim([leftBorder, numMRnas])
-	ax.tick_params(which = "both", direction = "out")
+	# Plot sorted mRNA data as top 6 subplots
+	for idx in np.arange(2*numDataSorted):
+		ax = plt.subplot(rows, cols, idx + 1)
+		ax.vlines(xvals, [0], mRnaDataSorted[idx / 2]["data"])
+		ax.set_xlim([-border, numMRnas + border])
+		ax.tick_params(which = "both", direction = "out")
+		ax.spines["left"].set_visible(False)
+		ax.spines["right"].set_visible(False)
 
-	# Plot synthesis prob
-	ax = plt.subplot(rows, cols, 3)
-	ax.vlines(xvals, [0], mRnaSynthProbSorted)
-	ax.set_title("Synthesis probability")
-	ax.set_yticks([np.min(mRnaSynthProbSorted), np.max(mRnaSynthProbSorted)])
-	ax.set_xlim([leftBorder, numMRnas])
-	ax.tick_params(which = "both", direction = "out")
-	M = np.max(mRnaSynthProbSorted)
-	MIndex = np.where([x == M for x in mRnaSynthProbSorted])[0]
-	ax.annotate("RNA polymerase alpha subunit", xy = (MIndex, M * 0.8))
+		heighOffset = np.max(mRnaDataSorted[idx / 2]["data"]) / 5.
+		for proteinIdx, protein in enumerate(proteinsOfInterest):
+			ax.vlines(protein, [0], np.max(mRnaDataSorted[idx / 2]["data"]), color = "orange")
+			ax.annotate(proteinsOfInterestNames[proteinIdx], xy = (protein, np.max(mRnaDataSorted[idx / 2]["data"]) - (proteinIdx + 1) * heighOffset))
 
-	ax = plt.subplot(rows, cols, 4)
-	ax.vlines(xvals, [0], mRnaSynthProbSorted)
-	ax.set_ylim([0, 0.00025])
-	ax.set_yticks([0, 0.00025])
-	ax.set_xlim([leftBorder, numMRnas])
-	ax.tick_params(which = "both", direction = "out")
+		if idx %2 == 0:
+			ax.set_title(mRnaDataSorted[idx / 2]["name"])
+			ax.set_yticks([np.min(mRnaDataSorted[idx / 2]["data"]), np.max(mRnaDataSorted[idx / 2]["data"])])
 
-	# Plot deg rate
-	ax = plt.subplot(rows, cols, 5)
-	ax.vlines(xvals, [0], np.array([x.asNumber( 1 / units.s) for x in mRnaDegRateSorted]))
-	ax.set_title("Degradation rate")
-	ax.set_yticks([np.min(mRnaDegRateSorted).asNumber(1 / units.s), np.max(mRnaDegRateSorted).asNumber(1 / units.s)])
-	ax.set_xlim([leftBorder, numMRnas])
-	ax.tick_params(which = "both", direction = "out")
+		else:
+			ax.set_ylim([np.min(mRnaDataSorted[idx / 2]["data"]), mRnaDataSorted[idx / 2]["zoomMax"]])
+			ax.set_yticks([np.min(mRnaDataSorted[idx / 2]["data"]), mRnaDataSorted[idx / 2]["zoomMax"]])
+
 
 	# Plot binary plot for each generation
 	for idx, subplotIdx in enumerate(np.arange(7, 7 + numGens)):
 		ax = plt.subplot(rows, cols, subplotIdx)
 		ax.vlines(xvals, [0], transcribedBool[idx], color = "0.25")
 		ax.set_title("Generation %s" % idx, fontsize = 14)
-		ax.set_yticks([])
-		ax.set_xlim([leftBorder, numMRnas])
-
-		ax.vlines(xvals[:2500], [0], np.logical_not(transcribedBool[idx][:2500]), color = "#3399ff")
 		ax.tick_params(which = "both", direction = "out")
+		ax.set_yticks([])
+		ax.set_xlim([-border, numMRnas + border])
+
+		for protein in proteinsOfInterest:
+			if transcribedBool[idx][protein]:
+				ax.plot(np.ones(2)*protein, [0, 1], linestyle = "--", color = "g")
+			else:
+				ax.plot(np.ones(2)*protein, [0, 1], linestyle = "--", color = "r")
 
 		intersection = np.logical_and(intersection, transcribedBool[idx])
 
+
+	# Plot intersection binary plot
 	ax = plt.subplot(rows, cols, rows)
+	highlightWhitespaceBoundary = 2500
+	ax.vlines(xvals[:highlightWhitespaceBoundary], [0], intersection[0][:highlightWhitespaceBoundary])
+	ax.vlines(xvals, [0], np.logical_not(intersection), color = "#3399ff")
+	ax.vlines(xvals[highlightWhitespaceBoundary:], [0], intersection[0][highlightWhitespaceBoundary:])
+	
 	ax.set_title("Intersection of all generations", fontsize = 14)
-	ax.vlines(xvals, [0], intersection[0])
-	ax.vlines(xvals[:2500], [0], np.logical_not(intersection[:2500]), color = "#3399ff")
 	ax.set_xlabel("mRNA transcripts\nin order of decreasing expected basal expression", fontsize = 14)
 	ax.set_yticks([])
-	ax.set_xlim([leftBorder, numMRnas])
+	ax.set_xlim([-border, numMRnas + border])
 	ax.tick_params(which = "both", direction = "out")
 
-	plt.subplots_adjust(hspace = 0.5, wspace = 0)
 
-	# Outliers in range 4000 to 4500
-	outlierIndexes = np.where(intersection[0][4000:])[0] + 4000
-	# outlierNames = ""
-	# for outlierIndex in outlierIndexes:
-	# 	outlierNames += mRnaNamesSorted[outlierIndex] + "\n"
-
-	outlierNames = "1. carbohydrate-specific\nouter membrane porin" + "\n" + "2. predicted protein\n(gene yccE)" + "\n" +	"3. L-rhamnulose kinase" + "\n" +	"4. predicted peptidase\n(gene yfbL)" + "\n" + "4. probable pilin chaperone\nsimilar to PapD" + "\n" + "chaperon-like ATPase" + "\n" + "5. predicted protein\n(gene yahL)" + "\n" + "6. conserved protein\n(gene ybhH)"
-
-	ax.annotate(outlierNames, xy = (xvals.shape[0], 0))
+	plt.subplots_adjust(hspace = 1, wspace = 0)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
