@@ -75,9 +75,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	numGens = allDir.shape[0]
 	numDataSorted = len(mRnaDataSorted)
 	numMRnas = mRnaNamesSorted.shape[0]
-	fig = plt.figure(figsize = (15, 18))
 	rows = numGens
 	cols = 1
+	fig = plt.figure(figsize = (15, 18))
 
 	for gen in np.arange(numGens):
 		ax = subplot(rows, cols, gen + 1)
@@ -104,6 +104,27 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	plt.close("all")
 
 	import ipdb; ipdb.set_trace()
+
+	# Plot for only the proteins of interest
+	rows = proteinsOfInterest.shape[0]
+	cols = 1
+	fig = plt.figure(figsize = (15, 18))
+
+	for proteinIndex, protein in enumerate(proteinsOfInterest):
+		ax = subplot(rows, cols, proteinIndex + 1)
+
+		for gen in np.arange(numGens):
+			ax.scatter(gen, mRnaExpression[gen][protein])
+
+		ax.set_ylable(proteinsOfInterestNames[proteinIndex], fontsize = 12)
+
+		ax.spines["top"].set_visible(False)
+		ax.tick_params(which = "both", direction = "out", top = "off")	
+
+	ax.set_xlabel("mRNA transcripts\n(in order of decreasing expected basal expression)", fontsize = 10)
+
+	exportFigure(plt, plotOutDir, plotOutFileName + "POI", metadata)
+	plt.close("all")
 
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(
