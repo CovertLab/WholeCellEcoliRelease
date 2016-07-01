@@ -88,6 +88,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			ax.scatter(protein, mRnaExpression[gen][protein], facecolor = "orange", edgecolor = "none")
 			ax.annotate(proteinsOfInterestNames[proteinIndex], xy = (protein, mRnaExpression[gen][protein] + heighOffset))
 
+		ax.set_title("Generation %s" % gen, fontsize = 12)
 		ax.set_xlim([0, numMRnas])
 		ax.set_ylim([np.min(mRnaExpression[gen]), np.max(mRnaExpression[gen])])
 		ax.spines["top"].set_visible(False)
@@ -118,7 +119,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ax.spines["top"].set_visible(False)
 		ax.tick_params(which = "both", direction = "out", top = "off")	
 
-	ax.set_xlabel("mRNA transcripts\n(in order of decreasing expected basal expression)", fontsize = 10)
+	ax.set_xlabel("Generation", fontsize = 10)
 	plt.subplots_adjust(hspace = 1, wspace = 0)
 
 	exportFigure(plt, plotOutDir, plotOutFileName + "POI", metadata)
