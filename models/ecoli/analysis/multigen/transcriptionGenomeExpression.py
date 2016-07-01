@@ -73,24 +73,23 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	# Plot
 	numGens = allDir.shape[0]
-	numDataSorted = len(mRnaDataSorted)
 	numMRnas = mRnaNamesSorted.shape[0]
 	rows = numGens
 	cols = 1
 	fig = plt.figure(figsize = (15, 18))
 
 	for gen in np.arange(numGens):
-		ax = subplot(rows, cols, gen + 1)
+		ax = plt.subplot(rows, cols, gen + 1)
 		ax.scatter(np.arange(numMRnas), mRnaExpression[gen], facecolor = "none", edgecolor = "b")
 
 		heighOffset = np.max(mRnaExpression[gen]) * 0.01
 
-		for protein in proteinsOfInterest:
+		for proteinIndex, protein in enumerate(proteinsOfInterest):
 			ax.scatter(protein, mRnaExpression[gen][protein], facecolor = "orange", edgecolor = "none")
-			ax.annotate(proteinsOfInterestNames[protein], xy = (protein, mRnaExpression[gen][protein] + heighOffset))
+			ax.annotate(proteinsOfInterestNames[proteinIndex], xy = (protein, mRnaExpression[gen][protein] + heighOffset))
 
 		ax.set_xlim([0, numMRnas])
-		ax.set_ylim([np.min(mRnaExpression[gen], np.max(mRnaExpression[gen]))])
+		ax.set_ylim([np.min(mRnaExpression[gen]), np.max(mRnaExpression[gen])])
 		ax.spines["top"].set_visible(False)
 		ax.tick_params(which = "both", direction = "out", top = "off")
 			
@@ -103,25 +102,24 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	plt.close("all")
 
-	import ipdb; ipdb.set_trace()
-
 	# Plot for only the proteins of interest
 	rows = proteinsOfInterest.shape[0]
 	cols = 1
 	fig = plt.figure(figsize = (15, 18))
 
 	for proteinIndex, protein in enumerate(proteinsOfInterest):
-		ax = subplot(rows, cols, proteinIndex + 1)
+		ax = plt.subplot(rows, cols, proteinIndex + 1)
 
 		for gen in np.arange(numGens):
 			ax.scatter(gen, mRnaExpression[gen][protein])
 
-		ax.set_ylable(proteinsOfInterestNames[proteinIndex], fontsize = 12)
+		ax.set_ylabel(proteinsOfInterestNames[proteinIndex], fontsize = 12)
 
 		ax.spines["top"].set_visible(False)
 		ax.tick_params(which = "both", direction = "out", top = "off")	
 
 	ax.set_xlabel("mRNA transcripts\n(in order of decreasing expected basal expression)", fontsize = 10)
+	plt.subplots_adjust(hspace = 1, wspace = 0)
 
 	exportFigure(plt, plotOutDir, plotOutFileName + "POI", metadata)
 	plt.close("all")
