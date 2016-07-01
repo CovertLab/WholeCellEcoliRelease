@@ -82,7 +82,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	heightOffset = 0.01
 	for proteinIdx, protein in enumerate(proteinsOfInterest):
-		ax.scatter(protein, transcribedFreqSumOverSeeds[protein] / float(numSeeds), color = "orange")
+		ax.scatter(protein, transcribedFreqSumOverSeeds[protein] / float(numSeeds), facecolors = "orange", edgecolors = "none")
 		ax.annotate(proteinsOfInterestNames[proteinIdx], xy = (protein, transcribedFreqSumOverSeeds[protein] / float(numSeeds) + heightOffset))
 
 	ax.set_title("Frequency of producing at least 1 transcript\n(n = %s seeds)" % numSeeds, fontsize = 12)
@@ -95,8 +95,6 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
-
-	import ipdb; ipdb.set_trace()
 
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(
