@@ -90,7 +90,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		ax.set_title("Generation %s" % gen, fontsize = 12)
 		ax.set_xlim([0, numMRnas])
-		ax.set_ylim([np.min(mRnaExpression[gen]), np.max(mRnaExpression[gen])])
+		ax.set_ylim([np.min(mRnaExpression[gen]), 100000])
 		ax.spines["top"].set_visible(False)
 		ax.tick_params(which = "both", direction = "out", top = "off")
 			
@@ -107,15 +107,22 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	rows = proteinsOfInterest.shape[0]
 	cols = 1
 	fig = plt.figure(figsize = (15, 18))
+	fig.suptitle("Counts of mRNA transcripts produced", fontsize = 14)
 
 	for proteinIndex, protein in enumerate(proteinsOfInterest):
 		ax = plt.subplot(rows, cols, proteinIndex + 1)
+		ax.plot(np.arange(numGens), mRnaExpression[:, protein])
 
 		for gen in np.arange(numGens):
 			ax.scatter(gen, mRnaExpression[gen][protein])
 
+		ymin = np.min(mRnaExpression[:, protein])
+		ymax = np.max(mRnaExpression[:, protein])
+		ax.set_ylim([ymin, ymax])
+		ax.set_yticks([ymin, ymax])
+		ax.set_yticklabels(["%0.2e" % ymin, "%0.2e" % ymax])
 		ax.set_ylabel(proteinsOfInterestNames[proteinIndex], fontsize = 12)
-
+		ax.set_xlim([-0.5, numGens -0.5])
 		ax.spines["top"].set_visible(False)
 		ax.tick_params(which = "both", direction = "out", top = "off")	
 
