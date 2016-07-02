@@ -77,7 +77,7 @@ def testModel(toyModelReactionStoich=toyModelReactionStoich, biomassReactionStoi
 			if enzymeID in enzymeConcentrations:
 				fba.maxReactionFluxIs(reactionID, KCAT_MAX*enzymeConcentrations[enzymeID])
 
-	return fba.objectiveReactionFlux()[0]
+	return fba.biomassReactionFlux()[0]
 
 unconstrainedFlux = testModel()
 

@@ -96,7 +96,7 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 		fba = FluxBalanceAnalysis(**_testStandard)
 
 		self.assertEqual(
-			fba.objectiveReactionFlux(),
+			fba.biomassReactionFlux(),
 			0
 			)
 
@@ -126,7 +126,7 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			])
 
 		self.assertEqual(
-			fba.objectiveReactionFlux(),
+			fba.biomassReactionFlux(),
 			1.0
 			)
 
