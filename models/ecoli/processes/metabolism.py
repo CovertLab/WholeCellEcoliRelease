@@ -43,7 +43,7 @@ SECRETION_PENALTY_COEFF = 1e-5
 
 NONZERO_ENZYMES = False
 USE_RATELIMITS = False # Enable/disable kinetic rate limits in the model
-USE_BASE_RATES = True
+USE_BASE_RATES = False
 
 USE_MANUAL_FLUX_COEFF = False # enable to overrid flux coefficients in the knowledgebase and use these local values instead
 MAX_FLUX_COEFF = 2 # Multiple of predicted rate at which to set the max fluxes
