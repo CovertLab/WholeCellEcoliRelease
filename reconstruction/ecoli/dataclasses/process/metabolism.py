@@ -169,7 +169,6 @@ class Metabolism(object):
 			metaboliteIDs.append(key)
 			metaboliteConcentrations.append(value.asNumber(units.mol / units.L))
 
-		self.biomassFunction = biomassFunction
 		self.observedBiomassMeans = observedBiomassMeans
 		self.observedBiomassStds = observedBiomassStds
 		self.nutrientData = sim_data.nutrientData

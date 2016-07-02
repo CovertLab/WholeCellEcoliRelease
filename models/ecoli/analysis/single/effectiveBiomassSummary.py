@@ -27,7 +27,9 @@ MAX_LEN = 10
 SAMPLE_EVERY = 1
 BURN_IN_PERIOD = 100
 
-PERCENT_DIFFERENCE_TOLERANCE = 1
+MEAN_DIFFERENCE_TOLERANCE = 1
+STD_DIFFERENCE_TOLERANCE = 1
+
 LOWER_CONC_RELEVANCE_BOUND = 1e-10
 
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
@@ -48,6 +50,49 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 
+	outputFluxesMod = outputFluxes
+	outputMoleculeIDsMod = outputMoleculeIDs
+
+	fig = plt.figure(figsize = (30, 15))
+
+	data, logData, meanNormData, logMeanNormData = [], [], [], []
+	for molIdx, (molID, timecourse) in enumerate(zip(outputMoleculeIDsMod, outputFluxesMod.T)):
+		data.append(timecourse[BURN_IN_PERIOD::SAMPLE_EVERY])
+		logData.append(np.log10(timecourse)[BURN_IN_PERIOD::SAMPLE_EVERY])
+		meanNormData.append(timecourse[BURN_IN_PERIOD:] / np.mean(timecourse[BURN_IN_PERIOD:]))
+		logMeanNormData.append(np.log10(timecourse[BURN_IN_PERIOD:] / np.mean(timecourse[BURN_IN_PERIOD:])))
+
+	plt.subplot(5,1,1)
+	plt.boxplot(data)
+	plt.xticks(range(1,len(outputMoleculeIDsMod)), [x[:-3][:MAX_LEN] for x in outputMoleculeIDsMod], rotation='vertical', fontsize='x-small')
+	plt.ylabel('Output Molecule Flux')
+
+	plt.subplot(5,1,2)
+	plt.boxplot(logData)
+	plt.xticks(range(1,len(outputMoleculeIDsMod)), [x[:-3] for x in outputMoleculeIDsMod], rotation='vertical', fontsize='x-small')
+	plt.ylabel('Log10 Output Molecule Flux')
+
+	plt.subplot(5,1,3)
+	plt.boxplot(meanNormData)
+	plt.xticks(range(1,len(outputMoleculeIDsMod)), [x[:-3] for x in outputMoleculeIDsMod], rotation='vertical', fontsize='x-small')
+	plt.ylabel('Mean Normalized Output Molecule Flux')
+
+	plt.subplot(5,1,4)
+	plt.boxplot(logMeanNormData)
+	plt.xticks(range(1,len(outputMoleculeIDsMod)), [x[:-3] for x in outputMoleculeIDsMod], rotation='vertical', fontsize='x-small')
+	plt.ylabel('Log10 Mean Normalized Output Molecule Flux')
+
+	from wholecell.analysis.analysis_tools import exportFigure
+	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+	plt.close("all")
+
+
+	# Write current biomass fluxes to file
+	with open(os.path.join(plotOutDir, plotOutFileName + '.tsv'), 'w') as output:
+		output.write("\"molecule id\"\t\"mean flux\"\t\"standard deviation\"\n")
+		for molID, meanFlux, stdFlux in zip(outputMoleculeIDs, mean_biomass, std_biomass):
+			output.write("\t".join(['"'+unicode.encode(molID)+'"', str(meanFlux), str(stdFlux)]) + "\n")
+
 	# Read previous biomass fluxes from file
 	observedBiomassMeans = sim_data.process.metabolism.observedBiomassMeans
 	observedBiomassStds = sim_data.process.metabolism.observedBiomassStds
@@ -61,10 +106,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		observedMean = observedBiomassMeans[molID]
 		observedStd = observedBiomassStds[molID]
 		# print "\t".join([molID, str(observedMean), str(simulationMean), str(np.abs(simulationMean - observedMean) / observedMean)])
-		if np.abs(simulationMean - observedMean) / observedMean > PERCENT_DIFFERENCE_TOLERANCE:
+		if np.abs(simulationMean - observedMean) / observedMean > MEAN_DIFFERENCE_TOLERANCE:
 			if simulationMean - observedMean > LOWER_CONC_RELEVANCE_BOUND:
 				differingMeans.add(molID)
-		if np.abs(simulationStd - observedStd) / observedStd > PERCENT_DIFFERENCE_TOLERANCE:
+		if np.abs(simulationStd - observedStd) / observedStd > STD_DIFFERENCE_TOLERANCE:
 			if simulationStd - observedStd > LOWER_CONC_RELEVANCE_BOUND:
 				differingStds.add(molID)
 	if len(differingMeans) > 0 or len(differingStds) > 0:
@@ -73,46 +118,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 				len(differingMeans), differingMeans, len(differingStds), differingStds)
 			)
 
-	# Write current biomass fluxes to file
-	with open(os.path.join(plotOutDir, plotOutFileName + '.tsv'), 'w') as output:
-		output.write("\"molecule id\"\t\"mean flux\"\t\"standard deviation\"\n")
-		for molID, meanFlux, stdFlux in zip(outputMoleculeIDs, mean_biomass, std_biomass):
-			output.write("\t".join(['"'+unicode.encode(molID)+'"', str(meanFlux), str(stdFlux)]) + "\n")
-
-	# maxFluxIdx = np.argmax(mean_biomass)
-
-	# outputFluxesMod = np.concatenate((outputFluxes[:,:maxFluxIdx], outputFluxes[:,maxFluxIdx+1:]),axis=1)
-	# outputMoleculeIDsMod = np.concatenate((outputMoleculeIDs[:maxFluxIdx], outputMoleculeIDs[maxFluxIdx+1:]),axis=1)
-
-	outputFluxesMod = outputFluxes
-	outputMoleculeIDsMod = outputMoleculeIDs
-
-	fig = plt.figure(figsize = (30, 15))
-
-	data, logData, meanNormData = [], [], []
-	for molIdx, (molID, timecourse) in enumerate(zip(outputMoleculeIDsMod, outputFluxesMod.T)):
-		data.append(timecourse[BURN_IN_PERIOD::SAMPLE_EVERY])
-		logData.append(np.log10(timecourse)[BURN_IN_PERIOD::SAMPLE_EVERY])
-		meanNormData.append(timecourse / np.mean(timecourse))
-
-	plt.subplot(4,1,1)
-	plt.boxplot(data)
-	plt.xticks(range(1,len(outputMoleculeIDsMod)), [x[:-3][:MAX_LEN] for x in outputMoleculeIDsMod], rotation='vertical', fontsize='x-small')
-	plt.ylabel('Output Molecule Flux')
-
-	plt.subplot(4,1,2)
-	plt.boxplot(logData)
-	plt.xticks(range(1,len(outputMoleculeIDsMod)), [x[:-3] for x in outputMoleculeIDsMod], rotation='vertical', fontsize='x-small')
-	plt.ylabel('Log10 Output Molecule Flux')
-
-	plt.subplot(4,1,3)
-	plt.boxplot(meanNormData)
-	plt.xticks(range(1,len(outputMoleculeIDsMod)), [x[:-3] for x in outputMoleculeIDsMod], rotation='vertical', fontsize='x-small')
-	plt.ylabel('Mean Normalized Output Molecule Flux')
-
-	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
-	plt.close("all")
 
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(

@@ -56,9 +56,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	idToColor = {}
 	for idx, simDir in enumerate(allDir):
 		simOutDir = os.path.join(simDir, "simOut")
-		
+
 		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-		
+
 		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 		outputFluxes = fbaResults.readColumn("outputFluxes")
 		outputMoleculeIDs = np.array(fbaResults.readAttribute("outputMoleculeIDs"))
@@ -74,7 +74,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			# Unadjusted
 			plt.subplot(2,1,1)
 			plt.plot(time / 60. / 60., outputFlux, label=outputMoleculeID, color=idToColor[outputMoleculeID])
-		
+
 			# Log scale
 			plt.subplot(2,1,2)
 			plt.plot(time / 60. / 60., np.log10(outputFlux), label=outputMoleculeID, color=idToColor[outputMoleculeID])
