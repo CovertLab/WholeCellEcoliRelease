@@ -87,13 +87,15 @@ def fitSimData_1(raw_data):
 def buildBasalCellSpecifications(sim_data):
 	cellSpecs = {}
 	cellSpecs["basal"] = {
-		"concDict": sim_data.process.metabolism.concDict.copy(),
+		"concDict": sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
+					"minimal"
+				),
 		"expression": sim_data.process.transcription.rnaExpression["basal"].copy(),
-		"doubling_time": sim_data.doubling_time,
+		"doubling_time": sim_data.conditionToDoublingTime["basal"],
 		"translation_km": np.zeros(len(sim_data.moleculeGroups.aaIDs))
 	}
 
-	expression, synthProb, avgCellDryMassInit, fitAvgSolublePoolMass, bulkContainer = expressionConverge(
+	expression, synthProb, avgCellDryMassInit, fitAvgSolublePoolMass, bulkContainer, _ = expressionConverge(
 		sim_data,
 		cellSpecs["basal"]["expression"],
 		cellSpecs["basal"]["concDict"],
@@ -174,7 +176,7 @@ def buildTfConditionCellSpecifications(sim_data, cellSpecs):
 
 			cellSpecs[conditionKey] = {
 				"concDict": sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
-					sim_data.envDict[conditionValue["environment"]][0][-1]
+					conditionValue["nutrients"]
 				),
 				"expression": expression,
 				"doubling_time": sim_data.conditionToDoublingTime.get(
@@ -183,12 +185,13 @@ def buildTfConditionCellSpecifications(sim_data, cellSpecs):
 				)
 			}
 
-			expression, synthProb, avgCellDryMassInit, fitAvgSolublePoolMass, bulkContainer = expressionConverge(
+			expression, synthProb, avgCellDryMassInit, fitAvgSolublePoolMass, bulkContainer, concDict = expressionConverge(
 				sim_data,
 				cellSpecs[conditionKey]["expression"],
 				cellSpecs[conditionKey]["concDict"],
 				cellSpecs[conditionKey]["doubling_time"],
 				sim_data.process.transcription.rnaData["KmEndoRNase"],
+				updateConcDict = True,
 				)
 
 			cellSpecs[conditionKey]["expression"] = expression
@@ -200,8 +203,13 @@ def buildTfConditionCellSpecifications(sim_data, cellSpecs):
 			sim_data.process.transcription.rnaExpression[conditionKey] = cellSpecs[conditionKey]["expression"]
 			sim_data.process.transcription.rnaSynthProb[conditionKey] = cellSpecs[conditionKey]["synthProb"]
 
+			# Uncomment when concDict is actually calculated for non-base [AA]
+			# if len(conditionValue["perturbations"]) == 0:
+			# 	nutrientLabel = conditionValue["nutrients"]
+			# 	sim_data.process.metabolism.nutrientsToInternalConc[nutrientLabel] = concDict
 
-def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None):
+
+def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None, updateConcDict = False):
 	# Fit synthesis probabilities for RNA
 	for iteration in xrange(MAX_FITTING_ITERATIONS):
 		if VERBOSE: print 'Iteration: {}'.format(iteration)
@@ -222,6 +230,9 @@ def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None)
 
 		expression, synthProb = fitExpression(sim_data, bulkContainer, doubling_time, Km)
 
+		if updateConcDict:
+			concDict = concDict.copy() # Calculate non-base condition [AA]
+
 		finalExpression = expression
 
 		degreeOfFit = np.sqrt(np.mean(np.square(initialExpression - finalExpression)))
@@ -233,7 +244,7 @@ def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None)
 	else:
 		raise Exception("Fitting did not converge")
 
-	return expression, synthProb, avgCellDryMassInit, fitAvgSolublePoolMass, bulkContainer
+	return expression, synthProb, avgCellDryMassInit, fitAvgSolublePoolMass, bulkContainer, concDict
 
 
 # Sub-fitting functions

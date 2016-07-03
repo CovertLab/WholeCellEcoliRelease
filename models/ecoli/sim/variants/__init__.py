@@ -19,8 +19,8 @@ from models.ecoli.sim.variants.kinetics_flux_coeff import kineticsFluxCoeffTotal
 from models.ecoli.sim.variants.growth_rate import growthRate
 from models.ecoli.sim.variants.growth_rate import growthRateTotalIndices
 
-from models.ecoli.sim.variants.environment import environment
-from models.ecoli.sim.variants.environment import environmentTotalIndices
+from models.ecoli.sim.variants.nutrientTimeSeries import nutrientTimeSeries
+from models.ecoli.sim.variants.nutrientTimeSeries import nutrientTimeSeriesTotalIndices
 
 from models.ecoli.sim.variants.scaling_factor import scalingFactor
 from models.ecoli.sim.variants.scaling_factor import scalingFactorTotalIndices
@@ -33,8 +33,8 @@ nameToFunctionMapping = {
 	"starvationVariant": starvationVariant,
 	"kineticsFluxCoeff": kineticsFluxCoeff,
 	"growthRate": growthRate,
-	"environment": environment,
 	"scalingFactor": scalingFactor,
+	"nutrientTimeSeries": nutrientTimeSeries,
 }
 
 nameToNumIndicesMapping = {
@@ -44,6 +44,6 @@ nameToNumIndicesMapping = {
 	"starvationVariant": starvationVariantTotalIndices,
 	"kineticsFluxCoeff": kineticsFluxCoeffTotalIndices,
 	"growthRate": growthRateTotalIndices,
-	"environment": environmentTotalIndices,
 	"scalingFactor": scalingFactorTotalIndices,
+	"nutrientTimeSeries": nutrientTimeSeriesTotalIndices,
 }
