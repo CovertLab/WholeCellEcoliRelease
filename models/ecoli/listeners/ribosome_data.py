@@ -86,6 +86,7 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		self.rrn5S_init_prob = 0.
 		self.total_rna_init = 0
 		self.expectedInitRate = 0.
+		self.processElongationRate = 0.
 
 	def update(self):
 		if self.ribosomeStalls.size:
@@ -130,4 +131,5 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 			rrn5S_init_prob = self.rrn5S_init_prob,
 			total_rna_init = self.total_rna_init,
 			expectedInitRate = self.expectedInitRate,
+			processElongationRate = self.processElongationRate,
 			)

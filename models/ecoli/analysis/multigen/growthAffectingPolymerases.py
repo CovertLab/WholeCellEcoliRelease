@@ -37,8 +37,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	expected_doubling_time = sim_data.doubling_time
 
 	fig = plt.figure()
-	fig.set_size_inches(10,12)
-	gs = gridspec.GridSpec(10, 3)
+	fig.set_size_inches(15,15)
+
+	gs = gridspec.GridSpec(8, 5)
 
 	ax1 = plt.subplot(gs[0,:2])
 	ax1_1 = plt.subplot(gs[0,2])
@@ -50,8 +51,14 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax6 = plt.subplot(gs[5,:2])
 	ax7 = plt.subplot(gs[6,:2])
 	ax8 = plt.subplot(gs[7,:2])
-	ax9 = plt.subplot(gs[8,:2])
-	ax10 = plt.subplot(gs[9,:2])
+	ax9 = plt.subplot(gs[0,3:])
+	ax10 = plt.subplot(gs[1,3:])
+	ax11 = plt.subplot(gs[2,3:])
+	ax12 = plt.subplot(gs[3,3:])
+	ax13 = plt.subplot(gs[4,3:])
+	ax14 = plt.subplot(gs[5,3:])
+	ax15 = plt.subplot(gs[6,3:])
+	ax16 = plt.subplot(gs[7,3:])
 
 	for gen, simDir in enumerate(firstCellLineage):
 		simOutDir = os.path.join(simDir, "simOut")
@@ -165,9 +172,23 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		effectiveElongationRate = actualElongations / ribosomeCounts
 		extraRibosomes = (ribosomeCounts - actualElongations / 21.) / (actualElongations / 21.) * 100
 
+		fractionActive = activeRibosome.astype(np.float) / (activeRibosome + np.vstack((counts30S, counts50S)).min(axis=0))
+
 		## Calculate statistics involving ribosomes and RNAP ##
 		ratioRNAPtoRibosome = totalRnap.astype(np.float) / ribosomeCounts.astype(np.float)
 		ribosomeConcentration = ((1 / sim_data.constants.nAvogadro) * ribosomeCounts) / ((1.0 / sim_data.constants.cellDensity) * (units.fg * cellMass))
+		averageRibosomeElongationRate = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("effectiveElongationRate")
+		processElongationRate = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("processElongationRate")
+
+
+		## Calculate statistics involving ribosome efficiency ##
+		aaUsed = TableReader(os.path.join(simOutDir, "GrowthLimits")).readColumn("aasUsed")
+		aaAllocated = TableReader(os.path.join(simOutDir, "GrowthLimits")).readColumn("aaAllocated")
+		aaRequested = TableReader(os.path.join(simOutDir, "GrowthLimits")).readColumn("aaRequestSize")
+		aaPoolsize = TableReader(os.path.join(simOutDir, "GrowthLimits")).readColumn("aaPoolSize")
+
+		allocatedRibosomes = TableReader(os.path.join(simOutDir, "GrowthLimits")).readColumn("activeRibosomeAllocated")
+		allocatedElongationRate = aaUsed.sum(axis=1) / allocatedRibosomes * timeStep.asNumber(units.s)
 
 		## Plotting ##
 
@@ -176,7 +197,11 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		stdDoublingTime = doublingTime[1:].asNumber(units.min).std()
 		ax1.plot(time.asNumber(units.min), doublingTime.asNumber(units.min))
 		ax1.plot(time.asNumber(units.min), expected_doubling_time.asNumber(units.min) * np.ones(time.asNumber().size), linestyle='--')
-		ax1.set_ylim([avgDoublingTime - 2*stdDoublingTime, avgDoublingTime + 2*stdDoublingTime])
+		if gen == 0:
+			y_lim = [avgDoublingTime - 2*stdDoublingTime, avgDoublingTime + 2*stdDoublingTime]
+		else:
+			y_lim = get_new_ylim(ax1, avgDoublingTime - 2*stdDoublingTime, avgDoublingTime + 2*stdDoublingTime)
+		ax1.set_ylim(y_lim)
 		ax1.set_ylabel("Doubling\ntime (min)")
 		ax1.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 
@@ -223,8 +248,21 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		# Plot ribosome concentration
 		ax7.plot(time.asNumber(units.min), ribosomeConcentration.asNumber(units.mmol / units.L))
 		ax7.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
-		ax7.set_ylim([ribosomeConcentration.asNumber(units.mmol / units.L)[10:].min(), ribosomeConcentration.asNumber(units.mmol / units.L).max()])
+		if gen == 0:
+			y_lim = [ribosomeConcentration.asNumber(units.mmol / units.L)[10:].min(), ribosomeConcentration.asNumber(units.mmol / units.L).max()]
+		else:
+			y_lim = get_new_ylim(ax7, ribosomeConcentration.asNumber(units.mmol / units.L)[10:].min(), ribosomeConcentration.asNumber(units.mmol / units.L).max())
+		ax7.set_ylim(y_lim)
 		ax7.set_ylabel("[Ribosome]\n(mM)")
+
+		ax7_1 = ax7.twinx()
+		ax7_1.plot(time.asNumber(units.min), ribosomeCounts)
+		if gen == 0:
+			y_lim = [ribosomeCounts[10:].min(), ribosomeCounts.max()]
+		else:
+			y_lim = get_new_ylim(ax7_1, ribosomeCounts[10:].min(), ribosomeCounts.max())
+		ax7_1.set_ylim(y_lim)
+		ax7_1.set_ylabel("Active\nribosome\ncount")
 
 		# Plot ratio 
 		ax8.plot(time.asNumber(units.min), ratioRnaToProteinMass)
@@ -243,13 +281,51 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ax10.set_ylim([0, 100])
 		ax10.set_ylabel("% extra\nribosomes")
 
-	ax10.set_xlabel("Time (min)")
+		# Average ribosome elongation rate
+		ax11.plot(time.asNumber(units.min), averageRibosomeElongationRate)
+		ax11.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
+		ax11.set_ylabel("Eff. ribosome\nelongation rate\n(aa/s)")
+
+		# Process elongation rate
+		ax12.plot(time.asNumber(units.min), processElongationRate)
+		ax12.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
+		ax12.set_ylabel("Process ribosome\nelongation rate\n(aa/s)")
+
+		# Allocated AA / allocated ribosomes elongation rate
+		ax13.plot(time.asNumber(units.min), allocatedElongationRate)
+		ax13.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
+		ax13.set_ylabel("Allocated AA / ribosomes")
+
+		# AA requested over total pool size
+		ax14.plot(time.asNumber(units.min), aaRequested / aaPoolsize)
+		ax14.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
+		ax14.set_ylabel("AA request / total")
+
+		# AA used over AA allocated
+		ax15.plot(time.asNumber(units.min), aaUsed / aaAllocated)
+		ax15.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
+		ax15.set_ylim([0., 1.1])
+		ax15.set_ylabel("AA used / allocated")
+
+		# Fraction active ribosomes
+		ax16.plot(time.asNumber(units.min), fractionActive)
+		ax16.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
+		if gen == 0:
+			y_lim = [np.nanmin(fractionActive[10:]), np.nanmax(fractionActive) + 0.01]
+		else:
+			y_lim = get_new_ylim(ax16, np.nanmin(fractionActive[10:]), np.nanmax(fractionActive) + 0.01)
+		ax16.set_ylim(y_lim)
+		ax16.set_ylabel("Fraction active\nribosome")
+
+	ax16.set_xlabel("Time (min)")
 
 	fig.subplots_adjust(hspace=.5, wspace = 0.3)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName,metadata)
 	plt.close("all")
+
+	raise Exception()
 
 def getMassData(simDir, massNames):
 	simOutDir = os.path.join(simDir, "simOut")
@@ -265,6 +341,17 @@ def getMassData(simDir, massNames):
 		massFractionData = massFractionData.reshape(-1)
 
 	return time, massFractionData
+
+def get_new_ylim(axis, new_min, new_max):
+	ymin = axis.get_ylim()[0]
+	ymax = axis.get_ylim()[1]
+
+	if new_min < ymin:
+		ymin = new_min
+	if new_max > ymax:
+		ymax = new_max
+
+	return [ymin, ymax]
 
 def removeNanReshape(a):
 	return a[np.logical_not(np.isnan(a))]

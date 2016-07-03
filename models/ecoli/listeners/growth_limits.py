@@ -63,6 +63,8 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 		self.gtpAllocated = 0
 		self.gtpUsed = 0
 
+		self.activeRibosomeAllocated = 0
+
 		self.aaPoolSize = np.zeros(len(self.aaIds), np.float64)
 		self.aaRequestSize = np.zeros(len(self.aaIds), np.float64)
 		self.aaAllocated = np.zeros(len(self.aaIds), np.float64)
@@ -88,6 +90,7 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 			gtpRequestSize = self.gtpRequestSize,
 			gtpAllocated = self.gtpAllocated,
 			gtpUsed = self.gtpUsed,
+			activeRibosomeAllocated = self.activeRibosomeAllocated,
 			aaPoolSize = self.aaPoolSize,
 			aaRequestSize = self.aaRequestSize,
 			aaAllocated = self.aaAllocated,
