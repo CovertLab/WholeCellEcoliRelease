@@ -67,7 +67,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		bulkMolecules.close()
 
 		moleculeCountsSumOverTime = moleculeCounts.sum(axis = 0)
-		mRnaExpression.append(moleculeCountsSumOverTime)
+		mRnaExpression.append(moleculeCountsSumOverTime / float(moleculeCounts.shape[0]))
 
 	mRnaExpression = np.array(mRnaExpression)
 
@@ -107,7 +107,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	rows = proteinsOfInterest.shape[0]
 	cols = 1
 	fig = plt.figure(figsize = (15, 18))
-	fig.suptitle("Counts of mRNA transcripts produced", fontsize = 14)
+	fig.suptitle("Average number of transcripts existing in the cell for each generation", fontsize = 12)
 
 	for proteinIndex, protein in enumerate(proteinsOfInterest):
 		ax = plt.subplot(rows, cols, proteinIndex + 1)
