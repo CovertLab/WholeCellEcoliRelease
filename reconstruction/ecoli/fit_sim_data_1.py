@@ -51,6 +51,8 @@ def fitSimData_1(raw_data):
 	# Set C-period
 	setCPeriod(sim_data)
 
+	# expressionModifications(sim_data)
+
 	cellSpecs = buildBasalCellSpecifications(sim_data)
 
 	# Modify other properties
@@ -79,10 +81,18 @@ def fitSimData_1(raw_data):
 		spec["bulkAverageContainer"] = bulkAverageContainer
 		spec["bulkDeviationContainer"] = bulkDeviationContainer
 
+	findPromoterKd(sim_data, cellSpecs)
+
 	sim_data.pPromoterBound = calculatePromoterBoundProbability(sim_data, cellSpecs)
 	calculateRnapRecruitment(sim_data, cellSpecs)
-
+	import ipdb; ipdb.set_trace()
+	
 	return sim_data
+
+def expressionModifications(sim_data):
+	idx = np.where(sim_data.process.transcription.rnaData["id"] == "EG11042_RNA[c]")[0]
+	sim_data.process.transcription.rnaExpression["basal"][idx] *= 3
+	sim_data.process.transcription.rnaExpression["basal"] /= np.sum(sim_data.process.transcription.rnaExpression["basal"])
 
 def buildBasalCellSpecifications(sim_data):
 	cellSpecs = {}
@@ -966,6 +976,28 @@ def calculatePromoterBoundProbability(sim_data, cellSpecs):
 				)
 	return D
 
+def findPromoterKd(sim_data, cellSpecs):
+	cellDensity = sim_data.constants.cellDensity
+	D = {}
+	for tf in sorted(sim_data.tfToActiveInactiveConds):#[:N_TFS]:
+		D[tf] = {}
+		for power in [-12, -11, -10, -9, -8, -7.75, -7.5, -7.25, -7, -6.75, -6.5, -6.25, -6, -5, -4]:
+			D[tf][power] = {}
+			tfKd = units.mol / units.L * 10**(power)
+			for conditionKey in sorted(cellSpecs):
+				cellVolume = cellSpecs[conditionKey]["avgCellDryMassInit"] / cellDensity / sim_data.mass.cellDryMassFraction
+				countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
+				promoterConc = countsToMolar * sim_data.process.transcription_regulation.tfNTargets[tf]
+				tfConc = countsToMolar * cellSpecs[conditionKey]["bulkAverageContainer"].count(tf + "[c]")
+
+				D[tf][power][conditionKey] = sim_data.process.transcription_regulation.pPromoterBound(
+					tfKd.asNumber(units.nmol / units.L),
+					promoterConc.asNumber(units.nmol / units.L),
+					tfConc.asNumber(units.nmol / units.L),
+					)
+
+	import ipdb; ipdb.set_trace()
+
 def calculateRnapRecruitment(sim_data, cellSpecs):
 	gI = []
 	gJ = []
@@ -1014,6 +1046,7 @@ def calculateRnapRecruitment(sim_data, cellSpecs):
 	G = np.zeros(shape, np.float64)
 	G[gI, gJ] = gV
 	r = np.linalg.solve(G, k)
+	import ipdb; ipdb.set_trace()
 
 	hI = []
 	hJ = []

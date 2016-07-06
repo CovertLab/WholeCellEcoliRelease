@@ -504,7 +504,7 @@ class ConcentrationUpdates(object):
 			if moleculeName in moleculeSetAmounts and moleculeSetAmounts[moleculeName] > Kd.asNumber(units.mol / units.L):
 				amountToSet = moleculeSetAmounts[moleculeName]
 			else:
-				amountToSet = Kd.asNumber(units.mol / units.L)
+				amountToSet = 1e-4#Kd.asNumber(units.mol / units.L)
 			moleculeSetAmounts[moleculeName + "[p]"] = amountToSet * (units.mol / units.L)
 			moleculeSetAmounts[moleculeName + "[c]"] = amountToSet * (units.mol / units.L)
 		return moleculeSetAmounts

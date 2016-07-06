@@ -81,6 +81,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.chromosomes = self.bulkMoleculeView('CHROM_FULL[c]')
 
 		self.recruitmentView = self.bulkMoleculesView(recruitmentColNames)
+		import ipdb; ipdb.set_trace()
 
 
 	def calculateRequest(self):
@@ -114,6 +115,10 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		if rnaPolyToActivate == 0:
 			return
+
+		print len(self.rnaSynthProb[self.rnaSynthProb < 0])
+		if np.any(self.rnaSynthProb < 0): import ipdb; ipdb.set_trace()
+		# import ipdb; ipdb.set_trace()
 
 		nNewRnas = self.randomState.multinomial(rnaPolyToActivate,
 			self.rnaSynthProb)
