@@ -133,7 +133,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	plt.text(0,1,'{} text indicates mean is at least {} fold different from reconstruction flat file.'.format(MEAN_ONLY, MEAN_DIFFERENCE_TOLERANCE+1),color=MEAN_ONLY)
 	plt.text(0,0,'{} text indicates std is at least {} fold different from reconstruction flat file.'.format(STD_ONLY, STD_DIFFERENCE_TOLERANCE+1),color=STD_ONLY)
 	plt.text(0,-1,'{} text indicates both mean and std are at least {} and {} fold different from reconstruction flat file, respectively.'.format(MEAN_AND_STD, MEAN_DIFFERENCE_TOLERANCE+1, STD_DIFFERENCE_TOLERANCE+1),color=MEAN_AND_STD)
-	plt.text(0,-3,'{} horizontal line indicates the value expected from the reconstruction flat.'.format(EXPECTED_VALUE_COLOR),color=EXPECTED_VALUE_COLOR)
+	plt.text(0,-3,'{} horizontal line indicates the value expected from the reconstruction flat file.'.format(EXPECTED_VALUE_COLOR),color=EXPECTED_VALUE_COLOR)
 
 
 	outputMoleculeIDsModList = list(outputMoleculeIDsMod)
