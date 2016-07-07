@@ -42,6 +42,6 @@ exchangeMolecules = fba.externalMoleculeIDs()
 
 fba.externalMoleculeLevelsIs([transportLimits[molID] for molID in exchangeMolecules])
 
-biomassReactionFlux = fba.objectiveReactionFlux()[0]
+biomassReactionFlux = fba.biomassReactionFlux()[0]
 
 print biomassReactionFlux
