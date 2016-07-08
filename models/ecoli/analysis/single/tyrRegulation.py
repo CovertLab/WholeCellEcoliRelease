@@ -56,7 +56,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	# Load data from bulk molecules
 	bulkMoleculesReader = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	bulkMoleculeIds = bulkMoleculesReader.readAttribute("objectNames")
-	import ipdb; ipdb.set_trace()
 	# Get the concentration of intracellular phe
 	pheId = ["PHE[c]"]
 	pheIndex = np.array([bulkMoleculeIds.index(x) for x in pheId])
@@ -80,11 +79,17 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	tyrAProteinIndex = np.array([bulkMoleculeIds.index(x) for x in tyrAProteinId])
 	tyrAProteinCounts = bulkMoleculesReader.readColumn("counts")[:, tyrAProteinIndex].reshape(-1)
 
+	tyrAComplexId = ["CHORISMUTPREPHENDEHYDROG-CPLX[c]"]
+	tyrAComplexIndex = np.array([bulkMoleculeIds.index(x) for x in tyrAComplexId])
+	tyrAComplexCounts = bulkMoleculesReader.readColumn("counts")[:, tyrAComplexIndex].reshape(-1)
+
 	bulkMoleculesReader.close()
+
+	tyrAProteinTotalCounts = tyrAProteinCounts + 2 * tyrAComplexCounts
 
 	# Compute the tyrA mass in the cell
 	tyrAMw = sim_data.getter.getMass(tyrAProteinId)
-	tyrAMass = 1. / nAvogadro * tyrAProteinCounts * tyrAMw
+	tyrAMass = 1. / nAvogadro * tyrAProteinTotalCounts * tyrAMw
 
 
 	# Compute the proteome mass fraction
@@ -184,11 +189,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	##############################################################
 	ax = plt.subplot(6, 1, 5)
-	ax.plot(time, tyrAProteinCounts)
+	ax.plot(time, tyrAProteinTotalCounts)
 	plt.ylabel("tyrA Counts", fontsize = 6)
 
-	ymin = np.amin(tyrAProteinCounts * 0.9)
-	ymax = np.amax(tyrAProteinCounts * 1.1)
+	ymin = np.amin(tyrAProteinTotalCounts * 0.9)
+	ymax = np.amax(tyrAProteinTotalCounts * 1.1)
 	if ymin != ymax:
 		ax.set_ylim([ymin, ymax])
 		ax.set_yticks([ymin, ymax])
