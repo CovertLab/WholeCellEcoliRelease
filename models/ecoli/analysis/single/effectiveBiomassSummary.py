@@ -52,8 +52,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	fbaResults.close()
 
 	mean_biomass = np.mean(outputFluxes[BURN_IN_PERIOD:], axis=0)
-	mean_log10_biomass = np.mean(np.log10(outputFluxes[BURN_IN_PERIOD:]), axis=0)
+	mean_log10_biomass = np.mean(np.log10(np.abs(outputFluxes[BURN_IN_PERIOD:])), axis=0)
 	std_biomass = np.std(outputFluxes[BURN_IN_PERIOD:], axis=0)
+
+	mean_log10_biomass[mean_log10_biomass == -np.inf] = -25
 
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 
@@ -136,6 +138,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	plt.text(0,-1,'{} text indicates both mean and std are at least {} and {} fold different from reconstruction flat file, respectively.'.format(MEAN_AND_STD, MEAN_DIFFERENCE_TOLERANCE, STD_DIFFERENCE_TOLERANCE),color=MEAN_AND_STD)
 	plt.text(0,-3,'{} horizontal line indicates the value expected from the reconstruction flat file.'.format(EXPECTED_VALUE_COLOR),color=EXPECTED_VALUE_COLOR)
 	plt.text(0,-4,'{} horizontal line indicates the mean of the log10 value expected from the reconstruction flat file.'.format(EXPECTED_LOG_VALUE_COLOR),color=EXPECTED_LOG_VALUE_COLOR)
+	plt.text(0,-5,'red horizontal line indicates the simulation mean flux.',color='red')
 
 
 	outputMoleculeIDsModList = list(outputMoleculeIDsMod)
@@ -144,7 +147,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		plt.subplot(5,1,1)
 		plt.hlines(y=mean,xmin=idx+.5,xmax=idx+1.5,color=EXPECTED_VALUE_COLOR)
 		plt.subplot(5,1,2)
-		plt.hlines(y=np.log10(mean),xmin=idx+.5,xmax=idx+1.5,color=EXPECTED_VALUE_COLOR)
+		plt.hlines(y=np.log10(np.abs(mean)),xmin=idx+.5,xmax=idx+1.5,color=EXPECTED_VALUE_COLOR)
 		plt.hlines(y=previousBiomassLog10Means[outputMoleculeID],xmin=idx+.5,xmax=idx+1.5,color=EXPECTED_LOG_VALUE_COLOR)
 
 
