@@ -50,7 +50,8 @@ class JsonReader(csv.DictReader):
 			try:
 				value = json.loads(raw_value) if raw_value else ""
 
-			except ValueError:
+			except (ValueError, TypeError) as e:
+				repr(e)
 				raise Exception("failed to parse json string:{}".format(raw_value))
 
 			try:
