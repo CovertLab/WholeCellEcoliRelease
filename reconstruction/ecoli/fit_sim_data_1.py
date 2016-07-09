@@ -16,6 +16,7 @@ from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWi
 
 from wholecell.utils import units
 from wholecell.utils.fitting import normalize, massesAndCountsToAddForPools
+from wholecell.utils.modular_fba import FluxBalanceAnalysis
 
 # Hacks
 RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
@@ -32,6 +33,8 @@ N_TFS = 1
 BASAL_EXPRESSION_CONDITION = "M9 Glucose minus AAs"
 
 VERBOSE = False
+
+from models.ecoli.processes.metabolism import SECRETION_PENALTY_COEFF
 
 COUNTS_UNITS = units.mmol
 VOLUME_UNITS = units.L
@@ -1145,37 +1148,6 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 
 def findKineticCoeffs(sim_data, bulkContainer):
 
-	import ipdb; ipdb.set_trace()
-	objective = dict((key, sim_data.process.metabolism.concDict[key].asNumber(COUNTS_UNITS / VOLUME_UNITS)) for key in sim_data.process.metabolism.concDict)
-	extIDs = sim_data.externalExchangeMolecules[sim_data.environment]
-	reactionStoich = sim_data.process.metabolism.reactionStoich
-	externalExchangeMolecules = sim_data.externalExchangeMolecules[sim_data.environment]
-	reversibleReactions = sim_data.process.metabolism.reversibleReactions
-	moleculeMasses = dict(zip(extIDs,sim_data.getter.getMass(extIDs).asNumber(MASS_UNITS/COUNTS_UNITS)))
-
-
-	# Load the empirical jFBA biomass reaction stoichiometry
-	jfbaBiomassReactionStoich = {}
-	with open("/home/mpaull/wcEcoli/user/model_output_fluxes_5_to_35.tsv") as f:
-		for idx, line in enumerate(f):
-			# Skip the header
-			if idx < 1:
-				continue
-
-			columns = line.strip("\n").split("\t")
-
-			metaboliteId = columns[0]
-			reactionCoefficient = columns[1]
-
-			jfbaBiomassReactionStoich[metaboliteId] = -float(reactionCoefficient)
-
-	jfbaBiomassReactionStoich["biomass"] = 1
-
-	# Add it to the reaction network
-	reactionStoichWithBiomass = reactionStoich.copy()
-
-	reactionStoichWithBiomass["JFBA-BIOMASS-RXN"] = jfbaBiomassReactionStoich
-
 	# Estimate the volume of the initial cell
 	initDryMass = sim_data.mass.avgCellDryMassInit
 	dryMassPerCellMass = (1. - sim_data.mass.cellWaterMassFraction)
@@ -1184,13 +1156,28 @@ def findKineticCoeffs(sim_data, bulkContainer):
 
 	energyCostPerWetMass = sim_data.constants.darkATP * initDryMass / totalCellMassInit
 
+	reactionStoich = sim_data.process.metabolism.reactionStoich
+	externalExchangeMolecules = sorted(sim_data.nutrientData["secretionExchangeMolecules"])
+	extMoleculeMasses = sim_data.getter.getMass(externalExchangeMolecules)
+
+	moleculeMasses = dict(zip(
+		externalExchangeMolecules,
+		sim_data.getter.getMass(externalExchangeMolecules).asNumber(MASS_UNITS / COUNTS_UNITS)
+		))
+
+	# Make previously observed external molecule fluxes into coefficients of a biomass reaction
+	jfbaBiomassReactionStoich = {molID:-coeff for molID, coeff in sim_data.process.metabolism.previousBiomassMeans.iteritems()}
+	jfbaBiomassReactionStoich["biomass"] = 1
+	reactionStoichWithBiomass = reactionStoich.copy()
+	reactionStoichWithBiomass["JFBA-BIOMASS-RXN"] = jfbaBiomassReactionStoich
+
 	fbaObject = FluxBalanceAnalysis(
 		reactionStoich = reactionStoichWithBiomass,
 		externalExchangedMolecules = externalExchangeMolecules,
 		objective = {"biomass": 1},
 		objectiveType = "standard",
-		reversibleReactions = reversibleReactions,
-		moleculeMasses = moleculeMasses,
+		moleculeMasses=dict(zip(externalExchangeMolecules, extMoleculeMasses.asNumber(MASS_UNITS / COUNTS_UNITS))),
+		secretionPenaltyCoeff = SECRETION_PENALTY_COEFF,
 		solver = "glpk",
 		maintenanceCostGAM = energyCostPerWetMass.asNumber(COUNTS_UNITS / MASS_UNITS),
 		maintenanceReaction = {
@@ -1205,7 +1192,7 @@ def findKineticCoeffs(sim_data, bulkContainer):
 		fbaObject.externalMoleculeIDs(),
 		coefficient,
 		COUNTS_UNITS / VOLUME_UNITS,
-		sim_data.environment,
+		sim_data.nutrientsTimeSeriesLabel,
 		1. # time only matters in changing environments, so any > 0 is fine
 		)
 
@@ -1213,6 +1200,8 @@ def findKineticCoeffs(sim_data, bulkContainer):
 
 	fbaObject.maxReactionFluxIs(fbaObject._reactionID_NGAM, (sim_data.constants.nonGrowthAssociatedMaintenance * coefficient).asNumber(COUNTS_UNITS / VOLUME_UNITS))
 	fbaObject.minReactionFluxIs(fbaObject._reactionID_NGAM, (sim_data.constants.nonGrowthAssociatedMaintenance * coefficient).asNumber(COUNTS_UNITS / VOLUME_UNITS))
+	
+	import ipdb; ipdb.set_trace()
 
 	arrayModel = fbaObject.getArrayBasedModel()
 
