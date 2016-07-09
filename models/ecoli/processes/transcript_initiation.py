@@ -81,13 +81,14 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.chromosomes = self.bulkMoleculeView('CHROM_FULL[c]')
 
 		self.recruitmentView = self.bulkMoleculesView(recruitmentColNames)
-		import ipdb; ipdb.set_trace()
 
 
 	def calculateRequest(self):
 		self.inactiveRnaPolys.requestAll()
 		self.rnaSynthProb = self.recruitmentMatrix.dot(self.recruitmentView.total())
 		self.rnaSynthProb /= self.rnaSynthProb.sum()
+		if np.any(self.rnaSynthProb < 0):
+			raise Exception, "Have negative RNA synthesis probabilities"
 
 
 	# Calculate temporal evolution
@@ -115,10 +116,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		if rnaPolyToActivate == 0:
 			return
-
-		print len(self.rnaSynthProb[self.rnaSynthProb < 0])
-		if np.any(self.rnaSynthProb < 0): import ipdb; ipdb.set_trace()
-		# import ipdb; ipdb.set_trace()
 
 		nNewRnas = self.randomState.multinomial(rnaPolyToActivate,
 			self.rnaSynthProb)
