@@ -14,7 +14,6 @@ matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import itertools
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
@@ -24,62 +23,56 @@ FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
 from wholecell.analysis.plotting_tools import COLORS_LARGE
 
 BURN_IN_PERIOD = 100
+
 RANGE_THRESHOLD = 1
 MOVING_AVE_WINDOW_SIZE = 300
 
-def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
+def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
-	if not os.path.isdir(seedOutDir):
-		raise Exception, "seedOutDir does not currently exist as a directory"
+	if not os.path.isdir(simOutDir):
+		raise Exception, "simOutDir does not currently exist as a directory"
 
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-
-	# Get all cells
-	allDir = ap.get_cells()
-
 	plt.figure(figsize = (17, 11))
 	idToColor = {}
-	for idx, simDir in enumerate(allDir):
-		simOutDir = os.path.join(simDir, "simOut")
+	
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
+	outputFluxes = fbaResults.readColumn("outputFluxes")
+	outputMoleculeIDs = np.array(fbaResults.readAttribute("outputMoleculeIDs"))
+	fbaResults.close()
 
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+	# Build a mapping from molecule to color
+	idToColor = {}
+	for outputMoleculeID, color in itertools.izip(outputMoleculeIDs, itertools.cycle(COLORS_LARGE)):
+		idToColor[outputMoleculeID] = color
 
-		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
-		outputFluxes = fbaResults.readColumn("outputFluxes")
-		outputMoleculeIDs = np.array(fbaResults.readAttribute("outputMoleculeIDs"))
-		fbaResults.close()
+	for idx, (outputMoleculeID, outputFlux) in enumerate(zip(outputMoleculeIDs, outputFluxes.T)):
+		runningMeanFlux = np.convolve(outputFlux[BURN_IN_PERIOD:], np.ones((MOVING_AVE_WINDOW_SIZE,))/MOVING_AVE_WINDOW_SIZE, mode='valid')
 
-		# Build a color mapping with the first cell, then stick to it
-		if idx == 0:
-			idToColor = {}
-			for outputMoleculeID, color in itertools.izip(outputMoleculeIDs, itertools.cycle(COLORS_LARGE)):
-				idToColor[outputMoleculeID] = color
+		meanNormFlux = runningMeanFlux / np.mean(runningMeanFlux)
+		fluxRange = meanNormFlux.max() - meanNormFlux.min()
 
-		for idx, (outputMoleculeID, outputFlux) in enumerate(zip(outputMoleculeIDs, outputFluxes.T)):
-			runningMeanFlux = np.convolve(outputFlux[BURN_IN_PERIOD:], np.ones((MOVING_AVE_WINDOW_SIZE,))/MOVING_AVE_WINDOW_SIZE, mode='valid')
+		# Unadjusted
+		plt.subplot(2,2,1)
+		plt.plot(time / 60., outputFlux, label=outputMoleculeID, color=idToColor[outputMoleculeID])
 
-			meanNormFlux = runningMeanFlux / np.mean(runningMeanFlux)
-			fluxRange = meanNormFlux.max() - meanNormFlux.min()
+		# Log scale
+		plt.subplot(2,2,3)
+		plt.plot(time / 60., np.log10(outputFlux), label=outputMoleculeID, color=idToColor[outputMoleculeID])
 
+
+		if fluxRange > RANGE_THRESHOLD:
 			# Unadjusted
-			plt.subplot(2,2,1)
-			plt.plot(time / 60. / 60., outputFlux, label=outputMoleculeID, color=idToColor[outputMoleculeID])
+			plt.subplot(2,2,2)
+			plt.plot(time / 60., outputFlux, label=outputMoleculeID, color=idToColor[outputMoleculeID])
 
 			# Log scale
-			plt.subplot(2,2,3)
-			plt.plot(time / 60. / 60., np.log10(outputFlux), label=outputMoleculeID, color=idToColor[outputMoleculeID])
+			plt.subplot(2,2,4)
+			plt.plot(time / 60., np.log10(outputFlux), label=outputMoleculeID, color=idToColor[outputMoleculeID])
 
-			if fluxRange > RANGE_THRESHOLD:
-				# Unadjusted
-				plt.subplot(2,2,2)
-				plt.plot(time / 60. / 60., outputFlux, label=outputMoleculeID, color=idToColor[outputMoleculeID])
-
-				# Log scale
-				plt.subplot(2,2,4)
-				plt.plot(time / 60. / 60., np.log10(outputFlux), label=outputMoleculeID, color=idToColor[outputMoleculeID])
 
 	plt.suptitle("Output Reaction Fluxes")
 	plt.subplot(2,2,1)
