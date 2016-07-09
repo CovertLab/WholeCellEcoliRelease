@@ -45,7 +45,7 @@ class TfBinding(wholecell.processes.process.Process):
 		self.cellDensity = sim_data.constants.cellDensity
 
 		self.pTfBound = sim_data.process.transcription_regulation.pTfBound
-		self.tfKd = sim_data.process.transcription_regulation.tfKd
+		self.tfKd = sim_data.process.transcription_regulation.tfKdFit
 		self.tfNTargets = sim_data.process.transcription_regulation.tfNTargets
 
 		self.alphaView = self.bulkMoleculesView(alphaNames)
