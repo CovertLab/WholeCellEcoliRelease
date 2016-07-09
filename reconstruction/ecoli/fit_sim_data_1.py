@@ -50,8 +50,6 @@ def fitSimData_1(raw_data):
 	# Set C-period
 	setCPeriod(sim_data)
 
-	# expressionModifications(sim_data)
-
 	cellSpecs = buildBasalCellSpecifications(sim_data)
 
 	# Modify other properties
@@ -88,10 +86,6 @@ def fitSimData_1(raw_data):
 	
 	return sim_data
 
-def expressionModifications(sim_data):
-	idx = np.where(sim_data.process.transcription.rnaData["id"] == "EG11042_RNA[c]")[0]
-	sim_data.process.transcription.rnaExpression["basal"][idx] *= 3
-	sim_data.process.transcription.rnaExpression["basal"] /= np.sum(sim_data.process.transcription.rnaExpression["basal"])
 
 def buildBasalCellSpecifications(sim_data):
 	cellSpecs = {}
