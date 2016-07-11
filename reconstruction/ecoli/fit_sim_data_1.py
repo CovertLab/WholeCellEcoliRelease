@@ -18,6 +18,8 @@ from wholecell.utils import units
 from wholecell.utils.fitting import normalize, massesAndCountsToAddForPools
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
 
+import cvxpy
+
 # Hacks
 RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
 FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.2  # reduce stochasticity from protein expression
@@ -1269,8 +1271,6 @@ def findKineticCoeffs(sim_data, bulkContainer):
 
 	fbaObject.maxReactionFluxIs(fbaObject._reactionID_NGAM, (sim_data.constants.nonGrowthAssociatedMaintenance * coefficient).asNumber(COUNTS_UNITS / VOLUME_UNITS))
 	fbaObject.minReactionFluxIs(fbaObject._reactionID_NGAM, (sim_data.constants.nonGrowthAssociatedMaintenance * coefficient).asNumber(COUNTS_UNITS / VOLUME_UNITS))
-	
-	import ipdb; ipdb.set_trace()
 
 	arrayModel = fbaObject.getArrayBasedModel()
 
@@ -1281,14 +1281,16 @@ def findKineticCoeffs(sim_data, bulkContainer):
 	upperBounds = np.array([upperBoundsDict[x] for x in reactionNames])
 	lowerBounds = np.array([lowerBoundsDict[x] for x in reactionNames])
 
-	x = Variable(S_matrix.shape[1])
+	x = cvxpy.Variable(S_matrix.shape[1])
 	c = np.zeros(len(reactionNames))
 	c[reactionNames.index("JFBA-BIOMASS-RXN")] = 1
 
 	# Construct the problem.
-	objective = Maximize(c*x)
+	objective = cvxpy.Maximize(c*x)
 	constraints = [lowerBounds <= x, x <= upperBounds, S_matrix*x == 0]
-	prob = Problem(objective, constraints)
+	prob = cvxpy.Problem(objective, constraints)
+
+	import ipdb; ipdb.set_trace()
 	expectedFlux = prob.solve(solver=GLPK)
 
 	fluxes = np.array(x.value)
