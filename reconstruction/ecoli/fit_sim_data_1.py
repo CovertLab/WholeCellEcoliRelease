@@ -28,7 +28,6 @@ FRACTION_INCREASE_RNAP_PROTEINS = 0.05
 FITNESS_THRESHOLD = 1e-9
 MAX_FITTING_ITERATIONS = 100
 N_SEEDS = 10
-N_TFS = 1
 
 BASAL_EXPRESSION_CONDITION = "M9 Glucose minus AAs"
 
@@ -85,10 +84,14 @@ def fitSimData_1(raw_data):
 		spec["bulkAverageContainer"] = bulkAverageContainer
 		spec["bulkDeviationContainer"] = bulkDeviationContainer
 
-	sim_data.pPromoterBound = calculatePromoterBoundProbability(sim_data, cellSpecs)
-	calculateRnapRecruitment(sim_data, cellSpecs)
+	fitTfPromoterKd(sim_data, cellSpecs)
 
+	sim_data.pPromoterBound = calculatePromoterBoundProbability(sim_data, cellSpecs)
+
+	calculateRnapRecruitment(sim_data, cellSpecs)
+	
 	return sim_data
+
 
 def buildBasalCellSpecifications(sim_data):
 	cellSpecs = {}
@@ -126,7 +129,7 @@ def buildBasalCellSpecifications(sim_data):
 
 
 def buildTfConditionCellSpecifications(sim_data, cellSpecs):
-	for tf in sorted(sim_data.tfToActiveInactiveConds)[:N_TFS]:	# Only do 1 TF while still implementing
+	for tf in sorted(sim_data.tfToActiveInactiveConds):
 		for choice in ["__active", "__inactive"]:
 			conditionKey = tf + choice
 			conditionValue = sim_data.conditions[conditionKey]
@@ -951,6 +954,71 @@ def expressionFromConditionAndFoldChange(rnaIds, basalExpression, condPerturbati
 
 	return expression
 
+def fitTfPromoterKd(sim_data, cellSpecs):
+	sim_data.process.transcription_regulation.tfKdFit = sim_data.process.transcription_regulation.tfKd.copy()
+	cellDensity = sim_data.constants.cellDensity
+	rnaIdList = sim_data.process.transcription.rnaData["id"].tolist()
+
+	def alphaGtZero(tfKdLog10, activeTfConc, inactiveTfConc, activePromConc, inactivePromConc, activeKSynth, inactiveKSynth):
+		tfKd = 10**tfKdLog10
+		pPromBoundActive = sim_data.process.transcription_regulation.pPromoterBound(tfKd, activePromConc, activeTfConc)
+		pPromBoundInactive = sim_data.process.transcription_regulation.pPromoterBound(tfKd, inactivePromConc, inactiveTfConc)
+
+		# To have alpha > 0, the following expression must be non-negative
+		return -1. * (activeKSynth * pPromBoundInactive - inactiveKSynth * pPromBoundActive)
+
+	def alphaPlusDeltaRGtZero(tfKdLog10, activeTfConc, inactiveTfConc, activePromConc, inactivePromConc, activeKSynth, inactiveKSynth):
+		tfKd = 10**tfKdLog10
+		pPromBoundActive = sim_data.process.transcription_regulation.pPromoterBound(tfKd, activePromConc, activeTfConc)
+		pPromBoundInactive = sim_data.process.transcription_regulation.pPromoterBound(tfKd, inactivePromConc, inactiveTfConc)
+
+		# To have alpha + \delta r > 0, the following expression must be non-negative
+		return -1. * (activeKSynth * pPromBoundInactive - inactiveKSynth * pPromBoundActive - (activeKSynth - inactiveKSynth))
+
+	def l1Distance(x, x_init):
+		return np.abs(x - x_init)
+
+
+	for tf in sorted(sim_data.tfToActiveInactiveConds):
+		activeKey = tf + "__active"
+		inactiveKey = tf + "__inactive"
+
+		tfKd = sim_data.process.transcription_regulation.tfKd[tf].asNumber(units.mol / units.L)
+		tfTargets = sorted(sim_data.tfToFC[tf])
+		tfTargetsIdxs = [rnaIdList.index(x + "[c]") for x in tfTargets]
+
+		activeCellVolume = cellSpecs[activeKey]["avgCellDryMassInit"] / cellDensity / sim_data.mass.cellDryMassFraction
+		activeCountsToMolar = 1 / (sim_data.constants.nAvogadro * activeCellVolume)
+		activePromoterConc = (activeCountsToMolar * sim_data.process.transcription_regulation.tfNTargets[tf]).asNumber(units.mol / units.L)
+		activeTfConc = (activeCountsToMolar * cellSpecs[activeKey]["bulkAverageContainer"].count(tf + "[c]")).asNumber(units.mol / units.L)
+		activeSynthProb = sim_data.process.transcription.rnaSynthProb[activeKey]
+		activeSynthProbTargets = activeSynthProb[tfTargetsIdxs]
+
+		inactiveCellVolume = cellSpecs[inactiveKey]["avgCellDryMassInit"] / cellDensity / sim_data.mass.cellDryMassFraction
+		inactiveCountsToMolar = 1 / (sim_data.constants.nAvogadro * inactiveCellVolume)
+		inactivePromoterConc = (inactiveCountsToMolar * sim_data.process.transcription_regulation.tfNTargets[tf]).asNumber(units.mol / units.L)
+		inactiveTfConc = (inactiveCountsToMolar * cellSpecs[inactiveKey]["bulkAverageContainer"].count(tf + "[c]")).asNumber(units.mol / units.L)
+		inactiveSynthProb = sim_data.process.transcription.rnaSynthProb[inactiveKey]
+		inactiveSynthProbTargets = inactiveSynthProb[tfTargetsIdxs]
+
+		tfKdLog10Init = np.log10(tfKd)
+		constraints = [
+			{"type": "ineq", "fun": lambda KdDna: KdDna + 12},
+			{"type": "ineq", "fun": lambda KdDna: -KdDna},
+		]
+		for activeKSynth, inactiveKSynth in zip(activeSynthProbTargets, inactiveSynthProbTargets):
+			args = (activeTfConc, inactiveTfConc, activePromoterConc, inactivePromoterConc, activeKSynth, inactiveKSynth)
+			constraints.append({"type": "ineq", "fun": alphaGtZero, "args": args})
+			constraints.append({"type": "ineq", "fun": alphaPlusDeltaRGtZero, "args": args})
+
+		ret = scipy.optimize.minimize(l1Distance, tfKdLog10Init, args = tfKdLog10Init, method = "COBYLA", constraints = constraints, options = {"catol": 1e-9})
+		if ret.status == 1:
+			tfKdTrunc = 10**(np.floor(ret.x * 10.) / 10.)
+			sim_data.process.transcription_regulation.tfKdFit[tf] = (units.mol / units.L) * tfKdTrunc
+		else:
+			raise Exception, "Can't get positive RNA Polymerase recruitment rate for %s" % tf
+
+
 def calculatePromoterBoundProbability(sim_data, cellSpecs):
 	D = {}
 	cellDensity = sim_data.constants.cellDensity
@@ -960,8 +1028,8 @@ def calculatePromoterBoundProbability(sim_data, cellSpecs):
 		cellVolume = cellSpecs[conditionKey]["avgCellDryMassInit"] / cellDensity / sim_data.mass.cellDryMassFraction
 		countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
 
-		for tf in sorted(sim_data.tfToActiveInactiveConds):#[:N_TFS]:
-			tfKd = sim_data.process.transcription_regulation.tfKd[tf]
+		for tf in sorted(sim_data.tfToActiveInactiveConds):
+			tfKd = sim_data.process.transcription_regulation.tfKdFit[tf]
 			promoterConc = countsToMolar * sim_data.process.transcription_regulation.tfNTargets[tf]
 			tfConc = countsToMolar * cellSpecs[conditionKey]["bulkAverageContainer"].count(tf + "[c]")
 
@@ -971,6 +1039,7 @@ def calculatePromoterBoundProbability(sim_data, cellSpecs):
 				tfConc.asNumber(units.nmol / units.L),
 				)
 	return D
+
 
 def calculateRnapRecruitment(sim_data, cellSpecs):
 	gI = []
@@ -986,7 +1055,7 @@ def calculateRnapRecruitment(sim_data, cellSpecs):
 		conditions = ["basal"]
 		tfsWithData = []
 		for tf in tfs:
-			if tf not in sorted(sim_data.tfToActiveInactiveConds)[:N_TFS]:
+			if tf not in sorted(sim_data.tfToActiveInactiveConds):
 				continue
 			conditions.append(tf + "__active")
 			conditions.append(tf + "__inactive")
@@ -1032,7 +1101,7 @@ def calculateRnapRecruitment(sim_data, cellSpecs):
 		tfs = sim_data.process.transcription_regulation.targetTf.get(rnaIdNoLoc, [])
 		tfsWithData = []
 		for tf in tfs:
-			if tf not in sorted(sim_data.tfToActiveInactiveConds)[:N_TFS]:
+			if tf not in sorted(sim_data.tfToActiveInactiveConds):
 				continue
 			tfsWithData.append({"id": tf, "mass_g/mol": sim_data.getter.getMass([tf]).asNumber(units.g / units.mol)})
 		rowName = rnaIdNoLoc + "__" + condition
