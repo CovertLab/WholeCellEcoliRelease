@@ -177,6 +177,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		## Calculate statistics involving ribosomes and RNAP ##
 		ratioRNAPtoRibosome = totalRnap.astype(np.float) / ribosomeCounts.astype(np.float)
 		ribosomeConcentration = ((1 / sim_data.constants.nAvogadro) * ribosomeCounts) / ((1.0 / sim_data.constants.cellDensity) * (units.fg * cellMass))
+
 		averageRibosomeElongationRate = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("effectiveElongationRate")
 		processElongationRate = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("processElongationRate")
 
@@ -192,11 +193,14 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		## Plotting ##
 
+		width = 100
+
 		# Plot growth rate
 		avgDoublingTime = doublingTime[1:].asNumber(units.min).mean()
 		stdDoublingTime = doublingTime[1:].asNumber(units.min).std()
 		ax1.plot(time.asNumber(units.min), doublingTime.asNumber(units.min))
 		ax1.plot(time.asNumber(units.min), expected_doubling_time.asNumber(units.min) * np.ones(time.asNumber().size), linestyle='--')
+		ax1.plot(time.asNumber(units.min), np.convolve(doublingTime.asNumber(units.min), np.ones(width) / width, mode = "same"))
 		if gen == 0:
 			y_lim = [avgDoublingTime - 2*stdDoublingTime, avgDoublingTime + 2*stdDoublingTime]
 		else:
@@ -253,7 +257,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		else:
 			y_lim = get_new_ylim(ax7, ribosomeConcentration.asNumber(units.mmol / units.L)[10:].min(), ribosomeConcentration.asNumber(units.mmol / units.L).max())
 		ax7.set_ylim(y_lim)
-		ax7.set_ylabel("[Ribosome]\n(mM)")
+		ax7.set_ylabel("[Active ribosome]\n(mM)")
 
 		ax7_1 = ax7.twinx()
 		ax7_1.plot(time.asNumber(units.min), ribosomeCounts)
@@ -283,18 +287,36 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		# Average ribosome elongation rate
 		ax11.plot(time.asNumber(units.min), averageRibosomeElongationRate)
+		ax11.plot(time.asNumber(units.min), np.convolve(averageRibosomeElongationRate, np.ones(width) / width, mode = "same"))
 		ax11.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
+		if gen == 0:
+			y_lim = [averageRibosomeElongationRate[100:].min(), averageRibosomeElongationRate[100:].max()]
+		else:
+			y_lim = get_new_ylim(ax11, averageRibosomeElongationRate[100:].min(), averageRibosomeElongationRate[100:].max())
+		ax11.set_ylim(y_lim)
 		ax11.set_ylabel("Eff. ribosome\nelongation rate\n(aa/s)")
 
 		# Process elongation rate
 		ax12.plot(time.asNumber(units.min), processElongationRate)
+		ax12.plot(time.asNumber(units.min), np.convolve(processElongationRate, np.ones(width) / width, mode = "same"))
 		ax12.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
+		if gen == 0:
+			y_lim = [processElongationRate[100:].min(), processElongationRate[100:].max()]
+		else:
+			y_lim = get_new_ylim(ax12, processElongationRate[100:].min(), processElongationRate[100:].max())
+		ax12.set_ylim(y_lim)
 		ax12.set_ylabel("Process ribosome\nelongation rate\n(aa/s)")
 
 		# Allocated AA / allocated ribosomes elongation rate
 		ax13.plot(time.asNumber(units.min), allocatedElongationRate)
+		ax13.plot(time.asNumber(units.min), np.convolve(allocatedElongationRate, np.ones(width) / width, mode = "same"))
 		ax13.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
-		ax13.set_ylabel("Allocated AA / ribosomes")
+		if gen == 0:
+			y_lim = [allocatedElongationRate[300:].min(), allocatedElongationRate[300:].max()]
+		else:
+			y_lim = get_new_ylim(ax13, allocatedElongationRate[300:].min(), allocatedElongationRate[300:].max())
+		ax13.set_ylim(y_lim)
+		ax13.set_ylabel("Allocated\nAA / ribosomes")
 
 		# AA requested over total pool size
 		ax14.plot(time.asNumber(units.min), aaRequested / aaPoolsize)
