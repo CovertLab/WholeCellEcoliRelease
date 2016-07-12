@@ -926,16 +926,22 @@ def netLossRateFromDilutionAndDegradationRNA(doublingTime, totalEndoRnaseCountsC
 	rnaCounts = (1 / countsToMolar) * rnaConc
 	return (np.log(2) / doublingTime) * rnaCounts + (totalEndoRnaseCountsCapacity * fracSaturated)
 
+
 def netLossRateFromDilutionAndDegradationRNALinear(doublingTime, degradationRates, rnaCounts):
 	return (np.log(2) / doublingTime + degradationRates) * rnaCounts
+
 
 def expressionFromConditionAndFoldChange(rnaIds, basalExpression, condPerturbations, tfFCs):
 	expression = basalExpression.copy()
 
-	# TODO: Implement condPerturbations
-
 	rnaIdxs = []
 	fcs = []
+
+	for key in sorted(condPerturbations):
+		value = condPerturbations[key]
+		rnaIdxs.append(np.where(rnaIds == key)[0][0])
+		fcs.append(value)
+
 	for key in sorted(tfFCs):
 		rnaIdxs.append(np.where(rnaIds == key + "[c]")[0][0])
 		fcs.append(tfFCs[key])
@@ -947,6 +953,7 @@ def expressionFromConditionAndFoldChange(rnaIds, basalExpression, condPerturbati
 	expression[~rnaIdxsBool] *= scaleTheRestBy
 
 	return expression
+
 
 def fitTfPromoterKd(sim_data, cellSpecs):
 	sim_data.process.transcription_regulation.tfKdFit = sim_data.process.transcription_regulation.tfKd.copy()
