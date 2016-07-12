@@ -72,22 +72,22 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		logMeanNormData.append(np.log10(timecourse[BURN_IN_PERIOD:] / np.mean(timecourse[BURN_IN_PERIOD:])))
 
 	# Read previous biomass fluxes from file
-	previousBiomassMeans = sim_data.process.metabolism.previousBiomassMeans
-	previousBiomassLog10Means = sim_data.process.metabolism.previousBiomassLog10Means
-	previousBiomassStds = sim_data.process.metabolism.previousBiomassStds
+	previousBiomassMeans = {key:value.asNumber(COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS) for key, value in sim_data.process.metabolism.previousBiomassMeans.iteritems()}
+	previousBiomassLog10Means = {key:value.asNumber(COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS) for key, value in sim_data.process.metabolism.previousBiomassLog10Means.iteritems()}
+	previousBiomassStds = {key:value.asNumber(COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS) for key, value in sim_data.process.metabolism.previousBiomassStds.iteritems()}
 
 	# Find output fluxes differing by more than a given factor from the values predicted in reconstruction
 	differingMeans, differingStds = set(), set()
 	for molID, simulationMean, simulationStd in zip(outputMoleculeIDs, mean_biomass, std_biomass):
 		if molID not in previousBiomassMeans or molID not in previousBiomassStds:
 			continue
-		observedMean = previousBiomassMeans[molID]
-		observedStd = previousBiomassStds[molID]
-		if np.abs(simulationMean - observedMean) / observedMean > (MEAN_DIFFERENCE_TOLERANCE - 1):
-			if simulationMean - observedMean > LOWER_CONC_RELEVANCE_BOUND:
+		previousMean = previousBiomassMeans[molID]
+		previousStd = previousBiomassStds[molID]
+		if np.abs(simulationMean - previousMean) / previousMean > (MEAN_DIFFERENCE_TOLERANCE - 1):
+			if simulationMean - previousMean > LOWER_CONC_RELEVANCE_BOUND:
 				differingMeans.add(molID)
-		if np.abs(simulationStd - observedStd) / observedStd > (STD_DIFFERENCE_TOLERANCE - 1):
-			if simulationStd - observedStd > LOWER_CONC_RELEVANCE_BOUND:
+		if np.abs(simulationStd - previousStd) / previousStd > (STD_DIFFERENCE_TOLERANCE - 1):
+			if simulationStd - previousStd > LOWER_CONC_RELEVANCE_BOUND:
 				differingStds.add(molID)
 
 	plt.suptitle("Fluxes for Output Molecule Reactions")
@@ -158,7 +158,13 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	# Write current biomass fluxes to file
 	with open(os.path.join(plotOutDir, plotOutFileName + '.tsv'), 'w') as output:
-		output.write("\"molecule id\"\t\"mean flux\"\t\"mean log10 flux\"\t\"standard deviation\"\n")
+		output.write(
+			"\"molecule id\"\t\"mean flux (units.{counts} / units.{volume} / units.{time})\"\t\"mean log10 flux (units.{counts} / units.{volume} / units.{time})\"\t\"standard deviation (units.{counts} / units.{volume} / units.{time})\"\n".format(
+				counts=COUNTS_UNITS.strUnit().strip('[]'),
+				volume=VOLUME_UNITS.strUnit().strip('[]'),
+				time=TIME_UNITS.strUnit().strip('[]')
+			)
+		)
 		for molID, meanFlux, meanLogFlux, stdFlux in zip(outputMoleculeIDs, mean_biomass, mean_log10_biomass, std_biomass):
 			output.write("\t".join(['"'+unicode.encode(molID)+'"', str(meanFlux), str(meanLogFlux), str(stdFlux)]) + "\n")
 

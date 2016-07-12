@@ -228,7 +228,7 @@ class Metabolism(object):
 			for enzymeID in enzyme_list:
 				if enzymeID in enzymeExceptions:
 					enzyme_list.remove(enzymeID)
-			reactionEnzymes[reactionID] = enzyme_list
+			reactionEnzymes[reactionID] = {enzymeID:1 for enzymeIDs in enzyme_list}
 
 			# Add the reverse reaction
 			if reversible:
@@ -238,7 +238,7 @@ class Metabolism(object):
 					for moleculeID, stoichCoeff in reactionStoich[reactionID].viewitems()
 					}
 
-				reactionEnzymes[reverseReactionID] = enzyme_list
+				reactionEnzymes[reverseReactionID] = {enzymeID:1 for enzymeIDs in enzyme_list}
 				reversibleReactions.append(reactionID)
 
 		reactionRateInfo = {}
@@ -400,18 +400,30 @@ class Metabolism(object):
 	def enzymeReactionMatrix(self, reactionIDs, enzymeNames, reactionEnzymesDict):
 		"""
 		Builds a (num reactions) by (num enzymes) matrix which maps enzyme concentrations to overall reaction rate.
-		reactionEnzymesDict is a dict from reactionID:[list of enzymes catalyzing this reaction]
+		reactionEnzymesDict is a dict from reactionID:{dict of enzymes catalyzing this reaction:their associated kcat}
 		"""
 		assert sorted(reactionIDs) == sorted(reactionEnzymesDict.keys())
 
 		enzymeReactionMatrix = np.zeros((len(reactionIDs),len(enzymeNames)))
 		for rxnIdx, reactionID in enumerate(reactionIDs):
 			if reactionID in reactionEnzymesDict:
-				for enzymeName in reactionEnzymesDict[reactionID]:
+				for enzymeName, kcat in reactionEnzymesDict[reactionID].iteritems():
 					if enzymeName in enzymeNames:
 						enzymeIdx = enzymeNames.index(enzymeName)
-						enzymeReactionMatrix[rxnIdx, enzymeIdx] = 1
+						enzymeReactionMatrix[rxnIdx, enzymeIdx] = kcat
 		return enzymeReactionMatrix
+
+	def buildEnzymeReactionKcatLinks(self, reactionRateInfo, reactionEnzymesDict):
+		for constraintID, reactionInfo in reactionRateInfo.iteritems():
+			reactionID = reactionInfo["reactionID"]
+			enzymeIDs = reactionInfo["enzymeIDs"]
+			kcat = reactionInfo["kcat"][0]
+			if reactionID in reactionEnzymesDict:
+				for enzymeID in enzymeIDs:
+					if enzymeID in reactionEnzymesDict[reactionID]:
+						if kcat > reactionEnzymesDict[reactionID][enzymeID]:
+							reactionEnzymesDict[reactionID][enzymeID] = kcat
+		return reactionEnzymesDict
 
 
 class ConcentrationUpdates(object):

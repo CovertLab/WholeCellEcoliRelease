@@ -82,6 +82,9 @@ class Metabolism(wholecell.processes.process.Process):
 		self.constraintToReactionDict = sim_data.process.metabolism.constraintToReactionDict
 		self.reactionEnzymes  = sim_data.process.metabolism.reactionEnzymes
 
+		# Insert kcat values to the reaction-enzyme associations
+		self.reactionEnzymes = sim_data.process.metabolism.buildEnzymeReactionKcatLinks(self.reactionRateInfo, self.reactionEnzymes)
+
 		if USE_MANUAL_FLUX_COEFF:
 			self.max_flux_coefficient = MAX_FLUX_COEFF
 			self.min_flux_coefficient = MIN_FLUX_COEFF

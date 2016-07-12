@@ -25,6 +25,8 @@ RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
 FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.2  # reduce stochasticity from protein expression
 FRACTION_INCREASE_RNAP_PROTEINS = 0.05
 
+NUMERICAL_ZERO = 1e-10
+
 # TODO: establish a controlled language for function behaviors (i.e. create* set* fit*)
 
 FITNESS_THRESHOLD = 1e-9
@@ -37,9 +39,10 @@ VERBOSE = False
 
 from models.ecoli.processes.metabolism import SECRETION_PENALTY_COEFF
 
-COUNTS_UNITS = units.mmol
+COUNTS_UNITS = units.dmol
 VOLUME_UNITS = units.L
 MASS_UNITS = units.g
+TIME_UNITS = units.s
 
 def fitSimData_1(raw_data):
 
@@ -72,7 +75,7 @@ def fitSimData_1(raw_data):
 	buildTfConditionCellSpecifications(sim_data, cellSpecs)
 
 	# Fit kinetic parameters
-	findKineticCoeffs(sim_data, cellSpecs["basal"]["bulkContainer"])
+	# findKineticCoeffs(sim_data, cellSpecs["basal"]["bulkContainer"])
 
 	for condition in sorted(cellSpecs):
 		spec = cellSpecs[condition]
@@ -1228,7 +1231,7 @@ def findKineticCoeffs(sim_data, bulkContainer):
 	energyCostPerWetMass = sim_data.constants.darkATP * initDryMass / totalCellMassInit
 
 	reactionStoich = sim_data.process.metabolism.reactionStoich
-	externalExchangeMolecules = sorted(sim_data.nutrientData["secretionExchangeMolecules"])
+	externalExchangeMolecules = sorted(sim_data.nutrientData["externalExchangeMolecules"]["minimal"])
 	extMoleculeMasses = sim_data.getter.getMass(externalExchangeMolecules)
 
 	moleculeMasses = dict(zip(
@@ -1237,8 +1240,9 @@ def findKineticCoeffs(sim_data, bulkContainer):
 		))
 
 	# Make previously observed external molecule fluxes into coefficients of a biomass reaction
-	jfbaBiomassReactionStoich = {molID:-coeff for molID, coeff in sim_data.process.metabolism.previousBiomassMeans.iteritems()}
+	jfbaBiomassReactionStoich = {molID:-coeff.asNumber(COUNTS_UNITS/VOLUME_UNITS/TIME_UNITS) for molID, coeff in sim_data.process.metabolism.previousBiomassMeans.iteritems() if np.abs(coeff.asNumber(COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS)) > NUMERICAL_ZERO}
 	jfbaBiomassReactionStoich["biomass"] = 1
+
 	reactionStoichWithBiomass = reactionStoich.copy()
 	reactionStoichWithBiomass["JFBA-BIOMASS-RXN"] = jfbaBiomassReactionStoich
 
@@ -1247,7 +1251,7 @@ def findKineticCoeffs(sim_data, bulkContainer):
 		externalExchangedMolecules = externalExchangeMolecules,
 		objective = {"biomass": 1},
 		objectiveType = "standard",
-		moleculeMasses=dict(zip(externalExchangeMolecules, extMoleculeMasses.asNumber(MASS_UNITS / COUNTS_UNITS))),
+		moleculeMasses=moleculeMasses,
 		secretionPenaltyCoeff = SECRETION_PENALTY_COEFF,
 		solver = "glpk",
 		maintenanceCostGAM = energyCostPerWetMass.asNumber(COUNTS_UNITS / MASS_UNITS),
@@ -1290,12 +1294,13 @@ def findKineticCoeffs(sim_data, bulkContainer):
 	constraints = [lowerBounds <= x, x <= upperBounds, S_matrix*x == 0]
 	prob = cvxpy.Problem(objective, constraints)
 
-	import ipdb; ipdb.set_trace()
-	expectedFlux = prob.solve(solver=GLPK)
+	expectedFlux = prob.solve(solver="GLPK")
 
 	fluxes = np.array(x.value)
 	fluxNames = np.array(reactionNames).reshape(-1, 1)
 	fluxesDict = dict(zip([fluxName[0] for fluxName in fluxNames], [flux[0] for flux in fluxes]))
+	
+	import ipdb; ipdb.set_trace()
 
 	# Use rabinowitz metabolite concentrations as the estimate
 	metaboliteConcentrationsDict = sim_data.process.metabolism.concDict
@@ -1332,6 +1337,8 @@ def findKineticCoeffs(sim_data, bulkContainer):
 		proteinConcDict[proteinId] = ((1. / sim_data.constants.nAvogadro / cellVolumeInit) * count)
 
 	# proteinConcDict = dict(zip(proteinIds, proteinConcentrations.asNumber(COUNTS_UNITS/VOLUME_UNITS)))
+
+	return
 
 	enzymeKinetics = EnzymeKinetics(
 	reactionRateInfo = sim_data.process.metabolism.reactionRateInfo,

@@ -1,4 +1,4 @@
-"molecule id"	"mean flux"	"mean log10 flux"	"standard deviation"
+"molecule id"	"mean flux (units.dmol / units.L / units.s)"	"mean log10 flux (units.dmol / units.L / units.s)"	"standard deviation (units.dmol / units.L / units.s)"
 "2-3-DIHYDROXYBENZOATE[c]"	2.78893447748e-07	-6.5548632353	1.03793795295e-08
 "2-KETOGLUTARATE[c]"	8.76897922594e-07	-6.05719819905	2.28451804623e-08
 "4-hydroxybenzoate[c]"	1.03328521688e-07	-6.98706184669	7.89788219847e-09
