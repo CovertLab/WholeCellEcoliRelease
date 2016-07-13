@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 
+"""
+Plot to compare cell properties across different growth conditions similar to Dennis and Bremer. 1996. Fig 2
+Multiple generations of the same variant will be plotted together
+
+@author: Travis Horst
+@organization: Covert Lab, Department of Bioengineering, Stanford University
+@date: Created 6/7/16
+"""
+
 import argparse
 import os
 import re
@@ -15,23 +24,6 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
-COLORS_256 = [ # From colorbrewer2.org, qualitative 8-class set 1
-	[228,26,28],
-	[55,126,184],
-	[77,175,74],
-	[152,78,163],
-	[255,127,0],
-	[255,255,51],
-	[166,86,40],
-	[247,129,191]
-	]
-
-COLORS = [
-	[colorValue/255. for colorValue in color]
-	for color in COLORS_256
-	]
-
-
 NT_MW = 487.0
 PROTEIN_MW = 110.0
 
@@ -46,16 +38,20 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 	
-	rnaToProtein = []
-	dnaToProtein = []
-	elngRate = []
-	stableRnaFraction = []
-	doublingPerHour = []
+	rnaToProteinDict = {}
+	dnaToProteinDict = {}
+	elngRateDict = {}
+	stableRnaFractionDict = {}
+	doublingPerHourDict = {}
 
+	simDataFile = ap.get_variant_kb(all_cells[0])
+	sim_data = cPickle.load(open(simDataFile, "rb"))
+	nAvogadro = sim_data.constants.nAvogadro.asNumber()
+	chromMass = (sim_data.getter.getMass(['CHROM_FULL[c]'])[0] / sim_data.constants.nAvogadro).asNumber() 
+	
 	for simDir in all_cells:
 		simOutDir = os.path.join(simDir, "simOut")
-		simDataFile = ap.get_variant_kb(simDir)
-		sim_data = cPickle.load(open(simDataFile, "rb"))
+		variant = int(simDir[simDir.rfind('generation_')-14:simDir.rfind('generation_')-8])
 
 		mass = TableReader(os.path.join(simOutDir, "Mass"))
 
@@ -65,13 +61,11 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 
 		growthRate = mass.readColumn("instantaniousGrowthRate")
 		doublingTime = np.nanmean(np.log(2) / growthRate / 60)
-		doublingPerHour += [60 / doublingTime]
 
-		rnaNT = rna / NT_MW * sim_data.constants.nAvogadro.asNumber()
-		proteinAA = protein / PROTEIN_MW * sim_data.constants.nAvogadro.asNumber()
+		rnaNT = rna / NT_MW * nAvogadro
+		proteinAA = protein / PROTEIN_MW * nAvogadro
 
 		# Count chromosome equivalents
-		chromMass = (sim_data.getter.getMass(['CHROM_FULL[c]'])[0] / sim_data.constants.nAvogadro).asNumber()
 		chromEquivalents = dna / chromMass
 
 		# Load ribosome data
@@ -85,6 +79,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 		isRRna = sim_data.process.transcription.rnaData["isRRna"]
 		stableRnaSynth = np.sum(rnaSynth[:,isTRna], axis=1) + np.sum(rnaSynth[:,isRRna], axis=1)
 		totalRnaSynth = np.sum(rnaSynth, axis=1).astype(float)
+		rnaFraction = stableRnaSynth / totalRnaSynth
 
 		uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 
@@ -97,14 +92,33 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 		t = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 		timeStepSec = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
 
-		rnaToProtein += [rnaNT / (proteinAA / 100)]
-		dnaToProtein += [chromEquivalents / (proteinAA / 10**9)]
-		elngRate += [(actualElongations / activeRibosome / timeStepSec)[3:]]
-		rnaFraction = stableRnaSynth / totalRnaSynth
-		stableRnaFraction += [np.asarray(rnaFraction)[~np.isnan(rnaFraction)]]
+		if variant in rnaToProteinDict.keys():
+			rnaToProteinDict[variant] = np.append(rnaToProteinDict[variant], rnaNT / (proteinAA / 100))
+			dnaToProteinDict[variant] = np.append(dnaToProteinDict[variant], chromEquivalents / (proteinAA / 10**9))
+			elngRateDict[variant] = np.append(elngRateDict[variant], (actualElongations / activeRibosome / timeStepSec)[3:])
+			stableRnaFractionDict[variant] = np.append(stableRnaFractionDict[variant], np.asarray(rnaFraction)[~np.isnan(rnaFraction)])
+			doublingPerHourDict[variant] = np.append(doublingPerHourDict[variant], 60 / doublingTime)
+		else:
+			rnaToProteinDict[variant] = rnaNT / (proteinAA / 100)
+			dnaToProteinDict[variant] = chromEquivalents / (proteinAA / 10**9)
+			elngRateDict[variant] = (actualElongations / activeRibosome / timeStepSec)[3:]
+			stableRnaFractionDict[variant] = np.asarray(rnaFraction)[~np.isnan(rnaFraction)]
+			doublingPerHourDict[variant] = 60 / doublingTime
+
+	rnaToProtein = []
+	dnaToProtein = []
+	elngRate = []
+	stableRnaFraction = []
+	doublingPerHour = []
+
+	for key in rnaToProteinDict.keys():
+		rnaToProtein += [rnaToProteinDict[key]]
+		dnaToProtein += [dnaToProteinDict[key]]
+		elngRate += [elngRateDict[key]]
+		stableRnaFraction += [stableRnaFractionDict[key]]
+		doublingPerHour += [np.mean(doublingPerHourDict[key])]
 
 	plt.figure(figsize = (8.5, 11))
-	plt.gca().set_color_cycle(COLORS)
 
 	sp = plt.subplot(4,1,1)
 	sp.violinplot(rnaToProtein, positions=doublingPerHour, showmeans=True)

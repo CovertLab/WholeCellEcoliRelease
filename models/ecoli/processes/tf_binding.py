@@ -45,7 +45,7 @@ class TfBinding(wholecell.processes.process.Process):
 		self.cellDensity = sim_data.constants.cellDensity
 
 		self.pTfBound = sim_data.process.transcription_regulation.pTfBound
-		self.tfKd = sim_data.process.transcription_regulation.tfKd
+		self.tfKd = sim_data.process.transcription_regulation.tfKdFit
 		self.tfNTargets = sim_data.process.transcription_regulation.tfNTargets
 
 		self.alphaView = self.bulkMoleculesView(alphaNames)
@@ -74,11 +74,16 @@ class TfBinding(wholecell.processes.process.Process):
 		for tf in self.tfs:
 			tfFreeCounts = self.tfMoleculeViews[tf].count()
 			tfBoundCounts = self.tfBoundViews[tf].counts()
-			if tfFreeCounts == 0:
+			tfTotalCounts = tfFreeCounts + tfBoundCounts.sum()
+			if tfTotalCounts == 0:
 				continue
+
+			self.tfBoundViews[tf].countsIs(0)
+			self.tfMoleculeViews[tf].countInc(tfBoundCounts.sum())
+
 			tfKd = self.tfKd[tf]
 			promoterConc = countsToMolar * self.tfNTargets[tf]
-			tfConc = countsToMolar * tfFreeCounts
+			tfConc = countsToMolar * tfTotalCounts
 
 			pTfBound = self.pTfBound(
 				tfKd.asNumber(units.nmol / units.L),
@@ -89,13 +94,10 @@ class TfBinding(wholecell.processes.process.Process):
 			if nToBind == 0:
 				continue
 
-			self.tfMoleculeViews[tf].countDec(nToBind)
-
-			nBound = tfBoundCounts.sum()
 			boundLocs = np.zeros_like(tfBoundCounts)
 			boundLocs[
 				self.randomState.choice(tfBoundCounts.size, size = np.min((nToBind, tfBoundCounts.size)), replace = False)
 				] = 1
 
+			self.tfMoleculeViews[tf].countDec(boundLocs.sum())
 			self.tfBoundViews[tf].countsIs(boundLocs)
-			self.tfMoleculeViews[tf].countInc(nBound)
