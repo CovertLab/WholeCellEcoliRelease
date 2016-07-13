@@ -247,7 +247,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		ax9.plot(time.asNumber(units.min), fitRibosomeInitRate)
 		ax9.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
-		ax9.set_ylabel("Fit rib init\nrate (init/s)")
+		ax9.set_ylabel("Fit rib init\nrate (init/s/fg)")
 
 		hist_fitRibosomeInitRate = removeNanReshape(fitRibosomeInitRate)
 		nbins = np.ceil(np.sqrt(hist_fitRibosomeInitRate.size))
