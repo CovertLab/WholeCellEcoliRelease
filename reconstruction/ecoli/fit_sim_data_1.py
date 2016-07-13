@@ -120,8 +120,29 @@ def buildBasalCellSpecifications(sim_data):
 	translation_km = translationKmBasal(sim_data, bulkContainer, cellSpecs["basal"]["concDict"])
 	sim_data.constants.translation_km = translation_km
 
+	translation_aa_supply = translationSupplyBasal(sim_data, bulkContainer)
+	sim_data.constants.translation_aa_supply = translation_aa_supply
+
 	return cellSpecs
 
+def translationSupplyBasal(sim_data, bulkContainer):
+	aaCounts = sim_data.process.translation.monomerData["aaCounts"]
+	proteinCounts = bulkContainer.counts(sim_data.process.translation.monomerData["id"])
+	nAvogadro = sim_data.constants.nAvogadro
+	avgCellDryMassInit = sim_data.mass.avgCellDryMassInit
+
+	molAAPerGDCW = (
+			units.sum(
+				aaCounts * np.tile(proteinCounts.reshape(-1, 1), (1, 21)),
+				axis = 0
+			) * (
+				(1 / (units.aa * nAvogadro)) *
+				(1 / avgCellDryMassInit)
+			)
+		)
+
+	translation_aa_supply = molAAPerGDCW * np.log(2) / sim_data.doubling_time
+	return translation_aa_supply
 
 def translationKmBasal(sim_data, bulkContainer, concDict):
 	# Get max elongation rate for ribosomes and and expected elongation rate for base condition

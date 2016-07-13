@@ -81,6 +81,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		##########
 		self.saturation_km = sim_data.constants.translation_km
+		self.translation_aa_supply = sim_data.constants.translation_aa_supply
 		##########
 
 		# Views
@@ -115,8 +116,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			return
 
 		proteinIndexes, peptideLengths = activeRibosomes.attrs(
-			'proteinIndex', 'peptideLength'
-			)
+					'proteinIndex', 'peptideLength'
+					)
 
 		sequences = buildSequences(
 			self.proteinSequences,
@@ -126,50 +127,30 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			)
 
 		sequenceHasAA = (sequences != PAD_VALUE)
-
 		aasInSequences = np.bincount(sequences[sequenceHasAA], minlength=21)
 
-		if self.translationSaturation:
-			cellMass = (self.readFromListener("Mass", "cellMass") * units.fg)
-			cellVolume = cellMass / self.cellDensity
-			aaConc = (1 / self.nAvogadro) * (1 / cellVolume) * self.aas.total()
+		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg)
 
-			translation_machinery_saturation = (aaConc / (self.saturation_km + aaConc))
-			translation_machinery_saturation = units.convertNoUnitToNumber(translation_machinery_saturation)
+		molAasRequested = self.translation_aa_supply * cellMass * self.timeStepSec() * units.s
 
-			aasRequested = np.floor(aasInSequences * translation_machinery_saturation)
-		else:
-			aasRequested = aasInSequences
+		countAasRequested = units.convertNoUnitToNumber(molAasRequested * self.nAvogadro)
+
+		countAasRequested = np.fmin(countAasRequested, aasInSequences)
 
 		self.aas.requestIs(
-			aasRequested
+			countAasRequested
 			)
 
 		self.writeToListener("GrowthLimits", "aaPoolSize", self.aas.total())
-		self.writeToListener("GrowthLimits", "aaRequestSize", aasRequested)
+		self.writeToListener("GrowthLimits", "aaRequestSize", countAasRequested)
 
-		if self.translationSaturation:
-			gtpsHydrolyzed = np.int64(np.ceil(
-				self.gtpPerElongation * np.fmin(
-					sequenceHasAA.sum(),
-					np.floor((self.aas.total() * translation_machinery_saturation).sum())
-					)
-				))
-		else:
-			gtpsHydrolyzed = np.int64(np.ceil(
-				self.gtpPerElongation * np.fmin(
-					sequenceHasAA.sum(),
-					self.aas.total().sum()
-					)
-				))
+		gtpsHydrolyzed = np.int64(np.ceil(self.gtpPerElongation * countAasRequested.sum()))
 
 		self.writeToListener("GrowthLimits", "gtpPoolSize", self.gtp.total()[0])
 		self.writeToListener("GrowthLimits", "gtpRequestSize", gtpsHydrolyzed)
 
+		# Reported to metabolism for hydrolysis there
 		self.gtpRequest = gtpsHydrolyzed
-		# self.gtp.requestIs(gtpsHydrolyzed)
-
-		# self.h2o.requestIs(gtpsHydrolyzed) # note: this is roughly a 2x overestimate
 
 	# Calculate temporal evolution
 	def evolveState(self):
@@ -261,18 +242,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.ribosome50S.countInc(nTerminated)
 
 		self.h2o.countInc(nElongations - nInitialized)
-
-		self.gtpUsed = 0#np.int64(stochasticRound(
-		# 	self.randomState,
-		# 	nElongations * self.gtpPerElongation
-		# 	))
-
-		self.gtp.countDec(self.gtpUsed)
-		self.gdp.countInc(self.gtpUsed)
-		self.pi.countInc(self.gtpUsed)
-		self.h.countInc(self.gtpUsed)
-
-		self.h2o.countDec(self.gtpUsed)
 
 		# Report stalling information
 
