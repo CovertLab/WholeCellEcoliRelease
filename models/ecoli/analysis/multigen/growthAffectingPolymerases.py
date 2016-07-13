@@ -347,8 +347,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	exportFigure(plt, plotOutDir, plotOutFileName,metadata)
 	plt.close("all")
 
-	raise Exception()
-
 def getMassData(simDir, massNames):
 	simOutDir = os.path.join(simDir, "simOut")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
