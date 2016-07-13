@@ -244,11 +244,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		Returns total initiation rate of rRNA across all promoters
 		In units of initiations / s / fg
 		'''
-		# fitInitiationRate = 42.988 * np.exp(-0.485 * (self.maxRibosomeElongationRate - elngRate))
-		# fitInitiationRate = rrn_count[0] * 151.595 * np.exp(0.038*-0.298 * (self.maxRibosomeElongationRate - elngRate)) / self.scaling_factor
-		# fitInitiationRate = 151.595 * np.exp(0.038*-0.298 * (self.maxRibosomeElongationRate - elngRate)) / 10.
-
-		# fitInitiationRate_old = rrn_count * 151.595 * np.exp(0.038*-0.298 * (self.maxRibosomeElongationRate - elngRate)) / 60.
-		fitInitiationRate = 0.6*0.0168 * np.exp(-0.272 * (self.maxRibosomeElongationRate - elngRate))
+		fitInitiationRate = 0.1*0.0168 * np.exp(-0.272 * (self.maxRibosomeElongationRate - elngRate))
 
 		return (1 / units.s / units.fg) * fitInitiationRate
