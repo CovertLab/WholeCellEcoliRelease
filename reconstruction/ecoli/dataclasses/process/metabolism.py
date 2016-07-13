@@ -203,6 +203,8 @@ class Metabolism(object):
 		validEnzymeIDs.update(validProteinComplexIDs)
 		validEnzymeCompartments = collections.defaultdict(set)
 
+		self.default_kcat = raw_data.parameters["carbonicAnhydraseKcat"]
+
 		for enzymeID in validEnzymeIDs:
 			enzyme = enzymeID[:enzymeID.index("[")]
 			location = enzymeID[enzymeID.index("[")+1:enzymeID.index("[")+2]
@@ -228,7 +230,8 @@ class Metabolism(object):
 			for enzymeID in enzyme_list:
 				if enzymeID in enzymeExceptions:
 					enzyme_list.remove(enzymeID)
-			reactionEnzymes[reactionID] = {enzymeID:1 for enzymeIDs in enzyme_list}
+			enzymeKcatLink = {enzymeID:self.default_kcat.asNumber(1 / units.s) for enzymeIDs in enzyme_list}
+			reactionEnzymes[reactionID] = enzymeKcatLink
 
 			# Add the reverse reaction
 			if reversible:
@@ -238,7 +241,7 @@ class Metabolism(object):
 					for moleculeID, stoichCoeff in reactionStoich[reactionID].viewitems()
 					}
 
-				reactionEnzymes[reverseReactionID] = {enzymeID:1 for enzymeIDs in enzyme_list}
+				reactionEnzymes[reverseReactionID] = enzymeKcatLink
 				reversibleReactions.append(reactionID)
 
 		reactionRateInfo = {}
@@ -347,24 +350,30 @@ class Metabolism(object):
 			raise Exception("The following {} enzyme kinetics entries reference substrates which don't appear in their corresponding reaction, and aren't paired with an inhibitory constant (kI). They should be corrected or removed. {}".format(len(nonCannonicalRxns), nonCannonicalRxns))
 
 
+		self.reactionEnzymes = self.buildEnzymeReactionKcatLinks(reactionRateInfo, reactionEnzymes)
+
 		self.reactionStoich = reactionStoich
 		self.nutrientsTimeSeries = sim_data.nutrientsTimeSeries
 		self.reversibleReactions = reversibleReactions
 		self.directionInferedReactions = sorted(list(directionInferedReactions))
 		self.reactionRateInfo = reactionRateInfo
-		self.reactionEnzymes = reactionEnzymes
 		self.enzymeNames = list(validEnzymeIDs)
 		self.constraintIDs = constraintIDs
 		self.constraintToReactionDict = constraintToReactionDict
 
-	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits, nutrientsTimeSeriesLabel, time):
+	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits, nutrientsTimeSeriesLabel, time, pop=True):
 		newObjective = None
 		while len(self.nutrientsTimeSeries[nutrientsTimeSeriesLabel]) and time > self.nutrientsTimeSeries[nutrientsTimeSeriesLabel][0][0]:
-			_, nutrients = self.nutrientsTimeSeries[nutrientsTimeSeriesLabel].popleft()
+			if pop:
+				_, nutrients = self.nutrientsTimeSeries[nutrientsTimeSeriesLabel].popleft()
+			else:
+				_, nutrients = self.nutrientsTimeSeries[nutrientsTimeSeriesLabel][0]
 			self._unconstrainedExchangeMolecules = self.nutrientData["importUnconstrainedExchangeMolecules"][nutrients]
 			self._constrainedExchangeMolecules = self.nutrientData["importConstrainedExchangeMolecules"][nutrients]
 			concDict = self.concentrationUpdates.concentrationsBasedOnNutrients(nutrients, self.nutrientsToInternalConc)
 			newObjective = dict((key, concDict[key].asNumber(targetUnits)) for key in concDict)
+			if not pop:
+				break
 
 		externalMoleculeLevels = np.zeros(len(exchangeIDs), np.float64)
 
@@ -403,6 +412,8 @@ class Metabolism(object):
 		reactionEnzymesDict is a dict from reactionID:{dict of enzymes catalyzing this reaction:their associated kcat}
 		"""
 		assert sorted(reactionIDs) == sorted(reactionEnzymesDict.keys())
+
+		enzymeNames = list(enzymeNames)
 
 		enzymeReactionMatrix = np.zeros((len(reactionIDs),len(enzymeNames)))
 		for rxnIdx, reactionID in enumerate(reactionIDs):

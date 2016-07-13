@@ -75,7 +75,7 @@ def fitSimData_1(raw_data):
 	buildTfConditionCellSpecifications(sim_data, cellSpecs)
 
 	# Fit kinetic parameters
-	# findKineticCoeffs(sim_data, cellSpecs["basal"]["bulkContainer"])
+	findKineticCoeffs(sim_data, cellSpecs["basal"]["bulkContainer"])
 
 	for condition in sorted(cellSpecs):
 		spec = cellSpecs[condition]
@@ -1268,8 +1268,10 @@ def findKineticCoeffs(sim_data, bulkContainer):
 		coefficient,
 		COUNTS_UNITS / VOLUME_UNITS,
 		sim_data.nutrientsTimeSeriesLabel,
-		1. # time only matters in changing environments, so any > 0 is fine
+		1., # time only matters in changing environments, so any > 0 is fine
+		pop=False
 		)
+
 
 	fbaObject.externalMoleculeLevelsIs(externalMoleculeLevels)
 
@@ -1296,11 +1298,9 @@ def findKineticCoeffs(sim_data, bulkContainer):
 
 	expectedFlux = prob.solve(solver="GLPK")
 
-	fluxes = np.array(x.value)
+	predictedFluxes = np.array(x.value)
 	fluxNames = np.array(reactionNames).reshape(-1, 1)
-	fluxesDict = dict(zip([fluxName[0] for fluxName in fluxNames], [flux[0] for flux in fluxes]))
-	
-	import ipdb; ipdb.set_trace()
+	predictedFluxesDict = dict(zip([fluxName[0] for fluxName in fluxNames], [flux[0] for flux in predictedFluxes]))
 
 	# Use rabinowitz metabolite concentrations as the estimate
 	metaboliteConcentrationsDict = sim_data.process.metabolism.concDict
@@ -1338,25 +1338,26 @@ def findKineticCoeffs(sim_data, bulkContainer):
 
 	# proteinConcDict = dict(zip(proteinIds, proteinConcentrations.asNumber(COUNTS_UNITS/VOLUME_UNITS)))
 
-	return
+	reactionEnzymes  = sim_data.process.metabolism.reactionEnzymes
 
-	enzymeKinetics = EnzymeKinetics(
-	reactionRateInfo = sim_data.process.metabolism.reactionRateInfo,
-	useCustoms=True
-	)
+	reactionIDs = list(fbaObject.reactionIDs())
+	reactionIDs.remove("JFBA-BIOMASS-RXN")
+	enzymeReactionMatrix = sim_data.process.metabolism.enzymeReactionMatrix(reactionIDs, proteinIds, reactionEnzymes)
 
-	enzymeKinetics.checkKnownSubstratesAndEnzymes(metaboliteConcentrationsDict, proteinConcDict, removeUnknowns=True)
+	spontaneousIndices = np.where(np.sum(enzymeReactionMatrix, axis=1) == 0)
 
-	reactionConstraintsDict = enzymeKinetics.allReactionsDict(metaboliteConcentrationsDict, proteinConcDict)
-	constraintsDict = enzymeKinetics.allConstraintsDict(metaboliteConcentrationsDict, proteinConcDict)
-
-	highestConstraintReactionDict = {reaction:np.amax(reactionConstraintsDict[reaction].values()).asNumber(COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS) for reaction in reactionConstraintsDict}
+	kineticRates = enzymeReactionMatrix.dot(proteinConcentrations.asNumber(COUNTS_UNITS / VOLUME_UNITS))
+	kineticRates[spontaneousIndices] = np.inf
+	kineticRatesDict = dict(zip(list(reactionIDs), kineticRates))
 
 	overconstraintRatio = {}
-	for fluxName, flux in fluxesDict.iteritems():
-		if fluxName in highestConstraintReactionDict:
-			ratio = 0 if flux == 0 else highestConstraintReactionDict[fluxName] / flux
-			overconstraintRatio[fluxName] = ratio
+	for rateName, rate in kineticRatesDict.iteritems():
+		if rateName in predictedFluxesDict:
+			flux = predictedFluxesDict[rateName]
+			ratio = 0 if flux == 0 else flux / rate
+			if ratio >= 1:
+				print ratio
+			overconstraintRatio[rateName] = ratio
 
 	coefficientsSet = set()
 	for constraintID, reactionInfo in sim_data.process.metabolism.reactionRateInfo.iteritems():
