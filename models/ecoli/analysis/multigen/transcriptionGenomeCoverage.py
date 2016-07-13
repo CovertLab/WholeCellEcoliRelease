@@ -60,14 +60,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 						2: {"name": "Degradation rate", "data": mRnaDegRateSorted, "zoomMax": 0.005},
 					}
 
-	# Get proteins of interest
-	dcuRId = np.where([x == "G7826_RNA[c]" for x in mRnaNamesSorted])[0]
-	baeRId = np.where([x == "EG11618_RNA[c]" for x in mRnaNamesSorted])[0]
-	narLId = np.where([x == "EG10643_RNA[c]" for x in mRnaNamesSorted])[0]
-
-	proteinsOfInterest = np.array([dcuRId, baeRId, narLId])
-	proteinsOfInterestNames = np.array(["dcuR", "baeR", "narL"])
-	
 	# Get bool of mRNAs transcribed
 	transcribedBool = []
 
@@ -112,9 +104,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ax.spines["right"].set_visible(False)
 
 		heighOffset = np.max(mRnaDataSorted[idx / 2]["data"]) / 5.
-		for proteinIdx, protein in enumerate(proteinsOfInterest):
-			ax.vlines(protein, [0], np.max(mRnaDataSorted[idx / 2]["data"]), color = "orange")
-			ax.annotate(proteinsOfInterestNames[proteinIdx], xy = (protein, np.max(mRnaDataSorted[idx / 2]["data"]) - (proteinIdx + 1) * heighOffset))
 
 		if idx %2 == 0:
 			ax.set_title(mRnaDataSorted[idx / 2]["name"])
@@ -135,13 +124,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ax.set_xlim([-border, numMRnas + border])
 		ax.spines["left"].set_visible(False)
 		ax.spines["right"].set_visible(False)
-
-		for protein in proteinsOfInterest:
-			if transcribedBool[idx][protein]:
-				ax.plot(np.ones(2)*protein, [0, 1], linestyle = "--", color = "g")
-			else:
-				ax.plot(np.ones(2)*protein, [0, 1], linestyle = "--", color = "r")
-
 		intersection = np.logical_and(intersection, transcribedBool[idx])
 
 
@@ -159,57 +141,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax.tick_params(which = "both", direction = "out", top = "off")
 	ax.spines["left"].set_visible(False)
 	ax.spines["right"].set_visible(False)
-
-
 	plt.subplots_adjust(hspace = 1, wspace = 0)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 
 	plt.close("all")
-
-
-	# # Plot polar coordinate representation of the most differing set of mRNAs across generations
-	# mostDifferentlyTranscribed = []
-	# for mRnaIdx in np.arange(numMRnas):
-	# 	if np.sum(transcribedBool[:, mRnaIdx]) not in [0, numGens]:
-	# 		mostDifferentlyTranscribed.append(mRnaIdx)
-
-	# mostDifferentlyTranscribed = np.array(mostDifferentlyTranscribed)
-	# numMRnasPolar = mostDifferentlyTranscribed.shape[0]
-
-	# fig = plt.figure(figsize = (12, 12))
-	# plotOutFileName = "transcriptionGenomeCoveragePolar"
-
-	# rGen = 1
-	# rSpace = 0.25
-	# ax.set_ylim([0, ((rSpace + rSpace)* numGens)])
-	# ax = plt.subplot(1, 1, 1, polar = True)
-	# colors = ["0.2", "0.4", "0.6", "0.8"]
-
-	# for idx in np.arange(numGens - 1, -1, -1):
-	# 	radius = np.ones(numMRnasPolar) * (idx + 1) * (rGen + rSpace) * transcribedBool[idx, mostDifferentlyTranscribed]
-	# 	ax.plot(np.linspace(0, 2*np.pi, numMRnasPolar), radius, colors[idx])
-	# 	ax.fill_between(np.linspace(0, 2*np.pi, numMRnasPolar), radius, 0, color = colors[idx])
-
-	# 	# white space
-	# 	# rWhiteSpace = np.ones(numMRnasPolar) * idx * (rGen + rSpace)
-	# 	# ax.fill_between(np.linspace(0, 2*np.pi, numMRnasPolar), rWhiteSpace + rSpace, 0, color = "white")
-
-	# radius = numGens * (rGen + rSpace)
-	# thetaVals = np.linspace(0, 2*np.pi, numMRnasPolar)
-	# for thetaIndex, idx in enumerate(mostDifferentlyTranscribed):
-	# 	ax.annotate(str(mRnaNamesSorted[mostDifferentlyTranscribed[thetaIndex]]),
-	# 				xy = (thetaVals[thetaIndex], radius),
-	# 				)
-	# ax.grid(False)
-	# ax.set_xticks([])
-	# ax.set_yticks([])
-
-	# from wholecell.analysis.analysis_tools import exportFigure
-	# exportFigure(plt, plotOutDir, plotOutFileName, metadata)
-
-	# plt.close("all")
 
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(
