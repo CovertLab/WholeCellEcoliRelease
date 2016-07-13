@@ -130,9 +130,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
 
-	import ipdb; ipdb.set_trace()
-
-
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(
 			wholecell.utils.constants.SERIALIZED_KB_DIR,
