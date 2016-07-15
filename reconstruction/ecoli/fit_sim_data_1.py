@@ -1243,7 +1243,7 @@ def findKineticCoeffs(sim_data, bulkContainer):
 	jfbaBiomassReactionStoich = {molID:-coeff.asNumber(COUNTS_UNITS/VOLUME_UNITS/TIME_UNITS) for molID, coeff in sim_data.process.metabolism.previousBiomassMeans.iteritems() if np.abs(coeff.asNumber(COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS)) > NUMERICAL_ZERO}
 	jfbaBiomassReactionStoich["biomass"] = 1
 
-	n_iterations = 100
+	n_iterations = 5
 	overallFluxes = None
 	modification_probability = .2
 
@@ -1283,7 +1283,7 @@ def findKineticCoeffs(sim_data, bulkContainer):
 			COUNTS_UNITS / VOLUME_UNITS,
 			sim_data.nutrientsTimeSeriesLabel,
 			1., # time only matters in changing environments, so any > 0 is fine
-			pop=False
+			preview=True
 			)
 
 		fbaObject.externalMoleculeLevelsIs(externalMoleculeLevels)
@@ -1322,7 +1322,7 @@ def findKineticCoeffs(sim_data, bulkContainer):
 	overallFluxes /= n_iterations
 
 	fluxNames = np.array(reactionNames).reshape(-1, 1)
-	predictedFluxesDict = dict(zip([fluxName[0] for fluxName in fluxNames], [flux[0] for flux in overallFluxes]))
+	predictedFluxesDict = dict(zip([fluxName[0] for fluxName in fluxNames], [(COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS) * flux[0] for flux in overallFluxes]))
 
 	# Use rabinowitz metabolite concentrations as the estimate
 	metaboliteConcentrationsDict = sim_data.process.metabolism.concDict
@@ -1375,7 +1375,7 @@ def findKineticCoeffs(sim_data, bulkContainer):
 	overconstraintRatio = {}
 	for rateName, rate in kineticRatesDict.iteritems():
 		if rateName in predictedFluxesDict:
-			flux = predictedFluxesDict[rateName]
+			flux = predictedFluxesDict[rateName].asNumber(COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS)
 			ratio = 0 if flux == 0 else flux / rate
 			if ratio >= 1:
 				print ratio

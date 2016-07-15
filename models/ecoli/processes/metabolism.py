@@ -340,23 +340,6 @@ class Metabolism(wholecell.processes.process.Process):
 
 		exFluxes = ((COUNTS_UNITS / VOLUME_UNITS) * self.fba.externalExchangeFluxes() / coefficient).asNumber(units.mmol / units.g / units.h)
 
-		currentFluxesDict = dict(zip(self.fba.reactionIDs(),self.fba.reactionFluxes()))
-
-		if self.time() > 100:
-			import ipdb; ipdb.set_trace()
-
-			for reactionID, currentFlux in currentFluxesDict.iteritems():
-				if reactionID in self.fitterPredictedFluxesDict:
-					predictedFlux = self.fitterPredictedFluxesDict[reactionID]
-					difference = predictedFlux - currentFlux
-					foldDifference = currentFlux / predictedFlux
-					if (predictedFlux + currentFlux):
-						print "Predicted: {}\t Actual: {}\t Difference:{}\t Fold Difference:{}".format(predictedFlux, currentFlux, difference, foldDifference)
-
-
-			import ipdb; ipdb.set_trace()
-
-
 		# TODO: report as reactions (#) per second & store volume elsewhere
 		self.writeToListener("FBAResults", "reactionFluxes",
 			self.fba.reactionFluxes() / self.timeStepSec())

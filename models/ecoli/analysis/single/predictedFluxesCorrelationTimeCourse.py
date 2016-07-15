@@ -2,7 +2,7 @@
 """
 @author: Morgan Paull
 @organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 4/29/2016
+@date: Created 7/14/2016
 """
 
 from __future__ import division
@@ -17,7 +17,6 @@ matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 from matplotlib import colors
 from matplotlib import gridspec
-from scipy.stats import pearsonr
 
 import mpld3
 from mpld3 import plugins, utils
@@ -40,55 +39,54 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	validation_data = cPickle.load(open(validationDataFile, "rb"))
 	sim_data = cPickle.load(open(simDataFile, "rb"))
-
-	cellDensity = sim_data.constants.cellDensity
 
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-	timeStepSec = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
-
-	massListener = TableReader(os.path.join(simOutDir, "Mass"))
-	cellMass = massListener.readColumn("cellMass") * units.fg
-	dryMass = massListener.readColumn("dryMass") * units.fg
-	massListener.close()
 
 	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 	reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
 	reactionFluxes = (COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS) * np.array(fbaResults.readColumn("reactionFluxes"))
-	fluxes_dict = dict(zip(reactionIDs, reactionFluxes))
 	fbaResults.close()
 
-	coefficients = dryMass / cellMass * cellDensity * (timeStepSec * units.s)
+	fitterPredictedFluxesDict = sim_data.process.metabolism.predictedFluxesDict
+	fitterPredictedFluxes = np.array([fitterPredictedFluxesDict[reactionID].asNumber(FLUX_UNITS) for reactionID in reactionIDs])
 
-	dryMassFracAverage = np.mean(dryMass / cellMass)
+	# Any seed is fine - this will be consistent within (reruning) a sim, but vary from sim to sim
+	np.random.seed(np.abs(hash(simOutDir)) % np.iinfo(np.int32).max)
 
-	toya_reactions = validation_data.reactionFlux.toya2010fluxes["reactionID"]
-	toya_fluxes = FLUX_UNITS * np.array([(dryMassFracAverage * cellDensity * x).asNumber(FLUX_UNITS) for x in validation_data.reactionFlux.toya2010fluxes["reactionFlux"]])
+	n_permutations = 3
+	permutedFitterFluxes = np.zeros((n_permutations, fitterPredictedFluxes.shape[0]))
+	for iteration in xrange(n_permutations):
+		permutation = np.random.permutation(fitterPredictedFluxes)
+		permutedFitterFluxes[iteration,:] = permutation
 
-	netFluxes = []
-	for toyaReactionID in toya_reactions:
-		if toyaReactionID in reactionIDs:
-			fluxTimeCourse = net_flux(toyaReactionID, reactionIDs, reactionFluxes, reverseRxnFormat=_generatedID_reverseReaction).asNumber(FLUX_UNITS).squeeze()
-			netFluxes.append(fluxTimeCourse)
+	correlationTimecourse = []
+	permutedCorrelationTimecourses = np.zeros((n_permutations, reactionFluxes.asNumber(FLUX_UNITS).shape[0]))
+	for timeStep, fluxValue in enumerate(reactionFluxes.asNumber(FLUX_UNITS)):
+		correlationCoefficient = np.corrcoef(fluxValue, fitterPredictedFluxes)
+		correlationTimecourse.append(correlationCoefficient[0,1])
+		for idx, permutedFlux in enumerate(permutedFitterFluxes):
+			correlationCoefficient = np.corrcoef(fluxValue, permutedFlux)
+			permutedCorrelationTimecourses[idx, timeStep] =  correlationCoefficient[0,1]
+	correlationTimecourse = np.array(correlationTimecourse)
+	permutedCorrelationTimecourses = np.array(permutedCorrelationTimecourses)
 
-	trimmedReactions = FLUX_UNITS * np.array(netFluxes)
-
-	corrCoefTimecourse = []
-	for fluxes in trimmedReactions.asNumber(FLUX_UNITS).T:
-		correlationCoefficient = np.corrcoef(fluxes, toya_fluxes.asNumber(FLUX_UNITS))[0,1]
-		corrCoefTimecourse.append(correlationCoefficient)
-
-	meanCorr = np.mean(np.array(corrCoefTimecourse)[~np.isnan(corrCoefTimecourse)])
+	meanCorrelation = np.nanmean(correlationTimecourse, axis=0)
+	permutationMean = np.nanmean(permutedCorrelationTimecourses)
 
 	fig = plt.figure()
-	plt.plot(time / 60., corrCoefTimecourse)
-	plt.axhline(y=meanCorr, color='r')
-	plt.title("Measured vs. Simulated Central Carbon Fluxes")
-	plt.text(.5*np.max(time / 60.),.95*meanCorr, "Mean = {:.2}".format(meanCorr), horizontalalignment="center")
+	plt.plot(time / 60., correlationTimecourse.T, label="Predicted Fluxes")
+	for iteration in xrange(n_permutations):
+		plt.plot(time / 60., permutedCorrelationTimecourses[iteration,:], label="Randomly permuted predictions {}".format(iteration + 1))
+
+	plt.title("Fitter Predicted vs. Actual Reaction Fluxes")
 	plt.xlabel("Time (min)")
 	plt.ylabel("Pearson R")
+	plt.legend(loc="best",fontsize='small')
+	
+	plt.text(.5*np.max(time / 60.),.95*meanCorrelation, "Mean of actual predictions = {:.2}".format(meanCorrelation), horizontalalignment="center")
+	plt.text(.5*np.max(time / 60.),np.amax([1.05*np.abs(permutationMean),.03]), "Mean of randomly permuted predictions = {:.2}".format(permutationMean), horizontalalignment="center")
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
