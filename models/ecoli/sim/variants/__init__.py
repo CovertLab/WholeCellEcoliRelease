@@ -20,6 +20,8 @@ from models.ecoli.sim.variants.growth_rate import growthRateTotalIndices
 from models.ecoli.sim.variants.nutrientTimeSeries import nutrientTimeSeries
 from models.ecoli.sim.variants.nutrientTimeSeries import nutrientTimeSeriesTotalIndices
 
+from models.ecoli.sim.variants.tf_activity import tfActivity
+from models.ecoli.sim.variants.tf_activity import tfActivityTotalIndices
 
 nameToFunctionMapping = {
 	"geneKnockout": geneKnockout,
@@ -28,6 +30,7 @@ nameToFunctionMapping = {
 	"kineticsFluxCoeff": kineticsFluxCoeff,
 	"growthRate": growthRate,
 	"nutrientTimeSeries": nutrientTimeSeries,
+	"tfActivity": tfActivity,
 }
 
 nameToNumIndicesMapping = {
@@ -37,4 +40,5 @@ nameToNumIndicesMapping = {
 	"kineticsFluxCoeff": kineticsFluxCoeffTotalIndices,
 	"growthRate": growthRateTotalIndices,
 	"nutrientTimeSeries": nutrientTimeSeriesTotalIndices,
+	"tfActivity": tfActivityTotalIndices,
 }
