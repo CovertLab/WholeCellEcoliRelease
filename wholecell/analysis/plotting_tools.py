@@ -61,7 +61,7 @@ COLORS_256 = [ # From colorbrewer2.org, qualitative 8-class set 1
 	[247,129,191]
 	]
 
-def plotSplom(arrayOfdataArrays, nameArray="", plotCorrCoef=True):
+def plotSplom(arrayOfdataArrays, nameArray="", fig=None, plotCorrCoef=True):
 	"""
 	Plot a scatterplot matrix (Splom) of data contained in arrayOfdataArrays,
 	with labels in the same order held within nameArray.
@@ -69,6 +69,9 @@ def plotSplom(arrayOfdataArrays, nameArray="", plotCorrCoef=True):
 
 	if len(arrayOfdataArrays) != len(nameArray):
 		raise IndexError("Your array of data arrays and the array of names must be the same length.")
+
+	if fig is None:
+		fig = plt.figure()
 
 	num_entries = len(arrayOfdataArrays)
 	plottingIndex = 1
@@ -89,3 +92,5 @@ def plotSplom(arrayOfdataArrays, nameArray="", plotCorrCoef=True):
 				yLocation = np.amax([.9*np.amax(arrayOfdataArrays[rowNum-1]),(1-((np.amax(arrayOfdataArrays[rowNum-1]) - np.amin(arrayOfdataArrays[rowNum-1]))*.1))*np.amax(arrayOfdataArrays[rowNum-1])])
 				plt.text(xLocation,yLocation,"r = %.4f" % (corr_coef), verticalalignment='top', horizontalalignment='left')
 		plottingIndex += 1
+
+	return fig

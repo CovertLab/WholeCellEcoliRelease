@@ -18,6 +18,7 @@ import warnings
 
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
+from wholecell.utils import units
 
 import mpld3
 from mpld3 import plugins, utils
@@ -25,7 +26,7 @@ from mpld3 import plugins, utils
 from models.ecoli.processes.metabolism import COUNTS_UNITS, TIME_UNITS, VOLUME_UNITS
 FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
 
-from wholecell.analysis.plotting_tools import COLORS_LARGE
+from wholecell.analysis.plotting_tools import COLORS_LARGE, plotSplom
 
 NUMERICAL_ZERO = 1e-15
 
@@ -39,12 +40,25 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
+	validation_data = cPickle.load(open(validationDataFile, "rb"))
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	
+	massListener = TableReader(os.path.join(simOutDir, "Mass"))
+	cellMass = massListener.readColumn("cellMass") * units.fg
+	dryMass = massListener.readColumn("dryMass") * units.fg
+	massListener.close()
+
 	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 	reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
 	reactionFluxes = np.array(fbaResults.readColumn("reactionFluxes"))
 	fbaResults.close()
+	
+	cellDensity = sim_data.constants.cellDensity
+	dryMassFracAverage = np.mean(dryMass / cellMass)
+
+	toya_reactions = validation_data.reactionFlux.toya2010fluxes["reactionID"]
+	toya_fluxes = FLUX_UNITS * np.array([(dryMassFracAverage * cellDensity * x).asNumber(FLUX_UNITS) for x in validation_data.reactionFlux.toya2010fluxes["reactionFlux"]])
+	toya_fluxes_dict = dict(zip(toya_reactions, toya_fluxes))
 
 	# Clip all values less than numerica zero to zero
 	reactionFluxes[reactionFluxes < NUMERICAL_ZERO] = 0
@@ -54,50 +68,47 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		if np.abs(value) < NUMERICAL_ZERO:
 			fitterPredictedFluxesDict[key] = 0
 
-	scatterArrayActual, scatterArrayPredicted, scatterArrayPredictedStd, labels = [], [], [], []
-	for fluxName, predictedFlux in fitterPredictedFluxesDict.iteritems():
+	scatterArrayActual, scatterArrayPredicted, toyaObservedFluxes, labels = [], [], [], []
+	for fluxName, toyaFlux in toya_fluxes_dict.iteritems():
 		reactionIdx = list(reactionIDs).index(fluxName)
 		samplePoints = reactionFluxes[BURN_IN_PERIOD:, reactionIdx]
-		scatterArrayActual.append(predictedFlux)
+		scatterArrayActual.append(fitterPredictedFluxesDict[fluxName])
 		scatterArrayPredicted.append(np.mean(samplePoints))
-		scatterArrayPredictedStd.append(np.std(samplePoints))
+		toyaObservedFluxes.append(toyaFlux.asNumber(FLUX_UNITS))
 		labels.append(fluxName)
 	
 	scatterArrayActual = np.array(scatterArrayActual)
 	scatterArrayPredicted = np.array(scatterArrayPredicted)
-	scatterArrayPredictedStd = np.array(scatterArrayPredictedStd)
-	correlationCoefficient = np.corrcoef(scatterArrayActual, scatterArrayPredicted)[0,1]
-	logCorrelationCoefficient = np.corrcoef(np.log10(scatterArrayActual + 1), np.log10(scatterArrayPredicted + 1))[0,1]
+	toyaObservedFluxes = np.array(toyaObservedFluxes)
+	
+	arrayOfdataArrays = [scatterArrayActual, scatterArrayPredicted, toyaObservedFluxes]
+	
+	names = ["WCM Flux {}".format(FLUX_UNITS.strUnit()), "Fitter Prediction {}".format(FLUX_UNITS.strUnit()), "Toya et al Measurement {}".format(FLUX_UNITS.strUnit())]
 
-	fig = plt.figure(figsize=(7.5,11))
+	fig = plt.figure(figsize=(30,30))
+	fig = plotSplom(arrayOfdataArrays, nameArray=names, fig=fig, plotCorrCoef=True)
 
-	plt.suptitle("Fitter Predicted Fluxes, {} Step Burn-in.".format(BURN_IN_PERIOD))
+	plt.suptitle("Actual vs. Fitter Predicted vs. Toya Observed Fluxes, {} Step Burn-in.".format(BURN_IN_PERIOD))
 
-	plt.subplot(2,1,1)
-	plt.title("Pearson R = {:.2}".format(correlationCoefficient))
-	points = plt.scatter(scatterArrayPredicted, scatterArrayActual)
-	plt.xlabel("Predicted Flux {}".format(FLUX_UNITS.strUnit()))
-	plt.ylabel("Actual Flux {}".format(FLUX_UNITS.strUnit()))
+	# plt.subplot(2,1,1)
+	# plt.title("Pearson R = {:.2}".format(correlationCoefficient))
+	# points = plt.scatter(scatterArrayPredicted, scatterArrayActual)
+	# plt.xlabel("Predicted Flux {}".format(FLUX_UNITS.strUnit()))
+	# plt.ylabel("Actual Flux {}".format(FLUX_UNITS.strUnit()))
 
-	tooltip = plugins.PointLabelTooltip(points, labels)
-	plugins.connect(fig, tooltip)
+	# tooltip = plugins.PointLabelTooltip(points, labels)
+	# plugins.connect(fig, tooltip)
 
-	plt.subplot(2,1,2)
-	plt.title("Pearson R = {:.2}".format(logCorrelationCoefficient))
-	points = plt.scatter(np.log10(scatterArrayPredicted), np.log10(scatterArrayActual))
-	plt.xlabel("Log10 Predicted Flux {}".format(FLUX_UNITS.strUnit()))
-	plt.ylabel("Log10 Actual Flux {}".format(FLUX_UNITS.strUnit()))
+	# plt.subplot(2,1,2)
+	# plt.title("Pearson R = {:.2}".format(logCorrelationCoefficient))
+	# points = plt.scatter(np.log10(scatterArrayPredicted), np.log10(scatterArrayActual))
+	# plt.xlabel("Log10 Predicted Flux {}".format(FLUX_UNITS.strUnit()))
+	# plt.ylabel("Log10 Actual Flux {}".format(FLUX_UNITS.strUnit()))
 
-	tooltip = plugins.PointLabelTooltip(points, labels)
-	plugins.connect(fig, tooltip)
+	# tooltip = plugins.PointLabelTooltip(points, labels)
+	# plugins.connect(fig, tooltip)
 
-	from wholecell.analysis.analysis_tools import exportFigure, exportHtmlFigure
-	exportHtmlFigure(fig, plt, plotOutDir, plotOutFileName, metadata)
-
-	# Error bars don't work for the HTML plot, so save it with just points, then add error bars.
-	plt.subplot(2,1,1)
-	points = plt.errorbar(scatterArrayPredicted, scatterArrayActual, yerr=scatterArrayPredictedStd, fmt='o')
-
+	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
 

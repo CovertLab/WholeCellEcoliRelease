@@ -63,8 +63,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	fluxes_dict = dict(zip(reactionIDs, reactionFluxes))
 	fbaResults.close()
 
-	coefficients = dryMass / cellMass * cellDensity * (timeStepSec * units.s)
-
 	dryMassFracAverage = np.mean(dryMass / cellMass)
 
 	toya_reactions = validation_data.reactionFlux.toya2010fluxes["reactionID"]
