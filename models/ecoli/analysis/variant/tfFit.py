@@ -84,18 +84,19 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 
 	ax = plt.subplot(2, 1, 1)
 	ax.scatter(expectedProbBound, simulatedProbBound)
-	plt.xlabel("Expected probability bound")
-	plt.ylabel("Simulated probability bound")
+	plt.xlabel("Expected probability bound", fontsize = 6)
+	plt.ylabel("Simulated probability bound", fontsize = 6)
+	ax.tick_params(which = 'both', direction = 'out', labelsize = 6)
 
 	ax = plt.subplot(2, 1, 2)
 	ax.scatter(np.log10(expectedSynthProb), np.log10(simulatedSynthProb))
-	plt.xlabel("log10(Expected synthesis probability)")
-	plt.ylabel("log10(Simulated synthesis probability)")
+	plt.xlabel("log10(Expected synthesis probability)", fontsize = 6)
+	plt.ylabel("log10(Simulated synthesis probability)", fontsize = 6)
+	ax.tick_params(which = 'both', direction = 'out', labelsize = 6)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
-	import ipdb; ipdb.set_trace()
 
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(
