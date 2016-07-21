@@ -129,9 +129,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		sequenceHasAA = (sequences != PAD_VALUE)
 		aasInSequences = np.bincount(sequences[sequenceHasAA], minlength=21)
 
-		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg)
+		dryMass = (self.readFromListener("Mass", "dryMass") * units.fg)
 
-		molAasRequested = self.translation_aa_supply * cellMass * self.timeStepSec() * units.s
+		molAasRequested = self.translation_aa_supply * dryMass * self.timeStepSec() * units.s
 
 		countAasRequested = units.convertNoUnitToNumber(molAasRequested * self.nAvogadro)
 

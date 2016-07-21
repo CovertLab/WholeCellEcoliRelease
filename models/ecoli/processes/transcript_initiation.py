@@ -96,6 +96,11 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.rnaSynthProb = self.recruitmentMatrix.dot(self.recruitmentView.total())
 		self.rnaSynthProb /= self.rnaSynthProb.sum()
 
+		print (self.recruitmentView.total() < 0.).sum()
+
+		assert np.allclose(self.rnaSynthProb.sum(),1.)
+		assert np.all(self.rnaSynthProb >= 0.)
+
 		self.rProteinToRRnaRatioVector = self.rnaSynthProb[self.isRProtein] / self.rnaSynthProb[self.isRRna][0]
 
 	# Calculate temporal evolution
@@ -244,6 +249,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		Returns total initiation rate of rRNA across all promoters
 		In units of initiations / s / fg
 		'''
-		fitInitiationRate = 0.1*0.0168 * np.exp(-0.272 * (self.maxRibosomeElongationRate - elngRate))
+		fitInitiationRate = 0.0168 * np.exp(-0.272 * (self.maxRibosomeElongationRate - elngRate))
 
 		return (1 / units.s / units.fg) * fitInitiationRate
