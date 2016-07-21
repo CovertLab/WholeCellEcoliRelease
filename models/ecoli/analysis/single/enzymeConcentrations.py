@@ -29,24 +29,10 @@ import wholecell.utils.constants
 
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
 
-CMAP_COLORS_255 = [
-	[103,0,31],
-	[178,24,43],
-	[214,96,77],
-	[244,165,130],
-	[253,219,199],
-	[247,247,247],
-	[209,229,240],
-	[146,197,222],
-	[67,147,195],
-	[33,102,172],
-	[5,48,97],
-	]
-
+from wholecell.analysis.plotting_tools import CMAP_COLORS_255
 CMAP_COLORS = [[shade/255. for shade in color] for color in CMAP_COLORS_255]
 CMAP_UNDER = [1, 0.2, 0.75]
 CMAP_OVER = [0, 1, 0.75]
-
 
 VERBOSE = True
 

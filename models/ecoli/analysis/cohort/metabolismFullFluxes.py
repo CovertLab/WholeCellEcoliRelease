@@ -23,15 +23,7 @@ from scipy.spatial import distance
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
-
-CMAP_COLORS_255 = [
-	[247,247,247],
-	[209,229,240],
-	[146,197,222],
-	[67,147,195],
-	[33,102,172],
-	[5,48,97],
-	]
+from wholecell.analysis.plotting_tools import CMAP_COLORS_255
 
 CMAP_COLORS = [[shade/255. for shade in color] for color in CMAP_COLORS_255]
 CMAP_OVER = [0, 1, 0.75]
