@@ -48,39 +48,77 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	fitterPredictedFluxesDict = {key:value.asNumber(FLUX_UNITS) for key, value in sim_data.process.metabolism.predictedFluxesDict.iteritems() if key in reactionIDs}
 
+	replicationResults = TableReader(os.path.join(simOutDir,"ReplicationData"))
+	sequenceIdx = replicationResults.readColumn("sequenceIdx")
+	replicationResults.close()
+
+	activePolymerases = (sequenceIdx > -1).sum(axis=1)
+	replicationStartIdx = np.where(np.cumsum(activePolymerases) > 0)[0][0]
+	replicationStopIdx = np.where(np.cumsum(activePolymerases) == np.cumsum(activePolymerases).max())[0][0]
+
 	pointsToPlot, names = [], []
 	for fluxName, predictedFlux in fitterPredictedFluxesDict.iteritems():
 		reactionIdx = list(reactionIDs).index(fluxName)
 		samplePoints = reactionFluxes[BURN_IN_PERIOD:, reactionIdx]
 		if samplePoints.any():
+			preReplicationPoints = samplePoints[:replicationStartIdx]
+			midReplicationPoints = samplePoints[replicationStartIdx:replicationStopIdx]
+			postReplicationPoints = samplePoints[replicationStopIdx:]
+			samplePoints = [preReplicationPoints, midReplicationPoints, postReplicationPoints]
 			pointsToPlot.append(samplePoints)
 			names.append(fluxName)
 
-	fig = plt.figure(figsize=(50,50))
-
+	# Sort by mean flux
+	pointsToPlot = np.array(sorted(pointsToPlot, key=lambda x: np.mean(np.abs(reduce(lambda z,y:list(z)+list(y), x)))))
 	num_points = len(pointsToPlot)
-	x_len = int(np.ceil(np.sqrt(num_points)))
-	y_len = int(np.ceil(num_points/x_len) + 1)
+	x_len = int(np.ceil(np.sqrt(num_points+1)))
+	y_len = int(np.ceil((num_points+1)/x_len) + 1)
 
-	num_bins=30
+	num_bins = 25
 
-	plt.suptitle("All nonzero reaction fluxes", fontsize="xx-large")
+	fig = plt.figure(figsize=(np.ceil(2.5*x_len),np.ceil(2.5*y_len)))
 
-	for idx in xrange(1,num_points-1):
-		ax = plt.subplot(x_len,y_len,idx)
-		plt.title(names[idx-1][:MAX_STRLEN],fontsize='xx-small')
-		n, bins, patches = plt.hist(pointsToPlot[idx-1],num_bins)
-		ax.xaxis.set_visible(False)
-	
+	plt.suptitle("All Nonzero Reaction Fluxes After {} Step Burn-in, Sorted by Average Absolute Flux ({}) from Low to High.".format(BURN_IN_PERIOD, FLUX_UNITS.strUnit()), fontsize="xx-large")
+
+	for idx, sample in enumerate(pointsToPlot):
+		ax = plt.subplot(x_len,y_len,idx+1)
+		plt.title(names[idx][:MAX_STRLEN],fontsize='xx-small')
+		n, bins, patches = plt.hist(
+			[x for x in sample],
+			num_bins,
+			histtype='bar',
+			stacked=True,
+			color=['green','blue', 'red'],
+			label=['Before DNA replication', 'During DNA replication', ' After DNA replication'])
+		n = reduce(lambda x,y:x+y, n)
+		total_sample = np.array(reduce(lambda x,y:list(x)+list(y), sample))
+
 		ax.spines['top'].set_visible(False)
 		ax.spines['bottom'].set_visible(False)
-		ax.xaxis.set_ticks_position('none')
 		ax.tick_params(which = 'both', direction = 'out', labelsize=6)
 		ax.set_xticks([])
 		ymax = int(n.max())
+		xmax = total_sample.max()
+		xmin = total_sample.min()
 		ax.set_ylim([0,ymax])
 		ax.set_yticks([ymax])
 		ax.set_yticklabels([str(ymax)])
+		ax.set_xlim([xmin,xmax])
+		ax.set_xticks([xmin,xmax])
+		ax.set_xticklabels(["%.0e" % xmin,"%.0e" % xmax])
+
+
+	ax = plt.subplot(x_len,y_len,idx+2)
+	ax.xaxis.set_visible(False)
+	ax.yaxis.set_visible(False)
+	n, bins, patches = plt.hist(
+			[[0] for x in sample],
+			num_bins,
+			histtype='bar',
+			stacked=True,
+			color=['green','blue', 'red'],
+			label=['Before DNA replication', 'During DNA replication', ' After DNA replication'])
+	plt.legend(loc='center left', fontsize="xx-large")
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
