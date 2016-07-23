@@ -60,7 +60,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	toya_fluxes = FLUX_UNITS * np.array([(dryMassFracAverage * cellDensity * x).asNumber(FLUX_UNITS) for x in validation_data.reactionFlux.toya2010fluxes["reactionFlux"]])
 	toya_fluxes_dict = dict(zip(toya_reactions, toya_fluxes))
 
-	# Clip all values less than numerica zero to zero
+	# Clip all values less than numerical zero to zero
 	reactionFluxes[reactionFluxes < NUMERICAL_ZERO] = 0
 
 	fitterPredictedFluxesDict = {key:value.asNumber(FLUX_UNITS) for key, value in sim_data.process.metabolism.predictedFluxesDict.iteritems() if key in reactionIDs}
@@ -68,47 +68,36 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		if np.abs(value) < NUMERICAL_ZERO:
 			fitterPredictedFluxesDict[key] = 0
 
-	scatterArrayActual, scatterArrayPredicted, toyaObservedFluxes, labels = [], [], [], []
+	scatterArrayActual, scatterArrayPredicted, scatterArrayPredictedStd, toyaObservedFluxes, labels = [], [], [], [], []
 	for fluxName, toyaFlux in toya_fluxes_dict.iteritems():
 		reactionIdx = list(reactionIDs).index(fluxName)
 		samplePoints = reactionFluxes[BURN_IN_PERIOD:, reactionIdx]
 		scatterArrayActual.append(fitterPredictedFluxesDict[fluxName])
 		scatterArrayPredicted.append(np.mean(samplePoints))
+		scatterArrayPredictedStd.append(np.std(samplePoints))
 		toyaObservedFluxes.append(toyaFlux.asNumber(FLUX_UNITS))
 		labels.append(fluxName)
 	
 	scatterArrayActual = np.array(scatterArrayActual)
 	scatterArrayPredicted = np.array(scatterArrayPredicted)
 	toyaObservedFluxes = np.array(toyaObservedFluxes)
-	
+
 	arrayOfdataArrays = [scatterArrayActual, scatterArrayPredicted, toyaObservedFluxes]
-	
+	arrayOfdataStdArrays = [None, scatterArrayPredictedStd, None]
+
 	names = ["WCM Flux {}".format(FLUX_UNITS.strUnit()), "Fitter Prediction {}".format(FLUX_UNITS.strUnit()), "Toya et al Measurement {}".format(FLUX_UNITS.strUnit())]
 
 	fig = plt.figure(figsize=(30,30))
-	fig = plotSplom(arrayOfdataArrays, nameArray=names, fig=fig, plotCorrCoef=True)
-
 	plt.suptitle("Actual vs. Fitter Predicted vs. Toya Observed Fluxes, {} Step Burn-in.".format(BURN_IN_PERIOD))
 
-	# plt.subplot(2,1,1)
-	# plt.title("Pearson R = {:.2}".format(correlationCoefficient))
-	# points = plt.scatter(scatterArrayPredicted, scatterArrayActual)
-	# plt.xlabel("Predicted Flux {}".format(FLUX_UNITS.strUnit()))
-	# plt.ylabel("Actual Flux {}".format(FLUX_UNITS.strUnit()))
+	fig = plotSplom(arrayOfdataArrays, nameArray=names, stdArrays=arrayOfdataStdArrays, labels=labels, fig=fig, plotCorrCoef=True, htmlPlot=True)
 
-	# tooltip = plugins.PointLabelTooltip(points, labels)
-	# plugins.connect(fig, tooltip)
+	from wholecell.analysis.analysis_tools import exportFigure, exportHtmlFigure
+	exportHtmlFigure(fig, plt, plotOutDir, plotOutFileName, metadata)
 
-	# plt.subplot(2,1,2)
-	# plt.title("Pearson R = {:.2}".format(logCorrelationCoefficient))
-	# points = plt.scatter(np.log10(scatterArrayPredicted), np.log10(scatterArrayActual))
-	# plt.xlabel("Log10 Predicted Flux {}".format(FLUX_UNITS.strUnit()))
-	# plt.ylabel("Log10 Actual Flux {}".format(FLUX_UNITS.strUnit()))
+	# Error bars don't work for the HTML plot, so save it with just points, then add error bars.
+	fig = plotSplom(arrayOfdataArrays, nameArray=names, stdArrays=arrayOfdataStdArrays, fig=fig, plotCorrCoef=True)
 
-	# tooltip = plugins.PointLabelTooltip(points, labels)
-	# plugins.connect(fig, tooltip)
-
-	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
 

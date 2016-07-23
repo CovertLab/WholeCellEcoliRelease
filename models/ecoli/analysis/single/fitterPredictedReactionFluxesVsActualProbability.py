@@ -28,7 +28,7 @@ FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
 
 from wholecell.analysis.plotting_tools import COLORS_LARGE
 
-NUMERICAL_ZERO = 1e-15
+NUMERICAL_ZERO = 1e-25
 
 BURN_IN_PERIOD = 150
 
@@ -55,36 +55,44 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		samplePoints = reactionFluxes[BURN_IN_PERIOD:, reactionIdx]
 		degsOfFreedom = len(samplePoints) - 1
 		if samplePoints.any():
-			t_value = (np.mean(samplePoints) - predictedFlux) / (np.std(samplePoints) / np.sqrt(degsOfFreedom + 1))
-			p_value = stats.t.sf(np.abs(t_value), degsOfFreedom)*2.
+			z_value = (np.mean(samplePoints) - predictedFlux) / np.std(samplePoints)
+			p_value = stats.norm.sf(np.abs(z_value))*2.
 			p_values.append(p_value)
 			nonzero_p_values.append(p_value)
 		else:
-			t_value = (np.mean(samplePoints) - predictedFlux) / (NUMERICAL_ZERO / np.sqrt(degsOfFreedom + 1))
-			p_value = stats.t.sf(np.abs(t_value), degsOfFreedom)*2.
+			z_value = (np.mean(samplePoints) - predictedFlux) / NUMERICAL_ZERO
+			p_value = stats.norm.sf(np.abs(z_value))*2.
 			p_values.append(p_value)
 
 	p_values = np.array(p_values)
 	nonzero_p_values = np.array(nonzero_p_values)
+	p_values[p_values == 0] = NUMERICAL_ZERO
+	nonzero_p_values[nonzero_p_values == 0] = NUMERICAL_ZERO
+	log_p_values = np.array(np.log10(p_values))
+	log_nonzero_p_values = np.array(np.log10(nonzero_p_values))
+
 
 	fig = plt.figure(figsize=(7.5,11))
 
-	plt.suptitle("T-test of Predicted Flux vs Observed Fluxes, {} Step Burn-in.".format(BURN_IN_PERIOD))
+	num_bins = 40
+
+	plt.suptitle("Z-test of Predicted Flux vs Observed Fluxes, {} Step Burn-in.".format(BURN_IN_PERIOD))
 	
 	ax1 = plt.subplot(2,1,1)
 	plt.title("All Fluxes ({})".format(len(p_values)))
-	n, bins, patches = plt.hist(p_values, 20, range=(0,1), normed=False)
+	n, bins, patches = plt.hist(log_p_values, num_bins, range=(-20,0), normed=False)
 	plt.ylabel("Number of Fluxes")
-	percentOver05 = (p_values > .05).mean()
-	plt.text(.5, .95*(n.max()), "{0:.1f}% over .05".format(percentOver05*100.), horizontalalignment='center')
+	plt.xlabel("Log10 P-value")
+	percentOverThreshold = (p_values > .1).mean()
+	plt.text(-5, .95*(n.max()), "{0:.1f}% over .1".format(percentOverThreshold*100.), horizontalalignment='center')
 
 	ax2 = plt.subplot(2,1,2, sharex=ax1)
-	plt.title("Nonzero Fluxes Only ({} WCM fluxes always zero)".format(len(p_values) - len(nonzero_p_values)))
-	n, bins, patches = plt.hist(nonzero_p_values, 20, range=(0,1), normed=False)
-	plt.xlabel("P-value")
+	plt.title("Nonzero Fluxes Only ({} Fluxes)".format(len(nonzero_p_values)))
+	n, bins, patches = plt.hist(log_nonzero_p_values, num_bins, range=(-20,0), normed=False)
+	plt.xlabel("Log10 P-value")
 	plt.ylabel("Number of Fluxes")
-	percentOver05 = (nonzero_p_values > .05).mean()
-	plt.text(.5, .95*(n.max()), "{0:.1f}% over .05".format(percentOver05*100.), horizontalalignment='center')
+	percentOverThreshold = (nonzero_p_values > .1).mean()
+	plt.text(-5, .95*(n.max()), "{0:.1f}% over .1".format(percentOverThreshold*100.), horizontalalignment='center')
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)

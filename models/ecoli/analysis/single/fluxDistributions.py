@@ -31,6 +31,10 @@ from wholecell.analysis.plotting_tools import COLORS_LARGE
 BURN_IN_PERIOD = 150
 MAX_STRLEN = 20
 
+HIGHLIGHT_PRE_POST_DNA_DIFF = False
+
+fitterPredictionColor = "red"
+
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):
@@ -71,8 +75,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	# Sort by mean flux
 	pointsToPlot = np.array(sorted(pointsToPlot, key=lambda x: np.mean(np.abs(reduce(lambda z,y:list(z)+list(y), x)))))
 	num_points = len(pointsToPlot)
-	x_len = int(np.ceil(np.sqrt(num_points+1)))
-	y_len = int(np.ceil((num_points+1)/x_len) + 1)
+	x_len = int(np.ceil(np.sqrt(num_points+4)))
+	y_len = int(np.ceil((num_points+1)/x_len)+4)
 
 	num_bins = 25
 
@@ -81,6 +85,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	plt.suptitle("All Nonzero Reaction Fluxes After {} Step Burn-in, Sorted by Average Absolute Flux ({}) from Low to High.".format(BURN_IN_PERIOD, FLUX_UNITS.strUnit()), fontsize="xx-large")
 
 	for idx, sample in enumerate(pointsToPlot):
+		fluxName = names[idx]
 		ax = plt.subplot(x_len,y_len,idx+1)
 		plt.title(names[idx][:MAX_STRLEN],fontsize='xx-small')
 		n, bins, patches = plt.hist(
@@ -92,6 +97,16 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 			label=['Before DNA replication', 'During DNA replication', ' After DNA replication'])
 		n = reduce(lambda x,y:x+y, n)
 		total_sample = np.array(reduce(lambda x,y:list(x)+list(y), sample))
+
+		# Mann-Whitney U test if pre/during/post DNA replication come from the same distribution
+		if HIGHLIGHT_PRE_POST_DNA_DIFF:
+			u_value, p_value = stats.mannwhitneyu(sample[0], sample[1])
+			if p_value < .05:
+				for x in ax.spines:
+					ax.spines[x].set_color('red')
+
+		# Plot fitter-predicted flux on the axes
+		ax.axvline(x=fitterPredictedFluxesDict[fluxName], color=fitterPredictionColor)
 
 		ax.spines['top'].set_visible(False)
 		ax.spines['bottom'].set_visible(False)
@@ -119,6 +134,12 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 			color=['green','blue', 'red'],
 			label=['Before DNA replication', 'During DNA replication', ' After DNA replication'])
 	plt.legend(loc='center left', fontsize="xx-large")
+
+	ax = plt.subplot(x_len,y_len,idx+5)
+	ax.axis("off")
+	# ax.xaxis.set_visible(False)
+	# ax.yaxis.set_visible(False)
+	plt.text(0,.8, "{} vertical line is fitter predicted value.".format(fitterPredictionColor), fontsize="xx-large", color=fitterPredictionColor)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
