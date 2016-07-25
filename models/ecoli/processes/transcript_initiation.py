@@ -74,6 +74,8 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		self.activeRibosomes = self.uniqueMoleculesView('activeRibosome')
 
+		self.r_protein = self.bulkMoleculesView(sim_data.moleculeGroups.rProteins)
+
 		# ID Groups
 
 		self.is_16SrRNA = sim_data.process.transcription.rnaData['isRRna16S']
@@ -95,6 +97,8 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.inactiveRnaPolys.requestAll()
 		self.rnaSynthProb = self.recruitmentMatrix.dot(self.recruitmentView.total())
 		self.rnaSynthProb /= self.rnaSynthProb.sum()
+		if np.any(self.rnaSynthProb < 0):
+			raise Exception, "Have negative RNA synthesis probabilities"
 
 		print (self.recruitmentView.total() < 0.).sum()
 
@@ -136,6 +140,9 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		expectedRibosomeInitiationRate = self.calculateRrnInitRate(self.rrn_operon.total(), ribosomeElongationRate)
 		rRnaSynthesisProb = expectedRibosomeInitiationRate.asNumber(1/units.s/units.fg) * cellMass * self.timeStepSec() / rnaPolyToActivate
 		rProteinSynthesisProb = self.rProteinToRRnaRatioVector * rRnaSynthesisProb
+
+		low_r_protein = np.where(self.r_protein.total() < 100)[0]
+		rProteinSynthesisProb[low_r_protein] = rProteinSynthesisProb[low_r_protein] * 2
 
 		totalRnapCount = self.activeRnaPolys.total() + self.inactiveRnaPolys.total() or np.array([1])
 		totalRibosomeCount = self.activeRibosomes.total() or np.array([1])

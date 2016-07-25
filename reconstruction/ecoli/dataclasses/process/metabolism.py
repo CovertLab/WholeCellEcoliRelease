@@ -46,6 +46,10 @@ class Metabolism(object):
 		# Load the biomass function flat file as a dict
 		self.biomassFunction = {entry['molecule id']:entry['coefficient'] for entry in raw_data.biomass}
 
+		self.previousBiomassMeans = {entry['molecule id']:entry['mean flux'] for entry in raw_data.previousBiomassFluxes}
+		self.previousBiomassLog10Means = {entry['molecule id']:entry['mean log10 flux'] for entry in raw_data.previousBiomassFluxes}
+		self.previousBiomassStds = {entry['molecule id']:entry['standard deviation'] for entry in raw_data.previousBiomassFluxes}
+
 		# Create vector of metabolite pools (concentrations)
 
 		# Since the data only covers certain metabolites, we need to rationally
@@ -504,7 +508,7 @@ class ConcentrationUpdates(object):
 			if moleculeName in moleculeSetAmounts and moleculeSetAmounts[moleculeName] > Kd.asNumber(units.mol / units.L):
 				amountToSet = moleculeSetAmounts[moleculeName]
 			else:
-				amountToSet = Kd.asNumber(units.mol / units.L)
+				amountToSet = 1e-4#Kd.asNumber(units.mol / units.L)
 			moleculeSetAmounts[moleculeName + "[p]"] = amountToSet * (units.mol / units.L)
 			moleculeSetAmounts[moleculeName + "[c]"] = amountToSet * (units.mol / units.L)
 		return moleculeSetAmounts

@@ -37,6 +37,7 @@ LIST_OF_DICT_FILENAMES = (
 	"modificationReactions.tsv",
 	"modifiedRnas.tsv",
 	"polymerized.tsv",
+	"previousBiomassFluxes.tsv",
 	"promoters.tsv",
 	"proteinComplexes.tsv",
 	"proteins.tsv",
