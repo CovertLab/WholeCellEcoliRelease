@@ -123,12 +123,12 @@ def buildBasalCellSpecifications(sim_data):
 	translation_km = translationKmBasal(sim_data, bulkContainer, cellSpecs["basal"]["concDict"])
 	sim_data.constants.translation_km = translation_km
 
-	translation_aa_supply = translationSupplyBasal(sim_data, bulkContainer)
+	translation_aa_supply = calculateTranslationSupply(sim_data, bulkContainer)
 	sim_data.constants.translation_aa_supply = translation_aa_supply
 
 	return cellSpecs
 
-def translationSupplyBasal(sim_data, bulkContainer):
+def calculateTranslationSupply(sim_data, bulkContainer):
 	aaCounts = sim_data.process.translation.monomerData["aaCounts"]
 	proteinCounts = bulkContainer.counts(sim_data.process.translation.monomerData["id"])
 	nAvogadro = sim_data.constants.nAvogadro
