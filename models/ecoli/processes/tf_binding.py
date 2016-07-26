@@ -105,7 +105,7 @@ class TfBinding(wholecell.processes.process.Process):
 				tfConc.asNumber(units.nmol / units.L)
 				)
 			
-			nToBind = int(stochasticRound(self.randomState, tfFreeCounts * pTfBound))
+			nToBind = int(stochasticRound(self.randomState, tfTotalCounts * pTfBound))
 			if nToBind == 0:
 				continue
 
