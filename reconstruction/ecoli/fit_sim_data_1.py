@@ -1250,7 +1250,7 @@ def findKineticCoeffs(sim_data, bulkContainer):
 	jfbaBiomassReactionStoich = {molID:-coeff.asNumber(COUNTS_UNITS/VOLUME_UNITS/TIME_UNITS) for molID, coeff in sim_data.process.metabolism.previousBiomassMeans.iteritems() if np.abs(coeff.asNumber(COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS)) > NUMERICAL_ZERO}
 	jfbaBiomassReactionStoich["biomass"] = 1
 
-	n_iterations = 5
+	n_iterations = 1
 	overallFluxes = None
 	modification_probability = .2
 
