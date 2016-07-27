@@ -1,0 +1,3 @@
+"condition"	"nutrients"	"genotype perturbations"
+"basal"	"minimal"	{}
+"with_aa"	"minimal_plus_amino_acids"	{}

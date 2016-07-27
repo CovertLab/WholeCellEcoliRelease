@@ -32,18 +32,6 @@ from models.ecoli.processes.metabolism import COUNTS_UNITS, MASS_UNITS, VOLUME_U
 
 FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
 
-CMAP_COLORS_255 = [
-	[247,247,247],
-	[209,229,240],
-	[146,197,222],
-	[67,147,195],
-	[33,102,172],
-	[5,48,97],
-	]
-
-CMAP_COLORS = [[shade/255. for shade in color] for color in CMAP_COLORS_255]
-CMAP_OVER = [0, 1, 0.75]
-
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
 	if not os.path.isdir(simOutDir):

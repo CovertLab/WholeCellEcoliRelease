@@ -36,8 +36,11 @@ _testStandard = dict(
 _testPools = dict(
 	reactionStoich = {
 		"A to B":{"A":-1, "B":+1},
+		"B to A":{"A":+1, "B":-1},
 		"2B to C":{"B":-2, "C":+1},
+		"C to 2B":{"B":+2, "C":-1},
 		"A + D to E":{"A":-1, "D":-1, "E":+1},
+		"E to A + D":{"A":+1, "D":+1, "E":-1},
 		},
 	externalExchangedMolecules = ["A", "D"],
 	objective = {
@@ -93,7 +96,7 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 		fba = FluxBalanceAnalysis(**_testStandard)
 
 		self.assertEqual(
-			fba.objectiveReactionFlux(),
+			fba.biomassReactionFlux(),
 			0
 			)
 
@@ -123,7 +126,7 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			])
 
 		self.assertEqual(
-			fba.objectiveReactionFlux(),
+			fba.biomassReactionFlux(),
 			1.0
 			)
 
@@ -285,7 +288,6 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 	@noseAttrib.attr("smalltest", "fba")
 	def test_pools_singleAboveObjective(self):
 		fba = FluxBalanceAnalysis(
-			reversibleReactions = _testPools["reactionStoich"].keys(),
 			**_testPools
 			)
 

@@ -116,7 +116,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	ax_mat.set_xticklabels(np.round(time[xticks]/60.,decimals=1))
 	ax_mat.set_xlabel("Time (min)")
 
-	plt.title("FBA Shadow Costs (Red = wants less, Blue = wants more)")
+	plt.title("FBA Shadow Prices (Red = wants more, Blue = wants less)")
 
 	ax_cmap = fig.add_subplot(grid[2])
 

@@ -59,7 +59,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	fbaResults.close()
 
 	plt.figure(figsize = (8.5, 11))
-	plt.title("FBA Reaction Dual Values")
+	plt.title("FBA Reaction Reduced Costs")
 
 	# Get the NUM_VALUES highest reduced cost values at each timestep
 	highest_partition = np.argpartition(columnDualValues[:,BURN_IN_PERIOD:],-NUM_VALUES,axis=0)[-NUM_VALUES:].T

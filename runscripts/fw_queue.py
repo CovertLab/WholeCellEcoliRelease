@@ -155,6 +155,7 @@ metadata = {
 	"time": SUBMISSION_TIME,
 	"total_gens": str(N_GENS),
 	"analysis_type": None,
+	"variant": VARIANT,
 	}
 
 for key, value in metadata.iteritems():

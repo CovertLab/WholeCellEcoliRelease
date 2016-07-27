@@ -11,7 +11,6 @@ from __future__ import division
 
 import numpy as np
 import collections
-from unum import Unum
 
 # Raw data class
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
@@ -25,6 +24,8 @@ from reconstruction.ecoli.dataclasses.process.process import Process
 from reconstruction.ecoli.dataclasses.growthRateDependentParameters import Mass, GrowthRateParameters
 from reconstruction.ecoli.dataclasses.relation import Relation
 
+from wholecell.utils import units
+
 VERBOSE = False
 
 class SimulationDataEcoli(object):
@@ -37,14 +38,15 @@ class SimulationDataEcoli(object):
 
 	def initialize(self, raw_data, basal_expression_condition = "M9 Glucose minus AAs"):
 
-		self._addEnvData(raw_data)
+		self._addConditionData(raw_data)
+		self.nutrientData = self._getNutrientData(raw_data)
 		self.condition = "basal"
-		self.environment = self.conditions[self.condition]["environment"]
+		self.nutrientsTimeSeriesLabel = "000000_basal"
 		self.doubling_time = self.conditionToDoublingTime[self.condition]
 
 		# TODO: Check that media condition is valid
 		self.basal_expression_condition = basal_expression_condition
-		self.envDict, self.externalExchangeMolecules, self.nutrientExchangeMolecules, self.secretionExchangeMolecules = self._addEnvironments(raw_data)
+		# self.envDict, self.externalExchangeMolecules, self.nutrientExchangeMolecules, self.secretionExchangeMolecules = self._addEnvironments(raw_data)
 
 		self._addHardCodedAttributes()
 
@@ -104,7 +106,7 @@ class SimulationDataEcoli(object):
 		secretionExchangeMolecules = set()
 		envDict = {}
 		notEnvList = ["condition_doubling_time", "tf_condition", "condition_defs"]
-		environments = [(x, getattr(raw_data.environment, x)) for x in dir(raw_data.environment) if not x.startswith("__") and x not in notEnvList]
+		environments = [(x, getattr(raw_data.condition, x)) for x in dir(raw_data.condition) if not x.startswith("__") and x not in notEnvList]
 		for envName, env in environments:
 			externalExchangeMolecules[envName] = set()
 			nutrientExchangeMolecules[envName] = set()
@@ -146,8 +148,8 @@ class SimulationDataEcoli(object):
 
 		return envDict, externalExchangeMolecules, nutrientExchangeMolecules, secretionExchangeMolecules
 
-	def _addEnvData(self, raw_data):
-		self.conditionToDoublingTime = dict([(x["condition"].encode("utf-8"), x["initial doubling time"]) for x in raw_data.environment.condition_doubling_time])
+	def _addConditionData(self, raw_data):
+		self.conditionToDoublingTime = dict([(x["condition"].encode("utf-8"), x["doubling time"]) for x in raw_data.condition.condition_doubling_time])
 
 		abbrToActiveId = dict([(x["TF"].encode("utf-8"), x["activeId"].encode("utf-8").split(", ")) for x in raw_data.tfIds if len(x["activeId"]) > 0])
 
@@ -182,12 +184,12 @@ class SimulationDataEcoli(object):
 
 
 		self.tfToActiveInactiveConds = {}
-		for row in raw_data.environment.tf_condition:
+		for row in raw_data.condition.tf_condition:
 			tf = row["active TF"].encode("utf-8")
 			activeGenotype = row["active genotype perturbations"]
-			activeEnv = row["active environment"].encode("utf-8")
+			activeNutrients = row["active nutrients"].encode("utf-8")
 			inactiveGenotype = row["inactive genotype perturbations"]
-			inactiveEnv = row["inactive environment"].encode("utf-8")
+			inactiveNutrients = row["inactive nutrients"].encode("utf-8")
 
 			if tf not in self.tfToActiveInactiveConds:
 				self.tfToActiveInactiveConds[tf] = {}
@@ -195,15 +197,15 @@ class SimulationDataEcoli(object):
 				print "Warning: overwriting TF fold change conditions for %s" % tf
 
 			self.tfToActiveInactiveConds[tf]["active genotype perturbations"] = activeGenotype
-			self.tfToActiveInactiveConds[tf]["active environment"] = activeEnv
+			self.tfToActiveInactiveConds[tf]["active nutrients"] = activeNutrients
 			self.tfToActiveInactiveConds[tf]["inactive genotype perturbations"] = inactiveGenotype
-			self.tfToActiveInactiveConds[tf]["inactive environment"] = inactiveEnv
+			self.tfToActiveInactiveConds[tf]["inactive nutrients"] = inactiveNutrients
 
 		self.conditions = {}
-		for row in raw_data.environment.condition_defs:
+		for row in raw_data.condition.condition_defs:
 			condition = row["condition"].encode("utf-8")
 			self.conditions[condition] = {}
-			self.conditions[condition]["environment"] = row["environment"].encode("utf-8")
+			self.conditions[condition]["nutrients"] = row["nutrients"].encode("utf-8")
 			self.conditions[condition]["perturbations"] = row["genotype perturbations"]
 
 		for tf in sorted(self.tfToActiveInactiveConds):
@@ -211,7 +213,76 @@ class SimulationDataEcoli(object):
 			inactiveCondition = tf + "__inactive"
 			self.conditions[activeCondition] = {}
 			self.conditions[inactiveCondition] = {}
-			self.conditions[activeCondition]["environment"] = self.tfToActiveInactiveConds[tf]["active environment"]
-			self.conditions[inactiveCondition]["environment"] = self.tfToActiveInactiveConds[tf]["inactive environment"]
+			self.conditions[activeCondition]["nutrients"] = self.tfToActiveInactiveConds[tf]["active nutrients"]
+			self.conditions[inactiveCondition]["nutrients"] = self.tfToActiveInactiveConds[tf]["inactive nutrients"]
 			self.conditions[activeCondition]["perturbations"] = self.tfToActiveInactiveConds[tf]["active genotype perturbations"]
 			self.conditions[inactiveCondition]["perturbations"] = self.tfToActiveInactiveConds[tf]["inactive genotype perturbations"]
+
+		self.nutrientsTimeSeries = {}
+		for label in dir(raw_data.condition.timeseries):
+			if label.startswith("__"):
+				continue
+
+			self.nutrientsTimeSeries[label] = collections.deque()
+			timeseries = getattr(raw_data.condition.timeseries, label)
+			for row in timeseries:
+				self.nutrientsTimeSeries[label].append((
+					row["time"].asNumber(units.s),
+					row["nutrients"].encode("utf-8")
+					))
+
+		self.nutrientToDoublingTime = {}
+		for condition in self.conditionToDoublingTime:
+			if len(self.conditions[condition]["perturbations"]) > 0:
+				continue
+			nutrientLabel = self.conditions[condition]["nutrients"]
+			if nutrientLabel in self.nutrientToDoublingTime and self.conditionToDoublingTime[condition] != self.nutrientToDoublingTime[nutrientLabel]:
+				raise Exception, "Multiple doubling times correspond to the same media conditions"
+			self.nutrientToDoublingTime[nutrientLabel] = self.conditionToDoublingTime[condition]
+
+
+	def _getNutrientData(self, raw_data):
+
+		externalExchangeMolecules = {}
+		importExchangeMolecules = {}
+		secretionExchangeMolecules = set()
+		importConstrainedExchangeMolecules = {}
+		importUnconstrainedExchangeMolecules = {}
+		nutrientsList = [(x, getattr(raw_data.condition.nutrient, x)) for x in dir(raw_data.condition.nutrient) if not x.startswith("__")]
+		for nutrientsName, nutrients in nutrientsList:
+			externalExchangeMolecules[nutrientsName] = set()
+			importExchangeMolecules[nutrientsName] = set()
+			importConstrainedExchangeMolecules[nutrientsName] = {}
+			importUnconstrainedExchangeMolecules[nutrientsName] = []
+			for nutrient in nutrients:
+				if not np.isnan(nutrient["lower bound"].asNumber()) and not np.isnan(nutrient["upper bound"].asNumber()):
+					continue
+				elif not np.isnan(nutrient["upper bound"].asNumber()):
+					importConstrainedExchangeMolecules[nutrientsName][nutrient["molecule id"]] = nutrient["upper bound"]
+					externalExchangeMolecules[nutrientsName].add(nutrient["molecule id"])
+					importExchangeMolecules[nutrientsName].add(nutrient["molecule id"])
+				else:
+					importUnconstrainedExchangeMolecules[nutrientsName].append(nutrient["molecule id"])
+					externalExchangeMolecules[nutrientsName].add(nutrient["molecule id"])
+					importExchangeMolecules[nutrientsName].add(nutrient["molecule id"])
+
+			for secretion in raw_data.secretions:
+				if secretion["lower bound"] and secretion["upper bound"]:
+					# "non-growth associated maintenance", not included in our metabolic model
+					continue
+
+				else:
+					externalExchangeMolecules[nutrientsName].add(secretion["molecule id"])
+					secretionExchangeMolecules.add(secretion["molecule id"])
+
+			externalExchangeMolecules[nutrientsName] = sorted(externalExchangeMolecules[nutrientsName])
+			importExchangeMolecules[nutrientsName] = sorted(importExchangeMolecules[nutrientsName])
+		secretionExchangeMolecules = sorted(secretionExchangeMolecules)
+
+		return {
+			"externalExchangeMolecules": externalExchangeMolecules,
+			"importExchangeMolecules": importExchangeMolecules,
+			"importConstrainedExchangeMolecules": importConstrainedExchangeMolecules,
+			"importUnconstrainedExchangeMolecules": importUnconstrainedExchangeMolecules,
+			"secretionExchangeMolecules": secretionExchangeMolecules,
+		}
