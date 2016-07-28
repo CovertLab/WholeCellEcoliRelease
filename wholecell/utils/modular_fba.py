@@ -652,13 +652,13 @@ class FluxBalanceAnalysis(object):
 			self._solver.flowMaterialCoeffIs(
 				inRangeID,
 				objectiveEquivID,
-				-1
+				-1 if higherFraction > 0 else 1
 				)
 
 			# This relaxation is free, but can only go to the lower target (less and the penalized relaxation must be used)
 			self._solver.flowUpperBoundIs(
 				inRangeID,
-				+higherFraction
+				+abs(higherFraction)
 				)
 
 

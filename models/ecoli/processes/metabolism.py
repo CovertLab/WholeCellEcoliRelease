@@ -127,7 +127,7 @@ class Metabolism(wholecell.processes.process.Process):
 			self.externalExchangeMolecules,
 			self.objective,
 			objectiveType = "range_pools",
-			objectiveParameters = {"fractionHigher":1},
+			objectiveParameters = {"fractionHigher":sim_data.constants.metabolismTargetRangeConstant},
 			moleculeMasses = self.moleculeMasses,
 			secretionPenaltyCoeff = SECRETION_PENALTY_COEFF, # The "inconvenient constant"--limit secretion (e.g., of CO2)
 			solver = "glpk",
@@ -220,7 +220,8 @@ class Metabolism(wholecell.processes.process.Process):
 				self.reactionStoich.copy(), # TODO: copy in class
 				self.externalExchangeMolecules,
 				self.objective,
-				objectiveType = "pools",
+				objectiveType = "range_pools",
+				objectiveParameters = {"fractionHigher":1},
 				moleculeMasses = self.moleculeMasses,
 				secretionPenaltyCoeff = SECRETION_PENALTY_COEFF,
 				solver = "glpk",
