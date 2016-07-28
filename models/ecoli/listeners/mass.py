@@ -135,6 +135,12 @@ class Mass(wholecell.listeners.listener.Listener):
 			".3f"
 			)
 
+		self.registerLoggedQuantity(
+			"Small mol\nfold change",
+			"smallMoleculeFoldChange",
+			".3f"
+			)
+
 
 	def update(self):
 		oldDryMass = self.dryMass
@@ -177,15 +183,20 @@ class Mass(wholecell.listeners.listener.Listener):
 		if not self.setInitial:
 			self.setInitial = True
 
+			self.timeInitial = self.time()
+
 			self.dryMassInitial = self.dryMass
 			self.proteinMassInitial = self.proteinMass
 			self.rnaMassInitial = self.rnaMass
+			self.smallMoleculeMassInitial = self.smallMoleculeMass
+
 
 		self.dryMassFoldChange = self.dryMass / self.dryMassInitial
 		self.proteinMassFoldChange = self.proteinMass / self.proteinMassInitial
 		self.rnaMassFoldChange = self.rnaMass / self.rnaMassInitial
+		self.smallMoleculeFoldChange = self.smallMoleculeMass / self.smallMoleculeMassInitial
 
-		self.expectedMassFoldChange = np.exp(np.log(2) * self.time() / self.cellCycleLen)
+		self.expectedMassFoldChange = np.exp(np.log(2) * (self.time() - self.timeInitial) / self.cellCycleLen)
 
 	def tableCreate(self, tableWriter):
 		# Store units as metadata
