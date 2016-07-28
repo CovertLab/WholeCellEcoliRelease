@@ -256,7 +256,7 @@ class FluxBalanceAnalysis(object):
 
 		elif self.objectiveType == "range_pools":
 			self._initObjectiveEquivalents(objective)
-			self._initObjectiveRangePools(objective)
+			self._initObjectiveRangePools(objective, objectiveParameters)
 
 			if internalExchangedMolecules is not None:
 				raise FBAError(
@@ -594,12 +594,14 @@ class FluxBalanceAnalysis(object):
 				+1
 				)
 
-	def _initObjectiveRangePools(self, objective):
+	def _initObjectiveRangePools(self, objective, objectiveParameters):
 		""" Pools FBA with a range of acceptable values. The objective is
 		to minimize the distance between the current metabolite level and a range
 		of target concentrations. Within this target range, there is a small preference
 		for the higher concentraion. The low and high ends of the target range are
 		defined in the objective."""
+
+		higherFraction = objectiveParameters["fractionHigher"]
 
 		self._solver.maximizeObjective(False)
 		self._forceInternalExchange = True
@@ -623,10 +625,7 @@ class FluxBalanceAnalysis(object):
 		for moleculeID in sorted(objective):
 			objectiveEquivID = self._generatedID_moleculeEquivalents.format(moleculeID)
 
-			lowerFraction = .1
-
 			# Add the forced -1 term so that we can define x_i = f_i - 1
-
 			self._solver.flowMaterialCoeffIs(
 				self._forcedUnityColName,
 				objectiveEquivID,
@@ -647,23 +646,23 @@ class FluxBalanceAnalysis(object):
 				+1
 				)
 
-			# Add the term for when the flux out is below the upper value, but within the expected range
+			# Add the term for when the flux out is above the target value, but within the expected range
 			inRangeID = self._generatedID_fractionInRangeOut.format(moleculeID)
 
 			self._solver.flowMaterialCoeffIs(
 				inRangeID,
 				objectiveEquivID,
-				+1
+				-1
 				)
 
 			# This relaxation is free, but can only go to the lower target (less and the penalized relaxation must be used)
 			self._solver.flowUpperBoundIs(
 				inRangeID,
-				+lowerFraction
+				+higherFraction
 				)
 
 
-			# Add the term for when the flux out is above the expected value
+			# Add the term for when the flux out is above the target value and out of the expected range
 			aboveUnityID = self._generatedID_fractionAboveUnityOut.format(moleculeID)
 
 			self._solver.flowMaterialCoeffIs(

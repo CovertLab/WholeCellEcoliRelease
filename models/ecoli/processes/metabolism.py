@@ -127,6 +127,7 @@ class Metabolism(wholecell.processes.process.Process):
 			self.externalExchangeMolecules,
 			self.objective,
 			objectiveType = "range_pools",
+			objectiveParameters = {"fractionHigher":1},
 			moleculeMasses = self.moleculeMasses,
 			secretionPenaltyCoeff = SECRETION_PENALTY_COEFF, # The "inconvenient constant"--limit secretion (e.g., of CO2)
 			solver = "glpk",
