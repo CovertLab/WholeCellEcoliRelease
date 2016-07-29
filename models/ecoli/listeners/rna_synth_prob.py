@@ -33,12 +33,27 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 		self.transcriptInitiation = sim.processes["TranscriptInitiation"]
 		self.rnaIds = sim_data.process.transcription.rnaData["id"]
 
+		recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
+		self.nTfs = len(set([x.split("__")[-1] for x in recruitmentColNames if x.split("__")[-1] != "alpha"]))
+
+		self.pTfBound = None
+		self.pPromoterBound = None
+		self.nTfBound = None
+		self.nPromoterBound = None
+		self.nActualBound = None
+
 
 	# Allocate memory
 	def allocate(self):
 		super(RnaSynthProb, self).allocate()
 
 		self.rnaSynthProb = np.zeros(len(self.rnaIds), np.float64)
+
+		self.pTfBound = np.zeros(self.nTfs, np.float64)
+		self.pPromoterBound = np.zeros(self.nTfs, np.float64)
+		self.nTfBound = np.zeros(self.nTfs, np.float64)
+		self.nPromoterBound = np.zeros(self.nTfs, np.float64)
+		self.nActualBound = np.zeros(self.nTfs, np.float64)
 
 
 	def tableCreate(self, tableWriter):
@@ -52,4 +67,9 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 			time = self.time(),
 			simulationStep = self.simulationStep(),
 			rnaSynthProb = self.rnaSynthProb,
+			pTfBound = self.pTfBound,
+			pPromoterBound = self.pPromoterBound,
+			nTfBound = self.nTfBound,
+			nPromoterBound = self.nPromoterBound,
+			nActualBound = self.nActualBound,
 			)

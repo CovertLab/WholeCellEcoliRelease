@@ -203,6 +203,8 @@ class Metabolism(object):
 		validEnzymeIDs.update(validProteinComplexIDs)
 		validEnzymeCompartments = collections.defaultdict(set)
 
+		self.default_kcat = raw_data.parameters["carbonicAnhydraseKcat"]
+
 		for enzymeID in validEnzymeIDs:
 			enzyme = enzymeID[:enzymeID.index("[")]
 			location = enzymeID[enzymeID.index("[")+1:enzymeID.index("[")+2]
@@ -228,7 +230,8 @@ class Metabolism(object):
 			for enzymeID in enzyme_list:
 				if enzymeID in enzymeExceptions:
 					enzyme_list.remove(enzymeID)
-			reactionEnzymes[reactionID] = enzyme_list
+			enzymeKcatLink = {enzymeID:self.default_kcat.asNumber(1 / units.s) for enzymeIDs in enzyme_list}
+			reactionEnzymes[reactionID] = enzymeKcatLink
 
 			# Add the reverse reaction
 			if reversible:
@@ -238,7 +241,7 @@ class Metabolism(object):
 					for moleculeID, stoichCoeff in reactionStoich[reactionID].viewitems()
 					}
 
-				reactionEnzymes[reverseReactionID] = enzyme_list
+				reactionEnzymes[reverseReactionID] = enzymeKcatLink
 				reversibleReactions.append(reactionID)
 
 		reactionRateInfo = {}
@@ -347,24 +350,30 @@ class Metabolism(object):
 			raise Exception("The following {} enzyme kinetics entries reference substrates which don't appear in their corresponding reaction, and aren't paired with an inhibitory constant (kI). They should be corrected or removed. {}".format(len(nonCannonicalRxns), nonCannonicalRxns))
 
 
+		self.reactionEnzymes = self.buildEnzymeReactionKcatLinks(reactionRateInfo, reactionEnzymes)
+
 		self.reactionStoich = reactionStoich
 		self.nutrientsTimeSeries = sim_data.nutrientsTimeSeries
 		self.reversibleReactions = reversibleReactions
 		self.directionInferedReactions = sorted(list(directionInferedReactions))
 		self.reactionRateInfo = reactionRateInfo
-		self.reactionEnzymes = reactionEnzymes
 		self.enzymeNames = list(validEnzymeIDs)
 		self.constraintIDs = constraintIDs
 		self.constraintToReactionDict = constraintToReactionDict
 
-	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits, nutrientsTimeSeriesLabel, time):
+	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits, nutrientsTimeSeriesLabel, time, preview=False):
 		newObjective = None
 		while len(self.nutrientsTimeSeries[nutrientsTimeSeriesLabel]) and time > self.nutrientsTimeSeries[nutrientsTimeSeriesLabel][0][0]:
-			_, nutrients = self.nutrientsTimeSeries[nutrientsTimeSeriesLabel].popleft()
+			if preview:
+				_, nutrients = self.nutrientsTimeSeries[nutrientsTimeSeriesLabel][0]
+			else:
+				_, nutrients = self.nutrientsTimeSeries[nutrientsTimeSeriesLabel].popleft()
 			self._unconstrainedExchangeMolecules = self.nutrientData["importUnconstrainedExchangeMolecules"][nutrients]
 			self._constrainedExchangeMolecules = self.nutrientData["importConstrainedExchangeMolecules"][nutrients]
 			concDict = self.concentrationUpdates.concentrationsBasedOnNutrients(nutrients, self.nutrientsToInternalConc)
 			newObjective = dict((key, concDict[key].asNumber(targetUnits)) for key in concDict)
+			if preview:
+				break
 
 		externalMoleculeLevels = np.zeros(len(exchangeIDs), np.float64)
 
@@ -400,18 +409,32 @@ class Metabolism(object):
 	def enzymeReactionMatrix(self, reactionIDs, enzymeNames, reactionEnzymesDict):
 		"""
 		Builds a (num reactions) by (num enzymes) matrix which maps enzyme concentrations to overall reaction rate.
-		reactionEnzymesDict is a dict from reactionID:[list of enzymes catalyzing this reaction]
+		reactionEnzymesDict is a dict from reactionID:{dict of enzymes catalyzing this reaction:their associated kcat}
 		"""
 		assert sorted(reactionIDs) == sorted(reactionEnzymesDict.keys())
+
+		enzymeNames = list(enzymeNames)
 
 		enzymeReactionMatrix = np.zeros((len(reactionIDs),len(enzymeNames)))
 		for rxnIdx, reactionID in enumerate(reactionIDs):
 			if reactionID in reactionEnzymesDict:
-				for enzymeName in reactionEnzymesDict[reactionID]:
+				for enzymeName, kcat in reactionEnzymesDict[reactionID].iteritems():
 					if enzymeName in enzymeNames:
 						enzymeIdx = enzymeNames.index(enzymeName)
-						enzymeReactionMatrix[rxnIdx, enzymeIdx] = 1
+						enzymeReactionMatrix[rxnIdx, enzymeIdx] = kcat
 		return enzymeReactionMatrix
+
+	def buildEnzymeReactionKcatLinks(self, reactionRateInfo, reactionEnzymesDict):
+		for constraintID, reactionInfo in reactionRateInfo.iteritems():
+			reactionID = reactionInfo["reactionID"]
+			enzymeIDs = reactionInfo["enzymeIDs"]
+			kcat = reactionInfo["kcat"][0]
+			if reactionID in reactionEnzymesDict:
+				for enzymeID in enzymeIDs:
+					if enzymeID in reactionEnzymesDict[reactionID]:
+						if kcat > reactionEnzymesDict[reactionID][enzymeID]:
+							reactionEnzymesDict[reactionID][enzymeID] = kcat
+		return reactionEnzymesDict
 
 
 class ConcentrationUpdates(object):

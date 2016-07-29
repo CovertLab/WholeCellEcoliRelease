@@ -2,11 +2,12 @@
 """
 @author: Morgan Paull
 @organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/27/2016
+@date: Created 7/14/2016
 """
 
 import argparse
 import os
+import cPickle
 
 import numpy as np
 import matplotlib
@@ -24,8 +25,10 @@ from wholecell.analysis.plotting_tools import COLORS_LARGE
 
 BURN_IN_PERIOD = 150
 
-RANGE_THRESHOLD = 1
-MOVING_AVE_WINDOW_SIZE = 300
+NUMERICAL_ZERO = 1e-15
+
+RANGE_THRESHOLD = 2
+MOVING_AVE_WINDOW_SIZE = 200
 
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
@@ -35,46 +38,52 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	plt.figure(figsize = (17, 11))
 	idToColor = {}
+
+	sim_data = cPickle.load(open(simDataFile, "rb"))
 	
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
-	outputFluxes = fbaResults.readColumn("outputFluxes")
-	outputMoleculeIDs = np.array(fbaResults.readAttribute("outputMoleculeIDs"))
+	reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
+	reactionFluxes = np.array(fbaResults.readColumn("reactionFluxes"))
 	fbaResults.close()
 
-	# Build a mapping from molecule to color
-	idToColor = {}
-	for outputMoleculeID, color in itertools.izip(outputMoleculeIDs, itertools.cycle(COLORS_LARGE)):
-		idToColor[outputMoleculeID] = color
+	# Clip reaction fluxes which are less than numerical zero to numerical zero
+	reactionFluxes[np.abs(reactionFluxes) < NUMERICAL_ZERO] = 0
 
-	for idx, (outputMoleculeID, outputFlux) in enumerate(zip(outputMoleculeIDs, outputFluxes.T)):
-		runningMeanFlux = np.convolve(outputFlux[BURN_IN_PERIOD:], np.ones((MOVING_AVE_WINDOW_SIZE,))/MOVING_AVE_WINDOW_SIZE, mode='valid')
+	# Build a mapping from reaction to color
+	idToColor = {}
+	for reactionID, color in itertools.izip(reactionIDs, itertools.cycle(COLORS_LARGE)):
+		idToColor[reactionID] = color
+	
+	plt.figure(figsize = (17, 11))
+
+	for idx, (reactionID, reactionFlux) in enumerate(zip(reactionIDs, reactionFluxes.T)):
+		runningMeanFlux = np.convolve(reactionFlux[BURN_IN_PERIOD:], np.ones((MOVING_AVE_WINDOW_SIZE,))/MOVING_AVE_WINDOW_SIZE, mode='valid')
 
 		meanNormFlux = runningMeanFlux / np.mean(runningMeanFlux)
 		fluxRange = meanNormFlux.max() - meanNormFlux.min()
 
 		# Unadjusted
 		plt.subplot(2,2,1)
-		plt.plot(time / 60., outputFlux, label=outputMoleculeID, color=idToColor[outputMoleculeID])
+		plt.plot(time / 60., reactionFlux, label=reactionID, color=idToColor[reactionID])
 
 		# Log scale
 		plt.subplot(2,2,3)
-		plt.plot(time / 60., np.log10(outputFlux), label=outputMoleculeID, color=idToColor[outputMoleculeID])
+		plt.plot(time / 60., np.log10(reactionFlux), label=reactionID, color=idToColor[reactionID])
 
 
 		if fluxRange > RANGE_THRESHOLD:
 			# Unadjusted
 			plt.subplot(2,2,2)
-			plt.plot(time / 60., outputFlux, label=outputMoleculeID, color=idToColor[outputMoleculeID])
+			plt.plot(time / 60., reactionFlux, label=reactionID, color=idToColor[reactionID])
 
 			# Log scale
 			plt.subplot(2,2,4)
-			plt.plot(time / 60., np.log10(outputFlux), label=outputMoleculeID, color=idToColor[outputMoleculeID])
+			plt.plot(time / 60., np.log10(reactionFlux), label=reactionID, color=idToColor[reactionID])
 
 
-	plt.suptitle("Output Reaction Fluxes")
+	plt.suptitle("Reaction Fluxes")
 	plt.subplot(2,2,1)
 	plt.ylabel('Flux {}'.format(FLUX_UNITS.strUnit()))
 	plt.subplot(2,2,2)
@@ -84,7 +93,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	plt.ylabel('Log10 Flux {}'.format(FLUX_UNITS.strUnit()))
 	plt.subplot(2,2,4)
 	plt.xlabel('Time (min)')
-	plt.legend(fontsize='xx-small', loc='best')
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName,metadata)

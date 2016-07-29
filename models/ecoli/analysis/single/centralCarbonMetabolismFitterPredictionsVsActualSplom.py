@@ -2,10 +2,8 @@
 """
 @author: Morgan Paull
 @organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 4/29/2016
+@date: Created 7/14/2016
 """
-
-from __future__ import division
 
 import argparse
 import os
@@ -15,25 +13,24 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
-from matplotlib import colors
-from matplotlib import gridspec
-from scipy.stats import pearsonr
-
-import mpld3
-from mpld3 import plugins, utils
+import itertools
+import warnings
 
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 from wholecell.utils import units
 
-from models.ecoli.analysis.single.centralCarbonMetabolism import net_flux, _generatedID_reverseReaction
-from wholecell.analysis.plotting_tools import CMAP_COLORS_255
+import mpld3
+from mpld3 import plugins, utils
 
-from models.ecoli.processes.metabolism import COUNTS_UNITS, MASS_UNITS, VOLUME_UNITS, TIME_UNITS
+from models.ecoli.processes.metabolism import COUNTS_UNITS, TIME_UNITS, VOLUME_UNITS
 FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
 
-CMAP_COLORS = [[shade/255. for shade in color] for color in CMAP_COLORS_255]
-CMAP_OVER = [0, 1, 0.75]
+from wholecell.analysis.plotting_tools import COLORS_LARGE, plotSplom
+
+NUMERICAL_ZERO = 1e-15
+
+BURN_IN_PERIOD = 150
 
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
@@ -45,13 +42,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	validation_data = cPickle.load(open(validationDataFile, "rb"))
 	sim_data = cPickle.load(open(simDataFile, "rb"))
-
-	cellDensity = sim_data.constants.cellDensity
-
-	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-	timeStepSec = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
-
+	
 	massListener = TableReader(os.path.join(simOutDir, "Mass"))
 	cellMass = massListener.readColumn("cellMass") * units.fg
 	dryMass = massListener.readColumn("dryMass") * units.fg
@@ -59,43 +50,55 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 	reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
-	reactionFluxes = (COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS) * np.array(fbaResults.readColumn("reactionFluxes"))
-	fluxes_dict = dict(zip(reactionIDs, reactionFluxes))
+	reactionFluxes = np.array(fbaResults.readColumn("reactionFluxes"))
 	fbaResults.close()
-
+	
+	cellDensity = sim_data.constants.cellDensity
 	dryMassFracAverage = np.mean(dryMass / cellMass)
 
 	toya_reactions = validation_data.reactionFlux.toya2010fluxes["reactionID"]
 	toya_fluxes = FLUX_UNITS * np.array([(dryMassFracAverage * cellDensity * x).asNumber(FLUX_UNITS) for x in validation_data.reactionFlux.toya2010fluxes["reactionFlux"]])
 	toya_fluxes_dict = dict(zip(toya_reactions, toya_fluxes))
 
-	toyaVsReactionAve = []
-	toya_order = []
-	for toyaReactionID, toyaFlux in toya_fluxes_dict.iteritems():
-		if toyaReactionID in reactionIDs:
-			fluxTimeCourse = net_flux(toyaReactionID, reactionIDs, reactionFluxes, reverseRxnFormat=_generatedID_reverseReaction)
-			fluxAve = np.mean(fluxTimeCourse)
-			toyaVsReactionAve.append((fluxAve.asNumber(FLUX_UNITS), toyaFlux.asNumber(FLUX_UNITS)))
-			toya_order.append(toyaReactionID)
+	# Clip all values less than numerical zero to zero
+	reactionFluxes[reactionFluxes < NUMERICAL_ZERO] = 0
 
+	fitterPredictedFluxesDict = {key:value.asNumber(FLUX_UNITS) for key, value in sim_data.process.metabolism.predictedFluxesDict.iteritems() if key in reactionIDs}
+	for key, value in fitterPredictedFluxesDict.iteritems():
+		if np.abs(value) < NUMERICAL_ZERO:
+			fitterPredictedFluxesDict[key] = 0
+
+	scatterArrayActual, scatterArrayPredicted, scatterArrayPredictedStd, toyaObservedFluxes, labels = [], [], [], [], []
+	for fluxName, toyaFlux in toya_fluxes_dict.iteritems():
+		reactionIdx = list(reactionIDs).index(fluxName)
+		samplePoints = reactionFluxes[BURN_IN_PERIOD:, reactionIdx]
+		scatterArrayActual.append(fitterPredictedFluxesDict[fluxName])
+		scatterArrayPredicted.append(np.mean(samplePoints))
+		scatterArrayPredictedStd.append(np.std(samplePoints))
+		toyaObservedFluxes.append(toyaFlux.asNumber(FLUX_UNITS))
+		labels.append(fluxName)
 	
-	toyaVsReactionAve = FLUX_UNITS * np.array(toyaVsReactionAve)
-	correlationCoefficient = np.corrcoef(toyaVsReactionAve[:,0].asNumber(FLUX_UNITS), toyaVsReactionAve[:,1].asNumber(FLUX_UNITS))[0,1]
+	scatterArrayActual = np.array(scatterArrayActual)
+	scatterArrayPredicted = np.array(scatterArrayPredicted)
+	toyaObservedFluxes = np.array(toyaObservedFluxes)
 
-	fig = plt.figure()
+	arrayOfdataArrays = [scatterArrayActual, scatterArrayPredicted, toyaObservedFluxes]
+	arrayOfdataStdArrays = [None, scatterArrayPredictedStd, None]
 
-	plt.title("Central Carbon Metabolism Flux, Pearson R = {:.2}".format(correlationCoefficient))
-	points = plt.scatter(toyaVsReactionAve[:,0].asNumber(FLUX_UNITS), toyaVsReactionAve[:,1].asNumber(FLUX_UNITS))
-	plt.xlabel("Mean WCM Reaction Flux {}".format(FLUX_UNITS.strUnit()))
-	plt.ylabel("Toya 2010 Reaction Flux {}".format(FLUX_UNITS.strUnit()))
+	names = ["WCM Flux {}".format(FLUX_UNITS.strUnit()), "Fitter Prediction {}".format(FLUX_UNITS.strUnit()), "Toya et al Measurement {}".format(FLUX_UNITS.strUnit())]
 
-	labels = list(toya_order)
-	tooltip = plugins.PointLabelTooltip(points, labels)
-	plugins.connect(fig, tooltip)
+	fig = plt.figure(figsize=(30,30))
+	plt.suptitle("Actual vs. Fitter Predicted vs. Toya Observed Fluxes, {} Step Burn-in.".format(BURN_IN_PERIOD))
+
+	fig = plotSplom(arrayOfdataArrays, nameArray=names, stdArrays=arrayOfdataStdArrays, labels=labels, fig=fig, plotCorrCoef=True, htmlPlot=True)
 
 	from wholecell.analysis.analysis_tools import exportFigure, exportHtmlFigure
-	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	exportHtmlFigure(fig, plt, plotOutDir, plotOutFileName, metadata)
+
+	# Error bars don't work for the HTML plot, so save it with just points, then add error bars.
+	fig = plotSplom(arrayOfdataArrays, nameArray=names, stdArrays=arrayOfdataStdArrays, fig=fig, plotCorrCoef=True)
+
+	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
 
 if __name__ == "__main__":
@@ -113,4 +116,3 @@ if __name__ == "__main__":
 	args = parser.parse_args().__dict__
 
 	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
-	

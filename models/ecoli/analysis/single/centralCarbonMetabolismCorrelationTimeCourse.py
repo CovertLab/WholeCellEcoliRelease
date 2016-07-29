@@ -25,16 +25,12 @@ from mpld3 import plugins, utils
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 from wholecell.utils import units
-from wholecell.analysis.plotting_tools import CMAP_COLORS_255
 
 from models.ecoli.analysis.single.centralCarbonMetabolism import net_flux, _generatedID_reverseReaction
 
 from models.ecoli.processes.metabolism import COUNTS_UNITS, MASS_UNITS, VOLUME_UNITS, TIME_UNITS
 
 FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
-
-CMAP_COLORS = [[shade/255. for shade in color] for color in CMAP_COLORS_255]
-CMAP_OVER = [0, 1, 0.75]
 
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 

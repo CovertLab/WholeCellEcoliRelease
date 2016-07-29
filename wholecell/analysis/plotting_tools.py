@@ -15,6 +15,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import stats
 
+from mpld3 import plugins, utils
+
 
 COLORS_LARGE = ["#000000", "#FFFF00", "#1CE6FF", "#FF34FF", "#FF4A46", "#008941", "#006FA6", "#A30059",
         "#FFDBE5", "#7A4900", "#0000A6", "#63FFAC", "#B79762", "#004D43", "#8FB0FF", "#997D87",
@@ -61,7 +63,7 @@ COLORS_256 = [ # From colorbrewer2.org, qualitative 8-class set 1
 	[247,129,191]
 	]
 
-def plotSplom(arrayOfdataArrays, nameArray="", plotCorrCoef=True):
+def plotSplom(arrayOfdataArrays, nameArray="", stdArrays=None, labels=None, fig=None, plotCorrCoef=True, formatString='o', htmlPlot=False):
 	"""
 	Plot a scatterplot matrix (Splom) of data contained in arrayOfdataArrays,
 	with labels in the same order held within nameArray.
@@ -70,6 +72,15 @@ def plotSplom(arrayOfdataArrays, nameArray="", plotCorrCoef=True):
 	if len(arrayOfdataArrays) != len(nameArray):
 		raise IndexError("Your array of data arrays and the array of names must be the same length.")
 
+	if stdArrays is None:
+		stdArrays = [None]*len(arrayOfdataArrays)
+
+	if len(stdArrays) != len(arrayOfdataArrays):
+		raise IndexError("If you provide an array of standard deviations, there must be one entry per input data array. Entries can be None.")
+
+	if fig is None:
+		fig = plt.figure()
+
 	num_entries = len(arrayOfdataArrays)
 	plottingIndex = 1
 	for rowNum in xrange(1,num_entries+1):
@@ -77,15 +88,24 @@ def plotSplom(arrayOfdataArrays, nameArray="", plotCorrCoef=True):
 			if colNum < plottingIndex:
 				continue
 			plt.subplot(num_entries,num_entries,num_entries*(rowNum-1)+(colNum))
-			plt.scatter(arrayOfdataArrays[colNum-1], arrayOfdataArrays[rowNum-1])
-			
+
+			if htmlPlot:
+				points = plt.scatter(arrayOfdataArrays[colNum-1], arrayOfdataArrays[rowNum-1], marker=formatString)
+				tooltip = plugins.PointLabelTooltip(points, labels)
+				plugins.connect(fig, tooltip)
+			else:
+				plt.errorbar(arrayOfdataArrays[colNum-1], arrayOfdataArrays[rowNum-1], xerr=stdArrays[colNum-1], yerr=stdArrays[rowNum-1], fmt=formatString)
+
 			if nameArray != "":
 				plt.xlabel(nameArray[colNum-1])
 				plt.ylabel(nameArray[rowNum-1])
 			
 			if plotCorrCoef:
 				corr_coef, pValue = stats.pearsonr(arrayOfdataArrays[colNum-1], arrayOfdataArrays[rowNum-1])
-				xLocation = np.amax([.9*np.amax(arrayOfdataArrays[colNum-1]),(1-((np.amax(arrayOfdataArrays[colNum-1]) - np.amin(arrayOfdataArrays[colNum-1]))*.1))*np.amax(arrayOfdataArrays[colNum-1])])
-				yLocation = np.amax([.9*np.amax(arrayOfdataArrays[rowNum-1]),(1-((np.amax(arrayOfdataArrays[rowNum-1]) - np.amin(arrayOfdataArrays[rowNum-1]))*.1))*np.amax(arrayOfdataArrays[rowNum-1])])
-				plt.text(xLocation,yLocation,"r = %.4f" % (corr_coef), verticalalignment='top', horizontalalignment='left')
+				plt.title("R = %.4f" % (corr_coef))
 		plottingIndex += 1
+
+	if htmlPlot:
+		plugins.connect(fig, plugins.LinkedBrush(points))
+
+	return fig

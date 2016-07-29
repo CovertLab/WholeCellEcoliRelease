@@ -494,7 +494,7 @@ for i in VARIANTS_TO_RUN:
 					fw_name = "ScriptTask_compression_simulation__Seed_%d__Gen_%d__Cell_%d" % (j, k, l)
 					fw_this_variant_this_gen_this_sim_compression = Firework(
 						ScriptTask(
-							script = "find %s -type f | xargs bzip2 -v " % CELL_SIM_OUT_DIRECTORY
+							script = 'for dir in %s; do echo "Compressing $dir"; find "$dir" -type f | xargs bzip2; done' % os.path.join(CELL_SIM_OUT_DIRECTORY, "*")
 							),
 						name = fw_name,
 						spec = {"_queueadapter": {"job_name": fw_name}, "_priority":0}
