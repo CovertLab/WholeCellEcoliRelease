@@ -221,7 +221,7 @@ class Metabolism(wholecell.processes.process.Process):
 				self.externalExchangeMolecules,
 				self.objective,
 				objectiveType = "range_pools",
-				objectiveParameters = {"fractionHigher":1},
+				objectiveParameters = {"fractionHigher":sim_data.constants.metabolismTargetRangeConstant},
 				moleculeMasses = self.moleculeMasses,
 				secretionPenaltyCoeff = SECRETION_PENALTY_COEFF,
 				solver = "glpk",
