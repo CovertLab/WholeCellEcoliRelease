@@ -142,8 +142,8 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		rProteinSynthesisProb = self.rProteinToRRnaRatioVector * rRnaSynthesisProb
 
 		low_r_protein = np.where(self.r_protein.total() < 100)[0]
-		rProteinSynthesisProb[low_r_protein] = rProteinSynthesisProb[low_r_protein] * 2
-
+		rProteinSynthesisProb[low_r_protein] = rProteinSynthesisProb[low_r_protein] * 10
+		
 		totalRnapCount = self.activeRnaPolys.total() + self.inactiveRnaPolys.total() or np.array([1])
 		totalRibosomeCount = self.activeRibosomes.total() or np.array([1])
 		ratioRNAPToRibosome = totalRnapCount / totalRibosomeCount.astype(np.float)
