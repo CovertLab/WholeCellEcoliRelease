@@ -93,6 +93,7 @@ class EcoliSimulation(Simulation):
 		"Dry mass fold change",
 		"Protein fold change",
 		"RNA fold change",
+		"Small mol fold change",
 		"Expected fold change"
 		]
 

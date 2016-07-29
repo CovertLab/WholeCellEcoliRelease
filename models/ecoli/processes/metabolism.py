@@ -123,7 +123,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Set up FBA solver
 		self.fba = FluxBalanceAnalysis(
-			self.reactionStoich.copy(), # TODO: copy in class
+			self.reactionStoich,
 			self.externalExchangeMolecules,
 			self.objective,
 			objectiveType = "range_pools",
@@ -217,7 +217,7 @@ class Metabolism(wholecell.processes.process.Process):
 			# Build new fba instance with new objective
 			self.objective = newObjective
 			self.fba = FluxBalanceAnalysis(
-				self.reactionStoich.copy(), # TODO: copy in class
+				self.reactionStoich,
 				self.externalExchangeMolecules,
 				self.objective,
 				objectiveType = "range_pools",

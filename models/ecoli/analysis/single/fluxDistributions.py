@@ -57,8 +57,12 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	replicationResults.close()
 
 	activePolymerases = (sequenceIdx > -1).sum(axis=1)
-	replicationStartIdx = np.where(np.cumsum(activePolymerases) > 0)[0][0]
-	replicationStopIdx = np.where(np.cumsum(activePolymerases) == np.cumsum(activePolymerases).max())[0][0]
+	if np.cumsum(activePolymerases).any():
+		replicationStartIdx = np.where(np.cumsum(activePolymerases) > 0)[0][0]
+		replicationStopIdx = np.where(np.cumsum(activePolymerases) == np.cumsum(activePolymerases).max())[0][0]
+	else:
+		replicationStartIdx = 0
+		replicationStopIdx = -1
 
 	pointsToPlot, names = [], []
 	for fluxName, predictedFlux in fitterPredictedFluxesDict.iteritems():
