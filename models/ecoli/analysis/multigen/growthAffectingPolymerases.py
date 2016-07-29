@@ -60,6 +60,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax15 = plt.subplot(gs[6,3:])
 	ax16 = plt.subplot(gs[7,3:])
 
+
 	for gen, simDir in enumerate(firstCellLineage):
 		simOutDir = os.path.join(simDir, "simOut")
 
