@@ -601,7 +601,9 @@ class FluxBalanceAnalysis(object):
 		for the higher concentraion. The low and high ends of the target range are
 		defined in the objective."""
 
-		higherFraction = objectiveParameters["fractionHigher"]
+		# Load parameters - default to regular pools fba if none given
+		fractionHigher = objectiveParameters["fractionHigher"] if "fractionHigher" in objectiveParameters else 0
+		inRangeObjWeight = objectiveParameters["inRangeObjWeight"] if "inRangeObjWeight" in objectiveParameters else 0
 
 		self._solver.maximizeObjective(False)
 		self._forceInternalExchange = True
@@ -652,13 +654,18 @@ class FluxBalanceAnalysis(object):
 			self._solver.flowMaterialCoeffIs(
 				inRangeID,
 				objectiveEquivID,
-				-1 if higherFraction > 0 else 1
+				-1 if fractionHigher > 0 else 1
 				)
 
-			# This relaxation is free, but can only go to the lower target (less and the penalized relaxation must be used)
+			self._solver.flowObjectiveCoeffIs(
+				inRangeID,
+				+inRangeObjWeight
+				)
+
+			# This relaxation can only go to the end of the target range (less and the out range relaxation must be used)
 			self._solver.flowUpperBoundIs(
 				inRangeID,
-				+abs(higherFraction)
+				+abs(fractionHigher)
 				)
 
 
