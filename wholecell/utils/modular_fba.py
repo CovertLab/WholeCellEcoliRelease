@@ -232,6 +232,8 @@ class FluxBalanceAnalysis(object):
 		# Keep track of non-standard reactions
 		self._specialFluxIDsSet = set()
 
+		self._errorFluxNames = set()
+
 		# Call indivdual initialization methods
 		self._initReactionNetwork(self.reactionStoich)
 		self._initExternalExchange(externalExchangedMolecules)
@@ -260,9 +262,30 @@ class FluxBalanceAnalysis(object):
 
 			if internalExchangedMolecules is not None:
 				raise FBAError(
-					"Internal exchange molecules are automatically defined when using self.objectiveType = \"pools\""
+					"Internal exchange molecules are automatically defined when using self.objectiveType = \"range_pools\""
 					)
 			internalExchangedMolecules = sorted(objective.keys())
+
+		elif self.objectiveType == "pools_kinetics_mixed":
+			# Set up pools
+			self._initObjectiveEquivalents(objective)
+			self._initObjectiveRangePools(objective, objectiveParameters)
+
+			if internalExchangedMolecules is not None:
+				raise FBAError(
+					"Internal exchange molecules are automatically defined when using self.objectiveType = \"pools_kinetics_mixed\""
+					)
+			internalExchangedMolecules = sorted(objective.keys())
+
+			if "reactionRateTargets" in objectiveParameters:
+				rateObjective = objectiveParameters["reactionRateTargets"]
+			else:
+				raise FBAError("When using pools_kinetics_mixed objective, a reactionRateTargets dict of reactionName:target rate must be provided in objectiveParameters.")
+
+			self.targetFluxNames = rateObjective.keys()
+
+			# Set up kinetic objective
+			self._initObjectiveMOMA(rateObjective, objectiveParameters)
 
 		elif self.objectiveType == "moma":
 			self._initObjectiveMOMA(objective, objectiveParameters)
@@ -610,7 +633,6 @@ class FluxBalanceAnalysis(object):
 
 		# By forcing a column to be at unity, we can keep the definition of
 		# the problem as b=Av where b=0.
-
 		self._solver.flowLowerBoundIs(
 			self._forcedUnityColName,
 			+1
@@ -623,7 +645,6 @@ class FluxBalanceAnalysis(object):
 
 		# Minimizing an absolute value requires splitting the term into two,
 		# one for the positive values and one for the negative.
-
 		for moleculeID in sorted(objective):
 			objectiveEquivID = self._generatedID_moleculeEquivalents.format(moleculeID)
 
@@ -692,6 +713,8 @@ class FluxBalanceAnalysis(object):
 			contains a kinetically-predicted flux distribution
 		"""
 
+		objectiveWeightParameter = objectiveParameters["objectiveWeightFactor"] if "objectiveWeightFactor" in objectiveParameters else 1
+
 		if objectiveParameters is not None and "fixedReactionNames" in objectiveParameters:
 			fixedReactionNames = objectiveParameters["fixedReactionNames"]
 		else:
@@ -715,16 +738,14 @@ class FluxBalanceAnalysis(object):
 		if len(nonObjectiveReactions) > 0:
 			raise FBAError("All fixed reactions must have an entry in the objective dict. No entry found for {}.".format(nonObjectiveReactions))
 
-		self._errorFluxNames = set()
-
 		for reactionID in objective:
 
 			if reactionID not in self.reactionStoich:
 				raise FBAError("{} is not in the reaction network.".format(reactionID))
 
 			# Fix reaction to target flux
-			self.minReactionFluxIs(reactionID, objective[reactionID])
-			self.maxReactionFluxIs(reactionID, objective[reactionID])
+			self.minReactionFluxIs(reactionID, objective[reactionID], raiseForReversible=False)
+			self.maxReactionFluxIs(reactionID, objective[reactionID], raiseForReversible=False)
 
 			# If reaction is not in the fixed reactions set, create relaxation fluxes for it
 			if reactionID not in fixedReactionNames:
@@ -743,7 +764,7 @@ class FluxBalanceAnalysis(object):
 				# The objective is to mimimize this relaxation
 				self._solver.flowObjectiveCoeffIs(
 					overTargetFlux,
-					+1
+					+objectiveWeightParameter
 					)
 
 				## Below
@@ -763,7 +784,7 @@ class FluxBalanceAnalysis(object):
 				# The objective is to mimimize this relaxation
 				self._solver.flowObjectiveCoeffIs(
 					underTargetFlux,
-					+1
+					+objectiveWeightParameter
 					)
 
 				self._errorFluxNames.add(reactionID)
@@ -1237,8 +1258,6 @@ class FluxBalanceAnalysis(object):
 		return self._solver.objectiveValue()
 
 	def errorFlux(self, reactionID):
-		if self.objectiveType is not "moma":
-			raise FBAError("Error fluxes only apply for MOMA.")
 		if reactionID not in self._errorFluxNames:
 			raise FBAError("{} does not have an error flux.".format(reactionID))
 		errorAbove = self.reactionFlux(self._generatedID_amountOver.format(reactionID))
@@ -1259,10 +1278,7 @@ class FluxBalanceAnalysis(object):
 		return self.errorFluxes(reactionIDs) + self.reactionFluxes(reactionIDs)
 
 	def errorFluxNames(self):
-		if self.objectiveType is not "moma":
-			raise FBAError("Error fluxes only apply for MOMA.")
-		else:
-			return sorted(self._errorFluxNames)
+		return sorted(self._errorFluxNames)
 
 	def getArrayBasedModel(self):
 		return {

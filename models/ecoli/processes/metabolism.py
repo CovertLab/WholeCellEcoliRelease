@@ -121,13 +121,21 @@ class Metabolism(wholecell.processes.process.Process):
 			self.getMass(self.externalExchangeMolecules).asNumber(MASS_UNITS / COUNTS_UNITS)
 			))
 
+		# List of reactions for which to set target kinetics
+		self.kineticReactions = list(set([x for x,y in sim_data.process.metabolism.reactionRateInfo.iteritems() if (len(y["kM"])>0 and x in self.reactionStoich)]))
+
 		# Set up FBA solver
 		self.fba = FluxBalanceAnalysis(
 			self.reactionStoich,
 			self.externalExchangeMolecules,
 			self.objective,
-			objectiveType = "range_pools",
-			objectiveParameters = {"fractionHigher":sim_data.constants.metabolismTargetRangeConstant, "inRangeObjWeight":sim_data.constants.metabolismTargetRangeObjectiveWeight},
+			objectiveType = "pools_kinetics_mixed",
+			objectiveParameters = {
+					"fractionHigher":sim_data.constants.metabolismTargetRangeConstant,
+					"inRangeObjWeight":sim_data.constants.metabolismTargetRangeObjectiveWeight,
+					"objectiveWeightFactor":.01,
+					"reactionRateTargets":{reaction:.001 for reaction in self.kineticReactions}
+					},
 			moleculeMasses = self.moleculeMasses,
 			secretionPenaltyCoeff = SECRETION_PENALTY_COEFF, # The "inconvenient constant"--limit secretion (e.g., of CO2)
 			solver = "glpk",
@@ -138,7 +146,11 @@ class Metabolism(wholecell.processes.process.Process):
 			)
 
 		# Matrix mapping enzymes to the reactions they catalyze
-		self.enzymeReactionMatrix = sim_data.process.metabolism.enzymeReactionMatrix(self.fba.reactionIDs(), self.enzymeNames, self.reactionEnzymes)
+		self.enzymeReactionMatrix = sim_data.process.metabolism.enzymeReactionMatrix(
+			[x for x in self.fba.reactionIDs() if x not in self.kineticReactions],
+			self.enzymeNames,
+			{key:val for key,val in self.reactionEnzymes.iteritems() if key not in self.kineticReactions}
+			)
 		self.spontaneousIndices = np.where(np.sum(self.enzymeReactionMatrix, axis=1) == 0)
 		self.enzymeReactionMatrix = csr_matrix(self.enzymeReactionMatrix)
 		self.kcat_max = sim_data.constants.carbonicAnhydraseKcat
@@ -220,8 +232,12 @@ class Metabolism(wholecell.processes.process.Process):
 				self.reactionStoich,
 				self.externalExchangeMolecules,
 				self.objective,
-				objectiveType = "range_pools",
-				objectiveParameters = {"fractionHigher":sim_data.constants.metabolismTargetRangeConstant, "inRangeObjWeight":sim_data.constants.metabolismTargetRangeObjectiveWeight},
+				objectiveType = "pools_kinetics_mixed",
+				objectiveParameters = {
+					"fractionHigher":sim_data.constants.metabolismTargetRangeConstant,
+					"inRangeObjWeight":sim_data.constants.metabolismTargetRangeObjectiveWeight,
+					"objectiveWeightFactor":1,
+					},
 				moleculeMasses = self.moleculeMasses,
 				secretionPenaltyCoeff = SECRETION_PENALTY_COEFF,
 				solver = "glpk",
@@ -366,6 +382,9 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# self.writeToListener("EnzymeKinetics", "overconstraintMultiples",
 		# 	self.overconstraintMultiples)
+
+		self.writeToListener("EnzymeKinetics", "kineticErrorFluxes",
+			self.fba.errorFluxes())
 
 		self.writeToListener("EnzymeKinetics", "metaboliteCountsInit",
 			metaboliteCountsInit)
