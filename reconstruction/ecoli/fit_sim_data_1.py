@@ -1459,4 +1459,3 @@ def findKineticCoeffs(sim_data, bulkContainer):
 	if VERBOSE: print coefficientsSet
 
 	sim_data.process.metabolism.predictedFluxesDict = predictedFluxesDict
->>>>>>> master
