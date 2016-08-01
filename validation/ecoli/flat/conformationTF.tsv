@@ -1,0 +1,171 @@
+Metabolite	M9	LB	Glucose Sup	TF	Inactive	Active	<Kd> (uM)	Stimulus (g/L)	Intra/extra-cellular	MW (g/mol)	Stimulus (mM)	S/Kd	EcoCyc ID reaction (metabolite vs. TF)	Reference	Notes								# Highlighted reactions were not found in EcoCyc
+cAMP	Yes	Yes	0	crp	NB	B	52		intra		0.0352	0.676923076923077	CPLX0-226_RXN	http://www.ncbi.nlm.nih.gov/pubmed/2994567			Annotation 2-component STSs => sensor / stimulus (or, in response to…)						"# ""Glucose Sup"" (4th Column) = if medium is supplemented by glucose, then the metabolite of that row is intracellularly present"
+Oxygen	Yes	Yes	0	fnr	B	NB																	"# ""Active, Inactive TF"" (6th and 7th Columns): B=bound (complex TF::metabolite) is , NB=not bound (no complexation TF vs. metabolite) - Active/Inactive means TF conformation do/doesn't bind DNA"
+Oxygen	Yes	Yes	0	soxR	NB	B																	# Highlited two-component STSs that we should incorporated on the WCM - the rest are not well-characterized
+Glycerol	No	No	0	glpR	B	NB	20	2	extra	92.1	21.7155266015201	1085.776330076	CPLX0-8057_RXN	http://www.ncbi.nlm.nih.gov/pubmed/15380549									S/kd < 1, meaning that there is no TF::S saturation
+Glycerol-3P	No	No	0	glpR	B	NB	20	2	extra	92.1	21.7155266015201	1085.776330076	MONOMER-54_RXN	http://www.ncbi.nlm.nih.gov/pubmed/15380549									
+L-proline	Yes	Yes	0	putA	B	NB	550000	2	extra	115.1	17.3761946133797	0.0315930811152358	PUTA-CPLX	http://www.ncbi.nlm.nih.gov/pubmed/22148640	complexationReactions.tsv -> add proline in this reaction (Substrate)								
+Acetate	No	No	0	glcC	NB	B	?	2	extra	60.1	33.2778702163062												
+Nitric-oxide	No	No	0	nsrR	B	NB																	
+L-lactate	No	No	0	lldR	NB	B	80	2	extra	90.1	22.1975582685905	277.469478357381	CPLX0-7689_RXN	http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0057712									
+L-arginine	No	No	1	argR	NB	B	?	0.1	extra/intra	174.2	0.574052812858783												
+L-arginine 	No	No	1	argP	NB	B	?	0.1	extra/intra	174.2	0.574052812858783												
+Formate	No	No	0	fhlA	NB	B	5000						MONOMER0-183_RXN	http://jb.asm.org/content/177/10/2798.full.pdf+html									
+Lysine	Yes	Yes	0	argP	B	NB			intra		0.405				"tfSingleComponent.tsv -> ""CPLX0-7670"" should be an inactive conformation; and, ""CPLX0-7669"" is active"								
+L-alanine	Yes	Yes	0	alaS	NB	B			intra		2.55				"tfSingleComponent.tsv -> ""ALAS-MONOMER"" is not the active conformation; it should be ""CPLX0-7541"" (PMID 6264314)"								
+L-asparagine	Yes	Yes	0	asnC	B	NB			intra		0.511												
+Serine	Yes	Yes	0	cysB	NB	B			intra		0.068												
+Serine	Yes	Yes	0	dsdC	NB	B			intra		0.068												
+Purine	No	Yes	0	gcvA	B	NB																	
+Glycine	No	Yes	0	gcvA	B	NB																	
+S-adenosyl-L-methionine	Yes	Yes	0	metJ	NB	B	200	0.1	extra/intra	149.2	0.670241286863271	3.35120643431635	MONOMER0-157_RXN	http://www.jbc.org/content/261/23/10936.full.pdf	We might also consider MetJ::adenine, and MetJ::S-methyl-5'thioadenosine [not included in RegulonDB v8.5]								
+L-homocysteine	Yes	Yes	0	metR	NB	B	?		intra		0.37												
+Phenylalanine	Yes	Yes	0	tyrR	NB	B	3700		intra		0.0182	0.00491891891891892	MONOMER0-163_RXN	http://www.ncbi.nlm.nih.gov/pubmed/8559067									
+Tyrosine	Yes	Yes	0	tyrR	NB	B	17		intra		0.0289	1.7	MONOMER0-162_RXN	http://www.ncbi.nlm.nih.gov/pubmed/8559067									
+Tryptophan	Yes	Yes	0	tyrR	NB	B	1000		intra		0.0121	0.0121		http://www.ncbi.nlm.nih.gov/pubmed/8559067									
+L-arabinose	No	No	0	araC	NB	B	400	0.125	extra	150.1	0.832778147901399	2.0819453697535	CPLX-172_RXN	http://www.sciencedirect.com/science/article/pii/S0022283603002626	"Notice that AraC (dimer) might also be an active conformation. So, add ""PC00003"" in ""DNA-binding frame ids"" (tfSingleComponent.tsv)"								
+Leucine	Yes	Yes	0	lrp	NB	B	0.4		intra		0.303	757.5	MONOMER0-155_RXN	http://mmbr.asm.org/content/57/2/320.full.pdf									
+Fe2+	Yes	Yes	0	fur	NB	B	1.2		intra		0.1	83.3333333333333	CPLX0-7620_RXN	http://pubs.rsc.org/En/content/articlepdf/2015/mt/c4mt00180j									
+Mn2+	Yes	Yes	0	fur	NB	B	0.24	0.001258	extra	125.8	0.01	41.6666666666667		http://pubs.rsc.org/En/content/articlepdf/2015/mt/c4mt00180j									
+Cd2+	Yes	Yes	0	mntR	NB	B	0.3							http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2561245/									
+Mn2+	Yes	Yes	0	mntR	NB	B	100.66	0.001258	intra	125.8	0.01	0.0993443274389032	CPLX0-7701_RXN	http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2561245/									
+Proflavin	No	No	0	acrR	B	NB	7.15							http://www.ncbi.nlm.nih.gov/pubmed/17644067									
+Ethidium	No	No	0	acrR	B	NB	7.15						CPLX0-8055_RXN	http://www.ncbi.nlm.nih.gov/pubmed/17644067									
+Rhodamin-6G	No	No	0	acrR	B	NB	7.15							http://www.ncbi.nlm.nih.gov/pubmed/17644067									
+Glyoxylate	No	No	0	allR	B	NB	9.4						MONOMER0-2201_RXN	http://www.jbc.org/content/282/22/16476.full.pdf									
+Allantoin 	No	No	0	allR	B	NB																	
+Allantoin 	No	No	0	allS	NB	B	9.4							http://www.jbc.org/content/282/22/16476.full.pdf	complexationReactions.tsv -> add this reaction: G6274-MONOMER + S-ALLANTOIN -> MONOMER0-2221								
+Glyoxylate	No	No	0	iclR	BNB	NotF	0.9						CPLX0-7606_RXN	http://www.jbc.org/content/282/22/16476.full									
+D-allose 	No	No	0	rpiR	B	NB																	
+D-fucose	No	No	0	araC	B	NB	1000							http://gene.bio.jhu.edu/Ourspdf/89.pdf									
+Antimonite	No	No	0	arsR	B	NB	2						CPLX0-7739_RXN	http://www.jbc.org/content/272/22/14257.long									
+Arsenite	No	No	0	arsR	B	NB	60						CPLX0-7736_RXN	http://www.jbc.org/content/272/22/14257.long									
+Choline	No	No	0	betI	B	NB																	
+Biotinyl-5'-adenylate	No	No	0	birA	NB	B	0.000045						MONOMER-48_RXN	http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2373468/									
+Thiosulphate	No	No	0	cbl	B	NB																	
+Adenosine-phosphosulphate	Yes	Yes	0	cbl	B	NB																	
+Fructose-1P	No	No	0	cra	B	NB	0.2						CPLX-127_RXN	http://www.sciencedirect.com/science/article/pii/S2211546314000369									
+Fructose-1,6-biP	Yes	Yes	0	cra	B	NB	0.2		intra		15.2	76000	CPLX-128_RXN	http://www.sciencedirect.com/science/article/pii/S2211546314000369									
+Au	No	No	0	cueR	NB	B																	
+Cu+	Yes	Yes	0	cueR	NB	B	2E-015		intra		0.008	4E+015	CPLX0-7702_RXN	http://www.sciencemag.org/content/301/5638/1383.long									
+Ag	No	No	0	cueR	NB	B																	
+Cyanate	No	No	0	cynR	NB	B																	
+Cytidine	No	No	1	cytR	B	NB	0.17		intra		0.00259	15.2352941176471	CPLX0-8051_RXN	http://www.jbc.org/content/272/27/16962.full.pdf									
+Deoxyribose-5P	No	No	1	deoR	B	NB	?		intra		0.303												
+D-ribose	No	No	0	rbsR	B	NB	0.1						MONOMER-60_RXN	http://mmbr.asm.org/content/57/2/320.full.pdf									
+ATP	Yes	Yes	0	dnaA	NB	B	0.029		intra		9.63	332068.965517241	MONOMER0-160_RXN	http://jb.asm.org/content/194/18/5110.full.pdf									
+Acetyl-CoA	Yes	Yes	0	fadR	B	NB	0.06		intra		0.0218	363.333333333333	MONOMER-51--3-KETO-ADIPYL-COA_RXN, MONOMER-51--3-OXOPALMITOYL-COA_RXN, MONOMER-51--ACETOACETYL-COA_RXN, MONOMER-51--BUTYRYL-COA_RXN, MONOMER-51--CPD-10260_RXN, MONOMER-51--CPD-10267_RXN, MONOMER-51--CPD-10284_RXN, MONOMER-51--CPD-15244_RXN, MONOMER-51--CPD-196_RXN, MONOMER-51--CPD-650_RXN, MONOMER-51--CPD-9965_RXN, MONOMER-51--CPD0-1163_RXN, MONOMER-51--CPD0-2105_RXN, MONOMER-51--CPD0-2106_RXN, MONOMER-51--CPD0-2107_RXN, MONOMER-51--CPD0-2123_RXN, MONOMER-51--CPD0-2171_RXN, MONOMER-51--CPD0-2224_RXN, MONOMER-51--CPD0-2232_RXN, MONOMER-51--CPD0-2244_RXN, MONOMER-51--CPD0-2253_RXN, MONOMER-51--HEXANOYL-COA_RXN, MONOMER-51--K-HEXANOYL-COA_RXN, MONOMER-51--LAUROYLCOA-CPD_RXN, MONOMER-51--OH-HEXANOYL-COA_RXN, MONOMER-51--OLEOYL-COA_RXN, MONOMER-51--PALMITYL-COA_RXN, MONOMER-51--PROPIONYL-COA_RXN, MONOMER-51--S-3-HYDROXYBUTANOYL-COA_RXN, MONOMER-51--STEAROYL-COA_RXN, MONOMER-51--TETRADECANOYL-COA_RXN	http://www.jbc.org/content/273/50/33652.full.pdf									
+L-fuculose-1P	No	No	0	fucR	NB	B	10						CPLX0-7650_RXN	http://www.pnas.org/content/96/17/9833.full.pdf									
+2Fe-2S	Yes	Yes	0	iscR	NB	B	0.1						CPLX0-8083_RXN	http://www.ncbi.nlm.nih.gov/pubmed/23075318									
+Fe2+	Yes	Yes	0	yqjI	B	NB	?		intra		0.1												
+Ni2+	Yes	Yes	0	yqjI	B	NB	?		intra		0.003												
+Galactose	No	No	0	galR	B	NB	0.22						MONOMER-52_RXN	http://www.pnas.org/content/94/7/2957.full.pdf									
+Galactose	No	No	0	galS	B	NB	160						MONOMER-53_RXN	http://jb.asm.org/content/179/1/228.full.pdf									
+Glycolate	No	No	0	glcC	NB	B																	
+Gluconate	No	No	1	gntR	B	NB	?		intra		0.0416												
+Glucitol	No	No	0	srlR	B	NB																	
+Pyruvate	Yes	Yes	0	iclR	NB	B	156.2						CPLX0-7605_RXN	http://www.jbc.org/content/282/22/16476.full									
+Pyruvate	Yes	Yes	0	pdhR	B	NB																	
+5-dehydro-D-gluconate	No	No	0	idnR	NB	B																	
+Idonate	No	No	0	idnR	NB	B																	
+Allolactose	No	No	0	lacI	B	NB	900						MONOMER0-159_RXN	http://www.pnas.org/content/101/33/12148.full.pdf									
+4,5-dihydroxy-2,3-pentanedione	No	No	0	lsrR	B	NB									We might also consider LsrR::AI-2 and LsrR::(2R,4S)-2methyl-2,3,3,4-tetrahydroxytetrahydrofuran [included in RegulonDB v8.5 and EcoCyc]								
+ADP-Maltotriose	No	No	0	malT	NB	B	0.4							http://www.ncbi.nlm.nih.gov/pmc/articles/PMC400900/pdf/emboj00127-0331.pdf									
+Maltotriose-ATP	No	No	0	malT	NB	B	200						MONOMER0-158_RXN	http://www.pnas.org/content/98/2/435.full.pdf									
+Salicylate	No	No	0	marR	B	NB	750						MONOMER-58_RXN	http://www.horizonpress.com/cimb/v/v8/04.pdf									
+Plumbagin	No	No	0	marR	B	NB	750							http://www.horizonpress.com/cimb/v/v8/04.pdf									
+Phenazine-methosulfate	No	No	0	marR	B	NB	750							http://www.horizonpress.com/cimb/v/v8/04.pdf									
+Menadione	No	No	0	marR	B	NB	750							http://www.horizonpress.com/cimb/v/v8/04.pdf									
+Benzoate	No	No	0	marR	B	NB	750	5	extra	144.1	34.6981263011797	46.264168401573		http://www.horizonpress.com/cimb/v/v8/04.pdf									
+2,4-dinitrophenol	No	No	0	marR	B	NB	750							http://www.horizonpress.com/cimb/v/v8/04.pdf									
+Paraquat	No	No	0	marR	B	NB	750							http://www.horizonpress.com/cimb/v/v8/04.pdf									
+Melibiose	No	No	0	melR	NB	B																	
+3-(2,3-dihydroxyphenyl)propionate	No	No	0	mhpR	NB	B	27							http://www.jbc.org/content/284/32/21218.full.pdf									
+3(3-hydroxyphenyl)propionate	No	No	0	mhpR	NB	B	27						MONOMER0-1441_RXN	http://www.jbc.org/content/284/32/21218.full.pdf									
+Cu2+	Yes	Yes	0	nikR	NB	B	?		intra		0.008												
+Zn2+	Yes	Yes	0	nikR	NB	B	?		intra		0.1												
+Ni2+	Yes	Yes	0	nikR	NB	B	0.001		intra		0.003	3000	MONOMER0-1781_RXN	http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2655528/									
+Cd2+	No	No	0	nikR	NB	B																	
+Co2+	Yes	Yes	0	nikR	NB	B			intra		0.0001												
+Hg	No	No	0	zntR	NB	B																	
+Cd2+	No	No	0	zntR	NB	B																	
+Zn2+	Yes	Yes	0	zntR	NB	B	0.00000000115		intra		0.1	86956521739.1304	CPLX0-7677_RXN	http://www.sciencemag.org/content/292/5526/2488.long#xref-ref-29-1									
+Molybdate	No	No	0	modE	NB	B	0.8		intra		0.004	5	CPLX0-6_RXN	http://link.springer.com/chapter/10.1007%2F7171_2006_088									
+2,4-dinitrophenol	No	No	0	mprA	B	NB	6.2						CPLX0-7742_RXN	http://www.horizonpress.com/cimb/v/v8/04.pdf									
+Carbonylcyanide-m-chlorophenylhydrazone	No	No	0	mprA	B	NB	6.2						CPLX0-7743_RXN	http://www.horizonpress.com/cimb/v/v8/04.pdf									
+MurNac-6P	No	No	0	murR	B	NB																	
+N-acetyl-D-glucosamine-6P	No	No	0	nagC	B	NB	1000						MONOMER0-2261_RXN	http://nar.oxfordjournals.org/content/early/2015/01/05/nar.gku1374.full									
+N-acetylneuraminate	No	No	0	nanR	B	NB																	
+Na+	No	No	0	nhaR	NB	B	?		intra		50												
+Zn2+	Yes	Yes	0	nrdR	NB	B	?		intra		0.1												
+ATP	Yes	Yes	0	nrdR	NB	B	80		intra		9.63	120.375		http://www.ncbi.nlm.nih.gov/pubmed/23941567									
+dATP	Yes	Yes	0	nrdR	NB	B	7.5		intra		0.0155	2.06666666666667		http://www.ncbi.nlm.nih.gov/pubmed/23941567									
+Zn2+	Yes	Yes	0	zur	NB	B	0.000000001		intra		0.1	100000000000	CPLX0-7680_RXN	http://www.ncbi.nlm.nih.gov/pubmed/25369000									
+2-methylcitrate	Yes	Yes	0	prpR	NB	B																	
+Hypoxanthine	No	No	0	purR	NB	B	9.3						CPLX-123_RXN	http://www.ncbi.nlm.nih.gov/pubmed/9278422									
+Ni2+	Yes	Yes	0	rcnR	B	NB	0.025		intra		0.003	120	CPLX0-7618_RXN	http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2435081/									
+Co2+	Yes	Yes	0	rcnR	B	NB	0.005		intra		0.0001	20	CPLX0-7619_RXN	http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2435081/									
+L-rhamnose	No	No	0	rhaR	NB	B																	
+L-rhamnose	No	No	0	rhaS	NB	B																	
+Thymine	No	No	0	rutR	B	NB																	
+Uracil	No	No	0	rutR	B	NB																	
+Trehalose	No	No	0	treR	B	NB	280							http://www.jbc.org/content/272/20/13026.full.pdf									
+Trehalose-6P	No	No	0	treR	B	NB	10						CPLX0-8056_RXN	http://www.jbc.org/content/272/20/13026.full.pdf									
+Tryptophan	Yes	Yes	0	trpR	NB	B	217		intra		0.0121	0.0557603686635945	CPLX-125_RXN	http://www.jbc.org/content/261/1/238.full.pdf									
+Fructuronate	No	No	0	uxuR	B	NB																	
+Xanthosine	No	No	0	xapR	NB	B																	
+Xylose	No	No	0	xylR	NB	B	3.3						MONOMER0-165_RXN	http://nar.oxfordjournals.org/content/early/2012/12/14/nar.gks1207.full.pdf									
+phenylacetyl-CoA	No	No	0	paaX	B	NB	0.41								tfSingleComponent.tsv -> add TF. complexationReactions.tsv -> add two reactions: 2 G6720-MONOMER -> CPLX0-7731; CPLX0-7731 + CPD-207 -> CPLX0-7729								
+EIIGlC	No	No	0	mlc	B	NB									tfSingleComponent.tsv -> add TF. complexationReactions.tsv -> add this reaction: PD01896 + CPD0-2342 -> CPLX0-8059								
+L-carnitine	No	No	0	caiF	NB	B									tfSingleComponent.tsv -> add TF. complexationReactions.tsv -> add this dimerization and, metabolite::TF reaction								
+Cu+	Yes	Yes	0	 ycfQ	B	NB	?		intra		0.008				tfSingleComponent.tsv -> add TF. complexationReactions.tsv -> ComR + Cu+ -> ComR::Cu+ [G6569-MONOMER + CU -> CPLX0-8074]								
+Putrescine	No	No	0	puuR	B	NB									tfSingleComponent.tsv -> add TF. complexationReactions.tsv -> PuuR + Putrescine -> PuuR::Putrescine [EG12431-MONOMER + PUTRESCINE -> CPLX0-8085]								
+N,N'-diacetylchitobiose-6P	No	No	0	chbR	B	NB									tfSingleComponent.tsv -> add TF. complexationReactions.tsv -> ChbR + N,N'-diacetylchitobiose-6P -> ChbR::N,N'-diacetylchitobiose-6P [EG10143-MONOMER + DIACETYLCHITOBIOSE-6-PHOSPHATE -> CPLX0-8079]								
+Glycine	No	Yes	0	gcvR	B	NB									tfSingleComponent.tsv -> add TF. complexationReactions.tsv -> GcvR + Glycine -> GcvR::Glycine [EG11149-MONOMER + GLY -> MONOMER0-941]								
+3-phenylpropanoate	No	No	0	hcaR	NB	B									tfSingleComponent.tsv -> add TF. complexationReactions.tsv -> HcaR + 3-phenylpropanoate -> HcaR::3-phenylpropanoate [G7331-MONOMER + 3-PHENYLPROPIONATE -> MONOMER0-941]								
+L-tartrate	No	No	0	ttdR	NB	B									tfSingleComponent.tsv -> add TF. complexationReactions.tsv -> TtdR + L-tartrate -> TtdR::L-tartrate [EG12694-MONOMER + TARTRATE -> CPLX0-8048]								
+D-mannitol	No	No	0	mtlR	B	NB									tfSingleComponent.tsv -> add TF. complexationReactions.tsv -> MtlR + D-mannitol -> MtlR::D-mannitol [PD00369 + MANNITOL -> MONOMER0-2461]								
+(S)-2-acetolactate	No	No	0	ilvY	NotF	BNB									tfSingleComponent.tsv -> add PD00200, CPLX0-7715 (active conformation). complexationReactions.tsv -> ilvY + (S)-2-acetolactate -> ilvY::(S)-2-acetolactate [PD00200 + 2-ACETO-LACTATE -> CPLX0-7715]								
+L-ascorbate-6P	No	No	0	ulaR	B	NB									tfSingleComponent.tsv -> add TF. complexationReactions.tsv -> ulaR + L-ascorbate-6P -> ulaR::L-ascorbate-6P [G7854-MONOMER + L-ASCORBATE-6-PHOSPHATE -> MONOMER0-2162]								
+Oxygen	Yes	Yes	0	yjiE 	NB	B									tfSingleComponent.tsv -> add TF. complexationReactions.tsv -> Make boolean rule so that it binds only under aerobic conditions								
+CusS-P/Cu+	Yes	Yes	0	cusR	NB	B	8.23		intra		0.008	0.972053462940462		http://www.ncbi.nlm.nih.gov/pubmed/24948475									
+CusS/Ag+	No	No	0	cusR	NB	B	8.23							http://www.ncbi.nlm.nih.gov/pubmed/24948475									
+DpiB-P/citrate	No	No	0	dpiA	NB	B	5.5		intra		1.96	356.363636363636		http://www.ncbi.nlm.nih.gov/pubmed/24948475									
+KdpD-P/K+(inhibitor)	Yes	Yes	0	kdpE	B	NB			intra		250				Analysis and modeling of the Kdp system under conditions of limiting potassium suggests an inverse correlation between KdpDE phosphorylation and the intracellular K+ concentration. Under this model low intracellular K+ levels result in inhibition of the phosphatase activity of KdpD								
+TorS-P/￼Trimethylamine-N-oxide::TorT	No	No	0	torR	NB	B	150							http://www.jbc.org/content/281/50/38189.full.pdf	TorSR system also triggers alkaline stress defence mechanisms to counteract the increasing pH resulting from TMA production								
+PhoQ-P/Mg2+(inhibitor)	Yes	Yes	0	phoP	B	NB	207		intra		50	241.545893719807		http://www.ncbi.nlm.nih.gov/pubmed/18532985	Salmonella typhimurium								
+PhoQ-P/Ca2+(inhibitor)	Yes	Yes	0	phoP	B	NB	37		intra		0.1	2.7027027027027		http://www.ncbi.nlm.nih.gov/pubmed/18532985									
+RstB-P/AcidStress	No	No	0	rstA	NB	B									Unidentified regulatory function (http://www.ncbi.nlm.nih.gov/pmc/articles/PMC1913430/)								
+BasS-P/Fe3+	Yes	Yes	0	basR	NB	B	?		intra		0.1				http://www.ncbi.nlm.nih.gov/pubmed/15322361								
+BaeS-P/EnvelopeStresses	No	No	0	baeR	NB	B									It may be that the Bae signal transduction apparatus recognizes a distinct type of envelope protein misfolding that is induced by some of the same cues that lead to induction of the Cpx pathway. Alternatively, the Bae pathway may sense some other aspect of cell physiology that is perturbed in response to these treatments. Indole has been proposed to exert its toxicity through oxidative damage as a result of membrane disruptions that expose redox-cycling compounds. Perhaps the Bae two-component system responds to changes in membranes or alternatively to perturbations in redox potential in the envelope								
+AtoS-P/acetoacetate	No	No	0	atoC	NB	B																	
+EvgS-P/AcidicStress+AlkaliMetals(Na+_K+)	No	No	0	evgA	NB	B																	
+GlrK-P/StationaryPhase	No	No	0	glrR	NB	B																	
+QseC-P/(S)-4,5-dihydroxy-2,3-pentanedione	No	No	0	qseB	NB	B																	
+ArcB-P/Oxygen(inhibitor)	Yes	Yes	0	arcA	B	NB									http://www.ncbi.nlm.nih.gov/pubmed/20946850								
+UhpB-P/glucose-6P	No	No	1	uhpA	NB	B									http://www.ncbi.nlm.nih.gov/pubmed/3042748								
+NtrB-P/NitrogenLimitation	No	No	0	glnG	NB	B	0.09							http://pubs.acs.org/doi/pdf/10.1021/bi901158h	NtrB is a dual function cytoplasmic protein with both histidine kinase and phosphatase activity - it is regulated negatively by the homologous signal proteins PII (GlnB) and PII2 (GlnK) and the uridyyltransferase/uridylyl-removing enzyme (product of GlnD)								
+CpxA-P/stresses_acids-salt-metals	No	No	0	cpxR	NB	B									Under stress conditions CpxP is displaced from CpxA and the Cpx response is activated								
+ZraS-P/Zn2+	Yes	Yes	0	zraR	NB	B	?		intra		0.1												
+ZraS-P/Pb2+	No	No	0	zraR	NB	B																	
+DcuS-P/Fumarate	Yes	Yes	0	dcuR	NB	B	?	1.161	extra	116.1	10												
+DcuS-P/Succinate	Yes	Yes	0	dcuR	NB	B	?	2	extra	118.1	16.9348010160881												
+DcuS-P/Aspartate	Yes	Yes	0	dcuR	NB	B	?		intra		4.23												
+DcuS-P/Malate	Yes	Yes	0	dcuR	NB	B	?		intra		1.68												
+CreC-P/glycolytic+gluconeogenicSources	No	No	1	creB	NB	B									The specific ligand activating CreC is not currently known 								
+NarX-P/nitrate	Yes	Yes	0	narL	NB	B	35	2.48	extra	62	40	1142.85714285714		http://www.ncbi.nlm.nih.gov/pmc/articles/PMC94037/	The systems have a discriminatory response to nitrate and nitrite and there is cross talk between the sensor kinases and the response regulators. In this way a complex response to the dynamic ratio of nitrate and nitrite during anaerobiosis is mediated.								
+NarX-P/nitrite(inhibitor)	Yes	Yes	0	narL	B	NB	3500							http://www.ncbi.nlm.nih.gov/pmc/articles/PMC94037/	http://www.ncbi.nlm.nih.gov/pubmed/8412692 (Figure 1)								
+NarX-P/nitrate	Yes	Yes	0	narP	NB	B	35	2.48	extra	62	40	1142.85714285714		http://www.ncbi.nlm.nih.gov/pmc/articles/PMC94037/									
+NarX-P/nitrite(inhibitor)	Yes	Yes	0	narP	B	NB	3500							http://www.ncbi.nlm.nih.gov/pmc/articles/PMC94037/									
+NarQ-P/nitrate	Yes	Yes	0	narL	NB	B	?	2.48	extra	62	40												
+NarQ-P/nitrite	Yes	Yes	0	narL	NB	B																	
+NarQ-P/nitrate	Yes	Yes	0	narP	NB	B	?	2.48	extra	62	40												
+NarQ-P/nitrite	Yes	Yes	0	narP	NB	B																	
+BarA-P/formate	No	No	0	uvrY 	NB	B																	
+BarA-P/acetate	No	No	0	uvrY 	NB	B	?	2	extra	60.1	33.2778702163062												
+BarA-P/propionate	No	No	0	uvrY 	NB	B																	
+EnvZ-P/osmolarity	No	No	0	ompR	NB	B																	
+PhoR-P/InorganicPhosphateLimitation	No	No	1	phoB	NB	B																	
+YehU/StationaryPhase	No	No	0	yehT	NB	B																	
+YpdA/pyruvate	Yes	Yes	0	ypdB	NB	B																	
+RcsD/RcsC_Osmolarity-Dessication-CellMembranePerturbation	No	No	0	rcsB	NB	B																	
