@@ -70,6 +70,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	trpRActiveIndex = np.array([bulkMoleculeIds.index(x) for x in trpRActiveId])
 	trpRActiveCounts = bulkMoleculesReader.readColumn("counts")[:, trpRActiveIndex].reshape(-1)
 
+	# Get the amount of inactive trpR
+	trpRInactiveId = ["PC00007[c]"]
+	trpRInactiveIndex = np.array([bulkMoleculeIds.index(x) for x in trpRInactiveId])
+	trpRInactiveCounts = bulkMoleculesReader.readColumn("counts")[:, trpRInactiveIndex].reshape(-1)
+
 	# Get the promoter-bound status of the trpA gene
 	trpATfBoundId = ["EG11024_RNA__CPLX-125"]
 	trpATfBoundIndex = np.array([bulkMoleculeIds.index(x) for x in trpATfBoundId])
@@ -95,7 +100,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	trpAMw = sim_data.getter.getMass(trpAProteinId)
 	trpAMass = 1. / nAvogadro * trpAProteinTotalCounts * trpAMw
 
-
 	# Compute the proteome mass fraction
 	proteomeMassFraction = trpAMass.asNumber(units.fg) / proteinMass.asNumber(units.fg)
 
@@ -106,8 +110,16 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	trpASynthProbId = ["EG11024_RNA[c]"]
 	trpASynthProbIndex = np.array([rnaIds.index(x) for x in trpASynthProbId])
 	trpASynthProb = rnaSynthProbReader.readColumn("rnaSynthProb")[:, trpASynthProbIndex].reshape(-1)
+
+	recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
+	tfs = sorted(set([x.split("__")[-1] for x in recruitmentColNames if x.split("__")[-1] != "alpha"]))
+	trpRIndex = [i for i, tf in enumerate(tfs) if tf == "CPLX-125"][0]
+	trpRBound = rnaSynthProbReader.readColumn("nActualBound")[:,trpRIndex]
 	
 	rnaSynthProbReader.close()
+
+	# Calculate total trpR - active, inactive and bound
+	trpRTotalCounts = trpRActiveCounts + trpRInactiveCounts + trpRBound
 
 	# Compute moving averages
 	width = 100
@@ -138,10 +150,13 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	##############################################################
 	ax = plt.subplot(6, 1, 2)
 	ax.plot(time, trpRActiveCounts)
-	plt.ylabel("Active TrpR Counts", fontsize = 6)
+	ax.plot(time, trpRInactiveCounts)
+	ax.plot(time, trpRTotalCounts)
+	plt.ylabel("TrpR Counts", fontsize = 6)
+	plt.legend(["Active", "Inactive", "Total"], fontsize = 6)
 
-	ymin = np.amin(trpRActiveCounts * 0.9)
-	ymax = np.amax(trpRActiveCounts * 1.1)
+	ymin = min(np.amin(trpRActiveCounts * 0.9), np.amin(trpRInactiveCounts * 0.9))
+	ymax = np.amax(trpRTotalCounts * 1.1)
 	if ymin != ymax:
 		ax.set_ylim([ymin, ymax])
 		ax.set_yticks([ymin, ymax])
