@@ -630,6 +630,12 @@ class FluxBalanceAnalysis(object):
 		# Load parameters - default to regular pools fba if none given
 		fractionHigher = objectiveParameters["fractionHigher"] if "fractionHigher" in objectiveParameters else 0
 		inRangeObjWeight = objectiveParameters["inRangeObjWeight"] if "inRangeObjWeight" in objectiveParameters else 0
+		kineticObjectiveWeightFactor = objectiveParameters["kineticObjectiveWeightFactor"] if "kineticObjectiveWeightFactor" in objectiveParameters else 1
+
+		if kineticObjectiveWeightFactor > 1 or kineticObjectiveWeightFactor < 0:
+			raise FBAError("kineticObjectiveWeightFactor must be between 0 and 1 inclusive. It represents the percentage of preference going to kinetics.")
+		else:
+			homeostaticWeightFactor = (1 - kineticObjectiveWeightFactor)
 
 		self._solver.maximizeObjective(False)
 		self._forceInternalExchange = True
@@ -669,7 +675,7 @@ class FluxBalanceAnalysis(object):
 
 			self._solver.flowObjectiveCoeffIs(
 				belowUnityID,
-				+1
+				+homeostaticWeightFactor
 				)
 
 			# Add the term for when the flux out is above the target value, but within the expected range
@@ -678,7 +684,7 @@ class FluxBalanceAnalysis(object):
 			self._solver.flowMaterialCoeffIs(
 				inRangeID,
 				objectiveEquivID,
-				-1 if fractionHigher > 0 else 1
+				-homeostaticWeightFactor if fractionHigher > 0 else homeostaticWeightFactor
 				)
 
 			self._solver.flowObjectiveCoeffIs(
@@ -704,7 +710,7 @@ class FluxBalanceAnalysis(object):
 
 			self._solver.flowObjectiveCoeffIs(
 				aboveUnityID,
-				+1
+				+homeostaticWeightFactor
 				)
 
 	def _initObjectiveMOMA(self, objective, objectiveParameters=None):
@@ -716,7 +722,7 @@ class FluxBalanceAnalysis(object):
 			contains a kinetically-predicted flux distribution
 		"""
 
-		objectiveWeightParameter = objectiveParameters["objectiveWeightFactor"] if "objectiveWeightFactor" in objectiveParameters else 1
+		kineticObjectiveWeightFactor = objectiveParameters["kineticObjectiveWeightFactor"] if "kineticObjectiveWeightFactor" in objectiveParameters else 1
 		normalizeFluxes = objectiveParameters["normalizeFluxes"] if "normalizeFluxes" in objectiveParameters else True
 		# If not given a separate set of expected flux values, normalize the objective for deviating from the target itself
 		expectedFluxesDict = objectiveParameters["expectedFluxesDict"] if "expectedFluxesDict" in objectiveParameters else objective
@@ -785,7 +791,7 @@ class FluxBalanceAnalysis(object):
 				# The objective is to mimimize this relaxation, normalized to its expected flux
 				self._solver.flowObjectiveCoeffIs(
 					overTargetFlux,
-					+(objectiveWeightParameter / expectedFlux)
+					+(kineticObjectiveWeightFactor / expectedFlux)
 					)
 
 				## Below
@@ -819,7 +825,7 @@ class FluxBalanceAnalysis(object):
 				# The objective is to mimimize this relaxation, normalized to its expected flux
 				self._solver.flowObjectiveCoeffIs(
 					pseudoFluxKinetic,
-					+(objectiveWeightParameter / expectedFlux)
+					+(kineticObjectiveWeightFactor / expectedFlux)
 					)
 
 				self._errorFluxNames.add(reactionID)

@@ -131,10 +131,12 @@ class Metabolism(wholecell.processes.process.Process):
 			self.objective,
 			objectiveType = "pools_kinetics_mixed",
 			objectiveParameters = {
-					"fractionHigher":sim_data.constants.metabolismTargetRangeConstant,
-					"inRangeObjWeight":sim_data.constants.metabolismTargetRangeObjectiveWeight,
-					"objectiveWeightFactor":.01,
-					"reactionRateTargets":{reaction:.001 for reaction in self.kineticReactions}
+					"fractionHigher":.1,#sim_data.constants.metabolismTargetRangeConstant,
+					"inRangeObjWeight":0,#sim_data.constants.metabolismTargetRangeObjectiveWeight,
+					"kineticObjectiveWeightFactor":.000001,
+					"normalizeFluxes": True,
+					"reactionRateTargets":{reaction:.00001 for reaction in self.kineticReactions},
+					# "expectedFluxesDict":{reaction:.001 for reaction in self.kineticReactions},
 					},
 			moleculeMasses = self.moleculeMasses,
 			secretionPenaltyCoeff = SECRETION_PENALTY_COEFF, # The "inconvenient constant"--limit secretion (e.g., of CO2)
