@@ -75,10 +75,15 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	trpRInactiveIndex = np.array([bulkMoleculeIds.index(x) for x in trpRInactiveId])
 	trpRInactiveCounts = bulkMoleculesReader.readColumn("counts")[:, trpRInactiveIndex].reshape(-1)
 
-	# Get the promoter-bound status of the trpA gene
-	trpATfBoundId = ["EG11024_RNA__CPLX-125"]
-	trpATfBoundIndex = np.array([bulkMoleculeIds.index(x) for x in trpATfBoundId])
-	trpATfBoundCounts = bulkMoleculesReader.readColumn("counts")[:, trpATfBoundIndex].reshape(-1)
+	# Get the amount of monomeric trpR
+	trpRMonomerId = ["PD00423[c]"]
+	trpRMonomerIndex = np.array([bulkMoleculeIds.index(x) for x in trpRMonomerId])
+	trpRMonomerCounts = bulkMoleculesReader.readColumn("counts")[:, trpRMonomerIndex].reshape(-1)
+
+	# Get the promoter-bound status for all regulated genes
+	tfBoundIds = [target + "__CPLX-125" for target in sim_data.tfToFC["CPLX-125"].keys()]
+	tfBoundIndex = np.array([bulkMoleculeIds.index(x) for x in tfBoundIds])
+	tfBoundCounts = bulkMoleculesReader.readColumn("counts")[:, tfBoundIndex]
 
 	# Get the amount of monomeric trpA
 	trpAProteinId = ["TRYPSYN-APROTEIN[c]"]
@@ -103,13 +108,13 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	# Compute the proteome mass fraction
 	proteomeMassFraction = trpAMass.asNumber(units.fg) / proteinMass.asNumber(units.fg)
 
-	# Get the trpA synthesis probability
+	# Get the synthesis probability for all regulated genes
 	rnaSynthProbReader = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
 
 	rnaIds = rnaSynthProbReader.readAttribute("rnaIds")
-	trpASynthProbId = ["EG11024_RNA[c]"]
-	trpASynthProbIndex = np.array([rnaIds.index(x) for x in trpASynthProbId])
-	trpASynthProb = rnaSynthProbReader.readColumn("rnaSynthProb")[:, trpASynthProbIndex].reshape(-1)
+	synthProbIds = [target + "[c]" for target in sim_data.tfToFC["CPLX-125"].keys()]
+	synthProbIndex = np.array([rnaIds.index(x) for x in synthProbIds])
+	synthProbs = rnaSynthProbReader.readColumn("rnaSynthProb")[:, synthProbIndex]
 
 	recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
 	tfs = sorted(set([x.split("__")[-1] for x in recruitmentColNames if x.split("__")[-1] != "alpha"]))
@@ -118,14 +123,16 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	
 	rnaSynthProbReader.close()
 
-	# Calculate total trpR - active, inactive and bound
-	trpRTotalCounts = trpRActiveCounts + trpRInactiveCounts + trpRBound
+	# Calculate total trpR - active, inactive, bound and monomeric
+	trpRTotalCounts = 2 * (trpRActiveCounts + trpRInactiveCounts + trpRBound) + trpRMonomerCounts
 
 	# Compute moving averages
 	width = 100
 
-	trpATfBoundCountsMA = np.convolve(trpATfBoundCounts, np.ones(width) / width, mode = "same")
-	trpASynthProbMA = np.convolve(trpASynthProb, np.ones(width) / width, mode = "same")
+	tfBoundCountsMA = np.array([np.convolve(tfBoundCounts[:,i], np.ones(width) / width, mode = "same")
+			for i in range(tfBoundCounts.shape[1])]).T
+	synthProbsMA = np.array([np.convolve(synthProbs[:,i], np.ones(width) / width, mode = "same")
+			for i in range(synthProbs.shape[1])]).T
 
 	plt.figure(figsize = (8.5, 11))
 	
@@ -153,7 +160,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	ax.plot(time, trpRInactiveCounts)
 	ax.plot(time, trpRTotalCounts)
 	plt.ylabel("TrpR Counts", fontsize = 6)
-	plt.legend(["Active", "Inactive", "Total"], fontsize = 6)
+	plt.legend(["Active (dimer)", "Inactive (dimer)", "Total (monomeric)"], fontsize = 6)
 
 	ymin = min(np.amin(trpRActiveCounts * 0.9), np.amin(trpRInactiveCounts * 0.9))
 	ymax = np.amax(trpRTotalCounts * 1.1)
@@ -170,12 +177,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	##############################################################
 	ax = plt.subplot(6, 1, 3)
-	ax.plot(time, trpATfBoundCounts)
-	ax.plot(time, trpATfBoundCountsMA, color = "g")
-	plt.ylabel("TrpR Bound To trpA Promoter", fontsize = 6)
+	ax.plot(time, tfBoundCountsMA)
+	plt.ylabel("TrpR Bound To Promoters\n(Moving Average)", fontsize = 6)
 
-	ymin = np.amin(trpATfBoundCounts * 1.)
-	ymax = np.amax(trpATfBoundCounts * 1.)
+	ymin = np.amin(tfBoundCountsMA * 1.)
+	ymax = np.amax(tfBoundCountsMA * 1.)
 	if ymin != ymax:
 		ax.set_ylim([ymin, ymax])
 		ax.set_yticks([ymin, ymax])
@@ -189,12 +195,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	##############################################################
 	ax = plt.subplot(6, 1, 4)
-	ax.plot(time, trpASynthProb)
-	ax.plot(time, trpASynthProbMA, color = "g")
-	plt.ylabel("trpA Synthesis Prob.", fontsize = 6)
+	ax.plot(time, synthProbsMA)
+	plt.ylabel("Regulated Gene Synthesis Prob.\n(Moving Average)", fontsize = 6)
 
-	ymin = np.amin(trpASynthProb[1:] * 0.9)
-	ymax = np.amax(trpASynthProb[1:] * 1.1)
+	ymin = np.amin(synthProbsMA[1:] * 0.9)
+	ymax = np.amax(synthProbsMA[1:] * 1.1)
 	if ymin != ymax:
 		ax.set_ylim([ymin, ymax])
 		ax.set_yticks([ymin, ymax])
