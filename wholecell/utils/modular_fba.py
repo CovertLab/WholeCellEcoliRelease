@@ -153,7 +153,7 @@ class FluxBalanceAnalysis(object):
 
 	## Objective
 	_generatedID_moleculesToEquivalents = "molecules of {} to fractional objective equivalents"
-	_generatedID_moleculeEquivalents = "fractional objective equivalent for {}"
+	_generatedID_moleculeEquivalents = "fractional objective equivalent for molecules of {}"
 
 	## Rate-constrained enzymes
 	_generatedID_enzymeEquivRateConstrained = "{} equivalent (rate-constrained)"
@@ -193,6 +193,9 @@ class FluxBalanceAnalysis(object):
 	## MOMA
 	_generatedID_amountOver = "Amount {} flux is over target"
 	_generatedID_amountUnder = "Amount {} flux is under target"
+
+	_generatedID_kineticReactionEquivalentsPseudoflux = "pseudoflux to remove kinetic objective equivalents for reaction {}"
+	_generatedID_kineticReactionEquivalents = "kinetic reaction objective equivalent for {} reaction"
 
 
 	# Default values, for clarity
@@ -714,6 +717,9 @@ class FluxBalanceAnalysis(object):
 		"""
 
 		objectiveWeightParameter = objectiveParameters["objectiveWeightFactor"] if "objectiveWeightFactor" in objectiveParameters else 1
+		normalizeFluxes = objectiveParameters["normalizeFluxes"] if "normalizeFluxes" in objectiveParameters else True
+		# If not given a separate set of expected flux values, normalize the objective for deviating from the target itself
+		expectedFluxesDict = objectiveParameters["expectedFluxesDict"] if "expectedFluxesDict" in objectiveParameters else objective
 
 		if objectiveParameters is not None and "fixedReactionNames" in objectiveParameters:
 			fixedReactionNames = objectiveParameters["fixedReactionNames"]
@@ -740,6 +746,9 @@ class FluxBalanceAnalysis(object):
 
 		for reactionID in objective:
 
+			if objective[reactionID] < 0:
+				raise FBAError("Target flux for reaction {} is negative. MOMA reaction targets must be postive - set the value for the (reverse) reaction if a negative flux is desired.".format(reactionID))
+
 			if reactionID not in self.reactionStoich:
 				raise FBAError("{} is not in the reaction network.".format(reactionID))
 
@@ -750,6 +759,11 @@ class FluxBalanceAnalysis(object):
 			# If reaction is not in the fixed reactions set, create relaxation fluxes for it
 			if reactionID not in fixedReactionNames:
 
+				expectedFlux = expectedFluxesDict[reactionID] if normalizeFluxes else 1
+
+				if expectedFlux < 0:
+					raise FBAError("Expected flux for reaction {} is negative. MOMA normalization fluxes must be postive - set the value for the (reverse) reaction if a negative flux is desired.".format(reactionID))
+
 				## Above
 				# Add a pseudoreaction to allow the flux to be above its target
 				overTargetFlux = self._generatedID_amountOver.format(reactionID)
@@ -759,12 +773,19 @@ class FluxBalanceAnalysis(object):
 						materialID,
 						coeff
 						)
+				# In addition to the actual metabolites, this relaxation creates a special pseudometabolite kineticObjEquivalent
+				kineticObjEquivalent = self._generatedID_kineticReactionEquivalents.format(reactionID)
+				self._solver.flowMaterialCoeffIs(
+					overTargetFlux,
+					kineticObjEquivalent,
+					1.
+					)
 				self._specialFluxIDsSet.add(overTargetFlux)
 
-				# The objective is to mimimize this relaxation
+				# The objective is to mimimize this relaxation, normalized to its expected flux
 				self._solver.flowObjectiveCoeffIs(
 					overTargetFlux,
-					+objectiveWeightParameter
+					+(objectiveWeightParameter / expectedFlux)
 					)
 
 				## Below
@@ -776,15 +797,29 @@ class FluxBalanceAnalysis(object):
 						materialID,
 						-coeff
 						)
+				# In addition to the actual metabolites, this relaxation creates a special pseudometabolite kineticObjEquivalent
+				self._solver.flowMaterialCoeffIs(
+					underTargetFlux,
+					kineticObjEquivalent,
+					1.
+					)
 				self._specialFluxIDsSet.add(underTargetFlux)
 
 				# The relaxation cannot allow overall negative flux
 				self.maxReactionFluxIs(underTargetFlux, objective[reactionID])
 
-				# The objective is to mimimize this relaxation
+				# Create a special reaction to destroy the kineticObjEquivalent pseudometabolites
+				pseudoFluxKinetic = self._generatedID_kineticReactionEquivalentsPseudoflux.format(reactionID)
+				self._solver.flowMaterialCoeffIs(
+					pseudoFluxKinetic,
+					kineticObjEquivalent,
+					-1.
+					)
+
+				# The objective is to mimimize this relaxation, normalized to its expected flux
 				self._solver.flowObjectiveCoeffIs(
-					underTargetFlux,
-					+objectiveWeightParameter
+					pseudoFluxKinetic,
+					+(objectiveWeightParameter / expectedFlux)
 					)
 
 				self._errorFluxNames.add(reactionID)
