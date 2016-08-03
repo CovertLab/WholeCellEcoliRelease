@@ -628,14 +628,14 @@ class FluxBalanceAnalysis(object):
 		defined in the objective."""
 
 		# Load parameters - default to regular pools fba if none given
-		fractionHigher = objectiveParameters["fractionHigher"] if "fractionHigher" in objectiveParameters else 0
+		HomeostaticRangeObjFractionHigher = objectiveParameters["HomeostaticRangeObjFractionHigher"] if "HomeostaticRangeObjFractionHigher" in objectiveParameters else 0
 		inRangeObjWeight = objectiveParameters["inRangeObjWeight"] if "inRangeObjWeight" in objectiveParameters else 0
-		kineticObjectiveWeightFactor = objectiveParameters["kineticObjectiveWeightFactor"] if "kineticObjectiveWeightFactor" in objectiveParameters else 1
+		kineticObjectiveWeight = objectiveParameters["kineticObjectiveWeight"] if "kineticObjectiveWeight" in objectiveParameters else 1
 
-		if kineticObjectiveWeightFactor > 1 or kineticObjectiveWeightFactor < 0:
-			raise FBAError("kineticObjectiveWeightFactor must be between 0 and 1 inclusive. It represents the percentage of preference going to kinetics.")
+		if kineticObjectiveWeight > 1 or kineticObjectiveWeight < 0:
+			raise FBAError("kineticObjectiveWeight must be between 0 and 1 inclusive. It represents the percentage of preference going to kinetics.")
 		else:
-			homeostaticWeightFactor = (1 - kineticObjectiveWeightFactor)
+			homeostaticWeightFactor = (1 - kineticObjectiveWeight)
 
 		self._solver.maximizeObjective(False)
 		self._forceInternalExchange = True
@@ -684,7 +684,7 @@ class FluxBalanceAnalysis(object):
 			self._solver.flowMaterialCoeffIs(
 				inRangeID,
 				objectiveEquivID,
-				-homeostaticWeightFactor if fractionHigher > 0 else homeostaticWeightFactor
+				-homeostaticWeightFactor if HomeostaticRangeObjFractionHigher > 0 else homeostaticWeightFactor
 				)
 
 			self._solver.flowObjectiveCoeffIs(
@@ -695,7 +695,7 @@ class FluxBalanceAnalysis(object):
 			# This relaxation can only go to the end of the target range (less and the out range relaxation must be used)
 			self._solver.flowUpperBoundIs(
 				inRangeID,
-				+abs(fractionHigher)
+				+abs(HomeostaticRangeObjFractionHigher)
 				)
 
 
@@ -722,7 +722,7 @@ class FluxBalanceAnalysis(object):
 			contains a kinetically-predicted flux distribution
 		"""
 
-		kineticObjectiveWeightFactor = objectiveParameters["kineticObjectiveWeightFactor"] if "kineticObjectiveWeightFactor" in objectiveParameters else 1
+		kineticObjectiveWeight = objectiveParameters["kineticObjectiveWeight"] if "kineticObjectiveWeight" in objectiveParameters else 1
 		normalizeFluxes = objectiveParameters["normalizeFluxes"] if "normalizeFluxes" in objectiveParameters else True
 		# If not given a separate set of expected flux values, normalize the objective for deviating from the target itself
 		expectedFluxesDict = objectiveParameters["expectedFluxesDict"] if "expectedFluxesDict" in objectiveParameters else objective
@@ -791,7 +791,7 @@ class FluxBalanceAnalysis(object):
 				# The objective is to mimimize this relaxation, normalized to its expected flux
 				self._solver.flowObjectiveCoeffIs(
 					overTargetFlux,
-					+(kineticObjectiveWeightFactor / expectedFlux)
+					+(kineticObjectiveWeight / expectedFlux)
 					)
 
 				## Below
@@ -825,7 +825,7 @@ class FluxBalanceAnalysis(object):
 				# The objective is to mimimize this relaxation, normalized to its expected flux
 				self._solver.flowObjectiveCoeffIs(
 					pseudoFluxKinetic,
-					+(kineticObjectiveWeightFactor / expectedFlux)
+					+(kineticObjectiveWeight / expectedFlux)
 					)
 
 				self._errorFluxNames.add(reactionID)

@@ -131,9 +131,9 @@ class Metabolism(wholecell.processes.process.Process):
 			self.objective,
 			objectiveType = "pools_kinetics_mixed",
 			objectiveParameters = {
-					"fractionHigher":.1,#sim_data.constants.metabolismTargetRangeConstant,
-					"inRangeObjWeight":0,#sim_data.constants.metabolismTargetRangeObjectiveWeight,
-					"kineticObjectiveWeightFactor":.000001,
+					"HomeostaticRangeObjFractionHigher":.1,#sim_data.constants.metabolismHomeostaticRangeObjFractionHigher,
+					"inRangeObjWeight":0,#sim_data.constants.metabolismInRangeObjWeight,
+					"kineticObjectiveWeight":1e-6,#sim_data.constants.metabolismKineticObjectiveWeight
 					"normalizeFluxes": True,
 					"reactionRateTargets":{reaction:.00001 for reaction in self.kineticReactions},
 					# "expectedFluxesDict":{reaction:.001 for reaction in self.kineticReactions},

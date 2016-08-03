@@ -29,6 +29,10 @@ COLOR_CHOICES = np.array([
 
 IGNORE_FIRST_PERCENTAGE = 0.1
 
+TOP_RANGE_MARKER_COLOR = 'red'
+BOTTOM_RANGE_MARKER_COLOR = 'blue'
+BOTH_RANGE_MARKER_COLOR = 'purple'
+
 from math import log10, floor
 def round_to_1(x):
 	if x < 0:
@@ -46,6 +50,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	nAvogadro = sim_data.constants.nAvogadro
 	cellDensity = sim_data.constants.cellDensity
+	homeostaticRangeObjFractionHigher = sim_data.constants.metabolismHomeostaticRangeObjFractionHigher
 
 	# Load time
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
@@ -57,7 +62,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	mass = TableReader(os.path.join(simOutDir, "Mass"))
 	cellMass = units.fg * mass.readColumn("cellMass")
-
 
 	concIds = sorted(sim_data.process.metabolism.concDict)
 	concPools = units.mol / units.L * np.array([sim_data.process.metabolism.concDict[key].asNumber(units.mol / units.L) for key in concIds])
@@ -79,7 +83,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	concSetpoint = np.tile(concentrationSetpoints.asNumber(common_units),(time.size,1))
 	poolConc = poolConcentrations.asNumber(common_units)
 	
-	fig = plt.figure(figsize = (11, 11))
+	fig = plt.figure(figsize = (15, 15))
 	rows = 13
 	cols = 12
 	idx = 0
@@ -101,16 +105,37 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		ax.xaxis.set_ticks_position('none')
 		ax.tick_params(which = 'both', direction = 'out', labelsize=6)
 		ax.set_xticks([])
+
+		targetRange = (0, homeostaticRangeObjFractionHigher)
+		targetMin = np.amin(targetRange)
+		targetMax = np.amax(targetRange)
+
+		# Put lines for above and below target range
+		if targetMin == targetMax:
+			ax.axhline(y=targetMax, color=BOTH_RANGE_MARKER_COLOR)
+		else:
+			ax.axhline(y=targetMax, color=TOP_RANGE_MARKER_COLOR)
+			ax.axhline(y=targetMin, color=BOTTOM_RANGE_MARKER_COLOR)
 		ymin = deviation[int(deviation.shape[0] * IGNORE_FIRST_PERCENTAGE):].min()
 		ymax = deviation[int(deviation.shape[0] * IGNORE_FIRST_PERCENTAGE):].max()
+		if ymax < 0:
+			ymax = 0
+		if ymin > 0:
+			ymin = 0
+
 		ax.set_ylim([ymin, ymax])
 		ax.set_yticks([ymin, ymax])
 		ax.set_yticklabels([str(round_to_1(deviation.min())), str(round_to_1(deviation.max()))])
 
 	# Create legend
-	ax = plt.subplot(rows, cols,len(poolIds) + 1)
-	ax.plot(0, 0, linewidth=2, label="1 - c/c_o", color='k')
-	ax.legend(loc = 10,prop={'size':10})
+	ax = plt.subplot(rows, cols,len(poolIds) + 2)
+	ax.plot(0, 0, linewidth=1, label="1 - c/c_o", color='k')
+	if homeostaticRangeObjFractionHigher == 0:
+		ax.plot(0, 0, linewidth=1, label="Target", color=BOTH_RANGE_MARKER_COLOR)
+	else:
+		ax.plot(0, 0, linewidth=1, label="Top of target range", color=TOP_RANGE_MARKER_COLOR)
+		ax.plot(0, 0, linewidth=1, label="Bottom of target range", color=BOTTOM_RANGE_MARKER_COLOR)
+	ax.legend(loc = 'lower center',prop={'size':"xx-small"})
 	ax.spines['top'].set_visible(False)
 	ax.spines['bottom'].set_visible(False)
 	ax.spines['left'].set_visible(False)
@@ -119,7 +144,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	ax.yaxis.set_ticks_position('none')
 	ax.set_xticks([])
 	ax.set_yticks([])
-	ax.set_title("Highlights >0.15 deviation", fontsize=12, bbox={'facecolor':'red', 'alpha':0.5, 'pad':1})
+	ax.set_title("Highlights >0.15 deviation", fontsize='x-small', bbox={'facecolor':'red', 'alpha':0.5, 'pad':1})
 
 	# Save
 	plt.subplots_adjust(hspace = 1, wspace = 1)
