@@ -69,6 +69,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	tyrRActiveIndex = np.array([bulkMoleculeIds.index(x) for x in tyrRActiveId])
 	tyrRActiveCounts = bulkMoleculesReader.readColumn("counts")[:, tyrRActiveIndex].reshape(-1)
 
+	# Get the amount of inactive tyrR
+	tyrRInactiveId = ["PD00413[c]"]
+	tyrRInactiveIndex = np.array([bulkMoleculeIds.index(x) for x in tyrRInactiveId])
+	tyrRInactiveCounts = bulkMoleculesReader.readColumn("counts")[:, tyrRInactiveIndex].reshape(-1)
+
 	# Get the promoter-bound status of the tyrA gene
 	tyrATfBoundId = ["EG11039_RNA__MONOMER0-163"]
 	tyrATfBoundIndex = np.array([bulkMoleculeIds.index(x) for x in tyrATfBoundId])
@@ -102,8 +107,16 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	tyrASynthProbId = ["EG11039_RNA[c]"]
 	tyrASynthProbIndex = np.array([rnaIds.index(x) for x in tyrASynthProbId])
 	tyrASynthProb = rnaSynthProbReader.readColumn("rnaSynthProb")[:, tyrASynthProbIndex].reshape(-1)
+
+	recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
+	tfs = sorted(set([x.split("__")[-1] for x in recruitmentColNames if x.split("__")[-1] != "alpha"]))
+	tyrRIndex = [i for i, tf in enumerate(tfs) if tf == "MONOMER0-163"][0]
+	tyrRBound = rnaSynthProbReader.readColumn("nActualBound")[:,tyrRIndex]
 	
 	rnaSynthProbReader.close()
+
+	# Calculate total tyrR - active, inactive and bound
+	tyrRTotalCounts = tyrRActiveCounts + tyrRInactiveCounts + tyrRBound
 
 	# Compute moving averages
 	width = 100
@@ -134,10 +147,13 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	##############################################################
 	ax = plt.subplot(6, 1, 2)
 	ax.plot(time, tyrRActiveCounts)
-	plt.ylabel("Active tyrR Counts", fontsize = 6)
+	ax.plot(time, tyrRInactiveCounts)
+	ax.plot(time, tyrRTotalCounts)
+	plt.ylabel("TyrR Counts", fontsize = 6)
+	plt.legend(["Active", "Inactive", "Total"], fontsize = 6)
 
-	ymin = np.amin(tyrRActiveCounts * 0.9)
-	ymax = np.amax(tyrRActiveCounts * 1.1)
+	ymin = min(np.amin(tyrRActiveCounts * 0.9), np.amin(tyrRInactiveCounts * 0.9))
+	ymax = np.amax(tyrRTotalCounts * 1.1)
 	if ymin != ymax:
 		ax.set_ylim([ymin, ymax])
 		ax.set_yticks([ymin, ymax])
@@ -153,7 +169,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	ax = plt.subplot(6, 1, 3)
 	ax.plot(time, tyrATfBoundCounts)
 	ax.plot(time, tyrATfBoundCountsMA, color = "g")
-	plt.ylabel("tyrR Bound To tyrA Promoter", fontsize = 6)
+	plt.ylabel("TyrR Bound To tyrA Promoter", fontsize = 6)
 
 	ymin = np.amin(tyrATfBoundCounts * 1.)
 	ymax = np.amax(tyrATfBoundCounts * 1.)
@@ -190,7 +206,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	##############################################################
 	ax = plt.subplot(6, 1, 5)
 	ax.plot(time, tyrAProteinTotalCounts)
-	plt.ylabel("tyrA Counts", fontsize = 6)
+	plt.ylabel("TyrA Counts", fontsize = 6)
 
 	ymin = np.amin(tyrAProteinTotalCounts * 0.9)
 	ymax = np.amax(tyrAProteinTotalCounts * 1.1)
@@ -209,7 +225,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	##############################################################
 	ax = plt.subplot(6, 1, 6)
 	ax.plot(time, proteomeMassFraction)
-	plt.ylabel("tyrA Mass Fraction of Proteome", fontsize = 6)
+	plt.ylabel("TyrA Mass Fraction of Proteome", fontsize = 6)
 
 	ymin = np.amin(proteomeMassFraction * 0.9)
 	ymax = np.amax(proteomeMassFraction * 1.1)
