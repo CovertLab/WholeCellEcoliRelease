@@ -185,9 +185,11 @@ def buildTfConditionCellSpecifications(sim_data, cellSpecs):
 			# 	sim_data.process.metabolism.nutrientsToInternalConc[nutrientLabel] = concDict
 
 def buildCombinedConditionCellSpecifications(sim_data, cellSpecs):
-	# need basal cell specs function any more?
 	fcData = {}
 	for conditionKey in sim_data.conditionActiveTfs:
+		if conditionKey == "basal":
+			continue
+
 		conditionValue = sim_data.conditions[conditionKey]
 		for tf in sim_data.conditionActiveTfs[conditionKey]:
 			for gene in sim_data.tfToFC[tf]:
