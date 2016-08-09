@@ -23,6 +23,9 @@ from models.ecoli.sim.variants.nutrientTimeSeries import nutrientTimeSeriesTotal
 from models.ecoli.sim.variants.tf_activity import tfActivity
 from models.ecoli.sim.variants.tf_activity import tfActivityTotalIndices
 
+from models.ecoli.sim.variants.condition import condition
+from models.ecoli.sim.variants.condition import conditionIndices
+
 nameToFunctionMapping = {
 	"geneKnockout": geneKnockout,
 	"wildtype": wildtype,
@@ -31,6 +34,7 @@ nameToFunctionMapping = {
 	"growthRate": growthRate,
 	"nutrientTimeSeries": nutrientTimeSeries,
 	"tfActivity": tfActivity,
+	"condition": condition,
 }
 
 nameToNumIndicesMapping = {
@@ -41,4 +45,5 @@ nameToNumIndicesMapping = {
 	"growthRate": growthRateTotalIndices,
 	"nutrientTimeSeries": nutrientTimeSeriesTotalIndices,
 	"tfActivity": tfActivityTotalIndices,
+	"condition": conditionIndices,
 }
