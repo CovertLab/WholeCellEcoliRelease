@@ -66,7 +66,7 @@ SINGLE_DAUGHTERS = bool(int(os.environ.get("SINGLE_DAUGHTERS", "0")))
 LAUNCHPAD_FILE = str(os.environ.get("LAUNCHPAD_FILE", "my_launchpad.yaml"))
 COMPRESS_OUTPUT = str(os.environ.get("COMPRESS_OUTPUT", "1"))
 SIM_DESCRIPTION = os.environ.get("DESC", "").replace(" ", "_")
-VERBOSE_QUEUE = bool(int(os.environ.get("VERBOSE_QUEUE", "0")))
+VERBOSE_QUEUE = bool(int(os.environ.get("VERBOSE_QUEUE", "1")))
 
 ### Set path variables
 
