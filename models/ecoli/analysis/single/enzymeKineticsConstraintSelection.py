@@ -133,7 +133,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 		# Set up FBA solver
 		fba = FluxBalanceAnalysis(
-			sim_data.process.metabolism.reactionStoich.copy(), # TODO: copy in class
+			sim_data.process.metabolism.reactionStoich,
 			sim_data.process.metabolism.externalExchangeMolecules,
 			objective,
 			objectiveType = "pools",

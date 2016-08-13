@@ -149,7 +149,8 @@ class SimulationDataEcoli(object):
 		return envDict, externalExchangeMolecules, nutrientExchangeMolecules, secretionExchangeMolecules
 
 	def _addConditionData(self, raw_data):
-		self.conditionToDoublingTime = dict([(x["condition"].encode("utf-8"), x["doubling time"]) for x in raw_data.condition.condition_doubling_time])
+		self.conditionToDoublingTime = dict([(x["condition"].encode("utf-8"), x["doubling time"]) for x in raw_data.condition.condition_defs])
+		self.conditionActiveTfs = dict([(x["condition"].encode("utf-8"), x["active TFs"]) for x in raw_data.condition.condition_defs])
 
 		abbrToActiveId = dict([(x["TF"].encode("utf-8"), x["activeId"].encode("utf-8").split(", ")) for x in raw_data.tfIds if len(x["activeId"]) > 0])
 

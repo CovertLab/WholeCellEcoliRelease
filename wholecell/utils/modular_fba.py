@@ -224,13 +224,13 @@ class FluxBalanceAnalysis(object):
 		self._outputMoleculeIDs = []
 		self._outputMoleculeCoeffs = []
 
-		self.reactionStoich = reactionStoich
+		self.reactionStoich = reactionStoich.copy()
 
 		# Keep track of non-standard reactions
 		self._specialFluxIDsSet = set()
 
 		# Call indivdual initialization methods
-		self._initReactionNetwork(reactionStoich)
+		self._initReactionNetwork(self.reactionStoich)
 		self._initExternalExchange(externalExchangedMolecules)
 
 		if self.objectiveType == "standard":
