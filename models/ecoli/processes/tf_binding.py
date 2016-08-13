@@ -45,6 +45,7 @@ class TfBinding(wholecell.processes.process.Process):
 		self.cellDensity = sim_data.constants.cellDensity
 
 		self.pTfBound = sim_data.process.transcription_regulation.pTfBound
+		self.pPromoterBound = sim_data.process.transcription_regulation.pPromoterBound
 		self.tfKd = sim_data.process.transcription_regulation.tfKdFit
 		self.tfNTargets = sim_data.process.transcription_regulation.tfNTargets
 
@@ -75,11 +76,13 @@ class TfBinding(wholecell.processes.process.Process):
 			tfFreeCounts = self.tfMoleculeViews[tf].count()
 			tfBoundCounts = self.tfBoundViews[tf].counts()
 			tfTotalCounts = tfFreeCounts + tfBoundCounts.sum()
-			if tfTotalCounts == 0:
-				continue
+
 
 			self.tfBoundViews[tf].countsIs(0)
 			self.tfMoleculeViews[tf].countInc(tfBoundCounts.sum())
+
+			if tfTotalCounts == 0:
+				continue
 
 			tfKd = self.tfKd[tf]
 			promoterConc = countsToMolar * self.tfNTargets[tf]
@@ -90,7 +93,7 @@ class TfBinding(wholecell.processes.process.Process):
 				promoterConc.asNumber(units.nmol / units.L),
 				tfConc.asNumber(units.nmol / units.L)
 				)
-			nToBind = int(stochasticRound(self.randomState, tfFreeCounts * pTfBound))
+			nToBind = int(stochasticRound(self.randomState, tfTotalCounts * pTfBound))
 			if nToBind == 0:
 				continue
 
