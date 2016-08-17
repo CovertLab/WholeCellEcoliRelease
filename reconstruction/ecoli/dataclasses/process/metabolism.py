@@ -28,6 +28,7 @@ EXCHANGE_UNITS = units.mmol / units.g / units.h
 # If false, raises an exception in such a case
 raiseForUnknownRxns = False
 raiseForTruncatedRxns = False
+warnForTruncatedRxns = False
 
 reverseReactionString = "{} (reverse)"
 
@@ -265,12 +266,12 @@ class Metabolism(object):
 				for reactionName in reactionStoich:
 					if reactionName.startswith(reactionID):
 						truncated = True
-						if reactionID in truncatedRxns:
+						if reactionName in truncatedRxns:
 							if truncatedRxns[reactionID] != reactionName:
 								multipleTruncatedOptionRxns[reactionID].add(truncatedRxns[reactionID])
 								del truncatedRxns[reactionID]
 								multipleTruncatedOptionRxns[reactionID].add(reactionName)
-						elif reactionID in multipleTruncatedOptionRxns:
+						elif reactionName in multipleTruncatedOptionRxns:
 							multipleTruncatedOptionRxns[reactionID].add(reactionName)
 						else:
 							truncatedRxns[reactionID] = reactionName
@@ -320,14 +321,14 @@ class Metabolism(object):
 							candidates = set([reactionOption])
 							ambiguous = False
 						elif amountOfOverlap == threshold:
-							ambiguous = True
+							if threshold > 0:
+								ambiguous = True
 							candidates.add(reactionOption)
 					if threshold == 0:
 						# Take none, add this reaction to the unknown reactions list, remove it from multipleTruncatedOptionRxns
 						unknownRxns.add(reactionID)
 						del multipleTruncatedOptionRxns[reactionID]
 					if ambiguous:
-						import ipdb; ipdb.set_trace()
 						# Keep all highest-scoring reactions in multipleTruncatedOptionRxns, remove any reactions which score less than threshold
 						multipleTruncatedOptionRxns[reactionID] =  candidates
 					else:
@@ -409,17 +410,17 @@ class Metabolism(object):
 
 		if len(truncatedRxns) > 0:
 			message = "The following {} enzyme kinetics reaction names are truncated versions of reactions in the model {}".format(len(truncatedRxns), truncatedRxns)
-			if raiseForTruncatedRxns:
-				raise Exception(message)
-			else:
+			if warnForTruncatedRxns:
 				warnings.warn(message)
+			elif raiseForTruncatedRxns:
+				raise Exception(message)
 
 		if len(multipleTruncatedOptionRxns) > 0:
 			message = "The following {} enzyme kinetics reaction names are truncated versions of more than one reaction in the model {}".format(len(multipleTruncatedOptionRxns), multipleTruncatedOptionRxns)
-			if raiseForTruncatedRxns:
-				raise Exception(message)
-			else:
+			if warnForTruncatedRxns:
 				warnings.warn(message)
+			elif raiseForTruncatedRxns:
+				raise Exception(message)
 
 		if len(directionAmbiguousRxns) > 0:
 			raise Exception("The following enzyme kinetics entries have ambiguous direction. Split them into multiple lines in the flat file to increase clarity. {}".format(directionAmbiguousRxns))
