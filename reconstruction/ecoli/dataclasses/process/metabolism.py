@@ -342,7 +342,6 @@ class Metabolism(object):
 				elif reactionID in unknownRxns:
 					continue
 				else:
-					import ipdb; ipdb.set_trace()
 					raise Exception("Something went wrong with reaction {}".format(reactionID))
 
 			substrateIDs = reaction["substrateIDs"]
