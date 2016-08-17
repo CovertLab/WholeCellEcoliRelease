@@ -83,11 +83,13 @@ class TfBinding(wholecell.processes.process.Process):
 			tfFreeCounts = self.tfMoleculeViews[tf].count()
 			tfBoundCounts = self.tfBoundViews[tf].counts()
 			tfTotalCounts = tfFreeCounts + tfBoundCounts.sum()
-			if tfTotalCounts == 0:
-				continue
+
 
 			self.tfBoundViews[tf].countsIs(0)
 			self.tfMoleculeViews[tf].countInc(tfBoundCounts.sum())
+
+			if tfTotalCounts == 0:
+				continue
 
 			tfKd = self.tfKd[tf]
 			promoterConc = countsToMolar * self.tfNTargets[tf]

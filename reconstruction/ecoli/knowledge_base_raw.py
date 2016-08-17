@@ -67,7 +67,6 @@ LIST_OF_DICT_FILENAMES = (
 	os.path.join("rna_seq_data","rnaseq_rsem_tpm_std.tsv"),
 	os.path.join("rna_seq_data","rnaseq_seal_rpkm_mean.tsv"),
 	os.path.join("rna_seq_data","rnaseq_seal_rpkm_std.tsv"),
-	os.path.join("condition", "condition_doubling_time.tsv"),
 	os.path.join("condition", "tf_condition.tsv"),
 	os.path.join("condition", "condition_defs.tsv"),
 	os.path.join("condition", "nutrient", "minimal.tsv"),

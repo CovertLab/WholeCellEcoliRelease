@@ -71,8 +71,9 @@ def fitSimData_1(raw_data):
 	# ----- Growth associated maintenance -----
 
 	fitMaintenanceCosts(sim_data, cellSpecs["basal"]["bulkContainer"])
-
+	
 	buildTfConditionCellSpecifications(sim_data, cellSpecs)
+	buildCombinedConditionCellSpecifications(sim_data, cellSpecs)
 
 	# Fit kinetic parameters
 	findKineticCoeffs(sim_data, cellSpecs["basal"]["bulkContainer"])
@@ -182,6 +183,63 @@ def buildTfConditionCellSpecifications(sim_data, cellSpecs):
 			# if len(conditionValue["perturbations"]) == 0:
 			# 	nutrientLabel = conditionValue["nutrients"]
 			# 	sim_data.process.metabolism.nutrientsToInternalConc[nutrientLabel] = concDict
+
+def buildCombinedConditionCellSpecifications(sim_data, cellSpecs):
+	fcData = {}
+	for conditionKey in sim_data.conditionActiveTfs:
+		if conditionKey == "basal":
+			continue
+
+		conditionValue = sim_data.conditions[conditionKey]
+		for tf in sim_data.conditionActiveTfs[conditionKey]:
+			for gene in sim_data.tfToFC[tf]:
+				if gene in fcData:
+					# TODO: multiply if multiple genes affected?
+					# fcData[gene] *= sim_data.tfToFC[tf][gene]
+					raise Exception("Derek check/implement this: multiple genes regulated")
+				else:
+					fcData[gene] = sim_data.tfToFC[tf][gene]
+
+		expression = expressionFromConditionAndFoldChange(
+			sim_data.process.transcription.rnaData["id"],
+			sim_data.process.transcription.rnaExpression["basal"],
+			conditionValue["perturbations"],
+			fcData,
+		)
+
+		cellSpecs[conditionKey] = {
+			"concDict": sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
+				conditionValue["nutrients"]
+			),
+			"expression": expression,
+			"doubling_time": sim_data.conditionToDoublingTime.get(
+				conditionKey,
+				sim_data.conditionToDoublingTime["basal"]
+			)
+		}
+
+		expression, synthProb, avgCellDryMassInit, fitAvgSolublePoolMass, bulkContainer, concDict = expressionConverge(
+			sim_data,
+			cellSpecs[conditionKey]["expression"],
+			cellSpecs[conditionKey]["concDict"],
+			cellSpecs[conditionKey]["doubling_time"],
+			sim_data.process.transcription.rnaData["KmEndoRNase"],
+			updateConcDict = True,
+			)
+
+		cellSpecs[conditionKey]["expression"] = expression
+		cellSpecs[conditionKey]["synthProb"] = synthProb
+		cellSpecs[conditionKey]["avgCellDryMassInit"] = avgCellDryMassInit
+		cellSpecs[conditionKey]["fitAvgSolublePoolMass"] = fitAvgSolublePoolMass
+		cellSpecs[conditionKey]["bulkContainer"] = bulkContainer
+
+		sim_data.process.transcription.rnaExpression[conditionKey] = cellSpecs[conditionKey]["expression"]
+		sim_data.process.transcription.rnaSynthProb[conditionKey] = cellSpecs[conditionKey]["synthProb"]
+
+		# Uncomment when concDict is actually calculated for non-base [AA]
+		# if len(conditionValue["perturbations"]) == 0:
+		# 	nutrientLabel = conditionValue["nutrients"]
+		# 	sim_data.process.metabolism.nutrientsToInternalConc[nutrientLabel] = concDict
 
 
 def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None, updateConcDict = False):
