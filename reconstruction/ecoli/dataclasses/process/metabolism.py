@@ -29,6 +29,8 @@ EXCHANGE_UNITS = units.mmol / units.g / units.h
 raiseForUnknownRxns = False
 raiseForTruncatedRxns = False
 warnForTruncatedRxns = False
+warnForMultiTruncatedRxns = True
+
 
 reverseReactionString = "{} (reverse)"
 
@@ -351,14 +353,14 @@ class Metabolism(object):
 						if substrate not in thisRxnStoichiometry.keys():
 							nonCannonicalRxns.add(reaction["constraintID"])
 			elif reaction["rateEquationType"] == "custom":
-				continue
+				pass
 			else:
 				raise Exception("rateEquationType {} not understood in reaction {} on enzymeKinetics line {}".format(reaction["reactionID"], reaction["reactionID"], idx))
 
 			# Check if this constraint is for a reverse reaction
 			if reactionID in reversibleReactions:
 				if reaction["direction"] == "forward":
-					continue
+					pass
 				elif reaction["direction"] == "reverse":
 					reaction["reactionID"] = reverseReactionString.format(reactionID)
 					reaction["constraintID"] = reverseReactionString.format(reaction["constraintID"])
@@ -377,7 +379,6 @@ class Metabolism(object):
 						# If more are products than reactants, treat this as a reverse reaction constraint
 						# Record any ambiguous reactions and throw an exception once all are gathered
 						if allCounter < 1.0:
-							print reaction["reactionID"]
 							directionAmbiguousRxns.add(reaction["reactionID"])
 							continue
 
@@ -386,7 +387,7 @@ class Metabolism(object):
 							reaction["constraintID"] = reverseReactionString.format(reaction["constraintID"])
 						elif reverseCounter > 0:
 							if len(reaction["kI"]) == reverseCounter:
-								continue
+								pass
 							else:
 								directionAmbiguousRxns.add(reaction["reactionID"])
 					elif reaction["rateEquationType"] == "custom":
@@ -416,7 +417,7 @@ class Metabolism(object):
 
 		if len(multipleTruncatedOptionRxns) > 0:
 			message = "The following {} enzyme kinetics reaction names are truncated versions of more than one reaction in the model {}".format(len(multipleTruncatedOptionRxns), multipleTruncatedOptionRxns)
-			if warnForTruncatedRxns:
+			if warnForMultiTruncatedRxns:
 				warnings.warn(message)
 			elif raiseForTruncatedRxns:
 				raise Exception(message)
@@ -503,6 +504,9 @@ class Metabolism(object):
 
 	def buildEnzymeReactionKcatLinks(self, reactionRateInfo, reactionEnzymesDict):
 		for constraintID, reactionInfo in reactionRateInfo.iteritems():
+			if reactionInfo["rateEquationType"] == "custom":
+				continue
+
 			reactionID = reactionInfo["reactionID"]
 			enzymeIDs = reactionInfo["enzymeIDs"]
 			kcat = reactionInfo["kcat"][0]
