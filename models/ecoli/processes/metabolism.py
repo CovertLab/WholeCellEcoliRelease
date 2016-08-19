@@ -157,40 +157,6 @@ class Metabolism(wholecell.processes.process.Process):
 		# except Exception as e:
 		# 	import ipdb; ipdb.set_trace()
 
-		reactions = set()
-		constraints = set()
-		enzymes = set()
-		kMreactions = set()
-		kIreactions = set()
-		substrates = set()
-		customReactions = set()
-		standardReactions = set()
-		customCount = 0
-		standardCount = 0
-		kMsCount = 0
-		kIsCount = 0
-		for constraintID, reaction in self.reactionRateInfo.iteritems():
-			reactions.add(reaction["reactionID"])
-			constraints.add(constraintID)
-			for enzyme in reaction["enzymeIDs"]:
-				enzymes.add(enzyme)
-			for substrate in reaction["substrateIDs"]:
-				substrates.add(substrate)
-			if reaction["rateEquationType"] == "custom":
-				customCount += 1
-				customReactions.add(reaction["reactionID"])
-			elif reaction["rateEquationType"] == "standard":
-				standardCount += 1
-				standardReactions.add(reaction["reactionID"])
-			if len(reaction["kM"]) > 0:
-				kMreactions.add(reaction["reactionID"])
-				kMsCount += 1
-			if len(reaction["kI"]) > 0:
-				kIreactions.add(reaction["reactionID"])
-				kIsCount += 1
-
-		import ipdb; ipdb.set_trace()
-
 		self.currentNgam = 1 * (COUNTS_UNITS / VOLUME_UNITS)
 		self.currentPolypeptideElongationEnergy = 1 * (COUNTS_UNITS / VOLUME_UNITS)
 
