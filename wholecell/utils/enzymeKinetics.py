@@ -72,7 +72,7 @@ class EnzymeKinetics(object):
 
 		self.inputsChecked = False
 
-	def checkKnownSubstratesAndEnzymes(self, metaboliteConcentrationsDict, enzymeConcentrationsDict, removeUnknowns=False):
+	def checkKnownSubstratesAndEnzymes(self, metaboliteNames, enzymeNames, removeUnknowns=False):
 		knownConstraints = {}
 		unusableConstraints = {}
 		unknownSubstrates = set()
@@ -87,14 +87,14 @@ class EnzymeKinetics(object):
 
 				# Check if the substrates are known
 				for substrateID in reactionInfo["substrateIDs"]:
-					if substrateID not in metaboliteConcentrationsDict:
+					if substrateID not in metaboliteNames:
 						unknownSubstrates.add(substrateID)
 						unusableConstraints[constraintID] = reactionInfo
 						keepReaction = False
 
 				# Check if the enzymes are known
 				for enzymeID in reactionInfo["enzymeIDs"]:
-					if enzymeID not in enzymeConcentrationsDict:
+					if enzymeID not in enzymeNames:
 						unknownEnzymes.add(enzymeID)
 						unusableConstraints[constraintID] = reactionInfo
 						keepReaction = False
@@ -103,9 +103,9 @@ class EnzymeKinetics(object):
 			elif reactionType == "custom":
 
 				for variable in reactionInfo["customParameterVariables"].values():
-					if variable not in metaboliteConcentrationsDict:
+					if variable not in metaboliteNames:
 						notSubstrate = True
-					if variable not in enzymeConcentrationsDict:
+					if variable not in enzymeNames:
 						notEnzyme = True
 
 					if notSubstrate and notEnzyme:

@@ -42,7 +42,7 @@ FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
 SECRETION_PENALTY_COEFF = 1e-5
 
 NONZERO_ENZYMES = False
-USE_KINETIC_RATES = False # Enable/disable kinetic rate limits in the model
+USE_KINETIC_RATES = True # Enable/disable kinetic rate limits in the model
 SET_MIN_FLUXES = False
 USE_BASE_RATES = True
 
@@ -68,8 +68,6 @@ class Metabolism(wholecell.processes.process.Process):
 		# Load constants
 		self.nAvogadro = sim_data.constants.nAvogadro
 		self.cellDensity = sim_data.constants.cellDensity
-
-		self.metabolitePoolIDs = sorted(sim_data.process.metabolism.concDict)
 
 		self.exchangeConstraints = sim_data.process.metabolism.exchangeConstraints
 
@@ -124,6 +122,19 @@ class Metabolism(wholecell.processes.process.Process):
 			self.getMass(self.externalExchangeMolecules).asNumber(MASS_UNITS / COUNTS_UNITS)
 			))
 
+		# Set up enzyme kinetics object
+		self.enzymeKinetics = EnzymeKinetics(
+			reactionRateInfo = sim_data.process.metabolism.reactionRateInfo,
+			useCustoms=True,
+			moreThanKcat=True, # Only compute rates for reactions with more than a kcat
+			)
+
+		# Remove kinetics for reactions for which we don't have needed metabolites or enzymes
+		self.enzymeKinetics.checkKnownSubstratesAndEnzymes(sim_data.process.metabolism.concDict, self.enzymeNames, removeUnknowns=True)
+
+		# Reactions with full kinetic estimates (more than just kcat)
+		self.fullRateReactions = [reactionInfo["reactionID"] for constraintID, reactionInfo in self.enzymeKinetics.reactionRateInfo.iteritems() if len(reactionInfo["kM"]) > 0]
+
 		# Set up FBA solver
 		self.fbaObjectOptions = {
 			"reactionStoich" : self.reactionStoich,
@@ -138,18 +149,14 @@ class Metabolism(wholecell.processes.process.Process):
 		}
 		self.fba = FluxBalanceAnalysis(**self.fbaObjectOptions)
 
+		# Indices for reactions with full kinetic esimates
+		self.fullRateIndices = np.where([True if reactionID in self.fullRateReactions else False for reactionID in self.fba.reactionIDs()])
+
 		# Matrix mapping enzymes to the reactions they catalyze
 		self.enzymeReactionMatrix = sim_data.process.metabolism.enzymeReactionMatrix(self.fba.reactionIDs(), self.enzymeNames, self.reactionEnzymes)
 		self.spontaneousIndices = np.where(np.sum(self.enzymeReactionMatrix, axis=1) == 0)
 		self.enzymeReactionMatrix = csr_matrix(self.enzymeReactionMatrix)
 		self.allRates = FLUX_UNITS * np.inf * np.ones(len(self.fba.reactionIDs()))
-
-		# Set up enzyme kinetics object
-		self.enzymeKinetics = EnzymeKinetics(
-			reactionRateInfo = sim_data.process.metabolism.reactionRateInfo,
-			useCustoms=True,
-			moreThanKcat=True, # Only compute rates for reactions with more than a kcat
-			)
 
 		self.currentNgam = 1 * (COUNTS_UNITS / VOLUME_UNITS)
 		self.currentPolypeptideElongationEnergy = 1 * (COUNTS_UNITS / VOLUME_UNITS)
@@ -167,7 +174,6 @@ class Metabolism(wholecell.processes.process.Process):
 		# Views
 		self.metaboliteNames = self.fba.outputMoleculeIDs()
 		self.metabolites = self.bulkMoleculesView(self.metaboliteNames)
-		self.poolMetabolites = self.bulkMoleculesView(self.metabolitePoolIDs)
 		self.enzymes = self.bulkMoleculesView(self.enzymeNames)
 			
 		outputMoleculeIDs = self.fba.outputMoleculeIDs()
@@ -266,13 +272,6 @@ class Metabolism(wholecell.processes.process.Process):
 		# Make a dictionary of enzyme names to enzyme concentrations
 		enzymeConcentrationsDict = dict(zip(self.enzymeNames, enzymeConcentrations))
 
-		# Remove any enzyme kinetics paramters for which the needed enzyme and substrate information is not available
-		if not self.enzymeKinetics.inputsChecked:
-			self.enzymeKinetics.checkKnownSubstratesAndEnzymes(metaboliteConcentrationsDict, enzymeConcentrationsDict, removeUnknowns=True)
-
-			self.fullRateReactions = [reactionInfo["reactionID"] for constraintID, reactionInfo in self.enzymeKinetics.reactionRateInfo.iteritems() if len(reactionInfo["kM"]) > 0]
-			self.fullRateIndices = np.where([True if reactionID in self.fullRateReactions else False for reactionID in self.fba.reactionIDs()])
-
 		if not hasattr(self, "maxConstraints"):
 			# Calculate the constraints in the current conditions
 			reactionsDict = self.enzymeKinetics.allReactionsDict(metaboliteConcentrationsDict, enzymeConcentrationsDict)
@@ -363,8 +362,6 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.writeToListener("EnzymeKinetics", "volume_units",
 			str(VOLUME_UNITS))
-
-
 
 
 		# TODO
