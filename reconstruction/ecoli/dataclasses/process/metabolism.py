@@ -31,7 +31,6 @@ raiseForTruncatedRxns = False
 warnForTruncatedRxns = False
 warnForMultiTruncatedRxns = True
 
-
 reverseReactionString = "{} (reverse)"
 
 
@@ -432,6 +431,7 @@ class Metabolism(object):
 
 		self.reactionStoich = reactionStoich
 		self.nutrientsTimeSeries = sim_data.nutrientsTimeSeries
+		self.maintenanceReaction = {"ATP[c]": -1, "WATER[c]": -1, "ADP[c]": +1, "Pi[c]": +1, "PROTON[c]": +1,}
 		self.reversibleReactions = reversibleReactions
 		self.directionInferedReactions = sorted(list(directionInferedReactions))
 		self.reactionRateInfo = reactionRateInfo

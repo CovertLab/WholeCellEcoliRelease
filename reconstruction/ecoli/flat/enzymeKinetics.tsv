@@ -1306,7 +1306,7 @@
 "GLUTAMINESYN-RXN_kcat_36"	"GLUTAMINESYN-RXN"	["GLUTAMINESYN-OLIGOMER"]	["ATP","GLT"]	[]	"standard"		[36]	[]	[]	null	null	null	null	null	1
 "CHORISMATEMUT-RXN_8"	"CHORISMATEMUT-RXN"	["CHORISMUTPREPHENDEHYDRAT-CPLX"]	["CHORISMATE"]	[37]	"standard"		[38.9]	[304]	[]	null	null	null	null	null	1
 "CHORISMATEMUT-RXN_8_kcat_38.9"	"CHORISMATEMUT-RXN"	["CHORISMUTPREPHENDEHYDRAT-CPLX"]	["CHORISMATE"]	[37]	"standard"		[38.9]	[]	[]	null	null	null	null	null	1
-"THIOREDOXIN-REDUCT-NADPH-RXN_4"	"THIOREDOXIN-REDUCT-NADPH-RXN"	["THIOREDOXIN-REDUCT-NADPH-CPLX"]	[]	[]	"standard"		[7.74]	[33.3]	[]	null	null	null	null	null	1
+"THIOREDOXIN-REDUCT-NADPH-RXN_4"	"THIOREDOXIN-REDUCT-NADPH-RXN"	["THIOREDOXIN-REDUCT-NADPH-CPLX"]	["EG12181-MONOMER"]	[]	"standard"		[7.74]	[33.3]	[]	null	null	null	null	null	1
 "THIOREDOXIN-REDUCT-NADPH-RXN_4_kcat_7.74"	"THIOREDOXIN-REDUCT-NADPH-RXN"	["THIOREDOXIN-REDUCT-NADPH-CPLX"]	[]	[]	"standard"		[7.74]	[]	[]	null	null	null	null	null	1
 "DAHPSYN-RXN_8"	"DAHPSYN-RXN"	["AROG-CPLX"]	["ERYTHROSE-4P"]	[]	"standard"		[71]	[21]	[]	null	null	null	null	null	1
 "DAHPSYN-RXN_8_kcat_71"	"DAHPSYN-RXN"	["AROG-CPLX"]	["ERYTHROSE-4P"]	[]	"standard"		[71]	[]	[]	null	null	null	null	null	1
