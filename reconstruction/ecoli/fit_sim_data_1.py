@@ -806,7 +806,7 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 
 	# Data for metabolites
 	cellDensity = sim_data.constants.cellDensity
-	cellVolume = avgCellDryMassInit / cellDensity
+	cellVolume = avgCellDryMassInit / cellDensity / sim_data.mass.cellDryMassFraction
 
 	# Construct bulk container
 
