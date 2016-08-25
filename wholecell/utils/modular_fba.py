@@ -635,7 +635,10 @@ class FluxBalanceAnalysis(object):
 		if kineticObjectiveWeight > 1 or kineticObjectiveWeight < 0:
 			raise FBAError("kineticObjectiveWeight must be between 0 and 1 inclusive. It represents the percentage of preference going to kinetics.")
 		else:
-			homeostaticWeightFactor = (1 - kineticObjectiveWeight)
+			self.homeostaticWeightFactor = (1 - kineticObjectiveWeight)
+
+		if inRangeObjWeight > 1 or inRangeObjWeight < 0:
+			raise FBAError("inRangeObjWeight must be between 0 and 1 inclusive. It represents the weighting relative to the out-of-range relaxation fluxes, it must always be less than 1 and positive.")
 
 		self._solver.maximizeObjective(False)
 		self._forceInternalExchange = True
@@ -652,8 +655,6 @@ class FluxBalanceAnalysis(object):
 			+1
 			)
 
-		# Minimizing an absolute value requires splitting the term into two,
-		# one for the positive values and one for the negative.
 		for moleculeID in sorted(objective):
 			objectiveEquivID = self._generatedID_moleculeEquivalents.format(moleculeID)
 
@@ -664,7 +665,7 @@ class FluxBalanceAnalysis(object):
 				-1
 				)
 
-			# Add the term for when the flux out is below the expected value
+			# Add the term for when the flux out is below the expected range
 			belowUnityID = self._generatedID_fractionBelowUnityOut.format(moleculeID)
 
 			self._solver.flowMaterialCoeffIs(
@@ -675,21 +676,22 @@ class FluxBalanceAnalysis(object):
 
 			self._solver.flowObjectiveCoeffIs(
 				belowUnityID,
-				+homeostaticWeightFactor
+				+self.homeostaticWeightFactor
 				)
 
-			# Add the term for when the flux out is above the target value, but within the expected range
+			# Add the term for when the flux out is within the expected range
 			inRangeID = self._generatedID_fractionInRangeOut.format(moleculeID)
 
 			self._solver.flowMaterialCoeffIs(
 				inRangeID,
 				objectiveEquivID,
-				-homeostaticWeightFactor if HomeostaticRangeObjFractionHigher > 0 else homeostaticWeightFactor
+				-self.homeostaticWeightFactor if HomeostaticRangeObjFractionHigher > 0 else self.homeostaticWeightFactor
 				)
 
+			# Set the weight of running this relaxation
 			self._solver.flowObjectiveCoeffIs(
 				inRangeID,
-				+inRangeObjWeight
+				+inRangeObjWeight*self.homeostaticWeightFactor
 				)
 
 			# This relaxation can only go to the end of the target range (less and the out range relaxation must be used)
@@ -710,7 +712,7 @@ class FluxBalanceAnalysis(object):
 
 			self._solver.flowObjectiveCoeffIs(
 				aboveUnityID,
-				+homeostaticWeightFactor
+				+self.homeostaticWeightFactor
 				)
 
 	def _initObjectiveMOMA(self, objective, objectiveParameters=None):
@@ -722,10 +724,10 @@ class FluxBalanceAnalysis(object):
 			contains a kinetically-predicted flux distribution
 		"""
 
-		kineticObjectiveWeight = objectiveParameters["kineticObjectiveWeight"] if "kineticObjectiveWeight" in objectiveParameters else 1
-		normalizeFluxes = objectiveParameters["normalizeFluxes"] if "normalizeFluxes" in objectiveParameters else True
-		# If not given a separate set of expected flux values, normalize the objective for deviating from the target itself
-		expectedFluxesDict = objectiveParameters["expectedFluxesDict"] if "expectedFluxesDict" in objectiveParameters else objective
+		self.kineticObjectiveWeight = objectiveParameters["kineticObjectiveWeight"] if "kineticObjectiveWeight" in objectiveParameters else 1
+
+		# Unless given, assume no reactions are one-sided targets (ie kcat only targets)
+		self._oneSidedReactions = set(objectiveParameters["oneSidedReactionTargets"]) if "oneSidedReactionTargets" in objectiveParameters else set()
 
 		if objectiveParameters is not None and "fixedReactionNames" in objectiveParameters:
 			fixedReactionNames = objectiveParameters["fixedReactionNames"]
@@ -735,6 +737,8 @@ class FluxBalanceAnalysis(object):
 		# Make single-string arguments into list
 		if isinstance(fixedReactionNames, str):
 			fixedReactionNames = [fixedReactionNames]
+
+		self._kineticTargetFluxes = set()
 
 		# This is a minimization objective problem
 		self._solver.maximizeObjective(False)
@@ -756,7 +760,7 @@ class FluxBalanceAnalysis(object):
 				raise FBAError("Target flux for reaction {} is negative. MOMA reaction targets must be postive - set the value for the (reverse) reaction if a negative flux is desired.".format(reactionID))
 
 			if reactionID not in self.reactionStoich:
-				raise FBAError("{} is not in the reaction network.".format(reactionID))
+				raise FBAError("{} is not in the reaction network. Target fluxes must be in the reaction network".format(reactionID))
 
 			# Fix reaction to target flux
 			self.minReactionFluxIs(reactionID, objective[reactionID], raiseForReversible=False)
@@ -765,7 +769,9 @@ class FluxBalanceAnalysis(object):
 			# If reaction is not in the fixed reactions set, create relaxation fluxes for it
 			if reactionID not in fixedReactionNames:
 
-				expectedFlux = expectedFluxesDict[reactionID] if normalizeFluxes else 1
+				self._kineticTargetFluxes.add(reactionID)
+
+				expectedFlux = objective[reactionID]
 
 				if expectedFlux < 0:
 					raise FBAError("Expected flux for reaction {} is negative. MOMA normalization fluxes must be postive - set the value for the (reverse) reaction if a negative flux is desired.".format(reactionID))
@@ -788,27 +794,25 @@ class FluxBalanceAnalysis(object):
 					)
 				self._specialFluxIDsSet.add(overTargetFlux)
 
-				# The objective is to mimimize this relaxation, normalized to its expected flux
-				self._solver.flowObjectiveCoeffIs(
-					overTargetFlux,
-					+(kineticObjectiveWeight / expectedFlux)
-					)
-
 				## Below
 				# Add a pseudoreaction to allow the flux to be below its target
-				underTargetFlux = self._generatedID_amountUnder.format(reactionID )
+				underTargetFlux = self._generatedID_amountUnder.format(reactionID)
 				for materialID, coeff in self.reactionStoich[reactionID].iteritems():
 					self._solver.flowMaterialCoeffIs(
 						underTargetFlux,
 						materialID,
 						-coeff
 						)
-				# In addition to the actual metabolites, this relaxation creates a special pseudometabolite kineticObjEquivalent
-				self._solver.flowMaterialCoeffIs(
-					underTargetFlux,
-					kineticObjEquivalent,
-					1.
-					)
+
+				# Allow relaxing below the target for free if this is a one-sided kinetic target
+				if reactionID not in self._oneSidedReactions:
+					# In addition to the actual metabolites, this relaxation creates a special pseudometabolite kineticObjEquivalent
+					self._solver.flowMaterialCoeffIs(
+						underTargetFlux,
+						kineticObjEquivalent,
+						1.
+						)
+
 				self._specialFluxIDsSet.add(underTargetFlux)
 
 				# The relaxation cannot allow overall negative flux
@@ -819,13 +823,7 @@ class FluxBalanceAnalysis(object):
 				self._solver.flowMaterialCoeffIs(
 					pseudoFluxKinetic,
 					kineticObjEquivalent,
-					-1.
-					)
-
-				# The objective is to mimimize this relaxation, normalized to its expected flux
-				self._solver.flowObjectiveCoeffIs(
-					pseudoFluxKinetic,
-					+(kineticObjectiveWeight / expectedFlux)
+					-(expectedFlux / self.kineticObjectiveWeight)
 					)
 
 				self._errorFluxNames.add(reactionID)
@@ -1320,6 +1318,42 @@ class FluxBalanceAnalysis(object):
 
 	def errorFluxNames(self):
 		return sorted(self._errorFluxNames)
+
+	def setKineticTarget(self, reactionIDs, reactionTargets, raiseForReversible=True):
+
+		# If a single value is passed in, make a list of length 1 from it
+		if isinstance(reactionIDs, str):
+			reactionIDs = [reactionIDs]
+		if not isinstance(reactionTargets, list):
+			reactionTargets = [reactionTargets]
+
+		if len(reactionIDs) != len(reactionTargets):
+			raise Exception("There must be equal numbers of reactionIDs and reactionTargets when changing the kinetic target.")
+
+		if (np.array(reactionTargets) < 0).any():
+			raise FBAError("Rate targets cannot be negative. {} were provided with targets of {}".format(np.array(reactionIDs)[np.array(reactionTargets) < 0], np.array(reactionTargets)[np.array(reactionTargets) < 0]))
+
+		# Change the objective normalization
+		for reactionID, reactionTarget in izip(reactionIDs,reactionTargets):
+			if reactionID not in self._kineticTargetFluxes:
+				raise FBAError("Kinetic targets can only be set for reactions initialized to be kinetic targets. {} is not set up for it.".format(reactionID))
+
+			pseudoFluxKinetic = self._generatedID_kineticReactionEquivalentsPseudoflux.format(reactionID)
+			kineticObjEquivalent = self._generatedID_kineticReactionEquivalents.format(reactionID)
+			self._solver.flowMaterialCoeffIs(
+				pseudoFluxKinetic,
+				kineticObjEquivalent,
+				-(reactionTarget / self.kineticObjectiveWeight)
+				)
+
+			# Adjust to allow the amount under to push the reaction to but not beyond zero
+			underTargetFlux = self._generatedID_amountUnder.format(reactionID)
+			self.maxReactionFluxIs(underTargetFlux, reactionTarget)
+
+		# Change the fixed reaction flux
+		self.setMaxReactionFluxes(reactionIDs, reactionTargets, raiseForReversible)
+		self.setMinReactionFluxes(reactionIDs, reactionTargets, raiseForReversible)
+
 
 	def getArrayBasedModel(self):
 		return {

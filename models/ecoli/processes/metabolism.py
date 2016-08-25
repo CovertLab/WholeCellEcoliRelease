@@ -124,6 +124,8 @@ class Metabolism(wholecell.processes.process.Process):
 		# List of reactions for which to set target kinetics
 		self.kineticReactions = list(set([x for x,y in sim_data.process.metabolism.reactionRateInfo.iteritems() if (len(y["kM"])>0 and x in self.reactionStoich)]))
 
+		self.currentTarget = .01
+
 		# Set up FBA solver
 		self.fba = FluxBalanceAnalysis(
 			self.reactionStoich,
@@ -131,12 +133,8 @@ class Metabolism(wholecell.processes.process.Process):
 			self.objective,
 			objectiveType = "pools_kinetics_mixed",
 			objectiveParameters = {
-					"HomeostaticRangeObjFractionHigher":.1,#sim_data.constants.metabolismHomeostaticRangeObjFractionHigher,
-					"inRangeObjWeight":0,#sim_data.constants.metabolismInRangeObjWeight,
-					"kineticObjectiveWeight":1e-6,#sim_data.constants.metabolismKineticObjectiveWeight
-					"normalizeFluxes": True,
-					"reactionRateTargets":{reaction:.00001 for reaction in self.kineticReactions},
-					# "expectedFluxesDict":{reaction:.001 for reaction in self.kineticReactions},
+					"kineticObjectiveWeight":sim_data.constants.metabolismKineticObjectiveWeight,
+					"reactionRateTargets":{reaction:self.currentTarget for reaction in self.kineticReactions},
 					},
 			moleculeMasses = self.moleculeMasses,
 			secretionPenaltyCoeff = SECRETION_PENALTY_COEFF, # The "inconvenient constant"--limit secretion (e.g., of CO2)
@@ -306,6 +304,45 @@ class Metabolism(wholecell.processes.process.Process):
 			self.base_rates_current[updateLocations] = updateValues
 			# Set new reaction rate limits
 			self.fba.setMaxReactionFluxes(updateReactions, updateValues.asNumber(FLUX_UNITS), raiseForReversible = False)
+
+		# excludeReactions = set(["GARTRANSFORMYL2-RXN", "RXN0-1461", "PRAISOM-RXN", "IMP-DEHYDROG-RXN", "RXN0-961", "L-ASPARTATE-OXID-RXN",
+		# 	"3.6.1.41-RXN", "ASPARAGINE--TRNA-LIGASE-RXN-ASN-tRNAs/ASN/ATP/PROTON//Charged-ASN-tRNAs/AMP/PPI.52.", "PREPHENATEDEHYDROG-RXN",
+		# 	"RXN-11109", "1.1.1.83-RXN", "THRESYN-RXN","RXN-1961","UDPNACETYLGLUCOSAMENOLPYRTRANS-RXN","RXN0-5462", "O-SUCCHOMOSERLYASE-RXN",
+		# 	"ERYTH4PDEHYDROG-RXN","GLYOXIII-RXN", "ALANINE--TRNA-LIGASE-RXN-ALA-tRNAs/L-ALPHA-ALANINE/ATP/PROTON//Charged-ALA-tRNAs/AMP/PPI.64.",
+		# 	"UDP-NACMUR-ALA-LIG-RXN","RIBOSYLHOMOCYSTEINASE-RXN","RXN0-384","ASNSYNA-RXN","MALIC-NADP-RXN","HOMOSERKIN-RXN","FRUCTOKINASE-RXN",
+		# 	"RXN0-3741[CCO-CYTOSOL]-DIMP/WATER//DEOXYINOSINE/Pi.41.","GLUTAMINESYN-RXN","GLUCOSE-6-PHOSPHATASE-RXN","PANTEPADENYLYLTRAN-RXN",
+		# 	])
+
+		# self.forwardKineticReactions = [x for x in self.kineticReactions if not x.endswith('(reverse)')]
+
+		# self.forwardKineticReactions = self.forwardKineticReactions[:(len(self.forwardKineticReactions)//2)]
+
+		if self.time() % 1000 < 1:
+			self.currentTarget *= 10
+			self.fba.setKineticTarget(self.kineticReactions,[self.currentTarget]*len(self.kineticReactions), raiseForReversible = False)
+		# self.fba.setMaxReactionFluxes(self.kineticReactions,[self.currentTarget]*len(self.kineticReactions), raiseForReversible = False)
+		# self.fba.setMinReactionFluxes(self.kineticReactions,[self.currentTarget]*len(self.kineticReactions), raiseForReversible = False)
+
+		# reaction = [x for x in self.kineticReactions if x not in excludeReactions][self._sim.simulationStep()]
+
+		# print reaction
+
+		# if reaction == "GLUTATHIONE-REDUCT-NADPH-RXN":
+		# 	mat = self.fba.getArrayBasedModel()["S_matrix"]
+
+		# 	print [x for x in self.fba.getArrayBasedModel()["Reactions"] if reaction in x]
+		# 	self.fba.getArrayBasedModel()["Reactions"].index(reaction)
+		# 	mat[:,idx][mat[:,idx]!=0]
+
+		# 	import ipdb; ipdb.set_trace()
+
+		# self.fba.setMaxReactionFluxes([reaction],[self.currentTarget], raiseForReversible = False)
+		# self.fba.setMinReactionFluxes([reaction],[self.currentTarget], raiseForReversible = False)
+
+		# self.fba.setKineticTarget([reaction],[self.currentTarget], raiseForReversible = False)
+
+		# self.fba.setMaxReactionFluxes(self.forwardKineticReactions,[self.currentTarget]*len(self.forwardKineticReactions), raiseForReversible = False)
+		# self.fba.setMinReactionFluxes(self.forwardKineticReactions,[self.currentTarget]*len(self.forwardKineticReactions), raiseForReversible = False)
 
 		# defaultRate = self.enzymeKinetics.defaultRate
 
