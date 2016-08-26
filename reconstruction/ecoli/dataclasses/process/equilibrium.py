@@ -3,13 +3,13 @@ from __future__ import division
 
 import numpy as np
 import os
-import theano.tensor as T
-import theano
 import cPickle
 import wholecell
 from wholecell.utils import units
+from wholecell.utils.write_ode_file import writeOdeFile
 from . import metabolism
 import scipy
+import sympy as sp
 
 class Equilibrium(object):
 	def __init__(self, raw_data, sim_data):
@@ -191,6 +191,10 @@ class Equilibrium(object):
 			"fixtures",
 			"equilibrium"
 			)
+		odeFile = os.path.join(
+			os.path.dirname(os.path.dirname(wholecell.__file__)),
+			"reconstruction", "ecoli", "dataclasses", "process", "equilibrium_odes.py"
+			)
 
 		needToCreate = False
 
@@ -221,14 +225,17 @@ class Equilibrium(object):
 		if needToCreate:
 			self._makeMatrices()
 			self._makeDerivative()
+			writeOdeFile(odeFile, self.derivativesSymbolic, self.derivativesJacobianSymbolic)
+			import reconstruction.ecoli.dataclasses.process.equilibrium_odes
+			self.derivatives = reconstruction.ecoli.dataclasses.process.equilibrium_odes.derivatives
+			self.derivativesJacobian = reconstruction.ecoli.dataclasses.process.equilibrium_odes.derivativesJacobian
 			cPickle.dump(self.stoichMatrix(), open(os.path.join(fixturesDir, "S.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
 			cPickle.dump(self.ratesFwd, open(os.path.join(fixturesDir, "ratesFwd.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
 			cPickle.dump(self.ratesRev, open(os.path.join(fixturesDir, "ratesRev.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
-			cPickle.dump(self.derivatives, open(os.path.join(fixturesDir, "derivatives.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
-			cPickle.dump(self.derivativesJacobian, open(os.path.join(fixturesDir, "jacobian.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
 		else:
-			self.derivatives = cPickle.load(open(os.path.join(fixturesDir, "derivatives.cPickle"), "rb"))
-			self.derivativesJacobian = cPickle.load(open(os.path.join(fixturesDir, "jacobian.cPickle"), "rb"))
+			import reconstruction.ecoli.dataclasses.process.equilibrium_odes
+			self.derivatives = reconstruction.ecoli.dataclasses.process.equilibrium_odes.derivatives
+			self.derivativesJacobian = reconstruction.ecoli.dataclasses.process.equilibrium_odes.derivativesJacobian
 
 	def _makeMatrices(self):
 		EPS = 1e-9
@@ -268,8 +275,10 @@ class Equilibrium(object):
 
 		S = self.stoichMatrix()
 
-		y = T.dvector()
-		dy = [0 * y[0] for _ in xrange(S.shape[0])]
+		yStrings = ["y[%d]" % x for x in xrange(S.shape[0])]
+		y = sp.symbols(yStrings)
+		dy = [sp.symbol.S.Zero] * S.shape[0]
+
 		for colIdx in xrange(S.shape[1]):
 			negIdxs = np.where(S[:, colIdx] < 0)[0]
 			posIdxs = np.where(S[:, colIdx] > 0)[0]
@@ -290,12 +299,11 @@ class Equilibrium(object):
 			for thisIdx in posIdxs:
 				dy[thisIdx] += fluxForPosIdxs
 
-		t = T.dscalar()
+		dy = sp.Matrix(dy)
+		J = dy.jacobian(y)
 
-		J = [T.grad(dy[i], y) for i in xrange(len(dy))]
-
-		self.derivativesJacobian = theano.function([y, t], T.stack(*J), on_unused_input = "ignore")
-		self.derivatives = theano.function([y, t], T.stack(*dy), on_unused_input = "ignore")
+		self.derivativesJacobianSymbolic = J
+		self.derivativesSymbolic = dy
 
 
 	# TODO: Should this method be here?
