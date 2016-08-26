@@ -28,6 +28,8 @@ class Equilibrium(object):
 		rxnIds = []
 
 		stoichMatrixMass = []
+		self.metaboliteSet = set()
+		self.complexNameToRxnIdx = {}
 
 		# Make sure reactions aren't duplicated in complexationReactions and equilibriumReactions
 		equilibriumReactionIds = set([x["id"] for x in raw_data.equilibriumReactions])
@@ -68,6 +70,7 @@ class Equilibrium(object):
 						molecule["molecule"].upper(),
 						molecule["location"]
 						)
+					self.metaboliteSet.add(moleculeName)
 
 				else:
 					moleculeName = "{}[{}]".format(
@@ -93,6 +96,7 @@ class Equilibrium(object):
 
 				if coefficient > 0:
 					assert molecule["type"] == "proteincomplex"
+					self.complexNameToRxnIdx[moleculeName] = reactionIndex
 
 				# Find molecular mass
 				molecularMass = sim_data.getter.getMass([moleculeName]).asNumber(units.g / units.mol)[0]
@@ -347,6 +351,38 @@ class Equilibrium(object):
 		info = self._moleculeRecursiveSearch(cplxId, self.stoichMatrix(), np.array(self.moleculeNames))
 
 		return {'subunitIds' : np.array(info.keys()), 'subunitStoich' : -1 * np.array(info.values())}
+
+	def getMetabolite(self, cplxId):
+		D = self.getMonomers(cplxId)
+		if len(D["subunitIds"]) > 2:
+			raise Exception, "Calling this function only makes sense for reactions with 2 reactants"
+		for subunit in D["subunitIds"]:
+			if subunit in self.metaboliteSet:
+				return subunit
+
+	def getUnbound(self, cplxId):
+		D = self.getMonomers(cplxId)
+		if len(D["subunitIds"]) > 2:
+			raise Exception, "Calling this function only makes sense for reactions with 2 reactants"
+		for subunit in D["subunitIds"]:
+			if subunit not in self.metaboliteSet:
+				return subunit
+
+	def getFwdRate(self, cplxId):
+		rxnIdx = self.complexNameToRxnIdx[cplxId]
+		return self.ratesFwd[rxnIdx]
+
+	def getRevRate(self, cplxId):
+		rxnIdx = self.complexNameToRxnIdx[cplxId]
+		return self.ratesRev[rxnIdx]
+
+	def setFwdRate(self, cplxId, rate):
+		rxnIdx = self.complexNameToRxnIdx[cplxId]
+		self.ratesFwd[rxnIdx] = rate
+
+	def setRevRate(self, cplxId, rate):
+		rxnIdx = self.complexNameToRxnIdx[cplxId]
+		self.ratesRev[rxnIdx] = rate
 
 	def _findRow(self, product,speciesList):
 
