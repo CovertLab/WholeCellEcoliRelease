@@ -47,8 +47,8 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		self.reactionConstraints = np.zeros(len(self.metabolism.fba.reactionIDs()), np.float64)
 		self.allConstraintsLimits = np.zeros(len(self.reactionRateInfo), np.float64)
 		self.reactionIDs = self.metabolism.fba.reactionIDs()
-		self.errorFluxNames = self.metabolism.fba.errorFluxNames()
-		self.kineticErrorFluxes = np.zeros(len(self.metabolism.fba.errorFluxNames()), np.float64)
+		self.kineticTargetFluxNames = self.metabolism.fba.kineticTargetFluxNames()
+		self.kineticTargetFluxes = np.zeros(len(self.metabolism.fba.kineticTargetFluxNames()), np.float64)
 		self.overconstraintMultiples = np.zeros(len(self.reactionIDs), np.float64)
 		self.constraintIDs = self.metabolism.constraintIDs
 		self.metaboliteCountsInit = np.zeros(len(self.metaboliteIDs), np.float64)
@@ -70,7 +70,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 			reactionIDs = list(self.reactionIDs),
 			constraintIDs = self.constraintIDs,
 			constraintToReactionDict = self.constraintToReactionDict,
-			errorFluxNames = self.errorFluxNames
+			kineticTargetFluxNames = self.kineticTargetFluxNames
 			)
 
 
@@ -80,7 +80,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 			simulationStep = self.simulationStep(),
 			reactionConstraints = self.reactionConstraints,
 			allConstraintsLimits = self.allConstraintsLimits,
-			kineticErrorFluxes = self.kineticErrorFluxes,
+			kineticTargetFluxes = self.kineticTargetFluxes,
 			overconstraintMultiples = self.overconstraintMultiples,
 			metaboliteCountsInit = self.metaboliteCountsInit,
 			metaboliteCountsFinal = self.metaboliteCountsFinal,

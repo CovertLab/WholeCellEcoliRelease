@@ -41,8 +41,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		os.mkdir(plotOutDir)
 
 	enzymeKineticsdata = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
-	errorFluxes = enzymeKineticsdata.readColumn("kineticErrorFluxes")
-	errorFluxNames = enzymeKineticsdata.readAttribute("errorFluxNames")
+	errorFluxes = enzymeKineticsdata.readColumn("kineticTargetFluxes")
+	errorFluxNames = enzymeKineticsdata.readAttribute("kineticTargetFluxNames")
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 	enzymeKineticsdata.close()
@@ -67,24 +67,24 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	for idx, (errorFluxID, errorFluxTimeCourse) in enumerate(zip(errorFluxNames, errorFluxes.T)):
 
-		if (np.abs(errorFluxTimeCourse) < NUMERICAL_ZERO).all():
+		if (np.abs(errorFluxTimeCourse[BURN_IN_PERIOD:]) < NUMERICAL_ZERO).all():
 			zeroErrorFluxes.add(errorFluxID)
 			continue
 
 		plt.subplot(2,2,1)
-		plt.plot(time / 60., errorFluxTimeCourse, label=errorFluxNames[idx][:MAX_STR_LEN], color=idToColor[errorFluxID])
+		plt.plot(time[BURN_IN_PERIOD:] / 60., errorFluxTimeCourse[BURN_IN_PERIOD:], label=errorFluxNames[idx][:MAX_STR_LEN], color=idToColor[errorFluxID])
 	
 		plt.subplot(2,2,3)
-		plt.plot(time / 60., np.log10(np.abs(errorFluxTimeCourse)), label=errorFluxNames[idx][:MAX_STR_LEN], color=idToColor[errorFluxID])
+		plt.plot(time[BURN_IN_PERIOD:] / 60., np.log10(np.abs(errorFluxTimeCourse[BURN_IN_PERIOD:])), label=errorFluxNames[idx][:MAX_STR_LEN], color=idToColor[errorFluxID])
 		plt.xlabel("Time (min)")
 		plt.ylabel("Log10 Absolute Flux Error ({})".format(FLUX_UNITS.strUnit()))
 	
-		if ((np.abs(errorFluxTimeCourse[BURN_IN_PERIOD:]) > threshold_value).any()) and np.abs(errorFluxTimeCourse[BURN_IN_PERIOD:]).max() > MIN_ERROR_TO_SHOW:
+		if ((np.abs(errorFluxTimeCourse[BURN_IN_PERIOD:][BURN_IN_PERIOD:]) > threshold_value).any()) and np.abs(errorFluxTimeCourse[BURN_IN_PERIOD:][BURN_IN_PERIOD:]).max() > MIN_ERROR_TO_SHOW:
 			plt.subplot(2,2,2)
-			plt.plot(time / 60., errorFluxTimeCourse, label=errorFluxNames[idx][:MAX_STR_LEN], color=idToColor[errorFluxID])
+			plt.plot(time[BURN_IN_PERIOD:] / 60., errorFluxTimeCourse[BURN_IN_PERIOD:], label=errorFluxNames[idx][:MAX_STR_LEN], color=idToColor[errorFluxID])
 
 			plt.subplot(2,2,4)
-			plt.plot(time / 60., np.log10(np.abs(errorFluxTimeCourse)), label=errorFluxNames[idx][:MAX_STR_LEN], color=idToColor[errorFluxID])
+			plt.plot(time[BURN_IN_PERIOD:] / 60., np.log10(np.abs(errorFluxTimeCourse[BURN_IN_PERIOD:])), label=errorFluxNames[idx][:MAX_STR_LEN], color=idToColor[errorFluxID])
 			plt.xlabel("Time (min)")
 
 	plt.subplot(2,2,1)

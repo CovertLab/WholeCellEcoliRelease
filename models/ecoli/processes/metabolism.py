@@ -124,7 +124,7 @@ class Metabolism(wholecell.processes.process.Process):
 		# List of reactions for which to set target kinetics
 		self.kineticReactions = list(set([x for x,y in sim_data.process.metabolism.reactionRateInfo.iteritems() if (len(y["kM"])>0 and x in self.reactionStoich)]))
 
-		self.currentTarget = .01
+		self.currentTargetValue = .01
 
 		# Set up FBA solver
 		self.fba = FluxBalanceAnalysis(
@@ -134,7 +134,7 @@ class Metabolism(wholecell.processes.process.Process):
 			objectiveType = "pools_kinetics_mixed",
 			objectiveParameters = {
 					"kineticObjectiveWeight":sim_data.constants.metabolismKineticObjectiveWeight,
-					"reactionRateTargets":{reaction:self.currentTarget for reaction in self.kineticReactions},
+					"reactionRateTargets":{reaction:self.currentTargetValue for reaction in self.kineticReactions},
 					},
 			moleculeMasses = self.moleculeMasses,
 			secretionPenaltyCoeff = SECRETION_PENALTY_COEFF, # The "inconvenient constant"--limit secretion (e.g., of CO2)
@@ -305,86 +305,13 @@ class Metabolism(wholecell.processes.process.Process):
 			# Set new reaction rate limits
 			self.fba.setMaxReactionFluxes(updateReactions, updateValues.asNumber(FLUX_UNITS), raiseForReversible = False)
 
-		# excludeReactions = set(["GARTRANSFORMYL2-RXN", "RXN0-1461", "PRAISOM-RXN", "IMP-DEHYDROG-RXN", "RXN0-961", "L-ASPARTATE-OXID-RXN",
-		# 	"3.6.1.41-RXN", "ASPARAGINE--TRNA-LIGASE-RXN-ASN-tRNAs/ASN/ATP/PROTON//Charged-ASN-tRNAs/AMP/PPI.52.", "PREPHENATEDEHYDROG-RXN",
-		# 	"RXN-11109", "1.1.1.83-RXN", "THRESYN-RXN","RXN-1961","UDPNACETYLGLUCOSAMENOLPYRTRANS-RXN","RXN0-5462", "O-SUCCHOMOSERLYASE-RXN",
-		# 	"ERYTH4PDEHYDROG-RXN","GLYOXIII-RXN", "ALANINE--TRNA-LIGASE-RXN-ALA-tRNAs/L-ALPHA-ALANINE/ATP/PROTON//Charged-ALA-tRNAs/AMP/PPI.64.",
-		# 	"UDP-NACMUR-ALA-LIG-RXN","RIBOSYLHOMOCYSTEINASE-RXN","RXN0-384","ASNSYNA-RXN","MALIC-NADP-RXN","HOMOSERKIN-RXN","FRUCTOKINASE-RXN",
-		# 	"RXN0-3741[CCO-CYTOSOL]-DIMP/WATER//DEOXYINOSINE/Pi.41.","GLUTAMINESYN-RXN","GLUCOSE-6-PHOSPHATASE-RXN","PANTEPADENYLYLTRAN-RXN",
-		# 	])
-
-		# self.forwardKineticReactions = [x for x in self.kineticReactions if not x.endswith('(reverse)')]
-
-		# self.forwardKineticReactions = self.forwardKineticReactions[:(len(self.forwardKineticReactions)//2)]
 
 		if self.time() % 1000 < 1:
-			self.currentTarget *= 10
-			self.fba.setKineticTarget(self.kineticReactions,[self.currentTarget]*len(self.kineticReactions), raiseForReversible = False)
-		# self.fba.setMaxReactionFluxes(self.kineticReactions,[self.currentTarget]*len(self.kineticReactions), raiseForReversible = False)
-		# self.fba.setMinReactionFluxes(self.kineticReactions,[self.currentTarget]*len(self.kineticReactions), raiseForReversible = False)
+			self.currentTargetValue *= 10
+			self.currentTargets = [self.currentTargetValue]*len(self.kineticReactions)
+		self.fba.setKineticTarget(self.kineticReactions,self.currentTargets, raiseForReversible = False)
 
-		# reaction = [x for x in self.kineticReactions if x not in excludeReactions][self._sim.simulationStep()]
 
-		# print reaction
-
-		# if reaction == "GLUTATHIONE-REDUCT-NADPH-RXN":
-		# 	mat = self.fba.getArrayBasedModel()["S_matrix"]
-
-		# 	print [x for x in self.fba.getArrayBasedModel()["Reactions"] if reaction in x]
-		# 	self.fba.getArrayBasedModel()["Reactions"].index(reaction)
-		# 	mat[:,idx][mat[:,idx]!=0]
-
-		# 	import ipdb; ipdb.set_trace()
-
-		# self.fba.setMaxReactionFluxes([reaction],[self.currentTarget], raiseForReversible = False)
-		# self.fba.setMinReactionFluxes([reaction],[self.currentTarget], raiseForReversible = False)
-
-		# self.fba.setKineticTarget([reaction],[self.currentTarget], raiseForReversible = False)
-
-		# self.fba.setMaxReactionFluxes(self.forwardKineticReactions,[self.currentTarget]*len(self.forwardKineticReactions), raiseForReversible = False)
-		# self.fba.setMinReactionFluxes(self.forwardKineticReactions,[self.currentTarget]*len(self.forwardKineticReactions), raiseForReversible = False)
-
-		# defaultRate = self.enzymeKinetics.defaultRate
-
-		# # Combine the enzyme concentrations, substrate concentrations, and the default rate into one vector
-		# inputConcentrations = np.concatenate((
-		# 	enzymeConcentrations.asNumber(units.umol / units.L),
-		# 	metaboliteConcentrations.asNumber(units.umol / units.L),
-		# 	[defaultRate]), axis=1)
-
-		# # Find reaction rate limits
-		# self.reactionConstraints = ((units.umol / units.L) * self.enzymeKinetics.rateFunction(*inputConcentrations) * self.timeStepSec()).asNumber(COUNTS_UNITS / VOLUME_UNITS)
-
-		# # Find rate limits for all constraints
-		# self.allConstraintsLimits = ((units.umol / units.L) * self.enzymeKinetics.allRatesFunction(*inputConcentrations)[0]).asNumber(COUNTS_UNITS / VOLUME_UNITS)
-
-		# # Set the rate limits only if the option flag is enabled
-		# if USE_RATELIMITS:
-		# 	currentRateLimits = {}
-		# 	# Set reaction fluxes to be between  MAX_FLUX_COEFF and MIN_FLUX_COEFF of the predicted rate
-		# 	for index, constraintID in enumerate(self.constraintIDs):
-		# 		# Only use this kinetic limit if it's enabled
-		# 		if self.activeConstraints[index]:
-		# 			# Make sure to never set negative maximum rates
-		# 			assert (self.allConstraintsLimits[index] >= 0 and self.allConstraintsLimits[index] != np.nan)
-
-		# 			# Ensure that this reaction hasn't already been constrained more than this yet
-		# 			if self.constraintToReactionDict[constraintID] in currentRateLimits and currentRateLimits[self.constraintToReactionDict[constraintID]] < self.allConstraintsLimits[index]*MAX_FLUX_COEFF:
-		# 				# This rate has already been constrained more than this constraint, so skip it
-		# 				continue
-
-		# 			# Set the max reaction rate for this reaction
-		# 			self.fba.maxReactionFluxIs(self.constraintToReactionDict[constraintID], self.allConstraintsLimits[index]*self.max_flux_coefficient, raiseForReversible = False)
-		# 			# Set the minimum reaction rate for this reaction
-		# 			self.fba.minReactionFluxIs(self.constraintToReactionDict[constraintID], self.allConstraintsLimits[index]*self.min_flux_coefficient, raiseForReversible = False)
-					
-		# 			# Record what constraint was just applied to this reaction
-		# 			currentRateLimits[self.constraintToReactionDict[constraintID]] = self.allConstraintsLimits[index]*MAX_FLUX_COEFF
-
-		# 		else:
-		# 			self.fba.maxReactionFluxIs(self.constraintToReactionDict[constraintID], defaultRate, raiseForReversible = False)
-
-		# self.overconstraintMultiples = (self.fba.reactionFluxes() / self.timeStepSec()) / self.reactionConstraints
 
 		deltaMetabolites = (1 / countsToMolar) * (COUNTS_UNITS / VOLUME_UNITS * self.fba.outputMoleculeLevelsChange())
 
@@ -422,8 +349,8 @@ class Metabolism(wholecell.processes.process.Process):
 		# self.writeToListener("EnzymeKinetics", "overconstraintMultiples",
 		# 	self.overconstraintMultiples)
 
-		self.writeToListener("EnzymeKinetics", "kineticErrorFluxes",
-			self.fba.errorFluxes())
+		self.writeToListener("EnzymeKinetics", "kineticTargetFluxes",
+			self.fba.kineticTargetFluxes() / self.currentTargets)
 
 		self.writeToListener("EnzymeKinetics", "metaboliteCountsInit",
 			metaboliteCountsInit)
