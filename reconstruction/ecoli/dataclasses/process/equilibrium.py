@@ -6,7 +6,7 @@ import os
 import cPickle
 import wholecell
 from wholecell.utils import units
-from wholecell.utils.write_ode_file import writeOdeFile
+from wholecell.utils.write_ode_file import writeOdeFileWithRates
 from . import metabolism
 import scipy
 import sympy as sp
@@ -225,7 +225,7 @@ class Equilibrium(object):
 		if needToCreate:
 			self._makeMatrices()
 			self._makeDerivative()
-			writeOdeFile(odeFile, self.derivativesSymbolic, self.derivativesJacobianSymbolic)
+			writeOdeFileWithRates(odeFile, self.derivativesSymbolic, self.derivativesJacobianSymbolic)
 			import reconstruction.ecoli.dataclasses.process.equilibrium_odes
 			self.derivatives = reconstruction.ecoli.dataclasses.process.equilibrium_odes.derivatives
 			self.derivativesJacobian = reconstruction.ecoli.dataclasses.process.equilibrium_odes.derivativesJacobian
@@ -276,7 +276,11 @@ class Equilibrium(object):
 		S = self.stoichMatrix()
 
 		yStrings = ["y[%d]" % x for x in xrange(S.shape[0])]
+		ratesFwdStrings = ["kf[%d]" % x for x in xrange(S.shape[0])]
+		ratesRevStrings = ["kr[%d]" % x for x in xrange(S.shape[0])]
 		y = sp.symbols(yStrings)
+		ratesFwd = sp.symbols(ratesFwdStrings)
+		ratesRev = sp.symbols(ratesRevStrings)
 		dy = [sp.symbol.S.Zero] * S.shape[0]
 
 		for colIdx in xrange(S.shape[1]):
@@ -284,10 +288,12 @@ class Equilibrium(object):
 			posIdxs = np.where(S[:, colIdx] > 0)[0]
 
 			reactantFlux = self.ratesFwd[colIdx]
+			reactantFlux = ratesFwd[colIdx]
 			for negIdx in negIdxs:
 				reactantFlux *= (y[negIdx] ** (-1 * S[negIdx, colIdx]))
 
 			productFlux = self.ratesRev[colIdx]
+			productFlux = ratesRev[colIdx]
 			for posIdx in posIdxs:
 				productFlux *=  (y[posIdx] ** ( 1 * S[posIdx, colIdx]))
 
@@ -311,11 +317,11 @@ class Equilibrium(object):
 	# But it isn't just data
 	def fluxesAndMoleculesToSS(self, moleculeCounts, cellVolume, nAvogadro):
 		y_init = moleculeCounts / (cellVolume * nAvogadro)
-		y = scipy.integrate.odeint(self.derivatives, y_init, t = [0, 1e5], Dfun = self.derivativesJacobian)
+		y = scipy.integrate.odeint(self.derivatives, y_init, t = [0, 1e5], args = (self.ratesFwd, self.ratesRev), Dfun = self.derivativesJacobian)
 
 		if np.any(y[-1, :] * (cellVolume * nAvogadro) <= -1):
 			raise Exception, "Have negative values -- probably due to numerical instability"
-		if np.linalg.norm(self.derivatives(y[-1, :], 0), np.inf) * (cellVolume * nAvogadro) > 1:
+		if np.linalg.norm(self.derivatives(y[-1, :], 0, self.ratesFwd, self.ratesRev), np.inf) * (cellVolume * nAvogadro) > 1:
 			raise Exception, "Didn't reach steady state"
 		y[y < 0] = 0
 		yMolecules = y * (cellVolume * nAvogadro)
