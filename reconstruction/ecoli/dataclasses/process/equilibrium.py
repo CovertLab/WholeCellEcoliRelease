@@ -360,6 +360,14 @@ class Equilibrium(object):
 			if subunit in self.metaboliteSet:
 				return subunit
 
+	def getMetaboliteCoeff(self, cplxId):
+		D = self.getMonomers(cplxId)
+		if len(D["subunitIds"]) > 2:
+			raise Exception, "Calling this function only makes sense for reactions with 2 reactants"
+		for subunit, stoich in zip(D["subunitIds"], D["subunitStoich"]):
+			if subunit in self.metaboliteSet:
+				return stoich
+
 	def getUnbound(self, cplxId):
 		D = self.getMonomers(cplxId)
 		if len(D["subunitIds"]) > 2:
