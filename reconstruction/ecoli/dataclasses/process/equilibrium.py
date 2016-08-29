@@ -205,6 +205,9 @@ class Equilibrium(object):
 		if not os.path.exists(fixturesDir):
 			os.makedirs(fixturesDir)
 
+		if not os.path.exists(odeFile):
+			needToCreate = True
+
 		if os.path.exists(os.path.join(fixturesDir, "S.cPickle")):
 			S = cPickle.load(open(os.path.join(fixturesDir, "S.cPickle"), "rb"))
 			if not np.all(S == self.stoichMatrix()):
