@@ -43,6 +43,12 @@ class TranscriptionRegulation(object):
 		self.tfNTargets = dict([(key, len(val)) for key,val in sim_data.tfToFC.iteritems()])
 		return
 
+	def pPromoterBoundTF(self, tfActive, tfInactive):
+		return float(tfActive) / (float(tfActive) + float(tfInactive))
+
+	def pPromoterBoundSKd(self, signal, Kd, power):
+		return float(signal)**power / (float(signal)**power + float(Kd))
+
 	def pPromoterBound(self, dissocConstant, nPromoters, nTfs):
 		b = float(dissocConstant + nPromoters + nTfs)
 		c = float(nPromoters * nTfs)
