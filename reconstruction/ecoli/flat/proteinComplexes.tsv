@@ -475,7 +475,7 @@
 "predicted oxidoreductase"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 40116.208, 0.0, 0.0, 0.0, 0.0]	["c"]	"CPLX0-7668_RXN"	"CPLX0-7668"
 "ArgP DNA-binding transcriptional activator"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 66939.654, 0.0, 0.0, 0.0, 0.0]	["c"]	"CPLX0-7669_RXN"	"CPLX0-7669"
 "ArgP-lysine"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 66939.654, 147.198, 0.0, 0.0, 0.0]	["c"]	"CPLX0-7670_RXN"	"CPLX0-7670"
-"ArgP-arginine  DNA binding transcriptional dual regulator"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 66939.654, 175.21200000000002, 0.0, 0.0, 0.0]	["c"]	"CPLX0-7671_RXN"	"CPLX0-7671"
+"ArgP-arginine  DNA binding transcriptional dual regulator"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 66939.654, 350.42400000000004, 0.0, 0.0, 0.0]	["c"]	"CPLX0-7671_RXN"	"CPLX0-7671"
 "MntR-Mn2+ DNA-binding transcriptional dual regulator"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 35276.636, 109.876, 0.0, 0.0, 0.0]	["c"]	"CPLX0-7672_RXN"	"CPLX0-7672"
 "K+ channel Kch"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 184102.75199999998, 0.0, 0.0, 0.0, 0.0]	["i"]	"CPLX0-7674_RXN"	"CPLX0-7674"
 "2Fe-2S cluster-containing protein"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 127637.63999999998, 0.0, 0.0, 0.0, 0.0]	["c"]	"CPLX0-7675_RXN"	"CPLX0-7675"
