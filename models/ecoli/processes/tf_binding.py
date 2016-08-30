@@ -93,7 +93,7 @@ class TfBinding(wholecell.processes.process.Process):
 
 			boundLocs = np.zeros_like(tfBoundCounts)
 			boundLocs[
-				self.randomState.choice(tfBoundCounts.size, size = np.min((nToBind, tfBoundCounts.size)), replace = False)
+				self.randomState.choice(tfBoundCounts.size, size = np.min((nToBind, tfBoundCounts.size, self.tfMoleculeActiveView[tf].count())), replace = False)
 				] = 1
 
 			self.tfMoleculeActiveView[tf].countDec(boundLocs.sum())
