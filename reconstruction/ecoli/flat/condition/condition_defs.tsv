@@ -1,3 +1,9 @@
 "condition"	"nutrients"	"genotype perturbations"	"doubling time (units.min)"	"active TFs"
 "basal"	"minimal"	{}	60.0	[]
-"with_aa"	"minimal_plus_amino_acids"	{}	40.0	["CPLX-125", "MONOMER0-163"]
+"with_aa"	"minimal_plus_amino_acids"	{}	40.0	["CPLX-125", "MONOMER0-163", "CPLX0-7671"]
+"CPLX-125__active"			40.0
+"CPLX-125__inactive"			60.0
+"CPLX0-7671__active"			40.0
+"CPLX0-7671__inactive"			60.0
+"MONOMER0-163__active"			40.0
+"MONOMER0-163__inactive"			60.0
