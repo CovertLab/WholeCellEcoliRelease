@@ -1068,7 +1068,7 @@ def fitTfPromoterKd(sim_data, cellSpecs):
 
 		inactiveCellVolume = cellSpecs[inactiveKey]["avgCellDryMassInit"] / cellDensity / sim_data.mass.cellDryMassFraction
 		inactiveCountsToMolar = 1 / (sim_data.constants.nAvogadro * inactiveCellVolume)
-		inactiveSignalConc = (activeCountsToMolar * cellSpecs[inactiveKey]["bulkAverageContainer"].count(metabolite)).asNumber(units.mol / units.L)
+		inactiveSignalConc = (inactiveCountsToMolar * cellSpecs[inactiveKey]["bulkAverageContainer"].count(metabolite)).asNumber(units.mol / units.L)
 		inactiveSynthProb = sim_data.process.transcription.rnaSynthProb[inactiveKey]
 		inactiveSynthProbTargets = inactiveSynthProb[tfTargetsIdxs]
 
