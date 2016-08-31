@@ -39,7 +39,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	fig = plt.figure()
 	fig.set_size_inches(15,15)
 
-	gs = gridspec.GridSpec(8, 5)
+	gs = gridspec.GridSpec(9, 5)
 
 	ax1 = plt.subplot(gs[0,:2])
 	ax1_1 = plt.subplot(gs[0,2])
@@ -51,6 +51,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax6 = plt.subplot(gs[5,:2])
 	ax7 = plt.subplot(gs[6,:2])
 	ax8 = plt.subplot(gs[7,:2])
+	ax8_1 = plt.subplot(gs[8,:2])
+
 	ax9 = plt.subplot(gs[0,3:])
 	ax10 = plt.subplot(gs[1,3:])
 	ax11 = plt.subplot(gs[2,3:])
@@ -192,6 +194,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		allocatedRibosomes = TableReader(os.path.join(simOutDir, "GrowthLimits")).readColumn("activeRibosomeAllocated")
 		allocatedElongationRate = aaUsed.sum(axis=1) / allocatedRibosomes * timeStep.asNumber(units.s)
 
+		## Load other data
+		translationSupply = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("translationSupply")
+
+
 		## Plotting ##
 
 		width = 100
@@ -273,6 +279,13 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ax8.plot(time.asNumber(units.min), ratioRnaToProteinMass)
 		ax8.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 		ax8.set_ylabel("RNA/Protein")
+
+		# Plot translation supply rate
+		ax8_1.plot(time.asNumber(units.min), translationSupply)
+		ax8_1.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
+		ax8_1.set_ylabel("AA to translation\naa/s/fg")
+
+
 
 		# Plot RNAP:ribosome ratio
 		ax9.plot(time.asNumber(units.min), ratioRNAPtoRibosome)

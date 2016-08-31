@@ -81,8 +81,13 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		##########
 		self.saturation_km = sim_data.constants.translation_km
-		self.translation_aa_supply = sim_data.constants.translation_aa_supply
+		self.translation_aa_supply = sim_data.translationSupplyRate
+		self.nutrientsTimeSeriesLabel = sim_data.nutrientsTimeSeriesLabel
+		import copy
+		self.nutrientsTimeSeries = copy.copy(sim_data.nutrientsTimeSeries)
+		self.currentNutrients = self.nutrientsTimeSeries[self.nutrientsTimeSeriesLabel][0][1]
 		##########
+		import ipdb; ipdb.set_trace()
 
 		# Views
 
@@ -129,9 +134,19 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		sequenceHasAA = (sequences != PAD_VALUE)
 		aasInSequences = np.bincount(sequences[sequenceHasAA], minlength=21)
 
+
+		while len(self.nutrientsTimeSeries[self.nutrientsTimeSeriesLabel]) and self.time() > self.nutrientsTimeSeries[self.nutrientsTimeSeriesLabel][0][0]:
+			_ , nutrients = self.nutrientsTimeSeries[self.nutrientsTimeSeriesLabel].popleft()
+			self.currentNutrients = nutrients
+
+		translationSupplyRate = self.translation_aa_supply[self.currentNutrients]
+
+		self.writeToListener("RibosomeData", "translationSupply", translationSupplyRate.asNumber())
+
+
 		dryMass = (self.readFromListener("Mass", "dryMass") * units.fg)
 
-		molAasRequested = self.translation_aa_supply * dryMass * self.timeStepSec() * units.s
+		molAasRequested = translationSupplyRate * dryMass * self.timeStepSec() * units.s
 
 		countAasRequested = units.convertNoUnitToNumber(molAasRequested * self.nAvogadro)
 
@@ -211,7 +226,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		# Write current average elongation rate for growth rate control
 		currElongRate = (sequenceElongations.sum() / len(activeRibosomes)) / self.timeStepSec()
 		self.writeToListener("RibosomeData", "effectiveElongationRate", currElongRate)
-		print "Elng rate: {}".format(currElongRate)
 		# Update active ribosomes, terminating if neccessary
 		activeRibosomes.attrIs(
 			peptideLength = updatedLengths,

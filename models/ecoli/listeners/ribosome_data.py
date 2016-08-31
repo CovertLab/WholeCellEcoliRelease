@@ -48,6 +48,7 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		self.didInitialize = None
 		self.terminationLoss = None
 		self.expectedInitRate = None
+		self.translationSupply = None
 
 		# Logged quantities
 		self.registerLoggedQuantity(
@@ -87,6 +88,7 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		self.total_rna_init = 0
 		self.expectedInitRate = 0.
 		self.processElongationRate = 0.
+		self.translationSupply = np.zeros(21, np.int64)
 
 	def update(self):
 		if self.ribosomeStalls.size:
@@ -132,4 +134,5 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 			total_rna_init = self.total_rna_init,
 			expectedInitRate = self.expectedInitRate,
 			processElongationRate = self.processElongationRate,
+			translationSupply = self.translationSupply,
 			)
