@@ -150,7 +150,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		offset = np.clip(0.25 - ratioRNAPToRibosome, -1 * self.rnaSynthProb[self.isRnap].min(), 1.)
 		rnapSynthProb = self.rnaSynthProb[self.isRnap] + (offset / 10)
 
-		print "Expected init rate: {}".format(expectedRibosomeInitiationRate.asNumber(1/units.s/units.fg))
 		self.writeToListener("RibosomeData", "expectedInitRate", expectedRibosomeInitiationRate.asNumber(1/units.s/units.fg))
 
 		totalRRnaSynthProb = (np.ceil(self.rnaSynthProb[self.isRRna]).sum() * rRnaSynthesisProb) # HACK: Only getting used ribosome rrn operons using this ceil function need to fix this.
@@ -169,9 +168,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 			totalRnapSynthProb = totalRnapSynthProb / totalPolymeraseComponent
 
 			totalPolymeraseComponent = totalRRnaSynthProb + totalRProteinSynthProb + totalRnapSynthProb
-
-		print "Correct prob: {}".format(self.rnaSynthProb[self.isRRna].sum() + self.rnaSynthProb[self.isRProtein].sum())
-		print "Actual prob: {}".format(totalPolymeraseComponent)
 
 		self.rnaSynthProb[self.isRRna] = rRnaSynthesisProb * np.ceil(self.rnaSynthProb[self.isRRna]) # HACK ALERT: Only getting used ribosome rrn operons using this ceil function need to fix this.
 
