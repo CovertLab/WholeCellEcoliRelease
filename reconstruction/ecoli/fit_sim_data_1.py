@@ -1074,8 +1074,8 @@ def fitTfPromoterKd(sim_data, cellSpecs):
 
 		kdLog10Init = np.log10(kd)
 		constraints = [
-			{"type": "ineq", "fun": lambda KdDna: KdDna + 12},
-			{"type": "ineq", "fun": lambda KdDna: -KdDna},
+			{"type": "ineq", "fun": lambda kd, power: kd**(1. / power) + 12, "args": (metaboliteCoeff,)},
+			{"type": "ineq", "fun": lambda kd, power: -(kd**(1. / power)), "args": (metaboliteCoeff,)},
 		]
 		for activeKSynth, inactiveKSynth in zip(activeSynthProbTargets, inactiveSynthProbTargets):
 			args = (activeSignalConc, inactiveSignalConc, metaboliteCoeff, activeKSynth, inactiveKSynth)
