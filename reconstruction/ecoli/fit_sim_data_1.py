@@ -89,6 +89,14 @@ def fitSimData_1(raw_data):
 		spec["bulkAverageContainer"] = bulkAverageContainer
 		spec["bulkDeviationContainer"] = bulkDeviationContainer
 
+		translation_aa_supply = calculateTranslationSupply(
+										sim_data,
+										spec["doubling_time"],
+										spec["bulkAverageContainer"],
+										spec["avgCellDryMassInit"]
+										)
+		sim_data.translationSupplyRate[sim_data.conditions[condition]["nutrients"]] = translation_aa_supply
+
 	fitTfPromoterKd(sim_data, cellSpecs)
 
 	sim_data.pPromoterBound = calculatePromoterBoundProbability(sim_data, cellSpecs)
@@ -134,16 +142,15 @@ def buildBasalCellSpecifications(sim_data):
 	translation_km = translationKmBasal(sim_data, bulkContainer, cellSpecs["basal"]["concDict"])
 	sim_data.constants.translation_km = translation_km
 
-	translation_aa_supply = calculateTranslationSupply(sim_data, bulkContainer)
-	sim_data.constants.translation_aa_supply = translation_aa_supply
+	translation_aa_supply = calculateTranslationSupply(sim_data, cellSpecs["basal"]["doubling_time"], bulkContainer, avgCellDryMassInit)
+	sim_data.translationSupplyRate["minimal"] = translation_aa_supply
 
 	return cellSpecs
 
-def calculateTranslationSupply(sim_data, bulkContainer):
+def calculateTranslationSupply(sim_data, doubling_time, bulkContainer, avgCellDryMassInit):
 	aaCounts = sim_data.process.translation.monomerData["aaCounts"]
 	proteinCounts = bulkContainer.counts(sim_data.process.translation.monomerData["id"])
 	nAvogadro = sim_data.constants.nAvogadro
-	avgCellDryMassInit = sim_data.mass.avgCellDryMassInit
 
 	molAAPerGDCW = (
 			units.sum(
@@ -155,7 +162,7 @@ def calculateTranslationSupply(sim_data, bulkContainer):
 			)
 		)
 
-	translation_aa_supply = molAAPerGDCW * np.log(2) / sim_data.doubling_time
+	translation_aa_supply = molAAPerGDCW * np.log(2) / doubling_time
 	return translation_aa_supply
 
 def translationKmBasal(sim_data, bulkContainer, concDict):
