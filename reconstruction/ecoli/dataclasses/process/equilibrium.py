@@ -324,7 +324,7 @@ class Equilibrium(object):
 	# But it isn't just data
 	def fluxesAndMoleculesToSS(self, moleculeCounts, cellVolume, nAvogadro):
 		y_init = moleculeCounts / (cellVolume * nAvogadro)
-		y = scipy.integrate.odeint(self.derivatives, y_init, t = [0, 1e10], args = (self.ratesFwd, self.ratesRev), Dfun = self.derivativesJacobian)
+		y = scipy.integrate.odeint(self.derivatives, y_init, t = [0, 1e20], args = (self.ratesFwd, self.ratesRev), Dfun = self.derivativesJacobian)
 
 		if np.any(y[-1, :] * (cellVolume * nAvogadro) <= -1):
 			raise Exception, "Have negative values -- probably due to numerical instability"
