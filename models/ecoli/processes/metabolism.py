@@ -124,8 +124,6 @@ class Metabolism(wholecell.processes.process.Process):
 		# List of reactions for which to set target kinetics
 		self.kineticReactions = list(set([x for x,y in sim_data.process.metabolism.reactionRateInfo.iteritems() if (len(y["kM"])>0 and x in self.reactionStoich)]))
 
-		self.currentTargetValue = .01
-
 		# Set up FBA solver
 		self.fba = FluxBalanceAnalysis(
 			self.reactionStoich,
@@ -134,7 +132,7 @@ class Metabolism(wholecell.processes.process.Process):
 			objectiveType = "pools_kinetics_mixed",
 			objectiveParameters = {
 					"kineticObjectiveWeight":sim_data.constants.metabolismKineticObjectiveWeight,
-					"reactionRateTargets":{reaction:self.currentTargetValue for reaction in self.kineticReactions},
+					"reactionRateTargets":{reaction:0 for reaction in self.kineticReactions},
 					},
 			moleculeMasses = self.moleculeMasses,
 			secretionPenaltyCoeff = SECRETION_PENALTY_COEFF, # The "inconvenient constant"--limit secretion (e.g., of CO2)
@@ -305,14 +303,6 @@ class Metabolism(wholecell.processes.process.Process):
 			# Set new reaction rate limits
 			self.fba.setMaxReactionFluxes(updateReactions, updateValues.asNumber(FLUX_UNITS), raiseForReversible = False)
 
-
-		if self.time() % 1000 < 1:
-			self.currentTargetValue *= 10
-			self.currentTargets = [self.currentTargetValue]*len(self.kineticReactions)
-		self.fba.setKineticTarget(self.kineticReactions,self.currentTargets, raiseForReversible = False)
-
-
-
 		deltaMetabolites = (1 / countsToMolar) * (COUNTS_UNITS / VOLUME_UNITS * self.fba.outputMoleculeLevelsChange())
 
 		metaboliteCountsFinal = np.fmax(stochasticRound(
@@ -350,7 +340,7 @@ class Metabolism(wholecell.processes.process.Process):
 		# 	self.overconstraintMultiples)
 
 		self.writeToListener("EnzymeKinetics", "kineticTargetFluxes",
-			self.fba.kineticTargetFluxes() / self.currentTargets)
+			self.fba.kineticTargetFluxes())
 
 		self.writeToListener("EnzymeKinetics", "metaboliteCountsInit",
 			metaboliteCountsInit)

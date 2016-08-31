@@ -77,13 +77,13 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 			if cellCycleTime > currentMaxTime:
 				currentMaxTime = cellCycleTime
 
-			axesList[idx].set_xlim(0, currentMaxTime*int(metadata["total_gens"])*1.1)
+			axesList[idx].set_xlim(0, currentMaxTime*ap.n_generation*1.1)
 			axesList[idx].set_ylabel(cleanNames[idx] + " (fg)")
 
 	for axes in axesList:
 		axes.get_ylim()
 		axes.set_yticks(list(axes.get_ylim()))
-	
+
 	axesList[0].set_title("Cell mass fractions")
 	axesList[len(massNames) - 1].set_xlabel("Time (hr)")
 	plt.subplots_adjust(hspace = 0.2, wspace = 0.5)

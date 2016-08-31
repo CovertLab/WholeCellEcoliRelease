@@ -630,7 +630,7 @@ class FluxBalanceAnalysis(object):
 		# Load parameters - default to regular pools fba if none given
 		HomeostaticRangeObjFractionHigher = objectiveParameters["HomeostaticRangeObjFractionHigher"] if "HomeostaticRangeObjFractionHigher" in objectiveParameters else 0
 		inRangeObjWeight = objectiveParameters["inRangeObjWeight"] if "inRangeObjWeight" in objectiveParameters else 0
-		kineticObjectiveWeight = objectiveParameters["kineticObjectiveWeight"] if "kineticObjectiveWeight" in objectiveParameters else 1
+		kineticObjectiveWeight = objectiveParameters["kineticObjectiveWeight"] if "kineticObjectiveWeight" in objectiveParameters else 0
 
 		if kineticObjectiveWeight > 1 or kineticObjectiveWeight < 0:
 			raise FBAError("kineticObjectiveWeight must be between 0 and 1 inclusive. It represents the percentage of preference going to kinetics.")
@@ -676,7 +676,7 @@ class FluxBalanceAnalysis(object):
 
 			self._solver.flowObjectiveCoeffIs(
 				belowUnityID,
-				+self.homeostaticWeightFactor
+				+(self.homeostaticWeightFactor / len(objective))
 				)
 
 			# Add the term for when the flux out is within the expected range
@@ -685,13 +685,13 @@ class FluxBalanceAnalysis(object):
 			self._solver.flowMaterialCoeffIs(
 				inRangeID,
 				objectiveEquivID,
-				-self.homeostaticWeightFactor if HomeostaticRangeObjFractionHigher > 0 else self.homeostaticWeightFactor
+				-(self.homeostaticWeightFactor / len(objective)) if HomeostaticRangeObjFractionHigher > 0 else (self.homeostaticWeightFactor / len(objective))
 				)
 
 			# Set the weight of running this relaxation
 			self._solver.flowObjectiveCoeffIs(
 				inRangeID,
-				+inRangeObjWeight*self.homeostaticWeightFactor
+				+inRangeObjWeight*(self.homeostaticWeightFactor / len(objective))
 				)
 
 			# This relaxation can only go to the end of the target range (less and the out range relaxation must be used)
@@ -712,7 +712,7 @@ class FluxBalanceAnalysis(object):
 
 			self._solver.flowObjectiveCoeffIs(
 				aboveUnityID,
-				+self.homeostaticWeightFactor
+				+(self.homeostaticWeightFactor / len(objective))
 				)
 
 	def _initObjectiveMOMA(self, objective, objectiveParameters=None):
@@ -831,7 +831,7 @@ class FluxBalanceAnalysis(object):
 			minimize the L1 normalized distance between fluxes and those rates.
 		"""
 
-		self.kineticObjectiveWeight = objectiveParameters["kineticObjectiveWeight"] if "kineticObjectiveWeight" in objectiveParameters else 1
+		self.kineticObjectiveWeight = objectiveParameters["kineticObjectiveWeight"] if "kineticObjectiveWeight" in objectiveParameters else 0
 
 		# Unless given, assume no reactions are one-sided targets (ie kcat only targets)
 		self._oneSidedReactions = set(objectiveParameters["oneSidedReactionTargets"]) if "oneSidedReactionTargets" in objectiveParameters else set()
@@ -859,6 +859,10 @@ class FluxBalanceAnalysis(object):
 				raise FBAError("{} is not in the reaction network. Target fluxes must be in the reaction network".format(reactionID))
 
 			self._kineticTargetFluxes.add(reactionID)
+
+			if self.kineticObjectiveWeight == 0:
+				continue
+
 			reactionFluxEquivalent = self._generatedID_reactionFluxEquivalents.format(reactionID)
 			# Add a term to the reaction to create a kinetic objective equivalent each time it's run
 			self._solver.flowMaterialCoeffIs(
@@ -900,7 +904,7 @@ class FluxBalanceAnalysis(object):
 			# Objective is to minimize running this relaxation reaction
 			self._solver.flowObjectiveCoeffIs(
 				overTargetFlux,
-				self.kineticObjectiveWeight
+				(self.kineticObjectiveWeight / len(objective))
 			)
 
 			self._specialFluxIDsSet.add(overTargetFlux)
@@ -917,12 +921,11 @@ class FluxBalanceAnalysis(object):
 			if reactionID not in self._oneSidedReactions:
 				self._solver.flowObjectiveCoeffIs(
 					underTargetFlux,
-					self.kineticObjectiveWeight
+					(self.kineticObjectiveWeight / len(objective))
 					)
 
 			self._specialFluxIDsSet.add(underTargetFlux)
 
-			self._kineticTargetFluxes.add(reactionID)
 
 	def _initInternalExchange(self, internalExchangedMolecules):
 		"""Create internal (byproduct) exchange reactions."""
@@ -1392,17 +1395,14 @@ class FluxBalanceAnalysis(object):
 	def objectiveValue(self):
 		return self._solver.objectiveValue()
 
-	def kineticTargetFlux(self, reactionID):
-		if reactionID not in self._kineticTargetFluxes:
-			raise FBAError("{} is not a kinetic target flux.".format(reactionID))
-		return self.reactionFlux(reactionID)
-
 	def kineticTargetFluxes(self, reactionIDs=None):
 		if reactionIDs is None:
 			reactionIDs = self.kineticTargetFluxNames()
 		values = np.zeros(len(reactionIDs))
 		for idx, reactionID in enumerate(reactionIDs):
-			values[idx] = self.kineticTargetFlux(reactionID)
+			if reactionID not in self._kineticTargetFluxes:
+				raise FBAError("{} is not a kinetic target flux.".format(reactionID))
+			values[idx] = self.reactionFlux(reactionID)
 		return values
 
 	def kineticTargetFluxNames(self):

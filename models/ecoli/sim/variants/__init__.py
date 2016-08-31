@@ -17,6 +17,9 @@ from models.ecoli.sim.variants.kinetics_flux_coeff import kineticsFluxCoeffTotal
 from models.ecoli.sim.variants.metabolism_target_range import metabolismTargetRange
 from models.ecoli.sim.variants.metabolism_target_range import metabolismTargetRangeTotalIndices
 
+from models.ecoli.sim.variants.metabolism_objective_kinetic_homeostatic_ratio import metabolismKineticHomeostaticRatio
+from models.ecoli.sim.variants.metabolism_objective_kinetic_homeostatic_ratio import metabolismKineticHomeostaticRatioTotalIndices
+
 from models.ecoli.sim.variants.growth_rate import growthRate
 from models.ecoli.sim.variants.growth_rate import growthRateTotalIndices
 
@@ -35,6 +38,7 @@ nameToFunctionMapping = {
 	"growthRate": growthRate,
 	"nutrientTimeSeries": nutrientTimeSeries,
 	"tfActivity": tfActivity,
+	"metabolismKineticHomeostaticRatio": metabolismKineticHomeostaticRatio,
 }
 
 nameToNumIndicesMapping = {
@@ -46,4 +50,5 @@ nameToNumIndicesMapping = {
 	"growthRate": growthRateTotalIndices,
 	"nutrientTimeSeries": nutrientTimeSeriesTotalIndices,
 	"tfActivity": tfActivityTotalIndices,
+	"metabolismKineticHomeostaticRatio": metabolismKineticHomeostaticRatioTotalIndices,
 }
