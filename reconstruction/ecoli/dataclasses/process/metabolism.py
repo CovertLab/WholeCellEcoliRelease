@@ -27,6 +27,8 @@ EXCHANGE_UNITS = units.mmol / units.g / units.h
 # If true, enzyme kinetics entries which reference unknown reactions are ignored
 # If false, raises an exception in such a case
 raiseForUnknownRxns = False
+raiseForTruncatedRxns = False
+warnForTruncatedRxns = False
 
 reverseReactionString = "{} (reverse)"
 
@@ -252,8 +254,31 @@ class Metabolism(object):
 		directionInferedReactions = set()
 		nonCannonicalRxns = set()
 		unknownRxns = set()
+		truncatedRxns = {}
+		multipleTruncatedOptionRxns = collections.defaultdict(set)
 
 		# Enzyme kinetics data
+		for idx, reaction in enumerate(raw_data.enzymeKinetics):
+			reactionID = reaction["reactionID"]
+			# Ensure all reactions in enzymeKinetics refer to tha actual corresponding reaction in reactions.tsv, rather than a non-canonical alternative substrate
+			if reactionID not in reactionStoich:
+				truncated = False
+				for reactionName in reactionStoich:
+					if reactionName.startswith(reactionID):
+						truncated = True
+						if reactionName in truncatedRxns:
+							if truncatedRxns[reactionID] != reactionName:
+								multipleTruncatedOptionRxns[reactionID].add(truncatedRxns[reactionID])
+								del truncatedRxns[reactionID]
+								multipleTruncatedOptionRxns[reactionID].add(reactionName)
+						elif reactionName in multipleTruncatedOptionRxns:
+							multipleTruncatedOptionRxns[reactionID].add(reactionName)
+						else:
+							truncatedRxns[reactionID] = reactionName
+				if not truncated:
+					unknownRxns.add(reaction["reactionID"])
+				continue
+
 		for idx, reaction in enumerate(raw_data.enzymeKinetics):
 			reactionID = reaction["reactionID"]
 
@@ -278,8 +303,46 @@ class Metabolism(object):
 			if reactionID in reactionStoich:
 				thisRxnStoichiometry = reactionStoich[reactionID]
 			else:
-				unknownRxns.add(reaction["reactionID"])
-				continue
+				if reactionID in truncatedRxns:
+					thisRxnStoichiometry = reactionStoich[truncatedRxns[reactionID]]
+				elif reactionID in multipleTruncatedOptionRxns:
+					reactionOptions = set(multipleTruncatedOptionRxns[reactionID])
+
+					# Infer on reaction substrates
+					kineticSubstrates = reaction["substrateIDs"]
+					threshold = 0
+					candidates = set()
+					ambiguous = False
+					for reactionOption in reactionOptions:
+						substrates = set(reactionStoich[reactionOption].keys())
+						amountOfOverlap = len(substrates.intersection(kineticSubstrates))
+						if amountOfOverlap > threshold:
+							threshold = amountOfOverlap
+							candidates = set([reactionOption])
+							ambiguous = False
+						elif amountOfOverlap == threshold:
+							if threshold > 0:
+								ambiguous = True
+							candidates.add(reactionOption)
+					if threshold == 0:
+						# Take none, add this reaction to the unknown reactions list, remove it from multipleTruncatedOptionRxns
+						unknownRxns.add(reactionID)
+						del multipleTruncatedOptionRxns[reactionID]
+					if ambiguous:
+						# Keep all highest-scoring reactions in multipleTruncatedOptionRxns, remove any reactions which score less than threshold
+						multipleTruncatedOptionRxns[reactionID] =  candidates
+					else:
+						# Take the highest-scoring reaction
+						assert len(candidates) == 1
+						thisRxnStoichiometry = reactionStoich[candidates.pop()]
+
+						# Remove this reaction from multipleTruncatedOptionRxns
+						del multipleTruncatedOptionRxns[reactionID]
+
+				elif reactionID in unknownRxns:
+					continue
+				else:
+					raise Exception("Something went wrong with reaction {}".format(reactionID))
 
 			substrateIDs = reaction["substrateIDs"]
 			if reaction["rateEquationType"] == "standard":
@@ -314,6 +377,8 @@ class Metabolism(object):
 						# If more are products than reactants, treat this as a reverse reaction constraint
 						# Record any ambiguous reactions and throw an exception once all are gathered
 						if allCounter < 1.0:
+							print reaction["reactionID"]
+							directionAmbiguousRxns.add(reaction["reactionID"])
 							continue
 
 						if reverseCounter == allCounter:
@@ -335,10 +400,6 @@ class Metabolism(object):
 
 			reactionRateInfo[constraintID] = reaction
 
-
-		if len(directionAmbiguousRxns) > 0:
-			raise Exception("The following enzyme kinetics entries have ambiguous direction. Split them into multiple lines in the flat file to increase clarity. {}".format(directionAmbiguousRxns))
-
 		if len(unknownRxns) > 0:
 			message = "The following {} enzyme kinetics reactions appear to be for reactions which don't exist in the model - they should be corrected or removed. {}".format(len(unknownRxns), unknownRxns)
 			if raiseForUnknownRxns:
@@ -346,9 +407,25 @@ class Metabolism(object):
 			else:
 				warnings.warn(message)
 
+		if len(truncatedRxns) > 0:
+			message = "The following {} enzyme kinetics reaction names are truncated versions of reactions in the model {}".format(len(truncatedRxns), truncatedRxns)
+			if warnForTruncatedRxns:
+				warnings.warn(message)
+			elif raiseForTruncatedRxns:
+				raise Exception(message)
+
+		if len(multipleTruncatedOptionRxns) > 0:
+			message = "The following {} enzyme kinetics reaction names are truncated versions of more than one reaction in the model {}".format(len(multipleTruncatedOptionRxns), multipleTruncatedOptionRxns)
+			if warnForTruncatedRxns:
+				warnings.warn(message)
+			elif raiseForTruncatedRxns:
+				raise Exception(message)
+
+		if len(directionAmbiguousRxns) > 0:
+			raise Exception("The following enzyme kinetics entries have ambiguous direction. Split them into multiple lines in the flat file to increase clarity. {}".format(directionAmbiguousRxns))
+
 		if len(nonCannonicalRxns) > 0:
 			raise Exception("The following {} enzyme kinetics entries reference substrates which don't appear in their corresponding reaction, and aren't paired with an inhibitory constant (kI). They should be corrected or removed. {}".format(len(nonCannonicalRxns), nonCannonicalRxns))
-
 
 		self.reactionEnzymes = self.buildEnzymeReactionKcatLinks(reactionRateInfo, reactionEnzymes)
 

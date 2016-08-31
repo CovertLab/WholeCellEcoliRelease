@@ -44,87 +44,65 @@ class TfBinding(wholecell.processes.process.Process):
 		self.nAvogadro = sim_data.constants.nAvogadro
 		self.cellDensity = sim_data.constants.cellDensity
 
-		self.pTfBound = sim_data.process.transcription_regulation.pTfBound
-		self.pPromoterBound = sim_data.process.transcription_regulation.pPromoterBound
-		self.tfKd = sim_data.process.transcription_regulation.tfKdFit
 		self.tfNTargets = sim_data.process.transcription_regulation.tfNTargets
+		self.pPromoterBoundTF = sim_data.process.transcription_regulation.pPromoterBoundTF
 
 		self.alphaView = self.bulkMoleculesView(alphaNames)
 		self.tfBoundViews = {}
-		self.tfMoleculeViews = {}
+		self.tfMoleculeActiveView = {}
+		self.tfMoleculeInactiveView = {}
 		for tf in self.tfs:
 			self.tfBoundViews[tf] = self.bulkMoleculesView(tfNames[tf])
-			self.tfMoleculeViews[tf] = self.bulkMoleculeView(tf + "[c]")
+			self.tfMoleculeActiveView[tf] = self.bulkMoleculeView(tf + "[c]")
+			self.tfMoleculeInactiveView[tf] = self.bulkMoleculeView(sim_data.process.equilibrium.getUnbound(tf + "[c]"))
 
 
 	def calculateRequest(self):
 		self.alphaView.requestAll()
-		for view in self.tfMoleculeViews.itervalues():
+		for view in self.tfMoleculeActiveView.itervalues():
 			view.requestAll()
 		for view in self.tfBoundViews.itervalues():
 			view.requestAll()
 
 
 	def evolveState(self):
-		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg)
-		cellVolume = cellMass / self.cellDensity
-		countsToMolar = 1 / (self.nAvogadro * cellVolume)
-
 		self.alphaView.countsIs(1)
 
 		nTfs = len(self.tfs)
-		pTfsBound = np.zeros(nTfs, np.float64)
 		pPromotersBound = np.zeros(nTfs, np.float64)
-		nTfsBound = np.zeros(nTfs, np.float64)
 		nPromotersBound = np.zeros(nTfs, np.float64)
 		nActualBound = np.zeros(nTfs, np.float64)
 
 		for i, tf in enumerate(self.tfs):
-			tfFreeCounts = self.tfMoleculeViews[tf].count()
+			tfActiveCounts = self.tfMoleculeActiveView[tf].count()
+			tfInactiveCounts = self.tfMoleculeInactiveView[tf].total()
 			tfBoundCounts = self.tfBoundViews[tf].counts()
-			tfTotalCounts = tfFreeCounts + tfBoundCounts.sum()
-			if tfTotalCounts == 0:
-				continue
+			promoterCounts = self.tfNTargets[tf]
 
 			self.tfBoundViews[tf].countsIs(0)
-			self.tfMoleculeViews[tf].countInc(tfBoundCounts.sum())
+			self.tfMoleculeActiveView[tf].countInc(tfBoundCounts.sum())
 
-			tfKd = self.tfKd[tf]
-			promoterConc = countsToMolar * self.tfNTargets[tf]
-			tfConc = countsToMolar * tfTotalCounts
+			if tfActiveCounts == 0:
+				continue
 
-			pTfBound = self.pTfBound(
-				tfKd.asNumber(units.nmol / units.L),
-				promoterConc.asNumber(units.nmol / units.L),
-				tfConc.asNumber(units.nmol / units.L)
-				)
+			pPromoterBound = self.pPromoterBoundTF(tfActiveCounts, tfInactiveCounts)
+			nToBind = int(stochasticRound(self.randomState, promoterCounts * pPromoterBound))
 
-			pPromoterBound = self.pPromoterBound(
-				tfKd.asNumber(units.nmol / units.L),
-				promoterConc.asNumber(units.nmol / units.L),
-				tfConc.asNumber(units.nmol / units.L)
-				)
-			
-			nToBind = int(stochasticRound(self.randomState, tfTotalCounts * pTfBound))
 			if nToBind == 0:
 				continue
 
 			boundLocs = np.zeros_like(tfBoundCounts)
 			boundLocs[
-				self.randomState.choice(tfBoundCounts.size, size = np.min((nToBind, tfBoundCounts.size)), replace = False)
+				self.randomState.choice(tfBoundCounts.size, size = np.min((nToBind, tfBoundCounts.size, self.tfMoleculeActiveView[tf].count())), replace = False)
 				] = 1
 
-			self.tfMoleculeViews[tf].countDec(boundLocs.sum())
+			self.tfMoleculeActiveView[tf].countDec(boundLocs.sum())
 			self.tfBoundViews[tf].countsIs(boundLocs)
 
-			pTfsBound[i] = pTfBound
 			pPromotersBound[i] = pPromoterBound
-			nTfsBound[i] = pTfBound * tfTotalCounts
 			nPromotersBound[i] = pPromoterBound * self.tfNTargets[tf]
-			nActualBound[i] = nToBind
+			nActualBound[i] = boundLocs.sum()
 
-		self.writeToListener("RnaSynthProb", "pTfBound", pTfsBound)
 		self.writeToListener("RnaSynthProb", "pPromoterBound", pPromotersBound)
-		self.writeToListener("RnaSynthProb", "nTfBound", nTfsBound)
 		self.writeToListener("RnaSynthProb", "nPromoterBound", nPromotersBound)
 		self.writeToListener("RnaSynthProb", "nActualBound", nActualBound)

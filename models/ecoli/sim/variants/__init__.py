@@ -28,6 +28,9 @@ from models.ecoli.sim.variants.scaling_factor import scalingFactorTotalIndices
 from models.ecoli.sim.variants.tf_activity import tfActivity
 from models.ecoli.sim.variants.tf_activity import tfActivityTotalIndices
 
+from models.ecoli.sim.variants.condition import condition
+from models.ecoli.sim.variants.condition import conditionIndices
+
 nameToFunctionMapping = {
 	"geneKnockout": geneKnockout,
 	"wildtype": wildtype,
@@ -38,6 +41,7 @@ nameToFunctionMapping = {
 	"scalingFactor": scalingFactor,
 	"nutrientTimeSeries": nutrientTimeSeries,
 	"tfActivity": tfActivity,
+	"condition": condition,
 }
 
 nameToNumIndicesMapping = {
@@ -50,4 +54,5 @@ nameToNumIndicesMapping = {
 	"scalingFactor": scalingFactorTotalIndices,
 	"nutrientTimeSeries": nutrientTimeSeriesTotalIndices,
 	"tfActivity": tfActivityTotalIndices,
+	"condition": conditionIndices,
 }

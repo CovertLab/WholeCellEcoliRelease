@@ -71,8 +71,9 @@ def fitSimData_1(raw_data):
 	# ----- Growth associated maintenance -----
 
 	fitMaintenanceCosts(sim_data, cellSpecs["basal"]["bulkContainer"])
-
+	
 	buildTfConditionCellSpecifications(sim_data, cellSpecs)
+	buildCombinedConditionCellSpecifications(sim_data, cellSpecs)
 
 	# Fit kinetic parameters
 	findKineticCoeffs(sim_data, cellSpecs["basal"]["bulkContainer"])
@@ -249,6 +250,63 @@ def buildTfConditionCellSpecifications(sim_data, cellSpecs):
 			# if len(conditionValue["perturbations"]) == 0:
 			# 	nutrientLabel = conditionValue["nutrients"]
 			# 	sim_data.process.metabolism.nutrientsToInternalConc[nutrientLabel] = concDict
+
+def buildCombinedConditionCellSpecifications(sim_data, cellSpecs):
+	fcData = {}
+	for conditionKey in sim_data.conditionActiveTfs:
+		if conditionKey == "basal":
+			continue
+
+		conditionValue = sim_data.conditions[conditionKey]
+		for tf in sim_data.conditionActiveTfs[conditionKey]:
+			for gene in sim_data.tfToFC[tf]:
+				if gene in fcData:
+					# TODO: multiply if multiple genes affected?
+					# fcData[gene] *= sim_data.tfToFC[tf][gene]
+					raise Exception("Derek check/implement this: multiple genes regulated")
+				else:
+					fcData[gene] = sim_data.tfToFC[tf][gene]
+
+		expression = expressionFromConditionAndFoldChange(
+			sim_data.process.transcription.rnaData["id"],
+			sim_data.process.transcription.rnaExpression["basal"],
+			conditionValue["perturbations"],
+			fcData,
+		)
+
+		cellSpecs[conditionKey] = {
+			"concDict": sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
+				conditionValue["nutrients"]
+			),
+			"expression": expression,
+			"doubling_time": sim_data.conditionToDoublingTime.get(
+				conditionKey,
+				sim_data.conditionToDoublingTime["basal"]
+			)
+		}
+
+		expression, synthProb, avgCellDryMassInit, fitAvgSolublePoolMass, bulkContainer, concDict = expressionConverge(
+			sim_data,
+			cellSpecs[conditionKey]["expression"],
+			cellSpecs[conditionKey]["concDict"],
+			cellSpecs[conditionKey]["doubling_time"],
+			sim_data.process.transcription.rnaData["KmEndoRNase"],
+			updateConcDict = True,
+			)
+
+		cellSpecs[conditionKey]["expression"] = expression
+		cellSpecs[conditionKey]["synthProb"] = synthProb
+		cellSpecs[conditionKey]["avgCellDryMassInit"] = avgCellDryMassInit
+		cellSpecs[conditionKey]["fitAvgSolublePoolMass"] = fitAvgSolublePoolMass
+		cellSpecs[conditionKey]["bulkContainer"] = bulkContainer
+
+		sim_data.process.transcription.rnaExpression[conditionKey] = cellSpecs[conditionKey]["expression"]
+		sim_data.process.transcription.rnaSynthProb[conditionKey] = cellSpecs[conditionKey]["synthProb"]
+
+		# Uncomment when concDict is actually calculated for non-base [AA]
+		# if len(conditionValue["perturbations"]) == 0:
+		# 	nutrientLabel = conditionValue["nutrients"]
+		# 	sim_data.process.metabolism.nutrientsToInternalConc[nutrientLabel] = concDict
 
 
 def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None, updateConcDict = False):
@@ -815,7 +873,7 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 
 	# Data for metabolites
 	cellDensity = sim_data.constants.cellDensity
-	cellVolume = avgCellDryMassInit / cellDensity
+	cellVolume = avgCellDryMassInit / cellDensity / sim_data.mass.cellDryMassFraction
 
 	# Construct bulk container
 
@@ -1034,22 +1092,22 @@ def expressionFromConditionAndFoldChange(rnaIds, basalExpression, condPerturbati
 
 
 def fitTfPromoterKd(sim_data, cellSpecs):
-	sim_data.process.transcription_regulation.tfKdFit = sim_data.process.transcription_regulation.tfKd.copy()
+	sim_data.process.equilibrium.ratesRevOrig = sim_data.process.equilibrium.ratesRev.copy()
 	cellDensity = sim_data.constants.cellDensity
 	rnaIdList = sim_data.process.transcription.rnaData["id"].tolist()
 
-	def alphaGtZero(tfKdLog10, activeTfConc, inactiveTfConc, activePromConc, inactivePromConc, activeKSynth, inactiveKSynth):
-		tfKd = 10**tfKdLog10
-		pPromBoundActive = sim_data.process.transcription_regulation.pPromoterBound(tfKd, activePromConc, activeTfConc)
-		pPromBoundInactive = sim_data.process.transcription_regulation.pPromoterBound(tfKd, inactivePromConc, inactiveTfConc)
+	def alphaGtZero(kdLog10, activeSignalConc, inactiveSignalConc, signalCoeff, activeKSynth, inactiveKSynth):
+		kd = 10**kdLog10
+		pPromBoundActive = sim_data.process.transcription_regulation.pPromoterBoundSKd(activeSignalConc, kd, signalCoeff)
+		pPromBoundInactive = sim_data.process.transcription_regulation.pPromoterBoundSKd(inactiveSignalConc, kd, signalCoeff)
 
 		# To have alpha > 0, the following expression must be non-negative
 		return -1. * (activeKSynth * pPromBoundInactive - inactiveKSynth * pPromBoundActive)
 
-	def alphaPlusDeltaRGtZero(tfKdLog10, activeTfConc, inactiveTfConc, activePromConc, inactivePromConc, activeKSynth, inactiveKSynth):
-		tfKd = 10**tfKdLog10
-		pPromBoundActive = sim_data.process.transcription_regulation.pPromoterBound(tfKd, activePromConc, activeTfConc)
-		pPromBoundInactive = sim_data.process.transcription_regulation.pPromoterBound(tfKd, inactivePromConc, inactiveTfConc)
+	def alphaPlusDeltaRGtZero(kdLog10, activeSignalConc, inactiveSignalConc, signalCoeff, activeKSynth, inactiveKSynth):
+		kd = 10**kdLog10
+		pPromBoundActive = sim_data.process.transcription_regulation.pPromoterBoundSKd(activeSignalConc, kd, signalCoeff)
+		pPromBoundInactive = sim_data.process.transcription_regulation.pPromoterBoundSKd(inactiveSignalConc, kd, signalCoeff)
 
 		# To have alpha + \delta r > 0, the following expression must be non-negative
 		return -1. * (activeKSynth * pPromBoundInactive - inactiveKSynth * pPromBoundActive - (activeKSynth - inactiveKSynth))
@@ -1062,38 +1120,39 @@ def fitTfPromoterKd(sim_data, cellSpecs):
 		activeKey = tf + "__active"
 		inactiveKey = tf + "__inactive"
 
-		tfKd = sim_data.process.transcription_regulation.tfKd[tf].asNumber(units.mol / units.L)
+		kd = sim_data.process.equilibrium.getRevRate(tf + "[c]") / sim_data.process.equilibrium.getFwdRate(tf + "[c]")
 		tfTargets = sorted(sim_data.tfToFC[tf])
 		tfTargetsIdxs = [rnaIdList.index(x + "[c]") for x in tfTargets]
 
+		metabolite = sim_data.process.equilibrium.getMetabolite(tf + "[c]")
+		metaboliteCoeff = sim_data.process.equilibrium.getMetaboliteCoeff(tf + "[c]")
+
 		activeCellVolume = cellSpecs[activeKey]["avgCellDryMassInit"] / cellDensity / sim_data.mass.cellDryMassFraction
 		activeCountsToMolar = 1 / (sim_data.constants.nAvogadro * activeCellVolume)
-		activePromoterConc = (activeCountsToMolar * sim_data.process.transcription_regulation.tfNTargets[tf]).asNumber(units.mol / units.L)
-		activeTfConc = (activeCountsToMolar * cellSpecs[activeKey]["bulkAverageContainer"].count(tf + "[c]")).asNumber(units.mol / units.L)
+		activeSignalConc = (activeCountsToMolar * cellSpecs[activeKey]["bulkAverageContainer"].count(metabolite)).asNumber(units.mol / units.L)
 		activeSynthProb = sim_data.process.transcription.rnaSynthProb[activeKey]
 		activeSynthProbTargets = activeSynthProb[tfTargetsIdxs]
 
 		inactiveCellVolume = cellSpecs[inactiveKey]["avgCellDryMassInit"] / cellDensity / sim_data.mass.cellDryMassFraction
 		inactiveCountsToMolar = 1 / (sim_data.constants.nAvogadro * inactiveCellVolume)
-		inactivePromoterConc = (inactiveCountsToMolar * sim_data.process.transcription_regulation.tfNTargets[tf]).asNumber(units.mol / units.L)
-		inactiveTfConc = (inactiveCountsToMolar * cellSpecs[inactiveKey]["bulkAverageContainer"].count(tf + "[c]")).asNumber(units.mol / units.L)
+		inactiveSignalConc = (inactiveCountsToMolar * cellSpecs[inactiveKey]["bulkAverageContainer"].count(metabolite)).asNumber(units.mol / units.L)
 		inactiveSynthProb = sim_data.process.transcription.rnaSynthProb[inactiveKey]
 		inactiveSynthProbTargets = inactiveSynthProb[tfTargetsIdxs]
 
-		tfKdLog10Init = np.log10(tfKd)
+		kdLog10Init = np.log10(kd)
 		constraints = [
-			{"type": "ineq", "fun": lambda KdDna: KdDna + 12},
-			{"type": "ineq", "fun": lambda KdDna: -KdDna},
+			{"type": "ineq", "fun": lambda kd, power: kd**(1. / power) + 12, "args": (metaboliteCoeff,)},
+			{"type": "ineq", "fun": lambda kd, power: -(kd**(1. / power)), "args": (metaboliteCoeff,)},
 		]
 		for activeKSynth, inactiveKSynth in zip(activeSynthProbTargets, inactiveSynthProbTargets):
-			args = (activeTfConc, inactiveTfConc, activePromoterConc, inactivePromoterConc, activeKSynth, inactiveKSynth)
+			args = (activeSignalConc, inactiveSignalConc, metaboliteCoeff, activeKSynth, inactiveKSynth)
 			constraints.append({"type": "ineq", "fun": alphaGtZero, "args": args})
 			constraints.append({"type": "ineq", "fun": alphaPlusDeltaRGtZero, "args": args})
 
-		ret = scipy.optimize.minimize(l1Distance, tfKdLog10Init, args = tfKdLog10Init, method = "COBYLA", constraints = constraints, options = {"catol": 1e-9})
+		ret = scipy.optimize.minimize(l1Distance, kdLog10Init, args = kdLog10Init, method = "COBYLA", constraints = constraints, options = {"catol": 1e-9})
 		if ret.status == 1:
-			tfKdTrunc = 10**(np.floor(ret.x * 10.) / 10.)
-			sim_data.process.transcription_regulation.tfKdFit[tf] = (units.mol / units.L) * tfKdTrunc
+			kdTrunc = 10**(np.floor(ret.x * 10.) / 10.)
+			sim_data.process.equilibrium.setRevRate(tf + "[c]", kdTrunc)
 		else:
 			raise Exception, "Can't get positive RNA Polymerase recruitment rate for %s" % tf
 
@@ -1108,15 +1167,12 @@ def calculatePromoterBoundProbability(sim_data, cellSpecs):
 		countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
 
 		for tf in sorted(sim_data.tfToActiveInactiveConds):
-			tfKd = sim_data.process.transcription_regulation.tfKdFit[tf]
-			promoterConc = countsToMolar * sim_data.process.transcription_regulation.tfNTargets[tf]
-			tfConc = countsToMolar * cellSpecs[conditionKey]["bulkAverageContainer"].count(tf + "[c]")
+			kd = sim_data.process.equilibrium.getRevRate(tf + "[c]") / sim_data.process.equilibrium.getFwdRate(tf + "[c]")
+			signal = sim_data.process.equilibrium.getMetabolite(tf + "[c]")
+			signalCoeff = sim_data.process.equilibrium.getMetaboliteCoeff(tf + "[c]")
+			signalConc = (countsToMolar * cellSpecs[conditionKey]["bulkAverageContainer"].count(signal)).asNumber(units.mol / units.L)
 
-			D[conditionKey][tf] = sim_data.process.transcription_regulation.pPromoterBound(
-				tfKd.asNumber(units.nmol / units.L),
-				promoterConc.asNumber(units.nmol / units.L),
-				tfConc.asNumber(units.nmol / units.L),
-				)
+			D[conditionKey][tf] = sim_data.process.transcription_regulation.pPromoterBoundSKd(signalConc, kd, signalCoeff)
 	return D
 
 

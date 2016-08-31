@@ -43,6 +43,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	nAvogadro = sim_data.constants.nAvogadro
 	cellDensity = sim_data.constants.cellDensity
 
+	recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
+	tfs = sorted(set([x.split("__")[-1] for x in recruitmentColNames if x.split("__")[-1] != "alpha"]))
+	tyrRIndex = [i for i, tf in enumerate(tfs) if tf == "MONOMER0-163"][0]
+
 	plt.figure(figsize = (8.5, 11))
 
 	for simDir in allDirs:
@@ -78,6 +82,11 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		tyrRActiveIndex = np.array([bulkMoleculeIds.index(x) for x in tyrRActiveId])
 		tyrRActiveCounts = bulkMoleculesReader.readColumn("counts")[:, tyrRActiveIndex].reshape(-1)
 
+		# Get the amount of inactive tyrR
+		tyrRInactiveId = ["PD00413[c]"]
+		tyrRInactiveIndex = np.array([bulkMoleculeIds.index(x) for x in tyrRInactiveId])
+		tyrRInactiveCounts = bulkMoleculesReader.readColumn("counts")[:, tyrRInactiveIndex].reshape(-1)
+
 		# Get the promoter-bound status of the tyrA gene
 		tyrATfBoundId = ["EG11039_RNA__MONOMER0-163"]
 		tyrATfBoundIndex = np.array([bulkMoleculeIds.index(x) for x in tyrATfBoundId])
@@ -111,8 +120,13 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		tyrASynthProbId = ["EG11039_RNA[c]"]
 		tyrASynthProbIndex = np.array([rnaIds.index(x) for x in tyrASynthProbId])
 		tyrASynthProb = rnaSynthProbReader.readColumn("rnaSynthProb")[:, tyrASynthProbIndex].reshape(-1)
+
+		tyrRBound = rnaSynthProbReader.readColumn("nActualBound")[:,tyrRIndex]
 		
 		rnaSynthProbReader.close()
+
+		# Calculate total tyrR - active, inactive and bound
+		tyrRTotalCounts = tyrRActiveCounts + tyrRInactiveCounts + tyrRBound
 
 		# Compute moving averages
 		width = 100
@@ -137,8 +151,11 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		##############################################################
 		ax = plt.subplot(6, 1, 2)
-		ax.plot(time, tyrRActiveCounts, color = "b")
-		plt.ylabel("Active TyrR Counts", fontsize = 6)
+		ax.plot(time, tyrRActiveCounts)
+		ax.plot(time, tyrRInactiveCounts)
+		ax.plot(time, tyrRTotalCounts)
+		plt.ylabel("TyrR Counts", fontsize = 6)
+		plt.legend(["Active", "Inactive", "Total"], fontsize = 6)
 
 		ymin, ymax = ax.get_ylim()
 		ax.set_yticks([ymin, ymax])

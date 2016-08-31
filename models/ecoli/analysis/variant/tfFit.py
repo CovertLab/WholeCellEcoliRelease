@@ -83,9 +83,9 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 
 
 	ax = plt.subplot(2, 1, 1)
-	ax.scatter(expectedProbBound, simulatedProbBound)
-	plt.xlabel("Expected probability bound", fontsize = 6)
-	plt.ylabel("Simulated probability bound", fontsize = 6)
+	ax.scatter(np.log10(expectedProbBound), np.log10(simulatedProbBound))
+	plt.xlabel("log10(Expected probability bound)", fontsize = 6)
+	plt.ylabel("log10(Simulated probability bound)", fontsize = 6)
 	ax.tick_params(which = 'both', direction = 'out', labelsize = 6)
 
 	ax = plt.subplot(2, 1, 2)
