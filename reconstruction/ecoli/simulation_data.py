@@ -68,6 +68,8 @@ class SimulationDataEcoli(object):
 		# Relations cannot depend on each other
 		self.relation = Relation(raw_data, self)
 
+		self.translationSupplyRate = {}
+
 		#### VARIANT CODE ####
 		self.translationSaturation = True
 		#### VARIANT CODE ####
