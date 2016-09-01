@@ -556,8 +556,6 @@ class FluxBalanceAnalysis(object):
 		to minimize the distance between the current metabolite level and some
 		target level, as defined in the objective."""
 
-		self._initObjectiveEquivalents(objective)
-
 		if any(coeff < 0 for coeff in objective.viewvalues()):
 			raise FBAError("FBA with pools is not designed to use negative biomass coefficients")
 
