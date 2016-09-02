@@ -89,8 +89,13 @@ class Metabolism(wholecell.processes.process.Process):
 			self.max_flux_coefficient = sim_data.constants.kineticRateLimitFactorUpper
 			self.min_flux_coefficient = sim_data.constants.kineticRateLimitFactorLower
 
+		concDict = sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
+			sim_data.nutrientsTimeSeries[sim_data.nutrientsTimeSeriesLabel][0][1]
+			)
+		concDict.update(sim_data.mass.getBiomassAsConcentrations(sim_data.conditionToDoublingTime[sim_data.condition]))
+
 		self.objective = dict(
-			(key, sim_data.process.metabolism.concDict[key].asNumber(COUNTS_UNITS / VOLUME_UNITS)) for key in sim_data.process.metabolism.concDict
+			(key, concDict[key].asNumber(COUNTS_UNITS / VOLUME_UNITS)) for key in concDict
 			)
 
 		self.getMass = sim_data.getter.getMass
