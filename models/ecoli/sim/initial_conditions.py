@@ -59,14 +59,14 @@ def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, rand
 def initializeProteinMonomers(bulkMolCntr, sim_data, randomState):
 
 	monomersView = bulkMolCntr.countsView(sim_data.process.translation.monomerData["id"])
-	monomerMass = sim_data.mass.getFractionMass(sim_data.doubling_time)["proteinMass"] / sim_data.mass.avgCellToInitialCellConvFactor
+	monomerMass = sim_data.mass.getFractionMass(sim_data.conditionToDoublingTime[sim_data.condition])["proteinMass"] / sim_data.mass.avgCellToInitialCellConvFactor
 	# TODO: unify this logic with the fitter so it doesn't fall out of step
 	# again (look at the calcProteinCounts function)
 
 	monomerExpression = normalize(
 		sim_data.process.transcription.rnaExpression[sim_data.condition][sim_data.relation.rnaIndexToMonomerMapping] *
 		sim_data.process.translation.translationEfficienciesByMonomer /
-		(np.log(2) / sim_data.doubling_time.asNumber(units.s) + sim_data.process.translation.monomerData["degRate"].asNumber(1 / units.s))
+		(np.log(2) / sim_data.conditionToDoublingTime[sim_data.condition].asNumber(units.s) + sim_data.process.translation.monomerData["degRate"].asNumber(1 / units.s))
 		)
 
 	nMonomers = countsFromMassAndExpression(
@@ -83,7 +83,7 @@ def initializeProteinMonomers(bulkMolCntr, sim_data, randomState):
 def initializeRNA(bulkMolCntr, sim_data, randomState):
 
 	rnaView = bulkMolCntr.countsView(sim_data.process.transcription.rnaData["id"])
-	rnaMass = sim_data.mass.getFractionMass(sim_data.doubling_time)["rnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
+	rnaMass = sim_data.mass.getFractionMass(sim_data.conditionToDoublingTime[sim_data.condition])["rnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
 
 	rnaExpression = normalize(sim_data.process.transcription.rnaExpression[sim_data.condition])
 
@@ -106,13 +106,16 @@ def initializeDNA(bulkMolCntr, sim_data, randomState):
 # TODO: remove checks for zero concentrations (change to assertion)
 # TODO: move any rescaling logic to KB/fitting
 def initializeSmallMolecules(bulkMolCntr, sim_data, randomState):
-	avgCellFractionMass = sim_data.mass.getFractionMass(sim_data.doubling_time)
+	avgCellFractionMass = sim_data.mass.getFractionMass(sim_data.conditionToDoublingTime[sim_data.condition])
 
 	mass = (avgCellFractionMass["proteinMass"] + avgCellFractionMass["rnaMass"] + avgCellFractionMass["dnaMass"]) / sim_data.mass.avgCellToInitialCellConvFactor
 
-	# We have to remove things with zero concentration because taking the inverse of zero isn't so nice.
-	poolIds = sorted(sim_data.process.metabolism.concDict)
-	poolConcentrations = (units.mol / units.L) * np.array([sim_data.process.metabolism.concDict[key].asNumber(units.mol / units.L) for key in poolIds])
+	concDict = sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
+		sim_data.nutrientsTimeSeries[sim_data.nutrientsTimeSeriesLabel][0][1]
+		)
+	concDict.update(sim_data.mass.getBiomassAsConcentrations(sim_data.conditionToDoublingTime[sim_data.condition]))
+	poolIds = sorted(concDict)
+	poolConcentrations = (units.mol / units.L) * np.array([concDict[key].asNumber(units.mol / units.L) for key in poolIds])
 
 	massesToAdd, countsToAdd = massesAndCountsToAddForPools(
 		mass,
@@ -145,7 +148,7 @@ def initializeReplication(uniqueMolCntr, sim_data):
 	# Find growth rate constants
 	C = sim_data.growthRateParameters.c_period.asUnit(units.min)
 	D = sim_data.growthRateParameters.d_period.asUnit(units.min)
-	tau = sim_data.doubling_time.asUnit(units.min)
+	tau = sim_data.conditionToDoublingTime[sim_data.condition].asUnit(units.min)
 	genome_length = sim_data.process.replication.genome_length
 	replication_length = np.ceil(.5*genome_length) * units.nt
 

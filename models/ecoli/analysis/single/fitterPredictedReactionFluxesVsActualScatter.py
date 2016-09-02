@@ -54,20 +54,20 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		if np.abs(value) < NUMERICAL_ZERO:
 			fitterPredictedFluxesDict[key] = 0
 
-	scatterArrayActual, scatterArrayPredicted, scatterArrayPredictedStd, labels = [], [], [], []
+	scatterArrayPredicted, scatterArrayActual, scatterArrayActualStd, labels = [], [], [], []
 	for fluxName, predictedFlux in fitterPredictedFluxesDict.iteritems():
 		reactionIdx = list(reactionIDs).index(fluxName)
 		samplePoints = reactionFluxes[BURN_IN_PERIOD:, reactionIdx]
-		scatterArrayActual.append(predictedFlux)
-		scatterArrayPredicted.append(np.mean(samplePoints))
-		scatterArrayPredictedStd.append(np.std(samplePoints))
+		scatterArrayPredicted.append(predictedFlux)
+		scatterArrayActual.append(np.mean(samplePoints))
+		scatterArrayActualStd.append(np.std(samplePoints))
 		labels.append(fluxName)
 	
-	scatterArrayActual = np.array(scatterArrayActual)
 	scatterArrayPredicted = np.array(scatterArrayPredicted)
-	scatterArrayPredictedStd = np.array(scatterArrayPredictedStd)
-	correlationCoefficient = np.corrcoef(scatterArrayActual, scatterArrayPredicted)[0,1]
-	logCorrelationCoefficient = np.corrcoef(np.log10(scatterArrayActual + 1), np.log10(scatterArrayPredicted + 1))[0,1]
+	scatterArrayActual = np.array(scatterArrayActual)
+	scatterArrayActualStd = np.array(scatterArrayActualStd)
+	correlationCoefficient = np.corrcoef(scatterArrayPredicted, scatterArrayActual)[0,1]
+	logCorrelationCoefficient = np.corrcoef(np.log10(scatterArrayPredicted + 1), np.log10(scatterArrayActual + 1))[0,1]
 
 	fig = plt.figure(figsize=(7.5,11))
 
@@ -96,7 +96,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	# Error bars don't work for the HTML plot, so save it with just points, then add error bars.
 	plt.subplot(2,1,1)
-	points = plt.errorbar(scatterArrayPredicted, scatterArrayActual, yerr=scatterArrayPredictedStd, fmt='o')
+	points = plt.errorbar(scatterArrayPredicted, scatterArrayActual, yerr=scatterArrayActualStd, fmt='o')
 
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")

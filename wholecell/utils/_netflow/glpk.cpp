@@ -84,6 +84,18 @@ class glpk
 		{
 			this->lp_params.msg_lev = GLP_MSG_ALL;
 		}
+		void set_solver_method_primal()
+		{
+			this->lp_params.meth = GLP_PRIMAL;
+		}
+		void set_solver_method_dual()
+		{
+			this->lp_params.meth = GLP_DUAL;
+		}
+		void set_solver_method_dualprimal()
+		{
+			this->lp_params.meth = GLP_DUALP;
+		}
 		void optimize()
 		{
         		int status = glp_simplex(this->lp, &(this->lp_params));
@@ -103,7 +115,14 @@ class glpk
 				default: throw std::runtime_error("UNKNOWN SOLVER RETURN VALUE"); break;
 			}
 			if(glp_get_status(this->lp) != GLP_OPT)
-				throw std::runtime_error("NON-OPTIMAL SOLUTION");
+				switch(glp_get_status(this->lp)){
+					case GLP_FEAS: throw std::runtime_error("NON-OPTIMAL SOLUTION: GLP_FEAS (FEASIBLE)"); break;
+					case GLP_INFEAS: throw std::runtime_error("NON-OPTIMAL SOLUTION: GLP_INFEAS (INFEASIBLE)"); break;
+					case GLP_NOFEAS: throw std::runtime_error("NON-OPTIMAL SOLUTION: GLP_NOFEAS (NO FEASIBLE SOLUTION)"); break;
+					case GLP_UNBND: throw std::runtime_error("NON-OPTIMAL SOLUTION: GLP_UNBND (UNBOUNDED)"); break;
+					case GLP_UNDEF: throw std::runtime_error("NON-OPTIMAL SOLUTION: GLP_UNDEF (UNDEFINED)"); break;
+					default: throw std::runtime_error("NON-OPTIMAL SOLUTION: UNKNOWN TYPE"); break;
+			}
 		}
 		double get_primal_value(int index)
 		{
@@ -146,7 +165,14 @@ class glpk
 				default: throw std::runtime_error("UNKNOWN SOLVER RETURN VALUE"); break;
 			}
 			if(glp_get_status(this->lp) != GLP_OPT)
-				throw std::runtime_error("NON-OPTIMAL SOLUTION");
+				switch(glp_get_status(this->lp)){
+					case GLP_FEAS: throw std::runtime_error("NON-OPTIMAL SOLUTION: GLP_FEAS (FEASIBLE)"); break;
+					case GLP_INFEAS: throw std::runtime_error("NON-OPTIMAL SOLUTION: GLP_INFEAS (INFEASIBLE)"); break;
+					case GLP_NOFEAS: throw std::runtime_error("NON-OPTIMAL SOLUTION: GLP_NOFEAS (NO FEASIBLE SOLUTION)"); break;
+					case GLP_UNBND: throw std::runtime_error("NON-OPTIMAL SOLUTION: GLP_UNBND (UNBOUNDED)"); break;
+					case GLP_UNDEF: throw std::runtime_error("NON-OPTIMAL SOLUTION: GLP_UNDEF (UNDEFINED)"); break;
+					default: throw std::runtime_error("NON-OPTIMAL SOLUTION: UNKNOWN TYPE"); break;
+			}
 			objective_value[0] = glp_get_obj_val(this->lp);
 			for(int i = 1; i <= n_vars; i++)
 				primal_variable[i] = glp_get_col_prim(this->lp, i);
@@ -203,6 +229,9 @@ BOOST_PYTHON_MODULE(glpk)
 	.def("set_quiet_quiet", &glpk::set_quiet_quiet)
 	.def("set_verbose", &glpk::set_verbose)
 	.def("set_verbose_verbose", &glpk::set_verbose_verbose)
+	.def("set_solver_method_primal", &glpk::set_solver_method_primal)
+	.def("set_solver_method_dual", &glpk::set_solver_method_dual)
+	.def("set_solver_method_dualprimal", &glpk::set_solver_method_dualprimal)
 	.def("optimize", &glpk::optimize)
 	.def("get_primal_value", &glpk::get_primal_value)
 	.def("get_row_dual_value", &glpk::get_row_dual_value)

@@ -82,6 +82,11 @@ launcher_*
 block_*
 FW.json
 
+# Fitter output #
+#################
+reconstruction/ecoli/dataclasses/process/equilibrium_odes.py
+
+
 # Sublime Files #
 #################
 *.sublime*
