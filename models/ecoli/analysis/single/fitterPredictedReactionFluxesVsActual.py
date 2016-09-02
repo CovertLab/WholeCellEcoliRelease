@@ -39,8 +39,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	idToColor = {}
-
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")

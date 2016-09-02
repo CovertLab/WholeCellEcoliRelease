@@ -16,6 +16,12 @@ from models.ecoli.sim.variants.starvation_variant import starvationVariantTotalI
 from models.ecoli.sim.variants.kinetics_flux_coeff import kineticsFluxCoeff
 from models.ecoli.sim.variants.kinetics_flux_coeff import kineticsFluxCoeffTotalIndices
 
+from models.ecoli.sim.variants.metabolism_target_range import metabolismTargetRange
+from models.ecoli.sim.variants.metabolism_target_range import metabolismTargetRangeTotalIndices
+
+from models.ecoli.sim.variants.metabolism_objective_kinetic_homeostatic_ratio import metabolismKineticHomeostaticRatio
+from models.ecoli.sim.variants.metabolism_objective_kinetic_homeostatic_ratio import metabolismKineticHomeostaticRatioTotalIndices
+
 from models.ecoli.sim.variants.growth_rate import growthRate
 from models.ecoli.sim.variants.growth_rate import growthRateTotalIndices
 
@@ -37,11 +43,13 @@ nameToFunctionMapping = {
 	"timeStep": timeStep,
 	"starvationVariant": starvationVariant,
 	"kineticsFluxCoeff": kineticsFluxCoeff,
+	"metabolismTargetRange":metabolismTargetRange,
 	"growthRate": growthRate,
 	"scalingFactor": scalingFactor,
 	"nutrientTimeSeries": nutrientTimeSeries,
 	"tfActivity": tfActivity,
 	"condition": condition,
+	"metabolismKineticHomeostaticRatio": metabolismKineticHomeostaticRatio,
 }
 
 nameToNumIndicesMapping = {
@@ -50,9 +58,11 @@ nameToNumIndicesMapping = {
 	"timeStep": timeStepTotalIndices,
 	"starvationVariant": starvationVariantTotalIndices,
 	"kineticsFluxCoeff": kineticsFluxCoeffTotalIndices,
+	"metabolismTargetRangeTotalIndices":metabolismTargetRangeTotalIndices,
 	"growthRate": growthRateTotalIndices,
 	"scalingFactor": scalingFactorTotalIndices,
 	"nutrientTimeSeries": nutrientTimeSeriesTotalIndices,
 	"tfActivity": tfActivityTotalIndices,
 	"condition": conditionIndices,
+	"metabolismKineticHomeostaticRatio": metabolismKineticHomeostaticRatioTotalIndices,
 }
