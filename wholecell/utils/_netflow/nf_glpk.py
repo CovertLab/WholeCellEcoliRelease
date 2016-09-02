@@ -20,6 +20,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		self._flows = {}
 		self._lb = {}
 		self._ub = {}
+		self._objective = {}
 		self._materialCoeffs = defaultdict(list)
 
 		self._eqConstBuilt = False
@@ -106,6 +107,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 
 	def flowObjectiveCoeffIs(self, flow, coefficient):
 		idx = self._getVar(flow)
+		self._objective[flow] = coefficient
 		self._model.set_obj_coef(
 			1 + idx,				# GLPK does 1 indexing
 			coefficient
@@ -170,10 +172,13 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		return sorted(self._materialIdxLookup, key=self._materialIdxLookup.__getitem__)
 
 	def getUpperBounds(self):
-		return self._ub
+		return self._ub.copy()
 
 	def getLowerBounds(self):
-		return self._lb
+		return self._lb.copy()
+
+	def getObjective(self):
+		return self._objective.copy()
 
 	def buildEqConst(self):
 		if self._eqConstBuilt:

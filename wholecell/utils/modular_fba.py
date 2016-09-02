@@ -1434,11 +1434,12 @@ class FluxBalanceAnalysis(object):
 
 	def getArrayBasedModel(self):
 		return {
-		"S_matrix":self._solver.getSMatrix(),
-		"Reactions":self._solver.getFlowNames(),
-		"Metabolites":self._solver.getMaterialNames(),
-		"Upper bounds":self._solver.getUpperBounds(),
-		"Lower bounds":self._solver.getLowerBounds(),
+		"S_matrix": self._solver.getSMatrix(),
+		"Reactions": self._solver.getFlowNames(),
+		"Metabolites": self._solver.getMaterialNames(),
+		"Upper bounds": self._solver.getUpperBounds(),
+		"Lower bounds": self._solver.getLowerBounds(),
+		"Objective": self._solver.getObjective(),
 		}
 
 	def massAccumulated(self):
