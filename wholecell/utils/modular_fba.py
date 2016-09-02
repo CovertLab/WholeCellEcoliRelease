@@ -412,8 +412,6 @@ class FluxBalanceAnalysis(object):
 		the standard objective, all molecules must be created/destroyed in
 		prescribed ratios."""
 
-		self._initObjectiveEquivalents(objective)
-
 		for moleculeID in objective.viewkeys():
 			objectiveEquivID = self._generatedID_moleculeEquivalents.format(moleculeID)
 
@@ -433,8 +431,6 @@ class FluxBalanceAnalysis(object):
 		"""Create the abstractions needed for the flexFBA objective.  In brief,
 		flexFBA permits partial biomass objective satisfaction for individual
 		molecules if network disruptions inhibit molecule production."""
-
-		self._initObjectiveEquivalents(objective)
 
 		# Load parameters
 		leadingMoleculeID = objectiveParameters["leading molecule ID"]
