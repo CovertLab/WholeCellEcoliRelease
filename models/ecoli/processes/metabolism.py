@@ -129,6 +129,8 @@ class Metabolism(wholecell.processes.process.Process):
 		# List of reactions for which to set target kinetics
 		self.kineticReactions = list(set([x for x,y in sim_data.process.metabolism.reactionRateInfo.iteritems() if (len(y["kM"])>0 and x in self.reactionStoich)]))
 
+		self.metabolismKineticObjectiveWeight = sim_data.constants.metabolismKineticObjectiveWeight
+
 		# Set up FBA solver
 		self.fba = FluxBalanceAnalysis(
 			self.reactionStoich,
@@ -136,7 +138,7 @@ class Metabolism(wholecell.processes.process.Process):
 			self.objective,
 			objectiveType = "pools_kinetics_mixed",
 			objectiveParameters = {
-					"kineticObjectiveWeight":sim_data.constants.metabolismKineticObjectiveWeight,
+					"kineticObjectiveWeight":self.metabolismKineticObjectiveWeight,
 					"reactionRateTargets":{reaction:0 for reaction in self.kineticReactions},
 					},
 			moleculeMasses = self.moleculeMasses,
@@ -237,18 +239,17 @@ class Metabolism(wholecell.processes.process.Process):
 				self.objective,
 				objectiveType = "pools_kinetics_mixed",
 				objectiveParameters = {
-					"fractionHigher":sim_data.constants.metabolismTargetRangeConstant,
-					"inRangeObjWeight":sim_data.constants.metabolismTargetRangeObjectiveWeight,
-					"objectiveWeightFactor":1,
-					},
+						"kineticObjectiveWeight":self.metabolismKineticObjectiveWeight,
+						"reactionRateTargets":{reaction:0 for reaction in self.kineticReactions},
+						},
 				moleculeMasses = self.moleculeMasses,
-				secretionPenaltyCoeff = SECRETION_PENALTY_COEFF,
+				secretionPenaltyCoeff = SECRETION_PENALTY_COEFF, # The "inconvenient constant"--limit secretion (e.g., of CO2)
 				solver = "glpk",
 				maintenanceCostGAM = self.energyCostPerWetMass.asNumber(COUNTS_UNITS / MASS_UNITS),
 				maintenanceReaction = {
 					"ATP[c]": -1, "WATER[c]": -1, "ADP[c]": +1, "Pi[c]": +1, "PROTON[c]": +1,
 					} # TODO: move to KB TODO: check reaction stoich
-				)
+			)
 
 			massComposition = self.massReconstruction.getFractionMass(self.doublingTime)
 			massInitial = (massComposition["proteinMass"] + massComposition["rnaMass"] + massComposition["dnaMass"]) / self.avgCellToInitialCellConvFactor
