@@ -133,6 +133,7 @@ class Metabolism(wholecell.processes.process.Process):
 			reactionRateInfo = sim_data.process.metabolism.reactionRateInfo,
 			useCustoms=True,
 			moreThanKcat=True, # Only compute rates for reactions with more than a kcat
+		)
 
 		# List of reactions for which to set target kinetics
 		self.kineticReactions = list(set([x for x,y in sim_data.process.metabolism.reactionRateInfo.iteritems() if (len(y["kM"])>0 and x in self.reactionStoich)]))
@@ -143,7 +144,7 @@ class Metabolism(wholecell.processes.process.Process):
 			"externalExchangedMolecules" : self.externalExchangeMolecules,
 			"objective" : self.objective,
 			"objectiveType" : "pools_kinetics_mixed",
-			"objectiveParameters" = {
+			"objectiveParameters" : {
 					"kineticObjectiveWeight":sim_data.constants.metabolismKineticObjectiveWeight,
 					"reactionRateTargets":{reaction:0 for reaction in self.kineticReactions},
 					},
@@ -159,16 +160,16 @@ class Metabolism(wholecell.processes.process.Process):
 		self.enzymeKinetics.checkKnownSubstratesAndEnzymes(sim_data.process.metabolism.concDict, self.enzymeNames, removeUnknowns=True)
 
 		# Reactions with full kinetic estimates (more than just kcat)
-		self.fullRateReactions = [reactionInfo["reactionID"] for constraintID, reactionInfo in self.enzymeKinetics.reactionRateInfo.iteritems() if len(reactionInfo["kM"]) > 0]
+		self.fullRateReactions = [reactionInfo["reactionID"] for constraintID, reactionInfo in self.enzymeKinetics.reactionRateInfo.iteritems() if len(reactionInfo["kM"]) > 0 and reactionInfo["reactionID"] in self.fba.reactionIDs()]
 
 		# Indices for reactions with full kinetic esimates
 		self.fullRateIndices = np.where([True if reactionID in self.fullRateReactions else False for reactionID in self.fba.reactionIDs()])
 
 		# Matrix mapping enzymes to the reactions they catalyze
 		self.enzymeReactionMatrix = sim_data.process.metabolism.enzymeReactionMatrix(
-			[x for x in self.fba.reactionIDs() if x not in self.kineticReactions],
+			self.fba.reactionIDs(),
 			self.enzymeNames,
-			{key:val for key,val in self.reactionEnzymes.iteritems() if key not in self.kineticReactions}
+			self.reactionEnzymes,
 			)
 		self.spontaneousIndices = np.where(np.sum(self.enzymeReactionMatrix, axis=1) == 0)
 		self.enzymeReactionMatrix = csr_matrix(self.enzymeReactionMatrix)
@@ -302,14 +303,14 @@ class Metabolism(wholecell.processes.process.Process):
 					"constraintID":constraintID,
 					"coefficient":self.constraintMultiplesDict[constraintID] * self.min_flux_coefficient,}
 
-		self.fullRateEstimates = self.enzymeKinetics.ratesView(self.fullRateReactions, self.maxConstraints, metaboliteConcentrationsDict, enzymeConcentrationsDict, raiseIfNotFound=False)
+		if USE_KINETIC_RATES:
+			self.fullRateEstimates = self.enzymeKinetics.ratesView(self.fullRateReactions, self.maxConstraints, metaboliteConcentrationsDict, enzymeConcentrationsDict, raiseIfNotFound=False)
+			self.fba.setKineticTarget(self.fullRateReactions, self.fullRateEstimates.asNumber(FLUX_UNITS), raiseForReversible=False)
 
 		if USE_BASE_RATES:
 			# Calculate new rates
 			self.allRatesNew = FLUX_UNITS * self.enzymeReactionMatrix.dot(enzymeConcentrations.asNumber(COUNTS_UNITS / VOLUME_UNITS))
 			self.allRatesNew[self.spontaneousIndices] = (FLUX_UNITS) * np.inf
-			if USE_KINETIC_RATES:
-				self.allRatesNew[self.fullRateIndices] = self.fullRateEstimates
 			# Update allRates
 			updateLocations = np.where(self.allRatesNew.asNumber(FLUX_UNITS) != self.allRates.asNumber(FLUX_UNITS))
 			updateReactions = self.fba.reactionIDs()[updateLocations]

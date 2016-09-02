@@ -1406,7 +1406,7 @@ class FluxBalanceAnalysis(object):
 		# If a single value is passed in, make a list of length 1 from it
 		if isinstance(reactionIDs, str):
 			reactionIDs = [reactionIDs]
-		if not isinstance(reactionTargets, list):
+		if not (isinstance(reactionTargets, list) or isinstance(reactionTargets, np.ndarray)):
 			reactionTargets = [reactionTargets]
 
 		if len(reactionIDs) != len(reactionTargets):
