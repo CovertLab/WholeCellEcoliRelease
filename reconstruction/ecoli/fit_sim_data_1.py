@@ -545,7 +545,7 @@ def setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_t
 		)
 
 	nRibosomesNeeded = calculateMinPolymerizingEnzymeByProductDistribution(
-	proteinLengths, sim_data.growthRateParameters.ribosomeElongationRate, netLossRate_protein, proteinCounts)
+	proteinLengths, sim_data.growthRateParameters.getRibosomeElongationRate(doubling_time), netLossRate_protein, proteinCounts)
 	nRibosomesNeeded.normalize() # FIXES NO UNIT BUG
 	nRibosomesNeeded.checkNoUnit()
 	nRibosomesNeeded = nRibosomesNeeded.asNumber()
@@ -643,7 +643,7 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time,
 			)
 	
 	nActiveRnapNeeded = calculateMinPolymerizingEnzymeByProductDistributionRNA(
-		rnaLengths, sim_data.growthRateParameters.rnaPolymeraseElongationRate, rnaLossRate)
+		rnaLengths, sim_data.growthRateParameters.getRnapElongationRate(doubling_time), rnaLossRate)
 
 	nActiveRnapNeeded = units.convertNoUnitToNumber(nActiveRnapNeeded)
 	nRnapsNeeded = nActiveRnapNeeded / sim_data.growthRateParameters.fractionActiveRnap
@@ -1085,8 +1085,8 @@ def fitTfPromoterKd(sim_data, cellSpecs):
 
 		kdLog10Init = np.log10(kd)
 		constraints = [
-			{"type": "ineq", "fun": lambda kd, power: kd**(1. / power) + 12, "args": (metaboliteCoeff,)},
-			{"type": "ineq", "fun": lambda kd, power: -(kd**(1. / power)), "args": (metaboliteCoeff,)},
+			{"type": "ineq", "fun": lambda logKd, power: (logKd / power) + 12, "args": (metaboliteCoeff,)},
+			{"type": "ineq", "fun": lambda logKd, power: -(logKd / power), "args": (metaboliteCoeff,)},
 		]
 		for activeKSynth, inactiveKSynth in zip(activeSynthProbTargets, inactiveSynthProbTargets):
 			args = (activeSignalConc, inactiveSignalConc, metaboliteCoeff, activeKSynth, inactiveKSynth)
@@ -1096,7 +1096,7 @@ def fitTfPromoterKd(sim_data, cellSpecs):
 		ret = scipy.optimize.minimize(l1Distance, kdLog10Init, args = kdLog10Init, method = "COBYLA", constraints = constraints, options = {"catol": 1e-9})
 		if ret.status == 1:
 			kdTrunc = 10**(np.floor(ret.x * 10.) / 10.)
-			sim_data.process.equilibrium.setRevRate(tf + "[c]", kdTrunc)
+			sim_data.process.equilibrium.setRevRate(tf + "[c]", kdTrunc * sim_data.process.equilibrium.getFwdRate(tf + "[c]"))
 		else:
 			raise Exception, "Can't get positive RNA Polymerase recruitment rate for %s" % tf
 
