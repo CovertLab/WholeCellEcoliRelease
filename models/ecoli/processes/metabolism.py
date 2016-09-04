@@ -92,7 +92,8 @@ class Metabolism(wholecell.processes.process.Process):
 		concDict = sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
 			sim_data.nutrientsTimeSeries[sim_data.nutrientsTimeSeriesLabel][0][1]
 			)
-		concDict.update(sim_data.mass.getBiomassAsConcentrations(sim_data.conditionToDoublingTime[sim_data.condition]))
+		self.concModificationsBasedOnCondition = sim_data.mass.getBiomassAsConcentrations(sim_data.conditionToDoublingTime[sim_data.condition])
+		concDict.update(self.concModificationsBasedOnCondition)
 
 		self.objective = dict(
 			(key, concDict[key].asNumber(COUNTS_UNITS / VOLUME_UNITS)) for key in concDict
@@ -227,7 +228,8 @@ class Metabolism(wholecell.processes.process.Process):
 			coefficient,
 			COUNTS_UNITS / VOLUME_UNITS,
 			self.nutrientsTimeSeriesLabel,
-			self.time()
+			self.time(),
+			self.concModificationsBasedOnCondition,
 			)
 
 		if newObjective != None and newObjective != self.objective:
