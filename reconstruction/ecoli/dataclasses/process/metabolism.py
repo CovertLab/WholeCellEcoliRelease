@@ -524,7 +524,7 @@ class ConcentrationUpdates(object):
 
 		self.moleculeScaleFactors = {
 			"L-ALPHA-ALANINE[c]": 2.,
-			"ARG[c]": 2.,
+			"ARG[c]": 3.,
 			"ASN[c]": 2.,
 			"L-ASPARTATE[c]": 2.,
 			"CYS[c]": 2.,
