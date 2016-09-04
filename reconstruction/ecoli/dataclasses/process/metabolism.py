@@ -438,7 +438,7 @@ class Metabolism(object):
 		self.constraintIDs = constraintIDs
 		self.constraintToReactionDict = constraintToReactionDict
 
-	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits, nutrientsTimeSeriesLabel, time, preview=False):
+	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits, nutrientsTimeSeriesLabel, time, concModificationsBasedOnCondition = None, preview = False):
 		newObjective = None
 		while len(self.nutrientsTimeSeries[nutrientsTimeSeriesLabel]) and time > self.nutrientsTimeSeries[nutrientsTimeSeriesLabel][0][0]:
 			if preview:
@@ -448,6 +448,8 @@ class Metabolism(object):
 			self._unconstrainedExchangeMolecules = self.nutrientData["importUnconstrainedExchangeMolecules"][nutrients]
 			self._constrainedExchangeMolecules = self.nutrientData["importConstrainedExchangeMolecules"][nutrients]
 			concDict = self.concentrationUpdates.concentrationsBasedOnNutrients(nutrients, self.nutrientsToInternalConc)
+			if concModificationsBasedOnCondition is not None:
+				concDict.update(concModificationsBasedOnCondition)
 			newObjective = dict((key, concDict[key].asNumber(targetUnits)) for key in concDict)
 			if preview:
 				break
