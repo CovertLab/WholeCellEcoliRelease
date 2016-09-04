@@ -150,10 +150,13 @@ def buildTfConditionCellSpecifications(sim_data, cellSpecs):
 				fcData,
 			)
 
+			concDict = sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
+				conditionValue["nutrients"]
+				)
+			concDict.update(sim_data.mass.getBiomassAsConcentrations(sim_data.conditionToDoublingTime[conditionKey]))
+
 			cellSpecs[conditionKey] = {
-				"concDict": sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
-					conditionValue["nutrients"]
-				),
+				"concDict": concDict,
 				"expression": expression,
 				"doubling_time": sim_data.conditionToDoublingTime.get(
 					conditionKey,
@@ -207,10 +210,13 @@ def buildCombinedConditionCellSpecifications(sim_data, cellSpecs):
 			fcData,
 		)
 
+		concDict = sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
+			conditionValue["nutrients"]
+			)
+		concDict.update(sim_data.mass.getBiomassAsConcentrations(sim_data.conditionToDoublingTime[conditionKey]))
+
 		cellSpecs[conditionKey] = {
-			"concDict": sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
-				conditionValue["nutrients"]
-			),
+			"concDict": concDict,
 			"expression": expression,
 			"doubling_time": sim_data.conditionToDoublingTime.get(
 				conditionKey,
@@ -257,7 +263,7 @@ def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None,
 
 		setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time)
 
-		setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time, Km)
+		setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km)
 
 		# Normalize expression and write out changes
 
@@ -603,11 +609,12 @@ def setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_t
 	bulkContainer.countsIs(rRna5SCounts, sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna5S"]])
 
 
-def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time, Km = None):
+def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km = None):
 	# -- CONSTRAINT 1: Expected RNA distribution doubling -- #
 	rnaLengths = units.sum(sim_data.process.transcription.rnaData['countsACGU'], axis = 1)
 
 	rnaLossRate = None
+
 	if Km is None:
 		rnaLossRate = netLossRateFromDilutionAndDegradationRNALinear(
 			doubling_time,
@@ -617,7 +624,7 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time,
 	else:
 		# Get constants to compute countsToMolar factor
 		cellDensity = sim_data.constants.cellDensity
-		cellVolume = sim_data.mass.avgCellDryMassInit / cellDensity / 0.3
+		cellVolume = avgCellDryMassInit / cellDensity / 0.3
 		countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
 
 		rnaConc = countsToMolar * bulkContainer.counts(sim_data.process.transcription.rnaData['id'])
@@ -656,8 +663,10 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time,
 	if VERBOSE: print 'rnap actual count: {}'.format((rnapCounts / rnapStoich).min())
 	if VERBOSE: print 'rnap counts set to: {}'.format(rnapLims[np.where(rnapLims.max() == rnapLims)[0]][0])
 
-	bulkContainer.countsIs(np.fmax(rnapCounts, minRnapSubunitCounts), rnapIds)
-
+	bulkContainer.countsIs(
+		np.fmax(rnapCounts, minRnapSubunitCounts),
+		rnapIds
+		)
 
 
 def fitExpression(sim_data, bulkContainer, doubling_time, Km = None):
