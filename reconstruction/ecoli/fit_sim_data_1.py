@@ -75,6 +75,8 @@ def fitSimData_1(raw_data):
 	buildTfConditionCellSpecifications(sim_data, cellSpecs)
 	buildCombinedConditionCellSpecifications(sim_data, cellSpecs)
 
+	sim_data.conditionToAvgCellDryMassInit = dict([(cellSpec, cellSpecs[cellSpec]["avgCellDryMassInit"]) for cellSpec in cellSpecs])
+
 	# Fit kinetic parameters
 	findKineticCoeffs(sim_data, cellSpecs["basal"]["bulkContainer"])
 
