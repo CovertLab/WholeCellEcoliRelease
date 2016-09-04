@@ -269,7 +269,7 @@ def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None,
 
 		# Normalize expression and write out changes
 
-		expression, synthProb = fitExpression(sim_data, bulkContainer, doubling_time, Km)
+		expression, synthProb = fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km)
 
 		if updateConcDict:
 			concDict = concDict.copy() # Calculate non-base condition [AA]
@@ -671,7 +671,7 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time,
 		)
 
 
-def fitExpression(sim_data, bulkContainer, doubling_time, Km = None):
+def fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km = None):
 
 	view_RNA = bulkContainer.countsView(sim_data.process.transcription.rnaData["id"])
 	counts_protein = bulkContainer.counts(sim_data.process.translation.monomerData["id"])
@@ -732,7 +732,7 @@ def fitExpression(sim_data, bulkContainer, doubling_time, Km = None):
 	else:
 		# Get constants to compute countsToMolar factor
 		cellDensity = sim_data.constants.cellDensity
-		cellVolume = sim_data.mass.avgCellDryMassInit / cellDensity / 0.3
+		cellVolume = avgCellDryMassInit / cellDensity / 0.3
 		countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
 
 		rnaConc = countsToMolar * bulkContainer.counts(sim_data.process.transcription.rnaData['id'])
