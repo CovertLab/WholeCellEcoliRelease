@@ -65,7 +65,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	pheConcentration = pheMols * 1. / volume
 
 	# Get the amount of active tyrR (that isn't promoter bound)
-	tyrRActiveId = ["MONOMER0-163[c]"]
+	tyrRActiveId = ["MONOMER0-162[c]"]
 	tyrRActiveIndex = np.array([bulkMoleculeIds.index(x) for x in tyrRActiveId])
 	tyrRActiveCounts = bulkMoleculesReader.readColumn("counts")[:, tyrRActiveIndex].reshape(-1)
 
@@ -75,7 +75,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	tyrRInactiveCounts = bulkMoleculesReader.readColumn("counts")[:, tyrRInactiveIndex].reshape(-1)
 
 	# Get the promoter-bound status of the tyrA gene
-	tyrATfBoundId = ["EG11039_RNA__MONOMER0-163"]
+	tyrATfBoundId = ["EG11039_RNA__MONOMER0-162"]
 	tyrATfBoundIndex = np.array([bulkMoleculeIds.index(x) for x in tyrATfBoundId])
 	tyrATfBoundCounts = bulkMoleculesReader.readColumn("counts")[:, tyrATfBoundIndex].reshape(-1)
 
@@ -110,7 +110,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
 	tfs = sorted(set([x.split("__")[-1] for x in recruitmentColNames if x.split("__")[-1] != "alpha"]))
-	tyrRIndex = [i for i, tf in enumerate(tfs) if tf == "MONOMER0-163"][0]
+	tyrRIndex = [i for i, tf in enumerate(tfs) if tf == "MONOMER0-162"][0]
 	tyrRBound = rnaSynthProbReader.readColumn("nActualBound")[:,tyrRIndex]
 	
 	rnaSynthProbReader.close()
