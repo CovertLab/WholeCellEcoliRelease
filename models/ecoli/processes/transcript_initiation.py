@@ -50,7 +50,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		self.fracActiveRnap = sim_data.growthRateParameters.fractionActiveRnap
+		self.fracActiveRnap = sim_data.growthRateParameters.getFractionActiveRnap(doubling_time)
 
 		self.rnaLengths = sim_data.process.transcription.rnaData["length"]
 
