@@ -50,7 +50,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		self.fracActiveRnap = sim_data.growthRateParameters.getFractionActiveRnap(doubling_time)
+		self.fracActiveRnap = sim_data.growthRateParameters.getFractionActiveRnap(sim_data.conditionToDoublingTime[sim_data.condition])
 
 		self.rnaLengths = sim_data.process.transcription.rnaData["length"]
 
@@ -134,7 +134,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		nonzeroCount = (nNewRnas > 0)
 
 		assert nNewRnas.sum() == rnaPolyToActivate
-		print "transcription", nNewRnas[self.is_mrRNA].sum()
 
 		# Build list of RNA indexes
 
