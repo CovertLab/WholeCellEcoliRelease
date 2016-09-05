@@ -75,6 +75,8 @@ def fitSimData_1(raw_data):
 	buildTfConditionCellSpecifications(sim_data, cellSpecs)
 	buildCombinedConditionCellSpecifications(sim_data, cellSpecs)
 
+	sim_data.conditionToAvgCellDryMassInit = dict([(cellSpec, cellSpecs[cellSpec]["avgCellDryMassInit"]) for cellSpec in cellSpecs])
+
 	# Fit kinetic parameters
 	findKineticCoeffs(sim_data, cellSpecs["basal"]["bulkContainer"])
 
@@ -218,10 +220,13 @@ def buildTfConditionCellSpecifications(sim_data, cellSpecs):
 				fcData,
 			)
 
+			concDict = sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
+				conditionValue["nutrients"]
+				)
+			concDict.update(sim_data.mass.getBiomassAsConcentrations(sim_data.conditionToDoublingTime[conditionKey]))
+
 			cellSpecs[conditionKey] = {
-				"concDict": sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
-					conditionValue["nutrients"]
-				),
+				"concDict": concDict,
 				"expression": expression,
 				"doubling_time": sim_data.conditionToDoublingTime.get(
 					conditionKey,
@@ -275,10 +280,13 @@ def buildCombinedConditionCellSpecifications(sim_data, cellSpecs):
 			fcData,
 		)
 
+		concDict = sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
+			conditionValue["nutrients"]
+			)
+		concDict.update(sim_data.mass.getBiomassAsConcentrations(sim_data.conditionToDoublingTime[conditionKey]))
+
 		cellSpecs[conditionKey] = {
-			"concDict": sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
-				conditionValue["nutrients"]
-			),
+			"concDict": concDict,
 			"expression": expression,
 			"doubling_time": sim_data.conditionToDoublingTime.get(
 				conditionKey,
@@ -325,11 +333,11 @@ def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None,
 
 		setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time)
 
-		setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time, Km)
+		setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km)
 
 		# Normalize expression and write out changes
 
-		expression, synthProb = fitExpression(sim_data, bulkContainer, doubling_time, Km)
+		expression, synthProb = fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km)
 
 		if updateConcDict:
 			concDict = concDict.copy() # Calculate non-base condition [AA]
@@ -605,7 +613,7 @@ def setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_t
 		)
 
 	nRibosomesNeeded = calculateMinPolymerizingEnzymeByProductDistribution(
-	proteinLengths, sim_data.growthRateParameters.ribosomeElongationRate, netLossRate_protein, proteinCounts)
+	proteinLengths, sim_data.growthRateParameters.getRibosomeElongationRate(doubling_time), netLossRate_protein, proteinCounts)
 	nRibosomesNeeded.normalize() # FIXES NO UNIT BUG
 	nRibosomesNeeded.checkNoUnit()
 	nRibosomesNeeded = nRibosomesNeeded.asNumber()
@@ -671,11 +679,12 @@ def setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_t
 	bulkContainer.countsIs(rRna5SCounts, sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna5S"]])
 
 
-def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time, Km = None):
+def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km = None):
 	# -- CONSTRAINT 1: Expected RNA distribution doubling -- #
 	rnaLengths = units.sum(sim_data.process.transcription.rnaData['countsACGU'], axis = 1)
 
 	rnaLossRate = None
+
 	if Km is None:
 		rnaLossRate = netLossRateFromDilutionAndDegradationRNALinear(
 			doubling_time,
@@ -685,7 +694,7 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time,
 	else:
 		# Get constants to compute countsToMolar factor
 		cellDensity = sim_data.constants.cellDensity
-		cellVolume = sim_data.mass.avgCellDryMassInit / cellDensity / 0.3
+		cellVolume = avgCellDryMassInit / cellDensity / 0.3
 		countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
 
 		rnaConc = countsToMolar * bulkContainer.counts(sim_data.process.transcription.rnaData['id'])
@@ -702,7 +711,7 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time,
 			)
 	
 	nActiveRnapNeeded = calculateMinPolymerizingEnzymeByProductDistributionRNA(
-		rnaLengths, sim_data.growthRateParameters.rnaPolymeraseElongationRate, rnaLossRate)
+		rnaLengths, sim_data.growthRateParameters.getRnapElongationRate(doubling_time), rnaLossRate)
 
 	nActiveRnapNeeded = units.convertNoUnitToNumber(nActiveRnapNeeded)
 	nRnapsNeeded = nActiveRnapNeeded / sim_data.growthRateParameters.fractionActiveRnap
@@ -724,11 +733,13 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time,
 	if VERBOSE: print 'rnap actual count: {}'.format((rnapCounts / rnapStoich).min())
 	if VERBOSE: print 'rnap counts set to: {}'.format(rnapLims[np.where(rnapLims.max() == rnapLims)[0]][0])
 
-	bulkContainer.countsIs(np.fmax(rnapCounts, minRnapSubunitCounts), rnapIds)
+	bulkContainer.countsIs(
+		np.fmax(rnapCounts, minRnapSubunitCounts),
+		rnapIds
+		)
 
 
-
-def fitExpression(sim_data, bulkContainer, doubling_time, Km = None):
+def fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km = None):
 
 	view_RNA = bulkContainer.countsView(sim_data.process.transcription.rnaData["id"])
 	counts_protein = bulkContainer.counts(sim_data.process.translation.monomerData["id"])
@@ -789,7 +800,7 @@ def fitExpression(sim_data, bulkContainer, doubling_time, Km = None):
 	else:
 		# Get constants to compute countsToMolar factor
 		cellDensity = sim_data.constants.cellDensity
-		cellVolume = sim_data.mass.avgCellDryMassInit / cellDensity / 0.3
+		cellVolume = avgCellDryMassInit / cellDensity / 0.3
 		countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
 
 		rnaConc = countsToMolar * bulkContainer.counts(sim_data.process.transcription.rnaData['id'])
@@ -1142,8 +1153,8 @@ def fitTfPromoterKd(sim_data, cellSpecs):
 
 		kdLog10Init = np.log10(kd)
 		constraints = [
-			{"type": "ineq", "fun": lambda kd, power: kd**(1. / power) + 12, "args": (metaboliteCoeff,)},
-			{"type": "ineq", "fun": lambda kd, power: -(kd**(1. / power)), "args": (metaboliteCoeff,)},
+			{"type": "ineq", "fun": lambda logKd, power: (logKd / power) + 12, "args": (metaboliteCoeff,)},
+			{"type": "ineq", "fun": lambda logKd, power: -(logKd / power), "args": (metaboliteCoeff,)},
 		]
 		for activeKSynth, inactiveKSynth in zip(activeSynthProbTargets, inactiveSynthProbTargets):
 			args = (activeSignalConc, inactiveSignalConc, metaboliteCoeff, activeKSynth, inactiveKSynth)
@@ -1153,7 +1164,7 @@ def fitTfPromoterKd(sim_data, cellSpecs):
 		ret = scipy.optimize.minimize(l1Distance, kdLog10Init, args = kdLog10Init, method = "COBYLA", constraints = constraints, options = {"catol": 1e-9})
 		if ret.status == 1:
 			kdTrunc = 10**(np.floor(ret.x * 10.) / 10.)
-			sim_data.process.equilibrium.setRevRate(tf + "[c]", kdTrunc)
+			sim_data.process.equilibrium.setRevRate(tf + "[c]", kdTrunc * sim_data.process.equilibrium.getFwdRate(tf + "[c]"))
 		else:
 			raise Exception, "Can't get positive RNA Polymerase recruitment rate for %s" % tf
 

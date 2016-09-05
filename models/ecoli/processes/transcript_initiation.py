@@ -47,7 +47,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		self.rnaLengths = sim_data.process.transcription.rnaData["length"]
 
-		self.rnaPolymeraseElongationRate = sim_data.growthRateParameters.rnaPolymeraseElongationRate
+		self.rnaPolymeraseElongationRate = sim_data.growthRateParameters.getRnapElongationRate(sim_data.conditionToDoublingTime[sim_data.condition])
 
 		self.rnaSynthProb = None
 
@@ -61,6 +61,11 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.tfsBound = None
 
 		self.maxRibosomeElongationRate = float(sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s))
+		self.is_16SrRNA = sim_data.process.transcription.rnaData['isRRna16S']
+		self.is_23SrRNA = sim_data.process.transcription.rnaData['isRRna23S']
+		self.is_5SrRNA = sim_data.process.transcription.rnaData['isRRna5S']
+		self.is_mrRNA = sim_data.process.transcription.rnaData['isMRna']
+
 
 		# Views
 
@@ -197,6 +202,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		nonzeroCount = (nNewRnas > 0)
 
 		assert nNewRnas.sum() == rnaPolyToActivate
+		print "transcription", nNewRnas[self.is_mrRNA].sum()
 
 		# Build list of RNA indexes
 
