@@ -96,7 +96,8 @@ def fitSimData_1(raw_data):
 										spec["bulkAverageContainer"],
 										spec["avgCellDryMassInit"]
 										)
-		sim_data.translationSupplyRate[sim_data.conditions[condition]["nutrients"]] = translation_aa_supply
+		if sim_data.conditions[condition]["nutrients"] not in sim_data.translationSupplyRate.keys():
+			sim_data.translationSupplyRate[sim_data.conditions[condition]["nutrients"]] = translation_aa_supply
 
 	fitTfPromoterKd(sim_data, cellSpecs)
 

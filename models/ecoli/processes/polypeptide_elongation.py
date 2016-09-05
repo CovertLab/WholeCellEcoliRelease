@@ -87,7 +87,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.nutrientsTimeSeries = copy.copy(sim_data.nutrientsTimeSeries)
 		self.currentNutrients = self.nutrientsTimeSeries[self.nutrientsTimeSeriesLabel][0][1]
 		##########
-		import ipdb; ipdb.set_trace()
 
 		# Views
 
