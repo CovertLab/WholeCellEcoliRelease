@@ -97,7 +97,7 @@ def fitSimData_1(raw_data):
 	sim_data.pPromoterBound = calculatePromoterBoundProbability(sim_data, cellSpecs)
 
 	calculateRnapRecruitment(sim_data, cellSpecs)
-	
+
 	return sim_data
 
 
