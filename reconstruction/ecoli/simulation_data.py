@@ -212,6 +212,12 @@ class SimulationDataEcoli(object):
 		for tf in sorted(self.tfToActiveInactiveConds):
 			activeCondition = tf + "__active"
 			inactiveCondition = tf + "__inactive"
+
+			if activeCondition in self.conditionActiveTfs:
+				del self.conditionActiveTfs[activeCondition]
+			if inactiveCondition in self.conditionActiveTfs:
+				del self.conditionActiveTfs[inactiveCondition]
+
 			self.conditions[activeCondition] = {}
 			self.conditions[inactiveCondition] = {}
 			self.conditions[activeCondition]["nutrients"] = self.tfToActiveInactiveConds[tf]["active nutrients"]
