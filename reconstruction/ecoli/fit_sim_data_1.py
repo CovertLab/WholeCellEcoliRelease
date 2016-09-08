@@ -1095,8 +1095,8 @@ def fitTfPromoterKd(sim_data, cellSpecs):
 
 		ret = scipy.optimize.minimize(l1Distance, kdLog10Init, args = kdLog10Init, method = "COBYLA", constraints = constraints, options = {"catol": 1e-9})
 		if ret.status == 1:
-			kdTrunc = 10**(np.floor(ret.x * 10.) / 10.)
-			sim_data.process.equilibrium.setRevRate(tf + "[c]", kdTrunc * sim_data.process.equilibrium.getFwdRate(tf + "[c]"))
+			kdNew = 10**ret.x
+			sim_data.process.equilibrium.setRevRate(tf + "[c]", kdNew * sim_data.process.equilibrium.getFwdRate(tf + "[c]"))
 		else:
 			raise Exception, "Can't get positive RNA Polymerase recruitment rate for %s" % tf
 
