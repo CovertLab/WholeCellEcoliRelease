@@ -41,10 +41,9 @@ FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
 
 SECRETION_PENALTY_COEFF = 1e-5
 
-NONZERO_ENZYMES = False
+NONZERO_ENZYMES = True
 
 USE_KINETIC_RATES = True # Enable/disable kinetic rate limits in the model
-SET_MIN_FLUXES = False
 USE_BASE_RATES = True
 
 USE_MANUAL_FLUX_COEFF = True # enable to overrid flux coefficients in the knowledgebase and use these local values instead
@@ -132,11 +131,18 @@ class Metabolism(wholecell.processes.process.Process):
 		self.enzymeKinetics = EnzymeKinetics(
 			reactionRateInfo = sim_data.process.metabolism.reactionRateInfo,
 			useCustoms=True,
-			moreThanKcat=True, # Only compute rates for reactions with more than a kcat
+			moreThanKcat=False, # Only compute rates for reactions with more than a kcat
 		)
 
-		# List of reactions for which to set target kinetics
-		self.kineticReactions = list(set([x for x,y in sim_data.process.metabolism.reactionRateInfo.iteritems() if (len(y["kM"])>0 and x in self.reactionStoich)]))
+		# Remove kinetics for reactions for which we don't have needed metabolites or enzymes
+		self.enzymeKinetics.checkKnownSubstratesAndEnzymes(sim_data.process.metabolism.concDict, self.enzymeNames, removeUnknowns=True)
+
+		# Add reactions with a kinetic estimate
+		self.allRateReactions = sorted(set([reactionInfo["reactionID"] for constraintID, reactionInfo in self.enzymeKinetics.reactionRateInfo.iteritems() if reactionInfo["reactionID"] in self.reactionStoich]))
+		# Reactions with full kinetic estimates (more than just kcat)
+		self.fullRateReactions = sorted(set([reactionInfo["reactionID"] for constraintID, reactionInfo in self.enzymeKinetics.reactionRateInfo.iteritems() if len(reactionInfo["kM"]) > 0 and reactionInfo["reactionID"] in self.reactionStoich]))
+		# Reactions with a kcat-based kinetic estimate only (no customs, no kMs, no kIs)
+		self.kcatRateReactions = sorted(set([reactionInfo["reactionID"] for constraintID, reactionInfo in self.enzymeKinetics.reactionRateInfo.iteritems() if len(reactionInfo["kM"]) == 0 and len(reactionInfo["kI"]) == 0 and reactionInfo["rateEquationType"] == "standard" and reactionInfo["reactionID"] in self.reactionStoich]))
 
 		# Set up FBA solver
 		self.fbaObjectOptions = {
@@ -145,8 +151,9 @@ class Metabolism(wholecell.processes.process.Process):
 			"objective" : self.objective,
 			"objectiveType" : "pools_kinetics_mixed",
 			"objectiveParameters" : {
-					"kineticObjectiveWeight":sim_data.constants.metabolismKineticObjectiveWeight,
-					"reactionRateTargets":{reaction:0 for reaction in self.kineticReactions},
+					"kineticObjectiveWeight":1e-6,#sim_data.constants.metabolismKineticObjectiveWeight,
+					"reactionRateTargets":{reaction:1e-5 for reaction in self.allRateReactions},
+					"oneSidedReactionTargets":self.kcatRateReactions,
 					},
 			"moleculeMasses" : self.moleculeMasses,
 			"secretionPenaltyCoeff" : SECRETION_PENALTY_COEFF, # The "inconvenient constant"--limit secretion (e.g., of CO2)
@@ -156,14 +163,10 @@ class Metabolism(wholecell.processes.process.Process):
 		}
 		self.fba = FluxBalanceAnalysis(**self.fbaObjectOptions)
 
-		# Remove kinetics for reactions for which we don't have needed metabolites or enzymes
-		self.enzymeKinetics.checkKnownSubstratesAndEnzymes(sim_data.process.metabolism.concDict, self.enzymeNames, removeUnknowns=True)
-
-		# Reactions with full kinetic estimates (more than just kcat)
-		self.fullRateReactions = [reactionInfo["reactionID"] for constraintID, reactionInfo in self.enzymeKinetics.reactionRateInfo.iteritems() if len(reactionInfo["kM"]) > 0 and reactionInfo["reactionID"] in self.fba.reactionIDs()]
-
 		# Indices for reactions with full kinetic esimates
-		self.fullRateIndices = np.where([True if reactionID in self.fullRateReactions else False for reactionID in self.fba.reactionIDs()])
+		self.fullRateIndices = np.where([True if reactionID in self.allRateReactions else False for reactionID in self.fba.reactionIDs()])
+
+		self.fba._solver._model.set_solver_method_dualprimal()
 
 		# Matrix mapping enzymes to the reactions they catalyze
 		self.enzymeReactionMatrix = sim_data.process.metabolism.enzymeReactionMatrix(
@@ -304,8 +307,18 @@ class Metabolism(wholecell.processes.process.Process):
 					"coefficient":self.constraintMultiplesDict[constraintID] * self.min_flux_coefficient,}
 
 		if USE_KINETIC_RATES:
-			self.fullRateEstimates = self.enzymeKinetics.ratesView(self.fullRateReactions, self.maxConstraints, metaboliteConcentrationsDict, enzymeConcentrationsDict, raiseIfNotFound=False)
-			self.fba.setKineticTarget(self.fullRateReactions, self.fullRateEstimates.asNumber(FLUX_UNITS), raiseForReversible=False)
+			# if self.time() < 1:
+			# if False:
+			# if self._sim.simulationStep() % 5 == 2:
+			if True:
+				self.allRateEstimates = self.enzymeKinetics.ratesView(self.allRateReactions, self.maxConstraints, metaboliteConcentrationsDict, enzymeConcentrationsDict, raiseIfNotFound=True)
+				# Make kinetic targets numerical zero instead of actually zero for solver stability
+				self.allRateEstimates[self.allRateEstimates.asNumber() == 0] = FLUX_UNITS * 1e-20
+
+				# self.allRateEstimates = FLUX_UNITS * np.zeros(self.allRateEstimates.asNumber(FLUX_UNITS).shape)
+				# self.allRateEstimates = FLUX_UNITS * 1e-9*np.ones(self.allRateEstimates.asNumber(FLUX_UNITS).shape)
+				# self.allRateEstimates[self.allRateEstimates.asNumber(FLUX_UNITS) == np.inf] = (FLUX_UNITS) * 100
+				self.fba.setKineticTarget(self.allRateReactions, self.allRateEstimates.asNumber(FLUX_UNITS), raiseForReversible=False)
 
 		if USE_BASE_RATES:
 			# Calculate new rates
@@ -358,6 +371,12 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.writeToListener("EnzymeKinetics", "kineticTargetFluxes",
 			self.fba.kineticTargetFluxes())
+
+		self.writeToListener("EnzymeKinetics", "kineticTargetErrors",
+			self.fba.kineticTargetFluxes() - self.allRateEstimates.asNumber(FLUX_UNITS))
+
+		self.writeToListener("EnzymeKinetics", "kineticTargetRelativeDifferences",
+			(self.fba.kineticTargetFluxes() - self.allRateEstimates.asNumber(FLUX_UNITS)) / self.allRateEstimates.asNumber(FLUX_UNITS))
 
 		self.writeToListener("EnzymeKinetics", "metaboliteCountsInit",
 			metaboliteCountsInit)

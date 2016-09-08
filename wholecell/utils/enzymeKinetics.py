@@ -215,6 +215,7 @@ class EnzymeKinetics(object):
 		"""
 
 		unknownConstraints = set()
+		unknownReactions = set()
 
 		# Build an estimate for rates of constraints passed in
 		rates = self.defaultRate * np.ones(len(reactionIDs))
@@ -227,9 +228,15 @@ class EnzymeKinetics(object):
 				else:
 					if raiseIfNotFound:
 						unknownConstraints.add(constraintID)
+			else:
+				if raiseIfNotFound:
+					unknownReactions.add(reactionID)
 
 		if len(unknownConstraints) > 0:
-			raise Exception("No rate estimate found for constraintIDs {}.".format(unknownConstraints))
+			raise Exception("No rate estimate found for the following {} constraintIDs {}.".format(len(unknownConstraints), unknownConstraints))
+
+		if len(unknownReactions) > 0:
+			raise Exception("No rate estimate found for the following {} reactionIDs {}.".format(len(unknownReactions), unknownReactions))
 
 		return rates
 

@@ -18,8 +18,8 @@ SOLVERS = {}
 S_GUROBI = "gurobi"
 S_GLPK = "glpk"
 _SOLVER_PREFERENCE = (
-	S_GUROBI,
-	S_GLPK
+	S_GLPK,
+	S_GUROBI
 	)
 
 try:
@@ -238,6 +238,7 @@ class FluxBalanceAnalysis(object):
 
 		# Keep track of non-standard reactions
 		self._specialFluxIDsSet = set()
+		self._kineticTargetFluxes = set()
 
 		# Call indivdual initialization methods
 		self._initReactionNetwork(self.reactionStoich)
@@ -271,6 +272,14 @@ class FluxBalanceAnalysis(object):
 					)
 			internalExchangedMolecules = sorted(objective.keys())
 
+		elif self.objectiveType == "kinetic_only":
+			if "reactionRateTargets" in objectiveParameters:
+				rateObjective = objectiveParameters["reactionRateTargets"]
+			else:
+				raise FBAError("When using pools_kinetics_mixed objective, a reactionRateTargets dict of reactionName:target rate must be provided in objectiveParameters.")
+
+			self._initObjectiveKinetic(rateObjective, objectiveParameters)
+
 		elif self.objectiveType == "pools_kinetics_mixed":
 			# Set up pools
 			self._initObjectiveEquivalents(objective)
@@ -282,12 +291,12 @@ class FluxBalanceAnalysis(object):
 					)
 			internalExchangedMolecules = sorted(objective.keys())
 
+			# Set up kinetic objective
 			if "reactionRateTargets" in objectiveParameters:
 				rateObjective = objectiveParameters["reactionRateTargets"]
 			else:
 				raise FBAError("When using pools_kinetics_mixed objective, a reactionRateTargets dict of reactionName:target rate must be provided in objectiveParameters.")
 
-			# Set up kinetic objective
 			self._initObjectiveKinetic(rateObjective, objectiveParameters)
 
 		elif self.objectiveType == "moma":
@@ -622,7 +631,7 @@ class FluxBalanceAnalysis(object):
 		defined in the objective."""
 
 		# Load parameters - default to regular pools fba if none given
-		HomeostaticRangeObjFractionHigher = objectiveParameters["HomeostaticRangeObjFractionHigher"] if "HomeostaticRangeObjFractionHigher" in objectiveParameters else 0
+		homeostaticRangeObjFractionHigher = objectiveParameters["homeostaticRangeObjFractionHigher"] if "homeostaticRangeObjFractionHigher" in objectiveParameters else 0
 		inRangeObjWeight = objectiveParameters["inRangeObjWeight"] if "inRangeObjWeight" in objectiveParameters else 0
 		kineticObjectiveWeight = objectiveParameters["kineticObjectiveWeight"] if "kineticObjectiveWeight" in objectiveParameters else 0
 
@@ -670,7 +679,7 @@ class FluxBalanceAnalysis(object):
 
 			self._solver.flowObjectiveCoeffIs(
 				belowUnityID,
-				+(self.homeostaticWeightFactor / len(objective))
+				+(self.homeostaticWeightFactor)
 				)
 
 			# Add the term for when the flux out is within the expected range
@@ -679,19 +688,19 @@ class FluxBalanceAnalysis(object):
 			self._solver.flowMaterialCoeffIs(
 				inRangeID,
 				objectiveEquivID,
-				-(self.homeostaticWeightFactor / len(objective)) if HomeostaticRangeObjFractionHigher > 0 else (self.homeostaticWeightFactor / len(objective))
+				-homeostaticRangeObjFractionHigher if homeostaticRangeObjFractionHigher > 0 else homeostaticRangeObjFractionHigher
 				)
 
 			# Set the weight of running this relaxation
 			self._solver.flowObjectiveCoeffIs(
 				inRangeID,
-				+inRangeObjWeight*(self.homeostaticWeightFactor / len(objective))
+				+inRangeObjWeight*(self.homeostaticWeightFactor)
 				)
 
 			# This relaxation can only go to the end of the target range (less and the out range relaxation must be used)
 			self._solver.flowUpperBoundIs(
 				inRangeID,
-				+abs(HomeostaticRangeObjFractionHigher)
+				+abs(homeostaticRangeObjFractionHigher)
 				)
 
 
@@ -706,7 +715,7 @@ class FluxBalanceAnalysis(object):
 
 			self._solver.flowObjectiveCoeffIs(
 				aboveUnityID,
-				+(self.homeostaticWeightFactor / len(objective))
+				+(self.homeostaticWeightFactor)
 				)
 
 	def _initObjectiveMOMA(self, objective, objectiveParameters=None):
@@ -731,8 +740,6 @@ class FluxBalanceAnalysis(object):
 		# Make single-string arguments into list
 		if isinstance(fixedReactionNames, str):
 			fixedReactionNames = [fixedReactionNames]
-
-		self._kineticTargetFluxes = set()
 
 		# This is a minimization objective problem
 		self._solver.maximizeObjective(False)
@@ -829,7 +836,6 @@ class FluxBalanceAnalysis(object):
 
 		# Unless given, assume no reactions are one-sided targets (ie kcat only targets)
 		self._oneSidedReactions = set(objectiveParameters["oneSidedReactionTargets"]) if "oneSidedReactionTargets" in objectiveParameters else set()
-		self._kineticTargetFluxes = set()
 
 		# This is a minimization objective problem
 		self._solver.maximizeObjective(False)
@@ -853,9 +859,6 @@ class FluxBalanceAnalysis(object):
 				raise FBAError("{} is not in the reaction network. Target fluxes must be in the reaction network".format(reactionID))
 
 			self._kineticTargetFluxes.add(reactionID)
-
-			if self.kineticObjectiveWeight == 0:
-				continue
 
 			reactionFluxEquivalent = self._generatedID_reactionFluxEquivalents.format(reactionID)
 			# Add a term to the reaction to create a kinetic objective equivalent each time it's run
@@ -898,7 +901,7 @@ class FluxBalanceAnalysis(object):
 			# Objective is to minimize running this relaxation reaction
 			self._solver.flowObjectiveCoeffIs(
 				overTargetFlux,
-				(self.kineticObjectiveWeight / len(objective))
+				(self.kineticObjectiveWeight)
 			)
 
 			self._specialFluxIDsSet.add(overTargetFlux)
@@ -915,7 +918,7 @@ class FluxBalanceAnalysis(object):
 			if reactionID not in self._oneSidedReactions:
 				self._solver.flowObjectiveCoeffIs(
 					underTargetFlux,
-					(self.kineticObjectiveWeight / len(objective))
+					(self.kineticObjectiveWeight)
 					)
 
 			self._specialFluxIDsSet.add(underTargetFlux)
