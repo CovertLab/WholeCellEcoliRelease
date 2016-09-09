@@ -81,6 +81,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 		if (np.abs(errorFluxTimeCourse[BURN_IN_PERIOD:]) < NUMERICAL_ZERO).all():
 			zeroErrorFluxes.add(errorFluxID)
+			withinTargetErrorFluxes.add(errorFluxID)
 			continue
 
 		if (np.abs(errorFluxTimeCourse[BURN_IN_PERIOD:]) < TARGET_RELATIVE_DIFFERENCE).all():

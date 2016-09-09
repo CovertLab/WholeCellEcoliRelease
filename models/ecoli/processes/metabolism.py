@@ -151,8 +151,8 @@ class Metabolism(wholecell.processes.process.Process):
 			"objective" : self.objective,
 			"objectiveType" : "pools_kinetics_mixed",
 			"objectiveParameters" : {
-					"kineticObjectiveWeight":1e-6,#sim_data.constants.metabolismKineticObjectiveWeight,
-					"reactionRateTargets":{reaction:1e-5 for reaction in self.allRateReactions},
+					"kineticObjectiveWeight":sim_data.constants.metabolismKineticObjectiveWeight,
+					"reactionRateTargets":{reaction:1e-5 for reaction in self.allRateReactions}, #This target is arbitrary, it gets reset each timestep during evolveState
 					"oneSidedReactionTargets":self.kcatRateReactions,
 					},
 			"moleculeMasses" : self.moleculeMasses,
