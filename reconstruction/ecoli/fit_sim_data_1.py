@@ -82,7 +82,7 @@ def fitSimData_1(raw_data):
 
 	for condition in sorted(cellSpecs):
 		spec = cellSpecs[condition]
-		bulkAverageContainer, bulkDeviationContainer = calculateBulkDistributions(
+		bulkAverageContainer, bulkDeviationContainer, proteinMonomerAverageContainer, proteinMonomerDeviationContainer = calculateBulkDistributions(
 			sim_data,
 			spec["expression"],
 			spec["concDict"],
@@ -91,11 +91,13 @@ def fitSimData_1(raw_data):
 			)
 		spec["bulkAverageContainer"] = bulkAverageContainer
 		spec["bulkDeviationContainer"] = bulkDeviationContainer
+		spec["proteinMonomerAverageContainer"] = proteinMonomerAverageContainer
+		spec["proteinMonomerDeviationContainer"] = proteinMonomerDeviationContainer
 
 		translation_aa_supply = calculateTranslationSupply(
 										sim_data,
 										spec["doubling_time"],
-										spec["bulkAverageContainer"],
+										spec["proteinMonomerAverageContainer"],
 										spec["avgCellDryMassInit"]
 										)
 		if sim_data.conditions[condition]["nutrients"] not in sim_data.translationSupplyRate.keys():
@@ -905,7 +907,7 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 	allMoleculesView = bulkContainer.countsView(allMoleculesIDs)
 
 	allMoleculeCounts = np.empty((N_SEEDS, allMoleculesView.counts().size), np.int64)
-
+	proteinMonomerCounts = np.empty((N_SEEDS, proteinView.counts().size), np.int64)
 
 	for seed in xrange(N_SEEDS):
 		randomState = np.random.RandomState(seed)
@@ -925,7 +927,7 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 		rnaView.countsIs(totalCount_RNA * distribution_RNA)
 
 		proteinView.countsIs(totalCount_protein * distribution_protein)
-
+		proteinMonomerCounts[seed, :] = proteinView.counts()
 		complexationMoleculeCounts = complexationMoleculesView.counts()
 
 		updatedCompMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
@@ -972,11 +974,15 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 
 	bulkAverageContainer = BulkObjectsContainer(sim_data.state.bulkMolecules.bulkData['id'], np.float64)
 	bulkDeviationContainer = BulkObjectsContainer(sim_data.state.bulkMolecules.bulkData['id'], np.float64)
+	proteinMonomerAverageContainer = BulkObjectsContainer(sim_data.process.translation.monomerData["id"], np.float64)
+	proteinMonomerDeviationContainer = BulkObjectsContainer(sim_data.process.translation.monomerData["id"], np.float64)
 
 	bulkAverageContainer.countsIs(allMoleculeCounts.mean(0), allMoleculesIDs)
 	bulkDeviationContainer.countsIs(allMoleculeCounts.std(0), allMoleculesIDs)
+	proteinMonomerAverageContainer.countsIs(proteinMonomerCounts.mean(0), sim_data.process.translation.monomerData["id"])
+	proteinMonomerDeviationContainer.countsIs(proteinMonomerCounts.std(0), sim_data.process.translation.monomerData["id"])
 
-	return bulkAverageContainer, bulkDeviationContainer
+	return bulkAverageContainer, bulkDeviationContainer, proteinMonomerAverageContainer, proteinMonomerDeviationContainer
 
 
 # Math functions
