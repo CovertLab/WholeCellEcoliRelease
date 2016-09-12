@@ -50,11 +50,11 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		self.fracActiveRnap = sim_data.growthRateParameters.fractionActiveRnap
+		self.fracActiveRnap = sim_data.growthRateParameters.getFractionActiveRnap(sim_data.conditionToDoublingTime[sim_data.condition])
 
 		self.rnaLengths = sim_data.process.transcription.rnaData["length"]
 
-		self.rnaPolymeraseElongationRate = sim_data.growthRateParameters.rnaPolymeraseElongationRate
+		self.rnaPolymeraseElongationRate = sim_data.growthRateParameters.getRnapElongationRate(sim_data.conditionToDoublingTime[sim_data.condition])
 
 		self.rnaSynthProb = None
 
@@ -70,6 +70,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.is_16SrRNA = sim_data.process.transcription.rnaData['isRRna16S']
 		self.is_23SrRNA = sim_data.process.transcription.rnaData['isRRna23S']
 		self.is_5SrRNA = sim_data.process.transcription.rnaData['isRRna5S']
+		self.is_mrRNA = sim_data.process.transcription.rnaData['isMRna']
 
 
 		# Views

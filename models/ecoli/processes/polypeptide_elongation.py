@@ -74,7 +74,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.gtpPerElongation = sim_data.constants.gtpPerTranslation
 
-		self.ribosomeElngRate = float(sim_data.growthRateParameters.ribosomeElongationRate.asNumber(units.aa / units.s))
+		self.ribosomeElngRate = float(sim_data.growthRateParameters.getRibosomeElongationRate(sim_data.conditionToDoublingTime[sim_data.condition]).asNumber(units.aa / units.s))
 
 		# Views
 

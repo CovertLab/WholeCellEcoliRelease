@@ -92,7 +92,8 @@ class Metabolism(wholecell.processes.process.Process):
 		concDict = sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
 			sim_data.nutrientsTimeSeries[sim_data.nutrientsTimeSeriesLabel][0][1]
 			)
-		concDict.update(sim_data.mass.getBiomassAsConcentrations(sim_data.conditionToDoublingTime[sim_data.condition]))
+		self.concModificationsBasedOnCondition = sim_data.mass.getBiomassAsConcentrations(sim_data.conditionToDoublingTime[sim_data.condition])
+		concDict.update(self.concModificationsBasedOnCondition)
 
 		self.objective = dict(
 			(key, concDict[key].asNumber(COUNTS_UNITS / VOLUME_UNITS)) for key in concDict
@@ -143,6 +144,8 @@ class Metabolism(wholecell.processes.process.Process):
 		self.fullRateReactions = sorted(set([reactionInfo["reactionID"] for constraintID, reactionInfo in self.enzymeKinetics.reactionRateInfo.iteritems() if len(reactionInfo["kM"]) > 0 and reactionInfo["reactionID"] in self.reactionStoich]))
 		# Reactions with a kcat-based kinetic estimate only (no customs, no kMs, no kIs)
 		self.kcatRateReactions = sorted(set([reactionInfo["reactionID"] for constraintID, reactionInfo in self.enzymeKinetics.reactionRateInfo.iteritems() if len(reactionInfo["kM"]) == 0 and len(reactionInfo["kI"]) == 0 and reactionInfo["rateEquationType"] == "standard" and reactionInfo["reactionID"] in self.reactionStoich]))
+
+		self.metabolismKineticObjectiveWeight = sim_data.constants.metabolismKineticObjectiveWeight
 
 		# Set up FBA solver
 		self.fbaObjectOptions = {
@@ -233,14 +236,14 @@ class Metabolism(wholecell.processes.process.Process):
 			coefficient,
 			COUNTS_UNITS / VOLUME_UNITS,
 			self.nutrientsTimeSeriesLabel,
-			self.time()
+			self.time(),
+			self.concModificationsBasedOnCondition,
 			)
 
 		if newObjective != None and newObjective != self.objective:
 			# Build new fba instance with new objective
 			self.fbaObjectOptions["objective"] = newObjective
 			self.fba = FluxBalanceAnalysis(**self.fbaObjectOptions)
-
 			massComposition = self.massReconstruction.getFractionMass(self.doublingTime)
 			massInitial = (massComposition["proteinMass"] + massComposition["rnaMass"] + massComposition["dnaMass"]) / self.avgCellToInitialCellConvFactor
 			objIds = sorted(self.objective)

@@ -85,7 +85,7 @@
 "pspB"	"EG10777"			"EG10777-MONOMER"	"EG10777-MONOMER"	
 "pspC"	"EG10778"			"CPLX0-961"	"CPLX0-961"	"Dimer"
 "ycjW"	"G6658"			"G6658-MONOMER"	"G6658-MONOMER"	"Predicted"
-"tyrR"	"EG11042"	"MONOMER0-163, MONOMER0-162"			"MONOMER0-163, MONOMER0-162"	"Two different metabolites induce active conformations"
+"tyrR"	"EG11042"	"MONOMER0-162, MONOMER0-163"			"MONOMER0-162, MONOMER0-163"	"Two different metabolites induce active conformations"
 "ycjZ"	"G6664"			"G6664-MONOMER"	"G6664-MONOMER"	
 "fnr"	"EG10325"	"CPLX0-7797"			"CPLX0-7797"	
 "abgR"	"G6671"			"G6671-MONOMER"	"G6671-MONOMER"	"Predicted"
