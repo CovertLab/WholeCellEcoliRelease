@@ -105,8 +105,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		if np.any(self.rnaSynthProb < 0):
 			raise Exception, "Have negative RNA synthesis probabilities"
 
-		print (self.recruitmentView.total() < 0.).sum()
-
 		assert np.allclose(self.rnaSynthProb.sum(),1.)
 		assert np.all(self.rnaSynthProb >= 0.)
 
@@ -202,7 +200,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		nonzeroCount = (nNewRnas > 0)
 
 		assert nNewRnas.sum() == rnaPolyToActivate
-		print "transcription", nNewRnas[self.is_mrRNA].sum()
 
 		# Build list of RNA indexes
 
