@@ -359,6 +359,7 @@ class GrowthRateParameters(object):
 		_loadTableIntoObjectGivenDoublingTime(self, raw_data.growthRateDependentParameters)
 		self.ribosomeElongationRateParams = _getFitParameters(raw_data.growthRateDependentParameters, "ribosomeElongationRate")
 		self.rnaPolymeraseElongationRateParams = _getFitParameters(raw_data.growthRateDependentParameters, "rnaPolymeraseElongationRate")
+		self.fractionActiveRnapParams = _getFitParameters(raw_data.growthRateDependentParameters, "fractionActiveRnap")
 		# thingsToSet = [x for x in dir(self) if x[0] != '_']
 		# for x in thingsToSet:
 		# 	setattr(sim_data.constants, x, getattr(self, x))
@@ -371,6 +372,9 @@ class GrowthRateParameters(object):
 
 	def getRnapElongationRate(self, doubling_time):
 		return _useFitParameters(doubling_time, **self.rnaPolymeraseElongationRateParams)
+
+	def getFractionActiveRnap(self, doubling_time):
+		return _useFitParameters(doubling_time, **self.fractionActiveRnapParams)
 
 def _getFitParameters(list_of_dicts, key):
 	# Load rows of data

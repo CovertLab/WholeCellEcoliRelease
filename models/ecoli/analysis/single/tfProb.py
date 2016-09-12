@@ -45,13 +45,13 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	trpActiveExpectedProbBound = sim_data.pPromoterBound["CPLX-125__active"]["CPLX-125"]
 	trpInactiveExpectedProbBound = sim_data.pPromoterBound["CPLX-125__inactive"]["CPLX-125"]
-	tyrActiveExpectedProbBound = sim_data.pPromoterBound["MONOMER0-163__active"]["MONOMER0-163"]
-	tyrInactiveExpectedProbBound = sim_data.pPromoterBound["MONOMER0-163__inactive"]["MONOMER0-163"]
+	tyrActiveExpectedProbBound = sim_data.pPromoterBound["MONOMER0-162__active"]["MONOMER0-162"]
+	tyrInactiveExpectedProbBound = sim_data.pPromoterBound["MONOMER0-162__inactive"]["MONOMER0-162"]
 
 	recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
 	tfs = sorted(set([x.split("__")[-1] for x in recruitmentColNames if x.split("__")[-1] != "alpha"]))
 	trpRIndex = [i for i, tf in enumerate(tfs) if tf == "CPLX-125"][0]
-	tyrRIndex = [i for i, tf in enumerate(tfs) if tf == "MONOMER0-163"][0]
+	tyrRIndex = [i for i, tf in enumerate(tfs) if tf == "MONOMER0-162"][0]
 
 	plt.figure(figsize = (8.5, 11))
 	ax = plt.subplot(2,2,1)

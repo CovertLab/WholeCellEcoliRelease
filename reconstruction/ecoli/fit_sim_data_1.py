@@ -108,7 +108,7 @@ def fitSimData_1(raw_data):
 	sim_data.pPromoterBound = calculatePromoterBoundProbability(sim_data, cellSpecs)
 
 	calculateRnapRecruitment(sim_data, cellSpecs)
-	
+
 	return sim_data
 
 
@@ -716,7 +716,7 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time,
 		rnaLengths, sim_data.growthRateParameters.getRnapElongationRate(doubling_time), rnaLossRate)
 
 	nActiveRnapNeeded = units.convertNoUnitToNumber(nActiveRnapNeeded)
-	nRnapsNeeded = nActiveRnapNeeded / sim_data.growthRateParameters.fractionActiveRnap
+	nRnapsNeeded = nActiveRnapNeeded / sim_data.growthRateParameters.getFractionActiveRnap(doubling_time)
 
 	rnapIds = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.rnapFull[0])['subunitIds']
 	rnapStoich = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.rnapFull[0])['subunitStoich']
@@ -1169,8 +1169,8 @@ def fitTfPromoterKd(sim_data, cellSpecs):
 
 		ret = scipy.optimize.minimize(l1Distance, kdLog10Init, args = kdLog10Init, method = "COBYLA", constraints = constraints, options = {"catol": 1e-9})
 		if ret.status == 1:
-			kdTrunc = 10**(np.floor(ret.x * 10.) / 10.)
-			sim_data.process.equilibrium.setRevRate(tf + "[c]", kdTrunc * sim_data.process.equilibrium.getFwdRate(tf + "[c]"))
+			kdNew = 10**ret.x
+			sim_data.process.equilibrium.setRevRate(tf + "[c]", kdNew * sim_data.process.equilibrium.getFwdRate(tf + "[c]"))
 		else:
 			raise Exception, "Can't get positive RNA Polymerase recruitment rate for %s" % tf
 
