@@ -15,7 +15,7 @@ DEFAULT_IMAGE_TYPE = '.pdf'
 
 def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None):
 
-	if metadata != None:
+	if metadata != None and "analysis_type" in metadata:
 		if metadata["analysis_type"] == 'single':
 			# Format metadata signature for single gen figure
 			metadata_signature = "_".join([str(metadata["time"])[:13],
