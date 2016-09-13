@@ -124,6 +124,11 @@ class Equilibrium(object):
 
 		self._makeMatrices()
 		self._populateDerivativeAndJacobian()
+		self._complexIdxs = np.where((self.stoichMatrix() == 1).sum(axis = 1))[0]
+		self._monomerIdxs = [np.where(x < 0)[0] for x in self.stoichMatrix().T]
+		self._rxnNonZeroIdxs = [np.where(x != 0)[0] for x in self.stoichMatrix().T]
+		self._stoichMatrix = self.stoichMatrix()
+		self._stoichMatrixMonomers = self.stoichMatrixMonomers()
 
 	def stoichMatrix(self):
 		shape = (self._stoichMatrixI.max()+1, self._stoichMatrixJ.max()+1)
@@ -323,22 +328,42 @@ class Equilibrium(object):
 	# It could be useful in both the fitter and in the simulations
 	# But it isn't just data
 	def fluxesAndMoleculesToSS(self, moleculeCounts, cellVolume, nAvogadro):
-		y_init = moleculeCounts / (cellVolume * nAvogadro)
-		y = scipy.integrate.odeint(self.derivatives, y_init, t = [0, 1e10], args = (self.ratesFwd, self.ratesRev), Dfun = self.derivativesJacobian)
 
-		if np.any(y[-1, :] * (cellVolume * nAvogadro) <= -1):
-			raise Exception, "Have negative values -- probably due to numerical instability"
-		if np.linalg.norm(self.derivatives(y[-1, :], 0, self.ratesFwd, self.ratesRev), np.inf) * (cellVolume * nAvogadro) > 1:
-			raise Exception, "Didn't reach steady state"
-		y[y < 0] = 0
-		yMolecules = y * (cellVolume * nAvogadro)
+		rxnFluxes = np.zeros(self._stoichMatrix.shape[1])
+		yMoleculesFinal = np.zeros_like(moleculeCounts)
+		dYMolecules = np.zeros_like(moleculeCounts)
+		monomersTotal = moleculeCounts + np.dot(self._stoichMatrixMonomers, -1. * moleculeCounts[self._complexIdxs])
+		countsToMolarLog = -1. * (np.log10(cellVolume) + np.log10(nAvogadro))
+		for colIdx in xrange(self._stoichMatrix.shape[1]):
+			dYMolecules[self._rxnNonZeroIdxs[colIdx]] = (self._solveSS(
+				monomersTotal,
+				self._stoichMatrix[:, colIdx],
+				np.log10(self.ratesRev[colIdx]) - np.log10(self.ratesFwd[colIdx]),
+				countsToMolarLog,
+				self._monomerIdxs[colIdx],
+				self._rxnNonZeroIdxs[colIdx],
+				) - moleculeCounts[self._rxnNonZeroIdxs[colIdx]])
 
-		dYMolecules = yMolecules[-1, :] - yMolecules[0, :]
 		rxnFluxes = np.round(np.dot(self.metsToRxnFluxes, dYMolecules))
 		rxnFluxesN = -1. * (rxnFluxes < 0) * rxnFluxes
 		rxnFluxesP =  1. * (rxnFluxes > 0) * rxnFluxes
 		moleculesNeeded = np.dot(self.Rp, rxnFluxesP) + np.dot(self.Pp, rxnFluxesN)
 		return rxnFluxes, moleculesNeeded
+
+
+	def _solveSS(self, x, S, kdLog, countsToMolarLog, monomerIdxs, nonZeroIdxs):
+		def error(x, S, kdLog, countsToMolarLog):
+			return np.abs(np.dot(-S, countsToMolarLog + np.log10(x)) - kdLog)
+
+		rxnFlux = 0.
+		maxIters = int(np.ceil(np.min(-x[monomerIdxs] / S[monomerIdxs])))
+
+		if maxIters > 0:
+			allAttempts = (np.arange(1, maxIters + 1).reshape(1, -1) * S[nonZeroIdxs].reshape(-1, 1) + np.ones(maxIters).reshape(1, -1) * x[nonZeroIdxs].reshape(-1, 1))
+			h = np.argmin(np.abs(np.sum(-1 * np.ones(maxIters).reshape(1, -1) * S[nonZeroIdxs].reshape(-1, 1) * (countsToMolarLog + np.log10(allAttempts)), axis = 0) - kdLog))
+			rxnFlux = (h + 1)
+
+		return x[nonZeroIdxs] + rxnFlux * S[nonZeroIdxs]
 
 
 	# TODO: These methods might not be necessary, consider deleting if that's the case
