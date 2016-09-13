@@ -54,7 +54,7 @@ def initializeBulkMolecules(bulkMolCntr, sim_data, randomState):
 	initializeConstitutiveExpression(bulkMolCntr, sim_data, randomState)
 
 def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
-	initializeReplication(uniqueMolCntr, sim_data)
+	initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data)
 
 def initializeProteinMonomers(bulkMolCntr, sim_data, randomState):
 
@@ -103,6 +103,14 @@ def initializeDNA(bulkMolCntr, sim_data, randomState):
 	chromosomeView = bulkMolCntr.countsView(sim_data.moleculeGroups.fullChromosome)
 	chromosomeView.countsIs([1])
 
+	# Initalize gene counts on full chromosome (right now this is just for rrn operons, could be generalized)
+	forward_coords = sim_data.process.replication.forward_strand_rrn_coordinate
+	reverse_coords = sim_data.process.replication.reverse_strand_rrn_coordinate
+	counts_on_full_chromosome = chromosomeView.counts() * (forward_coords.size + reverse_coords.size)
+
+	rrn_view = bulkMolCntr.countView('rrn_operon')
+	rrn_view.countInc(counts_on_full_chromosome)
+
 # TODO: remove checks for zero concentrations (change to assertion)
 # TODO: move any rescaling logic to KB/fitting
 def initializeSmallMolecules(bulkMolCntr, sim_data, randomState):
@@ -137,7 +145,7 @@ def initializeConstitutiveExpression(bulkMolCntr, sim_data, randomState):
 	alphaView = bulkMolCntr.countsView(alphaNames)
 	alphaView.countsIs(1)
 
-def initializeReplication(uniqueMolCntr, sim_data):
+def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 	"""
 	initializeReplication
 
@@ -188,6 +196,21 @@ def initializeReplication(uniqueMolCntr, sim_data):
 		chromosomeIndex = np.array(chromosomeIndex),
 		massDiff_DNA = massIncreaseDna,
 		)
+
+	# Initalize gene counts on partial strands (right now this is just for rrn operons, could be generalized)
+	forward_coords = sim_data.process.replication.forward_strand_rrn_coordinate
+	reverse_coords = sim_data.process.replication.reverse_strand_rrn_coordinate
+	sequenceLength = np.array(sequenceLength)
+	forward_lengths = sequenceLength[np.array(sequenceIdx) == 0]
+	reverse_lengths = sequenceLength[np.array(sequenceIdx) == 1]
+
+	rrn_counts_forward = (np.tile(forward_coords, (forward_lengths.size,1)) < forward_lengths.reshape(forward_lengths.size,1)).sum()
+	rrn_counts_reverse = (np.tile(reverse_coords, (reverse_lengths.size,1)) < reverse_lengths.reshape(reverse_lengths.size,1)).sum()
+
+	rrn_counts_on_partial_chromosomes = rrn_counts_forward + rrn_counts_reverse
+
+	rrn_view = bulkMolCntr.countView('rrn_operon')
+	rrn_view.countInc(rrn_counts_on_partial_chromosomes)
 
 def setDaughterInitialConditions(sim, sim_data):
 	assert sim._inheritedStatePath != None

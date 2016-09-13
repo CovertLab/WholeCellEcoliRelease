@@ -24,6 +24,8 @@ from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIn
 from wholecell.utils.random import stochasticRound
 from wholecell.utils import units
 
+# SYNTHETASE_KM_SCALE = 0.7
+
 class PolypeptideElongation(wholecell.processes.process.Process):
 	""" PolypeptideElongation """
 
@@ -32,6 +34,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 	# Constructor
 	def __init__(self):
 		# Parameters
+		self.maxRibosomeElongationRate = None
 		self.proteinLengths = None
 		self.proteinSequences = None
 		self.h2oWeight = None
@@ -56,9 +59,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 	def initialize(self, sim, sim_data):
 		super(PolypeptideElongation, self).initialize(sim, sim_data)
 
-		# self.aa_trna_groups = sim_data.aa_trna_groups
-		# self.aa_synthetase_groups = sim_data.aa_synthetase_groups
-		# self.synthetase_turnover = sim_data.trna_synthetase_rates.asNumber(units.aa/units.s)
+		# Load parameters
+		self.nAvogadro = sim_data.constants.nAvogadro
+		self.cellDensity = sim_data.constants.cellDensity
 
 		enzIds = ["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"]
 
@@ -74,7 +77,16 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.gtpPerElongation = sim_data.constants.gtpPerTranslation
 
-		self.ribosomeElngRate = float(sim_data.growthRateParameters.getRibosomeElongationRate(sim_data.conditionToDoublingTime[sim_data.condition]).asNumber(units.aa / units.s))
+		self.maxRibosomeElongationRate = float(sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s))
+
+		##########
+		self.saturation_km = sim_data.constants.translation_km
+		self.translation_aa_supply = sim_data.translationSupplyRate
+		self.nutrientsTimeSeriesLabel = sim_data.nutrientsTimeSeriesLabel
+		import copy
+		self.nutrientsTimeSeries = copy.copy(sim_data.nutrientsTimeSeries)
+		self.currentNutrients = self.nutrientsTimeSeries[self.nutrientsTimeSeriesLabel][0][1]
+		##########
 
 		# Views
 
@@ -82,8 +94,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.bulkMonomers = self.bulkMoleculesView(proteinIds)
 
 		self.aas = self.bulkMoleculesView(sim_data.moleculeGroups.aaIDs)
-		# self.trna_groups = [self.bulkMoleculesView(x) for x in self.aa_trna_groups.itervalues()]
-		# self.synthetase_groups = [self.bulkMoleculesView(x) for x in self.aa_synthetase_groups.itervalues()]
 		self.h2o = self.bulkMoleculeView('WATER[c]')
 
 		self.gtp = self.bulkMoleculeView("GTP[c]")
@@ -97,6 +107,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.ribosome30S = self.bulkMoleculeView(sim_data.moleculeGroups.s30_fullComplex[0])
 		self.ribosome50S = self.bulkMoleculeView(sim_data.moleculeGroups.s50_fullComplex[0])
 
+		###### VARIANT CODE #######
+		self.translationSaturation = sim_data.translationSaturation
+		###### VARIANT CODE #######
 
 	def calculateRequest(self):
 		self.activeRibosomes.requestAll()
@@ -107,8 +120,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			return
 
 		proteinIndexes, peptideLengths = activeRibosomes.attrs(
-			'proteinIndex', 'peptideLength'
-			)
+					'proteinIndex', 'peptideLength'
+					)
 
 		sequences = buildSequences(
 			self.proteinSequences,
@@ -118,40 +131,40 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			)
 
 		sequenceHasAA = (sequences != PAD_VALUE)
+		aasInSequences = np.bincount(sequences[sequenceHasAA], minlength=21)
 
-		aasRequested = np.bincount(sequences[sequenceHasAA], minlength=21)
+
+		while len(self.nutrientsTimeSeries[self.nutrientsTimeSeriesLabel]) and self.time() > self.nutrientsTimeSeries[self.nutrientsTimeSeriesLabel][0][0]:
+			_ , nutrients = self.nutrientsTimeSeries[self.nutrientsTimeSeriesLabel].popleft()
+			self.currentNutrients = nutrients
+
+		translationSupplyRate = self.translation_aa_supply[self.currentNutrients]
+
+		self.writeToListener("RibosomeData", "translationSupply", translationSupplyRate.asNumber())
+
+
+		dryMass = (self.readFromListener("Mass", "dryMass") * units.fg)
+
+		molAasRequested = translationSupplyRate * dryMass * self.timeStepSec() * units.s
+
+		countAasRequested = units.convertNoUnitToNumber(molAasRequested * self.nAvogadro)
+
+		countAasRequested = np.fmin(countAasRequested, aasInSequences)
 
 		self.aas.requestIs(
-			aasRequested
+			countAasRequested
 			)
 
 		self.writeToListener("GrowthLimits", "aaPoolSize", self.aas.total())
-		self.writeToListener("GrowthLimits", "aaRequestSize", aasRequested)
+		self.writeToListener("GrowthLimits", "aaRequestSize", countAasRequested)
 
-		# Should essentially request all tRNAs
-		# and all synthetases
-		# trnasRequested = aasRequested
-		# for i,group in enumerate(self.trna_groups):
-		# 	group.requestIs(trnasRequested[i])
-		# synthetaseRequested = aasRequested
-		# for i,group in enumerate(self.synthetase_groups):
-		# 	group.requestIs(synthetaseRequested[i])
-
-		gtpsHydrolyzed = np.int64(np.ceil(
-			self.gtpPerElongation * np.fmin(
-				sequenceHasAA.sum(),
-				self.aas.total().sum()
-				)
-			))
+		gtpsHydrolyzed = np.int64(np.ceil(self.gtpPerElongation * countAasRequested.sum()))
 
 		self.writeToListener("GrowthLimits", "gtpPoolSize", self.gtp.total()[0])
 		self.writeToListener("GrowthLimits", "gtpRequestSize", gtpsHydrolyzed)
 
+		# Reported to metabolism for hydrolysis there
 		self.gtpRequest = gtpsHydrolyzed
-		# self.gtp.requestIs(gtpsHydrolyzed)
-
-		# self.h2o.requestIs(gtpsHydrolyzed) # note: this is roughly a 2x overestimate
-
 
 	# Calculate temporal evolution
 	def evolveState(self):
@@ -159,6 +172,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("GrowthLimits", "aaAllocated", self.aas.counts())
 
 		activeRibosomes = self.activeRibosomes.molecules()
+
+		self.writeToListener("GrowthLimits", "activeRibosomeAllocated", len(activeRibosomes))
 
 		if len(activeRibosomes) == 0:
 			return
@@ -177,16 +192,10 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			)
 
 		# Calculate elongation resource capacity
-
 		aaCountInSequence = np.bincount(sequences[(sequences != PAD_VALUE)])
 		aaCounts = self.aas.counts()
 
-		# trnasCapacity = self.synthetase_turnover * np.array([x.counts().sum() for x in self.trna_groups],dtype = np.int64)
-		# synthetaseCapacity = self.synthetase_turnover * np.array([x.counts().sum() for x in self.synthetase_groups],dtype = np.int64)
-		# elongationResourceCapacity = np.minimum(aaCounts, synthetaseCapacity, trnasCapacity)
-
 		# Calculate update
-
 		reactionLimit = self.gtp.count() // self.gtpPerElongation
 
 		sequenceElongations, aasUsed, nElongations = polymerize(
@@ -213,11 +222,10 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		updatedMass[didInitialize] += self.endWeight
 
-		# Update active ribosomes, terminating if neccessary
-
+		# Write current average elongation rate for growth rate control
 		currElongRate = (sequenceElongations.sum() / len(activeRibosomes)) / self.timeStepSec()
 		self.writeToListener("RibosomeData", "effectiveElongationRate", currElongRate)
-
+		# Update active ribosomes, terminating if neccessary
 		activeRibosomes.attrIs(
 			peptideLength = updatedLengths,
 			massDiff_protein = updatedMass
@@ -248,18 +256,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.h2o.countInc(nElongations - nInitialized)
 
-		self.gtpUsed = 0#np.int64(stochasticRound(
-		# 	self.randomState,
-		# 	nElongations * self.gtpPerElongation
-		# 	))
-
-		self.gtp.countDec(self.gtpUsed)
-		self.gdp.countInc(self.gtpUsed)
-		self.pi.countInc(self.gtpUsed)
-		self.h.countInc(self.gtpUsed)
-
-		self.h2o.countDec(self.gtpUsed)
-
 		# Report stalling information
 
 		expectedElongations = np.fmin(
@@ -282,6 +278,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("RibosomeData", "didTerminate", didTerminate.sum())
 		self.writeToListener("RibosomeData", "terminationLoss", (terminalLengths - peptideLengths)[didTerminate].sum())
 
+		self.writeToListener("RibosomeData", "processElongationRate", self._elngRate() / self.timeStepSec())
+
 	def isTimeStepShortEnough(self, inputTimeStep, timeStepSafetyFraction):
 		"""
 		Assumes GTP is the readout for failed translation with respect to the timestep.
@@ -298,7 +296,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 				return False
 
 		dt = inputTimeStep * timeStepSafetyFraction
-		gtpExpectedUsage = activeRibosomes * self.ribosomeElngRate * self.gtpPerElongation * dt
+		gtpExpectedUsage = activeRibosomes * self.maxRibosomeElongationRate * self.gtpPerElongation * dt
 
 		if gtpExpectedUsage < self.gtpAvailable:
 			return True
@@ -320,5 +318,4 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			return True
 
 	def _elngRate(self):
-		# return int(round(self.ribosomeElngRate * self.timeStepSec()))
-		return int(stochasticRound(self.randomState, self.ribosomeElngRate * self.timeStepSec()))
+		return int(stochasticRound(self.randomState, self.maxRibosomeElongationRate * self.timeStepSec()))

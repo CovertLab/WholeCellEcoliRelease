@@ -22,7 +22,7 @@ import cvxpy
 
 # Hacks
 RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
-FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.2  # reduce stochasticity from protein expression
+FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.7  # reduce stochasticity from protein expression
 FRACTION_INCREASE_RNAP_PROTEINS = 0.05
 
 NUMERICAL_ZERO = 1e-10
@@ -82,7 +82,7 @@ def fitSimData_1(raw_data):
 
 	for condition in sorted(cellSpecs):
 		spec = cellSpecs[condition]
-		bulkAverageContainer, bulkDeviationContainer = calculateBulkDistributions(
+		bulkAverageContainer, bulkDeviationContainer, proteinMonomerAverageContainer, proteinMonomerDeviationContainer = calculateBulkDistributions(
 			sim_data,
 			spec["expression"],
 			spec["concDict"],
@@ -91,6 +91,17 @@ def fitSimData_1(raw_data):
 			)
 		spec["bulkAverageContainer"] = bulkAverageContainer
 		spec["bulkDeviationContainer"] = bulkDeviationContainer
+		spec["proteinMonomerAverageContainer"] = proteinMonomerAverageContainer
+		spec["proteinMonomerDeviationContainer"] = proteinMonomerDeviationContainer
+
+		translation_aa_supply = calculateTranslationSupply(
+										sim_data,
+										spec["doubling_time"],
+										spec["proteinMonomerAverageContainer"],
+										spec["avgCellDryMassInit"]
+										)
+		if sim_data.conditions[condition]["nutrients"] not in sim_data.translationSupplyRate.keys():
+			sim_data.translationSupplyRate[sim_data.conditions[condition]["nutrients"]] = translation_aa_supply
 
 	fitTfPromoterKd(sim_data, cellSpecs)
 
@@ -109,6 +120,7 @@ def buildBasalCellSpecifications(sim_data):
 				),
 		"expression": sim_data.process.transcription.rnaExpression["basal"].copy(),
 		"doubling_time": sim_data.conditionToDoublingTime["basal"],
+		"translation_km": np.zeros(len(sim_data.moleculeGroups.aaIDs))
 	}
 
 	expression, synthProb, avgCellDryMassInit, fitAvgSolublePoolMass, bulkContainer, _ = expressionConverge(
@@ -133,8 +145,66 @@ def buildBasalCellSpecifications(sim_data):
 	sim_data.process.transcription.rnaExpression["basal"][:] = cellSpecs["basal"]["expression"]
 	sim_data.process.transcription.rnaSynthProb["basal"][:] = cellSpecs["basal"]["synthProb"]
 
+	translation_km = translationKmBasal(sim_data, bulkContainer, cellSpecs["basal"]["concDict"])
+	sim_data.constants.translation_km = translation_km
+
+	translation_aa_supply = calculateTranslationSupply(sim_data, cellSpecs["basal"]["doubling_time"], bulkContainer, avgCellDryMassInit)
+	sim_data.translationSupplyRate["minimal"] = translation_aa_supply
+
 	return cellSpecs
 
+def calculateTranslationSupply(sim_data, doubling_time, bulkContainer, avgCellDryMassInit):
+	aaCounts = sim_data.process.translation.monomerData["aaCounts"]
+	proteinCounts = bulkContainer.counts(sim_data.process.translation.monomerData["id"])
+	nAvogadro = sim_data.constants.nAvogadro
+
+	molAAPerGDCW = (
+			units.sum(
+				aaCounts * np.tile(proteinCounts.reshape(-1, 1), (1, 21)),
+				axis = 0
+			) * (
+				(1 / (units.aa * nAvogadro)) *
+				(1 / avgCellDryMassInit)
+			)
+		)
+
+	translation_aa_supply = molAAPerGDCW * np.log(2) / doubling_time
+	return translation_aa_supply
+
+def translationKmBasal(sim_data, bulkContainer, concDict):
+	# Get max elongation rate for ribosomes and and expected elongation rate for base condition
+	maxElongationRate = sim_data.constants.ribosomeElongationRateMax
+	expectedElongationRate = sim_data.growthRateParameters.ribosomeElongationRate
+
+	# Calculate fractional composition of E. coli's polymerized proteins
+	# we will assume that on average translation's polymerizations follow the
+	# same composition of amino acids
+	aaCounts = sim_data.process.translation.monomerData["aaCounts"]
+	proteinCounts = bulkContainer.counts(sim_data.process.translation.monomerData["id"])
+	initialAACounts = units.sum(aaCounts * np.tile(proteinCounts.reshape(-1, 1), (1, 21)), axis = 0)
+	aa_use_fraction = initialAACounts.asNumber() / initialAACounts.asNumber().sum()
+
+	# Get number of ribosomes calculated during expression fitting
+	rRna23SCount = bulkContainer.counts(sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna23S"]]).sum()
+	rRna16SCount = bulkContainer.counts(sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna16S"]]).sum()
+	rRna5SCount = bulkContainer.counts(sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna5S"]]).sum()
+	ribosomeCount = np.floor(np.min([rRna23SCount, rRna16SCount, rRna5SCount]))
+
+	# Calculate the rate of usage of each individual amino acid by translation polymerization
+	rate_individual_aa = expectedElongationRate * ribosomeCount * aa_use_fraction
+
+	# Get concentrations of all amino acids
+	conc_units = units.getUnit(concDict[concDict.keys()[0]])
+	base_condition_aa_concentrations = conc_units * np.array([concDict[x].asNumber(conc_units) for x in sim_data.moleculeGroups.aaIDs])
+
+	# Write Michaelis-Menton equation for each amino acid and solve for Km
+	vmax = maxElongationRate * ribosomeCount * aa_use_fraction
+	v = rate_individual_aa
+	S = base_condition_aa_concentrations
+
+	km = ((vmax - v) / v) * S
+
+	return km
 
 def buildTfConditionCellSpecifications(sim_data, cellSpecs):
 	for tf in sorted(sim_data.tfToActiveInactiveConds):
@@ -837,7 +907,7 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 	allMoleculesView = bulkContainer.countsView(allMoleculesIDs)
 
 	allMoleculeCounts = np.empty((N_SEEDS, allMoleculesView.counts().size), np.int64)
-
+	proteinMonomerCounts = np.empty((N_SEEDS, proteinView.counts().size), np.int64)
 
 	for seed in xrange(N_SEEDS):
 		randomState = np.random.RandomState(seed)
@@ -857,7 +927,7 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 		rnaView.countsIs(totalCount_RNA * distribution_RNA)
 
 		proteinView.countsIs(totalCount_protein * distribution_protein)
-
+		proteinMonomerCounts[seed, :] = proteinView.counts()
 		complexationMoleculeCounts = complexationMoleculesView.counts()
 
 		updatedCompMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
@@ -904,11 +974,15 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 
 	bulkAverageContainer = BulkObjectsContainer(sim_data.state.bulkMolecules.bulkData['id'], np.float64)
 	bulkDeviationContainer = BulkObjectsContainer(sim_data.state.bulkMolecules.bulkData['id'], np.float64)
+	proteinMonomerAverageContainer = BulkObjectsContainer(sim_data.process.translation.monomerData["id"], np.float64)
+	proteinMonomerDeviationContainer = BulkObjectsContainer(sim_data.process.translation.monomerData["id"], np.float64)
 
 	bulkAverageContainer.countsIs(allMoleculeCounts.mean(0), allMoleculesIDs)
 	bulkDeviationContainer.countsIs(allMoleculeCounts.std(0), allMoleculesIDs)
+	proteinMonomerAverageContainer.countsIs(proteinMonomerCounts.mean(0), sim_data.process.translation.monomerData["id"])
+	proteinMonomerDeviationContainer.countsIs(proteinMonomerCounts.std(0), sim_data.process.translation.monomerData["id"])
 
-	return bulkAverageContainer, bulkDeviationContainer
+	return bulkAverageContainer, bulkDeviationContainer, proteinMonomerAverageContainer, proteinMonomerDeviationContainer
 
 
 # Math functions
@@ -1320,7 +1394,6 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 		print "Residuals (scaled by RNAcounts) optimized = %f" % np.sum(np.abs(R_aux(KmCooperativeModel)))
 
 	return units.mol / units.L * KmCooperativeModel
-
 
 def findKineticCoeffs(sim_data, bulkContainer):
 

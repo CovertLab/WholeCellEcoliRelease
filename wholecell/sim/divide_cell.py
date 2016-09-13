@@ -118,6 +118,20 @@ def divideBulkMolecules(bulkMolecules, randomState, chromosome_counts):
 	d1_bulk_molecules_container.countIs(d1_chromosome_count, bulkMolecules.divisionIds['fullChromosome'][0])
 	d2_bulk_molecules_container.countIs(d2_chromosome_count, bulkMolecules.divisionIds['fullChromosome'][0])
 
+	# Handle rrn operon division (accounted for as a bulk molecule)
+	rrn_counts = bulkMolecules.container.count("rrn_operon")
+	uneven_counts = rrn_counts % 2
+	d1_uneven_counts = randomState.binomial(uneven_counts, p = BINOMIAL_COEFF)
+	d2_uneven_counts = uneven_counts - d1_uneven_counts
+
+	d1_rrn_counts = rrn_counts // 2 + d1_uneven_counts
+	d2_rrn_counts = rrn_counts // 2 + d2_uneven_counts
+
+	assert(d1_rrn_counts + d2_rrn_counts == rrn_counts)
+
+	d1_bulk_molecules_container.countIs(d1_rrn_counts, "rrn_operon")
+	d1_bulk_molecules_container.countIs(d2_rrn_counts, "rrn_operon")
+
 	## Set basal transcription values to 1
 	# TODO: Add assertion that these elements have zero mass
 	d1_bulk_molecules_container.countsIs(1, bulkMolecules.divisionIds['setTo1'])

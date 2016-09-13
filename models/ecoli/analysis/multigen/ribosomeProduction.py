@@ -39,6 +39,26 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	fig = plt.figure()
 	fig.set_size_inches(10,12)
 
+	gs = gridspec.GridSpec(9, 3)
+	ax1 = plt.subplot(gs[0,:2])
+	ax1_1 = plt.subplot(gs[0,2])
+	ax2 = plt.subplot(gs[1,:2])
+	ax2_1 = plt.subplot(gs[1,2])
+	ax3 = plt.subplot(gs[2,:2])
+	ax3_1 = plt.subplot(gs[2,2])
+	ax4 = plt.subplot(gs[3,:2])
+	ax4_1 = plt.subplot(gs[3,2])
+	ax5 = plt.subplot(gs[4,:2])
+	ax5_1 = plt.subplot(gs[4,2])
+	ax6 = plt.subplot(gs[5,:2])
+	ax6_1 = plt.subplot(gs[5,2])
+	ax7 = plt.subplot(gs[6,:2])
+	ax7_1 = plt.subplot(gs[6,2])
+	ax8 = plt.subplot(gs[7,:2])
+	ax8_1 = plt.subplot(gs[7,2])
+	ax9 = plt.subplot(gs[8,:2])
+	ax9_1 = plt.subplot(gs[8,2])
+
 	for gen, simDir in enumerate(firstCellLineage):
 		simOutDir = os.path.join(simDir, "simOut")
 
@@ -125,11 +145,13 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		rrn23s_actual_variance = rrn23s_fit_init_prob.std() ** 2
 		rrn5s_actual_variance = rrn5s_fit_init_prob.std() ** 2
 
+		## Load other recorded parameters ##
+		averageElongationRate = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("effectiveElongationRate")
+		fitRibosomeInitRate = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("expectedInitRate")
+
 		## Plotting ##
-		gs = gridspec.GridSpec(7, 3)
 
 		# Plot growth rate
-		ax1 = plt.subplot(gs[0,:2])
 		avgDoublingTime = doublingTime[1:].asNumber(units.min).mean()
 		stdDoublingTime = doublingTime[1:].asNumber(units.min).std()
 		ax1.plot(time.asNumber(units.min), doublingTime.asNumber(units.min))
@@ -138,90 +160,100 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ax1.set_ylabel("Doubling\ntime (min)")
 		ax1.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 
-		ax1_1 = plt.subplot(gs[0,2])
 		hist_doublingTime = removeNanReshape(doublingTime.asNumber(units.min))
 		nbins = np.ceil(np.sqrt(hist_doublingTime.size))
 		ax1_1.hist(hist_doublingTime, nbins)
 
 		##
 
-		ax2 = plt.subplot(gs[1,:2])
 		ax2.plot(time.asNumber(units.min), rrn16S_doubling_time.asNumber(units.min))
 		ax2.plot(time.asNumber(units.min), expected_doubling_time.asNumber(units.min) * np.ones(time.asNumber().size), linestyle='--')
 		ax2.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 		ax2.set_ylabel("rrn 16S\ndoubling time")
 
-		ax2_1 = plt.subplot(gs[1,2])
 		hist_rrn16S_doubling_time = removeNanReshape(rrn16S_doubling_time.asNumber(units.min))
 		nbins = np.ceil(np.sqrt(hist_rrn16S_doubling_time.size))
-		ax2_1.hist(hist_rrn16S_doubling_time, nbins)
+		if hist_rrn16S_doubling_time.size:
+			ax2_1.hist(hist_rrn16S_doubling_time, nbins)
 
 		##
 
-		ax3 = plt.subplot(gs[2,:2])
 		ax3.plot(time.asNumber(units.min), rrn23S_doubling_time.asNumber(units.min))
 		ax3.plot(time.asNumber(units.min), expected_doubling_time.asNumber(units.min) * np.ones(time.asNumber().size), linestyle='--')
 		ax3.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 		ax3.set_ylabel("rrn 23S\ndoubling time")
 
-		ax3_1 = plt.subplot(gs[2,2])
 		hist_rrn23S_doubling_time = removeNanReshape(rrn23S_doubling_time.asNumber(units.min))
 		nbins = np.ceil(np.sqrt(hist_rrn23S_doubling_time.size))
-		ax3_1.hist(hist_rrn23S_doubling_time, nbins)
+		if hist_rrn23S_doubling_time.size:
+			ax3_1.hist(hist_rrn23S_doubling_time, nbins)
 
 		##
 
-		ax4 = plt.subplot(gs[3,:2])
 		ax4.plot(time.asNumber(units.min), rrn5S_doubling_time.asNumber(units.min))
 		ax4.plot(time.asNumber(units.min), expected_doubling_time.asNumber(units.min) * np.ones(time.asNumber().size), linestyle='--')
 		ax4.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 		ax4.set_ylabel("rrn 5S\ndoubling time")
 
-		ax4_1 = plt.subplot(gs[3,2])
 		hist_rrn5S_doubling_time = removeNanReshape(rrn5S_doubling_time.asNumber(units.min))
 		nbins = np.ceil(np.sqrt(hist_rrn5S_doubling_time.size))
-		ax4_1.hist(hist_rrn5S_doubling_time, nbins)
+		if hist_rrn5S_doubling_time.size:
+			ax4_1.hist(hist_rrn5S_doubling_time, nbins)
 
 		##
 
-		ax5 = plt.subplot(gs[4,:2])
 		ax5.plot(time.asNumber(units.min), rrn16S_init_prob)
 		ax5.plot(time.asNumber(units.min), rrn16s_fit_init_prob * np.ones(time.asNumber().size), linestyle='--')
 		ax5.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 		ax5.set_ylabel("rrn 16S\ninit prob")
 
-		ax5_1 = plt.subplot(gs[4,2])
 		hist_rrn16S_init_prob = removeNanReshape(rrn16S_init_prob / total_rna_init)
 		nbins = np.ceil(np.sqrt(hist_rrn16S_init_prob.size))
 		ax5_1.hist(hist_rrn16S_init_prob, nbins)
 
 		##
 
-		ax6 = plt.subplot(gs[5,:2])
 		ax6.plot(time.asNumber(units.min), rrn23S_init_prob)
 		ax6.plot(time.asNumber(units.min), rrn23s_fit_init_prob * np.ones(time.asNumber().size), linestyle='--')
 		ax6.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 		ax6.set_ylabel("rrn 23S\ninit prob")
 
-		ax6_1 = plt.subplot(gs[5,2])
 		hist_rrn23S_init_prob = removeNanReshape(rrn23S_init_prob / total_rna_init)
 		nbins = np.ceil(np.sqrt(hist_rrn23S_init_prob.size))
 		ax6_1.hist(hist_rrn23S_init_prob, nbins)
 
 		##
 
-		ax7 = plt.subplot(gs[6,:2])
 		ax7.plot(time.asNumber(units.min), rrn5S_init_prob)
 		ax7.plot(time.asNumber(units.min), rrn5s_fit_init_prob * np.ones(time.asNumber().size), linestyle='--')
 		ax7.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 		ax7.set_ylabel("rrn 5S\ninit prob")
 
-		ax7_1 = plt.subplot(gs[6,2])
 		hist_rrn5S_init_prob = removeNanReshape(rrn5S_init_prob / total_rna_init)
 		nbins = np.ceil(np.sqrt(hist_rrn5S_init_prob.size))
 		ax7_1.hist(hist_rrn5S_init_prob, nbins)
 
-		ax7.set_xlabel("Time (min)")
+		##
+
+		ax8.plot(time.asNumber(units.min), averageElongationRate)
+		ax8.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
+		ax8.set_ylabel("Average ribosome\nelongation rate (aa/s)")
+
+		hist_averageElongationRate = removeNanReshape(averageElongationRate)
+		nbins = np.ceil(np.sqrt(hist_averageElongationRate.size))
+		ax8_1.hist(hist_averageElongationRate, nbins)
+
+		##
+
+		ax9.plot(time.asNumber(units.min), fitRibosomeInitRate)
+		ax9.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
+		ax9.set_ylabel("Fit rib init\nrate (init/s/fg)")
+
+		hist_fitRibosomeInitRate = removeNanReshape(fitRibosomeInitRate)
+		nbins = np.ceil(np.sqrt(hist_fitRibosomeInitRate.size))
+		ax9_1.hist(hist_fitRibosomeInitRate, nbins)
+
+	ax9.set_xlabel("Time (min)")
 
 	fig.subplots_adjust(hspace=.5, wspace = 0.3)
 

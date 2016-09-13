@@ -40,7 +40,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	mass70s = (sim_data.getter.getMass(sim_data.moleculeGroups.s50_fullComplex) + sim_data.getter.getMass(sim_data.moleculeGroups.s30_fullComplex))[0]
 	rnaIds = sim_data.process.transcription.rnaData['id']
 
-	elongationRate = float(sim_data.growthRateParameters.ribosomeElongationRate.asNumber(units.aa / units.s))
+	elongationRate = float(sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s))
 	rnaLengths = sim_data.process.transcription.rnaData['length'].asNumber()
 
 	rRnaIds = []

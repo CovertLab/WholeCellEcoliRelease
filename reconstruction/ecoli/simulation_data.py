@@ -68,6 +68,12 @@ class SimulationDataEcoli(object):
 		# Relations cannot depend on each other
 		self.relation = Relation(raw_data, self)
 
+		self.translationSupplyRate = {}
+
+		#### VARIANT CODE ####
+		self.translationSaturation = True
+		#### VARIANT CODE ####
+
 	def _addHardCodedAttributes(self):
 		self.molecular_weight_keys = [
 			'23srRNA',
