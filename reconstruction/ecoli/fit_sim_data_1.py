@@ -1169,6 +1169,34 @@ def calculateRnapRecruitment(sim_data, cellSpecs):
 	G[gI, gJ] = gV
 	r = np.linalg.solve(G, k)
 
+	# TODO: Delete this once things actually work
+	# This is like scaffolding
+	sim_data.tfCondToAvgRnapRecruitment = {}
+	sim_data.tfCondToAvgRnapRecruitment2 = {}
+	for tf in sorted(sim_data.tfToActiveInactiveConds):
+		activeCondition = tf + "__active"
+		inactiveCondition = tf + "__inactive"
+		sim_data.tfCondToAvgRnapRecruitment[activeCondition] = np.ones(G.shape[1])
+		sim_data.tfCondToAvgRnapRecruitment[inactiveCondition] = np.ones(G.shape[1])
+		sim_data.tfCondToAvgRnapRecruitment2[activeCondition] = np.ones(G.shape[1])
+		sim_data.tfCondToAvgRnapRecruitment2[inactiveCondition] = np.ones(G.shape[1])
+
+	for tf in sorted(sim_data.tfToActiveInactiveConds):
+		activeCondition = tf + "__active"
+		inactiveCondition = tf + "__inactive"
+
+		for idx, colName in enumerate(colNames):
+			if not colName.endswith("__alpha"):
+				_, thisTf = colName.split("__")
+				sim_data.tfCondToAvgRnapRecruitment[activeCondition][idx] = sim_data.pPromoterBound[activeCondition][thisTf]
+				sim_data.tfCondToAvgRnapRecruitment[inactiveCondition][idx] = sim_data.pPromoterBound[inactiveCondition][thisTf]
+				if tf == thisTf:
+					sim_data.tfCondToAvgRnapRecruitment2[activeCondition][idx] = sim_data.pPromoterBound[activeCondition][thisTf]
+					sim_data.tfCondToAvgRnapRecruitment2[inactiveCondition][idx] = sim_data.pPromoterBound[inactiveCondition][thisTf]
+
+	# TODO: End delete
+
+
 	hI = []
 	hJ = []
 	hV = []
