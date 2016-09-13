@@ -11,9 +11,6 @@ from models.ecoli.sim.variants.wildtype import wildtypeTotalIndices
 from models.ecoli.sim.variants.time_step import timeStep
 from models.ecoli.sim.variants.time_step import timeStepTotalIndices
 
-from models.ecoli.sim.variants.kinetics_flux_coeff import kineticsFluxCoeff
-from models.ecoli.sim.variants.kinetics_flux_coeff import kineticsFluxCoeffTotalIndices
-
 from models.ecoli.sim.variants.metabolism_target_range import metabolismTargetRange
 from models.ecoli.sim.variants.metabolism_target_range import metabolismTargetRangeTotalIndices
 
@@ -36,7 +33,6 @@ nameToFunctionMapping = {
 	"geneKnockout": geneKnockout,
 	"wildtype": wildtype,
 	"timeStep": timeStep,
-	"kineticsFluxCoeff": kineticsFluxCoeff,
 	"metabolismTargetRange":metabolismTargetRange,
 	"growthRate": growthRate,
 	"nutrientTimeSeries": nutrientTimeSeries,
@@ -49,7 +45,6 @@ nameToNumIndicesMapping = {
 	"geneKnockout": geneKnockoutTotalIndices,
 	"wildtype": wildtypeTotalIndices,
 	"timeStep": timeStepTotalIndices,
-	"kineticsFluxCoeff": kineticsFluxCoeffTotalIndices,
 	"metabolismTargetRangeTotalIndices":metabolismTargetRangeTotalIndices,
 	"growthRate": growthRateTotalIndices,
 	"nutrientTimeSeries": nutrientTimeSeriesTotalIndices,

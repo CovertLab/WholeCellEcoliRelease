@@ -837,6 +837,9 @@ class FluxBalanceAnalysis(object):
 		# Unless given, assume no reactions are one-sided targets (ie kcat only targets)
 		self._oneSidedReactions = set(objectiveParameters["oneSidedReactionTargets"]) if "oneSidedReactionTargets" in objectiveParameters else set()
 
+		# Track the kinetic target levels
+		self._currentKineticTargets = objective
+
 		# This is a minimization objective problem
 		self._solver.maximizeObjective(False)
 
@@ -1402,8 +1405,39 @@ class FluxBalanceAnalysis(object):
 			values[idx] = self.reactionFlux(reactionID)
 		return values
 
+	def kineticTargetFluxTargets(self, reactionIDs=None):
+		if reactionIDs is None:
+			reactionIDs = self.kineticTargetFluxNames()
+		values = np.zeros(len(reactionIDs))
+		for idx, reactionID in enumerate(reactionIDs):
+			if reactionID not in self._currentKineticTargets:
+				raise FBAError("No kinetic target set for reaction {}.".format(reactionID))
+			values[idx] = self._currentKineticTargets[reactionID]
+		return values
+
+	def kineticTargetFluxErrors(self, reactionIDs=None):
+		if reactionIDs is None:
+			reactionIDs = self.kineticTargetFluxNames()
+		errors = self.kineticTargetFluxes(reactionIDs) - self.kineticTargetFluxTargets(reactionIDs)
+		# Adjust for any one-sided reactions
+		if len(self._oneSidedReactions) > 0:
+			oneSidedNegativeErrors = np.where([True if reactionID in self._oneSidedReactions and errors[idx] < 0 else False for idx, reactionID in enumerate(reactionIDs)])
+			errors[oneSidedNegativeErrors] = 0
+		return errors
+
+	def kineticTargetFluxRelativeDifferences(self, reactionIDs=None):
+		if reactionIDs is None:
+			reactionIDs = self.kineticTargetFluxNames()
+		return self.kineticTargetFluxErrors(reactionIDs) / self.kineticTargetFluxTargets(reactionIDs)
+
 	def kineticTargetFluxNames(self):
 		return sorted(self._kineticTargetFluxes)
+
+	def kineticOneSidedTargetFluxNames(self):
+		if hasattr(self, "_oneSidedReactions"):
+			return sorted(self._oneSidedReactions)
+		else:
+			return []
 
 	def setKineticTarget(self, reactionIDs, reactionTargets, raiseForReversible=True):
 		# If a single value is passed in, make a list of length 1 from it
@@ -1418,6 +1452,9 @@ class FluxBalanceAnalysis(object):
 		if (np.array(reactionTargets) < 0).any():
 			raise FBAError("Rate targets cannot be negative. {} were provided with targets of {}".format(np.array(reactionIDs)[np.array(reactionTargets) < 0], np.array(reactionTargets)[np.array(reactionTargets) < 0]))
 
+		if (np.array(reactionTargets) == 0).any():
+			raise FBAError("Rate targets cannot be exactly zero. Set target to numerical zero (such as 1e-20) instead. {} were provided with targets of 0.".format(np.array(reactionIDs)[np.array(reactionTargets) == 0]))
+
 		# Change the objective normalization
 		for reactionID, reactionTarget in izip(reactionIDs,reactionTargets):
 			if reactionID not in self._kineticTargetFluxes:
@@ -1430,6 +1467,9 @@ class FluxBalanceAnalysis(object):
 				reactionFluxEquivalent,
 				-reactionTarget
 				)
+
+			# Record the change
+			self._currentKineticTargets[reactionID] = reactionTarget
 
 	def getArrayBasedModel(self):
 		return {

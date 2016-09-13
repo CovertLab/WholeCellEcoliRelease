@@ -43,13 +43,8 @@ SECRETION_PENALTY_COEFF = 1e-5
 
 NONZERO_ENZYMES = True
 
-USE_KINETIC_RATES = True # Enable/disable kinetic rate limits in the model
+USE_KINETIC_RATES = True
 USE_BASE_RATES = True
-
-USE_MANUAL_FLUX_COEFF = True # enable to overrid flux coefficients in the knowledgebase and use these local values instead
-MAX_FLUX_COEFF = 1 # Multiple of predicted rate at which to set the max fluxes
-MIN_FLUX_COEFF = 0 # Multiple of predicted rate at which to set the min fluxes
-
 
 class Metabolism(wholecell.processes.process.Process):
 	""" Metabolism """
@@ -81,13 +76,6 @@ class Metabolism(wholecell.processes.process.Process):
 		self.constraintMultiplesDict = {constraintID:rateInfo["constraintMultiple"] for constraintID, rateInfo in self.reactionRateInfo.iteritems()}
 		self.constraintToReactionDict = sim_data.process.metabolism.constraintToReactionDict
 		self.reactionEnzymes  = sim_data.process.metabolism.reactionEnzymes
-
-		if USE_MANUAL_FLUX_COEFF:
-			self.max_flux_coefficient = MAX_FLUX_COEFF
-			self.min_flux_coefficient = MIN_FLUX_COEFF
-		else:
-			self.max_flux_coefficient = sim_data.constants.kineticRateLimitFactorUpper
-			self.min_flux_coefficient = sim_data.constants.kineticRateLimitFactorLower
 
 		concDict = sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
 			sim_data.nutrientsTimeSeries[sim_data.nutrientsTimeSeriesLabel][0][1]
@@ -141,9 +129,9 @@ class Metabolism(wholecell.processes.process.Process):
 		# Add reactions with a kinetic estimate
 		self.allRateReactions = sorted(set([reactionInfo["reactionID"] for constraintID, reactionInfo in self.enzymeKinetics.reactionRateInfo.iteritems() if reactionInfo["reactionID"] in self.reactionStoich]))
 		# Reactions with full kinetic estimates (more than just kcat)
-		self.fullRateReactions = sorted(set([reactionInfo["reactionID"] for constraintID, reactionInfo in self.enzymeKinetics.reactionRateInfo.iteritems() if len(reactionInfo["kM"]) > 0 and reactionInfo["reactionID"] in self.reactionStoich]))
+		self.fullRateReactions = sorted(set([reactionInfo["reactionID"] for constraintID, reactionInfo in self.enzymeKinetics.reactionRateInfo.iteritems() if (len(reactionInfo["kM"]) > 0 or reactionInfo["rateEquationType"] == "custom") and reactionInfo["reactionID"] in self.reactionStoich]))
 		# Reactions with a kcat-based kinetic estimate only (no customs, no kMs, no kIs)
-		self.kcatRateReactions = sorted(set([reactionInfo["reactionID"] for constraintID, reactionInfo in self.enzymeKinetics.reactionRateInfo.iteritems() if len(reactionInfo["kM"]) == 0 and len(reactionInfo["kI"]) == 0 and reactionInfo["rateEquationType"] == "standard" and reactionInfo["reactionID"] in self.reactionStoich]))
+		self.kcatRateReactions = sorted(set([reactionInfo["reactionID"] for constraintID, reactionInfo in self.enzymeKinetics.reactionRateInfo.iteritems() if reactionInfo["reactionID"] not in self.fullRateReactions and reactionInfo["reactionID"] in self.reactionStoich]))
 
 		self.metabolismKineticObjectiveWeight = sim_data.constants.metabolismKineticObjectiveWeight
 
@@ -154,7 +142,7 @@ class Metabolism(wholecell.processes.process.Process):
 			"objective" : self.objective,
 			"objectiveType" : "pools_kinetics_mixed",
 			"objectiveParameters" : {
-					"kineticObjectiveWeight":sim_data.constants.metabolismKineticObjectiveWeight,
+					"kineticObjectiveWeight":self.metabolismKineticObjectiveWeight,
 					"reactionRateTargets":{reaction:1e-5 for reaction in self.allRateReactions}, #This target is arbitrary, it gets reset each timestep during evolveState
 					"oneSidedReactionTargets":self.kcatRateReactions,
 					},
@@ -184,9 +172,6 @@ class Metabolism(wholecell.processes.process.Process):
 		self.currentNgam = 1 * (COUNTS_UNITS / VOLUME_UNITS)
 		self.currentPolypeptideElongationEnergy = 1 * (COUNTS_UNITS / VOLUME_UNITS)
 
-		# # Determine which kinetic limits to use
-		# self.reactionsWithKineticLimits = [True]*len(self.fba.reactionIDs())
-	
 		# Set constraints
 		## External molecules
 		self.externalMoleculeIDs = self.fba.externalMoleculeIDs()
@@ -213,7 +198,6 @@ class Metabolism(wholecell.processes.process.Process):
 		self.enzymes.requestAll()
 
 	def evolveState(self):
-
 		# Solve for metabolic fluxes
 		metaboliteCountsInit = self.metabolites.counts()
 
@@ -295,33 +279,23 @@ class Metabolism(wholecell.processes.process.Process):
 		# Make a dictionary of enzyme names to enzyme concentrations
 		enzymeConcentrationsDict = dict(zip(self.enzymeNames, enzymeConcentrations))
 
+		# When many estimates exist for a reaction, choose the largest
 		if not hasattr(self, "maxConstraints"):
 			# Calculate the constraints in the current conditions
 			reactionsDict = self.enzymeKinetics.allReactionsDict(metaboliteConcentrationsDict, enzymeConcentrationsDict)
 			self.maxConstraints = {}
-			self.minConstraints = {}
-			for reactionID, reactionInfo in reactionsDict.iteritems():
-				constraintID = sorted(reactionInfo.keys(), key=reactionInfo.__getitem__, reverse=True)[0]
+			for reactionID, reactionRate in reactionsDict.iteritems():
+				constraintID = sorted(reactionRate.keys(), key=reactionRate.__getitem__, reverse=True)[0]
 				self.maxConstraints[reactionID] = {
 					"constraintID":constraintID,
-					"coefficient":self.constraintMultiplesDict[constraintID] * self.max_flux_coefficient,}
-				self.minConstraints[reactionID] = {
-					"constraintID":constraintID,
-					"coefficient":self.constraintMultiplesDict[constraintID] * self.min_flux_coefficient,}
+					"coefficient":self.constraintMultiplesDict[constraintID],}
 
 		if USE_KINETIC_RATES:
-			# if self.time() < 1:
-			# if False:
-			# if self._sim.simulationStep() % 5 == 2:
-			if True:
-				self.allRateEstimates = self.enzymeKinetics.ratesView(self.allRateReactions, self.maxConstraints, metaboliteConcentrationsDict, enzymeConcentrationsDict, raiseIfNotFound=True)
-				# Make kinetic targets numerical zero instead of actually zero for solver stability
-				self.allRateEstimates[self.allRateEstimates.asNumber() == 0] = FLUX_UNITS * 1e-20
+			self.allRateEstimates = self.enzymeKinetics.ratesView(self.allRateReactions, self.maxConstraints, metaboliteConcentrationsDict, enzymeConcentrationsDict, raiseIfNotFound=True)
 
-				# self.allRateEstimates = FLUX_UNITS * np.zeros(self.allRateEstimates.asNumber(FLUX_UNITS).shape)
-				# self.allRateEstimates = FLUX_UNITS * 1e-9*np.ones(self.allRateEstimates.asNumber(FLUX_UNITS).shape)
-				# self.allRateEstimates[self.allRateEstimates.asNumber(FLUX_UNITS) == np.inf] = (FLUX_UNITS) * 100
-				self.fba.setKineticTarget(self.allRateReactions, self.allRateEstimates.asNumber(FLUX_UNITS), raiseForReversible=False)
+			# Make kinetic targets numerical zero instead of actually zero for solver stability
+			self.allRateEstimates[self.allRateEstimates.asNumber() == 0] = FLUX_UNITS * 1e-20
+			self.fba.setKineticTarget(self.allRateReactions, self.allRateEstimates.asNumber(FLUX_UNITS), raiseForReversible=False)
 
 		if USE_BASE_RATES:
 			# Calculate new rates
@@ -366,9 +340,6 @@ class Metabolism(wholecell.processes.process.Process):
 		self.writeToListener("EnzymeKinetics", "reactionConstraints",
 			self.allRates.asNumber(FLUX_UNITS))
 
-		# self.writeToListener("EnzymeKinetics", "allConstraintsLimits",
-		# 	self.allConstraintsLimits)
-
 		self.writeToListener("EnzymeKinetics", "overconstraintMultiples",
 			self.overconstraintMultiples)
 
@@ -376,10 +347,10 @@ class Metabolism(wholecell.processes.process.Process):
 			self.fba.kineticTargetFluxes())
 
 		self.writeToListener("EnzymeKinetics", "kineticTargetErrors",
-			self.fba.kineticTargetFluxes() - self.allRateEstimates.asNumber(FLUX_UNITS))
+			self.fba.kineticTargetFluxErrors())
 
 		self.writeToListener("EnzymeKinetics", "kineticTargetRelativeDifferences",
-			(self.fba.kineticTargetFluxes() - self.allRateEstimates.asNumber(FLUX_UNITS)) / self.allRateEstimates.asNumber(FLUX_UNITS))
+			self.fba.kineticTargetFluxRelativeDifferences())
 
 		self.writeToListener("EnzymeKinetics", "metaboliteCountsInit",
 			metaboliteCountsInit)
@@ -396,14 +367,6 @@ class Metabolism(wholecell.processes.process.Process):
 		self.writeToListener("EnzymeKinetics", "countsToMolar",
 			countsToMolar.asNumber(COUNTS_UNITS / VOLUME_UNITS))
 
-		self.writeToListener("EnzymeKinetics", "counts_units",
-			str(COUNTS_UNITS))
-
-		self.writeToListener("EnzymeKinetics", "mass_units",
-			str(MASS_UNITS))
-
-		self.writeToListener("EnzymeKinetics", "volume_units",
-			str(VOLUME_UNITS))
 
 
 		# TODO

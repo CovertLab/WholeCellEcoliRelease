@@ -48,6 +48,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		self.allConstraintsLimits = np.zeros(len(self.reactionRateInfo), np.float64)
 		self.reactionIDs = self.metabolism.fba.reactionIDs()
 		self.kineticTargetFluxNames = self.metabolism.fba.kineticTargetFluxNames()
+		self.kineticOneSidedTargets = self.metabolism.fba.kineticOneSidedTargetFluxNames(),
 		self.kineticTargetFluxes = np.zeros(len(self.metabolism.fba.kineticTargetFluxNames()), np.float64)
 		self.kineticTargetErrors = np.zeros(len(self.metabolism.fba.kineticTargetFluxNames()), np.float64)
 		self.kineticTargetRelativeDifferences = np.zeros(len(self.metabolism.fba.kineticTargetFluxNames()), np.float64)
@@ -57,12 +58,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		self.metaboliteCountsFinal = np.zeros(len(self.metaboliteIDs), np.float64)
 		self.metaboliteConcentrations = np.zeros(len(self.metaboliteIDs), np.float64)
 		self.enzymeCountsInit = np.zeros(len(self.metabolism.enzymeNames), np.float64)
-
 		self.countsToMolar = np.zeros(1, np.float64)
-		self.counts_units = "                                          " # Placeholder string longer than any unit name
-		self.mass_units = "                                          " # Placeholder string longer than any unit name
-		self.volume_units = "                                          " # Placeholder string longer than any unit name
-
 
 	def update(self):
 		pass
@@ -72,7 +68,8 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 			reactionIDs = list(self.reactionIDs),
 			constraintIDs = self.constraintIDs,
 			constraintToReactionDict = self.constraintToReactionDict,
-			kineticTargetFluxNames = self.kineticTargetFluxNames
+			kineticTargetFluxNames = self.kineticTargetFluxNames,
+			kineticOneSidedTargets = self.kineticOneSidedTargets,
 			)
 
 
@@ -90,8 +87,5 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 			metaboliteCountsFinal = self.metaboliteCountsFinal,
 			metaboliteConcentrations = self.metaboliteConcentrations,
 			countsToMolar = self.countsToMolar,
-			counts_units = self.counts_units,
-			mass_units = self.mass_units,
-			volume_units = self.volume_units,
 			enzymeCountsInit = self.enzymeCountsInit
 			)

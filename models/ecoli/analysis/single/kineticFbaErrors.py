@@ -95,7 +95,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		plt.xlabel("Time (min)")
 		plt.ylabel("Log10 Absolute Flux Error ({})".format(FLUX_UNITS.strUnit()))
 
-		if ((np.abs(smoothedErrorFluxes[:,idx]) > threshold_value).any()) and np.abs(errorFluxTimeCourse[BURN_IN_PERIOD:]).max() > MIN_RELATIVE_ERROR_TO_SHOW:
+		if ((np.abs(smoothedErrorFluxes[:,idx]) >= threshold_value).any()) and np.abs(errorFluxTimeCourse[BURN_IN_PERIOD:]).max() > MIN_RELATIVE_ERROR_TO_SHOW:
 			plt.subplot(2,2,2)
 			plt.plot(time[BURN_IN_PERIOD:] / 60., errorFluxTimeCourse[BURN_IN_PERIOD:], label=errorFluxNames[idx][:MAX_STR_LEN], color=idToColor[errorFluxID])
 
