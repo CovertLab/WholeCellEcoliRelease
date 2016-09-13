@@ -67,16 +67,18 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		grid_loc = idx + 1 + (cols*(num_subentries + 1))*( idx / cols)
 
 		reactantIds = [moleculeNames[x] for x in np.where(stoichMatrix[:, idx] < 0)[0]]
+		reactantCoeffs = np.abs(stoichMatrix[stoichMatrix[:, idx] < 0, idx])
 		reactantIdxs = np.array([bulkMoleculeIds.index(x) for x in reactantIds], dtype = np.int64)
 		reactantCounts = bulkMolecules.readColumn("counts")[:, reactantIdxs]
 		reactantConcentrations = reactantCounts / (cellVolume[:, np.newaxis] * nAvogadro)
 
 		productIds = [moleculeNames[x] for x in np.where(stoichMatrix[:, idx] > 0)[0]]
+		productCoeffs = np.abs(stoichMatrix[stoichMatrix[:, idx] > 0, idx])
 		productIdxs = np.array([bulkMoleculeIds.index(x) for x in productIds], dtype = np.int64)
 		productCounts = bulkMolecules.readColumn("counts")[:, productIdxs]
 		productConcentrations = productCounts / (cellVolume[:, np.newaxis] * nAvogadro)
 
-		empiricalKd = reactantConcentrations.prod(axis = 1) / productConcentrations.prod(axis = 1)
+		empiricalKd = 10**(np.sum(reactantCoeffs * np.log10(reactantConcentrations), axis = 1) - np.sum(productCoeffs * np.log10(productConcentrations), axis = 1))
 		empiricalKd[np.isinf(empiricalKd)] = np.nan
 		expectedKd = ratesRev[idx] / ratesFwd[idx]
 
