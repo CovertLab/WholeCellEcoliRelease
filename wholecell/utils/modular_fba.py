@@ -239,6 +239,7 @@ class FluxBalanceAnalysis(object):
 		# Keep track of non-standard reactions
 		self._specialFluxIDsSet = set()
 		self._kineticTargetFluxes = set()
+		self._oneSidedReactions = set()
 
 		# Call indivdual initialization methods
 		self._initReactionNetwork(self.reactionStoich)
@@ -1434,10 +1435,7 @@ class FluxBalanceAnalysis(object):
 		return sorted(self._kineticTargetFluxes)
 
 	def kineticOneSidedTargetFluxNames(self):
-		if hasattr(self, "_oneSidedReactions"):
-			return sorted(self._oneSidedReactions)
-		else:
-			return []
+		return sorted(self._oneSidedReactions)
 
 	def setKineticTarget(self, reactionIDs, reactionTargets, raiseForReversible=True):
 		# If a single value is passed in, make a list of length 1 from it

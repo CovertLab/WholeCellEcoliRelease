@@ -35,7 +35,7 @@ N_SEEDS = 10
 
 BASAL_EXPRESSION_CONDITION = "M9 Glucose minus AAs"
 
-VERBOSE = False
+VERBOSE = True
 
 from models.ecoli.processes.metabolism import SECRETION_PENALTY_COEFF
 

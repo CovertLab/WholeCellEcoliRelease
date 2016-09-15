@@ -155,7 +155,7 @@ class Metabolism(wholecell.processes.process.Process):
 		self.fba = FluxBalanceAnalysis(**self.fbaObjectOptions)
 
 		# Indices for reactions with full kinetic esimates
-		self.fullRateIndices = np.where([True if reactionID in self.allRateReactions else False for reactionID in self.fba.reactionIDs()])
+		self.allRateIndices = np.where([True if reactionID in self.allRateReactions else False for reactionID in self.fba.reactionIDs()])
 
 		self.fba._solver._model.set_solver_method_dualprimal()
 
@@ -292,7 +292,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 		if USE_KINETIC_RATES:
 			self.allRateEstimates = self.enzymeKinetics.ratesView(self.allRateReactions, self.maxConstraints, metaboliteConcentrationsDict, enzymeConcentrationsDict, raiseIfNotFound=True)
-
+			
 			# Make kinetic targets numerical zero instead of actually zero for solver stability
 			self.allRateEstimates[self.allRateEstimates.asNumber() == 0] = FLUX_UNITS * 1e-20
 			self.fba.setKineticTarget(self.allRateReactions, self.allRateEstimates.asNumber(FLUX_UNITS), raiseForReversible=False)

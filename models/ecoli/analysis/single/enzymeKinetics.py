@@ -31,7 +31,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	enzymeKineticsdata = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
 	
-	enzymeKineticsArray = enzymeKineticsdata.readColumn("reactionConstraints")
+	enzymeKineticsArray = enzymeKineticsdata.readColumn("reactionKineticPredictions")
 
 	reactionIDs = enzymeKineticsdata.readAttribute("reactionIDs")
 	
@@ -44,8 +44,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	plt.title("Enzyme Kinetics")
 
 	for idx, timeCourse in enumerate(enzymeKineticsArray.T):
-		if (np.amax(timeCourse) < np.inf) and (idx < len(reactionIDs)):
-			plt.plot(time / 60, timeCourse, label=reactionIDs[idx][:15])
+		plt.plot(time / 60, timeCourse, label=reactionIDs[idx][:15])
 
 	plt.xlabel("Time (min)")
 	plt.ylabel("Reaction Rate ({counts_units}/{volume_units}.{time_units})".format(counts_units=COUNTS_UNITS.strUnit(), volume_units=VOLUME_UNITS.strUnit(), time_units=TIME_UNITS.strUnit()))
