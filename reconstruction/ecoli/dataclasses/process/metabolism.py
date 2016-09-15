@@ -27,9 +27,10 @@ EXCHANGE_UNITS = units.mmol / units.g / units.h
 # If true, enzyme kinetics entries which reference unknown reactions are ignored
 # If false, raises an exception in such a case
 raiseForUnknownRxns = False
+warnForUnknownRxns = False
 raiseForTruncatedRxns = False
 warnForTruncatedRxns = False
-warnForMultiTruncatedRxns = True
+warnForMultiTruncatedRxns = False
 
 reverseReactionString = "{} (reverse)"
 
@@ -283,6 +284,9 @@ class Metabolism(object):
 		for idx, reaction in enumerate(raw_data.enzymeKinetics):
 			reactionID = reaction["reactionID"]
 
+			# Find the temp-adjusted kcat value
+			newKcat = self.temperatureAdjustedKcat(reaction)
+
 			# Add compartment tags to enzymes
 			reaction["enzymeIDs"] = self.addEnzymeCompartmentTags(reaction["enzymeIDs"], validEnzymeCompartments)
 
@@ -404,7 +408,7 @@ class Metabolism(object):
 			message = "The following {} enzyme kinetics reactions appear to be for reactions which don't exist in the model - they should be corrected or removed. {}".format(len(unknownRxns), unknownRxns)
 			if raiseForUnknownRxns:
 				raise Exception(message)
-			else:
+			elif warnForUnknownRxns:
 				warnings.warn(message)
 
 		if len(truncatedRxns) > 0:
@@ -519,6 +523,9 @@ class Metabolism(object):
 							reactionEnzymesDict[reactionID][enzymeID] = kcat
 		return reactionEnzymesDict
 
+	def temperatureAdjustedKcat(self, reactionInfo):
+		return 0
+
 
 class ConcentrationUpdates(object):
 	def __init__(self, concDict, equilibriumReactions, nutrientData):
@@ -618,4 +625,3 @@ class ConcentrationUpdates(object):
 			moleculeSetAmounts[moleculeName + "[p]"] = amountToSet * (units.mol / units.L)
 			moleculeSetAmounts[moleculeName + "[c]"] = amountToSet * (units.mol / units.L)
 		return moleculeSetAmounts
-

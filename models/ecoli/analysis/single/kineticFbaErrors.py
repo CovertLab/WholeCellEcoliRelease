@@ -36,6 +36,8 @@ NUM_ERRORS_TO_SHOW = 5
 
 TARGET_RELATIVE_DIFFERENCE = 1
 
+PERCENT_ON_TARGET_THRESHOLD = 1.0
+
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -46,6 +48,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	enzymeKineticsdata = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
 	errorRelativeDifferences = enzymeKineticsdata.readColumn("kineticTargetRelativeDifferences")
 	errorFluxNames = enzymeKineticsdata.readAttribute("kineticTargetFluxNames")
+	oneSidedErrorFluxNames = enzymeKineticsdata.readAttribute("kineticOneSidedTargets")
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 	enzymeKineticsdata.close()
@@ -73,18 +76,17 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	# Track fluxes within a specified range of the target
 	withinTargetErrorFluxes = set()
 
-
 	plt.figure(figsize = (17, 11))
 	plt.suptitle("Relative Difference from Target Flux for Reactions with Kinetic Estimates")
 
 	for idx, (errorFluxID, errorFluxTimeCourse) in enumerate(zip(errorFluxNames, errorRelativeDifferences.T)):
 
-		if (np.abs(errorFluxTimeCourse[BURN_IN_PERIOD:]) < NUMERICAL_ZERO).all():
+		if (np.abs(errorFluxTimeCourse[BURN_IN_PERIOD:]) <= NUMERICAL_ZERO).mean() >= PERCENT_ON_TARGET_THRESHOLD:
 			zeroErrorFluxes.add(errorFluxID)
 			withinTargetErrorFluxes.add(errorFluxID)
 			continue
 
-		if (np.abs(errorFluxTimeCourse[BURN_IN_PERIOD:]) < TARGET_RELATIVE_DIFFERENCE).all():
+		if (np.abs(errorFluxTimeCourse[BURN_IN_PERIOD:]) <= TARGET_RELATIVE_DIFFERENCE).mean() >= PERCENT_ON_TARGET_THRESHOLD:
 			withinTargetErrorFluxes.add(errorFluxID)
 
 		plt.subplot(2,2,1)
@@ -110,7 +112,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	plt.title("{} max absolute relative diff after moving mean smoothing window {}, burn-in {}. Must be >{}.".format(NUM_ERRORS_TO_SHOW, MOVING_AVE_WINDOW_SIZE, BURN_IN_PERIOD, MIN_RELATIVE_ERROR_TO_SHOW),fontsize='x-small')
 
 	plt.subplot(2,2,3)
-	plt.title("{} fluxes ({:.1f}%) with relative difference always<{}".format(len(withinTargetErrorFluxes), 100*(len(withinTargetErrorFluxes)/len(errorFluxNames)), TARGET_RELATIVE_DIFFERENCE))
+	plt.title("{} fluxes ({:.1f}%) with relative difference <={} {}% of the time".format(len(withinTargetErrorFluxes), 100*(len(withinTargetErrorFluxes)/len(errorFluxNames)), TARGET_RELATIVE_DIFFERENCE,100*PERCENT_ON_TARGET_THRESHOLD), fontsize='small')
 	plt.xlabel("Time (min)")
 	plt.ylabel("Log10 Absolute Relative Difference")
 
