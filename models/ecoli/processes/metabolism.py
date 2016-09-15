@@ -295,7 +295,7 @@ class Metabolism(wholecell.processes.process.Process):
 			
 			# Make kinetic targets numerical zero instead of actually zero for solver stability
 			self.allRateEstimates[self.allRateEstimates.asNumber() == 0] = FLUX_UNITS * 1e-20
-			self.fba.setKineticTarget(self.allRateReactions, self.allRateEstimates.asNumber(FLUX_UNITS), raiseForReversible=False)
+			self.fba.setKineticTarget(self.allRateReactions, self.timeStepSec() * self.allRateEstimates.asNumber(FLUX_UNITS), raiseForReversible=False)
 
 		if USE_BASE_RATES:
 			# Calculate new rates

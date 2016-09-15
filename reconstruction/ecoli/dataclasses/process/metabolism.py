@@ -625,4 +625,3 @@ class ConcentrationUpdates(object):
 			moleculeSetAmounts[moleculeName + "[p]"] = amountToSet * (units.mol / units.L)
 			moleculeSetAmounts[moleculeName + "[c]"] = amountToSet * (units.mol / units.L)
 		return moleculeSetAmounts
-
