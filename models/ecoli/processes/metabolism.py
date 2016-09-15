@@ -157,8 +157,6 @@ class Metabolism(wholecell.processes.process.Process):
 		# Indices for reactions with full kinetic esimates
 		self.allRateIndices = np.where([True if reactionID in self.allRateReactions else False for reactionID in self.fba.reactionIDs()])
 
-		self.fba._solver._model.set_solver_method_dualprimal()
-
 		# Matrix mapping enzymes to the reactions they catalyze
 		self.enzymeReactionMatrix = sim_data.process.metabolism.enzymeReactionMatrix(
 			self.fba.reactionIDs(),
@@ -167,7 +165,7 @@ class Metabolism(wholecell.processes.process.Process):
 			)
 		self.spontaneousIndices = np.where(np.sum(self.enzymeReactionMatrix, axis=1) == 0)
 		self.enzymeReactionMatrix = csr_matrix(self.enzymeReactionMatrix)
-		self.allRates = FLUX_UNITS * np.inf * np.ones(len(self.fba.reactionIDs()))
+		self.baseRates = FLUX_UNITS * np.inf * np.ones(len(self.fba.reactionIDs()))
 
 		self.currentNgam = 1 * (COUNTS_UNITS / VOLUME_UNITS)
 		self.currentPolypeptideElongationEnergy = 1 * (COUNTS_UNITS / VOLUME_UNITS)
@@ -223,6 +221,7 @@ class Metabolism(wholecell.processes.process.Process):
 			self.time(),
 			self.concModificationsBasedOnCondition,
 			)
+
 
 		if newObjective != None and newObjective != self.objective:
 			# Build new fba instance with new objective
@@ -295,19 +294,19 @@ class Metabolism(wholecell.processes.process.Process):
 			
 			# Make kinetic targets numerical zero instead of actually zero for solver stability
 			self.allRateEstimates[self.allRateEstimates.asNumber() == 0] = FLUX_UNITS * 1e-20
-			self.fba.setKineticTarget(self.allRateReactions, self.timeStepSec() * self.allRateEstimates.asNumber(FLUX_UNITS), raiseForReversible=False)
+			self.fba.setKineticTarget(self.allRateReactions, (TIME_UNITS*self.timeStepSec()*self.allRateEstimates).asNumber(COUNTS_UNITS/VOLUME_UNITS), raiseForReversible=False)
 
 		if USE_BASE_RATES:
 			# Calculate new rates
-			self.allRatesNew = FLUX_UNITS * self.enzymeReactionMatrix.dot(enzymeConcentrations.asNumber(COUNTS_UNITS / VOLUME_UNITS))
-			self.allRatesNew[self.spontaneousIndices] = (FLUX_UNITS) * np.inf
+			self.baseRatesNew = FLUX_UNITS * self.enzymeReactionMatrix.dot(enzymeConcentrations.asNumber(COUNTS_UNITS / VOLUME_UNITS))
+			self.baseRatesNew[self.spontaneousIndices] = (FLUX_UNITS) * np.inf
 			# Update allRates
-			updateLocations = np.where(self.allRatesNew.asNumber(FLUX_UNITS) != self.allRates.asNumber(FLUX_UNITS))
+			updateLocations = np.where(self.baseRatesNew.asNumber(FLUX_UNITS) != self.baseRates.asNumber(FLUX_UNITS))
 			updateReactions = self.fba.reactionIDs()[updateLocations]
-			updateValues = self.allRatesNew[updateLocations]
-			self.allRates[updateLocations] = updateValues
+			updateValues = self.baseRatesNew[updateLocations]
+			self.baseRates[updateLocations] = updateValues
 			# Set new reaction rate limits
-			self.fba.setMaxReactionFluxes(updateReactions, updateValues.asNumber(FLUX_UNITS), raiseForReversible = False)
+			self.fba.setMaxReactionFluxes(updateReactions, (TIME_UNITS*self.timeStepSec()*updateValues).asNumber(COUNTS_UNITS/VOLUME_UNITS), raiseForReversible = False)
 
 		deltaMetabolites = (1 / countsToMolar) * (COUNTS_UNITS / VOLUME_UNITS * self.fba.outputMoleculeLevelsChange())
 
@@ -318,7 +317,10 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.metabolites.countsIs(metaboliteCountsFinal)
 
-		self.overconstraintMultiples = (self.fba.reactionFluxes() / self.timeStepSec()) / self.allRates.asNumber(FLUX_UNITS)
+		# Use GLPK's dualprimal solver, AFTER the first solution
+		self.fba._solver._model.set_solver_method_dualprimal()
+
+		self.overconstraintMultiples = (self.fba.reactionFluxes() / self.timeStepSec()) / self.baseRates.asNumber(FLUX_UNITS)
 		exFluxes = ((COUNTS_UNITS / VOLUME_UNITS) * self.fba.externalExchangeFluxes() / coefficient).asNumber(units.mmol / units.g / units.h)
 
 		# TODO: report as reactions (#) per second & store volume elsewhere
@@ -337,8 +339,11 @@ class Metabolism(wholecell.processes.process.Process):
 		self.writeToListener("FBAResults", "columnDualValues",
 			self.fba.columnDualValues(self.fba.reactionIDs()))
 
-		self.writeToListener("EnzymeKinetics", "reactionConstraints",
-			self.allRates.asNumber(FLUX_UNITS))
+		self.writeToListener("EnzymeKinetics", "baseRates",
+			self.baseRates.asNumber(FLUX_UNITS))
+
+		self.writeToListener("EnzymeKinetics", "reactionKineticPredictions",
+			self.allRateEstimates.asNumber(FLUX_UNITS))
 
 		self.writeToListener("EnzymeKinetics", "overconstraintMultiples",
 			self.overconstraintMultiples)

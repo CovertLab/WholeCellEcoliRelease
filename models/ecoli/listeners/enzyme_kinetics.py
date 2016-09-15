@@ -43,7 +43,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 	# to be filled later
 	def allocate(self):
 		super(EnzymeKinetics, self).allocate()
-
+		self.baseRates = np.zeros(len(self.metabolism.fba.reactionIDs()), np.float64)
 		self.reactionKineticPredictions = np.zeros(len(self.metabolism.allRateReactions), np.float64)
 		self.allConstraintsLimits = np.zeros(len(self.reactionRateInfo), np.float64)
 		self.reactionIDs = self.metabolism.fba.reactionIDs()
@@ -77,6 +77,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		tableWriter.append(
 			time = self.time(),
 			simulationStep = self.simulationStep(),
+			baseRates = self.baseRates,
 			reactionKineticPredictions = self.reactionKineticPredictions,
 			allConstraintsLimits = self.allConstraintsLimits,
 			kineticTargetFluxes = self.kineticTargetFluxes,
