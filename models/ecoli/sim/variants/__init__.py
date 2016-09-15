@@ -13,8 +13,6 @@ from models.ecoli.sim.variants.time_step import timeStepTotalIndices
 
 from models.ecoli.sim.variants.starvation_variant import starvationVariant
 from models.ecoli.sim.variants.starvation_variant import starvationVariantTotalIndices
-from models.ecoli.sim.variants.kinetics_flux_coeff import kineticsFluxCoeff
-from models.ecoli.sim.variants.kinetics_flux_coeff import kineticsFluxCoeffTotalIndices
 
 from models.ecoli.sim.variants.metabolism_target_range import metabolismTargetRange
 from models.ecoli.sim.variants.metabolism_target_range import metabolismTargetRangeTotalIndices
@@ -42,7 +40,6 @@ nameToFunctionMapping = {
 	"wildtype": wildtype,
 	"timeStep": timeStep,
 	"starvationVariant": starvationVariant,
-	"kineticsFluxCoeff": kineticsFluxCoeff,
 	"metabolismTargetRange":metabolismTargetRange,
 	"growthRate": growthRate,
 	"scalingFactor": scalingFactor,
@@ -57,7 +54,6 @@ nameToNumIndicesMapping = {
 	"wildtype": wildtypeTotalIndices,
 	"timeStep": timeStepTotalIndices,
 	"starvationVariant": starvationVariantTotalIndices,
-	"kineticsFluxCoeff": kineticsFluxCoeffTotalIndices,
 	"metabolismTargetRangeTotalIndices":metabolismTargetRangeTotalIndices,
 	"growthRate": growthRateTotalIndices,
 	"scalingFactor": scalingFactorTotalIndices,

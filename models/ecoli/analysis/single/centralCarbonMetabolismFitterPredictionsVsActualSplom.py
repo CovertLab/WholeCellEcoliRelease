@@ -68,13 +68,13 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		if np.abs(value) < NUMERICAL_ZERO:
 			fitterPredictedFluxesDict[key] = 0
 
-	scatterArrayActual, scatterArrayPredicted, scatterArrayPredictedStd, toyaObservedFluxes, labels = [], [], [], [], []
+	scatterArrayActual, scatterArrayPredicted, scatterArrayActualStd, toyaObservedFluxes, labels = [], [], [], [], []
 	for fluxName, toyaFlux in toya_fluxes_dict.iteritems():
 		reactionIdx = list(reactionIDs).index(fluxName)
 		samplePoints = reactionFluxes[BURN_IN_PERIOD:, reactionIdx]
-		scatterArrayActual.append(fitterPredictedFluxesDict[fluxName])
-		scatterArrayPredicted.append(np.mean(samplePoints))
-		scatterArrayPredictedStd.append(np.std(samplePoints))
+		scatterArrayActual.append(np.mean(samplePoints))
+		scatterArrayPredicted.append(fitterPredictedFluxesDict[fluxName])
+		scatterArrayActualStd.append(np.std(samplePoints))
 		toyaObservedFluxes.append(toyaFlux.asNumber(FLUX_UNITS))
 		labels.append(fluxName)
 	
@@ -83,7 +83,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	toyaObservedFluxes = np.array(toyaObservedFluxes)
 
 	arrayOfdataArrays = [scatterArrayActual, scatterArrayPredicted, toyaObservedFluxes]
-	arrayOfdataStdArrays = [None, scatterArrayPredictedStd, None]
+	arrayOfdataStdArrays = [scatterArrayActualStd, None, None]
 
 	names = ["WCM Flux {}".format(FLUX_UNITS.strUnit()), "Fitter Prediction {}".format(FLUX_UNITS.strUnit()), "Toya et al Measurement {}".format(FLUX_UNITS.strUnit())]
 

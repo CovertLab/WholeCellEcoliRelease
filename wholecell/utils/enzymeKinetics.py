@@ -3,206 +3,308 @@
 """
 EnzymeKinetics
 
-Compiles a theano function which can be called to determine the rates of all reactions in a metabolic model.
+Takes in enzyme kinetics data on initialization, and returns dicts of rate estimates when passed
+metabolite and enzyme concentrations at runtime.
 
 @author: Morgan Paull
 @organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 8/4/2015
+@date: Created 2/8/2016
 """
 
 import numpy as np
 
 from wholecell.utils import units
-
-import theano.tensor as T
-from theano import function
-
 import re
+from Equation import Expression
 
+class enzymeKineticsError(Exception):
+	pass
+
+COUNTS_UNITS = units.umol
+TIME_UNITS = units.s
+VOLUME_UNITS = units.L
 
 class EnzymeKinetics(object):
 	"""
 	EnzymeKinetics
 
-	Stores a compiled theano function determining any reaction kinetics known.
+	Returns rate estimates from kinetic equation information stored in reactionRateInfo.
 	"""
 
-	def __init__(self, enzymesWithKineticInfo, constraintIDs, reactionRateInfo, reactionIDs, metaboliteIDs, kcatOnly=False):
+	def __init__(self, reactionRateInfo, kcatsOnly=False, useCustoms=True, moreThanKcat=False):
 
 		# Set default reaction rate limit, to which reactions are set absent other information
-		self.defaultRate = np.inf
+		self.defaultRate = (COUNTS_UNITS / TIME_UNITS / VOLUME_UNITS) * np.inf
 
 		# Load rate functions from enzymeKinetics.tsv flat file
 		self.reactionRateInfo = reactionRateInfo
-		self.constraintIDs = constraintIDs
-		self.enzymesWithKineticInfo = enzymesWithKineticInfo
 
-		# Make a dictionary mapping a substrate ID to it's index in self.metabolites()
-		self.metaboliteIndexDict = {}
-		substrate_vars_array = [0]*len(metaboliteIDs)
-		for index,name in enumerate(metaboliteIDs):
-			self.metaboliteIndexDict[name] = index
-			substrate_vars_array[index] = T.dscalar(name + '_concentration')
+		## Filter the reactions as specified
+		# Exclude any rows with more than a kcat
+		if kcatsOnly:
+			reactionRateInfoNew = {}
+			for constraintID, reactionInfo in self.reactionRateInfo.iteritems():
+				# Kcat-only reactions will have no kMs, kIs, or custom equations
+				if len(reactionInfo["kM"]) or len(reactionInfo["kI"]) or reactionInfo["customRateEquation"]:
+					continue
+				reactionRateInfoNew[constraintID] = reactionInfo
+			self.reactionRateInfo = reactionRateInfoNew
 
-		# Make a dictionary mapping an enzyme ID to it's index in self.enzymes()
-		self.enzymeIndexDict = {}
-		enzyme_vars_array = [0]*len(self.enzymesWithKineticInfo)
-		for index,name in enumerate(self.enzymesWithKineticInfo):
-			self.enzymeIndexDict[name] = index
-			enzyme_vars_array[index] = T.dscalar(name + '_concentration')
+		# Exclude any custom equation rows
+		if not useCustoms:
+			reactionRateInfoNew = {}
+			for constraintID, reactionInfo in self.reactionRateInfo.iteritems():
+				if reactionInfo["customRateEquation"] == None:
+					reactionRateInfoNew[constraintID] = reactionInfo
+			self.reactionRateInfo = reactionRateInfoNew
 
-		# Build a function to determine the rate of reactions known to the model
-		noRate = T.dscalar('noRate')
-		rateExpressionsArray = [noRate]*len(reactionIDs)
-		for index, reactionID in enumerate(reactionIDs):
-			rateInfo = {}
-			try:
-				rateInfo = self.reactionRateInfo[reactionID]
-			except:
-				continue
+		# Throw out any kcat-only reactions
+		if moreThanKcat:
+			reactionRateInfoNew = {}
+			for constraintID, reactionInfo in self.reactionRateInfo.iteritems():
+				if len(reactionInfo["kM"]) or len(reactionInfo["kI"]) or reactionInfo["customRateEquation"]:
+					reactionRateInfoNew[constraintID] = reactionInfo
+			self.reactionRateInfo = reactionRateInfoNew
 
-			rateExpressionsArray[index] = self.buildRateExpression(rateInfo, enzyme_vars_array, substrate_vars_array, self.metaboliteIndexDict, self.enzymeIndexDict, kcatOnly)
+		self.allConstraintIDs = self.reactionRateInfo.keys()
 
-		# Build a function to determine the rate of all possible constraints
-		longRateExpressionsArray = [noRate]*len(self.reactionRateInfo)
-		for index, constraintID in enumerate(self.constraintIDs):
-			rateInfo = self.reactionRateInfo[constraintID]
-			longRateExpressionsArray[index] = self.buildRateExpression(rateInfo, enzyme_vars_array, substrate_vars_array, self.metaboliteIndexDict, self.enzymeIndexDict, kcatOnly)
+		self.allReactionIDs = [x["reactionID"] for x in self.reactionRateInfo.values()]
 
+		self.inputsChecked = False
 
-
-		## Compile a theano function for the enzyme kinetics
-		# Inputs: the concentrations of every enzyme in enzymesWIthKineticInfo,
-		# 			the concentration of every substrate in metaboliteIDs, and 
-		# 			then the default rate for reactions without kinetic info,
-		# 			in that order
-		# Outputs: an array of kinetic rates of reactions ordered as in
-		#			reactionIDs
-		self.rateFunction = function(enzyme_vars_array + substrate_vars_array + [noRate], T.stack(rateExpressionsArray), on_unused_input='ignore')
+	def checkKnownSubstratesAndEnzymes(self, metaboliteNames, enzymeNames, removeUnknowns=False):
+		knownConstraints = {}
+		unusableConstraints = {}
+		unknownSubstrates = set()
+		unknownEnzymes = set()
+		unknownCustomVars = set()
 
 
-		self.allRatesFunction = function(enzyme_vars_array + substrate_vars_array + [noRate], T.stack(longRateExpressionsArray), on_unused_input='ignore')
+		for constraintID, reactionInfo in self.reactionRateInfo.iteritems():
+			keepReaction = True
+			reactionType = reactionInfo["rateEquationType"]
+			if reactionType == "standard":
 
-	def buildRateExpression(self, rateInfo, enzyme_vars_array, substrate_vars_array, metaboliteIndexDict, enzymeIndexDict, kcatOnly):
+				# Check if the substrates are known
+				for substrateID in reactionInfo["substrateIDs"]:
+					if substrateID not in metaboliteNames:
+						unknownSubstrates.add(substrateID)
+						unusableConstraints[constraintID] = reactionInfo
+						keepReaction = False
 
-		# Find the enzyme variable for this reaction.
-		# Only uses the first enzyme if there are more than one.
-		enzyme_var = enzyme_vars_array[enzymeIndexDict[rateInfo["enzymeIDs"][0]]]
+				# Check if the enzymes are known
+				for enzymeID in reactionInfo["enzymeIDs"]:
+					if enzymeID not in enzymeNames:
+						unknownEnzymes.add(enzymeID)
+						unusableConstraints[constraintID] = reactionInfo
+						keepReaction = False
 
-		# Standard or custom reaction rate law?
-		if(rateInfo["rateEquationType"] == "standard"):
-			# Standard rate law
 
-			# Check if K_M or K_I given
-			if(len(rateInfo["kM"]) + len(rateInfo["kI"])>0) and (kcatOnly==False):		
-				# Use michaelis-menton kinetics
+			elif reactionType == "custom":
 
-				# Build a list of substrates vars for this reaction.
-				# Input data must be in same order as [k_M's] then [k_I's]
-				specific_substrate_vars_array = []
-				for substrate_name in rateInfo["substrateIDs"]:
-					specific_substrate_vars_array.append(substrate_vars_array[metaboliteIndexDict[substrate_name]])
+				for variable in reactionInfo["customParameterVariables"].values():
+					if variable not in metaboliteNames:
+						notSubstrate = True
+					if variable not in enzymeNames:
+						notEnzyme = True
 
-				# Find the rate function
-				rateExpression = self.enzymeRateApproximate(rateInfo, enzyme_var, specific_substrate_vars_array)
+					if notSubstrate and notEnzyme:
+						unknownCustomVars.add(variable)
+						unusableConstraints[constraintID] = reactionInfo
+						keepReaction = False
 			else:
-				# Use only the kcat
-				rateExpression = self.maxReactionRate(enzyme_var, np.amax(rateInfo["kcat"]))
+				# Reaction type is unknown
+				raise Exception("Reaction type '%s' is unknown. Must be either 'standard' or 'custom'." % (reactionType))
 
-		elif(rateInfo["rateEquationType"] == "custom"):
-			# Custom rate law
-			rateExpression = self.enzymeRateCustom(rateInfo, enzyme_vars_array, substrate_vars_array, metaboliteIndexDict, enzymeIndexDict)
+			# Keep the reaction only if both substrates and enzymes are known
+			if keepReaction:
+				knownConstraints[constraintID] = reactionInfo
 
-		return rateExpression
+		if removeUnknowns:
+			self.reactionRateInfo = knownConstraints
+			self.inputsChecked = True
+
+		unknownVals = {"unknownSubstrates":unknownSubstrates, "unknownEnzymes":unknownEnzymes, "unknownCustomVars":unknownCustomVars}
+
+		return knownConstraints, unusableConstraints, unknownVals
 
 
-	def maxReactionRate(self, enzyme_var, k_cat):
+	def reactionRate(self, reactionInfo, metaboliteConcentrationsDict, enzymeConcentrationsDict):
+
+		if reactionInfo["rateEquationType"] == "standard":
+			return self.reactionStandard(reactionInfo, metaboliteConcentrationsDict, enzymeConcentrationsDict)
+		elif reactionInfo["rateEquationType"] == "custom":
+			return self.reactionCustom(reactionInfo, metaboliteConcentrationsDict, enzymeConcentrationsDict)
+		else:
+			raise NameError("rateEquationType %s not recognized! Must be either 'standard' or 'custom'." % (reactionInfo["rateEquationType"]))
+
+	def reactionStandard(self, reactionInfo, metaboliteConcentrationsDict, enzymeConcentrationsDict):
+		# Find the enzymes needed for this rate
+		enzymeConc = enzymeConcentrationsDict[reactionInfo["enzymeIDs"][0]].asNumber(COUNTS_UNITS/VOLUME_UNITS)
+		kMs = reactionInfo["kM"]
+		kIs = reactionInfo["kI"]
+		substrateIDs = reactionInfo["substrateIDs"]
+
+		if len(kMs) + len(kIs) > len(substrateIDs):
+			raise enzymeKineticsError("The number of saturation constants (kMs and kIs) must not be greater than the number of substrates for a standard reaction. For constraint {}, there are {} kMs, {} kIs, and {} substrates. ReactionInfo: {}".format(reactionInfo["constraintID"], len(kMs), len(kIs), len(substrateIDs), reactionInfo))
+
+		rate = np.amax(reactionInfo["kcat"])*enzymeConc
+
+		idx = 0
+		for kM in reactionInfo["kM"]:
+			substrateConc = metaboliteConcentrationsDict[substrateIDs[idx]].asNumber(COUNTS_UNITS/VOLUME_UNITS)
+			rate *= (substrateConc / (float(substrateConc) + kM))
+			idx+=1
+		for kI in reactionInfo["kI"]:
+			substrateConc = metaboliteConcentrationsDict[substrateIDs[idx]].asNumber(COUNTS_UNITS/VOLUME_UNITS)
+			rate *= 1.0 / (1.0 + (substrateConc / kI))
+			idx+=1
+
+		return (COUNTS_UNITS / TIME_UNITS / VOLUME_UNITS) * rate
+
+	def reactionCustom(self, reactionInfo, metaboliteConcentrationsDict, enzymeConcentrationsDict):
+		enzymeConcArray = [enzymeConcentrationsDict[reactionInfo["enzymeIDs"][0]]].asNumber(COUNTS_UNITS/VOLUME_UNITS)
+
+		customParameters = reactionInfo["customParameters"]
+		customParameterVariables = reactionInfo["customParameterVariables"]
+		customParameterConstants = reactionInfo["customParameterConstantValues"]
+		equationString = reactionInfo["customRateEquation"]
+		parameterDefinitionArray = reactionInfo["customParameters"]
+
+		parametersArray = customParameterConstants
+		for customParameter in customParameters[len(customParameterConstants):]:
+			variable = customParameterVariables[customParameter]
+			if variable in enzymeConcentrationsDict:
+				parametersArray.append(enzymeConcentrationsDict[variable].asNumber(COUNTS_UNITS/VOLUME_UNITS))
+			elif variable in metaboliteConcentrationsDict:
+				parametersArray.append(metaboliteConcentrationsDict[variable].asNumber(COUNTS_UNITS/VOLUME_UNITS))
+
+		assert (len(parametersArray) == len(parameterDefinitionArray))
+
+		customRateLaw = Expression(equationString, parameterDefinitionArray)
+
+		return (COUNTS_UNITS / TIME_UNITS / VOLUME_UNITS) * customRateLaw(*parametersArray)
+
+
+	def allConstraintsDict(self, metaboliteConcentrationsDict, enzymeConcentrationsDict):
+		constraintsDict = {}
+		for constraintID, reactionInfo in self.reactionRateInfo.iteritems():
+			constraintsDict[constraintID] = self.reactionRate(reactionInfo, metaboliteConcentrationsDict, enzymeConcentrationsDict)
+
+		return constraintsDict
+
+	def allReactionsDict(self, metaboliteConcentrationsDict, enzymeConcentrationsDict):
 		"""
-		Returns the theoretical maximum catalytic rate of an enzymatic reaction, to be compiled into a theano function.
+		Create a dict of dicts from reactionID to constraintIDs for that reaction, to rates for each constraintID.
+		"""
+		reactionsDict = {}
+		for constraintID, reactionInfo in self.reactionRateInfo.iteritems():
+			reactionID = reactionInfo["reactionID"]
+			if reactionID not in reactionsDict:
+				reactionsDict[reactionID] = {}
+			reactionsDict[reactionID][constraintID] = self.reactionRate(reactionInfo, metaboliteConcentrationsDict, enzymeConcentrationsDict)
 
-		The k_cat is compiled into the function, the enzyme_var is a thenao tensor
-			and left as an input to the function.
+		return reactionsDict
+
+	def ratesView(self, reactionIDs, reactionsToConstraintsDict, metaboliteConcentrationsDict, enzymeConcentrationsDict, raiseIfNotFound=False):
+		"""
+		Returns an array of rates with units.
+			Order taken from reactionIDs, rates to estimate come from reactionsToConstraintsDict.
+			When a rate is not found, raises exception if raiseIfNotFound, else returns default rate.
+			A reaction must be in reactionsToConstraintsDict, or it will get the default value.
 		"""
 
-		return k_cat * enzyme_var
+		unknownConstraints = set()
+		unknownReactions = set()
 
+		# Build an estimate for rates of constraints passed in
+		rates = self.defaultRate * np.ones(len(reactionIDs))
+		for idx, reactionID in enumerate(reactionIDs):
+			if reactionID in reactionsToConstraintsDict:
+				constraintID = reactionsToConstraintsDict[reactionID]["constraintID"]
+				coefficient = reactionsToConstraintsDict[reactionID]["coefficient"] if "coefficient" in reactionsToConstraintsDict[reactionID] else 1
+				if constraintID in self.reactionRateInfo:
+					rates[idx] = coefficient * self.reactionRate(self.reactionRateInfo[constraintID], metaboliteConcentrationsDict, enzymeConcentrationsDict)
+				else:
+					if raiseIfNotFound:
+						unknownConstraints.add(constraintID)
+			else:
+				if raiseIfNotFound:
+					unknownReactions.add(reactionID)
 
-	def enzymeRateApproximate(self, rateInfo, enzyme_var, substrate_vars_array):
+		if len(unknownConstraints) > 0:
+			raise Exception("No rate estimate found for the following {} constraintIDs {}.".format(len(unknownConstraints), unknownConstraints))
 
-		""" 
-		Returns the approximated rate of a reaction with 1 or more substrates and 0 or more inhibitors.
+		if len(unknownReactions) > 0:
+			raise Exception("No rate estimate found for the following {} reactionIDs {}.".format(len(unknownReactions), unknownReactions))
 
-		Inputs: rateInfo - the object defining the enzyme kinetics of this reaction.
-				enzyme_vars_array - theano tensor corresponding to the enzyme used
-					in this reaction.
-				substrate_vars_array - array of theano tensors corresponding to the
-					substrates used in this reaction. Must be in the same order as
-					the k_M_array and k_I_array defined in rateInfo, and must be
-					in order: k_M substrates followed by k_I substrates.
+		return rates
 
-		Returns: an expression for the kinetics of this reaction, which can be
-					turned into a theano function later. Uses Michaelis-Menton
-					like kinetics, with each substrate either saturating or
-					inhibiting with respect to it's k_M or k_I respoectively.
+	def ratesViewConstraints(self, constraintIDs, metaboliteConcentrationsDict, enzymeConcentrationsDict, raiseIfNotFound=False):
 		"""
-
-		k_cat = np.amax(rateInfo["kcat"])
-
-		rate = k_cat * enzyme_var
-
-		n = 0
-		# Adjust rate for all substrates
-		for k_M in rateInfo["kM"]:
-			rate *= ((substrate_vars_array[n])/(k_M + substrate_vars_array[n]))
-			n += 1
-
-		# Adjust rate for any/all inhibitors
-		for k_I in rateInfo["kI"]:
-			rate *= ((1)/(1 + (substrate_vars_array[n]/k_I)))
-			n += 1
-
-
-		return rate
-
-	def enzymeRateCustom(self, rateInfo, enzyme_vars_array, substrate_vars_array, metaboliteIndexDict, enzymeIndexDict):
+		Returns an array of rates with units, in the same order as the constraintIDs iterable.
 		"""
-		Given an equation string, returns that expression with theano variables substituted in.
+		# Check if all needed metabolite and enzyme concentrations are given
+		if not self.inputsChecked:
+			knownConstraints, unusableConstraints, unknownVals = self.checkKnownSubstratesAndEnzymes(metaboliteConcentrationsDict, enzymeConcentrationsDict, removeUnknowns=False)
+			if len(unusableConstraints) > 0:
+				raise Exception("Unable to compute kinetic rate for these reactions: {}\n. Missing values for: {}".format(unusableConstraints.keys(), unknownVals))
+
+		unknownConstraints = set()
+
+		# Build an estimate for rates of constraints passed in
+		rates = self.defaultRate * np.ones(len(constraintIDs))
+		for idx, constraintID in enumerate(constraintIDs):
+			if constraintID in self.reactionRateInfo:
+				rates[idx] = self.reactionRate(self.reactionRateInfo[constraintID], metaboliteConcentrationsDict, enzymeConcentrationsDict)
+			else:
+				if raiseIfNotFound:
+					unknownConstraints.add(constraintID)
+
+		if len(unknownConstraints) > 0:
+			raise Exception("No rate estimate found for constraintIDs {}.".format(unknownConstraints))
+
+		return rates
+
+
+	def ratesViewReactions(self, reactionIDs, metaboliteConcentrationsDict, enzymeConcentrationsDict, sortFunction, raiseIfNotFound=False):
 		"""
+		Returns an array of rates with units, in the same order as the reactionIDs.
+		Uses sortFunction to decide which constraint to use if a reaction has multiple choices.
+		"""
+		# Check if all needed metabolite and enzyme concentrations are given
+		if not self.inputsChecked:
+			knownConstraints, unusableConstraints, unknownVals = self.checkKnownSubstratesAndEnzymes(metaboliteConcentrationsDict, enzymeConcentrationsDict, removeUnknowns=False)
+			if len(unusableConstraints) > 0:
+				raise Exception("Unable to compute kinetic rate for these reactions: {}\n. Missing values for: {}".format(unusableConstraints.keys(), unknownVals))
 
-		# Make a dictionary mapping from given user-defined variable to theano var
-		D = {}
-		placeholder_dict = rateInfo["customParameterVariables"]
-		for placeholder in placeholder_dict:
-			ID = placeholder_dict[placeholder]
-			if ID in metaboliteIndexDict:
-				D[placeholder] = substrate_vars_array[metaboliteIndexDict[ID]]
-			if ID in enzymeIndexDict:
-				D[placeholder] = enzyme_vars_array[enzymeIndexDict[ID]]
+		unknownReactions = set()
+
+		rates = self.defaultRate * np.ones(len(reactionIDs))
+
+		constraintsDict = self.allConstraintsDict(metaboliteConcentrationsDict, enzymeConcentrationsDict)
+		for idx, reactionID in enumerate(reactionIDs):
+			if reactionID in constraintsDict:
+				rates[idx] = sortFunction(constraintsDict[reactionID])
+			else:
+				if raiseIfNotFound:
+					unknownReactions.add(reactionID)
+
+		if len(unknownReactions) > 0:
+			raise Exception("No rate estimate found for reactionIDs {}.".format(unknownReactions))
 
 
-		# If the D dict is not the same size as the placeholder dict, then some
-		# enzyme or substrate was not recognized by the model.
-		if len(D) != len(placeholder_dict):
-			raise NameError("One or more enzymes or substrates is not known to the model: %s" % str(placeholder_dict) )
+		return rates
 
-		# Make a dictionary mapping from symbols for constants to their values.
-		constants_dict = {}
-		symbol_constants = rateInfo["customParameterConstants"]
-		constant_values = rateInfo["customParameterConstantValues"]
+	def ratesViewLowest(self, reactionIDs, metaboliteConcentrationsDict, enzymeConcentrationsDict, raiseIfNotFound=False):
+		"""
+		Returns an array of rates with units, in the same order as the reactionIDs, chosing the minimum estimate when a reactionID has multiple constraintIDs.
+		"""
+		return self.ratesViewReactions(reactionIDs, metaboliteConcentrationsDict, enzymeConcentrationsDict, np.amin, raiseIfNotFound)
 
-		for index, value in enumerate(symbol_constants):
-			constants_dict[value] = constant_values[index]
 
-		# Build the rate expression
-		rate = rateInfo["customRateEquation"]
-
-		for variable in rateInfo["customParameters"]:
-			# if it should be a theano variable
-			if variable in D:
-				rate = re.sub(r"\b%s\b" % variable, "D['" + variable + "']", rate)
-
-			# If it is a constant
-			if variable in constants_dict:
-				rate = re.sub(r"\b%s\b" % variable, '(' + str(constants_dict[variable]) + ')', rate)
-
-		return eval(rate)
+	def ratesViewHighest(self, reactionIDs, metaboliteConcentrationsDict, enzymeConcentrationsDict, raiseIfNotFound=False):
+		"""
+		Returns an array of rates with units, in the same order as the reactionIDs, chosing the minimum estimate when a reactionID has multiple constraintIDs.
+		"""
+		return self.ratesViewReactions(reactionIDs, metaboliteConcentrationsDict, enzymeConcentrationsDict, np.amax, raiseIfNotFound)

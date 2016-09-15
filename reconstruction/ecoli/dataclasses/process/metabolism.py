@@ -27,8 +27,10 @@ EXCHANGE_UNITS = units.mmol / units.g / units.h
 # If true, enzyme kinetics entries which reference unknown reactions are ignored
 # If false, raises an exception in such a case
 raiseForUnknownRxns = False
+warnForUnknownRxns = False
 raiseForTruncatedRxns = False
 warnForTruncatedRxns = False
+warnForMultiTruncatedRxns = False
 
 reverseReactionString = "{} (reverse)"
 
@@ -282,6 +284,9 @@ class Metabolism(object):
 		for idx, reaction in enumerate(raw_data.enzymeKinetics):
 			reactionID = reaction["reactionID"]
 
+			# Find the temp-adjusted kcat value
+			newKcat = self.temperatureAdjustedKcat(reaction)
+
 			# Add compartment tags to enzymes
 			reaction["enzymeIDs"] = self.addEnzymeCompartmentTags(reaction["enzymeIDs"], validEnzymeCompartments)
 
@@ -351,14 +356,14 @@ class Metabolism(object):
 						if substrate not in thisRxnStoichiometry.keys():
 							nonCannonicalRxns.add(reaction["constraintID"])
 			elif reaction["rateEquationType"] == "custom":
-				continue
+				pass
 			else:
 				raise Exception("rateEquationType {} not understood in reaction {} on enzymeKinetics line {}".format(reaction["reactionID"], reaction["reactionID"], idx))
 
 			# Check if this constraint is for a reverse reaction
 			if reactionID in reversibleReactions:
 				if reaction["direction"] == "forward":
-					continue
+					pass
 				elif reaction["direction"] == "reverse":
 					reaction["reactionID"] = reverseReactionString.format(reactionID)
 					reaction["constraintID"] = reverseReactionString.format(reaction["constraintID"])
@@ -377,7 +382,6 @@ class Metabolism(object):
 						# If more are products than reactants, treat this as a reverse reaction constraint
 						# Record any ambiguous reactions and throw an exception once all are gathered
 						if allCounter < 1.0:
-							print reaction["reactionID"]
 							directionAmbiguousRxns.add(reaction["reactionID"])
 							continue
 
@@ -386,7 +390,7 @@ class Metabolism(object):
 							reaction["constraintID"] = reverseReactionString.format(reaction["constraintID"])
 						elif reverseCounter > 0:
 							if len(reaction["kI"]) == reverseCounter:
-								continue
+								pass
 							else:
 								directionAmbiguousRxns.add(reaction["reactionID"])
 					elif reaction["rateEquationType"] == "custom":
@@ -404,7 +408,7 @@ class Metabolism(object):
 			message = "The following {} enzyme kinetics reactions appear to be for reactions which don't exist in the model - they should be corrected or removed. {}".format(len(unknownRxns), unknownRxns)
 			if raiseForUnknownRxns:
 				raise Exception(message)
-			else:
+			elif warnForUnknownRxns:
 				warnings.warn(message)
 
 		if len(truncatedRxns) > 0:
@@ -416,7 +420,7 @@ class Metabolism(object):
 
 		if len(multipleTruncatedOptionRxns) > 0:
 			message = "The following {} enzyme kinetics reaction names are truncated versions of more than one reaction in the model {}".format(len(multipleTruncatedOptionRxns), multipleTruncatedOptionRxns)
-			if warnForTruncatedRxns:
+			if warnForMultiTruncatedRxns:
 				warnings.warn(message)
 			elif raiseForTruncatedRxns:
 				raise Exception(message)
@@ -431,6 +435,7 @@ class Metabolism(object):
 
 		self.reactionStoich = reactionStoich
 		self.nutrientsTimeSeries = sim_data.nutrientsTimeSeries
+		self.maintenanceReaction = {"ATP[c]": -1, "WATER[c]": -1, "ADP[c]": +1, "Pi[c]": +1, "PROTON[c]": +1,}
 		self.reversibleReactions = reversibleReactions
 		self.directionInferedReactions = sorted(list(directionInferedReactions))
 		self.reactionRateInfo = reactionRateInfo
@@ -505,6 +510,9 @@ class Metabolism(object):
 
 	def buildEnzymeReactionKcatLinks(self, reactionRateInfo, reactionEnzymesDict):
 		for constraintID, reactionInfo in reactionRateInfo.iteritems():
+			if reactionInfo["rateEquationType"] == "custom":
+				continue
+
 			reactionID = reactionInfo["reactionID"]
 			enzymeIDs = reactionInfo["enzymeIDs"]
 			kcat = reactionInfo["kcat"][0]
@@ -514,6 +522,9 @@ class Metabolism(object):
 						if kcat > reactionEnzymesDict[reactionID][enzymeID]:
 							reactionEnzymesDict[reactionID][enzymeID] = kcat
 		return reactionEnzymesDict
+
+	def temperatureAdjustedKcat(self, reactionInfo):
+		return 0
 
 
 class ConcentrationUpdates(object):
@@ -614,4 +625,3 @@ class ConcentrationUpdates(object):
 			moleculeSetAmounts[moleculeName + "[p]"] = amountToSet * (units.mol / units.L)
 			moleculeSetAmounts[moleculeName + "[c]"] = amountToSet * (units.mol / units.L)
 		return moleculeSetAmounts
-

@@ -1,4 +1,4 @@
-COEFF_VALUES = [0, 1e-9, 1e-6, 1e-3, 1e-2, 1e-1, .25, .5, .75, (1-1e-1), (1-1e-2), (1-1e-3), (1-1e-6), (1-1e-9), 1]
+COEFF_VALUES = [0, 1e-9, 1e-6, 5e-5, 1e-5, 5e-4, 1e-4, 5e-3, 1e-3, 1e-2, 1e-1, .5]
 
 CONTROL_OUTPUT = dict(
 	shortName = "control",
@@ -20,6 +20,6 @@ def metabolismKineticHomeostaticRatio(sim_data, index):
 	sim_data.constants.metabolismKineticObjectiveWeight = coeffValue
 
 	return dict(
-		shortName = "kineticCoeff %.1f" % (coeffValue),
-		desc = "Metabolic kinetic weighting coefficient set to %.2f." % (coeffValue)
+		shortName = "kineticCoeff %.1g" % (coeffValue),
+		desc = "Metabolic kinetic weighting coefficient set to %.3g." % (coeffValue)
 		), sim_data

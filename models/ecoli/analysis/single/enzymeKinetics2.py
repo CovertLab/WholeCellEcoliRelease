@@ -29,7 +29,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	enzymeKineticsdata = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
 	
-	enzymeKineticsArray = enzymeKineticsdata.readColumn("reactionConstraints")
+	enzymeKineticsArray = enzymeKineticsdata.readColumn("reactionKineticPredictions")
 	overconstraintMultiples = enzymeKineticsdata.readColumn("overconstraintMultiples")
 
 	reactionIDs = enzymeKineticsdata.readAttribute("reactionIDs")
@@ -38,36 +38,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 	
 	enzymeKineticsdata.close()
-
-
-	fbaData = TableReader(os.path.join(simOutDir, "FBAResults"))
-
-	reactionRatesUnconstrained = fbaData.readColumn('reactionFluxes')
-
-	rateEstimatesArray = enzymeKineticsArray
-
-	unconstrainedFluxes = fbaData.readColumn('reactionFluxes')
-	fluxNames = fbaData.readAttribute('reactionIDs')
-	simulationSteps = fbaData.readColumn('simulationStep')
-
-	fbaData.close()
-
-	testPoint = 100
-
-	fluxNamesEstimates = np.array(fluxNames)[np.where(rateEstimatesArray[testPoint] < np.inf)]
-
-	fluxesWithEstimates = unconstrainedFluxes[testPoint][np.where(rateEstimatesArray[testPoint] < np.inf)]
-	rateEstimates = rateEstimatesArray[testPoint][np.where(rateEstimatesArray[testPoint] < np.inf)]
-
-	amountOverconstrained = fluxesWithEstimates - rateEstimates
-	amountOverconstrained[np.where(amountOverconstrained < 0)] = 0
-	overconstrainedFluxes = fluxNamesEstimates[np.where(amountOverconstrained > 0)]
-	overconstrainedFluxesDict = dict(zip(overconstrainedFluxes, amountOverconstrained[np.where(amountOverconstrained > 0)]))
-
+	
 	plt.figure(figsize=(8.5,11))
 
 	for idx, overconstraintMultipleTimeCourse in enumerate(np.transpose(overconstraintMultiples)):
-		if overconstraintMultipleTimeCourse.any():
+		if not np.isnan(overconstraintMultipleTimeCourse).any():
 			plt.plot(time[5:] / 60., overconstraintMultipleTimeCourse[5:], label=reactionIDs[idx][:30])
 	plt.title("Enzyme Kinetics Constraint to Reaction Flux Ratio")
 	plt.xlabel("Time (min)")

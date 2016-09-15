@@ -29,9 +29,14 @@ from wholecell.analysis.plotting_tools import COLORS_LARGE
 NUMERICAL_ZERO = 1e-20
 
 MAX_STR_LEN = 30
-MIN_ERROR_TO_SHOW = NUMERICAL_ZERO
+MIN_RELATIVE_ERROR_TO_SHOW = 1e-5
+MOVING_AVE_WINDOW_SIZE = 100
 BURN_IN_PERIOD = 150
 NUM_ERRORS_TO_SHOW = 5
+
+TARGET_RELATIVE_DIFFERENCE = 1
+
+PERCENT_ON_TARGET_THRESHOLD = 1.0
 
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	if not os.path.isdir(simOutDir):
@@ -41,8 +46,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		os.mkdir(plotOutDir)
 
 	enzymeKineticsdata = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
-	errorFluxes = enzymeKineticsdata.readColumn("kineticTargetFluxes")
+	errorRelativeDifferences = enzymeKineticsdata.readColumn("kineticTargetRelativeDifferences")
 	errorFluxNames = enzymeKineticsdata.readAttribute("kineticTargetFluxNames")
+	oneSidedErrorFluxNames = enzymeKineticsdata.readAttribute("kineticOneSidedTargets")
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 	enzymeKineticsdata.close()
@@ -55,21 +61,33 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	# Determine where to set the threshold to hit the target number of most deviant fluxes
 	with warnings.catch_warnings() as w:
 		warnings.simplefilter("ignore")
-		maxima = np.nanmax(np.abs(errorFluxes[BURN_IN_PERIOD:]), axis=0)
+		# Smooth the error fluxes with a moving average
+		smoothedErrorFluxes = np.zeros_like(errorRelativeDifferences[BURN_IN_PERIOD:])
+		for idx, timeCourse in enumerate(errorRelativeDifferences[BURN_IN_PERIOD:].T):
+			smoothedTimeCourse = np.convolve(timeCourse, np.ones((MOVING_AVE_WINDOW_SIZE,))/MOVING_AVE_WINDOW_SIZE, mode='same')
+			smoothedErrorFluxes[:,idx] = smoothedTimeCourse
+		maxima = np.nanmax(np.abs(smoothedErrorFluxes), axis=0)
 	maxima = np.delete(maxima, np.where(np.isnan(maxima)))
 	threshold_value = sorted(maxima)[-(NUM_ERRORS_TO_SHOW+1)]
 
 	# Track fluxes with errors always below numerical zero
 	zeroErrorFluxes = set()
 
+	# Track fluxes within a specified range of the target
+	withinTargetErrorFluxes = set()
+
 	plt.figure(figsize = (17, 11))
-	plt.suptitle("Deviation from Target Flux for Reactions with Kinetic Estimates")
+	plt.suptitle("Relative Difference from Target Flux for Reactions with Kinetic Estimates")
 
-	for idx, (errorFluxID, errorFluxTimeCourse) in enumerate(zip(errorFluxNames, errorFluxes.T)):
+	for idx, (errorFluxID, errorFluxTimeCourse) in enumerate(zip(errorFluxNames, errorRelativeDifferences.T)):
 
-		if (np.abs(errorFluxTimeCourse[BURN_IN_PERIOD:]) < NUMERICAL_ZERO).all():
+		if (np.abs(errorFluxTimeCourse[BURN_IN_PERIOD:]) <= NUMERICAL_ZERO).mean() >= PERCENT_ON_TARGET_THRESHOLD:
 			zeroErrorFluxes.add(errorFluxID)
+			withinTargetErrorFluxes.add(errorFluxID)
 			continue
+
+		if (np.abs(errorFluxTimeCourse[BURN_IN_PERIOD:]) <= TARGET_RELATIVE_DIFFERENCE).mean() >= PERCENT_ON_TARGET_THRESHOLD:
+			withinTargetErrorFluxes.add(errorFluxID)
 
 		plt.subplot(2,2,1)
 		plt.plot(time[BURN_IN_PERIOD:] / 60., errorFluxTimeCourse[BURN_IN_PERIOD:], label=errorFluxNames[idx][:MAX_STR_LEN], color=idToColor[errorFluxID])
@@ -78,8 +96,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		plt.plot(time[BURN_IN_PERIOD:] / 60., np.log10(np.abs(errorFluxTimeCourse[BURN_IN_PERIOD:])), label=errorFluxNames[idx][:MAX_STR_LEN], color=idToColor[errorFluxID])
 		plt.xlabel("Time (min)")
 		plt.ylabel("Log10 Absolute Flux Error ({})".format(FLUX_UNITS.strUnit()))
-	
-		if ((np.abs(errorFluxTimeCourse[BURN_IN_PERIOD:][BURN_IN_PERIOD:]) > threshold_value).any()) and np.abs(errorFluxTimeCourse[BURN_IN_PERIOD:][BURN_IN_PERIOD:]).max() > MIN_ERROR_TO_SHOW:
+
+		if ((np.abs(smoothedErrorFluxes[:,idx]) >= threshold_value).any()) and np.abs(errorFluxTimeCourse[BURN_IN_PERIOD:]).max() > MIN_RELATIVE_ERROR_TO_SHOW:
 			plt.subplot(2,2,2)
 			plt.plot(time[BURN_IN_PERIOD:] / 60., errorFluxTimeCourse[BURN_IN_PERIOD:], label=errorFluxNames[idx][:MAX_STR_LEN], color=idToColor[errorFluxID])
 
@@ -88,15 +106,15 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 			plt.xlabel("Time (min)")
 
 	plt.subplot(2,2,1)
-	plt.ylabel("Flux Error ({})".format(FLUX_UNITS.strUnit()))
+	plt.ylabel("Relative Difference From Target")
 
 	plt.subplot(2,2,2)
-	plt.title("Top {} fluxes by max error after {} step burn-in. Max error must be over {}.".format(NUM_ERRORS_TO_SHOW, BURN_IN_PERIOD, MIN_ERROR_TO_SHOW),fontsize='x-small')
+	plt.title("{} max absolute relative diff after moving mean smoothing window {}, burn-in {}. Must be >{}.".format(NUM_ERRORS_TO_SHOW, MOVING_AVE_WINDOW_SIZE, BURN_IN_PERIOD, MIN_RELATIVE_ERROR_TO_SHOW),fontsize='x-small')
 
 	plt.subplot(2,2,3)
-	plt.title("{} fluxes ({:.1f}%) with no error at any timestep".format(len(zeroErrorFluxes), 100*(len(zeroErrorFluxes)/len(errorFluxNames))))
+	plt.title("{} fluxes ({:.1f}%) with relative difference <={} {}% of the time".format(len(withinTargetErrorFluxes), 100*(len(withinTargetErrorFluxes)/len(errorFluxNames)), TARGET_RELATIVE_DIFFERENCE,100*PERCENT_ON_TARGET_THRESHOLD), fontsize='small')
 	plt.xlabel("Time (min)")
-	plt.ylabel("Log10 Absolute Flux Error ({})".format(FLUX_UNITS.strUnit()))
+	plt.ylabel("Log10 Absolute Relative Difference")
 
 	plt.subplot(2,2,4)
 	plt.xlabel("Time (min)")
