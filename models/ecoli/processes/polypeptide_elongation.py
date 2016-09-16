@@ -84,7 +84,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.translation_aa_supply = sim_data.translationSupplyRate
 		self.nutrientsTimeSeriesLabel = sim_data.nutrientsTimeSeriesLabel
 		import copy
-		self.nutrientsTimeSeries = copy.copy(sim_data.nutrientsTimeSeries)
+		self.nutrientsTimeSeries = copy.deepcopy(sim_data.nutrientsTimeSeries)
 		self.currentNutrients = self.nutrientsTimeSeries[self.nutrientsTimeSeriesLabel][0][1]
 		##########
 
