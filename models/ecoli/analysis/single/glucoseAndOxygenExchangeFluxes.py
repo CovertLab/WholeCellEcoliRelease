@@ -21,29 +21,45 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	fig, (ax1, ax2) = plt.subplots(2, 1, sharex = True)
-
-	# Plot glucose exchange flux
+	# Exchange flux
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
 	fba_results = TableReader(os.path.join(simOutDir, "FBAResults"))
 	exFlux = fba_results.readColumn("externalExchangeFluxes")
 	exMolec = fba_results.readAttribute("externalMoleculeIDs")
-	glcFlux = exFlux[:,exMolec.index("GLC[p]")]
-	oxygenFlux = exFlux[:,exMolec.index("OXYGEN-MOLECULE[p]")]
+	moleculeIDs = ["GLC[p]", "OXYGEN-MOLECULE[p]"]
+	
+	# Plot
+	fig = plt.figure(figsize = (8, 11.5))
+	rows = len(moleculeIDs)
+	cols = 1
 
-	ax1.plot(time / 60. / 60., -1. * glcFlux, label="Glucose exchange flux coefficient")
-	ax1.set_ylabel("External\nglucose\n(mmol/gDCW/hr)", fontsize = 8)
-	ax1.set_title("GLC[p]", fontsize = 8)
-	ax1.tick_params(labelsize =8, which = "both", direction = "out")
+	for index, molecule in enumerate(["GLC[p]", "OXYGEN-MOLECULE[p]"]):
+		
+		moleculeFlux = -1. * exFlux[:, exMolec.index(molecule)]
+		ax = plt.subplot(rows, cols, index + 1)
+		ax.plot(time / 60. / 60., moleculeFlux)
 
-	ax2.plot(time / 60. / 60., -1. * oxygenFlux, label="Oxygen exchange flux coefficient")
-	ax2.set_title("OXYGEN-MOLECULE[p]", fontsize = 8)
-	ax2.set_ylabel("External\noxygen\n(mmol/gDCW/hr)", fontsize = 8)
-	ax2.set_xlabel("Time (hr)", fontsize = 8)
-	ax2.tick_params(labelsize = 8, which = "both", direction = "out")
+		averageFlux = np.average(moleculeFlux)
+		yRange = np.min([np.abs(np.max(moleculeFlux) - averageFlux), np.abs(np.min(moleculeFlux) - averageFlux)])
+		ymin = np.round(averageFlux - yRange)
+		ymax = np.round(averageFlux + yRange)
+		ax.set_ylim([ymin, ymax])
 
+		abs_max = np.max(moleculeFlux)
+		abs_min = np.min(moleculeFlux)
+
+		plt.figtext(0.7, 1. / float(rows) * 0.7 + (rows - 1 - index) / float(rows), 
+			"Max: %s\nMin: %s" % (abs_max, abs_min), fontsize = 8)
+
+		ax.set_ylabel("External %s\n(mmol/gDCW/hr)" % molecule, fontsize = 8)
+		ax.set_xlabel("Time (hr)", fontsize = 8)
+		ax.set_title("%s" % molecule, fontsize = 10, y = 1.1)
+		ax.tick_params(labelsize = 8, which = "both", direction = "out")
+
+
+	plt.subplots_adjust(hspace = 0.5, wspace = 1)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
