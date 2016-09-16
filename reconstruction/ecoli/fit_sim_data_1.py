@@ -75,6 +75,9 @@ def fitSimData_1(raw_data):
 	buildCombinedConditionCellSpecifications(sim_data, cellSpecs)
 
 	sim_data.conditionToAvgCellDryMassInit = dict([(cellSpec, cellSpecs[cellSpec]["avgCellDryMassInit"]) for cellSpec in cellSpecs])
+	sim_data.process.transcription.rnaSynthProbFraction = {}
+	sim_data.process.transcription.rnapFractionActiveDict = {}
+	sim_data.process.transcription.rnaPolymeraseElongationRateDict = {}
 
 	# Fit kinetic parameters
 	findKineticCoeffs(sim_data, cellSpecs["basal"]["bulkContainer"])
@@ -104,8 +107,26 @@ def fitSimData_1(raw_data):
 										spec["avgCellDryMassInit"]
 										)
 
-		if sim_data.conditions[condition]["nutrients"] not in sim_data.translationSupplyRate.keys():
+		if sim_data.conditions[condition]["nutrients"] not in sim_data.translationSupplyRate.keys() and len(sim_data.conditions[condition]["perturbations"]) == 0:
 			sim_data.translationSupplyRate[sim_data.conditions[condition]["nutrients"]] = translation_aa_supply
+
+		mRnaSynthProb = sim_data.process.transcription.rnaSynthProb[condition][sim_data.process.transcription.rnaData["isMRna"]].sum()
+		tRnaSynthProb = sim_data.process.transcription.rnaSynthProb[condition][sim_data.process.transcription.rnaData["isTRna"]].sum()
+		rRnaSynthProb = sim_data.process.transcription.rnaSynthProb[condition][sim_data.process.transcription.rnaData["isRRna"]].sum()
+
+		if sim_data.conditions[condition]["nutrients"] not in sim_data.process.transcription.rnaSynthProbFraction and len(sim_data.conditions[condition]["perturbations"]) == 0:
+			sim_data.process.transcription.rnaSynthProbFraction[sim_data.conditions[condition]["nutrients"]] = {
+				"mRna": mRnaSynthProb,
+				"tRna": tRnaSynthProb,
+				"rRna": rRnaSynthProb,
+				}
+
+		if sim_data.conditions[condition]["nutrients"] not in sim_data.process.transcription.rnapFractionActiveDict and len(sim_data.conditions[condition]["perturbations"]) == 0:
+			sim_data.process.transcription.rnapFractionActiveDict[sim_data.conditions[condition]["nutrients"]] = sim_data.growthRateParameters.getFractionActiveRnap(spec["doubling_time"])
+
+		if sim_data.conditions[condition]["nutrients"] not in sim_data.process.transcription.rnaPolymeraseElongationRateDict and len(sim_data.conditions[condition]["perturbations"]) == 0:
+			sim_data.process.transcription.rnaPolymeraseElongationRateDict[sim_data.conditions[condition]["nutrients"]] = sim_data.growthRateParameters.getRnapElongationRate(spec["doubling_time"])
+
 
 	fitTfPromoterKd(sim_data, cellSpecs)
 

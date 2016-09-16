@@ -21,7 +21,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	fig, axes = plt.subplots(1, sharex = True)
+	fig, (ax1, ax2) = plt.subplots(2, 1, sharex = True)
 
 	# Plot glucose exchange flux
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
@@ -31,9 +31,19 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	exFlux = fba_results.readColumn("externalExchangeFluxes")
 	exMolec = fba_results.readAttribute("externalMoleculeIDs")
 	glcFlux = exFlux[:,exMolec.index("GLC[p]")]
+	oxygenFlux = exFlux[:,exMolec.index("OXYGEN-MOLECULE[p]")]
 
-	axes.plot(time / 60. / 60., -1. * glcFlux, label="Glucose exchange flux coefficient")
-	axes.set_ylabel("External\nglucose\n(mmol/gDCW/hr)")
+	ax1.plot(time / 60. / 60., -1. * glcFlux, label="Glucose exchange flux coefficient")
+	ax1.set_ylabel("External\nglucose\n(mmol/gDCW/hr)", fontsize = 8)
+	ax1.set_title("GLC[p]", fontsize = 8)
+	ax1.tick_params(labelsize =8, which = "both", direction = "out")
+
+	ax2.plot(time / 60. / 60., -1. * oxygenFlux, label="Oxygen exchange flux coefficient")
+	ax2.set_title("OXYGEN-MOLECULE[p]", fontsize = 8)
+	ax2.set_ylabel("External\noxygen\n(mmol/gDCW/hr)", fontsize = 8)
+	ax2.set_xlabel("Time (hr)", fontsize = 8)
+	ax2.tick_params(labelsize = 8, which = "both", direction = "out")
+
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
@@ -51,7 +61,8 @@ if __name__ == "__main__":
 	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
 	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
 	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
+	parser.add_argument("--validationDataFile")
 
 	args = parser.parse_args().__dict__
 
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"], args["validationDataFile"])
