@@ -35,7 +35,7 @@ N_SEEDS = 10
 
 BASAL_EXPRESSION_CONDITION = "M9 Glucose minus AAs"
 
-VERBOSE = False
+VERBOSE = 1
 
 from models.ecoli.processes.metabolism import SECRETION_PENALTY_COEFF
 
@@ -69,7 +69,6 @@ def fitSimData_1(raw_data):
 	## Calculate and set maintenance values
 
 	# ----- Growth associated maintenance -----
-
 	fitMaintenanceCosts(sim_data, cellSpecs["basal"]["bulkContainer"])
 	
 	buildTfConditionCellSpecifications(sim_data, cellSpecs)
@@ -81,7 +80,10 @@ def fitSimData_1(raw_data):
 	findKineticCoeffs(sim_data, cellSpecs["basal"]["bulkContainer"])
 
 	for condition in sorted(cellSpecs):
+		if VERBOSE > 0:
+			print "Fitting condition {}".format(condition)
 		spec = cellSpecs[condition]
+
 		bulkAverageContainer, bulkDeviationContainer, proteinMonomerAverageContainer, proteinMonomerDeviationContainer = calculateBulkDistributions(
 			sim_data,
 			spec["expression"],
@@ -89,6 +91,7 @@ def fitSimData_1(raw_data):
 			spec["avgCellDryMassInit"],
 			spec["doubling_time"],
 			)
+
 		spec["bulkAverageContainer"] = bulkAverageContainer
 		spec["bulkDeviationContainer"] = bulkDeviationContainer
 		spec["proteinMonomerAverageContainer"] = proteinMonomerAverageContainer
@@ -100,6 +103,7 @@ def fitSimData_1(raw_data):
 										spec["proteinMonomerAverageContainer"],
 										spec["avgCellDryMassInit"]
 										)
+
 		if sim_data.conditions[condition]["nutrients"] not in sim_data.translationSupplyRate.keys():
 			sim_data.translationSupplyRate[sim_data.conditions[condition]["nutrients"]] = translation_aa_supply
 
@@ -322,8 +326,10 @@ def buildCombinedConditionCellSpecifications(sim_data, cellSpecs):
 
 def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None, updateConcDict = False):
 	# Fit synthesis probabilities for RNA
+	if VERBOSE > 0:
+		print "Fitting RNA synthesis probabilities."
 	for iteration in xrange(MAX_FITTING_ITERATIONS):
-		if VERBOSE: print 'Iteration: {}'.format(iteration)
+		if VERBOSE > 1: print 'Iteration: {}'.format(iteration)
 
 		initialExpression = expression.copy()
 
@@ -347,7 +353,7 @@ def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None,
 		finalExpression = expression
 
 		degreeOfFit = np.sqrt(np.mean(np.square(initialExpression - finalExpression)))
-		if VERBOSE: print 'degree of fit: {}'.format(degreeOfFit)
+		if VERBOSE > 1: print 'degree of fit: {}'.format(degreeOfFit)
 
 		if degreeOfFit < FITNESS_THRESHOLD:
 			break
@@ -658,12 +664,12 @@ def setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_t
 	nRibosomesNeeded = nRibosomesNeeded * (1 + FRACTION_INCREASE_RIBOSOMAL_PROTEINS)
 	rib30lims = np.array([nRibosomesNeeded, massFracPredicted_30SCount, (ribosome30SCounts / ribosome30SStoich).min()])
 	rib50lims = np.array([nRibosomesNeeded, massFracPredicted_50SCount, (ribosome50SCounts / ribosome50SStoich).min()])
-	if VERBOSE: print '30S limit: {}'.format(constraint_names[np.where(rib30lims.max() == rib30lims)[0]][-1])
-	if VERBOSE: print '30S actual count: {}'.format((ribosome30SCounts / ribosome30SStoich).min())
-	if VERBOSE: print '30S count set to: {}'.format(rib30lims[np.where(rib30lims.max() == rib30lims)[0]][-1])
-	if VERBOSE: print '50S limit: {}'.format(constraint_names[np.where(rib50lims.max() == rib50lims)[0]][-1])
-	if VERBOSE: print '50S actual count: {}'.format((ribosome50SCounts / ribosome50SStoich).min())
-	if VERBOSE: print '50S count set to: {}'.format(rib50lims[np.where(rib50lims.max() == rib50lims)[0]][-1])
+	if VERBOSE > 1: print '30S limit: {}'.format(constraint_names[np.where(rib30lims.max() == rib30lims)[0]][-1])
+	if VERBOSE > 1: print '30S actual count: {}'.format((ribosome30SCounts / ribosome30SStoich).min())
+	if VERBOSE > 1: print '30S count set to: {}'.format(rib30lims[np.where(rib30lims.max() == rib30lims)[0]][-1])
+	if VERBOSE > 1: print '50S limit: {}'.format(constraint_names[np.where(rib50lims.max() == rib50lims)[0]][-1])
+	if VERBOSE > 1: print '50S actual count: {}'.format((ribosome50SCounts / ribosome50SStoich).min())
+	if VERBOSE > 1: print '50S count set to: {}'.format(rib50lims[np.where(rib50lims.max() == rib50lims)[0]][-1])
 
 	bulkContainer.countsIs(
 		np.fmax(np.fmax(ribosome30SCounts, constraint1_ribosome30SCounts), constraint2_ribosome30SCounts),
@@ -731,9 +737,9 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time,
 	## -- SET RNAP COUNTS TO MAXIMIM CONSTRAINTS -- #
 	constraint_names = np.array(["Current level OK", "Insufficient to double RNA distribution"])
 	rnapLims = np.array([(rnapCounts / rnapStoich).min(), (minRnapSubunitCounts / rnapStoich).min()])
-	if VERBOSE: print 'rnap limit: {}'.format(constraint_names[np.where(rnapLims.max() == rnapLims)[0]][0])
-	if VERBOSE: print 'rnap actual count: {}'.format((rnapCounts / rnapStoich).min())
-	if VERBOSE: print 'rnap counts set to: {}'.format(rnapLims[np.where(rnapLims.max() == rnapLims)[0]][0])
+	if VERBOSE > 1: print 'rnap limit: {}'.format(constraint_names[np.where(rnapLims.max() == rnapLims)[0]][0])
+	if VERBOSE > 1: print 'rnap actual count: {}'.format((rnapCounts / rnapStoich).min())
+	if VERBOSE > 1: print 'rnap counts set to: {}'.format(rnapLims[np.where(rnapLims.max() == rnapLims)[0]][0])
 
 	bulkContainer.countsIs(
 		np.fmax(rnapCounts, minRnapSubunitCounts),
@@ -874,7 +880,6 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 		)
 
 	# Data for complexation
-
 	complexationStoichMatrix = sim_data.process.complexation.stoichMatrix().astype(np.int64, order = "F")
 
 	complexationPrebuiltMatrices = mccBuildMatrices(
@@ -909,7 +914,12 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 	allMoleculeCounts = np.empty((N_SEEDS, allMoleculesView.counts().size), np.int64)
 	proteinMonomerCounts = np.empty((N_SEEDS, proteinView.counts().size), np.int64)
 
+	if VERBOSE > 1:
+		print "Bulk distribution seed:"
+
 	for seed in xrange(N_SEEDS):
+		if VERBOSE > 1:
+			print seed
 		randomState = np.random.RandomState(seed)
 
 		allMoleculesView.countsIs(0)
@@ -1371,14 +1381,14 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 		needToUpdate = True
 
 	if needToUpdate:
-		if VERBOSE: print "Running non-linear optimization"
+		if VERBOSE > 0: print "Running non-linear optimization"
 		KmCooperativeModel = scipy.optimize.fsolve(LossFunction, Kmcounts, fprime = LossFunctionP)
 		cPickle.dump(KmCooperativeModel, open(os.path.join(fixturesDir, "km.cPickle"), "w"))
 	else:
-		if VERBOSE: print "Not running non-linear optimization--using cached result"
+		if VERBOSE > 0: print "Not running non-linear optimization--using cached result"
 		KmCooperativeModel = Kmcounts
 
-	if VERBOSE:
+	if VERBOSE > 1:
 		print "Loss function (Km inital) = %f" % np.sum(np.abs(LossFunction(Kmcounts)))
 		print "Loss function (optimized Km) = %f" % np.sum(np.abs(LossFunction(KmCooperativeModel)))
 

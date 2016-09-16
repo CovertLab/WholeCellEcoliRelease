@@ -117,12 +117,6 @@ class FluxBalanceAnalysis(object):
 
 	- reversibleReactions, a list of strings (reactionIDs for reversible reactions)
 
-	- reactionEnzymes, a dict of strings:strings (reactionID:enzymeID)
-
-	- reactionRates, a dict of strings:floats (reactionID:catalytic rate constant * dt)
-		Used to set up the pseudo metabolites and boundary constraints needed
-		for limiting reactions by enzyme counts.
-
 	- moleculeMasses, a dict of floats (moleculeID:mass)
 		Used in computing the net mass into the system.  Only needed and used
 		for moleculeIDs in externalExchangedMolecules.
@@ -133,7 +127,7 @@ class FluxBalanceAnalysis(object):
 	There is no strict type checking, despite what the above may imply.
 
 	During initialization, an exception will be raised if a reference is made
-	to an unutilized metabolite/enzyme/etc as described by the reaction
+	to an unutilized metabolite etc as described by the reaction
 	network.
 
 	"""
@@ -154,14 +148,6 @@ class FluxBalanceAnalysis(object):
 	## Objective
 	_generatedID_moleculesToEquivalents = "molecules of {} to fractional objective equivalents"
 	_generatedID_moleculeEquivalents = "fractional objective equivalent for molecules of {}"
-
-	## Rate-constrained enzymes
-	_generatedID_enzymeEquivRateConstrained = "{} equivalent (rate-constrained)"
-	_generatedID_enzymeUsageRateConstrained = "{} usage (rate-constrained)"
-
-	## Bool-constrained enzymes
-	_generatedID_enzymeEquivBoolConstrained = "{} equivalent (bool-constrained)"
-	_generatedID_enzymeUsageBoolConstrained = "{} usage (bool-constrained)"
 
 	## Flex FBA
 	_generatedID_fractionalDifferenceLeading = "difference between fractional objective equivalents of leading molecule and {}"
@@ -211,7 +197,7 @@ class FluxBalanceAnalysis(object):
 	def __init__(self, reactionStoich, externalExchangedMolecules, objective,
 			objectiveType = None, objectiveParameters = None,
 			internalExchangedMolecules = None,
-			secretionPenaltyCoeff = None, reactionEnzymes = None, reactionRates = None,
+			secretionPenaltyCoeff = None,
 			moleculeMasses = None, maintenanceCostGAM = None,
 			maintenanceReaction = None,
 			solver = DEFAULT_SOLVER):
@@ -308,8 +294,6 @@ class FluxBalanceAnalysis(object):
 
 		self._initInternalExchange(internalExchangedMolecules)
 
-		self._initEnzymeConstraints(reactionEnzymes, reactionRates)
-
 		self._initExchangeMass(externalExchangedMolecules, moleculeMasses, secretionPenaltyCoeff)
 
 		self._initMaintenance(maintenanceCostGAM, maintenanceReaction)
@@ -318,7 +302,6 @@ class FluxBalanceAnalysis(object):
 
 		self.externalMoleculeLevelsIs(0)
 		self.internalMoleculeLevelsIs(0)
-		self.enzymeLevelsIs(0)
 
 		self._buildEqConst()
 
@@ -959,76 +942,6 @@ class FluxBalanceAnalysis(object):
 
 		self._internalMoleculeIDs = tuple(internalMoleculeIDs)
 
-
-	def _initEnzymeConstraints(self, reactionEnzymes, reactionRates):
-		"""Create abstractions needed to constrain metabolic reactions by
-		enzyme availability.
-
-		There are two types of enzyme restrictions.  If the catalytic rate is
-		unknown, any non-zero level of the enzyme allows the reaction to
-		proceed.  This is a "boolean" constraint.  If the catalytic rate is
-		known, then reactions may proceed up to their kinetic limit.  Reactions
-		can share enzymes.  There is currently no support for reactions with
-		multiple annotated enzymes."""
-
-		self._rateConstrainedEnzymeIDs = []
-
-		if reactionEnzymes is not None:
-
-			## First create the pseudometabolites and enzyme usage columns
-			self._enzymeIDs = tuple(set(reactionEnzymes.values()))
-
-			for enzymeID in self._enzymeIDs:
-				# Create pseudometabolite and flux for rate-constrained
-				enzymeEquivalentRateID = self._generatedID_enzymeEquivRateConstrained.format(enzymeID)
-				enzymeUsageRateID = self._generatedID_enzymeUsageRateConstrained.format(enzymeID)
-
-				self._solver.flowMaterialCoeffIs(
-					enzymeUsageRateID,
-					enzymeEquivalentRateID,
-					+1
-					)
-
-				# Create pseudometabolite and flux for bool-constrained
-				enzymeEquivalentBoolID = self._generatedID_enzymeEquivBoolConstrained.format(enzymeID)
-				enzymeUsageBoolID = self._generatedID_enzymeUsageBoolConstrained.format(enzymeID)
-
-				self._solver.flowMaterialCoeffIs(
-					enzymeUsageBoolID,
-					enzymeEquivalentBoolID,
-					+1
-					)
-
-
-			for reactionID, enzymeID in reactionEnzymes.viewitems():
-				if reactionRates is not None and reactionRates.has_key(reactionID):
-					reactionRate = reactionRates[reactionID]
-
-					if reactionRate <= 0:
-						raise FBAError("Reaction rates must be positive ({}, {})".format(reactionID, reactionRate))
-
-					enzymesPerReaction = -1/reactionRate
-					enzymeEquivalentRateID = self._generatedID_enzymeEquivRateConstrained.format(enzymeID)
-
-					self._solver.flowMaterialCoeffIs(
-						reactionID,
-						enzymeEquivalentRateID,
-						enzymesPerReaction
-						)
-
-					self._rateConstrainedEnzymeIDs.append(enzymeID)
-
-
-				else:
-					enzymeEquivalentBoolID = self._generatedID_enzymeEquivBoolConstrained.format(enzymeID)
-
-					self._solver.flowMaterialCoeffIs(
-						reactionID,
-						enzymeEquivalentBoolID,
-						-1
-						)
-
-
 	def _initExchangeMass(self, externalExchangedMolecules, moleculeMasses, secretionPenaltyCoeff):
 		"""Create mass accumulation abstractions.
 
@@ -1208,40 +1121,6 @@ class FluxBalanceAnalysis(object):
 				self._solver.flowUpperBoundIs(
 					flowID,
 					-level
-					)
-
-
-	def enzymeIDs(self):
-		return self._enzymeIDs
-
-
-	def enzymeLevelsIs(self, levels):
-		if not hasattr(self, "_enzymeIDs"):
-			return
-
-		levels_array = np.empty(len(self._enzymeIDs))
-		levels_array[:] = levels
-
-		if (levels_array < 0).any():
-			raise InvalidBoundaryError("Negative enzyme levels not allowed")
-
-		for enzymeID, level in izip(self._enzymeIDs, levels_array):
-			if enzymeID in self._rateConstrainedEnzymeIDs:
-				# Rate-constrained
-				flowID = self._generatedID_enzymeUsageRateConstrained.format(enzymeID)
-
-				self._solver.flowUpperBoundIs(
-					flowID,
-					level
-					)
-
-			else:
-				# Boolean-constrained (enzyme w/o an annotated rate)
-				flowID = self._generatedID_enzymeUsageBoolConstrained.format(enzymeID)
-
-				self._solver.flowUpperBoundIs(
-					flowID,
-					np.inf if level > 0 else 0
 					)
 
 

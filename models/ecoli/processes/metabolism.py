@@ -174,9 +174,6 @@ class Metabolism(wholecell.processes.process.Process):
 		## External molecules
 		self.externalMoleculeIDs = self.fba.externalMoleculeIDs()
 
-		## Set enzymes unlimited
-		self.fba.enzymeLevelsIs(np.inf)
-
 		# Views
 		self.metaboliteNames = self.fba.outputMoleculeIDs()
 		self.metabolites = self.bulkMoleculesView(self.metaboliteNames)
@@ -320,7 +317,7 @@ class Metabolism(wholecell.processes.process.Process):
 		# Use GLPK's dualprimal solver, AFTER the first solution
 		self.fba._solver._model.set_solver_method_dualprimal()
 
-		self.overconstraintMultiples = (self.fba.reactionFluxes() / self.timeStepSec()) / self.baseRates.asNumber(FLUX_UNITS)
+		self.overconstraintMultiples = (self.fba.reactionFluxes()[self.allRateIndices] / self.allRateEstimates.asNumber(FLUX_UNITS))
 		exFluxes = ((COUNTS_UNITS / VOLUME_UNITS) * self.fba.externalExchangeFluxes() / coefficient).asNumber(units.mmol / units.g / units.h)
 
 		# TODO: report as reactions (#) per second & store volume elsewhere
