@@ -57,8 +57,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		# Load parameters
 
-		self.rnapElngRate = sim_data.growthRateParameters.getRnapElongationRate(sim_data.conditionToDoublingTime[sim_data.condition]).asNumber(units.nt / units.s)
-		self.rnapElngRate = int(round(self.rnapElngRate)) # TODO: Make this less of a hack by implementing in the KB
+		self.rnaPolymeraseElongationRateDict = sim_data.process.transcription.rnaPolymeraseElongationRateDict
 
 		self.rnaIds = sim_data.process.transcription.rnaData['id']
 
@@ -86,6 +85,9 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 
 	def calculateRequest(self):
+		self.rnapElngRate = self.rnaPolymeraseElongationRateDict[self._sim.processes["PolypeptideElongation"].currentNutrients].asNumber(units.nt / units.s)
+		self.rnapElngRate = int(round(self.rnapElngRate))
+
 		activeRnaPolys = self.activeRnaPolys.allMolecules()
 
 		if len(activeRnaPolys) == 0:
