@@ -45,7 +45,8 @@ class CellDivision(wholecell.listeners.listener.Listener):
 
 		# Set total mass that should be added to cell
 		# This is an approximation for length
-		self.expectedDryMassIncrease = sim_data.conditionToAvgCellDryMassInit[sim_data.condition]
+		# self.expectedDryMassIncrease = sim_data.conditionToAvgCellDryMassInit[sim_data.condition]
+		self.expectedDryMassIncreaseDict = sim_data.expectedDryMassIncreaseDict
 
 		# Set initial values
 
@@ -74,6 +75,6 @@ class CellDivision(wholecell.listeners.listener.Listener):
 
 		# End simulation once the mass of an average cell is
 		# added to current cell.
-		if self.dryMass - self.dryMassInitial >= self.expectedDryMassIncrease.asNumber(units.fg):
+		if self.dryMass - self.dryMassInitial >= self.expectedDryMassIncreaseDict[self._sim.processes["PolypeptideElongation"].currentNutrients].asNumber(units.fg):
 			# if self.fullChromosomeView.count() > 1:
 			self._sim.cellCycleComplete()
