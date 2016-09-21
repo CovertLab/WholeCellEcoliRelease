@@ -1348,6 +1348,59 @@ class FluxBalanceAnalysis(object):
 			# Record the change
 			self._currentKineticTargets[reactionID] = reactionTarget
 
+	def enableKineticTargets(self, reactionIDs=None):
+		print "enabled kinetic rates"
+		# If a single value is passed in, make a list of length 1 from it
+		if isinstance(reactionIDs, str):
+			reactionIDs = [reactionIDs]
+
+		# If no reactions specified, enable all kinetic reactions
+		if reactionIDs == None:
+			reactionIDs = self.kineticTargetFluxNames()
+
+		for reactionID in reactionIDs:
+			# Add objective weighting to these reaction's relaxation fluxes
+			# Above
+			overTargetFlux = self._generatedID_amountOver.format(reactionID)
+			# Objective is to minimize running this relaxation reaction
+			self._solver.flowObjectiveCoeffIs(
+				overTargetFlux,
+				(self.kineticObjectiveWeight)
+			)
+			# Below
+			underTargetFlux = self._generatedID_amountUnder.format(reactionID)
+			if reactionID not in self._oneSidedReactions:
+				self._solver.flowObjectiveCoeffIs(
+					underTargetFlux,
+					(self.kineticObjectiveWeight)
+				)
+
+	def disableKineticTargets(self, reactionIDs=None):
+		print "disabled kinetic rates"
+		# If a single value is passed in, make a list of length 1 from it
+		if isinstance(reactionIDs, str):
+			reactionIDs = [reactionIDs]
+
+		# If no reactions specified, disable all kinetic reactions
+		if reactionIDs == None:
+			reactionIDs = self.kineticTargetFluxNames()
+
+		for reactionID in reactionIDs:
+			# Add objective weighting to these reaction's relaxation fluxes
+			# Above
+			overTargetFlux = self._generatedID_amountOver.format(reactionID)
+			# Objective is to minimize running this relaxation reaction
+			self._solver.flowObjectiveCoeffIs(
+				overTargetFlux,
+				0
+			)
+			# Below
+			underTargetFlux = self._generatedID_amountUnder.format(reactionID)
+			self._solver.flowObjectiveCoeffIs(
+				underTargetFlux,
+				0
+			)
+
 	def getArrayBasedModel(self):
 		return {
 		"S_matrix": self._solver.getSMatrix(),
