@@ -332,7 +332,7 @@ class Metabolism(wholecell.processes.process.Process):
 		self.metabolites.countsIs(metaboliteCountsFinal)
 
 		# Use GLPK's dualprimal solver, AFTER the first solution
-		# self.fba._solver._model.set_solver_method_dualprimal()
+		self.fba._solver._model.set_solver_method_dualprimal()
 
 		self.overconstraintMultiples = (self.fba.reactionFluxes()[self.allRateIndices] / self.allRateEstimates.asNumber(FLUX_UNITS))  
 		exFluxes = ((COUNTS_UNITS / VOLUME_UNITS) * self.fba.externalExchangeFluxes() / coefficient).asNumber(units.mmol / units.g / units.h)

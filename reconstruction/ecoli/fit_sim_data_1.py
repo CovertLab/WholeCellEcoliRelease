@@ -20,7 +20,7 @@ from wholecell.utils.modular_fba import FluxBalanceAnalysis
 
 import cvxpy
 
-# Hacks
+# Tweaks
 RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
 FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.7  # reduce stochasticity from protein expression
 FRACTION_INCREASE_RNAP_PROTEINS = 0.05
@@ -74,10 +74,10 @@ def fitSimData_1(raw_data):
 	buildTfConditionCellSpecifications(sim_data, cellSpecs)
 	buildCombinedConditionCellSpecifications(sim_data, cellSpecs)
 
-	sim_data.conditionToAvgCellDryMassInit = dict([(cellSpec, cellSpecs[cellSpec]["avgCellDryMassInit"]) for cellSpec in cellSpecs])
 	sim_data.process.transcription.rnaSynthProbFraction = {}
 	sim_data.process.transcription.rnapFractionActiveDict = {}
 	sim_data.process.transcription.rnaPolymeraseElongationRateDict = {}
+	sim_data.expectedDryMassIncreaseDict = {}
 
 	# Fit kinetic parameters
 	findKineticCoeffs(sim_data, cellSpecs["basal"]["bulkContainer"])
@@ -126,6 +126,9 @@ def fitSimData_1(raw_data):
 
 		if sim_data.conditions[condition]["nutrients"] not in sim_data.process.transcription.rnaPolymeraseElongationRateDict and len(sim_data.conditions[condition]["perturbations"]) == 0:
 			sim_data.process.transcription.rnaPolymeraseElongationRateDict[sim_data.conditions[condition]["nutrients"]] = sim_data.growthRateParameters.getRnapElongationRate(spec["doubling_time"])
+
+		if sim_data.conditions[condition]["nutrients"] not in sim_data.expectedDryMassIncreaseDict and len(sim_data.conditions[condition]["perturbations"]) == 0:
+			sim_data.expectedDryMassIncreaseDict[sim_data.conditions[condition]["nutrients"]] = spec["avgCellDryMassInit"]
 
 
 	fitTfPromoterKd(sim_data, cellSpecs)
