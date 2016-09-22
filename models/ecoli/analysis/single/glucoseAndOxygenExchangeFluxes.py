@@ -36,7 +36,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	cols = 1
 
 	for index, molecule in enumerate(["GLC[p]", "OXYGEN-MOLECULE[p]"]):
-		
+		if molecule not in exMolec:
+			continue
 		moleculeFlux = -1. * exFlux[:, exMolec.index(molecule)]
 		ax = plt.subplot(rows, cols, index + 1)
 		ax.plot(time / 60. / 60., moleculeFlux)
