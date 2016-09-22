@@ -95,6 +95,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.isRProtein = sim_data.process.transcription.rnaData['isRProtein']
 		self.isRnap = sim_data.process.transcription.rnaData['isRnap']
 		self.notPolymerase = np.logical_and(np.logical_and(np.logical_not(self.isRRna),np.logical_not(self.isRProtein)), np.logical_not(self.isRnap))
+		self.isRegulated = np.array([1 if x[:-3] in sim_data.process.transcription_regulation.targetTf else 0 for x in sim_data.process.transcription.rnaData["id"]], dtype = np.bool)
 
 		assert (self.isRRna + self.isRProtein + self.isRnap + self.notPolymerase).sum() == self.rnaLengths.asNumber().size
 
@@ -105,6 +106,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 	def calculateRequest(self):
 		self.inactiveRnaPolys.requestAll()
 		self.rnaSynthProb = self.recruitmentMatrix.dot(self.recruitmentView.total())
+		regProbs = self.rnaSynthProb[self.isRegulated]
 		self.rnaSynthProb /= self.rnaSynthProb.sum()
 		if np.any(self.rnaSynthProb < 0):
 			raise Exception, "Have negative RNA synthesis probabilities"
@@ -116,6 +118,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.rnaSynthProb[self.isMRna] *= synthProbFractions["mRna"] / self.rnaSynthProb[self.isMRna].sum()
 		self.rnaSynthProb[self.isTRna] *= synthProbFractions["tRna"] / self.rnaSynthProb[self.isTRna].sum()
 		self.rnaSynthProb[self.isRRna] *= synthProbFractions["rRna"] / self.rnaSynthProb[self.isRRna].sum()
+		self.rnaSynthProb[self.isRegulated] = regProbs
 		self.rnaSynthProb /= self.rnaSynthProb.sum()
 
 		self.fracActiveRnap = self.fracActiveRnapDict[self._sim.processes["PolypeptideElongation"].currentNutrients]
