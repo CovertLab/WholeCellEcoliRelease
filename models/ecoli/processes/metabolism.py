@@ -353,6 +353,15 @@ class Metabolism(wholecell.processes.process.Process):
 		self.writeToListener("FBAResults", "columnDualValues",
 			self.fba.columnDualValues(self.fba.reactionIDs()))
 
+		self.writeToListener("FBAResults", "kineticObjectiveValues",
+			self.fba.kineticObjectiveValues())
+
+		self.writeToListener("FBAResults", "homeostaticObjectiveValues",
+			self.fba.homeostaticObjectiveValues())
+
+		self.writeToListener("FBAResults", "homeostaticObjectiveWeight",
+			self.fba.homeostaticObjectiveWeight())
+
 		self.writeToListener("EnzymeKinetics", "baseRates",
 			self.baseRates.asNumber(FLUX_UNITS))
 
@@ -385,21 +394,3 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.writeToListener("EnzymeKinetics", "countsToMolar",
 			countsToMolar.asNumber(COUNTS_UNITS / VOLUME_UNITS))
-
-
-
-		# TODO
-		# NOTE: the calculation for the objective components doesn't yet have
-		# an interface, since it will vary in calculation and shape for every
-		# objective type
-
-		# objectiveComponents_raw = (np.array(self.fba._f).flatten() * self.fba._solutionFluxes)[self.fba._objIndexes]
-		# objectiveComponents = objectiveComponents_raw[::2] + objectiveComponents_raw[1::2]
-
-		# self.writeToListener("FBAResults", "objectiveComponents",
-		# 	objectiveComponents
-		# 	)
-
-		# TODO:
-		# - which media exchanges/reactions are limiting, if any
-		# - objective details (value, component values)
