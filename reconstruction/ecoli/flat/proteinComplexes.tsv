@@ -560,6 +560,7 @@
 "RelB-RelE antitoxin/toxin complex and DNA-binding transcriptional repressor"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 81199.228, 0.0, 0.0, 0.0, 0.0]	["c"]	"CPLX0-7791_RXN"	"CPLX0-7791"
 "succinate semialdehyde reductase"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 124617.15999999999, 0.0, 0.0, 0.0, 0.0]	["c"]	"CPLX0-7794_RXN"	"CPLX0-7794"
 "MetJ-S-adenosylmethionine DNA-binding transcriptional repressor"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 24273.542, 798.902, 0.0, 0.0, 0.0]	["c"]	"CPLX0-7796_RXN"	"CPLX0-7796"
+"MetJ transcriptional repressor"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 24273.542, 0.0, 0.0, 0.0, 0.0]	["c"]	"CPLX0-7796APO_RXN"	"CPLX0-7796APO"
 "FNR DNA-binding transcriptional dual regulator"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 55938.74, 0.0, 0.0, 0.0, 0.0]	["c"]	"CPLX0-7797_RXN"	"CPLX0-7797"
 "predicted structural protein, ethanolamine utilization microcompartment"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 68336.637, 0.0, 0.0, 0.0, 0.0]	["c"]	"CPLX0-7801_RXN"	"CPLX0-7801"
 "diguanylate cyclase"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 67699.068, 0.0, 0.0, 0.0, 0.0]	["c"]	"CPLX0-7802_RXN"	"CPLX0-7802"
