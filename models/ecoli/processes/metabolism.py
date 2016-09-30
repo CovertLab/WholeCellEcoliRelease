@@ -6,7 +6,6 @@ Metabolism
 Metabolism sub-model. Encodes molecular simulation of microbial metabolism using flux-balance analysis.
 
 TODO:
-- enzyme-limited reactions (& fit enzyme expression)
 - option to call a reduced form of metabolism (assume optimal)
 
 @author: Derek Macklin
@@ -45,6 +44,7 @@ NONZERO_ENZYMES = True
 
 USE_KINETIC_RATES = True
 USE_BASE_RATES = True
+KINETICS_BURN_IN_PERIOD = 0
 
 class Metabolism(wholecell.processes.process.Process):
 	""" Metabolism """
@@ -152,10 +152,23 @@ class Metabolism(wholecell.processes.process.Process):
 			"maintenanceCostGAM" : self.energyCostPerWetMass.asNumber(COUNTS_UNITS / MASS_UNITS),
 			"maintenanceReaction" : self.maintenanceReaction,
 		}
+
+		if USE_KINETIC_RATES==False:
+			self.fbaObjectOptions["objectiveType"] = "pools"
+
 		self.fba = FluxBalanceAnalysis(**self.fbaObjectOptions)
+
+		# Disable all rates during burn-in
+		if KINETICS_BURN_IN_PERIOD > 0 and USE_KINETIC_RATES:
+			self.fba.disableKineticTargets()
+			self.burnInComplete = False
+		else:
+			self.burnInComplete = True
 
 		# Indices for reactions with full kinetic esimates
 		self.allRateIndices = np.where([True if reactionID in self.allRateReactions else False for reactionID in self.fba.reactionIDs()])
+
+		self.allRateEstimates = FLUX_UNITS * np.zeros_like(self.allRateIndices)
 
 		# Matrix mapping enzymes to the reactions they catalyze
 		self.enzymeReactionMatrix = sim_data.process.metabolism.enzymeReactionMatrix(
@@ -219,7 +232,6 @@ class Metabolism(wholecell.processes.process.Process):
 			self.concModificationsBasedOnCondition,
 			)
 
-
 		if newObjective != None and newObjective != self.objective:
 			# Build new fba instance with new objective
 			self.fbaObjectOptions["objective"] = newObjective
@@ -233,6 +245,11 @@ class Metabolism(wholecell.processes.process.Process):
 			smallMoleculePoolsDryMass = units.hstack((massesToAdd[:objIds.index('WATER[c]')], massesToAdd[objIds.index('WATER[c]') + 1:]))
 			totalDryMass = units.sum(smallMoleculePoolsDryMass) + massInitial
 			self.writeToListener("CellDivision", "expectedDryMassIncrease", totalDryMass)
+
+		# After completing the burn-in, enable kinetic rates
+		if self._sim.time() > KINETICS_BURN_IN_PERIOD and USE_KINETIC_RATES and not self.burnInComplete:
+			self.burnInComplete = True
+			self.fba.enableKineticTargets()
 
 		# Set external molecule levels
 		self.fba.externalMoleculeLevelsIs(externalMoleculeLevels)
@@ -286,7 +303,7 @@ class Metabolism(wholecell.processes.process.Process):
 					"constraintID":constraintID,
 					"coefficient":self.constraintMultiplesDict[constraintID],}
 
-		if USE_KINETIC_RATES:
+		if USE_KINETIC_RATES and self._sim.time() > KINETICS_BURN_IN_PERIOD:
 			self.allRateEstimates = self.enzymeKinetics.ratesView(self.allRateReactions, self.maxConstraints, metaboliteConcentrationsDict, enzymeConcentrationsDict, raiseIfNotFound=True)
 			
 			# Make kinetic targets numerical zero instead of actually zero for solver stability
@@ -317,7 +334,7 @@ class Metabolism(wholecell.processes.process.Process):
 		# Use GLPK's dualprimal solver, AFTER the first solution
 		self.fba._solver._model.set_solver_method_dualprimal()
 
-		self.overconstraintMultiples = (self.fba.reactionFluxes()[self.allRateIndices] / self.allRateEstimates.asNumber(FLUX_UNITS))
+		self.overconstraintMultiples = (self.fba.reactionFluxes()[self.allRateIndices] / self.allRateEstimates.asNumber(FLUX_UNITS))  
 		exFluxes = ((COUNTS_UNITS / VOLUME_UNITS) * self.fba.externalExchangeFluxes() / coefficient).asNumber(units.mmol / units.g / units.h)
 
 		# TODO: report as reactions (#) per second & store volume elsewhere
@@ -335,6 +352,15 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.writeToListener("FBAResults", "columnDualValues",
 			self.fba.columnDualValues(self.fba.reactionIDs()))
+
+		self.writeToListener("FBAResults", "kineticObjectiveValues",
+			self.fba.kineticObjectiveValues())
+
+		self.writeToListener("FBAResults", "homeostaticObjectiveValues",
+			self.fba.homeostaticObjectiveValues())
+
+		self.writeToListener("FBAResults", "homeostaticObjectiveWeight",
+			self.fba.homeostaticObjectiveWeight())
 
 		self.writeToListener("EnzymeKinetics", "baseRates",
 			self.baseRates.asNumber(FLUX_UNITS))
@@ -368,21 +394,3 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.writeToListener("EnzymeKinetics", "countsToMolar",
 			countsToMolar.asNumber(COUNTS_UNITS / VOLUME_UNITS))
-
-
-
-		# TODO
-		# NOTE: the calculation for the objective components doesn't yet have
-		# an interface, since it will vary in calculation and shape for every
-		# objective type
-
-		# objectiveComponents_raw = (np.array(self.fba._f).flatten() * self.fba._solutionFluxes)[self.fba._objIndexes]
-		# objectiveComponents = objectiveComponents_raw[::2] + objectiveComponents_raw[1::2]
-
-		# self.writeToListener("FBAResults", "objectiveComponents",
-		# 	objectiveComponents
-		# 	)
-
-		# TODO:
-		# - which media exchanges/reactions are limiting, if any
-		# - objective details (value, component values)

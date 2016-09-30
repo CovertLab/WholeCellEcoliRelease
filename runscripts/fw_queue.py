@@ -388,7 +388,7 @@ for i in VARIANTS_TO_RUN:
 	metadata["variant_index"] = i
 
 	# Variant simData creation task
-	fw_name = "VariantSimDataTask"
+	fw_name = "VariantSimDataTask_%2d" % (i)
 	fw_this_variant_sim_data = Firework(
 		VariantSimDataTask(
 			variant_function = VARIANT,
@@ -424,7 +424,7 @@ for i in VARIANTS_TO_RUN:
 
 	metadata["analysis_type"] = "cohort"
 
-	fw_name = "AnalysisCohortTask"
+	fw_name = "AnalysisCohortTask__Var_%02d" % (i)
 	fw_this_variant_cohort_analysis = Firework(
 		AnalysisCohortTask(
 			input_variant_directory = VARIANT_DIRECTORY,
@@ -446,7 +446,7 @@ for i in VARIANTS_TO_RUN:
 		metadata["seed"] = j
 		metadata["analysis_type"] = 'multigen'
 
-		fw_name = "AnalysisMultiGenTask__Seed_%06d" % (j)
+		fw_name = "AnalysisMultiGenTask__Var_%02d__Seed_%06d" % (i, j)
 		fw_this_variant_this_seed_this_analysis = Firework(
 			AnalysisMultiGenTask(
 				input_seed_directory = SEED_DIRECTORY,
@@ -467,7 +467,7 @@ for i in VARIANTS_TO_RUN:
 
 		for k in xrange(N_GENS):
 			if VERBOSE_QUEUE:
-				print "\t\tQueuing Gen {}.".format(k)
+				print "\t\tQueuing Gen %2d." % (k)
 			GEN_DIRECTORY = os.path.join(SEED_DIRECTORY, "generation_%06d" % k)
 			metadata["gen"] = k
 
@@ -481,7 +481,7 @@ for i in VARIANTS_TO_RUN:
 
 				# TODO: Add conditional logic here for mother vs daughter cells
 				# Simulation task
-				fw_name = "SimulationTask__Seed_%d__Gen_%d__Cell_%d" % (j, k, l)
+				fw_name = "SimulationTask__Var_%02d__Seed_%d__Gen_%d__Cell_%d" % (i, j, k, l)
 
 				if k == 0:
 					fw_this_variant_this_gen_this_sim = Firework(
@@ -548,7 +548,7 @@ for i in VARIANTS_TO_RUN:
 				metadata["analysis_type"] = "single"
 
 				# AnalysisSingle task
-				fw_name = "AnalysisSingleTask__Seed_%d__Gen_%d__Cell_%d" % (j, k, l)
+				fw_name = "AnalysisSingleTask__Var_%d__Seed_%d__Gen_%d__Cell_%d" % (i, j, k, l)
 				fw_this_variant_this_gen_this_sim_analysis = Firework(
 					AnalysisSingleTask(
 						input_results_directory = CELL_SIM_OUT_DIRECTORY,

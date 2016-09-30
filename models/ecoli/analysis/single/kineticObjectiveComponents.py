@@ -1,14 +1,18 @@
 #!/usr/bin/env python
 """
-@author: John Mason
+Plot the components of the objective associated with homeostatic targets.
+
+@date: Created 9/28/2016
+@author: Morgan Paull
 @organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/24/2014
 """
 
 from __future__ import division
 
 import argparse
 import os
+
+from wholecell.utils import units
 import cPickle
 
 import numpy as np
@@ -23,55 +27,43 @@ from scipy.spatial import distance
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
-CMAP_COLORS_255 = [
-	[247,247,247],
-	[209,229,240],
-	[146,197,222],
-	[67,147,195],
-	[33,102,172],
-	[5,48,97],
-	]
+from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
 
+from wholecell.analysis.plotting_tools import CMAP_COLORS_255
 CMAP_COLORS = [[shade/255. for shade in color] for color in CMAP_COLORS_255]
+CMAP_UNDER = [1, 0.2, 0.75]
 CMAP_OVER = [0, 1, 0.75]
 
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
 
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
-
+	fbaData = TableReader(os.path.join(simOutDir, "FBAResults"))
+	
+	kineticTargetFluxNames = np.array(fbaData.readAttribute("kineticTargetFluxNames"))
+	kineticObjectiveComponents = fbaData.readColumn("kineticObjectiveValues")
+	homeostaticObjectiveWeights = fbaData.readColumn("homeostaticObjectiveWeight")
+	
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
-	objectiveValue = fbaResults.readColumn("objectiveValue")
-	objectiveComponents = np.append(
-		fbaResults.readColumn("objectiveComponents").T,
-		np.array(objectiveValue, ndmin=2),
-		0)
+	fbaData.close()
 
-	outputMoleculeIDs = np.append(
-		np.array(fbaResults.readAttribute("outputMoleculeIDs")),
-		"Full objective"
-		)
+	fig = plt.figure(figsize = (120, 60))
 
-	fbaResults.close()
-
-	fig = plt.figure(figsize = (30, 15))
-
-	grid = gridspec.GridSpec(
-		1, 3,
-		wspace = 0.0, hspace = 0.0,
-		width_ratios = [0.25, 1, 0.05]
-		)
+	grid = gridspec.GridSpec(1,3,wspace=0.0,hspace=0.0,width_ratios=[0.25,1,0.1])
 
 	ax_dendro = fig.add_subplot(grid[0])
 
-	linkage = sch.linkage(objectiveComponents, metric = "correlation")
+	normalized = (
+		kineticObjectiveComponents
+		/ (np.mean(np.abs(kineticObjectiveComponents), 0) + 2 * np.std(np.abs(kineticObjectiveComponents), 0))
+		).transpose()
+
+	linkage = sch.linkage(kineticObjectiveComponents.T, metric = "correlation")
 	linkage[:, 2] = np.fmax(linkage[:, 2], 0) # fixes rounding issues leading to negative distances
 
 	sch.set_link_color_palette(['black'])
@@ -86,16 +78,17 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	ax_mat = fig.add_subplot(grid[1])
 
 	cmap = colors.LinearSegmentedColormap.from_list(
-		"white to blue with upper extreme",
+		"red to blue with extremes",
 		CMAP_COLORS
 		)
 
+	cmap.set_under(CMAP_UNDER)
 	cmap.set_over(CMAP_OVER)
 
-	norm = colors.Normalize(vmin = 0, vmax = +1)
+	norm = colors.Normalize(vmin = -1, vmax = +1)
 
 	ax_mat.imshow(
-		objectiveComponents[index, :],
+		normalized[index, :],
 		aspect = "auto",
 		interpolation='nearest',
 		origin = "lower",
@@ -104,7 +97,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		)
 
 	ax_mat.set_yticks(np.arange(len(index)))
-	ax_mat.set_yticklabels(outputMoleculeIDs[np.array(index)], size = 5)
+	ax_mat.set_yticklabels(kineticTargetFluxNames[np.array(index)], size = 5)
 
 	delta_t = time[1] - time[0]
 
@@ -117,7 +110,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	ax_mat.set_xlabel("Time (min)")
 
-	plt.title("FBA objective components")
+	plt.title("Kinetic objective component values")
 
 	ax_cmap = fig.add_subplot(grid[2])
 
@@ -141,7 +134,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
 
-
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(
 			wholecell.utils.constants.SERIALIZED_KB_DIR,
@@ -155,6 +147,5 @@ if __name__ == "__main__":
 	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
 
 	args = parser.parse_args().__dict__
-
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
 	
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
