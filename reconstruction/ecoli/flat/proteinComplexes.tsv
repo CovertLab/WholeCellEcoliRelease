@@ -1087,7 +1087,7 @@
 "N5-carboxyaminoimidazole ribonucleotide mutase"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 142218.968, 0.0, 0.0, 0.0, 0.0]	["c"]	"PURE-CPLX_RXN"	"PURE-CPLX"
 "N5-carboxyaminoimidazole ribonucleotide synthetase"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 78904.428, 0.0, 0.0, 0.0, 0.0]	["c"]	"PURK-CPLX_RXN"	"PURK-CPLX"
 "fused PutA DNA-binding transcriptional repressor / proline dehydrogenase / 1-pyrroline-5-carboxylate dehydrogenase"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 287587.13600000006, 0.0, 0.0, 0.0, 0.0]	["c"]	"PUTA-CPLX_RXN"	"PUTA-CPLX"
-"active PutA DNA-binding transcriptional repressor / proline dehydrogenase / 1-pyrroline-5-carboxylate dehydrogenase"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 287587.13600000006, 230.264, 0.0, 0.0, 0.0]	["c"]	"PUTA-CPLXBND_RXN"	"PUTA-CPLXBND"
+"active PutA DNA-binding transcriptional repressor / proline dehydrogenase / 1-pyrroline-5-carboxylate dehydrogenase"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 287587.13600000006, 460.528, 0.0, 0.0, 0.0]	["c"]	"PUTA-CPLXBND_RXN"	"PUTA-CPLXBND"
 "pyridine nucleotide transhydrogenase"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 206665.688, 0.0, 0.0, 0.0, 0.0]	["i"]	"PYRNUTRANSHYDROGEN-CPLX_RXN"	"PYRNUTRANSHYDROGEN-CPLX"
 "pyrroline-5-carboxylate reductase"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 281410.07, 0.0, 0.0, 0.0, 0.0]	["c"]	"PYRROLINECARBREDUCT-CPLX_RXN"	"PYRROLINECARBREDUCT-CPLX"
 "pyruvate dehydrogenase"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 4585443.312, 0.0, 0.0, 0.0, 0.0]	["i"]	"PYRUVATEDEH-CPLX_RXN"	"PYRUVATEDEH-CPLX"
