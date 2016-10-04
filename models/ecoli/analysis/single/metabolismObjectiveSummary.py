@@ -66,7 +66,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	plt.plot(time / 60, np.mean(kineticObjectiveComponents < NUMERICAL_ZERO, axis=1), label="Kinetic Objective Components")
 
 	plt.xlabel("Time (min)")
-	plt.ylabel("Percent of objective components less than numerical zero" ,fontsize="x-small")
+	plt.ylabel("Portion of objective components less than numerical zero" ,fontsize="x-small")
 	plt.legend(framealpha=.5, fontsize=6)
 
 	plt.subplot(3,1,3)
@@ -76,7 +76,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	plt.plot(time / 60, np.mean(kineticObjectiveComponents < CLOSENESS_THRESHOLD, axis=1), label="Kinetic Objective Components")
 
 	plt.xlabel("Time (min)")
-	plt.ylabel("Percent of objective components less than {}".format(CLOSENESS_THRESHOLD) ,fontsize="x-small")
+	plt.ylabel("Portion of objective components less than {}".format(CLOSENESS_THRESHOLD) ,fontsize="x-small")
 	plt.legend(framealpha=.5, fontsize=6)
 
 
