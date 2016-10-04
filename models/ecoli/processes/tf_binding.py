@@ -48,20 +48,24 @@ class TfBinding(wholecell.processes.process.Process):
 		self.pPromoterBoundTF = sim_data.process.transcription_regulation.pPromoterBoundTF
 
 		self.alphaView = self.bulkMoleculesView(alphaNames)
-		self.tfBoundViews = {}
+		self.tfDnaBoundViews = {}
 		self.tfMoleculeActiveView = {}
 		self.tfMoleculeInactiveView = {}
 		for tf in self.tfs:
-			self.tfBoundViews[tf] = self.bulkMoleculesView(tfNames[tf])
+			self.tfDnaBoundViews[tf] = self.bulkMoleculesView(tfNames[tf])
 			self.tfMoleculeActiveView[tf] = self.bulkMoleculeView(tf + "[c]")
-			self.tfMoleculeInactiveView[tf] = self.bulkMoleculeView(sim_data.process.equilibrium.getUnbound(tf + "[c]"))
+			self.tfMoleculeInactiveView[tf] = self.bulkMoleculeView(
+				sim_data.process.equilibrium.getUnbound(
+					sim_data.process.transcription_regulation.activeToBound[tf] + "[c]"
+					)
+				)
 
 
 	def calculateRequest(self):
 		self.alphaView.requestAll()
 		for view in self.tfMoleculeActiveView.itervalues():
 			view.requestAll()
-		for view in self.tfBoundViews.itervalues():
+		for view in self.tfDnaBoundViews.itervalues():
 			view.requestAll()
 
 
@@ -76,10 +80,10 @@ class TfBinding(wholecell.processes.process.Process):
 		for i, tf in enumerate(self.tfs):
 			tfActiveCounts = self.tfMoleculeActiveView[tf].count()
 			tfInactiveCounts = self.tfMoleculeInactiveView[tf].total()
-			tfBoundCounts = self.tfBoundViews[tf].counts()
+			tfBoundCounts = self.tfDnaBoundViews[tf].counts()
 			promoterCounts = self.tfNTargets[tf]
 
-			self.tfBoundViews[tf].countsIs(0)
+			self.tfDnaBoundViews[tf].countsIs(0)
 			self.tfMoleculeActiveView[tf].countInc(tfBoundCounts.sum())
 
 			if tfActiveCounts == 0:
@@ -97,7 +101,7 @@ class TfBinding(wholecell.processes.process.Process):
 				] = 1
 
 			self.tfMoleculeActiveView[tf].countDec(boundLocs.sum())
-			self.tfBoundViews[tf].countsIs(boundLocs)
+			self.tfDnaBoundViews[tf].countsIs(boundLocs)
 
 			pPromotersBound[i] = pPromoterBound
 			nPromotersBound[i] = pPromoterBound * self.tfNTargets[tf]
