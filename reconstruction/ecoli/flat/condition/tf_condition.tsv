@@ -4,3 +4,4 @@
 "argP"	"CPLX0-7671"	"minimal_plus_amino_acids"	{}	"minimal"	{}
 "lrp"	"MONOMER0-155"	"minimal_plus_amino_acids"	{}	"minimal"	{}
 "tyrR"	"MONOMER0-162"	"minimal_plus_amino_acids"	{}	"minimal"	{}
+"putA"	"PUTA-CPLX"	"minimal"	{}	"minimal_plus_amino_acids"	{}
