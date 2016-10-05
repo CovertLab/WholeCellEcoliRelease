@@ -67,14 +67,21 @@ class Equilibrium(wholecell.processes.process.Process):
 
 		self.molecules.requestIs(self.req)
 
+
 	def evolveState(self):
 		moleculeCounts = self.molecules.counts()
 
 		rxnFluxes = self.rxnFluxes.copy()
 
-		# Kill "bad" reactions where we have insufficient metabolites
-		for badMetIdx in np.where(self.req > moleculeCounts)[0]:
-			rxnFluxes[self.stoichMatrix[badMetIdx, :]!= 0] = 0
+		# If we didn't get allocated all the molecules we need, make do with what we have
+		# (decrease reaction fluxes so that they make use of what we have, but not more)
+		insufficientMetaboliteIdxs = np.where(self.req > moleculeCounts)[0]
+		for insufficientMetaboliteIdx in insufficientMetaboliteIdxs:
+			rxnPosIdxs = np.where(np.logical_and(self.stoichMatrix[insufficientMetaboliteIdx, :] != 0, rxnFluxes > 0))[0]
+			rxnNegIdxs = np.where(np.logical_and(self.stoichMatrix[insufficientMetaboliteIdx, :] != 0, rxnFluxes < 0))[0]
+			while(np.dot(self.stoichMatrix, rxnFluxes)[insufficientMetaboliteIdx] + moleculeCounts[insufficientMetaboliteIdx] < 0):
+				rxnFluxes[rxnPosIdxs] -= 1
+				rxnFluxes[rxnNegIdxs] += 1
 
 		assert(np.all(moleculeCounts + np.dot(self.stoichMatrix, rxnFluxes) >= 0))
 
