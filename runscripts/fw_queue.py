@@ -388,7 +388,7 @@ for i in VARIANTS_TO_RUN:
 	metadata["variant_index"] = i
 
 	# Variant simData creation task
-	fw_name = "VariantSimDataTask_%2d" % (i)
+	fw_name = "VariantSimDataTask_%06d" % (i)
 	fw_this_variant_sim_data = Firework(
 		VariantSimDataTask(
 			variant_function = VARIANT,
@@ -467,7 +467,7 @@ for i in VARIANTS_TO_RUN:
 
 		for k in xrange(N_GENS):
 			if VERBOSE_QUEUE:
-				print "\t\tQueuing Gen %2d." % (k)
+				print "\t\tQueuing Gen %02d." % (k)
 			GEN_DIRECTORY = os.path.join(SEED_DIRECTORY, "generation_%06d" % k)
 			metadata["gen"] = k
 
