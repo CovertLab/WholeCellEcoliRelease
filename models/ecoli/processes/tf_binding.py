@@ -54,11 +54,10 @@ class TfBinding(wholecell.processes.process.Process):
 		for tf in self.tfs:
 			self.tfDnaBoundViews[tf] = self.bulkMoleculesView(tfNames[tf])
 			self.tfMoleculeActiveView[tf] = self.bulkMoleculeView(tf + "[c]")
-			self.tfMoleculeInactiveView[tf] = self.bulkMoleculeView(
-				sim_data.process.equilibrium.getUnbound(
-					sim_data.process.transcription_regulation.activeToBound[tf] + "[c]"
-					)
-				)
+			if tf == sim_data.process.transcription_regulation.activeToBound[tf]:
+				self.tfMoleculeInactiveView[tf] = self.bulkMoleculeView(sim_data.process.equilibrium.getUnbound(tf + "[c]"))
+			else:
+				self.tfMoleculeInactiveView[tf] = self.bulkMoleculeView(sim_data.process.transcription_regulation.activeToBound[tf] + "[c]")
 
 
 	def calculateRequest(self):
