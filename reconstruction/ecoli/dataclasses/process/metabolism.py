@@ -198,6 +198,7 @@ class Metabolism(object):
 		reactionEnzymes = {}
 		reactionRates = {}
 
+		metabolicEnzymes = set()
 		enzymeExceptions = set()
 
 		validEnzymeIDs = set([])
@@ -229,6 +230,8 @@ class Metabolism(object):
 				raise Exception("Invalid biochemical reaction: {}, {}".format(reactionID, stoich))
 
 			reactionStoich[reactionID] = stoich
+
+			metabolicEnzymes.update([x for x in enzyme_list if x in validEnzymeIDs])
 
 			# Remove enzyme-reaction links for any enzyme in enzymeExceptions
 			for enzymeID in enzyme_list:
@@ -432,6 +435,8 @@ class Metabolism(object):
 			raise Exception("The following {} enzyme kinetics entries reference substrates which don't appear in their corresponding reaction, and aren't paired with an inhibitory constant (kI). They should be corrected or removed. {}".format(len(nonCannonicalRxns), nonCannonicalRxns))
 
 		self.reactionEnzymes = self.buildEnzymeReactionKcatLinks(reactionRateInfo, reactionEnzymes)
+
+		self.metabolicEnzymes = sorted(list(metabolicEnzymes))
 
 		self.reactionStoich = reactionStoich
 		self.nutrientsTimeSeries = sim_data.nutrientsTimeSeries

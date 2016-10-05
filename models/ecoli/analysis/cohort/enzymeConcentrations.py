@@ -48,7 +48,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# Load data from KB
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 
-	enzymeNames = np.array(sim_data.process.metabolism.enzymeNames)
+	enzymeNames = np.array(sim_data.process.metabolism.metabolicEnzymes)
 	reactionEnzymes = sim_data.process.metabolism.reactionEnzymes
 	catalyticEnzymes = set([enzymeName for enzymeList in reactionEnzymes.values() for enzymeName in enzymeList])
 

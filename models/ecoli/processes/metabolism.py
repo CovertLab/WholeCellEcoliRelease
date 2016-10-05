@@ -71,7 +71,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Load enzyme kinetic rate information
 		self.reactionRateInfo = sim_data.process.metabolism.reactionRateInfo
-		self.enzymeNames = sim_data.process.metabolism.enzymeNames
+		self.enzymeNames = sim_data.process.metabolism.metabolicEnzymes
 		self.constraintIDs = sim_data.process.metabolism.constraintIDs
 		self.constraintMultiplesDict = {constraintID:rateInfo["constraintMultiple"] for constraintID, rateInfo in self.reactionRateInfo.iteritems()}
 		self.constraintToReactionDict = sim_data.process.metabolism.constraintToReactionDict
