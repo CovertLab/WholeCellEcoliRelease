@@ -293,18 +293,18 @@ class Metabolism(wholecell.processes.process.Process):
 		enzymeConcentrationsDict = dict(zip(self.enzymeNames, enzymeConcentrations))
 
 		# When many estimates exist for a reaction, choose the largest
-		if not hasattr(self, "maxConstraints"):
+		if not hasattr(self, "minConstraints"):
 			# Calculate the constraints in the current conditions
 			reactionsDict = self.enzymeKinetics.allReactionsDict(metaboliteConcentrationsDict, enzymeConcentrationsDict)
-			self.maxConstraints = {}
+			self.minConstraints = {}
 			for reactionID, reactionRate in reactionsDict.iteritems():
-				constraintID = sorted(reactionRate.keys(), key=reactionRate.__getitem__, reverse=True)[0]
-				self.maxConstraints[reactionID] = {
+				constraintID = sorted(reactionRate.keys(), key=reactionRate.__getitem__, reverse=False)[0]
+				self.minConstraints[reactionID] = {
 					"constraintID":constraintID,
 					"coefficient":self.constraintMultiplesDict[constraintID],}
 
 		if USE_KINETIC_RATES and self._sim.time() > KINETICS_BURN_IN_PERIOD:
-			self.allRateEstimates = self.enzymeKinetics.ratesView(self.allRateReactions, self.maxConstraints, metaboliteConcentrationsDict, enzymeConcentrationsDict, raiseIfNotFound=True)
+			self.allRateEstimates = self.enzymeKinetics.ratesView(self.allRateReactions, self.minConstraints, metaboliteConcentrationsDict, enzymeConcentrationsDict, raiseIfNotFound=True)
 			
 			# Make kinetic targets numerical zero instead of actually zero for solver stability
 			self.allRateEstimates[self.allRateEstimates.asNumber() == 0] = FLUX_UNITS * 1e-20
