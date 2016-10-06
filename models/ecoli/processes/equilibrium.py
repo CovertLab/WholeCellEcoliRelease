@@ -82,6 +82,8 @@ class Equilibrium(wholecell.processes.process.Process):
 			while(np.dot(self.stoichMatrix, rxnFluxes)[insufficientMetaboliteIdx] + moleculeCounts[insufficientMetaboliteIdx] < 0):
 				rxnFluxes[rxnPosIdxs] -= 1
 				rxnFluxes[rxnNegIdxs] += 1
+				rxnFluxes[rxnPosIdxs] = np.fmax(0, rxnFluxes[rxnPosIdxs])
+				rxnFluxes[rxnNegIdxs] = np.fmin(0, rxnFluxes[rxnNegIdxs])
 
 		assert(np.all(moleculeCounts + np.dot(self.stoichMatrix, rxnFluxes) >= 0))
 
