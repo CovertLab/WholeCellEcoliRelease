@@ -9,26 +9,13 @@ import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
+import itertools
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
-COLORS_256 = [ # From colorbrewer2.org, qualitative 8-class set 1
-	[228,26,28],
-	[55,126,184],
-	[77,175,74],
-	[152,78,163],
-	[255,127,0],
-	[255,255,51],
-	[166,86,40],
-	[247,129,191]
-	]
-
-COLORS = [
-	[colorValue/255. for colorValue in color]
-	for color in COLORS_256
-	]
+from wholecell.analysis.plotting_tools import COLORS_LARGE
 
 def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = None):
 
@@ -56,35 +43,44 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	ap = AnalysisPaths(inputDir, variant_plot = True)
 	all_cells = ap.get_cells()
 
+	# Build a mapping from variant id to color
+	idToColor = {}
+	for idx, (cell_id, color) in enumerate(itertools.izip(all_cells, itertools.cycle(COLORS_LARGE))):
+		idToColor[idx] = color
+
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
 	fig, axesList = plt.subplots(len(massNames), sharex = True)
 
 	currentMaxTime = 0
-	for simDir in all_cells:
+	for cellIdx, simDir in enumerate(all_cells):
+		with open(os.path.join(simDir[:-32],'metadata','short_name')) as file:
+			variant_name = [line for line in file][0]
+
 		simOutDir = os.path.join(simDir, "simOut")
 
 		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 		mass = TableReader(os.path.join(simOutDir, "Mass"))
 
-		for idx, massType in enumerate(massNames):
+		for massIdx, massType in enumerate(massNames):
 			massToPlot = mass.readColumn(massType)
-			axesList[idx].plot(((time / 60.) / 60.), massToPlot, linewidth = 2)
+			axesList[massIdx].plot(((time / 60.) / 60.), massToPlot, linewidth = 2, color=idToColor[cellIdx], label=variant_name)
 
 			# set axes to size that shows all generations
 			cellCycleTime = ((time[-1] - time[0]) / 60. / 60. )
 			if cellCycleTime > currentMaxTime:
 				currentMaxTime = cellCycleTime
 
-			axesList[idx].set_xlim(0, currentMaxTime*ap.n_generation*1.1)
-			axesList[idx].set_ylabel(cleanNames[idx] + " (fg)")
+			axesList[massIdx].set_xlim(0, currentMaxTime*ap.n_generation*1.1)
+			axesList[massIdx].set_ylabel(cleanNames[massIdx] + " (fg)")
 
-	for axes in axesList:
+	for idx, axes in enumerate(axesList):
 		axes.get_ylim()
 		axes.set_yticks(list(axes.get_ylim()))
 
 	axesList[0].set_title("Cell mass fractions")
+	plt.legend(bbox_to_anchor=(.92, 5), loc=2, borderaxespad=0., prop={'size':6})
 	axesList[len(massNames) - 1].set_xlabel("Time (hr)")
 	plt.subplots_adjust(hspace = 0.2, wspace = 0.5)
 
