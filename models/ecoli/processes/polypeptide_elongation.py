@@ -80,8 +80,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.maxRibosomeElongationRate = float(sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s))
 
 		##########
-		self.saturation_km = sim_data.constants.translation_km
-		self.translation_aa_supply = sim_data.translationSupplyRate
+		# self.saturation_km = sim_data.constants.translation_km
+		# self.translation_aa_supply = sim_data.translationSupplyRate
 		self.nutrientsTimeSeriesLabel = sim_data.nutrientsTimeSeriesLabel
 		import copy
 		self.nutrientsTimeSeries = copy.deepcopy(sim_data.nutrientsTimeSeries)
@@ -134,22 +134,24 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		aasInSequences = np.bincount(sequences[sequenceHasAA], minlength=21)
 
 
-		while len(self.nutrientsTimeSeries[self.nutrientsTimeSeriesLabel]) and self.time() > self.nutrientsTimeSeries[self.nutrientsTimeSeriesLabel][0][0]:
-			_ , nutrients = self.nutrientsTimeSeries[self.nutrientsTimeSeriesLabel].popleft()
-			self.currentNutrients = nutrients
+		# while len(self.nutrientsTimeSeries[self.nutrientsTimeSeriesLabel]) and self.time() > self.nutrientsTimeSeries[self.nutrientsTimeSeriesLabel][0][0]:
+		# 	_ , nutrients = self.nutrientsTimeSeries[self.nutrientsTimeSeriesLabel].popleft()
+		# 	self.currentNutrients = nutrients
 
-		translationSupplyRate = self.translation_aa_supply[self.currentNutrients]
+		# translationSupplyRate = self.translation_aa_supply[self.currentNutrients]
 
-		self.writeToListener("RibosomeData", "translationSupply", translationSupplyRate.asNumber())
+		# self.writeToListener("RibosomeData", "translationSupply", translationSupplyRate.asNumber())
 
 
-		dryMass = (self.readFromListener("Mass", "dryMass") * units.fg)
+		# dryMass = (self.readFromListener("Mass", "dryMass") * units.fg)
 
-		molAasRequested = translationSupplyRate * dryMass * self.timeStepSec() * units.s
+		# molAasRequested = translationSupplyRate * dryMass * self.timeStepSec() * units.s
 
-		countAasRequested = units.convertNoUnitToNumber(molAasRequested * self.nAvogadro)
+		# countAasRequested = units.convertNoUnitToNumber(molAasRequested * self.nAvogadro)
 
-		countAasRequested = np.fmin(countAasRequested, aasInSequences)
+		# countAasRequested = np.fmin(countAasRequested, aasInSequences)
+
+		countAasRequested = aasInSequences
 
 		self.aas.requestIs(
 			countAasRequested
