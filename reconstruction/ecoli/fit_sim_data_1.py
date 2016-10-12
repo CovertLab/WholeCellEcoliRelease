@@ -15,7 +15,7 @@ from reconstruction.ecoli.simulation_data import SimulationDataEcoli
 from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
 
 from wholecell.utils import units
-from wholecell.utils.fitting import normalize, massesAndCountsToAddForPools
+from wholecell.utils.fitting import normalize, massesAndCountsToAddForHomeostaticTargets
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
 
 import cvxpy
@@ -151,7 +151,7 @@ def buildBasalCellSpecifications(sim_data):
 		"translation_km": np.zeros(len(sim_data.moleculeGroups.aaIDs))
 	}
 
-	expression, synthProb, avgCellDryMassInit, fitAvgSolublePoolMass, bulkContainer, _ = expressionConverge(
+	expression, synthProb, avgCellDryMassInit, fitAvgSolubleTargetMolMass, bulkContainer, _ = expressionConverge(
 		sim_data,
 		cellSpecs["basal"]["expression"],
 		cellSpecs["basal"]["concDict"],
@@ -161,13 +161,13 @@ def buildBasalCellSpecifications(sim_data):
 	cellSpecs["basal"]["expression"] = expression
 	cellSpecs["basal"]["synthProb"] = synthProb
 	cellSpecs["basal"]["avgCellDryMassInit"] = avgCellDryMassInit
-	cellSpecs["basal"]["fitAvgSolublePoolMass"] = fitAvgSolublePoolMass
+	cellSpecs["basal"]["fitAvgSolubleTargetMolMass"] = fitAvgSolubleTargetMolMass
 	cellSpecs["basal"]["bulkContainer"] = bulkContainer
 
 	sim_data.mass.avgCellDryMassInit = avgCellDryMassInit
 	sim_data.mass.avgCellDryMass = sim_data.mass.avgCellDryMassInit * sim_data.mass.avgCellToInitialCellConvFactor
 	sim_data.mass.avgCellWaterMassInit = sim_data.mass.avgCellDryMassInit / sim_data.mass.cellDryMassFraction * sim_data.mass.cellWaterMassFraction
-	sim_data.mass.fitAvgSolublePoolMass = fitAvgSolublePoolMass
+	sim_data.mass.fitAvgSolubleTargetMolMass = fitAvgSolubleTargetMolMass
 
 
 	sim_data.process.transcription.rnaExpression["basal"][:] = cellSpecs["basal"]["expression"]
@@ -268,7 +268,7 @@ def buildTfConditionCellSpecifications(sim_data, cellSpecs):
 				)
 			}
 
-			expression, synthProb, avgCellDryMassInit, fitAvgSolublePoolMass, bulkContainer, concDict = expressionConverge(
+			expression, synthProb, avgCellDryMassInit, fitAvgSolubleTargetMolMass, bulkContainer, concDict = expressionConverge(
 				sim_data,
 				cellSpecs[conditionKey]["expression"],
 				cellSpecs[conditionKey]["concDict"],
@@ -280,7 +280,7 @@ def buildTfConditionCellSpecifications(sim_data, cellSpecs):
 			cellSpecs[conditionKey]["expression"] = expression
 			cellSpecs[conditionKey]["synthProb"] = synthProb
 			cellSpecs[conditionKey]["avgCellDryMassInit"] = avgCellDryMassInit
-			cellSpecs[conditionKey]["fitAvgSolublePoolMass"] = fitAvgSolublePoolMass
+			cellSpecs[conditionKey]["fitAvgSolubleTargetMolMass"] = fitAvgSolubleTargetMolMass
 			cellSpecs[conditionKey]["bulkContainer"] = bulkContainer
 
 			sim_data.process.transcription.rnaExpression[conditionKey] = cellSpecs[conditionKey]["expression"]
@@ -328,7 +328,7 @@ def buildCombinedConditionCellSpecifications(sim_data, cellSpecs):
 			)
 		}
 
-		expression, synthProb, avgCellDryMassInit, fitAvgSolublePoolMass, bulkContainer, concDict = expressionConverge(
+		expression, synthProb, avgCellDryMassInit, fitAvgSolubleTargetMolMass, bulkContainer, concDict = expressionConverge(
 			sim_data,
 			cellSpecs[conditionKey]["expression"],
 			cellSpecs[conditionKey]["concDict"],
@@ -340,7 +340,7 @@ def buildCombinedConditionCellSpecifications(sim_data, cellSpecs):
 		cellSpecs[conditionKey]["expression"] = expression
 		cellSpecs[conditionKey]["synthProb"] = synthProb
 		cellSpecs[conditionKey]["avgCellDryMassInit"] = avgCellDryMassInit
-		cellSpecs[conditionKey]["fitAvgSolublePoolMass"] = fitAvgSolublePoolMass
+		cellSpecs[conditionKey]["fitAvgSolubleTargetMolMass"] = fitAvgSolubleTargetMolMass
 		cellSpecs[conditionKey]["bulkContainer"] = bulkContainer
 
 		sim_data.process.transcription.rnaExpression[conditionKey] = cellSpecs[conditionKey]["expression"]
@@ -365,7 +365,7 @@ def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None,
 
 		bulkContainer = createBulkContainer(sim_data, expression, doubling_time)
 
-		avgCellDryMassInit, fitAvgSolublePoolMass = rescaleMassForSolubleMetabolites(sim_data, bulkContainer, concDict, doubling_time)
+		avgCellDryMassInit, fitAvgSolubleTargetMolMass = rescaleMassForSolubleMetabolites(sim_data, bulkContainer, concDict, doubling_time)
 
 		setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time)
 
@@ -389,7 +389,7 @@ def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None,
 	else:
 		raise Exception("Fitting did not converge")
 
-	return expression, synthProb, avgCellDryMassInit, fitAvgSolublePoolMass, bulkContainer, concDict
+	return expression, synthProb, avgCellDryMassInit, fitAvgSolubleTargetMolMass, bulkContainer, concDict
 
 
 # Sub-fitting functions
@@ -413,29 +413,29 @@ def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict, doubling_t
 	mass = (avgCellFractionMass["proteinMass"] + avgCellFractionMass["rnaMass"] + avgCellFractionMass["dnaMass"]) / sim_data.mass.avgCellToInitialCellConvFactor
 
 	# We have to remove things with zero concentration because taking the inverse of zero isn't so nice.
-	poolIds = sorted(concDict)
-	poolConcentrations = (units.mol / units.L) * np.array([concDict[key].asNumber(units.mol / units.L) for key in poolIds])
+	targetMoleculeIds = sorted(concDict)
+	targetMoleculeConcentrations = (units.mol / units.L) * np.array([concDict[key].asNumber(units.mol / units.L) for key in targetMoleculeIds])
 
-	massesToAdd, countsToAdd = massesAndCountsToAddForPools(
+	massesToAdd, countsToAdd = massesAndCountsToAddForHomeostaticTargets(
 		mass,
-		poolIds,
-		poolConcentrations,
-		sim_data.getter.getMass(poolIds),
+		targetMoleculeIds,
+		targetMoleculeConcentrations,
+		sim_data.getter.getMass(targetMoleculeIds),
 		sim_data.constants.cellDensity,
 		sim_data.constants.nAvogadro
 		)
 
 	bulkMolCntr.countsIs(
 		countsToAdd,
-		poolIds
+		targetMoleculeIds
 		)
 
 	# Increase avgCellDryMassInit to match these numbers & rescale mass fractions
-	smallMoleculePoolsDryMass = units.hstack((massesToAdd[:poolIds.index('WATER[c]')], massesToAdd[poolIds.index('WATER[c]') + 1:]))
-	newAvgCellDryMassInit = units.sum(mass) + units.sum(smallMoleculePoolsDryMass)
-	fitAvgSolublePoolMass = units.sum(units.hstack((massesToAdd[:poolIds.index('WATER[c]')], massesToAdd[poolIds.index('WATER[c]') + 1:]))) * sim_data.mass.avgCellToInitialCellConvFactor
+	smallMoleculetargetMoleculesDryMass = units.hstack((massesToAdd[:targetMoleculeIds.index('WATER[c]')], massesToAdd[targetMoleculeIds.index('WATER[c]') + 1:]))
+	newAvgCellDryMassInit = units.sum(mass) + units.sum(smallMoleculetargetMoleculesDryMass)
+	fitAvgSolubleTargetMolMass = units.sum(units.hstack((massesToAdd[:targetMoleculeIds.index('WATER[c]')], massesToAdd[targetMoleculeIds.index('WATER[c]') + 1:]))) * sim_data.mass.avgCellToInitialCellConvFactor
 
-	return newAvgCellDryMassInit, fitAvgSolublePoolMass
+	return newAvgCellDryMassInit, fitAvgSolubleTargetMolMass
 
 def setInitialRnaExpression(sim_data, expression, doubling_time):
 	# Set expression for all of the noncoding RNAs

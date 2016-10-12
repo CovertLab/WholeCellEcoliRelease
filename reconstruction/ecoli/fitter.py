@@ -9,7 +9,7 @@ TODO:
 - document the math
 - compute and use activation rates for RNA poly, ribosomes
 - fit metabolism enzyme expression
-- replace fake metabolite pools with measured metabolite pools
+- replace fake metabolite targets with measured metabolite targets
 
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University

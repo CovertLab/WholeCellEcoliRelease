@@ -302,7 +302,7 @@ def getExpectedComposition(doubling_time):
 	rRnaMass = (subMasses['rRna23SMass'] + subMasses['rRna5SMass'] + subMasses['rRna16SMass']).asNumber(units.fg)
 	mRnaMass = subMasses['mRnaMass'].asNumber(units.fg)
 	dnaMass = subMasses['dnaMass'].asNumber(units.fg)
-	smallMolecules = sim_data.mass.fitAvgSolublePoolMass.asNumber(units.fg)
+	smallMolecules = sim_data.mass.fitAvgSolubleTargetMolMass.asNumber(units.fg)
 
 	masses = np.array([protein, rRnaMass + tRNA + mRnaMass]) / sim_data.mass.avgCellToInitialCellConvFactor
 	

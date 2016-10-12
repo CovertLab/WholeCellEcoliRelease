@@ -96,7 +96,7 @@ fba = FluxBalanceAnalysis(
 	reactionStoich,
 	externalExchangedMolecules,
 	objective,
-	objectiveType = "pools",
+	objectiveType = "homeostatic",
 	)
 
 

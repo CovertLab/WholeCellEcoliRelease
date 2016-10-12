@@ -61,7 +61,7 @@ class Mass(object):
 		mws = sim_data.getter.getMass(metIds)
 		self._mws = dict(zip(metIds, mws))
 
-		self._metPoolIds = [x["Metabolite"] + "[c]" for x in raw_data.metaboliteConcentrations]
+		self._metTargetIds = [x["Metabolite"] + "[c]" for x in raw_data.metaboliteConcentrations]
 
 	def _buildDependentConstants(self):
 		self.avgCellDryMassInit = self.avgCellDryMass / self.avgCellToInitialCellConvFactor
@@ -169,7 +169,7 @@ class Mass(object):
 		for entry in self._glycogenFractions:
 			metaboliteID = entry["metaboliteId"]
 
-			assert metaboliteID not in metaboliteIDs + self._metPoolIds
+			assert metaboliteID not in metaboliteIDs + self._metTargetIds
 
 			massFrac = entry["massFraction"] * massFraction["glycogen"]
 			molWeight = self._mws[metaboliteID].asNumber(units.g / units.mol)
@@ -185,7 +185,7 @@ class Mass(object):
 		for entry in self._mureinFractions:
 			metaboliteID = entry["metaboliteId"]
 
-			assert metaboliteID not in metaboliteIDs + self._metPoolIds
+			assert metaboliteID not in metaboliteIDs + self._metTargetIds
 
 			massFrac = entry["massFraction"] * massFraction["murein"]
 			molWeight = self._mws[metaboliteID].asNumber(units.g / units.mol)
@@ -201,7 +201,7 @@ class Mass(object):
 		for entry in self._LPSFractions:
 			metaboliteID = entry["metaboliteId"]
 
-			assert metaboliteID not in metaboliteIDs + self._metPoolIds
+			assert metaboliteID not in metaboliteIDs + self._metTargetIds
 
 			massFrac = entry["massFraction"] * massFraction["lps"]
 			molWeight = self._mws[metaboliteID].asNumber(units.g / units.mol)
@@ -217,7 +217,7 @@ class Mass(object):
 		for entry in self._lipidFractions:
 			metaboliteID = entry["metaboliteId"]
 
-			assert metaboliteID not in metaboliteIDs + self._metPoolIds
+			assert metaboliteID not in metaboliteIDs + self._metTargetIds
 
 			massFrac = entry["massFraction"] * massFraction["lipid"]
 			molWeight = self._mws[metaboliteID].asNumber(units.g / units.mol)
@@ -233,7 +233,7 @@ class Mass(object):
 		for entry in self._ionFractions:
 			metaboliteID = entry["metaboliteId"]
 
-			assert metaboliteID not in metaboliteIDs + self._metPoolIds
+			assert metaboliteID not in metaboliteIDs + self._metTargetIds
 
 			massFrac = entry["massFraction"] * massFraction["inorganicIon"]
 			molWeight = self._mws[metaboliteID].asNumber(units.g / units.mol)
@@ -249,7 +249,7 @@ class Mass(object):
 		for entry in self._solubleFractions:
 			metaboliteID = entry["metaboliteId"]
 
-			if metaboliteID not in self._metPoolIds:
+			if metaboliteID not in self._metTargetIds:
 				massFrac = entry["massFraction"] * massFraction["solublePool"]
 				molWeight = self._mws[metaboliteID].asNumber(units.g / units.mol)
 

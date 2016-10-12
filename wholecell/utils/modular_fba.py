@@ -109,7 +109,12 @@ class FluxBalanceAnalysis(object):
 	- objectiveType, a string
 		"standard": standard FBA objective (default)
 		"flexible": flexFBA
-		"pools": similar to FBA; optimizes towards desired pool concentrations
+		"homeostatic": similar to FBA; optimizes towards desired homeostatic concentrations
+		"range_homeostatic": homeostatic FBA with the option to allow a range of desired homeostatic concentrations
+		"kinetic_only":  optimize to minimize deviation from reaction flux through given kinetic reaction flux targets
+		"homeostatic_kinetics_mixed":  A split objective, both range_homeostatic and kinetic, optimizing to minimize deviation
+									   from homeostatic concentrations for a set of molecules, and a set of kinetic rates for a
+									   set of reaction fluxes.
 
 	- objectiveParameters, a dict
 		Keys are specific to the FBA implementation.
@@ -159,7 +164,7 @@ class FluxBalanceAnalysis(object):
 	_generatedID_fractionalDifferenceLeadingOut = "difference between fractional objective equivalents of leading molecule and {} out"
 	_generatedID_fractionalDifferenceBiomassOut = "difference between fractional objective equivalents of {} and biomass objective out"
 
-	## Pools FBA
+	## Homeostatic FBA
 	_generatedID_fractionBelowUnityOut = "fraction {} below unity, out"
 	_generatedID_fractionAboveUnityOut = "fraction {} above unity, out"
 
@@ -175,7 +180,7 @@ class FluxBalanceAnalysis(object):
 	_reactionID_NGAM = "Non-growth-associated maintenance reaction"
 	_reactionID_polypeptideElongationEnergy = "PolypeptideElongation energy reaction"
 
-	## Range Pools FBA
+	## Range Homeostatic FBA
 	_generatedID_fractionInRangeOut = "fraction {} within target range, out"
 
 	## MOMA
@@ -244,23 +249,23 @@ class FluxBalanceAnalysis(object):
 			self._initObjectiveEquivalents(objective)
 			self._initObjectiveFlexible(objective, objectiveParameters)
 
-		elif objectiveType == "pools":
+		elif objectiveType == "homeostatic":
 			self._initObjectiveEquivalents(objective)
-			self._initObjectivePools(objective)
+			self._initObjectiveHomeostatic(objective)
 
 			if internalExchangedMolecules is not None:
 				raise FBAError(
-					"Internal exchange molecules are automatically defined when using self.objectiveType = \"pools\""
+					"Internal exchange molecules are automatically defined when using self.objectiveType = \"homeostatic\""
 					)
 			internalExchangedMolecules = sorted(objective.keys())
 
-		elif self.objectiveType == "range_pools":
+		elif self.objectiveType == "range_homeostatic":
 			self._initObjectiveEquivalents(objective)
-			self._initObjectiveRangePools(objective, objectiveParameters)
+			self._initObjectiveRangeHomeostatic(objective, objectiveParameters)
 
 			if internalExchangedMolecules is not None:
 				raise FBAError(
-					"Internal exchange molecules are automatically defined when using self.objectiveType = \"range_pools\""
+					"Internal exchange molecules are automatically defined when using self.objectiveType = \"range_homeostatic\""
 					)
 			internalExchangedMolecules = sorted(objective.keys())
 
@@ -268,18 +273,18 @@ class FluxBalanceAnalysis(object):
 			if "reactionRateTargets" in objectiveParameters:
 				rateObjective = objectiveParameters["reactionRateTargets"]
 			else:
-				raise FBAError("When using pools_kinetics_mixed objective, a reactionRateTargets dict of reactionName:target rate must be provided in objectiveParameters.")
+				raise FBAError("When using homeostatic_kinetics_mixed objective, a reactionRateTargets dict of reactionName:target rate must be provided in objectiveParameters.")
 
 			self._initObjectiveKinetic(rateObjective, objectiveParameters)
 
-		elif self.objectiveType == "pools_kinetics_mixed":
-			# Set up pools
+		elif self.objectiveType == "homeostatic_kinetics_mixed":
+			# Set up homeostatic objective
 			self._initObjectiveEquivalents(objective)
-			self._initObjectiveRangePools(objective, objectiveParameters)
+			self._initObjectiveRangeHomeostatic(objective, objectiveParameters)
 
 			if internalExchangedMolecules is not None:
 				raise FBAError(
-					"Internal exchange molecules are automatically defined when using self.objectiveType = \"pools_kinetics_mixed\""
+					"Internal exchange molecules are automatically defined when using self.objectiveType = \"homeostatic_kinetics_mixed\""
 					)
 			internalExchangedMolecules = sorted(objective.keys())
 
@@ -287,12 +292,9 @@ class FluxBalanceAnalysis(object):
 			if "reactionRateTargets" in objectiveParameters:
 				rateObjective = objectiveParameters["reactionRateTargets"]
 			else:
-				raise FBAError("When using pools_kinetics_mixed objective, a reactionRateTargets dict of reactionName:target rate must be provided in objectiveParameters.")
+				raise FBAError("When using homeostatic_kinetics_mixed objective, a reactionRateTargets dict of reactionName:target rate must be provided in objectiveParameters.")
 
 			self._initObjectiveKinetic(rateObjective, objectiveParameters)
-
-		elif self.objectiveType == "moma":
-			self._initObjectiveMOMA(objective, objectiveParameters)
 
 		else:
 			raise FBAError("Unrecognized self.objectiveType: {}".format(self.objectiveType))
@@ -545,13 +547,13 @@ class FluxBalanceAnalysis(object):
 				-1
 				)
 
-	def _initObjectivePools(self, objective):
-		"""Create the abstractions needed for FBA with pools.  The objective is
+	def _initObjectiveHomeostatic(self, objective):
+		"""Create the abstractions needed for homeostatic FBA.  The objective is
 		to minimize the distance between the current metabolite level and some
 		target level, as defined in the objective."""
 
 		if any(coeff < 0 for coeff in objective.viewvalues()):
-			raise FBAError("FBA with pools is not designed to use negative biomass coefficients")
+			raise FBAError("Homeostatic FBA is not designed to use negative biomass coefficients")
 
 		self._solver.maximizeObjective(False)
 		self._forceInternalExchange = True
@@ -612,14 +614,14 @@ class FluxBalanceAnalysis(object):
 				+1
 				)
 
-	def _initObjectiveRangePools(self, objective, objectiveParameters):
-		""" Pools FBA with a range of acceptable values. The objective is
+	def _initObjectiveRangeHomeostatic(self, objective, objectiveParameters):
+		""" Homeostatic FBA with a range of acceptable values. The objective is
 		to minimize the distance between the current metabolite level and a range
 		of target concentrations. Within this target range, there is a small preference
 		for the higher concentraion. The low and high ends of the target range are
 		defined in the objective."""
 
-		# Load parameters - default to regular pools fba if none given
+		# Load parameters - default to regular homeostatic fba if none given
 		homeostaticRangeObjFractionHigher = objectiveParameters["homeostaticRangeObjFractionHigher"] if "homeostaticRangeObjFractionHigher" in objectiveParameters else 0
 		inRangeObjWeight = objectiveParameters["inRangeObjWeight"] if "inRangeObjWeight" in objectiveParameters else 0
 		kineticObjectiveWeight = objectiveParameters["kineticObjectiveWeight"] if "kineticObjectiveWeight" in objectiveParameters else 0
@@ -709,115 +711,6 @@ class FluxBalanceAnalysis(object):
 				aboveUnityID,
 				+(self._homeostaticObjectiveWeight)
 				)
-
-	def _initObjectiveMOMA(self, objective, objectiveParameters=None):
-		""" Given a dict of reaction_name:rate (objective), attempts to
-			minimize the distance between fluxes and those rates.
-		If given, reactions in the list fixedReactionNames (which must be
-			included in objective) is exactly at its specified rate.
-		Classically, fixedReactionNames is the biomass reaction, and objective
-			contains a kinetically-predicted flux distribution
-		"""
-
-		self.kineticObjectiveWeight = objectiveParameters["kineticObjectiveWeight"] if "kineticObjectiveWeight" in objectiveParameters else 1
-
-		# Unless given, assume no reactions are one-sided targets (ie kcat only targets)
-		self._oneSidedReactions = set(objectiveParameters["oneSidedReactionTargets"]) if "oneSidedReactionTargets" in objectiveParameters else set()
-
-		if objectiveParameters is not None and "fixedReactionNames" in objectiveParameters:
-			fixedReactionNames = objectiveParameters["fixedReactionNames"]
-		else:
-			fixedReactionNames = []
-
-		# Make single-string arguments into list
-		if isinstance(fixedReactionNames, str):
-			fixedReactionNames = [fixedReactionNames]
-
-		# This is a minimization objective problem
-		self._solver.maximizeObjective(False)
-
-		nonObjectiveReactions = set()
-		for reactionName in fixedReactionNames:
-
-			# Check that fixed reactions are in the objective dict
-			if reactionName not in objective:
-				nonObjectiveReactions.add(reactionName)
-				continue
-
-		if len(nonObjectiveReactions) > 0:
-			raise FBAError("All fixed reactions must have an entry in the objective dict. No entry found for {}.".format(nonObjectiveReactions))
-
-		for reactionID in objective:
-
-			if objective[reactionID] < 0:
-				raise FBAError("Target flux for reaction {} is negative. MOMA reaction targets must be postive - set the value for the (reverse) reaction if a negative flux is desired.".format(reactionID))
-
-			if reactionID not in self.reactionStoich:
-				raise FBAError("{} is not in the reaction network. Target fluxes must be in the reaction network".format(reactionID))
-
-			# Fix reaction to target flux
-			self.minReactionFluxIs(reactionID, objective[reactionID], raiseForReversible=False)
-			self.maxReactionFluxIs(reactionID, objective[reactionID], raiseForReversible=False)
-
-			# If reaction is not in the fixed reactions set, create relaxation fluxes for it
-			if reactionID not in fixedReactionNames:
-
-				self._kineticTargetFluxes.add(reactionID)
-
-				expectedFlux = objective[reactionID]
-
-				if expectedFlux < 0:
-					raise FBAError("Expected flux for reaction {} is negative. MOMA normalization fluxes must be postive - set the value for the (reverse) reaction if a negative flux is desired.".format(reactionID))
-
-				## Above
-				# Add a pseudoreaction to allow the flux to be above its target
-				overTargetFlux = self._generatedID_amountOver.format(reactionID)
-				for materialID, coeff in self.reactionStoich[reactionID].iteritems():
-					self._solver.flowMaterialCoeffIs(
-						overTargetFlux,
-						materialID,
-						coeff
-						)
-				# In addition to the actual metabolites, this relaxation creates a special pseudometabolite kineticObjEquivalent
-				kineticObjEquivalent = self._generatedID_kineticReactionEquivalents.format(reactionID)
-				self._solver.flowMaterialCoeffIs(
-					overTargetFlux,
-					kineticObjEquivalent,
-					1.
-					)
-				self._specialFluxIDsSet.add(overTargetFlux)
-
-				## Below
-				# Add a pseudoreaction to allow the flux to be below its target
-				underTargetFlux = self._generatedID_amountUnder.format(reactionID)
-				for materialID, coeff in self.reactionStoich[reactionID].iteritems():
-					self._solver.flowMaterialCoeffIs(
-						underTargetFlux,
-						materialID,
-						-coeff
-						)
-
-				# Allow relaxing below the target for free if this is a one-sided kinetic target
-				if reactionID not in self._oneSidedReactions:
-					# In addition to the actual metabolites, this relaxation creates a special pseudometabolite kineticObjEquivalent
-					self._solver.flowMaterialCoeffIs(
-						underTargetFlux,
-						kineticObjEquivalent,
-						1.
-						)
-
-				self._specialFluxIDsSet.add(underTargetFlux)
-
-				# The relaxation cannot allow overall negative flux
-				self.maxReactionFluxIs(underTargetFlux, objective[reactionID])
-
-				# Create a special reaction to destroy the kineticObjEquivalent pseudometabolites
-				pseudoFluxKinetic = self._generatedID_kineticReactionEquivalentsPseudoflux.format(reactionID)
-				self._solver.flowMaterialCoeffIs(
-					pseudoFluxKinetic,
-					kineticObjEquivalent,
-					-(expectedFlux / self.kineticObjectiveWeight)
-					)
 
 	def _initObjectiveKinetic(self, objective, objectiveParameters=None):
 		""" Given a dict of reaction_name:rate (objective), attempts to

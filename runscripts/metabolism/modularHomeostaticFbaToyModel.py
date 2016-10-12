@@ -34,7 +34,7 @@ metaboliteConcentrations = [objective[x] for x in sorted(objective.keys())]
 step = 1
 while step <= 12:
 	print "\nStep %i" % (step)
-	fba = FluxBalanceAnalysis(reactions, externalMolecules, objective, objectiveType = "pools", solver = "glpk")
+	fba = FluxBalanceAnalysis(reactions, externalMolecules, objective, objectiveType = "homeostatic", solver = "glpk")
 	
 	fba.internalMoleculeLevelsIs(metaboliteConcentrations)
 	fba.externalMoleculeLevelsIs([externalMolecules[x] for x in externalMolecules])
