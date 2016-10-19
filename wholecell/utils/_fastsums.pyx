@@ -43,7 +43,7 @@ def sum_monomers_reference_implementation(sequenceMonomers,
     return totalMonomers
 
 def sum_monomers(sequenceMonomers, np.int64_t[:] activeSequencesIndexes,
-        Index currentStep):
+        currentStep):
     """
     Sum up the total number of monomers of each type needed to continue building
     the active sequences through currentStep and following steps.
