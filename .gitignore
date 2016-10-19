@@ -54,10 +54,19 @@ user/*
 *.so
 *.o
 
-# Cython C source #
-###################
+# Cython generated C #
+######################
 /wholecell/utils/_build_sequences.c
+/wholecell/utils/_fastsums.c
 /wholecell/utils/mc_complexation.c
+/wholecell/utils/polymerize.c
+
+# Cython generated HTML listings #
+##################################
+/wholecell/utils/_build_sequences.html
+/wholecell/utils/_fastsums.html
+/wholecell/utils/mc_complexation.html
+/wholecell/utils/polymerize.html
 
 # kernprof.py output #
 ######################
