@@ -33,7 +33,7 @@ _testStandard = dict(
 		}
 	)
 
-_testPools = dict(
+_testTargetMolecules = dict(
 	reactionStoich = {
 		"A to B":{"A":-1, "B":+1},
 		"B to A":{"A":+1, "B":-1},
@@ -48,7 +48,7 @@ _testPools = dict(
 		"C":10,
 		"E":20,
 		},
-	objectiveType = "pools"
+	objectiveType = "homeostatic"
 	)
 
 class Test_FluxBalanceAnalysis(unittest.TestCase):
@@ -142,8 +142,8 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 
 
 	@noseAttrib.attr("smalltest", "fba")
-	def test_pools_noInitial(self):
-		fba = FluxBalanceAnalysis(**_testPools)
+	def test_homeostatic_noInitial(self):
+		fba = FluxBalanceAnalysis(**_testTargetMolecules)
 
 		externalMoleculeLevels = {
 			"A":50,
@@ -178,8 +178,8 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 
 
 	@noseAttrib.attr("smalltest", "fba")
-	def test_pools_atObjective(self):
-		fba = FluxBalanceAnalysis(**_testPools)
+	def test_homeostatic_atObjective(self):
+		fba = FluxBalanceAnalysis(**_testTargetMolecules)
 
 		externalMoleculeLevels = {
 			"A":50,
@@ -214,8 +214,8 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 
 
 	@noseAttrib.attr("smalltest", "fba")
-	def test_pools_belowObjective(self):
-		fba = FluxBalanceAnalysis(**_testPools)
+	def test_homeostatic_belowObjective(self):
+		fba = FluxBalanceAnalysis(**_testTargetMolecules)
 
 		externalMoleculeLevels = {
 			"A":50,
@@ -250,8 +250,8 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 
 
 	@noseAttrib.attr("smalltest", "fba")
-	def test_pools_singleBelowObjective(self):
-		fba = FluxBalanceAnalysis(**_testPools)
+	def test_homeostatic_singleBelowObjective(self):
+		fba = FluxBalanceAnalysis(**_testTargetMolecules)
 
 		externalMoleculeLevels = {
 			"A":50,
@@ -286,9 +286,9 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 
 
 	@noseAttrib.attr("smalltest", "fba")
-	def test_pools_singleAboveObjective(self):
+	def test_homeostatic_singleAboveObjective(self):
 		fba = FluxBalanceAnalysis(
-			**_testPools
+			**_testTargetMolecules
 			)
 
 		externalMoleculeLevels = {

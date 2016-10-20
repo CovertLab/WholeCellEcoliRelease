@@ -3,8 +3,8 @@
 
 TODO:
 - document math
-- replace fake metabolite pools with measured metabolite pools
-- raise/warn if physiological metabolite pools appear to be smaller than what
+- replace fake metabolite concentration targets with measured metabolite concentration targets
+- raise/warn if physiological metabolite concentration targets appear to be smaller than what
  is needed at this time step size
 
 """
@@ -17,7 +17,7 @@ import numpy as np
 import os
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
-from wholecell.utils.fitting import normalize, countsFromMassAndExpression, calcProteinCounts, massesAndCountsToAddForPools
+from wholecell.utils.fitting import normalize, countsFromMassAndExpression, calcProteinCounts, massesAndCountsToAddForHomeostaticTargets
 from wholecell.utils.polymerize import buildSequences, computeMassIncrease
 from wholecell.utils import units
 
@@ -122,21 +122,21 @@ def initializeSmallMolecules(bulkMolCntr, sim_data, randomState):
 		sim_data.nutrientsTimeSeries[sim_data.nutrientsTimeSeriesLabel][0][1]
 		)
 	concDict.update(sim_data.mass.getBiomassAsConcentrations(sim_data.conditionToDoublingTime[sim_data.condition]))
-	poolIds = sorted(concDict)
-	poolConcentrations = (units.mol / units.L) * np.array([concDict[key].asNumber(units.mol / units.L) for key in poolIds])
+	moleculeIds = sorted(concDict)
+	moleculeConcentrations = (units.mol / units.L) * np.array([concDict[key].asNumber(units.mol / units.L) for key in moleculeIds])
 
-	massesToAdd, countsToAdd = massesAndCountsToAddForPools(
+	massesToAdd, countsToAdd = massesAndCountsToAddForHomeostaticTargets(
 		mass,
-		poolIds,
-		poolConcentrations,
-		sim_data.getter.getMass(poolIds),
+		moleculeIds,
+		moleculeConcentrations,
+		sim_data.getter.getMass(moleculeIds),
 		sim_data.constants.cellDensity,
 		sim_data.constants.nAvogadro
 		)
 
 	bulkMolCntr.countsIs(
 		countsToAdd,
-		poolIds
+		moleculeIds
 		)
 
 def initializeConstitutiveExpression(bulkMolCntr, sim_data, randomState):

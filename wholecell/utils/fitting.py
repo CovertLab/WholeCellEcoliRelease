@@ -11,7 +11,7 @@ def countsFromMassAndExpression(mass, mws, relativeExpression, nAvogadro):
 
 	mass 				- float -				Total mass you want counts to sum to
 	mws					- ndarray of floats -	Molecular weights of each species
-	relativeExpression	- ndarray of floats	-	Relative expression of each species
+	relativeExpression	- ndarray of floats	-	Relative expres`sion of each species
 	nAvogadro 			- float -				Avogadro's number
 
 	Example:
@@ -27,7 +27,7 @@ def countsFromMassAndExpression(mass, mws, relativeExpression, nAvogadro):
 	assert type(nAvogadro) != unum.Unum
 	return mass / np.dot(mws / nAvogadro, relativeExpression)
 
-def massesAndCountsToAddForPools(massInitial, poolIds, poolConcentrations, mws, cellDensity, nAvogadro):
+def massesAndCountsToAddForHomeostaticTargets(massInitial, poolIds, poolConcentrations, mws, cellDensity, nAvogadro):
 	diag = (cellDensity / (mws * poolConcentrations) - 1).asNumber()
 	A = -1 * np.ones((diag.size, diag.size))
 	A[np.diag_indices(diag.size)] = diag
