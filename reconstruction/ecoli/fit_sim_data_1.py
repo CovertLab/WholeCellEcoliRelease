@@ -100,6 +100,23 @@ def fitSimData_1(raw_data):
 		spec["proteinMonomerAverageContainer"] = proteinMonomerAverageContainer
 		spec["proteinMonomerDeviationContainer"] = proteinMonomerDeviationContainer
 
+	rVector = fitPromoterBoundProbability(sim_data, cellSpecs)
+
+	for condition in sorted(cellSpecs):
+		if VERBOSE > 0:
+			print "Updating mass in condition {}".format(condition)
+		spec = cellSpecs[condition]
+
+		concDict = sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
+			sim_data.conditions[condition]["nutrients"]
+			)
+		concDict.update(sim_data.mass.getBiomassAsConcentrations(sim_data.conditionToDoublingTime[condition]))
+
+		avgCellDryMassInit, fitAvgSolublePoolMass = rescaleMassForSolubleMetabolites(sim_data, spec["bulkContainer"], concDict, sim_data.conditionToDoublingTime[condition])
+
+		spec["avgCellDryMassInit"] = avgCellDryMassInit
+		spec["fitAvgSolublePoolMass"] = fitAvgSolublePoolMass
+
 		translation_aa_supply = calculateTranslationSupply(
 										sim_data,
 										spec["doubling_time"],
@@ -130,12 +147,7 @@ def fitSimData_1(raw_data):
 		if sim_data.conditions[condition]["nutrients"] not in sim_data.expectedDryMassIncreaseDict and len(sim_data.conditions[condition]["perturbations"]) == 0:
 			sim_data.expectedDryMassIncreaseDict[sim_data.conditions[condition]["nutrients"]] = spec["avgCellDryMassInit"]
 
-
-	fitTfPromoterKd(sim_data, cellSpecs)
-
-	sim_data.pPromoterBound = calculatePromoterBoundProbability(sim_data, cellSpecs)
-
-	calculateRnapRecruitment(sim_data, cellSpecs)
+	calculateRnapRecruitment(sim_data, cellSpecs, rVector)
 
 	return sim_data
 
@@ -1222,6 +1234,287 @@ def fitTfPromoterKd(sim_data, cellSpecs):
 		else:
 			raise Exception, "Can't get positive RNA Polymerase recruitment rate for %s" % tf
 
+def fitPromoterBoundProbability(sim_data, cellSpecs):
+
+	def fromArray(p, pPromoterBound, pPromoterBoundIdxs):
+		for condition in sorted(pPromoterBoundIdxs):
+			for tf in sorted(pPromoterBoundIdxs[condition]):
+				pPromoterBound[condition][tf] = p[pPromoterBoundIdxs[condition][tf]]
+
+	def updateSynthProb(sim_data, kInfo, k):
+		for D, value in zip(kInfo, k):
+			sim_data.process.transcription.rnaSynthProb[D["condition"]][D["idx"]] = value
+
+		for condition in sim_data.process.transcription.rnaSynthProb:
+			assert np.all(sim_data.process.transcription.rnaSynthProb[condition] >= 0)
+			sim_data.process.transcription.rnaSynthProb[condition] /= sim_data.process.transcription.rnaSynthProb[condition].sum()
+
+	def makeG(sim_data, pPromoterBound):
+		gI, gJ, gV, k, rowNames, colNames, kInfo = [], [], [], [], [], [], []
+		for idx, rnaId in enumerate(sim_data.process.transcription.rnaData["id"]):
+			rnaIdNoLoc = rnaId[:-3]
+
+			tfs = sim_data.process.transcription_regulation.targetTf.get(rnaIdNoLoc, [])
+			conditions = ["basal"]
+			tfsWithData = []
+			for tf in tfs:
+				if tf not in sorted(sim_data.tfToActiveInactiveConds):
+					continue
+				conditions.append(tf + "__active")
+				conditions.append(tf + "__inactive")
+				tfsWithData.append(tf)
+			for condition in conditions:
+				if len(tfsWithData) > 0 and condition == "basal":
+					continue
+				rowName = rnaIdNoLoc + "__" + condition
+				rowNames.append(rowName)
+				for tf in tfsWithData:
+					colName = rnaIdNoLoc + "__" + tf
+					if colName not in colNames:
+						colNames.append(colName)
+					gI.append(rowNames.index(rowName))
+					gJ.append(colNames.index(colName))
+					gV.append(pPromoterBound[condition][tf])
+				colName = rnaIdNoLoc + "__alpha"
+				if colName not in colNames:
+					colNames.append(colName)
+				gI.append(rowNames.index(rowName))
+				gJ.append(colNames.index(colName))
+				gV.append(1.)
+				k.append(sim_data.process.transcription.rnaSynthProb[condition][idx])
+				kInfo.append({"condition": condition, "idx": idx})
+
+		k = np.array(k)
+		gI, gJ, gV = np.array(gI), np.array(gJ), np.array(gV)
+		G = np.zeros((len(rowNames), len(colNames)), np.float64)
+		G[gI, gJ] = gV
+
+		return G, k, rowNames, colNames, kInfo
+
+	def makeZ(sim_data, colNames):
+		combinationIdxToColIdxs = {
+			0: [0], 1: [0, 1], 2: [0, 2], 3: [0, 1, 2],
+			4: [0, 3], 5: [0, 1, 3], 6: [0, 2, 3], 7: [0, 1, 2, 3],
+			8: [0, 4], 9: [0, 1, 4], 10: [0, 2, 4], 11: [0, 1, 2, 4],
+			12: [0, 3, 4], 13: [0, 1, 3, 4], 14: [0, 2, 3, 4], 15: [0, 1, 2, 3, 4],
+			}
+		zI, zJ, zV, rowNames = [], [], [], []
+		for rnaId in sim_data.process.transcription.rnaData["id"]:
+			rnaIdNoLoc = rnaId[:-3]
+			tfs = sim_data.process.transcription_regulation.targetTf.get(rnaIdNoLoc, [])
+			tfsWithData = []
+			colIdxs = [colNames.index(rnaIdNoLoc + "__alpha")]
+			for tf in tfs:
+				if tf not in sim_data.tfToActiveInactiveConds:
+					continue
+				tfsWithData.append(tf)
+				colIdxs.append(colNames.index(rnaIdNoLoc + "__" + tf))
+			nTfs = len(tfsWithData)
+			for combinationIdx in xrange(2**nTfs):
+				rowName = rnaIdNoLoc + "__%d" % combinationIdx
+				rowNames.append(rowName)
+				for colIdx in combinationIdxToColIdxs[combinationIdx]:
+					zI.append(rowNames.index(rowName))
+					zJ.append(colIdxs[colIdx])
+					zV.append(1)
+
+		zI, zJ, zV = np.array(zI), np.array(zJ), np.array(zV)
+
+		Z = np.zeros((zI.max() + 1, zJ.max() + 1), np.float64)
+		Z[zI, zJ] = zV
+
+		return Z
+
+	def makeT(sim_data, colNames):
+		tI, tJ, tV, rowNamesT = [], [], [], []
+		for rnaId in sim_data.process.transcription.rnaData["id"]:
+			rnaIdNoLoc = rnaId[:-3]
+			tfs = sim_data.process.transcription_regulation.targetTf.get(rnaIdNoLoc, [])
+			tfsWithData = []
+			for tf in tfs:
+				if tf not in sim_data.tfToActiveInactiveConds:
+					continue
+				tfsWithData.append(tf)
+			for tf in tfsWithData:
+				rowName = rnaIdNoLoc + "__" + tf
+				rowNamesT.append(rowName)
+				colName = rnaIdNoLoc + "__" + tf
+				tI.append(rowNamesT.index(rowName))
+				tJ.append(colNames.index(colName))
+				tV.append(sim_data.tfToDirection[tf][rnaIdNoLoc])
+			rowName = rnaIdNoLoc + "__alpha"
+			rowNamesT.append(rowName)
+			colName = rnaIdNoLoc + "__alpha"
+			tI.append(rowNamesT.index(rowName))
+			tJ.append(colNames.index(colName))
+			tV.append(0)
+
+		tI, tJ, tV = np.array(tI), np.array(tJ), np.array(tV)
+		T = np.zeros((tI.max() + 1, tJ.max() + 1), np.float64)
+		T[tI, tJ] = tV
+
+		return T
+
+	def makeH(sim_data, colNames, pPromoterBound, r):
+		rDict = dict([(colName, value) for colName, value in zip(colNames, r)])
+
+		pPromoterBoundIdxs = dict([(condition, {}) for condition in pPromoterBound])
+		hI, hJ, hV, rowNames, colNamesH, pInitI, pInitV = [], [], [], [], [], [], []
+		for idx, rnaId in enumerate(sim_data.process.transcription.rnaData["id"]):
+			rnaIdNoLoc = rnaId[:-3]
+			tfs = sim_data.process.transcription_regulation.targetTf.get(rnaIdNoLoc, [])
+			conditions = ["basal"]
+			tfsWithData = []
+			for tf in tfs:
+				if tf not in sorted(sim_data.tfToActiveInactiveConds):
+					continue
+				conditions.append(tf + "__active")
+				conditions.append(tf + "__inactive")
+				tfsWithData.append(tf)
+			for condition in conditions:
+				if len(tfsWithData) > 0 and condition == "basal":
+					continue
+				rowName = rnaIdNoLoc + "__" + condition
+				rowNames.append(rowName)
+				for tf in tfsWithData:
+					colName = tf + "__" + condition
+					if colName not in colNamesH:
+						colNamesH.append(colName)
+					hI.append(rowNames.index(rowName))
+					hJ.append(colNamesH.index(colName))
+					hV.append(rDict[rnaIdNoLoc + "__" + tf])
+					pInitI.append(colNamesH.index(colName))
+					pInitV.append(pPromoterBound[condition][tf])
+					pPromoterBoundIdxs[condition][tf] = colNamesH.index(colName)
+				colName = rnaIdNoLoc + "__alpha"
+				if colName not in colNamesH:
+					colNamesH.append(colName)
+				hI.append(rowNames.index(rowName))
+				hJ.append(colNamesH.index(colName))
+				hV.append(rDict[colName])
+				pInitI.append(colNamesH.index(colName))
+				pInitV.append(1.)
+
+		pInit = np.zeros(len(set(pInitI)))
+		pInit[pInitI] = pInitV
+		hI, hJ, hV = np.array(hI), np.array(hJ), np.array(hV)
+		Hshape = (hI.max() + 1, hJ.max() + 1)
+		H = np.zeros(Hshape, np.float64)
+		H[hI, hJ] = hV
+		pAlphaIdxs = np.array([colNamesH.index(colName) for colName in colNamesH if colName.endswith("__alpha")])
+		pNotAlphaIdxs = np.array([colNamesH.index(colName) for colName in colNamesH if not colName.endswith("__alpha")])
+
+		return H, pInit, pAlphaIdxs, pNotAlphaIdxs, pPromoterBoundIdxs, colNamesH
+
+	def makePdiff(sim_data, colNamesH, pPromoterBound):
+		PdiffI, PdiffJ, PdiffV = [], [], []
+		for rowIdx, tf in enumerate(sorted(sim_data.tfToActiveInactiveConds)):
+			condition = tf + "__active"
+			colName = tf + "__" + condition
+			PdiffI.append(rowIdx)
+			PdiffJ.append(colNamesH.index(colName))
+			PdiffV.append(1)
+
+			condition = tf + "__inactive"
+			colName = tf + "__" + condition
+			PdiffI.append(rowIdx)
+			PdiffJ.append(colNamesH.index(colName))
+			PdiffV.append(-1)
+
+		PdiffI, PdiffJ, PdiffV = np.array(PdiffI), np.array(PdiffJ), np.array(PdiffV)
+		Pdiffshape = (PdiffI.max() + 1, len(colNamesH))
+		Pdiff = np.zeros(Pdiffshape, np.float64)
+		Pdiff[PdiffI, PdiffJ] = PdiffV
+
+		return Pdiff
+
+	from cvxpy import Variable, Problem, Minimize, norm
+	pPromoterBound = calculatePromoterBoundProbability(sim_data, cellSpecs)
+	pInit0 = None
+	lastNorm = np.inf
+
+	SCALING = 1e1
+	NORM = 1
+	for _ in xrange(100):
+		G, k, rowNamesG, colNamesG, kInfo = makeG(sim_data, pPromoterBound)
+		Z = makeZ(sim_data, colNamesG)
+		T = makeT(sim_data, colNamesG)
+
+
+		R = Variable(G.shape[1])
+		prob = Problem(Minimize(norm(G * (SCALING * R) - (SCALING * k), NORM)), [0 <= Z * (SCALING * R), Z * (SCALING * R) <= SCALING * 1, T * (SCALING * R) >= 0])
+		prob.solve(solver = "GLPK")
+		r = np.array(R.value).reshape(-1)
+
+		print np.linalg.norm(np.dot(G, r) - k, NORM)
+
+		H, pInit, pAlphaIdxs, pNotAlphaIdxs, pPromoterBoundIdxs, colNamesH = makeH(sim_data, colNamesG, pPromoterBound, r)
+		Pdiff = makePdiff(sim_data, colNamesH, pPromoterBound)
+		if _ == 0:
+			pInit0 = pInit.copy()
+
+		print np.linalg.norm(np.dot(H, pInit) - k, NORM)
+
+		P = Variable(H.shape[1])
+		D = np.zeros(H.shape[1])
+		D[pAlphaIdxs] = 1
+		prob = Problem(Minimize(norm(H * (SCALING * P) - (SCALING * k), NORM) + 1e-3 * norm(P - pInit0, NORM)), [0 <= (SCALING * P), (SCALING * P) <= SCALING * 1, np.diag(D) * (SCALING * P) == (SCALING * D), Pdiff * (SCALING * P) >= SCALING * 0.1])
+		prob.solve(solver = "GLPK")
+		pF = np.array(P.value).reshape(-1)
+		fromArray(pF, pPromoterBound, pPromoterBoundIdxs)
+
+		print np.linalg.norm(np.dot(H, pF) - k, NORM)
+
+		if np.abs(np.linalg.norm(np.dot(H, pF) - k, NORM) - lastNorm) < 1e-9:
+			break
+		else:
+			lastNorm = np.linalg.norm(np.dot(H, pF) - k, NORM)
+
+	sim_data.pPromoterBound = pPromoterBound
+	updateSynthProb(sim_data, kInfo, np.dot(H, pF))
+
+	cellDensity = sim_data.constants.cellDensity
+	rnaIdList = sim_data.process.transcription.rnaData["id"].tolist()
+	for tf in sorted(sim_data.tfToActiveInactiveConds):
+		activeKey = tf + "__active"
+		inactiveKey = tf + "__inactive"
+
+		boundId = sim_data.process.transcription_regulation.activeToBound[tf]
+		negativeSignal = False
+		if tf != boundId:
+			negativeSignal = True
+		kd = sim_data.process.equilibrium.getRevRate(boundId + "[c]") / sim_data.process.equilibrium.getFwdRate(boundId + "[c]")
+		tfTargets = sorted(sim_data.tfToFC[tf])
+		tfTargetsIdxs = [rnaIdList.index(x + "[c]") for x in tfTargets]
+
+		metabolite = sim_data.process.equilibrium.getMetabolite(boundId + "[c]")
+		metaboliteCoeff = sim_data.process.equilibrium.getMetaboliteCoeff(boundId + "[c]")
+
+		activeCellVolume = cellSpecs[activeKey]["avgCellDryMassInit"] / cellDensity / sim_data.mass.cellDryMassFraction
+		activeCountsToMolar = 1 / (sim_data.constants.nAvogadro * activeCellVolume)
+		activeSignalConc = (activeCountsToMolar * cellSpecs[activeKey]["bulkAverageContainer"].count(metabolite)).asNumber(units.mol / units.L)
+		activeSynthProb = sim_data.process.transcription.rnaSynthProb[activeKey]
+		activeSynthProbTargets = activeSynthProb[tfTargetsIdxs]
+
+		inactiveCellVolume = cellSpecs[inactiveKey]["avgCellDryMassInit"] / cellDensity / sim_data.mass.cellDryMassFraction
+		inactiveCountsToMolar = 1 / (sim_data.constants.nAvogadro * inactiveCellVolume)
+		inactiveSignalConc = (inactiveCountsToMolar * cellSpecs[inactiveKey]["bulkAverageContainer"].count(metabolite)).asNumber(units.mol / units.L)
+		inactiveSynthProb = sim_data.process.transcription.rnaSynthProb[inactiveKey]
+		inactiveSynthProbTargets = inactiveSynthProb[tfTargetsIdxs]
+
+		kdNew = None
+		oldVal = sim_data.process.metabolism.concentrationUpdates.moleculeSetAmounts[metabolite]
+		if negativeSignal:
+			kdNew = ((activeSignalConc)**metaboliteCoeff) * pPromoterBound[activeKey][tf] / (1 - pPromoterBound[activeKey][tf])
+			sim_data.process.metabolism.concentrationUpdates.moleculeSetAmounts[metabolite] = (units.mol / units.L) * (kdNew * (1 - pPromoterBound[inactiveKey][tf]) / pPromoterBound[inactiveKey][tf])**(1. / metaboliteCoeff)
+		else:
+			kdNew = ((inactiveSignalConc)**metaboliteCoeff) * (1 - pPromoterBound[inactiveKey][tf]) / pPromoterBound[inactiveKey][tf]
+			sim_data.process.metabolism.concentrationUpdates.moleculeSetAmounts[metabolite] = (units.mol / units.L) * (kdNew * pPromoterBound[activeKey][tf] / (1 - pPromoterBound[activeKey][tf]))**(1. / metaboliteCoeff)
+		print metabolite, oldVal, sim_data.process.metabolism.concentrationUpdates.moleculeSetAmounts[metabolite]
+
+		sim_data.process.equilibrium.setRevRate(boundId + "[c]", kdNew * sim_data.process.equilibrium.getFwdRate(boundId + "[c]"))
+	return r
+
 
 def calculatePromoterBoundProbability(sim_data, cellSpecs):
 	D = {}
@@ -1245,7 +1538,7 @@ def calculatePromoterBoundProbability(sim_data, cellSpecs):
 	return D
 
 
-def calculateRnapRecruitment(sim_data, cellSpecs):
+def calculateRnapRecruitment(sim_data, cellSpecs, rVector):
 	gI = []
 	gJ = []
 	gV = []
@@ -1293,6 +1586,7 @@ def calculateRnapRecruitment(sim_data, cellSpecs):
 	G = np.zeros(shape, np.float64)
 	G[gI, gJ] = gV
 	r = np.linalg.solve(G, k)
+	r = rVector
 
 	# TODO: Delete this once things actually work
 	# This is like scaffolding
