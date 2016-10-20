@@ -1358,6 +1358,11 @@ def calculateRnapRecruitment(sim_data, cellSpecs):
 	H = np.zeros(shape, np.float64)
 	H[hI, hJ] = hV
 
+	# Deals with numerical tolerance issue of having negative alpha values
+	colIdxs = [colNames.index(colName) for colName in colNames if colName.endswith("__alpha")]
+	nRows = H[:, colIdxs].shape[0]
+	H[range(nRows), colIdxs] -= H[range(nRows), colIdxs].min()
+
 	sim_data.state.bulkMolecules.addToBulkState(colNames, stateMasses)
 	sim_data.moleculeGroups.bulkMoleculesSetTo1Division = [x for x in colNames if x.endswith("__alpha")]
 	sim_data.moleculeGroups.bulkMoleculesBinomialDivision += [x for x in colNames if not x.endswith("__alpha")]
