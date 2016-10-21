@@ -1,5 +1,5 @@
 """
-polymerize_new.py
+polymerize.py
 
 Polymerizes sequences based on monomer and energy limitations.
 
@@ -16,13 +16,23 @@ from __future__ import division
 import numpy as np
 
 from _build_sequences import buildSequences, computeMassIncrease
+from _fastsums import sum_monomers, sum_monomers_reference_implementation
 
 PAD_VALUE = -1
 
-# TODO: speed up sequenceMonomers[...].sum(axis = 1).cumsum(axis = 1) calls
+# Define a no-op @profile decorator if it wasn't loaded by kernprof.
+try:
+	profile(lambda x: x)
+except NameError:
+	def profile(function):
+		return function
 
+# Run 'kernprof -lv wholecell/tests/utils/profile_polymerize.py' to get a line
+# profile of functions decorated @profile.
+@profile
 def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 	# Sanitize inputs
+	# import ipdb; ipdb.set_trace()
 	monomerLimits = monomerLimits.copy().astype(np.int64)
 	reactionLimit = np.int64(reactionLimit)
 
@@ -31,7 +41,7 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 	nMonomers = monomerLimits.size
 
 	# Static data
-	sequenceMonomers = np.empty((nMonomers, nSequences, sequenceLength), np.bool)
+	sequenceMonomers = np.empty((nMonomers, nSequences, sequenceLength), dtype = np.bool)
 
 	for monomerIndex in xrange(nMonomers):
 		sequenceMonomers[monomerIndex, ...] = (sequences == monomerIndex)
@@ -46,7 +56,8 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 		sequenceReactions[:, currentStep]
 		]
 
-	totalMonomers = sequenceMonomers.sum(axis = 1).cumsum(axis = 1)
+	#totalMonomers = sequenceMonomers.sum(axis = 1).cumsum(axis = 1)
+	totalMonomers = sum_monomers(sequenceMonomers, activeSequencesIndexes, 0)
 	totalReactions = sequenceReactions.sum(axis = 0).cumsum(axis = 0)
 
 	maxElongation = sequenceLength
@@ -167,7 +178,10 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 		if not activeSequencesIndexes.size:
 			break
 
-		totalMonomers = sequenceMonomers[:, activeSequencesIndexes, currentStep:].sum(axis = 1).cumsum(axis = 1)
+		#totalMonomers = sequenceMonomers[:, activeSequencesIndexes, currentStep:].sum(axis = 1).cumsum(axis = 1)
+		#totalMonomers = sum_monomers_reference_implementation(sequenceMonomers, activeSequencesIndexes, currentStep)
+		totalMonomers = sum_monomers(sequenceMonomers, activeSequencesIndexes, currentStep)
+
 		totalReactions = sequenceReactions[activeSequencesIndexes, currentStep:].sum(axis = 0).cumsum(axis = 0)
 
 		maxElongation = sequenceLength - currentStep
@@ -177,101 +191,3 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 	sequenceElongation = np.fmin(sequenceElongation, sequenceLengths)
 		
 	return sequenceElongation, monomerUsages, nReactions
-
-
-def _setupExample():
-	# Contrive a scenario which is similar to real conditions
-
-	randomState = np.random.RandomState()
-
-	nMonomers = 36 # number of distinct aa-tRNAs
-	nSequences = 10000 # approximate number of ribosomes
-	length = 16 # translation rate
-	nTerminating = np.int64(length/300 * nSequences) # estimate for number of ribosomes terminating
-	monomerSufficiency = 0.85
-	energySufficiency = 0.85
-
-	sequences = np.random.randint(nMonomers, size = (nSequences, length))
-
-	sequenceLengths = length * np.ones(nSequences, np.int64)
-	sequenceLengths[np.random.choice(nSequences, nTerminating, replace = False)] = np.random.randint(length, size = nTerminating)
-
-	sequences[np.arange(length) > sequenceLengths[:, np.newaxis]] = PAD_VALUE
-
-	maxReactions = sequenceLengths.sum()
-
-	monomerLimits = monomerSufficiency * maxReactions/nMonomers*np.ones(nMonomers, np.int64)
-	reactionLimit = energySufficiency * maxReactions
-
-	return sequences, monomerLimits, reactionLimit, randomState
-
-
-def _simpleProfile():
-	import time
-
-	np.random.seed(0)
-
-	sequences, monomerLimits, reactionLimit, randomState = _setupExample()
-
-	nSequences, length = sequences.shape
-	nMonomers = monomerLimits.size
-	sequenceLengths = (sequences != PAD_VALUE).sum(axis = 1)
-
-	t = time.time()
-	sequenceElongation, monomerUsages, nReactions = polymerize(sequences, monomerLimits, reactionLimit, randomState)
-	evalTime = time.time() - t
-
-	assert (sequenceElongation <= sequenceLengths+1).all()
-	assert (monomerUsages <= monomerLimits).all()
-	assert nReactions <= reactionLimit
-	assert nReactions == monomerUsages.sum()
-
-	print """
-Polymerize function report:
-
-For {} sequences of {} different monomers elongating by at most {}:
-
-{:0.1f} ms to evaluate
-{} polymerization reactions
-{:0.1f} average elongations per sequence
-{:0.1%} monomer utilization
-{:0.1%} energy utilization
-{:0.1%} fully elongated
-{:0.1%} completion
-""".format(
-		nSequences,
-		nMonomers,
-		length,
-		evalTime * 1000,
-		nReactions,
-		sequenceElongation.mean(),
-		monomerUsages.sum()/monomerLimits.sum(),
-		nReactions/reactionLimit,
-		(sequenceElongation == sequenceLengths).sum()/nSequences,
-		sequenceElongation.sum()/sequenceLengths.sum()
-		)
-
-
-def _fullProfile():
-	np.random.seed(0)
-
-	sequences, monomerLimits, reactionLimit, randomState = _setupExample()
-
-	# Recipe from https://docs.python.org/2/library/profile.html#module-cProfile
-
-	import cProfile, pstats, StringIO
-	pr = cProfile.Profile()
-	pr.enable()
-
-	sequenceElongation, monomerUsages, nReactions = polymerize(sequences, monomerLimits, reactionLimit, randomState)
-	
-	pr.disable()
-	s = StringIO.StringIO()
-	sortby = 'cumulative'
-	ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
-	ps.print_stats()
-	print s.getvalue()
-
-
-if __name__ == "__main__":
-	_fullProfile()

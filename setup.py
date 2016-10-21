@@ -45,3 +45,15 @@ setup(
 	ext_modules = complexation_module,
 	include_dirs = [np.get_include()]
 	)
+
+fast_polymerize_sums_module = cythonize(
+	os.path.join("wholecell", "utils", "_fastsums.pyx"),
+	#compiler_directives = {'linetrace': True},
+	# annotate=True, # emit an html file with annotated C code
+	)
+
+setup(
+	name = "Fast polymerize sums",
+	ext_modules = fast_polymerize_sums_module,
+	include_dirs = [np.get_include()]
+	)
