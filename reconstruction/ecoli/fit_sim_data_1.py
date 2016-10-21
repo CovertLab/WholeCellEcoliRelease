@@ -114,6 +114,9 @@ def fitSimData_1(raw_data):
 
 		avgCellDryMassInit, fitAvgSolublePoolMass = rescaleMassForSolubleMetabolites(sim_data, spec["bulkContainer"], concDict, sim_data.conditionToDoublingTime[condition])
 
+		if VERBOSE > 0:
+			print str(spec["avgCellDryMassInit"]) + " to "  + str(avgCellDryMassInit)
+
 		spec["avgCellDryMassInit"] = avgCellDryMassInit
 		spec["fitAvgSolublePoolMass"] = fitAvgSolublePoolMass
 
