@@ -1362,6 +1362,7 @@ def calculateRnapRecruitment(sim_data, cellSpecs):
 	colIdxs = [colNames.index(colName) for colName in colNames if colName.endswith("__alpha")]
 	nRows = H[:, colIdxs].shape[0]
 	H[range(nRows), colIdxs] -= H[range(nRows), colIdxs].min()
+	hV = H[hI, hJ]
 
 	sim_data.state.bulkMolecules.addToBulkState(colNames, stateMasses)
 	sim_data.moleculeGroups.bulkMoleculesSetTo1Division = [x for x in colNames if x.endswith("__alpha")]
