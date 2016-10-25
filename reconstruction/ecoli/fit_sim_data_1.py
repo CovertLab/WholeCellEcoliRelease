@@ -1512,10 +1512,16 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		kdNew = None
 		oldVal = sim_data.process.metabolism.concentrationUpdates.moleculeSetAmounts[metabolite]
 		if negativeSignal:
-			kdNew = ((activeSignalConc)**metaboliteCoeff) * pPromoterBound[activeKey][tf] / (1 - pPromoterBound[activeKey][tf])
+			if 1 - pPromoterBound[activeKey][tf] < 1e-9:
+				kdNew = kd
+			else:
+				kdNew = ((activeSignalConc)**metaboliteCoeff) * pPromoterBound[activeKey][tf] / (1 - pPromoterBound[activeKey][tf])
 			sim_data.process.metabolism.concentrationUpdates.moleculeSetAmounts[metabolite] = (units.mol / units.L) * (kdNew * (1 - pPromoterBound[inactiveKey][tf]) / pPromoterBound[inactiveKey][tf])**(1. / metaboliteCoeff)
 		else:
-			kdNew = ((inactiveSignalConc)**metaboliteCoeff) * (1 - pPromoterBound[inactiveKey][tf]) / pPromoterBound[inactiveKey][tf]
+			if pPromoterBound[inactiveKey][tf] < 1e-9:
+				kdNew = kd
+			else:
+				kdNew = ((inactiveSignalConc)**metaboliteCoeff) * (1 - pPromoterBound[inactiveKey][tf]) / pPromoterBound[inactiveKey][tf]
 			sim_data.process.metabolism.concentrationUpdates.moleculeSetAmounts[metabolite] = (units.mol / units.L) * (kdNew * pPromoterBound[activeKey][tf] / (1 - pPromoterBound[activeKey][tf]))**(1. / metaboliteCoeff)
 		print metabolite, oldVal, sim_data.process.metabolism.concentrationUpdates.moleculeSetAmounts[metabolite]
 
