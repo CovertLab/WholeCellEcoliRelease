@@ -34,7 +34,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 	# Constructor
 	def __init__(self):
 		# Parameters
-		self.maxRibosomeElongationRate = None
+		self.ribosomeElongationRate = None
 		self.proteinLengths = None
 		self.proteinSequences = None
 		self.h2oWeight = None
@@ -76,8 +76,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.endWeight = sim_data.process.translation.translationEndWeight
 
 		self.gtpPerElongation = sim_data.constants.gtpPerTranslation
-
-		self.maxRibosomeElongationRate = float(sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s))
+		self.ribosomeElongationRate = float(sim_data.growthRateParameters.ribosomeElongationRate.asNumber(units.aa / units.s))
 
 		##########
 		# self.saturation_km = sim_data.constants.translation_km
@@ -298,7 +297,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 				return False
 
 		dt = inputTimeStep * timeStepSafetyFraction
-		gtpExpectedUsage = activeRibosomes * self.maxRibosomeElongationRate * self.gtpPerElongation * dt
+		gtpExpectedUsage = activeRibosomes * self.ribosomeElongationRate * self.gtpPerElongation * dt
 
 		if gtpExpectedUsage < self.gtpAvailable:
 			return True
@@ -320,4 +319,4 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			return True
 
 	def _elngRate(self):
-		return int(stochasticRound(self.randomState, self.maxRibosomeElongationRate * self.timeStepSec()))
+		return int(stochasticRound(self.randomState, self.ribosomeElongationRate * self.timeStepSec()))
