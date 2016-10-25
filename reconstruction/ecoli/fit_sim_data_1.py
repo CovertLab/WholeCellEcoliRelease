@@ -1529,15 +1529,22 @@ def calculatePromoterBoundProbability(sim_data, cellSpecs):
 		countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
 
 		for tf in sorted(sim_data.tfToActiveInactiveConds):
-			boundId = sim_data.process.transcription_regulation.activeToBound[tf]
-			kd = sim_data.process.equilibrium.getRevRate(boundId + "[c]") / sim_data.process.equilibrium.getFwdRate(boundId + "[c]")
-			signal = sim_data.process.equilibrium.getMetabolite(boundId + "[c]")
-			signalCoeff = sim_data.process.equilibrium.getMetaboliteCoeff(boundId + "[c]")
-			signalConc = (countsToMolar * cellSpecs[conditionKey]["bulkAverageContainer"].count(signal)).asNumber(units.mol / units.L)
+			tfType = sim_data.process.transcription_regulation.tfToTfType[tf]
 
-			D[conditionKey][tf] = sim_data.process.transcription_regulation.pPromoterBoundSKd(signalConc, kd, signalCoeff)
-			if tf != boundId:
-				D[conditionKey][tf] = 1. - D[conditionKey][tf]
+			if tfType == "1CS":
+				boundId = sim_data.process.transcription_regulation.activeToBound[tf]
+				kd = sim_data.process.equilibrium.getRevRate(boundId + "[c]") / sim_data.process.equilibrium.getFwdRate(boundId + "[c]")
+				signal = sim_data.process.equilibrium.getMetabolite(boundId + "[c]")
+				signalCoeff = sim_data.process.equilibrium.getMetaboliteCoeff(boundId + "[c]")
+				signalConc = (countsToMolar * cellSpecs[conditionKey]["bulkAverageContainer"].count(signal)).asNumber(units.mol / units.L)
+
+				D[conditionKey][tf] = sim_data.process.transcription_regulation.pPromoterBoundSKd(signalConc, kd, signalCoeff)
+				if tf != boundId:
+					D[conditionKey][tf] = 1. - D[conditionKey][tf]
+
+			elif tfType == "2CS":
+				continue
+
 	return D
 
 
