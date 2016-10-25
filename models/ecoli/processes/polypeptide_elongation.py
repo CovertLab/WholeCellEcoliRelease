@@ -76,7 +76,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.endWeight = sim_data.process.translation.translationEndWeight
 
 		self.gtpPerElongation = sim_data.constants.gtpPerTranslation
-		self.ribosomeElongationRate = float(sim_data.growthRateParameters.ribosomeElongationRate.asNumber(units.aa / units.s))
+		# self.ribosomeElongationRate = float(sim_data.growthRateParameters.ribosomeElongationRate.asNumber(units.aa / units.s))
+
+		self.ribosomeElongationRateDict = sim_data.process.translation.ribosomeElongationRateDict
 
 		##########
 		# self.saturation_km = sim_data.constants.translation_km
@@ -111,6 +113,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		###### VARIANT CODE #######
 
 	def calculateRequest(self):
+		self.ribosomeElongationRate = self.ribosomeElongationRateDict[self.currentNutrients].asNumber(units.aa / units.s)
+
 		self.activeRibosomes.requestAll()
 
 		activeRibosomes = self.activeRibosomes.allMolecules()
