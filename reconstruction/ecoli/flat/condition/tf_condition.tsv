@@ -5,3 +5,4 @@
 "lrp"	"MONOMER0-155"	"minimal_plus_amino_acids"	{}	"minimal"	{}	"1CS"
 "tyrR"	"MONOMER0-162"	"minimal_plus_amino_acids"	{}	"minimal"	{}	"1CS"
 "putA"	"PUTA-CPLX"	"minimal"	{}	"minimal_plus_amino_acids"	{}	"1CS"
+"araC"	"CPLX-172"	"minimal_plus_arabinose"	{}	"minimal"	{}	"1CS"
