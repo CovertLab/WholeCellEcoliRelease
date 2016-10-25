@@ -107,6 +107,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.inactiveRnaPolys.requestAll()
 		self.rnaSynthProb = self.recruitmentMatrix.dot(self.recruitmentView.total())
 		regProbs = self.rnaSynthProb[self.isRegulated]
+		self.rnaSynthProb[self.rnaSynthProb < 0] = 0.
 		self.rnaSynthProb /= self.rnaSynthProb.sum()
 		if np.any(self.rnaSynthProb < 0):
 			raise Exception, "Have negative RNA synthesis probabilities"
