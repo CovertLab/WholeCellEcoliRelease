@@ -168,6 +168,7 @@ class SimulationDataEcoli(object):
 			)
 
 		self.tfToFC = {}
+		self.tfToDirection = {}
 		notFound = []
 		for row in raw_data.foldChanges:
 			tf = abbrToActiveId[row["TF"].encode("utf-8")][0]
@@ -178,9 +179,13 @@ class SimulationDataEcoli(object):
 				continue
 			if tf not in self.tfToFC:
 				self.tfToFC[tf] = {}
+				self.tfToDirection[tf] = {}
 			FC = row["F_avg"]
 			if row["Regulation_direct"] < 0:
 				FC *= -1.
+				self.tfToDirection[tf][target] = -1
+			else:
+				self.tfToDirection[tf][target] = 1
 			FC = 2**FC
 			self.tfToFC[tf][target] = FC
 

@@ -1,10 +1,13 @@
 .PHONY: compile, runSimulation, runSimulationJob, runAnalysisSingle, justKb, justSimulation, buildKb, fitKb_1, execModel_1, clean, clobber
 
+PYTHON_INCLUDE=$(shell pyenv virtualenv-prefix)/include/python2.7
+PYTHON_LIB=$(shell pyenv virtualenv-prefix)/lib
+
 compile:
 	python2.7 setup.py build_ext --inplace
 	rm -fr build
-	g++ -I/share/PI/mcovert/pyenv/versions/2.7.4/include/python2.7 -fPIC -O3 -c wholecell/utils/_netflow/glpk.cpp -o wholecell/utils/_netflow/glpk.o
-	g++ -shared -Wl wholecell/utils/_netflow/glpk.o -o wholecell/utils/_netflow/glpk.so -L/share/PI/mcovert/pyenv/versions/2.7.4/lib -L/share/PI/mcovert/downloads/Boost.NumPy/lib $(LDFLAGS) -lboost_python -lpython2.7 -lboost_numpy -lglpk
+	g++ -I"${PYTHON_INCLUDE}" -fPIC -O3 -c wholecell/utils/_netflow/glpk.cpp -o wholecell/utils/_netflow/glpk.o
+	g++ -shared -Wl wholecell/utils/_netflow/glpk.o -o wholecell/utils/_netflow/glpk.so -L"${PYTHON_LIB}" -L/share/PI/mcovert/downloads/Boost.NumPy/lib $(LDFLAGS) -lboost_python -lpython2.7 -lboost_numpy -lglpk
 
 runSimulation: compile
 	PYTHONPATH="${PWD}:${PYTHONPATH}" ./runscripts/runSimulation.sh

@@ -42,6 +42,7 @@ class TranscriptionRegulation(object):
 
 		self.tfNTargets = dict([(key, len(val)) for key,val in sim_data.tfToFC.iteritems()])
 		self.activeToBound = dict([(x["active TF"].encode("utf-8"), x["metabolite bound form"].encode("utf-8")) for x in raw_data.tfOneComponentBound])
+		self.tfToTfType = dict([(x["active TF"].encode("utf-8"), x["TF type"].encode("utf-8")) for x in raw_data.condition.tf_condition])
 		return
 
 	def pPromoterBoundTF(self, tfActive, tfInactive):

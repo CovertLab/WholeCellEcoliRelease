@@ -540,7 +540,7 @@ class ConcentrationUpdates(object):
 
 		self.moleculeScaleFactors = {
 			"L-ALPHA-ALANINE[c]": 2.,
-			"ARG[c]": 3.,
+			"ARG[c]": 2.,
 			"ASN[c]": 2.,
 			"L-ASPARTATE[c]": 2.,
 			"CYS[c]": 2.,
@@ -562,7 +562,7 @@ class ConcentrationUpdates(object):
 			"VAL[c]": 2.,
 		}
 
-		self.moleculeSetAmounts = self._addMoleculeAmountsBasedOnKd(equilibriumReactions)
+		self.moleculeSetAmounts = self._addMoleculeAmounts(equilibriumReactions, self.defaultConcentrationsDict)
 
 	def concentrationsBasedOnNutrients(self, nutrientsLabel = None, nutrientsToInternalConc = None):
 		concentrationsDict = self.defaultConcentrationsDict.copy()
@@ -578,25 +578,11 @@ class ConcentrationUpdates(object):
 			"importUnconstrainedExchangeMolecules": self.nutrientData["importUnconstrainedExchangeMolecules"][nutrientsLabel],
 		}
 
-		concUpdates = None
-		if nutrientsToInternalConc and nutrientsLabel in nutrientsToInternalConc:
-			concUpdates = nutrientsToInternalConc[nutrientsLabel]
-			concDict = dict(zip(metaboliteTargetIds, concentrations))
-			concDict.update(concUpdates)
-		else:
-			for molecule, scaleFactor in self.moleculeScaleFactors.iteritems():
-				if self._isNutrientExchangePresent(nutrientFluxes, molecule):
-					concentrations[metaboliteTargetIds.index(molecule)] *= scaleFactor
-			concDict = dict(zip(metaboliteTargetIds, concentrations))
+		concDict = dict(zip(metaboliteTargetIds, concentrations))
 
 		for moleculeName, setAmount in self.moleculeSetAmounts.iteritems():
-			if concUpdates != None and moleculeName in concUpdates:
-				continue
 			if self._isNutrientExchangePresent(nutrientFluxes, moleculeName):
-				concDict[moleculeName] = np.max((
-					concDict.get(moleculeName, 0 * (units.mol / units.L)).asNumber(units.mol / units.L),
-					setAmount.asNumber(units.mol / units.L)
-					)) * (units.mol / units.L)
+				concDict[moleculeName] = setAmount
 
 		return concDict
 
@@ -610,23 +596,18 @@ class ConcentrationUpdates(object):
 
 		return False
 
-	def _addMoleculeAmountsBasedOnKd(self, equilibriumReactions):
+	def _addMoleculeAmounts(self, equilibriumReactions, concDict):
 		moleculeSetAmounts = {}
 		for reaction in equilibriumReactions:
 			# We only want to do this for species with standard Michaelis-Menten kinetics initially
 			if len(reaction["stoichiometry"]) != 3:
 				continue
 
-			rev = reaction["reverse rate"]
-			fwd = reaction["forward rate"]
-			Kd = (units.mol / units.L) * (rev / fwd)
-
 			moleculeName = [x["molecule"].encode("utf-8") for x in reaction["stoichiometry"] if x["type"] == "metabolite"][0]
-			amountToSet = 0.
-			if moleculeName in moleculeSetAmounts and moleculeSetAmounts[moleculeName] > Kd.asNumber(units.mol / units.L):
-				amountToSet = moleculeSetAmounts[moleculeName]
-			else:
-				amountToSet = 1e-4#Kd.asNumber(units.mol / units.L)
-			moleculeSetAmounts[moleculeName + "[p]"] = amountToSet * (units.mol / units.L)
-			moleculeSetAmounts[moleculeName + "[c]"] = amountToSet * (units.mol / units.L)
+			amountToSet = 1e-4
+			moleculeSetAmounts[moleculeName + "[p]"] = amountToSet * self.units
+			moleculeSetAmounts[moleculeName + "[c]"] = amountToSet * self.units
+
+		for moleculeName, scaleFactor in self.moleculeScaleFactors.iteritems():
+			moleculeSetAmounts[moleculeName] = scaleFactor * concDict[moleculeName] * self.units
 		return moleculeSetAmounts
