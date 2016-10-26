@@ -1156,6 +1156,10 @@ def expressionFromConditionAndFoldChange(rnaIds, basalExpression, condPerturbati
 	for key in sorted(tfFCs):
 		rnaIdxs.append(np.where(rnaIds == key + "[c]")[0][0])
 		fcs.append(tfFCs[key])
+
+	fcs = [fc for (rnaIdx, fc) in sorted(zip(rnaIdxs, fcs), key = lambda pair: pair[0])]
+	rnaIdxs = [rnaIdx for (rnaIdx, fc) in sorted(zip(rnaIdxs, fcs), key = lambda pair: pair[0])]
+
 	rnaIdxsBool = np.zeros(len(rnaIds), dtype = np.bool)
 	rnaIdxsBool[rnaIdxs] = 1
 	fcs = np.array(fcs)
@@ -1483,6 +1487,8 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 	cellDensity = sim_data.constants.cellDensity
 	rnaIdList = sim_data.process.transcription.rnaData["id"].tolist()
 	for tf in sorted(sim_data.tfToActiveInactiveConds):
+		if sim_data.process.transcription_regulation.tfToTfType[tf] != "1CS":
+			continue
 		activeKey = tf + "__active"
 		inactiveKey = tf + "__inactive"
 
@@ -1541,7 +1547,14 @@ def calculatePromoterBoundProbability(sim_data, cellSpecs):
 		for tf in sorted(sim_data.tfToActiveInactiveConds):
 			tfType = sim_data.process.transcription_regulation.tfToTfType[tf]
 
-			if tfType == "1CS":
+			if tfType == "0CS":
+				tfCount = cellSpecs[conditionKey]["bulkAverageContainer"].count(tf + "[c]")
+				if tfCount > 0:
+					D[conditionKey][tf] = 1.
+				else:
+					D[conditionKey][tf] = 0.
+
+			elif tfType == "1CS":
 				boundId = sim_data.process.transcription_regulation.activeToBound[tf]
 				kd = sim_data.process.equilibrium.getRevRate(boundId + "[c]") / sim_data.process.equilibrium.getFwdRate(boundId + "[c]")
 				signal = sim_data.process.equilibrium.getMetabolite(boundId + "[c]")
