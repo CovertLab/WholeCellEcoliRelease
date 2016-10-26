@@ -8,6 +8,7 @@ import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
+import scipy.stats
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
@@ -81,18 +82,31 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 		bulkMoleculesReader.close()
 		rnaSynthProbReader.close()
 
+	expectedProbBound = np.array(expectedProbBound)
+	simulatedProbBound = np.array(simulatedProbBound)
+	expectedSynthProb = np.array(expectedSynthProb)
+	simulatedSynthProb = np.array(simulatedSynthProb)
+
+	regressionResult = scipy.stats.linregress(np.log10(expectedProbBound[expectedProbBound > 0]), np.log10(simulatedProbBound[expectedProbBound > 0]))
+	regressionResultLargeValues = scipy.stats.linregress(np.log10(expectedProbBound[expectedProbBound > 1e-2]), np.log10(simulatedProbBound[expectedProbBound > 1e-2]))
 
 	ax = plt.subplot(2, 1, 1)
 	ax.scatter(np.log10(expectedProbBound), np.log10(simulatedProbBound))
 	plt.xlabel("log10(Expected probability bound)", fontsize = 6)
 	plt.ylabel("log10(Simulated probability bound)", fontsize = 6)
+	plt.title("Slope: %0.3f   Intercept: %0.3e      (Without Small Values:  Slope: %0.3f Intercept: %0.3e)" % (regressionResult.slope, regressionResult.intercept, regressionResultLargeValues.slope, regressionResultLargeValues.intercept), fontsize = 6)
 	ax.tick_params(which = 'both', direction = 'out', labelsize = 6)
+
+	regressionResult = scipy.stats.linregress(np.log10(expectedSynthProb[expectedSynthProb > 0]), np.log10(simulatedSynthProb[expectedSynthProb > 0]))
 
 	ax = plt.subplot(2, 1, 2)
 	ax.scatter(np.log10(expectedSynthProb), np.log10(simulatedSynthProb))
 	plt.xlabel("log10(Expected synthesis probability)", fontsize = 6)
 	plt.ylabel("log10(Simulated synthesis probability)", fontsize = 6)
+	plt.title("Slope: %0.3f   Intercept: %0.3e" % (regressionResult.slope, regressionResult.intercept), fontsize = 6)
 	ax.tick_params(which = 'both', direction = 'out', labelsize = 6)
+
+	plt.tight_layout()
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
