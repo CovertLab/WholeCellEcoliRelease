@@ -66,6 +66,14 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.is_5SrRNA = sim_data.process.transcription.rnaData['isRRna5S']
 		self.is_mrRNA = sim_data.process.transcription.rnaData['isMRna']
 
+		self.genetic_perturbations = {}
+		perturbations = {}
+		if hasattr(sim_data, "genetic_perturbations") and sim_data.genetic_perturbations != None and len(sim_data.genetic_perturbations) > 0:
+			rnaIdxs, synthProbs = zip(*[(int(np.where(sim_data.process.transcription.rnaData["id"] == rnaId)[0]), synthProb) for rnaId, synthProb in sim_data.genetic_perturbations.iteritems()])
+			fixedSynthProbs = [synthProb for (rnaIdx, syntheProb) in sorted(zip(rnaIdxs, synthProbs), key = lambda pair: pair[0])]
+			fixedRnaIdxs = [rnaIdx for (rnaIdx, syntheProb) in sorted(zip(rnaIdxs, synthProbs), key = lambda pair: pair[0])]
+			self.genetic_perturbations = {"fixedRnaIdxs": fixedRnaIdxs, "fixedSynthProbs": fixedSynthProbs}
+			perturbations = sim_data.genetic_perturbations
 
 		# Views
 
@@ -95,7 +103,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.isRProtein = sim_data.process.transcription.rnaData['isRProtein']
 		self.isRnap = sim_data.process.transcription.rnaData['isRnap']
 		self.notPolymerase = np.logical_and(np.logical_and(np.logical_not(self.isRRna),np.logical_not(self.isRProtein)), np.logical_not(self.isRnap))
-		self.isRegulated = np.array([1 if x[:-3] in sim_data.process.transcription_regulation.targetTf else 0 for x in sim_data.process.transcription.rnaData["id"]], dtype = np.bool)
+		self.isRegulated = np.array([1 if x[:-3] in sim_data.process.transcription_regulation.targetTf or x in perturbations else 0 for x in sim_data.process.transcription.rnaData["id"]], dtype = np.bool)
 
 		assert (self.isRRna + self.isRProtein + self.isRnap + self.notPolymerase).sum() == self.rnaLengths.asNumber().size
 
@@ -106,6 +114,8 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 	def calculateRequest(self):
 		self.inactiveRnaPolys.requestAll()
 		self.rnaSynthProb = self.recruitmentMatrix.dot(self.recruitmentView.total())
+		if len(self.genetic_perturbations) > 0:
+			self.rnaSynthProb[self.genetic_perturbations["fixedRnaIdxs"]] = self.genetic_perturbations["fixedSynthProbs"]
 		regProbs = self.rnaSynthProb[self.isRegulated]
 		self.rnaSynthProb[self.rnaSynthProb < 0] = 0.
 		self.rnaSynthProb /= self.rnaSynthProb.sum()
