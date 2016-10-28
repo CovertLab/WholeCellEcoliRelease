@@ -1,4 +1,5 @@
 import collections
+import numpy as np
 
 CONTROL_OUTPUT = dict(
 	shortName = "control",
@@ -33,6 +34,11 @@ def tfActivity(sim_data, index):
 		0.0,
 		sim_data.tfToActiveInactiveConds[tf][tfStatus + " nutrients"]
 		))
+
+	sim_data.genetic_perturbations = {}
+	for rnaId in sim_data.conditions[sim_data.condition]["perturbations"]:
+		rnaIdx = np.where(sim_data.process.transcription.rnaData["id"] == rnaId)[0]
+		sim_data.genetic_perturbations[rnaId] = sim_data.process.transcription.rnaSynthProb[sim_data.condition][rnaIdx]
 
 	return dict(
 		shortName = "{}_phenotype".format(tf + "__" + tfStatus),
