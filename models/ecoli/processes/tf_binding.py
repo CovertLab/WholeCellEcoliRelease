@@ -46,6 +46,7 @@ class TfBinding(wholecell.processes.process.Process):
 
 		self.tfNTargets = sim_data.process.transcription_regulation.tfNTargets
 		self.pPromoterBoundTF = sim_data.process.transcription_regulation.pPromoterBoundTF
+		self.tfToTfType = sim_data.process.transcription_regulation.tfToTfType
 
 		self.alphaView = self.bulkMoleculesView(alphaNames)
 		self.tfDnaBoundViews = {}
@@ -54,10 +55,11 @@ class TfBinding(wholecell.processes.process.Process):
 		for tf in self.tfs:
 			self.tfDnaBoundViews[tf] = self.bulkMoleculesView(tfNames[tf])
 			self.tfMoleculeActiveView[tf] = self.bulkMoleculeView(tf + "[c]")
-			if tf == sim_data.process.transcription_regulation.activeToBound[tf]:
-				self.tfMoleculeInactiveView[tf] = self.bulkMoleculeView(sim_data.process.equilibrium.getUnbound(tf + "[c]"))
-			else:
-				self.tfMoleculeInactiveView[tf] = self.bulkMoleculeView(sim_data.process.transcription_regulation.activeToBound[tf] + "[c]")
+			if self.tfToTfType[tf] == "1CS":
+				if tf == sim_data.process.transcription_regulation.activeToBound[tf]:
+					self.tfMoleculeInactiveView[tf] = self.bulkMoleculeView(sim_data.process.equilibrium.getUnbound(tf + "[c]"))
+				else:
+					self.tfMoleculeInactiveView[tf] = self.bulkMoleculeView(sim_data.process.transcription_regulation.activeToBound[tf] + "[c]")
 
 
 	def calculateRequest(self):
@@ -77,8 +79,11 @@ class TfBinding(wholecell.processes.process.Process):
 		nActualBound = np.zeros(nTfs, np.float64)
 
 		for i, tf in enumerate(self.tfs):
+
 			tfActiveCounts = self.tfMoleculeActiveView[tf].count()
-			tfInactiveCounts = self.tfMoleculeInactiveView[tf].total()
+			tfInactiveCounts = None
+			if self.tfToTfType[tf] != "0CS":
+				tfInactiveCounts = self.tfMoleculeInactiveView[tf].total()
 			tfBoundCounts = self.tfDnaBoundViews[tf].counts()
 			promoterCounts = self.tfNTargets[tf]
 
@@ -88,7 +93,15 @@ class TfBinding(wholecell.processes.process.Process):
 			if tfActiveCounts == 0:
 				continue
 
-			pPromoterBound = self.pPromoterBoundTF(tfActiveCounts, tfInactiveCounts)
+			pPromoterBound = None
+			if self.tfToTfType[tf] == "0CS":
+				if tfActiveCounts + tfBoundCounts.sum() > 0:
+					pPromoterBound = 1.
+				else:
+					pPromoterBound = 0.
+			elif self.tfToTfType[tf] == "1CS":
+				pPromoterBound = self.pPromoterBoundTF(tfActiveCounts, tfInactiveCounts)
+
 			nToBind = int(stochasticRound(self.randomState, promoterCounts * pPromoterBound))
 
 			if nToBind == 0:
