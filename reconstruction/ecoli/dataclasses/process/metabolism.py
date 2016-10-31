@@ -237,7 +237,7 @@ class Metabolism(object):
 			for enzymeID in enzyme_list:
 				if enzymeID in enzymeExceptions:
 					enzyme_list.remove(enzymeID)
-			enzymeKcatLink = {enzymeID:self.default_kcat.asNumber(1 / units.s) for enzymeIDs in enzyme_list}
+			enzymeKcatLink = {enzymeID:self.default_kcat.asNumber(1 / units.s) for enzymeID in enzyme_list}
 			reactionEnzymes[reactionID] = enzymeKcatLink
 
 			# Add the reverse reaction
