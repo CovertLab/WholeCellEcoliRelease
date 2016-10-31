@@ -2443,5 +2443,9 @@
 "RXN0-6373_5_kcat_3011"	"RXN0-6373"	["GLUCDEHYDROG-MONOMER"]	["CPD0-1937"]	[]	"standard"		[3011]	[]	[]	null	null	null	null	null	1
 "RXN0-6373_6"	"RXN0-6373"	["GLUCDEHYDROG-MONOMER"]	["D-Glucose"]	[]	"standard"		[3860]	[25000]	[]	null	null	null	null	null	1
 "RXN0-6373_6_kcat_3860"	"RXN0-6373"	["GLUCDEHYDROG-MONOMER"]	["D-Glucose"]	[]	"standard"		[3860]	[]	[]	null	null	null	null	null	1
+"SERINE-O-ACETTRAN-RXN_3"	"SERINE-O-ACETTRAN-RXN"	["CYSSYNMULTI-CPLX"]	["ACETYL-COA","SER"]	[25]	"standard"		[427]	[200,1170]	[]	null	null	null	null	null	1
+"SERINE-O-ACETTRAN-RXN_3_kcat_427"	"SERINE-O-ACETTRAN-RXN"	["CYSSYNMULTI-CPLX"]	["ACETYL-COA","SER"]	[25]	"standard"		[427]	[]	[]	null	null	null	null	null	1
+"SERINE-O-ACETTRAN-RXN_4"	"SERINE-O-ACETTRAN-RXN"	["CYSSYNMULTI-CPLX"]	["ACETYLSERINE","CO-A"]	[25]	"standard"		[16.9]	[7150,80]	[]	null	null	null	null	null	1
+"SERINE-O-ACETTRAN-RXN_4_kcat_16.9"	"SERINE-O-ACETTRAN-RXN"	["CYSSYNMULTI-CPLX"]	["ACETYLSERINE","CO-A"]	[25]	"standard"		[16.9]	[]	[]	null	null	null	null	null	1
 "RXN-16165_6"	"RXN-16165"	["METG-CPLX"]	["MET"]	[]	"standard"		[5.6]	[7900]	[]	null	null	null	null	null	1
 "RXN-16165_6_kcat_5.6"	"RXN-16165"	["METG-CPLX"]	["MET"]	[]	"standard"		[5.6]	[]	[]	null	null	null	null	null	1
