@@ -995,7 +995,7 @@
 "MetJ-S-adenosylmethionine"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 12136.771, 399.451, 0.0, 0.0, 0.0]	["c"]	"MONOMER0-157_RXN"	"MONOMER0-157"
 "MalT-Maltotriose-ATP DNA-binding transcriptional activator"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 103098.736, 1007.588, 0.0, 0.0, 0.0]	["c"]	"MONOMER0-158_RXN"	"MONOMER0-158"
 "LacI-allolactose"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 38556.24800000001, 342.297, 0.0, 0.0, 0.0]	["c"]	"MONOMER0-159_RXN"	"MONOMER0-159"
-"DnaA-ATP transcriptional dual regulator"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 52522.984, 503.15, 0.0, 0.0, 0.0]	["i"]	"MONOMER0-160_RXN"	"MONOMER0-160"
+"DnaA-ATP transcriptional dual regulator"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 52522.984, 503.15, 0.0, 0.0, 0.0]	["c"]	"MONOMER0-160_RXN"	"MONOMER0-160"
 "MelR-Melibiose transcriptional activator"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 34930.075, 342.297, 0.0, 0.0, 0.0]	["c"]	"MONOMER0-161_RXN"	"MONOMER0-161"
 "TyrR-Tyrosine DNA-binding transcriptional repressor"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 57644.303, 181.19099999999997, 0.0, 0.0, 0.0]	["c"]	"MONOMER0-162_RXN"	"MONOMER0-162"
 "TyrR-Phenylalanine DNA-binding transcriptional repressor"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 57644.303, 165.1919999999999, 0.0, 0.0, 0.0]	["c"]	"MONOMER0-163_RXN"	"MONOMER0-163"
