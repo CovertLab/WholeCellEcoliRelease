@@ -1366,7 +1366,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 
 		return T
 
-	def makeH(sim_data, colNames, pPromoterBound, r):
+	def makeH(sim_data, colNames, pPromoterBound, r, fixedTFs):
 		rDict = dict([(colName, value) for colName, value in zip(colNames, r)])
 
 		pPromoterBoundIdxs = dict([(condition, {}) for condition in pPromoterBound])
@@ -1414,8 +1414,14 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		H[hI, hJ] = hV
 		pAlphaIdxs = np.array([colNamesH.index(colName) for colName in colNamesH if colName.endswith("__alpha")])
 		pNotAlphaIdxs = np.array([colNamesH.index(colName) for colName in colNamesH if not colName.endswith("__alpha")])
+		fixedTFIdxs = []
+		for idx, colName in enumerate(colNamesH):
+			secondElem = colName.split("__")[1]
+			if secondElem in fixedTFs:
+				fixedTFIdxs.append(idx)
+		fixedTFIdxs = np.array(fixedTFIdxs, dtype = np.int)
 
-		return H, pInit, pAlphaIdxs, pNotAlphaIdxs, pPromoterBoundIdxs, colNamesH
+		return H, pInit, pAlphaIdxs, pNotAlphaIdxs, fixedTFIdxs, pPromoterBoundIdxs, colNamesH
 
 	def makePdiff(sim_data, colNamesH, pPromoterBound):
 		PdiffI, PdiffJ, PdiffV = [], [], []
@@ -1444,6 +1450,13 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 	pInit0 = None
 	lastNorm = np.inf
 
+	fixedTFs = []
+	for tf in sim_data.tfToActiveInactiveConds:
+		if sim_data.process.transcription_regulation.tfToTfType[tf] == "2CS":
+			fixedTFs.append(tf)
+		if sim_data.process.transcription_regulation.tfToTfType[tf] == "1CS" and sim_data.tfToActiveInactiveConds[tf]["active nutrients"] == sim_data.tfToActiveInactiveConds[tf]["inactive nutrients"]:
+			fixedTFs.append(tf)
+
 	SCALING = 1e1
 	NORM = 1
 	for _ in xrange(100):
@@ -1455,11 +1468,13 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		R = Variable(G.shape[1])
 		prob = Problem(Minimize(norm(G * (SCALING * R) - (SCALING * k), NORM)), [0 <= Z * (SCALING * R), Z * (SCALING * R) <= SCALING * 1, T * (SCALING * R) >= 0])
 		prob.solve(solver = "GLPK")
+		if prob.status != "optimal":
+			raise Exception, "Solver could not find optimal value"
 		r = np.array(R.value).reshape(-1)
 
 		print np.linalg.norm(np.dot(G, r) - k, NORM)
 
-		H, pInit, pAlphaIdxs, pNotAlphaIdxs, pPromoterBoundIdxs, colNamesH = makeH(sim_data, colNamesG, pPromoterBound, r)
+		H, pInit, pAlphaIdxs, pNotAlphaIdxs, fixedTFIdxs, pPromoterBoundIdxs, colNamesH = makeH(sim_data, colNamesG, pPromoterBound, r, fixedTFs)
 		Pdiff = makePdiff(sim_data, colNamesH, pPromoterBound)
 		if _ == 0:
 			pInit0 = pInit.copy()
@@ -1469,8 +1484,13 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		P = Variable(H.shape[1])
 		D = np.zeros(H.shape[1])
 		D[pAlphaIdxs] = 1
-		prob = Problem(Minimize(norm(H * (SCALING * P) - (SCALING * k), NORM) + 1e-3 * norm(P - pInit0, NORM)), [0 <= (SCALING * P), (SCALING * P) <= SCALING * 1, np.diag(D) * (SCALING * P) == (SCALING * D), Pdiff * (SCALING * P) >= SCALING * 0.1])
+		D[fixedTFIdxs] = 1
+		Drhs = pInit0.copy()
+		Drhs[D != 1] = 0
+		prob = Problem(Minimize(norm(H * (SCALING * P) - (SCALING * k), NORM) + 1e-3 * norm(P - pInit0, NORM)), [0 <= (SCALING * P), (SCALING * P) <= SCALING * 1, np.diag(D) * (SCALING * P) == (SCALING * Drhs), Pdiff * (SCALING * P) >= SCALING * 0.1])
 		prob.solve(solver = "GLPK")
+		if prob.status != "optimal":
+			raise Exception, "Solver could not find optimal value"
 		pF = np.array(P.value).reshape(-1)
 		fromArray(pF, pPromoterBound, pPromoterBoundIdxs)
 
@@ -1488,6 +1508,9 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 	rnaIdList = sim_data.process.transcription.rnaData["id"].tolist()
 	for tf in sorted(sim_data.tfToActiveInactiveConds):
 		if sim_data.process.transcription_regulation.tfToTfType[tf] != "1CS":
+			continue
+		if len(sim_data.tfToActiveInactiveConds[tf]["active genotype perturbations"]) > 0 or len(sim_data.tfToActiveInactiveConds[tf]["inactive genotype perturbations"]) > 0:
+			print "Not updating 1CS parameters for %s" % tf
 			continue
 		activeKey = tf + "__active"
 		inactiveKey = tf + "__inactive"
@@ -1560,13 +1583,20 @@ def calculatePromoterBoundProbability(sim_data, cellSpecs):
 				signal = sim_data.process.equilibrium.getMetabolite(boundId + "[c]")
 				signalCoeff = sim_data.process.equilibrium.getMetaboliteCoeff(boundId + "[c]")
 				signalConc = (countsToMolar * cellSpecs[conditionKey]["bulkAverageContainer"].count(signal)).asNumber(units.mol / units.L)
-
-				D[conditionKey][tf] = sim_data.process.transcription_regulation.pPromoterBoundSKd(signalConc, kd, signalCoeff)
-				if tf != boundId:
-					D[conditionKey][tf] = 1. - D[conditionKey][tf]
+				tfConc = (countsToMolar * cellSpecs[conditionKey]["bulkAverageContainer"].count(tf + "[c]")).asNumber(units.mol / units.L)
+				if tf == boundId:
+					if tfConc > 0:
+						D[conditionKey][tf] = sim_data.process.transcription_regulation.pPromoterBoundSKd(signalConc, kd, signalCoeff)
+					else:
+						D[conditionKey][tf] = 0.
+				else:
+					if tfConc > 0:
+						D[conditionKey][tf] = 1. - sim_data.process.transcription_regulation.pPromoterBoundSKd(signalConc, kd, signalCoeff)
+					else:
+						D[conditionKey][tf] = 0.
 
 			elif tfType == "2CS":
-				continue
+				raise Exception, "2CS not implemented yet"
 
 	return D
 
