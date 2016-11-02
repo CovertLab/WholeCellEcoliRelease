@@ -1648,6 +1648,12 @@ def calculateRnapRecruitment(sim_data, cellSpecs, rVector):
 	shape = (gI.max() + 1, gJ.max() + 1)
 	G = np.zeros(shape, np.float64)
 	G[gI, gJ] = gV
+	Gcontig = np.ascontiguousarray(G).view(np.dtype((np.void, G.dtype.itemsize * G.shape[1])))
+	_, uniqueIdxs = np.unique(Gcontig, return_index = True)
+	uniqueIdxs = uniqueIdxs[::-1]
+	G = G[uniqueIdxs]
+	k = k[uniqueIdxs]
+	rowNames = [rowNames[x] for x in uniqueIdxs]
 	r = np.linalg.solve(G, k)
 	r = rVector
 
