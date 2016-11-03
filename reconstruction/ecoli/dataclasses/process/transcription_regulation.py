@@ -45,7 +45,6 @@ class TranscriptionRegulation(object):
 					self.targetTf[target] = []
 				self.targetTf[target].append(tf)
 			for targetToRemove in targetsToRemove:
-				import ipdb; ipdb.set_trace()
 				sim_data.tfToFC[tf].pop(targetToRemove)
 
 		self.tfNTargets = dict([(key, len(val)) for key,val in sim_data.tfToFC.iteritems()])
