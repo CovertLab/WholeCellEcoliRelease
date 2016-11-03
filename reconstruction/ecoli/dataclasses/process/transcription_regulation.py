@@ -18,6 +18,7 @@ class TranscriptionRegulation(object):
 		# self.tfIdTargetId = collections.defaultdict(list)
 		# self.targetIdTFId = collections.defaultdict(list)
 		self.tfKd = {}
+		mRNASet = set([x["id"].encode("utf-8") for x in raw_data.rnas if x["type"] != "rRNA" and x["type"] != "tRNA"])
 		for D in raw_data.foldChanges:
 			# self.tfTarget[ D["TF"].encode("utf-8") ].append( D["Target"].encode("utf-8") )
 			# self.targetTF[ D["Target"].encode("utf-8") ].append( D["TF"].encode("utf-8") )
@@ -35,10 +36,17 @@ class TranscriptionRegulation(object):
 		self.targetTf = {}
 		for tf in sim_data.tfToFC:
 			targets = sim_data.tfToFC[tf]
+			targetsToRemove = []
 			for target in targets:
+				if target not in mRNASet:
+					targetsToRemove.append(target)
+					continue
 				if target not in self.targetTf:
 					self.targetTf[target] = []
 				self.targetTf[target].append(tf)
+			for targetToRemove in targetsToRemove:
+				import ipdb; ipdb.set_trace()
+				sim_data.tfToFC[tf].pop(targetToRemove)
 
 		self.tfNTargets = dict([(key, len(val)) for key,val in sim_data.tfToFC.iteritems()])
 		self.activeToBound = dict([(x["active TF"].encode("utf-8"), x["metabolite bound form"].encode("utf-8")) for x in raw_data.tfOneComponentBound])
