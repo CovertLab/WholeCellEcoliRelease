@@ -14,6 +14,8 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
+NUMERICAL_ZERO = 1e-12
+
 def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = None):
 	if metadata["variant"] != "tfActivity":
 		print "This plot only runs for the 'tfActivity' variant."
@@ -87,7 +89,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	expectedSynthProb = np.array(expectedSynthProb)
 	simulatedSynthProb = np.array(simulatedSynthProb)
 
-	regressionResult = scipy.stats.linregress(np.log10(expectedProbBound[expectedProbBound > 0]), np.log10(simulatedProbBound[expectedProbBound > 0]))
+	regressionResult = scipy.stats.linregress(np.log10(expectedProbBound[expectedProbBound > NUMERICAL_ZERO]), np.log10(simulatedProbBound[expectedProbBound > NUMERICAL_ZERO]))
 	regressionResultLargeValues = scipy.stats.linregress(np.log10(expectedProbBound[expectedProbBound > 1e-2]), np.log10(simulatedProbBound[expectedProbBound > 1e-2]))
 
 	ax = plt.subplot(2, 1, 1)
@@ -97,7 +99,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	plt.title("Slope: %0.3f   Intercept: %0.3e      (Without Small Values:  Slope: %0.3f Intercept: %0.3e)" % (regressionResult.slope, regressionResult.intercept, regressionResultLargeValues.slope, regressionResultLargeValues.intercept), fontsize = 6)
 	ax.tick_params(which = 'both', direction = 'out', labelsize = 6)
 
-	regressionResult = scipy.stats.linregress(np.log10(expectedSynthProb[expectedSynthProb > 0]), np.log10(simulatedSynthProb[expectedSynthProb > 0]))
+	regressionResult = scipy.stats.linregress(np.log10(expectedSynthProb[expectedSynthProb > NUMERICAL_ZERO]), np.log10(simulatedSynthProb[expectedSynthProb > NUMERICAL_ZERO]))
 
 	ax = plt.subplot(2, 1, 2)
 	ax.scatter(np.log10(expectedSynthProb), np.log10(simulatedSynthProb))
