@@ -18,6 +18,8 @@ from wholecell.utils import units
 from wholecell.utils.fitting import normalize, massesAndCountsToAddForHomeostaticTargets
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
 
+import sklearn.metrics.pairwise
+
 import cvxpy
 
 # Tweaks
@@ -1648,9 +1650,9 @@ def calculateRnapRecruitment(sim_data, cellSpecs, rVector):
 	shape = (gI.max() + 1, gJ.max() + 1)
 	G = np.zeros(shape, np.float64)
 	G[gI, gJ] = gV
-	Gcontig = np.ascontiguousarray(G).view(np.dtype((np.void, G.dtype.itemsize * G.shape[1])))
-	_, uniqueIdxs = np.unique(Gcontig, return_index = True)
-	uniqueIdxs = uniqueIdxs[::-1]
+	S = sklearn.metrics.pairwise.cosine_similarity(G)
+	dupIdxs = np.where((np.tril(S, -1) > 1 - 1e-6).sum(axis = 1))[0]
+	uniqueIdxs = [x for x in xrange(G.shape[0]) if x not in dupIdxs]
 	G = G[uniqueIdxs]
 	k = k[uniqueIdxs]
 	rowNames = [rowNames[x] for x in uniqueIdxs]
