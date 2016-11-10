@@ -7,7 +7,7 @@ compile:
 	python2.7 setup.py build_ext --inplace
 	rm -fr build
 	g++ -I"${PYTHON_INCLUDE}" -fPIC -O3 -c wholecell/utils/_netflow/glpk.cpp -o wholecell/utils/_netflow/glpk.o
-	g++ -shared -Wl wholecell/utils/_netflow/glpk.o -o wholecell/utils/_netflow/glpk.so -L"${PYTHON_LIB}" -L/share/PI/mcovert/downloads/Boost.NumPy/lib $(LDFLAGS) -lboost_python -lpython2.7 -lboost_numpy -lglpk
+	g++ -shared -Wl wholecell/utils/_netflow/glpk.o -o wholecell/utils/_netflow/glpk.so -L"${PYTHON_LIB}" -L${PI_HOME}/downloads/Boost.NumPy/lib $(LDFLAGS) -lboost_python -lpython2.7 -lboost_numpy -lglpk
 
 runSimulation: compile
 	PYTHONPATH="${PWD}:${PYTHONPATH}" ./runscripts/runSimulation.sh
