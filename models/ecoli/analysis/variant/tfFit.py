@@ -69,7 +69,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 			tfTargetBoundCounts = bulkMoleculesReader.readColumn("counts")[:, tfTargetBoundIndex].reshape(-1)
 
 			expectedProbBound.append(sim_data.pPromoterBound[tf + "__" + tfStatus][tf])
-			simulatedProbBound.append(tfTargetBoundCounts.mean())
+			simulatedProbBound.append(tfTargetBoundCounts[5:].mean())
 
 
 			tfTargetSynthProbId = [tfTarget + "[c]"]
@@ -79,7 +79,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 			rnaIdx = np.where(sim_data.process.transcription.rnaData["id"] == tfTarget + "[c]")[0][0]
 
 			expectedSynthProb.append(sim_data.process.transcription.rnaSynthProb[tf + "__" + tfStatus][rnaIdx])
-			simulatedSynthProb.append(tfTargetSynthProb.mean())
+			simulatedSynthProb.append(tfTargetSynthProb[5:].mean())
 
 		bulkMoleculesReader.close()
 		rnaSynthProbReader.close()
