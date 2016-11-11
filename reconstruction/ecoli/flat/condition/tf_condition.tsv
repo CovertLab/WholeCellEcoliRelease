@@ -11,3 +11,5 @@
 "fis"	"CPLX0-7705"	"minimal"	{}	"minimal"	{"EG10317_RNA[c]": 0}	"0CS"
 "hns"	"PD00288"	"minimal"	{}	"minimal"	{"EG10457_RNA[c]": 0}	"0CS"
 "ihfA"	"PC00027"	"minimal"	{}	"minimal"	{"EG10440_RNA[c]": 0}	"0CS"
+"leuO"	"PD00519"	"minimal"	{}	"minimal"	{"EG10531_RNA[c]": 0}	"0CS"
+"lexA"	"PC00010"	"minimal"	{}	"minimal"	{"EG10533_RNA[c]": 0}	"0CS"
