@@ -79,7 +79,7 @@ class moleculeGroups(object):
 										'EG10915-MONOMER[c]', 'EG10918-MONOMER[c]', 'EG10919-MONOMER[c]',
 										'EG10907-MONOMER[c]', 'EG11508-MONOMER[c]', 'EG10908-MONOMER[c]',
 										'EG10906-MONOMER[c]', 'EG10910-MONOMER[c]', 'EG10902-MONOMER[c]',
-										'EG10917-MONOMER[c]', 'EG10913-MONOMER[c]']
+										'EG10917-MONOMER[c]', 'EG10913-MONOMER[c]'],
 		}
 
 		bulkMoleculesBinomialDivision = createIdsWithCompartments(raw_data.metabolites)
