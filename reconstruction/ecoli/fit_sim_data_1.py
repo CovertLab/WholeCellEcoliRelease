@@ -78,6 +78,7 @@ def fitSimData_1(raw_data):
 
 	sim_data.process.transcription.rnaSynthProbFraction = {}
 	sim_data.process.transcription.rnapFractionActiveDict = {}
+	sim_data.process.transcription.rnaSynthProbRProtein = {}
 	sim_data.process.transcription.rnaPolymeraseElongationRateDict = {}
 	sim_data.expectedDryMassIncreaseDict = {}
 	sim_data.process.translation.ribosomeElongationRateDict = {}
@@ -143,6 +144,9 @@ def fitSimData_1(raw_data):
 				"tRna": tRnaSynthProb,
 				"rRna": rRnaSynthProb,
 				}
+
+		if sim_data.conditions[condition]["nutrients"] not in sim_data.process.transcription.rnaSynthProbRProtein and len(sim_data.conditions[condition]["perturbations"]) == 0:
+			sim_data.process.transcription.rnaSynthProbRProtein[sim_data.conditions[condition]["nutrients"]] = sim_data.process.transcription.rnaSynthProb[condition][sim_data.process.transcription.rnaData["isRProtein"]]
 
 		if sim_data.conditions[condition]["nutrients"] not in sim_data.process.transcription.rnapFractionActiveDict and len(sim_data.conditions[condition]["perturbations"]) == 0:
 			sim_data.process.transcription.rnapFractionActiveDict[sim_data.conditions[condition]["nutrients"]] = sim_data.growthRateParameters.getFractionActiveRnap(spec["doubling_time"])
