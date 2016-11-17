@@ -110,6 +110,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.rProteinToRRnaRatioVector = None
 		self.rnaSynthProbFractions = sim_data.process.transcription.rnaSynthProbFraction
 		self.rnaSynthProbRProtein = sim_data.process.transcription.rnaSynthProbRProtein
+		self.rnaSynthProbRnaPolymerase = sim_data.process.transcription.rnaSynthProbRnaPolymerase
 
 	def calculateRequest(self):
 		self.inactiveRnaPolys.requestAll()
@@ -131,6 +132,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.rnaSynthProb[self.isRRna] *= synthProbFractions["rRna"] / self.rnaSynthProb[self.isRRna].sum()
 		self.rnaSynthProb[self.isRegulated] = regProbs
 		self.rnaSynthProb[self.isRProtein] = self.rnaSynthProbRProtein[self._sim.processes["PolypeptideElongation"].currentNutrients]
+		self.rnaSynthProb[self.isRnap] = self.rnaSynthProbRnaPolymerase[self._sim.processes["PolypeptideElongation"].currentNutrients]
 		self.rnaSynthProb /= self.rnaSynthProb.sum()
 
 		self.fracActiveRnap = self.fracActiveRnapDict[self._sim.processes["PolypeptideElongation"].currentNutrients]
