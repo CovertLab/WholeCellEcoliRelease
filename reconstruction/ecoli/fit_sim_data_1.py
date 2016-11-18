@@ -1143,7 +1143,7 @@ def netLossRateFromDilutionAndDegradationProtein(doublingTime, degradationRates)
 
 
 def netLossRateFromDilutionAndDegradationRNA(doublingTime, totalEndoRnaseCountsCapacity, Km, rnaConc, countsToMolar):
-	fracSaturated = rnaConc / (Km + rnaConc)
+	fracSaturated = rnaConc / Km / (1 + units.sum(rnaConc / Km))
 	rnaCounts = (1 / countsToMolar) * rnaConc
 	return (np.log(2) / doublingTime) * rnaCounts + (totalEndoRnaseCountsCapacity * fracSaturated)
 
