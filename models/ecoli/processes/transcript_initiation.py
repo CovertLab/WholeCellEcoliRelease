@@ -104,6 +104,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.isRnap = sim_data.process.transcription.rnaData['isRnap']
 		self.notPolymerase = np.logical_and(np.logical_and(np.logical_not(self.isRRna),np.logical_not(self.isRProtein)), np.logical_not(self.isRnap))
 		self.isRegulated = np.array([1 if x[:-3] in sim_data.process.transcription_regulation.targetTf or x in perturbations else 0 for x in sim_data.process.transcription.rnaData["id"]], dtype = np.bool)
+		self.setIdxs = self.isRRna | self.isTRna | self.isRProtein | self.isRProtein | self.isRegulated
 
 		assert (self.isRRna + self.isRProtein + self.isRnap + self.notPolymerase).sum() == self.rnaLengths.asNumber().size
 
@@ -133,7 +134,12 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.rnaSynthProb[self.isRegulated] = regProbs
 		self.rnaSynthProb[self.isRProtein] = self.rnaSynthProbRProtein[self._sim.processes["PolypeptideElongation"].currentNutrients]
 		self.rnaSynthProb[self.isRnap] = self.rnaSynthProbRnaPolymerase[self._sim.processes["PolypeptideElongation"].currentNutrients]
-		self.rnaSynthProb /= self.rnaSynthProb.sum()
+		self.rnaSynthProb[self.rnaSynthProb < 0] = 0
+		scaleTheRestBy = (1. - self.rnaSynthProb[self.setIdxs].sum()) / self.rnaSynthProb[~self.setIdxs].sum()
+		self.rnaSynthProb[~self.setIdxs] *= scaleTheRestBy
+
+		assert np.allclose(self.rnaSynthProb.sum(),1.)
+		assert np.all(self.rnaSynthProb >= 0.)
 
 		self.fracActiveRnap = self.fracActiveRnapDict[self._sim.processes["PolypeptideElongation"].currentNutrients]
 		self.rnaPolymeraseElongationRate = self.rnaPolymeraseElongationRateDict[self._sim.processes["PolypeptideElongation"].currentNutrients]
