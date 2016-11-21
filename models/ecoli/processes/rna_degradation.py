@@ -111,6 +111,14 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.fragmentMetabolites = self.bulkMoleculesView(endCleavageMetaboliteIds)
 		self.fragmentBases = self.bulkMoleculesView([id_ + "[c]" for id_ in sim_data.moleculeGroups.fragmentNT_IDs])
 
+		self.ribosome30S = self.bulkMoleculeView(sim_data.moleculeGroups.s30_fullComplex[0])
+		self.ribosome50S = self.bulkMoleculeView(sim_data.moleculeGroups.s50_fullComplex[0])
+		self.activeRibosomes = self.uniqueMoleculesView('activeRibosome')
+		self.rrfaIdx = sim_data.process.transcription.rnaData["id"].tolist().index("RRFA-RRNA[c]")
+		self.rrlaIdx = sim_data.process.transcription.rnaData["id"].tolist().index("RRLA-RRNA[c]")
+		self.rrsaIdx = sim_data.process.transcription.rnaData["id"].tolist().index("RRSA-RRNA[c]")
+
+
 		self.endoRnases = self.bulkMoleculesView(endoRnaseIds)
 		self.exoRnases = self.bulkMoleculesView(exoRnaseIds)
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_DEGRADATION)
@@ -129,18 +137,24 @@ class RnaDegradation(wholecell.processes.process.Process):
 		cellVolume = cellMass / self.cellDensity
 		countsToMolar = 1 / (self.nAvogadro * cellVolume)
 
+		rnasTotal = self.rnas.total().copy()
+		rnasTotal[self.rrsaIdx] += self.ribosome30S.total()
+		rnasTotal[[self.rrlaIdx, self.rrfaIdx]] += self.ribosome50S.total()
+		rnasTotal[[self.rrlaIdx, self.rrfaIdx, self.rrsaIdx]] += self.activeRibosomes.total()
+
+
 		# fraction saturated based on Michaelis-Menten kinetics
 		if not self.EndoRNaseCoop:
-			fracEndoRnaseSaturated = countsToMolar * self.rnas.total() / (self.Km + (countsToMolar * self.rnas.total()))
+			fracEndoRnaseSaturated = countsToMolar * rnasTotal / (self.Km + (countsToMolar * rnasTotal))
 
 		# fraction saturated based on generalized Michaelis-Menten kinetics (EndoRNase cooperation)
 		if self.EndoRNaseCoop:
-			fracEndoRnaseSaturated = (countsToMolar * self.rnas.total()) / self.Km / (1 + units.sum((countsToMolar * self.rnas.total()) / self.Km))
+			fracEndoRnaseSaturated = (countsToMolar * rnasTotal) / self.Km / (1 + units.sum((countsToMolar * rnasTotal) / self.Km))
 		
 		Kd = self.rnaDegRates
 		Kcat = self.KcatEndoRNases
 		EndoR = sum(self.endoRnases.total())
-		RNA = self.rnas.total()
+		RNA = rnasTotal
 		FractDiffRNAdecay = units.sum(units.abs(Kd * RNA - units.sum(self.KcatEndoRNases * self.endoRnases.total()) * fracEndoRnaseSaturated))
 		FractEndoRRnaCounts = EndoR.astype(float) / sum(RNA.astype(float))
 
@@ -200,26 +214,26 @@ class RnaDegradation(wholecell.processes.process.Process):
 		nRRNAsToDegrade = np.zeros(len(RNAspecificity))
 		
 		# boolean variable (nRNAs) to track availability of RNAs for a given gene
-		nRNAs = self.rnas.total().astype(np.bool)
+		nRNAs = rnasTotal.astype(np.bool)
 
 
 		# determine mRNAs to be degraded according to RNA specificities and total counts of mRNAs degraded
-		while nMRNAsToDegrade.sum() < nMRNAsTotalToDegrade and (self.rnas.total() * self.isMRna).sum() != 0:
+		while nMRNAsToDegrade.sum() < nMRNAsTotalToDegrade and (rnasTotal * self.isMRna).sum() != 0:
 			nMRNAsToDegrade += np.fmin(
 					self.randomState.multinomial(nMRNAsTotalToDegrade - nMRNAsToDegrade.sum(), 1. / sum(RNAspecificity * self.isMRna * nRNAs) * RNAspecificity * self.isMRna * nRNAs),
-					self.rnas.total() * self.isMRna
+					rnasTotal * self.isMRna
 				)
 
 		# determine tRNAs and rRNAs to be degraded (with equal specificity) depending on total counts degraded, respectively 
-		while nTRNAsToDegrade.sum() < nTRNAsTotalToDegrade and (self.rnas.total() * self.isTRna).sum() != 0:
+		while nTRNAsToDegrade.sum() < nTRNAsTotalToDegrade and (rnasTotal * self.isTRna).sum() != 0:
 			nTRNAsToDegrade += np.fmin(
 					self.randomState.multinomial(nTRNAsTotalToDegrade - nTRNAsToDegrade.sum(), 1. / sum(self.isTRna * nRNAs) * self.isTRna * nRNAs),
-					self.rnas.total() * self.isTRna
+					rnasTotal * self.isTRna
 				)
-		while nRRNAsToDegrade.sum() < nRRNAsTotalToDegrade and (self.rnas.total() * self.isRRna).sum() != 0:
+		while nRRNAsToDegrade.sum() < nRRNAsTotalToDegrade and (rnasTotal * self.isRRna).sum() != 0:
 			nRRNAsToDegrade += np.fmin(
 					self.randomState.multinomial(nRRNAsTotalToDegrade - nRRNAsToDegrade.sum(),  1. / sum(self.isRRna * nRNAs) * self.isRRna * nRNAs),
-					self.rnas.total() * self.isRRna
+					rnasTotal * self.isRRna
 				)
 
 		nRNAsToDegrade = nMRNAsToDegrade + nTRNAsToDegrade + nRRNAsToDegrade
@@ -228,7 +242,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# Determine mRNAs to be degraded according to Poisson distribution (Kdeg * RNA)
 		if not self.EndoRNaseFunc:
 			nRNAsToDegrade = np.fmin(
-				self.randomState.poisson( (self.rnaDegRates * self.rnas.total()).asNumber() ),
+				self.randomState.poisson( (self.rnaDegRates * rnasTotal).asNumber() ),
 				self.rnas.total()
 				)
 
