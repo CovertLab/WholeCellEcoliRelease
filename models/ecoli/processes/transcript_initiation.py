@@ -104,7 +104,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.isRnap = sim_data.process.transcription.rnaData['isRnap']
 		self.notPolymerase = np.logical_and(np.logical_and(np.logical_not(self.isRRna),np.logical_not(self.isRProtein)), np.logical_not(self.isRnap))
 		self.isRegulated = np.array([1 if x[:-3] in sim_data.process.transcription_regulation.targetTf or x in perturbations else 0 for x in sim_data.process.transcription.rnaData["id"]], dtype = np.bool)
-		self.setIdxs = self.isRRna | self.isTRna | self.isRProtein | self.isRProtein | self.isRegulated
+		self.setIdxs = self.isRRna | self.isTRna | self.isRProtein | self.isRnap | self.isRegulated
 
 		assert (self.isRRna + self.isRProtein + self.isRnap + self.notPolymerase).sum() == self.rnaLengths.asNumber().size
 
