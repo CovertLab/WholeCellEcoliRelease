@@ -218,7 +218,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		hist_doublingTime = removeNanReshape(doublingTime.asNumber(units.min))
 		nbins = np.ceil(np.sqrt(hist_doublingTime.size))
-		ax1_1.hist(hist_doublingTime, nbins)
+		ax1_1.hist(hist_doublingTime, nbins, (hist_doublingTime.mean() - hist_doublingTime.std() / 2, hist_doublingTime.mean() + hist_doublingTime.std() / 2))
 
 		# Plot RNAP active fraction
 		ax2.plot(time.asNumber(units.min), fractionRnapActive)
@@ -228,7 +228,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		hist_fractionRnapActive = removeNanReshape(fractionRnapActive)
 		nbins = np.ceil(np.sqrt(hist_fractionRnapActive.size))
-		ax2_1.hist(hist_fractionRnapActive, nbins)
+		ax2_1.hist(hist_fractionRnapActive, nbins, (hist_fractionRnapActive.mean() - hist_fractionRnapActive.std(), hist_fractionRnapActive.mean() + hist_fractionRnapActive.std()))
 
 		# Plot RNAP active and total counts
 		ax3.plot(time.asNumber(units.min), totalRnap)
