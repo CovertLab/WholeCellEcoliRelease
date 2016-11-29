@@ -43,6 +43,8 @@ import math
 import numpy
 import random
 
+from wholecell.utils.random import stochasticRound
+
 import wholecell.processes.process
 from wholecell.utils.constants import REQUEST_PRIORITY_DEGRADATION
 from wholecell.utils import units
@@ -160,7 +162,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		# Calculate total counts of RNAs to degrade according to
 		# the total counts of "active" endoRNases and their cleavage activity
-		nRNAsTotalToDegrade = np.round((units.sum(self.KcatEndoRNases * self.endoRnases.total()) * fracEndoRnaseSaturated * (units.s * self.timeStepSec())).asNumber().sum())
+		nRNAsTotalToDegrade = stochasticRound(self.randomState, (units.sum(self.KcatEndoRNases * self.endoRnases.total()) * fracEndoRnaseSaturated * (units.s * self.timeStepSec())).asNumber().sum())
 		
 		# Dissect RNA specificity into mRNA, tRNA, and rRNA as well as specific RNases
 		MrnaSpec = units.sum(fracEndoRnaseSaturated * self.isMRna)
@@ -189,19 +191,18 @@ class RnaDegradation(wholecell.processes.process.Process):
 		TargetEndoRNasesFullTRNA = TrnaSpec
 		TargetEndoRNasesFullRRNA = RrnaSpec
 
-		nMRNAsTotalToDegrade = np.round(sum(TargetEndoRNasesFullMRNA *
+		nMRNAsTotalToDegrade = stochasticRound(self.randomState, sum(TargetEndoRNasesFullMRNA *
 				self.endoRnases.total() * 
 				self.KcatEndoRNases * (units.s * self.timeStepSec())).asNumber()
 			)
-		nTRNAsTotalToDegrade = np.round(sum(TargetEndoRNasesFullTRNA *
+		nTRNAsTotalToDegrade = stochasticRound(self.randomState, sum(TargetEndoRNasesFullTRNA *
 				self.endoRnases.total() * 
 				self.KcatEndoRNases * (units.s * self.timeStepSec())).asNumber()
 			)
-		nRRNAsTotalToDegrade = np.round(sum(TargetEndoRNasesFullRRNA *
+		nRRNAsTotalToDegrade = stochasticRound(self.randomState, sum(TargetEndoRNasesFullRRNA *
 				self.endoRnases.total() * 
 				self.KcatEndoRNases * (units.s * self.timeStepSec())).asNumber()
 			)
-
 		if nRNAsTotalToDegrade != nMRNAsTotalToDegrade + nTRNAsTotalToDegrade + nRRNAsTotalToDegrade:
 			nRNAsTotalToDegrade = nMRNAsTotalToDegrade + nTRNAsTotalToDegrade + nRRNAsTotalToDegrade
 
