@@ -23,7 +23,6 @@ class Replication(object):
 		self._buildGeneData(raw_data, sim_data)
 		self._buildReplication(raw_data, sim_data)
 		self._buildRrnOperonData(raw_data, sim_data)
-		self._determineInitiationCellMasses(raw_data, sim_data)
 
 	def _buildSequence(self, raw_data, sim_data):
 		self.genome_sequence = raw_data.genome_sequence
@@ -120,12 +119,3 @@ class Replication(object):
 		# Coordinate on the reverse strand
 		self.reverse_strand_rrn_coordinate = oriC - reverse_strand_rrn_operons
 
-	def _determineInitiationCellMasses(self, raw_data, sim_data):
-		if sim_data.doubling_time >= 60. * units.min:
-			self.cellMassReplicationInitiation = 1 * sim_data.mass.avgCell60MinDoublingTimeTotalMassInit
-		elif sim_data.doubling_time >= 30. * units.min:
-			self.cellMassReplicationInitiation = 2 * sim_data.mass.avgCell60MinDoublingTimeTotalMassInit
-		elif sim_data.doubling_time >= 20. * units.min:
-			self.cellMassReplicationInitiation = 4 * sim_data.mass.avgCell60MinDoublingTimeTotalMassInit
-		else:
-			raise Exception("Un-expected doubling time!")

@@ -77,9 +77,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	chromIdx = bulkIds.index("CHROM_FULL[c]")
 	fullChromosomeCounts = bulkMoleculesFile.readColumn("counts")[:,chromIdx]
 
-	# Count 60 min doubling time mass equivalents
-	avgCell60MinDoublingTimeTotalMassInit = sim_data.mass.avgCell60MinDoublingTimeTotalMassInit.asNumber(units.fg)
-	sixtyMinDoublingInitMassEquivalents = totalMass / avgCell60MinDoublingTimeTotalMassInit
+	# # Count 60 min doubling time mass equivalents
+	# avgCell60MinDoublingTimeTotalMassInit = sim_data.mass.avgCell60MinDoublingTimeTotalMassInit.asNumber(units.fg)
+	# sixtyMinDoublingInitMassEquivalents = totalMass / avgCell60MinDoublingTimeTotalMassInit
 
 	# Plot stuff
 	plt.figure(figsize = (8.5, 11))
@@ -104,12 +104,12 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	ax.set_ylim([0, 6])
 	ax.set_ylabel("Pairs of forks")
 
-	ax = plt.subplot(7,1,4, sharex=ax)
-	ax.plot(time / 60., sixtyMinDoublingInitMassEquivalents, linewidth=2)
-	ax.set_xticks([0, time.max() / 60])
-	ax.set_yticks(np.arange(1., 8., 0.5))
-	ax.set_ylim([np.around(sixtyMinDoublingInitMassEquivalents.min(), decimals=1) - 0.1, np.around(sixtyMinDoublingInitMassEquivalents.max(), decimals=1) + 0.1])
-	ax.set_ylabel("Equivalents of initial\nmass for $t_d=60$ min")
+	# ax = plt.subplot(7,1,4, sharex=ax)
+	# ax.plot(time / 60., sixtyMinDoublingInitMassEquivalents, linewidth=2)
+	# ax.set_xticks([0, time.max() / 60])
+	# ax.set_yticks(np.arange(1., 8., 0.5))
+	# ax.set_ylim([np.around(sixtyMinDoublingInitMassEquivalents.min(), decimals=1) - 0.1, np.around(sixtyMinDoublingInitMassEquivalents.max(), decimals=1) + 0.1])
+	# ax.set_ylabel("Equivalents of initial\nmass for $t_d=60$ min")
 	
 	ax = plt.subplot(7,1,5, sharex=ax)
 	ax.plot(time / 60., criticalMassPerOriC, linewidth=2)

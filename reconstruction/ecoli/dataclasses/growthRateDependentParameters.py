@@ -13,6 +13,9 @@ from scipy import interpolate
 from wholecell.utils import units
 import unum
 
+DNA_CRITICAL_MASS = {100: 600, 44: 975} # units of fg
+FRACTION_INCREASE_RNAP_PROTEINS = {100: 0, 44: 0.05}
+
 class Mass(object):
 	""" Mass """
 
@@ -24,7 +27,6 @@ class Mass(object):
 		self._buildCDPeriod(raw_data, sim_data)
 
 		self.avgCellDryMass = self.getAvgCellDryMass(self._doubling_time)
-		self.avgCell60MinDoublingTimeTotalMassInit = 1.2 * 813.854708188 * units.fg
 		self.massFraction = self.getMassFraction(self._doubling_time)
 		self.avgCellSubMass = self.getFractionMass(self._doubling_time)
 
@@ -375,6 +377,12 @@ class GrowthRateParameters(object):
 
 	def getFractionActiveRnap(self, doubling_time):
 		return _useFitParameters(doubling_time, **self.fractionActiveRnapParams)
+
+	def getDnaCriticalMass(self, doubling_time):
+		return DNA_CRITICAL_MASS.get(doubling_time.asNumber(units.min), DNA_CRITICAL_MASS[44]) * units.fg
+
+	def getFractionIncreaseRnapProteins(self, doubling_time):
+		return FRACTION_INCREASE_RNAP_PROTEINS.get(doubling_time.asNumber(units.min), FRACTION_INCREASE_RNAP_PROTEINS[44])
 
 def _getFitParameters(list_of_dicts, key):
 	# Load rows of data

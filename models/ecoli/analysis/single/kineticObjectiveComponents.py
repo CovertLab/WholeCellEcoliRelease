@@ -52,9 +52,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	fbaData.close()
 
-	fig = plt.figure(figsize = (120, 60))
+	fig = plt.figure(figsize = (12, 6))
 
-	grid = gridspec.GridSpec(1,3,wspace=0.0,hspace=0.0,width_ratios=[0.25,1,0.1])
+	grid = gridspec.GridSpec(1,3,wspace=0.0,hspace=0.0,width_ratios=[0.25,1,0.05])
 
 	ax_dendro = fig.add_subplot(grid[0])
 
@@ -97,20 +97,24 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		)
 
 	ax_mat.set_yticks(np.arange(len(index)))
-	ax_mat.set_yticklabels(kineticTargetFluxNames[np.array(index)], size = 5)
+	ax_mat.set_yticklabels(kineticTargetFluxNames[np.array(index)], size = 4)
 
-	delta_t = time[1] - time[0]
+	xticks = np.arange(time[0], time[-1], 720)
+	tickInd = np.zeros(len(xticks))
+	for i, tick in enumerate(xticks):
+		for j, t in enumerate(time):
+			if t >= tick:
+				tickInd[i] = j
+				break
 
-	step_size = np.int64(5*60 / delta_t)
+	xtickmin = np.arange(0, time[-1] / 3600., 0.2)
 
-	xticks = np.arange(1, time.size, step_size)
+	ax_mat.set_xticks(tickInd)
+	ax_mat.set_xticklabels(xtickmin, size = 4)
 
-	ax_mat.set_xticks(xticks)
-	ax_mat.set_xticklabels(time[xticks-1]/60)
+	ax_mat.set_xlabel("Time (hr)", size = 6)
 
-	ax_mat.set_xlabel("Time (min)")
-
-	plt.title("Kinetic objective component values")
+	plt.title("Kinetic objective component values", size = 8)
 
 	ax_cmap = fig.add_subplot(grid[2])
 

@@ -27,7 +27,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		os.mkdir(plotOutDir)
 
 	sim_data = cPickle.load(open(simDataFile, "rb"))
-	avgCell60MinDoublingTimeTotalMassInit = sim_data.mass.avgCell60MinDoublingTimeTotalMassInit.asNumber(units.fg)
+	# avgCell60MinDoublingTimeTotalMassInit = sim_data.mass.avgCell60MinDoublingTimeTotalMassInit.asNumber(units.fg)
 	oriC = sim_data.constants.oriCCenter.asNumber()
 	terC = sim_data.constants.terCCenter.asNumber()
 	genomeLength = len(sim_data.process.replication.genome_sequence)
@@ -81,13 +81,13 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		# Factors of critical initiation mass
 		totalMass = mass.readColumn("cellMass")
-		sixtyMinDoublingInitMassEquivalents = totalMass / avgCell60MinDoublingTimeTotalMassInit
+		# sixtyMinDoublingInitMassEquivalents = totalMass / avgCell60MinDoublingTimeTotalMassInit
 
-		axesList[2].plot(time, sixtyMinDoublingInitMassEquivalents, linewidth=2)
-		for N in CRITICAL_N:
-			axesList[2].plot([0, time.max()], [N]*2, 'k', linestyle='--')
-		axesList[2].set_ylabel("Factors of critical\ninitiation mass")
-		axesList[2].set_xlim([0, time.max()])
+		# axesList[2].plot(time, sixtyMinDoublingInitMassEquivalents, linewidth=2)
+		# for N in CRITICAL_N:
+		# 	axesList[2].plot([0, time.max()], [N]*2, 'k', linestyle='--')
+		# axesList[2].set_ylabel("Factors of critical\ninitiation mass")
+		# axesList[2].set_xlim([0, time.max()])
 
 		# Dry mass
 		dryMass = mass.readColumn("dryMass")

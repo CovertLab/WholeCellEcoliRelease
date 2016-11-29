@@ -25,7 +25,6 @@ import cvxpy
 # Tweaks
 RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
 FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.5  # reduce stochasticity from protein expression
-FRACTION_INCREASE_RNAP_PROTEINS = 0.05
 
 NUMERICAL_ZERO = 1e-10
 
@@ -786,7 +785,7 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time,
 
 	minRnapSubunitCounts = (
 		nRnapsNeeded * rnapStoich # Subunit stoichiometry
-		) * (1 + FRACTION_INCREASE_RNAP_PROTEINS)
+		) * (1 + sim_data.growthRateParameters.getFractionIncreaseRnapProteins(doubling_time))
 
 	# -- CONSTRAINT 2: Expected RNAP subunit counts based on distribution -- #
 	rnapCounts = bulkContainer.counts(rnapIds)
@@ -798,10 +797,7 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time,
 	if VERBOSE > 1: print 'rnap actual count: {}'.format((rnapCounts / rnapStoich).min())
 	if VERBOSE > 1: print 'rnap counts set to: {}'.format(rnapLims[np.where(rnapLims.max() == rnapLims)[0]][0])
 
-	bulkContainer.countsIs(
-		np.fmax(rnapCounts, minRnapSubunitCounts),
-		rnapIds
-		)
+	bulkContainer.countsIs(minRnapSubunitCounts, rnapIds)
 
 
 def fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km = None):

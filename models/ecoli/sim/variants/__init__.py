@@ -35,6 +35,9 @@ from models.ecoli.sim.variants.tf_activity import tfActivityTotalIndices
 from models.ecoli.sim.variants.condition import condition
 from models.ecoli.sim.variants.condition import conditionIndices
 
+from models.ecoli.sim.variants.anaerobic import anaerobic
+from models.ecoli.sim.variants.anaerobic import anaerobicIndices
+
 nameToFunctionMapping = {
 	"geneKnockout": geneKnockout,
 	"wildtype": wildtype,
@@ -46,6 +49,7 @@ nameToFunctionMapping = {
 	"nutrientTimeSeries": nutrientTimeSeries,
 	"tfActivity": tfActivity,
 	"condition": condition,
+	"anaerobic": anaerobic,
 	"metabolismKineticHomeostaticRatio": metabolismKineticHomeostaticRatio,
 }
 
@@ -60,5 +64,6 @@ nameToNumIndicesMapping = {
 	"nutrientTimeSeries": nutrientTimeSeriesTotalIndices,
 	"tfActivity": tfActivityTotalIndices,
 	"condition": conditionIndices,
+	"anaerobic": anaerobicIndices,
 	"metabolismKineticHomeostaticRatio": metabolismKineticHomeostaticRatioTotalIndices,
 }

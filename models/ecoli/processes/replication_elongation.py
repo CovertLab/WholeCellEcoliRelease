@@ -30,7 +30,9 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		super(ReplicationElongation, self).initialize(sim, sim_data)
 
 		# Load parameters
-		self.criticalInitiationMass = sim_data.mass.avgCell60MinDoublingTimeTotalMassInit
+		self.criticalInitiationMass = sim_data.growthRateParameters.getDnaCriticalMass(sim_data.conditionToDoublingTime[sim_data.condition])
+		self.getDnaCriticalMass = sim_data.growthRateParameters.getDnaCriticalMass
+		self.nutrientToDoublingTime = sim_data.nutrientToDoublingTime
 
 		self.sequenceLengths = sim_data.process.replication.sequence_lengths
 		self.sequences = sim_data.process.replication.replication_sequences
@@ -54,6 +56,8 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		self.rrn_operon_counts = self.bulkMoleculeView("rrn_operon")
 
 	def calculateRequest(self):
+		self.criticalInitiationMass = self.getDnaCriticalMass(self.nutrientToDoublingTime[self._sim.processes["PolypeptideElongation"].currentNutrients])
+
 		self.full_chromosome.requestAll()
 		self.oriCs.requestAll()
 
