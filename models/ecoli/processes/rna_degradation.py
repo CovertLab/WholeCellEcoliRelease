@@ -43,8 +43,6 @@ import math
 import numpy
 import random
 
-from wholecell.utils.random import stochasticRound
-
 import wholecell.processes.process
 from wholecell.utils.constants import REQUEST_PRIORITY_DEGRADATION
 from wholecell.utils import units
@@ -162,7 +160,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		# Calculate total counts of RNAs to degrade according to
 		# the total counts of "active" endoRNases and their cleavage activity
-		nRNAsTotalToDegrade = stochasticRound(self.randomState, (units.sum(self.KcatEndoRNases * self.endoRnases.total()) * fracEndoRnaseSaturated * (units.s * self.timeStepSec())).asNumber().sum())
+		nRNAsTotalToDegrade = np.round((units.sum(self.KcatEndoRNases * self.endoRnases.total()) * fracEndoRnaseSaturated * (units.s * self.timeStepSec())).asNumber().sum())
 		
 		# Dissect RNA specificity into mRNA, tRNA, and rRNA as well as specific RNases
 		MrnaSpec = units.sum(fracEndoRnaseSaturated * self.isMRna)
@@ -191,15 +189,15 @@ class RnaDegradation(wholecell.processes.process.Process):
 		TargetEndoRNasesFullTRNA = TrnaSpec
 		TargetEndoRNasesFullRRNA = RrnaSpec
 
-		nMRNAsTotalToDegrade = stochasticRound(self.randomState, sum(TargetEndoRNasesFullMRNA *
+		nMRNAsTotalToDegrade = np.round(sum(TargetEndoRNasesFullMRNA *
 				self.endoRnases.total() * 
 				self.KcatEndoRNases * (units.s * self.timeStepSec())).asNumber()
 			)
-		nTRNAsTotalToDegrade = stochasticRound(self.randomState, sum(TargetEndoRNasesFullTRNA *
+		nTRNAsTotalToDegrade = np.round(sum(TargetEndoRNasesFullTRNA *
 				self.endoRnases.total() * 
 				self.KcatEndoRNases * (units.s * self.timeStepSec())).asNumber()
 			)
-		nRRNAsTotalToDegrade = stochasticRound(self.randomState, sum(TargetEndoRNasesFullRRNA *
+		nRRNAsTotalToDegrade = np.round(sum(TargetEndoRNasesFullRRNA *
 				self.endoRnases.total() * 
 				self.KcatEndoRNases * (units.s * self.timeStepSec())).asNumber()
 			)
