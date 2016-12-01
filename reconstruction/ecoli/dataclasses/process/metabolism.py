@@ -216,6 +216,12 @@ class Metabolism(object):
 
 			validEnzymeCompartments[enzyme].add(location)
 
+		for enzymeID in validEnzymeIDs:
+			enzyme = enzymeID[:enzymeID.index("[")]
+			if len(validEnzymeCompartments[enzyme]) > 1:
+				raise Exception, "Multiple compartments for enzyme %s" % enzyme
+			validEnzymeCompartments[enzyme] = sorted(validEnzymeCompartments[enzyme])[0]
+
 		# Enzymes which should not be used for enzyme-reaction pairs
 		for rxnEnzymePair in raw_data.unconstrainedReactionEnzymes:
 			enzymeExceptions.add(rxnEnzymePair["enzymeID"])
@@ -487,7 +493,7 @@ class Metabolism(object):
 		for reactionEnzyme in enzymeIDs:
 			if reactionEnzyme[-3:-2] !='[':
 				if len(validEnzymeCompartmentsDict[reactionEnzyme]) > 0:
-					new_reaction_enzymes.append(reactionEnzyme +'['+str(validEnzymeCompartmentsDict[reactionEnzyme].pop())+']')
+					new_reaction_enzymes.append(reactionEnzyme +'['+str(validEnzymeCompartmentsDict[reactionEnzyme])+']')
 				else:
 					new_reaction_enzymes.append(reactionEnzyme + '[c]')
 			else:
