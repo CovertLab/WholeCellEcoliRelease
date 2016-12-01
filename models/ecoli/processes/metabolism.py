@@ -138,7 +138,11 @@ class Metabolism(wholecell.processes.process.Process):
 		)
 
 		# Remove kinetics for reactions for which we don't have needed metabolites or enzymes
-		self.enzymeKinetics.checkKnownSubstratesAndEnzymes(sim_data.process.metabolism.concDict, self.enzymeNames, removeUnknowns=True)
+		metaboliteSMatrixNames = set()
+		for stoich in self.reactionStoich.values():
+			metaboliteSMatrixNames.update(stoich.keys())
+		metaboliteSMatrixNames = sorted(metaboliteSMatrixNames)
+		self.enzymeKinetics.checkKnownSubstratesAndEnzymes(metaboliteSMatrixNames, sim_data.process.metabolism.concDict, self.enzymeNames, removeUnknowns=True)
 
 		# Add reactions with a kinetic estimate
 		self.allRateReactions = sorted(set([reactionInfo["reactionID"] for constraintID, reactionInfo in self.enzymeKinetics.reactionRateInfo.iteritems() if reactionInfo["reactionID"] in self.reactionStoich]))
@@ -146,6 +150,8 @@ class Metabolism(wholecell.processes.process.Process):
 		self.fullRateReactions = sorted(set([reactionInfo["reactionID"] for constraintID, reactionInfo in self.enzymeKinetics.reactionRateInfo.iteritems() if (len(reactionInfo["kM"]) > 0 or reactionInfo["rateEquationType"] == "custom") and reactionInfo["reactionID"] in self.reactionStoich]))
 		# Reactions with a kcat-based kinetic estimate only (no customs, no kMs, no kIs)
 		self.kcatRateReactions = sorted(set([reactionInfo["reactionID"] for constraintID, reactionInfo in self.enzymeKinetics.reactionRateInfo.iteritems() if reactionInfo["reactionID"] not in self.fullRateReactions and reactionInfo["reactionID"] in self.reactionStoich]))
+		print "len(self.allRateReactions)"
+		print len(self.allRateReactions)
 
 		self.metabolismKineticObjectiveWeight = sim_data.constants.metabolismKineticObjectiveWeight
 
@@ -255,7 +261,7 @@ class Metabolism(wholecell.processes.process.Process):
 			self.internalExchangeIdxs = np.array([self.metaboliteNamesFromNutrients.index(x) for x in self.fba.outputMoleculeIDs()])
 
 		# After completing the burn-in, enable kinetic rates
-		if self._sim.time() - self._sim.initialTime() > KINETICS_BURN_IN_PERIOD and USE_KINETIC_RATES and not self.burnInComplete:
+		if self._sim.time() > KINETICS_BURN_IN_PERIOD and USE_KINETIC_RATES and not self.burnInComplete:
 			self.burnInComplete = True
 			self.fba.enableKineticTargets()
 
@@ -326,7 +332,7 @@ class Metabolism(wholecell.processes.process.Process):
 			self.allRateEstimates[self.allRateEstimates.asNumber() == 0] = FLUX_UNITS * 1e-20
 			self.fba.setKineticTarget(self.allRateReactions, (TIME_UNITS*self.timeStepSec()*self.allRateEstimates).asNumber(COUNTS_UNITS/VOLUME_UNITS), raiseForReversible=False)
 
-		if USE_BASE_RATES:
+		if USE_BASE_RATES and self.burnInComplete:
 			# Calculate new rates
 			self.baseRatesNew = FLUX_UNITS * self.enzymeReactionMatrix.dot(enzymeConcentrations.asNumber(COUNTS_UNITS / VOLUME_UNITS))
 			self.baseRatesNew[self.spontaneousIndices] = (FLUX_UNITS) * np.inf
