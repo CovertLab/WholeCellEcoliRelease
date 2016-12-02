@@ -236,15 +236,6 @@ class Metabolism(wholecell.processes.process.Process):
 			# Build new fba instance with new objective
 			self.fbaObjectOptions["objective"] = newObjective
 			self.fba = FluxBalanceAnalysis(**self.fbaObjectOptions)
-			massComposition = self.massReconstruction.getFractionMass(self.doublingTime)
-			massInitial = (massComposition["proteinMass"] + massComposition["rnaMass"] + massComposition["dnaMass"]) / self.avgCellToInitialCellConvFactor
-			objIds = sorted(self.objective)
-			objConc = (COUNTS_UNITS / VOLUME_UNITS) * np.array([self.objective[x] for x in objIds])
-			mws = self.getMass(objIds)
-			massesToAdd, _ = massesAndCountsToAddForHomeostaticTargets(massInitial, objIds, objConc, mws, self.cellDensity, self.nAvogadro)
-			smallMoleculeHomeostaticTargetsDryMass = units.hstack((massesToAdd[:objIds.index('WATER[c]')], massesToAdd[objIds.index('WATER[c]') + 1:]))
-			totalDryMass = units.sum(smallMoleculeHomeostaticTargetsDryMass) + massInitial
-			self.writeToListener("CellDivision", "expectedDryMassIncrease", totalDryMass)
 
 		# After completing the burn-in, enable kinetic rates
 		if self._sim.time() - self._sim.initialTime() > KINETICS_BURN_IN_PERIOD and USE_KINETIC_RATES and not self.burnInComplete:
