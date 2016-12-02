@@ -48,6 +48,7 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 		self.lastPassedCriticalMass = 0.
 		self.numberOfOric = np.nan
 		self.criticalMassPerOriC = 0.
+		self.criticalInitiationMass = 0.
 
 
 	def update(self):
@@ -81,4 +82,5 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 			lastPassedCriticalMass = self.lastPassedCriticalMass,
 			numberOfOric = self.numberOfOric,
 			criticalMassPerOriC = self.criticalMassPerOriC,
+			criticalInitiationMass = self.criticalInitiationMass,
 			)
