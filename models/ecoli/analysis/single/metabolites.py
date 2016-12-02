@@ -165,8 +165,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 		p.line(x, y, line_color = colors[m % len(colors)], source = source)
 
+	if not os.path.exists(os.path.join(plotOutDir, "html_plots")):
+		os.makedirs(os.path.join(plotOutDir, "html_plots"))
+
 	import bokeh.io
-	bokeh.io.output_file(os.path.join(plotOutDir + "html_plots", plotOutFileName + ".html"), title=plotOutFileName, autosave=False)
+	bokeh.io.output_file(os.path.join(plotOutDir, "html_plots", plotOutFileName + ".html"), title=plotOutFileName, autosave=False)
 	bokeh.io.save(p)
 
 
