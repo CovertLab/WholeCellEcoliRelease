@@ -45,7 +45,6 @@ class CellDivision(wholecell.listeners.listener.Listener):
 
 		# Set total mass that should be added to cell
 		# This is an approximation for length
-		# self.expectedDryMassIncrease = sim_data.conditionToAvgCellDryMassInit[sim_data.condition]
 		self.expectedDryMassIncreaseDict = sim_data.expectedDryMassIncreaseDict
 
 		# Set initial values
