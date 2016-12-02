@@ -89,7 +89,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	# get only fluxes that more than double by end
 	# lowCountsIdx = np.where(normalizedCounts[-1, :] > 2.1)[0]
 
+	colors = COLORS_LARGE # to match colors between the pdf and html plots
+
 	plt.figure(figsize = (8.5, 11))
+	ax = plt.subplot(1, 1, 1)
+	ax.set_color_cycle(colors)
 	plt.plot(time, normalizedCounts)
 	plt.xlabel("Time (s)")
 	plt.ylabel("Metabolite Fold Change")
@@ -99,6 +103,72 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
+
+
+	# Bokeh
+	from bokeh.plotting import figure, output_file, ColumnDataSource, show
+	from bokeh.models import HoverTool, BoxZoomTool, LassoSelectTool, PanTool, WheelZoomTool, ResizeTool, UndoTool, RedoTool
+
+	nTimesteps = time.shape[0]
+	nMolecules = normalizedCounts.shape[1]
+	moleculeCounts = np.round(10* np.random.rand(nTimesteps*nMolecules).reshape((nMolecules, nTimesteps)))
+
+	# Plot first metabolite to initialize plot settings
+	x = time
+	y = normalizedCounts[:, 0]
+	metaboliteName = np.repeat(metaboliteNames[0], nTimesteps)
+
+	source = ColumnDataSource(
+		data = dict(
+			x = x,
+			y = y,
+			metaboliteName = metaboliteName)
+		)
+
+	hover = HoverTool(
+		tooltips = [
+			("ID", "@metaboliteName"),
+			]
+		)
+	
+	TOOLS = [hover, 
+		BoxZoomTool(),
+		LassoSelectTool(),
+		PanTool(),
+		WheelZoomTool(),
+		ResizeTool(),
+		UndoTool(),
+		RedoTool(),
+		 "reset"
+		 ]
+
+	p = figure(x_axis_label = "Time(s)", 
+		y_axis_label = "Metabolite Fold Change",
+		width = 800,
+		height = 800,
+		tools = TOOLS,
+		)
+
+	p.line(x, y, line_color = colors[0], source = source)
+
+	# Plot remaining metabolites onto initialized figure
+	for m in np.arange(1, nMolecules):
+		x = time
+		y = normalizedCounts[:, m]
+		metaboliteName = np.repeat(metaboliteNames[m], nTimesteps)
+
+		source = ColumnDataSource(
+			data = dict(
+				x = x,
+				y = y,
+				metaboliteName = metaboliteName))
+
+		p.line(x, y, line_color = colors[m % len(colors)], source = source)
+
+	import bokeh.io
+	bokeh.io.output_file(os.path.join(plotOutDir + "html_plots", plotOutFileName + ".html"), title=plotOutFileName, autosave=False)
+	bokeh.io.save(p)
+
 
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(
