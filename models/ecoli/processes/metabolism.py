@@ -76,11 +76,14 @@ class Metabolism(wholecell.processes.process.Process):
 		self.constraintMultiplesDict = {constraintID:rateInfo["constraintMultiple"] for constraintID, rateInfo in self.reactionRateInfo.iteritems()}
 		self.constraintToReactionDict = sim_data.process.metabolism.constraintToReactionDict
 		self.reactionEnzymes  = sim_data.process.metabolism.reactionEnzymes
+		self.getBiomassAsConcentrations = sim_data.mass.getBiomassAsConcentrations
+		self.nutrientToDoublingTime = sim_data.nutrientToDoublingTime
 
 		concDict = sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
 			sim_data.nutrientsTimeSeries[sim_data.nutrientsTimeSeriesLabel][0][1]
 			)
-		self.concModificationsBasedOnCondition = sim_data.mass.getBiomassAsConcentrations(sim_data.conditionToDoublingTime[sim_data.condition])
+
+		self.concModificationsBasedOnCondition = self.getBiomassAsConcentrations(sim_data.conditionToDoublingTime[sim_data.condition])
 		concDict.update(self.concModificationsBasedOnCondition)
 
 		self.objective = dict(
@@ -219,6 +222,8 @@ class Metabolism(wholecell.processes.process.Process):
 		self.newPolypeptideElongationEnergy = countsToMolar * 0
 		if hasattr(self._sim.processes["PolypeptideElongation"], "gtpRequest"):
 			self.newPolypeptideElongationEnergy = countsToMolar * self._sim.processes["PolypeptideElongation"].gtpRequest
+
+		self.concModificationsBasedOnCondition = self.getBiomassAsConcentrations(self.nutrientToDoublingTime.get(self._sim.processes["PolypeptideElongation"].currentNutrients, self.nutrientToDoublingTime["minimal"]))
 
 		# Set external molecule levels
 		coefficient = dryMass / cellMass * self.cellDensity * (self.timeStepSec() * units.s)
