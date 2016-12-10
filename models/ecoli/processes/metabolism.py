@@ -307,7 +307,7 @@ class Metabolism(wholecell.processes.process.Process):
 		enzymeConcentrationsDict = dict(zip(self.enzymeNames, enzymeConcentrations))
 
 		# When many estimates exist for a reaction, choose the largest
-		if not hasattr(self, "chosenConstraints"):
+		if not hasattr(self, "chosenConstraints") and self.burnInComplete:
 			# Calculate the constraints in the current conditions
 			reactionsDict = self.enzymeKinetics.allReactionsDict(metaboliteConcentrationsDict, enzymeConcentrationsDict)
 			oneSidedReactions =  set(self.fba.kineticOneSidedTargetFluxNames())
