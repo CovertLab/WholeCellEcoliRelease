@@ -72,7 +72,7 @@ class EnzymeKinetics(object):
 
 		self.inputsChecked = False
 
-	def checkKnownSubstratesAndEnzymes(self, metaboliteSMatrixNames, metaboliteNamesWithConcentrations, enzymeNames, removeUnknowns=False):
+	def checkKnownSubstratesAndEnzymes(self, metaboliteSMatrixNamesNoCompartment, metaboliteNamesWithConcentrations, enzymeNames, removeUnknowns=False):
 		knownConstraints = {}
 		unusableConstraints = {}
 		unknownSubstrates = set()
@@ -94,7 +94,7 @@ class EnzymeKinetics(object):
 							keepReaction = False
 				else:
 					for substrateID in reactionInfo["substrateIDs"]:
-						if substrateID not in metaboliteSMatrixNames:
+						if substrateID[:-3] not in metaboliteSMatrixNamesNoCompartment:
 							unknownSubstrates.add(substrateID)
 							unusableConstraints[constraintID] = reactionInfo
 							keepReaction = False

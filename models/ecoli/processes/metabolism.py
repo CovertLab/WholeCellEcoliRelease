@@ -138,11 +138,11 @@ class Metabolism(wholecell.processes.process.Process):
 		)
 
 		# Remove kinetics for reactions for which we don't have needed metabolites or enzymes
-		metaboliteSMatrixNames = set()
+		metaboliteSMatrixNamesNoCompartment = set()
 		for stoich in self.reactionStoich.values():
-			metaboliteSMatrixNames.update(stoich.keys())
-		metaboliteSMatrixNames = sorted(metaboliteSMatrixNames)
-		self.enzymeKinetics.checkKnownSubstratesAndEnzymes(metaboliteSMatrixNames, sim_data.process.metabolism.concDict, self.enzymeNames, removeUnknowns=True)
+			metaboliteSMatrixNamesNoCompartment.update([x[:-3] for x in stoich.keys()])
+		metaboliteSMatrixNamesNoCompartment = sorted(metaboliteSMatrixNamesNoCompartment)
+		self.enzymeKinetics.checkKnownSubstratesAndEnzymes(metaboliteSMatrixNamesNoCompartment, sim_data.process.metabolism.concDict, self.enzymeNames, removeUnknowns=True)
 
 		# Add reactions with a kinetic estimate
 		self.allRateReactions = sorted(set([reactionInfo["reactionID"] for constraintID, reactionInfo in self.enzymeKinetics.reactionRateInfo.iteritems() if reactionInfo["reactionID"] in self.reactionStoich]))
