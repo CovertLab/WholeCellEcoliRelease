@@ -46,6 +46,9 @@ USE_KINETIC_RATES = True
 USE_BASE_RATES = True
 KINETICS_BURN_IN_PERIOD = 1
 
+FBA_ITERATION_LIMIT = 100000
+FBA_SOLVE_ITERATIONS = 5
+
 class Metabolism(wholecell.processes.process.Process):
 	""" Metabolism """
 
@@ -177,6 +180,7 @@ class Metabolism(wholecell.processes.process.Process):
 			self.fbaObjectOptions["objectiveType"] = "homeostatic"
 
 		self.fba = FluxBalanceAnalysis(**self.fbaObjectOptions)
+		self.fba._solver._model.set_iteration_limit(FBA_ITERATION_LIMIT)
 
 		self.internalExchangeIdxs = np.array([self.metaboliteNamesFromNutrients.index(x) for x in self.fba.outputMoleculeIDs()])
 
@@ -344,6 +348,7 @@ class Metabolism(wholecell.processes.process.Process):
 			# Set new reaction rate limits
 			self.fba.setMaxReactionFluxes(updateReactions, (TIME_UNITS*self.timeStepSec()*updateValues).asNumber(COUNTS_UNITS/VOLUME_UNITS), raiseForReversible = False)
 
+		self.fba.solve(FBA_SOLVE_ITERATIONS)
 		deltaMetabolites = (1 / countsToMolar) * (COUNTS_UNITS / VOLUME_UNITS * self.fba.outputMoleculeLevelsChange())
 
 		metaboliteCountsFinal = np.zeros_like(metaboliteCountsInit)

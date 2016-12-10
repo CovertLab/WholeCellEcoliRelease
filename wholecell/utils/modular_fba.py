@@ -1344,3 +1344,13 @@ class FluxBalanceAnalysis(object):
 
 	def massAccumulated(self):
 		return self._solver.flowRates(self._massExchangeOutName)
+
+	def solve(self, iterations):
+		if iterations == 0:
+			self._solver._solve()
+		else:
+			try:
+				self._solver._solve()
+			except Exception as inst:
+				print "Warning: {} error while solving FBA - repeating FBA solve".format(inst)
+				self.solve(iterations - 1)

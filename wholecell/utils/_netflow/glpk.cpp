@@ -96,6 +96,18 @@ class glpk
 		{
 			this->lp_params.meth = GLP_DUALP;
 		}
+		void set_iteration_limit(int limit)
+		{
+			this->lp_params.it_lim = limit;
+		}
+		void set_primal_feasible_tol(float tol)
+		{
+			this->lp_params.tol_bnd = tol;
+		}
+		void set_dual_feasible_tol(float tol)
+		{
+			this->lp_params.tol_dj = tol;
+		}
 		void optimize()
 		{
         		int status = glp_simplex(this->lp, &(this->lp_params));
@@ -232,6 +244,9 @@ BOOST_PYTHON_MODULE(glpk)
 	.def("set_solver_method_primal", &glpk::set_solver_method_primal)
 	.def("set_solver_method_dual", &glpk::set_solver_method_dual)
 	.def("set_solver_method_dualprimal", &glpk::set_solver_method_dualprimal)
+	.def("set_iteration_limit", &glpk::set_iteration_limit)
+	.def("set_primal_feasible_tol", &glpk::set_primal_feasible_tol)
+	.def("set_dual_feasible_tol", &glpk::set_dual_feasible_tol)
 	.def("optimize", &glpk::optimize)
 	.def("get_primal_value", &glpk::get_primal_value)
 	.def("get_row_dual_value", &glpk::get_row_dual_value)
