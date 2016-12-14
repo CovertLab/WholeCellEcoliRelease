@@ -108,8 +108,19 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.reactionStoich = sim_data.process.metabolism.reactionStoich
 		self.externalExchangeMolecules = sim_data.nutrientData["secretionExchangeMolecules"]
+
+		self.metaboliteNamesFromNutrients = set()
 		for time, nutrientsLabel in sim_data.nutrientsTimeSeries[self.nutrientsTimeSeriesLabel]:
 			self.externalExchangeMolecules += sim_data.nutrientData["importExchangeMolecules"][nutrientsLabel]
+
+			# Sorry
+			self.metaboliteNamesFromNutrients.update(
+				sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
+					nutrientsLabel, sim_data.process.metabolism.nutrientsToInternalConc
+					)
+				)
+		self.metaboliteNamesFromNutrients = sorted(self.metaboliteNamesFromNutrients)
+
 		self.maintenanceReaction = sim_data.process.metabolism.maintenanceReaction
 		self.externalExchangeMolecules = sorted(self.externalExchangeMolecules)
 		self.extMoleculeMasses = self.getMass(self.externalExchangeMolecules)
@@ -161,6 +172,8 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.fba = FluxBalanceAnalysis(**self.fbaObjectOptions)
 
+		self.internalExchangeIdxs = np.array([self.metaboliteNamesFromNutrients.index(x) for x in self.fba.outputMoleculeIDs()])
+
 		# Disable all rates during burn-in
 		if KINETICS_BURN_IN_PERIOD > 0 and USE_KINETIC_RATES:
 			self.fba.disableKineticTargets()
@@ -192,9 +205,9 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Views
 		self.metaboliteNames = self.fba.outputMoleculeIDs()
-		self.metabolites = self.bulkMoleculesView(self.metaboliteNames)
+		self.metabolites = self.bulkMoleculesView(self.metaboliteNamesFromNutrients)
 		self.enzymes = self.bulkMoleculesView(self.enzymeNames)
-			
+
 		outputMoleculeIDs = self.fba.outputMoleculeIDs()
 
 		assert outputMoleculeIDs == self.fba.internalMoleculeIDs()
@@ -241,6 +254,7 @@ class Metabolism(wholecell.processes.process.Process):
 			# Build new fba instance with new objective
 			self.fbaObjectOptions["objective"] = newObjective
 			self.fba = FluxBalanceAnalysis(**self.fbaObjectOptions)
+			self.internalExchangeIdxs = np.array([self.metaboliteNamesFromNutrients.index(x) for x in self.fba.outputMoleculeIDs()])
 
 		# After completing the burn-in, enable kinetic rates
 		if self._sim.time() - self._sim.initialTime() > KINETICS_BURN_IN_PERIOD and USE_KINETIC_RATES and not self.burnInComplete:
@@ -267,7 +281,7 @@ class Metabolism(wholecell.processes.process.Process):
 			self.fba.minReactionFluxIs(self.fba._reactionID_polypeptideElongationEnergy, self.currentPolypeptideElongationEnergy.asNumber(COUNTS_UNITS / VOLUME_UNITS))
 
 		#  Find metabolite concentrations from metabolite counts
-		metaboliteConcentrations =  countsToMolar * metaboliteCountsInit
+		metaboliteConcentrations =  countsToMolar * metaboliteCountsInit[self.internalExchangeIdxs]
 
 		# Make a dictionary of metabolite names to metabolite concentrations
 		metaboliteConcentrationsDict = dict(zip(self.metaboliteNames, metaboliteConcentrations))
@@ -328,9 +342,10 @@ class Metabolism(wholecell.processes.process.Process):
 
 		deltaMetabolites = (1 / countsToMolar) * (COUNTS_UNITS / VOLUME_UNITS * self.fba.outputMoleculeLevelsChange())
 
-		metaboliteCountsFinal = np.fmax(stochasticRound(
+		metaboliteCountsFinal = np.zeros_like(metaboliteCountsInit)
+		metaboliteCountsFinal[self.internalExchangeIdxs] = np.fmax(stochasticRound(
 			self.randomState,
-			metaboliteCountsInit + deltaMetabolites.asNumber()
+			metaboliteCountsInit[self.internalExchangeIdxs] + deltaMetabolites.asNumber()
 			), 0).astype(np.int64)
 
 		self.metabolites.countsIs(metaboliteCountsFinal)
