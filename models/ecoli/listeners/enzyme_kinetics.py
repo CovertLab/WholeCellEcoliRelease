@@ -36,6 +36,16 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		self.metaboliteIDs = sorted(sim_data.process.metabolism.concDict)
 		self.constraintToReactionDict = sim_data.process.metabolism.constraintToReactionDict
 
+		# Get metabolite names similar to how it's done in the metabolism process
+		self.metaboliteNamesFromNutrients = set()
+		for time, nutrientsLabel in sim_data.nutrientsTimeSeries[sim_data.nutrientsTimeSeriesLabel]:
+			self.metaboliteNamesFromNutrients.update(
+				sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
+					nutrientsLabel, sim_data.process.metabolism.nutrientsToInternalConc
+					)
+				)
+		self.metaboliteNamesFromNutrients = sorted(self.metaboliteNamesFromNutrients)
+
 	# Allocate memory
 	# In case things are of unknown size, write them here
 	# Dummy values for what will be writen to output table
@@ -54,9 +64,9 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		self.kineticTargetRelativeDifferences = np.zeros(len(self.metabolism.fba.kineticTargetFluxNames()), np.float64)
 		self.overconstraintMultiples = np.zeros(len(self.metabolism.fba.reactionFluxes()[self.metabolism.allRateIndices]), np.float64)
 		self.constraintIDs = self.metabolism.constraintIDs
-		self.metaboliteCountsInit = np.zeros(len(self.metaboliteIDs), np.float64)
-		self.metaboliteCountsFinal = np.zeros(len(self.metaboliteIDs), np.float64)
-		self.metaboliteConcentrations = np.zeros(len(self.metaboliteIDs), np.float64)
+		self.metaboliteCountsInit = np.zeros(len(self.metaboliteNamesFromNutrients), np.float64)
+		self.metaboliteCountsFinal = np.zeros(len(self.metaboliteNamesFromNutrients), np.float64)
+		self.metaboliteConcentrations = np.zeros(len(self.metaboliteNamesFromNutrients), np.float64)
 		self.enzymeCountsInit = np.zeros(len(self.metabolism.enzymeNames), np.float64)
 		self.countsToMolar = np.zeros(1, np.float64)
 
