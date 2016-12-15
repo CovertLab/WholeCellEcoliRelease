@@ -332,8 +332,6 @@ class Metabolism(wholecell.processes.process.Process):
 		if USE_KINETIC_RATES and self.burnInComplete:
 			self.allRateEstimates = self.enzymeKinetics.ratesView(self.allRateReactions, self.chosenConstraints, metaboliteConcentrationsDict, enzymeConcentrationsDict, raiseIfNotFound=True)
 
-			# Make kinetic targets numerical zero instead of actually zero for solver stability
-			self.allRateEstimates[self.allRateEstimates.asNumber() == 0] = FLUX_UNITS * 1e-20
 			self.fba.setKineticTarget(self.allRateReactions, (TIME_UNITS*self.timeStepSec()*self.allRateEstimates).asNumber(COUNTS_UNITS/VOLUME_UNITS), raiseForReversible=False)
 
 		if USE_BASE_RATES and self.burnInComplete:

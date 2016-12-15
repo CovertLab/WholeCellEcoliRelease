@@ -1260,33 +1260,41 @@ class FluxBalanceAnalysis(object):
 		if (np.array(reactionTargets) < 0).any():
 			raise FBAError("Rate targets cannot be negative. {} were provided with targets of {}".format(np.array(reactionIDs)[np.array(reactionTargets) < 0], np.array(reactionTargets)[np.array(reactionTargets) < 0]))
 
-		if (np.array(reactionTargets) == 0).any():
-			raise FBAError("Rate targets cannot be exactly zero. Set target to numerical zero (such as 1e-20) instead. {} were provided with targets of 0.".format(np.array(reactionIDs)[np.array(reactionTargets) == 0]))
-
 		# Change the objective normalization
 		for reactionID, reactionTarget in izip(reactionIDs,reactionTargets):
 			if reactionID not in self._kineticTargetFluxes:
 				raise FBAError("Kinetic targets can only be set for reactions initialized to be kinetic targets. {} is not set up for it.".format(reactionID))
 
-			conversionFlux = self._generatedID_conversionFlux.format(reactionID)
-			reactionFluxEquivalent = self._generatedID_reactionFluxEquivalents.format(reactionID)
-			self._solver.flowMaterialCoeffIs(
-				conversionFlux,
-				reactionFluxEquivalent,
-				-reactionTarget
-				)
+			if reactionTarget == 0:
+				# can't have coeff = 0, target is disabled so -1 is arbitrary value that won't matter
+				self._solver.flowMaterialCoeffIs(
+					conversionFlux,
+					reactionFluxEquivalent,
+					-1
+					)
+				self.disableKineticTargets(reactionID)
+			else:
+				if self._currentKineticTargets[reactionID] == 0:
+					self.enableKineticTargets(reactionID)
+				conversionFlux = self._generatedID_conversionFlux.format(reactionID)
+				reactionFluxEquivalent = self._generatedID_reactionFluxEquivalents.format(reactionID)
+				self._solver.flowMaterialCoeffIs(
+					conversionFlux,
+					reactionFluxEquivalent,
+					-reactionTarget
+					)
 
 			# Record the change
 			self._currentKineticTargets[reactionID] = reactionTarget
 
 	def enableKineticTargets(self, reactionIDs=None):
-		print "enabled kinetic rates"
 		# If a single value is passed in, make a list of length 1 from it
 		if isinstance(reactionIDs, str):
 			reactionIDs = [reactionIDs]
 
 		# If no reactions specified, enable all kinetic reactions
 		if reactionIDs == None:
+			print "enabled kinetic rates"
 			reactionIDs = self.kineticTargetFluxNames()
 
 		for reactionID in reactionIDs:
@@ -1307,13 +1315,13 @@ class FluxBalanceAnalysis(object):
 				)
 
 	def disableKineticTargets(self, reactionIDs=None):
-		print "disabled kinetic rates"
 		# If a single value is passed in, make a list of length 1 from it
 		if isinstance(reactionIDs, str):
 			reactionIDs = [reactionIDs]
 
 		# If no reactions specified, disable all kinetic reactions
 		if reactionIDs == None:
+			print "disabled kinetic rates"
 			reactionIDs = self.kineticTargetFluxNames()
 
 		for reactionID in reactionIDs:
