@@ -438,7 +438,6 @@ def setRnaPolymeraseCodingRnaDegradationRates(sim_data):
 
 def setTranslationEfficiencies(sim_data):
 	adjustments = {
-		"EG12438-MONOMER[c]": 10,
 		"ADCLY-MONOMER[c]": 5,
 		}
 
@@ -448,7 +447,6 @@ def setTranslationEfficiencies(sim_data):
 
 def setRNAExpression(sim_data):
 	adjustments = {
-		"EG12438_RNA[c]": 10,
 		"EG11493_RNA[c]": 10,
 		}
 
@@ -460,7 +458,6 @@ def setRNAExpression(sim_data):
 
 def setRNADegRates(sim_data):
 	adjustments = {
-		"EG12438_RNA[c]": 2,
 		"EG11493_RNA[c]": 2,
 		}
 
