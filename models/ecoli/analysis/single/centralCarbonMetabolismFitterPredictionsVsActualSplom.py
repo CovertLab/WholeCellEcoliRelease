@@ -33,7 +33,7 @@ NUMERICAL_ZERO = 1e-15
 BURN_IN_PERIOD = 150
 
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-
+	return
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
 
@@ -68,13 +68,13 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		if np.abs(value) < NUMERICAL_ZERO:
 			fitterPredictedFluxesDict[key] = 0
 
-	scatterArrayActual, scatterArrayPredicted, scatterArrayActualStd, toyaObservedFluxes, labels = [], [], [], [], []
+	scatterArrayActual, scatterArrayPredicted, scatterArrayPredictedStd, toyaObservedFluxes, labels = [], [], [], [], []
 	for fluxName, toyaFlux in toya_fluxes_dict.iteritems():
 		reactionIdx = list(reactionIDs).index(fluxName)
 		samplePoints = reactionFluxes[BURN_IN_PERIOD:, reactionIdx]
-		scatterArrayActual.append(np.mean(samplePoints))
-		scatterArrayPredicted.append(fitterPredictedFluxesDict[fluxName])
-		scatterArrayActualStd.append(np.std(samplePoints))
+		scatterArrayActual.append(fitterPredictedFluxesDict[fluxName])
+		scatterArrayPredicted.append(np.mean(samplePoints))
+		scatterArrayPredictedStd.append(np.std(samplePoints))
 		toyaObservedFluxes.append(toyaFlux.asNumber(FLUX_UNITS))
 		labels.append(fluxName)
 	

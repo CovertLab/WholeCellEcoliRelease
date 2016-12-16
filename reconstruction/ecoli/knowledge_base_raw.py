@@ -35,6 +35,7 @@ LIST_OF_DICT_FILENAMES = (
 	"metabolites.tsv",
 	"metaboliteConcentrations.tsv",
 	"modificationReactions.tsv",
+	"modifiedForms.tsv",
 	"modifiedRnas.tsv",
 	"polymerized.tsv",
 	"previousBiomassFluxes.tsv",
@@ -49,6 +50,8 @@ LIST_OF_DICT_FILENAMES = (
 	"tfOneComponentBound.tsv",
 	"transcriptionUnits.tsv",
 	"translationEfficiency.tsv",
+	"twoComponentSystemTemplates.tsv",
+	"twoComponentSystems.tsv",
 	"unconstrainedReactionEnzymes.tsv",
 	"water.tsv",
 	os.path.join("massFractions", "glycogenFractions.tsv"),
@@ -80,6 +83,8 @@ LIST_OF_DICT_FILENAMES = (
 	os.path.join("condition", "nutrient", "minimal_minus_phosphate.tsv"),
 	os.path.join("condition", "nutrient", "minimal_no_glucose.tsv"),
 	os.path.join("condition", "nutrient", "minimal_plus_amino_acids.tsv"),
+	os.path.join("condition", "nutrient", "minimal_plus_cytidine.tsv"),
+	os.path.join("condition", "nutrient", "minimal_plus_ferric.tsv"),
 	os.path.join("condition", "nutrient", "minimal_plus_gallate.tsv"),
 	os.path.join("condition", "nutrient", "minimal_plus_indole.tsv"),
 	os.path.join("condition", "nutrient", "minimal_plus_nitrate.tsv"),
@@ -109,8 +114,11 @@ LIST_OF_DICT_FILENAMES = (
 	os.path.join("condition", "timeseries", "000017_phosphate_absent.tsv"),
 	os.path.join("condition", "timeseries", "000018_cut_oxygen.tsv"),
 	os.path.join("condition", "timeseries", "000019_add_arabinose.tsv"),
-
-
+	os.path.join("condition", "timeseries", "000020_add_oxygen.tsv"),
+	os.path.join("condition", "timeseries", "000021_add_indole.tsv"),
+	os.path.join("condition", "timeseries", "000022_cut_indole.tsv"),
+	os.path.join("condition", "timeseries", "000023_add_calcium.tsv"),
+	os.path.join("condition", "timeseries", "000024_cut_calcium.tsv"),
 	)
 SEQUENCE_FILE = 'sequence.fasta'
 LIST_OF_PARAMETER_FILENAMES = ("parameters.tsv", "mass_parameters.tsv")

@@ -1,10 +1,10 @@
 "molecule id"	"lower bound (units.mmol / units.g / units.h)"	"upper bound (units.mmol / units.g / units.h)"
 "ADP[c]"	3.15	3.15
-"Pi[c]"	3.15	3.15
+"PI[c]"	3.15	3.15
 "PROTON[c]"	3.15	3.15
 "GLC[p]"	NaN	100
 "AMMONIUM[c]"	NaN	NaN
-"Pi[p]"	NaN	NaN
+"PI[p]"	NaN	NaN
 "K+[p]"	NaN	NaN
 "SULFATE[p]"	NaN	NaN
 "FE+2[p]"	NaN	NaN
@@ -21,3 +21,4 @@
 "L-SELENOCYSTEINE[c]"	NaN	NaN
 "GLC-D-LACTONE[c]"	NaN	NaN
 "CYTOSINE[c]"	NaN	NaN
+"4FE-4S[c]"	NaN	NaN

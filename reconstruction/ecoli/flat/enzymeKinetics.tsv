@@ -234,7 +234,7 @@
 "GSPAMID-RXN_kcat_2.1"	"GSPAMID-RXN"	["GSP-CPLX"]	["GLUTATHIONYLSPERMIDINE"]	[37]	"standard"		[2.1]	[]	[]	null	null	null	null	null	1
 "INORGPYROPHOSPHAT-RXN"	"INORGPYROPHOSPHAT-RXN"	["INORGPYROPHOSPHAT-MONOMER"]	["PPI"]	[25]	"standard"		[187]	[3.4]	[]	null	null	null	null	null	1
 "INORGPYROPHOSPHAT-RXN_kcat_187"	"INORGPYROPHOSPHAT-RXN"	["INORGPYROPHOSPHAT-MONOMER"]	["PPI"]	[25]	"standard"		[187]	[]	[]	null	null	null	null	null	1
-"INORGPYROPHOSPHAT-RXN_2"	"INORGPYROPHOSPHAT-RXN"	["INORGPYROPHOSPHAT-MONOMER"]	["Pi"]	[25]	"standard"		[114]	[]	[]	null	null	null	null	null	1
+"INORGPYROPHOSPHAT-RXN_2"	"INORGPYROPHOSPHAT-RXN"	["INORGPYROPHOSPHAT-MONOMER"]	["PI"]	[25]	"standard"		[114]	[]	[]	null	null	null	null	null	1
 "RXN0-4401"	"RXN0-4401"	["CPLX0-7974"]	["NADH"]	[]	"standard"		[3.8]	[110]	[]	null	null	null	null	null	1
 "RXN0-4401_kcat_3.8"	"RXN0-4401"	["CPLX0-7974"]	["NADH"]	[]	"standard"		[3.8]	[]	[]	null	null	null	null	null	1
 "3.4.21.89-RXN"	"3.4.21.89-RXN"	["EG10530-MONOMER"]	["Peptides-with-Leader-Sequence"]	[]	"standard"		[8.73]	[16.5]	[]	null	null	null	null	null	1
@@ -1642,8 +1642,8 @@
 "GLUC1PADENYLTRANS-RXN_kcat_370"	"GLUC1PADENYLTRANS-RXN"	["GLUC1PADENYLTRANS-CPLX"]	["ATP","GLC-1-P"]	[37]	"standard"		[370]	[]	[]	null	null	null	null	null	1
 "XYLULOKIN-RXN"	"XYLULOKIN-RXN"	["XYLULOKIN-MONOMER"]	["D-XYLULOSE", "ATP"]	[25]	"standard"		[255]	[290,150]	[]	null	null	null	null	null	1
 "XYLULOKIN-RXN_kcat_255"	"XYLULOKIN-RXN"	["XYLULOKIN-MONOMER"]	["D-XYLULOSE", "ATP"]	[25]	"standard"		[255]	[]	[]	null	null	null	null	null	1
-"ACYLPHOSPHATASE-RXN"	"ACYLPHOSPHATASE-RXN"	["G6502-MONOMER"]	["Acyl-Phosphates","Pi"]	[25]	"custom"	"forward"	[94]	[540]	[1440]	"kcat*E*S/(km*(1+I/ki)+S)"	["kcat","km","ki","E","S","I"]	["kcat","km","ki"]	[94,540,1440]	{"E":"G6502-MONOMER","S":"Acyl-Phosphates","I":"Pi"}	1
-"ACYLPHOSPHATASE-RXN_kcat_94"	"ACYLPHOSPHATASE-RXN"	["G6502-MONOMER"]	["Acyl-Phosphates","Pi"]	[25]	"standard"	"forward"	[94]	[]	[]	null	null	null	null	null	1
+"ACYLPHOSPHATASE-RXN"	"ACYLPHOSPHATASE-RXN"	["G6502-MONOMER"]	["Acyl-Phosphates","PI"]	[25]	"custom"	"forward"	[94]	[540]	[1440]	"kcat*E*S/(km*(1+I/ki)+S)"	["kcat","km","ki","E","S","I"]	["kcat","km","ki"]	[94,540,1440]	{"E":"G6502-MONOMER","S":"Acyl-Phosphates","I":"PI"}	1
+"ACYLPHOSPHATASE-RXN_kcat_94"	"ACYLPHOSPHATASE-RXN"	["G6502-MONOMER"]	["Acyl-Phosphates","PI"]	[25]	"standard"	"forward"	[94]	[]	[]	null	null	null	null	null	1
 "RXN-10856"	"RXN-10856"	["H2NEOPTERINALDOL-MONOMER"]	["CPD-11770"]	[25]	"standard"		[0.089]	[8.0]	[]	null	null	null	null	null	1
 "RXN-10856_kcat_0.089"	"RXN-10856"	["H2NEOPTERINALDOL-MONOMER"]	["CPD-11770"]	[25]	"standard"		[0.089]	[]	[]	null	null	null	null	null	1
 "H2NEOPTERINALDOL-RXN"	"H2NEOPTERINALDOL-RXN"	["H2NEOPTERINALDOL-MONOMER"]	["DIHYDRO-NEO-PTERIN"]	[25]	"standard"		[0.082]	[7.4]	[]	null	null	null	null	null	1
@@ -1790,8 +1790,8 @@
 "CTPSYN-RXN_5_kcat_6.1"	"CTPSYN-RXN"	["CTPSYN-CPLX"]	["GLN"]	[37]	"standard"		[6.1]	[]	[]	null	null	null	null	null	1
 "RXN-9310"	"RXN-9310"	["EG12438-MONOMER"]	["CPD-9924"]	[37]	"standard"		[167]	[8.3]	[]	null	null	null	null	null	1
 "RXN-9310_kcat_167"	"RXN-9310"	["EG12438-MONOMER"]	["CPD-9924"]	[37]	"standard"		[167]	[]	[]	null	null	null	null	null	1
-"INOPHOSPHOR-RXN_2"	"INOPHOSPHOR-RXN"	["DEOD-CPLX"]	["INOSINE","Pi"]	[37]	"standard"		[44.93]	[320,340]	[]	null	null	null	null	null	1
-"INOPHOSPHOR-RXN_2_kcat_44.93"	"INOPHOSPHOR-RXN"	["DEOD-CPLX"]	["INOSINE","Pi"]	[37]	"standard"		[44.93]	[]	[]	null	null	null	null	null	1
+"INOPHOSPHOR-RXN_2"	"INOPHOSPHOR-RXN"	["DEOD-CPLX"]	["INOSINE","PI"]	[37]	"standard"		[44.93]	[320,340]	[]	null	null	null	null	null	1
+"INOPHOSPHOR-RXN_2_kcat_44.93"	"INOPHOSPHOR-RXN"	["DEOD-CPLX"]	["INOSINE","PI"]	[37]	"standard"		[44.93]	[]	[]	null	null	null	null	null	1
 "RXN0-3741[CCO-CYTOSOL]-TMP/WATER//THYMIDINE/Pi.37."	"RXN0-3741[CCO-CYTOSOL]-TMP/WATER//THYMIDINE/Pi.37."	["G7230-MONOMER"]	["TMP"]	[37]	"standard"		[1.19]	[129.4]	[]	null	null	null	null	null	1
 "RXN0-3741[CCO-CYTOSOL]-TMP/WATER//THYMIDINE/Pi.37._kcat_1.19"	"RXN0-3741[CCO-CYTOSOL]-TMP/WATER//THYMIDINE/Pi.37."	["G7230-MONOMER"]	["TMP"]	[37]	"standard"		[1.19]	[]	[]	null	null	null	null	null	1
 "RXN0-3741_4"	"RXN0-3741"	["G7230-MONOMER"]	["GMP"]	[37]	"standard"		[0.69]	[379.8]	[]	null	null	null	null	null	1
@@ -1939,11 +1939,11 @@
 "GARTRANSFORMYL2-RXN_kcat_37.6"	"GARTRANSFORMYL2-RXN"	["GARTRANSFORMYL2-MONOMER"]	["5-PHOSPHO-RIBOSYL-GLYCINEAMIDE","ATP","FORMATE"]	[25]	"standard"		[37.6]	[]	[]	null	null	null	null	null	1
 "RXN0-742_2"	"RXN0-742"	["PURK-CPLX"]	["ATP","5-PHOSPHORIBOSYL-5-AMINOIMIDAZOLE"]	[25]	"standard"		[52]	[90,26]	[]	null	null	null	null	null	1
 "RXN0-742_2_kcat_52"	"RXN0-742"	["PURK-CPLX"]	["ATP","5-PHOSPHORIBOSYL-5-AMINOIMIDAZOLE"]	[25]	"standard"		[52]	[]	[]	null	null	null	null	null	1
-"ATPSYN-RXN"	"ATPSYN-RXN"	["ATPSYN-CPLX"]	["ADP","Pi"]	[25]	"standard"		[16,20]	[100,4200]	[]	null	null	null	null	null	1
-"ATPSYN-RXN_full_kcat_16"	"ATPSYN-RXN"	["ATPSYN-CPLX"]	["ADP","Pi"]	[25]	"standard"		[16]	[100,4200]	[]	null	null	null	null	null	1
-"ATPSYN-RXN_full_kcat_20"	"ATPSYN-RXN"	["ATPSYN-CPLX"]	["ADP","Pi"]	[25]	"standard"		[20]	[100,4200]	[]	null	null	null	null	null	1
-"ATPSYN-RXN_kcat_16"	"ATPSYN-RXN"	["ATPSYN-CPLX"]	["ADP","Pi"]	[25]	"standard"		[16]	[]	[]	null	null	null	null	null	1
-"ATPSYN-RXN_kcat_20"	"ATPSYN-RXN"	["ATPSYN-CPLX"]	["ADP","Pi"]	[25]	"standard"		[20]	[]	[]	null	null	null	null	null	1
+"ATPSYN-RXN"	"ATPSYN-RXN"	["ATPSYN-CPLX"]	["ADP","PI"]	[25]	"standard"		[16,20]	[100,4200]	[]	null	null	null	null	null	1
+"ATPSYN-RXN_full_kcat_16"	"ATPSYN-RXN"	["ATPSYN-CPLX"]	["ADP","PI"]	[25]	"standard"		[16]	[100,4200]	[]	null	null	null	null	null	1
+"ATPSYN-RXN_full_kcat_20"	"ATPSYN-RXN"	["ATPSYN-CPLX"]	["ADP","PI"]	[25]	"standard"		[20]	[100,4200]	[]	null	null	null	null	null	1
+"ATPSYN-RXN_kcat_16"	"ATPSYN-RXN"	["ATPSYN-CPLX"]	["ADP","PI"]	[25]	"standard"		[16]	[]	[]	null	null	null	null	null	1
+"ATPSYN-RXN_kcat_20"	"ATPSYN-RXN"	["ATPSYN-CPLX"]	["ADP","PI"]	[25]	"standard"		[20]	[]	[]	null	null	null	null	null	1
 "ATPSYN-RXN_2"	"ATPSYN-RXN"	["ATPSYN-CPLX"]	["ATP"]	[25]	"standard"		[285]	[78]	[]	null	null	null	null	null	1
 "ATPSYN-RXN_2_kcat_285"	"ATPSYN-RXN"	["ATPSYN-CPLX"]	["ATP"]	[25]	"standard"		[285]	[]	[]	null	null	null	null	null	1
 "MALONYL-COA-ACP-TRANSACYL-RXN_2"	"MALONYL-COA-ACP-TRANSACYL-RXN"	["MALONYL-COA-ACP-TRANSACYL-MONOMER"]	["MALONYL-COA"]	[25]	"standard"		[0.00047]	[49]	[]	null	null	null	null	null	1
@@ -2021,7 +2021,7 @@
 "CARBPSYN-RXN_12_kcat_2.2"	"CARBPSYN-RXN"	["CARBPSYN-CPLX"]	["GLN"]	[]	"standard"		[2.2]	[]	[]	null	null	null	null	null	1
 "CARBPSYN-RXN_13"	"CARBPSYN-RXN"	["CARBPSYN-CPLX"]	["ADP"]	[]	"standard"		[0.13]	[130]	[]	null	null	null	null	null	1
 "CARBPSYN-RXN_13_kcat_0.13"	"CARBPSYN-RXN"	["CARBPSYN-CPLX"]	["ADP"]	[]	"standard"		[0.13]	[]	[]	null	null	null	null	null	1
-"PHOSACETYLTRANS-CPLX"	"PHOSACETYLTRANS-CPLX"	["PHOSACETYLTRANS-CPLX"]	["ACETYL-COA","Pi"]	[30]	"custom"		[]	[]	[]	"kcat*E*Pi/(KmP + Pi)*(Ac^H)/(KmA^H +Ac^H)" 	["kcat","KmP","KmA","H","E","Pi","Ac"]	["kcat","KmP","KmA","H"]	[29.6,2.1,44.9,1.3]	{"E":"PHOSACETYLTRANS-CPLX","Pi":"Pi","Ac":"ACETYL-COA"}	1
+"PHOSACETYLTRANS-CPLX"	"PHOSACETYLTRANS-CPLX"	["PHOSACETYLTRANS-CPLX"]	["ACETYL-COA","PI"]	[30]	"custom"		[]	[]	[]	"kcat*E*Pi/(KmP + Pi)*(Ac^H)/(KmA^H +Ac^H)" 	["kcat","KmP","KmA","H","E","PI","Ac"]	["kcat","KmP","KmA","H"]	[29.6,2.1,44.9,1.3]	{"E":"PHOSACETYLTRANS-CPLX","PI":"PI","Ac":"ACETYL-COA"}	1
 "PHOSACETYLTRANS-CPLX_2"	"PHOSACETYLTRANS-CPLX"	["PHOSACETYLTRANS-CPLX"]	["CO-A","ACETYL-P"]	[30]	"custom"		[]	[]	[]	"kcat*E*CoA/(KmC + CoA)*(Ac^H)/(KmA^H +Ac^H)" 	["kcat","KmC","KmA","H","E","CoA","Ac"]	["kcat","KmC","KmA","H"]	[227.6,67.2,900,1.7]	{"E":"PHOSACETYLTRANS-CPLX","CoA":"CO-A","Ac":"ACETYL-P"}	1
 "DIHYDRODIPICSYN-RXN_9"	"DIHYDRODIPICSYN-RXN"	["DIHYDRODIPICSYN-CPLX"]	["PYRUVATE","L-ASPARTATE-SEMIALDEHYDE"]	[]	"standard"		[45]	[150,120]	[]	null	null	null	null	null	1
 "DIHYDRODIPICSYN-RXN_9_kcat_45"	"DIHYDRODIPICSYN-RXN"	["DIHYDRODIPICSYN-CPLX"]	["PYRUVATE","L-ASPARTATE-SEMIALDEHYDE"]	[]	"standard"		[45]	[]	[]	null	null	null	null	null	1

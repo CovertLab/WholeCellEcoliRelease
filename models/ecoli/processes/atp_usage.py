@@ -37,13 +37,13 @@ class AtpUsage(wholecell.processes.process.Process):
 		# Load constants
 		self.nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / units.mol)
 
-		moleculeIds = ["ATP[c]", "WATER[c]", "Pi[c]", "ADP[c]", "PROTON[c]"]
+		moleculeIds = ["ATP[c]", "WATER[c]", "PI[c]", "ADP[c]", "PROTON[c]"]
 		self.molecules = self.bulkMoleculesView(moleculeIds)
 		self.reactants = self.bulkMoleculesView(["ATP[c]", "WATER[c]"])
-		self.products = self.bulkMoleculesView(["ADP[c]", "Pi[c]", "PROTON[c]"])
+		self.products = self.bulkMoleculesView(["ADP[c]", "PI[c]", "PROTON[c]"])
 		self.atp = self.bulkMoleculeView("ATP[c]")
 		self.h2o = self.bulkMoleculeView("WATER[c]")
-		# self.pi = self.bulkMoleculeView("Pi[c]")
+		# self.pi = self.bulkMoleculeView("PI[c]")
 		# self.adp = self.bulkMoleculeView("ADP[c]")
 		# self.h = self.bulkMoleculeView("PROTON[c]")
 

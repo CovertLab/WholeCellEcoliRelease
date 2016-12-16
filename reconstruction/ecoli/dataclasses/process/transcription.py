@@ -156,8 +156,8 @@ class Transcription(object):
 		self.rnaExpression = {}
 		self.rnaSynthProb = {}
 
-		self.rnaExpression["basal"] = expression
-		self.rnaSynthProb["basal"] = synthProb
+		self.rnaExpression["basal"] = expression / expression.sum()
+		self.rnaSynthProb["basal"] = synthProb / synthProb.sum()
 
 
 		self.rnaData = UnitStructArray(rnaData, field_units)

@@ -32,7 +32,8 @@ MIN_PERCENT_DEVIATION_TO_SHOW = .001
 MAX_NUM_DEVIANTS_TO_SHOW = 5
 
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-
+	return
+	
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
 

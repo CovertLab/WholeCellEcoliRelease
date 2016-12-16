@@ -37,6 +37,12 @@ def createMassesByCompartments(dictList):
 			for c in x['location']
 			], dtype = np.float64)
 
+def createModifiedFormMassesByCompartments(dictList):
+	return np.array([x['mw7.2']
+			for x in dictList
+			for c in x['location']
+			], dtype = np.float64)
+
 def createMetaboliteMassesByCompartments(dictList, metAt, total):
 	leading = metAt
 	trailing = total - metAt - 1

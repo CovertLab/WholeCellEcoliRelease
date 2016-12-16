@@ -67,6 +67,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		self.metaboliteCountsInit = np.zeros(len(self.metaboliteNamesFromNutrients), np.float64)
 		self.metaboliteCountsFinal = np.zeros(len(self.metaboliteNamesFromNutrients), np.float64)
 		self.metaboliteConcentrations = np.zeros(len(self.metaboliteNamesFromNutrients), np.float64)
+		self.enzymeIDs = self.metabolism.enzymeNames
 		self.enzymeCountsInit = np.zeros(len(self.metabolism.enzymeNames), np.float64)
 		self.countsToMolar = np.zeros(1, np.float64)
 
@@ -77,6 +78,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		tableWriter.writeAttributes(
 			reactionIDs = list(self.reactionIDs),
 			constraintIDs = self.constraintIDs,
+			enzymeIDs = self.enzymeIDs,
 			constraintToReactionDict = self.constraintToReactionDict,
 			kineticTargetFluxNames = self.kineticTargetFluxNames,
 			kineticOneSidedTargets = self.kineticOneSidedTargets,

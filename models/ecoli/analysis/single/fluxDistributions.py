@@ -36,7 +36,7 @@ HIGHLIGHT_PRE_POST_DNA_DIFF = False
 fitterPredictionColor = "red"
 
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-
+	return
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
 

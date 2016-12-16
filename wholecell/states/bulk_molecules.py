@@ -164,7 +164,6 @@ class BulkMolecules(wholecell.states.state.State):
 
 		self._countsAllocatedFinal[:] = self._countsAllocatedInitial
 
-
 	def calculatePreEvolveStateMass(self):
 		# Compute masses of partitioned molecules
 
@@ -210,14 +209,22 @@ class BulkMolecules(wholecell.states.state.State):
 
 	def tableCreate(self, tableWriter):
 		self.container.tableCreate(tableWriter)
-
+		tableWriter.writeAttributes(
+			processNames = self._processIDs,
+			)
 
 	def tableAppend(self, tableWriter):
-		self.container.tableAppend(tableWriter)
-
+		# self.container.tableAppend(tableWriter)
+		tableWriter.append(
+			counts = self.container._counts,
+			atpAllocatedInitial = self._countsAllocatedInitial[self.container._objectNames.index("ATP[c]"), :],
+			atpAllocatedFinal = self._countsAllocatedFinal[self.container._objectNames.index("ATP[c]"), :],
+			atpRequested = self._countsRequested[self.container._objectNames.index("ATP[c]"), :],
+			)
 
 	def tableLoad(self, tableReader, tableIndex):
 		self.container.tableLoad(tableReader, tableIndex)
+
 
 
 def calculatePartition(processPriorities, countsRequested, counts, countsPartitioned):

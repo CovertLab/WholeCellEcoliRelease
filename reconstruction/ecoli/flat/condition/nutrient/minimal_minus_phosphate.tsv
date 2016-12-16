@@ -1,6 +1,6 @@
 "molecule id"	"lower bound (units.mmol / units.g / units.h)"	"upper bound (units.mmol / units.g / units.h)"
 "ADP[c]"	3.15	3.15
-"Pi[c]"	3.15	3.15
+"PI[c]"	3.15	3.15
 "PROTON[c]"	3.15	3.15
 "GLC[p]"	NaN	10
 "OXYGEN-MOLECULE[p]"	NaN	NaN

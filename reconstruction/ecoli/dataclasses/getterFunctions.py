@@ -41,7 +41,7 @@ class getterFunctions(object):
 		return [self._locationDict[x] for x in ids]
 
 	def _buildAllMasses(self, raw_data, sim_data):
-		size = len(raw_data.rnas) + len(raw_data.proteins) + len(raw_data.proteinComplexes) + len(raw_data.metabolites) + len(raw_data.polymerized) + len(raw_data.water) + len(raw_data.chromosome)
+		size = len(raw_data.rnas) + len(raw_data.proteins) + len(raw_data.proteinComplexes) + len(raw_data.metabolites) + len(raw_data.modifiedForms) + len(raw_data.polymerized) + len(raw_data.water) + len(raw_data.chromosome)
 		allMass = np.empty(size,
 			dtype = [
 					('id',		'a50'),
@@ -54,6 +54,7 @@ class getterFunctions(object):
 		listMass.extend([(x['id'],np.sum(x['mw'])) for x in raw_data.proteins])
 		listMass.extend([(x['id'],np.sum(x['mw'])) for x in raw_data.proteinComplexes])
 		listMass.extend([(x['id'],np.sum(x['mw7.2'])) for x in raw_data.metabolites])
+		listMass.extend([(x['id'],np.sum(x['mw7.2'])) for x in raw_data.modifiedForms])
 		listMass.extend([(x['id'],np.sum(x['mw'])) for x in raw_data.polymerized])
 		listMass.extend([(x['id'],np.sum(x['mw7.2'])) for x in raw_data.water])
 		listMass.extend([(x['id'],np.sum(x['mw'])) for x in raw_data.chromosome])

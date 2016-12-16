@@ -1,11 +1,11 @@
 "molecule id"	"lower bound (units.mmol / units.g / units.h)"	"upper bound (units.mmol / units.g / units.h)"
 "ADP[c]"	3.15	3.15
-"Pi[c]"	3.15	3.15
+"PI[c]"	3.15	3.15
 "PROTON[c]"	3.15	3.15
 "FUM[p]"	NaN	NaN
 "OXYGEN-MOLECULE[p]"	NaN	NaN
 "AMMONIUM[c]"	NaN	NaN
-"Pi[p]"	NaN	NaN
+"PI[p]"	NaN	NaN
 "K+[p]"	NaN	NaN
 "SULFATE[p]"	NaN	NaN
 "FE+2[p]"	NaN	NaN

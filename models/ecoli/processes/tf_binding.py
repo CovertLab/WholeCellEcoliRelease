@@ -60,6 +60,8 @@ class TfBinding(wholecell.processes.process.Process):
 					self.tfMoleculeInactiveView[tf] = self.bulkMoleculeView(sim_data.process.equilibrium.getUnbound(tf + "[c]"))
 				else:
 					self.tfMoleculeInactiveView[tf] = self.bulkMoleculeView(sim_data.process.transcription_regulation.activeToBound[tf] + "[c]")
+			elif self.tfToTfType[tf] == "2CS":
+				self.tfMoleculeInactiveView[tf] = self.bulkMoleculeView(sim_data.process.two_component_system.activeToInactiveTF[tf + "[c]"])
 
 
 	def calculateRequest(self):
@@ -99,7 +101,7 @@ class TfBinding(wholecell.processes.process.Process):
 					pPromoterBound = 1.
 				else:
 					pPromoterBound = 0.
-			elif self.tfToTfType[tf] == "1CS":
+			else:
 				pPromoterBound = self.pPromoterBoundTF(tfActiveCounts, tfInactiveCounts)
 
 			nToBind = int(stochasticRound(self.randomState, promoterCounts * pPromoterBound))

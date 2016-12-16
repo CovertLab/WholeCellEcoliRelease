@@ -64,6 +64,12 @@ class State(object):
 
 		self.bulkMolecules.addToBulkState(complexIds, complexMasses)
 
+		# Set modified forms
+		modifiedFormIds = sf.createIdsWithCompartments(raw_data.modifiedForms)
+		modifiedFormMasses = units.g / units.mol * sf.createModifiedFormMassesByCompartments(raw_data.modifiedForms)
+
+		self.bulkMolecules.addToBulkState(modifiedFormIds, modifiedFormMasses)
+
 		# Set chromosome
 		chromosomeIds = sf.createIdsWithCompartments(raw_data.chromosome)
 		chromosomeMasses = units.g / units.mol * sf.createMassesByCompartments(raw_data.chromosome)

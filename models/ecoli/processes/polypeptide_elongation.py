@@ -99,7 +99,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.gtp = self.bulkMoleculeView("GTP[c]")
 		self.gdp = self.bulkMoleculeView("GDP[c]")
-		self.pi = self.bulkMoleculeView("Pi[c]")
+		self.pi = self.bulkMoleculeView("PI[c]")
 		self.h   = self.bulkMoleculeView("PROTON[c]")
 
 		self.gtpUsed = 0

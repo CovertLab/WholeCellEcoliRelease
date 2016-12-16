@@ -41,10 +41,9 @@ class Complexation(object):
 			for molecule in reaction["stoichiometry"]:
 				if molecule["type"] == "metabolite":
 					moleculeName = "{}[{}]".format(
-						molecule["molecule"].upper(), # this is stupid # agreed
+						molecule["molecule"].upper(),
 						molecule["location"]
 						)
-
 				else:
 					moleculeName = "{}[{}]".format(
 						molecule["molecule"],

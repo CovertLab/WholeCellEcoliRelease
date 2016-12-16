@@ -33,7 +33,8 @@ NUMERICAL_ZERO = 1e-25
 BURN_IN_PERIOD = 150
 
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-
+	return
+	
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
 

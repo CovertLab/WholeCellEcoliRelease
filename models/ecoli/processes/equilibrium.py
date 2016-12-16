@@ -90,6 +90,3 @@ class Equilibrium(wholecell.processes.process.Process):
 		self.molecules.countsInc(
 			np.dot(self.stoichMatrix, rxnFluxes)
 			)
-
-
-

@@ -28,6 +28,8 @@ class VariantSimDataTask(FireTaskBase):
 
 		print info["shortName"]
 
+		import sys; sys.setrecursionlimit(4000)
+
 		cPickle.dump(
 			sim_data,
 			open(self["output_sim_data"], "wb"),

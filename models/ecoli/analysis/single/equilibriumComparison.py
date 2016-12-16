@@ -58,8 +58,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	cellVolume = cellMass / cellDensity
 
 	fig = plt.figure(figsize = (20, 20))
-	rows = 7
-	cols = 3
+	rows = 6
+	cols = 6
 	num_subentries = 3
 
 	for idx in xrange(stoichMatrix.shape[1]):
