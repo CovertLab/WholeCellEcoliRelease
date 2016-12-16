@@ -81,7 +81,7 @@ class TwoComponentSystem(object):
 							molecule["location"]
 							)
 
-					# moleculeName for common molecules (ATP, ADP, Pi, WATER, PROTON)
+					# moleculeName for common molecules (ATP, ADP, PI, WATER, PROTON)
 					else:
 						moleculeName = "{}[{}]".format(
 							molecule["molecule"],
@@ -399,7 +399,7 @@ class TwoComponentSystem(object):
 				dy[thisIdx] += fluxForPosIdxs
 
 		# Metabolism will keep these molecules at steady state
-		constantMolecules = ["ATP[c]", "ADP[c]", "Pi[c]", "WATER[c]", "PROTON[c]"]
+		constantMolecules = ["ATP[c]", "ADP[c]", "PI[c]", "WATER[c]", "PROTON[c]"]
 		for molecule in constantMolecules:
 			moleculeIdx = np.where(self.moleculeNames == molecule)[0][0]
 			dy[moleculeIdx] = sp.symbol.S.Zero
