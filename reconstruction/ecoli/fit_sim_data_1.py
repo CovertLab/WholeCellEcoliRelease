@@ -56,6 +56,11 @@ def fitSimData_1(raw_data):
 	# Increase RNA poly mRNA deg rates
 	setRnaPolymeraseCodingRnaDegradationRates(sim_data)
 
+	# Make adjustments for metabolic enzymes
+	setTranslationEfficiencies(sim_data)
+	setRNAExpression(sim_data)
+	setRNADegRates(sim_data)
+
 	# Set C-period
 	setCPeriod(sim_data)
 
@@ -430,6 +435,38 @@ def setRnaPolymeraseCodingRnaDegradationRates(sim_data):
 	subunitIndexes = np.array([np.where(sim_data.process.translation.monomerData["id"] == id_)[0].item() for id_ in rnaPolySubunits]) # there has to be a better way...
 	mRNA_indexes = sim_data.relation.rnaIndexToMonomerMapping[subunitIndexes]
 	sim_data.process.transcription.rnaData.struct_array["degRate"][mRNA_indexes] = RNA_POLY_MRNA_DEG_RATE_PER_S
+
+def setTranslationEfficiencies(sim_data):
+	adjustments = {
+		"EG12438-MONOMER[c]": 10,
+		"ADCLY-MONOMER[c]": 5,
+		}
+
+	for protein in adjustments:
+		idx = np.where(sim_data.process.translation.monomerData == protein)[0]
+		sim_data.process.translation.translationEfficienciesByMonomer[idx] *= adjustments[protein]
+
+def setRNAExpression(sim_data):
+	adjustments = {
+		"EG12438_RNA[c]": 10,
+		"EG11493_RNA[c]": 10,
+		}
+
+	for rna in adjustments:
+		idx = np.where(sim_data.process.transcription.rnaData["id"] == rna)[0]
+		sim_data.process.transcription.rnaExpression["basal"][idx] *= adjustments[rna]
+
+	sim_data.process.transcription.rnaExpression["basal"] /= sim_data.process.transcription.rnaExpression["basal"].sum()
+
+def setRNADegRates(sim_data):
+	adjustments = {
+		"EG12438_RNA[c]": 2,
+		"EG11493_RNA[c]": 2,
+		}
+
+	for rna in adjustments:
+		idx = np.where(sim_data.process.transcription.rnaData["id"] == rna)[0]
+		sim_data.process.transcription.rnaData.struct_array["degRate"][idx] *= adjustments[rna]
 
 def setCPeriod(sim_data):
 	sim_data.growthRateParameters.c_period = sim_data.process.replication.genome_length * units.nt / sim_data.growthRateParameters.dnaPolymeraseElongationRate / 2
