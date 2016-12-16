@@ -111,6 +111,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	nTimesteps = time.shape[0]
 	nMolecules = normalizedCounts.shape[1]
+
+	# Only create Bokeh plot if every metabolite is identified
+	if metaboliteNames.shape != nMolecules:
+		return
+
 	moleculeCounts = np.round(10* np.random.rand(nTimesteps*nMolecules).reshape((nMolecules, nTimesteps)))
 
 	# Plot first metabolite to initialize plot settings
