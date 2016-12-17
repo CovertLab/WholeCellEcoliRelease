@@ -13,6 +13,9 @@ def condition(sim_data, index):
 	# TODO: add new column to condition defs to replace this?
 	if sim_data.conditions[conditionLabel]["nutrients"] == "minimal_plus_amino_acids":
 		sim_data.nutrientsTimeSeriesLabel = "000003_aa"
+	elif sim_data.conditions[conditionLabel]["nutrients"] == "minimal_minus_oxygen":
+		sim_data.nutrientsTimeSeriesLabel = "000004_oxygen_absent"
+
 
 	return dict(
 		shortName = "{}_env".format(conditionLabel),
