@@ -60,6 +60,7 @@ class moleculeGroups(object):
 			'fragmentNT_IDs'		:	[x['id'].replace('Polymerized','Fragment') for x in raw_data.polymerized if x['is_ntp'] and not x['is_end']],
 			'exoRnaseIds' 			:	['EG11620-MONOMER[c]', 'G7175-MONOMER[c]', 'EG10858-MONOMER[c]', 'EG10863-MONOMER[c]', 'EG11259-MONOMER[c]', 'EG11547-MONOMER[c]', 'EG10746-MONOMER[c]', 'G7842-MONOMER[c]', 'EG10743-MONOMER[c]'],
 			'endoRnase_RnaIDs'		:	['EG10856_RNA[c]', 'EG10857_RNA[c]', 'EG10859_RNA[c]', 'EG10860_RNA[c]', 'EG10861_RNA[c]', 'EG10862_RNA[c]', 'EG11299_RNA[c]', 'G7175_RNA[c]', 'G7365_RNA[c]'],
+			'exoRnase_RnaIDs' 		:	['EG11620_RNA[c]', 'G7175_RNA[c]', 'EG10858_RNA[c]', 'EG10863_RNA[c]', 'EG11259_RNA[c]', 'EG11547_RNA[c]', 'EG10746_RNA[c]', 'G7842_RNA[c]', 'EG10743_RNA[c]'],
 			'partialChromosome'		:	["CHROM_FORWARD[c]", "CHROM_REVERSE[c]", "CHROM_FORWARD_COMPLEMENT[c]", "CHROM_REVERSE_COMPLEMENT[c]"],
 			'fullChromosome'		:	["CHROM_FULL[c]"],
 			'rProteins'				:	['EG10872-MONOMER[c]', 'EG10879-MONOMER[c]',

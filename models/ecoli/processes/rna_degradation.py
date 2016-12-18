@@ -136,6 +136,8 @@ class RnaDegradation(wholecell.processes.process.Process):
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg)
 		cellVolume = cellMass / self.cellDensity
 		countsToMolar = 1 / (self.nAvogadro * cellVolume)
+		#import ipdb; ipdb.set_trace(); 
+		#x = np.array((self.Km * self.isMRna).asNumber()); CV = np.std(x[x > 0.0]) / np.mean(x[x > 0.0])
 
 		rnasTotal = self.rnas.total().copy()
 		rnasTotal[self.rrsaIdx] += self.ribosome30S.total()
@@ -240,10 +242,22 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# First order decay with non-functional EndoRNase activity 
 		# Determine mRNAs to be degraded according to Poisson distribution (Kdeg * RNA)
 		if not self.EndoRNaseFunc:
+			# high noise
 			nRNAsToDegrade = np.fmin(
 				self.randomState.poisson( (self.rnaDegRates * rnasTotal).asNumber() ),
 				self.rnas.total()
 				)
+
+			# alternative -> first-order RNA decay with low noise:
+			# nRNAsToDegrade = np.zeros(len(RNAspecificity))
+			# nRNAsTotalToDegrade = np.round(np.sum((self.rnaDegRates * self.rnas.total()).asNumber()) + (8 * (random.random() - 0.5)))
+			# #import ipdb; ipdb.set_trace()
+			# RNAspecificity = (self.rnaDegRates * self.rnas.total()).asNumber() 
+			# while nRNAsToDegrade.sum() < nRNAsTotalToDegrade and (self.rnas.total()).sum() != 0:
+			# 	nRNAsToDegrade += np.fmin(
+			# 			self.randomState.multinomial(nRNAsTotalToDegrade - nRNAsToDegrade.sum(), 1. / sum(RNAspecificity * nRNAs) * RNAspecificity * nRNAs),
+			# 			self.rnas.total()
+			# 		)
 
 
 		self.rnas.requestIs(nRNAsToDegrade)
@@ -298,6 +312,8 @@ class RnaDegradation(wholecell.processes.process.Process):
 		nExoRNases = self.exoRnases.counts()
 		exoCapacity = nExoRNases.sum() * self.KcatExoRNase * (units.s * self.timeStepSec())
 
+		#import ipdb; ipdb.set_trace(); 
+		NucleotideRecycling = self.fragmentBases.counts().sum()
 		if exoCapacity >= self.fragmentBases.counts().sum():
 			self.nmps.countsInc(self.fragmentBases.counts())
 			self.h2o.countsDec(self.fragmentBases.counts().sum())
@@ -311,3 +327,6 @@ class RnaDegradation(wholecell.processes.process.Process):
 			self.h2o.countsDec(fragmentBasesDigested.sum())
 			self.h.countsInc(fragmentBasesDigested.sum())
 			self.fragmentBases.countsDec(fragmentBasesDigested)
+			NucleotideRecycling = fragmentBasesDigested.sum()
+		
+		self.writeToListener("RnaDegradationListener", "fragmentBasesDigested", NucleotideRecycling)

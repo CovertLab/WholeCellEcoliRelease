@@ -33,6 +33,7 @@ class RnaDegradationListener(wholecell.listeners.listener.Listener):
 		self.FractionActiveEndoRNases = 0.
 		self.DiffRelativeFirstOrderDecay = 0.
 		self.FractEndoRRnaCounts = 0.
+		self.fragmentBasesDigested = 0
 
 	def tableCreate(self, tableWriter):
 		tableWriter.writeAttributes( # TODO: reconsider attribute names
@@ -41,6 +42,7 @@ class RnaDegradationListener(wholecell.listeners.listener.Listener):
 			FractionActiveEndoRNases = self.countUnits,
 			DiffRelativeFirstOrderDecay = self.countUnits,
 			FractEndoRRnaCounts = self.countUnits,
+			fragmentBasesDigested = self.countUnits,
 			)
 
 	def tableAppend(self, tableWriter):
@@ -52,4 +54,5 @@ class RnaDegradationListener(wholecell.listeners.listener.Listener):
 			FractionActiveEndoRNases = self.FractionActiveEndoRNases,
 			DiffRelativeFirstOrderDecay = self.DiffRelativeFirstOrderDecay,
 			FractEndoRRnaCounts = self.FractEndoRRnaCounts,
+			fragmentBasesDigested = self.fragmentBasesDigested,
 			)

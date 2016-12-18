@@ -2,7 +2,7 @@
 "ADP[c]"	3.15	3.15
 "PI[c]"	3.15	3.15
 "PROTON[c]"	3.15	3.15
-"GLC[p]"	NaN	10
+"GLC[p]"	NaN	10.0
 "OXYGEN-MOLECULE[p]"	NaN	NaN
 "AMMONIUM[c]"	NaN	NaN
 "K+[p]"	NaN	NaN

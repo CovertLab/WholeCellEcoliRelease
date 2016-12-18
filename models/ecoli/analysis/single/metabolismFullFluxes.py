@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """
-@author: John Mason
+@author: Javier Carrera
 @organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/24/2014
+@date: Created 4/04/2016
 """
 
 from __future__ import division
@@ -103,7 +103,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	ax_cmap = fig.add_subplot(grid[1])
 
 	gradient = np.array((np.arange(0, 100)/100).tolist() + [+2,]*5, ndmin=2).transpose()
-
+	
 	ax_cmap.imshow(
 		gradient,
 		aspect = "auto",
@@ -133,6 +133,7 @@ if __name__ == "__main__":
 	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
 	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
 	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
+	parser.add_argument("--validationDataFile", help = "KB file name", type = str, default = "None")
 
 	args = parser.parse_args().__dict__
 

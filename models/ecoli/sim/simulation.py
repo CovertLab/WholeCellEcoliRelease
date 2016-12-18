@@ -36,7 +36,6 @@ from models.ecoli.listeners.cell_division import CellDivision
 from models.ecoli.listeners.rna_synth_prob import RnaSynthProb
 
 
-
 # Analysis
 import models.ecoli.analysis.single
 import models.ecoli.analysis.cohort

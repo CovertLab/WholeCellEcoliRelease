@@ -71,6 +71,7 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		self.waterIndex = sim_data.submassNameToIndex["water"]
 
+
 		# Set initial values
 
 		self.setInitial = False
@@ -196,7 +197,9 @@ class Mass(wholecell.listeners.listener.Listener):
 		self.rnaMassFoldChange = self.rnaMass / self.rnaMassInitial
 		self.smallMoleculeFoldChange = self.smallMoleculeMass / self.smallMoleculeMassInitial
 
+
 		self.expectedMassFoldChange = np.exp(np.log(2) * (self.time() - self.timeInitial) / self.cellCycleLen)
+
 
 	def tableCreate(self, tableWriter):
 		# Store units as metadata

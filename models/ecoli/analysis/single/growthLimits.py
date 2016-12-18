@@ -81,15 +81,32 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		ntpUsed
 		))
 
-
 	growthLimitsDataFile.close()
+
+
+	# Load ATP usage
+	# ATPusageListenerFile = TableReader(os.path.join(simOutDir, "ATPhydrolyzedUsageListener"))
+	# atpsHydrolyzed = ATPusageListenerFile.readColumn('atpsHydrolyzed')
+	# ATPusageListenerFile.close()
+
 
 	# bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	# bulkMoleculeIds = bulkMolecules.readAttribute("objectNames")
 	# bulkMolecules.close()
+	
 
 	# Plot
 	fig = plt.figure(figsize = (11, 11))
+
+	# Plot GTP consumption
+	# plt.rc('xtick', labelsize=5) 
+	# plt.rc('ytick', labelsize=5)
+	# plt.plot(time / 60., gtpUsed)
+	# plt.plot(time / 60., atpsHydrolyzed)
+	# plt.xlabel("Time (min)", fontsize = 5)
+	# plt.ylabel("GTP counts", fontsize = 5)
+	print "GTP consumption by polypeptide elongation = %d" % np.sum(gtpUsed)
+	# print "ATP hydrolyzed for non-growth associated maintenance = %d" % np.sum(atpsHydrolyzed)
 
 	for idx in range(len(moleculeIds)):
 		ax = plt.subplot(7,4,idx+1)
@@ -151,6 +168,9 @@ if __name__ == "__main__":
 	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
 	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
 
+	parser.add_argument("--validationDataFile", help = "KB file name", type = str, default = "None")
+
 	args = parser.parse_args().__dict__
 
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
+	#main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"], args["validationDataFile"])

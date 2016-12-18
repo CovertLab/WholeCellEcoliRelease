@@ -1819,12 +1819,79 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 	rnaCounts = bulkContainer.counts(sim_data.process.transcription.rnaData['id'])
 	endoCounts = bulkContainer.counts(sim_data.process.rna_decay.endoRnaseIds)
 
-	# Loss function, and derivative 
-	LossFunction, Rneg, R, LossFunctionP, R_aux, L_aux, Lp_aux = sim_data.process.rna_decay.kmLossFunction(
+	rnaConc = countsToMolar * bulkContainer.counts(sim_data.process.transcription.rnaData['id'])
+	Kmcounts = (( 1 / degradationRates * totalEndoRnaseCapacity ) - rnaConc).asNumber()
+	sim_data.process.rna_decay.KmFirstOrderDecay = Kmcounts
+
+	# Residuals can be written as follows: Res = f(Km) = 0, then Km = g(Km)
+	# Compute derivative g(Km) in counts:
+	KmQuadratic = 1 / np.power((1 / countsToMolar * Kmcounts).asNumber(), 2)
+	denominator = np.power(np.sum(rnaCounts / (1 / countsToMolar * Kmcounts).asNumber()),2)
+	numerator = (1 / countsToMolar * totalEndoRnaseCapacity).asNumber() * (denominator - (rnaCounts / (1 / countsToMolar * Kmcounts).asNumber()))
+	gDerivative = np.abs(KmQuadratic * (1 - (numerator / denominator)))
+	if VERBOSE: print "Max derivative (counts) = %f" % max(gDerivative)
+
+	# Compute derivative g(Km) in concentrations:
+	KmQuadratic = 1 / np.power(Kmcounts, 2)
+	denominator = np.power(np.sum(rnaConc.asNumber() / Kmcounts),2)
+	numerator = (totalEndoRnaseCapacity).asNumber() * (denominator - (rnaConc.asNumber() / Kmcounts))
+	gDerivative = np.abs(KmQuadratic * (1 - (numerator / denominator)))
+	if VERBOSE: print "Max derivative (concentration) = %f" % max(gDerivative)
+
+
+	# Sensitivity analysis: alpha (regularization term)
+	Alphas = []
+	if sim_data.constants.SensitivityAnalysisAlpha:
+		Alphas = [0.0001, 0.001, 0.01, 0.1, 1, 10]
+
+	for alpha in Alphas:
+		
+		if VERBOSE: print 'Alpha = %f' % alpha
+		
+		LossFunction, Rneg, R, LossFunctionP, R_aux, L_aux, Lp_aux, Jacob, Jacob_aux = sim_data.process.rna_decay.kmLossFunction(
 				(totalEndoRnaseCapacity).asNumber(units.mol / units.L / units.s),
 				(countsToMolar * rnaCounts).asNumber(units.mol / units.L),
 				degradationRates.asNumber(1 / units.s),
-				isEndoRnase
+				isEndoRnase,
+				alpha
+			)
+		KmCooperativeModel = scipy.optimize.fsolve(LossFunction, Kmcounts, fprime = LossFunctionP)
+		sim_data.process.rna_decay.SensitivityAnalysisAlphaResidual[alpha] = np.sum(np.abs(R_aux(KmCooperativeModel)))
+		sim_data.process.rna_decay.SensitivityAnalysisAlphaRegulariNeg[alpha] = np.sum(np.abs(Rneg(KmCooperativeModel)))
+
+	alpha = 0.5
+
+	# Sensitivity analysis: kcatEndoRNase
+	kcatEndo = []
+	if sim_data.constants.SensitivityAnalysisKcatEndo:
+		kcatEndo = [0.0001, 0.001, 0.01, 0.1, 1, 10]
+
+	for kcat in kcatEndo:
+		
+		if VERBOSE: print 'Kcat = %f' % kcat
+
+		totalEndoRNcap = units.sum(endoRNaseConc * kcat)
+		LossFunction, Rneg, R, LossFunctionP, R_aux, L_aux, Lp_aux, Jacob, Jacob_aux = sim_data.process.rna_decay.kmLossFunction(
+				(totalEndoRNcap).asNumber(units.mol / units.L),
+				(countsToMolar * rnaCounts).asNumber(units.mol / units.L),
+				degradationRates.asNumber(1 / units.s),
+				isEndoRnase,
+				alpha
+			)
+		KmcountsIni = (( totalEndoRNcap / degradationRates.asNumber() ) - rnaConc).asNumber()
+		KmCooperativeModel = scipy.optimize.fsolve(LossFunction, KmcountsIni, fprime = LossFunctionP)
+		sim_data.process.rna_decay.SensitivityAnalysisKcat[kcat] = KmCooperativeModel
+		sim_data.process.rna_decay.SensitivityAnalysisKcat_ResIni[kcat] = np.sum(np.abs(R_aux(Kmcounts)))
+		sim_data.process.rna_decay.SensitivityAnalysisKcat_ResOpt[kcat] = np.sum(np.abs(R_aux(KmCooperativeModel)))
+
+
+	# Loss function, and derivative 
+	LossFunction, Rneg, R, LossFunctionP, R_aux, L_aux, Lp_aux, Jacob, Jacob_aux = sim_data.process.rna_decay.kmLossFunction(
+				(totalEndoRnaseCapacity).asNumber(units.mol / units.L / units.s),
+				(countsToMolar * rnaCounts).asNumber(units.mol / units.L),
+				degradationRates.asNumber(1 / units.s),
+				isEndoRnase,
+				alpha
 			)
 
 	needToUpdate = False
@@ -1867,14 +1934,43 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 
 		print "Negative km ratio = %f" % np.sum(np.abs(Rneg(KmCooperativeModel)))
 
-		print "Residuals optimized = %f" % np.sum(np.abs(R(KmCooperativeModel)))
 		print "Residuals (Km initial) = %f" % np.sum(np.abs(R(Kmcounts)))
+		print "Residuals optimized = %f" % np.sum(np.abs(R(KmCooperativeModel)))
 
-		print "EndoR residuals optimized = %f" % np.sum(np.abs(isEndoRnase * R(Kmcounts)))
+		print "EndoR residuals (Km initial) = %f" % np.sum(np.abs(isEndoRnase * R(Kmcounts)))
 		print "EndoR residuals optimized = %f" % np.sum(np.abs(isEndoRnase * R(KmCooperativeModel)))
 
-		print "Residuals (scaled by RNAcounts) Km initial = %f" % np.sum(np.abs(R_aux(Kmcounts)))
-		print "Residuals (scaled by RNAcounts) optimized = %f" % np.sum(np.abs(R_aux(KmCooperativeModel)))
+		print "Residuals (scaled by Kdeg * RNAcounts) Km initial = %f" % np.sum(np.abs(R_aux(Kmcounts)))
+		print "Residuals (scaled by Kdeg * RNAcounts) optimized = %f" % np.sum(np.abs(R_aux(KmCooperativeModel)))
+
+
+	# Evaluate Jacobian around solutions (Kmcounts and KmCooperativeModel)
+	JacobDiag = np.diag(Jacob(KmCooperativeModel))
+	Jacob_auxDiag = np.diag(Jacob_aux(KmCooperativeModel))
+
+	# Compute convergence of non-linear optimization: g'(Km)
+	Gkm = np.abs(1. - JacobDiag)
+	Gkm_aux = np.abs(1. - Jacob_auxDiag)
+	sim_data.process.rna_decay.KmConvergence = Gkm_aux
+
+	# Convergence is guaranteed if g'(Km) <= K < 1
+	if VERBOSE: print "Convergence (Jacobian) = %.0f%% (<K> = %.5f)" % (len(Gkm[Gkm < 1.]) / float(len(Gkm)) * 100., np.mean(Gkm))
+	if VERBOSE: print "Convergence (Jacobian_aux) = %.0f%% (<K> = %.5f)" % (len(Gkm_aux[Gkm_aux < 1.]) / float(len(Gkm_aux)) * 100., np.mean(Gkm_aux[Gkm_aux < 1.]))
+
+	# Save statistics KM optimization
+	sim_data.process.rna_decay.StatsFit['LossKm'] = np.sum(np.abs(LossFunction(Kmcounts)))
+	sim_data.process.rna_decay.StatsFit['LossKmOpt'] = np.sum(np.abs(LossFunction(KmCooperativeModel)))
+
+	sim_data.process.rna_decay.StatsFit['RnegKmOpt'] = np.sum(np.abs(Rneg(KmCooperativeModel)))
+
+	sim_data.process.rna_decay.StatsFit['ResKm'] = np.sum(np.abs(R(Kmcounts)))
+	sim_data.process.rna_decay.StatsFit['ResKmOpt'] = np.sum(np.abs(R(KmCooperativeModel)))
+
+	sim_data.process.rna_decay.StatsFit['ResEndoRNKm'] = np.sum(np.abs(isEndoRnase * R(Kmcounts)))
+	sim_data.process.rna_decay.StatsFit['ResEndoRNKmOpt'] = np.sum(np.abs(isEndoRnase * R(KmCooperativeModel)))
+
+	sim_data.process.rna_decay.StatsFit['ResScaledKm'] = np.sum(np.abs(R_aux(Kmcounts)))
+	sim_data.process.rna_decay.StatsFit['ResScaledKmOpt'] = np.sum(np.abs(R_aux(KmCooperativeModel)))
 
 	return units.mol / units.L * KmCooperativeModel
 

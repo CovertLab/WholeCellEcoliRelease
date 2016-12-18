@@ -38,6 +38,7 @@ TIME_UNITS = units.s
 
 FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
 
+
 SECRETION_PENALTY_COEFF = 1e-5
 
 NONZERO_ENZYMES = False
@@ -357,21 +358,26 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.metabolites.countsIs(metaboliteCountsFinal)
 
+
 		# Use GLPK's dualprimal solver, AFTER the first solution
 		self.fba._solver._model.set_solver_method_dualprimal()
 
 		self.overconstraintMultiples = (self.fba.reactionFluxes()[self.allRateIndices] / self.allRateEstimates.asNumber(FLUX_UNITS))  
+
 		exFluxes = ((COUNTS_UNITS / VOLUME_UNITS) * self.fba.externalExchangeFluxes() / coefficient).asNumber(units.mmol / units.g / units.h)
 
 		# TODO: report as reactions (#) per second & store volume elsewhere
+
+		self.writeToListener("FBAResults", "deltaMetabolites",
+			deltaMetabolites)
+
 		self.writeToListener("FBAResults", "reactionFluxes",
 			self.fba.reactionFluxes() / self.timeStepSec())
 		self.writeToListener("FBAResults", "externalExchangeFluxes",
 			exFluxes)
-		# self.writeToListener("FBAResults", "objectiveValue", # TODO
-		# 	self.fba.objectiveValue() / deltaMetabolites.size) # divide to normalize by number of metabolites
-		self.writeToListener("FBAResults", "outputFluxes",
-			self.fba.outputMoleculeLevelsChange() / self.timeStepSec())
+
+		self.writeToListener("FBAResults", "objectiveValue", # TODO
+		self.fba.objectiveValue()) # / len(deltaMetabolites)) # divide to normalize by number of metabolites
 
 		self.writeToListener("FBAResults", "rowDualValues",
 			self.fba.rowDualValues(self.metaboliteNames))

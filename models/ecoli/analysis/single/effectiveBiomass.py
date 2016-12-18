@@ -58,9 +58,20 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	outputFluxes = fbaResults.readColumn("outputFluxes")
 
+	# deltaMetabolites = fbaResults.readColumn("deltaMetabolites")
+
 	outputMoleculeIDs = np.array(fbaResults.readAttribute("outputMoleculeIDs"))
 
+	# PCC = fbaResults.readColumn("PCC")
+
 	fbaResults.close()
+
+	# IdxAtp = (np.where("ATP[c]" == outputMoleculeIDs))[0][0]; ATP = np.sum(deltaMetabolites[:, IdxAtp])
+	# IdxGtp = (np.where("GTP[c]" == outputMoleculeIDs))[0][0]; GTP = np.sum(deltaMetabolites[:, IdxGtp])
+	# IdxCtp = (np.where("CTP[c]" == outputMoleculeIDs))[0][0]; CTP = np.sum(deltaMetabolites[:, IdxCtp])
+	# IdxUtp = (np.where("UTP[c]" == outputMoleculeIDs))[0][0]; UTP = np.sum(deltaMetabolites[:, IdxUtp])
+	# NtpsProduced = ATP + GTP + CTP + UTP
+	# print "nTPs produced by metabolism (nt/cell-cycle) = %d" % NtpsProduced
 
 	fig = plt.figure(figsize = (30, 15))
 
@@ -157,6 +168,10 @@ if __name__ == "__main__":
 	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
 	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
 
+	parser.add_argument("--validationDataFile", help = "KB file name", type = str, default = "None")
+
 	args = parser.parse_args().__dict__
 
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
+	#main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"], args["validationDataFile"])
+

@@ -183,6 +183,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			)
 
 		self.writeToListener("TranscriptElongationListener", "countRnaSynthesized", terminatedRnas)
+		self.writeToListener("TranscriptElongationListener", "countNTPsUSed", ntpsUsed.sum())
 
 		activeRnaPolys.delByIndexes(np.where(didTerminate)[0])
 

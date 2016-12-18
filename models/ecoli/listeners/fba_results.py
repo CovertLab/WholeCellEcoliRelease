@@ -25,6 +25,7 @@ class FBAResults(wholecell.listeners.listener.Listener):
 	def __init__(self, *args, **kwargs):
 		super(FBAResults, self).__init__(*args, **kwargs)
 
+		self.countUnits = "counts"
 
 	# Construct object graph
 	def initialize(self, sim, sim_data):
@@ -46,6 +47,8 @@ class FBAResults(wholecell.listeners.listener.Listener):
 		self.outputMoleculeIDs = fba.outputMoleculeIDs()
 		self.kineticTargetFluxNames = fba.kineticTargetFluxNames()
 		self.homeostaticTargetMolecules = fba.homeostaticTargetMolecules()
+
+		self.deltaMetabolites = np.zeros(len(self.metabolism.fba.outputMoleculeLevelsChange()), np.float64)
 
 		self.reactionFluxes = np.zeros(len(self.reactionIDs), np.float64)
 		self.externalExchangeFluxes = np.zeros(len(self.externalMoleculeIDs), np.float64)
@@ -80,4 +83,5 @@ class FBAResults(wholecell.listeners.listener.Listener):
 			kineticObjectiveValues = self.kineticObjectiveValues,
 			homeostaticObjectiveValues = self.homeostaticObjectiveValues,
 			homeostaticObjectiveWeight = self.homeostaticObjectiveWeight,
+			deltaMetabolites = self.deltaMetabolites,
 			)
