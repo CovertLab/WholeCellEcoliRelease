@@ -9,7 +9,7 @@ class SimulationTask(FireTaskBase):
 
 	_fw_name = "SimulationTask"
 	required_params = ["input_sim_data", "output_directory"]
-	optional_params = ["seed", "length_sec", "timestep_safety_frac", "timestep_max", "timestep_update_freq", "log_to_shell", "log_to_disk_every"]
+	optional_params = ["seed", "length_sec", "timestep_safety_frac", "timestep_max", "timestep_update_freq", "log_to_shell", "log_to_disk_every", "mass_distribution"]
 
 	def run_task(self, fw_spec):
 
@@ -29,6 +29,7 @@ class SimulationTask(FireTaskBase):
 		options["updateTimeStepFreq"] = self.get("timestep_update_freq", DEFAULT_SIMULATION_KWARGS["updateTimeStepFreq"])
 		options["logToShell"] = self.get("log_to_shell", DEFAULT_SIMULATION_KWARGS["logToShell"])
 		options["logToDiskEvery"] = self.get("log_to_disk_every", DEFAULT_SIMULATION_KWARGS["logToDiskEvery"])
+		options["massDistribution"] = self.get("mass_distribution", DEFAULT_SIMULATION_KWARGS["massDistribution"])
 
 		sim = EcoliSimulation(**options)
 

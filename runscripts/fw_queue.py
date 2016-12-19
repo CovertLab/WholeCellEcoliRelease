@@ -67,6 +67,7 @@ LAUNCHPAD_FILE = str(os.environ.get("LAUNCHPAD_FILE", "my_launchpad.yaml"))
 COMPRESS_OUTPUT = str(os.environ.get("COMPRESS_OUTPUT", "1"))
 SIM_DESCRIPTION = os.environ.get("DESC", "").replace(" ", "_")
 VERBOSE_QUEUE = bool(int(os.environ.get("VERBOSE_QUEUE", "1")))
+MASS_DISTRIBUTION = bool(int(os.environ.get("MASS_DISTRIBUTION", "1")))
 
 ### Set path variables
 
@@ -493,6 +494,7 @@ for i in VARIANTS_TO_RUN:
 							timestep_safety_frac = TIMESTEP_SAFETY_FRAC,
 							timestep_max = TIMESTEP_MAX,
 							timestep_update_freq = TIMESTEP_UPDATE_FREQ,
+							mass_distribution = MASS_DISTRIBUTION,
 							),
 						name = fw_name,
 						spec = {"_queueadapter": {"job_name": fw_name}, "_priority":10}
@@ -513,6 +515,7 @@ for i in VARIANTS_TO_RUN:
 							timestep_safety_frac = TIMESTEP_SAFETY_FRAC,
 							timestep_max = TIMESTEP_MAX,
 							timestep_update_freq = TIMESTEP_UPDATE_FREQ,
+							mass_distribution = MASS_DISTRIBUTION,
 							),
 						name = fw_name,
 						spec = {"_queueadapter": {"job_name": fw_name}, "_priority":11}

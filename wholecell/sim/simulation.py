@@ -30,6 +30,7 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	seed = 0,
 	lengthSec = 3*60*60, # 3 hours max
 	initialTime = 0,
+	massDistribution = True,
 	timeStepSafetyFraction = 1.3,
 	maxTimeStep = 0.9,#2.0, # TODO: Reset to 2 once we update PopypeptideElongation
 	updateTimeStepFreq = 5,

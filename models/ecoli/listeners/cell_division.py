@@ -54,6 +54,10 @@ class CellDivision(wholecell.listeners.listener.Listener):
 		# TODO: set initial masses based on some calculations of the expected
 		# mother cell (divided by two) in the last time step
 
+		self.massCoeff = 1.0
+		if sim._massDistribution:
+			self.massCoeff = sim.randomState.normal(loc = 1.0, scale = 0.1)
+
 		# View on full chromosomes
 		self.fullChromosomeView = self.states['BulkMolecules'].container.countView('CHROM_FULL[c]')
 		self.partialChromosomeView = self.states['BulkMolecules'].container.countsView(self.states['BulkMolecules'].divisionIds['partialChromosome'])
@@ -78,6 +82,6 @@ class CellDivision(wholecell.listeners.listener.Listener):
 
 		# End simulation once the mass of an average cell is
 		# added to current cell.
-		if self.dryMass - self.dryMassInitial >= self.expectedDryMassIncreaseDict[self._sim.processes["PolypeptideElongation"].currentNutrients].asNumber(units.fg):
+		if self.dryMass - self.dryMassInitial >= self.massCoeff * self.expectedDryMassIncreaseDict[self._sim.processes["PolypeptideElongation"].currentNutrients].asNumber(units.fg):
 			if not uneven_counts.any() and self.fullChromosomeView.count() > 1:
 				self._sim.cellCycleComplete()
