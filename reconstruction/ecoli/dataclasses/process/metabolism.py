@@ -293,8 +293,8 @@ class Metabolism(object):
 		for idx, reaction in enumerate(raw_data.enzymeKinetics):
 			reactionID = reaction["reactionID"]
 
-			# Find the temp-adjusted kcat value
-			newKcat = self.temperatureAdjustedKcat(reaction)
+			# Temperature adjust the kcat value
+			self.temperatureAdjustedKcat(reaction)
 
 			# Add compartment tags to enzymes
 			reaction["enzymeIDs"] = self.addEnzymeCompartmentTags(reaction["enzymeIDs"], validEnzymeCompartments)
@@ -535,8 +535,12 @@ class Metabolism(object):
 		return reactionEnzymesDict
 
 	def temperatureAdjustedKcat(self, reactionInfo):
-		return 0
-
+		if reactionInfo["rateEquationType"] == "standard" and len(reactionInfo["Temp"]) > 0:
+			temperature = reactionInfo["Temp"][0]
+			newKcats = []
+			for kcat in reactionInfo["kcat"]:
+				newKcats.append( 2**((37. - temperature) / 10.) * kcat)
+			reactionInfo["kcatAdjusted"] = newKcats
 
 class ConcentrationUpdates(object):
 	def __init__(self, concDict, equilibriumReactions, nutrientData):
