@@ -156,7 +156,9 @@ class EnzymeKinetics(object):
 		if len(kMs) + len(kIs) > len(substrateIDs):
 			raise enzymeKineticsError("The number of saturation constants (kMs and kIs) must not be greater than the number of substrates for a standard reaction. For constraint {}, there are {} kMs, {} kIs, and {} substrates. ReactionInfo: {}".format(reactionInfo["constraintID"], len(kMs), len(kIs), len(substrateIDs), reactionInfo))
 
-		rate = np.amax(reactionInfo["kcat"])*enzymeConc
+		rate = np.amax(reactionInfo["kcat"]) * enzymeConc
+		if "kcatAdjusted" in reactionInfo:
+			rate = np.amax(reactionInfo["kcatAdjusted"]) * enzymeConc
 
 		idx = 0
 		for kM in reactionInfo["kM"]:
