@@ -195,56 +195,16 @@ class Metabolism(object):
 
 		reactionStoich = {}
 		reversibleReactions = []
-		reactionEnzymes = {}
-		reactionRates = {}
-
-		metabolicEnzymes = set()
-		enzymeExceptions = set()
-
-		validEnzymeIDs = set([])
-		validProteinIDs = ['{}[{}]'.format(x['id'],location) for x in raw_data.proteins for location in x['location']]
-		validProteinComplexIDs = ['{}[{}]'.format(x['id'],location) for x in raw_data.proteinComplexes for location in x['location']]
-		validEnzymeIDs.update(validProteinIDs)
-		validEnzymeIDs.update(validProteinComplexIDs)
-		validEnzymeCompartments = collections.defaultdict(set)
-
-		self.default_kcat = raw_data.parameters["carbonicAnhydraseKcat"]
-
-		for enzymeID in validEnzymeIDs:
-			enzyme = enzymeID[:enzymeID.index("[")]
-			location = enzymeID[enzymeID.index("[")+1:enzymeID.index("[")+2]
-
-			validEnzymeCompartments[enzyme].add(location)
-
-		for enzymeID in validEnzymeIDs:
-			enzyme = enzymeID[:enzymeID.index("[")]
-			if len(validEnzymeCompartments[enzyme]) > 1:
-				raise Exception, "Multiple compartments for enzyme %s" % enzyme
-			validEnzymeCompartments[enzyme] = sorted(validEnzymeCompartments[enzyme])[0]
-
-		# Enzymes which should not be used for enzyme-reaction pairs
-		for rxnEnzymePair in raw_data.unconstrainedReactionEnzymes:
-			enzymeExceptions.add(rxnEnzymePair["enzymeID"])
 
 		for reaction in raw_data.reactions:
 			reactionID = reaction["reaction id"]
 			stoich = reaction["stoichiometry"]
 			reversible = reaction["is reversible"]
-			enzyme_list = self.addEnzymeCompartmentTags(reaction["catalyzed by"], validEnzymeCompartments)
 
 			if len(stoich) <= 1:
 				raise Exception("Invalid biochemical reaction: {}, {}".format(reactionID, stoich))
 
 			reactionStoich[reactionID] = stoich
-
-			metabolicEnzymes.update([x for x in enzyme_list if x in validEnzymeIDs])
-
-			# Remove enzyme-reaction links for any enzyme in enzymeExceptions
-			for enzymeID in enzyme_list:
-				if enzymeID in enzymeExceptions:
-					enzyme_list.remove(enzymeID)
-			enzymeKcatLink = {enzymeID:self.default_kcat.asNumber(1 / units.s) for enzymeID in enzyme_list}
-			reactionEnzymes[reactionID] = enzymeKcatLink
 
 			# Add the reverse reaction
 			if reversible:
@@ -254,205 +214,12 @@ class Metabolism(object):
 					for moleculeID, stoichCoeff in reactionStoich[reactionID].viewitems()
 					}
 
-				reactionEnzymes[reverseReactionID] = enzymeKcatLink
 				reversibleReactions.append(reactionID)
-
-		reactionRateInfo = {}
-		constraintIDs = []
-		constraintToReactionDict = {}
-
-		directionAmbiguousRxns = set()
-		directionInferedReactions = set()
-		nonCannonicalRxns = set()
-		unknownRxns = set()
-		truncatedRxns = {}
-		multipleTruncatedOptionRxns = collections.defaultdict(set)
-
-		# Enzyme kinetics data
-		for idx, reaction in enumerate(raw_data.enzymeKinetics):
-			reactionID = reaction["reactionID"]
-			# Ensure all reactions in enzymeKinetics refer to tha actual corresponding reaction in reactions.tsv, rather than a non-canonical alternative substrate
-			if reactionID not in reactionStoich:
-				truncated = False
-				for reactionName in reactionStoich:
-					if reactionName.startswith(reactionID):
-						truncated = True
-						if reactionName in truncatedRxns:
-							if truncatedRxns[reactionID] != reactionName:
-								multipleTruncatedOptionRxns[reactionID].add(truncatedRxns[reactionID])
-								del truncatedRxns[reactionID]
-								multipleTruncatedOptionRxns[reactionID].add(reactionName)
-						elif reactionName in multipleTruncatedOptionRxns:
-							multipleTruncatedOptionRxns[reactionID].add(reactionName)
-						else:
-							truncatedRxns[reactionID] = reactionName
-				if not truncated:
-					unknownRxns.add(reaction["reactionID"])
-				continue
-
-		for idx, reaction in enumerate(raw_data.enzymeKinetics):
-			reactionID = reaction["reactionID"]
-
-			# Temperature adjust the kcat value
-			self.temperatureAdjustedKcat(reaction)
-
-			# Add compartment tags to enzymes
-			reaction["enzymeIDs"] = self.addEnzymeCompartmentTags(reaction["enzymeIDs"], validEnzymeCompartments)
-
-			# If the substrates don't already have a compartment tag, add [c] (cytosol) as a default
-			reaction["substrateIDs"] = [x + '[c]' if x[-3:-2] != '[' else x for x in reaction["substrateIDs"]]
-
-			if reaction["rateEquationType"] == 'custom':
-				# If the enzymes and substrates mentioned in the
-				# customParameterVariables dict lack a compartment tag, add [c]
-				# (cytosol) as a default
-				parametersDict = reaction["customParameterVariables"]
-				for key in parametersDict:
-					value = parametersDict[key]
-					if value[-3:-2] != '[':
-						parametersDict[key] = value + '[c]'
-				reaction["customParameterVariables"] = parametersDict
-
-			# Ensure all reactions in enzymeKinetics refer to tha actual corresponding reaction in reactions.tsv, rather than a non-canonical alternative substrate
-			if reactionID in reactionStoich:
-				thisRxnStoichiometry = reactionStoich[reactionID]
-			else:
-				if reactionID in truncatedRxns:
-					thisRxnStoichiometry = reactionStoich[truncatedRxns[reactionID]]
-				elif reactionID in multipleTruncatedOptionRxns:
-					reactionOptions = set(multipleTruncatedOptionRxns[reactionID])
-
-					# Infer on reaction substrates
-					kineticSubstrates = reaction["substrateIDs"]
-					threshold = 0
-					candidates = set()
-					ambiguous = False
-					for reactionOption in reactionOptions:
-						substrates = set(reactionStoich[reactionOption].keys())
-						amountOfOverlap = len(substrates.intersection(kineticSubstrates))
-						if amountOfOverlap > threshold:
-							threshold = amountOfOverlap
-							candidates = set([reactionOption])
-							ambiguous = False
-						elif amountOfOverlap == threshold:
-							if threshold > 0:
-								ambiguous = True
-							candidates.add(reactionOption)
-					if threshold == 0:
-						# Take none, add this reaction to the unknown reactions list, remove it from multipleTruncatedOptionRxns
-						unknownRxns.add(reactionID)
-						del multipleTruncatedOptionRxns[reactionID]
-					if ambiguous:
-						# Keep all highest-scoring reactions in multipleTruncatedOptionRxns, remove any reactions which score less than threshold
-						multipleTruncatedOptionRxns[reactionID] =  candidates
-					else:
-						# Take the highest-scoring reaction
-						assert len(candidates) == 1
-						thisRxnStoichiometry = reactionStoich[candidates.pop()]
-
-						# Remove this reaction from multipleTruncatedOptionRxns
-						del multipleTruncatedOptionRxns[reactionID]
-
-				elif reactionID in unknownRxns:
-					continue
-				else:
-					raise Exception("Something went wrong with reaction {}".format(reactionID))
-
-			substrateIDs = reaction["substrateIDs"]
-			if reaction["rateEquationType"] == "standard":
-				if len(reaction["kI"]) > 0:
-					for substrate in substrateIDs[:-len(reaction["kI"])]:
-						if substrate not in thisRxnStoichiometry.keys():
-							nonCannonicalRxns.add(reaction["constraintID"])
-			elif reaction["rateEquationType"] == "custom":
-				pass
-			else:
-				raise Exception("rateEquationType {} not understood in reaction {} on enzymeKinetics line {}".format(reaction["reactionID"], reaction["reactionID"], idx))
-
-			# Check if this constraint is for a reverse reaction
-			if reactionID in reversibleReactions:
-				if reaction["direction"] == "forward":
-					pass
-				elif reaction["direction"] == "reverse":
-					reaction["reactionID"] = reverseReactionString.format(reactionID)
-					reaction["constraintID"] = reverseReactionString.format(reaction["constraintID"])
-				else:
-					# Infer directionality from substrates
-					directionInferedReactions.add(reaction["reactionID"])
-					if reaction["rateEquationType"] == "standard":
-						reverseCounter = 0.
-						allCounter = 0.
-						# How many substrates are products, how many are reactants?
-						for substrate in reaction["substrateIDs"]:
-							if substrate in thisRxnStoichiometry.keys():
-								if thisRxnStoichiometry[substrate] > 0:
-									reverseCounter += 1.
-							allCounter += 1.
-						# If more are products than reactants, treat this as a reverse reaction constraint
-						# Record any ambiguous reactions and throw an exception once all are gathered
-						if allCounter < 1.0:
-							directionAmbiguousRxns.add(reaction["reactionID"])
-							continue
-
-						if reverseCounter == allCounter:
-							reaction["reactionID"] = reverseReactionString.format(reactionID)
-							reaction["constraintID"] = reverseReactionString.format(reaction["constraintID"])
-						elif reverseCounter > 0:
-							if len(reaction["kI"]) == reverseCounter:
-								pass
-							else:
-								directionAmbiguousRxns.add(reaction["reactionID"])
-					elif reaction["rateEquationType"] == "custom":
-						raise Exception("Custom equations for reversible reactions must specify direction. Reaction {} on enzymeKinetics line {} does not.".format(reactionID, idx))
-					else:
-						raise Exception("Reaction {} with rateEquationType ({}) not recognized on enzymeKinetics line {}.".format(reactionID, reaction["rateEquationType"], idx))
-
-			constraintID = reaction["constraintID"]
-			constraintIDs.append(constraintID)
-			constraintToReactionDict[constraintID] = reactionID
-
-			reactionRateInfo[constraintID] = reaction
-
-		if len(unknownRxns) > 0:
-			message = "The following {} enzyme kinetics reactions appear to be for reactions which don't exist in the model - they should be corrected or removed. {}".format(len(unknownRxns), unknownRxns)
-			if raiseForUnknownRxns:
-				raise Exception(message)
-			elif warnForUnknownRxns:
-				warnings.warn(message)
-
-		if len(truncatedRxns) > 0:
-			message = "The following {} enzyme kinetics reaction names are truncated versions of reactions in the model {}".format(len(truncatedRxns), truncatedRxns)
-			if warnForTruncatedRxns:
-				warnings.warn(message)
-			elif raiseForTruncatedRxns:
-				raise Exception(message)
-
-		if len(multipleTruncatedOptionRxns) > 0:
-			message = "The following {} enzyme kinetics reaction names are truncated versions of more than one reaction in the model {}".format(len(multipleTruncatedOptionRxns), multipleTruncatedOptionRxns)
-			if warnForMultiTruncatedRxns:
-				warnings.warn(message)
-			elif raiseForTruncatedRxns:
-				raise Exception(message)
-
-		if len(directionAmbiguousRxns) > 0:
-			raise Exception("The following enzyme kinetics entries have ambiguous direction. Split them into multiple lines in the flat file to increase clarity. {}".format(directionAmbiguousRxns))
-
-		if len(nonCannonicalRxns) > 0:
-			raise Exception("The following {} enzyme kinetics entries reference substrates which don't appear in their corresponding reaction, and aren't paired with an inhibitory constant (kI). They should be corrected or removed. {}".format(len(nonCannonicalRxns), nonCannonicalRxns))
-
-		self.reactionEnzymes = self.buildEnzymeReactionKcatLinks(reactionRateInfo, reactionEnzymes)
-
-		self.metabolicEnzymes = sorted(list(metabolicEnzymes))
 
 		self.reactionStoich = reactionStoich
 		self.nutrientsTimeSeries = sim_data.nutrientsTimeSeries
 		self.maintenanceReaction = {"ATP[c]": -1, "WATER[c]": -1, "ADP[c]": +1, "PI[c]": +1, "PROTON[c]": +1,}
 		self.reversibleReactions = reversibleReactions
-		self.directionInferedReactions = sorted(list(directionInferedReactions))
-		self.reactionRateInfo = reactionRateInfo
-		self.enzymeNames = list(validEnzymeIDs)
-		self.constraintIDs = constraintIDs
-		self.constraintToReactionDict = constraintToReactionDict
 
 	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits, nutrientsTimeSeriesLabel, time, concModificationsBasedOnCondition = None, preview = False):
 		newObjective = None
@@ -485,22 +252,6 @@ class Metabolism(object):
 
 		return externalMoleculeLevels, newObjective
 
-	def addEnzymeCompartmentTags(self, enzymeIDs, validEnzymeCompartmentsDict):
-		"""
-		If the enzymes don't already have a compartment tag, add one from the valid compartment list or [c] (cytosol) as a default
-		"""
-		new_reaction_enzymes = []
-		for reactionEnzyme in enzymeIDs:
-			if reactionEnzyme[-3:-2] !='[':
-				if len(validEnzymeCompartmentsDict[reactionEnzyme]) > 0:
-					new_reaction_enzymes.append(reactionEnzyme +'['+str(validEnzymeCompartmentsDict[reactionEnzyme])+']')
-				else:
-					new_reaction_enzymes.append(reactionEnzyme + '[c]')
-			else:
-				new_reaction_enzymes.append(reactionEnzyme)
-
-		return new_reaction_enzymes
-
 	def enzymeReactionMatrix(self, reactionIDs, enzymeNames, reactionEnzymesDict):
 		"""
 		Builds a (num reactions) by (num enzymes) matrix which maps enzyme concentrations to overall reaction rate.
@@ -518,21 +269,6 @@ class Metabolism(object):
 						enzymeIdx = enzymeNames.index(enzymeName)
 						enzymeReactionMatrix[rxnIdx, enzymeIdx] = kcat
 		return enzymeReactionMatrix
-
-	def buildEnzymeReactionKcatLinks(self, reactionRateInfo, reactionEnzymesDict):
-		for constraintID, reactionInfo in reactionRateInfo.iteritems():
-			if reactionInfo["rateEquationType"] == "custom":
-				continue
-
-			reactionID = reactionInfo["reactionID"]
-			enzymeIDs = reactionInfo["enzymeIDs"]
-			kcat = reactionInfo["kcat"][0]
-			if reactionID in reactionEnzymesDict:
-				for enzymeID in enzymeIDs:
-					if enzymeID in reactionEnzymesDict[reactionID]:
-						if kcat > reactionEnzymesDict[reactionID][enzymeID]:
-							reactionEnzymesDict[reactionID][enzymeID] = kcat
-		return reactionEnzymesDict
 
 	def temperatureAdjustedKcat(self, reactionInfo):
 		if reactionInfo["rateEquationType"] == "standard" and len(reactionInfo["Temp"]) > 0:
