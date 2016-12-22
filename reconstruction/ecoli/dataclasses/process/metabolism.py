@@ -12,9 +12,13 @@ from itertools import chain
 
 from wholecell.utils import units
 from wholecell.utils.unit_struct_array import UnitStructArray
+from wholecell.utils.write_metabolic_constraints_file import writeMetabolicConstraintsFile
+import wholecell
+import os
 import numpy as np
 import collections
 import warnings
+import sympy as sp
 
 ILE_LEU_CONCENTRATION = 3.0e-4 # mmol/L
 ILE_FRACTION = 0.360 # the fraction of iso/leucine that is isoleucine; computed from our monomer data
@@ -216,10 +220,164 @@ class Metabolism(object):
 
 				reversibleReactions.append(reactionID)
 
+		constraintDict = {}
+		constraintIdList = []
+		enzymeIdList = []
+		kineticsSubstratesList = []
+		reactionsToConstraintsDict = {}
+		for constraint in raw_data.enzymeKinetics:
+			if constraint["rateEquationType"] == "custom":
+				continue
+
+			constraintId = constraint["reactionID"].encode("utf-8") + "__" + constraint["enzymeIDs"].encode("utf-8") + "__%f" % (constraint["kcat"].asNumber(1 / units.s))
+			assert len(constraint["Concentration Substrates"]) == len(constraint["kM"]) + len(constraint["kI"]), "Concentration Substrates are wrong length"
+			assert constraintId not in constraintIdList, "constraintId already exists"
+
+			# Get compartment for enzyme
+			enzymeId = (constraint["enzymeIDs"] + "[" + sim_data.getter.getLocation([constraint["enzymeIDs"]])[0][0] + "]").encode("utf-8")
+			constraint["enzymeIDs"] = enzymeId
+
+			# Get compartments for Concentration Substrates
+			concentrationSubstrates = []
+			for substrate in constraint["Concentration Substrates"]:
+				# In current implementation, anything with a concentration exists in the cytosol
+				substrateWithCompartment = substrate.encode("utf-8") + "[c]"
+				if substrateWithCompartment not in self.concDict:
+					raise Exception, "Don't have concentration for %s" % substrateWithCompartment
+				concentrationSubstrates.append(substrateWithCompartment)
+				kineticsSubstratesList.append(substrateWithCompartment)
+			constraint["Concentration Substrates"] = concentrationSubstrates
+
+			# Get compartments for substrates
+			substrates = []
+			for substrate in constraint["substrateIDs"]:
+				# In current implementation, anything with a concentration exists in the cytosol
+				substrateFound = False
+				for rxnSubstrate in reactionStoich[constraint["reactionID"]]:
+					if rxnSubstrate.startswith(substrate + "["):
+						substrateFound = True
+						substrates.append(rxnSubstrate.encode("utf-8"))
+				if not substrateFound:
+					raise Exception, "Could not find compartment for substrate %s" % substrate
+			constraint["substrateIDs"] = substrates
+
+			# Adjust kcat for temperature
+			temperature = constraint["Temp"]
+			# If temperature not reported, assume 25 C
+			if type(temperature) == str:
+				temperature = 25
+			constraint["kcatAdjusted"] = 2**((37. - temperature) / 10.) * constraint["kcat"]
+
+			# Fix reactionID based on directionality
+			stoichiometry = reactionStoich[constraint["reactionID"]]
+			stoichVals = []
+			for substrate in constraint["substrateIDs"]:
+				stoichVals.append(stoichiometry[substrate])
+			stoichVals = np.array(stoichVals)
+
+			if np.all(stoichVals < 0):
+				forward = True
+			elif np.all(stoichVals > 0):
+				forward = False
+			else:
+				raise Exception, "Have data for some reactants and some products (this is an inconsistency)"
+
+			constraint["reactionID"] = constraint["reactionID"].encode("utf-8")
+			if forward == False:
+				constraint["reactionID"] = reverseReactionString.format(constraint["reactionID"])
+
+			# TODO: Make this an assertion rather than just dropping the constraint?
+			# (This gets rid of constraints for reverse reactions that the FBA reconstruction says are irreversible)
+			if constraint["reactionID"] not in reactionStoich:
+				continue
+			# assert constraint["reactionID"] in reactionStoich, "Invalid reaction id"
+
+			enzymeIdList.append(enzymeId)
+			constraintIdList.append(constraintId)
+			constraintDict[constraintId] = constraint
+			if constraint["reactionID"] not in reactionsToConstraintsDict:
+				reactionsToConstraintsDict[constraint["reactionID"]] = []
+			reactionsToConstraintsDict[constraint["reactionID"]].append(constraintId)
+
+		# Delete this later
+		for rxn in reactionsToConstraintsDict:
+			if rxn not in reactionStoich:
+				raise Exception
+				print "Missing from reactionStoich: %s" % rxn
+
+		constraintIdList = sorted(constraintIdList)
+		constrainedReactionList = sorted(reactionsToConstraintsDict)
+		kineticsSubstratesList = sorted(set(kineticsSubstratesList))
+		enzymeIdList = sorted(set(enzymeIdList))
+
+		# Create constraint to reaction matrix (to be used in the simulation)
+		constraintToReactionMatrixI = []
+		constraintToReactionMatrixJ = []
+		constraintToReactionMatrixV = []
+
+		for row, reaction in enumerate(constrainedReactionList):
+			for constraintId in reactionsToConstraintsDict[reaction]:
+				col = constraintIdList.index(constraintId)
+				constraintToReactionMatrixI.append(row)
+				constraintToReactionMatrixJ.append(col)
+				constraintToReactionMatrixV.append(1)
+
+		constraintToReactionMatrixI = np.array(constraintToReactionMatrixI)
+		constraintToReactionMatrixJ = np.array(constraintToReactionMatrixJ)
+		constraintToReactionMatrixV = np.array(constraintToReactionMatrixV)
+
+		shape = (constraintToReactionMatrixI.max() + 1, constraintToReactionMatrixJ.max() + 1)
+		constraintToReactionMatrix = np.zeros(shape, np.float64)
+		constraintToReactionMatrix[constraintToReactionMatrixI, constraintToReactionMatrixJ] = constraintToReactionMatrixV
+
+		kineticsSubstrates = sp.symbols(["kineticsSubstrates[%d]" % idx for idx in xrange(len(kineticsSubstratesList))])
+		enzymes = sp.symbols(["enzymes[%d]" % idx for idx in xrange(len(enzymeIdList))])
+		constraints = [sp.symbol.S.Zero] * len(constraintIdList)
+
+		for constraintIdx, constraintId in enumerate(constraintIdList):
+			constraint = constraintDict[constraintId]
+			if constraint["rateEquationType"] == "custom":
+				raise Exception
+
+			enzymeIdx = enzymeIdList.index(constraint["enzymeIDs"])
+			constraints[constraintIdx] = constraint["kcatAdjusted"].asNumber(1 / units.s) * enzymes[enzymeIdx]
+
+			concSubstratePos = 0
+			for kM in constraint["kM"]:
+				kineticsSubstrateIdx = kineticsSubstratesList.index(constraint["Concentration Substrates"][concSubstratePos])
+				S = kineticsSubstrates[kineticsSubstrateIdx]
+				constraints[constraintIdx] *= (S / (S + kM))
+				concSubstratePos += 1
+
+			for kI in constraint["kI"]:
+				kineticsSubstrateIdx = kineticsSubstratesList.index(constraint["Concentration Substrates"][concSubstratePos])
+				I = kineticsSubstrates[kineticsSubstrateIdx]
+				constraints[constraintIdx] *= (kI / (kI + I))
+				concSubstratePos += 1
+
+
+		constraints = sp.Matrix(constraints)
+
+		constraintsFile = os.path.join(
+			os.path.dirname(os.path.dirname(wholecell.__file__)),
+			"reconstruction", "ecoli", "dataclasses", "process", "metabolism_constraints.py"
+			)
+		writeMetabolicConstraintsFile(constraintsFile, constraints)
+
 		self.reactionStoich = reactionStoich
 		self.nutrientsTimeSeries = sim_data.nutrientsTimeSeries
 		self.maintenanceReaction = {"ATP[c]": -1, "WATER[c]": -1, "ADP[c]": +1, "PI[c]": +1, "PROTON[c]": +1,}
 		self.reversibleReactions = reversibleReactions
+		self.constraintIdList = constraintIdList
+		self.constrainedReactionList = constrainedReactionList
+		self.constraintToReactionMatrixI = constraintToReactionMatrixI
+		self.constraintToReactionMatrixJ = constraintToReactionMatrixJ
+		self.constraintToReactionMatrixV = constraintToReactionMatrixV
+		self.enzymeIdList = enzymeIdList
+		self.kineticsSubstratesList = kineticsSubstratesList
+		self.constraintDict = constraintDict
+		self.reactionsToConstraintsDict = reactionsToConstraintsDict
+
 
 	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits, nutrientsTimeSeriesLabel, time, concModificationsBasedOnCondition = None, preview = False):
 		newObjective = None
@@ -270,13 +428,6 @@ class Metabolism(object):
 						enzymeReactionMatrix[rxnIdx, enzymeIdx] = kcat
 		return enzymeReactionMatrix
 
-	def temperatureAdjustedKcat(self, reactionInfo):
-		if reactionInfo["rateEquationType"] == "standard" and len(reactionInfo["Temp"]) > 0:
-			temperature = reactionInfo["Temp"][0]
-			newKcats = []
-			for kcat in reactionInfo["kcat"]:
-				newKcats.append( 2**((37. - temperature) / 10.) * kcat)
-			reactionInfo["kcatAdjusted"] = newKcats
 
 class ConcentrationUpdates(object):
 	def __init__(self, concDict, equilibriumReactions, nutrientData):
