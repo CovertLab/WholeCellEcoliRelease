@@ -29,6 +29,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 
 	# Construct object graph
 	def initialize(self, sim, sim_data):
+		return
 		super(EnzymeKinetics, self).initialize(sim, sim_data)
 
 		self.metabolism = sim.processes["Metabolism"]
@@ -52,6 +53,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 	# prep variables with zeros or NaNs, with correct size
 	# to be filled later
 	def allocate(self):
+		return
 		super(EnzymeKinetics, self).allocate()
 		self.baseRates = np.zeros(len(self.metabolism.fba.reactionIDs()), np.float64)
 		self.reactionKineticPredictions = np.zeros(len(self.metabolism.allRateReactions), np.float64)
@@ -75,6 +77,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		pass
 
 	def tableCreate(self, tableWriter):
+		return
 		tableWriter.writeAttributes(
 			reactionIDs = list(self.reactionIDs),
 			constraintIDs = self.constraintIDs,
@@ -86,6 +89,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 
 
 	def tableAppend(self, tableWriter):
+		return
 		tableWriter.append(
 			time = self.time(),
 			simulationStep = self.simulationStep(),
