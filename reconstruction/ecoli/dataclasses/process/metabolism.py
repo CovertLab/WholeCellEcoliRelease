@@ -199,6 +199,8 @@ class Metabolism(object):
 
 		reactionStoich = {}
 		reversibleReactions = []
+		reactionCatalysts = {}
+		catalystsList = []
 
 		for reaction in raw_data.reactions:
 			reactionID = reaction["reaction id"]
@@ -210,6 +212,19 @@ class Metabolism(object):
 
 			reactionStoich[reactionID] = stoich
 
+			catalystsForThisRxn = []
+			for catalyst in reaction["catalyzed by"]:
+				try:
+					catalystWithLoc = (catalyst + "[" + sim_data.getter.getLocation([catalyst])[0][0] + "]").encode("utf-8")
+					catalystsForThisRxn.append(catalystWithLoc)
+					catalystsList.append(catalystWithLoc)
+				# If we don't have the catalyst in our reconstruction, drop it
+				except KeyError:
+					pass
+
+			if len(catalystsForThisRxn) > 0:
+				reactionCatalysts[reactionID] = catalystsForThisRxn
+
 			# Add the reverse reaction
 			if reversible:
 				reverseReactionID = reverseReactionString.format(reactionID)
@@ -219,6 +234,32 @@ class Metabolism(object):
 					}
 
 				reversibleReactions.append(reactionID)
+				if len(catalystsForThisRxn) > 0:
+					reactionCatalysts[reverseReactionID] = reactionCatalysts[reactionID]
+
+		catalystsList = sorted(set(catalystsList))
+		reactionCatalystsList = sorted(reactionCatalysts)
+
+		# Create catalysis matrix (to be used in the simulation)
+		catalysisMatrixI = []
+		catalysisMatrixJ = []
+		catalysisMatrixV = []
+
+		for row, reaction in enumerate(reactionCatalystsList):
+			for catalyst in reactionCatalysts[reaction]:
+				col = catalystsList.index(catalyst)
+				catalysisMatrixI.append(row)
+				catalysisMatrixJ.append(col)
+				catalysisMatrixV.append(1)
+
+		catalysisMatrixI = np.array(catalysisMatrixI)
+		catalysisMatrixJ = np.array(catalysisMatrixJ)
+		catalysisMatrixV = np.array(catalysisMatrixV)
+
+#		shape = (catalysisMatrixI.max() + 1, catalysisMatrixJ.max() + 1)
+#		catalysisMatrix = np.zeros(shape, np.float64)
+#		catalysisMatrix[catalysisMatrixI, catalysisMatrixJ] = catalysisMatrixV
+
 
 		constraintDict = {}
 		constraintIdList = []
@@ -236,6 +277,7 @@ class Metabolism(object):
 			# Get compartment for enzyme
 			enzymeId = (constraint["enzymeIDs"] + "[" + sim_data.getter.getLocation([constraint["enzymeIDs"]])[0][0] + "]").encode("utf-8")
 			constraint["enzymeIDs"] = enzymeId
+			assert enzymeId in reactionCatalysts[constraint["reactionID"]], "%s is not a catalyst for %s according to FBA reconstruction" % (enzymeId, constraint["reactionID"])
 
 			# Get compartments for Concentration Substrates
 			concentrationSubstrates = []
@@ -286,11 +328,11 @@ class Metabolism(object):
 			if forward == False:
 				constraint["reactionID"] = reverseReactionString.format(constraint["reactionID"])
 
-			# TODO: Make this an assertion rather than just dropping the constraint?
-			# (This gets rid of constraints for reverse reactions that the FBA reconstruction says are irreversible)
+			# Get rid of constraints for reverse reactions that the FBA reconstruction says should not exist
+			# (i.e., if the FBA reconstruction says the reaction is irreversible but we have a constraint on 
+			#  the reverse reaction, drop the constraint)
 			if constraint["reactionID"] not in reactionStoich:
 				continue
-			# assert constraint["reactionID"] in reactionStoich, "Invalid reaction id"
 
 			enzymeIdList.append(enzymeId)
 			constraintIdList.append(constraintId)
@@ -298,12 +340,6 @@ class Metabolism(object):
 			if constraint["reactionID"] not in reactionsToConstraintsDict:
 				reactionsToConstraintsDict[constraint["reactionID"]] = []
 			reactionsToConstraintsDict[constraint["reactionID"]].append(constraintId)
-
-		# Delete this later
-		for rxn in reactionsToConstraintsDict:
-			if rxn not in reactionStoich:
-				raise Exception
-				print "Missing from reactionStoich: %s" % rxn
 
 		constraintIdList = sorted(constraintIdList)
 		constrainedReactionList = sorted(reactionsToConstraintsDict)
@@ -326,10 +362,11 @@ class Metabolism(object):
 		constraintToReactionMatrixJ = np.array(constraintToReactionMatrixJ)
 		constraintToReactionMatrixV = np.array(constraintToReactionMatrixV)
 
-		shape = (constraintToReactionMatrixI.max() + 1, constraintToReactionMatrixJ.max() + 1)
-		constraintToReactionMatrix = np.zeros(shape, np.float64)
-		constraintToReactionMatrix[constraintToReactionMatrixI, constraintToReactionMatrixJ] = constraintToReactionMatrixV
+#		shape = (constraintToReactionMatrixI.max() + 1, constraintToReactionMatrixJ.max() + 1)
+#		constraintToReactionMatrix = np.zeros(shape, np.float64)
+#		constraintToReactionMatrix[constraintToReactionMatrixI, constraintToReactionMatrixJ] = constraintToReactionMatrixV
 
+		# Use Sympy to create vector function that returns all kinetic constraints
 		kineticsSubstrates = sp.symbols(["kineticsSubstrates[%d]" % idx for idx in xrange(len(kineticsSubstratesList))])
 		enzymes = sp.symbols(["enzymes[%d]" % idx for idx in xrange(len(enzymeIdList))])
 		constraints = [sp.symbol.S.Zero] * len(constraintIdList)
@@ -364,10 +401,21 @@ class Metabolism(object):
 			)
 		writeMetabolicConstraintsFile(constraintsFile, constraints)
 
+		# Properties for FBA reconstruction
 		self.reactionStoich = reactionStoich
 		self.nutrientsTimeSeries = sim_data.nutrientsTimeSeries
 		self.maintenanceReaction = {"ATP[c]": -1, "WATER[c]": -1, "ADP[c]": +1, "PI[c]": +1, "PROTON[c]": +1,}
 		self.reversibleReactions = reversibleReactions
+
+		# Properties for catalysis matrix (to set hard bounds)
+		self.reactionCatalysts = reactionCatalysts
+		self.catalystsList = catalystsList
+		self.reactionCatalystsList = reactionCatalystsList
+		self.catalysisMatrixI = catalysisMatrixI
+		self.catalysisMatrixJ = catalysisMatrixJ
+		self.catalysisMatrixV = catalysisMatrixV
+
+		# Properties for setting flux targets
 		self.constraintIdList = constraintIdList
 		self.constrainedReactionList = constrainedReactionList
 		self.constraintToReactionMatrixI = constraintToReactionMatrixI
@@ -377,6 +425,7 @@ class Metabolism(object):
 		self.kineticsSubstratesList = kineticsSubstratesList
 		self.constraintDict = constraintDict
 		self.reactionsToConstraintsDict = reactionsToConstraintsDict
+
 
 
 	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits, nutrientsTimeSeriesLabel, time, concModificationsBasedOnCondition = None, preview = False):
