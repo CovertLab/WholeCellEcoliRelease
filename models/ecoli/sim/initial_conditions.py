@@ -346,7 +346,7 @@ def determineChromosomeState(C, D, tau, replication_length):
 		# origin initaion points. Loop through each intiation event in this 
 		# generation (2 forks, 4 polymerases each), assign it an increaing,
 		# unique number, starting at zero.
-		chromosomeIndex += [0]*2*num_events + [1]*2*num_events
+		chromosomeIndex += [0]*2*num_events + [0]*2*num_events
 
 		n += 1
 

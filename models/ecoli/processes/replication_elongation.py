@@ -233,6 +233,36 @@ class ReplicationElongation(wholecell.processes.process.Process):
 			minlength = self.sequences.shape[0]
 			)
 
+		if didTerminate.sum():
+			sequenceIdx, sequenceLength, chromosomeIndex, replicationRound = activeDnaPoly.attrs(
+				'sequenceIdx', 'sequenceLength', 'chromosomeIndex', 'replicationRound'
+				)
+
+			sequenceIdxMatch = np.zeros(didTerminate.shape)
+			replicationRoundMatch = np.zeros(didTerminate.shape)
+			chromosomeIndexMatch = np.zeros(didTerminate.shape)
+			for idx in np.where(didTerminate)[0]:
+				sequenceIdxMatch = np.logical_or(sequenceIdxMatch, sequenceIdx[idx] == sequenceIdx)
+				replicationRoundMatch = np.logical_or(replicationRoundMatch, replicationRound[idx] + 1 == replicationRound)
+				chromosomeIndexMatch = np.logical_or(chromosomeIndexMatch, chromosomeIndex[idx] == chromosomeIndex)
+
+			potentialMatches = np.logical_and.reduce((sequenceIdxMatch, replicationRoundMatch, chromosomeIndexMatch))
+			toIndex = np.where(potentialMatches)[0][:2]
+
+			toFlip = chromosomeIndex[toIndex]
+			chromosomeIndex[toIndex] = np.abs(toFlip - 1)
+
+			activeDnaPoly.attrIs(chromosomeIndex = chromosomeIndex)
+			# for idx in np.where(didTerminate)[0]:
+			# 	# For each sequence that terminates: look for sequences +1 replication round
+			# 	# with the same strands and identical sequence lengths (same fork) and increase
+			# 	# their chromosome index by one.
+
+			# 	np.logical_and.reduce((sequenceIdx[idx] == sequenceIdx, replicationRound[idx] + 1 == replicationRound))
+
+			# 	sequenceLength == np.unique(sequenceLength[replicationRound[idx] + 1 == replicationRound])
+
+
 		newUniqueChromosomeHalves = sequenceIdx[np.where(didTerminate)[0]]
 
 		activeDnaPoly.delByIndexes(np.where(didTerminate)[0])
