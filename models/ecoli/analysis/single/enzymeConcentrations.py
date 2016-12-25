@@ -37,6 +37,7 @@ CMAP_OVER = [0, 1, 0.75]
 VERBOSE = True
 
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
+	return
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
 
