@@ -433,17 +433,17 @@ class Metabolism(wholecell.processes.process.Process):
 		# self.writeToListener("EnzymeKinetics", "kineticTargetRelativeDifferences",
 		# 	self.fba.kineticTargetFluxRelativeDifferences())
 
-		# self.writeToListener("EnzymeKinetics", "metaboliteCountsInit",
-		# 	metaboliteCountsInit)
+		self.writeToListener("EnzymeKinetics", "metaboliteCountsInit",
+			metaboliteCountsInit)
 
-		# self.writeToListener("EnzymeKinetics", "metaboliteCountsFinal",
-		# 	metaboliteCountsFinal)
+		self.writeToListener("EnzymeKinetics", "metaboliteCountsFinal",
+			metaboliteCountsFinal)
 
-		# self.writeToListener("EnzymeKinetics", "enzymeCountsInit",
-		# 	enzymeCountsInit)
+		self.writeToListener("EnzymeKinetics", "enzymeCountsInit",
+			kineticsEnzymesCountsInit)
 
-		# self.writeToListener("EnzymeKinetics", "metaboliteConcentrations",
-		# 	metaboliteConcentrations.asNumber(COUNTS_UNITS / VOLUME_UNITS))
+		self.writeToListener("EnzymeKinetics", "metaboliteConcentrations",
+			metaboliteConcentrations.asNumber(COUNTS_UNITS / VOLUME_UNITS))
 
-		# self.writeToListener("EnzymeKinetics", "countsToMolar",
-		# 	countsToMolar.asNumber(COUNTS_UNITS / VOLUME_UNITS))
+		self.writeToListener("EnzymeKinetics", "countsToMolar",
+			countsToMolar.asNumber(COUNTS_UNITS / VOLUME_UNITS))
