@@ -296,6 +296,7 @@ class Metabolism(wholecell.processes.process.Process):
 			catalystsCountsInit += 1
 			kineticsEnzymesConcentrations = countsToMolar * (kineticsEnzymesCountsInit + 1)
 
+		# This should kill the cell
 		# catalystsCountsInit[136] *= 0
 		# catalystsCountsInit[940] *= 0
 
@@ -320,42 +321,6 @@ class Metabolism(wholecell.processes.process.Process):
 				kineticsSubstratesConcentrations.asNumber(units.umol / units.L),
 				)
 			reactionTargets = (units.umol / units.L / units.s) * np.max(self.constraintToReactionMatrix * constraintValues, axis = 1)
-			# reactionTargets[94] *= 461
-			# reactionTargets[120] *= 303
-			# reactionTargets[183] *= 178
-			# reactionTargets[207] *= 223
-			# reactionTargets[272] *= 101
-			# reactionTargets[89] *= 31
-			# reactionTargets[134] *= 34
-			# reactionTargets[177] *= 48
-			# reactionTargets[282] *= 35
-			# reactionTargets[291] *= 20
-			# reactionTargets[326] *= 27
-			# reactionTargets[353] *= 22
-			# reactionTargets[48] *= 11
-			# reactionTargets[180] *= 16
-			# reactionTargets[322] *= 15
-			# reactionTargets[324] *= 16
-			# reactionTargets[11] *= 10
-			# reactionTargets[18] *= 7
-			# reactionTargets[26] *= 4
-			# reactionTargets[29] *= 9
-			# reactionTargets[36] *= 3
-			# reactionTargets[41] *= 6
-			# reactionTargets[65] *= 5
-			# reactionTargets[81] *= 2
-			# reactionTargets[114] *= 2
-			# reactionTargets[131] *= 2
-			# reactionTargets[154] *= 2
-			# reactionTargets[156] *= 2
-			# reactionTargets[213] *= 3
-			# reactionTargets[224] *= 2
-			# reactionTargets[226] *= 5
-			# reactionTargets[261] *= 9
-			# reactionTargets[290] *= 6
-			# reactionTargets[329] *= 2
-			# reactionTargets[349] *= 4
-			# reactionTargets[352] *= 2
 
 			targets = (TIME_UNITS * self.timeStepSec() * reactionTargets).asNumber(COUNTS_UNITS / VOLUME_UNITS)
 			self.fba.setKineticTarget(
@@ -376,11 +341,8 @@ class Metabolism(wholecell.processes.process.Process):
 		self.metabolites.countsIs(metaboliteCountsFinal)
 		if self.burnInComplete:
 			relError = np.abs((self.fba.reactionFluxes(self.kineticsConstrainedReactions) - targets) / (targets + 1e-15))
-			print relError.max(), np.argmax(relError)#, kineticsSubstratesConcentrations[9].asNumber(units.umol / units.L), 
+		#	print relError.max(), np.argmax(relError)#, kineticsSubstratesConcentrations[9].asNumber(units.umol / units.L), 
 
-
-		# if self._sim.time() > 10: import ipdb; ipdb.set_trace()
-		#self.fba.kineticTargetFluxRelativeDifferences()
 
 		# Use GLPK's dualprimal solver, AFTER the first solution
 		self.fba._solver._model.set_solver_method_dualprimal()
