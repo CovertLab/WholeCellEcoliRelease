@@ -220,7 +220,7 @@
 6395895	37				["NAD"]		"PREPHENATEDEHYDROG-RXN"	"CHORISMUTPREPHENDEHYDROG-CPLX"	["PREPHENATE","NAD"]	"standard"		135	[130]	[]	"null"	"null"	"null"	"null"	"null"	
 12356303	37				[]		"PRIBFAICARPISOM-RXN"	"PRIBFAICARPISOM-MONOMER"	["PHOSPHORIBOSYL-FORMIMINO-AICAR-P"]	"standard"		14.3	[]	[]	"null"	"null"	"null"	"null"	"null"	
 19583219	37				[]		"PROTOPORGENOXI-RXN"	"CPLX0-7811"	["PROTOPORPHYRINOGEN"]	"standard"		0.292	[]	[]	"null"	"null"	"null"	"null"	"null"	
-2651124	25				["ANTHRANILATE"]		"PRTRANS-RXN"	"ANTHRANSYNCOMPII-MONOMER"	["ANTHRANILATE"]	"standard"		4.4	[0.28]	[]	"null"	"null"	"null"	"null"	"null"	
+2651124	25				["ANTHRANILATE"]		"PRTRANS-RXN"	"ANTHRANSYN-CPLX"	["ANTHRANILATE"]	"standard"		4.4	[0.28]	[]	"null"	"null"	"null"	"null"	"null"	
 8706854	37				[]		"PSERTRANSAM-RXN"	"PSERTRANSAM-CPLX"	["3-P-SERINE"]	"standard"		0.39	[]	[]	"null"	"null"	"null"	"null"	"null"	
 8706854	37				[]		"PSERTRANSAM-RXN"	"PSERTRANSAM-CPLX"	["3-P-HYDROXYPYRUVATE"]	"standard"		1.75	[]	[]	"null"	"null"	"null"	"null"	"null"	
 8706854	37				[]		"PSERTRANSAMPYR-RXN"	"PSERTRANSAM-CPLX"	["4-PHOSPHONOOXY-THREONINE"]	"standard"		0.15	[]	[]	"null"	"null"	"null"	"null"	"null"	
