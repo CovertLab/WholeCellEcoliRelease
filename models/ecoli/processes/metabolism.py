@@ -28,7 +28,10 @@ from wholecell.utils.constants import REQUEST_PRIORITY_METABOLISM
 
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
 from wholecell.utils.enzymeKinetics import EnzymeKinetics
-from reconstruction.ecoli.dataclasses.process.metabolism_constraints import constraints as kineticsConstraints
+try:
+	from reconstruction.ecoli.dataclasses.process.metabolism_constraints import constraints as kineticsConstraints
+except ImportError:
+	pass
 
 from wholecell.utils.fitting import massesAndCountsToAddForHomeostaticTargets
 
