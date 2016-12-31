@@ -233,6 +233,37 @@ class ReplicationElongation(wholecell.processes.process.Process):
 			minlength = self.sequences.shape[0]
 			)
 
+		if didTerminate.sum():
+			# If any forks terminated, update the chromosome index of the next fork up the chromosome
+			sequenceIdx, sequenceLength, chromosomeIndex, replicationRound = activeDnaPoly.attrs(
+				'sequenceIdx', 'sequenceLength', 'chromosomeIndex', 'replicationRound'
+				)
+
+			# Serach for next fork up the chromosome
+			# Criteria: Must match the same sequence index, must be current terminating forks's replication
+			# round +1, must match terminating fork's chromosome index (so you don't flip the same upstream
+			# fork twice).
+			sequenceIdxMatch = np.zeros(didTerminate.shape)
+			replicationRoundMatch = np.zeros(didTerminate.shape)
+			chromosomeIndexMatch = np.zeros(didTerminate.shape)
+			for idx in np.where(didTerminate)[0]:
+				sequenceIdxMatch = np.logical_or(sequenceIdxMatch, sequenceIdx[idx] == sequenceIdx)
+				replicationRoundMatch = np.logical_or(replicationRoundMatch, replicationRound[idx] + 1 == replicationRound)
+				chromosomeIndexMatch = np.logical_or(chromosomeIndexMatch, chromosomeIndex[idx] == chromosomeIndex)
+
+			# Potential matches for chromosome index to flip
+			potentialMatches = np.logical_and.reduce((sequenceIdxMatch, replicationRoundMatch, chromosomeIndexMatch))
+
+			# Take the first two. If there are more they are degenerate.
+			toIndex = np.where(potentialMatches)[0][:2]
+
+			# Changes 0 -> 1 and 1 -> 0
+			toFlip = chromosomeIndex[toIndex]
+			chromosomeIndex[toIndex] = np.abs(toFlip - 1)
+
+			# Resets chromosomeIndex
+			activeDnaPoly.attrIs(chromosomeIndex = chromosomeIndex)
+
 		newUniqueChromosomeHalves = sequenceIdx[np.where(didTerminate)[0]]
 
 		activeDnaPoly.delByIndexes(np.where(didTerminate)[0])
