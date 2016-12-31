@@ -226,39 +226,39 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts):
 			d1_dividedAttributesDict[moleculeAttribute] = moleculeSet.attr(moleculeAttribute)[d1_bool]
 			d2_dividedAttributesDict[moleculeAttribute] = moleculeSet.attr(moleculeAttribute)[d2_bool]
 
-		# Reset chromosomeIndex for next cell cycle in all forks that are divided
-		for replicationRound in np.unique(d1_dividedAttributesDict['replicationRound']):
-			replicationRoundIndexes = d1_dividedAttributesDict['replicationRound'] == replicationRound
-			replicationForks = int(np.ceil(replicationRoundIndexes.sum() / 4))
-			if replicationForks >= 2:
-				for index in [0,1,2,3]:
-					# if not possible to have uneven number of partial chromosomes
-					num_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == index
-					new_value = np.zeros(num_index.sum())
-					for fork in range(replicationForks):
-						new_value[fork * new_value.size / replicationForks:(fork + 1) * new_value.size / replicationForks] = fork
+		# # Reset chromosomeIndex for next cell cycle in all forks that are divided
+		# for replicationRound in np.unique(d1_dividedAttributesDict['replicationRound']):
+		# 	replicationRoundIndexes = d1_dividedAttributesDict['replicationRound'] == replicationRound
+		# 	replicationForks = int(np.ceil(replicationRoundIndexes.sum() / 4))
+		# 	if replicationForks >= 2:
+		# 		for index in [0,1,2,3]:
+		# 			# if not possible to have uneven number of partial chromosomes
+		# 			num_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == index
+		# 			new_value = np.zeros(num_index.sum())
+		# 			for fork in range(replicationForks):
+		# 				new_value[fork * new_value.size / replicationForks:(fork + 1) * new_value.size / replicationForks] = fork
 
-					# # if uneven number of partial chromosomes
-					# num_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == index
-					# new_value = np.zeros(num_index.sum())
-					# for fork in range(replicationForks):
-					# 	ind1 = fork * new_value.size / replicationForks
-					# 	ind2 = (fork + 1) * new_value.size / replicationForks
-					# 	if ind2 < len(new_value):
-					# 		new_value[ind1:ind2] = fork
-					# 	elif ind1 < len(new_value):
-					# 		new_value[ind1:] = fork
+		# 			# # if uneven number of partial chromosomes
+		# 			# num_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == index
+		# 			# new_value = np.zeros(num_index.sum())
+		# 			# for fork in range(replicationForks):
+		# 			# 	ind1 = fork * new_value.size / replicationForks
+		# 			# 	ind2 = (fork + 1) * new_value.size / replicationForks
+		# 			# 	if ind2 < len(new_value):
+		# 			# 		new_value[ind1:ind2] = fork
+		# 			# 	elif ind1 < len(new_value):
+		# 			# 		new_value[ind1:] = fork
 
-					d1_dividedAttributesDict['chromosomeIndex'][num_index] = new_value
+		# 			d1_dividedAttributesDict['chromosomeIndex'][num_index] = new_value
 
-				# zero_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == 0
-				# one_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == 1
-				# two_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == 2
-				# three_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == 3
+		# 		# zero_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == 0
+		# 		# one_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == 1
+		# 		# two_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == 2
+		# 		# three_index = d1_dividedAttributesDict['sequenceIdx'][replicationRoundIndexes] == 3
 
-				# new_value = np.zeros(zero_index.sum())
-				# new_value[:new_value.size / 2] = 1
-				# d1_dividedAttributesDict['chromosomeIndex'][zero_index] = new_value
+		# 		# new_value = np.zeros(zero_index.sum())
+		# 		# new_value[:new_value.size / 2] = 1
+		# 		# d1_dividedAttributesDict['chromosomeIndex'][zero_index] = new_value
 
 		for replicationRound in np.unique(d2_dividedAttributesDict['replicationRound']):
 			replicationRoundIndexes = d2_dividedAttributesDict['replicationRound'] == replicationRound
