@@ -39,6 +39,7 @@ TARGET_RELATIVE_DIFFERENCE = 1
 PERCENT_ON_TARGET_THRESHOLD = 1.0
 
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
+	return
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
 

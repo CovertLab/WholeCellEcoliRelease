@@ -38,7 +38,7 @@ CMAP_COLORS = [[shade/255. for shade in color] for color in CMAP_COLORS_255]
 CMAP_OVER = [0, 1, 0.75]
 
 def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-
+	return
 	if not os.path.isdir(variantDir):
 		raise Exception, "variantDir does not currently exist as a directory"
 

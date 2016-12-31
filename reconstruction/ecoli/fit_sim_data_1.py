@@ -60,6 +60,7 @@ def fitSimData_1(raw_data):
 	setTranslationEfficiencies(sim_data)
 	setRNAExpression(sim_data)
 	setRNADegRates(sim_data)
+	setProteinDegRates(sim_data)
 
 	# Set C-period
 	setCPeriod(sim_data)
@@ -439,15 +440,22 @@ def setRnaPolymeraseCodingRnaDegradationRates(sim_data):
 def setTranslationEfficiencies(sim_data):
 	adjustments = {
 		"ADCLY-MONOMER[c]": 5,
+		"EG12438-MONOMER[c]": 5,
+		"EG12298-MONOMER[p]": 5, # for anaerobic condition
+		"ACETYL-COA-ACETYLTRANSFER-MONOMER[c]": 5, # for anaerobic condition
 		}
 
 	for protein in adjustments:
-		idx = np.where(sim_data.process.translation.monomerData == protein)[0]
+		idx = np.where(sim_data.process.translation.monomerData["id"] == protein)[0]
 		sim_data.process.translation.translationEfficienciesByMonomer[idx] *= adjustments[protein]
 
 def setRNAExpression(sim_data):
 	adjustments = {
 		"EG11493_RNA[c]": 10,
+		"EG12438_RNA[c]": 10,
+		"EG10139_RNA[c]": 10,
+		"EG12298_RNA[c]": 10, # for anaerobic condition
+		"EG11672_RNA[c]": 10, # for anaerobic condition
 		}
 
 	for rna in adjustments:
@@ -459,11 +467,21 @@ def setRNAExpression(sim_data):
 def setRNADegRates(sim_data):
 	adjustments = {
 		"EG11493_RNA[c]": 2,
+		"EG10139_RNA[c]": 2,
 		}
 
 	for rna in adjustments:
 		idx = np.where(sim_data.process.transcription.rnaData["id"] == rna)[0]
 		sim_data.process.transcription.rnaData.struct_array["degRate"][idx] *= adjustments[rna]
+
+def setProteinDegRates(sim_data):
+	adjustments = {
+		"EG12298-MONOMER[p]": 0.1, # for anaerobic condition
+		}
+
+	for protein in adjustments:
+		idx = np.where(sim_data.process.translation.monomerData["id"] == protein)[0]
+		sim_data.process.translation.monomerData.struct_array["degRate"][idx] *= adjustments[protein]
 
 def setCPeriod(sim_data):
 	sim_data.growthRateParameters.c_period = sim_data.process.replication.genome_length * units.nt / sim_data.growthRateParameters.dnaPolymeraseElongationRate / 2

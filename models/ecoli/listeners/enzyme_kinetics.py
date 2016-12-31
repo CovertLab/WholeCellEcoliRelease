@@ -32,9 +32,8 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		super(EnzymeKinetics, self).initialize(sim, sim_data)
 
 		self.metabolism = sim.processes["Metabolism"]
-		self.reactionRateInfo = sim_data.process.metabolism.reactionRateInfo
+#		self.reactionRateInfo = sim_data.process.metabolism.reactionRateInfo
 		self.metaboliteIDs = sorted(sim_data.process.metabolism.concDict)
-		self.constraintToReactionDict = sim_data.process.metabolism.constraintToReactionDict
 
 		# Get metabolite names similar to how it's done in the metabolism process
 		self.metaboliteNamesFromNutrients = set()
@@ -53,22 +52,22 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 	# to be filled later
 	def allocate(self):
 		super(EnzymeKinetics, self).allocate()
-		self.baseRates = np.zeros(len(self.metabolism.fba.reactionIDs()), np.float64)
-		self.reactionKineticPredictions = np.zeros(len(self.metabolism.allRateReactions), np.float64)
-		self.allConstraintsLimits = np.zeros(len(self.reactionRateInfo), np.float64)
-		self.reactionIDs = self.metabolism.fba.reactionIDs()
-		self.kineticTargetFluxNames = self.metabolism.fba.kineticTargetFluxNames()
-		self.kineticOneSidedTargets = self.metabolism.fba.kineticOneSidedTargetFluxNames()
-		self.kineticTargetFluxes = np.zeros(len(self.metabolism.fba.kineticTargetFluxNames()), np.float64)
-		self.kineticTargetErrors = np.zeros(len(self.metabolism.fba.kineticTargetFluxNames()), np.float64)
-		self.kineticTargetRelativeDifferences = np.zeros(len(self.metabolism.fba.kineticTargetFluxNames()), np.float64)
-		self.overconstraintMultiples = np.zeros(len(self.metabolism.fba.reactionFluxes()[self.metabolism.allRateIndices]), np.float64)
-		self.constraintIDs = self.metabolism.constraintIDs
+#		self.baseRates = np.zeros(len(self.metabolism.fba.reactionIDs()), np.float64)
+#		self.reactionKineticPredictions = np.zeros(len(self.metabolism.allRateReactions), np.float64)
+#		self.allConstraintsLimits = np.zeros(len(self.reactionRateInfo), np.float64)
+#		self.reactionIDs = self.metabolism.fba.reactionIDs()
+#		self.kineticTargetFluxNames = self.metabolism.fba.kineticTargetFluxNames()
+#		self.kineticOneSidedTargets = self.metabolism.fba.kineticOneSidedTargetFluxNames()
+#		self.kineticTargetFluxes = np.zeros(len(self.metabolism.fba.kineticTargetFluxNames()), np.float64)
+#		self.kineticTargetErrors = np.zeros(len(self.metabolism.fba.kineticTargetFluxNames()), np.float64)
+#		self.kineticTargetRelativeDifferences = np.zeros(len(self.metabolism.fba.kineticTargetFluxNames()), np.float64)
+#		self.overconstraintMultiples = np.zeros(len(self.metabolism.fba.reactionFluxes()[self.metabolism.allRateIndices]), np.float64)
+#		self.constraintIDs = self.metabolism.constraintIDs
 		self.metaboliteCountsInit = np.zeros(len(self.metaboliteNamesFromNutrients), np.float64)
 		self.metaboliteCountsFinal = np.zeros(len(self.metaboliteNamesFromNutrients), np.float64)
 		self.metaboliteConcentrations = np.zeros(len(self.metaboliteNamesFromNutrients), np.float64)
-		self.enzymeIDs = self.metabolism.enzymeNames
-		self.enzymeCountsInit = np.zeros(len(self.metabolism.enzymeNames), np.float64)
+		self.enzymeIDs = self.metabolism.kineticsEnzymesList
+		self.enzymeCountsInit = np.zeros(len(self.metabolism.kineticsEnzymesList), np.float64)
 		self.countsToMolar = np.zeros(1, np.float64)
 
 	def update(self):
@@ -76,12 +75,12 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 
 	def tableCreate(self, tableWriter):
 		tableWriter.writeAttributes(
-			reactionIDs = list(self.reactionIDs),
-			constraintIDs = self.constraintIDs,
+#			reactionIDs = list(self.reactionIDs),
+#			constraintIDs = self.constraintIDs,
 			enzymeIDs = self.enzymeIDs,
-			constraintToReactionDict = self.constraintToReactionDict,
-			kineticTargetFluxNames = self.kineticTargetFluxNames,
-			kineticOneSidedTargets = self.kineticOneSidedTargets,
+#			constraintToReactionDict = self.constraintToReactionDict,
+#			kineticTargetFluxNames = self.kineticTargetFluxNames,
+#			kineticOneSidedTargets = self.kineticOneSidedTargets,
 			)
 
 
@@ -89,13 +88,13 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		tableWriter.append(
 			time = self.time(),
 			simulationStep = self.simulationStep(),
-			baseRates = self.baseRates,
-			reactionKineticPredictions = self.reactionKineticPredictions,
-			allConstraintsLimits = self.allConstraintsLimits,
-			kineticTargetFluxes = self.kineticTargetFluxes,
-			kineticTargetErrors = self.kineticTargetErrors,
-			kineticTargetRelativeDifferences = self.kineticTargetRelativeDifferences,
-			overconstraintMultiples = self.overconstraintMultiples,
+#			baseRates = self.baseRates,
+#			reactionKineticPredictions = self.reactionKineticPredictions,
+#			allConstraintsLimits = self.allConstraintsLimits,
+#			kineticTargetFluxes = self.kineticTargetFluxes,
+#			kineticTargetErrors = self.kineticTargetErrors,
+#			kineticTargetRelativeDifferences = self.kineticTargetRelativeDifferences,
+#			overconstraintMultiples = self.overconstraintMultiples,
 			metaboliteCountsInit = self.metaboliteCountsInit,
 			metaboliteCountsFinal = self.metaboliteCountsFinal,
 			metaboliteConcentrations = self.metaboliteConcentrations,
