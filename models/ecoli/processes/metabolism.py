@@ -28,10 +28,6 @@ from wholecell.utils.constants import REQUEST_PRIORITY_METABOLISM
 
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
 from wholecell.utils.enzymeKinetics import EnzymeKinetics
-try:
-	from reconstruction.ecoli.dataclasses.process.metabolism_constraints import constraints as kineticsConstraints
-except ImportError:
-	pass
 
 from wholecell.utils.fitting import massesAndCountsToAddForHomeostaticTargets
 
@@ -144,6 +140,9 @@ class Metabolism(wholecell.processes.process.Process):
 		self.catalyzedReactionBoundsPrev = np.inf * np.ones(len(self.reactionsWithCatalystsList))
 
 		# Data structures to compute reaction targets based on kinetic parameters
+		from reconstruction.ecoli.dataclasses.process.metabolism_constraints import constraints as kineticsConstraints
+		self.kineticsConstraints = kineticsConstraints
+
 		self.kineticsConstrainedReactions = sim_data.process.metabolism.constrainedReactionList
 		self.kineticsEnzymesList = sim_data.process.metabolism.enzymeIdList
 		self.kineticsSubstratesList = sim_data.process.metabolism.kineticsSubstratesList
@@ -319,7 +318,7 @@ class Metabolism(wholecell.processes.process.Process):
 			self.catalyzedReactionBoundsPrev = catalyzedReactionBounds
 
 			# Set target fluxes for reactions based on their most relaxed constraint
-			constraintValues = kineticsConstraints(
+			constraintValues = self.kineticsConstraints(
 				kineticsEnzymesConcentrations.asNumber(units.umol / units.L),
 				kineticsSubstratesConcentrations.asNumber(units.umol / units.L),
 				)
