@@ -329,7 +329,6 @@ class Metabolism(wholecell.processes.process.Process):
 				raiseForReversible = False,
 				)
 
-		self.fba.solve(FBA_SOLVE_ITERATIONS)
 		deltaMetabolites = (1 / countsToMolar) * (COUNTS_UNITS / VOLUME_UNITS * self.fba.outputMoleculeLevelsChange())
 
 		metaboliteCountsFinal = np.zeros_like(metaboliteCountsInit)
@@ -341,11 +340,7 @@ class Metabolism(wholecell.processes.process.Process):
 		self.metabolites.countsIs(metaboliteCountsFinal)
 		if self.burnInComplete:
 			relError = np.abs((self.fba.reactionFluxes(self.kineticsConstrainedReactions) - targets) / (targets + 1e-15))
-		#	print relError.max(), np.argmax(relError)#, kineticsSubstratesConcentrations[9].asNumber(units.umol / units.L), 
 
-
-		# Use GLPK's dualprimal solver, AFTER the first solution
-		self.fba._solver._model.set_solver_method_dualprimal()
 
 		exFluxes = ((COUNTS_UNITS / VOLUME_UNITS) * self.fba.externalExchangeFluxes() / coefficient).asNumber(units.mmol / units.g / units.h)
 
