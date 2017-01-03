@@ -40,7 +40,6 @@ AVERAGE_COLOR = 'red'
 _generatedID_reverseReaction = "{} (reverse)"
 
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-	return
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
 
