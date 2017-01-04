@@ -127,16 +127,6 @@ def fitSimData_1(raw_data):
 		spec["avgCellDryMassInit"] = avgCellDryMassInit
 		spec["fitAvgSolublePoolMass"] = fitAvgSolublePoolMass
 
-		# translation_aa_supply = calculateTranslationSupply(
-		# 								sim_data,
-		# 								spec["doubling_time"],
-		# 								spec["proteinMonomerAverageContainer"],
-		# 								spec["avgCellDryMassInit"]
-		# 								)
-
-		# if sim_data.conditions[condition]["nutrients"] not in sim_data.translationSupplyRate.keys() and len(sim_data.conditions[condition]["perturbations"]) == 0:
-		# 	sim_data.translationSupplyRate[sim_data.conditions[condition]["nutrients"]] = translation_aa_supply
-
 		mRnaSynthProb = sim_data.process.transcription.rnaSynthProb[condition][sim_data.process.transcription.rnaData["isMRna"]].sum()
 		tRnaSynthProb = sim_data.process.transcription.rnaSynthProb[condition][sim_data.process.transcription.rnaData["isTRna"]].sum()
 		rRnaSynthProb = sim_data.process.transcription.rnaSynthProb[condition][sim_data.process.transcription.rnaData["isRRna"]].sum()
@@ -204,66 +194,7 @@ def buildBasalCellSpecifications(sim_data):
 	sim_data.process.transcription.rnaExpression["basal"][:] = cellSpecs["basal"]["expression"]
 	sim_data.process.transcription.rnaSynthProb["basal"][:] = cellSpecs["basal"]["synthProb"]
 
-	# translation_km = translationKmBasal(sim_data, bulkContainer, cellSpecs["basal"]["concDict"])
-	# sim_data.constants.translation_km = translation_km
-
-	# translation_aa_supply = calculateTranslationSupply(sim_data, cellSpecs["basal"]["doubling_time"], bulkContainer, avgCellDryMassInit)
-	# sim_data.translationSupplyRate["minimal"] = translation_aa_supply
-
 	return cellSpecs
-
-# def calculateTranslationSupply(sim_data, doubling_time, bulkContainer, avgCellDryMassInit):
-# 	aaCounts = sim_data.process.translation.monomerData["aaCounts"]
-# 	proteinCounts = bulkContainer.counts(sim_data.process.translation.monomerData["id"])
-# 	nAvogadro = sim_data.constants.nAvogadro
-
-# 	molAAPerGDCW = (
-# 			units.sum(
-# 				aaCounts * np.tile(proteinCounts.reshape(-1, 1), (1, 21)),
-# 				axis = 0
-# 			) * (
-# 				(1 / (units.aa * nAvogadro)) *
-# 				(1 / avgCellDryMassInit)
-# 			)
-# 		)
-
-# 	translation_aa_supply = molAAPerGDCW * np.log(2) / doubling_time
-# 	return translation_aa_supply
-
-# def translationKmBasal(sim_data, bulkContainer, concDict):
-# 	# Get max elongation rate for ribosomes and and expected elongation rate for base condition
-# 	maxElongationRate = sim_data.constants.ribosomeElongationRateMax
-# 	expectedElongationRate = sim_data.growthRateParameters.ribosomeElongationRate
-
-# 	# Calculate fractional composition of E. coli's polymerized proteins
-# 	# we will assume that on average translation's polymerizations follow the
-# 	# same composition of amino acids
-# 	aaCounts = sim_data.process.translation.monomerData["aaCounts"]
-# 	proteinCounts = bulkContainer.counts(sim_data.process.translation.monomerData["id"])
-# 	initialAACounts = units.sum(aaCounts * np.tile(proteinCounts.reshape(-1, 1), (1, 21)), axis = 0)
-# 	aa_use_fraction = initialAACounts.asNumber() / initialAACounts.asNumber().sum()
-
-# 	# Get number of ribosomes calculated during expression fitting
-# 	rRna23SCount = bulkContainer.counts(sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna23S"]]).sum()
-# 	rRna16SCount = bulkContainer.counts(sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna16S"]]).sum()
-# 	rRna5SCount = bulkContainer.counts(sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna5S"]]).sum()
-# 	ribosomeCount = np.floor(np.min([rRna23SCount, rRna16SCount, rRna5SCount]))
-
-# 	# Calculate the rate of usage of each individual amino acid by translation polymerization
-# 	rate_individual_aa = expectedElongationRate * ribosomeCount * aa_use_fraction
-
-# 	# Get concentrations of all amino acids
-# 	conc_units = units.getUnit(concDict[concDict.keys()[0]])
-# 	base_condition_aa_concentrations = conc_units * np.array([concDict[x].asNumber(conc_units) for x in sim_data.moleculeGroups.aaIDs])
-
-# 	# Write Michaelis-Menton equation for each amino acid and solve for Km
-# 	vmax = maxElongationRate * ribosomeCount * aa_use_fraction
-# 	v = rate_individual_aa
-# 	S = base_condition_aa_concentrations
-
-# 	km = ((vmax - v) / v) * S
-
-# 	return km
 
 def buildTfConditionCellSpecifications(sim_data, cellSpecs):
 	for tf in sorted(sim_data.tfToActiveInactiveConds):
@@ -545,9 +476,9 @@ def setInitialRnaExpression(sim_data, expression, doubling_time):
 	individualMasses_mRNA = sim_data.process.transcription.rnaData["mw"][sim_data.process.transcription.rnaData["isMRna"]] / sim_data.constants.nAvogadro
 
 	## Molecule expression distributions
-	distribution_rRNA23S = np.array([1.] + [0.] * (ids_rRNA23S.size-1)) # currently only expressing first rRNA operon
-	distribution_rRNA16S = np.array([1.] + [0.] * (ids_rRNA16S.size-1)) # currently only expressing first rRNA operon
-	distribution_rRNA5S = np.array([1.] + [0.] * (ids_rRNA5S.size-1)) # currently only expressing first rRNA operon
+	distribution_rRNA23S = np.array([1.] + [0.] * (ids_rRNA23S.size-1)) # all expression from first rRNA operon
+	distribution_rRNA16S = np.array([1.] + [0.] * (ids_rRNA16S.size-1)) # all expression from first rRNA operon
+	distribution_rRNA5S = np.array([1.] + [0.] * (ids_rRNA5S.size-1)) # all expression from first rRNA operon
 	distribution_tRNA = normalize(sim_data.mass.getTrnaDistribution()['molar_ratio_to_16SrRNA'])
 	distribution_mRNA = normalize(expression[sim_data.process.transcription.rnaData['isMRna']])
 
