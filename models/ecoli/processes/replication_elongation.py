@@ -38,8 +38,6 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		self.sequences = sim_data.process.replication.replication_sequences
 		self.polymerized_dntp_weights = sim_data.process.replication.replicationMonomerWeights
 
-		self.forward_strand_rrn_coordinate = sim_data.process.replication.forward_strand_rrn_coordinate
-		self.reverse_strand_rrn_coordinate = sim_data.process.replication.reverse_strand_rrn_coordinate
 		self.dnaPolyElngRate = int(round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(units.nt / units.s)))
 
 		# Views
@@ -52,8 +50,6 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		self.chromosomeHalves = self.bulkMoleculesView(sim_data.moleculeGroups.partialChromosome)
 
 		self.full_chromosome = self.bulkMoleculeView("CHROM_FULL[c]")
-
-		self.rrn_operon_counts = self.bulkMoleculeView("rrn_operon")
 
 	def calculateRequest(self):
 		self.criticalInitiationMass = self.getDnaCriticalMass(self.nutrientToDoublingTime[self._sim.processes["PolypeptideElongation"].currentNutrients])
@@ -207,20 +203,6 @@ class ReplicationElongation(wholecell.processes.process.Process):
 			sequenceLength = updatedLengths,
 			massDiff_DNA = updatedMass
 			)
-
-		# Increment any chromosome locations passed over during last elongation step
-		# Forward strand
-		forwardStrandIdx = 0
-		lessThanNewPosition = updatedLengths[forwardStrandIdx] >= self.forward_strand_rrn_coordinate
-		greaterThanPreviousPosition = sequenceLengths[forwardStrandIdx] < self.forward_strand_rrn_coordinate
-		new_rrn_forward = np.logical_and(lessThanNewPosition, greaterThanPreviousPosition).sum()
-		# Reverse strand
-		reverseStrandIdx = 1
-		lessThanNewPosition = updatedLengths[reverseStrandIdx] >= self.reverse_strand_rrn_coordinate
-		greaterThanPreviousPosition = sequenceLengths[reverseStrandIdx] < self.reverse_strand_rrn_coordinate
-		new_rrn_reverse = np.logical_and(lessThanNewPosition, greaterThanPreviousPosition).sum()
-
-		self.rrn_operon_counts.countInc(new_rrn_forward + new_rrn_reverse)
 
 		# Determine if any chromosome half finshed polymerizing
 		# and create new unique chromosomes

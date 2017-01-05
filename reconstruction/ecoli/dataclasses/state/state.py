@@ -89,10 +89,6 @@ class State(object):
 
 		self.bulkMolecules.addToBulkState(fragmentsIds, fragmentsMasses)
 
-		# Set rrn operon counter
-		self.bulkMolecules.addToBulkState(np.array(['rrn_operon']), units.g / units.mol * np.zeros((1,11)))
-
-
 	def _buildUniqueMolecules(self, raw_data, sim_data):
 		# Add active RNA polymerase
 		rnaPolyComplexMass = self.bulkMolecules.bulkData["mass"][self.bulkMolecules.bulkData["id"] == "APORNAP-CPLX[c]"]
