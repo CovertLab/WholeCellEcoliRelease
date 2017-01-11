@@ -370,6 +370,7 @@ class Metabolism(object):
 		kineticsSubstrates = sp.symbols(["kineticsSubstrates[%d]" % idx for idx in xrange(len(kineticsSubstratesList))])
 		enzymes = sp.symbols(["enzymes[%d]" % idx for idx in xrange(len(enzymeIdList))])
 		constraints = [sp.symbol.S.Zero] * len(constraintIdList)
+		constraintIsKcatOnly = np.zeros(len(constraintIdList))
 
 		for constraintIdx, constraintId in enumerate(constraintIdList):
 			constraint = constraintDict[constraintId]
@@ -378,6 +379,8 @@ class Metabolism(object):
 
 			enzymeIdx = enzymeIdList.index(constraint["enzymeIDs"])
 			constraints[constraintIdx] = constraint["kcatAdjusted"].asNumber(1 / units.s) * enzymes[enzymeIdx]
+			if len(constraint["kM"]) == 0 and len(constraint["kI"]) == 0:
+				constraintIsKcatOnly[constraintIdx] = 1
 
 			concSubstratePos = 0
 			for kM in constraint["kM"]:
@@ -425,6 +428,7 @@ class Metabolism(object):
 		self.kineticsSubstratesList = kineticsSubstratesList
 		self.constraintDict = constraintDict
 		self.reactionsToConstraintsDict = reactionsToConstraintsDict
+		self.constraintIsKcatOnly = constraintIsKcatOnly
 
 
 
