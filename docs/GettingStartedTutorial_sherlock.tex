@@ -146,7 +146,7 @@ ln -s $SCRATCH/wcEcoli_out out
 Now let's try running the unmodified model to make sure it works. First, log in to a compute node, so that the simulation can be run in interactive mode (running in interactive mode on a login node can result in getting booted from the cluster). These nodes are covert-lab specific and it's ok to do more serious computation on them.
 
 \begin{lstlisting}
-srun -p mcovert --ntasks-per-node=1 --time=12:00:00 --pty bash
+srun -p mcovert --ntasks-per-node=1 --time=12:00:00 --pty bash -l
 \end{lstlisting}
 
 It is best to run \texttt{srun} from your home directory and then \texttt{cd} into \texttt{wcEcoli} once you are on a compute node. This will load the python virtual environment nicely, which is not necessarily the case if you run \texttt{srun} from \texttt{wcEcoli} on the login node. Once you are in a compute node, ensure you are in your \texttt{wcEcoli} directory.
@@ -597,7 +597,7 @@ nActiveRnapNeededForSlow = calculateMinPolymerizingEnzymeByProductDistributionRN
 Add a line under this for the calculation for the fast transcripts:
 
 \begin{lstlisting}
-nActiveRnapNeededFast = calculateMinPolymerizingEnzymeByProductDistributionRNA(
+nActiveRnapNeededForFast = calculateMinPolymerizingEnzymeByProductDistributionRNA(
     rnaLengths[fastRnaBool], 
     sim_data.growthRateParameters.rnaPolymeraseElongationRateFast, 
     rnaLossRate[fastRnaBool])
