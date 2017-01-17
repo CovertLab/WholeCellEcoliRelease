@@ -48,7 +48,9 @@ class RnapData(wholecell.listeners.listener.Listener):
 		self.didTerminate = None
 		self.didInitialize = None
 		self.terminationLoss = None
+		self.rnaInitEvent = None
 
+		self.nRnaSpecies = sim_data.process.transcription.rnaData['id'].size
 
 		# Logged quantities
 		self.registerLoggedQuantity(
@@ -78,6 +80,7 @@ class RnapData(wholecell.listeners.listener.Listener):
 		self.didTerminate = 0
 		self.didInitialize = 0
 		self.terminationLoss = 0
+		self.rnaInitEvent = np.zeros(self.nRnaSpecies, np.int64)
 
 	def update(self):
 		if self.rnapStalls.size:
@@ -113,5 +116,6 @@ class RnapData(wholecell.listeners.listener.Listener):
 			nTerminated = self.nTerminated,
 			didTerminate = self.didTerminate,
 			didInitialize = self.didInitialize,
-			terminationLoss = self.terminationLoss
+			terminationLoss = self.terminationLoss,
+			rnaInitEvent = self.rnaInitEvent,
 			)

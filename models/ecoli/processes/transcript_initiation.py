@@ -216,6 +216,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.inactiveRnaPolys.countDec(nNewRnas.sum())
 
 		self.writeToListener("RnapData", "didInitialize", nNewRnas.sum())
+		self.writeToListener("RnapData", "rnaInitEvent", nNewRnas)
 
 	def _calculateActivationProb(self, fracActiveRnap, rnaLengths, rnaPolymeraseElongationRate, synthProb):
 		expectedTranscriptionTime = 1. / rnaPolymeraseElongationRate * rnaLengths
