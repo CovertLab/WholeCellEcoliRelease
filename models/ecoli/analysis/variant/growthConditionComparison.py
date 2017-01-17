@@ -141,6 +141,8 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
 
+	raise Exception()	
+
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(
 			wholecell.utils.constants.SERIALIZED_KB_DIR,
