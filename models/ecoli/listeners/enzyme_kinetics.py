@@ -34,6 +34,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		self.metabolism = sim.processes["Metabolism"]
 #		self.reactionRateInfo = sim_data.process.metabolism.reactionRateInfo
 		self.metaboliteIDs = sorted(sim_data.process.metabolism.concDict)
+		self.nConstrainedReactions = len(sim_data.process.metabolism.constrainedReactionList)
 
 		# Get metabolite names similar to how it's done in the metabolism process
 		self.metaboliteNamesFromNutrients = set()
@@ -69,6 +70,9 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		self.enzymeIDs = self.metabolism.kineticsEnzymesList
 		self.enzymeCountsInit = np.zeros(len(self.metabolism.kineticsEnzymesList), np.float64)
 		self.countsToMolar = np.zeros(1, np.float64)
+		self.targetFluxes = np.zeros(self.nConstrainedReactions, np.float64)
+		self.actualFluxes = np.zeros(self.nConstrainedReactions, np.float64)
+		self.reactionConstraint = np.zeros(self.nConstrainedReactions, np.int)
 
 	def update(self):
 		pass
@@ -99,5 +103,8 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 			metaboliteCountsFinal = self.metaboliteCountsFinal,
 			metaboliteConcentrations = self.metaboliteConcentrations,
 			countsToMolar = self.countsToMolar,
-			enzymeCountsInit = self.enzymeCountsInit
+			enzymeCountsInit = self.enzymeCountsInit,
+			targetFluxes = self.targetFluxes,
+			actualFluxes = self.actualFluxes,
+			reactionConstraint = self.reactionConstraint,
 			)

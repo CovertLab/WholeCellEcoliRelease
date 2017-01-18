@@ -34,6 +34,7 @@ class ValidationDataEcoli(object):
 	def initialize(self, validation_data_raw, knowledge_base_raw):
 		self.protein = Protein(validation_data_raw, knowledge_base_raw)
 		self.reactionFlux = ReactionFlux(validation_data_raw, knowledge_base_raw)
+		self.essentialGenes = EssentialGenes(validation_data_raw)
 
 
 class Protein(object):
@@ -192,3 +193,19 @@ class ReactionFlux(object):
 		for idx, row in enumerate(toya_dataset):
 			self.toya2010fluxes[idx]["reactionID"] = row["reactionID"]
 			self.toya2010fluxes[idx]["reactionFlux"] = row["flux"]
+
+class EssentialGenes(object):
+	""" EssentialGenes """
+
+	def __init__(self, validation_data_raw):
+		self._loadEssentialGenes(validation_data_raw)
+
+	def _loadEssentialGenes(self, validation_data_raw):
+		self.essentialGenes = []
+		self.essentialRnas = []
+		self.essentialProteins = []
+
+		for row in validation_data_raw.essentialGenes:
+			self.essentialGenes.append(row["FrameID"])
+			self.essentialRnas.append(row["rnaID"] + "[c]")
+			self.essentialProteins.append(row["proteinID"] + "[" + row["proteinLoc"] + "]")

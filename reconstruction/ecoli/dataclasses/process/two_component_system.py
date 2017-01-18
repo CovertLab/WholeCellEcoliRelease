@@ -151,6 +151,8 @@ class TwoComponentSystem(object):
 
 		self.independentMoleculesAtpIndex = np.where(self.independentMolecules == "ATP[c]")[0][0]
 
+		self.complexToMonomer = self._buildComplexToMonomer(raw_data.modifiedFormsStoichiometry, self.moleculeNames)
+
 		# Mass balance matrix
 		self._stoichMatrixMass = np.array(stoichMatrixMass)
 		self.balanceMatrix = self.stoichMatrix()*self.massMatrix()
@@ -171,6 +173,13 @@ class TwoComponentSystem(object):
 		# Map active TF to inactive TF
 		self.activeToInactiveTF = activeToInactiveTF
 
+	def _buildComplexToMonomer(self, modifiedFormsMonomers, tcsMolecules):
+		D = {}
+		for row in modifiedFormsMonomers:
+			if str(row["complexID"]) in tcsMolecules:
+				D[str(row["complexID"])] = {str(row["monomer"]): float(row["stoichiometry"])}
+
+		return D
 
 	def stoichMatrix(self):
 		shape = (self._stoichMatrixI.max()+1, self._stoichMatrixJ.max()+1)
@@ -195,8 +204,6 @@ class TwoComponentSystem(object):
 
 		out = np.zeros(shape, np.float64)
 
-
-
 	def massBalance(self):
 		'''
 		Sum along the columns of the massBalance matrix to check for reaction
@@ -211,7 +218,9 @@ class TwoComponentSystem(object):
 		return reactionSumsArray
 
 	def stoichMatrixMonomers(self):
-		ids_complexes = [self.moleculeNames[i] for i in np.where((self.stoichMatrix() == 1).sum(axis = 1))[0]]
+		# Cannot use this function due to some complexes with monomers not involved in two-component signaling
+		# such as hisitinde kinases that are protein complexes
+		ids_complexes = self.complexToMonomer.keys()
 
 		stoichMatrixMonomersI = []
 		stoichMatrixMonomersJ = []
@@ -219,13 +228,13 @@ class TwoComponentSystem(object):
 		for colIdx, id_complex in enumerate(ids_complexes):
 			D = self.getMonomers(id_complex)
 
-			rowIdx = self.moleculeNames.index(id_complex)
+			rowIdx = self.moleculeNames.tolist().index(id_complex)
 			stoichMatrixMonomersI.append(rowIdx)
 			stoichMatrixMonomersJ.append(colIdx)
 			stoichMatrixMonomersV.append(1.)
 
 			for subunitId, subunitStoich in zip(D["subunitIds"], D["subunitStoich"]):
-				rowIdx = self.moleculeNames.index(subunitId)
+				rowIdx = self.moleculeNames.tolist().index(subunitId)
 				stoichMatrixMonomersI.append(rowIdx)
 				stoichMatrixMonomersJ.append(colIdx)
 				stoichMatrixMonomersV.append(-1. * subunitStoich)
@@ -477,9 +486,12 @@ class TwoComponentSystem(object):
 		of zero.
 		'''
 
-		info = self._moleculeRecursiveSearch(cplxId, self.stoichMatrix(), np.array(self.moleculeNames))
-
-		return {'subunitIds' : np.array(info.keys()), 'subunitStoich' : -1 * np.array(info.values())}
+		info = self.complexToMonomer
+		if cplxId in info:
+			out = {'subunitIds' : info[cplxId].keys(), 'subunitStoich' : info[cplxId].values()}
+		else:
+			out = {'subunitIds' : cplxId, 'subunitStoich' : 1}
+		return out
 
 	def _findRow(self, product,speciesList):
 

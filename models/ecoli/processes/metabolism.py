@@ -153,6 +153,7 @@ class Metabolism(wholecell.processes.process.Process):
 		shape = (constraintToReactionMatrixI.max() + 1, constraintToReactionMatrixJ.max() + 1)
 		self.constraintToReactionMatrix = np.zeros(shape, np.float64)
 		self.constraintToReactionMatrix[constraintToReactionMatrixI, constraintToReactionMatrixJ] = constraintToReactionMatrixV
+		self.constraintIsKcatOnly = sim_data.process.metabolism.constraintIsKcatOnly
 
 		self.metabolismKineticObjectiveWeight = sim_data.constants.metabolismKineticObjectiveWeight
 
@@ -324,6 +325,9 @@ class Metabolism(wholecell.processes.process.Process):
 				)
 			reactionTargets = (units.umol / units.L / units.s) * np.max(self.constraintToReactionMatrix * constraintValues, axis = 1)
 
+			# record which constraint was used, add constraintToReactionMatrix to ensure the index is one of the constraints if multiplication is 0
+			reactionConstraint = np.argmax(self.constraintToReactionMatrix * constraintValues + self.constraintToReactionMatrix, axis = 1)
+
 			targets = (TIME_UNITS * self.timeStepSec() * reactionTargets).asNumber(COUNTS_UNITS / VOLUME_UNITS)
 			self.fba.setKineticTarget(
 				self.kineticsConstrainedReactions,
@@ -340,7 +344,7 @@ class Metabolism(wholecell.processes.process.Process):
 			), 0).astype(np.int64)
 
 		self.metabolites.countsIs(metaboliteCountsFinal)
-		if self.burnInComplete:
+		if USE_KINETICS and self.burnInComplete:
 			relError = np.abs((self.fba.reactionFluxes(self.kineticsConstrainedReactions) - targets) / (targets + 1e-15))
 
 
@@ -406,3 +410,13 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.writeToListener("EnzymeKinetics", "countsToMolar",
 			countsToMolar.asNumber(COUNTS_UNITS / VOLUME_UNITS))
+
+		self.writeToListener("EnzymeKinetics", "actualFluxes",
+			self.fba.reactionFluxes(self.kineticsConstrainedReactions) / self.timeStepSec())
+
+		if USE_KINETICS and self.burnInComplete:
+			self.writeToListener("EnzymeKinetics", "targetFluxes",
+				targets / self.timeStepSec())
+
+			self.writeToListener("EnzymeKinetics", "reactionConstraint",
+				reactionConstraint)
