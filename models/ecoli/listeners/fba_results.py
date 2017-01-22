@@ -77,6 +77,7 @@ class FBAResults(wholecell.listeners.listener.Listener):
 			outputMoleculeIDs = self.outputMoleculeIDs,
 			homeostaticTargetMolecules = self.homeostaticTargetMolecules,
 			kineticTargetFluxNames = self.kineticTargetFluxNames,
+			metaboliteNames = self.metaboliteNamesFromNutrients,
 			)
 
 
