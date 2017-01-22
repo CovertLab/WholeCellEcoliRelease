@@ -533,6 +533,8 @@ class ConcentrationUpdates(object):
 		for moleculeName, setAmount in self.moleculeSetAmounts.iteritems():
 			if self._isNutrientExchangePresent(nutrientFluxes, moleculeName):
 				concDict[moleculeName] = setAmount
+			if moleculeName in self.moleculeScaleFactors and self._isNutrientExchangePresent(nutrientFluxes, moleculeName[:-3] + "[p]"):
+				concDict[moleculeName] = setAmount
 
 		return concDict
 
