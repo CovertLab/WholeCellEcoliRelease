@@ -68,15 +68,23 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	xhistAxis.xaxis.set_visible(False)
 	# yhistAxis.yaxis.set_visible(False)
 
-	scatterAxis.imshow(initCountsPerMonomer > 0, cmap='binary')#, interpolation='nearest')
+	stride = 10
+	n_stride = initCountsPerMonomer.shape[0] / stride
+	initCountsPerMonomer_downSample = np.zeros((n_stride, n_monomers))
+	for idx in range(n_stride):
+		initCountsPerMonomer_downSample[idx, :] = initCountsPerMonomer[idx*stride:(idx+1)*stride].sum(axis=0)
+
+
+
+	scatterAxis.imshow(initCountsPerMonomer_downSample > 0, cmap='binary', origin = "upper", extent=[0, n_monomers, 0, initCountsPerMonomer_downSample.shape[0]], aspect = initCountsPerMonomer_downSample.shape[0])#, interpolation='nearest')
 	scatterAxis.set_ylabel("Simulation step")
 	scatterAxis.set_xlabel("Monomer")
 
 
-	scatterAxis.set_xlim([0, initCountsPerMonomer.shape[1]])
-	scatterAxis.set_ylim([initCountsPerMonomer.shape[0], 0])
+	# scatterAxis.set_xlim([0, initCountsPerMonomer_downSample.shape[1]])
+	# scatterAxis.set_ylim([initCountsPerMonomer_downSample.shape[0], 0])
 
-	# yhistAxis.barh(left = range(initCountsPerMonomer.shape[0]), height = initCountsPerMonomer.sum(axis=1))
+	# yhistAxis.barh(left = range(initCountsPerMonomer_downSample.shape[0]), height = initCountsPerMonomer_downSample.sum(axis=1))
 	xhistAxis.bar(range(initCountsPerMonomer.shape[1]), initCountsPerMonomer.sum(axis=0))
 	xhistAxis.set_yscale("log")
 
