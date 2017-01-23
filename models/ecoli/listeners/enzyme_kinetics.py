@@ -85,6 +85,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 #			constraintToReactionDict = self.constraintToReactionDict,
 #			kineticTargetFluxNames = self.kineticTargetFluxNames,
 #			kineticOneSidedTargets = self.kineticOneSidedTargets,
+			metaboliteNames = self.metaboliteNamesFromNutrients,
 			)
 
 

@@ -39,6 +39,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		os.mkdir(plotOutDir)
 
 	enzymeKineticsdata = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
+	metaboliteNames = enzymeKineticsdata.readAttribute("metaboliteNames")
 
 	metaboliteCounts = enzymeKineticsdata.readColumn("metaboliteCountsFinal")
 	normalizedCounts = metaboliteCounts / metaboliteCounts[1, :]
@@ -48,39 +49,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 	
 	enzymeKineticsdata.close()
-
-	# Load data from KB
-	sim_data = cPickle.load(open(simDataFile, "rb"))
-
-	# Load constants
-	nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / COUNTS_UNITS)
-	cellDensity = sim_data.constants.cellDensity.asNumber(MASS_UNITS/VOLUME_UNITS)
-
-	objective = dict(
-			(key, sim_data.process.metabolism.concDict[key].asNumber(COUNTS_UNITS / VOLUME_UNITS)) for key in sim_data.process.metabolism.concDict
-			)
-
-	externalExchangeMolecules = sim_data.nutrientData["secretionExchangeMolecules"]
-	for t, nutrientsLabel in sim_data.nutrientsTimeSeries[sim_data.nutrientsTimeSeriesLabel]:
-		externalExchangeMolecules += sim_data.nutrientData["importExchangeMolecules"][nutrientsLabel]
-	externalExchangeMolecules = sorted(externalExchangeMolecules)
-	extMoleculeMasses = sim_data.getter.getMass(externalExchangeMolecules)
-
-	moleculeMasses = dict(zip(
-		externalExchangeMolecules,
-		sim_data.getter.getMass(externalExchangeMolecules).asNumber(MASS_UNITS / COUNTS_UNITS)
-		))
-
-	fba = FluxBalanceAnalysis(
-			sim_data.process.metabolism.reactionStoich,
-			externalExchangeMolecules,
-			objective,
-			objectiveType = "standard",
-			moleculeMasses = moleculeMasses,
-			solver = 'glpk'
-			)
-
-	metaboliteNames = np.array(fba.outputMoleculeIDs())
 
 	# get only fluxes that drop
 	# lowCountsIdx = np.unique(np.where(normalizedCounts[1:, :] < 0.99)[1])
@@ -113,7 +81,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	nMolecules = normalizedCounts.shape[1]
 
 	# Only create Bokeh plot if every metabolite is identified
-	if metaboliteNames.shape[0] != nMolecules:
+	if len(metaboliteNames) != nMolecules:
 		return
 
 	moleculeCounts = np.round(10* np.random.rand(nTimesteps*nMolecules).reshape((nMolecules, nTimesteps)))

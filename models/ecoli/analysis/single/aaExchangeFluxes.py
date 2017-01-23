@@ -40,6 +40,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	for plotIndex, aa in enumerate(aaIDs):
 		ax = plt.subplot(rows, cols, plotIndex + 1)
 		
+		if not aa.startswith("L-SELENOCYSTEINE"):
+			aa = aa[:-3] + "[p]"
 		if aa in externalMoleculeIDs:
 			aaFlux = externalExchangeFluxes[:, externalMoleculeIDs.index(aa)]
 		else:

@@ -353,7 +353,7 @@ class Metabolism(wholecell.processes.process.Process):
 		# TODO: report as reactions (#) per second & store volume elsewhere
 
 		self.writeToListener("FBAResults", "deltaMetabolites",
-			deltaMetabolites)
+			metaboliteCountsFinal - metaboliteCountsInit)
 
 		self.writeToListener("FBAResults", "reactionFluxes",
 			self.fba.reactionFluxes() / self.timeStepSec())
