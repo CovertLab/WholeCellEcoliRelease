@@ -109,6 +109,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		##############################################################
 		ax = plt.subplot(3, 1, 3)
 		ax.plot(time / 3600., trpSynMaxCapacity / trpRequests, color = "b")
+		ax.plot([0, time[-1] / 3600.], [1., 1.], "k--")
 		plt.ylabel("(Max capacity) / (Request)", fontsize = 10)
 
 		ymin, ymax = ax.get_ylim()
