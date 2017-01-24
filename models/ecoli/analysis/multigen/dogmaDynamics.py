@@ -182,11 +182,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		proteinMonomerCounts = bulkCounts[:, translationIdx]
 		rnaMonomerCounts = bulkCounts[:, transcriptionIdx]
 
-		axesList[0].plot(time / 60., proteinMonomerCounts[:, protein_index_of_interest[0]])
+		if len(protein_index_of_interest):
+			axesList[0].plot(time / 60., proteinMonomerCounts[:, protein_index_of_interest[0]])
 
-		rna_index_of_interest = sim_data.relation.monomerIndexToRnaMapping[protein_index_of_interest[0]]
+			rna_index_of_interest = sim_data.relation.monomerIndexToRnaMapping[protein_index_of_interest[0]]
 
-		axesList[1].plot(time / 60., rnaMonomerCounts[:, rna_index_of_interest])
+			axesList[1].plot(time / 60., rnaMonomerCounts[:, rna_index_of_interest])
 
 
 	axesList[1].set_xlabel("Time (min)")
