@@ -39,6 +39,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		os.mkdir(plotOutDir)
 
 	enzymeKineticsdata = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
+	metaboliteNames = enzymeKineticsdata.readAttribute("metaboliteNames")
 	metaboliteCounts = enzymeKineticsdata.readColumn("metaboliteCountsFinal")
 	normalizedCounts = metaboliteCounts / metaboliteCounts[1, :]
 	
@@ -46,10 +47,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 	enzymeKineticsdata.close()
-
-	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
-	metaboliteNames = fbaResults.readAttribute("outputMoleculeIDs")
-	fbaResults.close()
 
 	colors = COLORS_LARGE # to match colors between the pdf and html plots
 	plt.figure(figsize = (8.5, 11))
@@ -76,9 +73,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	nTimesteps = time.shape[0]
 	nMolecules = normalizedCounts.shape[1]
-	x = time
 	freq = 100
-	x_a = x[::freq]
+	x_a = time[::freq]
 
 	plot = figure(x_axis_label = "Time(s)", y_axis_label = "Metabolite Fold Change", width = 800, height = 800)
 	for m in np.arange(nMolecules):
@@ -88,12 +84,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		source = ColumnDataSource(data = dict(x = x_a, y = y_a, ID = metaboliteName))
 		circle = plot.circle("x", "y", alpha = 0, source = source)
 		plot.add_tools(HoverTool(tooltips = [("ID", "@ID")], renderers = [circle]))
-		plot.line(x, y, line_color = colors[m % len(colors)])
+		plot.line(time, y, line_color = colors[m % len(colors)])
 
 	import bokeh.io
 	bokeh.io.output_file(os.path.join(plotOutDir, "html_plots", plotOutFileName + ".html"), title = plotOutFileName, autosave = False)
 	bokeh.io.save(plot)
-
 
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(
@@ -106,6 +101,7 @@ if __name__ == "__main__":
 	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
 	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
 	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
+	parser.add_argument("--validationDataFile")
 
 	args = parser.parse_args().__dict__
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"], args["validationDataFile"])

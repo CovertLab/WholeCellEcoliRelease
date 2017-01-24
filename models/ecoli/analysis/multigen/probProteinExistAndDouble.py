@@ -20,6 +20,9 @@ from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 CLOSE_TO_DOUBLE = 0.1
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
+	print "DISABLED"
+	return
+
 
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
@@ -147,10 +150,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		for idx, burstSize in enumerate(uniqueBurstSizes):
 			mask = initiationEventsPerMonomerMultigen[gen_idx,:] == burstSize
 			
-
 			probExistByBurstSize[gen_idx, idx] = monomerExistMultigen[gen_idx,:][mask].sum() / float(mask.sum())
+
 			probDoubleByBurstSize[gen_idx, idx] = monomerDoubleMultigen[gen_idx,:][mask].sum() / float(mask.sum())
-	import ipdb; ipdb.set_trace()
 
 	fig, axesList = plt.subplots(4,1)
 

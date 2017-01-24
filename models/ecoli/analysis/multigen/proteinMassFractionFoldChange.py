@@ -14,8 +14,8 @@ import wholecell.utils.constants
 
 import cPickle
 
+from wholecell.utils import units
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
-
 FROM_CACHE = False
 
 CLOSE_TO_DOUBLE = 0.1
@@ -36,6 +36,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ids_equilibrium_complexes = [ids_equilibrium[i] for i in np.where((sim_data.process.equilibrium.stoichMatrix() == 1).sum(axis = 1))[0]] # Only complexes
 	ids_translation = sim_data.process.translation.monomerData["id"].tolist() # Only protein monomers
 
+	# ids_ribosome = 
 	data_50s = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.s50_fullComplex[0])
 	data_30s = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.s30_fullComplex[0])
 	ribosome_subunit_ids = data_50s["subunitIds"].tolist() + data_30s["subunitIds"].tolist()
@@ -44,6 +45,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	data_rnap = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.rnapFull[0])
 	rnap_subunit_ids = data_rnap["subunitIds"].tolist()
 	rnap_subunit_stoich = data_rnap["subunitStoich"]
+
+	monomerMass = sim_data.getter.getMass(sim_data.process.translation.monomerData['id'])
+	nAvogadro = sim_data.constants.nAvogadro
 
 	# Get all cells
 	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
@@ -55,14 +59,26 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	n_monomers = sim_data.process.translation.monomerData['id'].size
 	n_sims = ap.n_generation
 
+	monomerExistMultigen = np.zeros((n_sims, n_monomers), dtype = np.bool)
 	ratioFinalToInitialCountMultigen = np.zeros((n_sims, n_monomers), dtype = np.float)
 	initiationEventsPerMonomerMultigen = np.zeros((n_sims, n_monomers), dtype = np.int)
+	monomerAvgCountMultigen = np.zeros((n_sims, n_monomers), dtype=np.float)
+	cellMassMultigen = np.zeros(n_sims, dtype=np.float)
+	monomerInitialCountMultigen = np.zeros((n_sims, n_monomers), dtype=np.int)
+	cellMassInitMultigen = np.zeros(n_sims, dtype=np.float)
+	cellMassFinalMultigen = np.zeros(n_sims, dtype=np.float)
 
 	if not FROM_CACHE:
+
 		for gen_idx, simDir in enumerate(allDir):
 			simOutDir = os.path.join(simDir, "simOut")
 
 			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+
+			cellMass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")
+			cellMassInit = cellMass[0]
+			cellMassFinal = cellMass[-1]
+			cellMass = cellMass.mean()
 
 			## READ DATA ##
 			# Read in bulk ids and counts
@@ -110,8 +126,15 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			proteinMonomerCounts = bulkCounts[:, translationIdx]
 
 			## CALCULATIONS ##
+			monomerAverageCount = proteinMonomerCounts.mean(axis=0)
+
+			# Calculate if monomer exists over course of cell cycle
+			monomerExist = proteinMonomerCounts.sum(axis=0) > 1
+
 			# Calculate if monomer comes close to doubling
 			ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(np.float) + 1)
+			# monomerDouble = ratioFinalToInitialCount > (1 - CLOSE_TO_DOUBLE)
+			monomerInitialCount = proteinMonomerCounts[0,:]
 
 			# Load transcription initiation event data
 			rnapData = TableReader(os.path.join(simOutDir, "RnapData"))
@@ -121,56 +144,126 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.rnaIndexToMonomerMapping]
 
 			# Log data
-			ratioFinalToInitialCount[np.logical_and(ratioFinalToInitialCount == 1., proteinMonomerCounts[0,:] == 0)] = np.nan
-
+			monomerExistMultigen[gen_idx,:] = monomerExist
 			ratioFinalToInitialCountMultigen[gen_idx,:] = ratioFinalToInitialCount
 			initiationEventsPerMonomerMultigen[gen_idx,:] = initiationEventsPerMonomer
+			monomerAvgCountMultigen[gen_idx, :] = monomerAverageCount
+			cellMassMultigen[gen_idx] = cellMass
+			monomerInitialCountMultigen[gen_idx,:] = monomerInitialCount
 
+			cellMassInitMultigen[gen_idx] = cellMassInit
+			cellMassFinalMultigen[gen_idx] = cellMassFinal
+
+		cPickle.dump(monomerExistMultigen, open(os.path.join(plotOutDir,"monomerExistMultigen.pickle"), "wb"))
 		cPickle.dump(ratioFinalToInitialCountMultigen, open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "wb"))
 		cPickle.dump(initiationEventsPerMonomerMultigen, open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "wb"))
+		cPickle.dump(monomerAvgCountMultigen, open(os.path.join(plotOutDir,"monomerAvgCountMultigen.pickle"), "wb"))
+		cPickle.dump(cellMassMultigen, open(os.path.join(plotOutDir,"cellMassMultigen.pickle"), "wb"))
+		cPickle.dump(monomerInitialCountMultigen, open(os.path.join(plotOutDir,"monomerInitialCountMultigen.pickle"), "wb"))
+		cPickle.dump(cellMassInitMultigen, open(os.path.join(plotOutDir,"cellMassInitMultigen.pickle"), "wb"))
+		cPickle.dump(cellMassFinalMultigen, open(os.path.join(plotOutDir,"cellMassFinalMultigen.pickle"), "wb"))
 
+
+
+	monomerExistMultigen = cPickle.load(open(os.path.join(plotOutDir,"monomerExistMultigen.pickle"), "rb"))
 	ratioFinalToInitialCountMultigen = cPickle.load(open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "rb"))
 	initiationEventsPerMonomerMultigen = cPickle.load(open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "rb"))
+	monomerAvgCountMultigen = cPickle.load(open(os.path.join(plotOutDir,"monomerAvgCountMultigen.pickle"), "rb"))
+	cellMassMultigen = cPickle.load(open(os.path.join(plotOutDir,"cellMassMultigen.pickle"), "rb"))
+	monomerInitialCountMultigen = cPickle.load(open(os.path.join(plotOutDir,"monomerInitialCountMultigen.pickle"), "rb"))
+	cellMassInitMultigen = cPickle.load(open(os.path.join(plotOutDir,"cellMassInitMultigen.pickle"), "rb"))
+	cellMassFinalMultigen = cPickle.load(open(os.path.join(plotOutDir,"cellMassFinalMultigen.pickle"), "rb"))
 
-	uniqueBurstSizes = np.unique(initiationEventsPerMonomerMultigen)
-	ratioByBurstSize = np.zeros(uniqueBurstSizes.size)
+	monomerFinalCountMultigen = ratioFinalToInitialCountMultigen * (monomerInitialCountMultigen + 1) - 1
 
-	burstSizeToPlot = np.zeros(0)
-	ratioToPlot = np.zeros(0)
-	for idx, burstSize in enumerate(uniqueBurstSizes):
-		mask = initiationEventsPerMonomerMultigen == burstSize
-		burstSizeToPlot = np.hstack((burstSizeToPlot, np.ones(mask.sum()) * burstSize))
-		ratioToPlot = np.hstack((ratioToPlot, ratioFinalToInitialCountMultigen[mask]))
+	existFractionPerMonomer = monomerExistMultigen.mean(axis=0)
+	averageFoldChangePerMonomer = ratioFinalToInitialCountMultigen.mean(axis=0)
+	averageInitiationEventsPerMonomer = initiationEventsPerMonomerMultigen.mean(axis=0)
+	averageCountPerMonomer = monomerAvgCountMultigen.mean(axis=0)
+
+	translationEff = sim_data.process.translation.translationEfficienciesByMonomer
+
+	initialMonomerTotalMass = ((monomerMass * monomerInitialCountMultigen) / nAvogadro).asNumber(units.fg)
+	initialMassFraction = initialMonomerTotalMass / np.tile(cellMassInitMultigen.reshape((ap.n_generation,1)), (1,n_monomers))
+
+	finalMonomerTotalMass = ((monomerMass * monomerFinalCountMultigen) / nAvogadro).asNumber(units.fg)
+	finalMassFraction = finalMonomerTotalMass / np.tile(cellMassFinalMultigen.reshape((ap.n_generation,1)), (1,n_monomers))
+
+	massFractionRatio = (finalMassFraction / initialMassFraction).mean(axis=0)
+	massFractionRatio_realValues = massFractionRatio[~np.logical_or(np.isnan(massFractionRatio),np.isinf(massFractionRatio))]
+
+	massFractionRatio_realValues = np.log2(massFractionRatio_realValues)
+
+	fig, axesList = plt.subplots(1)
+
+	axesList.hist(massFractionRatio_realValues, bins = 50, log = False)
+	axesList.set_xticks(range(15))
+	axesList.set_xticklabels(range(15))
+	axesList.set_xlabel("Mean mass fraction fold change per monomer")
+	axesList.set_ylabel("Count")
 
 
-	real_values_mask = np.logical_not(np.logical_or(np.isnan(ratioToPlot), np.isinf(ratioToPlot)))
-	burstSizeToPlot = burstSizeToPlot[real_values_mask]
-	ratioToPlot = ratioToPlot[real_values_mask]
+	# import ipdb; ipdb.set_trace()
+	# uniqueBurstSizes = np.unique(initiationEventsPerMonomerMultigen)
+	# probExistByBurstSize = np.zeros(uniqueBurstSizes.size)
+	# probDoubleByBurstSize = np.zeros(uniqueBurstSizes.size)
 
-	mean = ratioToPlot.mean()
-	std = ratioToPlot.std()
+	# for idx, burstSize in enumerate(uniqueBurstSizes):
+	# 	mask = initiationEventsPerMonomerMultigen == burstSize
+	# 	mask_sum = mask.sum()
+	# 	probExistByBurstSize[idx] = monomerExistMultigen[mask].sum() / float(mask.sum())
+	# 	probDoubleByBurstSize[idx] = monomerDoubleMultigen[mask].sum() / float(mask.sum())
 
-	scatterAxis = plt.subplot2grid((4,4), (1, 0), colspan=3, rowspan=3)#, sharex = xhistAxis, sharey = yhistAxis)
-	xhistAxis = plt.subplot2grid((4,4), (0,0), colspan=3, sharex = scatterAxis)
-	yhistAxis = plt.subplot2grid((4,4), (1,3), rowspan=3, sharey = scatterAxis)
 
-	xhistAxis.xaxis.set_visible(False)
-	yhistAxis.yaxis.set_visible(False)
+	# fig, axesList = plt.subplots(4,1)
 
-	scatterAxis.semilogx(burstSizeToPlot, ratioToPlot, marker = '.', alpha = 0.75, lw = 0.05) # s = 0.5,
-	scatterAxis.set_ylabel("Protein monomer " + r"$\frac{count_f + 1}{count_i + 1}$" + "\n" + r"Clipped $[0, 10]$")
-	scatterAxis.set_xlabel("Transcription events per generation\n" + r"Clipped $[0, 1000]$")
+	# scatterAxis = plt.subplot2grid((4,4), (1, 0), colspan=3, rowspan=3)#, sharex = xhistAxis, sharey = yhistAxis)
+	# xhistAxis = plt.subplot2grid((4,4), (0,0), colspan=3, sharex = scatterAxis)
+	# yhistAxis = plt.subplot2grid((4,4), (1,3), rowspan=3, sharey = scatterAxis)
 
-	scatterAxis.set_ylim([0., 10.])
-	scatterAxis.set_xlim([0., 1000.])
+	# xhistAxis.xaxis.set_visible(False)
+	# yhistAxis.yaxis.set_visible(False)
 
-	yhistAxis.hist(ratioToPlot, bins = 125, orientation='horizontal', range = [0., 10.], log = True)
-	xhistAxis.hist(burstSizeToPlot, bins = np.logspace(0., 10., 125), log = True)#, range = [0., 1000.])
-	xhistAxis.set_xscale("log")
+	# scatterAxis.loglog(averageCountPerMonomer, averageFoldChangePerMonomer, marker = '.', alpha = 0.9, lw = 0.)#, s = 5)
+	# scatterAxis.set_ylabel("Average fold change per monomer per generation")
+	# scatterAxis.set_xlabel("Average count per generation per monomer")
+
+	# scatterAxis.set_ylim([10e-1, 10e1])
+	# scatterAxis.set_xlim([10e-3, 10e5])
+
+	# yhistAxis.hist(averageFoldChangePerMonomer, bins = np.logspace(np.log10(10e-1), np.log10(10e1), 125), orientation='horizontal', log = True, range = [10e-3, 10e6])
+	# yhistAxis.set_yscale("log")
+
+	# xhistAxis.hist(averageCountPerMonomer, bins = np.logspace(np.log10(10e-3), np.log10(10e5), 125), log = True, range = [1e-3, 1e5])
+	# xhistAxis.set_xscale("log")
+
+
+
+	# axesList[0].semilogy(uniqueBurstSizes, probExistByBurstSize)
+	# axesList[1].semilogy(uniqueBurstSizes, probDoubleByBurstSize)
+
+	# # axesList[0].set_ylabel("Probability exists")
+	# # axesList[1].set_ylabel("Probability doubles")
+	# # axesList[1].set_xlabel("Number of transcription events per generation")
+
+	# axesList[2].semilogy(uniqueBurstSizes, probExistByBurstSize)
+	# axesList[2].set_xlim([0., 10.])
+	# #axesList[2].set_ylim([0.96, 1.0])
+	# axesList[3].semilogy(uniqueBurstSizes, probDoubleByBurstSize)
+	# axesList[3].set_xlim([0., 10.])
+	# #axesList[3].set_ylim([0.96, 1.0])
+
+	# axesList[0].set_ylabel("Probability\nexists")
+	# axesList[1].set_ylabel("Probability\ndoubles")
+	# axesList[2].set_ylabel("Probability\nexists")
+	# axesList[3].set_ylabel("Probability\ndoubles")
+	# axesList[3].set_xlabel("Number of transcription events per generation")
+
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName,metadata)
 	plt.close("all")
+
 
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(
