@@ -50,7 +50,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	tfBoundIds = [target + "__CPLX-125" for target in sim_data.tfToFC["CPLX-125"].keys()]
 	synthProbIds = [target + "[c]" for target in sim_data.tfToFC["CPLX-125"].keys()]
 
-	plt.figure(figsize = (8.5, 11))
+	plt.figure(figsize = (10, 15))
+	nRows = 10
 
 	for simDir in allDirs:
 		simOutDir = os.path.join(simDir, "simOut")
@@ -62,12 +63,14 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		# Total cell mass is needed to compute concentrations (since we have cell density)
 		# Protein mass is needed to compute the mass fraction of the proteome that is trpA
 		massReader = TableReader(os.path.join(simOutDir, "Mass"))
-
 		cellMass = units.fg * massReader.readColumn("cellMass")
 		proteinMass = units.fg * massReader.readColumn("proteinMass")
-
-
 		massReader.close()
+
+		# Load data from ribosome data listener
+		ribosomeDataReader = TableReader(os.path.join(simOutDir, "RibosomeData"))
+		nTrpATranslated = ribosomeDataReader.readColumn("numTrpATerminated")
+		ribosomeDataReader.close()
 
 		# Load data from bulk molecules
 		bulkMoleculesReader = TableReader(os.path.join(simOutDir, "BulkMolecules"))
@@ -110,11 +113,22 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		trpABComplexIndex = np.array([bulkMoleculeIds.index(x) for x in trpABComplexId])
 		trpABComplexCounts = bulkMoleculesReader.readColumn("counts")[:, trpABComplexIndex].reshape(-1)
 
+		# Get the amount of trpA mRNA
+		trpARnaId = ["EG11024_RNA[c]"]
+		trpARnaIndex = np.array([bulkMoleculeIds.index(x) for x in trpARnaId])
+		trpARnaCounts = bulkMoleculesReader.readColumn("counts")[:, trpARnaIndex].reshape(-1)
+
 		bulkMoleculesReader.close()
 
-		# Compute total counts of trpA in monomeric and complexed form
+		# Compute total counts and concentration of trpA in monomeric and complexed form
 		# (we know the stoichiometry)
 		trpAProteinTotalCounts = trpAProteinCounts + 2 * trpABComplexCounts
+		trpAProteinTotalMols = 1. / nAvogadro * trpAProteinTotalCounts
+		trpAProteinTotalConcentration = trpAProteinTotalMols * 1. / volume
+
+		# Compute concentration of trpA mRNA
+		trpARnaMols = 1. / nAvogadro * trpARnaCounts
+		trpARnaConcentration = trpARnaMols * 1. / volume
 
 		# Compute the trpA mass in the cell
 		trpAMw = sim_data.getter.getMass(trpAProteinId)
@@ -144,9 +158,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				for i in range(tfBoundCounts.shape[1])]).T
 		synthProbsMA = np.array([np.convolve(synthProbs[:,i], np.ones(width) / width, mode = "same")
 				for i in range(synthProbs.shape[1])]).T
+
 		
 		##############################################################
-		ax = plt.subplot(6, 1, 1)
+		ax = plt.subplot(nRows, 1, 1)
 		ax.plot(time, trpConcentration.asNumber(units.umol / units.L), color = "b")
 		plt.ylabel("Internal TRP Conc. [uM]", fontsize = 6)
 
@@ -161,7 +176,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		##############################################################
 
 		##############################################################
-		ax = plt.subplot(6, 1, 2)
+		ax = plt.subplot(nRows, 1, 2)
 		ax.plot(time, trpRActiveCounts)
 		ax.plot(time, trpRInactiveCounts)
 		ax.plot(time, trpRTotalCounts)
@@ -179,7 +194,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		##############################################################
 
 		##############################################################
-		ax = plt.subplot(6, 1, 3)
+		ax = plt.subplot(nRows, 1, 3)
 		ax.plot(time, tfBoundCountsMA)
 		plt.ylabel("TrpR Bound To Promoters\n(Moving Average)", fontsize = 6)
 
@@ -194,7 +209,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		##############################################################
 
 		##############################################################
-		ax = plt.subplot(6, 1, 4)
+		ax = plt.subplot(nRows, 1, 4)
 		ax.plot(time, synthProbsMA)
 		plt.ylabel("Regulated Gene Synthesis Prob.\n(Moving Average)", fontsize = 6)
 
@@ -209,7 +224,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		##############################################################
 
 		##############################################################
-		ax = plt.subplot(6, 1, 5)
+		ax = plt.subplot(nRows, 1, 5)
 		ax.plot(time, trpAProteinTotalCounts, color = "b")
 		plt.ylabel("TrpA Counts", fontsize = 6)
 
@@ -223,11 +238,55 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ax.set_xticks([])
 		##############################################################
 
+		##############################################################
+		ax = plt.subplot(nRows, 1, 6)
+		ax.plot(time, trpAProteinTotalConcentration.asNumber(units.umol / units.L), color = "b")
+		plt.ylabel("TrpA Concentration", fontsize = 6)
+
+		ymin, ymax = ax.get_ylim()
+		ax.set_yticks([ymin, ymax])
+		ax.set_yticklabels(["%0.2f" % ymin, "%0.2f" % ymax])
+		ax.spines['top'].set_visible(False)
+		ax.spines['bottom'].set_visible(False)
+		ax.xaxis.set_ticks_position('none')
+		ax.tick_params(which = 'both', direction = 'out', labelsize = 6)
+		ax.set_xticks([])
+		##############################################################
 
 		##############################################################
-		ax = plt.subplot(6, 1, 6)
+		ax = plt.subplot(nRows, 1, 7)
+		ax.plot(time, trpARnaCounts, color = "b")
+		plt.ylabel("TrpA mRNA Counts", fontsize = 6)
+
+		ymin, ymax = ax.get_ylim()
+		ax.set_yticks([ymin, ymax])
+		ax.set_yticklabels(["%0.0f" % ymin, "%0.0f" % ymax])
+		ax.spines['top'].set_visible(False)
+		ax.spines['bottom'].set_visible(False)
+		ax.xaxis.set_ticks_position('none')
+		ax.tick_params(which = 'both', direction = 'out', labelsize = 6)
+		ax.set_xticks([])
+		##############################################################
+
+		##############################################################
+		ax = plt.subplot(nRows, 1, 8)
+		ax.plot(time, trpARnaConcentration.asNumber(units.umol / units.L), color = "b")
+		plt.ylabel("TrpA mRNA Concentration", fontsize = 6)
+
+		ymin, ymax = ax.get_ylim()
+		ax.set_yticks([ymin, ymax])
+		ax.set_yticklabels(["%0.2e" % ymin, "%0.2e" % ymax])
+		ax.spines['top'].set_visible(False)
+		ax.spines['bottom'].set_visible(False)
+		ax.xaxis.set_ticks_position('none')
+		ax.tick_params(which = 'both', direction = 'out', labelsize = 6)
+		ax.set_xticks([])
+		##############################################################
+
+		##############################################################
+		ax = plt.subplot(nRows, 1, 9)
 		ax.plot(time / 3600., proteomeMassFraction, color = "b")
-		plt.ylabel("TrpA Mass Fraction of Proteome", fontsize = 6)
+		plt.ylabel("TrpA MAss FRaction of Proteome", fontsize = 6)
 
 		ymin, ymax = ax.get_ylim()
 		ax.set_yticks([ymin, ymax])
@@ -238,6 +297,23 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ax.tick_params(which = 'both', direction = 'out', labelsize = 6)
 		ax.set_xticks(ax.get_xlim())
 		##############################################################
+
+		##############################################################
+		ax = plt.subplot(nRows, 1, 10)
+		ax.plot(time, nTrpATranslated, color = "b")
+		plt.ylabel("Number of TrpA translation events", fontsize = 6)
+
+		ymin, ymax = ax.get_ylim()
+		ax.set_yticks([ymin, ymax])
+		ax.set_yticklabels(["%0.0f" % ymin, "%0.0f" % ymax])
+		ax.spines['top'].set_visible(False)
+		ax.spines['bottom'].set_visible(False)
+		ax.xaxis.set_ticks_position('none')
+		ax.tick_params(which = 'both', direction = 'out', labelsize = 6)
+		ax.set_xticks([])
+		##############################################################
+
+	plt.subplots_adjust(hspace = 1)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
@@ -255,7 +331,8 @@ if __name__ == "__main__":
 	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
 	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
 	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
+	parser.add_argument("--validationDataFile")
 
 	args = parser.parse_args().__dict__
 
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"], args["validationDataFile"])
