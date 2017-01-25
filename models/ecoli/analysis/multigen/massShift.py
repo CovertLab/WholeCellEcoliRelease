@@ -29,6 +29,14 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 
+	T_ADD_AA = None
+	T_CUT_AA = None
+	nutrientsTimeSeriesLabel = sim_data.nutrientsTimeSeriesLabel
+	if "aa" in nutrientsTimeSeriesLabel:
+		if "add" in nutrientsTimeSeriesLabel and "cut" in nutrientsTimeSeriesLabel:
+			T_ADD_AA = sim_data.nutrientsTimeSeries[nutrientsTimeSeriesLabel][1][0]
+			T_CUT_AA = sim_data.nutrientsTimeSeries[nutrientsTimeSeriesLabel][2][0]
+
 	# Get all cells
 	allDir = ap.get_cells()
 	nCells = allDir.shape[0]
@@ -62,16 +70,19 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax1.legend(cleanNames, loc = "best", fontsize = 10)
 	ax1.set_ylabel("Mass (fg)")
 	ax1.set_xlabel("Time (hour)")
-	ax1.set_xlim(0, 1)
-	ax1.plot((1200 / 60. / 60., 1200 / 60. / 60.), ax1.get_ylim(), "k--")
+	if T_ADD_AA != None and T_CUT_AA !=None:
+		ax1.plot((T_ADD_AA / 60. / 60., T_ADD_AA / 60. / 60.), ax1.get_ylim(), "k--")
+		ax1.plot((T_CUT_AA / 60. / 60., T_CUT_AA / 60. / 60.), ax1.get_ylim(), "k--")
 
-	ax2.set_title("Instantaneous change in mass (fg)")
+	ax2.set_title("Instantaneous change in mass (fg / second)")
 	ax2.set_xlim((-0.1, ax2.get_xlim()[1]))
 	ax5.set_xlabel("Time (hour)")
 	for idx, ax in enumerate(axesList):
 		ax.set_ylabel(cleanNames[idx])
-		ax.plot((1200 / 60. / 60., 1200 / 60. / 60.), ax.get_ylim(), "k--")
 		ax.set_xlim(0, time[-1] / 60. / 60.)
+		if T_ADD_AA != None and T_CUT_AA !=None:
+			ax.plot((T_ADD_AA / 60. / 60., T_ADD_AA / 60. / 60.), ax.get_ylim(), "k--")
+			ax.plot((T_CUT_AA / 60. / 60., T_CUT_AA / 60. / 60.), ax.get_ylim(), "k--")
 
 	plt.subplots_adjust(hspace = 0.2, wspace = 0.2)
 
