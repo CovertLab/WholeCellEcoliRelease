@@ -35,6 +35,16 @@ class FBAResults(wholecell.listeners.listener.Listener):
 
 		self.objectiveValue = 0.0
 
+		self.metaboliteNamesFromNutrients = set()
+		for time, nutrientsLabel in sim_data.nutrientsTimeSeries[sim_data.nutrientsTimeSeriesLabel]:
+
+			self.metaboliteNamesFromNutrients.update(
+				sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
+					nutrientsLabel, sim_data.process.metabolism.nutrientsToInternalConc
+					)
+				)
+		self.metaboliteNamesFromNutrients = sorted(self.metaboliteNamesFromNutrients)
+
 
 	# Allocate memory
 	def allocate(self):
@@ -48,7 +58,7 @@ class FBAResults(wholecell.listeners.listener.Listener):
 		self.kineticTargetFluxNames = fba.kineticTargetFluxNames()
 		self.homeostaticTargetMolecules = fba.homeostaticTargetMolecules()
 
-		self.deltaMetabolites = np.zeros(len(self.metabolism.fba.outputMoleculeLevelsChange()), np.float64)
+		self.deltaMetabolites = np.zeros(len(self.metaboliteNamesFromNutrients), np.float64)
 
 		self.reactionFluxes = np.zeros(len(self.reactionIDs), np.float64)
 		self.externalExchangeFluxes = np.zeros(len(self.externalMoleculeIDs), np.float64)
@@ -67,6 +77,7 @@ class FBAResults(wholecell.listeners.listener.Listener):
 			outputMoleculeIDs = self.outputMoleculeIDs,
 			homeostaticTargetMolecules = self.homeostaticTargetMolecules,
 			kineticTargetFluxNames = self.kineticTargetFluxNames,
+			metaboliteNames = self.metaboliteNamesFromNutrients,
 			)
 
 

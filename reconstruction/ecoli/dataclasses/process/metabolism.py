@@ -36,6 +36,12 @@ raiseForTruncatedRxns = False
 warnForTruncatedRxns = False
 warnForMultiTruncatedRxns = False
 
+USE_ALL_CONSTRAINTS = False # False will remove problematic constraints from objective
+CONSTRAINTS_TO_DISABLE = [
+	"R601-RXN-FUM/REDUCED-MENAQUINONE//SUC/CPD-9728.38.",
+	"SUCCINATE-DEHYDROGENASE-UBIQUINONE-RXN-SUC/UBIQUINONE-8//FUM/CPD-9956.31.",
+	]
+
 reverseReactionString = "{} (reverse)"
 
 
@@ -429,6 +435,8 @@ class Metabolism(object):
 		self.constraintDict = constraintDict
 		self.reactionsToConstraintsDict = reactionsToConstraintsDict
 		self.constraintIsKcatOnly = constraintIsKcatOnly
+		self.useAllConstraints = USE_ALL_CONSTRAINTS
+		self.constraintsToDisable = CONSTRAINTS_TO_DISABLE
 
 
 
@@ -531,7 +539,9 @@ class ConcentrationUpdates(object):
 		concDict = dict(zip(metaboliteTargetIds, concentrations))
 
 		for moleculeName, setAmount in self.moleculeSetAmounts.iteritems():
-			if self._isNutrientExchangePresent(nutrientFluxes, moleculeName):
+			if self._isNutrientExchangePresent(nutrientFluxes, moleculeName) and (moleculeName[:-3] + "[c]" not in self.moleculeScaleFactors or moleculeName == "L-SELENOCYSTEINE[c]"):
+				concDict[moleculeName] = setAmount
+			if moleculeName in self.moleculeScaleFactors and self._isNutrientExchangePresent(nutrientFluxes, moleculeName[:-3] + "[p]"):
 				concDict[moleculeName] = setAmount
 
 		return concDict

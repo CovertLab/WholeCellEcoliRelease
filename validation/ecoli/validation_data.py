@@ -189,10 +189,11 @@ class ReactionFlux(object):
 	def _loadToya2010Fluxes(self, validation_data_raw):
 		# Load Toya 2010 Biotech Prog central carbon metabolism C13 flux dataset
 		toya_dataset = validation_data_raw.toya_2010_central_carbon_fluxes
-		self.toya2010fluxes = np.zeros(len(toya_dataset), dtype=[('reactionID', '|S100'), ('reactionFlux', Unum)])
+		self.toya2010fluxes = np.zeros(len(toya_dataset), dtype=[('reactionID', '|S100'), ('reactionFlux', Unum), ('reactionFluxStdev', Unum)])
 		for idx, row in enumerate(toya_dataset):
 			self.toya2010fluxes[idx]["reactionID"] = row["reactionID"]
 			self.toya2010fluxes[idx]["reactionFlux"] = row["flux"]
+			self.toya2010fluxes[idx]["reactionFluxStdev"] = row["flux standard deviation"]
 
 class EssentialGenes(object):
 	""" EssentialGenes """

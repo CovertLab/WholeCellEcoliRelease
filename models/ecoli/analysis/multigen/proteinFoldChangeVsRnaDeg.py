@@ -15,10 +15,10 @@ import wholecell.utils.constants
 import cPickle
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
+from wholecell.utils import units
 
 FROM_CACHE = False
 
-CLOSE_TO_DOUBLE = 0.1
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
@@ -27,6 +27,11 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
+
+
+	# rnaDegradationListenerFile = TableReader(os.path.join(simOutDir, "RnaDegradationListener"))
+	# countRnaDegraded = rnaDegradationListenerFile.readColumn('countRnaDegraded')
+
 
 	# Get all ids reqiured
 	sim_data = cPickle.load(open(simDataFile, "rb"))
@@ -114,37 +119,42 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(np.float) + 1)
 
 			# Load transcription initiation event data
-			rnapData = TableReader(os.path.join(simOutDir, "RnapData"))
-			initiationEventsPerRna = rnapData.readColumn("rnaInitEvent").sum(axis = 0)
+			# rnapData = TableReader(os.path.join(simOutDir, "RnapData"))
+			# initiationEventsPerRna = rnapData.readColumn("rnaInitEvent").sum(axis = 0)
 
 			# Map transcription initiation events to monomers
-			initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.rnaIndexToMonomerMapping]
+			# initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.rnaIndexToMonomerMapping]
 
 			# Log data
 			ratioFinalToInitialCount[np.logical_and(ratioFinalToInitialCount == 1., proteinMonomerCounts[0,:] == 0)] = np.nan
 
 			ratioFinalToInitialCountMultigen[gen_idx,:] = ratioFinalToInitialCount
-			initiationEventsPerMonomerMultigen[gen_idx,:] = initiationEventsPerMonomer
+			# initiationEventsPerMonomerMultigen[gen_idx,:] = initiationEventsPerMonomer
 
 		cPickle.dump(ratioFinalToInitialCountMultigen, open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "wb"))
-		cPickle.dump(initiationEventsPerMonomerMultigen, open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "wb"))
+		# cPickle.dump(initiationEventsPerMonomerMultigen, open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "wb"))
 
 	ratioFinalToInitialCountMultigen = cPickle.load(open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "rb"))
-	initiationEventsPerMonomerMultigen = cPickle.load(open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "rb"))
+	# initiationEventsPerMonomerMultigen = cPickle.load(open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "rb"))
 
-	uniqueBurstSizes = np.unique(initiationEventsPerMonomerMultigen)
-	ratioByBurstSize = np.zeros(uniqueBurstSizes.size)
+	# uniqueBurstSizes = np.unique(initiationEventsPerMonomerMultigen)
+	degradationRates = sim_data.process.transcription.rnaData['degRate'].asNumber(1/units.s)
+	degradationRatesByMonomer = degradationRates[sim_data.relation.rnaIndexToMonomerMapping]
+	uniqueDegRate = np.unique(degradationRatesByMonomer)
 
-	burstSizeToPlot = np.zeros(0)
+	# burstSizeToPlot = np.zeros(0)
+	degRateToPlot = np.zeros(0)
 	ratioToPlot = np.zeros(0)
-	for idx, burstSize in enumerate(uniqueBurstSizes):
-		mask = initiationEventsPerMonomerMultigen == burstSize
-		burstSizeToPlot = np.hstack((burstSizeToPlot, np.ones(mask.sum()) * burstSize))
-		ratioToPlot = np.hstack((ratioToPlot, ratioFinalToInitialCountMultigen[mask]))
-
+	for idx, degRate in enumerate(uniqueDegRate):
+		mask = degradationRatesByMonomer == degRate
+		try:
+			degRateToPlot = np.hstack((degRateToPlot, np.ones(ratioFinalToInitialCountMultigen[:,mask].size) * degRate))
+		except:
+			import ipdb; ipdb.set_trace()
+		ratioToPlot = np.hstack((ratioToPlot, ratioFinalToInitialCountMultigen[:,mask].flatten()))
 
 	real_values_mask = np.logical_not(np.logical_or(np.isnan(ratioToPlot), np.isinf(ratioToPlot)))
-	burstSizeToPlot = burstSizeToPlot[real_values_mask]
+	degRateToPlot = degRateToPlot[real_values_mask]
 	ratioToPlot = ratioToPlot[real_values_mask]
 
 	mean = ratioToPlot.mean()
@@ -157,16 +167,16 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	xhistAxis.xaxis.set_visible(False)
 	yhistAxis.yaxis.set_visible(False)
 
-	scatterAxis.semilogx(burstSizeToPlot, ratioToPlot, marker = '.', alpha = 0.75, lw = 0.05) # s = 0.5,
+	scatterAxis.scatter(degRateToPlot, ratioToPlot, marker = '.', alpha = 0.75, lw = 0.05) # s = 0.5,
 	scatterAxis.set_ylabel("Protein monomer " + r"$\frac{count_f + 1}{count_i + 1}$" + "\n" + r"Clipped $[0, 10]$")
-	scatterAxis.set_xlabel("Transcription events per generation\n" + r"Clipped $[0, 1000]$")
+	scatterAxis.set_xlabel("Rna degradation rate (1/s)")
 
 	scatterAxis.set_ylim([0., 10.])
-	scatterAxis.set_xlim([0., 1000.])
+	scatterAxis.set_xlim([0., 0.03])
 
-	yhistAxis.hist(ratioToPlot, bins = 125, orientation='horizontal', range = [0., 10.], log = True)
-	xhistAxis.hist(burstSizeToPlot, bins = np.logspace(0., 10., 125), log = True)#, range = [0., 1000.])
-	xhistAxis.set_xscale("log")
+	yhistAxis.hist(ratioToPlot, bins = 125, orientation='horizontal', log = True, range = [0., 10.])
+	xhistAxis.hist(degRateToPlot, bins = 125, log = True, range = [0., 0.03])
+	#xhistAxis.set_xscale("log")
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName,metadata)

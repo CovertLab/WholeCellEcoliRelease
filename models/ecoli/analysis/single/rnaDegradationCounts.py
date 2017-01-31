@@ -112,7 +112,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 	outputFluxes = fbaResults.readColumn("outputFluxes")
 	deltaMetabolites = fbaResults.readColumn("deltaMetabolites")
-	outputMoleculeIDs = np.array(fbaResults.readAttribute("outputMoleculeIDs"))
+	outputMoleculeIDs = np.array(fbaResults.readAttribute("metaboliteNames"))
 	fbaResults.close()
 
 	# Load ntps required for cell doubling

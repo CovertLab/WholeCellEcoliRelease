@@ -39,58 +39,16 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		os.mkdir(plotOutDir)
 
 	enzymeKineticsdata = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
-
+	metaboliteNames = enzymeKineticsdata.readAttribute("metaboliteNames")
 	metaboliteCounts = enzymeKineticsdata.readColumn("metaboliteCountsFinal")
 	normalizedCounts = metaboliteCounts / metaboliteCounts[1, :]
 	
 	# Read time info from the listener
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-	
 	enzymeKineticsdata.close()
 
-	# Load data from KB
-	sim_data = cPickle.load(open(simDataFile, "rb"))
-
-	# Load constants
-	nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / COUNTS_UNITS)
-	cellDensity = sim_data.constants.cellDensity.asNumber(MASS_UNITS/VOLUME_UNITS)
-
-	objective = dict(
-			(key, sim_data.process.metabolism.concDict[key].asNumber(COUNTS_UNITS / VOLUME_UNITS)) for key in sim_data.process.metabolism.concDict
-			)
-
-	externalExchangeMolecules = sim_data.nutrientData["secretionExchangeMolecules"]
-	for t, nutrientsLabel in sim_data.nutrientsTimeSeries[sim_data.nutrientsTimeSeriesLabel]:
-		externalExchangeMolecules += sim_data.nutrientData["importExchangeMolecules"][nutrientsLabel]
-	externalExchangeMolecules = sorted(externalExchangeMolecules)
-	extMoleculeMasses = sim_data.getter.getMass(externalExchangeMolecules)
-
-	moleculeMasses = dict(zip(
-		externalExchangeMolecules,
-		sim_data.getter.getMass(externalExchangeMolecules).asNumber(MASS_UNITS / COUNTS_UNITS)
-		))
-
-	fba = FluxBalanceAnalysis(
-			sim_data.process.metabolism.reactionStoich,
-			externalExchangeMolecules,
-			objective,
-			objectiveType = "standard",
-			moleculeMasses = moleculeMasses,
-			solver = 'glpk'
-			)
-
-	metaboliteNames = np.array(fba.outputMoleculeIDs())
-
-	# get only fluxes that drop
-	# lowCountsIdx = np.unique(np.where(normalizedCounts[1:, :] < 0.99)[1])
-	# get only fluxes that don't double by end
-	# lowCountsIdx = np.where(normalizedCounts[-1, :] < 1.5)[0]
-	# get only fluxes that more than double by end
-	# lowCountsIdx = np.where(normalizedCounts[-1, :] > 2.1)[0]
-
 	colors = COLORS_LARGE # to match colors between the pdf and html plots
-
 	plt.figure(figsize = (8.5, 11))
 	ax = plt.subplot(1, 1, 1)
 	ax.set_color_cycle(colors)
@@ -108,75 +66,29 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	# Bokeh
 	from bokeh.plotting import figure, output_file, ColumnDataSource, show
 	from bokeh.models import HoverTool, BoxZoomTool, LassoSelectTool, PanTool, WheelZoomTool, ResizeTool, UndoTool, RedoTool
+	import bokeh.io
+	if not os.path.exists(os.path.join(plotOutDir, "html_plots")):
+		os.makedirs(os.path.join(plotOutDir, "html_plots"))
+	bokeh.io.output_file(os.path.join(plotOutDir, "html_plots", plotOutFileName + ".html"), title = plotOutFileName, autosave = False)
 
 	nTimesteps = time.shape[0]
 	nMolecules = normalizedCounts.shape[1]
+	freq = 100
+	x_a = time[::freq]
 
-	# Only create Bokeh plot if every metabolite is identified
-	if metaboliteNames.shape[0] != nMolecules:
-		return
-
-	moleculeCounts = np.round(10* np.random.rand(nTimesteps*nMolecules).reshape((nMolecules, nTimesteps)))
-
-	# Plot first metabolite to initialize plot settings
-	x = time
-	y = normalizedCounts[:, 0]
-	metaboliteName = np.repeat(metaboliteNames[0], nTimesteps)
-
-	source = ColumnDataSource(
-		data = dict(
-			x = x,
-			y = y,
-			metaboliteName = metaboliteName)
-		)
-
-	hover = HoverTool(
-		tooltips = [
-			("ID", "@metaboliteName"),
-			]
-		)
-	
-	TOOLS = [hover, 
-		BoxZoomTool(),
-		LassoSelectTool(),
-		PanTool(),
-		WheelZoomTool(),
-		ResizeTool(),
-		UndoTool(),
-		RedoTool(),
-		 "reset"
-		 ]
-
-	p = figure(x_axis_label = "Time(s)", 
-		y_axis_label = "Metabolite Fold Change",
-		width = 800,
-		height = 800,
-		tools = TOOLS,
-		)
-
-	p.line(x, y, line_color = colors[0], source = source)
-
-	# Plot remaining metabolites onto initialized figure
-	for m in np.arange(1, nMolecules):
-		x = time
+	plot = figure(x_axis_label = "Time(s)", y_axis_label = "Metabolite Fold Change", width = 800, height = 800)
+	for m in np.arange(nMolecules):
 		y = normalizedCounts[:, m]
-		metaboliteName = np.repeat(metaboliteNames[m], nTimesteps)
-
-		source = ColumnDataSource(
-			data = dict(
-				x = x,
-				y = y,
-				metaboliteName = metaboliteName))
-
-		p.line(x, y, line_color = colors[m % len(colors)], source = source)
-
-	if not os.path.exists(os.path.join(plotOutDir, "html_plots")):
-		os.makedirs(os.path.join(plotOutDir, "html_plots"))
+		y_a = y[::freq]
+		metaboliteName = np.repeat(metaboliteNames[m], x_a.shape)
+		source = ColumnDataSource(data = dict(x = x_a, y = y_a, ID = metaboliteName))
+		circle = plot.circle("x", "y", alpha = 0, source = source)
+		plot.add_tools(HoverTool(tooltips = [("ID", "@ID")], renderers = [circle]))
+		plot.line(time, y, line_color = colors[m % len(colors)])
 
 	import bokeh.io
-	bokeh.io.output_file(os.path.join(plotOutDir, "html_plots", plotOutFileName + ".html"), title=plotOutFileName, autosave=False)
-	bokeh.io.save(p)
-
+	bokeh.io.output_file(os.path.join(plotOutDir, "html_plots", plotOutFileName + ".html"), title = plotOutFileName, autosave = False)
+	bokeh.io.save(plot)
 
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(
@@ -189,7 +101,7 @@ if __name__ == "__main__":
 	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
 	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
 	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
+	parser.add_argument("--validationDataFile")
 
 	args = parser.parse_args().__dict__
-	
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
+	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"], args["validationDataFile"])

@@ -67,7 +67,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	toya_reactions = validation_data.reactionFlux.toya2010fluxes["reactionID"]
 	toya_fluxes = FLUX_UNITS * np.array([(dryMassFracAverage * cellDensity * x).asNumber(FLUX_UNITS) for x in validation_data.reactionFlux.toya2010fluxes["reactionFlux"]])
+	toya_stdev = FLUX_UNITS * np.array([(dryMassFracAverage * cellDensity * x).asNumber(FLUX_UNITS) for x in validation_data.reactionFlux.toya2010fluxes["reactionFluxStdev"]])
 	toya_fluxes_dict = dict(zip(toya_reactions, toya_fluxes))
+	toya_stdev_dict = dict(zip(toya_reactions, toya_stdev))
 
 	toyaVsReactionAve = []
 	toya_order = []
@@ -75,17 +77,18 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		if toyaReactionID in reactionIDs:
 			fluxTimeCourse = net_flux(toyaReactionID, reactionIDs, reactionFluxes, reverseRxnFormat=_generatedID_reverseReaction)
 			fluxAve = np.mean(fluxTimeCourse)
-			toyaVsReactionAve.append((fluxAve.asNumber(FLUX_UNITS), toyaFlux.asNumber(FLUX_UNITS)))
+			fluxStdev = np.std(fluxTimeCourse.asNumber(FLUX_UNITS))
+			toyaVsReactionAve.append((fluxAve.asNumber(FLUX_UNITS), toyaFlux.asNumber(FLUX_UNITS), fluxStdev, toya_stdev_dict[toyaReactionID].asNumber(FLUX_UNITS)))
 			toya_order.append(toyaReactionID)
 
-	
 	toyaVsReactionAve = FLUX_UNITS * np.array(toyaVsReactionAve)
 	correlationCoefficient = np.corrcoef(toyaVsReactionAve[:,0].asNumber(FLUX_UNITS), toyaVsReactionAve[:,1].asNumber(FLUX_UNITS))[0,1]
 
 	fig = plt.figure()
 
 	plt.title("Central Carbon Metabolism Flux, Pearson R = {:.2}".format(correlationCoefficient))
-	points = plt.scatter(toyaVsReactionAve[:,0].asNumber(FLUX_UNITS), toyaVsReactionAve[:,1].asNumber(FLUX_UNITS))
+	points = plt.errorbar(toyaVsReactionAve[:,0].asNumber(FLUX_UNITS), toyaVsReactionAve[:,1].asNumber(FLUX_UNITS), xerr = toyaVsReactionAve[:,2].asNumber(FLUX_UNITS),
+		yerr = toyaVsReactionAve[:,3].asNumber(FLUX_UNITS), fmt = "o", ecolor = "k")
 	plt.xlabel("Mean WCM Reaction Flux {}".format(FLUX_UNITS.strUnit()))
 	plt.ylabel("Toya 2010 Reaction Flux {}".format(FLUX_UNITS.strUnit()))
 

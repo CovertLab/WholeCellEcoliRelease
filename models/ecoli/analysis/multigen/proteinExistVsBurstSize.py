@@ -15,7 +15,6 @@ import wholecell.utils.constants
 import cPickle
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
-
 FROM_CACHE = False
 
 CLOSE_TO_DOUBLE = 0.1
@@ -36,6 +35,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ids_equilibrium_complexes = [ids_equilibrium[i] for i in np.where((sim_data.process.equilibrium.stoichMatrix() == 1).sum(axis = 1))[0]] # Only complexes
 	ids_translation = sim_data.process.translation.monomerData["id"].tolist() # Only protein monomers
 
+	# ids_ribosome = 
 	data_50s = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.s50_fullComplex[0])
 	data_30s = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.s30_fullComplex[0])
 	ribosome_subunit_ids = data_50s["subunitIds"].tolist() + data_30s["subunitIds"].tolist()
@@ -55,10 +55,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	n_monomers = sim_data.process.translation.monomerData['id'].size
 	n_sims = ap.n_generation
 
-	ratioFinalToInitialCountMultigen = np.zeros((n_sims, n_monomers), dtype = np.float)
+	monomerExistMultigen = np.zeros((n_sims, n_monomers), dtype = np.bool)
+	ratioFinalToInitialCountMultigen = np.zeros((n_sims, n_monomers), dtype = np.bool)
 	initiationEventsPerMonomerMultigen = np.zeros((n_sims, n_monomers), dtype = np.int)
 
 	if not FROM_CACHE:
+
 		for gen_idx, simDir in enumerate(allDir):
 			simOutDir = os.path.join(simDir, "simOut")
 
@@ -110,8 +112,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			proteinMonomerCounts = bulkCounts[:, translationIdx]
 
 			## CALCULATIONS ##
+			# Calculate if monomer exists over course of cell cycle
+			monomerExist = proteinMonomerCounts.sum(axis=0) > 1
+
 			# Calculate if monomer comes close to doubling
 			ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(np.float) + 1)
+			# monomerDouble = ratioFinalToInitialCount > (1 - CLOSE_TO_DOUBLE)
 
 			# Load transcription initiation event data
 			rnapData = TableReader(os.path.join(simOutDir, "RnapData"))
@@ -121,34 +127,36 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.rnaIndexToMonomerMapping]
 
 			# Log data
-			ratioFinalToInitialCount[np.logical_and(ratioFinalToInitialCount == 1., proteinMonomerCounts[0,:] == 0)] = np.nan
-
+			monomerExistMultigen[gen_idx,:] = monomerExist
 			ratioFinalToInitialCountMultigen[gen_idx,:] = ratioFinalToInitialCount
 			initiationEventsPerMonomerMultigen[gen_idx,:] = initiationEventsPerMonomer
 
+		cPickle.dump(monomerExistMultigen, open(os.path.join(plotOutDir,"monomerExistMultigen.pickle"), "wb"))
 		cPickle.dump(ratioFinalToInitialCountMultigen, open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "wb"))
 		cPickle.dump(initiationEventsPerMonomerMultigen, open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "wb"))
 
+	monomerExistMultigen = cPickle.load(open(os.path.join(plotOutDir,"monomerExistMultigen.pickle"), "rb"))
 	ratioFinalToInitialCountMultigen = cPickle.load(open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "rb"))
 	initiationEventsPerMonomerMultigen = cPickle.load(open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "rb"))
 
-	uniqueBurstSizes = np.unique(initiationEventsPerMonomerMultigen)
-	ratioByBurstSize = np.zeros(uniqueBurstSizes.size)
 
-	burstSizeToPlot = np.zeros(0)
-	ratioToPlot = np.zeros(0)
-	for idx, burstSize in enumerate(uniqueBurstSizes):
-		mask = initiationEventsPerMonomerMultigen == burstSize
-		burstSizeToPlot = np.hstack((burstSizeToPlot, np.ones(mask.sum()) * burstSize))
-		ratioToPlot = np.hstack((ratioToPlot, ratioFinalToInitialCountMultigen[mask]))
+	existFractionPerMonomer = monomerExistMultigen.mean(axis=0)
+	averageFoldChangePerMonomer = ratioFinalToInitialCountMultigen.mean(axis=0)
+	averageInitiationEventsPerMonomer = initiationEventsPerMonomerMultigen.mean(axis=0)
+
+	# import ipdb; ipdb.set_trace()
+	# uniqueBurstSizes = np.unique(initiationEventsPerMonomerMultigen)
+	# probExistByBurstSize = np.zeros(uniqueBurstSizes.size)
+	# probDoubleByBurstSize = np.zeros(uniqueBurstSizes.size)
+
+	# for idx, burstSize in enumerate(uniqueBurstSizes):
+	# 	mask = initiationEventsPerMonomerMultigen == burstSize
+	# 	mask_sum = mask.sum()
+	# 	probExistByBurstSize[idx] = monomerExistMultigen[mask].sum() / float(mask.sum())
+	# 	probDoubleByBurstSize[idx] = monomerDoubleMultigen[mask].sum() / float(mask.sum())
 
 
-	real_values_mask = np.logical_not(np.logical_or(np.isnan(ratioToPlot), np.isinf(ratioToPlot)))
-	burstSizeToPlot = burstSizeToPlot[real_values_mask]
-	ratioToPlot = ratioToPlot[real_values_mask]
-
-	mean = ratioToPlot.mean()
-	std = ratioToPlot.std()
+	# fig, axesList = plt.subplots(4,1)
 
 	scatterAxis = plt.subplot2grid((4,4), (1, 0), colspan=3, rowspan=3)#, sharex = xhistAxis, sharey = yhistAxis)
 	xhistAxis = plt.subplot2grid((4,4), (0,0), colspan=3, sharex = scatterAxis)
@@ -157,20 +165,43 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	xhistAxis.xaxis.set_visible(False)
 	yhistAxis.yaxis.set_visible(False)
 
-	scatterAxis.semilogx(burstSizeToPlot, ratioToPlot, marker = '.', alpha = 0.75, lw = 0.05) # s = 0.5,
-	scatterAxis.set_ylabel("Protein monomer " + r"$\frac{count_f + 1}{count_i + 1}$" + "\n" + r"Clipped $[0, 10]$")
-	scatterAxis.set_xlabel("Transcription events per generation\n" + r"Clipped $[0, 1000]$")
+	scatterAxis.scatter(averageInitiationEventsPerMonomer, existFractionPerMonomer, marker = '.', alpha = 0.9, lw = 0.1, s = 5)
+	scatterAxis.set_ylabel("Fraction of generations protein exists " + r'$(\frac{\sum n_{exist}}{n_{gen}})$')
+	scatterAxis.set_xlabel("Average number of transcription events per monomer " + r"$((\sum_{gen=0}^{n_{gen}} n_{init}) / n_{gen})$")
 
-	scatterAxis.set_ylim([0., 10.])
-	scatterAxis.set_xlim([0., 1000.])
+	scatterAxis.set_ylim([0., 1.1])
+	scatterAxis.set_xlim([-10., 1000.])
 
-	yhistAxis.hist(ratioToPlot, bins = 125, orientation='horizontal', range = [0., 10.], log = True)
-	xhistAxis.hist(burstSizeToPlot, bins = np.logspace(0., 10., 125), log = True)#, range = [0., 1000.])
-	xhistAxis.set_xscale("log")
+	yhistAxis.hist(existFractionPerMonomer, bins = 125, orientation='horizontal', range = [0., 1.1], log = True)
+	xhistAxis.hist(averageInitiationEventsPerMonomer, bins = 125, log = True, range = [-10., 1000.])
+	#xhistAxis.set_xscale("log")
+
+
+	# axesList[0].semilogy(uniqueBurstSizes, probExistByBurstSize)
+	# axesList[1].semilogy(uniqueBurstSizes, probDoubleByBurstSize)
+
+	# # axesList[0].set_ylabel("Probability exists")
+	# # axesList[1].set_ylabel("Probability doubles")
+	# # axesList[1].set_xlabel("Number of transcription events per generation")
+
+	# axesList[2].semilogy(uniqueBurstSizes, probExistByBurstSize)
+	# axesList[2].set_xlim([0., 10.])
+	# #axesList[2].set_ylim([0.96, 1.0])
+	# axesList[3].semilogy(uniqueBurstSizes, probDoubleByBurstSize)
+	# axesList[3].set_xlim([0., 10.])
+	# #axesList[3].set_ylim([0.96, 1.0])
+
+	# axesList[0].set_ylabel("Probability\nexists")
+	# axesList[1].set_ylabel("Probability\ndoubles")
+	# axesList[2].set_ylabel("Probability\nexists")
+	# axesList[3].set_ylabel("Probability\ndoubles")
+	# axesList[3].set_xlabel("Number of transcription events per generation")
+
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName,metadata)
 	plt.close("all")
+
 
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(

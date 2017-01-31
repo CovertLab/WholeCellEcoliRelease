@@ -30,9 +30,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# Get all cells
 	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 	allDir = ap.get_cells()
-
-	validation_data = cPickle.load(open(validationDataFile, "rb"))
-	essential_proteins = validation_data.essentialGenes.essentialProteins
 	
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	tcsComplexToMonomers = sim_data.process.two_component_system.complexToMonomer
@@ -76,6 +73,11 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		bulkContainer.countsInc(nActiveRibosome.mean(), sim_data.moleculeGroups.s30_fullComplex + sim_data.moleculeGroups.s50_fullComplex)
 		bulkContainer.countsInc(nActiveRnaPoly.mean(), sim_data.moleculeGroups.rnapFull)
 
+		# Account for two-component complexes
+		view_twoComponent.countsInc(
+			np.dot(sim_data.process.two_component_system.stoichMatrixMonomers(), view_twoComponent_complexes.counts() * -1)
+			)
+
 		# Account for small-molecule bound complexes
 		view_equilibrium.countsInc(
 			np.dot(sim_data.process.equilibrium.stoichMatrixMonomers(), view_equilibrium_complexes.counts() * -1)
@@ -85,14 +87,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		view_complexation.countsInc(
 			np.dot(sim_data.process.complexation.stoichMatrixMonomers(), view_complexation_complexes.counts() * -1)
 			)
-
-		# Account for monomers in two-component complexes
-		for complexId in ids_twoComponent_complexes:
-			monomerId = sim_data.process.two_component_system.complexToMonomer[complexId].keys()[0]
-			monomerStoich = sim_data.process.two_component_system.complexToMonomer[complexId][monomerId]
-			nComplexes = bulkContainer.count(complexId)
-			bulkContainer.countsDec(nComplexes, [complexId])
-			bulkContainer.countsInc(nComplexes * monomerStoich, [monomerId])
 
 		# Get boolean protein presence
 		proteinCounts = view_translation.counts()

@@ -38,6 +38,13 @@ from models.ecoli.sim.variants.condition import conditionIndices
 from models.ecoli.sim.variants.anaerobic import anaerobic
 from models.ecoli.sim.variants.anaerobic import anaerobicIndices
 
+from models.ecoli.sim.variants.nutrient_time_series_downshift import nutrientTimeSeriesDownshift
+from models.ecoli.sim.variants.nutrient_time_series_downshift import nutrientTimeSeriesDownshiftTotalIndices
+
+from models.ecoli.sim.variants.kineticsConstraints import kineticsConstraints
+from models.ecoli.sim.variants.kineticsConstraints import kineticsConstraintsIndices
+
+
 nameToFunctionMapping = {
 	"geneKnockout": geneKnockout,
 	"wildtype": wildtype,
@@ -51,6 +58,8 @@ nameToFunctionMapping = {
 	"condition": condition,
 	"anaerobic": anaerobic,
 	"metabolismKineticHomeostaticRatio": metabolismKineticHomeostaticRatio,
+	"nutrientTimeSeriesDownshift" : nutrientTimeSeriesDownshift,
+	"kineticsConstraints" : kineticsConstraints,
 }
 
 nameToNumIndicesMapping = {
@@ -66,4 +75,6 @@ nameToNumIndicesMapping = {
 	"condition": conditionIndices,
 	"anaerobic": anaerobicIndices,
 	"metabolismKineticHomeostaticRatio": metabolismKineticHomeostaticRatioTotalIndices,
+	"nutrientTimeSeriesDownshift" : nutrientTimeSeriesDownshiftTotalIndices,
+	"kineticsConstraints" : kineticsConstraintsIndices,
 }

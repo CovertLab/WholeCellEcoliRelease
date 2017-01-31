@@ -27,7 +27,6 @@ from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
 
@@ -45,13 +44,13 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
 	tfs = sorted(set([x.split("__")[-1] for x in recruitmentColNames if x.split("__")[-1] != "alpha"]))
-	trpRIndex = [i for i, tf in enumerate(tfs) if tf == "CPLX-125"][0]
+	argRIndex = [i for i, tf in enumerate(tfs) if tf == "CPLX0-228"][0]
 
-	tfBoundIds = [target + "__CPLX-125" for target in sim_data.tfToFC["CPLX-125"].keys()]
-	synthProbIds = [target + "[c]" for target in sim_data.tfToFC["CPLX-125"].keys()]
+	tfBoundIds = [target + "__CPLX0-228" for target in sim_data.tfToFC["CPLX0-228"].keys()]
+	synthProbIds = [target + "[c]" for target in sim_data.tfToFC["CPLX0-228"].keys()]
 
-	plt.figure(figsize = (10, 15))
-	nRows = 10
+	plt.figure(figsize = (8.5, 13))
+	nRows = 9
 
 	for simDir in allDirs:
 		simOutDir = os.path.join(simDir, "simOut")
@@ -68,74 +67,74 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		massReader.close()
 
 		# Load data from ribosome data listener
-		ribosomeDataReader = TableReader(os.path.join(simOutDir, "RibosomeData"))
-		nTrpATranslated = ribosomeDataReader.readColumn("numTrpATerminated")
-		ribosomeDataReader.close()
+		# ribosomeDataReader = TableReader(os.path.join(simOutDir, "RibosomeData"))
+		# nTrpATranslated = ribosomeDataReader.readColumn("numTrpATerminated")
+		# ribosomeDataReader.close()
 
 		# Load data from bulk molecules
 		bulkMoleculesReader = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		bulkMoleculeIds = bulkMoleculesReader.readAttribute("objectNames")
 
-		# Get the concentration of intracellular trp
-		trpId = ["TRP[c]"]
-		trpIndex = np.array([bulkMoleculeIds.index(x) for x in trpId])
-		trpCounts = bulkMoleculesReader.readColumn("counts")[:, trpIndex].reshape(-1)
-		trpMols = 1. / nAvogadro * trpCounts
+		# Get the concentration of intracellular arg
+		argId = ["ARG[c]"]
+		argIndex = np.array([bulkMoleculeIds.index(x) for x in argId])
+		argCounts = bulkMoleculesReader.readColumn("counts")[:, argIndex].reshape(-1)
+		argMols = 1. / nAvogadro * argCounts
 		volume = cellMass / cellDensity
-		trpConcentration = trpMols * 1. / volume
+		argConcentration = argMols * 1. / volume
 
-		# Get the amount of active trpR (that isn't promoter bound)
-		trpRActiveId = ["CPLX-125[c]"]
-		trpRActiveIndex = np.array([bulkMoleculeIds.index(x) for x in trpRActiveId])
-		trpRActiveCounts = bulkMoleculesReader.readColumn("counts")[:, trpRActiveIndex].reshape(-1)
+		# Get the amount of active argR (that is promoter bound)
+		argRActiveId = ["CPLX0-228[c]"]
+		argRActiveIndex = np.array([bulkMoleculeIds.index(x) for x in argRActiveId])
+		argRActiveCounts = bulkMoleculesReader.readColumn("counts")[:, argRActiveIndex].reshape(-1)
 
-		# Get the amount of inactive trpR
-		trpRInactiveId = ["PC00007[c]"]
-		trpRInactiveIndex = np.array([bulkMoleculeIds.index(x) for x in trpRInactiveId])
-		trpRInactiveCounts = bulkMoleculesReader.readColumn("counts")[:, trpRInactiveIndex].reshape(-1)
+		# Get the amount of inactive argR
+		argRInactiveId = ["PC00005[c]"]
+		argRInactiveIndex = np.array([bulkMoleculeIds.index(x) for x in argRInactiveId])
+		argRInactiveCounts = bulkMoleculesReader.readColumn("counts")[:, argRInactiveIndex].reshape(-1)
 
-		# Get the amount of monomeric trpR
-		trpRMonomerId = ["PD00423[c]"]
-		trpRMonomerIndex = np.array([bulkMoleculeIds.index(x) for x in trpRMonomerId])
-		trpRMonomerCounts = bulkMoleculesReader.readColumn("counts")[:, trpRMonomerIndex].reshape(-1)
+		# Get the amount of monomeric argR
+		argRMonomerId = ["PD00194[c]"]
+		argRMonomerIndex = np.array([bulkMoleculeIds.index(x) for x in argRMonomerId])
+		argRMonomerCounts = bulkMoleculesReader.readColumn("counts")[:, argRMonomerIndex].reshape(-1)
 
 		# Get the promoter-bound status for all regulated genes
 		tfBoundIndex = np.array([bulkMoleculeIds.index(x) for x in tfBoundIds])
 		tfBoundCounts = bulkMoleculesReader.readColumn("counts")[:, tfBoundIndex]
 
-		# Get the amount of monomeric trpA
-		trpAProteinId = ["TRYPSYN-APROTEIN[c]"]
-		trpAProteinIndex = np.array([bulkMoleculeIds.index(x) for x in trpAProteinId])
-		trpAProteinCounts = bulkMoleculesReader.readColumn("counts")[:, trpAProteinIndex].reshape(-1)
+		# Get the amount of monomeric carA
+		carAProteinId = ["CARBPSYN-SMALL[c]"]
+		carAProteinIndex = np.array([bulkMoleculeIds.index(x) for x in carAProteinId])
+		carAProteinCounts = bulkMoleculesReader.readColumn("counts")[:, carAProteinIndex].reshape(-1)
 
-		# Get the amount of complexed trpA
-		trpABComplexId = ["TRYPSYN[c]"]
-		trpABComplexIndex = np.array([bulkMoleculeIds.index(x) for x in trpABComplexId])
-		trpABComplexCounts = bulkMoleculesReader.readColumn("counts")[:, trpABComplexIndex].reshape(-1)
+		# Get the amount of complexed carA
+		carAComplexId = ["CARBPSYN-CPLX[c]"]
+		carAComplexIndex = np.array([bulkMoleculeIds.index(x) for x in carAComplexId])
+		carAComplexCounts = bulkMoleculesReader.readColumn("counts")[:, carAComplexIndex].reshape(-1)
 
-		# Get the amount of trpA mRNA
-		trpARnaId = ["EG11024_RNA[c]"]
-		trpARnaIndex = np.array([bulkMoleculeIds.index(x) for x in trpARnaId])
-		trpARnaCounts = bulkMoleculesReader.readColumn("counts")[:, trpARnaIndex].reshape(-1)
+		# Get the amount of carA mRNA
+		carARnaId = ["EG10134_RNA[c]"]
+		carARnaIndex = np.array([bulkMoleculeIds.index(x) for x in carARnaId])
+		carARnaCounts = bulkMoleculesReader.readColumn("counts")[:, carARnaIndex].reshape(-1)
 
 		bulkMoleculesReader.close()
 
-		# Compute total counts and concentration of trpA in monomeric and complexed form
+		# Compute total counts and concentration of carA in monomeric and complexed form
 		# (we know the stoichiometry)
-		trpAProteinTotalCounts = trpAProteinCounts + 2 * trpABComplexCounts
-		trpAProteinTotalMols = 1. / nAvogadro * trpAProteinTotalCounts
-		trpAProteinTotalConcentration = trpAProteinTotalMols * 1. / volume
+		carAProteinTotalCounts = carAProteinCounts + 2 * carAComplexCounts
+		carAProteinTotalMols = 1. / nAvogadro * carAProteinTotalCounts
+		carAProteinTotalConcentration = carAProteinTotalMols * 1. / volume
 
-		# Compute concentration of trpA mRNA
-		trpARnaMols = 1. / nAvogadro * trpARnaCounts
-		trpARnaConcentration = trpARnaMols * 1. / volume
+		# Compute concentration of carA mRNA
+		carARnaMols = 1. / nAvogadro * carARnaCounts
+		carARnaConcentration = carARnaMols * 1. / volume
 
-		# Compute the trpA mass in the cell
-		trpAMw = sim_data.getter.getMass(trpAProteinId)
-		trpAMass = 1. / nAvogadro * trpAProteinTotalCounts * trpAMw
+		# Compute the carA mass in the cell
+		carAMw = sim_data.getter.getMass(carAProteinId)
+		carAMass = 1. / nAvogadro * carAProteinTotalCounts * carAMw
 
 		# Compute the proteome mass fraction
-		proteomeMassFraction = trpAMass.asNumber(units.fg) / proteinMass.asNumber(units.fg)
+		proteomeMassFraction = carAMass.asNumber(units.fg) / proteinMass.asNumber(units.fg)
 
 		# Get the synthesis probability for all regulated genes
 		rnaSynthProbReader = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
@@ -144,12 +143,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		synthProbIndex = np.array([rnaIds.index(x) for x in synthProbIds])
 		synthProbs = rnaSynthProbReader.readColumn("rnaSynthProb")[:, synthProbIndex]
 
-		trpRBound = rnaSynthProbReader.readColumn("nActualBound")[:,trpRIndex]
+		argRBound = rnaSynthProbReader.readColumn("nActualBound")[:,argRIndex]
 		
 		rnaSynthProbReader.close()
 
-		# Calculate total trpR - active, inactive, bound and monomeric
-		trpRTotalCounts = 2 * (trpRActiveCounts + trpRInactiveCounts + trpRBound) + trpRMonomerCounts
+		# Calculate total argR - active, inactive, bound and monomeric
+		argRTotalCounts = 6 * (argRActiveCounts + argRInactiveCounts + argRBound) + argRMonomerCounts
 
 		# Compute moving averages
 		width = 100
@@ -158,12 +157,11 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				for i in range(tfBoundCounts.shape[1])]).T
 		synthProbsMA = np.array([np.convolve(synthProbs[:,i], np.ones(width) / width, mode = "same")
 				for i in range(synthProbs.shape[1])]).T
-
 		
 		##############################################################
 		ax = plt.subplot(nRows, 1, 1)
-		ax.plot(time, trpConcentration.asNumber(units.umol / units.L), color = "b")
-		plt.ylabel("Internal TRP Conc. [uM]", fontsize = 6)
+		ax.plot(time, argConcentration.asNumber(units.umol / units.L), color = "b")
+		plt.ylabel("Internal ARG Conc. [uM]", fontsize = 6)
 
 		ymin, ymax = ax.get_ylim()
 		ax.set_yticks([ymin, ymax])
@@ -177,11 +175,11 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		##############################################################
 		ax = plt.subplot(nRows, 1, 2)
-		ax.plot(time, trpRActiveCounts)
-		ax.plot(time, trpRInactiveCounts)
-		ax.plot(time, trpRTotalCounts)
-		plt.ylabel("TrpR Counts", fontsize = 6)
-		plt.legend(["Active (dimer)", "Inactive (dimer)", "Total (monomeric)"], fontsize = 6)
+		ax.semilogy(time, argRActiveCounts, color = "b")
+		ax.semilogy(time, argRInactiveCounts, color = "r")
+		ax.semilogy(time, argRTotalCounts, color = "g")
+		plt.ylabel("ArgR Counts", fontsize = 6)
+		plt.legend(["Active (hexamer)", "Inactive (hexamer)", "Total (monomeric)"], fontsize = 6)
 
 		ymin, ymax = ax.get_ylim()
 		ax.set_yticks([ymin, ymax])
@@ -196,7 +194,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		##############################################################
 		ax = plt.subplot(nRows, 1, 3)
 		ax.plot(time, tfBoundCountsMA)
-		plt.ylabel("TrpR Bound To Promoters\n(Moving Average)", fontsize = 6)
+		plt.ylabel("ArgR Bound To Promoters\n(Moving Average)", fontsize = 6)
 
 		ymin, ymax = ax.get_ylim()
 		ax.set_yticks([ymin, ymax])
@@ -225,8 +223,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		##############################################################
 		ax = plt.subplot(nRows, 1, 5)
-		ax.plot(time, trpAProteinTotalCounts, color = "b")
-		plt.ylabel("TrpA Counts", fontsize = 6)
+		ax.plot(time, carAProteinTotalCounts, color = "b")
+		plt.ylabel("CarA Counts", fontsize = 6)
 
 		ymin, ymax = ax.get_ylim()
 		ax.set_yticks([ymin, ymax])
@@ -240,8 +238,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		##############################################################
 		ax = plt.subplot(nRows, 1, 6)
-		ax.plot(time, trpAProteinTotalConcentration.asNumber(units.umol / units.L), color = "b")
-		plt.ylabel("TrpA Concentration", fontsize = 6)
+		ax.plot(time, carAProteinTotalConcentration.asNumber(units.umol / units.L), color = "b")
+		plt.ylabel("CarA Concentration", fontsize = 6)
 
 		ymin, ymax = ax.get_ylim()
 		ax.set_yticks([ymin, ymax])
@@ -255,8 +253,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		##############################################################
 		ax = plt.subplot(nRows, 1, 7)
-		ax.plot(time, trpARnaCounts, color = "b")
-		plt.ylabel("TrpA mRNA Counts", fontsize = 6)
+		ax.plot(time, carARnaCounts, color = "b")
+		plt.ylabel("CarA mRNA Counts", fontsize = 6)
 
 		ymin, ymax = ax.get_ylim()
 		ax.set_yticks([ymin, ymax])
@@ -270,8 +268,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		##############################################################
 		ax = plt.subplot(nRows, 1, 8)
-		ax.plot(time, trpARnaConcentration.asNumber(units.umol / units.L), color = "b")
-		plt.ylabel("TrpA mRNA Concentration", fontsize = 6)
+		ax.plot(time, carARnaConcentration.asNumber(units.umol / units.L), color = "b")
+		plt.ylabel("CarA mRNA\nConcentration", fontsize = 6)
 
 		ymin, ymax = ax.get_ylim()
 		ax.set_yticks([ymin, ymax])
@@ -286,7 +284,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		##############################################################
 		ax = plt.subplot(nRows, 1, 9)
 		ax.plot(time / 3600., proteomeMassFraction, color = "b")
-		plt.ylabel("TrpA MAss FRaction of Proteome", fontsize = 6)
+		plt.ylabel("CarA Mass Fraction\nof Proteome", fontsize = 6)
 
 		ymin, ymax = ax.get_ylim()
 		ax.set_yticks([ymin, ymax])
@@ -298,22 +296,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ax.set_xticks(ax.get_xlim())
 		##############################################################
 
-		##############################################################
-		ax = plt.subplot(nRows, 1, 10)
-		ax.plot(time, nTrpATranslated, color = "b")
-		plt.ylabel("Number of TrpA translation events", fontsize = 6)
-
-		ymin, ymax = ax.get_ylim()
-		ax.set_yticks([ymin, ymax])
-		ax.set_yticklabels(["%0.0f" % ymin, "%0.0f" % ymax])
-		ax.spines['top'].set_visible(False)
-		ax.spines['bottom'].set_visible(False)
-		ax.xaxis.set_ticks_position('none')
-		ax.tick_params(which = 'both', direction = 'out', labelsize = 6)
-		ax.set_xticks([])
-		##############################################################
-
-	plt.subplots_adjust(hspace = 1)
+	plt.subplots_adjust(hspace = 0.5)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)

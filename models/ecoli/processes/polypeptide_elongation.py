@@ -82,6 +82,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.ribosomeElongationRateDict = sim_data.process.translation.ribosomeElongationRateDict
 
+		self.trpAIndex = np.where(proteinIds == "TRYPSYN-APROTEIN[c]")[0][0]
+
 		##########
 		# self.saturation_km = sim_data.constants.translation_km
 		# self.translation_aa_supply = sim_data.translationSupplyRate
@@ -285,6 +287,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.writeToListener("RibosomeData", "didTerminate", didTerminate.sum())
 		self.writeToListener("RibosomeData", "terminationLoss", (terminalLengths - peptideLengths)[didTerminate].sum())
+		self.writeToListener("RibosomeData", "numTrpATerminated", terminatedProteins[self.trpAIndex])
+		print terminatedProteins[self.trpAIndex]
 
 		self.writeToListener("RibosomeData", "processElongationRate", self._elngRate() / self.timeStepSec())
 
