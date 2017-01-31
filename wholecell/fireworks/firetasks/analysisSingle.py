@@ -21,6 +21,8 @@ class AnalysisSingleTask(FireTaskBase):
 
 	def run_task(self, fw_spec):
 
+		return
+
 		startTime = time.time()
 		print "%s: Running single simulation analysis" % time.ctime(startTime)
 

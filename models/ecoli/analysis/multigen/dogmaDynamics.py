@@ -16,7 +16,7 @@ import cPickle
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
-FROM_CACHE = True
+FROM_CACHE = False
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
@@ -125,7 +125,16 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 			ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(np.float) + 1)
 
-			index_of_interest = np.where(ratioFinalToInitialCount > 100.)
+			averageMonomerProteinCount = np.mean(proteinMonomerCounts, axis=0)
+			highAverageMonomerCount = np.where(averageMonomerProteinCount > 100.)
+			highFCMonomerCount = np.where(ratioFinalToInitialCount > 5)
+
+			index_of_interest_Monomer = np.intersect1d(highAverageMonomerCount, highFCMonomerCount)
+			#index_of_interest_Translation = translationIdx[index_of_interest_Monomer]
+
+			index_of_interest = index_of_interest_Monomer
+			
+			#index_of_interest = np.where(ratioFinalToInitialCount > 100.)
 			if len(index_of_interest):
 				protein_index_of_interest = np.hstack((protein_index_of_interest, index_of_interest[0]))
 			
@@ -188,10 +197,22 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		axesList[1].plot(time / 60., rnaMonomerCounts[:, rna_index_of_interest])
 
+	translationIndices = translationIdx[protein_index_of_interest]
+	for ii in range(0,len(translationIndices)):
+		moleculeName = moleculeIds[translationIndices[ii]]
+		print moleculeName
+
+
 
 	axesList[1].set_xlabel("Time (min)")
 	axesList[0].set_ylabel("Protein monomer count")
 	axesList[1].set_ylabel("mRNA count")
+	#fig.title(moleculeName)
+
+
+	#import ipdb
+	#ipdb.set_trace()
+
 
 
 
