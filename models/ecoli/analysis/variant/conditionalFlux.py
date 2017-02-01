@@ -28,10 +28,8 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	ap = AnalysisPaths(inputDir, variant_plot = True)
 	variants = sorted(ap._path_data['variant'].tolist()) # Sorry for accessing private data
 
-	#if 0 in variants:
-		#variants.remove(0)
-
-	if len(variants) == 0:
+	
+	if len(variants) <= 1:
 		return
 
 	all_cells = sorted(ap.get_cells(variant = variants, seed = [0], generation = [0]))
@@ -42,7 +40,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	#make structures to hold mean flux values
 	mean_fluxes = []
 	BURN_IN_STEPS = 20
-	i=0
+	n_variants=0
 	IDs=[]
 
 	#Puts you into the specific simulation's data.  Pull fluxes from here  #TODO LEARN HOW TO PULL FLUXES FROM LISTENER FILE (see kineticsflux comparison)
@@ -58,36 +56,11 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 
 		actualAve = np.mean(actualFluxes[BURN_IN_STEPS:, :], axis = 0)
 		mean_fluxes.append(actualAve)
-		i=i+1
-		#import ipdb; ipdb.set_trace()
-	#import ipdb; ipdb.set_trace()
-	n_variants=i
-
-
+		n_variants=n_variants+1
+		
 
 	###Plot the fluxes
 	plt.figure(figsize = (8.5, 11))
-
-	#fig.subplots_adjust(hspace=2)
-	"""
-	plt.subplot(2, 2, 1)
-	plt.plot(np.log10(mean_fluxes[1][:]),np.log10(mean_fluxes[0][:]),'o')
-	plt.xlabel('Variant 1 Flux')
-	plt.ylabel('Variant 0 Flux')
-	plt.ylim((-11,-2))
-	plt.xlim((-11,-2))
-	"""
-	"""
-	plt.subplot(2, 2, 2)
-	plt.plot(mean_fluxes[2][:],mean_fluxes[0][:],'o')
-	plt.xlabel('Variant 2 Flux')
-	plt.ylabel('Variant 0 Flux')
-
-	plt.subplot(2, 2, 4)
-	plt.plot(mean_fluxes[2][:],mean_fluxes[1][:],'o')
-	plt.xlabel('Variant 2 Flux')
-	plt.ylabel('Variant 1 Flux')
-	"""
 
 	#Generalizred plotting
 	for j in range (0,n_variants):
@@ -96,7 +69,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 				continue
 			plt.subplot(n_variants-1, n_variants-1, j+k)
 			plt.plot(np.log10(mean_fluxes[j][:]),np.log10(mean_fluxes[k][:]),'o')
-			plt.plot([-40, 0], [-40, 0], color='k', linestyle='-', linewidth=2)
+			plt.plot([-12, 0], [-12, 0], color='k', linestyle='-', linewidth=2)
 			plt.xlabel('Variant ' + str(j) + ' Flux')
 			plt.ylabel('Variant ' + str(k) + ' Flux')
 			plt.ylim((-11,0))
@@ -116,18 +89,18 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	# Plot first metabolite to initialize plot settings
 	x = np.log10(mean_fluxes[0][:])
 	y = np.log10(mean_fluxes[1][:])
-	metaboliteName = IDs
+	
 
 	source = ColumnDataSource(
 		data = dict(
 			x = x,
 			y = y,
-			metaboliteName = metaboliteName)
+			rxn = IDs)
 		)
 
 	hover = HoverTool(
 		tooltips = [
-			("ID", "@metaboliteName"),
+			("ID", "@rxn"),
 			]
 		)
 	
@@ -142,15 +115,15 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 		 "reset"
 		 ]
 
-	p = figure(x_axis_label = "Variant 1 Flux", 
-		y_axis_label = "Variant 2 Flux",
+	p = figure(x_axis_label = "Variant 0 Flux", 
+		y_axis_label = "Variant 1 Flux",
 		width = 800,
 		height = 800,
 		tools = TOOLS,
 		)
 
 	p.circle('x', 'y', size=5, source=source)#np.log10(mean_fluxes[0][:]),np.log10(mean_fluxes[1][:]), size=10)
-	p.line([-40,0], [-40,0], color="firebrick", line_width=2)
+	p.line([-12,0], [-12,0], color="firebrick", line_width=2)
 
 
 	if not os.path.exists(os.path.join(plotOutDir, "html_plots")):
@@ -159,10 +132,6 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	import bokeh.io
 	bokeh.io.output_file(os.path.join(plotOutDir, "html_plots", plotOutFileName + ".html"), title=plotOutFileName, autosave=False)
 	bokeh.io.save(p)
-
-
-
-	
 
 
 if __name__ == "__main__":
