@@ -83,6 +83,9 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 
 	#nifty fun tool
 	# Bokeh
+	if len(mean_fluxes) < 2:
+		return
+
 	from bokeh.plotting import figure, output_file, ColumnDataSource, show
 	from bokeh.models import HoverTool, BoxZoomTool, LassoSelectTool, PanTool, WheelZoomTool, ResizeTool, UndoTool, RedoTool
 
