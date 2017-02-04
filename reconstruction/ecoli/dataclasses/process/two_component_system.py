@@ -177,7 +177,9 @@ class TwoComponentSystem(object):
 		D = {}
 		for row in modifiedFormsMonomers:
 			if str(row["complexID"]) in tcsMolecules:
-				D[str(row["complexID"])] = {str(row["monomer"]): float(row["stoichiometry"])}
+				D[str(row["complexID"])] = {}
+				for subunit in row["subunits"]:
+					D[str(row["complexID"])][str(subunit["monomer"])] = float(subunit["stoichiometry"])
 
 		return D
 
@@ -218,10 +220,7 @@ class TwoComponentSystem(object):
 		return reactionSumsArray
 
 	def stoichMatrixMonomers(self):
-		# Cannot use this function due to some complexes with monomers not involved in two-component signaling
-		# such as hisitinde kinases that are protein complexes
 		ids_complexes = self.complexToMonomer.keys()
-
 		stoichMatrixMonomersI = []
 		stoichMatrixMonomersJ = []
 		stoichMatrixMonomersV = []
@@ -234,10 +233,11 @@ class TwoComponentSystem(object):
 			stoichMatrixMonomersV.append(1.)
 
 			for subunitId, subunitStoich in zip(D["subunitIds"], D["subunitStoich"]):
-				rowIdx = self.moleculeNames.tolist().index(subunitId)
-				stoichMatrixMonomersI.append(rowIdx)
-				stoichMatrixMonomersJ.append(colIdx)
-				stoichMatrixMonomersV.append(-1. * subunitStoich)
+				if subunitId in self.moleculeNames.tolist():		
+					rowIdx = self.moleculeNames.tolist().index(subunitId)
+					stoichMatrixMonomersI.append(rowIdx)
+					stoichMatrixMonomersJ.append(colIdx)
+					stoichMatrixMonomersV.append(-1. * subunitStoich)
 
 		stoichMatrixMonomersI = np.array(stoichMatrixMonomersI)
 		stoichMatrixMonomersJ = np.array(stoichMatrixMonomersJ)
