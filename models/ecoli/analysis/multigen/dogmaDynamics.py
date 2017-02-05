@@ -16,7 +16,7 @@ import cPickle
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
-FROM_CACHE = True
+FROM_CACHE = False
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 
