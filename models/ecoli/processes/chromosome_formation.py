@@ -38,10 +38,22 @@ class ChromosomeFormation(wholecell.processes.process.Process):
 		self.partialChromosomes = self.bulkMoleculesView(sim_data.moleculeGroups.partialChromosome)
 		self.fullChromosome = self.bulkMoleculeView(sim_data.moleculeGroups.fullChromosome[0])
 
+		self.fullChromosomeUnique = self.uniqueMoleculesView("fullChromosome")
+
 	def calculateRequest(self):
 		self.partialChromosomes.requestAll()
 
 	def evolveState(self):
 		partialChromosomes = self.partialChromosomes.counts()
+		if partialChromosomes.min():
+			fullUniqueChrom = self.fullChromosomeUnique.moleculesNew("fullChromosome", partialChromosomes.min())
+			fullUniqueChrom.attrIs(division_time = [self.time() + 20. * 60.] * partialChromosomes.min())
+
+			print "grep_marker replication termination - time: {}".format(self.time())
+			print "grep_marker cell division occurs - relative time: {}".format(self.time() - self._sim.initialTime())
+			print "grep_marker replication termination - time set for division: {}".format(self.time() + 20. * 60.)
+			print "grep_marker replication termination - cell mass: {}".format(self.readFromListener("Mass", "cellMass"))
+			print "grep_marker replication termination - partial chromosome counts: {}".format(partialChromosomes)
+
 		self.fullChromosome.countInc(partialChromosomes.min())
 		self.partialChromosomes.countsDec(partialChromosomes.min())
