@@ -288,9 +288,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("RibosomeData", "didTerminate", didTerminate.sum())
 		self.writeToListener("RibosomeData", "terminationLoss", (terminalLengths - peptideLengths)[didTerminate].sum())
 		self.writeToListener("RibosomeData", "numTrpATerminated", terminatedProteins[self.trpAIndex])
-		print terminatedProteins[self.trpAIndex]
 
 		self.writeToListener("RibosomeData", "processElongationRate", self._elngRate() / self.timeStepSec())
+		self.writeToListener("PolypeptideElongationListener", "countMonomerSynthesized", terminatedProteins)
 
 	def isTimeStepShortEnough(self, inputTimeStep, timeStepSafetyFraction):
 		"""
