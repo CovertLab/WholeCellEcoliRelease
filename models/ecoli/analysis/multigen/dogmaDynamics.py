@@ -19,7 +19,7 @@ from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 FROM_CACHE = False
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-
+	return
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
 
