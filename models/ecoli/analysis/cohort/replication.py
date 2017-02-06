@@ -70,17 +70,14 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			# axesList[0].set_ylabel("DNA polymerase\nposition (nt)")
 
 			# Plot dna polymerase counts
-			try:
-				pairsOfForks = (sequenceIdx != PLACE_HOLDER).sum(axis = 1) / 4
+			pairsOfForks = (sequenceIdx != PLACE_HOLDER).sum(axis = 1) / 4
 
-				axesList[1].plot(time, pairsOfForks, linewidth=2)
-				axesList[1].set_yticks(np.arange(0,7))
-				axesList[1].set_ylim([0, 6])
-				axesList[1].set_xlim([0, time.max()])
-				axesList[1].plot([time.max(), time.max()], axesList[1].get_ylim(), 'k')
-				axesList[1].set_ylabel("Pairs of\nforks")
-			except ValueError:
-				pass
+			axesList[1].plot(time, pairsOfForks, linewidth=2)
+			axesList[1].set_yticks(np.arange(0,7))
+			axesList[1].set_ylim([0, 6])
+			axesList[1].set_xlim([0, time.max()])
+			axesList[1].plot([time.max(), time.max()], axesList[1].get_ylim(), 'k')
+			axesList[1].set_ylabel("Pairs of\nforks")
 			
 
 			# Factors of critical initiation mass
