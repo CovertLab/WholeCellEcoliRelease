@@ -35,6 +35,8 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		if n_cells > max_cells_in_gen:
 			max_cells_in_gen = n_cells
 
+	if max_cells_in_gen == 1:
+		return
 	# fig, axesList = plt.subplots(ap.n_generation + 1, sharey = True, sharex = True, subplot_kw=dict((("aspect",0.4),("adjustable",'box-forced'))))
 	
 

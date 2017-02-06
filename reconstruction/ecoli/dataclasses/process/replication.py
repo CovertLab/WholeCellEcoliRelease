@@ -22,7 +22,6 @@ class Replication(object):
 		self._buildSequence(raw_data, sim_data)
 		self._buildGeneData(raw_data, sim_data)
 		self._buildReplication(raw_data, sim_data)
-		self._buildRrnOperonData(raw_data, sim_data)
 
 	def _buildSequence(self, raw_data, sim_data):
 		self.genome_sequence = raw_data.genome_sequence
@@ -94,28 +93,3 @@ class Replication(object):
 
 	def _reverseComplement(self, sequenceVector):
 		return (self._n_nt_types - 1) - sequenceVector
-
-	def _buildRrnOperonData(self, raw_data, sim_data):
-		oriC = raw_data.parameters['oriCCenter'].asNumber()
-		terC = raw_data.parameters['terCCenter'].asNumber()
-
-		# Locations on forward strand
-		rrnC = raw_data.parameters['rrncLocation'].asNumber()
-		rrnA = raw_data.parameters['rrnaLocation'].asNumber()
-		rrnB = raw_data.parameters['rrnbLocation'].asNumber()
-		rrnE = raw_data.parameters['rrneLocation'].asNumber()
-		rrnH = raw_data.parameters['rrnhLocation'].asNumber() + self.genome_length # Past zero condition
-		forward_strand_rrn_operons = np.array([rrnC, rrnA, rrnB, rrnE, rrnH])
-
-		# Coordinate on the forward strand
-		self.forward_strand_rrn_coordinate = forward_strand_rrn_operons - oriC
-
-		# Locations on reverse strand
-		rrnD = raw_data.parameters['rrndLocation'].asNumber()
-		rrnG = raw_data.parameters['rrngLocation'].asNumber()
-
-		reverse_strand_rrn_operons = np.array([rrnD, rrnG])
-
-		# Coordinate on the reverse strand
-		self.reverse_strand_rrn_coordinate = oriC - reverse_strand_rrn_operons
-
