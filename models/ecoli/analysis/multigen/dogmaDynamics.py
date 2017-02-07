@@ -12,7 +12,7 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
-from wholecell.utils.sparkline import simpleSparklineAxis
+#from wholecell.utils.sparkline import simpleSparklineAxis
 
 import cPickle
 
