@@ -12,19 +12,19 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
+from wholecell.utils.sparkline import simpleSparkLineAxis
+
 import cPickle
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
 FROM_CACHE = True
 
-def sparklineAxis(axis):
-	# axis.plot(x, y, **kwargs)
-	axis.spines['top'].set_visible(False)
-	axis.spines['bottom'].set_visible(False)
-	axis.xaxis.set_ticks_position('none')
-	axis.tick_params(which = 'both', direction = 'out')
-	#axis.tick_params(labelbottom = 'off')
+# def sparklineAxis(axis):
+# 	axis.spines['top'].set_visible(False)
+# 	axis.spines['bottom'].set_visible(False)
+# 	axis.xaxis.set_ticks_position('none')
+# 	axis.tick_params(which = 'both', direction = 'out')
 
 def align_yaxis(ax1, v1, ax2, v2):
     """adjust ax2 ylimit so that v2 in ax2 is aligned to v1 in ax1"""
@@ -201,14 +201,14 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	protein_idx_burst = protein_index_of_interest_burst[0]
 	# fig, axesList = plt.subplots(2,protein_index_of_interest.size, sharex = True)
 	fig, axesList = plt.subplots(ncols = 2, nrows = 2, sharex = True)
-	sparklineAxis(axesList[0,0])
-	sparklineAxis(axesList[0,1])
+	simpleSparkLineAxis(axesList[0,0])
+	simpleSparkLineAxis(axesList[0,1])
 	ax1_fold = axesList[0,1].twinx()
-	sparklineAxis(ax1_fold)
-	sparklineAxis(axesList[1,0])
-	sparklineAxis(axesList[1,1])
+	simpleSparkLineAxis(ax1_fold)
+	simpleSparkLineAxis(axesList[1,0])
+	simpleSparkLineAxis(axesList[1,1])
 	ax2_fold = axesList[1,1].twinx()
-	sparklineAxis(ax2_fold)
+	simpleSparkLineAxis(ax2_fold)
 
 
 	# fig.set_figwidth(protein_index_of_interest.size * 3)
