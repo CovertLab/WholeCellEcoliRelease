@@ -12,20 +12,38 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
+from wholecell.utils.sparkline import simpleSparklineAxis
+
 import cPickle
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
-FROM_CACHE = False
+FROM_CACHE = True
+
+# def sparklineAxis(axis):
+# 	axis.spines['top'].set_visible(False)
+# 	axis.spines['bottom'].set_visible(False)
+# 	axis.xaxis.set_ticks_position('none')
+# 	axis.tick_params(which = 'both', direction = 'out')
+
+def align_yaxis(ax1, v1, ax2, v2):
+    """adjust ax2 ylimit so that v2 in ax2 is aligned to v1 in ax1"""
+    _, y1 = ax1.transData.transform((0, v1))
+    _, y2 = ax2.transData.transform((0, v2))
+    inv = ax2.transData.inverted()
+    _, dy = inv.transform((0, 0)) - inv.transform((0, y1-y2))
+    miny, maxy = ax2.get_ylim()
+    ax2.set_ylim(miny+dy, maxy+dy)
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-
+	return
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
 
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
-
+	
+	print "Got here 1"
 	# Get all ids reqiured
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	ids_complexation = sim_data.process.complexation.moleculeNames # Complexe of proteins, and protein monomers
@@ -47,7 +65,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	# Get all cells
 	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-	allDir = ap.get_cells()
+	gens = np.arange(3,9)
+	allDir = ap.get_cells(generation = gens)
 
 	first_build = True
 
@@ -55,12 +74,14 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	n_monomers = sim_data.process.translation.monomerData['id'].size
 	n_sims = ap.n_generation
 
-	ratioFinalToInitialCountMultigen = np.zeros((n_sims, n_monomers), dtype = np.float)
+	ratioFinalToInitialCountMultigen = np.zeros((gens.size, n_monomers), dtype = np.float)
 	initiationEventsPerMonomerMultigen = np.zeros((n_sims, n_monomers), dtype = np.int)
 
-	protein_index_of_interest = np.zeros(0, dtype = np.int)
+	# protein_index_of_interest_full = np.zeros((gens.size, n_monomers), dtype = np.bool)
+	print "Got here 2"
 
 	if not FROM_CACHE:
+		print "Re-running - not using cache"
 		for gen_idx, simDir in enumerate(allDir):
 			simOutDir = os.path.join(simDir, "simOut")
 
@@ -71,6 +92,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
 			if first_build:
+				print "Running first build code"
 				moleculeIds = bulkMolecules.readAttribute("objectNames")
 
 				complexationIdx = np.array([moleculeIds.index(x) for x in ids_complexation]) # Complexe of proteins, and protein monomers
@@ -125,24 +147,38 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 			ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(np.float) + 1)
 
-			averageMonomerProteinCount = np.mean(proteinMonomerCounts, axis=0)
-			highAverageMonomerCount = np.where(averageMonomerProteinCount > 100.)
-			highFCMonomerCount = np.where(ratioFinalToInitialCount > 5)
+			ratioFinalToInitialCountMultigen[gen_idx, :] = ratioFinalToInitialCount
 
-			index_of_interest_Monomer = np.intersect1d(highAverageMonomerCount, highFCMonomerCount)
-			#index_of_interest_Translation = translationIdx[index_of_interest_Monomer]
 
-			index_of_interest = index_of_interest_Monomer
+			# index_of_interest = np.where(np.logical_and(ratioFinalToInitialCount > 1.5, ratioFinalToInitialCount < 2.5))
+
+			# if gen_idx == 1:
+			# 	index_of_interest = np.where(np.logical_and(ratioFinalToInitialCount > 10, ratioFinalToInitialCount < 30))
+			# else:
+			# 	index_of_interest = np.where(np.logical_and(ratioFinalToInitialCount > 0.9, ratioFinalToInitialCount < 1.1))
+
+			# if gen_idx == 0:
+			# 	index_of_interest = np.where(np.logical_and(ratioFinalToInitialCount > 0.9, ratioFinalToInitialCount < 1.1))
+			# if gen_idx == 1:
+			# 	index_of_interest = np.where(np.logical_and(ratioFinalToInitialCount > 50, ratioFinalToInitialCount < 100))
+			# if gen_idx == 2:
+			# 	index_of_interest = np.where(ratioFinalToInitialCount < 1.1)
+			# if gen_idx == 3:
+			# 	index_of_interest = np.where(ratioFinalToInitialCount < 1.1)
+
+			# if len(index_of_interest):
+			# 	protein_index_of_interest_full[gen_idx, index_of_interest] = True
 			
-			#index_of_interest = np.where(ratioFinalToInitialCount > 100.)
-			if len(index_of_interest):
-				protein_index_of_interest = np.hstack((protein_index_of_interest, index_of_interest[0]))
-			
-		cPickle.dump(protein_index_of_interest, open(os.path.join(plotOutDir,"protein_index_of_interest.pickle"), "wb"))
+		# cPickle.dump(protein_index_of_interest_full, open(os.path.join(plotOutDir,"protein_index_of_interest_full.pickle"), "wb"))
+		cPickle.dump(ratioFinalToInitialCountMultigen, open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "wb"))
 
+	# protein_index_of_interest_full = cPickle.load(open(os.path.join(plotOutDir,"protein_index_of_interest_full.pickle"), "rb"))
 
-	protein_index_of_interest = cPickle.load(open(os.path.join(plotOutDir,"protein_index_of_interest.pickle"), "rb"))
+	# protein_index_of_interest = np.where(protein_index_of_interest_full.all(axis = 0))[0]
 
+	print "Got here 3"
+
+	ratioFinalToInitialCountMultigen = cPickle.load(open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "rb"))
 	complexationIdx = cPickle.load(open(os.path.join(plotOutDir,"complexationIdx.pickle"), "rb"))
 	complexation_complexesIdx = cPickle.load(open(os.path.join(plotOutDir,"complexation_complexesIdx.pickle"), "rb"))
 	equilibriumIdx = cPickle.load(open(os.path.join(plotOutDir,"equilibriumIdx.pickle"), "rb"))
@@ -152,7 +188,37 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ribosomeIdx = cPickle.load(open(os.path.join(plotOutDir,"ribosomeIdx.pickle"), "rb"))
 	rnapIdx = cPickle.load(open(os.path.join(plotOutDir,"rnapIdx.pickle"), "rb"))
 
-	fig, axesList = plt.subplots(2,1, sharex = True)
+	#protein_index_of_interest = np.array([protein_index_of_interest[0]])
+	protein_index_of_interest = np.where(np.logical_and(ratioFinalToInitialCountMultigen > 1.8, ratioFinalToInitialCountMultigen < 2.2).all(axis = 0))[0]
+
+	protein_index_of_interest_burst = np.where(np.logical_and(ratioFinalToInitialCountMultigen[1,:] > 10, ratioFinalToInitialCountMultigen[2:,:] < 1.1))[1]
+
+	# Normal idx: 251
+	# Bursty idx: 
+
+	protein_index_of_interest = protein_index_of_interest[:5]
+	protein_idx = protein_index_of_interest[1]
+	protein_idx_burst = protein_index_of_interest_burst[0]
+	# fig, axesList = plt.subplots(2,protein_index_of_interest.size, sharex = True)
+	fig, axesList = plt.subplots(ncols = 2, nrows = 2, sharex = True)
+	simpleSparkLineAxis(axesList[0,0])
+	simpleSparkLineAxis(axesList[0,1])
+	ax1_fold = axesList[0,1].twinx()
+	simpleSparkLineAxis(ax1_fold)
+	simpleSparkLineAxis(axesList[1,0])
+	simpleSparkLineAxis(axesList[1,1])
+	ax2_fold = axesList[1,1].twinx()
+	simpleSparkLineAxis(ax2_fold)
+
+
+	# fig.set_figwidth(protein_index_of_interest.size * 3)
+	fig.set_figwidth(15)
+	firstLine = True
+	firstLineInit = None
+	firstLineInitRna = None
+
+	firstLineInit_burst = None
+	firstLineInitRna_burst = None
 
 	for gen_idx, simDir in enumerate(allDir):
 		simOutDir = os.path.join(simDir, "simOut")
@@ -191,31 +257,53 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		proteinMonomerCounts = bulkCounts[:, translationIdx]
 		rnaMonomerCounts = bulkCounts[:, transcriptionIdx]
 
-		if len(protein_index_of_interest):
-			axesList[0].plot(time / 60., proteinMonomerCounts[:, protein_index_of_interest[0]])
+		#if protein_index_of_interest.size:
 
-			rna_index_of_interest = sim_data.relation.monomerIndexToRnaMapping[protein_index_of_interest[0]]
+			#for axis_idx, protein_idx in enumerate(protein_index_of_interest):
 
-			axesList[1].plot(time / 60., rnaMonomerCounts[:, rna_index_of_interest])
+		if firstLine:
+			firstLineInit = float(proteinMonomerCounts[:, protein_idx][0])
+			firstLineInitRna = float(rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx][0])
 
-	translationIndices = translationIdx[protein_index_of_interest]
-	for ii in range(0,len(translationIndices)):
-		moleculeName = moleculeIds[translationIndices[ii]]
-		print moleculeName
+			firstLineInit_burst = float(proteinMonomerCounts[:, protein_idx_burst][0])
+			firstLineInitRna_burst = float(rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx_burst][0])			
+			firstLine = False
+
+		axesList[0,1].plot(time / 60., proteinMonomerCounts[:, protein_idx], color = "blue")
+		ax1_fold.plot(time / 60., proteinMonomerCounts[:, protein_idx] / firstLineInit, color = "white", alpha = 0.)
+		axesList[1,1].plot(time / 60., proteinMonomerCounts[:, protein_idx_burst], color = "blue")
+		ax2_fold.plot(time / 60., proteinMonomerCounts[:, protein_idx_burst] / firstLineInit_burst, color = "white", alpha = 0.)
+
+		# axesList[0].set_aspect('equal', 'box')
+
+		#rna_index_of_interest = sim_data.relation.monomerIndexToRnaMapping[protein_index_of_interest[0]]
+
+		#axesList[0].set_xlabel("Time (min)")
+
+		axesList[0,0].plot(time / 60., rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx], color = "blue")
+		axesList[1,0].plot(time / 60., rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx_burst], color = "blue")
+		# axesList[1].set_aspect('equal', 'box')
+
+		axesList[0,1].set_ylabel("{} count".format(sim_data.process.translation.monomerData['id'][protein_idx][:-3]))
+		axesList[0,0].set_ylabel("{} mRNA count".format(sim_data.process.translation.monomerData['id'][protein_idx][:-3]))
+		ax1_fold.set_ylabel("Fold change")
+		ax2_fold.set_ylabel("Fold change")
+
+		axesList[1,1].set_ylabel("{} count".format(sim_data.process.translation.monomerData['id'][protein_idx_burst][:-3]))
+		axesList[1,0].set_ylabel("{} mRNA count".format(sim_data.process.translation.monomerData['id'][protein_idx_burst][:-3]))
+
+		# axesList[0].set(adjustable='box-forced')#, aspect='equal')
+		#axesList[1].set(adjustable='box-forced', aspect='equal')
 
 
-
-	axesList[1].set_xlabel("Time (min)")
-	axesList[0].set_ylabel("Protein monomer count")
-	axesList[1].set_ylabel("mRNA count")
-	#fig.title(moleculeName)
+	align_yaxis(axesList[0,1], firstLineInit, ax1_fold, 1)
+	ax1_fold.set_xticks([1., 2.])
 
 
-	#import ipdb
-	#ipdb.set_trace()
+	# axesList[1].set_xlabel("Time (min)")
+	# axesList[1].set_ylabel("mRNA count")
 
-
-
+	print "got here 4"
 
 		# 	# Log data
 
