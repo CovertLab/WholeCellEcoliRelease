@@ -35,6 +35,10 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	ap = AnalysisPaths(inputDir, variant_plot = True)
 	all_cells = ap.get_cells()
 
+	if ap.n_variant == 1:
+		print "Disabled. Needs correct variant."
+		return
+
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 	
