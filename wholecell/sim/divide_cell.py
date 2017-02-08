@@ -217,7 +217,9 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts, sim):
 
 		elngRate = np.min([polyElng.ribosomeElongationRateDict[polyElng.currentNutrients].asNumber(units.aa / units.s), 21.])
 		nRibosomes = len(uniqueMolecules.container.objectsInCollection("activeRibosome"))
-		noiseMultiplier = randomState.normal(1, 0.2)
+		noiseMultiplier = 1.
+		if sim._growthRateNoise:
+			noiseMultiplier = randomState.normal(1, 0.2)
 		translationCapacity = elngRate * nRibosomes * noiseMultiplier
 
 		# mean = len(moleculeSet) * 0.5
