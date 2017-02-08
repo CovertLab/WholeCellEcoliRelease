@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
+import matplotlib.patches as patches
 
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
@@ -17,7 +18,13 @@ from wholecell.utils import units
 
 PLACE_HOLDER = -1
 
-FONT_SIZE=9
+FONT_SIZE=8
+
+def sparklineAxis(axis):
+	axis.spines['top'].set_visible(False)
+	axis.spines['bottom'].set_visible(False)
+	axis.xaxis.set_ticks_position('none')
+	axis.tick_params(which = 'both', direction = 'out')
 
 def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile = None, metadata = None):
 
@@ -43,6 +50,12 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax2 = plt.subplot2grid((5,7), (2,0), colspan = 4, sharex=ax0)
 	ax3 = plt.subplot2grid((5,7), (3,0), colspan = 4, sharex=ax0)
 	ax4 = plt.subplot2grid((5,7), (4,0), colspan = 4, sharex=ax0)
+
+	sparklineAxis(ax0)
+	sparklineAxis(ax1)
+	sparklineAxis(ax2)
+	sparklineAxis(ax3)
+	sparklineAxis(ax4)
 
 	# Get all cells in each seed
 	ap = AnalysisPaths(variantDir, cohort_plot = True)
@@ -115,35 +128,56 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ax4.set_ylim([0, 6])
 
 
+	y_ticks = ax0.get_yticks()
+	new_y_ticks = y_ticks[0:-1:2]
+	ax0.set_yticks(new_y_ticks)
+
 	ax0.set_xlim([0., time.max() / 60.])
 	ax0.set_ylabel("Cell mass\n(fg)", fontsize=FONT_SIZE)
 	ax0.xaxis.set_visible(False)
-	ax0.axvline(x=44*2+22., linewidth=3, color='gray', alpha = 0.5)
+	#ax0.axvline(x=44*2+22., linewidth=3, color='gray', alpha = 0.5)
+
+	axes_list = [ax0, ax1, ax2, ax3, ax4]
+	for a in axes_list:
+		shift_time = 44*2+22
+		width = a.get_xlim()[1] - shift_time
+		height = a.get_ylim()[1] - a.get_ylim()[0]
+		a.add_patch(
+			patches.Rectangle(
+				(shift_time, a.get_ylim()[0]),   # (x,y)
+				width,          # width
+				height,          # height
+				alpha = 0.25,
+				color = "gray",
+				linewidth = 0.
+			)
+		)
+
+	for a in axes_list:
+		for tick in a.yaxis.get_major_ticks():
+			tick.label.set_fontsize(FONT_SIZE) 
 
 	ax1.set_ylabel(r"$\mu$ $(\frac{gDCW}{gDCW-min})$", fontsize=FONT_SIZE)
 	ax1.xaxis.set_visible(False)
-	ax1.axvline(x=44*2+22., linewidth=3, color='gray', alpha = 0.5)
+	# ax1.axvline(x=44*2+22., linewidth=3, color='gray', alpha = 0.5)
 	ax1.set_ylim([0.012, 0.032])
 
 	#ax2.set_ylabel("RNA/Protein\n(fg/fg)", fontsize=FONT_SIZE)
 	ax2.set_ylabel("Active\nribosome\n(umol/L)", fontsize=FONT_SIZE)
 	ax2.xaxis.set_visible(False)
-	ax2.axvline(x=44*2+22., linewidth=3, color='gray', alpha = 0.5)
+	# ax2.axvline(x=44*2+22., linewidth=3, color='gray', alpha = 0.5)
+
+	y_ticks = ax2.get_yticks()
+	new_y_ticks = y_ticks[0:-1:2]
+	ax2.set_yticks(new_y_ticks)
 
 	ax3.set_ylabel("DNA polymerase\nposition (nt)", fontsize=FONT_SIZE)
 	ax3.xaxis.set_visible(False)
-	ax3.axvline(x=44*2+22., linewidth=3, color='gray', alpha = 0.5)
+	# ax3.axvline(x=44*2+22., linewidth=3, color='gray', alpha = 0.5)
 
 	ax4.set_ylabel("Relative rate\nof dNTP\npolymerization", fontsize=FONT_SIZE)
 	ax4.xaxis.set_visible(False)
-	ax4.axvline(x=44*2+22., linewidth=3, color='gray', alpha = 0.5)
-
-
-	ax5 = plt.subplot2grid((5,7), (0,5), colspan = 2, rowspan = 2)
-
-	ax5.set_ylabel("Added mass (fg)")
-	ax5.set_xlabel("Initial mass (fg)")
-
+	# ax4.axvline(x=44*2+22., linewidth=3, color='gray', alpha = 0.5)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
