@@ -16,7 +16,9 @@ import cPickle
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.utils import units
-FROM_CACHE = False
+FROM_CACHE = True
+
+from wholecell.utils.sparkline import whitePadSparklineAxis
 
 CLOSE_TO_DOUBLE = 0.1
 FONT_SIZE = 9
@@ -156,7 +158,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	existFractionPerMonomer = monomerExistMultigen.mean(axis=0)
 	averageFoldChangePerMonomer = ratioFinalToInitialCountMultigen.mean(axis=0)
-	averageInitiationEventsPerMonomer = initiationEventsPerMonomerMultigen.mean(axis=0)
+	averageInitiationEventsPerMonomer = initiationEventsPerMonomerMultigen.mean(axis=0) + 1e-1
 
 
 	mws = sim_data.getter.getMass(sim_data.process.translation.monomerData['id'])
@@ -166,8 +168,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	# initialMassFractions = monomerInitialMasses.asNumber(units.fg).transpose() / np.tile(cellMassInitialMultigen.asNumber().reshape((1,10)), (n_monomers,1))
 	# averageInitialMassFractions = initialMassFractions.mean(axis = 1)
-	avgMonomerInitialMass = monomerInitialMasses.asNumber(units.fg).mean(axis=0)
-	avgMonomerInitialMassFraction = avgMonomerInitialMass / avgMonomerInitialMass.sum()
+	# avgMonomerInitialMass = monomerInitialMasses.asNumber(units.fg).mean(axis=0)
+	# avgMonomerInitialMassFraction = avgMonomerInitialMass / avgMonomerInitialMass.sum()
 
 	# uniqueBurstSizes = np.unique(initiationEventsPerMonomerMultigen)
 	# probExistByBurstSize = np.zeros(uniqueBurstSizes.size)
@@ -186,52 +188,98 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# scatterAxis.axhline(1.0, linewidth=0.5, color='black', linestyle="--", xmin = 0.5, xmax = 1.)
 	# scatterAxis.axhline(2.0, linewidth=0.5, color='black', linestyle="--", xmin = 0.5, xmax = 1.)
 	xhistAxis = plt.subplot2grid((4,5), (0,0), colspan=3, sharex = scatterAxis)
-	yhistAxis = plt.subplot2grid((4,5), (1,3), rowspan=3, sharey = scatterAxis)
-	yhistAxis.axhline(1.0, linewidth=0.5, color='black', linestyle="--")
-	yhistAxis.axhline(2.0, linewidth=0.5, color='black', linestyle="--")
-	yhistAxis_2 = plt.subplot2grid((4,5), (1,4), rowspan=3, sharey = scatterAxis)
-	yhistAxis_2.axhline(1.0, linewidth=0.5, color='black', linestyle="--")
-	yhistAxis_2.axhline(2.0, linewidth=0.5, color='black', linestyle="--")
+	yhistAxis = plt.subplot2grid((4,5), (1,3), rowspan=3)#, sharey = scatterAxis)
+	yhistAxis.axhline(1.0, linewidth=1.0, color='black', linestyle="--")
+	yhistAxis.axhline(2.0, linewidth=1.0, color='black', linestyle="--")
+	#yhistAxis_2 = plt.subplot2grid((4,5), (1,4), rowspan=3, sharey = scatterAxis)
+	#yhistAxis_2.axhline(1.0, linewidth=0.5, color='black', linestyle="--")
+	#yhistAxis_2.axhline(2.0, linewidth=0.5, color='black', linestyle="--")
 
 	xhistAxis.xaxis.set_visible(False)
 	yhistAxis.yaxis.set_visible(False)
 
 	smallBurst = averageInitiationEventsPerMonomer <= 1.
+	scatterAxis.set_xlim([1e-1, 1e3])
+	scatterAxis.set_ylim([0.7, 100])
+
+	# scatterAxis.semilogx(averageInitiationEventsPerMonomer[smallBurst], averageFoldChangePerMonomer[smallBurst], marker = '.', color = "red", alpha = 0.9, lw = 0.)#, s = 5)
+	# scatterAxis.semilogx(averageInitiationEventsPerMonomer[~smallBurst], averageFoldChangePerMonomer[~smallBurst], marker = '.', color = "blue", alpha = 0.9, lw = 0.)#, s = 5)
+	## scatterAxis.semilogx(averageInitiationEventsPerMonomer[smallBurst], averageFoldChangePerMonomer[smallBurst], marker = '.', color = "green", alpha = 0.9, lw = 0.)#, s = 5)
+	## scatterAxis.semilogx(averageInitiationEventsPerMonomer[~smallBurst], averageFoldChangePerMonomer[~smallBurst], marker = '.', color = "blue", alpha = 0.9, lw = 0.)#, s = 5)
+	
+	scatterAxis.loglog(averageInitiationEventsPerMonomer[smallBurst], averageFoldChangePerMonomer[smallBurst], marker = '.', color = "green", alpha = 0.9, lw = 0.)#, s = 5)
+	scatterAxis.loglog(averageInitiationEventsPerMonomer[~smallBurst], averageFoldChangePerMonomer[~smallBurst], marker = '.', color = "blue", alpha = 0.9, lw = 0.)#, s = 5)
+	
+
+	scatterAxis.set_ylabel("Average fold change per\nmonomer over {} generations".format(ap.n_generation), fontsize = FONT_SIZE)
+	scatterAxis.set_xlabel("Average number of transcription events\nper monomer over {} generations".format(ap.n_generation), fontsize = FONT_SIZE)
+
+	# lims = yhistAxis.get_ylim()
+	# step = (lims[1] - lims[0]) / 125
+	# bins = np.arange(lims[0], lims[1] + step, step)
+
+	# mass_in_binrange = np.zeros(bins.size-1, dtype=np.float)
+	# for i in range(len(bins) - 1):
+	# 	in_bin_range = np.logical_and(averageFoldChangePerMonomer > bins[i], averageFoldChangePerMonomer < bins[i+1])
+	# 	mass_in_binrange[i] = avgMonomerInitialMassFraction[in_bin_range].sum()
+
+	#yhistAxis_2.barh(bottom = bins[:-1], width = mass_in_binrange, height=(lims[1] - lims[0]) / 125, color = "white")
+	#yhistAxis_2.set_xlim([0., 1.])
+	#yhistAxis_2.yaxis.set_label_position("right")
+	#yhistAxis_2.set_xlabel("Fraction of\nproteome mass", fontsize = FONT_SIZE)
+	#scatterAxis.set_xlim([-10., 1000.])
+
+	# yhistAxis.hist(averageFoldChangePerMonomer[~smallBurst], histtype = 'step', bins = 25, orientation='horizontal', log = True)
+	# yhistAxis.hist(averageFoldChangePerMonomer[smallBurst], histtype = 'step', bins = 100, orientation='horizontal', log = True, color="green")
+
+	yhistAxis.hist(averageFoldChangePerMonomer[~smallBurst], histtype = 'step', bins = np.logspace(np.log10(0.1), np.log10(100.), 25), range = [0.7, 100], log = True,  orientation='horizontal')
+	yhistAxis.hist(averageFoldChangePerMonomer[smallBurst], histtype = 'step', bins = np.logspace(np.log10(0.1), np.log10(100.), 125), range = [0.7, 100], log = True,  orientation='horizontal', color="green")
+	yhistAxis.set_ylim([0.7, 100])
+	yhistAxis.set_yscale("log")
 
 
-	scatterAxis.semilogx(averageInitiationEventsPerMonomer[smallBurst], averageFoldChangePerMonomer[smallBurst], marker = '.', color = "red", alpha = 0.9, lw = 0.)#, s = 5)
-	scatterAxis.semilogx(averageInitiationEventsPerMonomer[~smallBurst], averageFoldChangePerMonomer[~smallBurst], marker = '.', color = "blue", alpha = 0.9, lw = 0.)#, s = 5)
-	scatterAxis.set_ylabel("Average fold change per\nmonomer per generation", fontsize = FONT_SIZE)
-	scatterAxis.set_xlabel("Average number of transcription\nevents per monomer per generation", fontsize = FONT_SIZE)
-
-	lims = yhistAxis.get_ylim()
-	step = (lims[1] - lims[0]) / 125
-	bins = np.arange(lims[0], lims[1] + step, step)
-
-	mass_in_binrange = np.zeros(bins.size-1, dtype=np.float)
-	for i in range(len(bins) - 1):
-		in_bin_range = np.logical_and(averageFoldChangePerMonomer > bins[i], averageFoldChangePerMonomer < bins[i+1])
-		mass_in_binrange[i] = avgMonomerInitialMassFraction[in_bin_range].sum()
-
-	yhistAxis_2.barh(bottom = bins[:-1], width = mass_in_binrange, height=(lims[1] - lims[0]) / 125, color = "white")
-	yhistAxis_2.set_xlim([0., 1.])
-	yhistAxis_2.yaxis.set_label_position("right")
-	yhistAxis_2.set_xlabel("Fraction of\nproteome mass", fontsize = FONT_SIZE)
-	scatterAxis.set_xlim([-10., 1000.])
-
-	yhistAxis.hist(averageFoldChangePerMonomer[~smallBurst], histtype = 'step', bins = 25, orientation='horizontal', log = True)
-	yhistAxis.hist(averageFoldChangePerMonomer[smallBurst], histtype = 'step', bins = 100, orientation='horizontal', log = True, color="red")
-	yhistAxis_2.yaxis.tick_right()
-
-	xhistAxis.hist(averageInitiationEventsPerMonomer[smallBurst], histtype = 'step', color = "red", bins = np.logspace(np.log10(0.01), np.log10(1000.), 125), log = True, range = [-10., 1000.])
+	xhistAxis.hist(averageInitiationEventsPerMonomer[smallBurst], histtype = 'step', color = "green", bins = np.logspace(np.log10(0.01), np.log10(1000.), 125), log = True, range = [-10., 1000.])
 	xhistAxis.hist(averageInitiationEventsPerMonomer[~smallBurst], histtype = 'step', bins = np.logspace(np.log10(0.01), np.log10(1000.), 125), log = True, range = [-10., 1000.])
 	xhistAxis.set_xscale("log")
 
 	for label in yhistAxis.xaxis.get_ticklabels()[::2]:
 		label.set_visible(False)
 
-	for label in yhistAxis_2.xaxis.get_ticklabels()[::2]:
-		label.set_visible(False)
+	whitePadSparklineAxis(scatterAxis)
+	whitePadSparklineAxis(yhistAxis)
+	whitePadSparklineAxis(xhistAxis)
+
+	scatterAxis.tick_params(
+		axis='both',          # which axis
+		which='both',      # both major and minor ticks are affected
+		right='off',      # ticks along the bottom edge are off
+		left='on',         # ticks along the top edge are off
+		top = 'off',
+		bottom = 'on',
+		)
+
+	yhistAxis.tick_params(
+		axis='both',          # which axis
+		which='both',      # both major and minor ticks are affected
+		right='off',      # ticks along the bottom edge are off
+		left='on',         # ticks along the top edge are off
+		top = 'off',
+		bottom = 'on',
+		)
+
+	xhistAxis.tick_params(
+		axis='both',          # which axis
+		which='both',      # both major and minor ticks are affected
+		right='off',      # ticks along the bottom edge are off
+		left='on',         # ticks along the top edge are off
+		top = 'off',
+		bottom = 'on',
+		)
+
+	plt.subplots_adjust(wspace=0.3, hspace=0.3, bottom = 0.2)
+
+	# for label in yhistAxis_2.xaxis.get_ticklabels()[::2]:
+	# 	label.set_visible(False)
 
 	# axesList[0].semilogy(uniqueBurstSizes, probExistByBurstSize)
 	# axesList[1].semilogy(uniqueBurstSizes, probDoubleByBurstSize)
