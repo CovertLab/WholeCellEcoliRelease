@@ -24,16 +24,20 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
+from wholecell.utils.sparkline import whitePadSparklineAxis
+
 NT_MW = 487.0
 PROTEIN_MW = 110.0
 
-def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = None):
+FONT_SIZE=9
 
+def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = None):
+	print "here 1"
 	if not os.path.isdir(inputDir):
 		raise Exception, "inputDir does not currently exist as a directory"
 
 	ap = AnalysisPaths(inputDir, variant_plot = True)
-	all_cells = ap.get_cells()
+	all_cells = ap.get_cells(generation=[0,1])
 
 	if ap.n_variant == 1:
 		print "Disabled. Needs correct variant."
@@ -56,13 +60,13 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	nAvogadro = sim_data.constants.nAvogadro.asNumber()
 	chromMass = (sim_data.getter.getMass(['CHROM_FULL[c]'])[0] / sim_data.constants.nAvogadro).asNumber() 
-	
+	print " here 2"
 	for simDir in all_cells:
 		simOutDir = os.path.join(simDir, "simOut")
 		variant = int(simDir[simDir.rfind('generation_')-14:simDir.rfind('generation_')-8])
 
 		#print variant
-		
+		print "here 3"
 
 		mass = TableReader(os.path.join(simOutDir, "Mass"))
 
@@ -169,13 +173,19 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 
 	#import all Dennis and Bremer Data:
 	#dt order 0.6, 1.5, 2.5
-	rnaToProteinDB = [6.615, 10.962, 15.6]
-	dnaToProteinDB = [2.82, 1.79, 1.52]
-	elngRateDB = [12, 18, 21]
-	stableRnaFractionDB = [.41,.68,.85]
-	mRnaFractionDB = [.59, .32, .15]
+	rnaToProteinDB = np.array([6.615, 10.962, 15.6])
+	rnaToProteinDB_error = rnaToProteinDB * (0.06 + 0.025)
+	dnaToProteinDB = np.array([2.82, 1.79, 1.52])
+	dnaToProteinDB_error = dnaToProteinDB * (0.06 + 0.05)
+	elngRateDB = np.array([12, 18, 21])
+	elngRateDB_error = elngRateDB * (0.06 + 0.025)
+	stableRnaFractionDB = np.array([.41,.68,.85])
+	stableRnaFractionDB_error = stableRnaFractionDB * (0.06 + 0.025)
+	mRnaFractionDB = np.array([.59, .32, .15])
+	mRnaFractionDB_error = mRnaFractionDB * (0.06 + 0.025)
 	stableRnaSynthRateDB = [0.53, 2.23, 5.3]
-	numOriginsAtInitDB = [1,2,4]
+	numOriginsAtInitDB = np.array([1,2,4])
+	numOriginsAtInitDB_error = numOriginsAtInitDB * (0.05 + 0.05)
 	doublingPerHourDB = [0.6, 1.5, 2.5]
 
 	#comparisonArray = np.zeros((4,3))
@@ -188,42 +198,97 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 
 	#comparisons
 
+	# fig, ax = plt.subplots(3,2)#, figsize = (8.5, 11))
 
-	fig, ax = plt.subplots(5, sharex=True, figsize = (8.5, 11))
+	# plt.subplots_adjust(wspace=0.4, hspace=0.4)
 
-	ax[0].plot(doublingPerHour, rnaToProtein, color = 'k', linewidth = 2)
-	ax[0].plot(doublingPerHourDB, rnaToProteinDB, color = 'r', linewidth = 2)
-	ax[0].set_ylabel("RNA to Protein\n(nuc/100 aa)")
-	ax[0].set_ylim([0,20])
+	# ax[0,0].scatter(rnaToProteinDB, rnaToProtein)
+	# maxValue = np.max([max(rnaToProteinDB), max(rnaToProtein)])
+	# ax[0,0].plot([0, maxValue],[0, maxValue])
+	# ax[0,0].set_title("RNA to Protein (nuc/100 aa)", fontsize = FONT_SIZE)
 
-	ax[1].plot(doublingPerHour, dnaToProtein, color = 'k', linewidth = 2)
-	ax[1].plot(doublingPerHourDB, dnaToProteinDB, color = 'r', linewidth = 2)
-	ax[1].set_ylabel("DNA to Protein\n(chrom eq/10^9 aa)")
-	ax[1].set_ylim([0,4])
 
-	ax[2].plot(doublingPerHour, elngRate, color = 'k', linewidth = 2)
-	ax[2].plot(doublingPerHourDB, elngRateDB, color = 'r', linewidth = 2)
-	ax[2].set_ylabel("Ribosome Elongation\nRate (aa/s)")
-	ax[2].set_ylim([0,25])
+	# ax[0,1].scatter(dnaToProteinDB, dnaToProtein)
+	# maxValue = np.max([max(dnaToProteinDB), max(dnaToProtein)])
+	# ax[0,1].plot([0, maxValue],[0, maxValue])
+	# ax[0,1].set_title("DNA to Protein (chrom eq/10^9 aa)", fontsize = FONT_SIZE)
 
-	ax[3].plot(doublingPerHour, stableRnaFraction, color = 'k', linewidth = 2)
-	ax[3].plot(doublingPerHourDB, stableRnaFractionDB, color = 'r', linewidth = 2)
-	ax[3].set_ylabel("Rate Stable RNA to\nRate Total RNA")
-	ax[3].set_ylim([0,1])
 
-	b = ax[3].twinx()
-	b.plot(doublingPerHour,mRnaFractionCalc, color='k', linewidth=2)
-	b.plot(doublingPerHourDB,mRnaFractionDB, color='r', linewidth=2)
-	b.set_ylabel("Rate mRNA to\nRate Total RNA")
-	b.set_ylim([1,0])
+	# ax[1,0].scatter(elngRateDB, elngRate)
+	# maxValue = np.max([max(elngRateDB), max(elngRate)])
+	# ax[1,0].plot([0, maxValue],[0, maxValue])
+	# ax[1,0].set_title("Ribosome Elongation Rate (aa/s)", fontsize = FONT_SIZE)
 
-	ax[4].plot(doublingPerHour,numOriginsAtInit, color='k', linewidth=2, label = 'Simulation')
-	ax[4].plot(doublingPerHourDB,numOriginsAtInitDB, color='r', linewidth=2, label = 'Dennis and Bremer')
-	ax[4].set_ylabel("Origins per Cell\nat Initiation")
-	ax[4].set_xlabel("Doublings per Hour")
-	ax[4].set_ylim([0,5])
-	ax[4].legend(loc=4,frameon=False)
+	# ax[1,1].scatter(stableRnaFractionDB, stableRnaFraction)
+	# maxValue = np.max([max(stableRnaFractionDB), max(stableRnaFraction)])
+	# ax[1,1].plot([0, maxValue],[0, maxValue])
+	# ax[1,1].set_title("Rate Stable RNA to Rate Total RNA", fontsize = FONT_SIZE)
 
+	# ax[2,0].scatter(mRnaFractionDB, mRnaFractionCalc)
+	# maxValue = np.max([max(mRnaFractionDB), max(mRnaFractionCalc)])
+	# ax[2,0].plot([0, maxValue],[0, maxValue])
+	# ax[2,0].set_title("Rate mRNA to Rate Total RNA", fontsize = FONT_SIZE)
+
+	# ax[2,1].scatter(numOriginsAtInitDB, numOriginsAtInit)
+	# maxValue = np.max([max(numOriginsAtInitDB), max(numOriginsAtInit)])
+	# ax[2,1].plot([0, maxValue],[0, maxValue])
+	# ax[2,1].set_title("Origins per Cell at Initiation", fontsize = FONT_SIZE)
+
+	# for a in ax.flatten():
+	# 	whitePadSparklineAxis(a)
+	# 	a.set_xlabel("Target value", fontsize = FONT_SIZE)
+	# 	a.set_ylabel("Simulated value", fontsize = FONT_SIZE)
+
+	fig, ax = plt.subplots(3,2, sharex=True, figsize = (8.5, 11))
+
+	ax[0,0].plot(doublingPerHour, rnaToProtein, color = 'k', linewidth = 2)
+	ax[0,0].plot(doublingPerHourDB, rnaToProteinDB, color = 'blue', linewidth = 2)
+	ax[0,0].errorbar(doublingPerHourDB, rnaToProteinDB, yerr = rnaToProteinDB_error, color = "blue", linewidth = 2)
+	ax[0,0].set_ylabel("RNA / Protein (nuc/100 aa)")
+	ax[0,0].set_ylim([0,20])
+
+	ax[1,0].plot(doublingPerHour, dnaToProtein, color = 'k', linewidth = 2)
+	ax[1,0].plot(doublingPerHourDB, dnaToProteinDB, color = 'blue', linewidth = 2)
+	ax[1,0].errorbar(doublingPerHourDB, dnaToProteinDB, yerr=dnaToProteinDB_error, color="blue", linewidth = 2)
+	ax[1,0].set_ylabel("DNA / Protein (chrom eq/10^9 aa)")
+	ax[1,0].set_ylim([0,4])
+
+	ax[2,0].plot(doublingPerHour, elngRate, color = 'k', linewidth = 2)
+	ax[2,0].plot(doublingPerHourDB, elngRateDB, color = 'blue', linewidth = 2)
+	ax[2,0].errorbar(doublingPerHourDB, elngRateDB, yerr = elngRateDB_error, color = "blue", linewidth = 2)
+	ax[2,0].set_ylabel("Ribosome Elongation Rate (aa/s)")
+	ax[2,0].set_ylim([0,25])
+	ax[2,0].set_xlabel("Doublings per Hour")
+
+	ax[0,1].plot(doublingPerHour, stableRnaFraction, color = 'k', linewidth = 2)
+	ax[0,1].plot(doublingPerHourDB, stableRnaFractionDB, color = 'blue', linewidth = 2)
+	ax[0,1].errorbar(doublingPerHourDB, stableRnaFractionDB, yerr = stableRnaFractionDB_error, color = "blue", linewidth=2)
+	ax[0,1].set_ylabel("Synthesis rate Stable RNA / Total RNA")
+	ax[0,1].set_ylim([0,1])
+
+	ax[1,1].plot(doublingPerHour,mRnaFractionCalc, color='k', linewidth=2) 
+	ax[1,1].plot(doublingPerHourDB,mRnaFractionDB, color='blue', linewidth=2)
+	ax[1,1].errorbar(doublingPerHourDB,mRnaFractionDB, yerr = mRnaFractionDB_error, color="blue", linewidth=2)
+	ax[1,1].set_ylabel("Synthesis rate mRNA / Total RNA")
+	ax[1,1].set_ylim([1,0])
+
+	ax[2,1].plot(doublingPerHour,numOriginsAtInit, color='k', linewidth=2, label = 'Simulation')
+	ax[2,1].plot(doublingPerHourDB,numOriginsAtInitDB, color='blue', linewidth=2, label = 'Dennis and Bremer')
+	ax[2,1].errorbar(doublingPerHourDB,numOriginsAtInitDB, yerr=numOriginsAtInitDB_error, linewidth=2, color="blue")
+	ax[2,1].set_ylabel("Origins / Cell at Initiation")
+	ax[2,1].set_xlabel("Doublings per Hour")
+	ax[2,1].set_ylim([0,5])
+	ax[2,1].legend(loc=4,frameon=False, fontsize=FONT_SIZE)
+
+
+	whitePadSparklineAxis(ax[0,0], False)
+	whitePadSparklineAxis(ax[1,0], False)
+	whitePadSparklineAxis(ax[2,0])
+	whitePadSparklineAxis(ax[0,1], False)
+	whitePadSparklineAxis(ax[1,1], False)
+	whitePadSparklineAxis(ax[2,1])
+
+	plt.subplots_adjust(wspace=0.4, hspace=0.4)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
