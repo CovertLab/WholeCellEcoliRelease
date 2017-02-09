@@ -419,6 +419,7 @@
 18837509	30				[]		"RXN0-4641-CPD0-881/WATER//CPD-16168/D-LACTATE.36."	"CPLX0-7732"	["CPD0-881"]	"standard"		5.7	[]	[]	"null"	"null"	"null"	"null"	"null"	
 15489502	37	"ecocyc kinetics"			[]		"RXN0-5292[CCO-CYTOSOL]-DCMP/WATER//DEOXYCYTIDINE/Pi.42."	"CPLX0-7625"	["DCMP"]	"standard"		0.23	[]	[]	"null"	"null"	"null"	"null"	"null"	
 19140736	25				["PRO"]		"RXN0-7008-PRO/UBIQUINONE-8//L-DELTA1-PYRROLINE_5-CARBOXYLATE/CPD-9956/PROTON.67."	"PUTA-CPLX"	["PRO"]	"standard"		29	[59000]	[]	"null"	"null"	"null"	"null"	"null"	
+19140736	25				["PRO"]		"RXN0-7008-PRO/UBIQUINONE-8//L-DELTA1-PYRROLINE_5-CARBOXYLATE/CPD-9956/PROTON.67."	"PUTA-CPLXBND"	["PRO"]	"standard"		29	[59000]	[]	"null"	"null"	"null"	"null"	"null"	
 8065908	25	"synthetase"			["SER"]		"SERINE--TRNA-LIGASE-RXN-SER-tRNAs/SER/ATP/PROTON//Charged-SER-tRNAs/AMP/PPI.52."	"SERS-CPLX"	["SER"]	"standard"		0.34	[64]	[]	"null"	"null"	"null"	"null"	"null"	
 8065908	25	"synthetase"			["ATP"]		"SERINE--TRNA-LIGASE-RXN-SER-tRNAs/SER/ATP/PROTON//Charged-SER-tRNAs/AMP/PPI.52."	"SERS-CPLX"	["ATP"]	"standard"		0.35	[0.068]	[]	"null"	"null"	"null"	"null"	"null"	
 8065908	25	"synthetase"			[]		"SERINE--TRNA-LIGASE-RXN-SER-tRNAs/SER/ATP/PROTON//Charged-SER-tRNAs/AMP/PPI.52."	"SERS-CPLX"	["SER-tRNAs"]	"standard"		2.6	[]	[]	"null"	"null"	"null"	"null"	"null"	
