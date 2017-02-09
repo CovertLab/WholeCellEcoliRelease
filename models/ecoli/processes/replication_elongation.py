@@ -30,7 +30,13 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		super(ReplicationElongation, self).initialize(sim, sim_data)
 
 		# Load parameters
-		self.criticalInitiationMass = sim_data.growthRateParameters.getDnaCriticalMass(sim_data.conditionToDoublingTime[sim_data.condition])
+		# if sim_data.divisionMassVariance == 0.:
+		# 	criticalMassMultiplier = 1.
+		# else:
+		# 	criticalMassMultiplier = sim.randomState.normal(loc = 1.0, scale = sim_data.divisionMassVariance)
+		criticalMassMultiplier = 1.0
+
+		self.criticalInitiationMass = criticalMassMultiplier * sim_data.growthRateParameters.getDnaCriticalMass(sim_data.conditionToDoublingTime[sim_data.condition])
 		self.getDnaCriticalMass = sim_data.growthRateParameters.getDnaCriticalMass
 		self.nutrientToDoublingTime = sim_data.nutrientToDoublingTime
 
@@ -103,6 +109,19 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		if len(oriCs) == 0 and chromosomes == 0:
 			return
 
+
+		if self.time() - self._sim.initialTime() < 1.:
+			if activePolymerasePresent:
+				print "Simulation starts"
+				sequenceIdx, sequenceLengths, replicationRound, chromosomeIndex = activeDnaPoly.attrs('sequenceIdx', 'sequenceLength', 'replicationRound', 'chromosomeIndex')
+
+				print "sequenceIdx: {}".format(sequenceIdx)
+				print "sequenceLengths: {}".format(sequenceLengths)
+				print "replicationRound: {}".format(replicationRound)
+				print "chromosomeIndex: {}".format(chromosomeIndex)
+			else:
+				print "No active polymerase present"
+
 		if activePolymerasePresent:
 			replicationRound = activeDnaPoly.attr('replicationRound')
 
@@ -117,10 +136,15 @@ class ReplicationElongation(wholecell.processes.process.Process):
 		self.writeToListener("ReplicationData", "criticalMassPerOriC", massPerOrigin)
 		self.writeToListener("ReplicationData", "criticalInitiationMass", self.criticalInitiationMass.asNumber(units.fg))
 
-		if massPerOrigin >= 1.0:
+		if massPerOrigin >= 1.0 and self.chromosomeHalves.total().sum() == 0:
 			initiate = True
 
 		if initiate:
+			print "grep_marker replication initiation - time: {}".format(self.time())
+			print "grep_marker cell division occurs - relative time: {}".format(self.time() - self._sim.initialTime())
+			print "grep_marker replication initiation - time + C + D: {}".format(self.time() + (60. + 20.) * 60.)
+			print "grep_marker replication initiation - cell mass: {}".format(self.readFromListener("Mass", "cellMass"))
+
 			# Number of oriC the cell has
 			if activePolymerasePresent:
 				numOric = 2 * np.unique(replicationRound).size * self.full_chromosome.count()
@@ -146,7 +170,7 @@ class ReplicationElongation(wholecell.processes.process.Process):
 			sequenceLength = np.zeros(numberOfNewPolymerase, dtype = np.int8)
 			replicationRound = np.ones(numberOfNewPolymerase, dtype=np.int8) * (replicationRound.max() + 1)
 			chromosomeIndex = np.zeros(numberOfNewPolymerase, dtype=np.int8)
-			chromosomeIndex[numberOfNewPolymerase / 2:] = 1.
+			chromosomeIndex[numberOfNewPolymerase / self.full_chromosome.count():] = 1.
 
 			activeDnaPoly.attrIs(
 				sequenceIdx = sequenceIdx,
@@ -154,6 +178,26 @@ class ReplicationElongation(wholecell.processes.process.Process):
 				replicationRound = replicationRound,
 				chromosomeIndex = chromosomeIndex,
 				)
+
+			print "initializing polymerases"
+			print "activePolymerasePresent: {}".format(activePolymerasePresent)
+			print "numOric: {}".format(numOric)
+			print "numberOfNewPolymerase: {}".format(numberOfNewPolymerase)
+			print "sequenceIdx: {}".format(sequenceIdx)
+			print "sequenceLength: {}".format(sequenceLength)
+			print "replicationRound: {}".format(replicationRound)
+			print "chromosomeIndex: {}".format(chromosomeIndex)
+
+			print "state after initialization"
+			sequenceIdx, sequenceLengths, replicationRound, chromosomeIndex = activeDnaPoly.attrs('sequenceIdx', 'sequenceLength', 'replicationRound', 'chromosomeIndex')
+
+			print "sequenceIdx: {}".format(sequenceIdx)
+			print "sequenceLengths: {}".format(sequenceLengths)
+			print "replicationRound: {}".format(replicationRound)
+			print "chromosomeIndex: {}".format(chromosomeIndex)
+			# import ipdb; ipdb.set_trace()
+
+
 
 		##########################################
 		# Perform replication elongation process #
@@ -248,6 +292,26 @@ class ReplicationElongation(wholecell.processes.process.Process):
 
 		newUniqueChromosomeHalves = sequenceIdx[np.where(didTerminate)[0]]
 
+		if any(didTerminate):
+			print "terminating chromosomes"
+			sequenceIdx, sequenceLengths, replicationRound, chromosomeIndex = activeDnaPoly.attrs(
+				'sequenceIdx', 'sequenceLength', 'replicationRound', 'chromosomeIndex'
+				)
+			print "terminated"
+			print "sequenceIdx: {}".format(sequenceIdx[didTerminate])
+			print "sequenceLengths: {}".format(sequenceLengths[didTerminate])
+			print "replicationRound: {}".format(replicationRound[didTerminate])
+			print "chromosomeIndex: {}".format(chromosomeIndex[didTerminate])
+			print "didTerminate: {}".format(didTerminate)
+
+
+			print "state after termination"
+			print "sequenceIdx: {}".format(sequenceIdx[np.logical_not(didTerminate)])
+			print "sequenceLengths: {}".format(sequenceLengths[np.logical_not(didTerminate)])
+			print "replicationRound: {}".format(replicationRound[np.logical_not(didTerminate)])
+			print "chromosomeIndex: {}".format(chromosomeIndex[np.logical_not(didTerminate)])
+
+			# import ipdb; ipdb.set_trace()
 		activeDnaPoly.delByIndexes(np.where(didTerminate)[0])
 
 		nTerminated = didTerminate.sum()

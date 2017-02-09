@@ -68,6 +68,8 @@ COMPRESS_OUTPUT = str(os.environ.get("COMPRESS_OUTPUT", "1"))
 SIM_DESCRIPTION = os.environ.get("DESC", "").replace(" ", "_")
 VERBOSE_QUEUE = bool(int(os.environ.get("VERBOSE_QUEUE", "1")))
 MASS_DISTRIBUTION = bool(int(os.environ.get("MASS_DISTRIBUTION", "1")))
+GROWTH_RATE_NOISE = bool(int(os.environ.get("GROWTH_RATE_NOISE", "0")))
+D_PERIOD_DIVISION = bool(int(os.environ.get("D_PERIOD_DIVISION", "0")))
 
 ### Set path variables
 
@@ -159,6 +161,9 @@ metadata = {
 	"total_gens": str(N_GENS),
 	"analysis_type": None,
 	"variant": VARIANT,
+	"mass_distribution" : MASS_DISTRIBUTION,
+	"growth_rate_noise" : GROWTH_RATE_NOISE,
+	"d_period_division" : D_PERIOD_DIVISION,
 	}
 
 for key, value in metadata.iteritems():
@@ -495,6 +500,8 @@ for i in VARIANTS_TO_RUN:
 							timestep_max = TIMESTEP_MAX,
 							timestep_update_freq = TIMESTEP_UPDATE_FREQ,
 							mass_distribution = MASS_DISTRIBUTION,
+							growth_rate_noise = GROWTH_RATE_NOISE,
+							d_period_division = D_PERIOD_DIVISION,
 							),
 						name = fw_name,
 						spec = {"_queueadapter": {"job_name": fw_name}, "_priority":10}
@@ -516,6 +523,8 @@ for i in VARIANTS_TO_RUN:
 							timestep_max = TIMESTEP_MAX,
 							timestep_update_freq = TIMESTEP_UPDATE_FREQ,
 							mass_distribution = MASS_DISTRIBUTION,
+							growth_rate_noise = GROWTH_RATE_NOISE,
+							d_period_division = D_PERIOD_DIVISION,
 							),
 						name = fw_name,
 						spec = {"_queueadapter": {"job_name": fw_name}, "_priority":11}

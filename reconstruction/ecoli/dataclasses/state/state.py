@@ -129,6 +129,11 @@ class State(object):
 		originAttributes = {}
 		self.uniqueMolecules.addToUniqueState('originOfReplication', originAttributes, originMass)
 
+		# Full chromosome
+		fullChromosomeMass = units.g / units.mol * np.zeros_like(rnaPolyComplexMass) # NOTE: origins currently have no mass
+		fullChromosomeAttributes = {"division_time" : "f8"}
+		self.uniqueMolecules.addToUniqueState('fullChromosome', fullChromosomeAttributes, fullChromosomeMass)
+
 	def _buildCompartments(self, raw_data, sim_data):
 		compartmentData = np.empty(len(raw_data.compartments),
 			dtype = [('id','a20'),('compartmentAbbreviation', 'a1')])

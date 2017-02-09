@@ -14,7 +14,6 @@ from matplotlib import pyplot as plt
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
-from wholecell.utils import units
 
 def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile = None, metadata = None):
 	if not os.path.isdir(variantDir):
@@ -26,50 +25,63 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# Get all cells in each seed
 	ap = AnalysisPaths(variantDir, cohort_plot = True)
 
+	if ap.n_generation == 1:
+		print "Need more data to create addedMass"
+		return
+
 	max_cells_in_gen = 0
 	for genIdx in range(ap.n_generation):
 		n_cells = len(ap.get_cells(generation = [genIdx]))
 		if n_cells > max_cells_in_gen:
 			max_cells_in_gen = n_cells
 
-	fig, axesList = plt.subplots(ap.n_generation)
+	if max_cells_in_gen == 1:
+		return
+	# fig, axesList = plt.subplots(ap.n_generation + 1, sharey = True, sharex = True, subplot_kw=dict((("aspect",0.4),("adjustable",'box-forced'))))
+	
 
-	growth_rate = np.zeros((max_cells_in_gen, ap.n_generation))
+	fig, axesList = plt.subplots(2,1, sharex = True, sharey = True)
+	fig.set_figwidth(5)
+	fig.set_figheight(10)
 
+	initial_masses = np.zeros((max_cells_in_gen, ap.n_generation))
+	final_masses = np.zeros((max_cells_in_gen, ap.n_generation))
+
+	n_cells = 0
 	for genIdx in range(ap.n_generation):
 		gen_cells = ap.get_cells(generation = [genIdx])
+		if genIdx > 0:
+			n_cells += len(gen_cells)
 		for simDir in gen_cells:
-			simOutDir = os.path.join(simDir, "simOut")
-			# growthRate = np.nanmean(TableReader(os.path.join(simOutDir, "Mass")).readColumn("instantaniousGrowthRate"))
-			# growthRate = (1 / units.s) * growthRate
-			# growthRate = growthRate.asNumber(1 / units.min)
+			try:
+				simOutDir = os.path.join(simDir, "simOut")
+				mass = TableReader(os.path.join(simOutDir, "Mass"))
+				cellMass = mass.readColumn("cellMass")
 
-			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-			initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-			doubling_time = (time[-1] - initialTime) * units.s
-			averageGrowthRate = np.log(2) / doubling_time.asNumber(units.min)
-			growth_rate[np.where(simDir == gen_cells)[0], genIdx] = averageGrowthRate
+				initial_masses[np.where(simDir == gen_cells)[0], genIdx] = cellMass[0] / 1000.
+				final_masses[np.where(simDir == gen_cells)[0], genIdx] = cellMass[-1] / 1000.
+				added_masses = final_masses - initial_masses
+			except IndexError:
+				pass
 
 	# Plot initial vs final masses
-	if ap.n_generation == 1:
-		axesList = [axesList]
 
-	for idx, axes in enumerate(axesList):
-		if max_cells_in_gen > 1:
-			axes.hist(growth_rate[:,idx].flatten(), bins=20)
-		else:
-			axes.plot(growth_rate[:,idx], 1, 'x')
-			axes.set_ylim([0, 2])
+	# Plot for all but first generation
+	axesList[0].plot(initial_masses[:,1:], added_masses[:,1:], 'x')
 
-		axes.axvline(growth_rate[:,idx].mean(), color='k', linestyle='dashed', linewidth=2)
-		mean = growth_rate[:,idx].mean()
-		variance = growth_rate[:,idx].var()
-		sd = variance**2.
-		ypos = np.array(axes.get_ylim()).mean()
-		#axes.text(growth_rate[:,idx].mean(), ypos, "Mean:{}\nSD:{}\nSD/Mean:{}"%(mean, sd, sd / mean))
+	# Plot contours for all but first generation
+	H, xedges, yedges = np.histogram2d(initial_masses[:,1:].flatten(), added_masses[:,1:].flatten(), bins=np.round(n_cells/10))
+	# counts,ybins,xbins,image = matplotlib.pyplot.hist2d(initial_masses[:,1:].flatten(), added_masses[:,1:].flatten(), bins=20)
 
-	axesList[-1].set_xlabel("Growth rate (gDCW/gDCW-min))")
-	axesList[ap.n_generation / 2].set_ylabel("Frequency")
+	# axesList[1].contour(counts.transpose(),extent=[xbins.min(),xbins.max(),ybins.min(),ybins.max()])
+	X, Y = np.meshgrid(xedges, yedges)
+	axesList[1].contour(X[:-1,:-1], Y[:-1,:-1], H.transpose())
+
+	axesList[0].set_title("n = {}\nAll generations after first".format(n_cells))
+	axesList[0].set_ylabel("Added mass (pg)")
+
+	axesList[1].set_xlabel("Initial mass (pg)")
+	axesList[1].set_ylabel("Added mass (pg)")
 
 	plt.subplots_adjust(hspace = 0.2, wspace = 0.5)
 

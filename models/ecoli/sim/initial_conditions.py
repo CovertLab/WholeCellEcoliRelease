@@ -196,6 +196,13 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 def setDaughterInitialConditions(sim, sim_data):
 	assert sim._inheritedStatePath != None
 
+	import cPickle
+	elngRate = cPickle.load(open(os.path.join(sim._inheritedStatePath, "ElngRate.cPickle"), "rb"))
+	elng_rate_factor = cPickle.load(open(os.path.join(sim._inheritedStatePath, "elng_rate_factor.cPickle"), "rb"))
+	if sim._growthRateNoise:
+		sim.processes["PolypeptideElongation"].setElngRate = elngRate
+		sim.processes["PolypeptideElongation"].elngRateFactor = elng_rate_factor
+
 	bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkMolecules"))
 	sim.states["BulkMolecules"].tableLoad(bulk_table_reader, 0)
 
