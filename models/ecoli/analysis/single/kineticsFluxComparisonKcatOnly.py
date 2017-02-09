@@ -73,33 +73,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		kcatOnlyCategorization[actualAve[kcatOnlyReactions] / targetAve[kcatOnlyReactions] > threshold] = i + 1
 	kcatOnlyCategorization[actualAve[kcatOnlyReactions] == 0] = -1
 
-	# url for ecocyc to highlight fluxes that are 0 on metabolic network diagram
-	siteStr = "https://ecocyc.org/overviewsWeb/celOv.shtml?zoomlevel=1&orgid=ECOLI"
-	excluded = ['RXN0-2201', 'RXN-16000', 'RXN-12583', 'RXN-11496', 'DIMESULFREDUCT-RXN', '3.6.1.41-R[4/63051]5-NUCLEOTID-RXN'] # reactions not recognized by ecocyc
-	rxns = []
-	for i, reaction in enumerate(constrainedReactions):
-		if actualAve[i] == 0:
-			rxn = re.findall(".+RXN", reaction)
-			if len(rxn) == 0:
-				rxn = re.findall("RXN[^-]*-[0-9]+", reaction)
-			if rxn[0] not in excluded:
-				siteStr += "&rnids=%s" % rxn[0]
-			rxns.append(rxn[0])
-	# print siteStr
-
-	csvFile = open(os.path.join(plotOutDir, plotOutFileName + ".tsv"), "wb")
-	output = csv.writer(csvFile, delimiter = "\t")
-	output.writerow(["ecocyc link:", siteStr])
-	output.writerow(["kM and kcat", "Target", "Actual", "Category"])
-	for reaction, target, flux, category in zip(constrainedReactions[kmAndKcatReactions], targetAve[kmAndKcatReactions], actualAve[kmAndKcatReactions], kmAndKcatCategorization):
-		output.writerow([reaction, target, flux, category])
-
-	output.writerow(["kcat only"])
-	for reaction, target, flux, category in zip(constrainedReactions[kcatOnlyReactions], targetAve[kcatOnlyReactions], actualAve[kcatOnlyReactions], kcatOnlyCategorization):
-		output.writerow([reaction, target, flux, category])
-
-	csvFile.close()
-
 	targetAve += 1e-13
 	actualAve += 1e-13
 
@@ -108,15 +81,13 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	targetPearson = targetAve[kmAndKcatReactions]
 	actualPearson = actualAve[kmAndKcatReactions]
 	# plt.title(pearsonr(np.log10(targetPearson[actualPearson > 0]), np.log10(actualPearson[actualPearson > 0])))
-	plt.loglog(targetAve[kmAndKcatReactions][kmAndKcatCategorization == 0], actualAve[kmAndKcatReactions][kmAndKcatCategorization == 0], "og")
-	plt.loglog(targetAve[kmAndKcatReactions][kmAndKcatCategorization == 1], actualAve[kmAndKcatReactions][kmAndKcatCategorization == 1], "o")
-	plt.loglog(targetAve[kmAndKcatReactions][kmAndKcatCategorization == 2], actualAve[kmAndKcatReactions][kmAndKcatCategorization == 2], "or")
-	plt.loglog(targetAve[kmAndKcatReactions][kmAndKcatCategorization == -1], actualAve[kmAndKcatReactions][kmAndKcatCategorization == -1], "or")
+	plt.loglog(targetAve[kcatOnlyReactions][kcatOnlyCategorization == 0], actualAve[kcatOnlyReactions][kcatOnlyCategorization == 0], "og")
+	plt.loglog(targetAve[kcatOnlyReactions][kcatOnlyCategorization == 1], actualAve[kcatOnlyReactions][kcatOnlyCategorization == 1], "o")
+	plt.loglog(targetAve[kcatOnlyReactions][kcatOnlyCategorization == 2], actualAve[kcatOnlyReactions][kcatOnlyCategorization == 2], "or")
 	# plt.loglog(targetAve[kmAndKcatReactions], actualAve[kmAndKcatReactions], "o")
 	# plt.loglog(targetAve[kcatOnlyReactions], actualAve[kcatOnlyReactions], "ro")
-	plt.loglog([1e-13, 1], [1e-13, 1], '--g')
-	plt.loglog([1e-13, 1], [1e-12, 10], '--r')
-	plt.loglog([1e-13, 1], [1e-14, 0.1], '--r')
+	plt.loglog([1e-12, 1], [1e-12, 1], '--g')
+	plt.loglog([1e-12, 1], [1e-11, 10], '--r')
 	plt.xlabel("Target Flux (dmol/L/s)")
 	plt.ylabel("Actual Flux (dmol/L/s)")
 
