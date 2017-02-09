@@ -33,9 +33,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 	allDir = ap.get_cells()
 
-	validation_data = cPickle.load(open(validationDataFile, "rb"))
-	essentialRnas = validation_data.essentialGenes.essentialRnas
-
 	# Get mRNA data
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	rnaIds = sim_data.process.transcription.rnaData["id"]
@@ -48,12 +45,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	if not USE_CACHE:
 		# Get whether or not mRNAs were transcribed
-		
 		time = []
 		transcribedBool = []
 		simulatedSynthProbs = []
 		transcriptionEvents = []
 		for gen, simDir in enumerate(allDir):
+			print gen
 			simOutDir = os.path.join(simDir, "simOut")
 
 			time += TableReader(os.path.join(simOutDir, "Main")).readColumn("time").tolist()
@@ -99,10 +96,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		colors[neverPresentIndexes] = "r"
 
 		# Assemble data
-		alwaysTranscriptionEvents_E = []
-		alwaysTranscriptionEvents_N = []
-		alwaysId_E = []
-		alwaysId_N = []
 		always=[]
 		for i in alwaysPresentIndexes:
 			v = (time[transcriptionEventsOrdered[:, i]] / 3600.).tolist()
@@ -110,8 +103,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				v = [-1]
 			always.append(v)
 		
-		neverTranscriptionEvents_E = []
-		neverTranscriptionEvents_N = []
 		never=[]
 		for i in neverPresentIndexes:
 			v = (time[transcriptionEventsOrdered[:, i]] / 3600.).tolist()
@@ -119,9 +110,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				v = [-1]
 			never.append(v)
 
-
-		sometimesTranscriptionEvents_E = []
-		sometimesTranscriptionEvents_N = []
 		sometimes=[]
 		for i in sometimesPresentIndexes:
 			v = (time[transcriptionEventsOrdered[:, i]] / 3600.).tolist()
@@ -131,29 +119,17 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		cPickle.dump({
 			"time": time, 
-			"always_E": alwaysTranscriptionEvents_E,
-			"always_N": alwaysTranscriptionEvents_N, 
-			"never_E": neverTranscriptionEvents_E, 
-			"never_N": neverTranscriptionEvents_N,
-			"sometimes_E": sometimesTranscriptionEvents_E,
-			"sometimes_N": sometimesTranscriptionEvents_N,
 			"transcriptionFrequency": transcribedBoolOrdered,
 			"colors": colors,
 			"id": mRnaIdsOrdered,
 			"always": always,
 			"never": never,
 			"sometimes": sometimes,
-			}, open(os.path.join(plotOutDir, "transcriptionEvents.pickle"), "wb"))
+			}, open(os.path.join(plotOutDir, "transcriptionEvents2.pickle"), "wb"))
 
 	if USE_CACHE:
-		D = cPickle.load(open(os.path.join(plotOutDir, "transcriptionEvents.pickle"), "r"))
+		D = cPickle.load(open(os.path.join(plotOutDir, "transcriptionEvents2.pickle"), "r"))
 		time = D["time"]
-		alwaysTranscriptionEvents_E = D["always_E"]
-		alwaysTranscriptionEvents_N = D["always_N"]
-		neverTranscriptionEvents_E = D["never_E"]
-		neverTranscriptionEvents_N = D["never_N"]
-		sometimesTranscriptionEvents_E = D["sometimes_E"]
-		sometimesTranscriptionEvents_N = D["sometimes_N"]
 		transcribedBoolOrdered = D["transcriptionFrequency"]
 		colors = D["colors"]
 		mRnaIdsOrdered = D["id"]
@@ -165,38 +141,42 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	blue = [0, 0, 1]
 	green = [0, 0.5, 0]
 	red = [1, 0, 0]
-	gray = [0, 0, 0]
 
-	fig = plt.figure(figsize = (8, 10))
-	alwaysAxis = plt.subplot2grid((5, 4), (2, 0), colspan = 4, rowspan = 1)
-	sometimesAxis = plt.subplot2grid((5, 4), (3, 0), colspan = 4, rowspan = 1, sharex = alwaysAxis)
-	neverAxis = plt.subplot2grid((5, 4), (4, 0), colspan = 4, rowspan = 1, sharex = alwaysAxis)
-
+	fig = plt.figure(figsize = (12, 8))
+	alwaysAxis = plt.subplot(2, 1, 1)
+	sometimesAxis = plt.subplot(2, 1, 2)
 	
+	# alwaysAxis.set_title("Transcription initiation events", fontsize = 10)
 	alwaysAxis.eventplot(always, orientation = "horizontal", linewidths = 2., linelengths = 1., colors = [blue])
-	alwaysAxis.set_title("Transcription initiation events", fontsize = 10)
-	alwaysAxis.set_yticks([])
-	alwaysAxis.tick_params(top = "off")
-	alwaysAxis.tick_params(which = 'both', direction = 'in', labelsize = 0)
+	alwaysAxis.set_ylabel("Frequency == 1", fontsize = 12)
 	alwaysAxis.set_xlim([0, time[-1] / 3600.])
 	alwaysAxis.set_ylim([-1, np.max([N_GENES_TO_PLOT, len(always)])])
+	alwaysAxis.set_xticks([])
+	alwaysAxis.set_yticks([])
+	alwaysAxis.tick_params(top = "off")
+	alwaysAxis.tick_params(bottom = "off")
 	
-	sometimesAxis.eventplot(sometimes, orientation = "horizontal", linewidths = 2., linelengths = 1., colors = [green])# * len(sometimesTranscriptionEvents_N) + [gray] * len(sometimesTranscriptionEvents_E))
-	sometimesAxis.set_ylabel("Sub-generational", fontsize = 10)
+	sometimesAxis.eventplot(sometimes, orientation = "horizontal", linewidths = 2., linelengths = 1., colors = [green])
+	sometimesAxis.set_ylabel("0 < Frequency < 1", fontsize = 12)
+	sometimesAxis.set_xlim([0, time[-1] / 3600.])
+	sometimesAxis.set_ylim([-1, np.max([N_GENES_TO_PLOT, len(sometimes)])])
 	sometimesAxis.set_yticks([])
 	sometimesAxis.tick_params(top = "off")
-	sometimesAxis.set_ylim([-1, np.max([N_GENES_TO_PLOT, len(sometimes)])])
-	sometimesAxis.tick_params(which = 'both', direction = 'in', labelsize = 0)
+	sometimesAxis.tick_params(which = 'both', direction = 'out', labelsize = 12)
+	sometimesAxis.set_xticks([0, time[-1] / 3600.])
+	sometimesAxis.set_xlabel("Time (hour)", fontsize = 12)
 	
-	neverAxis.eventplot(never, orientation = "horizontal", linewidths = 2., linelengths = 1., colors = [red])
-	neverAxis.set_ylabel("Never present", fontsize = 10)
-	neverAxis.set_xlabel("Time (hour)", fontsize = 10)
-	neverAxis.set_yticks([])
-	neverAxis.tick_params(top = "off")
-	neverAxis.set_ylim([-1, np.max([N_GENES_TO_PLOT, len(never)])])
-	neverAxis.tick_params(which = 'both', direction = 'out', labelsize = 8)
 	
-	plt.subplots_adjust(wspace = 0.4, hspace = 0, right = 0.83, bottom = 0.05, left = 0.07, top = 0.95)
+	# neverAxis.eventplot(never, orientation = "horizontal", linewidths = 2., linelengths = 1., colors = [red])
+	# neverAxis.set_ylabel("Never present", fontsize = 10)
+	# neverAxis.set_xlabel("Time (hour)", fontsize = 10)
+	# neverAxis.set_yticks([])
+	# neverAxis.tick_params(top = "off")
+	# neverAxis.set_ylim([-1, np.max([N_GENES_TO_PLOT, len(never)])])
+	# neverAxis.tick_params(which = 'both', direction = 'out', labelsize = 12)
+	
+	plt.subplots_adjust(wspace = 0.4, hspace = 0, right = 0.9, bottom = 0.1, left = 0.1, top = 0.9)
+	
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
