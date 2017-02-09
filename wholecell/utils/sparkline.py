@@ -19,9 +19,8 @@ def whitePadSparklineAxis(axis, xAxis = True):
 
 	if not xAxis:
 		axis.spines["bottom"].set_visible(False)
-		axis.set_xticks([])
 		axis.tick_params(bottom = "off")
-
+		axis.tick_params(axis = "x", labelbottom='off')
 
 def simpleSparklineAxis(axis):
 	axis.spines['top'].set_visible(False)
