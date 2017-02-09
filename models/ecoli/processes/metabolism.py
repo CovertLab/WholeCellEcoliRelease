@@ -167,7 +167,7 @@ class Metabolism(wholecell.processes.process.Process):
 			"objectiveType" : "homeostatic_kinetics_mixed",
 			"objectiveParameters" : {
 					"kineticObjectiveWeight":1e-7,#self.metabolismKineticObjectiveWeight,
-					"reactionRateTargets":{reaction: 1e-5 for reaction in self.kineticsConstrainedReactions}, #This target is arbitrary, it gets reset each timestep during evolveState
+					"reactionRateTargets":{reaction: 1 for reaction in self.kineticsConstrainedReactions}, #This target is arbitrary, it gets reset each timestep during evolveState
 					"oneSidedReactionTargets":[], # TODO: deal with this dynamically (each time step)
 					},
 			"moleculeMasses" : self.moleculeMasses,
@@ -216,6 +216,8 @@ class Metabolism(wholecell.processes.process.Process):
 		# Set the priority to a low value
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_METABOLISM)
 
+		self.AAs = [x[:-3] for x in sorted(sim_data.amino_acid_1_to_3_ordered.values())]
+
 	def calculateRequest(self):
 		self.metabolites.requestAll()
 		self.catalysts.requestAll()
@@ -251,14 +253,17 @@ class Metabolism(wholecell.processes.process.Process):
 			self.concModificationsBasedOnCondition,
 			)
 
+		updatedObjective = False
 		if newObjective != None and newObjective != self.objective:
 			# Build new fba instance with new objective
 			self.fbaObjectOptions["objective"] = newObjective
 			self.fba = FluxBalanceAnalysis(**self.fbaObjectOptions)
 			self.internalExchangeIdxs = np.array([self.metaboliteNamesFromNutrients.index(x) for x in self.fba.outputMoleculeIDs()])
+			self.objective = newObjective
+			updatedObjective = True
 
 		# After completing the burn-in, enable kinetic rates
-		if (USE_KINETICS) and (not self.burnInComplete) and (self._sim.time() > KINETICS_BURN_IN_PERIOD):
+		if (USE_KINETICS) and (not self.burnInComplete) and (self._sim.time() - self._sim.initialTime() > KINETICS_BURN_IN_PERIOD):
 			self.burnInComplete = True
 			self.fba.enableKineticTargets()
 
@@ -266,8 +271,23 @@ class Metabolism(wholecell.processes.process.Process):
 				for rxn in self.constraintsToDisable:
 					self.fba.disableKineticTargets(rxn)
 
+		if updatedObjective:
+			self.fba.disableKineticTargets()
+			self.burnInComplete = False
+
+
+		#  Find metabolite concentrations from metabolite counts
+		metaboliteConcentrations =  countsToMolar * metaboliteCountsInit[self.internalExchangeIdxs]
+
+		# Make a dictionary of metabolite names to metabolite concentrations
+		metaboliteConcentrationsDict = dict(zip(self.metaboliteNames, metaboliteConcentrations))
+
+		self.fba.internalMoleculeLevelsIs(
+			metaboliteConcentrations.asNumber(COUNTS_UNITS / VOLUME_UNITS)
+			)
+
 		# Set external molecule levels
-		self.fba.externalMoleculeLevelsIs(externalMoleculeLevels)
+		self._setExternalMoleculeLevels(externalMoleculeLevels, metaboliteConcentrations)
 
 		self.newNgam = self.ngam * coefficient
 
@@ -284,16 +304,6 @@ class Metabolism(wholecell.processes.process.Process):
 			self.currentPolypeptideElongationEnergy = self.newPolypeptideElongationEnergy
 			self.fba.maxReactionFluxIs(self.fba._reactionID_polypeptideElongationEnergy, self.currentPolypeptideElongationEnergy.asNumber(COUNTS_UNITS / VOLUME_UNITS))
 			self.fba.minReactionFluxIs(self.fba._reactionID_polypeptideElongationEnergy, self.currentPolypeptideElongationEnergy.asNumber(COUNTS_UNITS / VOLUME_UNITS))
-
-		#  Find metabolite concentrations from metabolite counts
-		metaboliteConcentrations =  countsToMolar * metaboliteCountsInit[self.internalExchangeIdxs]
-
-		# Make a dictionary of metabolite names to metabolite concentrations
-		metaboliteConcentrationsDict = dict(zip(self.metaboliteNames, metaboliteConcentrations))
-
-		self.fba.internalMoleculeLevelsIs(
-			metaboliteConcentrations.asNumber(COUNTS_UNITS / VOLUME_UNITS)
-			)
 
 		catalystsCountsInit = self.catalysts.counts()
 
@@ -429,3 +439,22 @@ class Metabolism(wholecell.processes.process.Process):
 
 			self.writeToListener("EnzymeKinetics", "reactionConstraint",
 				reactionConstraint)
+
+	def _setExternalMoleculeLevels(self, externalMoleculeLevels, metaboliteConcentrations):
+		# limit amino acid uptake to what is needed to meet concentration objective to prevent use as carbon source
+		for aa in self.AAs:
+			if aa + "[p]" in self.fba.externalMoleculeIDs():
+				idx = self.externalMoleculeIDs.index(aa + "[p]")
+			elif aa + "[c]" in self.fba.externalMoleculeIDs():
+				idx = self.externalMoleculeIDs.index(aa + "[c]")
+			else:
+				continue
+
+			concDiff = self.objective[aa + "[c]"] - metaboliteConcentrations[self.metaboliteNames.index(aa + "[c]")].asNumber(COUNTS_UNITS / VOLUME_UNITS)
+			if concDiff < 0:
+				concDiff = 0
+
+			if externalMoleculeLevels[idx] > concDiff:
+				externalMoleculeLevels[idx] =  concDiff
+
+		self.fba.externalMoleculeLevelsIs(externalMoleculeLevels)
