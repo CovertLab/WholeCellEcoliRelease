@@ -16,7 +16,7 @@ import cPickle
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.utils import units
-FROM_CACHE = True
+FROM_CACHE = False
 
 from wholecell.utils.sparkline import whitePadSparklineAxis
 
