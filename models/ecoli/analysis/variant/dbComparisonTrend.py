@@ -33,6 +33,7 @@ FONT_SIZE=9
 
 def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = None):
 	print "here 1"
+	return
 	if not os.path.isdir(inputDir):
 		raise Exception, "inputDir does not currently exist as a directory"
 
