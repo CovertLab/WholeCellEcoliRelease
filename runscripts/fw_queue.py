@@ -22,6 +22,7 @@ import os
 import datetime
 import subprocess
 import collections
+import cPickle
 
 def run_cmd(cmd):
 	environ = {
@@ -170,6 +171,10 @@ for key, value in metadata.iteritems():
 	if type(value) != str:
 		continue
 	write_file(os.path.join(METADATA_DIRECTORY, key), value)
+
+h = open(os.path.join(METADATA_DIRECTORY, "metadata.cPickle"), "w")
+cPickle.dump(metadata, h, cPickle.HIGHEST_PROTOCOL)
+h.close()
 
 #### Create workflow
 
