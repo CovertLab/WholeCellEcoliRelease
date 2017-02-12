@@ -445,7 +445,7 @@ for i in VARIANTS_TO_RUN:
 			metadata = metadata,
 			),
 		name = fw_name,
-		spec = {"_queueadapter": {"job_name": fw_name, , "cpus_per_task": 16}, "_priority":4}
+		spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": 16}, "_priority":4}
 		)
 	wf_fws.append(fw_this_variant_cohort_analysis)
 
