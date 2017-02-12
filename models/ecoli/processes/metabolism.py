@@ -263,7 +263,7 @@ class Metabolism(wholecell.processes.process.Process):
 			updatedObjective = True
 
 		# After completing the burn-in, enable kinetic rates
-		if (USE_KINETICS) and (not self.burnInComplete) and (self._sim.time() - self._sim.initialTime() > KINETICS_BURN_IN_PERIOD):
+		if (USE_KINETICS) and (not self.burnInComplete) and (self._sim.time() > KINETICS_BURN_IN_PERIOD):
 			self.burnInComplete = True
 			self.fba.enableKineticTargets()
 
