@@ -114,9 +114,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			"dryMass": dryMass,
 			"cellMass": cellMass,
 			"timeStepSec": timeStepSec,
-			}, open(os.path.join(plotOutDir, "figure5b.pickle"), "wb"))
+			}, open(os.path.join(plotOutDir, "figure5D.pickle"), "wb"))
 	else:
-		D = cPickle.load(open(os.path.join(plotOutDir, "figure5b.pickle"), "r"))
+		D = cPickle.load(open(os.path.join(plotOutDir, "figure5D.pickle"), "r"))
 		time = D["time"]
 		enzymeRnaInitEvent = D["enzymeRnaInitEvent"]
 		enzymeRnaCounts = D["enzymeRnaCounts"]
