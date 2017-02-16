@@ -16,15 +16,18 @@ from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 from wholecell.utils import units
 
+from wholecell.utils.sparkline import whitePadSparklineAxis
+
+
 PLACE_HOLDER = -1
 
 FONT_SIZE=8
 
-def sparklineAxis(axis):
-	axis.spines['top'].set_visible(False)
-	axis.spines['bottom'].set_visible(False)
-	axis.xaxis.set_ticks_position('none')
-	axis.tick_params(which = 'both', direction = 'out')
+# def sparklineAxis(axis):
+# 	axis.spines['top'].set_visible(False)
+# 	axis.spines['bottom'].set_visible(False)
+# 	axis.xaxis.set_ticks_position('none')
+# 	axis.tick_params(which = 'both', direction = 'out')
 
 def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile = None, metadata = None):
 
@@ -50,12 +53,6 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax2 = plt.subplot2grid((5,7), (2,0), colspan = 4, sharex=ax0)
 	ax3 = plt.subplot2grid((5,7), (3,0), colspan = 4, sharex=ax0)
 	ax4 = plt.subplot2grid((5,7), (4,0), colspan = 4, sharex=ax0)
-
-	sparklineAxis(ax0)
-	sparklineAxis(ax1)
-	sparklineAxis(ax2)
-	sparklineAxis(ax3)
-	sparklineAxis(ax4)
 
 	# Get all cells in each seed
 	ap = AnalysisPaths(variantDir, cohort_plot = True)
@@ -178,8 +175,17 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# ax3.axvline(x=44*2+22., linewidth=3, color='gray', alpha = 0.5)
 
 	ax4.set_ylabel("Relative rate\nof dNTP\npolymerization", fontsize=FONT_SIZE)
-	ax4.xaxis.set_visible(False)
+	ax4.set_xlabel("Time (min)", fontsize=FONT_SIZE)
 	# ax4.axvline(x=44*2+22., linewidth=3, color='gray', alpha = 0.5)
+
+	whitePadSparklineAxis(ax0, False)
+	whitePadSparklineAxis(ax1, False)
+	whitePadSparklineAxis(ax2, False)
+	whitePadSparklineAxis(ax3, False)
+	whitePadSparklineAxis(ax4)
+
+	plt.subplots_adjust(bottom=0.15)
+
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
