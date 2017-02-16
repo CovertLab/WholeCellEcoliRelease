@@ -15,7 +15,10 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
+from wholecell.utils.sparkline import whitePadSparklineAxis
+
 def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile = None, metadata = None):
+
 	if not os.path.isdir(variantDir):
 		raise Exception, "variantDir does not currently exist as a directory"
 
@@ -29,61 +32,133 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		print "Need more data to create addedMass"
 		return
 
-	max_cells_in_gen = 0
-	for genIdx in range(ap.n_generation):
-		n_cells = len(ap.get_cells(generation = [genIdx]))
-		if n_cells > max_cells_in_gen:
-			max_cells_in_gen = n_cells
 
-	if max_cells_in_gen == 1:
-		return
-	# fig, axesList = plt.subplots(ap.n_generation + 1, sharey = True, sharex = True, subplot_kw=dict((("aspect",0.4),("adjustable",'box-forced'))))
+
+	fig, axesList = plt.subplots(1,3)
+	ax0 = axesList[0]
+	ax1 = axesList[1]
+	ax2 = axesList[2]
+
+	fig.set_figwidth(20)
+	fig.set_figheight(5)
+
+	initial_masses = np.zeros(0)
+	final_masses = np.zeros(0)
+
+	all_cells = ap.get_cells()
+
+	for simDir in all_cells:
+		simOutDir = os.path.join(simDir, "simOut")
+		mass = TableReader(os.path.join(simOutDir, "Mass"))
+		cellMass = mass.readColumn("dryMass")
+
+		initial_masses = np.hstack((initial_masses, cellMass[0]))
+		final_masses = np.hstack((final_masses, cellMass[-1]))
+
 	
+	added_masses = final_masses - initial_masses
 
-	fig, axesList = plt.subplots(2,1, sharex = True, sharey = True)
-	fig.set_figwidth(5)
-	fig.set_figheight(10)
+	scaled_initial_masses = initial_masses / initial_masses.mean()
+	scaled_added_masses = added_masses / added_masses.mean()
 
-	initial_masses = np.zeros((max_cells_in_gen, ap.n_generation))
-	final_masses = np.zeros((max_cells_in_gen, ap.n_generation))
 
-	n_cells = 0
-	for genIdx in range(ap.n_generation):
-		gen_cells = ap.get_cells(generation = [genIdx])
-		if genIdx > 0:
-			n_cells += len(gen_cells)
-		for simDir in gen_cells:
-			try:
-				simOutDir = os.path.join(simDir, "simOut")
-				mass = TableReader(os.path.join(simOutDir, "Mass"))
-				cellMass = mass.readColumn("cellMass")
+	# # Sucjoon data
+	# sj_mean = [(0.599573863268619, 1.0424971716015852),
+	# 			(0.7025146209428339, 1.013345898239791),
+	# 			(0.7957469172398974, 1.0228576014663655),
+	# 			(0.898666963529841, 1.0065888091212933),
+	# 			(1.0015818319737173, 0.9935406370304014),
+	# 			(1.0980399263710288, 0.9966059219025472),
+	# 			(1.2009340834306335, 0.9964402308283771),
+	# 			(1.2909664708577877, 0.9962952511384784),
+	# 			(1.397076070325505, 0.9961243822182404),
+	# 			(1.499913271078364, 1.0313855139400554),
+	# 			(1.5931611009136308, 1.0312353564040888)]
 
-				initial_masses[np.where(simDir == gen_cells)[0], genIdx] = cellMass[0] / 1000.
-				final_masses[np.where(simDir == gen_cells)[0], genIdx] = cellMass[-1] / 1000.
-				added_masses = final_masses - initial_masses
-			except IndexError:
-				pass
+	# sj_mean_x = [x[0] for x in sj_mean]
+	# sj_mean_y = [y[1] for y in sj_mean]
 
-	# Plot initial vs final masses
+	# sj_error_top = [(0.599320148811296, 1.2003075640564278),
+	# 				(0.7023489298686638, 1.1164057463735655),
+	# 				(0.7988277356502467, 1.1065885502289898),
+	# 				(0.9017684933244621, 1.0774372768671956),
+	# 				(1.0046730060762024, 1.0708303452846646),
+	# 				(1.0979260137575368, 1.0674595674945173),
+	# 				(1.1975995505629613, 1.0705196745205958),
+	# 				(1.290821491167889, 1.0864726182555315),
+	# 				(1.3969000235591993, 1.1056254708603763),
+	# 				(1.499747580004194, 1.1344453620738304),
+	# 				(1.5929695206091217, 1.1503983058087661)]
 
-	# Plot for all but first generation
-	axesList[0].plot(initial_masses[:,1:], added_masses[:,1:], 'x')
+	# sj_error_bottom = [(0.5998327555720095, 0.8814661588925619),
+	# 					(0.7059009322711844, 0.9070602520057676),
+	# 					(0.7991125171839766, 0.9294544362490642),
+	# 					(0.8987912318354687, 0.929293923020962),
+	# 					(1.0016853888950736, 0.929128231946792),
+	# 					(1.0981641946766563, 0.9193110358022161),
+	# 					(1.2010738852744645, 0.9094834839655048),
+	# 					(1.2943372486479348, 0.8996714656669966),
+	# 					(1.397246939245743, 0.8898439138302852),
+	# 					(1.5000737843064662, 0.9315462860604613),
+	# 					(1.5933578590642077, 0.9088517867452315)]
+
+	# sj_error =[sj_error_top[idx][1] - sj_error_bottom[idx][1] for idx in range(len(sj_mean))]
+
+
+
+	ax0.plot(scaled_initial_masses, scaled_added_masses, '.', color = "grey", alpha = 0.5, zorder=1)
+	nbins = 10
+	n, _ = np.histogram(scaled_initial_masses, bins=nbins)
+	sy, _ = np.histogram(scaled_initial_masses, bins=nbins, weights=scaled_added_masses)
+	sy2, _ = np.histogram(scaled_initial_masses, bins=nbins, weights=scaled_added_masses*scaled_added_masses)
+	mean = sy / n
+	std = np.sqrt(sy2/(n-1) - n*mean*mean/(n-1))
+	ax0.errorbar((_[1:] + _[:-1])/2, mean, yerr=std, color = "black", linewidth=2, zorder=2)
+
+	# ax0.errorbar(sj_mean_x, sj_mean_y, sj_error)
+
+	ax0.axhline(1., linewidth = 1, linestyle = 'dotted', color = "black")
+	ax0.text(np.max(ax0.get_xlim()) - 0.001, 1., "adder")
+	ax0.set_ylim([0., 2.])
+	ax0.set_xlim([0.7, 1.22])
 
 	# Plot contours for all but first generation
-	H, xedges, yedges = np.histogram2d(initial_masses[:,1:].flatten(), added_masses[:,1:].flatten(), bins=np.round(n_cells/10))
-	# counts,ybins,xbins,image = matplotlib.pyplot.hist2d(initial_masses[:,1:].flatten(), added_masses[:,1:].flatten(), bins=20)
+	# H, xedges, yedges = np.histogram2d(initial_masses, added_masses, bins=np.round(n_cells/10))
 
-	# axesList[1].contour(counts.transpose(),extent=[xbins.min(),xbins.max(),ybins.min(),ybins.max()])
+	H, xedges, yedges = np.histogram2d(initial_masses, added_masses, bins=5)
+
 	X, Y = np.meshgrid(xedges, yedges)
-	axesList[1].contour(X[:-1,:-1], Y[:-1,:-1], H.transpose())
+	ax1.contour(X[:-1,:-1], Y[:-1,:-1], H.transpose(), cmap="Greys")
 
-	axesList[0].set_title("n = {}\nAll generations after first".format(n_cells))
-	axesList[0].set_ylabel("Added mass (pg)")
 
-	axesList[1].set_xlabel("Initial mass (pg)")
-	axesList[1].set_ylabel("Added mass (pg)")
+	ax2.plot(initial_masses, final_masses, '.', color = "black")
 
-	plt.subplots_adjust(hspace = 0.2, wspace = 0.5)
+	z = np.polyfit(initial_masses, final_masses, 1)
+	p = np.poly1d(z)
+	ax2.plot(initial_masses, p(initial_masses), '--', color = "grey")
+	text_x = np.min(ax2.get_xlim())
+	text_y = np.max(ax2.get_ylim())
+	ax2.text(text_x, text_y, r"$m_f$=%.3f$\times$$m_i$ + %.3f"%(z[0],z[1]))
+
+	ax0.get_yaxis().get_major_formatter().set_useOffset(False)
+	ax0.get_xaxis().get_major_formatter().set_useOffset(False)
+	ax1.get_yaxis().get_major_formatter().set_useOffset(False)
+
+	# ax0.set_title("n = {}".format(n_cells))
+	ax0.set_ylabel("Scaled added mass " + r"$(\frac{m_{added}}{\langle m_{added} \rangle})$")
+	ax0.set_xlabel("Scaled initial mass " + r"$(\frac{m_{initial}}{\langle m_{initial} \rangle})$")
+
+	ax1.set_xlabel("Initial mass (pg)")
+	ax1.set_ylabel("Added mass (pg)")
+
+	ax2.set_xlabel("Initial mass (pg)")
+	ax2.set_ylabel("Final mass (pg)")
+
+	plt.subplots_adjust(left = 0.2, bottom = 0.2, wspace= 0.6)
+
+	whitePadSparklineAxis(ax0)
+	whitePadSparklineAxis(ax1)
+	whitePadSparklineAxis(ax2)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
