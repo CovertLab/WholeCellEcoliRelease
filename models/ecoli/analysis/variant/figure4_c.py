@@ -254,14 +254,14 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	# 	a.set_xlabel("Target value", fontsize = FONT_SIZE)
 	# 	a.set_ylabel("Simulated value", fontsize = FONT_SIZE)
 
-	fig, ax = plt.subplots(2,3, sharex=True, figsize = (15, 10))
+	fig, ax = plt.subplots(3,2, sharex=True, figsize = (10, 12))
 
 	ax0 = ax[0,0]
 	ax1 = ax[0,1]
-	ax2 = ax[0,2]
-	ax3 = ax[1,0]
-	ax4 = ax[1,1]
-	ax5 = ax[1,2]
+	ax2 = ax[1,0]
+	ax3 = ax[1,1]
+	ax4 = ax[2,0]
+	ax5 = ax[2,1]
 
 	ax0.plot(doublingPerHour, rnaToProtein, color = 'k', linewidth = 2)
 	ax0.errorbar(doublingPerHour, rnaToProtein, yerr=rnaToProtein_error, color = "k", linewidth = 2)
@@ -310,11 +310,10 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	whitePadSparklineAxis(ax0, False)
 	whitePadSparklineAxis(ax1, False)
 	whitePadSparklineAxis(ax2, False)
-	whitePadSparklineAxis(ax3)
+	whitePadSparklineAxis(ax3, False)
 	whitePadSparklineAxis(ax4)
 	whitePadSparklineAxis(ax5)
 
-	ax3.set_xlabel("Doublings per Hour")
 	ax4.set_xlabel("Doublings per Hour")
 	ax5.set_xlabel("Doublings per Hour")
 
