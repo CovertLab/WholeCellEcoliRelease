@@ -60,9 +60,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# ax4 = plt.subplot2grid((4,2), (2,1))
 	# ax5 = plt.subplot2grid((4,2), (3,1))
 	# axesList = [ax2, ax3, ax4, ax5]
-	colors = ["blue", "green", "red", "cyan"]
+	# colors = ["blue", "green", "red", "cyan"]
+	colors = ["#43aa98", "#0071bb", "#bf673c"]
 
 	fig, axis = plt.subplots(1,1)
+	fig.set_figwidth(10)
+	fig.set_figheight(10)
 
 	width = 200
 
@@ -109,10 +112,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# 	seriesScrubber(rnaGrowthRate,1.25)
 		# seriesScrubber(dnaGrowthRate,3.25)
 
-		
-	axis.plot(timeMultigen[:-width] / 60., cellMassGrowthRateMultigen[:-width] * 60., color = colors[0], alpha=0.9, label="Cell mass")
-	axis.plot(timeMultigen[:-width] / 60., proteinGrowthRateMultigen[:-width] * 60., color = colors[1], alpha=0.9, label="Protein fraction")
-	axis.plot(timeMultigen[:-width] / 60., rnaGrowthRateMultigen[:-width] * 60., color = colors[2], alpha=0.9, label="RNA fraction")
+	linewidth = 2
+	axis.plot(timeMultigen[:-width] / 60., cellMassGrowthRateMultigen[:-width] * 60., color = colors[0], alpha=0.9, label="Cell mass", linewidth=linewidth)
+	axis.plot(timeMultigen[:-width] / 60., proteinGrowthRateMultigen[:-width] * 60., color = colors[1], alpha=0.9, label="Protein fraction", linewidth=linewidth)
+	axis.plot(timeMultigen[:-width] / 60., rnaGrowthRateMultigen[:-width] * 60., color = colors[2], alpha=0.9, label="RNA fraction", linewidth=linewidth)
 	axis.legend(loc=4,frameon=False)
 	# axis.set_ylim([0.00020, 0.00035])
 
