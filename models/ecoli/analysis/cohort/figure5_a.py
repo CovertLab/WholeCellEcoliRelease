@@ -19,7 +19,7 @@ from matplotlib.ticker import FormatStrFormatter
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
-FROM_CACHE = True
+FROM_CACHE = False
 
 # def sparklineAxis(axis):
 # 	axis.spines['top'].set_visible(False)

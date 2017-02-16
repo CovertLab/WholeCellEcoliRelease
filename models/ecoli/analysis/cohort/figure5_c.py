@@ -24,7 +24,7 @@ CLOSE_TO_DOUBLE = 0.1
 FONT_SIZE = 9
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-	return
+	
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
 
@@ -50,8 +50,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	rnap_subunit_stoich = data_rnap["subunitStoich"]
 
 	# Get all cells
-	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-	allDir = ap.get_cells()
+	ap = AnalysisPaths(seedOutDir, cohort_plot = True)
+	allDir = ap.get_cells(seed = [0])
 
 	first_build = True
 
@@ -189,16 +189,17 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	scatterAxis = plt.subplot2grid((4,5), (1, 0), colspan=3, rowspan=3)#, sharex = xhistAxis, sharey = yhistAxis)
 	# scatterAxis.axhline(1.0, linewidth=0.5, color='black', linestyle="--", xmin = 0.5, xmax = 1.)
 	# scatterAxis.axhline(2.0, linewidth=0.5, color='black', linestyle="--", xmin = 0.5, xmax = 1.)
-	xhistAxis = plt.subplot2grid((4,5), (0,0), colspan=3, sharex = scatterAxis)
+	# xhistAxis = plt.subplot2grid((4,5), (0,0), colspan=3, sharex = scatterAxis)
 	yhistAxis = plt.subplot2grid((4,5), (1,3), rowspan=3)#, sharey = scatterAxis)
-	yhistAxis.axhline(1.0, linewidth=1.0, color='black', linestyle="--")
-	yhistAxis.axhline(2.0, linewidth=1.0, color='black', linestyle="--")
+	yhistAxis.axhline(1.0, linewidth=1.0, color='black', linestyle = 'dotted')
+	yhistAxis.axhline(2.0, linewidth=1.0, color='black', linestyle = 'dotted')
 	#yhistAxis_2 = plt.subplot2grid((4,5), (1,4), rowspan=3, sharey = scatterAxis)
 	#yhistAxis_2.axhline(1.0, linewidth=0.5, color='black', linestyle="--")
 	#yhistAxis_2.axhline(2.0, linewidth=0.5, color='black', linestyle="--")
 
-	xhistAxis.xaxis.set_visible(False)
-	yhistAxis.yaxis.set_visible(False)
+	# xhistAxis.xaxis.set_visible(False)
+	#yhistAxis.yaxis.set_visible(False)
+
 
 	smallBurst = averageInitiationEventsPerMonomer <= 1.
 	# scatterAxis.set_xlim([1e-1, 1e3])
@@ -209,12 +210,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	## scatterAxis.semilogx(averageInitiationEventsPerMonomer[smallBurst], averageFoldChangePerMonomer[smallBurst], marker = '.', color = "green", alpha = 0.9, lw = 0.)#, s = 5)
 	## scatterAxis.semilogx(averageInitiationEventsPerMonomer[~smallBurst], averageFoldChangePerMonomer[~smallBurst], marker = '.', color = "blue", alpha = 0.9, lw = 0.)#, s = 5)
 	
-	scatterAxis.loglog(averageInitiationEventsPerMonomer[smallBurst], averageFoldChangePerMonomer[smallBurst], marker = '.', color = "green", alpha = 0.9, lw = 0.)#, s = 5)
-	scatterAxis.loglog(averageInitiationEventsPerMonomer[~smallBurst], averageFoldChangePerMonomer[~smallBurst], marker = '.', color = "blue", alpha = 0.9, lw = 0.)#, s = 5)
+	scatterAxis.loglog(averageInitiationEventsPerMonomer[smallBurst], averageFoldChangePerMonomer[smallBurst], marker = '.', color = "green", alpha = 0.5, lw = 0.)#, s = 5)
+	scatterAxis.loglog(averageInitiationEventsPerMonomer[~smallBurst], averageFoldChangePerMonomer[~smallBurst], marker = '.', color = "blue", alpha = 0.5, lw = 0.)#, s = 5)
 	
 
-	scatterAxis.set_ylabel("Fold change per monomer per\ntranscription event over {} generations".format(ap.n_generation), fontsize = FONT_SIZE)
-	scatterAxis.set_xlabel("Average number of transcription events\nper monomer over {} generations".format(ap.n_generation), fontsize = FONT_SIZE)
+	scatterAxis.set_ylabel("Fold change per protein per\ntranscription event ({} generations)".format(ap.n_generation), fontsize = FONT_SIZE)
+	scatterAxis.set_xlabel("Average number of transcription events\nper protein per generation ({} generations)".format(ap.n_generation), fontsize = FONT_SIZE)
 
 	# lims = yhistAxis.get_ylim()
 	# step = (lims[1] - lims[0]) / 125
@@ -234,22 +235,38 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# yhistAxis.hist(averageFoldChangePerMonomer[~smallBurst], histtype = 'step', bins = 25, orientation='horizontal', log = True)
 	# yhistAxis.hist(averageFoldChangePerMonomer[smallBurst], histtype = 'step', bins = 100, orientation='horizontal', log = True, color="green")
 
-	yhistAxis.hist(averageFoldChangePerMonomer[~smallBurst], histtype = 'step', bins = np.logspace(np.log10(0.1), np.log10(100.), 25), range = [0.7, 100], log = True,  orientation='horizontal')
-	yhistAxis.hist(averageFoldChangePerMonomer[smallBurst], histtype = 'step', bins = np.logspace(np.log10(0.1), np.log10(100.), 125), range = [0.7, 100], log = True,  orientation='horizontal', color="green")
+	yhistAxis.hist(averageFoldChangePerMonomer[~smallBurst], histtype = 'step', bins = np.logspace(np.log10(0.01), np.log10(1000.), 25), range = [0.7, 100], log = True,  orientation='horizontal', linewidth=1)
+	yhistAxis.hist(averageFoldChangePerMonomer[smallBurst], histtype = 'step', bins = np.logspace(np.log10(0.01), np.log10(1000.), 125), range = [0.7, 100], log = True,  orientation='horizontal', color="green", linewidth=1)
 	# yhistAxis.set_ylim([0.7, 100])
 	yhistAxis.set_yscale("log")
 
 
-	xhistAxis.hist(averageInitiationEventsPerMonomer[smallBurst], histtype = 'step', color = "green", bins = np.logspace(np.log10(0.01), np.log10(1000.), 125), log = True, range = [-10., 1000.])
-	xhistAxis.hist(averageInitiationEventsPerMonomer[~smallBurst], histtype = 'step', bins = np.logspace(np.log10(0.01), np.log10(1000.), 125), log = True, range = [-10., 1000.])
-	xhistAxis.set_xscale("log")
+	# xhistAxis.hist(averageInitiationEventsPerMonomer[smallBurst], histtype = 'step', color = "green", bins = np.logspace(np.log10(0.01), np.log10(1000.), 125), log = True, range = [-10., 1000.])
+	# xhistAxis.hist(averageInitiationEventsPerMonomer[~smallBurst], histtype = 'step', bins = np.logspace(np.log10(0.01), np.log10(1000.), 125), log = True, range = [-10., 1000.])
+	# xhistAxis.set_xscale("log")
 
 	for label in yhistAxis.xaxis.get_ticklabels()[::2]:
 		label.set_visible(False)
 
+
+
 	whitePadSparklineAxis(scatterAxis)
 	whitePadSparklineAxis(yhistAxis)
-	whitePadSparklineAxis(xhistAxis)
+	# whitePadSparklineAxis(xhistAxis)
+
+
+	yhistAxis.set_yticks([1., 2.])
+	yhistAxis.set_yticklabels([1.,2.])
+
+	for tick in scatterAxis.xaxis.get_major_ticks():
+		tick.label.set_fontsize(FONT_SIZE) 
+	for tick in scatterAxis.yaxis.get_major_ticks():
+		tick.label.set_fontsize(FONT_SIZE) 
+
+	for tick in yhistAxis.xaxis.get_major_ticks():
+		tick.label.set_fontsize(FONT_SIZE) 
+	for tick in yhistAxis.yaxis.get_major_ticks():
+		tick.label.set_fontsize(FONT_SIZE) 
 
 	scatterAxis.tick_params(
 		axis='both',          # which axis
@@ -269,14 +286,14 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		bottom = 'on',
 		)
 
-	xhistAxis.tick_params(
-		axis='both',          # which axis
-		which='both',      # both major and minor ticks are affected
-		right='off',      # ticks along the bottom edge are off
-		left='on',         # ticks along the top edge are off
-		top = 'off',
-		bottom = 'on',
-		)
+	# xhistAxis.tick_params(
+	# 	axis='both',          # which axis
+	# 	which='both',      # both major and minor ticks are affected
+	# 	right='off',      # ticks along the bottom edge are off
+	# 	left='on',         # ticks along the top edge are off
+	# 	top = 'off',
+	# 	bottom = 'on',
+	# 	)
 
 	plt.subplots_adjust(wspace=0.3, hspace=0.3, bottom = 0.2)
 
