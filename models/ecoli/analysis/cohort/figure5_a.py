@@ -27,6 +27,9 @@ FROM_CACHE = False
 # 	axis.xaxis.set_ticks_position('none')
 # 	axis.tick_params(which = 'both', direction = 'out')
 
+def mm2inch(value):
+	return value * 0.0393701
+
 def align_yaxis(ax1, v1, ax2, v2):
     """adjust ax2 ylimit so that v2 in ax2 is aligned to v1 in ax1"""
     _, y1 = ax1.transData.transform((0, v1))
@@ -236,7 +239,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	burstProteinFold_axis.set_ylabel("Fold change")
 
 	# fig.set_figwidth(protein_index_of_interest.size * 3)
-	fig.set_figwidth(15)
+	mult = 10
+	fig.set_figwidth(mm2inch(80) * mult)
+	fig.set_figheight(mm2inch(50) * mult)
+
 	firstLine = True
 	firstLineInit = None
 	firstLineInitRna = None
