@@ -19,7 +19,7 @@ from matplotlib.ticker import FormatStrFormatter
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
-FROM_CACHE = False
+FROM_CACHE = True
 
 # def sparklineAxis(axis):
 # 	axis.spines['top'].set_visible(False)
@@ -37,7 +37,7 @@ def align_yaxis(ax1, v1, ax2, v2):
     ax2.set_ylim(miny+dy, maxy+dy)
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-	return
+	
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
 
@@ -65,9 +65,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	rnap_subunit_stoich = data_rnap["subunitStoich"]
 
 	# Get all cells
-	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
+	ap = AnalysisPaths(seedOutDir, cohort_plot = True)
 	gens = np.arange(3,9)
-	allDir = ap.get_cells(generation = gens)
+	allDir = ap.get_cells(seed=[0], generation = gens)
 
 	first_build = True
 
@@ -293,9 +293,11 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			firstLineInitRna_burst = float(rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx_burst][0])			
 			firstLine = False
 
-		expProtein_axis.plot(time / 60., proteinMonomerCounts[:, protein_idx], color = "blue")
+
+		linewidth=2
+		expProtein_axis.plot(time / 60., proteinMonomerCounts[:, protein_idx], color = "blue", linewidth=linewidth)
 		expProteinFold_axis.plot(time / 60., proteinMonomerCounts[:, protein_idx] / firstLineInit, alpha = 0.,color = "red")
-		burstProtein_axis.plot(time / 60., proteinMonomerCounts[:, protein_idx_burst], color = "green")
+		burstProtein_axis.plot(time / 60., proteinMonomerCounts[:, protein_idx_burst], color = "green", linewidth=linewidth)
 		burstProteinFold_axis.plot(time / 60., proteinMonomerCounts[:, protein_idx_burst] / firstLineInit_burst, alpha = 0., color="red")
 
 		# axesList[0].set_aspect('equal', 'box')
@@ -304,22 +306,25 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		#axesList[0].set_xlabel("Time (min)")
 
-		expRna_axis.plot(time / 60., rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx], color = "blue")
-		burstRna_axis.plot(time / 60., rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx_burst], color = "green")
+		expRna_axis.plot(time / 60., rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx], color = "blue", linewidth=linewidth)
+		burstRna_axis.plot(time / 60., rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx_burst], color = "green", linewidth=linewidth)
 		# axesList[1].set_aspect('equal', 'box')
 
-		burstProtein_axis.set_ylabel("{} count".format(sim_data.process.translation.monomerData['id'][protein_idx_burst][:-3]))
-		expProtein_axis.set_ylabel("{} count".format(sim_data.process.translation.monomerData['id'][protein_idx][:-3]))
+		
 		# expProteinFold_axis.set_ylabel("Fold change")
 		# burstProteinFold_axis.set_ylabel("Fold change")
 
 		
-		burstRna_axis.set_ylabel("{} mRNA count".format(sim_data.process.translation.monomerData['id'][protein_idx_burst][:-3]))
-		expRna_axis.set_ylabel("{} mRNA count".format(sim_data.process.translation.monomerData['id'][protein_idx][:-3]))
+		
+
+
 
 		# axesList[0].set(adjustable='box-forced')#, aspect='equal')
 		#axesList[1].set(adjustable='box-forced', aspect='equal')
-
+	expProtein_axis.set_title("Exponential dynamics: {}".format(sim_data.process.translation.monomerData['id'][protein_idx][:-3]))
+	burstProtein_axis.set_title("Sub-generational dynamics: {}".format(sim_data.process.translation.monomerData['id'][protein_idx_burst][:-3]))
+	expProtein_axis.set_ylabel("Protein\ncount", rotation=0)
+	expRna_axis.set_ylabel("mRNA\ncount", rotation=0)
 
 	align_yaxis(expProtein_axis, firstLineInit, expProteinFold_axis, 1)
 	expProteinFold_axis.set_yticks([expProteinFold_axis.get_ylim()[0], 1., expProteinFold_axis.get_ylim()[1]])
@@ -338,12 +343,11 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	burstRna_axis.set_xlabel("Time (min)")
 	expRna_axis.set_xlabel("Time (min)")
 
+	plt.subplots_adjust(bottom=0.15)
 
 
 	# axesList[1].set_xlabel("Time (min)")
 	# axesList[1].set_ylabel("mRNA count")
-
-	print "got here 4"
 
 		# 	# Log data
 
