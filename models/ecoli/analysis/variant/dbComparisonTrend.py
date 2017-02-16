@@ -240,46 +240,53 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	# 	a.set_xlabel("Target value", fontsize = FONT_SIZE)
 	# 	a.set_ylabel("Simulated value", fontsize = FONT_SIZE)
 
-	fig, ax = plt.subplots(3,2, sharex=True, figsize = (8.5, 11))
+	fig, ax = plt.subplots(2,3, sharex=True, figsize = (8.5, 11))
 
-	ax[0,0].plot(doublingPerHour, rnaToProtein, color = 'k', linewidth = 2)
-	ax[0,0].plot(doublingPerHourDB, rnaToProteinDB, color = 'blue', linewidth = 2)
-	ax[0,0].errorbar(doublingPerHourDB, rnaToProteinDB, yerr = rnaToProteinDB_error, color = "blue", linewidth = 2)
-	ax[0,0].set_ylabel("RNA / Protein (nuc/100 aa)")
-	ax[0,0].set_ylim([0,20])
+	ax0 = ax[0,0]
+	ax1 = ax[0,1]
+	ax2 = ax[0,2]
+	ax3 = ax[1,0]
+	ax4 = ax[1,1]
+	ax5 = ax[1,2]
 
-	ax[1,0].plot(doublingPerHour, dnaToProtein, color = 'k', linewidth = 2)
-	ax[1,0].plot(doublingPerHourDB, dnaToProteinDB, color = 'blue', linewidth = 2)
-	ax[1,0].errorbar(doublingPerHourDB, dnaToProteinDB, yerr=dnaToProteinDB_error, color="blue", linewidth = 2)
-	ax[1,0].set_ylabel("DNA / Protein (chrom eq/10^9 aa)")
-	ax[1,0].set_ylim([0,4])
+	ax0.plot(doublingPerHour, rnaToProtein, color = 'k', linewidth = 2)
+	ax0.plot(doublingPerHourDB, rnaToProteinDB, color = 'blue', linewidth = 2)
+	ax0.errorbar(doublingPerHourDB, rnaToProteinDB, yerr = rnaToProteinDB_error, color = "blue", linewidth = 2)
+	ax0.set_ylabel("RNA / Protein (nuc/100 aa)")
+	ax0.set_ylim([0,20])
 
-	ax[2,0].plot(doublingPerHour, elngRate, color = 'k', linewidth = 2)
-	ax[2,0].plot(doublingPerHourDB, elngRateDB, color = 'blue', linewidth = 2)
-	ax[2,0].errorbar(doublingPerHourDB, elngRateDB, yerr = elngRateDB_error, color = "blue", linewidth = 2)
-	ax[2,0].set_ylabel("Ribosome Elongation Rate (aa/s)")
-	ax[2,0].set_ylim([0,25])
-	ax[2,0].set_xlabel("Doublings per Hour")
+	ax1.plot(doublingPerHour, dnaToProtein, color = 'k', linewidth = 2)
+	ax1.plot(doublingPerHourDB, dnaToProteinDB, color = 'blue', linewidth = 2)
+	ax1.errorbar(doublingPerHourDB, dnaToProteinDB, yerr=dnaToProteinDB_error, color="blue", linewidth = 2)
+	ax1.set_ylabel("DNA / Protein (chrom eq/10^9 aa)")
+	ax1.set_ylim([0,4])
 
-	ax[0,1].plot(doublingPerHour, stableRnaFraction, color = 'k', linewidth = 2)
-	ax[0,1].plot(doublingPerHourDB, stableRnaFractionDB, color = 'blue', linewidth = 2)
-	ax[0,1].errorbar(doublingPerHourDB, stableRnaFractionDB, yerr = stableRnaFractionDB_error, color = "blue", linewidth=2)
-	ax[0,1].set_ylabel("Synthesis rate Stable RNA / Total RNA")
-	ax[0,1].set_ylim([0,1])
+	ax2.plot(doublingPerHour, elngRate, color = 'k', linewidth = 2)
+	ax2.plot(doublingPerHourDB, elngRateDB, color = 'blue', linewidth = 2)
+	ax2.errorbar(doublingPerHourDB, elngRateDB, yerr = elngRateDB_error, color = "blue", linewidth = 2)
+	ax2.set_ylabel("Ribosome Elongation Rate (aa/s)")
+	ax2.set_ylim([0,25])
+	ax2.set_xlabel("Doublings per Hour")
 
-	ax[1,1].plot(doublingPerHour,mRnaFractionCalc, color='k', linewidth=2) 
-	ax[1,1].plot(doublingPerHourDB,mRnaFractionDB, color='blue', linewidth=2)
-	ax[1,1].errorbar(doublingPerHourDB,mRnaFractionDB, yerr = mRnaFractionDB_error, color="blue", linewidth=2)
-	ax[1,1].set_ylabel("Synthesis rate mRNA / Total RNA")
-	ax[1,1].set_ylim([1,0])
+	ax3.plot(doublingPerHour, stableRnaFraction, color = 'k', linewidth = 2)
+	ax3.plot(doublingPerHourDB, stableRnaFractionDB, color = 'blue', linewidth = 2)
+	ax3.errorbar(doublingPerHourDB, stableRnaFractionDB, yerr = stableRnaFractionDB_error, color = "blue", linewidth=2)
+	ax3.set_ylabel("Synthesis rate Stable RNA / Total RNA")
+	ax3.set_ylim([0,1])
 
-	ax[2,1].plot(doublingPerHour,numOriginsAtInit, color='k', linewidth=2, label = 'Simulation')
-	ax[2,1].plot(doublingPerHourDB,numOriginsAtInitDB, color='blue', linewidth=2, label = 'Dennis and Bremer')
-	ax[2,1].errorbar(doublingPerHourDB,numOriginsAtInitDB, yerr=numOriginsAtInitDB_error, linewidth=2, color="blue")
-	ax[2,1].set_ylabel("Origins / Cell at Initiation")
-	ax[2,1].set_xlabel("Doublings per Hour")
-	ax[2,1].set_ylim([0,5])
-	ax[2,1].legend(loc=4,frameon=False, fontsize=FONT_SIZE)
+	ax4.plot(doublingPerHour,mRnaFractionCalc, color='k', linewidth=2) 
+	ax4.plot(doublingPerHourDB,mRnaFractionDB, color='blue', linewidth=2)
+	ax4.errorbar(doublingPerHourDB,mRnaFractionDB, yerr = mRnaFractionDB_error, color="blue", linewidth=2)
+	ax4.set_ylabel("Synthesis rate mRNA / Total RNA")
+	ax4.set_ylim([1,0])
+
+	ax5.plot(doublingPerHour,numOriginsAtInit, color='k', linewidth=2, label = 'Simulation')
+	ax5.plot(doublingPerHourDB,numOriginsAtInitDB, color='blue', linewidth=2, label = 'Dennis and Bremer')
+	ax5.errorbar(doublingPerHourDB,numOriginsAtInitDB, yerr=numOriginsAtInitDB_error, linewidth=2, color="blue")
+	ax5.set_ylabel("Origins / Cell at Initiation")
+	ax5.set_xlabel("Doublings per Hour")
+	ax5.set_ylim([0,5])
+	ax5.legend(loc=4,frameon=False, fontsize=FONT_SIZE)
 
 
 	whitePadSparklineAxis(ax[0,0], False)
