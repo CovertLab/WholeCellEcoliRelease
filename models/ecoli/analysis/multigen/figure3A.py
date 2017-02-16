@@ -223,18 +223,32 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	plt.figure(figsize = (17, 22))
 
+	firstGen = True
 	for simDir in allDir:
 		simOutDir = os.path.join(simDir, "simOut")
 
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+		mainListener = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = mainListener.readAttribute("initialTime")
+		time = mainListener.readColumn("time")
+		timeStepSec = mainListener.readColumn("timeStepSec")
+		mainListener.close()
+
 		if initialTime > END or time[-1] < START:
 			continue
 
-		fbaReader = TableReader(os.path.join(simOutDir, "FBAResults"))
-		flux = fbaReader.readColumn("reactionFluxes")
-		reactionIDs = fbaReader.readAttribute("reactionIDs")
-		fbaReader.close()
+		massListener = TableReader(os.path.join(simOutDir, "Mass"))
+		cellMass = massListener.readColumn("cellMass")
+		dryMass = massListener.readColumn("dryMass")
+		massListener.close()
+
+		coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(units.g / units.L) * timeStepSec # units - g.s/L
+
+		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
+		reactionIDs = fbaResults.readAttribute("reactionIDs")
+		flux = (units.dmol / units.g / units.s) * (fbaResults.readColumn("reactionFluxes").T / coefficient).T
+		fbaResults.close()
+
+		flux = flux.asNumber(units.mmol / units.g / units.h)
 
 		for idx, (reactant, product) in enumerate(zip(reactants, products)):
 			ax = plt.subplot(10, 9, idx + 1)
@@ -255,14 +269,17 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 							totalFlux -= flux[:, reactionIDs.index(rxn + " (reverse)")] * direction
 
 			timeIdx = np.logical_and(np.logical_or(np.logical_and(time >= START, time < SHIFT), np.logical_and(time > SHIFT + BURNIN, time <= END)), time > initialTime + BURNIN)
-			
-			ax.axhline(0, color = "#aaaaaa")
-			ax.axvline(SHIFT, color = "#aaaaaa")
-			ax.plot(time[timeIdx], totalFlux[timeIdx], color = "k")
-			ax.set_title("%s to %s" % (reactant, product), fontsize = 4)
-			ax.tick_params(axis = "both", labelsize = 4)
-			ax.set_axis_off()
 
+			if firstGen:
+				ax.axhline(0, color = "#aaaaaa", linewidth = 0.25)
+				ax.axvline(SHIFT, color = "#aaaaaa", linewidth = 0.25)
+				ax.set_title("%s to %s" % (reactant, product), fontsize = 4)
+				ax.tick_params(axis = "both", labelsize = 4)
+				ax.set_axis_off()
+
+			ax.plot(time[timeIdx], totalFlux[timeIdx], color = "b")
+
+		firstGen = False
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
