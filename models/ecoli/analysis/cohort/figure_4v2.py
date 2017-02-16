@@ -59,7 +59,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	# Get all cells in each seed
 	ap = AnalysisPaths(variantDir, cohort_plot = True)
-	all_cells = ap.get_cells(seed=[0])
+	all_cells = ap.get_cells(seed=[5])
 
 	for idx, simDir in enumerate(all_cells):
 		color = "black"
@@ -133,13 +133,15 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax0.set_yticks(new_y_ticks)
 
 	ax0.set_xlim([0., time.max() / 60.])
-	ax0.set_ylabel("Cell mass\n(fg)", fontsize=FONT_SIZE)
+	ax0.set_ylabel("Cell mass\n(fg)", fontsize=FONT_SIZE)	
 	ax0.xaxis.set_visible(False)
 	#ax0.axvline(x=44*2+22., linewidth=3, color='gray', alpha = 0.5)
 
+	nutrientsTimeSeriesLabel = sim_data.nutrientsTimeSeriesLabel
+	T_ADD_AA = sim_data.nutrientsTimeSeries[nutrientsTimeSeriesLabel][1][0] / 60.
 	axes_list = [ax0, ax1, ax2, ax3, ax4]
 	for a in axes_list:
-		shift_time = 44*2+22
+		shift_time = T_ADD_AA
 		width = a.get_xlim()[1] - shift_time
 		height = a.get_ylim()[1] - a.get_ylim()[0]
 		a.add_patch(
