@@ -22,10 +22,10 @@ import wholecell.utils.constants
 from wholecell.utils import units
 from wholecell.utils.sparkline import whitePadSparklineAxis
 
-START = 8000
+START = 8300
 SHIFT = 11000
-END = 14000
-BURNIN = 15
+END = 13700
+BURNIN = 20
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	if not os.path.isdir(seedOutDir):
@@ -268,8 +268,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 						if rxn + " (reverse)" in reactionIDs:
 							totalFlux -= flux[:, reactionIDs.index(rxn + " (reverse)")] * direction
 
-			timeIdx = np.logical_and(np.logical_or(np.logical_and(time >= START, time < SHIFT), np.logical_and(time > SHIFT + BURNIN, time <= END)), time > initialTime + BURNIN)
-
 			if firstGen:
 				ax.axhline(0, color = "#aaaaaa", linewidth = 0.25)
 				ax.axvline(SHIFT, color = "#aaaaaa", linewidth = 0.25)
@@ -277,6 +275,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				ax.tick_params(axis = "both", labelsize = 4)
 				ax.set_axis_off()
 
+			width = 15
+			totalFlux = np.array([np.convolve(totalFlux, np.ones(width) / width, mode = "same")]).T
+
+			timeIdx = np.logical_and(np.logical_and(np.logical_or(np.logical_and(time >= START, time < SHIFT - width), np.logical_and(time > SHIFT + BURNIN, time <= END)), time > initialTime + BURNIN), time < time[-width])
 			ax.plot(time[timeIdx], totalFlux[timeIdx], color = "b")
 
 		firstGen = False
