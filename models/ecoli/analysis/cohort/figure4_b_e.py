@@ -58,6 +58,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax0 = plt.subplot2grid((3,4), (0,0), colspan = 4)
 	ax1 = plt.subplot2grid((3,4), (1,0), colspan = 4, sharex=ax0)
 	ax2 = plt.subplot2grid((3,4), (2,0), colspan = 4, sharex=ax0)
+	ax0_xlim = ax0.get_xlim()
 	#ax3 = plt.subplot2grid((5,7), (3,0), colspan = 4, sharex=ax0)
 	#ax4 = plt.subplot2grid((5,7), (4,0), colspan = 4, sharex=ax0)
 
@@ -228,8 +229,8 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# ax0 = plt.subplot2grid((3,4), (0,0), colspan = 4)
 	# ax1 = plt.subplot2grid((3,4), (1,0), colspan = 4, sharex=ax0)
 	# ax2 = plt.subplot2grid((3,4), (2,0), colspan = 4, sharex=ax0)
-	ax3 = plt.subplot2grid((2,4), (0,0), colspan = 4)
-	ax4 = plt.subplot2grid((2,4), (1,0), colspan = 4, sharex=ax3)
+	ax3 = plt.subplot2grid((2,4), (0,0), colspan = 4, sharex = ax0)
+	ax4 = plt.subplot2grid((2,4), (1,0), colspan = 4, sharex=ax0)
 
 	# Get all cells in each seed
 	ap = AnalysisPaths(variantDir, cohort_plot = True)
