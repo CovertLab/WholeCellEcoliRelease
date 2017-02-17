@@ -23,6 +23,9 @@ from wholecell.utils import units
 from models.ecoli.processes.metabolism import COUNTS_UNITS, TIME_UNITS, VOLUME_UNITS
 
 BUILD_CACHE = True
+def clearLabels(axis):
+	axis.set_yticklabels([])
+	axis.set_ylabel("")
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	if not os.path.isdir(seedOutDir):
@@ -175,9 +178,19 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	whitePadSparklineAxis(metAxis)
 	metAxis.set_yticklabels(["%0.1e" % metAxis.get_ylim()[0], "%0.1e" % metAxis.get_ylim()[1]])
 
-	plt.subplots_adjust(hspace = 0.2, right = 0.95, bottom = 0.1, left = 0.15, top = 0.95)
+	plt.subplots_adjust(hspace = 0.2, right = 0.9, bottom = 0.1, left = 0.15, top = 0.9)
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+	plt.suptitle("")
+	clearLabels(rnaInitAxis)
+	clearLabels(rnaAxis)
+	clearLabels(monomerAxis)
+	clearLabels(complexAxis)
+	clearLabels(fluxAxis)
+	clearLabels(metAxis)
+	metAxis.set_xticklabels([])
+	metAxis.set_xlabel("")
+	exportFigure(plt, plotOutDir, plotOutFileName + "__clean", metadata)
 	plt.close("all")
 
 
