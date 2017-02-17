@@ -13,7 +13,7 @@ HTML_DIR = 'html_plots'
 LOW_RES_DPI = 120
 DEFAULT_IMAGE_TYPE = '.pdf'
 
-def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None):
+def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None, transparent = False):
 
 	if metadata != None and "analysis_type" in metadata:
 		if metadata["analysis_type"] == 'single':
@@ -60,13 +60,13 @@ def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None):
 		os.mkdir(os.path.join(plotOutDir, SVG_DIR))
 
 	# Save PDF image
-	plt.savefig(os.path.join(plotOutDir, plotOutFileName + DEFAULT_IMAGE_TYPE))
+	plt.savefig(os.path.join(plotOutDir, plotOutFileName + DEFAULT_IMAGE_TYPE), transparent = transparent)
 
 	# Save SVG image
-	plt.savefig(os.path.join(plotOutDir, SVG_DIR, plotOutFileName + '.svg'))
+	plt.savefig(os.path.join(plotOutDir, SVG_DIR, plotOutFileName + '.svg'), transparent = transparent)
 
 	# Save PNG image
-	plt.savefig(os.path.join(plotOutDir, LOW_RES_DIR, plotOutFileName + '.png'), dpi=LOW_RES_DPI)
+	plt.savefig(os.path.join(plotOutDir, LOW_RES_DIR, plotOutFileName + '.png'), dpi=LOW_RES_DPI, transparent = transparent)
 
 
 import mpld3

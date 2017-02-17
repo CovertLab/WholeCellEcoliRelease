@@ -22,6 +22,8 @@ from wholecell.utils.sparkline import whitePadSparklineAxis
 PLACE_HOLDER = -1
 
 FONT_SIZE=8
+trim = 0.03
+
 
 # def sparklineAxis(axis):
 # 	axis.spines['top'].set_visible(False)
@@ -189,11 +191,32 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# whitePadSparklineAxis(ax3, False)
 	# whitePadSparklineAxis(ax4)
 
-	plt.subplots_adjust(bottom=0.15)
-
-
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName + "_b", metadata)
+
+
+	for axes in axes_list:
+		axes.tick_params(
+			axis='x',          # changes apply to the x-axis
+			which='both',      # both major and minor ticks are affected
+			bottom='off',      # ticks along the bottom edge are off
+			top='off',         # ticks along the top edge are off
+			labelbottom='off') # labels along the bottom edge are off
+		axes.tick_params(
+			axis='y',          # changes apply to the x-axis
+			which='both',      # both major and minor ticks are affected
+			left='off',      # ticks along the bottom edge are off
+			right='off',         # ticks along the top edge are off
+			labelleft='off') # labels along the bottom edge are off
+
+		axes.set_xlabel("")
+		axes.set_ylabel("")
+
+	plt.subplots_adjust(top = 1, bottom = trim, left = trim, right = 1)
+
+	from wholecell.analysis.analysis_tools import exportFigure
+	exportFigure(plt, plotOutDir, plotOutFileName + "_b_stripped" ,metadata, transparent = True)
+	plt.close("all")
 
 	################ PART II #######################
 
@@ -341,10 +364,32 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	plt.subplots_adjust(bottom=0.15)
 
 
-
-
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName + "_e", metadata)
+
+
+	for axes in axes_list:
+		axes.tick_params(
+			axis='x',          # changes apply to the x-axis
+			which='both',      # both major and minor ticks are affected
+			bottom='off',      # ticks along the bottom edge are off
+			top='off',         # ticks along the top edge are off
+			labelbottom='off') # labels along the bottom edge are off
+		axes.tick_params(
+			axis='y',          # changes apply to the x-axis
+			which='both',      # both major and minor ticks are affected
+			left='off',      # ticks along the bottom edge are off
+			right='off',         # ticks along the top edge are off
+			labelleft='off') # labels along the bottom edge are off
+
+		axes.set_xlabel("")
+		axes.set_ylabel("")
+
+	plt.subplots_adjust(top = 1, bottom = trim, left = trim, right = 1)
+
+	from wholecell.analysis.analysis_tools import exportFigure
+	exportFigure(plt, plotOutDir, plotOutFileName + "_e_stripped" ,metadata, transparent = True)
+	plt.close("all")
 
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(
