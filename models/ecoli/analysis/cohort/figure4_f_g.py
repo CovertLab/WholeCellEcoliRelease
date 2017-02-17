@@ -21,6 +21,7 @@ def mm2inch(value):
 	return value * 0.0393701
 
 FONT_SIZE=9
+trim = 0.05
 
 def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile = None, metadata = None):
 
@@ -139,6 +140,28 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName + "_f", metadata)
+
+	for axes in [ax0]:
+		axes.tick_params(
+			axis='x',          # changes apply to the x-axis
+			which='both',      # both major and minor ticks are affected
+			bottom='off',      # ticks along the bottom edge are off
+			top='off',         # ticks along the top edge are off
+			labelbottom='off') # labels along the bottom edge are off
+		axes.tick_params(
+			axis='y',          # changes apply to the x-axis
+			which='both',      # both major and minor ticks are affected
+			left='off',      # ticks along the bottom edge are off
+			right='off',         # ticks along the top edge are off
+			labelleft='off') # labels along the bottom edge are off
+
+		axes.set_xlabel("")
+		axes.set_ylabel("")
+
+	plt.subplots_adjust(top = 1, bottom = trim, left = trim, right = 1)
+
+	from wholecell.analysis.analysis_tools import exportFigure
+	exportFigure(plt, plotOutDir, plotOutFileName + "_f_stripped" ,metadata, transparent = True)
 	plt.close("all")
 
 	#### FIGURE 4E ####
@@ -170,8 +193,29 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName + "_g", metadata)
-	plt.close("all")
 
+	for axes in [ax1]:
+		axes.tick_params(
+			axis='x',          # changes apply to the x-axis
+			which='both',      # both major and minor ticks are affected
+			bottom='off',      # ticks along the bottom edge are off
+			top='off',         # ticks along the top edge are off
+			labelbottom='off') # labels along the bottom edge are off
+		axes.tick_params(
+			axis='y',          # changes apply to the x-axis
+			which='both',      # both major and minor ticks are affected
+			left='off',      # ticks along the bottom edge are off
+			right='off',         # ticks along the top edge are off
+			labelleft='off') # labels along the bottom edge are off
+
+		axes.set_xlabel("")
+		axes.set_ylabel("")
+
+	plt.subplots_adjust(top = 1, bottom = trim, left = trim, right = 1)
+
+	from wholecell.analysis.analysis_tools import exportFigure
+	exportFigure(plt, plotOutDir, plotOutFileName + "_g_stripped" ,metadata, transparent = True)
+	plt.close("all")
 
 	#### UNUSED PLOT FOR NOW ####
 	# Linear mapping
