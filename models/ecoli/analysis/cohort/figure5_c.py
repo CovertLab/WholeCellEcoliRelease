@@ -23,6 +23,9 @@ from wholecell.utils.sparkline import whitePadSparklineAxis
 CLOSE_TO_DOUBLE = 0.1
 FONT_SIZE = 9
 
+def mm2inch(value):
+	return value * 0.0393701
+
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	
 	if not os.path.isdir(seedOutDir):
@@ -186,11 +189,16 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	# fig, axesList = plt.subplots(4,1)
 
-	scatterAxis = plt.subplot2grid((4,5), (1, 0), colspan=3, rowspan=3)#, sharex = xhistAxis, sharey = yhistAxis)
+	mult = 3
+	fig = plt.figure()
+	fig.set_figwidth(mm2inch(80) * mult)
+	fig.set_figheight(mm2inch(50) * mult)
+
+	scatterAxis = plt.subplot2grid((3,4), (0, 0), colspan=3, rowspan=3)#, sharex = xhistAxis, sharey = yhistAxis)
 	# scatterAxis.axhline(1.0, linewidth=0.5, color='black', linestyle="--", xmin = 0.5, xmax = 1.)
 	# scatterAxis.axhline(2.0, linewidth=0.5, color='black', linestyle="--", xmin = 0.5, xmax = 1.)
 	# xhistAxis = plt.subplot2grid((4,5), (0,0), colspan=3, sharex = scatterAxis)
-	yhistAxis = plt.subplot2grid((4,5), (1,3), rowspan=3)#, sharey = scatterAxis)
+	yhistAxis = plt.subplot2grid((3,4), (0,3), rowspan=3)#, sharey = scatterAxis)
 	yhistAxis.axhline(1.0, linewidth=1.0, color='black', linestyle = 'dotted')
 	yhistAxis.axhline(2.0, linewidth=1.0, color='black', linestyle = 'dotted')
 	#yhistAxis_2 = plt.subplot2grid((4,5), (1,4), rowspan=3, sharey = scatterAxis)
