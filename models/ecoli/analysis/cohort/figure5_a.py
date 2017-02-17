@@ -19,7 +19,7 @@ from matplotlib.ticker import FormatStrFormatter
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
-FROM_CACHE = True
+FROM_CACHE = False
 
 # def sparklineAxis(axis):
 # 	axis.spines['top'].set_visible(False)
@@ -205,7 +205,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# Bursty idx: 
 	protein_index_of_interest = protein_index_of_interest[:5]
 	protein_idx = protein_index_of_interest[1]
-	protein_idx_burst = protein_index_of_interest_burst[0]
+	protein_idx_burst = protein_index_of_interest_burst[2]
 	# fig, axesList = plt.subplots(2,protein_index_of_interest.size, sharex = True)
 	fig, axesList = plt.subplots(ncols = 2, nrows = 2, sharex = True)
 
@@ -394,6 +394,14 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	# yhistAxis.hist(ratioToPlot, bins = 100, orientation='horizontal', range = [0., 10.], log = True)
 	# xhistAxis.hist(burstSizeToPlot, bins = 100, log = True, range = [0., 1000.])
+	axesList = axesList.flatten().tolist()
+	axesList.append(expProteinFold_axis)
+	axesList.append(burstProteinFold_axis)
+	for axes in axesList:
+		for tick in axes.xaxis.get_major_ticks():
+			tick.label.set_fontsize(9) 
+		for tick in axes.yaxis.get_major_ticks():
+			tick.label.set_fontsize(9) 
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName,metadata)
