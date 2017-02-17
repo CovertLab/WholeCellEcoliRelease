@@ -23,6 +23,10 @@ NUM_SKIP_TIMESTEPS_AT_GEN_CHANGE = 1
 from wholecell.utils.sparkline import whitePadSparklineAxis
 
 
+
+def mm2inch(value):
+	return value * 0.0393701
+
 def seriesScrubber(series, factor):
 	series[abs(series - np.median(series)) > factor * np.nanstd(series)] = np.nan
 
@@ -63,9 +67,11 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# colors = ["blue", "green", "red", "cyan"]
 	colors = ["#43aa98", "#0071bb", "#bf673c"]
 
+	mult = 2.3
+
 	fig, axis = plt.subplots(1,1)
-	fig.set_figwidth(10)
-	fig.set_figheight(10)
+	fig.set_figwidth(mm2inch(60)*mult)
+	fig.set_figheight(mm2inch(58)*mult)
 
 	width = 200
 
