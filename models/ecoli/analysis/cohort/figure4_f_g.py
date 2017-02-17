@@ -17,6 +17,11 @@ import wholecell.utils.constants
 
 from wholecell.utils.sparkline import whitePadSparklineAxis
 
+def mm2inch(value):
+	return value * 0.0393701
+
+FONT_SIZE=9
+
 def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile = None, metadata = None):
 
 	if not os.path.isdir(variantDir):
@@ -96,8 +101,9 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	#### FIGURE 4D ####
 	fig, ax0 = plt.subplots(1)
-	fig.set_figwidth(5)
-	fig.set_figheight(5)
+	mult = 2
+	fig.set_figwidth(mm2inch(40)*mult)
+	fig.set_figheight(mm2inch(38)*mult)
 
 	ax0.plot(scaled_initial_masses, scaled_added_masses, '.', color = "grey", alpha = 0.5, zorder=1)
 	nbins = 10
@@ -110,7 +116,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	# ax0.errorbar(sj_mean_x, sj_mean_y, sj_error)
 
-	ax0.axhline(1., linewidth = 1, linestyle = 'dotted', color = "black")
+	ax0.axhline(1., linewidth = 1, color = "black", alpha = 0.9)
 	ax0.text(np.max(ax0.get_xlim()) - 0.001, 1., "adder")
 	ax0.set_ylim([0., 2.])
 	ax0.set_xlim([0.7, 1.22])
@@ -119,22 +125,28 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax0.get_xaxis().get_major_formatter().set_useOffset(False)
 
 	# ax0.set_title("n = {}".format(n_cells))
-	ax0.set_ylabel("Scaled added mass " + r"$(\frac{m_{added}}{\langle m_{added} \rangle})$")
-	ax0.set_xlabel("Scaled initial mass " + r"$(\frac{m_{initial}}{\langle m_{initial} \rangle})$")
+	ax0.set_ylabel("Scaled added mass " + r"$(\frac{m_{added}}{\langle m_{added} \rangle})$", fontsize=FONT_SIZE)
+	ax0.set_xlabel("Scaled initial mass " + r"$(\frac{m_{initial}}{\langle m_{initial} \rangle})$", fontsize=FONT_SIZE)
 
 	plt.subplots_adjust(left = 0.2, bottom = 0.2, wspace= 0.6)
 
 	whitePadSparklineAxis(ax0)
 
+	for tick in ax0.yaxis.get_major_ticks():
+		tick.label.set_fontsize(FONT_SIZE) 
+	for tick in ax0.xaxis.get_major_ticks():
+		tick.label.set_fontsize(FONT_SIZE) 
+
 	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName + "_d", metadata)
+	exportFigure(plt, plotOutDir, plotOutFileName + "_f", metadata)
 	plt.close("all")
 
 	#### FIGURE 4E ####
 
 	fig, ax1 = plt.subplots(1)
-	fig.set_figwidth(5)
-	fig.set_figheight(5)
+	mult = 2
+	fig.set_figwidth(mm2inch(40)*mult)
+	fig.set_figheight(mm2inch(38)*mult)
 
 	# Plot contours for all but first generation
 	# H, xedges, yedges = np.histogram2d(initial_masses, added_masses, bins=np.round(n_cells/10))
@@ -145,14 +157,19 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax1.contour(X[:-1,:-1], Y[:-1,:-1], H.transpose(), cmap="Greys")
 	ax1.get_yaxis().get_major_formatter().set_useOffset(False)
 
-	ax1.set_xlabel("Initial mass (pg)")
-	ax1.set_ylabel("Added mass (pg)")
+	ax1.set_xlabel("Initial mass (pg)", fontsize=FONT_SIZE)
+	ax1.set_ylabel("Added mass (pg)", fontsize=FONT_SIZE)
 	whitePadSparklineAxis(ax1)
 	plt.subplots_adjust(left = 0.2, bottom = 0.2, wspace= 0.6)
 
 
+	for tick in ax1.yaxis.get_major_ticks():
+		tick.label.set_fontsize(FONT_SIZE) 
+	for tick in ax1.xaxis.get_major_ticks():
+		tick.label.set_fontsize(FONT_SIZE) 
+
 	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName + "_e", metadata)
+	exportFigure(plt, plotOutDir, plotOutFileName + "_g", metadata)
 	plt.close("all")
 
 
