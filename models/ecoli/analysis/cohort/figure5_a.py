@@ -298,7 +298,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			firstLine = False
 
 
-		linewidth=2
+		linewidth=1
 		expProtein_axis.plot(time / 60., proteinMonomerCounts[:, protein_idx], color = "blue", linewidth=linewidth)
 		expProteinFold_axis.plot(time / 60., proteinMonomerCounts[:, protein_idx] / firstLineInit, alpha = 0.,color = "red")
 		burstProtein_axis.plot(time / 60., proteinMonomerCounts[:, protein_idx_burst], color = "green", linewidth=linewidth)
