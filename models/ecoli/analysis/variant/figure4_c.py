@@ -31,6 +31,9 @@ PROTEIN_MW = 110.0
 
 FONT_SIZE=9
 
+def mm2inch(value):
+	return value * 0.0393701
+
 def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = None):
 
 	if not os.path.isdir(inputDir):
@@ -253,72 +256,79 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	# 	whitePadSparklineAxis(a)
 	# 	a.set_xlabel("Target value", fontsize = FONT_SIZE)
 	# 	a.set_ylabel("Simulated value", fontsize = FONT_SIZE)
+	mult = 3
 
-	fig, ax = plt.subplots(3,2, sharex=True, figsize = (10, 12))
+	fig, ax = plt.subplots(3,1, sharex=True, figsize = (mm2inch(18)*mult, mm2inch(58)*mult))
 
-	ax0 = ax[0,0]
-	ax1 = ax[0,1]
-	ax2 = ax[1,0]
-	ax3 = ax[1,1]
-	ax4 = ax[2,0]
-	ax5 = ax[2,1]
+	ax0 = ax[0]
+	#ax1 = ax[0,1]
+	ax2 = ax[1]
+	#ax3 = ax[1,1]
+	#ax4 = ax[2,0]
+	ax5 = ax[2]
 
-	ax0.plot(doublingPerHour, rnaToProtein, color = 'k', linewidth = 2)
-	ax0.errorbar(doublingPerHour, rnaToProtein, yerr=rnaToProtein_error, color = "k", linewidth = 2)
-	ax0.plot(doublingPerHourDB, rnaToProteinDB, color = 'blue', linewidth = 2)
-	ax0.errorbar(doublingPerHourDB, rnaToProteinDB, yerr = rnaToProteinDB_error, color = "blue", linewidth = 2)
-	ax0.set_ylabel("RNA / Protein (nuc/100 aa)")
+	ax0.plot(doublingPerHour, rnaToProtein, color = 'k', linewidth = 1)
+	ax0.errorbar(doublingPerHour, rnaToProtein, yerr=rnaToProtein_error, color = "k", linewidth = 1)
+	ax0.plot(doublingPerHourDB, rnaToProteinDB, color = 'blue', linewidth = 1)
+	ax0.errorbar(doublingPerHourDB, rnaToProteinDB, yerr = rnaToProteinDB_error, color = "blue", linewidth = 1)
+	ax0.set_ylabel("RNA / Protein (nuc/100 aa)", fontsize=FONT_SIZE)
 	ax0.set_ylim([0,20])
 
-	ax1.plot(doublingPerHour, dnaToProtein, color = 'k', linewidth = 2)
-	ax1.errorbar(doublingPerHour, dnaToProtein, yerr=dnaToProtein_error, color = "k", linewidth = 2)
-	ax1.plot(doublingPerHourDB, dnaToProteinDB, color = 'blue', linewidth = 2)
-	ax1.errorbar(doublingPerHourDB, dnaToProteinDB, yerr=dnaToProteinDB_error, color="blue", linewidth = 2)
-	ax1.set_ylabel("DNA / Protein (chrom eq/" + r"$10^9$" + " aa)")
-	ax1.set_ylim([0,4])
+	# ax1.plot(doublingPerHour, dnaToProtein, color = 'k', linewidth = 1)
+	# ax1.errorbar(doublingPerHour, dnaToProtein, yerr=dnaToProtein_error, color = "k", linewidth = 1)
+	# ax1.plot(doublingPerHourDB, dnaToProteinDB, color = 'blue', linewidth = 1)
+	# ax1.errorbar(doublingPerHourDB, dnaToProteinDB, yerr=dnaToProteinDB_error, color="blue", linewidth = 1)
+	# ax1.set_ylabel("DNA / Protein (chrom eq/" + r"$10^9$" + " aa)")
+	# ax1.set_ylim([0,4])
 
-	ax2.plot(doublingPerHour, elngRate, color = 'k', linewidth = 2)
-	ax2.errorbar(doublingPerHour, elngRate, yerr=elngRate_error, color = "k", linewidth = 2)
-	ax2.plot(doublingPerHourDB, elngRateDB, color = 'blue', linewidth = 2)
-	ax2.errorbar(doublingPerHourDB, elngRateDB, yerr = elngRateDB_error, color = "blue", linewidth = 2)
-	ax2.set_ylabel("Ribosome Elongation Rate (aa/s)")
+	ax2.plot(doublingPerHour, elngRate, color = 'k', linewidth = 1)
+	ax2.errorbar(doublingPerHour, elngRate, yerr=elngRate_error, color = "k", linewidth = 1)
+	ax2.plot(doublingPerHourDB, elngRateDB, color = 'blue', linewidth = 1)
+	ax2.errorbar(doublingPerHourDB, elngRateDB, yerr = elngRateDB_error, color = "blue", linewidth = 1)
+	ax2.set_ylabel("Ribosome Elongation Rate (aa/s)", fontsize=FONT_SIZE)
 	ax2.set_ylim([0,25])
 
-	ax3.plot(doublingPerHour, stableRnaFraction, color = 'k', linewidth = 2)
-	ax3.errorbar(doublingPerHour, stableRnaFraction, yerr=stableRnaFraction_error, color = "k", linewidth = 2)
-	ax3.plot(doublingPerHourDB, stableRnaFractionDB, color = 'blue', linewidth = 2)
-	ax3.errorbar(doublingPerHourDB, stableRnaFractionDB, yerr = stableRnaFractionDB_error, color = "blue", linewidth=2)
-	ax3.set_ylabel("Synthesis rate Stable RNA / Total RNA")
-	ax3.set_ylim([0,1])
+	# ax3.plot(doublingPerHour, stableRnaFraction, color = 'k', linewidth = 1)
+	# ax3.errorbar(doublingPerHour, stableRnaFraction, yerr=stableRnaFraction_error, color = "k", linewidth = 1)
+	# ax3.plot(doublingPerHourDB, stableRnaFractionDB, color = 'blue', linewidth = 1)
+	# ax3.errorbar(doublingPerHourDB, stableRnaFractionDB, yerr = stableRnaFractionDB_error, color = "blue", linewidth=1)
+	# ax3.set_ylabel("Synthesis rate Stable RNA / Total RNA")
+	# ax3.set_ylim([0,1])
 
-	ax4.plot(doublingPerHour,mRnaFractionCalc, color='k', linewidth=2) 
-	ax4.errorbar(doublingPerHour, mRnaFractionCalc, yerr=mRnaFractionCalc_error, color = "k", linewidth = 2)
-	ax4.plot(doublingPerHourDB,mRnaFractionDB, color='blue', linewidth=2)
-	ax4.errorbar(doublingPerHourDB,mRnaFractionDB, yerr = mRnaFractionDB_error, color="blue", linewidth=2)
-	ax4.set_ylabel("Synthesis rate mRNA / Total RNA")
-	ax4.set_ylim([1,0])
+	# ax4.plot(doublingPerHour,mRnaFractionCalc, color='k', linewidth=1) 
+	# ax4.errorbar(doublingPerHour, mRnaFractionCalc, yerr=mRnaFractionCalc_error, color = "k", linewidth = 1)
+	# ax4.plot(doublingPerHourDB,mRnaFractionDB, color='blue', linewidth=1)
+	# ax4.errorbar(doublingPerHourDB,mRnaFractionDB, yerr = mRnaFractionDB_error, color="blue", linewidth=1)
+	# ax4.set_ylabel("Synthesis rate mRNA / Total RNA")
+	# ax4.set_ylim([1,0])
 
-	ax5.plot(doublingPerHour,numOriginsAtInit, color='k', linewidth=2, label = 'Simulation')
-	ax5.errorbar(doublingPerHour, numOriginsAtInit, yerr=numOriginsAtInit_error, color = "k", linewidth = 2)
-	ax5.plot(doublingPerHourDB,numOriginsAtInitDB, color='blue', linewidth=2, label = 'Dennis and Bremer')
-	ax5.errorbar(doublingPerHourDB,numOriginsAtInitDB, yerr=numOriginsAtInitDB_error, linewidth=2, color="blue")
-	ax5.set_ylabel("Origins / Cell at Initiation")
+	ax5.plot(doublingPerHour,numOriginsAtInit, color='k', linewidth=1, label = 'Simulation')
+	ax5.errorbar(doublingPerHour, numOriginsAtInit, yerr=numOriginsAtInit_error, color = "k", linewidth = 1)
+	ax5.plot(doublingPerHourDB,numOriginsAtInitDB, color='blue', linewidth=1, label = 'Dennis and Bremer')
+	ax5.errorbar(doublingPerHourDB,numOriginsAtInitDB, yerr=numOriginsAtInitDB_error, linewidth=1, color="blue")
+	ax5.set_ylabel("Origins / Cell at Initiation", fontsize=FONT_SIZE)
 	ax5.set_ylim([0,5])
 	ax5.legend(loc=4,frameon=False, fontsize=FONT_SIZE)
 
 
 	whitePadSparklineAxis(ax0, False)
-	whitePadSparklineAxis(ax1, False)
+	#whitePadSparklineAxis(ax1, False)
 	whitePadSparklineAxis(ax2, False)
-	whitePadSparklineAxis(ax3, False)
-	whitePadSparklineAxis(ax4)
+	#whitePadSparklineAxis(ax3, False)
+	#whitePadSparklineAxis(ax4)
 	whitePadSparklineAxis(ax5)
 
-	ax4.set_xlabel("Doublings per Hour")
-	ax5.set_xlabel("Doublings per Hour")
+	for a in [ax0, ax2, ax5]:
+		for tick in a.yaxis.get_major_ticks():
+			tick.label.set_fontsize(FONT_SIZE) 
+		for tick in a.xaxis.get_major_ticks():
+			tick.label.set_fontsize(FONT_SIZE) 
+
+	#ax4.set_xlabel("Doublings per Hour")
+	ax5.set_xlabel("Doublings per Hour", fontsize=FONT_SIZE)
 
 
-	plt.subplots_adjust(wspace=0.25, hspace=0.25)
+	#plt.subplots_adjust(wspace=0.25, hspace=0.25)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
