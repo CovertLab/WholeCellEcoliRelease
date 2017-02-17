@@ -19,7 +19,7 @@ from matplotlib.ticker import FormatStrFormatter
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
-FROM_CACHE = False
+FROM_CACHE = True
 
 # def sparklineAxis(axis):
 # 	axis.spines['top'].set_visible(False)
@@ -210,10 +210,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	fig, axesList = plt.subplots(ncols = 2, nrows = 2, sharex = True)
 
 	expProtein_axis = axesList[0,0]
-	expProtein_axis.set_title("Exponential dynamics")
 	expRna_axis = axesList[1,0]
 	burstProtein_axis = axesList[0,1]
-	burstProtein_axis.set_title("Sub-generational dynamics")
 	burstRna_axis = axesList[1,1]
 
 	expProteinFold_axis = expProtein_axis.twinx()
@@ -224,7 +222,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	expProteinFold_axis.tick_params(axis = "x", labelbottom='off')
 	expProteinFold_axis.spines["right"].set_position(("outward", 10))
 	expProteinFold_axis.tick_params(which = "both", direction = "out")
-	expProteinFold_axis.set_ylabel("Fold change")
+	expProteinFold_axis.set_ylabel("Fold change", fontsize=9)
 
 	plt.subplots_adjust(wspace=0.3)
 
@@ -236,10 +234,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	burstProteinFold_axis.tick_params(axis = "x", labelbottom='off')
 	burstProteinFold_axis.spines["right"].set_position(("outward", 10))
 	burstProteinFold_axis.tick_params(which = "both", direction = "out")
-	burstProteinFold_axis.set_ylabel("Fold change")
+	burstProteinFold_axis.set_ylabel("Fold change", fontsize=9)
 
 	# fig.set_figwidth(protein_index_of_interest.size * 3)
-	mult = 10
+	mult = 3
 	fig.set_figwidth(mm2inch(80) * mult)
 	fig.set_figheight(mm2inch(50) * mult)
 
@@ -327,10 +325,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		# axesList[0].set(adjustable='box-forced')#, aspect='equal')
 		#axesList[1].set(adjustable='box-forced', aspect='equal')
-	expProtein_axis.set_title("Exponential dynamics: {}".format(sim_data.process.translation.monomerData['id'][protein_idx][:-3]))
-	burstProtein_axis.set_title("Sub-generational dynamics: {}".format(sim_data.process.translation.monomerData['id'][protein_idx_burst][:-3]))
-	expProtein_axis.set_ylabel("Protein\ncount", rotation=0)
-	expRna_axis.set_ylabel("mRNA\ncount", rotation=0)
+	expProtein_axis.set_title("Exponential dynamics: {}".format(sim_data.process.translation.monomerData['id'][protein_idx][:-3]), fontsize=9)
+	burstProtein_axis.set_title("Sub-generational dynamics: {}".format(sim_data.process.translation.monomerData['id'][protein_idx_burst][:-3]), fontsize=9)
+	expProtein_axis.set_ylabel("Protein\ncount", rotation=0, fontsize=9)
+	expRna_axis.set_ylabel("mRNA\ncount", rotation=0, fontsize=9)
 
 	align_yaxis(expProtein_axis, firstLineInit, expProteinFold_axis, 1)
 	expProteinFold_axis.set_yticks([expProteinFold_axis.get_ylim()[0], 1., expProteinFold_axis.get_ylim()[1]])
@@ -346,8 +344,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	whitePadSparklineAxis(expRna_axis)
 	whitePadSparklineAxis(burstRna_axis)
 
-	burstRna_axis.set_xlabel("Time (min)")
-	expRna_axis.set_xlabel("Time (min)")
+	burstRna_axis.set_xlabel("Time (min)", fontsize=9)
+	expRna_axis.set_xlabel("Time (min)", fontsize=9)
 
 	plt.subplots_adjust(bottom=0.15)
 
@@ -400,6 +398,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName,metadata)
 	plt.close("all")
+
 
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(
