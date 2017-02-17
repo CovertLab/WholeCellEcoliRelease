@@ -331,6 +331,45 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName,metadata)
+	#plt.close("all")
+
+
+	scatterAxis.tick_params(
+		axis='x',          # changes apply to the x-axis
+		which='both',      # both major and minor ticks are affected
+		bottom='off',      # ticks along the bottom edge are off
+		top='off',         # ticks along the top edge are off
+		labelbottom='off') # labels along the bottom edge are off
+	scatterAxis.tick_params(
+		axis='y',          # changes apply to the x-axis
+		which='both',      # both major and minor ticks are affected
+		left='off',      # ticks along the bottom edge are off
+		right='off',         # ticks along the top edge are off
+		labelleft='off') # labels along the bottom edge are off
+
+	scatterAxis.set_xlabel("")
+	scatterAxis.set_ylabel("")
+
+	yhistAxis.tick_params(
+		axis='x',          # changes apply to the x-axis
+		which='both',      # both major and minor ticks are affected
+		bottom='off',      # ticks along the bottom edge are off
+		top='off',         # ticks along the top edge are off
+		labelbottom='off') # labels along the bottom edge are off
+	yhistAxis.tick_params(
+		axis='y',          # changes apply to the x-axis
+		which='both',      # both major and minor ticks are affected
+		left='off',      # ticks along the bottom edge are off
+		right='off',         # ticks along the top edge are off
+		labelleft='off') # labels along the bottom edge are off
+
+	yhistAxis.set_xlabel("")
+	yhistAxis.set_ylabel("")
+
+
+
+	from wholecell.analysis.analysis_tools import exportFigure
+	exportFigure(plt, plotOutDir, plotOutFileName + "_stripped" ,metadata)
 	plt.close("all")
 
 
