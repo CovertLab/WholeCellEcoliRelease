@@ -26,6 +26,7 @@ START = 8300
 SHIFT = 11000
 END = 13700
 BURNIN = 20
+MA_WIDTH = 15
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	if not os.path.isdir(seedOutDir):
@@ -42,6 +43,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	rxnStoich = sim_data.process.metabolism.reactionStoich
 
 	reactants = [
+		"GLC[p]",
 		"GLC-6-P[c]",
 		"FRUCTOSE-6P[c]",
 		"FRUCTOSE-16-DIPHOSPHATE[c]",
@@ -69,16 +71,16 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		"XYLULOSE-5-PHOSPHATE[c]",
 		"D-SEDOHEPTULOSE-7-P[c]",
 		"FRUCTOSE-6P[c]",
-		"3-P-SERINE[c]",
+		"WATER[c]",
 		"SER[c]",
 		"ACETYLSERINE[c]",
 		"HOMO-CYS[c]",
 		"GLT[c]",
 		"GLT[c]",
-		"SER[c]",
+		"INDOLE[c]",
 		"HISTIDINAL[c]",
 		"PYRUVATE[c]",
-		"GLT[c]",
+		"L-ALPHA-ALANINE[c]",
 		"GLT[c]",
 		"GLT[c]",
 		"GLT[c]",
@@ -126,12 +128,13 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		"UTP[c]",
 		"CDP[c]",
 		"CTP[c]",
-		"GUANINE[c]",
-		"ADENINE[c]",
-		"URACIL[c]",
+		"GUANOSINE[c]",
+		"CYTIDINE[c]",
+		"OROTIDINE-5-PHOSPHATE[c]",
 		]
 
 	products = [
+		"GLC-6-P[c]",
 		"FRUCTOSE-6P[c]",
 		"FRUCTOSE-16-DIPHOSPHATE[c]",
 		"DIHYDROXY-ACETONE-PHOSPHATE[c]",
@@ -217,8 +220,13 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		"DCDP[c]",
 		"DCTP[c]",
 		"GMP[c]",
-		"AMP[c]",
+		"CMP[c]",
 		"UMP[c]",
+		]
+
+	transports = [
+		"GLC[p]",
+		"OXYGEN-MOLECULE[p]",
 		]
 
 	plt.figure(figsize = (17, 22))
@@ -235,6 +243,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		if initialTime > END or time[-1] < START:
 			continue
+		timeIdx = np.logical_and(np.logical_and(np.logical_or(np.logical_and(time >= START, time < SHIFT - MA_WIDTH), np.logical_and(time > SHIFT + BURNIN, time <= END)), time > initialTime + BURNIN), time < time[-MA_WIDTH])
 
 		massListener = TableReader(os.path.join(simOutDir, "Mass"))
 		cellMass = massListener.readColumn("cellMass")
@@ -246,14 +255,33 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 		reactionIDs = fbaResults.readAttribute("reactionIDs")
 		flux = (units.dmol / units.g / units.s) * (fbaResults.readColumn("reactionFluxes").T / coefficient).T
+		transportFluxes = fbaResults.readColumn("externalExchangeFluxes")
+		transportMolecules = fbaResults.readAttribute("externalMoleculeIDs")
 		fbaResults.close()
 
 		flux = flux.asNumber(units.mmol / units.g / units.h)
 
+		subplotRows = 10
+		subplotCols = 9
+
+		for idx, transport in enumerate(transports):
+			ax = plt.subplot(subplotRows, subplotCols, idx + 1)
+
+			if firstGen:
+				ax.axhline(0, color = "#aaaaaa", linewidth = 0.25)
+				ax.axvline(SHIFT, color = "#aaaaaa", linewidth = 0.25)
+				ax.set_title("Transport for %s" % (transport), fontsize = 4)
+				ax.tick_params(axis = "both", labelsize = 4)
+				ax.set_axis_off()
+
+			maFlux = np.array([np.convolve(-transportFluxes[:, transportMolecules.index(transport)], np.ones(MA_WIDTH) / MA_WIDTH, mode = "same")]).T
+			ax.plot(time[timeIdx], maFlux[timeIdx], color = "b", linewidth = 0.5)
+
 		for idx, (reactant, product) in enumerate(zip(reactants, products)):
-			ax = plt.subplot(10, 9, idx + 1)
+			ax = plt.subplot(subplotRows, subplotCols, idx + 1 + len(transports))
 			totalFlux = np.zeros_like(flux[:, 0])
 
+			# print "%s -> %s:" % (reactant, product)
 			for rxn in rxnStoich:
 				if reactant in rxnStoich[rxn] and product in rxnStoich[rxn]:
 					if rxnStoich[rxn][reactant] < 0 and rxnStoich[rxn][product] > 0:
@@ -263,10 +291,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 					else:
 						continue
 
-					if rxn in reactionIDs:
-						totalFlux += flux[:, reactionIDs.index(rxn)] * direction
-						if rxn + " (reverse)" in reactionIDs:
-							totalFlux -= flux[:, reactionIDs.index(rxn + " (reverse)")] * direction
+					totalFlux += flux[:, reactionIDs.index(rxn)] * direction
+
+					# print "\t%.2f\t%s" % (np.mean(flux[:, reactionIDs.index(rxn)] * direction), rxn)
 
 			if firstGen:
 				ax.axhline(0, color = "#aaaaaa", linewidth = 0.25)
@@ -275,11 +302,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				ax.tick_params(axis = "both", labelsize = 4)
 				ax.set_axis_off()
 
-			width = 15
-			totalFlux = np.array([np.convolve(totalFlux, np.ones(width) / width, mode = "same")]).T
-
-			timeIdx = np.logical_and(np.logical_and(np.logical_or(np.logical_and(time >= START, time < SHIFT - width), np.logical_and(time > SHIFT + BURNIN, time <= END)), time > initialTime + BURNIN), time < time[-width])
-			ax.plot(time[timeIdx], totalFlux[timeIdx], color = "b")
+			totalFlux = np.array([np.convolve(totalFlux, np.ones(MA_WIDTH) / MA_WIDTH, mode = "same")]).T
+			ax.plot(time[timeIdx], totalFlux[timeIdx], color = "b", linewidth = 0.5)
 
 		firstGen = False
 
