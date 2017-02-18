@@ -22,6 +22,8 @@ from matplotlib import pyplot as plt
 
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
+from wholecell.utils import units
+from wholecell.utils.sparkline import whitePadSparklineAxis
 from wholecell.analysis.plotting_tools import COLORS_LARGE
 
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS
@@ -40,15 +42,28 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	constraintIsKcatOnly = sim_data.process.metabolism.constraintIsKcatOnly
 	constrainedReactions = np.array(sim_data.process.metabolism.constrainedReactionList)
 
+	mainListener = TableReader(os.path.join(simOutDir, "Main"))
+	initialTime = mainListener.readAttribute("initialTime")
+	time = mainListener.readColumn("time") - initialTime
+	timeStepSec = mainListener.readColumn("timeStepSec")
+	mainListener.close()
+
+	massListener = TableReader(os.path.join(simOutDir, "Mass"))
+	cellMass = massListener.readColumn("cellMass")
+	dryMass = massListener.readColumn("dryMass")
+	massListener.close()
+
+	coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(units.g / units.L) * timeStepSec # units - g.s/L
+
 	# read constraint data
 	enzymeKineticsReader = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
-	targetFluxes = enzymeKineticsReader.readColumn("targetFluxes")
-	actualFluxes = enzymeKineticsReader.readColumn("actualFluxes")
+	targetFluxes = (units.dmol / units.g / units.s) * (enzymeKineticsReader.readColumn("targetFluxes").T / coefficient).T
+	actualFluxes = (units.dmol / units.g / units.s) * (enzymeKineticsReader.readColumn("actualFluxes").T / coefficient).T
 	reactionConstraint = enzymeKineticsReader.readColumn("reactionConstraint")
 	enzymeKineticsReader.close()
 
-	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+	targetFluxes = targetFluxes.asNumber(units.mmol / units.g / units.h)
+	actualFluxes = actualFluxes.asNumber(units.mmol / units.g / units.h)
 
 	targetAve = np.mean(targetFluxes[BURN_IN_STEPS:, :], axis = 0)
 	actualAve = np.mean(actualFluxes[BURN_IN_STEPS:, :], axis = 0)
@@ -62,9 +77,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	kmAndKcatThresholds = [2, 10]
 	kmAndKcatCategorization = np.zeros(np.sum(kmAndKcatReactions))
+	categorization = np.zeros(reactionConstraint.shape[1])
 	for i, threshold in enumerate(kmAndKcatThresholds):
-		kmAndKcatCategorization[targetAve[kmAndKcatReactions] / actualAve[kmAndKcatReactions] > threshold] = i + 1
+		# kmAndKcatCategorization[targetAve[kmAndKcatReactions] / actualAve[kmAndKcatReactions] > threshold] = i + 1
 		kmAndKcatCategorization[actualAve[kmAndKcatReactions] / targetAve[kmAndKcatReactions] > threshold] = i + 1
+		categorization[actualAve / targetAve > threshold] = i + 1
 	kmAndKcatCategorization[actualAve[kmAndKcatReactions] == 0] = -1
 
 	kcatOnlyThresholds = [2, 10]
@@ -100,25 +117,35 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	csvFile.close()
 
-	targetAve += 1e-13
-	actualAve += 1e-13
+	targetAve[targetAve == 0] += 1e-9
+	actualAve[actualAve == 0] += 1e-9
 
 	plt.figure(figsize = (8, 8))
 	from scipy.stats import pearsonr
 	targetPearson = targetAve[kmAndKcatReactions]
 	actualPearson = actualAve[kmAndKcatReactions]
 	# plt.title(pearsonr(np.log10(targetPearson[actualPearson > 0]), np.log10(actualPearson[actualPearson > 0])))
-	plt.loglog(targetAve[kmAndKcatReactions][kmAndKcatCategorization == 0], actualAve[kmAndKcatReactions][kmAndKcatCategorization == 0], "og")
-	plt.loglog(targetAve[kmAndKcatReactions][kmAndKcatCategorization == 1], actualAve[kmAndKcatReactions][kmAndKcatCategorization == 1], "o")
-	plt.loglog(targetAve[kmAndKcatReactions][kmAndKcatCategorization == 2], actualAve[kmAndKcatReactions][kmAndKcatCategorization == 2], "or")
-	plt.loglog(targetAve[kmAndKcatReactions][kmAndKcatCategorization == -1], actualAve[kmAndKcatReactions][kmAndKcatCategorization == -1], "or")
+	# plt.loglog(targetAve[kmAndKcatReactions][kmAndKcatCategorization == 0], actualAve[kmAndKcatReactions][kmAndKcatCategorization == 0], "og")
+	# plt.loglog(targetAve[kmAndKcatReactions][kmAndKcatCategorization == 1], actualAve[kmAndKcatReactions][kmAndKcatCategorization == 1], "o")
+	# plt.loglog(targetAve[kmAndKcatReactions][kmAndKcatCategorization == 2], actualAve[kmAndKcatReactions][kmAndKcatCategorization == 2], "or")
+	# plt.loglog(targetAve[kmAndKcatReactions][kmAndKcatCategorization == -1], actualAve[kmAndKcatReactions][kmAndKcatCategorization == -1], "og")
+	# plt.loglog(targetAve[kcatOnlyReactions][kcatOnlyCategorization == 0], actualAve[kcatOnlyReactions][kcatOnlyCategorization == 0], "og")
+	# plt.loglog(targetAve[kcatOnlyReactions][kcatOnlyCategorization == 1], actualAve[kcatOnlyReactions][kcatOnlyCategorization == 1], "o")
+	# plt.loglog(targetAve[kcatOnlyReactions][kcatOnlyCategorization == 2], actualAve[kcatOnlyReactions][kcatOnlyCategorization == 2], "or")
+	# plt.loglog(targetAve[kcatOnlyReactions][kcatOnlyCategorization == -1], actualAve[kcatOnlyReactions][kcatOnlyCategorization == -1], "og")
+	plt.loglog(targetAve[categorization == 0], actualAve[categorization == 0], "og")
+	plt.loglog(targetAve[categorization == 1], actualAve[categorization == 1], "o")
+	plt.loglog(targetAve[categorization == 2], actualAve[categorization == 2], "or")
+	plt.loglog(targetAve[categorization == -1], actualAve[categorization == -1], "og")
 	# plt.loglog(targetAve[kmAndKcatReactions], actualAve[kmAndKcatReactions], "o")
 	# plt.loglog(targetAve[kcatOnlyReactions], actualAve[kcatOnlyReactions], "ro")
-	plt.loglog([1e-13, 1], [1e-13, 1], '--g')
-	plt.loglog([1e-13, 1], [1e-12, 10], '--r')
-	plt.loglog([1e-13, 1], [1e-14, 0.1], '--r')
-	plt.xlabel("Target Flux (dmol/L/s)")
-	plt.ylabel("Actual Flux (dmol/L/s)")
+	plt.loglog([1e-10, 1e4], [1e-10, 1e4], '--g')
+	plt.loglog([1e-10, 1e3], [1e-9, 1e4], '--r')
+	# plt.loglog([1e-13, 1], [1e-14, 0.1], '--r')
+	plt.xlabel("Target Flux (mmol/g/hr)")
+	plt.ylabel("Actual Flux (mmol/g/hr)")
+	plt.minorticks_off()
+	whitePadSparklineAxis(plt.axes())
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
