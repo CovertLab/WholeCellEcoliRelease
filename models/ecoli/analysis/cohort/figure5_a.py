@@ -40,7 +40,7 @@ def align_yaxis(ax1, v1, ax2, v2):
     ax2.set_ylim(miny+dy, maxy+dy)
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-	
+	return
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
 
