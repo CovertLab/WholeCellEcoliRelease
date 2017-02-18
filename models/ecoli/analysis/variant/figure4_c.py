@@ -212,7 +212,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	############## PLOT 0 ###############
 
 	mult = 3
-	fig, ax0 = plt.subplots(1,1, figsize = (mm2inch(18)*mult, mm2inch(18)*mult))
+	fig, ax0 = plt.subplots(1,1, figsize = (mm2inch(14.429)*mult, mm2inch(18.9)*mult))
 
 	ax0.plot(doublingPerHour, rnaToProtein, color = 'k', linewidth = 1)
 	ax0.errorbar(doublingPerHour, rnaToProtein, yerr=rnaToProtein_error, color = "k", linewidth = 1)
@@ -257,7 +257,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	############## PLOT 1 ###############
 
 	mult = 3
-	fig, ax2 = plt.subplots(1,1, figsize = (mm2inch(18)*mult, mm2inch(18)*mult))
+	fig, ax2 = plt.subplots(1,1, figsize = (mm2inch(14.429)*mult, mm2inch(18.9)*mult))
 
 	ax2.plot(doublingPerHour, elngRate, color = 'k', linewidth = 1)
 	ax2.errorbar(doublingPerHour, elngRate, yerr=elngRate_error, color = "k", linewidth = 1)
@@ -303,7 +303,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	# ############## PLOT 2 ###############
 
 	mult = 3
-	fig, ax5 = plt.subplots(1,1, figsize = (mm2inch(18)*mult, mm2inch(18)*mult))
+	fig, ax5 = plt.subplots(1,1, figsize = (mm2inch(14.429)*mult, mm2inch(18.9)*mult))
 
 	ax5.plot(doublingPerHour,numOriginsAtInit, color='k', linewidth=1, label = 'Simulation')
 	ax5.errorbar(doublingPerHour, numOriginsAtInit, yerr=numOriginsAtInit_error, color = "k", linewidth = 1)
@@ -346,6 +346,55 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName + "2_stripped" ,metadata, transparent = True)
 	plt.close("all")
+
+	# ############## PLOT 3 ###############
+
+	mult = 3
+	fig, ax3 = plt.subplots(1,1, figsize = (mm2inch(14.429)*mult, mm2inch(18.9)*mult))
+
+	ax3.plot(doublingPerHour, stableRnaFraction, color = 'k', linewidth = 1)
+	ax3.errorbar(doublingPerHour, stableRnaFraction, yerr=stableRnaFraction_error, color = "k", linewidth = 1)
+	ax3.plot(doublingPerHourDB, stableRnaFractionDB, color = 'blue', linewidth = 1)
+	ax3.errorbar(doublingPerHourDB, stableRnaFractionDB, yerr = stableRnaFractionDB_error, color = "blue", linewidth=1)
+	ax3.set_ylabel("Synthesis rate Stable RNA / Total RNA")
+	ax3.set_ylim([0,1])
+
+	whitePadSparklineAxis(ax3, False)
+
+	for tick in ax3.yaxis.get_major_ticks():
+		tick.label.set_fontsize(FONT_SIZE) 
+	for tick in ax3.xaxis.get_major_ticks():
+		tick.label.set_fontsize(FONT_SIZE) 
+
+	from wholecell.analysis.analysis_tools import exportFigure
+	exportFigure(plt, plotOutDir, plotOutFileName + "3", metadata)
+
+	for axes in [ax3]:
+		axes.tick_params(
+			axis='x',          # changes apply to the x-axis
+			which='both',      # both major and minor ticks are affected
+			bottom='off',      # ticks along the bottom edge are off
+			top='off',         # ticks along the top edge are off
+			labelbottom='off') # labels along the bottom edge are off
+		axes.tick_params(
+			axis='y',          # changes apply to the x-axis
+			which='both',      # both major and minor ticks are affected
+			left='off',      # ticks along the bottom edge are off
+			right='off',         # ticks along the top edge are off
+			labelleft='off') # labels along the bottom edge are off
+
+		axes.set_xlabel("")
+		axes.set_ylabel("")
+
+	plt.subplots_adjust(top = 1, bottom = trim, left = trim, right = 1)
+
+	from wholecell.analysis.analysis_tools import exportFigure
+	exportFigure(plt, plotOutDir, plotOutFileName + "3_stripped" ,metadata, transparent = True)
+	plt.close("all")
+
+
+
+
 
 	# mult = 3
 	# fig, ax = plt.subplots(3,1, sharex=True, figsize = (mm2inch(18)*mult, mm2inch(58)*mult))
