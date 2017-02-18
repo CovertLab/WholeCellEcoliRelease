@@ -127,7 +127,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	whitePadSparklineAxis(axis)
 	axis.set_xlabel("Time (min)")
-	axis.set_ylabel("Averaged instantanious growth rate " + r"$(\frac{\frac{dX}{dt}}{X} [=] \frac{1}{min})$")
+	axis.set_ylabel("Averaged instantaneous growth rate " + r"$(\frac{\frac{dX}{dt}}{X} [=] \frac{1}{min})$")
 	plt.subplots_adjust(bottom = 0.2, left = 0.2)
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName,metadata)
