@@ -36,7 +36,7 @@ def mm2inch(value):
 	return value * 0.0393701
 
 def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile = None, metadata = None):
-
+	return
 	if not os.path.isdir(variantDir):
 		raise Exception, "variantDir does not currently exist as a directory"
 
