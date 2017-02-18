@@ -70,8 +70,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	mult = 2.3
 
 	fig, axis = plt.subplots(1,1)
-	fig.set_figwidth(mm2inch(60)*mult)
-	fig.set_figheight(mm2inch(58)*mult)
+	fig.set_figwidth(mm2inch(55.2)*mult)
+	fig.set_figheight(mm2inch(53.36)*mult)
 
 	width = 200
 
