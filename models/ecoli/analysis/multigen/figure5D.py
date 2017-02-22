@@ -42,6 +42,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	# Get all cells
 	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
+	if 0 not in ap._path_data["seed"]:
+		print "Skipping -- figure5D only runs for seed 0"
+		return
+
 	allDir = ap.get_cells(seed = [0])
 
 	sim_data = cPickle.load(open(simDataFile, "rb"))
