@@ -36,6 +36,9 @@ def mm2inch(value):
 
 trim = 0.1
 
+#size1 = (14.429, 18.9)
+size1 = (29.25, 24.401)
+
 def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = None):
 
 	if not os.path.isdir(inputDir):
@@ -212,7 +215,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	############## PLOT 0 ###############
 
 	mult = 3
-	fig, ax0 = plt.subplots(1,1, figsize = (mm2inch(14.429)*mult, mm2inch(18.9)*mult))
+	fig, ax0 = plt.subplots(1,1, figsize = (mm2inch(size1[0])*mult, mm2inch(size1[1])*mult))
 
 	ax0.plot(doublingPerHour, rnaToProtein, color = 'k', linewidth = 1)
 	ax0.errorbar(doublingPerHour, rnaToProtein, yerr=rnaToProtein_error, color = "k", linewidth = 1)
@@ -257,7 +260,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	############## PLOT 1 ###############
 
 	mult = 3
-	fig, ax2 = plt.subplots(1,1, figsize = (mm2inch(14.429)*mult, mm2inch(18.9)*mult))
+	fig, ax2 = plt.subplots(1,1, figsize = (mm2inch(size1[0])*mult, mm2inch(size1[1])*mult))
 
 	ax2.plot(doublingPerHour, elngRate, color = 'k', linewidth = 1)
 	ax2.errorbar(doublingPerHour, elngRate, yerr=elngRate_error, color = "k", linewidth = 1)
@@ -303,7 +306,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	# ############## PLOT 2 ###############
 
 	mult = 3
-	fig, ax5 = plt.subplots(1,1, figsize = (mm2inch(14.429)*mult, mm2inch(18.9)*mult))
+	fig, ax5 = plt.subplots(1,1, figsize = (mm2inch(size1[0])*mult, mm2inch(size1[1])*mult))
 
 	ax5.plot(doublingPerHour,numOriginsAtInit, color='k', linewidth=1, label = 'Simulation')
 	ax5.errorbar(doublingPerHour, numOriginsAtInit, yerr=numOriginsAtInit_error, color = "k", linewidth = 1)
@@ -350,7 +353,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	# ############## PLOT 3 ###############
 
 	mult = 3
-	fig, ax3 = plt.subplots(1,1, figsize = (mm2inch(14.429)*mult, mm2inch(18.9)*mult))
+	fig, ax3 = plt.subplots(1,1, figsize = (mm2inch(size1[0])*mult, mm2inch(size1[1])*mult))
 
 	ax3.plot(doublingPerHour, stableRnaFraction, color = 'k', linewidth = 1)
 	ax3.errorbar(doublingPerHour, stableRnaFraction, yerr=stableRnaFraction_error, color = "k", linewidth = 1)
