@@ -95,6 +95,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	exportFigure(plt, plotOutDir, plotOutFileName)
 	plt.close("all")
 
+	return
+
 	# Bokeh
 	from bokeh.plotting import figure, output_file, ColumnDataSource, show
 	from bokeh.charts import Bar
