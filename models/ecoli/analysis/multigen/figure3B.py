@@ -274,8 +274,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				ax.tick_params(axis = "both", labelsize = 4)
 				ax.set_axis_off()
 
-			maFlux = np.array([np.convolve(-transportFluxes[:, transportMolecules.index(transport)], np.ones(MA_WIDTH) / MA_WIDTH, mode = "same")]).T
-			ax.plot(time[timeIdx], maFlux[timeIdx], color = "b", linewidth = 0.5)
+			if transport in transportMolecules:
+				maFlux = np.array([np.convolve(-transportFluxes[:, transportMolecules.index(transport)], np.ones(MA_WIDTH) / MA_WIDTH, mode = "same")]).T
+				ax.plot(time[timeIdx], maFlux[timeIdx], color = "b", linewidth = 0.5)
 
 		for idx, (reactant, product) in enumerate(zip(reactants, products)):
 			ax = plt.subplot(subplotRows, subplotCols, idx + 1 + len(transports))
