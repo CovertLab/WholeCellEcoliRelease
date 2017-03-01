@@ -36,7 +36,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	enzymeComplexId = "MENE-CPLX[c]"
 	enzymeMonomerId = "O-SUCCINYLBENZOATE-COA-LIG-MONOMER[c]"
-	enzymeRnaId = "EG11532_RNA[c]"
+	enzymeRnaId = "EG12437_RNA[c]"
 	reactionId = "O-SUCCINYLBENZOATE-COA-LIG-RXN"
 	metaboliteIds = ["REDUCED-MENAQUINONE[c]", "CPD-12115[c]"]
 
