@@ -53,7 +53,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	dryMass = massListener.readColumn("dryMass")
 	massListener.close()
 
-	coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(units.g / units.L) * timeStepSec # units - g.s/L
+	coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(units.g / units.L) # units - g/L
 
 	# read constraint data
 	enzymeKineticsReader = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
@@ -117,8 +117,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	csvFile.close()
 
-	targetAve[targetAve == 0] += 1e-9
-	actualAve[actualAve == 0] += 1e-9
+	targetAve += 1e-6
+	actualAve += 1e-6
 
 	plt.figure(figsize = (8, 8))
 	from scipy.stats import pearsonr
@@ -133,14 +133,14 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	# plt.loglog(targetAve[kcatOnlyReactions][kcatOnlyCategorization == 1], actualAve[kcatOnlyReactions][kcatOnlyCategorization == 1], "o")
 	# plt.loglog(targetAve[kcatOnlyReactions][kcatOnlyCategorization == 2], actualAve[kcatOnlyReactions][kcatOnlyCategorization == 2], "or")
 	# plt.loglog(targetAve[kcatOnlyReactions][kcatOnlyCategorization == -1], actualAve[kcatOnlyReactions][kcatOnlyCategorization == -1], "og")
-	plt.loglog(targetAve[categorization == 0], actualAve[categorization == 0], "og")
-	plt.loglog(targetAve[categorization == 1], actualAve[categorization == 1], "o")
-	plt.loglog(targetAve[categorization == 2], actualAve[categorization == 2], "or")
-	plt.loglog(targetAve[categorization == -1], actualAve[categorization == -1], "og")
+	plt.loglog(targetAve[categorization == 0], actualAve[categorization == 0], "og", markeredgewidth = 0.25)
+	plt.loglog(targetAve[categorization == 1], actualAve[categorization == 1], "o", markeredgewidth = 0.25)
+	plt.loglog(targetAve[categorization == 2], actualAve[categorization == 2], "or", markeredgewidth = 0.25)
+	plt.loglog(targetAve[categorization == -1], actualAve[categorization == -1], "og", markeredgewidth = 0.25)
 	# plt.loglog(targetAve[kmAndKcatReactions], actualAve[kmAndKcatReactions], "o")
 	# plt.loglog(targetAve[kcatOnlyReactions], actualAve[kcatOnlyReactions], "ro")
-	plt.loglog([1e-10, 1e4], [1e-10, 1e4], '--g')
-	plt.loglog([1e-10, 1e3], [1e-9, 1e4], '--r')
+	plt.loglog([1e-7, 1e4], [1e-7, 1e4], '--g')
+	plt.loglog([1e-7, 1e3], [1e-6, 1e4], '--r')
 	# plt.loglog([1e-13, 1], [1e-14, 0.1], '--r')
 	plt.xlabel("Target Flux (mmol/g/hr)")
 	plt.ylabel("Actual Flux (mmol/g/hr)")
