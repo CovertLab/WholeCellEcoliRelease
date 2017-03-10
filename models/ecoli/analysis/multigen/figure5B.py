@@ -25,6 +25,7 @@ BUILD_CACHE = True
 PLOT_GENES_OF_INTEREST = False
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
+	return
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
 
