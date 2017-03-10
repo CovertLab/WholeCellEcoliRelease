@@ -780,7 +780,7 @@ class FluxBalanceAnalysis(object):
 			# Add a pseudoreaction to allow the flux to be below its target
 			underTargetFlux = self._generatedID_amountUnder.format(reactionID)
 			self._solver.flowMaterialCoeffIs(
-				self._forcedUnityColName,
+				underTargetFlux,
 				kineticObjEquivalent,
 				1
 				)
@@ -1245,6 +1245,8 @@ class FluxBalanceAnalysis(object):
 			if reactionID not in self._kineticTargetFluxes:
 				raise FBAError("Kinetic targets can only be set for reactions initialized to be kinetic targets. {} is not set up for it.".format(reactionID))
 
+			conversionFlux = self._generatedID_conversionFlux.format(reactionID)
+			reactionFluxEquivalent = self._generatedID_reactionFluxEquivalents.format(reactionID)
 			if reactionTarget == 0:
 				# can't have coeff = 0, target is disabled so -1 is arbitrary value that won't matter
 				self._solver.flowMaterialCoeffIs(
@@ -1256,8 +1258,6 @@ class FluxBalanceAnalysis(object):
 			else:
 				if self._currentKineticTargets[reactionID] == 0:
 					self.enableKineticTargets(reactionID)
-				conversionFlux = self._generatedID_conversionFlux.format(reactionID)
-				reactionFluxEquivalent = self._generatedID_reactionFluxEquivalents.format(reactionID)
 				self._solver.flowMaterialCoeffIs(
 					conversionFlux,
 					reactionFluxEquivalent,
