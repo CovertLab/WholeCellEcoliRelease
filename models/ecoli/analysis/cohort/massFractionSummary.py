@@ -21,7 +21,7 @@ COLORS = [
 	for color in COLORS_256
 	]
 
-def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
+def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile = None, metadata = None):
 
 	massNames = [
 				"dryMass",
@@ -70,7 +70,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			if cellCycleTime > currentMaxTime:
 				currentMaxTime = cellCycleTime
 
-			axesList[idx].set_xlim(0, currentMaxTime*int(metadata["total_gens"])*1.1)
+			axesList[idx].set_xlim(0, currentMaxTime*int(ap.n_generation)*1.1)
 			axesList[idx].set_ylabel(cleanNames[idx] + " (fg)")
 
 	for axes in axesList:
