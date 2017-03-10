@@ -41,7 +41,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	initial_masses = np.zeros(0)
 	final_masses = np.zeros(0)
 
-	all_cells = ap.get_cells()
+	all_cells = ap.get_cells(generation=[1,2,3])
 
 	for simDir in all_cells:
 		simOutDir = os.path.join(simDir, "simOut")
@@ -120,7 +120,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax0.axhline(1., linewidth = 1, color = "black", alpha = 0.9)
 	ax0.text(np.max(ax0.get_xlim()) - 0.001, 1., "adder")
 	ax0.set_ylim([0., 2.])
-	ax0.set_xlim([0.7, 1.22])
+	ax0.set_xlim([0.5, 2])
 
 	ax0.get_yaxis().get_major_formatter().set_useOffset(False)
 	ax0.get_xaxis().get_major_formatter().set_useOffset(False)
