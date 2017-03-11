@@ -50,25 +50,34 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			averageGrowthRate = np.log(2) / doubling_time.asNumber(units.min)
 			growth_rate[np.where(simDir == gen_cells)[0], genIdx] = averageGrowthRate
 
+	
+	norm_growth_rate = growth_rate / growth_rate.mean(axis=0)
+	norm_max = norm_growth_rate.max()
+	norm_min = norm_growth_rate.min()
+	nbins = 40
+	bin_width = (norm_max - norm_min) / nbins
+
 	# Plot initial vs final masses
 	if ap.n_generation == 1:
 		axesList = [axesList]
 
 	for idx, axes in enumerate(axesList):
 		if max_cells_in_gen > 1:
-			axes.hist(growth_rate[:,idx].flatten(), bins=20)
+			axes.hist(norm_growth_rate[:,idx].flatten(), bins=np.arange(norm_growth_rate.min(), norm_growth_rate.max(), bin_width))
 		else:
-			axes.plot(growth_rate[:,idx], 1, 'x')
+			axes.plot(norm_growth_rate[:,idx], 1, 'x')
 			axes.set_ylim([0, 2])
 
-		axes.axvline(growth_rate[:,idx].mean(), color='k', linestyle='dashed', linewidth=2)
-		mean = growth_rate[:,idx].mean()
-		variance = growth_rate[:,idx].var()
-		sd = variance**2.
-		ypos = np.array(axes.get_ylim()).mean()
+		axes.axvline(norm_growth_rate[:,idx].mean() + norm_growth_rate[:,idx].std(), color='k', linewidth=1, alpha = 0.5)
+		axes.axvline(norm_growth_rate[:,idx].mean() - norm_growth_rate[:,idx].std(), color='k', linewidth=1, alpha = 0.5)
+		# mean = growth_rate[:,idx].mean()
+		# variance = growth_rate[:,idx].var()
+		# sd = variance**2.
+		# ypos = np.array(axes.get_ylim()).mean()
 		#axes.text(growth_rate[:,idx].mean(), ypos, "Mean:{}\nSD:{}\nSD/Mean:{}"%(mean, sd, sd / mean))
+		axes.set_xticks([0.5, 0.8, 1.0, 1.2, 1.5])
 
-	axesList[-1].set_xlabel("Growth rate (gDCW/gDCW-min))")
+	axesList[-1].set_xlabel("Normed Growth rate")
 	axesList[ap.n_generation / 2].set_ylabel("Frequency")
 
 	plt.subplots_adjust(hspace = 0.2, wspace = 0.5)
