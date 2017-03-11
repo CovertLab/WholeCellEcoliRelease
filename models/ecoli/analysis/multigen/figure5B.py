@@ -38,6 +38,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		return
 	allDir = ap.get_cells(seed = [0])
 
+	if len(allDir) <= 1:
+		print "Skipping -- figure5B only runs for multigen"
+		return
+
 	# Get mRNA data
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	rnaIds = sim_data.process.transcription.rnaData["id"]
@@ -95,11 +99,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		transcriptionIndex = sim_data.process.transcription.rnaData["id"].tolist()
 		geneIdsOrdered = [sim_data.process.transcription.rnaData["geneId"][transcriptionIndex.index(x)] for x in mRnaIdsOrdered]
 
-		raw_data = cPickle.load(open("out/SET_A_000000/rawData.cPickle", "rb"))
-		geneIdToGeneSymbol = dict([(x["id"].encode("utf-8"), x["symbol"].encode("utf-8")) for x in raw_data.genes])
-		geneSymbolsOrdered = [geneIdToGeneSymbol[x] for x in geneIdsOrdered]
-		cPickle.dump({"geneId": geneIdsOrdered, "geneSymbol": geneSymbolsOrdered}, open(os.path.join(plotOutDir, "figure5B_genes.pickle"), "wb"))
-
+		# raw_data = cPickle.load(open("out/SET_A_000000/rawData.cPickle", "rb"))
+		# geneIdToGeneSymbol = dict([(x["id"].encode("utf-8"), x["symbol"].encode("utf-8")) for x in raw_data.genes])
+		# geneSymbolsOrdered = [geneIdToGeneSymbol[x] for x in geneIdsOrdered]
+		# cPickle.dump({"geneId": geneIdsOrdered, "geneSymbol": geneSymbolsOrdered}, open(os.path.join(plotOutDir, "figure5B_genes.pickle"), "wb"))
 
 		alwaysPresentIndexes = np.where(transcribedBoolOrdered == 1.)[0]
 		neverPresentIndexes = np.where(transcribedBoolOrdered == 0.)[0]
@@ -109,13 +112,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		colors[neverPresentIndexes] = "r"
 		always = transcribedBoolOrdered[alwaysPresentIndexes]
 		never = transcribedBoolOrdered[neverPresentIndexes]
-		
-		if len(allDir) == 1:
-			sometimes = np.array([])
-		else:
-			sometimes = transcribedBoolOrdered[sometimesPresentIndexes]
-		
-
+		sometimes = transcribedBoolOrdered[sometimesPresentIndexes]
 
 		alwaysTranscriptionEvents = []
 		for i in alwaysPresentIndexes:
@@ -150,7 +147,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			"sometimesTranscriptionEvents": sometimesTranscriptionEvents,
 			"neverTranscriptionEvents": neverTranscriptionEvents,
 			}, open(os.path.join(plotOutDir, "figure5B.pickle"), "wb"))
-
 
 	else:
 		D = cPickle.load(open(os.path.join(plotOutDir, "figure5B.pickle"), "r"))
