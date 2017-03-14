@@ -107,20 +107,21 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	fig.set_figheight(mm2inch(38)*mult)
 
 	ax0.plot(scaled_initial_masses, scaled_added_masses, '.', color = "grey", alpha = 0.5, zorder=1)
-	nbins = 20
+	nbins = 30
+	n_cell_cutoff = 10
 	n, _ = np.histogram(scaled_initial_masses, bins=nbins)
 	sy, _ = np.histogram(scaled_initial_masses, bins=nbins, weights=scaled_added_masses)
 	sy2, _ = np.histogram(scaled_initial_masses, bins=nbins, weights=scaled_added_masses*scaled_added_masses)
 	mean = sy / n
 	std = np.sqrt(sy2/(n-1) - n*mean*mean/(n-1))
-	ax0.errorbar((_[1:] + _[:-1])/2, mean, yerr=std, color = "black", linewidth=2, zorder=2)
+	ax0.errorbar(((_[1:] + _[:-1])/2)[n > n_cell_cutoff], mean[n > n_cell_cutoff], yerr=std[n > n_cell_cutoff], color = "black", linewidth=2, zorder=2)
 
 	# ax0.errorbar(sj_mean_x, sj_mean_y, sj_error)
 
 	ax0.axhline(1., linewidth = 1, color = "black", alpha = 0.9)
 	ax0.text(np.max(ax0.get_xlim()) - 0.001, 1., "adder")
 	ax0.set_ylim([0., 2.])
-	ax0.set_xlim([0.7, 1.3])
+	ax0.set_xlim([0.6, 1.4])
 
 	ax0.get_yaxis().get_major_formatter().set_useOffset(False)
 	ax0.get_xaxis().get_major_formatter().set_useOffset(False)
