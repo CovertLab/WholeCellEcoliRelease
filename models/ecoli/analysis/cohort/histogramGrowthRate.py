@@ -54,8 +54,13 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	norm_growth_rate = growth_rate / growth_rate.mean(axis=0)
 	norm_max = norm_growth_rate.max()
 	norm_min = norm_growth_rate.min()
-	nbins = 40
-	bin_width = (norm_max - norm_min) / nbins
+	norm_median = np.median(norm_growth_rate)
+	norm_std = norm_growth_rate.std()
+
+	bin_max = norm_median + 1*norm_std
+	bin_min = norm_median - 1*norm_std
+	nbins = 200
+	bin_width = (bin_max - bin_min) / nbins
 
 	# Plot initial vs final masses
 	if ap.n_generation == 1:
@@ -63,7 +68,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	for idx, axes in enumerate(axesList):
 		if max_cells_in_gen > 1:
-			axes.hist(norm_growth_rate[:,idx].flatten(), bins=np.arange(norm_growth_rate.min(), norm_growth_rate.max(), bin_width))
+			axes.hist(norm_growth_rate[:,idx].flatten(), bins=np.arange(bin_min, bin_max, bin_width))
 		else:
 			axes.plot(norm_growth_rate[:,idx], 1, 'x')
 			axes.set_ylim([0, 2])
@@ -76,7 +81,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		# ypos = np.array(axes.get_ylim()).mean()
 		#axes.text(growth_rate[:,idx].mean(), ypos, "Mean:{}\nSD:{}\nSD/Mean:{}"%(mean, sd, sd / mean))
 		axes.set_xticks([0.5, 0.8, 1.0, 1.2, 1.5])
-
+		axes.set_xlim([bin_min, bin_max])
 	axesList[-1].set_xlabel("Normed Growth rate")
 	axesList[ap.n_generation / 2].set_ylabel("Frequency")
 
