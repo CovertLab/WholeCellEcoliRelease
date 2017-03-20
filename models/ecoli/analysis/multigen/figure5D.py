@@ -87,6 +87,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		dryMass = []
 		timeStepSec = []
 
+		nTranscriptionInitEventsPerGen = []
+		nAvgTetramersPerGen = []
+
 		for gen, simDir in enumerate(allDir):
 			simOutDir = os.path.join(simDir, "simOut")
 
@@ -97,9 +100,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 			moleculeCounts = bulkMolecules.readColumn("counts")
-			enzymeComplexCounts += moleculeCounts[:, enzymeComplexIndex].tolist()
+			enzymeComplexCountsInThisGen = moleculeCounts[:, enzymeComplexIndex].tolist()
 			enzymeMonomerCounts += moleculeCounts[:, enzymeMonomerIndex].tolist()
 			enzymeRnaCounts += moleculeCounts[:, enzymeRnaIndex].tolist()
+
+			enzymeComplexCounts += enzymeComplexCountsInThisGen
+			nAvgTetramersPerGen.append(np.mean(enzymeComplexCountsInThisGen))
 
 			if gen == 0:
 				metaboliteCounts = moleculeCounts[:, metaboliteIndexes]
@@ -114,8 +120,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			fbaResults.close()
 
 			rnapDataReader = TableReader(os.path.join(simOutDir, "RnapData"))
-			enzymeRnaInitEvent += rnapDataReader.readColumn("rnaInitEvent")[:, np.where(rnaIds == enzymeRnaId)[0][0]].tolist()
+			rnaInitEventsInThisGen = rnapDataReader.readColumn("rnaInitEvent")[:, np.where(rnaIds == enzymeRnaId)[0][0]].tolist()
 			rnapDataReader.close()
+
+			enzymeRnaInitEvent += rnaInitEventsInThisGen
+			nTranscriptionInitEventsPerGen.append(np.sum(rnaInitEventsInThisGen))
+
 
 		time = np.array(time)
 		cPickle.dump({
@@ -129,6 +139,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			"dryMass": dryMass,
 			"cellMass": cellMass,
 			"timeStepSec": timeStepSec,
+			"nTranscriptionInitEventsPerGen": nTranscriptionInitEventsPerGen,	# storing value to report in paper
+			"nAvgTetramersPerGen": nAvgTetramersPerGen,							# storing value to report in paper
 			}, open(os.path.join(plotOutDir, "figure5D.pickle"), "wb"))
 	else:
 		D = cPickle.load(open(os.path.join(plotOutDir, "figure5D.pickle"), "r"))
