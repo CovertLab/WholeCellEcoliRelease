@@ -87,10 +87,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	fig = plt.figure()
 
 	plt.title("Central Carbon Metabolism Flux, Pearson R = {:.2}".format(correlationCoefficient))
-	points = plt.errorbar(toyaVsReactionAve[:,0].asNumber(FLUX_UNITS), toyaVsReactionAve[:,1].asNumber(FLUX_UNITS), xerr = toyaVsReactionAve[:,2].asNumber(FLUX_UNITS),
-		yerr = toyaVsReactionAve[:,3].asNumber(FLUX_UNITS), fmt = "o", ecolor = "k")
-	plt.xlabel("Mean WCM Reaction Flux {}".format(FLUX_UNITS.strUnit()))
-	plt.ylabel("Toya 2010 Reaction Flux {}".format(FLUX_UNITS.strUnit()))
+	points = plt.errorbar(toyaVsReactionAve[:,1].asNumber(FLUX_UNITS), toyaVsReactionAve[:,0].asNumber(FLUX_UNITS), xerr = toyaVsReactionAve[:,3].asNumber(FLUX_UNITS),
+		yerr = toyaVsReactionAve[:,2].asNumber(FLUX_UNITS), fmt = "o", ecolor = "k")
+	plt.ylabel("Mean WCM Reaction Flux {}".format(FLUX_UNITS.strUnit()))
+	plt.xlabel("Toya 2010 Reaction Flux {}".format(FLUX_UNITS.strUnit()))
 
 	labels = list(toya_order)
 	tooltip = plugins.PointLabelTooltip(points, labels)
