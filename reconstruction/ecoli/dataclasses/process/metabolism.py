@@ -19,6 +19,7 @@ import numpy as np
 import collections
 import warnings
 import sympy as sp
+from copy import copy
 
 ILE_LEU_CONCENTRATION = 3.0e-4 # mmol/L
 ILE_FRACTION = 0.360 # the fraction of iso/leucine that is isoleucine; computed from our monomer data
@@ -243,29 +244,6 @@ class Metabolism(object):
 				if len(catalystsForThisRxn) > 0:
 					reactionCatalysts[reverseReactionID] = reactionCatalysts[reactionID]
 
-		catalystsList = sorted(set(catalystsList))
-		reactionCatalystsList = sorted(reactionCatalysts)
-
-		# Create catalysis matrix (to be used in the simulation)
-		catalysisMatrixI = []
-		catalysisMatrixJ = []
-		catalysisMatrixV = []
-
-		for row, reaction in enumerate(reactionCatalystsList):
-			for catalyst in reactionCatalysts[reaction]:
-				col = catalystsList.index(catalyst)
-				catalysisMatrixI.append(row)
-				catalysisMatrixJ.append(col)
-				catalysisMatrixV.append(1)
-
-		catalysisMatrixI = np.array(catalysisMatrixI)
-		catalysisMatrixJ = np.array(catalysisMatrixJ)
-		catalysisMatrixV = np.array(catalysisMatrixV)
-
-#		shape = (catalysisMatrixI.max() + 1, catalysisMatrixJ.max() + 1)
-#		catalysisMatrix = np.zeros(shape, np.float64)
-#		catalysisMatrix[catalysisMatrixI, catalysisMatrixJ] = catalysisMatrixV
-
 
 		constraintDict = {}
 		constraintIdList = []
@@ -351,6 +329,58 @@ class Metabolism(object):
 		constrainedReactionList = sorted(reactionsToConstraintsDict)
 		kineticsSubstratesList = sorted(set(kineticsSubstratesList))
 		enzymeIdList = sorted(set(enzymeIdList))
+
+		# split out reactions that are kinetically constrained and that have more than one enzyme that catalyzes the reaction
+		for rxn in constrainedReactionList:
+			catalysts = reactionCatalysts[rxn]
+			if len(catalysts) > 1:
+				for catalyst in catalysts:
+					if rxn.endswith(" (reverse)"):
+						newReaction = reverseReactionString.format("%s__%s" % (rxn[:-10], catalyst[:-3]))
+					else:
+						newReaction = "%s__%s" % (rxn, catalyst[:-3])
+
+					if rxn in reversibleReactions:
+						reversibleReactions.append(newReaction)
+
+					reactionStoich[newReaction] = copy(reactionStoich[rxn])
+					reactionCatalysts[newReaction] = [catalyst]
+					for constraint in reactionsToConstraintsDict[rxn]:
+						if constraintDict[constraint]["enzymeIDs"] == catalyst:
+							constraintDict[constraint]["reactionID"] = newReaction
+							if newReaction not in reactionsToConstraintsDict:
+								reactionsToConstraintsDict[newReaction] = []
+							reactionsToConstraintsDict[newReaction].append(constraint)
+
+				reactionStoich.pop(rxn)
+				reactionCatalysts.pop(rxn)
+				reactionsToConstraintsDict.pop(rxn)
+				if rxn in reversibleReactions:
+					reversibleReactions.pop(reversibleReactions.index(rxn))
+
+		constrainedReactionList = sorted(reactionsToConstraintsDict)
+		catalystsList = sorted(set(catalystsList))
+		reactionCatalystsList = sorted(reactionCatalysts)
+
+		# Create catalysis matrix (to be used in the simulation)
+		catalysisMatrixI = []
+		catalysisMatrixJ = []
+		catalysisMatrixV = []
+
+		for row, reaction in enumerate(reactionCatalystsList):
+			for catalyst in reactionCatalysts[reaction]:
+				col = catalystsList.index(catalyst)
+				catalysisMatrixI.append(row)
+				catalysisMatrixJ.append(col)
+				catalysisMatrixV.append(1)
+
+		catalysisMatrixI = np.array(catalysisMatrixI)
+		catalysisMatrixJ = np.array(catalysisMatrixJ)
+		catalysisMatrixV = np.array(catalysisMatrixV)
+
+#		shape = (catalysisMatrixI.max() + 1, catalysisMatrixJ.max() + 1)
+#		catalysisMatrix = np.zeros(shape, np.float64)
+#		catalysisMatrix[catalysisMatrixI, catalysisMatrixJ] = catalysisMatrixV
 
 		# Create constraint to reaction matrix (to be used in the simulation)
 		constraintToReactionMatrixI = []
