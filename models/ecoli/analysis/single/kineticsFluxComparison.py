@@ -41,6 +41,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	constraintIsKcatOnly = sim_data.process.metabolism.constraintIsKcatOnly
 	constrainedReactions = np.array(sim_data.process.metabolism.constrainedReactionList)
+	useAllConstraints = sim_data.process.metabolism.useAllConstraints
+	constraintsToDisable = sim_data.process.metabolism.constraintsToDisable
 
 	mainListener = TableReader(os.path.join(simOutDir, "Main"))
 	initialTime = mainListener.readAttribute("initialTime")
@@ -75,20 +77,36 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	kmAndKcatReactions = ~np.any(constraintIsKcatOnly[reactionConstraint[BURN_IN_STEPS:,:]], axis = 0)
 	mixedReactions = ~(kcatOnlyReactions ^ kmAndKcatReactions)
 
-	kmAndKcatThresholds = [2, 10]
-	kmAndKcatCategorization = np.zeros(np.sum(kmAndKcatReactions))
-	categorization = np.zeros(reactionConstraint.shape[1])
-	for i, threshold in enumerate(kmAndKcatThresholds):
-		# kmAndKcatCategorization[targetAve[kmAndKcatReactions] / actualAve[kmAndKcatReactions] > threshold] = i + 1
-		kmAndKcatCategorization[actualAve[kmAndKcatReactions] / targetAve[kmAndKcatReactions] > threshold] = i + 1
-		categorization[actualAve / targetAve > threshold] = i + 1
-	kmAndKcatCategorization[actualAve[kmAndKcatReactions] == 0] = -1
+	disabledReactions = np.zeros_like(kcatOnlyReactions)
+	if not useAllConstraints:
+		for rxn in constraintsToDisable:
+			disabledReactions[np.where(constrainedReactions == rxn)[0]] = True
 
-	kcatOnlyThresholds = [2, 10]
-	kcatOnlyCategorization = np.zeros(np.sum(kcatOnlyReactions))
-	for i, threshold in enumerate(kcatOnlyThresholds):
-		kcatOnlyCategorization[actualAve[kcatOnlyReactions] / targetAve[kcatOnlyReactions] > threshold] = i + 1
-	kcatOnlyCategorization[actualAve[kcatOnlyReactions] == 0] = -1
+		kcatOnlyReactions[disabledReactions] = False
+		kmAndKcatReactions[disabledReactions] = False
+		mixedReactions[disabledReactions] = False
+
+	# find kinetically constrained reactions that also are catalyzed by an enzyme without kinetics info
+	unconstrainedReactions = np.zeros_like(kcatOnlyReactions)
+	for idx, rxn in enumerate(constrainedReactions):
+		noKinetics = False
+		withKinetics = False
+		for catalyst in sim_data.process.metabolism.reactionCatalysts[rxn]:
+			if catalyst in sim_data.process.metabolism.enzymeIdList:
+				withKinetics = True
+			else:
+				noKinetics = True
+
+		if withKinetics and noKinetics:
+			unconstrainedReactions[idx] = True
+
+	thresholds = [2, 10]
+	categorization = np.zeros(reactionConstraint.shape[1])
+	categorization[actualAve == 0] = -2
+	categorization[actualAve == targetAve] = -1
+	for i, threshold in enumerate(thresholds):
+		# categorization[targetAve / actualAve > threshold] = i + 1
+		categorization[actualAve / targetAve > threshold] = i + 1
 
 	# url for ecocyc to highlight fluxes that are 0 on metabolic network diagram
 	siteStr = "https://ecocyc.org/overviewsWeb/celOv.shtml?zoomlevel=1&orgid=ECOLI"
@@ -107,13 +125,23 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	csvFile = open(os.path.join(plotOutDir, plotOutFileName + ".tsv"), "wb")
 	output = csv.writer(csvFile, delimiter = "\t")
 	output.writerow(["ecocyc link:", siteStr])
-	output.writerow(["kM and kcat", "Target", "Actual", "Category"])
-	for reaction, target, flux, category in zip(constrainedReactions[kmAndKcatReactions], targetAve[kmAndKcatReactions], actualAve[kmAndKcatReactions], kmAndKcatCategorization):
+	output.writerow(["Km and kcat", "Target", "Actual", "Category"])
+	for reaction, target, flux, category in zip(constrainedReactions[kmAndKcatReactions], targetAve[kmAndKcatReactions], actualAve[kmAndKcatReactions], categorization[kmAndKcatReactions]):
 		output.writerow([reaction, target, flux, category])
 
 	output.writerow(["kcat only"])
-	for reaction, target, flux, category in zip(constrainedReactions[kcatOnlyReactions], targetAve[kcatOnlyReactions], actualAve[kcatOnlyReactions], kcatOnlyCategorization):
+	for reaction, target, flux, category in zip(constrainedReactions[kcatOnlyReactions], targetAve[kcatOnlyReactions], actualAve[kcatOnlyReactions], categorization[kcatOnlyReactions]):
 		output.writerow([reaction, target, flux, category])
+
+	if np.sum(mixedReactions):
+		output.writerow(["mixed constraints"])
+		for reaction, target, flux, category in zip(constrainedReactions[mixedReactions], targetAve[mixedReactions], actualAve[mixedReactions], categorization[mixedReactions]):
+			output.writerow([reaction, target, flux, category])
+
+	if np.sum(disabledReactions):
+		output.writerow(["disabled constraints"])
+		for reaction, target, flux, category in zip(constrainedReactions[disabledReactions], targetAve[disabledReactions], actualAve[disabledReactions], categorization[disabledReactions]):
+			output.writerow([reaction, target, flux, category])
 
 	csvFile.close()
 
@@ -124,6 +152,9 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	from scipy.stats import pearsonr
 	targetPearson = targetAve[kmAndKcatReactions]
 	actualPearson = actualAve[kmAndKcatReactions]
+	plt.loglog([1e-7, 1e4], [1e-7, 1e4], 'k')
+	# plt.loglog([1e-7, 1e3], [1e-6, 1e4], 'k', linewidth = 0.5)
+	# plt.loglog([1e-6, 1e4], [1e-7, 1e3], 'k', linewidth = 0.5)
 	# plt.title(pearsonr(np.log10(targetPearson[actualPearson > 0]), np.log10(actualPearson[actualPearson > 0])))
 	# plt.loglog(targetAve[kmAndKcatReactions][kmAndKcatCategorization == 0], actualAve[kmAndKcatReactions][kmAndKcatCategorization == 0], "og")
 	# plt.loglog(targetAve[kmAndKcatReactions][kmAndKcatCategorization == 1], actualAve[kmAndKcatReactions][kmAndKcatCategorization == 1], "o")
@@ -133,15 +164,15 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	# plt.loglog(targetAve[kcatOnlyReactions][kcatOnlyCategorization == 1], actualAve[kcatOnlyReactions][kcatOnlyCategorization == 1], "o")
 	# plt.loglog(targetAve[kcatOnlyReactions][kcatOnlyCategorization == 2], actualAve[kcatOnlyReactions][kcatOnlyCategorization == 2], "or")
 	# plt.loglog(targetAve[kcatOnlyReactions][kcatOnlyCategorization == -1], actualAve[kcatOnlyReactions][kcatOnlyCategorization == -1], "og")
-	plt.loglog(targetAve[categorization == 0], actualAve[categorization == 0], "og", markeredgewidth = 0.25)
-	plt.loglog(targetAve[categorization == 1], actualAve[categorization == 1], "o", markeredgewidth = 0.25)
-	plt.loglog(targetAve[categorization == 2], actualAve[categorization == 2], "or", markeredgewidth = 0.25)
-	plt.loglog(targetAve[categorization == -1], actualAve[categorization == -1], "og", markeredgewidth = 0.25)
+	# plt.loglog(targetAve[categorization == 0], actualAve[categorization == 0], "ob", markeredgewidth = 0.25, alpha = 0.25)
+	# plt.loglog(targetAve[categorization == 1], actualAve[categorization == 1], "ob", markeredgewidth = 0.25, alpha = 0.25)
+	# plt.loglog(targetAve[categorization == 2], actualAve[categorization == 2], "ob", markeredgewidth = 0.25, alpha = 0.25)
+	# plt.loglog(targetAve[categorization == -1], actualAve[categorization == -1], "ob", markeredgewidth = 0.25, alpha = 0.25)
+	# plt.loglog(targetAve[categorization == -2], actualAve[categorization == -2], "ob", markeredgewidth = 0.25, alpha = 0.25)
+	plt.loglog(targetAve[~disabledReactions], actualAve[~disabledReactions], "ob", markeredgewidth = 0.25, alpha = 0.25)
+	# plt.loglog(targetAve[unconstrainedReactions], actualAve[unconstrainedReactions], "xk", markeredgewidth = 0.5)
 	# plt.loglog(targetAve[kmAndKcatReactions], actualAve[kmAndKcatReactions], "o")
 	# plt.loglog(targetAve[kcatOnlyReactions], actualAve[kcatOnlyReactions], "ro")
-	plt.loglog([1e-7, 1e4], [1e-7, 1e4], '--g')
-	plt.loglog([1e-7, 1e3], [1e-6, 1e4], '--r')
-	# plt.loglog([1e-13, 1], [1e-14, 0.1], '--r')
 	plt.xlabel("Target Flux (mmol/g/hr)")
 	plt.ylabel("Actual Flux (mmol/g/hr)")
 	plt.minorticks_off()
