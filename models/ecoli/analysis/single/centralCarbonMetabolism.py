@@ -76,9 +76,10 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	toyaVsReactionAve = []
 	for toyaReactionID, toyaFlux in toya_fluxes_dict.iteritems():
-		fluxTimeCourse = net_flux(toyaReactionID, reactionIDs, reactionFluxes, reverseRxnFormat=_generatedID_reverseReaction)
-		fluxAve = np.mean(fluxTimeCourse)
-		toyaVsReactionAve.append((fluxAve.asNumber(FLUX_UNITS), toyaFlux.asNumber(FLUX_UNITS)))
+		if toyaReactionID in reactionIDs:
+			fluxTimeCourse = net_flux(toyaReactionID, reactionIDs, reactionFluxes, reverseRxnFormat=_generatedID_reverseReaction)
+			fluxAve = np.mean(fluxTimeCourse)
+			toyaVsReactionAve.append((fluxAve.asNumber(FLUX_UNITS), toyaFlux.asNumber(FLUX_UNITS)))
 
 	toyaVsReactionAve = FLUX_UNITS * np.array(toyaVsReactionAve)
 	correlationCoefficient = np.corrcoef(toyaVsReactionAve[:,0].asNumber(FLUX_UNITS), toyaVsReactionAve[:,1].asNumber(FLUX_UNITS))[0,1]
@@ -88,18 +89,19 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	plt.suptitle("Central Carbon Metabolism Reaction Flux vs. Toya 2010 Measured Fluxes", fontsize=22)
 
 	for idx, fluxName in enumerate(toya_reactions):
-		reactionTimeCourse = net_flux(fluxName, reactionIDs, reactionFluxes, reverseRxnFormat=_generatedID_reverseReaction).asNumber(FLUX_UNITS).squeeze()
-		if reactionTimeCourse[BURN_IN_TIMESTEPS:].any():
-			line_color = WITH_FLUX_COLOR
-		else:
-			line_color = NO_FLUX_COLOR
+		if toyaReactionID in reactionIDs:
+			reactionTimeCourse = net_flux(fluxName, reactionIDs, reactionFluxes, reverseRxnFormat=_generatedID_reverseReaction).asNumber(FLUX_UNITS).squeeze()
+			if reactionTimeCourse[BURN_IN_TIMESTEPS:].any():
+				line_color = WITH_FLUX_COLOR
+			else:
+				line_color = NO_FLUX_COLOR
 
-		ax = plt.subplot(8,4,idx+1)
-		ax.plot(time / 60., reactionTimeCourse, linewidth=2, label=fluxName[:32], color=line_color)
-		plt.axhline(y=toya_fluxes.asNumber(FLUX_UNITS)[idx], color=AVERAGE_COLOR)
-		plt.legend(loc=0)
-		plt.xlabel("Time (min)")
-		plt.ylabel("Flux ({})".format(FLUX_UNITS.strUnit()))
+			ax = plt.subplot(8,4,idx+1)
+			ax.plot(time / 60., reactionTimeCourse, linewidth=2, label=fluxName[:32], color=line_color)
+			plt.axhline(y=toya_fluxes.asNumber(FLUX_UNITS)[idx], color=AVERAGE_COLOR)
+			plt.legend(loc=0)
+			plt.xlabel("Time (min)")
+			plt.ylabel("Flux ({})".format(FLUX_UNITS.strUnit()))
 
 	ax = plt.subplot(8,4, idx+2)
 	ax.plot(0, 0, linewidth=2, label="Zero flux after initial {} time steps".format(BURN_IN_TIMESTEPS), color=NO_FLUX_COLOR)
