@@ -34,7 +34,7 @@ from models.ecoli.processes.metabolism import COUNTS_UNITS, MASS_UNITS, VOLUME_U
 FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
 
 def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-
+	return
 	if not os.path.isdir(variantDir):
 		raise Exception, "variantDir does not currently exist as a directory"
 
