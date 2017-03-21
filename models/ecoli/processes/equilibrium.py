@@ -10,14 +10,9 @@ Equilibrium binding sub-model
 @date: Created 8/21/2015
 """
 
-from __future__ import division
-
 import numpy as np
-import scipy.integrate
-from wholecell.utils import units
-import theano.tensor as T
-import theano
 
+from wholecell.utils import units
 import wholecell.processes.process
 
 
