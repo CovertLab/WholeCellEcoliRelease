@@ -36,45 +36,46 @@ class Equilibrium(wholecell.processes.process.Process):
 	def initialize(self, sim, sim_data):
 		super(Equilibrium, self).initialize(sim, sim_data)
 
+		# Get constants
 		self.nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / units.mol)
 		self.cellDensity = sim_data.constants.cellDensity.asNumber(units.g / units.L)
 
 		# Create matrices and vectors
-
 		self.stoichMatrix = sim_data.process.equilibrium.stoichMatrix().astype(np.int64)
 		self.Rp = sim_data.process.equilibrium.Rp
 		self.Pp = sim_data.process.equilibrium.Pp
 		self.derivatives = sim_data.process.equilibrium.derivatives
 		self.derivativesJacobian = sim_data.process.equilibrium.derivativesJacobian
 		self.metsToRxnFluxes = sim_data.process.equilibrium.metsToRxnFluxes
-
 		self.fluxesAndMoleculesToSS = sim_data.process.equilibrium.fluxesAndMoleculesToSS
 
 		# Build views
-
 		moleculeNames = sim_data.process.equilibrium.moleculeNames
-
 		self.molecules = self.bulkMoleculesView(moleculeNames)
 
 
 	def calculateRequest(self):
+		# Get molecule counts
 		moleculeCounts = self.molecules.total()
 
+		# Get cell mass and volume
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg).asNumber(units.g)
 		cellVolume = cellMass / self.cellDensity
 
+		# Solve ODEs to steady state
 		self.rxnFluxes, self.req = self.fluxesAndMoleculesToSS(moleculeCounts, cellVolume, self.nAvogadro)
 
+		# Request counts of molecules needed
 		self.molecules.requestIs(self.req)
 
 
 	def evolveState(self):
+		# Get counts of molecules allocated to this process
 		moleculeCounts = self.molecules.counts()
-
-		rxnFluxes = self.rxnFluxes.copy()
 
 		# If we didn't get allocated all the molecules we need, make do with what we have
 		# (decrease reaction fluxes so that they make use of what we have, but not more)
+		rxnFluxes = self.rxnFluxes.copy()
 		insufficientMetaboliteIdxs = np.where(self.req > moleculeCounts)[0]
 		for insufficientMetaboliteIdx in insufficientMetaboliteIdxs:
 			rxnPosIdxs = np.where(np.logical_and(self.stoichMatrix[insufficientMetaboliteIdx, :] != 0, rxnFluxes > 0))[0]
@@ -87,6 +88,7 @@ class Equilibrium(wholecell.processes.process.Process):
 
 		assert(np.all(moleculeCounts + np.dot(self.stoichMatrix, rxnFluxes) >= 0))
 
+		# Increment changes in molecule counts
 		self.molecules.countsInc(
 			np.dot(self.stoichMatrix, rxnFluxes)
 			)
