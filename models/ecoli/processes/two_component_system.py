@@ -11,18 +11,11 @@ Two component system sub-model
 
 """
 
-from __future__ import division
-
 import numpy as np
-import scipy.integrate
 
 import wholecell.processes.process
 from wholecell.utils import units
 from wholecell.utils.constants import REQUEST_PRIORITY_TWO_COMPONENT_SYSTEM
-
-import theano.tensor as T
-import theano
-
 
 
 class TwoComponentSystem(wholecell.processes.process.Process):
