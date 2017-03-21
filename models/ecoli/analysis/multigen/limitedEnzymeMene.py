@@ -35,6 +35,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	reactionId = "O-SUCCINYLBENZOATE-COA-LIG-RXN"
 	transcriptionFreq = 0.84
 	metaboliteIds = ["REDUCED-MENAQUINONE[c]", "CPD-12115[c]"]
+	downstreamEnzyme = "DMK-MONOMER[i]"
 
 	# Get all cells
 	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
@@ -53,6 +54,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	enzymeMonomerIndex = moleculeIds.index(enzymeMonomerId)
 	enzymeRnaIndex = moleculeIds.index(enzymeRnaId)
 	metaboliteIndexes = [moleculeIds.index(x) for x in metaboliteIds]
+
+	downstreamEnzymeIndex = moleculeIds.index(downstreamEnzyme)
 	bulkMolecules.close()
 
 	time = []
@@ -62,6 +65,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	enzymeRnaCounts = []
 	enzymeRnaInitEvent = []
 	metaboliteCounts = np.array([])
+
+	downstream = []
 
 	for gen, simDir in enumerate(allDir):
 		simOutDir = os.path.join(simDir, "simOut")
@@ -77,6 +82,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			metaboliteCounts = moleculeCounts[:, metaboliteIndexes]
 		else:
 			metaboliteCounts = np.vstack((metaboliteCounts, moleculeCounts[:, metaboliteIndexes]))
+
+		downstream += moleculeCounts[:, downstreamEnzymeIndex].tolist()
 		bulkMolecules.close()
 
 		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
@@ -94,12 +101,16 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	# Plot
 	fig = plt.figure(figsize = (10, 10))
-	rnaInitAxis = plt.subplot(6, 1, 1)
-	rnaAxis = plt.subplot(6, 1, 2, sharex = rnaInitAxis)
-	monomerAxis = plt.subplot(6, 1, 3, sharex = rnaInitAxis)
-	complexAxis = plt.subplot(6, 1, 4, sharex = rnaInitAxis)
-	fluxAxis = plt.subplot(6, 1, 5, sharex = rnaInitAxis)
-	metAxis = plt.subplot(6, 1, 6, sharex = rnaInitAxis)
+	rnaInitAxis = plt.subplot(7, 1, 1)
+	rnaAxis = plt.subplot(7, 1, 2, sharex = rnaInitAxis)
+	monomerAxis = plt.subplot(7, 1, 3, sharex = rnaInitAxis)
+	complexAxis = plt.subplot(7, 1, 4, sharex = rnaInitAxis)
+	fluxAxis = plt.subplot(7, 1, 5, sharex = rnaInitAxis)
+	metAxis = plt.subplot(7, 1, 6, sharex = rnaInitAxis)
+	axis = plt.subplot(7, 1, 7, sharex = rnaInitAxis)
+
+	axis.plot(time / 3600., downstream)
+	axis.set_title("%s counts" % downstreamEnzyme)
 
 	rnaInitAxis.plot(time / 3600., enzymeRnaInitEvent)
 	rnaInitAxis.set_title("%s transcription initiation events" % enzymeRnaId, fontsize = 10)
