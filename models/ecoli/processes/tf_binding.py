@@ -10,15 +10,11 @@ Bind transcription factors to DNA
 @date: Created 6/14/16
 """
 
-from __future__ import division
-
-import warnings
-
 import numpy as np
 
 import wholecell.processes.process
 from wholecell.utils.random import stochasticRound
-from wholecell.utils import units
+
 
 class TfBinding(wholecell.processes.process.Process):
 	""" TfBinding """
