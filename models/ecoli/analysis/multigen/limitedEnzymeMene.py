@@ -21,8 +21,10 @@ import wholecell.utils.constants
 from wholecell.utils import units
 from models.ecoli.processes.metabolism import COUNTS_UNITS, TIME_UNITS, VOLUME_UNITS
 
+PLOT_DOWNSTREAM_ENZYME = False
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
+	return
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
 
@@ -40,6 +42,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# Get all cells
 	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 	allDir = ap.get_cells()
+	if allDir.tolist() == []:
+		return
 
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	rnaIds = sim_data.process.transcription.rnaData["id"]
@@ -54,7 +58,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	enzymeMonomerIndex = moleculeIds.index(enzymeMonomerId)
 	enzymeRnaIndex = moleculeIds.index(enzymeRnaId)
 	metaboliteIndexes = [moleculeIds.index(x) for x in metaboliteIds]
-
 	downstreamEnzymeIndex = moleculeIds.index(downstreamEnzyme)
 	bulkMolecules.close()
 
@@ -65,7 +68,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	enzymeRnaCounts = []
 	enzymeRnaInitEvent = []
 	metaboliteCounts = np.array([])
-
 	downstream = []
 
 	for gen, simDir in enumerate(allDir):
@@ -83,7 +85,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		else:
 			metaboliteCounts = np.vstack((metaboliteCounts, moleculeCounts[:, metaboliteIndexes]))
 
-		downstream += moleculeCounts[:, downstreamEnzymeIndex].tolist()
+		if PLOT_DOWNSTREAM_ENZYME:
+			downstream += moleculeCounts[:, downstreamEnzymeIndex].tolist()
 		bulkMolecules.close()
 
 		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
@@ -100,17 +103,21 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 
 	# Plot
+	nrows = 6
+	if PLOT_DOWNSTREAM_ENZYME:
+		nrows = 7
 	fig = plt.figure(figsize = (10, 10))
-	rnaInitAxis = plt.subplot(7, 1, 1)
-	rnaAxis = plt.subplot(7, 1, 2, sharex = rnaInitAxis)
-	monomerAxis = plt.subplot(7, 1, 3, sharex = rnaInitAxis)
-	complexAxis = plt.subplot(7, 1, 4, sharex = rnaInitAxis)
-	fluxAxis = plt.subplot(7, 1, 5, sharex = rnaInitAxis)
-	metAxis = plt.subplot(7, 1, 6, sharex = rnaInitAxis)
-	axis = plt.subplot(7, 1, 7, sharex = rnaInitAxis)
+	rnaInitAxis = plt.subplot(nrows, 1, 1)
+	rnaAxis = plt.subplot(nrows, 1, 2, sharex = rnaInitAxis)
+	monomerAxis = plt.subplot(nrows, 1, 3, sharex = rnaInitAxis)
+	complexAxis = plt.subplot(nrows, 1, 4, sharex = rnaInitAxis)
+	fluxAxis = plt.subplot(nrows, 1, 5, sharex = rnaInitAxis)
+	metAxis = plt.subplot(nrows, 1, 6, sharex = rnaInitAxis)
 
-	axis.plot(time / 3600., downstream)
-	axis.set_title("%s counts" % downstreamEnzyme)
+	if PLOT_DOWNSTREAM_ENZYME:
+		axis = plt.subplot(nrows, 1, 7, sharex = rnaInitAxis)
+		axis.plot(time / 3600., downstream)
+		axis.set_title("%s counts" % downstreamEnzyme)
 
 	rnaInitAxis.plot(time / 3600., enzymeRnaInitEvent)
 	rnaInitAxis.set_title("%s transcription initiation events" % enzymeRnaId, fontsize = 10)
@@ -133,7 +140,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	metAxis.set_title("Metabolite counts (%s)" % metaboliteIds, fontsize = 10)
 	metAxis.set_xlabel("Time (hour)\n(%s frequency of at least 1 transcription per generation)" % transcriptionFreq, fontsize = 10)
 
-	plt.subplots_adjust(wspace = 0.4, hspace = 0.4) #, right = 0.83, bottom = 0.05, left = 0.07, top = 0.95)
+	plt.subplots_adjust(wspace = 0.4, hspace = 0.4)
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
