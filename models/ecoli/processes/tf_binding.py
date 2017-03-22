@@ -33,6 +33,7 @@ class TfBinding(wholecell.processes.process.Process):
 	def initialize(self, sim, sim_data):
 		super(TfBinding, self).initialize(sim, sim_data)
 
+		# Get IDs of free DNA targets (alpha), and transcription factor bound targets (tfNames)
 		recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
 		self.tfs = sorted(set([x.split("__")[-1] for x in recruitmentColNames if x.split("__")[-1] != "alpha"]))
 		alphaNames = [x for x in recruitmentColNames if x.endswith("__alpha")]
@@ -40,14 +41,16 @@ class TfBinding(wholecell.processes.process.Process):
 		for tf in self.tfs:
 			tfNames[tf] = [x for x in recruitmentColNames if x.endswith("__" + tf)]
 
-
+		# Get constants
 		self.nAvogadro = sim_data.constants.nAvogadro
 		self.cellDensity = sim_data.constants.cellDensity
 
+		# Create dictionaries and method
 		self.tfNTargets = sim_data.process.transcription_regulation.tfNTargets
 		self.pPromoterBoundTF = sim_data.process.transcription_regulation.pPromoterBoundTF
 		self.tfToTfType = sim_data.process.transcription_regulation.tfToTfType
 
+		# Build views
 		self.alphaView = self.bulkMoleculesView(alphaNames)
 		self.tfDnaBoundViews = {}
 		self.tfMoleculeActiveView = {}
@@ -65,23 +68,30 @@ class TfBinding(wholecell.processes.process.Process):
 
 
 	def calculateRequest(self):
+		# Request all counts of free DNA targets
 		self.alphaView.requestAll()
+
+		# Request all counts of active transcription factors
 		for view in self.tfMoleculeActiveView.itervalues():
 			view.requestAll()
+
+		# Request all counts of DNA bound transcription factors
 		for view in self.tfDnaBoundViews.itervalues():
 			view.requestAll()
 
 
 	def evolveState(self):
+		# Set counts of all free DNA targets to 1
 		self.alphaView.countsIs(1)
 
+		# Create vectors for storing values
 		nTfs = len(self.tfs)
 		pPromotersBound = np.zeros(nTfs, np.float64)
 		nPromotersBound = np.zeros(nTfs, np.float64)
 		nActualBound = np.zeros(nTfs, np.float64)
 
 		for i, tf in enumerate(self.tfs):
-
+			# Get counts of transcription factors
 			tfActiveCounts = self.tfMoleculeActiveView[tf].count()
 			tfInactiveCounts = None
 			if self.tfToTfType[tf] != "0CS":
@@ -89,12 +99,15 @@ class TfBinding(wholecell.processes.process.Process):
 			tfBoundCounts = self.tfDnaBoundViews[tf].counts()
 			promoterCounts = self.tfNTargets[tf]
 
+			# Free all DNA-bound transcription factors into free active transcription factors
 			self.tfDnaBoundViews[tf].countsIs(0)
 			self.tfMoleculeActiveView[tf].countInc(tfBoundCounts.sum())
 
+			# If there are no active transcription factors, continue to the next transcription factor
 			if tfActiveCounts == 0:
 				continue
 
+			# Compute probability of binding the promoter
 			pPromoterBound = None
 			if self.tfToTfType[tf] == "0CS":
 				if tfActiveCounts + tfBoundCounts.sum() > 0:
@@ -104,23 +117,30 @@ class TfBinding(wholecell.processes.process.Process):
 			else:
 				pPromoterBound = self.pPromoterBoundTF(tfActiveCounts, tfInactiveCounts)
 
+			# Determine the number of available promoter sites to bind
 			nToBind = int(stochasticRound(self.randomState, promoterCounts * pPromoterBound))
 
+			# If there are no promoter sites to bind, continue to the next transcription factor
 			if nToBind == 0:
 				continue
 
+			# Determine randomly which DNA targets to bind based on which of the following is most limiting:
+			# number of promoter sites to bind, number of DNA targets, or number of active transcription factors
 			boundLocs = np.zeros_like(tfBoundCounts)
 			boundLocs[
 				self.randomState.choice(tfBoundCounts.size, size = np.min((nToBind, tfBoundCounts.size, self.tfMoleculeActiveView[tf].count())), replace = False)
 				] = 1
 
+			# Update counts of free and DNA-bound transcription factors
 			self.tfMoleculeActiveView[tf].countDec(boundLocs.sum())
 			self.tfDnaBoundViews[tf].countsIs(boundLocs)
 
+			# Record values
 			pPromotersBound[i] = pPromoterBound
 			nPromotersBound[i] = pPromoterBound * self.tfNTargets[tf]
 			nActualBound[i] = boundLocs.sum()
 
+		# Write values to listeners
 		self.writeToListener("RnaSynthProb", "pPromoterBound", pPromotersBound)
 		self.writeToListener("RnaSynthProb", "nPromoterBound", nPromotersBound)
 		self.writeToListener("RnaSynthProb", "nActualBound", nActualBound)
