@@ -30,46 +30,40 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		super(ChromosomeReplication, self).initialize(sim, sim_data)
 
 		# Load parameters
-		# if sim_data.divisionMassVariance == 0.:
-		# 	criticalMassMultiplier = 1.
-		# else:
-		# 	criticalMassMultiplier = sim.randomState.normal(loc = 1.0, scale = sim_data.divisionMassVariance)
-		criticalMassMultiplier = 1.0
-
-		self.criticalInitiationMass = criticalMassMultiplier * sim_data.growthRateParameters.getDnaCriticalMass(sim_data.conditionToDoublingTime[sim_data.condition])
+		self.criticalInitiationMass = sim_data.growthRateParameters.getDnaCriticalMass(sim_data.conditionToDoublingTime[sim_data.condition])
 		self.getDnaCriticalMass = sim_data.growthRateParameters.getDnaCriticalMass
 		self.nutrientToDoublingTime = sim_data.nutrientToDoublingTime
-
 		self.sequenceLengths = sim_data.process.replication.sequence_lengths
 		self.sequences = sim_data.process.replication.replication_sequences
 		self.polymerized_dntp_weights = sim_data.process.replication.replicationMonomerWeights
-
 		self.dnaPolyElngRate = int(round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(units.nt / units.s)))
 
-		# Views
+		# Create unique molecule views for dna polymerases/replication forks and origins of replication
 		self.activeDnaPoly = self.uniqueMoleculesView('dnaPolymerase')
-
 		self.oriCs = self.uniqueMoleculesView('originOfReplication')
 
+		# Create bulk molecule views for polymerization reaction
 		self.dntps = self.bulkMoleculesView(sim_data.moleculeGroups.dNtpIds)
 		self.ppi = self.bulkMoleculeView('PPI[c]')
 		self.chromosomeHalves = self.bulkMoleculesView(sim_data.moleculeGroups.partialChromosome)
 
+		# Create bulk molecules view for full chromosome
 		self.full_chromosome = self.bulkMoleculeView("CHROM_FULL[c]")
 
 	def calculateRequest(self):
-		self.criticalInitiationMass = self.getDnaCriticalMass(self.nutrientToDoublingTime[self._sim.processes["PolypeptideElongation"].currentNutrients])
 
-		self.full_chromosome.requestAll()
+		# Request all unique origins of replication and replication forks
 		self.oriCs.requestAll()
 
+		# If there are no active forks return
 		activeDnaPoly = self.activeDnaPoly.allMolecules()
-
 		if len(activeDnaPoly) == 0:
 			return
 
+		# Request all active replication forks
 		self.activeDnaPoly.requestAll()
 		
+		# Get sequences for all active forks
 		sequenceIdx, sequenceLength = activeDnaPoly.attrs(
 			'sequenceIdx', 'sequenceLength'
 			)
@@ -81,12 +75,14 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			self._dnaPolymeraseElongationRate()
 			)
 
+		# Count number of each dNTP in sequences for the next timestep
 		sequenceComposition = np.bincount(sequences[sequences != PAD_VALUE], minlength = 4)
 
+		# If one dNTP is limiting then limit the request for the other three by the same ratio
 		dNtpsTotal = self.dntps.total()
-
 		maxFractionalReactionLimit = (np.fmin(1, dNtpsTotal/sequenceComposition)).min()
 
+		# Request dNTPs
 		self.dntps.requestIs(
 			maxFractionalReactionLimit * sequenceComposition
 			)
@@ -94,12 +90,15 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 	# Calculate temporal evolution
 	def evolveState(self):
 
-		activeDnaPoly = self.activeDnaPoly.molecules()
+		# Set critical initiaion mass for simulation medium enviornment
+		self.criticalInitiationMass = self.getDnaCriticalMass(self.nutrientToDoublingTime[self._sim.processes["PolypeptideElongation"].currentNutrients])
 
 		##########################################
 		# Perform replication initiation process #
 		##########################################
 
+		# Calculate how many rounds of replication are occuring on what number of chromosomes
+		# information that is used later in the process
 		activeDnaPoly = self.activeDnaPoly.molecules()
 		activePolymerasePresent = len(activeDnaPoly) > 0
 
@@ -109,68 +108,61 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		if len(oriCs) == 0 and chromosomes == 0:
 			return
 
-
-		if self.time() - self._sim.initialTime() < 1.:
-			if activePolymerasePresent:
-				print "Simulation starts"
-				sequenceIdx, sequenceLengths, replicationRound, chromosomeIndex = activeDnaPoly.attrs('sequenceIdx', 'sequenceLength', 'replicationRound', 'chromosomeIndex')
-
-				print "sequenceIdx: {}".format(sequenceIdx)
-				print "sequenceLengths: {}".format(sequenceLengths)
-				print "replicationRound: {}".format(replicationRound)
-				print "chromosomeIndex: {}".format(chromosomeIndex)
-			else:
-				print "No active polymerase present"
-
 		if activePolymerasePresent:
 			replicationRound = activeDnaPoly.attr('replicationRound')
 
 		# Get cell mass
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg)
 
-		# Initiate if over a critical mass threshold, and no oriC currently exists which was initiated at that same critical mass.
+		# Calculate mass per origin of replication
+		# This is a rearrangement of the equation:
+		# 	Cell Mass / Number origin > Critical mass
+		# If this is true, initate a round of chromosome replication
+		# on every origin of replication
 		initiate = False
 		massFactor = cellMass / self.criticalInitiationMass
 		massPerOrigin = massFactor / len(oriCs)
-
-		self.writeToListener("ReplicationData", "criticalMassPerOriC", massPerOrigin)
-		self.writeToListener("ReplicationData", "criticalInitiationMass", self.criticalInitiationMass.asNumber(units.fg))
-
 		if massPerOrigin >= 1.0 and self.chromosomeHalves.total().sum() == 0:
 			initiate = True
 
-		if initiate:
-			print "grep_marker replication initiation - time: {}".format(self.time())
-			print "grep_marker cell division occurs - relative time: {}".format(self.time() - self._sim.initialTime())
-			print "grep_marker replication initiation - time + C + D: {}".format(self.time() + (60. + 20.) * 60.)
-			print "grep_marker replication initiation - cell mass: {}".format(self.readFromListener("Mass", "cellMass"))
+		# Write data about initiation to listener
+		self.writeToListener("ReplicationData", "criticalMassPerOriC", massPerOrigin)
+		self.writeToListener("ReplicationData", "criticalInitiationMass", self.criticalInitiationMass.asNumber(units.fg))
 
-			# Number of oriC the cell has
+		if initiate:
+			# If this is triggered initate a round of replication on every origin of replication
+
+			# Calculate number of origins the cell has
 			if activePolymerasePresent:
-				numOric = 2 * np.unique(replicationRound).size * self.full_chromosome.count()
+				numOric = 2 * np.unique(replicationRound).size * self.full_chromosome.total()
 			else:
-				numOric = 1 * self.full_chromosome.count()
+				numOric = 1 * self.full_chromosome.total()
 				replicationRound = np.array([0])
 		
+			# Calculate number of new "polymerases" required per origin
+			# This is modeled as one "polymerase" on each of the lagging and leading strands.
+			# even if there is only a forward and a reverse strand. This was done to make this
+			# polymerization process analogous to the transcription and translation elongation processes 
 			numberOfNewPolymerase = 4 * numOric
 
-			# Initialize 4 DNA polymerases per oriC
+			# Initialize 4 "polymerases" per origin
 			activeDnaPoly = self.activeDnaPoly.moleculesNew(
 				"dnaPolymerase",
 				numberOfNewPolymerase
 				)
 
-			# Generate a new oriC for each old oriC
+			# Generate a new origin for each old origin
 			oriCs = self.oriCs.moleculesNew(
 				"originOfReplication",
 				numOric
 				)
 
+			# Calculate and set attributes of newly created "polymerases"
 			sequenceIdx = np.tile(np.array([0,1,2,3], dtype=np.int8), numOric)
 			sequenceLength = np.zeros(numberOfNewPolymerase, dtype = np.int8)
 			replicationRound = np.ones(numberOfNewPolymerase, dtype=np.int8) * (replicationRound.max() + 1)
 			chromosomeIndex = np.zeros(numberOfNewPolymerase, dtype=np.int8)
-			chromosomeIndex[numberOfNewPolymerase / self.full_chromosome.count():] = 1.
+			chromosomeIndex[numberOfNewPolymerase / self.full_chromosome.total():] = 1.
 
 			activeDnaPoly.attrIs(
 				sequenceIdx = sequenceIdx,
@@ -179,35 +171,17 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 				chromosomeIndex = chromosomeIndex,
 				)
 
-			print "initializing polymerases"
-			print "activePolymerasePresent: {}".format(activePolymerasePresent)
-			print "numOric: {}".format(numOric)
-			print "numberOfNewPolymerase: {}".format(numberOfNewPolymerase)
-			print "sequenceIdx: {}".format(sequenceIdx)
-			print "sequenceLength: {}".format(sequenceLength)
-			print "replicationRound: {}".format(replicationRound)
-			print "chromosomeIndex: {}".format(chromosomeIndex)
-
-			print "state after initialization"
-			sequenceIdx, sequenceLengths, replicationRound, chromosomeIndex = activeDnaPoly.attrs('sequenceIdx', 'sequenceLength', 'replicationRound', 'chromosomeIndex')
-
-			print "sequenceIdx: {}".format(sequenceIdx)
-			print "sequenceLengths: {}".format(sequenceLengths)
-			print "replicationRound: {}".format(replicationRound)
-			print "chromosomeIndex: {}".format(chromosomeIndex)
-			# import ipdb; ipdb.set_trace()
-
-
 
 		##########################################
 		# Perform replication elongation process #
 		##########################################
 
+		# If no "polymerases" are present return
 		if len(activeDnaPoly) == 0:
 			return
 		
+		# Build sequences to polymerize
 		dNtpCounts = self.dntps.counts()
-
 		sequenceIdx, sequenceLengths, massDiffDna = activeDnaPoly.attrs(
 			'sequenceIdx', 'sequenceLength', 'massDiff_DNA'
 			)
@@ -221,7 +195,9 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			self._dnaPolymeraseElongationRate()
 			)
 
-		reactionLimit = dNtpCounts.sum() # TODO: account for energy
+		# Use polymerize algorithm to quickly calculate the number of elongations
+		# each "polymerase" catalyzes
+		reactionLimit = dNtpCounts.sum()
 
 		sequenceElongations, dNtpsUsed, nElongations = polymerize(
 			sequences,
@@ -230,7 +206,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			self.randomState
 			)
 
-		# Compute mass increase for each polymerizing chromosome half
+		# Compute mass increase for each polymerizing chromosome
 		massIncreaseDna = computeMassIncrease(
 			sequences,
 			sequenceElongations,
@@ -239,8 +215,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 		updatedMass = massDiffDna + massIncreaseDna
 
-		didInitialize = (sequenceLengths == 0) & (sequenceElongations > 0)
-
+		# Update positions of each "polymerase"
 		updatedLengths = sequenceLengths + sequenceElongations
 
 		activeDnaPoly.attrIs(
@@ -248,8 +223,17 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			massDiff_DNA = updatedMass
 			)
 
-		# Determine if any chromosome half finshed polymerizing
-		# and create new unique chromosomes
+		# Update counts of polymerized metabolites
+		self.dntps.countsDec(dNtpsUsed)
+		self.ppi.countInc(dNtpsUsed.sum())
+
+		###########################################
+		# Perform replication termination process #
+		###########################################
+
+		# Determine if any "polymerases" reached the end of their
+		# sequence. If so terminate them and update the attributes of the
+		# remaining "polymerases" to reflect the new chromosome structure
 		terminalLengths = self.sequenceLengths[sequenceIdx]
 
 		didTerminate = (updatedLengths == terminalLengths)
@@ -290,39 +274,14 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			# Resets chromosomeIndex
 			activeDnaPoly.attrIs(chromosomeIndex = chromosomeIndex)
 
-		newUniqueChromosomeHalves = sequenceIdx[np.where(didTerminate)[0]]
-
-		if any(didTerminate):
-			print "terminating chromosomes"
-			sequenceIdx, sequenceLengths, replicationRound, chromosomeIndex = activeDnaPoly.attrs(
-				'sequenceIdx', 'sequenceLength', 'replicationRound', 'chromosomeIndex'
-				)
-			print "terminated"
-			print "sequenceIdx: {}".format(sequenceIdx[didTerminate])
-			print "sequenceLengths: {}".format(sequenceLengths[didTerminate])
-			print "replicationRound: {}".format(replicationRound[didTerminate])
-			print "chromosomeIndex: {}".format(chromosomeIndex[didTerminate])
-			print "didTerminate: {}".format(didTerminate)
-
-
-			print "state after termination"
-			print "sequenceIdx: {}".format(sequenceIdx[np.logical_not(didTerminate)])
-			print "sequenceLengths: {}".format(sequenceLengths[np.logical_not(didTerminate)])
-			print "replicationRound: {}".format(replicationRound[np.logical_not(didTerminate)])
-			print "chromosomeIndex: {}".format(chromosomeIndex[np.logical_not(didTerminate)])
-
-			# import ipdb; ipdb.set_trace()
+		# Delete terminated "polymerases"
 		activeDnaPoly.delByIndexes(np.where(didTerminate)[0])
 
-		nTerminated = didTerminate.sum()
-		nInitialized = didInitialize.sum()
-		nElongations = dNtpsUsed.sum()
-
+		# Update counts of newly created chromosome halves. These will be "stitched" together
+		# in the ChromosomeFormation process
 		self.chromosomeHalves.countsInc(terminatedChromosomes)
 
-		self.dntps.countsDec(dNtpsUsed)
-
-		self.ppi.countInc(nElongations)
 
 	def _dnaPolymeraseElongationRate(self):
+		# Calculates elongation rate scaled by the time step
 		return self.dnaPolyElngRate * self.timeStepSec()
