@@ -89,7 +89,6 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 	# Calculate temporal evolution
 	def evolveState(self):
-
 		# Set critical initiaion mass for simulation medium enviornment
 		self.criticalInitiationMass = self.getDnaCriticalMass(self.nutrientToDoublingTime[self._sim.processes["PolypeptideElongation"].currentNutrients])
 
@@ -103,7 +102,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		activePolymerasePresent = len(activeDnaPoly) > 0
 
 		oriCs = self.oriCs.molecules()
-		chromosomes = self.full_chromosome.total()[0]
+		nChromosomes = self.full_chromosome.total()[0]
 
 		if len(oriCs) == 0 and chromosomes == 0:
 			return
@@ -134,9 +133,9 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 			# Calculate number of origins the cell has
 			if activePolymerasePresent:
-				numOric = 2 * np.unique(replicationRound).size * self.full_chromosome.total()
+				numOric = 2 * np.unique(replicationRound).size * nChromosomes
 			else:
-				numOric = 1 * self.full_chromosome.total()
+				numOric = 1 * nChromosomes
 				replicationRound = np.array([0])
 		
 			# Calculate number of new "polymerases" required per origin
@@ -162,7 +161,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			sequenceLength = np.zeros(numberOfNewPolymerase, dtype = np.int8)
 			replicationRound = np.ones(numberOfNewPolymerase, dtype=np.int8) * (replicationRound.max() + 1)
 			chromosomeIndex = np.zeros(numberOfNewPolymerase, dtype=np.int8)
-			chromosomeIndex[numberOfNewPolymerase / self.full_chromosome.total():] = 1.
+			chromosomeIndex[numberOfNewPolymerase / nChromosomes:] = 1.
 
 			activeDnaPoly.attrIs(
 				sequenceIdx = sequenceIdx,
