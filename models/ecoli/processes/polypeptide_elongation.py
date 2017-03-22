@@ -82,6 +82,9 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.elngRateFactor = 1.
 
 	def calculateRequest(self):
+		# Set ribosome elongation rate based on simulation medium enviornment and elongation rate factor
+		# which is used to create single-cell variability in growth rate
+		self.ribosomeElongationRate = self.elngRateFactor * self.ribosomeElongationRateDict[self.currentNutrients].asNumber(units.aa / units.s)
 
 		# Request all active ribosomes
 		self.activeRibosomes.requestAll()
@@ -135,10 +138,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.gtpRequest = gtpsHydrolyzed
 
 	def evolveState(self):
-		# Set ribosome elongation rate based on simulation medium enviornment and elongation rate factor
-		# which is used to create single-cell variability in growth rate
-		self.ribosomeElongationRate = self.elngRateFactor * self.ribosomeElongationRateDict[self.currentNutrients].asNumber(units.aa / units.s)
-
 		# Write allocation data to listener
 		self.writeToListener("GrowthLimits", "gtpAllocated", self.gtp.count())
 		self.writeToListener("GrowthLimits", "aaAllocated", self.aas.counts())
