@@ -24,20 +24,24 @@ class ChromosomeFormation(wholecell.processes.process.Process):
 
 	_name = "ChromosomeFormation"
 
-	# Constructor
 	def __init__(self):
 		super(ChromosomeFormation, self).__init__()
 
-	# Construct object graph
 	def initialize(self, sim, sim_data):
 		super(ChromosomeFormation, self).initialize(sim, sim_data)
 
 		# Load constants
 		self.nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / units.mol)
+		self.D_period = sim_data.growthRateParameters.d_period.asNumber(units.s)
 
+		# Create views on partial and full chromosomes
+		# NOTE: Parial chromosomes are modeling artifact. They are single strands of half a chromosome.
+		# this was done to simplify the chromosome replication polymerization process and make it analogous
+		# to what was done in transcription and translation elongation. This process removes the artifact.
 		self.partialChromosomes = self.bulkMoleculesView(sim_data.moleculeGroups.partialChromosome)
 		self.fullChromosome = self.bulkMoleculeView(sim_data.moleculeGroups.fullChromosome[0])
 
+		# Placeholder for cell division data
 		self.fullChromosomeUnique = self.uniqueMoleculesView("fullChromosome")
 
 	def calculateRequest(self):
@@ -45,15 +49,13 @@ class ChromosomeFormation(wholecell.processes.process.Process):
 
 	def evolveState(self):
 		partialChromosomes = self.partialChromosomes.counts()
+
+		# If >1 of each partial chromosome exists, turn them into a standard full chromosome
 		if partialChromosomes.min():
 			fullUniqueChrom = self.fullChromosomeUnique.moleculesNew("fullChromosome", partialChromosomes.min())
-			fullUniqueChrom.attrIs(division_time = [self.time() + 20. * 60.] * partialChromosomes.min())
+			# Log the time that the C period finishes and set the corresponding division time to be D period time later in seconds
+			fullUniqueChrom.attrIs(division_time = [self.time() + self.D_period] * partialChromosomes.min())
 
-			print "grep_marker replication termination - time: {}".format(self.time())
-			print "grep_marker cell division occurs - relative time: {}".format(self.time() - self._sim.initialTime())
-			print "grep_marker replication termination - time set for division: {}".format(self.time() + 20. * 60.)
-			print "grep_marker replication termination - cell mass: {}".format(self.readFromListener("Mass", "cellMass"))
-			print "grep_marker replication termination - partial chromosome counts: {}".format(partialChromosomes)
-
+		# Decrement and increment counts
 		self.fullChromosome.countInc(partialChromosomes.min())
 		self.partialChromosomes.countsDec(partialChromosomes.min())
