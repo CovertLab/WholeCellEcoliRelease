@@ -223,11 +223,11 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		activeRibosomes.delByIndexes(np.where(didTerminate)[0])
 		self.bulkMonomers.countsInc(terminatedProteins)
 
-		self.ribosome30S.countInc(nTerminated)
-		self.ribosome50S.countInc(nTerminated)
-
 		nTerminated = didTerminate.sum()
 		nInitialized = didInitialize.sum()
+
+		self.ribosome30S.countInc(nTerminated)
+		self.ribosome50S.countInc(nTerminated)
 
 		# Update counts of amino acids and water to reflect polymerization reactions
 		self.aas.countsDec(aasUsed)
