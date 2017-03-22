@@ -253,8 +253,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("RibosomeData", "actualElongations", sequenceElongations.sum())
 
 		self.writeToListener("RibosomeData", "didTerminate", didTerminate.sum())
-		self.writeToListener("RibosomeData", "terminationLoss", (terminalLengths - peptide	
-				# Used for figure in publicationLengths)[didTerminate].sum())
+		self.writeToListener("RibosomeData", "terminationLoss", (terminalLengths - peptideLengths)[didTerminate].sum())
 		self.writeToListener("RibosomeData", "numTrpATerminated", terminatedProteins[self.trpAIndex])
 
 		self.writeToListener("RibosomeData", "processElongationRate", self._elngRate() / self.timeStepSec())
