@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-ReplicationElongation
+ChromosomeReplication
 
 @author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -16,18 +16,18 @@ import wholecell.processes.process
 from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
 from wholecell.utils import units
 
-class ReplicationElongation(wholecell.processes.process.Process):
-	""" ReplicationElongation """
+class ChromosomeReplication(wholecell.processes.process.Process):
+	""" ChromosomeReplication """
 
-	_name = "ReplicationElongation"
+	_name = "ChromosomeReplication"
 
 	# Constructor
 	def __init__(self):
-		super(ReplicationElongation, self).__init__()
+		super(ChromosomeReplication, self).__init__()
 
 	# Construct object graph
 	def initialize(self, sim, sim_data):
-		super(ReplicationElongation, self).initialize(sim, sim_data)
+		super(ChromosomeReplication, self).initialize(sim, sim_data)
 
 		# Load parameters
 		# if sim_data.divisionMassVariance == 0.:
