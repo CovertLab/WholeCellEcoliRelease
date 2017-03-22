@@ -31,7 +31,7 @@ from wholecell.utils.enzymeKinetics import EnzymeKinetics
 
 from wholecell.utils.fitting import massesAndCountsToAddForHomeostaticTargets
 
-COUNTS_UNITS = units.dmol
+COUNTS_UNITS = units.mmol
 VOLUME_UNITS = units.L
 MASS_UNITS = units.g
 TIME_UNITS = units.s
