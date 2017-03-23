@@ -312,7 +312,6 @@ class TwoComponentSystem(object):
 			needToCreate = True
 
 		if needToCreate:
-			# self._makeMatrices()
 			self._makeDerivative()
 			self._makeDerivativeFitter()
 			writeOdeFile(odeFile, self.derivativesSymbolic, self.derivativesJacobianSymbolic)
