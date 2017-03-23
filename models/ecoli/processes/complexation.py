@@ -7,7 +7,7 @@ Macromolecular complexation sub-model. Encodes molecular simulation of macromole
 
 TODO:
 - allow for shuffling when appropriate (maybe in another process)
-- handle complex degradation
+- handle protein complex dissociation
 
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -31,27 +31,24 @@ class Complexation(wholecell.processes.process.Process):
 
 		super(Complexation, self).__init__()
 
-
 	# Construct object graph
 	def initialize(self, sim, sim_data):
 		super(Complexation, self).initialize(sim, sim_data)
 
-		# Create matrices and vectors
-
+		# Create matrices and vectors that describe reaction stoichiometries 
 		self.stoichMatrix = sim_data.process.complexation.stoichMatrix().astype(np.int64, order = "F")
 
 		self.prebuiltMatrices = mccBuildMatrices(self.stoichMatrix)
 
 		# Build views
-
 		moleculeNames = sim_data.process.complexation.moleculeNames
-
 		self.molecules = self.bulkMoleculesView(moleculeNames)
 
 
 	def calculateRequest(self):
 		moleculeCounts = self.molecules.total()
 
+		# Macromolecule complexes are requested
 		updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
 			moleculeCounts,
 			self.seed,
@@ -65,6 +62,7 @@ class Complexation(wholecell.processes.process.Process):
 	def evolveState(self):
 		moleculeCounts = self.molecules.counts()
 
+		# Macromolecule complexes are formed from their subunits
 		updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
 			moleculeCounts,
 			self.seed,
