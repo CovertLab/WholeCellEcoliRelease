@@ -35,13 +35,8 @@ class Equilibrium(wholecell.processes.process.Process):
 		self.nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / units.mol)
 		self.cellDensity = sim_data.constants.cellDensity.asNumber(units.g / units.L)
 
-		# Create matrices and vectors
+		# Create matrix and method
 		self.stoichMatrix = sim_data.process.equilibrium.stoichMatrix().astype(np.int64)
-		self.Rp = sim_data.process.equilibrium.Rp
-		self.Pp = sim_data.process.equilibrium.Pp
-		self.derivatives = sim_data.process.equilibrium.derivatives
-		self.derivativesJacobian = sim_data.process.equilibrium.derivativesJacobian
-		self.metsToRxnFluxes = sim_data.process.equilibrium.metsToRxnFluxes
 		self.fluxesAndMoleculesToSS = sim_data.process.equilibrium.fluxesAndMoleculesToSS
 
 		# Build views
