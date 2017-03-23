@@ -1,4 +1,14 @@
+"""
+Equilibrium.
 
+TODOs:
+_populateDerivativeAndJacobian()
+	Decide if this caching is worthwhile
+	Assumes a directory structure
+
+fluxesAndMoleculesToSS()
+	Consider relocating (since it's useful for both the fitter and simulation)
+"""
 from __future__ import division
 
 import numpy as np
@@ -14,7 +24,6 @@ import sympy as sp
 class Equilibrium(object):
 	def __init__(self, raw_data, sim_data):
 		# Build the abstractions needed for complexation
-
 		molecules = []
 
 		ratesFwd = []
@@ -31,7 +40,7 @@ class Equilibrium(object):
 		self.metaboliteSet = set()
 		self.complexNameToRxnIdx = {}
 
-		# Make sure reactions aren't duplicated in complexationReactions and equilibriumReactions
+		# Make sure reactions are not duplicated in complexationReactions and equilibriumReactions
 		equilibriumReactionIds = set([x["id"] for x in raw_data.equilibriumReactions])
 		complexationReactionIds = set([x["id"] for x in raw_data.complexationReactions])
 
@@ -56,6 +65,7 @@ class Equilibrium(object):
 		for reactionIndex in deleteReactions[::-1]:
 			del raw_data.equilibriumReactions[reactionIndex]
 
+		# Build stoichiometry matrix
 		for reactionIndex, reaction in enumerate(raw_data.equilibriumReactions):
 			assert reaction["process"] == "equilibrium"
 			assert reaction["dir"] == 1
@@ -89,7 +99,7 @@ class Equilibrium(object):
 
 				assert coefficient % 1 == 0
 
-
+				# Store indices for the row and column, and molecule coefficient for building the stoichiometry matrix
 				stoichMatrixI.append(moleculeIndex)
 				stoichMatrixJ.append(reactionIndex)
 				stoichMatrixV.append(coefficient)
@@ -122,6 +132,7 @@ class Equilibrium(object):
 		# The stoichometric matrix should balance out to numerical zero.
 		assert np.max([abs(x) for x in massBalanceArray]) < 1e-9
 
+		# Build matrices
 		self._makeMatrices()
 		self._populateDerivativeAndJacobian()
 		self._complexIdxs = np.where((self.stoichMatrix() == 1).sum(axis = 1))[0]
@@ -131,21 +142,27 @@ class Equilibrium(object):
 		self._stoichMatrixMonomers = self.stoichMatrixMonomers()
 
 	def stoichMatrix(self):
+		'''
+		Builds stoichiometry matrix
+		Rows: molecules
+		Columns: reactions
+		Values: reaction stoichiometry
+		'''
 		shape = (self._stoichMatrixI.max()+1, self._stoichMatrixJ.max()+1)
-
 		out = np.zeros(shape, np.float64)
-
 		out[self._stoichMatrixI, self._stoichMatrixJ] = self._stoichMatrixV
-
 		return out
 
 	def massMatrix(self):
+		'''
+		Builds stoichiometry mass matrix
+		Rows: molecules
+		Columns: reactions
+		Values: molecular mass
+		'''
 		shape = (self._stoichMatrixI.max()+1, self._stoichMatrixJ.max()+1)
-
 		out = np.zeros(shape, np.float64)
-
 		out[self._stoichMatrixI, self._stoichMatrixJ] = self._stoichMatrixMass
-
 		return out
 
 	def massBalance(self):
@@ -153,17 +170,19 @@ class Equilibrium(object):
 		Sum along the columns of the massBalance matrix to check for reaction
 		mass balance
 		'''
-
 		reactionSumsArray = []
-		
 		for index, column in enumerate(self.balanceMatrix.T):
 			reactionSumsArray.append(sum(column))
-
 		return reactionSumsArray
 
 	def stoichMatrixMonomers(self):
+		'''
+		Builds stoichiometry matrix for monomers (complex subunits)
+		Rows: molecules (complexes and monomers)
+		Columns: complexes
+		Values: monomer stoichiometry
+		'''
 		ids_complexes = [self.moleculeNames[i] for i in np.where((self.stoichMatrix() == 1).sum(axis = 1))[0]]
-
 		stoichMatrixMonomersI = []
 		stoichMatrixMonomersJ = []
 		stoichMatrixMonomersV = []
@@ -187,14 +206,13 @@ class Equilibrium(object):
 		shape = (stoichMatrixMonomersI.max() + 1, stoichMatrixMonomersJ.max() + 1)
 
 		out = np.zeros(shape, np.float64)
-
 		out[stoichMatrixMonomersI, stoichMatrixMonomersJ] = stoichMatrixMonomersV
-
 		return out
 
 	def _populateDerivativeAndJacobian(self):
-		# TODO: Decide if this caching is worthwhile
-		# TODO: Unhack this--this assumes a directory structure
+		'''
+		Creates callable functions for computing the derivative and the Jacobian.
+		'''
 		fixturesDir = os.path.join(
 			os.path.dirname(os.path.dirname(wholecell.__file__)),
 			"fixtures",
@@ -250,23 +268,14 @@ class Equilibrium(object):
 			self.derivativesJacobian = reconstruction.ecoli.dataclasses.process.equilibrium_odes.derivativesJacobian
 
 	def _makeMatrices(self):
+		'''
+		Creates matrix that maps metabolites to the flux through their reactions.
+		'''
 		EPS = 1e-9
 
 		S = self.stoichMatrix()
-
-		# TODO: Check that new (uncommented) code below is right
-		# Going over things with HC, I think we don't want a boolean array
-		# I think we want an array with positive numbers
-		# S1 = np.zeros_like(S)
-		# S1[S < -1 * EPS] = -1
-		# S1[S > EPS] = 1
-
-		# Rp =  1. * (S1 < 0)
-		# Pp =  1. * (S1 > 0)
-
 		Rp = -1. * (S < -1 * EPS) * S
 		Pp =  1. * (S >  1 * EPS) * S
-
 		self.Rp = Rp
 		self.Pp = Pp
 
@@ -284,7 +293,10 @@ class Equilibrium(object):
 		self.metsToRxnFluxes = metsToRxnFluxes.T
 
 	def _makeDerivative(self):
-
+		'''
+		Creates symbolic representation of the ordinary differential equations and the Jacobian.
+		Used during simulations.
+		'''
 		S = self.stoichMatrix()
 
 		yStrings = ["y[%d]" % x for x in xrange(S.shape[0])]
@@ -323,12 +335,10 @@ class Equilibrium(object):
 		self.derivativesJacobianSymbolic = J
 		self.derivativesSymbolic = dy
 
-
-	# TODO: Should this method be here?
-	# It could be useful in both the fitter and in the simulations
-	# But it isn't just data
 	def fluxesAndMoleculesToSS(self, moleculeCounts, cellVolume, nAvogadro):
-
+		'''
+		Calculate change in molecule counts and flux through reactions until steady state.
+		'''
 		rxnFluxes = np.zeros(self._stoichMatrix.shape[1])
 		yMoleculesFinal = np.zeros_like(moleculeCounts)
 		dYMolecules = np.zeros_like(moleculeCounts)
@@ -365,9 +375,6 @@ class Equilibrium(object):
 
 		return x[nonZeroIdxs] + rxnFlux * S[nonZeroIdxs]
 
-
-	# TODO: These methods might not be necessary, consider deleting if that's the case
-	# TODO: redesign this so it doesn't need to create a stoich matrix
 	def getMonomers(self, cplxId):
 		'''
 		Returns subunits for a complex (or any ID passed).
