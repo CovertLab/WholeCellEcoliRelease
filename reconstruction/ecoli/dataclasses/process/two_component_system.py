@@ -12,15 +12,12 @@ moleculesToNextTimeStep()
 	Consider relocating (since it's useful for both the fitter and simulation)
 
 """
-from __future__ import division
-
 import numpy as np
 import os
 import cPickle
 import wholecell
 from wholecell.utils import units
 from wholecell.utils.write_ode_file import writeOdeFile
-from . import metabolism
 import scipy
 import re
 import sympy as sp
