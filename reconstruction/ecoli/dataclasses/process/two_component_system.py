@@ -174,7 +174,6 @@ class TwoComponentSystem(object):
 		assert np.max([abs(x) for x in massBalanceArray]) < 1e-9
 
 		# Build matrices
-		self._makeMatrices()
 		self._populateDerivativeAndJacobian()
 		self.dependencyMatrix = self.makeDependencyMatrix()
 
