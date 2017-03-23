@@ -1,6 +1,13 @@
 """
 SimulationData for metabolism process
 
+TODO:
+- improved estimate of ILE/LEU abundance or some external data point
+- implement L1-norm minimization for AA concentrations
+- find concentration for PI[c]
+- add (d)NTP byproduct concentrations
+- include custom kinetic constraints when reading from raw_data.enzymeKinetics
+
 @author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 03/06/2015
@@ -29,15 +36,6 @@ CONSTRAINTS_TO_DISABLE = [
 	]
 
 reverseReactionString = "{} (reverse)"
-
-"""
-TODO:
-- improved estimate of ILE/LEU abundance or some external data point
-- implement L1-norm minimization for AA concentrations
-- find concentration for PI[c]
-- add (d)NTP byproduct concentrations
-- include custom kinetic constraints when reading from raw_data.enzymeKinetics
-"""
 
 class Metabolism(object):
 	""" Metabolism """
