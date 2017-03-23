@@ -7,6 +7,7 @@ Transcription elongation sub-model.
 
 TODO:
 - use transcription units instead of single genes
+- account for energy
 
 @author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
@@ -14,8 +15,6 @@ TODO:
 """
 
 from __future__ import division
-
-from itertools import izip
 
 import numpy as np
 
@@ -31,193 +30,109 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 	# Constructor
 	def __init__(self):
-		# Constants
-		self.rnapElngRate = None
-		self.rnaIds = None
-		self.rnaLengths = None
-		self.rnaSequences = None
-		self.ntWeights = None
-		self.hydroxylWeight = None
-
-		# Views
-		self.activeRnaPolys = None
-		self.bulkRnas = None
-		self.ntps = None
-		self.ppi = None
-		self.h2o = None
-		self.proton = None
-		self.rnapSubunits = None
-
 		super(TranscriptElongation, self).__init__()
 
-
-	# Construct object graph
 	def initialize(self, sim, sim_data):
 		super(TranscriptElongation, self).initialize(sim, sim_data)
 
 		# Load parameters
-
 		self.rnaPolymeraseElongationRateDict = sim_data.process.transcription.rnaPolymeraseElongationRateDict
-
 		self.rnaIds = sim_data.process.transcription.rnaData['id']
-
 		self.rnaLengths = sim_data.process.transcription.rnaData["length"].asNumber()
-
 		self.rnaSequences = sim_data.process.transcription.transcriptionSequences
-
 		self.ntWeights = sim_data.process.transcription.transcriptionMonomerWeights
-
 		self.endWeight = sim_data.process.transcription.transcriptionEndWeight
 
 		# Views
-
 		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
 		self.bulkRnas = self.bulkMoleculesView(self.rnaIds)
-
 		self.ntps = self.bulkMoleculesView(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
 		self.ppi = self.bulkMoleculeView('PPI[c]')
-
 		self.inactiveRnaPolys = self.bulkMoleculeView("APORNAP-CPLX[c]")
 
-		self.isMRna = sim_data.process.transcription.rnaData["isMRna"]
-		self.isRRna = sim_data.process.transcription.rnaData["isRRna"]
-		self.isTRna = sim_data.process.transcription.rnaData["isTRna"]
-
-
 	def calculateRequest(self):
-		self.rnapElngRate = self.rnaPolymeraseElongationRateDict[self._sim.processes["PolypeptideElongation"].currentNutrients].asNumber(units.nt / units.s)
-		self.rnapElngRate = int(round(self.rnapElngRate))
+		# Calculate elongation rate based on the current nutrients
+		self.rnapElngRate = int(round(self.rnaPolymeraseElongationRateDict[self._sim.processes["PolypeptideElongation"].currentNutrients].asNumber(units.nt / units.s)))
 
+		# Request all active RNA polymerases
 		activeRnaPolys = self.activeRnaPolys.allMolecules()
-
 		if len(activeRnaPolys) == 0:
 			return
-
 		self.activeRnaPolys.requestAll()
 
-		rnaIndexes, transcriptLengths = activeRnaPolys.attrs(
-			'rnaIndex', 'transcriptLength'
-			)
-
-		sequences = buildSequences(
-			self.rnaSequences,
-			rnaIndexes,
-			transcriptLengths,
-			self._elngRate()
-			)
-
+		# Determine total possible sequences of nucleotides that can be transcribed in this time step for each polymerase
+		rnaIndexes, transcriptLengths = activeRnaPolys.attrs('rnaIndex', 'transcriptLength')
+		sequences = buildSequences(self.rnaSequences, rnaIndexes, transcriptLengths, self._elngRate())
 		sequenceComposition = np.bincount(sequences[sequences != PAD_VALUE], minlength = 4)
 
+		# Calculate if any nucleotides are limited and request up to the number in the sequences or number available
 		ntpsTotal = self.ntps.total()
-
-		maxFractionalReactionLimit = (np.fmin(1, ntpsTotal/sequenceComposition)).min()
-
-		self.ntps.requestIs(
-			maxFractionalReactionLimit * sequenceComposition
-			)
+		maxFractionalReactionLimit = np.fmin(1, ntpsTotal / sequenceComposition)
+		self.ntps.requestIs(maxFractionalReactionLimit * sequenceComposition)
 
 		self.writeToListener("GrowthLimits", "ntpPoolSize", self.ntps.total())
 		self.writeToListener("GrowthLimits", "ntpRequestSize", maxFractionalReactionLimit * sequenceComposition)
 
-	# Calculate temporal evolution
 	def evolveState(self):
 		ntpCounts = self.ntps.counts()
-
-		self.writeToListener("GrowthLimits", "ntpAllocated", self.ntps.counts())
+		self.writeToListener("GrowthLimits", "ntpAllocated", ntpCounts)
 
 		activeRnaPolys = self.activeRnaPolys.molecules()
-
 		if len(activeRnaPolys) == 0:
 			return
 
-		rnaIndexes, transcriptLengths, massDiffRna = activeRnaPolys.attrs(
-			'rnaIndex', 'transcriptLength', 'massDiff_mRNA'
-			)
-
-		ntpsUsed = np.zeros_like(ntpCounts)
-
-		sequences = buildSequences(
-			self.rnaSequences,
-			rnaIndexes,
-			transcriptLengths,
-			self._elngRate()
-			)
-
+		# Determine sequences that can be elongated
+		rnaIndexes, transcriptLengths, massDiffRna = activeRnaPolys.attrs('rnaIndex', 'transcriptLength', 'massDiff_mRNA')
+		sequences = buildSequences(self.rnaSequences, rnaIndexes, transcriptLengths, self._elngRate())
 		ntpCountInSequence = np.bincount(sequences[sequences != PAD_VALUE], minlength = 4)
 
-		reactionLimit = ntpCounts.sum() # TODO: account for energy
+		# Polymerize transcripts based on sequences and available nucleotides
+		reactionLimit = ntpCounts.sum()
+		sequenceElongations, ntpsUsed, nElongations = polymerize(sequences, ntpCounts, reactionLimit, self.randomState)
 
-		sequenceElongations, ntpsUsed, nElongations = polymerize(
-			sequences,
-			ntpCounts,
-			reactionLimit,
-			self.randomState
-			)
-
-		massIncreaseRna = computeMassIncrease(
-			sequences,
-			sequenceElongations,
-			self.ntWeights
-			)
-
+		# Calculate changes in mass associated with polymerization and update active polymerases
+		massIncreaseRna = computeMassIncrease(sequences, sequenceElongations, self.ntWeights)
 		updatedMass = massDiffRna + massIncreaseRna
-
 		didInitialize = (transcriptLengths == 0) & (sequenceElongations > 0)
-
 		updatedLengths = transcriptLengths + sequenceElongations
-
 		updatedMass[didInitialize] += self.endWeight
+		activeRnaPolys.attrIs(transcriptLength = updatedLengths, massDiff_mRNA = updatedMass)
 
-		activeRnaPolys.attrIs(
-			transcriptLength = updatedLengths,
-			massDiff_mRNA = updatedMass
-			)
-
+		# Determine if transcript has reached of the sequence
 		terminalLengths = self.rnaLengths[rnaIndexes]
-
 		didTerminate = (updatedLengths == terminalLengths)
+		terminatedRnas = np.bincount(rnaIndexes[didTerminate], minlength = self.rnaSequences.shape[0])
 
-		terminatedRnas = np.bincount(
-			rnaIndexes[didTerminate],
-			minlength = self.rnaSequences.shape[0]
-			)
-
-		self.writeToListener("TranscriptElongationListener", "countRnaSynthesized", terminatedRnas)
-		self.writeToListener("TranscriptElongationListener", "countNTPsUSed", ntpsUsed.sum())
-
+		# Remove polymerases that have finished transcription from unique molecules
 		activeRnaPolys.delByIndexes(np.where(didTerminate)[0])
 
 		nTerminated = didTerminate.sum()
 		nInitialized = didInitialize.sum()
 		nElongations = ntpsUsed.sum()
 
+		# Update bulk molecule counts
 		self.ntps.countsDec(ntpsUsed)
-
 		self.bulkRnas.countsIs(terminatedRnas)
-
 		self.inactiveRnaPolys.countInc(nTerminated)
-
 		self.ppi.countInc(nElongations - nInitialized)
 
-		expectedElongations = np.fmin(
-			self._elngRate(),
-			terminalLengths - transcriptLengths
-			)
-
+		# Calculate stalls
+		expectedElongations = np.fmin(self._elngRate(), terminalLengths - transcriptLengths)
 		rnapStalls = expectedElongations - sequenceElongations
+
+		# Write outputs to listeners
+		self.writeToListener("TranscriptElongationListener", "countRnaSynthesized", terminatedRnas)
+		self.writeToListener("TranscriptElongationListener", "countNTPsUSed", nElongations)
 
 		self.writeToListener("GrowthLimits", "ntpUsed", ntpsUsed)
 
 		self.writeToListener("RnapData", "rnapStalls", rnapStalls)
 		self.writeToListener("RnapData", "ntpCountInSequence", ntpCountInSequence)
 		self.writeToListener("RnapData", "ntpCounts", ntpCounts)
-
 		self.writeToListener("RnapData", "expectedElongations", expectedElongations.sum())
 		self.writeToListener("RnapData", "actualElongations", sequenceElongations.sum())
-
 		self.writeToListener("RnapData", "didTerminate", didTerminate.sum())
 		self.writeToListener("RnapData", "terminationLoss", (terminalLengths - transcriptLengths)[didTerminate].sum())
 
 	def _elngRate(self):
-		# return int(self.rnapElngRate * self.timeStepSec())
 		return int(stochasticRound(self.randomState, self.rnapElngRate * self.timeStepSec()))
