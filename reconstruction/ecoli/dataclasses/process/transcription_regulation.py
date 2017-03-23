@@ -1,14 +1,7 @@
 """
 Transcription regulation.
 """
-from __future__ import division
-
 import numpy as np
-import os
-import cPickle
-import wholecell
-from wholecell.utils import units
-import collections
 
 class TranscriptionRegulation(object):
 	def __init__(self, raw_data, sim_data):
