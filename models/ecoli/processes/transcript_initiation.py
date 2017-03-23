@@ -36,36 +36,25 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 	def __init__(self):
 		super(TranscriptInitiation, self).__init__()
 
-
-	# Construct object graph
 	def initialize(self, sim, sim_data):
 		super(TranscriptInitiation, self).initialize(sim, sim_data)
 
 		# Load parameters
-
 		self.fracActiveRnapDict = sim_data.process.transcription.rnapFractionActiveDict
-
 		self.rnaLengths = sim_data.process.transcription.rnaData["length"]
-
 		self.rnaPolymeraseElongationRateDict = sim_data.process.transcription.rnaPolymeraseElongationRateDict
 
-		self.rnaSynthProb = None
-
+		# Create recruitment matrix for transcription regulation
 		recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
-
 		recruitmentData = sim_data.process.transcription_regulation.recruitmentData
 		self.recruitmentMatrix = scipy.sparse.csr_matrix(
 				(recruitmentData["hV"], (recruitmentData["hI"], recruitmentData["hJ"])),
 				shape = recruitmentData["shape"]
 			)
-		self.tfsBound = None
 
 		self.maxRibosomeElongationRate = float(sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s))
-		self.is_16SrRNA = sim_data.process.transcription.rnaData['isRRna16S']
-		self.is_23SrRNA = sim_data.process.transcription.rnaData['isRRna23S']
-		self.is_5SrRNA = sim_data.process.transcription.rnaData['isRRna5S']
-		self.is_mrRNA = sim_data.process.transcription.rnaData['isMRna']
 
+		# Determine changes from genetic perturbations
 		self.genetic_perturbations = {}
 		perturbations = {}
 		if hasattr(sim_data, "genetic_perturbations") and sim_data.genetic_perturbations != None and len(sim_data.genetic_perturbations) > 0:
@@ -76,25 +65,15 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 			perturbations = sim_data.genetic_perturbations
 
 		# Views
-
 		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
-
 		self.inactiveRnaPolys = self.bulkMoleculeView("APORNAP-CPLX[c]")
-
 		self.chromosomes = self.bulkMoleculeView('CHROM_FULL[c]')
-		
-		self.activeRibosomes = self.uniqueMoleculesView('activeRibosome')
-
-		self.r_protein = self.bulkMoleculesView(sim_data.moleculeGroups.rProteins)
+		self.recruitmentView = self.bulkMoleculesView(recruitmentColNames)
 
 		# ID Groups
-
 		self.is_16SrRNA = sim_data.process.transcription.rnaData['isRRna16S']
 		self.is_23SrRNA = sim_data.process.transcription.rnaData['isRRna23S']
 		self.is_5SrRNA = sim_data.process.transcription.rnaData['isRRna5S']
-
-		self.recruitmentView = self.bulkMoleculesView(recruitmentColNames)
-
 		self.isRRna = sim_data.process.transcription.rnaData['isRRna']
 		self.isMRna = sim_data.process.transcription.rnaData["isMRna"]
 		self.isTRna = sim_data.process.transcription.rnaData["isTRna"]
@@ -106,17 +85,22 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		assert (self.isRRna + self.isRProtein + self.isRnap + self.notPolymerase).sum() == self.rnaLengths.asNumber().size
 
-		self.rProteinToRRnaRatioVector = None
+		# Synthesis probabilities for different categories of genes
 		self.rnaSynthProbFractions = sim_data.process.transcription.rnaSynthProbFraction
 		self.rnaSynthProbRProtein = sim_data.process.transcription.rnaSynthProbRProtein
 		self.rnaSynthProbRnaPolymerase = sim_data.process.transcription.rnaSynthProbRnaPolymerase
 
 	def calculateRequest(self):
+		# Get all inactive RNA polymerases
 		self.inactiveRnaPolys.requestAll()
+
+		# Calculate synthesis probabilities based on transcription regulation
 		self.rnaSynthProb = self.recruitmentMatrix.dot(self.recruitmentView.total())
 		if len(self.genetic_perturbations) > 0:
 			self.rnaSynthProb[self.genetic_perturbations["fixedRnaIdxs"]] = self.genetic_perturbations["fixedSynthProbs"]
 		regProbs = self.rnaSynthProb[self.isRegulated]
+
+		# Adjust probabilities to not be negative
 		self.rnaSynthProb[self.rnaSynthProb < 0] = 0.
 		self.rnaSynthProb /= self.rnaSynthProb.sum()
 		if np.any(self.rnaSynthProb < 0):
@@ -125,6 +109,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		assert np.allclose(self.rnaSynthProb.sum(),1.)
 		assert np.all(self.rnaSynthProb >= 0.)
 
+		# Adjust synthesis probabilities depending on environment
 		synthProbFractions = self.rnaSynthProbFractions[self._sim.processes["PolypeptideElongation"].currentNutrients]
 		self.rnaSynthProb[self.isMRna] *= synthProbFractions["mRna"] / self.rnaSynthProb[self.isMRna].sum()
 		self.rnaSynthProb[self.isTRna] *= synthProbFractions["tRna"] / self.rnaSynthProb[self.isTRna].sum()
@@ -142,40 +127,41 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.fracActiveRnap = self.fracActiveRnapDict[self._sim.processes["PolypeptideElongation"].currentNutrients]
 		self.rnaPolymeraseElongationRate = self.rnaPolymeraseElongationRateDict[self._sim.processes["PolypeptideElongation"].currentNutrients]
 
-		# self.rProteinToRRnaRatioVector = self.rnaSynthProb[self.isRProtein] / self.rnaSynthProb[self.isRRna][0]
-
-	# Calculate temporal evolution
 	def evolveState(self):
-
 		self.writeToListener("RnaSynthProb", "rnaSynthProb", self.rnaSynthProb)
 
 		# no synthesis if no chromosome
 		if self.chromosomes.total()[0] == 0:
 			return
 
-		self.activationProb = self._calculateActivationProb(
-			self.fracActiveRnap,
-			self.rnaLengths,
-			self.rnaPolymeraseElongationRate,
-			self.rnaSynthProb,
-			)
-
-		# Sample a multinomial distribution of synthesis probabilities to 
-		# determine what molecules are initialized
-
-		inactiveRnaPolyCount = self.inactiveRnaPolys.count()
-
-		rnaPolyToActivate = np.int64(self.activationProb * inactiveRnaPolyCount)
-
+		# Calculate RNA polymerases to activate based on probabilities
+		self.activationProb = self._calculateActivationProb(self.fracActiveRnap, self.rnaLengths, self.rnaPolymeraseElongationRate, self.rnaSynthProb)
+		rnaPolyToActivate = np.int64(self.activationProb * self.inactiveRnaPolys.count())
 		if rnaPolyToActivate == 0:
 			return
 
 		#### Growth control code ####
-		nNewRnas = self.randomState.multinomial(rnaPolyToActivate,
-			self.rnaSynthProb)
+		# Sample a multinomial distribution of synthesis probabilities to determine what molecules are initialized
+		nNewRnas = self.randomState.multinomial(rnaPolyToActivate, self.rnaSynthProb)
+		assert nNewRnas.sum() == rnaPolyToActivate
 
+		# Build list of RNA indexes
+		rnaIndexes = np.empty(rnaPolyToActivate, np.int64)
+
+		startIndex = 0
+		nonzeroCount = (nNewRnas > 0)
+		for rnaIndex, counts in itertools.izip(np.arange(nNewRnas.size)[nonzeroCount], nNewRnas[nonzeroCount]):
+			rnaIndexes[startIndex:startIndex+counts] = rnaIndex
+			startIndex += counts
+
+		# Create the active RNA polymerases
+		activeRnaPolys = self.activeRnaPolys.moleculesNew("activeRnaPoly", rnaPolyToActivate)
+		activeRnaPolys.attrIs(rnaIndex = rnaIndexes)
+		self.inactiveRnaPolys.countDec(nNewRnas.sum())
+
+		# Write outputs to listeners
 		self.writeToListener("RibosomeData", "rrn16S_produced", nNewRnas[self.is_16SrRNA].sum())
-		self.writeToListener("RibosomeData", "rrn23S_produced", nNewRnas[self.is_23SrRNA].sum())		
+		self.writeToListener("RibosomeData", "rrn23S_produced", nNewRnas[self.is_23SrRNA].sum())
 		self.writeToListener("RibosomeData", "rrn5S_produced", nNewRnas[self.is_5SrRNA].sum())
 
 		self.writeToListener("RibosomeData", "rrn16S_init_prob", nNewRnas[self.is_16SrRNA].sum() / float(nNewRnas.sum()))
@@ -184,56 +170,18 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		self.writeToListener("RibosomeData", "total_rna_init", nNewRnas.sum())
 
-		nonzeroCount = (nNewRnas > 0)
-
-		assert nNewRnas.sum() == rnaPolyToActivate
-
-		# Build list of RNA indexes
-
-		rnaIndexes = np.empty(rnaPolyToActivate, np.int64)
-
-		startIndex = 0
-		for rnaIndex, counts in itertools.izip(
-				np.arange(nNewRnas.size)[nonzeroCount],
-				nNewRnas[nonzeroCount]
-				):
-
-			rnaIndexes[startIndex:startIndex+counts] = rnaIndex
-
-			startIndex += counts
-
-		# Create the active RNA polymerases
-
-		activeRnaPolys = self.activeRnaPolys.moleculesNew(
-			"activeRnaPoly",
-			rnaPolyToActivate
-			)
-
-		activeRnaPolys.attrIs(
-			rnaIndex = rnaIndexes
-			)
-
-		self.inactiveRnaPolys.countDec(nNewRnas.sum())
-
 		self.writeToListener("RnapData", "didInitialize", nNewRnas.sum())
 		self.writeToListener("RnapData", "rnaInitEvent", nNewRnas)
 
 	def _calculateActivationProb(self, fracActiveRnap, rnaLengths, rnaPolymeraseElongationRate, synthProb):
+		# Calculate expected termination rate based on the average time it will take to transcribe
 		expectedTranscriptionTime = 1. / rnaPolymeraseElongationRate * rnaLengths
-
-		expectedTranscriptionTimesteps = np.ceil(
-			(1. / (self.timeStepSec() * units.s) * expectedTranscriptionTime).asNumber()
-			)
-
+		expectedTranscriptionTimesteps = np.ceil((1. / (self.timeStepSec() * units.s) * expectedTranscriptionTime).asNumber())
 		averageTranscriptionTimesteps = np.dot(synthProb, expectedTranscriptionTimesteps)
-
 		expectedTerminationRate = 1. / averageTranscriptionTimesteps
 
-		expectedFractionTimeInactive = np.dot(
-			1 - ( 1. / (self.timeStepSec() * units.s) * expectedTranscriptionTime).asNumber() / expectedTranscriptionTimesteps,
-			synthProb
-			)
-
+		# Calculate the effective active fraction of RNA polymerases based on the fraction of each time step a polymerase will be inactive because of termination
+		expectedFractionTimeInactive = np.dot(1 - ( 1. / (self.timeStepSec() * units.s) * expectedTranscriptionTime).asNumber() / expectedTranscriptionTimesteps, synthProb)
 		effectiveFractionActive = fracActiveRnap * 1 / (1 - expectedFractionTimeInactive)
 
 		return effectiveFractionActive * expectedTerminationRate / (1 - effectiveFractionActive)
