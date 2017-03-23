@@ -27,7 +27,7 @@ from wholecell.utils import units
 from wholecell.utils.sparkline import whitePadSparklineAxis
 from wholecell.analysis.plotting_tools import COLORS_LARGE
 
-from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS
+from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
 
 BURN_IN_STEPS = 20
 
@@ -66,12 +66,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		dryMass = massListener.readColumn("dryMass")
 		massListener.close()
 
-		coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(units.g / units.L) # units - g/L
+		coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(MASS_UNITS / VOLUME_UNITS)
 
 		# read constraint data
 		enzymeKineticsReader = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
-		targetFluxes = (units.dmol / units.g / units.s) * (enzymeKineticsReader.readColumn("targetFluxes").T / coefficient).T
-		actualFluxes = (units.dmol / units.g / units.s) * (enzymeKineticsReader.readColumn("actualFluxes").T / coefficient).T
+		targetFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (enzymeKineticsReader.readColumn("targetFluxes").T / coefficient).T
+		actualFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (enzymeKineticsReader.readColumn("actualFluxes").T / coefficient).T
 		reactionConstraint = enzymeKineticsReader.readColumn("reactionConstraint")
 		enzymeKineticsReader.close()
 
@@ -117,20 +117,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		rxns.append(rxn[0])
 	# print siteStr
 
-	# find kinetically constrained reactions that also are catalyzed by an enzyme without kinetics info
-	unconstrainedReactions = np.zeros(len(constrainedReactions), dtype = bool)
-	for idx, rxn in enumerate(constrainedReactions):
-		noKinetics = False
-		withKinetics = False
-		for catalyst in sim_data.process.metabolism.reactionCatalysts[rxn]:
-			if catalyst in sim_data.process.metabolism.enzymeIdList:
-				withKinetics = True
-			else:
-				noKinetics = True
-
-		if withKinetics and noKinetics:
-			unconstrainedReactions[idx] = True
-
 	csvFile = open(os.path.join(plotOutDir, plotOutFileName + ".tsv"), "wb")
 	output = csv.writer(csvFile, delimiter = "\t")
 	output.writerow(["ecocyc link:", siteStr])
@@ -152,26 +138,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	plt.figure(figsize = (8, 8))
 	from scipy.stats import pearsonr
 	plt.loglog([1e-7, 1e4], [1e-7, 1e4], 'k')
-	# plt.loglog([1e-7, 1e3], [1e-6, 1e4], '--r')
-	# plt.loglog([1e-13, 1], [1e-14, 0.1], '--r')
-	# plt.title(pearsonr(np.log10(targetPearson[actualPearson > 0]), np.log10(actualPearson[actualPearson > 0])))
-	# plt.loglog(targetAve[kmAndKcatReactions][kmAndKcatCategorization == 0], actualAve[kmAndKcatReactions][kmAndKcatCategorization == 0], "og")
-	# plt.loglog(targetAve[kmAndKcatReactions][kmAndKcatCategorization == 1], actualAve[kmAndKcatReactions][kmAndKcatCategorization == 1], "o")
-	# plt.loglog(targetAve[kmAndKcatReactions][kmAndKcatCategorization == 2], actualAve[kmAndKcatReactions][kmAndKcatCategorization == 2], "or")
-	# plt.loglog(targetAve[kmAndKcatReactions][kmAndKcatCategorization == -1], actualAve[kmAndKcatReactions][kmAndKcatCategorization == -1], "og")
-	# plt.loglog(targetAve[kcatOnlyReactions][kcatOnlyCategorization == 0], actualAve[kcatOnlyReactions][kcatOnlyCategorization == 0], "og")
-	# plt.loglog(targetAve[kcatOnlyReactions][kcatOnlyCategorization == 1], actualAve[kcatOnlyReactions][kcatOnlyCategorization == 1], "o")
-	# plt.loglog(targetAve[kcatOnlyReactions][kcatOnlyCategorization == 2], actualAve[kcatOnlyReactions][kcatOnlyCategorization == 2], "or")
-	# plt.loglog(targetAve[kcatOnlyReactions][kcatOnlyCategorization == -1], actualAve[kcatOnlyReactions][kcatOnlyCategorization == -1], "og")
-	# plt.loglog(targetAve[categorization == 0], actualAve[categorization == 0], "ob", markeredgewidth = 0.25, alpha = 0.25)
-	# plt.loglog(targetAve[categorization == 1], actualAve[categorization == 1], "ob", markeredgewidth = 0.25, alpha = 0.25)
-	# plt.loglog(targetAve[categorization == 2], actualAve[categorization == 2], "ob", markeredgewidth = 0.25, alpha = 0.25)
-	# plt.loglog(targetAve[categorization == -1], actualAve[categorization == -1], "ob", markeredgewidth = 0.25, alpha = 0.25)
-	# plt.loglog(targetAve[categorization == -2], actualAve[categorization == -2], "ob", markeredgewidth = 0.25, alpha = 0.25)
 	plt.loglog(targetAve[~disabledReactions], actualAve[~disabledReactions], "ob", markeredgewidth = 0.25, alpha = 0.25)
-	# plt.loglog(targetAve[unconstrainedReactions], actualAve[unconstrainedReactions], "xk", markeredgewidth = 0.5)
-	# plt.loglog(targetAve[kmAndKcatReactions], actualAve[kmAndKcatReactions], "o")
-	# plt.loglog(targetAve[kcatOnlyReactions], actualAve[kcatOnlyReactions], "ro")
 	plt.xlabel("Target Flux (mmol/g/hr)")
 	plt.ylabel("Actual Flux (mmol/g/hr)")
 	plt.minorticks_off()

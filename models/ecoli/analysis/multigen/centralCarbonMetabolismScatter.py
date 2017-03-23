@@ -23,6 +23,8 @@ from wholecell.utils import units
 from wholecell.utils.sparkline import whitePadSparklineAxis
 from models.ecoli.analysis.single.centralCarbonMetabolism import net_flux, _generatedID_reverseReaction
 
+from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
+
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
@@ -67,11 +69,11 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		dryMass = massListener.readColumn("dryMass")
 		massListener.close()
 
-		coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(units.g / units.L) * timeStepSec # units - g.s/L
+		coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(MASS_UNITS / VOLUME_UNITS)
 
 		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 		reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
-		reactionFluxes = (units.dmol / units.g / units.s) * (fbaResults.readColumn("reactionFluxes").T / coefficient).T
+		reactionFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (fbaResults.readColumn("reactionFluxes").T / coefficient).T
 		fbaResults.close()
 
 		for rxn in toyaReactions:
