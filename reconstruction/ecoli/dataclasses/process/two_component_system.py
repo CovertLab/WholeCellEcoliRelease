@@ -2,6 +2,15 @@
 Two component systems.
 
 Note: Ligand binding to histidine kinases is modeled by equilibrium.
+
+TODOs:
+_populateDerivativeAndJacobian()
+	Decide if this caching is worthwhile
+	Assumes a directory structure
+
+moleculesToNextTimeStep()
+	Consider relocating (since it's useful for both the fitter and simulation)
+
 """
 from __future__ import division
 
@@ -41,7 +50,7 @@ class TwoComponentSystem(object):
 
 		activeToInactiveTF = {} #convention: active TF is the DNA-binding form
 
-		## building template reactions:
+		# Build template reactions
 		signalingTemplate = {1: ["POS-LIGAND-BOUND-HK-PHOSPHORYLATION_RXN", 
 								"POS-LIGAND-BOUND-HK-PHOSPHOTRANSFER_RXN", 
 								"POS-RR-DEPHOSPHORYLATION_RXN",
@@ -58,7 +67,7 @@ class TwoComponentSystem(object):
 		for reactionIndex, reaction in enumerate(raw_data.twoComponentSystemTemplates):
 			reactionTemplate[str(reaction["id"])] = reaction
 
-		# Building stoichiometry matrix
+		# Build stoichiometry matrix
 		for systemIndex, system in enumerate(raw_data.twoComponentSystems):
 			for reaction in signalingTemplate[system["orientation"]]:
 				reactionName = self.getReactionName(reaction, system["molecules"])
@@ -74,14 +83,14 @@ class TwoComponentSystem(object):
 
 				for molecule in reactionTemplate[reaction]["stoichiometry"]:
 
-					# moleculeName for system molecules
+					# Build name for system molecules
 					if molecule["molecule"] in system["molecules"]:
 						moleculeName = "{}[{}]".format(
 							system["molecules"][molecule["molecule"]],
 							molecule["location"]
 							)
 
-					# moleculeName for common molecules (ATP, ADP, PI, WATER, PROTON)
+					# Build name for common molecules (ATP, ADP, PI, WATER, PROTON)
 					else:
 						moleculeName = "{}[{}]".format(
 							molecule["molecule"],
@@ -98,22 +107,24 @@ class TwoComponentSystem(object):
 
 					coefficient = molecule["coeff"]
 
+					# Store indices for the row and column, and molecule coefficient for building the stoichiometry matrix
 					stoichMatrixI.append(moleculeIndex)
 					stoichMatrixJ.append(reactionIndex)
 					stoichMatrixV.append(coefficient)
-
 
 					# Build matrix with linearly independent rows based on network orientation
 					if str(molecule["molecule"]) in ["HK", "RR", "ATP"] and moleculeName not in independentMolecules:
 						independentMolecules.append(moleculeName)
 						independentMoleculeIds.append(moleculeIndex)
 
+						# Map linearly independent molecules (rows) to their dependents (phosphorylated forms of histidine kinases and response regulators)
 						if str(molecule["molecule"]) != "ATP":
 							independentToDependentMolecules[moleculeName] = "{}[{}]".format(
 								system["molecules"]["PHOSPHO-" + str(molecule["molecule"])],
 								molecule["location"]
 								)
 
+						# Map active transcription factors (phosphorylated response regulators) to their inactive forms (unphosphorylated response regulators)
 						if str(molecule["molecule"]) == "RR":
 							activeTF = "{}[{}]".format(
 								system["molecules"]["PHOSPHO-RR"],
@@ -121,11 +132,13 @@ class TwoComponentSystem(object):
 								)
 							activeToInactiveTF[activeTF] = moleculeName
 
+					# Account for ligand-bound histidine kinases for positively oriented networks
 					if system["orientation"] == 1:
 						if str(molecule["molecule"]) == "HK-LIGAND" and moleculeName not in independentMolecules:
 							independentMolecules.append(moleculeName)
 							independentMoleculeIds.append(moleculeIndex)
 
+							# Map the linearly independent ligand-bound histidine kinases to their dependents (phosphorylated forms of ligand-bound histidine kinases)
 							independentToDependentMolecules[moleculeName] = "{}[{}]".format(
 								system["molecules"]["PHOSPHO-" + str(molecule["molecule"])],
 								molecule["location"]
@@ -163,17 +176,18 @@ class TwoComponentSystem(object):
 		# The stoichometric matrix should balance out to numerical zero.
 		assert np.max([abs(x) for x in massBalanceArray]) < 1e-9
 
+		# Build matrices
 		self._makeMatrices()
-
 		self._populateDerivativeAndJacobian()
-
-		# Make dependency matrix
 		self.dependencyMatrix = self.makeDependencyMatrix()
 
 		# Map active TF to inactive TF
 		self.activeToInactiveTF = activeToInactiveTF
 
 	def _buildComplexToMonomer(self, modifiedFormsMonomers, tcsMolecules):
+		'''
+		Maps each complex to a dictionary that maps each subunit of the complex to its stoichiometry
+		'''
 		D = {}
 		for row in modifiedFormsMonomers:
 			if str(row["complexID"]) in tcsMolecules:
@@ -184,42 +198,50 @@ class TwoComponentSystem(object):
 		return D
 
 	def stoichMatrix(self):
+		'''
+		Builds stoichiometry matrix
+		Rows: molecules
+		Columns: reactions
+		Values: reaction stoichiometry
+		'''
 		shape = (self._stoichMatrixI.max()+1, self._stoichMatrixJ.max()+1)
-
 		out = np.zeros(shape, np.float64)
-
 		out[self._stoichMatrixI, self._stoichMatrixJ] = self._stoichMatrixV
-
 		return out
 
 	def massMatrix(self):
+		'''
+		Builds stoichiometry mass matrix
+		Rows: molecules
+		Columns: reactions
+		Values: molecular mass
+		'''
 		shape = (self._stoichMatrixI.max()+1, self._stoichMatrixJ.max()+1)
-
 		out = np.zeros(shape, np.float64)
-
 		out[self._stoichMatrixI, self._stoichMatrixJ] = self._stoichMatrixMass
-
 		return out
 
-	def independentToAllMolecules(self):
+	def independentToAllMolecules(self): # unused
 		shape = (len(self.moleculeNames), len(self.independentMolecules))
 
 		out = np.zeros(shape, np.float64)
 
 	def massBalance(self):
 		'''
-		Sum along the columns of the massBalance matrix to check for reaction
-		mass balance
+		Sum along the columns of the massBalance matrix to check for reaction mass balance
 		'''
-
 		reactionSumsArray = []
-		
 		for index, column in enumerate(self.balanceMatrix.T):
 			reactionSumsArray.append(sum(column))
-
 		return reactionSumsArray
 
 	def stoichMatrixMonomers(self):
+		'''
+		Builds stoichiometry matrix for monomers (complex subunits)
+		Rows: molecules (complexes and monomers) 
+		Columns: complexes 
+		Values: monomer stoichiometry
+		'''
 		ids_complexes = self.complexToMonomer.keys()
 		stoichMatrixMonomersI = []
 		stoichMatrixMonomersJ = []
@@ -245,15 +267,14 @@ class TwoComponentSystem(object):
 		shape = (stoichMatrixMonomersI.max() + 1, stoichMatrixMonomersJ.max() + 1)
 
 		out = np.zeros(shape, np.float64)
-
 		out[stoichMatrixMonomersI, stoichMatrixMonomersJ] = stoichMatrixMonomersV
-
 		return out
 
 	def _populateDerivativeAndJacobian(self):
-		# TODO: Decide if this caching is worthwhile
-		# TODO: Unhack this--this assumes a directory structure
-		import sys; sys.setrecursionlimit(4000)
+		'''
+		Creates callable functions for computing the derivative and the Jacobian.
+		'''
+		import sys; sys.setrecursionlimit(4000) # remove
 		fixturesDir = os.path.join(
 			os.path.dirname(os.path.dirname(wholecell.__file__)),
 			"fixtures",
@@ -328,26 +349,19 @@ class TwoComponentSystem(object):
 
 		S = self.stoichMatrix()
 
-		# TODO: Check that new (uncommented) code below is right
-		# Going over things with HC, I think we don't want a boolean array
-		# I think we want an array with positive numbers
-		# S1 = np.zeros_like(S)
-		# S1[S < -1 * EPS] = -1
-		# S1[S > EPS] = 1
-
-		# Rp =  1. * (S1 < 0)
-		# Pp =  1. * (S1 > 0)
-
 		Rp = -1. * (S < -1 * EPS) * S
 		Pp =  1. * (S >  1 * EPS) * S
 
 		self.Rp = Rp
 		self.Pp = Pp
 
-		self.metsToRxnFluxes = S
-
+		self.metsToRxnFluxes = S # unused
 
 	def _makeDerivative(self):
+		'''
+		Creates symbolic representation of the ordinary differential equations and the Jacobian.
+		Used during simulations.
+		'''
 		S = self.stoichMatrix()
 
 		yStrings = ["y[%d]" % x for x in xrange(S.shape[0])]
@@ -381,6 +395,11 @@ class TwoComponentSystem(object):
 		self.derivativesSymbolic = dy
 
 	def _makeDerivativeFitter(self):
+		'''
+		Creates symbolic representation of the ordinary differential equations and the Jacobian
+		assuming ATP, ADP, Pi, water and protons are at steady state.
+		Used in the fitter.
+		'''
 		S = self.stoichMatrix()
 
 		yStrings = ["y[%d]" % x for x in xrange(S.shape[0])]
@@ -419,10 +438,11 @@ class TwoComponentSystem(object):
 		self.derivativesFitterJacobianSymbolic = J
 		self.derivativesFitterSymbolic = dy
 
-	# TODO: Should this method be here?
-	# It could be useful in both the fitter and in the simulations
-	# But it isn't just data
+
 	def moleculesToNextTimeStep(self, moleculeCounts, cellVolume, nAvogadro, timeStepSec):
+		'''
+		Calculate change in molecule counts until the next time step.
+		'''
 		y_init = moleculeCounts / (cellVolume * nAvogadro)
 		y = scipy.integrate.odeint(self.derivatives, y_init, t = [0, timeStepSec], Dfun = self.derivativesJacobian, mxstep = 10000)
 
@@ -445,11 +465,13 @@ class TwoComponentSystem(object):
 
 		moleculesNeeded = allMoleculesChanges.copy()
 		moleculesNeeded[moleculesNeeded >= 0] = 0
-		
 		return (-1* moleculesNeeded), allMoleculesChanges
 
 
 	def moleculesToSS(self, moleculeCounts, cellVolume, nAvogadro, timeStepSec):
+		'''
+		Calculate change in molecule counts until steady state.
+		'''
 		y_init = moleculeCounts / (cellVolume * nAvogadro)
 		y = scipy.integrate.odeint(self.derivativesFitter, y_init, t = [0, timeStepSec], Dfun = self.derivativesFitterJacobian)
 
@@ -476,8 +498,6 @@ class TwoComponentSystem(object):
 		return (-1* moleculesNeeded), allMoleculesChanges
 
 
-	# TODO: These methods might not be necessary, consider deleting if that's the case
-	# TODO: redesign this so it doesn't need to create a stoich matrix
 	def getMonomers(self, cplxId):
 		'''
 		Returns subunits for a complex (or any ID passed).
@@ -493,8 +513,7 @@ class TwoComponentSystem(object):
 			out = {'subunitIds' : cplxId, 'subunitStoich' : 1}
 		return out
 
-	def _findRow(self, product,speciesList):
-
+	def _findRow(self, product, speciesList):
 		for sp in range(0, len(speciesList)):
 			if speciesList[sp] == product: return sp
 		return -1
@@ -528,6 +547,9 @@ class TwoComponentSystem(object):
 		return total
 
 	def getReactionName(self, templateName, systemMolecules):
+		'''
+		Returns reaction name for a particular system.
+		'''
 		startIndex = 0
 		reactionName = templateName
 		for endIndex in [x.start() for x in re.finditer("-", templateName)]:
@@ -538,6 +560,11 @@ class TwoComponentSystem(object):
 		return reactionName
 
 	def makeDependencyMatrix(self):
+		'''
+		Builds matrix mapping linearly independent molecules (ATP, histidine kinases, 
+		response regulators, and ligand-bound histidine kinases for positively oriented 
+		networks) to their dependents.
+		'''
 		moleculeTypes = self.moleculeTypes
 		dependencyMatrixI = []
 		dependencyMatrixJ = []
