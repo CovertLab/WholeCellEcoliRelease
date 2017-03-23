@@ -48,36 +48,6 @@ class TranscriptionRegulation(object):
 		'''
 		return float(signal)**power / (float(signal)**power + float(Kd))
 
-	def pPromoterBound(self, dissocConstant, nPromoters, nTfs):
-		'''
-		'''
-		b = float(dissocConstant + nPromoters + nTfs)
-		c = float(nPromoters * nTfs)
-		pos = (b + np.sqrt(b**2 - 4 * c)) / (2 * nPromoters)
-		neg = (b - np.sqrt(b**2 - 4 * c)) / (2 * nPromoters)
-		if (0 <= pos and pos <= 1) and (0 <= neg and neg <= 1):
-			raise Exception, "Both solutions to the quadratic equation are between 0 and 1"
-		if (0 <= pos and pos <= 1):
-			return pos
-		if (0 <= neg and neg <= 1):
-			return neg
-		raise Exception, "Neither solution to the quadratic equation is between 0 and 1"
-
-	def pTfBound(self, dissocConstant, nPromoters, nTfs):
-		'''
-		'''
-		b = float(dissocConstant + nPromoters + nTfs)
-		c = float(nPromoters * nTfs)
-		pos = (b + np.sqrt(b**2 - 4 * c)) / (2 * nTfs)
-		neg = (b - np.sqrt(b**2 - 4 * c)) / (2 * nTfs)
-		if (0 <= pos and pos <= 1) and (0 <= neg and neg <= 1):
-			raise Exception, "Both solutions to the quadratic equation are between 0 and 1"
-		if (0 <= pos and pos <= 1):
-			return pos
-		if (0 <= neg and neg <= 1):
-			return neg
-		raise Exception, "Neither solution to the quadratic equation is between 0 and 1"
-
 	def _buildLookups(self, raw_data, sim_data):
 		'''
 		Builds dictionaries for mapping transcription factor abbreviations to their RNA IDs, and to their active form.
