@@ -52,7 +52,8 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 	def calculateRequest(self):
 		# Calculate elongation rate based on the current nutrients
-		self.rnapElngRate = int(round(self.rnaPolymeraseElongationRateDict[self._sim.processes["PolypeptideElongation"].currentNutrients].asNumber(units.nt / units.s)))
+		self.rnapElngRate = int(stochasticRound(self.randomState,
+			self.rnaPolymeraseElongationRateDict[self._sim.processes["PolypeptideElongation"].currentNutrients].asNumber(units.nt / units.s) * self.timeStepSec()))
 
 		# Request all active RNA polymerases
 		activeRnaPolys = self.activeRnaPolys.allMolecules()
@@ -62,7 +63,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		# Determine total possible sequences of nucleotides that can be transcribed in this time step for each polymerase
 		rnaIndexes, transcriptLengths = activeRnaPolys.attrs('rnaIndex', 'transcriptLength')
-		sequences = buildSequences(self.rnaSequences, rnaIndexes, transcriptLengths, self._elngRate())
+		sequences = buildSequences(self.rnaSequences, rnaIndexes, transcriptLengths, self.rnapElngRate)
 		sequenceComposition = np.bincount(sequences[sequences != PAD_VALUE], minlength = 4)
 
 		# Calculate if any nucleotides are limited and request up to the number in the sequences or number available
@@ -83,7 +84,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		# Determine sequences that can be elongated
 		rnaIndexes, transcriptLengths, massDiffRna = activeRnaPolys.attrs('rnaIndex', 'transcriptLength', 'massDiff_mRNA')
-		sequences = buildSequences(self.rnaSequences, rnaIndexes, transcriptLengths, self._elngRate())
+		sequences = buildSequences(self.rnaSequences, rnaIndexes, transcriptLengths, self.rnapElngRate)
 		ntpCountInSequence = np.bincount(sequences[sequences != PAD_VALUE], minlength = 4)
 
 		# Polymerize transcripts based on sequences and available nucleotides
@@ -117,7 +118,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.ppi.countInc(nElongations - nInitialized)
 
 		# Calculate stalls
-		expectedElongations = np.fmin(self._elngRate(), terminalLengths - transcriptLengths)
+		expectedElongations = np.fmin(self.rnapElngRate, terminalLengths - transcriptLengths)
 		rnapStalls = expectedElongations - sequenceElongations
 
 		# Write outputs to listeners
@@ -133,6 +134,3 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.writeToListener("RnapData", "actualElongations", sequenceElongations.sum())
 		self.writeToListener("RnapData", "didTerminate", didTerminate.sum())
 		self.writeToListener("RnapData", "terminationLoss", (terminalLengths - transcriptLengths)[didTerminate].sum())
-
-	def _elngRate(self):
-		return int(stochasticRound(self.randomState, self.rnapElngRate * self.timeStepSec()))
