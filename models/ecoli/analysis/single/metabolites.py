@@ -31,6 +31,8 @@ from wholecell.analysis.plotting_tools import COLORS_LARGE, COLORS_SMALL
 
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
 
+PLOT_BOKEH = False
+
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
@@ -62,6 +64,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")
 
+	if not PLOT_BOKEH:
+		return
 
 	# Bokeh
 	from bokeh.plotting import figure, output_file, ColumnDataSource, show
