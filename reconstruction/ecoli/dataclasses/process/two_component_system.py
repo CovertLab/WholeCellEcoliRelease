@@ -221,11 +221,6 @@ class TwoComponentSystem(object):
 		out[self._stoichMatrixI, self._stoichMatrixJ] = self._stoichMatrixMass
 		return out
 
-	def independentToAllMolecules(self): # unused
-		shape = (len(self.moleculeNames), len(self.independentMolecules))
-
-		out = np.zeros(shape, np.float64)
-
 	def massBalance(self):
 		'''
 		Sum along the columns of the massBalance matrix to check for reaction mass balance
@@ -274,7 +269,6 @@ class TwoComponentSystem(object):
 		'''
 		Creates callable functions for computing the derivative and the Jacobian.
 		'''
-		import sys; sys.setrecursionlimit(4000) # remove
 		fixturesDir = os.path.join(
 			os.path.dirname(os.path.dirname(wholecell.__file__)),
 			"fixtures",
@@ -343,19 +337,6 @@ class TwoComponentSystem(object):
 			self.derivativesJacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivativesJacobian
 			self.derivativesFitter = reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter.derivatives
 			self.derivativesFitterJacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter.derivativesJacobian
-
-	def _makeMatrices(self):
-		EPS = 1e-9
-
-		S = self.stoichMatrix()
-
-		Rp = -1. * (S < -1 * EPS) * S
-		Pp =  1. * (S >  1 * EPS) * S
-
-		self.Rp = Rp
-		self.Pp = Pp
-
-		self.metsToRxnFluxes = S # unused
 
 	def _makeDerivative(self):
 		'''
