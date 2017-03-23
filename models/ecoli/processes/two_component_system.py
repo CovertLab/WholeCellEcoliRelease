@@ -37,13 +37,7 @@ class TwoComponentSystem(wholecell.processes.process.Process):
 		self.nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / units.mmol)
 		self.cellDensity = sim_data.constants.cellDensity.asNumber(units.g / units.L)
 
-		# Create matrices and vectors
-		self.stoichMatrix = sim_data.process.two_component_system.stoichMatrix().astype(np.int64)
-		self.Rp = sim_data.process.two_component_system.Rp
-		self.Pp = sim_data.process.two_component_system.Pp
-		self.derivatives = sim_data.process.two_component_system.derivatives
-		self.derivativesJacobian = sim_data.process.two_component_system.derivativesJacobian
-		self.metsToRxnFluxes = sim_data.process.two_component_system.metsToRxnFluxes
+		# Create method
 		self.moleculesToNextTimeStep = sim_data.process.two_component_system.moleculesToNextTimeStep
 
 		# Build views
