@@ -22,6 +22,7 @@ LIST_OF_DICT_FILENAMES = (
 	"schmidt2015_javier_table.tsv",
 	"toya_2010_central_carbon_fluxes.tsv",
 	"essentialGenes.tsv",
+	"geneFunctions.tsv",
 	)
 
 class ValidationDataRawEcoli(object):
