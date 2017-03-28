@@ -42,8 +42,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		print "Skipping -- figure5B only runs for multigen"
 		return
 
-	# Get mRNA data
 	sim_data = cPickle.load(open(simDataFile, "rb"))
+	validation_data = cPickle.load(open(validationDataFile, "rb"))
+
+	# Get mRNA data
 	rnaIds = sim_data.process.transcription.rnaData["id"]
 	isMRna = sim_data.process.transcription.rnaData["isMRna"]
 	synthProb = sim_data.process.transcription.rnaSynthProb["basal"]
@@ -99,6 +101,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		transcriptionIndex = sim_data.process.transcription.rnaData["id"].tolist()
 		geneIdsOrdered = [sim_data.process.transcription.rnaData["geneId"][transcriptionIndex.index(x)] for x in mRnaIdsOrdered]
 
+		## Commented code is used when PLOT_GENES_OF_INTEREST is True
 		# raw_data = cPickle.load(open("out/SET_A_000000/rawData.cPickle", "rb"))
 		# geneIdToGeneSymbol = dict([(x["id"].encode("utf-8"), x["symbol"].encode("utf-8")) for x in raw_data.genes])
 		# geneSymbolsOrdered = [geneIdToGeneSymbol[x] for x in geneIdsOrdered]
@@ -256,6 +259,108 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	sometimesAxis.set_xticklabels([sometimesXmin, "%0.2f" % sometimesXmax])
 	exportFigure(plt, plotOutDir, plotOutFileName + "__bottom", metadata)
 	plt.close("all")
+
+	# Figure 5E
+	nRed = len(never)
+	nGreen = len(sometimes)
+	nBlue = len(always)
+
+	plotRed = 0
+	plotGreen = 0
+	plotBlue = 0
+
+	essentialGenes_rna = validation_data.essentialGenes.essentialRnas
+	for g in essentialGenes_rna:
+		i = np.where(mRnaIdsOrdered == str(g))[0][0]
+		f = transcribedBoolOrdered[i]
+
+		if f == 0.0:
+			plotRed += 1
+		elif f == 1.0:
+			plotBlue += 1
+		else:
+			plotGreen += 1
+
+	fig = plt.figure()
+	ax = plt.subplot(1, 1, 1)
+
+	xloc = np.arange(3)
+	width = 0.8
+	ax.bar(xloc + width, [plotRed / float(nRed), plotGreen / float(nGreen), plotBlue / float(nBlue)], width, color = ["r", "g", "b"], edgecolor = "none")
+	whitePadSparklineAxis(ax, xAxis = False)
+	ax.spines["left"].set_position(("outward", 0))
+	ax.set_yticks([0.0, 0.1, 0.2])
+	ax.set_yticklabels(["0%", "10%", "20%"])
+	ax.set_ylabel("Percentage of genes that are essential genes")
+	plt.subplots_adjust(right = 0.9, bottom = 0.1, left = 0.2, top = 0.9)
+	exportFigure(plt, plotOutDir, "figure5E", metadata)
+	plt.close()
+
+	# Figure 5F and 5G
+	geneFunctions = validation_data.geneFunctions.geneFunctions
+	unknown = {"r": 0, "g": 0, "b": 0}
+	resistance = {"r": 0, "g": 0, "b": 0}
+	for frameID, function in geneFunctions.iteritems():
+		if function in ["Unknown function", "Unclear/under-characterized"]:
+			i = np.where([frameID in x for x in mRnaIdsOrdered])[0][0]
+			f = transcribedBoolOrdered[i]
+			if f == 0.0:
+				unknown["r"] += 1
+			elif f == 1.0:
+				unknown["b"] += 1
+			else:
+				unknown["g"] += 1
+
+		elif function in ["Antibiotic resistance", "Toxin/antitoxin"]:
+			i = np.where([frameID in x for x in mRnaIdsOrdered])[0][0]
+			f = transcribedBoolOrdered[i]
+			if f == 0.0:
+				resistance["r"] += 1
+			elif f == 1.0:
+				resistance["b"] += 1
+			else:
+				resistance["g"] += 1
+
+	fig = plt.figure()
+	ax = plt.subplot(1, 1, 1)
+	ax.bar(xloc + width, [unknown["r"] / float(nRed), unknown["g"] / float(nGreen), unknown["b"] / float(nBlue)], width, color = ["r", "g", "b"], edgecolor = "none")
+	whitePadSparklineAxis(ax, xAxis = False)
+	ax.spines["left"].set_position(("outward", 0))
+	ax.set_yticks([0.0, 0.2, 0.4, 0.6])
+	ax.set_yticklabels(["0%", "20%", "40%", "60%"])
+	ax.set_ylabel("Percentage of genes that are poorly understood / annotated")
+	plt.subplots_adjust(right = 0.9, bottom = 0.1, left = 0.2, top = 0.9)
+	exportFigure(plt, plotOutDir, "figure5F", metadata)
+	plt.close()
+
+
+	fig = plt.figure()
+	ax = plt.subplot(1, 1, 1)
+	ax.bar(xloc + width, [resistance["r"] / float(nRed), resistance["g"] / float(nGreen), resistance["b"] / float(nBlue)], width, color = ["r", "g", "b"], edgecolor = "none")
+	whitePadSparklineAxis(ax, xAxis = False)
+	ax.spines["left"].set_position(("outward", 0))
+	ax.set_yticks([0.0, 0.025])
+	ax.set_yticklabels(["0%", "2.5%"])
+	ax.set_ylabel("Percentage of genes that are antibiotic related")
+	plt.subplots_adjust(right = 0.9, bottom = 0.1, left = 0.2, top = 0.9)
+	exportFigure(plt, plotOutDir, "figure5G", metadata)
+	plt.close()
+
+
+	# Version of figure 5G that compares distribution of antibiotic related genes
+	nResistance = float(np.sum([resistance[x] for x in ["r", "g", "b"]]))
+
+	fig = plt.figure()
+	ax = plt.subplot(1, 1, 1)
+	ax.bar(xloc + width, [resistance["r"] / nResistance, resistance["g"] / nResistance, resistance["b"] / nResistance], width, color = ["r", "g", "b"], edgecolor = "none")
+	whitePadSparklineAxis(ax, xAxis = False)
+	ax.spines["left"].set_position(("outward", 0))
+	ax.set_yticks([0.0, 0.25, 0.5, .75])
+	ax.set_yticklabels(["0%", "25%", "50%", "75%"])
+	ax.set_ylabel("Percentage of antibiotic related genes")
+	plt.subplots_adjust(right = 0.9, bottom = 0.1, left = 0.2, top = 0.9)
+	exportFigure(plt, plotOutDir, "figure5G_v2", metadata)
+	plt.close()
 
 
 if __name__ == "__main__":
