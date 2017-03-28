@@ -294,6 +294,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax.set_ylabel("Percentage of genes that are essential genes")
 	plt.subplots_adjust(right = 0.9, bottom = 0.1, left = 0.2, top = 0.9)
 	exportFigure(plt, plotOutDir, "figure5E", metadata)
+
+	ax.set_yticklabels([])
+	ax.set_ylabel("")
+	exportFigure(plt, plotOutDir, "figure5E_clean", metadata)
 	plt.close()
 
 	# Figure 5F and 5G
@@ -331,6 +335,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax.set_ylabel("Percentage of genes that are poorly understood / annotated")
 	plt.subplots_adjust(right = 0.9, bottom = 0.1, left = 0.2, top = 0.9)
 	exportFigure(plt, plotOutDir, "figure5F", metadata)
+
+	ax.set_yticklabels([])
+	ax.set_ylabel("")
+	exportFigure(plt, plotOutDir, "figure5F_clean", metadata)
 	plt.close()
 
 
@@ -344,6 +352,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax.set_ylabel("Percentage of genes that are antibiotic related")
 	plt.subplots_adjust(right = 0.9, bottom = 0.1, left = 0.2, top = 0.9)
 	exportFigure(plt, plotOutDir, "figure5G", metadata)
+
+	ax.set_yticklabels([])
+	ax.set_ylabel("")
+	exportFigure(plt, plotOutDir, "figure5G_clean", metadata)
 	plt.close()
 
 
