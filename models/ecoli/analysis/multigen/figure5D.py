@@ -183,6 +183,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	monomerAxis.set_ylabel("MenE monomer\ncounts", fontsize = 12, rotation = 0)
 	monomerAxis.yaxis.set_label_coords(-.1, 0.25)
 	whitePadSparklineAxis(monomerAxis, xAxis = False)
+	monomerAxis.set_yticks([0, 4, monomerAxis.get_ylim()[1]])
+	monomerAxis.set_yticklabels(["0", "4", "%s" % monomerAxis.get_ylim()[1]])
 
 	complexLine = complexAxis.plot(time / 3600., enzymeComplexCounts)
 	complexAxis.set_ylabel("MenE tetramer\ncounts", fontsize = 12, rotation = 0)
