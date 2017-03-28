@@ -35,6 +35,7 @@ class ValidationDataEcoli(object):
 		self.protein = Protein(validation_data_raw, knowledge_base_raw)
 		self.reactionFlux = ReactionFlux(validation_data_raw, knowledge_base_raw)
 		self.essentialGenes = EssentialGenes(validation_data_raw)
+		self.geneFunctions = GeneFunctions(validation_data_raw)
 
 
 class Protein(object):
@@ -210,3 +211,15 @@ class EssentialGenes(object):
 			self.essentialGenes.append(row["FrameID"])
 			self.essentialRnas.append(row["rnaID"] + "[c]")
 			self.essentialProteins.append(row["proteinID"] + "[" + row["proteinLoc"] + "]")
+
+class GeneFunctions(object):
+	""" GeneFunctions """
+
+	def __init__(self, validation_data_raw):
+		self._loadGeneFunctions(validation_data_raw)
+
+	def _loadGeneFunctions(self, validation_data_raw):
+		self.geneFunctions = {}
+
+		for row in validation_data_raw.geneFunctions:
+			self.geneFunctions[row["FrameID"]] = row["Function"]
