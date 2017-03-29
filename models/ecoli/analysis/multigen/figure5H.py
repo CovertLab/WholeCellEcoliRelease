@@ -33,7 +33,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	v.get_patch_by_id("101").set_color("yellow")
 	v.get_patch_by_id("111").set_color("white")
 
-	for i in ["100", "010", "001", "110", "101"]:
+	ids = ["100", "010", "001", "110", "101", "111"]
+
+	for i in ids:
 		v.get_patch_by_id(i).set_edgecolor("none")
 		v.get_patch_by_id(i).set_alpha(0.8)
 
@@ -50,6 +52,13 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+
+	for i in ids:
+		v.get_label_by_id(i).set_text("")
+	for i in setLabels:
+		i.set_text("")
+
+	exportFigure(plt, plotOutDir, plotOutFileName + "_clean", metadata)
 	plt.close()
 
 
