@@ -24,6 +24,7 @@ from wholecell.utils.sparkline import whitePadSparklineAxis
 BUILD_CACHE = True
 PLOT_GENES_OF_INTEREST = False
 PLOT_DENOMINATOR_N_EACH_FREQ_GROUP = False
+FIRST_N_GENS = 5
 
 def remove_xaxis(axis):
 	axis.spines["bottom"].set_visible(False)
@@ -71,7 +72,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		for gen, simDir in enumerate(allDir):
 			simOutDir = os.path.join(simDir, "simOut")
 
-			time += TableReader(os.path.join(simOutDir, "Main")).readColumn("time").tolist()
+			if gen < FIRST_N_GENS:
+				time += TableReader(os.path.join(simOutDir, "Main")).readColumn("time").tolist()
 
 			rnaSynthProb = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
 			simulatedSynthProb = np.mean(rnaSynthProb.readColumn("rnaSynthProb")[:, mRnaIndexes], axis = 0)
@@ -93,8 +95,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 			if gen == 0:
 				transcriptionEvents = (rnaInitEvent != 0)
-			else:
+			elif gen < FIRST_N_GENS:
 				transcriptionEvents = np.vstack((transcriptionEvents, (rnaInitEvent != 0)))
+			else:
+				pass
 
 		time = np.array(time)
 		transcribedBool = np.array(transcribedBool)
