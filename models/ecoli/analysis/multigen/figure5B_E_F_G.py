@@ -23,6 +23,13 @@ from wholecell.utils.sparkline import whitePadSparklineAxis
 
 BUILD_CACHE = True
 PLOT_GENES_OF_INTEREST = False
+PLOT_DENOMINATOR_N_EACH_FREQ_GROUP = False
+
+def remove_xaxis(axis):
+	axis.spines["bottom"].set_visible(False)
+	axis.tick_params(bottom = "off")
+	axis.tick_params(axis = "x", labelbottom = 'off')
+	axis.set_xlabel("")
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	if not os.path.isdir(seedOutDir):
@@ -280,24 +287,41 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			plotBlue += 1
 		else:
 			plotGreen += 1
+	xloc = np.arange(3)
+	width = 0.8
 
 	fig = plt.figure()
 	ax = plt.subplot(1, 1, 1)
-
-	xloc = np.arange(3)
-	width = 0.8
-	ax.bar(xloc + width, [plotRed / float(nRed), plotGreen / float(nGreen), plotBlue / float(nBlue)], width, color = ["r", "g", "b"], edgecolor = "none")
-	whitePadSparklineAxis(ax, xAxis = False)
+	ax.bar(xloc + width, [plotRed / float(len(essentialGenes_rna)), plotGreen / float(len(essentialGenes_rna)), plotBlue / float(len(essentialGenes_rna))], width, color = ["r", "g", "b"], edgecolor = "none")
+	whitePadSparklineAxis(ax)
 	ax.spines["left"].set_position(("outward", 0))
-	ax.set_yticks([0.0, 0.1, 0.2])
-	ax.set_yticklabels(["0%", "10%", "20%"])
-	ax.set_ylabel("Percentage of genes that are essential genes")
-	plt.subplots_adjust(right = 0.9, bottom = 0.1, left = 0.2, top = 0.9)
+	ax.set_yticks([0.0, 0.2, 0.4, 0.6, 0.8])
+	ax.set_yticklabels(["0%", "20%", "40%", "60%", "80%"])
+	ax.set_ylabel("Percentage of essential genes")
+	ax.set_xticks(xloc + 1.5 * width)
+	ax.set_xticklabels(["%s / %s" % (plotRed, len(essentialGenes_rna)), "%s / %s" % (plotGreen, len(essentialGenes_rna)), "%s / %s" % (plotBlue, len(essentialGenes_rna))])
+	ax.set_xlabel("Total number of essential genes: %s" % len(essentialGenes_rna))
+	plt.subplots_adjust(right = 0.9, bottom = 0.15, left = 0.2, top = 0.9)
 	exportFigure(plt, plotOutDir, "figure5E", metadata)
 
 	ax.set_yticklabels([])
 	ax.set_ylabel("")
+	remove_xaxis(ax)
 	exportFigure(plt, plotOutDir, "figure5E_clean", metadata)
+
+	if PLOT_DENOMINATOR_N_EACH_FREQ_GROUP:	
+		fig = plt.figure()
+		ax = plt.subplot(1, 1, 1)
+		ax.bar(xloc + width, [plotRed / float(nRed), plotGreen / float(nGreen), plotBlue / float(nBlue)], width, color = ["r", "g", "b"], edgecolor = "none")
+		whitePadSparklineAxis(ax)
+		ax.spines["left"].set_position(("outward", 0))
+		ax.set_yticks([0.0, 0.1, 0.2])
+		ax.set_yticklabels(["0%", "10%", "20%"])
+		ax.set_ylabel("Percentage of genes that are essential genes")
+		ax.set_xticks(xloc + 1.5 * width)
+		ax.set_xticklabels(["%s / %s" % (plotRed, nRed), "%s / %s" % (plotGreen, nGreen), "%s / %s" % (plotBlue, nBlue)])
+		plt.subplots_adjust(right = 0.9, bottom = 0.1, left = 0.2, top = 0.9)
+		exportFigure(plt, plotOutDir, "figure5E_v2", metadata)
 	plt.close()
 
 	# Figure 5F and 5G
@@ -325,53 +349,75 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			else:
 				resistance["g"] += 1
 
+	nUnknown = np.sum([unknown[x] for x in ["r", "g", "b"]])
 	fig = plt.figure()
 	ax = plt.subplot(1, 1, 1)
-	ax.bar(xloc + width, [unknown["r"] / float(nRed), unknown["g"] / float(nGreen), unknown["b"] / float(nBlue)], width, color = ["r", "g", "b"], edgecolor = "none")
-	whitePadSparklineAxis(ax, xAxis = False)
+	ax.bar(xloc + width, [unknown["r"] / float(nUnknown), unknown["g"] / float(nUnknown), unknown["b"] / float(nUnknown)], width, color = ["r", "g", "b"], edgecolor = "none")
+	whitePadSparklineAxis(ax)
 	ax.spines["left"].set_position(("outward", 0))
-	ax.set_yticks([0.0, 0.2, 0.4, 0.6])
-	ax.set_yticklabels(["0%", "20%", "40%", "60%"])
-	ax.set_ylabel("Percentage of genes that are poorly understood / annotated")
-	plt.subplots_adjust(right = 0.9, bottom = 0.1, left = 0.2, top = 0.9)
+	ax.set_yticks([0.0, 0.2, 0.4, 0.6, 0.8])
+	ax.set_yticklabels(["0%", "20%", "40%", "60%", "80%"])
+	ax.set_ylabel("Percentage of poorly understood / annotated genes")
+	ax.set_xticks(xloc + 1.5 * width)
+	ax.set_xticklabels(["%s / %s" % (unknown["r"], nUnknown), "%s / %s" % (unknown["g"], nUnknown), "%s / %s" % (unknown["b"], nUnknown)])
+	ax.set_xlabel("Total number of poorly understood / annotated genes: %s" % nUnknown)
+	plt.subplots_adjust(right = 0.9, bottom = 0.15, left = 0.2, top = 0.9)
 	exportFigure(plt, plotOutDir, "figure5F", metadata)
 
 	ax.set_yticklabels([])
 	ax.set_ylabel("")
+	remove_xaxis(ax)
 	exportFigure(plt, plotOutDir, "figure5F_clean", metadata)
+
+	if PLOT_DENOMINATOR_N_EACH_FREQ_GROUP:
+		fig = plt.figure()
+		ax = plt.subplot(1, 1, 1)
+		ax.bar(xloc + width, [unknown["r"] / float(nRed), unknown["g"] / float(nGreen), unknown["b"] / float(nBlue)], width, color = ["r", "g", "b"], edgecolor = "none")
+		whitePadSparklineAxis(ax)
+		ax.spines["left"].set_position(("outward", 0))
+		ax.set_yticks([0.0, 0.2, 0.4, 0.6])
+		ax.set_yticklabels(["0%", "20%", "40%", "60%"])
+		ax.set_ylabel("Percentage of genes that are poorly understood / annotated")
+		ax.set_xticks(xloc + 1.5 * width)
+		ax.set_xticklabels(["%s / %s" % (unknown["r"], nRed), "%s / %s" % (unknown["g"], nGreen), "%s / %s" % (unknown["b"], nBlue)])
+		plt.subplots_adjust(right = 0.9, bottom = 0.1, left = 0.2, top = 0.9)
+		exportFigure(plt, plotOutDir, "figure5F_v2", metadata)
 	plt.close()
 
 
+	nResistance = float(np.sum([resistance[x] for x in ["r", "g", "b"]]))
 	fig = plt.figure()
 	ax = plt.subplot(1, 1, 1)
-	ax.bar(xloc + width, [resistance["r"] / float(nRed), resistance["g"] / float(nGreen), resistance["b"] / float(nBlue)], width, color = ["r", "g", "b"], edgecolor = "none")
-	whitePadSparklineAxis(ax, xAxis = False)
+	ax.bar(xloc + width, [resistance["r"] / nResistance, resistance["g"] / nResistance, resistance["b"] / nResistance], width, color = ["r", "g", "b"], edgecolor = "none")
+	whitePadSparklineAxis(ax)
 	ax.spines["left"].set_position(("outward", 0))
-	ax.set_yticks([0.0, 0.025])
-	ax.set_yticklabels(["0%", "2.5%"])
-	ax.set_ylabel("Percentage of genes that are antibiotic related")
-	plt.subplots_adjust(right = 0.9, bottom = 0.1, left = 0.2, top = 0.9)
+	ax.set_yticks([0.0, 0.2, 0.4, 0.6, 0.8])
+	ax.set_yticklabels(["0%", "20%", "40%", "60%", "80%"])
+	ax.set_ylabel("Percentage of antibiotic related genes")
+	ax.set_xticks(xloc + 1.5 * width)
+	ax.set_xticklabels(["%s / %s" % (resistance["r"], int(nResistance)), "%s / %s" % (resistance["g"], int(nResistance)), "%s / %s" % (resistance["b"], int(nResistance))])
+	ax.set_xlabel("Total number of antibiotic related genes: %s" % int(nResistance))
+	plt.subplots_adjust(right = 0.9, bottom = 0.15, left = 0.2, top = 0.9)
 	exportFigure(plt, plotOutDir, "figure5G", metadata)
 
 	ax.set_yticklabels([])
 	ax.set_ylabel("")
+	remove_xaxis(ax)
 	exportFigure(plt, plotOutDir, "figure5G_clean", metadata)
-	plt.close()
 
-
-	# Version of figure 5G that compares distribution of antibiotic related genes
-	nResistance = float(np.sum([resistance[x] for x in ["r", "g", "b"]]))
-
-	fig = plt.figure()
-	ax = plt.subplot(1, 1, 1)
-	ax.bar(xloc + width, [resistance["r"] / nResistance, resistance["g"] / nResistance, resistance["b"] / nResistance], width, color = ["r", "g", "b"], edgecolor = "none")
-	whitePadSparklineAxis(ax, xAxis = False)
-	ax.spines["left"].set_position(("outward", 0))
-	ax.set_yticks([0.0, 0.25, 0.5, .75])
-	ax.set_yticklabels(["0%", "25%", "50%", "75%"])
-	ax.set_ylabel("Percentage of antibiotic related genes")
-	plt.subplots_adjust(right = 0.9, bottom = 0.1, left = 0.2, top = 0.9)
-	exportFigure(plt, plotOutDir, "figure5G_v2", metadata)
+	if PLOT_DENOMINATOR_N_EACH_FREQ_GROUP:
+		fig = plt.figure()
+		ax = plt.subplot(1, 1, 1)
+		ax.bar(xloc + width, [resistance["r"] / float(nRed), resistance["g"] / float(nGreen), resistance["b"] / float(nBlue)], width, color = ["r", "g", "b"], edgecolor = "none")
+		whitePadSparklineAxis(ax)
+		ax.spines["left"].set_position(("outward", 0))
+		ax.set_yticks([0.0, 0.025])
+		ax.set_yticklabels(["0%", "2.5%"])
+		ax.set_ylabel("Percentage of genes that are antibiotic related")
+		ax.set_xticks(xloc + 1.5 * width)
+		ax.set_xticklabels(["%s / %s" % (resistance["r"], nRed), "%s / %s" % (resistance["g"], nGreen), "%s / %s" % (resistance["b"], nBlue)])
+		plt.subplots_adjust(right = 0.9, bottom = 0.1, left = 0.2, top = 0.9)
+		exportFigure(plt, plotOutDir, "figure5G", metadata)
 	plt.close()
 
 
