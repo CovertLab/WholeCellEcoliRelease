@@ -32,13 +32,53 @@ def divide_cell(sim):
 	except OSError:
 		pass
 
-	# Calculate chromosome division
-	# Used in dividing both bulk molecules and unique molecules
-	chromosome_counts = chromosomeDivision(bulkMolecules, randomState)
 
-	# Create divded containers
-	d1_bulkMolCntr, d2_bulkMolCntr = divideBulkMolecules(bulkMolecules, randomState, chromosome_counts)
-	d1_uniqueMolCntr, d2_uniqueMolCntr, daughter_elng_rates = divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts, sim)
+	############################
+	## Checks for a dead cell ##
+	partial_chromosome_counts = bulkMolecules.container.counts(bulkMolecules.divisionIds['partialChromosome'])
+
+	uneven_counts = partial_chromosome_counts - partial_chromosome_counts.min()
+	if uneven_counts.any():
+		raise Exception("You won the lottery! There is an uneven number of partial chromosomes...")
+
+	# Transform any leftover partial chromosomes into full chromosome for convienence
+	# this should have happened in simulation process but in this simulation we got
+	# lucky and missed this before the final time-step.
+	bulkMolecules.container.countInc(
+		partial_chromosome_counts.min(),
+		bulkMolecules.divisionIds['fullChromosome'][0]
+		)
+
+	isDead = False
+	if bulkMolecules.container.count(bulkMolecules.divisionIds['fullChromosome'][0]) == 0 and (sim.time() - sim.initialTime()) > sim.lengthSec():
+		isDead = True
+	elif sim._isDead:
+		isDead = True
+
+	import cPickle
+	cPickle.dump(isDead, open(os.path.join(sim._outputDir, "Daughter1", "IsDead.cPickle"),'wb'))
+	cPickle.dump(isDead, open(os.path.join(sim._outputDir, "Daughter2", "IsDead.cPickle"),'wb'))
+	## Checks for a dead cell ##
+	############################
+
+	if isDead:
+		d1_bulkMolCntr = bulkMolecules.container.emptyLike()
+		d2_bulkMolCntr = bulkMolecules.container.emptyLike()
+		d1_uniqueMolCntr = uniqueMolecules.container.emptyLike()
+		d2_uniqueMolCntr = uniqueMolecules.container.emptyLike()
+		daughter_elng_rates = {"d1_elng_rate" : 0.,
+								"d2_elng_rate" : 0.,
+								"d1_elng_rate_factor" : 0.,
+								"d2_elng_rate_factor" : 0.,
+								}
+	else:
+		# Calculate chromosome division
+		# Used in dividing both bulk molecules and unique molecules
+		chromosome_counts = chromosomeDivision(bulkMolecules, randomState)
+
+		# Create divded containers
+		d1_bulkMolCntr, d2_bulkMolCntr = divideBulkMolecules(bulkMolecules, randomState, chromosome_counts)
+		d1_uniqueMolCntr, d2_uniqueMolCntr, daughter_elng_rates = divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts, sim)
 
 	# Save divded containers
 	saveContainer(d1_bulkMolCntr, os.path.join(sim._outputDir, "Daughter1", "BulkMolecules"))
@@ -52,8 +92,6 @@ def divide_cell(sim):
 
 	cPickle.dump(daughter_elng_rates["d1_elng_rate_factor"], open(os.path.join(sim._outputDir, "Daughter1", "elng_rate_factor.cPickle"),'wb'))
 	cPickle.dump(daughter_elng_rates["d2_elng_rate_factor"], open(os.path.join(sim._outputDir, "Daughter2", "elng_rate_factor.cPickle"),'wb'))
-
-
 
 	# Save daughter cell initial time steps
 	saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter1", "Time"), sim.timeStepSec())
@@ -236,8 +274,10 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts, sim):
 		daughter_elng_rates = {
 						"d1_elng_rate" : d1_rib_elng_rate,
 						"d2_elng_rate" : d2_rib_elng_rate,
-						"d1_elng_rate_factor" : d1_rib_elng_rate / environmentalElongationRate,
-						"d2_elng_rate_factor" : d2_rib_elng_rate / environmentalElongationRate,
+						#"d1_elng_rate_factor" : d1_rib_elng_rate / environmentalElongationRate,
+						#"d2_elng_rate_factor" : d2_rib_elng_rate / environmentalElongationRate,
+						"d1_elng_rate_factor" : noiseMultiplier,
+						"d2_elng_rate_factor" : noiseMultiplier,
 						}
 
 		d1_bool = np.zeros(len(moleculeSet), dtype = bool)

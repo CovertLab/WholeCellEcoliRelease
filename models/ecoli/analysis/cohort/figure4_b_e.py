@@ -66,6 +66,9 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ap = AnalysisPaths(variantDir, cohort_plot = True)
 	all_cells = ap.get_cells(seed=[4])
 
+	if not len(all_cells):
+		return
+
 	for idx, simDir in enumerate(all_cells):
 		color = "black"
 		alpha = 0.8
@@ -238,6 +241,9 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# Get all cells in each seed
 	ap = AnalysisPaths(variantDir, cohort_plot = True)
 	all_cells = ap.get_cells(seed=[5])
+
+	if not len(all_cells):
+		return
 
 	for idx, simDir in enumerate(all_cells):
 		color = "black"

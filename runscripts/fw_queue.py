@@ -71,6 +71,7 @@ VERBOSE_QUEUE = bool(int(os.environ.get("VERBOSE_QUEUE", "1")))
 MASS_DISTRIBUTION = bool(int(os.environ.get("MASS_DISTRIBUTION", "1")))
 GROWTH_RATE_NOISE = bool(int(os.environ.get("GROWTH_RATE_NOISE", "0")))
 D_PERIOD_DIVISION = bool(int(os.environ.get("D_PERIOD_DIVISION", "0")))
+TRANSLATION_SUPPLY = bool(int(os.environ.get("TRANSLATION_SUPPLY", "0")))
 
 ### Set path variables
 
@@ -165,6 +166,7 @@ metadata = {
 	"mass_distribution" : MASS_DISTRIBUTION,
 	"growth_rate_noise" : GROWTH_RATE_NOISE,
 	"d_period_division" : D_PERIOD_DIVISION,
+	"translation_supply" : TRANSLATION_SUPPLY,
 	}
 
 for key, value in metadata.iteritems():
@@ -507,6 +509,7 @@ for i in VARIANTS_TO_RUN:
 							mass_distribution = MASS_DISTRIBUTION,
 							growth_rate_noise = GROWTH_RATE_NOISE,
 							d_period_division = D_PERIOD_DIVISION,
+							translation_supply = TRANSLATION_SUPPLY,
 							),
 						name = fw_name,
 						spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": 1}, "_priority":10}
@@ -530,6 +533,7 @@ for i in VARIANTS_TO_RUN:
 							mass_distribution = MASS_DISTRIBUTION,
 							growth_rate_noise = GROWTH_RATE_NOISE,
 							d_period_division = D_PERIOD_DIVISION,
+							translation_supply = TRANSLATION_SUPPLY,
 							),
 						name = fw_name,
 						spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": 1}, "_priority":11}

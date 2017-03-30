@@ -197,6 +197,9 @@ def setDaughterInitialConditions(sim, sim_data):
 	assert sim._inheritedStatePath != None
 
 	import cPickle
+	isDead = cPickle.load(open(os.path.join(sim._inheritedStatePath, "IsDead.cPickle"), "rb"))
+	sim._isDead = isDead
+
 	elngRate = cPickle.load(open(os.path.join(sim._inheritedStatePath, "ElngRate.cPickle"), "rb"))
 	elng_rate_factor = cPickle.load(open(os.path.join(sim._inheritedStatePath, "elng_rate_factor.cPickle"), "rb"))
 	if sim._growthRateNoise:
