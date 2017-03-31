@@ -95,11 +95,11 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		# Set ribosome elongation rate based on simulation medium enviornment and elongation rate factor
 		# which is used to create single-cell variability in growth rate
 		if self.translationSupply:
-			self.ribosomeElongationRate = int(stochasticRound(self.randomState,
-				self.maxRibosomeElongationRate * self.timeStepSec()))
+			self.ribosomeElongationRate = np.min([self.maxRibosomeElongationRate, int(stochasticRound(self.randomState,
+				self.maxRibosomeElongationRate * self.timeStepSec()))])
 		else:
-			self.ribosomeElongationRate = int(stochasticRound(self.randomState,
-			self.elngRateFactor * self.ribosomeElongationRateDict[self.currentNutrients].asNumber(units.aa / units.s) * self.timeStepSec()))
+			self.ribosomeElongationRate = np.min([22, int(stochasticRound(self.randomState,
+			self.elngRateFactor * self.ribosomeElongationRateDict[self.currentNutrients].asNumber(units.aa / units.s) * self.timeStepSec()))])
 
 		# Request all active ribosomes
 		self.activeRibosomes.requestAll()
@@ -115,12 +115,15 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 					'proteinIndex', 'peptideLength'
 					)
 
-		sequences = buildSequences(
-			self.proteinSequences,
-			proteinIndexes,
-			peptideLengths,
-			self.ribosomeElongationRate
-			)
+		try:
+			sequences = buildSequences(
+				self.proteinSequences,
+				proteinIndexes,
+				peptideLengths,
+				self.ribosomeElongationRate
+				)
+		except:
+			import ipdb; ipdb.set_trace()
 
 		sequenceHasAA = (sequences != PAD_VALUE)
 		aasInSequences = np.bincount(sequences[sequenceHasAA], minlength=21)
