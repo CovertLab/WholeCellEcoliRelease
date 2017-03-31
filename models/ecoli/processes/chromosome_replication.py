@@ -104,7 +104,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		oriCs = self.oriCs.molecules()
 		nChromosomes = self.full_chromosome.total()[0]
 
-		if len(oriCs) == 0 and chromosomes == 0:
+		if len(oriCs) == 0 and nChromosomes == 0:
 			return
 
 		if activePolymerasePresent:
