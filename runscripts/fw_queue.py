@@ -594,7 +594,7 @@ for i in VARIANTS_TO_RUN:
 					wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_this_gen_this_sim_analysis)
 
 
-					# if COMPRESS_OUTPUT:
+					if COMPRESS_OUTPUT:
 						# Don't compress any outputs or validation data until all analysis scripts (single gen, multigen, and cohort) have finished running
 						wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_this_variant_sim_data_compression)
 						wf_links[fw_this_variant_this_seed_this_analysis].append(fw_this_variant_sim_data_compression)
