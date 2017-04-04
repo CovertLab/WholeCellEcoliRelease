@@ -218,8 +218,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	## scatterAxis.semilogx(averageInitiationEventsPerMonomer[smallBurst], averageFoldChangePerMonomer[smallBurst], marker = '.', color = "green", alpha = 0.9, lw = 0.)#, s = 5)
 	## scatterAxis.semilogx(averageInitiationEventsPerMonomer[~smallBurst], averageFoldChangePerMonomer[~smallBurst], marker = '.', color = "blue", alpha = 0.9, lw = 0.)#, s = 5)
 	
-	scatterAxis.loglog(averageInitiationEventsPerMonomer[smallBurst], averageFoldChangePerMonomer[smallBurst], marker = '.', color = "green", alpha = 0.5, lw = 0.)#, s = 5)
-	scatterAxis.loglog(averageInitiationEventsPerMonomer[~smallBurst], averageFoldChangePerMonomer[~smallBurst], marker = '.', color = "blue", alpha = 0.5, lw = 0.)#, s = 5)
+	scatterAxis.loglog(averageInitiationEventsPerMonomer[smallBurst], averageFoldChangePerMonomer[smallBurst], marker = '.', color = "blue", alpha = 0.5, lw = 0.)#, s = 5)
+	scatterAxis.loglog(averageInitiationEventsPerMonomer[~smallBurst], averageFoldChangePerMonomer[~smallBurst], marker = '.', color = "red", alpha = 0.5, lw = 0.)#, s = 5)
 
 	scatterAxis.set_ylabel("Fold change per protein\nin each generation ({} generations)".format(ap.n_generation), fontsize = FONT_SIZE)
 	scatterAxis.set_xlabel("Average number of transcription events\nper protein per generation ({} generations)".format(ap.n_generation), fontsize = FONT_SIZE)
@@ -242,8 +242,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# yhistAxis.hist(averageFoldChangePerMonomer[~smallBurst], histtype = 'step', bins = 25, orientation='horizontal', log = True)
 	# yhistAxis.hist(averageFoldChangePerMonomer[smallBurst], histtype = 'step', bins = 100, orientation='horizontal', log = True, color="green")
 
-	yhistAxis.hist(averageFoldChangePerMonomer[~smallBurst], histtype = 'step', bins = np.logspace(np.log10(0.01), np.log10(1000.), 25), range = [0.7, 100], log = True,  orientation='horizontal', linewidth=1)
-	yhistAxis.hist(averageFoldChangePerMonomer[smallBurst], histtype = 'step', bins = np.logspace(np.log10(0.01), np.log10(1000.), 125), range = [0.7, 100], log = True,  orientation='horizontal', color="green", linewidth=1)
+	yhistAxis.hist(averageFoldChangePerMonomer[~smallBurst], histtype = 'step', bins = np.logspace(np.log10(0.01), np.log10(1000.), 25), range = [0.7, 100], log = True,  orientation='horizontal', color="red", linewidth=1)
+	yhistAxis.hist(averageFoldChangePerMonomer[smallBurst], histtype = 'step', bins = np.logspace(np.log10(0.01), np.log10(1000.), 125), range = [0.7, 100], log = True,  orientation='horizontal', color="blue", linewidth=1)
 	# yhistAxis.set_ylim([0.7, 100])
 	yhistAxis.set_yscale("log")
 
