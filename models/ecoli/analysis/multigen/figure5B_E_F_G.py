@@ -26,6 +26,10 @@ PLOT_GENES_OF_INTEREST = False
 PLOT_DENOMINATOR_N_EACH_FREQ_GROUP = False
 FIRST_N_GENS = 5
 
+COLOR_F1 = "red"
+COLOR_F0 = "yellow"
+COLOR_FSUB = "blue"
+
 def remove_xaxis(axis):
 	axis.spines["bottom"].set_visible(False)
 	axis.tick_params(bottom = "off")
@@ -122,9 +126,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		alwaysPresentIndexes = np.where(transcribedBoolOrdered == 1.)[0]
 		neverPresentIndexes = np.where(transcribedBoolOrdered == 0.)[0]
 		sometimesPresentIndexes = np.array([x for x in np.arange(len(transcribedBoolOrdered)) if x not in alwaysPresentIndexes and x not in neverPresentIndexes])
-		colors = np.repeat("g", len(transcribedBoolOrdered))
-		colors[alwaysPresentIndexes] = "b"
-		colors[neverPresentIndexes] = "r"
+		colors = np.repeat(COLOR_FSUB, len(transcribedBoolOrdered))
+		colors[alwaysPresentIndexes] = COLOR_F1
+		colors[neverPresentIndexes] = COLOR_F0
 		always = transcribedBoolOrdered[alwaysPresentIndexes]
 		never = transcribedBoolOrdered[neverPresentIndexes]
 		sometimes = transcribedBoolOrdered[sometimesPresentIndexes]
@@ -189,9 +193,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	N, bins, patches = histAxis.hist(transcribedBoolOrdered, bins = len(allDir) + 1, orientation = 'horizontal')
 	for i in xrange(1, len(patches) - 1):
-		plt.setp(patches[i], facecolor = "none", edgecolor = "g")
-	plt.setp(patches[0], facecolor = "none", edgecolor = "r")
-	plt.setp(patches[-1], facecolor = "none", edgecolor = "b")
+		plt.setp(patches[i], facecolor = "none", edgecolor = COLOR_FSUB)
+	plt.setp(patches[0], facecolor = "none", edgecolor = COLOR_F0)
+	plt.setp(patches[-1], facecolor = "none", edgecolor = COLOR_F1)
 	histAxis.set_xscale("log")
 	whitePadSparklineAxis(histAxis)
 	histAxis.xaxis.tick_bottom()
@@ -241,7 +245,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	alwaysAxis = plt.subplot(2, 1, 1)
 	sometimesAxis = plt.subplot(2, 1, 2, sharex = alwaysAxis)
 
-	alwaysAxis.eventplot(alwaysTranscriptionEvents, orientation = "horizontal", linewidths = 2., linelengths = 4., color = "b")
+	alwaysAxis.eventplot(alwaysTranscriptionEvents, orientation = "horizontal", linewidths = 2., linelengths = 4., color = COLOR_F1)
 	alwaysAxis.set_xlim([0, time[-1] / 3600.])
 	alwaysAxis.set_ylim([-1, len(always)])
 	alwaysAxis.set_xticks([])
@@ -250,7 +254,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	alwaysAxis.tick_params(bottom = "off")
 	alwaysAxis.tick_params(axis = "x", labelbottom = 'off')
 	
-	sometimesAxis.eventplot(sometimesTranscriptionEvents, orientation = "horizontal", linewidths = 2., linelengths = 4., color = "g")
+	sometimesAxis.eventplot(sometimesTranscriptionEvents, orientation = "horizontal", linewidths = 2., linelengths = 4., color = COLOR_FSUB)
 	sometimesAxis.set_xlim([0, time[-1] / 3600.])
 	sometimesAxis.set_ylim([-1, len(sometimes)])
 	sometimesAxis.set_xticks([0, time[-1] / 3600.])
@@ -297,7 +301,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	fig = plt.figure()
 	ax = plt.subplot(1, 1, 1)
-	ax.bar(xloc + width, [plotRed / float(len(essentialGenes_rna)), plotGreen / float(len(essentialGenes_rna)), plotBlue / float(len(essentialGenes_rna))], width, color = ["r", "g", "b"], edgecolor = "none")
+	ax.bar(xloc + width, [plotRed / float(len(essentialGenes_rna)), plotGreen / float(len(essentialGenes_rna)), plotBlue / float(len(essentialGenes_rna))], width, color = [COLOR_F0, COLOR_FSUB, COLOR_F1], edgecolor = "none")
 	whitePadSparklineAxis(ax)
 	ax.spines["left"].set_position(("outward", 0))
 	ax.set_yticks([0.0, 0.2, 0.4, 0.6, 0.8])
@@ -317,7 +321,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	if PLOT_DENOMINATOR_N_EACH_FREQ_GROUP:	
 		fig = plt.figure()
 		ax = plt.subplot(1, 1, 1)
-		ax.bar(xloc + width, [plotRed / float(nRed), plotGreen / float(nGreen), plotBlue / float(nBlue)], width, color = ["r", "g", "b"], edgecolor = "none")
+		ax.bar(xloc + width, [plotRed / float(nRed), plotGreen / float(nGreen), plotBlue / float(nBlue)], width, color = [COLOR_F0, COLOR_FSUB, COLOR_F1], edgecolor = "none")
 		whitePadSparklineAxis(ax)
 		ax.spines["left"].set_position(("outward", 0))
 		ax.set_yticks([0.0, 0.1, 0.2])
@@ -357,7 +361,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	nUnknown = np.sum([unknown[x] for x in ["r", "g", "b"]])
 	fig = plt.figure()
 	ax = plt.subplot(1, 1, 1)
-	ax.bar(xloc + width, [unknown["r"] / float(nUnknown), unknown["g"] / float(nUnknown), unknown["b"] / float(nUnknown)], width, color = ["r", "g", "b"], edgecolor = "none")
+	ax.bar(xloc + width, [unknown["r"] / float(nUnknown), unknown["g"] / float(nUnknown), unknown["b"] / float(nUnknown)], width, color = [COLOR_F0, COLOR_FSUB, COLOR_F1], edgecolor = "none")
 	whitePadSparklineAxis(ax)
 	ax.spines["left"].set_position(("outward", 0))
 	ax.set_yticks([0.0, 0.2, 0.4, 0.6, 0.8])
@@ -377,7 +381,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	if PLOT_DENOMINATOR_N_EACH_FREQ_GROUP:
 		fig = plt.figure()
 		ax = plt.subplot(1, 1, 1)
-		ax.bar(xloc + width, [unknown["r"] / float(nRed), unknown["g"] / float(nGreen), unknown["b"] / float(nBlue)], width, color = ["r", "g", "b"], edgecolor = "none")
+		ax.bar(xloc + width, [unknown["r"] / float(nRed), unknown["g"] / float(nGreen), unknown["b"] / float(nBlue)], width, color = [COLOR_F0, COLOR_FSUB, COLOR_F1], edgecolor = "none")
 		whitePadSparklineAxis(ax)
 		ax.spines["left"].set_position(("outward", 0))
 		ax.set_yticks([0.0, 0.2, 0.4, 0.6])
@@ -393,7 +397,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	nResistance = float(np.sum([resistance[x] for x in ["r", "g", "b"]]))
 	fig = plt.figure()
 	ax = plt.subplot(1, 1, 1)
-	ax.bar(xloc + width, [resistance["r"] / nResistance, resistance["g"] / nResistance, resistance["b"] / nResistance], width, color = ["r", "g", "b"], edgecolor = "none")
+	ax.bar(xloc + width, [resistance["r"] / nResistance, resistance["g"] / nResistance, resistance["b"] / nResistance], width, color = [COLOR_F0, COLOR_FSUB, COLOR_F1], edgecolor = "none")
 	whitePadSparklineAxis(ax)
 	ax.spines["left"].set_position(("outward", 0))
 	ax.set_yticks([0.0, 0.2, 0.4, 0.6, 0.8])
@@ -413,7 +417,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	if PLOT_DENOMINATOR_N_EACH_FREQ_GROUP:
 		fig = plt.figure()
 		ax = plt.subplot(1, 1, 1)
-		ax.bar(xloc + width, [resistance["r"] / float(nRed), resistance["g"] / float(nGreen), resistance["b"] / float(nBlue)], width, color = ["r", "g", "b"], edgecolor = "none")
+		ax.bar(xloc + width, [resistance["r"] / float(nRed), resistance["g"] / float(nGreen), resistance["b"] / float(nBlue)], width, color = [COLOR_F0, COLOR_FSUB, COLOR_F1], edgecolor = "none")
 		whitePadSparklineAxis(ax)
 		ax.spines["left"].set_position(("outward", 0))
 		ax.set_yticks([0.0, 0.025])
