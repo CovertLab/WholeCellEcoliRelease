@@ -15,7 +15,8 @@ import matplotlib.pyplot as plt
 import wholecell.utils.constants
 from matplotlib_venn import venn3, venn3_circles
 
-data = np.array([1181, 382, 1832, 80, 877, 0, 1]) #order is 100, 010, 110, 001, 101, 011, 111
+data = [1181, 382, 1832, 80, 877, 0, 1] #order is 100, 010, 110, 001, 101, 011, 111
+dataArea = [1181, 382, 1832, 80, 877, 450, 1]
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	if not os.path.isdir(seedOutDir):
@@ -25,15 +26,16 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		os.mkdir(plotOutDir)
 
 	fig = plt.figure()
-	v = venn3(subsets = data, set_labels = ["0 < Freq. < 1", "Freq. = 1", "Freq. = 0"])
-	v.get_patch_by_id("100").set_color("green")
-	v.get_patch_by_id("010").set_color("blue")
-	v.get_patch_by_id("001").set_color("red")
-	v.get_patch_by_id("110").set_color("cyan")
-	v.get_patch_by_id("101").set_color("yellow")
+	v = venn3(subsets = dataArea, set_labels = ["0 < Freq. < 1", "Freq. = 1", "Freq. = 0"])
+	v.get_patch_by_id("100").set_color("blue")
+	v.get_patch_by_id("010").set_color("red")
+	v.get_patch_by_id("001").set_color("yellow")
+	v.get_patch_by_id("110").set_color("purple")
+	v.get_patch_by_id("101").set_color("green")
+	v.get_patch_by_id("011").set_color("orange")
 	v.get_patch_by_id("111").set_color("white")
 
-	ids = ["100", "010", "001", "110", "101", "111"]
+	ids = ["100", "010", "001", "110", "101", "011", "111"]
 
 	for i in ids:
 		v.get_patch_by_id(i).set_edgecolor("none")
@@ -42,13 +44,19 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		if i == "100":
 			v.get_label_by_id(i).set_text("1,181")
 
-		if i == "110":
+		elif i == "110":
 			v.get_label_by_id(i).set_text("1,832")
 
+		elif i == "011":
+			v.get_label_by_id(i).set_text("1")
+
+		elif i == "111":
+			v.get_label_by_id(i).set_text("0")
+
 	setLabels = v.set_labels
-	setLabels[0].set_color("green")
-	setLabels[1].set_color("blue")
-	setLabels[2].set_color("red")
+	setLabels[0].set_color("blue")
+	setLabels[1].set_color("red")
+	setLabels[2].set_color("yellow")
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
