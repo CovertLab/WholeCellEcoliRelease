@@ -26,9 +26,9 @@ PLOT_GENES_OF_INTEREST = False
 PLOT_DENOMINATOR_N_EACH_FREQ_GROUP = False
 FIRST_N_GENS = 5
 
-COLOR_F1 = "red"
-COLOR_F0 = "yellow"
-COLOR_FSUB = "blue"
+COLOR_F1 = "r"
+COLOR_F0 = "y"
+COLOR_FSUB = "b"
 
 def remove_xaxis(axis):
 	axis.spines["bottom"].set_visible(False)
@@ -37,7 +37,6 @@ def remove_xaxis(axis):
 	axis.set_xlabel("")
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-	return
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
 
@@ -179,7 +178,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		alwaysTranscriptionEvents = D["alwaysTranscriptionEvents"]
 		sometimesTranscriptionEvents = D["sometimesTranscriptionEvents"]
 		neverTranscriptionEvents = D["neverTranscriptionEvents"]
-
 
 	# Plot
 	fig = plt.figure(figsize = (16, 8))
