@@ -86,6 +86,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		cellMass = []
 		dryMass = []
 		timeStepSec = []
+		generationTicks = [0.]
 
 		nTranscriptionInitEventsPerGen = []
 		nAvgTetramersPerGen = []
@@ -94,6 +95,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			simOutDir = os.path.join(simDir, "simOut")
 
 			time += TableReader(os.path.join(simOutDir, "Main")).readColumn("time").tolist()
+			generationTicks.append(time[-1])
 			timeStepSec += TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec").tolist()
 			cellMass += TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass").tolist()
 			dryMass += TableReader(os.path.join(simOutDir, "Mass")).readColumn("dryMass").tolist()
@@ -139,6 +141,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			"dryMass": dryMass,
 			"cellMass": cellMass,
 			"timeStepSec": timeStepSec,
+			"generationTicks": generationTicks,
 			"nTranscriptionInitEventsPerGen": nTranscriptionInitEventsPerGen,	# storing value to report in paper
 			"nAvgTetramersPerGen": nAvgTetramersPerGen,							# storing value to report in paper
 			}, open(os.path.join(plotOutDir, "figure5D.pickle"), "wb"))
@@ -154,6 +157,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		dryMass = D["dryMass"]
 		cellMass = D["cellMass"]
 		timeStepSec = D["timeStepSec"]
+		generationTicks = D["generationTicks"]
 
 	cellVolume = units.g * np.array(cellMass) / cellDensity
 	coefficient = (units.fg * np.array(dryMass)) / (units.fg * np.array(cellMass)) * cellDensity * (timeStepSec * units.s)
@@ -199,11 +203,15 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	metLine = metAxis.plot(time / 3600., metaboliteCounts[:, 0])
 	metAxis.set_ylabel("Menaquinone\ncounts", fontsize = 12, rotation = 0)
 	metAxis.yaxis.set_label_coords(-.1, 0.25)
-	metAxis.set_xlabel("Time (hour)", fontsize = 12)
+	metAxis.set_xlabel("Time (hour)\ntickmarks at each new generation", fontsize = 12)
 	metAxis.set_xlim([0, time[-1] / 3600.])
 	whitePadSparklineAxis(metAxis)
 	metAxis.set_yticklabels(["%0.1e" % metAxis.get_ylim()[0], "%0.1e" % metAxis.get_ylim()[1]])
-
+	metAxis.set_xticks(generationTicks)
+	xticklabels = np.repeat("     ", len(generationTicks))
+	xticklabels[0] = "0"
+	xticklabels[-1] = "%0.2f" % (time[-1] / 3600.)
+	metAxis.set_xticklabels(xticklabels)
 	plt.subplots_adjust(hspace = 0.2, right = 0.9, bottom = 0.1, left = 0.15, top = 0.9)
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
