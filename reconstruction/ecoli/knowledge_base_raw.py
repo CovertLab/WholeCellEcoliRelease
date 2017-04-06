@@ -24,6 +24,7 @@ LIST_OF_DICT_FILENAMES = (
 	"chromosome.tsv",
 	"compartments.tsv",
 	"complexationReactions.tsv",
+	"disabledKineticReactions.tsv",
 	"dryMassComposition.tsv",
 	"endoRnases.tsv",
 	"enzymeKinetics.tsv",

@@ -230,10 +230,6 @@ class Metabolism(wholecell.processes.process.Process):
 			self.burnInComplete = True
 			self.fba.enableKineticTargets()
 
-			if not self.useAllConstraints:
-				for rxn in self.constraintsToDisable:
-					self.fba.disableKineticTargets(rxn)
-
 		# Allow flexibility for solver in first time step after an environment shift
 		if updatedObjective:
 			self.fba.disableKineticTargets()
@@ -312,6 +308,9 @@ class Metabolism(wholecell.processes.process.Process):
 			# set reaction flux targets
 			targets = (TIME_UNITS * self.timeStepSec() * reactionTargets).asNumber(COUNTS_UNITS / VOLUME_UNITS)
 			self.fba.setKineticTarget(self.kineticsConstrainedReactions, targets, raiseForReversible = False)
+
+			if not self.useAllConstraints:
+				self.fba.disableKineticTargets(self.constraintsToDisable)
 
 		# Solve FBA problem and update metabolite counts
 		deltaMetabolites = (1 / countsToMolar) * (COUNTS_UNITS / VOLUME_UNITS * self.fba.outputMoleculeLevelsChange())

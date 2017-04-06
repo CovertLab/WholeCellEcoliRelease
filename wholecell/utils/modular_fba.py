@@ -1229,7 +1229,7 @@ class FluxBalanceAnalysis(object):
 
 	def setKineticTarget(self, reactionIDs, reactionTargets, raiseForReversible=True):
 		# If a single value is passed in, make a list of length 1 from it
-		if isinstance(reactionIDs, str):
+		if isinstance(reactionIDs, str) or isinstance(reactionIDs, unicode):
 			reactionIDs = [reactionIDs]
 		if not (isinstance(reactionTargets, list) or isinstance(reactionTargets, np.ndarray)):
 			reactionTargets = [reactionTargets]
@@ -1269,7 +1269,7 @@ class FluxBalanceAnalysis(object):
 
 	def enableKineticTargets(self, reactionIDs=None):
 		# If a single value is passed in, make a list of length 1 from it
-		if isinstance(reactionIDs, str):
+		if isinstance(reactionIDs, str) or isinstance(reactionIDs, unicode):
 			reactionIDs = [reactionIDs]
 
 		# If no reactions specified, enable all kinetic reactions
@@ -1296,7 +1296,7 @@ class FluxBalanceAnalysis(object):
 
 	def disableKineticTargets(self, reactionIDs=None):
 		# If a single value is passed in, make a list of length 1 from it
-		if isinstance(reactionIDs, str):
+		if isinstance(reactionIDs, str) or isinstance(reactionIDs, unicode):
 			reactionIDs = [reactionIDs]
 
 		# If no reactions specified, disable all kinetic reactions
@@ -1319,6 +1319,15 @@ class FluxBalanceAnalysis(object):
 				underTargetFlux,
 				0
 			)
+
+			# Reset flux target - leaving low values can cause issues when objective for reaction is disabled
+			conversionFlux = self._generatedID_conversionFlux.format(reactionID)
+			reactionFluxEquivalent = self._generatedID_reactionFluxEquivalents.format(reactionID)
+			self._solver.flowMaterialCoeffIs(
+				conversionFlux,
+				reactionFluxEquivalent,
+				-1
+				)
 
 	def getArrayBasedModel(self):
 		return {
