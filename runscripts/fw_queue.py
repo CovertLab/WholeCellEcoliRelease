@@ -74,6 +74,9 @@ D_PERIOD_DIVISION = bool(int(os.environ.get("D_PERIOD_DIVISION", "0")))
 TRANSLATION_SUPPLY = bool(int(os.environ.get("TRANSLATION_SUPPLY", "1")))
 RUN_AGGREGATE_ANALYSIS = bool(int(os.environ.get("RUN_AGGREGATE_ANALYSIS", "1")))
 
+if not RUN_AGGREGATE_ANALYSIS:
+	COMPRESS_OUTPUT = False
+
 ### Set path variables
 
 dirname = os.path.dirname
@@ -420,9 +423,10 @@ for i in VARIANTS_TO_RUN:
 	wf_fws.append(fw_this_variant_sim_data)
 
 	wf_links[fw_symlink_most_fit].append(fw_this_variant_sim_data)
-	wf_links[fw_this_variant_sim_data].append(fw_sim_data_1_compression)
 
 	if COMPRESS_OUTPUT:
+		wf_links[fw_this_variant_sim_data].append(fw_sim_data_1_compression)
+
 		# Variant simData compression
 		fw_name = "ScriptTask_compression_variant_KB"
 		fw_this_variant_sim_data_compression = Firework(
