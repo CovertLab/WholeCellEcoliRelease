@@ -10,6 +10,7 @@ Central carbon metabolism comparison to Toya et al for figure 3c
 import argparse
 import os
 import cPickle
+import re
 
 import numpy as np
 import matplotlib
@@ -76,14 +77,26 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		reactionFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (fbaResults.readColumn("reactionFluxes").T / coefficient).T
 		fbaResults.close()
 
-		for rxn in toyaReactions:
-			if rxn in reactionIDs:
-				fluxTimeCourse = net_flux(rxn, reactionIDs, reactionFluxes, reverseRxnFormat=_generatedID_reverseReaction)
-				modelFluxes[rxn].append(np.mean(fluxTimeCourse).asNumber(units.mmol / units.g / units.h))
+		for toyaReaction in toyaReactions:
+			fluxTimeCourse = []
+
+			for rxn in reactionIDs:
+				if re.findall(toyaReaction, rxn):
+					reverse = 1
+					if re.findall("(reverse)", rxn):
+						reverse = -1
+
+					if len(fluxTimeCourse):
+						fluxTimeCourse += reverse * reactionFluxes[:, np.where(reactionIDs == rxn)]
+					else:
+						fluxTimeCourse = reverse * reactionFluxes[:, np.where(reactionIDs == rxn)]
+
+			if len(fluxTimeCourse):
+				modelFluxes[toyaReaction].append(np.mean(fluxTimeCourse).asNumber(units.mmol / units.g / units.h))
 
 	toyaVsReactionAve = []
 	for rxn, toyaFlux in toyaFluxesDict.iteritems():
-		if rxn in reactionIDs:
+		if rxn in modelFluxes:
 			toyaVsReactionAve.append((np.mean(modelFluxes[rxn]), toyaFlux.asNumber(units.mmol / units.g / units.h), np.std(modelFluxes[rxn]), toyaStdevDict[rxn].asNumber(units.mmol / units.g / units.h)))
 
 	toyaVsReactionAve = np.array(toyaVsReactionAve)

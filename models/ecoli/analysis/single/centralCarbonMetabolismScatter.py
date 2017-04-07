@@ -10,6 +10,7 @@ from __future__ import division
 import argparse
 import os
 import cPickle
+import re
 
 import numpy as np
 import matplotlib
@@ -74,8 +75,20 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	toyaVsReactionAve = []
 	toya_order = []
 	for toyaReactionID, toyaFlux in toya_fluxes_dict.iteritems():
-		if toyaReactionID in reactionIDs:
-			fluxTimeCourse = net_flux(toyaReactionID, reactionIDs, reactionFluxes, reverseRxnFormat=_generatedID_reverseReaction)
+		fluxTimeCourse = []
+
+		for rxn in reactionIDs:
+			if re.findall(toyaReactionID, rxn):
+				reverse = 1
+				if re.findall("(reverse)", rxn):
+					reverse = -1
+
+				if len(fluxTimeCourse):
+					fluxTimeCourse += reverse * reactionFluxes[:, np.where(reactionIDs == rxn)]
+				else:
+					fluxTimeCourse = reverse * reactionFluxes[:, np.where(reactionIDs == rxn)]
+
+		if len(fluxTimeCourse):
 			fluxAve = np.mean(fluxTimeCourse)
 			fluxStdev = np.std(fluxTimeCourse.asNumber(FLUX_UNITS))
 			toyaVsReactionAve.append((fluxAve.asNumber(FLUX_UNITS), toyaFlux.asNumber(FLUX_UNITS), fluxStdev, toya_stdev_dict[toyaReactionID].asNumber(FLUX_UNITS)))
