@@ -207,7 +207,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	metAxis.set_xlim([0, time[-1] / 3600.])
 	whitePadSparklineAxis(metAxis)
 	metAxis.set_yticklabels(["%0.1e" % metAxis.get_ylim()[0], "%0.1e" % metAxis.get_ylim()[1]])
-	metAxis.set_xticks(generationTicks)
+	metAxis.set_xticks(np.array(generationTicks) / 3600.)
 	xticklabels = np.repeat("     ", len(generationTicks))
 	xticklabels[0] = "0"
 	xticklabels[-1] = "%0.2f" % (time[-1] / 3600.)
