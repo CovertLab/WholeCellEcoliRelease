@@ -207,7 +207,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	plt.subplots_adjust(wspace = 0.6, hspace = 0.4, right = 0.9, bottom = 0.1, left = 0.1, top = 0.9)
 	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName + "__top__clean", metadata)
+	plt.savefig(os.path.join(plotOutDir, "figure5B__top__clean.pdf"))
 
 	if PLOT_GENES_OF_INTEREST:
 		## Identifying particular genes
@@ -224,18 +224,18 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		scatterAxis.text(dcurIndex + 500, transcribedBoolOrdered[dcurIndex], "dcuR", fontsize = 18)
 		scatterAxis.text(clppIndex + 500, transcribedBoolOrdered[clppIndex], "clpP", fontsize = 18)
 		scatterAxis.text(dcucIndex + 500, transcribedBoolOrdered[dcucIndex], "dcuC", fontsize = 18)
-		exportFigure(plt, plotOutDir, plotOutFileName + "__top__clean__genes", metadata)
+		plt.savefig(os.path.join(plotOutDir, plotOutFileName + "__top__clean__genes.pdf"))
 
 	plt.suptitle("Frequency of observing at least 1 transcript per generation", fontsize = 14)
 	scatterAxis.set_xlabel("Genes ordered by simulated synthesis probability", fontsize = 12)
-	histAxis.text(histAxis.get_xlim()[1] * 1.6, 0, "%s genes\n(%0.1f%%)" % (len(never), 100. * (len(never) / float(len(transcribedBoolOrdered)))), fontsize = 14, verticalalignment = "center", color = "r")
-	histAxis.text(histAxis.get_xlim()[1] * 1.6, 1, "%s genes\n(%0.1f%%)" % (len(always), 100. * (len(always) / float(len(transcribedBoolOrdered)))), fontsize = 14, verticalalignment = "center", color = "b")
-	histAxis.text(histAxis.get_xlim()[1] * 1.6, 0.5, "%s genes\n(%0.1f%%)" % (len(sometimes), 100. * (len(sometimes) / float(len(transcribedBoolOrdered)))), fontsize = 14, verticalalignment = "center", color = "g")
+	histAxis.text(histAxis.get_xlim()[1] * 1.6, 0, "%s genes\n(%0.1f%%)" % (len(never), 100. * (len(never) / float(len(transcribedBoolOrdered)))), fontsize = 14, verticalalignment = "center", color = COLOR_F0)
+	histAxis.text(histAxis.get_xlim()[1] * 1.6, 1, "%s genes\n(%0.1f%%)" % (len(always), 100. * (len(always) / float(len(transcribedBoolOrdered)))), fontsize = 14, verticalalignment = "center", color = COLOR_F1)
+	histAxis.text(histAxis.get_xlim()[1] * 1.6, 0.5, "%s genes\n(%0.1f%%)" % (len(sometimes), 100. * (len(sometimes) / float(len(transcribedBoolOrdered)))), fontsize = 14, verticalalignment = "center", color = COLOR_FSUB)
 	scatterAxis.set_yticklabels([0, 1])
 	scatterAxis.set_xticklabels([0, len(transcribedBoolOrdered)])
 	histAxis.set_yticklabels([0, 1])
 	histAxis.set_xticklabels([histXmin, histXmax])
-	exportFigure(plt, plotOutDir, plotOutFileName + "__top", metadata)
+	exportFigure(plt, plotOutDir, "figure5B__top", metadata)
 	plt.close("all")
 
 
@@ -264,14 +264,14 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	plt.subplots_adjust(wspace = 0, hspace = 0, right = 0.9, bottom = 0.1, left = 0.1, top = 0.9)
 	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName + "__bottom__clean", metadata)
+	plt.savefig(os.path.join(plotOutDir, "figure5B__bottom__clean.pdf"))
 
 	plt.suptitle("Transcription initiation events", fontsize = 14)
 	alwaysAxis.set_ylabel("Freq. = 1", fontsize = 14)
 	sometimesAxis.set_ylabel("0 < Freq. < 1", fontsize = 14)
 	sometimesAxis.set_xlabel("Time (hr)", fontsize = 14)
 	sometimesAxis.set_xticklabels([sometimesXmin, "%0.2f" % sometimesXmax])
-	exportFigure(plt, plotOutDir, plotOutFileName + "__bottom", metadata)
+	exportFigure(plt, plotOutDir, "figure5B__bottom", metadata)
 	plt.close("all")
 
 	# Figure 5E
@@ -314,7 +314,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax.set_yticklabels([])
 	ax.set_ylabel("")
 	remove_xaxis(ax)
-	exportFigure(plt, plotOutDir, "figure5E_clean", metadata)
+	plt.savefig(os.path.join(plotOutDir, "figure5E__clean.pdf"))
 
 	if PLOT_DENOMINATOR_N_EACH_FREQ_GROUP:	
 		fig = plt.figure()
@@ -374,7 +374,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax.set_yticklabels([])
 	ax.set_ylabel("")
 	remove_xaxis(ax)
-	exportFigure(plt, plotOutDir, "figure5F_clean", metadata)
+	plt.savefig(os.path.join(plotOutDir, "figure5F__clean.pdf"))
 
 	if PLOT_DENOMINATOR_N_EACH_FREQ_GROUP:
 		fig = plt.figure()
@@ -410,7 +410,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax.set_yticklabels([])
 	ax.set_ylabel("")
 	remove_xaxis(ax)
-	exportFigure(plt, plotOutDir, "figure5G_clean", metadata)
+	plt.savefig(os.path.join(plotOutDir, "figure5G__clean.pdf"))
 
 	if PLOT_DENOMINATOR_N_EACH_FREQ_GROUP:
 		fig = plt.figure()
