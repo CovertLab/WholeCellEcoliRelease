@@ -15,8 +15,8 @@ import matplotlib.pyplot as plt
 import wholecell.utils.constants
 from matplotlib_venn import venn3, venn3_circles
 
-data = [1181, 382, 1832, 80, 877, 0, 1] #order is 100, 010, 110, 001, 101, 011, 111
-dataArea = [1181, 382, 1832, 80, 877, 450, 1]
+data = [1181, 330, 1945, 79, 879, 2, 0] #order is 100, 010, 110, 001, 101, 011, 111
+dataArea = [1181, 330, 1945, 79, 879, 500, 1]
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
 	if not os.path.isdir(seedOutDir):
@@ -45,10 +45,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			v.get_label_by_id(i).set_text("1,181")
 
 		elif i == "110":
-			v.get_label_by_id(i).set_text("1,832")
+			v.get_label_by_id(i).set_text("1,945")
 
 		elif i == "011":
-			v.get_label_by_id(i).set_text("1")
+			v.get_label_by_id(i).set_text("2")
 
 		elif i == "111":
 			v.get_label_by_id(i).set_text("0")
@@ -66,7 +66,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	for i in setLabels:
 		i.set_text("")
 
-	exportFigure(plt, plotOutDir, plotOutFileName + "_clean", metadata)
+	plt.savefig(os.path.join(plotOutDir, plotOutFileName + "__clean.pdf"))
 	plt.close()
 
 
