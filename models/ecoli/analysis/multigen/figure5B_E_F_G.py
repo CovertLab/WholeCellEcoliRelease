@@ -207,7 +207,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	plt.subplots_adjust(wspace = 0.6, hspace = 0.4, right = 0.9, bottom = 0.1, left = 0.1, top = 0.9)
 	from wholecell.analysis.analysis_tools import exportFigure
-	plt.savefig(os.path.join(plotOutDir, "figure5B__top__clean.pdf"))
+	exportFigure(plt, plotOutDir, "figure5B__top__clean", "")
 
 	if PLOT_GENES_OF_INTEREST:
 		## Identifying particular genes
@@ -224,7 +224,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		scatterAxis.text(dcurIndex + 500, transcribedBoolOrdered[dcurIndex], "dcuR", fontsize = 18)
 		scatterAxis.text(clppIndex + 500, transcribedBoolOrdered[clppIndex], "clpP", fontsize = 18)
 		scatterAxis.text(dcucIndex + 500, transcribedBoolOrdered[dcucIndex], "dcuC", fontsize = 18)
-		plt.savefig(os.path.join(plotOutDir, plotOutFileName + "__top__clean__genes.pdf"))
+		exportFigure(plt, plotOutDir, "figure5B__top__clean__genes", "")
 
 	plt.suptitle("Frequency of observing at least 1 transcript per generation", fontsize = 14)
 	scatterAxis.set_xlabel("Genes ordered by simulated synthesis probability", fontsize = 12)
@@ -264,7 +264,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	plt.subplots_adjust(wspace = 0, hspace = 0, right = 0.9, bottom = 0.1, left = 0.1, top = 0.9)
 	from wholecell.analysis.analysis_tools import exportFigure
-	plt.savefig(os.path.join(plotOutDir, "figure5B__bottom__clean.pdf"))
+	exportFigure(plt, plotOutDir, "figure5B__bottom__clean", "")
 
 	plt.suptitle("Transcription initiation events", fontsize = 14)
 	alwaysAxis.set_ylabel("Freq. = 1", fontsize = 14)
@@ -410,7 +410,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax.set_yticklabels([])
 	ax.set_ylabel("")
 	remove_xaxis(ax)
-	plt.savefig(os.path.join(plotOutDir, "figure5G__clean.pdf"))
+	exportFigure(plt, plotOutDir, "figure5G__clean", "")
 
 	if PLOT_DENOMINATOR_N_EACH_FREQ_GROUP:
 		fig = plt.figure()
