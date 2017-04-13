@@ -241,7 +241,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	clearLabels(metAxis)
 	metAxis.set_xticklabels([])
 	metAxis.set_xlabel("")
-	plt.savefig(os.path.join(plotOutDir, plotOutFileName + "__clean.pdf"))
+	exportFigure(plt, plotOutDir, plotOutFileName + "__clean", "")
 	plt.close("all")
 
 
