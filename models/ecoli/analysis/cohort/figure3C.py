@@ -163,6 +163,14 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
+
+	ax.set_xlabel("")
+	ax.set_ylabel("")
+	ax.set_title("")
+	ax.set_xticklabels([])
+	ax.set_yticklabels([])
+
+	exportFigure(plt, plotOutDir, plotOutFileName + "_stripped", metadata)
 	plt.close("all")
 
 if __name__ == "__main__":
