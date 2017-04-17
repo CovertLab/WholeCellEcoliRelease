@@ -28,7 +28,7 @@ END = 13700
 BURNIN = 20
 MA_WIDTH = 15
 
-def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
+def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile = None, metadata = None):
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
 
@@ -37,7 +37,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	# Get all cells
 	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-	allDir = ap.get_cells()
+	allDir = ap.get_cells(seed = [3])
 
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	rxnStoich = sim_data.process.metabolism.reactionStoich
@@ -241,8 +241,11 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		timeStepSec = mainListener.readColumn("timeStepSec")
 		mainListener.close()
 
+		# skip gens that don't contain data within range
 		if initialTime > END or time[-1] < START:
 			continue
+
+		# ignore initial and final points to avoid moving average edge effects
 		timeIdx = np.logical_and(np.logical_and(np.logical_or(np.logical_and(time >= START, time < SHIFT - MA_WIDTH), np.logical_and(time > SHIFT + BURNIN, time <= END)), time > initialTime + BURNIN), time < time[-MA_WIDTH])
 
 		massListener = TableReader(os.path.join(simOutDir, "Mass"))
@@ -282,7 +285,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			ax = plt.subplot(subplotRows, subplotCols, idx + 1 + len(transports))
 			totalFlux = np.zeros_like(flux[:, 0])
 
-			# print "%s -> %s:" % (reactant, product)
 			for rxn in rxnStoich:
 				if reactant in rxnStoich[rxn] and product in rxnStoich[rxn]:
 					if rxnStoich[rxn][reactant] < 0 and rxnStoich[rxn][product] > 0:
@@ -293,8 +295,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 						continue
 
 					totalFlux += flux[:, reactionIDs.index(rxn)] * direction
-
-					# print "\t%.2f\t%s" % (np.mean(flux[:, reactionIDs.index(rxn)] * direction), rxn)
 
 			if firstGen:
 				ax.axhline(0, color = "#aaaaaa", linewidth = 0.25)
