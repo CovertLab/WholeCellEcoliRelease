@@ -64,7 +64,8 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	# Get all cells in each seed
 	ap = AnalysisPaths(variantDir, cohort_plot = True)
-	all_cells = ap.get_cells(seed=[4])
+	#all_cells = ap.get_cells(seed=[0,1,2,3])
+	all_cells = ap.get_cells(seed=[0])
 
 	if not len(all_cells):
 		return
