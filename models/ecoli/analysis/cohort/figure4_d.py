@@ -123,7 +123,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	axis.plot(timeMultigen[:-width] / 60., proteinGrowthRateMultigen[:-width] * 60., color = colors[1], alpha=0.9, label="Protein fraction", linewidth=linewidth)
 	axis.plot(timeMultigen[:-width] / 60., rnaGrowthRateMultigen[:-width] * 60., color = colors[2], alpha=0.9, label="RNA fraction", linewidth=linewidth)
 	axis.legend(loc=4,frameon=False)
-	axis.set_ylim([0.015, 0.033])
+	axis.set_ylim([0.014, 0.029])
 
 	whitePadSparklineAxis(axis)
 	axis.set_xlabel("Time (min)")
@@ -213,7 +213,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	axis.plot(timeMultigen[:-width] / 60., proteinGrowthRateMultigen[:-width] * 60., color = colors[1], alpha=0.9, label="Protein fraction", linewidth=linewidth)
 	axis.plot(timeMultigen[:-width] / 60., rnaGrowthRateMultigen[:-width] * 60., color = colors[2], alpha=0.9, label="RNA fraction", linewidth=linewidth)
 	# axis.legend(loc=4,frameon=False)
-	axis.set_ylim([0.015, 0.033])
+	axis.set_ylim([0.014, 0.029])
 
 	whitePadSparklineAxis(axis)
 	axis.set_xlabel("Time (min)")
