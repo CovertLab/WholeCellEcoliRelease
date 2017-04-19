@@ -150,7 +150,11 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	#ax0.axvline(x=44*2+22., linewidth=3, color='gray', alpha = 0.5)
 
 	nutrientsTimeSeriesLabel = sim_data.nutrientsTimeSeriesLabel
-	T_ADD_AA = sim_data.nutrientsTimeSeries[nutrientsTimeSeriesLabel][1][0] / 60.
+	try:
+		T_ADD_AA = sim_data.nutrientsTimeSeries[nutrientsTimeSeriesLabel][1][0] / 60.
+	except:
+		print "nutrientsTimeSeries does not have correct dimensions for this analysis. Exiting."
+		return
 	axes_list = [ax0, ax1, ax2]#, ax3, ax4]
 	for a in axes_list:
 		shift_time = T_ADD_AA
