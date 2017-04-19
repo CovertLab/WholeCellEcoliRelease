@@ -130,35 +130,37 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile = None, metad
 		sim_rrn_init_rate_std[varIdx] = np.nanstd(rrn_init_rate)
 	
 	print sim_doubling_time_std
+	sim_growth_rate = np.log(2) / sim_doubling_time
+	bremer_growth_rate = np.log(2) / bremer_tau
 
 	ax0 = plt.subplot2grid((2,2), (0,0))
 	ax1 = plt.subplot2grid((2,2), (1,0), sharex=ax0)
 	ax2 = plt.subplot2grid((2,2), (0,1), sharex=ax0)
 	ax3 = plt.subplot2grid((2,2), (1,1), sharex=ax0)
 
-	lines = {'linestyle': 'None'}
+	lines = {'linestyle': 'dashed'}
 	plt.rc('lines', **lines)
 
-	ax0.errorbar(sim_doubling_time, sim_rna_mass_per_cell, yerr=sim_rna_mass_per_cell_std, xerr=sim_doubling_time_std, label="Simulation", color="black", fmt='', marker='o', markersize=3, linewidth=0.5)
-	ax0.errorbar(bremer_tau, bremer_rna_mass_per_cell, yerr=np.array(bremer_rna_mass_per_cell) * 0.06, label="Bremer & Dennis 1996", color="blue", marker='o', markersize=3, linewidth=0.5, markeredgecolor="blue")
+	ax0.errorbar(sim_growth_rate[np.argsort(sim_growth_rate)[::-1]], sim_rna_mass_per_cell[np.argsort(sim_growth_rate)[::-1]], yerr=sim_rna_mass_per_cell_std[np.argsort(sim_growth_rate)[::-1]], label="Simulation", color="black", fmt='', marker='o', markersize=6, linewidth=0.5)
+	ax0.errorbar(bremer_growth_rate[np.argsort(bremer_growth_rate)[::-1]], np.array(bremer_rna_mass_per_cell)[np.argsort(bremer_growth_rate)[::-1]], yerr=np.array(bremer_rna_mass_per_cell)[np.argsort(bremer_growth_rate)[::-1]] * 0.06, label="Bremer & Dennis 1996", color="blue", marker='o', markersize=6, linewidth=0.5)#, markeredgecolor="blue")
 	ax0.set_title("RNA mass per cell (fg)", fontsize=FONT_SIZE)
-	ax0.set_xlim([20, 140])
+	ax0.set_xlim([0.005, 0.03])
 
-	ax1.errorbar(sim_doubling_time, sim_elng_rate, yerr=sim_elng_rate_std, xerr=sim_doubling_time_std, label="Simulation", color="black", fmt='', marker='o', markersize=3, linewidth=0.5)
-	ax1.errorbar(bremer_tau, bremer_elng_rate, yerr=np.array(bremer_elng_rate) * 0.06, label="Bremer & Dennis 1996", color="blue", marker='o', markersize=3, linewidth=0.5, markeredgecolor="blue")
+	ax1.errorbar(sim_growth_rate[np.argsort(sim_growth_rate)[::-1]], sim_elng_rate[np.argsort(sim_growth_rate)[::-1]], yerr=sim_elng_rate_std[np.argsort(sim_growth_rate)[::-1]], label="Simulation", color="black", fmt='', marker='o', markersize=6, linewidth=0.5)
+	ax1.errorbar(bremer_growth_rate[np.argsort(bremer_growth_rate)[::-1]], np.array(bremer_elng_rate)[np.argsort(bremer_growth_rate)[::-1]], yerr=np.array(bremer_elng_rate)[np.argsort(bremer_growth_rate)[::-1]] * 0.06, label="Bremer & Dennis 1996", color="blue", marker='o', markersize=6, linewidth=0.5, markeredgecolor="blue")
 	ax1.set_title("Ribosome elongation\nrate (aa/s/ribosome)", fontsize=FONT_SIZE)
-	ax1.set_xlabel("Doubling time (min)", fontsize=FONT_SIZE)
+	ax1.set_xlabel("Growth rate (1/min)", fontsize=FONT_SIZE)
 
-	ax2.errorbar(sim_doubling_time, sim_origins_per_cell_at_initiation, yerr=sim_origins_per_cell_at_initiation_std, xerr=sim_doubling_time_std, label="Simulation", color="black", fmt='', marker='o', markersize=3, linewidth=0.5)
-	ax2.errorbar(bremer_tau, bremer_origins_per_cell_at_initiation, yerr=np.array(bremer_origins_per_cell_at_initiation) * 0.1, label="Bremer & Dennis 1996", color="blue", marker='o', markersize=3, linewidth=0.5, markeredgecolor="blue")
+	ax2.errorbar(sim_growth_rate[np.argsort(sim_growth_rate)[::-1]], sim_origins_per_cell_at_initiation[np.argsort(sim_growth_rate)[::-1]], yerr=sim_origins_per_cell_at_initiation_std[np.argsort(sim_growth_rate)[::-1]], label="Simulation", color="black", fmt='', marker='o', markersize=6, linewidth=0.5)
+	ax2.errorbar(bremer_growth_rate[np.argsort(bremer_growth_rate)[::-1]], np.array(bremer_origins_per_cell_at_initiation)[np.argsort(bremer_growth_rate)[::-1]], yerr=np.array(bremer_origins_per_cell_at_initiation)[np.argsort(bremer_growth_rate)[::-1]] * 0.1, label="Bremer & Dennis 1996", color="blue", marker='o', markersize=6, linewidth=0.5, markeredgecolor="blue")
 	ax2.set_title("Average origins at chrom. init.", fontsize=FONT_SIZE)
 
-	ax3.errorbar(sim_doubling_time, sim_rrn_init_rate, yerr=sim_rrn_init_rate_std, xerr=sim_doubling_time_std, label="Simulation", color="black", fmt='', marker='o', markersize=3, linewidth=0.5)
-	ax3.errorbar(bremer_tau, bremer_rrn_init_rate, yerr=np.array(bremer_rrn_init_rate) * 0.06, label="Bremer & Dennis 1996", color="blue", marker='o', markersize=3, linewidth=0.5, markeredgecolor="blue")
+	ax3.errorbar(sim_growth_rate[np.argsort(sim_growth_rate)[::-1]], sim_rrn_init_rate[np.argsort(sim_growth_rate)[::-1]], yerr=sim_rrn_init_rate_std[np.argsort(sim_growth_rate)[::-1]], label="Simulation", color="black", fmt='', marker='o', markersize=6, linewidth=0.5)
+	ax3.errorbar(bremer_growth_rate[np.argsort(bremer_growth_rate)[::-1]], np.array(bremer_rrn_init_rate)[np.argsort(bremer_growth_rate)[::-1]], yerr=np.array(bremer_rrn_init_rate)[np.argsort(bremer_growth_rate)[::-1]] * 0.06, label="Bremer & Dennis 1996", color="blue", marker='o', markersize=6, linewidth=0.5, markeredgecolor="blue")
 	ax3.set_title("Rate of rrn initiation (1/min)", fontsize=FONT_SIZE)
 
-	ax3.legend(loc=1, frameon=True, fontsize=7)
-	ax3.set_xlabel("Doubling time (min)", fontsize=FONT_SIZE)
+	# ax3.legend(loc=1, frameon=True, fontsize=7)
+	ax3.set_xlabel("Growth rate (1/min)", fontsize=FONT_SIZE)
 
 	axes_list = [ax0, ax1, ax2, ax3]
 
@@ -178,137 +180,6 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile = None, metad
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 
-
-	######## STRIPPED PLOTS #############
-	fig = plt.figure()
-	fig.set_figwidth(3)
-	fig.set_figheight(3)
-	ax0 = plt.subplot2grid((1,1), (0,0))
-	ax0.errorbar(sim_doubling_time, sim_rna_mass_per_cell, yerr=sim_rna_mass_per_cell_std, xerr=sim_doubling_time_std, label="Simulation", color="black", fmt='', marker='o', markersize=3, linewidth=0.5)
-	ax0.errorbar(bremer_tau, bremer_rna_mass_per_cell, yerr=np.array(bremer_rna_mass_per_cell) * 0.06, label="Bremer & Dennis 1996", color="blue", marker='o', markersize=3, linewidth=0.5, markeredgecolor="blue")
-	ax0.set_title("RNA mass per cell (fg)", fontsize=FONT_SIZE)
-	ax0.set_xlim([20, 140])
-	whitePadSparklineAxis(ax0, False)
-
-	for axes in [ax0]:
-		axes.tick_params(
-			axis='x',          # changes apply to the x-axis
-			which='both',      # both major and minor ticks are affected
-			bottom='off',      # ticks along the bottom edge are off
-			top='off',         # ticks along the top edge are off
-			labelbottom='off') # labels along the bottom edge are off
-		axes.tick_params(
-			axis='y',          # changes apply to the x-axis
-			which='both',      # both major and minor ticks are affected
-			left='off',      # ticks along the bottom edge are off
-			right='off',         # ticks along the top edge are off
-			labelleft='off') # labels along the bottom edge are off
-
-		axes.set_xlabel("")
-		axes.set_ylabel("")
-
-	plt.subplots_adjust(top = 1, bottom = trim, left = trim, right = 1)
-
-	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName + "figure4_0_validation_stripped" ,metadata, transparent = True)
-
-
-	fig = plt.figure()
-	fig.set_figwidth(3)
-	fig.set_figheight(3)
-	ax1 = plt.subplot2grid((1,1), (0,0))
-	ax1.errorbar(sim_doubling_time, sim_elng_rate, yerr=sim_elng_rate_std, xerr=sim_doubling_time_std, label="Simulation", color="black", fmt='', marker='o', markersize=3, linewidth=0.5)
-	ax1.errorbar(bremer_tau, bremer_elng_rate, yerr=np.array(bremer_elng_rate) * 0.06, label="Bremer & Dennis 1996", color="blue", marker='o', markersize=3, linewidth=0.5, markeredgecolor="blue")
-	ax1.set_title("Ribosome elongation\nrate (aa/s/ribosome)", fontsize=FONT_SIZE)
-	ax1.set_xlabel("Doubling time (min)", fontsize=FONT_SIZE)
-	ax1.set_xlim([20, 140])
-	whitePadSparklineAxis(ax1, False)
-
-	for axes in [ax1]:
-		axes.tick_params(
-			axis='x',          # changes apply to the x-axis
-			which='both',      # both major and minor ticks are affected
-			bottom='off',      # ticks along the bottom edge are off
-			top='off',         # ticks along the top edge are off
-			labelbottom='off') # labels along the bottom edge are off
-		axes.tick_params(
-			axis='y',          # changes apply to the x-axis
-			which='both',      # both major and minor ticks are affected
-			left='off',      # ticks along the bottom edge are off
-			right='off',         # ticks along the top edge are off
-			labelleft='off') # labels along the bottom edge are off
-
-		axes.set_xlabel("")
-		axes.set_ylabel("")
-
-	plt.subplots_adjust(top = 1, bottom = trim, left = trim, right = 1)
-
-	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName + "figure4_1_validation_stripped" ,metadata, transparent = True)
-
-	fig = plt.figure()
-	fig.set_figwidth(3)
-	fig.set_figheight(3)
-	ax2 = plt.subplot2grid((1,1), (0,0))
-	ax2.errorbar(sim_doubling_time, sim_origins_per_cell_at_initiation, yerr=sim_origins_per_cell_at_initiation_std, xerr=sim_doubling_time_std, label="Simulation", color="black", fmt='', marker='o', markersize=3, linewidth=0.5)
-	ax2.errorbar(bremer_tau, bremer_origins_per_cell_at_initiation, yerr=np.array(bremer_origins_per_cell_at_initiation) * 0.1, label="Bremer & Dennis 1996", color="blue", marker='o', markersize=3, linewidth=0.5, markeredgecolor="blue")
-	ax2.set_title("Average origins at chrom. init.", fontsize=FONT_SIZE)
-	ax2.set_xlim([20, 140])
-	whitePadSparklineAxis(ax2, False)
-
-	for axes in [ax2]:
-		axes.tick_params(
-			axis='x',          # changes apply to the x-axis
-			which='both',      # both major and minor ticks are affected
-			bottom='off',      # ticks along the bottom edge are off
-			top='off',         # ticks along the top edge are off
-			labelbottom='off') # labels along the bottom edge are off
-		axes.tick_params(
-			axis='y',          # changes apply to the x-axis
-			which='both',      # both major and minor ticks are affected
-			left='off',      # ticks along the bottom edge are off
-			right='off',         # ticks along the top edge are off
-			labelleft='off') # labels along the bottom edge are off
-
-		axes.set_xlabel("")
-		axes.set_ylabel("")
-
-	plt.subplots_adjust(top = 1, bottom = trim, left = trim, right = 1)
-
-	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName + "figure4_2_validation_stripped" ,metadata, transparent = True)
-
-	fig = plt.figure()
-	fig.set_figwidth(3)
-	fig.set_figheight(3)
-	ax3 = plt.subplot2grid((1,1), (0,0))
-	ax3.errorbar(sim_doubling_time, sim_rrn_init_rate, yerr=sim_rrn_init_rate_std, xerr=sim_doubling_time_std, label="Simulation", color="black", fmt='', marker='o', markersize=3, linewidth=0.5)
-	ax3.errorbar(bremer_tau, bremer_rrn_init_rate, yerr=np.array(bremer_rrn_init_rate) * 0.06, label="Bremer & Dennis 1996", color="blue", marker='o', markersize=3, linewidth=0.5, markeredgecolor="blue")
-	ax3.set_title("Rate of rrn initiation (1/min)", fontsize=FONT_SIZE)
-	ax3.set_xlim([20, 140])
-	whitePadSparklineAxis(ax3, False)
-
-	for axes in [ax3]:
-		axes.tick_params(
-			axis='x',          # changes apply to the x-axis
-			which='both',      # both major and minor ticks are affected
-			bottom='off',      # ticks along the bottom edge are off
-			top='off',         # ticks along the top edge are off
-			labelbottom='off') # labels along the bottom edge are off
-		axes.tick_params(
-			axis='y',          # changes apply to the x-axis
-			which='both',      # both major and minor ticks are affected
-			left='off',      # ticks along the bottom edge are off
-			right='off',         # ticks along the top edge are off
-			labelleft='off') # labels along the bottom edge are off
-
-		axes.set_xlabel("")
-		axes.set_ylabel("")
-
-	plt.subplots_adjust(top = 1, bottom = trim, left = trim, right = 1)
-
-	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName + "figure4_3_validation_stripped" ,metadata, transparent = True)
 
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(
