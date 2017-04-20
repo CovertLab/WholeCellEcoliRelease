@@ -83,7 +83,11 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile = None, metad
 		all_cells = ap.get_cells(variant=[varIdx])#, generation=[0])
 		print "Total cells: {}".format(len(all_cells))
 		import cPickle
-		sim_data = cPickle.load(open(ap.get_variant_kb(varIdx)))
+		try:
+			sim_data = cPickle.load(open(ap.get_variant_kb(varIdx)))
+		except:
+			print "Couldn't load sim_data object. Exiting."
+			return
 
 		num_origin_at_init = np.zeros(len(all_cells))
 		doubling_time = np.zeros(len(all_cells))
