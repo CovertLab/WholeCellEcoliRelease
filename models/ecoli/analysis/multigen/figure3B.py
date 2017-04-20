@@ -22,6 +22,8 @@ import wholecell.utils.constants
 from wholecell.utils import units
 from wholecell.utils.sparkline import whitePadSparklineAxis
 
+from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
+
 START = 8300
 SHIFT = 11000
 END = 13700
@@ -253,11 +255,11 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		dryMass = massListener.readColumn("dryMass")
 		massListener.close()
 
-		coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(units.g / units.L) * timeStepSec # units - g.s/L
+		coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(MASS_UNITS / VOLUME_UNITS) # units - g/L
 
 		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 		reactionIDs = fbaResults.readAttribute("reactionIDs")
-		flux = (units.dmol / units.g / units.s) * (fbaResults.readColumn("reactionFluxes").T / coefficient).T
+		flux = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (fbaResults.readColumn("reactionFluxes").T / coefficient).T
 		transportFluxes = fbaResults.readColumn("externalExchangeFluxes")
 		transportMolecules = fbaResults.readAttribute("externalMoleculeIDs")
 		fbaResults.close()
@@ -275,7 +277,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				ax.axvline(SHIFT, color = "#aaaaaa", linewidth = 0.25)
 				ax.set_title("Transport for %s" % (transport), fontsize = 4)
 				ax.tick_params(axis = "both", labelsize = 4)
-				ax.set_axis_off()
 
 			if transport in transportMolecules:
 				maFlux = np.array([np.convolve(-transportFluxes[:, transportMolecules.index(transport)], np.ones(MA_WIDTH) / MA_WIDTH, mode = "same")]).T
@@ -301,15 +302,30 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				ax.axvline(SHIFT, color = "#aaaaaa", linewidth = 0.25)
 				ax.set_title("%s to %s" % (reactant, product), fontsize = 4)
 				ax.tick_params(axis = "both", labelsize = 4)
-				ax.set_axis_off()
 
 			totalFlux = np.array([np.convolve(totalFlux, np.ones(MA_WIDTH) / MA_WIDTH, mode = "same")]).T
 			ax.plot(time[timeIdx], totalFlux[timeIdx], color = "b", linewidth = 0.5)
 
 		firstGen = False
 
+	for i in range(subplotRows * subplotCols):
+		ax = plt.subplot(subplotRows, subplotCols, i + 1)
+		plt.minorticks_off()
+
+		whitePadSparklineAxis(ax)
+		xlim = ax.get_xlim()
+		ylim = ax.get_ylim()
+		ax.set_yticks([ylim[0], ylim[1]])
+		ax.set_xticks([xlim[0], xlim[1]])
+
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+
+	for i in range(subplotRows * subplotCols):
+		ax = plt.subplot(subplotRows, subplotCols, i + 1)
+		ax.set_axis_off()
+
+	exportFigure(plt, plotOutDir, plotOutFileName + "_stripped", metadata)
 	plt.close("all")
 
 if __name__ == "__main__":
