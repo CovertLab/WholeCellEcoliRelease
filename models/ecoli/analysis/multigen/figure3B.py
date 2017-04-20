@@ -39,7 +39,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	# Get all cells
 	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-	allDir = ap.get_cells(seed = [3])
+	allDir = ap.get_cells()
 
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	rxnStoich = sim_data.process.metabolism.reactionStoich
@@ -233,6 +233,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	plt.figure(figsize = (17, 22))
 
+	subplotRows = 10
+	subplotCols = 9
+
 	firstGen = True
 	for simDir in allDir:
 		simOutDir = os.path.join(simDir, "simOut")
@@ -265,9 +268,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		fbaResults.close()
 
 		flux = flux.asNumber(units.mmol / units.g / units.h)
-
-		subplotRows = 10
-		subplotCols = 9
 
 		for idx, transport in enumerate(transports):
 			ax = plt.subplot(subplotRows, subplotCols, idx + 1)
