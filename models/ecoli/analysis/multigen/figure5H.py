@@ -13,7 +13,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import wholecell.utils.constants
-from matplotlib_venn import venn3, venn3_circles
+from matplotlib_venn import venn3
 
 data = [1181, 330, 1945, 79, 879, 2, 0] #order is 100, 010, 110, 001, 101, 011, 111
 dataArea = [1181, 330, 1945, 79, 879, 500, 1]
@@ -39,7 +39,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	for i in ids:
 		v.get_patch_by_id(i).set_edgecolor("none")
-		v.get_patch_by_id(i).set_alpha(0.8)
+		v.get_patch_by_id(i).set_alpha(0.5)
 
 		if i == "100":
 			v.get_label_by_id(i).set_text("1,181")
