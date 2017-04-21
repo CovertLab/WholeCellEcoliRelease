@@ -150,16 +150,18 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	plt.figure(figsize = (8, 8))
 	ax = plt.axes()
 	from scipy.stats import pearsonr
-	plt.plot([-8, 4], [-8, 4], 'k')
-	plt.plot(np.log10(targetAve[~disabledReactions]), np.log10(actualAve[~disabledReactions]), "ob", markeredgewidth = 0.25, alpha = 0.25)
+	plt.plot([-6, 4], [-6, 4], 'k')
+	plt.plot(np.log10(targetAve[~disabledReactions]), np.log10(actualAve[~disabledReactions]), "ob", markeredgewidth = 0, alpha = 0.25)
 	plt.xlabel("Log10(Target Flux [mmol/g/hr])")
 	plt.ylabel("Log10(Actual Flux [mmol/g/hr])")
 	plt.minorticks_off()
 	whitePadSparklineAxis(ax)
 	xlim = ax.get_xlim()
 	ylim = ax.get_ylim()
-	ax.set_yticks(range(int(ylim[0]), int(ylim[1]) + 1, 2))
-	ax.set_xticks(range(int(xlim[0]), int(xlim[1]) + 1, 2))
+	ax.set_ylim(ylim[0] - 0.1, ylim[1])
+	ax.set_xlim(xlim[0] - 0.1, xlim[1])
+	ax.set_yticks(range(-6, int(ylim[1]) + 1, 2))
+	ax.set_xticks(range(-6, int(xlim[1]) + 1, 2))
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName)
