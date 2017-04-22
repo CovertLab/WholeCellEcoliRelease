@@ -154,17 +154,15 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ribosomeIdx = cPickle.load(open(os.path.join(plotOutDir,"ribosomeIdx.pickle"), "rb"))
 	rnapIdx = cPickle.load(open(os.path.join(plotOutDir,"rnapIdx.pickle"), "rb"))
 
-	protein_index_of_interest = np.where(np.logical_and(ratioFinalToInitialCountMultigen > 1.8, ratioFinalToInitialCountMultigen < 2.2).all(axis = 0))[0]
-
+	protein_index_of_interest = np.where(np.logical_and(ratioFinalToInitialCountMultigen > 1.6, ratioFinalToInitialCountMultigen < 2.4).all(axis = 0))[0]
 	first_gen_flat = ratioFinalToInitialCountMultigen[0,:] < 1.1
 	second_gen_burst = ratioFinalToInitialCountMultigen[1,:] > 10
 	rest_of_gens_decline = (ratioFinalToInitialCountMultigen[2:,:] < 1.1).all(axis=0)
 	logic_filter = np.logical_and.reduce((first_gen_flat, second_gen_burst, rest_of_gens_decline))
 	protein_index_of_interest_burst = np.where(logic_filter)[0]
-
 	protein_index_of_interest = protein_index_of_interest[:5]
-	protein_idx = protein_index_of_interest[1]
-	protein_idx_burst = protein_index_of_interest_burst[36]
+	protein_idx = protein_index_of_interest[4]
+	protein_idx_burst = protein_index_of_interest_burst[2]
 
 	fig, axesList = plt.subplots(ncols = 2, nrows = 2, sharex = True)
 	expProtein_axis = axesList[0,0]
@@ -204,6 +202,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	for gen_idx, simDir in enumerate(allDir):
 		simOutDir = os.path.join(simDir, "simOut")
 		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+		if gen_idx == 0:
+			startTime = time[0]
 
 		## READ DATA ##
 		# Read in bulk ids and counts
@@ -262,6 +262,11 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	# align_yaxis(burstProtein_axis, firstLineInit_burst, burstProteinFold_axis, 1)
 	# burstProteinFold_axis.set_yticks([burstProteinFold_axis.get_ylim()[0], 1., burstProteinFold_axis.get_ylim()[1]])
+
+	expProtein_axis.set_xlim([startTime / 60., time[-1] / 60.])
+	burstProtein_axis.set_xlim([startTime / 60., time[-1] / 60.])
+	burstProtein_axis.set_xlim([startTime / 60., time[-1] / 60.])
+	burstRna_axis.set_xlim([startTime / 60., time[-1] / 60.])
 
 	whitePadSparklineAxis(expProtein_axis, False)
 	whitePadSparklineAxis(burstProtein_axis, False)
