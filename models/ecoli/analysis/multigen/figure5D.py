@@ -21,8 +21,11 @@ import wholecell.utils.constants
 from wholecell.utils.sparkline import whitePadSparklineAxis
 from wholecell.utils import units
 from models.ecoli.processes.metabolism import COUNTS_UNITS, TIME_UNITS, VOLUME_UNITS
+import matplotlib.patches as patches
 
 BUILD_CACHE = True
+PLOT_DOWNSTREAM = False
+
 def clearLabels(axis):
 	axis.set_yticklabels([])
 	axis.set_ylabel("")
@@ -164,7 +167,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	enzymeFluxes = (((COUNTS_UNITS / VOLUME_UNITS) * enzymeFluxes) / coefficient).asNumber(units.mmol / units.g / units.h)
 
 	# Plot
-	fig = plt.figure(figsize = (14, 10))
+	fig = plt.figure(figsize = (14, 14))
 	plt.suptitle("O-succinylbenzoate-CoA ligase downstream behaviors", fontsize = 12)
 	rnaInitAxis = plt.subplot(6, 1, 1)
 	rnaAxis = plt.subplot(6, 1, 2, sharex = rnaInitAxis)
@@ -200,11 +203,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	fluxAxis.yaxis.set_label_coords(-.1, 0.25)
 	whitePadSparklineAxis(fluxAxis, xAxis = False)
 
-	metLine = metAxis.plot(time / 3600., metaboliteCounts[:, 0])
-	metAxis.set_ylabel("Menaquinone\ncounts", fontsize = 12, rotation = 0)
+	metLine = metAxis.plot(time / 3600., np.sum(metaboliteCounts, axis = 1))
+	metAxis.set_ylabel("End product\ncounts", fontsize = 12, rotation = 0)
 	metAxis.yaxis.set_label_coords(-.1, 0.25)
 	metAxis.set_xlabel("Time (hour)\ntickmarks at each new generation", fontsize = 12)
 	metAxis.set_xlim([0, time[-1] / 3600.])
+	metAxis.set_ylim([metAxis.get_ylim()[0] * 0.2, metAxis.get_ylim()[1]])
 	whitePadSparklineAxis(metAxis)
 	metAxis.set_yticklabels(["%0.1e" % metAxis.get_ylim()[0], "%0.1e" % metAxis.get_ylim()[1]])
 	metAxis.set_xticks(np.array(generationTicks) / 3600.)
@@ -212,37 +216,114 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	xticklabels[0] = "0"
 	xticklabels[-1] = "%0.2f" % (time[-1] / 3600.)
 	metAxis.set_xticklabels(xticklabels)
-	plt.subplots_adjust(hspace = 0.2, right = 0.9, bottom = 0.1, left = 0.15, top = 0.9)
+
+	noComplexIndexes = np.where(np.array(enzymeComplexCounts) == 0)[0]
+	patchStart = []
+	patchEnd = []
+	prev = noComplexIndexes[0]
+	patchStart.append(prev)
+	for i in noComplexIndexes:
+		if np.abs(i - prev) > 1:
+			patchStart.append(i)
+			patchEnd.append(prev)
+		prev = i
+	patchEnd.append(prev)
+
+	axesList = [rnaInitAxis, rnaAxis, monomerAxis, complexAxis, fluxAxis, metAxis]
+	for axis in axesList:
+		for i in xrange(len(patchStart)):
+			width = time[patchEnd[i]] / 3600. - time[patchStart[i]] / 3600.
+			if width <= 0.1:
+				continue
+
+			height = axis.get_ylim()[1] - axis.get_ylim()[0]
+			axis.add_patch(patches.Rectangle((time[patchStart[i]] / 3600., axis.get_ylim()[0]), width, height, alpha = 0.25, color = "gray", linewidth = 0.))
+
+	plt.subplots_adjust(hspace = 0.5, right = 0.9, bottom = 0.1, left = 0.15, top = 0.9)
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 
-
-	bold(rnaInitLine)
-	bold(rnaLine)
-	bold(monomerLine)
-	bold(complexLine)
-	bold(fluxLine)
-	bold(metLine)
+	lineList = [rnaInitLine, rnaLine, monomerLine, complexLine, fluxLine, metLine]
+	axesList = [rnaInitAxis, rnaAxis, monomerAxis, complexAxis, fluxAxis, metAxis]
+	for l in lineList:
+		bold(l)
 	exportFigure(plt, plotOutDir, plotOutFileName + "__boldLines", metadata)
 
-
-	unbold(rnaInitLine)
-	unbold(rnaLine)
-	unbold(monomerLine)
-	unbold(complexLine)
-	unbold(fluxLine)
-	unbold(metLine)
+	for l in lineList:
+		unbold(l)
+	for a in axesList:
+		clearLabels(a)
 	plt.suptitle("")
-	clearLabels(rnaInitAxis)
-	clearLabels(rnaAxis)
-	clearLabels(monomerAxis)
-	clearLabels(complexAxis)
-	clearLabels(fluxAxis)
-	clearLabels(metAxis)
 	metAxis.set_xticklabels([])
 	metAxis.set_xlabel("")
 	exportFigure(plt, plotOutDir, plotOutFileName + "__clean", "")
 	plt.close("all")
+
+	if PLOT_DOWNSTREAM:
+		fig, axesList = plt.subplots(12, figsize = (14, 14))
+		plt.subplots_adjust(hspace = 0.5, right = 0.95, bottom = 0.05, left = 0.15, top = 0.95)
+		enzymeIds = ["MENE-CPLX[c]", "CPLX0-7882[c]", "CPLX0-8128[c]", "DMK-MONOMER[i]", "2-OCTAPRENYL-METHOXY-BENZOQ-METH-MONOMER[c]"]
+		reactionIds = ["O-SUCCINYLBENZOATE-COA-LIG-RXN", "NAPHTHOATE-SYN-RXN", "RXN-9311", "DMK-RXN", "ADOMET-DMK-METHYLTRANSFER-RXN"]
+		reactantIds = ["CPD-12115[c]"]
+		enzymeIndexes = [moleculeIds.index(x) for x in enzymeIds]
+		reactantIndexes = [moleculeIds.index(x) for x in reactantIds]
+
+		for gen, simDir in enumerate(allDir):
+			simOutDir = os.path.join(simDir, "simOut")
+
+			time_ = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+			timeStepSec = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
+			cellMass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")
+			dryMass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("dryMass")
+
+			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+			moleculeCounts = bulkMolecules.readColumn("counts")
+			enzymeCounts = moleculeCounts[:, enzymeIndexes]
+			metCounts = moleculeCounts[:, metaboliteIndexes[0]]
+			reactantCounts = moleculeCounts[:, reactantIndexes]
+			bulkMolecules.close()
+
+			fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
+			reactionIDs = np.array(fbaResults.readAttribute("reactionIDs")).tolist()
+			reactionIndexes = [reactionIDs.index(x) for x in reactionIds]
+			reactionFluxes = np.array(fbaResults.readColumn("reactionFluxes"))
+			enzymeFluxes = reactionFluxes[:, reactionIndexes]
+			fbaResults.close()
+
+			cellVolume = units.g * np.array(cellMass) / cellDensity
+			coefficient = (units.fg * np.array(dryMass)) / (units.fg * np.array(cellMass)) * cellDensity * (units.s * timeStepSec)
+
+			for i, row in enumerate(xrange(0, 2 * len(enzymeIds), 2)):
+				countAxis = axesList[row]
+				fluxAxis = axesList[row + 1]
+				plotFlux = (((COUNTS_UNITS / VOLUME_UNITS) * enzymeFluxes[:, i]) / coefficient).asNumber(units.mmol / units.g / units.h)
+				countAxis.plot(time_ / 3600., enzymeCounts[:, i], color = "b")
+				fluxAxis.plot(time_ / 3600., plotFlux, color = "b")
+			axesList[-2].plot(time_ / 3600., reactantCounts, color = "b")
+			axesList[-1].plot(time_ / 3600., metCounts, color = "b")
+			exportFigure(plt, plotOutDir, plotOutFileName + "__downstreamFluxes", metadata)
+
+		ylabels = ["menE", "menB", "menI", "menA", "ubiE", "CPD-12115", "Menaquinone"]
+		for i, axis in enumerate(axesList[::2]):
+			axis.set_xlim([0, time_[-1] / 3600.])
+			axis.set_ylabel("%s" % ylabels[i], rotation = 0)
+			whitePadSparklineAxis(axis, False)
+		for axis in axesList[1::2]:
+			axis.set_xlim([0, time_[-1] / 3600.])
+			whitePadSparklineAxis(axis)
+		axesList[-1].set_ylabel(ylabels[-1], rotation = 0)
+
+		for axis in axesList:
+			for i in xrange(len(patchStart)):
+				width = time[patchEnd[i]] / 3600. - time[patchStart[i]] / 3600.
+				if width <= 0.1:
+					continue
+
+				height = axis.get_ylim()[1] - axis.get_ylim()[0]
+				axis.add_patch(patches.Rectangle((time[patchStart[i]] / 3600., axis.get_ylim()[0]), width, height, alpha = 0.25, color = "gray", linewidth = 0.))
+
+		plt.subplots_adjust(hspace = 0.5, right = 0.95, bottom = 0.05, left = 0.11, top = 0.95)
+		exportFigure(plt, plotOutDir, plotOutFileName + "__downstreamFluxes", metadata)
 
 
 if __name__ == "__main__":
