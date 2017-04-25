@@ -98,6 +98,11 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile = None, metad
 		scaled_initial_masses = scaled_initial_masses[idxs_to_keep]
 		scaled_added_masses = scaled_added_masses[idxs_to_keep]
 
+		idxs_to_keep = np.where((0.45 < scaled_added_masses) & (scaled_added_masses < 1.5))
+
+		scaled_initial_masses = scaled_initial_masses[idxs_to_keep]
+		scaled_added_masses = scaled_added_masses[idxs_to_keep]
+
 		ax0 = plt.subplot2grid((1,3), (0,plotIdx))
 		ax0.plot(scaled_initial_masses, scaled_added_masses, '.', color = "black", alpha = 0.2, zorder=1, markeredgewidth = 0.0)
 		
@@ -223,15 +228,15 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile = None, metad
 		scaled_initial_masses = scaled_initial_masses[idxs_to_keep]
 		scaled_added_masses = scaled_added_masses[idxs_to_keep]
 
+		idxs_to_keep = np.where((0.45 < scaled_added_masses) & (scaled_added_masses < 1.5))
+
+		scaled_initial_masses = scaled_initial_masses[idxs_to_keep]
+		scaled_added_masses = scaled_added_masses[idxs_to_keep]
+
 		ax0 = plt.subplot2grid((1,1), (0,0))
 		ax0.plot(scaled_initial_masses, scaled_added_masses, '.', color = "black", alpha = 0.2, zorder=1, markeredgewidth = 0.0)
 		
-		if varIdx == 0:
-			nbins = 5
-		elif varIdx == 1:
-			nbins = 6
-		if varIdx == 2:
-			nbins = 20
+		nbins = 5
 
 		n_cell_cutoff = 5
 		n, _ = np.histogram(scaled_initial_masses, bins=nbins)
