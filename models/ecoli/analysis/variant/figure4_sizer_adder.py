@@ -101,12 +101,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile = None, metad
 		ax0 = plt.subplot2grid((1,3), (0,plotIdx))
 		ax0.plot(scaled_initial_masses, scaled_added_masses, '.', color = "black", alpha = 0.2, zorder=1, markeredgewidth = 0.0)
 		
-		if varIdx == 0:
-			nbins = 5
-		elif varIdx == 1:
-			nbins = 6
-		if varIdx == 2:
-			nbins = 20
+		nbins = 5
 
 		n_cell_cutoff = 5
 		n, _ = np.histogram(scaled_initial_masses, bins=nbins)
