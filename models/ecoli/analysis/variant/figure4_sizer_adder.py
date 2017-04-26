@@ -310,7 +310,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile = None, metad
 		axes.set_xlabel("")
 		axes.set_ylabel("")
 
-		plt.subplots_adjust(top = 1, bottom = trim, left = trim, right = 1)
+		plt.subplots_adjust(top = 0.95, bottom = 3 * trim, left = 2 * trim, right = 0.95, hspace = 0, wspace = 0)
 
 		from wholecell.analysis.analysis_tools import exportFigure
 		exportFigure(plt, plotOutDir, plotOutFileName + str(varIdx) + "_stripped" ,metadata, transparent = True)
