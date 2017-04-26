@@ -252,7 +252,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	for idx, simDir in enumerate(all_cells):
 		color = "black"
-		alpha = 0.8
+		alpha = 1
 		if idx % 2:
 			color = "#BF673B"
 			blue = 0.8
