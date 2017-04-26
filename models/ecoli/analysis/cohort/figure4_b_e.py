@@ -72,7 +72,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	for idx, simDir in enumerate(all_cells):
 		color = "black"
-		alpha = 0.8
+		alpha = 1
 		if idx % 2:
 			color = "#BF673B"
 			blue = 0.8
@@ -245,7 +245,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	# Get all cells in each seed
 	ap = AnalysisPaths(variantDir, cohort_plot = True)
-	all_cells = ap.get_cells(seed=[5])
+	all_cells = ap.get_cells(seed=[4])
 
 	if not len(all_cells):
 		return
@@ -323,7 +323,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# new_y_ticks = y_ticks[0:-1:2]
 	# ax0.set_yticks(new_y_ticks)
 
-	# ax0.set_xlim([0., time.max() / 60.])
+	ax3.set_xlim([0., time.max() / 60.])
 	# ax0.set_ylabel("Cell mass\n(fg)", fontsize=FONT_SIZE)	
 	# ax0.xaxis.set_visible(False)
 	#ax0.axvline(x=44*2+22., linewidth=3, color='gray', alpha = 0.5)
