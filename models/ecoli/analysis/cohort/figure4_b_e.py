@@ -65,7 +65,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# Get all cells in each seed
 	ap = AnalysisPaths(variantDir, cohort_plot = True)
 	#all_cells = ap.get_cells(seed=[0,1,2,3])
-	all_cells = ap.get_cells(seed=[0])
+	all_cells = ap.get_cells(seed=[4])
 
 	if not len(all_cells):
 		return
@@ -74,7 +74,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		color = "black"
 		alpha = 0.8
 		if idx % 2:
-			color = "blue"
+			color = "#BF673B"
 			blue = 0.8
 
 		simOutDir = os.path.join(simDir, "simOut")
@@ -87,7 +87,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		massPerOric = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("criticalMassPerOriC")
 		idxInit = np.where(massPerOric >= 1)[0]
 		ax0.plot(time / 60., cellMass, color = color, alpha = alpha, linewidth=2)
-		ax0.plot(time[idxInit] / 60., cellMass[idxInit],  markersize=6, linewidth=0, marker="o", color = "red", markeredgewidth=0)
+		ax0.plot(time[idxInit] / 60., cellMass[idxInit],  markersize=6, linewidth=0, marker="o", color = "#FCBE67", markeredgewidth=0)
 
 		## Inst. growth rate
 		growthRate = mass.readColumn("instantaniousGrowthRate")
@@ -105,7 +105,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ribosomeConcentration = ((1 / sim_data.constants.nAvogadro) * ribosomeCounts) / ((1.0 / sim_data.constants.cellDensity) * (units.fg * cellMass))
 		ribosomeConcentration = ribosomeConcentration.asNumber(units.umol / units.L)
 		ax2.plot(time / 60., ribosomeConcentration, color = color, alpha = alpha, linewidth=2)
-		ax2.set_ylim([19., 35.])
+		ax2.set_ylim([18., 28.])
 		# rnaMass = mass.readColumn("rnaMass")
 		# proteinMass = mass.readColumn("proteinMass")
 		# rnaOverProtein = rnaMass / proteinMass
@@ -175,10 +175,10 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		for tick in a.yaxis.get_major_ticks():
 			tick.label.set_fontsize(FONT_SIZE) 
 
-	ax1.set_ylabel(r"$\mu$ $(\frac{gDCW}{gDCW-min})$", fontsize=FONT_SIZE)
+	ax1.set_ylabel(r"$\mu$ $(\frac{gDCW}{gDCW \cdot \, min})$", fontsize=FONT_SIZE)
 	ax1.xaxis.set_visible(False)
 	# ax1.axvline(x=44*2+22., linewidth=3, color='gray', alpha = 0.5)
-	ax1.set_ylim([0.012, 0.032])
+	ax1.set_ylim([0.008, 0.032])
 
 	#ax2.set_ylabel("RNA/Protein\n(fg/fg)", fontsize=FONT_SIZE)
 	ax2.set_ylabel("Active\nribosome\n(umol/L)", fontsize=FONT_SIZE)
@@ -254,7 +254,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		color = "black"
 		alpha = 0.8
 		if idx % 2:
-			color = "blue"
+			color = "#BF673B"
 			blue = 0.8
 
 		simOutDir = os.path.join(simDir, "simOut")
