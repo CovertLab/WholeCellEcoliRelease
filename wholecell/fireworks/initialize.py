@@ -107,6 +107,7 @@ def main():
 	my_qadapter_text = t.render({
 		"LOGDIR_QADAPTER": logdir_qadapter,
 		"LAUNCHPAD_PATH": my_launchpad,
+		"WCECOLI_PATH": wcecoli_path,
 		})
 
 	h = open(my_qadapter, "w")
