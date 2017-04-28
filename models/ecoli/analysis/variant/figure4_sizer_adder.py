@@ -359,7 +359,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile = None, metad
 		scaled_initial_masses = initial_masses / initial_masses.mean()
 		scaled_added_masses = added_masses / added_masses.mean()
 
-		ax0 = plt.subplot2grid((1,3), (0,varIdx))
+		ax0 = plt.subplot2grid((1,3), (0,plotIdx))
 		ax0.hist(scaled_initial_masses, 50)
 
 		if varIdx == 0:
