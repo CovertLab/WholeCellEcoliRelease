@@ -114,7 +114,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	thresholds = [2, 10]
 	categorization = np.zeros(reactionConstraint.shape[1])
 	for i, threshold in enumerate(thresholds):
-		categorization[kmAndKcatReactions & (actualAve / targetAve < 1. / threshold)] = i + 1
+		categorization[actualAve / targetAve < 1. / threshold] = i + 1
 		categorization[actualAve / targetAve > threshold] = i + 1
 	categorization[actualAve == 0] = -2
 	categorization[actualAve == targetAve] = -1
@@ -146,14 +146,18 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	targetAve += 1e-6
 	actualAve += 1e-6
 
+	from scipy.stats import pearsonr
+	pearsonAll = pearsonr(np.log10(targetAve), np.log10(actualAve))
+	pearsonNoZeros = pearsonr(np.log10(targetAve[categorization != -2]), np.log10(actualAve[categorization != -2]))
+
 	# plot data
 	plt.figure(figsize = (8, 8))
 	ax = plt.axes()
-	from scipy.stats import pearsonr
 	plt.plot([-6, 4], [-6, 4], 'k')
 	plt.plot(np.log10(targetAve[~disabledReactions]), np.log10(actualAve[~disabledReactions]), "ob", markeredgewidth = 0, alpha = 0.25)
 	plt.xlabel("Log10(Target Flux [mmol/g/hr])")
 	plt.ylabel("Log10(Actual Flux [mmol/g/hr])")
+	plt.title("PCC = %.3f (%.3f without points at zero)" % (pearsonAll[0], pearsonNoZeros[0]))
 	plt.minorticks_off()
 	whitePadSparklineAxis(ax)
 	xlim = ax.get_xlim()
