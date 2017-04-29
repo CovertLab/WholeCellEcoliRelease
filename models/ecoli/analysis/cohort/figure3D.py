@@ -98,7 +98,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	plt.figure(figsize = (8, 8))
 	ax = plt.axes()
 	plt.title("Central Carbon Metabolism Flux, Pearson R = {:.2}".format(correlationCoefficient))
-	plt.errorbar(toyaVsReactionAve[:,1], toyaVsReactionAve[:,0], xerr = toyaVsReactionAve[:,3], yerr = toyaVsReactionAve[:,2], fmt = ".", ecolor = "k", alpha = 0.3)
+	plt.errorbar(toyaVsReactionAve[:,1], toyaVsReactionAve[:,0], xerr = toyaVsReactionAve[:,3], yerr = toyaVsReactionAve[:,2], fmt = ".", ecolor = "k", alpha = 0.5, linewidth = 1.5)
 	ylim = plt.ylim()
 	plt.plot([ylim[0], ylim[1]], [ylim[0], ylim[1]], color = "k")
 	plt.plot(toyaVsReactionAve[:,1], toyaVsReactionAve[:,0], "ob", markeredgewidth = 0.25, alpha = 0.9)
