@@ -69,6 +69,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	if BUILD_CACHE:
 		time = []
+		time_eachGen = []
 		transcribedBool = []
 		simulatedSynthProbs = []
 		transcriptionEvents = []
@@ -78,6 +79,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 			if gen < FIRST_N_GENS:
 				time += TableReader(os.path.join(simOutDir, "Main")).readColumn("time").tolist()
+				time_eachGen.append(TableReader(os.path.join(simOutDir, "Main")).readColumn("time").tolist()[0])
 
 			rnaSynthProb = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
 			simulatedSynthProb = np.mean(rnaSynthProb.readColumn("rnaSynthProb")[:, mRnaIndexes], axis = 0)
@@ -105,6 +107,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				pass
 
 		time = np.array(time)
+		time_eachGen.append(time[-1])
+		time_eachGen = np.array(time_eachGen)
 		transcribedBool = np.array(transcribedBool)
 		simulatedSynthProbs = np.array(simulatedSynthProbs)
 
@@ -154,7 +158,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			sometimesTranscriptionEvents.append(v)
 
 		cPickle.dump({
-			"time": time, 
+			"time": time,
+			"time_eachGen": time_eachGen,
 			"transcribedBoolOrdered": transcribedBoolOrdered,
 			"colors": colors,
 			"id": mRnaIdsOrdered,
@@ -169,6 +174,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	else:
 		D = cPickle.load(open(os.path.join(plotOutDir, "figure5B.pickle"), "r"))
 		time = D["time"]
+		time_eachGen = D["time_eachGen"]
 		transcribedBoolOrdered = D["transcribedBoolOrdered"]
 		colors = D["colors"]
 		mRnaIdsOrdered = D["id"]
@@ -260,17 +266,19 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	sometimesAxis.tick_params(top = "off")
 	sometimesAxis.tick_params(which = 'both', direction = 'out', labelsize = 12)
 	sometimesXmin, sometimesXmax = sometimesAxis.get_xlim()
+	time_eachGen = np.array(time_eachGen)
+	sometimesAxis.set_xticks(time_eachGen / 3600.)
 	sometimesAxis.set_xticklabels([])
 
 	plt.subplots_adjust(wspace = 0, hspace = 0, right = 0.9, bottom = 0.1, left = 0.1, top = 0.9)
 	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, "figure5B__bottom__clean", "")
+	exportFigure(plt, plotOutDir, "figure5B__bottom__clean")
 
 	plt.suptitle("Transcription initiation events", fontsize = 14)
 	alwaysAxis.set_ylabel("Freq. = 1", fontsize = 14)
 	sometimesAxis.set_ylabel("0 < Freq. < 1", fontsize = 14)
-	sometimesAxis.set_xlabel("Time (hr)", fontsize = 14)
-	sometimesAxis.set_xticklabels([sometimesXmin, "%0.2f" % sometimesXmax])
+	sometimesAxis.set_xlabel("Time (gens)", fontsize = 14)
+	sometimesAxis.set_xticklabels(np.arange(FIRST_N_GENS + 1))
 	exportFigure(plt, plotOutDir, "figure5B__bottom", metadata)
 	plt.close("all")
 
