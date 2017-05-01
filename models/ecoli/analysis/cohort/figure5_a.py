@@ -43,7 +43,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	
 	# Get all ids reqiured
 	sim_data = cPickle.load(open(simDataFile, "rb"))
-	ids_complexation = sim_data.process.complexation.moleculeNames # Complexe of proteins, and protein monomers
+	ids_complexation = sim_data.process.complexation.moleculeNames # Complexes of proteins, and protein monomers
 	ids_complexation_complexes = [ids_complexation[i] for i in np.where((sim_data.process.complexation.stoichMatrix() == 1).sum(axis = 1))[0]] # Only complexes
 	ids_equilibrium = sim_data.process.equilibrium.moleculeNames # Complexes of proteins + small molecules, small molecules, protein monomers
 	ids_equilibrium_complexes = [ids_equilibrium[i] for i in np.where((sim_data.process.equilibrium.stoichMatrix() == 1).sum(axis = 1))[0]] # Only complexes
@@ -199,9 +199,11 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	firstLineInit_burst = None
 	firstLineInitRna_burst = None
 
+	time_eachGen = []
 	for gen_idx, simDir in enumerate(allDir):
 		simOutDir = os.path.join(simDir, "simOut")
 		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+		time_eachGen.append(time[0])
 		if gen_idx == 0:
 			startTime = time[0]
 
@@ -263,9 +265,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# align_yaxis(burstProtein_axis, firstLineInit_burst, burstProteinFold_axis, 1)
 	# burstProteinFold_axis.set_yticks([burstProteinFold_axis.get_ylim()[0], 1., burstProteinFold_axis.get_ylim()[1]])
 
+	time_eachGen.append(time[-1])
+	time_eachGen = np.array(time_eachGen)
+
 	expProtein_axis.set_xlim([startTime / 60., time[-1] / 60.])
 	burstProtein_axis.set_xlim([startTime / 60., time[-1] / 60.])
-	burstProtein_axis.set_xlim([startTime / 60., time[-1] / 60.])
+	expRna_axis.set_xlim([startTime / 60., time[-1] / 60.])
 	burstRna_axis.set_xlim([startTime / 60., time[-1] / 60.])
 
 	whitePadSparklineAxis(expProtein_axis, False)
@@ -273,8 +278,15 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	whitePadSparklineAxis(expRna_axis)
 	whitePadSparklineAxis(burstRna_axis)
 
-	burstRna_axis.set_xlabel("Time (min)", fontsize=9)
-	expRna_axis.set_xlabel("Time (min)", fontsize=9)
+	expRna_axis.set_xticks(time_eachGen / 60.)
+	burstRna_axis.set_xticks(time_eachGen / 60.)
+	xlabel = gens.tolist()
+	xlabel.append(gens[-1] + 1)
+	expRna_axis.set_xticklabels(xlabel)
+	burstRna_axis.set_xticklabels(xlabel)
+
+	burstRna_axis.set_xlabel("Time (gens)", fontsize = 9)
+	expRna_axis.set_xlabel("Time (gens)", fontsize = 9)
 
 	axesList = axesList.flatten().tolist()
 	# axesList.append(expProteinFold_axis)
