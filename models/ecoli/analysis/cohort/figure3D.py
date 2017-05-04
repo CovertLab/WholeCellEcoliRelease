@@ -92,12 +92,15 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		if rxn in modelFluxes:
 			toyaVsReactionAve.append((np.mean(modelFluxes[rxn]), toyaFlux.asNumber(units.mmol / units.g / units.h), np.std(modelFluxes[rxn]), toyaStdevDict[rxn].asNumber(units.mmol / units.g / units.h)))
 
+	from scipy.stats import pearsonr
 	toyaVsReactionAve = np.array(toyaVsReactionAve)
-	correlationCoefficient = np.corrcoef(toyaVsReactionAve[:,0], toyaVsReactionAve[:,1])[0,1]
+	idx = np.abs(toyaVsReactionAve[:,0]) < 5 * np.abs(toyaVsReactionAve[:,1])
+	rWithAll = pearsonr(toyaVsReactionAve[:,0], toyaVsReactionAve[:,1])
+	rWithoutOutliers = pearsonr(toyaVsReactionAve[idx,0], toyaVsReactionAve[idx,1])
 
 	plt.figure(figsize = (8, 8))
 	ax = plt.axes()
-	plt.title("Central Carbon Metabolism Flux, Pearson R = {:.2}".format(correlationCoefficient))
+	plt.title("Central Carbon Metabolism Flux, Pearson R = %.4f, p = %s\n(%.4f, %s without outliers)" % (rWithAll[0], rWithAll[1], rWithoutOutliers[0], rWithoutOutliers[1]))
 	plt.errorbar(toyaVsReactionAve[:,1], toyaVsReactionAve[:,0], xerr = toyaVsReactionAve[:,3], yerr = toyaVsReactionAve[:,2], fmt = ".", ecolor = "k", alpha = 0.5, linewidth = 1.5)
 	ylim = plt.ylim()
 	plt.plot([ylim[0], ylim[1]], [ylim[0], ylim[1]], color = "k")

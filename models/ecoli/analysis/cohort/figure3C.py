@@ -148,7 +148,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	from scipy.stats import pearsonr
 	pearsonAll = pearsonr(np.log10(targetAve), np.log10(actualAve))
-	pearsonNoZeros = pearsonr(np.log10(targetAve[categorization != -2]), np.log10(actualAve[categorization != -2]))
+	pearsonNoZeros = pearsonr(np.log10(targetAve[(categorization != -2) & ~disabledReactions]), np.log10(actualAve[(categorization != -2) & ~disabledReactions]))
 
 	# plot data
 	plt.figure(figsize = (8, 8))
