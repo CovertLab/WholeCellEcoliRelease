@@ -454,7 +454,7 @@ for i in VARIANTS_TO_RUN:
 				metadata = metadata,
 				),
 			name = fw_name,
-			spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": 16}, "_priority":4}
+			spec = {"_queueadapter": {"job_name": fw_name}, "_priority":4}
 			)
 		wf_fws.append(fw_this_variant_cohort_analysis)
 
@@ -478,7 +478,7 @@ for i in VARIANTS_TO_RUN:
 					metadata = metadata,
 					),
 				name = fw_name,
-				spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": 12}, "_priority":3}
+				spec = {"_queueadapter": {"job_name": fw_name}, "_priority":3}
 				)
 			wf_fws.append(fw_this_variant_this_seed_this_analysis)
 
