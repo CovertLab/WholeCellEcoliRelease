@@ -44,6 +44,9 @@ from models.ecoli.sim.variants.nutrient_time_series_downshift import nutrientTim
 from models.ecoli.sim.variants.kineticsConstraints import kineticsConstraints
 from models.ecoli.sim.variants.kineticsConstraints import kineticsConstraintsIndices
 
+from models.ecoli.sim.variants.transcriptionInitiationShuffleParams import transcriptionInitiationShuffleParams
+from models.ecoli.sim.variants.transcriptionInitiationShuffleParams import transcriptionInitiationShuffleParamsTotalIndices
+
 
 nameToFunctionMapping = {
 	"geneKnockout": geneKnockout,
@@ -60,6 +63,7 @@ nameToFunctionMapping = {
 	"metabolismKineticHomeostaticRatio": metabolismKineticHomeostaticRatio,
 	"nutrientTimeSeriesDownshift" : nutrientTimeSeriesDownshift,
 	"kineticsConstraints" : kineticsConstraints,
+	"transcriptionInitiationShuffleParams": transcriptionInitiationShuffleParams,
 }
 
 nameToNumIndicesMapping = {
@@ -77,4 +81,5 @@ nameToNumIndicesMapping = {
 	"metabolismKineticHomeostaticRatio": metabolismKineticHomeostaticRatioTotalIndices,
 	"nutrientTimeSeriesDownshift" : nutrientTimeSeriesDownshiftTotalIndices,
 	"kineticsConstraints" : kineticsConstraintsIndices,
+	"transcriptionInitiationShuffleParams": transcriptionInitiationShuffleParamsTotalIndices,
 }
