@@ -64,6 +64,10 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 			self.genetic_perturbations = {"fixedRnaIdxs": fixedRnaIdxs, "fixedSynthProbs": fixedSynthProbs}
 			perturbations = sim_data.genetic_perturbations
 
+		self.shuffleIdxs = None
+		if hasattr(sim_data.process.transcription, "initiationShuffleIdxs") and sim_data.process.transcription.initiationShuffleIdxs != None:
+			self.shuffleIdxs = sim_data.process.transcription.initiationShuffleIdxs
+
 		# Views
 		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
 		self.inactiveRnaPolys = self.bulkMoleculeView("APORNAP-CPLX[c]")
@@ -120,6 +124,11 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.rnaSynthProb[self.rnaSynthProb < 0] = 0
 		scaleTheRestBy = (1. - self.rnaSynthProb[self.setIdxs].sum()) / self.rnaSynthProb[~self.setIdxs].sum()
 		self.rnaSynthProb[~self.setIdxs] *= scaleTheRestBy
+
+		# Shuffle initiation rates if we're running the variant that calls this
+		# (In general, this should lead to a cell which does not grow and divide)
+		if self.shuffleIdxs is not None:
+			self.rnaSynthProb = self.rnaSynthProb[self.shuffleIdxs]
 
 		assert np.allclose(self.rnaSynthProb.sum(),1.)
 		assert np.all(self.rnaSynthProb >= 0.)
