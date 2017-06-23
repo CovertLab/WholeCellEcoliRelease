@@ -186,6 +186,10 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.AAs = [x[:-3] for x in sorted(sim_data.amino_acid_1_to_3_ordered.values())]
 
+		self.shuffleIdxs = None
+		if hasattr(sim_data.process.metabolism, "kineticTargetShuffleIdxs") and sim_data.process.metabolism.kineticTargetShuffleIdxs != None:
+			self.shuffleIdxs = sim_data.process.metabolism.kineticTargetShuffleIdxs
+
 	def calculateRequest(self):
 		self.metabolites.requestAll()
 		self.catalysts.requestAll()
@@ -301,6 +305,10 @@ class Metabolism(wholecell.processes.process.Process):
 				kineticsSubstratesConcentrations.asNumber(units.umol / units.L),
 				)
 			reactionTargets = (units.umol / units.L / units.s) * np.max(self.constraintToReactionMatrix * constraintValues, axis = 1)
+
+			# Shuffle parameters (only performed in very specific cases)
+			if self.shuffleIdxs is not None:
+				reactionTargets = (units.umol / units.L / units.s) * reactionTargets.asNumber()[self.shuffleIdxs]
 
 			# record which constraint was used, add constraintToReactionMatrix to ensure the index is one of the constraints if multiplication is 0
 			reactionConstraint = np.argmax(self.constraintToReactionMatrix * constraintValues + self.constraintToReactionMatrix, axis = 1)
