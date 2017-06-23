@@ -72,6 +72,8 @@ def getPCC((variant, ap, toyaReactions, toyaFluxesDict, toyaStdevDict)):
 
 	toyaVsReactionAve = []
 	for rxn, toyaFlux in toyaFluxesDict.iteritems():
+		if rxn in ["ISOCITDEH-RXN", "SUCCINATE-DEHYDROGENASE-UBIQUINONE-RXN-SUC/UBIQUINONE-8//FUM/CPD-9956.31."]:
+			continue
 		if rxn in modelFluxes:
 			toyaVsReactionAve.append((np.mean(modelFluxes[rxn]), toyaFlux.asNumber(units.mmol / units.g / units.h), np.std(modelFluxes[rxn]), toyaStdevDict[rxn].asNumber(units.mmol / units.g / units.h)))
 
