@@ -47,6 +47,8 @@ from models.ecoli.sim.variants.kineticsConstraints import kineticsConstraintsInd
 from models.ecoli.sim.variants.transcriptionInitiationShuffleParams import transcriptionInitiationShuffleParams
 from models.ecoli.sim.variants.transcriptionInitiationShuffleParams import transcriptionInitiationShuffleParamsTotalIndices
 
+from models.ecoli.sim.variants.kineticTargetShuffleParams import kineticTargetShuffleParams
+from models.ecoli.sim.variants.kineticTargetShuffleParams import kineticTargetShuffleParamsTotalIndices
 
 nameToFunctionMapping = {
 	"geneKnockout": geneKnockout,
@@ -64,6 +66,7 @@ nameToFunctionMapping = {
 	"nutrientTimeSeriesDownshift" : nutrientTimeSeriesDownshift,
 	"kineticsConstraints" : kineticsConstraints,
 	"transcriptionInitiationShuffleParams": transcriptionInitiationShuffleParams,
+	"kineticTargetShuffleParams": kineticTargetShuffleParams,
 }
 
 nameToNumIndicesMapping = {
@@ -82,4 +85,5 @@ nameToNumIndicesMapping = {
 	"nutrientTimeSeriesDownshift" : nutrientTimeSeriesDownshiftTotalIndices,
 	"kineticsConstraints" : kineticsConstraintsIndices,
 	"transcriptionInitiationShuffleParams": transcriptionInitiationShuffleParamsTotalIndices,
+	"kineticTargetShuffleParams": kineticTargetShuffleParamsTotalIndices,
 }
