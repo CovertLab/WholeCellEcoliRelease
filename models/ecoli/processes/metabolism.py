@@ -190,6 +190,10 @@ class Metabolism(wholecell.processes.process.Process):
 		if hasattr(sim_data.process.metabolism, "kineticTargetShuffleIdxs") and sim_data.process.metabolism.kineticTargetShuffleIdxs != None:
 			self.shuffleIdxs = sim_data.process.metabolism.kineticTargetShuffleIdxs
 
+		self.shuffleCatalyzedIdxs = None
+		if hasattr(sim_data.process.metabolism, "catalystShuffleIdxs") and sim_data.process.metabolism.catalystShuffleIdxs != None:
+			self.shuffleCatalyzedIdxs = sim_data.process.metabolism.catalystShuffleIdxs
+
 	def calculateRequest(self):
 		self.metabolites.requestAll()
 		self.catalysts.requestAll()
@@ -290,6 +294,9 @@ class Metabolism(wholecell.processes.process.Process):
 			catalyzedReactionBounds = np.inf * np.ones(len(self.reactionsWithCatalystsList))
 			rxnPresence = self.catalysisMatrix.dot(catalystsCountsInit)
 			catalyzedReactionBounds[rxnPresence == 0] = 0
+			if self.shuffleCatalyzedIdxs is not None:
+				catalyzedReactionBounds = catalyzedReactionBounds[self.shuffleCatalyzedIdxs]
+
 
 			# Only update reaction limits that are different from previous time step
 			updateIdxs = np.where(catalyzedReactionBounds != self.catalyzedReactionBoundsPrev)[0]
