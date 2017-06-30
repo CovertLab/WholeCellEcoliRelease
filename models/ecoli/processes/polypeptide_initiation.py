@@ -36,6 +36,12 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 		self.proteinLens = sim_data.process.translation.monomerData["length"].asNumber()
 		self.translationEfficiencies = normalize(sim_data.process.translation.translationEfficienciesByMonomer)
 
+		# Determine changes from parameter shuffling variant
+		shuffleIdxs = None
+		if hasattr(sim_data.process.translation, "translationEfficienciesShuffleIdxs") and sim_data.process.translation.translationEfficienciesShuffleIdxs != None:
+			shuffleIdxs = sim_data.process.translation.translationEfficienciesShuffleIdxs
+			self.translationEfficiencies = self.translationEfficiencies[shuffleIdxs]
+
 		# Create view on to active 70S ribosomes
 		self.activeRibosomes = self.uniqueMoleculesView('activeRibosome')
 
