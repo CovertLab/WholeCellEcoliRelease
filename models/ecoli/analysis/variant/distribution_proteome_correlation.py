@@ -22,7 +22,7 @@ from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from scipy.stats import pearsonr
 from multiprocessing import Pool
 
-
+SHUFFLE_VARIANT_TAG = "ShuffleParams"
 PLACE_HOLDER = -1
 
 FONT_SIZE=9
@@ -89,7 +89,7 @@ def getPCC((variant, ap, monomerIds, schmidtCounts)):
 
 def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = None):
 
-	if metadata is not None and metadata["variant"] != "transcriptionInitiationShuffleParams":
+	if metadata is not None and SHUFFLE_VARIANT_TAG not in metadata["variant"]:
 		print "This plot only runs for variants where parameters are shuffled."
 		return
 

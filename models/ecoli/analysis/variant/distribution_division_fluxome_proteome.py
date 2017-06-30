@@ -25,7 +25,7 @@ from multiprocessing import Pool
 
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
 
-
+SHUFFLE_VARIANT_TAG = "ShuffleParams"
 PLACE_HOLDER = -1
 
 FONT_SIZE=9
@@ -172,7 +172,7 @@ def getFinalMass((variant, ap)):
 
 def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = None):
 
-	if metadata is not None and metadata["variant"] != "transcriptionInitiationShuffleParams":
+	if metadata is not None and SHUFFLE_VARIANT_TAG not in metadata["variant"]:
 		print "This plot only runs for variants where parameters are shuffled."
 		return
 
