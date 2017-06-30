@@ -53,6 +53,12 @@ from models.ecoli.sim.variants.kineticTargetShuffleParams import kineticTargetSh
 from models.ecoli.sim.variants.catalystShuffleParams import catalystShuffleParams
 from models.ecoli.sim.variants.catalystShuffleParams import catalystShuffleParamsTotalIndices
 
+from models.ecoli.sim.variants.translationEfficienciesShuffleParams import translationEfficienciesShuffleParams
+from models.ecoli.sim.variants.translationEfficienciesShuffleParams import translationEfficienciesShuffleParamsTotalIndices
+
+from models.ecoli.sim.variants.monomerDegRateShuffleParams import monomerDegRateShuffleParams
+from models.ecoli.sim.variants.monomerDegRateShuffleParams import monomerDegRateShuffleParamsTotalIndices
+
 nameToFunctionMapping = {
 	"geneKnockout": geneKnockout,
 	"wildtype": wildtype,
@@ -71,6 +77,8 @@ nameToFunctionMapping = {
 	"transcriptionInitiationShuffleParams": transcriptionInitiationShuffleParams,
 	"kineticTargetShuffleParams": kineticTargetShuffleParams,
 	"catalystShuffleParams": catalystShuffleParams,
+	"translationEfficienciesShuffleParams": translationEfficienciesShuffleParams,
+	"monomerDegRateShuffleParams": monomerDegRateShuffleParams,
 }
 
 nameToNumIndicesMapping = {
@@ -91,4 +99,6 @@ nameToNumIndicesMapping = {
 	"transcriptionInitiationShuffleParams": transcriptionInitiationShuffleParamsTotalIndices,
 	"kineticTargetShuffleParams": kineticTargetShuffleParamsTotalIndices,
 	"catalystShuffleParams": catalystShuffleParamsTotalIndices,
+	"translationEfficienciesShuffleParams": translationEfficienciesShuffleParamsTotalIndices,
+	"monomerDegRateShuffleParams": monomerDegRateShuffleParamsTotalIndices,
 }
