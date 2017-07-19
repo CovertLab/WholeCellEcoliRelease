@@ -33,141 +33,156 @@ trim = 0.05
 
 def getPCCProteome((variant, ap, monomerIds, schmidtCounts)):
 
-	simDir = ap.get_cells(variant = [variant])[0]
+	try:
+		simDir = ap.get_cells(variant = [variant])[0]
 
-	sim_data = cPickle.load(open(ap.get_variant_kb(variant), "rb"))
+		sim_data = cPickle.load(open(ap.get_variant_kb(variant), "rb"))
 
-	ids_complexation = sim_data.process.complexation.moleculeNames
-	ids_complexation_complexes = [ids_complexation[i] for i in np.where((sim_data.process.complexation.stoichMatrix() == 1).sum(axis = 1))[0]]
-	ids_equilibrium = sim_data.process.equilibrium.moleculeNames
-	ids_equilibrium_complexes = [ids_equilibrium[i] for i in np.where((sim_data.process.equilibrium.stoichMatrix() == 1).sum(axis = 1))[0]]
-	ids_translation = sim_data.process.translation.monomerData["id"].tolist()
-	ids_protein = sorted(set(ids_complexation + ids_equilibrium + ids_translation))
+		ids_complexation = sim_data.process.complexation.moleculeNames
+		ids_complexation_complexes = [ids_complexation[i] for i in np.where((sim_data.process.complexation.stoichMatrix() == 1).sum(axis = 1))[0]]
+		ids_equilibrium = sim_data.process.equilibrium.moleculeNames
+		ids_equilibrium_complexes = [ids_equilibrium[i] for i in np.where((sim_data.process.equilibrium.stoichMatrix() == 1).sum(axis = 1))[0]]
+		ids_translation = sim_data.process.translation.monomerData["id"].tolist()
+		ids_protein = sorted(set(ids_complexation + ids_equilibrium + ids_translation))
 
-	bulkContainer = BulkObjectsContainer(ids_protein, dtype = np.float64)
-	view_complexation = bulkContainer.countsView(ids_complexation)
-	view_complexation_complexes = bulkContainer.countsView(ids_complexation_complexes)
-	view_equilibrium = bulkContainer.countsView(ids_equilibrium)
-	view_equilibrium_complexes = bulkContainer.countsView(ids_equilibrium_complexes)
-	view_translation = bulkContainer.countsView(ids_translation)
-	view_validation_schmidt = bulkContainer.countsView(monomerIds)
+		bulkContainer = BulkObjectsContainer(ids_protein, dtype = np.float64)
+		view_complexation = bulkContainer.countsView(ids_complexation)
+		view_complexation_complexes = bulkContainer.countsView(ids_complexation_complexes)
+		view_equilibrium = bulkContainer.countsView(ids_equilibrium)
+		view_equilibrium_complexes = bulkContainer.countsView(ids_equilibrium_complexes)
+		view_translation = bulkContainer.countsView(ids_translation)
+		view_validation_schmidt = bulkContainer.countsView(monomerIds)
 
-	simOutDir = os.path.join(simDir, "simOut")
+		simOutDir = os.path.join(simDir, "simOut")
 
-	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-	moleculeIds = bulkMolecules.readAttribute("objectNames")
-	proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in ids_protein], np.int)
-	proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
-	bulkMolecules.close()
+		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+		moleculeIds = bulkMolecules.readAttribute("objectNames")
+		proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in ids_protein], np.int)
+		proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
+		bulkMolecules.close()
 
-	# Account for monomers
-	bulkContainer.countsIs(proteinCountsBulk.mean(axis = 0))
+		# Account for monomers
+		bulkContainer.countsIs(proteinCountsBulk.mean(axis = 0))
 
-	# Account for unique molecules
-	uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
-	ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
-	rnaPolyIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
-	nActiveRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
-	nActiveRnaPoly = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnaPolyIndex]
-	uniqueMoleculeCounts.close()
-	bulkContainer.countsInc(nActiveRibosome.mean(), sim_data.moleculeGroups.s30_fullComplex + sim_data.moleculeGroups.s50_fullComplex)
-	bulkContainer.countsInc(nActiveRnaPoly.mean(), sim_data.moleculeGroups.rnapFull)
+		# Account for unique molecules
+		uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
+		ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
+		rnaPolyIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
+		nActiveRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
+		nActiveRnaPoly = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnaPolyIndex]
+		uniqueMoleculeCounts.close()
+		bulkContainer.countsInc(nActiveRibosome.mean(), sim_data.moleculeGroups.s30_fullComplex + sim_data.moleculeGroups.s50_fullComplex)
+		bulkContainer.countsInc(nActiveRnaPoly.mean(), sim_data.moleculeGroups.rnapFull)
 
-	# Account for small-molecule bound complexes
-	view_equilibrium.countsInc(
-		np.dot(sim_data.process.equilibrium.stoichMatrixMonomers(), view_equilibrium_complexes.counts() * -1)
-		)
+		# Account for small-molecule bound complexes
+		view_equilibrium.countsInc(
+			np.dot(sim_data.process.equilibrium.stoichMatrixMonomers(), view_equilibrium_complexes.counts() * -1)
+			)
 
-	# Account for monomers in complexed form
-	view_complexation.countsInc(
-		np.dot(sim_data.process.complexation.stoichMatrixMonomers(), view_complexation_complexes.counts() * -1)
-		)
+		# Account for monomers in complexed form
+		view_complexation.countsInc(
+			np.dot(sim_data.process.complexation.stoichMatrixMonomers(), view_complexation_complexes.counts() * -1)
+			)
 
-	pcc, pval = pearsonr(np.log10(view_validation_schmidt.counts() + 1), np.log10(schmidtCounts + 1))
+		pcc, pval = pearsonr(np.log10(view_validation_schmidt.counts() + 1), np.log10(schmidtCounts + 1))
 
-	return pcc, pval
+		return pcc, pval
+	except:
+		return np.nan, np.nan
 
 
 def getPCCFluxome((variant, ap, toyaReactions, toyaFluxesDict, toyaStdevDict)):
 
-	simDir = ap.get_cells(variant = [variant])[0]
+	try:
+		simDir = ap.get_cells(variant = [variant])[0]
 
-	sim_data = cPickle.load(open(ap.get_variant_kb(variant), "rb"))
-	cellDensity = sim_data.constants.cellDensity
+		sim_data = cPickle.load(open(ap.get_variant_kb(variant), "rb"))
+		cellDensity = sim_data.constants.cellDensity
 
-	simOutDir = os.path.join(simDir, "simOut")
+		simOutDir = os.path.join(simDir, "simOut")
 
-	massListener = TableReader(os.path.join(simOutDir, "Mass"))
-	cellMass = massListener.readColumn("cellMass")
-	dryMass = massListener.readColumn("dryMass")
-	massListener.close()
+		massListener = TableReader(os.path.join(simOutDir, "Mass"))
+		cellMass = massListener.readColumn("cellMass")
+		dryMass = massListener.readColumn("dryMass")
+		massListener.close()
 
-	coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(MASS_UNITS / VOLUME_UNITS)
+		coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(MASS_UNITS / VOLUME_UNITS)
 
-	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
-	reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
-	reactionFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (fbaResults.readColumn("reactionFluxes").T / coefficient).T
-	fbaResults.close()
+		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
+		reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
+		reactionFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (fbaResults.readColumn("reactionFluxes").T / coefficient).T
+		fbaResults.close()
 
-	modelFluxes = {}
-	for toyaReaction in toyaReactions:
-		fluxTimeCourse = []
+		modelFluxes = {}
+		for toyaReaction in toyaReactions:
+			fluxTimeCourse = []
 
-		for rxn in reactionIDs:
-			if re.findall(toyaReaction, rxn):
-				reverse = 1
-				if re.findall("(reverse)", rxn):
-					reverse = -1
+			for rxn in reactionIDs:
+				if re.findall(toyaReaction, rxn):
+					reverse = 1
+					if re.findall("(reverse)", rxn):
+						reverse = -1
 
-				if len(fluxTimeCourse):
-					fluxTimeCourse += reverse * reactionFluxes[:, np.where(reactionIDs == rxn)]
-				else:
-					fluxTimeCourse = reverse * reactionFluxes[:, np.where(reactionIDs == rxn)]
+					if len(fluxTimeCourse):
+						fluxTimeCourse += reverse * reactionFluxes[:, np.where(reactionIDs == rxn)]
+					else:
+						fluxTimeCourse = reverse * reactionFluxes[:, np.where(reactionIDs == rxn)]
 
-		if len(fluxTimeCourse):
-			if toyaReaction not in modelFluxes:
-				modelFluxes[toyaReaction] = []
-			modelFluxes[toyaReaction].append(np.mean(fluxTimeCourse).asNumber(units.mmol / units.g / units.h))
+			if len(fluxTimeCourse):
+				if toyaReaction not in modelFluxes:
+					modelFluxes[toyaReaction] = []
+				modelFluxes[toyaReaction].append(np.mean(fluxTimeCourse).asNumber(units.mmol / units.g / units.h))
 
-	toyaVsReactionAve = []
-	for rxn, toyaFlux in toyaFluxesDict.iteritems():
-		if rxn in ["ISOCITDEH-RXN", "SUCCINATE-DEHYDROGENASE-UBIQUINONE-RXN-SUC/UBIQUINONE-8//FUM/CPD-9956.31."]:
-			continue
-		if rxn in modelFluxes:
-			toyaVsReactionAve.append((np.mean(modelFluxes[rxn]), toyaFlux.asNumber(units.mmol / units.g / units.h), np.std(modelFluxes[rxn]), toyaStdevDict[rxn].asNumber(units.mmol / units.g / units.h)))
+		toyaVsReactionAve = []
+		for rxn, toyaFlux in toyaFluxesDict.iteritems():
+			if rxn in ["ISOCITDEH-RXN", "SUCCINATE-DEHYDROGENASE-UBIQUINONE-RXN-SUC/UBIQUINONE-8//FUM/CPD-9956.31."]:
+				continue
+			if rxn in modelFluxes:
+				toyaVsReactionAve.append((np.mean(modelFluxes[rxn]), toyaFlux.asNumber(units.mmol / units.g / units.h), np.std(modelFluxes[rxn]), toyaStdevDict[rxn].asNumber(units.mmol / units.g / units.h)))
 
-	toyaVsReactionAve = np.array(toyaVsReactionAve)
-	pcc, pval = pearsonr(toyaVsReactionAve[:,0], toyaVsReactionAve[:,1])
+		toyaVsReactionAve = np.array(toyaVsReactionAve)
+		pcc, pval = pearsonr(toyaVsReactionAve[:,0], toyaVsReactionAve[:,1])
 
-	return pcc, pval
+		return pcc, pval
+	except:
+		return np.nan, np.nan
 
 def getDivisionTime((variant, ap)):
-	simDir = ap.get_cells(variant = [variant])[0]
+	try:
+		simDir = ap.get_cells(variant = [variant])[0]
 
-	simOutDir = os.path.join(simDir, "simOut")
+		simOutDir = os.path.join(simDir, "simOut")
 
-	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 
-	return (time.max() - initialTime) / 60.
+		return (time.max() - initialTime) / 60.
+	except:
+		return np.nan
 
 def getInitialMass((variant, ap)):
-	simDir = ap.get_cells(variant = [variant])[0]
+	try:
+		simDir = ap.get_cells(variant = [variant])[0]
 
-	simOutDir = os.path.join(simDir, "simOut")
+		simOutDir = os.path.join(simDir, "simOut")
 
-	mass = TableReader(os.path.join(simOutDir, "Mass"))
-	cellDry = mass.readColumn("dryMass")
-	return cellDry[0]
+		mass = TableReader(os.path.join(simOutDir, "Mass"))
+		cellDry = mass.readColumn("dryMass")
+		return cellDry[0]
+	except:
+		return np.nan
 
 def getFinalMass((variant, ap)):
-	simDir = ap.get_cells(variant = [variant])[0]
+	try:
+		simDir = ap.get_cells(variant = [variant])[0]
 
-	simOutDir = os.path.join(simDir, "simOut")
+		simOutDir = os.path.join(simDir, "simOut")
 
-	mass = TableReader(os.path.join(simOutDir, "Mass"))
-	cellDry = mass.readColumn("dryMass")
-	return cellDry[-1]
+		mass = TableReader(os.path.join(simOutDir, "Mass"))
+		cellDry = mass.readColumn("dryMass")
+		return cellDry[-1]
+	except:
+		return np.nan
 
 
 def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = None):
