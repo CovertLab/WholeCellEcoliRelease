@@ -18,6 +18,7 @@ from __future__ import division
 from itertools import izip
 
 import numpy as np
+import copy
 
 import wholecell.processes.process
 from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
@@ -54,7 +55,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		self.translation_aa_supply = sim_data.translationSupplyRate
 		self.nutrientsTimeSeriesLabel = sim_data.nutrientsTimeSeriesLabel
-		import copy
 		self.nutrientsTimeSeries = copy.deepcopy(sim_data.nutrientsTimeSeries)
 		self.currentNutrients = self.nutrientsTimeSeries[self.nutrientsTimeSeriesLabel][0][1]
 
@@ -99,7 +99,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 				self.maxRibosomeElongationRate * self.timeStepSec()))])
 		else:
 			self.ribosomeElongationRate = np.min([22, int(stochasticRound(self.randomState,
-			self.elngRateFactor * self.ribosomeElongationRateDict[self.currentNutrients].asNumber(units.aa / units.s) * self.timeStepSec()))])
+				self.elngRateFactor * self.ribosomeElongationRateDict[self.currentNutrients].asNumber(units.aa / units.s) * self.timeStepSec()))])
 
 		# Request all active ribosomes
 		self.activeRibosomes.requestAll()
@@ -115,15 +115,12 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 					'proteinIndex', 'peptideLength'
 					)
 
-		try:
-			sequences = buildSequences(
-				self.proteinSequences,
-				proteinIndexes,
-				peptideLengths,
-				self.ribosomeElongationRate
-				)
-		except:
-			import ipdb; ipdb.set_trace()
+		sequences = buildSequences(
+			self.proteinSequences,
+			proteinIndexes,
+			peptideLengths,
+			self.ribosomeElongationRate
+			)
 
 		sequenceHasAA = (sequences != PAD_VALUE)
 		aasInSequences = np.bincount(sequences[sequenceHasAA], minlength=21)

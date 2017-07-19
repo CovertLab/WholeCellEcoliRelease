@@ -18,7 +18,7 @@ from wholecell.utils import units
 
 from wholecell.utils.sparkline import whitePadSparklineAxis
 
-
+SHUFFLE_VARIANT_TAG = "ShuffleParams"
 PLACE_HOLDER = -1
 
 FONT_SIZE=9
@@ -30,7 +30,7 @@ def mm2inch(value):
 
 def main(inputDir, plotOutDir, plotOutFileName, validationDataFile = None, metadata = None):
 
-	if metadata is not None and metadata["variant"] != "transcriptionInitiationShuffleParams":
+	if metadata is not None and SHUFFLE_VARIANT_TAG not in metadata["variant"]:
 		print "This plot only runs for variants where parameters are shuffled."
 		return
 
@@ -70,7 +70,6 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile = None, metad
 	fig.set_figwidth(5)
 	fig.set_figheight(5)
 	ax = plt.subplot(1, 1, 1)
-
 	ax.hist(doublingTimes, np.sqrt(doublingTimes.size))
 	ax.axvline(controlDoublingTime, color = "k", linestyle = "dashed", linewidth = 2)
 

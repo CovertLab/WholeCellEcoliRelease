@@ -115,7 +115,12 @@ class Metabolism(wholecell.processes.process.Process):
 		from reconstruction.ecoli.dataclasses.process.metabolism_constraints import constraints as kineticsConstraints
 		self.kineticsConstraints = kineticsConstraints
 
+		self.useAllConstraints = sim_data.process.metabolism.useAllConstraints
+		self.constraintsToDisable = sim_data.process.metabolism.constraintsToDisable
 		self.kineticsConstrainedReactions = sim_data.process.metabolism.constrainedReactionList
+		if hasattr(sim_data.process.metabolism, "kineticTargetShuffleRxns") and sim_data.process.metabolism.kineticTargetShuffleRxns != None:
+			self.kineticsConstrainedReactions = sim_data.process.metabolism.kineticTargetShuffleRxns
+			self.useAllConstraints = True
 		self.kineticsEnzymesList = sim_data.process.metabolism.enzymeIdList
 		self.kineticsSubstratesList = sim_data.process.metabolism.kineticsSubstratesList
 
@@ -126,8 +131,6 @@ class Metabolism(wholecell.processes.process.Process):
 		self.constraintToReactionMatrix = np.zeros(shape, np.float64)
 		self.constraintToReactionMatrix[constraintToReactionMatrixI, constraintToReactionMatrixJ] = constraintToReactionMatrixV
 		self.constraintIsKcatOnly = sim_data.process.metabolism.constraintIsKcatOnly
-		self.useAllConstraints = sim_data.process.metabolism.useAllConstraints
-		self.constraintsToDisable = sim_data.process.metabolism.constraintsToDisable
 
 		# Set up FBA solver
 		# reactionRateTargets value is just for initialization, it gets reset each timestep during evolveState

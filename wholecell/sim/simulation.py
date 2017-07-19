@@ -29,7 +29,7 @@ import wholecell.loggers.disk
 DEFAULT_SIMULATION_KWARGS = dict(
 	seed = 0,
 	lengthSec = 3*60*60, # 3 hours max
-	initialTime = 0,
+	initialTime = 0.,
 	massDistribution = True,
 	dPeriodDivision = False,
 	growthRateNoise = False,
