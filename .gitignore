@@ -36,6 +36,11 @@ out/*
 !out/images.html
 !out/makeHtml.py
 
+# Cached sim data #
+###################
+
+cached
+
 # Fixtures #
 ############
 
