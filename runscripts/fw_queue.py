@@ -73,6 +73,7 @@ GROWTH_RATE_NOISE = bool(int(os.environ.get("GROWTH_RATE_NOISE", "0")))
 D_PERIOD_DIVISION = bool(int(os.environ.get("D_PERIOD_DIVISION", "0")))
 TRANSLATION_SUPPLY = bool(int(os.environ.get("TRANSLATION_SUPPLY", "1")))
 RUN_AGGREGATE_ANALYSIS = bool(int(os.environ.get("RUN_AGGREGATE_ANALYSIS", "1")))
+CACHED_SIM_DATA = bool(int(os.environ.get("CACHED_SIM_DATA", "0")))
 
 if not RUN_AGGREGATE_ANALYSIS:
 	COMPRESS_OUTPUT = False
@@ -82,6 +83,7 @@ if not RUN_AGGREGATE_ANALYSIS:
 dirname = os.path.dirname
 WC_ECOLI_DIRECTORY = dirname(dirname(os.path.abspath(__file__)))
 OUT_DIRECTORY = os.path.join(WC_ECOLI_DIRECTORY, "out")
+CACHED_SIM_DATA_DIRECTORY = os.path.join(WC_ECOLI_DIRECTORY, "cached")
 
 now = datetime.datetime.now()
 SUBMISSION_TIME = "%04d%02d%02d.%02d%02d%02d.%06d" % (
@@ -248,6 +250,8 @@ fw_fit_level_1 = Firework(
 		fit_level = 1,
 		input_data = os.path.join(KB_DIRECTORY, filename_raw_data),
 		output_data = os.path.join(KB_DIRECTORY, filename_sim_data_fit_1),
+		cached = CACHED_SIM_DATA,
+		cached_data = os.path.join(CACHED_SIM_DATA_DIRECTORY, filename_sim_data_fit_1),
 		),
 	name = fw_name,
 	spec = {"_queueadapter": {"job_name": fw_name}, "_priority":1}

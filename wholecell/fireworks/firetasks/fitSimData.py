@@ -1,5 +1,7 @@
 import cPickle
 import time
+import os
+import shutil
 
 from fireworks import FireTaskBase, explicit_serialize
 from reconstruction.ecoli.fit_sim_data_1 import fitSimData_1
@@ -17,6 +19,13 @@ class FitSimDataTask(FireTaskBase):
 		print "%s: Creating/Fitting sim_data (Level %d)" % (time.ctime(), self["fit_level"])
 
 		if self["fit_level"] == 1:
+			if self["cached"]:
+				try:
+					shutil.copy2(self["cached_data"], self["output_data"])
+					print "Copied sim data from cache (modified %s)" % time.ctime(os.path.getctime(self["cached_data"]))
+					return
+				except:
+					print "Warning: could not copy cached sim data, running fitter"
 
 			raw_data = cPickle.load(open(self["input_data"], "rb"))
 			sim_data = fitSimData_1(raw_data)
