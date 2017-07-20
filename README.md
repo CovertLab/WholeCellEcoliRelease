@@ -31,6 +31,24 @@ In your cloned `wcEcoli` directory, to compile cython plugins and any C function
 make compile
 ```
 
+You need to make sure the output from the model goes to the SCRATCH filesystem (which is larger) rather than SHERLOCK HOME. You'll need to make a symbolic link between the output directory of your wcEcoli directory and a directory in SCRATCH. Within your wcEcoli diretory, there needs to be a folder named out/. The model puts its output in this folder, so we can basically tell the computer to send anything placed in this folder to SCRATCH instead. You can call the folder on SCRATCH whatever you want, but here is one option:
+
+```bash
+mkdir $SCRATCH/wcEcoli_out
+```
+
+Now, make sure an out directory in the cloned wcEcoli directory doesn't exist already and create a new symbolic link from out to the directory on SCRATCH that was just created above:
+
+```bash
+ln -s $SCRATCH/wcEcoli_out out
+```
+
+Similarly, we would like to create a symbolic link to a shared sim data cache directory on PI_SCRATCH that should contain a copy of the newest sim data object (it should be updated daily with any new changes to the codebase):
+
+```bash
+ln -s $PI_SCRATCH/wc_ecoli/cached cached
+```
+
 Single simulation
 ------------------
 
@@ -66,6 +84,14 @@ To queue multiple generations (in this case 3 generations) from multiple mother 
 DESC="Example run of multiple generations from multiple mother cells." N_GENS=3 N_INIT_SIMS=2 python runscripts/fw_queue.py
 ```
 
+Using the cached sim data object
+--------------------------------
+
+To use the cached sim data object, use the CACHED_SIM_DATA environment variable:
+
+```bash
+DESC="Example run with cached sim data." CACHED_SIM_DATA=1 python runscripts/fw_queue.py
+```
 
 Using an interactive node to run simulations
 --------------------------------------------

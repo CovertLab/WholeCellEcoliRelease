@@ -105,43 +105,6 @@ git checkout -b tutorialYourName c7b13cb809637732f993c387ae1c4b11653efdc7
 
 This gives you your own copy of the specified commit of the master branch named \texttt{tutorialYourName} which you can commit to.
 
-We need to make sure the output from the model goes to the SCRATCH filesystem (which is larger) rather than SHERLOCK\_HOME. We'll need to make a symbolic link between the output directory of your \texttt{wcEcoli} directory and a directory in SCRATCH. Within your wcEcoli diretory, there should be a folder named \texttt{out/}. The model puts its output in this folder, so we can basically tell the computer to send anything placed in this folder to SCRATCH instead.
-
-First go to SCRATCH and create a folder in which to place the output. Run the following command:
-
-\lstset{language=bash}
-\begin{lstlisting}
-cd $SCRATCH
-\end{lstlisting}
-
-Now make a directory to hold the output. You can call it whatever you want, here is one option:
-
-\lstset{language=bash}
-\begin{lstlisting}
-mkdir wcEcoli_out
-\end{lstlisting}
-
-Return to your \texttt{wcEcoli} directory:
-
-\lstset{language=bash}
-\begin{lstlisting}
-cd $HOME/wcEcoli
-\end{lstlisting}
-
-To create the symbolic link, we first need to delete the existing \texttt{out/} directory if it is present. Do this with:
-
-\lstset{language=bash}
-\begin{lstlisting}
-rmdir out/
-\end{lstlisting}
-
-If there is no \texttt{out/} directory, then running the rmdir command won't hurt but isn't necessary. Now run this command to make the symbolic link. Change the name of the directory to the one you made on SCRATCH if it's different.
-
-\lstset{language=bash}
-\begin{lstlisting}
-ln -s $SCRATCH/wcEcoli_out out
-\end{lstlisting}
-
 \subsection{Running simulations}
 
 Now let's try running the unmodified model to make sure it works. First, log in to a compute node, so that the simulation can be run in interactive mode (running in interactive mode on a login node can result in getting booted from the cluster). These nodes are covert-lab specific and it's ok to do more serious computation on them.
