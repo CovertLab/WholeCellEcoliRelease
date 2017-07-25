@@ -194,12 +194,3 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		effectiveFractionActive = fracActiveRnap * 1 / (1 - expectedFractionTimeInactive)
 
 		return effectiveFractionActive * expectedTerminationRate / (1 - effectiveFractionActive)
-
-	def calculateRrnInitRate(self, rrn_count, elngRate):
-		'''
-		Returns total initiation rate of rRNA across all promoters
-		In units of initiations / s / fg
-		'''
-		fitInitiationRate = 0.0168 * np.exp(-0.272 * (self.maxRibosomeElongationRate - elngRate))
-
-		return (1 / units.s / units.fg) * fitInitiationRate
