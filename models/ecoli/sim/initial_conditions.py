@@ -3,7 +3,6 @@
 
 TODO:
 - document math
-- replace fake metabolite concentration targets with measured metabolite concentration targets
 - raise/warn if physiological metabolite concentration targets appear to be smaller than what
  is needed at this time step size
 

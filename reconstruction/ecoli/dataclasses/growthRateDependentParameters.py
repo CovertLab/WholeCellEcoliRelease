@@ -362,9 +362,7 @@ class GrowthRateParameters(object):
 		self.ribosomeElongationRateParams = _getFitParameters(raw_data.growthRateDependentParameters, "ribosomeElongationRate")
 		self.rnaPolymeraseElongationRateParams = _getFitParameters(raw_data.growthRateDependentParameters, "rnaPolymeraseElongationRate")
 		self.fractionActiveRnapParams = _getFitParameters(raw_data.growthRateDependentParameters, "fractionActiveRnap")
-		# thingsToSet = [x for x in dir(self) if x[0] != '_']
-		# for x in thingsToSet:
-		# 	setattr(sim_data.constants, x, getattr(self, x))
+
 		self.c_period = units.min * 40.
 		self.d_period = units.min * 20.
 		self.dnaPolymeraseElongationRate = units.nt / units.s * 967.
