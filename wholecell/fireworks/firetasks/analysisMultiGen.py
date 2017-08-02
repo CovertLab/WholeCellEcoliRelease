@@ -1,6 +1,7 @@
 import cPickle
 import time
 import os
+import traceback
 
 from fireworks import FireTaskBase, explicit_serialize
 import models.ecoli.analysis.multigen
@@ -33,6 +34,8 @@ class AnalysisMultiGenTask(FireTaskBase):
 		if "WC_ANALYZE_FAST" in os.environ:
 			pool = mp.Pool(processes = 8)
 
+		exception = False
+		exceptionFileList = []
 		for f in fileList:
 			if f.endswith(".pyc") or f == "__init__.py":
 				continue
@@ -51,13 +54,27 @@ class AnalysisMultiGenTask(FireTaskBase):
 				pool.apply_async(run_function, args = (mod.main, args, f))
 			else:
 				print "%s: Running %s" % (time.ctime(), f)
-				mod.main(*args)
+				try:
+					mod.main(*args)
+				except SystemExit:
+					raise SystemExit(1)
+				except:
+					traceback.print_exc()
+					exception = True
+					exceptionFileList += [f]
 
 		if "WC_ANALYZE_FAST" in os.environ:
 			pool.close()
 			pool.join()
 		timeTotal = time.time() - startTime
-		print "Completed multiple generation analysis in %s" % (time.strftime("%H:%M:%S", time.gmtime(timeTotal)))
+
+		if exception:
+			print "Completed multiple generation analysis in %s with an exception in:" % (time.strftime("%H:%M:%S", time.gmtime(timeTotal)))
+			for file in exceptionFileList:
+				print "\t%s" % file
+			raise Exception("Error in multigen analysis")
+		else:
+			print "Completed multiple generation analysis in %s" % (time.strftime("%H:%M:%S", time.gmtime(timeTotal)))
 
 def run_function(f, args, name):
 	try:
