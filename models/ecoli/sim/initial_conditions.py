@@ -19,7 +19,7 @@ from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.utils.fitting import normalize, countsFromMassAndExpression, calcProteinCounts, massesAndCountsToAddForHomeostaticTargets
 from wholecell.utils.polymerize import buildSequences, computeMassIncrease
 from wholecell.utils import units
-
+from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
 
 
 from wholecell.io.tablereader import TableReader
@@ -55,6 +55,9 @@ def initializeBulkMolecules(bulkMolCntr, sim_data, randomState, massCoeff):
 
 	## Set constitutive expression
 	initializeConstitutiveExpression(bulkMolCntr, sim_data, randomState)
+
+	## Form complexes
+	initializeComplexation(bulkMolCntr, sim_data, randomState)
 
 def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data)
@@ -139,6 +142,39 @@ def initializeConstitutiveExpression(bulkMolCntr, sim_data, randomState):
 	alphaNames = [x for x in recruitmentColNames if x.endswith("__alpha")]
 	alphaView = bulkMolCntr.countsView(alphaNames)
 	alphaView.countsIs(1)
+
+def initializeComplexation(bulkMolCntr, sim_data, randomState):
+	moleculeNames = sim_data.process.complexation.moleculeNames
+	moleculeView = bulkMolCntr.countsView(moleculeNames)
+
+	# save rnase counts for after complexation, need to be monomers
+	rnases = sim_data.process.rna_decay.endoRnaseIds
+	rnaseCounts = bulkMolCntr.countsView(rnases).counts()
+	bulkMolCntr.countsIs(0, rnases)
+
+	stoichMatrix = sim_data.process.complexation.stoichMatrix().astype(np.int64, order = "F")
+	prebuiltMatrices = mccBuildMatrices(stoichMatrix)
+
+	# form complexes until no new complexes form (some complexes are complexes of complexes)
+	while True:
+		moleculeCounts = moleculeView.counts()
+		updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
+			moleculeCounts,
+			randomState.randint(1000),
+			stoichMatrix,
+			*prebuiltMatrices
+			)
+
+		bulkMolCntr.countsIs(
+			updatedMoleculeCounts,
+			moleculeNames,
+			)
+
+		if not np.any(moleculeCounts - updatedMoleculeCounts):
+			break
+
+	bulkMolCntr.countsIs(rnaseCounts, rnases)
+
 
 def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 	"""
