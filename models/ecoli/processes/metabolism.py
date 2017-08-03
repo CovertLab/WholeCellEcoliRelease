@@ -38,7 +38,7 @@ SECRETION_PENALTY_COEFF = 1e-5
 NONZERO_ENZYMES = False
 
 USE_KINETICS = True
-KINETICS_BURN_IN_PERIOD = 1
+KINETICS_BURN_IN_PERIOD = 0
 
 class Metabolism(wholecell.processes.process.Process):
 	""" Metabolism """
