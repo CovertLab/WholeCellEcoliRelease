@@ -220,14 +220,15 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	noComplexIndexes = np.where(np.array(enzymeComplexCounts) == 0)[0]
 	patchStart = []
 	patchEnd = []
-	prev = noComplexIndexes[0]
-	patchStart.append(prev)
-	for i in noComplexIndexes:
-		if np.abs(i - prev) > 1:
-			patchStart.append(i)
-			patchEnd.append(prev)
-		prev = i
-	patchEnd.append(prev)
+	if len(noComplexIndexes):
+		prev = noComplexIndexes[0]
+		patchStart.append(prev)
+		for i in noComplexIndexes:
+			if np.abs(i - prev) > 1:
+				patchStart.append(i)
+				patchEnd.append(prev)
+			prev = i
+		patchEnd.append(prev)
 
 	axesList = [rnaInitAxis, rnaAxis, monomerAxis, complexAxis, fluxAxis, metAxis]
 	for axis in axesList:
