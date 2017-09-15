@@ -82,5 +82,7 @@ class getterFunctions(object):
 			locationDict[item["id"]] = [x.encode("utf-8") for x in item["location"]]
 		for item in raw_data.water:
 			locationDict[item["id"]] = [x.encode("utf-8") for x in item["location"]]
+		for item in raw_data.modifiedForms:
+			locationDict[item["id"]] = [x.encode("utf-8") for x in item["location"]]
 
 		self._locationDict = locationDict
