@@ -32,56 +32,62 @@ trim = 0.05
 
 def getPCC((variant, ap, toyaReactions, toyaFluxesDict, toyaStdevDict)):
 
-	simDir = ap.get_cells(variant = [variant])[0]
+	try:
 
-	sim_data = cPickle.load(open(ap.get_variant_kb(variant), "rb"))
-	cellDensity = sim_data.constants.cellDensity
+		simDir = ap.get_cells(variant = [variant])[0]
 
-	simOutDir = os.path.join(simDir, "simOut")
+		sim_data = cPickle.load(open(ap.get_variant_kb(variant), "rb"))
+		cellDensity = sim_data.constants.cellDensity
 
-	massListener = TableReader(os.path.join(simOutDir, "Mass"))
-	cellMass = massListener.readColumn("cellMass")
-	dryMass = massListener.readColumn("dryMass")
-	massListener.close()
+		simOutDir = os.path.join(simDir, "simOut")
 
-	coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(MASS_UNITS / VOLUME_UNITS)
+		massListener = TableReader(os.path.join(simOutDir, "Mass"))
+		cellMass = massListener.readColumn("cellMass")
+		dryMass = massListener.readColumn("dryMass")
+		massListener.close()
 
-	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
-	reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
-	reactionFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (fbaResults.readColumn("reactionFluxes").T / coefficient).T
-	fbaResults.close()
+		coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(MASS_UNITS / VOLUME_UNITS)
 
-	modelFluxes = {}
-	for toyaReaction in toyaReactions:
-		fluxTimeCourse = []
+		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
+		reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
+		reactionFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (fbaResults.readColumn("reactionFluxes").T / coefficient).T
+		fbaResults.close()
 
-		for rxn in reactionIDs:
-			if re.findall(toyaReaction, rxn):
-				reverse = 1
-				if re.findall("(reverse)", rxn):
-					reverse = -1
+		modelFluxes = {}
+		for toyaReaction in toyaReactions:
+			fluxTimeCourse = []
 
-				if len(fluxTimeCourse):
-					fluxTimeCourse += reverse * reactionFluxes[:, np.where(reactionIDs == rxn)]
-				else:
-					fluxTimeCourse = reverse * reactionFluxes[:, np.where(reactionIDs == rxn)]
+			for rxn in reactionIDs:
+				if re.findall(toyaReaction, rxn):
+					reverse = 1
+					if re.findall("(reverse)", rxn):
+						reverse = -1
 
-		if len(fluxTimeCourse):
-			if toyaReaction not in modelFluxes:
-				modelFluxes[toyaReaction] = []
-			modelFluxes[toyaReaction].append(np.mean(fluxTimeCourse).asNumber(units.mmol / units.g / units.h))
+					if len(fluxTimeCourse):
+						fluxTimeCourse += reverse * reactionFluxes[:, np.where(reactionIDs == rxn)]
+					else:
+						fluxTimeCourse = reverse * reactionFluxes[:, np.where(reactionIDs == rxn)]
 
-	toyaVsReactionAve = []
-	for rxn, toyaFlux in toyaFluxesDict.iteritems():
-		if rxn in ["ISOCITDEH-RXN", "SUCCINATE-DEHYDROGENASE-UBIQUINONE-RXN-SUC/UBIQUINONE-8//FUM/CPD-9956.31."]:
-			continue
-		if rxn in modelFluxes:
-			toyaVsReactionAve.append((np.mean(modelFluxes[rxn]), toyaFlux.asNumber(units.mmol / units.g / units.h), np.std(modelFluxes[rxn]), toyaStdevDict[rxn].asNumber(units.mmol / units.g / units.h)))
+			if len(fluxTimeCourse):
+				if toyaReaction not in modelFluxes:
+					modelFluxes[toyaReaction] = []
+				modelFluxes[toyaReaction].append(np.mean(fluxTimeCourse).asNumber(units.mmol / units.g / units.h))
 
-	toyaVsReactionAve = np.array(toyaVsReactionAve)
-	pcc, pval = pearsonr(toyaVsReactionAve[:,0], toyaVsReactionAve[:,1])
+		toyaVsReactionAve = []
+		for rxn, toyaFlux in toyaFluxesDict.iteritems():
+			if rxn in ["ISOCITDEH-RXN", "SUCCINATE-DEHYDROGENASE-UBIQUINONE-RXN-SUC/UBIQUINONE-8//FUM/CPD-9956.31."]:
+				continue
+			if rxn in modelFluxes:
+				toyaVsReactionAve.append((np.mean(modelFluxes[rxn]), toyaFlux.asNumber(units.mmol / units.g / units.h), np.std(modelFluxes[rxn]), toyaStdevDict[rxn].asNumber(units.mmol / units.g / units.h)))
 
-	return pcc, pval
+		toyaVsReactionAve = np.array(toyaVsReactionAve)
+		pcc, pval = pearsonr(toyaVsReactionAve[:,0], toyaVsReactionAve[:,1])
+
+		return pcc, pval
+
+
+	except:
+		return np.nan, np.nan
 
 
 
@@ -130,6 +136,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	fig.set_figheight(5)
 	ax = plt.subplot(1, 1, 1)
 
+	pccs = np.array([x for x in pccs if not np.isnan(x)])
 	ax.hist(pccs, np.sqrt(pccs.size))
 	ax.axvline(controlPcc, color = "k", linestyle = "dashed", linewidth = 2)
 

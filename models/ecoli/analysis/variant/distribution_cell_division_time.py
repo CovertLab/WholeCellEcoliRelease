@@ -46,12 +46,14 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile = None, metad
 
 	doublingTimes = []
 	for simDir in variant_cells:
+		try:
+			simOutDir = os.path.join(simDir, "simOut")
+			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+			initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 
-		simOutDir = os.path.join(simDir, "simOut")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-
-		doublingTimes.append( (time.max() - initialTime) / 60. )
+			doublingTimes.append( (time.max() - initialTime) / 60. )
+		except:
+			continue
 
 	doublingTimes = np.array(doublingTimes)
 

@@ -29,61 +29,65 @@ FONT_SIZE=9
 trim = 0.05
 
 def getPCC((variant, ap, monomerIds, schmidtCounts)):
+	try:
 
-	simDir = ap.get_cells(variant = [variant])[0]
+		simDir = ap.get_cells(variant = [variant])[0]
 
-	sim_data = cPickle.load(open(ap.get_variant_kb(variant), "rb"))
+		sim_data = cPickle.load(open(ap.get_variant_kb(variant), "rb"))
 
-	ids_complexation = sim_data.process.complexation.moleculeNames
-	ids_complexation_complexes = [ids_complexation[i] for i in np.where((sim_data.process.complexation.stoichMatrix() == 1).sum(axis = 1))[0]]
-	ids_equilibrium = sim_data.process.equilibrium.moleculeNames
-	ids_equilibrium_complexes = [ids_equilibrium[i] for i in np.where((sim_data.process.equilibrium.stoichMatrix() == 1).sum(axis = 1))[0]]
-	ids_translation = sim_data.process.translation.monomerData["id"].tolist()
-	ids_protein = sorted(set(ids_complexation + ids_equilibrium + ids_translation))
+		ids_complexation = sim_data.process.complexation.moleculeNames
+		ids_complexation_complexes = [ids_complexation[i] for i in np.where((sim_data.process.complexation.stoichMatrix() == 1).sum(axis = 1))[0]]
+		ids_equilibrium = sim_data.process.equilibrium.moleculeNames
+		ids_equilibrium_complexes = [ids_equilibrium[i] for i in np.where((sim_data.process.equilibrium.stoichMatrix() == 1).sum(axis = 1))[0]]
+		ids_translation = sim_data.process.translation.monomerData["id"].tolist()
+		ids_protein = sorted(set(ids_complexation + ids_equilibrium + ids_translation))
 
-	bulkContainer = BulkObjectsContainer(ids_protein, dtype = np.float64)
-	view_complexation = bulkContainer.countsView(ids_complexation)
-	view_complexation_complexes = bulkContainer.countsView(ids_complexation_complexes)
-	view_equilibrium = bulkContainer.countsView(ids_equilibrium)
-	view_equilibrium_complexes = bulkContainer.countsView(ids_equilibrium_complexes)
-	view_translation = bulkContainer.countsView(ids_translation)
-	view_validation_schmidt = bulkContainer.countsView(monomerIds)
+		bulkContainer = BulkObjectsContainer(ids_protein, dtype = np.float64)
+		view_complexation = bulkContainer.countsView(ids_complexation)
+		view_complexation_complexes = bulkContainer.countsView(ids_complexation_complexes)
+		view_equilibrium = bulkContainer.countsView(ids_equilibrium)
+		view_equilibrium_complexes = bulkContainer.countsView(ids_equilibrium_complexes)
+		view_translation = bulkContainer.countsView(ids_translation)
+		view_validation_schmidt = bulkContainer.countsView(monomerIds)
 
-	simOutDir = os.path.join(simDir, "simOut")
+		simOutDir = os.path.join(simDir, "simOut")
 
-	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-	moleculeIds = bulkMolecules.readAttribute("objectNames")
-	proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in ids_protein], np.int)
-	proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
-	bulkMolecules.close()
+		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+		moleculeIds = bulkMolecules.readAttribute("objectNames")
+		proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in ids_protein], np.int)
+		proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
+		bulkMolecules.close()
 
-	# Account for monomers
-	bulkContainer.countsIs(proteinCountsBulk.mean(axis = 0))
+		# Account for monomers
+		bulkContainer.countsIs(proteinCountsBulk.mean(axis = 0))
 
-	# Account for unique molecules
-	uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
-	ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
-	rnaPolyIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
-	nActiveRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
-	nActiveRnaPoly = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnaPolyIndex]
-	uniqueMoleculeCounts.close()
-	bulkContainer.countsInc(nActiveRibosome.mean(), sim_data.moleculeGroups.s30_fullComplex + sim_data.moleculeGroups.s50_fullComplex)
-	bulkContainer.countsInc(nActiveRnaPoly.mean(), sim_data.moleculeGroups.rnapFull)
+		# Account for unique molecules
+		uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
+		ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
+		rnaPolyIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
+		nActiveRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
+		nActiveRnaPoly = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnaPolyIndex]
+		uniqueMoleculeCounts.close()
+		bulkContainer.countsInc(nActiveRibosome.mean(), sim_data.moleculeGroups.s30_fullComplex + sim_data.moleculeGroups.s50_fullComplex)
+		bulkContainer.countsInc(nActiveRnaPoly.mean(), sim_data.moleculeGroups.rnapFull)
 
-	# Account for small-molecule bound complexes
-	view_equilibrium.countsInc(
-		np.dot(sim_data.process.equilibrium.stoichMatrixMonomers(), view_equilibrium_complexes.counts() * -1)
-		)
+		# Account for small-molecule bound complexes
+		view_equilibrium.countsInc(
+			np.dot(sim_data.process.equilibrium.stoichMatrixMonomers(), view_equilibrium_complexes.counts() * -1)
+			)
 
-	# Account for monomers in complexed form
-	view_complexation.countsInc(
-		np.dot(sim_data.process.complexation.stoichMatrixMonomers(), view_complexation_complexes.counts() * -1)
-		)
+		# Account for monomers in complexed form
+		view_complexation.countsInc(
+			np.dot(sim_data.process.complexation.stoichMatrixMonomers(), view_complexation_complexes.counts() * -1)
+			)
 
-	pcc, pval = pearsonr(np.log10(view_validation_schmidt.counts() + 1), np.log10(schmidtCounts + 1))
+		pcc, pval = pearsonr(np.log10(view_validation_schmidt.counts() + 1), np.log10(schmidtCounts + 1))
 
-	return pcc, pval
+		return pcc, pval
 
+
+	except:
+		return np.nan, np.nan
 
 
 
@@ -126,6 +130,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	fig.set_figheight(5)
 	ax = plt.subplot(1, 1, 1)
 
+	pccs = np.array([x for x in pccs if not np.isnan(x)])
 	ax.hist(pccs, np.sqrt(pccs.size))
 	ax.axvline(controlPcc, color = "k", linestyle = "dashed", linewidth = 2)
 
