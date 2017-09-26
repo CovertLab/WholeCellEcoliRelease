@@ -85,6 +85,11 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# Load first-order RNA degradation rates (estimated by mRNA half-life data)
 		self.rnaDegRates = sim_data.process.transcription.rnaData['degRate']
 
+		shuffleIdxs = None
+		if hasattr(sim_data.process.transcription, "rnaDegRateShuffleIdxs") and sim_data.process.transcription.rnaDegRateShuffleIdxs != None:
+			shuffleIdxs = sim_data.process.transcription.rnaDegRateShuffleIdxs
+			self.rnaDegRates = self.rnaDegRates[shuffleIdxs]
+
 		self.isMRna = sim_data.process.transcription.rnaData["isMRna"]
 		self.isRRna = sim_data.process.transcription.rnaData["isRRna"]
 		self.isTRna = sim_data.process.transcription.rnaData["isTRna"]
