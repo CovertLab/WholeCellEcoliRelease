@@ -74,6 +74,7 @@ SIM_DESCRIPTION = os.environ.get("DESC", "").replace(" ", "_")
 VERBOSE_QUEUE = bool(int(os.environ.get("VERBOSE_QUEUE", "1")))
 RUN_AGGREGATE_ANALYSIS = bool(int(os.environ.get("RUN_AGGREGATE_ANALYSIS", "1")))
 CACHED_SIM_DATA = bool(int(os.environ.get("CACHED_SIM_DATA", "0")))
+PARALLEL_FITTER = bool(int(os.environ.get("PARALLEL_FITTER", "0")))
 
 if not RUN_AGGREGATE_ANALYSIS:
 	COMPRESS_OUTPUT = False
@@ -245,6 +246,10 @@ fw_name = "FitSimDataTask_Level_1"
 if VERBOSE_QUEUE:
 	print "Queuing {}".format(fw_name)
 
+if PARALLEL_FITTER:
+	cpusForFitter = 8
+else:
+	cpusForFitter = 1
 fw_fit_level_1 = Firework(
 	FitSimDataTask(
 		fit_level = 1,
@@ -252,9 +257,10 @@ fw_fit_level_1 = Firework(
 		output_data = os.path.join(KB_DIRECTORY, filename_sim_data_fit_1),
 		cached = CACHED_SIM_DATA,
 		cached_data = os.path.join(CACHED_SIM_DATA_DIRECTORY, filename_sim_data_fit_1),
+		cpus = cpusForFitter,
 		),
 	name = fw_name,
-	spec = {"_queueadapter": {"job_name": fw_name}, "_priority":1}
+	spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": cpusForFitter}, "_priority":1}
 	)
 
 wf_fws.append(fw_fit_level_1)

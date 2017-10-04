@@ -27,8 +27,11 @@ class FitSimDataTask(FireTaskBase):
 				except:
 					print "Warning: could not copy cached sim data, running fitter"
 
+			if self["cpus"] > 1:
+				print "Warning: running fitter in parallel with %i processes - ensure there are enough cpus_per_task allocated" % self["cpus"]
+
 			raw_data = cPickle.load(open(self["input_data"], "rb"))
-			sim_data = fitSimData_1(raw_data)
+			sim_data = fitSimData_1(raw_data, self["cpus"])
 			import sys; sys.setrecursionlimit(4000) #limit found manually
 			cPickle.dump(
 				sim_data,

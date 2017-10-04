@@ -22,6 +22,8 @@ import sklearn.metrics.pairwise
 
 import cvxpy
 
+from multiprocessing import Pool
+
 # Tweaks
 RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
 FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.0  # reduce stochasticity from protein expression
@@ -43,7 +45,7 @@ VOLUME_UNITS = units.L
 MASS_UNITS = units.g
 TIME_UNITS = units.s
 
-def fitSimData_1(raw_data):
+def fitSimData_1(raw_data, cpus = 1):
 
 	sim_data = SimulationDataEcoli()
 	sim_data.initialize(
@@ -76,7 +78,27 @@ def fitSimData_1(raw_data):
 	# ----- Growth associated maintenance -----
 	fitMaintenanceCosts(sim_data, cellSpecs["basal"]["bulkContainer"])
 	
-	buildTfConditionCellSpecifications(sim_data, cellSpecs)
+	if cpus > 1:
+		print "Start parallel processing with %i processes" % (cpus)
+		pool = Pool(processes = cpus)
+		results = [pool.apply_async(buildTfConditionCellSpecifications, (sim_data, tf)) for tf in sorted(sim_data.tfToActiveInactiveConds)]
+		pool.close()
+		pool.join()
+		for result in results:
+			assert(result.successful())
+			cellSpecs.update(result.get())
+		print "End parallel processing"
+	else:
+		for tf in sorted(sim_data.tfToActiveInactiveConds):
+			cellSpecs.update(buildTfConditionCellSpecifications(sim_data, tf))
+
+	for conditionKey in cellSpecs:
+		if conditionKey == "basal":
+			continue
+
+		sim_data.process.transcription.rnaExpression[conditionKey] = cellSpecs[conditionKey]["expression"]
+		sim_data.process.transcription.rnaSynthProb[conditionKey] = cellSpecs[conditionKey]["synthProb"]
+
 	buildCombinedConditionCellSpecifications(sim_data, cellSpecs)
 
 	sim_data.process.transcription.rnaSynthProbFraction = {}
@@ -90,33 +112,23 @@ def fitSimData_1(raw_data):
 	# Fit kinetic parameters
 	# findKineticCoeffs(sim_data, cellSpecs["basal"]["bulkContainer"])
 
+	if cpus > 1:
+		print "Start parallel processing with %i processes" % (cpus)
+		pool = Pool(processes = cpus)
+		results = [pool.apply_async(fitCondition, (sim_data, cellSpecs[condition], condition)) for condition in sorted(cellSpecs)]
+		pool.close()
+		pool.join()
+		for result in results:
+			assert(result.successful())
+			cellSpecs.update(result.get())
+		print "End parallel processing"
+	else:
+		for condition in sorted(cellSpecs):
+			cellSpecs.update(fitCondition(sim_data, cellSpecs[condition], condition))
+
 	for condition in sorted(cellSpecs):
-		if VERBOSE > 0:
-			print "Fitting condition {}".format(condition)
-		spec = cellSpecs[condition]
-
-		bulkAverageContainer, bulkDeviationContainer, proteinMonomerAverageContainer, proteinMonomerDeviationContainer = calculateBulkDistributions(
-			sim_data,
-			spec["expression"],
-			spec["concDict"],
-			spec["avgCellDryMassInit"],
-			spec["doubling_time"],
-			)
-		spec["bulkAverageContainer"] = bulkAverageContainer
-		spec["bulkDeviationContainer"] = bulkDeviationContainer
-		spec["proteinMonomerAverageContainer"] = proteinMonomerAverageContainer
-		spec["proteinMonomerDeviationContainer"] = proteinMonomerDeviationContainer
-
-		translation_aa_supply = calculateTranslationSupply(
-										sim_data,
-										spec["doubling_time"],
-										spec["proteinMonomerAverageContainer"],
-										spec["avgCellDryMassInit"],
-										)
-
 		if sim_data.conditions[condition]["nutrients"] not in sim_data.translationSupplyRate.keys():
-			sim_data.translationSupplyRate[sim_data.conditions[condition]["nutrients"]] = translation_aa_supply
-
+			sim_data.translationSupplyRate[sim_data.conditions[condition]["nutrients"]] = cellSpecs[condition]["translation_aa_supply"]
 
 	rVector = fitPromoterBoundProbability(sim_data, cellSpecs)
 
@@ -233,62 +245,61 @@ def calculateTranslationSupply(sim_data, doubling_time, bulkContainer, avgCellDr
 
 	return translation_aa_supply
 
-def buildTfConditionCellSpecifications(sim_data, cellSpecs):
-	for tf in sorted(sim_data.tfToActiveInactiveConds):
-		for choice in ["__active", "__inactive"]:
-			conditionKey = tf + choice
-			conditionValue = sim_data.conditions[conditionKey]
+def buildTfConditionCellSpecifications(sim_data, tf):
+	cellSpecs = {}
+	for choice in ["__active", "__inactive"]:
+		conditionKey = tf + choice
+		conditionValue = sim_data.conditions[conditionKey]
 
-			fcData = {}
-			if choice == "__active" and conditionValue != sim_data.conditions["basal"]:
-				fcData = sim_data.tfToFC[tf]
-			if choice == "__inactive" and conditionValue != sim_data.conditions["basal"]:
-				fcDataTmp = sim_data.tfToFC[tf].copy()
-				for key, value in fcDataTmp.iteritems():
-					fcData[key] = 1. / value
-			expression = expressionFromConditionAndFoldChange(
-				sim_data.process.transcription.rnaData["id"],
-				sim_data.process.transcription.rnaExpression["basal"],
-				conditionValue["perturbations"],
-				fcData,
+		fcData = {}
+		if choice == "__active" and conditionValue != sim_data.conditions["basal"]:
+			fcData = sim_data.tfToFC[tf]
+		if choice == "__inactive" and conditionValue != sim_data.conditions["basal"]:
+			fcDataTmp = sim_data.tfToFC[tf].copy()
+			for key, value in fcDataTmp.iteritems():
+				fcData[key] = 1. / value
+		expression = expressionFromConditionAndFoldChange(
+			sim_data.process.transcription.rnaData["id"],
+			sim_data.process.transcription.rnaExpression["basal"],
+			conditionValue["perturbations"],
+			fcData,
+		)
+
+		concDict = sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
+			conditionValue["nutrients"]
+			)
+		concDict.update(sim_data.mass.getBiomassAsConcentrations(sim_data.conditionToDoublingTime[conditionKey]))
+
+		cellSpecs[conditionKey] = {
+			"concDict": concDict,
+			"expression": expression,
+			"doubling_time": sim_data.conditionToDoublingTime.get(
+				conditionKey,
+				sim_data.conditionToDoublingTime["basal"]
+			)
+		}
+
+		expression, synthProb, avgCellDryMassInit, fitAvgSolubleTargetMolMass, bulkContainer, concDict = expressionConverge(
+			sim_data,
+			cellSpecs[conditionKey]["expression"],
+			cellSpecs[conditionKey]["concDict"],
+			cellSpecs[conditionKey]["doubling_time"],
+			sim_data.process.transcription.rnaData["KmEndoRNase"],
+			updateConcDict = True,
 			)
 
-			concDict = sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
-				conditionValue["nutrients"]
-				)
-			concDict.update(sim_data.mass.getBiomassAsConcentrations(sim_data.conditionToDoublingTime[conditionKey]))
+		cellSpecs[conditionKey]["expression"] = expression
+		cellSpecs[conditionKey]["synthProb"] = synthProb
+		cellSpecs[conditionKey]["avgCellDryMassInit"] = avgCellDryMassInit
+		cellSpecs[conditionKey]["fitAvgSolubleTargetMolMass"] = fitAvgSolubleTargetMolMass
+		cellSpecs[conditionKey]["bulkContainer"] = bulkContainer
 
-			cellSpecs[conditionKey] = {
-				"concDict": concDict,
-				"expression": expression,
-				"doubling_time": sim_data.conditionToDoublingTime.get(
-					conditionKey,
-					sim_data.conditionToDoublingTime["basal"]
-				)
-			}
+	return cellSpecs
 
-			expression, synthProb, avgCellDryMassInit, fitAvgSolubleTargetMolMass, bulkContainer, concDict = expressionConverge(
-				sim_data,
-				cellSpecs[conditionKey]["expression"],
-				cellSpecs[conditionKey]["concDict"],
-				cellSpecs[conditionKey]["doubling_time"],
-				sim_data.process.transcription.rnaData["KmEndoRNase"],
-				updateConcDict = True,
-				)
-
-			cellSpecs[conditionKey]["expression"] = expression
-			cellSpecs[conditionKey]["synthProb"] = synthProb
-			cellSpecs[conditionKey]["avgCellDryMassInit"] = avgCellDryMassInit
-			cellSpecs[conditionKey]["fitAvgSolubleTargetMolMass"] = fitAvgSolubleTargetMolMass
-			cellSpecs[conditionKey]["bulkContainer"] = bulkContainer
-
-			sim_data.process.transcription.rnaExpression[conditionKey] = cellSpecs[conditionKey]["expression"]
-			sim_data.process.transcription.rnaSynthProb[conditionKey] = cellSpecs[conditionKey]["synthProb"]
-
-			# Uncomment when concDict is actually calculated for non-base [AA]
-			# if len(conditionValue["perturbations"]) == 0:
-			# 	nutrientLabel = conditionValue["nutrients"]
-			# 	sim_data.process.metabolism.nutrientsToInternalConc[nutrientLabel] = concDict
+		# Uncomment when concDict is actually calculated for non-base [AA]
+		# if len(conditionValue["perturbations"]) == 0:
+		# 	nutrientLabel = conditionValue["nutrients"]
+		# 	sim_data.process.metabolism.nutrientsToInternalConc[nutrientLabel] = concDict
 
 def buildCombinedConditionCellSpecifications(sim_data, cellSpecs):
 	fcData = {}
@@ -390,6 +401,30 @@ def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None,
 
 	return expression, synthProb, avgCellDryMassInit, fitAvgSolubleTargetMolMass, bulkContainer, concDict
 
+def fitCondition(sim_data, spec, condition):
+	if VERBOSE > 0:
+		print "Fitting condition {}".format(condition)
+
+	bulkAverageContainer, bulkDeviationContainer, proteinMonomerAverageContainer, proteinMonomerDeviationContainer = calculateBulkDistributions(
+		sim_data,
+		spec["expression"],
+		spec["concDict"],
+		spec["avgCellDryMassInit"],
+		spec["doubling_time"],
+		)
+	spec["bulkAverageContainer"] = bulkAverageContainer
+	spec["bulkDeviationContainer"] = bulkDeviationContainer
+	spec["proteinMonomerAverageContainer"] = proteinMonomerAverageContainer
+	spec["proteinMonomerDeviationContainer"] = proteinMonomerDeviationContainer
+
+	spec["translation_aa_supply"] = calculateTranslationSupply(
+											sim_data,
+											spec["doubling_time"],
+											spec["proteinMonomerAverageContainer"],
+											spec["avgCellDryMassInit"],
+											)
+
+	return {condition: spec}
 
 # Sub-fitting functions
 
