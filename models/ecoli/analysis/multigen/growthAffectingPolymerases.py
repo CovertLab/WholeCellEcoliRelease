@@ -260,7 +260,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		# Plot ribosome concentration
 		ax7.plot(time.asNumber(units.min), ribosomeConcentration.asNumber(units.mmol / units.L))
-		# ax7.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
+		ax7.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 		if gen == 0:
 			y_lim = [ribosomeConcentration.asNumber(units.mmol / units.L)[10:].min(), ribosomeConcentration.asNumber(units.mmol / units.L).max()]
 		else:
