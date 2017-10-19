@@ -28,6 +28,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	# Get first cell from each generation
 	firstCellLineage = []
+
 	for gen_idx in range(ap.n_generation):
 		firstCellLineage.append(ap.get_cells(generation = [gen_idx])[0])
 
@@ -64,6 +65,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 
 	for gen, simDir in enumerate(firstCellLineage):
+
 		simOutDir = os.path.join(simDir, "simOut")
 
 		## Mass growth rate ##
@@ -175,7 +177,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		effectiveElongationRate = actualElongations / ribosomeCounts
 		extraRibosomes = (ribosomeCounts - actualElongations / 21.) / (actualElongations / 21.) * 100
 
-		fractionActive = activeRibosome.astype(np.float) / (activeRibosome + np.vstack((counts30S, counts50S)).min(axis=0))
+		fractionActive = activeRibosome.astype(np.float) / (activeRibosome + np.hstack((counts30S, counts50S)).min(axis=1))
 
 		## Calculate statistics involving ribosomes and RNAP ##
 		ratioRNAPtoRibosome = totalRnap.astype(np.float) / ribosomeCounts.astype(np.float)
@@ -258,7 +260,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		# Plot ribosome concentration
 		ax7.plot(time.asNumber(units.min), ribosomeConcentration.asNumber(units.mmol / units.L))
-		ax7.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
+		# ax7.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 		if gen == 0:
 			y_lim = [ribosomeConcentration.asNumber(units.mmol / units.L)[10:].min(), ribosomeConcentration.asNumber(units.mmol / units.L).max()]
 		else:
@@ -363,7 +365,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 def getMassData(simDir, massNames):
 	simOutDir = os.path.join(simDir, "simOut")
+	
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+
 	mass = TableReader(os.path.join(simOutDir, "Mass"))
 
 	massFractionData = np.zeros((len(massNames),time.size))
