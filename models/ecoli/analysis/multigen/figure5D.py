@@ -45,6 +45,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
+	if os.path.exists(os.path.join(plotOutDir, "figure5D.pickle")):
+		BUILD_CACHE = False
+
 	enzymeComplexId = "MENE-CPLX[c]"
 	enzymeMonomerId = "O-SUCCINYLBENZOATE-COA-LIG-MONOMER[c]"
 	enzymeRnaId = "EG12437_RNA[c]"
@@ -165,6 +168,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	cellVolume = units.g * np.array(cellMass) / cellDensity
 	coefficient = (units.fg * np.array(dryMass)) / (units.fg * np.array(cellMass)) * cellDensity * (timeStepSec * units.s)
 	enzymeFluxes = (((COUNTS_UNITS / VOLUME_UNITS) * enzymeFluxes) / coefficient).asNumber(units.mmol / units.g / units.h)
+
+	averages = []
+	indices = [np.where(time == x)[0][0] for x in generationTicks]
+	for x in np.arange(len(indices) - 1):
+		avg = np.average(enzymeComplexCounts[indices[x]:indices[x+1]])
+		averages.append(avg)
 
 	# Plot
 	fig = plt.figure(figsize = (14, 14))
