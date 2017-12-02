@@ -23,7 +23,6 @@ from wholecell.utils import units
 from models.ecoli.processes.metabolism import COUNTS_UNITS, TIME_UNITS, VOLUME_UNITS
 import matplotlib.patches as patches
 
-BUILD_CACHE = True
 PLOT_DOWNSTREAM = False
 
 def clearLabels(axis):
@@ -45,6 +44,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
+	BUILD_CACHE = True
 	if os.path.exists(os.path.join(plotOutDir, "figure5D.pickle")):
 		BUILD_CACHE = False
 
