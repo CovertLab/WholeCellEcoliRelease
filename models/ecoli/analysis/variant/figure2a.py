@@ -3,13 +3,12 @@
 import argparse
 import os
 import re
+import cPickle
 
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
-import matplotlib.patches as patches
-
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
@@ -18,25 +17,10 @@ from wholecell.utils import units
 
 from wholecell.utils.sparkline import whitePadSparklineAxis
 
-
-PLACE_HOLDER = -1
-
 FONT_SIZE=9
-trim = 0.05
-
-
-# def sparklineAxis(axis):
-# 	axis.spines['top'].set_visible(False)
-# 	axis.spines['bottom'].set_visible(False)
-# 	axis.xaxis.set_ticks_position('none')
-# 	axis.tick_params(which = 'both', direction = 'out')
-
-
-def mm2inch(value):
-	return value * 0.0393701
 
 def main(inputDir, plotOutDir, plotOutFileName, validationDataFile = None, metadata = None):
-	
+
 	if not os.path.isdir(inputDir):
 		raise Exception, "variantDir does not currently exist as a directory"
 
@@ -51,12 +35,6 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile = None, metad
 
 
 	bremer_tau = [40, 100, 24]
-
-	bremer_tau_low_err = [1.36, 6.03, 18.87]
-	bremer_tau_high_err = [6.62, 8.63, 30.3]
-
-	bremer_tau_low_err = [6.03, 18.87, 1.36]
-	bremer_tau_high_err = [8.63, 30.3, 6.62]
 
 	bremer_origins_per_cell_at_initiation = [2, 1, 4]
 	bremer_rrn_init_rate = [20*23, 4*12.4, 58*35.9]
@@ -80,29 +58,37 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile = None, metad
 
 	for varIdx in range(ap.n_variant):
 		print "variant {}".format(varIdx)
-		all_cells = ap.get_cells(variant=[varIdx])#, generation=[0])
+		all_cells = ap.get_cells(variant=[varIdx])
 		print "Total cells: {}".format(len(all_cells))
-		import cPickle
 		try:
 			sim_data = cPickle.load(open(ap.get_variant_kb(varIdx)))
 		except:
 			print "Couldn't load sim_data object. Exiting."
+			print ap.get_variant_kb(varIdx)
 			return
 
 		num_origin_at_init = np.zeros(len(all_cells))
 		doubling_time = np.zeros(len(all_cells))
+		meanRnaMass = np.zeros(len(all_cells))
+		meanElngRate = np.zeros(len(all_cells))
+		meanRrnInitRate = np.zeros(len(all_cells))
 
 		for idx, simDir in enumerate(all_cells):
 			print "cell {} of {}".format(idx, len(all_cells))
 
 			simOutDir = os.path.join(simDir, "simOut")
-			
-			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+
+			try:
+				time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+			except:
+				print 'Error with data for %s' % (simDir)
+				continue
+
 			doubling_time[idx] = time[-1] - time[0]
 			timeStepSec = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
 
-			rnaMass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("rnaMass")
-			elngRate = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("effectiveElongationRate")
+			meanRnaMass[idx] = TableReader(os.path.join(simOutDir, "Mass")).readColumn("rnaMass").mean()
+			meanElngRate[idx] = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("effectiveElongationRate").mean()
 
 			numOrigin = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("numberOfOric")
 
@@ -117,23 +103,20 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile = None, metad
 			transcriptDataFile = TableReader(os.path.join(simOutDir, "TranscriptElongationListener"))
 			rnaSynth = transcriptDataFile.readColumn("countRnaSynthesized")
 			isRRna = sim_data.process.transcription.rnaData["isRRna"]
-			rrn_init_rate = (rnaSynth[:, isRRna].sum(axis=1) / timeStepSec).mean() * 60. / 3
+			meanRrnInitRate[idx] = (rnaSynth[:, isRRna].sum(axis=1) / timeStepSec).mean() * 60. / 3
 
-		sim_rna_mass_per_cell[varIdx] = rnaMass.mean()
-		sim_elng_rate[varIdx] = elngRate.mean()
+		sim_rna_mass_per_cell[varIdx] = meanRnaMass.mean()
+		sim_elng_rate[varIdx] = meanElngRate.mean()
 		sim_origins_per_cell_at_initiation[varIdx] = np.nanmean(num_origin_at_init)
 		sim_doubling_time[varIdx] = np.nanmean(doubling_time) / 60.
-		sim_rrn_init_rate[varIdx] = np.nanmean(rrn_init_rate)
+		sim_rrn_init_rate[varIdx] = np.nanmean(meanRrnInitRate)
 
-		print doubling_time / 60.
-
-		sim_rna_mass_per_cell_std[varIdx] = rnaMass.std()
-		sim_elng_rate_std[varIdx] = elngRate.std()
+		sim_rna_mass_per_cell_std[varIdx] = meanRnaMass.std()
+		sim_elng_rate_std[varIdx] = meanElngRate.std()
 		sim_origins_per_cell_at_initiation_std[varIdx] = np.nanstd(num_origin_at_init)
 		sim_doubling_time_std[varIdx] = np.nanstd(doubling_time) / 60.
-		sim_rrn_init_rate_std[varIdx] = np.nanstd(rrn_init_rate)
-	
-	print sim_doubling_time_std
+		sim_rrn_init_rate_std[varIdx] = np.nanstd(meanRrnInitRate)
+
 	sim_growth_rate = np.log(2) / sim_doubling_time
 	bremer_growth_rate = np.log(2) / bremer_tau
 
@@ -170,9 +153,9 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile = None, metad
 
 	for a in axes_list:
 		for tick in a.yaxis.get_major_ticks():
-			tick.label.set_fontsize(FONT_SIZE) 
+			tick.label.set_fontsize(FONT_SIZE)
 		for tick in a.xaxis.get_major_ticks():
-			tick.label.set_fontsize(FONT_SIZE) 
+			tick.label.set_fontsize(FONT_SIZE)
 
 	whitePadSparklineAxis(ax0, False)
 	whitePadSparklineAxis(ax1)
