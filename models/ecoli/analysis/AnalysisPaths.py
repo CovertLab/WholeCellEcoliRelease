@@ -147,6 +147,9 @@ class AnalysisPaths(object):
 		assert kb_path.size == 1
 		return kb_path[0]
 
+	def get_variants(self):
+		return sorted(np.unique(self._path_data["variant"]))
+
 	def _get_generations(self, directory):
 		generation_files = [join(directory,f) for f in listdir(directory) if isdir(join(directory,f)) and "generation" in f]
 		generations = [None] * len(generation_files)

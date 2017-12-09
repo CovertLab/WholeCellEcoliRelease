@@ -33,7 +33,6 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile = None, metad
 	fig.set_figwidth(5)
 	fig.set_figheight(5)
 
-
 	bremer_tau = [40, 100, 24]
 
 	bremer_origins_per_cell_at_initiation = [2, 1, 4]
@@ -50,21 +49,22 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile = None, metad
 	sim_elng_rate = np.zeros(ap.n_variant)
 	sim_rrn_init_rate = np.zeros(ap.n_variant)
 
-
 	sim_origins_per_cell_at_initiation_std = np.zeros(ap.n_variant)
 	sim_elng_rate_std = np.zeros(ap.n_variant)
 	sim_rna_mass_per_cell_std = np.zeros(ap.n_variant)
 	sim_rrn_init_rate_std = np.zeros(ap.n_variant)
 
+	variants = ap.get_variants()
+
 	for varIdx in range(ap.n_variant):
-		print "variant {}".format(varIdx)
-		all_cells = ap.get_cells(variant=[varIdx])
+		variant = variants[varIdx]
+		print "variant {}".format(variant)
+		all_cells = ap.get_cells(variant=[variant])
 		print "Total cells: {}".format(len(all_cells))
 		try:
-			sim_data = cPickle.load(open(ap.get_variant_kb(varIdx)))
+			sim_data = cPickle.load(open(ap.get_variant_kb(variant)))
 		except:
 			print "Couldn't load sim_data object. Exiting."
-			print ap.get_variant_kb(varIdx)
 			return
 
 		num_origin_at_init = np.zeros(len(all_cells))
