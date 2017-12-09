@@ -177,7 +177,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile = None, metad
 
 		# plot histogram for x-axis
 		plt.figure(xHist.number)
-		bins = np.min(50, len(all_scaled_initial_masses) / 2)
+		bins = 50
 		ax = plt.subplot2grid((1,3), (0,plotIdx))
 		ax.hist(all_scaled_initial_masses, bins)
 
