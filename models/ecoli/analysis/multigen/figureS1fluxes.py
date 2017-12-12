@@ -231,7 +231,20 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		"OXYGEN-MOLECULE[p]",
 		]
 
-	plt.figure(figsize = (17, 22))
+	fullReactants = [
+		"2-KETOGLUTARATE[c]",
+		"L-DELTA1-PYRROLINE_5-CARBOXYLATE[c]",
+		"DCDP[c]",
+	]
+
+	fullProducts = [
+		"SUC-COA[c]",
+		"PRO[c]",
+		"DCTP[c]",
+	]
+
+	figAll = plt.figure(figsize = (17, 22))
+	figFull = plt.figure()
 
 	subplotRows = 10
 	subplotCols = 9
@@ -243,12 +256,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		mainListener = TableReader(os.path.join(simOutDir, "Main"))
 		initialTime = mainListener.readAttribute("initialTime")
 		time = mainListener.readColumn("time")
-		timeStepSec = mainListener.readColumn("timeStepSec")
 		mainListener.close()
-
-		# skip gens that don't contain data within range
-		if initialTime > END or time[-1] < START:
-			continue
 
 		# ignore initial and final points to avoid moving average edge effects
 		timeIdx = np.logical_and(np.logical_and(np.logical_or(np.logical_and(time >= START, time < SHIFT - MA_WIDTH), np.logical_and(time > SHIFT + BURNIN, time <= END)), time > initialTime + BURNIN), time < time[-MA_WIDTH])
@@ -269,6 +277,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		flux = flux.asNumber(units.mmol / units.g / units.h)
 
+		plt.figure(figAll.number)
 		for idx, transport in enumerate(transports):
 			ax = plt.subplot(subplotRows, subplotCols, idx + 1)
 
@@ -306,8 +315,34 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			totalFlux = np.array([np.convolve(totalFlux, np.ones(MA_WIDTH) / MA_WIDTH, mode = "same")]).T
 			ax.plot(time[timeIdx], totalFlux[timeIdx], color = "b", linewidth = 0.5)
 
+		plt.figure(figFull.number)
+		for idx, (reactant, product) in enumerate(zip(fullReactants, fullProducts)):
+			ax = plt.subplot(3, 1, idx+1)
+			totalFlux = np.zeros_like(flux[:, 0])
+
+			for rxn in rxnStoich:
+				if reactant in rxnStoich[rxn] and product in rxnStoich[rxn]:
+					if rxnStoich[rxn][reactant] < 0 and rxnStoich[rxn][product] > 0:
+						direction = 1
+					elif rxnStoich[rxn][reactant] > 0 and rxnStoich[rxn][product] < 0:
+						direction = -1
+					else:
+						continue
+
+					totalFlux += flux[:, reactionIDs.index(rxn)] * direction
+
+			if firstGen:
+				ax.axhline(0, color = "#aaaaaa", linewidth = 0.25)
+				ax.axvline(SHIFT, color = "#aaaaaa", linewidth = 0.25)
+				ax.set_title("%s to %s" % (reactant, product), fontsize = 4)
+				ax.tick_params(axis = "both", labelsize = 4)
+
+			totalFlux = np.array([np.convolve(totalFlux, np.ones(MA_WIDTH) / MA_WIDTH, mode = "same")]).T
+			ax.plot(time, totalFlux, color = "b", linewidth = 0.5)
+
 		firstGen = False
 
+	plt.figure(figAll.number)
 	for i in range(subplotRows * subplotCols):
 		ax = plt.subplot(subplotRows, subplotCols, i + 1)
 		plt.minorticks_off()
@@ -326,6 +361,19 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ax.set_axis_off()
 
 	exportFigure(plt, plotOutDir, plotOutFileName + "_stripped", metadata)
+
+	plt.figure(figFull.number)
+	for i in range(3):
+		ax = plt.subplot(3, 1, i+1)
+		plt.minorticks_off()
+
+		whitePadSparklineAxis(ax)
+		xlim = ax.get_xlim()
+		ylim = ax.get_ylim()
+		ax.set_yticks([ylim[0], ylim[1]])
+		ax.set_xticks([xlim[0], xlim[1]])
+
+	exportFigure(plt, plotOutDir, plotOutFileName + "_full", metadata)
 	plt.close("all")
 
 if __name__ == "__main__":
