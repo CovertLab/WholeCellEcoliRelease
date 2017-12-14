@@ -296,6 +296,13 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		Assumes GTP is the readout for failed translation with respect to the timestep.
 		"""
 
+		# Until more padding values are added to the protein sequence matrix, limit the maximum timestep length to 1 second
+		# Since the current upper limit on a.a's elongated by ribosomes during a single timestep is set to 22, timesteps
+		# longer than 1.0s do not lead to errors, but does slow down the ribosome elongation rate of the resulting simulation.
+		# Must be modified if timesteps longer than 1.0s are desired.
+		if inputTimeStep > 1.0:
+			return False
+
 		activeRibosomes = float(self.activeRibosomes.total()[0])
 		self.gtpAvailable = float(self.gtp.total()[0])
 
