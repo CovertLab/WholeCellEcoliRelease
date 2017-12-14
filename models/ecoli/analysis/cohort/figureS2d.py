@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Compare fluxes in simulation to target fluxes for figure 3C
+Compare fluxes in simulation to target fluxes for supplemental figure 2
 
 @date: Created 4/3/17
 @author: Travis Horst
@@ -151,12 +151,12 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	pearsonNoZeros = pearsonr(np.log10(targetAve[(categorization != -2) & ~disabledReactions]), np.log10(actualAve[(categorization != -2) & ~disabledReactions]))
 
 	# plot data
-	plt.figure(figsize = (8, 8))
+	fig = plt.figure(figsize = (4, 4))
 	ax = plt.axes()
-	plt.plot([-6, 4], [-6, 4], 'k')
-	plt.plot([-5, 4], [-6, 3], 'k')
-	plt.plot([-6, 3], [-5, 4], 'k')
-	plt.plot(np.log10(targetAve[~disabledReactions]), np.log10(actualAve[~disabledReactions]), "ob", markeredgewidth = 0, alpha = 0.25)
+	plt.plot([-6, 4], [-6, 4], 'k', linewidth = 0.75)
+	plt.plot([-5, 4], [-6, 3], 'k', linewidth = 0.5)
+	plt.plot([-6, 3], [-5, 4], 'k', linewidth = 0.5)
+	plt.plot(np.log10(targetAve[~disabledReactions]), np.log10(actualAve[~disabledReactions]), 'o', color = "black", markersize = 8, alpha = 0.15, zorder=1, markeredgewidth = 0.0)
 	plt.xlabel("Log10(Target Flux [mmol/g/hr])")
 	plt.ylabel("Log10(Actual Flux [mmol/g/hr])")
 	plt.title("PCC = %.3f, p = %s\n(%.3f, p = %s without points at zero)" % (pearsonAll[0], pearsonAll[1], pearsonNoZeros[0], pearsonNoZeros[1]))
@@ -164,8 +164,8 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	whitePadSparklineAxis(ax)
 	xlim = ax.get_xlim()
 	ylim = ax.get_ylim()
-	ax.set_ylim(ylim[0] - 0.1, ylim[1])
-	ax.set_xlim(xlim[0] - 0.1, xlim[1])
+	ax.set_ylim(ylim[0] - 0.5, ylim[1])
+	ax.set_xlim(xlim[0] - 0.5, xlim[1])
 	ax.set_yticks(range(-6, int(ylim[1]) + 1, 2))
 	ax.set_xticks(range(-6, int(xlim[1]) + 1, 2))
 
