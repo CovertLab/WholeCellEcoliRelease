@@ -183,14 +183,25 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.writeToListener("RnapData", "rnaInitEvent", nNewRnas)
 
 	def _calculateActivationProb(self, fracActiveRnap, rnaLengths, rnaPolymeraseElongationRate, synthProb):
-		# Calculate expected termination rate based on the average time it will take to transcribe
-		expectedTranscriptionTime = 1. / rnaPolymeraseElongationRate * rnaLengths
-		expectedTranscriptionTimesteps = np.ceil((1. / (self.timeStepSec() * units.s) * expectedTranscriptionTime).asNumber())
-		averageTranscriptionTimesteps = np.dot(synthProb, expectedTranscriptionTimesteps)
-		expectedTerminationRate = 1. / averageTranscriptionTimesteps
+		''' Calculate expected RNAP termination rate based on RNAP elongation rate
+		allTranscriptionTimes: Vector of times required to transcribe each transcript
+		allTranscriptionTimestepCounts: Vector of numbers of timesteps required to transcribe each transcript
+		averageTranscriptionTimeStepCounts: Average number of timesteps required to transcribe a transcript, weighted by synthesis probabilities
+		expectedTerminationRate: Average number of terminations in one timestep for one transcript
+		'''
+		allTranscriptionTimes = 1. / rnaPolymeraseElongationRate * rnaLengths
+		allTranscriptionTimestepCounts = np.ceil((1. / (self.timeStepSec() * units.s) * allTranscriptionTimes).asNumber())
+		averageTranscriptionTimestepCounts = np.dot(synthProb, allTranscriptionTimestepCounts)
+		expectedTerminationRate = 1. / averageTranscriptionTimestepCounts
 
-		# Calculate the effective active fraction of RNA polymerases based on the fraction of each time step a polymerase will be inactive because of termination
-		expectedFractionTimeInactive = np.dot(1 - ( 1. / (self.timeStepSec() * units.s) * expectedTranscriptionTime).asNumber() / expectedTranscriptionTimesteps, synthProb)
-		effectiveFractionActive = fracActiveRnap * 1 / (1 - expectedFractionTimeInactive)
+		''' Modify given fraction of active RNAPs to take into account early terminations in between timesteps
+		allFractionTimeInactive: Vector of probabilities an "active" RNAP will in effect be "inactive" because it has terminated during a timestep
+		averageFractionTimeInactive: Average probability of an "active" RNAP being in effect "inactive", weighted by synthesis probabilities
+		effectiveFracActiveRnap: New higher "goal" for fraction of active RNAP, considering that the "effective" fraction is lower than what the listener sees
+		'''
+		allFractionTimeInactive = 1 - ( 1. / (self.timeStepSec() * units.s) * allTranscriptionTimes).asNumber() / allTranscriptionTimestepCounts
+		averageFractionTimeInactive = np.dot(allFractionTimeInactive, synthProb)
+		effectiveFracActiveRnap = fracActiveRnap * 1 / (1 - averageFractionTimeInactive)
 
-		return effectiveFractionActive * expectedTerminationRate / (1 - effectiveFractionActive)
+		# Return activation probability that will balance out the expected termination rate
+		return effectiveFracActiveRnap * expectedTerminationRate / (1 - effectiveFracActiveRnap)

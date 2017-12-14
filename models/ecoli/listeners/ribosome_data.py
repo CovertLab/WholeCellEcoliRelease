@@ -80,7 +80,7 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		self.didTerminate = 0
 		self.didInitialize = 0
 		self.terminationLoss = 0
-		self.effectiveElongationRate = 0
+		self.effectiveElongationRate = 0.
 		self.rrnInitRate = 0
 		self.rrn16S_produced = 0
 		self.rrn23S_produced = 0
