@@ -362,6 +362,7 @@ class GrowthRateParameters(object):
 		self.ribosomeElongationRateParams = _getFitParameters(raw_data.growthRateDependentParameters, "ribosomeElongationRate")
 		self.rnaPolymeraseElongationRateParams = _getFitParameters(raw_data.growthRateDependentParameters, "rnaPolymeraseElongationRate")
 		self.fractionActiveRnapParams = _getFitParameters(raw_data.growthRateDependentParameters, "fractionActiveRnap")
+		self.fractionActiveRibosomeParams = _getFitParameters(raw_data.growthRateDependentParameters, "fractionActiveRibosome")
 
 		self.c_period = units.min * 40.
 		self.d_period = units.min * 20.
@@ -375,6 +376,9 @@ class GrowthRateParameters(object):
 
 	def getFractionActiveRnap(self, doubling_time):
 		return _useFitParameters(doubling_time, **self.fractionActiveRnapParams)
+
+	def getFractionActiveRibosome(self, doubling_time):
+		return _useFitParameters(doubling_time, **self.fractionActiveRibosomeParams)
 
 	def getDnaCriticalMass(self, doubling_time):
 		return DNA_CRITICAL_MASS.get(doubling_time.asNumber(units.min), DNA_CRITICAL_MASS[44]) * units.fg

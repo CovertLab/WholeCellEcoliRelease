@@ -33,8 +33,10 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 
 		# Load parameters
 		mrnaIds = sim_data.process.translation.monomerData["rnaId"]
-		self.proteinLens = sim_data.process.translation.monomerData["length"].asNumber()
+		self.proteinLengths = sim_data.process.translation.monomerData["length"].asNumber()
 		self.translationEfficiencies = normalize(sim_data.process.translation.translationEfficienciesByMonomer)
+		self.fracActiveRibosomeDict = sim_data.process.translation.ribosomeFractionActiveDict
+		self.ribosomeElongationRateDict = sim_data.process.translation.ribosomeElongationRateDict
 
 		# Determine changes from parameter shuffling variant
 		shuffleIdxs = None
@@ -57,6 +59,15 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 		self.ribosome50S.requestAll()
 		self.mRnas.requestAll()
 
+		self.fracActiveRibosome = self.fracActiveRibosomeDict[self._sim.processes["PolypeptideElongation"].currentNutrients]
+
+		# Read ribosome elongation rate from last timestep
+		self.ribosomeElongationRate = self.readFromListener("RibosomeData", "effectiveElongationRate")
+
+		# If the ribosome elongation rate is zero (which is always the case for the first timestep), set ribosome elongation rate to one in dictionary
+		if self.ribosomeElongationRate == 0:
+			self.ribosomeElongationRate = self.ribosomeElongationRateDict[self._sim.processes["PolypeptideElongation"].currentNutrients].asNumber()
+
 	def evolveState(self):
 		# Calculate number of ribosomes that could potentially be initalized based on
 		# counts of free 30S and 50S subunits
@@ -65,28 +76,33 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 			self.ribosome50S.count().sum(),
 			])
 
-		if inactiveRibosomeCount == 0:
-			return
-
 		# Calculate initiation probabilities for ribosomes based on mRNA counts and associated
 		# mRNA translational efficiencies
 		proteinInitProb = normalize(
 			self.mRnas.counts() * self.translationEfficiencies
 			)
 
+
+		# Calculate actual number of ribosomes that should be activated based on probabilities
+		self.activationProb = self._calculateActivationProb(self.fracActiveRibosome, self.proteinLengths, self.ribosomeElongationRate, proteinInitProb, self.timeStepSec())
+		ribosomeToActivate = np.int64(self.activationProb * inactiveRibosomeCount)
+
+		if ribosomeToActivate == 0:
+			return
+
 		# Sample multinomial distribution to determine which mRNAs have full 70S
 		# ribosomes initalized on them
 		nNewProteins = self.randomState.multinomial(
-			inactiveRibosomeCount,
+			ribosomeToActivate,
 			proteinInitProb
 			)
 
 		# Check that sampling produced expected result
-		assert nNewProteins.sum() == inactiveRibosomeCount
+		assert nNewProteins.sum() == ribosomeToActivate
 
 		# Each ribosome is assigned a protein index for the protein that corresponds to the
 		# polypeptide it will polymerize. This is done in blocks of protein ids for efficiency.
-		proteinIndexes = np.empty(inactiveRibosomeCount, np.int64)
+		proteinIndexes = np.empty(ribosomeToActivate, np.int64)
 		nonzeroCount = (nNewProteins > 0)
 		startIndex = 0
 		for proteinIndex, counts in itertools.izip(
@@ -101,7 +117,7 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 		# Create active 70S ribosomes and assign their protein indexes calculated above
 		activeRibosomes = self.activeRibosomes.moleculesNew(
 			"activeRibosome",
-			inactiveRibosomeCount
+			ribosomeToActivate
 			)
 
 		activeRibosomes.attrIs(
@@ -114,3 +130,32 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 
 		# Write number of initalized ribosomes to listener
 		self.writeToListener("RibosomeData", "didInitialize", nNewProteins.sum())
+
+	def _calculateActivationProb(self, fracActiveRibosome, proteinLengths, ribosomeElongationRate, proteinInitProb, timeStepSec):
+		# Calculate expected ribosome termination rate based on ribosome elongation rate
+		# allTranslationTimes: Vector of times required to translate each protein
+		# allTranslationTimestepCounts: Vector of numbers of timesteps required to translate each protein
+		# averageTranslationTimeStepCounts: Average number of timesteps required to translate a protein, weighted by initiation probabilities
+		# expectedTerminationRate: Average number of terminations in one timestep for one protein
+		allTranslationTimes = 1. / ribosomeElongationRate * proteinLengths
+		allTranslationTimestepCounts = np.ceil(allTranslationTimes / (timeStepSec * 1.0))
+		averageTranslationTimestepCounts = np.dot(allTranslationTimestepCounts, proteinInitProb)
+		expectedTerminationRate = 1.0 / averageTranslationTimestepCounts
+
+		# Modify given fraction of active ribosomes to take into account early terminations in between timesteps
+		# allFractionTimeInactive: Vector of probabilities an "active" ribosome will in effect be "inactive" because it has terminated during a timestep
+		# averageFractionTimeInactive: Average probability of an "active" ribosome being in effect "inactive", weighted by initiation probabilities
+		# effectiveFracActiveRnap: New higher "goal" for fraction of active ribosomes, considering that the "effective" fraction is lower than what the listener sees
+		allFractionTimeInactive = 1 - allTranslationTimes / (timeStepSec * 1.0) / allTranslationTimestepCounts
+		averageFractionTimeInactive = np.dot(allFractionTimeInactive, proteinInitProb)
+		effectiveFracActiveRibosome = fracActiveRibosome * 1 / (1 - averageFractionTimeInactive)
+
+		# Return activation probability that will balance out the expected termination rate
+		activationProb = effectiveFracActiveRibosome * expectedTerminationRate / (1 - effectiveFracActiveRibosome)
+
+		# The upper bound for the activation probability is temporarily set to 1.0 to prevent negative molecule counts. This will
+		# lower the fraction of active ribosomes for timesteps longer than roughly 1.8s.
+		if activationProb >= 1.0:
+			activationProb = 1
+
+		return activationProb
