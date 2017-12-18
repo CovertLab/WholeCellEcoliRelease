@@ -65,6 +65,9 @@ from models.ecoli.sim.variants.kineticCatalystShuffleParams import kineticCataly
 from models.ecoli.sim.variants.allShuffleParams import allShuffleParams
 from models.ecoli.sim.variants.allShuffleParams import allShuffleParamsTotalIndices
 
+from models.ecoli.sim.variants.meneParams import meneParams
+from models.ecoli.sim.variants.meneParams import meneParamsTotalIndices
+
 nameToFunctionMapping = {
 	"geneKnockout": geneKnockout,
 	"wildtype": wildtype,
@@ -87,6 +90,7 @@ nameToFunctionMapping = {
 	"monomerDegRateShuffleParams": monomerDegRateShuffleParams,
 	"kineticCatalystShuffleParams": kineticCatalystShuffleParams,
 	"allShuffleParams": allShuffleParams,
+	"meneParams": meneParams,
 }
 
 nameToNumIndicesMapping = {
@@ -111,4 +115,5 @@ nameToNumIndicesMapping = {
 	"monomerDegRateShuffleParams": monomerDegRateShuffleParamsTotalIndices,
 	"kineticCatalystShuffleParams": kineticCatalystShuffleParamsTotalIndices,
 	"allShuffleParams": allShuffleParamsTotalIndices,
+	"meneParams": meneParamsTotalIndices,
 }
