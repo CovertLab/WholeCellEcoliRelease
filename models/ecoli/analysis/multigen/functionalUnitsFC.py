@@ -21,7 +21,6 @@ from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 import matplotlib.lines as mlines
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-	return
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
 
@@ -207,6 +206,20 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	plt.subplots_adjust(hspace = 0.6, wspace = 0.6, left = 0.1, bottom = 0.1, top = 0.75, right = 0.9)
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+	plt.close("all")
+
+	# Plot clean version of panel C for paper
+	fig, ax = plt.subplots(1, 1, figsize = (5, 5))
+	bars2 = ax.bar(xloc + width, [len(noncomplex_one) + len(complex_one), len(noncomplex_zero) + len(complex_zero)], width, edgecolor = "none")
+	bars2[0].set_alpha(0.5)
+	bars2[0].set_edgecolor("none")
+	whitePadSparklineAxis(ax)
+	ax.spines["left"].set_position(("outward", 0))
+	ax.set_yticks([bars2[0].get_height(), bars2[1].get_height()])
+	ax.set_xticks(xloc + 1.5 * width)
+	ax.set_xticklabels([])
+	ax.set_yticklabels([])
+	exportFigure(plt, plotOutDir, plotOutFileName + "_C", metadata)
 	plt.close("all")
 
 if __name__ == "__main__":
