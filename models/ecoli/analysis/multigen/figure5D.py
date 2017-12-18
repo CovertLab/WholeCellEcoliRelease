@@ -23,7 +23,9 @@ from wholecell.utils import units
 from models.ecoli.processes.metabolism import COUNTS_UNITS, TIME_UNITS, VOLUME_UNITS
 import matplotlib.patches as patches
 
-PLOT_DOWNSTREAM = False
+FONTSIZE = 6
+LABELSIZE = 6
+PLOT_DOWNSTREAM = True
 
 def clearLabels(axis):
 	axis.set_yticklabels([])
@@ -176,8 +178,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		averages.append(avg)
 
 	# Plot
-	fig = plt.figure(figsize = (14, 14))
-	plt.suptitle("O-succinylbenzoate-CoA ligase downstream behaviors", fontsize = 12)
+	fig = plt.figure(figsize = (7, 7))
+	plt.suptitle("O-succinylbenzoate-CoA ligase downstream behaviors", fontsize = FONTSIZE
+		)
 	rnaInitAxis = plt.subplot(6, 1, 1)
 	rnaAxis = plt.subplot(6, 1, 2, sharex = rnaInitAxis)
 	monomerAxis = plt.subplot(6, 1, 3, sharex = rnaInitAxis)
@@ -186,36 +189,36 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	metAxis = plt.subplot(6, 1, 6)
 
 	rnaInitLine = rnaInitAxis.plot(time / 3600., enzymeRnaInitEvent)
-	rnaInitAxis.set_ylabel(r"$menE$" + "\n transcription\nevents", fontsize = 12, rotation = 0)
+	rnaInitAxis.set_ylabel(r"$menE$" + "\n transcription\nevents", fontsize = FONTSIZE, rotation = 0)
 	rnaInitAxis.yaxis.set_label_coords(-.1, 0.25)
 	whitePadSparklineAxis(rnaInitAxis, xAxis = False)
 
 	rnaLine = rnaAxis.plot(time / 3600., enzymeRnaCounts)
-	rnaAxis.set_ylabel("menE mRNA\ncounts", fontsize = 12, rotation = 0)
+	rnaAxis.set_ylabel("menE mRNA\ncounts", fontsize = FONTSIZE, rotation = 0)
 	rnaAxis.yaxis.set_label_coords(-.1, 0.25)
 	whitePadSparklineAxis(rnaAxis, xAxis = False)
 
 	monomerLine = monomerAxis.plot(time / 3600., enzymeMonomerCounts)
-	monomerAxis.set_ylabel("MenE monomer\ncounts", fontsize = 12, rotation = 0)
+	monomerAxis.set_ylabel("MenE monomer\ncounts", fontsize = FONTSIZE, rotation = 0)
 	monomerAxis.yaxis.set_label_coords(-.1, 0.25)
 	whitePadSparklineAxis(monomerAxis, xAxis = False)
 	monomerAxis.set_yticks([0, 4, monomerAxis.get_ylim()[1]])
 	monomerAxis.set_yticklabels(["0", "4", "%s" % monomerAxis.get_ylim()[1]])
 
 	complexLine = complexAxis.plot(time / 3600., enzymeComplexCounts)
-	complexAxis.set_ylabel("MenE tetramer\ncounts", fontsize = 12, rotation = 0)
+	complexAxis.set_ylabel("MenE tetramer\ncounts", fontsize = FONTSIZE, rotation = 0)
 	complexAxis.yaxis.set_label_coords(-.1, 0.25)
 	whitePadSparklineAxis(complexAxis, xAxis = False)
 
 	fluxLine = fluxAxis.plot(time / 3600., enzymeFluxes)
-	fluxAxis.set_ylabel("SUCBZL flux\n(mmol/gDCW/hour)", fontsize = 12, rotation = 0)
+	fluxAxis.set_ylabel("SUCBZL flux\n(mmol/gDCW/hour)", fontsize = FONTSIZE, rotation = 0)
 	fluxAxis.yaxis.set_label_coords(-.1, 0.25)
 	whitePadSparklineAxis(fluxAxis, xAxis = False)
 
 	metLine = metAxis.plot(time / 3600., np.sum(metaboliteCounts, axis = 1))
-	metAxis.set_ylabel("End product\ncounts", fontsize = 12, rotation = 0)
+	metAxis.set_ylabel("End product\ncounts", fontsize = FONTSIZE, rotation = 0)
 	metAxis.yaxis.set_label_coords(-.1, 0.25)
-	metAxis.set_xlabel("Time (hour)\ntickmarks at each new generation", fontsize = 12)
+	metAxis.set_xlabel("Time (hour)\ntickmarks at each new generation", fontsize = FONTSIZE)
 	metAxis.set_xlim([0, time[-1] / 3600.])
 	metAxis.set_ylim([metAxis.get_ylim()[0] * 0.2, metAxis.get_ylim()[1]])
 	whitePadSparklineAxis(metAxis)
@@ -241,6 +244,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	axesList = [rnaInitAxis, rnaAxis, monomerAxis, complexAxis, fluxAxis, metAxis]
 	for axis in axesList:
+		axis.tick_params(labelsize = LABELSIZE)
 		for i in xrange(len(patchStart)):
 			width = time[patchEnd[i]] / 3600. - time[patchStart[i]] / 3600.
 			if width <= 0.1:
