@@ -88,9 +88,9 @@ class AnalysisPaths(object):
 
 		self._path_data = np.zeros(len(generation_dirs), dtype=[
 			("path", "a500"),
-			("variant", "i64"),
-			("seed", "i64"),
-			("generation", "i64"),
+			("variant", "i8"),
+			("seed", "i8"),
+			("generation", "i8"),
 			("variantkb", "a500")
 			])
 
