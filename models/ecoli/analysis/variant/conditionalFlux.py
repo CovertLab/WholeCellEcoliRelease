@@ -135,6 +135,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	import bokeh.io
 	bokeh.io.output_file(os.path.join(plotOutDir, "html_plots", plotOutFileName + ".html"), title=plotOutFileName, autosave=False)
 	bokeh.io.save(p)
+	bokeh.io.curstate().reset()
 
 
 if __name__ == "__main__":

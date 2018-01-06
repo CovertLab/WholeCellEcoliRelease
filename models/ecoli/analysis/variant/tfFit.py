@@ -267,6 +267,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	toggle6 = Button(label = "All", callback = callback, name = "123")
 	layout = vplot(toggle0, toggle1, toggle2, toggle3, toggle4, toggle5, toggle6, s3)
 	bokeh.io.save(layout)
+	bokeh.io.curstate().reset()
 
 
 if __name__ == "__main__":

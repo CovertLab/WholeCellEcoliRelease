@@ -220,6 +220,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	p = bokeh.io.vplot(p1, p2)
 	bokeh.io.output_file(os.path.join(plotOutDir, "html_plots", plotOutFileName + ".html"), title=plotOutFileName, autosave=False)
 	bokeh.io.save(p)
+	bokeh.io.curstate().reset()
 
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(

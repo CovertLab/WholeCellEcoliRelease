@@ -97,6 +97,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	import bokeh.io
 	bokeh.io.output_file(os.path.join(plotOutDir, "html_plots", plotOutFileName + "__probBound" + ".html"), title = plotOutFileName, autosave = False)
 	bokeh.io.save(plot)
+	bokeh.io.curstate().reset()
 
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(
