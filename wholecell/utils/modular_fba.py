@@ -16,30 +16,12 @@ import numpy as np
 
 NUMERICAL_ZERO = 1e-20
 
+# can add additional solvers to have more options but need to implement NetworkFlow wrapper
 SOLVERS = {}
-S_GUROBI = "gurobi"
 S_GLPK = "glpk"
 _SOLVER_PREFERENCE = (
 	S_GLPK,
-	S_GUROBI
 	)
-
-try:
-	from ._netflow.nf_gurobi import NetworkFlowGurobi
-
-except ImportError:
-	pass
-
-except Exception as e:
-	# If this is a GurobiError, proceed without using gurobi, warning the user.
-	if str(type(e)) == "<class 'gurobipy.GurobiError'>":
-		print "GurobiError - gurobi will not be used."
-	# Otherwise, raise the exception as normal
-	else:
-		raise e
-
-else:
-	SOLVERS[S_GUROBI] = NetworkFlowGurobi
 
 try:
 	from ._netflow.nf_glpk import NetworkFlowGLPK
