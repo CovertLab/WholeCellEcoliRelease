@@ -537,6 +537,7 @@ class FluxBalanceAnalysis(object):
 		if any(coeff < 0 for coeff in objective.viewvalues()):
 			raise FBAError("Homeostatic FBA is not designed to use negative biomass coefficients")
 
+		self._homeostaticTargetMolecules.update(set(objective.keys()))
 		self._solver.maximizeObjective(False)
 		self._forceInternalExchange = True
 
@@ -941,10 +942,7 @@ class FluxBalanceAnalysis(object):
 
 
 	def _buildEqConst(self):
-		try:
-			self._solver.buildEqConst()
-		except AttributeError:
-			return
+		self._solver.buildEqConst()
 
 
 	# Constraint setup
@@ -1021,7 +1019,7 @@ class FluxBalanceAnalysis(object):
 
 		reverseReactionID = self._generatedID_reverseReaction.format(reactionID)
 
-		if raiseForReversible and reverseReactionID in self._reactionIDs:
+		if raiseForReversible and reverseReactionID in self._reactionIDsSet:
 			raise FBAError((
 				"Setting the maximum reaction flux is ambiguous since " +
 				"reaction {} has both a forward [{}] and reverse [{}] " +
@@ -1047,7 +1045,7 @@ class FluxBalanceAnalysis(object):
 
 		reverseReactionID = self._generatedID_reverseReaction.format(reactionID)
 
-		if raiseForReversible and reverseReactionID in self._reactionIDs:
+		if raiseForReversible and reverseReactionID in self._reactionIDsSet:
 			raise FBAError((
 				"Setting the minimum reaction flux is ambiguous since " +
 				"reaction {} has both a forward [{}] and reverse [{}] " +

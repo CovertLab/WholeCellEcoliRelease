@@ -47,6 +47,8 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 
 
 	def flowMaterialCoeffIs(self, flow, material, coefficient):
+		self._solved = False
+
 		if self._eqConstBuilt:
 			if material not in self._materialIdxLookup:
 				raise Exception("Invalid material")
@@ -69,8 +71,6 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		idx = self._getVar(flow)
 
 		self._materialCoeffs[material].append((coefficient, idx))
-
-		self._solved = False
 
 
 	def flowLowerBoundIs(self, flow, lowerBound):
@@ -123,7 +123,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		self._solve()
 
 		return np.array(
-			[self._model.get_primal_value(1 + self._getVar(flow)) for flow in flows]
+			[self._model.get_primal_value(1 + self._flows[flow]) if flow in self._flows else None for flow in flows]
 			)
 
 	def rowDualValues(self, materials):
@@ -133,7 +133,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		self._solve()
 
 		return np.array(
-			[self._model.get_row_dual_value(1 + self._materialIdxLookup[material]) for material in materials]
+			[self._model.get_row_dual_value(1 + self._materialIdxLookup[material]) if material in self._materialIdxLookup else None for material in materials]
 			)
 
 	def columnDualValues(self, fluxNames):
@@ -143,7 +143,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		self._solve()
 
 		return np.array(
-			[self._model.get_column_dual_value(1 + self._flows[fluxName]) for fluxName in fluxNames]
+			[self._model.get_column_dual_value(1 + self._flows[fluxName]) if fluxName in self._flows else None for fluxName in fluxNames]
 			)
 
 	def objectiveValue(self):
