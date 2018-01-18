@@ -47,8 +47,6 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 
 
 	def flowMaterialCoeffIs(self, flow, material, coefficient):
-		self._solved = False
-
 		if self._eqConstBuilt:
 			if material not in self._materialIdxLookup:
 				raise Exception("Invalid material")
@@ -66,11 +64,11 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 			colIdxs = np.hstack((-1, 1 + np.array(flowIdxs, dtype = np.int32))).astype(np.int32)
 			data = np.hstack((np.nan, np.array(coeffs, dtype = np.float64))).astype(np.float64)
 			self._model.set_mat_row(rowIdx, np.int32(len(colIdxs) - 1), colIdxs, data)
-			return
+		else:
+			idx = self._getVar(flow)
+			self._materialCoeffs[material].append((coefficient, idx))
 
-		idx = self._getVar(flow)
-
-		self._materialCoeffs[material].append((coefficient, idx))
+		self._solved = False
 
 
 	def flowLowerBoundIs(self, flow, lowerBound):
