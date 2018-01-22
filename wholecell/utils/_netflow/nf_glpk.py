@@ -64,11 +64,9 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 			colIdxs = np.hstack((-1, 1 + np.array(flowIdxs, dtype = np.int32))).astype(np.int32)
 			data = np.hstack((np.nan, np.array(coeffs, dtype = np.float64))).astype(np.float64)
 			self._model.set_mat_row(rowIdx, np.int32(len(colIdxs) - 1), colIdxs, data)
-			return
-
-		idx = self._getVar(flow)
-
-		self._materialCoeffs[material].append((coefficient, idx))
+		else:
+			idx = self._getVar(flow)
+			self._materialCoeffs[material].append((coefficient, idx))
 
 		self._solved = False
 
@@ -123,7 +121,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		self._solve()
 
 		return np.array(
-			[self._model.get_primal_value(1 + self._getVar(flow)) for flow in flows]
+			[self._model.get_primal_value(1 + self._flows[flow]) if flow in self._flows else None for flow in flows]
 			)
 
 	def rowDualValues(self, materials):
@@ -133,7 +131,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		self._solve()
 
 		return np.array(
-			[self._model.get_row_dual_value(1 + self._materialIdxLookup[material]) for material in materials]
+			[self._model.get_row_dual_value(1 + self._materialIdxLookup[material]) if material in self._materialIdxLookup else None for material in materials]
 			)
 
 	def columnDualValues(self, fluxNames):
@@ -143,7 +141,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		self._solve()
 
 		return np.array(
-			[self._model.get_column_dual_value(1 + self._flows[fluxName]) for fluxName in fluxNames]
+			[self._model.get_column_dual_value(1 + self._flows[fluxName]) if fluxName in self._flows else None for fluxName in fluxNames]
 			)
 
 	def objectiveValue(self):
