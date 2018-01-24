@@ -18,8 +18,6 @@ from wholecell.utils import units
 from wholecell.utils.fitting import normalize, massesAndCountsToAddForHomeostaticTargets
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
 
-import sklearn.metrics.pairwise
-
 import cvxpy
 
 from multiprocessing import Pool
@@ -69,7 +67,7 @@ def fitSimData_1(raw_data, cpus = 1):
 
 	# Modify other properties
 
-	# Re-compute Km's 
+	# Re-compute Km's
 	if sim_data.constants.EndoRNaseCooperation:
 		sim_data.process.transcription.rnaData["KmEndoRNase"] = setKmCooperativeEndoRNonLinearRNAdecay(sim_data, cellSpecs["basal"]["bulkContainer"])
 
@@ -77,7 +75,7 @@ def fitSimData_1(raw_data, cpus = 1):
 
 	# ----- Growth associated maintenance -----
 	fitMaintenanceCosts(sim_data, cellSpecs["basal"]["bulkContainer"])
-	
+
 	if cpus > 1:
 		print "Start parallel processing with %i processes" % (cpus)
 		pool = Pool(processes = cpus)
@@ -829,7 +827,7 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time,
 			rnaConc,
 			countsToMolar,
 			)
-	
+
 	nActiveRnapNeeded = calculateMinPolymerizingEnzymeByProductDistributionRNA(
 		rnaLengths, sim_data.growthRateParameters.getRnapElongationRate(doubling_time), rnaLossRate)
 
@@ -1684,6 +1682,25 @@ def calculatePromoterBoundProbability(sim_data, cellSpecs):
 
 	return D
 
+def cosine_similarity(samples):
+	"""
+	Finds the cosine similarity between samples.
+
+	samples is a matrix of size (n_samples, sample_size)
+
+	The output is a matrix of size (n_samples, n_samples).
+
+	The cosine similarity is the normalized dot product between two
+	vectors.  The name originates from the fact that the normalized dot
+	product between two vectors is equal to the cosine of the angle
+	formed by the two vectors.
+	"""
+
+	magnitudes = np.sqrt(np.sum(np.square(samples), 1))
+
+	normed = samples / magnitudes[:, None]
+
+	return normed.dot(normed.T)
 
 def calculateRnapRecruitment(sim_data, cellSpecs, rVector):
 	gI = []
@@ -1732,7 +1749,7 @@ def calculateRnapRecruitment(sim_data, cellSpecs, rVector):
 	shape = (gI.max() + 1, gJ.max() + 1)
 	G = np.zeros(shape, np.float64)
 	G[gI, gJ] = gV
-	S = sklearn.metrics.pairwise.cosine_similarity(G)
+	S = cosine_similarity(G)
 	dupIdxs = np.where((np.tril(S, -1) > 1 - 1e-3).sum(axis = 1))[0]
 	uniqueIdxs = [x for x in xrange(G.shape[0]) if x not in dupIdxs]
 	G = G[uniqueIdxs]
@@ -1868,9 +1885,9 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 		Alphas = [0.0001, 0.001, 0.01, 0.1, 1, 10]
 
 	for alpha in Alphas:
-		
+
 		if VERBOSE: print 'Alpha = %f' % alpha
-		
+
 		LossFunction, Rneg, R, LossFunctionP, R_aux, L_aux, Lp_aux, Jacob, Jacob_aux = sim_data.process.rna_decay.kmLossFunction(
 				(totalEndoRnaseCapacity).asNumber(units.mol / units.L / units.s),
 				(countsToMolar * rnaCounts).asNumber(units.mol / units.L),
@@ -1890,7 +1907,7 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 		kcatEndo = [0.0001, 0.001, 0.01, 0.1, 1, 10]
 
 	for kcat in kcatEndo:
-		
+
 		if VERBOSE: print 'Kcat = %f' % kcat
 
 		totalEndoRNcap = units.sum(endoRNaseConc * kcat)
@@ -1908,7 +1925,7 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 		sim_data.process.rna_decay.SensitivityAnalysisKcat_ResOpt[kcat] = np.sum(np.abs(R_aux(KmCooperativeModel)))
 
 
-	# Loss function, and derivative 
+	# Loss function, and derivative
 	LossFunction, Rneg, R, LossFunctionP, R_aux, L_aux, Lp_aux, Jacob, Jacob_aux = sim_data.process.rna_decay.kmLossFunction(
 				(totalEndoRnaseCapacity).asNumber(units.mol / units.L / units.s),
 				(countsToMolar * rnaCounts).asNumber(units.mol / units.L),
