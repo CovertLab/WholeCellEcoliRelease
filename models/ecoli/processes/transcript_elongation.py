@@ -99,7 +99,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		updatedMass[didInitialize] += self.endWeight
 		activeRnaPolys.attrIs(transcriptLength = updatedLengths, massDiff_mRNA = updatedMass)
 
-		# Determine if transcript has reached of the sequence
+		# Determine if transcript has reached the end of the sequence
 		terminalLengths = self.rnaLengths[rnaIndexes]
 		didTerminate = (updatedLengths == terminalLengths)
 		terminatedRnas = np.bincount(rnaIndexes[didTerminate], minlength = self.rnaSequences.shape[0])
@@ -124,9 +124,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		# Write outputs to listeners
 		self.writeToListener("TranscriptElongationListener", "countRnaSynthesized", terminatedRnas)
 		self.writeToListener("TranscriptElongationListener", "countNTPsUSed", nElongations)
-
 		self.writeToListener("GrowthLimits", "ntpUsed", ntpsUsed)
-
 		self.writeToListener("RnapData", "rnapStalls", rnapStalls)
 		self.writeToListener("RnapData", "ntpCountInSequence", ntpCountInSequence)
 		self.writeToListener("RnapData", "ntpCounts", ntpCounts)
