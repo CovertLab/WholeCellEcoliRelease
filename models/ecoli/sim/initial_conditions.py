@@ -65,10 +65,10 @@ def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, rand
 	initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data)
 
 	# Activate rna polys, with fraction based on environmental conditions
-	initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data)
+	initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
 
 	# Activate ribosomes, with fraction based on environmental conditions
-	initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data)
+	initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
 
 
 def initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff):
@@ -238,7 +238,7 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		)
 
 
-def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data):
+def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	"""
 	Purpose: Activates RNA polymerases as unique molecules, and distributes them along length of genes,
 	decreases counts of unactivated RNA polymerases (APORNAP-CPLX[c]).
@@ -273,7 +273,6 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data):
 	rnaSynthProbRnaPolymerase = sim_data.process.transcription.rnaSynthProbRnaPolymerase
 
 	# Determine changes from genetic perturbations
-	# TODO -- check that this works by running genetic perturbations.
 	genetic_perturbations = {}
 	perturbations = {}
 	if hasattr(sim_data, 'genetic_perturbations') and sim_data.genetic_perturbations != None and len(sim_data.genetic_perturbations) > 0:
@@ -293,27 +292,19 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data):
 	isTRna = sim_data.process.transcription.rnaData['isTRna']
 	isRProtein = sim_data.process.transcription.rnaData['isRProtein']
 	isRnap = sim_data.process.transcription.rnaData['isRnap']
-	notPolymerase = np.logical_and(np.logical_and(np.logical_not(isRRna),np.logical_not(isRProtein)), np.logical_not(isRnap))
 	isRegulated = np.array([1 if x[:-3] in sim_data.process.transcription_regulation.targetTf or x in perturbations else 0 for x in sim_data.process.transcription.rnaData["id"]], dtype = np.bool)
 	setIdxs = isRRna | isTRna | isRProtein | isRnap | isRegulated
-	assert (isRRna + isRProtein + isRnap + notPolymerase).sum() == len(rnaLengths)
 
 	# Calculate synthesis probabilities based on transcription regulation
 	rnaSynthProb = recruitmentMatrix.dot(recruitmentView)
 	if len(genetic_perturbations) > 0:
 		rnaSynthProb[genetic_perturbations['fixedRnaIdxs']] = genetic_perturbations['fixedSynthProbs']
 	regProbs = rnaSynthProb[isRegulated]
-
-	# Adjust probabilities to not be negative
-	rnaSynthProb[rnaSynthProb < 0] = 0.
 	rnaSynthProb /= rnaSynthProb.sum()
 
 	# ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all().
 	if np.any(rnaSynthProb < 0):
-		raise Exception, "Have negative RNA synthesis probabilities"
-
-	assert np.allclose(rnaSynthProb.sum(),1.)
-	assert np.all(rnaSynthProb >= 0.)
+		raise Exception("Have negative RNA synthesis probabilities")
 
 	# Adjust synthesis probabilities depending on environment
 	synthProbFractions = rnaSynthProbFractions[currentNutrients]
@@ -323,7 +314,7 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data):
 	rnaSynthProb[isRegulated] = regProbs
 	rnaSynthProb[isRProtein] = rnaSynthProbRProtein[currentNutrients]
 	rnaSynthProb[isRnap] = rnaSynthProbRnaPolymerase[currentNutrients]
-	rnaSynthProb[rnaSynthProb < 0] = 0
+	rnaSynthProb[rnaSynthProb < 0] = 0 # to avoid precision issue 
 	scaleTheRestBy = (1. - rnaSynthProb[setIdxs].sum()) / rnaSynthProb[~setIdxs].sum()
 	rnaSynthProb[~setIdxs] *= scaleTheRestBy
 
@@ -335,12 +326,8 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data):
 	synthProbLengthAdjusted = rnaSynthProb * rnaLengths
 	synthProbNormalized = synthProbLengthAdjusted / synthProbLengthAdjusted.sum()
 
-	assert np.allclose(synthProbNormalized.sum(),1.)
-	assert np.all(synthProbNormalized >= 0.)
-
 	# Sample a multinomial distribution of synthesis probabilities to determine what RNA are initialized
-	nNewRnas = np.random.multinomial(rnaPolyToActivate, synthProbNormalized)
-	assert nNewRnas.sum() == rnaPolyToActivate
+	nNewRnas = randomState.multinomial(rnaPolyToActivate, synthProbNormalized)
 
 	# RNA Indices
 	rnaIndices = np.empty(rnaPolyToActivate, np.int64)
@@ -350,8 +337,8 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data):
 		rnaIndices[startIndex:startIndex+counts] = rnaIndex
 		startIndex += counts
 
-	# TODO -- make sure there aren't any rnapolys at same location on same gene
-	updatedLengths = np.array(np.random.rand(rnaPolyToActivate) * rnaLengths[rnaIndices], dtype=np.int)
+	# TODO (Eran) -- make sure there aren't any rnapolys at same location on same gene
+	updatedLengths = np.array(randomState.rand(rnaPolyToActivate) * rnaLengths[rnaIndices], dtype=np.int)
 
 	# update mass
 	sequences = rnaSequences[rnaIndices]
@@ -367,7 +354,7 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data):
 	bulkMolCntr.countsIs(inactiveRnaPolyCounts - rnaPolyToActivate, ['APORNAP-CPLX[c]'])
 
 
-def initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data):
+def initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	"""
 	Purpose: Activates ribosomes as unique molecules, and distributes them along length of RNA,
 	decreases counts of unactivated ribosomal subunits (ribosome30S and ribosome50S).
@@ -390,7 +377,6 @@ def initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data):
 	ribosome30S = bulkMolCntr.countsView(sim_data.moleculeGroups.s30_fullComplex).counts()[0]
 	ribosome50S = bulkMolCntr.countsView(sim_data.moleculeGroups.s50_fullComplex).counts()[0]
 	inactiveRibosomeCount = np.minimum(ribosome30S, ribosome50S)
-
 	ribosomeToActivate = np.int64(fracActiveRibosome * inactiveRibosomeCount)
 
 	# protein synthesis probabilities
@@ -401,8 +387,7 @@ def initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data):
 	probNormalized = probLengthAdjusted / probLengthAdjusted.sum()
 
 	# Sample a multinomial distribution of synthesis probabilities to determine what RNA are initialized
-	nNewProteins = np.random.multinomial(ribosomeToActivate, probNormalized)
-	assert nNewProteins.sum() == ribosomeToActivate
+	nNewProteins = randomState.multinomial(ribosomeToActivate, probNormalized)
 
 	# protein Indices
 	proteinIndices = np.empty(ribosomeToActivate, np.int64)
@@ -412,8 +397,8 @@ def initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data):
 		proteinIndices[startIndex:startIndex+counts] = proteinIndex
 		startIndex += counts
 
-	# TODO -- make sure there aren't any peptides at same location on same gene
-	updatedLengths = np.array(np.random.rand(ribosomeToActivate) * proteinLengths[proteinIndices], dtype=np.int)
+	# TODO (Eran) -- make sure there aren't any peptides at same location on same rna
+	updatedLengths = np.array(randomState.rand(ribosomeToActivate) * proteinLengths[proteinIndices], dtype=np.int)
 
 	# update mass
 	sequences = proteinSequences[proteinIndices]
