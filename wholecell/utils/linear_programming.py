@@ -31,11 +31,11 @@ def linearProgramming(maximizeFlag, f, A, b, lb, ub, constraintTypes, variableTy
 		raise Exception, "Matrix A must be a non-empty numpy array."
 	if type(b) != numpy.ndarray or b.size != A.shape[0]:
 		raise Exception, "Vector b must be a numpy array with same number of rows as A."
-	if lb == None:
+	if lb is None:
 		lb = - numpy.ones(A.shape[1]) * numpy.Inf
 	elif type(lb) != numpy.ndarray or lb.size != A.shape[1]:
 		raise Exception, "Vector lb must be a numpy array with dimension equal to the number of columns of A."
-	if ub == None:
+	if ub is None:
 		ub = numpy.ones(A.shape[1]) * numpy.Inf
 	elif type(ub) != numpy.ndarray or ub.size != A.shape[1]:
 		raise Exception, "Vector ub must be a numpy array with dimension equal to the number of columns of A."
