@@ -300,9 +300,10 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	if len(genetic_perturbations) > 0:
 		rnaSynthProb[genetic_perturbations['fixedRnaIdxs']] = genetic_perturbations['fixedSynthProbs']
 	regProbs = rnaSynthProb[isRegulated]
-	rnaSynthProb /= rnaSynthProb.sum()
 
-	# ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all().
+	# Adjust probabilities to not be negative
+	rnaSynthProb[rnaSynthProb < 0] = 0
+	rnaSynthProb /= rnaSynthProb.sum()
 	if np.any(rnaSynthProb < 0):
 		raise Exception("Have negative RNA synthesis probabilities")
 
@@ -314,7 +315,7 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	rnaSynthProb[isRegulated] = regProbs
 	rnaSynthProb[isRProtein] = rnaSynthProbRProtein[currentNutrients]
 	rnaSynthProb[isRnap] = rnaSynthProbRnaPolymerase[currentNutrients]
-	rnaSynthProb[rnaSynthProb < 0] = 0 # to avoid precision issue 
+	rnaSynthProb[rnaSynthProb < 0] = 0 # to avoid precision issue
 	scaleTheRestBy = (1. - rnaSynthProb[setIdxs].sum()) / rnaSynthProb[~setIdxs].sum()
 	rnaSynthProb[~setIdxs] *= scaleTheRestBy
 
