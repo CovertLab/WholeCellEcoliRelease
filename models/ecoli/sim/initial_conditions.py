@@ -302,7 +302,7 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	regProbs = rnaSynthProb[isRegulated]
 
 	# Adjust probabilities to not be negative
-	rnaSynthProb[rnaSynthProb < 0] = 0
+	rnaSynthProb[rnaSynthProb < 0] = 0.
 	rnaSynthProb /= rnaSynthProb.sum()
 	if np.any(rnaSynthProb < 0):
 		raise Exception("Have negative RNA synthesis probabilities")

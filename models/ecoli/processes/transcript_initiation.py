@@ -43,7 +43,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.fracActiveRnapDict = sim_data.process.transcription.rnapFractionActiveDict
 		self.rnaLengths = sim_data.process.transcription.rnaData["length"]
 		self.rnaPolymeraseElongationRateDict = sim_data.process.transcription.rnaPolymeraseElongationRateDict
-		
+
 		# Create recruitment matrix for transcription regulation
 		recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
 		recruitmentData = sim_data.process.transcription_regulation.recruitmentData
@@ -102,7 +102,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		regProbs = self.rnaSynthProb[self.isRegulated]
 
 		# Adjust probabilities to not be negative
-		self.rnaSynthProb[self.rnaSynthProb < 0] = 0
+		self.rnaSynthProb[self.rnaSynthProb < 0] = 0.
 		self.rnaSynthProb /= self.rnaSynthProb.sum()
 		if np.any(self.rnaSynthProb < 0):
 			raise Exception("Have negative RNA synthesis probabilities")
