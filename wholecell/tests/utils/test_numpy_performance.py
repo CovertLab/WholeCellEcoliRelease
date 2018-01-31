@@ -1,15 +1,22 @@
 """
-Test NumPy performance to ensure the configuration is good.
+Test library performance (NumPy and libraries above and below it) to
+discover configuration problems such as performance bugs in some versions
+of pip packages or problems linking to native libraries. Precise timings
+aren't needed.
 
 Running it this way prints all timing measurements:
 	python -m wholecell.tests.utils.test_numpy_performance
 
-Running it this way only prints timing measurements for failed tests,
-e.g. those that exceed their @nose.tools.timed() thresholds:
+Running it this way prints timing measurements (and other printout) only
+for failed tests, e.g. those that exceed their @nose.tools.timed()
+thresholds:
 	nosetests wholecell/tests/utils/test_numpy_performance.py
+
+Running it this way runs the iterative test that isn't automatically
+discovered as a test method:
+	python -m unittest -v wholecell.tests.utils.test_numpy_performance.Test_numpy_performance.multitest_dot
 """
 
-import math
 import resource
 import time
 import unittest
@@ -28,79 +35,93 @@ def clock2():
 	data comes from resource.getrusage() so it avoids the wraparound
 	problems in time.clock().
 
-	Note: getrusage() also returns memory usage data.
+	FYI: getrusage() also returns memory usage data.
 
-	Code cribbed from IPython %time magic
-	github.com/ipython/ipython - IPython/core/magics/execution.py
+	Cf. IPython %time magic github.com/ipython/ipython -
+	IPython/core/magics/execution.py
 	"""
-	return resource.getrusage(resource.RUSAGE_SELF)[:2]
+	usage = resource.getrusage(resource.RUSAGE_SELF)
+	return usage.ru_utime, usage.ru_stime
 
 def _format_time(timespan, precision=3):
 	"""
 	Formats the timespan in a human-readable form.
 
-	Code cribbed from IPython %time magic
+	Cf. IPython %time magic
 	github.com/ipython/ipython - IPython/core/magics/execution.py
 	"""
 
 	if timespan >= 60.0:
 		# More than a minute. Format it in a human readable form.
-		parts = [("d", 60*60*24), ("h", 60*60), ("min", 60), ("s", 1)]
-		time = []
+		PARTS = (("d", 60 * 60 * 24), ("h", 60 * 60), ("min", 60), ("s", 1))
+		time_parts = []
 		leftover = timespan
-		for suffix, length in parts:
+		for (suffix, length) in PARTS:
 			value = int(leftover / length)
 			if value > 0:
 				leftover = leftover % length
-				time.append(u'%s%s' % (str(value), suffix))
+				time_parts.append(u'%s%s' % (str(value), suffix))
 			if leftover < 1:
 				break
-		return " ".join(time)
+		return " ".join(time_parts)
 
-	units = [u"s", u"ms", u'us', "ns"]  # the save value
-	scaling = [1, 1e3, 1e6, 1e9]
+	UNITS = ("s", "ms", "us", "ns")
+	SCALING = (1, 1e3, 1e6, 1e9)
+	K = 3  # orders of magnitude between SCALING factors
 
 	if timespan > 0.0:
-		order = min(-int(math.floor(math.log10(timespan)) // 3), 3)
+		order = min(-int(np.floor(np.log10(timespan)) // K), K)
 	else:
-		order = 3
-	return u"%.*g %s" % (precision, timespan * scaling[order], units[order])
+		order = K
+	return "%.*g %s" % (precision, timespan * SCALING[order], UNITS[order])
+
+
+def time_it(code_to_measure, title='Measured'):
+	"""
+	Times the execution of code_to_measure().
+	Cf. IPython %time magic
+	github.com/ipython/ipython - IPython/core/magics/execution.py time()
+	"""
+	wall_clock = time.time
+
+	# time execution
+	wall_start = wall_clock()
+	(start_user, start_sys) = clock2()
+	code_to_measure()
+	(end_user, end_sys) = clock2()
+	wall_end = wall_clock()
+
+	wall_time = wall_end - wall_start
+	cpu_user = end_user - start_user
+	cpu_sys = end_sys - start_sys
+	cpu_total = cpu_user + cpu_sys
+
+	print("%s CPU times: user %s, sys: %s, total: %s; Wall time: %s"
+		  % (title, _format_time(cpu_user), _format_time(cpu_sys),
+			 _format_time(cpu_total), _format_time(wall_time)))
 
 
 class Test_numpy_performance(unittest.TestCase):
+	"""Test one or more NumPy array ops to see that it's performing OK."""
 
-	def setUp(self):
-		self.M = np.random.random(size=(1000, 1000))
+	def time_this(self, code_to_measure):
+		"""Times the execution of code_to_measure()."""
+		time_it(code_to_measure, self.id())
 
-	def time_it(self, code_to_measure):
-		"""
-		Times the execution of code_to_measure().
-		Code cribbed from IPython %time magic
-		github.com/ipython/ipython - IPython/core/magics/execution.py
-		"""
-		wtime = time.time
-
-		# time execution
-		wall_st = wtime()
-		st = clock2()
-		code_to_measure()
-		end = clock2()
-		wall_end = wtime()
-
-		wall_time = wall_end - wall_st
-		cpu_user = end[0] - st[0]
-		cpu_sys = end[1] - st[1]
-		cpu_tot = cpu_user + cpu_sys
-		print("%s CPU times: user %s, sys: %s, total: %s; Wall time: %s"
-			% (self.id(), _format_time(cpu_user), _format_time(cpu_sys),
-			   _format_time(cpu_tot), _format_time(wall_time)))
-
+	# On 2015 MacBook Pro this takes < 25 ms.
+	# On Sherlock 1.0 with 1 CPU this takes ~250 ms.
+	# On Sherlock 1.0 with 16 CPUs this takes 50 - 100 ms.
 	@noseAttrib.attr('smalltest')
-	@nose.tools.timed(0.050)
-	def test_init(self):
-		"""Time a NumPy matrix dot() operation."""
-		M = self.M
-		self.time_it(lambda: M.dot(M))
+	@nose.tools.timed(0.3)
+	def test_dot(self):
+		"""Time NumPy matrix dot()."""
+		M = np.random.random(size=(1000, 1000))
+		self.time_this(lambda : M.dot(M))
+
+	def multitest_dot(self):
+		"""Time NumPy matrix dot() many times."""
+		for iteration in xrange(100):
+			self.test_dot()
 
 
 if __name__ == '__main__':
