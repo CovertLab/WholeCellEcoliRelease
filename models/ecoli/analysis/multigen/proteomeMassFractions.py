@@ -30,7 +30,7 @@ import scipy.cluster
 import sys
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-	
+
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
 
@@ -83,13 +83,13 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		counts[:, equilibriumIndexes] += np.dot(counts[:, equilibriumComplexesIndexes] * -1, np.matrix.transpose(sim_data.process.equilibrium.stoichMatrixMonomers()))
 		counts[:, complexationIndexes] += np.dot(counts[:, complexationComplexesIndexes] * -1, np.matrix.transpose(sim_data.process.complexation.stoichMatrixMonomers()))
-		
+
 		# Get mass of proteins in cell
 		proteomeMasses = 1. / nAvogadro * counts[:, monomerIndexes] * proteomeMWs
-		if proteomeMassFractions == []:
-			proteomeMassFractions = proteomeMasses.asNumber(units.fg).T / proteinMass.asNumber(units.fg)
-		else:
+		if len(proteomeMassFractions):
 			proteomeMassFractions = np.concatenate((proteomeMassFractions, proteomeMasses.asNumber(units.fg).T / proteinMass.asNumber(units.fg)), axis = 1)
+		else:
+			proteomeMassFractions = proteomeMasses.asNumber(units.fg).T / proteinMass.asNumber(units.fg)
 
 	# Prevent divide by 0
 	proteomeMassFractions += 1e-9
@@ -102,7 +102,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	nPlots = 16
 	nProteins = normalizedMassFractions.shape[1]
-	
+
 	for i in range(nPlots):
 		ax = plt.subplot(nPlots, 1, i + 1)
 		indStart = i * nProteins // nPlots
