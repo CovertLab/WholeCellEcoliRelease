@@ -60,7 +60,7 @@ def _format_time(timespan, precision=3):
 			value = int(leftover / length)
 			if value > 0:
 				leftover = leftover % length
-				time_parts.append(u'%s%s' % (str(value), suffix))
+				time_parts.append("%s%s" % (str(value), suffix))
 			if leftover < 1:
 				break
 		return " ".join(time_parts)
