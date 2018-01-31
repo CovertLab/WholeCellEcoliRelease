@@ -5,16 +5,17 @@ of pip packages or problems linking to native libraries. Precise timings
 aren't needed.
 
 Running it this way prints all timing measurements:
-	python -m wholecell.tests.utils.test_numpy_performance
+	python -m wholecell.tests.utils.test_library_performance
 
-Running it this way prints timing measurements (and other printout) only
+Running it these ways prints timing measurements (and other printout) only
 for failed tests, e.g. those that exceed their @nose.tools.timed()
 thresholds:
-	nosetests wholecell/tests/utils/test_numpy_performance.py
+	nosetests wholecell/tests/utils/test_library_performance.py
+	nosetests -a performance
 
 Running it this way runs the iterative test that isn't automatically
 discovered as a test method:
-	python -m unittest -v wholecell.tests.utils.test_numpy_performance.Test_numpy_performance.multitest_dot
+	python -m unittest -v wholecell.tests.utils.test_library_performance.Test_library_performance.multitest_dot
 """
 
 import resource
@@ -101,7 +102,7 @@ def time_it(code_to_measure, title='Measured'):
 			 _format_time(cpu_total), _format_time(wall_time)))
 
 
-class Test_numpy_performance(unittest.TestCase):
+class Test_library_performance(unittest.TestCase):
 	"""Test one or more NumPy array ops to see that it's performing OK."""
 
 	def time_this(self, code_to_measure):
@@ -112,13 +113,14 @@ class Test_numpy_performance(unittest.TestCase):
 	# On Sherlock 1.0 with 1 CPU this takes ~250 ms.
 	# On Sherlock 1.0 with 16 CPUs this takes 50 - 100 ms.
 	# Allow time for test framework overhead + matrix construction.
-	@noseAttrib.attr('smalltest')
+	@noseAttrib.attr('performance')
 	@nose.tools.timed(0.35)
 	def test_dot(self):
 		"""Time NumPy matrix dot()."""
 		M = np.random.random(size=(1000, 1000))
-		self.time_this(lambda : M.dot(M))
+		self.time_this(lambda: M.dot(M))
 
+	@noseAttrib.attr('performance')
 	def multitest_dot(self):
 		"""Time NumPy matrix dot() many times."""
 		for iteration in xrange(100):
