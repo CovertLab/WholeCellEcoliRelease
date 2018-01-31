@@ -111,8 +111,9 @@ class Test_numpy_performance(unittest.TestCase):
 	# On 2015 MacBook Pro this takes < 25 ms.
 	# On Sherlock 1.0 with 1 CPU this takes ~250 ms.
 	# On Sherlock 1.0 with 16 CPUs this takes 50 - 100 ms.
+	# Allow time for test framework overhead + matrix construction.
 	@noseAttrib.attr('smalltest')
-	@nose.tools.timed(0.3)
+	@nose.tools.timed(0.35)
 	def test_dot(self):
 		"""Time NumPy matrix dot()."""
 		M = np.random.random(size=(1000, 1000))
