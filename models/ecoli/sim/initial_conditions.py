@@ -11,6 +11,7 @@ TODO:
 from __future__ import division
 
 from itertools import izip
+import scipy.sparse
 
 import numpy as np
 import os
@@ -60,7 +61,15 @@ def initializeBulkMolecules(bulkMolCntr, sim_data, randomState, massCoeff):
 	initializeComplexation(bulkMolCntr, sim_data, randomState)
 
 def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
+
 	initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data)
+
+	# Activate rna polys, with fraction based on environmental conditions
+	initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
+
+	# Activate ribosomes, with fraction based on environmental conditions
+	initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
+
 
 def initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff):
 
@@ -227,6 +236,187 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		chromosomeIndex = np.array(chromosomeIndex),
 		massDiff_DNA = massIncreaseDna,
 		)
+
+
+def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
+	"""
+	Purpose: Activates RNA polymerases as unique molecules, and distributes them along length of genes,
+	decreases counts of unactivated RNA polymerases (APORNAP-CPLX[c]).
+
+	Normalizes RNA poly placement per length of completed RNA, with synthesis probility based on each environmental condition
+	"""
+
+	# Load parameters
+	nAvogadro = sim_data.constants.nAvogadro
+	rnaLengths = sim_data.process.transcription.rnaData['length'].asNumber()
+	currentNutrients = sim_data.conditions[sim_data.condition]['nutrients']
+	fracActiveRnap = sim_data.process.transcription.rnapFractionActiveDict[currentNutrients]
+	inactiveRnaPolyCounts = bulkMolCntr.countsView(['APORNAP-CPLX[c]']).counts()[0]
+	rnaSequences = sim_data.process.transcription.transcriptionSequences
+	ntWeights = sim_data.process.transcription.transcriptionMonomerWeights
+
+	# Number of rnaPoly to activate
+	rnaPolyToActivate = np.int64(fracActiveRnap * inactiveRnaPolyCounts)
+
+	# Parameters for rnaSynthProb
+	recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
+	recruitmentView = bulkMolCntr.counts(recruitmentColNames)
+	recruitmentData = sim_data.process.transcription_regulation.recruitmentData
+	recruitmentMatrix = scipy.sparse.csr_matrix(
+			(recruitmentData['hV'], (recruitmentData['hI'], recruitmentData['hJ'])),
+			shape = recruitmentData['shape']
+		)
+
+	# Synthesis probabilities for different categories of genes
+	rnaSynthProbFractions = sim_data.process.transcription.rnaSynthProbFraction
+	rnaSynthProbRProtein = sim_data.process.transcription.rnaSynthProbRProtein
+	rnaSynthProbRnaPolymerase = sim_data.process.transcription.rnaSynthProbRnaPolymerase
+
+	# Determine changes from genetic perturbations
+	genetic_perturbations = {}
+	perturbations = {}
+	if hasattr(sim_data, 'genetic_perturbations') and sim_data.genetic_perturbations != None and len(sim_data.genetic_perturbations) > 0:
+		rnaIdxs, synthProbs = zip(*[(int(np.where(sim_data.process.transcription.rnaData['id'] == rnaId)[0]), synthProb) for rnaId, synthProb in sim_data.genetic_perturbations.iteritems()])
+		fixedSynthProbs = [synthProb for (rnaIdx, syntheProb) in sorted(zip(rnaIdxs, synthProbs), key = lambda pair: pair[0])]
+		fixedRnaIdxs = [rnaIdx for (rnaIdx, syntheProb) in sorted(zip(rnaIdxs, synthProbs), key = lambda pair: pair[0])]
+		genetic_perturbations = {'fixedRnaIdxs': fixedRnaIdxs, 'fixedSynthProbs': fixedSynthProbs}
+		perturbations = sim_data.genetic_perturbations
+
+	shuffleIdxs = None
+	if hasattr(sim_data.process.transcription, 'initiationShuffleIdxs') and sim_data.process.transcription.initiationShuffleIdxs != None:
+		shuffleIdxs = sim_data.process.transcription.initiationShuffleIdxs
+
+	# ID Groups
+	isRRna = sim_data.process.transcription.rnaData['isRRna']
+	isMRna = sim_data.process.transcription.rnaData['isMRna']
+	isTRna = sim_data.process.transcription.rnaData['isTRna']
+	isRProtein = sim_data.process.transcription.rnaData['isRProtein']
+	isRnap = sim_data.process.transcription.rnaData['isRnap']
+	isRegulated = np.array([1 if x[:-3] in sim_data.process.transcription_regulation.targetTf or x in perturbations else 0 for x in sim_data.process.transcription.rnaData["id"]], dtype = np.bool)
+	setIdxs = isRRna | isTRna | isRProtein | isRnap | isRegulated
+
+	# Calculate synthesis probabilities based on transcription regulation
+	rnaSynthProb = recruitmentMatrix.dot(recruitmentView)
+	if len(genetic_perturbations) > 0:
+		rnaSynthProb[genetic_perturbations['fixedRnaIdxs']] = genetic_perturbations['fixedSynthProbs']
+	regProbs = rnaSynthProb[isRegulated]
+
+	# Adjust probabilities to not be negative
+	rnaSynthProb[rnaSynthProb < 0] = 0
+	rnaSynthProb /= rnaSynthProb.sum()
+	if np.any(rnaSynthProb < 0):
+		raise Exception("Have negative RNA synthesis probabilities")
+
+	# Adjust synthesis probabilities depending on environment
+	synthProbFractions = rnaSynthProbFractions[currentNutrients]
+	rnaSynthProb[isMRna] *= synthProbFractions['mRna'] / rnaSynthProb[isMRna].sum()
+	rnaSynthProb[isTRna] *= synthProbFractions['tRna'] / rnaSynthProb[isTRna].sum()
+	rnaSynthProb[isRRna] *= synthProbFractions['rRna'] / rnaSynthProb[isRRna].sum()
+	rnaSynthProb[isRegulated] = regProbs
+	rnaSynthProb[isRProtein] = rnaSynthProbRProtein[currentNutrients]
+	rnaSynthProb[isRnap] = rnaSynthProbRnaPolymerase[currentNutrients]
+	rnaSynthProb[rnaSynthProb < 0] = 0 # to avoid precision issue
+	scaleTheRestBy = (1. - rnaSynthProb[setIdxs].sum()) / rnaSynthProb[~setIdxs].sum()
+	rnaSynthProb[~setIdxs] *= scaleTheRestBy
+
+	# Shuffle initiation rates if we're running the variant that calls this
+	if shuffleIdxs is not None:
+		rnaSynthProb = rnaSynthProb[shuffleIdxs]
+
+	# normalize to length of rna
+	synthProbLengthAdjusted = rnaSynthProb * rnaLengths
+	synthProbNormalized = synthProbLengthAdjusted / synthProbLengthAdjusted.sum()
+
+	# Sample a multinomial distribution of synthesis probabilities to determine what RNA are initialized
+	nNewRnas = randomState.multinomial(rnaPolyToActivate, synthProbNormalized)
+
+	# RNA Indices
+	rnaIndices = np.empty(rnaPolyToActivate, np.int64)
+	startIndex = 0
+	nonzeroCount = (nNewRnas > 0)
+	for rnaIndex, counts in izip(np.arange(nNewRnas.size)[nonzeroCount], nNewRnas[nonzeroCount]):
+		rnaIndices[startIndex:startIndex+counts] = rnaIndex
+		startIndex += counts
+
+	# TODO (Eran) -- make sure there aren't any rnapolys at same location on same gene
+	updatedLengths = np.array(randomState.rand(rnaPolyToActivate) * rnaLengths[rnaIndices], dtype=np.int)
+
+	# update mass
+	sequences = rnaSequences[rnaIndices]
+	massIncreaseRna = computeMassIncrease(sequences, updatedLengths, ntWeights)
+
+	#update molecules. Attributes include which rnas are being transcribed, and the position (length)
+	activeRnaPolys = uniqueMolCntr.objectsNew('activeRnaPoly', rnaPolyToActivate)
+	activeRnaPolys.attrIs(
+		rnaIndex = rnaIndices,
+		transcriptLength = updatedLengths,
+		massDiff_mRNA = massIncreaseRna,
+		)
+	bulkMolCntr.countsIs(inactiveRnaPolyCounts - rnaPolyToActivate, ['APORNAP-CPLX[c]'])
+
+
+def initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
+	"""
+	Purpose: Activates ribosomes as unique molecules, and distributes them along length of RNA,
+	decreases counts of unactivated ribosomal subunits (ribosome30S and ribosome50S).
+
+	Normalizes ribosomes placement per length of protein
+	"""
+	
+	# Load parameters
+	nAvogadro = sim_data.constants.nAvogadro
+	currentNutrients = sim_data.conditions[sim_data.condition]['nutrients']
+	fracActiveRibosome = sim_data.process.translation.ribosomeFractionActiveDict[currentNutrients]
+	mrnaIds = sim_data.process.translation.monomerData['rnaId']
+	proteinLengths = sim_data.process.translation.monomerData['length'].asNumber()
+	proteinSequences = sim_data.process.translation.translationSequences
+	translationEfficiencies = normalize(sim_data.process.translation.translationEfficienciesByMonomer)
+	mRnas = bulkMolCntr.countsView(mrnaIds)
+	aaWeightsIncorporated = sim_data.process.translation.translationMonomerWeights
+
+	#find number of ribosomes to activate
+	ribosome30S = bulkMolCntr.countsView(sim_data.moleculeGroups.s30_fullComplex).counts()[0]
+	ribosome50S = bulkMolCntr.countsView(sim_data.moleculeGroups.s50_fullComplex).counts()[0]
+	inactiveRibosomeCount = np.minimum(ribosome30S, ribosome50S)
+	ribosomeToActivate = np.int64(fracActiveRibosome * inactiveRibosomeCount)
+
+	# protein synthesis probabilities
+	proteinInitProb = normalize(mRnas.counts() * translationEfficiencies)
+
+	# normalize to protein length
+	probLengthAdjusted = proteinInitProb * proteinLengths
+	probNormalized = probLengthAdjusted / probLengthAdjusted.sum()
+
+	# Sample a multinomial distribution of synthesis probabilities to determine what RNA are initialized
+	nNewProteins = randomState.multinomial(ribosomeToActivate, probNormalized)
+
+	# protein Indices
+	proteinIndices = np.empty(ribosomeToActivate, np.int64)
+	startIndex = 0
+	nonzeroCount = (nNewProteins > 0)
+	for proteinIndex, counts in izip(np.arange(nNewProteins.size)[nonzeroCount], nNewProteins[nonzeroCount]):
+		proteinIndices[startIndex:startIndex+counts] = proteinIndex
+		startIndex += counts
+
+	# TODO (Eran) -- make sure there aren't any peptides at same location on same rna
+	updatedLengths = np.array(randomState.rand(ribosomeToActivate) * proteinLengths[proteinIndices], dtype=np.int)
+
+	# update mass
+	sequences = proteinSequences[proteinIndices]
+	updatedMass = computeMassIncrease(sequences, updatedLengths, aaWeightsIncorporated)
+
+	# Create active 70S ribosomes and assign their protein Indices calculated above
+	activeRibosomes = uniqueMolCntr.objectsNew('activeRibosome', ribosomeToActivate)
+	activeRibosomes.attrIs(
+		proteinIndex = proteinIndices,
+		peptideLength = updatedLengths,
+		massDiff_protein = updatedMass
+		)
+
+	# decrease free 30S and 50S ribosomal subunit counts
+	bulkMolCntr.countsIs(ribosome30S - ribosomeToActivate, sim_data.moleculeGroups.s30_fullComplex)
+	bulkMolCntr.countsIs(ribosome50S - ribosomeToActivate, sim_data.moleculeGroups.s50_fullComplex)
+
 
 def setDaughterInitialConditions(sim, sim_data):
 	assert sim._inheritedStatePath != None
