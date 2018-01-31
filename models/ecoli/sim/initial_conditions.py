@@ -274,17 +274,15 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 
 	# Determine changes from genetic perturbations
 	genetic_perturbations = {}
-	perturbations = {}
-	if hasattr(sim_data, 'genetic_perturbations') and sim_data.genetic_perturbations != None and len(sim_data.genetic_perturbations) > 0:
+	perturbations = getattr(sim_data, 'genetic_perturbations', {})
+	if len(perturbations) > 0:
 		rnaIdxs, synthProbs = zip(*[(int(np.where(sim_data.process.transcription.rnaData['id'] == rnaId)[0]), synthProb) for rnaId, synthProb in sim_data.genetic_perturbations.iteritems()])
 		fixedSynthProbs = [synthProb for (rnaIdx, syntheProb) in sorted(zip(rnaIdxs, synthProbs), key = lambda pair: pair[0])]
 		fixedRnaIdxs = [rnaIdx for (rnaIdx, syntheProb) in sorted(zip(rnaIdxs, synthProbs), key = lambda pair: pair[0])]
 		genetic_perturbations = {'fixedRnaIdxs': fixedRnaIdxs, 'fixedSynthProbs': fixedSynthProbs}
-		perturbations = sim_data.genetic_perturbations
 
-	shuffleIdxs = None
-	if hasattr(sim_data.process.transcription, 'initiationShuffleIdxs') and sim_data.process.transcription.initiationShuffleIdxs != None:
-		shuffleIdxs = sim_data.process.transcription.initiationShuffleIdxs
+	# If initiationShuffleIdxs does not exist, set value to None
+	shuffleIdxs = getattr(sim_data.process.transcription, 'initiationShuffleIdxs', None)
 
 	# ID Groups
 	isRRna = sim_data.process.transcription.rnaData['isRRna']
@@ -302,7 +300,7 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	regProbs = rnaSynthProb[isRegulated]
 
 	# Adjust probabilities to not be negative
-	rnaSynthProb[rnaSynthProb < 0] = 0.
+	rnaSynthProb[rnaSynthProb < 0] = 0.0
 	rnaSynthProb /= rnaSynthProb.sum()
 	if np.any(rnaSynthProb < 0):
 		raise Exception("Have negative RNA synthesis probabilities")

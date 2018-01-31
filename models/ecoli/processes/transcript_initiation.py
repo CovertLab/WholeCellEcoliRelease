@@ -56,17 +56,15 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		# Determine changes from genetic perturbations
 		self.genetic_perturbations = {}
-		perturbations = {}
-		if hasattr(sim_data, "genetic_perturbations") and sim_data.genetic_perturbations != None and len(sim_data.genetic_perturbations) > 0:
+		perturbations = getattr(sim_data, "genetic_perturbations", {})
+		if len(perturbations) > 0:
 			rnaIdxs, synthProbs = zip(*[(int(np.where(sim_data.process.transcription.rnaData["id"] == rnaId)[0]), synthProb) for rnaId, synthProb in sim_data.genetic_perturbations.iteritems()])
 			fixedSynthProbs = [synthProb for (rnaIdx, syntheProb) in sorted(zip(rnaIdxs, synthProbs), key = lambda pair: pair[0])]
 			fixedRnaIdxs = [rnaIdx for (rnaIdx, syntheProb) in sorted(zip(rnaIdxs, synthProbs), key = lambda pair: pair[0])]
 			self.genetic_perturbations = {"fixedRnaIdxs": fixedRnaIdxs, "fixedSynthProbs": fixedSynthProbs}
-			perturbations = sim_data.genetic_perturbations
 
-		self.shuffleIdxs = None
-		if hasattr(sim_data.process.transcription, "initiationShuffleIdxs") and sim_data.process.transcription.initiationShuffleIdxs != None:
-			self.shuffleIdxs = sim_data.process.transcription.initiationShuffleIdxs
+		# If initiationShuffleIdxs does not exist, set value to None
+		self.shuffleIdxs = getattr(sim_data.process.transcription, 'initiationShuffleIdxs', None)
 
 		# Views
 		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
@@ -102,7 +100,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		regProbs = self.rnaSynthProb[self.isRegulated]
 
 		# Adjust probabilities to not be negative
-		self.rnaSynthProb[self.rnaSynthProb < 0] = 0.
+		self.rnaSynthProb[self.rnaSynthProb < 0] = 0.0
 		self.rnaSynthProb /= self.rnaSynthProb.sum()
 		if np.any(self.rnaSynthProb < 0):
 			raise Exception("Have negative RNA synthesis probabilities")
