@@ -108,22 +108,22 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	}
 
 	tfToComplexStoich = {
-		"putA":	2.,
-		"aldA":	4.,
-		"gdhA":	6.,
-		"carA":	2.,
-		"carB":	2.,
-		"argD":	2.,
-		"argE":	2.,
-		"aroG":	4.,
-		"aroF":	2.,
-		"tyrA":	2.,
-		"tyrB":	2.,
-		"trpA":	2.,
-		"trpB":	2.,
-		"trpD":	2.,
-		"trpE":	2.,
-		"aroH":	2.,	
+		"putA":	2,
+		"aldA":	4,
+		"gdhA":	6,
+		"carA":	2,
+		"carB":	2,
+		"argD":	2,
+		"argE":	2,
+		"aroG":	4,
+		"aroF":	2,
+		"tyrA":	2,
+		"tyrB":	2,
+		"trpA":	2,
+		"trpB":	2,
+		"trpD":	2,
+		"trpE":	2,
+		"aroH":	2,
 	}
 
 	nTfs = len(tfs)
@@ -156,6 +156,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				complexId = tfToComplexId[tf]
 				complexIdx = bulkMoleculeIds.index(complexId)
 				complexCounts = bulkMoleculeCounts[:, complexIdx].reshape(-1)
+
 				monomerCounts += (tfToComplexStoich[tf] * complexCounts)
 
 			rnaId = tfToRNAId[tf]
