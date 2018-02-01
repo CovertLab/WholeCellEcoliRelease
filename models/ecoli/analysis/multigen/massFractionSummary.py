@@ -43,28 +43,17 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				"DNA\nmass"
 				]
 
-	#plt.figure(figsize = (8.5, 11))
 	fig, axesList = plt.subplots(len(massNames), sharex = True)
-
-	currentMaxTime = 0
 
 	for simDir in allDir:
 		simOutDir = os.path.join(simDir, "simOut")
-		#initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 		mass = TableReader(os.path.join(simOutDir, "Mass"))
 
 		for idx, massType in enumerate(massNames):
 			massToPlot = mass.readColumn(massNames[idx])
-			# massToPlot = massToPlot / massToPlot[0]
 			axesList[idx].plot(time / 60. / 60., massToPlot, linewidth = 2)
-			
-			# set axes to size that shows all generations
-			cellCycleTime = ((time[-1] - time[0]) / 60. / 60. )
-			if cellCycleTime > currentMaxTime:
-				currentMaxTime = cellCycleTime
 
-			axesList[idx].set_xlim(0, currentMaxTime*int(metadata["total_gens"])*1.1)
 			axesList[idx].set_ylabel(cleanNames[idx] + " (fg)")
 
 	for axes in axesList:

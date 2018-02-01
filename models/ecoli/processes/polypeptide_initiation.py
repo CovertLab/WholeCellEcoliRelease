@@ -97,9 +97,6 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 			proteinInitProb
 			)
 
-		# Check that sampling produced expected result
-		assert nNewProteins.sum() == ribosomeToActivate
-
 		# Each ribosome is assigned a protein index for the protein that corresponds to the
 		# polypeptide it will polymerize. This is done in blocks of protein ids for efficiency.
 		proteinIndexes = np.empty(ribosomeToActivate, np.int64)
@@ -111,7 +108,6 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 				):
 
 			proteinIndexes[startIndex:startIndex+counts] = proteinIndex
-
 			startIndex += counts
 
 		# Create active 70S ribosomes and assign their protein indexes calculated above

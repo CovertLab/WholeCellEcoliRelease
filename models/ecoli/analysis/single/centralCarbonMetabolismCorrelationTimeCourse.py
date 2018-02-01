@@ -15,12 +15,6 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
-from matplotlib import colors
-from matplotlib import gridspec
-from scipy.stats import pearsonr
-
-import mpld3
-from mpld3 import plugins, utils
 
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
@@ -28,12 +22,11 @@ from wholecell.utils import units
 
 from models.ecoli.analysis.single.centralCarbonMetabolism import net_flux, _generatedID_reverseReaction
 
-from models.ecoli.processes.metabolism import COUNTS_UNITS, MASS_UNITS, VOLUME_UNITS, TIME_UNITS
+from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS
 
 FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
 
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-	return
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
 
@@ -47,7 +40,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-	timeStepSec = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
 
 	massListener = TableReader(os.path.join(simOutDir, "Mass"))
 	cellMass = massListener.readColumn("cellMass") * units.fg
@@ -57,10 +49,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 	reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
 	reactionFluxes = (COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS) * np.array(fbaResults.readColumn("reactionFluxes"))
-	fluxes_dict = dict(zip(reactionIDs, reactionFluxes))
 	fbaResults.close()
-
-	coefficients = dryMass / cellMass * cellDensity * (timeStepSec * units.s)
 
 	dryMassFracAverage = np.mean(dryMass / cellMass)
 
@@ -72,6 +61,14 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		if toyaReactionID in reactionIDs:
 			fluxTimeCourse = net_flux(toyaReactionID, reactionIDs, reactionFluxes, reverseRxnFormat=_generatedID_reverseReaction).asNumber(FLUX_UNITS).squeeze()
 			netFluxes.append(fluxTimeCourse)
+		else:
+			fluxTimeCourse = 0
+			newReactions = [rxn for rxn in reactionIDs if rxn.startswith(toyaReactionID)]
+			reverseReactions = [_generatedID_reverseReaction.format(rxn) for rxn in newReactions]
+			for rxn in newReactions:
+				if rxn not in reverseReactions:
+					fluxTimeCourse += net_flux(rxn, reactionIDs, reactionFluxes, reverseRxnFormat=_generatedID_reverseReaction).asNumber(FLUX_UNITS).squeeze()
+			netFluxes.append(fluxTimeCourse)
 
 	trimmedReactions = FLUX_UNITS * np.array(netFluxes)
 
@@ -82,7 +79,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	meanCorr = np.mean(np.array(corrCoefTimecourse)[~np.isnan(corrCoefTimecourse)])
 
-	fig = plt.figure()
+	plt.figure()
 	plt.plot(time / 60., corrCoefTimecourse)
 	plt.axhline(y=meanCorr, color='r')
 	plt.title("Measured vs. Simulated Central Carbon Fluxes")
@@ -110,4 +107,3 @@ if __name__ == "__main__":
 	args = parser.parse_args().__dict__
 
 	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
-	
