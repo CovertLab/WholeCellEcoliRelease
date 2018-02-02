@@ -143,7 +143,7 @@ class AnalysisPaths(object):
 		return self._path_data['path'][np.logical_and.reduce((variantBool, seedBool, generationBool))]
 
 	def get_variant_kb(self, variant):
-		kb_path = np.unique(self._path_data['variantkb'][self._path_data["variant"] == variant])
+		kb_path = np.unique(self._path_data['variantkb'][np.where(self._path_data["variant"] == variant)])
 		assert kb_path.size == 1
 		return kb_path[0]
 

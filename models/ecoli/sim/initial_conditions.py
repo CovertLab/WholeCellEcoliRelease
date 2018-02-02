@@ -223,7 +223,7 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 	massIncreaseDna = computeMassIncrease(
 			np.tile(sequences,(len(sequenceIdx) / 4,1)),
 			sequenceElongations,
-			sim_data.process.replication.replicationMonomerWeights.asNumber(units.fg)	
+			sim_data.process.replication.replicationMonomerWeights.asNumber(units.fg)
 			)
 
 	# Update the attributes of replicating DNA polymerases
@@ -274,17 +274,15 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 
 	# Determine changes from genetic perturbations
 	genetic_perturbations = {}
-	perturbations = {}
-	if hasattr(sim_data, 'genetic_perturbations') and sim_data.genetic_perturbations != None and len(sim_data.genetic_perturbations) > 0:
+	perturbations = getattr(sim_data, 'genetic_perturbations', {})
+	if len(perturbations) > 0:
 		rnaIdxs, synthProbs = zip(*[(int(np.where(sim_data.process.transcription.rnaData['id'] == rnaId)[0]), synthProb) for rnaId, synthProb in sim_data.genetic_perturbations.iteritems()])
-		fixedSynthProbs = [synthProb for (rnaIdx, syntheProb) in sorted(zip(rnaIdxs, synthProbs), key = lambda pair: pair[0])]
-		fixedRnaIdxs = [rnaIdx for (rnaIdx, syntheProb) in sorted(zip(rnaIdxs, synthProbs), key = lambda pair: pair[0])]
+		fixedSynthProbs = [synthProb for (rnaIdx, synthProb) in sorted(zip(rnaIdxs, synthProbs), key = lambda pair: pair[0])]
+		fixedRnaIdxs = [rnaIdx for (rnaIdx, synthProb) in sorted(zip(rnaIdxs, synthProbs), key = lambda pair: pair[0])]
 		genetic_perturbations = {'fixedRnaIdxs': fixedRnaIdxs, 'fixedSynthProbs': fixedSynthProbs}
-		perturbations = sim_data.genetic_perturbations
 
-	shuffleIdxs = None
-	if hasattr(sim_data.process.transcription, 'initiationShuffleIdxs') and sim_data.process.transcription.initiationShuffleIdxs != None:
-		shuffleIdxs = sim_data.process.transcription.initiationShuffleIdxs
+	# If initiationShuffleIdxs does not exist, set value to None
+	shuffleIdxs = getattr(sim_data.process.transcription, 'initiationShuffleIdxs', None)
 
 	# ID Groups
 	isRRna = sim_data.process.transcription.rnaData['isRRna']
@@ -302,7 +300,7 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	regProbs = rnaSynthProb[isRegulated]
 
 	# Adjust probabilities to not be negative
-	rnaSynthProb[rnaSynthProb < 0] = 0
+	rnaSynthProb[rnaSynthProb < 0] = 0.0
 	rnaSynthProb /= rnaSynthProb.sum()
 	if np.any(rnaSynthProb < 0):
 		raise Exception("Have negative RNA synthesis probabilities")
@@ -362,7 +360,7 @@ def initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 
 	Normalizes ribosomes placement per length of protein
 	"""
-	
+
 	# Load parameters
 	nAvogadro = sim_data.constants.nAvogadro
 	currentNutrients = sim_data.conditions[sim_data.condition]['nutrients']
@@ -466,21 +464,21 @@ def determineChromosomeState(C, D, tau, replication_length):
 						simply [0,1,2,3] repeated once for each replication
 						event. Ie for three active replication events (6 forks,
 						12 polymerases) sequenceIdx = [0,1,2,3,0,1,2,3,0,1,2,3]
-			sequenceLength - the position in the genome that each polymerase 
+			sequenceLength - the position in the genome that each polymerase
 						referenced in sequenceIdx has reached, in base-pairs.
-						This is handled such that even though in reality some 
+						This is handled such that even though in reality some
 						polymerases are replicating in different directions all
 						inputs here are as though each starts at 0 and goes up
 						the the number of base-pairs to be replicated.
-			replicationRound - a unique integer stating in which replication 
+			replicationRound - a unique integer stating in which replication
 						generation the polymerase referenced by sequenceIdx.
 						Each time all origins of replication in the cell fire,
-						a new replication generation has started. This array 
+						a new replication generation has started. This array
 						is integer-valued, and counts from 0 (the oldest
 						generation) up to n (the most recent initiation) event.
-			chromosomeIndex - indicator variable for which daughter cell 
+			chromosomeIndex - indicator variable for which daughter cell
 						should inherit which polymerase at division. This
-						array is only relevant to draw distinctions within a 
+						array is only relevant to draw distinctions within a
 						generaation of replicationRound, now between rounds.
 						Within each generation in replicationRound (run of
 						numbers with the same value), half should have
@@ -490,7 +488,7 @@ def determineChromosomeState(C, D, tau, replication_length):
 						[0,1,0,1,0,1,0,1]. The half-and-half rule is excepted
 						for any replication generation with only 4 polymerases
 						(the oldest replication generation should be the only
-						one	with fewer than 8 polymerases). In this case 
+						one	with fewer than 8 polymerases). In this case
 						chromosomeIndex doesn't matter/is effectively NaN,
 						but is set to all 0's to prevent conceptually dividing
 						a single chromosome between two daughter cells.
@@ -546,7 +544,7 @@ def determineChromosomeState(C, D, tau, replication_length):
 		# sequenceIdx refers to the type of elongation - ie forward and
 		# reverse, lagging and leading strands.
 		sequenceIdx += [0,1,2,3]*num_events
-		# sequenceLength refers to how far along in the replication process 
+		# sequenceLength refers to how far along in the replication process
 		# this event already is - at what basepair currently. All four are
 		# assumed to be equally far along.
 		sequenceLength += [fork_location]*4*num_events
@@ -555,7 +553,7 @@ def determineChromosomeState(C, D, tau, replication_length):
 		# of the same generation and round number
 		replicationRound += [(n-1)]*4*num_events
 		# WITHIN each round, chromosomeIndex uniquely identifies individual
-		# origin initaion points. Loop through each intiation event in this 
+		# origin initaion points. Loop through each intiation event in this
 		# generation (2 forks, 4 polymerases each), assign it an increaing,
 		# unique number, starting at zero.
 		chromosomeIndex += [0]*2*num_events + [0]*2*num_events
@@ -585,7 +583,7 @@ def determineNumOriC(C, D, tau):
 			replication_length - the amount of DNA to be replicated per fork,
 			usually half of the genome, in base-pairs
 
-	Outputs: the number of OriC's in the cell at initiation.	
+	Outputs: the number of OriC's in the cell at initiation.
 	"""
 
 	# Number active replication generations (can be many initiations per gen.)

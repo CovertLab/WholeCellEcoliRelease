@@ -37,18 +37,18 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
-	
+
 	rnaToProteinDict = {}
 	dnaToProteinDict = {}
 	elngRateDict = {}
 	stableRnaFractionDict = {}
 	doublingPerHourDict = {}
 
-	simDataFile = ap.get_variant_kb(all_cells[0])
+	simDataFile = ap.get_variant_kb(ap.get_variants()[0])
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	nAvogadro = sim_data.constants.nAvogadro.asNumber()
-	chromMass = (sim_data.getter.getMass(['CHROM_FULL[c]'])[0] / sim_data.constants.nAvogadro).asNumber() 
-	
+	chromMass = (sim_data.getter.getMass(['CHROM_FULL[c]'])[0] / sim_data.constants.nAvogadro).asNumber()
+
 	for simDir in all_cells:
 		simOutDir = os.path.join(simDir, "simOut")
 		variant = int(simDir[simDir.rfind('generation_')-14:simDir.rfind('generation_')-8])
