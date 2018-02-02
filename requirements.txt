@@ -1,10 +1,25 @@
-## How to build the Whole Cell pyenv:
-#   brew install glpk    # brew on macOS; whatever on Linux and Windows
-#   brew install swig
-#   brew install suite-sparse
+## How to build a Whole Cell pyenv:
+#   # Prepare, if needed.
+#   brew install pyenv          # use brew on macOS; whatever on Linux and Windows
+#   brew install pyenv-virtualenv
+#   brew install pyenv-virtualenvwrapper
+#   brew install glpk
+#   brew install swig           # needed to install pip CVXcanon
+#   brew install suite-sparse   # needed for cvxopt to use glpk
+#   brew install boost
+#   brew install boost-python   # needed by wholecell/utils/_netflow/glpk.cpp
+#
+#   # Try to install python 2.7.4 for now, but on macOS 2.7.8 is the oldest that works to install shared libraries. Python 2.7.9 is the oldest with working SSL libraries.
+#   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.8
+#
+#   pyenv local 2.7.8
+#   pyenv virtualenv ecoli5
+#   pyenv local ecoli5
+#
+#   # For macOS, edit the list (below) to require Theano==0.8.1 or later. Then:
 #   CVXOPT_BUILD_GLPK=1 pip install -r requirements.txt --no-binary cvxopt
 
-# Listing numpy first can avoid other installation failures.
+# Listing numpy first might avoid installation failures.
 numpy==1.9.2
 
 #alabaster==0.7.6
@@ -108,7 +123,7 @@ line-profiler==1.0
 MarkupSafe==0.23
 matplotlib==1.4.3
 matplotlib-venn==0.11.5
-#memory-profiler==0.44
+memory-profiler==0.44
 #mistune==0.7.1
 mock==1.3.0
 monty==0.9.4
@@ -179,7 +194,7 @@ sympy==1.0
 tabulate==0.7.5
 #terminado==0.5
 #testpath==0.2
-Theano==0.8.1  # 0.7.0 was broken on macOS by XCode 7.3 Command Line Tools
+Theano==0.7.0  # --> Need 0.8.1+ for macOS w/XCode 7.3 Command Line Tools
 toolz==0.7.4
 tornado==4.3
 traitlets==4.0.0
