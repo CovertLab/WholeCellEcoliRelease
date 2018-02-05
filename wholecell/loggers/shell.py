@@ -29,7 +29,7 @@ class Shell(wholecell.loggers.logger.Logger):
 		self.headerFreq = 50
 
 		self.columnSpecs = [
-			{"header": "Time (s)", "target": "Simulation", "property": "time", "length": 8, "format": "d", "sum": False},
+			{"header": "Time (s)", "target": "Simulation", "property": "time", "length": 8, "format": ".2f", "sum": False},
 			]
 
 		self.columnHeaders = columnHeaders
@@ -110,7 +110,7 @@ class Shell(wholecell.loggers.logger.Logger):
 					string.append(SPACER)
 
 				string.append(("%" + str(columnSize) + "s") % columnHeader)
-			
+
 			strings.append(''.join(string))
 
 		self._header = '\n'.join(strings) + '\n'
@@ -150,7 +150,7 @@ class Shell(wholecell.loggers.logger.Logger):
 
 			else:
 				targetType, targetName = column["target"].split(":")
-				
+
 				target = {
 					"State":sim.states,
 					"Process":sim.processes,
