@@ -68,6 +68,7 @@ class FBAResults(wholecell.listeners.listener.Listener):
 		self.kineticObjectiveValues = np.zeros(len(self.kineticTargetFluxNames))
 		self.homeostaticObjectiveValues = np.zeros(len(self.homeostaticTargetMolecules))
 		self.homeostaticObjectiveWeight = np.ones(1, np.float64)
+		self.targetConcentrations = np.zeros(len(self.homeostaticTargetMolecules))
 
 
 	def tableCreate(self, tableWriter):
@@ -95,4 +96,5 @@ class FBAResults(wholecell.listeners.listener.Listener):
 			homeostaticObjectiveValues = self.homeostaticObjectiveValues,
 			homeostaticObjectiveWeight = self.homeostaticObjectiveWeight,
 			deltaMetabolites = self.deltaMetabolites,
+			targetConcentrations = self.targetConcentrations,
 			)
