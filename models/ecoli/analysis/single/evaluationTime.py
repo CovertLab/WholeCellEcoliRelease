@@ -31,21 +31,18 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	stateNames = evaluationTime.readAttribute("stateNames")
 	processNames = evaluationTime.readAttribute("processNames")
 
-	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-
 	updateQueries_times = evaluationTime.readColumn("updateQueries_times")
 	partition_times = evaluationTime.readColumn("partition_times")
 	merge_times = evaluationTime.readColumn("merge_times")
 	calculateRequest_times = evaluationTime.readColumn("calculateRequest_times")
 	evolveState_times = evaluationTime.readColumn("evolveState_times")
-	# updateQueries_total = evaluationTime.readColumn("updateQueries_total")
-	# partition_total = evaluationTime.readColumn("partition_total")
-	# merge_total = evaluationTime.readColumn("merge_total")
-	# calculateRequest_total = evaluationTime.readColumn("calculateRequest_total")
-	# evolveState_total = evaluationTime.readColumn("evolveState_total")
 
 	evaluationTime.close()
+
+	mainReader = TableReader(os.path.join(simOutDir, "Main"))
+	initialTime = mainReader.readAttribute("initialTime")
+	time = mainReader.readColumn("time") - initialTime
+	mainReader.close()
 
 	plt.figure(figsize = (8.5, 11))
 
@@ -60,12 +57,13 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	plt.subplot(3, 2, 2)
 
-	plt.semilogy(time / 60, calculateRequest_times * 1000)
+	idx = np.argsort(calculateRequest_times[-1, :])[::-1]
+	plt.semilogy(time / 60, calculateRequest_times[:, idx] * 1000)
 	plt.grid(True, which = "major")
 	plt.xlabel("Simulation time (min)")
 	plt.ylabel("Evaluation time (ms)")
 	plt.title("Process.calculateRequest")
-	plt.legend(processNames, loc="best", bbox_to_anchor=(1,1), prop={'size':6})
+	plt.legend(np.array(processNames)[idx], loc="best", bbox_to_anchor=(1,1), prop={'size':6})
 
 	plt.subplot(3, 2, 3)
 
@@ -78,12 +76,13 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	plt.subplot(3, 2, 4)
 
-	plt.semilogy(time / 60, evolveState_times * 1000)
+	idx = np.argsort(evolveState_times[-1, :])[::-1]
+	plt.semilogy(time / 60, evolveState_times[:, idx] * 1000)
 	plt.grid(True, which = "major")
 	plt.xlabel("Simulation time (min)")
 	plt.ylabel("Evaluation time (ms)")
 	plt.title("Process.evolveState")
-	plt.legend(processNames, loc="best", bbox_to_anchor=(1,1), prop={'size':6})
+	plt.legend(np.array(processNames)[idx], loc="best", bbox_to_anchor=(1,1), prop={'size':6})
 
 	plt.subplot(3, 2, 5)
 
