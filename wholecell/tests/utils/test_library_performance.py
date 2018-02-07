@@ -231,10 +231,12 @@ class Test_library_performance(unittest.TestCase):
 	@nose.tools.timed(2.8)
 	def test_odeint(self):
 		"""Time scipy.integrate.odeint()."""
+		y0 = np.random.random(41)
+
 		def odeint():
 			y = scipy.integrate.odeint(
-				derivatives, np.random.random(41), t=[0, 1e6],
-				Dfun=(derivativesJacobian), mxstep=10000)
+				derivatives, y0, t=[0, 1e6], Dfun=derivativesJacobian,
+				mxstep=10000)
 		self.time_this(odeint)
 
 
