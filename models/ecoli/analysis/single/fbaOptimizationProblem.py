@@ -48,7 +48,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	# Set properties for and create figure
 	# Burn in required because some large spikes/instability in early time points
-	burnIn = 10  # timesteps
+	burnIn = 20  # timesteps
+	nStd = 1  # number of standard deviations away from mean to filter
 	plt.figure(figsize = (8.5, 11))
 
 	# Plot all shadow prices
@@ -71,7 +72,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	means = np.mean(shadowPrices, axis=0)
 	mean = np.mean(means)
 	std = np.std(means)
-	outliers = np.unique(np.where((shadowPrices[burnIn:, :] > mean + std / 2) | (shadowPrices[burnIn:, :] < mean - std / 2))[1])
+	outliers = np.unique(np.where((shadowPrices[burnIn:, :] > mean + nStd*std) | (shadowPrices[burnIn:, :] < mean - nStd*std))[1])
 	idx = outliers[np.argsort(means[outliers])][::-1]
 
 	ax = plt.subplot(3, 2, 2)
@@ -87,7 +88,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	means = np.mean(reducedCosts, axis=0)
 	mean = np.mean(means)
 	std = np.std(means)
-	outliers = np.unique(np.where((reducedCosts[burnIn:, :] > mean + std / 2) | (reducedCosts[burnIn:, :] < mean - std / 2))[1])
+	outliers = np.unique(np.where((reducedCosts[burnIn:, :] > mean + nStd*std) | (reducedCosts[burnIn:, :] < mean - nStd*std))[1])
 	idx = outliers[np.argsort(means[outliers])][::-1]
 
 	ax = plt.subplot(3, 2, 4)
@@ -104,7 +105,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	means = np.mean(reducedCosts, axis=0)
 	mean = np.mean(means)
 	std = np.std(means)
-	outliers = np.unique(np.where((reducedCosts[burnIn:, :] > mean + std / 2) | (reducedCosts[burnIn:, :] < mean - std / 2))[1])
+	outliers = np.unique(np.where((reducedCosts[burnIn:, :] > mean + nStd*std) | (reducedCosts[burnIn:, :] < mean - nStd*std))[1])
 	idx = outliers[np.argsort(means[outliers])][::-1]
 
 	ax = plt.subplot(3, 2, 4)
@@ -135,7 +136,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		means = np.mean(kineticsReducedCosts, axis=0)
 		mean = np.mean(means)
 		std = np.std(means)
-		outliers = np.unique(np.where((kineticsReducedCosts[burnIn:, :] > mean + std / 2) | (kineticsReducedCosts[burnIn:, :] < mean - std / 2))[1])
+		outliers = np.unique(np.where((kineticsReducedCosts[burnIn:, :] > mean + nStd*std) | (kineticsReducedCosts[burnIn:, :] < mean - nStd*std))[1])
 		idx = outliers[np.argsort(means[outliers])][::-1]
 
 		ax = plt.subplot(3, 2, 6)
