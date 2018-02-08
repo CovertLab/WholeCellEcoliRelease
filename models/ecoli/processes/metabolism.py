@@ -352,6 +352,7 @@ class Metabolism(wholecell.processes.process.Process):
 		self.writeToListener("FBAResults", "objectiveValue", self.fba.objectiveValue())
 		self.writeToListener("FBAResults", "rowDualValues", self.fba.rowDualValues(self.metaboliteNames))
 		self.writeToListener("FBAResults", "columnDualValues", self.fba.columnDualValues(self.fba.reactionIDs()))
+		self.writeToListener("FBAResults", "targetConcentrations", [self.homeostaticObjective[mol] for mol in self.fba.homeostaticTargetMolecules()])
 
 		self.writeToListener("EnzymeKinetics", "metaboliteCountsInit", metaboliteCountsInit)
 		self.writeToListener("EnzymeKinetics", "metaboliteCountsFinal", metaboliteCountsFinal)
