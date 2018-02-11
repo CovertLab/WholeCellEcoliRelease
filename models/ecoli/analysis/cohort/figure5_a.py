@@ -34,20 +34,13 @@ def align_yaxis(ax1, v1, ax2, v2):
     ax2.set_ylim(miny+dy, maxy+dy)
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
+	return
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
 
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
-
-	# Get all cells
-	ap = AnalysisPaths(seedOutDir, cohort_plot = True)
-	gens = np.arange(3,9)
-	allDir = ap.get_cells(seed=[0], generation = gens)
-	if len(allDir) == 0:
-		print "Skipping - particular seed and/or gens were not simluated."
-		return
-
+	
 	# Get all ids reqiured
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	ids_complexation = sim_data.process.complexation.moleculeNames # Complexes of proteins, and protein monomers
@@ -64,6 +57,11 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	data_rnap = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.rnapFull[0])
 	rnap_subunit_ids = data_rnap["subunitIds"].tolist()
 	rnap_subunit_stoich = data_rnap["subunitStoich"]
+
+	# Get all cells
+	ap = AnalysisPaths(seedOutDir, cohort_plot = True)
+	gens = np.arange(3,9)
+	allDir = ap.get_cells(seed=[0], generation = gens)
 
 	first_build = True
 
