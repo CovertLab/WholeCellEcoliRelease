@@ -34,15 +34,27 @@ def align_yaxis(ax1, v1, ax2, v2):
     ax2.set_ylim(miny+dy, maxy+dy)
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-	return
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
 
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
-	
-	# Get all ids reqiured
+
+	# Check if basal sim
 	sim_data = cPickle.load(open(simDataFile, "rb"))
+	if sim_data.condition != "basal":
+		print "Skipping - plot only runs for basal sim."
+		return
+
+	# Get all cells
+	ap = AnalysisPaths(seedOutDir, cohort_plot = True)
+	gens = np.arange(3,9)
+	allDir = ap.get_cells(seed=[0], generation = gens)
+	if len(allDir) < 6:
+		print "Skipping - particular seed and/or gens were not simulated."
+		return
+
+	# Get all ids reqiured
 	ids_complexation = sim_data.process.complexation.moleculeNames # Complexes of proteins, and protein monomers
 	ids_complexation_complexes = [ids_complexation[i] for i in np.where((sim_data.process.complexation.stoichMatrix() == 1).sum(axis = 1))[0]] # Only complexes
 	ids_equilibrium = sim_data.process.equilibrium.moleculeNames # Complexes of proteins + small molecules, small molecules, protein monomers
@@ -57,11 +69,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	data_rnap = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.rnapFull[0])
 	rnap_subunit_ids = data_rnap["subunitIds"].tolist()
 	rnap_subunit_stoich = data_rnap["subunitStoich"]
-
-	# Get all cells
-	ap = AnalysisPaths(seedOutDir, cohort_plot = True)
-	gens = np.arange(3,9)
-	allDir = ap.get_cells(seed=[0], generation = gens)
 
 	first_build = True
 
@@ -160,9 +167,13 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	rest_of_gens_decline = (ratioFinalToInitialCountMultigen[2:,:] < 1.1).all(axis=0)
 	logic_filter = np.logical_and.reduce((first_gen_flat, second_gen_burst, rest_of_gens_decline))
 	protein_index_of_interest_burst = np.where(logic_filter)[0]
-	protein_index_of_interest = protein_index_of_interest[:5]
-	protein_idx = protein_index_of_interest[4]
-	protein_idx_burst = protein_index_of_interest_burst[2]
+	try: # try block expects particular proteins to plot
+		protein_index_of_interest = protein_index_of_interest[:5]
+		protein_idx = protein_index_of_interest[4]
+		protein_idx_burst = protein_index_of_interest_burst[2]
+	except Exception as exc:
+		print "Error: %s" % exc
+		return
 
 	fig, axesList = plt.subplots(ncols = 2, nrows = 2, sharex = True)
 	expProtein_axis = axesList[0,0]
