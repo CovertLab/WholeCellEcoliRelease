@@ -83,11 +83,12 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	idx = outliers[np.argsort(means[outliers])][::-1]
 
 	ax = plt.subplot(3,1,3)
-	ax.plot(time / 60, ratio[:, idx])
+	if len(idx):
+		ax.plot(time / 60, ratio[:, idx])
+		ax.legend(moleculeNames[idx], fontsize=6)
 	ax.set_xlabel("Time (min)", fontsize=8)
 	ax.set_ylabel("Log10(Concentration to Target)", fontsize=8)
 	ax.tick_params(axis='both', which='major', labelsize=6)
-	ax.legend(moleculeNames[idx], fontsize=6)
 
 	plt.tight_layout()
 
