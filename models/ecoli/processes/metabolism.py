@@ -157,14 +157,15 @@ class Metabolism(wholecell.processes.process.Process):
 		self.internalExchangeIdxs = np.array([self.metaboliteNamesFromNutrients.index(x) for x in self.fba.outputMoleculeIDs()])
 
 		# Disable all rates during burn-in
-		if USE_KINETICS and KINETICS_BURN_IN_PERIOD > 0:
-			self.fba.disableKineticTargets()
-			self.burnInComplete = False
-		else:
-			self.burnInComplete = True
-			if not self.useAllConstraints:
-				for rxn in self.constraintsToDisable:
-					self.fba.disableKineticTargets(rxn)
+		if USE_KINETICS:
+			if KINETICS_BURN_IN_PERIOD > 0:
+				self.fba.disableKineticTargets()
+				self.burnInComplete = False
+			else:
+				self.burnInComplete = True
+				if not self.useAllConstraints:
+					for rxn in self.constraintsToDisable:
+						self.fba.disableKineticTargets(rxn)
 
 		# Values will get updated at each time point
 		self.currentNgam = 1 * (COUNTS_UNITS / VOLUME_UNITS)
