@@ -381,7 +381,7 @@ if COMPRESS_OUTPUT:
 		)
 
 	wf_fws.append(fw_validation_data_compression)
-	
+
 	wf_links[fw_validation_data].append(fw_raw_validation_data_compression)
 	wf_links[fw_validation_data].append(fw_raw_data_compression)
 
@@ -464,7 +464,7 @@ for i in VARIANTS_TO_RUN:
 				metadata = metadata,
 				),
 			name = fw_name,
-			spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": 2}, "_priority":4}
+			spec = {"_queueadapter": {"job_name": fw_name}, "_priority":4}
 			)
 		wf_fws.append(fw_this_variant_cohort_analysis)
 
