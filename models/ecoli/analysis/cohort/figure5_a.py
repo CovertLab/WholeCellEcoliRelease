@@ -208,8 +208,11 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# burstProteinFold_axis.set_ylabel("Fold change", fontsize=9)
 
 	mult = 3
-	fig.set_figwidth(mm2inch(80) * mult)
-	fig.set_figheight(mm2inch(50) * mult)
+	fig_width = mm2inch(80) * mult
+	fig_height = mm2inch(50) * mult
+
+	fig.set_figwidth(fig_width)
+	fig.set_figheight(fig_height)
 	firstLine = True
 	firstLineInit = None
 	firstLineInitRna = None
@@ -228,7 +231,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		# Read in bulk ids and counts
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		bulkCounts = bulkMolecules.readColumn("counts")
-		bulkMolecules.close()
+		bulkMolecules.close() # NOTE (John): .close() doesn't currently do anything
 
 		# Dissociate protein-protein complexes
 		bulkCounts[:, complexationIdx] += np.dot(sim_data.process.complexation.stoichMatrixMonomers(), bulkCounts[:, complexation_complexesIdx].transpose() * -1).transpose()
@@ -287,9 +290,53 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			EXP_COLOR,
 			BURST_COLOR,
 			)
+		count_min = ( # better to acquire programatically, but would require loading data twice
+			600,
+			0,
+			0,
+			0
+			)
+		count_scale = ( # same as above
+			2200 - 600,
+			30 - 0,
+			7 - 0,
+			1 - 0
+			)
 
-		for (ax, c, lc) in izip(axes, counts, line_color):
-			ax.plot(time_minutes, c, color = lc, linewidth = LINEWIDTH)
+		# These are *approximate* estimates of the axes sizes, using the
+		# size of the figure plus the face that the subplots are 2x2.
+		# This is good enough since we primarily need the aspect ratio;
+		# however there is probably a programmatic way to get this info
+		# from the axes objects themselves.
+		axes_width = fig_width / 2
+		axes_height = fig_height / 2
+
+		# No easy way to know how long the total set of simulations
+		# will be without rewriting a lot of code, so assume that
+		# the total time is roughly the time of the current gen. times
+		# the number of generations.
+		rescaled_time = (time_minutes - time_minutes.min())/(
+			(time_minutes.max() - time_minutes.min()) * n_gens
+			)
+
+		for (ax, c, lc, cm, cs) in izip(axes, counts, line_color, count_min, count_scale):
+			rescaled_counts = (c.astype(np.float64) - cm)/cs
+
+			# Roughly rescale the data into the plotted dimensions for
+			# better point downsampling
+			points = np.column_stack([
+				rescaled_time * axes_width,
+				rescaled_counts * axes_height
+				])
+
+			RDP_THRESHOLD = 1e-5
+
+			keep = rdp(points, RDP_THRESHOLD)
+
+			x = time_minutes[keep]
+			y = c[keep]
+
+			ax.plot(x, y, color = lc, linewidth = LINEWIDTH)
 
 		# expProteinFold_axis.plot(time_minutes, proteinMonomerCounts[:, protein_idx] / firstLineInit, alpha = 0.,color = "red")
 		# burstProteinFold_axis.plot(time_minutes, proteinMonomerCounts[:, protein_idx_burst] / firstLineInit_burst, alpha = 0., color="red")
