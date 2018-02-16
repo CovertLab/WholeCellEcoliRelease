@@ -19,7 +19,9 @@ from matplotlib.ticker import FormatStrFormatter
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
-FROM_CACHE = False
+FROM_CACHE = True # TOD: return this to False BEFORE MERGING
+
+GENS = np.arange(3, 8) # TODO: return this to (3, 9) BEFORE MERGING
 
 def mm2inch(value):
 	return value * 0.0393701
@@ -48,9 +50,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	# Get all cells
 	ap = AnalysisPaths(seedOutDir, cohort_plot = True)
-	gens = np.arange(3,9)
-	allDir = ap.get_cells(seed=[0], generation = gens)
-	if len(allDir) < 6:
+	allDir = ap.get_cells(seed=[0], generation = GENS)
+	n_gens = GENS.size
+	if len(allDir) < n_gens:
 		print "Skipping - particular seed and/or gens were not simulated."
 		return
 
@@ -76,10 +78,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	n_monomers = sim_data.process.translation.monomerData['id'].size
 	n_sims = ap.n_generation
 
-	ratioFinalToInitialCountMultigen = np.zeros((gens.size, n_monomers), dtype = np.float)
+	ratioFinalToInitialCountMultigen = np.zeros((n_gens, n_monomers), dtype = np.float)
 	initiationEventsPerMonomerMultigen = np.zeros((n_sims, n_monomers), dtype = np.int)
 
-	# protein_index_of_interest_full = np.zeros((gens.size, n_monomers), dtype = np.bool)
+	# protein_index_of_interest_full = np.zeros((n_gens, n_monomers), dtype = np.bool)
 
 	if not FROM_CACHE:
 		print "Re-running - not using cache"
@@ -101,7 +103,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				equilibriumIdx = np.array([moleculeIds.index(x) for x in ids_equilibrium]) # Complexes of proteins + small molecules, small molecules, protein monomers
 				equilibrium_complexesIdx = np.array([moleculeIds.index(x) for x in ids_equilibrium_complexes]) # Only complexes
 				translationIdx = np.array([moleculeIds.index(x) for x in ids_translation]) # Only protein monomers
-				transcriptionIdx = np.array([moleculeIds.index(x) for x in ids_transcription]) # Only protein rnas 
+				transcriptionIdx = np.array([moleculeIds.index(x) for x in ids_transcription]) # Only protein rnas
 				ribosomeIdx = np.array([moleculeIds.index(x) for x in ribosome_subunit_ids])
 				rnapIdx = np.array([moleculeIds.index(x) for x in rnap_subunit_ids])
 
@@ -139,12 +141,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 			bulkCounts[:, ribosomeIdx] += ribosomeSubunitCounts
 			bulkCounts[:, rnapIdx] += rnapSubunitCounts
-			
+
 			# Get protein monomer counts for calculations now that all complexes are dissociated
 			proteinMonomerCounts = bulkCounts[:, translationIdx]
 			ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(np.float) + 1)
 			ratioFinalToInitialCountMultigen[gen_idx, :] = ratioFinalToInitialCount
-			
+
 		# cPickle.dump(protein_index_of_interest_full, open(os.path.join(plotOutDir,"protein_index_of_interest_full.pickle"), "wb"))
 		cPickle.dump(ratioFinalToInitialCountMultigen, open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "wb"))
 
@@ -244,7 +246,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		bulkCounts[:, ribosomeIdx] += ribosomeSubunitCounts
 		bulkCounts[:, rnapIdx] += rnapSubunitCounts
-		
+
 		# Get protein monomer counts for calculations now that all complexes are dissociated
 		proteinMonomerCounts = bulkCounts[:, translationIdx]
 		rnaMonomerCounts = bulkCounts[:, transcriptionIdx]
@@ -253,7 +255,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			firstLineInit = float(proteinMonomerCounts[:, protein_idx][0])
 			firstLineInitRna = float(rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx][0])
 			firstLineInit_burst = float(proteinMonomerCounts[:, protein_idx_burst][0])
-			firstLineInitRna_burst = float(rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx_burst][0])			
+			firstLineInitRna_burst = float(rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx_burst][0])
 			firstLine = False
 
 		linewidth=1
@@ -263,7 +265,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		# burstProteinFold_axis.plot(time / 60., proteinMonomerCounts[:, protein_idx_burst] / firstLineInit_burst, alpha = 0., color="red")
 		expRna_axis.plot(time / 60., rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx], color = "red", linewidth=linewidth)
 		burstRna_axis.plot(time / 60., rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx_burst], color = "blue", linewidth=linewidth)
-	
+
 	expProtein_axis.set_title("Exponential dynamics: {}".format(sim_data.process.translation.monomerData['id'][protein_idx][:-3]), fontsize=9)
 	burstProtein_axis.set_title("Sub-generational dynamics: {}".format(sim_data.process.translation.monomerData['id'][protein_idx_burst][:-3]), fontsize=9)
 	expProtein_axis.set_ylabel("Protein\ncount", rotation=0, fontsize=9)
@@ -291,8 +293,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	expRna_axis.set_xticks(time_eachGen / 60.)
 	burstRna_axis.set_xticks(time_eachGen / 60.)
-	xlabel = gens.tolist()
-	xlabel.append(gens[-1] + 1)
+	xlabel = GENS.tolist()
+	xlabel.append(GENS[-1] + 1)
 	expRna_axis.set_xticklabels(xlabel)
 	burstRna_axis.set_xticklabels(xlabel)
 
@@ -304,7 +306,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# axesList.append(burstProteinFold_axis)
 	for axes in axesList:
 		for tick in axes.xaxis.get_major_ticks():
-			tick.label.set_fontsize(9) 
+			tick.label.set_fontsize(9)
 		for tick in axes.yaxis.get_major_ticks():
 			tick.label.set_fontsize(9)
 
