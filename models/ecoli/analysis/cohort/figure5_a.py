@@ -3,6 +3,8 @@
 import argparse
 import os
 
+from itertools import izip
+
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -13,6 +15,8 @@ from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
 from wholecell.utils.sparkline import whitePadSparklineAxis
+
+from wholecell.analysis.rdp import rdp
 
 import cPickle
 from matplotlib.ticker import FormatStrFormatter
@@ -258,13 +262,37 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			firstLineInitRna_burst = float(rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx_burst][0])
 			firstLine = False
 
-		linewidth=1
-		expProtein_axis.plot(time / 60., proteinMonomerCounts[:, protein_idx], color = "red", linewidth=linewidth)
-		# expProteinFold_axis.plot(time / 60., proteinMonomerCounts[:, protein_idx] / firstLineInit, alpha = 0.,color = "red")
-		burstProtein_axis.plot(time / 60., proteinMonomerCounts[:, protein_idx_burst], color = "blue", linewidth=linewidth)
-		# burstProteinFold_axis.plot(time / 60., proteinMonomerCounts[:, protein_idx_burst] / firstLineInit_burst, alpha = 0., color="red")
-		expRna_axis.plot(time / 60., rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx], color = "red", linewidth=linewidth)
-		burstRna_axis.plot(time / 60., rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx_burst], color = "blue", linewidth=linewidth)
+		LINEWIDTH = 1
+
+		time_minutes = time / 60.
+
+		EXP_COLOR = 'red'
+		BURST_COLOR = 'blue'
+
+		axes = (
+			expProtein_axis,
+			burstProtein_axis,
+			expRna_axis,
+			burstRna_axis
+			)
+		counts = (
+			proteinMonomerCounts[:, protein_idx],
+			proteinMonomerCounts[:, protein_idx_burst],
+			rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx],
+			rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx_burst]
+			)
+		line_color = (
+			EXP_COLOR,
+			BURST_COLOR,
+			EXP_COLOR,
+			BURST_COLOR,
+			)
+
+		for (ax, c, lc) in izip(axes, counts, line_color):
+			ax.plot(time_minutes, c, color = lc, linewidth = LINEWIDTH)
+
+		# expProteinFold_axis.plot(time_minutes, proteinMonomerCounts[:, protein_idx] / firstLineInit, alpha = 0.,color = "red")
+		# burstProteinFold_axis.plot(time_minutes, proteinMonomerCounts[:, protein_idx_burst] / firstLineInit_burst, alpha = 0., color="red")
 
 	expProtein_axis.set_title("Exponential dynamics: {}".format(sim_data.process.translation.monomerData['id'][protein_idx][:-3]), fontsize=9)
 	burstProtein_axis.set_title("Sub-generational dynamics: {}".format(sim_data.process.translation.monomerData['id'][protein_idx_burst][:-3]), fontsize=9)
