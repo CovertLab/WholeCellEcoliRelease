@@ -304,7 +304,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			)
 
 		# These are *approximate* estimates of the axes sizes, using the
-		# size of the figure plus the face that the subplots are 2x2.
+		# size of the figure plus the fact that the subplots are 2x2.
 		# This is good enough since we primarily need the aspect ratio;
 		# however there is probably a programmatic way to get this info
 		# from the axes objects themselves.
@@ -313,8 +313,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		# No easy way to know how long the total set of simulations
 		# will be without rewriting a lot of code, so assume that
-		# the total time is roughly the time of the current gen. times
-		# the number of generations.
+		# the total time is roughly the time of the current generation
+		# multiplied by the total number of generations.
 		rescaled_time = (time_minutes - time_minutes.min())/(
 			(time_minutes.max() - time_minutes.min()) * n_gens
 			)
