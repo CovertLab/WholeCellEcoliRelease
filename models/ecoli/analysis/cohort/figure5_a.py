@@ -23,9 +23,9 @@ from matplotlib.ticker import FormatStrFormatter
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
-FROM_CACHE = True # TOD: return this to False BEFORE MERGING
+FROM_CACHE = False
 
-GENS = np.arange(3, 8) # TODO: return this to (3, 9) BEFORE MERGING
+GENS = np.arange(3, 9)
 
 def mm2inch(value):
 	return value * 0.0393701
