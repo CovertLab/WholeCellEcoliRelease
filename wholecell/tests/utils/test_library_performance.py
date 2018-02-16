@@ -98,7 +98,7 @@ def time_it(code_to_measure, title='Measured'):
 	cpu_sys = end_sys - start_sys
 	cpu_total = cpu_user + cpu_sys
 
-	print("%s CPU times: user %s, sys: %s, total: %s; Wall time: %s"
+	print("\n%s CPU times: user %s, sys: %s, total: %s; Wall time: %s"
 		  % (title, _format_time(cpu_user), _format_time(cpu_sys),
 			 _format_time(cpu_total), _format_time(wall_time)))
 
@@ -204,7 +204,8 @@ class Test_library_performance(unittest.TestCase):
 
 	def time_this(self, code_to_measure):
 		"""Times the execution of code_to_measure()."""
-		time_it(code_to_measure, self.id())
+		test_method_name = self.id().rpartition('.')[-1]
+		time_it(code_to_measure, test_method_name)
 
 	# On 2015 MacBook Pro this takes < 25 ms.
 	# On Sherlock 1.0 with 1 CPU this takes ~250 ms.

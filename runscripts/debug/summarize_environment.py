@@ -15,7 +15,8 @@ import sys
 def subtitle(module):
 	"""Print a section subtitle with the module's name and version."""
 	print
-	print "{} {}".format(module.__name__, module.__dict__.get('__version__', ''))
+	print "{} {}".format(getattr(module, '__name__', 'A module'),
+						 getattr(module, '__version__', ''))
 
 def print_dictionary(name, a_dict, select_keys):
 	"""Print select keys from a dict, as available, in order, one per line."""
