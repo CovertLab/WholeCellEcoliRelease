@@ -3,6 +3,8 @@
 import argparse
 import os
 
+from itertools import izip
+
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -14,12 +16,16 @@ import wholecell.utils.constants
 
 from wholecell.utils.sparkline import whitePadSparklineAxis
 
+from wholecell.analysis.rdp import rdp
+
 import cPickle
 from matplotlib.ticker import FormatStrFormatter
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
 FROM_CACHE = False
+
+GENS = np.arange(3, 9)
 
 def mm2inch(value):
 	return value * 0.0393701
@@ -34,15 +40,27 @@ def align_yaxis(ax1, v1, ax2, v2):
     ax2.set_ylim(miny+dy, maxy+dy)
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-	return
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
 
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
-	
-	# Get all ids reqiured
+
+	# Check if basal sim
 	sim_data = cPickle.load(open(simDataFile, "rb"))
+	if sim_data.condition != "basal":
+		print "Skipping - plot only runs for basal sim."
+		return
+
+	# Get all cells
+	ap = AnalysisPaths(seedOutDir, cohort_plot = True)
+	allDir = ap.get_cells(seed=[0], generation = GENS)
+	n_gens = GENS.size
+	if len(allDir) < n_gens:
+		print "Skipping - particular seed and/or gens were not simulated."
+		return
+
+	# Get all ids reqiured
 	ids_complexation = sim_data.process.complexation.moleculeNames # Complexes of proteins, and protein monomers
 	ids_complexation_complexes = [ids_complexation[i] for i in np.where((sim_data.process.complexation.stoichMatrix() == 1).sum(axis = 1))[0]] # Only complexes
 	ids_equilibrium = sim_data.process.equilibrium.moleculeNames # Complexes of proteins + small molecules, small molecules, protein monomers
@@ -58,21 +76,16 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	rnap_subunit_ids = data_rnap["subunitIds"].tolist()
 	rnap_subunit_stoich = data_rnap["subunitStoich"]
 
-	# Get all cells
-	ap = AnalysisPaths(seedOutDir, cohort_plot = True)
-	gens = np.arange(3,9)
-	allDir = ap.get_cells(seed=[0], generation = gens)
-
 	first_build = True
 
 	# Pre-allocate variables. Rows = Generations, Cols = Monomers
 	n_monomers = sim_data.process.translation.monomerData['id'].size
 	n_sims = ap.n_generation
 
-	ratioFinalToInitialCountMultigen = np.zeros((gens.size, n_monomers), dtype = np.float)
+	ratioFinalToInitialCountMultigen = np.zeros((n_gens, n_monomers), dtype = np.float)
 	initiationEventsPerMonomerMultigen = np.zeros((n_sims, n_monomers), dtype = np.int)
 
-	# protein_index_of_interest_full = np.zeros((gens.size, n_monomers), dtype = np.bool)
+	# protein_index_of_interest_full = np.zeros((n_gens, n_monomers), dtype = np.bool)
 
 	if not FROM_CACHE:
 		print "Re-running - not using cache"
@@ -94,7 +107,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				equilibriumIdx = np.array([moleculeIds.index(x) for x in ids_equilibrium]) # Complexes of proteins + small molecules, small molecules, protein monomers
 				equilibrium_complexesIdx = np.array([moleculeIds.index(x) for x in ids_equilibrium_complexes]) # Only complexes
 				translationIdx = np.array([moleculeIds.index(x) for x in ids_translation]) # Only protein monomers
-				transcriptionIdx = np.array([moleculeIds.index(x) for x in ids_transcription]) # Only protein rnas 
+				transcriptionIdx = np.array([moleculeIds.index(x) for x in ids_transcription]) # Only protein rnas
 				ribosomeIdx = np.array([moleculeIds.index(x) for x in ribosome_subunit_ids])
 				rnapIdx = np.array([moleculeIds.index(x) for x in rnap_subunit_ids])
 
@@ -132,12 +145,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 			bulkCounts[:, ribosomeIdx] += ribosomeSubunitCounts
 			bulkCounts[:, rnapIdx] += rnapSubunitCounts
-			
+
 			# Get protein monomer counts for calculations now that all complexes are dissociated
 			proteinMonomerCounts = bulkCounts[:, translationIdx]
 			ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(np.float) + 1)
 			ratioFinalToInitialCountMultigen[gen_idx, :] = ratioFinalToInitialCount
-			
+
 		# cPickle.dump(protein_index_of_interest_full, open(os.path.join(plotOutDir,"protein_index_of_interest_full.pickle"), "wb"))
 		cPickle.dump(ratioFinalToInitialCountMultigen, open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "wb"))
 
@@ -160,9 +173,13 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	rest_of_gens_decline = (ratioFinalToInitialCountMultigen[2:,:] < 1.1).all(axis=0)
 	logic_filter = np.logical_and.reduce((first_gen_flat, second_gen_burst, rest_of_gens_decline))
 	protein_index_of_interest_burst = np.where(logic_filter)[0]
-	protein_index_of_interest = protein_index_of_interest[:5]
-	protein_idx = protein_index_of_interest[4]
-	protein_idx_burst = protein_index_of_interest_burst[2]
+	try: # try block expects particular proteins to plot
+		protein_index_of_interest = protein_index_of_interest[:5]
+		protein_idx = protein_index_of_interest[4]
+		protein_idx_burst = protein_index_of_interest_burst[2]
+	except Exception as exc:
+		print "Error: %s" % exc
+		return
 
 	fig, axesList = plt.subplots(ncols = 2, nrows = 2, sharex = True)
 	expProtein_axis = axesList[0,0]
@@ -191,8 +208,11 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# burstProteinFold_axis.set_ylabel("Fold change", fontsize=9)
 
 	mult = 3
-	fig.set_figwidth(mm2inch(80) * mult)
-	fig.set_figheight(mm2inch(50) * mult)
+	fig_width = mm2inch(80) * mult
+	fig_height = mm2inch(50) * mult
+
+	fig.set_figwidth(fig_width)
+	fig.set_figheight(fig_height)
 	firstLine = True
 	firstLineInit = None
 	firstLineInitRna = None
@@ -211,7 +231,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		# Read in bulk ids and counts
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		bulkCounts = bulkMolecules.readColumn("counts")
-		bulkMolecules.close()
+		bulkMolecules.close() # NOTE (John): .close() doesn't currently do anything
 
 		# Dissociate protein-protein complexes
 		bulkCounts[:, complexationIdx] += np.dot(sim_data.process.complexation.stoichMatrixMonomers(), bulkCounts[:, complexation_complexesIdx].transpose() * -1).transpose()
@@ -233,7 +253,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		bulkCounts[:, ribosomeIdx] += ribosomeSubunitCounts
 		bulkCounts[:, rnapIdx] += rnapSubunitCounts
-		
+
 		# Get protein monomer counts for calculations now that all complexes are dissociated
 		proteinMonomerCounts = bulkCounts[:, translationIdx]
 		rnaMonomerCounts = bulkCounts[:, transcriptionIdx]
@@ -242,17 +262,85 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			firstLineInit = float(proteinMonomerCounts[:, protein_idx][0])
 			firstLineInitRna = float(rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx][0])
 			firstLineInit_burst = float(proteinMonomerCounts[:, protein_idx_burst][0])
-			firstLineInitRna_burst = float(rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx_burst][0])			
+			firstLineInitRna_burst = float(rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx_burst][0])
 			firstLine = False
 
-		linewidth=1
-		expProtein_axis.plot(time / 60., proteinMonomerCounts[:, protein_idx], color = "red", linewidth=linewidth)
-		# expProteinFold_axis.plot(time / 60., proteinMonomerCounts[:, protein_idx] / firstLineInit, alpha = 0.,color = "red")
-		burstProtein_axis.plot(time / 60., proteinMonomerCounts[:, protein_idx_burst], color = "blue", linewidth=linewidth)
-		# burstProteinFold_axis.plot(time / 60., proteinMonomerCounts[:, protein_idx_burst] / firstLineInit_burst, alpha = 0., color="red")
-		expRna_axis.plot(time / 60., rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx], color = "red", linewidth=linewidth)
-		burstRna_axis.plot(time / 60., rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx_burst], color = "blue", linewidth=linewidth)
-	
+		LINEWIDTH = 1
+
+		time_minutes = time / 60.
+
+		EXP_COLOR = 'red'
+		BURST_COLOR = 'blue'
+
+		axes = (
+			expProtein_axis,
+			burstProtein_axis,
+			expRna_axis,
+			burstRna_axis
+			)
+		counts = (
+			proteinMonomerCounts[:, protein_idx],
+			proteinMonomerCounts[:, protein_idx_burst],
+			rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx],
+			rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx_burst]
+			)
+		line_color = (
+			EXP_COLOR,
+			BURST_COLOR,
+			EXP_COLOR,
+			BURST_COLOR,
+			)
+		count_min = ( # better to acquire programatically, but would require loading data twice
+			600,
+			0,
+			0,
+			0
+			)
+		count_scale = ( # same as above
+			2200 - 600,
+			30 - 0,
+			7 - 0,
+			1 - 0
+			)
+
+		# These are *approximate* estimates of the axes sizes, using the
+		# size of the figure plus the fact that the subplots are 2x2.
+		# This is good enough since we primarily need the aspect ratio;
+		# however there is probably a programmatic way to get this info
+		# from the axes objects themselves.
+		axes_width = fig_width / 2
+		axes_height = fig_height / 2
+
+		# No easy way to know how long the total set of simulations
+		# will be without rewriting a lot of code, so assume that
+		# the total time is roughly the time of the current generation
+		# multiplied by the total number of generations.
+		rescaled_time = (time_minutes - time_minutes.min())/(
+			(time_minutes.max() - time_minutes.min()) * n_gens
+			)
+
+		for (ax, c, lc, cm, cs) in izip(axes, counts, line_color, count_min, count_scale):
+			rescaled_counts = (c.astype(np.float64) - cm)/cs
+
+			# Roughly rescale the data into the plotted dimensions for
+			# better point downsampling
+			points = np.column_stack([
+				rescaled_time * axes_width,
+				rescaled_counts * axes_height
+				])
+
+			RDP_THRESHOLD = 1e-5
+
+			keep = rdp(points, RDP_THRESHOLD)
+
+			x = time_minutes[keep]
+			y = c[keep]
+
+			ax.plot(x, y, color = lc, linewidth = LINEWIDTH)
+
+		# expProteinFold_axis.plot(time_minutes, proteinMonomerCounts[:, protein_idx] / firstLineInit, alpha = 0.,color = "red")
+		# burstProteinFold_axis.plot(time_minutes, proteinMonomerCounts[:, protein_idx_burst] / firstLineInit_burst, alpha = 0., color="red")
+
 	expProtein_axis.set_title("Exponential dynamics: {}".format(sim_data.process.translation.monomerData['id'][protein_idx][:-3]), fontsize=9)
 	burstProtein_axis.set_title("Sub-generational dynamics: {}".format(sim_data.process.translation.monomerData['id'][protein_idx_burst][:-3]), fontsize=9)
 	expProtein_axis.set_ylabel("Protein\ncount", rotation=0, fontsize=9)
@@ -280,8 +368,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	expRna_axis.set_xticks(time_eachGen / 60.)
 	burstRna_axis.set_xticks(time_eachGen / 60.)
-	xlabel = gens.tolist()
-	xlabel.append(gens[-1] + 1)
+	xlabel = GENS.tolist()
+	xlabel.append(GENS[-1] + 1)
 	expRna_axis.set_xticklabels(xlabel)
 	burstRna_axis.set_xticklabels(xlabel)
 
@@ -293,7 +381,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# axesList.append(burstProteinFold_axis)
 	for axes in axesList:
 		for tick in axes.xaxis.get_major_ticks():
-			tick.label.set_fontsize(9) 
+			tick.label.set_fontsize(9)
 		for tick in axes.yaxis.get_major_ticks():
 			tick.label.set_fontsize(9)
 
