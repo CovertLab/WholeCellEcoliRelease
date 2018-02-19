@@ -32,25 +32,6 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 	def initialize(self, sim, sim_data):
 		super(RibosomeData, self).initialize(sim, sim_data)
 
-		# Computed, saved attributes
-		self.stallingRateTotal = None
-		self.stallingRateMean = None
-		self.stallingRateStd = None
-		self.fractionStalled = None
-
-		# Attributes broadcast by the processes
-		self.ribosomeStalls = None
-		self.aaCountInSequence = None
-		self.aaCounts = None
-		self.actualElongations = None
-		self.expectedElongations = None
-		self.didTerminate = None
-		self.didInitialize = None
-		self.terminationLoss = None
-		self.expectedInitRate = None
-		self.translationSupply = None
-		self.numTrpATerminated = None
-
 		# Logged quantities
 		self.registerLoggedQuantity(
 			"Fraction\nribosomes\nstalled",

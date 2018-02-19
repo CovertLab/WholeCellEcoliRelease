@@ -32,24 +32,6 @@ class RnapData(wholecell.listeners.listener.Listener):
 	def initialize(self, sim, sim_data):
 		super(RnapData, self).initialize(sim, sim_data)
 
-		# Computed, saved attributes
-		self.stallingRateTotal = None
-		self.stallingRateMean = None
-		self.stallingRateStd = None
-		self.fractionStalled = None
-
-		# Attributes broadcast by the processes
-		self.rnapStalls = None		
-		self.ntpCountInSequence = None
-		self.ntpCounts = None
-		self.actualElongations = None
-		self.expectedElongations = None
-		self.nTerminated = None
-		self.didTerminate = None
-		self.didInitialize = None
-		self.terminationLoss = None
-		self.rnaInitEvent = None
-
 		self.nRnaSpecies = sim_data.process.transcription.rnaData['id'].size
 
 		# Logged quantities

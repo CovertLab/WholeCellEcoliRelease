@@ -36,12 +36,6 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 		recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
 		self.nTfs = len(set([x.split("__")[-1] for x in recruitmentColNames if x.split("__")[-1] != "alpha"]))
 
-		self.pTfBound = None
-		self.pPromoterBound = None
-		self.nTfBound = None
-		self.nPromoterBound = None
-		self.nActualBound = None
-
 
 	# Allocate memory
 	def allocate(self):

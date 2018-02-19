@@ -36,23 +36,6 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 		self.aaIds = sim_data.moleculeGroups.aaIDs
 		self.ntpIds = sim_data.moleculeGroups.ntpIds
 
-		# For translation
-		self.gtpPoolSize = None
-		self.gtpRequestSize = None
-		self.gtpAllocated = None
-		self.gtpUsed = None
-
-		self.aaPoolSize = None
-		self.aaRequestSize = None
-		self.aaAllocated = None
-		self.aasUsed = None
-
-		# For transcription
-		self.ntpPoolSize = None
-		self.ntpRequestSize = None
-		self.ntpAllocated = None
-		self.ntpUsed = None
-
 	# Allocate memory
 	def allocate(self):
 		super(GrowthLimits, self).allocate()
