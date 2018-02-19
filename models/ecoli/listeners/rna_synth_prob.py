@@ -43,9 +43,7 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 
 		self.rnaSynthProb = np.zeros(len(self.rnaIds), np.float64)
 
-		self.pTfBound = np.zeros(self.nTfs, np.float64)
 		self.pPromoterBound = np.zeros(self.nTfs, np.float64)
-		self.nTfBound = np.zeros(self.nTfs, np.float64)
 		self.nPromoterBound = np.zeros(self.nTfs, np.float64)
 		self.nActualBound = np.zeros(self.nTfs, np.float64)
 
@@ -61,9 +59,7 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 			time = self.time(),
 			simulationStep = self.simulationStep(),
 			rnaSynthProb = self.rnaSynthProb,
-			pTfBound = self.pTfBound,
 			pPromoterBound = self.pPromoterBound,
-			nTfBound = self.nTfBound,
 			nPromoterBound = self.nPromoterBound,
 			nActualBound = self.nActualBound,
 			)
