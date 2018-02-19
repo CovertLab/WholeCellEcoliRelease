@@ -341,8 +341,6 @@ class Metabolism(wholecell.processes.process.Process):
 			), 0).astype(np.int64)
 
 		self.metabolites.countsIs(metaboliteCountsFinal)
-		if USE_KINETICS and self.burnInComplete:
-			relError = np.abs((self.fba.reactionFluxes(self.kineticsConstrainedReactions) - targets) / (targets + 1e-15))
 
 		exFluxes = ((COUNTS_UNITS / VOLUME_UNITS) * self.fba.externalExchangeFluxes() / coefficient).asNumber(units.mmol / units.g / units.h)
 
@@ -354,6 +352,7 @@ class Metabolism(wholecell.processes.process.Process):
 		self.writeToListener("FBAResults", "rowDualValues", self.fba.rowDualValues(self.metaboliteNames))
 		self.writeToListener("FBAResults", "columnDualValues", self.fba.columnDualValues(self.fba.reactionIDs()))
 		self.writeToListener("FBAResults", "targetConcentrations", [self.homeostaticObjective[mol] for mol in self.fba.homeostaticTargetMolecules()])
+		self.writeToListener("FBAResults", "homeostaticObjectiveValues", self.fba.homeostaticObjectiveValues())
 
 		self.writeToListener("EnzymeKinetics", "metaboliteCountsInit", metaboliteCountsInit)
 		self.writeToListener("EnzymeKinetics", "metaboliteCountsFinal", metaboliteCountsFinal)
