@@ -64,7 +64,7 @@ class Complexation(object):
 
 				stoichMatrixI.append(moleculeIndex)
 				stoichMatrixJ.append(reactionIndex)
-				stoichMatrixV.append(int(coefficient))
+				stoichMatrixV.append(coefficient)
 
 				if coefficient < 0:
 					subunits.append(moleculeName)
@@ -99,7 +99,7 @@ class Complexation(object):
 	def stoichMatrix(self):
 		shape = (self._stoichMatrixI.max()+1, self._stoichMatrixJ.max()+1)
 
-		out = np.zeros(shape, np.int64)
+		out = np.zeros(shape, np.float64)
 
 		out[self._stoichMatrixI, self._stoichMatrixJ] = self._stoichMatrixV
 
@@ -139,20 +139,20 @@ class Complexation(object):
 			rowIdx = self.moleculeNames.index(id_complex)
 			stoichMatrixMonomersI.append(rowIdx)
 			stoichMatrixMonomersJ.append(colIdx)
-			stoichMatrixMonomersV.append(1)
+			stoichMatrixMonomersV.append(1.)
 
 			for subunitId, subunitStoich in zip(D["subunitIds"], D["subunitStoich"]):
 				rowIdx = self.moleculeNames.index(subunitId)
 				stoichMatrixMonomersI.append(rowIdx)
 				stoichMatrixMonomersJ.append(colIdx)
-				stoichMatrixMonomersV.append(-1 * subunitStoich)
+				stoichMatrixMonomersV.append(-1. * subunitStoich)
 
 		stoichMatrixMonomersI = np.array(stoichMatrixMonomersI)
 		stoichMatrixMonomersJ = np.array(stoichMatrixMonomersJ)
 		stoichMatrixMonomersV = np.array(stoichMatrixMonomersV)
 		shape = (stoichMatrixMonomersI.max() + 1, stoichMatrixMonomersJ.max() + 1)
 
-		out = np.zeros(shape, np.int64)
+		out = np.zeros(shape, np.float64)
 
 		out[stoichMatrixMonomersI, stoichMatrixMonomersJ] = stoichMatrixMonomersV
 

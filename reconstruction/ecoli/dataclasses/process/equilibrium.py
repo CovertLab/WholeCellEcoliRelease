@@ -98,7 +98,7 @@ class Equilibrium(object):
 				# Store indices for the row and column, and molecule coefficient for building the stoichiometry matrix
 				stoichMatrixI.append(moleculeIndex)
 				stoichMatrixJ.append(reactionIndex)
-				stoichMatrixV.append(int(coefficient))
+				stoichMatrixV.append(coefficient)
 
 				if coefficient > 0:
 					assert molecule["type"] == "proteincomplex"
@@ -145,7 +145,7 @@ class Equilibrium(object):
 		Values: reaction stoichiometry
 		'''
 		shape = (self._stoichMatrixI.max()+1, self._stoichMatrixJ.max()+1)
-		out = np.zeros(shape, np.int64)
+		out = np.zeros(shape, np.float64)
 		out[self._stoichMatrixI, self._stoichMatrixJ] = self._stoichMatrixV
 		return out
 
@@ -188,20 +188,20 @@ class Equilibrium(object):
 			rowIdx = self.moleculeNames.index(id_complex)
 			stoichMatrixMonomersI.append(rowIdx)
 			stoichMatrixMonomersJ.append(colIdx)
-			stoichMatrixMonomersV.append(1)
+			stoichMatrixMonomersV.append(1.)
 
 			for subunitId, subunitStoich in zip(D["subunitIds"], D["subunitStoich"]):
 				rowIdx = self.moleculeNames.index(subunitId)
 				stoichMatrixMonomersI.append(rowIdx)
 				stoichMatrixMonomersJ.append(colIdx)
-				stoichMatrixMonomersV.append(-1 * subunitStoich)
+				stoichMatrixMonomersV.append(-1. * subunitStoich)
 
 		stoichMatrixMonomersI = np.array(stoichMatrixMonomersI)
 		stoichMatrixMonomersJ = np.array(stoichMatrixMonomersJ)
 		stoichMatrixMonomersV = np.array(stoichMatrixMonomersV)
 		shape = (stoichMatrixMonomersI.max() + 1, stoichMatrixMonomersJ.max() + 1)
 
-		out = np.zeros(shape, np.int64)
+		out = np.zeros(shape, np.float64)
 		out[stoichMatrixMonomersI, stoichMatrixMonomersJ] = stoichMatrixMonomersV
 		return out
 
