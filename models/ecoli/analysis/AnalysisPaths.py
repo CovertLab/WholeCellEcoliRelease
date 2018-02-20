@@ -125,17 +125,17 @@ class AnalysisPaths(object):
 		self.n_seed = len(set(seeds))
 
 	def get_cells(self, variant = None, seed = None, generation = None):
-		if variant == None:
+		if variant is None:
 			variantBool = np.ones(self._path_data.shape)
 		else:
 			variantBool = self._set_match("variant", variant)
 
-		if seed == None:
+		if seed is None:
 			seedBool = np.ones(self._path_data.shape)
 		else:
 			seedBool = self._set_match("seed", seed)
 
-		if generation == None:
+		if generation is None:
 			generationBool = np.ones(self._path_data.shape)
 		else:
 			generationBool = self._set_match("generation", generation)
