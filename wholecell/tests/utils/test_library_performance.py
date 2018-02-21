@@ -214,7 +214,7 @@ class Test_library_performance(unittest.TestCase):
 	@noseAttrib.attr('performance')
 	@nose.tools.timed(0.35)
 	def test_dot(self):
-		"""Time NumPy matrix dot()."""
+		"""Time NumPy float x float matrix dot()."""
 		M = np.random.random(size=(1000, 1000))
 		self.time_this(lambda: M.dot(M))
 
@@ -223,6 +223,55 @@ class Test_library_performance(unittest.TestCase):
 		"""Time NumPy matrix dot() many times."""
 		for iteration in xrange(100):
 			self.test_dot()
+
+	@noseAttrib.attr('performance')
+	@nose.tools.timed(2.3)  # Whoa!
+	def test_int_dot_int(self):
+		"""Time NumPy integer x integer matrix dot()."""
+		N = np.random.random_integers(0, 9, size=(1000, 1000))
+		self.time_this(lambda: N.dot(N))
+
+	@noseAttrib.attr('performance')
+	@nose.tools.timed(0.35)  # 90x FASTER THAN integer x integer
+	def test_int_dot_floated_int(self):
+		"""
+		Time NumPy integer x float(integer) matrix dot(). This is much
+		faster than integer matrix multiply because (1) modern CPUs
+		have hardware for high-throughput floating point operations,
+		(2) BLAS has no integer type, and (3) the libraries don't
+		parallelize the integer matrix multiply.
+		"""
+		N = np.random.random_integers(0, 9, size=(1000, 1000))
+		self.time_this(lambda: N.dot(N * 1.0))
+
+	@noseAttrib.attr('performance')
+	@nose.tools.timed(0.35)  # 90x FASTER THAN integer x integer
+	def test_floated_int_dot_int(self):
+		"""
+		Time NumPy integer x float(integer) matrix dot(). This is much
+		faster than integer matrix multiply because (1) modern CPUs
+		have hardware for high-throughput floating point operations,
+		(2) BLAS has no integer type, and (3) the libraries don't
+		parallelize the integer matrix multiply.
+		"""
+		N = np.random.random_integers(0, 9, size=(1000, 1000))
+		self.time_this(lambda: (N * 1.0).dot(N))
+
+	@noseAttrib.attr('performance')
+	@nose.tools.timed(0.35)
+	def test_int_dot_float(self):
+		"""Time NumPy integer x float matrix dot()."""
+		N = np.random.random_integers(0, 9, size=(1000, 1000))
+		M = np.random.random(size=(1000, 1000))
+		self.time_this(lambda: N.dot(M))
+
+	@noseAttrib.attr('performance')
+	@nose.tools.timed(0.35)
+	def test_float_dot_int(self):
+		"""Time NumPy float x integer matrix dot()."""
+		M = np.random.random(size=(1000, 1000))
+		N = np.random.random_integers(0, 9, size=(1000, 1000))
+		self.time_this(lambda: M.dot(N))
 
 	# On 2015 MacBook Pro this takes < 200 ms.
 	# On Sherlock 1.0 with 1 CPU this takes TBD ms.
