@@ -244,6 +244,7 @@ class Test_library_performance(unittest.TestCase):
 		N = np.random.random_integers(0, 9, size=(1000, 1000))
 		self.time_this(lambda: N.dot(N * 1.0))
 
+	@unittest.skip('pretty much the same as test_int_dot_floated_int()')
 	@noseAttrib.attr('performance')
 	@nose.tools.timed(0.35)  # 90x FASTER THAN integer x integer
 	def test_floated_int_dot_int(self):
@@ -265,6 +266,7 @@ class Test_library_performance(unittest.TestCase):
 		M = np.random.random(size=(1000, 1000))
 		self.time_this(lambda: N.dot(M))
 
+	@unittest.skip('pretty much the same as test_int_dot_float()')
 	@noseAttrib.attr('performance')
 	@nose.tools.timed(0.35)
 	def test_float_dot_int(self):
