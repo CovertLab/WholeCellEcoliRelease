@@ -112,8 +112,6 @@ def time_it(code_to_measure, title='Measured'):
 # terms. In both, factor out common subexpressions and constants?
 #
 # TODO(jerry): Try JIT-compiling this with Numba.
-#
-# TODO(jerry): Format to a shorter source code line length?
 def derivatives(y, t):
 	return np.array([
 		[-100000000.0*y[0]*y[6] + 500.0*y[3]*y[4]], [0], [0],
@@ -208,8 +206,8 @@ class Test_library_performance(unittest.TestCase):
 		time_it(code_to_measure, test_method_name)
 
 	# On 2015 MacBook Pro this takes < 25 ms.
-	# On Sherlock 1.0 with 1 CPU this takes ~250 ms.
-	# On Sherlock 1.0 with 16 CPUs this takes 50 - 100 ms.
+	# Sherlock 1.0 performance varies widely with number of CPUs,
+	# OPENBLAS_NUM_THREADS=... value, compute node, and BLAS library.
 	# Allow time for test framework overhead + matrix construction.
 	@noseAttrib.attr('performance')
 	@nose.tools.timed(0.35)
@@ -232,7 +230,7 @@ class Test_library_performance(unittest.TestCase):
 		self.time_this(lambda: N.dot(N))
 
 	@noseAttrib.attr('performance')
-	@nose.tools.timed(0.35)  # 90x FASTER THAN integer x integer
+	@nose.tools.timed(0.35)  # 30x - 90x FASTER THAN integer x integer
 	def test_int_dot_floated_int(self):
 		"""
 		Time NumPy integer x float(integer) matrix dot(). This is much
@@ -246,15 +244,9 @@ class Test_library_performance(unittest.TestCase):
 
 	@unittest.skip('pretty much the same as test_int_dot_floated_int()')
 	@noseAttrib.attr('performance')
-	@nose.tools.timed(0.35)  # 90x FASTER THAN integer x integer
+	@nose.tools.timed(0.35)
 	def test_floated_int_dot_int(self):
-		"""
-		Time NumPy integer x float(integer) matrix dot(). This is much
-		faster than integer matrix multiply because (1) modern CPUs
-		have hardware for high-throughput floating point operations,
-		(2) BLAS has no integer type, and (3) the libraries don't
-		parallelize the integer matrix multiply.
-		"""
+		"""Time NumPy integer x float(integer) matrix dot()."""
 		N = np.random.random_integers(0, 9, size=(1000, 1000))
 		self.time_this(lambda: (N * 1.0).dot(N))
 
@@ -275,12 +267,20 @@ class Test_library_performance(unittest.TestCase):
 		N = np.random.random_integers(0, 9, size=(1000, 1000))
 		self.time_this(lambda: M.dot(N))
 
-	# On 2015 MacBook Pro this takes < 200 ms.
-	# On Sherlock 1.0 with 1 CPU this takes TBD ms.
-	# On Sherlock 1.0 with 16 CPUs this takes TBD ms.
+	@noseAttrib.attr('performance')
+	@nose.tools.timed(0.35)
+	def test_int_as_float32_dot(self):
+		"""Time NumPy integer matrix converted to float32, dot(), and
+		back. This can be twice as fast as float (float64) math.
+		"""
+		N = np.random.random_integers(0, 9999, size=(1000, 1000))
+		M = np.random.random(size=(1000, 1000))
+		self.time_this(lambda: N.astype(np.float32)
+					   .dot(M.astype(np.float32)).astype(np.float32))
+
 	# Allow time for test framework overhead + matrix construction.
 	@noseAttrib.attr('performance')
-	@nose.tools.timed(2.8)
+	@nose.tools.timed(0.6)
 	def test_odeint(self):
 		"""Time scipy.integrate.odeint()."""
 		y0 = np.random.random(41)
