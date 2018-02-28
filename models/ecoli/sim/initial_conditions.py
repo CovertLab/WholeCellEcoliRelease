@@ -343,7 +343,7 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	# update mass
 	sequences = rnaSequences[rnaIndices]
 	massIncreaseRna = computeMassIncrease(sequences, updatedLengths, ntWeights)
-	massIncreaseRna += endWeight  # add endWeight to all new Rna
+	massIncreaseRna[updatedLengths != 0] += endWeight  # add endWeight to all new Rna
 
 	#update molecules. Attributes include which rnas are being transcribed, and the position (length)
 	activeRnaPolys = uniqueMolCntr.objectsNew('activeRnaPoly', rnaPolyToActivate)
@@ -405,7 +405,7 @@ def initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	# update mass
 	sequences = proteinSequences[proteinIndices]
 	massIncreaseProtein = computeMassIncrease(sequences, updatedLengths, aaWeightsIncorporated)
-	massIncreaseProtein += endWeight  # add endWeight to all new Rna
+	massIncreaseProtein[updatedLengths != 0] += endWeight  # add endWeight to all new Rna
 
 	# Create active 70S ribosomes and assign their protein Indices calculated above
 	activeRibosomes = uniqueMolCntr.objectsNew('activeRibosome', ribosomeToActivate)
