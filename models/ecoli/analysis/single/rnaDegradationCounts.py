@@ -110,7 +110,6 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-	outputFluxes = fbaResults.readColumn("outputFluxes")
 	deltaMetabolites = fbaResults.readColumn("deltaMetabolites")
 	outputMoleculeIDs = np.array(fbaResults.readAttribute("metaboliteNames"))
 	fbaResults.close()

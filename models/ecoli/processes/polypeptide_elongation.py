@@ -60,7 +60,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		# Used for figure in publication
 		self.trpAIndex = np.where(proteinIds == "TRYPSYN-APROTEIN[c]")[0][0]
-		
 
 		# Create view onto activly elongating 70S ribosomes
 		self.activeRibosomes = self.uniqueMoleculesView('activeRibosome')
@@ -289,7 +288,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("RibosomeData", "numTrpATerminated", terminatedProteins[self.trpAIndex])
 
 		self.writeToListener("RibosomeData", "processElongationRate", self.ribosomeElongationRate / self.timeStepSec())
-		self.writeToListener("PolypeptideElongationListener", "countMonomerSynthesized", terminatedProteins)
 
 	def isTimeStepShortEnough(self, inputTimeStep, timeStepSafetyFraction):
 		"""

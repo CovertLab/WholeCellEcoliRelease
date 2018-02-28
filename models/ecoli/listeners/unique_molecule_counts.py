@@ -33,8 +33,6 @@ class UniqueMoleculeCounts(wholecell.listeners.listener.Listener):
 
 		self.uniqueMolecules = sim.states['UniqueMolecules']
 
-		self.uniqueMoleculeCounts = None
-
 
 	# Allocate memory
 	def allocate(self):

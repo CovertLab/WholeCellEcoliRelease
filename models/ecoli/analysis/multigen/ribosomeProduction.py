@@ -39,7 +39,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	fig = plt.figure()
 	fig.set_size_inches(10,12)
 
-	gs = gridspec.GridSpec(9, 3)
+	gs = gridspec.GridSpec(8, 3)
 	ax1 = plt.subplot(gs[0,:2])
 	ax1_1 = plt.subplot(gs[0,2])
 	ax2 = plt.subplot(gs[1,:2])
@@ -56,8 +56,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax7_1 = plt.subplot(gs[6,2])
 	ax8 = plt.subplot(gs[7,:2])
 	ax8_1 = plt.subplot(gs[7,2])
-	ax9 = plt.subplot(gs[8,:2])
-	ax9_1 = plt.subplot(gs[8,2])
 
 	for gen, simDir in enumerate(firstCellLineage):
 		simOutDir = os.path.join(simDir, "simOut")
@@ -85,7 +83,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ids_5s = []
 		ids_5s.extend(sim_data.moleculeGroups.s50_5sRRNA)
 		ids_5s.extend(sim_data.moleculeGroups.s50_fullComplex)
-		
+
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		moleculeIds = bulkMolecules.readAttribute("objectNames")
 
@@ -109,7 +107,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		rrn16S_doubling_time = 1 / ( (1 / timeStep) * (rrn16S_produced / rrn16s_count) ) * np.log(2)
 		rrn23S_doubling_time = 1 / ( (1 / timeStep) * (rrn23S_produced / rrn23s_count) ) * np.log(2)
 		rrn5S_doubling_time = 1 / ( (1 / timeStep) * (rrn5S_produced / rrn5s_count) ) * np.log(2)
-		
+
 		rrn16S_doubling_time[rrn16S_doubling_time.asNumber() == np.inf] = np.nan * units.s
 		rrn23S_doubling_time[rrn23S_doubling_time.asNumber() == np.inf] = np.nan * units.s
 		rrn5S_doubling_time[rrn5S_doubling_time.asNumber() == np.inf] = np.nan * units.s
@@ -147,7 +145,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		## Load other recorded parameters ##
 		averageElongationRate = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("effectiveElongationRate")
-		fitRibosomeInitRate = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("expectedInitRate")
 
 		## Plotting ##
 
@@ -243,17 +240,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		nbins = np.ceil(np.sqrt(hist_averageElongationRate.size))
 		ax8_1.hist(hist_averageElongationRate, nbins)
 
-		##
-
-		ax9.plot(time.asNumber(units.min), fitRibosomeInitRate)
-		ax9.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
-		ax9.set_ylabel("Fit rib init\nrate (init/s/fg)")
-
-		hist_fitRibosomeInitRate = removeNanReshape(fitRibosomeInitRate)
-		nbins = np.ceil(np.sqrt(hist_fitRibosomeInitRate.size))
-		ax9_1.hist(hist_fitRibosomeInitRate, nbins)
-
-	ax9.set_xlabel("Time (min)")
+	ax8.set_xlabel("Time (min)")
 
 	fig.subplots_adjust(hspace=.5, wspace = 0.3)
 

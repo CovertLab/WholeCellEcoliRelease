@@ -43,9 +43,6 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 		self.sequenceLength = np.zeros(75, np.float64)
 		self.sequenceLength.fill(PLACE_HOLDER)
 
-		self.refractionOver = True
-		self.diffFactorActive = False
-		self.lastPassedCriticalMass = 0.
 		self.numberOfOric = np.nan
 		self.criticalMassPerOriC = 0.
 		self.criticalInitiationMass = 0.
@@ -77,9 +74,6 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 		tableWriter.append(
 			sequenceIdx = self.sequenceIdx,
 			sequenceLength = self.sequenceLength,
-			refractionOver = self.refractionOver,
-			diffFactorActive = self.diffFactorActive,
-			lastPassedCriticalMass = self.lastPassedCriticalMass,
 			numberOfOric = self.numberOfOric,
 			criticalMassPerOriC = self.criticalMassPerOriC,
 			criticalInitiationMass = self.criticalInitiationMass,
