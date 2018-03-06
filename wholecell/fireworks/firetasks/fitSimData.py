@@ -21,7 +21,7 @@ class FitSimDataTask(FireTaskBase):
 		if self["fit_level"] == 1:
 			if self["cached"]:
 				try:
-					shutil.copy2(self["cached_data"], self["output_data"])
+					shutil.copyfile(self["cached_data"], self["output_data"])
 					print "Copied sim data from cache (modified %s)" % time.ctime(os.path.getctime(self["cached_data"]))
 					return
 				except:
