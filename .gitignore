@@ -17,20 +17,18 @@
 .coverage
 coverage.xml
 
-# Nosetests file #
-##################
+# Nosetests and Pytest #
+########################
 nosetests.xml
-
 nosetests.*.xml
+.pytest_cache
 
 # IPython notebook files #
 ##########################
-
 .ipynb_checkpoints
 
 # Output files #
 ################
-
 out
 out/*
 !out/out.txt
@@ -39,19 +37,16 @@ out/*
 
 # Cached sim data #
 ###################
-
 cached
 
 # Fixtures #
 ############
-
 fixtures/sim/*
 fixtures/kb/*
 fixtures/test/*
 
 # User files #
 ################
-
 user/*
 !user/user.txt
 
@@ -108,26 +103,19 @@ reconstruction/ecoli/dataclasses/process/equilibrium_odes.py
 
 # Misc #
 ########
-
 *.cPickle
-
 *.png
-
 *.csv#
-
 *.pickle
-
 *.log
-
 *.hdf
-
 /build/
 
 # PyCharm files #
 #################
 # User-specific stuff:
-.idea/**/workspace.xml
-.idea/**/tasks.xml
+.idea/workspace.xml
+.idea/tasks.xml
 .idea/dictionaries
 .idea/vcs.xml
 .idea/jsLibraryMappings.xml
@@ -138,17 +126,17 @@ reconstruction/ecoli/dataclasses/process/equilibrium_odes.py
 .idea/misc.xml
 
 # Sensitive or high-churn files:
-.idea/**/dataSources/
-.idea/**/dataSources.ids
-.idea/**/dataSources.xml
-.idea/**/dataSources.local.xml
-.idea/**/sqlDataSources.xml
-.idea/**/dynamic.xml
-.idea/**/uiDesigner.xml
+.idea/dataSources/
+.idea/dataSources.ids
+.idea/dataSources.xml
+.idea/dataSources.local.xml
+.idea/sqlDataSources.xml
+.idea/dynamic.xml
+.idea/uiDesigner.xml
 
 # Gradle:
-.idea/**/gradle.xml
-.idea/**/libraries
+.idea/gradle.xml
+.idea/libraries
 
 # Mongo Explorer plugin:
-.idea/**/mongoSettings.xml
+.idea/mongoSettings.xml

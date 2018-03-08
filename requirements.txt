@@ -1,6 +1,7 @@
 ## How to build a Whole Cell pyenv:
-#   # Prepare, if needed.
-#   brew install pyenv          # use brew on macOS; whatever on Linux and Windows
+## Prepare as needed. Install these packages using your local package
+## manager such as brew on macOS:
+#   brew install pyenv
 #   brew install pyenv-virtualenv
 #   brew install pyenv-virtualenvwrapper
 #   brew install glpk
@@ -9,17 +10,40 @@
 #   brew install boost
 #   brew install boost-python   # needed by wholecell/utils/_netflow/glpk.cpp
 #
-#   # Try to install python 2.7.4 for now, but on macOS 2.7.8 is the oldest that works to install shared libraries. Python 2.7.9 is the oldest with working SSL libraries.
+## Use python 2.7.4 for now on Sherlock, but on macOS 2.7.8 is the oldest
+## that supports a shared library.
+## Python 2.7.9 is the oldest with working SSL libraries.
 #   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.8
-#
 #   pyenv local 2.7.8
-#   pyenv virtualenv ecoli5
-#   pyenv local ecoli5
 #
-#   # For macOS, edit the list (below) to require Theano==0.8.1 or later. Then:
+## Create and select a new python virtual environment:
+#   pyenv virtualenv ecoli7
+#   pyenv local ecoli7
+#
+## It's probably smart to upgrade pip:
+#   pip install --upgrade pip setuptools virtualenv wheel
+#
+## For macOS:
+##      Edit the list (below) to require Theano==0.8.1 or later.
+#
+## For Sherlock:
+## See /share/PI/mcovert/installation_notes/scipy_with_openblas.txt on how
+## to build scipy from source using a site.cfg file that contains:
+##
+##      [atlas]
+##      atlas_libs = openblas
+##      libraries = openblas
+##
+##      [openblas]
+##      libraries = openblas
+##      library_dirs = /share/sw/free/openblas/0.2.15/lib
+##      include_dirs = /share/sw/free/openblas/0.2.15/include
+#
+## Then install all the other packages listed here:
 #   CVXOPT_BUILD_GLPK=1 pip install -r requirements.txt --no-binary cvxopt
 
-# Listing numpy first might avoid installation failures.
+# Listing numpy first might avoid installation failures. Maybe that's only a
+# problem with older versions of pip.
 numpy==1.9.2
 
 #alabaster==0.7.6
