@@ -24,8 +24,8 @@ class FitSimDataTask(FireTaskBase):
 					shutil.copyfile(self["cached_data"], self["output_data"])
 					print "Copied sim data from cache (modified %s)" % time.ctime(os.path.getctime(self["cached_data"]))
 					return
-				except:
-					print "Warning: could not copy cached sim data, running fitter"
+				except Exception as exc:
+					print "Warning: could not copy cached sim data due to exception (%s), running fitter" % (exc)
 
 			if self["cpus"] > 1:
 				print "Warning: running fitter in parallel with %i processes - ensure there are enough cpus_per_task allocated" % self["cpus"]
