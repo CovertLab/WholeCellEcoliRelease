@@ -26,7 +26,6 @@ from wholecell.utils.random import stochasticRound
 from wholecell.utils.constants import REQUEST_PRIORITY_METABOLISM
 
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
-from wholecell.utils.enzymeKinetics import EnzymeKinetics
 
 COUNTS_UNITS = units.mmol
 VOLUME_UNITS = units.L
@@ -112,8 +111,8 @@ class Metabolism(wholecell.processes.process.Process):
 		self.catalyzedReactionBoundsPrev = np.inf * np.ones(len(self.reactionsWithCatalystsList))
 
 		# Data structures to compute reaction targets based on kinetic parameters
-		from reconstruction.ecoli.dataclasses.process.metabolism_constraints import constraints as kineticsConstraints
-		self.kineticsConstraints = kineticsConstraints
+		self.kineticConstraintsStr = sim_data.process.metabolism.kineticConstraints
+		self.compiledConstraints = None
 
 		self.useAllConstraints = sim_data.process.metabolism.useAllConstraints
 		self.constraintsToDisable = sim_data.process.metabolism.constraintsToDisable
@@ -310,8 +309,7 @@ class Metabolism(wholecell.processes.process.Process):
 			self.catalyzedReactionBoundsPrev = catalyzedReactionBounds
 
 			# Set target fluxes for reactions based on their most relaxed constraint
-			# kineticsConstraints function created based on units of umol/L/s
-			constraintValues = self.kineticsConstraints(
+			constraintValues = self.getKineticConstraints(
 				kineticsEnzymesConcentrations.asNumber(units.umol / units.L),
 				kineticsSubstratesConcentrations.asNumber(units.umol / units.L),
 				)
@@ -383,3 +381,30 @@ class Metabolism(wholecell.processes.process.Process):
 				externalMoleculeLevels[idx] =  concDiff
 
 		self.fba.externalMoleculeLevelsIs(externalMoleculeLevels)
+
+	def getKineticConstraints(self, enzymes, substrates):
+		'''
+		Allows for dynamic programming for kinetic constraint calculation from sim_data
+		Executing in the local dictionary improves performance by ~10%
+		Inputs should be unitless but the order of magnitude should match the kinetics parameters (umol/L/s)
+		Returns np.array of the kinetic constraint target for each reaction with kinetic parameters
+		Inputs:
+			enzymes (np.array) - concentrations of enzymes associated with kinetics constraints
+			substrates (np.array) - concentrations of substrates associated with kinetics constraints
+		'''
+
+		# Compile the function from the constraints from sim_data if it has not been compiled before
+		if self.compiledConstraints is None:
+			self.compiledConstraints = compile(
+				'import numpy as np; constraints = np.array(%s).reshape(-1)' % self.kineticConstraintsStr,
+				'<string>', 'exec'
+				)
+
+		# Execute the compiled code with the given concentrations
+		local = {
+			'enzymes': enzymes,
+			'kineticsSubstrates': substrates,
+			}
+		exec self.compiledConstraints in local
+
+		return local['constraints']

@@ -16,7 +16,6 @@ TODO:
 from __future__ import division
 
 from wholecell.utils import units
-from wholecell.utils.write_metabolic_constraints_file import writeMetabolicConstraintsFile
 import wholecell
 import os
 import numpy as np
@@ -402,14 +401,7 @@ class Metabolism(object):
 				constraints[constraintIdx] *= (kI / (kI + I))
 				concSubstratePos += 1
 
-
-		constraints = sp.Matrix(constraints)
-
-		constraintsFile = os.path.join(
-			os.path.dirname(os.path.dirname(wholecell.__file__)),
-			"reconstruction", "ecoli", "dataclasses", "process", "metabolism_constraints.py"
-			)
-		writeMetabolicConstraintsFile(constraintsFile, constraints)
+		self.kineticConstraints = str(sp.Matrix(constraints))[7:-1]
 
 		# Properties for FBA reconstruction
 		self.reactionStoich = reactionStoich
