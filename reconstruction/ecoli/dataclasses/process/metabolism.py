@@ -401,7 +401,8 @@ class Metabolism(object):
 				constraints[constraintIdx] *= (kI / (kI + I))
 				concSubstratePos += 1
 
-		self.kineticConstraints = str(sp.Matrix(constraints))[7:-1]
+		self._kineticConstraints = str(constraints)
+		self._compiledConstraints = None
 
 		# Properties for FBA reconstruction
 		self.reactionStoich = reactionStoich
@@ -430,6 +431,32 @@ class Metabolism(object):
 		self.constraintIsKcatOnly = constraintIsKcatOnly
 		self.useAllConstraints = USE_ALL_CONSTRAINTS
 		self.constraintsToDisable = [rxn["disabled reaction"] for rxn in raw_data.disabledKineticReactions]
+
+	def getKineticConstraints(self, enzymes, substrates):
+		'''
+		Allows for dynamic code generation for kinetic constraint calculation
+		for use in Metabolism process. Inputs should be unitless but the order
+		of magnitude should match the kinetics parameters (umol/L/s).
+
+		If trying to pickle sim_data object after function has been called,
+		_compiledConstraints might not be able to be pickled.  See
+		__getstate__(), __setstate__() comments on PR 111 to address.
+
+		Returns np.array of floats of the kinetic constraint target for each
+		reaction with kinetic parameters
+		Inputs:
+			enzymes (np.array of floats) - concentrations of enzymes associated
+				with kinetics constraints
+			substrates (np.array of floats) - concentrations of substrates
+				associated with kinetics constraints
+		'''
+
+		if self._compiledConstraints is None:
+			self._compiledConstraints = eval('lambda enzymes, kineticsSubstrates: np.array(%s)\n'
+				% self._kineticConstraints, {'np': np}, {}
+				)
+
+		return self._compiledConstraints(enzymes, substrates)
 
 	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits, nutrientsTimeSeriesLabel, time, concModificationsBasedOnCondition = None, preview = False):
 		"""
