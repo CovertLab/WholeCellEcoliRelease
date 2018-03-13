@@ -110,7 +110,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.catalyzedReactionBoundsPrev = np.inf * np.ones(len(self.reactionsWithCatalystsList))
 
-		# Data structures to compute reaction targets based on kinetic parameters
+		# Function to compute reaction targets based on kinetic parameters and molecule concentrations
 		self.getKineticConstraints = sim_data.process.metabolism.getKineticConstraints
 
 		self.useAllConstraints = sim_data.process.metabolism.useAllConstraints
