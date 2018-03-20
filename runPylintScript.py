@@ -20,5 +20,5 @@ moduleName = '/home/users/sajia/wcEcoli/wholecell/'
 options = '-d W0312,C0111,C0330'
 
 checkPythonModule(moduleName, options, outputErrorFile, outputWarningFile)
- 
+
 #from command line: pylint -d W0312,C0111,C0330 /home/users/sajia/wcEcoli/wholecell/ > outputfile.txt

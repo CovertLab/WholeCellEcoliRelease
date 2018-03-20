@@ -80,18 +80,18 @@ class MetadataSignature(plugins.PluginBase):
 	MetadataSignature.prototype = Object.create(mpld3.Plugin.prototype);
 	MetadataSignature.prototype.constructor = MetadataSignature;
 	function MetadataSignature(fig, props){
-	    mpld3.Plugin.call(this, fig, props);
+		mpld3.Plugin.call(this, fig, props);
 	};
 
 	MetadataSignature.prototype.draw = function(){
 		console.log(this);
-	    this.fig.canvas.append("text")
-	        .text(this.props.id)
-	        .style("font-size", 12)
-	        .style("opacity", 0.8)
-	        .style("text-anchor", "left")
-	        .attr("x", this.fig.width *.11)
-	        .attr("y", (this.fig.height * .99))
+		this.fig.canvas.append("text")
+			.text(this.props.id)
+			.style("font-size", 12)
+			.style("opacity", 0.8)
+			.style("text-anchor", "left")
+			.attr("x", this.fig.width *.11)
+			.attr("y", (this.fig.height * .99))
 	}
 	"""
 	def __init__(self, metadata_string):
