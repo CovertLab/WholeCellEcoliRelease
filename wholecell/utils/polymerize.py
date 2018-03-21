@@ -71,7 +71,7 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 	sequenceLengths = sequenceReactions.sum(axis = 1)
 
 	# Running values
-	# activeSequencesIndexes: ndarray[] of which sequences are currently active
+	# activeSequencesIndexes: index[] of sequences that are currently active
 	activeSequencesIndexes = np.arange(nSequences)
 	currentStep = 0
 	activeSequencesIndexes = activeSequencesIndexes[
