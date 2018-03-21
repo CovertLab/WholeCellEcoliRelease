@@ -18,6 +18,10 @@ import numpy as np
 from _build_sequences import buildSequences, computeMassIncrease
 from _fastsums import sum_monomers, sum_monomers_reference_implementation
 
+# Reexport _build_sequences functions. (Declaring this removes PyCharm's
+# "unused import statement" warning.)
+__all__ = ['PAD_VALUE', 'polymerize', 'buildSequences', 'computeMassIncrease']
+
 PAD_VALUE = -1
 
 # Define a no-op @profile decorator if it wasn't loaded by kernprof.
@@ -31,9 +35,25 @@ except NameError:
 # profile of functions decorated @profile.
 @profile
 def polymerize(sequences, monomerLimits, reactionLimit, randomState):
+	"""
+	Polymerize the given DNA/RNA sequences as far as possible within the given
+	limits.
+
+	Args:
+		sequences: index[sequence#, step#] sequences of needed monomer types,
+			containing PAD_VALUE for all steps after sequence completion
+		monomerLimits: count[monomer#] of available monomers
+		reactionLimit: scalar max number of reactions (monomers to use)
+		randomState: random number generator to pick winners in shortages
+
+	Returns:
+		sequenceElongation: length[sequence#] how far the sequences proceeded,
+		monomerUsages: count[monomer#] how many monomers got used,
+		nReactions: scalar total number of reactions (monomers used)
+	"""
 	# Sanitize inputs
 	# import ipdb; ipdb.set_trace()
-	monomerLimits = monomerLimits.copy().astype(np.int64)
+	monomerLimits = monomerLimits.astype(np.int64, copy=True)
 	reactionLimit = np.int64(reactionLimit)
 
 	# Data size information
@@ -41,21 +61,27 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 	nMonomers = monomerLimits.size
 
 	# Static data
+	# sequenceMonomers: bool[monomer#, sequence#, step#] bitmask of monomer usage
 	sequenceMonomers = np.empty((nMonomers, nSequences, sequenceLength), dtype = np.bool)
-
 	for monomerIndex in xrange(nMonomers):
 		sequenceMonomers[monomerIndex, ...] = (sequences == monomerIndex)
 
+	# sequenceReactions: bool[sequence#, step#] of sequence continuation
 	sequenceReactions = (sequences != PAD_VALUE)
 	sequenceLengths = sequenceReactions.sum(axis = 1)
 
 	# Running values
+	# activeSequencesIndexes: ndarray[] of which sequences are currently active
 	activeSequencesIndexes = np.arange(nSequences)
 	currentStep = 0
 	activeSequencesIndexes = activeSequencesIndexes[
 		sequenceReactions[:, currentStep]
 		]
 
+	# totalMonomers: count[monomer#, step#] of monomers wanted in currentStep
+	# and beyond.
+	# totalReactions: count[step#] cumulative #reactions
+	#
 	#totalMonomers = sequenceMonomers.sum(axis = 1).cumsum(axis = 1)
 	totalMonomers = sum_monomers(sequenceMonomers, activeSequencesIndexes, 0)
 	totalReactions = sequenceReactions.sum(axis = 0).cumsum(axis = 0)
@@ -97,7 +123,6 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 		currentStep += limitingExtent
 
 		# Use resources
-
 		if limitingExtent > 0:
 			deltaMonomers = totalMonomers[:, limitingExtent-1]
 			deltaReactions = totalReactions[limitingExtent-1]
@@ -109,16 +134,13 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 			nReactions += deltaReactions
 
 		# Update lengths
-
 		sequenceElongation[activeSequencesIndexes] += limitingExtent
 
 		# Quit if fully elongated
-
 		if limitingExtent == maxElongation:
 			break
 
 		# Quit if out of resources
-
 		if not monomerLimits.any():
 			break
 
@@ -126,11 +148,9 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 			break
 
 		# Cull fully elongated sequences
-
 		sequencesToCull = ~sequenceReactions[activeSequencesIndexes, currentStep]
 
 		# Cull monomer-limiting sequences
-
 		for monomerIndex, monomerLimit in enumerate(monomerLimits):
 			if ~monomerIsLimiting[monomerIndex]:
 				continue
@@ -152,7 +172,6 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 			sequencesToCull[culledIndexes] = True
 
 		# Cull reaction-limiting sequences
-
 		if reactionIsLimiting:
 			sequencesWithReaction = np.where(
 				~sequencesToCull
@@ -170,11 +189,9 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 				sequencesToCull[culledIndexes] = True
 
 		# Update running values
-
 		activeSequencesIndexes = activeSequencesIndexes[~sequencesToCull]
 
 		# Quit if there are no more sequences
-
 		if not activeSequencesIndexes.size:
 			break
 
@@ -187,7 +204,6 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 		maxElongation = sequenceLength - currentStep
 
 	# Clamp sequence lengths up to their max length
-
 	sequenceElongation = np.fmin(sequenceElongation, sequenceLengths)
-		
+
 	return sequenceElongation, monomerUsages, nReactions

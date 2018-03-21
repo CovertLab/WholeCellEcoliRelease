@@ -114,6 +114,7 @@ class Test_polymerize(unittest.TestCase):
 								[2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
 								[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]])
 		baseAmounts = np.array([11,11,11,11])
+		baseAmountsOriginal = baseAmounts.copy()
 		energy = 30
 		
 		np.random.seed(1)
@@ -123,6 +124,7 @@ class Test_polymerize(unittest.TestCase):
 		assert_equal(progress, np.array([10,9,9,0]))
 		assert_equal(baseCosts, np.array([3,3,11,11]))
 		self.assertEqual(28, energyCost)
+		self.assertTrue((baseAmounts == baseAmountsOriginal).all(), 'should not modify monomerLimits')
 	
 	
 	@noseAttrib.attr('polymerizeNew')
