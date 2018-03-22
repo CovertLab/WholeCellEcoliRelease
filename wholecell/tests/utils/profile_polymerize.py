@@ -38,10 +38,19 @@ import wholecell.utils.polymerize
 # Wrap with kernprof profiling decorator - will throw an error if we call this
 # script using the vanilla python interpreter.
 
+# Define a no-op @profile decorator if it wasn't loaded by kernprof.
+try:
+    profile(lambda x: x)
+except NameError:
+    def profile(function):
+        return function
+
+PAD_VALUE = wholecell.utils.polymerize.polymerize.PAD_VALUE
+
 @profile
 def polymerize(*args, **kwargs):
     # Light wrapper to accomadate profiling while using the old output format
-    result = wholecell.utils.polymerize(*args, **kwargs)
+    result = wholecell.utils.polymerize.polymerize(*args, **kwargs)
     return (result.sequenceElongation, result.monomerUsages, result.nReactions)
 
 def _setupRealExample():
@@ -61,7 +70,7 @@ def _setupRealExample():
     sequenceLengths = length * np.ones(nSequences, np.int64)
     sequenceLengths[np.random.choice(nSequences, nTerminating, replace = False)] = np.random.randint(length, size = nTerminating)
 
-    sequences[np.arange(length) > sequenceLengths[:, np.newaxis]] = polymerize.PAD_VALUE
+    sequences[np.arange(length) > sequenceLengths[:, np.newaxis]] = PAD_VALUE
 
     reactionLimit = 10000000
 
@@ -84,7 +93,7 @@ def _setupExample():
     sequenceLengths = length * np.ones(nSequences, np.int64)
     sequenceLengths[np.random.choice(nSequences, nTerminating, replace = False)] = np.random.randint(length, size = nTerminating)
 
-    sequences[np.arange(length) > sequenceLengths[:, np.newaxis]] = polymerize.PAD_VALUE
+    sequences[np.arange(length) > sequenceLengths[:, np.newaxis]] = PAD_VALUE
 
     maxReactions = sequenceLengths.sum()
 
@@ -103,7 +112,7 @@ def _simpleProfile():
 
     nSequences, length = sequences.shape
     nMonomers = monomerLimits.size
-    sequenceLengths = (sequences != polymerize.PAD_VALUE).sum(axis = 1)
+    sequenceLengths = (sequences != PAD_VALUE).sum(axis = 1)
 
     t = time.time()
     sequenceElongation, monomerUsages, nReactions = polymerize(sequences, monomerLimits, reactionLimit, randomState)
