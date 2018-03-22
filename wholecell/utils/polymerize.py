@@ -56,32 +56,24 @@ class polymerize(object): # Class name is lowercase because interface is functio
 		# Prepare for iteration
 		self._sanitize_inputs()
 		self._gather_input_dimensions()
-
-		# Static data
-		# sequenceMonomers: bool[monomer#, sequence#, step#] bitmask of monomer usage
-		sequenceMonomers = np.empty((self._nMonomers, self._nSequences, self._sequenceLength), dtype = np.bool)
-		for monomerIndex in xrange(self._nMonomers):
-			sequenceMonomers[monomerIndex, ...] = (self._sequences == monomerIndex)
-
-		# sequenceReactions: bool[sequence#, step#] of sequence continuation
-		sequenceReactions = (self._sequences != self.PAD_VALUE)
-		sequenceLengths = sequenceReactions.sum(axis = 1)
+		self._gather_sequence_data()
+		# self._prepare_running_values()
 
 		# Running values
 		# activeSequencesIndexes: index[] of sequences that are currently active
 		activeSequencesIndexes = np.arange(self._nSequences)
 		currentStep = 0
 		activeSequencesIndexes = activeSequencesIndexes[
-			sequenceReactions[:, currentStep]
+			self._sequenceReactions[:, currentStep]
 			]
 
 		# totalMonomers:: count:int64[monomer#, step#] of monomers wanted in
 		# currentStep and beyond.
 		# totalReactions: count:int64[step#] cumulative #reactions
 		#
-		#totalMonomers = sequenceMonomers.sum(axis = 1).cumsum(axis = 1)
-		totalMonomers = sum_monomers(sequenceMonomers, activeSequencesIndexes, 0)
-		totalReactions = sequenceReactions.sum(axis = 0).cumsum(axis = 0)
+		#totalMonomers = self._sequenceMonomers.sum(axis = 1).cumsum(axis = 1)
+		totalMonomers = sum_monomers(self._sequenceMonomers, activeSequencesIndexes, 0)
+		totalReactions = self._sequenceReactions.sum(axis = 0).cumsum(axis = 0)
 
 		maxElongation = self._sequenceLength
 
@@ -145,7 +137,7 @@ class polymerize(object): # Class name is lowercase because interface is functio
 				break
 
 			# Cull fully elongated sequences
-			sequencesToCull = ~sequenceReactions[activeSequencesIndexes, currentStep]
+			sequencesToCull = ~self._sequenceReactions[activeSequencesIndexes, currentStep]
 
 			# Cull monomer-limiting sequences
 			for monomerIndex, monomerLimit in enumerate(self._monomerLimits):
@@ -153,7 +145,7 @@ class polymerize(object): # Class name is lowercase because interface is functio
 					continue
 
 				sequencesWithMonomer = np.where(
-					sequenceMonomers[monomerIndex, activeSequencesIndexes, currentStep]
+					self._sequenceMonomers[monomerIndex, activeSequencesIndexes, currentStep]
 					)[0]
 
 				nToCull = sequencesWithMonomer.size - monomerLimit
@@ -192,16 +184,16 @@ class polymerize(object): # Class name is lowercase because interface is functio
 			if not activeSequencesIndexes.size:
 				break
 
-			#totalMonomers = sequenceMonomers[:, activeSequencesIndexes, currentStep:].sum(axis = 1).cumsum(axis = 1)
-			#totalMonomers = sum_monomers_reference_implementation(sequenceMonomers, activeSequencesIndexes, currentStep)
-			totalMonomers = sum_monomers(sequenceMonomers, activeSequencesIndexes, currentStep)
+			#totalMonomers = self._sequenceMonomers[:, activeSequencesIndexes, currentStep:].sum(axis = 1).cumsum(axis = 1)
+			#totalMonomers = sum_monomers_reference_implementation(self._sequenceMonomers, activeSequencesIndexes, currentStep)
+			totalMonomers = sum_monomers(self._sequenceMonomers, activeSequencesIndexes, currentStep)
 
-			totalReactions = sequenceReactions[activeSequencesIndexes, currentStep:].sum(axis = 0).cumsum(axis = 0)
+			totalReactions = self._sequenceReactions[activeSequencesIndexes, currentStep:].sum(axis = 0).cumsum(axis = 0)
 
 			maxElongation = self._sequenceLength - currentStep
 
 		# Clamp sequence lengths up to their max length
-		self.sequenceElongation = np.fmin(self.sequenceElongation, sequenceLengths)
+		self.sequenceElongation = np.fmin(self.sequenceElongation, self._sequenceLengths)
 
 	# __init__ subroutines
 	# Several of these assign new attributes outside of __init__'s context, but
@@ -222,3 +214,20 @@ class polymerize(object): # Class name is lowercase because interface is functio
 
 		(self._nSequences, self._sequenceLength) = self._sequences.shape
 		self._nMonomers = self._monomerLimits.size
+
+	def _gather_sequence_data(self):
+		'''
+		Collect static data about the input sequences.
+		'''
+
+		# self._sequenceMonomers: bool[monomer#, sequence#, step#] bitmask of monomer usage
+		self._sequenceMonomers = np.empty(
+			(self._nMonomers, self._nSequences, self._sequenceLength),
+			dtype = np.bool
+			)
+		for monomerIndex in xrange(self._nMonomers):
+			self._sequenceMonomers[monomerIndex, ...] = (self._sequences == monomerIndex)
+
+		# self._sequenceReactions: bool[sequence#, step#] of sequence continuation
+		self._sequenceReactions = (self._sequences != self.PAD_VALUE)
+		self._sequenceLengths = self._sequenceReactions.sum(axis = 1)
