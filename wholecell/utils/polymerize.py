@@ -11,15 +11,16 @@ TODO:
 @date: Created 5/23/14
 """
 
+from __future__ import absolute_import
 from __future__ import division
 
 import numpy as np
 
-from _build_sequences import buildSequences, computeMassIncrease
-from _fastsums import sum_monomers, sum_monomers_reference_implementation
+from ._build_sequences import buildSequences, computeMassIncrease
+from ._fastsums import sum_monomers, sum_monomers_reference_implementation
 
-# Reexport _build_sequences functions. (Declaring this removes PyCharm's
-# "unused import statement" warning.)
+# Reexport _build_sequences functions. (Declaring this avoids
+# "unused import statement" warnings.)
 __all__ = ['PAD_VALUE', 'polymerize', 'buildSequences', 'computeMassIncrease']
 
 PAD_VALUE = -1
@@ -28,16 +29,16 @@ PAD_VALUE = -1
 try:
 	profile(lambda x: x)
 except NameError:
-	def profile(function):
-		return function
+	def profile(func):
+		return func
 
 # Run 'kernprof -lv wholecell/tests/utils/profile_polymerize.py' to get a line
 # profile of functions decorated @profile.
 @profile
 def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 	"""
-	Polymerize the given DNA/RNA sequences as far as possible within the given
-	limits.
+	Polymerize the given DNA/RNA/protein sequences as far as possible within
+	the given limits.
 
 	Args:
 		sequences: index[sequence#, step#] sequences of needed monomer types,
@@ -52,7 +53,6 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 		nReactions: scalar total number of reactions (monomers used)
 	"""
 	# Sanitize inputs
-	# import ipdb; ipdb.set_trace()
 	monomerLimits = monomerLimits.astype(np.int64, copy=True)
 	reactionLimit = np.int64(reactionLimit)
 
@@ -78,9 +78,9 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 		sequenceReactions[:, currentStep]
 		]
 
-	# totalMonomers: count[monomer#, step#] of monomers wanted in currentStep
-	# and beyond.
-	# totalReactions: count[step#] cumulative #reactions
+	# totalMonomers:: count:int64[monomer#, step#] of monomers wanted in
+	# currentStep and beyond.
+	# totalReactions: count:int64[step#] cumulative #reactions
 	#
 	#totalMonomers = sequenceMonomers.sum(axis = 1).cumsum(axis = 1)
 	totalMonomers = sum_monomers(sequenceMonomers, activeSequencesIndexes, 0)
