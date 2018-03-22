@@ -3,9 +3,6 @@ polymerize.py
 
 Polymerizes sequences based on monomer and energy limitations.
 
-TODO:
-- document algorithm/corner cases (should already exist somewhere...)
-
 @author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 5/23/14
@@ -136,15 +133,12 @@ class polymerize(object): # Class name is lowercase because interface is functio
 			self._sequenceReactions[:, self._currentStep]
 			]
 
-		# self._totalMonomers:: count:int64[monomer#, step#] of monomers wanted in
-		# self._currentStep and beyond.
-		# self._totalReactions: count:int64[step#] cumulative #reactions
-		#
-		#self._totalMonomers = self._sequenceMonomers.sum(axis = 1).cumsum(axis = 1)
-		self._totalMonomers = sum_monomers(self._sequenceMonomers, self._activeSequencesIndexes, 0)
-		self._totalReactions = self._sequenceReactions.sum(axis = 0).cumsum(axis = 0)
+		self._update_elongation_resource_demands()
 
-		self._maxElongation = self._sequenceLength
+		# Empty placeholders - will be filled in during trivial elongation,
+		# then inspected during nontrivial (resource-limited) elongation
+		self._monomerIsLimiting = np.empty(self._nMonomers, np.bool)
+		self._reactionIsLimiting = None
 
 		# Output
 		self.sequenceElongation = np.zeros(self._nSequences, np.int64)
@@ -180,9 +174,7 @@ class polymerize(object): # Class name is lowercase because interface is functio
 
 		limitingExtent = min(monomerLimitedAt.min(), reactionLimitedAt)
 
-		# TODO (John): create these _*IsLimiting properties prior to iteration,
-		# and reuse the arrays rather than replacing them
-		self._monomerIsLimiting = (monomerLimitedAt == limitingExtent)
+		self._monomerIsLimiting[:] = (monomerLimitedAt == limitingExtent)
 		self._reactionIsLimiting = (reactionLimitedAt == limitingExtent)
 
 		self._currentStep += limitingExtent
@@ -255,16 +247,19 @@ class polymerize(object): # Class name is lowercase because interface is functio
 
 	def _update_elongation_resource_demands(self):
 		'''
-		After culling, we need to recalculate resource demands for the
-		remaining steps given what sequences remain.
-
-		TODO: see if this replace the similar code in _prepare_running_values
+		After updating the active sequences (initialization and culling),
+		recalculate resource demands for the remaining steps given what
+		sequences remain.
 		'''
+
+		# self._totalMonomers:: count:int64[monomer#, step#] of monomers wanted
+		# in self._currentStep and beyond.
 
 		#self._totalMonomers = self._sequenceMonomers[:, self._activeSequencesIndexes, self._currentStep:].sum(axis = 1).cumsum(axis = 1)
 		#self._totalMonomers = sum_monomers_reference_implementation(self._sequenceMonomers, self._activeSequencesIndexes, self._currentStep)
 		self._totalMonomers = sum_monomers(self._sequenceMonomers, self._activeSequencesIndexes, self._currentStep)
 
+		# self._totalReactions: count:int64[step#] cumulative #reactions
 		self._totalReactions = self._sequenceReactions[self._activeSequencesIndexes, self._currentStep:].sum(axis = 0).cumsum(axis = 0)
 
 		self._maxElongation = self._sequenceLength - self._currentStep
