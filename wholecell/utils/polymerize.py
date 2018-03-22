@@ -60,7 +60,7 @@ class polymerize(object): # Class name is lowercase because interface is functio
 		self._prepare_running_values()
 
 		# Elongate sequences as much as possible
-		while self._activeSequencesIndexes.size:
+		while True:
 			# Find the furthest we can elongate without reaching some limitation
 			monomerLimitingExtents = [
 				np.where(self._totalMonomers[monomerIndex, :] > monomerLimit)[0]
