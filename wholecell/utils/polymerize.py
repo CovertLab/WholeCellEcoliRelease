@@ -24,9 +24,9 @@ from ._fastsums import sum_monomers, sum_monomers_reference_implementation
 __all__ = ['polymerize', 'buildSequences', 'computeMassIncrease']
 
 
-# TODO (John): restore line profiler decorator?
+# TODO (John): Restore line profiler decorator?
 
-class polymerize(object): # lowercase because interface is function-like
+class polymerize(object): # Class name is lowercase because interface is function-like
 	PAD_VALUE = -1
 	def __init__(self, sequences, monomerLimits, reactionLimit, randomState):
 		# TODO (John): should the docstring be under __init__ or the class?
@@ -53,18 +53,14 @@ class polymerize(object): # lowercase because interface is function-like
 		self._reactionLimit = reactionLimit
 		self._randomState = randomState
 
+		# Prepare for iteration
 		self._sanitize_inputs()
-
-		# Collect size data and prepare for iteration
-
-		# Data size information
-		nSequences, sequenceLength = self._sequences.shape
-		nMonomers = self._monomerLimits.size
+		self._gather_input_dimensions()
 
 		# Static data
 		# sequenceMonomers: bool[monomer#, sequence#, step#] bitmask of monomer usage
-		sequenceMonomers = np.empty((nMonomers, nSequences, sequenceLength), dtype = np.bool)
-		for monomerIndex in xrange(nMonomers):
+		sequenceMonomers = np.empty((self._nMonomers, self._nSequences, self._sequenceLength), dtype = np.bool)
+		for monomerIndex in xrange(self._nMonomers):
 			sequenceMonomers[monomerIndex, ...] = (self._sequences == monomerIndex)
 
 		# sequenceReactions: bool[sequence#, step#] of sequence continuation
@@ -73,7 +69,7 @@ class polymerize(object): # lowercase because interface is function-like
 
 		# Running values
 		# activeSequencesIndexes: index[] of sequences that are currently active
-		activeSequencesIndexes = np.arange(nSequences)
+		activeSequencesIndexes = np.arange(self._nSequences)
 		currentStep = 0
 		activeSequencesIndexes = activeSequencesIndexes[
 			sequenceReactions[:, currentStep]
@@ -87,11 +83,11 @@ class polymerize(object): # lowercase because interface is function-like
 		totalMonomers = sum_monomers(sequenceMonomers, activeSequencesIndexes, 0)
 		totalReactions = sequenceReactions.sum(axis = 0).cumsum(axis = 0)
 
-		maxElongation = sequenceLength
+		maxElongation = self._sequenceLength
 
 		# Output
-		self.sequenceElongation = np.zeros(nSequences, np.int64)
-		self.monomerUsages = np.zeros(nMonomers, np.int64)
+		self.sequenceElongation = np.zeros(self._nSequences, np.int64)
+		self.monomerUsages = np.zeros(self._nMonomers, np.int64)
 		self.nReactions = 0
 
 		# Elongate sequences as much as possible
@@ -202,10 +198,15 @@ class polymerize(object): # lowercase because interface is function-like
 
 			totalReactions = sequenceReactions[activeSequencesIndexes, currentStep:].sum(axis = 0).cumsum(axis = 0)
 
-			maxElongation = sequenceLength - currentStep
+			maxElongation = self._sequenceLength - currentStep
 
 		# Clamp sequence lengths up to their max length
 		self.sequenceElongation = np.fmin(self.sequenceElongation, sequenceLengths)
+
+	# __init__ subroutines
+	# Several of these assign new attributes outside of __init__'s context, but
+	# these functions should never be called more than once or outside __init__
+	# as they are just part of extended __init__ operations.
 
 	def _sanitize_inputs(self):
 		'''
@@ -213,3 +214,11 @@ class polymerize(object): # lowercase because interface is function-like
 		'''
 		self._monomerLimits = self._monomerLimits.astype(np.int64, copy = True)
 		self._reactionLimit = np.int64(self._reactionLimit)
+
+	def _gather_input_dimensions(self):
+		'''
+		Collect information about the size of the inputs.
+		'''
+
+		(self._nSequences, self._sequenceLength) = self._sequences.shape
+		self._nMonomers = self._monomerLimits.size
