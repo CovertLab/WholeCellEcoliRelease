@@ -21,6 +21,9 @@ import numpy as np
 import wholecell.processes.process
 from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
 
+# Maximum unsigned int value + 1 for randint() to seed srand from C stdlib
+RAND_MAX = 2**32
+
 class Complexation(wholecell.processes.process.Process):
 	""" Complexation """
 
@@ -51,7 +54,7 @@ class Complexation(wholecell.processes.process.Process):
 		# Macromolecule complexes are requested
 		updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
 			moleculeCounts,
-			self.seed,
+			self.randomState.randint(RAND_MAX),
 			self.stoichMatrix,
 			*self.prebuiltMatrices
 			)
@@ -65,7 +68,7 @@ class Complexation(wholecell.processes.process.Process):
 		# Macromolecule complexes are formed from their subunits
 		updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
 			moleculeCounts,
-			self.seed,
+			self.randomState.randint(RAND_MAX),
 			self.stoichMatrix,
 			*self.prebuiltMatrices
 			)
