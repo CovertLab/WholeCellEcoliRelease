@@ -21,14 +21,15 @@ from ._fastsums import sum_monomers, sum_monomers_reference_implementation
 
 # Reexport _build_sequences functions. (Declaring this avoids
 # "unused import statement" warnings.)
-__all__ = ['PAD_VALUE', 'polymerize', 'buildSequences', 'computeMassIncrease']
+__all__ = ['polymerize', 'buildSequences', 'computeMassIncrease']
 
-PAD_VALUE = -1
 
-# TODO: restore profiling/decoration
+# TODO (John): restore line profiler decorator?
 
-class polymerize(object):
+class polymerize(object): # lowercase because interface is function-like
+	PAD_VALUE = -1
 	def __init__(self, sequences, monomerLimits, reactionLimit, randomState):
+		# TODO (John): should the docstring be under __init__ or the class?
 		"""
 		Polymerize the given DNA/RNA/protein sequences as far as possible within
 		the given limits.
@@ -60,7 +61,7 @@ class polymerize(object):
 			sequenceMonomers[monomerIndex, ...] = (sequences == monomerIndex)
 
 		# sequenceReactions: bool[sequence#, step#] of sequence continuation
-		sequenceReactions = (sequences != PAD_VALUE)
+		sequenceReactions = (sequences != self.PAD_VALUE)
 		sequenceLengths = sequenceReactions.sum(axis = 1)
 
 		# Running values
