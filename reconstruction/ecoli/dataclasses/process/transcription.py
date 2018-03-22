@@ -51,7 +51,7 @@ class Transcription(object):
 			np.log(2) / sim_data.doubling_time.asNumber(units.s)
 			+ rnaDegRates
 			)
-		
+
 		synthProb /= synthProb.sum()
 
 		KcatEndoRNase = 0.001
@@ -164,7 +164,7 @@ class Transcription(object):
 		#self.getTrnaAbundanceData = getTrnaAbundanceAtGrowthRate
 
 	def _buildTranscription(self, raw_data, sim_data):
-		from wholecell.utils.polymerize import PAD_VALUE
+		from wholecell.utils.polymerize import polymerize
 
 		sequences = self.rnaData["sequence"] # TODO: consider removing sequences
 
@@ -174,7 +174,7 @@ class Transcription(object):
 			)
 
 		self.transcriptionSequences = np.empty((sequences.shape[0], maxLen), np.int8)
-		self.transcriptionSequences.fill(PAD_VALUE)
+		self.transcriptionSequences.fill(polymerize.PAD_VALUE)
 
 		ntMapping = {ntpId:i for i, ntpId in enumerate(["A", "C", "G", "U"])}
 
