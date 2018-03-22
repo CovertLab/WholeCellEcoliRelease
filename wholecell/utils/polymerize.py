@@ -61,122 +61,36 @@ class polymerize(object): # Class name is lowercase because interface is functio
 
 		# Elongate sequences as much as possible
 		while True:
-			# Find the furthest we can elongate without reaching some limitation
-			monomerLimitingExtents = [
-				np.where(self._totalMonomers[monomerIndex, :] > monomerLimit)[0]
-				for monomerIndex, monomerLimit in enumerate(self._monomerLimits)
-				]
+			# Perform trivial elongations
+			fully_elongated = self._elongate_to_limit()
 
-			monomerLimitedAt = np.array([
-				extent[0] if extent.size else self._maxElongation
-				for extent in monomerLimitingExtents
-				])
+			monomer_limited = (self._monomerLimits == 0).all()
+			reaction_limited = (self._reactionLimit == 0)
 
-			reactionLimitedAt = self._maxElongation
-
-			reactionLimitingExtents = np.where(
-				self._totalReactions > self._reactionLimit
-				)[0]
-
-			if reactionLimitingExtents.size:
-				reactionLimitedAt = reactionLimitingExtents[0]
-
-			limitingExtent = min(monomerLimitedAt.min(), reactionLimitedAt)
-
-			monomerIsLimiting = (monomerLimitedAt == limitingExtent)
-			reactionIsLimiting = (reactionLimitedAt == limitingExtent)
-
-			self._currentStep += limitingExtent
-
-			# Use resources
-			if limitingExtent > 0:
-				deltaMonomers = self._totalMonomers[:, limitingExtent-1]
-				deltaReactions = self._totalReactions[limitingExtent-1]
-
-				self._monomerLimits -= deltaMonomers
-				self._reactionLimit -= deltaReactions
-
-				self.monomerUsages += deltaMonomers
-				self.nReactions += deltaReactions
-
-			# Update lengths
-			self.sequenceElongation[self._activeSequencesIndexes] += limitingExtent
-
-			# Quit if fully elongated
-			if limitingExtent == self._maxElongation:
+			# Quit if finished or out of resources
+			if fully_elongated or monomer_limited or reaction_limited:
 				break
 
-			# Quit if out of resources
-			if not self._monomerLimits.any():
-				break
+			# Perform nontrivial (resource-limited) elongations, and cull
+			# sequences that can no longer be elongated
 
-			if self._reactionLimit == 0:
-				break
-
-			# Cull fully elongated sequences
-			sequencesToCull = ~self._sequenceReactions[self._activeSequencesIndexes, self._currentStep]
-
-			# Cull monomer-limiting sequences
-			for monomerIndex, monomerLimit in enumerate(self._monomerLimits):
-				if ~monomerIsLimiting[monomerIndex]:
-					continue
-
-				sequencesWithMonomer = np.where(
-					self._sequenceMonomers[monomerIndex, self._activeSequencesIndexes, self._currentStep]
-					)[0]
-
-				nToCull = sequencesWithMonomer.size - monomerLimit
-
-				assert nToCull > 0
-
-				culledIndexes = self._randomState.choice(
-					sequencesWithMonomer,
-					nToCull,
-					replace = False
-					)
-
-				sequencesToCull[culledIndexes] = True
-
-			# Cull reaction-limiting sequences
-			if reactionIsLimiting:
-				sequencesWithReaction = np.where(
-					~sequencesToCull
-					)[0]
-
-				nToCull = sequencesWithReaction.size - self._reactionLimit
-
-				if nToCull > 0:
-					culledIndexes = self._randomState.choice(
-						sequencesWithReaction,
-						nToCull,
-						replace = False
-						)
-
-					sequencesToCull[culledIndexes] = True
-
-			# Update running values
-			self._activeSequencesIndexes = self._activeSequencesIndexes[~sequencesToCull]
+			self._finalize_resource_limited_elongations()
 
 			# Quit if there are no more sequences
 			if not self._activeSequencesIndexes.size:
 				break
 
-			#self._totalMonomers = self._sequenceMonomers[:, self._activeSequencesIndexes, self._currentStep:].sum(axis = 1).cumsum(axis = 1)
-			#self._totalMonomers = sum_monomers_reference_implementation(self._sequenceMonomers, self._activeSequencesIndexes, self._currentStep)
-			self._totalMonomers = sum_monomers(self._sequenceMonomers, self._activeSequencesIndexes, self._currentStep)
+			# Otherwise, update running values
+			self._update_elongation_resource_demands()
 
-			self._totalReactions = self._sequenceReactions[self._activeSequencesIndexes, self._currentStep:].sum(axis = 0).cumsum(axis = 0)
-
-			self._maxElongation = self._sequenceLength - self._currentStep
-
+		# Clean up
 		self._clamp_elongation_to_sequence_length()
 
-		# Clamp sequence lengths up to their max length
-
 	# __init__ subroutines
-	# Several of these assign new attributes outside of __init__'s context, but
-	# these functions should never be called more than once or outside __init__
-	# as they are just part of extended __init__ operations.
+	# Several of these assign new attributes outside of __init__'s immediate
+	# context; however, they should only ever be called by __init__.
+
+	# Setup subroutines
 
 	def _sanitize_inputs(self):
 		'''
@@ -239,6 +153,126 @@ class polymerize(object): # Class name is lowercase because interface is functio
 		self.sequenceElongation = np.zeros(self._nSequences, np.int64)
 		self.monomerUsages = np.zeros(self._nMonomers, np.int64)
 		self.nReactions = 0
+
+	# Iteration subroutines
+
+	def _elongate_to_limit(self):
+		'''
+		Elongate as far as possible without hitting any resource limitations.
+		'''
+
+		# Find the furthest we can elongate without reaching some limitation
+		monomerLimitingExtents = [
+			np.where(self._totalMonomers[monomerIndex, :] > monomerLimit)[0]
+			for monomerIndex, monomerLimit in enumerate(self._monomerLimits)
+			]
+
+		monomerLimitedAt = np.array([
+			extent[0] if extent.size else self._maxElongation
+			for extent in monomerLimitingExtents
+			])
+
+		reactionLimitedAt = self._maxElongation
+
+		reactionLimitingExtents = np.where(
+			self._totalReactions > self._reactionLimit
+			)[0]
+
+		if reactionLimitingExtents.size:
+			reactionLimitedAt = reactionLimitingExtents[0]
+
+		limitingExtent = min(monomerLimitedAt.min(), reactionLimitedAt)
+
+		# TODO (John): create these _*IsLimiting properties prior to iteration,
+		# and reuse the arrays rather than replacing them
+		self._monomerIsLimiting = (monomerLimitedAt == limitingExtent)
+		self._reactionIsLimiting = (reactionLimitedAt == limitingExtent)
+
+		self._currentStep += limitingExtent
+
+		# Use resources
+		if limitingExtent > 0:
+			deltaMonomers = self._totalMonomers[:, limitingExtent-1]
+			deltaReactions = self._totalReactions[limitingExtent-1]
+
+			self._monomerLimits -= deltaMonomers
+			self._reactionLimit -= deltaReactions
+
+			self.monomerUsages += deltaMonomers
+			self.nReactions += deltaReactions
+
+		# Update lengths
+		self.sequenceElongation[self._activeSequencesIndexes] += limitingExtent
+
+		# Determine whether we are finished elongating
+		# TODO (John): see if we can determine this outside this context,
+		# consequently removing the need to "return" anything
+		fully_elongated = (limitingExtent == self._maxElongation)
+
+		return fully_elongated
+
+	def _finalize_resource_limited_elongations(self):
+		# Find fully elongated sequences
+		sequencesToCull = ~self._sequenceReactions[self._activeSequencesIndexes, self._currentStep]
+
+		# Find and finalize monomer-limiting sequences
+		for monomerIndex, monomerLimit in enumerate(self._monomerLimits):
+			if ~self._monomerIsLimiting[monomerIndex]:
+				continue
+
+			sequencesWithMonomer = np.where(
+				self._sequenceMonomers[monomerIndex, self._activeSequencesIndexes, self._currentStep]
+				)[0]
+
+			nToCull = sequencesWithMonomer.size - monomerLimit
+
+			assert nToCull > 0
+
+			culledIndexes = self._randomState.choice(
+				sequencesWithMonomer,
+				nToCull,
+				replace = False
+				)
+
+			sequencesToCull[culledIndexes] = True
+
+		# Find and finalize reaction-limiting sequences
+		if self._reactionIsLimiting:
+			sequencesWithReaction = np.where(
+				~sequencesToCull
+				)[0]
+
+			nToCull = sequencesWithReaction.size - self._reactionLimit
+
+			if nToCull > 0:
+				culledIndexes = self._randomState.choice(
+					sequencesWithReaction,
+					nToCull,
+					replace = False
+					)
+
+				sequencesToCull[culledIndexes] = True
+
+		# Cull sequences
+		self._activeSequencesIndexes = self._activeSequencesIndexes[~sequencesToCull]
+
+	def _update_elongation_resource_demands(self):
+		'''
+		After culling, we need to recalculate resource demands for the
+		remaining steps given what sequences remain.
+
+		TODO: see if this replace the similar code in _prepare_running_values
+		'''
+
+		#self._totalMonomers = self._sequenceMonomers[:, self._activeSequencesIndexes, self._currentStep:].sum(axis = 1).cumsum(axis = 1)
+		#self._totalMonomers = sum_monomers_reference_implementation(self._sequenceMonomers, self._activeSequencesIndexes, self._currentStep)
+		self._totalMonomers = sum_monomers(self._sequenceMonomers, self._activeSequencesIndexes, self._currentStep)
+
+		self._totalReactions = self._sequenceReactions[self._activeSequencesIndexes, self._currentStep:].sum(axis = 0).cumsum(axis = 0)
+
+		self._maxElongation = self._sequenceLength - self._currentStep
+
+	# Finalization subroutines
 
 	def _clamp_elongation_to_sequence_length(self):
 		'''
