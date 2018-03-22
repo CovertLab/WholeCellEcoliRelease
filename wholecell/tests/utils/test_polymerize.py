@@ -22,7 +22,7 @@ import unittest
 
 
 class Test_polymerize(unittest.TestCase):
-	
+
 	@classmethod
 	def setUpClass(cls):
 		pass
@@ -85,7 +85,7 @@ class Test_polymerize(unittest.TestCase):
 		sequences = np.array([[0,1,0,1],[3,1,0,2],[2,2,1,1]])
 		baseAmounts = np.array([9,9,9,9])
 		energy = 100
-		
+
 		# Good calls test
 		polymerize(sequences, baseAmounts, energy, np.random.RandomState(0))
 
@@ -96,16 +96,16 @@ class Test_polymerize(unittest.TestCase):
 		sequences = np.array([[0,1,0,1],[1,1,1,1]])
 		baseAmounts = np.array([9,9])
 		energy = 6
-		
+
 		np.random.seed(1)
-		progress, baseCosts, energyCost = polymerize(sequences, baseAmounts, energy, np.random.RandomState(0))
+		result = polymerize(sequences, baseAmounts, energy, np.random.RandomState(0))
 		np.random.seed()
-		
-		assert_equal(progress, np.array([3, 3]))
-		assert_equal(baseCosts, np.array([2, 4]))
-		self.assertEqual(6, energyCost)
-	
-	
+
+		assert_equal(result.sequenceElongation, np.array([3, 3]))
+		assert_equal(result.monomerUsages, np.array([2, 4]))
+		self.assertEqual(6, result.nReactions)
+
+
 	@noseAttrib.attr('polymerizeNew')
 	@noseAttrib.attr('smalltest')
 	def test_polymerize_testFairness(self):
@@ -116,17 +116,17 @@ class Test_polymerize(unittest.TestCase):
 		baseAmounts = np.array([11,11,11,11])
 		baseAmountsOriginal = baseAmounts.copy()
 		energy = 30
-		
+
 		np.random.seed(1)
-		progress, baseCosts, energyCost = polymerize(sequences, baseAmounts, energy, np.random.RandomState(0))
+		result = polymerize(sequences, baseAmounts, energy, np.random.RandomState(0))
 		np.random.seed()
-		
-		assert_equal(progress, np.array([10,9,9,0]))
-		assert_equal(baseCosts, np.array([3,3,11,11]))
-		self.assertEqual(28, energyCost)
+
+		assert_equal(result.sequenceElongation, np.array([10,9,9,0]))
+		assert_equal(result.monomerUsages, np.array([3,3,11,11]))
+		self.assertEqual(28, result.nReactions)
 		self.assertTrue((baseAmounts == baseAmountsOriginal).all(), 'should not modify monomerLimits')
-	
-	
+
+
 	@noseAttrib.attr('polymerizeNew')
 	@noseAttrib.attr('smalltest')
 	def test_polymerize_testAllAvailableBases(self):
@@ -136,16 +136,16 @@ class Test_polymerize(unittest.TestCase):
 								[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]])
 		baseAmounts = np.array([11,11,11,11])
 		energy = 30
-		
+
 		np.random.seed(1)
-		progress, baseCosts, energyCost = polymerize(sequences, baseAmounts, energy, np.random.RandomState(0))
+		result = polymerize(sequences, baseAmounts, energy, np.random.RandomState(0))
 		np.random.seed()
-		
-		assert_equal(progress, np.array([12,9,9,0]))
-		assert_equal(baseCosts, np.array([3,5,11,11]))
-		self.assertEqual(30, energyCost)
-				
-	
+
+		assert_equal(result.sequenceElongation, np.array([12,9,9,0]))
+		assert_equal(result.monomerUsages, np.array([3,5,11,11]))
+		self.assertEqual(30, result.nReactions)
+
+
 	@noseAttrib.attr('polymerizeNew')
 	@noseAttrib.attr('smalltest')
 	def test_polymerize_testVariableSequenceLength(self):
@@ -155,12 +155,12 @@ class Test_polymerize(unittest.TestCase):
 								[1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1]])
 		baseAmounts = np.array([30,30,30,30])
 		energy = 50
-		
+
 		np.random.seed(1)
-		progress, baseCosts, energyCost = polymerize(sequences, baseAmounts, energy, np.random.RandomState(0))
+		result = polymerize(sequences, baseAmounts, energy, np.random.RandomState(0))
 		np.random.seed()
-		
-		assert_equal(progress, np.array([12,12,12,3]))
+
+		assert_equal(result.sequenceElongation, np.array([12,12,12,3]))
 
 
 	@noseAttrib.attr('polymerizeNew')
@@ -177,7 +177,7 @@ class Test_polymerize(unittest.TestCase):
 		sequenceIndexes = np.array([0,5,8])
 		polymerizedLengths = np.array([0,4,9])
 		elngRate = 5
-		
+
 		sequences = buildSequences(
 			allSequences,
 			sequenceIndexes,
@@ -197,7 +197,7 @@ class Test_polymerize(unittest.TestCase):
 		sequenceIndexes = np.array([0,5,8])
 		polymerizedLengths = np.array([0,4,9])
 		elngRate = 5
-		
+
 		# TODO: Define an exeption subclass if you want to check the real message
 		self.assertRaises(
 			Exception,
@@ -210,7 +210,7 @@ class Test_polymerize(unittest.TestCase):
 		sequences = np.random.randint(4, size=(20,10)).astype(np.int8, copy=False)
 		sequenceElongations = np.random.randint(10, size = (20,)).astype(np.int64, copy=False)
 		monomerWeights = np.array([10., 4., 7., 1.], dtype=np.float64)
-		
+
 		massIncrease = computeMassIncrease(
 			sequences,
 			sequenceElongations,

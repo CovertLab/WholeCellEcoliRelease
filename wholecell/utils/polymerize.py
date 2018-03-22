@@ -43,7 +43,7 @@ class polymerize(object):
 		Returns:
 			sequenceElongation: length[sequence#] how far the sequences proceeded,
 			monomerUsages: count[monomer#] how many monomers got used,
-			self.nReactions: scalar total number of reactions (monomers used)
+			nReactions: scalar total number of reactions (monomers used)
 		"""
 		# Sanitize inputs
 		monomerLimits = monomerLimits.astype(np.int64, copy=True)
@@ -197,4 +197,4 @@ class polymerize(object):
 			maxElongation = sequenceLength - currentStep
 
 		# Clamp sequence lengths up to their max length
-		self.sequenceElongation = np.fmin(sequenceElongation, sequenceLengths)
+		self.sequenceElongation = np.fmin(self.sequenceElongation, sequenceLengths)
