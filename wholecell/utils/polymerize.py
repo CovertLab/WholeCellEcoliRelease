@@ -46,22 +46,29 @@ class polymerize(object): # lowercase because interface is function-like
 			monomerUsages: count[monomer#] how many monomers got used,
 			nReactions: scalar total number of reactions (monomers used)
 		"""
-		# Sanitize inputs
-		monomerLimits = monomerLimits.astype(np.int64, copy=True)
-		reactionLimit = np.int64(reactionLimit)
+
+		# Gather inputs
+		self._sequences = sequences
+		self._monomerLimits = monomerLimits
+		self._reactionLimit = reactionLimit
+		self._randomState = randomState
+
+		self._sanitize_inputs()
+
+		# Collect size data and prepare for iteration
 
 		# Data size information
-		nSequences, sequenceLength = sequences.shape
-		nMonomers = monomerLimits.size
+		nSequences, sequenceLength = self._sequences.shape
+		nMonomers = self._monomerLimits.size
 
 		# Static data
 		# sequenceMonomers: bool[monomer#, sequence#, step#] bitmask of monomer usage
 		sequenceMonomers = np.empty((nMonomers, nSequences, sequenceLength), dtype = np.bool)
 		for monomerIndex in xrange(nMonomers):
-			sequenceMonomers[monomerIndex, ...] = (sequences == monomerIndex)
+			sequenceMonomers[monomerIndex, ...] = (self._sequences == monomerIndex)
 
 		# sequenceReactions: bool[sequence#, step#] of sequence continuation
-		sequenceReactions = (sequences != self.PAD_VALUE)
+		sequenceReactions = (self._sequences != self.PAD_VALUE)
 		sequenceLengths = sequenceReactions.sum(axis = 1)
 
 		# Running values
@@ -92,7 +99,7 @@ class polymerize(object): # lowercase because interface is function-like
 			# Find the furthest we can elongate without reaching some limitation
 			monomerLimitingExtents = [
 				np.where(totalMonomers[monomerIndex, :] > monomerLimit)[0]
-				for monomerIndex, monomerLimit in enumerate(monomerLimits)
+				for monomerIndex, monomerLimit in enumerate(self._monomerLimits)
 				]
 
 			monomerLimitedAt = np.array([
@@ -103,7 +110,7 @@ class polymerize(object): # lowercase because interface is function-like
 			reactionLimitedAt = maxElongation
 
 			reactionLimitingExtents = np.where(
-				totalReactions > reactionLimit
+				totalReactions > self._reactionLimit
 				)[0]
 
 			if reactionLimitingExtents.size:
@@ -121,8 +128,8 @@ class polymerize(object): # lowercase because interface is function-like
 				deltaMonomers = totalMonomers[:, limitingExtent-1]
 				deltaReactions = totalReactions[limitingExtent-1]
 
-				monomerLimits -= deltaMonomers
-				reactionLimit -= deltaReactions
+				self._monomerLimits -= deltaMonomers
+				self._reactionLimit -= deltaReactions
 
 				self.monomerUsages += deltaMonomers
 				self.nReactions += deltaReactions
@@ -135,17 +142,17 @@ class polymerize(object): # lowercase because interface is function-like
 				break
 
 			# Quit if out of resources
-			if not monomerLimits.any():
+			if not self._monomerLimits.any():
 				break
 
-			if reactionLimit == 0:
+			if self._reactionLimit == 0:
 				break
 
 			# Cull fully elongated sequences
 			sequencesToCull = ~sequenceReactions[activeSequencesIndexes, currentStep]
 
 			# Cull monomer-limiting sequences
-			for monomerIndex, monomerLimit in enumerate(monomerLimits):
+			for monomerIndex, monomerLimit in enumerate(self._monomerLimits):
 				if ~monomerIsLimiting[monomerIndex]:
 					continue
 
@@ -157,7 +164,7 @@ class polymerize(object): # lowercase because interface is function-like
 
 				assert nToCull > 0
 
-				culledIndexes = randomState.choice(
+				culledIndexes = self._randomState.choice(
 					sequencesWithMonomer,
 					nToCull,
 					replace = False
@@ -171,10 +178,10 @@ class polymerize(object): # lowercase because interface is function-like
 					~sequencesToCull
 					)[0]
 
-				nToCull = sequencesWithReaction.size - reactionLimit
+				nToCull = sequencesWithReaction.size - self._reactionLimit
 
 				if nToCull > 0:
-					culledIndexes = randomState.choice(
+					culledIndexes = self._randomState.choice(
 						sequencesWithReaction,
 						nToCull,
 						replace = False
@@ -199,3 +206,10 @@ class polymerize(object): # lowercase because interface is function-like
 
 		# Clamp sequence lengths up to their max length
 		self.sequenceElongation = np.fmin(self.sequenceElongation, sequenceLengths)
+
+	def _sanitize_inputs(self):
+		'''
+		Enforce array typing, and copy input arrays to prevent side-effects.
+		'''
+		self._monomerLimits = self._monomerLimits.astype(np.int64, copy = True)
+		self._reactionLimit = np.int64(self._reactionLimit)
