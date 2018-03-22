@@ -31,8 +31,18 @@ import numpy as np
 # when run via kernprof.
 sys.path[0] = os.getcwd()
 
-from wholecell.utils.polymerize import polymerize, PAD_VALUE
+# from wholecell.utils.polymerize import polymerize
 
+import wholecell.utils.polymerize
+
+# Wrap with kernprof profiling decorator - will throw an error if we call this
+# script using the vanilla python interpreter.
+
+@profile
+def polymerize(*args, **kwargs):
+    # Light wrapper to accomadate profiling while using the old output format
+    result = wholecell.utils.polymerize(*args, **kwargs)
+    return (result.sequenceElongation, result.monomerUsages, result.nReactions)
 
 def _setupRealExample():
     monomerLimits = np.array([11311,  6117,  4859,  6496,   843,  7460,  4431,  8986,  2126,
@@ -51,7 +61,7 @@ def _setupRealExample():
     sequenceLengths = length * np.ones(nSequences, np.int64)
     sequenceLengths[np.random.choice(nSequences, nTerminating, replace = False)] = np.random.randint(length, size = nTerminating)
 
-    sequences[np.arange(length) > sequenceLengths[:, np.newaxis]] = PAD_VALUE
+    sequences[np.arange(length) > sequenceLengths[:, np.newaxis]] = polymerize.PAD_VALUE
 
     reactionLimit = 10000000
 
@@ -74,7 +84,7 @@ def _setupExample():
     sequenceLengths = length * np.ones(nSequences, np.int64)
     sequenceLengths[np.random.choice(nSequences, nTerminating, replace = False)] = np.random.randint(length, size = nTerminating)
 
-    sequences[np.arange(length) > sequenceLengths[:, np.newaxis]] = PAD_VALUE
+    sequences[np.arange(length) > sequenceLengths[:, np.newaxis]] = polymerize.PAD_VALUE
 
     maxReactions = sequenceLengths.sum()
 
@@ -93,7 +103,7 @@ def _simpleProfile():
 
     nSequences, length = sequences.shape
     nMonomers = monomerLimits.size
-    sequenceLengths = (sequences != PAD_VALUE).sum(axis = 1)
+    sequenceLengths = (sequences != polymerize.PAD_VALUE).sum(axis = 1)
 
     t = time.time()
     sequenceElongation, monomerUsages, nReactions = polymerize(sequences, monomerLimits, reactionLimit, randomState)

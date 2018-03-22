@@ -23,9 +23,6 @@ from ._fastsums import sum_monomers, sum_monomers_reference_implementation
 # "unused import statement" warnings.)
 __all__ = ['polymerize', 'buildSequences', 'computeMassIncrease']
 
-
-# TODO (John): Restore line profiler decorator?
-
 class polymerize(object): # Class name is lowercase because interface is function-like
 	PAD_VALUE = -1
 	def __init__(self, sequences, monomerLimits, reactionLimit, randomState):
