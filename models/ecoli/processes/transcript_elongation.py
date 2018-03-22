@@ -19,7 +19,7 @@ from __future__ import division
 import numpy as np
 
 import wholecell.processes.process
-from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
+from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease
 from wholecell.utils import units
 from wholecell.utils.random import stochasticRound
 
@@ -64,7 +64,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		# Determine total possible sequences of nucleotides that can be transcribed in this time step for each polymerase
 		rnaIndexes, transcriptLengths = activeRnaPolys.attrs('rnaIndex', 'transcriptLength')
 		sequences = buildSequences(self.rnaSequences, rnaIndexes, transcriptLengths, self.rnapElngRate)
-		sequenceComposition = np.bincount(sequences[sequences != PAD_VALUE], minlength = 4)
+		sequenceComposition = np.bincount(sequences[sequences != polymerize.PAD_VALUE], minlength = 4)
 
 		# Calculate if any nucleotides are limited and request up to the number in the sequences or number available
 		ntpsTotal = self.ntps.total()
@@ -85,11 +85,14 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		# Determine sequences that can be elongated
 		rnaIndexes, transcriptLengths, massDiffRna = activeRnaPolys.attrs('rnaIndex', 'transcriptLength', 'massDiff_mRNA')
 		sequences = buildSequences(self.rnaSequences, rnaIndexes, transcriptLengths, self.rnapElngRate)
-		ntpCountInSequence = np.bincount(sequences[sequences != PAD_VALUE], minlength = 4)
+		ntpCountInSequence = np.bincount(sequences[sequences != polymerize.PAD_VALUE], minlength = 4)
 
 		# Polymerize transcripts based on sequences and available nucleotides
 		reactionLimit = ntpCounts.sum()
-		sequenceElongations, ntpsUsed, nElongations = polymerize(sequences, ntpCounts, reactionLimit, self.randomState)
+		result = polymerize(sequences, ntpCounts, reactionLimit, self.randomState)
+		sequenceElongations = result.sequenceElongation
+		ntpsUsed = result.monomerUsages
+		nElongations = result.nReactions
 
 		# Calculate changes in mass associated with polymerization and update active polymerases
 		massIncreaseRna = computeMassIncrease(sequences, sequenceElongations, self.ntWeights)
