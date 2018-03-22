@@ -169,8 +169,9 @@ class polymerize(object): # Class name is lowercase because interface is functio
 
 			self._maxElongation = self._sequenceLength - self._currentStep
 
+		self._clamp_elongation_to_sequence_length()
+
 		# Clamp sequence lengths up to their max length
-		self.sequenceElongation = np.fmin(self.sequenceElongation, self._sequenceLengths)
 
 	# __init__ subroutines
 	# Several of these assign new attributes outside of __init__'s context, but
@@ -238,3 +239,16 @@ class polymerize(object): # Class name is lowercase because interface is functio
 		self.sequenceElongation = np.zeros(self._nSequences, np.int64)
 		self.monomerUsages = np.zeros(self._nMonomers, np.int64)
 		self.nReactions = 0
+
+	def _clamp_elongation_to_sequence_length(self):
+		'''
+		A post-iteration clean-up operation.  Restricts the elongation of a
+		sequence to at most its total (unpadded) length.
+
+		TODO: explain why we do this here instead of during each iteration
+		'''
+
+		self.sequenceElongation = np.fmin(
+			self.sequenceElongation,
+			self._sequenceLengths
+			)
