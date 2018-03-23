@@ -24,6 +24,10 @@ kernprof doesn't support that.
 import __builtin__
 import sys
 import os
+import time
+import cProfile
+import pstats
+import StringIO
 import numpy as np
 
 # EXPECTS: The current working directory is "wcEcoli/".
@@ -98,8 +102,6 @@ def _setupExample():
 
 
 def _simpleProfile():
-    import time
-
     np.random.seed(0)
 
     sequences, monomerLimits, reactionLimit, randomState = _setupExample()
@@ -150,8 +152,6 @@ def _fullProfile():
     sequences, monomerLimits, reactionLimit, randomState = _setupRealExample()
 
     # Recipe from https://docs.python.org/2/library/profile.html#module-cProfile
-
-    import cProfile, pstats, StringIO
     pr = cProfile.Profile()
     pr.enable()
 

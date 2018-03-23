@@ -67,6 +67,7 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 
 	# sequenceReactions: ndarray of bool, shape (num_sequences, num_steps), of
 	#     sequence continuation.
+	# sequenceLength: ndarray of integer, shape (num_sequences).
 	sequenceReactions = (sequences != PAD_VALUE)
 	sequenceLengths = sequenceReactions.sum(axis = 1)
 
@@ -79,11 +80,12 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 		sequenceReactions[:, currentStep]
 		]
 
-	# totalMonomers: ndarray of integer, shape (num_monomers, num_steps), the
-	#     count of monomers wanted in currentStep and beyond.
-	# totalReactions: ndarray of integer, shape (num_steps), the cumulative
-	#     number of reactions in currentStep to the end for active sequences,
-	#     not considering further limiting factors.
+	# totalMonomers: ndarray of integer, shape
+	#     (num_monomers, num_steps - currentStep), the count of monomers wanted
+	#     in currentStep and beyond.
+	# totalReactions: ndarray of integer, shape (num_steps - currentStep,),
+	#     the cumulative number of reactions in currentStep to the end for
+	#     currently active sequences, ignoring limiting factors.
 	#
 	#totalMonomers = sequenceMonomers.sum(axis = 1).cumsum(axis = 1)
 	totalMonomers = sum_monomers(sequenceMonomers, activeSequencesIndexes, 0)
@@ -98,12 +100,18 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 
 	# Elongate sequences as much as possible
 	while activeSequencesIndexes.size:
-		# Find the furthest we can elongate without reaching some limitation
+		# Find the furthest we can elongate without reaching some limitation.
+		# monomerLimitingExtents: list of ndarray of integer, effective shape
+		# (num_monomers, integer), all the currentStep-relative step indexes in
+		# currently active sequences beyond the monomer's limit.
 		monomerLimitingExtents = [
 			np.where(totalMonomers[monomerIndex, :] > monomerLimit)[0]
 			for monomerIndex, monomerLimit in enumerate(monomerLimits)
 			]
 
+		# monomerLimitedAt: ndarray of integer, shape (num_monomers,), the
+		# currentStep-relative step# where each monomer exceeds its limit, else
+		# maxElongation.
 		monomerLimitedAt = np.array([
 			extent[0] if extent.size else maxElongation
 			for extent in monomerLimitingExtents
@@ -111,6 +119,8 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 
 		reactionLimitedAt = maxElongation
 
+		# reactionLimitingExtents: ndarray of integer, shape (integer,), all
+		# the currentStep-relative step numbers beyond the reactionLimit.
 		reactionLimitingExtents = np.where(
 			totalReactions > reactionLimit
 			)[0]
@@ -151,6 +161,9 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 			break
 
 		# Cull fully elongated sequences
+		# sequencesToCull: ndarray of bool, shape (num_active_sequences,),
+		# selecting active sequences to cull, initially the ones that finished
+		# by currentStep.
 		sequencesToCull = ~sequenceReactions[activeSequencesIndexes, currentStep]
 
 		# Cull monomer-limiting sequences
@@ -158,6 +171,8 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 			if ~monomerIsLimiting[monomerIndex]:
 				continue
 
+			# sequencesWithMonomer: ndarray of integer, shape (integer,), the
+			# active sequence indexes that use this monomer in currentStep.
 			sequencesWithMonomer = np.where(
 				sequenceMonomers[monomerIndex, activeSequencesIndexes, currentStep]
 				)[0]
@@ -166,6 +181,8 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 
 			assert nToCull > 0
 
+			# culledIndexes: ndarray of integer, shape (integer,), randomly
+			# chosen sequences to cull due to the monomer's limit.
 			culledIndexes = randomState.choice(
 				sequencesWithMonomer,
 				nToCull,
@@ -176,6 +193,8 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 
 		# Cull reaction-limiting sequences
 		if reactionIsLimiting:
+			# sequencesWithReaction: ndarray of integer, shape (integer,), the
+			# active sequence indexes not yet ruled out.
 			sequencesWithReaction = np.where(
 				~sequencesToCull
 				)[0]
@@ -183,6 +202,8 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 			nToCull = sequencesWithReaction.size - reactionLimit
 
 			if nToCull > 0:
+				# culledIndexes: ndarray of integer, shape (integer,), randomly
+				# chosen sequences to cull to uphold reactionLimit.
 				culledIndexes = randomState.choice(
 					sequencesWithReaction,
 					nToCull,
