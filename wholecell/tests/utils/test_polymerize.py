@@ -19,6 +19,7 @@ import nose.plugins.attrib as noseAttrib
 import nose.tools as noseTools
 import unittest
 
+P = polymerize.PAD_VALUE
 
 class Test_polymerize(unittest.TestCase):
 
@@ -56,8 +57,8 @@ class Test_polymerize(unittest.TestCase):
 	@noseAttrib.attr('smalltest')
 	def test_sum_monomers(self):
 		sequences = np.array([
-			[0, 0, 0, 0, polymerize.PAD_VALUE],
-			[3, 3, 3, 3, polymerize.PAD_VALUE],
+			[0, 0, 0, 0, P],
+			[3, 3, 3, 3, P],
 			[0, 1, 3, 0, 0]
 			])
 		self.makeSequenceMonomers(sequences)
@@ -78,8 +79,8 @@ class Test_polymerize(unittest.TestCase):
 	@noseAttrib.attr('smalltest')
 	def test_partial_sum_monomers(self):
 		sequences = np.array([
-			[0, 0, 0, 0, polymerize.PAD_VALUE],
-			[3, 3, 3, 3, polymerize.PAD_VALUE],
+			[0, 0, 0, 0, P],
+			[3, 3, 3, 3, P],
 			[0, 0, 0, 1, 0],
 			[2, 2, 2, 2, 2]
 			])
@@ -138,7 +139,7 @@ class Test_polymerize(unittest.TestCase):
 			[0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3],
 			[3] * 12,
 			[2] * 12,
-			[polymerize.PAD_VALUE] * 12])
+			[P] * 12])
 		baseAmounts = np.array([11] * 4)
 		baseAmountsOriginal = baseAmounts.copy()
 		energy = 30
@@ -158,7 +159,7 @@ class Test_polymerize(unittest.TestCase):
 			[0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 1, 1],
 			[3] * 12,
 			[2] * 12,
-			[polymerize.PAD_VALUE] * 12
+			[P] * 12
 			])
 		baseAmounts = np.array([11] * 4)
 		energy = 30
@@ -177,7 +178,7 @@ class Test_polymerize(unittest.TestCase):
 			[0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 1, 1],
 			[3] * 12,
 			[2] * 12,
-			[1, 1, 1] + [polymerize.PAD_VALUE] * 9
+			[1, 1, 1] + [P] * 9
 			])
 		baseAmounts = np.array([30] * 4)
 		energy = 50
@@ -192,7 +193,7 @@ class Test_polymerize(unittest.TestCase):
 	def test_buildSequences(self):
 		# Base case
 		padding = np.empty((20, 10))
-		padding.fill(polymerize.PAD_VALUE)
+		padding.fill(P)
 		allSequences =  np.hstack(
 			(
 				np.random.randint(3, size = (20, 10)), padding
