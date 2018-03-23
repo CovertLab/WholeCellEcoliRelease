@@ -59,44 +59,29 @@ class polymerize(object): # Class name is lowercase because interface is functio
 		self._randomState = randomState
 
 		# Prepare for iteration
-		self._sanitize_inputs()
-		self._gather_input_dimensions()
-		self._gather_sequence_data()
-		self._prepare_running_values()
-		self._prepare_outputs()
+		self._setup()
 
 		# Elongate sequences as much as possible
-		while True:
-			# Perform trivial elongations
-			fully_elongated = self._elongate_to_limit()
-
-			monomer_limited = (self._monomerLimits == 0).all()
-			reaction_limited = (self._reactionLimit == 0)
-
-			# Quit if finished or out of resources
-			if fully_elongated or monomer_limited or reaction_limited:
-				break
-
-			# Perform nontrivial (resource-limited) elongations, and cull
-			# sequences that can no longer be elongated
-
-			self._finalize_resource_limited_elongations()
-
-			# Quit if there are no more sequences
-			if not self._activeSequencesIndexes.size:
-				break
-
-			# Otherwise, update running values
-			self._update_elongation_resource_demands()
+		self._elongate()
 
 		# Clean up
-		self._clamp_elongation_to_sequence_length()
+		self._finalize()
 
 	# __init__ subroutines
 	# Several of these assign new attributes outside of __init__'s immediate
 	# context; however, they should only ever be called by __init__.
 
 	# Setup subroutines
+
+	def _setup(self):
+		'''
+		Extended initialization procedures.
+		'''
+		self._sanitize_inputs()
+		self._gather_input_dimensions()
+		self._gather_sequence_data()
+		self._prepare_running_values()
+		self._prepare_outputs()
 
 	def _sanitize_inputs(self):
 		'''
@@ -167,6 +152,34 @@ class polymerize(object): # Class name is lowercase because interface is functio
 		self.nReactions = 0
 
 	# Iteration subroutines
+
+	def _elongate(self):
+		'''
+		Iteratively elongates sequences up to resource limits.
+		'''
+
+		while True:
+			# Perform trivial elongations
+			fully_elongated = self._elongate_to_limit()
+
+			monomer_limited = (self._monomerLimits == 0).all()
+			reaction_limited = (self._reactionLimit == 0)
+
+			# Quit if finished or out of resources
+			if fully_elongated or monomer_limited or reaction_limited:
+				break
+
+			# Perform nontrivial (resource-limited) elongations, and cull
+			# sequences that can no longer be elongated
+
+			self._finalize_resource_limited_elongations()
+
+			# Quit if there are no more sequences
+			if not self._activeSequencesIndexes.size:
+				break
+
+			# Otherwise, update running values
+			self._update_elongation_resource_demands()
 
 	def _elongate_to_limit(self):
 		'''
@@ -311,6 +324,13 @@ class polymerize(object): # Class name is lowercase because interface is functio
 		self._maxElongation = self._sequenceLength - self._currentStep
 
 	# Finalization subroutines
+
+	def _finalize(self):
+		'''
+		Clean up iteration results.
+		'''
+
+		self._clamp_elongation_to_sequence_length()
 
 	def _clamp_elongation_to_sequence_length(self):
 		'''
