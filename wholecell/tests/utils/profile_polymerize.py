@@ -21,8 +21,13 @@ kernprof doesn't support that.
 @date: Created 10/10/2016
 """
 
+import __builtin__
 import sys
 import os
+import time
+import cProfile
+import pstats
+import StringIO
 import numpy as np
 
 # EXPECTS: The current working directory is "wcEcoli/".
@@ -31,9 +36,15 @@ import numpy as np
 # when run via kernprof.
 sys.path[0] = os.getcwd()
 
-# from wholecell.utils.polymerize import polymerize
-
 import wholecell.utils.polymerize
+
+PAD_VALUE = wholecell.utils.polymerize.polymerize.PAD_VALUE
+
+class polymerize_iterable(wholecell.utils.polymerize.polymerize):
+    # Extends the new polymerize function to return old-style output
+    # TODO: update this file to use the new interface
+    def __iter__(self):
+        return iter((self.sequenceElongation, self.monomerUsages, self.nReactions))
 
 # Wrap with kernprof profiling decorator - will throw an error if we call this
 # script using the vanilla python interpreter.
@@ -45,15 +56,19 @@ except NameError:
     def profile(function):
         return function
 
-PAD_VALUE = wholecell.utils.polymerize.polymerize.PAD_VALUE
+# Decorate polymerize() with `@profile` but don't break if run outside kernprof
+# (to just get function timing without line profiling).
+#
+# NOTE: If anything calls wholecell.utils.polymerize.polymerize() directly,
+# there may be problems since the decorator does some side effects and some
+# work in a function wrapper. To fix that, add a monkeypatch after this:
+#    inspect.getmodule(polymerize).polymerize = polymerize
+profile = __builtin__.__dict__.get('profile', lambda f: f)
+polymerize = profile(polymerize_iterable)
 
-@profile
-def polymerize(*args, **kwargs):
-    # Light wrapper to accomadate profiling while using the old output format
-    result = wholecell.utils.polymerize.polymerize(*args, **kwargs)
-    return (result.sequenceElongation, result.monomerUsages, result.nReactions)
 
 def _setupRealExample():
+    # Test data pulled from an actual sim at an early time point.
     monomerLimits = np.array([11311,  6117,  4859,  6496,   843,  7460,  4431,  8986,  2126,
     6385,  9491,  7254,  2858,  3770,  4171,  5816,  6435,  1064,
     3127,     0,  8749])
@@ -104,8 +119,6 @@ def _setupExample():
 
 
 def _simpleProfile():
-    import time
-
     np.random.seed(0)
 
     sequences, monomerLimits, reactionLimit, randomState = _setupExample()
@@ -115,7 +128,8 @@ def _simpleProfile():
     sequenceLengths = (sequences != PAD_VALUE).sum(axis = 1)
 
     t = time.time()
-    sequenceElongation, monomerUsages, nReactions = polymerize(sequences, monomerLimits, reactionLimit, randomState)
+    sequenceElongation, monomerUsages, nReactions = polymerize(
+        sequences, monomerLimits, reactionLimit, randomState)
     evalTime = time.time() - t
 
     assert (sequenceElongation <= sequenceLengths+1).all()
@@ -155,12 +169,11 @@ def _fullProfile():
     sequences, monomerLimits, reactionLimit, randomState = _setupRealExample()
 
     # Recipe from https://docs.python.org/2/library/profile.html#module-cProfile
-
-    import cProfile, pstats, StringIO
     pr = cProfile.Profile()
     pr.enable()
 
-    sequenceElongation, monomerUsages, nReactions = polymerize(sequences, monomerLimits, reactionLimit, randomState)
+    sequenceElongation, monomerUsages, nReactions = polymerize(
+        sequences, monomerLimits, reactionLimit, randomState)
 
     pr.disable()
     s = StringIO.StringIO()
