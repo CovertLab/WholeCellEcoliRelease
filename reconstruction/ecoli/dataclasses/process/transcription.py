@@ -8,9 +8,11 @@ SimulationData for transcription process
 
 from __future__ import division
 
+import numpy as np
+
 from wholecell.utils import units
 from wholecell.utils.unit_struct_array import UnitStructArray
-import numpy as np
+from wholecell.utils.polymerize import polymerize
 
 #RNA_SEQ_ANALYSIS = "seal_rpkm"
 RNA_SEQ_ANALYSIS = "rsem_tpm"
@@ -164,8 +166,6 @@ class Transcription(object):
 		#self.getTrnaAbundanceData = getTrnaAbundanceAtGrowthRate
 
 	def _buildTranscription(self, raw_data, sim_data):
-		from wholecell.utils.polymerize import polymerize
-
 		sequences = self.rnaData["sequence"] # TODO: consider removing sequences
 
 		maxLen = np.int64(
