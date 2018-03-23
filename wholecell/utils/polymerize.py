@@ -48,7 +48,9 @@ class polymerize(object): # Class name is lowercase because interface is functio
 			many monomers of each type got used,
 		nReactions: total number of reactions (monomers used).
 	"""
+
 	PAD_VALUE = -1
+
 	def __init__(self, sequences, monomerLimits, reactionLimit, randomState):
 		# Gather inputs
 		self._sequences = sequences
