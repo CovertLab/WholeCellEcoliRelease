@@ -3,6 +3,9 @@ polymerize.py
 
 Polymerizes sequences based on monomer and energy limitations.
 
+Run `kernprof -lv wholecell/tests/utils/profile_polymerize.py` to get a line
+profile. It @profile-decorates polymerize().
+
 TODO:
 - document algorithm/corner cases (should already exist somewhere...)
 
@@ -25,32 +28,27 @@ __all__ = ['PAD_VALUE', 'polymerize', 'buildSequences', 'computeMassIncrease']
 
 PAD_VALUE = -1
 
-# Define a no-op @profile decorator if it wasn't loaded by kernprof.
-try:
-	profile(lambda x: x)
-except NameError:
-	def profile(func):
-		return func
-
-# Run 'kernprof -lv wholecell/tests/utils/profile_polymerize.py' to get a line
-# profile of functions decorated @profile.
-@profile
 def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 	"""
 	Polymerize the given DNA/RNA/protein sequences as far as possible within
 	the given limits.
 
-	Args:
-		sequences: index[sequence#, step#] sequences of needed monomer types,
-			containing PAD_VALUE for all steps after sequence completion
-		monomerLimits: count[monomer#] of available monomers
-		reactionLimit: scalar max number of reactions (monomers to use)
-		randomState: random number generator to pick winners in shortages
+	Parameters:
+		sequences: ndarray of integer, shape (num_sequences, num_steps),
+			the sequences of needed monomer types, containing PAD_VALUE for all
+			steps after sequence completion.
+		monomerLimits: ndarray of integer, shape (num_monomers,), the available
+			number of each monomer type.
+		reactionLimit: max number of reactions (monomers to use); the energy
+			limit.
+		randomState: random number generator to pick winners in shortages.
 
 	Returns:
-		sequenceElongation: length[sequence#] how far the sequences proceeded,
-		monomerUsages: count[monomer#] how many monomers got used,
-		nReactions: scalar total number of reactions (monomers used)
+		sequenceElongation: ndarray of integer, shape (num_sequences,)
+			indicating how far the sequences proceeded,
+		monomerUsages: ndarray of integer, shape (num_monomers,) counting how
+			many monomers of each type got used,
+		nReactions: total number of reactions (monomers used).
 	"""
 	# Sanitize inputs
 	monomerLimits = monomerLimits.astype(np.int64, copy=True)
@@ -61,26 +59,31 @@ def polymerize(sequences, monomerLimits, reactionLimit, randomState):
 	nMonomers = monomerLimits.size
 
 	# Static data
-	# sequenceMonomers: bool[monomer#, sequence#, step#] bitmask of monomer usage
+	# sequenceMonomers: ndarray of bool, shape
+	#     (num_monomers, num_sequences, num_steps), a bitmask of monomer usage.
 	sequenceMonomers = np.empty((nMonomers, nSequences, sequenceLength), dtype = np.bool)
 	for monomerIndex in xrange(nMonomers):
 		sequenceMonomers[monomerIndex, ...] = (sequences == monomerIndex)
 
-	# sequenceReactions: bool[sequence#, step#] of sequence continuation
+	# sequenceReactions: ndarray of bool, shape (num_sequences, num_steps), of
+	#     sequence continuation.
 	sequenceReactions = (sequences != PAD_VALUE)
 	sequenceLengths = sequenceReactions.sum(axis = 1)
 
 	# Running values
-	# activeSequencesIndexes: index[] of sequences that are currently active
+	# activeSequencesIndexes: 1D ndarray of integer, the indexes of the
+	#     currently active sequences.
 	activeSequencesIndexes = np.arange(nSequences)
 	currentStep = 0
 	activeSequencesIndexes = activeSequencesIndexes[
 		sequenceReactions[:, currentStep]
 		]
 
-	# totalMonomers:: count:int64[monomer#, step#] of monomers wanted in
-	# currentStep and beyond.
-	# totalReactions: count:int64[step#] cumulative #reactions
+	# totalMonomers: ndarray of integer, shape (num_monomers, num_steps), the
+	#     count of monomers wanted in currentStep and beyond.
+	# totalReactions: ndarray of integer, shape (num_steps), the cumulative
+	#     number of reactions in currentStep to the end for active sequences,
+	#     not considering further limiting factors.
 	#
 	#totalMonomers = sequenceMonomers.sum(axis = 1).cumsum(axis = 1)
 	totalMonomers = sum_monomers(sequenceMonomers, activeSequencesIndexes, 0)

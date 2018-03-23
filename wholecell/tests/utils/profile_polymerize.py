@@ -21,6 +21,7 @@ kernprof doesn't support that.
 @date: Created 10/10/2016
 """
 
+import __builtin__
 import sys
 import os
 import numpy as np
@@ -34,7 +35,19 @@ sys.path[0] = os.getcwd()
 from wholecell.utils.polymerize import polymerize, PAD_VALUE
 
 
+# Decorate polymerize() with `@profile` but don't break if run outside kernprof
+# (to just get function timing without line profiling).
+#
+# NOTE: If anything calls wholecell.utils.polymerize.polymerize() directly,
+# there may be problems since the decorator does some side effects and some
+# work in a function wrapper. To fix that, add a monkeypatch after this:
+#    inspect.getmodule(polymerize).polymerize = polymerize
+profile = __builtin__.__dict__.get('profile', lambda f: f)
+polymerize = profile(polymerize)
+
+
 def _setupRealExample():
+    # Test data pulled from an actual sim at an early time point.
     monomerLimits = np.array([11311,  6117,  4859,  6496,   843,  7460,  4431,  8986,  2126,
     6385,  9491,  7254,  2858,  3770,  4171,  5816,  6435,  1064,
     3127,     0,  8749])
@@ -96,7 +109,8 @@ def _simpleProfile():
     sequenceLengths = (sequences != PAD_VALUE).sum(axis = 1)
 
     t = time.time()
-    sequenceElongation, monomerUsages, nReactions = polymerize(sequences, monomerLimits, reactionLimit, randomState)
+    sequenceElongation, monomerUsages, nReactions = polymerize(
+        sequences, monomerLimits, reactionLimit, randomState)
     evalTime = time.time() - t
 
     assert (sequenceElongation <= sequenceLengths+1).all()
@@ -141,7 +155,8 @@ def _fullProfile():
     pr = cProfile.Profile()
     pr.enable()
 
-    sequenceElongation, monomerUsages, nReactions = polymerize(sequences, monomerLimits, reactionLimit, randomState)
+    sequenceElongation, monomerUsages, nReactions = polymerize(
+        sequences, monomerLimits, reactionLimit, randomState)
 
     pr.disable()
     s = StringIO.StringIO()
