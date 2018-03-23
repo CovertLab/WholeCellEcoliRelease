@@ -50,9 +50,6 @@ class polymerize(object): # Class name is lowercase because interface is functio
 	"""
 	PAD_VALUE = -1
 	def __init__(self, sequences, monomerLimits, reactionLimit, randomState):
-		# TODO (John): should the docstring be under __init__ or the class?
-
-
 		# Gather inputs
 		self._sequences = sequences
 		self._monomerLimits = monomerLimits
