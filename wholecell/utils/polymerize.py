@@ -63,6 +63,7 @@ class polymerize(object): # Class name is lowercase because interface is functio
 		self._gather_input_dimensions()
 		self._gather_sequence_data()
 		self._prepare_running_values()
+		self._prepare_outputs()
 
 		# Elongate sequences as much as possible
 		while True:
@@ -155,7 +156,12 @@ class polymerize(object): # Class name is lowercase because interface is functio
 		self._monomerIsLimiting = np.empty(self._nMonomers, np.bool)
 		self._reactionIsLimiting = None
 
-		# Output
+	def _prepare_outputs(self):
+		'''
+		Running values that ultimately compose the output of the 'polymerize'
+		operation.
+		'''
+
 		self.sequenceElongation = np.zeros(self._nSequences, np.int64)
 		self.monomerUsages = np.zeros(self._nMonomers, np.int64)
 		self.nReactions = 0
