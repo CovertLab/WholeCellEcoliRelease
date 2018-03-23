@@ -27,30 +27,31 @@ from ._fastsums import sum_monomers, sum_monomers_reference_implementation
 __all__ = ['polymerize', 'buildSequences', 'computeMassIncrease']
 
 class polymerize(object): # Class name is lowercase because interface is function-like
+	"""
+	Polymerize the given DNA/RNA/protein sequences as far as possible within
+	the given limits.
+
+	Parameters:
+		sequences: ndarray of integer, shape (num_sequences, num_steps),
+			the sequences of needed monomer types, containing PAD_VALUE for all
+			steps after sequence completion.
+		monomerLimits: ndarray of integer, shape (num_monomers,), the available
+			number of each monomer type.
+		reactionLimit: max number of reactions (monomers to use); the energy
+			limit.
+		randomState: random number generator to pick winners in shortages.
+
+	Returns:
+		sequenceElongation: ndarray of integer, shape (num_sequences,)
+			indicating how far the sequences proceeded,
+		monomerUsages: ndarray of integer, shape (num_monomers,) counting how
+			many monomers of each type got used,
+		nReactions: total number of reactions (monomers used).
+	"""
 	PAD_VALUE = -1
 	def __init__(self, sequences, monomerLimits, reactionLimit, randomState):
 		# TODO (John): should the docstring be under __init__ or the class?
-		"""
-		Polymerize the given DNA/RNA/protein sequences as far as possible within
-		the given limits.
 
-		Parameters:
-			sequences: ndarray of integer, shape (num_sequences, num_steps),
-				the sequences of needed monomer types, containing PAD_VALUE for all
-				steps after sequence completion.
-			monomerLimits: ndarray of integer, shape (num_monomers,), the available
-				number of each monomer type.
-			reactionLimit: max number of reactions (monomers to use); the energy
-				limit.
-			randomState: random number generator to pick winners in shortages.
-
-		Returns:
-			sequenceElongation: ndarray of integer, shape (num_sequences,)
-				indicating how far the sequences proceeded,
-			monomerUsages: ndarray of integer, shape (num_monomers,) counting how
-				many monomers of each type got used,
-			nReactions: total number of reactions (monomers used).
-		"""
 
 		# Gather inputs
 		self._sequences = sequences
