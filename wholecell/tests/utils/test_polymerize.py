@@ -111,7 +111,7 @@ class Test_polymerize(unittest.TestCase):
 		energy = 100
 
 		# Good calls test
-		polymerize(sequences, baseAmounts, energy, np.random.RandomState(0))
+		polymerize(sequences, baseAmounts, energy, np.random.RandomState())
 
 
 	@noseAttrib.attr('polymerizeNew')
@@ -124,7 +124,7 @@ class Test_polymerize(unittest.TestCase):
 		baseAmounts = np.array([9, 9])
 		energy = 6
 
-		result = polymerize(sequences, baseAmounts, energy, np.random.RandomState(0))
+		result = polymerize(sequences, baseAmounts, energy, np.random.RandomState())
 
 		assert_equal(result.sequenceElongation, np.array([3, 3]))
 		assert_equal(result.monomerUsages, np.array([2, 4]))
@@ -143,7 +143,7 @@ class Test_polymerize(unittest.TestCase):
 		baseAmountsOriginal = baseAmounts.copy()
 		energy = 30
 
-		result = polymerize(sequences, baseAmounts, energy, np.random.RandomState(0))
+		result = polymerize(sequences, baseAmounts, energy, np.random.RandomState())
 
 		assert_equal(result.sequenceElongation, np.array([10, 9, 9, 0]))
 		assert_equal(result.monomerUsages, np.array([3, 3, 11, 11]))
@@ -163,7 +163,7 @@ class Test_polymerize(unittest.TestCase):
 		baseAmounts = np.array([11] * 4)
 		energy = 30
 
-		result = polymerize(sequences, baseAmounts, energy, np.random.RandomState(0))
+		result = polymerize(sequences, baseAmounts, energy, np.random.RandomState())
 
 		assert_equal(result.sequenceElongation, np.array([12,9,9,0]))
 		assert_equal(result.monomerUsages, np.array([3,5,11,11]))
@@ -182,7 +182,7 @@ class Test_polymerize(unittest.TestCase):
 		baseAmounts = np.array([30] * 4)
 		energy = 50
 
-		result = polymerize(sequences, baseAmounts, energy, np.random.RandomState(0))
+		result = polymerize(sequences, baseAmounts, energy, np.random.RandomState())
 
 		assert_equal(result.sequenceElongation, np.array([12, 12, 12, 3]))
 
