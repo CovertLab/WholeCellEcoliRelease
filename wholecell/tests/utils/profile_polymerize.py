@@ -21,6 +21,8 @@ kernprof doesn't support that.
 @date: Created 10/10/2016
 """
 
+# TODO (John): convert file to tabs
+
 import __builtin__
 import sys
 import os
@@ -35,7 +37,7 @@ import numpy as np
 # Put that on the sys path in place of this script's directory so
 # `import wholecell.utils.polymerize` and that module's imports will work even
 # when run via kernprof.
-sys.path[0] = os.getcwd()
+sys.path[0] = os.getcwd() # TODO (John): what is the intention of this line?
 
 from wholecell.utils.polymerize import polymerize
 
@@ -51,11 +53,11 @@ if not __builtin__.__dict__.has_key('profile'):
         )
 
 # Attach __iter__ method to preserve old interface
-# TODO: migrate to new interface
+# TODO (John): migrate to new interface
 polymerize.__iter__ = lambda self: iter((self.sequenceElongation, self.monomerUsages, self.nReactions))
 
 # Wrap methods in line-profiling decorator
-# TODO: write an introspection utility to facilitate decoration
+# TODO (John): write an introspection utility to facilitate decoration
 
 polymerize.__init__ = profile(polymerize.__init__)
 
