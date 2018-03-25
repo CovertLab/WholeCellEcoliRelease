@@ -4,7 +4,7 @@
 TODO:
 - document math
 - raise/warn if physiological metabolite concentration targets appear to be smaller than what
- is needed at this time step size
+  is needed at this time step size
 
 """
 

@@ -52,9 +52,10 @@ polymerize = profile(polymerize)
 
 def _setupRealExample():
 	# Test data pulled from an actual sim at an early time point.
-	monomerLimits = np.array([11311,  6117,  4859,  6496,   843,  7460,  4431,  8986,  2126,
-	6385,  9491,  7254,  2858,  3770,  4171,  5816,  6435,  1064,
-	3127,     0,  8749])
+	monomerLimits = np.array([
+		11311,  6117,  4859,  6496,   843,  7460,  4431,  8986,  2126,
+		6385,  9491,  7254,  2858,  3770,  4171,  5816,  6435,  1064,
+		3127,     0,  8749])
 
 	randomState = np.random.RandomState()
 

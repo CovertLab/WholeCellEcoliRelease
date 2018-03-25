@@ -174,8 +174,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ResizeTool(),
 		UndoTool(),
 		RedoTool(),
-		 "reset"
-		 ]
+		"reset",
+		]
 
 	p1 = figure(x_axis_label = "Target",
 		x_axis_type = "log",
@@ -223,8 +223,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ResizeTool(),
 		UndoTool(),
 		RedoTool(),
-		 "reset"
-		 ]
+		"reset",
+		]
 
 	p2 = figure(x_axis_label = "Time(s)", 
 		y_axis_label = "Flux",

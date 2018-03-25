@@ -50,7 +50,7 @@ transport_rxns = np.array([
 
 
 source_reactions = np.array([
-    # C1  C2  Fx  Hx  Dx  Ex  Ox  Growth
+	# C1  C2  Fx  Hx  Dx  Ex  Ox  Growth
 	[ 0,  0,  0,  0,  0,  0,  0,  0],  # A
 	[ 0,  0,  0,  0,  0,  0,  0,  0],  # B
 	[ 0,  0,  0,  0,  0,  0,  0,  0],  # C

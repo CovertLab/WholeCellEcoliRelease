@@ -202,7 +202,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ax.set_xticks([ax.get_xlim()[0], np.average(bin[largestBin: largestBin + 2]), ax.get_xlim()[1]])
 
 	for ax, label in zip(axesList, ['A', 'B', 'C', 'D', "E", "F", "G"]):
- 		ax.text(-0.1, 1.35, label, transform=ax.transAxes, fontsize=16, fontweight='bold', va='top', ha='right')
+		ax.text(-0.1, 1.35, label, transform=ax.transAxes, fontsize=16, fontweight='bold', va='top', ha='right')
 	plt.subplots_adjust(hspace = 0.6, wspace = 0.6, left = 0.1, bottom = 0.1, top = 0.75, right = 0.9)
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
