@@ -45,12 +45,12 @@ PAD_VALUE = polymerize_original.PAD_VALUE
 # script using the vanilla python interpreter.
 
 # Define a no-op @profile decorator if it wasn't loaded by kernprof.
-try:
-    profile(lambda x: x)
-except NameError:
-    print 'Warning - kernprof @profile decorator not available.  Lines will not be profiled.'
-    def profile(function):
-        return function
+if not __builtin__.__dict__.has_key('profile'):
+    raise Exception(
+        'kernprof @profile decorator not available.  This script should be '
+        + 'invoked via kernprof -lv.  If invoked correctly and this error '
+        + 'message is still raised, see issue #117.'
+        )
 
 class polymerize(polymerize_original):
     # Extend the new polymerize function to return old-style output
