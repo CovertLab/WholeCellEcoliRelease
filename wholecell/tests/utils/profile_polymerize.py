@@ -37,14 +37,12 @@ import numpy as np
 # when run via kernprof.
 sys.path[0] = os.getcwd()
 
-from wholecell.utils.polymerize import polymerize as polymerize_original
+from wholecell.utils.polymerize import polymerize
 
-PAD_VALUE = polymerize_original.PAD_VALUE
+PAD_VALUE = polymerize.PAD_VALUE
 
 # Wrap with kernprof profiling decorator - will throw an error if we call this
 # script using the vanilla python interpreter.
-
-# Define a no-op @profile decorator if it wasn't loaded by kernprof.
 if not __builtin__.__dict__.has_key('profile'):
     raise Exception(
         'kernprof @profile decorator not available.  This script should be '
@@ -52,29 +50,29 @@ if not __builtin__.__dict__.has_key('profile'):
         + 'message is still raised, see issue #117.'
         )
 
-class polymerize(polymerize_original):
-    # Extend the new polymerize function to return old-style output
-    # TODO: update this file to use the new interface
-    def __iter__(self):
-        return iter((self.sequenceElongation, self.monomerUsages, self.nReactions))
+# Attach __iter__ method to preserve old interface
+# TODO: migrate to new interface
+polymerize.__iter__ = lambda self: iter((self.sequenceElongation, self.monomerUsages, self.nReactions))
 
-    # Decorate methods that we want to line-profile
-    # TODO: write an introspection utility to facilitate decoration
+# Wrap methods in line-profiling decorator
+# TODO: write an introspection utility to facilitate decoration
 
-    # __init__ = profile(polymerize_original.__init__)
+polymerize.__init__ = profile(polymerize.__init__)
 
-    # _setup = profile(polymerize_original._setup)
-    _sanitize_inputs = profile(polymerize_original._sanitize_inputs)
-    _gather_input_dimensions = profile(polymerize_original._gather_input_dimensions)
-    _gather_sequence_data = profile(polymerize_original._gather_sequence_data)
-    _prepare_running_values = profile(polymerize_original._prepare_running_values)
-    _prepare_outputs = profile(polymerize_original._prepare_outputs)
-    # _elongate = profile(polymerize_original._elongate)
-    _elongate_to_limit = profile(polymerize_original._elongate_to_limit)
-    _finalize_resource_limited_elongations = profile(polymerize_original._finalize_resource_limited_elongations)
-    _update_elongation_resource_demands = profile(polymerize_original._update_elongation_resource_demands)
-    # _finalize = profile(polymerize_original._finalize)
-    _clamp_elongation_to_sequence_length = profile(polymerize_original._clamp_elongation_to_sequence_length)
+polymerize._setup = profile(polymerize._setup)
+polymerize._sanitize_inputs = profile(polymerize._sanitize_inputs)
+polymerize._gather_input_dimensions = profile(polymerize._gather_input_dimensions)
+polymerize._gather_sequence_data = profile(polymerize._gather_sequence_data)
+polymerize._prepare_running_values = profile(polymerize._prepare_running_values)
+polymerize._prepare_outputs = profile(polymerize._prepare_outputs)
+
+polymerize._elongate = profile(polymerize._elongate)
+polymerize._elongate_to_limit = profile(polymerize._elongate_to_limit)
+polymerize._finalize_resource_limited_elongations = profile(polymerize._finalize_resource_limited_elongations)
+polymerize._update_elongation_resource_demands = profile(polymerize._update_elongation_resource_demands)
+
+polymerize._finalize = profile(polymerize._finalize)
+polymerize._clamp_elongation_to_sequence_length = profile(polymerize._clamp_elongation_to_sequence_length)
 
 def _setupRealExample():
     # Test data pulled from an actual sim at an early time point.
