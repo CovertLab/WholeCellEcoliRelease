@@ -151,7 +151,6 @@ class Test_polymerize(unittest.TestCase):
 		self.assertEqual(28, result.nReactions)
 		self.assertTrue((baseAmounts == baseAmountsOriginal).all(), 'should not modify monomerLimits')
 
-
 	@noseAttrib.attr('polymerizeNew')
 	@noseAttrib.attr('smalltest')
 	def test_polymerize_testAllAvailableBases(self):

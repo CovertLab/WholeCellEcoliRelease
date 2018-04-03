@@ -191,7 +191,6 @@ class polymerize(object): # Class name is lowercase because interface is functio
 		# monomerLimitingExtents: list of ndarray of integer, effective shape
 		# (num_monomers, integer), all the currentStep-relative step indexes in
 		# currently active sequences beyond the monomer's limit.
-
 		monomerLimitingExtents = [
 			np.where(self._totalMonomers[monomerIndex, :] > monomerLimit)[0]
 			for monomerIndex, monomerLimit in enumerate(self._monomerLimits)
