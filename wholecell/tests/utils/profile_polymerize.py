@@ -74,17 +74,6 @@ polymerize._update_elongation_resource_demands = profile(polymerize._update_elon
 polymerize._finalize = profile(polymerize._finalize)
 polymerize._clamp_elongation_to_sequence_length = profile(polymerize._clamp_elongation_to_sequence_length)
 
-# Decorate polymerize() with `@profile` but don't break if run outside kernprof
-# (to just get function timing without line profiling).
-#
-# NOTE: If anything calls wholecell.utils.polymerize.polymerize() directly,
-# there may be problems since the decorator does some side effects and some
-# work in a function wrapper. To fix that, add a monkeypatch after this:
-#    inspect.getmodule(polymerize).polymerize = polymerize
-profile = __builtin__.__dict__.get('profile', lambda f: f)
-polymerize = profile(polymerize)
-
-
 def _setupRealExample():
 	# Test data pulled from an actual sim at an early time point.
 	monomerLimits = np.array([
