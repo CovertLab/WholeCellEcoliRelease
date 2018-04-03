@@ -21,7 +21,7 @@ import numpy as np
 import copy
 
 import wholecell.processes.process
-from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
+from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease
 from wholecell.utils.random import stochasticRound
 from wholecell.utils import units
 
@@ -124,7 +124,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			self.ribosomeElongationRate
 			)
 
-		sequenceHasAA = (sequences != PAD_VALUE)
+		sequenceHasAA = (sequences != polymerize.PAD_VALUE)
 		aasInSequences = np.bincount(sequences[sequenceHasAA], minlength=21)
 
 		# Set nutrient medium simulation is growing in during current timestep
@@ -197,17 +197,21 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			return
 
 		# Calculate elongation resource capacity
-		aaCountInSequence = np.bincount(sequences[(sequences != PAD_VALUE)])
+		aaCountInSequence = np.bincount(sequences[(sequences != polymerize.PAD_VALUE)])
 		aaCounts = self.aas.counts()
 
 		# Using polymerization algorithm elongate each ribosome up to the limits
 		# of amino acids, sequence, and GTP
-		sequenceElongations, aasUsed, nElongations = polymerize(
+		result = polymerize(
 			sequences,
 			aaCounts,
 			10000000, # Set to a large number, the limit is now taken care of in metabolism
 			self.randomState
 			)
+
+		sequenceElongations = result.sequenceElongation
+		aasUsed = result.monomerUsages
+		nElongations = result.nReactions
 
 		# Update masses of ribosomes attached to polymerizing polypeptides
 		massIncreaseProtein = computeMassIncrease(

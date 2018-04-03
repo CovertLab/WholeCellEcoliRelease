@@ -12,6 +12,7 @@ import numpy as np
 import collections
 
 from wholecell.utils import units
+from wholecell.utils.polymerize import polymerize
 
 class Replication(object):
 	""" Replication """
@@ -73,9 +74,8 @@ class Replication(object):
 			+ sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(units.nt / units.s) * 2 # * sim_data.timeStepSec # TODO: FIX
 			)
 
-		from wholecell.utils.polymerize import PAD_VALUE
 		self.replication_sequences = np.empty((4, maxLen), np.int8)
-		self.replication_sequences.fill(PAD_VALUE)
+		self.replication_sequences.fill(polymerize.PAD_VALUE)
 
 		self.replication_sequences[0, :self.forward_sequence.size] = self.forward_sequence
 		self.replication_sequences[1, :self.reverse_sequence.size] = self.reverse_sequence

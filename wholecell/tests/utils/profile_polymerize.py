@@ -21,6 +21,8 @@ kernprof doesn't support that.
 @date: Created 10/10/2016
 """
 
+# TODO (John): convert file to tabs
+
 import __builtin__
 import sys
 import os
@@ -28,27 +30,51 @@ import time
 import cProfile
 import pstats
 import StringIO
+
 import numpy as np
 
 # EXPECTS: The current working directory is "wcEcoli/".
 # Put that on the sys path in place of this script's directory so
 # `import wholecell.utils.polymerize` and that module's imports will work even
 # when run via kernprof.
-sys.path[0] = os.getcwd()
+sys.path[0] = os.getcwd() # TODO (John): what is the intention of this line?
 
-from wholecell.utils.polymerize import polymerize, PAD_VALUE
+from wholecell.utils.polymerize import polymerize
 
+PAD_VALUE = polymerize.PAD_VALUE
 
-# Decorate polymerize() with `@profile` but don't break if run outside kernprof
-# (to just get function timing without line profiling).
-#
-# NOTE: If anything calls wholecell.utils.polymerize.polymerize() directly,
-# there may be problems since the decorator does some side effects and some
-# work in a function wrapper. To fix that, add a monkeypatch after this:
-#    inspect.getmodule(polymerize).polymerize = polymerize
-profile = __builtin__.__dict__.get('profile', lambda f: f)
-polymerize = profile(polymerize)
+# Wrap with kernprof profiling decorator - will throw an error if we call this
+# script using the vanilla python interpreter.
+if not __builtin__.__dict__.has_key('profile'):
+    raise Exception(
+        'kernprof @profile decorator not available.  This script should be '
+        + 'invoked via kernprof -lv.  If invoked correctly and this error '
+        + 'message is still raised, see issue #117.'
+        )
 
+# Attach __iter__ method to preserve old interface
+# TODO (John): migrate to new interface
+polymerize.__iter__ = lambda self: iter((self.sequenceElongation, self.monomerUsages, self.nReactions))
+
+# Wrap methods in line-profiling decorator
+# TODO (John): write an introspection utility to facilitate decoration
+
+polymerize.__init__ = profile(polymerize.__init__)
+
+polymerize._setup = profile(polymerize._setup)
+polymerize._sanitize_inputs = profile(polymerize._sanitize_inputs)
+polymerize._gather_input_dimensions = profile(polymerize._gather_input_dimensions)
+polymerize._gather_sequence_data = profile(polymerize._gather_sequence_data)
+polymerize._prepare_running_values = profile(polymerize._prepare_running_values)
+polymerize._prepare_outputs = profile(polymerize._prepare_outputs)
+
+polymerize._elongate = profile(polymerize._elongate)
+polymerize._elongate_to_limit = profile(polymerize._elongate_to_limit)
+polymerize._finalize_resource_limited_elongations = profile(polymerize._finalize_resource_limited_elongations)
+polymerize._update_elongation_resource_demands = profile(polymerize._update_elongation_resource_demands)
+
+polymerize._finalize = profile(polymerize._finalize)
+polymerize._clamp_elongation_to_sequence_length = profile(polymerize._clamp_elongation_to_sequence_length)
 
 def _setupRealExample():
 	# Test data pulled from an actual sim at an early time point.
