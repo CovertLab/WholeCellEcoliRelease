@@ -8,9 +8,11 @@ SimulationData for translation process
 
 from __future__ import division
 
+import numpy as np
+
 from wholecell.utils import units
 from wholecell.utils.unit_struct_array import UnitStructArray
-import numpy as np
+from wholecell.utils.polymerize import polymerize
 
 class Translation(object):
 	""" Translation """
@@ -134,8 +136,6 @@ class Translation(object):
 		self.monomerData = UnitStructArray(monomerData, field_units)
 
 	def _buildTranslation(self, raw_data, sim_data):
-		from wholecell.utils.polymerize import PAD_VALUE
-
 		sequences = self.monomerData["sequence"] # TODO: consider removing sequences
 
 		maxLen = np.int64(
@@ -144,7 +144,7 @@ class Translation(object):
 			)
 
 		self.translationSequences = np.empty((sequences.shape[0], maxLen), np.int8)
-		self.translationSequences.fill(PAD_VALUE)
+		self.translationSequences.fill(polymerize.PAD_VALUE)
 
 		aaIDs_singleLetter = sim_data.amino_acid_1_to_3_ordered.keys()
 

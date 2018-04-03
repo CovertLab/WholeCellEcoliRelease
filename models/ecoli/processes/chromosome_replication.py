@@ -13,7 +13,7 @@ from __future__ import division
 import numpy as np
 
 import wholecell.processes.process
-from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease, PAD_VALUE
+from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease
 from wholecell.utils import units
 
 class ChromosomeReplication(wholecell.processes.process.Process):
@@ -62,7 +62,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 		# Request all active replication forks
 		self.activeDnaPoly.requestAll()
-		
+
 		# Get sequences for all active forks
 		sequenceIdx, sequenceLength = activeDnaPoly.attrs(
 			'sequenceIdx', 'sequenceLength'
@@ -76,7 +76,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			)
 
 		# Count number of each dNTP in sequences for the next timestep
-		sequenceComposition = np.bincount(sequences[sequences != PAD_VALUE], minlength = 4)
+		sequenceComposition = np.bincount(sequences[sequences != polymerize.PAD_VALUE], minlength = 4)
 
 		# If one dNTP is limiting then limit the request for the other three by the same ratio
 		dNtpsTotal = self.dntps.total()
@@ -137,11 +137,11 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			else:
 				numOric = 1 * nChromosomes
 				replicationRound = np.array([0])
-		
+
 			# Calculate number of new "polymerases" required per origin
 			# This is modeled as one "polymerase" on each of the lagging and leading strands.
 			# even if there is only a forward and a reverse strand. This was done to make this
-			# polymerization process analogous to the transcription and translation elongation processes 
+			# polymerization process analogous to the transcription and translation elongation processes
 			numberOfNewPolymerase = 4 * numOric
 
 			# Initialize 4 "polymerases" per origin
@@ -178,7 +178,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# If no "polymerases" are present return
 		if len(activeDnaPoly) == 0:
 			return
-		
+
 		# Build sequences to polymerize
 		dNtpCounts = self.dntps.counts()
 		sequenceIdx, sequenceLengths, massDiffDna = activeDnaPoly.attrs(
@@ -198,12 +198,16 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# each "polymerase" catalyzes
 		reactionLimit = dNtpCounts.sum()
 
-		sequenceElongations, dNtpsUsed, nElongations = polymerize(
+		result = polymerize(
 			sequences,
 			dNtpCounts,
 			reactionLimit,
 			self.randomState
 			)
+
+		sequenceElongations = result.sequenceElongation
+		dNtpsUsed = result.monomerUsages
+		nElongations = result.nReactions
 
 		# Compute mass increase for each polymerizing chromosome
 		massIncreaseDna = computeMassIncrease(
