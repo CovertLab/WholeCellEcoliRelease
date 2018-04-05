@@ -263,8 +263,8 @@ class Metabolism(wholecell.processes.process.Process):
 		ngam_diff = np.abs(self.currentNgam.asNumber() - self.newNgam.asNumber()) / (self.currentNgam.asNumber() + 1e-20)
 		if ngam_diff > ADJUSTMENT_RATIO:
 			self.currentNgam = self.newNgam
-			self.fba.maxReactionFluxIs(self.fba._reactionID_NGAM, (self.ngam * coefficient).asNumber(COUNTS_UNITS / VOLUME_UNITS))
-			self.fba.minReactionFluxIs(self.fba._reactionID_NGAM, (self.ngam * coefficient).asNumber(COUNTS_UNITS / VOLUME_UNITS))
+			flux = (self.ngam * coefficient).asNumber(COUNTS_UNITS / VOLUME_UNITS)
+			self.fba.setReactionFluxBounds(self.fba._reactionID_NGAM, lowerBounds=flux, upperBounds=flux)
 
 		# Calculate GTP usage based on how much was needed in polypeptide elongation in previous step and update if necessary
 		newPolypeptideElongationEnergy = countsToMolar * 0
@@ -273,8 +273,8 @@ class Metabolism(wholecell.processes.process.Process):
 		poly_diff = np.abs((self.currentPolypeptideElongationEnergy.asNumber() - newPolypeptideElongationEnergy.asNumber())) / (self.currentPolypeptideElongationEnergy.asNumber() + 1e-20)
 		if poly_diff > ADJUSTMENT_RATIO:
 			self.currentPolypeptideElongationEnergy = newPolypeptideElongationEnergy
-			self.fba.maxReactionFluxIs(self.fba._reactionID_polypeptideElongationEnergy, self.currentPolypeptideElongationEnergy.asNumber(COUNTS_UNITS / VOLUME_UNITS))
-			self.fba.minReactionFluxIs(self.fba._reactionID_polypeptideElongationEnergy, self.currentPolypeptideElongationEnergy.asNumber(COUNTS_UNITS / VOLUME_UNITS))
+			flux = self.currentPolypeptideElongationEnergy.asNumber(COUNTS_UNITS / VOLUME_UNITS)
+			self.fba.setReactionFluxBounds(self.fba._reactionID_polypeptideElongationEnergy, lowerBounds=flux, upperBounds=flux)
 
 		# Read counts for catalysts and enzymes (catalysts with kinetics constraints)
 		catalystsCountsInit = self.catalysts.counts()
@@ -304,7 +304,7 @@ class Metabolism(wholecell.processes.process.Process):
 			updateIdxs = np.where(catalyzedReactionBounds != self.catalyzedReactionBoundsPrev)[0]
 			updateRxns = [self.reactionsWithCatalystsList[idx] for idx in updateIdxs]
 			updateVals = catalyzedReactionBounds[updateIdxs]
-			self.fba.setMaxReactionFluxes(updateRxns, updateVals, raiseForReversible = False)
+			self.fba.setReactionFluxBounds(updateRxns, upperBounds=updateVals, raiseForReversible=False)
 			self.catalyzedReactionBoundsPrev = catalyzedReactionBounds
 
 			# Set target fluxes for reactions based on their most relaxed constraint

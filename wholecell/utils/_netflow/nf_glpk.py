@@ -1,41 +1,261 @@
+"""
+NetworkFlow's interface to GNU Linear Programming Kit.
+This uses a fraction of the API that's available via the swiglpk pip.
 
+The GLPK manual is at http://kam.mff.cuni.cz/~elias/glpk.pdf
+
+swiglpk is a low-level, SWIG-generated interface that mechanically
+bridges the gap between Python and GLPK's C API.
+See https://pypi.org/project/swiglpk/ and
+https://github.com/biosustain/swiglpk
+
+See http://www.swig.org/Doc1.3/Python.html for documentation on SWIG use
+from Python. E.g. an intArray is just a memory pointer that can get and
+set native int values. It doesn't even track its length, do bounds
+checks, or support iteration, so be careful!
+
+CAUTION: GLPK will exit the process on error, so do pre-checks. It's
+possible to set its error_hook -- if SWIG can pass in a native function
+pointer and use setjmp/longjmp, and the hook has to reallocate the GLPK
+environment, losing state info.
+
+@author: Jerry Morrison
+@organization: Covert Lab, Department of Bioengineering, Stanford University
+@date: Created 3/26/2018
+"""
+
+# TODO(Jerry): Check that integer arguments are in range so GLPK won't exit?
+
+from __future__ import absolute_import
 from __future__ import division
 
 from collections import defaultdict
-
-from wholecell.utils._netflow import glpk
+from enum import Enum
 import numpy as np
 from scipy.sparse import coo_matrix
+import swiglpk as glp
 
 from ._base import NetworkFlowProblemBase
+
+class MessageLevel(Enum):
+	OFF = glp.GLP_MSG_OFF  # no output
+	ERR = glp.GLP_MSG_ERR  # error and warning messages only (default)
+	ON  = glp.GLP_MSG_ON   # normal output
+	ALL = glp.GLP_MSG_ALL  # full output (including informational messages)
+	DBG = glp.GLP_MSG_DBG
+
+class SimplexMethod(Enum):
+	PRIMAL = glp.GLP_PRIMAL  # two-phase primal simplex (the default)
+	DUALP = glp.GLP_DUALP    # two-phase dual simplex
+	DUAL = glp.GLP_DUAL      # two-phase dual simplex; fallback to the primal simplex
+
+SOLUTION_STATUS_TO_STRING = {
+    glp.GLP_OPT:	'GLP_OPT: optimal',  # solution is optimal
+    glp.GLP_FEAS:	'GLP_FEAS: feasible',  # solution is feasible
+    glp.GLP_INFEAS:	'GLP_INFEAS: infeasible',  # solution is infeasible
+    glp.GLP_NOFEAS:	'GLP_NOFEAS: no feasible',  # problem has no feasible solution
+    glp.GLP_UNBND:	'GLP_UNBND: unbounded',  # problem has no unbounded solution
+    glp.GLP_UNDEF:	'GLP_UNDEF: undefined',  # solution is undefined
+}
+
+_MAXED_OUT = ("GLP_EOBJ{}L: Dual simplex: The objective function being"
+			  + " maximized reached its {} limit and continues {}")
+
+SIMPLEX_RETURN_CODE_TO_STRING = {
+	0: '',  # successfully solved; not necessarily an optimal solution
+	glp.GLP_EBADB:  "GLP_EBADB: Basis is invalid, number of basic variables != number of rows",
+	glp.GLP_ESING:  "GLP_ESING: Basis matrix is singular",
+	glp.GLP_ECOND:  "GLP_ECOND: Basis matrix is ill-conditioned, it's condition number is too large",
+	glp.GLP_EBOUND: "GLP_EBOUND: Some double-bounded variables have incorrect bounds",
+	glp.GLP_EFAIL:  "GLP_EFAIL: Solver failure",
+	glp.GLP_EOBJLL: _MAXED_OUT.format('L', 'lower', 'decreasing'),
+	glp.GLP_EOBJUL: _MAXED_OUT.format('U', 'upper', 'increasing'),
+	glp.GLP_EITLIM: "GLP_EITLIM: Iteration limit exceeded",
+	glp.GLP_ETMLIM: "GLP_ETMLIM: Time limit exceeded",
+	glp.GLP_ENOPFS: "GLP_ENOPFS: Presolver: Problem has no primal feasible solution",
+	glp.GLP_ENODFS: "GLP_ENODFS: Presolver: Problem has no dual feasible solution",
+}
+
+def _toIndexArray(array):
+	"""Convert an array to a GLPK IntArray of indexes: Convert the indexes to
+	int, add 1 to each, and prepend a dummy value.
+	"""
+	# TODO(Jerry): IF this is a performance issue, try caching the array, or
+	# calling glp.as_intArray(list) to quickly convert a list of int (it
+	# prepends 1 uninitialized element but we still need to add 1 to each
+	# element), or making an ndarray(dtype=int32) and using NumPy to add 1 to
+	# each element and then calling glp.intArray_frompointer(ndarray.data).
+	ia = glp.intArray(len(array) + 1)
+	ia[0] = -1
+	for (i, value) in enumerate(array):
+		ia[i + 1] = int(value) + 1
+	return ia
+
+def _toDoubleArray(array):
+	"""Convert an array to a GLPK DoubleArray of indexes: Convert the values to
+	double and prepend a dummy value.
+	"""
+	# TODO(Jerry): IF this is a performance issue, try caching the array, or
+	# calling glp.as_doubleArray(list) to quickly convert a list of float (it
+	# prepends 1 uninitialized element), or making an ndarray(dtype=float64)
+	# and then calling glp.doubleArray_frompointer(array.data).
+	#
+	# glp.as_doubleArray() is promising but it'll raise a TypeError if the
+	# argument isn't a list, and it'll return NULL (which comes through as
+	# None?) if any element is not a float. See
+	# https://github.com/biosustain/swiglpk/blob/master/swiglpk/glpk.i
+	da = glp.doubleArray(len(array) + 1)
+	da[0] = np.nan
+	for (i, value) in enumerate(array):
+		da[i + 1] = float(value)
+	return da
+
 
 class NetworkFlowGLPK(NetworkFlowProblemBase):
 	_lowerBoundDefault = 0
 	_upperBoundDefault = np.inf
 
 	def __init__(self):
-		self._model = glpk.glpk()
-		self._model.set_quiet()
+		self._lp = glp.glp_create_prob()
+		self._smcp = glp.glp_smcp()  # simplex solver control parameters
+		glp.glp_init_smcp(self._smcp)
+		self._smcp.msg_lev = glp.GLP_MSG_ERR
+		self._n_vars = 0
+		self._n_eq_constraints = 0
 
 		self._flows = {}
 		self._lb = {}
 		self._ub = {}
 		self._objective = {}
 		self._materialCoeffs = defaultdict(list)
+		self._materialIdxLookup = {}
 
 		self._eqConstBuilt = False
 		self._solved = False
 
+	def __del__(self):
+		glp.glp_delete_prob(self._lp)
+
+
+	@property
+	def message_level(self):
+		"""The message level for terminal output, as an enum value."""
+		return MessageLevel(self._smcp.msg_lev)
+
+	@message_level.setter
+	def message_level(self, message_level):
+		"""Set the message level from a MessageLevel enum value."""
+		self._smcp.msg_lev = message_level.value
+
+	@property
+	def simplex_method(self):
+		"""The Simplex method option, as an enum value."""
+		return SimplexMethod(self._smcp.meth)
+
+	@simplex_method.setter
+	def simplex_method(self, simplex_method):
+		"""Set the Simplex method option from a SimplexMethod enum value."""
+		self._smcp.meth = simplex_method.value
+
+	@property
+	def simplex_iteration_limit(self):
+		"""The Simplex iteration limit, an integer."""
+		return self._smcp.it_lim
+
+	@simplex_iteration_limit.setter
+	def simplex_iteration_limit(self, limit):
+		"""Set the Simplex iteration limit."""
+		self._smcp.it_lim = int(limit)
+
+	@property
+	def primal_feasible_tolerance(self):
+		"""Tolerance used to check if the basic solution is primal feasible."""
+		return self._smcp.tol_bnd
+
+	@primal_feasible_tolerance.setter
+	def primal_feasible_tolerance(self, tolerance):
+		"""Tolerance used to check if the basic solution is primal feasible.
+		(Do not change this parameter without detailed understanding its purpose.)
+		Default: 1e-7.
+		"""
+		self._smcp.tol_bnd = float(tolerance)
+
+	@property
+	def status_code(self):
+		"""The generic status code for the current basic solution."""
+		return glp.glp_get_status(self._lp)
+
+	@property
+	def status_string(self):
+		"""Return the generic status message for the current basic solution."""
+		return SOLUTION_STATUS_TO_STRING.get(
+			self.status_code, "GLP_?: UNKNOWN SOLUTION STATUS CODE")
+
+	def columnPrimalValue(self, j):
+		"""Return the primal value of the structural variable for j-th column."""
+		return glp.glp_get_col_prim(self._lp, j)
+
+	def columnDualValue(self, j):
+		"""Return the dual value (i.e. reduced cost) of the structural variable
+		for the j-th column.
+		"""
+		return glp.glp_get_col_dual(self._lp, j)
+
+	def rowPrimalValue(self, i):
+		"""Return the primal value of the structural variable for i-th row."""
+		return glp.glp_get_row_prim(self._lp, i)
+
+	def rowDualValue(self, i):
+		"""Return the dual value (i.e. reduced cost) of the structural variable
+		for the i-th row.
+		"""
+		return glp.glp_get_row_dual(self._lp, i)
+
+
+	def _add_rows(self, n_rows):
+		"""Add n_rows rows (constraints) to the end of the row list. Each new
+		row is initially free (unbounded) and has an empty list of constraint
+		coefficients.
+		"""
+		glp.glp_add_rows(self._lp, n_rows)
+		self._n_eq_constraints += n_rows
+
+	def _add_cols(self, n_cols):
+		"""Add n_cols columns (structural variables) to the end of the column
+		list. Each new column is initially fixed at zero and has an empty list
+		of constraint coefficients.
+		"""
+		glp.glp_add_cols(self._lp, n_cols)
+		self._n_vars += n_cols
+
+	def _set_col_bounds(self, index, lower, upper):
+		"""Set the type and bounds of index-th (j-th) column (structural
+		variable). Use -np.inf or np.inf to specify no lower or upper bound.
+		"""
+		if np.isinf(lower) and np.isinf(upper):
+			variable_type = glp.GLP_FR  # free (unbounded) variable
+		elif lower == upper:
+			variable_type = glp.GLP_FX  # fixed variable
+		elif lower > upper:
+			raise ValueError("The lower bound must be <= upper bound")
+		elif not np.isinf(lower) and not np.isinf(upper):
+			variable_type = glp.GLP_DB  # double-bounded variable
+		elif np.isinf(upper):
+			variable_type = glp.GLP_LO  # variable with lower bound
+		else:
+			variable_type = glp.GLP_UP  # variable with upper bound
+
+		glp.glp_set_col_bnds(self._lp, index, variable_type, lower, upper)
 
 	def _getVar(self, flow):
 		if flow in self._flows:
 			idx = self._flows[flow]
 		else:
-			self._model.add_cols(1)
+			self._add_cols(1)
 			idx = len(self._flows)
 			self._lb[flow] = self._lowerBoundDefault
 			self._ub[flow] = self._upperBoundDefault
-			self._model.set_col_bounds(
+			self._set_col_bounds(
 				1 + idx,			# GLPK does 1-indexing
 				self._lb[flow],
 				self._ub[flow],
@@ -60,25 +280,17 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 			coeffs[flowLoc] = coefficient
 			self._materialCoeffs[material] = zip(coeffs, flowIdxs)
 
-			rowIdx = np.int32(materialIdx + 1)
-			colIdxs = np.hstack((-1, 1 + np.array(flowIdxs, dtype = np.int32))).astype(np.int32)
-			data = np.hstack((np.nan, np.array(coeffs, dtype = np.float64))).astype(np.float64)
-			self._model.set_mat_row(rowIdx, np.int32(len(colIdxs) - 1), colIdxs, data)
+			rowIdx = int(materialIdx + 1)
+			length = len(flowIdxs)
+			if length != len(coeffs):
+				raise ValueError("Array sizes must match")
+
+			colIdxs = _toIndexArray(flowIdxs)
+			data = _toDoubleArray(coeffs)
+			glp.glp_set_mat_row(self._lp, rowIdx, length, colIdxs, data)
 		else:
 			idx = self._getVar(flow)
 			self._materialCoeffs[material].append((coefficient, idx))
-
-		self._solved = False
-
-
-	def flowLowerBoundIs(self, flow, lowerBound):
-		idx = self._getVar(flow)
-		self._lb[flow] = lowerBound
-		self._model.set_col_bounds(
-			1 + idx,				# GLPK does 1 indexing
-			self._lb[flow],
-			self._ub[flow],
-			)
 
 		self._solved = False
 
@@ -87,10 +299,26 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		return self._lb[flow]
 
 
-	def flowUpperBoundIs(self, flow, upperBound):
+	def flowUpperBound(self, flow):
+		return self._ub[flow]
+
+
+	def setFlowBounds(self, flow, lowerBound=None, upperBound=None):
+		"""
+		Set the lower and upper bounds for a given flow
+		inputs:
+			flow (str) - name of flow to set bounds for
+			lowerBound (float) - lower bound for flow (None if unchanged)
+			upperBound (float) - upper bound for flow (None if unchanged)
+		"""
+
 		idx = self._getVar(flow)
-		self._ub[flow] = upperBound
-		self._model.set_col_bounds(
+		if lowerBound is not None:
+			self._lb[flow] = lowerBound
+		if upperBound is not None:
+			self._ub[flow] = upperBound
+
+		self._set_col_bounds(
 			1 + idx,				# GLPK does 1 indexing
 			self._lb[flow],
 			self._ub[flow],
@@ -99,14 +327,11 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		self._solved = False
 
 
-	def flowUpperBound(self, flow):
-		return self._ub[flow]
-
-
 	def flowObjectiveCoeffIs(self, flow, coefficient):
 		idx = self._getVar(flow)
 		self._objective[flow] = coefficient
-		self._model.set_obj_coef(
+		glp.glp_set_obj_coef(
+			self._lp,
 			1 + idx,				# GLPK does 1 indexing
 			coefficient
 			)
@@ -121,7 +346,9 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		self._solve()
 
 		return np.array(
-			[self._model.get_primal_value(1 + self._flows[flow]) if flow in self._flows else None for flow in flows]
+			[glp.glp_get_col_prim(self._lp, 1 + self._flows[flow])
+			 if flow in self._flows else None
+			 for flow in flows]
 			)
 
 	def rowDualValues(self, materials):
@@ -131,7 +358,9 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		self._solve()
 
 		return np.array(
-			[self._model.get_row_dual_value(1 + self._materialIdxLookup[material]) if material in self._materialIdxLookup else None for material in materials]
+			[glp.glp_get_row_dual(self._lp, 1 + self._materialIdxLookup[material])
+			 if material in self._materialIdxLookup else None
+			 for material in materials]
 			)
 
 	def columnDualValues(self, fluxNames):
@@ -141,11 +370,14 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		self._solve()
 
 		return np.array(
-			[self._model.get_column_dual_value(1 + self._flows[fluxName]) if fluxName in self._flows else None for fluxName in fluxNames]
+			[glp.glp_get_col_dual(self._lp, 1 + self._flows[fluxName])
+			 if fluxName in self._flows else None
+			 for fluxName in fluxNames]
 			)
 
 	def objectiveValue(self):
-		return self._model.get_objective_value()
+		"""The current value of the objective function."""
+		return glp.glp_get_obj_val(self._lp)
 
 
 	def getSMatrix(self):
@@ -181,20 +413,27 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 	def buildEqConst(self):
 		if self._eqConstBuilt:
 			raise Exception("Equality constraints already built.")
+		n_coeffs = len(self._materialCoeffs)
+		n_flows = len(self._flows)
 
-		self._model.add_rows(len(self._materialCoeffs))
-		A = np.zeros((len(self._materialCoeffs), len(self._flows)))
+		self._add_rows(n_coeffs)
+		A = np.zeros((n_coeffs, n_flows))
 		# avoid creating duplicate constraints
 		self._materialIdxLookup = {}
 		for materialIdx, (material, pairs) in enumerate(sorted(self._materialCoeffs.viewitems())):
 			self._materialIdxLookup[material] = materialIdx
 			for pair in pairs:
 				A[materialIdx, pair[1]] = pair[0]
+
 		A_coo = coo_matrix(A)
-		row = np.hstack((-1, 1 + A_coo.row.astype(np.int32))).astype(np.int32)
-		col = np.hstack((-1, 1 + A_coo.col.astype(np.int32))).astype(np.int32)
-		data = np.hstack((np.nan, A_coo.data.astype(np.float64))).astype(np.float64)
-		self._model.add_eq_constrs(row, col, data)
+		rowIdxs = _toIndexArray(A_coo.row)
+		colIdxs = _toIndexArray(A_coo.col)
+		data = _toDoubleArray(A_coo.data)
+		n_elems = len(A_coo.row)
+
+		for row in xrange(1, self._n_eq_constraints + 1):
+			glp.glp_set_row_bnds(self._lp, row, glp.GLP_FX, 0.0, 0.0)
+		glp.glp_load_matrix(self._lp, n_elems, rowIdxs, colIdxs, data)
 
 		self._eqConstBuilt = True
 
@@ -204,10 +443,16 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 			return
 
 		if self._maximize:
-			self._model.set_sense_max()
+			glp.glp_set_obj_dir(self._lp, glp.GLP_MAX)
 		else:
-			self._model.set_sense_min()
-		
-		self._model.optimize()
+			glp.glp_set_obj_dir(self._lp, glp.GLP_MIN)
+
+		result = glp.glp_simplex(self._lp, self._smcp)
+
+		if result != 0:
+			raise RuntimeError(SIMPLEX_RETURN_CODE_TO_STRING.get(
+				result, "GLP_?: UNKNOWN SOLVER RETURN VALUE"))
+		if self.status_code != glp.GLP_OPT:
+			raise RuntimeError(self.status_string)
 
 		self._solved = True

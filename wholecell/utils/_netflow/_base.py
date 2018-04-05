@@ -7,10 +7,7 @@ class NetworkFlowProblemBase(object):
 	def flowMaterialCoeffIs(self, flow, material, coefficient):
 		raise NotImplementedError()
 
-	def flowLowerBoundIs(self, flow, lowerBound):
-		raise NotImplementedError()
-
-	def flowUpperBoundIs(self, flow, upperBound):
+	def setFlowBounds(selfs, flow, ub=None, lb=None):
 		raise NotImplementedError()
 
 	def flowObjectiveCoeffIs(self, flow, coefficient):
