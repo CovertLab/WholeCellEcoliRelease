@@ -91,7 +91,7 @@ class Metabolism(wholecell.processes.process.Process):
 					nutrientsLabel, sim_data.process.metabolism.nutrientsToInternalConc
 					)
 				)
-		externalExchangedMolecules = sorted(externalExchangedMolecules)
+		externalExchangedMolecules = sorted(set(externalExchangedMolecules))
 		self.metaboliteNamesFromNutrients = sorted(self.metaboliteNamesFromNutrients)
 
 		moleculeMasses = dict(zip(externalExchangedMolecules, sim_data.getter.getMass(externalExchangedMolecules).asNumber(MASS_UNITS / COUNTS_UNITS)))

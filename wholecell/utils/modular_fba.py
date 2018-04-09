@@ -304,6 +304,11 @@ class FluxBalanceAnalysis(object):
 		for moleculeID in externalExchangedMolecules:
 			exchangeID = self._generatedID_externalExchange.format(moleculeID)
 
+			if moleculeID in externalMoleculeIDs:
+				print('Warning: attempting to set multiple external exchanges'
+					  + ' for {}. Skipping...'.format(moleculeID))
+				continue
+
 			# NOTE: The convention, if I am not mistaken, is to define
 			# exchanges as pointing out of the system, even though it is common
 			# to think of exchanges as inputs.  Regardless this choice should
@@ -771,6 +776,11 @@ class FluxBalanceAnalysis(object):
 		if internalExchangedMolecules is not None:
 			for moleculeID in internalExchangedMolecules:
 				exchangeID = self._generatedID_internalExchange.format(moleculeID)
+
+				if moleculeID in internalMoleculeIDs:
+					print('Warning: attempting to set multiple internal exchanges'
+						+ ' for {}. Skipping...'.format(moleculeID))
+					continue
 
 				self._solver.flowMaterialCoeffIs(
 					exchangeID,
