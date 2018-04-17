@@ -6,11 +6,19 @@
       </value>
     </option>
     <option name="RIGHT_MARGIN" value="79" />
-    <option name="SOFT_MARGINS" value="72,79" />
+    <option name="SOFT_MARGINS" value="79" />
     <Python>
+      <option name="ALIGN_COLLECTIONS_AND_COMPREHENSIONS" value="false" />
+      <option name="ALIGN_MULTILINE_IMPORTS" value="false" />
+      <option name="DICT_ALIGNMENT" value="1" />
       <option name="OPTIMIZE_IMPORTS_SORT_IMPORTS" value="false" />
+      <option name="OPTIMIZE_IMPORTS_JOIN_FROM_IMPORTS_WITH_SAME_SOURCE" value="true" />
+      <option name="FROM_IMPORT_PARENTHESES_FORCE_IF_MULTILINE" value="true" />
     </Python>
     <codeStyleSettings language="Python">
+      <option name="ALIGN_MULTILINE_PARAMETERS" value="false" />
+      <option name="ALIGN_MULTILINE_PARAMETERS_IN_CALLS" value="false" />
+      <option name="SOFT_MARGINS" value="79" />
       <indentOptions>
         <option name="USE_TAB_CHARACTER" value="true" />
       </indentOptions>
