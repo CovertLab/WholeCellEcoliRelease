@@ -26,10 +26,11 @@ import cPickle
 
 def run_cmd(cmd):
 	environ = {
-	"PATH": os.environ["PATH"],
-	"LANG": "C",
-	"LC_ALL": "C",
-	}
+		"PATH": os.environ["PATH"],
+		"LD_LIBRARY_PATH": os.environ["LD_LIBRARY_PATH"],
+		"LANG": "C",
+		"LC_ALL": "C",
+		}
 	out = subprocess.Popen(cmd, stdout = subprocess.PIPE, env=environ).communicate()[0]
 	return out
 
