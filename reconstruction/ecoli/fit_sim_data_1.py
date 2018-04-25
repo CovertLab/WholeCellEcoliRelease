@@ -43,13 +43,30 @@ VOLUME_UNITS = units.L
 MASS_UNITS = units.g
 TIME_UNITS = units.s
 
-def fitSimData_1(raw_data, cpus = 1):
+def fitSimData_1(raw_data, cpus=1, debug=False):
+	'''
+	Fits parameters necessary for the simulation based on the knowledge base
+
+	Inputs:
+		raw_data (KnowledgeBaseEcoli) - knowledge base consisting of the
+			necessary raw data
+		cpus (int) - number of processes to use (if >1 uses multiprocessing)
+		debug (bool) - if True, fit only one arbitrarily-chosen transcription
+			factor in order to speed up a debug cycle (should not be used for
+			an actual simulation)
+	'''
 
 	sim_data = SimulationDataEcoli()
 	sim_data.initialize(
 		raw_data = raw_data,
 		basal_expression_condition = BASAL_EXPRESSION_CONDITION,
 		)
+
+	# Limit the number of conditions that are being fit so that execution time decreases
+	if debug:
+		print("Warning: running fitter in debug mode - not all conditions will be fit")
+		key = sim_data.tfToActiveInactiveConds.keys()[0]
+		sim_data.tfToActiveInactiveConds = {key: sim_data.tfToActiveInactiveConds[key]}
 
 	# Increase RNA poly mRNA deg rates
 	setRnaPolymeraseCodingRnaDegradationRates(sim_data)

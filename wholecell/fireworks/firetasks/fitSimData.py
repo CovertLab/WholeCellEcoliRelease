@@ -31,7 +31,7 @@ class FitSimDataTask(FireTaskBase):
 				print "Warning: running fitter in parallel with %i processes - ensure there are enough cpus_per_task allocated" % self["cpus"]
 
 			raw_data = cPickle.load(open(self["input_data"], "rb"))
-			sim_data = fitSimData_1(raw_data, self["cpus"])
+			sim_data = fitSimData_1(raw_data, cpus=self["cpus"], debug=self["debug"])
 			import sys; sys.setrecursionlimit(4000) #limit found manually
 			cPickle.dump(
 				sim_data,
