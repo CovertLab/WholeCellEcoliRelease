@@ -8,7 +8,7 @@ One time setup
 In your cloned `wcEcoli` directory, to set up the proper python environment, run:
 
 ```bash
-pyenv local wcEcoli
+pyenv local wcEcoli2
 ```
 
 Complete the one-time setup for fireworks as described in [wholecell/fireworks/README.md](wholecell/fireworks/README.md)
@@ -16,7 +16,7 @@ Complete the one-time setup for fireworks as described in [wholecell/fireworks/R
 To import the necessary shared libraries, you will need to execute the following *each time* after you log in to Sherlock (alternatively, you can add it as a line to your `$HOME/.bash_profile`):
 
 ```bash
-module load wcEcoli
+module load wcEcoli/sherlock2
 ```
 
 You will also need to add the following to your `$HOME/.bash_profile` (using the appropriate path):
@@ -84,6 +84,15 @@ To queue multiple generations (in this case 3 generations) from multiple mother 
 DESC="Example run of multiple generations from multiple mother cells." N_GENS=3 N_INIT_SIMS=2 python runscripts/fw_queue.py
 ```
 
+Shifting nutrient conditions
+----------------------------
+
+To queue a simulation that switches between environments, use the "nutrientTimeSeries" variant, and give the range of indices (in this case from 1 to 1) specifying conditions defined in wcEcoli/reconstruction/ecoli/flat/condition/timeseries:
+
+```bash
+DESC="Example run of nutrient shifts." VARIANT="nutrientTimeSeries" FIRST_VARIANT_INDEX=1 LAST_VARIANT_INDEX=1 python runscripts/fw_queue.py
+```
+
 Using the cached sim data object
 --------------------------------
 
@@ -141,46 +150,3 @@ gen 1:         0               1
 gen 2:     0       1       2       3
 ```
 
-
-
-Running a simulation on a second launchpad
-------
-
-If you made a second launchpad while setting up fireworks (which you did if you followed the README.md in the fireworks folder),
-then it's possible to queue and run from two launchpads at once. For example this would allow running one long simulation over
-the course of several days while also running others to work on code and debug in the meantime.
-
-To check if you set up a second launchpad, look in your wcEcoli folder. There should be a my_launchpad.yaml and a my_qadapter.yaml file.
-If there are also my_launchpad_2.yaml and my_qadapter_2.yaml files, then you have configured a second launchpad.
-
-To queue a task into your second launchpad, use the LAUNCHPAD_FILE flag when you call fw_queue.py:
-
-```bash
-DESC="Example run on a second launchpad." LAUNCHPAD_FILE=my_launchpad_2.yaml python runscripts/fw_queue.py
-```
-
-To run any lpad commands on the second launchpad (such as lpad get_fws, or lpad reset), use the -l flag and add the name of the second launchpad yaml file:
-
-```bash
-lpad -l my_launchpad_2.yaml get_fws
-```
-
-If you run commands without specifying, it will default to using my_launchpad.yaml, which is your primary launchpad.
-
-To rlaunch from a specific launchpad, use the same -l flag:
-
-```bash
-rlaunch -l my_launchpad_2.yaml rapidfire
-```
-
-To qlaunch from a specific launchpad, again use -l and the name of the yaml file corresponding to that launchpad. For this command to work,:
-
-```bash
-qlaunch -l my_launchpad_2.yaml -r rapidfire --nlaunches infinite --sleep 5
-```
-NOTE: while this will give you a separate fireworks launchpad, things launched from that launchpad will still use the code in your
-directory, even if you've modified it since you prepared the fireworks queue. In other words, if you are running a long set of 
-simulations and debugging while you do so, then later generations of the long simulation will start running on your modified code.
-
-One solution to this problem is to clone a separate repo fresh from a branch and launch your alternate workflow from that location,
-so that you will not be updating the code on which your simulation will run.
