@@ -59,13 +59,23 @@ class TableReader(object):
 		if version != tw.VERSION:
 			raise VersionError("Expected version {} but found version {}".format(tw.VERSION, version))
 
-
+		# Read attribute names for table
 		self._dirAttributes = os.path.join(path, tw.DIR_ATTRIBUTES)
 		self._attributeNames = os.listdir(self._dirAttributes)
 
+		# Check if any of the attribute files are zipped, and no unzipped file exists
+		for fileName in self._attributeNames:
+			if fileName.endswith(".bz2") and fileName[:-4] not in self._attributeNames:
+				raise NotUnzippedError("One of the attribute files for a table ({}) was found zipped. Unzip all table files before reading table.".format(path))
+
+		# Read column names for table
 		self._dirColumns = os.path.join(path, tw.DIR_COLUMNS)
 		self._columnNames = os.listdir(self._dirColumns)
 
+		# Check if any of the column files are zipped, and no unzipped file exists
+		for fileName in self._columnNames:
+			if fileName.endswith(".bz2") and fileName[:-4] not in self._columnNames:
+				raise NotUnzippedError("One of the column files for a table ({}) was found zipped. Unzip all table files before reading table.".format(path))
 
 	def readAttribute(self, name):
 		if name not in self._attributeNames:
