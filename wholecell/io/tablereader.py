@@ -11,6 +11,8 @@ import numpy as np
 
 from . import tablewriter as tw
 
+ZIP_FILETYPE = ".bz2"
+
 # TODO: tests
 # TODO: load a single time point
 # TODO: handle/warn/raise on inconsistent data shapes
@@ -44,13 +46,13 @@ class TableReader(object):
 	def __init__(self, path):
 		# Open version file for table
 		versionFilePath = os.path.join(path, tw.DIR_METADATA, tw.FILE_VERSION)
-
 		try:
-			version = open(versionFilePath).read()
+			with open(versionFilePath) as f:
+				version = f.read()
 
 		except IOError as e:
 			# Check if a zipped version file exists. Print appropriate error prompts.
-			if os.path.exists(versionFilePath + ".bz2"):
+			if os.path.exists(versionFilePath + ZIP_FILETYPE):
 				raise NotUnzippedError("The version file for a table ({}) was found zipped. Unzip all table files before reading table.".format(path), e)
 			else:
 				raise VersionError("Could not open the version file for a table ({})".format(path), e)
@@ -63,19 +65,10 @@ class TableReader(object):
 		self._dirAttributes = os.path.join(path, tw.DIR_ATTRIBUTES)
 		self._attributeNames = os.listdir(self._dirAttributes)
 
-		# Check if any of the attribute files are zipped, and no unzipped file exists
-		for fileName in self._attributeNames:
-			if fileName.endswith(".bz2") and fileName[:-4] not in self._attributeNames:
-				raise NotUnzippedError("One of the attribute files for a table ({}) was found zipped. Unzip all table files before reading table.".format(path))
-
 		# Read column names for table
 		self._dirColumns = os.path.join(path, tw.DIR_COLUMNS)
 		self._columnNames = os.listdir(self._dirColumns)
 
-		# Check if any of the column files are zipped, and no unzipped file exists
-		for fileName in self._columnNames:
-			if fileName.endswith(".bz2") and fileName[:-4] not in self._columnNames:
-				raise NotUnzippedError("One of the column files for a table ({}) was found zipped. Unzip all table files before reading table.".format(path))
 
 	def readAttribute(self, name):
 		if name not in self._attributeNames:
