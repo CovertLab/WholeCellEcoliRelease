@@ -11,6 +11,8 @@ import numpy as np
 
 from . import tablewriter as tw
 
+ZIP_FILETYPE = ".bz2"
+
 # TODO: tests
 # TODO: load a single time point
 # TODO: handle/warn/raise on inconsistent data shapes
@@ -21,6 +23,10 @@ __all__ = [
 	]
 
 class TableReaderError(Exception):
+	pass
+
+
+class NotUnzippedError(TableReaderError):
 	pass
 
 
@@ -38,20 +44,28 @@ class VariableWidthError(TableReaderError):
 
 class TableReader(object):
 	def __init__(self, path):
-
+		# Open version file for table
+		versionFilePath = os.path.join(path, tw.DIR_METADATA, tw.FILE_VERSION)
 		try:
-			version = open(os.path.join(path, tw.DIR_METADATA, tw.FILE_VERSION)).read()
+			with open(versionFilePath) as f:
+				version = f.read()
 
-		except IOError:
-			raise VersionError("Could not open table ({}); may be wrong version".format(path))
+		except IOError as e:
+			# Check if a zipped version file exists. Print appropriate error prompts.
+			if os.path.exists(versionFilePath + ZIP_FILETYPE):
+				raise NotUnzippedError("The version file for a table ({}) was found zipped. Unzip all table files before reading table.".format(path), e)
+			else:
+				raise VersionError("Could not open the version file for a table ({})".format(path), e)
 
+		# Check if the table version matches the latest version
 		if version != tw.VERSION:
 			raise VersionError("Expected version {} but found version {}".format(tw.VERSION, version))
 
-
+		# Read attribute names for table
 		self._dirAttributes = os.path.join(path, tw.DIR_ATTRIBUTES)
 		self._attributeNames = os.listdir(self._dirAttributes)
 
+		# Read column names for table
 		self._dirColumns = os.path.join(path, tw.DIR_COLUMNS)
 		self._columnNames = os.listdir(self._dirColumns)
 
