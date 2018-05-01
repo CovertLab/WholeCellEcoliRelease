@@ -14,7 +14,6 @@ from wholecell.fireworks.firetasks import AnalysisCohortTask
 from wholecell.fireworks.firetasks import AnalysisSingleTask
 from wholecell.fireworks.firetasks import AnalysisMultiGenTask
 from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
-from jinja2 import Template
 
 import wholecell.utils.constants
 import yaml

@@ -24,13 +24,11 @@
 
 11. Note that the information shown at the top ("To connect to mongo shell") contains the database hostname and database port (the part after the colon is the port).
 
-12. Optional: Make a SECOND MongoDB Deployment, by repeating steps 3-10. Everything is the same, except for step 6 - give the new deployment the name "wc_ecoli_2"
+12. Optional: Make a SECOND MongoDB Deployment, by repeating steps 3-10. Everything is the same, except for step 6 - give the new deployment the name "wc_ecoli_2".  This is useful if running from a second repo and not necessary with only one clone.
 
 ## Config files for Fireworks
 
 * Run `python wholecell/fireworks/initialize.py`
-
-* This will ask for two sets of data - input numbers for the first deployment you made first, and for the second deployment you made second
 
 * Run `lpad -l my_launchpad.yaml reset` and choose `Y`es if prompted
 

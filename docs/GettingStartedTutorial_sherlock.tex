@@ -66,14 +66,14 @@ This tutorial assumes you have setup access to the Sherlock cluster. If necessar
 
 \item Follow the setup instructions for logging in to Sherlock on
 \linebreak
-http://covert.stanford.edu/computational\_resources/sherlock/home/.
+http://www.stanford.edu/{\raise.17ex\hbox{$\scriptstyle\mathtt{\sim}$}}thorst/computational\_resources/sherlock/home/.
 
 \item Follow all setup instructions in the wcEcoli/README.md file (also on the web at https://github.com/CovertLab/wcEcoli/blob/master/README.md). In particular, make sure you run
 \lstset{language=bash}
 \begin{lstlisting}
 cd $HOME/wcEcoli
-pyenv local wcEcoli
-module load wcEcoli
+pyenv local wcEcoli2
+module load wcEcoli/sherlock2
 make compile
 \end{lstlisting}
 \end{enumerate}
@@ -86,14 +86,14 @@ Once done with setup and these basic tutorials on Sherlock and the cluster, retu
 
 \subsection{Background}
 
-Genes encoding for stable RNA are transcribed at a faster rate in \textit{E. coli}. In the model (prior to this tutorial), all genes were transcribed at the same rate of 39~nt/s. In this tutorial, we will change the model so that genes for rRNA and tRNA are transcribed at 78~nt/s while everything else is still transcribed at 39~nt/s. 
+Genes encoding for stable RNA are transcribed at a faster rate in \textit{E. coli}. In the model (prior to this tutorial), all genes were transcribed at the same rate of 39~nt/s. In this tutorial, we will change the model so that genes for rRNA and tRNA are transcribed at 78~nt/s while everything else is still transcribed at 39~nt/s.
 \par
 
 Before we start, make sure to complete the setup section (\ref{sec:setup}) if you haven't already. To begin, log in to a sherlock node. Replace 'username' with your username in the command below:
 
 \lstset{language=bash}
 \begin{lstlisting}
-ssh username@sherlock
+ssh username@login.sherlock
 \end{lstlisting}
 
 The code has inevitably evolved since I wrote this tutorial, so let's get on the same page by going back to an older version of the code. However, ensure that you are following the latest iteration of the tutorial instructions (on master), rather than the version that appears with the code you will checkout below. Let's do this tutorial on a new branch. cd into your wcEcoli directory and type the following (you only need to type enough characters of the commit checksum for it to be unique so about 10):
