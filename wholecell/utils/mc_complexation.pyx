@@ -11,12 +11,13 @@ TODO:
 @date: Created 6/17/14
 """
 
+from __future__ import absolute_import
 from __future__ import division
 
 import numpy as np
 cimport numpy as np
 
-from libc.stdlib cimport rand, srand, RAND_MAX
+from numpy.random import RandomState
 
 np.import_array()
 
@@ -24,6 +25,7 @@ cimport cython
 
 cdef np.int64_t MAX_ITERATIONS = 10**9
 cdef np.int64_t NO_MORE_ENTRIES = -1
+DEF RANDOM_BATCH_SIZE = 2048
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -93,9 +95,11 @@ cpdef np.ndarray[np.int64_t, ndim=1] mccFormComplexesWithPrebuiltMatrices(
 		np.ndarray[np.int64_t, ndim=2] overlappingReactions,
 		):
 
-	# Set the seed
-	srand(seed)
-	
+	# Seed a random number instance. Get a batch of samples at a time for speed.
+	cdef random_state = RandomState(seed)
+	cdef np.float64_t[:] random_batch = None
+	cdef int random_batch_position = RANDOM_BATCH_SIZE
+
 	# Copy the molecule counts into a new vector for return
 	cdef np.ndarray[np.int64_t, ndim=1] updatedMoleculeCounts = moleculeCounts.copy()
 
@@ -127,7 +131,7 @@ cpdef np.ndarray[np.int64_t, ndim=1] mccFormComplexesWithPrebuiltMatrices(
 		reactionIsPossible[reactionIndex] = reactionPossible
 
 	# Recursively form complexes
-	cdef np.float64_t random, cutoffValue, maximumValue
+	cdef np.float64_t random_double, cutoffValue, maximumValue
 	cdef int iteration, overlapIndex, reactionIndex2
 
 	for iteration in range(MAX_ITERATIONS):
@@ -142,16 +146,20 @@ cpdef np.ndarray[np.int64_t, ndim=1] mccFormComplexesWithPrebuiltMatrices(
 					reactionCumulative[reactionIndex-1]
 					+ reactionIsPossible[reactionIndex]
 					)
-		
+
 		maximumValue = reactionCumulative[nReactions-1]
-		
+
 		# Break if no reactions are possible
 		if maximumValue == 0:
 			break
 
 		# Choose which reaction to perform
-		random = <np.float64_t>rand() / <np.float64_t>RAND_MAX
-		cutoffValue = random * maximumValue
+		if random_batch_position >= RANDOM_BATCH_SIZE:
+			random_batch = random_state.random_sample(RANDOM_BATCH_SIZE)
+			random_batch_position = 0
+		random_double = random_batch[random_batch_position]
+		random_batch_position += 1
+		cutoffValue = random_double * maximumValue
 
 		for reactionIndex in range(nReactions):
 			if cutoffValue <= reactionCumulative[reactionIndex]:
