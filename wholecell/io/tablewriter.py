@@ -1,10 +1,13 @@
 
+from __future__ import absolute_import
 from __future__ import division
 
 import os
 import json
 
 import numpy as np
+
+from wholecell.utils import filepath
 
 # TODO: tests
 
@@ -27,14 +30,6 @@ FILE_VERSION = "version"
 FILE_DATA = "data"
 FILE_OFFSETS = "offsets"
 
-def _silent_makedirs(path):
-	try:
-		os.makedirs(path)
-
-	except OSError: # thrown if folders exist
-		pass
-
-	return path
 
 class TableWriterError(Exception):
 	pass
@@ -54,7 +49,7 @@ class AttributeTypeError(TableWriterError):
 
 class _Column(object):
 	def __init__(self, path):
-		_silent_makedirs(path)
+		filepath.makedirs(path)
 
 		self._data = open(os.path.join(path, FILE_DATA), "w")
 		self._offsets = open(os.path.join(path, FILE_OFFSETS), "w")
@@ -91,14 +86,14 @@ class _Column(object):
 class TableWriter(object):
 	def __init__(self, path):
 
-		dirMetadata = _silent_makedirs(os.path.join(path, DIR_METADATA))
+		dirMetadata = filepath.makedirs(path, DIR_METADATA)
 
 		open(os.path.join(dirMetadata, FILE_VERSION), "w").write(VERSION)
 
-		self._dirAttributes = _silent_makedirs(os.path.join(path, DIR_ATTRIBUTES))
+		self._dirAttributes = filepath.makedirs(path, DIR_ATTRIBUTES)
 		self._attributeNames = []
 
-		self._dirColumns = _silent_makedirs(os.path.join(path, DIR_COLUMNS))
+		self._dirColumns = filepath.makedirs(path, DIR_COLUMNS)
 		self._columns = None
 
 

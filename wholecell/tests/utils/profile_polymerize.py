@@ -35,7 +35,7 @@ import numpy as np
 # Put that on the sys path in place of this script's directory so
 # `import wholecell.utils.polymerize` and that module's imports will work even
 # when run via kernprof.
-sys.path[0] = os.getcwd() # TODO (John): what is the intention of this line?
+sys.path[0] = os.getcwd()  # Put cwd on the python path so imports will work
 
 from wholecell.utils.polymerize import polymerize
 

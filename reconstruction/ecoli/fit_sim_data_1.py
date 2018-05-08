@@ -1,24 +1,25 @@
-#!/usr/bin/env python
+"""
+The fitter, aka parameter calculator.
+"""
 
+from __future__ import absolute_import
 from __future__ import division
 
 import numpy as np
 import os
 import scipy.optimize
-import time
 import cPickle
 
 import wholecell
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
-from reconstruction.ecoli.compendium import growth_data
 from reconstruction.ecoli.simulation_data import SimulationDataEcoli
 from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
 
+from wholecell.utils import filepath
 from wholecell.utils import units
 from wholecell.utils.fitting import normalize, massesAndCountsToAddForHomeostaticTargets
-from wholecell.utils.modular_fba import FluxBalanceAnalysis
 
-import cvxpy
+from cvxpy import Variable, Problem, Minimize, norm
 
 from multiprocessing import Pool
 
@@ -1538,7 +1539,6 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 
 		return Pdiff
 
-	from cvxpy import Variable, Problem, Minimize, norm
 	pPromoterBound = calculatePromoterBoundProbability(sim_data, cellSpecs)
 	pInit0 = None
 	lastNorm = np.inf
@@ -1952,15 +1952,11 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 			)
 
 	needToUpdate = False
-	fixturesDir = os.path.join(
+	fixturesDir = filepath.makedirs(
 			os.path.dirname(os.path.dirname(wholecell.__file__)),
 			"fixtures",
 			"endo_km"
 			)
-
-	if not os.path.exists(fixturesDir):
-		needToUpdate = True
-		os.makedirs(fixturesDir)
 
 	if os.path.exists(os.path.join(fixturesDir, "km.cPickle")):
 		KmcountsCached = cPickle.load(open(os.path.join(fixturesDir, "km.cPickle"), "rb"))
@@ -2030,4 +2026,3 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 	sim_data.process.rna_decay.StatsFit['ResScaledKmOpt'] = np.sum(np.abs(R_aux(KmCooperativeModel)))
 
 	return units.mol / units.L * KmCooperativeModel
-
