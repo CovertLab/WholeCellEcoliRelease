@@ -8,20 +8,17 @@ Simulation
 @date: Created 4/4/2013
 """
 
+from __future__ import absolute_import
 from __future__ import division
 
 import collections
-import os
-import json
 import cPickle
 import time
 
 import numpy as np
-from copy import deepcopy
 
 from wholecell.listeners.evaluation_time import EvaluationTime
-from wholecell.containers.bulk_objects_container import BulkObjectsContainer
-from wholecell.containers.unique_objects_container import UniqueObjectsContainer
+from wholecell.utils import filepath
 
 import wholecell.loggers.shell
 import wholecell.loggers.disk
@@ -108,6 +105,11 @@ class Simulation(object):
 		self._simulationStep = 0
 
 		self.randomState = np.random.RandomState(seed = np.uint32(self._seed % np.iinfo(np.uint32).max))
+
+		# divide_cell will fail if _outputDir is no good (e.g. defaulted to
+		# None) so catch it *before* running the simulation in case _logToDisk
+		# doesn't.
+		filepath.makedirs(self._outputDir)
 
 		# Load KB
 		sim_data = cPickle.load(open(self._simDataLocation, "rb"))

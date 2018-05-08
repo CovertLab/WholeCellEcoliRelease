@@ -12,10 +12,14 @@ moleculesToNextTimeStep()
 	Consider relocating (since it's useful for both the fitter and simulation)
 
 """
+
+from __future__ import absolute_import
+
 import numpy as np
 import os
 import cPickle
 import wholecell
+from wholecell.utils import filepath
 from wholecell.utils import units
 from wholecell.utils.write_ode_file import writeOdeFile
 import scipy
@@ -265,7 +269,7 @@ class TwoComponentSystem(object):
 		'''
 		Creates callable functions for computing the derivative and the Jacobian.
 		'''
-		fixturesDir = os.path.join(
+		fixturesDir = filepath.makedirs(
 			os.path.dirname(os.path.dirname(wholecell.__file__)),
 			"fixtures",
 			"twoComponentSystem"
@@ -286,9 +290,6 @@ class TwoComponentSystem(object):
 
 		if not os.path.exists(odeFitterFile):
 			needToCreate = True
-
-		if not os.path.exists(fixturesDir):
-			os.makedirs(fixturesDir)
 
 		if os.path.exists(os.path.join(fixturesDir, "S.cPickle")):
 			S = cPickle.load(open(os.path.join(fixturesDir, "S.cPickle"), "rb"))

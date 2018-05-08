@@ -10,6 +10,7 @@ from copy import deepcopy
 
 from wholecell.io.tablewriter import TableWriter
 
+from wholecell.utils import filepath
 from wholecell.utils import units
 
 BINOMIAL_COEFF = 0.5
@@ -22,15 +23,8 @@ def divide_cell(sim):
 	uniqueMolecules = sim.states['UniqueMolecules']
 
 	# Create output directories
-	try:
-		os.mkdir(os.path.join(sim._outputDir, "Daughter1"))
-	except OSError:
-		pass
-
-	try:
-		os.mkdir(os.path.join(sim._outputDir, "Daughter2"))
-	except OSError:
-		pass
+	filepath.makedirs(sim._outputDir, "Daughter1")
+	filepath.makedirs(sim._outputDir, "Daughter2")
 
 
 	############################
