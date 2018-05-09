@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 '''
-Creates an array of firetasks and specifies their links as a workflow for Fireworks.
+Creates an array of firetasks and specifies their links as a workflow for Fireworks
+and submits them to the queue.
 
 Several parameters can be specified, shown below with their (type, default value).
 These are set as follows, and otherwise revert to default values:
@@ -16,23 +17,26 @@ Variant variables:
 
 	VARIANT (str, "wildtype"): specifies the environmental condition, as defined
 		in reconstruction/ecoli/flat/condition.
-	FIRST_VARIANT_INDEX (int, "0"): the index of the first nutrient condition to be run.
-	LAST_VARIANT_INDEX (int, "0"): the index of the last nutrient condition to be run.
-		Fireworks will run all conditions between FIRST_ and LAST_ VARIANT_INDEX.
+	FIRST_VARIANT_INDEX (int, "0"): the index of the first environmental condition
+		to run.
+	LAST_VARIANT_INDEX (int, "0"): the index of the last environmental condition
+		to be run. Fireworks will run all conditions between FIRST_ and LAST_
+		VARIANT_INDEX.
 
 Additional variables:
 
-	N_GENS (int, 1): The number of generations to be simulated.
-	N_INIT_SIMS (int, 1): The number of initial simulations to be seeded.
-	SINGLE_DAUGHTERS (bool, false): if true, the simulation will mimic a mother
-		machine, creating only one daughter cell with each generation.
-	CACHED_SIM_DATA (bool, false): if true, previously cached data will be used
+	N_GENS (int, "1"): The number of generations to be simulated.
+	N_INIT_SIMS (int, "1"): The number of initial simulations.
+	SINGLE_DAUGHTERS (int, "0"): if nonzero, the simulation will generate only
+		one daughter cell for each new generation rather than two, thus avoiding
+		an exponential increase in the number of simulations.
+	CACHED_SIM_DATA (int, "0"): if nonzero, previously cached data will be used
 		to run the simulation. This is useful for repeated simulations.
-	PARALLEL_FITTER (bool, false): if true, some fitter operations will run in parallel.
-	COMPRESS_OUTPUT (bool, false): if true, outputs will be compressed (.bz2).
-	WC_LENGTHSEC (int, determined by N_GENS): set the simulation time in seconds.
-		Useful for short simulations.
-	RUN_AGGREGATE_ANALYSIS (bool, true): if true, all analyses are run on
+	PARALLEL_FITTER (int, "0"): if nonzero, some fitter operations will run in parallel.
+	COMPRESS_OUTPUT (int, "0"): if nonzero, outputs will be compressed (.bz2).
+	WC_LENGTHSEC (int, ): set the maximum simulation time in seconds. Useful for
+		short simulations.
+	RUN_AGGREGATE_ANALYSIS (int, "1"): if nonzero, all analyses are run on
 		simulation output.
 	TIMESTEP_SAFETY_FRAC (float, )
 	TIMESTEP_MAX (float, )
