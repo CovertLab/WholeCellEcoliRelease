@@ -17,11 +17,10 @@ Variant variables:
 
 	VARIANT (str, "wildtype"): specifies the environmental condition, see
 		models/ecoli/sim/variants/__init__.py for the possible variant choices
-	FIRST_VARIANT_INDEX (int, "0"): index of the first variant condition, from
-		reconstruction/ecoli/flat/condition
-	LAST_VARIANT_INDEX (int, "0"): index of the last variant condition from
-		reconstruction/ecoli/flat/condition; Fireworks will run	all conditions
-		between FIRST_ and LAST_ VARIANT_INDEX
+	FIRST_VARIANT_INDEX (int, "0"): index of the first variant condition; in the
+		case of nutrientTimeSeries, these are found in reconstruction/ecoli/flat/condition
+	LAST_VARIANT_INDEX (int, "0"): index of the last variant condition; Fireworks
+		will run all conditions between FIRST_ and LAST_ VARIANT_INDEX
 
 Additional variables:
 
