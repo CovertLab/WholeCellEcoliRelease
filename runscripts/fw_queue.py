@@ -4,53 +4,52 @@
 Creates an array of firetasks and specifies their links as a workflow for Fireworks
 and submits them to the queue.
 
-Several parameters can be specified, shown below with their (type, default value).
-These are set as follows, and otherwise revert to default values:
+Several environmental variables can be specified, shown below with their (type, default value).
+These are set as follows, and otherwise revert to their default value:
 
 	VARIABLE=VALUE python runscripts/fw_queue.py
 
-Setting description:
+Set description:
 
-	DESC (str, ""): a description of the simulation, used to name output folder.
+	DESC (str, ""): a description of the simulation, used to name output folder
 
 Variant variables:
 
-	VARIANT (str, "wildtype"): specifies the environmental condition, as defined
-		in reconstruction/ecoli/flat/condition.
-	FIRST_VARIANT_INDEX (int, "0"): the index of the first environmental condition
-		to run.
-	LAST_VARIANT_INDEX (int, "0"): the index of the last environmental condition
-		to be run. Fireworks will run all conditions between FIRST_ and LAST_
-		VARIANT_INDEX.
+	VARIANT (str, "wildtype"): specifies the environmental condition, see
+		models/ecoli/sim/variants/__init__.py for the possible variant choices
+	FIRST_VARIANT_INDEX (int, "0"): index of the first variant condition, from
+		reconstruction/ecoli/flat/condition
+	LAST_VARIANT_INDEX (int, "0"): index of the last variant condition from
+		reconstruction/ecoli/flat/condition; Fireworks will run	all conditions
+		between FIRST_ and LAST_ VARIANT_INDEX
 
 Additional variables:
 
-	N_GENS (int, "1"): The number of generations to be simulated.
-	N_INIT_SIMS (int, "1"): The number of initial simulations.
+	N_GENS (int, "1"): the number of generations to be simulated
+	N_INIT_SIMS (int, "1"): the number of initial simulations
 	SINGLE_DAUGHTERS (int, "0"): if nonzero, the simulation will generate only
 		one daughter cell for each new generation rather than two, thus avoiding
-		an exponential increase in the number of simulations.
+		an exponential increase in the number of simulations
 	CACHED_SIM_DATA (int, "0"): if nonzero, previously cached data will be used
-		to run the simulation. This is useful for repeated simulations.
-	PARALLEL_FITTER (int, "0"): if nonzero, some fitter operations will run in parallel.
-	COMPRESS_OUTPUT (int, "0"): if nonzero, outputs will be compressed (.bz2).
-	WC_LENGTHSEC (int, ): set the maximum simulation time in seconds. Useful for
-		short simulations.
+		to run the simulation; useful for repeated simulations
+	PARALLEL_FITTER (int, "0"): if nonzero, some fitter operations will run in
+		parallel
+	COMPRESS_OUTPUT (int, "0"): if nonzero, outputs will be compressed (.bz2)
+	WC_LENGTHSEC (int, ): sets the maximum simulation time in seconds, useful
+		for	short simulations
 	RUN_AGGREGATE_ANALYSIS (int, "1"): if nonzero, all analyses are run on
-		simulation output.
-	TIMESTEP_SAFETY_FRAC (float, )
-	TIMESTEP_MAX (float, )
-	TIMESTEP_UPDATE_FREQ (int, )
-	MASS_DISTRIBUTION (bool, )
-	GROWTH_RATE_NOISE (bool, )
-	D_PERIOD_DIVISION (bool, )
-	TRANSLATION_SUPPLY (bool, )
-	LAUNCHPAD_FILE (str, )
-	SIM_DESCRIPTION
-	VERBOSE_QUEUE (bool, )
-	DEBUG_FITTER (bool, )
-
-
+		simulation output
+	DEBUG_FITTER (int, "0"): if nonzero, this reduces the number of TFs and
+		conditions; allows for faster debugging of fitter
+	TIMESTEP_MAX (float, "0.9"): sets the maximum timestep
+	TIMESTEP_SAFETY_FRAC (float, "1.3")
+	TIMESTEP_UPDATE_FREQ (int, "5")
+	MASS_DISTRIBUTION (int, "1")
+	GROWTH_RATE_NOISE (int, "0")
+	D_PERIOD_DIVISION (int, "0")
+	TRANSLATION_SUPPLY (int, "1")
+	LAUNCHPAD_FILE (str, "my_launchpad.yaml")
+	VERBOSE_QUEUE (int, "1")
 '''
 
 from fireworks import Firework, LaunchPad, Workflow, ScriptTask
