@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 '''
-Creates an array of firetasks and specifies their links as a workflow for Fireworks
-and submits them to the queue.
+Creates an array of firetasks (wf_fws) and specifies their links (wf_links) in
+a workflow (wf) for Fireworks, and submits them to the queue.
 
 Several environmental variables can be specified, shown below with their (type, default value).
 These are set as follows, and otherwise revert to their default value:
@@ -17,10 +17,10 @@ Variant variables:
 
 	VARIANT (str, "wildtype"): specifies the environmental condition, see
 		models/ecoli/sim/variants/__init__.py for the possible variant choices
-	FIRST_VARIANT_INDEX (int, "0"): index of the first variant condition; in the
-		case of nutrientTimeSeries, these are found in reconstruction/ecoli/flat/condition
-	LAST_VARIANT_INDEX (int, "0"): index of the last variant condition; Fireworks
-		will run all conditions between FIRST_ and LAST_ VARIANT_INDEX
+	FIRST_VARIANT_INDEX (int, ): index of the first variant condition; the default
+		index (control) depends on the particular variant condition
+	LAST_VARIANT_INDEX (int, ): index of the last variant condition; Fireworks
+		will run all conditions between FIRST_VARIANT_INDEX and LAST_VARIANT_INDEX
 
 Additional variables:
 
@@ -40,15 +40,21 @@ Additional variables:
 		simulation output
 	DEBUG_FITTER (int, "0"): if nonzero, this reduces the number of TFs and
 		conditions; allows for faster debugging of fitter
-	TIMESTEP_MAX (float, "0.9"): sets the maximum timestep
-	TIMESTEP_SAFETY_FRAC (float, "1.3")
-	TIMESTEP_UPDATE_FREQ (int, "5")
-	MASS_DISTRIBUTION (int, "1")
-	GROWTH_RATE_NOISE (int, "0")
-	D_PERIOD_DIVISION (int, "0")
-	TRANSLATION_SUPPLY (int, "1")
-	LAUNCHPAD_FILE (str, "my_launchpad.yaml")
-	VERBOSE_QUEUE (int, "1")
+	TIMESTEP_MAX (float, "0.9"): sets the maximum time step
+	TIMESTEP_SAFETY_FRAC (float, "1.3"): increases the time step by this factor
+		if conditions are favorable; up the the limit of the max time step
+	TIMESTEP_UPDATE_FREQ (int, "5"): frequency at which the time step is updated
+	MASS_DISTRIBUTION (int, "1"): if nonzero, a mass coefficient is drawn from
+		a normal distribution centered on 1; otherwise it is set equal to 1
+	GROWTH_RATE_NOISE (int, "0"): if nonzero, a growth rate coefficient is drawn
+		from a normal distribution centered on 1; otherwise it is set equal to 1
+	D_PERIOD_DIVISION (int, "0"): if nonzero, ends simulation once D period has
+		occurred after chromosome termination
+	TRANSLATION_SUPPLY (int, "1"): if nonzero, the ribosome elongation rate is
+		determined by current nutrient conditions and supplied by metabolism
+	LAUNCHPAD_FILE (str, "my_launchpad.yaml"): set default LaunchPad location
+	VERBOSE_QUEUE (int, "1"): if nonzero, gives more detailed messages during
+		fireworks set up
 '''
 
 from fireworks import Firework, LaunchPad, Workflow, ScriptTask
