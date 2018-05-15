@@ -166,10 +166,7 @@ class Equilibrium(object):
 		Sum along the columns of the massBalance matrix to check for reaction
 		mass balance
 		'''
-		reactionSumsArray = []
-		for index, column in enumerate(self.balanceMatrix.T):
-			reactionSumsArray.append(sum(column))
-		return reactionSumsArray
+		return np.sum(self.balanceMatrix, axis=0)
 
 	def stoichMatrixMonomers(self):
 		'''
