@@ -4,6 +4,12 @@ from __future__ import division
 import numpy as np
 from wholecell.utils import units
 
+class ComplexationError(Exception):
+	pass
+
+class moleculeNotFoundError(ComplexationError):
+	pass
+
 class Complexation(object):
 	def __init__(self, raw_data, sim_data):
 		# Build the abstractions needed for complexation
@@ -155,46 +161,47 @@ class Complexation(object):
 	# TODO: redesign this so it doesn't need to create a stoich matrix
 	def getMonomers(self, cplxId):
 		'''
-		Returns subunits for a complex (or any ID passed).
-		If the ID passed is already a monomer returns the
-		monomer ID again with a stoichiometric coefficient
-		of zero.
+		Returns subunits for a complex (or any ID passed). If the ID passed is
+		already a monomer returns the monomer ID again with a stoichiometric
+		coefficient of one.
 		'''
-
 		info = self._moleculeRecursiveSearch(cplxId, self.stoichMatrix(), np.array(self.moleculeNames))
+		return {'subunitIds': np.array(info.keys()), 'subunitStoich': (-1)*np.array(info.values())}
 
-		return {'subunitIds' : np.array(info.keys()), 'subunitStoich' : -1 * np.array(info.values())}
-
-	def _findRow(self, product,speciesList):
-
+	def _findRow(self, product, speciesList):
 		for sp in range(0, len(speciesList)):
-			if speciesList[sp] == product: return sp
+			if speciesList[sp] == product:
+				return sp
 		return -1
 
-	def _findColumn(self, stoichMatrixRow, row):
-
-		for i in range(0,len(stoichMatrixRow)):
-			if int(stoichMatrixRow[i]) == 1: return i
+	def _findColumn(self, stoichMatrixRow):
+		for i in range(0, len(stoichMatrixRow)):
+			if int(stoichMatrixRow[i]) == 1:
+				return i
 		return -1
 
-	def _moleculeRecursiveSearch(self, product, stoichMatrix, speciesList, flag = 0):
-		row = self._findRow(product,speciesList)
-		if row == -1: return [] # TODO: note - returning a list shouldn't work
+	def _moleculeRecursiveSearch(self, product, stoichMatrix, speciesList):
+		row = self._findRow(product, speciesList)
+		if row == -1:
+			raise moleculeNotFoundError("Could not find %s in the list of molecules."%product)
 
-		col = self._findColumn(stoichMatrix[row,:], row)
+		col = self._findColumn(stoichMatrix[row, :])
 		if col == -1:
-			if flag == 0: return [] # TODO: see above
-			else: return {product: -1}
+			return {product: -1}
 
 		total = {}
 		for i in range(0, len(speciesList)):
-			if i == row: continue
+			if i == row:
+				continue
 			val = stoichMatrix[i][col]
 			sp = speciesList[i]
 
-			if val:
-				x = self._moleculeRecursiveSearch(sp, stoichMatrix, speciesList, 1)
+			if val != 0:
+				x = self._moleculeRecursiveSearch(sp, stoichMatrix, speciesList)
 				for j in x:
-					if j in total: total[j] += x[j]*(abs(val))
-					else: total[j] = x[j]*(abs(val))
+					if j in total:
+						total[j] += x[j]*(np.absolute(val))
+					else:
+						total[j] = x[j]*(np.absolute(val))
+
 		return total
