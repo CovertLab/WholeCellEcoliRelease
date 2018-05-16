@@ -1,5 +1,68 @@
 #!/usr/bin/env python
 
+'''
+Creates an array of firetasks (wf_fws) and specifies their links (wf_links) in
+a workflow (wf) for Fireworks, and submits them to the queue.
+
+Several environmental variables can be specified, shown below with their (type, default value).
+These are set as follows, and otherwise revert to their default value:
+
+	VARIABLE=VALUE python runscripts/fw_queue.py
+
+Set description:
+	DESC (str, ""): a description of the simulation, used to name output folder
+
+Variant variables:
+	VARIANT (str, "wildtype"): specifies the environmental condition, see
+		models/ecoli/sim/variants/__init__.py for the possible variant choices
+	FIRST_VARIANT_INDEX (int, "0"): index of the first variant condition to run;
+		the control index depends on the particular variant condition
+	LAST_VARIANT_INDEX (int, "0"): index of the last variant condition to run; Fireworks
+		will run all conditions between FIRST_VARIANT_INDEX and LAST_VARIANT_INDEX
+
+Workflow options:
+	CACHED_SIM_DATA (int, "0"): if nonzero, previously cached data will be used
+		to run the simulation instead of running the fitter; useful for repeated
+		simulations where raw_data/fitter files are not changed
+	PARALLEL_FITTER (int, "0"): if nonzero, some fitter operations will run in
+		parallel instead of serially
+	DEBUG_FITTER (int, "0"): if nonzero, this reduces the number of TFs and
+		conditions; allows for faster debugging of fitter
+	COMPRESS_OUTPUT (int, "0"): if nonzero, outputs will be compressed (.bz2)
+	RUN_AGGREGATE_ANALYSIS (int, "1"): if nonzero, all analyses are run on
+		simulation output
+
+Simulation parameters:
+	N_GENS (int, "1"): the number of generations to be simulated
+	N_INIT_SIMS (int, "1"): the number of initial simulations
+	SINGLE_DAUGHTERS (int, "0"): if nonzero, the simulation will generate only
+		one daughter cell for each new generation rather than two, thus avoiding
+		an exponential increase in the number of simulations
+	WC_LENGTHSEC (int, "10800"): sets the maximum simulation time in seconds, useful
+		for short simulations (default is 3 hr)
+	TIMESTEP_MAX (float, "0.9"): sets the maximum time step
+	TIMESTEP_SAFETY_FRAC (float, "1.3"): increases the time step by this factor
+		if conditions are favorable; up the the limit of the max time step
+	TIMESTEP_UPDATE_FREQ (int, "5"): frequency at which the time step is updated
+
+Modeling options:
+	MASS_DISTRIBUTION (int, "1"): if nonzero, a mass coefficient is drawn from
+		a normal distribution centered on 1; otherwise it is set equal to 1
+	GROWTH_RATE_NOISE (int, "0"): if nonzero, a growth rate coefficient is drawn
+		from a normal distribution centered on 1; otherwise it is set equal to 1
+	D_PERIOD_DIVISION (int, "0"): if nonzero, ends simulation once D period has
+		occurred after chromosome termination; otherwise simulation terminates
+		once a given mass has been added to the cell
+	TRANSLATION_SUPPLY (int, "1"): if nonzero, the ribosome elongation rate is
+		limited by the condition specific rate of amino acid supply; otherwise
+		the elongation rate is set by condition
+
+Additional variables:
+	LAUNCHPAD_FILE (str, "my_launchpad.yaml"): set launchpad config file location
+	VERBOSE_QUEUE (int, "1"): if nonzero, gives more detailed messages during
+		fireworks set up
+'''
+
 from fireworks import Firework, LaunchPad, Workflow, ScriptTask
 from wholecell.fireworks.firetasks import InitRawDataTask
 from wholecell.fireworks.firetasks import InitRawValidationDataTask
@@ -55,7 +118,7 @@ if LAST_VARIANT_INDEX == -1:
 # So be careful if you change it to xrange
 VARIANTS_TO_RUN = range(FIRST_VARIANT_INDEX, LAST_VARIANT_INDEX + 1)
 
-### Set other environment variables
+### Set other simulation parameters
 
 WC_LENGTHSEC = int(os.environ.get("WC_LENGTHSEC", DEFAULT_SIMULATION_KWARGS["lengthSec"]))
 TIMESTEP_SAFETY_FRAC = float(os.environ.get("TIMESTEP_SAFETY_FRAC", DEFAULT_SIMULATION_KWARGS["timeStepSafetyFraction"]))
