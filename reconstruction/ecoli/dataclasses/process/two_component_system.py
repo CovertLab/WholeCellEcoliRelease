@@ -470,7 +470,6 @@ class TwoComponentSystem(object):
 		
 		return (-1* moleculesNeeded), allMoleculesChanges
 
-
 	def getMonomers(self, cplxId):
 		'''
 		Returns subunits for a complex (or any ID passed).
@@ -485,39 +484,6 @@ class TwoComponentSystem(object):
 		else:
 			out = {'subunitIds' : cplxId, 'subunitStoich' : 1}
 		return out
-
-	def _findRow(self, product, speciesList):
-		for sp in range(0, len(speciesList)):
-			if speciesList[sp] == product: return sp
-		return -1
-
-	def _findColumn(self, stoichMatrixRow, row):
-
-		for i in range(0,len(stoichMatrixRow)):
-			if int(stoichMatrixRow[i]) == 1: return i
-		return -1
-
-	def _moleculeRecursiveSearch(self, product, stoichMatrix, speciesList, flag = 0):
-		row = self._findRow(product,speciesList)
-		if row == -1: return []
-
-		col = self._findColumn(stoichMatrix[row,:], row)
-		if col == -1:
-			if flag == 0: return []
-			else: return {product: -1}
-
-		total = {}
-		for i in range(0, len(speciesList)):
-			if i == row: continue
-			val = stoichMatrix[i][col]
-			sp = speciesList[i]
-
-			if val:
-				x = self._moleculeRecursiveSearch(sp, stoichMatrix, speciesList, 1)
-				for j in x:
-					if j in total: total[j] += x[j]*(abs(val))
-					else: total[j] = x[j]*(abs(val))
-		return total
 
 	def getReactionName(self, templateName, systemMolecules):
 		'''
