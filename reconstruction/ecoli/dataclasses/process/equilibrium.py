@@ -120,6 +120,7 @@ class Equilibrium(object):
 		self._stoichMatrixV = np.array(stoichMatrixV)
 
 		self.moleculeNames = molecules
+		self.ids_complexes = [self.moleculeNames[i] for i in np.where((self.stoichMatrix() == 1).sum(axis = 1))[0]]
 		self.rxnIds = rxnIds
 		self.ratesFwd = np.array(ratesFwd)
 		self.ratesRev = np.array(ratesRev)
@@ -181,11 +182,11 @@ class Equilibrium(object):
 		Columns: complexes
 		Values: monomer stoichiometry
 		'''
-		ids_complexes = [self.moleculeNames[i] for i in np.where((self.stoichMatrix() == 1).sum(axis = 1))[0]]
 		stoichMatrixMonomersI = []
 		stoichMatrixMonomersJ = []
 		stoichMatrixMonomersV = []
-		for colIdx, id_complex in enumerate(ids_complexes):
+
+		for colIdx, id_complex in enumerate(self.ids_complexes):
 			D = self.getMonomers(id_complex)
 
 			rowIdx = self.moleculeNames.index(id_complex)
