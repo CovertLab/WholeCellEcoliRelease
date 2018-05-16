@@ -1,3 +1,10 @@
+"""
+SimulationData for the Complexation process
+
+@author: John Mason
+@organization: Covert Lab, Department of Bioengineering, Stanford University
+@date: Created 01/23/2015
+"""
 
 from __future__ import division
 
@@ -13,21 +20,17 @@ class moleculeNotFoundError(ComplexationError):
 class Complexation(object):
 	def __init__(self, raw_data, sim_data):
 		# Build the abstractions needed for complexation
+		molecules = []  # List of all molecules involved in complexation
+		subunits = []  # List of all molecules that participate as subunits
+		complexes = []  # List of all molecules that participate as complexes
+		stoichMatrixI = []  # Molecule indices
+		stoichMatrixJ = []  # Reaction indices
+		stoichMatrixV = []  # Stoichiometric coefficients
+		stoichMatrixMass = []  # Molecular masses of molecules in stoichMatrixI
 
-		molecules = []
-
-		subunits = []
-		complexes = []
-
-		stoichMatrixI = []
-		stoichMatrixJ = []
-		stoichMatrixV = []
-
-		stoichMatrixMass = []
-
-		# Remove complexes that are currently not simulated
+		# Remove complexes containing molecules that are currently not simulated
 		FORBIDDEN_MOLECULES = {
-			"modified-charged-selC-tRNA", # molecule does not exist
+			"modified-charged-selC-tRNA",  # molecule does not exist
 			}
 
 		deleteReactions = []
@@ -40,6 +43,7 @@ class Complexation(object):
 		for reactionIndex in deleteReactions[::-1]:
 			del raw_data.complexationReactions[reactionIndex]
 
+		# Build stoichiometric matrix from given complexation reactions
 		for reactionIndex, reaction in enumerate(raw_data.complexationReactions):
 			assert reaction["process"] == "complexation"
 			assert reaction["dir"] == 1
@@ -59,30 +63,28 @@ class Complexation(object):
 				if moleculeName not in molecules:
 					molecules.append(moleculeName)
 					moleculeIndex = len(molecules) - 1
-
 				else:
 					moleculeIndex = molecules.index(moleculeName)
 
 				coefficient = molecule["coeff"]
-
-				assert coefficient % 1 == 0
-
+				assert (coefficient % 1) == 0
 
 				stoichMatrixI.append(moleculeIndex)
 				stoichMatrixJ.append(reactionIndex)
 				stoichMatrixV.append(coefficient)
 
+				# Classify molecule into subunit or complex depending on sign
+				# of the stoichiometric coefficient - Note that a molecule can
+				# be both a subunit and a complex
 				if coefficient < 0:
 					subunits.append(moleculeName)
-
 				else:
 					assert molecule["type"] == "proteincomplex"
 					complexes.append(moleculeName)
 
-				# Find molecular mass
+				# Find molecular mass of the molecule and add to mass matrix
 				molecularMass = sim_data.getter.getMass([moleculeName]).asNumber(units.g / units.mol)[0]
 				stoichMatrixMass.append(molecularMass)
-
 
 		self._stoichMatrixI = np.array(stoichMatrixI)
 		self._stoichMatrixJ = np.array(stoichMatrixJ)
@@ -102,25 +104,28 @@ class Complexation(object):
 		# Find the mass balance of each equation in the balanceMatrix
 		massBalanceArray = self.massBalance()
 
-		# The stoichometric matrix should balance out to numerical zero.
-		assert np.max([abs(x) for x in massBalanceArray]) < 1e-8 # had to bump this up to 1e-8 because of flagella supercomplex
+		# All reaction mass balances should balance out to numerical zero
+		assert np.max(np.absolute(massBalanceArray)) < 1e-8  # had to bump this up to 1e-8 because of flagella supercomplex
 
 	def stoichMatrix(self):
-		shape = (self._stoichMatrixI.max()+1, self._stoichMatrixJ.max()+1)
-
+		"""
+		Builds a stoichiometric matrix based on each given complexation
+		reaction. One reaction corresponds to one column in the stoichiometric
+		matrix.
+		"""
+		shape = (self._stoichMatrixI.max() + 1, self._stoichMatrixJ.max() + 1)
 		out = np.zeros(shape, np.float64)
-
 		out[self._stoichMatrixI, self._stoichMatrixJ] = self._stoichMatrixV
-
 		return out
 
 	def massMatrix(self):
-		shape = (self._stoichMatrixI.max()+1, self._stoichMatrixJ.max()+1)
-
+		"""
+		Builds a matrix with the same shape as the stoichiometric matrix, but
+		with molecular masses as elements instead of stoichiometric constants
+		"""
+		shape = (self._stoichMatrixI.max() + 1, self._stoichMatrixJ.max() + 1)
 		out = np.zeros(shape, np.float64)
-
 		out[self._stoichMatrixI, self._stoichMatrixJ] = self._stoichMatrixMass
-
 		return out
 
 	def massBalance(self):
@@ -159,10 +164,9 @@ class Complexation(object):
 		stoichMatrixMonomersI = np.array(stoichMatrixMonomersI)
 		stoichMatrixMonomersJ = np.array(stoichMatrixMonomersJ)
 		stoichMatrixMonomersV = np.array(stoichMatrixMonomersV)
+
 		shape = (stoichMatrixMonomersI.max() + 1, stoichMatrixMonomersJ.max() + 1)
-
 		out = np.zeros(shape, np.float64)
-
 		out[stoichMatrixMonomersI, stoichMatrixMonomersJ] = stoichMatrixMonomersV
 
 		return out
@@ -212,5 +216,4 @@ class Complexation(object):
 						total[j] += x[j]*(np.absolute(val))
 					else:
 						total[j] = x[j]*(np.absolute(val))
-
 		return total
