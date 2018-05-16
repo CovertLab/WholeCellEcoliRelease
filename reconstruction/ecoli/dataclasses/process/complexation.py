@@ -14,7 +14,7 @@ from wholecell.utils import units
 class ComplexationError(Exception):
 	pass
 
-class moleculeNotFoundError(ComplexationError):
+class MoleculeNotFoundError(ComplexationError):
 	pass
 
 class Complexation(object):
@@ -196,7 +196,7 @@ class Complexation(object):
 	def _moleculeRecursiveSearch(self, product, stoichMatrix, speciesList):
 		row = self._findRow(product, speciesList)
 		if row == -1:
-			raise moleculeNotFoundError("Could not find %s in the list of molecules."%product)
+			raise MoleculeNotFoundError("Could not find %s in the list of molecules." % (product,))
 
 		col = self._findColumn(stoichMatrix[row, :])
 		if col == -1:
