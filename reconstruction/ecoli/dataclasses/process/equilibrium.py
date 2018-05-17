@@ -118,13 +118,12 @@ class Equilibrium(object):
 				molecularMass = sim_data.getter.getMass([moleculeName]).asNumber(units.g / units.mol)[0]
 				stoichMatrixMass.append(molecularMass)
 
-
 		self._stoichMatrixI = np.array(stoichMatrixI)
 		self._stoichMatrixJ = np.array(stoichMatrixJ)
 		self._stoichMatrixV = np.array(stoichMatrixV)
 
 		self.moleculeNames = molecules
-		self.ids_complexes = [self.moleculeNames[i] for i in np.where((self.stoichMatrix() == 1).sum(axis = 1))[0]]
+		self.ids_complexes = [self.moleculeNames[i] for i in np.where(np.any(self.stoichMatrix() > 0, axis=1))[0]]
 		self.rxnIds = rxnIds
 		self.ratesFwd = np.array(ratesFwd)
 		self.ratesRev = np.array(ratesRev)
@@ -137,12 +136,12 @@ class Equilibrium(object):
 		massBalanceArray = self.massBalance()
 
 		# The stoichometric matrix should balance out to numerical zero.
-		assert np.max([abs(x) for x in massBalanceArray]) < 1e-9
+		assert np.max(np.absolute(massBalanceArray)) < 1e-9
 
 		# Build matrices
 		self._makeMatrices()
 		self._populateDerivativeAndJacobian()
-		self._complexIdxs = np.where((self.stoichMatrix() == 1).sum(axis = 1))[0]
+		self._complexIdxs = np.where(np.any(self.stoichMatrix() > 0, axis=1))[0]
 		self._monomerIdxs = [np.where(x < 0)[0] for x in self.stoichMatrix().T]
 		self._rxnNonZeroIdxs = [np.where(x != 0)[0] for x in self.stoichMatrix().T]
 		self._stoichMatrix = self.stoichMatrix()
