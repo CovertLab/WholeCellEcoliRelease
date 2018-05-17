@@ -101,6 +101,13 @@ class Complexation(object):
 		self._stoichMatrixMass = np.array(stoichMatrixMass)
 		self.balanceMatrix = self.stoichMatrix()*self.massMatrix()
 
+		# Create sparse matrix for monomer to complex stoichiometry
+		i, j, v, shape = self._buildStoichMatrixMonomers()
+		self._stoichMatrixMonomersI = i
+		self._stoichMatrixMonomersJ = j
+		self._stoichMatrixMonomersV = v
+		self._stoichMatrixMonomersShape = shape
+
 		# Find the mass balance of each equation in the balanceMatrix
 		massBalanceArray = self.massBalance()
 
@@ -137,6 +144,24 @@ class Complexation(object):
 
 	def stoichMatrixMonomers(self):
 		"""
+		Returns the dense stoichiometric matrix for monomers from each complex
+		"""
+		out = np.zeros(self._stoichMatrixMonomersShape, np.float64)
+		out[self._stoichMatrixMonomersI, self._stoichMatrixMonomersJ] = self._stoichMatrixMonomersV
+		return out
+
+	# TODO: redesign this so it doesn't need to create a stoich matrix
+	def getMonomers(self, cplxId):
+		'''
+		Returns subunits for a complex (or any ID passed). If the ID passed is
+		already a monomer returns the monomer ID again with a stoichiometric
+		coefficient of one.
+		'''
+		info = self._moleculeRecursiveSearch(cplxId, self.stoichMatrix(), self.moleculeNames)
+		return {'subunitIds': np.array(info.keys()), 'subunitStoich': np.array(info.values())}
+
+	def _buildStoichMatrixMonomers(self):
+		"""
 		Builds a stoichiometric matrix where each column is a reaction that
 		forms a complex directly from its constituent monomers. Since some
 		reactions from the raw data are complexation reactions of complexes,
@@ -166,20 +191,8 @@ class Complexation(object):
 		stoichMatrixMonomersV = np.array(stoichMatrixMonomersV)
 
 		shape = (stoichMatrixMonomersI.max() + 1, stoichMatrixMonomersJ.max() + 1)
-		out = np.zeros(shape, np.float64)
-		out[stoichMatrixMonomersI, stoichMatrixMonomersJ] = stoichMatrixMonomersV
 
-		return out
-
-	# TODO: redesign this so it doesn't need to create a stoich matrix
-	def getMonomers(self, cplxId):
-		'''
-		Returns subunits for a complex (or any ID passed). If the ID passed is
-		already a monomer returns the monomer ID again with a stoichiometric
-		coefficient of one.
-		'''
-		info = self._moleculeRecursiveSearch(cplxId, self.stoichMatrix(), self.moleculeNames)
-		return {'subunitIds': np.array(info.keys()), 'subunitStoich': np.array(info.values())}
+		return (stoichMatrixMonomersI, stoichMatrixMonomersJ, stoichMatrixMonomersV, shape)
 
 	def _findRow(self, product, speciesList):
 		try:
