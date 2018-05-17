@@ -178,29 +178,28 @@ class Complexation(object):
 		already a monomer returns the monomer ID again with a stoichiometric
 		coefficient of one.
 		'''
-		info = self._moleculeRecursiveSearch(cplxId, self.stoichMatrix(), np.array(self.moleculeNames))
-		return {'subunitIds': np.array(info.keys()), 'subunitStoich': (-1)*np.array(info.values())}
+		info = self._moleculeRecursiveSearch(cplxId, self.stoichMatrix(), self.moleculeNames)
+		return {'subunitIds': np.array(info.keys()), 'subunitStoich': np.array(info.values())}
 
 	def _findRow(self, product, speciesList):
-		for sp in range(0, len(speciesList)):
-			if speciesList[sp] == product:
-				return sp
-		return -1
+		try:
+			row = speciesList.index(product)
+		except ValueError as e:
+			raise MoleculeNotFoundError(
+				"Could not find %s in the list of molecules." % (product,), e)
+		return row
 
 	def _findColumn(self, stoichMatrixRow):
 		for i in range(0, len(stoichMatrixRow)):
 			if int(stoichMatrixRow[i]) == 1:
 				return i
-		return -1
+		return -1  # Flag for monomer
 
 	def _moleculeRecursiveSearch(self, product, stoichMatrix, speciesList):
 		row = self._findRow(product, speciesList)
-		if row == -1:
-			raise MoleculeNotFoundError("Could not find %s in the list of molecules." % (product,))
-
 		col = self._findColumn(stoichMatrix[row, :])
 		if col == -1:
-			return {product: -1}
+			return {product: 1.0}
 
 		total = {}
 		for i in range(0, len(speciesList)):
