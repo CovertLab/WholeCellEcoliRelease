@@ -78,7 +78,8 @@ from wholecell.fireworks.firetasks import AnalysisSingleTask
 from wholecell.fireworks.firetasks import AnalysisMultiGenTask
 from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
 
-import wholecell.utils.constants
+from wholecell.utils import constants
+from wholecell.utils import filepath
 import yaml
 import os
 import datetime
@@ -97,9 +98,8 @@ def run_cmd(cmd):
 	return out
 
 def write_file(filename, content):
-	h = open(filename, "w")
-	h.write(content)
-	h.close()
+	with open(filename, "w") as f:
+		f.write(content)
 
 #### Initial setup ###
 
@@ -143,11 +143,10 @@ DEBUG_FITTER = bool(int(os.environ.get("DEBUG_FITTER", "0")))
 if not RUN_AGGREGATE_ANALYSIS:
 	COMPRESS_OUTPUT = False
 
-### Set path variables
+### Set path variables and create directories
 
-dirname = os.path.dirname
-WC_ECOLI_DIRECTORY = dirname(dirname(os.path.abspath(__file__)))
-OUT_DIRECTORY = os.path.join(WC_ECOLI_DIRECTORY, "out")
+WC_ECOLI_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT_DIRECTORY = filepath.makedirs(WC_ECOLI_DIRECTORY, "out")
 CACHED_SIM_DATA_DIRECTORY = os.path.join(WC_ECOLI_DIRECTORY, "cached")
 
 now = datetime.datetime.now()
@@ -155,74 +154,32 @@ SUBMISSION_TIME = "%04d%02d%02d.%02d%02d%02d.%06d" % (
 	now.year, now.month, now.day,
 	now.hour, now.minute, now.second,
 	now.microsecond)
-INDIV_OUT_DIRECTORY = os.path.join(OUT_DIRECTORY, SUBMISSION_TIME + "__" + SIM_DESCRIPTION)
-KB_DIRECTORY = os.path.join(INDIV_OUT_DIRECTORY, "kb")
-METADATA_DIRECTORY = os.path.join(INDIV_OUT_DIRECTORY, "metadata")
+INDIV_OUT_DIRECTORY = filepath.makedirs(OUT_DIRECTORY, SUBMISSION_TIME + "__" + SIM_DESCRIPTION)
+KB_DIRECTORY = filepath.makedirs(INDIV_OUT_DIRECTORY, "kb")
+METADATA_DIRECTORY = filepath.makedirs(INDIV_OUT_DIRECTORY, "metadata")
 
-### Create directories
-
-if not os.path.exists(OUT_DIRECTORY):
-	os.makedirs(OUT_DIRECTORY)
-
-if not os.path.exists(INDIV_OUT_DIRECTORY):
-	os.makedirs(INDIV_OUT_DIRECTORY)
-
-if not os.path.exists(KB_DIRECTORY):
-	os.makedirs(KB_DIRECTORY)
-
-if not os.path.exists(METADATA_DIRECTORY):
-	os.makedirs(METADATA_DIRECTORY)
 
 if VERBOSE_QUEUE:
 	print "Building filestructure."
 
 for i in VARIANTS_TO_RUN:
-	VARIANT_DIRECTORY = os.path.join(INDIV_OUT_DIRECTORY, VARIANT + "_%06d" % i)
-	VARIANT_SIM_DATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "kb")
-	VARIANT_METADATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "metadata")
-	VARIANT_COHORT_PLOT_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "plotOut")
-
-	if not os.path.exists(VARIANT_DIRECTORY):
-		os.makedirs(VARIANT_DIRECTORY)
-
-	if not os.path.exists(VARIANT_SIM_DATA_DIRECTORY):
-		os.makedirs(VARIANT_SIM_DATA_DIRECTORY)
-
-	if not os.path.exists(VARIANT_METADATA_DIRECTORY):
-		os.makedirs(VARIANT_METADATA_DIRECTORY)
-
-	if not os.path.exists(VARIANT_COHORT_PLOT_DIRECTORY):
-		os.makedirs(VARIANT_COHORT_PLOT_DIRECTORY)
+	VARIANT_DIRECTORY = filepath.makedirs(INDIV_OUT_DIRECTORY, VARIANT + "_%06d" % i)
+	VARIANT_SIM_DATA_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, "kb")
+	VARIANT_METADATA_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, "metadata")
+	VARIANT_COHORT_PLOT_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, "plotOut")
 
 	for j in xrange(N_INIT_SIMS):
-		SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
-		SEED_PLOT_DIRECTORY = os.path.join(SEED_DIRECTORY, "plotOut")
-
-		if not os.path.exists(SEED_DIRECTORY):
-			os.makedirs(SEED_DIRECTORY)
-
-		if not os.path.exists(SEED_PLOT_DIRECTORY):
-			os.makedirs(SEED_PLOT_DIRECTORY)
+		SEED_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, "%06d" % j)
+		SEED_PLOT_DIRECTORY = filepath.makedirs(SEED_DIRECTORY, "plotOut")
 
 		for k in xrange(N_GENS):
-			GEN_DIRECTORY = os.path.join(SEED_DIRECTORY, "generation_%06d" % k)
-
-			if not os.path.exists(GEN_DIRECTORY):
-				os.makedirs(GEN_DIRECTORY)
+			GEN_DIRECTORY = filepath.makedirs(SEED_DIRECTORY, "generation_%06d" % k)
 
 			for l in (xrange(2**k) if not SINGLE_DAUGHTERS else [0]):
-				CELL_DIRECTORY = os.path.join(GEN_DIRECTORY, "%06d" % l)
-				CELL_SIM_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "simOut")
-				CELL_PLOT_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "plotOut")
+				CELL_DIRECTORY = filepath.makedirs(GEN_DIRECTORY, "%06d" % l)
+				CELL_SIM_OUT_DIRECTORY = filepath.makedirs(CELL_DIRECTORY, "simOut")
+				CELL_PLOT_OUT_DIRECTORY = filepath.makedirs(CELL_DIRECTORY, "plotOut")
 
-				if not os.path.exists(CELL_DIRECTORY):
-					os.makedirs(CELL_DIRECTORY)
-
-				if not os.path.exists(CELL_SIM_OUT_DIRECTORY):
-					os.makedirs(CELL_SIM_OUT_DIRECTORY)
-
-				if not os.path.exists(CELL_PLOT_OUT_DIRECTORY):
-					os.makedirs(CELL_PLOT_OUT_DIRECTORY)
 
 ### Write metadata
 metadata = {
@@ -234,25 +191,25 @@ metadata = {
 	"total_gens": str(N_GENS),
 	"analysis_type": None,
 	"variant": VARIANT,
-	"mass_distribution" : MASS_DISTRIBUTION,
-	"growth_rate_noise" : GROWTH_RATE_NOISE,
-	"d_period_division" : D_PERIOD_DIVISION,
-	"translation_supply" : TRANSLATION_SUPPLY,
+	"mass_distribution": MASS_DISTRIBUTION,
+	"growth_rate_noise": GROWTH_RATE_NOISE,
+	"d_period_division": D_PERIOD_DIVISION,
+	"translation_supply": TRANSLATION_SUPPLY,
 	}
 
 for key, value in metadata.iteritems():
-	if type(value) != str:
+	if not isinstance(value, basestring):
 		continue
 	write_file(os.path.join(METADATA_DIRECTORY, key), value)
 
-h = open(os.path.join(METADATA_DIRECTORY, "metadata.cPickle"), "w")
-cPickle.dump(metadata, h, cPickle.HIGHEST_PROTOCOL)
-h.close()
+with open(os.path.join(METADATA_DIRECTORY, "metadata.cPickle"), "w") as f:
+	cPickle.dump(metadata, f, cPickle.HIGHEST_PROTOCOL)
 
 #### Create workflow
 
 # Create launchpad
-lpad = LaunchPad(**yaml.load(open(LAUNCHPAD_FILE)))
+with open(LAUNCHPAD_FILE) as f:
+	lpad = LaunchPad(**yaml.load(f))
 
 # Store list of FireWorks
 wf_fws = []
@@ -263,7 +220,8 @@ wf_links = collections.defaultdict(list)
 
 ### Initialize KB
 
-filename_raw_data = wholecell.utils.constants.SERIALIZED_RAW_DATA
+filename_raw_data = constants.SERIALIZED_RAW_DATA
+filename_sim_data_modified = constants.SERIALIZED_SIM_DATA_MODIFIED
 
 fw_name = "InitRawData"
 
@@ -282,11 +240,7 @@ wf_fws.append(fw_init_raw_data)
 
 ### Fit (Level 1)
 
-filename_sim_data_fit_1 = (
-			wholecell.utils.constants.SERIALIZED_SIM_DATA_PREFIX +
-			"_Fit_1" +
-			wholecell.utils.constants.SERIALIZED_SIM_DATA_SUFFIX
-			)
+filename_sim_data_fit_1 = constants.SERIALIZED_FIT1_FILENAME
 
 fw_name = "FitSimDataTask_Level_1"
 
@@ -315,6 +269,7 @@ wf_fws.append(fw_fit_level_1)
 wf_links[fw_init_raw_data].append(fw_fit_level_1)
 
 # Unfit KB compression
+fw_raw_data_compression = None
 if COMPRESS_OUTPUT:
 	fw_name = "ScriptTask_compression_raw_data"
 
@@ -334,6 +289,7 @@ if COMPRESS_OUTPUT:
 
 # Fit Level 1 KB compression
 
+fw_sim_data_1_compression = None
 if COMPRESS_OUTPUT:
 	fw_name = "ScriptTask_compression_sim_data_1"
 
@@ -361,7 +317,7 @@ if VERBOSE_QUEUE:
 fw_symlink_most_fit = Firework(
 	SymlinkTask(
 		to = filename_sim_data_fit_1,
-		link = os.path.join(KB_DIRECTORY, wholecell.utils.constants.SERIALIZED_SIM_DATA_MOST_FIT_FILENAME),
+		link = os.path.join(KB_DIRECTORY, constants.SERIALIZED_SIM_DATA_MOST_FIT_FILENAME),
 		overwrite_if_exists = True
 		),
 	name = fw_name,
@@ -376,7 +332,7 @@ wf_links[fw_fit_level_1].append(fw_symlink_most_fit)
 ### Initialize validation data
 
 # Initiate raw validation data
-filename_raw_validation_data = wholecell.utils.constants.SERIALIZED_RAW_VALIDATION_DATA
+filename_raw_validation_data = constants.SERIALIZED_RAW_VALIDATION_DATA
 
 fw_name = "InitValidationDataRaw"
 
@@ -394,6 +350,7 @@ fw_raw_validation_data = Firework(
 wf_fws.append(fw_raw_validation_data)
 
 # Raw validation data compression
+fw_raw_validation_data_compression = None
 if COMPRESS_OUTPUT:
 	fw_name = "ScriptTask_compression_validation_data_raw"
 	fw_raw_validation_data_compression = Firework(
@@ -408,9 +365,7 @@ if COMPRESS_OUTPUT:
 
 
 # Initialize full validation data
-filename_validation_data = (
-			wholecell.utils.constants.SERIALIZED_VALIDATION_DATA
-			)
+filename_validation_data = constants.SERIALIZED_VALIDATION_DATA
 
 fw_name = "InitValidationData"
 
@@ -430,6 +385,7 @@ fw_validation_data = Firework(
 wf_fws.append(fw_validation_data)
 wf_links[fw_raw_validation_data].append(fw_validation_data)
 wf_links[fw_init_raw_data].append(fw_validation_data)
+fw_validation_data_compression = None
 
 # Full validation data compression
 if COMPRESS_OUTPUT:
@@ -453,6 +409,7 @@ if COMPRESS_OUTPUT:
 
 # Variant analysis
 VARIANT_PLOT_DIRECTORY = os.path.join(INDIV_OUT_DIRECTORY, "plotOut")
+fw_variant_analysis = None
 
 if RUN_AGGREGATE_ANALYSIS:
 
@@ -473,6 +430,9 @@ if RUN_AGGREGATE_ANALYSIS:
 	wf_fws.append(fw_variant_analysis)
 
 ### Create variants and simulations
+fw_this_variant_sim_data_compression = None
+fw_this_variant_this_gen_this_sim_compression = None
+
 for i in VARIANTS_TO_RUN:
 	if VERBOSE_QUEUE:
 		print "Queuing Variant {}".format(i)
@@ -483,13 +443,13 @@ for i in VARIANTS_TO_RUN:
 	metadata["variant_index"] = i
 
 	# Variant simData creation task
-	fw_name = "VariantSimDataTask_%06d" % (i)
+	fw_name = "VariantSimDataTask_%06d" % (i,)
 	fw_this_variant_sim_data = Firework(
 		VariantSimDataTask(
 			variant_function = VARIANT,
 			variant_index = i,
-			input_sim_data = os.path.join(KB_DIRECTORY, wholecell.utils.constants.SERIALIZED_SIM_DATA_MOST_FIT_FILENAME),
-			output_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, "simData_Modified.cPickle"),
+			input_sim_data = os.path.join(KB_DIRECTORY, constants.SERIALIZED_SIM_DATA_MOST_FIT_FILENAME),
+			output_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
 			variant_metadata_directory = VARIANT_METADATA_DIRECTORY,
 			),
 		name = fw_name,
@@ -507,7 +467,7 @@ for i in VARIANTS_TO_RUN:
 		fw_name = "ScriptTask_compression_variant_KB"
 		fw_this_variant_sim_data_compression = Firework(
 			ScriptTask(
-				script = "bzip2 -v " + os.path.join(VARIANT_SIM_DATA_DIRECTORY, "simData_Modified.cPickle")
+				script = "bzip2 -v " + os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified)
 				),
 			name = fw_name,
 			spec = {"_queueadapter": {"job_name": fw_name}, "_priority":0}
@@ -518,13 +478,15 @@ for i in VARIANTS_TO_RUN:
 	# Cohort analysis
 	COHORT_PLOT_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "plotOut")
 
+	fw_this_variant_cohort_analysis = None
+
 	if RUN_AGGREGATE_ANALYSIS:
 		metadata["analysis_type"] = "cohort"
-		fw_name = "AnalysisCohortTask__Var_%02d" % (i)
+		fw_name = "AnalysisCohortTask__Var_%02d" % (i,)
 		fw_this_variant_cohort_analysis = Firework(
 			AnalysisCohortTask(
 				input_variant_directory = VARIANT_DIRECTORY,
-				input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, "simData_Modified.cPickle"),
+				input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
 				input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
 				output_plots_directory = COHORT_PLOT_DIRECTORY,
 				metadata = metadata,
@@ -533,6 +495,8 @@ for i in VARIANTS_TO_RUN:
 			spec = {"_queueadapter": {"job_name": fw_name}, "_priority":4}
 			)
 		wf_fws.append(fw_this_variant_cohort_analysis)
+
+	fw_this_variant_this_seed_this_analysis = None
 
 	for j in xrange(N_INIT_SIMS):
 		if VERBOSE_QUEUE:
@@ -548,7 +512,7 @@ for i in VARIANTS_TO_RUN:
 			fw_this_variant_this_seed_this_analysis = Firework(
 				AnalysisMultiGenTask(
 					input_seed_directory = SEED_DIRECTORY,
-					input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, "simData_Modified.cPickle"),
+					input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
 					input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
 					output_plots_directory = SEED_PLOT_DIRECTORY,
 					metadata = metadata,
@@ -565,7 +529,7 @@ for i in VARIANTS_TO_RUN:
 
 		for k in xrange(N_GENS):
 			if VERBOSE_QUEUE:
-				print "\t\tQueuing Gen %02d." % (k)
+				print "\t\tQueuing Gen %02d." % (k,)
 			GEN_DIRECTORY = os.path.join(SEED_DIRECTORY, "generation_%06d" % k)
 			metadata["gen"] = k
 
@@ -584,7 +548,7 @@ for i in VARIANTS_TO_RUN:
 				if k == 0:
 					fw_this_variant_this_gen_this_sim = Firework(
 						SimulationTask(
-							input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, "simData_Modified.cPickle"),
+							input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
 							output_directory = CELL_SIM_OUT_DIRECTORY,
 							seed = j,
 							length_sec = WC_LENGTHSEC,
@@ -607,7 +571,7 @@ for i in VARIANTS_TO_RUN:
 
 					fw_this_variant_this_gen_this_sim = Firework(
 						SimulationDaughterTask(
-							input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, "simData_Modified.cPickle"),
+							input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
 							output_directory = CELL_SIM_OUT_DIRECTORY,
 							inherited_state_path = DAUGHTER_STATE_DIRECTORY,
 							seed = (j + 1) * ((2**k - 1) + l),
@@ -623,6 +587,8 @@ for i in VARIANTS_TO_RUN:
 						name = fw_name,
 						spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": 1}, "_priority":11}
 						)
+				else:
+					raise ValueError("k ({}) < 0".format(k))
 
 				wf_fws.append(fw_this_variant_this_gen_this_sim)
 				if RUN_AGGREGATE_ANALYSIS:
@@ -660,7 +626,7 @@ for i in VARIANTS_TO_RUN:
 					fw_this_variant_this_gen_this_sim_analysis = Firework(
 						AnalysisSingleTask(
 							input_results_directory = CELL_SIM_OUT_DIRECTORY,
-							input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, "simData_Modified.cPickle"),
+							input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
 							input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
 							output_plots_directory = CELL_PLOT_OUT_DIRECTORY,
 							metadata = metadata,
@@ -676,18 +642,19 @@ for i in VARIANTS_TO_RUN:
 
 					if COMPRESS_OUTPUT:
 						# Don't compress any outputs or validation data until all analysis scripts (single gen, multigen, and cohort) have finished running
-						wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_this_variant_sim_data_compression)
-						wf_links[fw_this_variant_this_seed_this_analysis].append(fw_this_variant_sim_data_compression)
-						wf_links[fw_this_variant_cohort_analysis].append(fw_this_variant_sim_data_compression)
-						wf_links[fw_variant_analysis].append(fw_this_variant_sim_data_compression)
-						wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_validation_data_compression)
-						wf_links[fw_this_variant_this_seed_this_analysis].append(fw_validation_data_compression)
-						wf_links[fw_this_variant_cohort_analysis].append(fw_validation_data_compression)
-						wf_links[fw_variant_analysis].append(fw_validation_data_compression)
-						wf_links[fw_this_variant_this_gen_this_sim_analysis].append(fw_this_variant_this_gen_this_sim_compression)
-						wf_links[fw_this_variant_this_seed_this_analysis].append(fw_this_variant_this_gen_this_sim_compression)
-						wf_links[fw_this_variant_cohort_analysis].append(fw_this_variant_this_gen_this_sim_compression)
-						wf_links[fw_variant_analysis].append(fw_this_variant_this_gen_this_sim_compression)
+						compression_fws = [
+							fw_this_variant_sim_data_compression,
+							fw_validation_data_compression,
+							fw_this_variant_this_gen_this_sim_compression
+						]
+						data_fws = [
+							fw_this_variant_this_gen_this_sim_analysis,
+							fw_this_variant_this_seed_this_analysis,
+							fw_this_variant_cohort_analysis,
+							fw_variant_analysis]
+						for compression in compression_fws:
+							for data in data_fws:
+								wf_links[data].append(compression)
 
 ## Create workflow
 

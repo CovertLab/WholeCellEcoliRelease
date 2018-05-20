@@ -4,6 +4,8 @@ from re import match, findall
 from itertools import chain
 import numpy as np
 
+from wholecell.utils import constants
+
 '''
 AnalysisPaths
 
@@ -112,7 +114,9 @@ class AnalysisPaths(object):
 			variants.append(int(filePath[filePath.rfind('generation_')-14:filePath.rfind('generation_')-8]))
 
 			# Find variant kb
-			variant_kb.append(filePath[:filePath.rfind('generation_')-8] + "/kb/simData_Modified.cPickle")
+			variant_kb.append(
+				join(filePath[:filePath.rfind('generation_') - 8], "kb",
+					constants.SERIALIZED_SIM_DATA_MODIFIED))
 
 		self._path_data["path"] = generation_dirs
 		self._path_data["variant"] = variants
