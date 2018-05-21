@@ -8,8 +8,7 @@ Running it this way prints all timing measurements:
 	python -m wholecell.tests.utils.test_library_performance
 
 Running it these ways prints timing measurements (and other printout) only
-for failed tests, e.g. those that exceed their @nose.tools.timed()
-thresholds:
+for failed tests:
 	nosetests wholecell/tests/utils/test_library_performance.py
 	nosetests -a performance
 
@@ -17,6 +16,8 @@ Running it this way runs the iterative test that isn't automatically
 discovered as a test method:
 	python -m unittest -v wholecell.tests.utils.test_library_performance.Test_library_performance.multitest_dot
 """
+
+from __future__ import absolute_import
 
 import resource
 import time
@@ -227,7 +228,7 @@ class Test_library_performance(unittest.TestCase):
 	def test_int_dot_int(self):
 		"""Time NumPy int64 x int64 matrix dot()."""
 		N = np.random.random_integers(0, 9, size=(1000, 1000))
-		self.time_this(lambda: N.dot(N), 2.2)  # SLOW!
+		self.time_this(lambda: N.dot(N), 4.0)  # SLOW!
 
 	@noseAttrib.attr('performance')
 	def test_int_dot_floated_int(self):
@@ -272,7 +273,7 @@ class Test_library_performance(unittest.TestCase):
 		M = np.random.random(size=(1000, 1000))
 		self.time_this(lambda: N.astype(np.float32)
 					   .dot(M.astype(np.float32)).astype(np.float32),
-					   0.3)
+					   0.6)
 
 	# Allow time for test framework overhead + matrix construction.
 	@noseAttrib.attr('performance')
@@ -284,7 +285,7 @@ class Test_library_performance(unittest.TestCase):
 			y = scipy.integrate.odeint(
 				derivatives, y0, t=[0, 1e6], Dfun=derivativesJacobian,
 				mxstep=10000)
-		self.time_this(odeint, 0.2)
+		self.time_this(odeint, 0.4)
 
 
 if __name__ == '__main__':
