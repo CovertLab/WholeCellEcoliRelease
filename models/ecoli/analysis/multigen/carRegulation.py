@@ -14,8 +14,6 @@ import os
 
 import numpy as np
 from scipy.stats import pearsonr
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
@@ -144,7 +142,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		synthProbs = rnaSynthProbReader.readColumn("rnaSynthProb")[:, synthProbIndex]
 
 		argRBound = rnaSynthProbReader.readColumn("nActualBound")[:,argRIndex]
-		
+
 		rnaSynthProbReader.close()
 
 		# Calculate total argR - active, inactive, bound and monomeric
@@ -157,7 +155,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				for i in range(tfBoundCounts.shape[1])]).T
 		synthProbsMA = np.array([np.convolve(synthProbs[:,i], np.ones(width) / width, mode = "same")
 				for i in range(synthProbs.shape[1])]).T
-		
+
 		##############################################################
 		ax = plt.subplot(nRows, 1, 1)
 		ax.plot(time, argConcentration.asNumber(units.umol / units.L), color = "b")

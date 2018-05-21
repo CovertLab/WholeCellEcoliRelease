@@ -12,8 +12,6 @@ import os
 import cPickle
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 from matplotlib import colors
 from matplotlib import gridspec
@@ -51,7 +49,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	reactionFluxes = fbaResults.readColumn("reactionFluxes")
 
 	reactionIDs = np.array(fbaResults.readAttribute('reactionIDs'))
-	
+
 	fbaResults.close()
 
 	fig = plt.figure(figsize = (80, 40))
@@ -103,7 +101,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	ax_cmap = fig.add_subplot(grid[1])
 
 	gradient = np.array((np.arange(0, 100)/100).tolist() + [+2,]*5, ndmin=2).transpose()
-	
+
 	ax_cmap.imshow(
 		gradient,
 		aspect = "auto",

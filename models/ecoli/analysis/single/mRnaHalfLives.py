@@ -14,8 +14,6 @@ import os
 
 import numpy as np
 from scipy import stats
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
@@ -66,7 +64,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	RrnaCounts = AllrnaCountsBulk[1:,isRRna]
 	TotalRRnaDegraded = (RrnaCounts * sim_data.process.transcription.rnaData['degRate'][isRRna].asNumber()).sum(axis = 1)
 
-	TrnaCounts = AllrnaCountsBulk[1:,isTRna] 
+	TrnaCounts = AllrnaCountsBulk[1:,isTRna]
 	TotalTRnaDegraded = (TrnaCounts * sim_data.process.transcription.rnaData['degRate'][isTRna].asNumber()).sum(axis = 1)
 
 
@@ -84,7 +82,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	rnaSynthesized = countRnaSynthesized[1:,:]
 	rnaSynthesizedTotal = rnaSynthesized.sum(axis = 0)[isMRna]
 	rnaSynthesizedTotalRate = rnaSynthesizedTotal / 3600.
-	
+
 	rnaDegradationRate1 = []
 	rnaDegradationRate2 = []
 	rnaDegradationRate3 = []
@@ -110,32 +108,32 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 						rnaDegradationRate4_t.append(rnaDegraded[j,i] / rnaCounts[j,i]) # Average_t(kd*r / r)
 					if (rnaSynthesized[j,i] - (rnaCounts[j+1,i] - rnaCounts[j,i])) > 0:
 						rnaDegradationRate5_t.append((rnaSynthesized[j,i] - (rnaCounts[j+1,i] - rnaCounts[j,i])) / rnaCounts[j,i]) # Average_t(kd*r / r)
-			
+
 			if len(rnaDegradationRate4_t) > 0:
-				rnaDegradationRate4.append(np.mean(rnaDegradationRate4_t))	
+				rnaDegradationRate4.append(np.mean(rnaDegradationRate4_t))
 				expectedDegradationRateSubset4.append(expectedDegradationRate[i])
 			if len(rnaDegradationRate4_t) <= 0:
-				rnaDegradationRate4.append(-1)	
+				rnaDegradationRate4.append(-1)
 				expectedDegradationRateSubset4.append(-1)
 
 
 			if len(rnaDegradationRate5_t) > 0:
 				rnaDegradationRate5.append(np.mean(rnaDegradationRate5_t))
-				expectedDegradationRateSubset5.append(expectedDegradationRate[i])	
+				expectedDegradationRateSubset5.append(expectedDegradationRate[i])
 			if len(rnaDegradationRate5_t) <= 0:
-				rnaDegradationRate5.append(-1)	
+				rnaDegradationRate5.append(-1)
 				expectedDegradationRateSubset5.append(-1)
 
 			expectedDegradationRateSubset.append(expectedDegradationRate[i])
 
 		if rnaCountsTotal[i] == 0:
-			rnaDegradationRate1.append(-1)	
-			rnaDegradationRate2.append(-1)	
-			rnaDegradationRate3.append(-1)	
+			rnaDegradationRate1.append(-1)
+			rnaDegradationRate2.append(-1)
+			rnaDegradationRate3.append(-1)
 			expectedDegradationRateSubset.append(-1)
-			rnaDegradationRate4.append(-1)	
+			rnaDegradationRate4.append(-1)
 			expectedDegradationRateSubset4.append(-1)
-			rnaDegradationRate5.append(-1)	
+			rnaDegradationRate5.append(-1)
 			expectedDegradationRateSubset5.append(-1)
 
 	np.savetxt(os.path.join(plotOutDir, 'RNAdecayPredicted.txt'), rnaDegradationRate3)
@@ -153,8 +151,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	plt.figure(figsize = (8.5, 11))
 	maxLine = 1.1 * max(max(expectedDegR), max(predictedDegR))
-	
-	plt.plot([0, maxLine], [0, maxLine], '--r')	
+
+	plt.plot([0, maxLine], [0, maxLine], '--r')
 	plt.plot(expectedDegR, predictedDegR, 'o', markeredgecolor = 'k', markerfacecolor = 'none')
 	Correlation_ExpPred = np.corrcoef(expectedDegR, predictedDegR)[0][1]
 

@@ -11,8 +11,6 @@ import argparse
 import os
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import scipy.fftpack
 import cPickle
@@ -50,7 +48,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	bulkMolecules.close()
 
 	plt.figure(figsize = (8.5, 11))
-	plt.rc('xtick', labelsize=7) 
+	plt.rc('xtick', labelsize=7)
 	plt.rc('ytick', labelsize=5)
 
 	count = 0
@@ -77,12 +75,12 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		if subplotIdx >= len(RNase_IDS) - 2:
 			plt.xlabel("Time (min)", fontsize = 7)
 
-		if not subplotIdx % 2:	
+		if not subplotIdx % 2:
 			plt.ylabel("Protein counts", fontsize = 5)
 		if subplotIdx % 2:
 			plt.ylabel("RNA counts", fontsize = 5)
 
-		plt.title(RNase_IDS[rnapRnaCountsIdx], fontsize = 7) 
+		plt.title(RNase_IDS[rnapRnaCountsIdx], fontsize = 7)
 
 		max_yticks = 4
 		yloc = plt.MaxNLocator(max_yticks)
@@ -101,7 +99,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		M = np.mean(abs(fourier))
 		S = np.std(abs(fourier))
 
-		# computing frequencies 
+		# computing frequencies
 		n = signal.size
 		timestep = 1 # second
 		freq = np.fft.fftfreq(n, d=timestep)

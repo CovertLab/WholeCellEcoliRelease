@@ -11,8 +11,6 @@ import argparse
 import os
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
@@ -93,13 +91,13 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	# bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	# bulkMoleculeIds = bulkMolecules.readAttribute("objectNames")
 	# bulkMolecules.close()
-	
+
 
 	# Plot
 	fig = plt.figure(figsize = (11, 11))
 
 	# Plot GTP consumption
-	# plt.rc('xtick', labelsize=5) 
+	# plt.rc('xtick', labelsize=5)
 	# plt.rc('ytick', labelsize=5)
 	# plt.plot(time / 60., gtpUsed)
 	# plt.plot(time / 60., atpsHydrolyzed)

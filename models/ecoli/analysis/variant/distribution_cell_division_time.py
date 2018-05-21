@@ -5,8 +5,6 @@ import os
 import re
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import matplotlib.patches as patches
 
@@ -64,7 +62,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile = None, metad
 		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 
-		controlDoublingTime = (time.max() - initialTime) / 60. 
+		controlDoublingTime = (time.max() - initialTime) / 60.
 
 
 
@@ -82,9 +80,9 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile = None, metad
 
 	for a in axes_list:
 		for tick in a.yaxis.get_major_ticks():
-			tick.label.set_fontsize(FONT_SIZE) 
+			tick.label.set_fontsize(FONT_SIZE)
 		for tick in a.xaxis.get_major_ticks():
-			tick.label.set_fontsize(FONT_SIZE) 
+			tick.label.set_fontsize(FONT_SIZE)
 
 	whitePadSparklineAxis(ax)
 

@@ -10,8 +10,6 @@ Plot tRNA counts
 import argparse
 import os
 import cPickle
-import matplotlib
-matplotlib.use("Agg")
 import numpy as np
 import matplotlib.pyplot as plt
 

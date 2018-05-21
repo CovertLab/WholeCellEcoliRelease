@@ -6,8 +6,6 @@ import re
 import cPickle
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
 
@@ -59,7 +57,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		text_y = np.mean(axes.get_ylim()) + np.mean(axes.get_ylim())*0.1
 		axes.text(text_x, text_y, r"$m_f$=%.3f$\times$$m_i$ + %.3f"%(z[0],z[1]))
 
-	
+
 	axesList[-1].set_xlabel("Initial mass (pg)")
 	axesList[ap.n_generation / 2].set_ylabel("Final mass (pg)")
 

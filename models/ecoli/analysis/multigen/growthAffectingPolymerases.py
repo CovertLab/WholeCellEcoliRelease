@@ -6,8 +6,6 @@ import argparse
 import os
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
 
@@ -139,7 +137,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		rnaCounts30S = bulkMolecules.readColumn("counts")[:, rnaIndexes30S]
 		freeRRnaCounts30S = bulkMolecules.readColumn("counts")[:, rRnaIndexes30S]
 		complexCounts30S = bulkMolecules.readColumn("counts")[:, complexIndexes30S]
-		
+
 		freeProteinCounts50S = bulkMolecules.readColumn("counts")[:, proteinIndexes50S]
 		rnaCounts50S = bulkMolecules.readColumn("counts")[:, rnaIndexes50S]
 		freeRRnaCounts50S = bulkMolecules.readColumn("counts")[:, rRnaIndexes50S]
@@ -277,7 +275,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ax7_1.set_ylim(y_lim)
 		ax7_1.set_ylabel("Active\nribosome\ncount")
 
-		# Plot ratio 
+		# Plot ratio
 		ax8.plot(time.asNumber(units.min), ratioRnaToProteinMass)
 		ax8.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 		ax8.set_ylabel("RNA/Protein")
@@ -365,7 +363,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 def getMassData(simDir, massNames):
 	simOutDir = os.path.join(simDir, "simOut")
-	
+
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
 	mass = TableReader(os.path.join(simOutDir, "Mass"))

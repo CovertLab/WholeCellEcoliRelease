@@ -15,8 +15,6 @@ import os
 
 import numpy as np
 from scipy.stats import pearsonr
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 

@@ -12,8 +12,6 @@ import os
 import re
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 from matplotlib import colors
 from matplotlib import gridspec
@@ -47,7 +45,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	for seedNum in xrange(ap.n_seed):
 		for generationNum in xrange(ap.n_generation):
-			
+
 			# Only plot one cell per seed per generation
 			simDir = ap.get_cells(seed=[seedNum], generation=[generationNum])[0]
 			simOutDir = os.path.join(simDir, "simOut")
@@ -112,10 +110,10 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 			xticks = np.linspace(0,time.size-1, 5, dtype=np.int)
 			currentAxes.set_xticks(xticks)
-			
+
 			if generationNum == 0:
 				currentAxes.set_ylabel("Seed {}".format(seedNum))
-	
+
 			if seedNum == ap.n_seed - 1:
 				if generationNum == 0:
 					currentAxes.set_xlabel("Time (min)")
@@ -124,7 +122,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				currentAxes.set_xticklabels(np.round(time[xticks]/60.).astype(int))
 			else:
 				currentAxes.set_xticklabels([])
-			
+
 			currentAxes.set_yticks([])
 
 	from wholecell.analysis.analysis_tools import exportFigure

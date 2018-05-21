@@ -14,8 +14,6 @@ import os
 
 import numpy as np
 from scipy.stats import pearsonr
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
@@ -120,7 +118,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	tfs = sorted(set([x.split("__")[-1] for x in recruitmentColNames if x.split("__")[-1] != "alpha"]))
 	trpRIndex = [i for i, tf in enumerate(tfs) if tf == "CPLX-125"][0]
 	trpRBound = rnaSynthProbReader.readColumn("nActualBound")[:,trpRIndex]
-	
+
 	rnaSynthProbReader.close()
 
 	# Calculate total trpR - active, inactive, bound and monomeric
@@ -135,12 +133,12 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 			for i in range(synthProbs.shape[1])]).T
 
 	plt.figure(figsize = (8.5, 11))
-	
+
 	##############################################################
 	ax = plt.subplot(6, 1, 1)
 	ax.plot(time, trpConcentration.asNumber(units.umol / units.L))
 	plt.ylabel("Internal TRP Conc. [uM]", fontsize = 6)
-	
+
 	ymin = np.amin(trpConcentration.asNumber(units.umol / units.L) * 0.9)
 	ymax = np.amax(trpConcentration.asNumber(units.umol / units.L) * 1.1)
 	if ymin != ymax:

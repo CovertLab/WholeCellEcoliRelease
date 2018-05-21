@@ -13,8 +13,6 @@ import argparse
 import os
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
@@ -83,7 +81,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	countRnaDegraded = rnaDegradationListenerFile.readColumn('countRnaDegraded')
 	nucleotidesFromDegradation = rnaDegradationListenerFile.readColumn('nucleotidesFromDegradation')
 	FractionActiveEndoRNases = rnaDegradationListenerFile.readColumn('FractionActiveEndoRNases')
-	DiffRelativeFirstOrderDecay = rnaDegradationListenerFile.readColumn('DiffRelativeFirstOrderDecay')	
+	DiffRelativeFirstOrderDecay = rnaDegradationListenerFile.readColumn('DiffRelativeFirstOrderDecay')
 	FractEndoRRnaCounts = rnaDegradationListenerFile.readColumn('FractEndoRRnaCounts')
 	fragmentBasesDigested = rnaDegradationListenerFile.readColumn('fragmentBasesDigested')
 	rnaDegradationListenerFile.close()
@@ -121,7 +119,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	ntpIndexes = np.array([moleculeIds.index(ntpId) for ntpId in NTP_IDS], np.int)
 	ntpCounts = bulkMolecules.readColumn("counts")[:, ntpIndexes]
 	bulkMolecules.close()
-	
+
 
 	# Plotting
 	plt.figure(figsize = (8.5, 11))
@@ -130,13 +128,13 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	ax = plt.subplot(7,2,1)
 	plt.plot(time / 60., countRnaSynthesized.sum(axis = 1))
-	plt.ylabel("RNAs synthesized", fontsize = 9)	
+	plt.ylabel("RNAs synthesized", fontsize = 9)
 	yloc = plt.MaxNLocator(max_yticks); ax.yaxis.set_major_locator(yloc)
 
 	ax = plt.subplot(7,2,2)
 	plt.plot(time / 60., gtpUsed / 1e6)
-	plt.ylabel("Translation ($10^{%d}$nt)" % 6, fontsize = 9)	
-	plt.title("GTPs needed (x$10^{%d}$) = %.2f" % (6, (gtpUsed.sum() / 1e6)), fontsize = 9) 
+	plt.ylabel("Translation ($10^{%d}$nt)" % 6, fontsize = 9)
+	plt.title("GTPs needed (x$10^{%d}$) = %.2f" % (6, (gtpUsed.sum() / 1e6)), fontsize = 9)
 	yloc = plt.MaxNLocator(max_yticks); ax.yaxis.set_major_locator(yloc)
 
 	ax = plt.subplot(7,2,3)
@@ -152,12 +150,12 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	ax = plt.subplot(7,2,4)
 	plt.plot(time / 60., countNTPsUSed / 1e6)
 	plt.ylabel("Transcription ($10^{%d}$nt)" % 6, fontsize = 9)
-	plt.title("NTPs needed(x$10^{%d}$) = %.2f" % (6, (countNTPsUSed.sum() / 1e6)), fontsize = 9) 
+	plt.title("NTPs needed(x$10^{%d}$) = %.2f" % (6, (countNTPsUSed.sum() / 1e6)), fontsize = 9)
 	yloc = plt.MaxNLocator(max_yticks); ax.yaxis.set_major_locator(yloc)
 
 	ax = plt.subplot(7,2,7)
 	plt.plot(time / 60., totalexoRnaseCounts)
-	plt.ylabel("ExoRNase counts", fontsize = 9)	
+	plt.ylabel("ExoRNase counts", fontsize = 9)
 	yloc = plt.MaxNLocator(max_yticks); ax.yaxis.set_major_locator(yloc)
 
 	IdxAtp = (np.where("ATP[c]" == outputMoleculeIDs))[0][0]; ATP = np.sum(deltaMetabolites[:, IdxAtp])
@@ -168,18 +166,18 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	ax = plt.subplot(7,2,6)
 	plt.plot(time / 60., (deltaMetabolites[:, IdxAtp] + deltaMetabolites[:, IdxGtp] + deltaMetabolites[:, IdxCtp] + deltaMetabolites[:, IdxUtp]) / 1e6)
 	plt.ylabel("Metabolism ($10^{%d}$nt)" % 6, fontsize = 9)
-	plt.title("NTPs produced (x$10^{%d}$) = %.2f" % (6, (sum(deltaMetabolites[:, IdxAtp] + deltaMetabolites[:, IdxGtp] + deltaMetabolites[:, IdxCtp] + deltaMetabolites[:, IdxUtp])  / 1e6)), fontsize = 9) 
+	plt.title("NTPs produced (x$10^{%d}$) = %.2f" % (6, (sum(deltaMetabolites[:, IdxAtp] + deltaMetabolites[:, IdxGtp] + deltaMetabolites[:, IdxCtp] + deltaMetabolites[:, IdxUtp])  / 1e6)), fontsize = 9)
 	yloc = plt.MaxNLocator(max_yticks); ax.yaxis.set_major_locator(yloc)
 
 	ax = plt.subplot(7,2,9)
 	plt.plot(time / 60., FractionActiveEndoRNases * 100)
-	plt.ylabel("EndoRN capacity (%)", fontsize = 9)	
+	plt.ylabel("EndoRN capacity (%)", fontsize = 9)
 	yloc = plt.MaxNLocator(max_yticks); ax.yaxis.set_major_locator(yloc)
 
 	ax = plt.subplot(7,2,8)
 	plt.plot(time / 60., fragmentBasesDigested / 1e6)
 	plt.ylabel("Exo-digestion ($10^{%d}$nt)" % 6, fontsize = 9)
-	plt.title("NTPs recycled (x$10^{%d}$) = %.2f" % (6, (fragmentBasesDigested.sum() / 1e6)), fontsize = 9) 
+	plt.title("NTPs recycled (x$10^{%d}$) = %.2f" % (6, (fragmentBasesDigested.sum() / 1e6)), fontsize = 9)
 	yloc = plt.MaxNLocator(max_yticks); ax.yaxis.set_major_locator(yloc)
 
 	ax = plt.subplot(7,2,11)
@@ -190,7 +188,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	ax = plt.subplot(7,2,10)
 	plt.plot(time / 60., (ntpCounts[:, 0] + ntpCounts[:, 1] + ntpCounts[:, 2] + ntpCounts[:, 3]) / 1e6)
 	plt.ylabel("Net production ($10^{%d}$nt)" % 6, fontsize = 9)
-	plt.title("NTPs required for cell division (x$10^{%d}$) = %.2f" % (6, ((ntpCounts[0, 0] + ntpCounts[0, 1] + ntpCounts[0, 2] + ntpCounts[0, 3])  / 1e6)), fontsize = 9) 
+	plt.title("NTPs required for cell division (x$10^{%d}$) = %.2f" % (6, ((ntpCounts[0, 0] + ntpCounts[0, 1] + ntpCounts[0, 2] + ntpCounts[0, 3])  / 1e6)), fontsize = 9)
 	yloc = plt.MaxNLocator(max_yticks); ax.yaxis.set_major_locator(yloc)
 
 	# compute active ExoRNase capacity (%)
@@ -209,7 +207,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	plt.plot(time / 60., InstantaneousNTPs / 1e6)
 	plt.xlabel("Time (min)")
 	plt.ylabel("Balance ($10^{%d}$nt)" % 6, fontsize = 9)
-	plt.title("Average instantaneous balance (x$10^{%d}$) = %.4f" % (6, (np.mean(InstantaneousNTPs) / 1e6)), fontsize = 9) 
+	plt.title("Average instantaneous balance (x$10^{%d}$) = %.4f" % (6, (np.mean(InstantaneousNTPs) / 1e6)), fontsize = 9)
 	yloc = plt.MaxNLocator(max_yticks); ax.yaxis.set_major_locator(yloc)
 
 

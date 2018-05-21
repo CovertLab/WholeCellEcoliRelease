@@ -12,8 +12,6 @@ import os
 import cPickle
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
 from wholecell.io.tablereader import TableReader
@@ -24,7 +22,7 @@ from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 
 
 def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata=None):
-	
+
 	if not os.path.isdir(simOutDir):
 		raise Exception, "simOutDir does not currently exist as a directory"
 

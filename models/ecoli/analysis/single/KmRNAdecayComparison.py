@@ -13,8 +13,6 @@ import argparse
 import os
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
@@ -62,11 +60,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	if sim_data.constants.EndoRNaseCooperation:
 		KmFirstOrderDecay = sim_data.process.rna_decay.KmFirstOrderDecay
 		KmNonLinearDecay = (sim_data.process.transcription.rnaData["KmEndoRNase"].asNumber())
-		
+
 		FC = np.log10(1 - (KmNonLinearDecay / KmFirstOrderDecay))
 
 		# Compute deviation
-		Error = np.average(np.abs(KmFirstOrderDecay 
+		Error = np.average(np.abs(KmFirstOrderDecay
 							- KmNonLinearDecay)
 							/ KmFirstOrderDecay
 				* 100)
@@ -84,8 +82,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		plt.loglog([np.power(10, minLine), 1], [np.power(10, minLine), 1], '--r')
 
 		plt.xlabel("Km First Order Decay (Log10, M)", fontsize = 14)
-		plt.ylabel("Km Non-linear Decay (Log10, M)", fontsize = 14)	
-		plt.title("Relative error = %.2f%%" % Error, fontsize = 16) 
+		plt.ylabel("Km Non-linear Decay (Log10, M)", fontsize = 14)
+		plt.title("Relative error = %.2f%%" % Error, fontsize = 16)
 		print np.corrcoef(KmFirstOrderDecay, KmNonLinearDecay)[0,1]
 
 
@@ -94,7 +92,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		GprimeKm = sim_data.process.rna_decay.KmConvergence
 		FprimeKm = np.log10(1 - GprimeKm[GprimeKm < 1])
 		plt.hist(FprimeKm)
-	
+
 		plt.ylabel("Number of genes", fontsize = 14)
 		plt.xlabel("Log10(1 - g\'(Km))", fontsize = 14)
 		PercentageConvergence = len(GprimeKm[GprimeKm < 1.]) / float(len(GprimeKm)) * 100.
@@ -108,7 +106,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
 
 	isMRna = sim_data.process.transcription.rnaData["isMRna"]
-	rnaIds = sim_data.process.transcription.rnaData["id"] 
+	rnaIds = sim_data.process.transcription.rnaData["id"]
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	moleculeIds = bulkMolecules.readAttribute("objectNames")
 	rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
@@ -124,7 +122,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		width = 1
 		ConvergenceFactor = 10
 
-	
+
 		fractionRNAkm_avg = []
 		fractionRNAkm_sd = []
 		Kcats = []
@@ -146,7 +144,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		z = np.polyfit(np.log10(Kcats), np.log10(fractionRNAkm_avg), 1)
 		p = np.poly1d(z)
 
-		minX = np.log10(Kcats.min() / 2) 
+		minX = np.log10(Kcats.min() / 2)
 		maxX = np.log10(np.round(2 * Kcats.max()))
 		minY = np.power(10, p(minX))
 		maxY = np.power(10, p(maxX))

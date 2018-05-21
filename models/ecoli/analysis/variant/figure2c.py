@@ -6,8 +6,6 @@ import re
 import cPickle
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
@@ -94,7 +92,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile = None, metad
 
 		scaled_initial_masses = all_scaled_initial_masses[idxs_to_keep]
 		scaled_added_masses = all_scaled_added_masses[idxs_to_keep]
-		
+
 		nbins = 5
 
 		n, xbin = np.histogram(scaled_initial_masses, bins=nbins)

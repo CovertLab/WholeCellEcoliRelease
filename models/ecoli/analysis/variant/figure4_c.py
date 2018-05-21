@@ -14,8 +14,6 @@ import os
 import re
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
@@ -53,7 +51,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
-	
+
 	rnaToProteinDict = {}
 	dnaToProteinDict = {}
 	elngRateDict = {}
@@ -67,7 +65,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	simDataFile = ap.get_variant_kb(all_cells[0])
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	nAvogadro = sim_data.constants.nAvogadro.asNumber()
-	chromMass = (sim_data.getter.getMass(['CHROM_FULL[c]'])[0] / sim_data.constants.nAvogadro).asNumber() 
+	chromMass = (sim_data.getter.getMass(['CHROM_FULL[c]'])[0] / sim_data.constants.nAvogadro).asNumber()
 	for simDir in all_cells:
 		simOutDir = os.path.join(simDir, "simOut")
 		variant = int(simDir[simDir.rfind('generation_')-14:simDir.rfind('generation_')-8])
@@ -111,7 +109,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 		ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
 		activeRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
 
-		
+
 		originIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("originOfReplication")
 		originOfReplication = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, originIndex]
 
@@ -227,9 +225,9 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	whitePadSparklineAxis(ax0, False)
 
 	for tick in ax0.yaxis.get_major_ticks():
-		tick.label.set_fontsize(FONT_SIZE) 
+		tick.label.set_fontsize(FONT_SIZE)
 	for tick in ax0.xaxis.get_major_ticks():
-		tick.label.set_fontsize(FONT_SIZE) 
+		tick.label.set_fontsize(FONT_SIZE)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName + "0", metadata)
@@ -272,9 +270,9 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	whitePadSparklineAxis(ax2, False)
 
 	for tick in ax2.yaxis.get_major_ticks():
-		tick.label.set_fontsize(FONT_SIZE) 
+		tick.label.set_fontsize(FONT_SIZE)
 	for tick in ax2.xaxis.get_major_ticks():
-		tick.label.set_fontsize(FONT_SIZE) 
+		tick.label.set_fontsize(FONT_SIZE)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName + "1", metadata)
@@ -320,9 +318,9 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	whitePadSparklineAxis(ax5, False)
 
 	for tick in ax5.yaxis.get_major_ticks():
-		tick.label.set_fontsize(FONT_SIZE) 
+		tick.label.set_fontsize(FONT_SIZE)
 	for tick in ax5.xaxis.get_major_ticks():
-		tick.label.set_fontsize(FONT_SIZE) 
+		tick.label.set_fontsize(FONT_SIZE)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName + "2", metadata)
@@ -365,9 +363,9 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	whitePadSparklineAxis(ax3, False)
 
 	for tick in ax3.yaxis.get_major_ticks():
-		tick.label.set_fontsize(FONT_SIZE) 
+		tick.label.set_fontsize(FONT_SIZE)
 	for tick in ax3.xaxis.get_major_ticks():
-		tick.label.set_fontsize(FONT_SIZE) 
+		tick.label.set_fontsize(FONT_SIZE)
 
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName + "3", metadata)
@@ -437,7 +435,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	# # ax3.set_ylabel("Synthesis rate Stable RNA / Total RNA")
 	# # ax3.set_ylim([0,1])
 
-	# # ax4.plot(doublingPerHour,mRnaFractionCalc, color='k', linewidth=1) 
+	# # ax4.plot(doublingPerHour,mRnaFractionCalc, color='k', linewidth=1)
 	# # ax4.errorbar(doublingPerHour, mRnaFractionCalc, yerr=mRnaFractionCalc_error, color = "k", linewidth = 1)
 	# # ax4.plot(doublingPerHourDB,mRnaFractionDB, color='blue', linewidth=1)
 	# # ax4.errorbar(doublingPerHourDB,mRnaFractionDB, yerr = mRnaFractionDB_error, color="blue", linewidth=1)
@@ -462,9 +460,9 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 
 	# for a in [ax0, ax2, ax5]:
 	# 	for tick in a.yaxis.get_major_ticks():
-	# 		tick.label.set_fontsize(FONT_SIZE) 
+	# 		tick.label.set_fontsize(FONT_SIZE)
 	# 	for tick in a.xaxis.get_major_ticks():
-	# 		tick.label.set_fontsize(FONT_SIZE) 
+	# 		tick.label.set_fontsize(FONT_SIZE)
 
 	# #ax4.set_xlabel("Doublings per Hour")
 	# ax5.set_xlabel("Doublings per Hour", fontsize=FONT_SIZE)
@@ -476,8 +474,8 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	# exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	# plt.close("all")
 
-	
-	
+
+
 
 if __name__ == "__main__":
 	defaultSimDataFile = os.path.join(

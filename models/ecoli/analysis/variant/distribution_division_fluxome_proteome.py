@@ -7,8 +7,6 @@ import cPickle
 import time
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import matplotlib.patches as patches
 
@@ -256,7 +254,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	stop = time.time()
 	cPickle.dump(proteomeResult, open(os.path.join(plotOutDir, plotOutFileName + "_proteome.cPickle"), "w"))
 	print "%d seconds:\tTo get proteome correlation -- completed" % (stop - start)
-	
+
 	pool.close()
 	pool.join()
 

@@ -5,8 +5,6 @@ import os
 import cPickle
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
 from wholecell.io.tablereader import TableReader
@@ -29,7 +27,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	exFlux = fba_results.readColumn("externalExchangeFluxes")
 	exMolec = fba_results.readAttribute("externalMoleculeIDs")
 	moleculeIDs = ["GLC[p]", "OXYGEN-MOLECULE[p]"]
-	
+
 	# Plot
 	fig = plt.figure(figsize = (8, 11.5))
 	rows = len(moleculeIDs)
@@ -51,7 +49,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		abs_max = np.max(moleculeFlux)
 		abs_min = np.min(moleculeFlux)
 
-		plt.figtext(0.7, 1. / float(rows) * 0.7 + (rows - 1 - index) / float(rows), 
+		plt.figtext(0.7, 1. / float(rows) * 0.7 + (rows - 1 - index) / float(rows),
 			"Max: %s\nMin: %s" % (abs_max, abs_min), fontsize = 8)
 
 		ax.set_ylabel("External %s\n(mmol/gDCW/hr)" % molecule, fontsize = 8)

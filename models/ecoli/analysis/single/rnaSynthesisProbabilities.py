@@ -14,8 +14,6 @@ import os
 
 import numpy as np
 import cPickle
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
 from wholecell.io.tablereader import TableReader

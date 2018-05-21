@@ -12,8 +12,6 @@ import os
 import cPickle
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
 from wholecell.io.tablereader import TableReader
@@ -42,11 +40,11 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	timeStepSec = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
 	externalMoleculeIDs = np.array(fbaResults.readAttribute("externalMoleculeIDs"))
 	fbaResults.close()
-	
+
 	if GLUCOSE_ID not in externalMoleculeIDs:
 		print "This plot only runs when glucose is the carbon source."
 		return
-	
+
 	glucoseIdx = np.where(externalMoleculeIDs == GLUCOSE_ID)[0][0]
 	glucoseFlux = FLUX_UNITS * externalExchangeFluxes[:, glucoseIdx]
 

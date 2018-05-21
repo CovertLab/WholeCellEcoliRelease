@@ -4,8 +4,6 @@ import os
 import re
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 import scipy.stats
@@ -242,13 +240,13 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	s3 = figure(
 		x_axis_label = "log10(Expected synthesis probability)",
 		y_axis_label = "log10(Simulated synthesis probability)",
-		plot_width=800, plot_height=500, 
-		x_range = (axis_min, axis_max), 
+		plot_width=800, plot_height=500,
+		x_range = (axis_min, axis_max),
 		y_range = (axis_min, axis_max),
 		tools = tools3,
 		)
 	s3.scatter("x", "y", source = source_all)
-	callback = CustomJS(args = dict(source_all = source_all, source_tf = source_tf), code = 
+	callback = CustomJS(args = dict(source_all = source_all, source_tf = source_tf), code =
 		"""
 		var data_all = source_all.get('data');
 		var data_tf = source_tf.get('data');

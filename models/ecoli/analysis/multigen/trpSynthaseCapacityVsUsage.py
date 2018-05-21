@@ -14,8 +14,6 @@ import os
 
 import numpy as np
 from scipy.stats import pearsonr
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
@@ -74,7 +72,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		trpSynMaxCapacity = trpSynKcat * trpSynCounts * timeStep
 
-		
+
 		##############################################################
 		ax = plt.subplot(3, 1, 1)
 		ax.plot(time / 60., trpSynMaxCapacity, color = "b")

@@ -9,8 +9,6 @@ Plot to assess sensitivity of menE behavior to model parameters.
 import argparse
 import os
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 from matplotlib import gridspec
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths

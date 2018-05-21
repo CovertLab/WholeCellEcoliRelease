@@ -11,8 +11,6 @@ import argparse
 import os
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
 from wholecell.io.tablereader import TableReader
@@ -74,28 +72,28 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		ResEndoRNKmOpt = sim_data.process.rna_decay.StatsFit['ResEndoRNKmOpt']
 		ResScaledKm = sim_data.process.rna_decay.StatsFit['ResScaledKm']
 		ResScaledKmOpt = sim_data.process.rna_decay.StatsFit['ResScaledKmOpt']
-	
+
 		StatsFit = []
 		ScoreNames = []
 
 		# Sensitivity analysis alpha
 		Residuals = sim_data.process.rna_decay.SensitivityAnalysisAlphaResidual
-	
-		for alpha in sorted(Residuals): 
+
+		for alpha in sorted(Residuals):
 			ScoreNames.append('Residuals rescaled, alpha = ' + str(alpha))
 			StatsFit.append(Residuals[alpha])
 
 		StatsFit = StatsFit + [0, ResScaledKmOpt, ResScaledKm, ResEndoRNKmOpt, ResEndoRNKm, ResKmOpt, ResKm, RnegKmOpt, LossKmOpt, LossKm]
 		ScoreNames = ScoreNames + [
-			'', 
-			'Residuals rescaled(KmOpt), M/s', 
-			'Residuals rescaled(Km), M/s', 
-			'Residuals EndoRN(KmOpt)', 
-			'Residuals EndoRN(Km)', 
-			'Residuals(KmOpt)', 
-			'Residuals(Km)', 
-			'Total Negative Regularization(KmOpt)', 
-			'Total Loss(KmOpt)', 
+			'',
+			'Residuals rescaled(KmOpt), M/s',
+			'Residuals rescaled(Km), M/s',
+			'Residuals EndoRN(KmOpt)',
+			'Residuals EndoRN(Km)',
+			'Residuals(KmOpt)',
+			'Residuals(Km)',
+			'Total Negative Regularization(KmOpt)',
+			'Total Loss(KmOpt)',
 			'Total Loss(Km)',
 			]
 

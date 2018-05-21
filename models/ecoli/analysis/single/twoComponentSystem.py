@@ -11,8 +11,6 @@ import os
 import cPickle
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
 from wholecell.io.tablereader import TableReader
@@ -35,7 +33,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	for system in sim_data.moleculeGroups.twoComponentSystems:
 		for idx, moleculeType in enumerate(moleculeTypeOrder):
 			TCS_IDS.append(str(system["molecules"][moleculeType]) + moleculeTypeLocation[idx])
-			
+
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	moleculeIds = bulkMolecules.readAttribute("objectNames")
 	moleculeIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in TCS_IDS], np.int)
@@ -83,7 +81,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 				if moleculeTypeOrder[subentryIdx] == "PHOSPHO-RR":
 					RRP[:] = moleculeCounts[:, (idx * num_subentries) + subentryIdx] / (cellVolume * nAvogadro)
-				
+
 
 			ax = plt.subplot(rows*(num_subentries + 2), cols, grid_loc+((cols)*(subentryIdx)))
 			ax.plot(time / 60., moleculeCounts[:, (idx * num_subentries) + subentryIdx] / (cellVolume * nAvogadro), linewidth = 1, color = moleculeTypeColor[subentryIdx])
@@ -103,7 +101,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 		# Monitor percentage of TF phosphorylation
 		if new_RR:
-			
+
 			RR_phosphorylation[current_RR] = np.array(RRP) / (np.array(RRP) + np.array(RR))
 			new_RR = False
 
@@ -140,7 +138,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	ax.set_xticks([])
 	ax.set_xticklabels([])
 
-	
+
 	plt.subplots_adjust(hspace = 1, wspace = 1)
 
 	from wholecell.analysis.analysis_tools import exportFigure
