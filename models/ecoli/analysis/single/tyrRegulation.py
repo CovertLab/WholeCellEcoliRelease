@@ -14,8 +14,6 @@ import os
 
 import numpy as np
 from scipy.stats import pearsonr
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
@@ -112,7 +110,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	tfs = sorted(set([x.split("__")[-1] for x in recruitmentColNames if x.split("__")[-1] != "alpha"]))
 	tyrRIndex = [i for i, tf in enumerate(tfs) if tf == "MONOMER0-162"][0]
 	tyrRBound = rnaSynthProbReader.readColumn("nActualBound")[:,tyrRIndex]
-	
+
 	rnaSynthProbReader.close()
 
 	# Calculate total tyrR - active, inactive and bound
@@ -125,12 +123,12 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	tyrASynthProbMA = np.convolve(tyrASynthProb, np.ones(width) / width, mode = "same")
 
 	plt.figure(figsize = (8.5, 11))
-	
+
 	##############################################################
 	ax = plt.subplot(6, 1, 1)
 	ax.plot(time, pheConcentration.asNumber(units.umol / units.L))
 	plt.ylabel("Internal phe Conc. [uM]", fontsize = 6)
-	
+
 	ymin = np.amin(pheConcentration.asNumber(units.umol / units.L) * 0.9)
 	ymax = np.amax(pheConcentration.asNumber(units.umol / units.L) * 1.1)
 	if ymin != ymax:

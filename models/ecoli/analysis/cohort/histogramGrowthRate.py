@@ -6,8 +6,6 @@ import re
 import cPickle
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
 
@@ -50,7 +48,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			averageGrowthRate = np.log(2) / doubling_time.asNumber(units.min)
 			growth_rate[np.where(simDir == gen_cells)[0], genIdx] = averageGrowthRate
 
-	
+
 	norm_growth_rate = growth_rate / growth_rate.mean(axis=0)
 	norm_max = norm_growth_rate.max()
 	norm_min = norm_growth_rate.min()

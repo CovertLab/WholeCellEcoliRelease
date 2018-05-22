@@ -11,8 +11,6 @@ import argparse
 import os
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
 from wholecell.io.tablereader import TableReader
@@ -68,7 +66,7 @@ if __name__ == "__main__":
 	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
 	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
 	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
-	
+
 	parser.add_argument("--validationDataFile", help = "KB file name", type = str, default = "None")
 
 	args = parser.parse_args().__dict__

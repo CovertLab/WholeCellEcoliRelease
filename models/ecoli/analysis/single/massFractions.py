@@ -11,8 +11,6 @@ import argparse
 import os
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
 from wholecell.io.tablereader import TableReader
@@ -39,7 +37,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	# dna = mass.readColumn("dnaMass")
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	t = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-	
+
 
 	mass.close()
 

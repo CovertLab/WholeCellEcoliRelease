@@ -4,8 +4,6 @@ import argparse
 import os
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
 
@@ -122,7 +120,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ids_5s = []
 		ids_5s.extend(sim_data.moleculeGroups.s50_5sRRNA)
 		ids_5s.extend(sim_data.moleculeGroups.s50_fullComplex)
-		
+
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		moleculeIds = bulkMolecules.readAttribute("objectNames")
 
@@ -305,7 +303,7 @@ def getExpectedComposition(doubling_time):
 	smallMolecules = sim_data.mass.fitAvgSolubleTargetMolMass.asNumber(units.fg)
 
 	masses = np.array([protein, rRnaMass + tRNA + mRnaMass]) / sim_data.mass.avgCellToInitialCellConvFactor
-	
+
 	initialMass = sim_data.mass.avgCellDryMassInit
 
 	return masses, initialMass

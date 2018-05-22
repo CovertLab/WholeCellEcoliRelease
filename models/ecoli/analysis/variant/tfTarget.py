@@ -3,8 +3,6 @@ import os
 import re
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 import scipy.stats
@@ -76,7 +74,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	ylabel = "log2 (Target expression fold change)"
 	ax.set_xlabel(xlabel)
 	ax.set_ylabel(ylabel)
-	
+
 	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 	plt.close("all")

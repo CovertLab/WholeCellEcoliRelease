@@ -7,8 +7,6 @@ import os
 
 import numpy as np
 from scipy import stats
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
@@ -62,7 +60,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
 
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime	
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
 	bulkMolecules.close()
 
@@ -161,4 +159,4 @@ if __name__ == "__main__":
 	args = parser.parse_args().__dict__
 
 	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
-	
+

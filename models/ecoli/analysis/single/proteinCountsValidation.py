@@ -14,8 +14,6 @@ import os
 
 import numpy as np
 from scipy import stats
-import matplotlib
-matplotlib.use("Agg")
 import matplotlib.patches as mpatches
 from matplotlib import pyplot as plt
 import cPickle

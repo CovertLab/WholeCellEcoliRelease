@@ -16,8 +16,6 @@ import csv
 import re
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
@@ -165,8 +163,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			("Reaction", "@reactionName"),
 			]
 		)
-	
-	TOOLS = [hover, 
+
+	TOOLS = [hover,
 		BoxZoomTool(),
 		LassoSelectTool(),
 		PanTool(),
@@ -190,7 +188,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	p1.scatter(targetAve, actualAve, source = source, size = 8)
 	p1.line([1e-15, 10], [1e-15, 10], line_color = "red", line_dash = "dashed")
-	
+
 
 	## bar plot of error
 	# sortedReactions = [constrainedReactions[x] for x in np.argsort(aveError)[::-1]]
@@ -215,7 +213,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			]
 		)
 
-	TOOLS2 = [hover2, 
+	TOOLS2 = [hover2,
 		BoxZoomTool(),
 		LassoSelectTool(),
 		PanTool(),
@@ -226,7 +224,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		"reset",
 		]
 
-	p2 = figure(x_axis_label = "Time(s)", 
+	p2 = figure(x_axis_label = "Time(s)",
 		y_axis_label = "Flux",
 		y_axis_type = "log",
 		y_range = [1e-8, 1],
@@ -286,5 +284,5 @@ if __name__ == "__main__":
 	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
 
 	args = parser.parse_args().__dict__
-	
+
 	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])

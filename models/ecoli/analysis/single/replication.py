@@ -13,8 +13,6 @@ import argparse
 import os
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
@@ -111,7 +109,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	ax.set_yticks(np.arange(1., 8., 0.5))
 	ax.set_ylim([np.around(criticalMassEquivalents[1:].min(), decimals=1) - 0.1, np.around(criticalMassEquivalents[1:].max(), decimals=1) + 0.1])
 	ax.set_ylabel("Factors of critical\ninitiation mass")
-	
+
 	ax = plt.subplot(7,1,5, sharex=ax)
 	ax.plot(time / 60., criticalMassPerOriC, linewidth=2)
 	ax.set_xticks([0, time.max() / 60])
@@ -129,7 +127,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	ax.plot(time / 60., fullChromosomeCounts, linewidth=2)
 	ax.set_xticks([0, time.max() / 60])
 	ax.set_ylabel("Full\nchromosomes")
-	ax.set_ylim([0, fullChromosomeCounts.max() + 1])	
+	ax.set_ylim([0, fullChromosomeCounts.max() + 1])
 
 	ax.set_xlim([0, time.max() / 60])
 	ax.set_xlabel("Time (min)")

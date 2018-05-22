@@ -11,8 +11,6 @@ import argparse
 import os
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
@@ -82,7 +80,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	common_units = units.mmol / units.L
 	concSetpoint = np.tile(concentrationSetpoints.asNumber(common_units),(time.size,1))
 	poolConc = poolConcentrations.asNumber(common_units)
-	
+
 	fig = plt.figure(figsize = (15, 15))
 	rows = 13
 	cols = 12

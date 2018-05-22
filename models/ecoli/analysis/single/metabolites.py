@@ -13,8 +13,6 @@ import argparse
 import os
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 from random import random
 
@@ -44,7 +42,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	metaboliteNames = enzymeKineticsdata.readAttribute("metaboliteNames")
 	metaboliteCounts = enzymeKineticsdata.readColumn("metaboliteCountsFinal")
 	normalizedCounts = metaboliteCounts / metaboliteCounts[1, :]
-	
+
 	# Read time info from the listener
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime

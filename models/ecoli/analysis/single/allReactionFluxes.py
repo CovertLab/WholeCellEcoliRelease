@@ -10,8 +10,6 @@ import os
 import cPickle
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import itertools
 
@@ -41,7 +39,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	idToColor = {}
 
 	sim_data = cPickle.load(open(simDataFile, "rb"))
-	
+
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 	reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
@@ -55,7 +53,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	idToColor = {}
 	for reactionID, color in itertools.izip(reactionIDs, itertools.cycle(COLORS_LARGE)):
 		idToColor[reactionID] = color
-	
+
 	plt.figure(figsize = (17, 11))
 
 	for idx, (reactionID, reactionFlux) in enumerate(zip(reactionIDs, reactionFluxes.T)):

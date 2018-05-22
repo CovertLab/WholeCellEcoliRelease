@@ -11,8 +11,6 @@ import os
 import re
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
@@ -28,7 +26,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	ap = AnalysisPaths(inputDir, variant_plot = True)
 	variants = sorted(ap._path_data['variant'].tolist()) # Sorry for accessing private data
 
-	
+
 	if len(variants) <= 1:
 		return
 
@@ -57,7 +55,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 		actualAve = np.mean(actualFluxes[BURN_IN_STEPS:, :], axis = 0)
 		mean_fluxes.append(actualAve)
 		n_variants=n_variants+1
-		
+
 
 	###Plot the fluxes
 	plt.figure(figsize = (8.5, 11))
@@ -92,7 +90,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 	# Plot first metabolite to initialize plot settings
 	x = np.log10(mean_fluxes[0][:])
 	y = np.log10(mean_fluxes[1][:])
-	
+
 
 	source = ColumnDataSource(
 		data = dict(
@@ -106,8 +104,8 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 			("ID", "@rxn"),
 			]
 		)
-	
-	TOOLS = [hover, 
+
+	TOOLS = [hover,
 		BoxZoomTool(),
 		LassoSelectTool(),
 		PanTool(),
@@ -118,7 +116,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 		 "reset"
 		 ]
 
-	p = figure(x_axis_label = "Variant 0 Flux", 
+	p = figure(x_axis_label = "Variant 0 Flux",
 		y_axis_label = "Variant 1 Flux",
 		width = 800,
 		height = 800,

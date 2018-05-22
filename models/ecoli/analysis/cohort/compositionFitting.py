@@ -4,8 +4,6 @@ import argparse
 import os
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
 
@@ -110,7 +108,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	dryMassInit = dryMass[:,0]
 	dryMassFinal = np.array([dryMass[idx,:][~np.isnan(dryMass[idx,:])][-1] for idx in range(dryMass.shape[0])])
 	expectedDryMassFinal = 2 * expectedDryMassInit
-	
+
 	nbins = np.ceil(np.sqrt(dryMassInit.size))
 	dryMassInit_axis.hist(dryMassInit, nbins)
 	features = np.array([dryMassInit.mean() - 3*dryMassInit.std(), expectedDryMassInit, dryMassInit.mean() + 3*dryMassInit.std()])

@@ -14,8 +14,6 @@ import os
 
 import numpy as np
 from scipy.stats import pearsonr
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
@@ -27,7 +25,7 @@ from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-	
+
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
 
@@ -122,7 +120,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		tyrASynthProb = rnaSynthProbReader.readColumn("rnaSynthProb")[:, tyrASynthProbIndex].reshape(-1)
 
 		tyrRBound = rnaSynthProbReader.readColumn("nActualBound")[:,tyrRIndex]
-		
+
 		rnaSynthProbReader.close()
 
 		# Calculate total tyrR - active, inactive and bound
@@ -133,7 +131,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		tyrATfBoundCountsMA = np.convolve(tyrATfBoundCounts, np.ones(width) / width, mode = "same")
 		tyrASynthProbMA = np.convolve(tyrASynthProb, np.ones(width) / width, mode = "same")
-		
+
 		##############################################################
 		ax = plt.subplot(6, 1, 1)
 		ax.plot(time, pheConcentration.asNumber(units.umol / units.L), color = "b")

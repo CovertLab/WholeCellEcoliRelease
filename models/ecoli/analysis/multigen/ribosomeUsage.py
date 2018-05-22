@@ -13,8 +13,6 @@ import argparse
 import os
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
 
@@ -71,7 +69,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	for gen, simDir in enumerate(firstCellLineage):
 
 		simOutDir = os.path.join(simDir, "simOut")
-				
+
 		## Mass growth rate ##
 		time, growthRate = getMassData(simDir, ["instantaniousGrowthRate"])
 		timeStep = units.s * TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
@@ -97,7 +95,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		nAvogadro = sim_data.constants.nAvogadro
 		mw30S 	  = sim_data.getter.getMass(complexIds30S)
 		mw50S     = sim_data.getter.getMass(complexIds50S)
-		mw70S     = mw30S + mw50S	
+		mw70S     = mw30S + mw50S
 
 		# Get indexes for 30S and 50S subunits based on ids
 		bulkMoleculesDataFile 	= TableReader(os.path.join(simOutDir, "BulkMolecules"))
@@ -118,7 +116,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		rnaCounts30S 			= bulkMoleculesDataFile.readColumn("counts")[:, rnaIndexes30S]
 		freeRRnaCounts30S 		= bulkMoleculesDataFile.readColumn("counts")[:, rRnaIndexes30S]
 		complexCounts30S 		= bulkMoleculesDataFile.readColumn("counts")[:, complexIndexes30S]
-		
+
 		freeProteinCounts50S 	= bulkMoleculesDataFile.readColumn("counts")[:, proteinIndexes50S]
 		rnaCounts50S 			= bulkMoleculesDataFile.readColumn("counts")[:, rnaIndexes50S]
 		freeRRnaCounts50S 		= bulkMoleculesDataFile.readColumn("counts")[:, rRnaIndexes50S]
@@ -136,12 +134,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		# Get ribosome data
 		ribosomeDataFile  = TableReader(os.path.join(simOutDir, "RibosomeData"))
-		
+
 		didInitialize     = ribosomeDataFile.readColumn("didInitialize")
 		actualElongations = ribosomeDataFile.readColumn("actualElongations")
 		didTerminate      = ribosomeDataFile.readColumn("didTerminate")
 		effectiveElongationRate = ribosomeDataFile.readColumn("effectiveElongationRate")
-		
+
 		ribosomeDataFile.close()
 
 		# Get mass data
@@ -153,7 +151,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 		# Calculate cell volume
 		cellVolume = (1.0 / sim_data.constants.cellDensity) * (units.fg * cellMass)
-		
+
 		# Calculate molecule counts and molar fraction of active ribosomes
 		counts30S = complexCounts30S
 		counts50S = complexCounts50S
@@ -252,7 +250,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		if gen == ap.n_generation - 1:
 			ax10.set_xlim([-5, max(time.asNumber(units.min))])
 			ax10.set_ylim([0, 2000])
-		ax10.set_ylabel("Deactivations\nper timestep")	
+		ax10.set_ylabel("Deactivations\nper timestep")
 
 		# ax11: Plot number of activations per time * volume
 		ax11.plot(time.asNumber(units.min), didInitialize / (timeStep.asNumber(units.s) * cellVolume.asNumber(units.L)), linestyle='-')

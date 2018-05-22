@@ -4,8 +4,6 @@ import os
 import re
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 
@@ -48,7 +46,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 		enzymeKineticsdata.close()
-		
+
 		meanRelativeDiffTimeCourse = np.mean(np.abs(errorRelativeDifferences),axis=1)
 		relativeDifferenceStd = np.std(meanRelativeDiffTimeCourse)
 

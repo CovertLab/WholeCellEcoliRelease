@@ -5,8 +5,6 @@ import os
 import cPickle
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
 from wholecell.io.tablereader import TableReader
@@ -24,7 +22,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	# Amino acid IDs
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	aaIDs = sim_data.moleculeGroups.aaIDs
-	
+
 	# Amino acid exchanges fluxes
 	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
@@ -39,14 +37,14 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	for plotIndex, aa in enumerate(aaIDs):
 		ax = plt.subplot(rows, cols, plotIndex + 1)
-		
+
 		if not aa.startswith("L-SELENOCYSTEINE"):
 			aa = aa[:-3] + "[p]"
 		if aa in externalMoleculeIDs:
 			aaFlux = externalExchangeFluxes[:, externalMoleculeIDs.index(aa)]
 		else:
 			aaFlux = np.zeros(len(time))
-		
+
 		ax.plot(time / 60., aaFlux)
 		ax.set_xlabel("Time (min)", fontsize = 6)
 		ax.set_ylabel("mmol/gDCW/hr", fontsize = 6)

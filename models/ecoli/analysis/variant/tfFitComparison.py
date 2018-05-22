@@ -4,8 +4,6 @@ import os
 import re
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import cPickle
 import scipy.stats
@@ -16,7 +14,7 @@ import wholecell.utils.constants
 
 NUMERICAL_ZERO = 1e-12
 
-def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = None):	
+def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = None):
 	if metadata["variant"] != "tfActivity":
 		print "This plot only runs for the 'tfActivity' variant."
 		return
@@ -89,7 +87,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 
 				expectedSynthProb[0].append(sim_data.process.transcription.rnaSynthProb[tf + "__" + tfStatus][rnaIdx])
 				simulatedSynthProb[0].append(tfTargetSynthProb[5:].mean())
-			
+
 			elif tfType == "1CS":
 				expectedProbBound[1].append(sim_data.pPromoterBound[tf + "__" + tfStatus][tf])
 				simulatedProbBound[1].append(tfTargetBoundCounts[5:].mean())
@@ -168,7 +166,7 @@ def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = N
 		plt.xlabel("log10(Expected synthesis probability)", fontsize = 6)
 		plt.ylabel("log10(Simulated synthesis probability)", fontsize = 6)
 		ax.tick_params(which = 'both', direction = 'out', labelsize = 6)
-	
+
 	plt.subplots_adjust(hspace = 0.4, wspace = 0.4)
 	exportFigure(plt, plotOutDir, plotOutFileName + "__overlap", metadata)
 	plt.close("all")

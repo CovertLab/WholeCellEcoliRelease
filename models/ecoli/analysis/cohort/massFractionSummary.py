@@ -5,8 +5,6 @@ import os
 import re
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
 
@@ -76,7 +74,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	for axes in axesList:
 		axes.get_ylim()
 		axes.set_yticks(list(axes.get_ylim()))
-	
+
 	axesList[0].set_title("Cell mass fractions")
 	axesList[len(massNames) - 1].set_xlabel("Time (hr)")
 	plt.subplots_adjust(hspace = 0.2, wspace = 0.5)

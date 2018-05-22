@@ -12,8 +12,6 @@ import os
 import cPickle
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 from matplotlib import colors
 from matplotlib import gridspec

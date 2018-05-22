@@ -9,8 +9,6 @@ import argparse
 import os
 import numpy as np
 import cPickle
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
