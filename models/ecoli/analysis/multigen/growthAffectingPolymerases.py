@@ -12,6 +12,7 @@ import matplotlib.gridspec as gridspec
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
+from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.utils import units
 import cPickle
 
@@ -217,7 +218,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ax1.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 
 		hist_doublingTime = removeNanReshape(doublingTime.asNumber(units.min))
-		nbins = np.ceil(np.sqrt(hist_doublingTime.size))
+		nbins = int(np.ceil(np.sqrt(hist_doublingTime.size)))
 		ax1_1.hist(hist_doublingTime, nbins, (hist_doublingTime.mean() - hist_doublingTime.std() / 2, hist_doublingTime.mean() + hist_doublingTime.std() / 2))
 
 		# Plot RNAP active fraction
@@ -227,7 +228,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ax2.set_ylabel("Fraction active\nRNAP")
 
 		hist_fractionRnapActive = removeNanReshape(fractionRnapActive)
-		nbins = np.ceil(np.sqrt(hist_fractionRnapActive.size))
+		nbins = int(np.ceil(np.sqrt(hist_fractionRnapActive.size)))
 		ax2_1.hist(hist_fractionRnapActive, nbins, (hist_fractionRnapActive.mean() - hist_fractionRnapActive.std(), hist_fractionRnapActive.mean() + hist_fractionRnapActive.std()))
 
 		# Plot RNAP active and total counts
@@ -357,7 +358,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	fig.subplots_adjust(hspace=.5, wspace = 0.3)
 
-	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName,metadata)
 	plt.close("all")
 

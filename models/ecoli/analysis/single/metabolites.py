@@ -7,6 +7,7 @@ Shows fold change of metabolites over the course of the simulation
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
+from __future__ import absolute_import
 from __future__ import division
 
 import argparse
@@ -14,20 +15,12 @@ import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-from random import random
 
 from wholecell.utils import units
-import cPickle
-import ast
-import itertools
-
-from wholecell.utils.modular_fba import FluxBalanceAnalysis
 
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
-from wholecell.analysis.plotting_tools import COLORS_LARGE, COLORS_SMALL
-
-from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
+from wholecell.analysis.plotting_tools import COLORS_LARGE
 
 PLOT_BOKEH = False
 

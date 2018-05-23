@@ -9,11 +9,12 @@ from matplotlib import pyplot as plt
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
+from wholecell.analysis.analysis_tools import exportFigure
 
 import cPickle
 
 from wholecell.utils import units
-from wholecell.containers.bulk_objects_container import BulkObjectsContainer
+
 FROM_CACHE = False
 
 CLOSE_TO_DOUBLE = 0.1
@@ -26,7 +27,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	if not os.path.exists(plotOutDir):
 		os.mkdir(plotOutDir)
 
-	# Get all ids reqiured
+	# Get all ids required
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	ids_complexation = sim_data.process.complexation.moleculeNames # Complexe of proteins, and protein monomers
 	ids_complexation_complexes = [ids_complexation[i] for i in np.where((sim_data.process.complexation.stoichMatrix() == 1).sum(axis = 1))[0]] # Only complexes
@@ -178,12 +179,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	monomerFinalCountMultigen = ratioFinalToInitialCountMultigen * (monomerInitialCountMultigen + 1) - 1
 
-	existFractionPerMonomer = monomerExistMultigen.mean(axis=0)
-	averageFoldChangePerMonomer = ratioFinalToInitialCountMultigen.mean(axis=0)
-	averageInitiationEventsPerMonomer = initiationEventsPerMonomerMultigen.mean(axis=0)
-	averageCountPerMonomer = monomerAvgCountMultigen.mean(axis=0)
+	# existFractionPerMonomer = monomerExistMultigen.mean(axis=0)
+	# averageFoldChangePerMonomer = ratioFinalToInitialCountMultigen.mean(axis=0)
+	# averageInitiationEventsPerMonomer = initiationEventsPerMonomerMultigen.mean(axis=0)
+	# averageCountPerMonomer = monomerAvgCountMultigen.mean(axis=0)
 
-	translationEff = sim_data.process.translation.translationEfficienciesByMonomer
+	# translationEff = sim_data.process.translation.translationEfficienciesByMonomer
 
 	initialMonomerTotalMass = ((monomerMass * monomerInitialCountMultigen) / nAvogadro).asNumber(units.fg)
 	initialMassFraction = initialMonomerTotalMass / np.tile(cellMassInitMultigen.reshape((ap.n_generation,1)), (1,n_monomers))
@@ -192,17 +193,18 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	finalMassFraction = finalMonomerTotalMass / np.tile(cellMassFinalMultigen.reshape((ap.n_generation,1)), (1,n_monomers))
 
 	massFractionRatio = (finalMassFraction / initialMassFraction).mean(axis=0)
-	massFractionRatio_realValues = massFractionRatio[~np.logical_or(np.isnan(massFractionRatio),np.isinf(massFractionRatio))]
+	# Filter out Inf, NaN, and non-positive values before computing log2().
+	massFractionRatio_realValues = massFractionRatio[np.isfinite(massFractionRatio) & (massFractionRatio > 0)]
+	massFractionRatio_logs = np.log2(massFractionRatio_realValues)
 
-	massFractionRatio_realValues = np.log2(massFractionRatio_realValues)
+	if massFractionRatio_logs.size > 0:
+		fig, axesList = plt.subplots(1)
 
-	fig, axesList = plt.subplots(1)
-
-	axesList.hist(massFractionRatio_realValues, bins = 50, log = False)
-	axesList.set_xticks(range(15))
-	axesList.set_xticklabels(range(15))
-	axesList.set_xlabel("Mean mass fraction fold change per monomer")
-	axesList.set_ylabel("Count")
+		axesList.hist(massFractionRatio_logs, bins = 50, log = False)
+		axesList.set_xticks(range(15))
+		axesList.set_xticklabels(range(15))
+		axesList.set_xlabel("Mean mass fraction fold change per monomer")
+		axesList.set_ylabel("Count")
 
 
 	# import ipdb; ipdb.set_trace()
@@ -262,7 +264,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# axesList[3].set_xlabel("Number of transcription events per generation")
 
 
-	from wholecell.analysis.analysis_tools import exportFigure
 	exportFigure(plt, plotOutDir, plotOutFileName,metadata)
 	plt.close("all")
 
@@ -274,10 +275,13 @@ if __name__ == "__main__":
 			)
 
 	parser = argparse.ArgumentParser()
-	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
-	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
-	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
+	parser.add_argument("simOutDir", type = str,
+		help = "Directory containing simulation output, e.g. out/$RUN/wildtype_000000/000000/generation_000000/000000/simOut")
+	parser.add_argument("plotOutDir", type = str,
+		help = "Directory containing plot output (will get created if necessary), e.g. out/$RUN/wildtype_000000/000000/plotOut")
+	parser.add_argument("plotOutFileName", help = "File name to produce", type = str, default="plotted")
+	parser.add_argument("--simDataFile", type = str, default = defaultSimDataFile,
+		help = "KB file name, e.g. out/$RUN/wildtype_000000/kb/simData_Modified.cPickle")
 	parser.add_argument("--validationDataFile", help = "KB file name", type = str, default = "fixme")
 
 	args = parser.parse_args().__dict__

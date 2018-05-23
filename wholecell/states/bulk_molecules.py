@@ -14,9 +14,9 @@ State which represents for a class of molecules the bulk copy numbers.
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
+from __future__ import absolute_import
 from __future__ import division
 
-import re
 from itertools import izip
 
 import numpy as np
@@ -277,12 +277,14 @@ class BulkMoleculesViewBase(wholecell.views.view.View):
 	def _countsInc(self, values):
 		assert (np.size(values) == np.size(self._containerIndexes)) or np.size(values) == 1, 'Inappropriately sized values'
 
+		values = np.asarray(values, dtype=self._containerIndexes.dtype)
 		self._state._countsAllocatedFinal[self._containerIndexes, self._processIndex] += values
 
 
 	def _countsDec(self, values):
 		assert (np.size(values) == np.size(self._containerIndexes)) or np.size(values) == 1, 'Inappropriately sized values'
 
+		values = np.asarray(values, dtype=self._containerIndexes.dtype)
 		self._state._countsAllocatedFinal[self._containerIndexes, self._processIndex] -= values
 
 

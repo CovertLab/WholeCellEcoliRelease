@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 ChromosomeReplication
 
@@ -161,7 +159,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			sequenceLength = np.zeros(numberOfNewPolymerase, dtype = np.int8)
 			replicationRound = np.ones(numberOfNewPolymerase, dtype=np.int8) * (replicationRound.max() + 1)
 			chromosomeIndex = np.zeros(numberOfNewPolymerase, dtype=np.int8)
-			chromosomeIndex[numberOfNewPolymerase / nChromosomes:] = 1.
+			chromosomeIndex[numberOfNewPolymerase // nChromosomes:] = 1.
 
 			activeDnaPoly.attrIs(
 				sequenceIdx = sequenceIdx,

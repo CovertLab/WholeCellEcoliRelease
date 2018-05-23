@@ -4,6 +4,7 @@ bulk_objects_container.py
 
 '''
 
+from __future__ import absolute_import
 from __future__ import division
 
 import numpy as np
@@ -44,6 +45,7 @@ class BulkObjectsContainer(object):
 
 
 	def countsInc(self, values, names = None):
+		values = np.asarray(values, dtype=self._counts.dtype)
 		if names is None:
 			self._counts[:] += values
 
@@ -52,6 +54,7 @@ class BulkObjectsContainer(object):
 
 
 	def countsDec(self, values, names = None): # TODO: raise exception if > max?
+		values = np.asarray(values, dtype=self._counts.dtype)
 		if names is None:
 			self._counts[:] -= values
 
@@ -141,10 +144,12 @@ class _BulkObjectsView(object):
 
 
 	def countsInc(self, values):
+		values = np.asarray(values, dtype=self._container._counts.dtype)
 		self._container._counts[self._indexes] += values
 
 
 	def countsDec(self, values):
+		values = np.asarray(values, dtype=self._container._counts.dtype)
 		self._container._counts[self._indexes] -= values
 
 

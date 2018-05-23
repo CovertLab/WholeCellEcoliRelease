@@ -1,4 +1,4 @@
-## How to build a Whole Cell pyenv:
+## How to build a Whole Cell pyenv virtualenv:
 ## Prepare as needed. Install these packages using your local package
 ## manager such as brew on macOS:
 #   brew install pyenv
@@ -8,21 +8,17 @@
 #   brew install swig           # needed to install pip CVXcanon
 #   brew install suite-sparse   # needed for cvxopt to use glpk
 #
-## We're still using python 2.7.4 on Sherlock. (On macOS, 2.7.8 is the oldest
-## that supports a shared library, but that's no longer needed.
-## Python 2.7.9 is the oldest with working SSL libraries.)
-#   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.8
-#   pyenv local 2.7.8
+## Create a pyenv with Python 2.7.14.
+#   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.14  # if needed
+#   pyenv local 2.7.14
 #
 ## Create and select a new python virtual environment:
 #   pyenv virtualenv wcEcoli2
 #   pyenv local wcEcoli2
 #
-## It's smart to upgrade the installers:
-#   pip install --upgrade pip setuptools virtualenv wheel
-#
-## For macOS:
-##      Edit the list (below) to require Theano==0.8.1 or later.
+## Upgrade the installers but don't use pip==10.0.0 yet because it
+## breaks cobra test.
+#   pip install --upgrade pip==9.0.3 setuptools virtualenv wheel
 #
 ## For Sherlock:
 ## See /share/PI/mcovert/installation_notes/scipy_with_openblas.txt on how
@@ -40,193 +36,120 @@
 ## Then install all the other packages listed here:
 #   CVXOPT_BUILD_GLPK=1 pip install -r requirements.txt --no-binary cvxopt
 #   pyenv rehash
+#
+# (If an older version of pip or python gives an error that numpy isn't
+# installed, install numpy then retry installing requirements.txt.)
 
-# Listing numpy first might avoid installation failures. Maybe that's only a
-# problem with older versions of pip and/or python.
-numpy==1.9.2
-
-#alabaster==0.7.6
 appnope==0.1.0
-astroid==1.4.1
-#avro==1.8.2
-#Babel==2.0
-backports-abc==0.4
-backports.ssl-match-hostname==3.4.0.2
-biopython==1.65
-bokeh==0.11.1
-#cachetools==2.0.0
-#cairocffi==0.7.2
-certifi==2015.4.28
-#cffi==1.5.2
-click==6.6
-cobra==0.3.2
-colorama==0.3.3
-coverage==3.7.1
-CVXcanon==0.1.1  # 0.0.18 gets pip install errors
-cvxopt==1.1.7
-cvxpy==0.3.0
-#cyavro==0.6.2
-Cython==0.23.1
-decorator==4.0.2
-#dill==0.2.5
-#docutils==0.12
-#ecdsa==0.13
-ecos==2.0.4
+astroid==1.6.3
+attrs==17.4.0
+backports-abc==0.5
+backports.functools-lru-cache==1.5
+backports.shutil-get-terminal-size==1.0.0
+backports.ssl-match-hostname==3.5.0.1
+biopython==1.71
+bokeh==0.11.1  # bokeh==0.12.15 requires some changes
+certifi==2018.4.16
+chardet==3.0.4
+click==6.7
+cobra==0.11.3
+colorama==0.3.9
+configparser==3.5.0
+coverage==4.5.1
+CVXcanon==0.1.1
+cvxopt==1.1.7  # cvxopt==1.2.0 installs on OSX but not on Sherlock
+cvxpy==0.4.8   # cvxpy==0.4.11 change summary looks like a work in progress
+cycler==0.10.0
+Cython==0.28.2
+decorator==4.3.0
+dill==0.2.7.1
+docutils==0.14
+ecos==2.0.5
 enum34==1.1.6
 Equation==1.2.1
-#Escher==1.4.0
-#Fabric==1.10.2
-#filelock==2.0.10
-FireWorks==1.3.6
-Flask==0.11.1
-flask-paginate==0.4.5
-funcsigs==0.4
+fastcache==1.0.2
+FireWorks==1.6.0  # FireWorks==1.7.2 requires ruamel.yaml>=0.15.35 but cobra==0.11.3 requires ruamel.yaml<0.15
+Flask==0.12.2
+flask-paginate==0.5.1
+funcsigs==1.0.2
 functools32==3.2.3.post2
-#future==0.16.0
-futures==3.0.5
-#gapic-google-cloud-datastore-v1==0.15.3
-#gapic-google-cloud-error-reporting-v1beta1==0.15.3
-#gapic-google-cloud-logging-v2==0.91.3
-#gapic-google-cloud-pubsub-v1==0.15.4
-#gapic-google-cloud-spanner-admin-database-v1==0.15.3
-#gapic-google-cloud-spanner-admin-instance-v1==0.15.3
-#gapic-google-cloud-spanner-v1==0.15.3
-#gapic-google-cloud-speech-v1==0.15.3
-gnureadline==6.3.3
-#google-api-python-client==1.6.2
-#google-auth==1.0.1
-#google-auth-httplib2==0.0.2
-#google-cloud==0.26.1
-#google-cloud-bigquery==0.25.0
-#google-cloud-bigtable==0.25.0
-#google-cloud-core==0.25.0
-#google-cloud-datastore==1.1.0
-#google-cloud-dns==0.25.0
-#google-cloud-error-reporting==0.25.1
-#google-cloud-language==0.25.0
-#google-cloud-logging==1.1.0
-#google-cloud-monitoring==0.25.0
-#google-cloud-pubsub==0.26.0
-#google-cloud-resource-manager==0.25.0
-#google-cloud-runtimeconfig==0.25.0
-#google-cloud-spanner==0.25.0
-#google-cloud-speech==0.26.0
-#google-cloud-storage==1.2.0
-#google-cloud-translate==0.25.0
-#google-cloud-videointelligence==0.25.0
-#google-cloud-vision==0.25.0
-#google-gax==0.15.13
-#google-resumable-media==0.1.1
-#googleapis-common-protos==1.5.2
-#graphite-api==1.1.2
-#grpc-google-iam-v1==0.11.1
-#grpcio==1.4.0
-#gspread==0.2.5
-gunicorn==19.6.0
-#gurobipy==5.6.3
-#hide-code==0.1.6
-#httplib2==0.9.2
-ipdb==0.8.1
-#ipykernel==4.0.3
-#ipyparallel==4.0.2
-ipython==4.0.0
-ipython-genutils==0.1.0
-#ipywidgets==4.1.1
+future==0.16.0
+futures==3.2.0
+gnureadline==6.3.8
+gunicorn==19.7.1
+idna==2.6
+ipdb==0.11
+ipython==5.6.0
+ipython-genutils==0.2.0
+isort==4.3.4
 itsdangerous==0.24
-Jinja2==2.8
-jsonschema==2.5.1
-#jupyter==1.0.0
-#jupyter-client==4.0.0
-#jupyter-console==4.1.1
-jupyter-core==4.0.4
-#kineticFBA==0.1
-lazy-object-proxy==1.2.1
-line-profiler==1.0
-MarkupSafe==0.23
-matplotlib==1.4.3
+Jinja2==2.10
+jsonschema==2.6.0
+jupyter-core==4.4.0
+kiwisolver==1.0.1
+lazy-object-proxy==1.3.1
+line-profiler==2.1.2
+MarkupSafe==1.0
+matplotlib==1.5.3  # matplotlib==2.2.2 breaks mpld3. Try patching or fixing mpld3.
 matplotlib-venn==0.11.5
-memory-profiler==0.44
-#mistune==0.7.1
-mock==1.3.0
-monty==0.9.4
-mpld3==0.2
-mpmath==0.19
-#nbconvert==4.0.0
-nbformat==4.0.0
-#networkx==1.10
+mccabe==0.6.1
+memory-profiler==0.52.0
+mock==2.0.0
+monty==1.0.2
+more-itertools==4.1.0
+mpld3==0.3
+mpmath==1.0.0
+multiprocess==0.70.5
+nbformat==4.4.0
 nose==1.3.7
-#notebook==4.0.4
-#numpydoc==0.5
-#oauth2client==3.0.0
-pandas==0.20.0
-#pandas-gbq==0.1.6
-#paramiko==1.15.2
-path.py==8.1
-pbr==1.6.0
-#petsc==3.6.3
-pexpect==3.3
-pickleshare==0.5
-#ply==3.8
-#proto-google-cloud-datastore-v1==0.90.4
-#proto-google-cloud-error-reporting-v1beta1==0.15.3
-#proto-google-cloud-logging-v2==0.91.3
-#proto-google-cloud-pubsub-v1==0.15.4
-#proto-google-cloud-spanner-admin-database-v1==0.15.3
-#proto-google-cloud-spanner-admin-instance-v1==0.15.3
-#proto-google-cloud-spanner-v1==0.15.3
-#proto-google-cloud-speech-v1==0.15.3
-#protobuf==3.3.0
-ptyprocess==0.5
-#py==1.4.31
-#pyasn1==0.1.9
-#pyasn1-modules==0.0.8
-#pycparser==2.14
-#pycrypto==2.6.1
-#Pygments==2.0.2
-pylint==1.5.1
-pymongo==3.3.0
-#Pyomo==4.2.10784
-pyparsing==2.0.3
-#pyreadline==2.0
-#pytest==2.9.0
-python-dateutil==2.6.1
-#python-nvd3==0.13.10
-#python-slugify==0.1.0
-pytz==2015.4
-#PyUtilib==5.2.3601
+numpy==1.14.3
+optlang==1.4.1
+packaging==17.1
+pandas==0.22.0
+path.py==11.0.1
+pathlib==1.0.1
+pathlib2==2.3.0
+pbr==4.0.3
+pexpect==4.5.0
+pickleshare==0.7.4
+pluggy==0.6.0
+prompt-toolkit==1.0.15
+psutil==5.4.5
+ptyprocess==0.5.2
+py==1.5.3
+py-cpuinfo==4.0.0
+Pygments==2.2.0
+pylint==1.8.4
+pymongo==3.6.1
+pyparsing==2.2.0
+pytest==3.5.0
+pytest-benchmark==3.1.1
+python-dateutil==2.7.3
+pytz==2018.4
 PyYAML==3.12
-#pyzmq==14.7.0
-#qtconsole==4.0.1
-#randomstate==1.11.3
-requests==2.7.0
-#rpy2==2.8.5
-#rsa==3.2
-# scikit-learn[alldeps]==0.18.2  # 0.17 has installation problems.
-scipy==0.16.0
-scs==1.1.4
+requests==2.18.4
+ruamel.ordereddict==0.4.13
+ruamel.yaml==0.14.12
+scandir==1.7
+scipy==1.0.1
+scs==2.0.2
 simplegeneric==0.8.1
 singledispatch==3.4.0.3
-six==1.10.0
-# sklearn==0.0
-#snowballstemmer==1.2.0
-#Sphinx==1.3.1
-#sphinx-rtd-theme==0.1.8
-#structlog==16.0.0
+six==1.11.0
+statistics==1.0.3.5
+subprocess32==3.2.7
 swiglpk==1.4.4
-sympy==1.0
-tabulate==0.7.5
-#terminado==0.5
-#testpath==0.2
-Theano==0.7.0  # --> Need 0.8.1+ for macOS w/XCode 7.3 Command Line Tools
-toolz==0.7.4
-tornado==4.3
-traitlets==4.0.0
-#tzlocal==1.2.2
-#Unidecode==0.4.18
-Unum==4.1.3
-#uritemplate==3.0.0
-virtualenv==15.0.2
-Werkzeug==0.11.11
-#winpdb==1.3.6
-wrapt==1.10.6
-xlrd==1.0.0
+sympy==1.1.1
+tabulate==0.8.2
+Theano==1.0.1
+toolz==0.9.0
+tornado==5.0.2
+tqdm==4.23.0
+traitlets==4.3.2
+Unum==4.1.4
+urllib3==1.22
+virtualenv>=16.0.0
+wcwidth==0.1.7
+Werkzeug==0.14.1
+wrapt==1.10.11
+xlrd==1.1.0

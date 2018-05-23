@@ -10,15 +10,6 @@
         </value>
       </option>
     </inspection_tool>
-    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
-      <option name="ignoredPackages">
-        <value>
-          <list size="1">
-            <item index="0" class="java.lang.String" itemvalue="Theano" />
-          </list>
-        </value>
-      </option>
-    </inspection_tool>
     <inspection_tool class="PyPep8Inspection" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
     <inspection_tool class="PyPep8NamingInspection" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
     <inspection_tool class="PySingleQuotedDocstringInspection" enabled="false" level="WEAK WARNING" enabled_by_default="false" />

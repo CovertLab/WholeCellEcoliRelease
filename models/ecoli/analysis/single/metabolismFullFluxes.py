@@ -16,7 +16,6 @@ from matplotlib import pyplot as plt
 from matplotlib import colors
 from matplotlib import gridspec
 import scipy.cluster.hierarchy as sch
-from scipy.spatial import distance
 
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
@@ -61,7 +60,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 		/ (np.mean(np.abs(reactionFluxes), 0) + 2 * np.std(np.abs(reactionFluxes), 0))
 		).transpose()
 
-	linkage = sch.linkage(reactionFluxes.T, metric = "correlation")
+	linkage = sch.linkage(reactionFluxes.T)
 	linkage[:, 2] = np.fmax(linkage[:, 2], 0) # fixes rounding issues leading to negative distances
 
 	sch.set_link_color_palette(['black'])

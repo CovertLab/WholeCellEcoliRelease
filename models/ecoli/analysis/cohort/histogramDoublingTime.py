@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
+from __future__ import absolute_import
+
 import argparse
 import os
-import re
-import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -13,7 +13,7 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 
-def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
+def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile = None, metadata = None):
 	if not os.path.isdir(variantDir):
 		raise Exception, "variantDir does not currently exist as a directory"
 
@@ -48,7 +48,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	for idx, axes in enumerate(axesList):
 		if max_cells_in_gen > 1:
-			axes.hist(doubling_time[:,idx].flatten(), np.ceil(np.sqrt(doubling_time[:,idx].size)))
+			axes.hist(doubling_time[:,idx].flatten(), int(np.ceil(np.sqrt(doubling_time[:,idx].size))))
 		else:
 			axes.plot(doubling_time[:,idx], 1, 'x')
 			axes.set_ylim([0, 2])

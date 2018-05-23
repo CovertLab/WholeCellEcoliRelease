@@ -14,9 +14,7 @@ import re
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import colors
-from matplotlib import gridspec
 import scipy.cluster.hierarchy as sch
-from scipy.spatial import distance
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
@@ -41,8 +39,6 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	plt.suptitle("Full Metabolic Network Reaction Fluxes")
 
-	means = np.zeros((ap.n_seed, ap.n_generation))
-
 	for seedNum in xrange(ap.n_seed):
 		for generationNum in xrange(ap.n_generation):
 
@@ -53,7 +49,6 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 			time = fbaResults.readColumn("time")
 			reactionFluxes = fbaResults.readColumn("reactionFluxes")
-			reactionIDs = np.array(fbaResults.readAttribute('reactionIDs'))
 			fbaResults.close()
 
 
@@ -64,7 +59,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 			# Cluster once, and then plot all other cells reactions in that same order
 			if seedNum == 0 and generationNum == 0:
-				linkage = sch.linkage(reactionFluxes.T, metric = "correlation")
+				linkage = sch.linkage(reactionFluxes.T)
 				linkage[:, 2] = np.fmax(linkage[:, 2], 0) # fixes rounding issues leading to negative distances
 				index = sch.leaves_list(linkage)
 
