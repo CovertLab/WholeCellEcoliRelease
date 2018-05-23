@@ -84,7 +84,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	massFractionActive = activeRibosomeMass / totalRibosomeMass
 
 	plt.figure(figsize = (8.5, 11))
-	matplotlib.rc('font', **FONT)
+	plt.rc('font', **FONT)
 
 	ribosomeCapacity_axis = plt.subplot(6,1,1)
 	ribosomeCapacity_axis.plot(time / 60., totalRibosomeCapacity, label="Theoretical total ribosome capacity", linewidth=2, color='b')

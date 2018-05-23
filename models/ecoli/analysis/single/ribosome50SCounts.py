@@ -65,7 +65,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	uniqueMoleculeCounts.close()
 
 	plt.figure(figsize = (8.5, 11))
-	matplotlib.rc('font', **FONT)
+	plt.rc('font', **FONT)
 
 	for idx in xrange(len(proteinIds)):
 		rna_axis = plt.subplot(17, 3, idx + 1)

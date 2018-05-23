@@ -71,7 +71,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 		# Plotting
 		plt.figure(figsize = (6, 12))
-		matplotlib.rc('font', **FONT)
+		plt.rc('font', **FONT)
 		max_yticks = 5
 
 

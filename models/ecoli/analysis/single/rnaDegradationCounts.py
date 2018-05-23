@@ -123,7 +123,7 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 
 	# Plotting
 	plt.figure(figsize = (8.5, 11))
-	matplotlib.rc('font', **FONT)
+	plt.rc('font', **FONT)
 	max_yticks = 5
 
 	ax = plt.subplot(7,2,1)
