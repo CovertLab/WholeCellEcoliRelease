@@ -449,13 +449,30 @@ def fitCondition(sim_data, spec, condition):
 # Sub-fitting functions
 
 def setRnaPolymeraseCodingRnaDegradationRates(sim_data):
-	# Increase RNA poly mRNA deg rates
-	# TODO: set this based on transcription unit structure
-	# i.e. same synthesis prob. but different deg rates
+	"""
+	Increase the degradation rates for the RNA polymerase mRNAs.  This is done to increase the
+	rate of	mRNA synthesis and overall reduce the stochasticity in RNA polymerase subunit 
+	expression, which would otherwise constrain transcription.
+	
+	Requires
+	--------
+	- RNA_POLY_MRNA_DEG_RATE_PER_S: The new first-order degradation rate, in units of per second.
+	
+	Modifies
+	--------
+	- Degradation rates of RNA polymerase subunit mRNAs.
+	
+	Notes
+	-----
+	- Incorporating transcription unit structure would facilitate co-expression of the subunits
+		but might not address the fundamental stochasticity issue.
+	"""
 
-	rnaPolySubunits = sim_data.process.complexation.getMonomers("APORNAP-CPLX[c]")["subunitIds"]
+	rnaPolySubunits = sim_data.process.complexation.getMonomers("APORNAP-CPLX[c]")["subunitIds"] # APORNAP-CPLX[c] is the RNA polymerase complex
 	subunitIndexes = np.array([np.where(sim_data.process.translation.monomerData["id"] == id_)[0].item() for id_ in rnaPolySubunits]) # there has to be a better way...
 	mRNA_indexes = sim_data.relation.rnaIndexToMonomerMapping[subunitIndexes]
+
+	# Modifies
 	sim_data.process.transcription.rnaData.struct_array["degRate"][mRNA_indexes] = RNA_POLY_MRNA_DEG_RATE_PER_S
 
 def setTranslationEfficiencies(sim_data):
