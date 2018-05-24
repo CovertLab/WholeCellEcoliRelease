@@ -43,6 +43,7 @@ class AnalysisCohortTask(FireTaskBase):
 
 		if "WC_ANALYZE_FAST" in os.environ:
 			pool = mp.Pool(processes = 8)
+			results = {}
 
 		exception = False
 		exceptionFileList = []
@@ -61,7 +62,7 @@ class AnalysisCohortTask(FireTaskBase):
 				)
 
 			if "WC_ANALYZE_FAST" in os.environ:
-				pool.apply_async(run_function, args = (mod.main, args, f))
+				results.update({f: pool.apply_async(run_function, args = (mod.main, args, f))})
 			else:
 				print "%s: Running %s" % (time.ctime(), f)
 				try:
@@ -76,6 +77,11 @@ class AnalysisCohortTask(FireTaskBase):
 		if "WC_ANALYZE_FAST" in os.environ:
 			pool.close()
 			pool.join()
+			for f, result in results.items():
+				if not result.successful():
+					exception = True
+					exceptionFileList += [f]
+
 		timeTotal = time.time() - startTime
 
 		if exception:
@@ -92,3 +98,6 @@ def run_function(f, args, name):
 		f(*args)
 	except KeyboardInterrupt:
 		import sys; sys.exit(1)
+	except Exception as e:
+		traceback.print_exc()
+		raise Exception(e)
