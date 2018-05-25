@@ -128,7 +128,6 @@ def fitSimData_1(raw_data, cpus=1, debug=False):
 
 	# Fit kinetic parameters
 	# findKineticCoeffs(sim_data, cellSpecs["basal"]["bulkContainer"])
-
 	if cpus > 1:
 		print "Start parallel processing with %i processes" % (cpus)
 		pool = Pool(processes = cpus)
@@ -247,8 +246,28 @@ def buildBasalCellSpecifications(sim_data):
 	return cellSpecs
 
 def calculateTranslationSupply(sim_data, doubling_time, bulkContainer, avgCellDryMassInit):
-	aaCounts = sim_data.process.translation.monomerData["aaCounts"]
-	proteinCounts = bulkContainer.counts(sim_data.process.translation.monomerData["id"])
+	"""
+	Returns the supply rates of all amino acids to translation given the desired
+	doubling time. This creates a limit on the polypeptide elongation process,
+	and thus on growth.	The amino acid supply rate is found by calculating the
+	concentration of amino acids per gram dry cell weight and dividing by doubling
+	time.
+
+	Requires
+	--------
+	- doubling_time: measured doubling times given the condition, in units of minutes.
+	- bulkContainer: a container that tracks the counts of all bulk molecules
+	- avgCellDryMassInit: The average initial cell dry mass, in units of fg.
+
+	Notes
+	-----
+	- The supply of amino acids should not be based on a desired doubling time,
+	but should come from a more mechanistic basis. This would allow simulations
+	of environmental shifts in which the doubling time is unknown.
+	"""
+
+	aaCounts = sim_data.process.translation.monomerData["aaCounts"] # the counts of each amino acid required for each protein
+	proteinCounts = bulkContainer.counts(sim_data.process.translation.monomerData["id"]) # the counts of all proteins
 	nAvogadro = sim_data.constants.nAvogadro
 
 	molAAPerGDCW = (
@@ -422,6 +441,26 @@ def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None,
 	return expression, synthProb, avgCellDryMassInit, fitAvgSolubleTargetMolMass, bulkContainer, concDict
 
 def fitCondition(sim_data, spec, condition):
+	"""
+	Takes a given condition and returns the predicted bulk average, bulk deviation,
+	protein monomer average, protein monomer deviation, and amino acid supply to
+	translation. This is done within calculateBulkDistributions.
+
+	Requires
+	--------
+	- condition: a string specifying the condition.
+	- spec: a dictionary with cell specifications for the given condition.
+
+	Returns
+	--------
+	- bulkAverageContainer: The mean of the bulk counts.
+	- bulkDeviationContainer: The standard deviation of the bulk counts.
+	- proteinMonomerAverageContainer: The mean of the protein monomer counts.
+	- proteinMonomerDeviationContainer: The standard deviation of the protein
+	monomer	counts.
+	- translation_aa_supply: the supply rates of all amino acids to translation.
+	"""
+
 	if VERBOSE > 0:
 		print "Fitting condition {}".format(condition)
 
@@ -453,15 +492,15 @@ def setRnaPolymeraseCodingRnaDegradationRates(sim_data):
 	Increase the degradation rates for the RNA polymerase mRNAs.  This is done to increase the
 	rate of	mRNA synthesis and overall reduce the stochasticity in RNA polymerase subunit 
 	expression, which would otherwise constrain transcription.
-	
+
 	Requires
 	--------
 	- RNA_POLY_MRNA_DEG_RATE_PER_S: The new first-order degradation rate, in units of per second.
-	
+
 	Modifies
 	--------
 	- Degradation rates of RNA polymerase subunit mRNAs.
-	
+
 	Notes
 	-----
 	- Incorporating transcription unit structure would facilitate co-expression of the subunits
@@ -670,6 +709,20 @@ def setInitialRnaExpression(sim_data, expression, doubling_time):
 	# Note that now rnaData["synthProb"] does not match "expression"
 
 def totalCountIdDistributionProtein(sim_data, expression, doubling_time):
+	"""
+	Calculates the total counts of proteins from the relative expression of RNA,
+	individual protein mass, and total protein mass.
+
+	Requires
+	--------
+	- expression: relative frequency distribution of RNA expression.
+	- doubling_time: measured doubling times given the condition, in units of minutes.
+
+	Returns
+	--------
+	- Counts and IDs of all proteins.
+	"""
+
 	ids_protein = sim_data.process.translation.monomerData["id"]
 	totalMass_protein = sim_data.mass.getFractionMass(doubling_time)["proteinMass"] / sim_data.mass.avgCellToInitialCellConvFactor
 	individualMasses_protein = sim_data.process.translation.monomerData["mw"] / sim_data.constants.nAvogadro
@@ -698,6 +751,20 @@ def totalCountIdDistributionProtein(sim_data, expression, doubling_time):
 	return totalCount_protein, ids_protein, distribution_protein
 
 def totalCountIdDistributionRNA(sim_data, expression, doubling_time):
+	"""
+	Calculates the total counts of RNA from their relative expression, individual
+	mass, and total RNA mass.
+
+	Requires
+	--------
+	- expression: relative frequency distribution of RNA expression.
+	- doubling_time: measured doubling times given the condition, in units of minutes.
+
+	Returns
+	--------
+	- Counts and IDs of all RNAs.
+	"""
+
 	ids_rnas = sim_data.process.transcription.rnaData["id"]
 	totalMass_RNA = sim_data.mass.getFractionMass(doubling_time)["rnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
 	individualMasses_RNA = sim_data.process.transcription.rnaData["mw"] / sim_data.constants.nAvogadro
@@ -715,6 +782,20 @@ def totalCountIdDistributionRNA(sim_data, expression, doubling_time):
 	return totalCount_RNA, ids_rnas, distribution_RNA
 
 def createBulkContainer(sim_data, expression, doubling_time):
+	"""
+	Creates a container that tracks the counts of all bulk molecules.
+
+	Requires
+	--------
+	- expression: relative frequency distribution of RNA expression.
+	- doubling_time: measured doubling times given the condition, in units of minutes.
+
+	Returns
+	-------
+	- bulkContainer: a wrapper around a NumPy array that tracks the counts of
+	bulk molecules.
+
+	"""
 
 	totalCount_RNA, ids_rnas, distribution_RNA = totalCountIdDistributionRNA(sim_data, expression, doubling_time)
 	totalCount_protein, ids_protein, distribution_protein = totalCountIdDistributionProtein(sim_data, expression, doubling_time)
@@ -1008,6 +1089,34 @@ def fitMaintenanceCosts(sim_data, bulkContainer):
 	sim_data.constants.darkATP = darkATP
 
 def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassInit, doubling_time):
+	"""
+	Finds a distribution of copy numbers for macromolecules. While RNA and protein
+	expression can be approximated using well-described statistical	distributions,
+	complexes require absolute copy numbers. To get these distributions, this
+	function instantiates many cells with a reduced set of molecules, forms complexes,
+	and iterates through equilibrium and two-component system processes until
+	metabolite counts reach a steady-state. It then computes the resulting
+	statistical distributions.
+
+	Requires
+	--------
+	- N_SEEDS: The number of instantiated cells.
+	- expression: Relative frequency distribution of RNA expression.
+	- concDict: A dictionary of a small set of metabolites and their concentrations,
+	in units of mol/L.
+	- avgCellDryMassInit: The average initial cell dry mass, in units of fg.
+	- doubling_time: Measured doubling times given the condition, in units of minutes.
+
+	Returns
+	--------
+	- bulkAverageContainer: The mean of the bulk counts.
+	- bulkDeviationContainer: The standard deviation of the bulk counts.
+	- proteinMonomerAverageContainer: The mean of the protein monomer counts.
+	- proteinMonomerDeviationContainer: The standard deviation of the protein monomer
+	counts.
+
+	TODO (ERAN): How does mccFormComplexesWithPrebuiltMatrices work?
+	"""
 
 	# Ids
 	totalCount_RNA, ids_rnas, distribution_RNA = totalCountIdDistributionRNA(sim_data, expression, doubling_time)
@@ -1037,14 +1146,6 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 	cellVolume = avgCellDryMassInit / cellDensity / sim_data.mass.cellDryMassFraction
 
 	# Construct bulk container
-
-	# We want to know something about the distribution of the copy numbers of
-	# macromolecules in the cell.  While RNA and protein expression can be
-	# approximated using well-described statistical distributions, we need
-	# absolute copy numbers to form complexes.  To get a distribution, we must
-	# instantiate many cells, form complexes, and finally compute the
-	# statistics we will use in the fitting operations.
-
 	bulkContainer = BulkObjectsContainer(sim_data.state.bulkMolecules.bulkData['id'])
 	rnaView = bulkContainer.countsView(ids_rnas)
 	proteinView = bulkContainer.countsView(ids_protein)
@@ -1060,6 +1161,7 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 	if VERBOSE > 1:
 		print "Bulk distribution seed:"
 
+	# Instantiate cells to find average copy numbers of macromolecules
 	for seed in xrange(N_SEEDS):
 		if VERBOSE > 1:
 			print seed
@@ -1083,6 +1185,7 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 		proteinMonomerCounts[seed, :] = proteinView.counts()
 		complexationMoleculeCounts = complexationMoleculesView.counts()
 
+		# form complexes
 		updatedCompMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
 			complexationMoleculeCounts,
 			seed,
@@ -1095,29 +1198,27 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 		metDiffs = np.inf * np.ones_like(metabolitesView.counts())
 		nIters = 0
 
+		# Iterate processes until metabolites converge to a steady-state
 		while(np.linalg.norm(metDiffs, np.inf) > 1):
-			# Metabolite concentrations were measured as steady-state values (not initial values)
-			# So we run this until we get to steady state
 			metCounts = conc_metabolites * cellVolume * sim_data.constants.nAvogadro
 			metCounts.normalize()
 			metCounts.checkNoUnit()
-
 			metabolitesView.countsIs(
 				metCounts.asNumber().round()
 				)
 
+			# get reaction fluxes from equilibrium process
 			rxnFluxes, _ = sim_data.process.equilibrium.fluxesAndMoleculesToSS(
 				equilibriumMoleculesView.counts(),
 				cellVolume.asNumber(units.L),
 				sim_data.constants.nAvogadro.asNumber(1 / units.mol),
 				)
-
 			equilibriumMoleculesView.countsInc(
 				np.dot(sim_data.process.equilibrium.stoichMatrix().astype(np.int64), rxnFluxes)
 				)
-
 			assert np.all(equilibriumMoleculesView.counts() >= 0)
 
+			# get changes from two component system
 			_, moleculeCountChanges = sim_data.process.two_component_system.moleculesToSS(
 				twoComponentSystemMoleculesView.counts(),
 				cellVolume.asNumber(units.L),
