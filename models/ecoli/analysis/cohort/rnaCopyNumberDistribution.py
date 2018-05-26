@@ -112,8 +112,6 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			# Get RNA counts
 			rna_counts[gen_idx, seed_idx, :] = bulkCounts_normalized[idx_rna]
 
-			print("Finished counting RNAs for seed %d in generation %d." % (seed_idx, gen_idx,))
-
 	# Calculate statistics
 	rna_counts_mean_over_seed = rna_counts.mean(axis=1)
 	rna_counts_var_over_seed = rna_counts.var(axis=1)
