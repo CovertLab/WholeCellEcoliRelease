@@ -490,7 +490,7 @@ def fitCondition(sim_data, spec, condition):
 def setRnaPolymeraseCodingRnaDegradationRates(sim_data):
 	"""
 	Increase the degradation rates for the RNA polymerase mRNAs.  This is done to increase the
-	rate of	mRNA synthesis and overall reduce the stochasticity in RNA polymerase subunit 
+	rate of	mRNA synthesis and overall reduce the stochasticity in RNA polymerase subunit
 	expression, which would otherwise constrain transcription.
 
 	Requires
@@ -1976,6 +1976,59 @@ def calculateRnapRecruitment(sim_data, cellSpecs, rVector):
 
 
 def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
+	"""
+	Fits the affinities (Michaelis-Menten constants) for RNAs binding to endoRNAses.
+
+	EndoRNAses perform the first step of RNA decay by cleaving a whole RNA somewhere inside its
+	extent.  This results in RNA fragments, which are then digested into monomers by exoRNAses. To
+	model endoRNAse activity, we need to determine an affinity (Michaelis-Menten constant) for each
+	RNA that is consistent with experimentally observed half-lives.  The Michaelis-Menten constants
+	must be determined simultaneously, as the RNAs must compete for the active site of the
+	endoRNAse.  (See the RnaDegradation Process class for more information about the dynamical
+	model.)  The parameters are estimated using a root solver (scipy.optimize.fsolve).  (See the
+	sim_data.process.rna_decay.kmLossFunction method for more information about the optimization
+	problem.)
+
+	Requires
+	--------
+	- cell density, dry mass fraction, and average initial dry mass
+	- observed RNA degradation rates (half-lives)
+	- enoRNAse counts
+	- endoRNAse catalytic rate constants
+	- RNA counts
+	- boolean options that enable sensitivity analyses (see Notes below)
+
+	Modifies
+	--------
+	- Michaelis-Menten constants for first-order decay
+		TODO (John): Determine the purpose of these values - legacy?
+	- Several optimization-related values
+		Sensitivity analyses (optional, see Notes below)
+		Terminal values for optimization-related functions
+
+	Returns
+	-------
+	- enoRNAse Km values, in units of M
+
+	Notes
+	-----
+	If certain options are set, a sensitivity analysis will be performed using a range of
+	metaparameters. TODO (John): Determine default behavior.
+
+	Outputs will be cached and utilized instead of running the optimization if possible.
+	TODO (John): Determine if caching is functional, and consider removing functionality.
+
+	The function that generates the optimization functions is defined under sim_data but has no
+	dependency on sim_data, and therefore could be moved here or elsewhere. (TODO)
+
+	TODO (John): Refactor as a pure function.
+
+	TODO (John): Why is this function called 'cooperative'?  It seems to instead assume and model
+		competitive binding.
+
+	TODO (John): Determine what if any of the 'linear' parameter fitting should be retained.
+	"""
+
 	cellDensity = sim_data.constants.cellDensity
 	cellVolume = sim_data.mass.avgCellDryMassInit / cellDensity / sim_data.mass.cellDryMassFraction
 	countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
