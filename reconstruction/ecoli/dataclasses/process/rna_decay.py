@@ -113,7 +113,7 @@ class RnaDecay(object):
 
 		This is the unnormalized residual function; the normalized residuals are
 
-		f(x) = (nonlinear rate)/(linear rate) - 1
+		R = (nonlinear rate)/(linear rate) - 1
 
 		In addition to matching our half-lives we also desire the Michaelis-Menten constants to be
 		non-negative (negative values have no physical meaning).  Thus we introduce a penalty term
@@ -146,7 +146,8 @@ class RnaDecay(object):
 			Experimentally observed degradation rates (computed from half-lives), in dimensions of
 			per unit time.
 		isEndoRnase: 1-D array, bool
-			A vector that is True everywhere corresponding to an endoRNAse mRNA.
+			A vector that is True everywhere that an RNA corresponds to an endoRNAse; that is, an
+			endoRNAse (or endoRNAse subunit) mRNA.
 		alpha: scalar, >0
 			Regularization weight, used to penalize for negative Michaelis-Menten value predictions
 			during the course of the optimization.  Typical value is 0.5.
@@ -158,7 +159,7 @@ class RnaDecay(object):
 		Rneg: function
 			The negative Michaelis-Menten constant penalty terms.
 		R: function
-			The residual error (deviation from steady-state.)
+			The residual error (deviation from steady-state).
 		Lp: function
 			The Jacobian of the loss function L with respect to the Michaelis-Menten constants.
 		R_aux: function
@@ -183,7 +184,7 @@ class RnaDecay(object):
 		as their sole inputs.  All of the functions return a 1-D array, with the exception of the
 		Jacobians, which return matrices.
 
-		TODO (John): Remove the redundant oututs.
+		TODO (John): Remove the redundant outputs.
 
 		TODO (John): Look into removing Theano, since it is no longer maintained.  We could use
 		another package with similar functionality (analytic differentiation on algebraic

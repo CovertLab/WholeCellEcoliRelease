@@ -2173,6 +2173,7 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 	Requires
 	--------
 	- cell density, dry mass fraction, and average initial dry mass
+		Used to calculate the cell volume, which in turn is used to calculate concentrations.
 	- observed RNA degradation rates (half-lives)
 	- enoRNAse counts
 	- endoRNAse catalytic rate constants
@@ -2207,7 +2208,7 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 	TODO (John): Why is this function called 'cooperative'?  It seems to instead assume and model
 		competitive binding.
 
-	TODO (John): Determine what if any of the 'linear' parameter fitting should be retained.
+	TODO (John): Determine what part (if any) of the 'linear' parameter fitting should be retained.
 	"""
 
 	cellDensity = sim_data.constants.cellDensity
