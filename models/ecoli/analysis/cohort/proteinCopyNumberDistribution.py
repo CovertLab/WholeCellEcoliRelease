@@ -13,8 +13,6 @@ import os
 import cPickle
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
 from itertools import izip, cycle
@@ -24,8 +22,9 @@ from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 from wholecell.utils import units
 from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.utils.filepath import makedirs
 
-# Number of proteins monomers to sample and plot distribution for
+# Number of proteins sampled for Plot 1
 PROTEIN_SAMPLE_COUNT = 50
 
 def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile=None, metadata=None):
@@ -33,9 +32,8 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	if not os.path.isdir(variantDir):
 		raise Exception, "variantDir does not currently exist as a directory."
 
-	# If the plotOut directory doesn't exist, make a new directory
-	if not os.path.exists(plotOutDir):
-		os.mkdir(plotOutDir)
+	# Make plotOut directory if none exists
+	makedirs(plotOutDir)
 
 	# Get paths for all cell simulations in each seed
 	ap = AnalysisPaths(variantDir, cohort_plot = True)
@@ -55,10 +53,6 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# Load simDataFile
 	sim_data = cPickle.load(open(simDataFile))
 
-	"""
-	Get all IDs for proteins (monomers plus complexed proteins,
-	since proteins inside complexes must also be counted) from simData
-	"""
 	# Get IDs for complex of proteins and constituent protein monomers,
 	# and IDs for only the complexed proteins
 	ids_complexation = sim_data.process.complexation.moleculeNames
@@ -85,6 +79,8 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ids_rnap_subunit = data_rnap["subunitIds"].tolist()
 
 	# Get all monomer stoichiometric matrices for protein complexes
+	# These matrices will be used to dissociate complexes into its constituent
+	# monomer proteins
 	complex_stoich = sim_data.process.complexation.stoichMatrixMonomers()
 	equilibrium_stoich = sim_data.process.equilibrium.stoichMatrixMonomers()
 	ribosome_subunit_stoich = np.hstack((data_50s["subunitStoich"], data_30s["subunitStoich"]))
@@ -117,12 +113,13 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# Get mass data and calculate initial cell volume (used as standard volume
 	# when normalizing protein counts)
 	massDataFile = TableReader(os.path.join(simOutDir, "Mass"))
-	cellMass = massDataFile.readColumn("cellMass")
-	standard_cell_volume = (1.0/cell_density)*(units.fg*cellMass[0])
+	cellMass = massDataFile.readColumn("cellMass")*units.fg
+	expected_initial_volume = cellMass[0]/cell_density
 
-	"""
-	Extract protein counts from all simData
-	"""
+	# Seed np.random
+	np.random.seed(21)
+
+	# Extract protein counts from all simData
 	protein_counts = np.zeros((n_generation, n_seed, n_proteins), dtype=np.int)
 
 	for gen_idx, simDirs in enumerate(sim_dirs_grouped_by_gen):
@@ -135,15 +132,14 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
 			# Pick out random timepoint
-			np.random.seed(21)
 			idx_timepoint = np.random.randint(0, high=len(time))
 
 			# Get mass data
 			massDataFile = TableReader(os.path.join(simOutDir, "Mass"))
-			cellMass = massDataFile.readColumn("cellMass")
+			cellMass = massDataFile.readColumn("cellMass")*units.fg
 
 			# Calculate cell volume chosen timepoint
-			cell_volume = (1.0/cell_density)*(units.fg*cellMass[idx_timepoint])
+			cell_volume = cellMass[idx_timepoint]/cell_density
 
 			# Read counts of all bulk molecules at chosen timepoint
 			bulkCounts = bulkMolecules.readColumn("counts")[idx_timepoint, :]
@@ -159,7 +155,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			n_active_rnap = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[idx_timepoint, idx_rnap]
 
 			# Dissociate all complexes
-			# Stoichiometric matrix are in dtype float64 - needs casting to integers
+			# Stoichiometric matrices are in dtype float64 - needs casting to integers
 			complex_monomer_counts = np.dot(np.negative(bulkCounts[:, idx_complexation_complex]), complex_stoich.T)
 			equilibrium_monomer_counts = np.dot(np.negative(bulkCounts[:, idx_equilibrium_complex]), equilibrium_stoich.T)
 			bulkCounts[:, idx_complexation] += complex_monomer_counts.astype(np.int)
@@ -171,8 +167,8 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			bulkCounts[:, idx_ribosome_subunit] += n_ribosome_subunit.astype(np.int)
 			bulkCounts[:, idx_rnap_subunit] += n_rnap_subunit.astype(np.int)
 
-			# Read bulkCounts at selected timepoint, and normalize to standard cell volume
-			bulkCounts_normalized = bulkCounts*(standard_cell_volume/cell_volume)
+			# Read bulkCounts at selected timepoint, and normalize
+			bulkCounts_normalized = bulkCounts*(expected_initial_volume/cell_volume)
 
 			# Get protein monomer counts for calculations now that all complexes are dissociated
 			protein_counts[gen_idx, seed_idx, :] = bulkCounts_normalized[:, idx_translation]
@@ -276,9 +272,11 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	protein_counts_mean_over_seed_logfoldchange = np.log10(protein_counts_mean_over_seed_nonzero/protein_counts_mean_over_seed_nonzero[0, :])
 	protein_counts_std_over_seed_logfoldchange = np.log10(protein_counts_std_over_seed_nonzero/protein_counts_std_over_seed_nonzero[0, :])
 
-	# Select every 20 proteins to plot for readability
+	# Select a subset RNAs to plot for readability
+	plot_every_n = 20
+
 	ax1 = plt.subplot(gs[0, 0])
-	ax1.plot(np.arange(n_generation), protein_counts_mean_over_seed_logfoldchange[:, ::20])
+	ax1.plot(np.arange(n_generation), protein_counts_mean_over_seed_logfoldchange[:, ::plot_every_n])
 	ax1.plot(np.arange(n_generation), np.zeros(n_generation), linestyle='--', linewidth=5, color='k')
 	ax1.set_xlabel("Generation #")
 	ax1.set_xticks(np.arange(0, n_generation, step=1))
@@ -286,7 +284,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax1.set_ylim([-1, 1])
 
 	ax2 = plt.subplot(gs[1, 0])
-	ax2.plot(np.arange(n_generation), protein_counts_std_over_seed_logfoldchange[:, ::20])
+	ax2.plot(np.arange(n_generation), protein_counts_std_over_seed_logfoldchange[:, ::plot_every_n])
 	ax2.plot(np.arange(n_generation), np.zeros(n_generation), linestyle='--', linewidth=5, color='k')
 	ax2.set_xlabel("Generation #")
 	ax2.set_xticks(np.arange(0, n_generation, step=1))

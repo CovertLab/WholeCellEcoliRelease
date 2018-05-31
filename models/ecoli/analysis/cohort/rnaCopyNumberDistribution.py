@@ -13,8 +13,6 @@ import os
 import cPickle
 
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
 from itertools import izip, cycle
@@ -24,8 +22,9 @@ from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 from wholecell.utils import units
 from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.utils.filepath import makedirs
 
-# Number of RNAs to sample and plot distribution for in Plot 1
+# Number of RNAs sampled for Plot 1
 RNA_SAMPLE_COUNT = 50
 
 def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile=None, metadata=None):
@@ -33,9 +32,8 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	if not os.path.isdir(variantDir):
 		raise Exception, "variantDir does not currently exist as a directory."
 
-	# If the plotOut directory doesn't exist, make a new directory
-	if not os.path.exists(plotOutDir):
-		os.mkdir(plotOutDir)
+	# Make plotOut directory if none exists
+	makedirs(plotOutDir)
 
 	# Get paths for all cell simulations in each seed
 	ap = AnalysisPaths(variantDir, cohort_plot = True)
@@ -73,12 +71,13 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# Get mass data and calculate initial cell volume (used as standard volume
 	# when normalizing RNA counts)
 	massDataFile = TableReader(os.path.join(simOutDir, "Mass"))
-	cellMass = massDataFile.readColumn("cellMass")
-	standard_cell_volume = (1.0 / cell_density) * (units.fg * cellMass[0])
+	cellMass = massDataFile.readColumn("cellMass")*units.fg
+	expected_initial_volume = cellMass[0]/cell_density
 
-	"""
-	Extract RNA counts from all simData
-	"""
+	# Seed np.random
+	np.random.seed(21)
+
+	# Extract RNA counts from all simData
 	rna_counts = np.zeros((n_generation, n_seed, n_rnas), dtype=np.int)
 
 	# For each generation and seed
@@ -93,21 +92,20 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
 			# Pick out random timepoint
-			np.random.seed(21)
 			idx_timepoint = np.random.randint(0, high=len(time))
 
 			# Get mass data
 			massDataFile = TableReader(os.path.join(simOutDir, "Mass"))
-			cellMass = massDataFile.readColumn("cellMass")
+			cellMass = massDataFile.readColumn("cellMass")*units.fg
 
 			# Calculate cell volume
-			cell_volume = (1.0/cell_density)*(units.fg*cellMass[idx_timepoint])
+			cell_volume = cellMass[idx_timepoint]/cell_density
 
 			# Read counts of all bulk molecules
 			bulkCounts = bulkMolecules.readColumn("counts")
 
-			# Read bulkCounts at selected timepoint, and normalize to cell volume at t=0
-			bulkCounts_normalized = bulkCounts[idx_timepoint, :]*(standard_cell_volume/cell_volume)
+			# Read bulkCounts at selected timepoint, and normalize
+			bulkCounts_normalized = bulkCounts[idx_timepoint, :]*(expected_initial_volume/cell_volume)
 
 			# Get RNA counts
 			rna_counts[gen_idx, seed_idx, :] = bulkCounts_normalized[idx_rna]
@@ -211,9 +209,11 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	rna_counts_mean_over_seed_logfoldchange = np.log10(rna_counts_mean_over_seed_nonzero/rna_counts_mean_over_seed_nonzero[0,:])
 	rna_counts_std_over_seed_logfoldchange = np.log10(rna_counts_std_over_seed_nonzero/rna_counts_std_over_seed_nonzero[0,:])
 
-	# Select every 20 RNAs to plot for readability
+	# Select a subset RNAs to plot for readability
+	plot_every_n = 20
+
 	ax1 = plt.subplot(gs[0, 0])
-	ax1.plot(np.arange(n_generation), rna_counts_mean_over_seed_logfoldchange[:, ::20])
+	ax1.plot(np.arange(n_generation), rna_counts_mean_over_seed_logfoldchange[:, ::plot_every_n])
 	ax1.plot(np.arange(n_generation), np.zeros(n_generation), linestyle='--', linewidth=5, color='k')
 	ax1.set_xlabel("Generation #")
 	ax1.set_xticks(np.arange(0, n_generation, step=1))
@@ -221,7 +221,7 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax1.set_ylim([-1, 1])
 
 	ax2 = plt.subplot(gs[1, 0])
-	ax2.plot(np.arange(n_generation), rna_counts_std_over_seed_logfoldchange[:, ::20])
+	ax2.plot(np.arange(n_generation), rna_counts_std_over_seed_logfoldchange[:, ::plot_every_n])
 	ax2.plot(np.arange(n_generation), np.zeros(n_generation), linestyle='--', linewidth=5, color='k')
 	ax2.set_xlabel("Generation #")
 	ax2.set_xticks(np.arange(0, n_generation, step=1))
