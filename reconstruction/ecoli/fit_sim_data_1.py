@@ -1572,37 +1572,86 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 			sim_data.process.transcription.rnaSynthProb[condition] /= sim_data.process.transcription.rnaSynthProb[condition].sum()
 
 	def makeG(sim_data, pPromoterBound):
-		gI, gJ, gV, k, rowNames, colNames, kInfo = [], [], [], [], [], [], []
-		for idx, rnaId in enumerate(sim_data.process.transcription.rnaData["id"]):
-			rnaIdNoLoc = rnaId[:-3]
+		"""
+		Construct matrix G that contains probabilities of pPromoterBound as
+		elements. Each row of the matrix is named "(RNA)__(condition)", where
+		there are two conditions (active/inactive) for each TF that regulates
+		the expression of the given RNA. For RNAs that are not regulated by
+		any TFs, a single row named "(RNA)__basal" represents the RNA. Each
+		column is named "(RNA)__(TF)", for each TF that regulates the
+		expression of the given RNA. Each element is set to the value in
+		pPromoterBound that corresponds to the condition given by the row,
+		and the TF given by the column. For each RNA, there is an additional
+		column named "(RNA)__alpha", and all elements in this column that
+		corresponds to the rows for the RNA are set to 1.
 
+		Requires
+		--------
+		- pPromoterBound: Probabilities that a given TF is bound to its
+		promoter in a given condition, calculated from bulk average
+		concentrations of the TF and its associated ligands.
+
+		Returns
+		--------
+		- G: Matrix of values in pPromoterBound, rearranged based on each RNA
+		- rowNames: List of row names of G as strings
+		- colNames: List of column names of G as strings
+		- k: List of RNA synthesis probabilities per each RNA and condition
+		- kInfo: List of dictionaries that hold information on values of k -
+		kInfo[i]["condition"] and kInfo[i]["idx"] hold what condition and RNA
+		index the probability k[i] refers to, respectively.
+		"""
+		gI, gJ, gV, k, rowNames, colNames, kInfo = [], [], [], [], [], [], []
+
+		for idx, rnaId in enumerate(sim_data.process.transcription.rnaData["id"]):
+			rnaIdNoLoc = rnaId[:-3]  # Strip off localization ID from RNA ID
+
+			# Get list of TFs that regulate this RNA
 			tfs = sim_data.process.transcription_regulation.targetTf.get(rnaIdNoLoc, [])
 			conditions = ["basal"]
 			tfsWithData = []
+
+			# Check if data exists for conditions when TF is active
 			for tf in tfs:
 				if tf not in sorted(sim_data.tfToActiveInactiveConds):
 					continue
+
+				# Add conditions for TFs that regulate the RNA
 				conditions.append(tf + "__active")
 				conditions.append(tf + "__inactive")
 				tfsWithData.append(tf)
+
 			for condition in conditions:
+				# Skip basal conditions, unless the RNA is not regulated by any TFs
 				if len(tfsWithData) > 0 and condition == "basal":
 					continue
+
+				# Add row for each condition specific to each RNA
 				rowName = rnaIdNoLoc + "__" + condition
 				rowNames.append(rowName)
+
 				for tf in tfsWithData:
+					# Add column for each TF that regulates each RNA
 					colName = rnaIdNoLoc + "__" + tf
+
 					if colName not in colNames:
 						colNames.append(colName)
+
 					gI.append(rowNames.index(rowName))
 					gJ.append(colNames.index(colName))
-					gV.append(pPromoterBound[condition][tf])
+					gV.append(pPromoterBound[condition][tf])  # Probability that TF is bound in given condition
+
+				# Add alpha column for each RNA
 				colName = rnaIdNoLoc + "__alpha"
+
 				if colName not in colNames:
 					colNames.append(colName)
+
 				gI.append(rowNames.index(rowName))
 				gJ.append(colNames.index(colName))
-				gV.append(1.)
+				gV.append(1.)  # TODO: Why is this set to 1?
+
+				# Also gather RNA synthesis probabilities for each RNA per condition
 				k.append(sim_data.process.transcription.rnaSynthProb[condition][idx])
 				kInfo.append({"condition": condition, "idx": idx})
 
@@ -1611,7 +1660,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		G = np.zeros((len(rowNames), len(colNames)), np.float64)
 		G[gI, gJ] = gV
 
-		return G, k, rowNames, colNames, kInfo
+		return G, rowNames, colNames, k, kInfo
 
 	def makeZ(sim_data, colNames):
 		combinationIdxToColIdxs = {
@@ -1761,6 +1810,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 
 		return Pdiff
 
+	# Initialize pPromoterBound using mean TF and ligand concentrations
 	pPromoterBound = calculatePromoterBoundProbability(sim_data, cellSpecs)
 	pInit0 = None
 	lastNorm = np.inf
@@ -1886,9 +1936,9 @@ def calculatePromoterBoundProbability(sim_data, cellSpecs):
 
 	Returns
 	--------
-	- Probabilities that a transcription factor is bound to its promoter, per
-	growth condition and TF.
-
+	- pPromoterBound: Probability that a transcription factor is bound to
+	its promoter, per growth condition and TF. Each probability is indexed by
+	pPromoterBound[condition][TF].
 	"""
 	pPromoterBound = {}  # Initialize return value
 	cellDensity = sim_data.constants.cellDensity
