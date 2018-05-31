@@ -1824,12 +1824,13 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 
 	SCALING = 1e1
 	NORM = 1
-	for _ in xrange(100):
-		G, k, rowNamesG, colNamesG, kInfo = makeG(sim_data, pPromoterBound)
+
+	# Repeat for a fixed maximum number of iterations
+	for i in xrange(100):
+		G, rowNamesG, colNamesG, k, kInfo = makeG(sim_data, pPromoterBound)
+
 		Z = makeZ(sim_data, colNamesG)
 		T = makeT(sim_data, colNamesG)
-
-
 		R = Variable(G.shape[1])
 		prob = Problem(Minimize(norm(G * (SCALING * R) - (SCALING * k), NORM)), [0 <= Z * (SCALING * R), Z * (SCALING * R) <= SCALING * 1, T * (SCALING * R) >= 0])
 		prob.solve(solver = "GLPK")
