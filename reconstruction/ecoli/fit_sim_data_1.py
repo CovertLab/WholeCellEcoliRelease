@@ -1611,12 +1611,12 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 			conditions = ["basal"]
 			tfsWithData = []
 
-			# Check if data exists for conditions when TF is active
+			# Take only those TFs with active/inactive conditions data
 			for tf in tfs:
 				if tf not in sorted(sim_data.tfToActiveInactiveConds):
 					continue
 
-				# Add conditions for TFs that regulate the RNA
+				# Add conditions for selected TFs
 				conditions.append(tf + "__active")
 				conditions.append(tf + "__inactive")
 				tfsWithData.append(tf)
@@ -1832,20 +1832,24 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		Z = makeZ(sim_data, colNamesG)
 		T = makeT(sim_data, colNamesG)
 		R = Variable(G.shape[1])
+
 		prob = Problem(Minimize(norm(G * (SCALING * R) - (SCALING * k), NORM)), [0 <= Z * (SCALING * R), Z * (SCALING * R) <= SCALING * 1, T * (SCALING * R) >= 0])
 		prob.solve(solver = "GLPK")
+
 		if prob.status != "optimal":
 			raise Exception, "Solver could not find optimal value"
+
 		r = np.array(R.value).reshape(-1)
 
-		print np.linalg.norm(np.dot(G, r) - k, NORM)
+		# print np.linalg.norm(np.dot(G, r) - k, NORM)
 
 		H, pInit, pAlphaIdxs, pNotAlphaIdxs, fixedTFIdxs, pPromoterBoundIdxs, colNamesH = makeH(sim_data, colNamesG, pPromoterBound, r, fixedTFs, cellSpecs)
 		Pdiff = makePdiff(sim_data, colNamesH, pPromoterBound)
-		if _ == 0:
+
+		if i == 0:
 			pInit0 = pInit.copy()
 
-		print np.linalg.norm(np.dot(H, pInit) - k, NORM)
+		# print np.linalg.norm(np.dot(H, pInit) - k, NORM)
 
 		P = Variable(H.shape[1])
 		D = np.zeros(H.shape[1])
@@ -1855,22 +1859,26 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		Drhs[D != 1] = 0
 		prob = Problem(Minimize(norm(H * (SCALING * P) - (SCALING * k), NORM) + 1e-3 * norm(P - pInit0, NORM)), [0 <= (SCALING * P), (SCALING * P) <= SCALING * 1, np.diag(D) * (SCALING * P) == (SCALING * Drhs), Pdiff * (SCALING * P) >= SCALING * 0.1])
 		prob.solve(solver = "GLPK")
+
 		if prob.status != "optimal":
 			raise Exception, "Solver could not find optimal value"
-		pF = np.array(P.value).reshape(-1)
-		fromArray(pF, pPromoterBound, pPromoterBoundIdxs)
 
-		print np.linalg.norm(np.dot(H, pF) - k, NORM)
+		pF = np.array(P.value).reshape(-1)
+		fromArray(pF, pPromoterBound, pPromoterBoundIdxs)  # Update pPromoterBound
+
+		# print np.linalg.norm(np.dot(H, pF) - k, NORM)
 
 		if np.abs(np.linalg.norm(np.dot(H, pF) - k, NORM) - lastNorm) < 1e-9:
 			break
 		else:
 			lastNorm = np.linalg.norm(np.dot(H, pF) - k, NORM)
+
 	sim_data.pPromoterBound = pPromoterBound
 	updateSynthProb(sim_data, kInfo, np.dot(H, pF))
 
 	cellDensity = sim_data.constants.cellDensity
 	rnaIdList = sim_data.process.transcription.rnaData["id"].tolist()
+
 	for tf in sorted(sim_data.tfToActiveInactiveConds):
 		if sim_data.process.transcription_regulation.tfToTfType[tf] != "1CS":
 			continue
