@@ -1663,34 +1663,71 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		return G, rowNames, colNames, k, kInfo
 
 	def makeZ(sim_data, colNames):
+		"""
+		Construct matrix Z of zeros and ones. Each row of the complex
+		corresponds to an RNA-(TF combination) pair, and each column
+		corresponds to an RNA-TF pair, with an additional RNA-alpha column for
+		each RNA (identical to matrix G). Matrix elements are set to one if
+		the TF specified by the column is "active" in the combination specified
+		by the row or if the column is an RNA-alpha column, and zero otherwise.
+
+		Requires
+		--------
+		- colNames: List of column name strings of matrix G.
+
+		Returns
+		--------
+		- Z: Matrix of zeros and ones, specifying which TFs in the columns
+		correspond to combinations in the rows.
+		"""
+
+		# TODO: refactor this as a function, not a fixed dictionary
 		combinationIdxToColIdxs = {
 			0: [0], 1: [0, 1], 2: [0, 2], 3: [0, 1, 2],
 			4: [0, 3], 5: [0, 1, 3], 6: [0, 2, 3], 7: [0, 1, 2, 3],
 			8: [0, 4], 9: [0, 1, 4], 10: [0, 2, 4], 11: [0, 1, 2, 4],
 			12: [0, 3, 4], 13: [0, 1, 3, 4], 14: [0, 2, 3, 4], 15: [0, 1, 2, 3, 4],
 			}
+
 		zI, zJ, zV, rowNames = [], [], [], []
+
 		for rnaId in sim_data.process.transcription.rnaData["id"]:
-			rnaIdNoLoc = rnaId[:-3]
+			rnaIdNoLoc = rnaId[:-3]  # Strip off localization ID from RNA ID
+
+			# Get list of TFs that regulate this RNA
 			tfs = sim_data.process.transcription_regulation.targetTf.get(rnaIdNoLoc, [])
 			tfsWithData = []
+
+			# Get column index of the RNA's alpha column
 			colIdxs = [colNames.index(rnaIdNoLoc + "__alpha")]
+
+			# Take only those TFs with active/inactive conditions data
 			for tf in tfs:
 				if tf not in sim_data.tfToActiveInactiveConds:
 					continue
+
 				tfsWithData.append(tf)
+
+				# Get column index of the RNA-TF pair
 				colIdxs.append(colNames.index(rnaIdNoLoc + "__" + tf))
+
 			nTfs = len(tfsWithData)
+
+			# For all possible combinations of TFs
 			for combinationIdx in xrange(2**nTfs):
+				# Add a row for each combination
 				rowName = rnaIdNoLoc + "__%d" % combinationIdx
 				rowNames.append(rowName)
+
+				# Set matrix element value to one if the TF specified by the
+				# column is present in the given combination of TFs
 				for colIdx in combinationIdxToColIdxs[combinationIdx]:
 					zI.append(rowNames.index(rowName))
 					zJ.append(colIdxs[colIdx])
 					zV.append(1)
 
+		# Build matrix Z
 		zI, zJ, zV = np.array(zI), np.array(zJ), np.array(zV)
-
 		Z = np.zeros((zI.max() + 1, zJ.max() + 1), np.float64)
 		Z[zI, zJ] = zV
 
