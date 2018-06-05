@@ -152,7 +152,7 @@ class Shell(wholecell.loggers.logger.Logger):
 				targetType, targetName = column["target"].split(":")
 
 				target = {
-					"State":sim.states,
+					"State":sim.internal_states,
 					"Process":sim.processes,
 					"Listener":sim.listeners
 					}[targetType][targetName]

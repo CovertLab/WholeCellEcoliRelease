@@ -33,8 +33,8 @@ def calcInitialConditions(sim, sim_data):
 	if sim._massDistribution:
 		massCoeff = randomState.normal(loc = 1.0, scale = 0.1)
 
-	bulkMolCntr = sim.states['BulkMolecules'].container
-	uniqueMolCntr = sim.states["UniqueMolecules"].container
+	bulkMolCntr = sim.internal_states['BulkMolecules'].container
+	uniqueMolCntr = sim.internal_states["UniqueMolecules"].container
 
 	# Set up states
 	initializeBulkMolecules(bulkMolCntr, sim_data, randomState, massCoeff)
@@ -126,7 +126,7 @@ def initializeSmallMolecules(bulkMolCntr, sim_data, randomState, massCoeff):
 	mass = massCoeff * (avgCellFractionMass["proteinMass"] + avgCellFractionMass["rnaMass"] + avgCellFractionMass["dnaMass"]) / sim_data.mass.avgCellToInitialCellConvFactor
 
 	concDict = sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
-		sim_data.nutrientsTimeSeries[sim_data.nutrientsTimeSeriesLabel][0][1]
+		sim_data.external_state.environment.nutrients_time_series[sim_data.external_state.environment.nutrients_time_series_label][0][1]
 		)
 	concDict.update(sim_data.mass.getBiomassAsConcentrations(sim_data.conditionToDoublingTime[sim_data.condition]))
 	moleculeIds = sorted(concDict)
@@ -433,10 +433,10 @@ def setDaughterInitialConditions(sim, sim_data):
 		sim.processes["PolypeptideElongation"].elngRateFactor = elng_rate_factor
 
 	bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkMolecules"))
-	sim.states["BulkMolecules"].tableLoad(bulk_table_reader, 0)
+	sim.internal_states["BulkMolecules"].tableLoad(bulk_table_reader, 0)
 
 	unique_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "UniqueMolecules"))
-	sim.states["UniqueMolecules"].tableLoad(unique_table_reader, 0)
+	sim.internal_states["UniqueMolecules"].tableLoad(unique_table_reader, 0)
 
 	time_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "Time"))
 	initialTime = TableReader(os.path.join(sim._inheritedStatePath, "Time")).readAttribute("initialTime")

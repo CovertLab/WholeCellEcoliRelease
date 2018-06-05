@@ -4,7 +4,7 @@ CONTROL_OUTPUT = dict(
 	)
 
 def nutrientTimeSeriesDownshiftTotalIndices(sim_data):
-	nNutrientTimeSeries = len(sim_data.nutrientsTimeSeries)
+	nNutrientTimeSeries = len(sim_data.external_state.environment.nutrients_time_series)
 	return nNutrientTimeSeries + 1
 
 
@@ -18,11 +18,11 @@ def nutrientTimeSeriesDownshift(sim_data, index):
 	# Start in minimal_plus_amino acids, index = 2
 	sim_data.condition = sorted(sim_data.conditionActiveTfs)[2]
 
-	nutrientTimeSeriesLabels = sorted(sim_data.nutrientsTimeSeries)
-	nutrientTimeSeriesLabel = nutrientTimeSeriesLabels[index]
-	sim_data.nutrientsTimeSeriesLabel = nutrientTimeSeriesLabel
+	nutrients_time_series_labels = sorted(sim_data.external_state.environment.nutrients_time_series)
+	nutrients_time_series_label = nutrients_time_series_labels[index]
+	sim_data.external_state.environment.nutrients_time_series_label = nutrients_time_series_label
 
 	return dict(
-		shortName = "{}_env".format(nutrientTimeSeriesLabel),
-		desc = "Simulation of environment {}.".format(nutrientTimeSeriesLabel)
+		shortName = "{}_env".format(nutrients_time_series_label),
+		desc = "Simulation of environment {}.".format(nutrients_time_series_label)
 		), sim_data

@@ -28,9 +28,9 @@ def tfActivity(sim_data, index):
 
 	sim_data.condition = tf + "__" + tfStatus
 
-	sim_data.nutrientsTimeSeriesLabel = tf + "__" + tfStatus
-	sim_data.nutrientsTimeSeries[sim_data.nutrientsTimeSeriesLabel] = collections.deque()
-	sim_data.nutrientsTimeSeries[sim_data.nutrientsTimeSeriesLabel].append((
+	sim_data.external_state.environment.nutrients_time_series_label = tf + "__" + tfStatus
+	sim_data.external_state.environment.nutrients_time_series[sim_data.external_state.environment.nutrients_time_series_label] = []
+	sim_data.external_state.environment.nutrients_time_series[sim_data.external_state.environment.nutrients_time_series_label].append((
 		0.0,
 		sim_data.tfToActiveInactiveConds[tf][tfStatus + " nutrients"]
 		))

@@ -7,17 +7,17 @@ def condition(sim_data, index):
 
 	nConditions = conditionIndices(sim_data)
 
-	conditionLabels = sorted(sim_data.conditionActiveTfs)
-	conditionLabel = conditionLabels[index]
-	sim_data.condition = conditionLabel
+	condition_labels = sorted(sim_data.conditionActiveTfs)
+	condition_label = condition_labels[index]
+	sim_data.condition = condition_label
 	# TODO: add new column to condition defs to replace this?
-	if sim_data.conditions[conditionLabel]["nutrients"] == "minimal_plus_amino_acids":
-		sim_data.nutrientsTimeSeriesLabel = "000003_aa"
-	elif sim_data.conditions[conditionLabel]["nutrients"] == "minimal_minus_oxygen":
-		sim_data.nutrientsTimeSeriesLabel = "000004_oxygen_absent"
+	if sim_data.conditions[condition_label]["nutrients"] == "minimal_plus_amino_acids":
+		sim_data.external_state.environment.nutrients_time_series_label = "000003_aa"
+	elif sim_data.conditions[condition_label]["nutrients"] == "minimal_minus_oxygen":
+		sim_data.external_state.environment.nutrients_time_series_label = "000004_oxygen_absent"
 
 
 	return dict(
-		shortName = "{}_env".format(conditionLabel),
-		desc = "Simulation of condition {}.".format(conditionLabel)
+		shortName = "{}_env".format(condition_label),
+		desc = "Simulation of condition {}.".format(condition_label)
 		), sim_data

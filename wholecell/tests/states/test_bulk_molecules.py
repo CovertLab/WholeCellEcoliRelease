@@ -15,7 +15,7 @@ import numpy as np
 import numpy.testing as npt
 import nose.plugins.attrib as noseAttrib
 
-from wholecell.states.state import State
+from wholecell.states.internal_state import InternalState
 from wholecell.processes.process import Process
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.states.bulk_molecules import BulkMoleculeView, BulkMoleculesView
@@ -28,7 +28,7 @@ OBJECT_COUNTS = [100, 20, 10]
 class Test_BulkMolecules(unittest.TestCase):
 
 	def setUp(self):
-		self.state = State()
+		self.state = InternalState()
 		self.state._countsAllocatedFinal = np.array([OBJECT_COUNTS] * 3)
 		self.process = Process()
 		self.query = set(OBJECT_NAMES)

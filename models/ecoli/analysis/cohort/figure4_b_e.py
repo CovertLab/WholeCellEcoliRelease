@@ -147,11 +147,11 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	ax0.xaxis.set_visible(False)
 	#ax0.axvline(x=44*2+22., linewidth=3, color='gray', alpha = 0.5)
 
-	nutrientsTimeSeriesLabel = sim_data.nutrientsTimeSeriesLabel
+	nutrients_time_series_label = sim_data.external_state.environment.nutrients_time_series_label
 	try:
-		T_ADD_AA = sim_data.nutrientsTimeSeries[nutrientsTimeSeriesLabel][1][0] / 60.
+		T_ADD_AA = sim_data.external_state.environment.nutrients_time_series[nutrients_time_series_label][1][0] / 60.
 	except:
-		print "nutrientsTimeSeries does not have correct dimensions for this analysis. Exiting."
+		print "nutrients_time_series does not have correct dimensions for this analysis. Exiting."
 		return
 	axes_list = [ax0, ax1, ax2]#, ax3, ax4]
 	for a in axes_list:
@@ -326,8 +326,8 @@ def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# ax0.xaxis.set_visible(False)
 	#ax0.axvline(x=44*2+22., linewidth=3, color='gray', alpha = 0.5)
 
-	nutrientsTimeSeriesLabel = sim_data.nutrientsTimeSeriesLabel
-	T_ADD_AA = sim_data.nutrientsTimeSeries[nutrientsTimeSeriesLabel][1][0] / 60.
+	nutrients_time_series_label = sim_data.external_state.environment.nutrients_time_series_label
+	T_ADD_AA = sim_data.external_state.environment.nutrients_time_series[nutrients_time_series_label][1][0] / 60.
 	axes_list = [ax3, ax4]
 	for a in axes_list:
 		shift_time = T_ADD_AA

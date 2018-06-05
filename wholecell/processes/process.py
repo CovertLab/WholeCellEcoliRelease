@@ -40,7 +40,8 @@ class Process(object):
 		self.seed = None # set by Simulation
 
 		# References to state
-		self._states = None
+		self._internal_states = None
+		self._external_states = None
 
 
 	# Construct object graph, calculate constants
@@ -49,13 +50,14 @@ class Process(object):
 
 		self._processIndex = sim.processes.keys().index(self._name)
 
-		self._states = sim.states
+		self._internal_states = sim.internal_states
+		self._external_states = sim.external_states
 
 
 	# Set state partitioning options
 	# TODO: make this logic consistent amongst states and allow more options
 	def bulkMoleculesRequestPriorityIs(self, priorityLevel):
-		self._states["BulkMolecules"].processRequestPriorityIs(
+		self._internal_states["BulkMolecules"].processRequestPriorityIs(
 			self._processIndex, priorityLevel)
 
 	def timeStepSec(self):
@@ -70,29 +72,17 @@ class Process(object):
 	# Construct views
 	def bulkMoleculesView(self, moleculeIDs):
 		return wholecell.states.bulk_molecules.BulkMoleculesView(
-			self._states['BulkMolecules'], self, moleculeIDs)
+			self._internal_states['BulkMolecules'], self, moleculeIDs)
 
 
 	def bulkMoleculeView(self, moleculeIDs):
 		return wholecell.states.bulk_molecules.BulkMoleculeView(
-			self._states['BulkMolecules'], self, moleculeIDs)
+			self._internal_states['BulkMolecules'], self, moleculeIDs)
 
 
 	def uniqueMoleculesView(self, moleculeName, **attributes):
 		return wholecell.states.unique_molecules.UniqueMoleculesView(
-			self._states['UniqueMolecules'], self, (moleculeName, attributes))
-
-
-	# def chromosomeForksView(self, extentForward, extentReverse, includeMoleculesOnEnds):
-	# 	return wholecell.views.view.ChromosomeForksView(
-	# 		self._states['Chromosome'], self,
-	# 		(extentForward, extentReverse, includeMoleculesOnEnds))
-
-
-	# def chromosomeMoleculesView(self, moleculeName, extentForward, extentReverse, includeMoleculesOnEnds):
-	# 	return wholecell.views.view.ChromosomeMoleculesView(
-	# 		self._states['Chromosome'], self,
-	# 		(moleculeName, extentForward, extentReverse, includeMoleculesOnEnds))
+			self._internal_states['UniqueMolecules'], self, (moleculeName, attributes))
 
 
 	# Communicate with listeners

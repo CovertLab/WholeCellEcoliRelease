@@ -5,12 +5,6 @@ BulkMolecules.py
 
 State which represents for a class of molecules the bulk copy numbers.
 
-@author: Derek Macklin
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 10/04/2013
-@author: Nick Ruggero
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
@@ -21,7 +15,7 @@ from itertools import izip
 
 import numpy as np
 
-import wholecell.states.state
+import wholecell.states.internal_state
 import wholecell.views.view
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
@@ -34,19 +28,13 @@ ASSERT_POSITIVE_COUNTS = True
 class NegativeCountsError(Exception):
 	pass
 
-class BulkMolecules(wholecell.states.state.State):
+class BulkMolecules(wholecell.states.internal_state.InternalState):
 	_name = 'BulkMolecules'
 
 	def __init__(self, *args, **kwargs):
 		self.container = None
-
 		self._moleculeMass = None
-
 		self._moleculeIDs = None
-		# self._compartmentIDs = None
-
-		# self._nCompartments = None
-
 		self._countsRequested = None
 		self._countsAllocatedInitial = None
 		self._countsAllocatedFinal = None
@@ -61,18 +49,11 @@ class BulkMolecules(wholecell.states.state.State):
 		self._processIDs = sim.processes.keys()
 
 		# Load constants
-		self._moleculeIDs = sim_data.state.bulkMolecules.bulkData['id']
-		# self._compartmentIDs = sim_data.state.compartments['compartmentAbbreviation']
-		# self._nCompartments = sim_data.nCompartments
+		self._moleculeIDs = sim_data.internal_state.bulkMolecules.bulkData['id']
 
-		self._moleculeMass = sim_data.state.bulkMolecules.bulkData['mass'].asNumber(units.fg / units.mol) / sim_data.constants.nAvogadro.asNumber(1 / units.mol)
+		self._moleculeMass = sim_data.internal_state.bulkMolecules.bulkData['mass'].asNumber(units.fg / units.mol) / sim_data.constants.nAvogadro.asNumber(1 / units.mol)
 
 		self._submassNameToIndex = sim_data.submassNameToIndex
-
-		# self._compIndexes = {
-		# 	compartmentKey:(sim_data.state.bulkMolecules.bulkData['compartment'] == compartmentKey)
-		# 	for compartmentKey in sim_data.state.compartments['compartmentAbbreviation']
-		# 	}
 
 		# Create the container for molecule counts
 		self.container = BulkObjectsContainer(self._moleculeIDs)

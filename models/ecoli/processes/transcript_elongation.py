@@ -52,8 +52,10 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 	def calculateRequest(self):
 		# Calculate elongation rate based on the current nutrients
+		current_nutrients = self._external_states['Environment'].nutrients
+
 		self.rnapElngRate = int(stochasticRound(self.randomState,
-			self.rnaPolymeraseElongationRateDict[self._sim.processes["PolypeptideElongation"].currentNutrients].asNumber(units.nt / units.s) * self.timeStepSec()))
+			self.rnaPolymeraseElongationRateDict[current_nutrients].asNumber(units.nt / units.s) * self.timeStepSec()))
 
 		# Request all active RNA polymerases
 		activeRnaPolys = self.activeRnaPolys.allMolecules()
