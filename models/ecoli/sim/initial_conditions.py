@@ -221,13 +221,12 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 	sequences = sim_data.process.replication.replication_sequences
 	sequenceElongations = np.array(sequenceLength, dtype=np.int64)
 	massIncreaseDna = computeMassIncrease(
-			np.tile(sequences,(len(sequenceIdx) / 4,1)),
+			np.tile(sequences,(len(sequenceIdx) // 4,1)),
 			sequenceElongations,
 			sim_data.process.replication.replicationMonomerWeights.asNumber(units.fg)
 			)
 
 	# Update the attributes of replicating DNA polymerases
-	oricCenter = sim_data.constants
 	dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', len(sequenceIdx))
 	dnaPoly.attrIs(
 		sequenceIdx = np.array(sequenceIdx),
