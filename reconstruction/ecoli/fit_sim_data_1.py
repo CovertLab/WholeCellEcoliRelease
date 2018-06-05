@@ -1156,6 +1156,41 @@ def fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km
 
 
 def fitMaintenanceCosts(sim_data, bulkContainer):
+	"""
+	Fits the growth-associated maintenance (GAM) cost associated with metabolism.
+
+	The energetic costs associated with growth have been estimated utilizing flux-balance analysis
+	and are used with FBA to obtain accurate growth predictions.  In the whole-cell model, some of
+	these costs are explicitly associated with the energetic costs of translation, a biomass
+	assembly process.  Consequently we must estimate the amount of energy utilized by translation
+	per unit of biomass (i.e. dry mass) produced, and subtract that quantity from reported GAM to
+	acquire the modified GAM that we use in the metabolic submodel.
+
+	Requires
+	--------
+	- amino acid counts associated with protein monomers
+	- average initial dry mass
+	- energetc (GTP) cost of translation (per amino acid polymerized)
+	- observed growth-associated maintenance (GAM)
+		In dimensions of ATP or ATP equivalents consumed per biomass
+
+	Modifies
+	--------
+	- the "dark" ATP, i.e. the modified GAM
+
+	Notes
+	-----
+	As more non-metabolic submodels account for energetic costs, this function should be extended
+	to subtract those costs off the observed GAM.
+
+	There also exists, in contrast, non-growth-associated-maintenance (NGAM), which is relative to
+	total biomass rather than the biomass accumulation rate.  As the name would imply, this
+	accounts for the energetic costs of maintaining the existing biomass.  It is also accounted for
+	in the metabolic submodel.
+
+	TODO (John): Rewrite as a true function.
+
+	"""
 	aaCounts = sim_data.process.translation.monomerData["aaCounts"]
 	proteinCounts = bulkContainer.counts(sim_data.process.translation.monomerData["id"])
 	nAvogadro = sim_data.constants.nAvogadro
