@@ -278,8 +278,8 @@ def calculateTranslationSupply(sim_data, doubling_time, bulkContainer, avgCellDr
 	Returns the supply rates of all amino acids to translation given the desired
 	doubling time. This creates a limit on the polypeptide elongation process,
 	and thus on growth. The amino acid supply rate is found by calculating the
-	concentration of amino acids per gram dry cell weight and dividing by doubling
-	time.
+	concentration of amino acids per gram dry cell weight and multiplying by the
+	loss to dilution given doubling time.
 
 	Requires
 	--------
@@ -308,6 +308,7 @@ def calculateTranslationSupply(sim_data, doubling_time, bulkContainer, avgCellDr
 			)
 		)
 
+	# Calculate required amino acid supply to translation to counter dilution
 	translation_aa_supply = molAAPerGDCW * np.log(2) / doubling_time
 
 	return translation_aa_supply
@@ -548,26 +549,30 @@ def fitCondition(sim_data, spec, condition):
 	"""
 	Takes a given condition and returns the predicted bulk average, bulk deviation,
 	protein monomer average, protein monomer deviation, and amino acid supply to
-	translation. This is done within calculateBulkDistributions.
+	translation. This relies on calculateBulkDistributions and calculateTranslationSupply.
 
 	Requires
 	--------
 	- condition: a string specifying the condition.
-	- spec: a dictionary with cell specifications for the given condition.
+	- spec: a dictionary with cell specifications for the given condition. This
+	function uses the specs "expression", "concDict", "avgCellDryMassInit", and
+	"doubling_time"
 
 	Returns
 	--------
-	- bulkAverageContainer: The mean of the bulk counts.
-	- bulkDeviationContainer: The standard deviation of the bulk counts.
-	- proteinMonomerAverageContainer: The mean of the protein monomer counts.
-	- proteinMonomerDeviationContainer: The standard deviation of the protein
-	monomer	counts.
-	- translation_aa_supply: the supply rates of all amino acids to translation.
+	- The following specs are updated:
+		- bulkAverageContainer: The mean of the bulk counts.
+		- bulkDeviationContainer: The standard deviation of the bulk counts.
+		- proteinMonomerAverageContainer: The mean of the protein monomer counts.
+		- proteinMonomerDeviationContainer: The standard deviation of the protein
+		monomer	counts.
+		- translation_aa_supply: the supply rates of all amino acids to translation.
 	"""
 
 	if VERBOSE > 0:
 		print "Fitting condition {}".format(condition)
 
+	# Find bulk and protein distributions
 	bulkAverageContainer, bulkDeviationContainer, proteinMonomerAverageContainer, proteinMonomerDeviationContainer = calculateBulkDistributions(
 		sim_data,
 		spec["expression"],
@@ -580,6 +585,7 @@ def fitCondition(sim_data, spec, condition):
 	spec["proteinMonomerAverageContainer"] = proteinMonomerAverageContainer
 	spec["proteinMonomerDeviationContainer"] = proteinMonomerDeviationContainer
 
+	# Find the supply rates of amino acids to translation given doubling time
 	spec["translation_aa_supply"] = calculateTranslationSupply(
 											sim_data,
 											spec["doubling_time"],
@@ -815,7 +821,9 @@ def setInitialRnaExpression(sim_data, expression, doubling_time):
 def totalCountIdDistributionProtein(sim_data, expression, doubling_time):
 	"""
 	Calculates the total counts of proteins from the relative expression of RNA,
-	individual protein mass, and total protein mass.
+	individual protein mass, and total protein mass. Relies on the math functions
+	netLossRateFromDilutionAndDegradationProtein, proteinDistributionFrommRNA,
+	totalCountFromMassesAndRatios.
 
 	Requires
 	--------
@@ -835,14 +843,17 @@ def totalCountIdDistributionProtein(sim_data, expression, doubling_time):
 
 	degradationRates = sim_data.process.translation.monomerData["degRate"]
 
+	# Find the net protein loss
 	netLossRate_protein = netLossRateFromDilutionAndDegradationProtein(doubling_time, degradationRates)
 
+	# Find the protein distribution
 	distribution_protein = proteinDistributionFrommRNA(
 		distribution_transcriptsByProtein,
 		translation_efficienciesByProtein,
 		netLossRate_protein
 		)
 
+	# Find total protein counts
 	totalCount_protein = totalCountFromMassesAndRatios(
 		totalMass_protein,
 		individualMasses_protein,
@@ -857,7 +868,7 @@ def totalCountIdDistributionProtein(sim_data, expression, doubling_time):
 def totalCountIdDistributionRNA(sim_data, expression, doubling_time):
 	"""
 	Calculates the total counts of RNA from their relative expression, individual
-	mass, and total RNA mass.
+	mass, and total RNA mass. Relies on the math function totalCountFromMassesAndRatios.
 
 	Requires
 	--------
@@ -887,42 +898,38 @@ def totalCountIdDistributionRNA(sim_data, expression, doubling_time):
 
 def createBulkContainer(sim_data, expression, doubling_time):
 	"""
-	Creates a container that tracks the counts of all bulk molecules.
+	Creates a container that tracks the counts of all bulk molecules. Relies on
+	totalCountIdDistributionRNA and totalCountIdDistributionProtein to set the
+	counts and IDs of all RNAs and proteins.
 
 	Requires
 	--------
-	- expression: relative frequency distribution of RNA expression.
-	- doubling_time: measured doubling times given the condition, in units of minutes.
+	- expression: the relative frequency distribution of RNA expression.
+	- doubling_time: the measured doubling times given the condition, in units
+	of minutes.
 
 	Returns
 	-------
 	- bulkContainer: a wrapper around a NumPy array that tracks the counts of
 	bulk molecules.
-
 	"""
 
 	totalCount_RNA, ids_rnas, distribution_RNA = totalCountIdDistributionRNA(sim_data, expression, doubling_time)
 	totalCount_protein, ids_protein, distribution_protein = totalCountIdDistributionProtein(sim_data, expression, doubling_time)
 	ids_molecules = sim_data.state.bulkMolecules.bulkData["id"]
 
-	## Construct bulk container
-
+	# Construct bulk container
 	bulkContainer = BulkObjectsContainer(ids_molecules, dtype = np.float64)
 
-	## Assign RNA counts based on mass and expression distribution
-
+	# Assign RNA counts based on mass and expression distribution
 	counts_RNA = totalCount_RNA * distribution_RNA
-
 	bulkContainer.countsIs(counts_RNA, ids_rnas)
 
-	## Assign protein counts based on mass and mRNA counts
-
+	# Assign protein counts based on mass and mRNA counts
 	counts_protein = totalCount_protein * distribution_protein
-
 	bulkContainer.countsIs(counts_protein, ids_protein)
 
 	return bulkContainer
-
 
 def setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time):
 	'''
@@ -1236,7 +1243,6 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 
 	# Data for complexation
 	complexationStoichMatrix = sim_data.process.complexation.stoichMatrix().astype(np.int64, order = "F")
-
 	complexationPrebuiltMatrices = mccBuildMatrices(
 		complexationStoichMatrix
 		)
@@ -1289,7 +1295,7 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 		proteinMonomerCounts[seed, :] = proteinView.counts()
 		complexationMoleculeCounts = complexationMoleculesView.counts()
 
-		# form complexes
+		# Form complexes
 		updatedCompMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
 			complexationMoleculeCounts,
 			seed,
@@ -1311,7 +1317,7 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 				metCounts.asNumber().round()
 				)
 
-			# get reaction fluxes from equilibrium process
+			# Find reaction fluxes from equilibrium process
 			rxnFluxes, _ = sim_data.process.equilibrium.fluxesAndMoleculesToSS(
 				equilibriumMoleculesView.counts(),
 				cellVolume.asNumber(units.L),
@@ -1322,7 +1328,7 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 				)
 			assert np.all(equilibriumMoleculesView.counts() >= 0)
 
-			# get changes from two component system
+			# Find changes from two component system
 			_, moleculeCountChanges = sim_data.process.two_component_system.moleculesToSS(
 				twoComponentSystemMoleculesView.counts(),
 				cellVolume.asNumber(units.L),
@@ -1337,9 +1343,10 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 			if nIters > 100:
 				raise Exception, "Equilibrium reactions are not converging!"
 
-
 		allMoleculeCounts[seed, :] = allMoleculesView.counts()
 
+
+	# Update counts in bulk objects container
 	bulkAverageContainer = BulkObjectsContainer(sim_data.state.bulkMolecules.bulkData['id'], np.float64)
 	bulkDeviationContainer = BulkObjectsContainer(sim_data.state.bulkMolecules.bulkData['id'], np.float64)
 	proteinMonomerAverageContainer = BulkObjectsContainer(sim_data.process.translation.monomerData["id"], np.float64)
