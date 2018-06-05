@@ -932,33 +932,46 @@ def createBulkContainer(sim_data, expression, doubling_time):
 	return bulkContainer
 
 def setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time):
-	'''
-	setRibosomeCountsConstrainedByPhysiology
-
-	Methodology: Set counts of ribosomal subunits based on three constraints.
+	"""
+	Set counts of ribosomal subunits based on three constraints.
 	(1) Expected protein distribution doubles in one cell cycle
 	(2) Measured rRNA mass fractions
 	(3) Expected ribosomal subunit counts based on expression
-	'''
+
+	Requires
+	--------
+	- FRACTION_INCREASE_RIBOSOMAL_PROTEINS
+
+
+	Returns
+	-------
+
+	"""
+
+	# Get IDs and stoichiometry of ribosome subunits
 	ribosome30SSubunits = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.s30_fullComplex[0])['subunitIds']
 	ribosome50SSubunits = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.s50_fullComplex[0])['subunitIds']
 	ribosome30SStoich = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.s30_fullComplex[0])['subunitStoich']
 	ribosome50SStoich = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.s50_fullComplex[0])['subunitStoich']
 
-	# -- CONSTRAINT 1: Expected protien distribution doubling -- #
+	# -- CONSTRAINT 1: Expected protein distribution doubling -- #
 	## Calculate minimium number of 30S and 50S subunits required in order to double our expected
 	## protein distribution in one cell cycle
 	proteinLengths = units.sum(sim_data.process.translation.monomerData['aaCounts'], axis = 1)
-	proteinDegradationRates =  sim_data.process.translation.monomerData["degRate"]
-	proteinCounts =  bulkContainer.counts(sim_data.process.translation.monomerData["id"])
+	proteinDegradationRates = sim_data.process.translation.monomerData["degRate"]
+	proteinCounts = bulkContainer.counts(sim_data.process.translation.monomerData["id"])
 
 	netLossRate_protein = netLossRateFromDilutionAndDegradationProtein(
 		doubling_time,
-		proteinDegradationRates
+		proteinDegradationRates,
 		)
 
 	nRibosomesNeeded = calculateMinPolymerizingEnzymeByProductDistribution(
-	proteinLengths, sim_data.growthRateParameters.getRibosomeElongationRate(doubling_time), netLossRate_protein, proteinCounts)
+		proteinLengths,
+		sim_data.growthRateParameters.getRibosomeElongationRate(doubling_time),
+		netLossRate_protein,
+		proteinCounts,
+		)
 	nRibosomesNeeded.normalize() # FIXES NO UNIT BUG
 	nRibosomesNeeded.checkNoUnit()
 	nRibosomesNeeded = nRibosomesNeeded.asNumber()
@@ -1466,6 +1479,36 @@ def mRNADistributionFromProtein(distribution_protein, translation_efficiencies, 
 
 
 def calculateMinPolymerizingEnzymeByProductDistribution(productLengths, elongationRate, netLossRate, productCounts):
+	"""
+	Compute the number of ribosomes required to maintain steady state.
+
+	dP/dt = production rate - loss rate
+	dP/dt = e_r * (1/L) * R - (k_loss * P)
+
+	At steady state: dP/dt = 0
+	R = sum over i ((L_i / e_r) * k_loss_i * P_i)
+
+	Multiplying both sides by volume gives an equation in terms of counts.
+
+	P = protein concentration
+	e_r = polypeptide elongation rate per ribosome
+	L = protein length
+	R = ribosome concentration
+	k_loss = net protein loss rate
+	i = ith protein
+
+	Requires
+	--------
+	- productLengths: L, protein lengths (number of amino acids)
+	- elongationRate: e_r, polypeptide elongation rate (amino acids / s)
+	- netLossRate: k_loss, protein loss rate (protiens / s)
+	- productCounts: P, protein counts
+
+	Returns
+	--------
+	- Number of ribosomes required to maintain steady state.
+
+	"""
 	nPolymerizingEnzymeNeeded = units.sum(
 		productLengths / elongationRate
 			* netLossRate
@@ -1473,7 +1516,37 @@ def calculateMinPolymerizingEnzymeByProductDistribution(productLengths, elongati
 		)
 	return nPolymerizingEnzymeNeeded
 
+
 def calculateMinPolymerizingEnzymeByProductDistributionRNA(productLengths, elongationRate, netLossRate):
+	"""
+	Compute the number of RNA polymerases required to maintain steady state.
+
+	dR/dt = production rate - loss rate
+	dR/dt = e_r * (1/L) * RNAp - k_loss
+
+	At steady state: dR/dt = 0
+	RNAp = sum over i ((L_i / e_r) * k_loss_i)
+
+	Multiplying both sides by volume gives an equation in terms of counts.
+
+	R = mRNA transcript concentration
+	e_r = transcript elongation rate per RNAp
+	L = transcript length
+	RNAp = RNAp concentration
+	k_loss = net transcript loss rate (unit: concentration / time)
+	i = ith transcript
+
+	Requires
+	--------
+	- productLengths: L, transcript lengths (number of nucleotides)
+	- elongationRate: e_r, transcript elongation rate (nts / s)
+	- netLossRate: k_loss, transcript loss rate (transcript / s)
+
+	Returns
+	--------
+	- Number of RNA polymerases required to maintain steady state.
+
+	"""
 	nPolymerizingEnzymeNeeded = units.sum(
 		productLengths / elongationRate
 			* netLossRate
@@ -1482,6 +1555,19 @@ def calculateMinPolymerizingEnzymeByProductDistributionRNA(productLengths, elong
 
 
 def netLossRateFromDilutionAndDegradationProtein(doublingTime, degradationRates):
+	"""
+	Compute total loss rate (summed impact of degradation and dilution).
+
+	Requires
+	--------
+	- doublingTime: doubling time of the cell
+	- degradationRates: protein degradation rate
+
+	Returns
+	--------
+	- Total loss rate.
+
+	"""
 	return np.log(2) / doublingTime + degradationRates
 
 
