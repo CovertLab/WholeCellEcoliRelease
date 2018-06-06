@@ -1097,6 +1097,38 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time,
 	bulkContainer.countsIs(minRnapSubunitCounts, rnapIds)
 
 def fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km = None):
+	"""
+	Determines expression and synthesis probabilities for RNA molecules to fit
+	protein levels and RNA degradation rates. Assumes a steady state analysis
+	where the RNA synthesis probability will be the same as the degradation rate.
+	If no Km is given, then RNA degradation is assumed to be linear otherwise
+	degradation is calculated based on saturation with RNases.
+
+	Inputs
+	------
+	- bulkContainer (BulkObjectsContainer object) - expected counts for
+	bulk molecules based on expression
+	- doubling_time (float with units) - doubling time
+	- avgCellDryMassInit (float with units) - expected initial dry cell mass
+	- Km (array of floats with concentration units) - Km for each RNA associated
+	with RNases
+
+	Modifies
+	--------
+	- bulkContainer counts of RNA and proteins
+
+	Returns
+	--------
+	- expression (array of floats) - adjusted expression for each RNA,
+	normalized to 1
+	- synthProb (array of floats) - synthesis probability for each RNA which
+	accounts for expression and degradation rate, normalized to 1
+
+	Notes
+	-----
+	- TODO - bad form to return values and set bulkContainer counts within the function -
+	should this be changed?
+	"""
 
 	view_RNA = bulkContainer.countsView(sim_data.process.transcription.rnaData["id"])
 	counts_protein = bulkContainer.counts(sim_data.process.translation.monomerData["id"])
@@ -1154,10 +1186,10 @@ def fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km
 	else:
 		# Get constants to compute countsToMolar factor
 		cellDensity = sim_data.constants.cellDensity
-		cellVolume = avgCellDryMassInit / cellDensity / 0.3
+		dryMassFraction = sim_data.mass.cellDryMassFraction
+		cellVolume = avgCellDryMassInit / cellDensity / dryMassFraction
 		countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
 
-		rnaConc = countsToMolar * bulkContainer.counts(sim_data.process.transcription.rnaData['id'])
 		endoRNaseConc = countsToMolar * bulkContainer.counts(sim_data.process.rna_decay.endoRnaseIds)
 		kcatEndoRNase = sim_data.process.rna_decay.kcats
 		totalEndoRnaseCapacity = units.sum(endoRNaseConc * kcatEndoRNase)
