@@ -1572,12 +1572,56 @@ def netLossRateFromDilutionAndDegradationProtein(doublingTime, degradationRates)
 
 
 def netLossRateFromDilutionAndDegradationRNA(doublingTime, totalEndoRnaseCountsCapacity, Km, rnaConc, countsToMolar):
+	"""
+	Compute total loss rate (summed impact of degradation and dilution).
+	Returns the loss rate in units of (counts/time) in preparation for use in
+	the steady state analysis in
+	calculateMinPolymerizingEnzymeByProductDistributionRNA.
+
+	Derived from steady state analysis of Michaelis-Menten enzyme kinetics with
+	competitive inhibition: for a given RNA, all other RNAs compete for RNase.
+
+	V_i = k_cat * [ES_i]
+	v_i = k_cat * [E]0 * ([S_i]/Km_i) / (1 + sum over j genes([S_j] / Km_j))
+
+	Requires
+	--------
+	- doublingTime: doubling time of the cell
+	- totalEndoRnaseCountsCapacity: total kinetic capacity of all RNases in the
+	  cell (unit: 1/s)
+	- Km: Michaelis-Menten constant (units: mol/L)
+	- rnaConc: concentration of RNA (units: mol/L)
+	- countsToMolar: conversion between counts and molar (unit: mol/L)
+
+	Returns
+	--------
+	- Total loss rate in units of (counts/time).
+
+	"""
+	import ipdb; ipdb.set_trace()
 	fracSaturated = rnaConc / Km / (1 + units.sum(rnaConc / Km))
 	rnaCounts = (1 / countsToMolar) * rnaConc
 	return (np.log(2) / doublingTime) * rnaCounts + (totalEndoRnaseCountsCapacity * fracSaturated)
 
 
 def netLossRateFromDilutionAndDegradationRNALinear(doublingTime, degradationRates, rnaCounts):
+	"""
+	Compute total loss rate (summed impact of degradation and dilution).
+	Returns the loss rate in units of (counts/time) in preparation for use in
+	the steady state analysis in
+	calculateMinPolymerizingEnzymeByProductDistributionRNA.
+
+	Requires
+	--------
+	- doublingTime: doubling time of the cell
+	- degradationRates: rna degradation rate
+	- rnaCounts: counts of RNA
+
+	Returns
+	--------
+	- Total loss rate in units of (counts/time).
+
+	"""
 	return (np.log(2) / doublingTime + degradationRates) * rnaCounts
 
 
