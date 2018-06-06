@@ -507,35 +507,71 @@ def buildCombinedConditionCellSpecifications(sim_data, cellSpecs):
 
 
 def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None, updateConcDict = False):
-	# Fit synthesis probabilities for RNA
+	"""
+	Iteratively fits synthesis probabilities for RNA. Calculates initial
+	expression based on gene expression data and makes adjustments to match
+	physiological constraints for ribosome and RNAP counts. Relies on
+	fitExpression() to converge
+
+	Inputs
+	--------
+	- expression (array of floats) - expression for each RNA, normalized to 1
+	- concDict {metabolite (str): concentration (float with units)} - dictionary
+	for concentrations of each metabolite with location tag
+	- doubling_time (float with units) - doubling time
+	- Km (array of floats with concentration units) - Km for each RNA associated
+	with RNases
+	- updateConcDict - TODO - remove?
+
+	Requires
+	--------
+	- MAX_FITTING_ITERATIONS (int) - number of iterations to adjust expression
+	before an exception is raised
+	- FITNESS_THRESHOLD (float) - acceptable change from one iteration to break
+	the fitting loop
+
+	Returns
+	--------
+	- expression (array of floats) - adjusted expression for each RNA,
+	normalized to 1
+	- synthProb (array of floats) - synthesis probability for each RNA which
+	accounts for expression and degradation rate, normalized to 1
+	- avgCellDryMassInit (float with units) - expected initial dry cell mass
+	- fitAvgSolubleTargetMolMass (float with units) - TODO - what is this?
+	- bulkContainer (BulkObjectsContainer object) - expected counts for
+	bulk molecules based on expression
+	- concDict - TODO - remove?
+
+	Notes
+	-----
+	- TODO - remove updateConcDict? - doesn't get updated at all
+	"""
+
 	if VERBOSE > 0:
-		print "Fitting RNA synthesis probabilities."
+		print("Fitting RNA synthesis probabilities.")
+
 	for iteration in xrange(MAX_FITTING_ITERATIONS):
-		if VERBOSE > 1: print 'Iteration: {}'.format(iteration)
+		if VERBOSE > 1:
+			print('Iteration: {}'.format(iteration))
 
 		initialExpression = expression.copy()
-
 		expression = setInitialRnaExpression(sim_data, expression, doubling_time)
-
 		bulkContainer = createBulkContainer(sim_data, expression, doubling_time)
-
 		avgCellDryMassInit, fitAvgSolubleTargetMolMass = rescaleMassForSolubleMetabolites(sim_data, bulkContainer, concDict, doubling_time)
 
 		setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time)
-
 		setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km)
 
 		# Normalize expression and write out changes
-
 		expression, synthProb = fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km)
 
+		# TODO - remove?
 		if updateConcDict:
 			concDict = concDict.copy() # Calculate non-base condition [AA]
 
-		finalExpression = expression
-
-		degreeOfFit = np.sqrt(np.mean(np.square(initialExpression - finalExpression)))
-		if VERBOSE > 1: print 'degree of fit: {}'.format(degreeOfFit)
+		degreeOfFit = np.sqrt(np.mean(np.square(initialExpression - expression)))
+		if VERBOSE > 1:
+			print('degree of fit: {}'.format(degreeOfFit))
 
 		if degreeOfFit < FITNESS_THRESHOLD:
 			break
