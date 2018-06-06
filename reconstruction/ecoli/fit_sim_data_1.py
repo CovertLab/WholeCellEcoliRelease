@@ -1667,7 +1667,6 @@ def netLossRateFromDilutionAndDegradationRNA(doublingTime, totalEndoRnaseCountsC
 	- Total loss rate in units of (counts/time).
 
 	"""
-	import ipdb; ipdb.set_trace()
 	fracSaturated = rnaConc / Km / (1 + units.sum(rnaConc / Km))
 	rnaCounts = (1 / countsToMolar) * rnaConc
 	return (np.log(2) / doublingTime) * rnaCounts + (totalEndoRnaseCountsCapacity * fracSaturated)
