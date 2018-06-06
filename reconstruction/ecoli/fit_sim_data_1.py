@@ -1470,12 +1470,17 @@ def totalCountFromMassesAndRatios(totalMass, individualMasses, distribution):
 
 	Returns
 	--------
-	- float of the total counts (does not need to be a whole number)
+	- float with dimensionless units of the total counts (does not need to be
+	a whole number)
 
+	Notes
+	-----
+	- TODO (Travis) - test includes case with no units although use case here
+	and documentation is only with units
 	"""
 
 	assert np.allclose(np.sum(distribution), 1)
-	return (1 / units.dot(individualMasses, distribution) * totalMass).asNumber()
+	return 1 / units.dot(individualMasses, distribution) * totalMass
 
 
 def proteinDistributionFrommRNA(distribution_mRNA, translation_efficiencies, netLossRate):
