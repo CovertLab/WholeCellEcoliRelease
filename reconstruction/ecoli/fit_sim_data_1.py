@@ -1528,23 +1528,50 @@ def netLossRateFromDilutionAndDegradationRNALinear(doublingTime, degradationRate
 
 
 def expressionFromConditionAndFoldChange(rnaIds, basalExpression, condPerturbations, tfFCs):
+	"""
+	Adjusts expression of RNA based on fold changes from basal for a given condition.
+
+	Inputs
+	------
+	- rnaIds (array of str) - name of each RNA with location tag
+	- basalExpression (array of floats) - expression for each RNA in the basal
+	condition, normalized to 1
+	- condPerturbations {RNA ID with location tag (str): fold change (float)} -
+	dictionary of fold changes for RNAs based on the given condition
+	- tfFCs {RNA ID without location tag (str): fold change (float)} -
+	dictionary of fold changes for RNAs based on transcription factors in the
+	given condition
+
+	Returns
+	--------
+	- expression (array of floats) - adjusted expression for each RNA,
+	normalized to 1
+
+	Notes
+	-----
+	- TODO (Travis) - Might not properly handle if an RNA is adjusted from both a
+	perturbation and a transcription factor, currently RNA self regulation is not
+	included in tfFCs
+	"""
+
 	expression = basalExpression.copy()
 
+	# Gather RNA indices and fold changes for each RNA that will be adjusted
 	rnaIdxs = []
 	fcs = []
-
 	for key in sorted(condPerturbations):
 		value = condPerturbations[key]
 		rnaIdxs.append(np.where(rnaIds == key)[0][0])
 		fcs.append(value)
-
 	for key in sorted(tfFCs):
 		rnaIdxs.append(np.where(rnaIds == key + "[c]")[0][0])
 		fcs.append(tfFCs[key])
 
+	# Sort fold changes and indices for the bool array indexing to work properly
 	fcs = [fc for (rnaIdx, fc) in sorted(zip(rnaIdxs, fcs), key = lambda pair: pair[0])]
 	rnaIdxs = [rnaIdx for (rnaIdx, fc) in sorted(zip(rnaIdxs, fcs), key = lambda pair: pair[0])]
 
+	# Adjust expression based on fold change and normalize
 	rnaIdxsBool = np.zeros(len(rnaIds), dtype = np.bool)
 	rnaIdxsBool[rnaIdxs] = 1
 	fcs = np.array(fcs)
