@@ -752,26 +752,17 @@ def setInitialRnaExpression(sim_data, expression, doubling_time):
 		distribution_rRNA23S
 		)
 
-	totalCount_rRNA23S.normalize()
-	totalCount_rRNA23S.checkNoUnit()
-
 	totalCount_rRNA16S = totalCountFromMassesAndRatios(
 		totalMass_rRNA16S,
 		individualMasses_rRNA16S,
 		distribution_rRNA16S
 		)
 
-	totalCount_rRNA16S.normalize()
-	totalCount_rRNA16S.checkNoUnit()
-
 	totalCount_rRNA5S = totalCountFromMassesAndRatios(
 		totalMass_rRNA5S,
 		individualMasses_rRNA5S,
 		distribution_rRNA5S
 		)
-
-	totalCount_rRNA5S.normalize()
-	totalCount_rRNA5S.checkNoUnit()
 
 	totalCount_rRNA_average = sum([totalCount_rRNA23S, totalCount_rRNA16S, totalCount_rRNA5S]) / 3
 
@@ -791,9 +782,6 @@ def setInitialRnaExpression(sim_data, expression, doubling_time):
 		distribution_tRNA
 		)
 
-	totalCount_tRNA.normalize()
-	totalCount_tRNA.checkNoUnit()
-
 	counts_tRNA = totalCount_tRNA * distribution_tRNA
 
 	rnaExpressionContainer.countsIs(counts_tRNA, ids_tRNA)
@@ -805,9 +793,6 @@ def setInitialRnaExpression(sim_data, expression, doubling_time):
 		individualMasses_mRNA,
 		distribution_mRNA
 		)
-
-	totalCount_mRNA.normalize()
-	totalCount_mRNA.checkNoUnit()
 
 	counts_mRNA = totalCount_mRNA * distribution_mRNA
 
@@ -860,9 +845,6 @@ def totalCountIdDistributionProtein(sim_data, expression, doubling_time):
 		distribution_protein
 		)
 
-	totalCount_protein.normalize()
-	totalCount_protein.checkNoUnit()
-
 	return totalCount_protein, ids_protein, distribution_protein
 
 def totalCountIdDistributionRNA(sim_data, expression, doubling_time):
@@ -891,8 +873,6 @@ def totalCountIdDistributionRNA(sim_data, expression, doubling_time):
 		individualMasses_RNA,
 		distribution_RNA
 		)
-	totalCount_RNA.normalize()
-	totalCount_RNA.checkNoUnit()
 
 	return totalCount_RNA, ids_rnas, distribution_RNA
 
@@ -1125,9 +1105,6 @@ def fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km
 		sim_data.process.transcription.rnaData["mw"] / sim_data.constants.nAvogadro,
 		expression
 		)
-
-	nRnas.normalize()
-	nRnas.checkNoUnit()
 
 	view_RNA.countsIs(nRnas * expression)
 
@@ -1430,7 +1407,7 @@ def totalCountFromMassesAndRatios(totalMass, individualMasses, distribution):
 	"""
 
 	assert np.allclose(np.sum(distribution), 1)
-	return 1 / units.dot(individualMasses, distribution) * totalMass
+	return (1 / units.dot(individualMasses, distribution) * totalMass).asNumber()
 
 
 def proteinDistributionFrommRNA(distribution_mRNA, translation_efficiencies, netLossRate):
