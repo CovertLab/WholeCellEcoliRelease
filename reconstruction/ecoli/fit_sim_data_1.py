@@ -1399,17 +1399,36 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 
 def totalCountFromMassesAndRatios(totalMass, individualMasses, distribution):
 	"""
-	Total mass = dot(mass, count)
+	Function to determine the expected total counts for a group of molecules
+	in order to achieve a total mass with a given distribution of individual
+	molecules.
 
-	Fraction of i:
-	f = count / Total counts
+	Math:
+		Total mass = dot(mass, count)
 
-	Substituting:
-	Total mass = dot(mass, f * Total counts)
-	Total mass = Total counts * dot(mass, f)
+		Fraction of i:
+		f = count / Total counts
 
-	Total counts = Total mass / dot(mass, f)
+		Substituting:
+		Total mass = dot(mass, f * Total counts)
+		Total mass = Total counts * dot(mass, f)
+
+		Total counts = Total mass / dot(mass, f)
+
+	Requires
+	--------
+	- totalMass (float with mass units): total mass of the group of molecules
+	- individualMasses (array of floats with mass units): mass for individual
+	molecules in the group
+	- distribution (array of floats): distribution of individual molecules,
+	normalized to 1
+
+	Returns
+	--------
+	- float of the total counts (does not need to be a whole number)
+
 	"""
+
 	assert np.allclose(np.sum(distribution), 1)
 	return 1 / units.dot(individualMasses, distribution) * totalMass
 
