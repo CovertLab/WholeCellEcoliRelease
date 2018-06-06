@@ -949,18 +949,20 @@ def createBulkContainer(sim_data, expression, doubling_time):
 
 def setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time):
 	"""
-	Set counts of ribosomal subunits based on three constraints.
+	Set counts of ribosomal subunits based on three constraints:
 	(1) Expected protein distribution doubles in one cell cycle
 	(2) Measured rRNA mass fractions
-	(3) Expected ribosomal subunit counts based on expression
+	(3) Expected ribosomal subunit counts based on RNA expression data
 
 	Requires
 	--------
-	- FRACTION_INCREASE_RIBOSOMAL_PROTEINS
+	- FRACTION_INCREASE_RIBOSOMAL_PROTEINS: factor to increase number of
+		ribosomes needed (used in computing constraint (1))
 
 
-	Returns
-	-------
+	Modifies
+	--------
+	- counts of ribosomal protein subunits in bulkContainer
 
 	"""
 
@@ -1018,8 +1020,7 @@ def setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_t
 	constraint2_ribosome50SCounts = massFracPredicted_50SCount * ribosome50SStoich
 
 
-
-	# -- CONSTRAINT 3: Expected ribosomal subunit counts based distribution
+	# -- CONSTRAINT 3: Expected ribosomal subunit counts based expression
 	## Calculate fundamental ribosomal subunit count distribution based on RNA expression data
 	## Already calculated and stored in bulkContainer
 	ribosome30SCounts = bulkContainer.counts(ribosome30SSubunits)
@@ -1047,7 +1048,7 @@ def setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_t
 		ribosome50SSubunits
 		)
 
-	# Fix rRNA counts
+	# Return rRNA counts to value in sim_data
 	bulkContainer.countsIs(rRna23SCounts, sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna23S"]])
 	bulkContainer.countsIs(rRna16SCounts, sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna16S"]])
 	bulkContainer.countsIs(rRna5SCounts, sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna5S"]])
