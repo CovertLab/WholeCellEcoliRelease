@@ -451,21 +451,23 @@ def fitCondition(sim_data, spec, condition):
 def setRnaPolymeraseCodingRnaDegradationRates(sim_data):
 	"""
 	Increase the degradation rates for the RNA polymerase mRNAs.  This is done to increase the
-	rate of	mRNA synthesis and overall reduce the stochasticity in RNA polymerase subunit 
+	rate of	mRNA synthesis and overall reduce the stochasticity in RNA polymerase subunit
 	expression, which would otherwise constrain transcription.
-	
+
 	Requires
 	--------
 	- RNA_POLY_MRNA_DEG_RATE_PER_S: The new first-order degradation rate, in units of per second.
-	
+
 	Modifies
 	--------
-	- Degradation rates of RNA polymerase subunit mRNAs.
-	
+	- Degradation rates of RNA polymerase subunit mRNAs in sim_data.
+
 	Notes
 	-----
 	- Incorporating transcription unit structure would facilitate co-expression of the subunits
 		but might not address the fundamental stochasticity issue.
+	- MD - The structure of this function deviates from the following functions that set values based on an adjustment
+		maybe think about how adjustments should be incorporated?
 	"""
 
 	rnaPolySubunits = sim_data.process.complexation.getMonomers("APORNAP-CPLX[c]")["subunitIds"] # APORNAP-CPLX[c] is the RNA polymerase complex
@@ -476,11 +478,31 @@ def setRnaPolymeraseCodingRnaDegradationRates(sim_data):
 	sim_data.process.transcription.rnaData.struct_array["degRate"][mRNA_indexes] = RNA_POLY_MRNA_DEG_RATE_PER_S
 
 def setTranslationEfficiencies(sim_data):
+	"""
+	This function's goal is to set translation efficiencies for a subset of metabolic proteins.
+	It first gathers the index of the protiens it wants to modify, then goes ahead and changes the monomer
+	translation eficiences based on the adjustment that is specified.
+	These adjustments were made so that the simulation could run.
+
+	Requires
+	--------
+	- For each RNA that needs to be modified, it takes in a hard coded adjustment factor.
+
+	Modifies
+	--------
+	- This function modifies, for a subset of proteins, their translational efficiencies in sim_data.
+		It takes their current efficiency and multiplies them by the factor specified in adjustments.
+
+	Notes
+	-----
+	-
+	"""
+
 	adjustments = {
-		"ADCLY-MONOMER[c]": 5,
-		"EG12438-MONOMER[c]": 5,
-		"EG12298-MONOMER[p]": 5, # for anaerobic condition
-		"ACETYL-COA-ACETYLTRANSFER-MONOMER[c]": 5, # for anaerobic condition
+		"ADCLY-MONOMER[c]": 5, # pabC, aminodeoxychorismate lyase
+		"EG12438-MONOMER[c]": 5, # menH, 2-succinyl-6-hydroxy-2,4-cyclohexadiene-1-carboxylate synthetase
+		"EG12298-MONOMER[p]": 5, # yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition viability
+		"ACETYL-COA-ACETYLTRANSFER-MONOMER[c]": 5, # atoB; This RNA is fit for the anaerobic condition viability
 		}
 
 	for protein in adjustments:
@@ -488,12 +510,33 @@ def setTranslationEfficiencies(sim_data):
 		sim_data.process.translation.translationEfficienciesByMonomer[idx] *= adjustments[protein]
 
 def setRNAExpression(sim_data):
+	"""
+	This function's goal is to set expression levesl for a subset of metabolic RNAs.
+	It first gathers the index of the RNA's it wants to modify, then goes ahead and changes the expression
+	levels of those proteins, within sim_data, based on the specified adjustment factor.
+	These adjustments were made so that the simulation could run.
+
+	Requires
+	--------
+	- For each RNA that needs to be modified, it takes in a hard coded adjustment factor.
+
+	Modifies
+	--------
+	- This function modifies the basal RNA exprssion levels set in sim_data, for the chosen RNAs.
+		It takes their current basal expression and multiplies them by the factor specified in adjustments.
+	- After updating the basal expression levels for the given genes, the function normalizes all the basal
+		expression levels.
+	Notes
+	-----
+	-
+	"""
+
 	adjustments = {
-		"EG11493_RNA[c]": 10,
-		"EG12438_RNA[c]": 10,
-		"EG10139_RNA[c]": 10,
-		"EG12298_RNA[c]": 10, # for anaerobic condition
-		"EG11672_RNA[c]": 10, # for anaerobic condition
+		"EG11493_RNA[c]": 10, # pabC, aminodeoxychorismate lyase
+		"EG12438_RNA[c]": 10, # menH, 2-succinyl-6-hydroxy-2,4-cyclohexadiene-1-carboxylate synthetase
+		"EG10139_RNA[c]": 10, # cdsA, CDP-diglyceride synthetase
+		"EG12298_RNA[c]": 10, # yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition viability
+		"EG11672_RNA[c]": 10, # atoB, acetyl-CoA acetyltransferase; This RNA is fit for the anaerobic condition viability
 		}
 
 	for rna in adjustments:
@@ -503,9 +546,28 @@ def setRNAExpression(sim_data):
 	sim_data.process.transcription.rnaExpression["basal"] /= sim_data.process.transcription.rnaExpression["basal"].sum()
 
 def setRNADegRates(sim_data):
+	"""
+	This function's goal is to set the degradation rates for a subset of metabolic RNA's.
+	It first gathers the index of the RNA's it wants to modify, then goes ahead and changes the degradation
+	rates of those RNA's. These adjustments were made so that the simulation could run.
+
+	Requires
+	--------
+	- For each RNA that needs to be modified, it takes in a hard coded adjustment factor
+
+	Modifies
+	--------
+	- This function modifies the RNA degradation rates for the chosen RNA's in sim_data.
+		It takes their current degradation rate and multiplies them by the factor specified in adjustments.
+
+	Notes
+	-----
+	-
+	"""
+
 	adjustments = {
-		"EG11493_RNA[c]": 2,
-		"EG10139_RNA[c]": 2,
+		"EG11493_RNA[c]": 2, # pabC, aminodeoxychorismate lyase
+		"EG10139_RNA[c]": 2, # cdsA, CDP-diglyceride synthetase
 		}
 
 	for rna in adjustments:
@@ -513,8 +575,27 @@ def setRNADegRates(sim_data):
 		sim_data.process.transcription.rnaData.struct_array["degRate"][idx] *= adjustments[rna]
 
 def setProteinDegRates(sim_data):
+	"""
+	This function's goal is to set the degradation rates for a subset of proteins.
+	It first gathers the index of the proteins it wants to modify, then goes ahead and changes the degradation
+	rates of those proteins. These adjustments were made so that the simulation could run.
+
+	Requires
+	--------
+	- For each protein that needs to be modified it take in a hard coded adjustment factor.
+
+	Modifies
+	--------
+	- This function modifies the protein degradation rates for the chosen proteins in sim_data.
+		It takes their current degradation rate and multiplies them by the factor specified in adjustments.
+
+	Notes
+	-----
+	-
+	"""
+
 	adjustments = {
-		"EG12298-MONOMER[p]": 0.1, # for anaerobic condition
+		"EG12298-MONOMER[p]": 0.1, # yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition
 		}
 
 	for protein in adjustments:
@@ -522,6 +603,24 @@ def setProteinDegRates(sim_data):
 		sim_data.process.translation.monomerData.struct_array["degRate"][idx] *= adjustments[protein]
 
 def setCPeriod(sim_data):
+	"""
+	The C period is the time the cell takes to replicate its chromosome. This function calculates the C period
+	based on knowledge of the length of the genome (in nucleotides) and the elongation rate.
+	Dividing the genome length by the elongation rate alone will give the time to replicate that many nucleotides,
+	this value is further divided by two since replication can take place in two directions.
+
+	Requires
+	--------
+	- Genome length (nt) and the DNA polymerase elongation rate (nt/s).
+
+	Modifies
+	--------
+	- This function modifieds sim_data to contain the c_period.
+
+	Notes
+	-----
+	-
+	"""
 	sim_data.growthRateParameters.c_period = sim_data.process.replication.genome_length * units.nt / sim_data.growthRateParameters.dnaPolymeraseElongationRate / 2
 
 def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict, doubling_time):
