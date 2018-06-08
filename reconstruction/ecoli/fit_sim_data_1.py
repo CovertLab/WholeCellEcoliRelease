@@ -39,6 +39,10 @@ BASAL_EXPRESSION_CONDITION = "M9 Glucose minus AAs"
 
 VERBOSE = 1
 
+# Parameters used in fitPromoterBoundProbability()
+PROMOTER_PDIFF_THRESHOLD = 0.1  # Minimum difference between binding probabilities of a TF in conditions where TF is active and inactive
+PROMOTER_REG_COEFF = 1e-3  # Optimization weight on how much probability should stay close to original values
+
 COUNTS_UNITS = units.dmol
 VOLUME_UNITS = units.L
 MASS_UNITS = units.g
@@ -1933,7 +1937,6 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 	to the measured RNA synthesis probabilities.
 
 	v_{synth, j} = \alpha_j + \sum_{i} P_{T,i}*r_{ij}
-	(See supplementary materials on transcription regulation for details)
 
 	Due to constraints applied in the optimization, both v and P need to
 	be shifted from their initial values. Using the fit values of P, the set
@@ -1955,8 +1958,13 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 	Returns
 	--------
 	- r: Fit parameters on how the recruitment of a TF affects the expression
-	of a gene. High (positive) values of r imply that the TF binding increases
-	the probability that the gene is expressed.
+	of a gene. High (positive) values of r indicate that the TF binding
+	increases the probability that the gene is expressed.
+
+	Notes
+	--------
+	See supplementary materials on transcription regulation for details on
+	the parameters being fitted
 	'''
 	def makeG(sim_data, pPromoterBound):
 		"""
@@ -2407,11 +2415,13 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 
 	SCALING = 10  # Multiplied to all matrices for numerical stability
 	NORM_TYPE = 1  # Matrix 1-norm
-	MOMENTUM_COEFF = 1e-3  # How strongly should the probabilities adhere to original values?
+	MAX_ITERATIONS = 100
+	CONVERGENCE_THRESHOLD = 1e-9
+
 	# TODO: A better name for this constant?
 
 	# Repeat for a fixed maximum number of iterations
-	for i in xrange(100):
+	for i in xrange(MAX_ITERATIONS):
 		# Construct matrices used in optimizing R
 		# TODO: Make these matrix names more meaningful
 		# TODO: separate the routine that gets k and kInfo
@@ -2473,7 +2483,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		# probabilities) and H*P (computed initiation probabilities) while
 		# also minimizing deviation of P from the original value calculated
 		# from mean TF and ligand concentrations
-		objective_p = Minimize(norm(H*(SCALING*P) - SCALING*k, NORM_TYPE) + MOMENTUM_COEFF*norm(P - pInit0, NORM_TYPE))
+		objective_p = Minimize(norm(H*(SCALING*P) - SCALING*k, NORM_TYPE) + PROMOTER_REG_COEFF*norm(P - pInit0, NORM_TYPE))
 
 		# Constraints
 		# 1) 0 <= P <= 1 : All DNA-bound probabilities should be between zero
@@ -2484,7 +2494,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		# between binding probabilities of a TF in conditions TF__active and
 		# TF__inactive
 		# TODO: 0.1 should also be a parameter
-		constraint_p = [0 <= SCALING*P, SCALING*P <= SCALING*1, np.diag(D)*(SCALING*P) == SCALING*Drhs, Pdiff*(SCALING*P) >= SCALING*0.1]
+		constraint_p = [0 <= SCALING*P, SCALING*P <= SCALING*1, np.diag(D)*(SCALING*P) == SCALING*Drhs, Pdiff*(SCALING*P) >= SCALING*PROMOTER_PDIFF_THRESHOLD]
 
 		# Solve optimization problem
 		prob_p = Problem(objective_p, constraint_p)
@@ -2498,7 +2508,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		fromArray(p, pPromoterBound, pPromoterBoundIdxs)  # Update pPromoterBound with fitted p
 
 		# Break from loop if parameters have converged
-		if np.abs(np.linalg.norm(np.dot(H, p) - k, NORM_TYPE) - lastNorm) < 1e-9:
+		if np.abs(np.linalg.norm(np.dot(H, p) - k, NORM_TYPE) - lastNorm) < CONVERGENCE_THRESHOLD:
 			break
 		else:
 			lastNorm = np.linalg.norm(np.dot(H, p) - k, NORM_TYPE)
