@@ -2743,7 +2743,7 @@ def calculateRnapRecruitment(sim_data, r):
 
 		stateMasses.append([0.]*11)
 
-	stateMasses = np.array(stateMasses)*(units.g/units.mol)
+	stateMasses = (units.g/units.mol)*np.array(stateMasses)
 
 	# Construct matrix H
 	hI, hJ, hV = np.array(hI), np.array(hJ), np.array(hV)
