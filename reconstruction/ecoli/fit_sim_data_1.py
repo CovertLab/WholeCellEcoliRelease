@@ -200,7 +200,7 @@ def fitSimData_1(raw_data, cpus=1, debug=False):
 		if sim_data.conditions[condition]["nutrients"] not in sim_data.process.translation.ribosomeFractionActiveDict and len(sim_data.conditions[condition]["perturbations"]) == 0:
 			sim_data.process.translation.ribosomeFractionActiveDict[sim_data.conditions[condition]["nutrients"]] = sim_data.growthRateParameters.getFractionActiveRibosome(spec["doubling_time"])
 
-	calculateRnapRecruitment(sim_data, cellSpecs, rVector)
+	calculateRnapRecruitment(sim_data, rVector)
 
 	return sim_data
 
@@ -1964,7 +1964,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 	Notes
 	--------
 	See supplementary materials on transcription regulation for details on
-	the parameters being fitted
+	the parameters being fit.
 	'''
 	def makeG(sim_data, pPromoterBound):
 		"""
@@ -1999,7 +1999,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		gI, gJ, gV, k, rowNames, colNames, kInfo = [], [], [], [], [], [], []
 
 		for idx, rnaId in enumerate(sim_data.process.transcription.rnaData["id"]):
-			rnaIdNoLoc = rnaId[:-3]  # Strip off compartment ID from RNA ID
+			rnaIdNoLoc = rnaId[:-3]  # Remove compartment ID from RNA ID
 
 			# Get list of TFs that regulate this RNA
 			tfs = sim_data.process.transcription_regulation.targetTf.get(rnaIdNoLoc, [])
@@ -2030,6 +2030,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 					# Add column for each TF that regulates each RNA
 					colName = rnaIdNoLoc + "__" + tf
 
+					# TODO: Are these checks necessary?
 					if colName not in colNames:
 						colNames.append(colName)
 
@@ -2088,7 +2089,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		zI, zJ, zV, rowNames = [], [], [], []
 
 		for rnaId in sim_data.process.transcription.rnaData["id"]:
-			rnaIdNoLoc = rnaId[:-3]  # Strip off compartment ID from RNA ID
+			rnaIdNoLoc = rnaId[:-3]  # Remove compartment ID from RNA ID
 
 			# Get list of TFs that regulate this RNA
 			tfs = sim_data.process.transcription_regulation.targetTf.get(rnaIdNoLoc, [])
@@ -2147,7 +2148,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		tI, tJ, tV, rowNamesT = [], [], [], []
 
 		for rnaId in sim_data.process.transcription.rnaData["id"]:
-			rnaIdNoLoc = rnaId[:-3]  # Strip off compartment ID from RNA ID
+			rnaIdNoLoc = rnaId[:-3]  # Remove compartment ID from RNA ID
 
 			# Get list of TFs that regulate this RNA
 			tfs = sim_data.process.transcription_regulation.targetTf.get(rnaIdNoLoc, [])
@@ -2230,7 +2231,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		hI, hJ, hV, rowNames, colNamesH, pInitI, pInitV = [], [], [], [], [], [], []
 
 		for idx, rnaId in enumerate(sim_data.process.transcription.rnaData["id"]):
-			rnaIdNoLoc = rnaId[:-3]  # Strip off compartment ID from RNA ID
+			rnaIdNoLoc = rnaId[:-3]  # Remove compartment ID from RNA ID
 
 			tfs = sim_data.process.transcription_regulation.targetTf.get(rnaIdNoLoc, [])
 			conditions = ["basal"]
@@ -2678,135 +2679,90 @@ def cosine_similarity(samples):
 
 	return normed.dot(normed.T)
 
-def calculateRnapRecruitment(sim_data, cellSpecs, rVector):
-	gI = []
-	gJ = []
-	gV = []
-	k = []
-	rowNames = []
-	colNames = []
+def calculateRnapRecruitment(sim_data, r):
+	# TODO: Not really a good function name - calculation is not done here
+	'''
+	Constructs a matrix (H) from values of r which can be multiplied with the
+	TF-RNA binding probability to compute RNAP recruitment probabilities for
+	each RNA.
+
+	Requires
+	--------
+	- r: Fit parameters on how the recruitment of a TF affects the expression
+	of a gene. High (positive) values of r indicate that the TF binding
+	increases the probability that the gene is expressed.
+
+	Modifies
+	--------
+	- Rescales alpha values in r such that all values are positive
+	- Adds binding probability of each TF-RNA pair as bulk molecules to sim_data
+	- Adds matrix H to sim_data
+	'''
+
+	hI, hJ, hV, rowNames, colNames, stateMasses = [], [], [], [], [], []
+
 	for idx, rnaId in enumerate(sim_data.process.transcription.rnaData["id"]):
-		rnaIdNoLoc = rnaId[:-3]
-
-		tfs = sim_data.process.transcription_regulation.targetTf.get(rnaIdNoLoc, [])
-		conditions = ["basal"]
-		tfsWithData = []
-		for tf in tfs:
-			if tf not in sorted(sim_data.tfToActiveInactiveConds):
-				continue
-			conditions.append(tf + "__active")
-			conditions.append(tf + "__inactive")
-			tfsWithData.append(tf)
-		for condition in conditions:
-			if len(tfsWithData) > 0 and condition == "basal":
-				continue
-			rowName = rnaIdNoLoc + "__" + condition
-			rowNames.append(rowName)
-			for tf in tfsWithData:
-				colName = rnaIdNoLoc + "__" + tf
-				if colName not in colNames:
-					colNames.append(colName)
-				gI.append(rowNames.index(rowName))
-				gJ.append(colNames.index(colName))
-				gV.append(sim_data.pPromoterBound[condition][tf])
-			colName = rnaIdNoLoc + "__alpha"
-			if colName not in colNames:
-				colNames.append(colName)
-			gI.append(rowNames.index(rowName))
-			gJ.append(colNames.index(colName))
-			gV.append(1.)
-			k.append(sim_data.process.transcription.rnaSynthProb[condition][idx])
-
-	gI = np.array(gI)
-	gJ = np.array(gJ)
-	gV = np.array(gV)
-	k = np.array(k)
-
-	shape = (gI.max() + 1, gJ.max() + 1)
-	G = np.zeros(shape, np.float64)
-	G[gI, gJ] = gV
-	S = cosine_similarity(G)
-	dupIdxs = np.where((np.tril(S, -1) > 1 - 1e-3).sum(axis = 1))[0]
-	uniqueIdxs = [x for x in xrange(G.shape[0]) if x not in dupIdxs]
-	G = G[uniqueIdxs]
-	k = k[uniqueIdxs]
-	rowNames = [rowNames[x] for x in uniqueIdxs]
-	r = np.linalg.solve(G, k)
-	r = rVector
-
-	# TODO: Delete this once things actually work
-	# This is like scaffolding
-	sim_data.tfCondToAvgRnapRecruitment = {}
-	sim_data.tfCondToAvgRnapRecruitment2 = {}
-	for tf in sorted(sim_data.tfToActiveInactiveConds):
-		activeCondition = tf + "__active"
-		inactiveCondition = tf + "__inactive"
-		sim_data.tfCondToAvgRnapRecruitment[activeCondition] = np.ones(G.shape[1])
-		sim_data.tfCondToAvgRnapRecruitment[inactiveCondition] = np.ones(G.shape[1])
-		sim_data.tfCondToAvgRnapRecruitment2[activeCondition] = np.ones(G.shape[1])
-		sim_data.tfCondToAvgRnapRecruitment2[inactiveCondition] = np.ones(G.shape[1])
-
-	for tf in sorted(sim_data.tfToActiveInactiveConds):
-		activeCondition = tf + "__active"
-		inactiveCondition = tf + "__inactive"
-
-		for idx, colName in enumerate(colNames):
-			if not colName.endswith("__alpha"):
-				_, thisTf = colName.split("__")
-				sim_data.tfCondToAvgRnapRecruitment[activeCondition][idx] = sim_data.pPromoterBound[activeCondition][thisTf]
-				sim_data.tfCondToAvgRnapRecruitment[inactiveCondition][idx] = sim_data.pPromoterBound[inactiveCondition][thisTf]
-				if tf == thisTf:
-					sim_data.tfCondToAvgRnapRecruitment2[activeCondition][idx] = sim_data.pPromoterBound[activeCondition][thisTf]
-					sim_data.tfCondToAvgRnapRecruitment2[inactiveCondition][idx] = sim_data.pPromoterBound[inactiveCondition][thisTf]
-
-	# TODO: End delete
-
-
-	hI = []
-	hJ = []
-	hV = []
-	rowNames = []
-	stateMasses = []
-	for idx, rnaId in enumerate(sim_data.process.transcription.rnaData["id"]):
-		rnaIdNoLoc = rnaId[:-3]
+		rnaIdNoLoc = rnaId[:-3]  # Remove compartment ID from RNA ID
 
 		tfs = sim_data.process.transcription_regulation.targetTf.get(rnaIdNoLoc, [])
 		tfsWithData = []
+
+		# Take only those TFs with active/inactive conditions data
 		for tf in tfs:
 			if tf not in sorted(sim_data.tfToActiveInactiveConds):
 				continue
-			tfsWithData.append({"id": tf, "mass_g/mol": sim_data.getter.getMass([tf]).asNumber(units.g / units.mol)})
-		rowName = rnaIdNoLoc + "__" + condition
+
+			tfsWithData.append({"id": tf, "mass_g/mol": sim_data.getter.getMass([tf]).asNumber(units.g/units.mol)})
+
+		# Add one row for each RNA
+		rowName = rnaIdNoLoc + "__basal"
 		rowNames.append(rowName)
+
+		# Add one column for each TF that regulates the RNA
 		for tf in tfsWithData:
 			colName = rnaIdNoLoc + "__" + tf["id"]
+			if colName not in colNames:
+				colNames.append(colName)
+
+			# Set element in H to value in r that corresponds to the column
 			hI.append(rowNames.index(rowName))
 			hJ.append(colNames.index(colName))
 			hV.append(r[colNames.index(colName)])
-			stateMasses.append([0.] * 6 + [tf["mass_g/mol"]] + [0.] * 4)
+
+			stateMasses.append([0.]*6 + [tf["mass_g/mol"]] + [0.]*4)
+
+		# Add alpha column for each RNA
 		colName = rnaIdNoLoc + "__alpha"
+		if colName not in colNames:
+			colNames.append(colName)
+
+		# Set element in H to the RNA's alpha value in r
 		hI.append(rowNames.index(rowName))
 		hJ.append(colNames.index(colName))
 		hV.append(r[colNames.index(colName)])
-		stateMasses.append([0.] * 11)
 
-	stateMasses = units.g / units.mol * np.array(stateMasses)
-	hI = np.array(hI)
-	hJ = np.array(hJ)
-	hV = np.array(hV)
+		stateMasses.append([0.]*11)
+
+	stateMasses = np.array(stateMasses)*(units.g/units.mol)
+
+	# Construct matrix H
+	hI, hJ, hV = np.array(hI), np.array(hJ), np.array(hV)
 	shape = (hI.max() + 1, hJ.max() + 1)
 	H = np.zeros(shape, np.float64)
 	H[hI, hJ] = hV
 
 	# Deals with numerical tolerance issue of having negative alpha values
 	colIdxs = [colNames.index(colName) for colName in colNames if colName.endswith("__alpha")]
-	nRows = H[:, colIdxs].shape[0]
+	nRows = H.shape[0]
 	H[range(nRows), colIdxs] -= H[range(nRows), colIdxs].min()
 	hV = H[hI, hJ]
 
+	# Add binding probability of each TF-RNA pair to bulkMolecules
 	sim_data.state.bulkMolecules.addToBulkState(colNames, stateMasses)
-	sim_data.moleculeGroups.bulkMoleculesSetTo1Division = [x for x in colNames if x.endswith("__alpha")]
+	sim_data.moleculeGroups.bulkMoleculesSetTo1Division = [x for x in colNames if x.endswith("__alpha")]  # Probabilities corresponding to alpha are always set to 1
 	sim_data.moleculeGroups.bulkMoleculesBinomialDivision += [x for x in colNames if not x.endswith("__alpha")]
+
+	# Add matrix H to sim_data
 	sim_data.process.transcription_regulation.recruitmentData = {
 		"hI": hI,
 		"hJ": hJ,
