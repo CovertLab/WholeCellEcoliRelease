@@ -238,8 +238,7 @@ def buildBasalCellSpecifications(sim_data):
 
 	Notes
 	-----
-	- TODO - bad form to return values and set sim_data values within the function -
-	should this be changed?
+	- TODO - sets sim_data attributes and returns values - change to only return values
 	"""
 
 	# Create dictionary for basal condition
@@ -396,7 +395,6 @@ def buildTfConditionCellSpecifications(sim_data, tf):
 			cellSpecs[conditionKey]["concDict"],
 			cellSpecs[conditionKey]["doubling_time"],
 			sim_data.process.transcription.rnaData["KmEndoRNase"],
-			updateConcDict = True,
 			)
 
 		# Store calculated values
@@ -407,12 +405,6 @@ def buildTfConditionCellSpecifications(sim_data, tf):
 		cellSpecs[conditionKey]["bulkContainer"] = bulkContainer
 
 	return cellSpecs
-
-	# TODO - what is this and what is the calculation that should be done? remove?
-		# Uncomment when concDict is actually calculated for non-base [AA]
-		# if len(conditionValue["perturbations"]) == 0:
-		# 	nutrientLabel = conditionValue["nutrients"]
-		# 	sim_data.process.metabolism.nutrientsToInternalConc[nutrientLabel] = concDict
 
 def buildCombinedConditionCellSpecifications(sim_data, cellSpecs):
 	"""
@@ -489,7 +481,6 @@ def buildCombinedConditionCellSpecifications(sim_data, cellSpecs):
 			cellSpecs[conditionKey]["concDict"],
 			cellSpecs[conditionKey]["doubling_time"],
 			sim_data.process.transcription.rnaData["KmEndoRNase"],
-			updateConcDict = True,
 			)
 
 		# Modify cellSpecs for calculated values
@@ -503,14 +494,7 @@ def buildCombinedConditionCellSpecifications(sim_data, cellSpecs):
 		sim_data.process.transcription.rnaExpression[conditionKey] = cellSpecs[conditionKey]["expression"]
 		sim_data.process.transcription.rnaSynthProb[conditionKey] = cellSpecs[conditionKey]["synthProb"]
 
-		# TODO - same as TODO comment on block in function above
-		# Uncomment when concDict is actually calculated for non-base [AA]
-		# if len(conditionValue["perturbations"]) == 0:
-		# 	nutrientLabel = conditionValue["nutrients"]
-		# 	sim_data.process.metabolism.nutrientsToInternalConc[nutrientLabel] = concDict
-
-
-def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None, updateConcDict = False):
+def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None):
 	"""
 	Iteratively fits synthesis probabilities for RNA. Calculates initial
 	expression based on gene expression data and makes adjustments to match
@@ -525,7 +509,6 @@ def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None,
 	- doubling_time (float with units) - doubling time
 	- Km (array of floats with concentration units) - Km for each RNA associated
 	with RNases
-	- updateConcDict - TODO - remove?
 
 	Requires
 	--------
@@ -544,11 +527,6 @@ def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None,
 	- fitAvgSolubleTargetMolMass (float with units) - TODO - what is this?
 	- bulkContainer (BulkObjectsContainer object) - expected counts for
 	bulk molecules based on expression
-	- concDict - TODO - remove?
-
-	Notes
-	-----
-	- TODO - remove updateConcDict? - doesn't get updated at all
 	"""
 
 	if VERBOSE > 0:
@@ -568,10 +546,6 @@ def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None,
 
 		# Normalize expression and write out changes
 		expression, synthProb = fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km)
-
-		# TODO - remove?
-		if updateConcDict:
-			concDict = concDict.copy() # Calculate non-base condition [AA]
 
 		degreeOfFit = np.sqrt(np.mean(np.square(initialExpression - expression)))
 		if VERBOSE > 1:
@@ -804,7 +778,7 @@ def setCPeriod(sim_data):
 
 	Modifies
 	--------
-	- This function modifieds sim_data to contain the c_period.
+	- This function modifies sim_data to contain the c_period.
 
 	Notes
 	-----
@@ -1243,8 +1217,7 @@ def fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km
 
 	Notes
 	-----
-	- TODO - bad form to return values and set bulkContainer counts within the function -
-	should this be changed?
+	- TODO - sets bulkContainer counts and returns values - change to only return values
 	"""
 
 	view_RNA = bulkContainer.countsView(sim_data.process.transcription.rnaData["id"])
