@@ -68,16 +68,16 @@ def testModel(toyModelReactionStoich=toyModelReactionStoich, biomassReactionStoi
 		objectiveType="standard",
 		solver="glpk",
 	)
-	exchangeMolecules = fba.externalMoleculeIDs()
-	fba.externalMoleculeLevelsIs([transportLimits[molID] for molID in exchangeMolecules])
+	exchangeMolecules = fba.getExternalMoleculeIDs()
+	fba.setExternalMoleculeLevels([transportLimits[molID] for molID in exchangeMolecules])
 
 	for reactionID in toyModelReactionStoich:
 		if reactionID in reactionEnzymes:
 			enzymeID = reactionEnzymes[reactionID]
 			if enzymeID in enzymeConcentrations:
-				fba.maxReactionFluxIs(reactionID, KCAT_MAX*enzymeConcentrations[enzymeID])
+				fba.setMaxReactionFlux(reactionID, KCAT_MAX * enzymeConcentrations[enzymeID])
 
-	return fba.biomassReactionFlux()[0]
+	return fba.getBiomassReactionFlux()[0]
 
 unconstrainedFlux = testModel()
 

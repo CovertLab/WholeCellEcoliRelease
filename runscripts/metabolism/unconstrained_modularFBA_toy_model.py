@@ -38,10 +38,10 @@ fba = FluxBalanceAnalysis(
 	solver="glpk",
 	)
 
-exchangeMolecules = fba.externalMoleculeIDs()
+exchangeMolecules = fba.getExternalMoleculeIDs()
 
-fba.externalMoleculeLevelsIs([transportLimits[molID] for molID in exchangeMolecules])
+fba.setExternalMoleculeLevels([transportLimits[molID] for molID in exchangeMolecules])
 
-biomassReactionFlux = fba.biomassReactionFlux()[0]
+biomassReactionFlux = fba.getBiomassReactionFlux()[0]
 
 print biomassReactionFlux

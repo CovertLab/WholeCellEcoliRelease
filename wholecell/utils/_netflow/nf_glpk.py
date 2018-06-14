@@ -266,7 +266,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		return idx
 
 
-	def flowMaterialCoeffIs(self, flow, material, coefficient):
+	def setFlowMaterialCoeff(self, flow, material, coefficient):
 		if self._eqConstBuilt:
 			if material not in self._materialIdxLookup:
 				raise Exception("Invalid material")
@@ -294,14 +294,11 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 
 		self._solved = False
 
-
-	def flowLowerBound(self, flow):
+	def getFlowLowerBound(self, flow):
 		return self._lb[flow]
 
-
-	def flowUpperBound(self, flow):
+	def getFlowUpperBound(self, flow):
 		return self._ub[flow]
-
 
 	def setFlowBounds(self, flow, lowerBound=None, upperBound=None):
 		"""
@@ -326,8 +323,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 
 		self._solved = False
 
-
-	def flowObjectiveCoeffIs(self, flow, coefficient):
+	def setFlowObjectiveCoeff(self, flow, coefficient):
 		idx = self._getVar(flow)
 		self._objective[flow] = coefficient
 		glp.glp_set_obj_coef(
@@ -338,8 +334,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 
 		self._solved = False
 
-
-	def flowRates(self, flows):
+	def getFlowRates(self, flows):
 		if isinstance(flows, basestring):
 			flows = (flows,)
 
@@ -351,7 +346,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 			 for flow in flows]
 			)
 
-	def rowDualValues(self, materials):
+	def getShadowPrices(self, materials):
 		if not self._eqConstBuilt:
 			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing dual values.")
 
@@ -363,7 +358,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 			 for material in materials]
 			)
 
-	def columnDualValues(self, fluxNames):
+	def getReducedCosts(self, fluxNames):
 		if not self._eqConstBuilt:
 			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing dual values.")
 
@@ -375,10 +370,9 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 			 for fluxName in fluxNames]
 			)
 
-	def objectiveValue(self):
+	def getObjectiveValue(self):
 		"""The current value of the objective function."""
 		return glp.glp_get_obj_val(self._lp)
-
 
 	def getSMatrix(self):
 		if not self._eqConstBuilt:

@@ -81,12 +81,12 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 		fba = FluxBalanceAnalysis(**_testStandard)
 
 		self.assertEqual(
-			set(fba.externalMoleculeIDs()),
+			set(fba.getExternalMoleculeIDs()),
 			{"A", "D"}
 			)
 
 		self.assertEqual(
-			set(fba.outputMoleculeIDs()),
+			set(fba.getOutputMoleculeIDs()),
 			{"B", "C", "E"}
 			)
 
@@ -96,11 +96,11 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 		fba = FluxBalanceAnalysis(**_testStandard)
 
 		self.assertEqual(
-			fba.biomassReactionFlux(),
+			fba.getBiomassReactionFlux(),
 			0
 			)
 
-		for moleculeID, change in zip(fba.outputMoleculeIDs(), fba.outputMoleculeLevelsChange()):
+		for moleculeID, change in zip(fba.getOutputMoleculeIDs(), fba.getOutputMoleculeLevelsChange()):
 			if moleculeID == "B":
 				self.assertAlmostEqual(0, change)
 
@@ -120,17 +120,17 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			"D":20
 			}
 
-		fba.externalMoleculeLevelsIs([
+		fba.setExternalMoleculeLevels([
 			externalMoleculeLevels[moleculeID]
-			for moleculeID in fba.externalMoleculeIDs()
+			for moleculeID in fba.getExternalMoleculeIDs()
 			])
 
 		self.assertEqual(
-			fba.biomassReactionFlux(),
+			fba.getBiomassReactionFlux(),
 			1.0
 			)
 
-		for moleculeID, change in zip(fba.outputMoleculeIDs(), fba.outputMoleculeLevelsChange()):
+		for moleculeID, change in zip(fba.getOutputMoleculeIDs(), fba.getOutputMoleculeLevelsChange()):
 			if moleculeID == "B":
 				self.assertAlmostEqual(10, change)
 
@@ -150,9 +150,9 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			"D":20
 			}
 
-		fba.externalMoleculeLevelsIs([
+		fba.setExternalMoleculeLevels([
 			externalMoleculeLevels[moleculeID]
-			for moleculeID in fba.externalMoleculeIDs()
+			for moleculeID in fba.getExternalMoleculeIDs()
 			])
 
 		internalMoleculeLevels = {
@@ -161,12 +161,12 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			"E":0,
 			}
 
-		fba.internalMoleculeLevelsIs([
+		fba.setInternalMoleculeLevels([
 			internalMoleculeLevels[moleculeID]
-			for moleculeID in fba.internalMoleculeIDs()
+			for moleculeID in fba.getInternalMoleculeIDs()
 			])
 
-		for moleculeID, change in zip(fba.outputMoleculeIDs(), fba.outputMoleculeLevelsChange()):
+		for moleculeID, change in zip(fba.getOutputMoleculeIDs(), fba.getOutputMoleculeLevelsChange()):
 			if moleculeID == "B":
 				self.assertAlmostEqual(10, change)
 
@@ -186,9 +186,9 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			"D":20
 			}
 
-		fba.externalMoleculeLevelsIs([
+		fba.setExternalMoleculeLevels([
 			externalMoleculeLevels[moleculeID]
-			for moleculeID in fba.externalMoleculeIDs()
+			for moleculeID in fba.getExternalMoleculeIDs()
 			])
 
 		internalMoleculeLevels = {
@@ -197,12 +197,12 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			"E":20,
 			}
 
-		fba.internalMoleculeLevelsIs([
+		fba.setInternalMoleculeLevels([
 			internalMoleculeLevels[moleculeID]
-			for moleculeID in fba.internalMoleculeIDs()
+			for moleculeID in fba.getInternalMoleculeIDs()
 			])
 
-		for moleculeID, change in zip(fba.outputMoleculeIDs(), fba.outputMoleculeLevelsChange()):
+		for moleculeID, change in zip(fba.getOutputMoleculeIDs(), fba.getOutputMoleculeLevelsChange()):
 			if moleculeID == "B":
 				self.assertAlmostEqual(0, change)
 
@@ -222,9 +222,9 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			"D":20
 			}
 
-		fba.externalMoleculeLevelsIs([
+		fba.setExternalMoleculeLevels([
 			externalMoleculeLevels[moleculeID]
-			for moleculeID in fba.externalMoleculeIDs()
+			for moleculeID in fba.getExternalMoleculeIDs()
 			])
 
 		internalMoleculeLevels = {
@@ -233,12 +233,12 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			"E":10,
 			}
 
-		fba.internalMoleculeLevelsIs([
+		fba.setInternalMoleculeLevels([
 			internalMoleculeLevels[moleculeID]
-			for moleculeID in fba.internalMoleculeIDs()
+			for moleculeID in fba.getInternalMoleculeIDs()
 			])
 
-		for moleculeID, change in zip(fba.outputMoleculeIDs(), fba.outputMoleculeLevelsChange()):
+		for moleculeID, change in zip(fba.getOutputMoleculeIDs(), fba.getOutputMoleculeLevelsChange()):
 			if moleculeID == "B":
 				self.assertAlmostEqual(5, change)
 
@@ -258,9 +258,9 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			"D":20
 			}
 
-		fba.externalMoleculeLevelsIs([
+		fba.setExternalMoleculeLevels([
 			externalMoleculeLevels[moleculeID]
-			for moleculeID in fba.externalMoleculeIDs()
+			for moleculeID in fba.getExternalMoleculeIDs()
 			])
 
 		internalMoleculeLevels = {
@@ -269,12 +269,12 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			"E":20,
 			}
 
-		fba.internalMoleculeLevelsIs([
+		fba.setInternalMoleculeLevels([
 			internalMoleculeLevels[moleculeID]
-			for moleculeID in fba.internalMoleculeIDs()
+			for moleculeID in fba.getInternalMoleculeIDs()
 			])
 
-		for moleculeID, change in zip(fba.outputMoleculeIDs(), fba.outputMoleculeLevelsChange()):
+		for moleculeID, change in zip(fba.getOutputMoleculeIDs(), fba.getOutputMoleculeLevelsChange()):
 			if moleculeID == "B":
 				self.assertAlmostEqual(5, change)
 
@@ -296,9 +296,9 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			"D":20
 			}
 
-		fba.externalMoleculeLevelsIs([
+		fba.setExternalMoleculeLevels([
 			externalMoleculeLevels[moleculeID]
-			for moleculeID in fba.externalMoleculeIDs()
+			for moleculeID in fba.getExternalMoleculeIDs()
 			])
 
 		internalMoleculeLevels = {
@@ -307,12 +307,12 @@ class Test_FluxBalanceAnalysis(unittest.TestCase):
 			"E":20,
 			}
 
-		fba.internalMoleculeLevelsIs([
+		fba.setInternalMoleculeLevels([
 			internalMoleculeLevels[moleculeID]
-			for moleculeID in fba.internalMoleculeIDs()
+			for moleculeID in fba.getInternalMoleculeIDs()
 			])
 
-		for moleculeID, change in zip(fba.outputMoleculeIDs(), fba.outputMoleculeLevelsChange()):
+		for moleculeID, change in zip(fba.getOutputMoleculeIDs(), fba.getOutputMoleculeLevelsChange()):
 			if moleculeID == "B":
 				self.assertAlmostEqual(-5, change)
 
