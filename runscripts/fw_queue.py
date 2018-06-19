@@ -202,7 +202,7 @@ for key, value in metadata.iteritems():
 		continue
 	write_file(os.path.join(METADATA_DIRECTORY, key), value)
 
-with open(os.path.join(METADATA_DIRECTORY, "metadata.cPickle"), "w") as f:
+with open(os.path.join(METADATA_DIRECTORY, constants.SERIALIZED_METADATA_FILE), "w") as f:
 	cPickle.dump(metadata, f, cPickle.HIGHEST_PROTOCOL)
 
 #### Create workflow
