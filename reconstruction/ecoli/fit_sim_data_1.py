@@ -1395,8 +1395,6 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 	- proteinMonomerAverageContainer: The mean of the protein monomer counts.
 	- proteinMonomerDeviationContainer: The standard deviation of the protein monomer
 	counts.
-
-	TODO (ERAN): How does mccFormComplexesWithPrebuiltMatrices work?
 	"""
 
 	# Ids
