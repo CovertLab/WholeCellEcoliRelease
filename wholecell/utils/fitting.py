@@ -29,7 +29,6 @@ def countsFromMassAndExpression(mass, mws, relativeExpression, nAvogadro):
 
 def masses_and_counts_for_homeostatic_target(
 		dry_mass_of_non_small_molecules,
-		ids,
 		concentrations,
 		weights,
 		cell_density,
@@ -86,8 +85,6 @@ def masses_and_counts_for_homeostatic_target(
 	dry_mass_of_non_small_molecules: float unit'd scalar, dimensions of mass
 		The total mass of the cell, minus the 'wet' mass (water) and the dry mass of other small
 		molecules.
-	ids: iterable of strings
-		The ids of the small molecules.  Not used.
 	concentrations: 1-D float unit'd array, with dimensions of concentration
 		The target concentrations of the small molecules.
 	weights: 1-D float unit'd array, with dimensions of mass per mol
