@@ -814,17 +814,37 @@ def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict, doubling_t
 	return newAvgCellDryMassInit, fitAvgSolubleTargetMolMass
 
 def setInitialRnaExpression(sim_data, expression, doubling_time):
-	# Set expression for all of the noncoding RNAs
+	"""
+	Creates a container that with the initial count and ID of each RNA, caluclated based on the mass fraction, 
+	molecular weight, and expression distribution of each RNA. For rRNA the counts are set based on mass, while for 
+	tRNA and mRNA the counts are set based on mass and relative abundance. Relies on the math function 
+	totalCountFromMassesAndRatios.
+
+	Requires
+	--------
+	- Needs information from the knowledge base about the mass fraction, molecular weight, and distrubution of each
+	RNA species.
+
+	Returns
+	--------
+	- expression: a wrapper around a NumPy array that contains the normalized intial RNA expression
+	(in counts) and corresponding ID of all RNAs.
+
+	Notes
+	-----
+	- Now rnaData["synthProb"] does not match "expression" # Previous note.
+
+	"""
 
 	# Load from KB
 
 	## IDs
-	ids_rnas = sim_data.process.transcription.rnaData["id"]
-	ids_rRNA23S = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna23S"]]
-	ids_rRNA16S = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna16S"]]
-	ids_rRNA5S = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna5S"]]
-	ids_tRNA = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isTRna"]]
-	ids_mRNA = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isMRna"]]
+	ids_rnas = sim_data.process.transcription.rnaData["id"] # All RNAs
+	ids_rRNA23S = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna23S"]] # 23S rRNA
+	ids_rRNA16S = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna16S"]] # 16S rRNA
+	ids_rRNA5S = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna5S"]] # 5s rRNA
+	ids_tRNA = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isTRna"]] # tRNAs
+	ids_mRNA = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isMRna"]] # mRNAs
 
 	avgCellFractionMass = sim_data.mass.getFractionMass(doubling_time)
 
@@ -911,7 +931,6 @@ def setInitialRnaExpression(sim_data, expression, doubling_time):
 	expression = normalize(rnaExpressionContainer.counts())
 
 	return expression
-	# Note that now rnaData["synthProb"] does not match "expression"
 
 def totalCountIdDistributionProtein(sim_data, expression, doubling_time):
 	"""
