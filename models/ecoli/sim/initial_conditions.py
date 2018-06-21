@@ -17,7 +17,7 @@ import numpy as np
 import os
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
-from wholecell.utils.fitting import normalize, countsFromMassAndExpression, calcProteinCounts, massesAndCountsToAddForHomeostaticTargets
+from wholecell.utils.fitting import normalize, countsFromMassAndExpression, calcProteinCounts, masses_and_counts_for_homeostatic_target
 from wholecell.utils.polymerize import buildSequences, computeMassIncrease
 from wholecell.utils import units
 from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
@@ -132,9 +132,8 @@ def initializeSmallMolecules(bulkMolCntr, sim_data, randomState, massCoeff):
 	moleculeIds = sorted(concDict)
 	moleculeConcentrations = (units.mol / units.L) * np.array([concDict[key].asNumber(units.mol / units.L) for key in moleculeIds])
 
-	massesToAdd, countsToAdd = massesAndCountsToAddForHomeostaticTargets(
+	massesToAdd, countsToAdd = masses_and_counts_for_homeostatic_target(
 		mass,
-		moleculeIds,
 		moleculeConcentrations,
 		sim_data.getter.getMass(moleculeIds),
 		sim_data.constants.cellDensity,
