@@ -48,6 +48,27 @@ VOLUME_UNITS = units.L
 MASS_UNITS = units.g
 TIME_UNITS = units.s
 
+TRANSLATION_EFFICIENCIES_ADJUSTMENTS = {
+	"ADCLY-MONOMER[c]": 5,  # pabC, aminodeoxychorismate lyase
+	"EG12438-MONOMER[c]": 5,  # menH, 2-succinyl-6-hydroxy-2,4-cyclohexadiene-1-carboxylate synthetase
+	"EG12298-MONOMER[p]": 5,  # yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition viability
+	"ACETYL-COA-ACETYLTRANSFER-MONOMER[c]": 5,  # atoB; This RNA is fit for the anaerobic condition viability
+}
+RNA_EXPRESSION_ADJUSTMENTS = {
+	"EG11493_RNA[c]": 10,  # pabC, aminodeoxychorismate lyase
+	"EG12438_RNA[c]": 10,  # menH, 2-succinyl-6-hydroxy-2,4-cyclohexadiene-1-carboxylate synthetase
+	"EG10139_RNA[c]": 10,  # cdsA, CDP-diglyceride synthetase
+	"EG12298_RNA[c]": 10,  # yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition viability
+	"EG11672_RNA[c]": 10,  # atoB, acetyl-CoA acetyltransferase; This RNA is fit for the anaerobic condition viability
+}
+RNA_DEG_RATES_ADJUSTMENTS = {
+	"EG11493_RNA[c]": 2,  # pabC, aminodeoxychorismate lyase
+	"EG10139_RNA[c]": 2,  # cdsA, CDP-diglyceride synthetase
+}
+PROTEIN_DEG_RATES_ADJUSTMENTS = {
+	"EG12298-MONOMER[p]": 0.1, # yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition
+}
+
 def fitSimData_1(raw_data, cpus=1, debug=False):
 	'''
 	Fits parameters necessary for the simulation based on the knowledge base
@@ -661,16 +682,9 @@ def setTranslationEfficiencies(sim_data):
 	-
 	"""
 
-	adjustments = {
-		"ADCLY-MONOMER[c]": 5, # pabC, aminodeoxychorismate lyase
-		"EG12438-MONOMER[c]": 5, # menH, 2-succinyl-6-hydroxy-2,4-cyclohexadiene-1-carboxylate synthetase
-		"EG12298-MONOMER[p]": 5, # yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition viability
-		"ACETYL-COA-ACETYLTRANSFER-MONOMER[c]": 5, # atoB; This RNA is fit for the anaerobic condition viability
-		}
-
-	for protein in adjustments:
+	for protein in TRANSLATION_EFFICIENCIES_ADJUSTMENTS:
 		idx = np.where(sim_data.process.translation.monomerData["id"] == protein)[0]
-		sim_data.process.translation.translationEfficienciesByMonomer[idx] *= adjustments[protein]
+		sim_data.process.translation.translationEfficienciesByMonomer[idx] *= TRANSLATION_EFFICIENCIES_ADJUSTMENTS[protein]
 
 def setRNAExpression(sim_data):
 	"""
@@ -694,17 +708,9 @@ def setRNAExpression(sim_data):
 	-
 	"""
 
-	adjustments = {
-		"EG11493_RNA[c]": 10, # pabC, aminodeoxychorismate lyase
-		"EG12438_RNA[c]": 10, # menH, 2-succinyl-6-hydroxy-2,4-cyclohexadiene-1-carboxylate synthetase
-		"EG10139_RNA[c]": 10, # cdsA, CDP-diglyceride synthetase
-		"EG12298_RNA[c]": 10, # yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition viability
-		"EG11672_RNA[c]": 10, # atoB, acetyl-CoA acetyltransferase; This RNA is fit for the anaerobic condition viability
-		}
-
-	for rna in adjustments:
+	for rna in RNA_EXPRESSION_ADJUSTMENTS:
 		idx = np.where(sim_data.process.transcription.rnaData["id"] == rna)[0]
-		sim_data.process.transcription.rnaExpression["basal"][idx] *= adjustments[rna]
+		sim_data.process.transcription.rnaExpression["basal"][idx] *= RNA_EXPRESSION_ADJUSTMENTS[rna]
 
 	sim_data.process.transcription.rnaExpression["basal"] /= sim_data.process.transcription.rnaExpression["basal"].sum()
 
@@ -728,14 +734,9 @@ def setRNADegRates(sim_data):
 	-
 	"""
 
-	adjustments = {
-		"EG11493_RNA[c]": 2, # pabC, aminodeoxychorismate lyase
-		"EG10139_RNA[c]": 2, # cdsA, CDP-diglyceride synthetase
-		}
-
-	for rna in adjustments:
+	for rna in RNA_DEG_RATES_ADJUSTMENTS:
 		idx = np.where(sim_data.process.transcription.rnaData["id"] == rna)[0]
-		sim_data.process.transcription.rnaData.struct_array["degRate"][idx] *= adjustments[rna]
+		sim_data.process.transcription.rnaData.struct_array["degRate"][idx] *= RNA_DEG_RATES_ADJUSTMENTS[rna]
 
 def setProteinDegRates(sim_data):
 	"""
@@ -757,13 +758,9 @@ def setProteinDegRates(sim_data):
 	-
 	"""
 
-	adjustments = {
-		"EG12298-MONOMER[p]": 0.1, # yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition
-		}
-
-	for protein in adjustments:
+	for protein in PROTEIN_DEG_RATES_ADJUSTMENTS:
 		idx = np.where(sim_data.process.translation.monomerData["id"] == protein)[0]
-		sim_data.process.translation.monomerData.struct_array["degRate"][idx] *= adjustments[protein]
+		sim_data.process.translation.monomerData.struct_array["degRate"][idx] *= PROTEIN_DEG_RATES_ADJUSTMENTS[protein]
 
 def setCPeriod(sim_data):
 	"""
