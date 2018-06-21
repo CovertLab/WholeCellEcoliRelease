@@ -542,12 +542,14 @@ def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict, doubling_t
 		+ avgCellFractionMass["dnaMass"]
 		) / sim_data.mass.avgCellToInitialCellConvFactor
 
-	molar = units.mol / units.L
+	molar_units = units.mol / units.L
 
 	targetMoleculeIds = sorted(concDict)
-	targetMoleculeConcentrations = molar * np.array([
-		concDict[key].asNumber(molar) for key in targetMoleculeIds
+	targetMoleculeConcentrations = molar_units * np.array([
+		concDict[key].asNumber(molar_units) for key in targetMoleculeIds
 		]) # Have to strip and replace units to obtain the proper array data type
+
+	assert np.all(targetMoleculeConcentrations.asNumber(molar_units) > 0), 'Homeostatic dFBA objective requires non-zero (positive) concentrations'
 
 	molecular_weights = sim_data.getter.getMass(targetMoleculeIds)
 
