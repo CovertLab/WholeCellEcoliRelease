@@ -2674,26 +2674,6 @@ def calculatePromoterBoundProbability(sim_data, cellSpecs):
 
 	return pPromoterBound
 
-def cosine_similarity(samples):
-	"""
-	Finds the cosine similarity between samples.
-
-	samples is a matrix of size (n_samples, sample_size)
-
-	The output is a matrix of size (n_samples, n_samples).
-
-	The cosine similarity is the normalized dot product between two
-	vectors.  The name originates from the fact that the normalized dot
-	product between two vectors is equal to the cosine of the angle
-	formed by the two vectors.
-	"""
-
-	magnitudes = np.sqrt(np.sum(np.square(samples), 1))
-
-	normed = samples / magnitudes[:, None]
-
-	return normed.dot(normed.T)
-
 def calculateRnapRecruitment(sim_data, r):
 	# TODO: Not really a good function name - calculation is not done here
 	'''

@@ -66,3 +66,23 @@ def calcProteinDistribution(sim_data):
 		sim_data.process.transcription.rnaData["expression"][sim_data.relation.rnaIndexToMonomerMapping] /
 		(np.log(2) / sim_data.doubling_time.asNumber(units.s) + sim_data.process.translation.monomerData["degRate"].asNumber(1 / units.s))
 		)
+
+def cosine_similarity(samples):
+	"""
+	Finds the cosine similarity between samples.
+
+	samples is a matrix of size (n_samples, sample_size)
+
+	The output is a matrix of size (n_samples, n_samples).
+
+	The cosine similarity is the normalized dot product between two
+	vectors.  The name originates from the fact that the normalized dot
+	product between two vectors is equal to the cosine of the angle
+	formed by the two vectors.
+	"""
+
+	magnitudes = np.sqrt(np.sum(np.square(samples), 1))
+
+	normed = samples / magnitudes[:, None]
+
+	return normed.dot(normed.T)
