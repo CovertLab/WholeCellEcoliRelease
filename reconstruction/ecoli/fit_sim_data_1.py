@@ -784,6 +784,34 @@ def setCPeriod(sim_data):
 	sim_data.growthRateParameters.c_period = sim_data.process.replication.genome_length * units.nt / sim_data.growthRateParameters.dnaPolymeraseElongationRate / 2
 
 def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict, doubling_time):
+	'''
+	Adjust the cell's mass to accomodate target small molecule concentrations.
+
+	Inputs
+	------
+	- sim_data
+	- bulkMolCntr
+	- concDict
+	- doubling_time
+
+	Requires
+	--------
+	- Cell mass fraction data at a given doubling time.
+	- Average cell density.
+	- The conversion factor for transforming from the size of an average cell to the size of a cell
+	  immediately following division.
+	- Avogadro's number.
+	- Concentrations of small molecules (including both dry mass components and water).
+
+	Modifies
+	--------
+	- Adds small molecule counts to bulkMolCntr.
+
+	Returns
+	-------
+	- newAvgCellDryMassInit, the adjusted dry mass of a cell immediately following division.
+	- fitAvgSolubleTargetMolMass, the adjusted dry mass of the soluble fraction of a cell
+	'''
 	avgCellFractionMass = sim_data.mass.getFractionMass(doubling_time)
 
 	mass = (avgCellFractionMass["proteinMass"] + avgCellFractionMass["rnaMass"] + avgCellFractionMass["dnaMass"]) / sim_data.mass.avgCellToInitialCellConvFactor
@@ -815,9 +843,9 @@ def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict, doubling_t
 
 def setInitialRnaExpression(sim_data, expression, doubling_time):
 	"""
-	Creates a container that with the initial count and ID of each RNA, caluclated based on the mass fraction, 
-	molecular weight, and expression distribution of each RNA. For rRNA the counts are set based on mass, while for 
-	tRNA and mRNA the counts are set based on mass and relative abundance. Relies on the math function 
+	Creates a container that with the initial count and ID of each RNA, caluclated based on the mass fraction,
+	molecular weight, and expression distribution of each RNA. For rRNA the counts are set based on mass, while for
+	tRNA and mRNA the counts are set based on mass and relative abundance. Relies on the math function
 	totalCountFromMassesAndRatios.
 
 	Requires
