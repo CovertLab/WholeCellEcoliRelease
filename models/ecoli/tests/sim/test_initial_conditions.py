@@ -19,7 +19,7 @@ import os
 
 from wholecell.utils import units
 
-from  models.ecoli.sim.initial_conditions import determineChromosomeState, determineNumOriC
+from  models.ecoli.sim.initial_conditions import determineChromosomeState
 
 
 class Test_InitialConditions(unittest.TestCase):
@@ -46,7 +46,7 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 27 * units.min
 		tau = 90 * units.min
 		replication_length = 2319838 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 
 		assert(len(sequenceIdx) == len(sequenceLength) == len(replicationRound) == len(chromosomeIndex) == 0)
 
@@ -55,7 +55,7 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 27 * units.min
 		tau = 60 * units.min
 		replication_length = 2319838 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 
 		assert(len(sequenceIdx) == len(sequenceLength) == len(replicationRound) == len(chromosomeIndex) == 4)
 
@@ -64,7 +64,7 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 27 * units.min
 		tau = 30 * units.min
 		replication_length = 2319838 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 
 		# Two generations means one event from first generation and two events
 		# from the second - total of 3 events, 4 DNA polys per event = 12 DNA polys
@@ -75,7 +75,7 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 19 * units.min
 		tau = 20 * units.min
 		replication_length = 2319838 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 
 		# Three generations means one event from first generation, two from the
 		# second, and 4 from the third - total of 7 events, 4 DNA polys per event = 28 DNA polys
@@ -86,7 +86,7 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 20 * units.min
 		tau = 21 * units.min
 		replication_length = 2319838 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 
 		# Four generations means one event from first generation, two from the
 		# second, 4 from the third, and 8 from the fourth - total of 15 events, 4 DNA polys per event = 60 DNA polys
@@ -104,7 +104,7 @@ class Test_InitialConditions(unittest.TestCase):
 		tau = 30 * units.min
 		replication_length = 2319838 * units.nt
 
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 
 		limit = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
 		n = 1;
@@ -119,7 +119,7 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 25 * units.min
 		tau = 30 * units.min
 		replication_length = 1 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 	
 		limit = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
 		n = 1;
@@ -134,7 +134,7 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 25 * units.min
 		tau = 30 * units.min
 		replication_length = 0 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 	
 		limit = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
 		n = 1;
@@ -149,7 +149,7 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 25 * units.min
 		tau = 30 * units.min
 		replication_length = np.inf * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 
 		limit = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
 		n = 1;
@@ -164,7 +164,7 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 25 * units.min
 		tau = 30 * units.min
 		replication_length = 2319838.3 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 
 		limit = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
 		n = 1;
@@ -184,7 +184,7 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 27 * units.min
 		tau = 90 * units.min
 		replication_length = 2319838 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 		
 		# Array should be of length zero if no replication events have started
 		assert( sum(chromosomeIndex) == len(chromosomeIndex) == 0)
@@ -195,7 +195,7 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 27 * units.min
 		tau = 60 * units.min
 		replication_length = 2319838 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 
 		assert( sum(chromosomeIndex) == (len(chromosomeIndex)-4)/2 )
 
@@ -205,7 +205,7 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 27 * units.min
 		tau = 30 * units.min
 		replication_length = 2319838 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 
 		# There should be equal numbers of zeros and ones in the chromosomeIndex array (excepting the first four)
 		assert( sum(chromosomeIndex) == (len(chromosomeIndex)-4)/2 )
@@ -216,7 +216,7 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 19 * units.min
 		tau = 20 * units.min
 		replication_length = 2319838 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 
 		# There should be equal numbers of zeros and ones in the chromosomeIndex array (excepting the first four)
 		assert( sum(chromosomeIndex) == (len(chromosomeIndex)-4)/2 )
@@ -227,7 +227,7 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 20 * units.min
 		tau = 21 * units.min
 		replication_length = 2319838 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 
 		# There should be equal numbers of zeros and ones in the chromosomeIndex array (excepting the first four)
 		assert( sum(chromosomeIndex) == (len(chromosomeIndex)-4)/2 )
@@ -242,7 +242,7 @@ class Test_InitialConditions(unittest.TestCase):
 			D = 20  * units.min
 			tau = 19 * units.min
 			replication_length = 2319838  * units.nt
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+			_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 		self.assertEqual(context.exception.message, "The D period must be shorter than the doubling time tau.")
 
 
@@ -252,7 +252,7 @@ class Test_InitialConditions(unittest.TestCase):
 			D = 20  * units.min
 			tau = 60 * units.min
 			replication_length = 2319838  * units.nt
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+			_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 		self.assertEqual(context.exception.message, "C value can't be negative.")
 
 		with self.assertRaises(AssertionError) as context:
@@ -260,7 +260,7 @@ class Test_InitialConditions(unittest.TestCase):
 			D = -20  * units.min
 			tau = 60 * units.min
 			replication_length = 2319838  * units.nt
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+			_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 		self.assertEqual(context.exception.message, "D value can't be negative.")
 
 		with self.assertRaises(AssertionError) as context:
@@ -268,7 +268,7 @@ class Test_InitialConditions(unittest.TestCase):
 			D = 20  * units.min
 			tau = -60 * units.min
 			replication_length = 2319838  * units.nt
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+			_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 		self.assertEqual(context.exception.message, "tau value can't be negative.")
 
 		with self.assertRaises(AssertionError) as context:
@@ -276,7 +276,7 @@ class Test_InitialConditions(unittest.TestCase):
 			D = 20  * units.min
 			tau = 60 * units.min
 			replication_length = -2319838  * units.nt
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+			_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 		self.assertEqual(context.exception.message, "replication_length value can't be negative.")
 
 
@@ -288,7 +288,7 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 27 * units.min
 		tau = 90 * units.min
 		replication_length = 2319838 * units.nt
-		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+		_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 
 
 		# Inputs with no units (expect an error)
@@ -297,7 +297,7 @@ class Test_InitialConditions(unittest.TestCase):
 			D = 27  * units.min
 			tau = 90  * units.min
 			replication_length = 2319838  * units.nt
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+			_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 		self.assertEqual(context.exception.message, "C must have units")
 
 		with self.assertRaises(AssertionError) as context:
@@ -305,7 +305,7 @@ class Test_InitialConditions(unittest.TestCase):
 			D = 27
 			tau = 90  * units.min
 			replication_length = 2319838  * units.nt
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+			_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 		self.assertEqual(context.exception.message, "D must have units")
 
 		with self.assertRaises(AssertionError) as context:
@@ -313,7 +313,7 @@ class Test_InitialConditions(unittest.TestCase):
 			D = 27  * units.min
 			tau = 90
 			replication_length = 2319838  * units.nt
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+			_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 		self.assertEqual(context.exception.message, "tau must have units")
 
 		with self.assertRaises(AssertionError) as context:
@@ -321,7 +321,7 @@ class Test_InitialConditions(unittest.TestCase):
 			D = 27  * units.min
 			tau = 90  * units.min
 			replication_length = 2319838
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+			_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 		self.assertEqual(context.exception.message, "replication_length must have units of units.nt.")
 
 
@@ -331,7 +331,7 @@ class Test_InitialConditions(unittest.TestCase):
 			D = 27  * units.min
 			tau = 90  * units.min
 			replication_length = 2319838  * units.min
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+			_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 		self.assertEqual(context.exception.message, "replication_length must have units of units.nt.")
 
 		with self.assertRaises(AssertionError) as context:
@@ -339,7 +339,7 @@ class Test_InitialConditions(unittest.TestCase):
 			D = 27  * units.min
 			tau = 90  * units.min
 			replication_length = 2319838  * units.s
-			sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
+			_, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
 		self.assertEqual(context.exception.message, "replication_length must have units of units.nt.")
 
 
@@ -350,55 +350,61 @@ class Test_InitialConditions(unittest.TestCase):
 		C = 50 * units.min
 		D = 27 * units.min
 		tau = 100 * units.min
-		numOric = determineNumOriC(C, D, tau)
+		replication_length = 2319838 * units.nt
+		n_oric, _, _, _, _ = determineChromosomeState(C, D, tau, replication_length)
 
-		assert(numOric == 1)
+		assert(n_oric == 1)
 
 		# When (C + D) / tau is less than one, no replication will have started
 		C = 50 * units.min
 		D = 27 * units.min
 		tau = 90 * units.min
-		numOric = determineNumOriC(C, D, tau)
+		replication_length = 2319838 * units.nt
+		n_oric, _, _, _, _ = determineChromosomeState(C, D, tau, replication_length)
 
-		assert(numOric == 1)
+		assert(n_oric == 1)
 
 		# When (C + D) / tau is between one and two, one replication generation will have started
 		C = 50 * units.min
 		D = 27 * units.min
 		tau = 60 * units.min
-		numOric = determineNumOriC(C, D, tau)
+		replication_length = 2319838 * units.nt
+		n_oric, _, _, _, _ = determineChromosomeState(C, D, tau, replication_length)
 
-		assert(numOric == 2)
+		assert(n_oric == 2)
 
 		# When (C + D) / tau is between two and three, two replication generations will have started
 		C = 50 * units.min
 		D = 27 * units.min
 		tau = 30 * units.min
-		numOric = determineNumOriC(C, D, tau)
+		replication_length = 2319838 * units.nt
+		n_oric, _, _, _, _ = determineChromosomeState(C, D, tau, replication_length)
 
 		# Two generations means one event from first generation and two events
 		# from the second - total of 3 events, plus one oriC for the original
 		# chromosome = 4 total oriC
-		assert(numOric == 4)
+		assert(n_oric == 4)
 
 		# When (C + D) / tau is between three and four, three replication generations will have started
 		C = 50 * units.min
 		D = 27 * units.min
 		tau = 20 * units.min
-		numOric = determineNumOriC(C, D, tau)
+		replication_length = 2319838 * units.nt
+		n_oric, _, _, _, _ = determineChromosomeState(C, D, tau, replication_length)
 
 		# Three generations means one event from first generation, two from the
 		# second, and 4 from the third - total of 7 events, plus one oriC for 
 		# the original chromosome = 8 total oriC
-		assert(numOric == 8)
+		assert(n_oric == 8)
 
 		# When (C + D) / tau is between four and five, four replication generations will have started
 		C = 50 * units.min
 		D = 27 * units.min
 		tau = 17 * units.min
-		numOric = determineNumOriC(C, D, tau)
+		replication_length = 2319838 * units.nt
+		n_oric, _, _, _, _ = determineChromosomeState(C, D, tau, replication_length)
 
 		# Four generations means one event from first generation, two from the
 		# second, 4 from the third, and 8 from the fourth - total of 15 events,
 		# plus one oriC for the original chromosome = 16 total oriC
-		assert(numOric == 16)
+		assert(n_oric == 16)
