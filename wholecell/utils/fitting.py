@@ -67,7 +67,8 @@ def masses_and_counts_for_homeostatic_target(
 
 	m_i = V * w_i * c_i
 
-	and the total small molecule mass is
+	where w_i is the molecular weight of a given species,.  Finally, the total small molecule mass,
+	estimated from small molecule counts, is
 
 	Ms' = sum_i m_i = V * w^T c
 
