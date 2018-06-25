@@ -831,24 +831,24 @@ def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict, doubling_t
 
 def setInitialRnaExpression(sim_data, expression, doubling_time):
 	"""
-	Creates a container that with the initial count and ID of each RNA, caluclated based on the mass fraction,
+	Creates a container that with the initial count and ID of each RNA, calculated based on the mass fraction,
 	molecular weight, and expression distribution of each RNA. For rRNA the counts are set based on mass, while for
 	tRNA and mRNA the counts are set based on mass and relative abundance. Relies on the math function
 	totalCountFromMassesAndRatios.
 
 	Requires
 	--------
-	- Needs information from the knowledge base about the mass fraction, molecular weight, and distrubution of each
+	- Needs information from the knowledge base about the mass fraction, molecular weight, and distribution of each
 	RNA species.
 
 	Returns
 	--------
-	- expression: a wrapper around a NumPy array that contains the normalized intial RNA expression
+	- expression: a wrapper around a NumPy array that contains the normalized initial RNA expression
 	(in counts) and corresponding ID of all RNAs.
 
 	Notes
 	-----
-	- Now rnaData["synthProb"] does not match "expression" # Previous note.
+	- Now rnaData["synthProb"] does not match "expression"
 
 	"""
 
