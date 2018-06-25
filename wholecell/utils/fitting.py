@@ -27,23 +27,98 @@ def countsFromMassAndExpression(mass, mws, relativeExpression, nAvogadro):
 	assert type(nAvogadro) != unum.Unum
 	return mass / np.dot(mws / nAvogadro, relativeExpression)
 
-def massesAndCountsToAddForHomeostaticTargets(massInitial, poolIds, poolConcentrations, mws, cellDensity, nAvogadro):
-	diag = (cellDensity / (mws * poolConcentrations) - 1).asNumber()
-	A = -1 * np.ones((diag.size, diag.size))
-	A[np.diag_indices(diag.size)] = diag
-	b = massInitial.asNumber(units.g) * np.ones(diag.size)
+def masses_and_counts_for_homeostatic_target(
+		dry_mass_of_non_small_molecules,
+		concentrations,
+		weights,
+		cell_density,
+		avogadros_number
+		):
+	'''
+	Computes the dry mass fractions and counts associated with small molecules to maintain
+	concentrations consistent with targets.  (Also includes water.)
 
-	massesToAdd = units.g * np.linalg.solve(A, b)
-	countsToAdd = massesToAdd / mws * nAvogadro
+	The cell is composed of a number of 'mass fractions' i.e. DNA, RNA, protein, water, and
+	the less specific "small molecules" which includes both inorganic and organic molecular species
+	that form part of a cell.  While we take many of the former calculations as ground truth, we
+	chose to adjust (recompute) the small molecule mass fraction according to per-molecule
+	observations of small molecule concentrations (compiled from various sources).
 
-	V = (massInitial + units.sum(massesToAdd)) / cellDensity
+	However, this creates a potential issue: we need the small molecule mass to compute the volume,
+	and the volume in turn is used to compute the counts (and therefore masses) of the small
+	molecules.  We denote the first small molecule mass as Ms, and the second as Ms'.
 
-	assert np.allclose(
-		(countsToAdd / nAvogadro / V).asNumber(units.mol / units.L),
-		(poolConcentrations).asNumber(units.mol / units.L)
-		)
+	The total mass of the cell, Mt, is the sum of the small and non-small molecule masses:
 
-	return massesToAdd, countsToAdd
+	Mt = Ms + Mns
+
+	The volume of the cell V times the density of the cell rho is Mt, and therefore
+
+	rho * V = Ms + Mns
+
+	Ms = rho * V - Mns
+
+	This gives us our first calculation of the small molecule mass.  For the second calculation, we
+	first find the abundance of each small molecule species (count n_i) as
+
+	n_i = V * c_i
+
+	where c_i is the concentration of each species.  Then the mass associated with each species is
+
+	m_i = V * w_i * c_i
+
+	where w_i is the molecular weight of a given species,.  Finally, the total small molecule mass,
+	estimated from small molecule counts, is
+
+	Ms' = sum_i m_i = V * w^T c
+
+	where w^T c is the dot-product between the two vectors.
+
+	Equating Ms' and Ms, and solving for V:
+
+	V = Mns / (rho - w^Tc)
+
+	This allows us to compute the new volume, from which we can also compute and return all n_i and
+	m_i.
+
+	Parameters
+	----------
+	dry_mass_of_non_small_molecules: float unit'd scalar, dimensions of mass
+		The total mass of the cell, minus the 'wet' mass (water) and the dry mass of other small
+		molecules.
+	concentrations: 1-D float unit'd array, with dimensions of concentration
+		The target concentrations of the small molecules.
+	weights: 1-D float unit'd array, with dimensions of mass per mol
+		The molecular weights of the small molecules.
+	cell_density: float unit'd scalar, dimensions of mass per volume
+		The total density of the cell (wet and dry mass).
+	avogadros_number: float unit'd scalar, dimensions of per mol
+		The number of molecules per mole.
+
+	Returns
+	-------
+	masses: 1-D float unit'd array, with dimensions of mass
+		The mass associated with each molecular species.
+	counts: 1-D float unit'd array, dimensionless (i.e. counts)
+		The counts associated with each molecular species.
+	'''
+
+	# Compute the total mass concentration of the small molecules
+
+	total_small_mol_mass_conc = np.dot(weights, concentrations)
+
+	# Compute the new total cell volume that accomodates the small molecule concentrations
+
+	cell_volume = dry_mass_of_non_small_molecules / (cell_density - total_small_mol_mass_conc)
+
+	# Calculate and return the counts of molecules and their associated masses
+
+	mols = cell_volume * concentrations
+
+	counts = mols * avogadros_number
+	masses = weights * mols
+
+	return masses, counts
 
 def calcProteinCounts(sim_data, monomerMass):
 	monomerExpression = calcProteinDistribution(sim_data)

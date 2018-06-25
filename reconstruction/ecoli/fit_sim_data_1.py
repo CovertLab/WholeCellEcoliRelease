@@ -17,7 +17,7 @@ from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWi
 
 from wholecell.utils import filepath
 from wholecell.utils import units
-from wholecell.utils.fitting import normalize, massesAndCountsToAddForHomeostaticTargets
+from wholecell.utils.fitting import normalize, masses_and_counts_for_homeostatic_target
 
 from cvxpy import Variable, Problem, Minimize, norm
 
@@ -536,17 +536,27 @@ def setCPeriod(sim_data):
 def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict, doubling_time):
 	avgCellFractionMass = sim_data.mass.getFractionMass(doubling_time)
 
-	mass = (avgCellFractionMass["proteinMass"] + avgCellFractionMass["rnaMass"] + avgCellFractionMass["dnaMass"]) / sim_data.mass.avgCellToInitialCellConvFactor
+	non_small_molecule_initial_cell_mass = (
+		avgCellFractionMass["proteinMass"]
+		+ avgCellFractionMass["rnaMass"]
+		+ avgCellFractionMass["dnaMass"]
+		) / sim_data.mass.avgCellToInitialCellConvFactor
 
-	# We have to remove things with zero concentration because taking the inverse of zero isn't so nice.
+	molar_units = units.mol / units.L
+
 	targetMoleculeIds = sorted(concDict)
-	targetMoleculeConcentrations = (units.mol / units.L) * np.array([concDict[key].asNumber(units.mol / units.L) for key in targetMoleculeIds])
+	targetMoleculeConcentrations = molar_units * np.array([
+		concDict[key].asNumber(molar_units) for key in targetMoleculeIds
+		]) # Have to strip and replace units to obtain the proper array data type
 
-	massesToAdd, countsToAdd = massesAndCountsToAddForHomeostaticTargets(
-		mass,
-		targetMoleculeIds,
+	assert np.all(targetMoleculeConcentrations.asNumber(molar_units) > 0), 'Homeostatic dFBA objective requires non-zero (positive) concentrations'
+
+	molecular_weights = sim_data.getter.getMass(targetMoleculeIds)
+
+	massesToAdd, countsToAdd = masses_and_counts_for_homeostatic_target(
+		non_small_molecule_initial_cell_mass,
 		targetMoleculeConcentrations,
-		sim_data.getter.getMass(targetMoleculeIds),
+		molecular_weights,
 		sim_data.constants.cellDensity,
 		sim_data.constants.nAvogadro
 		)
@@ -557,9 +567,13 @@ def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict, doubling_t
 		)
 
 	# Increase avgCellDryMassInit to match these numbers & rescale mass fractions
-	smallMoleculetargetMoleculesDryMass = units.hstack((massesToAdd[:targetMoleculeIds.index('WATER[c]')], massesToAdd[targetMoleculeIds.index('WATER[c]') + 1:]))
-	newAvgCellDryMassInit = units.sum(mass) + units.sum(smallMoleculetargetMoleculesDryMass)
-	fitAvgSolubleTargetMolMass = units.sum(units.hstack((massesToAdd[:targetMoleculeIds.index('WATER[c]')], massesToAdd[targetMoleculeIds.index('WATER[c]') + 1:]))) * sim_data.mass.avgCellToInitialCellConvFactor
+	smallMoleculetargetMoleculesDryMass = units.hstack((
+		massesToAdd[:targetMoleculeIds.index('WATER[c]')],
+		massesToAdd[targetMoleculeIds.index('WATER[c]') + 1:]
+		)) # remove water since it's not part of the dry mass
+
+	newAvgCellDryMassInit = non_small_molecule_initial_cell_mass + units.sum(smallMoleculetargetMoleculesDryMass)
+	fitAvgSolubleTargetMolMass = units.sum(smallMoleculetargetMoleculesDryMass) * sim_data.mass.avgCellToInitialCellConvFactor
 
 	return newAvgCellDryMassInit, fitAvgSolubleTargetMolMass
 
