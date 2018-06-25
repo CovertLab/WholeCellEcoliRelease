@@ -1,0 +1,219 @@
+from __future__ import division
+
+import os
+import cPickle
+
+import numpy as np
+
+from wholecell.io.tablereader import TableReader
+
+source_directory = os.path.join(
+	'out', '20180417.031438.652738__Daily_build.'
+	)
+
+kb_path = os.path.join(source_directory, 'kb', 'simData_Most_Fit.cPickle')
+
+kb = cPickle.load(open(kb_path))
+
+
+
+## create nodes first
+nodes_state_metabolites = self.nodes_state_metabolites()
+nodes_process_metabolism = self.nodes_process_metabolism()
+
+
+## create edges based on defined process nodes
+# each function gets a process node, and returns edges associated with it.
+edges_metabolism = self.edges_metabolism(nodes_process_metabolism[:,0])
+
+# create dynamics based on all nodes
+dynamics_state_metabolites = self.dynamics_state_metabolites(nodes_state_metabolites[:,0])
+
+
+
+## Merge all lists
+
+
+
+## Save to csv files.
+# convert to binary (?)
+
+
+
+
+def nodes_state_metabolites(self):
+    '''
+    everything needed to extract  metabolite nodes.
+
+    Returns:
+        - array of structs...
+    '''
+    for (reaction_name, stoichiometry) in kb.process.metabolism.reactionStoich.viewitems():
+
+        if 0 in stoichiometry.values():
+            bad_reactions.add(reaction_name)
+            continue
+
+        reaction_nodes.add(reaction_name)
+
+
+
+
+
+
+
+
+def edges_metabolism(self, id):
+
+    for (reaction_name, stoichiometry) in kb.process.metabolism.reactionStoich.viewitems():
+
+        for (metabolite_name, stoich_coeff) in stoichiometry.viewitems():
+            metabolite_nodes.add(metabolite_name)
+
+            edge = (reaction_name, metabolite_name)
+
+            if stoich_coeff < 0:
+                reaction_reactant_edges.add(edge)
+
+            elif stoich_coeff > 0:
+                reaction_product_edges.add(edge)
+
+            else:
+                raise Exception('Unhandled: stoichiometric coefficient of zero.')
+
+
+
+
+def dynamics_state_metabolites(self, ids):
+    '''
+    use the ids to get dynamics and save to an array of structs with [ID, definition, unit, timeseries]
+
+    '''
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'''
+kb.process.metabolism.
+	biomassFunction: dict of metabolite/coeff
+	catalystsList: list of enzymes
+	catalysisMatrixI: index of reaction
+	catalysisMatrixJ: index of enzyme
+	enzymeIdList: ?
+	reactionCatalysts: dict of reaction:enzymes? subunits?
+listeners:
+	FBAResults:
+		attributes:
+			reactionIDs
+			externalMoleculeIDs
+			outputMoleculeIDs
+			homeostaticTargetMolecules
+			kineticTargetFluxNames
+			metaboliteNames
+		columns:
+			time
+			simulationStep
+			reactionFluxes
+			externalExchangeFluxes
+			rowDualValues
+			columnDualValues
+			objectiveValue
+			homeostaticObjectiveValues
+			deltaMetabolites
+			targetConcentrations
+	EnzymeKinetics:
+		attributes:
+			enzymeIDs
+			metaboliteNames
+		columns:
+			time
+			simulationStep
+			metaboliteCountsInit
+			metaboliteCountsFinal
+			metaboliteConcentrations
+			countsToMolar
+			enzymeCountsInit
+			targetFluxes
+			actualFluxes
+			reactionConstraint
+states:
+	BulkMolecules:
+		attributes:
+			objectNames
+			processNames
+		columns:
+			counts
+The above should be enough to give me
+- the reaction, metabolite, and enzyme nodes
+- reaction-reactant and reaction-product edges
+- reaction-enzyme edges
+- reaction fluxes, possibly also kinetics
+- metabolite copy numbers
+- changes in metabolite numbers?
+- enzyme copy numbers
+Possibly missing
+- volume
+- kinetic rate law - metabolite concentration associations
+'''
+
+'''
+nodes
+-----
+fba*
+partitioned concentrations
+external exchange reaction flux
+biomass flux
+internal flux (anything inside the network)
+kinetic rate (constraint on internal fluxes)
+change in metabolite concentrations
+enzyme concentrations
+enzyme copy numbers*
+time step length
+change in metabolite numbers
+metabolite numbers
+total volume
+water volume
+dry mass volume
+mass water
+number water
+mass dry
+mass components*
+number components*
+intrinsic to extrinsic conversion
+rate to difference conversion
+*consider to ignore
+'''
+
+'''
+edges
+-----
+reactant: metabolite concentration <-> flux (various)
+	reasoning: flux native units are in concentration
+product: metabolite concentrion <-> flux
+rate to difference: biomass flux <-> concentration difference
+	consider breaking down further to include a connection to dt
+intrinsic to extrinsic: concentration <-> number
+	again, consider breaking down further
+amount to mass
+mass to submass
+submass to total mass
+submass to subvolume
+subvolume to total volume
+kinetic rate to optimized rate
+'''
+
