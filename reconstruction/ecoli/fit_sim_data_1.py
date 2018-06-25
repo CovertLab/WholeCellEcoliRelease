@@ -1,5 +1,7 @@
 """
 The fitter, aka parameter calculator.
+
+TODO: establish a controlled language for function behaviors (i.e. create* set* fit*)
 """
 
 from __future__ import absolute_import
@@ -23,51 +25,52 @@ from cvxpy import Variable, Problem, Minimize, norm
 
 from multiprocessing import Pool
 
+
 # Tweaks
 RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
 FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.0  # reduce stochasticity from protein expression
 
 NUMERICAL_ZERO = 1e-10
 
-# TODO: establish a controlled language for function behaviors (i.e. create* set* fit*)
-
 FITNESS_THRESHOLD = 1e-9
 MAX_FITTING_ITERATIONS = 100
 N_SEEDS = 10
-
-BASAL_EXPRESSION_CONDITION = "M9 Glucose minus AAs"
-
-VERBOSE = 1
 
 # Parameters used in fitPromoterBoundProbability()
 PROMOTER_PDIFF_THRESHOLD = 0.1  # Minimum difference between binding probabilities of a TF in conditions where TF is active and inactive
 PROMOTER_REG_COEFF = 1e-3  # Optimization weight on how much probability should stay close to original values
 
-COUNTS_UNITS = units.dmol
-VOLUME_UNITS = units.L
-MASS_UNITS = units.g
-TIME_UNITS = units.s
-
+# Adjustments to get protein expression for certain enzymes required for metabolism
 TRANSLATION_EFFICIENCIES_ADJUSTMENTS = {
 	"ADCLY-MONOMER[c]": 5,  # pabC, aminodeoxychorismate lyase
 	"EG12438-MONOMER[c]": 5,  # menH, 2-succinyl-6-hydroxy-2,4-cyclohexadiene-1-carboxylate synthetase
 	"EG12298-MONOMER[p]": 5,  # yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition viability
 	"ACETYL-COA-ACETYLTRANSFER-MONOMER[c]": 5,  # atoB; This RNA is fit for the anaerobic condition viability
-}
+	}
 RNA_EXPRESSION_ADJUSTMENTS = {
 	"EG11493_RNA[c]": 10,  # pabC, aminodeoxychorismate lyase
 	"EG12438_RNA[c]": 10,  # menH, 2-succinyl-6-hydroxy-2,4-cyclohexadiene-1-carboxylate synthetase
 	"EG10139_RNA[c]": 10,  # cdsA, CDP-diglyceride synthetase
 	"EG12298_RNA[c]": 10,  # yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition viability
 	"EG11672_RNA[c]": 10,  # atoB, acetyl-CoA acetyltransferase; This RNA is fit for the anaerobic condition viability
-}
+	}
 RNA_DEG_RATES_ADJUSTMENTS = {
 	"EG11493_RNA[c]": 2,  # pabC, aminodeoxychorismate lyase
 	"EG10139_RNA[c]": 2,  # cdsA, CDP-diglyceride synthetase
-}
+	}
 PROTEIN_DEG_RATES_ADJUSTMENTS = {
 	"EG12298-MONOMER[p]": 0.1, # yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition
-}
+	}
+
+BASAL_EXPRESSION_CONDITION = "M9 Glucose minus AAs"
+
+VERBOSE = 1
+
+COUNTS_UNITS = units.dmol
+VOLUME_UNITS = units.L
+MASS_UNITS = units.g
+TIME_UNITS = units.s
+
 
 def fitSimData_1(raw_data, cpus=1, debug=False):
 	'''
@@ -253,7 +256,8 @@ def buildBasalCellSpecifications(sim_data):
 		'synthProb' (1D numpy array of floats) - synthesis probability for
 			each RNA, total normalized to 1
 		'avgCellDryMassInit' (float with units) - average initial cell dry mass
-		'fitAvgSolubleTargetMolMass' (float with units) - TODO - what is this?
+		'fitAvgSolubleTargetMolMass' (float with units) - the adjusted dry mass
+			of the soluble fraction of a cell
 		'bulkContainer' (BulkObjectsContainer object) - expected counts for
 			bulk molecules based on expression
 
@@ -367,7 +371,8 @@ def buildTfConditionCellSpecifications(sim_data, tf):
 		'synthProb' (1D numpy array of floats) - synthesis probability for
 			each RNA, total normalized to 1
 		'avgCellDryMassInit' (float with units) - average initial cell dry mass
-		'fitAvgSolubleTargetMolMass' (float with units) - TODO - what is this?
+		'fitAvgSolubleTargetMolMass' (float with units) - the adjusted dry mass
+			of the soluble fraction of a cell
 		'bulkContainer' (BulkObjectsContainer object) - expected counts for
 			bulk molecules based on expression
 	"""
@@ -545,7 +550,8 @@ def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None)
 	- synthProb (array of floats) - synthesis probability for each RNA which
 	accounts for expression and degradation rate, normalized to 1
 	- avgCellDryMassInit (float with units) - expected initial dry cell mass
-	- fitAvgSolubleTargetMolMass (float with units) - TODO - what is this?
+	- fitAvgSolubleTargetMolMass (float with units) - the adjusted dry mass
+			of the soluble fraction of a cell
 	- bulkContainer (BulkObjectsContainer object) - expected counts for
 	bulk molecules based on expression
 	"""
@@ -664,8 +670,8 @@ def setRnaPolymeraseCodingRnaDegradationRates(sim_data):
 def setTranslationEfficiencies(sim_data):
 	"""
 	This function's goal is to set translation efficiencies for a subset of metabolic proteins.
-	It first gathers the index of the protiens it wants to modify, then goes ahead and changes the monomer
-	translation eficiences based on the adjustment that is specified.
+	It first gathers the index of the proteins it wants to modify, then goes ahead and changes the monomer
+	translation efficiencies based on the adjustment that is specified.
 	These adjustments were made so that the simulation could run.
 
 	Requires
@@ -676,10 +682,6 @@ def setTranslationEfficiencies(sim_data):
 	--------
 	- This function modifies, for a subset of proteins, their translational efficiencies in sim_data.
 		It takes their current efficiency and multiplies them by the factor specified in adjustments.
-
-	Notes
-	-----
-	-
 	"""
 
 	for protein in TRANSLATION_EFFICIENCIES_ADJUSTMENTS:
@@ -688,7 +690,7 @@ def setTranslationEfficiencies(sim_data):
 
 def setRNAExpression(sim_data):
 	"""
-	This function's goal is to set expression levesl for a subset of metabolic RNAs.
+	This function's goal is to set expression levels for a subset of metabolic RNAs.
 	It first gathers the index of the RNA's it wants to modify, then goes ahead and changes the expression
 	levels of those proteins, within sim_data, based on the specified adjustment factor.
 	These adjustments were made so that the simulation could run.
@@ -699,13 +701,10 @@ def setRNAExpression(sim_data):
 
 	Modifies
 	--------
-	- This function modifies the basal RNA exprssion levels set in sim_data, for the chosen RNAs.
+	- This function modifies the basal RNA expression levels set in sim_data, for the chosen RNAs.
 		It takes their current basal expression and multiplies them by the factor specified in adjustments.
 	- After updating the basal expression levels for the given genes, the function normalizes all the basal
 		expression levels.
-	Notes
-	-----
-	-
 	"""
 
 	for rna in RNA_EXPRESSION_ADJUSTMENTS:
@@ -728,10 +727,6 @@ def setRNADegRates(sim_data):
 	--------
 	- This function modifies the RNA degradation rates for the chosen RNA's in sim_data.
 		It takes their current degradation rate and multiplies them by the factor specified in adjustments.
-
-	Notes
-	-----
-	-
 	"""
 
 	for rna in RNA_DEG_RATES_ADJUSTMENTS:
@@ -752,10 +747,6 @@ def setProteinDegRates(sim_data):
 	--------
 	- This function modifies the protein degradation rates for the chosen proteins in sim_data.
 		It takes their current degradation rate and multiplies them by the factor specified in adjustments.
-
-	Notes
-	-----
-	-
 	"""
 
 	for protein in PROTEIN_DEG_RATES_ADJUSTMENTS:
@@ -776,11 +767,8 @@ def setCPeriod(sim_data):
 	Modifies
 	--------
 	- This function modifies sim_data to contain the c_period.
-
-	Notes
-	-----
-	-
 	"""
+
 	sim_data.growthRateParameters.c_period = sim_data.process.replication.genome_length * units.nt / sim_data.growthRateParameters.dnaPolymeraseElongationRate / 2
 
 def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict, doubling_time):
