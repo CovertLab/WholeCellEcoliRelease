@@ -23,6 +23,11 @@ from cvxpy import Variable, Problem, Minimize, norm
 
 from multiprocessing import Pool
 
+# Warning: branch-specific constants
+
+DISABLE_RIBOSOME_CAPACITY_FITTING = False
+DISABLE_RNAPOLY_CAPACITY_FITTING = False
+
 # Tweaks
 RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
 FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.0  # reduce stochasticity from protein expression
@@ -423,9 +428,11 @@ def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None,
 
 		avgCellDryMassInit, fitAvgSolubleTargetMolMass = rescaleMassForSolubleMetabolites(sim_data, bulkContainer, concDict, doubling_time)
 
-		setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time)
+		if not DISABLE_RIBOSOME_CAPACITY_FITTING:
+			setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time)
 
-		setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km)
+		if not DISABLE_RNAPOLY_CAPACITY_FITTING:
+			setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km)
 
 		# Normalize expression and write out changes
 
