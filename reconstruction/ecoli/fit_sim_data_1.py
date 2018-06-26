@@ -25,8 +25,8 @@ from multiprocessing import Pool
 
 # Warning: branch-specific constants
 
-DISABLE_RIBOSOME_CAPACITY_FITTING = False
-DISABLE_RNAPOLY_CAPACITY_FITTING = False
+DISABLE_RIBOSOME_CAPACITY_FITTING = bool(int(os.environ('DISABLE_RIBOSOME_CAPACITY_FITTING', '0')))
+DISABLE_RNAPOLY_CAPACITY_FITTING = bool(int(os.environ('DISABLE_RNAPOLY_CAPACITY_FITTING', '0')))
 
 # Tweaks
 RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
