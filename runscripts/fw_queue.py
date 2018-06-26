@@ -143,6 +143,10 @@ DEBUG_FITTER = bool(int(os.environ.get("DEBUG_FITTER", "0")))
 if not RUN_AGGREGATE_ANALYSIS:
 	COMPRESS_OUTPUT = False
 
+# Branch-specific parameters
+DISABLE_RIBOSOME_CAPACITY_FITTING = bool(int(os.environ.get("DISABLE_RIBOSOME_CAPACITY_FITTING"), "0"))
+DISABLE_RNAPOLY_CAPACITY_FITTING = bool(int(os.environ.get("DISABLE_RNAPOLY_CAPACITY_FITTING"), "0"))
+
 ### Set path variables and create directories
 
 WC_ECOLI_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -260,6 +264,8 @@ fw_fit_level_1 = Firework(
 		cached_data = os.path.join(CACHED_SIM_DATA_DIRECTORY, filename_sim_data_fit_1),
 		cpus = cpusForFitter,
 		debug = DEBUG_FITTER,
+		disable_ribosome_capacity_fitting = DISABLE_RIBOSOME_CAPACITY_FITTING,
+		disable_rnapoly_capacity_fitting = DISABLE_RNAPOLY_CAPACITY_FITTING,
 		),
 	name = fw_name,
 	spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": cpusForFitter}, "_priority":1}

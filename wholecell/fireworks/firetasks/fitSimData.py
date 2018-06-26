@@ -15,7 +15,11 @@ from reconstruction.ecoli.fit_sim_data_2 import fitSimData_2
 class FitSimDataTask(FireTaskBase):
 
 	_fw_name = "FitSimDataTask"
-	required_params = ["fit_level", "input_data", "output_data"]
+	required_params = [
+		"fit_level", "input_data", "output_data",
+		"disable_ribosome_capacity_fitting",
+		"disable_rnapoly_capacity_fitting"
+		]
 	optional_params = ["sim_out_dir"]
 
 	def run_task(self, fw_spec):
@@ -40,7 +44,11 @@ class FitSimDataTask(FireTaskBase):
 			with open(self["input_data"], "rb") as f:
 				raw_data = cPickle.load(f)
 
-			sim_data = fitSimData_1(raw_data, cpus=self["cpus"], debug=self["debug"])
+			sim_data = fitSimData_1(
+				raw_data, cpus=self["cpus"], debug=self["debug"],
+				disable_ribosome_capacity_fitting=self['disable_ribosome_capacity_fitting'],
+				disable_rnapoly_capacity_fitting=self['disable_rnapoly_capacity_fitting'],
+				)
 
 			sys.setrecursionlimit(4000) #limit found manually
 			with open(self["output_data"], "wb") as f:

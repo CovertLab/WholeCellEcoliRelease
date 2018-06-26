@@ -23,11 +23,6 @@ from cvxpy import Variable, Problem, Minimize, norm
 
 from multiprocessing import Pool
 
-# Warning: branch-specific constants
-
-DISABLE_RIBOSOME_CAPACITY_FITTING = bool(int(os.environ('DISABLE_RIBOSOME_CAPACITY_FITTING', '0')))
-DISABLE_RNAPOLY_CAPACITY_FITTING = bool(int(os.environ('DISABLE_RNAPOLY_CAPACITY_FITTING', '0')))
-
 # Tweaks
 RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
 FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.0  # reduce stochasticity from protein expression
@@ -49,7 +44,11 @@ VOLUME_UNITS = units.L
 MASS_UNITS = units.g
 TIME_UNITS = units.s
 
-def fitSimData_1(raw_data, cpus=1, debug=False):
+def fitSimData_1(
+		raw_data, cpus=1, debug=False,
+		disable_ribosome_capacity_fitting=False,
+		disable_rnap_capacity_fitting=False
+		):
 	'''
 	Fits parameters necessary for the simulation based on the knowledge base
 
@@ -67,6 +66,11 @@ def fitSimData_1(raw_data, cpus=1, debug=False):
 		raw_data = raw_data,
 		basal_expression_condition = BASAL_EXPRESSION_CONDITION,
 		)
+
+	# Adding attributes to sim_data is bad!  Don't do this!
+
+	sim_data.disable_ribosome_capacity_fitting = disable_ribosome_capacity_fitting
+	sim_data.disable_rnap_capacity_fitting = disable_rnap_capacity_fitting
 
 	# Limit the number of conditions that are being fit so that execution time decreases
 	if debug:
@@ -428,10 +432,10 @@ def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None,
 
 		avgCellDryMassInit, fitAvgSolubleTargetMolMass = rescaleMassForSolubleMetabolites(sim_data, bulkContainer, concDict, doubling_time)
 
-		if not DISABLE_RIBOSOME_CAPACITY_FITTING:
+		if not sim_data.disable_ribosome_capacity_fitting:
 			setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time)
 
-		if not DISABLE_RNAPOLY_CAPACITY_FITTING:
+		if not sim_data.disable_rnap_capacity_fitting:
 			setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km)
 
 		# Normalize expression and write out changes
