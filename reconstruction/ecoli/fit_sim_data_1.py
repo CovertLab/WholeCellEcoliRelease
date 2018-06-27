@@ -47,7 +47,7 @@ TIME_UNITS = units.s
 def fitSimData_1(
 		raw_data, cpus=1, debug=False,
 		disable_ribosome_capacity_fitting=False,
-		disable_rnap_capacity_fitting=False
+		disable_rnapoly_capacity_fitting=False
 		):
 	'''
 	Fits parameters necessary for the simulation based on the knowledge base
@@ -70,7 +70,7 @@ def fitSimData_1(
 	# Adding attributes to sim_data is bad!  Don't do this!
 
 	sim_data.disable_ribosome_capacity_fitting = disable_ribosome_capacity_fitting
-	sim_data.disable_rnap_capacity_fitting = disable_rnap_capacity_fitting
+	sim_data.disable_rnapoly_capacity_fitting = disable_rnapoly_capacity_fitting
 
 	# Limit the number of conditions that are being fit so that execution time decreases
 	if debug:
@@ -435,7 +435,7 @@ def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None,
 		if not sim_data.disable_ribosome_capacity_fitting:
 			setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time)
 
-		if not sim_data.disable_rnap_capacity_fitting:
+		if not sim_data.disable_rnapoly_capacity_fitting:
 			setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km)
 
 		# Normalize expression and write out changes
