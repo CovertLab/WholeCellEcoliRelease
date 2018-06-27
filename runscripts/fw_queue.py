@@ -226,7 +226,7 @@ filename_sim_data_modified = constants.SERIALIZED_SIM_DATA_MODIFIED
 fw_name = "InitRawData"
 
 if VERBOSE_QUEUE:
-	print "Queuing {}".format(fw_name)
+	print "Queueing {}".format(fw_name)
 
 fw_init_raw_data = Firework(
 	InitRawDataTask(
@@ -245,7 +245,7 @@ filename_sim_data_fit_1 = constants.SERIALIZED_FIT1_FILENAME
 fw_name = "FitSimDataTask_Level_1"
 
 if VERBOSE_QUEUE:
-	print "Queuing {}".format(fw_name)
+	print "Queueing {}".format(fw_name)
 
 if PARALLEL_FITTER:
 	cpusForFitter = 8
@@ -274,7 +274,7 @@ if COMPRESS_OUTPUT:
 	fw_name = "ScriptTask_compression_raw_data"
 
 	if VERBOSE_QUEUE:
-		print "Queuing {}".format(fw_name)
+		print "Queueing {}".format(fw_name)
 
 	fw_raw_data_compression = Firework(
 		ScriptTask(
@@ -294,7 +294,7 @@ if COMPRESS_OUTPUT:
 	fw_name = "ScriptTask_compression_sim_data_1"
 
 	if VERBOSE_QUEUE:
-		print "Queuing {}".format(fw_name)
+		print "Queueing {}".format(fw_name)
 
 	fw_sim_data_1_compression = Firework(
 		ScriptTask(
@@ -312,7 +312,7 @@ if COMPRESS_OUTPUT:
 fw_name = "SymlinkTask_KB_Most_Fit"
 
 if VERBOSE_QUEUE:
-	print "Queuing {}".format(fw_name)
+	print "Queueing {}".format(fw_name)
 
 fw_symlink_most_fit = Firework(
 	SymlinkTask(
@@ -337,7 +337,7 @@ filename_raw_validation_data = constants.SERIALIZED_RAW_VALIDATION_DATA
 fw_name = "InitValidationDataRaw"
 
 if VERBOSE_QUEUE:
-	print "Queuing {}".format(fw_name)
+	print "Queueing {}".format(fw_name)
 
 fw_raw_validation_data = Firework(
 	InitRawValidationDataTask(
@@ -370,7 +370,7 @@ filename_validation_data = constants.SERIALIZED_VALIDATION_DATA
 fw_name = "InitValidationData"
 
 if VERBOSE_QUEUE:
-	print "Queuing {}".format(fw_name)
+	print "Queueing {}".format(fw_name)
 
 fw_validation_data = Firework(
 	InitValidationDataTask(
@@ -392,7 +392,7 @@ if COMPRESS_OUTPUT:
 	fw_name = "ScriptTask_compression_validation_data"
 
 	if VERBOSE_QUEUE:
-		print "Queuing {}".format(fw_name)
+		print "Queueing {}".format(fw_name)
 
 	fw_validation_data_compression = Firework(
 		ScriptTask(
@@ -435,7 +435,7 @@ fw_this_variant_this_gen_this_sim_compression = None
 
 for i in VARIANTS_TO_RUN:
 	if VERBOSE_QUEUE:
-		print "Queuing Variant {}".format(i)
+		print "Queueing Variant {}".format(i)
 	VARIANT_DIRECTORY = os.path.join(INDIV_OUT_DIRECTORY, VARIANT + "_%06d" % i)
 	VARIANT_SIM_DATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "kb")
 	VARIANT_METADATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "metadata")
@@ -500,7 +500,7 @@ for i in VARIANTS_TO_RUN:
 
 	for j in xrange(N_INIT_SIMS):
 		if VERBOSE_QUEUE:
-			print "\tQueuing Seed {}".format(j)
+			print "\tQueueing Seed {}".format(j)
 		SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
 		SEED_PLOT_DIRECTORY = os.path.join(SEED_DIRECTORY, "plotOut")
 		metadata["seed"] = j
@@ -529,14 +529,14 @@ for i in VARIANTS_TO_RUN:
 
 		for k in xrange(N_GENS):
 			if VERBOSE_QUEUE:
-				print "\t\tQueuing Gen %02d." % (k,)
+				print "\t\tQueueing Gen %02d." % (k,)
 			GEN_DIRECTORY = os.path.join(SEED_DIRECTORY, "generation_%06d" % k)
 			metadata["gen"] = k
 
 			for l in (xrange(2**k) if not SINGLE_DAUGHTERS else [0]):
 
 				if VERBOSE_QUEUE:
-					print "\t\t\tQueuing Cell {}".format(l)
+					print "\t\t\tQueueing Cell {}".format(l)
 				CELL_DIRECTORY = os.path.join(GEN_DIRECTORY, "%06d" % l)
 				CELL_SIM_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "simOut")
 				CELL_PLOT_OUT_DIRECTORY = os.path.join(CELL_DIRECTORY, "plotOut")
