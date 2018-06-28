@@ -15,6 +15,7 @@ import scipy.sparse
 
 import numpy as np
 import os
+import cPickle
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.utils.fitting import normalize, countsFromMassAndExpression, calcProteinCounts, masses_and_counts_for_homeostatic_target
@@ -202,34 +203,37 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 	replication_length = np.ceil(0.5*genome_length) * units.nt
 
 	# Generate arrays specifying appropriate initial replication conditions
-	n_oric, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = determineChromosomeState(C, D, tau, replication_length)
-	uniqueMolCntr.objectsNew('originOfReplication', n_oric)
-
-	# Check that sequenceIdx, sequenceLength, replicationRound, and
-	# chromosomeIndex all have lengths equal to the number of polymerases.
-	assert len(sequenceIdx) == len(sequenceLength) == len(replicationRound) == len(chromosomeIndex) == 4*(n_oric - 1)
+	n_oric, chromosomeIndexOriC = determineOriCState(C, D, tau)
+	sequenceIdx, sequenceLength, replicationRound, chromosomeIndexPolymerase = determineChromosomeState(C, D, tau, replication_length)
+	n_dnap = len(sequenceIdx)
 
 	# Return if no replication is occurring at all
-	if len(sequenceIdx) == 0:
+	if n_dnap == 0:
 		return
+
+	# Add oriCs as unique molecules and set attributes
+	oriC = uniqueMolCntr.objectsNew('originOfReplication', n_oric)
+	oriC.attrIs(
+		chromosomeIndex = chromosomeIndexOriC,
+	)
 
 	# Update mass to account for DNA strands that have already been elongated
 	# Determine the sequences of already-replicated DNA
 	sequences = sim_data.process.replication.replication_sequences
-	sequenceElongations = np.array(sequenceLength, dtype=np.int64)
+	sequenceElongations = sequenceLength.astype(np.int64)
 	massIncreaseDna = computeMassIncrease(
-			np.tile(sequences, (len(sequenceIdx)//4, 1)),
+			np.tile(sequences, (n_dnap//4, 1)),
 			sequenceElongations,
 			sim_data.process.replication.replicationMonomerWeights.asNumber(units.fg)
 			)
 
-	# Update the attributes of replicating DNA polymerases
-	dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', len(sequenceIdx))
+	# Add replicating DNA polymerases as unique molecules and set attributes
+	dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', n_dnap)
 	dnaPoly.attrIs(
-		sequenceIdx = np.array(sequenceIdx),
-		sequenceLength = np.array(sequenceLength),
-		replicationRound = np.array(replicationRound),
-		chromosomeIndex = np.array(chromosomeIndex),
+		sequenceIdx = sequenceIdx,
+		sequenceLength = sequenceLength,
+		replicationRound = replicationRound,
+		chromosomeIndex = chromosomeIndexPolymerase,
 		massDiff_DNA = massIncreaseDna,
 		)
 
@@ -418,8 +422,6 @@ def initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 
 def setDaughterInitialConditions(sim, sim_data):
 	assert sim._inheritedStatePath != None
-
-	import cPickle
 	isDead = cPickle.load(open(os.path.join(sim._inheritedStatePath, "IsDead.cPickle"), "rb"))
 	sim._isDead = isDead
 
@@ -473,16 +475,10 @@ def determineChromosomeState(C, D, tau, replication_length):
 	origins of replication in the cell fire, a new replication round has
 	started. This array is integer-valued, and counts from 0 (the oldest round)
 	up to n (the most recent round).
-	- chromosomeIndex: indicator variable for which daughter cell should
-	inherit which polymerases at division. This array is used to distinguish
-	between polymerases within a single replicationRound, not between rounds.
-	Within each round, half of the polymerases should have chromosomeIndex = 0,
-	and half should have chromosomeIndex = 1. This should be contiguous halves,
-	i.e. [0,0,0,0,1,1,1,1], NOT interspersed as in [0,1,0,1,0,1,0,1]. The
-	half-and-half rule is excepted for the oldest replication round with only 4
-	polymerases. In this case, chromosomeIndex doesn't matter/is effectively
-	NaN, but is set to all 0's to prevent conceptually dividing a single
-	chromosome between two daughter cells.
+	- chromosomeIndex: indicator variable for which chromosome the polymerases
+	are associated with and therefore which daughter cell should inherit each
+	polymerase. Since there is only one chromosome initially, all indexes are
+	set to zero.
 
 	Notes
 	--------
@@ -503,9 +499,8 @@ def determineChromosomeState(C, D, tau, replication_length):
 	# cell divisions.
 	assert D.asNumber(units.min) < tau.asNumber(units.min), 'The D period must be shorter than the doubling time tau.'
 
-	# Calculate the number of active replication rounds and oriC's
+	# Calculate the number of active replication rounds
 	n_round = int(np.floor((C.asNumber(units.min) + D.asNumber(units.min))/tau.asNumber(units.min)))
-	n_oric = 2**n_round
 
 	# Initialize arrays to be returned
 	sequenceIdx = []
@@ -543,13 +538,44 @@ def determineChromosomeState(C, D, tau, replication_length):
 		replicationRound += [n] * (4*n_event)
 
 		# chromosomeIndex indicates which daughter cell will inherit the
-		# polymerase. For a given round, the value for half of the polymerases
-		# are set to 0, and the rest to 1.
-		chromosomeIndex += [0] * (2*n_event) + [1] * (2*n_event)
+		# polymerase. Since there is only one initial chromosome, all
+		# polymerases are initially given index zero.
+		chromosomeIndex += [0] * (4*n_event)
 
-	# The polymerases in the oldest round should not be divided - set all
-	# values to 0 (effectively NaN, the first four values are not used)
-	if len(chromosomeIndex) != 0:
-		chromosomeIndex[:4] = [0, 0, 0, 0]
+	# Convert to numpy arrays
+	sequenceIdx = np.array(sequenceIdx, dtype=np.int8)
+	sequenceLength = np.array(sequenceLength)
+	replicationRound = np.array(replicationRound)
+	chromosomeIndex = np.array(chromosomeIndex, dtype=np.int8)
 
-	return n_oric, sequenceIdx, sequenceLength, replicationRound, chromosomeIndex
+	return sequenceIdx, sequenceLength, replicationRound, chromosomeIndex
+
+
+def determineOriCState(C, D, tau):
+	"""
+	Calculates the number of OriC's in a cell upon initiation and the indexes
+	of chromosomes that the OriC's belong to, determined by the replication
+	state of the chromosome.
+
+	Inputs
+	--------
+	- C: the C period of the cell, the length of time between replication
+	initiation and replication completion.
+	- D: the D period of the cell, the length of time between completing
+	replication of the chromosome and division of the cell.
+	- tau: the doubling time of the cell
+
+	Outputs
+	--------
+	- n_oric: the number of OriC's in the cell at initiation.
+	- chromosomeIndex: indicator variable for which chromosome the oriC's are
+	associated with and therefore which daughter cell should inherit each oriC.
+	Since there is only one chromosome initially, all indexes are set to zero.
+	"""
+
+	# Number active replication generations (can be many initiations per gen.)
+	n_round = int(np.floor((C.asNumber(units.min) + D.asNumber(units.min))/tau.asNumber(units.min)))
+	n_oric = 2**n_round
+	chromosomeIndex = np.zeros(n_oric, dtype=np.int8)
+
+	return n_oric, chromosomeIndex
