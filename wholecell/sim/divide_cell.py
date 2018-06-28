@@ -121,8 +121,17 @@ def chromosomeDivision(bulkMolecules, randomState):
 		d2_chromosome_count = full_chromosome_count - d1_chromosome_count
 
 	assert d1_chromosome_count + d2_chromosome_count == full_chromosome_count
+
+	d1_chromosome_bool = np.zeros(full_chromosome_count, dtype=bool)
+	d1_indexes = randomState.choice(range(full_chromosome_count),
+		size=d1_chromosome_count, replace=False)
+	d1_chromosome_bool[d1_indexes] = True
+	d2_chromosome_bool = np.logical_not(d1_chromosome_bool)
 	
-	return {"d1_chromosome_count": d1_chromosome_count, "d2_chromosome_count": d2_chromosome_count}
+	return {"d1_chromosome_count": d1_chromosome_count,
+		"d2_chromosome_count": d2_chromosome_count,
+		"d1_chromosome_bool": d1_chromosome_bool,
+		"d2_chromosome_bool": d2_chromosome_bool}
 
 
 def divideBulkMolecules(bulkMolecules, randomState, chromosome_counts):
