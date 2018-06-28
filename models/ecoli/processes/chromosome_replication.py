@@ -45,7 +45,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Create bulk molecule views for polymerization reaction
 		self.dntps = self.bulkMoleculesView(sim_data.moleculeGroups.dNtpIds)
 		self.ppi = self.bulkMoleculeView('PPI[c]')
-		self.chromosomeHalves = self.bulkMoleculesView(sim_data.moleculeGroups.partialChromosome)
+		self.partialChromosomes = self.bulkMoleculesView(sim_data.moleculeGroups.partialChromosome)
 
 		# Create bulk molecules view for full chromosome
 		self.full_chromosome = self.bulkMoleculeView("CHROM_FULL[c]")
@@ -87,96 +87,80 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			maxFractionalReactionLimit * sequenceComposition
 			)
 
-	# Calculate temporal evolution
 	def evolveState(self):
-		# Set critical initiaion mass for simulation medium environment
-		current_nutrients = self._external_states['Environment'].nutrients
-		self.criticalInitiationMass = self.getDnaCriticalMass(self.nutrientToDoublingTime[current_nutrients])
 
-		##########################################
-		# Perform replication initiation process #
-		##########################################
-
-		# Calculate how many rounds of replication are occuring on what number of chromosomes
-		# information that is used later in the process
+		## Module 1: Replication initiation
+		# Get number of active DNA polymerases and oriCs
 		activeDnaPoly = self.activeDnaPoly.molecules()
-		activePolymerasePresent = len(activeDnaPoly) > 0
-
+		activePolymerasePresent = (len(activeDnaPoly) > 0)
 		oriCs = self.oriCs.molecules()
-		nChromosomes = self.full_chromosome.total()[0]
+		n_oric = len(oriCs)
+		n_chromosomes = self.full_chromosome.total()[0]
 
-		if len(oriCs) == 0 and nChromosomes == 0:
+		# If there are no chromosomes and oriC's, return immediately
+		if n_oric == 0 and n_chromosomes == 0:
 			return
-
-		if activePolymerasePresent:
-			replicationRound = activeDnaPoly.attr('replicationRound')
 
 		# Get cell mass
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg)
 
-		# Calculate mass per origin of replication
-		# This is a rearrangement of the equation:
-		# 	Cell Mass / Number origin > Critical mass
-		# If this is true, initate a round of chromosome replication
-		# on every origin of replication
-		initiate = False
+		# Get critical initiation mass for simulation medium environment
+		current_nutrients = self._external_states['Environment'].nutrients
+		self.criticalInitiationMass = self.getDnaCriticalMass(self.nutrientToDoublingTime[current_nutrients])
+
+		# Calculate mass per origin of replication, and compare to critical
+		# initiation mass. This is a rearrangement of the equation:
+		# 	(Cell Mass)/(Number of origins) > Critical mass
+		# If the above inequality holds true, initiate a round of chromosome
+		# replication for every origin of replication
 		massFactor = cellMass / self.criticalInitiationMass
-		massPerOrigin = massFactor / len(oriCs)
-		if massPerOrigin >= 1.0 and self.chromosomeHalves.total().sum() == 0:
-			initiate = True
+		massPerOrigin = massFactor / n_oric
 
-		# Write data about initiation to listener
-		self.writeToListener("ReplicationData", "criticalMassPerOriC", massPerOrigin)
-		self.writeToListener("ReplicationData", "criticalInitiationMass", self.criticalInitiationMass.asNumber(units.fg))
+		# If conditions are true, initiate a round of replication on every
+		# origin of replication
+		if massPerOrigin >= 1.0 and self.partialChromosomes.counts().sum() == 0:
 
-		if initiate:
-			# If this is triggered initate a round of replication on every origin of replication
-
-			# Calculate number of origins the cell has
+			# Get replication round indexes of active DNA polymerases
 			if activePolymerasePresent:
-				numOric = 2 * np.unique(replicationRound).size * nChromosomes
+				replicationRound = activeDnaPoly.attr('replicationRound')
 			else:
-				numOric = 1 * nChromosomes
-				replicationRound = np.array([0])
+				replicationRound = np.array([-1])  # Set to -1 to set values for new polymerases to 0
 
-			# Calculate number of new "polymerases" required per origin
-			# This is modeled as one "polymerase" on each of the lagging and leading strands.
-			# even if there is only a forward and a reverse strand. This was done to make this
-			# polymerization process analogous to the transcription and translation elongation processes
-			numberOfNewPolymerase = 4 * numOric
+			# Calculate number of new DNA polymerases required per origin
+			n_new_polymerase = 4*n_oric
 
-			# Initialize 4 "polymerases" per origin
-			activeDnaPoly = self.activeDnaPoly.moleculesNew(
+			# Initialize 4 new polymerases per origin
+			activeDnaPoly_new = self.activeDnaPoly.moleculesNew(
 				"dnaPolymerase",
-				numberOfNewPolymerase
+				n_new_polymerase
 				)
 
 			# Generate a new origin for each old origin
-			oriCs = self.oriCs.moleculesNew(
-				"originOfReplication",
-				numOric
-				)
+			self.oriCs.moleculesNew("originOfReplication", n_oric)
 
-			# Calculate and set attributes of newly created "polymerases"
-			sequenceIdx = np.tile(np.array([0,1,2,3], dtype=np.int8), numOric)
-			sequenceLength = np.zeros(numberOfNewPolymerase, dtype = np.int8)
-			replicationRound = np.ones(numberOfNewPolymerase, dtype=np.int8) * (replicationRound.max() + 1)
-			chromosomeIndex = np.zeros(numberOfNewPolymerase, dtype=np.int8)
-			chromosomeIndex[numberOfNewPolymerase // nChromosomes:] = 1.
+			# Calculate and set attributes of newly created polymerases
+			sequenceIdx = np.tile(np.array([0, 1, 2, 3], dtype=np.int8), n_oric)
+			sequenceLength = np.zeros(n_new_polymerase, dtype=np.int8)
+			replicationRound = np.ones(n_new_polymerase, dtype=np.int8)*(replicationRound.max() + 1)
+			chromosomeIndex = np.zeros(n_new_polymerase, dtype=np.int8)
+			# TODO: check if this is right
+			chromosomeIndex[(n_new_polymerase//n_chromosomes):] = 1
 
-			activeDnaPoly.attrIs(
+			activeDnaPoly_new.attrIs(
 				sequenceIdx = sequenceIdx,
 				sequenceLength = sequenceLength,
 				replicationRound = replicationRound,
 				chromosomeIndex = chromosomeIndex,
 				)
 
+		# Write data from this module to a listener
+		self.writeToListener("ReplicationData", "criticalMassPerOriC", massPerOrigin)
+		self.writeToListener("ReplicationData", "criticalInitiationMass", self.criticalInitiationMass.asNumber(units.fg))
 
-		##########################################
-		# Perform replication elongation process #
-		##########################################
-
-		# If no "polymerases" are present return
+		## Module 2: replication elongation
+		# If no active polymerases are present, return immediately
+		# Note: the new DNA polymerases activated in the previous module are
+		# not elongated until the next timestep.
 		if len(activeDnaPoly) == 0:
 			return
 
@@ -186,8 +170,6 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			'sequenceIdx', 'sequenceLength', 'massDiff_DNA'
 			)
 
-		dNtpsUsed = np.zeros_like(dNtpCounts)
-
 		sequences = buildSequences(
 			self.sequences,
 			sequenceIdx,
@@ -195,8 +177,8 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			self._dnaPolymeraseElongationRate()
 			)
 
-		# Use polymerize algorithm to quickly calculate the number of elongations
-		# each "polymerase" catalyzes
+		# Use polymerize algorithm to quickly calculate the number of
+		# elongations each "polymerase" catalyzes
 		reactionLimit = dNtpCounts.sum()
 
 		result = polymerize(
@@ -208,7 +190,6 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 		sequenceElongations = result.sequenceElongation
 		dNtpsUsed = result.monomerUsages
-		nElongations = result.nReactions
 
 		# Compute mass increase for each polymerizing chromosome
 		massIncreaseDna = computeMassIncrease(
@@ -231,15 +212,11 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.dntps.countsDec(dNtpsUsed)
 		self.ppi.countInc(dNtpsUsed.sum())
 
-		###########################################
-		# Perform replication termination process #
-		###########################################
-
-		# Determine if any "polymerases" reached the end of their
-		# sequence. If so terminate them and update the attributes of the
-		# remaining "polymerases" to reflect the new chromosome structure
+		## Module 3: replication termination
+		# Determine if any polymerases reached the end of their sequences. If
+		# so, terminate replication and update the attributes of the remaining
+		# polymerases to reflect the new chromosome structure
 		terminalLengths = self.sequenceLengths[sequenceIdx]
-
 		didTerminate = (updatedLengths == terminalLengths)
 
 		terminatedChromosomes = np.bincount(
@@ -247,25 +224,29 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			minlength = self.sequences.shape[0]
 			)
 
-		if didTerminate.sum():
-			# If any forks terminated, update the chromosome index of the next fork up the chromosome
+		# If any forks terminated, update the chromosome index of the next
+		# oldest replication fork
+		if didTerminate.sum() > 0:
 			sequenceIdx, sequenceLength, chromosomeIndex, replicationRound = activeDnaPoly.attrs(
 				'sequenceIdx', 'sequenceLength', 'chromosomeIndex', 'replicationRound'
 				)
 
-			# Serach for next fork up the chromosome
-			# Criteria: Must match the same sequence index, must be current terminating forks's replication
-			# round +1, must match terminating fork's chromosome index (so you don't flip the same upstream
-			# fork twice).
+			# Search for next oldest replication fork
+			# Criteria: The fork must have the same sequence index as the
+			# terminating fork, a replication round index that is one greater
+			# than the terminating fork, and the same chromosome index as the
+			# terminating fork (so you don't flip the same upstream fork
+			# twice).
 			sequenceIdxMatch = np.zeros(didTerminate.shape)
 			replicationRoundMatch = np.zeros(didTerminate.shape)
 			chromosomeIndexMatch = np.zeros(didTerminate.shape)
+
 			for idx in np.where(didTerminate)[0]:
 				sequenceIdxMatch = np.logical_or(sequenceIdxMatch, sequenceIdx[idx] == sequenceIdx)
 				replicationRoundMatch = np.logical_or(replicationRoundMatch, replicationRound[idx] + 1 == replicationRound)
 				chromosomeIndexMatch = np.logical_or(chromosomeIndexMatch, chromosomeIndex[idx] == chromosomeIndex)
 
-			# Potential matches for chromosome index to flip
+			# Potential matches for chromosome index to fli
 			potentialMatches = np.logical_and.reduce((sequenceIdxMatch, replicationRoundMatch, chromosomeIndexMatch))
 
 			# Take the first two. If there are more they are degenerate.
@@ -281,9 +262,9 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Delete terminated "polymerases"
 		activeDnaPoly.delByIndexes(np.where(didTerminate)[0])
 
-		# Update counts of newly created chromosome halves. These will be "stitched" together
-		# in the ChromosomeFormation process
-		self.chromosomeHalves.countsInc(terminatedChromosomes)
+		# Update counts of newly created chromosome halves. These will be
+		# "stitched" together in the ChromosomeFormation process
+		self.partialChromosomes.countsInc(terminatedChromosomes)
 
 
 	def _dnaPolymeraseElongationRate(self):

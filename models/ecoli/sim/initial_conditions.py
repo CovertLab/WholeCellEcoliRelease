@@ -504,8 +504,8 @@ def determineChromosomeState(C, D, tau, replication_length):
 	assert D.asNumber(units.min) < tau.asNumber(units.min), 'The D period must be shorter than the doubling time tau.'
 
 	# Calculate the number of active replication rounds and oriC's
-	n_round = np.floor((C.asNumber(units.min) + D.asNumber(units.min))/tau.asNumber(units.min))
-	n_oric = int(2**n_round)
+	n_round = int(np.floor((C.asNumber(units.min) + D.asNumber(units.min))/tau.asNumber(units.min)))
+	n_oric = 2**n_round
 
 	# Initialize arrays to be returned
 	sequenceIdx = []
