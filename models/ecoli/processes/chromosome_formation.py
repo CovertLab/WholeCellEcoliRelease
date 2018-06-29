@@ -14,8 +14,6 @@ is modeled.
 
 from __future__ import division
 
-import numpy as np
-
 import wholecell.processes.process
 from wholecell.utils import units
 
@@ -52,7 +50,7 @@ class ChromosomeFormation(wholecell.processes.process.Process):
 	def evolveState(self):
 		# Get counts of each of the four partial chromosomes
 		# Note: only the fully elongated partial chromosomes with half the
-		# length of the full chromosome are counted as one
+		# length of the full chromosome are counted as one.
 		partialChromosomeCounts = self.partialChromosomes.counts()
 
 		# If all four partial chromosomes exist, turn them into a standard full

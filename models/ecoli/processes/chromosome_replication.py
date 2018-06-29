@@ -253,8 +253,8 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			assert np.unique(replicationRound[didTerminate]).size == 1
 
 			# Check that all DNA polymerases and oriC's are on a single
-			# chromosome (should be true if cell doubling time is longer
-			# than the D period)
+			# chromosome (should hold if cell doubling time is longer than the
+			# D period)
 			assert np.all(chromosomeIndexPolymerase == 0)
 			assert np.all(chromosomeIndexOriC == 0)
 
