@@ -237,8 +237,6 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		massDiff_DNA = massIncreaseDna,
 		)
 
-	import ipdb; ipdb.set_trace()
-
 
 def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	"""
