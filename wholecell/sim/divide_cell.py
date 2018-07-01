@@ -323,17 +323,16 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts, curre
 		d1_unique_molecules_container.objectsNew('dnaPolymerase', n_d1, **d1_dividedAttributesDict)
 		d2_unique_molecules_container.objectsNew('dnaPolymerase', n_d2, **d2_dividedAttributesDict)
 
-
 	# Divide oriCs according to the chromosomes they are associated to
 	moleculeSet = uniqueMolecules.container.objectsInCollection('originOfReplication')
 	moleculeAttributeDict = uniqueMoleculesToDivide['originOfReplication']
 	n_oric = len(moleculeSet)
-	
+
 	if n_oric > 0:
-		chromosomeIndex = moleculeSet.attrs('chromosomeIndex')
+		chromosomeIndex = moleculeSet.attr('chromosomeIndex')
 		
 		# Divide oriC's based on their chromosome indexes
-		d1_bool = np.zeros(n_dnaps, dtype=bool)
+		d1_bool = np.zeros(n_oric, dtype=bool)
 		for index in d1_chromosome_indexes:
 			d1_bool = np.logical_or(d1_bool, chromosomeIndex == index)
 		d2_bool = np.logical_not(d1_bool)
@@ -356,7 +355,6 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts, curre
 
 		d1_unique_molecules_container.objectsNew('originOfReplication', n_d1, **d1_dividedAttributesDict)
 		d2_unique_molecules_container.objectsNew('originOfReplication', n_d2, **d2_dividedAttributesDict)
-
 
 	# Divide unique fullChromosomes
 	moleculeSet = uniqueMolecules.container.objectsInCollection('fullChromosome')
@@ -408,7 +406,7 @@ def resetChromosomeIndex(oldChromosomeIndex, chromosomeCount):
 	elements index the chromosomes with consecutive integers starting from
 	zero. Returns the new index array.
 	"""
-	newChromosomeIndex = np.zeros_like(oldChromosomeIndex)
+	newChromosomeIndex = np.zeros_like(oldChromosomeIndex, dtype=np.int)
 	for newIndex, oldIndex in izip(np.arange(chromosomeCount), np.unique(oldChromosomeIndex)):
 		indexMatch = (oldChromosomeIndex == oldIndex)
 		newChromosomeIndex[indexMatch] = newIndex

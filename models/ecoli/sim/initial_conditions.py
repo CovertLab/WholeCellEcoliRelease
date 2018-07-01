@@ -237,6 +237,8 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		massDiff_DNA = massIncreaseDna,
 		)
 
+	import ipdb; ipdb.set_trace()
+
 
 def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	"""
@@ -543,10 +545,10 @@ def determineChromosomeState(C, D, tau, replication_length):
 		chromosomeIndex += [0] * (4*n_event)
 
 	# Convert to numpy arrays
-	sequenceIdx = np.array(sequenceIdx, dtype=np.int8)
+	sequenceIdx = np.array(sequenceIdx)
 	sequenceLength = np.array(sequenceLength)
 	replicationRound = np.array(replicationRound)
-	chromosomeIndex = np.array(chromosomeIndex, dtype=np.int8)
+	chromosomeIndex = np.array(chromosomeIndex)
 
 	return sequenceIdx, sequenceLength, replicationRound, chromosomeIndex
 
@@ -565,7 +567,7 @@ def determineOriCState(C, D, tau):
 	replication of the chromosome and division of the cell.
 	- tau: the doubling time of the cell
 
-	Outputs
+	Returns
 	--------
 	- n_oric: the number of OriC's in the cell at initiation.
 	- chromosomeIndex: indicator variable for which chromosome the oriC's are
@@ -576,6 +578,6 @@ def determineOriCState(C, D, tau):
 	# Number active replication generations (can be many initiations per gen.)
 	n_round = int(np.floor((C.asNumber(units.min) + D.asNumber(units.min))/tau.asNumber(units.min)))
 	n_oric = 2**n_round
-	chromosomeIndex = np.zeros(n_oric, dtype=np.int8)
+	chromosomeIndex = np.zeros(n_oric, dtype=np.int)
 
 	return n_oric, chromosomeIndex

@@ -145,10 +145,10 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 				)
 
 			# Calculate and set attributes of newly created polymerases
-			sequenceIdx = np.tile(np.array([0, 1, 2, 3], dtype=np.int8), n_oric)
-			sequenceLength = np.zeros(n_new_polymerase)
-			replicationRound = np.ones(n_new_polymerase)*(replicationRound.max() + 1)
-			chromosomeIndexPolymerase = np.repeat(chromosomeIndexOriC, 4)  # Polymerases share the index of the OriC's they were initiated from
+			sequenceIdx = np.tile(np.array([0, 1, 2, 3]), n_oric)
+			sequenceLength = np.zeros(n_new_polymerase, dtype=np.int)
+			replicationRound = np.ones(n_new_polymerase, dtype=np.int)*(replicationRound.max() + 1)
+			chromosomeIndexPolymerase = np.repeat(chromosomeIndexOriC, 4)  # Polymerases inherit the index of the OriC's they were initiated from
 
 			activeDnaPolyNew.attrIs(
 				sequenceIdx = sequenceIdx,
@@ -161,7 +161,6 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			oriCsNew.attrIs(
 				chromosomeIndex = chromosomeIndexOriC  # New OriC's share the index of the old OriC's they were copied from
 				)
-
 
 		# Write data from this module to a listener
 		self.writeToListener("ReplicationData", "criticalMassPerOriC", massPerOrigin)
