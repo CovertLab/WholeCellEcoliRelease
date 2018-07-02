@@ -17,6 +17,7 @@ from __future__ import division
 import wholecell.processes.process
 from wholecell.utils import units
 
+
 class ChromosomeFormation(wholecell.processes.process.Process):
 	""" ChromosomeFormation """
 
@@ -38,8 +39,10 @@ class ChromosomeFormation(wholecell.processes.process.Process):
 		# chromosome replication polymerization process and make it analogous
 		# to what was done in transcription and translation elongation. This
 		# process removes the artifact.
-		self.partialChromosomes = self.bulkMoleculesView(sim_data.moleculeGroups.partialChromosome)
-		self.fullChromosome = self.bulkMoleculeView(sim_data.moleculeGroups.fullChromosome[0])
+		self.partialChromosomes = self.bulkMoleculesView(
+			sim_data.moleculeGroups.partialChromosome)
+		self.fullChromosome = self.bulkMoleculeView(
+			sim_data.moleculeGroups.fullChromosome[0])
 
 		# Placeholder for cell division data
 		self.fullChromosomeUnique = self.uniqueMoleculesView("fullChromosome")
@@ -53,14 +56,17 @@ class ChromosomeFormation(wholecell.processes.process.Process):
 		# length of the full chromosome are counted as one.
 		partialChromosomeCounts = self.partialChromosomes.counts()
 
-		# If all four partial chromosomes exist, turn them into a standard full
-		# chromosome
+		# If all four partial chromosomes exist, convert to full chromosome
 		if partialChromosomeCounts.min() > 0:
-			fullUniqueChrom = self.fullChromosomeUnique.moleculesNew("fullChromosome", partialChromosomeCounts.min())
+			fullUniqueChrom = self.fullChromosomeUnique.moleculesNew(
+				"fullChromosome", partialChromosomeCounts.min())
 
 			# Log the current time (end of C period) and set the corresponding
 			# division time to be D period time later in seconds
-			fullUniqueChrom.attrIs(division_time=[self.time() + self.D_period]*partialChromosomeCounts.min())
+			fullUniqueChrom.attrIs(
+				division_time = [self.time() + self.D_period]
+							    * partialChromosomeCounts.min()
+				)
 
 		# Decrement and increment counts
 		self.fullChromosome.countInc(partialChromosomeCounts.min())
