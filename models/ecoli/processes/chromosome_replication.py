@@ -38,9 +38,10 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.sequenceLengths = sim_data.process.replication.sequence_lengths
 		self.sequences = sim_data.process.replication.replication_sequences
 		self.polymerized_dntp_weights = sim_data.process.replication.replicationMonomerWeights
-		self.dnaPolyElngRate = int(round(
-			sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
-				units.nt / units.s)))
+		self.dnaPolyElngRate = int(
+			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
+			units.nt / units.s))
+			)
 
 		# Create unique molecule views for dna polymerases/replication forks and origins of replication
 		self.activeDnaPoly = self.uniqueMoleculesView('dnaPolymerase')
@@ -49,7 +50,8 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Create bulk molecule views for polymerization reaction
 		self.dntps = self.bulkMoleculesView(sim_data.moleculeGroups.dNtpIds)
 		self.ppi = self.bulkMoleculeView('PPI[c]')
-		self.partialChromosomes = self.bulkMoleculesView(sim_data.moleculeGroups.partialChromosome)
+		self.partialChromosomes = self.bulkMoleculesView(
+			sim_data.moleculeGroups.partialChromosome)
 
 		# Create bulk molecules view for full chromosome
 		self.full_chromosome = self.bulkMoleculeView("CHROM_FULL[c]")
@@ -89,8 +91,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 		# Request dNTPs
 		self.dntps.requestIs(
-			maxFractionalReactionLimit * sequenceComposition
-			)
+			maxFractionalReactionLimit * sequenceComposition)
 
 	def evolveState(self):
 
@@ -154,8 +155,9 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			# Calculate and set attributes of newly created polymerases
 			sequenceIdx = np.tile(np.array([0, 1, 2, 3]), n_oric)
 			sequenceLength = np.zeros(n_new_polymerase, dtype=np.int)
-			replicationRound = np.ones(n_new_polymerase, dtype=np.int) * (
-						replicationRound.max() + 1)
+			replicationRound = np.ones(n_new_polymerase, dtype=np.int)*(
+				replicationRound.max() + 1)
+
 			# Polymerases inherit index of the OriC's they were initiated from
 			chromosomeIndexPolymerase = np.repeat(chromosomeIndexOriC, 4)
 
@@ -169,11 +171,13 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			# Calculate and set attributes of newly created oriCs
 			oriCsNew.attrIs(
 				chromosomeIndex=chromosomeIndexOriC
-				# New OriC's share the index of the old OriC's they were copied from
+				# New OriC's share the index of the old OriC's they were
+				# replicated from
 				)
 
 		# Write data from this module to a listener
-		self.writeToListener("ReplicationData", "criticalMassPerOriC", massPerOrigin)
+		self.writeToListener("ReplicationData", "criticalMassPerOriC",
+			massPerOrigin)
 		self.writeToListener("ReplicationData", "criticalInitiationMass",
 			self.criticalInitiationMass.asNumber(units.fg))
 

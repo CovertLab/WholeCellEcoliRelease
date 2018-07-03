@@ -55,16 +55,19 @@ def divide_cell(sim):
 
 	# Check if the cell is dead
 	isDead = False
-	if bulkMolecules.container.count(bulkMolecules.divisionIds['fullChromosome'][0]) == 0 \
-			and (sim.time() - sim.initialTime()) > sim.lengthSec():
+	if bulkMolecules.container.count(
+			bulkMolecules.divisionIds['fullChromosome'][0]) == 0 and (
+			sim.time() - sim.initialTime()) > sim.lengthSec():
 		# If the cell does not have any full chromosomes at the end of its
 		# maximal simulation duration, the cell is considered dead
 		isDead = True
-	elif sim._isDead:  # Currently not True under any circumstances
+	elif sim._isDead:
 		isDead = True
 
-	cPickle.dump(isDead, open(os.path.join(sim._outputDir, "Daughter1", "IsDead.cPickle"), 'wb'))
-	cPickle.dump(isDead, open(os.path.join(sim._outputDir, "Daughter2", "IsDead.cPickle"), 'wb'))
+	with open(os.path.join(sim._outputDir, "Daughter1", "IsDead.cPickle"), 'wb') as f:
+		cPickle.dump(isDead, f)
+	with open(os.path.join(sim._outputDir, "Daughter2", "IsDead.cPickle"), 'wb') as f:
+		cPickle.dump(isDead, f)
 
 	if isDead:
 		# Cell is dead - set daughter cell containers to empty values
@@ -76,29 +79,36 @@ def divide_cell(sim):
 			"d1_elng_rate_factor": 0., "d2_elng_rate_factor": 0.}
 	else:
 		# Divide the chromosome into two daughter cells
-		# The output is used in dividing both bulk molecules and unique molecules
+		# The output is used when dividing both bulk molecules and unique
+		# molecules
 		chromosome_counts = chromosomeDivision(bulkMolecules, randomState)
 
 		# Create divided containers
-		d1_bulkMolCntr, d2_bulkMolCntr = divideBulkMolecules(bulkMolecules,
-			randomState, chromosome_counts)
-		d1_uniqueMolCntr, d2_uniqueMolCntr, daughter_elng_rates = divideUniqueMolecules(
-			uniqueMolecules, randomState, chromosome_counts, current_nutrients, sim)
+		d1_bulkMolCntr, d2_bulkMolCntr = divideBulkMolecules(
+			bulkMolecules, randomState, chromosome_counts)
+		d1_uniqueMolCntr, d2_uniqueMolCntr, daughter_elng_rates = (
+			divideUniqueMolecules(uniqueMolecules, randomState,
+			chromosome_counts, current_nutrients, sim)
+			)
 
 	# Save divided containers
-	saveContainer(d1_bulkMolCntr, os.path.join(sim._outputDir, "Daughter1", "BulkMolecules"))
-	saveContainer(d2_bulkMolCntr, os.path.join(sim._outputDir, "Daughter2", "BulkMolecules"))
-	saveContainer(d1_uniqueMolCntr, os.path.join(sim._outputDir, "Daughter1", "UniqueMolecules"))
-	saveContainer(d2_uniqueMolCntr, os.path.join(sim._outputDir, "Daughter2", "UniqueMolecules"))
+	saveContainer(d1_bulkMolCntr, os.path.join(
+		sim._outputDir, "Daughter1", "BulkMolecules"))
+	saveContainer(d2_bulkMolCntr, os.path.join(
+		sim._outputDir, "Daughter2", "BulkMolecules"))
+	saveContainer(d1_uniqueMolCntr, os.path.join(
+		sim._outputDir, "Daughter1", "UniqueMolecules"))
+	saveContainer(d2_uniqueMolCntr, os.path.join(
+		sim._outputDir, "Daughter2", "UniqueMolecules"))
 
-	cPickle.dump(daughter_elng_rates["d1_elng_rate"],
-		open(os.path.join(sim._outputDir, "Daughter1", "ElngRate.cPickle"), 'wb'))
-	cPickle.dump(daughter_elng_rates["d2_elng_rate"],
-		open(os.path.join(sim._outputDir, "Daughter2", "ElngRate.cPickle"), 'wb'))
-	cPickle.dump(daughter_elng_rates["d1_elng_rate_factor"], open(
-		os.path.join(sim._outputDir, "Daughter1", "elng_rate_factor.cPickle"), 'wb'))
-	cPickle.dump(daughter_elng_rates["d2_elng_rate_factor"], open(
-		os.path.join(sim._outputDir, "Daughter2", "elng_rate_factor.cPickle"), 'wb'))
+	with open(os.path.join(sim._outputDir, "Daughter1", "ElngRate.cPickle"), 'wb') as f:
+		cPickle.dump(daughter_elng_rates["d1_elng_rate"], f)
+	with open(os.path.join(sim._outputDir, "Daughter2", "ElngRate.cPickle"), 'wb') as f:
+		cPickle.dump(daughter_elng_rates["d2_elng_rate"], f)
+	with open(os.path.join(sim._outputDir, "Daughter1", "elng_rate_factor.cPickle"), 'wb') as f:
+		cPickle.dump(daughter_elng_rates["d1_elng_rate_factor"], f)
+	with open(os.path.join(sim._outputDir, "Daughter2", "elng_rate_factor.cPickle"), 'wb') as f:
+		cPickle.dump(daughter_elng_rates["d2_elng_rate_factor"], f)
 
 	# Save daughter cell initial time steps
 	saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter1", "Time"),
@@ -185,8 +195,7 @@ def divideBulkMolecules(bulkMolecules, randomState, chromosome_counts):
 	return d1_bulk_molecules_container, d2_bulk_molecules_container
 
 
-def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts,
-		current_nutrients, sim):
+def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts, current_nutrients, sim):
 	"""
 	Divides unique molecules of the mother cell to the two daughter cells. Each
 	class of unique molecules is divided in a different way.
@@ -247,10 +256,12 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts,
 			d1_dividedAttributesDict = {}
 			d2_dividedAttributesDict = {}
 			for moleculeAttribute in moleculeAttributeDict.iterkeys():
-				d1_dividedAttributesDict[moleculeAttribute] = \
-				moleculeSet.attr(moleculeAttribute)[d1_bool]
-				d2_dividedAttributesDict[moleculeAttribute] = \
-				moleculeSet.attr(moleculeAttribute)[d2_bool]
+				d1_dividedAttributesDict[moleculeAttribute] = (
+					moleculeSet.attr(moleculeAttribute)[d1_bool]
+				)
+				d2_dividedAttributesDict[moleculeAttribute] = (
+					moleculeSet.attr(moleculeAttribute)[d2_bool]
+				)
 
 			d1_unique_molecules_container.objectsNew(moleculeName, n_d1,
 				**d1_dividedAttributesDict)
@@ -307,10 +318,12 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts,
 		d1_dividedAttributesDict = {}
 		d2_dividedAttributesDict = {}
 		for moleculeAttribute in moleculeAttributeDict.iterkeys():
-			d1_dividedAttributesDict[moleculeAttribute] = \
-			moleculeSet.attr(moleculeAttribute)[d1_bool]
-			d2_dividedAttributesDict[moleculeAttribute] = \
-			moleculeSet.attr(moleculeAttribute)[d2_bool]
+			d1_dividedAttributesDict[moleculeAttribute] = (
+				moleculeSet.attr(moleculeAttribute)[d1_bool]
+			)
+			d2_dividedAttributesDict[moleculeAttribute] = (
+				moleculeSet.attr(moleculeAttribute)[d2_bool]
+			)
 
 		d1_unique_molecules_container.objectsNew('activeRibosome', n_d1,
 			**d1_dividedAttributesDict)
@@ -337,10 +350,12 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts,
 		d1_dividedAttributesDict = {}
 		d2_dividedAttributesDict = {}
 		for moleculeAttribute in moleculeAttributeDict.iterkeys():
-			d1_dividedAttributesDict[moleculeAttribute] = \
-			moleculeSet.attr(moleculeAttribute)[d1_bool]
-			d2_dividedAttributesDict[moleculeAttribute] = \
-			moleculeSet.attr(moleculeAttribute)[d2_bool]
+			d1_dividedAttributesDict[moleculeAttribute] = (
+				moleculeSet.attr(moleculeAttribute)[d1_bool]
+			)
+			d2_dividedAttributesDict[moleculeAttribute] = (
+				moleculeSet.attr(moleculeAttribute)[d2_bool]
+			)
 
 		n_d1 = d1_bool.sum()
 		n_d2 = d2_bool.sum()
@@ -374,10 +389,12 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts,
 		d1_dividedAttributesDict = {}
 		d2_dividedAttributesDict = {}
 		for moleculeAttribute in moleculeAttributeDict.iterkeys():
-			d1_dividedAttributesDict[moleculeAttribute] = \
-			moleculeSet.attr(moleculeAttribute)[d1_bool]
-			d2_dividedAttributesDict[moleculeAttribute] = \
-			moleculeSet.attr(moleculeAttribute)[d2_bool]
+			d1_dividedAttributesDict[moleculeAttribute] = (
+				moleculeSet.attr(moleculeAttribute)[d1_bool]
+			)
+			d2_dividedAttributesDict[moleculeAttribute] = (
+				moleculeSet.attr(moleculeAttribute)[d2_bool]
+			)
 
 		n_d1 = d1_bool.sum()
 		n_d2 = d2_bool.sum()
@@ -411,10 +428,12 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts,
 		d1_dividedAttributesDict = {}
 		d2_dividedAttributesDict = {}
 		for moleculeAttribute in moleculeAttributeDict.iterkeys():
-			d1_dividedAttributesDict[moleculeAttribute] = \
-			moleculeSet.attr(moleculeAttribute)[d1_bool]
-			d2_dividedAttributesDict[moleculeAttribute] = \
-			moleculeSet.attr(moleculeAttribute)[d2_bool]
+			d1_dividedAttributesDict[moleculeAttribute] = (
+				moleculeSet.attr(moleculeAttribute)[d1_bool]
+			)
+			d2_dividedAttributesDict[moleculeAttribute] = (
+				moleculeSet.attr(moleculeAttribute)[d2_bool]
+			)
 
 		d1_unique_molecules_container.objectsNew('fullChromosome', n_d1,
 			**d1_dividedAttributesDict)

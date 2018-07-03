@@ -204,8 +204,8 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 
 	# Generate arrays specifying appropriate initial replication conditions
 	n_oric, chromosomeIndexOriC = determineOriCState(C, D, tau)
-	sequenceIdx, sequenceLength, replicationRound, chromosomeIndexPolymerase = \
-		determineChromosomeState(C, D, tau, replication_length)
+	sequenceIdx, sequenceLength, replicationRound, chromosomeIndexPolymerase = determineChromosomeState(
+		C, D, tau, replication_length)
 	n_dnap = sequenceIdx.size
 
 	# Return if no replication is occurring at all
@@ -493,18 +493,16 @@ def determineChromosomeState(C, D, tau, replication_length):
 	assert C.asNumber(units.min) >= 0, "C value can't be negative."
 	assert D.asNumber(units.min) >= 0, "D value can't be negative."
 	assert tau.asNumber(units.min) >= 0, "tau value can't be negative."
-	assert replication_length.asNumber(units.nt) >= 0, \
-		"replication_length value can't be negative."
+	assert replication_length.asNumber(units.nt) >= 0, "replication_length value can't be negative."
 
 	# Require that D is shorter than tau - time between completing DNA
 	# replication and cell division must be shorter than the time between two
 	# cell divisions.
-	assert D.asNumber(units.min) < tau.asNumber(units.min), \
-		'The D period must be shorter than the doubling time tau.'
+	assert D.asNumber(units.min) < tau.asNumber(units.min), "The D period must be shorter than the doubling time tau."
 
 	# Calculate the number of active replication rounds
-	n_round = int(np.floor((C.asNumber(units.min)
-							+ D.asNumber(units.min))/tau.asNumber(units.min)))
+	n_round = int(np.floor(
+		(C.asNumber(units.min) + D.asNumber(units.min))/tau.asNumber(units.min)))
 
 	# Initialize arrays to be returned
 	sequenceIdx = []
@@ -519,7 +517,8 @@ def determineChromosomeState(C, D, tau, replication_length):
 		# forks should be initialized to
 		rel_location = 1 - (((n + 1)*tau - D)/C)
 		rel_location = units.convertNoUnitToNumber(rel_location)
-		fork_location = np.floor(rel_location*(replication_length.asNumber(units.nt)))
+		fork_location = np.floor(rel_location*(
+			replication_length.asNumber(units.nt)))
 
 		# Add 2^n initiation events per round. A single initiation event
 		# generates two replication forks and four elongating strands
@@ -578,8 +577,8 @@ def determineOriCState(C, D, tau):
 	"""
 
 	# Number active replication generations (can be many initiations per gen.)
-	n_round = int(np.floor((C.asNumber(units.min) +
-							D.asNumber(units.min))/tau.asNumber(units.min)))
+	n_round = int(np.floor(
+		(C.asNumber(units.min) + D.asNumber(units.min))/tau.asNumber(units.min)))
 	n_oric = 2**n_round
 	chromosomeIndex = np.zeros(n_oric, dtype=np.int)
 
