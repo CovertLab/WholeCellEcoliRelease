@@ -39,6 +39,10 @@ N_SEEDS = 10
 # Parameters used in fitPromoterBoundProbability()
 PROMOTER_PDIFF_THRESHOLD = 0.1  # Minimum difference between binding probabilities of a TF in conditions where TF is active and inactive
 PROMOTER_REG_COEFF = 1e-3  # Optimization weight on how much probability should stay close to original values
+PROMOTER_SCALING = 10  # Multiplied to all matrices for numerical stability
+PROMOTER_NORM_TYPE = 1  # Matrix 1-norm
+PROMOTER_MAX_ITERATIONS = 100
+PROMOTER_CONVERGENCE_THRESHOLD = 1e-9
 
 # Adjustments to get protein expression for certain enzymes required for metabolism
 TRANSLATION_EFFICIENCIES_ADJUSTMENTS = {
@@ -2419,15 +2423,8 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		if sim_data.process.transcription_regulation.tfToTfType[tf] == "1CS" and sim_data.tfToActiveInactiveConds[tf]["active nutrients"] == sim_data.tfToActiveInactiveConds[tf]["inactive nutrients"]:
 			fixedTFs.append(tf)
 
-	SCALING = 10  # Multiplied to all matrices for numerical stability
-	NORM_TYPE = 1  # Matrix 1-norm
-	MAX_ITERATIONS = 100
-	CONVERGENCE_THRESHOLD = 1e-9
-
-	# TODO: A better name for this constant?
-
 	# Repeat for a fixed maximum number of iterations
-	for i in xrange(MAX_ITERATIONS):
+	for i in xrange(PROMOTER_MAX_ITERATIONS):
 		# Construct matrices used in optimizing R
 		# TODO: Make these matrix names more meaningful
 		# TODO: separate the routine that gets k and kInfo
@@ -2442,7 +2439,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 
 		# Objective: minimize difference between k (fitted RNAP initiation
 		# probabilities) and G*R (computed initiation probabilities)
-		objective_r = Minimize(norm(G*(SCALING*R) - SCALING*k, NORM_TYPE))
+		objective_r = Minimize(norm(G*(PROMOTER_SCALING*R) - PROMOTER_SCALING*k, PROMOTER_NORM_TYPE))
 
 		# Constraints
 		# 1) 0 <= Z*R <= 1 : Assuming P = 1 for all TFs, all possible
@@ -2450,7 +2447,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		# probability value between zero and one.
 		# 2) T*R >= 0 : Values of r for positive regulation should be positive,
 		# and values of r for negative regulation should be negative.
-		constraint_r = [0 <= Z*(SCALING*R), Z*(SCALING*R) <= SCALING*1, T*(SCALING*R) >= 0]
+		constraint_r = [0 <= Z*(PROMOTER_SCALING*R), Z*(PROMOTER_SCALING*R) <= PROMOTER_SCALING*1, T*(PROMOTER_SCALING*R) >= 0]
 
 		# Solve optimization problem
 		prob_r = Problem(objective_r, constraint_r)
@@ -2489,7 +2486,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		# probabilities) and H*P (computed initiation probabilities) while
 		# also minimizing deviation of P from the original value calculated
 		# from mean TF and ligand concentrations
-		objective_p = Minimize(norm(H*(SCALING*P) - SCALING*k, NORM_TYPE) + PROMOTER_REG_COEFF*norm(P - pInit0, NORM_TYPE))
+		objective_p = Minimize(norm(H*(PROMOTER_SCALING*P) - PROMOTER_SCALING*k, PROMOTER_NORM_TYPE) + PROMOTER_REG_COEFF*norm(P - pInit0, PROMOTER_NORM_TYPE))
 
 		# Constraints
 		# 1) 0 <= P <= 1 : All DNA-bound probabilities should be between zero
@@ -2500,7 +2497,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		# between binding probabilities of a TF in conditions TF__active and
 		# TF__inactive
 		# TODO: 0.1 should also be a parameter
-		constraint_p = [0 <= SCALING*P, SCALING*P <= SCALING*1, np.diag(D)*(SCALING*P) == SCALING*Drhs, Pdiff*(SCALING*P) >= SCALING*PROMOTER_PDIFF_THRESHOLD]
+		constraint_p = [0 <= PROMOTER_SCALING*P, PROMOTER_SCALING*P <= PROMOTER_SCALING*1, np.diag(D)*(PROMOTER_SCALING*P) == PROMOTER_SCALING*Drhs, Pdiff*(PROMOTER_SCALING*P) >= PROMOTER_SCALING*PROMOTER_PDIFF_THRESHOLD]
 
 		# Solve optimization problem
 		prob_p = Problem(objective_p, constraint_p)
@@ -2514,10 +2511,10 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		fromArray(p, pPromoterBound, pPromoterBoundIdxs)  # Update pPromoterBound with fitted p
 
 		# Break from loop if parameters have converged
-		if np.abs(np.linalg.norm(np.dot(H, p) - k, NORM_TYPE) - lastNorm) < CONVERGENCE_THRESHOLD:
+		if np.abs(np.linalg.norm(np.dot(H, p) - k, PROMOTER_NORM_TYPE) - lastNorm) < PROMOTER_CONVERGENCE_THRESHOLD:
 			break
 		else:
-			lastNorm = np.linalg.norm(np.dot(H, p) - k, NORM_TYPE)
+			lastNorm = np.linalg.norm(np.dot(H, p) - k, PROMOTER_NORM_TYPE)
 
 	# Update sim_data with fitted bound probabilities and RNAP initiation
 	# probabilities computed from these bound probabilities
