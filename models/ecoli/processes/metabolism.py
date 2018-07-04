@@ -32,8 +32,6 @@ VOLUME_UNITS = units.L
 MASS_UNITS = units.g
 TIME_UNITS = units.s
 
-SECRETION_PENALTY_COEFF = 1e-5
-
 NONZERO_ENZYMES = False
 
 USE_KINETICS = True
@@ -132,6 +130,13 @@ class Metabolism(wholecell.processes.process.Process):
 		self.constraintToReactionMatrix[constraintToReactionMatrixI, constraintToReactionMatrixJ] = constraintToReactionMatrixV
 		self.constraintIsKcatOnly = sim_data.process.metabolism.constraintIsKcatOnly
 
+		# Select solver and associated kinetic objective weight (lambda)
+		solver = "glpk-linear"
+		if "linear" in solver:
+			kineticObjectiveWeight = sim_data.constants.metabolismKineticObjectiveWeightLinear
+		else:
+			kineticObjectiveWeight = sim_data.constants.metabolismKineticObjectiveWeightQuadratic
+
 		# Set up FBA solver
 		# reactionRateTargets value is just for initialization, it gets reset each timestep during evolveState
 		self.fbaObjectOptions = {
@@ -140,13 +145,13 @@ class Metabolism(wholecell.processes.process.Process):
 			"objective" : self.homeostaticObjective,
 			"objectiveType" : "homeostatic_kinetics_mixed",
 			"objectiveParameters" : {
-					"kineticObjectiveWeight" : sim_data.constants.metabolismKineticObjectiveWeight,
+					"kineticObjectiveWeight" : kineticObjectiveWeight,
 					"reactionRateTargets" : {reaction : 1 for reaction in self.kineticsConstrainedReactions},
 					"oneSidedReactionTargets" : [],
 					},
 			"moleculeMasses" : moleculeMasses,
-			"secretionPenaltyCoeff" : SECRETION_PENALTY_COEFF, # The "inconvenient constant"--limit secretion (e.g., of CO2)
-			"solver" : "glpk",
+			"secretionPenaltyCoeff" : sim_data.constants.secretion_penalty_coeff, # The "inconvenient constant"--limit secretion (e.g., of CO2)
+			"solver" : solver,
 			"maintenanceCostGAM" : energyCostPerWetMass.asNumber(COUNTS_UNITS / MASS_UNITS),
 			"maintenanceReaction" : sim_data.process.metabolism.maintenanceReaction,
 		}
