@@ -176,14 +176,6 @@ def add_protein_and_complex_nodes(simData, simOutDirs, node_list):
 	"""
 	pass
 
-def add_metabolite_nodes(simData, simOutDirs, node_list):
-	"""
-	Add metabolite nodes with dynamics data to the node list. - Gwanggyu
-	"""
-	# TODO: complete this function as a working example
-	pass
-
-
 def add_replication_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	"""
 	Add replication nodes with dynamics data to the node list, and add edges
@@ -218,7 +210,8 @@ def add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	connected to the metabolism nodes to the edge list. - Gwanggyu
 	"""
 	# TODO: complete this function as a working example
-	pass
+	reactionStoich = simData.process.metabolism.reactionStoich
+	import ipdb; ipdb.set_trace()
 
 def add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	"""
@@ -327,7 +320,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	add_gene_nodes(simData, simOutDirs, node_list)  # Heejo
 	add_transcript_nodes(simData, simOutDirs, node_list)  # Heejo
 	add_protein_and_complex_nodes(simData, simOutDirs, node_list)  # Eran
-	add_metabolite_nodes(simData, simOutDirs, node_list)  # Gwanggyu
 
 	# Add process nodes and associated edges to the node list and edge list, respectively
 	add_replication_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Heejo
