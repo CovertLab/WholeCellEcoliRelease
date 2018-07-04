@@ -21,8 +21,12 @@ import wholecell.utils.constants
 from wholecell.utils import units
 from wholecell.utils.filepath import makedirs
 
-CHECK_SANITY = True
+NODE_LIST_HEADER = "ID,class,category,name,synonyms,constants\n"
+EDGE_LIST_HEADER = "src_node_id,dst_node_id,stoichiometry,process\n"
+DYNAMICS_HEADER = "node,type,units,dynamics\n"
 
+CHECK_SANITY = True
+N_GENS = 2
 
 class Node:
 	"""
@@ -83,13 +87,13 @@ class Node:
 		Writes a single row specifying the given node to the nodelist file.
 		"""
 		# Format single string with attributes of the node separated by commas
-		node_line = "%s,%s,%s,%s,%s,%s\n" % (
+		node_row = "%s,%s,%s,%s,%s,%s\n" % (
 			self.node_id, self.node_class, self.node_category,
 			self.name, self.synonyms, self.constants,
 			)
 
 		# Write line to nodelist file
-		nodelist_file.write(node_line)
+		nodelist_file.write(node_row)
 
 	def write_dynamics(self, dynamics_file):
 		"""
@@ -98,15 +102,15 @@ class Node:
 		"""
 		# Iterate through all dynamics variables associated with the node
 		for name, dynamics in self.dynamics.items():
-			unit = self.dynamics_units.get(name, default="")
+			unit = self.dynamics_units.get(name, "")
 
 			# Format single string with dynamic attributes separated by commas
-			dynamics_line = "%s,%s,%s,%s\n" % (
+			dynamics_row = "%s,%s,%s,%s\n" % (
 				self.node_id, name, unit, dynamics
 				)
 
 			# Write line to dynamics file
-			dynamics_file.write(dynamics_line)
+			dynamics_file.write(dynamics_row)
 
 
 class Edge:
@@ -126,7 +130,7 @@ class Edge:
 			stoichiometry: (Only for metabolism edges) Stoichiometric
 				coefficient of reaction-metabolite pair, integer, e.g. 1
 		"""
-		self.edge_type = process
+		self.process = process
 		self.src_id = None
 		self.dst_id = None
 		self.stoichiometry = None
@@ -146,33 +150,33 @@ class Edge:
 		Writes a single row specifying the given edge to the edgelist file.
 		"""
 		# Format single string with attributes of the edge separated by commas
-		edge_line = "%s,%s,%s,%s\n" % (
-			self.src_id, self.dst_id, self.stoichiometry, self.edge_type,
+		edge_row = "%s,%s,%s,%s\n" % (
+			self.src_id, self.dst_id, self.stoichiometry, self.process,
 			)
 
 		# Write line to edgelist file
-		edgelist_file.write(edge_line)
+		edgelist_file.write(edge_row)
 
 
-def add_gene_nodes(sim_data, node_list):
+def add_gene_nodes(simData, simOutDirs, node_list):
 	"""
 	Add gene nodes with dynamics data to the node list. - Heejo
 	"""
 	pass
 
-def add_transcript_nodes(sim_data, node_list):
+def add_transcript_nodes(simData, simOutDirs, node_list):
 	"""
 	Add transcript nodes with dynamics data to the node list. - Heejo
 	"""
 	pass
 
-def add_protein_and_complex_nodes(sim_data, node_list):
+def add_protein_and_complex_nodes(simData, simOutDirs, node_list):
 	"""
 	Add protein and complex nodes with dynamics data to the node list. - Eran
 	"""
 	pass
 
-def add_metabolite_nodes(sim_data, node_list):
+def add_metabolite_nodes(simData, simOutDirs, node_list):
 	"""
 	Add metabolite nodes with dynamics data to the node list. - Gwanggyu
 	"""
@@ -180,35 +184,35 @@ def add_metabolite_nodes(sim_data, node_list):
 	pass
 
 
-def add_replication_nodes_and_edges(sim_data, node_list, edge_list):
+def add_replication_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	"""
 	Add replication nodes with dynamics data to the node list, and add edges
 	connected to the replication nodes to the edge list. - Heejo
 	"""
 	pass
 
-def add_transcription_nodes_and_edges(sim_data, node_list, edge_list):
+def add_transcription_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	"""
 	Add transcription nodes with dynamics data to the node list, and add edges
 	connected to the transcription nodes to the edge list. - Heejo
 	"""
 	pass
 
-def add_translation_nodes_and_edges(sim_data, node_list, edge_list):
+def add_translation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	"""
 	Add translation nodes with dynamics data to the node list, and add edges
 	connected to the translation nodes to the edge list. - Heejo
 	"""
 	pass
 
-def add_complexation_nodes_and_edges(sim_data, node_list, edge_list):
+def add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	"""
 	Add complexation nodes with dynamics data to the node list, and add edges
 	connected to the complexation nodes to the edge list. - Eran
 	"""
 	pass
 
-def add_metabolism_nodes_and_edges(sim_data, node_list, edge_list):
+def add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	"""
 	Add metabolism nodes with dynamics data to the node list, and add edges
 	connected to the metabolism nodes to the edge list. - Gwanggyu
@@ -216,19 +220,77 @@ def add_metabolism_nodes_and_edges(sim_data, node_list, edge_list):
 	# TODO: complete this function as a working example
 	pass
 
-def add_equilibrium_nodes_and_edges(sim_data, node_list, edge_list):
+def add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	"""
 	Add equilibrium nodes with dynamics data to the node list, and add edges
 	connected to the equilibrium nodes to the edge list. - Gwanggyu
 	"""
 	pass
 
-def add_regulation_nodes_and_edges(sim_data, node_list, edge_list):
+def add_regulation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	"""
 	Add regulation nodes with dynamics data to the node list, and add edges
 	connected to the regulation nodes to the edge list. - Gwanggyu
 	"""
 	pass
+
+
+def add_time_data(simOutDirs, dynamics_file):
+	"""
+	Add time data to the dynamics file. - Gwanggyu
+	"""
+	time = []
+
+	# Loop through all generations
+	for simOutDir in simOutDirs:
+		# Extract time data from each generation
+		t = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+		time += list(t)
+
+	time_row = "%s,%s,%s,%s\n" % (
+		"time", "time", "s", time
+	)
+
+	# Write line to dynamics file
+	dynamics_file.write(time_row)
+
+
+def add_global_dynamics(simData, simOutDirs, dynamics_file):
+	"""
+	Add global dynamics data to the dynamics file.
+	Currently, cell mass and cell volume are the only global dynamics data that
+	are being written. - Gwanggyu
+	"""
+	# Initialize global dynamics lists
+	global_dynamics = dict()
+	global_dynamics['cell_mass'] = []
+	global_dynamics['cell_volume'] = []
+
+	global_dynamics_units = dict()
+	global_dynamics_units['cell_mass'] = 'fg'
+	global_dynamics_units['cell_volume'] = 'L'
+
+	# Loop through all generations
+	for simOutDir in simOutDirs:
+		# Extract dynamics data from each generation
+		cell_mass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")
+		cell_volume = ((1.0/simData.constants.cellDensity)*(units.fg*cell_mass)).asNumber(units.L)
+
+		# Append to existing list
+		global_dynamics['cell_mass'] += list(cell_mass)
+		global_dynamics['cell_volume'] += list(cell_volume)
+
+	# Iterate through all dynamics variables associated with the node
+	for name, dynamics in global_dynamics.items():
+		unit = global_dynamics_units.get(name, "")
+
+		# Format single string with dynamic attributes separated by commas
+		dynamics_row = "%s,%s,%s,%s\n" % (
+			"global", name, unit, dynamics
+		)
+
+		# Write line to dynamics file
+		dynamics_file.write(dynamics_row)
 
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile=None, metadata=None):
@@ -239,33 +301,42 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		os.mkdir(plotOutDir)
 
 	ap = AnalysisPaths(seedOutDir, multi_gen_plot=True)
-	sim_data = cPickle.load(open(simDataFile))
+	assert ap.n_generation >= N_GENS
 
-	# Get all cells
-	allDir = ap.get_cells()
+	simData = cPickle.load(open(simDataFile))
 
-	for idx, simDir in enumerate(allDir):
+	# Get first cell from each generation
+	first_cell_lineage = []
+
+	# For all generation indexes subject to analysis, get first cell
+	for gen_idx in range(N_GENS):
+		first_cell_lineage.append(ap.get_cells(generation=[gen_idx])[0])
+
+	simOutDirs = []
+
+	# Go through first cells in each generation
+	for gen, simDir in enumerate(first_cell_lineage):
 		simOutDir = os.path.join(simDir, "simOut")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+		simOutDirs.append(simOutDir)
 
 	# Initialize node list and edge list
 	node_list = []
 	edge_list = []
 
 	# Add state nodes to the node list
-	add_gene_nodes(sim_data, node_list)  # Heejo
-	add_transcript_nodes(sim_data, node_list)  # Heejo
-	add_protein_and_complex_nodes(sim_data, node_list)  # Eran
-	add_metabolite_nodes(sim_data, node_list)  # Gwanggyu
+	add_gene_nodes(simData, simOutDirs, node_list)  # Heejo
+	add_transcript_nodes(simData, simOutDirs, node_list)  # Heejo
+	add_protein_and_complex_nodes(simData, simOutDirs, node_list)  # Eran
+	add_metabolite_nodes(simData, simOutDirs, node_list)  # Gwanggyu
 
 	# Add process nodes and associated edges to the node list and edge list, respectively
-	add_replication_nodes_and_edges(sim_data, node_list, edge_list)  # Heejo
-	add_transcription_nodes_and_edges(sim_data, node_list, edge_list)  # Heejo
-	add_translation_nodes_and_edges(sim_data, node_list, edge_list)  # Heejo
-	add_complexation_nodes_and_edges(sim_data, node_list, edge_list)  # Eran
-	add_metabolism_nodes_and_edges(sim_data, node_list, edge_list)  # Gwanggyu
-	add_equilibrium_nodes_and_edges(sim_data, node_list, edge_list)  # Gwanggyu
-	add_regulation_nodes_and_edges(sim_data, node_list, edge_list)  # Gwanggyu
+	add_replication_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Heejo
+	add_transcription_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Heejo
+	add_translation_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Heejo
+	add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Eran
+	add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Gwanggyu
+	add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Gwanggyu
+	add_regulation_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Gwanggyu
 
 	# TODO: Check for network sanity (optional)
 	if CHECK_SANITY:
@@ -276,8 +347,14 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	edgelist_file = open(os.path.join(plotOutDir, plotOutFileName + "_edgelist.csv"), 'w')
 	dynamics_file = open(os.path.join(plotOutDir, plotOutFileName + "_dynamics.csv"), 'w')
 
-	# TODO: Add header and time rows to list and dynamic files
-	pass
+	# Write header rows to each of the files
+	nodelist_file.write(NODE_LIST_HEADER)
+	edgelist_file.write(EDGE_LIST_HEADER)
+	dynamics_file.write(DYNAMICS_HEADER)
+
+	# Add time and global dynamics data to dynamics file
+	add_time_data(simOutDirs, dynamics_file)
+	add_global_dynamics(simData, simOutDirs, dynamics_file)
 
 	# Write node, edge list and dynamics data csv files
 	for node in node_list:
