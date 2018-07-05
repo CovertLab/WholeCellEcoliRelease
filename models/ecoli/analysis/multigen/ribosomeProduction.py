@@ -128,9 +128,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		for idx, id5s in enumerate(sim_data.moleculeGroups.s50_5sRRNA):
 			idx_5s[idx] = np.where(sim_data.process.transcription.rnaData['id'] == id5s)[0][0]
 
-		rrn16s_fit_init_prob = sim_data.process.transcription.rnaSynthProb[sim_data.condition][idx_16s].sum()
-		rrn23s_fit_init_prob = sim_data.process.transcription.rnaSynthProb[sim_data.condition][idx_23s].sum()
-		rrn5s_fit_init_prob = sim_data.process.transcription.rnaSynthProb[sim_data.condition][idx_5s].sum()
+		condition = sim_data.condition
+		rrn16s_fit_init_prob = sim_data.process.transcription.rnaSynthProb[condition][idx_16s].sum()
+		rrn23s_fit_init_prob = sim_data.process.transcription.rnaSynthProb[condition][idx_23s].sum()
+		rrn5s_fit_init_prob = sim_data.process.transcription.rnaSynthProb[condition][idx_5s].sum()
 
 		## Calculated expected multinomial variance ##
 		total_rna_init = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("total_rna_init")

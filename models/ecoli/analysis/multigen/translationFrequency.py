@@ -34,9 +34,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	sim_data = cPickle.load(open(simDataFile, "rb"))
 	tcsComplexToMonomers = sim_data.process.two_component_system.complexToMonomer
 	ids_complexation = sim_data.process.complexation.moleculeNames
-	ids_complexation_complexes = [ids_complexation[i] for i in np.where((sim_data.process.complexation.stoichMatrix() == 1).sum(axis = 1))[0]]
+	ids_complexation_complexes = sim_data.process.complexation.ids_complexes
 	ids_equilibrium = sim_data.process.equilibrium.moleculeNames
-	ids_equilibrium_complexes = [ids_equilibrium[i] for i in np.where((sim_data.process.equilibrium.stoichMatrix() == 1).sum(axis = 1))[0]]
+	ids_equilibrium_complexes = sim_data.process.equilibrium.ids_complexes
 	ids_twoComponent = sim_data.process.two_component_system.moleculeNames.tolist()
 	ids_twoComponent_complexes = sim_data.process.two_component_system.complexToMonomer.keys()
 	ids_translation = sim_data.process.translation.monomerData["id"].tolist()

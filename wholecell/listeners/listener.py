@@ -20,6 +20,8 @@ class Listener(object):
 
 		self._nProcesses = len(sim.processes)
 
+		self._external_states = sim.external_states
+
 		if self._sim.loggers.has_key("Shell"):
 			self._shellLogger = self._sim.loggers["Shell"]
 

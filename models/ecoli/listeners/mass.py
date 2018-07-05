@@ -26,8 +26,8 @@ class Mass(wholecell.listeners.listener.Listener):
 
 	# Constructor
 	def __init__(self, *args, **kwargs):
-		# References to other states
-		self.states = None
+		# References to other internal states
+		self.internal_states = None
 
 		# NOTE: molecule weight is converted to femtograms/molecule from
 		# grams/mol in BulkMolecules
@@ -40,7 +40,7 @@ class Mass(wholecell.listeners.listener.Listener):
 	def initialize(self, sim, sim_data):
 		super(Mass, self).initialize(sim, sim_data)
 
-		self.states = sim.states
+		self.internal_states = sim.internal_states
 
 		self.processNames = list(sim.processes.keys()) + ["Unallocated"]
 
@@ -146,7 +146,7 @@ class Mass(wholecell.listeners.listener.Listener):
 	def update(self):
 		oldDryMass = self.dryMass
 
-		masses = sum(state.mass() for state in self.states.itervalues())
+		masses = sum(state.mass() for state in self.internal_states.itervalues())
 
 		preEvolveMasses = masses[0, ...]
 		postEvolveMasses = masses[1, ...]

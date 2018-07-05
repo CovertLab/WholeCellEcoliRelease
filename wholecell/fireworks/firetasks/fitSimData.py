@@ -1,7 +1,11 @@
+from __future__ import absolute_import
+from __future__ import division
+
 import cPickle
 import time
 import os
 import shutil
+import sys
 
 from fireworks import FireTaskBase, explicit_serialize
 from reconstruction.ecoli.fit_sim_data_1 import fitSimData_1
@@ -22,29 +26,32 @@ class FitSimDataTask(FireTaskBase):
 			if self["cached"]:
 				try:
 					shutil.copyfile(self["cached_data"], self["output_data"])
-					print "Copied sim data from cache (modified %s)" % time.ctime(os.path.getctime(self["cached_data"]))
+					mod_time = time.ctime(os.path.getctime(self["cached_data"]))
+					print "Copied sim data from cache (modified %s)" % (mod_time,)
 					return
 				except Exception as exc:
-					print "Warning: could not copy cached sim data due to exception (%s), running fitter" % (exc)
+					print ("Warning: could not copy cached sim data due to"
+						   " exception (%s), running fitter") % (exc,)
 
 			if self["cpus"] > 1:
-				print "Warning: running fitter in parallel with %i processes - ensure there are enough cpus_per_task allocated" % self["cpus"]
+				print ("Warning: running fitter in parallel with %i processes -"
+					   " ensure there are enough cpus_per_task allocated" % (self["cpus"],))
 
-			raw_data = cPickle.load(open(self["input_data"], "rb"))
+			with open(self["input_data"], "rb") as f:
+				raw_data = cPickle.load(f)
+
 			sim_data = fitSimData_1(raw_data, cpus=self["cpus"], debug=self["debug"])
-			import sys; sys.setrecursionlimit(4000) #limit found manually
-			cPickle.dump(
-				sim_data,
-				open(self["output_data"], "wb"),
-				protocol = cPickle.HIGHEST_PROTOCOL
-				)
+
+			sys.setrecursionlimit(4000) #limit found manually
+			with open(self["output_data"], "wb") as f:
+				cPickle.dump(sim_data, f, protocol = cPickle.HIGHEST_PROTOCOL)
 
 		# TODO: Get rid of this if not used
 		if self["fit_level"] == 2:
-			sim_data = cPickle.load(open(self["input_data"], "rb"))
+			with open(self["input_data"], "rb") as f:
+				sim_data = cPickle.load(f)
+
 			fitSimData_2(sim_data, self["sim_out_dir"])
-			cPickle.dump(
-				sim_data,
-				open(self["output_data"], "wb"),
-				protocol = cPickle.HIGHEST_PROTOCOL
-				)
+
+			with open(self["output_data"], "wb") as f:
+				cPickle.dump(sim_data, f, protocol = cPickle.HIGHEST_PROTOCOL)

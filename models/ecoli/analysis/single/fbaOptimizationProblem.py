@@ -38,8 +38,8 @@ def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile
 	metaboliteNames = np.array(fbaResults.readAttribute('metaboliteNames'))
 	reactionNames = np.array(fbaResults.readAttribute('reactionIDs'))
 	kineticReactionNames = np.array(fbaResults.readAttribute('kineticTargetFluxNames'))
-	shadowPrices = fbaResults.readColumn('rowDualValues')
-	reducedCosts = fbaResults.readColumn('columnDualValues')
+	shadowPrices = fbaResults.readColumn('shadowPrices')
+	reducedCosts = fbaResults.readColumn('reducedCosts')
 	fbaResults.close()
 
 	# Read time info from the listener

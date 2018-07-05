@@ -5,22 +5,22 @@ CONTROL_OUTPUT = dict(
 	)
 
 def nutrientTimeSeriesTotalIndices(sim_data):
-	nNutrientTimeSeries = len(sim_data.nutrientsTimeSeries)
-	return nNutrientTimeSeries
+	n_nutrients_time_series = len(sim_data.external_state.environment.nutrients_time_series)
+	return n_nutrients_time_series
 
 
 def nutrientTimeSeries(sim_data, index):
 
-	nNutrientTimeSeries = nutrientTimeSeriesTotalIndices(sim_data)
+	n_nutrients_time_series = nutrientTimeSeriesTotalIndices(sim_data)
 
-	if index % nNutrientTimeSeries == 0:
+	if index % n_nutrients_time_series == 0:
 		return CONTROL_OUTPUT, sim_data
 
-	nutrientTimeSeriesLabels = sorted(sim_data.nutrientsTimeSeries)
-	nutrientTimeSeriesLabel = nutrientTimeSeriesLabels[index]
-	sim_data.nutrientsTimeSeriesLabel = nutrientTimeSeriesLabel
+	nutrients_time_series_labels = sorted(sim_data.external_state.environment.nutrients_time_series)
+	nutrients_time_series_label = nutrients_time_series_labels[index]
+	sim_data.external_state.environment.nutrients_time_series_label = nutrients_time_series_label
 
 	return dict(
-		shortName = "{}_env".format(nutrientTimeSeriesLabel),
-		desc = "Simulation of environment {}.".format(nutrientTimeSeriesLabel)
+		shortName = "{}_env".format(nutrients_time_series_label),
+		desc = "Simulation of environment {}.".format(nutrients_time_series_label)
 		), sim_data

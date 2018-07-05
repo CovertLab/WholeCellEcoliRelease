@@ -27,7 +27,7 @@ class CellDivision(wholecell.listeners.listener.Listener):
 	# Constructor
 	def __init__(self, *args, **kwargs):
 		# References to other states
-		self.states = None
+		self.internal_states = None
 
 		# NOTE: molecule weight is converted to femtograms/molecule from
 		# grams/mol in BulkMolecules
@@ -39,7 +39,7 @@ class CellDivision(wholecell.listeners.listener.Listener):
 	def initialize(self, sim, sim_data):
 		super(CellDivision, self).initialize(sim, sim_data)
 
-		self.states = sim.states
+		self.internal_states = sim.internal_states
 
 		self.waterIndex = sim_data.submassNameToIndex["water"]
 
@@ -59,10 +59,10 @@ class CellDivision(wholecell.listeners.listener.Listener):
 			self.massCoeff = sim.randomState.normal(loc = 1.0, scale = 0.1)
 
 		# View on full chromosomes
-		self.fullChromosomeView = self.states['BulkMolecules'].container.countView('CHROM_FULL[c]')
-		self.partialChromosomeView = self.states['BulkMolecules'].container.countsView(self.states['BulkMolecules'].divisionIds['partialChromosome'])
-		self.fullChromosomeView = self.states['BulkMolecules'].container.countView(sim_data.moleculeGroups.fullChromosome[0])
-		self.uniqueMoleculeContainer = self.states['UniqueMolecules'].container
+		self.fullChromosomeView = self.internal_states['BulkMolecules'].container.countView('CHROM_FULL[c]')
+		self.partialChromosomeView = self.internal_states['BulkMolecules'].container.countsView(self.internal_states['BulkMolecules'].divisionIds['partialChromosome'])
+		self.fullChromosomeView = self.internal_states['BulkMolecules'].container.countView(sim_data.moleculeGroups.fullChromosome[0])
+		self.uniqueMoleculeContainer = self.internal_states['UniqueMolecules'].container
 
 		self.divisionMassMultiplier = 1.
 		if sim._massDistribution:
@@ -73,7 +73,7 @@ class CellDivision(wholecell.listeners.listener.Listener):
 			self.d_period_division = True
 
 	def update(self):
-		masses = sum(state.mass() for state in self.states.itervalues())
+		masses = sum(state.mass() for state in self.internal_states.itervalues())
 
 		postEvolveMasses = masses[1, ...]
 
@@ -114,8 +114,8 @@ class CellDivision(wholecell.listeners.listener.Listener):
 		else:
 			# End simulation once the mass of an average cell is
 			# added to current cell.
-
-			if self.dryMass - self.dryMassInitial >= self.expectedDryMassIncreaseDict[self._sim.processes["PolypeptideElongation"].currentNutrients].asNumber(units.fg) * self.divisionMassMultiplier:
+			current_nutrients = self._external_states['Environment'].nutrients
+			if self.dryMass - self.dryMassInitial >= self.expectedDryMassIncreaseDict[current_nutrients].asNumber(units.fg) * self.divisionMassMultiplier:
 				if not uneven_counts.any():
 				# if self.fullChromosomeView.count() > 1:
 					self._sim.cellCycleComplete()

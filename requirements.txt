@@ -8,6 +8,9 @@
 #   brew install swig           # needed to install pip CVXcanon
 #   brew install suite-sparse   # needed for cvxopt to use glpk
 #
+## Download and install other packages according to their instructions
+#	CPLEX from IBM (free for students)
+#
 ## Create a pyenv with Python 2.7.14.
 #   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.14  # if needed
 #   pyenv local 2.7.14
@@ -56,6 +59,7 @@ cobra==0.11.3
 colorama==0.3.9
 configparser==3.5.0
 coverage==4.5.1
+cplex==12.8.0.0
 CVXcanon==0.1.1
 cvxopt==1.1.7  # cvxopt==1.2.0 installs on OSX but not on Sherlock
 cvxpy==0.4.8   # cvxpy==0.4.11 change summary looks like a work in progress

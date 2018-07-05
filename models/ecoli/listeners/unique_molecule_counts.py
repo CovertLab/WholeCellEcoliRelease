@@ -31,7 +31,7 @@ class UniqueMoleculeCounts(wholecell.listeners.listener.Listener):
 	def initialize(self, sim, sim_data):
 		super(UniqueMoleculeCounts, self).initialize(sim, sim_data)
 
-		self.uniqueMolecules = sim.states['UniqueMolecules']
+		self.uniqueMolecules = sim.internal_states['UniqueMolecules']
 
 
 	# Allocate memory

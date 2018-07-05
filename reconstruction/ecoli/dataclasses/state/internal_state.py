@@ -1,9 +1,7 @@
 """
 SimulationData state associated data
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 02/12/2015
 """
 
 from __future__ import division
@@ -19,8 +17,8 @@ from reconstruction.ecoli.dataclasses.state import stateFunctions as sf
 import re
 import numpy as np
 
-class State(object):
-	""" State """
+class InternalState(object):
+	""" Internal State """
 
 	def __init__(self, raw_data, sim_data):
 
@@ -133,6 +131,7 @@ class State(object):
 		fullChromosomeMass = units.g / units.mol * np.zeros_like(rnaPolyComplexMass) # NOTE: origins currently have no mass
 		fullChromosomeAttributes = {"division_time" : "f8"}
 		self.uniqueMolecules.addToUniqueState('fullChromosome', fullChromosomeAttributes, fullChromosomeMass)
+
 
 	def _buildCompartments(self, raw_data, sim_data):
 		compartmentData = np.empty(len(raw_data.compartments),

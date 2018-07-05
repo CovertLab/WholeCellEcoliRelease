@@ -97,8 +97,8 @@ def checkErrors(targetFluxes, fixedReactionNames=["v_biomass"], reactionStoichio
 		objectiveParameters={"fixedReactionNames":fixedReactionNames, "normalizeFluxes":True},
 		solver="glpk",
 	)
-	exchangeMolecules = fba_moma.externalMoleculeIDs()
-	fba_moma.externalMoleculeLevelsIs([transportLimits[molID] for molID in exchangeMolecules])
+	exchangeMolecules = fba_moma.getExternalMoleculeIDs()
+	fba_moma.setExternalMoleculeLevels([transportLimits[molID] for molID in exchangeMolecules])
 	return fba_moma.errorFluxes(), fba_moma.errorAdjustedReactionFluxes()
 
 fba = FluxBalanceAnalysis(
@@ -108,9 +108,9 @@ fba = FluxBalanceAnalysis(
 	objectiveType="standard",
 	solver="glpk",
 )
-exchangeMolecules = fba.externalMoleculeIDs()
-fba.externalMoleculeLevelsIs([transportLimits[molID] for molID in exchangeMolecules])
-wildtypeBiomassFlux = fba.biomassReactionFlux()
+exchangeMolecules = fba.getExternalMoleculeIDs()
+fba.setExternalMoleculeLevels([transportLimits[molID] for molID in exchangeMolecules])
+wildtypeBiomassFlux = fba.getBiomassReactionFlux()
 
 # Adjust kcats
 targetFluxes = {}

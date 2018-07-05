@@ -112,10 +112,10 @@ def _toDoubleArray(array):
 
 
 class NetworkFlowGLPK(NetworkFlowProblemBase):
-	_lowerBoundDefault = 0
-	_upperBoundDefault = np.inf
+	def __init__(self, quadratic_objective=False):
+		if quadratic_objective:
+			raise Exception('Quadratic objective not supported for GLPK')
 
-	def __init__(self):
 		self._lp = glp.glp_create_prob()
 		self._smcp = glp.glp_smcp()  # simplex solver control parameters
 		glp.glp_init_smcp(self._smcp)
@@ -132,6 +132,11 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 
 		self._eqConstBuilt = False
 		self._solved = False
+
+		self.inf = np.inf
+
+		self._lowerBoundDefault = 0
+		self._upperBoundDefault = self.inf
 
 	def __del__(self):
 		glp.glp_delete_prob(self._lp)
@@ -266,7 +271,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		return idx
 
 
-	def flowMaterialCoeffIs(self, flow, material, coefficient):
+	def setFlowMaterialCoeff(self, flow, material, coefficient):
 		if self._eqConstBuilt:
 			if material not in self._materialIdxLookup:
 				raise Exception("Invalid material")
@@ -294,15 +299,6 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 
 		self._solved = False
 
-
-	def flowLowerBound(self, flow):
-		return self._lb[flow]
-
-
-	def flowUpperBound(self, flow):
-		return self._ub[flow]
-
-
 	def setFlowBounds(self, flow, lowerBound=None, upperBound=None):
 		"""
 		Set the lower and upper bounds for a given flow
@@ -326,8 +322,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 
 		self._solved = False
 
-
-	def flowObjectiveCoeffIs(self, flow, coefficient):
+	def setFlowObjectiveCoeff(self, flow, coefficient):
 		idx = self._getVar(flow)
 		self._objective[flow] = coefficient
 		glp.glp_set_obj_coef(
@@ -338,8 +333,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 
 		self._solved = False
 
-
-	def flowRates(self, flows):
+	def getFlowRates(self, flows):
 		if isinstance(flows, basestring):
 			flows = (flows,)
 
@@ -351,7 +345,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 			 for flow in flows]
 			)
 
-	def rowDualValues(self, materials):
+	def getShadowPrices(self, materials):
 		if not self._eqConstBuilt:
 			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing dual values.")
 
@@ -363,7 +357,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 			 for material in materials]
 			)
 
-	def columnDualValues(self, fluxNames):
+	def getReducedCosts(self, fluxNames):
 		if not self._eqConstBuilt:
 			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing dual values.")
 
@@ -375,10 +369,9 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 			 for fluxName in fluxNames]
 			)
 
-	def objectiveValue(self):
+	def getObjectiveValue(self):
 		"""The current value of the objective function."""
 		return glp.glp_get_obj_val(self._lp)
-
 
 	def getSMatrix(self):
 		if not self._eqConstBuilt:

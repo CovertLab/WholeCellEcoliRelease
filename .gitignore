@@ -122,6 +122,7 @@ reconstruction/ecoli/dataclasses/process/two_component_system_odes_fitter.py
 .idea/jsLibraryMappings.xml
 .idea/libraries
 .idea/codeStyleSettings.xml
+.idea/codeStyles/codeStyleConfig.xml
 
 # Potentially OK if editing it to project-jdk-name="Python 2.7" works:
 .idea/misc.xml

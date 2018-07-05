@@ -35,7 +35,9 @@ class FBAResults(wholecell.listeners.listener.Listener):
 		self.objectiveValue = 0.0
 
 		self.metaboliteNamesFromNutrients = set()
-		for time, nutrientsLabel in sim_data.nutrientsTimeSeries[sim_data.nutrientsTimeSeriesLabel]:
+		for time, nutrientsLabel in sim_data.external_state.environment.nutrients_time_series[
+			sim_data.external_state.environment.nutrients_time_series_label
+			]:
 
 			self.metaboliteNamesFromNutrients.update(
 				sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
@@ -51,16 +53,16 @@ class FBAResults(wholecell.listeners.listener.Listener):
 
 		fba = self.metabolism.fba
 
-		self.reactionIDs = fba.reactionIDs()
-		self.externalMoleculeIDs = fba.externalMoleculeIDs()
-		self.outputMoleculeIDs = fba.outputMoleculeIDs()
-		self.kineticTargetFluxNames = fba.kineticTargetFluxNames()
-		self.homeostaticTargetMolecules = fba.homeostaticTargetMolecules()
+		self.reactionIDs = fba.getReactionIDs()
+		self.externalMoleculeIDs = fba.getExternalMoleculeIDs()
+		self.outputMoleculeIDs = fba.getOutputMoleculeIDs()
+		self.kineticTargetFluxNames = fba.getKineticTargetFluxNames()
+		self.homeostaticTargetMolecules = fba.getHomeostaticTargetMolecules()
 
 		self.reactionFluxes = np.zeros(len(self.reactionIDs), np.float64)
 		self.externalExchangeFluxes = np.zeros(len(self.externalMoleculeIDs), np.float64)
-		self.rowDualValues = np.zeros(len(self.outputMoleculeIDs), np.float64)
-		self.columnDualValues = np.zeros(len(self.reactionIDs), np.float64)
+		self.shadowPrices = np.zeros(len(self.outputMoleculeIDs), np.float64)
+		self.reducedCosts = np.zeros(len(self.reactionIDs), np.float64)
 		self.homeostaticObjectiveValues = np.zeros(len(self.homeostaticTargetMolecules))
 		self.deltaMetabolites = np.zeros(len(self.metaboliteNamesFromNutrients), np.float64)
 		self.targetConcentrations = np.zeros(len(self.homeostaticTargetMolecules))
@@ -83,8 +85,8 @@ class FBAResults(wholecell.listeners.listener.Listener):
 			simulationStep = self.simulationStep(),
 			reactionFluxes = self.reactionFluxes,
 			externalExchangeFluxes = self.externalExchangeFluxes,
-			rowDualValues = self.rowDualValues,
-			columnDualValues = self.columnDualValues,
+			shadowPrices = self.shadowPrices,
+			reducedCosts = self.reducedCosts,
 			objectiveValue = self.objectiveValue,
 			homeostaticObjectiveValues = self.homeostaticObjectiveValues,
 			deltaMetabolites = self.deltaMetabolites,

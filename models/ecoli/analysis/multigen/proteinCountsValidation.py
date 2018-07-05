@@ -36,9 +36,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	validation_data = cPickle.load(open(validationDataFile, "rb"))
 
 	ids_complexation = sim_data.process.complexation.moleculeNames
-	ids_complexation_complexes = [ids_complexation[i] for i in np.where((sim_data.process.complexation.stoichMatrix() == 1).sum(axis = 1))[0]]
+	ids_complexation_complexes = sim_data.process.complexation.ids_complexes
 	ids_equilibrium = sim_data.process.equilibrium.moleculeNames
-	ids_equilibrium_complexes = [ids_equilibrium[i] for i in np.where((sim_data.process.equilibrium.stoichMatrix() == 1).sum(axis = 1))[0]]
+	ids_equilibrium_complexes = sim_data.process.equilibrium.ids_complexes
 	ids_translation = sim_data.process.translation.monomerData["id"].tolist()
 	ids_protein = sorted(set(ids_complexation + ids_equilibrium + ids_translation))
 	bulkContainer = BulkObjectsContainer(ids_protein, dtype = np.float64)

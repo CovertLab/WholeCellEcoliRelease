@@ -60,9 +60,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	# Get all ids reqiured
 	ids_complexation = sim_data.process.complexation.moleculeNames # Complexes of proteins, and protein monomers
-	ids_complexation_complexes = [ids_complexation[i] for i in np.where((sim_data.process.complexation.stoichMatrix() == 1).sum(axis = 1))[0]] # Only complexes
+	ids_complexation_complexes = sim_data.process.complexation.ids_complexes # Only complexes
 	ids_equilibrium = sim_data.process.equilibrium.moleculeNames # Complexes of proteins + small molecules, small molecules, protein monomers
-	ids_equilibrium_complexes = [ids_equilibrium[i] for i in np.where((sim_data.process.equilibrium.stoichMatrix() == 1).sum(axis = 1))[0]] # Only complexes
+	ids_equilibrium_complexes = sim_data.process.equilibrium.ids_complexes # Only complexes
 	ids_translation = sim_data.process.translation.monomerData["id"].tolist() # Only protein monomers
 	ids_transcription = sim_data.process.transcription.rnaData["id"].tolist()
 
@@ -73,6 +73,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	data_rnap = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.rnapFull[0])
 	rnap_subunit_ids = data_rnap["subunitIds"].tolist()
 	rnap_subunit_stoich = data_rnap["subunitStoich"]
+
+	# Stoich matrices
+	complexStoich = sim_data.process.complexation.stoichMatrixMonomers()
+	equilibriumStoich = sim_data.process.equilibrium.stoichMatrixMonomers()
 
 	first_build = True
 
@@ -100,7 +104,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 				print "Running first build code"
 				moleculeIds = bulkMolecules.readAttribute("objectNames")
 
-				complexationIdx = np.array([moleculeIds.index(x) for x in ids_complexation]) # Complexe of proteins, and protein monomers
+				complexationIdx = np.array([moleculeIds.index(x) for x in ids_complexation]) # Complexes of proteins, and protein monomers
 				complexation_complexesIdx = np.array([moleculeIds.index(x) for x in ids_complexation_complexes]) # Only complexes
 				equilibriumIdx = np.array([moleculeIds.index(x) for x in ids_equilibrium]) # Complexes of proteins + small molecules, small molecules, protein monomers
 				equilibrium_complexesIdx = np.array([moleculeIds.index(x) for x in ids_equilibrium_complexes]) # Only complexes
@@ -124,10 +128,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			bulkMolecules.close()
 
 			# Dissociate protein-protein complexes
-			bulkCounts[:, complexationIdx] += np.dot(sim_data.process.complexation.stoichMatrixMonomers(), bulkCounts[:, complexation_complexesIdx].transpose() * -1).transpose()
+			bulkCounts[:, complexationIdx] += np.dot(complexStoich, bulkCounts[:, complexation_complexesIdx].transpose() * -1).transpose().astype(np.int)
 
 			# Dissociate protein-small molecule complexes
-			bulkCounts[:, equilibriumIdx] += np.dot(sim_data.process.equilibrium.stoichMatrixMonomers(), bulkCounts[:, equilibrium_complexesIdx].transpose() * -1).transpose()
+			bulkCounts[:, equilibriumIdx] += np.dot(equilibriumStoich, bulkCounts[:, equilibrium_complexesIdx].transpose() * -1).transpose().astype(np.int)
 
 			# Load unique molecule data for RNAP and ribosomes
 			uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
@@ -141,8 +145,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 			ribosomeSubunitCounts = (nActiveRibosome.reshape((nActiveRibosome.size,1)) * ribosome_subunit_stoich.reshape((1,ribosome_subunit_stoich.size)))
 			rnapSubunitCounts = (nActiveRnaPoly.reshape((nActiveRnaPoly.size,1)) * rnap_subunit_stoich.reshape((1,rnap_subunit_stoich.size)))
 
-			bulkCounts[:, ribosomeIdx] += ribosomeSubunitCounts
-			bulkCounts[:, rnapIdx] += rnapSubunitCounts
+			bulkCounts[:, ribosomeIdx] += ribosomeSubunitCounts.astype(np.int64)
+			bulkCounts[:, rnapIdx] += rnapSubunitCounts.astype(np.int64)
 
 			# Get protein monomer counts for calculations now that all complexes are dissociated
 			proteinMonomerCounts = bulkCounts[:, translationIdx]
@@ -232,10 +236,10 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		bulkMolecules.close() # NOTE (John): .close() doesn't currently do anything
 
 		# Dissociate protein-protein complexes
-		bulkCounts[:, complexationIdx] += np.dot(sim_data.process.complexation.stoichMatrixMonomers(), bulkCounts[:, complexation_complexesIdx].transpose() * -1).transpose()
+		bulkCounts[:, complexationIdx] += np.dot(complexStoich, bulkCounts[:, complexation_complexesIdx].transpose() * -1).transpose().astype(np.int)
 
 		# Dissociate protein-small molecule complexes
-		bulkCounts[:, equilibriumIdx] += np.dot(sim_data.process.equilibrium.stoichMatrixMonomers(), bulkCounts[:, equilibrium_complexesIdx].transpose() * -1).transpose()
+		bulkCounts[:, equilibriumIdx] += np.dot(equilibriumStoich, bulkCounts[:, equilibrium_complexesIdx].transpose() * -1).transpose().astype(np.int)
 
 		# Load unique molecule data for RNAP and ribosomes
 		uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
@@ -249,8 +253,8 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		ribosomeSubunitCounts = (nActiveRibosome.reshape((nActiveRibosome.size,1)) * ribosome_subunit_stoich.reshape((1,ribosome_subunit_stoich.size)))
 		rnapSubunitCounts = (nActiveRnaPoly.reshape((nActiveRnaPoly.size,1)) * rnap_subunit_stoich.reshape((1,rnap_subunit_stoich.size)))
 
-		bulkCounts[:, ribosomeIdx] += ribosomeSubunitCounts
-		bulkCounts[:, rnapIdx] += rnapSubunitCounts
+		bulkCounts[:, ribosomeIdx] += ribosomeSubunitCounts.astype(np.int64)
+		bulkCounts[:, rnapIdx] += rnapSubunitCounts.astype(np.int64)
 
 		# Get protein monomer counts for calculations now that all complexes are dissociated
 		proteinMonomerCounts = bulkCounts[:, translationIdx]

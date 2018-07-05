@@ -52,8 +52,8 @@ def getValues(filename):
 
 
 def runFBA(internalMoleculeLevels):
-	fba.internalMoleculeLevelsIs(internalMoleculeLevels)
-	deltaMolecules = fba.outputMoleculeLevelsChange()
+	fba.setInternalMoleculeLevels(internalMoleculeLevels)
+	deltaMolecules = fba.getOutputMoleculeLevelsChange()
 	return deltaMolecules
 
 
@@ -116,11 +116,11 @@ fba.setMaxReactionFluxes(reactionIDs, maxReactionFluxes)
 
 
 # Describe external molecule levels
-moleculeIDs = fba.internalMoleculeIDs()
+moleculeIDs = fba.getInternalMoleculeIDs()
 nMolecules = len(moleculeIDs)
 
 externalMoleculeLevels = np.inf * np.ones(nExternalExchangedMolecules)
-fba.externalMoleculeLevelsIs(externalMoleculeLevels)
+fba.setExternalMoleculeLevels(externalMoleculeLevels)
 
 
 # Describe internal molecule levels

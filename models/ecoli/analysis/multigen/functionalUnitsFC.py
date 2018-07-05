@@ -67,7 +67,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	rnaIds = sim_data.process.transcription.rnaData["id"][sim_data.relation.rnaIndexToMonomerMapping] # orders rna IDs to match monomer IDs
 	rnaIds = rnaIds.tolist()
 	ids_complexation = sim_data.process.complexation.moleculeNames # Complexe of proteins, and protein monomers
-	ids_complexation_complexes = [ids_complexation[i] for i in np.where((sim_data.process.complexation.stoichMatrix() == 1).sum(axis = 1))[0]] # Only complexes
+	ids_complexation_complexes = sim_data.process.complexation.ids_complexes # Only complexes
 	ids_translation = sim_data.process.translation.monomerData["id"].tolist() # Only protein monomers
 
 	# ID subgenerational rnas

@@ -32,8 +32,6 @@ VOLUME_UNITS = units.L
 MASS_UNITS = units.g
 TIME_UNITS = units.s
 
-SECRETION_PENALTY_COEFF = 1e-5
-
 NONZERO_ENZYMES = False
 
 USE_KINETICS = True
@@ -60,16 +58,18 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.exchangeConstraints = sim_data.process.metabolism.exchangeConstraints
 
-		self.nutrientsTimeSeriesLabel = sim_data.nutrientsTimeSeriesLabel
-
 		self.getBiomassAsConcentrations = sim_data.mass.getBiomassAsConcentrations
 		self.nutrientToDoublingTime = sim_data.nutrientToDoublingTime
 
 		# Create objective for homeostatic constraints
+		nutrients_time_series_label = sim_data.external_state.environment.nutrients_time_series_label
+
 		concDict = sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
-			sim_data.nutrientsTimeSeries[sim_data.nutrientsTimeSeriesLabel][0][1]
+			sim_data.external_state.environment.nutrients_time_series[nutrients_time_series_label][0][1]
 			)
-		self.concModificationsBasedOnCondition = self.getBiomassAsConcentrations(sim_data.conditionToDoublingTime[sim_data.condition])
+		self.concModificationsBasedOnCondition = self.getBiomassAsConcentrations(
+			sim_data.conditionToDoublingTime[sim_data.condition]
+			)
 		concDict.update(self.concModificationsBasedOnCondition)
 		self.homeostaticObjective = dict((key, concDict[key].asNumber(COUNTS_UNITS / VOLUME_UNITS)) for key in concDict)
 
@@ -81,10 +81,10 @@ class Metabolism(wholecell.processes.process.Process):
 		energyCostPerWetMass = sim_data.constants.darkATP * initDryMass / initCellMass
 
 		# Setup molecules in external environment that can be exchanged
-		externalExchangedMolecules = sim_data.nutrientData["secretionExchangeMolecules"]
+		externalExchangedMolecules = sim_data.external_state.environment.nutrient_data["secretionExchangeMolecules"]
 		self.metaboliteNamesFromNutrients = set()
-		for time, nutrientsLabel in sim_data.nutrientsTimeSeries[self.nutrientsTimeSeriesLabel]:
-			externalExchangedMolecules += sim_data.nutrientData["importExchangeMolecules"][nutrientsLabel]
+		for time, nutrientsLabel in sim_data.external_state.environment.nutrients_time_series[nutrients_time_series_label]:
+			externalExchangedMolecules += sim_data.external_state.environment.nutrient_data["importExchangeMolecules"][nutrientsLabel]
 
 			self.metaboliteNamesFromNutrients.update(
 				sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
@@ -130,6 +130,13 @@ class Metabolism(wholecell.processes.process.Process):
 		self.constraintToReactionMatrix[constraintToReactionMatrixI, constraintToReactionMatrixJ] = constraintToReactionMatrixV
 		self.constraintIsKcatOnly = sim_data.process.metabolism.constraintIsKcatOnly
 
+		# Select solver and associated kinetic objective weight (lambda)
+		solver = "glpk-linear"
+		if "linear" in solver:
+			kineticObjectiveWeight = sim_data.constants.metabolismKineticObjectiveWeightLinear
+		else:
+			kineticObjectiveWeight = sim_data.constants.metabolismKineticObjectiveWeightQuadratic
+
 		# Set up FBA solver
 		# reactionRateTargets value is just for initialization, it gets reset each timestep during evolveState
 		self.fbaObjectOptions = {
@@ -138,13 +145,13 @@ class Metabolism(wholecell.processes.process.Process):
 			"objective" : self.homeostaticObjective,
 			"objectiveType" : "homeostatic_kinetics_mixed",
 			"objectiveParameters" : {
-					"kineticObjectiveWeight" : sim_data.constants.metabolismKineticObjectiveWeight,
+					"kineticObjectiveWeight" : kineticObjectiveWeight,
 					"reactionRateTargets" : {reaction : 1 for reaction in self.kineticsConstrainedReactions},
 					"oneSidedReactionTargets" : [],
 					},
 			"moleculeMasses" : moleculeMasses,
-			"secretionPenaltyCoeff" : SECRETION_PENALTY_COEFF, # The "inconvenient constant"--limit secretion (e.g., of CO2)
-			"solver" : "glpk",
+			"secretionPenaltyCoeff" : sim_data.constants.secretion_penalty_coeff, # The "inconvenient constant"--limit secretion (e.g., of CO2)
+			"solver" : solver,
 			"maintenanceCostGAM" : energyCostPerWetMass.asNumber(COUNTS_UNITS / MASS_UNITS),
 			"maintenanceReaction" : sim_data.process.metabolism.maintenanceReaction,
 		}
@@ -152,7 +159,7 @@ class Metabolism(wholecell.processes.process.Process):
 			self.fbaObjectOptions["objectiveType"] = "homeostatic"
 		self.fba = FluxBalanceAnalysis(**self.fbaObjectOptions)
 
-		self.internalExchangeIdxs = np.array([self.metaboliteNamesFromNutrients.index(x) for x in self.fba.outputMoleculeIDs()])
+		self.internalExchangeIdxs = np.array([self.metaboliteNamesFromNutrients.index(x) for x in self.fba.getOutputMoleculeIDs()])
 
 		# Disable all rates during burn-in
 		if USE_KINETICS:
@@ -170,18 +177,18 @@ class Metabolism(wholecell.processes.process.Process):
 		self.currentPolypeptideElongationEnergy = 1 * (COUNTS_UNITS / VOLUME_UNITS)
 
 		# External molecules
-		self.externalMoleculeIDs = self.fba.externalMoleculeIDs()
+		self.externalMoleculeIDs = self.fba.getExternalMoleculeIDs()
 
 		# Views
-		self.metaboliteNames = self.fba.outputMoleculeIDs()
+		self.metaboliteNames = self.fba.getOutputMoleculeIDs()
 		self.metabolites = self.bulkMoleculesView(self.metaboliteNamesFromNutrients)
 		self.catalysts = self.bulkMoleculesView(self.catalystsList)
 		self.kineticsEnzymes = self.bulkMoleculesView(self.kineticsEnzymesList)
 		self.kineticsSubstrates = self.bulkMoleculesView(self.kineticsSubstratesList)
 
-		outputMoleculeIDs = self.fba.outputMoleculeIDs()
+		outputMoleculeIDs = self.fba.getOutputMoleculeIDs()
 
-		assert outputMoleculeIDs == self.fba.internalMoleculeIDs()
+		assert outputMoleculeIDs == self.fba.getInternalMoleculeIDs()
 
 		# Set the priority to a low value
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_METABOLISM)
@@ -211,7 +218,10 @@ class Metabolism(wholecell.processes.process.Process):
 		cellVolume = cellMass / self.cellDensity
 		countsToMolar = 1 / (self.nAvogadro * cellVolume)
 
-		self.concModificationsBasedOnCondition = self.getBiomassAsConcentrations(self.nutrientToDoublingTime.get(self._sim.processes["PolypeptideElongation"].currentNutrients, self.nutrientToDoublingTime["minimal"]))
+		current_nutrients = self._external_states['Environment'].nutrients
+		self.concModificationsBasedOnCondition = self.getBiomassAsConcentrations(
+			self.nutrientToDoublingTime.get(current_nutrients, self.nutrientToDoublingTime["minimal"])
+			)
 
 		# Coefficient to convert between flux (mol/g DCW/hr) basis and concentration (M) basis
 		coefficient = dryMass / cellMass * self.cellDensity * (self.timeStepSec() * units.s)
@@ -221,8 +231,7 @@ class Metabolism(wholecell.processes.process.Process):
 			self.externalMoleculeIDs,
 			coefficient,
 			COUNTS_UNITS / VOLUME_UNITS,
-			self.nutrientsTimeSeriesLabel,
-			self.time(),
+			current_nutrients,
 			self.concModificationsBasedOnCondition,
 			)
 
@@ -231,7 +240,7 @@ class Metabolism(wholecell.processes.process.Process):
 			# Build new fba instance with new objective
 			self.fbaObjectOptions["objective"] = newObjective
 			self.fba = FluxBalanceAnalysis(**self.fbaObjectOptions)
-			self.internalExchangeIdxs = np.array([self.metaboliteNamesFromNutrients.index(x) for x in self.fba.outputMoleculeIDs()])
+			self.internalExchangeIdxs = np.array([self.metaboliteNamesFromNutrients.index(x) for x in self.fba.getOutputMoleculeIDs()])
 			self.homeostaticObjective = newObjective
 			updatedObjective = True
 
@@ -250,7 +259,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Make a dictionary of metabolite names to metabolite concentrations
 		metaboliteConcentrationsDict = dict(zip(self.metaboliteNames, metaboliteConcentrations))
-		self.fba.internalMoleculeLevelsIs(metaboliteConcentrations.asNumber(COUNTS_UNITS / VOLUME_UNITS))
+		self.fba.setInternalMoleculeLevels(metaboliteConcentrations.asNumber(COUNTS_UNITS / VOLUME_UNITS))
 
 		# Set external molecule levels
 		self._setExternalMoleculeLevels(externalMoleculeLevels, metaboliteConcentrations)
@@ -329,7 +338,7 @@ class Metabolism(wholecell.processes.process.Process):
 				self.fba.disableKineticTargets(self.constraintsToDisable)
 
 		# Solve FBA problem and update metabolite counts
-		deltaMetabolites = (1 / countsToMolar) * (COUNTS_UNITS / VOLUME_UNITS * self.fba.outputMoleculeLevelsChange())
+		deltaMetabolites = (1 / countsToMolar) * (COUNTS_UNITS / VOLUME_UNITS * self.fba.getOutputMoleculeLevelsChange())
 
 		metaboliteCountsFinal = np.zeros_like(metaboliteCountsInit)
 		metaboliteCountsFinal[self.internalExchangeIdxs] = np.fmax(stochasticRound(
@@ -339,24 +348,24 @@ class Metabolism(wholecell.processes.process.Process):
 
 		self.metabolites.countsIs(metaboliteCountsFinal)
 
-		exFluxes = ((COUNTS_UNITS / VOLUME_UNITS) * self.fba.externalExchangeFluxes() / coefficient).asNumber(units.mmol / units.g / units.h)
+		exFluxes = ((COUNTS_UNITS / VOLUME_UNITS) * self.fba.getExternalExchangeFluxes() / coefficient).asNumber(units.mmol / units.g / units.h)
 
 		# Write outputs to listeners
 		self.writeToListener("FBAResults", "deltaMetabolites", metaboliteCountsFinal - metaboliteCountsInit)
-		self.writeToListener("FBAResults", "reactionFluxes", self.fba.reactionFluxes() / self.timeStepSec())
+		self.writeToListener("FBAResults", "reactionFluxes", self.fba.getReactionFluxes() / self.timeStepSec())
 		self.writeToListener("FBAResults", "externalExchangeFluxes", exFluxes)
-		self.writeToListener("FBAResults", "objectiveValue", self.fba.objectiveValue())
-		self.writeToListener("FBAResults", "rowDualValues", self.fba.rowDualValues(self.metaboliteNames))
-		self.writeToListener("FBAResults", "columnDualValues", self.fba.columnDualValues(self.fba.reactionIDs()))
-		self.writeToListener("FBAResults", "targetConcentrations", [self.homeostaticObjective[mol] for mol in self.fba.homeostaticTargetMolecules()])
-		self.writeToListener("FBAResults", "homeostaticObjectiveValues", self.fba.homeostaticObjectiveValues())
+		self.writeToListener("FBAResults", "objectiveValue", self.fba.getObjectiveValue())
+		self.writeToListener("FBAResults", "shadowPrices", self.fba.getShadowPrices(self.metaboliteNames))
+		self.writeToListener("FBAResults", "reducedCosts", self.fba.getReducedCosts(self.fba.getReactionIDs()))
+		self.writeToListener("FBAResults", "targetConcentrations", [self.homeostaticObjective[mol] for mol in self.fba.getHomeostaticTargetMolecules()])
+		self.writeToListener("FBAResults", "homeostaticObjectiveValues", self.fba.getHomeostaticObjectiveValues())
 
 		self.writeToListener("EnzymeKinetics", "metaboliteCountsInit", metaboliteCountsInit)
 		self.writeToListener("EnzymeKinetics", "metaboliteCountsFinal", metaboliteCountsFinal)
 		self.writeToListener("EnzymeKinetics", "enzymeCountsInit", kineticsEnzymesCountsInit)
 		self.writeToListener("EnzymeKinetics", "metaboliteConcentrations", metaboliteConcentrations.asNumber(COUNTS_UNITS / VOLUME_UNITS))
 		self.writeToListener("EnzymeKinetics", "countsToMolar", countsToMolar.asNumber(COUNTS_UNITS / VOLUME_UNITS))
-		self.writeToListener("EnzymeKinetics", "actualFluxes", self.fba.reactionFluxes(self.kineticsConstrainedReactions) / self.timeStepSec())
+		self.writeToListener("EnzymeKinetics", "actualFluxes", self.fba.getReactionFluxes(self.kineticsConstrainedReactions) / self.timeStepSec())
 
 		if USE_KINETICS and self.burnInComplete:
 			self.writeToListener("EnzymeKinetics", "targetFluxes", targets / self.timeStepSec())
@@ -365,9 +374,9 @@ class Metabolism(wholecell.processes.process.Process):
 	# limit amino acid uptake to what is needed to meet concentration objective to prevent use as carbon source
 	def _setExternalMoleculeLevels(self, externalMoleculeLevels, metaboliteConcentrations):
 		for aa in self.AAs:
-			if aa + "[p]" in self.fba.externalMoleculeIDs():
+			if aa + "[p]" in self.fba.getExternalMoleculeIDs():
 				idx = self.externalMoleculeIDs.index(aa + "[p]")
-			elif aa + "[c]" in self.fba.externalMoleculeIDs():
+			elif aa + "[c]" in self.fba.getExternalMoleculeIDs():
 				idx = self.externalMoleculeIDs.index(aa + "[c]")
 			else:
 				continue
@@ -379,4 +388,4 @@ class Metabolism(wholecell.processes.process.Process):
 			if externalMoleculeLevels[idx] > concDiff:
 				externalMoleculeLevels[idx] =  concDiff
 
-		self.fba.externalMoleculeLevelsIs(externalMoleculeLevels)
+		self.fba.setExternalMoleculeLevels(externalMoleculeLevels)

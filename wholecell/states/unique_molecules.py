@@ -17,7 +17,7 @@ from copy import deepcopy
 
 import numpy as np
 
-import wholecell.states.state
+import wholecell.states.internal_state
 import wholecell.views.view
 from wholecell.containers.unique_objects_container import UniqueObjectsContainer, _partition
 from wholecell.utils import units
@@ -26,7 +26,7 @@ DEFAULT_ATTRIBUTES = {
 	"_partitionedProcess":np.int64
 	}
 
-class UniqueMolecules(wholecell.states.state.State):
+class UniqueMolecules(wholecell.states.internal_state.InternalState):
 	"""
 	UniqueMolecules
 
@@ -49,11 +49,11 @@ class UniqueMolecules(wholecell.states.state.State):
 
 		# Used to store information for cell division
 		# Should not contain DEFAULT_ATTRIBUTES
-		self.uniqueMoleculeDefinitions = deepcopy(sim_data.state.uniqueMolecules.uniqueMoleculeDefinitions)
+		self.uniqueMoleculeDefinitions = deepcopy(sim_data.internal_state.uniqueMolecules.uniqueMoleculeDefinitions)
 
 		# Used to send information to the container
 		# Should contain DEFAULT_ATTRIBUTES
-		molDefs = sim_data.state.uniqueMolecules.uniqueMoleculeDefinitions.copy()
+		molDefs = sim_data.internal_state.uniqueMolecules.uniqueMoleculeDefinitions.copy()
 
 		defaultAttributes = DEFAULT_ATTRIBUTES.copy()
 
@@ -75,9 +75,9 @@ class UniqueMolecules(wholecell.states.state.State):
 
 		self.container = UniqueObjectsContainer(molDefs)
 
-		self._moleculeIds = sim_data.state.uniqueMolecules.uniqueMoleculeMasses["id"]
+		self._moleculeIds = sim_data.internal_state.uniqueMolecules.uniqueMoleculeMasses["id"]
 		self._moleculeMasses = (
-			sim_data.state.uniqueMolecules.uniqueMoleculeMasses["mass"] / sim_data.constants.nAvogadro
+			sim_data.internal_state.uniqueMolecules.uniqueMoleculeMasses["mass"] / sim_data.constants.nAvogadro
 			).asNumber(units.fg)
 
 		self._unassignedPartitionedValue = self._nProcesses
