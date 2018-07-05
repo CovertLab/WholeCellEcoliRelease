@@ -61,8 +61,8 @@ class Node:
 		self.name = None
 		self.synonyms = None
 		self.constants = None
-		self.dynamics = None
-		self.dynamics_units = None
+		self.dynamics = {}
+		self.dynamics_units = {}
 
 	def get_attributes(self, node_id, name, synonyms="", constants=""):
 		"""
@@ -88,7 +88,7 @@ class Node:
 		"""
 		# Format single string with attributes of the node separated by commas
 		node_row = "%s,%s,%s,%s,%s,%s\n" % (
-			self.node_id, self.node_class, self.node_category,
+			self.node_id, self.node_class, self.node_type,
 			self.name, self.synonyms, self.constants,
 			)
 
@@ -176,6 +176,14 @@ def add_protein_and_complex_nodes(simData, simOutDirs, node_list):
 	"""
 	pass
 
+def add_metabolite_nodes(simData, simOutDirs, node_list):
+	"""
+	Add metabolite nodes with dynamics data to the node list. - Gwanggyu
+	"""
+	# This is currently being done by the add_metabolism_nodes_and_edges()
+	# function.
+	pass
+
 def add_replication_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	"""
 	Add replication nodes with dynamics data to the node list, and add edges
@@ -208,10 +216,74 @@ def add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	"""
 	Add metabolism nodes with dynamics data to the node list, and add edges
 	connected to the metabolism nodes to the edge list. - Gwanggyu
+	Note: forward and reverse reactions are represented as separate nodes.
+	State nodes for metabolites are also added here.
 	"""
-	# TODO: complete this function as a working example
+	# Get all reaction stoichiometry from simData
 	reactionStoich = simData.process.metabolism.reactionStoich
-	import ipdb; ipdb.set_trace()
+
+	# Initialize list of metabolite IDs
+	metabolite_ids = []
+
+	# Loop through all reactions
+	for reaction, stoich_dict in reactionStoich.items():
+		# Initialize a single metabolism node for each reaction
+		metabolism_node = Node("Process", "Metabolism")
+
+		# Add attributes to the node
+		# TODO: Get correct reaction name and synonyms from EcoCyc
+		attr = {'node_id': reaction, 'name': reaction}
+		metabolism_node.get_attributes(**attr)
+
+		# Append node to node_list
+		node_list.append(metabolism_node)
+
+		# Loop through all metabolites participating in the reaction
+		for metabolite, stoich in stoich_dict.items():
+			# Add metabolites that were not encountered
+			if metabolite not in metabolite_ids:
+				metabolite_ids.append(metabolite)
+
+			# Initialize Metabolism edge
+			metabolism_edge = Edge("Metabolism")
+
+			# Add attributes to the Metabolism edge
+			# Note: the direction of the edge is determined by the sign of the
+			# stoichiometric coefficient.
+			if stoich > 0:
+				attr = {'src_id': reaction,
+					'dst_id': metabolite,
+					'stoichiometry': stoich
+					}
+			else:
+				attr = {'src_id': metabolite,
+					'dst_id': reaction,
+					'stoichiometry': stoich
+					}
+			metabolism_edge.get_attributes(**attr)
+
+			# Append edge to edge_list
+			edge_list.append(metabolism_edge)
+
+		print("Reaction %s"%(reaction))
+
+	# Loop through all metabolites
+	for metabolite in metabolite_ids:
+		# Initialize a single metabolite node for each metabolite
+		metabolite_node = Node("State", "Metabolite")
+
+		# Add attributes to the node
+		# TODO: Get molecular mass using getMass(). Some of the metabolites do not have mass data?
+		# TODO: Get correct metabolite name and synonyms from EcoCyc
+		attr = {'node_id': metabolite,
+			'name': metabolite,
+			'constants': {'mass': 0}
+			}
+		metabolite_node.get_attributes(**attr)
+
+		# Append node to node_list
+		node_list.append(metabolite_node)
+
 
 def add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	"""
@@ -320,6 +392,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	add_gene_nodes(simData, simOutDirs, node_list)  # Heejo
 	add_transcript_nodes(simData, simOutDirs, node_list)  # Heejo
 	add_protein_and_complex_nodes(simData, simOutDirs, node_list)  # Eran
+	add_metabolite_nodes(simData, simOutDirs, node_list)  # Gwanggyu
 
 	# Add process nodes and associated edges to the node list and edge list, respectively
 	add_replication_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Heejo
