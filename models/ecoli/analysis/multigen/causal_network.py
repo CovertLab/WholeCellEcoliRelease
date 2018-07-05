@@ -219,6 +219,29 @@ def add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	Note: forward and reverse reactions are represented as separate nodes.
 	State nodes for metabolites are also added here.
 	"""
+	# Get reaction list from first simOut directory
+	simOutDir = simOutDirs[0]
+	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
+	reactionIDs = fbaResults.readAttribute("reactionIDs")
+
+	# Get bulkMolecule IDs from first simOut directory
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+	moleculeIDs = bulkMolecules.readAttribute("objectNames")
+
+	# Get dynamics data from all simOutDirs (flux for reactions, counts for
+	# metabolites)
+	flux_array = np.empty((0, len(reactionIDs)))
+	counts_array = np.empty((0, len(moleculeIDs)))
+
+	for simOutDir in simOutDirs:
+		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
+		reactionFluxes = fbaResults.readColumn('reactionFluxes')
+		flux_array = np.concatenate((flux_array, reactionFluxes))
+
+		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+		counts = bulkMolecules.readColumn("counts")
+		counts_array = np.concatenate((counts_array, counts))
+
 	# Get all reaction stoichiometry from simData
 	reactionStoich = simData.process.metabolism.reactionStoich
 
@@ -226,7 +249,7 @@ def add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	metabolite_ids = []
 
 	# Loop through all reactions
-	for reaction, stoich_dict in reactionStoich.items():
+	for idx, reaction in enumerate(reactionIDs):
 		# Initialize a single metabolism node for each reaction
 		metabolism_node = Node("Process", "Metabolism")
 
@@ -235,8 +258,17 @@ def add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 		attr = {'node_id': reaction, 'name': reaction}
 		metabolism_node.get_attributes(**attr)
 
+		# Add dynamics data (flux) to the node. The flux array shares the same
+		# column index with the reactionIDs list
+		dynamics = {'flux': list(flux_array[:, idx])}
+		dynamics_units = {'flux': 'mmol/gCDW/h'}
+		metabolism_node.get_dynamics(dynamics, dynamics_units)
+
 		# Append node to node_list
 		node_list.append(metabolism_node)
+
+		# Get reaction stoichiometry from reactionStoich
+		stoich_dict = reactionStoich[reaction]
 
 		# Loop through all metabolites participating in the reaction
 		for metabolite, stoich in stoich_dict.items():
@@ -265,8 +297,6 @@ def add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 			# Append edge to edge_list
 			edge_list.append(metabolism_edge)
 
-		print("Reaction %s"%(reaction))
-
 	# Loop through all metabolites
 	for metabolite in metabolite_ids:
 		# Initialize a single metabolite node for each metabolite
@@ -280,6 +310,20 @@ def add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 			'constants': {'mass': 0}
 			}
 		metabolite_node.get_attributes(**attr)
+
+		# Add dynamics data (counts) to the node.
+		# Get column index of the metabolite in the counts array
+		try:
+			metabolite_idx = moleculeIDs.index(metabolite)
+		except ValueError:  # metabolite ID not found in moleculeIDs
+			# Some of the metabolites are not being tracked.
+			# TODO: why?
+			metabolite_idx = -1
+
+		if metabolite_idx != -1:
+			dynamics = {'counts': list(counts_array[:, metabolite_idx])}
+			dynamics_units = {'counts': 'N'}
+			metabolite_node.get_dynamics(dynamics, dynamics_units)
 
 		# Append node to node_list
 		node_list.append(metabolite_node)
