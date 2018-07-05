@@ -2,6 +2,7 @@
 The fitter, aka parameter calculator.
 
 TODO: establish a controlled language for function behaviors (i.e. create* set* fit*)
+TODO: functionalize so that values are not both set and returned from some methods
 """
 
 from __future__ import absolute_import
@@ -30,20 +31,6 @@ from multiprocessing import Pool
 RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
 FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.0  # reduce stochasticity from protein expression
 
-NUMERICAL_ZERO = 1e-10
-
-FITNESS_THRESHOLD = 1e-9
-MAX_FITTING_ITERATIONS = 100
-N_SEEDS = 10
-
-# Parameters used in fitPromoterBoundProbability()
-PROMOTER_PDIFF_THRESHOLD = 0.1  # Minimum difference between binding probabilities of a TF in conditions where TF is active and inactive
-PROMOTER_REG_COEFF = 1e-3  # Optimization weight on how much probability should stay close to original values
-PROMOTER_SCALING = 10  # Multiplied to all matrices for numerical stability
-PROMOTER_NORM_TYPE = 1  # Matrix 1-norm
-PROMOTER_MAX_ITERATIONS = 100
-PROMOTER_CONVERGENCE_THRESHOLD = 1e-9
-
 # Adjustments to get protein expression for certain enzymes required for metabolism
 TRANSLATION_EFFICIENCIES_ADJUSTMENTS = {
 	"ADCLY-MONOMER[c]": 5,  # pabC, aminodeoxychorismate lyase
@@ -63,8 +50,21 @@ RNA_DEG_RATES_ADJUSTMENTS = {
 	"EG10139_RNA[c]": 2,  # cdsA, CDP-diglyceride synthetase
 	}
 PROTEIN_DEG_RATES_ADJUSTMENTS = {
-	"EG12298-MONOMER[p]": 0.1, # yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition
+	"EG12298-MONOMER[p]": 0.1, # yibQ, Predicted polysaccharide deacetylase; This protein is fit for the anaerobic condition
 	}
+
+# Fitting parameters
+FITNESS_THRESHOLD = 1e-9
+MAX_FITTING_ITERATIONS = 100
+N_SEEDS = 10
+
+# Parameters used in fitPromoterBoundProbability()
+PROMOTER_PDIFF_THRESHOLD = 0.1  # Minimum difference between binding probabilities of a TF in conditions where TF is active and inactive
+PROMOTER_REG_COEFF = 1e-3  # Optimization weight on how much probability should stay close to original values
+PROMOTER_SCALING = 10  # Multiplied to all matrices for numerical stability
+PROMOTER_NORM_TYPE = 1  # Matrix 1-norm
+PROMOTER_MAX_ITERATIONS = 100
+PROMOTER_CONVERGENCE_THRESHOLD = 1e-9
 
 BASAL_EXPRESSION_CONDITION = "M9 Glucose minus AAs"
 
@@ -77,7 +77,7 @@ TIME_UNITS = units.s
 
 
 def fitSimData_1(raw_data, cpus=1, debug=False):
-	'''
+	"""
 	Fits parameters necessary for the simulation based on the knowledge base
 
 	Inputs:
@@ -87,7 +87,7 @@ def fitSimData_1(raw_data, cpus=1, debug=False):
 		debug (bool) - if True, fit only one arbitrarily-chosen transcription
 			factor in order to speed up a debug cycle (should not be used for
 			an actual simulation)
-	'''
+	"""
 
 	sim_data = SimulationDataEcoli()
 	sim_data.initialize(
@@ -254,11 +254,10 @@ def buildBasalCellSpecifications(sim_data):
 	- dict {'basal': dict} with the following keys in the dict from key 'basal':
 		'concDict' {metabolite_name (str): concentration (float with units)} -
 			dictionary of concentrations for each metabolite with a concentration
-		'expression' (1D numpy array of floats) - expression for each RNA,
-			total normalized to 1
+		'expression' (array of floats) - expression for each RNA, total normalized to 1
 		'doubling_time' (float with units) - cell doubling time
-		'synthProb' (1D numpy array of floats) - synthesis probability for
-			each RNA, total normalized to 1
+		'synthProb' (array of floats) - synthesis probability for each RNA,
+			total normalized to 1
 		'avgCellDryMassInit' (float with units) - average initial cell dry mass
 		'fitAvgSolubleTargetMolMass' (float with units) - the adjusted dry mass
 			of the soluble fraction of a cell
@@ -305,46 +304,6 @@ def buildBasalCellSpecifications(sim_data):
 
 	return cellSpecs
 
-def calculateTranslationSupply(sim_data, doubling_time, bulkContainer, avgCellDryMassInit):
-	"""
-	Returns the supply rates of all amino acids to translation given the desired
-	doubling time. This creates a limit on the polypeptide elongation process,
-	and thus on growth. The amino acid supply rate is found by calculating the
-	concentration of amino acids per gram dry cell weight and multiplying by the
-	loss to dilution given doubling time.
-
-	Requires
-	--------
-	- doubling_time: measured doubling times given the condition, in units of minutes.
-	- bulkContainer: a container that tracks the counts of all bulk molecules
-	- avgCellDryMassInit: The average initial cell dry mass, in units of fg.
-
-	Notes
-	-----
-	- The supply of amino acids should not be based on a desired doubling time,
-	but should come from a more mechanistic basis. This would allow simulations
-	of environmental shifts in which the doubling time is unknown.
-	"""
-
-	aaCounts = sim_data.process.translation.monomerData["aaCounts"] # the counts of each amino acid required for each protein
-	proteinCounts = bulkContainer.counts(sim_data.process.translation.monomerData["id"]) # the counts of all proteins
-	nAvogadro = sim_data.constants.nAvogadro
-
-	molAAPerGDCW = (
-			units.sum(
-				aaCounts * np.tile(proteinCounts.reshape(-1, 1), (1, 21)),
-				axis = 0
-			) * (
-				(1 / (units.aa * nAvogadro)) *
-				(1 / avgCellDryMassInit)
-			)
-		)
-
-	# Calculate required amino acid supply to translation to counter dilution
-	translation_aa_supply = molAAPerGDCW * np.log(2) / doubling_time
-
-	return translation_aa_supply
-
 def buildTfConditionCellSpecifications(sim_data, tf):
 	"""
 	Creates cell specifications for a given transcription factor by
@@ -369,11 +328,10 @@ def buildTfConditionCellSpecifications(sim_data, tf):
 	- dict {tf + '__active'/'__inactive': dict} with the following keys in each dict:
 		'concDict' {metabolite_name (str): concentration (float with units)} -
 			dictionary of concentrations for each metabolite with a concentration
-		'expression' (1D numpy array of floats) - expression for each RNA,
-			total normalized to 1
+		'expression' (array of floats) - expression for each RNA, total normalized to 1
 		'doubling_time' (float with units) - cell doubling time
-		'synthProb' (1D numpy array of floats) - synthesis probability for
-			each RNA, total normalized to 1
+		'synthProb' (array of floats) - synthesis probability for each RNA,
+			total normalized to 1
 		'avgCellDryMassInit' (float with units) - average initial cell dry mass
 		'fitAvgSolubleTargetMolMass' (float with units) - the adjusted dry mass
 			of the soluble fraction of a cell
@@ -444,7 +402,7 @@ def buildCombinedConditionCellSpecifications(sim_data, cellSpecs):
 
 	Inputs
 	------
-	- cellSpecs {condition: dict} - information about each individual
+	- cellSpecs {condition (str): dict} - information about each individual
 	transcription factor condition
 
 	Requires
@@ -524,7 +482,7 @@ def buildCombinedConditionCellSpecifications(sim_data, cellSpecs):
 		sim_data.process.transcription.rnaExpression[conditionKey] = cellSpecs[conditionKey]["expression"]
 		sim_data.process.transcription.rnaSynthProb[conditionKey] = cellSpecs[conditionKey]["synthProb"]
 
-def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None):
+def expressionConverge(sim_data, expression, concDict, doubling_time, Km=None):
 	"""
 	Iteratively fits synthesis probabilities for RNA. Calculates initial
 	expression based on gene expression data and makes adjustments to match
@@ -534,10 +492,10 @@ def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None)
 	Inputs
 	--------
 	- expression (array of floats) - expression for each RNA, normalized to 1
-	- concDict {metabolite (str): concentration (float with units)} - dictionary
-	for concentrations of each metabolite with location tag
-	- doubling_time (float with units) - doubling time
-	- Km (array of floats with concentration units) - Km for each RNA associated
+	- concDict {metabolite (str): concentration (float with units of mol/volume)} -
+	dictionary for concentrations of each metabolite with location tag
+	- doubling_time (float with units of time) - doubling time
+	- Km (array of floats with units of mol/volume) - Km for each RNA associated
 	with RNases
 
 	Requires
@@ -553,9 +511,9 @@ def expressionConverge(sim_data, expression, concDict, doubling_time, Km = None)
 	normalized to 1
 	- synthProb (array of floats) - synthesis probability for each RNA which
 	accounts for expression and degradation rate, normalized to 1
-	- avgCellDryMassInit (float with units) - expected initial dry cell mass
-	- fitAvgSolubleTargetMolMass (float with units) - the adjusted dry mass
-			of the soluble fraction of a cell
+	- avgCellDryMassInit (float with units of mass) - expected initial dry cell mass
+	- fitAvgSolubleTargetMolMass (float with units of mass) - the adjusted dry mass
+	of the soluble fraction of a cell
 	- bulkContainer (BulkObjectsContainer object) - expected counts for
 	bulk molecules based on expression
 	"""
@@ -598,20 +556,22 @@ def fitCondition(sim_data, spec, condition):
 
 	Requires
 	--------
-	- condition: a string specifying the condition.
-	- spec: a dictionary with cell specifications for the given condition. This
-	function uses the specs "expression", "concDict", "avgCellDryMassInit", and
-	"doubling_time"
+	- condition (str) - condition to fit (eg 'CPLX0-7705__active')
+	- spec {property (str): property values} - cell specifications for the given condition.
+	This function uses the specs "expression", "concDict", "avgCellDryMassInit",
+	and "doubling_time"
 
 	Returns
 	--------
-	- The following specs are updated:
-		- bulkAverageContainer: The mean of the bulk counts.
-		- bulkDeviationContainer: The standard deviation of the bulk counts.
-		- proteinMonomerAverageContainer: The mean of the protein monomer counts.
-		- proteinMonomerDeviationContainer: The standard deviation of the protein
-		monomer	counts.
-		- translation_aa_supply: the supply rates of all amino acids to translation.
+	- A dictionary {condition (str): spec (dict)} with the updated spec dictionary
+	with the following values updated:
+		- bulkAverageContainer (BulkObjectsContainer object) - the mean of the bulk counts
+		- bulkDeviationContainer (BulkObjectsContainer object) - the standard deviation of the bulk counts
+		- proteinMonomerAverageContainer (BulkObjectsContainer object) - the mean of the protein monomer counts
+		- proteinMonomerDeviationContainer (BulkObjectsContainer object) - the standard deviation of the protein
+		monomer counts
+		- translation_aa_supply (array with units of mol/(mass.time)) - the supply rates
+		for each amino acid to translation
 	"""
 
 	if VERBOSE > 0:
@@ -640,6 +600,46 @@ def fitCondition(sim_data, spec, condition):
 
 	return {condition: spec}
 
+def calculateTranslationSupply(sim_data, doubling_time, bulkContainer, avgCellDryMassInit):
+	"""
+	Returns the supply rates of all amino acids to translation given the desired
+	doubling time. This creates a limit on the polypeptide elongation process,
+	and thus on growth. The amino acid supply rate is found by calculating the
+	concentration of amino acids per gram dry cell weight and multiplying by the
+	loss to dilution given doubling time.
+
+	Inputs
+	------
+	- doubling_time (float with units of time) - measured doubling times given the condition
+	- bulkContainer (BulkObjectsContainer object) - a container that tracks the counts of all bulk molecules
+	- avgCellDryMassInit (float with units of mass) - the average initial cell dry mass
+
+	Notes
+	-----
+	- The supply of amino acids should not be based on a desired doubling time,
+	but should come from a more mechanistic basis. This would allow simulations
+	of environmental shifts in which the doubling time is unknown.
+	"""
+
+	aaCounts = sim_data.process.translation.monomerData["aaCounts"] # the counts of each amino acid required for each protein
+	proteinCounts = bulkContainer.counts(sim_data.process.translation.monomerData["id"]) # the counts of all proteins
+	nAvogadro = sim_data.constants.nAvogadro
+
+	molAAPerGDCW = (
+			units.sum(
+				aaCounts * np.tile(proteinCounts.reshape(-1, 1), (1, 21)),
+				axis = 0
+			) * (
+				(1 / (units.aa * nAvogadro)) *
+				(1 / avgCellDryMassInit)
+			)
+		)
+
+	# Calculate required amino acid supply to translation to counter dilution
+	translation_aa_supply = molAAPerGDCW * np.log(2) / doubling_time
+
+	return translation_aa_supply
+
 # Sub-fitting functions
 
 def setRnaPolymeraseCodingRnaDegradationRates(sim_data):
@@ -650,7 +650,8 @@ def setRnaPolymeraseCodingRnaDegradationRates(sim_data):
 
 	Requires
 	--------
-	- RNA_POLY_MRNA_DEG_RATE_PER_S: The new first-order degradation rate, in units of per second.
+	- RNA_POLY_MRNA_DEG_RATE_PER_S (float) - the new first-order degradation rate,
+	in units of per second
 
 	Modifies
 	--------
@@ -659,9 +660,9 @@ def setRnaPolymeraseCodingRnaDegradationRates(sim_data):
 	Notes
 	-----
 	- Incorporating transcription unit structure would facilitate co-expression of the subunits
-		but might not address the fundamental stochasticity issue.
+	but might not address the fundamental stochasticity issue.
 	- MD - The structure of this function deviates from the following functions that set values based on an adjustment
-		maybe think about how adjustments should be incorporated?
+	maybe think about how adjustments should be incorporated?
 	"""
 
 	rnaPolySubunits = sim_data.process.complexation.getMonomers("APORNAP-CPLX[c]")["subunitIds"] # APORNAP-CPLX[c] is the RNA polymerase complex
@@ -674,18 +675,18 @@ def setRnaPolymeraseCodingRnaDegradationRates(sim_data):
 def setTranslationEfficiencies(sim_data):
 	"""
 	This function's goal is to set translation efficiencies for a subset of metabolic proteins.
-	It first gathers the index of the proteins it wants to modify, then goes ahead and changes the monomer
+	It first gathers the index of the proteins it wants to modify, then changes the monomer
 	translation efficiencies based on the adjustment that is specified.
 	These adjustments were made so that the simulation could run.
 
 	Requires
 	--------
-	- For each RNA that needs to be modified, it takes in a hard coded adjustment factor.
+	- For each protein that needs to be modified, it takes in a hard coded adjustment factor.
 
 	Modifies
 	--------
 	- This function modifies, for a subset of proteins, their translational efficiencies in sim_data.
-		It takes their current efficiency and multiplies them by the factor specified in adjustments.
+	It takes their current efficiency and multiplies them by the factor specified in adjustments.
 	"""
 
 	for protein in TRANSLATION_EFFICIENCIES_ADJUSTMENTS:
@@ -695,8 +696,8 @@ def setTranslationEfficiencies(sim_data):
 def setRNAExpression(sim_data):
 	"""
 	This function's goal is to set expression levels for a subset of metabolic RNAs.
-	It first gathers the index of the RNA's it wants to modify, then goes ahead and changes the expression
-	levels of those proteins, within sim_data, based on the specified adjustment factor.
+	It first gathers the index of the RNA's it wants to modify, then changes the expression
+	levels of those RNAs, within sim_data, based on the specified adjustment factor.
 	These adjustments were made so that the simulation could run.
 
 	Requires
@@ -706,9 +707,9 @@ def setRNAExpression(sim_data):
 	Modifies
 	--------
 	- This function modifies the basal RNA expression levels set in sim_data, for the chosen RNAs.
-		It takes their current basal expression and multiplies them by the factor specified in adjustments.
+	It takes their current basal expression and multiplies them by the factor specified in adjustments.
 	- After updating the basal expression levels for the given genes, the function normalizes all the basal
-		expression levels.
+	expression levels.
 	"""
 
 	for rna in RNA_EXPRESSION_ADJUSTMENTS:
@@ -720,8 +721,8 @@ def setRNAExpression(sim_data):
 def setRNADegRates(sim_data):
 	"""
 	This function's goal is to set the degradation rates for a subset of metabolic RNA's.
-	It first gathers the index of the RNA's it wants to modify, then goes ahead and changes the degradation
-	rates of those RNA's. These adjustments were made so that the simulation could run.
+	It first gathers the index of the RNA's it wants to modify, then changes the degradation
+	rates of those RNAs. These adjustments were made so that the simulation could run.
 
 	Requires
 	--------
@@ -729,8 +730,8 @@ def setRNADegRates(sim_data):
 
 	Modifies
 	--------
-	- This function modifies the RNA degradation rates for the chosen RNA's in sim_data.
-		It takes their current degradation rate and multiplies them by the factor specified in adjustments.
+	- This function modifies the RNA degradation rates for the chosen RNAs in sim_data.
+	It takes their current degradation rate and multiplies them by the factor specified in adjustments.
 	"""
 
 	for rna in RNA_DEG_RATES_ADJUSTMENTS:
@@ -740,7 +741,7 @@ def setRNADegRates(sim_data):
 def setProteinDegRates(sim_data):
 	"""
 	This function's goal is to set the degradation rates for a subset of proteins.
-	It first gathers the index of the proteins it wants to modify, then goes ahead and changes the degradation
+	It first gathers the index of the proteins it wants to modify, then changes the degradation
 	rates of those proteins. These adjustments were made so that the simulation could run.
 
 	Requires
@@ -750,7 +751,7 @@ def setProteinDegRates(sim_data):
 	Modifies
 	--------
 	- This function modifies the protein degradation rates for the chosen proteins in sim_data.
-		It takes their current degradation rate and multiplies them by the factor specified in adjustments.
+	It takes their current degradation rate and multiplies them by the factor specified in adjustments.
 	"""
 
 	for protein in PROTEIN_DEG_RATES_ADJUSTMENTS:
@@ -776,7 +777,7 @@ def setCPeriod(sim_data):
 	sim_data.growthRateParameters.c_period = sim_data.process.replication.genome_length * units.nt / sim_data.growthRateParameters.dnaPolymeraseElongationRate / 2
 
 def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict, doubling_time):
-	'''
+	"""
 	Adjust the cell's mass to accomodate target small molecule concentrations.
 
 	Inputs
@@ -803,7 +804,7 @@ def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict, doubling_t
 	-------
 	- newAvgCellDryMassInit, the adjusted dry mass of a cell immediately following division.
 	- fitAvgSolubleTargetMolMass, the adjusted dry mass of the soluble fraction of a cell
-	'''
+	"""
 	avgCellFractionMass = sim_data.mass.getFractionMass(doubling_time)
 
 	mass = (avgCellFractionMass["proteinMass"] + avgCellFractionMass["rnaMass"] + avgCellFractionMass["dnaMass"]) / sim_data.mass.avgCellToInitialCellConvFactor
@@ -845,10 +846,15 @@ def setInitialRnaExpression(sim_data, expression, doubling_time):
 	- Needs information from the knowledge base about the mass fraction, molecular weight, and distribution of each
 	RNA species.
 
+	Inputs
+	------
+	- expression (array of floats) - expression for each RNA, normalized to 1
+	- doubling_time (float with units of time) - doubling time for condition
+
 	Returns
 	--------
-	- expression: a wrapper around a NumPy array that contains the normalized initial RNA expression
-	(in counts) and corresponding ID of all RNAs.
+	- expression (array of floats) - contains the adjusted RNA expression,
+	normalized to 1
 
 	Notes
 	-----
@@ -961,19 +967,22 @@ def totalCountIdDistributionProtein(sim_data, expression, doubling_time):
 
 	Requires
 	--------
-	- expression: relative frequency distribution of RNA expression.
-	- doubling_time: measured doubling times given the condition, in units of minutes.
+	- expression (array of floats) - relative frequency distribution of RNA expression
+	- doubling_time (float with units of time) - measured doubling time given the condition
 
 	Returns
 	--------
-	- Counts and IDs of all proteins.
+	- total_count_protein (float with empty units) - total number of proteins
+	- ids_protein (array of str) - name of each protein with location tag
+	- distribution_protein (array of floats) - distribution for each protein,
+	normalized to 1
 	"""
 
 	ids_protein = sim_data.process.translation.monomerData["id"]
-	totalMass_protein = sim_data.mass.getFractionMass(doubling_time)["proteinMass"] / sim_data.mass.avgCellToInitialCellConvFactor
-	individualMasses_protein = sim_data.process.translation.monomerData["mw"] / sim_data.constants.nAvogadro
-	distribution_transcriptsByProtein = normalize(expression[sim_data.relation.rnaIndexToMonomerMapping])
-	translation_efficienciesByProtein = normalize(sim_data.process.translation.translationEfficienciesByMonomer)
+	total_mass_protein = sim_data.mass.getFractionMass(doubling_time)["proteinMass"] / sim_data.mass.avgCellToInitialCellConvFactor
+	individual_masses_protein = sim_data.process.translation.monomerData["mw"] / sim_data.constants.nAvogadro
+	distribution_transcripts_by_protein = normalize(expression[sim_data.relation.rnaIndexToMonomerMapping])
+	translation_efficiencies_by_protein = normalize(sim_data.process.translation.translationEfficienciesByMonomer)
 
 	degradationRates = sim_data.process.translation.monomerData["degRate"]
 
@@ -982,19 +991,19 @@ def totalCountIdDistributionProtein(sim_data, expression, doubling_time):
 
 	# Find the protein distribution
 	distribution_protein = proteinDistributionFrommRNA(
-		distribution_transcriptsByProtein,
-		translation_efficienciesByProtein,
+		distribution_transcripts_by_protein,
+		translation_efficiencies_by_protein,
 		netLossRate_protein
 		)
 
 	# Find total protein counts
-	totalCount_protein = totalCountFromMassesAndRatios(
-		totalMass_protein,
-		individualMasses_protein,
+	total_count_protein = totalCountFromMassesAndRatios(
+		total_mass_protein,
+		individual_masses_protein,
 		distribution_protein
 		)
 
-	return totalCount_protein, ids_protein, distribution_protein
+	return total_count_protein, ids_protein, distribution_protein
 
 def totalCountIdDistributionRNA(sim_data, expression, doubling_time):
 	"""
@@ -1003,27 +1012,30 @@ def totalCountIdDistributionRNA(sim_data, expression, doubling_time):
 
 	Requires
 	--------
-	- expression: relative frequency distribution of RNA expression.
-	- doubling_time: measured doubling times given the condition, in units of minutes.
+	- expression (array of floats) - relative frequency distribution of RNA expression
+	- doubling_time (float with units of time) - measured doubling time given the condition
 
 	Returns
 	--------
-	- Counts and IDs of all RNAs.
+	- total_count_RNA (float with empty units) - total number of RNAs
+	- ids_rnas (array of str) - name of each RNA with location tag
+	- distribution_RNA (array of floats) - distribution for each RNA,
+	normalized to 1
 	"""
 
 	ids_rnas = sim_data.process.transcription.rnaData["id"]
-	totalMass_RNA = sim_data.mass.getFractionMass(doubling_time)["rnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
-	individualMasses_RNA = sim_data.process.transcription.rnaData["mw"] / sim_data.constants.nAvogadro
+	total_mass_RNA = sim_data.mass.getFractionMass(doubling_time)["rnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
+	individual_masses_RNA = sim_data.process.transcription.rnaData["mw"] / sim_data.constants.nAvogadro
 
 	distribution_RNA = normalize(expression)
 
-	totalCount_RNA = totalCountFromMassesAndRatios(
-		totalMass_RNA,
-		individualMasses_RNA,
+	total_count_RNA = totalCountFromMassesAndRatios(
+		total_mass_RNA,
+		individual_masses_RNA,
 		distribution_RNA
 		)
 
-	return totalCount_RNA, ids_rnas, distribution_RNA
+	return total_count_RNA, ids_rnas, distribution_RNA
 
 def createBulkContainer(sim_data, expression, doubling_time):
 	"""
@@ -1033,29 +1045,28 @@ def createBulkContainer(sim_data, expression, doubling_time):
 
 	Requires
 	--------
-	- expression: the relative frequency distribution of RNA expression.
-	- doubling_time: the measured doubling times given the condition, in units
-	of minutes.
+	- expression (array of floats) - relative frequency distribution of RNA expression
+	- doubling_time (float with units of time) - measured doubling time given the condition
 
 	Returns
 	-------
-	- bulkContainer: a wrapper around a NumPy array that tracks the counts of
-	bulk molecules.
+	- bulkContainer (BulkObjectsContainer object) - a wrapper around a NumPy
+	array that tracks the counts of bulk molecules
 	"""
 
-	totalCount_RNA, ids_rnas, distribution_RNA = totalCountIdDistributionRNA(sim_data, expression, doubling_time)
-	totalCount_protein, ids_protein, distribution_protein = totalCountIdDistributionProtein(sim_data, expression, doubling_time)
+	total_count_RNA, ids_rnas, distribution_RNA = totalCountIdDistributionRNA(sim_data, expression, doubling_time)
+	total_count_protein, ids_protein, distribution_protein = totalCountIdDistributionProtein(sim_data, expression, doubling_time)
 	ids_molecules = sim_data.state.bulkMolecules.bulkData["id"]
 
 	# Construct bulk container
 	bulkContainer = BulkObjectsContainer(ids_molecules, dtype = np.float64)
 
 	# Assign RNA counts based on mass and expression distribution
-	counts_RNA = totalCount_RNA * distribution_RNA
+	counts_RNA = total_count_RNA * distribution_RNA
 	bulkContainer.countsIs(counts_RNA, ids_rnas)
 
 	# Assign protein counts based on mass and mRNA counts
-	counts_protein = totalCount_protein * distribution_protein
+	counts_protein = total_count_protein * distribution_protein
 	bulkContainer.countsIs(counts_protein, ids_protein)
 
 	return bulkContainer
@@ -1069,14 +1080,17 @@ def setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_t
 
 	Requires
 	--------
-	- FRACTION_INCREASE_RIBOSOMAL_PROTEINS: factor to increase number of
-		ribosomes needed (used in computing constraint (1))
+	- FRACTION_INCREASE_RIBOSOMAL_PROTEINS (float) - factor to increase number of
+	ribosomes needed (used in computing constraint (1))
 
+	Inputs
+	------
+	bulkContainer (BulkObjectsContainer object) - counts of bulk molecules
+	doubling_time (float with units of time) - doubling time given the condition
 
 	Modifies
 	--------
 	- counts of ribosomal protein subunits in bulkContainer
-
 	"""
 
 	# Get IDs and stoichiometry of ribosome subunits
@@ -1167,8 +1181,7 @@ def setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_t
 	bulkContainer.countsIs(rRna16SCounts, sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna16S"]])
 	bulkContainer.countsIs(rRna5SCounts, sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna5S"]])
 
-
-def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km = None):
+def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km=None):
 	"""
 	Set counts of RNA polymerase based on two constraints:
 	(1) Number of RNAP subunits required to maintain steady state of mRNAs
@@ -1178,23 +1191,26 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time,
 	Requires
 	--------
 	- the return value from getFractionIncreaseRnapProteins(doubling_time),
-		described in growthRateDependentParameters.py
+	described in growthRateDependentParameters.py
+
+	Inputs
+	------
+	- bulkContainer (BulkObjectsContainer object) - counts of bulk molecules
+	- doubling_time (float with units of time) - doubling time given the condition
+	- avgCellDryMassInit (float with units of mass) - expected initial dry cell mass
+	- Km (array of floats with units of mol/volume) - Km for each RNA associated
+	with RNases
 
 	Modifies
 	--------
-	- bulkContainer: The counts of RNA polymerase subunits are set according to
-		Constraint 1.
+	- bulkContainer (BulkObjectsContainer object) - the counts of RNA polymerase
+	subunits are set according to Constraint 1
 
 	Notes
 	-----
 	- Constraint 2 is not being used -- see final line of this function.
-
-	TODO
-	----
-	- replace 0.3 with sim_data.mass.cellDryMassFraction (in cellVolume
-		computation)
-
 	"""
+
 	# -- CONSTRAINT 1: Expected RNA distribution doubling -- #
 	rnaLengths = units.sum(sim_data.process.transcription.rnaData['countsACGU'], axis = 1)
 
@@ -1211,7 +1227,7 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time,
 	else:
 		# Get constants to compute countsToMolar factor
 		cellDensity = sim_data.constants.cellDensity
-		cellVolume = avgCellDryMassInit / cellDensity / 0.3
+		cellVolume = avgCellDryMassInit / cellDensity / sim_data.mass.cellDryMassFraction
 		countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
 
 		# Gompute input arguments for netLossRateFromDilutionAndDegradationRNA()
@@ -1272,9 +1288,9 @@ def fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km
 	------
 	- bulkContainer (BulkObjectsContainer object) - expected counts for
 	bulk molecules based on expression
-	- doubling_time (float with units) - doubling time
-	- avgCellDryMassInit (float with units) - expected initial dry cell mass
-	- Km (array of floats with concentration units) - Km for each RNA associated
+	- doubling_time (float with units of time) - doubling time
+	- avgCellDryMassInit (float with units of mass) - expected initial dry cell mass
+	- Km (array of floats with units of mol/volume) - Km for each RNA associated
 	with RNases
 
 	Modifies
@@ -1369,7 +1385,6 @@ def fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km
 
 	return expression, synthProb
 
-
 def fitMaintenanceCosts(sim_data, bulkContainer):
 	"""
 	Fits the growth-associated maintenance (GAM) cost associated with metabolism.
@@ -1385,9 +1400,9 @@ def fitMaintenanceCosts(sim_data, bulkContainer):
 	--------
 	- amino acid counts associated with protein monomers
 	- average initial dry mass
-	- energetc (GTP) cost of translation (per amino acid polymerized)
+	- energetic (GTP) cost of translation (per amino acid polymerized)
 	- observed growth-associated maintenance (GAM)
-		In dimensions of ATP or ATP equivalents consumed per biomass
+	In dimensions of ATP or ATP equivalents consumed per biomass
 
 	Modifies
 	--------
@@ -1404,8 +1419,8 @@ def fitMaintenanceCosts(sim_data, bulkContainer):
 	in the metabolic submodel.
 
 	TODO (John): Rewrite as a true function.
-
 	"""
+
 	aaCounts = sim_data.process.translation.monomerData["aaCounts"]
 	proteinCounts = bulkContainer.counts(sim_data.process.translation.monomerData["id"])
 	nAvogadro = sim_data.constants.nAvogadro
@@ -1454,20 +1469,22 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 
 	Requires
 	--------
-	- N_SEEDS: The number of instantiated cells.
-	- expression: Relative frequency distribution of RNA expression.
-	- concDict: A dictionary of a small set of metabolites and their concentrations,
-	in units of mol/L.
-	- avgCellDryMassInit: The average initial cell dry mass, in units of fg.
-	- doubling_time: Measured doubling times given the condition, in units of minutes.
+	- N_SEEDS (int) - the number of instantiated cells
+
+	Inputs
+	------
+	- expression (array of floats) - expression for each RNA, normalized to 1
+	- concDict {metabolite (str): concentration (float with units of mol/volume)} -
+	dictionary for concentrations of each metabolite with location tag
+	- avgCellDryMassInit (float with units of mass) - initial dry cell mass
+	- doubling_time (float with units of time) - doubling time for condition
 
 	Returns
 	--------
-	- bulkAverageContainer: The mean of the bulk counts.
-	- bulkDeviationContainer: The standard deviation of the bulk counts.
-	- proteinMonomerAverageContainer: The mean of the protein monomer counts.
-	- proteinMonomerDeviationContainer: The standard deviation of the protein monomer
-	counts.
+	- bulkAverageContainer (BulkObjectsContainer object) - the mean of the bulk counts
+	- bulkDeviationContainer (BulkObjectsContainer object) - the standard deviation of the bulk counts
+	- proteinMonomerAverageContainer (BulkObjectsContainer object) - the mean of the protein monomer counts
+	- proteinMonomerDeviationContainer (BulkObjectsContainer object) - the standard deviation of the protein
 	"""
 
 	# Ids
@@ -1643,7 +1660,6 @@ def totalCountFromMassesAndRatios(totalMass, individualMasses, distribution):
 	assert np.allclose(np.sum(distribution), 1)
 	return 1 / units.dot(individualMasses, distribution) * totalMass
 
-
 def proteinDistributionFrommRNA(distribution_mRNA, translation_efficiencies, netLossRate):
 	"""
 	dP_i / dt = k * M_i * e_i - P_i * Loss_i
@@ -1659,6 +1675,18 @@ def proteinDistributionFrommRNA(distribution_mRNA, translation_efficiencies, net
 
 	Normalizing P_i by summing over all i cancels out k and M_total
 	assuming constant translation rate.
+
+	Inputs
+	------
+	- distribution_mRNA (array of floats) - distribution for each mRNA,
+	normalized to 1
+	- translation_efficiencies (array of floats) - translational efficiency for each mRNA,
+	normalized to 1
+	- netLossRate (array of floats with units of 1/time) - rate of loss for each protein
+
+	Returns
+	-------
+	- array of floats for the distribution of each protein, normalized to 1
 	"""
 
 	assert np.allclose(np.sum(distribution_mRNA), 1)
@@ -1667,8 +1695,8 @@ def proteinDistributionFrommRNA(distribution_mRNA, translation_efficiencies, net
 	distributionNormed = distributionUnnormed / units.sum(distributionUnnormed)
 	distributionNormed.normalize()
 	distributionNormed.checkNoUnit()
-	return distributionNormed.asNumber()
 
+	return distributionNormed.asNumber()
 
 def mRNADistributionFromProtein(distribution_protein, translation_efficiencies, netLossRate):
 	"""
@@ -1683,17 +1711,29 @@ def mRNADistributionFromProtein(distribution_protein, translation_efficiencies, 
 	Substituting in:
 	M_i = Loss_i * f_i * P_total / (k * e_i)
 
-	Normalizing M_i by summing over all i cancles out k and P_total
+	Normalizing M_i by summing over all i cancels out k and P_total
 	assuming a constant translation rate.
 
+	Inputs
+	------
+	- distribution_protein (array of floats) - distribution for each protein,
+	normalized to 1
+	- translation_efficiencies (array of floats) - translational efficiency for each mRNA,
+	normalized to 1
+	- netLossRate (array of floats with units of 1/time) - rate of loss for each protein
+
+	Returns
+	-------
+	- array of floats for the distribution of each mRNA, normalized to 1
 	"""
+
 	assert np.allclose(np.sum(distribution_protein), 1)
 	distributionUnnormed = netLossRate * distribution_protein / translation_efficiencies
 	distributionNormed = distributionUnnormed / units.sum(distributionUnnormed)
 	distributionNormed.normalize()
 	distributionNormed.checkNoUnit()
-	return distributionNormed.asNumber()
 
+	return distributionNormed.asNumber()
 
 def calculateMinPolymerizingEnzymeByProductDistribution(productLengths, elongationRate, netLossRate, productCounts):
 	"""
@@ -1714,25 +1754,25 @@ def calculateMinPolymerizingEnzymeByProductDistribution(productLengths, elongati
 	k_loss = net protein loss rate
 	i = ith protein
 
-	Requires
-	--------
-	- productLengths: L, protein lengths (number of amino acids)
-	- elongationRate: e_r, polypeptide elongation rate (amino acids / s)
-	- netLossRate: k_loss, protein loss rate (protiens / s)
-	- productCounts: P, protein counts
+	Inputs
+	------
+	- productLengths (array of ints with units of amino_acids) - L, protein lengths
+	- elongationRate (int with units of amino_acid/time) e_r, polypeptide elongation rate
+	- netLossRate (array of floats with units of 1/time) - k_loss, protein loss rate
+	- productCounts (array of floats) - P, protein counts
 
 	Returns
 	--------
-	- Number of ribosomes required to maintain steady state.
-
+	- float with dimensionless units for the number of ribosomes required to
+	maintain steady state
 	"""
+
 	nPolymerizingEnzymeNeeded = units.sum(
 		productLengths / elongationRate
-			* netLossRate
-			* productCounts
+		* netLossRate
+		* productCounts
 		)
 	return nPolymerizingEnzymeNeeded
-
 
 def calculateMinPolymerizingEnzymeByProductDistributionRNA(productLengths, elongationRate, netLossRate):
 	"""
@@ -1753,40 +1793,39 @@ def calculateMinPolymerizingEnzymeByProductDistributionRNA(productLengths, elong
 	k_loss = net transcript loss rate (unit: concentration / time)
 	i = ith transcript
 
-	Requires
-	--------
-	- productLengths: L, transcript lengths (number of nucleotides)
-	- elongationRate: e_r, transcript elongation rate (nts / s)
-	- netLossRate: k_loss, transcript loss rate (transcript / s)
+	Inputs
+	------
+	- productLengths (array of ints with units of nucleotides) - L, transcript lengths
+	- elongationRate (int with units of nucleotide/time) - e_r, transcript elongation rate
+	- netLossRate (array of floats with units of 1/time) - k_loss, transcript loss rate
 
 	Returns
-	--------
-	- Number of RNA polymerases required to maintain steady state.
-
+	-------
+	- float with dimensionless units for the number of RNA polymerases required to
+	maintain steady state
 	"""
+
 	nPolymerizingEnzymeNeeded = units.sum(
 		productLengths / elongationRate
-			* netLossRate
+		* netLossRate
 		)
 	return nPolymerizingEnzymeNeeded
-
 
 def netLossRateFromDilutionAndDegradationProtein(doublingTime, degradationRates):
 	"""
 	Compute total loss rate (summed contributions of degradation and dilution).
 
-	Requires
-	--------
-	- doublingTime: doubling time of the cell
-	- degradationRates: protein degradation rate
+	Inputs
+	------
+	- doublingTime (float with units of time) - doubling time of the cell
+	- degradationRates (array of floats with units of 1/time) - protein degradation rate
 
 	Returns
 	--------
-	- Total loss rate.
-
+	- array of floats with units of 1/time for the total loss rate for each protein
 	"""
-	return np.log(2) / doublingTime + degradationRates
 
+	return np.log(2) / doublingTime + degradationRates
 
 def netLossRateFromDilutionAndDegradationRNA(doublingTime, totalEndoRnaseCountsCapacity, Km, rnaConc, countsToMolar):
 	"""
@@ -1802,24 +1841,25 @@ def netLossRateFromDilutionAndDegradationRNA(doublingTime, totalEndoRnaseCountsC
 	V_i = k_cat * [ES_i]
 	v_i = k_cat * [E]0 * ([S_i]/Km_i) / (1 + sum over j genes([S_j] / Km_j))
 
-	Requires
-	--------
-	- doublingTime: doubling time of the cell
-	- totalEndoRnaseCountsCapacity: total kinetic capacity of all RNases in the
-	  cell (unit: 1/s)
-	- Km: Michaelis-Menten constant (units: mol/L)
-	- rnaConc: concentration of RNA (units: mol/L)
-	- countsToMolar: conversion between counts and molar (unit: mol/L)
+	Inputs
+	------
+	- doublingTime (float with units of time) - doubling time of the cell
+	- totalEndoRnaseCountsCapacity (float with units of 1/time) total kinetic
+	capacity of all RNases in the cell
+	- Km (array of floats with units of mol/volume) - Michaelis-Menten constant
+	for each RNA
+	- rnaConc (array of floats with units of mol/volume) - concentration for each RNA
+	- countsToMolar (float with units of mol/volume) - conversion between counts and molar
 
 	Returns
 	--------
-	- Total loss rate in units of (counts/time).
-
+	- array of floats with units of 1/time for the total loss rate for each RNA
 	"""
+
 	fracSaturated = rnaConc / Km / (1 + units.sum(rnaConc / Km))
 	rnaCounts = (1 / countsToMolar) * rnaConc
-	return (np.log(2) / doublingTime) * rnaCounts + (totalEndoRnaseCountsCapacity * fracSaturated)
 
+	return (np.log(2) / doublingTime) * rnaCounts + (totalEndoRnaseCountsCapacity * fracSaturated)
 
 def netLossRateFromDilutionAndDegradationRNALinear(doublingTime, degradationRates, rnaCounts):
 	"""
@@ -1831,15 +1871,16 @@ def netLossRateFromDilutionAndDegradationRNALinear(doublingTime, degradationRate
 
 	Requires
 	--------
-	- doublingTime: doubling time of the cell
-	- degradationRates: rna degradation rate
-	- rnaCounts: counts of RNA
+	- doublingTime (float with units of time) - doubling time of the cell
+	- degradationRates (array of floats with units of 1/time) - degradation rate
+	for each RNA
+	- rnaCounts (array of floats) - counts for each RNA
 
 	Returns
 	--------
-	- Total loss rate in units of (counts/time).
-
+	- array of floats with units of 1/time for the total loss rate for each RNA
 	"""
+
 	return (np.log(2) / doublingTime + degradationRates) * rnaCounts
 
 
@@ -1974,7 +2015,7 @@ def fitTfPromoterKd(sim_data, cellSpecs):
 			raise Exception, "Can't get positive RNA Polymerase recruitment rate for %s" % tf
 
 def fitPromoterBoundProbability(sim_data, cellSpecs):
-	'''
+	"""
 	Calculates the probabilities (P) that each transcription factor will bind
 	to its target RNA. This function initially calculates these probabilities
 	from the bulk average counts of the TFs and ligands calculated from
@@ -1994,12 +2035,16 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 	- Bulk average counts of transcription factors and associated ligands
 	for each condition (in cellSpecs)
 
+	Inputs
+	------
+	- cellSpecs {condition (str): dict} - information about each condition
+
 	Modifies
 	--------
-	Probabilities of TFs binding to their promoters
-	RNA synthesis probabilities
-	Set concentrations of metabolites that act as ligands in 1CS
-	kd's of equilibrium reactions in 1CS
+	- Probabilities of TFs binding to their promoters
+	- RNA synthesis probabilities
+	- Set concentrations of metabolites that act as ligands in 1CS
+	- kd's of equilibrium reactions in 1CS
 
 	Returns
 	--------
@@ -2011,7 +2056,8 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 	--------
 	See supplementary materials on transcription regulation for details on
 	the parameters being fit.
-	'''
+	"""
+
 	def makeG(sim_data, pPromoterBound):
 		"""
 		Construct matrix G that contains probabilities of pPromoterBound as
@@ -2026,8 +2072,8 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		column named "[RNA]__alpha", and all elements in this column that
 		corresponds to the rows for the RNA are set to 1.
 
-		Requires
-		--------
+		Inputs
+		------
 		- pPromoterBound: Probabilities that a given TF is bound to its
 		promoter in a given condition, calculated from bulk average
 		concentrations of the TF and its associated ligands.
@@ -2042,6 +2088,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		kInfo[i]["condition"] and kInfo[i]["idx"] hold what condition and RNA
 		index the probability k[i] refers to, respectively.
 		"""
+
 		gI, gJ, gV, k, rowNames, colNames, kInfo = [], [], [], [], [], [], []
 
 		for idx, rnaId in enumerate(sim_data.process.transcription.rnaData["id"]):
@@ -2115,8 +2162,8 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		combination specified by the row or if the column is an RNA-alpha
 		column, and zero otherwise.
 
-		Requires
-		--------
+		Inputs
+		------
 		- colNames: List of column names from matrix G.
 
 		Returns
@@ -2124,6 +2171,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		- Z: Matrix of zeros and ones, specifying which TFs in the columns
 		correspond to combinations in the rows.
 		"""
+
 		# TODO: refactor this as a function, not a fixed dictionary
 		combinationIdxToColIdxs = {
 			0: [0], 1: [0, 1], 2: [0, 2], 3: [0, 1, 2],
@@ -2181,8 +2229,8 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		Construct matrix T that specifies the direction of regulation for each
 		RNA-TF pair.
 
-		Requires
-		--------
+		Inputs
+		------
 		- colNames: List of column names from matrix G.
 
 		Returns
@@ -2191,6 +2239,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		regulation by the TF-RNA pair specified by the row is positive, -1 if
 		this is negative, and 0 if the row is an RNA_alpha row.
 		"""
+
 		tI, tJ, tV, rowNamesT = [], [], [], []
 
 		for rnaId in sim_data.process.transcription.rnaData["id"]:
@@ -2248,8 +2297,8 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		this column are set to the value of parameter alpha for the RNA
 		optimized in r.
 
-		Requires
-		--------
+		Inputs
+		------
 		- colNames: List of column names from matrix G.
 		- pPromoterBound: Probabilities that a given TF is bound to its
 		promoter in a given condition, calculated from bulk average
@@ -2271,6 +2320,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		- pPromoterBoundIdxs: Dictionary of indexes to pInit.
 		- colNamesH: List of column names of H as strings
 		"""
+
 		rDict = dict([(colName, value) for colName, value in zip(colNames, r)])
 
 		pPromoterBoundIdxs = dict([(condition, {}) for condition in pPromoterBound])
@@ -2369,8 +2419,8 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		Construct matrix Pdiff that specifies the indexes of corresponding
 		TFs and conditions.
 
-		Requires
-		--------
+		Inputs
+		------
 		- colNamesH: List of column names from matrix H.
 
 		Returns
@@ -2381,6 +2431,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		when the TF of the column matches with the TF of the row, and the
 		condition is TF__inactive.
 		"""
+
 		PdiffI, PdiffJ, PdiffV = [], [], []
 
 		for rowIdx, tf in enumerate(sorted(sim_data.tfToActiveInactiveConds)):
@@ -2407,11 +2458,11 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		return Pdiff
 
 	def fromArray(p, pPromoterBound, pPromoterBoundIdxs):
-		'''
+		"""
 		Updates values in pPromoterBound with fitted probabilities.
 
-		Requires
-		--------
+		Inputs
+		------
 		- p: Vector of probabilities optimized in the current step.
 		- pPromoterBoundIdxs: Dictionary of indexes to p
 
@@ -2419,17 +2470,18 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		--------
 		Values in pPromoterBound - probabilities that each transcription factor
 		is bound to its promoter for each growth condition
-		'''
+		"""
+
 		for condition in sorted(pPromoterBoundIdxs):
 			for tf in sorted(pPromoterBoundIdxs[condition]):
 				pPromoterBound[condition][tf] = p[pPromoterBoundIdxs[condition][tf]]
 
 	def updateSynthProb(sim_data, kInfo, k):
-		'''
+		"""
 		Updates RNA synthesis probabilities with fitted values of P and R.
 
-		Requires
-		--------
+		Inputs
+		------
 		- kInfo: List of dictionaries that hold information on values of k -
 		kInfo[i]["condition"] and kInfo[i]["idx"] hold what condition and RNA
 		index the probability k[i] refers to, respectively.
@@ -2438,7 +2490,8 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		Modifies
 		--------
 		- RNA synthesis probabilities
-		'''
+		"""
+
 		# Update sim_data values with fitted values
 		for D, value in zip(kInfo, k):
 			sim_data.process.transcription.rnaSynthProb[D["condition"]][D["idx"]] = value
@@ -2640,6 +2693,7 @@ def calculatePromoterBoundProbability(sim_data, cellSpecs):
 	its promoter, per growth condition and TF. Each probability is indexed by
 	pPromoterBound[condition][TF].
 	"""
+
 	pPromoterBound = {}  # Initialize return value
 	cellDensity = sim_data.constants.cellDensity
 
@@ -2700,7 +2754,7 @@ def calculatePromoterBoundProbability(sim_data, cellSpecs):
 
 def calculateRnapRecruitment(sim_data, r):
 	# TODO: Not really a good function name - calculation is not done here
-	'''
+	"""
 	Constructs a matrix (H) from values of r which can be multiplied with the
 	TF-RNA binding probability to compute RNAP recruitment probabilities for
 	each RNA.
@@ -2716,7 +2770,7 @@ def calculateRnapRecruitment(sim_data, r):
 	- Rescales alpha values in r such that all values are positive
 	- Adds binding probability of each TF-RNA pair as bulk molecules to sim_data
 	- Adds matrix H to sim_data
-	'''
+	"""
 
 	hI, hJ, hV, rowNames, colNames, stateMasses = [], [], [], [], [], []
 
