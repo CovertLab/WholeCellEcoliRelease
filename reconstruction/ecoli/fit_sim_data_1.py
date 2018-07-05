@@ -1169,12 +1169,40 @@ def setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_t
 
 
 def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km = None):
+	"""
+	Set counts of RNA polymerase based on two constraints:
+	(1) Number of RNAP subunits required to maintain steady state of mRNAs
+	(2) Expected RNAP subunit counts based on (mRNA) distribution recorded in
+		bulkContainer
+
+	Requires
+	--------
+	- the return value from getFractionIncreaseRnapProteins(doubling_time),
+		described in growthRateDependentParameters.py
+
+	Modifies
+	--------
+	- bulkContainer: The counts of RNA polymerase subunits are set according to
+		Constraint 1.
+
+	Notes
+	-----
+	- Constraint 2 is not being used -- see final line of this function.
+
+	TODO
+	----
+	- replace 0.3 with sim_data.mass.cellDryMassFraction (in cellVolume
+		computation)
+
+	"""
 	# -- CONSTRAINT 1: Expected RNA distribution doubling -- #
 	rnaLengths = units.sum(sim_data.process.transcription.rnaData['countsACGU'], axis = 1)
 
 	rnaLossRate = None
 
 	if Km is None:
+		# RNA loss rate is in units of counts/time, and computed by summing the
+		# contributions of degradation and dilution.
 		rnaLossRate = netLossRateFromDilutionAndDegradationRNALinear(
 			doubling_time,
 			sim_data.process.transcription.rnaData["degRate"],
@@ -1186,11 +1214,14 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time,
 		cellVolume = avgCellDryMassInit / cellDensity / 0.3
 		countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
 
+		# Gompute input arguments for netLossRateFromDilutionAndDegradationRNA()
 		rnaConc = countsToMolar * bulkContainer.counts(sim_data.process.transcription.rnaData['id'])
 		endoRNaseConc = countsToMolar * bulkContainer.counts(sim_data.process.rna_decay.endoRnaseIds)
 		kcatEndoRNase = sim_data.process.rna_decay.kcats
 		totalEndoRnaseCapacity = units.sum(endoRNaseConc * kcatEndoRNase)
 
+		# RNA loss rate is in units of counts/time, and computed by accounting
+		# for the competitive inhibition of RNase by other RNA targets.
 		rnaLossRate = netLossRateFromDilutionAndDegradationRNA(
 			doubling_time,
 			(1 / countsToMolar) * totalEndoRnaseCapacity,
@@ -1199,12 +1230,16 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time,
 			countsToMolar,
 			)
 
+	# Compute number of RNA polymerases required to maintain steady state of mRNA
 	nActiveRnapNeeded = calculateMinPolymerizingEnzymeByProductDistributionRNA(
 		rnaLengths, sim_data.growthRateParameters.getRnapElongationRate(doubling_time), rnaLossRate)
 
 	nActiveRnapNeeded = units.convertNoUnitToNumber(nActiveRnapNeeded)
 	nRnapsNeeded = nActiveRnapNeeded / sim_data.growthRateParameters.getFractionActiveRnap(doubling_time)
 
+	# Convert nRnapsNeeded to the number of RNA polymerase subunits required
+	# Note: The return value from getFractionIncreaseRnapProteins() is
+	# determined in growthRateDependentParameters.py
 	rnapIds = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.rnapFull[0])['subunitIds']
 	rnapStoich = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.rnapFull[0])['subunitStoich']
 
@@ -1215,7 +1250,7 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time,
 	# -- CONSTRAINT 2: Expected RNAP subunit counts based on distribution -- #
 	rnapCounts = bulkContainer.counts(rnapIds)
 
-	## -- SET RNAP COUNTS TO MAXIMIM CONSTRAINTS -- #
+	## -- SET RNAP COUNTS TO MAXIMUM CONSTRAINTS -- #
 	constraint_names = np.array(["Current level OK", "Insufficient to double RNA distribution"])
 	rnapLims = np.array([(rnapCounts / rnapStoich).min(), (minRnapSubunitCounts / rnapStoich).min()])
 	if VERBOSE > 1:
@@ -1701,7 +1736,7 @@ def calculateMinPolymerizingEnzymeByProductDistribution(productLengths, elongati
 
 def calculateMinPolymerizingEnzymeByProductDistributionRNA(productLengths, elongationRate, netLossRate):
 	"""
-	Compute the number of RNA polymerases required to maintain steady state.
+	Compute the number of RNA polymerases required to maintain steady state of mRNA.
 
 	dR/dt = production rate - loss rate
 	dR/dt = e_r * (1/L) * RNAp - k_loss
@@ -1738,7 +1773,7 @@ def calculateMinPolymerizingEnzymeByProductDistributionRNA(productLengths, elong
 
 def netLossRateFromDilutionAndDegradationProtein(doublingTime, degradationRates):
 	"""
-	Compute total loss rate (summed impact of degradation and dilution).
+	Compute total loss rate (summed contributions of degradation and dilution).
 
 	Requires
 	--------
@@ -1757,8 +1792,9 @@ def netLossRateFromDilutionAndDegradationRNA(doublingTime, totalEndoRnaseCountsC
 	"""
 	Compute total loss rate (summed impact of degradation and dilution).
 	Returns the loss rate in units of (counts/time) in preparation for use in
-	the steady state analysis in
-	calculateMinPolymerizingEnzymeByProductDistributionRNA.
+	the steady state analysis in fitExpression() and
+	setRNAPCountsConstrainedByPhysiology()
+	(see calculateMinPolymerizingEnzymeByProductDistributionRNA()).
 
 	Derived from steady state analysis of Michaelis-Menten enzyme kinetics with
 	competitive inhibition: for a given RNA, all other RNAs compete for RNase.
@@ -1787,10 +1823,11 @@ def netLossRateFromDilutionAndDegradationRNA(doublingTime, totalEndoRnaseCountsC
 
 def netLossRateFromDilutionAndDegradationRNALinear(doublingTime, degradationRates, rnaCounts):
 	"""
-	Compute total loss rate (summed impact of degradation and dilution).
+	Compute total loss rate (summed contributions of degradation and dilution).
 	Returns the loss rate in units of (counts/time) in preparation for use in
-	the steady state analysis in
-	calculateMinPolymerizingEnzymeByProductDistributionRNA.
+	the steady state analysis in fitExpression() and
+	setRNAPCountsConstrainedByPhysiology()
+	(see calculateMinPolymerizingEnzymeByProductDistributionRNA()).
 
 	Requires
 	--------
