@@ -197,7 +197,7 @@ def fitSimData_1(raw_data, cpus=1, debug=False):
 			)
 
 		if VERBOSE > 0:
-			print str(spec["avgCellDryMassInit"]) + " to "  + str(avgCellDryMassInit)
+			print str(spec["avgCellDryMassInit"]) + " to " + str(avgCellDryMassInit)
 
 		spec["avgCellDryMassInit"] = avgCellDryMassInit
 		spec["fitAvgSolublePoolMass"] = fitAvgSolublePoolMass
@@ -516,7 +516,7 @@ def expressionConverge(sim_data, expression, concDict, doubling_time, Km=None):
 	fitExpression() to converge
 
 	Inputs
-	--------
+	------
 	- expression (array of floats) - expression for each RNA, normalized to 1
 	- concDict {metabolite (str): concentration (float with units of mol/volume)} -
 	dictionary for concentrations of each metabolite with location tag
@@ -580,8 +580,8 @@ def fitCondition(sim_data, spec, condition):
 	protein monomer average, protein monomer deviation, and amino acid supply to
 	translation. This relies on calculateBulkDistributions and calculateTranslationSupply.
 
-	Requires
-	--------
+	Inputs
+	------
 	- condition (str) - condition to fit (eg 'CPLX0-7705__active')
 	- spec {property (str): property values} - cell specifications for the given condition.
 	This function uses the specs "expression", "concDict", "avgCellDryMassInit",
@@ -831,6 +831,7 @@ def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict, doubling_t
 	- newAvgCellDryMassInit, the adjusted dry mass of a cell immediately following division.
 	- fitAvgSolubleTargetMolMass, the adjusted dry mass of the soluble fraction of a cell
 	"""
+
 	avgCellFractionMass = sim_data.mass.getFractionMass(doubling_time)
 
 	non_small_molecule_initial_cell_mass = (
@@ -1005,8 +1006,8 @@ def totalCountIdDistributionProtein(sim_data, expression, doubling_time):
 	netLossRateFromDilutionAndDegradationProtein, proteinDistributionFrommRNA,
 	totalCountFromMassesAndRatios.
 
-	Requires
-	--------
+	Inputs
+	------
 	- expression (array of floats) - relative frequency distribution of RNA expression
 	- doubling_time (float with units of time) - measured doubling time given the condition
 
@@ -1050,8 +1051,8 @@ def totalCountIdDistributionRNA(sim_data, expression, doubling_time):
 	Calculates the total counts of RNA from their relative expression, individual
 	mass, and total RNA mass. Relies on the math function totalCountFromMassesAndRatios.
 
-	Requires
-	--------
+	Inputs
+	------
 	- expression (array of floats) - relative frequency distribution of RNA expression
 	- doubling_time (float with units of time) - measured doubling time given the condition
 
@@ -1083,8 +1084,8 @@ def createBulkContainer(sim_data, expression, doubling_time):
 	totalCountIdDistributionRNA and totalCountIdDistributionProtein to set the
 	counts and IDs of all RNAs and proteins.
 
-	Requires
-	--------
+	Inputs
+	------
 	- expression (array of floats) - relative frequency distribution of RNA expression
 	- doubling_time (float with units of time) - measured doubling time given the condition
 
@@ -1316,7 +1317,7 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time,
 
 	bulkContainer.countsIs(minRnapSubunitCounts, rnapIds)
 
-def fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km = None):
+def fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km=None):
 	"""
 	Determines expression and synthesis probabilities for RNA molecules to fit
 	protein levels and RNA degradation rates. Assumes a steady state analysis
