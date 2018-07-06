@@ -2697,25 +2697,26 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		# Update kd with fitted values of P and the bulk average concentrations
 		# of the metabolite, and use this fitted kd to recalculate the set
 		# amounts of the metabolite in metabolism
+		p_active = pPromoterBound[activeKey][tf]
+		p_inactive = pPromoterBound[inactiveKey][tf]
+
 		if negativeSignal:
-			P = pPromoterBound[activeKey][tf]
-			if 1 - P < 1e-9:
+			if 1 - p_active < 1e-9:
 				kdNew = kd  # Concentration of metabolite-bound TF is negligible
 			else:
-				kdNew = (activeSignalConc**metaboliteCoeff) * P/(1 - P)
+				kdNew = (activeSignalConc**metaboliteCoeff) * p_active/(1 - p_active)
 
 			# Reset metabolite concentration with fitted P and kd
-			sim_data.process.metabolism.concentrationUpdates.moleculeSetAmounts[metabolite] = (kdNew*(1 - P)/P)**(1./metaboliteCoeff)*(units.mol/units.L)
+			sim_data.process.metabolism.concentrationUpdates.moleculeSetAmounts[metabolite] = (kdNew*(1 - p_inactive)/p_inactive)**(1./metaboliteCoeff)*(units.mol/units.L)
 
 		else:
-			P = pPromoterBound[inactiveKey][tf]
-			if P < 1e-9:
+			if p_inactive < 1e-9:
 				kdNew = kd  # Concentration of metabolite-bound TF is negligible
 			else:
-				kdNew = (inactiveSignalConc**metaboliteCoeff) * (1 - P)/P
+				kdNew = (inactiveSignalConc**metaboliteCoeff) * (1 - p_inactive)/p_inactive
 
 			# Reset metabolite concentration with fitted P and kd
-			sim_data.process.metabolism.concentrationUpdates.moleculeSetAmounts[metabolite] = (kdNew*P/(1 - P))**(1./metaboliteCoeff)*(units.mol/units.L)
+			sim_data.process.metabolism.concentrationUpdates.moleculeSetAmounts[metabolite] = (kdNew*p_active/(1 - p_active))**(1./metaboliteCoeff)*(units.mol/units.L)
 
 		# Fit reverse rate in line with fitted kd
 		sim_data.process.equilibrium.setRevRate(boundId + "[c]", kdNew*fwdRate)
