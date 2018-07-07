@@ -16,7 +16,7 @@ from wholecell.utils import filepath
 
 
 class AnalysisCohort(AnalysisBase):
-	"""Runs all cohort analysis plots for a given sim."""
+	"""Runs some or all the ACTIVE cohort analysis plots for a given sim."""
 
 	def define_parameters(self, parser):
 		super(AnalysisCohort, self).define_parameters(parser)
@@ -42,7 +42,10 @@ class AnalysisCohort(AnalysisBase):
 			input_sim_data=sim_data_modified,
 			input_validation_data=args.input_validation_data,
 			output_plots_directory=output_dir,
-			metadata=args.metadata)
+			metadata=args.metadata,
+			plots_to_run=args.plot,
+			output_filename_prefix=args.output_prefix,
+		)
 		task.run_task({})
 
 

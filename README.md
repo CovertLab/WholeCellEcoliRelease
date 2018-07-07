@@ -13,13 +13,16 @@ pyenv local wcEcoli2
 
 Complete the one-time setup for fireworks as described in [wholecell/fireworks/README.md](wholecell/fireworks/README.md)
 
-To import the necessary shared libraries, you will need to execute the following *each time* after you log in to Sherlock (alternatively, you can add it as a line to your `$HOME/.bash_profile`):
+To access or install the necessary shared libraries...
+  * on Sherlock, execute the following *each time* you log in to Sherlock (*tip:* add it to your `$HOME/.bash_profile`):
 
-```bash
-module load wcEcoli/sherlock2
-```
+	```bash
+	module load wcEcoli/sherlock2
+	```
 
-You will also need to add the following to your `$HOME/.bash_profile` (using the appropriate path):
+  * on another computer, see [How to set up the runtime environment for the model](https://github.com/CovertLab/wcEcoli/wiki/How-to-set-up-the-runtime-environment-for-the-model) in the wiki.
+
+Set up the $PYTHONPATH like this (*tip:* add this to your `$HOME/.bash_profile`):
 
 ```bash
 export PYTHONPATH="/path/to/wcEcoli:$PYTHONPATH"
@@ -31,7 +34,7 @@ In your cloned `wcEcoli` directory, to compile cython plugins and any C function
 make compile
 ```
 
-You need to make sure the output from the model goes to the SCRATCH filesystem (which is larger) rather than SHERLOCK HOME. You'll need to make a symbolic link between the output directory of your wcEcoli directory and a directory in SCRATCH. Within your wcEcoli diretory, there needs to be a folder named out/. The model puts its output in this folder, so we can basically tell the computer to send anything placed in this folder to SCRATCH instead. You can call the folder on SCRATCH whatever you want, but here is one option:
+You need to make sure the output from the model goes to the SCRATCH filesystem (which is larger) rather than SHERLOCK HOME. You'll need to make a symbolic link between the output directory of your `wcEcoli/` directory and a directory in SCRATCH. Within your wcEcoli diretory, there needs to be a folder named `out/`. The model puts its output in this folder, so we can basically tell the computer to send anything placed in this folder to SCRATCH instead. You can call the folder on SCRATCH whatever you want, but here is one option:
 
 ```bash
 mkdir $SCRATCH/wcEcoli_out
@@ -49,19 +52,35 @@ Similarly, we would like to create a symbolic link to a shared sim data cache di
 ln -s $PI_SCRATCH/wc_ecoli/cached cached
 ```
 
-Single simulation
-------------------
+Running a simulation
+-------------------- 
 
-To queue a simulation in fireworks:
+There are two ways to run a simulation:
+
+   1. Queue up a Fireworks workflow, then run it.
+   2. Use the manual runscripts.
+
+The command line program `fw_queue.py` queues up a Fireworks workflow including parameter fitting, the simulation itself, and lots of analysis plots.
+
+The source file `fw_queue.py` begins with documentation on its many options. Below are a few usage examples.
+
+But first, note that you can reset the Fireworks queue (if needed) via:
+
+```bash
+lpad reset
+```
+
+### Single simulation
+
+To queue up a single simulation in Fireworks:
 
 ```bash
 DESC="Example run of a single simulation." python runscripts/fw_queue.py
 ```
 
-Note that the text provided to the `DESC` variable should be changed to something more descriptive.
+The `DESC` text should be more descriptive so you can readily distinguish your runs.
 
-Multiple simulations
---------------------
+### Multiple simulations
 
 To queue multiple simulations (in this case 4 simulations) in fireworks:
 
@@ -69,8 +88,7 @@ To queue multiple simulations (in this case 4 simulations) in fireworks:
 DESC="Example run of multiple simulations." N_INIT_SIMS=4 python runscripts/fw_queue.py
 ```
 
-Multiple generations
---------------------
+### Multiple generations
 
 To queue multiple generations (in this case 4 generations) from a single mother cell:
 
@@ -84,8 +102,7 @@ To queue multiple generations (in this case 3 generations) from multiple mother 
 DESC="Example run of multiple generations from multiple mother cells." N_GENS=3 N_INIT_SIMS=2 python runscripts/fw_queue.py
 ```
 
-Shifting nutrient conditions
-----------------------------
+### Shifting nutrient conditions
 
 To queue a simulation that switches between environments, use the "nutrientTimeSeries" variant, and give the range of indices (in this case from 1 to 1) specifying conditions defined in wcEcoli/reconstruction/ecoli/flat/condition/timeseries:
 
@@ -93,8 +110,7 @@ To queue a simulation that switches between environments, use the "nutrientTimeS
 DESC="Example run of nutrient shifts." VARIANT="nutrientTimeSeries" FIRST_VARIANT_INDEX=1 LAST_VARIANT_INDEX=1 python runscripts/fw_queue.py
 ```
 
-Using the cached sim data object
---------------------------------
+### Using the cached sim data object
 
 To use the cached sim data object, use the CACHED_SIM_DATA environment variable:
 
@@ -102,8 +118,7 @@ To use the cached sim data object, use the CACHED_SIM_DATA environment variable:
 DESC="Example run with cached sim data." CACHED_SIM_DATA=1 python runscripts/fw_queue.py
 ```
 
-Using an interactive node to run simulations
---------------------------------------------
+### Using an interactive node to run a Fireworks workflow
 
 To run simulations on an interactive session (after having queued them), run:
 
@@ -113,10 +128,9 @@ rlaunch rapidfire
 
 You probably only want to do this if you're running/debugging a single simulation.
 
-Don't do this on a login node.
+Don't do this on a Sherlock login node.
 
-Using the scheduler (SLURM) to run simulations
------------------------------------------------
+### Using the scheduler (SLURM) to run a Fireworks workflow
 
 To run simulations using the cluster (you'll probably want to do this if you're running more than one simulation and/or more than one generation), run:
 
@@ -128,11 +142,62 @@ This command will run forever until you `Ctrl-C` to kill it once you see that al
 
 `qlaunch` is relatively lightweight, so you can probably get away with running it on a login node.
 
+Using the manual runscripts
+---------------------------
+
+These scripts will run portions of the fitter + simulation + analysis work directly without Fireworks. They're handy for development, e.g. running under the PyCharm debugger. They all have command line interfaces.
+
+Use the `-h` or `--help` switch to get documentation on the parameters and the short and long parameter names.
+
+
+To run all the parameter-fitter steps:
+```bash
+python runscripts/manual/runFitter.py [-h] [--verbose] [--cpus CPUS] [--cached] [--debug] [sim_outdir]
+```
+
+To do a simple simulation run:
+
+```bash
+python runscripts/manual/runSim.py [-h] [--verbose] [--variant VARIANT_TYPE FIRST_INDEX LAST_INDEX] [sim_dir]
+```
+
+> [Note: runSim.py does not yet run all the steps needed to write all the files needed to run analysis plots.]
+
+To run all the analysis plots on the given `sim_dir`, which defaults to the most recent simulation run:
+
+```bash
+python runscripts/manual/analysisCohort.py [-h] [--verbose] [--plot PLOT [PLOT ...]] [--output_prefix OUTPUT_PREFIX] [--variant_index VARIANT_INDEX] [sim_dir]
+
+python runscripts/manual/analysisMultigen.py [-h] [--verbose] [--plot PLOT [PLOT ...]] [--output_prefix OUTPUT_PREFIX] [--variant_index VARIANT_INDEX] [--seed SEED] [sim_dir]
+
+python runscripts/manual/analysisSingle.py [-h] [--verbose] [--plot PLOT [PLOT ...]] [--output_prefix OUTPUT_PREFIX] [--variant_index VARIANT_INDEX] [--seed SEED] [--generation GENERATION] [--daughter DAUGHTER] [sim_dir]
+
+python runscripts/manual/analysisVariant.py [-h] [--verbose] [--plot PLOT [PLOT ...]] [--output_prefix OUTPUT_PREFIX] [sim_dir]
+```
+
+If you default the parameters, it will pick the latest simulation directory, the first variant, the first generation, and so on.
+
+Set the environment variable `WC_ANALYZE_FAST` to run the analysis scripts in parallel processes.
+
+Set the environment variable `DEBUG_GC=1` to check for Python memory leaks in the analysis scripts.
+
+The `--plot` (or `-p`) optional parameter lets you pick one or more specific plots to run. For example, to run two analysis scripts on simulation variant #3 and put a filename prefix "v3_" on their output files (to distinguish them from other analysis runs):
+
+```bash
+python runscripts/manual/analysisCohort.py --plot compositionFitting.py figure2e.py --variant_index 3 --output_prefix v3_
+```
+
+You can also run a particular analysis script directly:
+
+```bash
+python models/ecoli/analysis/cohort/transcriptFrequency.py [-h] [--verbose] [-o OUTPUT_PREFIX] [-v VARIANT_INDEX] [sim_dir]
+```
+
 
 Output
 ------
 
-The output is stored as a time-stamped sub-directory of the `out` directory, for example `out/20140825.095758.954820584`.
+The output is stored as a time-stamped sub-directory of the `out` directory, for example `out/20180703.215222.029168__multi-sim/`, where `DESC="multi-sim"` was one of the arguments to `fw_queue.py`.
 
 Within this directory, there is a `metadata` sub-directory which stores the git revision information as well as the description provided by the `DESC` variable, a `kb` sub-directory which stores kb objects (after the simulations and analysis are done the objects are compressed using bzip2), and sub-directories (maybe only a single sub-directory) containing different variants (e.g., gene knockouts or other perturbations).
 

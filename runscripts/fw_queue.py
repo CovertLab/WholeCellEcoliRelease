@@ -61,6 +61,11 @@ Additional variables:
 	LAUNCHPAD_FILE (str, "my_launchpad.yaml"): set launchpad config file location
 	VERBOSE_QUEUE (int, "1"): if nonzero, gives more detailed messages during
 		fireworks set up
+
+Environment variables that matter when running the workflow:
+	DEBUG_GC (int, "0"): if nonzero, enable leak detection in the analysis plots
+	WC_ANALYZE_FAST (anything, --): if set, run each analysis plot in a separate
+		process
 '''
 
 from fireworks import Firework, LaunchPad, Workflow, ScriptTask

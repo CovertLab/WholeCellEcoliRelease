@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Produces histograms of frequency that production of a metabolite is limited (at least 50 time steps set by WINDOW)
 
@@ -7,94 +6,95 @@ Produces histograms of frequency that production of a metabolite is limited (at 
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
-from __future__ import division
+from __future__ import absolute_import, division
 
-import argparse
 import os
+import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
-import wholecell.utils.constants
-import cPickle
+from wholecell.analysis.analysis_tools import exportFigure
+from models.ecoli.analysis import multigenAnalysisPlot
 
 WINDOW = 50
 
-def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-	if not os.path.isdir(seedOutDir):
-		raise Exception, "seedOutDir does not currently exist as a directory"
 
-	if not os.path.exists(plotOutDir):
-		os.mkdir(plotOutDir)
+class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
+	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+		if not os.path.isdir(seedOutDir):
+			raise Exception, "seedOutDir does not currently exist as a directory"
 
-	# Get all cells
-	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-	allDir = ap.get_cells()
+		if not os.path.exists(plotOutDir):
+			os.mkdir(plotOutDir)
 
-	sim_data = cPickle.load(open(simDataFile, "rb"))
-	metaboliteNames = np.array(sorted(sim_data.process.metabolism.concDict.keys()))
-	nMetabolites = len(metaboliteNames)
+		# Get all cells
+		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
+		allDir = ap.get_cells()
 
-	fig, axesList = plt.subplots(3)
-	fig.set_size_inches(11, 11)
+		sim_data = cPickle.load(open(simDataFile, "rb"))
+		metaboliteNames = np.array(sorted(sim_data.process.metabolism.concDict.keys()))
+		nMetabolites = len(metaboliteNames)
 
-	histo = np.zeros(4)
-	limitedCounts = np.zeros(len(metaboliteNames))
+		fig, axesList = plt.subplots(3)
+		fig.set_size_inches(11, 11)
 
-	ax2 = axesList[2]
-	for simDir in allDir:
-		simOutDir = os.path.join(simDir, "simOut")
+		histo = np.zeros(4)
+		limitedCounts = np.zeros(len(metaboliteNames))
 
-		enzymeKineticsData = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
-		metaboliteCounts = enzymeKineticsData.readColumn("metaboliteCountsFinal")
-		normalizedCounts = metaboliteCounts / metaboliteCounts[1, :]
-		enzymeKineticsData.close()
+		ax2 = axesList[2]
+		for simDir in allDir:
+			simOutDir = os.path.join(simDir, "simOut")
 
-		# Read time info from the listener
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+			enzymeKineticsData = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
+			metaboliteCounts = enzymeKineticsData.readColumn("metaboliteCountsFinal")
+			normalizedCounts = metaboliteCounts / metaboliteCounts[1, :]
+			enzymeKineticsData.close()
 
-		metaboliteLimited = np.zeros((len(time), nMetabolites))
+			# Read time info from the listener
+			initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
-		diff = np.diff(normalizedCounts, axis = 0)
-		limited = []
-		for i in xrange(diff.shape[0] - WINDOW):
-			currentStepLimited = np.where(np.any(diff[i:i + WINDOW] > 0, axis = 0) == False)[0].astype(int)
-			metaboliteLimited[i, currentStepLimited] = 1
-			limited = np.append(limited, currentStepLimited).astype(int)
+			metaboliteLimited = np.zeros((len(time), nMetabolites))
 
-		nLimited = len(np.unique(limited))
-		if nLimited >= len(histo):
-			histo = np.append(histo, np.zeros(nLimited - len(histo) + 1))
-		histo[nLimited] += 1
-		limitedCounts[limited] += 1
+			diff = np.diff(normalizedCounts, axis = 0)
+			limited = []
+			for i in xrange(diff.shape[0] - WINDOW):
+				currentStepLimited = np.where(np.any(diff[i:i + WINDOW] > 0, axis = 0) == False)[0].astype(int)
+				metaboliteLimited[i, currentStepLimited] = 1
+				limited = np.append(limited, currentStepLimited).astype(int)
 
-		ax2.plot(time / 60, metaboliteLimited * range(metaboliteLimited.shape[1]))
-		ax2.axvline(initialTime / 60, color = "r", linestyle = "--")
+			nLimited = len(np.unique(limited))
+			if nLimited >= len(histo):
+				histo = np.append(histo, np.zeros(nLimited - len(histo) + 1))
+			histo[nLimited] += 1
+			limitedCounts[limited] += 1
 
-	ax2.set_xlim([0, max(time) / 60])
-	ax2.set_xlabel("Time (min)")
-	ax2.set_ylabel("Limited")
+			ax2.plot(time / 60, metaboliteLimited * range(metaboliteLimited.shape[1]))
+			ax2.axvline(initialTime / 60, color = "r", linestyle = "--")
 
-	ax0 = axesList[0]
-	labels = np.arange(len(histo))
-	ax0.bar(labels - 0.5, histo, 1)
-	ax0.set_xticks(labels)
-	ax0.set_xlabel("Number of limited metabolites")
-	ax0.set_ylabel("Number of generations")
+		ax2.set_xlim([0, max(time) / 60])
+		ax2.set_xlabel("Time (min)")
+		ax2.set_ylabel("Limited")
 
-	ax1 = axesList[1]
-	ax1.bar(np.arange(len(np.where(limitedCounts > 0)[0])) - 0.4, limitedCounts[limitedCounts > 0])
-	ax1.set_xticks(np.arange(len(np.where(limitedCounts > 0)[0])))
-	ax1.set_xticklabels(metaboliteNames[limitedCounts > 0], fontsize = 6)
-	ax1.set_xlabel("Metabolite Limited")
-	ax1.set_ylabel("Number of genreations")
+		ax0 = axesList[0]
+		labels = np.arange(len(histo))
+		ax0.bar(labels - 0.5, histo, 1)
+		ax0.set_xticks(labels)
+		ax0.set_xlabel("Number of limited metabolites")
+		ax0.set_ylabel("Number of generations")
 
-	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName,metadata)
-	plt.close("all")
+		ax1 = axesList[1]
+		ax1.bar(np.arange(len(np.where(limitedCounts > 0)[0])) - 0.4, limitedCounts[limitedCounts > 0])
+		ax1.set_xticks(np.arange(len(np.where(limitedCounts > 0)[0])))
+		ax1.set_xticklabels(metaboliteNames[limitedCounts > 0], fontsize = 6)
+		ax1.set_xlabel("Metabolite Limited")
+		ax1.set_ylabel("Number of genreations")
+
+		exportFigure(plt, plotOutDir, plotOutFileName,metadata)
+		plt.close("all")
 
 def getMassData(simDir, massNames):
 	simOutDir = os.path.join(simDir, "simOut")
@@ -126,17 +126,4 @@ def removeNanReshape(a):
 	return a[np.logical_not(np.isnan(a))]
 
 if __name__ == "__main__":
-	defaultSimDataFile = os.path.join(
-			wholecell.utils.constants.SERIALIZED_KB_DIR,
-			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
-			)
-
-	parser = argparse.ArgumentParser()
-	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
-	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
-	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
-
-	args = parser.parse_args().__dict__
-
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
+	Plot().cli()

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Plot normalized mass fractions of proteome for each protein monomer
 
@@ -7,144 +6,128 @@ Plot normalized mass fractions of proteome for each protein monomer
 @date: Created 7/12/16
 """
 
-from __future__ import division
+from __future__ import absolute_import, division
 
-import argparse
 import os
-
-import numpy as np
-from scipy.stats import pearsonr
-from matplotlib import pyplot as plt
 import cPickle
-
-from wholecell.io.tablereader import TableReader
-import wholecell.utils.constants
-from wholecell.utils.fitting import normalize
-from wholecell.utils import units
-from wholecell.containers.bulk_objects_container import BulkObjectsContainer
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
-
-import scipy.cluster
 import sys
 
-def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
+import numpy as np
+from matplotlib import pyplot as plt
+import scipy.cluster
 
-	if not os.path.isdir(seedOutDir):
-		raise Exception, "seedOutDir does not currently exist as a directory"
+from wholecell.io.tablereader import TableReader
+from wholecell.utils import units
+from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
+from wholecell.analysis.analysis_tools import exportFigure
+from models.ecoli.analysis import multigenAnalysisPlot
 
-	if not os.path.exists(plotOutDir):
-		os.mkdir(plotOutDir)
 
-	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
+class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
+	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+		if not os.path.isdir(seedOutDir):
+			raise Exception, "seedOutDir does not currently exist as a directory"
 
-	allDirs = ap.get_cells()
+		if not os.path.exists(plotOutDir):
+			os.mkdir(plotOutDir)
 
-	# Load data from KB
-	sim_data = cPickle.load(open(simDataFile, "rb"))
-	nAvogadro = sim_data.constants.nAvogadro
+		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
-	ids_complexation = sim_data.process.complexation.moleculeNames
-	ids_complexation_complexes = sim_data.process.complexation.ids_complexes
-	ids_equilibrium = sim_data.process.equilibrium.moleculeNames
-	ids_equilibrium_complexes = sim_data.process.equilibrium.ids_complexes
-	ids_translation = sim_data.process.translation.monomerData["id"].tolist()
+		allDirs = ap.get_cells()
 
-	# Stoich matrices
-	complexStoich = sim_data.process.complexation.stoichMatrixMonomers()
-	equilibriumStoich = sim_data.process.equilibrium.stoichMatrixMonomers()
+		# Load data from KB
+		sim_data = cPickle.load(open(simDataFile, "rb"))
+		nAvogadro = sim_data.constants.nAvogadro
 
-	proteomeMWs = sim_data.getter.getMass(ids_translation)
+		ids_complexation = sim_data.process.complexation.moleculeNames
+		ids_complexation_complexes = sim_data.process.complexation.ids_complexes
+		ids_equilibrium = sim_data.process.equilibrium.moleculeNames
+		ids_equilibrium_complexes = sim_data.process.equilibrium.ids_complexes
+		ids_translation = sim_data.process.translation.monomerData["id"].tolist()
 
-	time = []
-	proteomeMassFractions = []
-	initialTime = 0
+		# Stoich matrices
+		complexStoich = sim_data.process.complexation.stoichMatrixMonomers()
+		equilibriumStoich = sim_data.process.equilibrium.stoichMatrixMonomers()
 
-	plt.figure(figsize = (8.5, 11))
+		proteomeMWs = sim_data.getter.getMass(ids_translation)
 
-	for simDir in allDirs:
-		simOutDir = os.path.join(simDir, "simOut")
+		time = []
+		proteomeMassFractions = []
+		initialTime = 0
 
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
-		counts = bulkMolecules.readColumn("counts")
-		bulkMolecules.close()
+		plt.figure(figsize = (8.5, 11))
 
-		moleculeDict = {mol: i for i, mol in enumerate(moleculeIds)}
-		monomerIndexes = np.array([moleculeDict[moleculeId] for moleculeId in ids_translation], np.int)
-		equilibriumIndexes = np.array([moleculeDict[moleculeId] for moleculeId in ids_equilibrium], np.int)
-		equilibriumComplexesIndexes = np.array([moleculeDict[moleculeId] for moleculeId in ids_equilibrium_complexes], np.int)
-		complexationIndexes = np.array([moleculeDict[moleculeId] for moleculeId in ids_complexation], np.int)
-		complexationComplexesIndexes = np.array([moleculeDict[moleculeId] for moleculeId in ids_complexation_complexes], np.int)
+		for simDir in allDirs:
+			simOutDir = os.path.join(simDir, "simOut")
 
-		# Load time
-		time = np.append(time, TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime)
+			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+			moleculeIds = bulkMolecules.readAttribute("objectNames")
+			counts = bulkMolecules.readColumn("counts")
+			bulkMolecules.close()
 
-		# Load mass data
-		massReader = TableReader(os.path.join(simOutDir, "Mass"))
-		proteinMass = units.fg * massReader.readColumn("proteinMass")
-		massReader.close()
+			moleculeDict = {mol: i for i, mol in enumerate(moleculeIds)}
+			monomerIndexes = np.array([moleculeDict[moleculeId] for moleculeId in ids_translation], np.int)
+			equilibriumIndexes = np.array([moleculeDict[moleculeId] for moleculeId in ids_equilibrium], np.int)
+			equilibriumComplexesIndexes = np.array([moleculeDict[moleculeId] for moleculeId in ids_equilibrium_complexes], np.int)
+			complexationIndexes = np.array([moleculeDict[moleculeId] for moleculeId in ids_complexation], np.int)
+			complexationComplexesIndexes = np.array([moleculeDict[moleculeId] for moleculeId in ids_complexation_complexes], np.int)
 
-		counts[:, equilibriumIndexes] += np.dot(counts[:, equilibriumComplexesIndexes] * -1, np.matrix.transpose(equilibriumStoich)).astype(np.int)
-		counts[:, complexationIndexes] += np.dot(counts[:, complexationComplexesIndexes] * -1, np.matrix.transpose(complexStoich)).astype(np.int)
+			# Load time
+			time = np.append(time, TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime)
 
-		# Get mass of proteins in cell
-		proteomeMasses = 1. / nAvogadro * counts[:, monomerIndexes] * proteomeMWs
-		if len(proteomeMassFractions):
-			proteomeMassFractions = np.concatenate((proteomeMassFractions, proteomeMasses.asNumber(units.fg).T / proteinMass.asNumber(units.fg)), axis = 1)
-		else:
-			proteomeMassFractions = proteomeMasses.asNumber(units.fg).T / proteinMass.asNumber(units.fg)
+			# Load mass data
+			massReader = TableReader(os.path.join(simOutDir, "Mass"))
+			proteinMass = units.fg * massReader.readColumn("proteinMass")
+			massReader.close()
 
-	# Prevent divide by 0
-	proteomeMassFractions += 1e-9
+			counts[:, equilibriumIndexes] += np.dot(counts[:, equilibriumComplexesIndexes] * -1, np.matrix.transpose(equilibriumStoich)).astype(np.int)
+			counts[:, complexationIndexes] += np.dot(counts[:, complexationComplexesIndexes] * -1, np.matrix.transpose(complexStoich)).astype(np.int)
 
-	# Normalize based on mass at early time point and cluster similar traces
-	normalizedMassFractions = proteomeMassFractions.T / proteomeMassFractions.T[10, :]
-	sys.setrecursionlimit(10000)
-	linkage = scipy.cluster.hierarchy.linkage(normalizedMassFractions.T)
-	dendro = scipy.cluster.hierarchy.dendrogram(linkage, no_plot = True)
+			# Get mass of proteins in cell
+			proteomeMasses = 1. / nAvogadro * counts[:, monomerIndexes] * proteomeMWs
+			if len(proteomeMassFractions):
+				proteomeMassFractions = np.concatenate((proteomeMassFractions, proteomeMasses.asNumber(units.fg).T / proteinMass.asNumber(units.fg)), axis = 1)
+			else:
+				proteomeMassFractions = proteomeMasses.asNumber(units.fg).T / proteinMass.asNumber(units.fg)
 
-	nPlots = 16
-	nProteins = normalizedMassFractions.shape[1]
+		# Prevent divide by 0
+		proteomeMassFractions += 1e-9
 
-	for i in range(nPlots):
-		ax = plt.subplot(nPlots, 1, i + 1)
-		indStart = i * nProteins // nPlots
-		indEnd = (i + 1) * nProteins // nPlots
-		indexes = dendro["leaves"][indStart:indEnd]
+		# Normalize based on mass at early time point and cluster similar traces
+		normalizedMassFractions = proteomeMassFractions.T / proteomeMassFractions.T[10, :]
+		sys.setrecursionlimit(10000)
+		linkage = scipy.cluster.hierarchy.linkage(normalizedMassFractions.T)
+		dendro = scipy.cluster.hierarchy.dendrogram(linkage, no_plot = True)
 
-		proteomeSubset = normalizedMassFractions[:, indexes]
+		nPlots = 16
+		nProteins = normalizedMassFractions.shape[1]
 
-		ax.plot(time, proteomeSubset)
-		plt.ylabel("Mass Fraction of Proteome", fontsize = 6)
+		for i in range(nPlots):
+			ax = plt.subplot(nPlots, 1, i + 1)
+			indStart = i * nProteins // nPlots
+			indEnd = (i + 1) * nProteins // nPlots
+			indexes = dendro["leaves"][indStart:indEnd]
 
-		ymin = np.amin(proteomeSubset * 0.9)
-		ymax = np.amax(proteomeSubset * 1.1)
-		if ymin != ymax:
-			ax.set_ylim([ymin, ymax])
-			ax.set_yticks([ymin, ymax])
-			ax.set_yticklabels(["%0.2e" % ymin, "%0.2e" % ymax])
-		ax.spines['top'].set_visible(False)
-		ax.spines['bottom'].set_visible(False)
-		ax.xaxis.set_ticks_position('none')
-		ax.tick_params(which = 'both', direction = 'out', labelsize = 6)
-		ax.set_xticks([])
+			proteomeSubset = normalizedMassFractions[:, indexes]
 
-	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
-	plt.close("all")
+			ax.plot(time, proteomeSubset)
+			plt.ylabel("Mass Fraction of Proteome", fontsize = 6)
+
+			ymin = np.amin(proteomeSubset * 0.9)
+			ymax = np.amax(proteomeSubset * 1.1)
+			if ymin != ymax:
+				ax.set_ylim([ymin, ymax])
+				ax.set_yticks([ymin, ymax])
+				ax.set_yticklabels(["%0.2e" % ymin, "%0.2e" % ymax])
+			ax.spines['top'].set_visible(False)
+			ax.spines['bottom'].set_visible(False)
+			ax.xaxis.set_ticks_position('none')
+			ax.tick_params(which = 'both', direction = 'out', labelsize = 6)
+			ax.set_xticks([])
+
+		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+		plt.close("all")
+
 
 if __name__ == "__main__":
-	defaultSimDataFile = os.path.join(
-			wholecell.utils.constants.SERIALIZED_KB_DIR,
-			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
-			)
-
-	parser = argparse.ArgumentParser()
-	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
-	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
-	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
-
-	args = parser.parse_args().__dict__
-
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
+	Plot().cli()

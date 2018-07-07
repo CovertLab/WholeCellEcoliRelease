@@ -1,20 +1,17 @@
-#!/usr/bin/env python
+from __future__ import absolute_import
 
-import argparse
+
 import os
-import re
 import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
-import matplotlib.patches as patches
-
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
-import wholecell.utils.constants
-from wholecell.utils import units
 
+from wholecell.analysis.analysis_tools import exportFigure
+from models.ecoli.analysis import variantAnalysisPlot
 from wholecell.utils.sparkline import whitePadSparklineAxis
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from scipy.stats import pearsonr
@@ -26,9 +23,9 @@ PLACE_HOLDER = -1
 FONT_SIZE=9
 trim = 0.05
 
+
 def getPCC((variant, ap, monomerIds, schmidtCounts)):
 	try:
-
 		simDir = ap.get_cells(variant = [variant])[0]
 
 		sim_data = cPickle.load(open(ap.get_variant_kb(variant), "rb"))
@@ -83,86 +80,67 @@ def getPCC((variant, ap, monomerIds, schmidtCounts)):
 
 		return pcc, pval
 
-
-	except:
+	except Exception as e:
+		print e
 		return np.nan, np.nan
 
 
+class Plot(variantAnalysisPlot.VariantAnalysisPlot):
+	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+		if metadata is not None and SHUFFLE_VARIANT_TAG not in metadata["variant"]:
+			print "This plot only runs for variants where parameters are shuffled."
+			return
 
-def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = None):
+		if not os.path.isdir(inputDir):
+			raise Exception, "variantDir does not currently exist as a directory"
 
-	if metadata is not None and SHUFFLE_VARIANT_TAG not in metadata["variant"]:
-		print "This plot only runs for variants where parameters are shuffled."
-		return
+		if not os.path.exists(plotOutDir):
+			os.mkdir(plotOutDir)
 
-	if not os.path.isdir(inputDir):
-		raise Exception, "variantDir does not currently exist as a directory"
+		validation_data = cPickle.load(open(validationDataFile, "rb"))
+		schmidtCounts = validation_data.protein.schmidt2015Data["glucoseCounts"]
 
-	if not os.path.exists(plotOutDir):
-		os.mkdir(plotOutDir)
-
-	validation_data = cPickle.load(open(validationDataFile, "rb"))
-	schmidtCounts = validation_data.protein.schmidt2015Data["glucoseCounts"]
-
-	ap = AnalysisPaths(inputDir, variant_plot = True)
+		ap = AnalysisPaths(inputDir, variant_plot = True)
 
 
-	pool = Pool(processes = 16)
-	args = zip(range(ap.n_variant), [ap] * ap.n_variant, [validation_data.protein.schmidt2015Data["monomerId"].tolist()] * ap.n_variant, [schmidtCounts] * ap.n_variant)
-	# import time
-	# start = time.time()
-	result = pool.map(getPCC, args)
-	# end = time.time()
-	# print end - start
-	# cPickle.dump(result, open("pcc_results.cPickle", "w"), cPickle.HIGHEST_PROTOCOL)
-	pool.close()
-	pool.join()
-	# result = cPickle.load(open("pcc_results.cPickle", "r"))
-	controlPcc, controlPvalue = result[0]
-	pccs, pvals = zip(*result[1:])
-	pccs = np.array(pccs)
-	pvals = np.array(pvals)
+		pool = Pool(processes = 16)
+		args = zip(range(ap.n_variant), [ap] * ap.n_variant, [validation_data.protein.schmidt2015Data["monomerId"].tolist()] * ap.n_variant, [schmidtCounts] * ap.n_variant)
+		result = pool.map(getPCC, args)
+		# cPickle.dump(result, open("pcc_results.cPickle", "w"), cPickle.HIGHEST_PROTOCOL)
+		pool.close()
+		pool.join()
+		# result = cPickle.load(open("pcc_results.cPickle", "r"))
+		controlPcc, controlPvalue = result[0]
+		pccs, pvals = zip(*result[1:])
+		pccs = np.array(pccs)
+		pvals = np.array(pvals)
 
-	fig = plt.figure()
-	fig.set_figwidth(5)
-	fig.set_figheight(5)
-	ax = plt.subplot(1, 1, 1)
+		fig = plt.figure()
+		fig.set_figwidth(5)
+		fig.set_figheight(5)
+		ax = plt.subplot(1, 1, 1)
 
-	pccs = np.array([x for x in pccs if not np.isnan(x)])
-	ax.hist(pccs, np.sqrt(pccs.size))
-	ax.axvline(controlPcc, color = "k", linestyle = "dashed", linewidth = 2)
+		pccs = np.array([x for x in pccs if not np.isnan(x)])
+		ax.hist(pccs, np.sqrt(pccs.size))
+		ax.axvline(controlPcc, color = "k", linestyle = "dashed", linewidth = 2)
 
-	ax.set_xlabel("Proteome correlation (Pearson r)")
-	ax.set_title("Mean: %0.3g     Std: %0.3g     Control: %0.3g" % (pccs.mean(), pccs.std(), controlPcc))
+		ax.set_xlabel("Proteome correlation (Pearson r)")
+		ax.set_title("Mean: %0.3g     Std: %0.3g     Control: %0.3g" % (pccs.mean(), pccs.std(), controlPcc))
 
-	axes_list = [ax]
+		axes_list = [ax]
 
-	for a in axes_list:
-		for tick in a.yaxis.get_major_ticks():
-			tick.label.set_fontsize(FONT_SIZE)
-		for tick in a.xaxis.get_major_ticks():
-			tick.label.set_fontsize(FONT_SIZE)
+		for a in axes_list:
+			for tick in a.yaxis.get_major_ticks():
+				tick.label.set_fontsize(FONT_SIZE)
+			for tick in a.xaxis.get_major_ticks():
+				tick.label.set_fontsize(FONT_SIZE)
 
-	whitePadSparklineAxis(ax)
+		whitePadSparklineAxis(ax)
 
-	plt.subplots_adjust(bottom = 0.2, wspace=0.3)
+		plt.subplots_adjust(bottom = 0.2, wspace=0.3)
 
-	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 
 
 if __name__ == "__main__":
-	defaultSimDataFile = os.path.join(
-			wholecell.utils.constants.SERIALIZED_KB_DIR,
-			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
-			)
-
-	parser = argparse.ArgumentParser()
-	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
-	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
-	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("validationDataFile", help = "Validation file name", type = str)
-
-	args = parser.parse_args().__dict__
-
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["validationDataFile"])
+	Plot().cli()

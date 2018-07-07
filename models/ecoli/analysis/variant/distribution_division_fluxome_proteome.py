@@ -1,27 +1,23 @@
-#!/usr/bin/env python
+from __future__ import absolute_import
 
-import argparse
+
 import os
 import re
 import cPickle
 import time
 
 import numpy as np
-from matplotlib import pyplot as plt
-import matplotlib.patches as patches
-
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
-import wholecell.utils.constants
 from wholecell.utils import units
 
-from wholecell.utils.sparkline import whitePadSparklineAxis
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from scipy.stats import pearsonr
 from multiprocessing import Pool
 
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
+from models.ecoli.analysis import variantAnalysisPlot
 
 SHUFFLE_VARIANT_TAG = "ShuffleParams"
 PLACE_HOLDER = -1
@@ -29,8 +25,8 @@ PLACE_HOLDER = -1
 FONT_SIZE=9
 trim = 0.05
 
-def getPCCProteome((variant, ap, monomerIds, schmidtCounts)):
 
+def getPCCProteome((variant, ap, monomerIds, schmidtCounts)):
 	try:
 		simDir = ap.get_cells(variant = [variant])[0]
 
@@ -85,7 +81,8 @@ def getPCCProteome((variant, ap, monomerIds, schmidtCounts)):
 		pcc, pval = pearsonr(np.log10(view_validation_schmidt.counts() + 1), np.log10(schmidtCounts + 1))
 
 		return pcc, pval
-	except:
+	except Exception as e:
+		print e
 		return np.nan, np.nan
 
 
@@ -142,7 +139,8 @@ def getPCCFluxome((variant, ap, toyaReactions, toyaFluxesDict, toyaStdevDict)):
 		pcc, pval = pearsonr(toyaVsReactionAve[:,0], toyaVsReactionAve[:,1])
 
 		return pcc, pval
-	except:
+	except Exception as e:
+		print e
 		return np.nan, np.nan
 
 def getDivisionTime((variant, ap)):
@@ -151,11 +149,12 @@ def getDivisionTime((variant, ap)):
 
 		simOutDir = os.path.join(simDir, "simOut")
 
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+		time_column = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 
-		return (time.max() - initialTime) / 60.
-	except:
+		return (time_column.max() - initialTime) / 60.
+	except Exception as e:
+		print e
 		return np.nan
 
 def getInitialMass((variant, ap)):
@@ -167,7 +166,8 @@ def getInitialMass((variant, ap)):
 		mass = TableReader(os.path.join(simOutDir, "Mass"))
 		cellDry = mass.readColumn("dryMass")
 		return cellDry[0]
-	except:
+	except Exception as e:
+		print e
 		return np.nan
 
 def getFinalMass((variant, ap)):
@@ -179,112 +179,100 @@ def getFinalMass((variant, ap)):
 		mass = TableReader(os.path.join(simOutDir, "Mass"))
 		cellDry = mass.readColumn("dryMass")
 		return cellDry[-1]
-	except:
+	except Exception as e:
+		print e
 		return np.nan
 
 
-def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = None):
+class Plot(variantAnalysisPlot.VariantAnalysisPlot):
+	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+		if metadata is not None and SHUFFLE_VARIANT_TAG not in metadata["variant"]:
+			print "This plot only runs for variants where parameters are shuffled."
+			return
 
-	if metadata is not None and SHUFFLE_VARIANT_TAG not in metadata["variant"]:
-		print "This plot only runs for variants where parameters are shuffled."
-		return
+		if not os.path.isdir(inputDir):
+			raise Exception, "variantDir does not currently exist as a directory"
 
-	if not os.path.isdir(inputDir):
-		raise Exception, "variantDir does not currently exist as a directory"
+		if not os.path.exists(plotOutDir):
+			os.mkdir(plotOutDir)
 
-	if not os.path.exists(plotOutDir):
-		os.mkdir(plotOutDir)
+		print "Loading validation data"
+		validation_data = cPickle.load(open(validationDataFile, "rb"))
 
-	print "Loading validation data"
-	validation_data = cPickle.load(open(validationDataFile, "rb"))
+		schmidtCounts = validation_data.protein.schmidt2015Data["glucoseCounts"]
 
-	schmidtCounts = validation_data.protein.schmidt2015Data["glucoseCounts"]
+		toyaReactions = validation_data.reactionFlux.toya2010fluxes["reactionID"]
+		toyaFluxes = validation_data.reactionFlux.toya2010fluxes["reactionFlux"]
+		toyaStdev = validation_data.reactionFlux.toya2010fluxes["reactionFluxStdev"]
+		toyaFluxesDict = dict(zip(toyaReactions, toyaFluxes))
+		toyaStdevDict = dict(zip(toyaReactions, toyaStdev))
 
-	toyaReactions = validation_data.reactionFlux.toya2010fluxes["reactionID"]
-	toyaFluxes = validation_data.reactionFlux.toya2010fluxes["reactionFlux"]
-	toyaStdev = validation_data.reactionFlux.toya2010fluxes["reactionFluxStdev"]
-	toyaFluxesDict = dict(zip(toyaReactions, toyaFluxes))
-	toyaStdevDict = dict(zip(toyaReactions, toyaStdev))
-
-	print "Getting simulation paths"
-	ap = AnalysisPaths(inputDir, variant_plot = True)
+		print "Getting simulation paths"
+		ap = AnalysisPaths(inputDir, variant_plot = True)
 
 
-	print "Initializing worker pool"
-	pool = Pool(processes = 16)
+		print "Initializing worker pool"
+		pool = Pool(processes = 16)
 
-	print "Begin processing"
+		print "Begin processing"
 
-	# Get simulation time data
-	start = time.time()
-	args = zip(range(ap.n_variant), [ap] * ap.n_variant)
-	divisionResult = pool.map(getDivisionTime, args)
-	stop = time.time()
-	cPickle.dump(divisionResult, open(os.path.join(plotOutDir, plotOutFileName + "_division.cPickle"), "w"))
-	print "%d seconds:\tTo get simulation time data (to compute division time) -- completed" % (stop - start)
+		# Get simulation time data
+		start = time.time()
+		args = zip(range(ap.n_variant), [ap] * ap.n_variant)
+		divisionResult = pool.map(getDivisionTime, args)
+		stop = time.time()
+		cPickle.dump(divisionResult, open(os.path.join(plotOutDir, plotOutFileName + "_division.cPickle"), "w"))
+		print "%d seconds:\tTo get simulation time data (to compute division time) -- completed" % (stop - start)
 
-	# Get initial mass
-	start = time.time()
-	args = zip(range(ap.n_variant), [ap] * ap.n_variant)
-	initialMassResult = pool.map(getInitialMass, args)
-	stop = time.time()
-	cPickle.dump(initialMassResult, open(os.path.join(plotOutDir, plotOutFileName + "_initialMass.cPickle"), "w"))
-	print "%d seconds:\tTo get initial mass data -- completed" % (stop - start)
+		# Get initial mass
+		start = time.time()
+		args = zip(range(ap.n_variant), [ap] * ap.n_variant)
+		initialMassResult = pool.map(getInitialMass, args)
+		stop = time.time()
+		cPickle.dump(initialMassResult, open(os.path.join(plotOutDir, plotOutFileName + "_initialMass.cPickle"), "w"))
+		print "%d seconds:\tTo get initial mass data -- completed" % (stop - start)
 
-	# Get final mass
-	start = time.time()
-	args = zip(range(ap.n_variant), [ap] * ap.n_variant)
-	finalMassResult = pool.map(getFinalMass, args)
-	stop = time.time()
-	cPickle.dump(finalMassResult, open(os.path.join(plotOutDir, plotOutFileName + "_finalMass.cPickle"), "w"))
-	print "%d seconds:\tTo get final mass data -- completed" % (stop - start)
+		# Get final mass
+		start = time.time()
+		args = zip(range(ap.n_variant), [ap] * ap.n_variant)
+		finalMassResult = pool.map(getFinalMass, args)
+		stop = time.time()
+		cPickle.dump(finalMassResult, open(os.path.join(plotOutDir, plotOutFileName + "_finalMass.cPickle"), "w"))
+		print "%d seconds:\tTo get final mass data -- completed" % (stop - start)
 
-	# Get fluxome correlation
-	start = time.time()
-	args = zip(range(ap.n_variant), [ap] * ap.n_variant, [toyaReactions] * ap.n_variant, [toyaFluxesDict] * ap.n_variant, [toyaStdevDict] * ap.n_variant)
-	fluxomeResult = pool.map(getPCCFluxome, args)
-	stop = time.time()
-	cPickle.dump(fluxomeResult, open(os.path.join(plotOutDir, plotOutFileName + "_fluxome.cPickle"), "w"))
-	print "%d seconds:\tTo get fluxome correlation -- completed" % (stop - start)
+		# Get fluxome correlation
+		start = time.time()
+		args = zip(range(ap.n_variant), [ap] * ap.n_variant, [toyaReactions] * ap.n_variant, [toyaFluxesDict] * ap.n_variant, [toyaStdevDict] * ap.n_variant)
+		fluxomeResult = pool.map(getPCCFluxome, args)
+		stop = time.time()
+		cPickle.dump(fluxomeResult, open(os.path.join(plotOutDir, plotOutFileName + "_fluxome.cPickle"), "w"))
+		print "%d seconds:\tTo get fluxome correlation -- completed" % (stop - start)
 
-	# Get proteome correlation
-	start = time.time()
-	args = zip(range(ap.n_variant), [ap] * ap.n_variant, [validation_data.protein.schmidt2015Data["monomerId"].tolist()] * ap.n_variant, [schmidtCounts] * ap.n_variant)
-	proteomeResult = pool.map(getPCCProteome, args)
-	stop = time.time()
-	cPickle.dump(proteomeResult, open(os.path.join(plotOutDir, plotOutFileName + "_proteome.cPickle"), "w"))
-	print "%d seconds:\tTo get proteome correlation -- completed" % (stop - start)
+		# Get proteome correlation
+		start = time.time()
+		args = zip(range(ap.n_variant), [ap] * ap.n_variant, [validation_data.protein.schmidt2015Data["monomerId"].tolist()] * ap.n_variant, [schmidtCounts] * ap.n_variant)
+		proteomeResult = pool.map(getPCCProteome, args)
+		stop = time.time()
+		cPickle.dump(proteomeResult, open(os.path.join(plotOutDir, plotOutFileName + "_proteome.cPickle"), "w"))
+		print "%d seconds:\tTo get proteome correlation -- completed" % (stop - start)
 
-	pool.close()
-	pool.join()
+		pool.close()
+		pool.join()
 
-	divisionResult = np.array(divisionResult)
-	initialMassResult = np.array(initialMassResult)
-	finalMassResult = np.array(finalMassResult)
-	fluxomeResult = np.array(fluxomeResult)
-	proteomeResult = np.array(proteomeResult)
+		divisionResult = np.array(divisionResult)
+		initialMassResult = np.array(initialMassResult)
+		finalMassResult = np.array(finalMassResult)
+		fluxomeResult = np.array(fluxomeResult)
+		proteomeResult = np.array(proteomeResult)
 
-	dataTable = np.hstack((divisionResult.reshape(-1, 1), proteomeResult, fluxomeResult, initialMassResult.reshape(-1, 1), finalMassResult.reshape(-1, 1)))
-	colNames = ["division time", "proteome pearson r", "proteome pearson r p value", "fluxome pearson r", "fluxome pearson r p value", "initial dry mass (fg)", "final dry mass (fg)"]
-	h = open(os.path.join(plotOutDir, "distribution_division_fluxome_proteome_data_matrix.tsv"), "w")
+		dataTable = np.hstack((divisionResult.reshape(-1, 1), proteomeResult, fluxomeResult, initialMassResult.reshape(-1, 1), finalMassResult.reshape(-1, 1)))
+		colNames = ["division time", "proteome pearson r", "proteome pearson r p value", "fluxome pearson r", "fluxome pearson r p value", "initial dry mass (fg)", "final dry mass (fg)"]
+		h = open(os.path.join(plotOutDir, "distribution_division_fluxome_proteome_data_matrix.tsv"), "w")
 
-	h.write("\t".join(colNames) + "\n")
-	np.savetxt(h, dataTable, delimiter = "\t")
-	h.close()
+		h.write("\t".join(colNames) + "\n")
+		np.savetxt(h, dataTable, delimiter = "\t")
+		h.close()
 
 
 if __name__ == "__main__":
-	defaultSimDataFile = os.path.join(
-			wholecell.utils.constants.SERIALIZED_KB_DIR,
-			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
-			)
-
-	parser = argparse.ArgumentParser()
-	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
-	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
-	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("validationDataFile", help = "Validation file name", type = str)
-
-	args = parser.parse_args().__dict__
-
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["validationDataFile"])
+	Plot().cli()

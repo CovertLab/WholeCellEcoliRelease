@@ -16,7 +16,7 @@ from wholecell.utils import filepath
 
 
 class AnalysisSingle(AnalysisBase):
-	"""Runs all single analysis plots for a given sim w/optional variant."""
+	"""Runs some or all the ACTIVE single analysis plots for a given sim."""
 
 	def define_parameters(self, parser):
 		super(AnalysisSingle, self).define_parameters(parser)
@@ -62,7 +62,10 @@ class AnalysisSingle(AnalysisBase):
 			input_sim_data=sim_data_modified,
 			input_validation_data=args.input_validation_data,
 			output_plots_directory=output_dir,
-			metadata=args.metadata)
+			metadata=args.metadata,
+			plots_to_run=args.plot,
+			output_filename_prefix=args.output_prefix,
+		)
 		task.run_task({})
 
 

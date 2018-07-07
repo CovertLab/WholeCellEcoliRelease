@@ -1,81 +1,67 @@
-#!/usr/bin/env python
-
 from __future__ import absolute_import
 
-import argparse
 import os
 
 import numpy as np
 from matplotlib import pyplot as plt
 
-
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
-import wholecell.utils.constants
+from wholecell.analysis.analysis_tools import exportFigure
+from models.ecoli.analysis import cohortAnalysisPlot
 
-def main(variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile = None, metadata = None):
-	if not os.path.isdir(variantDir):
-		raise Exception, "variantDir does not currently exist as a directory"
 
-	if not os.path.exists(plotOutDir):
-		os.mkdir(plotOutDir)
+class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
+	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+		if not os.path.isdir(variantDir):
+			raise Exception, "variantDir does not currently exist as a directory"
 
-	# Get all cells in each seed
-	ap = AnalysisPaths(variantDir, cohort_plot = True)
+		if not os.path.exists(plotOutDir):
+			os.mkdir(plotOutDir)
 
-	max_cells_in_gen = 0
-	for genIdx in range(ap.n_generation):
-		n_cells = len(ap.get_cells(generation = [genIdx]))
-		if n_cells > max_cells_in_gen:
-			max_cells_in_gen = n_cells
+		# Get all cells in each seed
+		ap = AnalysisPaths(variantDir, cohort_plot = True)
 
-	fig, axesList = plt.subplots(ap.n_generation, sharex = True)
+		max_cells_in_gen = 0
+		for genIdx in range(ap.n_generation):
+			n_cells = len(ap.get_cells(generation = [genIdx]))
+			if n_cells > max_cells_in_gen:
+				max_cells_in_gen = n_cells
 
-	doubling_time = np.zeros((max_cells_in_gen, ap.n_generation))
+		fig, axesList = plt.subplots(ap.n_generation, sharex = True)
 
-	for genIdx in range(ap.n_generation):
-		gen_cells = ap.get_cells(generation = [genIdx])
-		for simDir in gen_cells:
-			simOutDir = os.path.join(simDir, "simOut")
-			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-			initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+		doubling_time = np.zeros((max_cells_in_gen, ap.n_generation))
 
-			doubling_time[np.where(simDir == gen_cells)[0], genIdx] = (time.max() - initialTime) / 60.
+		for genIdx in range(ap.n_generation):
+			gen_cells = ap.get_cells(generation = [genIdx])
+			for simDir in gen_cells:
+				simOutDir = os.path.join(simDir, "simOut")
+				time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+				initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 
-	# Plot initial vs final masses
-	if ap.n_generation == 1:
-		axesList = [axesList]
+				doubling_time[np.where(simDir == gen_cells)[0], genIdx] = (time.max() - initialTime) / 60.
 
-	for idx, axes in enumerate(axesList):
-		if max_cells_in_gen > 1:
-			axes.hist(doubling_time[:,idx].flatten(), int(np.ceil(np.sqrt(doubling_time[:,idx].size))))
-		else:
-			axes.plot(doubling_time[:,idx], 1, 'x')
-			axes.set_ylim([0, 2])
-		axes.axvline(doubling_time[:,idx].mean(), color='k', linestyle='dashed', linewidth=2)
-		axes.text(doubling_time[:,idx].mean(), 1, "Mean: %.3f Var: %.3f"%(doubling_time[:,idx].mean(),doubling_time[:,idx].var()))
+		# Plot initial vs final masses
+		if ap.n_generation == 1:
+			axesList = [axesList]
 
-	axesList[-1].set_xlabel("Doubling time (min))")
-	axesList[ap.n_generation / 2].set_ylabel("Frequency")
+		for idx, axes in enumerate(axesList):
+			if max_cells_in_gen > 1:
+				axes.hist(doubling_time[:,idx].flatten(), int(np.ceil(np.sqrt(doubling_time[:,idx].size))))
+			else:
+				axes.plot(doubling_time[:,idx], 1, 'x')
+				axes.set_ylim([0, 2])
+			axes.axvline(doubling_time[:,idx].mean(), color='k', linestyle='dashed', linewidth=2)
+			axes.text(doubling_time[:,idx].mean(), 1, "Mean: %.3f Var: %.3f"%(doubling_time[:,idx].mean(),doubling_time[:,idx].var()))
 
-	plt.subplots_adjust(hspace = 0.2, wspace = 0.5)
+		axesList[-1].set_xlabel("Doubling time (min))")
+		axesList[ap.n_generation / 2].set_ylabel("Frequency")
 
-	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
-	plt.close("all")
+		plt.subplots_adjust(hspace = 0.2, wspace = 0.5)
+
+		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+		plt.close("all")
+
 
 if __name__ == "__main__":
-	defaultSimDataFile = os.path.join(
-			wholecell.utils.constants.SERIALIZED_KB_DIR,
-			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
-			)
-
-	parser = argparse.ArgumentParser()
-	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
-	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
-	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
-
-	args = parser.parse_args().__dict__
-
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
+	Plot().cli()
