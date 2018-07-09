@@ -1,26 +1,24 @@
-#!/usr/bin/env python
+from __future__ import absolute_import
 
-import argparse
+
 import os
 import re
 import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
-import matplotlib.patches as patches
-
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
-import wholecell.utils.constants
 from wholecell.utils import units
 
 from wholecell.utils.sparkline import whitePadSparklineAxis
-from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from scipy.stats import pearsonr
 from multiprocessing import Pool
 
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
+from wholecell.analysis.analysis_tools import exportFigure
+from models.ecoli.analysis import variantAnalysisPlot
 
 SHUFFLE_VARIANT_TAG = "ShuffleParams"
 PLACE_HOLDER = -1
@@ -28,8 +26,8 @@ PLACE_HOLDER = -1
 FONT_SIZE=9
 trim = 0.05
 
-def getPCC((variant, ap, toyaReactions, toyaFluxesDict, toyaStdevDict)):
 
+def getPCC((variant, ap, toyaReactions, toyaFluxesDict, toyaStdevDict)):
 	try:
 
 		simDir = ap.get_cells(variant = [variant])[0]
@@ -83,92 +81,70 @@ def getPCC((variant, ap, toyaReactions, toyaFluxesDict, toyaStdevDict)):
 
 		return pcc, pval
 
-
-	except:
+	except Exception as e:
+		print e
 		return np.nan, np.nan
 
 
+class Plot(variantAnalysisPlot.VariantAnalysisPlot):
+	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+		if metadata is not None and SHUFFLE_VARIANT_TAG not in metadata["variant"]:
+			print "This plot only runs for variants where parameters are shuffled."
+			return
 
+		if not os.path.isdir(inputDir):
+			raise Exception, "variantDir does not currently exist as a directory"
 
-def main(inputDir, plotOutDir, plotOutFileName, validationDataFile, metadata = None):
+		if not os.path.exists(plotOutDir):
+			os.mkdir(plotOutDir)
 
-	if metadata is not None and SHUFFLE_VARIANT_TAG not in metadata["variant"]:
-		print "This plot only runs for variants where parameters are shuffled."
-		return
+		validation_data = cPickle.load(open(validationDataFile, "rb"))
+		toyaReactions = validation_data.reactionFlux.toya2010fluxes["reactionID"]
+		toyaFluxes = validation_data.reactionFlux.toya2010fluxes["reactionFlux"]
+		toyaStdev = validation_data.reactionFlux.toya2010fluxes["reactionFluxStdev"]
+		toyaFluxesDict = dict(zip(toyaReactions, toyaFluxes))
+		toyaStdevDict = dict(zip(toyaReactions, toyaStdev))
 
-	if not os.path.isdir(inputDir):
-		raise Exception, "variantDir does not currently exist as a directory"
+		ap = AnalysisPaths(inputDir, variant_plot = True)
 
-	if not os.path.exists(plotOutDir):
-		os.mkdir(plotOutDir)
+		pool = Pool(processes = 16)
+		args = zip(range(ap.n_variant), [ap] * ap.n_variant, [toyaReactions] * ap.n_variant, [toyaFluxesDict] * ap.n_variant, [toyaStdevDict] * ap.n_variant)
+		result = pool.map(getPCC, args)
+		cPickle.dump(result, open("pcc_results_fluxome.cPickle", "w"), cPickle.HIGHEST_PROTOCOL)
+		pool.close()
+		pool.join()
+		result = cPickle.load(open("pcc_results_fluxome.cPickle", "r"))
+		controlPcc, controlPvalue = result[0]
+		pccs, pvals = zip(*result[1:])
+		pccs = np.array(pccs)
+		pvals = np.array(pvals)
 
-	validation_data = cPickle.load(open(validationDataFile, "rb"))
-	toyaReactions = validation_data.reactionFlux.toya2010fluxes["reactionID"]
-	toyaFluxes = validation_data.reactionFlux.toya2010fluxes["reactionFlux"]
-	toyaStdev = validation_data.reactionFlux.toya2010fluxes["reactionFluxStdev"]
-	toyaFluxesDict = dict(zip(toyaReactions, toyaFluxes))
-	toyaStdevDict = dict(zip(toyaReactions, toyaStdev))
+		fig = plt.figure()
+		fig.set_figwidth(5)
+		fig.set_figheight(5)
+		ax = plt.subplot(1, 1, 1)
 
-	ap = AnalysisPaths(inputDir, variant_plot = True)
+		pccs = np.array([x for x in pccs if not np.isnan(x)])
+		ax.hist(pccs, np.sqrt(pccs.size))
+		ax.axvline(controlPcc, color = "k", linestyle = "dashed", linewidth = 2)
 
+		ax.set_xlabel("Fluxome correlation (Pearson r)")
+		ax.set_title("Mean: %0.3g     Std: %0.3g     Control: %0.3g" % (pccs.mean(), pccs.std(), controlPcc))
 
+		axes_list = [ax]
 
-	pool = Pool(processes = 16)
-	args = zip(range(ap.n_variant), [ap] * ap.n_variant, [toyaReactions] * ap.n_variant, [toyaFluxesDict] * ap.n_variant, [toyaStdevDict] * ap.n_variant)
-	import time
-	start = time.time()
-	result = pool.map(getPCC, args)
-	end = time.time()
-	print end - start
-	cPickle.dump(result, open("pcc_results_fluxome.cPickle", "w"), cPickle.HIGHEST_PROTOCOL)
-	pool.close()
-	pool.join()
-	result = cPickle.load(open("pcc_results_fluxome.cPickle", "r"))
-	controlPcc, controlPvalue = result[0]
-	pccs, pvals = zip(*result[1:])
-	pccs = np.array(pccs)
-	pvals = np.array(pvals)
+		for a in axes_list:
+			for tick in a.yaxis.get_major_ticks():
+				tick.label.set_fontsize(FONT_SIZE)
+			for tick in a.xaxis.get_major_ticks():
+				tick.label.set_fontsize(FONT_SIZE)
 
-	fig = plt.figure()
-	fig.set_figwidth(5)
-	fig.set_figheight(5)
-	ax = plt.subplot(1, 1, 1)
+		whitePadSparklineAxis(ax)
 
-	pccs = np.array([x for x in pccs if not np.isnan(x)])
-	ax.hist(pccs, np.sqrt(pccs.size))
-	ax.axvline(controlPcc, color = "k", linestyle = "dashed", linewidth = 2)
+		plt.subplots_adjust(bottom = 0.2, wspace=0.3)
 
-	ax.set_xlabel("Fluxome correlation (Pearson r)")
-	ax.set_title("Mean: %0.3g     Std: %0.3g     Control: %0.3g" % (pccs.mean(), pccs.std(), controlPcc))
-
-	axes_list = [ax]
-
-	for a in axes_list:
-		for tick in a.yaxis.get_major_ticks():
-			tick.label.set_fontsize(FONT_SIZE)
-		for tick in a.xaxis.get_major_ticks():
-			tick.label.set_fontsize(FONT_SIZE)
-
-	whitePadSparklineAxis(ax)
-
-	plt.subplots_adjust(bottom = 0.2, wspace=0.3)
-
-	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 
 
 if __name__ == "__main__":
-	defaultSimDataFile = os.path.join(
-			wholecell.utils.constants.SERIALIZED_KB_DIR,
-			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
-			)
-
-	parser = argparse.ArgumentParser()
-	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
-	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
-	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("validationDataFile", help = "Validation file name", type = str)
-
-	args = parser.parse_args().__dict__
-
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["validationDataFile"])
+	Plot().cli()

@@ -1,0 +1,25 @@
+# Active analysis modules to run, in this order.
+# Tip: Edit this during development to run ones you're working on first.
+ACTIVE = [
+	"centralCarbonMetabolismCorrelationTimeCourse.py",
+	# "compositionFitting.py",
+	# "compositionFittingByGeneration.py",
+	"figure2e.py",
+	"figure4_b_e.py",
+	"figure4_d.py",
+	"figure5_a.py",
+	# "figure5_c.py",
+	"figureS2d.py",
+	"histogramDoublingTime.py",
+	"histogramFinalMass.py",
+	"histogramGrowthRate.py",
+	"initialVsFinalMass.py",
+	"massFractionSummary.py",
+	"metabolismFullFluxes.py",
+	"proteinCopyNumberDistribution.py",
+	"replication.py",
+	"rnaCopyNumberDistribution.py",
+	# "transcriptFrequency.py",
+	# "transcriptionGenomeCoverage.py",
+	# "transcriptionGenomeCoverageSecondHalf.py",
+]

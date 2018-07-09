@@ -1,6 +1,7 @@
 """
 Common code for scripts that manually run simulation and analysis operations
-outside of Fireworks workflows.
+from the command line (e.g. outside of Fireworks workflows). This has code for
+finding the simulation dir, variant subdirs, etc.
 
 Run with '-h' for command line help.
 Set PYTHONPATH when running this.
@@ -111,19 +112,21 @@ class ScriptBase(object):
 		return available
 
 	def define_parameters(self, parser):
-		"""Define command line parameters.
+		"""Define command line parameters. This base method defines a --verbose
+		flag. Overrides should call super.
 
 		Examples include positional arguments
 			`parser.add_argument('variant', nargs='?',
-			help='simulation variant')`
+			help='Simulation variant.')`
 		options
 			`parser.add_argument('--seed', default='000000',
-			help='simulation seed')`.
+			help='Simulation seed.')`.
 		and flags
-			`parser.add_argument('-v', '--verbose', action='store_true',
-			help='set verbose logging')`.
+			`parser.add_argument('--verbose', action='store_true',
+			help='Enable verbose logging.')`.
 		"""
-		pass
+		parser.add_argument('--verbose', action='store_true',
+			help='Enable verbose logging.')
 
 	def define_parameter_sim_dir(self, parser):
 		"""Add a `sim_dir` parameter to the command line parser. parse_args()
@@ -166,7 +169,11 @@ class ScriptBase(object):
 			if index == choice[2]:
 				return choice
 
-		raise IOError(errno.ENOENT, 'No simulation variant directory found')
+		raise IOError(errno.ENOENT,
+			'Simulation variant directory not found for variant index {} in'
+			' sim_path {}'.format(
+				'(any)' if index is None else index,
+				sim_path))
 
 	def parse_args(self):
 		"""Parse the command line args: Construct an ArgumentParser, call
@@ -202,7 +209,9 @@ class ScriptBase(object):
 
 	@abc.abstractmethod
 	def run(self, args):
-		"""Run the operation with the given arguments."""
+		"""Run the operation with the given arguments. If args.verbose,
+		overrides can do verbose logging.
+		"""
 		raise NotImplementedError("ScriptBase subclass must implement run()")
 
 	def cli(self):
@@ -216,7 +225,9 @@ class ScriptBase(object):
 		if location:
 			location = ' at ' + location
 
-		print('{}: {}{}'.format(time.ctime(), self.description(), location))
+		print '{}: {}{}'.format(time.ctime(), self.description(), location)
+		if args.verbose:
+			print '    args: {}'.format(args)
 
 		start_sec = time.clock()
 		self.run(args)

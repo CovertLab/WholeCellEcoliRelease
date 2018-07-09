@@ -104,14 +104,16 @@ def fitSimData_1(
 	fitMaintenanceCosts(sim_data, cellSpecs["basal"]["bulkContainer"])
 
 	if cpus > 1:
-		print "Start parallel processing with %i processes" % (cpus)
+		print "Start parallel processing with %i processes" % (cpus,)
 		pool = Pool(processes = cpus)
-		results = [pool.apply_async(buildTfConditionCellSpecifications, (sim_data, tf)) for tf in sorted(sim_data.tfToActiveInactiveConds)]
+		conds = sorted(sim_data.tfToActiveInactiveConds)
+		results = [pool.apply_async(buildTfConditionCellSpecifications, (sim_data, tf)) for tf in conds]
 		pool.close()
 		pool.join()
 		for result in results:
 			assert(result.successful())
 			cellSpecs.update(result.get())
+		pool = None
 		print "End parallel processing"
 	else:
 		for tf in sorted(sim_data.tfToActiveInactiveConds):
@@ -139,7 +141,7 @@ def fitSimData_1(
 	# findKineticCoeffs(sim_data, cellSpecs["basal"]["bulkContainer"])
 
 	if cpus > 1:
-		print "Start parallel processing with %i processes" % (cpus)
+		print "Start parallel processing with %i processes" % (cpus,)
 		pool = Pool(processes = cpus)
 		results = [pool.apply_async(fitCondition, (sim_data, cellSpecs[condition], condition)) for condition in sorted(cellSpecs)]
 		pool.close()
@@ -147,6 +149,7 @@ def fitSimData_1(
 		for result in results:
 			assert(result.successful())
 			cellSpecs.update(result.get())
+		pool = None
 		print "End parallel processing"
 	else:
 		for condition in sorted(cellSpecs):

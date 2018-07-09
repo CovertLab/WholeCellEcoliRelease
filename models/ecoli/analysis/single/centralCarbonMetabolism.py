@@ -1,28 +1,25 @@
-#!/usr/bin/env python
 """
 @author: Morgan Paull
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 4/29/2016
 """
 
+from __future__ import absolute_import
 from __future__ import division
 
-import argparse
 import os
 import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
-from matplotlib import colors
-from matplotlib import gridspec
-from scipy.stats import pearsonr
 
 from wholecell.io.tablereader import TableReader
-import wholecell.utils.constants
 from wholecell.utils import units
 
 from wholecell.analysis.plotting_tools import CMAP_COLORS_255
-from models.ecoli.processes.metabolism import COUNTS_UNITS, MASS_UNITS, VOLUME_UNITS, TIME_UNITS
+from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS
+from wholecell.analysis.analysis_tools import exportFigure
+from models.ecoli.analysis import singleAnalysisPlot
 
 FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
 
@@ -37,90 +34,91 @@ AVERAGE_COLOR = 'red'
 
 _generatedID_reverseReaction = "{} (reverse)"
 
-def main(simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata = None):
-	if not os.path.isdir(simOutDir):
-		raise Exception, "simOutDir does not currently exist as a directory"
 
-	if not os.path.exists(plotOutDir):
-		os.mkdir(plotOutDir)
+class Plot(singleAnalysisPlot.SingleAnalysisPlot):
+	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+		if not os.path.isdir(simOutDir):
+			raise Exception, "simOutDir does not currently exist as a directory"
 
-	validation_data = cPickle.load(open(validationDataFile, "rb"))
-	sim_data = cPickle.load(open(simDataFile, "rb"))
+		if not os.path.exists(plotOutDir):
+			os.mkdir(plotOutDir)
 
-	cellDensity = sim_data.constants.cellDensity
+		validation_data = cPickle.load(open(validationDataFile, "rb"))
+		sim_data = cPickle.load(open(simDataFile, "rb"))
 
-	initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-	timeStepSec = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
+		cellDensity = sim_data.constants.cellDensity
 
-	massListener = TableReader(os.path.join(simOutDir, "Mass"))
-	cellMass = massListener.readColumn("cellMass") * units.fg
-	dryMass = massListener.readColumn("dryMass") * units.fg
-	massListener.close()
+		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		timeStepSec = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
 
-	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
-	reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
-	reactionFluxes = (COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS) * np.array(fbaResults.readColumn("reactionFluxes"))
-	fluxes_dict = dict(zip(reactionIDs, reactionFluxes))
-	fbaResults.close()
+		massListener = TableReader(os.path.join(simOutDir, "Mass"))
+		cellMass = massListener.readColumn("cellMass") * units.fg
+		dryMass = massListener.readColumn("dryMass") * units.fg
+		massListener.close()
 
-	coefficients = dryMass / cellMass * cellDensity * (timeStepSec * units.s)
+		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
+		reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
+		reactionFluxes = (COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS) * np.array(fbaResults.readColumn("reactionFluxes"))
+		fluxes_dict = dict(zip(reactionIDs, reactionFluxes))
+		fbaResults.close()
 
-	dryMassFracAverage = np.mean(dryMass / cellMass)
+		coefficients = dryMass / cellMass * cellDensity * (timeStepSec * units.s)
 
-	toya_reactions = validation_data.reactionFlux.toya2010fluxes["reactionID"]
-	toya_fluxes = FLUX_UNITS * np.array([(dryMassFracAverage * cellDensity * x).asNumber(FLUX_UNITS) for x in validation_data.reactionFlux.toya2010fluxes["reactionFlux"]])
-	toya_fluxes_dict = dict(zip(toya_reactions, toya_fluxes))
+		dryMassFracAverage = np.mean(dryMass / cellMass)
 
-	toyaVsReactionAve = []
-	for toyaReactionID, toyaFlux in toya_fluxes_dict.iteritems():
-		if toyaReactionID in reactionIDs:
-			fluxTimeCourse = net_flux(toyaReactionID, reactionIDs, reactionFluxes, reverseRxnFormat=_generatedID_reverseReaction)
-			fluxAve = np.mean(fluxTimeCourse)
-			toyaVsReactionAve.append((fluxAve.asNumber(FLUX_UNITS), toyaFlux.asNumber(FLUX_UNITS)))
+		toya_reactions = validation_data.reactionFlux.toya2010fluxes["reactionID"]
+		toya_fluxes = FLUX_UNITS * np.array([(dryMassFracAverage * cellDensity * x).asNumber(FLUX_UNITS) for x in validation_data.reactionFlux.toya2010fluxes["reactionFlux"]])
+		toya_fluxes_dict = dict(zip(toya_reactions, toya_fluxes))
 
-	toyaVsReactionAve = FLUX_UNITS * np.array(toyaVsReactionAve)
-	correlationCoefficient = np.corrcoef(toyaVsReactionAve[:,0].asNumber(FLUX_UNITS), toyaVsReactionAve[:,1].asNumber(FLUX_UNITS))[0,1]
+		toyaVsReactionAve = []
+		for toyaReactionID, toyaFlux in toya_fluxes_dict.iteritems():
+			if toyaReactionID in reactionIDs:
+				fluxTimeCourse = net_flux(toyaReactionID, reactionIDs, reactionFluxes, reverseRxnFormat=_generatedID_reverseReaction)
+				fluxAve = np.mean(fluxTimeCourse)
+				toyaVsReactionAve.append((fluxAve.asNumber(FLUX_UNITS), toyaFlux.asNumber(FLUX_UNITS)))
 
-	fig = plt.figure(figsize = (30, 15))
+		toyaVsReactionAve = FLUX_UNITS * np.array(toyaVsReactionAve)
+		correlationCoefficient = np.corrcoef(toyaVsReactionAve[:,0].asNumber(FLUX_UNITS), toyaVsReactionAve[:,1].asNumber(FLUX_UNITS))[0,1]
 
-	plt.suptitle("Central Carbon Metabolism Reaction Flux vs. Toya 2010 Measured Fluxes", fontsize=22)
+		fig = plt.figure(figsize = (30, 15))
 
-	for idx, fluxName in enumerate(toya_reactions):
-		if toyaReactionID in reactionIDs:
-			reactionTimeCourse = net_flux(fluxName, reactionIDs, reactionFluxes, reverseRxnFormat=_generatedID_reverseReaction).asNumber(FLUX_UNITS).squeeze()
-			if reactionTimeCourse[BURN_IN_TIMESTEPS:].any():
-				line_color = WITH_FLUX_COLOR
-			else:
-				line_color = NO_FLUX_COLOR
+		plt.suptitle("Central Carbon Metabolism Reaction Flux vs. Toya 2010 Measured Fluxes", fontsize=22)
 
-			ax = plt.subplot(8,4,idx+1)
-			ax.plot(time / 60., reactionTimeCourse, linewidth=2, label=fluxName[:32], color=line_color)
-			plt.axhline(y=toya_fluxes.asNumber(FLUX_UNITS)[idx], color=AVERAGE_COLOR)
-			plt.legend(loc=0)
-			plt.xlabel("Time (min)")
-			plt.ylabel("Flux ({})".format(FLUX_UNITS.strUnit()))
+		for idx, fluxName in enumerate(toya_reactions):
+			if toyaReactionID in reactionIDs:
+				reactionTimeCourse = net_flux(fluxName, reactionIDs, reactionFluxes, reverseRxnFormat=_generatedID_reverseReaction).asNumber(FLUX_UNITS).squeeze()
+				if reactionTimeCourse[BURN_IN_TIMESTEPS:].any():
+					line_color = WITH_FLUX_COLOR
+				else:
+					line_color = NO_FLUX_COLOR
 
-	ax = plt.subplot(8,4, idx+2)
-	ax.plot(0, 0, linewidth=2, label="Zero flux after initial {} time steps".format(BURN_IN_TIMESTEPS), color=NO_FLUX_COLOR)
-	ax.plot(0, 0, linewidth=2, label="Nonzero flux".format(BURN_IN_TIMESTEPS), color=WITH_FLUX_COLOR)
-	ax.plot(0, 0, linewidth=1, label="Toya 2010 observed flux", color=AVERAGE_COLOR)
-	ax.legend(loc = 10)
-	ax.spines['top'].set_visible(False)
-	ax.spines['bottom'].set_visible(False)
-	ax.spines['left'].set_visible(False)
-	ax.spines['right'].set_visible(False)
-	ax.xaxis.set_ticks_position('none')
-	ax.yaxis.set_ticks_position('none')
-	ax.set_xticks([])
-	ax.set_yticks([])
-	# ax.set_title("Grey line denotes zero flux after initial {} time steps.".format(BURN_IN_TIMESTEPS), fontsize=12, bbox={'facecolor':'red', 'alpha':0.5, 'pad':1})
+				ax = plt.subplot(8,4,idx+1)
+				ax.plot(time / 60., reactionTimeCourse, linewidth=2, label=fluxName[:32], color=line_color)
+				plt.axhline(y=toya_fluxes.asNumber(FLUX_UNITS)[idx], color=AVERAGE_COLOR)
+				plt.legend(loc=0)
+				plt.xlabel("Time (min)")
+				plt.ylabel("Flux ({})".format(FLUX_UNITS.strUnit()))
 
-	plt.subplots_adjust()
+		ax = plt.subplot(8,4, idx+2)
+		ax.plot(0, 0, linewidth=2, label="Zero flux after initial {} time steps".format(BURN_IN_TIMESTEPS), color=NO_FLUX_COLOR)
+		ax.plot(0, 0, linewidth=2, label="Nonzero flux".format(BURN_IN_TIMESTEPS), color=WITH_FLUX_COLOR)
+		ax.plot(0, 0, linewidth=1, label="Toya 2010 observed flux", color=AVERAGE_COLOR)
+		ax.legend(loc = 10)
+		ax.spines['top'].set_visible(False)
+		ax.spines['bottom'].set_visible(False)
+		ax.spines['left'].set_visible(False)
+		ax.spines['right'].set_visible(False)
+		ax.xaxis.set_ticks_position('none')
+		ax.yaxis.set_ticks_position('none')
+		ax.set_xticks([])
+		ax.set_yticks([])
+		# ax.set_title("Grey line denotes zero flux after initial {} time steps.".format(BURN_IN_TIMESTEPS), fontsize=12, bbox={'facecolor':'red', 'alpha':0.5, 'pad':1})
 
-	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
-	plt.close("all")
+		plt.subplots_adjust()
+
+		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+		plt.close("all")
 
 def net_flux(reactionID, reactionIDs, reactionFluxes, reverseRxnFormat="{} (reverse)"):
 	fluxTimeCourse = reactionFluxes[:,np.where(reactionIDs == reactionID)]
@@ -134,18 +132,4 @@ def net_flux(reactionID, reactionIDs, reactionFluxes, reverseRxnFormat="{} (reve
 
 
 if __name__ == "__main__":
-	defaultSimDataFile = os.path.join(
-			wholecell.utils.constants.SERIALIZED_KB_DIR,
-			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
-			)
-
-	parser = argparse.ArgumentParser()
-	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
-	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
-	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
-
-	args = parser.parse_args().__dict__
-
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
-
+	Plot().cli()

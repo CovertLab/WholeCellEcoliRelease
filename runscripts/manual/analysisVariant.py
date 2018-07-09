@@ -15,7 +15,7 @@ from wholecell.utils import filepath
 
 
 class AnalysisVariant(AnalysisBase):
-	"""Runs all variant analysis plots for a given sim."""
+	"""Runs some or all the ACTIVE variant analysis plots for a given sim."""
 
 	def parse_args(self):
 		args = super(AnalysisVariant, self).parse_args()
@@ -38,7 +38,10 @@ class AnalysisVariant(AnalysisBase):
 			input_directory=args.sim_path,
 			input_validation_data=args.input_validation_data,
 			output_plots_directory=output_dir,
-			metadata=args.metadata)
+			metadata=args.metadata,
+			plots_to_run=args.plot,
+			output_filename_prefix=args.output_prefix,
+		)
 		task.run_task({})
 
 

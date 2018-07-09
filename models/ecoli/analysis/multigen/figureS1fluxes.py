@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Plot fluxes for metabolic map figure during a shift
 
@@ -7,7 +6,8 @@ Plot fluxes for metabolic map figure during a shift
 @date: Created 2/13/17
 """
 
-import argparse
+from __future__ import absolute_import
+
 import os
 import cPickle
 
@@ -16,11 +16,12 @@ from matplotlib import pyplot as plt
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
-import wholecell.utils.constants
 from wholecell.utils import units
 from wholecell.utils.sparkline import whitePadSparklineAxis
 
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
+from wholecell.analysis.analysis_tools import exportFigure
+from models.ecoli.analysis import multigenAnalysisPlot
 
 START = 8300
 SHIFT = 11000
@@ -28,364 +29,353 @@ END = 13700
 BURNIN = 20
 MA_WIDTH = 15
 
-def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile = None, metadata = None):
-	if not os.path.isdir(seedOutDir):
-		raise Exception, "seedOutDir does not currently exist as a directory"
 
-	if not os.path.exists(plotOutDir):
-		os.mkdir(plotOutDir)
+class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
+	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+		if not os.path.isdir(seedOutDir):
+			raise Exception, "seedOutDir does not currently exist as a directory"
 
-	# Get all cells
-	ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-	allDir = ap.get_cells()
+		if not os.path.exists(plotOutDir):
+			os.mkdir(plotOutDir)
 
-	sim_data = cPickle.load(open(simDataFile, "rb"))
-	rxnStoich = sim_data.process.metabolism.reactionStoich
+		# Get all cells
+		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
+		allDir = ap.get_cells()
 
-	reactants = [
-		"GLC[p]",
-		"GLC-6-P[c]",
-		"FRUCTOSE-6P[c]",
-		"FRUCTOSE-16-DIPHOSPHATE[c]",
-		"DIHYDROXY-ACETONE-PHOSPHATE[c]",
-		"GAP[c]",
-		"DPG[c]",
-		"G3P[c]",
-		"2-PG[c]",
-		"PHOSPHO-ENOL-PYRUVATE[c]",
-		"PYRUVATE[c]",
-		"ACETYL-COA[c]",
-		"CIT[c]",
-		"CIS-ACONITATE[c]",
-		"THREO-DS-ISO-CITRATE[c]",
-		"2-KETOGLUTARATE[c]",
-		"SUC-COA[c]",
-		"SUC[c]",
-		"FUM[c]",
-		"MAL[c]",
-		"GLC-6-P[c]",
-		"D-6-P-GLUCONO-DELTA-LACTONE[c]",
-		"CPD-2961[c]",
-		"RIBULOSE-5P[c]",
-		"RIBULOSE-5P[c]",
-		"XYLULOSE-5-PHOSPHATE[c]",
-		"D-SEDOHEPTULOSE-7-P[c]",
-		"FRUCTOSE-6P[c]",
-		"WATER[c]",
-		"SER[c]",
-		"ACETYLSERINE[c]",
-		"HOMO-CYS[c]",
-		"GLT[c]",
-		"GLT[c]",
-		"INDOLE[c]",
-		"HISTIDINAL[c]",
-		"PYRUVATE[c]",
-		"L-ALPHA-ALANINE[c]",
-		"GLT[c]",
-		"GLT[c]",
-		"GLT[c]",
-		"L-ASPARTATE[c]",
-		"O-PHOSPHO-L-HOMOSERINE[c]",
-		"MESO-DIAMINOPIMELATE[c]",
-		"L-ARGININO-SUCCINATE[c]",
-		"2-KETOGLUTARATE[c]",
-		"GLT[c]",
-		"L-DELTA1-PYRROLINE_5-CARBOXYLATE[c]",
-		"DGMP[c]",
-		"DGDP[c]",
-		"DGMP[c]",
-		"DAMP[c]",
-		"DADP[c]",
-		"DAMP[c]",
-		"TMP[c]",
-		"TDP[c]",
-		"TMP[c]",
-		"DUMP[c]",
-		"DUDP[c]",
-		"DUMP[c]",
-		"DCMP[c]",
-		"DCDP[c]",
-		"DCMP[c]",
-		"GMP[c]",
-		"GDP[c]",
-		"GMP[c]",
-		"AMP[c]",
-		"ADP[c]",
-		"AMP[c]",
-		"UMP[c]",
-		"UDP[c]",
-		"UMP[c]",
-		"CMP[c]",
-		"CDP[c]",
-		"CMP[c]",
-		"GDP[c]",
-		"GTP[c]",
-		"ADP[c]",
-		"ATP[c]",
-		"TMP[c]",
-		"UDP[c]",
-		"UTP[c]",
-		"UTP[c]",
-		"CDP[c]",
-		"CTP[c]",
-		"GUANOSINE[c]",
-		"CYTIDINE[c]",
-		"OROTIDINE-5-PHOSPHATE[c]",
+		sim_data = cPickle.load(open(simDataFile, "rb"))
+		rxnStoich = sim_data.process.metabolism.reactionStoich
+
+		reactants = [
+			"GLC[p]",
+			"GLC-6-P[c]",
+			"FRUCTOSE-6P[c]",
+			"FRUCTOSE-16-DIPHOSPHATE[c]",
+			"DIHYDROXY-ACETONE-PHOSPHATE[c]",
+			"GAP[c]",
+			"DPG[c]",
+			"G3P[c]",
+			"2-PG[c]",
+			"PHOSPHO-ENOL-PYRUVATE[c]",
+			"PYRUVATE[c]",
+			"ACETYL-COA[c]",
+			"CIT[c]",
+			"CIS-ACONITATE[c]",
+			"THREO-DS-ISO-CITRATE[c]",
+			"2-KETOGLUTARATE[c]",
+			"SUC-COA[c]",
+			"SUC[c]",
+			"FUM[c]",
+			"MAL[c]",
+			"GLC-6-P[c]",
+			"D-6-P-GLUCONO-DELTA-LACTONE[c]",
+			"CPD-2961[c]",
+			"RIBULOSE-5P[c]",
+			"RIBULOSE-5P[c]",
+			"XYLULOSE-5-PHOSPHATE[c]",
+			"D-SEDOHEPTULOSE-7-P[c]",
+			"FRUCTOSE-6P[c]",
+			"WATER[c]",
+			"SER[c]",
+			"ACETYLSERINE[c]",
+			"HOMO-CYS[c]",
+			"GLT[c]",
+			"GLT[c]",
+			"INDOLE[c]",
+			"HISTIDINAL[c]",
+			"PYRUVATE[c]",
+			"L-ALPHA-ALANINE[c]",
+			"GLT[c]",
+			"GLT[c]",
+			"GLT[c]",
+			"L-ASPARTATE[c]",
+			"O-PHOSPHO-L-HOMOSERINE[c]",
+			"MESO-DIAMINOPIMELATE[c]",
+			"L-ARGININO-SUCCINATE[c]",
+			"2-KETOGLUTARATE[c]",
+			"GLT[c]",
+			"L-DELTA1-PYRROLINE_5-CARBOXYLATE[c]",
+			"DGMP[c]",
+			"DGDP[c]",
+			"DGMP[c]",
+			"DAMP[c]",
+			"DADP[c]",
+			"DAMP[c]",
+			"TMP[c]",
+			"TDP[c]",
+			"TMP[c]",
+			"DUMP[c]",
+			"DUDP[c]",
+			"DUMP[c]",
+			"DCMP[c]",
+			"DCDP[c]",
+			"DCMP[c]",
+			"GMP[c]",
+			"GDP[c]",
+			"GMP[c]",
+			"AMP[c]",
+			"ADP[c]",
+			"AMP[c]",
+			"UMP[c]",
+			"UDP[c]",
+			"UMP[c]",
+			"CMP[c]",
+			"CDP[c]",
+			"CMP[c]",
+			"GDP[c]",
+			"GTP[c]",
+			"ADP[c]",
+			"ATP[c]",
+			"TMP[c]",
+			"UDP[c]",
+			"UTP[c]",
+			"UTP[c]",
+			"CDP[c]",
+			"CTP[c]",
+			"GUANOSINE[c]",
+			"CYTIDINE[c]",
+			"OROTIDINE-5-PHOSPHATE[c]",
+			]
+
+		products = [
+			"GLC-6-P[c]",
+			"FRUCTOSE-6P[c]",
+			"FRUCTOSE-16-DIPHOSPHATE[c]",
+			"DIHYDROXY-ACETONE-PHOSPHATE[c]",
+			"GAP[c]",
+			"DPG[c]",
+			"G3P[c]",
+			"2-PG[c]",
+			"PHOSPHO-ENOL-PYRUVATE[c]",
+			"PYRUVATE[c]",
+			"ACETYL-COA[c]",
+			"CIT[c]",
+			"CIS-ACONITATE[c]",
+			"THREO-DS-ISO-CITRATE[c]",
+			"2-KETOGLUTARATE[c]",
+			"SUC-COA[c]",
+			"SUC[c]",
+			"FUM[c]",
+			"MAL[c]",
+			"OXALACETIC_ACID[c]",
+			"D-6-P-GLUCONO-DELTA-LACTONE[c]",
+			"CPD-2961[c]",
+			"RIBULOSE-5P[c]",
+			"XYLULOSE-5-PHOSPHATE[c]",
+			"RIBOSE-5P[c]",
+			"D-SEDOHEPTULOSE-7-P[c]",
+			"ERYTHROSE-4P[c]",
+			"ERYTHROSE-4P[c]",
+			"SER[c]",
+			"GLY[c]",
+			"CYS[c]",
+			"MET[c]",
+			"TYR[c]",
+			"PHE[c]",
+			"TRP[c]",
+			"HIS[c]",
+			"L-ALPHA-ALANINE[c]",
+			"VAL[c]",
+			"LEU[c]",
+			"ILE[c]",
+			"L-ASPARTATE[c]",
+			"ASN[c]",
+			"THR[c]",
+			"LYS[c]",
+			"ARG[c]",
+			"GLT[c]",
+			"GLN[c]",
+			"PRO[c]",
+			"DGDP[c]",
+			"DGTP[c]",
+			"DGTP[c]",
+			"DADP[c]",
+			"DATP[c]",
+			"DATP[c]",
+			"TDP[c]",
+			"TTP[c]",
+			"TTP[c]",
+			"DUDP[c]",
+			"DUTP[c]",
+			"DUTP[c]",
+			"DCDP[c]",
+			"DCTP[c]",
+			"DCTP[c]",
+			"GDP[c]",
+			"GTP[c]",
+			"GTP[c]",
+			"ADP[c]",
+			"ATP[c]",
+			"ATP[c]",
+			"UDP[c]",
+			"UTP[c]",
+			"UTP[c]",
+			"CDP[c]",
+			"CTP[c]",
+			"CTP[c]",
+			"DGDP[c]",
+			"DGTP[c]",
+			"DADP[c]",
+			"DATP[c]",
+			"DUMP[c]",
+			"DUDP[c]",
+			"DUTP[c]",
+			"CTP[c]",
+			"DCDP[c]",
+			"DCTP[c]",
+			"GMP[c]",
+			"CMP[c]",
+			"UMP[c]",
+			]
+
+		transports = [
+			"GLC[p]",
+			"OXYGEN-MOLECULE[p]",
+			]
+
+		fullReactants = [
+			"2-KETOGLUTARATE[c]",
+			"L-DELTA1-PYRROLINE_5-CARBOXYLATE[c]",
+			"DCDP[c]",
 		]
 
-	products = [
-		"GLC-6-P[c]",
-		"FRUCTOSE-6P[c]",
-		"FRUCTOSE-16-DIPHOSPHATE[c]",
-		"DIHYDROXY-ACETONE-PHOSPHATE[c]",
-		"GAP[c]",
-		"DPG[c]",
-		"G3P[c]",
-		"2-PG[c]",
-		"PHOSPHO-ENOL-PYRUVATE[c]",
-		"PYRUVATE[c]",
-		"ACETYL-COA[c]",
-		"CIT[c]",
-		"CIS-ACONITATE[c]",
-		"THREO-DS-ISO-CITRATE[c]",
-		"2-KETOGLUTARATE[c]",
-		"SUC-COA[c]",
-		"SUC[c]",
-		"FUM[c]",
-		"MAL[c]",
-		"OXALACETIC_ACID[c]",
-		"D-6-P-GLUCONO-DELTA-LACTONE[c]",
-		"CPD-2961[c]",
-		"RIBULOSE-5P[c]",
-		"XYLULOSE-5-PHOSPHATE[c]",
-		"RIBOSE-5P[c]",
-		"D-SEDOHEPTULOSE-7-P[c]",
-		"ERYTHROSE-4P[c]",
-		"ERYTHROSE-4P[c]",
-		"SER[c]",
-		"GLY[c]",
-		"CYS[c]",
-		"MET[c]",
-		"TYR[c]",
-		"PHE[c]",
-		"TRP[c]",
-		"HIS[c]",
-		"L-ALPHA-ALANINE[c]",
-		"VAL[c]",
-		"LEU[c]",
-		"ILE[c]",
-		"L-ASPARTATE[c]",
-		"ASN[c]",
-		"THR[c]",
-		"LYS[c]",
-		"ARG[c]",
-		"GLT[c]",
-		"GLN[c]",
-		"PRO[c]",
-		"DGDP[c]",
-		"DGTP[c]",
-		"DGTP[c]",
-		"DADP[c]",
-		"DATP[c]",
-		"DATP[c]",
-		"TDP[c]",
-		"TTP[c]",
-		"TTP[c]",
-		"DUDP[c]",
-		"DUTP[c]",
-		"DUTP[c]",
-		"DCDP[c]",
-		"DCTP[c]",
-		"DCTP[c]",
-		"GDP[c]",
-		"GTP[c]",
-		"GTP[c]",
-		"ADP[c]",
-		"ATP[c]",
-		"ATP[c]",
-		"UDP[c]",
-		"UTP[c]",
-		"UTP[c]",
-		"CDP[c]",
-		"CTP[c]",
-		"CTP[c]",
-		"DGDP[c]",
-		"DGTP[c]",
-		"DADP[c]",
-		"DATP[c]",
-		"DUMP[c]",
-		"DUDP[c]",
-		"DUTP[c]",
-		"CTP[c]",
-		"DCDP[c]",
-		"DCTP[c]",
-		"GMP[c]",
-		"CMP[c]",
-		"UMP[c]",
+		fullProducts = [
+			"SUC-COA[c]",
+			"PRO[c]",
+			"DCTP[c]",
 		]
 
-	transports = [
-		"GLC[p]",
-		"OXYGEN-MOLECULE[p]",
-		]
+		figAll = plt.figure(figsize = (17, 22))
+		figFull = plt.figure()
 
-	fullReactants = [
-		"2-KETOGLUTARATE[c]",
-		"L-DELTA1-PYRROLINE_5-CARBOXYLATE[c]",
-		"DCDP[c]",
-	]
+		subplotRows = 10
+		subplotCols = 9
 
-	fullProducts = [
-		"SUC-COA[c]",
-		"PRO[c]",
-		"DCTP[c]",
-	]
+		firstGen = True
+		for simDir in allDir:
+			simOutDir = os.path.join(simDir, "simOut")
 
-	figAll = plt.figure(figsize = (17, 22))
-	figFull = plt.figure()
+			mainListener = TableReader(os.path.join(simOutDir, "Main"))
+			initialTime = mainListener.readAttribute("initialTime")
+			time = mainListener.readColumn("time")
+			mainListener.close()
 
-	subplotRows = 10
-	subplotCols = 9
+			# ignore initial and final points to avoid moving average edge effects
+			timeIdx = np.logical_and(np.logical_and(np.logical_or(np.logical_and(time >= START, time < SHIFT - MA_WIDTH), np.logical_and(time > SHIFT + BURNIN, time <= END)), time > initialTime + BURNIN), time < time[-MA_WIDTH])
 
-	firstGen = True
-	for simDir in allDir:
-		simOutDir = os.path.join(simDir, "simOut")
+			massListener = TableReader(os.path.join(simOutDir, "Mass"))
+			cellMass = massListener.readColumn("cellMass")
+			dryMass = massListener.readColumn("dryMass")
+			massListener.close()
 
-		mainListener = TableReader(os.path.join(simOutDir, "Main"))
-		initialTime = mainListener.readAttribute("initialTime")
-		time = mainListener.readColumn("time")
-		mainListener.close()
+			coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(MASS_UNITS / VOLUME_UNITS) # units - g/L
 
-		# ignore initial and final points to avoid moving average edge effects
-		timeIdx = np.logical_and(np.logical_and(np.logical_or(np.logical_and(time >= START, time < SHIFT - MA_WIDTH), np.logical_and(time > SHIFT + BURNIN, time <= END)), time > initialTime + BURNIN), time < time[-MA_WIDTH])
+			fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
+			reactionIDs = fbaResults.readAttribute("reactionIDs")
+			flux = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (fbaResults.readColumn("reactionFluxes").T / coefficient).T
+			transportFluxes = fbaResults.readColumn("externalExchangeFluxes")
+			transportMolecules = fbaResults.readAttribute("externalMoleculeIDs")
+			fbaResults.close()
 
-		massListener = TableReader(os.path.join(simOutDir, "Mass"))
-		cellMass = massListener.readColumn("cellMass")
-		dryMass = massListener.readColumn("dryMass")
-		massListener.close()
+			flux = flux.asNumber(units.mmol / units.g / units.h)
 
-		coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(MASS_UNITS / VOLUME_UNITS) # units - g/L
+			plt.figure(figAll.number)
+			for idx, transport in enumerate(transports):
+				ax = plt.subplot(subplotRows, subplotCols, idx + 1)
 
-		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
-		reactionIDs = fbaResults.readAttribute("reactionIDs")
-		flux = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (fbaResults.readColumn("reactionFluxes").T / coefficient).T
-		transportFluxes = fbaResults.readColumn("externalExchangeFluxes")
-		transportMolecules = fbaResults.readAttribute("externalMoleculeIDs")
-		fbaResults.close()
+				if firstGen:
+					ax.axhline(0, color = "#aaaaaa", linewidth = 0.25)
+					ax.axvline(SHIFT, color = "#aaaaaa", linewidth = 0.25)
+					ax.set_title("Transport for %s" % (transport,), fontsize = 4)
+					ax.tick_params(axis = "both", labelsize = 4)
 
-		flux = flux.asNumber(units.mmol / units.g / units.h)
+				if transport in transportMolecules:
+					maFlux = np.array([np.convolve(-transportFluxes[:, transportMolecules.index(transport)], np.ones(MA_WIDTH) / MA_WIDTH, mode = "same")]).T
+					ax.plot(time[timeIdx], maFlux[timeIdx], color = "b", linewidth = 0.5)
+
+			for idx, (reactant, product) in enumerate(zip(reactants, products)):
+				ax = plt.subplot(subplotRows, subplotCols, idx + 1 + len(transports))
+				totalFlux = np.zeros_like(flux[:, 0])
+
+				for rxn in rxnStoich:
+					if reactant in rxnStoich[rxn] and product in rxnStoich[rxn]:
+						if rxnStoich[rxn][reactant] < 0 and rxnStoich[rxn][product] > 0:
+							direction = 1
+						elif rxnStoich[rxn][reactant] > 0 and rxnStoich[rxn][product] < 0:
+							direction = -1
+						else:
+							continue
+
+						totalFlux += flux[:, reactionIDs.index(rxn)] * direction
+
+				if firstGen:
+					ax.axhline(0, color = "#aaaaaa", linewidth = 0.25)
+					ax.axvline(SHIFT, color = "#aaaaaa", linewidth = 0.25)
+					ax.set_title("%s to %s" % (reactant, product), fontsize = 4)
+					ax.tick_params(axis = "both", labelsize = 4)
+
+				totalFlux = np.array([np.convolve(totalFlux, np.ones(MA_WIDTH) / MA_WIDTH, mode = "same")]).T
+				ax.plot(time[timeIdx], totalFlux[timeIdx], color = "b", linewidth = 0.5)
+
+			plt.figure(figFull.number)
+			for idx, (reactant, product) in enumerate(zip(fullReactants, fullProducts)):
+				ax = plt.subplot(3, 1, idx+1)
+				totalFlux = np.zeros_like(flux[:, 0])
+
+				for rxn in rxnStoich:
+					if reactant in rxnStoich[rxn] and product in rxnStoich[rxn]:
+						if rxnStoich[rxn][reactant] < 0 and rxnStoich[rxn][product] > 0:
+							direction = 1
+						elif rxnStoich[rxn][reactant] > 0 and rxnStoich[rxn][product] < 0:
+							direction = -1
+						else:
+							continue
+
+						totalFlux += flux[:, reactionIDs.index(rxn)] * direction
+
+				if firstGen:
+					ax.axhline(0, color = "#aaaaaa", linewidth = 0.25)
+					ax.axvline(SHIFT, color = "#aaaaaa", linewidth = 0.25)
+					ax.set_title("%s to %s" % (reactant, product), fontsize = 4)
+					ax.tick_params(axis = "both", labelsize = 4)
+
+				totalFlux = np.array([np.convolve(totalFlux, np.ones(MA_WIDTH) / MA_WIDTH, mode = "same")]).T
+				ax.plot(time, totalFlux, color = "b", linewidth = 0.5)
+
+			firstGen = False
 
 		plt.figure(figAll.number)
-		for idx, transport in enumerate(transports):
-			ax = plt.subplot(subplotRows, subplotCols, idx + 1)
+		for i in range(subplotRows * subplotCols):
+			ax = plt.subplot(subplotRows, subplotCols, i + 1)
+			plt.minorticks_off()
 
-			if firstGen:
-				ax.axhline(0, color = "#aaaaaa", linewidth = 0.25)
-				ax.axvline(SHIFT, color = "#aaaaaa", linewidth = 0.25)
-				ax.set_title("Transport for %s" % (transport), fontsize = 4)
-				ax.tick_params(axis = "both", labelsize = 4)
+			whitePadSparklineAxis(ax)
+			xlim = ax.get_xlim()
+			ylim = ax.get_ylim()
+			ax.set_yticks([ylim[0], ylim[1]])
+			ax.set_xticks([xlim[0], xlim[1]])
 
-			if transport in transportMolecules:
-				maFlux = np.array([np.convolve(-transportFluxes[:, transportMolecules.index(transport)], np.ones(MA_WIDTH) / MA_WIDTH, mode = "same")]).T
-				ax.plot(time[timeIdx], maFlux[timeIdx], color = "b", linewidth = 0.5)
+		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 
-		for idx, (reactant, product) in enumerate(zip(reactants, products)):
-			ax = plt.subplot(subplotRows, subplotCols, idx + 1 + len(transports))
-			totalFlux = np.zeros_like(flux[:, 0])
+		for i in range(subplotRows * subplotCols):
+			ax = plt.subplot(subplotRows, subplotCols, i + 1)
+			ax.set_axis_off()
 
-			for rxn in rxnStoich:
-				if reactant in rxnStoich[rxn] and product in rxnStoich[rxn]:
-					if rxnStoich[rxn][reactant] < 0 and rxnStoich[rxn][product] > 0:
-						direction = 1
-					elif rxnStoich[rxn][reactant] > 0 and rxnStoich[rxn][product] < 0:
-						direction = -1
-					else:
-						continue
-
-					totalFlux += flux[:, reactionIDs.index(rxn)] * direction
-
-			if firstGen:
-				ax.axhline(0, color = "#aaaaaa", linewidth = 0.25)
-				ax.axvline(SHIFT, color = "#aaaaaa", linewidth = 0.25)
-				ax.set_title("%s to %s" % (reactant, product), fontsize = 4)
-				ax.tick_params(axis = "both", labelsize = 4)
-
-			totalFlux = np.array([np.convolve(totalFlux, np.ones(MA_WIDTH) / MA_WIDTH, mode = "same")]).T
-			ax.plot(time[timeIdx], totalFlux[timeIdx], color = "b", linewidth = 0.5)
+		exportFigure(plt, plotOutDir, plotOutFileName + "_stripped", metadata)
 
 		plt.figure(figFull.number)
-		for idx, (reactant, product) in enumerate(zip(fullReactants, fullProducts)):
-			ax = plt.subplot(3, 1, idx+1)
-			totalFlux = np.zeros_like(flux[:, 0])
+		for i in range(3):
+			ax = plt.subplot(3, 1, i+1)
+			plt.minorticks_off()
 
-			for rxn in rxnStoich:
-				if reactant in rxnStoich[rxn] and product in rxnStoich[rxn]:
-					if rxnStoich[rxn][reactant] < 0 and rxnStoich[rxn][product] > 0:
-						direction = 1
-					elif rxnStoich[rxn][reactant] > 0 and rxnStoich[rxn][product] < 0:
-						direction = -1
-					else:
-						continue
+			whitePadSparklineAxis(ax)
+			xlim = ax.get_xlim()
+			ylim = ax.get_ylim()
+			ax.set_yticks([ylim[0], ylim[1]])
+			ax.set_xticks([xlim[0], xlim[1]])
 
-					totalFlux += flux[:, reactionIDs.index(rxn)] * direction
+		exportFigure(plt, plotOutDir, plotOutFileName + "_full", metadata)
+		plt.close("all")
 
-			if firstGen:
-				ax.axhline(0, color = "#aaaaaa", linewidth = 0.25)
-				ax.axvline(SHIFT, color = "#aaaaaa", linewidth = 0.25)
-				ax.set_title("%s to %s" % (reactant, product), fontsize = 4)
-				ax.tick_params(axis = "both", labelsize = 4)
-
-			totalFlux = np.array([np.convolve(totalFlux, np.ones(MA_WIDTH) / MA_WIDTH, mode = "same")]).T
-			ax.plot(time, totalFlux, color = "b", linewidth = 0.5)
-
-		firstGen = False
-
-	plt.figure(figAll.number)
-	for i in range(subplotRows * subplotCols):
-		ax = plt.subplot(subplotRows, subplotCols, i + 1)
-		plt.minorticks_off()
-
-		whitePadSparklineAxis(ax)
-		xlim = ax.get_xlim()
-		ylim = ax.get_ylim()
-		ax.set_yticks([ylim[0], ylim[1]])
-		ax.set_xticks([xlim[0], xlim[1]])
-
-	from wholecell.analysis.analysis_tools import exportFigure
-	exportFigure(plt, plotOutDir, plotOutFileName, metadata)
-
-	for i in range(subplotRows * subplotCols):
-		ax = plt.subplot(subplotRows, subplotCols, i + 1)
-		ax.set_axis_off()
-
-	exportFigure(plt, plotOutDir, plotOutFileName + "_stripped", metadata)
-
-	plt.figure(figFull.number)
-	for i in range(3):
-		ax = plt.subplot(3, 1, i+1)
-		plt.minorticks_off()
-
-		whitePadSparklineAxis(ax)
-		xlim = ax.get_xlim()
-		ylim = ax.get_ylim()
-		ax.set_yticks([ylim[0], ylim[1]])
-		ax.set_xticks([xlim[0], xlim[1]])
-
-	exportFigure(plt, plotOutDir, plotOutFileName + "_full", metadata)
-	plt.close("all")
 
 if __name__ == "__main__":
-	defaultSimDataFile = os.path.join(
-			wholecell.utils.constants.SERIALIZED_KB_DIR,
-			wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
-			)
-
-	parser = argparse.ArgumentParser()
-	parser.add_argument("simOutDir", help = "Directory containing simulation output", type = str)
-	parser.add_argument("plotOutDir", help = "Directory containing plot output (will get created if necessary)", type = str)
-	parser.add_argument("plotOutFileName", help = "File name to produce", type = str)
-	parser.add_argument("--simDataFile", help = "KB file name", type = str, default = defaultSimDataFile)
-
-	args = parser.parse_args().__dict__
-
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
+	Plot().cli()

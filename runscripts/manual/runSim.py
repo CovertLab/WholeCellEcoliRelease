@@ -16,9 +16,8 @@ import cPickle
 import errno
 import os
 
-from runscripts.manual import scriptBase
 from wholecell.fireworks.firetasks.simulation import SimulationTask
-from wholecell.utils import constants
+from wholecell.utils import constants, scriptBase
 from wholecell.utils.filepath import makedirs
 
 

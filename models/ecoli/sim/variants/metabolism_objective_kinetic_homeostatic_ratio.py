@@ -17,7 +17,7 @@ def metabolismKineticHomeostaticRatio(sim_data, index):
 		return CONTROL_OUTPUT, sim_data
 
 	coeffValue = COEFF_VALUES[(index - 1) % nConditions]
-	sim_data.constants.metabolismKineticObjectiveWeight = coeffValue
+	sim_data.constants.metabolismKineticObjectiveWeightLinear = coeffValue
 
 	return dict(
 		shortName = "kineticCoeff %.1g" % (coeffValue),

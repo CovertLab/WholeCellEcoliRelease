@@ -1,4 +1,13 @@
-import cPickle
+"""
+Run the plots for a given list of `models.ecoli.analysis.single` analyses, or
+by default the ACTIVE plots listed in that package's `__init__.py`.
+
+If the `WC_ANALYZE_FAST` environment variable is set, run the analyses in
+parallel in their own processes.
+
+If the `DEBUG_GC` environment variable is true, enable memory leak detection.
+"""
+
 import time
 import os
 import traceback
@@ -18,50 +27,47 @@ class AnalysisSingleTask(FireTaskBase):
 		"input_validation_data",
 		"output_plots_directory",
 		"metadata",
-		]
+	]
+	optional_params = [
+		"plots_to_run",  # absent or empty => run all active analysis plots
+		"output_filename_prefix",
+	]
 
 	def run_task(self, fw_spec):
 
 		startTime = time.time()
-		print "%s: Running single simulation analysis" % time.ctime(startTime)
+		print "\n%s: Running single simulation analysis" % time.ctime(startTime)
 
-		directory = os.path.dirname(models.ecoli.analysis.single.__file__)
+		fileList = self.get("plots_to_run", [])
+		if not fileList:
+			fileList = models.ecoli.analysis.single.ACTIVE
 
-		# Run analysis scripts in order of modification, most recently edited first
-		fileList = os.listdir(directory)
-		fileList.sort(key=lambda x: os.stat(os.path.join(directory, x)).st_mtime, reverse=True)
+		output_filename_prefix = self.get('output_filename_prefix', '')
 
 		if "WC_ANALYZE_FAST" in os.environ:
 			pool = mp.Pool(processes = 8)
 			results = {}
 
-		exception = False
 		exceptionFileList = []
 		for f in fileList:
-			if f.endswith(".pyc") or f == "__init__.py":
-				continue
-
 			mod = importlib.import_module("models.ecoli.analysis.single." + f[:-3])
 			args = (
 				self["input_results_directory"],
 				self["output_plots_directory"],
-				f[:-3],
+				output_filename_prefix + f[:-3],
 				self["input_sim_data"],
 				self["input_validation_data"],
 				self["metadata"],
 				)
 
 			if "WC_ANALYZE_FAST" in os.environ:
-				results.update({f: pool.apply_async(run_function, args = (mod.main, args, f))})
+				results[f] = pool.apply_async(run_plot, args=(mod.Plot, args, f))
 			else:
 				print "%s: Running %s" % (time.ctime(), f)
 				try:
-					mod.main(*args)
-				except SystemExit:
-					raise SystemExit(1)
-				except:
+					mod.Plot.main(*args)
+				except Exception:
 					traceback.print_exc()
-					exception = True
 					exceptionFileList += [f]
 
 		if "WC_ANALYZE_FAST" in os.environ:
@@ -69,12 +75,11 @@ class AnalysisSingleTask(FireTaskBase):
 			pool.join()
 			for f, result in results.items():
 				if not result.successful():
-					exception = True
 					exceptionFileList += [f]
 
 		timeTotal = time.time() - startTime
 
-		if exception:
+		if exceptionFileList:
 			print "Completed single simulation analysis in %s with an exception in:" % (time.strftime("%H:%M:%S", time.gmtime(timeTotal)))
 			for file in exceptionFileList:
 				print "\t%s" % file
@@ -82,10 +87,10 @@ class AnalysisSingleTask(FireTaskBase):
 		else:
 			print "Completed single simulation analysis in %s" % (time.strftime("%H:%M:%S", time.gmtime(timeTotal)))
 
-def run_function(f, args, name):
+def run_plot(plot_class, args, name):
 	try:
 		print "%s: Running %s" % (time.ctime(), name)
-		f(*args)
+		plot_class.main(*args)
 	except KeyboardInterrupt:
 		import sys; sys.exit(1)
 	except Exception as e:

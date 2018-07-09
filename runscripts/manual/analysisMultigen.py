@@ -20,7 +20,7 @@ from wholecell.utils import filepath
 
 
 class AnalysisMultigen(AnalysisBase):
-	"""Runs all multigen analysis plots for a given sim."""
+	"""Runs some or all the ACTIVE multigen analysis plots for a given sim."""
 
 	def define_parameters(self, parser):
 		super(AnalysisMultigen, self).define_parameters(parser)
@@ -53,7 +53,10 @@ class AnalysisMultigen(AnalysisBase):
 			input_sim_data=sim_data_modified,
 			input_validation_data=args.input_validation_data,
 			output_plots_directory=output_dir,
-			metadata=args.metadata)
+			metadata=args.metadata,
+			plots_to_run=args.plot,
+			output_filename_prefix=args.output_prefix,
+		)
 		task.run_task({})
 
 
