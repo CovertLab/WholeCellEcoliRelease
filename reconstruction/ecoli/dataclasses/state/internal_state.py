@@ -124,7 +124,9 @@ class InternalState(object):
 
 		# Origin of replication
 		originMass = units.g / units.mol * np.zeros_like(rnaPolyComplexMass) # NOTE: origins currently have no mass
-		originAttributes = {}
+		originAttributes = {
+				'chromosomeIndex': 'i8',
+				}
 		self.uniqueMolecules.addToUniqueState('originOfReplication', originAttributes, originMass)
 
 		# Full chromosome

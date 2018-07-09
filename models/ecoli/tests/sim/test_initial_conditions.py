@@ -19,7 +19,7 @@ import os
 
 from wholecell.utils import units
 
-from  models.ecoli.sim.initial_conditions import determineChromosomeState, determineNumOriC
+from  models.ecoli.sim.initial_conditions import determineChromosomeState, determineOriCState
 
 
 class Test_InitialConditions(unittest.TestCase):
@@ -350,55 +350,55 @@ class Test_InitialConditions(unittest.TestCase):
 		C = 50 * units.min
 		D = 27 * units.min
 		tau = 100 * units.min
-		numOric = determineNumOriC(C, D, tau)
+		n_oric, chromosomeIndex = determineOriCState(C, D, tau)
 
-		assert(numOric == 1)
+		assert(n_oric == 1)
 
 		# When (C + D) / tau is less than one, no replication will have started
 		C = 50 * units.min
 		D = 27 * units.min
 		tau = 90 * units.min
-		numOric = determineNumOriC(C, D, tau)
+		n_oric, chromosomeIndex = determineOriCState(C, D, tau)
 
-		assert(numOric == 1)
+		assert(n_oric == 1)
 
 		# When (C + D) / tau is between one and two, one replication generation will have started
 		C = 50 * units.min
 		D = 27 * units.min
 		tau = 60 * units.min
-		numOric = determineNumOriC(C, D, tau)
+		n_oric, chromosomeIndex = determineOriCState(C, D, tau)
 
-		assert(numOric == 2)
+		assert(n_oric == 2)
 
 		# When (C + D) / tau is between two and three, two replication generations will have started
 		C = 50 * units.min
 		D = 27 * units.min
 		tau = 30 * units.min
-		numOric = determineNumOriC(C, D, tau)
+		n_oric, chromosomeIndex = determineOriCState(C, D, tau)
 
 		# Two generations means one event from first generation and two events
 		# from the second - total of 3 events, plus one oriC for the original
 		# chromosome = 4 total oriC
-		assert(numOric == 4)
+		assert(n_oric == 4)
 
 		# When (C + D) / tau is between three and four, three replication generations will have started
 		C = 50 * units.min
 		D = 27 * units.min
 		tau = 20 * units.min
-		numOric = determineNumOriC(C, D, tau)
+		n_oric, chromosomeIndex = determineOriCState(C, D, tau)
 
 		# Three generations means one event from first generation, two from the
 		# second, and 4 from the third - total of 7 events, plus one oriC for 
 		# the original chromosome = 8 total oriC
-		assert(numOric == 8)
+		assert(n_oric == 8)
 
 		# When (C + D) / tau is between four and five, four replication generations will have started
 		C = 50 * units.min
 		D = 27 * units.min
 		tau = 17 * units.min
-		numOric = determineNumOriC(C, D, tau)
+		n_oric, chromosomeIndex = determineOriCState(C, D, tau)
 
 		# Four generations means one event from first generation, two from the
 		# second, 4 from the third, and 8 from the fourth - total of 15 events,
 		# plus one oriC for the original chromosome = 16 total oriC
-		assert(numOric == 16)
+		assert(n_oric == 16)

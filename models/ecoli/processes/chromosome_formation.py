@@ -3,7 +3,7 @@
 """
 ChromosomeFormation
 
-Takes partial chromosomes and concatonates them into full chromosomes
+Takes partial chromosomes and concatenates them into full chromosomes
 This is a modeling approximation that cleans up the way replication elongation
 is modeled.
 
@@ -14,10 +14,9 @@ is modeled.
 
 from __future__ import division
 
-import numpy as np
-
 import wholecell.processes.process
 from wholecell.utils import units
+
 
 class ChromosomeFormation(wholecell.processes.process.Process):
 	""" ChromosomeFormation """
@@ -35,11 +34,15 @@ class ChromosomeFormation(wholecell.processes.process.Process):
 		self.D_period = sim_data.growthRateParameters.d_period.asNumber(units.s)
 
 		# Create views on partial and full chromosomes
-		# NOTE: Parial chromosomes are modeling artifact. They are single strands of half a chromosome.
-		# this was done to simplify the chromosome replication polymerization process and make it analogous
-		# to what was done in transcription and translation elongation. This process removes the artifact.
-		self.partialChromosomes = self.bulkMoleculesView(sim_data.moleculeGroups.partialChromosome)
-		self.fullChromosome = self.bulkMoleculeView(sim_data.moleculeGroups.fullChromosome[0])
+		# NOTE: Partial chromosomes are a modeling artifact. They are single
+		# strands of half a chromosome. This was done to simplify the
+		# chromosome replication polymerization process and make it analogous
+		# to what was done in transcription and translation elongation. This
+		# process removes the artifact.
+		self.partialChromosomes = self.bulkMoleculesView(
+			sim_data.moleculeGroups.partialChromosome)
+		self.fullChromosome = self.bulkMoleculeView(
+			sim_data.moleculeGroups.fullChromosome[0])
 
 		# Placeholder for cell division data
 		self.fullChromosomeUnique = self.uniqueMoleculesView("fullChromosome")
@@ -48,14 +51,23 @@ class ChromosomeFormation(wholecell.processes.process.Process):
 		self.partialChromosomes.requestAll()
 
 	def evolveState(self):
-		partialChromosomes = self.partialChromosomes.counts()
+		# Get counts of each of the four partial chromosomes
+		# Note: only the fully elongated partial chromosomes with half the
+		# length of the full chromosome are counted as one.
+		partialChromosomeCounts = self.partialChromosomes.counts()
 
-		# If >1 of each partial chromosome exists, turn them into a standard full chromosome
-		if partialChromosomes.min():
-			fullUniqueChrom = self.fullChromosomeUnique.moleculesNew("fullChromosome", partialChromosomes.min())
-			# Log the time that the C period finishes and set the corresponding division time to be D period time later in seconds
-			fullUniqueChrom.attrIs(division_time = [self.time() + self.D_period] * partialChromosomes.min())
+		# If all four partial chromosomes exist, convert to full chromosome
+		if partialChromosomeCounts.min() > 0:
+			fullUniqueChrom = self.fullChromosomeUnique.moleculesNew(
+				"fullChromosome", partialChromosomeCounts.min())
+
+			# Log the current time (end of C period) and set the corresponding
+			# division time to be D period time later in seconds
+			fullUniqueChrom.attrIs(
+				division_time = [self.time() + self.D_period]
+							    * partialChromosomeCounts.min()
+				)
 
 		# Decrement and increment counts
-		self.fullChromosome.countInc(partialChromosomes.min())
-		self.partialChromosomes.countsDec(partialChromosomes.min())
+		self.fullChromosome.countInc(partialChromosomeCounts.min())
+		self.partialChromosomes.countsDec(partialChromosomeCounts.min())
