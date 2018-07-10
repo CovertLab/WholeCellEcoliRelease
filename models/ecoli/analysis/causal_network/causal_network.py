@@ -174,6 +174,8 @@ def add_protein_and_complex_nodes(simData, simOutDirs, node_list):
 	"""
 	Add protein and complex nodes with dynamics data to the node list. - Eran
 	"""
+	# This is currently being done by the add_complexation_nodes_and_edges()
+	# function.
 	pass
 
 def add_metabolite_nodes(simData, simOutDirs, node_list):
@@ -210,7 +212,158 @@ def add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	Add complexation nodes with dynamics data to the node list, and add edges
 	connected to the complexation nodes to the edge list. - Eran
 	"""
-	pass
+	simOutDir = simOutDirs[0]
+
+	# TODO (Eran) raw_data is here used to get complexation reaction IDs and stoichiometry. This can be saved to sim_data and then retrieved here.
+	from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
+	raw_data = KnowledgeBaseEcoli()
+
+	# get reaction IDs from raw data
+	reactionIDs = [dict['id'] for dict in raw_data.complexationReactions]
+
+	# Get bulkMolecule IDs from first simOut directory
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+	moleculeIDs = bulkMolecules.readAttribute("objectNames")
+
+	# Get dynamics data from all simOutDirs (# rxns/ts for complexation, counts
+	# for proteins and complexes)
+	reactions_array = np.empty((0, len(reactionIDs)))
+	counts_array = np.empty((0, len(moleculeIDs)))
+
+	for simOutDir in simOutDirs:
+		#TODO (ERAN) save complex reaction rate (# rxns/ts) in reaction_array. Save this in listener, or compute it here.
+		# fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
+		# reactionFluxes = fbaResults.readColumn('reactionFluxes')
+		# reactions_array = np.concatenate((reactions_array, reactionFluxes))
+
+		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+		counts = bulkMolecules.readColumn("counts")
+		counts_array = np.concatenate((counts_array, counts))
+
+	# Get complexation stoichiometry from simData
+	complexStoich = {}
+	for reaction in raw_data.complexationReactions:
+		stoich = {}
+		for molecule in reaction['stoichiometry']:
+			molecule_name = '%s[%s]' % (molecule['molecule'], molecule['location'])
+			stoich[molecule_name] = molecule['coeff']
+		complexStoich[reaction['id']] = stoich
+
+	# Initialize list of protein and complex IDs
+	protein_ids = []
+	complex_ids = []
+
+	# Loop through all complexation reactions
+	for idx, reaction in enumerate(reactionIDs):
+		# Initialize a single complexation node for each complexation reaction
+		complexation_node = Node("Process", "Complexation")
+
+		# Add attributes to the node
+		attr = {'node_id': reaction, 'name': reaction}
+		complexation_node.get_attributes(**attr)
+
+		# # TODO (ERAN) Add dynamics data (# rxns/ts) to the node.
+		# dynamics = {'flux': list(flux_array[:, idx])}
+		# dynamics_units = {'flux': 'mmol/gCDW/h'}
+		# complexation_node.get_dynamics(dynamics, dynamics_units)
+
+		# Append node to node_list
+		node_list.append(complexation_node)
+
+		# Get reaction stoichiometry from complexStoich
+		stoich_dict = complexStoich[reaction]
+
+		# Loop through all proteins participating in the reaction
+		for protein, stoich in stoich_dict.items():
+			# Add complexes that were not encountered
+			if ('CPLX' in protein) and (protein not in complex_ids):
+				complex_ids.append(protein)
+			# Add proteins that were not encountered
+			elif protein not in protein_ids:
+				protein_ids.append(protein)
+
+			# Initialize complex edge
+			complex_edge = Edge("Complexation")
+
+			# Add attributes to the complex edge
+			# Note: the direction of the edge is determined by the sign of the
+			# stoichiometric coefficient.
+			if stoich > 0:
+				attr = {'src_id': reaction,
+					'dst_id': protein,
+					'stoichiometry': stoich
+					}
+			else:
+				attr = {'src_id': protein,
+					'dst_id': reaction,
+					'stoichiometry': stoich
+					}
+			complex_edge.get_attributes(**attr)
+
+			# Append edge to edge_list
+			edge_list.append(complex_edge)
+
+	# Loop through all proteins
+	for protein in protein_ids:
+		# Initialize a single protein node for each protein
+		protein_node = Node("State", "Protein")
+
+		# Add attributes to the node
+		# TODO: Get molecular mass using getMass().
+		# TODO: Get correct protein name and synonyms from EcoCyc
+		attr = {'node_id': protein,
+			'name': protein,
+			'constants': {'mass': 0}
+			}
+		protein_node.get_attributes(**attr)
+
+		# Add dynamics data (counts) to the node.
+		# Get column index of the protein in the counts array
+		try:
+			protein_idx = moleculeIDs.index(protein)
+		except ValueError:  # protein ID not found in moleculeIDs
+			protein_idx = -1
+
+		if protein_idx != -1:
+			dynamics = {'counts': list(counts_array[:, protein_idx])}
+			dynamics_units = {'counts': 'N'}
+			protein_node.get_dynamics(dynamics, dynamics_units)
+
+		# Append node to node_list
+		node_list.append(protein_node)
+
+
+	# Loop through all complexes
+	for complex in complex_ids:
+		# Initialize a single complex node for each complex
+		complex_node = Node("State", "Complex")
+
+		# Add attributes to the node
+		# TODO: Get molecular mass using getMass().
+		# TODO: Get correct protein name and synonyms from EcoCyc
+		attr = {'node_id': complex,
+			'name': complex,
+			'constants': {'mass': 0}
+			}
+		complex_node.get_attributes(**attr)
+
+		# Add dynamics data (counts) to the node.
+		# Get column index of the complex in the counts array
+		try:
+			complex_idx = moleculeIDs.index(complex)
+		except ValueError:  # complex ID not found in moleculeIDs
+			complex_idx = -1
+
+		if complex_idx != -1:
+			dynamics = {'counts': list(counts_array[:, complex_idx])}
+			dynamics_units = {'counts': 'N'}
+			complex_node.get_dynamics(dynamics, dynamics_units)
+
+		# Append node to node_list
+		node_list.append(complex_node)
+
+
+
 
 def add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	"""
@@ -448,6 +601,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	add_regulation_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Gwanggyu
 
 	# TODO: Check for network sanity (optional)
+	# check if all IDs in dynamics correspond to nodes.
+	# check if all nodes have at least one edge.
+	# check that all edges connect nodes that are in the nodelist.
 	if CHECK_SANITY:
 		pass
 
