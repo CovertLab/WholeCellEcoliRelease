@@ -808,10 +808,9 @@ def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict, doubling_t
 
 	Inputs
 	------
-	- sim_data
-	- bulkMolCntr
-	- concDict
-	- doubling_time
+	- bulkMolCntr (BulkObjectsContainer object) - a container that tracks the counts of all bulk molecules
+	- concDict (dict) - a dictionary of metabolite ID (string) : concentration (unit'd number, dimensions of concentration) pairs
+	- doubling_time (float with units of time) - measured doubling times given the condition
 
 	Requires
 	--------
