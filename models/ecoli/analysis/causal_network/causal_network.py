@@ -162,6 +162,8 @@ def add_gene_nodes(simData, simOutDirs, node_list):
 	"""
 	Add gene nodes with dynamics data to the node list. - Heejo
 	"""
+	# This is currently being done by the add_replication_nodes_and_edges()
+	# function.
 	pass
 
 def add_transcript_nodes(simData, simOutDirs, node_list):
@@ -191,7 +193,106 @@ def add_replication_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	Add replication nodes with dynamics data to the node list, and add edges
 	connected to the replication nodes to the edge list. - Heejo
 	"""
-	pass
+	# Create nodes for dNTPs
+	dNTPs_nodelist = []
+	for dNTP in simData.moleculeGroups.dNtpIds:
+		dNTP_node = Node("State", "Metabolite")
+		attr = {'node_id': dNTP,
+			'name': dNTP,
+			'constants': {'mass': 0},
+			}
+		dNTP_node.get_attributes(**attr)
+		dNTPs_nodelist.append(dNTP_node)
+
+		# Add dNTP nodes to node list
+		node_list.append(dNTP_node)
+
+	# Create node for Ppi
+	ppi_node = Node("State", "Metabolite")
+	attr = {'node_id': 'PPI[c]',
+			'name': 'PPI[c]',
+			'constants': {'mass': 0},
+			}
+	ppi_node.get_attributes(**attr)
+
+	# Add Ppi node to node list
+	node_list.append(ppi_node)
+
+	# Create nodes for DNA polymerases
+	pols_nodelist = []
+	for pol in ['CPLX0-2361[c]', 'CPLX0-3761[c]', 'CPLX0-3925[c]', 'CPLX0-7910[c]']:
+		pol_node = Node("State", "Complex")
+		attr = {'node_id': pol,
+			'name': pol,
+			'constants': {'mass': 0},
+			}
+		pol_node.get_attributes(**attr)
+		pols_nodelist.append(pol_node)
+
+		# Add DNA polymerase nodes to node list
+		node_list.append(pol_node)
+
+	# Loop through all genes
+	geneIds = [data[0] for data in simData.process.replication.geneData]
+	for geneId in geneIds:
+		# Initialize a single gene node for each reaction
+		gene_node = Node("State", "Gene")
+
+		# Add attributes to the node
+		# TODO: Add common name and synonyms
+		attr = {'node_id': geneId, 'name': geneId}
+		gene_node.get_attributes(**attr)
+
+		# Add dynamics data to the node.
+		# TODO
+
+		# Append gene node to node_list
+		node_list.append(gene_node)
+
+		# Initialize a single replication node for each gene
+		replication_node = Node("Process", "Replication")
+
+		# Add attributes to the node
+		# TODO: Add common name and synonyms
+		attr = {'node_id': "%s_REPLICATION" % geneId, 'name': "%s_REPLICATION" % geneId}
+		replication_node.get_attributes(**attr)
+
+		# Add dynamics data to the node.
+		# TODO
+
+		# Append replication node to node_list
+		node_list.append(replication_node)
+
+		# Add edges between gene and replication nodes
+		gene_to_replication_edge = Edge("Replication")
+		attr = {'src_id': gene_node, 'dst_id': replication_node}
+		gene_to_replication_edge.get_attributes(**attr)
+		edge_list.append(gene_to_replication_edge)
+
+		replication_to_gene_edge = Edge("Replication")
+		attr = {'src_id': replication_node, 'dst_id': gene_node}
+		gene_to_replication_edge.get_attributes(**attr)
+		edge_list.append(replication_to_gene_edge)
+
+		# Add edges from dNTPs to replication nodes
+		for dNTP_node in dNTPs_nodelist:
+			dNTP_to_replication_edge = Edge("Replication")
+			attr = {'src_id': dNTP_node, 'dst_id': replication_node}
+			dNTP_to_replication_edge.get_attributes(**attr)
+			edge_list.append(dNTP_to_replication_edge)
+
+		# Add edge from replication to Ppi
+		replication_to_ppi_edge = Edge("Replication")
+		attr = {'src_id': replication_node, 'dst_id': ppi_node}
+		replication_to_ppi_edge.get_attributes(**attr)
+		edge_list.append(replication_to_ppi_edge)
+
+		# Add edges from DNA polymerases to replication
+		for pol_node in pols_nodelist:
+			pol_to_replication_edge = Edge("Replication")
+			attr = {'src_id': pol_node, 'dst_id': replication_node}
+			pol_to_replication_edge.get_attributes(**attr)
+			edge_list.append(pol_to_replication_edge)
 
 def add_transcription_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	"""
