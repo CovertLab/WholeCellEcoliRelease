@@ -170,6 +170,8 @@ def add_transcript_nodes(simData, simOutDirs, node_list):
 	"""
 	Add transcript nodes with dynamics data to the node list. - Heejo
 	"""
+	# This is currently being done by the add_transcription_nodes_and_edges()
+	# function.
 	pass
 
 def add_protein_and_complex_nodes(simData, simOutDirs, node_list):
@@ -235,7 +237,7 @@ def add_replication_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	# Loop through all genes
 	geneIds = [data[0] for data in simData.process.replication.geneData]
 	for geneId in geneIds:
-		# Initialize a single gene node for each reaction
+		# Initialize a single gene node
 		gene_node = Node("State", "Gene")
 
 		# Add attributes to the node
@@ -299,7 +301,116 @@ def add_transcription_nodes_and_edges(simData, simOutDirs, node_list, edge_list)
 	Add transcription nodes with dynamics data to the node list, and add edges
 	connected to the transcription nodes to the edge list. - Heejo
 	"""
-	pass
+	# Create nodes for NTPs
+	ntps_nodelist = []
+	for ntp in simData.moleculeGroups.ntpIds:
+		ntp_node = Node("State", "Metabolite")
+		attr = {'node_id': ntp,
+			'name': ntp,
+			'constants': {'mass': 0},
+			}
+		ntp_node.get_attributes(**attr)
+		ntps_nodelist.append(ntp_node)
+
+		# Add NTP node to node list
+		node_list.append(ntp_node)
+
+	# Create node for Ppi
+	ppi_node = Node("State", "Metabolite")
+	attr = {'node_id': 'PPI[c]',
+			'name': 'PPI[c]',
+			'constants': {'mass': 0},
+			}
+	ppi_node.get_attributes(**attr)
+
+	# Add Ppi node to node list
+	node_list.append(ppi_node)
+
+	# Create node for RNA polymerase
+	pol_node = Node("State", "Complex")
+	attr = {'node_id': 'APORNAP-CPLX[c]',
+		'name': 'APORNAP-CPLX[c]',
+		'constants': {'mass': 0},
+		}
+	pol_node.get_attributes(**attr)
+
+	# Add RNA polymerase nodes to node list
+	node_list.append(pol_node)
+
+	# Loop through all genes
+	for geneId, rnaId, _ in simData.process.replication.geneData:
+		# Initialize a single gene node
+		gene_node = Node("State", "Gene")
+
+		# Add attributes to the node
+		# TODO: Add common name and synonyms
+		attr = {'node_id': geneId, 'name': geneId}
+		gene_node.get_attributes(**attr)
+
+		# Add dynamics data to the node.
+		# TODO
+
+		# Append gene node to node_list
+		node_list.append(gene_node)
+
+		# Initialize a single transcript node
+		rna_node = Node("State", "Gene")
+
+		# Add attributes to the node
+		# TODO: Add common name and synonyms
+		attr = {'node_id': rnaId, 'name': rnaId}
+		rna_node.get_attributes(**attr)
+
+		# Add dynamics data to the node.
+		# TODO
+
+		# Append transcript node to node_list
+		node_list.append(rna_node)
+
+		# Initialize a single transcription node for each gene
+		transcription_node = Node("Process", "Transcription")
+
+		# Add attributes to the node
+		# TODO: Add common name and synonyms
+		attr = {'node_id': "%s_TRANSCRIPTION" % geneId, 'name': "%s_TRANSCRIPTION" % geneId}
+		transcription_node.get_attributes(**attr)
+
+		# Add dynamics data to the node.
+		# TODO
+
+		# Append transcription node to node_list
+		node_list.append(transcription_node)
+
+		# Add edge from gene to transcription node
+		gene_to_transcription_edge = Edge("Transcription")
+		attr = {'src_id': gene_node, 'dst_id': transcription_node}
+		gene_to_transcription_edge.get_attributes(**attr)
+		edge_list.append(gene_to_transcription_edge)
+
+		# Add edge from transcription to transcript node
+		transcription_to_rna_edge = Edge("Transcription")
+		attr = {'src_id': transcription_node, 'dst_id': rna_node}
+		transcription_to_rna_edge.get_attributes(**attr)
+		edge_list.append(transcription_to_rna_edge)
+
+		# Add edges from NTPs to transcription nodes
+		for ntp_node in ntps_nodelist:
+			ntp_to_transcription_edge = Edge("Transcription")
+			attr = {'src_id': ntp_node, 'dst_id': transcription_node}
+			ntp_to_transcription_edge.get_attributes(**attr)
+			edge_list.append(ntp_to_transcription_edge)
+
+		# Add edge from transcription to Ppi
+		transcription_to_ppi_edge = Edge("Transcription")
+		attr = {'src_id': transcription_node, 'dst_id': ppi_node}
+		transcription_to_ppi_edge.get_attributes(**attr)
+		edge_list.append(transcription_to_ppi_edge)
+
+		# Add edges from RNA polymerases to transcription
+		pol_to_transcription_edge = Edge("Transcription")
+		attr = {'src_id': pol_node, 'dst_id': transcription_node}
+		pol_to_transcription_edge.get_attributes(**attr)
+		edge_list.append(pol_to_transcription_edge)
 
 def add_translation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	"""
