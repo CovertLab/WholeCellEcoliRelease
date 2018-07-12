@@ -354,11 +354,11 @@ def add_transcription_nodes_and_edges(simData, simOutDirs, node_list, edge_list)
 		node_list.append(gene_node)
 
 		# Initialize a single transcript node
-		rna_node = Node("State", "Gene")
+		rna_node = Node("State", "RNA")
 
 		# Add attributes to the node
 		# TODO: Add common name and synonyms
-		attr = {'node_id': rnaId, 'name': rnaId}
+		attr = {'node_id': "%s[c]" % rnaId, 'name': "%s[c]" % rnaId}
 		rna_node.get_attributes(**attr)
 
 		# Add dynamics data to the node.
@@ -417,7 +417,137 @@ def add_translation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	Add translation nodes with dynamics data to the node list, and add edges
 	connected to the translation nodes to the edge list. - Heejo
 	"""
-	pass
+	# Create nodes for amino acids
+	aas_nodelist = []
+	for aa in simData.moleculeGroups.aaIDs:
+		aa_node = Node("State", "Metabolite")
+		attr = {'node_id': aa,
+			'name': aa,
+			'constants': {'mass': 0},
+			}
+		aa_node.get_attributes(**attr)
+		aas_nodelist.append(aa_node)
+
+		# Add amino acid node to node list
+		node_list.append(aa_node)
+
+	# Create nodes for GTP, GDP, water, Ppi
+	metabolites_nodelist = []
+	for metabolite in ["GTP[c]", "GDP[c]", "WATER[c]", "PPI[c]"]:
+		metabolite_node = Node("State", "Metabolite")
+		attr = {'node_id': metabolite,
+			'name': metabolite,
+			'constants': {'mass': 0},
+			}
+		metabolite_node.get_attributes(**attr)
+		metabolites_nodelist.append(metabolite_node)
+
+		# Add metabolite node to node list
+		node_list.append(metabolite_node)
+	gtp_node, gdp_node, water_node, ppi_node = metabolites_nodelist
+
+	# Create nodes for ribosome subunits
+	ribosomes_nodelist = []
+	subunits = [simData.moleculeGroups.s30_fullComplex, simData.moleculeGroups.s50_fullComplex]
+	for subunit in subunits:
+		subunit_node = Node("State", "Complex")
+		attr = {'node_id': subunit,
+			'name': subunit,
+			'constants': {'mass': 0},
+			}
+		subunit_node.get_attributes(**attr)
+		ribosomes_nodelist.append(subunit_node)
+
+		# Add ribosome subunits to node list
+		node_list.append(subunit_node)
+
+	# Loop through all translatable genes
+	for data in simData.process.translation.monomerData:
+		monomerId = data[0]
+		rnaId = data[1]
+		geneId = rnaId.split("_RNA[c]")[0]
+
+		# Initialize a single transcript node
+		rna_node = Node("State", "RNA")
+
+		# Add attributes to the node
+		# TODO: Add common name and synonyms
+		attr = {'node_id': rnaId, 'name': rnaId} # rnaId already contains [c] tag
+		rna_node.get_attributes(**attr)
+
+		# Add dynamics data to the node.
+		# TODO
+
+		# Append transcript node to node_list
+		node_list.append(rna_node)
+
+		# Initialize a single protein node
+		protein_node = Node("State", "Protein")
+
+		# Add attributes to the node
+		# TODO: Add common name and synonyms
+		attr = {'node_id': monomerId, 'name': monomerId}
+		protein_node.get_attributes(**attr)
+
+		# Add dynamics data to the node.
+		# TODO
+
+		# Append protein node to node_list
+		node_list.append(protein_node)
+
+		# Initialize a single translation node for each transcript
+		translation_node = Node("Process", "Translation")
+
+		# Add attributes to the node
+		# TODO: Add common name and synonyms
+		attr = {'node_id': "%s_TRANSLATION" % geneId, 'name': "%s_TRANSLATION" % geneId}
+		translation_node.get_attributes(**attr)
+
+		# Add dynamics data to the node.
+		# TODO
+
+		# Append translation node to node_list
+		node_list.append(translation_node)
+
+		# Add edge from transcript to translation node
+		rna_to_translation_edge = Edge("Translation")
+		attr = {'src_id': rna_node, 'dst_id': translation_node}
+		rna_to_translation_edge.get_attributes(**attr)
+		edge_list.append(rna_to_translation_edge)
+
+		# Add edge from translation to monomer node
+		translation_to_protein_edge = Edge("Translation")
+		attr = {'src_id': translation_node, 'dst_id': protein_node}
+		translation_to_protein_edge.get_attributes(**attr)
+		edge_list.append(translation_to_protein_edge)
+
+		# Add edges from amino acids to translation node
+		for aa_node in aas_nodelist:
+			aa_to_translation_edge = Edge("Translation")
+			attr = {'src_id': aa_node, 'dst_id': translation_node}
+			aa_to_translation_edge.get_attributes(**attr)
+			edge_list.append(aa_to_translation_edge)
+
+		# Add edges from other reactants to translation node
+		for reactant_node in [gtp_node, water_node]:
+			reactant_to_translation_edge = Edge("Translation")
+			attr = {'src_id': reactant_node, 'dst_id': translation_node}
+			reactant_to_translation_edge.get_attributes(**attr)
+			edge_list.append(reactant_to_translation_edge)
+
+		# Add edges from translation to other product nodes
+		for product_node in [gdp_node, ppi_node, water_node]:
+			translation_to_product_edge = Edge("Translation")
+			attr = {'src_id': translation_node, 'dst_id': product_node}
+			translation_to_product_edge.get_attributes(**attr)
+			edge_list.append(translation_to_product_edge)
+
+		# Add edges from ribosome subunits to translation node
+		for subunit_node in ribosomes_nodelist:
+			subunit_to_translation_edge = Edge("Translation")
+			attr = {'src_id': subunit_node, 'dst_id': translation_node}
+			subunit_to_translation_edge.get_attributes(**attr)
+			edge_list.append(subunit_to_translation_edge)
 
 def add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	"""
