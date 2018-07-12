@@ -296,6 +296,7 @@ def add_replication_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 			pol_to_replication_edge.get_attributes(**attr)
 			edge_list.append(pol_to_replication_edge)
 
+
 def add_transcription_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	"""
 	Add transcription nodes with dynamics data to the node list, and add edges
@@ -411,6 +412,7 @@ def add_transcription_nodes_and_edges(simData, simOutDirs, node_list, edge_list)
 		attr = {'src_id': pol_node, 'dst_id': transcription_node}
 		pol_to_transcription_edge.get_attributes(**attr)
 		edge_list.append(pol_to_transcription_edge)
+
 
 def add_translation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	"""
@@ -548,6 +550,7 @@ def add_translation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 			attr = {'src_id': subunit_node, 'dst_id': translation_node}
 			subunit_to_translation_edge.get_attributes(**attr)
 			edge_list.append(subunit_to_translation_edge)
+
 
 def add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	"""
@@ -705,8 +708,6 @@ def add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 		node_list.append(complex_node)
 
 
-
-
 def add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	"""
 	Add metabolism nodes with dynamics data to the node list, and add edges
@@ -829,7 +830,59 @@ def add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	Add equilibrium nodes with dynamics data to the node list, and add edges
 	connected to the equilibrium nodes to the edge list. - Gwanggyu
 	"""
-	pass
+	# Get equilibrium-specific data from simData
+	moleculeIds = simData.process.equilibrium.moleculeNames
+	rxnIds = simData.process.equilibrium.rxnIds
+	stoichMatrix = simData.process.equilibrium.stoichMatrix()
+	ratesFwd = np.array(simData.process.equilibrium.ratesFwd, dtype=np.float32)
+	ratesRev = np.array(simData.process.equilibrium.ratesRev, dtype=np.float32)
+
+	# TODO: get dynamics data for equlibrium nodes. Will need new listener.
+
+	# Loop through each equilibrium reaction
+	for reactionIdx, rxnId in enumerate(rxnIds):
+		# Initialize a single equilibrium node for each equilibrium reaction
+		equilibrium_node = Node("Process", "Equilibrium")
+
+		# Add attributes to the node
+		# TODO: Think of better "name" for this node?
+		attr = {'node_id': rxnId,
+			'name': rxnId,
+			'constants': {'rateFwd': ratesFwd[reactionIdx], 'rateRev': ratesRev[reactionIdx]}
+		}
+		equilibrium_node.get_attributes(**attr)
+
+		# Append new node to node_list
+		node_list.append(equilibrium_node)
+
+		# Extract column corresponding to reaction in the stoichiometric matrix
+		stoichMatrixColumn = stoichMatrix[:, reactionIdx]
+
+		# Loop through each element in column
+		for moleculeIdx, stoich in enumerate(stoichMatrixColumn):
+			# If the stoichiometric coefficient is negative, add reactant edge
+			# to the equilibrium node
+			if stoich < 0:
+				equilibrium_edge = Edge("Equilibrium")
+				attr = {'src_id': moleculeIds[moleculeIdx],
+					'dst_id': rxnId,
+					'stoichiometry': stoich
+				}
+
+				equilibrium_edge.get_attributes(**attr)
+				edge_list.append(equilibrium_edge)
+
+			# If the coefficient is positive, add product edge
+			elif stoich > 0:
+				equilibrium_edge = Edge("Equilibrium")
+				attr = {'src_id': rxnId,
+					'dst_id': moleculeIds[moleculeIdx],
+					'stoichiometry': stoich
+				}
+
+				equilibrium_edge.get_attributes(**attr)
+				edge_list.append(equilibrium_edge)
+
 
 def add_regulation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	"""
