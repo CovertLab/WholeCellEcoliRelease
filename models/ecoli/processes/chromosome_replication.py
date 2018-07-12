@@ -169,11 +169,9 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 				)
 
 			# Calculate and set attributes of newly created oriCs
-			oriCsNew.attrIs(
-				chromosomeIndex=chromosomeIndexOriC
-				# New OriC's share the index of the old OriC's they were
-				# replicated from
-				)
+            # New OriC's share the index of the old OriC's they were
+            # replicated from
+			oriCsNew.attrIs(chromosomeIndex=chromosomeIndexOriC)
 
 		# Write data from this module to a listener
 		self.writeToListener("ReplicationData", "criticalMassPerOriC",

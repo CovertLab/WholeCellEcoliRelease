@@ -208,12 +208,8 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		C, D, tau, replication_length)
 	n_dnap = sequenceIdx.size
 
-	if n_oric != 0:
-		# Add oriCs as unique molecules and set attributes
-		oriC = uniqueMolCntr.objectsNew('originOfReplication', n_oric)
-		oriC.attrIs(
-			chromosomeIndex = chromosomeIndexOriC,
-			)
+	oriC = uniqueMolCntr.objectsNew('originOfReplication', n_oric)
+	oriC.attrIs(chromosomeIndex = chromosomeIndexOriC)
 
 	if n_dnap != 0:
 		# Update mass to account for DNA strands that have already been elongated
