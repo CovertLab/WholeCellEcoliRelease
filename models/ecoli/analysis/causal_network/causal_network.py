@@ -491,9 +491,8 @@ def add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 			stoich[molecule_name] = molecule['coeff']
 		complexStoich[reaction['id']] = stoich
 
-	# Initialize list of protein and complex IDs
-	protein_ids = []
-	complex_ids = []
+	# List of all complex IDs
+	complex_ids = simData.process.complexation.ids_complexes
 
 	# Loop through all complexation reactions
 	for idx, reaction in enumerate(reactionIDs):
@@ -517,12 +516,6 @@ def add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 
 		# Loop through all proteins participating in the reaction
 		for protein, stoich in stoich_dict.items():
-			# Add complexes that were not encountered
-			if ('CPLX' in protein) and (protein not in complex_ids):
-				complex_ids.append(protein)
-			# Add proteins that were not encountered
-			elif protein not in protein_ids:
-				protein_ids.append(protein)
 
 			# Initialize complex edge
 			complex_edge = Edge("Complexation")
@@ -545,37 +538,6 @@ def add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 			# Append edge to edge_list
 			edge_list.append(complex_edge)
 
-	# Loop through all proteins
-	for protein in protein_ids:
-		# Initialize a single protein node for each protein
-		protein_node = Node("State", "Protein")
-
-		# Add attributes to the node
-		# TODO: Get molecular mass using getMass().
-		# TODO: Get correct protein name and synonyms from EcoCyc
-		attr = {'node_id': protein,
-			'name': protein,
-			'constants': {'mass': 0}
-			}
-		protein_node.read_attributes(**attr)
-
-		# Add dynamics data (counts) to the node.
-		# Get column index of the protein in the counts array
-		try:
-			protein_idx = moleculeIDs.index(protein)
-		except ValueError:  # protein ID not found in moleculeIDs
-			protein_idx = -1
-
-		if protein_idx != -1:
-			dynamics = {'counts': list(counts_array[:, protein_idx])}
-			dynamics_units = {'counts': 'N'}
-			protein_node.read_dynamics(dynamics, dynamics_units)
-
-		# Append node to node_list
-		node_list.append(protein_node)
-
-
-	# Loop through all complexes
 	for complex in complex_ids:
 		# Initialize a single complex node for each complex
 		complex_node = Node("State", "Complex")
