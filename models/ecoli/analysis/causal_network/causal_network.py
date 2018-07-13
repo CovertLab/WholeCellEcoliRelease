@@ -626,6 +626,9 @@ def add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	# Get all reaction stoichiometry from simData
 	reactionStoich = simData.process.metabolism.reactionStoich
 
+	# Get reaction to catalyst dict from simData
+	reactionCatalysts = simData.process.metabolism.reactionCatalysts
+
 	# Initialize list of metabolite IDs
 	metabolite_ids = []
 
@@ -650,6 +653,19 @@ def add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 
 		# Get reaction stoichiometry from reactionStoich
 		stoich_dict = reactionStoich[reaction]
+
+		# Get list of proteins that catalyze this reaction
+		catalyst_list = reactionCatalysts.get(reaction, [])
+
+		# Add an edge from each catalyst to the metabolism node
+		for catalyst in catalyst_list:
+			metabolism_edge = Edge("Metabolism")
+			attr = {'src_id': catalyst,
+				'dst_id': reaction
+			}
+
+			metabolism_edge.read_attributes(**attr)
+			edge_list.append(metabolism_edge)
 
 		# Loop through all metabolites participating in the reaction
 		for metabolite, stoich in stoich_dict.items():
