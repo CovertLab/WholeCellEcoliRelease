@@ -2,11 +2,15 @@
 Common code for analysis plots. The abstract base class AnalysisPlot defines a
 plot() method for scripts to call.
 
-TODO: Set the fallback for the matplotlib back end so we needn't hack its
-installation. Set the CWD so matplotlib finds the matplotlibrc file even when
-FireWorks doesn't launch it in the right directory.
+TODO: See Issue #161 Matplotlib backend enforcement. If updating to matplotlib
+2.2.2 doesn't fix it, this class can implement a workaround but must do so
+before any code imports pyplot, which means every subclass must import this
+file before importing pyplot.
 
-TODO: Setup/reset matplotlib before each script and cleanup afterwards.
+TODO: Reliably load the wcEcoli/matplotlibrc file even if the working directory
+is wrong (see Issue #132). Setting the working directory could work if done
+before matplotlib loads it, and that should also fix the backend (#161),
+otherwise loading matplotlibrc here just ensures loading of other resources.
 
 TODO: Enable future warnings, esp. for matplotlib.
 
@@ -21,6 +25,7 @@ from __future__ import absolute_import
 from __future__ import division
 
 import abc
+import matplotlib as mp
 from wholecell.utils import memory_debug
 
 
@@ -44,13 +49,9 @@ class AnalysisPlot(object):
 	def plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile,
 			validationDataFile, metadata):
 		"""Public method to set up, make a plot, and cleanup."""
-		with memory_debug.detect_leaks():
-			# TODO: Setup.
-
+		with memory_debug.detect_leaks(), mp.rc_context():
 			self.do_plot(inputDir, plotOutDir, plotOutFileName, simDataFile,
 				validationDataFile, metadata)
-
-			# TODO: Cleanup.
 
 	@classmethod
 	def main(cls, inputDir, plotOutDir, plotOutFileName, simDataFile,

@@ -10,7 +10,7 @@ import numpy as np
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import units
+from wholecell.utils import units, parallelization
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from scipy.stats import pearsonr
@@ -212,7 +212,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 
 		print "Initializing worker pool"
-		pool = Pool(processes = 16)
+		pool = Pool(processes=parallelization.plotter_cpus())
 
 		print "Begin processing"
 

@@ -16,6 +16,7 @@ from fireworks import FireTaskBase, explicit_serialize
 import models.ecoli.analysis.multigen
 import importlib
 import multiprocessing as mp
+from wholecell.utils import parallelization
 
 @explicit_serialize
 class AnalysisMultiGenTask(FireTaskBase):
@@ -45,7 +46,7 @@ class AnalysisMultiGenTask(FireTaskBase):
 		output_filename_prefix = self.get('output_filename_prefix', '')
 
 		if "WC_ANALYZE_FAST" in os.environ:
-			pool = mp.Pool(processes = 8)
+			pool = mp.Pool(processes=parallelization.cpus())
 			results = {}
 
 		exceptionFileList = []

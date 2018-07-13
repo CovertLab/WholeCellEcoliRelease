@@ -15,7 +15,7 @@ from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from reconstruction.ecoli.simulation_data import SimulationDataEcoli
 from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
 
-from wholecell.utils import filepath
+from wholecell.utils import filepath, parallelization
 from wholecell.utils import units
 from wholecell.utils.fitting import normalize, masses_and_counts_for_homeostatic_target
 
@@ -95,6 +95,7 @@ def fitSimData_1(raw_data, cpus=1, debug=False):
 	fitMaintenanceCosts(sim_data, cellSpecs["basal"]["bulkContainer"])
 
 	if cpus > 1:
+		cpus = min(cpus, parallelization.cpus())
 		print "Start parallel processing with %i processes" % (cpus,)
 		pool = Pool(processes = cpus)
 		conds = sorted(sim_data.tfToActiveInactiveConds)

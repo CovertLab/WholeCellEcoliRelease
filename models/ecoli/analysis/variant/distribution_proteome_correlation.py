@@ -16,6 +16,7 @@ from wholecell.utils.sparkline import whitePadSparklineAxis
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from scipy.stats import pearsonr
 from multiprocessing import Pool
+from wholecell.utils import parallelization
 
 SHUFFLE_VARIANT_TAG = "ShuffleParams"
 PLACE_HOLDER = -1
@@ -103,7 +104,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		ap = AnalysisPaths(inputDir, variant_plot = True)
 
 
-		pool = Pool(processes = 16)
+		pool = Pool(processes=parallelization.plotter_cpus())
 		args = zip(range(ap.n_variant), [ap] * ap.n_variant, [validation_data.protein.schmidt2015Data["monomerId"].tolist()] * ap.n_variant, [schmidtCounts] * ap.n_variant)
 		result = pool.map(getPCC, args)
 		# cPickle.dump(result, open("pcc_results.cPickle", "w"), cPickle.HIGHEST_PROTOCOL)
