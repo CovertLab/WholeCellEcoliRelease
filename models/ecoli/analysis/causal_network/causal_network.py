@@ -66,7 +66,7 @@ class Node:
 		self.dynamics = {}
 		self.dynamics_units = {}
 
-	def get_id(self):
+	def get_node_id(self):
 		"""
 		Return ID of node.
 		"""
@@ -144,6 +144,18 @@ class Edge:
 		self.src_id = None
 		self.dst_id = None
 		self.stoichiometry = None
+
+	def get_src_id(self):
+		"""
+		Return ID of source node.
+		"""
+		return self.src_id
+
+	def get_dst_id(self):
+		"""
+		Return ID of destination node.
+		"""
+		return self.dst_id
 
 	def read_attributes(self, src_id, dst_id, stoichiometry=""):
 		"""
@@ -359,7 +371,7 @@ def add_translation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	water_id = "WATER[c]"
 	ppi_id = "PPI[c]"
 
-	ribosome_subunit_ids = [simData.moleculeGroups.s30_fullComplex, simData.moleculeGroups.s50_fullComplex]
+	ribosome_subunit_ids = [simData.moleculeGroups.s30_fullComplex[0], simData.moleculeGroups.s50_fullComplex[0]]
 
 	# Loop through all translatable genes
 	for data in simData.process.translation.monomerData:
@@ -931,16 +943,18 @@ def add_global_dynamics(simData, simOutDirs, dynamics_file):
 
 def check_duplicate_nodes(node_list):
 	"""
-	Identify any nodes that have duplicate IDs. This does not remove duplicate
-	nodes.
+	Identify any nodes that have duplicate IDs and prints them to the console.
+	This does not remove duplicate nodes.
 	"""
+	print("Checking for duplicate node IDs...")
+
 	node_ids = []
 	duplicate_ids = []
 
 	# Loop through all nodes in the node_list
 	for node in node_list:
 		# Get ID of the node
-		node_id = node.get_id()
+		node_id = node.get_node_id()
 
 		# If node was not seen, add to returned list of unique node IDs
 		if node_id not in node_ids:
@@ -951,13 +965,30 @@ def check_duplicate_nodes(node_list):
 
 	# Print duplicate node IDs that were found
 	for node_id in duplicate_ids:
-		print("Node ID %s is duplicate!" % (node_id, ))
+		print("Node ID %s is duplicate." % (node_id, ))
 
 	return node_ids
 
 
-def find_runaway_edges(node_list, edge_list):
-	pass
+def find_runaway_edges(node_ids, edge_list):
+	"""
+	Find any edges that connect nonexistent nodes and prints them to the
+	console.
+	"""
+	print("Checking for runaway edges...")
+
+	# Loop through all edges in edge_list
+	for edge in edge_list:
+		# Get IDs of source node
+		src_id = edge.get_src_id()
+		dst_id = edge.get_dst_id()
+
+		# Print error prompt if the node IDs are not found in node_ids
+		if src_id not in node_ids:
+			print("src_id %s of edge with dst_id %s does not exist." % (src_id, dst_id, ))
+
+		if dst_id not in node_ids:
+			print("dst_id %s of edge with src_id %s does not exist." % (dst_id, src_id, ))
 
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile=None, metadata=None):
@@ -1000,7 +1031,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	add_replication_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Heejo
 	add_transcription_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Heejo
 	add_translation_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Heejo
-	#add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Eran
+	add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Eran
 	add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Gwanggyu
 	add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Gwanggyu
 	add_regulation_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Gwanggyu
@@ -1013,6 +1044,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		print("Performing sanity check on network...")
 		node_ids = check_duplicate_nodes(node_list)
 		find_runaway_edges(node_ids, edge_list)
+		print("Sanity check completed.")
 
 	print("Total number of nodes: %d" % (len(node_list)))
 	print("Total number of edges: %d" % (len(edge_list)))
