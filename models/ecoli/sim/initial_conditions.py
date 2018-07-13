@@ -208,35 +208,29 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		C, D, tau, replication_length)
 	n_dnap = sequenceIdx.size
 
-	# Return if no replication is occurring at all
-	if n_dnap == 0:
-		return
-
-	# Add oriCs as unique molecules and set attributes
 	oriC = uniqueMolCntr.objectsNew('originOfReplication', n_oric)
-	oriC.attrIs(
-		chromosomeIndex = chromosomeIndexOriC,
-		)
+	oriC.attrIs(chromosomeIndex = chromosomeIndexOriC)
 
-	# Update mass to account for DNA strands that have already been elongated
-	# Determine the sequences of already-replicated DNA
-	sequences = sim_data.process.replication.replication_sequences
-	sequenceElongations = sequenceLength.astype(np.int64)
-	massIncreaseDna = computeMassIncrease(
-			np.tile(sequences, (n_dnap//4, 1)),
-			sequenceElongations,
-			sim_data.process.replication.replicationMonomerWeights.asNumber(units.fg)
+	if n_dnap != 0:
+		# Update mass to account for DNA strands that have already been elongated
+		# Determine the sequences of already-replicated DNA
+		sequences = sim_data.process.replication.replication_sequences
+		sequenceElongations = sequenceLength.astype(np.int64)
+		massIncreaseDna = computeMassIncrease(
+				np.tile(sequences, (n_dnap//4, 1)),
+				sequenceElongations,
+				sim_data.process.replication.replicationMonomerWeights.asNumber(units.fg)
+				)
+
+		# Add replicating DNA polymerases as unique molecules and set attributes
+		dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', n_dnap)
+		dnaPoly.attrIs(
+			sequenceIdx = sequenceIdx,
+			sequenceLength = sequenceLength,
+			replicationRound = replicationRound,
+			chromosomeIndex = chromosomeIndexPolymerase,
+			massDiff_DNA = massIncreaseDna,
 			)
-
-	# Add replicating DNA polymerases as unique molecules and set attributes
-	dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', n_dnap)
-	dnaPoly.attrIs(
-		sequenceIdx = sequenceIdx,
-		sequenceLength = sequenceLength,
-		replicationRound = replicationRound,
-		chromosomeIndex = chromosomeIndexPolymerase,
-		massDiff_DNA = massIncreaseDna,
-		)
 
 
 def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
