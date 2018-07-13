@@ -103,6 +103,8 @@ class Node:
 		# Iterate through all dynamics variables associated with the node
 		for name, dynamics in self.dynamics.items():
 			unit = self.dynamics_units.get(name, "")
+			# TODO: format dynamics - print integers as integers, control
+			# number of decimal places being printed
 
 			# Format single string with dynamic attributes separated by commas
 			dynamics_row = "%s,%s,%s,%s\n" % (
@@ -837,17 +839,18 @@ def add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	ratesFwd = np.array(simData.process.equilibrium.ratesFwd, dtype=np.float32)
 	ratesRev = np.array(simData.process.equilibrium.ratesRev, dtype=np.float32)
 
-	# TODO: get dynamics data for equlibrium nodes. Will need new listener.
+	# TODO: get dynamics data for equilibrium nodes. Will need new listener.
 
 	# Loop through each equilibrium reaction
 	for reactionIdx, rxnId in enumerate(rxnIds):
+
 		# Initialize a single equilibrium node for each equilibrium reaction
 		equilibrium_node = Node("Process", "Equilibrium")
 
 		# Add attributes to the node
-		# TODO: Think of better "name" for this node?
+		rxnName = rxnId[:-4] + " equilibrium reaction"
 		attr = {'node_id': rxnId,
-			'name': rxnId,
+			'name': rxnName,
 			'constants': {'rateFwd': ratesFwd[reactionIdx], 'rateRev': ratesRev[reactionIdx]}
 		}
 		equilibrium_node.get_attributes(**attr)
@@ -889,7 +892,81 @@ def add_regulation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	Add regulation nodes with dynamics data to the node list, and add edges
 	connected to the regulation nodes to the edge list. - Gwanggyu
 	"""
-	pass
+	# Get regulation-specific data from simData
+	tfToFC = simData.tfToFC
+
+	# Get bulkMolecule IDs from first simOut directory
+	simOutDir = simOutDirs[0]
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+	moleculeIDs = bulkMolecules.readAttribute("objectNames")
+
+	# Get dynamics data from all simOutDirs
+	counts_array = np.empty((0, len(moleculeIDs)))
+
+	# TF-DNA bound counts are stored in bulkMolecules counts
+	for simOutDir in simOutDirs:
+		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+		counts = bulkMolecules.readColumn("counts")
+		counts_array = np.concatenate((counts_array, counts))
+
+	# Loop through all TFs
+	for tf, transcriptIDdict in tfToFC.items():
+		# Add localization ID to the TF ID
+		tfID = tf + "[c]"
+
+		# Loop through all transcripts the TF regulates
+		for transcriptID in transcriptIDdict.keys():
+
+			# Get ID of TF-gene pair
+			tfDnaBoundID = transcriptID + "__" + tf
+
+			# If the tfDnaBoundID is not found in bulkMolecules, do not add a
+			# node for this pair - looks like the fitter deletes some of these
+			# TF-gene pairs
+			try:
+				tfDnaBoundIdx = moleculeIDs.index(tfDnaBoundID)
+			except ValueError:
+				tfDnaBoundIdx = -1
+
+			if tfDnaBoundIdx != -1:
+				# Remove "_RNA" from the transcript IDs to turn them into gene IDs
+				geneID = transcriptID[:-4]
+
+				# Initialize a single regulation node for each TF-gene pair
+				regulation_node = Node("Process", "Regulation")
+
+				# Add attributes to the node
+				# TODO: Add gene regulation strength constants?
+				regID = tf + "_" + geneID + "_REGULATION"
+				regName = tf + "-" + geneID + " gene regulation"
+				attr = {'node_id': regID,
+					'name': regName,
+				}
+				regulation_node.get_attributes(**attr)
+
+				# Add dynamics data (counts) to the node.
+				# Get column index of the TF+gene pair in the counts array
+				dynamics = {'bound TFs': list(counts_array[:, tfDnaBoundIdx])}
+				dynamics_units = {'counts per TF-gene pair': 'N'}
+				regulation_node.get_dynamics(dynamics, dynamics_units)
+
+				node_list.append(regulation_node)
+
+				# Add edge from TF to this regulation node
+				regulation_edge_from_tf = Edge("Regulation")
+				attr = {'src_id': tfID,
+					'dst_id': regID,
+				}
+				regulation_edge_from_tf.get_attributes(**attr)
+				edge_list.append(regulation_edge_from_tf)
+
+				# Add edge from this regulation node to the gene
+				regulation_edge_to_gene = Edge("Regulation")
+				attr = {'src_id': regID,
+					'dst_id': geneID,
+				}
+				regulation_edge_to_gene.get_attributes(**attr)
+				edge_list.append(regulation_edge_to_gene)
 
 
 def add_time_data(simOutDirs, dynamics_file):
