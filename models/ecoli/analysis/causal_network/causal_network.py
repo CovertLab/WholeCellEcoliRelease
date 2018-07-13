@@ -28,6 +28,8 @@ DYNAMICS_HEADER = "node,type,units,dynamics\n"
 CHECK_SANITY = True
 N_GENS = 2
 
+PROTEINS_IN_METABOLISM = ["EG50003-MONOMER[c]", "PHOB-MONOMER[c]", "PTSI-MONOMER[c]", "PTSH-MONOMER[c]"]
+
 class Node:
 	"""
 	Class definition for a node in the causal network.
@@ -64,7 +66,13 @@ class Node:
 		self.dynamics = {}
 		self.dynamics_units = {}
 
-	def get_attributes(self, node_id, name, synonyms="", constants=""):
+	def get_id(self):
+		"""
+		Return ID of node.
+		"""
+		return self.node_id
+
+	def read_attributes(self, node_id, name, synonyms="", constants=""):
 		"""
 		Sets the remaining attribute variables of the node. Argument can be
 		in the form of a single dictionary with names of each argument names as
@@ -75,7 +83,7 @@ class Node:
 		self.synonyms = synonyms
 		self.constants = constants
 
-	def get_dynamics(self, dynamics, dynamics_units):
+	def read_dynamics(self, dynamics, dynamics_units):
 		"""
 		Sets the dynamics variable of the node.
 		"""
@@ -137,7 +145,7 @@ class Edge:
 		self.dst_id = None
 		self.stoichiometry = None
 
-	def get_attributes(self, src_id, dst_id, stoichiometry=""):
+	def read_attributes(self, src_id, dst_id, stoichiometry=""):
 		"""
 		Sets the remaining attribute variables of the node. Argument can be
 		in the form of a single dictionary with names of each argument names as
@@ -197,47 +205,13 @@ def add_replication_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	Add replication nodes with dynamics data to the node list, and add edges
 	connected to the replication nodes to the edge list. - Heejo
 	"""
-	# Create nodes for dNTPs
-	dNTPs_nodelist = []
-	for dNTP in simData.moleculeGroups.dNtpIds:
-		dNTP_node = Node("State", "Metabolite")
-		attr = {'node_id': dNTP,
-			'name': dNTP,
-			'constants': {'mass': 0},
-			}
-		dNTP_node.get_attributes(**attr)
-		dNTPs_nodelist.append(dNTP_node)
-
-		# Add dNTP nodes to node list
-		node_list.append(dNTP_node)
-
-	# Create node for Ppi
-	ppi_node = Node("State", "Metabolite")
-	attr = {'node_id': 'PPI[c]',
-			'name': 'PPI[c]',
-			'constants': {'mass': 0},
-			}
-	ppi_node.get_attributes(**attr)
-
-	# Add Ppi node to node list
-	node_list.append(ppi_node)
-
-	# Create nodes for DNA polymerases
-	pols_nodelist = []
-	for pol in ['CPLX0-2361[c]', 'CPLX0-3761[c]', 'CPLX0-3925[c]', 'CPLX0-7910[c]']:
-		pol_node = Node("State", "Complex")
-		attr = {'node_id': pol,
-			'name': pol,
-			'constants': {'mass': 0},
-			}
-		pol_node.get_attributes(**attr)
-		pols_nodelist.append(pol_node)
-
-		# Add DNA polymerase nodes to node list
-		node_list.append(pol_node)
+	dntp_ids = simData.moleculeGroups.dNtpIds
+	ppi_id = "PPI[c]"
+	dnap_ids = ['CPLX0-2361[c]', 'CPLX0-3761[c]', 'CPLX0-3925[c]', 'CPLX0-7910[c]']
 
 	# Loop through all genes
 	geneIds = [data[0] for data in simData.process.replication.geneData]
+
 	for geneId in geneIds:
 		# Initialize a single gene node
 		gene_node = Node("State", "Gene")
@@ -245,7 +219,7 @@ def add_replication_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 		# Add attributes to the node
 		# TODO: Add common name and synonyms
 		attr = {'node_id': geneId, 'name': geneId}
-		gene_node.get_attributes(**attr)
+		gene_node.read_attributes(**attr)
 
 		# Add dynamics data to the node.
 		# TODO
@@ -258,8 +232,9 @@ def add_replication_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 
 		# Add attributes to the node
 		# TODO: Add common name and synonyms
-		attr = {'node_id': "%s_REPLICATION" % geneId, 'name': "%s_REPLICATION" % geneId}
-		replication_node.get_attributes(**attr)
+		replication_node_id = "%s_REPLICATION" % geneId
+		attr = {'node_id': replication_node_id, 'name': replication_node_id}
+		replication_node.read_attributes(**attr)
 
 		# Add dynamics data to the node.
 		# TODO
@@ -269,33 +244,33 @@ def add_replication_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 
 		# Add edges between gene and replication nodes
 		gene_to_replication_edge = Edge("Replication")
-		attr = {'src_id': gene_node, 'dst_id': replication_node}
-		gene_to_replication_edge.get_attributes(**attr)
+		attr = {'src_id': geneId, 'dst_id': replication_node_id}
+		gene_to_replication_edge.read_attributes(**attr)
 		edge_list.append(gene_to_replication_edge)
 
 		replication_to_gene_edge = Edge("Replication")
-		attr = {'src_id': replication_node, 'dst_id': gene_node}
-		gene_to_replication_edge.get_attributes(**attr)
+		attr = {'src_id': replication_node_id, 'dst_id': geneId}
+		replication_to_gene_edge.read_attributes(**attr)
 		edge_list.append(replication_to_gene_edge)
 
 		# Add edges from dNTPs to replication nodes
-		for dNTP_node in dNTPs_nodelist:
+		for dntp_id in dntp_ids:
 			dNTP_to_replication_edge = Edge("Replication")
-			attr = {'src_id': dNTP_node, 'dst_id': replication_node}
-			dNTP_to_replication_edge.get_attributes(**attr)
+			attr = {'src_id': dntp_id, 'dst_id': replication_node_id}
+			dNTP_to_replication_edge.read_attributes(**attr)
 			edge_list.append(dNTP_to_replication_edge)
 
 		# Add edge from replication to Ppi
 		replication_to_ppi_edge = Edge("Replication")
-		attr = {'src_id': replication_node, 'dst_id': ppi_node}
-		replication_to_ppi_edge.get_attributes(**attr)
+		attr = {'src_id': replication_node_id, 'dst_id': ppi_id}
+		replication_to_ppi_edge.read_attributes(**attr)
 		edge_list.append(replication_to_ppi_edge)
 
 		# Add edges from DNA polymerases to replication
-		for pol_node in pols_nodelist:
+		for dnap_id in dnap_ids:
 			pol_to_replication_edge = Edge("Replication")
-			attr = {'src_id': pol_node, 'dst_id': replication_node}
-			pol_to_replication_edge.get_attributes(**attr)
+			attr = {'src_id': dnap_id, 'dst_id': replication_node_id}
+			pol_to_replication_edge.read_attributes(**attr)
 			edge_list.append(pol_to_replication_edge)
 
 
@@ -304,65 +279,20 @@ def add_transcription_nodes_and_edges(simData, simOutDirs, node_list, edge_list)
 	Add transcription nodes with dynamics data to the node list, and add edges
 	connected to the transcription nodes to the edge list. - Heejo
 	"""
-	# Create nodes for NTPs
-	ntps_nodelist = []
-	for ntp in simData.moleculeGroups.ntpIds:
-		ntp_node = Node("State", "Metabolite")
-		attr = {'node_id': ntp,
-			'name': ntp,
-			'constants': {'mass': 0},
-			}
-		ntp_node.get_attributes(**attr)
-		ntps_nodelist.append(ntp_node)
-
-		# Add NTP node to node list
-		node_list.append(ntp_node)
-
-	# Create node for Ppi
-	ppi_node = Node("State", "Metabolite")
-	attr = {'node_id': 'PPI[c]',
-			'name': 'PPI[c]',
-			'constants': {'mass': 0},
-			}
-	ppi_node.get_attributes(**attr)
-
-	# Add Ppi node to node list
-	node_list.append(ppi_node)
-
-	# Create node for RNA polymerase
-	pol_node = Node("State", "Complex")
-	attr = {'node_id': 'APORNAP-CPLX[c]',
-		'name': 'APORNAP-CPLX[c]',
-		'constants': {'mass': 0},
-		}
-	pol_node.get_attributes(**attr)
-
-	# Add RNA polymerase nodes to node list
-	node_list.append(pol_node)
+	ntp_ids = simData.moleculeGroups.ntpIds
+	ppi_id = "PPI[c]"
+	rnap_id = "APORNAP-CPLX[c]"
 
 	# Loop through all genes
 	for geneId, rnaId, _ in simData.process.replication.geneData:
-		# Initialize a single gene node
-		gene_node = Node("State", "Gene")
-
-		# Add attributes to the node
-		# TODO: Add common name and synonyms
-		attr = {'node_id': geneId, 'name': geneId}
-		gene_node.get_attributes(**attr)
-
-		# Add dynamics data to the node.
-		# TODO
-
-		# Append gene node to node_list
-		node_list.append(gene_node)
-
 		# Initialize a single transcript node
 		rna_node = Node("State", "RNA")
 
 		# Add attributes to the node
 		# TODO: Add common name and synonyms
-		attr = {'node_id': "%s[c]" % rnaId, 'name': "%s[c]" % rnaId}
-		rna_node.get_attributes(**attr)
+		rna_node_id = "%s[c]" % rnaId
+		attr = {'node_id': rna_node_id, 'name': rna_node_id}
+		rna_node.read_attributes(**attr)
 
 		# Add dynamics data to the node.
 		# TODO
@@ -375,8 +305,9 @@ def add_transcription_nodes_and_edges(simData, simOutDirs, node_list, edge_list)
 
 		# Add attributes to the node
 		# TODO: Add common name and synonyms
-		attr = {'node_id': "%s_TRANSCRIPTION" % geneId, 'name': "%s_TRANSCRIPTION" % geneId}
-		transcription_node.get_attributes(**attr)
+		transcription_node_id = "%s_TRANSCRIPTION" % geneId
+		attr = {'node_id': transcription_node_id, 'name': transcription_node_id}
+		transcription_node.read_attributes(**attr)
 
 		# Add dynamics data to the node.
 		# TODO
@@ -386,33 +317,33 @@ def add_transcription_nodes_and_edges(simData, simOutDirs, node_list, edge_list)
 
 		# Add edge from gene to transcription node
 		gene_to_transcription_edge = Edge("Transcription")
-		attr = {'src_id': gene_node, 'dst_id': transcription_node}
-		gene_to_transcription_edge.get_attributes(**attr)
+		attr = {'src_id': geneId, 'dst_id': transcription_node_id}
+		gene_to_transcription_edge.read_attributes(**attr)
 		edge_list.append(gene_to_transcription_edge)
 
 		# Add edge from transcription to transcript node
 		transcription_to_rna_edge = Edge("Transcription")
-		attr = {'src_id': transcription_node, 'dst_id': rna_node}
-		transcription_to_rna_edge.get_attributes(**attr)
+		attr = {'src_id': transcription_node_id, 'dst_id': rna_node_id}
+		transcription_to_rna_edge.read_attributes(**attr)
 		edge_list.append(transcription_to_rna_edge)
 
 		# Add edges from NTPs to transcription nodes
-		for ntp_node in ntps_nodelist:
+		for ntp_id in ntp_ids:
 			ntp_to_transcription_edge = Edge("Transcription")
-			attr = {'src_id': ntp_node, 'dst_id': transcription_node}
-			ntp_to_transcription_edge.get_attributes(**attr)
+			attr = {'src_id': ntp_id, 'dst_id': transcription_node_id}
+			ntp_to_transcription_edge.read_attributes(**attr)
 			edge_list.append(ntp_to_transcription_edge)
 
 		# Add edge from transcription to Ppi
 		transcription_to_ppi_edge = Edge("Transcription")
-		attr = {'src_id': transcription_node, 'dst_id': ppi_node}
-		transcription_to_ppi_edge.get_attributes(**attr)
+		attr = {'src_id': transcription_node_id, 'dst_id': ppi_id}
+		transcription_to_ppi_edge.read_attributes(**attr)
 		edge_list.append(transcription_to_ppi_edge)
 
 		# Add edges from RNA polymerases to transcription
 		pol_to_transcription_edge = Edge("Transcription")
-		attr = {'src_id': pol_node, 'dst_id': transcription_node}
-		pol_to_transcription_edge.get_attributes(**attr)
+		attr = {'src_id': rnap_id, 'dst_id': transcription_node_id}
+		pol_to_transcription_edge.read_attributes(**attr)
 		edge_list.append(pol_to_transcription_edge)
 
 
@@ -422,48 +353,13 @@ def add_translation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	connected to the translation nodes to the edge list. - Heejo
 	"""
 	# Create nodes for amino acids
-	aas_nodelist = []
-	for aa in simData.moleculeGroups.aaIDs:
-		aa_node = Node("State", "Metabolite")
-		attr = {'node_id': aa,
-			'name': aa,
-			'constants': {'mass': 0},
-			}
-		aa_node.get_attributes(**attr)
-		aas_nodelist.append(aa_node)
+	aa_ids = simData.moleculeGroups.aaIDs
+	gtp_id = "GTP[c]"
+	gdp_id = "GDP[c]"
+	water_id = "WATER[c]"
+	ppi_id = "PPI[c]"
 
-		# Add amino acid node to node list
-		node_list.append(aa_node)
-
-	# Create nodes for GTP, GDP, water, Ppi
-	metabolites_nodelist = []
-	for metabolite in ["GTP[c]", "GDP[c]", "WATER[c]", "PPI[c]"]:
-		metabolite_node = Node("State", "Metabolite")
-		attr = {'node_id': metabolite,
-			'name': metabolite,
-			'constants': {'mass': 0},
-			}
-		metabolite_node.get_attributes(**attr)
-		metabolites_nodelist.append(metabolite_node)
-
-		# Add metabolite node to node list
-		node_list.append(metabolite_node)
-	gtp_node, gdp_node, water_node, ppi_node = metabolites_nodelist
-
-	# Create nodes for ribosome subunits
-	ribosomes_nodelist = []
-	subunits = [simData.moleculeGroups.s30_fullComplex, simData.moleculeGroups.s50_fullComplex]
-	for subunit in subunits:
-		subunit_node = Node("State", "Complex")
-		attr = {'node_id': subunit,
-			'name': subunit,
-			'constants': {'mass': 0},
-			}
-		subunit_node.get_attributes(**attr)
-		ribosomes_nodelist.append(subunit_node)
-
-		# Add ribosome subunits to node list
-		node_list.append(subunit_node)
+	ribosome_subunit_ids = [simData.moleculeGroups.s30_fullComplex, simData.moleculeGroups.s50_fullComplex]
 
 	# Loop through all translatable genes
 	for data in simData.process.translation.monomerData:
@@ -471,27 +367,13 @@ def add_translation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 		rnaId = data[1]
 		geneId = rnaId.split("_RNA[c]")[0]
 
-		# Initialize a single transcript node
-		rna_node = Node("State", "RNA")
-
-		# Add attributes to the node
-		# TODO: Add common name and synonyms
-		attr = {'node_id': rnaId, 'name': rnaId} # rnaId already contains [c] tag
-		rna_node.get_attributes(**attr)
-
-		# Add dynamics data to the node.
-		# TODO
-
-		# Append transcript node to node_list
-		node_list.append(rna_node)
-
 		# Initialize a single protein node
 		protein_node = Node("State", "Protein")
 
 		# Add attributes to the node
 		# TODO: Add common name and synonyms
 		attr = {'node_id': monomerId, 'name': monomerId}
-		protein_node.get_attributes(**attr)
+		protein_node.read_attributes(**attr)
 
 		# Add dynamics data to the node.
 		# TODO
@@ -504,8 +386,9 @@ def add_translation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 
 		# Add attributes to the node
 		# TODO: Add common name and synonyms
-		attr = {'node_id': "%s_TRANSLATION" % geneId, 'name': "%s_TRANSLATION" % geneId}
-		translation_node.get_attributes(**attr)
+		translation_node_id = "%s_TRANSLATION" % geneId
+		attr = {'node_id': translation_node_id, 'name': translation_node_id}
+		translation_node.read_attributes(**attr)
 
 		# Add dynamics data to the node.
 		# TODO
@@ -515,42 +398,42 @@ def add_translation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 
 		# Add edge from transcript to translation node
 		rna_to_translation_edge = Edge("Translation")
-		attr = {'src_id': rna_node, 'dst_id': translation_node}
-		rna_to_translation_edge.get_attributes(**attr)
+		attr = {'src_id': rnaId, 'dst_id': translation_node_id}
+		rna_to_translation_edge.read_attributes(**attr)
 		edge_list.append(rna_to_translation_edge)
 
 		# Add edge from translation to monomer node
 		translation_to_protein_edge = Edge("Translation")
-		attr = {'src_id': translation_node, 'dst_id': protein_node}
-		translation_to_protein_edge.get_attributes(**attr)
+		attr = {'src_id': translation_node_id, 'dst_id': monomerId}
+		translation_to_protein_edge.read_attributes(**attr)
 		edge_list.append(translation_to_protein_edge)
 
 		# Add edges from amino acids to translation node
-		for aa_node in aas_nodelist:
+		for aa_id in aa_ids:
 			aa_to_translation_edge = Edge("Translation")
-			attr = {'src_id': aa_node, 'dst_id': translation_node}
-			aa_to_translation_edge.get_attributes(**attr)
+			attr = {'src_id': aa_id, 'dst_id': translation_node_id}
+			aa_to_translation_edge.read_attributes(**attr)
 			edge_list.append(aa_to_translation_edge)
 
 		# Add edges from other reactants to translation node
-		for reactant_node in [gtp_node, water_node]:
+		for reactant_id in [gtp_id, water_id]:
 			reactant_to_translation_edge = Edge("Translation")
-			attr = {'src_id': reactant_node, 'dst_id': translation_node}
-			reactant_to_translation_edge.get_attributes(**attr)
+			attr = {'src_id': reactant_id, 'dst_id': translation_node_id}
+			reactant_to_translation_edge.read_attributes(**attr)
 			edge_list.append(reactant_to_translation_edge)
 
 		# Add edges from translation to other product nodes
-		for product_node in [gdp_node, ppi_node, water_node]:
+		for product_id in [gdp_id, ppi_id, water_id]:
 			translation_to_product_edge = Edge("Translation")
-			attr = {'src_id': translation_node, 'dst_id': product_node}
-			translation_to_product_edge.get_attributes(**attr)
+			attr = {'src_id': translation_node_id, 'dst_id': product_id}
+			translation_to_product_edge.read_attributes(**attr)
 			edge_list.append(translation_to_product_edge)
 
 		# Add edges from ribosome subunits to translation node
-		for subunit_node in ribosomes_nodelist:
+		for subunit_id in ribosome_subunit_ids:
 			subunit_to_translation_edge = Edge("Translation")
-			attr = {'src_id': subunit_node, 'dst_id': translation_node}
-			subunit_to_translation_edge.get_attributes(**attr)
+			attr = {'src_id': subunit_id, 'dst_id': translation_node_id}
+			subunit_to_translation_edge.read_attributes(**attr)
 			edge_list.append(subunit_to_translation_edge)
 
 
@@ -607,12 +490,12 @@ def add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 
 		# Add attributes to the node
 		attr = {'node_id': reaction, 'name': reaction}
-		complexation_node.get_attributes(**attr)
+		complexation_node.read_attributes(**attr)
 
 		# # TODO (ERAN) Add dynamics data (# rxns/ts) to the node.
 		# dynamics = {'flux': list(flux_array[:, idx])}
 		# dynamics_units = {'flux': 'mmol/gCDW/h'}
-		# complexation_node.get_dynamics(dynamics, dynamics_units)
+		# complexation_node.read_dynamics(dynamics, dynamics_units)
 
 		# Append node to node_list
 		node_list.append(complexation_node)
@@ -645,7 +528,7 @@ def add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 					'dst_id': reaction,
 					'stoichiometry': stoich
 					}
-			complex_edge.get_attributes(**attr)
+			complex_edge.read_attributes(**attr)
 
 			# Append edge to edge_list
 			edge_list.append(complex_edge)
@@ -662,7 +545,7 @@ def add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 			'name': protein,
 			'constants': {'mass': 0}
 			}
-		protein_node.get_attributes(**attr)
+		protein_node.read_attributes(**attr)
 
 		# Add dynamics data (counts) to the node.
 		# Get column index of the protein in the counts array
@@ -674,7 +557,7 @@ def add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 		if protein_idx != -1:
 			dynamics = {'counts': list(counts_array[:, protein_idx])}
 			dynamics_units = {'counts': 'N'}
-			protein_node.get_dynamics(dynamics, dynamics_units)
+			protein_node.read_dynamics(dynamics, dynamics_units)
 
 		# Append node to node_list
 		node_list.append(protein_node)
@@ -692,7 +575,7 @@ def add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 			'name': complex,
 			'constants': {'mass': 0}
 			}
-		complex_node.get_attributes(**attr)
+		complex_node.read_attributes(**attr)
 
 		# Add dynamics data (counts) to the node.
 		# Get column index of the complex in the counts array
@@ -704,7 +587,7 @@ def add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 		if complex_idx != -1:
 			dynamics = {'counts': list(counts_array[:, complex_idx])}
 			dynamics_units = {'counts': 'N'}
-			complex_node.get_dynamics(dynamics, dynamics_units)
+			complex_node.read_dynamics(dynamics, dynamics_units)
 
 		# Append node to node_list
 		node_list.append(complex_node)
@@ -754,13 +637,13 @@ def add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 		# Add attributes to the node
 		# TODO: Get correct reaction name and synonyms from EcoCyc
 		attr = {'node_id': reaction, 'name': reaction}
-		metabolism_node.get_attributes(**attr)
+		metabolism_node.read_attributes(**attr)
 
 		# Add dynamics data (flux) to the node. The flux array shares the same
 		# column index with the reactionIDs list
 		dynamics = {'flux': list(flux_array[:, idx])}
 		dynamics_units = {'flux': 'mmol/gCDW/h'}
-		metabolism_node.get_dynamics(dynamics, dynamics_units)
+		metabolism_node.read_dynamics(dynamics, dynamics_units)
 
 		# Append node to node_list
 		node_list.append(metabolism_node)
@@ -790,13 +673,16 @@ def add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 					'dst_id': reaction,
 					'stoichiometry': stoich
 					}
-			metabolism_edge.get_attributes(**attr)
+			metabolism_edge.read_attributes(**attr)
 
 			# Append edge to edge_list
 			edge_list.append(metabolism_edge)
 
 	# Loop through all metabolites
 	for metabolite in metabolite_ids:
+		if metabolite in PROTEINS_IN_METABOLISM:
+			continue
+
 		# Initialize a single metabolite node for each metabolite
 		metabolite_node = Node("State", "Metabolite")
 
@@ -807,7 +693,7 @@ def add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 			'name': metabolite,
 			'constants': {'mass': 0}
 			}
-		metabolite_node.get_attributes(**attr)
+		metabolite_node.read_attributes(**attr)
 
 		# Add dynamics data (counts) to the node.
 		# Get column index of the metabolite in the counts array
@@ -821,7 +707,7 @@ def add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 		if metabolite_idx != -1:
 			dynamics = {'counts': list(counts_array[:, metabolite_idx])}
 			dynamics_units = {'counts': 'N'}
-			metabolite_node.get_dynamics(dynamics, dynamics_units)
+			metabolite_node.read_dynamics(dynamics, dynamics_units)
 
 		# Append node to node_list
 		node_list.append(metabolite_node)
@@ -853,7 +739,7 @@ def add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 			'name': rxnName,
 			'constants': {'rateFwd': ratesFwd[reactionIdx], 'rateRev': ratesRev[reactionIdx]}
 		}
-		equilibrium_node.get_attributes(**attr)
+		equilibrium_node.read_attributes(**attr)
 
 		# Append new node to node_list
 		node_list.append(equilibrium_node)
@@ -872,7 +758,7 @@ def add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 					'stoichiometry': stoich
 				}
 
-				equilibrium_edge.get_attributes(**attr)
+				equilibrium_edge.read_attributes(**attr)
 				edge_list.append(equilibrium_edge)
 
 			# If the coefficient is positive, add product edge
@@ -883,7 +769,7 @@ def add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 					'stoichiometry': stoich
 				}
 
-				equilibrium_edge.get_attributes(**attr)
+				equilibrium_edge.read_attributes(**attr)
 				edge_list.append(equilibrium_edge)
 
 
@@ -942,13 +828,13 @@ def add_regulation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 				attr = {'node_id': regID,
 					'name': regName,
 				}
-				regulation_node.get_attributes(**attr)
+				regulation_node.read_attributes(**attr)
 
 				# Add dynamics data (counts) to the node.
 				# Get column index of the TF+gene pair in the counts array
 				dynamics = {'bound TFs': list(counts_array[:, tfDnaBoundIdx])}
 				dynamics_units = {'counts per TF-gene pair': 'N'}
-				regulation_node.get_dynamics(dynamics, dynamics_units)
+				regulation_node.read_dynamics(dynamics, dynamics_units)
 
 				node_list.append(regulation_node)
 
@@ -957,7 +843,7 @@ def add_regulation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 				attr = {'src_id': tfID,
 					'dst_id': regID,
 				}
-				regulation_edge_from_tf.get_attributes(**attr)
+				regulation_edge_from_tf.read_attributes(**attr)
 				edge_list.append(regulation_edge_from_tf)
 
 				# Add edge from this regulation node to the gene
@@ -965,7 +851,7 @@ def add_regulation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 				attr = {'src_id': regID,
 					'dst_id': geneID,
 				}
-				regulation_edge_to_gene.get_attributes(**attr)
+				regulation_edge_to_gene.read_attributes(**attr)
 				edge_list.append(regulation_edge_to_gene)
 
 
@@ -1027,6 +913,37 @@ def add_global_dynamics(simData, simOutDirs, dynamics_file):
 		dynamics_file.write(dynamics_row)
 
 
+def check_duplicate_nodes(node_list):
+	"""
+	Identify any nodes that have duplicate IDs. This does not remove duplicate
+	nodes.
+	"""
+	node_ids = []
+	duplicate_ids = []
+
+	# Loop through all nodes in the node_list
+	for node in node_list:
+		# Get ID of the node
+		node_id = node.get_id()
+
+		# If node was not seen, add to returned list of unique node IDs
+		if node_id not in node_ids:
+			node_ids.append(node_id)
+		# If node was seen, add to list of duplicate IDs
+		elif node_id not in duplicate_ids:
+			duplicate_ids.append(node_id)
+
+	# Print duplicate node IDs that were found
+	for node_id in duplicate_ids:
+		print("Node ID %s is duplicate!" % (node_id, ))
+
+	return node_ids
+
+
+def find_runaway_edges(node_list, edge_list):
+	pass
+
+
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile=None, metadata=None):
 	if not os.path.isdir(seedOutDir):
 		raise Exception, "seedOutDir does not currently exist as a directory"
@@ -1067,7 +984,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	add_replication_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Heejo
 	add_transcription_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Heejo
 	add_translation_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Heejo
-	add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Eran
+	#add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Eran
 	add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Gwanggyu
 	add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Gwanggyu
 	add_regulation_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Gwanggyu
@@ -1077,7 +994,12 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# check if all nodes have at least one edge.
 	# check that all edges connect nodes that are in the nodelist.
 	if CHECK_SANITY:
-		pass
+		print("Performing sanity check on network...")
+		node_ids = check_duplicate_nodes(node_list)
+		find_runaway_edges(node_ids, edge_list)
+
+	print("Total number of nodes: %d" % (len(node_list)))
+	print("Total number of edges: %d" % (len(edge_list)))
 
 	# Open node/edge list files and dynamics file
 	nodelist_file = open(os.path.join(plotOutDir, plotOutFileName + "_nodelist.csv"), 'w')
