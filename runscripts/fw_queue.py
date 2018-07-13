@@ -596,7 +596,8 @@ for i in VARIANTS_TO_RUN:
 					raise ValueError("k ({}) < 0".format(k))
 
 				wf_fws.append(fw_this_variant_this_gen_this_sim)
-				if RUN_AGGREGATE_ANALYSIS:
+				# Only add the last generation as dependencies for multiple sim analysis tasks
+				if RUN_AGGREGATE_ANALYSIS and k == N_GENS - 1:
 					wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_this_seed_this_analysis)
 					wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_cohort_analysis)
 					wf_links[fw_this_variant_this_gen_this_sim].append(fw_variant_analysis)
