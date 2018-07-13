@@ -27,6 +27,8 @@ DYNAMICS_HEADER = "node,type,units,dynamics\n"
 
 CHECK_SANITY = True
 N_GENS = 2
+DYNAMICS_PRECISION = 6
+TIME_PRECISION = 2
 
 PROTEINS_IN_METABOLISM = ["EG50003-MONOMER[c]", "PHOB-MONOMER[c]", "PTSI-MONOMER[c]", "PTSH-MONOMER[c]"]
 
@@ -111,12 +113,16 @@ class Node:
 		# Iterate through all dynamics variables associated with the node
 		for name, dynamics in self.dynamics.items():
 			unit = self.dynamics_units.get(name, "")
-			# TODO: format dynamics - print integers as integers, control
-			# number of decimal places being printed
+
+			# Format dynamics string depending on data type
+			if unit == "N":
+				dynamics_string = format_dynamics_string(dynamics, "int")
+			else:
+				dynamics_string = format_dynamics_string(dynamics, "float")
 
 			# Format single string with dynamic attributes separated by commas
 			dynamics_row = "%s,%s,%s,%s\n" % (
-				self.node_id, name, unit, dynamics
+				self.node_id, name, unit, dynamics_string
 				)
 
 			# Write line to dynamics file
@@ -156,6 +162,12 @@ class Edge:
 		Return ID of destination node.
 		"""
 		return self.dst_id
+
+	def get_process(self):
+		"""
+		Return process associated with the edge.
+		"""
+		return self.process
 
 	def read_attributes(self, src_id, dst_id, stoichiometry=""):
 		"""
@@ -559,7 +571,7 @@ def add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 			complex_idx = -1
 
 		if complex_idx != -1:
-			dynamics = {'counts': list(counts_array[:, complex_idx])}
+			dynamics = {'counts': list(counts_array[:, complex_idx].astype(np.int))}
 			dynamics_units = {'counts': 'N'}
 			complex_node.read_dynamics(dynamics, dynamics_units)
 
@@ -586,7 +598,7 @@ def add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	# Get dynamics data from all simOutDirs (flux for reactions, counts for
 	# metabolites)
 	flux_array = np.empty((0, len(reactionIDs)))
-	counts_array = np.empty((0, len(moleculeIDs)))
+	counts_array = np.empty((0, len(moleculeIDs)), dtype=np.int)
 
 	for simOutDir in simOutDirs:
 		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
@@ -695,7 +707,7 @@ def add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 			metabolite_idx = -1
 
 		if metabolite_idx != -1:
-			dynamics = {'counts': list(counts_array[:, metabolite_idx])}
+			dynamics = {'counts': list(counts_array[:, metabolite_idx].astype(np.int))}
 			dynamics_units = {'counts': 'N'}
 			metabolite_node.read_dynamics(dynamics, dynamics_units)
 
@@ -777,7 +789,7 @@ def add_regulation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	moleculeIDs = bulkMolecules.readAttribute("objectNames")
 
 	# Get dynamics data from all simOutDirs
-	counts_array = np.empty((0, len(moleculeIDs)))
+	counts_array = np.empty((0, len(moleculeIDs)), dtype=np.int)
 
 	# TF-DNA bound counts are stored in bulkMolecules counts
 	for simOutDir in simOutDirs:
@@ -822,8 +834,8 @@ def add_regulation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 
 				# Add dynamics data (counts) to the node.
 				# Get column index of the TF+gene pair in the counts array
-				dynamics = {'bound TFs': list(counts_array[:, tfDnaBoundIdx])}
-				dynamics_units = {'counts per TF-gene pair': 'N'}
+				dynamics = {'bound TFs': list(counts_array[:, tfDnaBoundIdx].astype(np.int))}
+				dynamics_units = {'bound TFs': 'N'}
 				regulation_node.read_dynamics(dynamics, dynamics_units)
 
 				node_list.append(regulation_node)
@@ -857,8 +869,10 @@ def add_time_data(simOutDirs, dynamics_file):
 		t = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 		time += list(t)
 
+	time_string = format_dynamics_string(time, "time")
+
 	time_row = "%s,%s,%s,%s\n" % (
-		"time", "time", "s", time
+		"time", "time", "s", time_string
 	)
 
 	# Write line to dynamics file
@@ -894,9 +908,15 @@ def add_global_dynamics(simData, simOutDirs, dynamics_file):
 	for name, dynamics in global_dynamics.items():
 		unit = global_dynamics_units.get(name, "")
 
+		# Format dynamics string depending on data type
+		if unit == "N":
+			dynamics_string = format_dynamics_string(dynamics, "int")
+		else:
+			dynamics_string = format_dynamics_string(dynamics, "float")
+
 		# Format single string with dynamic attributes separated by commas
 		dynamics_row = "%s,%s,%s,%s\n" % (
-			"global", name, unit, dynamics
+			"global", name, unit, dynamics_string
 		)
 
 		# Write line to dynamics file
@@ -944,13 +964,58 @@ def find_runaway_edges(node_ids, edge_list):
 		# Get IDs of source node
 		src_id = edge.get_src_id()
 		dst_id = edge.get_dst_id()
+		process = edge.get_process()
 
 		# Print error prompt if the node IDs are not found in node_ids
 		if src_id not in node_ids:
-			print("src_id %s of edge with dst_id %s does not exist." % (src_id, dst_id, ))
+			print("src_id %s of an %s edge does not exist." % (src_id, process, ))
 
 		if dst_id not in node_ids:
-			print("dst_id %s of edge with src_id %s does not exist." % (dst_id, src_id, ))
+			print("dst_id %s of an %s edge does not exist." % (dst_id, process, ))
+
+
+def format_dynamics_string(dynamics, datatype):
+	"""
+	Formats the string of dynamics data that is printed out to the dynamics
+	file. If datatype is "int", print all numbers as full decimal integers.
+	If datatype is "float", print all numbers in the general format with the
+	precision set by DYNAMICS_PRECISION. If datatype is "time", print all
+	numbers in the floating point format with the precision set by
+	TIME_PRECISION.
+	"""
+	if datatype == "int":
+		# Format first datapoint
+		dynamics_string = "[{0:d}".format(dynamics[0])
+
+		# Format rest of the datapoints
+		for val in dynamics[1:]:
+			dynamics_string += ", {0:d}".format(val)
+		dynamics_string += "]"
+
+	elif datatype == "float":
+		# Format first datapoint
+		dynamics_string = "[{0:.{1}g}".format(dynamics[0], DYNAMICS_PRECISION)
+
+		# Format rest of the datapoints
+		for val in dynamics[1:]:
+			dynamics_string += ", {0:.{1}g}".format(val, DYNAMICS_PRECISION)
+
+		dynamics_string += "]"
+
+	elif datatype == "time":
+		# Format first datapoint
+		dynamics_string = "[{0:.{1}f}".format(dynamics[0], TIME_PRECISION)
+
+		# Format rest of the datapoints
+		for val in dynamics[1:]:
+			dynamics_string += ", {0:.{1}f}".format(val, TIME_PRECISION)
+
+		dynamics_string += "]"
+
+	else:
+		dynamics_string = dynamics
+
+	return dynamics_string
 
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile=None, metadata=None):
@@ -998,10 +1063,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Gwanggyu
 	add_regulation_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Gwanggyu
 
-	# TODO: Check for network sanity (optional)
-	# check if all IDs in dynamics correspond to nodes.
-	# check if all nodes have at least one edge.
-	# check that all edges connect nodes that are in the nodelist.
+	# Check for network sanity (optional)
 	if CHECK_SANITY:
 		print("Performing sanity check on network...")
 		node_ids = check_duplicate_nodes(node_list)
