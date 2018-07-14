@@ -30,7 +30,16 @@ N_GENS = 2
 DYNAMICS_PRECISION = 6
 TIME_PRECISION = 2
 
+# Proteins that are reactants and products of a metabolic reaction
 PROTEINS_IN_METABOLISM = ["EG50003-MONOMER[c]", "PHOB-MONOMER[c]", "PTSI-MONOMER[c]", "PTSH-MONOMER[c]"]
+
+# Equilibrium complexes that are formed from deleted equilibrium reactions, but
+# are reactants in a complexation reaction
+EQUILIBRIUM_COMPLEXES_IN_COMPLEXATION = ["CPLX0-7620[c]", "CPLX0-7701[c]", "CPLX0-7677[c]", "MONOMER0-1781[c]", "CPLX0-7702[c]"]
+
+# Metabolites that are used as ligands in equilibrium, but do not participate
+# in any metabolic reactions
+METABOLITES_ONLY_IN_EQUILIBRIUM = ["4FE-4S[c]", "NITRATE[p]"]
 
 class Node:
 	"""
@@ -504,7 +513,7 @@ def add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 		complexStoich[reaction['id']] = stoich
 
 	# List of all complex IDs
-	complex_ids = simData.process.complexation.ids_complexes
+	complex_ids = simData.process.complexation.ids_complexes + EQUILIBRIUM_COMPLEXES_IN_COMPLEXATION
 
 	# Loop through all complexation reactions
 	for idx, reaction in enumerate(reactionIDs):
@@ -727,6 +736,25 @@ def add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	ratesFwd = np.array(simData.process.equilibrium.ratesFwd, dtype=np.float32)
 	ratesRev = np.array(simData.process.equilibrium.ratesRev, dtype=np.float32)
 
+	# Get bulkMolecule IDs from first simOut directory
+	simOutDir = simOutDirs[0]
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+	moleculeIDs = bulkMolecules.readAttribute("objectNames")
+
+	# Get dynamics data from all simOutDirs
+	counts_array = np.empty((0, len(moleculeIDs)), dtype=np.int)
+
+	for simOutDir in simOutDirs:
+		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+		counts = bulkMolecules.readColumn("counts")
+		counts_array = np.concatenate((counts_array, counts))
+
+	# Get IDs of complexes that were already added
+	complexation_complex_ids = simData.process.complexation.ids_complexes
+
+	# Get list of complex IDs in equilibrium
+	equilibrium_complex_ids = simData.process.equilibrium.ids_complexes
+
 	# TODO: get dynamics data for equilibrium nodes. Will need new listener.
 
 	# Loop through each equilibrium reaction
@@ -751,11 +779,13 @@ def add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 
 		# Loop through each element in column
 		for moleculeIdx, stoich in enumerate(stoichMatrixColumn):
+			moleculeId = moleculeIds[moleculeIdx]
+
 			# If the stoichiometric coefficient is negative, add reactant edge
 			# to the equilibrium node
 			if stoich < 0:
 				equilibrium_edge = Edge("Equilibrium")
-				attr = {'src_id': moleculeIds[moleculeIdx],
+				attr = {'src_id': moleculeId,
 					'dst_id': rxnId,
 					'stoichiometry': stoich
 				}
@@ -767,12 +797,74 @@ def add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 			elif stoich > 0:
 				equilibrium_edge = Edge("Equilibrium")
 				attr = {'src_id': rxnId,
-					'dst_id': moleculeIds[moleculeIdx],
+					'dst_id': moleculeId,
 					'stoichiometry': stoich
 				}
 
 				equilibrium_edge.read_attributes(**attr)
 				edge_list.append(equilibrium_edge)
+
+	for complex_id in equilibrium_complex_ids:
+		if complex_id in complexation_complex_ids:
+			continue
+
+		# Initialize a single complex node for each complex
+		complex_node = Node("State", "Complex")
+
+		# Add attributes to the node
+		# TODO: Get molecular mass using getMass().
+		# TODO: Get correct protein name and synonyms from EcoCyc
+		attr = {'node_id': complex_id,
+			'name': complex_id,
+			'constants': {'mass': 0}
+			}
+		complex_node.read_attributes(**attr)
+
+		# Add dynamics data (counts) to the node.
+		# Get column index of the complex in the counts array
+		try:
+			complex_idx = moleculeIDs.index(complex_id)
+		except ValueError:  # complex ID not found in moleculeIDs
+			complex_idx = -1
+
+		if complex_idx != -1:
+			dynamics = {'counts': list(counts_array[:, complex_idx].astype(np.int))}
+			dynamics_units = {'counts': 'N'}
+			complex_node.read_dynamics(dynamics, dynamics_units)
+
+		# Append node to node_list
+		node_list.append(complex_node)
+
+	# Loop through all metabolites
+	for metabolite in METABOLITES_ONLY_IN_EQUILIBRIUM:
+		# Initialize a single metabolite node for each metabolite
+		metabolite_node = Node("State", "Metabolite")
+
+		# Add attributes to the node
+		# TODO: Get molecular mass using getMass(). Some of the metabolites do not have mass data?
+		# TODO: Get correct metabolite name and synonyms from EcoCyc
+		attr = {'node_id': metabolite,
+			'name': metabolite,
+			'constants': {'mass': 0}
+			}
+		metabolite_node.read_attributes(**attr)
+
+		# Add dynamics data (counts) to the node.
+		# Get column index of the metabolite in the counts array
+		try:
+			metabolite_idx = moleculeIDs.index(metabolite)
+		except ValueError:  # metabolite ID not found in moleculeIDs
+			# Some of the metabolites are not being tracked.
+			# TODO: why?
+			metabolite_idx = -1
+
+		if metabolite_idx != -1:
+			dynamics = {'counts': list(counts_array[:, metabolite_idx].astype(np.int))}
+			dynamics_units = {'counts': 'N'}
+			metabolite_node.read_dynamics(dynamics, dynamics_units)
+
+		# Append node to node_list
+		node_list.append(metabolite_node)
 
 
 def add_regulation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
@@ -797,6 +889,14 @@ def add_regulation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 		counts = bulkMolecules.readColumn("counts")
 		counts_array = np.concatenate((counts_array, counts))
 
+	# Get IDs of genes and RNAs
+	gene_ids = []
+	rna_ids = []
+
+	for gene_id, rna_id, _ in simData.process.replication.geneData:
+		gene_ids.append(gene_id)
+		rna_ids.append(rna_id)
+
 	# Loop through all TFs
 	for tf, transcriptIDdict in tfToFC.items():
 		# Add localization ID to the TF ID
@@ -817,8 +917,8 @@ def add_regulation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 				tfDnaBoundIdx = -1
 
 			if tfDnaBoundIdx != -1:
-				# Remove "_RNA" from the transcript IDs to turn them into gene IDs
-				geneID = transcriptID[:-4]
+				# Get corresponding ID of gene from the transcript ID
+				geneID = gene_ids[rna_ids.index(transcriptID)]
 
 				# Initialize a single regulation node for each TF-gene pair
 				regulation_node = Node("Process", "Regulation")
@@ -923,7 +1023,7 @@ def add_global_dynamics(simData, simOutDirs, dynamics_file):
 		dynamics_file.write(dynamics_row)
 
 
-def check_duplicate_nodes(node_list):
+def find_duplicate_nodes(node_list):
 	"""
 	Identify any nodes that have duplicate IDs and prints them to the console.
 	This does not remove duplicate nodes.
@@ -968,10 +1068,10 @@ def find_runaway_edges(node_ids, edge_list):
 
 		# Print error prompt if the node IDs are not found in node_ids
 		if src_id not in node_ids:
-			print("src_id %s of an %s edge does not exist." % (src_id, process, ))
+			print("src_id %s of a %s edge does not exist." % (src_id, process, ))
 
 		if dst_id not in node_ids:
-			print("dst_id %s of an %s edge does not exist." % (dst_id, process, ))
+			print("dst_id %s of a %s edge does not exist." % (dst_id, process, ))
 
 
 def format_dynamics_string(dynamics, datatype):
@@ -999,7 +1099,6 @@ def format_dynamics_string(dynamics, datatype):
 		# Format rest of the datapoints
 		for val in dynamics[1:]:
 			dynamics_string += ", {0:.{1}g}".format(val, DYNAMICS_PRECISION)
-
 		dynamics_string += "]"
 
 	elif datatype == "time":
@@ -1009,7 +1108,6 @@ def format_dynamics_string(dynamics, datatype):
 		# Format rest of the datapoints
 		for val in dynamics[1:]:
 			dynamics_string += ", {0:.{1}f}".format(val, TIME_PRECISION)
-
 		dynamics_string += "]"
 
 	else:
@@ -1066,7 +1164,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	# Check for network sanity (optional)
 	if CHECK_SANITY:
 		print("Performing sanity check on network...")
-		node_ids = check_duplicate_nodes(node_list)
+		node_ids = find_duplicate_nodes(node_list)
 		find_runaway_edges(node_ids, edge_list)
 		print("Sanity check completed.")
 
