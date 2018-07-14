@@ -730,11 +730,11 @@ def add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 	connected to the equilibrium nodes to the edge list. - Gwanggyu
 	"""
 	# Get equilibrium-specific data from simData
-	moleculeIds = simData.process.equilibrium.moleculeNames
-	rxnIds = simData.process.equilibrium.rxnIds
-	stoichMatrix = simData.process.equilibrium.stoichMatrix()
-	ratesFwd = np.array(simData.process.equilibrium.ratesFwd, dtype=np.float32)
-	ratesRev = np.array(simData.process.equilibrium.ratesRev, dtype=np.float32)
+	equilibriumMoleculeIds = simData.process.equilibrium.moleculeNames
+	equilibriumRxnIds = simData.process.equilibrium.rxnIds
+	equilibriumStoichMatrix = simData.process.equilibrium.stoichMatrix()
+	equilibriumRatesFwd = np.array(simData.process.equilibrium.ratesFwd, dtype=np.float32)
+	equilibriumRatesRev = np.array(simData.process.equilibrium.ratesRev, dtype=np.float32)
 
 	# Get bulkMolecule IDs from first simOut directory
 	simOutDir = simOutDirs[0]
@@ -749,16 +749,16 @@ def add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 		counts = bulkMolecules.readColumn("counts")
 		counts_array = np.concatenate((counts_array, counts))
 
+	# TODO: get dynamics data for equilibrium nodes. Will need new listener.
+
 	# Get IDs of complexes that were already added
 	complexation_complex_ids = simData.process.complexation.ids_complexes
 
 	# Get list of complex IDs in equilibrium
 	equilibrium_complex_ids = simData.process.equilibrium.ids_complexes
 
-	# TODO: get dynamics data for equilibrium nodes. Will need new listener.
-
 	# Loop through each equilibrium reaction
-	for reactionIdx, rxnId in enumerate(rxnIds):
+	for reactionIdx, rxnId in enumerate(equilibriumRxnIds):
 
 		# Initialize a single equilibrium node for each equilibrium reaction
 		equilibrium_node = Node("Process", "Equilibrium")
@@ -767,7 +767,7 @@ def add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 		rxnName = rxnId[:-4] + " equilibrium reaction"
 		attr = {'node_id': rxnId,
 			'name': rxnName,
-			'constants': {'rateFwd': ratesFwd[reactionIdx], 'rateRev': ratesRev[reactionIdx]}
+			'constants': {'rateFwd': equilibriumRatesFwd[reactionIdx], 'rateRev': equilibriumRatesRev[reactionIdx]}
 		}
 		equilibrium_node.read_attributes(**attr)
 
@@ -775,11 +775,11 @@ def add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 		node_list.append(equilibrium_node)
 
 		# Extract column corresponding to reaction in the stoichiometric matrix
-		stoichMatrixColumn = stoichMatrix[:, reactionIdx]
+		equilibriumStoichMatrixColumn = equilibriumStoichMatrix[:, reactionIdx]
 
 		# Loop through each element in column
-		for moleculeIdx, stoich in enumerate(stoichMatrixColumn):
-			moleculeId = moleculeIds[moleculeIdx]
+		for moleculeIdx, stoich in enumerate(equilibriumStoichMatrixColumn):
+			moleculeId = equilibriumMoleculeIds[moleculeIdx]
 
 			# If the stoichiometric coefficient is negative, add reactant edge
 			# to the equilibrium node
@@ -804,7 +804,73 @@ def add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 				equilibrium_edge.read_attributes(**attr)
 				edge_list.append(equilibrium_edge)
 
-	for complex_id in equilibrium_complex_ids:
+	# Get 2CS-specific data from simData
+	tcsMoleculeIds = simData.process.two_component_system.moleculeNames
+	tcsRxnIds = simData.process.two_component_system.rxnIds
+	tcsStoichMatrix = simData.process.two_component_system.stoichMatrix()
+	tcsRatesFwd = np.array(simData.process.two_component_system.ratesFwd, dtype=np.float32)
+	tcsRatesRev = np.array(simData.process.two_component_system.ratesRev, dtype=np.float32)
+
+	# Initialize list of complex IDs in 2CS (should need instance variable)
+	tcs_complex_ids = []
+
+	# Get lists of monomers that were already added
+	monomer_ids = []
+	for monomerData in simData.process.translation.monomerData:
+		monomer_ids.append(monomerData[0])
+
+	# Loop through each 2CS reaction
+	for reactionIdx, rxnId in enumerate(tcsRxnIds):
+
+		# Initialize a single equilibrium node for each equilibrium reaction
+		equilibrium_node = Node("Process", "Equilibrium")
+
+		# Add attributes to the node
+		rxnName = rxnId[:-4] + " two-component system reaction"
+		attr = {'node_id': rxnId,
+			'name': rxnName,
+			'constants': {'rateFwd': tcsRatesFwd[reactionIdx], 'rateRev': tcsRatesRev[reactionIdx]}
+		}
+		equilibrium_node.read_attributes(**attr)
+
+		# Append new node to node_list
+		node_list.append(equilibrium_node)
+
+		# Extract column corresponding to reaction in the stoichiometric matrix
+		tcsStoichMatrixColumn = tcsStoichMatrix[:, reactionIdx]
+
+		# Loop through each element in column
+		for moleculeIdx, stoich in enumerate(tcsStoichMatrixColumn):
+			moleculeId = tcsMoleculeIds[moleculeIdx]
+
+			if moleculeId not in monomer_ids + ["ATP[c]", "ADP[c]", "WATER[c]", "PI[c]", "PROTON[c]", "PHOSPHO-PHOB[c]"]:
+				tcs_complex_ids.append(moleculeId)
+
+			# If the stoichiometric coefficient is negative, add reactant edge
+			# to the equilibrium node
+			if stoich < 0:
+				equilibrium_edge = Edge("Equilibrium")
+				attr = {'src_id': moleculeId,
+					'dst_id': rxnId,
+					'stoichiometry': stoich
+				}
+
+				equilibrium_edge.read_attributes(**attr)
+				edge_list.append(equilibrium_edge)
+
+			# If the coefficient is positive, add product edge
+			elif stoich > 0:
+				equilibrium_edge = Edge("Equilibrium")
+				attr = {'src_id': rxnId,
+					'dst_id': moleculeId,
+					'stoichiometry': stoich
+				}
+
+				equilibrium_edge.read_attributes(**attr)
+				edge_list.append(equilibrium_edge)
+
+	# Add new complexes that were encountered here
+	for complex_id in list(set(equilibrium_complex_ids + tcs_complex_ids)):
 		if complex_id in complexation_complex_ids:
 			continue
 
@@ -835,7 +901,7 @@ def add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 		# Append node to node_list
 		node_list.append(complex_node)
 
-	# Loop through all metabolites
+	# Loop through metabolites that only appear in equilibrium
 	for metabolite in METABOLITES_ONLY_IN_EQUILIBRIUM:
 		# Initialize a single metabolite node for each metabolite
 		metabolite_node = Node("State", "Metabolite")
