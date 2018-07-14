@@ -26,7 +26,7 @@ EDGE_LIST_HEADER = "src_node_id,dst_node_id,stoichiometry,process\n"
 DYNAMICS_HEADER = "node,type,units,dynamics\n"
 
 CHECK_SANITY = True
-N_GENS = 2
+N_GENS = 8
 DYNAMICS_PRECISION = 6
 TIME_PRECISION = 2
 
@@ -40,6 +40,9 @@ EQUILIBRIUM_COMPLEXES_IN_COMPLEXATION = ["CPLX0-7620[c]", "CPLX0-7701[c]", "CPLX
 # Metabolites that are used as ligands in equilibrium, but do not participate
 # in any metabolic reactions
 METABOLITES_ONLY_IN_EQUILIBRIUM = ["4FE-4S[c]", "NITRATE[p]"]
+
+# Molecules in 2CS reactions that are not proteins
+NONPROTEIN_MOLECULES_IN_2CS = ["ATP[c]", "ADP[c]", "WATER[c]", "PI[c]", "PROTON[c]", "PHOSPHO-PHOB[c]"]
 
 class Node:
 	"""
@@ -316,6 +319,19 @@ def add_transcription_nodes_and_edges(simData, simOutDirs, node_list, edge_list)
 	ppi_id = "PPI[c]"
 	rnap_id = "APORNAP-CPLX[c]"
 
+	# Get bulkMolecule IDs from first simOut directory
+	simOutDir = simOutDirs[0]
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+	moleculeIDs = bulkMolecules.readAttribute("objectNames")
+
+	# Get dynamics data from all simOutDirs
+	counts_array = np.empty((0, len(moleculeIDs)), dtype=np.int)
+
+	for simOutDir in simOutDirs:
+		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+		counts = bulkMolecules.readColumn("counts")
+		counts_array = np.concatenate((counts_array, counts))
+
 	# Loop through all genes
 	for geneId, rnaId, _ in simData.process.replication.geneData:
 		# Initialize a single transcript node
@@ -327,8 +343,17 @@ def add_transcription_nodes_and_edges(simData, simOutDirs, node_list, edge_list)
 		attr = {'node_id': rna_node_id, 'name': rna_node_id}
 		rna_node.read_attributes(**attr)
 
-		# Add dynamics data to the node.
-		# TODO
+		# Add dynamics data (counts) to the node.
+		# Get column index of the RNA in the counts array
+		try:
+			rna_idx = moleculeIDs.index(rna_node_id)
+		except ValueError:  # RNA ID not found in moleculeIDs
+			rna_idx = -1
+
+		if rna_idx != -1:
+			dynamics = {'counts': list(counts_array[:, rna_idx].astype(np.int))}
+			dynamics_units = {'counts': 'N'}
+			rna_node.read_dynamics(dynamics, dynamics_units)
 
 		# Append transcript node to node_list
 		node_list.append(rna_node)
@@ -394,6 +419,19 @@ def add_translation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 
 	ribosome_subunit_ids = [simData.moleculeGroups.s30_fullComplex[0], simData.moleculeGroups.s50_fullComplex[0]]
 
+	# Get bulkMolecule IDs from first simOut directory
+	simOutDir = simOutDirs[0]
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+	moleculeIDs = bulkMolecules.readAttribute("objectNames")
+
+	# Get dynamics data from all simOutDirs
+	counts_array = np.empty((0, len(moleculeIDs)), dtype=np.int)
+
+	for simOutDir in simOutDirs:
+		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+		counts = bulkMolecules.readColumn("counts")
+		counts_array = np.concatenate((counts_array, counts))
+
 	# Loop through all translatable genes
 	for data in simData.process.translation.monomerData:
 		monomerId = data[0]
@@ -408,8 +446,17 @@ def add_translation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 		attr = {'node_id': monomerId, 'name': monomerId}
 		protein_node.read_attributes(**attr)
 
-		# Add dynamics data to the node.
-		# TODO
+		# Add dynamics data (counts) to the node.
+		# Get column index of the monomer in the counts array
+		try:
+			monomer_idx = moleculeIDs.index(monomerId)
+		except ValueError:  # complex ID not found in moleculeIDs
+			monomer_idx = -1
+
+		if monomer_idx != -1:
+			dynamics = {'counts': list(counts_array[:, monomer_idx].astype(np.int))}
+			dynamics_units = {'counts': 'N'}
+			protein_node.read_dynamics(dynamics, dynamics_units)
 
 		# Append protein node to node_list
 		node_list.append(protein_node)
@@ -843,7 +890,7 @@ def add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 		for moleculeIdx, stoich in enumerate(tcsStoichMatrixColumn):
 			moleculeId = tcsMoleculeIds[moleculeIdx]
 
-			if moleculeId not in monomer_ids + ["ATP[c]", "ADP[c]", "WATER[c]", "PI[c]", "PROTON[c]", "PHOSPHO-PHOB[c]"]:
+			if moleculeId not in monomer_ids + NONPROTEIN_MOLECULES_IN_2CS:
 				tcs_complex_ids.append(moleculeId)
 
 			# If the stoichiometric coefficient is negative, add reactant edge
