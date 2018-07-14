@@ -25,7 +25,7 @@ NODE_LIST_HEADER = "ID,class,category,name,synonyms,constants\n"
 EDGE_LIST_HEADER = "src_node_id,dst_node_id,stoichiometry,process\n"
 DYNAMICS_HEADER = "node,type,units,dynamics\n"
 
-CHECK_SANITY = True
+CHECK_SANITY = False
 N_GENS = 8
 DYNAMICS_PRECISION = 6
 TIME_PRECISION = 2
@@ -204,42 +204,11 @@ class Edge:
 		edgelist_file.write(edge_row)
 
 
-def add_gene_nodes(simData, simOutDirs, node_list):
+def add_replication_and_genes(simData, simOutDirs, node_list, edge_list):
 	"""
-	Add gene nodes with dynamics data to the node list. - Heejo
-	"""
-	# This is currently being done by the add_replication_nodes_and_edges()
-	# function.
-	pass
-
-def add_transcript_nodes(simData, simOutDirs, node_list):
-	"""
-	Add transcript nodes with dynamics data to the node list. - Heejo
-	"""
-	# This is currently being done by the add_transcription_nodes_and_edges()
-	# function.
-	pass
-
-def add_protein_and_complex_nodes(simData, simOutDirs, node_list):
-	"""
-	Add protein and complex nodes with dynamics data to the node list. - Eran
-	"""
-	# This is currently being done by the add_complexation_nodes_and_edges()
-	# function.
-	pass
-
-def add_metabolite_nodes(simData, simOutDirs, node_list):
-	"""
-	Add metabolite nodes with dynamics data to the node list. - Gwanggyu
-	"""
-	# This is currently being done by the add_metabolism_nodes_and_edges()
-	# function.
-	pass
-
-def add_replication_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
-	"""
-	Add replication nodes with dynamics data to the node list, and add edges
-	connected to the replication nodes to the edge list. - Heejo
+	Add replication process nodes and gene state nodes with dynamics data to
+	the node list, and the edges connected to the replication nodes to the edge
+	list. - Heejo
 	"""
 	dntp_ids = simData.moleculeGroups.dNtpIds
 	ppi_id = "PPI[c]"
@@ -310,10 +279,11 @@ def add_replication_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 			edge_list.append(pol_to_replication_edge)
 
 
-def add_transcription_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
+def add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list):
 	"""
-	Add transcription nodes with dynamics data to the node list, and add edges
-	connected to the transcription nodes to the edge list. - Heejo
+	Add transcription process nodes and transcript state nodes with dynamics
+	data to the node list, and edges connected to the transcription nodes to
+	the edge list. - Heejo
 	"""
 	ntp_ids = simData.moleculeGroups.ntpIds
 	ppi_id = "PPI[c]"
@@ -405,10 +375,11 @@ def add_transcription_nodes_and_edges(simData, simOutDirs, node_list, edge_list)
 		edge_list.append(pol_to_transcription_edge)
 
 
-def add_translation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
+def add_translation_and_monomers(simData, simOutDirs, node_list, edge_list):
 	"""
-	Add translation nodes with dynamics data to the node list, and add edges
-	connected to the translation nodes to the edge list. - Heejo
+	Add translation process nodes and protein (monomer) state nodes with
+	dynamics data to the node list, and edges connected to the translation
+	nodes to the edge list. - Heejo
 	"""
 	# Create nodes for amino acids
 	aa_ids = simData.moleculeGroups.aaIDs
@@ -517,10 +488,11 @@ def add_translation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 			edge_list.append(subunit_to_translation_edge)
 
 
-def add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
+def add_complexation_and_complexes(simData, simOutDirs, node_list, edge_list):
 	"""
-	Add complexation nodes with dynamics data to the node list, and add edges
-	connected to the complexation nodes to the edge list. - Eran
+	Add complexation process nodes and complex state nodes with dynamics data
+	to the node list, and edges connected to the complexation nodes to the edge
+	list. - Eran
 	"""
 	simOutDir = simOutDirs[0]
 
@@ -635,12 +607,12 @@ def add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 		node_list.append(complex_node)
 
 
-def add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
+def add_metabolism_and_metabolites(simData, simOutDirs, node_list, edge_list):
 	"""
-	Add metabolism nodes with dynamics data to the node list, and add edges
-	connected to the metabolism nodes to the edge list. - Gwanggyu
+	Add metabolism process nodes and metabolite state nodes with dynamics data
+	to the node list, add edges connected to the metabolism nodes to the edge
+	list. - Gwanggyu
 	Note: forward and reverse reactions are represented as separate nodes.
-	State nodes for metabolites are also added here.
 	"""
 	# Get reaction list from first simOut directory
 	simOutDir = simOutDirs[0]
@@ -771,7 +743,7 @@ def add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 		node_list.append(metabolite_node)
 
 
-def add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
+def add_equilibrium(simData, simOutDirs, node_list, edge_list):
 	"""
 	Add equilibrium nodes with dynamics data to the node list, and add edges
 	connected to the equilibrium nodes to the edge list. - Gwanggyu
@@ -980,7 +952,7 @@ def add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
 		node_list.append(metabolite_node)
 
 
-def add_regulation_nodes_and_edges(simData, simOutDirs, node_list, edge_list):
+def add_regulation(simData, simOutDirs, node_list, edge_list):
 	"""
 	Add regulation nodes with dynamics data to the node list, and add edges
 	connected to the regulation nodes to the edge list. - Gwanggyu
@@ -1259,20 +1231,14 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	node_list = []
 	edge_list = []
 
-	# Add state nodes to the node list
-	add_gene_nodes(simData, simOutDirs, node_list)  # Heejo
-	add_transcript_nodes(simData, simOutDirs, node_list)  # Heejo
-	add_protein_and_complex_nodes(simData, simOutDirs, node_list)  # Eran
-	add_metabolite_nodes(simData, simOutDirs, node_list)  # Gwanggyu
-
-	# Add process nodes and associated edges to the node list and edge list, respectively
-	add_replication_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Heejo
-	add_transcription_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Heejo
-	add_translation_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Heejo
-	add_complexation_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Eran
-	add_metabolism_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Gwanggyu
-	add_equilibrium_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Gwanggyu
-	add_regulation_nodes_and_edges(simData, simOutDirs, node_list, edge_list)  # Gwanggyu
+	# Add nodes and edges to the node list and edge list
+	add_replication_and_genes(simData, simOutDirs, node_list, edge_list)
+	add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list)
+	add_translation_and_monomers(simData, simOutDirs, node_list, edge_list)
+	add_complexation_and_complexes(simData, simOutDirs, node_list, edge_list)
+	add_metabolism_and_metabolites(simData, simOutDirs, node_list, edge_list)
+	add_equilibrium(simData, simOutDirs, node_list, edge_list)
+	add_regulation(simData, simOutDirs, node_list, edge_list)
 
 	# Check for network sanity (optional)
 	if CHECK_SANITY:
