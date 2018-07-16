@@ -169,11 +169,9 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 				)
 
 			# Calculate and set attributes of newly created oriCs
-			oriCsNew.attrIs(
-				chromosomeIndex=chromosomeIndexOriC
-				# New OriC's share the index of the old OriC's they were
-				# replicated from
-				)
+            # New OriC's share the index of the old OriC's they were
+            # replicated from
+			oriCsNew.attrIs(chromosomeIndex=chromosomeIndexOriC)
 
 		# Write data from this module to a listener
 		self.writeToListener("ReplicationData", "criticalMassPerOriC",
@@ -266,45 +264,67 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			# replication round
 			assert np.unique(replicationRound[didTerminate]).size == 1
 
-			# Check that all DNA polymerases and oriC's are on a single
-			# chromosome (should hold if cell doubling time is longer than the
-			# D period)
-			assert np.all(chromosomeIndexPolymerase == 0)
-			assert np.all(chromosomeIndexOriC == 0)
+			# Get chromosome indexes of the terminated polymerases
+			chromosomeIndexesTerminated = np.unique(chromosomeIndexPolymerase[didTerminate])
+			newChromosomeIndex = chromosomeIndexPolymerase.max() + 1
 
+			# Get replication round index of the terminated polymerases
 			terminatedRound = replicationRound[didTerminate][0]
 
-			# Check for remaining active polymerases initiated in the same
-			# replication round
-			replicationRoundMatch = (replicationRound == terminatedRound)
+			for chromosomeIndexTerminated in chromosomeIndexesTerminated:
+				# Get all remaining active polymerases initiated in the same
+				# replication round and in the given chromosome
+				replicationRoundMatch = (replicationRound == terminatedRound)
+				chromosomeMatch = (chromosomeIndexPolymerase == chromosomeIndexTerminated)
+				remainingPolymerases = np.logical_and(
+					replicationRoundMatch, chromosomeMatch)
 
-			# If all of the polymerases from the same round have terminated, we
-			# are ready to split the chromosome and update the attributes.
-			if replicationRoundMatch.sum() == didTerminate.sum():
+				# Get all terminated polymerases in the given chromosome
+				terminatedPolymerases = np.logical_and(
+					didTerminate, chromosomeMatch)
 
-				# For each set of polymerases initiated in the same replication
-				# rounds, update the chromosome indexes to a new index for half
-				# of the polymerases.
-				for roundIdx in np.arange(terminatedRound + 1, replicationRound.max() + 1):
-					replicationRoundMatch = (replicationRound == roundIdx)
-					n_matches = replicationRoundMatch.sum()
+				# If all active polymerases are terminated polymerases, we are
+				# ready to split the chromosome and update the attributes.
+				if remainingPolymerases.sum() == terminatedPolymerases.sum():
 
-					# Number of polymerases initiated in a single round must be
-					# a multiple of eight.
-					assert n_matches % 8 == 0
+					# For each set of polymerases initiated in the same
+					# replication round, update the chromosome indexes to a new
+					# index for half of the polymerases.
+					for roundIdx in np.arange(terminatedRound + 1, replicationRound.max() + 1):
+						replicationRoundMatch = (replicationRound == roundIdx)
+						polymerasesToSplit = np.logical_and(
+							replicationRoundMatch, chromosomeMatch)
 
-					# Update the chromosome indexes for half of the polymerases
-					secondHalfIdx = np.where(replicationRoundMatch)[0][(n_matches // 2):]
-					chromosomeIndexPolymerase[secondHalfIdx] = 1
+						n_matches = polymerasesToSplit.sum()
 
-				# Reset chromosomeIndex for active DNA polymerases
-				activeDnaPoly.attrIs(chromosomeIndex=chromosomeIndexPolymerase)
+						# Number of polymerases initiated in a single round
+						# must be a multiple of eight.
+						assert n_matches % 8 == 0
 
-				# Update the chromosome indexes for half of the oriC's
-				chromosomeIndexOriC[(n_oric // 2):] = 1
+						# Update the chromosome indexes for half of the polymerases
+						secondHalfIdx = np.where(polymerasesToSplit)[0][(n_matches // 2):]
+						chromosomeIndexPolymerase[secondHalfIdx] = newChromosomeIndex
 
-				# Reset chromosomeIndex for oriC's
-				oriCs.attrIs(chromosomeIndex=chromosomeIndexOriC)
+					# Reset chromosomeIndex for active DNA polymerases
+					activeDnaPoly.attrIs(chromosomeIndex=chromosomeIndexPolymerase)
+
+					# Get oriC's in the chromosome getting divided
+					chromosomeMatchOriC = (chromosomeIndexOriC == chromosomeIndexTerminated)
+					n_matches = chromosomeMatchOriC.sum()
+
+					# Number of OriC's in a dividing chromosome should be even
+					assert n_matches % 2 == 0
+
+					# Update the chromosome indexes for half of the OriC's
+					secondHalfIdx = np.where(chromosomeMatchOriC)[0][(n_matches // 2):]
+					chromosomeIndexOriC[secondHalfIdx] = newChromosomeIndex
+
+					# Reset chromosomeIndex for oriC's
+					oriCs.attrIs(chromosomeIndex=chromosomeIndexOriC)
+
+					# Increment the new chromosome index in case another
+					# chromosome needs to be split
+					newChromosomeIndex += 1
 
 			# Delete terminated polymerases
 			activeDnaPoly.delByIndexes(np.where(didTerminate)[0])

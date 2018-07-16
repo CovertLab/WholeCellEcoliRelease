@@ -9,6 +9,8 @@ In any case, you should see GC messages like:
 	gc: uncollectable <Node 0x110118110>
 	gc: uncollectable <dict 0x1101124b0>
 	gc: uncollectable <dict 0x110112a28>
+
+# The test case is adapted from https://pymotw.com/2/gc/
 """
 
 from __future__ import absolute_import
@@ -38,6 +40,8 @@ class Node(object):
 class Test_memory_debug(unittest.TestCase):
 	@noseAttrib.attr('smalltest')
 	def test_memory_debug(self):
+		precount = len(gc.garbage)
+
 		with memory_debug.detect_leaks(enabled=True):
 			nodes = [Node(i) for i in xrange(6)]
 
@@ -60,7 +64,8 @@ class Test_memory_debug(unittest.TestCase):
 			# Why is Node5's dict collectable?
 
 		# gc.garbage holds Node3 .. Node5.
-		self.assertEqual(3, len(gc.garbage), 'Uncollectable: {}'.format(gc.garbage))
+		self.assertEqual(precount + 3, len(gc.garbage),
+			'Uncollectable: {}'.format(gc.garbage))
 
 
 if __name__ == '__main__':
