@@ -21,9 +21,9 @@ import wholecell.utils.constants
 from wholecell.utils import units
 from wholecell.utils.filepath import makedirs
 
-NODE_LIST_HEADER = "ID,class,category,name,synonyms,constants\n"
-EDGE_LIST_HEADER = "src_node_id,dst_node_id,stoichiometry,process\n"
-DYNAMICS_HEADER = "node,type,units,dynamics\n"
+NODE_LIST_HEADER = "ID\tclass\tcategory\tname\tsynonyms\tconstants\n"
+EDGE_LIST_HEADER = "src_node_id\tdst_node_id\tstoichiometry\tprocess\n"
+DYNAMICS_HEADER = "node\ttype\tunits\tdynamics\n"
 
 CHECK_SANITY = False
 N_GENS = 8
@@ -109,7 +109,7 @@ class Node:
 		Writes a single row specifying the given node to the nodelist file.
 		"""
 		# Format single string with attributes of the node separated by commas
-		node_row = "%s,%s,%s,%s,%s,%s\n" % (
+		node_row = "%s\t%s\t%s\t%s\t%s\t%s\n" % (
 			self.node_id, self.node_class, self.node_type,
 			self.name, self.synonyms, self.constants,
 			)
@@ -133,7 +133,7 @@ class Node:
 				dynamics_string = format_dynamics_string(dynamics, "float")
 
 			# Format single string with dynamic attributes separated by commas
-			dynamics_row = "%s,%s,%s,%s\n" % (
+			dynamics_row = "%s\t%s\t%s\t%s\n" % (
 				self.node_id, name, unit, dynamics_string
 				)
 
@@ -196,7 +196,7 @@ class Edge:
 		Writes a single row specifying the given edge to the edgelist file.
 		"""
 		# Format single string with attributes of the edge separated by commas
-		edge_row = "%s,%s,%s,%s\n" % (
+		edge_row = "%s\t%s\t%s\t%s\n" % (
 			self.src_id, self.dst_id, self.stoichiometry, self.process,
 			)
 
@@ -1056,7 +1056,7 @@ def add_time_data(simOutDirs, dynamics_file):
 
 	time_string = format_dynamics_string(time, "time")
 
-	time_row = "%s,%s,%s,%s\n" % (
+	time_row = "%s\t%s\t%s\t%s\n" % (
 		"time", "time", "s", time_string
 	)
 
@@ -1100,7 +1100,7 @@ def add_global_dynamics(simData, simOutDirs, dynamics_file):
 			dynamics_string = format_dynamics_string(dynamics, "float")
 
 		# Format single string with dynamic attributes separated by commas
-		dynamics_row = "%s,%s,%s,%s\n" % (
+		dynamics_row = "%s\t%s\t%s\t%s\n" % (
 			"global", name, unit, dynamics_string
 		)
 
@@ -1170,30 +1170,27 @@ def format_dynamics_string(dynamics, datatype):
 	"""
 	if datatype == "int":
 		# Format first datapoint
-		dynamics_string = "[{0:d}".format(dynamics[0])
+		dynamics_string = "{0:d}".format(dynamics[0])
 
 		# Format rest of the datapoints
 		for val in dynamics[1:]:
 			dynamics_string += ", {0:d}".format(val)
-		dynamics_string += "]"
 
 	elif datatype == "float":
 		# Format first datapoint
-		dynamics_string = "[{0:.{1}g}".format(dynamics[0], DYNAMICS_PRECISION)
+		dynamics_string = "{0:.{1}g}".format(dynamics[0], DYNAMICS_PRECISION)
 
 		# Format rest of the datapoints
 		for val in dynamics[1:]:
 			dynamics_string += ", {0:.{1}g}".format(val, DYNAMICS_PRECISION)
-		dynamics_string += "]"
 
 	elif datatype == "time":
 		# Format first datapoint
-		dynamics_string = "[{0:.{1}f}".format(dynamics[0], TIME_PRECISION)
+		dynamics_string = "{0:.{1}f}".format(dynamics[0], TIME_PRECISION)
 
 		# Format rest of the datapoints
 		for val in dynamics[1:]:
 			dynamics_string += ", {0:.{1}f}".format(val, TIME_PRECISION)
-		dynamics_string += "]"
 
 	else:
 		dynamics_string = dynamics
@@ -1251,9 +1248,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	print("Total number of edges: %d" % (len(edge_list)))
 
 	# Open node/edge list files and dynamics file
-	nodelist_file = open(os.path.join(plotOutDir, plotOutFileName + "_nodelist.csv"), 'w')
-	edgelist_file = open(os.path.join(plotOutDir, plotOutFileName + "_edgelist.csv"), 'w')
-	dynamics_file = open(os.path.join(plotOutDir, plotOutFileName + "_dynamics.csv"), 'w')
+	nodelist_file = open(os.path.join(plotOutDir, plotOutFileName + "_nodelist.tsv"), 'w')
+	edgelist_file = open(os.path.join(plotOutDir, plotOutFileName + "_edgelist.tsv"), 'w')
+	dynamics_file = open(os.path.join(plotOutDir, plotOutFileName + "_dynamics.tsv"), 'w')
 
 	# Write header rows to each of the files
 	nodelist_file.write(NODE_LIST_HEADER)
