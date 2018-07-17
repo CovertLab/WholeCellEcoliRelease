@@ -42,9 +42,6 @@
 ## Then install all the other packages listed here:
 #   CVXOPT_BUILD_GLPK=1 pip install -r requirements.txt --no-binary cvxopt
 #   pyenv rehash
-#
-# (If an older version of pip or python gives an error that numpy isn't
-# installed, install numpy then retry installing requirements.txt.)
 
 appnope==0.1.0
 astroid==1.6.3
