@@ -14,10 +14,10 @@ from wholecell.io.tablereader import TableReader
 # Data sources
 # TODO (John): Acquire these in a more programmatic fashion?
 # TODO (John): os.path.join
-DIRECTORY_NO_RIB_NO_RNAP = 'out/20180717.113833.402193__Neither_fit'
-DIRECTORY_YES_RIB_NO_RNAP = None
-DIRECTORY_NO_RIB_YES_RNAP = None
-DIRECTORY_YES_RIB_YES_RNAP = None
+DIRECTORY_NO_RIB_NO_RNAP = 'out/20180717.160035.945718__Neither_fit'
+DIRECTORY_YES_RIB_NO_RNAP = 'out/20180717.160011.414995__Ribosomes_fit'
+DIRECTORY_NO_RIB_YES_RNAP = 'out/20180717.160023.903645__RNApoly_fit'
+DIRECTORY_YES_RIB_YES_RNAP = 'out/20180717.155958.639346__Both_fit'
 
 DIRECTORIES = (
 	DIRECTORY_NO_RIB_NO_RNAP,
@@ -28,18 +28,22 @@ DIRECTORIES = (
 
 TITLES = ( # TODO (John): check order
 	'({}) ribosomes, ({}) RNA polymerases'.format(rib, rnap)
-	for rib in ('-', '+')
 	for rnap in ('-', '+')
+	for rib in ('-', '+')
 	)
 
-N_SEEDS = 1 # TODO (John): 8
+N_SEEDS = 8 # TODO (John): 8
 USE_GEN = (True, True, True, True) # TODO (John): only retain last two
 N_GENS = len(USE_GEN)
+
+BOOTSTRAP = False # if True, adds more observations by distribution sampling
+FOLD_BOOTSTRAP = 15 # number of additional observations to include
 
 # Plotting details
 FIGSIZE = (8, 8) # size in inches
 TARGET_DOUBLING_TIME_MINUTES = 45 # TODO (John): obtain from sim_data?
 N_BINS = 30
+SHARE_YMAX = True
 
 TICK_FONTSIZE = 10
 TITLE_FONTSIZE = 12
@@ -52,6 +56,10 @@ TARGET_LINE_STYLE = dict(
 	color = 'crimson',
 	lw = 2
 	)
+
+MIN_YMAX = 1
+YMAX_FRAC_OVERSHOOT = 0.1
+MIN_FRAC_SPREAD = 0.1
 
 def load_doubling_times(root_directory):
 	doubling_times = []
@@ -70,15 +78,30 @@ def load_doubling_times(root_directory):
 				'Main'
 				)
 
-			tr = TableReader(path_to_table)
+			try:
+				tr = TableReader(path_to_table)
 
-			time = tr.readColumn('time')
+				time = tr.readColumn('time')
+
+			except Exception as e:
+				print 'Failed to load {}'.format(path_to_table)
+				continue
 
 			doubling_time = (time[-1] - time[0]) / 60
 
 			doubling_times.append(doubling_time)
 
 	return doubling_times
+
+def bootstrap(x, fold):
+	n = x.size
+
+	m = np.mean(x)
+	s = np.std(x)
+
+	new = m + s*np.random.normal(size = n*fold)
+
+	return np.concatenate([x, new])
 
 plt.figure(figsize = FIGSIZE)
 
@@ -89,13 +112,14 @@ for directory in DIRECTORIES:
 		doubling_times.append([])
 
 	else:
-		doubling_times.append(load_doubling_times(directory))
+		dts = np.array(load_doubling_times(directory))
+
+		if BOOTSTRAP:
+			dts = bootstrap(dts, FOLD_BOOTSTRAP)
+
+		doubling_times.append(dts)
 
 all_doubling_times = np.concatenate(doubling_times)
-
-MIN_YMAX = 1
-YMAX_FRAC_OVERSHOOT = 0.1
-MIN_FRAC_SPREAD = 0.1
 
 smallest = min(
 	all_doubling_times.min(),
@@ -109,10 +133,14 @@ largest = max(
 left = np.linspace(smallest, largest, N_BINS-1)
 bins = np.concatenate([left, [left[1] - left[0] + left[-1]]])
 
+max_freq = 0
+
 for (subplot_index, (dts, title)) in enumerate(zip(doubling_times, TITLES)):
 	plt.subplot(2, 2, subplot_index + 1)
 
 	freq = plt.hist(dts, bins = bins, **HIST_STYLE)[0]
+
+	max_freq = max(max_freq, freq.max())
 
 	plt.xlim(bins[0], bins[-1])
 	plt.ylim(0, max(np.max(freq), MIN_YMAX) * (1 + YMAX_FRAC_OVERSHOOT))
@@ -122,10 +150,17 @@ for (subplot_index, (dts, title)) in enumerate(zip(doubling_times, TITLES)):
 
 	plt.axvline(TARGET_DOUBLING_TIME_MINUTES, **TARGET_LINE_STYLE)
 
-	plt.title(title, fontsize = TITLE_FONTSIZE)
+	plt.title(title + '\nn = {}'.format(dts.size), fontsize = TITLE_FONTSIZE)
+
+if SHARE_YMAX:
+	ymax = max(max_freq, MIN_YMAX) * (1 + YMAX_FRAC_OVERSHOOT)
+
+	for subplot_index in xrange(len(doubling_times)):
+		plt.subplot(2, 2, subplot_index + 1)
+		plt.ylim(0, ymax)
 
 plt.tight_layout()
 
-plt.savefig('temp.pdf') # TODO (John): proper output path
+plt.savefig('temp.png') # TODO (John): proper output path
 
 # TODO (John): if __name__ == '__main__'
