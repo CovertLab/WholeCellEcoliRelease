@@ -68,6 +68,11 @@ Environment variables that matter when running the workflow:
 		process
 '''
 
+# /!\ HACK /!\
+# TODO (John): Clean this up before merging!
+N_CPUS_ANALYSIS = 4
+# /!\ END HACK /!\
+
 from fireworks import Firework, LaunchPad, Workflow, ScriptTask
 from wholecell.fireworks.firetasks import InitRawDataTask
 from wholecell.fireworks.firetasks import InitRawValidationDataTask
@@ -436,7 +441,7 @@ if RUN_AGGREGATE_ANALYSIS:
 			metadata = metadata,
 			),
 		name = fw_name,
-		spec = {"_queueadapter": {"job_name": fw_name}, "_priority":5}
+		spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": N_CPUS_ANALYSIS}, "_priority":5}
 		)
 	wf_fws.append(fw_variant_analysis)
 
@@ -503,7 +508,7 @@ for i in VARIANTS_TO_RUN:
 				metadata = metadata,
 				),
 			name = fw_name,
-			spec = {"_queueadapter": {"job_name": fw_name}, "_priority":4}
+			spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": N_CPUS_ANALYSIS}, "_priority":4}
 			)
 		wf_fws.append(fw_this_variant_cohort_analysis)
 
@@ -529,7 +534,7 @@ for i in VARIANTS_TO_RUN:
 					metadata = metadata,
 					),
 				name = fw_name,
-				spec = {"_queueadapter": {"job_name": fw_name}, "_priority":3}
+				spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": N_CPUS_ANALYSIS}, "_priority":3}
 				)
 			wf_fws.append(fw_this_variant_this_seed_this_analysis)
 
@@ -644,7 +649,7 @@ for i in VARIANTS_TO_RUN:
 							metadata = metadata,
 							),
 						name = fw_name,
-						spec = {"_queueadapter": {"job_name": fw_name}, "_priority":2}
+						spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": N_CPUS_ANALYSIS}, "_priority":2}
 						)
 
 					wf_fws.append(fw_this_variant_this_gen_this_sim_analysis)
