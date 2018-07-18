@@ -20,6 +20,9 @@ class NetworkFlowProblemBase(object):
 	def setFlowObjectiveCoeff(self, flow, coefficient):
 		raise NotImplementedError()
 
+	def getFlowObjectiveCoeff(self, flow):
+		raise NotImplementedError()
+
 	def getFlowRates(self, flows):
 		raise NotImplementedError()
 

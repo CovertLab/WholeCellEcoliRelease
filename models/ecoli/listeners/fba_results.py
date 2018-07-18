@@ -64,6 +64,7 @@ class FBAResults(wholecell.listeners.listener.Listener):
 		self.shadowPrices = np.zeros(len(self.outputMoleculeIDs), np.float64)
 		self.reducedCosts = np.zeros(len(self.reactionIDs), np.float64)
 		self.homeostaticObjectiveValues = np.zeros(len(self.homeostaticTargetMolecules))
+		self.kineticObjectiveValues = np.zeros(len(self.kineticTargetFluxNames))
 		self.deltaMetabolites = np.zeros(len(self.metaboliteNamesFromNutrients), np.float64)
 		self.targetConcentrations = np.zeros(len(self.homeostaticTargetMolecules))
 
@@ -89,6 +90,7 @@ class FBAResults(wholecell.listeners.listener.Listener):
 			reducedCosts = self.reducedCosts,
 			objectiveValue = self.objectiveValue,
 			homeostaticObjectiveValues = self.homeostaticObjectiveValues,
+			kineticObjectiveValues = self.kineticObjectiveValues,
 			deltaMetabolites = self.deltaMetabolites,
 			targetConcentrations = self.targetConcentrations,
 			)
