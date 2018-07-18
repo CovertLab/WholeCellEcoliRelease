@@ -130,12 +130,9 @@ class Metabolism(wholecell.processes.process.Process):
 		self.constraintToReactionMatrix[constraintToReactionMatrixI, constraintToReactionMatrixJ] = constraintToReactionMatrixV
 		self.constraintIsKcatOnly = sim_data.process.metabolism.constraintIsKcatOnly
 
-		# Select solver and associated kinetic objective weight (lambda)
-		solver = "glpk-linear"
-		if "linear" in solver:
-			kineticObjectiveWeight = sim_data.constants.metabolismKineticObjectiveWeightLinear
-		else:
-			kineticObjectiveWeight = sim_data.constants.metabolismKineticObjectiveWeightQuadratic
+		# Set solver and kinetic objective weight (lambda)
+		solver = sim_data.process.metabolism.solver
+		kinetic_objective_weight = sim_data.process.metabolism.kinetic_objective_weight
 
 		# Set up FBA solver
 		# reactionRateTargets value is just for initialization, it gets reset each timestep during evolveState
@@ -145,7 +142,7 @@ class Metabolism(wholecell.processes.process.Process):
 			"objective" : self.homeostaticObjective,
 			"objectiveType" : "homeostatic_kinetics_mixed",
 			"objectiveParameters" : {
-					"kineticObjectiveWeight" : kineticObjectiveWeight,
+					"kineticObjectiveWeight" : kinetic_objective_weight,
 					"reactionRateTargets" : {reaction : 1 for reaction in self.kineticsConstrainedReactions},
 					"oneSidedReactionTargets" : [],
 					},

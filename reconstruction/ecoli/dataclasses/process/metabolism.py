@@ -36,6 +36,13 @@ class Metabolism(object):
 	""" Metabolism """
 
 	def __init__(self, raw_data, sim_data):
+		# set solver and kinetic objective weight
+		self.solver = "glpk-linear"
+		if "linear" in self.solver:
+			self.kinetic_objective_weight = sim_data.constants.metabolismKineticObjectiveWeightLinear
+		else:
+			self.kinetic_objective_weight = sim_data.constants.metabolismKineticObjectiveWeightQuadratic
+
 		self._buildBiomass(raw_data, sim_data)
 		self._buildMetabolism(raw_data, sim_data)
 
