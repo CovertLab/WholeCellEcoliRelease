@@ -13,20 +13,22 @@ import os
 import cPickle
 
 import numpy as np
-from itertools import izip
+import csv
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 import wholecell.utils.constants
 from wholecell.utils import units
-from wholecell.utils.filepath import makedirs
 
 NODE_LIST_HEADER = "ID\tclass\tcategory\tname\tsynonyms\tconstants\n"
 EDGE_LIST_HEADER = "src_node_id\tdst_node_id\tstoichiometry\tprocess\n"
 DYNAMICS_HEADER = "node\ttype\tunits\tdynamics\n"
+PATHWAY_LIST_HEADER = "pathway\tnodes"
+
+PATHWAYS_FILENAME = "models/ecoli/analysis/causal_network/metabolic_pathways.tsv"
 
 CHECK_SANITY = False
-N_GENS = 8
+N_GENS = 9
 DYNAMICS_PRECISION = 6
 TIME_PRECISION = 2
 
@@ -1169,33 +1171,178 @@ def format_dynamics_string(dynamics, datatype):
 	TIME_PRECISION.
 	"""
 	if datatype == "int":
-		# Format first datapoint
-		dynamics_string = "{0:d}".format(dynamics[0])
-
-		# Format rest of the datapoints
-		for val in dynamics[1:]:
-			dynamics_string += ", {0:d}".format(val)
+		dynamics_string = ", ".join("{0:d}".format(val) for val in dynamics)
 
 	elif datatype == "float":
-		# Format first datapoint
-		dynamics_string = "{0:.{1}g}".format(dynamics[0], DYNAMICS_PRECISION)
-
-		# Format rest of the datapoints
-		for val in dynamics[1:]:
-			dynamics_string += ", {0:.{1}g}".format(val, DYNAMICS_PRECISION)
+		dynamics_string = ", ".join("{0:.{1}g}".format(val, DYNAMICS_PRECISION) for val in dynamics)
 
 	elif datatype == "time":
-		# Format first datapoint
-		dynamics_string = "{0:.{1}f}".format(dynamics[0], TIME_PRECISION)
-
-		# Format rest of the datapoints
-		for val in dynamics[1:]:
-			dynamics_string += ", {0:.{1}f}".format(val, TIME_PRECISION)
+		dynamics_string = ", ".join("{0:.{1}f}".format(val, DYNAMICS_PRECISION) for val in dynamics)
 
 	else:
 		dynamics_string = dynamics
 
 	return dynamics_string
+
+
+def read_pathway_file():
+	"""
+	Reads the pathway file whose filename is specified in PATHWAYS_FILENAME.
+	The file is assumed to have 4 columns - pathway IDs, pathway names, the
+	list of genes associated with the pathway, and the list of reactions
+	associated with the pathway. Note: pathway IDs are currently not being
+	read here.
+	"""
+	pathway_to_genes = {}
+	pathway_to_rxns = {}
+
+	with open(PATHWAYS_FILENAME) as pathway_file:
+		tsv_reader = csv.reader(pathway_file, delimiter="\t")
+		next(tsv_reader, None)  # Ignore header
+
+		# Loop through each row and build dictionary
+		for row in tsv_reader:
+			pathway_to_genes[row[1]] = eval(row[2])
+			pathway_to_rxns[row[1]] = eval(row[3])
+
+	return pathway_to_genes, pathway_to_rxns
+
+
+def get_pathway_to_nodes(simData, simOutDirs, pathway_to_genes, pathway_to_rxns):
+	"""
+	Reads simData and constructs dictionary that links each pathway to a set of
+	all node IDs that are part of the pathway, starting from the list of
+	associated gene and reaction nodes that are given as inputs.
+	"""
+	# Get bulkMolecule IDs from first simOut directory
+	simOutDir = simOutDirs[0]
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+	moleculeIDs = bulkMolecules.readAttribute("objectNames")
+
+	# Get reaction IDs from first simOut directory
+	simOutDir = simOutDirs[0]
+	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
+	reactionIDs = fbaResults.readAttribute("reactionIDs")
+
+	# Get dictionary of genes IDs to RNA IDs
+	gene2rna = {}
+	for gene_id, rna_id, _ in simData.process.replication.geneData:
+		gene2rna[gene_id] = rna_id + "[c]"
+
+	# Get dictionary of RNA IDs to monomer IDs
+	rna2monomer = {}
+	for monomer_data in simData.process.translation.monomerData:
+		rna2monomer[monomer_data[1]] = monomer_data[0]
+
+	# Get TF to RNA data
+	rna2tf = {}
+	tfToFC = simData.tfToFC
+	for tf, transcriptIDdict in tfToFC.items():
+		tfID = tf + "[c]"
+
+		# Loop through all transcripts the TF regulates
+		for transcriptID in transcriptIDdict.keys():
+			# Get ID of TF-gene pair
+			tfDnaBoundID = transcriptID + "__" + tf
+
+			# If the tfDnaBoundID is not found in bulkMolecules, do not add a
+			# node for this pair - looks like the fitter deletes some of these
+			# TF-gene pairs
+			try:
+				tfDnaBoundIdx = moleculeIDs.index(tfDnaBoundID)
+			except ValueError:
+				tfDnaBoundIdx = -1
+
+			if tfDnaBoundIdx != -1:
+				if transcriptID + "[c]" in rna2tf:
+					rna2tf[transcriptID + "[c]"].append(tfID)
+				else:
+					rna2tf[transcriptID + "[c]"] = [tfID]
+
+	# Get reaction to metabolite and enzyme data
+	reactionStoich = simData.process.metabolism.reactionStoich
+	reactionCatalysts = simData.process.metabolism.reactionCatalysts
+
+	# Get list of complex ids in complexation
+	complexation_complex_ids = simData.process.complexation.ids_complexes
+	equilibrium_complex_ids = simData.process.equilibrium.ids_complexes
+
+	# Initialize dictionary
+	pathway_to_nodes = {}
+
+	# Loop through each pathway and its associated genes and reactions
+	for pathway_name, gene_list in pathway_to_genes.items():
+		rxn_list = pathway_to_rxns[pathway_name]
+		node_list = []
+
+		# Loop through all genes associated with the pathway
+		for gene_id in gene_list:
+
+			if gene_id in gene2rna:
+				node_list.append(gene_id)
+
+				# Get IDs of RNAs and monomers that are produced from the gene
+				rna_id = gene2rna[gene_id]
+				transcription_id = gene_id + "_TRANSCRIPTION"
+				node_list.extend([transcription_id, rna_id])
+
+				if rna_id in rna2monomer:
+					monomer_id = rna2monomer[rna_id]
+					translation_id = gene_id + "_TRANSLATION"
+					node_list.extend([translation_id, monomer_id])
+
+				# Get IDs of TFs and regulation nodes that regulate the gene
+				if rna_id in rna2tf:
+					tf_ids = rna2tf[rna_id]
+					node_list.extend(tf_ids)
+
+					for tf_id in tf_ids:
+						regulation_id = tf_id[:-3] + "_" + gene_id + "_REGULATION"
+						node_list.append(regulation_id)
+
+		# Loop through all reactions associated with the pathway
+		for rxn_id in rxn_list:
+			rxn_id_hits = []
+			for modeled_rxn_id in reactionIDs:
+				if modeled_rxn_id.startswith(rxn_id):
+					rxn_id_hits.append(modeled_rxn_id)
+
+			# Check if the reaction is actually being modeled
+			for rxn_id in rxn_id_hits:
+				node_list.append(rxn_id)
+
+				# Get all metabolites participating in the reaction
+				stoich_dict = reactionStoich[rxn_id]
+				for metabolite, _ in stoich_dict.items():
+					node_list.append(metabolite)
+
+				# Get enzymes that catalyze the reaction
+				catalyst_ids = reactionCatalysts.get(rxn_id, [])
+
+				for catalyst in catalyst_ids:
+					if catalyst in complexation_complex_ids + equilibrium_complex_ids:
+						# Add the catalyst if it is a complex
+						node_list.append(catalyst)
+
+						# Add the complexation reaction that forms the complex
+						node_list.append(catalyst[:-3] + "_RXN")
+
+		pathway_to_nodes[pathway_name] = list(set(node_list))
+
+	return pathway_to_nodes
+
+
+def check_nodes_in_pathways(node_ids, pathway_to_nodes):
+	"""
+	Check if any node in pathway_to_nodes dictionary does not exist in the
+	network we constructed.
+	"""
+	print("Checking pathway-node key...")
+
+	for pathway, node_list in pathway_to_nodes.items():
+		for node_id in node_list:
+			if node_id not in node_ids:
+				print("Node ID %s in pathway %s not found in the list of node IDs." % (node_id, pathway))
 
 
 def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile=None, metadata=None):
@@ -1237,11 +1384,15 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	add_equilibrium(simData, simOutDirs, node_list, edge_list)
 	add_regulation(simData, simOutDirs, node_list, edge_list)
 
+	pathway_to_genes, pathway_to_rxns = read_pathway_file()
+	pathway_to_nodes = get_pathway_to_nodes(simData, simOutDirs, pathway_to_genes, pathway_to_rxns)
+
 	# Check for network sanity (optional)
 	if CHECK_SANITY:
 		print("Performing sanity check on network...")
 		node_ids = find_duplicate_nodes(node_list)
 		find_runaway_edges(node_ids, edge_list)
+		check_nodes_in_pathways(node_ids, pathway_to_nodes)
 		print("Sanity check completed.")
 
 	print("Total number of nodes: %d" % (len(node_list)))
@@ -1251,23 +1402,29 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	nodelist_file = open(os.path.join(plotOutDir, plotOutFileName + "_nodelist.tsv"), 'w')
 	edgelist_file = open(os.path.join(plotOutDir, plotOutFileName + "_edgelist.tsv"), 'w')
 	dynamics_file = open(os.path.join(plotOutDir, plotOutFileName + "_dynamics.tsv"), 'w')
+	pathwaylist_file = open(os.path.join(plotOutDir, plotOutFileName + "_pathwaylist.tsv"), 'w')
 
 	# Write header rows to each of the files
 	nodelist_file.write(NODE_LIST_HEADER)
 	edgelist_file.write(EDGE_LIST_HEADER)
 	dynamics_file.write(DYNAMICS_HEADER)
+	pathwaylist_file.write(PATHWAY_LIST_HEADER)
 
 	# Add time and global dynamics data to dynamics file
 	add_time_data(simOutDirs, dynamics_file)
 	add_global_dynamics(simData, simOutDirs, dynamics_file)
 
-	# Write node, edge list and dynamics data csv files
+	# Write node, edge list and dynamics data tsv files
 	for node in node_list:
 		node.write_nodelist(nodelist_file)
 		node.write_dynamics(dynamics_file)
 
 	for edge in edge_list:
 		edge.write_edgelist(edgelist_file)
+
+	# Write pathway data to pathway file
+	for pathway_name, node_ids in pathway_to_nodes.items():
+		pathwaylist_file.write("%s\t%s\n" % (pathway_name, ", ".join(node_ids)))
 
 
 if __name__ == "__main__":
