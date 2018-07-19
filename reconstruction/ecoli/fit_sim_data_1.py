@@ -90,6 +90,10 @@ def fitSimData_1(
 		debug (bool) - if True, fit only one arbitrarily-chosen transcription
 			factor in order to speed up a debug cycle (should not be used for
 			an actual simulation)
+		disable_ribosome_capacity_fitting (bool) - if True, ribosome expression
+			is not fit to protein synthesis demands
+		disable_rnapoly_capacity_fitting (bool) - if True, RNA polymerase
+			expression is not fit to protein synthesis demands
 	"""
 
 	sim_data = SimulationDataEcoli()
