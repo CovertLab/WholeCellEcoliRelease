@@ -338,8 +338,8 @@ def buildBasalCellSpecifications(
 		cellSpecs["basal"]["expression"],
 		cellSpecs["basal"]["concDict"],
 		cellSpecs["basal"]["doubling_time"],
-		disable_ribosome_capacity_fitting,
-		disable_rnapoly_capacity_fitting
+		disable_ribosome_capacity_fitting = disable_ribosome_capacity_fitting,
+		disable_rnapoly_capacity_fitting = disable_rnapoly_capacity_fitting
 		)
 
 	# Store calculated values
@@ -449,8 +449,8 @@ def buildTfConditionCellSpecifications(
 			cellSpecs[conditionKey]["concDict"],
 			cellSpecs[conditionKey]["doubling_time"],
 			sim_data.process.transcription.rnaData["KmEndoRNase"],
-			disable_ribosome_capacity_fitting,
-			disable_rnapoly_capacity_fitting
+			disable_ribosome_capacity_fitting = disable_ribosome_capacity_fitting,
+			disable_rnapoly_capacity_fitting = disable_rnapoly_capacity_fitting
 			)
 
 		# Store calculated values
@@ -546,8 +546,8 @@ def buildCombinedConditionCellSpecifications(
 			cellSpecs[conditionKey]["concDict"],
 			cellSpecs[conditionKey]["doubling_time"],
 			sim_data.process.transcription.rnaData["KmEndoRNase"],
-			disable_ribosome_capacity_fitting,
-			disable_rnapoly_capacity_fitting
+			disable_ribosome_capacity_fitting = disable_ribosome_capacity_fitting,
+			disable_rnapoly_capacity_fitting = disable_rnapoly_capacity_fitting
 			)
 
 		# Modify cellSpecs for calculated values
