@@ -1123,10 +1123,10 @@ def setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_t
 	"""
 
 	# Get IDs and stoichiometry of ribosome subunits
-	ribosome30SSubunits = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.s30_fullComplex[0])['subunitIds']
-	ribosome50SSubunits = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.s50_fullComplex[0])['subunitIds']
-	ribosome30SStoich = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.s30_fullComplex[0])['subunitStoich']
-	ribosome50SStoich = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.s50_fullComplex[0])['subunitStoich']
+	ribosome30SSubunits = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s30_fullComplex)['subunitIds']
+	ribosome50SSubunits = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s50_fullComplex)['subunitIds']
+	ribosome30SStoich = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s30_fullComplex)['subunitStoich']
+	ribosome50SStoich = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s50_fullComplex)['subunitStoich']
 
 	# -- CONSTRAINT 1: Expected protein distribution doubling -- #
 	## Calculate minimium number of 30S and 50S subunits required in order to double our expected
@@ -1285,8 +1285,8 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time,
 	# Convert nRnapsNeeded to the number of RNA polymerase subunits required
 	# Note: The return value from getFractionIncreaseRnapProteins() is
 	# determined in growthRateDependentParameters.py
-	rnapIds = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.rnapFull[0])['subunitIds']
-	rnapStoich = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.rnapFull[0])['subunitStoich']
+	rnapIds = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.rnapFull)['subunitIds']
+	rnapStoich = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.rnapFull)['subunitStoich']
 
 	minRnapSubunitCounts = (
 		nRnapsNeeded * rnapStoich # Subunit stoichiometry

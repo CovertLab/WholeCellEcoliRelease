@@ -73,15 +73,15 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			ids_16s = []
 			ids_16s.extend(sim_data.moleculeGroups.s30_16sRRNA)
-			ids_16s.extend(sim_data.moleculeGroups.s30_fullComplex)
+			ids_16s.append(sim_data.moleculeIds.s30_fullComplex)
 
 			ids_23s = []
 			ids_23s.extend(sim_data.moleculeGroups.s50_23sRRNA)
-			ids_23s.extend(sim_data.moleculeGroups.s50_fullComplex)
+			ids_23s.append(sim_data.moleculeIds.s50_fullComplex)
 
 			ids_5s = []
 			ids_5s.extend(sim_data.moleculeGroups.s50_5sRRNA)
-			ids_5s.extend(sim_data.moleculeGroups.s50_fullComplex)
+			ids_5s.append(sim_data.moleculeIds.s50_fullComplex)
 
 			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 			moleculeIds = bulkMolecules.readAttribute("objectNames")

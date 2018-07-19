@@ -42,7 +42,7 @@ class ChromosomeFormation(wholecell.processes.process.Process):
 		self.partialChromosomes = self.bulkMoleculesView(
 			sim_data.moleculeGroups.partialChromosome)
 		self.fullChromosome = self.bulkMoleculeView(
-			sim_data.moleculeGroups.fullChromosome[0])
+			sim_data.moleculeIds.fullChromosome)
 
 		# Placeholder for cell division data
 		self.fullChromosomeUnique = self.uniqueMoleculesView("fullChromosome")

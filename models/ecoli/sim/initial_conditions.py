@@ -116,7 +116,7 @@ def initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff):
 
 def initializeDNA(bulkMolCntr, sim_data, randomState):
 
-	chromosomeView = bulkMolCntr.countsView(sim_data.moleculeGroups.fullChromosome)
+	chromosomeView = bulkMolCntr.countsView([sim_data.moleculeIds.fullChromosome])
 	chromosomeView.countsIs([1])
 
 # TODO: remove checks for zero concentrations (change to assertion)
@@ -371,8 +371,8 @@ def initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	endWeight = sim_data.process.translation.translationEndWeight
 
 	#find number of ribosomes to activate
-	ribosome30S = bulkMolCntr.countsView(sim_data.moleculeGroups.s30_fullComplex).counts()[0]
-	ribosome50S = bulkMolCntr.countsView(sim_data.moleculeGroups.s50_fullComplex).counts()[0]
+	ribosome30S = bulkMolCntr.countsView([sim_data.moleculeIds.s30_fullComplex]).counts()[0]
+	ribosome50S = bulkMolCntr.countsView([sim_data.moleculeIds.s50_fullComplex]).counts()[0]
 	inactiveRibosomeCount = np.minimum(ribosome30S, ribosome50S)
 	ribosomeToActivate = np.int64(fracActiveRibosome * inactiveRibosomeCount)
 
@@ -411,8 +411,8 @@ def initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 		)
 
 	# decrease free 30S and 50S ribosomal subunit counts
-	bulkMolCntr.countsIs(ribosome30S - ribosomeToActivate, sim_data.moleculeGroups.s30_fullComplex)
-	bulkMolCntr.countsIs(ribosome50S - ribosomeToActivate, sim_data.moleculeGroups.s50_fullComplex)
+	bulkMolCntr.countsIs(ribosome30S - ribosomeToActivate, [sim_data.moleculeIds.s30_fullComplex])
+	bulkMolCntr.countsIs(ribosome50S - ribosomeToActivate, [sim_data.moleculeIds.s50_fullComplex])
 
 
 def setDaughterInitialConditions(sim, sim_data):

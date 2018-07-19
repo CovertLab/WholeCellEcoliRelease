@@ -32,12 +32,12 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		ids_equilibrium_complexes = sim_data.process.equilibrium.ids_complexes # Only complexes
 		ids_translation = sim_data.process.translation.monomerData["id"].tolist() # Only protein monomers
 
-		data_50s = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.s50_fullComplex[0])
-		data_30s = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.s30_fullComplex[0])
+		data_50s = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s50_fullComplex)
+		data_30s = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s30_fullComplex)
 		ribosome_subunit_ids = data_50s["subunitIds"].tolist() + data_30s["subunitIds"].tolist()
 		ribosome_subunit_stoich = np.hstack((data_50s["subunitStoich"],data_30s["subunitStoich"]))
 
-		data_rnap = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.rnapFull[0])
+		data_rnap = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.rnapFull)
 		rnap_subunit_ids = data_rnap["subunitIds"].tolist()
 		rnap_subunit_stoich = data_rnap["subunitStoich"]
 

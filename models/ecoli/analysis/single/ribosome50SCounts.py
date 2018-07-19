@@ -39,7 +39,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		rRnaIds = sim_data.moleculeGroups.s50_23sRRNA
 		rRnaIds.extend(sim_data.moleculeGroups.s50_5sRRNA)
 		complexIds = sim_data.moleculeGroups.s50_proteinComplexes
-		complexIds.append(sim_data.moleculeGroups.s50_fullComplex[0])
+		complexIds.append(sim_data.moleculeIds.s50_fullComplex)
 
 		# Load count data for s30 proteins, rRNA, and final 30S complex
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))

@@ -62,8 +62,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.activeRibosomes = self.uniqueMoleculesView('activeRibosome')
 
 		# Create views onto 30S and 70S ribosomal subunits for termination
-		self.ribosome30S = self.bulkMoleculeView(sim_data.moleculeGroups.s30_fullComplex[0])
-		self.ribosome50S = self.bulkMoleculeView(sim_data.moleculeGroups.s50_fullComplex[0])
+		self.ribosome30S = self.bulkMoleculeView(sim_data.moleculeIds.s30_fullComplex)
+		self.ribosome50S = self.bulkMoleculeView(sim_data.moleculeIds.s50_fullComplex)
 
 		# Create view onto all proteins
 		self.bulkMonomers = self.bulkMoleculesView(proteinIds)
@@ -80,8 +80,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.gtpUsed = 0
 		self.gtpAvailable = 0
 
-		self.ribosome30S = self.bulkMoleculeView(sim_data.moleculeGroups.s30_fullComplex[0])
-		self.ribosome50S = self.bulkMoleculeView(sim_data.moleculeGroups.s50_fullComplex[0])
+		self.ribosome30S = self.bulkMoleculeView(sim_data.moleculeIds.s30_fullComplex)
+		self.ribosome50S = self.bulkMoleculeView(sim_data.moleculeIds.s50_fullComplex)
 
 		self.translationSupply = sim._translationSupply
 

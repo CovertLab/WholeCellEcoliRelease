@@ -37,7 +37,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		proteinIds = sim_data.moleculeGroups.s30_proteins
 		rnaIds = [sim_data.process.translation.monomerData['rnaId'][np.where(sim_data.process.translation.monomerData['id'] == pid)[0][0]] for pid in proteinIds]
 		rRnaIds = sim_data.moleculeGroups.s30_16sRRNA
-		complexIds = [sim_data.moleculeGroups.s30_fullComplex[0]]
+		complexIds = [sim_data.moleculeIds.s30_fullComplex]
 
 		# Load count data for s30 proteins, rRNA, and final 30S complex
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
