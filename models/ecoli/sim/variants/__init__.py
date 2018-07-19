@@ -17,9 +17,6 @@ from models.ecoli.sim.variants.starvation_variant import starvationVariantTotalI
 from models.ecoli.sim.variants.metabolism_target_range import metabolismTargetRange
 from models.ecoli.sim.variants.metabolism_target_range import metabolismTargetRangeTotalIndices
 
-from models.ecoli.sim.variants.metabolism_objective_kinetic_homeostatic_ratio import metabolismKineticHomeostaticRatio
-from models.ecoli.sim.variants.metabolism_objective_kinetic_homeostatic_ratio import metabolismKineticHomeostaticRatioTotalIndices
-
 from models.ecoli.sim.variants.growth_rate import growthRate
 from models.ecoli.sim.variants.growth_rate import growthRateTotalIndices
 
@@ -68,6 +65,9 @@ from models.ecoli.sim.variants.allShuffleParams import allShuffleParamsTotalIndi
 from models.ecoli.sim.variants.meneParams import meneParams
 from models.ecoli.sim.variants.meneParams import meneParamsTotalIndices
 
+from models.ecoli.sim.variants.metabolism_kinetic_objective_weight import metabolism_kinetic_objective_weight
+from models.ecoli.sim.variants.metabolism_kinetic_objective_weight import metabolism_kinetic_objective_weight_indices
+
 nameToFunctionMapping = {
 	"geneKnockout": geneKnockout,
 	"wildtype": wildtype,
@@ -80,7 +80,6 @@ nameToFunctionMapping = {
 	"tfActivity": tfActivity,
 	"condition": condition,
 	"anaerobic": anaerobic,
-	"metabolismKineticHomeostaticRatio": metabolismKineticHomeostaticRatio,
 	"nutrientTimeSeriesDownshift" : nutrientTimeSeriesDownshift,
 	"kineticsConstraints" : kineticsConstraints,
 	"transcriptionInitiationShuffleParams": transcriptionInitiationShuffleParams,
@@ -91,6 +90,7 @@ nameToFunctionMapping = {
 	"kineticCatalystShuffleParams": kineticCatalystShuffleParams,
 	"allShuffleParams": allShuffleParams,
 	"meneParams": meneParams,
+	"metabolism_kinetic_objective_weight": metabolism_kinetic_objective_weight,
 }
 
 nameToNumIndicesMapping = {
@@ -105,7 +105,6 @@ nameToNumIndicesMapping = {
 	"tfActivity": tfActivityTotalIndices,
 	"condition": conditionIndices,
 	"anaerobic": anaerobicIndices,
-	"metabolismKineticHomeostaticRatio": metabolismKineticHomeostaticRatioTotalIndices,
 	"nutrientTimeSeriesDownshift" : nutrientTimeSeriesDownshiftTotalIndices,
 	"kineticsConstraints" : kineticsConstraintsIndices,
 	"transcriptionInitiationShuffleParams": transcriptionInitiationShuffleParamsTotalIndices,
@@ -116,4 +115,5 @@ nameToNumIndicesMapping = {
 	"kineticCatalystShuffleParams": kineticCatalystShuffleParamsTotalIndices,
 	"allShuffleParams": allShuffleParamsTotalIndices,
 	"meneParams": meneParamsTotalIndices,
+	"metabolism_kinetic_objective_weight": metabolism_kinetic_objective_weight_indices,
 }

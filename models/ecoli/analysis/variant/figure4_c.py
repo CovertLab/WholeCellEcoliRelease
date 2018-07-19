@@ -43,7 +43,8 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			raise Exception, "inputDir does not currently exist as a directory"
 
 		ap = AnalysisPaths(inputDir, variant_plot = True)
-		all_cells = ap.get_cells(generation=[0,1], seed=[0])
+		all_cell_paths = ap.get_cells(generation=[0,1], seed=[0])
+		variants = ap.get_variants()
 
 		if ap.n_variant == 1:
 			print "Disabled. Needs correct variant."
@@ -59,14 +60,13 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		mRnaFractionDict = {}
 		doublingPerHourDict = {}
 		stableRnaSynthRateDict = {}
-		mRnaSynthRateDict = {}
 		numOriginsAtInitDict = {}
 
-		variantSimDataFile = ap.get_variant_kb(all_cells[0])
+		variantSimDataFile = ap.get_variant_kb(variants[0])
 		sim_data = cPickle.load(open(variantSimDataFile, "rb"))
 		nAvogadro = sim_data.constants.nAvogadro.asNumber()
 		chromMass = (sim_data.getter.getMass(['CHROM_FULL[c]'])[0] / sim_data.constants.nAvogadro).asNumber()
-		for simDir in all_cells:
+		for simDir in all_cell_paths:
 			simOutDir = os.path.join(simDir, "simOut")
 			variant = int(simDir[simDir.rfind('generation_')-14:simDir.rfind('generation_')-8])
 
@@ -120,12 +120,9 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			numOriginsAtInit = originOfReplication[np.where(criticalInitMass >= 1.0)[0] - 1][0]
 
 
-			initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-			t = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+			# initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+			# t = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 			timeStepSec = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
-
-			#import ipdb
-			#ipdb.set_trace()
 
 			if variant in rnaToProteinDict.keys():
 				rnaToProteinDict[variant] = np.append(rnaToProteinDict[variant], rnaNT / (proteinAA / 100))
@@ -136,7 +133,6 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				doublingPerHourDict[variant] = np.append(doublingPerHourDict[variant], 60 / doublingTime)
 				stableRnaSynthRateDict[variant] = np.append(stableRnaSynthRateDict[variant], (np.asarray(stableRnaSynth)/timeStepSec/60/proteinAA/10**3))
 				numOriginsAtInitDict[variant] = np.append(numOriginsAtInitDict[variant], numOriginsAtInit)
-				#mRnaSynthRateDict[variant] = np.append(mRnaSynthRateDict[variant]), np.asarray(mRnaFraction)[~np.isnan(mRnaFraction)]/
 			else:
 				rnaToProteinDict[variant] = rnaNT / (proteinAA / 100)
 				dnaToProteinDict[variant] = chromEquivalents / (proteinAA / 10**9)
@@ -147,9 +143,6 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				stableRnaSynthRateDict[variant] = (np.asarray(stableRnaSynth)/proteinAA/10**3)
 				numOriginsAtInitDict[variant] = numOriginsAtInit
 
-		#import ipdb
-		#ipdb.set_trace()
-
 
 		rnaToProtein = np.zeros(3)
 		dnaToProtein = np.zeros(3)
@@ -157,7 +150,6 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		stableRnaFraction = np.zeros(3)
 		doublingPerHour = np.zeros(3)
 		mRnaFractionCalc = np.zeros(3)
-		rSSynthesisRate = np.zeros(3)
 		stableRnaSynthRate = np.zeros(3)
 		numOriginsAtInit = np.zeros(3)
 
@@ -167,7 +159,6 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		stableRnaFraction_error = np.zeros(3)
 		doublingPerHour_error = np.zeros(3)
 		mRnaFractionCalc_error = np.zeros(3)
-		rSSynthesisRate_error = np.zeros(3)
 		stableRnaSynthRate_error = np.zeros(3)
 		numOriginsAtInit_error = np.zeros(3)
 
@@ -196,15 +187,14 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		#dt order 0.6, 1.5, 2.5
 		rnaToProteinDB = np.array([6.615, 10.962, 15.6])
 		rnaToProteinDB_error = rnaToProteinDB * (0.06 + 0.025)
-		dnaToProteinDB = np.array([2.82, 1.79, 1.52])
-		dnaToProteinDB_error = dnaToProteinDB * (0.06 + 0.05)
+		# dnaToProteinDB = np.array([2.82, 1.79, 1.52])
+		# dnaToProteinDB_error = dnaToProteinDB * (0.06 + 0.05)
 		elngRateDB = np.array([12, 18, 21])
 		elngRateDB_error = elngRateDB * (0.06 + 0.025)
 		stableRnaFractionDB = np.array([.41,.68,.85])
 		stableRnaFractionDB_error = stableRnaFractionDB * (0.06 + 0.025)
-		mRnaFractionDB = np.array([.59, .32, .15])
-		mRnaFractionDB_error = mRnaFractionDB * (0.06 + 0.025)
-		stableRnaSynthRateDB = [0.53, 2.23, 5.3]
+		# mRnaFractionDB = np.array([.59, .32, .15])
+		# mRnaFractionDB_error = mRnaFractionDB * (0.06 + 0.025)
 		numOriginsAtInitDB = np.array([1,2,4])
 		numOriginsAtInitDB_error = numOriginsAtInitDB * (0.05 + 0.05)
 		doublingPerHourDB = [0.6, 1.5, 2.5]

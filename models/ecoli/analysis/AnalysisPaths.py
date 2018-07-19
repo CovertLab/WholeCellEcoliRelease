@@ -126,6 +126,8 @@ class AnalysisPaths(object):
 		self.n_seed = len(set(seeds))
 
 	def get_cells(self, variant = None, seed = None, generation = None):
+		"""Returns file paths for all the simulated cells."""
+		# TODO: Rename this to get_cell_paths()?
 		if variant is None:
 			variantBool = np.ones(self._path_data.shape)
 		else:

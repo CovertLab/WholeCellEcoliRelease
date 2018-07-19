@@ -118,6 +118,9 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 
 		self._solved = False
 
+	def getFlowObjectiveCoeff(self, flow):
+		return self._objective[flow]
+
 	def getFlowRates(self, flows):
 		if isinstance(flows, basestring):
 			flows = (flows,)

@@ -14,7 +14,7 @@ Set description:
 
 Variant variables:
 	VARIANT (str, "wildtype"): specifies the environmental condition, see
-		models/ecoli/sim/variants/__init__.py for the possible variant choices
+		models/ecoli/sim/variants/*.py for the variant choices
 	FIRST_VARIANT_INDEX (int, "0"): index of the first variant condition to run;
 		the control index depends on the particular variant condition
 	LAST_VARIANT_INDEX (int, "0"): index of the last variant condition to run; Fireworks

@@ -31,7 +31,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 
 		self.metabolism = sim.processes["Metabolism"]
 		self.metaboliteIDs = sorted(sim_data.process.metabolism.concDict)
-		self.nConstrainedReactions = len(sim_data.process.metabolism.constrainedReactionList)
+		self.nConstrainedReactions = len(self.metabolism.kineticsConstrainedReactions)
 
 		# Get metabolite names similar to how it's done in the metabolism process
 		self.metaboliteNamesFromNutrients = set()
@@ -68,6 +68,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		tableWriter.writeAttributes(
 			enzymeIDs = self.enzymeIDs,
 			metaboliteNames = self.metaboliteNamesFromNutrients,
+			constrainedReactions = self.metabolism.kineticsConstrainedReactions,
 			)
 
 

@@ -45,9 +45,6 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
 		constraintIsKcatOnly = sim_data.process.metabolism.constraintIsKcatOnly
-		constrainedReactions = np.array(sim_data.process.metabolism.constrainedReactionList)
-		useAllConstraints = sim_data.process.metabolism.useAllConstraints
-		constraintsToDisable = sim_data.process.metabolism.constraintsToDisable
 
 		targetFluxList = []
 		actualFluxList = []
@@ -74,6 +71,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			targetFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (enzymeKineticsReader.readColumn("targetFluxes").T / coefficient).T
 			actualFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (enzymeKineticsReader.readColumn("actualFluxes").T / coefficient).T
 			reactionConstraint = enzymeKineticsReader.readColumn("reactionConstraint")
+			constrainedReactions = np.array(enzymeKineticsReader.readAttribute("constrainedReactions"))
 			enzymeKineticsReader.close()
 
 			targetFluxes = targetFluxes.asNumber(units.mmol / units.g / units.h)
@@ -100,15 +98,6 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		kmAndKcatReactions = ~np.any(constraintIsKcatOnly[reactionConstraintList], axis = 0)
 		mixedReactions = ~(kcatOnlyReactions ^ kmAndKcatReactions)
 
-		disabledReactions = np.zeros(len(constrainedReactions), dtype = bool)
-		if not useAllConstraints:
-			for rxn in constraintsToDisable:
-				idx = np.where(constrainedReactions == rxn)[0]
-				disabledReactions[idx] = True
-				kcatOnlyReactions[idx] = False
-				kmAndKcatReactions[idx] = False
-				mixedReactions[idx] = False
-
 		# categorize how well the actual flux matches the target flux
 		thresholds = [2, 10]
 		categorization = np.zeros(reactionConstraint.shape[1])
@@ -134,11 +123,6 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			for reaction, target, flux, category in zip(constrainedReactions[mixedReactions], targetAve[mixedReactions], actualAve[mixedReactions], categorization[mixedReactions]):
 				output.writerow([reaction, target, flux, category])
 
-		if np.sum(disabledReactions):
-			output.writerow(["disabled constraints"])
-			for reaction, target, flux, category in zip(constrainedReactions[disabledReactions], targetAve[disabledReactions], actualAve[disabledReactions], categorization[disabledReactions]):
-				output.writerow([reaction, target, flux, category])
-
 		csvFile.close()
 
 		# add small number to allow plotting of 0 flux on log scale
@@ -146,7 +130,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		actualAve += 1e-6
 
 		pearsonAll = pearsonr(np.log10(targetAve), np.log10(actualAve))
-		pearsonNoZeros = pearsonr(np.log10(targetAve[(categorization != -2) & ~disabledReactions]), np.log10(actualAve[(categorization != -2) & ~disabledReactions]))
+		pearsonNoZeros = pearsonr(np.log10(targetAve[(categorization != -2)]), np.log10(actualAve[(categorization != -2)]))
 
 		# plot data
 		fig = plt.figure(figsize = (4, 4))
@@ -154,7 +138,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		plt.plot([-6, 4], [-6, 4], 'k', linewidth = 0.75)
 		plt.plot([-5, 4], [-6, 3], 'k', linewidth = 0.5)
 		plt.plot([-6, 3], [-5, 4], 'k', linewidth = 0.5)
-		plt.plot(np.log10(targetAve[~disabledReactions]), np.log10(actualAve[~disabledReactions]), 'o', color = "black", markersize = 8, alpha = 0.15, zorder=1, markeredgewidth = 0.0)
+		plt.plot(np.log10(targetAve), np.log10(actualAve), 'o', color = "black", markersize = 8, alpha = 0.15, zorder=1, markeredgewidth = 0.0)
 		plt.xlabel("Log10(Target Flux [mmol/g/hr])")
 		plt.ylabel("Log10(Actual Flux [mmol/g/hr])")
 		plt.title("PCC = %.3f, p = %s\n(%.3f, p = %s without points at zero)" % (pearsonAll[0], pearsonAll[1], pearsonNoZeros[0], pearsonNoZeros[1]))

@@ -44,14 +44,10 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile))
 
 		constraintIsKcatOnly = sim_data.process.metabolism.constraintIsKcatOnly
-		constrainedReactions = np.array(sim_data.process.metabolism.constrainedReactionList)
-		useAllConstraints = sim_data.process.metabolism.useAllConstraints
-		constraintsToDisable = sim_data.process.metabolism.constraintsToDisable
 
 		mainListener = TableReader(os.path.join(simOutDir, "Main"))
 		initialTime = mainListener.readAttribute("initialTime")
 		time = mainListener.readColumn("time") - initialTime
-		timeStepSec = mainListener.readColumn("timeStepSec")
 		mainListener.close()
 
 		massListener = TableReader(os.path.join(simOutDir, "Mass"))
@@ -66,6 +62,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		targetFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (enzymeKineticsReader.readColumn("targetFluxes").T / coefficient).T
 		actualFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (enzymeKineticsReader.readColumn("actualFluxes").T / coefficient).T
 		reactionConstraint = enzymeKineticsReader.readColumn("reactionConstraint")
+		constrainedReactions = np.array(enzymeKineticsReader.readAttribute("constrainedReactions"))
 		enzymeKineticsReader.close()
 
 		targetFluxes = targetFluxes.asNumber(units.mmol / units.g / units.h)
@@ -74,21 +71,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		targetAve = np.mean(targetFluxes[BURN_IN_STEPS:, :], axis = 0)
 		actualAve = np.mean(actualFluxes[BURN_IN_STEPS:, :], axis = 0)
 
-		relError = np.abs((actualFluxes[BURN_IN_STEPS:, :] - targetFluxes[BURN_IN_STEPS:, :]) / (targetFluxes[BURN_IN_STEPS:, :] + 1e-15))
-		aveError = np.mean(relError, axis = 0)
-
 		kcatOnlyReactions = np.all(constraintIsKcatOnly[reactionConstraint[BURN_IN_STEPS:,:]], axis = 0)
 		kmAndKcatReactions = ~np.any(constraintIsKcatOnly[reactionConstraint[BURN_IN_STEPS:,:]], axis = 0)
 		mixedReactions = ~(kcatOnlyReactions ^ kmAndKcatReactions)
-
-		disabledReactions = np.zeros_like(kcatOnlyReactions)
-		if not useAllConstraints:
-			for rxn in constraintsToDisable:
-				disabledReactions[np.where(constrainedReactions == rxn)[0]] = True
-
-			kcatOnlyReactions[disabledReactions] = False
-			kmAndKcatReactions[disabledReactions] = False
-			mixedReactions[disabledReactions] = False
 
 		thresholds = [2, 10]
 		categorization = np.zeros(reactionConstraint.shape[1])
@@ -128,11 +113,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			for reaction, target, flux, category in zip(constrainedReactions[mixedReactions], targetAve[mixedReactions], actualAve[mixedReactions], categorization[mixedReactions]):
 				output.writerow([reaction, target, flux, category])
 
-		if np.sum(disabledReactions):
-			output.writerow(["disabled constraints"])
-			for reaction, target, flux, category in zip(constrainedReactions[disabledReactions], targetAve[disabledReactions], actualAve[disabledReactions], categorization[disabledReactions]):
-				output.writerow([reaction, target, flux, category])
-
 		csvFile.close()
 
 		targetAve += 1e-6
@@ -140,7 +120,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		plt.figure(figsize = (8, 8))
 		plt.loglog([1e-7, 1e4], [1e-7, 1e4], 'k')
-		plt.loglog(targetAve[~disabledReactions], actualAve[~disabledReactions], "ob", markeredgewidth = 0.25, alpha = 0.25)
+		plt.loglog(targetAve, actualAve, "ob", markeredgewidth = 0.25, alpha = 0.25)
 		plt.xlabel("Target Flux (mmol/g/hr)")
 		plt.ylabel("Actual Flux (mmol/g/hr)")
 		plt.minorticks_off()
