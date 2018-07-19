@@ -15,12 +15,12 @@ from reconstruction.ecoli.fit_sim_data_2 import fitSimData_2
 class FitSimDataTask(FireTaskBase):
 
 	_fw_name = "FitSimDataTask"
-	required_params = [
-		"fit_level", "input_data", "output_data",
+	required_params = ["fit_level", "input_data", "output_data"]
+	optional_params = [
+		"sim_out_dir",
 		"disable_ribosome_capacity_fitting",
 		"disable_rnapoly_capacity_fitting"
 		]
-	optional_params = ["sim_out_dir"]
 
 	def run_task(self, fw_spec):
 
