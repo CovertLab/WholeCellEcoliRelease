@@ -7,9 +7,9 @@ SimulationData moleculeIds
 
 from __future__ import division
 
-class moleculeIds(object):
+class MoleculeIds(object):
 	"""
-	Helper function to extract molecule IDs of "special" molecules. All values
+	Helper class to extract molecule IDs of "special" molecules. All values
 	returned are strings.
 	"""
 

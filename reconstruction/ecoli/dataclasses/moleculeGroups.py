@@ -9,10 +9,10 @@ from __future__ import division
 
 from reconstruction.ecoli.dataclasses.state.stateFunctions import createIdsWithCompartments
 
-class moleculeGroups(object):
+class MoleculeGroups(object):
 	"""
-	Helper function to extract molecule IDs of "special" groups of molecules.
-	All values returned are lists of strings.
+	Helper class to extract molecule IDs of "special" groups of molecules. All
+	values returned are lists of strings.
 	"""
 
 	def __init__(self, raw_data, sim_data):
