@@ -1,3 +1,4 @@
+#!/bin/bash
 
 echo Submitting job 1 - fit all
 
