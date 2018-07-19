@@ -1,5 +1,19 @@
 
-# TODO (John): Move this script to a more appropriate place.
+'''
+
+This script generate a 2x2 figure of histograms, showing the doubling time for
+simulations under alternative (limited) fitting procedures.  It can't be
+implemetned as a standard analysis script, because the underlying feature
+(passing options to the fitter) is not currently supported by our 'variant'
+framework.
+
+Usage
+-----
+
+This script should be executed from the root wcEcoli directory.  You will need
+to adjust the directories for simulation output.
+
+'''
 
 from __future__ import division
 
@@ -26,7 +40,7 @@ DIRECTORIES = (
 	DIRECTORY_YES_RIB_YES_RNAP
 	)
 
-TITLES = ( # TODO (John): check order
+TITLES = (
 	'({}) ribosomes, ({}) RNA polymerases'.format(rib, rnap)
 	for rnap in ('-', '+')
 	for rib in ('-', '+')
