@@ -464,7 +464,7 @@ def buildTfConditionCellSpecifications(
 
 def buildCombinedConditionCellSpecifications(
 		sim_data,
-		cellSpecs
+		cellSpecs,
 		disable_ribosome_capacity_fitting=False,
 		disable_rnapoly_capacity_fitting=False
 		):
