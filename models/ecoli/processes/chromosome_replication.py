@@ -98,7 +98,8 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		## Module 1: Replication initiation
 		# Get number of active DNA polymerases and oriCs
 		activeDnaPoly = self.activeDnaPoly.molecules()
-		activePolymerasePresent = (len(activeDnaPoly) > 0)
+		n_active_polymerase = len(activeDnaPoly)
+		activePolymerasePresent = (n_active_polymerase > 0)
 		oriCs = self.oriCs.molecules()
 		n_oric = len(oriCs)
 		n_chromosomes = self.full_chromosome.total()[0]
@@ -183,7 +184,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# If no active polymerases are present, return immediately
 		# Note: the new DNA polymerases activated in the previous module are
 		# not elongated until the next timestep.
-		if len(activeDnaPoly) == 0:
+		if n_active_polymerase == 0:
 			return
 
 		# Build sequences to polymerize
@@ -253,12 +254,27 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# when some polymerases were initiated in the same timestep, as the
 		# attributes for these new polymerases cannot be updated in the same
 		# timestep.
-		if didTerminate.sum() > 0 and replication_initiated == False:
+		if didTerminate.sum() > 0:
 			# Get attributes from active DNA polymerases and oriC's
-			sequenceIdx, chromosomeIndexPolymerase, replicationRound = activeDnaPoly.attrs(
-				'sequenceIdx', 'chromosomeIndex', 'replicationRound'
+			chromosomeIndexPolymerase, replicationRound = activeDnaPoly.attrs(
+				'chromosomeIndex', 'replicationRound'
 				)
 			chromosomeIndexOriC = oriCs.attr('chromosomeIndex')
+
+			# If new DNAPs were added in this timestep, append attributes of
+			# these polymerases
+			if replication_initiated:
+				chromosomeIndexPolymeraseNew, replicationRoundNew = activeDnaPolyNew.attrs(
+					'chromosomeIndex', 'replicationRound'
+				)
+				chromosomeIndexOriCNew = oriCsNew.attr('chromosomeIndex')
+
+				chromosomeIndexPolymerase = np.append(chromosomeIndexPolymerase,
+					chromosomeIndexPolymeraseNew)
+				replicationRound = np.append(replicationRound, replicationRoundNew)
+				chromosomeIndexOriC = np.append(chromosomeIndexOriC,
+					chromosomeIndexOriCNew)
+				didTerminate = np.pad(didTerminate, (0, n_new_polymerase), 'constant')
 
 			# Check that all terminated polymerases were initiated in the same
 			# replication round
@@ -305,9 +321,6 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 						secondHalfIdx = np.where(polymerasesToSplit)[0][(n_matches // 2):]
 						chromosomeIndexPolymerase[secondHalfIdx] = newChromosomeIndex
 
-					# Reset chromosomeIndex for active DNA polymerases
-					activeDnaPoly.attrIs(chromosomeIndex=chromosomeIndexPolymerase)
-
 					# Get oriC's in the chromosome getting divided
 					chromosomeMatchOriC = (chromosomeIndexOriC == chromosomeIndexTerminated)
 					n_matches = chromosomeMatchOriC.sum()
@@ -319,15 +332,31 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 					secondHalfIdx = np.where(chromosomeMatchOriC)[0][(n_matches // 2):]
 					chromosomeIndexOriC[secondHalfIdx] = newChromosomeIndex
 
-					# Reset chromosomeIndex for oriC's
-					oriCs.attrIs(chromosomeIndex=chromosomeIndexOriC)
-
 					# Increment the new chromosome index in case another
 					# chromosome needs to be split
 					newChromosomeIndex += 1
 
-			# Delete terminated polymerases
-			activeDnaPoly.delByIndexes(np.where(didTerminate)[0])
+			# If new DNAPs were added, partition indexes and reset attributes
+			# of old and new DNAPs separately
+			if replication_initiated:
+				# Reset chromosomeIndex for preexisting DNA polymerases and oriC's
+				activeDnaPoly.attrIs(chromosomeIndex=chromosomeIndexPolymerase[:n_active_polymerase])
+				oriCs.attrIs(chromosomeIndex=chromosomeIndexOriC[:n_oric])
+
+				# Reset chromosomeIndex for new DNA polymerases and oriC's
+				activeDnaPolyNew.attrIs(chromosomeIndex=chromosomeIndexPolymerase[n_active_polymerase:])
+				oriCsNew.attrIs(chromosomeIndex=chromosomeIndexOriC[n_oric:])
+
+				# Delete terminated polymerases
+				activeDnaPoly.delByIndexes(np.where(didTerminate[:n_active_polymerase])[0])
+
+			else:
+				# Reset chromosomeIndex for DNA polymerases and oriC's
+				activeDnaPoly.attrIs(chromosomeIndex=chromosomeIndexPolymerase)
+				oriCs.attrIs(chromosomeIndex=chromosomeIndexOriC)
+
+				# Delete terminated polymerases
+				activeDnaPoly.delByIndexes(np.where(didTerminate)[0])
 
 			# Update counts of newly created chromosome halves. These will be
 			# "stitched" together in the ChromosomeFormation process
