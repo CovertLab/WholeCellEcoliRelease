@@ -79,5 +79,5 @@ class Complexation(wholecell.processes.process.Process):
 
 		# Write outputs to listeners
 		self.writeToListener("ComplexationListener", "reactionRates", (
-			(moleculeCounts[self.product_indices] - updatedMoleculeCounts[self.product_indices])/self.timeStepSec()
+			(moleculeCounts[self.product_indices] - updatedMoleculeCounts[self.product_indices]) * self.timeStepSec()
 			))

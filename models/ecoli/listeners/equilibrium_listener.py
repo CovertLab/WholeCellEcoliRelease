@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 """
-ComplexationListener
+EquilibriumListener
 
-Records dynamics of complexation output.
+Records dynamics of equilibrium output.
 
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
@@ -14,27 +14,27 @@ import numpy as np
 
 import wholecell.listeners.listener
 
-class ComplexationListener(wholecell.listeners.listener.Listener):
-	""" ComplexationListener """
+class EquilibriumListener(wholecell.listeners.listener.Listener):
+	""" EquilibriumListener """
 
-	_name = "ComplexationListener"
+	_name = "EquilibriumListener"
 
 	# Constructor
 	def __init__(self, *args, **kwargs):
-		super(ComplexationListener, self).__init__(*args, **kwargs)
+		super(EquilibriumListener, self).__init__(*args, **kwargs)
 
 
 	# Construct object graph
 	def initialize(self, sim, sim_data):
-		super(ComplexationListener, self).initialize(sim, sim_data)
+		super(EquilibriumListener, self).initialize(sim, sim_data)
 
-		self.complexIDs = sim_data.process.complexation.ids_complexes
-		self.reactionIDs = sim_data.process.complexation.ids_reactions
+		self.complexIDs = sim_data.process.equilibrium.ids_complexes
+		self.reactionIDs = sim_data.process.equilibrium.rxnIds
 
 
 	# Allocate memory
 	def allocate(self):
-		super(ComplexationListener, self).allocate()
+		super(EquilibriumListener, self).allocate()
 
 		self.reactionRates = np.zeros(len(self.reactionIDs), np.float64)
 
