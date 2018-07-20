@@ -70,14 +70,12 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		n_proteins = len(ids_translation)
 
 		# Get data for proteins in ribosomes
-		# s50_fullComplex and s30_fullComplex are single-element lists, needs unpacking
-		data_50s = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.s50_fullComplex[0])
-		data_30s = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.s30_fullComplex[0])
+		data_50s = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s50_fullComplex)
+		data_30s = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s30_fullComplex)
 		ids_ribosome_subunit = data_50s["subunitIds"].tolist() + data_30s["subunitIds"].tolist()
 
 		# Get data for proteins in RNAP
-		# rnapFull is a single-element list, needs unpacking
-		data_rnap = sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.rnapFull[0])
+		data_rnap = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.rnapFull)
 		ids_rnap_subunit = data_rnap["subunitIds"].tolist()
 
 		# Get all monomer stoichiometric matrices for protein complexes

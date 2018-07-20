@@ -66,7 +66,7 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
 		self.divisionIds = {}
 		self.divisionIds['binomial'] = sim_data.moleculeGroups.bulkMoleculesBinomialDivision
 		self.divisionIds['equally'] = sim_data.moleculeGroups.bulkMoleculesEqualDivision
-		self.divisionIds['fullChromosome'] = sim_data.moleculeGroups.fullChromosome
+		self.divisionIds['fullChromosome'] = [sim_data.moleculeIds.fullChromosome]
 		self.divisionIds['partialChromosome'] = sim_data.moleculeGroups.partialChromosome
 		self.divisionIds['setTo1'] = sim_data.moleculeGroups.bulkMoleculesSetTo1Division
 

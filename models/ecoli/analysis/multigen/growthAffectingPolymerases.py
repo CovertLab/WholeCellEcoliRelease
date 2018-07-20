@@ -111,13 +111,13 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			proteinIds30S = sim_data.moleculeGroups.s30_proteins
 			rnaIds30S = [sim_data.process.translation.monomerData['rnaId'][np.where(sim_data.process.translation.monomerData['id'] == pid)[0][0]] for pid in proteinIds30S]
 			rRnaIds30S = sim_data.moleculeGroups.s30_16sRRNA
-			complexIds30S = [sim_data.moleculeGroups.s30_fullComplex[0]]
+			complexIds30S = [sim_data.moleculeIds.s30_fullComplex]
 
 			proteinIds50S = sim_data.moleculeGroups.s50_proteins
 			rnaIds50S = [sim_data.process.translation.monomerData['rnaId'][np.where(sim_data.process.translation.monomerData['id'] == pid)[0][0]] for pid in proteinIds50S]
 			rRnaIds50S = sim_data.moleculeGroups.s50_23sRRNA
 			rRnaIds50S.extend(sim_data.moleculeGroups.s50_5sRRNA)
-			complexIds50S = [sim_data.moleculeGroups.s50_fullComplex[0]]
+			complexIds50S = [sim_data.moleculeIds.s50_fullComplex]
 
 			# Get indexes for 30S and 50S subunits based on ids
 			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))

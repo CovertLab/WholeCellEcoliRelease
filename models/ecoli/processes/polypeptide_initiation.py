@@ -48,8 +48,8 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 		self.activeRibosomes = self.uniqueMoleculesView('activeRibosome')
 
 		# Create views onto bulk 30S and 50S ribosomal subunits
-		self.ribosome30S = self.bulkMoleculeView(sim_data.moleculeGroups.s30_fullComplex[0])
-		self.ribosome50S = self.bulkMoleculeView(sim_data.moleculeGroups.s50_fullComplex[0])
+		self.ribosome30S = self.bulkMoleculeView(sim_data.moleculeIds.s30_fullComplex)
+		self.ribosome50S = self.bulkMoleculeView(sim_data.moleculeIds.s50_fullComplex)
 
 		# Create view onto bulk mRNAs
 		self.mRnas = self.bulkMoleculesView(mrnaIds)

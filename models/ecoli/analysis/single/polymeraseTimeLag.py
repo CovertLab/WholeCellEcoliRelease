@@ -32,13 +32,13 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		nAvogadro = sim_data.constants.nAvogadro
 		ribosomeSubunitIds = []
-		ribosomeSubunitIds.extend(sim_data.moleculeGroups.s50_fullComplex)
-		ribosomeSubunitIds.extend(sim_data.moleculeGroups.s30_fullComplex)
+		ribosomeSubunitIds.append(sim_data.moleculeIds.s50_fullComplex)
+		ribosomeSubunitIds.append(sim_data.moleculeIds.s30_fullComplex)
 		ribosomeSubunitIds.extend(sim_data.moleculeGroups.s50_proteinComplexes)
-		ribosomeSubunitIds.extend(sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.s50_fullComplex[0])['subunitIds'])
-		ribosomeSubunitIds.extend(sim_data.process.complexation.getMonomers(sim_data.moleculeGroups.s30_fullComplex[0])['subunitIds'])
+		ribosomeSubunitIds.extend(sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s50_fullComplex)['subunitIds'])
+		ribosomeSubunitIds.extend(sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s30_fullComplex)['subunitIds'])
 		ribosomeSubunitMasses = sim_data.getter.getMass(ribosomeSubunitIds)
-		mass70s = (sim_data.getter.getMass(sim_data.moleculeGroups.s50_fullComplex) + sim_data.getter.getMass(sim_data.moleculeGroups.s30_fullComplex))[0]
+		mass70s = (sim_data.getter.getMass([sim_data.moleculeIds.s50_fullComplex]) + sim_data.getter.getMass([sim_data.moleculeIds.s30_fullComplex]))[0]
 		rnaIds = sim_data.process.transcription.rnaData['id']
 
 		elongationRate = float(sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s))

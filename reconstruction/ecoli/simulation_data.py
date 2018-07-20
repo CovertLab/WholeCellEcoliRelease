@@ -15,7 +15,8 @@ from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 
 # Data classes
 from reconstruction.ecoli.dataclasses.getterFunctions import getterFunctions
-from reconstruction.ecoli.dataclasses.moleculeGroups import moleculeGroups
+from reconstruction.ecoli.dataclasses.moleculeGroups import MoleculeGroups
+from reconstruction.ecoli.dataclasses.moleculeIds import MoleculeIds
 from reconstruction.ecoli.dataclasses.constants import Constants
 from reconstruction.ecoli.dataclasses.state.internal_state import InternalState
 from reconstruction.ecoli.dataclasses.state.external_state import ExternalState
@@ -53,7 +54,8 @@ class SimulationDataEcoli(object):
 
 		# Helper functions (have no dependencies)
 		self.getter = getterFunctions(raw_data, self)
-		self.moleculeGroups = moleculeGroups(raw_data, self)
+		self.moleculeGroups = MoleculeGroups(raw_data, self)
+		self.moleculeIds = MoleculeIds(raw_data, self)
 		self.constants = Constants(raw_data, self)
 
 		# Growth rate dependent parameters are set first

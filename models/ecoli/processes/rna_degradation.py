@@ -118,8 +118,8 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.fragmentMetabolites = self.bulkMoleculesView(endCleavageMetaboliteIds)
 		self.fragmentBases = self.bulkMoleculesView([id_ + "[c]" for id_ in sim_data.moleculeGroups.fragmentNT_IDs])
 
-		self.ribosome30S = self.bulkMoleculeView(sim_data.moleculeGroups.s30_fullComplex[0])
-		self.ribosome50S = self.bulkMoleculeView(sim_data.moleculeGroups.s50_fullComplex[0])
+		self.ribosome30S = self.bulkMoleculeView(sim_data.moleculeIds.s30_fullComplex)
+		self.ribosome50S = self.bulkMoleculeView(sim_data.moleculeIds.s50_fullComplex)
 		self.activeRibosomes = self.uniqueMoleculesView('activeRibosome')
 		self.rrfaIdx = sim_data.process.transcription.rnaData["id"].tolist().index("RRFA-RRNA[c]")
 		self.rrlaIdx = sim_data.process.transcription.rnaData["id"].tolist().index("RRLA-RRNA[c]")
