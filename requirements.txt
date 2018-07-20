@@ -11,17 +11,16 @@
 ## Download and install other packages according to their instructions
 #	CPLEX from IBM (free for students)
 #
-## Create a pyenv with Python 2.7.14.
-#   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.14  # if needed
-#   pyenv local 2.7.14
+## Create a pyenv with Python 2.7.15.
+#   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.15  # if needed
+#   pyenv local 2.7.15
 #
 ## Create and select a new python virtual environment:
 #   pyenv virtualenv wcEcoli2
 #   pyenv local wcEcoli2
 #
-## Upgrade the installers but don't use pip==10.0.0 yet because it
-## breaks cobra test.
-#   pip install --upgrade pip==9.0.3 setuptools virtualenv wheel
+## Upgrade the installers:
+#   pip install --upgrade pip setuptools virtualenv wheel
 #
 ## Install requires numpy before running requirements.txt
 #   pip install numpy==1.14.3
@@ -42,38 +41,41 @@
 ## Then install all the other packages listed here:
 #   CVXOPT_BUILD_GLPK=1 pip install -r requirements.txt --no-binary cvxopt
 #   pyenv rehash
+#
+## Then configure the installed matplotlib as needed, per the instructions in
+## https://github.com/CovertLab/wcEcoli/wiki/How-to-set-up-the-runtime-environment-for-the-model
 
 appnope==0.1.0
-astroid==1.6.3
-attrs==17.4.0
+astroid==1.6.5
+atomicwrites==1.1.5
+attrs==18.1.0
 backports-abc==0.5
 backports.functools-lru-cache==1.5
 backports.shutil-get-terminal-size==1.0.0
 backports.ssl-match-hostname==3.5.0.1
-biopython==1.71
-bokeh==0.11.1  # bokeh==0.12.15 requires some changes
+biopython==1.72
+bokeh==0.11.1  # bokeh==0.12+ require changes
 certifi==2018.4.16
 chardet==3.0.4
 click==6.7
-cobra==0.11.3
 colorama==0.3.9
 configparser==3.5.0
 coverage==4.5.1
 cplex==12.8.0.0
 CVXcanon==0.1.1
 cvxopt==1.1.7  # cvxopt==1.2.0 installs on OSX but not on Sherlock
-cvxpy==0.4.8   # cvxpy==0.4.11 change summary looks like a work in progress
+cvxpy==1.0.6
 cycler==0.10.0
-Cython==0.28.2
+Cython==0.28.4
 decorator==4.3.0
-dill==0.2.7.1
+dill==0.2.8.2
 docutils==0.14
 ecos==2.0.5
 enum34==1.1.6
 Equation==1.2.1
 fastcache==1.0.2
-FireWorks==1.6.0  # FireWorks==1.7.2 requires ruamel.yaml>=0.15.35 but cobra==0.11.3 requires ruamel.yaml<0.15
-Flask==0.12.2
+FireWorks==1.7.5
+Flask==1.0.2
 flask-paginate==0.5.1
 funcsigs==1.0.2
 functools32==3.2.3.post2
@@ -83,7 +85,7 @@ gnureadline==6.3.8
 gunicorn==19.7.1
 idna==2.6
 ipdb==0.11
-ipython==5.6.0
+ipython==5.7.0  # 6.0+ are for Python 3
 ipython-genutils==0.2.0
 isort==4.3.4
 itsdangerous==0.24
@@ -94,46 +96,46 @@ kiwisolver==1.0.1
 lazy-object-proxy==1.3.1
 line-profiler==2.1.2
 MarkupSafe==1.0
-matplotlib==1.5.3  # matplotlib==2.2.2 breaks mpld3. Try patching or fixing mpld3.
+matplotlib==2.2.2
 matplotlib-venn==0.11.5
 mccabe==0.6.1
 memory-profiler==0.52.0
 mock==2.0.0
-monty==1.0.2
-more-itertools==4.1.0
-mpld3==0.3
+monty==1.0.3
+more-itertools==4.2.0
 mpmath==1.0.0
-multiprocess==0.70.5
+multiprocess==0.70.6.1
 nbformat==4.4.0
 nose==1.3.7
-numpy==1.14.3
-optlang==1.4.1
+numpy==1.14.5
+optlang==1.4.2
+osqp==0.3.1
 packaging==17.1
-pandas==0.22.0
+pandas==0.22.0  # pandas 0.23+ releases have backwards incompatible API changes
 path.py==11.0.1
 pathlib==1.0.1
-pathlib2==2.3.0
-pbr==4.0.3
-pexpect==4.5.0
+pathlib2==2.3.2
+pbr==4.1.0
+pexpect==4.6.0
 pickleshare==0.7.4
 pluggy==0.6.0
 prompt-toolkit==1.0.15
-psutil==5.4.5
-ptyprocess==0.5.2
-py==1.5.3
+psutil==5.4.6
+ptyprocess==0.6.0
+py==1.5.4
 py-cpuinfo==4.0.0
 Pygments==2.2.0
-pylint==1.8.4
+pylint==1.9.2
 pymongo==3.6.1
 pyparsing==2.2.0
-pytest==3.5.0
+pytest==3.6.3
 pytest-benchmark==3.1.1
 python-dateutil==2.7.3
-pytz==2018.4
-PyYAML==3.12
-requests==2.18.4
+pytz==2018.5
+PyYAML==3.13
+requests==2.19.1
 ruamel.ordereddict==0.4.13
-ruamel.yaml==0.14.12
+ruamel.yaml==0.15.43
 scandir==1.7
 scipy==1.0.1
 scs==2.0.2
@@ -141,17 +143,17 @@ simplegeneric==0.8.1
 singledispatch==3.4.0.3
 six==1.11.0
 statistics==1.0.3.5
-subprocess32==3.2.7
+subprocess32==3.5.2
 swiglpk==1.4.4
 sympy==1.1.1
 tabulate==0.8.2
-Theano==1.0.1
+Theano==1.0.2
 toolz==0.9.0
 tornado==5.0.2
 tqdm==4.23.0
 traitlets==4.3.2
 Unum==4.1.4
-urllib3==1.22
+urllib3==1.23
 virtualenv>=16.0.0
 wcwidth==0.1.7
 Werkzeug==0.14.1

@@ -82,7 +82,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			plt.xlabel("Km First Order Decay (Log10, M)", fontsize = 14)
 			plt.ylabel("Km Non-linear Decay (Log10, M)", fontsize = 14)
 			plt.title("Relative error = %.2f%%" % Error, fontsize = 16)
-			print np.corrcoef(KmFirstOrderDecay, KmNonLinearDecay)[0,1]
+			# print np.corrcoef(KmFirstOrderDecay, KmNonLinearDecay)[0,1]
 
 
 		if sim_data.constants.EndoRNaseCooperation:

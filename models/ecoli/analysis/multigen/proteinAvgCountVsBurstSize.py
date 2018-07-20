@@ -180,7 +180,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		scatterAxis.set_xlabel("Average number of transcription events per generation per monomer")
 
 		scatterAxis.set_ylim([10e-3, 10e6])
-		scatterAxis.set_xlim([-10., 1000.])
+		scatterAxis.set_xlim([10e-3, 1000.])
 
 		yhistAxis.hist(averageCountPerMonomer, bins = np.logspace(np.log10(10e-3), np.log10(10e6), 125), orientation='horizontal', log = True, range = [10e-3, 10e6])
 		yhistAxis.set_yscale("log")

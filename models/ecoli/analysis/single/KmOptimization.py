@@ -133,7 +133,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 			for name in REPRESENTATIVE_SCORES:
 				mass = REPRESENTATIVE_SCORES[name]
-				plt.axvline(mass, color = "k", linestyle = "dashed", linewidth = "3")
+				plt.axvline(mass, color = "k", linestyle = "dashed", linewidth = 3)
 				plt.text(mass, index[-1], name, rotation = "vertical", ha = "right")
 
 			plt.title("Scores Km's non-linear optimization")
