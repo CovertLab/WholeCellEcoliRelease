@@ -102,11 +102,6 @@ def fitSimData_1(
 		basal_expression_condition = BASAL_EXPRESSION_CONDITION,
 		)
 
-	# Adding attributes to sim_data is bad!  Don't do this!
-
-	sim_data.disable_ribosome_capacity_fitting = disable_ribosome_capacity_fitting
-	sim_data.disable_rnapoly_capacity_fitting = disable_rnapoly_capacity_fitting
-
 	# Limit the number of conditions that are being fit so that execution time decreases
 	if debug:
 		print("Warning: running fitter in debug mode - not all conditions will be fit")
