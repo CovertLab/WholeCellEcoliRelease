@@ -31,6 +31,7 @@ CHECK_SANITY = False
 GET_PATHWAY_INDEX = False
 N_GENS = 9
 DYNAMICS_PRECISION = 6
+PROBABILITY_PRECISION = 4
 TIME_PRECISION = 2
 
 # Proteins that are reactants and products of a metabolic reaction
@@ -132,6 +133,8 @@ class Node:
 			# Format dynamics string depending on data type
 			if unit == "N":
 				dynamics_string = format_dynamics_string(dynamics, "int")
+			elif unit == "prob":
+				dynamics_string = format_dynamics_string(dynamics, "prob")
 			else:
 				dynamics_string = format_dynamics_string(dynamics, "float")
 
@@ -855,6 +858,12 @@ def add_equilibrium(simData, simOutDirs, node_list, edge_list):
 	equilibriumRatesFwd = np.array(simData.process.equilibrium.ratesFwd, dtype=np.float32)
 	equilibriumRatesRev = np.array(simData.process.equilibrium.ratesRev, dtype=np.float32)
 
+	# Get transcription factor-specific data from simData
+	recruitmentColNames = simData.process.transcription_regulation.recruitmentColNames
+	tf_ids = sorted(set([x.split("__")[-1] for x in recruitmentColNames if
+		x.split("__")[-1] != "alpha"]))
+	tfToTfType = simData.process.transcription_regulation.tfToTfType
+
 	# Get bulkMolecule IDs from first simOut directory
 	simOutDir = simOutDirs[0]
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
@@ -862,13 +871,16 @@ def add_equilibrium(simData, simOutDirs, node_list, edge_list):
 
 	# Get dynamics data from all simOutDirs
 	counts_array = np.empty((0, len(moleculeIDs)), dtype=np.int)
+	pPromoterBoundArray = np.empty((0, len(tf_ids)))
 
 	for simOutDir in simOutDirs:
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		counts = bulkMolecules.readColumn("counts")
 		counts_array = np.concatenate((counts_array, counts))
 
-	# TODO: get dynamics data for equilibrium nodes. Will need new listener.
+		rnaSynthProb = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
+		pPromoterBound = rnaSynthProb.readColumn("pPromoterBound")
+		pPromoterBoundArray = np.concatenate((pPromoterBoundArray, pPromoterBound))
 
 	# Get IDs of complexes that were already added
 	complexation_complex_ids = simData.process.complexation.ids_complexes
@@ -890,6 +902,9 @@ def add_equilibrium(simData, simOutDirs, node_list, edge_list):
 		}
 		equilibrium_node.read_attributes(**attr)
 
+		dynamics = {}
+		dynamics_units = {}
+
 		# Append new node to node_list
 		node_list.append(equilibrium_node)
 
@@ -899,6 +914,14 @@ def add_equilibrium(simData, simOutDirs, node_list, edge_list):
 		# Loop through each element in column
 		for moleculeIdx, stoich in enumerate(equilibriumStoichMatrixColumn):
 			moleculeId = equilibriumMoleculeIds[moleculeIdx]
+
+			if moleculeId[:-3] in tf_ids and tfToTfType[moleculeId[:-3]] != '0CS':
+				tf_idx = tf_ids.index(moleculeId[:-3])
+
+				dynamics['fraction active TF'] = list(pPromoterBoundArray[:, tf_idx])
+				dynamics_units['fraction active TF'] = 'prob'
+
+				print(list(pPromoterBoundArray[:, tf_idx]))
 
 			# If the stoichiometric coefficient is negative, add reactant edge
 			# to the equilibrium node
@@ -922,6 +945,8 @@ def add_equilibrium(simData, simOutDirs, node_list, edge_list):
 
 				equilibrium_edge.read_attributes(**attr)
 				edge_list.append(equilibrium_edge)
+
+		equilibrium_node.read_dynamics(dynamics, dynamics_units)
 
 	# Get 2CS-specific data from simData
 	tcsMoleculeIds = simData.process.two_component_system.moleculeNames
@@ -1229,6 +1254,9 @@ def format_dynamics_string(dynamics, datatype):
 
 	elif datatype == "float":
 		dynamics_string = ", ".join("{0:.{1}g}".format(val, DYNAMICS_PRECISION) for val in dynamics)
+
+	elif datatype == "prob":
+		dynamics_string = ", ".join("{0:.{1}f}".format(val, PROBABILITY_PRECISION) for val in dynamics)
 
 	elif datatype == "time":
 		dynamics_string = ", ".join("{0:.{1}f}".format(val, TIME_PRECISION) for val in dynamics)
