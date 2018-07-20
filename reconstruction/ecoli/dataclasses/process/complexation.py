@@ -92,6 +92,7 @@ class Complexation(object):
 
 		self.moleculeNames = molecules
 		self.ids_complexes = [self.moleculeNames[i] for i in np.where(np.any(self.stoichMatrix() > 0, axis=1))[0]]
+		self.ids_reactions = [dict['id'] for dict in raw_data.complexationReactions]
 
 		# Remove duplicate names in subunits and complexes
 		self.subunitNames = set(subunits)

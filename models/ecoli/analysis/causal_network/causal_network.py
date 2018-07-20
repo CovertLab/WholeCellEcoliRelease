@@ -575,21 +575,17 @@ def add_complexation_and_complexes(simData, simOutDirs, node_list, edge_list):
 	"""
 	simOutDir = simOutDirs[0]
 
-	# TODO (Eran) raw_data is here used to get complexation reaction IDs and stoichiometry. This can be saved to sim_data and then retrieved here.
-	from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
-	raw_data = KnowledgeBaseEcoli()
-
-	# get reaction IDs from raw data
-	reactionIDs = [dict['id'] for dict in raw_data.complexationReactions]
-
 	# Get bulkMolecule IDs from first simOut directory
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	moleculeIDs = bulkMolecules.readAttribute("objectNames")
 
 	n_avogadro = simData.constants.nAvogadro
 
-	# Get dynamics data from all simOutDirs (# rxns/ts for complexation, counts
-	# for proteins and complexes)
+	# List of all complex IDs and reaction IDs
+	complex_ids = simData.process.complexation.ids_complexes + EQUILIBRIUM_COMPLEXES_IN_COMPLEXATION
+	reactionIDs = simData.process.complexation.ids_reactions
+
+	# Get dynamics data from all simOutDirs (# rxns/ts for complexation, counts)
 	reactions_array = np.empty((0, len(reactionIDs)))
 	counts_array = np.empty((0, len(moleculeIDs)))
 	volume_array = np.empty(0)
@@ -617,9 +613,6 @@ def add_complexation_and_complexes(simData, simOutDirs, node_list, edge_list):
 			molecule_name = '%s[%s]' % (molecule['molecule'], molecule['location'])
 			stoich[molecule_name] = molecule['coeff']
 		complexStoich[reaction['id']] = stoich
-
-	# List of all complex IDs
-	complex_ids = simData.process.complexation.ids_complexes + EQUILIBRIUM_COMPLEXES_IN_COMPLEXATION
 
 	# Loop through all complexation reactions
 	for idx, reaction in enumerate(reactionIDs):

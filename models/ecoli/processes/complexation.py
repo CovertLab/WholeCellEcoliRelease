@@ -43,6 +43,8 @@ class Complexation(wholecell.processes.process.Process):
 
 		self.prebuiltMatrices = mccBuildMatrices(self.stoichMatrix)
 
+		self.product_indices = [idx for idx in np.where(np.any(self.stoichMatrix > 0, axis=1))[0]]
+
 		# Build views
 		moleculeNames = sim_data.process.complexation.moleculeNames
 		self.molecules = self.bulkMoleculesView(moleculeNames)
@@ -74,3 +76,8 @@ class Complexation(wholecell.processes.process.Process):
 			)
 
 		self.molecules.countsIs(updatedMoleculeCounts)
+
+		# Write outputs to listeners
+		self.writeToListener("ComplexationListener", "reactionRates", (
+			(moleculeCounts[self.product_indices] - updatedMoleculeCounts[self.product_indices])/self.timeStepSec()
+			))
