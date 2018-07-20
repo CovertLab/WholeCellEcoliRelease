@@ -28,7 +28,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			if n_cells > max_cells_in_gen:
 				max_cells_in_gen = n_cells
 
-		fig, axesList = plt.subplots(ap.n_generation, sharey = True, sharex = True, subplot_kw=dict((("aspect",0.4),("adjustable",'box-forced'))))
+		fig, axesList = plt.subplots(ap.n_generation, sharey = True, sharex = True,
+			subplot_kw={'aspect': 0.4, 'adjustable': 'box'})
 
 		initial_masses = np.zeros((max_cells_in_gen, ap.n_generation))
 		final_masses = np.zeros((max_cells_in_gen, ap.n_generation))

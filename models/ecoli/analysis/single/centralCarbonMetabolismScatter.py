@@ -1,5 +1,4 @@
 """
-@author: Morgan Paull
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 4/29/2016
 """
@@ -13,7 +12,6 @@ import re
 
 import numpy as np
 from matplotlib import pyplot as plt
-from mpld3 import plugins
 
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
@@ -21,7 +19,7 @@ from wholecell.utils import units
 from wholecell.analysis.plotting_tools import CMAP_COLORS_255
 
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS
-from wholecell.analysis.analysis_tools import exportFigure, exportHtmlFigure
+from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
 
 FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
@@ -43,10 +41,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		cellDensity = sim_data.constants.cellDensity
 
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-		timeStepSec = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
-
 		massListener = TableReader(os.path.join(simOutDir, "Mass"))
 		cellMass = massListener.readColumn("cellMass") * units.fg
 		dryMass = massListener.readColumn("dryMass") * units.fg
@@ -55,7 +49,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 		reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
 		reactionFluxes = (COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS) * np.array(fbaResults.readColumn("reactionFluxes"))
-		fluxes_dict = dict(zip(reactionIDs, reactionFluxes))
 		fbaResults.close()
 
 		dryMassFracAverage = np.mean(dryMass / cellMass)
@@ -91,20 +84,15 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		toyaVsReactionAve = FLUX_UNITS * np.array(toyaVsReactionAve)
 		correlationCoefficient = np.corrcoef(toyaVsReactionAve[:,0].asNumber(FLUX_UNITS), toyaVsReactionAve[:,1].asNumber(FLUX_UNITS))[0,1]
 
-		fig = plt.figure()
+		plt.figure()
 
 		plt.title("Central Carbon Metabolism Flux, Pearson R = {:.2}".format(correlationCoefficient))
-		points = plt.errorbar(toyaVsReactionAve[:,1].asNumber(FLUX_UNITS), toyaVsReactionAve[:,0].asNumber(FLUX_UNITS), xerr = toyaVsReactionAve[:,3].asNumber(FLUX_UNITS),
+		plt.errorbar(toyaVsReactionAve[:,1].asNumber(FLUX_UNITS), toyaVsReactionAve[:,0].asNumber(FLUX_UNITS), xerr = toyaVsReactionAve[:,3].asNumber(FLUX_UNITS),
 			yerr = toyaVsReactionAve[:,2].asNumber(FLUX_UNITS), fmt = "o", ecolor = "k")
 		plt.ylabel("Mean WCM Reaction Flux {}".format(FLUX_UNITS.strUnit()))
 		plt.xlabel("Toya 2010 Reaction Flux {}".format(FLUX_UNITS.strUnit()))
 
-		labels = list(toya_order)
-		tooltip = plugins.PointLabelTooltip(points, labels)
-		plugins.connect(fig, tooltip)
-
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
-		exportHtmlFigure(fig, plt, plotOutDir, plotOutFileName, metadata)
 		plt.close("all")
 
 

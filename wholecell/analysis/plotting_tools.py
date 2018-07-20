@@ -1,21 +1,12 @@
-#!/usr/bin/env python
-
 """
 Reusable plotting functions and tools
 
-@author: Morgan Paull
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 11/06/2015
 """
 
-import os
-import wholecell.utils.constants
-
 import matplotlib.pyplot as plt
-import numpy as np
 from scipy import stats
-
-from mpld3 import plugins, utils
 
 
 COLORS_LARGE = ["#000000", "#FFFF00", "#1CE6FF", "#FF34FF", "#FF4A46", "#008941", "#006FA6", "#A30059",
@@ -63,7 +54,7 @@ COLORS_256 = [ # From colorbrewer2.org, qualitative 8-class set 1
 	[247,129,191]
 	]
 
-def plotSplom(arrayOfdataArrays, nameArray="", stdArrays=None, labels=None, fig=None, plotCorrCoef=True, formatString='o', htmlPlot=False):
+def plotSplom(arrayOfdataArrays, nameArray="", stdArrays=None, labels=None, fig=None, plotCorrCoef=True, formatString='o'):
 	"""
 	Plot a scatterplot matrix (Splom) of data contained in arrayOfdataArrays,
 	with labels in the same order held within nameArray.
@@ -89,23 +80,15 @@ def plotSplom(arrayOfdataArrays, nameArray="", stdArrays=None, labels=None, fig=
 				continue
 			plt.subplot(num_entries,num_entries,num_entries*(rowNum-1)+(colNum))
 
-			if htmlPlot:
-				points = plt.scatter(arrayOfdataArrays[colNum-1], arrayOfdataArrays[rowNum-1], marker=formatString)
-				tooltip = plugins.PointLabelTooltip(points, labels)
-				plugins.connect(fig, tooltip)
-			else:
-				plt.errorbar(arrayOfdataArrays[colNum-1], arrayOfdataArrays[rowNum-1], xerr=stdArrays[colNum-1], yerr=stdArrays[rowNum-1], fmt=formatString)
+			plt.errorbar(arrayOfdataArrays[colNum-1], arrayOfdataArrays[rowNum-1], xerr=stdArrays[colNum-1], yerr=stdArrays[rowNum-1], fmt=formatString)
 
 			if nameArray != "":
 				plt.xlabel(nameArray[colNum-1])
 				plt.ylabel(nameArray[rowNum-1])
-			
+
 			if plotCorrCoef:
 				corr_coef, pValue = stats.pearsonr(arrayOfdataArrays[colNum-1], arrayOfdataArrays[rowNum-1])
 				plt.title("R = %.4f" % (corr_coef))
 		plottingIndex += 1
-
-	if htmlPlot:
-		plugins.connect(fig, plugins.LinkedBrush(points))
 
 	return fig

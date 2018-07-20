@@ -59,7 +59,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		fig = plt.figure(figsize = (4, 4))
 
 		for simDir in allDir:
-			print simDir
+			# print simDir
 
 			simOutDir = os.path.join(simDir, "simOut")
 
@@ -104,7 +104,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		axis = plt.subplot(1,1,1)
 
 		axis.plot(np.log10(schmidtCounts + 1), np.log10(View_Validation_Schmidt + 1), 'o', color = "black", markersize = 6, alpha = 0.1, zorder = 1, markeredgewidth = 0.0)
-		print pearsonr( np.log10(View_Validation_Schmidt + 1), np.log10(schmidtCounts + 1) )[0]
+		# print pearsonr( np.log10(View_Validation_Schmidt + 1), np.log10(schmidtCounts + 1) )[0]
 
 		maxLine = np.ceil(
 						max((np.log10(schmidtCounts + 1)).max(),

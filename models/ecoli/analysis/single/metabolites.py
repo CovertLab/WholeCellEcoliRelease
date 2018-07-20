@@ -46,7 +46,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		colors = COLORS_LARGE # to match colors between the pdf and html plots
 		plt.figure(figsize = (8.5, 11))
 		ax = plt.subplot(1, 1, 1)
-		ax.set_color_cycle(colors)
+		ax.set_prop_cycle('color', colors)
 		plt.plot(time, normalizedCounts)
 		plt.xlabel("Time (s)")
 		plt.ylabel("Metabolite Fold Change")

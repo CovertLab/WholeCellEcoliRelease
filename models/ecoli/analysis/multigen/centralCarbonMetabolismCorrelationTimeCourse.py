@@ -17,7 +17,7 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
 
-from models.ecoli.analysis.single.centralCarbonMetabolism import net_flux, _generatedID_reverseReaction
+from models.ecoli.analysis.single.centralCarbonMetabolism import net_flux
 
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS
 from wholecell.analysis.analysis_tools import exportFigure
@@ -46,8 +46,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		plt.figure(figsize = (8.5, 11))
 
-		fig = plt.figure()
-		fig.hold(True)
+		plt.figure()
 
 		for simDir in allDir:
 			simOutDir = os.path.join(simDir, "simOut")
@@ -71,17 +70,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			netFluxes = []
 			for toyaReactionID in toya_reactions:
-				if toyaReactionID in reactionIDs:
-					fluxTimeCourse = net_flux(toyaReactionID, reactionIDs, reactionFluxes, reverseRxnFormat=_generatedID_reverseReaction).asNumber(FLUX_UNITS).squeeze()
-					netFluxes.append(fluxTimeCourse)
-				else:
-					fluxTimeCourse = 0
-					newReactions = [rxn for rxn in reactionIDs if rxn.startswith(toyaReactionID)]
-					reverseReactions = [_generatedID_reverseReaction.format(rxn) for rxn in newReactions]
-					for rxn in newReactions:
-						if rxn not in reverseReactions:
-							fluxTimeCourse += net_flux(rxn, reactionIDs, reactionFluxes, reverseRxnFormat=_generatedID_reverseReaction).asNumber(FLUX_UNITS).squeeze()
-					netFluxes.append(fluxTimeCourse)
+				fluxTimeCourse = net_flux(toyaReactionID, reactionIDs, reactionFluxes).asNumber(FLUX_UNITS).squeeze()
+				netFluxes.append(fluxTimeCourse)
 
 			trimmedReactions = FLUX_UNITS * np.array(netFluxes)
 

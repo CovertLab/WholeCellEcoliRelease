@@ -51,7 +51,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			simulatedSynthProbs = []
 			transcriptionEvents = []
 			for gen, simDir in enumerate(allDir):
-				print gen
+				# print gen
 				simOutDir = os.path.join(simDir, "simOut")
 
 				time += TableReader(os.path.join(simOutDir, "Main")).readColumn("time").tolist()
@@ -154,15 +154,15 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		alwaysAxis.set_ylim([-1, np.max([N_GENES_TO_PLOT, len(always)])])
 		alwaysAxis.set_xticks([])
 		alwaysAxis.set_yticks([])
-		alwaysAxis.tick_params(top = "off")
-		alwaysAxis.tick_params(bottom = "off")
+		alwaysAxis.tick_params(top = False)
+		alwaysAxis.tick_params(bottom = False)
 
 		sometimesAxis.eventplot(sometimes, orientation = "horizontal", linewidths = 2., linelengths = 1., colors = [green])
 		sometimesAxis.set_ylabel("0 < Frequency < 1", fontsize = 12)
 		sometimesAxis.set_xlim([0, time[-1] / 3600.])
 		sometimesAxis.set_ylim([-1, np.max([N_GENES_TO_PLOT, len(sometimes)])])
 		sometimesAxis.set_yticks([])
-		sometimesAxis.tick_params(top = "off")
+		sometimesAxis.tick_params(top = False)
 		sometimesAxis.tick_params(which = 'both', direction = 'out', labelsize = 12)
 		sometimesAxis.set_xticks([0, time[-1] / 3600.])
 		sometimesAxis.set_xlabel("Time (hour)", fontsize = 12)
@@ -172,7 +172,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		# neverAxis.set_ylabel("Never present", fontsize = 10)
 		# neverAxis.set_xlabel("Time (hour)", fontsize = 10)
 		# neverAxis.set_yticks([])
-		# neverAxis.tick_params(top = "off")
+		# neverAxis.tick_params(top = False)
 		# neverAxis.set_ylim([-1, np.max([N_GENES_TO_PLOT, len(never)])])
 		# neverAxis.tick_params(which = 'both', direction = 'out', labelsize = 12)
 

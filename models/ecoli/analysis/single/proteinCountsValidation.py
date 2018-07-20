@@ -1,7 +1,6 @@
 """
 Compare protein counts to Wisniewski 2014 data set
 
-@author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 12/3/2015
 """
@@ -16,15 +15,11 @@ from matplotlib import pyplot as plt
 import cPickle
 from scipy.stats import pearsonr
 
-from mpld3 import plugins
-
 from wholecell.io.tablereader import TableReader
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
-from wholecell.analysis.analysis_tools import exportFigure, exportHtmlFigure
+from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
 
-
-# TODO: account for complexation
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
@@ -49,7 +44,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		view_complexation_complexes = bulkContainer.countsView(ids_complexation_complexes)
 		view_equilibrium = bulkContainer.countsView(ids_equilibrium)
 		view_equilibrium_complexes = bulkContainer.countsView(ids_equilibrium_complexes)
-		view_translation = bulkContainer.countsView(ids_translation)
 		view_validation = bulkContainer.countsView(validation_data.protein.wisniewski2014Data["monomerId"].tolist())
 		view_validation_schmidt = bulkContainer.countsView(validation_data.protein.schmidt2015Data["monomerId"].tolist())
 
@@ -83,31 +77,22 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			)
 
 		wisniewskiCounts = validation_data.protein.wisniewski2014Data["avgCounts"]
-		proteinIds = validation_data.protein.wisniewski2014Data["monomerId"].tolist()
 
 		fig, ax = plt.subplots(2, sharey=True, figsize = (8.5, 11))
 
 		# Wisniewski Counts
-		points = ax[0].scatter(np.log10(wisniewskiCounts + 1), np.log10(view_validation.counts() + 1), c='w', edgecolor = 'k', alpha=.7)
+		ax[0].scatter(np.log10(wisniewskiCounts + 1), np.log10(view_validation.counts() + 1), c='w', edgecolor = 'k', alpha=.7)
 		ax[0].set_xlabel("log10(Wisniewski 2014 Counts)")
 		ax[0].set_title("Pearson r: %0.2f" % pearsonr(np.log10(view_validation.counts() + 1), np.log10(wisniewskiCounts + 1))[0])
 
-		labels = list(proteinIds)
-		tooltip = plugins.PointLabelTooltip(points, labels)
-		plugins.connect(fig, tooltip)
-
 		# Schmidt Counts
-		schmidtLabels = validation_data.protein.schmidt2015Data["monomerId"]
 		schmidtCounts = validation_data.protein.schmidt2015Data["glucoseCounts"]
-		schmidtPoints = ax[1].scatter(
+		ax[1].scatter(
 			np.log10(schmidtCounts + 1),
 			np.log10(view_validation_schmidt.counts() + 1),
 			c='w', edgecolor = 'k', alpha=.7)
 		ax[1].set_xlabel("log10(Schmidt 2015 Counts)")
 		ax[1].set_title("Pearson r: %0.2f" % pearsonr(np.log10(view_validation_schmidt.counts() + 1), np.log10(schmidtCounts + 1))[0])
-
-		tooltip = plugins.PointLabelTooltip(schmidtPoints, list(schmidtLabels))
-		plugins.connect(fig, tooltip)
 
 		plt.ylabel("log10(Simulation Average Counts)")
 		# NOTE: This Pearson correlation goes up (at the time of writing) about 0.05 if you only
@@ -116,7 +101,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		plt.ylim(ymin=0)
 
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
-		exportHtmlFigure(fig, plt, plotOutDir, plotOutFileName, metadata)
 		plt.close("all")
 
 

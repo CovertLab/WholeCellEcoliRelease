@@ -220,7 +220,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		metAxis.set_ylabel("End product\ncounts", fontsize = FONTSIZE, rotation = 0)
 		metAxis.yaxis.set_label_coords(-.1, 0.25)
 		metAxis.set_xlabel("Time (hour)\ntickmarks at each new generation", fontsize = FONTSIZE)
-		metAxis.set_xlim([0, time[-1] / 3600.])
 		metAxis.set_ylim([metAxis.get_ylim()[0] * 0.2, metAxis.get_ylim()[1]])
 		whitePadSparklineAxis(metAxis)
 		metAxis.set_yticklabels(["%0.1e" % metAxis.get_ylim()[0], "%0.1e" % metAxis.get_ylim()[1]])

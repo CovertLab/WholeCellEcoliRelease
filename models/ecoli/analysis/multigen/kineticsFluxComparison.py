@@ -124,13 +124,19 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		targetAve += 1e-6
 		actualAve += 1e-6
 
+		axes_limits = [1e-7, 1e4]
 		plt.figure(figsize = (8, 8))
-		plt.loglog([1e-7, 1e4], [1e-7, 1e4], 'k')
+		ax = plt.axes()
+		plt.loglog(axes_limits, axes_limits, 'k')
 		plt.loglog(targetAve, actualAve, "ob", markeredgewidth = 0.25, alpha = 0.25)
 		plt.xlabel("Target Flux (mmol/g/hr)")
 		plt.ylabel("Actual Flux (mmol/g/hr)")
 		plt.minorticks_off()
-		whitePadSparklineAxis(plt.axes())
+		whitePadSparklineAxis(ax)
+		ax.set_ylim(axes_limits)
+		ax.set_xlim(axes_limits)
+		ax.set_yticks(axes_limits)
+		ax.set_xticks(axes_limits)
 
 		exportFigure(plt, plotOutDir, plotOutFileName)
 		plt.close("all")
