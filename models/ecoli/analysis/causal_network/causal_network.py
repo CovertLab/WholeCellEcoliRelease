@@ -207,6 +207,66 @@ class Edge:
 		edgelist_file.write(edge_row)
 
 
+def add_global_nodes(simData, simOutDirs, node_list):
+	"""
+	Add global state nodes to the node list.
+	"""
+	# Get bulkMolecule IDs from first simOut directory
+	simOutDir = simOutDirs[0]
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+	moleculeIDs = bulkMolecules.readAttribute("objectNames")
+
+	# Get index of full chromosome
+	full_chrom_idx = moleculeIDs.index(simData.moleculeGroups.fullChromosome[0])
+
+	mass_array = np.empty(0)
+	volume_array = np.empty(0)
+	fc_counts_array = np.empty(0, dtype=np.int)
+
+	# Loop through all generations
+	for simOutDir in simOutDirs:
+		# Extract dynamics data from each generation
+		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+		counts = bulkMolecules.readColumn("counts")
+
+		cell_mass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")
+		cell_volume = ((1.0/simData.constants.cellDensity)*(units.fg*cell_mass)).asNumber(units.L)
+
+		# Append to existing array
+		fc_counts_array = np.concatenate((fc_counts_array, counts[:, full_chrom_idx].astype(np.int)))
+		mass_array = np.concatenate((mass_array, cell_mass))
+		volume_array = np.concatenate((volume_array, cell_volume))
+
+	# Add total cell mass node to node list
+	mass_node = Node("State", "Global")
+	attr = {'node_id': "cell_mass", 'name': "Total cell mass"}
+	mass_node.read_attributes(**attr)
+
+	dynamics = {'mass': list(mass_array)}
+	dynamics_units = {'mass': 'fg'}
+	mass_node.read_dynamics(dynamics, dynamics_units)
+
+	# Add total cell volume node to node list
+	volume_node = Node("State", "Global")
+	attr = {'node_id': "cell_volume", 'name': "Total cell volume"}
+	volume_node.read_attributes(**attr)
+
+	dynamics = {'volume': list(volume_array)}
+	dynamics_units = {'volume': 'L'}
+	volume_node.read_dynamics(dynamics, dynamics_units)
+
+	# Add chromosome count node to node list
+	chromosome_node = Node("State", "Global")
+	attr = {'node_id': "full_chromosome", 'name': "Chromosome"}
+	chromosome_node.read_attributes(**attr)
+
+	dynamics = {'count': list(fc_counts_array)}
+	dynamics_units = {'count': 'N'}
+	chromosome_node.read_dynamics(dynamics, dynamics_units)
+
+	node_list.extend([mass_node, volume_node, chromosome_node])
+
+
 def add_replication_and_genes(simData, simOutDirs, node_list, edge_list):
 	"""
 	Add replication process nodes and gene state nodes with dynamics data to
@@ -1113,50 +1173,6 @@ def add_time_data(simOutDirs, dynamics_file):
 	dynamics_file.write(time_row)
 
 
-def add_global_dynamics(simData, simOutDirs, dynamics_file):
-	"""
-	Add global dynamics data to the dynamics file.
-	Currently, cell mass and cell volume are the only global dynamics data that
-	are being written. - Gwanggyu
-	"""
-	# Initialize global dynamics lists
-	global_dynamics = dict()
-	global_dynamics['cell_mass'] = []
-	global_dynamics['cell_volume'] = []
-
-	global_dynamics_units = dict()
-	global_dynamics_units['cell_mass'] = 'fg'
-	global_dynamics_units['cell_volume'] = 'L'
-
-	# Loop through all generations
-	for simOutDir in simOutDirs:
-		# Extract dynamics data from each generation
-		cell_mass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")
-		cell_volume = ((1.0/simData.constants.cellDensity)*(units.fg*cell_mass)).asNumber(units.L)
-
-		# Append to existing list
-		global_dynamics['cell_mass'] += list(cell_mass)
-		global_dynamics['cell_volume'] += list(cell_volume)
-
-	# Iterate through all dynamics variables associated with the node
-	for name, dynamics in global_dynamics.items():
-		unit = global_dynamics_units.get(name, "")
-
-		# Format dynamics string depending on data type
-		if unit == "N":
-			dynamics_string = format_dynamics_string(dynamics, "int")
-		else:
-			dynamics_string = format_dynamics_string(dynamics, "float")
-
-		# Format single string with dynamic attributes separated by commas
-		dynamics_row = "%s\t%s\t%s\t%s\n" % (
-			"global", name, unit, dynamics_string
-		)
-
-		# Write line to dynamics file
-		dynamics_file.write(dynamics_row)
-
-
 def find_duplicate_nodes(node_list):
 	"""
 	Identify any nodes that have duplicate IDs and prints them to the console.
@@ -1224,7 +1240,7 @@ def format_dynamics_string(dynamics, datatype):
 		dynamics_string = ", ".join("{0:.{1}g}".format(val, DYNAMICS_PRECISION) for val in dynamics)
 
 	elif datatype == "time":
-		dynamics_string = ", ".join("{0:.{1}f}".format(val, DYNAMICS_PRECISION) for val in dynamics)
+		dynamics_string = ", ".join("{0:.{1}f}".format(val, TIME_PRECISION) for val in dynamics)
 
 	else:
 		dynamics_string = dynamics
@@ -1422,6 +1438,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	node_list = []
 	edge_list = []
 
+	# Add global nodes to the node list
+	add_global_nodes(simData, simOutDirs, node_list)
+
 	# Add state/process-specific nodes and edges to the node list and edge list
 	add_replication_and_genes(simData, simOutDirs, node_list, edge_list)
 	add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list)
@@ -1467,7 +1486,6 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	# Add time and global dynamics data to dynamics file
 	add_time_data(simOutDirs, dynamics_file)
-	add_global_dynamics(simData, simOutDirs, dynamics_file)
 
 	# Write node, edge list and dynamics data tsv files
 	for node in node_list:
