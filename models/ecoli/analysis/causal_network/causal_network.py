@@ -280,10 +280,17 @@ def add_replication_and_genes(simData, simOutDirs, node_list, edge_list):
 	ppi_id = "PPI[c]"
 	dnap_ids = ['CPLX0-2361[c]', 'CPLX0-3761[c]', 'CPLX0-3925[c]', 'CPLX0-7910[c]']
 
-	# Loop through all genes
-	geneIds = [data[0] for data in simData.process.replication.geneData]
+	# Assemble dynamics data from all generations
+	rnaSynthProb = []
+	for simOutDir in simOutDirs:
+		rnaSynthProbReader = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
+		rnaSynthProb_thisGen = rnaSynthProbReader.readColumn("rnaSynthProb")
+		rnaSynthProbReader.close()
+		rnaSynthProb.append(rnaSynthProb_thisGen)
+	rnaSynthProb = np.concatenate(rnaSynthProb)
 
-	for geneId in geneIds:
+	# Loop through all genes (in the order listed in transcription)
+	for i, geneId in enumerate(simData.process.transcription.rnaData["geneId"]):
 		# Initialize a single gene node
 		gene_node = Node("State", "Gene")
 
@@ -292,8 +299,11 @@ def add_replication_and_genes(simData, simOutDirs, node_list, edge_list):
 		attr = {'node_id': geneId, 'name': geneId}
 		gene_node.read_attributes(**attr)
 
-		# Add dynamics data to the node.
-		# TODO
+		# Add dynamics data to the node. The rna synthesis probability shares
+		# the same index as the geneId.
+		dynamics = {"transcript synthesis probability": list(rnaSynthProb[:, i])}
+		dynamics_units = {"transcript synthesis probability": "prob"}
+		gene_node.read_dynamics(dynamics, dynamics_units)
 
 		# Append gene node to node_list
 		node_list.append(gene_node)
