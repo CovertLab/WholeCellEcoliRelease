@@ -18,7 +18,8 @@ from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 
 # Data classes
 from reconstruction.ecoli.dataclasses.getterFunctions import getterFunctions
-from reconstruction.ecoli.dataclasses.moleculeGroups import moleculeGroups
+from reconstruction.ecoli.dataclasses.moleculeGroups import MoleculeGroups
+from reconstruction.ecoli.dataclasses.moleculeIds import MoleculeIds
 from reconstruction.ecoli.dataclasses.constants import Constants
 from reconstruction.ecoli.dataclasses.state.internal_state import InternalState
 from reconstruction.ecoli.dataclasses.process.process import Process
