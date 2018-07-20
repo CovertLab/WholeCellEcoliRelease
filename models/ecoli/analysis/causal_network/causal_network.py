@@ -351,7 +351,6 @@ def add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list)
 	ntp_ids = simData.moleculeGroups.ntpIds
 	ppi_id = "PPI[c]"
 	rnap_id = "APORNAP-CPLX[c]"
-	n_avogadro = simData.constants.nAvogadro
 
 	# Get bulkMolecule IDs from first simOut directory
 	simOutDir = simOutDirs[0]
@@ -360,17 +359,11 @@ def add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list)
 
 	# Get dynamics data from all simOutDirs
 	counts_array = np.empty((0, len(moleculeIDs)), dtype=np.int)
-	volume_array = np.empty(0)
 
 	for simOutDir in simOutDirs:
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		counts = bulkMolecules.readColumn("counts")
 		counts_array = np.concatenate((counts_array, counts))
-
-		# Extract dynamics data from each generation
-		cell_mass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")
-		cell_volume = ((1.0/simData.constants.cellDensity)*(units.fg*cell_mass)).asNumber(units.L)
-		volume_array = np.concatenate((volume_array, cell_volume))
 
 	# Loop through all genes
 	for geneId, rnaId, _ in simData.process.replication.geneData:
@@ -392,11 +385,9 @@ def add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list)
 
 		if rna_idx != -1:
 			rna_counts = counts_array[:, rna_idx].astype(np.int)
-			rna_conc = (((1/n_avogadro)*rna_counts)/(units.L*volume_array)).asNumber(units.mmol/units.L)
 
-			dynamics = {'counts': list(rna_counts),
-				'concentration': list(rna_conc)}
-			dynamics_units = {'counts': 'N', 'concentration': 'mmol/L'}
+			dynamics = {'counts': list(rna_counts)}
+			dynamics_units = {'counts': 'N'}
 			rna_node.read_dynamics(dynamics, dynamics_units)
 
 		# Append transcript node to node_list
