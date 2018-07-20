@@ -660,10 +660,13 @@ def add_metabolism_and_metabolites(simData, simOutDirs, node_list, edge_list):
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	moleculeIDs = bulkMolecules.readAttribute("objectNames")
 
+	n_avogadro = simData.constants.nAvogadro
+
 	# Get dynamics data from all simOutDirs (flux for reactions, counts for
 	# metabolites)
 	flux_array = np.empty((0, len(reactionIDs)))
 	counts_array = np.empty((0, len(moleculeIDs)), dtype=np.int)
+	volume_array = np.empty(0)
 
 	for simOutDir in simOutDirs:
 		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
@@ -673,6 +676,11 @@ def add_metabolism_and_metabolites(simData, simOutDirs, node_list, edge_list):
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		counts = bulkMolecules.readColumn("counts")
 		counts_array = np.concatenate((counts_array, counts))
+
+		# Extract dynamics data from each generation
+		cell_mass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")
+		cell_volume = ((1.0 / simData.constants.cellDensity) * (units.fg * cell_mass)).asNumber(units.L)
+		volume_array = np.concatenate((volume_array, cell_volume))
 
 	# Get all reaction stoichiometry from simData
 	reactionStoich = simData.process.metabolism.reactionStoich
@@ -772,8 +780,12 @@ def add_metabolism_and_metabolites(simData, simOutDirs, node_list, edge_list):
 			metabolite_idx = -1
 
 		if metabolite_idx != -1:
-			dynamics = {'counts': list(counts_array[:, metabolite_idx].astype(np.int))}
-			dynamics_units = {'counts': 'N'}
+			metabolite_counts = counts_array[:, metabolite_idx].astype(np.int)
+			metabolite_conc = (((1 / n_avogadro) * metabolite_counts) / (units.L * volume_array)).asNumber(units.mmol / units.L)
+
+			dynamics = {'counts': list(metabolite_counts),
+				'concentration':  list(metabolite_conc)}
+			dynamics_units = {'counts': 'N', 'concentration': 'mmol/L'}
 			metabolite_node.read_dynamics(dynamics, dynamics_units)
 
 		# Append node to node_list
