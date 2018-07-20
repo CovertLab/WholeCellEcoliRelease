@@ -28,6 +28,7 @@ PATHWAY_LIST_HEADER = "pathway\tnodes"
 PATHWAYS_FILENAME = "models/ecoli/analysis/causal_network/metabolic_pathways.tsv"
 
 CHECK_SANITY = False
+GET_PATHWAY_INDEX = False
 N_GENS = 9
 DYNAMICS_PRECISION = 6
 TIME_PRECISION = 2
@@ -290,6 +291,7 @@ def add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list)
 	ntp_ids = simData.moleculeGroups.ntpIds
 	ppi_id = "PPI[c]"
 	rnap_id = "APORNAP-CPLX[c]"
+	n_avogadro = simData.constants.nAvogadro
 
 	# Get bulkMolecule IDs from first simOut directory
 	simOutDir = simOutDirs[0]
@@ -298,11 +300,17 @@ def add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list)
 
 	# Get dynamics data from all simOutDirs
 	counts_array = np.empty((0, len(moleculeIDs)), dtype=np.int)
+	volume_array = np.empty(0)
 
 	for simOutDir in simOutDirs:
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		counts = bulkMolecules.readColumn("counts")
 		counts_array = np.concatenate((counts_array, counts))
+
+		# Extract dynamics data from each generation
+		cell_mass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")
+		cell_volume = ((1.0/simData.constants.cellDensity)*(units.fg*cell_mass)).asNumber(units.L)
+		volume_array = np.concatenate((volume_array, cell_volume))
 
 	# Loop through all genes
 	for geneId, rnaId, _ in simData.process.replication.geneData:
@@ -323,8 +331,12 @@ def add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list)
 			rna_idx = -1
 
 		if rna_idx != -1:
-			dynamics = {'counts': list(counts_array[:, rna_idx].astype(np.int))}
-			dynamics_units = {'counts': 'N'}
+			rna_counts = counts_array[:, rna_idx].astype(np.int)
+			rna_conc = (((1/n_avogadro)*rna_counts)/(units.L*volume_array)).asNumber(units.mmol/units.L)
+
+			dynamics = {'counts': list(rna_counts),
+				'concentration': list(rna_conc)}
+			dynamics_units = {'counts': 'N', 'concentration': 'mmol/L'}
 			rna_node.read_dynamics(dynamics, dynamics_units)
 
 		# Append transcript node to node_list
@@ -391,6 +403,7 @@ def add_translation_and_monomers(simData, simOutDirs, node_list, edge_list):
 	ppi_id = "PPI[c]"
 
 	ribosome_subunit_ids = [simData.moleculeGroups.s30_fullComplex[0], simData.moleculeGroups.s50_fullComplex[0]]
+	n_avogadro = simData.constants.nAvogadro
 
 	# Get bulkMolecule IDs from first simOut directory
 	simOutDir = simOutDirs[0]
@@ -399,11 +412,17 @@ def add_translation_and_monomers(simData, simOutDirs, node_list, edge_list):
 
 	# Get dynamics data from all simOutDirs
 	counts_array = np.empty((0, len(moleculeIDs)), dtype=np.int)
+	volume_array = np.empty(0)
 
 	for simOutDir in simOutDirs:
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		counts = bulkMolecules.readColumn("counts")
 		counts_array = np.concatenate((counts_array, counts))
+
+		# Extract dynamics data from each generation
+		cell_mass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")
+		cell_volume = ((1.0/simData.constants.cellDensity)*(units.fg*cell_mass)).asNumber(units.L)
+		volume_array = np.concatenate((volume_array, cell_volume))
 
 	# Loop through all translatable genes
 	for data in simData.process.translation.monomerData:
@@ -427,8 +446,12 @@ def add_translation_and_monomers(simData, simOutDirs, node_list, edge_list):
 			monomer_idx = -1
 
 		if monomer_idx != -1:
-			dynamics = {'counts': list(counts_array[:, monomer_idx].astype(np.int))}
-			dynamics_units = {'counts': 'N'}
+			monomer_counts = counts_array[:, monomer_idx].astype(np.int)
+			monomer_conc = (((1/n_avogadro)*monomer_counts)/(units.L*volume_array)).asNumber(units.mmol/units.L)
+
+			dynamics = {'counts': list(monomer_counts),
+				'concentration': list(monomer_conc)}
+			dynamics_units = {'counts': 'N', 'concentration': 'mmol/L'}
 			protein_node.read_dynamics(dynamics, dynamics_units)
 
 		# Append protein node to node_list
@@ -509,10 +532,13 @@ def add_complexation_and_complexes(simData, simOutDirs, node_list, edge_list):
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	moleculeIDs = bulkMolecules.readAttribute("objectNames")
 
+	n_avogadro = simData.constants.nAvogadro
+
 	# Get dynamics data from all simOutDirs (# rxns/ts for complexation, counts
 	# for proteins and complexes)
 	reactions_array = np.empty((0, len(reactionIDs)))
 	counts_array = np.empty((0, len(moleculeIDs)))
+	volume_array = np.empty(0)
 
 	for simOutDir in simOutDirs:
 		#TODO (ERAN) save complex reaction rate (# rxns/ts) in reaction_array. Save this in listener, or compute it here.
@@ -523,6 +549,11 @@ def add_complexation_and_complexes(simData, simOutDirs, node_list, edge_list):
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		counts = bulkMolecules.readColumn("counts")
 		counts_array = np.concatenate((counts_array, counts))
+
+		# Extract dynamics data from each generation
+		cell_mass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")
+		cell_volume = ((1.0 / simData.constants.cellDensity) * (units.fg * cell_mass)).asNumber(units.L)
+		volume_array = np.concatenate((volume_array, cell_volume))
 
 	# Get complexation stoichiometry from simData
 	complexStoich = {}
@@ -601,8 +632,12 @@ def add_complexation_and_complexes(simData, simOutDirs, node_list, edge_list):
 			complex_idx = -1
 
 		if complex_idx != -1:
-			dynamics = {'counts': list(counts_array[:, complex_idx].astype(np.int))}
-			dynamics_units = {'counts': 'N'}
+			complex_counts = counts_array[:, complex_idx].astype(np.int)
+			complex_conc = (((1 / n_avogadro) * complex_counts) / (units.L * volume_array)).asNumber(units.mmol / units.L)
+
+			dynamics = {'counts': list(complex_counts),
+				'concentration':  list(complex_conc)}
+			dynamics_units = {'counts': 'N', 'concentration': 'mmol/L'}
 			complex_node.read_dynamics(dynamics, dynamics_units)
 
 		# Append node to node_list
@@ -1375,7 +1410,7 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	node_list = []
 	edge_list = []
 
-	# Add nodes and edges to the node list and edge list
+	# Add state/process-specific nodes and edges to the node list and edge list
 	add_replication_and_genes(simData, simOutDirs, node_list, edge_list)
 	add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list)
 	add_translation_and_monomers(simData, simOutDirs, node_list, edge_list)
@@ -1384,15 +1419,19 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	add_equilibrium(simData, simOutDirs, node_list, edge_list)
 	add_regulation(simData, simOutDirs, node_list, edge_list)
 
-	pathway_to_genes, pathway_to_rxns = read_pathway_file()
-	pathway_to_nodes = get_pathway_to_nodes(simData, simOutDirs, pathway_to_genes, pathway_to_rxns)
+	if GET_PATHWAY_INDEX:
+		pathway_to_genes, pathway_to_rxns = read_pathway_file()
+		pathway_to_nodes = get_pathway_to_nodes(simData, simOutDirs, pathway_to_genes, pathway_to_rxns)
 
 	# Check for network sanity (optional)
 	if CHECK_SANITY:
 		print("Performing sanity check on network...")
 		node_ids = find_duplicate_nodes(node_list)
 		find_runaway_edges(node_ids, edge_list)
-		check_nodes_in_pathways(node_ids, pathway_to_nodes)
+
+		if GET_PATHWAY_INDEX:
+			check_nodes_in_pathways(node_ids, pathway_to_nodes)
+
 		print("Sanity check completed.")
 
 	print("Total number of nodes: %d" % (len(node_list)))
@@ -1402,13 +1441,17 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	nodelist_file = open(os.path.join(plotOutDir, plotOutFileName + "_nodelist.tsv"), 'w')
 	edgelist_file = open(os.path.join(plotOutDir, plotOutFileName + "_edgelist.tsv"), 'w')
 	dynamics_file = open(os.path.join(plotOutDir, plotOutFileName + "_dynamics.tsv"), 'w')
-	pathwaylist_file = open(os.path.join(plotOutDir, plotOutFileName + "_pathwaylist.tsv"), 'w')
+
+	if GET_PATHWAY_INDEX:
+		pathwaylist_file = open(os.path.join(plotOutDir, plotOutFileName + "_pathwaylist.tsv"), 'w')
 
 	# Write header rows to each of the files
 	nodelist_file.write(NODE_LIST_HEADER)
 	edgelist_file.write(EDGE_LIST_HEADER)
 	dynamics_file.write(DYNAMICS_HEADER)
-	pathwaylist_file.write(PATHWAY_LIST_HEADER)
+
+	if GET_PATHWAY_INDEX:
+		pathwaylist_file.write(PATHWAY_LIST_HEADER)
 
 	# Add time and global dynamics data to dynamics file
 	add_time_data(simOutDirs, dynamics_file)
@@ -1423,8 +1466,9 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 		edge.write_edgelist(edgelist_file)
 
 	# Write pathway data to pathway file
-	for pathway_name, node_ids in pathway_to_nodes.items():
-		pathwaylist_file.write("%s\t%s\n" % (pathway_name, ", ".join(node_ids)))
+	if GET_PATHWAY_INDEX:
+		for pathway_name, node_ids in pathway_to_nodes.items():
+			pathwaylist_file.write("%s\t%s\n" % (pathway_name, ", ".join(node_ids)))
 
 
 if __name__ == "__main__":
