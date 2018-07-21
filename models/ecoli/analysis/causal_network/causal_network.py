@@ -29,7 +29,7 @@ PATHWAYS_FILENAME = "models/ecoli/analysis/causal_network/metabolic_pathways.tsv
 
 CHECK_SANITY = False
 GET_PATHWAY_INDEX = False
-N_GENS = 9
+N_GENS = 2 #9 #TODO (Eran) this is structures as a multigen analysis, what if we want to analyze single gen?
 DYNAMICS_PRECISION = 6
 PROBABILITY_PRECISION = 4
 TIME_PRECISION = 2
@@ -585,6 +585,10 @@ def add_complexation_and_complexes(simData, simOutDirs, node_list, edge_list):
 	"""
 	simOutDir = simOutDirs[0]
 
+	# TODO (Eran) raw_data is here used to get complexation stoichiometry. This can be saved to sim_data and then retrieved here.
+	from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
+	raw_data = KnowledgeBaseEcoli()
+
 	# Get bulkMolecule IDs from first simOut directory
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	moleculeIDs = bulkMolecules.readAttribute("objectNames")
@@ -601,10 +605,9 @@ def add_complexation_and_complexes(simData, simOutDirs, node_list, edge_list):
 	volume_array = np.empty(0)
 
 	for simOutDir in simOutDirs:
-		#TODO (ERAN) save complex reaction rate (# rxns/ts) in reaction_array. Save this in listener, or compute it here.
-		# fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
-		# reactionFluxes = fbaResults.readColumn('reactionFluxes')
-		# reactions_array = np.concatenate((reactions_array, reactionFluxes))
+		complexationResults = TableReader(os.path.join(simOutDir, "ComplexationListener"))
+		reactionRates = complexationResults.readColumn('reactionRates')
+		reactions_array = np.concatenate((reactions_array, reactionRates))
 
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		counts = bulkMolecules.readColumn("counts")
@@ -617,6 +620,7 @@ def add_complexation_and_complexes(simData, simOutDirs, node_list, edge_list):
 
 	# Get complexation stoichiometry from simData
 	complexStoich = {}
+	# TODO (Eran) save complexationReactions in sim_data, so that raw_data won't be needed
 	for reaction in raw_data.complexationReactions:
 		stoich = {}
 		for molecule in reaction['stoichiometry']:
@@ -633,10 +637,10 @@ def add_complexation_and_complexes(simData, simOutDirs, node_list, edge_list):
 		attr = {'node_id': reaction, 'name': reaction}
 		complexation_node.read_attributes(**attr)
 
-		# # TODO (ERAN) Add dynamics data (# rxns/ts) to the node.
-		# dynamics = {'flux': list(flux_array[:, idx])}
-		# dynamics_units = {'flux': 'mmol/gCDW/h'}
-		# complexation_node.read_dynamics(dynamics, dynamics_units)
+		# Add dynamics data (# rxns/sec) to the node.
+		dynamics = {'reaction rate': list(reactions_array[:, idx])}
+		dynamics_units = {'reaction rate': 'rxns/s'}
+		complexation_node.read_dynamics(dynamics, dynamics_units)
 
 		# Append node to node_list
 		node_list.append(complexation_node)
@@ -875,8 +879,13 @@ def add_equilibrium(simData, simOutDirs, node_list, edge_list):
 	# Get dynamics data from all simOutDirs
 	counts_array = np.empty((0, len(moleculeIDs)), dtype=np.int)
 	pPromoterBoundArray = np.empty((0, len(tf_ids)))
+	reactions_array = np.empty((0, len(equilibriumRxnIds)))
 
 	for simOutDir in simOutDirs:
+		equilibriumResults = TableReader(os.path.join(simOutDir, "EquilibriumListener"))
+		reactionRates = equilibriumResults.readColumn('reactionRates')
+		reactions_array = np.concatenate((reactions_array, reactionRates))
+
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		counts = bulkMolecules.readColumn("counts")
 		counts_array = np.concatenate((counts_array, counts))
@@ -905,8 +914,10 @@ def add_equilibrium(simData, simOutDirs, node_list, edge_list):
 		}
 		equilibrium_node.read_attributes(**attr)
 
-		dynamics = {}
-		dynamics_units = {}
+		# Add dynamics data (# rxns/sec) to the node.
+		dynamics = {'reaction rate': list(reactions_array[:, reactionIdx])}
+		dynamics_units = {'reaction rate': 'rxns/s'}
+		equilibrium_node.read_dynamics(dynamics, dynamics_units)
 
 		# Append new node to node_list
 		node_list.append(equilibrium_node)
