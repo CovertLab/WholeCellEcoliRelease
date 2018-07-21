@@ -85,5 +85,5 @@ class Equilibrium(wholecell.processes.process.Process):
 
 		# Write outputs to listeners
 		self.writeToListener("EquilibriumListener", "reactionRates", (
-			deltaMolecules[self.product_indices] * self.timeStepSec()
+			deltaMolecules[self.product_indices] / self.timeStepSec()
 			))
