@@ -485,11 +485,18 @@ def add_translation_and_monomers(simData, simOutDirs, node_list, edge_list):
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	moleculeIDs = bulkMolecules.readAttribute("objectNames")
 
+	nMonomers = len(simData.process.translation.monomerData)
+
 	# Get dynamics data from all simOutDirs
+	probTranslation_array = np.empty((0, nMonomers), dtype=np.int)
 	counts_array = np.empty((0, len(moleculeIDs)), dtype=np.int)
 	volume_array = np.empty(0)
 
 	for simOutDir in simOutDirs:
+		translationResults = TableReader(os.path.join(simOutDir, "RibosomeData"))
+		probTranslationPerTranscript = translationResults.readColumn('probTranslationPerTranscript')
+		probTranslation_array = np.concatenate((probTranslation_array, probTranslationPerTranscript))
+
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		counts = bulkMolecules.readColumn("counts")
 		counts_array = np.concatenate((counts_array, counts))
@@ -541,8 +548,10 @@ def add_translation_and_monomers(simData, simOutDirs, node_list, edge_list):
 		attr = {'node_id': translation_node_id, 'name': translation_node_id}
 		translation_node.read_attributes(**attr)
 
-		# Add dynamics data to the node.
-		# TODO
+		# Add dynamics data (probability of translation initiation per transcript) to the node.
+		dynamics = {'probability of initiating translation': list(probTranslation_array[:, idx])}
+		dynamics_units = {'probability of initiating translation': 'p(init_translation | RNA)'}
+		translation_node.read_dynamics(dynamics, dynamics_units)
 
 		# Append translation node to node_list
 		node_list.append(translation_node)
