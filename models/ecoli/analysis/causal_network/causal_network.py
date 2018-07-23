@@ -372,27 +372,35 @@ def add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list)
 
 	# Get dynamics data from all simOutDirs
 	counts_array = np.empty((0, len(moleculeIDs)), dtype=np.int)
+	nRnaInits = []
 
 	for simOutDir in simOutDirs:
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		counts = bulkMolecules.readColumn("counts")
 		counts_array = np.concatenate((counts_array, counts))
 
-	# Loop through all genes
-	for geneId, rnaId, _ in simData.process.replication.geneData:
+		rnapDataReader = TableReader(os.path.join(simOutDir, "RnapData"))
+		rnaInitEvent = rnapDataReader.readColumn("rnaInitEvent")
+		rnapDataReader.close()
+		nRnaInits.append(rnaInitEvent)
+	nRnaInits = np.concatenate(nRnaInits)
+
+	# Loop through all genes (in the order listed in transcription)
+	for i, rnaId in enumerate(simData.process.transcription.rnaData["id"]):
+		geneId = simData.process.transcription.rnaData["geneId"][i]
+
 		# Initialize a single transcript node
 		rna_node = Node("State", "RNA")
 
 		# Add attributes to the node
 		# TODO: Add common name and synonyms
-		rna_node_id = "%s[c]" % rnaId
-		attr = {'node_id': rna_node_id, 'name': rna_node_id}
+		attr = {'node_id': rnaId, 'name': rnaId}
 		rna_node.read_attributes(**attr)
 
 		# Add dynamics data (counts) to the node.
 		# Get column index of the RNA in the counts array
 		try:
-			rna_idx = moleculeIDs.index(rna_node_id)
+			rna_idx = moleculeIDs.index(rnaId)
 		except ValueError:  # RNA ID not found in moleculeIDs
 			rna_idx = -1
 
@@ -415,8 +423,11 @@ def add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list)
 		attr = {'node_id': transcription_node_id, 'name': transcription_node_id}
 		transcription_node.read_attributes(**attr)
 
-		# Add dynamics data to the node.
-		# TODO
+		# Add dynamics data to the node. The number of transcription initiation
+		# events (per gene per second) shares the same index as the rnaId.
+		dynamics = {"transcription initiations": list(nRnaInits[:, i])}
+		dynamics_units = {"transcription initiations": "N"}
+		transcription_node.read_dynamics(dynamics, dynamics_units)
 
 		# Append transcription node to node_list
 		node_list.append(transcription_node)
@@ -429,7 +440,7 @@ def add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list)
 
 		# Add edge from transcription to transcript node
 		transcription_to_rna_edge = Edge("Transcription")
-		attr = {'src_id': transcription_node_id, 'dst_id': rna_node_id}
+		attr = {'src_id': transcription_node_id, 'dst_id': rnaId}
 		transcription_to_rna_edge.read_attributes(**attr)
 		edge_list.append(transcription_to_rna_edge)
 
