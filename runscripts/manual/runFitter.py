@@ -44,6 +44,16 @@ class RunFitter(scriptBase.ScriptBase):
 			help="Enable Fitter debugging: Fit only one arbitrarily-chosen"
 				 " transcription factor for a faster debug cycle. Don't use it"
 				 " for an actual simulation.")
+		parser.add_argument(
+			'--disable-ribosome-fitting',
+			action='store_true',
+			help= "If set, ribosome expression will not be fit to protein synthesis demands."
+			)
+		parser.add_argument(
+			'--disable-rnapoly-fitting',
+			action='store_true',
+			help= "If set, RNA polymerase expression will not be fit to protein synthesis demands."
+			)
 
 	def parse_args(self):
 		args = super(RunFitter, self).parse_args()
@@ -83,6 +93,8 @@ class RunFitter(scriptBase.ScriptBase):
 			cached_data=cached_sim_data_file,  # cached file to copy
 			cpus=args.cpus,
 			debug=args.debug,
+			disable_ribosome_capacity_fitting=args.disable_ribosome_fitting,
+			disable_rnapoly_capacity_fitting=args.disable_rnapoly_fitting
 		)
 		task2.run_task({})
 

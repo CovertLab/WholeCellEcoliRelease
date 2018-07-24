@@ -31,6 +31,10 @@ Workflow options:
 	COMPRESS_OUTPUT (int, "0"): if nonzero, outputs will be compressed (.bz2)
 	RUN_AGGREGATE_ANALYSIS (int, "1"): if nonzero, all analyses are run on
 		simulation output
+	DISABLE_RIBOSOME_CAPACITY_FITTING (int, "0"): if nonzero, ribosome
+		expression is not fit to protein synthesis demands
+	DISABLE_RNAPOLY_CAPACITY_FITTING (int, "0"): if nonzero, RNA polymerase
+		expression is not fit to RNA synthesis demands
 
 Simulation parameters:
 	N_GENS (int, "1"): the number of generations to be simulated
@@ -144,6 +148,8 @@ RUN_AGGREGATE_ANALYSIS = bool(int(os.environ.get("RUN_AGGREGATE_ANALYSIS", "1"))
 CACHED_SIM_DATA = bool(int(os.environ.get("CACHED_SIM_DATA", "0")))
 PARALLEL_FITTER = bool(int(os.environ.get("PARALLEL_FITTER", "0")))
 DEBUG_FITTER = bool(int(os.environ.get("DEBUG_FITTER", "0")))
+DISABLE_RIBOSOME_CAPACITY_FITTING = bool(int(os.environ.get("DISABLE_RIBOSOME_CAPACITY_FITTING", "0")))
+DISABLE_RNAPOLY_CAPACITY_FITTING = bool(int(os.environ.get("DISABLE_RNAPOLY_CAPACITY_FITTING", "0")))
 
 if not RUN_AGGREGATE_ANALYSIS:
 	COMPRESS_OUTPUT = False
@@ -265,6 +271,8 @@ fw_fit_level_1 = Firework(
 		cached_data = os.path.join(CACHED_SIM_DATA_DIRECTORY, filename_sim_data_fit_1),
 		cpus = cpusForFitter,
 		debug = DEBUG_FITTER,
+		disable_ribosome_capacity_fitting = DISABLE_RIBOSOME_CAPACITY_FITTING,
+		disable_rnapoly_capacity_fitting = DISABLE_RNAPOLY_CAPACITY_FITTING,
 		),
 	name = fw_name,
 	spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": cpusForFitter}, "_priority":1}
