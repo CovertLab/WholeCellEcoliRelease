@@ -32,42 +32,42 @@ FILE_OFFSETS = "offsets"
 
 
 class TableWriterError(Exception):
-	'''
+	"""
 	Base exception class for TableWriter-associated exceptions.
-	'''
+	"""
 	pass
 
 class MissingFieldError(TableWriterError):
-	'''
+	"""
 	An error raised when TableWriter.append is called without providing all
 	field names.
-	'''
+	"""
 	pass
 
 class UnrecognizedFieldError(TableWriterError):
-	'''
+	"""
 	An error raised when TableWriter.append is called with an unexpected field
 	name.
-	'''
+	"""
 	pass
 
 class AttributeAlreadyExistsError(TableWriterError):
-	'''
+	"""
 	An error raised when TableWriter.writeAttributes is called with an
 	attribute name that has already been used.
-	'''
+	"""
 	pass
 
 class AttributeTypeError(TableWriterError):
-	'''
+	"""
 	An error raised when TableWriter.writeAttributes is called with a type that
 	does not appear to be JSON-serializable.
-	'''
+	"""
 	pass
 
 
 class _Column(object):
-	'''
+	"""
 	Manages the written data for a specific TableWriter field.
 
 	Each field in a 'table' correspond to a 'column' that is written to on each
@@ -88,7 +88,7 @@ class _Column(object):
 		as a lightweight alternative to TableWriter in addition to part of
 		TableWriter's internal implementation.
 
-	'''
+	"""
 
 	def __init__(self, path):
 		filepath.makedirs(path)
@@ -100,7 +100,7 @@ class _Column(object):
 
 
 	def append(self, value):
-		'''
+		"""
 		Appends an array-like to the end of a column.
 
 		On first call, the NumPy dtype of the column is inferred from the
@@ -111,7 +111,7 @@ class _Column(object):
 		value : array-like
 			A NumPy ndarray or array-like (e.g. int, float).
 
-		'''
+		"""
 
 		value = np.asarray(value, self._dtype)
 
@@ -130,7 +130,7 @@ class _Column(object):
 
 
 	def close(self):
-		'''
+		"""
 		Close the files associated with the column.
 
 		While running, each column keeps two files open; one associated with
@@ -142,16 +142,16 @@ class _Column(object):
 		TODO (John): Determine whether this is really necessary.  Garbage
 			collection should already manage this.
 
-		'''
+		"""
 
 		self._data.close()
 		self._offsets.close()
 
 
 	def __del__(self):
-		'''
+		"""
 		Close the files associated with the column on garbage collection.
-		'''
+		"""
 		self.close()
 
 
@@ -185,7 +185,7 @@ class TableWriter(object):
 	----------
 	path : str
 		Path to the output location (a directory) where data will be saved.  If
-			 he directory already exists, no error will be thrown.
+			the directory already exists, no error will be thrown.
 
 	See also
 	--------
@@ -244,7 +244,7 @@ class TableWriter(object):
 
 
 	def append(self, **namesAndValues):
-		'''
+		"""
 		Write a new set of values to each column.
 
 		On the first call to this method, the columns will be set up with the
@@ -260,7 +260,7 @@ class TableWriter(object):
 		-----
 		All columns must be provided every time this method is called.
 
-		'''
+		"""
 
 		if self._columns is None:
 			self._columns = {
@@ -287,7 +287,7 @@ class TableWriter(object):
 
 
 	def writeAttributes(self, **namesAndValues):
-		'''
+		"""
 		Writes JSON-serializable data.
 
 		Oftentimes some additional data is needed to contextualize the data in
@@ -304,7 +304,7 @@ class TableWriter(object):
 		This method can be called at any time, so long as an attribute name is
 		not reused.
 
-		'''
+		"""
 
 		for name, value in namesAndValues.viewitems():
 			if name in self._attributeNames:
@@ -334,7 +334,7 @@ class TableWriter(object):
 
 
 	def close(self):
-		'''
+		"""
 		Close the output files (columns).
 
 		This method is automatically called on garbage collection.
@@ -344,7 +344,7 @@ class TableWriter(object):
 		TODO (John): Determine whether this is really necessary.  Garbage
 			collection should already manage this.
 
-		'''
+		"""
 
 		if self._columns is not None:
 			for column in self._columns.viewvalues():
@@ -352,7 +352,7 @@ class TableWriter(object):
 
 
 	def __del__(self):
-		'''
+		"""
 		Closes the output files on garbage collection.
-		'''
+		"""
 		self.close()
