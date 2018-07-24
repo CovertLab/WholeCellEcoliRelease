@@ -121,7 +121,6 @@ class TableWriter(object):
 
 	Notes
 	-----
-
 	Data written to columns can be of fixed or variable size.  If fixed, the
 	output can be read in as a single, higher dimensional array by TableReader.
 	Otherwise output will need to be handled one line at a time.
@@ -173,6 +172,24 @@ class TableWriter(object):
 
 
 	def append(self, **namesAndValues):
+		'''
+		Write a new set of values to each column.
+
+		On the first call to this method, the columns will be set up with the
+		appropriate names and data type information.  Subsequent calls will
+		validate that the names and data types are consistent.
+
+		Parameters
+		----------
+		**namesAndValues : dict of {string: array-like} pairs
+			The column names and associated values to write.
+
+		Notes
+		-----
+		All columns must be provided every time this method is called.
+
+		'''
+
 		if self._columns is None:
 			self._columns = {
 				name:_Column(os.path.join(self._dirColumns, name))
@@ -198,6 +215,25 @@ class TableWriter(object):
 
 
 	def writeAttributes(self, **namesAndValues):
+		'''
+		Writes JSON-serializable data.
+
+		Oftentimes some additional data is needed to contextualize the data in
+		the columns.  This method can be called to write JSON-serializable
+		data (e.g. a list of strings) alongside the column data.
+
+		Parameters
+		----------
+		**namesAndValues : dict of {string: JSON-serializable} pairs
+			The attribute names and associated values.
+
+		Notes
+		-----
+		This method can be called at any time, so long as an attribute name is
+		not reused.
+
+		'''
+
 		for name, value in namesAndValues.viewitems():
 			if name in self._attributeNames:
 				raise AttributeAlreadyExistsError(
@@ -226,10 +262,25 @@ class TableWriter(object):
 
 
 	def close(self):
+		'''
+		Close the output files (columns).
+
+		This method is automatically called on garbage collection.
+
+		Notes
+		-----
+		TODO (John): Determine whether this is really necessary.  Garbage
+			collection should already manage this.
+
+		'''
+
 		if self._columns is not None:
 			for column in self._columns.viewvalues():
 				column.close()
 
 
 	def __del__(self):
+		'''
+		Closes the output files on garbage collection.
+		'''
 		self.close()
