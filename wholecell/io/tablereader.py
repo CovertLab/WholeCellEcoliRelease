@@ -23,22 +23,39 @@ __all__ = [
 	]
 
 class TableReaderError(Exception):
+	'''
+	Base exception class for TableReader-associated exceptions.
+	'''
 	pass
 
 
 class NotUnzippedError(TableReaderError):
+	'''
+	An error raised when it appears that the input files are compressed.
+	'''
 	pass
 
 
 class VersionError(TableReaderError):
+	'''
+	An error raised when the input files claim to be from a different version
+	of the file specification.
+	'''
 	pass
 
 
 class DoesNotExistError(TableReaderError):
+	'''
+	An error raised when a column or attribute does not seem to exist.
+	'''
 	pass
 
 
 class VariableWidthError(TableReaderError):
+	'''
+	An error raised when trying to load an entire column as one array when
+	entry sizes vary.
+	'''
 	pass
 
 
