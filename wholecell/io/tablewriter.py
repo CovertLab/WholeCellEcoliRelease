@@ -67,6 +67,29 @@ class AttributeTypeError(TableWriterError):
 
 
 class _Column(object):
+	'''
+	Manages the written data for a specific TableWriter field.
+
+	Each field in a 'table' correspond to a 'column' that is written to on each
+	append operation.  This private class encapsulates the logic and data for a
+	particular 'column'.
+
+	Parameters
+	----------
+	path : str
+		The path to the sub-directory associated with this particular column.
+
+	Notes
+	-----
+	See TableWriter for more information about output file and directory
+	structure.
+
+	TODO (John): With some adjustment this class could be made public, and used
+		as a lightweight alternative to TableWriter in addition to part of
+		TableWriter's internal implementation.
+
+	'''
+
 	def __init__(self, path):
 		filepath.makedirs(path)
 
@@ -77,6 +100,19 @@ class _Column(object):
 
 
 	def append(self, value):
+		'''
+		Appends an array-like to the end of a column.
+
+		On first call, the NumPy dtype of the column is inferred from the
+		input.  On subsequent calls this dtype is checked for consistency.
+
+		Parameters
+		----------
+		value : array-like
+			A NumPy ndarray or array-like (e.g. int, float).
+
+		'''
+
 		value = np.asarray(value, self._dtype)
 
 		if self._dtype is None:
@@ -94,11 +130,28 @@ class _Column(object):
 
 
 	def close(self):
+		'''
+		Close the files associated with the column.
+
+		While running, each column keeps two files open; one associated with
+		the data itself (as well as the dtype information), and one associated
+		with the offsets between entries.  This method closes those files.
+
+		Notes
+		-----
+		TODO (John): Determine whether this is really necessary.  Garbage
+			collection should already manage this.
+
+		'''
+
 		self._data.close()
 		self._offsets.close()
 
 
 	def __del__(self):
+		'''
+		Close the files associated with the column on garbage collection.
+		'''
 		self.close()
 
 
