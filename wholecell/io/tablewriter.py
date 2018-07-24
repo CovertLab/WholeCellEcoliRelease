@@ -117,7 +117,7 @@ class TableWriter(object):
 
 	See also
 	--------
-	whoelcell.io.tablereader.TableReader
+	wholecell.io.tablereader.TableReader
 
 	Notes
 	-----
