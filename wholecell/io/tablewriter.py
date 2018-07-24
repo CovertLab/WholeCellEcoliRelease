@@ -32,18 +32,37 @@ FILE_OFFSETS = "offsets"
 
 
 class TableWriterError(Exception):
+	'''
+	Base exception class for TableWriter-associated exceptions.
+	'''
 	pass
 
 class MissingFieldError(TableWriterError):
+	'''
+	An error raised when TableWriter.append is called without providing all
+	field names.
+	'''
 	pass
 
 class UnrecognizedFieldError(TableWriterError):
+	'''
+	An error raised when TableWriter.append is called with an unexpected field
+	name.
+	'''
 	pass
 
 class AttributeAlreadyExistsError(TableWriterError):
+	'''
+	An error raised when TableWriter.writeAttributes is called with an
+	attribute name that has already been used.
+	'''
 	pass
 
 class AttributeTypeError(TableWriterError):
+	'''
+	An error raised when TableWriter.writeAttributes is called with a type that
+	does not appear to be JSON-serializable.
+	'''
 	pass
 
 
