@@ -29,7 +29,7 @@ PATHWAYS_FILENAME = "models/ecoli/analysis/causal_network/metabolic_pathways.tsv
 
 CHECK_SANITY = False
 GET_PATHWAY_INDEX = False
-N_GENS = 2 #9 #TODO (Eran) this is structures as a multigen analysis, what if we want to analyze single gen?
+N_GENS = 9 # TODO (Eran) this is structures as a multigen analysis, what if we want to analyze single gen?
 DYNAMICS_PRECISION = 6
 PROBABILITY_PRECISION = 4
 TIME_PRECISION = 2
@@ -302,7 +302,7 @@ def add_replication_and_genes(simData, simOutDirs, node_list, edge_list):
 		# Add dynamics data to the node. The rna synthesis probability shares
 		# the same index as the geneId.
 		dynamics = {"transcript synthesis probability": list(rnaSynthProb[:, i])}
-		dynamics_units = {"transcript synthesis probability": "prob"}
+		dynamics_units = {"transcript synthesis probability": "p"}
 		gene_node.read_dynamics(dynamics, dynamics_units)
 
 		# Append gene node to node_list
@@ -507,7 +507,7 @@ def add_translation_and_monomers(simData, simOutDirs, node_list, edge_list):
 		volume_array = np.concatenate((volume_array, cell_volume))
 
 	# Loop through all translatable genes
-	for data in simData.process.translation.monomerData:
+	for idx, data in enumerate(simData.process.translation.monomerData):
 		monomerId = data[0]
 		rnaId = data[1]
 		geneId = rnaId.split("_RNA[c]")[0]
@@ -550,7 +550,7 @@ def add_translation_and_monomers(simData, simOutDirs, node_list, edge_list):
 
 		# Add dynamics data (probability of translation initiation per transcript) to the node.
 		dynamics = {'probability of initiating translation': list(probTranslation_array[:, idx])}
-		dynamics_units = {'probability of initiating translation': 'p(init_translation | RNA)'}
+		dynamics_units = {'probability of initiating translation': 'p'}
 		translation_node.read_dynamics(dynamics, dynamics_units)
 
 		# Append translation node to node_list
@@ -954,8 +954,6 @@ def add_equilibrium(simData, simOutDirs, node_list, edge_list):
 
 				dynamics['fraction active TF'] = list(pPromoterBoundArray[:, tf_idx])
 				dynamics_units['fraction active TF'] = 'prob'
-
-				print(list(pPromoterBoundArray[:, tf_idx]))
 
 			# If the stoichiometric coefficient is negative, add reactant edge
 			# to the equilibrium node
