@@ -70,9 +70,9 @@ class _Column(object):
 	"""
 	Manages the written data for a specific TableWriter field.
 
-	Each field in a 'table' correspond to a 'column' that is written to on each
-	append operation.  This private class encapsulates the logic and data for a
-	particular 'column'.
+	Each field in a 'table' corresponds to a 'column' that is written to on
+	each append operation.  This private class encapsulates the logic and data
+	for a particular 'column'.
 
 	Parameters
 	----------
@@ -109,7 +109,8 @@ class _Column(object):
 		Parameters
 		----------
 		value : array-like
-			A NumPy ndarray or array-like (e.g. int, float).
+			A NumPy ndarray or anything that can be cast to an array via
+			np.asarray, including scalars (i.e. 0D arrays).
 
 		"""
 
@@ -135,12 +136,12 @@ class _Column(object):
 
 		While running, each column keeps two files open; one associated with
 		the data itself (as well as the dtype information), and one associated
-		with the offsets between entries.  This method closes those files.
+		with the offsets between entries.  This method explicitly closes those
+		files.
 
 		Notes
 		-----
-		TODO (John): Determine whether this is really necessary.  Garbage
-			collection should already manage this.
+		Trying to append after closing will raise an error.
 
 		"""
 
@@ -150,7 +151,19 @@ class _Column(object):
 
 	def __del__(self):
 		"""
-		Close the files associated with the column on garbage collection.
+		Explicitly closes the output files once the instance is totally
+		dereferenced.
+
+		Notes
+		-----
+		This will lead to errors consequent of operating on a closed file if
+		references to the output files (which ought to be private attributes)
+		exist.  This is desirable, because such references should not be made.
+
+		TODO (John): Decide whether we want this sort of 'irresponsible
+			developer' error prevention.  E.g. see the Wikipedia page on
+			"offensive programming".
+
 		"""
 		self.close()
 
@@ -184,8 +197,9 @@ class TableWriter(object):
 	Parameters
 	----------
 	path : str
-		Path to the output location (a directory) where data will be saved.  If
-			the directory already exists, no error will be thrown.
+		Path to the directory that will be created.  All data will be saved
+		under this directory.  If the directory already exists, no error will
+		occur.
 
 	See also
 	--------
@@ -193,6 +207,15 @@ class TableWriter(object):
 
 	Notes
 	-----
+	The terms used in this class are adapted from the analogy of a spreadsheet
+	or table.  Each append operation adds a new 'row' to the table, also called
+	an 'entry'.  Every 'column' corresponds to a 'field' and contains a
+	particular set of data (i.e. of a fixed type) for all entries.
+
+	Attributes are meant for user-provided annotation that may be useful for
+	downstream analysis or otherwise improve portability.  E.g. a list of names
+	associated with the elements of a vector-column.
+
 	Data written to columns can be of fixed or variable size.  If fixed, the
 	output can be read in as a single, higher dimensional array by TableReader.
 	Otherwise output will need to be handled one line at a time.
@@ -228,6 +251,13 @@ class TableWriter(object):
 
 	TODO (John): Unit tests.
 
+	TODO (John): Test portability across machines (particularly, different
+	operating systems).
+
+	TODO (John): Consider separating out the fixed and variable size
+		implementations.  Further, consider writing all fields simultaneously
+		as part of a structured array (i.e. a hybrid data type).
+
 	"""
 
 	def __init__(self, path):
@@ -254,11 +284,12 @@ class TableWriter(object):
 		Parameters
 		----------
 		**namesAndValues : dict of {string: array-like} pairs
-			The column names and associated values to write.
+			The column names (fields) and associated values to append to the
+			end of the columns.
 
 		Notes
 		-----
-		All columns must be provided every time this method is called.
+		All fields must be provided every time this method is called.
 
 		"""
 
@@ -337,12 +368,9 @@ class TableWriter(object):
 		"""
 		Close the output files (columns).
 
-		This method is automatically called on garbage collection.
-
 		Notes
 		-----
-		TODO (John): Determine whether this is really necessary.  Garbage
-			collection should already manage this.
+		Trying to append after closing will raise an error.
 
 		"""
 
@@ -353,6 +381,13 @@ class TableWriter(object):
 
 	def __del__(self):
 		"""
-		Closes the output files on garbage collection.
+		Explicitly closes the output files once the instance is totally
+		dereferenced.
+
+		Notes
+		-----
+		TODO (John): Decide whether we want to implement __del__ (see analogous
+			method in the _Column class for more details).
+
 		"""
 		self.close()

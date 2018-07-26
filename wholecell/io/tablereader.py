@@ -13,11 +13,6 @@ from . import tablewriter as tw
 
 ZIP_FILETYPE = ".bz2"
 
-# TODO: tests
-# TODO: load a single time point
-# TODO: handle/warn/raise on inconsistent data shapes
-# TODO: downsampling options
-
 __all__ = [
 	"TableReader",
 	]
@@ -76,8 +71,9 @@ class TableReader(object):
 	-----
 	TODO (John): Consider a method for loading an indexed portion of a column.
 
-	TODO (John): Assess which methods are used.  There's no compelling reason
-		to maintain a feature that hasn't been touched in years.
+	TODO (John): Consider removing unused methods (see below).
+
+	TODO (John): Unit tests.
 
 	"""
 
@@ -152,7 +148,14 @@ class TableReader(object):
 		TableWriter will be returned as vectors.
 
 		TODO (John): Consider using np.memmap to defer loading of the data
-			until it is operated on.
+			until it is operated on.  Early work (see issue #221) suggests that
+			this may lead to cryptic performance issues.
+
+		TODO (John): This method should probably use np.frombuffer rather than
+			np.fromstring.  It seems that using np.fromstring here will become
+			deprecated in later versions of NumPy.
+
+		TODO (John): Open in binary mode.
 
 		"""
 
@@ -191,8 +194,8 @@ class TableReader(object):
 
 		Notes
 		-----
-		TODO (John): Assess whether anyone uses this, and if it is worth
-			maintaining.
+		TODO (John): This method appears to currently be unused.  Consider
+			removing it.
 
 		"""
 
@@ -223,12 +226,12 @@ class TableReader(object):
 
 		Returns
 		-------
-		dict of (string: ndarray) pairs
+		dict of {string: ndarray} pairs
 
 		Notes
 		-----
-		TODO (John): Assess whether anyone uses this, and if it is worth
-			maintaining.
+		TODO (John): This method appears to currently be unused.  Consider
+			removing it.
 
 		"""
 
@@ -326,6 +329,9 @@ class TableReader(object):
 
 		Notes
 		-----
-		TODO (John): Remove this method.
+		TODO (John): Consider removing this method.  At the moment are usage is
+			inconsistent, and gives the impression that it is actually
+			beneficial or necessary.
+
 		"""
 		pass
