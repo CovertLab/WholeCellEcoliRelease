@@ -2,6 +2,7 @@
 # Tip: Edit this during development to run ones you're working on first.
 ACTIVE = [
 	"centralCarbonMetabolismCorrelationTimeCourse.py",
+	"doubling_times_histogram_all.py",
 	# "compositionFitting.py",
 	# "compositionFittingByGeneration.py",
 	"figure2e.py",
@@ -22,4 +23,4 @@ ACTIVE = [
 	# "transcriptFrequency.py",
 	# "transcriptionGenomeCoverage.py",
 	# "transcriptionGenomeCoverageSecondHalf.py",
-]
+	]
