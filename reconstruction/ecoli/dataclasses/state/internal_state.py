@@ -101,13 +101,13 @@ class InternalState(object):
 
 	def _buildUniqueMolecules(self, raw_data, sim_data):
 		"""
-		Add data (name, mass, and structure of attributes) for all classes of
+		Add data (name, mass, and attribute data structure) for all classes of
 		unique molecules.
 		"""
 
 		# Add active RNA polymerase
 		rnaPolyComplexMass = self.bulkMolecules.bulkData["mass"][
-			self.bulkMolecules.bulkData["id"] == "APORNAP-CPLX[c]"]
+			self.bulkMolecules.bulkData["id"] == sim_data.moleculeIds.rnapFull]
 		rnaPolyAttributes = {
 			'rnaIndex' : 'i8',
 			'transcriptLength' : 'i8'
@@ -130,8 +130,39 @@ class InternalState(object):
 
 		self.uniqueMolecules.addToUniqueState('activeRibosome', ribosomeAttributes, ribosomeMass)
 
+		# Add active replisomes
+		# Note that the replisome does not functionally replicate the
+		# chromosome, but instead keeps track of the mass associated with
+		# essential subunits of the replisome complex. The list of essential
+		# subunits and their stoichiometry were taken from Reyes-Lamothe et
+		# al., 2010.
+		trimer_ids = sim_data.moleculeGroups.replisome_trimer_subunits
+		monomer_ids = sim_data.moleculeGroups.replisome_monomer_subunits
+
+		trimer_mass = [self.bulkMolecules.bulkData["mass"][
+			self.bulkMolecules.bulkData["id"] == id].asNumber(units.g/units.mol)
+			for id in trimer_ids]
+		monomer_mass = [self.bulkMolecules.bulkData["mass"][
+			self.bulkMolecules.bulkData["id"] == id].asNumber(units.g/units.mol)
+			for id in monomer_ids]
+
+		replisomeMass = (units.g/units.mol) * (
+				3*np.sum(trimer_mass, axis=0) + np.sum(monomer_mass, axis=0))
+
+		replisomeAttributes = {
+			'replicationRound' : 'i8',
+			'chromosomeIndex' : 'i8',
+			}
+
+		self.uniqueMolecules.addToUniqueState('activeReplisome', replisomeAttributes, replisomeMass)
+
 		# Add active DNA polymerase
-		# TODO: Add mass when bulk DNA polymerases are removed
+		# Note that active DNA polymerases are conceptual molecules and have
+		# zero mass. Two active DNA polymerases are assigned per replication
+		# fork, and these molecules functionally replicate the chromosome, one
+		# on the leading strand, and one on the lagging strand. This was done
+		# to simplify the process by which the polymerize function handles the
+		# elongation of DNA.
 		dnaPolyMass = (units.g/units.mol) * np.zeros_like(rnaPolyComplexMass)
 		dnaPolymeraseAttributes = {
 			'sequenceIdx' : 'i8',
@@ -143,7 +174,9 @@ class InternalState(object):
 		self.uniqueMolecules.addToUniqueState('dnaPolymerase', dnaPolymeraseAttributes, dnaPolyMass)
 
 		# Add origins of replication
-		# Note that origins have zero mass.
+		# Note that origins are conceptual molecules and have zero mass. The
+		# chromosomeIndexes of oriC's determine the chromosomeIndexes of the
+		# new DNA polymerases and replisomes initiated on the same oriC.
 		originMass = (units.g/units.mol) * np.zeros_like(rnaPolyComplexMass)
 		originAttributes = {
 			'chromosomeIndex': 'i8',
@@ -152,7 +185,10 @@ class InternalState(object):
 		self.uniqueMolecules.addToUniqueState('originOfReplication', originAttributes, originMass)
 
 		# Add full chromosomes
-		# Note that this molecule has zero mass.
+		# Note that full chromosomes are conceptual molecules and have zero
+		# mass. These molecules are added when chromosome replication is
+		# complete, and sets the cell division time to be D period time later.
+		# (only relevant if D_PERIOD_DIVISION is set to True)
 		fullChromosomeMass = (units.g/units.mol) * np.zeros_like(rnaPolyComplexMass)
 		fullChromosomeAttributes = {
 			"division_time" : "f8"
