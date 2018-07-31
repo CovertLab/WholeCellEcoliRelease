@@ -11,19 +11,48 @@ import numpy as np
 
 
 class BulkObjectsContainer(object):
-	'''
-	BulkObjectsContainer
+	"""
+	An data structure for convenient, name-based operations on elements of a
+	NumPy vector.
 
-	A wrapper around a NumPy array that tracks the "bulk" counts of objects.
-	Bulk objects are those which have no identity beyond their names.
-	'''
+	Parameters
+	----------
+	objectNames : iterable of strings
+		The names that will be used to refer to the elements of the
+		underlying vector.
+	dtype : a valid NumPy datatype identifier (default: np.int64)
+		The data type of the underlying array.
+
+	See also
+	--------
+	wholecell.containers.unique_objects_container.UniqueObjectsContainer
+
+	Notes
+	-----
+	The dafault data type is integers because the original use case was to
+	track the abundances (copy numbers) of molecules.
+
+	The number of elements and their order is inferred from the objectNames
+	parameter.
+
+	TODO (John): Give methods more standard names.
+	TODO (John): Move methods and attributes from mixedCase to under_scores.
+
+	"""
 
 	def __init__(self, objectNames, dtype = np.int64):
+		# Cast objectNames to list to make sure it is ordered, and to prevent
+		# any side effects from external code modifying the parameter
 		self._objectNames = list(objectNames)
 
 		self._nObjects = len(self._objectNames)
 
-		self._objectIndex = {objectName:index for index, objectName in enumerate(self._objectNames)}
+		# Store the indices for each element in a dictionary for faster
+		# look-up (list.index is slow)
+		self._objectIndex = {
+			objectName:index
+			for index, objectName in enumerate(self._objectNames)
+			}
 
 		self._counts = np.zeros(len(self._objectNames), dtype)
 
