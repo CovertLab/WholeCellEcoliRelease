@@ -9,7 +9,6 @@ from __future__ import division
 
 import numpy as np
 
-
 class BulkObjectsContainer(object):
 	"""
 	An data structure for convenient, name-based operations on elements of a
@@ -30,13 +29,21 @@ class BulkObjectsContainer(object):
 	Notes
 	-----
 	The dafault data type is integers because the original use case was to
-	track the abundances (copy numbers) of molecules.
+	track the abundances (copy numbers) of molecules.  Likewise the methods
+	refer to "counts" even though the data type can be floating-point.
 
 	The number of elements and their order is inferred from the objectNames
 	parameter.
 
+	If looking at a subset of the objects repeatedly, it's best to create
+	and operate on a view.
+
 	TODO (John): Give methods more standard names.
 	TODO (John): Move methods and attributes from mixedCase to under_scores.
+	TODO (John): Get rid of single/group distinction, and instead check input
+		types against basestring to decide what sort of output to return.
+	TODO (John): Use something more generic than 'counts' to reflect the fact
+		that non-integer data types are permissible.
 
 	"""
 
@@ -58,6 +65,22 @@ class BulkObjectsContainer(object):
 
 
 	def counts(self, names = None):
+		"""
+		Returns the counts of all molecules, or the counts associated with an
+		iterable of names.
+
+		Parameters
+		----------
+		names : iterablte of strings
+			Default is None.  If not None, the counts will be returned (in the
+			provided order) for the indicated objects.
+
+		Returns
+		-------
+		A vector of counts (or whatever the underlying vector represents).
+
+		"""
+
 		if names is None:
 			return self._counts.copy()
 
@@ -66,6 +89,20 @@ class BulkObjectsContainer(object):
 
 
 	def countsIs(self, values, names = None):
+		"""
+		Sets the counts of all molecules, or the counts associated with an
+		iterable of names.
+
+		Parameters
+		----------
+		values : array-like
+			The counts to assign to the indicated objects.
+		names : iterablte of strings
+			Default is None.  If not None, the counts will be returned (in the
+			provided order) for the indicated objects.
+
+		"""
+
 		if names is None:
 			self._counts[:] = values
 
@@ -74,6 +111,21 @@ class BulkObjectsContainer(object):
 
 
 	def countsInc(self, values, names = None):
+		"""
+		Increment the counts of all molecules, or the counts associated with an
+		iterable of names.
+
+		Parameters
+		----------
+		values : array-like
+			The amounts by which to increment the counts of the indicated
+			objects.
+		names : iterablte of strings
+			Default is None.  If not None, the counts will be returned (in the
+			provided order) for the indicated objects.
+
+		"""
+
 		values = np.asarray(values, dtype=self._counts.dtype)
 		if names is None:
 			self._counts[:] += values
@@ -82,7 +134,22 @@ class BulkObjectsContainer(object):
 			self._counts[self._namesToIndexes(names)] += values
 
 
-	def countsDec(self, values, names = None): # TODO: raise exception if > max?
+	def countsDec(self, values, names = None):
+		"""
+		Decrement the counts of all molecules, or the counts associated with an
+		iterable of names.
+
+		Parameters
+		----------
+		values : array-like
+			The amounts by which to decrement the counts of the indicated
+			objects.
+		names : iterablte of strings
+			Default is None.  If not None, the counts will be returned (in the
+			provided order) for the indicated objects.
+
+		"""
+
 		values = np.asarray(values, dtype=self._counts.dtype)
 		if names is None:
 			self._counts[:] -= values
@@ -92,6 +159,32 @@ class BulkObjectsContainer(object):
 
 
 	def countsView(self, names = None):
+		"""
+		Returns an object that provides a permanent, ordered reference to a
+		set of objects.
+
+		Parameters
+		----------
+		names : iterablte of strings
+			Default is None.  If None, the view will simply be all objects in
+			their natural order.  Otherwise the names are used to define the
+			ordered elements of the view object.
+
+		Returns
+		-------
+		A _BulkObjectsView instance.
+
+		Notes
+		-----
+		This is the ideal way to operate on a subset of a BulkObjectsContainer
+		repeatedly, as the indices only have to be gathered once.
+
+		TODO (John): Get rid of the default behavior, as it serves no practical
+			purpose or advantage over just operating on the
+			BulkObjectsContainer itself.
+
+		"""
+
 		if names is None:
 			return _BulkObjectsView(self, np.arange(self._nObjects))
 
