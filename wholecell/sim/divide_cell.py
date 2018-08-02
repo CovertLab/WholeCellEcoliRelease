@@ -227,7 +227,7 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts, curre
 	# TODO (Gwanggyu): RNAPs should also be unequally divided once gene dosage
 	# is modeled and RNAPs are assigned to a specific chromosome.
 	nonbinomial_unique_molecules = ['dnaPolymerase', 'originOfReplication',
-		'fullChromosome', 'activeRibosome']
+		'activeReplisome', 'fullChromosome', 'activeRibosome']
 
 	# Binomially divide unique molecules that should be binomially split
 	# Note: again, the only unique molecules split here are the active RNAPs.
