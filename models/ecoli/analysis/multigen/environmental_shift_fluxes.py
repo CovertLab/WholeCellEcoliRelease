@@ -1,7 +1,6 @@
 """
 Plot fluxes for metabolic map figure during a shift
 
-@author: Travis Horst
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 2/13/17
 """
