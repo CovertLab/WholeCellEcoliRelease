@@ -1,4 +1,5 @@
 import time
+import cPickle
 
 from fireworks import FireTaskBase, explicit_serialize
 from models.ecoli.sim.simulation import EcoliSimulation
@@ -15,9 +16,13 @@ class SimulationTask(FireTaskBase):
 
 		print "%s: Running simulation" % time.ctime()
 
+		# load the sim_data from the output of the fitter
+		# TODO: make the fitter output JSON and this load from JSON instead
+		sim_data = cPickle.load(open(self["input_sim_data"], "rb"))
+
 		options = {}
 		
-		options["simDataLocation"] = self["input_sim_data"]
+		options["simData"] = sim_data
 		options["outputDir"] = self["output_directory"]
 		options["logToDisk"] = True
 		options["overwriteExistingFiles"] = False

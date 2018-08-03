@@ -10,7 +10,6 @@ from __future__ import absolute_import
 from __future__ import division
 
 import collections
-import cPickle
 import time
 
 import numpy as np
@@ -37,7 +36,7 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	outputDir = None,
 	overwriteExistingFiles = False,
 	logToDiskEvery = 1,
-	simDataLocation = None,
+	simData = None,
 	inheritedStatePath = None,
 	)
 
@@ -111,7 +110,7 @@ class Simulation(object):
 		filepath.makedirs(self._outputDir)
 
 		# Load KB
-		sim_data = cPickle.load(open(self._simDataLocation, "rb"))
+		sim_data = self._simData
 
 		# Initialize simulation from fit KB
 		self._initialize(sim_data)
