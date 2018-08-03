@@ -44,13 +44,17 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			os.path.join(simOutDir, "ReplicationData"))
 		criticalMassPerOriC = replicationData.readColumn("criticalMassPerOriC")
 
-		# Load IDs of replisome subunits
+		# Load IDs of direct replisome subunits
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		replisome_subunit_ids = []
 		replisome_subunit_ids.extend(
 			sim_data.moleculeGroups.replisome_trimer_subunits)
 		replisome_subunit_ids.extend(
 			sim_data.moleculeGroups.replisome_monomer_subunits)
+
+		# Load IDs of DNA polymerase III core enzyme subunits
+		replisome_subunit_ids.extend(sim_data.process.complexation.getMonomers(
+			'CPLX0-2361[c]')['subunitIds'])
 
 		# Load counts of replisome subunits
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
