@@ -160,6 +160,19 @@ class Simulation(object):
 		# Make permanent reference to evaluation time listener
 		self._evalTime = self.listeners["EvaluationTime"]
 
+		# Perform initial mass calculations
+		for state in self.internal_states.itervalues():
+			state.calculatePreEvolveStateMass()
+			state.calculatePostEvolveStateMass()
+
+		# Perform initial listener update
+		for listener in self.listeners.itervalues():
+			listener.initialUpdate()
+
+		# Start logging
+		for logger in self.loggers.itervalues():
+			logger.initialize(self)
+
 	def _initLoggers(self):
 		self.loggers = collections.OrderedDict()
 
@@ -179,22 +192,16 @@ class Simulation(object):
 	# -- Run simulation --
 
 	# Run simulation
-	def run(self):
-		# Perform initial mass calculations
-		for state in self.internal_states.itervalues():
-			state.calculatePreEvolveStateMass()
-			state.calculatePostEvolveStateMass()
+	def run(self, time_to_run=None):
+		run_for = self._lengthSec + self.initialTime()
 
-		# Perform initial listener update
-		for listener in self.listeners.itervalues():
-			listener.initialUpdate()
-
-		# Start logging
-		for logger in self.loggers.itervalues():
-			logger.initialize(self)
+		# If time_to_run is supplied, use that to determine how
+		# long to run instead of the initialized value.
+		if time_to_run:
+			run_for = time_to_run + self.time()
 
 		# Simulate
-		while self.time() < self._lengthSec + self.initialTime() and not self._isDead:
+		while self.time() < run_for and not self._isDead:
 			if self._cellCycleComplete:
 				break
 
@@ -204,6 +211,8 @@ class Simulation(object):
 
 			self._evolveState()
 
+	# Clean up any details once the simulation has finished
+	def finalize(self):
 		# Run post-simulation hooks
 		for hook in self.hooks.itervalues():
 			hook.finalize(self)
@@ -214,7 +223,6 @@ class Simulation(object):
 		# Finish logging
 		for logger in self.loggers.itervalues():
 			logger.finalize(self)
-
 
 	# Calculate temporal evolution
 	def _evolveState(self):
