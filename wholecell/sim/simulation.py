@@ -128,6 +128,7 @@ class Simulation(object):
 		self._initLoggers()
 		self._cellCycleComplete = False
 		self._isDead = False
+		self._finalized = False
 
 		for internal_state in self.internal_states.itervalues():
 			internal_state.initialize(self, sim_data)
@@ -195,32 +196,23 @@ class Simulation(object):
 		and then clean up.
 		"""
 
-		self.run_incremental()
+		self.run_incremental(self._lengthSec + self.initialTime() - self.time())
 		self.finalize()
 
-	def run_incremental(self, run_for=None):
+	def run_incremental(self, run_for):
 		"""
 		Run the simulation for a given amount of time.
-		If invoked without arguments, this runs until the time
-		given by initialized property `_lengthSec`.
 
 		Args:
 		    run_for (float): interval of time to run the simulation for. 
-		        If provided, this is used to determine how long to run
-		        instead of `self._lengthSec`.
 		"""
 
-		run_until = self._lengthSec + self.initialTime()
-
-		# If run_for is supplied, use that to determine how
-		# long to run instead of the initialized value.
-		if run_for:
-			run_until = run_for + self.time()
+		run_until = run_for + self.time()
 
 		# Simulate
 		while self.time() < run_until and not self._isDead:
 			if self._cellCycleComplete:
-				break
+				self.finalize()
 
 			self._simulationStep += 1
 
@@ -236,16 +228,19 @@ class Simulation(object):
 		shuts down all loggers
 		"""
 
-		# Run post-simulation hooks
-		for hook in self.hooks.itervalues():
-			hook.finalize(self)
+		if not self.finalized:
+			# Run post-simulation hooks
+			for hook in self.hooks.itervalues():
+				hook.finalize(self)
 
-		# Divide mother into daughter cells
-		self._divideCellFunction()
+			# Divide mother into daughter cells
+			self._divideCellFunction()
 
-		# Finish logging
-		for logger in self.loggers.itervalues():
-			logger.finalize(self)
+			# Finish logging
+			for logger in self.loggers.itervalues():
+				logger.finalize(self)
+
+			self.finalized = True
 
 	# Calculate temporal evolution
 	def _evolveState(self):
