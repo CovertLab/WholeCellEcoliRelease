@@ -37,4 +37,3 @@ class SimulationTask(FireTaskBase):
 		sim = EcoliSimulation(**options)
 
 		sim.run()
-		sim.finalize()

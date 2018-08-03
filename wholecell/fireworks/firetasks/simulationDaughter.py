@@ -39,4 +39,3 @@ class SimulationDaughterTask(FireTaskBase):
 		sim = EcoliDaughterSimulation(**options)
 
 		sim.run()
-		sim.finalize()

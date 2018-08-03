@@ -188,20 +188,37 @@ class Simulation(object):
 				self._logToDiskEvery
 				)
 
-
-	# -- Run simulation --
-
 	# Run simulation
-	def run(self, time_to_run=None):
-		run_for = self._lengthSec + self.initialTime()
+	def run(self):
+		"""
+		Run the simulation for the time period specified in `self._lengthSec`
+		and then clean up.
+		"""
 
-		# If time_to_run is supplied, use that to determine how
+		self.run_incremental()
+		self.finalize()
+
+	def run_incremental(self, run_for=None):
+		"""
+		Run the simulation for a given amount of time.
+		If invoked without arguments, this runs until the time
+		given by initialized property `_lengthSec`.
+
+		Args:
+		    run_for (float): interval of time to run the simulation for. 
+		        If provided, this is used to determine how long to run
+		        instead of `self._lengthSec`.
+		"""
+
+		run_until = self._lengthSec + self.initialTime()
+
+		# If run_for is supplied, use that to determine how
 		# long to run instead of the initialized value.
-		if time_to_run:
-			run_for = time_to_run + self.time()
+		if run_for:
+			run_until = run_for + self.time()
 
 		# Simulate
-		while self.time() < run_for and not self._isDead:
+		while self.time() < run_until and not self._isDead:
 			if self._cellCycleComplete:
 				break
 
@@ -211,8 +228,14 @@ class Simulation(object):
 
 			self._evolveState()
 
-	# Clean up any details once the simulation has finished
 	def finalize(self):
+		"""
+		Clean up any details once the simulation has finished.
+		Specifically, this calls `finalize` in all hooks,
+		invokes the simulation's `_divideCellFunction` and then
+		shuts down all loggers
+		"""
+
 		# Run post-simulation hooks
 		for hook in self.hooks.itervalues():
 			hook.finalize(self)
