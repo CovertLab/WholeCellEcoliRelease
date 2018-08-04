@@ -242,7 +242,7 @@ def add_global_nodes(simData, simOutDirs, node_list):
 
 	# Add total cell mass node to node list
 	mass_node = Node("State", "Global")
-	attr = {'node_id': "cell_mass", 'name': "Total cell mass"}
+	attr = {'node_id': "global", 'name': "Total cell mass"}
 	mass_node.read_attributes(**attr)
 
 	dynamics = {'mass': list(mass_array)}
@@ -251,7 +251,7 @@ def add_global_nodes(simData, simOutDirs, node_list):
 
 	# Add total cell volume node to node list
 	volume_node = Node("State", "Global")
-	attr = {'node_id': "cell_volume", 'name': "Total cell volume"}
+	attr = {'node_id': "global", 'name': "Total cell volume"}
 	volume_node.read_attributes(**attr)
 
 	dynamics = {'volume': list(volume_array)}
@@ -260,7 +260,7 @@ def add_global_nodes(simData, simOutDirs, node_list):
 
 	# Add chromosome count node to node list
 	chromosome_node = Node("State", "Global")
-	attr = {'node_id': "full_chromosome", 'name': "Chromosome"}
+	attr = {'node_id': "global", 'name': "Full chromosome counts"}
 	chromosome_node.read_attributes(**attr)
 
 	dynamics = {'count': list(fc_counts_array)}
@@ -1240,7 +1240,7 @@ def find_duplicate_nodes(node_list):
 		if node_id not in node_ids:
 			node_ids.append(node_id)
 		# If node was seen, add to list of duplicate IDs
-		elif node_id not in duplicate_ids:
+		elif node_id not in duplicate_ids and node_id != "global":
 			duplicate_ids.append(node_id)
 
 	# Print duplicate node IDs that were found
