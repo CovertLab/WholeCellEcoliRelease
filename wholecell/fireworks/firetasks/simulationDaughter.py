@@ -18,7 +18,8 @@ class SimulationDaughterTask(FireTaskBase):
 
 		# load the sim_data from the output of the fitter
 		# TODO: make the fitter output JSON and this load from JSON instead
-		sim_data = cPickle.load(open(self["input_sim_data"], "rb"))
+		with open(self["input_sim_data"], "rb") as input_sim_data:
+			sim_data = cPickle.load(input_sim_data)
 
 		options = {}
 		

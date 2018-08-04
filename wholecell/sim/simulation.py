@@ -22,7 +22,7 @@ import wholecell.loggers.disk
 
 DEFAULT_SIMULATION_KWARGS = dict(
 	seed = 0,
-	lengthSec = 3*60*60, # 3 hours max
+	lengthSec = 3, # *60*60, # 3 hours max
 	initialTime = 0.,
 	massDistribution = True,
 	dPeriodDivision = False,
@@ -109,7 +109,6 @@ class Simulation(object):
 		# doesn't.
 		filepath.makedirs(self._outputDir)
 
-		# Load KB
 		sim_data = self._simData
 
 		# Initialize simulation from fit KB
