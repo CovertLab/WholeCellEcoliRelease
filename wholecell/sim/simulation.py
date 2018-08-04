@@ -196,23 +196,22 @@ class Simulation(object):
 		and then clean up.
 		"""
 
-		self.run_incremental(self._lengthSec + self.initialTime() - self.time())
+		self.run_incremental(self._lengthSec + self.initialTime())
 		self.finalize()
 
-	def run_incremental(self, run_for):
+	def run_incremental(self, run_until):
 		"""
 		Run the simulation for a given amount of time.
 
 		Args:
-		    run_for (float): interval of time to run the simulation for. 
+		    run_until (float): absolute time to run the simulation until. 
 		"""
-
-		run_until = run_for + self.time()
 
 		# Simulate
 		while self.time() < run_until and not self._isDead:
 			if self._cellCycleComplete:
 				self.finalize()
+				break
 
 			self._simulationStep += 1
 
@@ -228,7 +227,7 @@ class Simulation(object):
 		shuts down all loggers
 		"""
 
-		if not self.finalized:
+		if not self._finalized:
 			# Run post-simulation hooks
 			for hook in self.hooks.itervalues():
 				hook.finalize(self)
@@ -240,7 +239,7 @@ class Simulation(object):
 			for logger in self.loggers.itervalues():
 				logger.finalize(self)
 
-			self.finalized = True
+			self._finalized = True
 
 	# Calculate temporal evolution
 	def _evolveState(self):
