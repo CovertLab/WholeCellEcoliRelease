@@ -65,6 +65,15 @@ def find_sim_path(directory=None):
 		raise IOError(errno.ENOENT, '{} is not a simulation path'.format(input_dir))
 	return input_dir
 
+def str_to_bool(s):
+	"""Convert a string command line parameter value to a bool. This ignores
+	case, accepting true, false, 1, or 0.
+	"""
+	s = s.lower()
+	if s not in {'true', 'false', '1', '0'}:
+		raise ValueError('Expected a bool, not %s' % s)
+	return s in {'true', '1'}
+
 
 class ScriptBase(object):
 	"""Abstract base class for scripts. This defines a template where
@@ -81,8 +90,14 @@ class ScriptBase(object):
 	VARIANT_DIR_PATTERN = re.compile(r'([a-zA-Z_\d]+)_(\d+)\Z')
 
 	def description(self):
-		"""Describe the command line program."""
+		"""Describe the command line program. This defaults to the class name."""
 		return type(self).__name__
+
+	def help(self):
+		"""Return help text for the Command Line Interface. This defaults to a
+		string constructed around `self.description()`.
+		"""
+		return 'Run {}.'.format(self.description())
 
 	def timestamp(self, dt=None):
 		"""Construct a datetime-timestamp from `dt`; default = now()."""
@@ -127,6 +142,21 @@ class ScriptBase(object):
 		"""
 		parser.add_argument('--verbose', action='store_true',
 			help='Enable verbose logging.')
+
+	def define_parameter_bool(self, parser, name, default, help):
+		"""Add a boolean option parameter to the parser. The CLI input can be
+		`--name`, `--no_name`, `--name true`, `--name false`, `--name 1`,
+		`--name 0`, `--name=true`, etc. The default can be True or False, and
+		changing it won't affect any of those explicit input forms. This method
+		adds the default value to the help text.
+		"""
+		default = bool(default)
+		group = parser.add_mutually_exclusive_group()
+		group.add_argument('--' + name, nargs='?', default=default,
+			const='true',  # needed for nargs='?'
+			type=str_to_bool,
+			help='{}. Default = {}'.format(help, default))
+		group.add_argument('--no_' + name, dest=name, action='store_false')
 
 	def define_parameter_sim_dir(self, parser):
 		"""Add a `sim_dir` parameter to the command line parser. parse_args()
@@ -191,8 +221,7 @@ class ScriptBase(object):
 		(A `Namespace` is an object with attributes and some methods like
 		`__repr__()` and `__eq__()`. Call `vars(args)` to turn it into a dict.)
 		"""
-		parser = argparse.ArgumentParser(
-			description='Run {}.'.format(self.description()))
+		parser = argparse.ArgumentParser(description=self.help())
 
 		self.define_parameters(parser)
 

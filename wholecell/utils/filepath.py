@@ -8,6 +8,8 @@ from __future__ import division
 
 import errno
 import os
+import subprocess
+
 
 def makedirs(path, *paths):
 	"""Join one or more path components, make that directory path (using the
@@ -26,3 +28,24 @@ def makedirs(path, *paths):
 			raise
 
 	return full_path
+
+def run_cmd(tokens=None, line=''):
+	"""Run a command-line program and return its output. Pass in `tokens` as a
+	list of string tokens or else `line` as a string to split into tokens.
+
+	This sets environment variables `PATH` and (if available) `LD_LIBRARY_PATH`.
+	Sherlock needs the latter to find libcrypto.so to run `git`.
+	"""
+	if not tokens:
+		tokens = line.split()
+	environ = {
+		"PATH": os.environ["PATH"],
+		"LD_LIBRARY_PATH": os.environ.get("LD_LIBRARY_PATH", ""),
+		}
+	out = subprocess.Popen(tokens, stdout = subprocess.PIPE, env=environ).communicate()[0]
+	return out
+
+def write_file(filename, content):
+	"""Write string `content` as a text file."""
+	with open(filename, "w") as f:
+		f.write(content)
