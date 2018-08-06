@@ -71,7 +71,7 @@ class BulkObjectsContainer(object):
 
 		Parameters
 		----------
-		names : iterablte of strings
+		names : iterable of strings
 			Default is None.  If not None, the counts will be returned (in the
 			provided order) for the indicated objects.
 
@@ -97,7 +97,7 @@ class BulkObjectsContainer(object):
 		----------
 		values : array-like
 			The counts to assign to the indicated objects.
-		names : iterablte of strings
+		names : iterable of strings
 			Default is None.  If not None, the counts will be returned (in the
 			provided order) for the indicated objects.
 
@@ -120,7 +120,7 @@ class BulkObjectsContainer(object):
 		values : array-like
 			The amounts by which to increment the counts of the indicated
 			objects.
-		names : iterablte of strings
+		names : iterable of strings
 			Default is None.  If not None, the counts will be returned (in the
 			provided order) for the indicated objects.
 
@@ -144,7 +144,7 @@ class BulkObjectsContainer(object):
 		values : array-like
 			The amounts by which to decrement the counts of the indicated
 			objects.
-		names : iterablte of strings
+		names : iterable of strings
 			Default is None.  If not None, the counts will be returned (in the
 			provided order) for the indicated objects.
 
@@ -165,7 +165,7 @@ class BulkObjectsContainer(object):
 
 		Parameters
 		----------
-		names : iterablte of strings
+		names : iterable of strings
 			Default is None.  If None, the view will simply be all objects in
 			their natural order.  Otherwise the names are used to define the
 			ordered elements of the view object.
@@ -193,53 +193,210 @@ class BulkObjectsContainer(object):
 
 
 	def count(self, name):
+		"""
+		Returns the count of a single object.
+
+		Parameters
+		----------
+		name : string
+			The name of the indicated object.
+
+		Returns
+		-------
+		The counts associated with the indicated object.
+
+		"""
 		return self._counts[self._objectIndex[name]]
 
 
 	def countIs(self, value, name):
+		"""
+		Sets the count of a single object.
+
+		Parameters
+		----------
+		value : array-like
+			The count to assign to the indicated objects.
+		name : string
+			The name of the indicated object.
+
+		"""
 		self._counts[self._objectIndex[name]] = value
 
 
 	def countInc(self, value, name):
+		"""
+		Increment the count of a single object.
+
+		Parameters
+		----------
+		value : array-like
+			The amount by which to increment the counts of the indicated
+			object.
+		name : string
+			The name of the indicated object.
+
+		"""
 		self._counts[self._objectIndex[name]] += value
 
 
 	def countDec(self, value, name):
+		"""
+		Decrement the count of a single object.
+
+		Parameters
+		----------
+		value : array-like
+			The amount by which to decrement the counts of the indicated
+			object.
+		name : string
+			The name of the indicated object.
+
+		"""
 		self._counts[self._objectIndex[name]] -= value
 
 
 	def countView(self, name):
+		"""
+		Returns an object that provides a permanent reference to a single
+		object.
+
+		Parameters
+		----------
+		name : iterable of strings
+			The name of the indicated object.
+
+		Returns
+		-------
+		A _BulkObjectView instance.
+
+		Notes
+		-----
+		This is the ideal way to operate on an element of a
+		BulkObjectsContainer repeatedly, as the index only has to be gathered
+		once.
+
+		"""
 		return _BulkObjectView(self, self._objectIndex[name])
 
 	def objectNames(self):
+		"""
+		Returns the names (in order) of all objects.
+
+		Parameters
+		----------
+		(none)
+
+		Returns
+		-------
+		A tuple of strings.
+
+		"""
 		return tuple(self._objectNames)
 
 	def emptyLike(self):
+		"""
+		Returns a new BulkObjectsContainer with the same set of objects, but
+		with all counts at zero.
+
+		Notes
+		-----
+		This is not totally analogous to numpy.empty_like, as it fills in the
+		counts with zeros (whereas numpy.empty_like's contents are arbitrary).
+
+		"""
 		names = self.objectNames()
 		new_copy = BulkObjectsContainer(names)
 		return new_copy
 
 	def _namesToIndexes(self, names):
+		"""
+		Private method that converts an iterable of names into their
+		corresponding indices into the underlying array representation.
+
+		Parameters
+		----------
+		names : iterable of strings
+			The names of the indicated object.
+
+		Returns
+		-------
+		An arrary of indices (non-negative integers).
+
+		"""
 		return np.array([self._objectIndex[name] for name in names])
 
 
 	def __eq__(self, other):
+		"""
+		Magic method for comparing the counts of one container to another.
+
+		Parameters
+		----------
+		other : a BulkObjectContainer instance
+
+		Returns
+		-------
+		True if all counts are the same, otherwise False.
+
+		Notes
+		-----
+		TODO (John): This should fail if the elements of one container are
+			different from another, even if their sizes are the same.
+
+		TODO (John): If all elements are the same but in a different order,
+			this method should be sensitive to that.
+
+		TODO (John): This method really shouldn't be inspecting a private
+			attribute of another object.
+
+		"""
 		return (self._counts == other._counts).all()
 
 
 	def tableCreate(self, tableWriter):
+		"""
+		Writes the names of the objects to a 'table' file's attributes.
+
+		Parameters
+		----------
+		tableWriter : a TableWriter instance
+
+		Notes
+		-----
+		TODO (John): I feel that these methods pollute this class.
+
+		"""
 		tableWriter.writeAttributes(
 			objectNames = self._objectNames
 			)
 
 
 	def tableAppend(self, tableWriter):
+		"""
+		Append the current counts of the objects to a 'table' file.
+
+		Parameters
+		----------
+		tableWriter : a TableWriter instance
+
+		"""
 		tableWriter.append(
 			counts = self._counts
 			)
 
 
 	def tableLoad(self, tableReader, tableIndex):
+		"""
+		Loads the counts of molecule from a 'table' file.
+
+		Parameters
+		----------
+		tableReader : a TableReader instance
+		tableIndex : the row of the table from which to read the counts
+
+		"""
+
 		assert self._objectNames == tableReader.readAttribute("objectNames")
 
 		self._counts = tableReader.readRow(tableIndex)["counts"]
