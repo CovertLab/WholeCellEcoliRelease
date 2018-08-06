@@ -11,7 +11,7 @@ import numpy as np
 
 class BulkObjectsContainer(object):
 	"""
-	An data structure for convenient, name-based operations on elements of a
+	A data structure for convenient, name-based operations on elements of a
 	NumPy vector.
 
 	Parameters
@@ -66,7 +66,7 @@ class BulkObjectsContainer(object):
 
 	def counts(self, names = None):
 		"""
-		Returns the counts of all molecules, or the counts associated with an
+		Returns the counts of all objects, or the counts associated with an
 		iterable of names.
 
 		Parameters
@@ -90,7 +90,7 @@ class BulkObjectsContainer(object):
 
 	def countsIs(self, values, names = None):
 		"""
-		Sets the counts of all molecules, or the counts associated with an
+		Sets the counts of all objects, or the counts associated with an
 		iterable of names.
 
 		Parameters
@@ -112,7 +112,7 @@ class BulkObjectsContainer(object):
 
 	def countsInc(self, values, names = None):
 		"""
-		Increment the counts of all molecules, or the counts associated with an
+		Increment the counts of all objects, or the counts associated with an
 		iterable of names.
 
 		Parameters
@@ -136,7 +136,7 @@ class BulkObjectsContainer(object):
 
 	def countsDec(self, values, names = None):
 		"""
-		Decrement the counts of all molecules, or the counts associated with an
+		Decrement the counts of all objects, or the counts associated with an
 		iterable of names.
 
 		Parameters
@@ -388,7 +388,7 @@ class BulkObjectsContainer(object):
 
 	def tableLoad(self, tableReader, tableIndex):
 		"""
-		Loads the counts of molecule from a 'table' file.
+		Loads the counts of objects from a 'table' file.
 
 		Parameters
 		----------
@@ -403,11 +403,26 @@ class BulkObjectsContainer(object):
 
 
 class _BulkObjectsView(object):
-	'''
-	_BulkObjectsView
-
+	"""
 	An accessor for a subset of objects in a BulkObjectsContainer.
-	'''
+
+	Parameters
+	----------
+	container : a BulkObjectsContainer instance
+		The underlying container for the data associated with this view.
+	indexes : an iterable of indices (non-negative intergers)
+		The indices into the BulkObjectContainer's _counts attribute associated
+		with this view.
+
+	Notes
+	-----
+	TODO (John): Consider moving this class into the context of the
+		BulkObjectsContainer's class definition.
+
+	TODO (John): Consider passing the array reference rather than the container
+		itself - then we don't have to access the 'private' _counts attribute.
+
+	"""
 
 	def __init__(self, container, indexes):
 		self._container = container
@@ -415,29 +430,83 @@ class _BulkObjectsView(object):
 
 
 	def counts(self):
+		"""
+		Return the counts of all objects.
+
+		Parameters
+		----------
+		(none)
+
+		Returns
+		-------
+		A vector of counts (or whatever the underlying vector represents).
+
+		"""
 		return self._container._counts[self._indexes]
 
 
 	def countsIs(self, values):
+		"""
+		Set the counts of all objects.
+
+		Parameters
+		----------
+		values : array-like
+			The counts to assign to the objects.
+
+		"""
 		self._container._counts[self._indexes] = values
 
 
 	def countsInc(self, values):
+		"""
+		Increment the counts of all objects.
+
+		Parameters
+		----------
+		values : array-like
+			The amounts to add to the counts of the objects.
+
+		"""
 		values = np.asarray(values, dtype=self._container._counts.dtype)
 		self._container._counts[self._indexes] += values
 
 
 	def countsDec(self, values):
+		"""
+		Decrement the counts of all objects.
+
+		Parameters
+		----------
+		values : array-like
+			The amounts to subtract from the counts of the objects.
+
+		"""
 		values = np.asarray(values, dtype=self._container._counts.dtype)
 		self._container._counts[self._indexes] -= values
 
 
 class _BulkObjectView(object):
-	'''
-	_BulkObjectView
-
+	"""
 	An accessor for a single object in a BulkObjectsContainer.
-	'''
+
+	Parameters
+	----------
+	container : a BulkObjectsContainer instance
+		The underlying container for the data associated with this view.
+	index : a non-negative integer
+		The index into the BulkObjectContainer's _counts attribute associated
+		with this view.
+
+	Notes
+	-----
+	TODO (John): Consider moving this class into the context of the
+		BulkObjectsContainer's class definition.
+
+	TODO (John): Consider passing the array reference rather than the container
+		itself - then we don't have to access the 'private' _counts attribute.
+
+	"""
 
 	def __init__(self, container, index):
 		self._container = container
@@ -445,16 +514,55 @@ class _BulkObjectView(object):
 
 
 	def count(self):
+		"""
+		Return the count of the object.
+
+		Parameters
+		----------
+		(none)
+
+		Returns
+		-------
+		The counts associated with the indicated object.
+
+		"""
 		return self._container._counts[self._index]
 
 
 	def countIs(self, values):
+		"""
+		Set the count of the objects.
+
+		Parameters
+		----------
+		value : array-like
+			The count to assign to the object.
+
+		"""
 		self._container._counts[self._index] = values
 
 
 	def countInc(self, values):
+		"""
+		Increment the counts of the object.
+
+		Parameters
+		----------
+		value : array-like
+			The amount to add to the count of the object.
+
+		"""
 		self._container._counts[self._index] += values
 
 
 	def countDec(self, values):
+		"""
+		Decrement the counts of the object.
+
+		Parameters
+		----------
+		value : array-like
+			The amount to subtract from the count of the object.
+
+		"""
 		self._container._counts[self._index] -= values
