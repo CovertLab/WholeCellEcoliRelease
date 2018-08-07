@@ -92,23 +92,9 @@ from wholecell.utils import filepath
 import yaml
 import os
 import datetime
-import subprocess
 import collections
 import cPickle
 
-def run_cmd(cmd):
-	environ = {
-		"PATH": os.environ["PATH"],
-		"LD_LIBRARY_PATH": os.environ["LD_LIBRARY_PATH"],
-		"LANG": "C",
-		"LC_ALL": "C",
-		}
-	out = subprocess.Popen(cmd, stdout = subprocess.PIPE, env=environ).communicate()[0]
-	return out
-
-def write_file(filename, content):
-	with open(filename, "w") as f:
-		f.write(content)
 
 #### Initial setup ###
 
@@ -194,9 +180,9 @@ for i in VARIANTS_TO_RUN:
 
 ### Write metadata
 metadata = {
-	"git_hash": run_cmd(["git", "rev-parse", "HEAD"]),
-	"git_branch": run_cmd(["git", "symbolic-ref", "--short", "HEAD"]),
-	"git_diff": run_cmd(["git", "diff"]),
+	"git_hash": filepath.run_cmd(line="git rev-parse HEAD"),
+	"git_branch": filepath.run_cmd(line="git symbolic-ref --short HEAD"),
+	"git_diff": filepath.run_cmd(line="git diff"),
 	"description": os.environ.get("DESC", ""),
 	"time": SUBMISSION_TIME,
 	"total_gens": str(N_GENS),
@@ -211,9 +197,9 @@ metadata = {
 for key, value in metadata.iteritems():
 	if not isinstance(value, basestring):
 		continue
-	write_file(os.path.join(METADATA_DIRECTORY, key), value)
+	filepath.write_file(os.path.join(METADATA_DIRECTORY, key), value)
 
-with open(os.path.join(METADATA_DIRECTORY, constants.SERIALIZED_METADATA_FILE), "w") as f:
+with open(os.path.join(METADATA_DIRECTORY, constants.SERIALIZED_METADATA_FILE), "wb") as f:
 	cPickle.dump(metadata, f, cPickle.HIGHEST_PROTOCOL)
 
 #### Create workflow
@@ -225,7 +211,7 @@ with open(LAUNCHPAD_FILE) as f:
 # Store list of FireWorks
 wf_fws = []
 
-# Store links defining parent/child relationships of FireWorks
+# Store links defining parent/child dependency relationships of FireWorks
 wf_links = collections.defaultdict(list)
 
 
@@ -448,7 +434,7 @@ fw_this_variant_this_gen_this_sim_compression = None
 
 for i in VARIANTS_TO_RUN:
 	if VERBOSE_QUEUE:
-		print "Queueing Variant {}".format(i)
+		print "Queueing Variant {} {}".format(VARIANT, i)
 	VARIANT_DIRECTORY = os.path.join(INDIV_OUT_DIRECTORY, VARIANT + "_%06d" % i)
 	VARIANT_SIM_DATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "kb")
 	VARIANT_METADATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "metadata")

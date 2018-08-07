@@ -1,7 +1,6 @@
 """
-Central carbon metabolism comparison to Toya et al for figure 3D
+Central carbon metabolism comparison to Toya et al
 
-@author: Travis Horst
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 4/3/17
 """
@@ -38,8 +37,6 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		ap = AnalysisPaths(variantDir, cohort_plot = True)
 		allDir = ap.get_cells()
 
-		sim_data = cPickle.load(open(simDataFile, "rb"))
-
 		validation_data = cPickle.load(open(validationDataFile, "rb"))
 		toyaReactions = validation_data.reactionFlux.toya2010fluxes["reactionID"]
 		toyaFluxes = validation_data.reactionFlux.toya2010fluxes["reactionFlux"]
@@ -64,7 +61,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			dryMass = massListener.readColumn("dryMass")
 			massListener.close()
 
-			coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(MASS_UNITS / VOLUME_UNITS)
+			coefficient = dryMass / cellMass * cellDensity.asNumber(MASS_UNITS / VOLUME_UNITS)
 
 			fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 			reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))

@@ -21,7 +21,7 @@ ribosomeElongationRateMax	22	units.aa/units.s
 carbonicAnhydraseKcat	1.4e6	1/units.s	Silverman Acc Chem Res 1989
 metabolismHomeostaticRangeObjFractionHigher	0	
 metabolismInRangeObjWeight	0	
-metabolismKineticObjectiveWeightLinear	1e-7	
+metabolismKineticObjectiveWeightLinear	1e-6	
 metabolismKineticObjectiveWeightQuadratic	1e-9	
 secretion_penalty_coeff	1e-5	
 SensitivityAnalysisAlpha	0	
