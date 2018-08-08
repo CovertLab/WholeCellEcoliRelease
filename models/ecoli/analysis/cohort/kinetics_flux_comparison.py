@@ -1,8 +1,7 @@
 """
-Compare fluxes in simulation to target fluxes for supplemental figure 2
+Compare fluxes in simulation to target fluxes
 
 @date: Created 4/3/17
-@author: Travis Horst
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
@@ -133,7 +132,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		pearsonNoZeros = pearsonr(np.log10(targetAve[(categorization != -2)]), np.log10(actualAve[(categorization != -2)]))
 
 		# plot data
-		fig = plt.figure(figsize = (4, 4))
+		plt.figure(figsize = (4, 4))
 		ax = plt.axes()
 		plt.plot([-6, 4], [-6, 4], 'k', linewidth = 0.75)
 		plt.plot([-5, 4], [-6, 3], 'k', linewidth = 0.5)

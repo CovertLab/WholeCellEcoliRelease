@@ -1,7 +1,4 @@
 """
-Plots Figure 5D.
-
-@author: Heejo Choi
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 2/12/2017
 """
