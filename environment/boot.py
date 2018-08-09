@@ -1,6 +1,7 @@
 import json
 import uuid
 import argparse
+import environment.event as event
 
 from environment.agent import Agent
 from environment.outer import Outer
@@ -41,15 +42,15 @@ class EnvironmentControl(Agent):
 
 	def trigger_execution(self):
 		self.send(self.kafka['environment_control'], {
-			'event': 'TRIGGER_EXECUTION'})
+			'event': event.TRIGGER_EXECUTION})
 
 	def shutdown_environment(self):
 		self.send(self.kafka['environment_control'], {
-			'event': 'SHUTDOWN_ENVIRONMENT'})
+			'event': event.SHUTDOWN_ENVIRONMENT})
 
 	def shutdown_simulation(self, id):
 		self.send(self.kafka['simulation_receive'], {
-			'event': 'SHUTDOWN_SIMULATION',
+			'event': event.SHUTDOWN_SIMULATION,
 			'id': id})
 
 if __name__ == '__main__':

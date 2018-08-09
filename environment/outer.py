@@ -1,4 +1,5 @@
 import json
+import environment.event as event
 
 from environment.agent import Agent
 
@@ -45,7 +46,7 @@ class Outer(Agent):
 			self.send(self.kafka['simulation_receive'], {
 				'id': id,
 				'message_id': simulation['message_id'],
-				'event': 'ENVIRONMENT_UPDATED',
+				'event': event.ENVIRONMENT_UPDATED,
 				'molecule_ids': self.molecule_ids,
 				'concentrations': concentrations,
 				'run_for': run_for})
@@ -68,7 +69,7 @@ class Outer(Agent):
 		for id, simulation in self.simulations.iteritems():
 			self.send(self.kafka['simulation_receive'], {
 				'id': id,
-				'event': 'SHUTDOWN_SIMULATION'})
+				'event': event.SHUTDOWN_SIMULATION})
 
 	def receive(self, topic, message):
 		"""
@@ -99,17 +100,17 @@ class Outer(Agent):
 
 		print('--> ' + topic + ': ' + str(message))
 
-		if message['event'] == 'SIMULATION_INITIALIZED':
+		if message['event'] == event.SIMULATION_INITIALIZED:
 			self.simulations[message['id']] = {
 				'time': 0,
 				'message_id': -1,
 				'last_message_id': -1}
 
-		if message['event'] == 'TRIGGER_EXECUTION':
+		if message['event'] == event.TRIGGER_EXECUTION:
 			self.time += self.run_for
 			self.send_concentrations(self.concentrations, self.run_for)
 
-		if message['event'] == 'SIMULATION_ENVIRONMENT':
+		if message['event'] == event.SIMULATION_ENVIRONMENT:
 			if message['id'] in self.simulations:
 				simulation = self.simulations[message['id']]
 
@@ -125,7 +126,7 @@ class Outer(Agent):
 							self.time += self.run_for
 							self.send_concentrations(self.concentrations, self.run_for)
 
-		if message['event'] == 'SHUTDOWN_ENVIRONMENT':
+		if message['event'] == event.SHUTDOWN_ENVIRONMENT:
 			if len(self.simulations) > 0:
 				if self.ready_to_advance():
 					self.send_shutdown()
@@ -134,7 +135,7 @@ class Outer(Agent):
 			else:
 				self.shutdown()
 
-		if message['event'] == 'SIMULATION_SHUTDOWN':
+		if message['event'] == event.SIMULATION_SHUTDOWN:
 			if message['id'] in self.simulations:
 				gone = self.simulations.pop(message['id'], {'id': -1})
 				print('simulation shutdown: ' + str(gone))

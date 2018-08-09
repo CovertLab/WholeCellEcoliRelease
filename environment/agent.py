@@ -1,4 +1,6 @@
 import json
+import environment.event as event
+
 from confluent_kafka import Producer, Consumer, KafkaError
 
 def delivery_report(err, msg):
@@ -118,7 +120,7 @@ class Agent(object):
 
 			message = json.loads(raw.value().decode('utf-8'))
 
-			if message['event'] == 'GLOBAL_SHUTDOWN':
+			if message['event'] == event.GLOBAL_SHUTDOWN:
 				self.shutdown()
 			else:
 				self.receive(raw.topic(), message)

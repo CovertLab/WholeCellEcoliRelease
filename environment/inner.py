@@ -1,4 +1,5 @@
 import json
+import environment.event as event
 
 from environment.agent import Agent
 
@@ -65,7 +66,7 @@ class Inner(Agent):
 		""" Announce the existence of this simulation agent to the larger environmental context. """
 
 		self.send(self.kafka['simulation_send'], {
-			'event': 'SIMULATION_INITIALIZED',
+			'event': event.SIMULATION_INITIALIZED,
 			'id': self.id})
 
 	def finalize(self):
@@ -98,7 +99,7 @@ class Inner(Agent):
 		if message['id'] == self.id:
 			print('--> ' + topic + ': ' + str(message))
 
-			if message['event'] == 'ENVIRONMENT_UPDATED':
+			if message['event'] == event.ENVIRONMENT_UPDATED:
 				self.simulation.set_local_environment(
 					message['molecule_ids'],
 					message['concentrations'])
@@ -109,15 +110,15 @@ class Inner(Agent):
 				changes = self.simulation.get_environment_change()
 
 				self.send(self.kafka['simulation_send'], {
-					'event': 'SIMULATION_ENVIRONMENT',
+					'event': event.SIMULATION_ENVIRONMENT,
 					'id': self.id,
 					'message_id': message['message_id'],
 					'time': stop,
 					'changes': changes})
 
-			if message['event'] == 'SHUTDOWN_SIMULATION':
+			if message['event'] == event.SHUTDOWN_SIMULATION:
 				self.send(self.kafka['simulation_send'], {
-					'event': 'SIMULATION_SHUTDOWN',
+					'event': event.SIMULATION_SHUTDOWN,
 					'id': self.id})
 
 				self.shutdown()
