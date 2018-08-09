@@ -73,8 +73,9 @@ class BulkObjectsContainer(object):
 		# Copy the object names into a tuple to ensure they are ordered and
 		# immutable
 		self._objectNames = tuple(objectNames)
-
 		self._nObjects = len(self._objectNames)
+
+		self._dtype = dtype
 
 		# Store the indices for each element in a dictionary for faster
 		# (on average, O(1)) look-up (list.index is slow, O(n))
@@ -83,7 +84,7 @@ class BulkObjectsContainer(object):
 			for index, objectName in enumerate(self._objectNames)
 			}
 
-		self._counts = np.zeros(self._nObjects, dtype)
+		self._counts = np.zeros(self._nObjects, self._dtype)
 
 
 	def counts(self, names = None):
@@ -144,7 +145,7 @@ class BulkObjectsContainer(object):
 
 		"""
 
-		values = np.asarray(values, dtype=self._counts.dtype)
+		values = np.asarray(values, dtype=self._dtype)
 		if names is None:
 			self._counts[:] += values
 
@@ -166,7 +167,7 @@ class BulkObjectsContainer(object):
 
 		"""
 
-		values = np.asarray(values, dtype=self._counts.dtype)
+		values = np.asarray(values, dtype=self._dtype)
 		if names is None:
 			self._counts[:] -= values
 
@@ -312,7 +313,7 @@ class BulkObjectsContainer(object):
 
 		"""
 		names = self.objectNames()
-		new_copy = BulkObjectsContainer(names)
+		new_copy = BulkObjectsContainer(names, dtype = self._dtype)
 		return new_copy
 
 	def _namesToIndexes(self, names):
@@ -489,7 +490,7 @@ class _BulkObjectsView(object):
 			The added counts.
 
 		"""
-		values = np.asarray(values, dtype=self._container._counts.dtype)
+		values = np.asarray(values, dtype=self._container._dtype)
 		self._container._counts[self._indexes] += values
 
 
@@ -503,7 +504,7 @@ class _BulkObjectsView(object):
 			The subtracted counts.
 
 		"""
-		values = np.asarray(values, dtype=self._container._counts.dtype)
+		values = np.asarray(values, dtype=self._container._dtype)
 		self._container._counts[self._indexes] -= values
 
 
