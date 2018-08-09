@@ -228,6 +228,8 @@ class BulkObjectsContainer(object):
 
 		Parameters
 		----------
+		value : scalar
+			The assigned count.
 		name : object name
 
 		"""
@@ -424,15 +426,14 @@ class BulkObjectsContainer(object):
 
 class _BulkObjectsView(object):
 	"""
-	An accessor for a subset of objects in a BulkObjectsContainer.
+	A view onto selected objects in a BulkObjectsContainer.
 
 	Parameters
 	----------
 	container : a BulkObjectsContainer instance
-		The underlying container for the data associated with this view.
-	indexes : an iterable of indices (non-negative intergers)
-		The indices into the BulkObjectContainer's _counts attribute associated
-		with this view.
+	indexes : an iterable of indices (non-negative integers)
+		Specify the indices into the BulkObjectContainer's _counts attribute
+		associated with this view's objects.
 
 	Notes
 	-----
@@ -451,7 +452,7 @@ class _BulkObjectsView(object):
 
 	def counts(self):
 		"""
-		Return the counts of all objects.
+		Get the counts of all objects.
 
 		Parameters
 		----------
@@ -459,7 +460,7 @@ class _BulkObjectsView(object):
 
 		Returns
 		-------
-		A vector of counts (or whatever the underlying vector represents).
+		A vector (1D numpy.ndarray) of counts.
 
 		"""
 		return self._container._counts[self._indexes]
@@ -472,7 +473,7 @@ class _BulkObjectsView(object):
 		Parameters
 		----------
 		values : array-like
-			The counts to assign to the objects.
+			The assigned counts.
 
 		"""
 		self._container._counts[self._indexes] = values
@@ -485,7 +486,7 @@ class _BulkObjectsView(object):
 		Parameters
 		----------
 		values : array-like
-			The amounts to add to the counts of the objects.
+			The added counts.
 
 		"""
 		values = np.asarray(values, dtype=self._container._counts.dtype)
@@ -499,7 +500,7 @@ class _BulkObjectsView(object):
 		Parameters
 		----------
 		values : array-like
-			The amounts to subtract from the counts of the objects.
+			The subtracted counts.
 
 		"""
 		values = np.asarray(values, dtype=self._container._counts.dtype)
@@ -508,23 +509,20 @@ class _BulkObjectsView(object):
 
 class _BulkObjectView(object):
 	"""
-	An accessor for a single object in a BulkObjectsContainer.
+	A view onto a single object in a BulkObjectsContainer.
 
 	Parameters
 	----------
 	container : a BulkObjectsContainer instance
-		The underlying container for the data associated with this view.
 	index : a non-negative integer
-		The index into the BulkObjectContainer's _counts attribute associated
-		with this view.
+		Specify the index into the BulkObjectContainer's _counts attribute
+		associated with this view's objects.
 
 	Notes
 	-----
-	TODO (John): Consider moving this class into the context of the
-		BulkObjectsContainer's class definition.
-
-	TODO (John): Consider passing the array reference rather than the container
-		itself - then we don't have to access the 'private' _counts attribute.
+	TODO (John): See TODOs in _BulkObjectsView
+	TODO (John): Collapse this functionality into _BulkObjectsView.  That is,
+		transparently handle the singleton case.
 
 	"""
 
@@ -535,7 +533,7 @@ class _BulkObjectView(object):
 
 	def count(self):
 		"""
-		Return the count of the object.
+		Get the count of the object.
 
 		Parameters
 		----------
@@ -543,7 +541,7 @@ class _BulkObjectView(object):
 
 		Returns
 		-------
-		The counts associated with the indicated object.
+		A scalar.
 
 		"""
 		return self._container._counts[self._index]
@@ -551,12 +549,12 @@ class _BulkObjectView(object):
 
 	def countIs(self, values):
 		"""
-		Set the count of the objects.
+		Set the count of the object.
 
 		Parameters
 		----------
-		value : array-like
-			The count to assign to the object.
+		value : scalar
+			The assigned count.
 
 		"""
 		self._container._counts[self._index] = values
@@ -564,12 +562,12 @@ class _BulkObjectView(object):
 
 	def countInc(self, values):
 		"""
-		Increment the counts of the object.
+		Increment the count of the object.
 
 		Parameters
 		----------
-		value : array-like
-			The amount to add to the count of the object.
+		value : scalar
+			The added count.
 
 		"""
 		self._container._counts[self._index] += values
@@ -577,12 +575,12 @@ class _BulkObjectView(object):
 
 	def countDec(self, values):
 		"""
-		Decrement the counts of the object.
+		Decrement the count of the object.
 
 		Parameters
 		----------
-		value : array-like
-			The amount to subtract from the count of the object.
+		value : scalar
+			The subtracted count.
 
 		"""
 		self._container._counts[self._index] -= values
