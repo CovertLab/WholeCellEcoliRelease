@@ -21,11 +21,8 @@ class Outer(Agent):
 	acknowledgements, at which point it will shutdown itself.
 	"""
 
-	def __init__(self, kafka, molecule_ids, run_for, concentrations, id='environment'):
-		self.concentrations = concentrations
-		self.molecule_ids = concentrations.keys()
-		self.run_for = run_for
-		self.time = 0
+	def __init__(self, kafka, environment):
+		self.environment = environment
 		self.simulations = {}
 		self.shutting_down = False
 
@@ -38,8 +35,11 @@ class Outer(Agent):
 	def finalize(self):
 		print('environment shutting down')
 
-	def send_concentrations(self, concentrations, run_for):
+	def send_concentrations(self):
 		""" Send updated concentrations to each individual simulation agent. """
+
+		concentrations = self.environment.get_concentrations()
+		run_until = self.environment.run_until()
 
 		for id, simulation in self.simulations.iteritems():
 			simulation['message_id'] += 1
@@ -47,9 +47,8 @@ class Outer(Agent):
 				'id': id,
 				'message_id': simulation['message_id'],
 				'event': event.ENVIRONMENT_UPDATED,
-				'molecule_ids': self.molecule_ids,
-				'concentrations': concentrations,
-				'run_for': run_for})
+				'concentrations': concentrations[id],
+				'run_until': run_until[id]})
 
 	def ready_to_advance(self):
 		"""
@@ -64,6 +63,13 @@ class Outer(Agent):
 				break
 
 		return ready
+
+	def simulation_changes(self):
+		changes = {}
+		for id, simulation in self.simulations.iteritems():
+			changes[id] = simulation['changes']
+
+		return changes
 
 	def send_shutdown(self):
 		for id, simulation in self.simulations.iteritems():
@@ -106,9 +112,10 @@ class Outer(Agent):
 				'message_id': -1,
 				'last_message_id': -1}
 
+			self.environment.add_simulation(message['id'])
+
 		if message['event'] == event.TRIGGER_EXECUTION:
-			self.time += self.run_for
-			self.send_concentrations(self.concentrations, self.run_for)
+			self.send_concentrations()
 
 		if message['event'] == event.SIMULATION_ENVIRONMENT:
 			if message['id'] in self.simulations:
@@ -123,8 +130,9 @@ class Outer(Agent):
 						if self.shutting_down:
 							self.send_shutdown()
 						else:
-							self.time += self.run_for
-							self.send_concentrations(self.concentrations, self.run_for)
+							changes = self.simulation_changes()
+							self.environment.update_concentrations(changes)
+							self.send_concentrations()
 
 		if message['event'] == event.SHUTDOWN_ENVIRONMENT:
 			if len(self.simulations) > 0:
@@ -138,6 +146,8 @@ class Outer(Agent):
 		if message['event'] == event.SIMULATION_SHUTDOWN:
 			if message['id'] in self.simulations:
 				gone = self.simulations.pop(message['id'], {'id': -1})
+				self.environment.remove_simulation(message['id'])
+
 				print('simulation shutdown: ' + str(gone))
 
 				if not any(self.simulations):

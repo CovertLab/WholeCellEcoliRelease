@@ -6,7 +6,7 @@ import environment.event as event
 from environment.agent import Agent
 from environment.outer import Outer
 from environment.inner import Inner
-from environment.stub import SimulationStub
+from environment.stub import SimulationStub, EnvironmentStub
 
 default_kafka_config = {
 	'host': 'localhost:9092',
@@ -17,23 +17,24 @@ default_kafka_config = {
 
 class BootOuter(object):
 	def __init__(self, kafka):
-		self.outer = Outer(
-			kafka,
-			['yellow', 'green', 'red', 'blue'],
-			1,
-			{'yellow': 5,
-			 'green': 11,
-			 'red': 44,
-			 'blue': 12})
+		volume = 1
+		concentrations = {
+			'yellow': 5,
+			'green': 11,
+			'red': 44,
+			'blue': 12}
+
+		self.environment = EnvironmentStub(volume, concentrations)
+		self.outer = Outer(kafka, self.environment)
 
 class BootInner(object):
 	def __init__(self, id, kafka):
 		self.id = id
 		self.simulation = SimulationStub()
 		self.inner = Inner(
+			kafka,
 			self.id,
-			self.simulation,
-			kafka)
+			self.simulation)
 
 class EnvironmentControl(Agent):
 	def __init__(self, kafka=default_kafka_config):

@@ -17,7 +17,7 @@ class Inner(Agent):
 	* simulation.initialize_local_environment()
 	    Perfom any setup required for tracking changes to the local environment.
 
-	* simulation.set_local_environment(molecule_ids, concentrations)
+	* simulation.set_local_environment(concentrations)
 	    Receive a set of molecule ids to track and a dictionary containing the current
 	    current concentrations in the local environment.
 
@@ -39,21 +39,21 @@ class Inner(Agent):
 	communicate with the larger environmental simulation through message passing.
 	"""
 
-	def __init__(self, id, simulation, kafka):
+	def __init__(self, kafka, id, simulation):
 		"""
 		Initialize the agent.
 
 		Args:
-		    id (string): Unique identifier for this agent in the environmental simulation.
-		        When the agent receives messages, it will filter out and respond to only 
-		        those containing its `id`.
-		    simulation (Simulation): The actual simulation which will perform the calculations.
 		    kafka (dict): Kafka configuration information with the following keys:
 		        `host`: the Kafka host.
 		        `simulation_receive`: The topic the environmental simulation will be sending
 		            messages on.
 		        `simulation_send`: The topic the environment will be listening to for 
 		            updates from the individual simulation agents.
+		    id (string): Unique identifier for this agent in the environmental simulation.
+		        When the agent receives messages, it will filter out and respond to only 
+		        those containing its `id`.
+		    simulation (Simulation): The actual simulation which will perform the calculations.
 		"""
 
 		self.simulation = simulation
@@ -83,7 +83,6 @@ class Inner(Agent):
 		ENVIRONMENT_UPDATED is where the real work of the agent is performed. It receives a 
 		message from the environment containing the following keys:
 
-		* `molecule_ids`: ids of the molecules to track.
 		* `concentrations`: a dictionary containing the updated local concentrations.
 		* `run_until`: how long to run the simulation for before reporting back the new 
 		    environmental changes.
@@ -101,10 +100,9 @@ class Inner(Agent):
 
 			if message['event'] == event.ENVIRONMENT_UPDATED:
 				self.simulation.set_local_environment(
-					message['molecule_ids'],
 					message['concentrations'])
 
-				self.simulation.run_incremental(message['run_for'] + self.simulation.time())
+				self.simulation.run_incremental(message['run_until'])
 
 				stop = self.simulation.time()
 				changes = self.simulation.get_environment_change()

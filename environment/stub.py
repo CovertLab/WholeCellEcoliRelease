@@ -21,19 +21,18 @@ class SimulationStub(object):
 	def initialize_local_environment(self):
 		pass
 
-	def set_local_environment(self, molecule_ids, concentrations):
-		self.molecule_ids = molecule_ids
+	def set_local_environment(self, concentrations):
 		self.concentrations = concentrations
 
 		if not self.local_set:
 			self.environment_change = {}
-			for molecule in molecule_ids:
+			for molecule in self.concentrations.keys():
 				self.environment_change[molecule] = 0
 			self.local_set = True
 
 	def run_incremental(self, run_until):
 		time.sleep(1)
-		for molecule in self.molecule_ids:
+		for molecule in self.concentrations.keys():
 			self.environment_change[molecule] += random.randint(1, 6)
 		self.local_time = run_until
 
@@ -42,3 +41,41 @@ class SimulationStub(object):
 
 	def finalize(self):
 		pass
+
+class EnvironmentStub(object):
+	def __init__(self, volume, concentrations):
+		self._time = 0
+		self.run_for = 1
+		self.volume = volume
+		self.simulations = {}
+		self.concentrations = concentrations
+
+	def time(self):
+		return self._time
+
+	def add_simulation(self, id):
+		state = {}
+		self.simulations[id] = state
+
+	def remove_simulation(self, id):
+		return self.simulations.pop(id, {})
+
+	def update_concentrations(self, all_changes):
+		self._time += self.run_for
+		for id, changes in all_changes.iteritems():
+			for molecule, change in changes.iteritems():
+				self.concentrations[molecule] += change
+
+	def run_until(self):
+		until = {}
+		for id in self.simulations.keys():
+			until[id] = self.time() + self.run_for
+
+		return until
+
+	def get_concentrations(self):
+		concentrations = {}
+		for id in self.simulations.keys():
+			concentrations[id] = self.concentrations
+		
+		return concentrations
