@@ -73,6 +73,9 @@ class EnvironmentStub(object):
 
 		return until
 
+	def molecule_ids(self):
+		return self.concentrations.keys()
+
 	def get_concentrations(self):
 		concentrations = {}
 		for id in self.simulations.keys():

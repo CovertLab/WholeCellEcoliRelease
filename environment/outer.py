@@ -35,6 +35,19 @@ class Outer(Agent):
 	def finalize(self):
 		print('environment shutting down')
 
+	def initialize_simulation(self, id):
+		changes = {}
+		for molecule in self.environment.molecule_ids():
+			changes[molecule] = 0
+
+		self.simulations[id] = {
+			'time': 0,
+			'message_id': -1,
+			'last_message_id': -1,
+			'changes': changes}
+
+		self.environment.add_simulation(id)
+
 	def send_concentrations(self):
 		""" Send updated concentrations to each individual simulation agent. """
 
@@ -107,12 +120,7 @@ class Outer(Agent):
 		print('--> ' + topic + ': ' + str(message))
 
 		if message['event'] == event.SIMULATION_INITIALIZED:
-			self.simulations[message['id']] = {
-				'time': 0,
-				'message_id': -1,
-				'last_message_id': -1}
-
-			self.environment.add_simulation(message['id'])
+			self.initialize_simulation(message['id'])
 
 		if message['event'] == event.TRIGGER_EXECUTION:
 			self.send_concentrations()
