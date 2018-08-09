@@ -9,6 +9,28 @@ class BulkObjectsContainer(object):
 	A data structure for convenient, name-based operations on elements of a
 	NumPy vector.
 
+	The BulkObjectsContainer provides an interface to the elements of a NumPy
+	vector by name.  Oftentimes in a multi-domain, multi-paradigm simulation,
+	we wish to store all model variables in one place, yet will only interact
+	with a subset of variables in each submodel.  This class makes it easy to
+	access and modify those variable values.  For example:
+
+	>>> names = ['A', 'B', 'C', 'D'] # names of some model variables
+	>>> container = BulkObjectsContainer(names)
+	>>> container.countIs('A', 10) # set A to 10
+	>>> container.countsInc(5) # increase the counts of everything by 5
+	>>> container.counts(['D', 'C']) # access D and C, in that order
+
+	You can also create a 'view' to interact with the data in a fixed order:
+
+	>>> view = container.countsView(['D', 'C'])
+	>>> view.countsIs([10, 15]) # set D to 10 and C to 15
+	>>> view.countsDec([3, 7]) # decrease D by 3 and C by 7
+	>>> view.counts() # get the counts of D and C
+
+	If used more than once, creating a view is more efficient than operating on
+	the container directly.
+
 	Parameters
 	----------
 	objectNames : iterable of strings
@@ -23,9 +45,13 @@ class BulkObjectsContainer(object):
 
 	Notes
 	-----
-	The dafault data type is integers because the original use case was to
+	The default data type is integers because the original use case was to
 	track the abundances (copy numbers) of molecules.  Likewise the methods
 	refer to "counts" even though the data type can be floating-point.
+
+	Floating-point use cases:
+	- concentrations of molecules
+	- mean or standard deviations on counts
 
 	The number of elements and their order is inferred from the objectNames
 	parameter.
@@ -33,46 +59,46 @@ class BulkObjectsContainer(object):
 	If looking at a subset of the objects repeatedly, it's best to create
 	and operate on a view.
 
-	TODO (John): Give methods more standard names.
+	TODO (John): Give methods more standard names (e.g. set, get, add).
 	TODO (John): Move methods and attributes from mixedCase to under_scores.
-	TODO (John): Get rid of single/group distinction, and instead check input
-		types against basestring to decide what sort of output to return.
+	TODO (John): Get rid of single/group distinction in methods/views, and
+		instead check input types against basestring to decide what sort of
+		output to return.
 	TODO (John): Use something more generic than 'counts' to reflect the fact
 		that non-integer data types are permissible.
 
 	"""
 
 	def __init__(self, objectNames, dtype = np.int64):
-		# Cast objectNames to list to make sure it is ordered, and to prevent
-		# any side effects from external code modifying the parameter
-		self._objectNames = list(objectNames)
+		# Copy the object names into a tuple to ensure they are ordered and
+		# immutable
+		self._objectNames = tuple(objectNames)
 
 		self._nObjects = len(self._objectNames)
 
 		# Store the indices for each element in a dictionary for faster
-		# look-up (list.index is slow)
+		# (on average, O(1)) look-up (list.index is slow, O(n))
 		self._objectIndex = {
 			objectName:index
 			for index, objectName in enumerate(self._objectNames)
 			}
 
-		self._counts = np.zeros(len(self._objectNames), dtype)
+		self._counts = np.zeros(self._nObjects, dtype)
 
 
 	def counts(self, names = None):
 		"""
-		Returns the counts of all objects, or the counts associated with an
-		iterable of names.
+		Get the counts of objects.
 
 		Parameters
 		----------
 		names : iterable of strings
-			Default is None.  If not None, the counts will be returned (in the
-			provided order) for the indicated objects.
+			The names of the objects.  If None (default), then all objects are
+			used in their original ordering.
 
 		Returns
 		-------
-		A vector of counts (or whatever the underlying vector represents).
+		A vector (1D numpy.ndarray) of counts.
 
 		"""
 
@@ -85,16 +111,15 @@ class BulkObjectsContainer(object):
 
 	def countsIs(self, values, names = None):
 		"""
-		Sets the counts of all objects, or the counts associated with an
-		iterable of names.
+		Set the counts of objects.
 
 		Parameters
 		----------
 		values : array-like
-			The counts to assign to the indicated objects.
+			The assigned counts.
 		names : iterable of strings
-			Default is None.  If not None, the counts will be returned (in the
-			provided order) for the indicated objects.
+			The names of the objects.  If None (default), then all objects are
+			used in their original ordering.
 
 		"""
 
@@ -107,17 +132,15 @@ class BulkObjectsContainer(object):
 
 	def countsInc(self, values, names = None):
 		"""
-		Increment the counts of all objects, or the counts associated with an
-		iterable of names.
+		Increment the counts of objects.
 
 		Parameters
 		----------
 		values : array-like
-			The amounts by which to increment the counts of the indicated
-			objects.
+			The added counts.
 		names : iterable of strings
-			Default is None.  If not None, the counts will be returned (in the
-			provided order) for the indicated objects.
+			The names of the objects.  If None (default), then all objects are
+			used in their original ordering.
 
 		"""
 
@@ -131,17 +154,15 @@ class BulkObjectsContainer(object):
 
 	def countsDec(self, values, names = None):
 		"""
-		Decrement the counts of all objects, or the counts associated with an
-		iterable of names.
+		Decrement the counts of objects.
 
 		Parameters
 		----------
 		values : array-like
-			The amounts by which to decrement the counts of the indicated
-			objects.
+			The subtracted counts.
 		names : iterable of strings
-			Default is None.  If not None, the counts will be returned (in the
-			provided order) for the indicated objects.
+			The names of the objects.  If None (default), then all objects are
+			used in their original ordering.
 
 		"""
 
@@ -155,15 +176,13 @@ class BulkObjectsContainer(object):
 
 	def countsView(self, names = None):
 		"""
-		Returns an object that provides a permanent, ordered reference to a
-		set of objects.
+		Create a view on a set of objects.
 
 		Parameters
 		----------
 		names : iterable of strings
-			Default is None.  If None, the view will simply be all objects in
-			their natural order.  Otherwise the names are used to define the
-			ordered elements of the view object.
+			The names of the objects.  If None (default), then all objects are
+			used in their original ordering.
 
 		Returns
 		-------
@@ -189,16 +208,15 @@ class BulkObjectsContainer(object):
 
 	def count(self, name):
 		"""
-		Returns the count of a single object.
+		Get the count of an object.
 
 		Parameters
 		----------
-		name : string
-			The name of the indicated object.
+		name : object name
 
 		Returns
 		-------
-		The counts associated with the indicated object.
+		A scalar.
 
 		"""
 		return self._counts[self._objectIndex[name]]
@@ -206,14 +224,11 @@ class BulkObjectsContainer(object):
 
 	def countIs(self, value, name):
 		"""
-		Sets the count of a single object.
+		Set the count of an object.
 
 		Parameters
 		----------
-		value : array-like
-			The count to assign to the indicated objects.
-		name : string
-			The name of the indicated object.
+		name : object name
 
 		"""
 		self._counts[self._objectIndex[name]] = value
@@ -221,15 +236,13 @@ class BulkObjectsContainer(object):
 
 	def countInc(self, value, name):
 		"""
-		Increment the count of a single object.
+		Increment the count of an object.
 
 		Parameters
 		----------
-		value : array-like
-			The amount by which to increment the counts of the indicated
-			object.
-		name : string
-			The name of the indicated object.
+		value : scalar
+			The added count.
+		name : object name
 
 		"""
 		self._counts[self._objectIndex[name]] += value
@@ -237,15 +250,13 @@ class BulkObjectsContainer(object):
 
 	def countDec(self, value, name):
 		"""
-		Decrement the count of a single object.
+		Decrement the count of an object.
 
 		Parameters
 		----------
-		value : array-like
-			The amount by which to decrement the counts of the indicated
-			object.
-		name : string
-			The name of the indicated object.
+		value : scalar
+			The subtracted count.
+		name : object name
 
 		"""
 		self._counts[self._objectIndex[name]] -= value
@@ -253,17 +264,15 @@ class BulkObjectsContainer(object):
 
 	def countView(self, name):
 		"""
-		Returns an object that provides a permanent reference to a single
-		object.
+		Create a view on an object.
 
 		Parameters
 		----------
-		name : iterable of strings
-			The name of the indicated object.
+		name : object name
 
 		Returns
 		-------
-		A _BulkObjectView instance.
+		A _BulkObjectsView instance.
 
 		Notes
 		-----
@@ -276,7 +285,7 @@ class BulkObjectsContainer(object):
 
 	def objectNames(self):
 		"""
-		Returns the names (in order) of all objects.
+		The names (in order) of all objects.
 
 		Parameters
 		----------
@@ -287,11 +296,11 @@ class BulkObjectsContainer(object):
 		A tuple of strings.
 
 		"""
-		return tuple(self._objectNames)
+		return self._objectNames
 
 	def emptyLike(self):
 		"""
-		Returns a new BulkObjectsContainer with the same set of objects, but
+		Create a new BulkObjectsContainer with the same set of objects, but
 		with all counts at zero.
 
 		Notes
@@ -306,17 +315,23 @@ class BulkObjectsContainer(object):
 
 	def _namesToIndexes(self, names):
 		"""
-		Private method that converts an iterable of names into their
-		corresponding indices into the underlying array representation.
+		Convert an iterable of names into their corresponding indices into the
+		underlying array representation.
 
 		Parameters
 		----------
 		names : iterable of strings
-			The names of the indicated object.
+			The names of the objects.
 
 		Returns
 		-------
 		An arrary of indices (non-negative integers).
+
+		TODO (John): Handle the case that names is None, returning
+			np.arange(self._nObjects).  This would simplify many other methods.
+			We can't use slice(None) because we need the data to be copied on
+			retrieval.  Otherwise modifying an output array (e.g. an array
+			return by .counts()) would modify the underlying data.
 
 		"""
 		return np.array([self._objectIndex[name] for name in names])
@@ -324,7 +339,8 @@ class BulkObjectsContainer(object):
 
 	def __eq__(self, other):
 		"""
-		Magic method for comparing the counts of one container to another.
+		Return whether the counts of one BulkObjectsContainer instance are all
+		equal to another.
 
 		Parameters
 		----------
@@ -351,7 +367,7 @@ class BulkObjectsContainer(object):
 
 	def tableCreate(self, tableWriter):
 		"""
-		Writes the names of the objects to a 'table' file's attributes.
+		Write the names of the objects to a 'table' file's attributes.
 
 		Parameters
 		----------
@@ -359,7 +375,11 @@ class BulkObjectsContainer(object):
 
 		Notes
 		-----
-		TODO (John): I feel that these methods pollute this class.
+		TODO (John): I feel that these methods pollute this class.  This
+			interface is simple enough that we could remove it entirely, or
+			we could add functions to this module that handle the interface
+			between TableWriter and BulkObjectsContainer without polluting
+			either class with information about the other.
 
 		"""
 		tableWriter.writeAttributes(
@@ -383,12 +403,17 @@ class BulkObjectsContainer(object):
 
 	def tableLoad(self, tableReader, tableIndex):
 		"""
-		Loads the counts of objects from a 'table' file.
+		Load the counts of objects from a 'table' file.
 
 		Parameters
 		----------
 		tableReader : a TableReader instance
-		tableIndex : the row of the table from which to read the counts
+		tableIndex : non-negative integer
+			Specify which row of the table to row.
+
+		TODO (John): If this was a class method, it could instantiate with the
+			correct object names instead of asserting that the names are
+			correct.
 
 		"""
 
