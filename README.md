@@ -1,3 +1,10 @@
+Whole Cell Model - *Escherichia coli*
+===================================
+
+This repository contains work to date on the [Covert Lab's](https://www.covert.stanford.edu/) Whole Cell Model for [*Escherichia coli*](https://en.wikipedia.org/wiki/Escherichia_coli), as well as some effort to create a framework for building whole cell models in general. 
+
+Until now most of the work has been on Stanford's local [Sherlock](https://www.sherlock.stanford.edu/) cluster, though recent efforts have enabled the simulation and its associated analyses to be run manually on a local machine.
+
 Usage
 ======
 
