@@ -51,13 +51,10 @@ class BulkObjectsContainer(object):
 
 	Floating-point use cases:
 	- concentrations of molecules
-	- mean or standard deviations on counts
+	- mean or standard deviations of counts
 
 	The number of elements and their order is inferred from the objectNames
 	parameter.
-
-	If looking at a subset of the objects repeatedly, it's best to create
-	and operate on a view.
 
 	TODO (John): Give methods more standard names (e.g. set, get, add).
 	TODO (John): Move methods and attributes from mixedCase to under_scores.
