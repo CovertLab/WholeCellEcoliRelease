@@ -272,7 +272,7 @@ class BulkObjectsContainer(object):
 
 		Returns
 		-------
-		A _BulkObjectsView instance.
+		A _BulkObjectView instance.
 
 		Notes
 		-----
