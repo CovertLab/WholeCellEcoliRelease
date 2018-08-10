@@ -19,6 +19,29 @@ class Outer(Agent):
 	concentrations will be sent back. This loop will continue until the environment receives a 
 	message to shutdown, when it will send a message to each simulation to shutdown and wait for
 	acknowledgements, at which point it will shutdown itself.
+
+	Simulations may also be added and removed while the execution is running without interruption.
+
+	The interaction with the environmental simulation is mediated through an interface defined
+	by the following functions:
+
+	* environment.time()
+	    Return the current simulation time for the environment.
+
+	* environment.add_simulation(id)
+	    
+	* environment.remove_simulation(id)
+
+	* environment.update_concentrations(changes)
+        `changes` is a dictionary of simulation ids to counts
+
+	* environment.run_until()
+	    Returns a dictionary of simulation ids to time points for each simulation to run until.
+
+	* environment.molecule_ids()
+
+	* environment.get_concentrations()
+	    Returns a dictionary of simulation ids to concentrations coming from the environment.
 	"""
 
 	def __init__(self, kafka, environment):

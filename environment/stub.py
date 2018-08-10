@@ -2,6 +2,7 @@ import time
 import random
 
 class SimulationStub(object):
+
 	"""
 	Provide a stub for the simulation.
 
@@ -43,6 +44,17 @@ class SimulationStub(object):
 		pass
 
 class EnvironmentStub(object):
+
+	"""
+	Provide a stub for the environmental context.
+
+	Like the stub above for simulations, this class is meant to demonstrate the interface
+	any environmental simulation must have to fulfill the conditions of being a coordinating
+	external context for integrating the changes of each simulation.
+
+	Full interface described in `environment/outer.py`.
+	"""
+
 	def __init__(self, volume, concentrations):
 		self._time = 0
 		self.run_for = 1
