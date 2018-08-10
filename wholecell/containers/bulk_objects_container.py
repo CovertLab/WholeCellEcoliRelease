@@ -417,7 +417,7 @@ class BulkObjectsContainer(object):
 
 		"""
 
-		assert self._objectNames == tableReader.readAttribute("objectNames")
+		assert self._objectNames == tuple(tableReader.readAttribute("objectNames"))
 
 		self._counts = tableReader.readRow(tableIndex)["counts"]
 
