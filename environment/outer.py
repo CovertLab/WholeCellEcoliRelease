@@ -57,14 +57,14 @@ class Outer(Agent):
 
 		super(Outer, self).__init__(id, kafka_config)
 
+	def initialize(self):
+		print('environment started')
+
 	def finalize(self):
 		print('environment shutting down')
 
 	def initialize_simulation(self, id):
-		changes = {}
-		for molecule in self.environment.molecule_ids():
-			changes[molecule] = 0
-
+		changes = {molecule: 0 for molecule in self.environment.molecule_ids()}
 		self.simulations[id] = {
 			'time': 0,
 			'message_id': -1,
@@ -82,7 +82,7 @@ class Outer(Agent):
 		for id, simulation in self.simulations.iteritems():
 			simulation['message_id'] += 1
 			self.send(self.kafka_config['simulation_receive'], {
-				'id': id,
+				'inner_id': id,
 				'message_id': simulation['message_id'],
 				'event': event.ENVIRONMENT_UPDATED,
 				'concentrations': concentrations[id],
@@ -103,16 +103,12 @@ class Outer(Agent):
 		return ready
 
 	def simulation_changes(self):
-		changes = {}
-		for id, simulation in self.simulations.iteritems():
-			changes[id] = simulation['changes']
-
-		return changes
+		return {id: simulation['changes'] for id, simulation in self.simulations.iteritems()}
 
 	def send_shutdown(self):
 		for id, simulation in self.simulations.iteritems():
 			self.send(self.kafka_config['simulation_receive'], {
-				'id': id,
+				'inner_id': id,
 				'event': event.SHUTDOWN_SIMULATION})
 
 	def receive(self, topic, message):
@@ -130,9 +126,8 @@ class Outer(Agent):
 
 		Simulation messages:
 
-		* SIMULATION_INITIALIZED: Received when a simulation agent is created. Upon the 
-		    TRIGGER_EXECUTION message these are the simulations that will be communicated
-		    with to perform the computation of the environmental changes.
+		* SIMULATION_INITIALIZED: Registers inner simulations that will be driven once the
+		    TRIGGER_EXECUTION event is received.
 		* SIMULATION_ENVIRONMENT: Received from each simulation when it has computed its 
 		    environmental changes up to the specified `run_until`. The environment will wait
 		    until it has heard from each simulation, integrate their changes and then calculate
@@ -145,14 +140,14 @@ class Outer(Agent):
 		print('--> {}: {}'.format(topic, message))
 
 		if message['event'] == event.SIMULATION_INITIALIZED:
-			self.initialize_simulation(message['id'])
+			self.initialize_simulation(message['inner_id'])
 
 		if message['event'] == event.TRIGGER_EXECUTION:
 			self.send_concentrations()
 
 		if message['event'] == event.SIMULATION_ENVIRONMENT:
-			if message['id'] in self.simulations:
-				simulation = self.simulations[message['id']]
+			if message['inner_id'] in self.simulations:
+				simulation = self.simulations[message['inner_id']]
 
 				if message['message_id'] == simulation['message_id']:
 					simulation['changes'] = message['changes']
@@ -177,9 +172,9 @@ class Outer(Agent):
 				self.shutdown()
 
 		if message['event'] == event.SIMULATION_SHUTDOWN:
-			if message['id'] in self.simulations:
-				gone = self.simulations.pop(message['id'], {'id': -1})
-				self.environment.remove_simulation(message['id'])
+			if message['inner_id'] in self.simulations:
+				gone = self.simulations.pop(message['inner_id'], {'inner_id': -1})
+				self.environment.remove_simulation(message['inner_id'])
 
 				print('simulation shutdown: ' + str(gone))
 

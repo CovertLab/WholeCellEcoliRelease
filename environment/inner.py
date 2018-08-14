@@ -13,7 +13,7 @@ class Inner(Agent):
 	This class wraps a simulation and mediates the communication between messages
 	received from the larger environmental context and the operation of the simulation.
 
-	The interface a simulation must provide to work inside of the this class is composed
+	The interface a simulation must provide to work inside of this class is composed
 	of the following methods:
 
 	* simulation.initialize_local_environment()
@@ -69,7 +69,7 @@ class Inner(Agent):
 
 		self.send(self.kafka_config['simulation_send'], {
 			'event': event.SIMULATION_INITIALIZED,
-			'id': self.id})
+			'inner_id': self.id})
 
 	def finalize(self):
 		""" Trigger any clean up the simulation needs to perform before exiting. """
@@ -86,18 +86,18 @@ class Inner(Agent):
 		message from the environment containing the following keys:
 
 		* `concentrations`: a dictionary containing the updated local concentrations.
-		* `run_until`: how long to run the simulation for before reporting back the new 
+		* `run_until`: how long to run the simulation until before reporting back the new 
 		    environmental changes.
 		* `message_id`: the id of the message as provided by the environmental simulation,
-		    to be returns as an acknowledgement that the message was processed along with 
+		    to be returned as an acknowledgement that the message was processed along with 
 		    the updated environmental changes.
 
-		Given this, the agent sets the simulations local environment, runs until the given 
-		time and responds with a `SIMULATION_ENVIRONMENT` message containing the local changes
-		as calculated by the simulation.
+		Given this, the agent provides the simulation with the current state of its local
+		environment, runs until the given time and responds with a `SIMULATION_ENVIRONMENT`
+		message containing the local changes as calculated by the simulation.
 		"""
 
-		if message['id'] == self.id:
+		if message['inner_id'] == self.id:
 			print('--> {}: {}'.format(topic, message))
 
 			if message['event'] == event.ENVIRONMENT_UPDATED:
@@ -111,7 +111,7 @@ class Inner(Agent):
 
 				self.send(self.kafka_config['simulation_send'], {
 					'event': event.SIMULATION_ENVIRONMENT,
-					'id': self.id,
+					'inner_id': self.id,
 					'message_id': message['message_id'],
 					'time': stop,
 					'changes': changes})
@@ -119,6 +119,6 @@ class Inner(Agent):
 			if message['event'] == event.SHUTDOWN_SIMULATION:
 				self.send(self.kafka_config['simulation_send'], {
 					'event': event.SIMULATION_SHUTDOWN,
-					'id': self.id})
+					'inner_id': self.id})
 
 				self.shutdown()
