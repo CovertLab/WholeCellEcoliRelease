@@ -116,8 +116,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			ax.plot(time / 60., RR_phosphorylation[RRs_unique[idx_TF]], linewidth = 1, color = "grey")
 			ax.set_title(RRs_unique[idx_TF], fontsize = 4)
 
-			ymin = np.amin(RR_phosphorylation[RRs_unique[idx_TF]])
-			ymax = np.amax(RR_phosphorylation[RRs_unique[idx_TF]])
+			ymin = np.nanmin(RR_phosphorylation[RRs_unique[idx_TF]])
+			ymax = np.nanmax(RR_phosphorylation[RRs_unique[idx_TF]])
 			ax.set_ylim([ymin, ymax])
 			ax.set_yticks([ymin, ymax])
 			ax.set_yticklabels(["%0.2e" % ymin, "%0.2e" % ymax])
