@@ -112,12 +112,17 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Plot percentage of TF phosphorylation
 		for idx_TF, idx_subentry in enumerate(np.arange(100, 135, 5)): # Using the last sub-entries
+			phosphorylation = RR_phosphorylation[RRs_unique[idx_TF]]
 			ax = plt.subplot(rows*(num_subentries + 2), cols, idx_subentry)
-			ax.plot(time / 60., RR_phosphorylation[RRs_unique[idx_TF]], linewidth = 1, color = "grey")
+			ax.plot(time / 60., phosphorylation, linewidth = 1, color = "grey")
 			ax.set_title(RRs_unique[idx_TF], fontsize = 4)
 
-			ymin = np.nanmin(RR_phosphorylation[RRs_unique[idx_TF]])
-			ymax = np.nanmax(RR_phosphorylation[RRs_unique[idx_TF]])
+			if np.any(np.isfinite(phosphorylation)):
+				ymin = np.nanmin(phosphorylation)
+				ymax = np.nanmax(phosphorylation)
+			else:
+				ymin = 0
+				ymax = 1
 			ax.set_ylim([ymin, ymax])
 			ax.set_yticks([ymin, ymax])
 			ax.set_yticklabels(["%0.2e" % ymin, "%0.2e" % ymax])
