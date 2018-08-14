@@ -19,13 +19,33 @@ class Outer(Agent):
 	concentrations will be sent back. This loop will continue until the environment receives a 
 	message to shutdown, when it will send a message to each simulation to shutdown and wait for
 	acknowledgements, at which point it will shutdown itself.
+
+	Simulations may also be added and removed while the execution is running without interruption.
+
+	The interaction with the environmental simulation is mediated through an interface defined
+	by the following functions:
+
+	* environment.time()
+	    Return the current simulation time for the environment.
+
+	* environment.add_simulation(id)
+	    
+	* environment.remove_simulation(id)
+
+	* environment.update_concentrations(changes)
+        `changes` is a dictionary of simulation ids to counts
+
+	* environment.run_until()
+	    Returns a dictionary of simulation ids to time points for each simulation to run until.
+
+	* environment.molecule_ids()
+
+	* environment.get_concentrations()
+	    Returns a dictionary of simulation ids to concentrations coming from the environment.
 	"""
 
-	def __init__(self, kafka, molecule_ids, run_for, concentrations, id='environment'):
-		self.concentrations = concentrations
-		self.molecule_ids = concentrations.keys()
-		self.run_for = run_for
-		self.time = 0
+	def __init__(self, kafka, environment):
+		self.environment = environment
 		self.simulations = {}
 		self.shutting_down = False
 
@@ -38,8 +58,24 @@ class Outer(Agent):
 	def finalize(self):
 		print('environment shutting down')
 
-	def send_concentrations(self, concentrations, run_for):
+	def initialize_simulation(self, id):
+		changes = {}
+		for molecule in self.environment.molecule_ids():
+			changes[molecule] = 0
+
+		self.simulations[id] = {
+			'time': 0,
+			'message_id': -1,
+			'last_message_id': -1,
+			'changes': changes}
+
+		self.environment.add_simulation(id)
+
+	def send_concentrations(self):
 		""" Send updated concentrations to each individual simulation agent. """
+
+		concentrations = self.environment.get_concentrations()
+		run_until = self.environment.run_until()
 
 		for id, simulation in self.simulations.iteritems():
 			simulation['message_id'] += 1
@@ -47,9 +83,8 @@ class Outer(Agent):
 				'id': id,
 				'message_id': simulation['message_id'],
 				'event': event.ENVIRONMENT_UPDATED,
-				'molecule_ids': self.molecule_ids,
-				'concentrations': concentrations,
-				'run_for': run_for})
+				'concentrations': concentrations[id],
+				'run_until': run_until[id]})
 
 	def ready_to_advance(self):
 		"""
@@ -64,6 +99,13 @@ class Outer(Agent):
 				break
 
 		return ready
+
+	def simulation_changes(self):
+		changes = {}
+		for id, simulation in self.simulations.iteritems():
+			changes[id] = simulation['changes']
+
+		return changes
 
 	def send_shutdown(self):
 		for id, simulation in self.simulations.iteritems():
@@ -101,14 +143,10 @@ class Outer(Agent):
 		print('--> ' + topic + ': ' + str(message))
 
 		if message['event'] == event.SIMULATION_INITIALIZED:
-			self.simulations[message['id']] = {
-				'time': 0,
-				'message_id': -1,
-				'last_message_id': -1}
+			self.initialize_simulation(message['id'])
 
 		if message['event'] == event.TRIGGER_EXECUTION:
-			self.time += self.run_for
-			self.send_concentrations(self.concentrations, self.run_for)
+			self.send_concentrations()
 
 		if message['event'] == event.SIMULATION_ENVIRONMENT:
 			if message['id'] in self.simulations:
@@ -123,8 +161,9 @@ class Outer(Agent):
 						if self.shutting_down:
 							self.send_shutdown()
 						else:
-							self.time += self.run_for
-							self.send_concentrations(self.concentrations, self.run_for)
+							changes = self.simulation_changes()
+							self.environment.update_concentrations(changes)
+							self.send_concentrations()
 
 		if message['event'] == event.SHUTDOWN_ENVIRONMENT:
 			if len(self.simulations) > 0:
@@ -138,6 +177,8 @@ class Outer(Agent):
 		if message['event'] == event.SIMULATION_SHUTDOWN:
 			if message['id'] in self.simulations:
 				gone = self.simulations.pop(message['id'], {'id': -1})
+				self.environment.remove_simulation(message['id'])
+
 				print('simulation shutdown: ' + str(gone))
 
 				if not any(self.simulations):
