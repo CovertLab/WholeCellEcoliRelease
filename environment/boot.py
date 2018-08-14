@@ -11,7 +11,7 @@ from environment.inner import Inner
 from environment.stub import SimulationStub, EnvironmentStub
 
 default_kafka_config = {
-	'host': 'localhost:9092',
+	'host': '127.0.0.1:9092',
 	'simulation_send': 'environment_listen',
 	'simulation_receive': 'environment_broadcast',
 	'environment_control': 'environment_control',
@@ -89,7 +89,7 @@ def main():
 
 	parser.add_argument(
 		'--kafka-host',
-		default='localhost:9092',
+		default='127.0.0.1:9092',
 		help='address for Kafka server')
 
 	parser.add_argument(
