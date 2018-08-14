@@ -1,6 +1,8 @@
-import json
-import environment.event as event
+from __future__ import absolute_import, division, print_function
 
+import json
+
+import environment.event as event
 from environment.agent import Agent
 
 class Inner(Agent):
@@ -39,12 +41,12 @@ class Inner(Agent):
 	communicate with the larger environmental simulation through message passing.
 	"""
 
-	def __init__(self, kafka, id, simulation):
+	def __init__(self, kafka_config, id, simulation):
 		"""
 		Initialize the agent.
 
 		Args:
-		    kafka (dict): Kafka configuration information with the following keys:
+		    kafka_config (dict): Kafka configuration information with the following keys:
 		        `host`: the Kafka host.
 		        `simulation_receive`: The topic the environmental simulation will be sending
 		            messages on.
@@ -58,14 +60,14 @@ class Inner(Agent):
 
 		self.simulation = simulation
 		self.simulation.initialize_local_environment()
-		kafka['subscribe_topics'] = [kafka['simulation_receive']]
+		kafka_config['subscribe_topics'] = [kafka_config['simulation_receive']]
 
-		super(Inner, self).__init__(id, kafka)
+		super(Inner, self).__init__(id, kafka_config)
 
 	def initialize(self):
 		""" Announce the existence of this simulation agent to the larger environmental context. """
 
-		self.send(self.kafka['simulation_send'], {
+		self.send(self.kafka_config['simulation_send'], {
 			'event': event.SIMULATION_INITIALIZED,
 			'id': self.id})
 
@@ -96,7 +98,7 @@ class Inner(Agent):
 		"""
 
 		if message['id'] == self.id:
-			print('--> ' + topic + ': ' + str(message))
+			print('--> {}: {}'.format(topic, message))
 
 			if message['event'] == event.ENVIRONMENT_UPDATED:
 				self.simulation.set_local_environment(
@@ -107,7 +109,7 @@ class Inner(Agent):
 				stop = self.simulation.time()
 				changes = self.simulation.get_environment_change()
 
-				self.send(self.kafka['simulation_send'], {
+				self.send(self.kafka_config['simulation_send'], {
 					'event': event.SIMULATION_ENVIRONMENT,
 					'id': self.id,
 					'message_id': message['message_id'],
@@ -115,7 +117,7 @@ class Inner(Agent):
 					'changes': changes})
 
 			if message['event'] == event.SHUTDOWN_SIMULATION:
-				self.send(self.kafka['simulation_send'], {
+				self.send(self.kafka_config['simulation_send'], {
 					'event': event.SIMULATION_SHUTDOWN,
 					'id': self.id})
 

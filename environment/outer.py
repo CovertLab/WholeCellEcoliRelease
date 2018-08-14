@@ -1,6 +1,8 @@
-import json
-import environment.event as event
+from __future__ import absolute_import, division, print_function
 
+import json
+
+import environment.event as event
 from environment.agent import Agent
 
 class Outer(Agent):
@@ -44,16 +46,16 @@ class Outer(Agent):
 	    Returns a dictionary of simulation ids to concentrations coming from the environment.
 	"""
 
-	def __init__(self, kafka, environment):
+	def __init__(self, kafka_config, environment):
 		self.environment = environment
 		self.simulations = {}
 		self.shutting_down = False
 
-		kafka['subscribe_topics'] = [
-			kafka['simulation_send'],
-			kafka['environment_control']]
+		kafka_config['subscribe_topics'] = [
+			kafka_config['simulation_send'],
+			kafka_config['environment_control']]
 
-		super(Outer, self).__init__(id, kafka)
+		super(Outer, self).__init__(id, kafka_config)
 
 	def finalize(self):
 		print('environment shutting down')
@@ -79,7 +81,7 @@ class Outer(Agent):
 
 		for id, simulation in self.simulations.iteritems():
 			simulation['message_id'] += 1
-			self.send(self.kafka['simulation_receive'], {
+			self.send(self.kafka_config['simulation_receive'], {
 				'id': id,
 				'message_id': simulation['message_id'],
 				'event': event.ENVIRONMENT_UPDATED,
@@ -109,7 +111,7 @@ class Outer(Agent):
 
 	def send_shutdown(self):
 		for id, simulation in self.simulations.iteritems():
-			self.send(self.kafka['simulation_receive'], {
+			self.send(self.kafka_config['simulation_receive'], {
 				'id': id,
 				'event': event.SHUTDOWN_SIMULATION})
 
@@ -140,7 +142,7 @@ class Outer(Agent):
 		    have reported back that they have shut down the environment can complete.
 		"""
 
-		print('--> ' + topic + ': ' + str(message))
+		print('--> {}: {}'.format(topic, message))
 
 		if message['event'] == event.SIMULATION_INITIALIZED:
 			self.initialize_simulation(message['id'])

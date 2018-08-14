@@ -1,7 +1,9 @@
-import json
-import environment.event as event
+from __future__ import absolute_import, division, print_function
 
+import json
 from confluent_kafka import Producer, Consumer, KafkaError
+
+import environment.event as event
 
 def delivery_report(err, msg):
 	"""
@@ -15,18 +17,19 @@ def delivery_report(err, msg):
 class Agent(object):
 
 	"""
-	Agent: a process with the ability to send and receive messages using Kafka.
+	Agent: a process with the ability to send and receive messages through Kafka.
 
-	This is a base class that handles all of the details of connecting to both a 
-	Kafka Producer (to send messages) and Consumer (to receive messages). 
+	This is a base class that handles all of the details of connecting to Kafka and the 
+	initialization and configuration of a Producer (to send messages) and Consumer
+	(to receive messages). 
 
 	To subclass Agent:
 
-	* First, a call to `super(Subclass, self).__init__(id, kafka)` must be made in the
-      `__init__` method of the overriding class. `id` is any unique string and identifies
-      this agent with other agents in the system. `kafka` is a configuration dictionary
-      containing information about the kafka host, topics to subscribe to and additional 
-      information. Its details are described in the docstring for `__init__`.
+	* First, a call to super must be made in the `__init__` method of the overriding class.
+	  `id` is any unique string and identifies this agent with other agents in the system.
+	  `kafka_config` is a configuration dictionary containing information about the kafka host,
+	  topics to subscribe to and additional information. Its details are described in the
+	  docstring for `__init__`.
 
 	* Then, you can override `initialize()` to send any messages before the consumer
 	  loop begins.
@@ -43,7 +46,7 @@ class Agent(object):
 	using the configured Kafka Producer.
 	"""
 
-	def __init__(self, id, kafka):
+	def __init__(self, id, kafka_config):
 		"""
 		Initialize the Agent object with a unique id and kafka configuration.
 
@@ -51,27 +54,27 @@ class Agent(object):
 		    id (str): A unique identifier which distinguishes this agent from 
 		        the rest of the agents in the system.
 
-		    kafka (dict): A dictionary containing Kafka configuration information.
+		    kafka_config (dict): A dictionary containing Kafka configuration information.
 		        The relevant keys are:
 
-		        * host (str): The address of the Kafka host.
-		        * subscribe_topics (array[str]): A list of topics to subscribe to. 
-		            If this is an empty array then no consumer will be initialized.
+		        * host (str): The address of the host machine running Kakfa.
+		        * subscribe_topics (array[str]): A list of topics for the Consumer to subscribe. 
+		            to. If this is an empty array then no Consumer will be initialized.
 
                 Additional keys can be provided for use in the overriding agent class
 		        to represent topics for sending messages to. 
 		"""
 
 		self.id = id
-		self.kafka = kafka
+		self.kafka_config = kafka_config
 
 		self.producer = Producer({
-			'bootstrap.servers': self.kafka['host']})
+			'bootstrap.servers': self.kafka_config['host']})
 
-		self.has_consumer = len(self.kafka['subscribe_topics']) > 0
-		if self.has_consumer:
+		self.consumer = None
+		if self.kafka_config['subscribe_topics']:
 			self.consumer = Consumer({
-				'bootstrap.servers': self.kafka['host'],
+				'bootstrap.servers': self.kafka_config['host'],
 				'enable.auto.commit': True,
 				'group.id': 'simulation-' + str(id),
 				'default.topic.config': {
@@ -79,9 +82,9 @@ class Agent(object):
 
 		self.initialize()
 
-		if self.has_consumer:
+		if self.consumer:
 			self.consumer.subscribe(
-				self.kafka['subscribe_topics'])
+				self.kafka_config['subscribe_topics'])
 
 			self.poll()
 
@@ -102,7 +105,7 @@ class Agent(object):
 
 		Once poll is called, the thread will be claimed and any interaction with the 
 		system from this point on will be mediated through message passing. This is called
-		at the end of the base class's `__init__(id, kafka)` method and does not need to be
+		at the end of the base class's `__init__(id, kafka_config)` method and does not need to be
 		called manually by the subclass.
 		"""
 
@@ -115,36 +118,40 @@ class Agent(object):
 				if raw.error().code() == KafkaError._PARTITION_EOF:
 					continue
 				else:
+					print('error in kafka consumer:')
 					print(raw.error())
+
 					self.running = False
 
-			message = json.loads(raw.value().decode('utf-8'))
-
-			if message['event'] == event.GLOBAL_SHUTDOWN:
-				self.shutdown()
 			else:
-				self.receive(raw.topic(), message)
+				message = json.loads(raw.value().decode('utf-8'))
+
+				if message['event'] == event.GLOBAL_SHUTDOWN:
+					self.shutdown()
+				else:
+					self.receive(raw.topic(), message)
 
 	def send(self, topic, message):
 		"""
 		Send a dictionary as a message on the given topic. 
 
 		Args:
-		    topic (str): The Kafka topic to send the message on.
-		    message (dict): A dictionary containing the message to send. This dictionary
-		        needs to be JSON serializable, so must contain only basic types like `str`,
-		        `int`, `float`, `list`, `tuple`, `array`, and `dict`. Any functions or objects
-                present will throw errors.
+			topic (str): The Kafka topic to send the message on.
+			message (dict): A dictionary containing the message to send. This dictionary
+				needs to be JSON serializable, so must contain only basic types like `str`,
+				`int`, `float`, `list`, `tuple`, `array`, and `dict`. Any functions or objects
+				present will throw errors.
 		"""
 
-		print('<-- ' + topic + ': ' + str(message))
+		print('<-- {}: {}'.format(topic, message))
 
-		self.producer.flush()
 		self.producer.poll(0)
 		self.producer.produce(
 			topic,
 			json.dumps(message).encode('utf-8'),
 			callback=delivery_report)
+
+		self.producer.flush()
 
 	def receive(self, topic, message):
 		"""
@@ -153,7 +160,7 @@ class Agent(object):
 		This is the main method that needs to be overridden by a subclass to provide the 
 		behavior for the agent. This method is invoked each time the agent receives a message
 		on one of the topics originally subscribed to, which was supplied in the 
-		kafka['subscribe_topics'] array.
+		kafka_config['subscribe_topics'] array.
 
 		By convention, each message contains an `event` key which can be switched on in this
 		method to trigger a specific response.
@@ -180,7 +187,7 @@ class Agent(object):
 		self.producer.flush()
 		self.producer.poll(0)
 
-		if self.has_consumer:
+		if self.consumer:
 			self.consumer.commit()
 			self.consumer.close()
 

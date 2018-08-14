@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 # constants for use as events in message passing
 
 TRIGGER_EXECUTION = 'TRIGGER_EXECUTION'

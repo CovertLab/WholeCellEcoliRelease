@@ -1,8 +1,10 @@
+from __future__ import absolute_import, division, print_function
+
 import json
 import uuid
 import argparse
-import environment.event as event
 
+import environment.event as event
 from environment.agent import Agent
 from environment.outer import Outer
 from environment.inner import Inner
@@ -16,7 +18,11 @@ default_kafka_config = {
 	'subscribe_topics': []}
 
 class BootOuter(object):
-	def __init__(self, kafka):
+	"""
+	Initialize the `EnvironmentStub`, pass it to the `Outer` agent and launch the process.
+	"""
+
+	def __init__(self, kafka_config):
 		volume = 1
 		concentrations = {
 			'yellow': 5,
@@ -25,46 +31,60 @@ class BootOuter(object):
 			'blue': 12}
 
 		self.environment = EnvironmentStub(volume, concentrations)
-		self.outer = Outer(kafka, self.environment)
+		self.outer = Outer(kafka_config, self.environment)
 
 class BootInner(object):
-	def __init__(self, id, kafka):
+	"""
+	Initialize the `SimulationStub`, pass it to the `Inner` agent and launch the process.
+	"""
+
+	def __init__(self, id, kafka_config):
 		self.id = id
 		self.simulation = SimulationStub()
 		self.inner = Inner(
-			kafka,
+			kafka_config,
 			self.id,
 			self.simulation)
 
 class EnvironmentControl(Agent):
-	def __init__(self, kafka=default_kafka_config):
+	"""
+	Send messages to the `Outer` agent to trigger execution and shutodwn the environment or
+	individual simulations.
+	"""
+
+	def __init__(self, kafka_config=default_kafka_config):
 		id = 'environment_control'
-		super(EnvironmentControl, self).__init__(id, kafka)
+		super(EnvironmentControl, self).__init__(id, kafka_config)
 
 	def trigger_execution(self):
-		self.send(self.kafka['environment_control'], {
+		self.send(self.kafka_config['environment_control'], {
 			'event': event.TRIGGER_EXECUTION})
 
 	def shutdown_environment(self):
-		self.send(self.kafka['environment_control'], {
+		self.send(self.kafka_config['environment_control'], {
 			'event': event.SHUTDOWN_ENVIRONMENT})
 
 	def shutdown_simulation(self, id):
-		self.send(self.kafka['simulation_receive'], {
+		self.send(self.kafka_config['simulation_receive'], {
 			'event': event.SHUTDOWN_SIMULATION,
 			'id': id})
 
-if __name__ == '__main__':
+def main():
+	"""
+	Parse the arguments for the command line interface to the simulation and launch the
+	respective commands.
+	"""
+
 	parser = argparse.ArgumentParser(
 		description='Boot the various agents for the environmental context simulation')
 
 	parser.add_argument(
-		'role',
-		help='which role to boot')
+		'command',
+		choices=['inner', 'outer', 'trigger', 'shutdown'],
+		help='which command to boot')
 
 	parser.add_argument(
 		'--id',
-		default='None',
 		help='unique identifier for simulation agent')
 
 	parser.add_argument(
@@ -88,28 +108,35 @@ if __name__ == '__main__':
 		help='topic the simulations will send messages on')
 
 	args = parser.parse_args()
-	kafka = {
+	kafka_config = {
 		'host': args.kafka_host,
 		'environment_control': args.environment_control,
 		'simulation_receive': args.simulation_receive,
 		'simulation_send': args.simulation_send,
 		'subscribe_topics': []}
 
-	if args.role == 'inner':
-		inner = BootInner(args.id, kafka)
+	if args.command == 'inner':
+		if not args.id:
+			raise ValueError('--id must be supplied for inner command')
 
-	elif args.role == 'outer':
-		outer = BootOuter(kafka)
+		inner = BootInner(args.id, kafka_config)
 
-	elif args.role == 'trigger':
-		control = EnvironmentControl(kafka)
+	elif args.command == 'outer':
+		outer = BootOuter(kafka_config)
+
+	elif args.command == 'trigger':
+		control = EnvironmentControl(kafka_config)
 		control.trigger_execution()
 		control.shutdown()
 
-	elif args.role == 'shutdown':
-		control = EnvironmentControl(kafka)
-		if args.id == 'None':
+	elif args.command == 'shutdown':
+		control = EnvironmentControl(kafka_config)
+
+		if not args.id:
 			control.shutdown_environment()
 		else:
 			control.shutdown_simulation(args.id)
 		control.shutdown()
+
+if __name__ == '__main__':
+	main()
