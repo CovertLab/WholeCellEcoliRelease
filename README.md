@@ -152,39 +152,35 @@ This command will run forever until you `Ctrl-C` to kill it once you see that al
 Using the manual runscripts
 ---------------------------
 
-These scripts will run portions of the fitter + simulation + analysis work directly without Fireworks. They're handy for development, e.g. running under the PyCharm debugger. They all have command line interfaces.
+These scripts will run the fitter, simulation, and analysis steps directly without Fireworks. They're handy for development, e.g. running under the PyCharm debugger. They have command line interfaces built on `argparse`, which means for one thing that you can use shorter option names as long as they're unambiguous.
 
-Use the `-h` or `--help` switch to get documentation on the parameters and the short and long parameter names.
+Use the `-h` or `--help` switch to get complete, up-to-date documentation on the options.
 
 
 To run all the parameter-fitter steps:
 ```bash
-python runscripts/manual/runFitter.py [-h] [--verbose] [--cpus CPUS] [--cached] [--debug] [sim_outdir]
+python runscripts/manual/runFitter.py [-h] [--cpus CPUS] [--cached] [--debug] [sim_outdir]
 ```
 
 To do a simple simulation run:
 
 ```bash
-python runscripts/manual/runSim.py [-h] [--verbose] [--variant VARIANT_TYPE FIRST_INDEX LAST_INDEX] [sim_dir]
+python runscripts/manual/runSim.py [-h] [--variant VARIANT_TYPE FIRST_INDEX LAST_INDEX] [sim_dir]
 ```
 
-> [Note: runSim.py does not yet run all the steps needed to write all the files needed to run analysis plots.]
-
-To run all the analysis plots on the given `sim_dir`, which defaults to the most recent simulation run:
+To run all the analysis plots on a given `sim_dir`:
 
 ```bash
-python runscripts/manual/analysisCohort.py [-h] [--verbose] [--plot PLOT [PLOT ...]] [--output_prefix OUTPUT_PREFIX] [--variant_index VARIANT_INDEX] [sim_dir]
+python runscripts/manual/analysisCohort.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output_prefix OUTPUT_PREFIX] [--variant_index VARIANT_INDEX] [sim_dir]
 
-python runscripts/manual/analysisMultigen.py [-h] [--verbose] [--plot PLOT [PLOT ...]] [--output_prefix OUTPUT_PREFIX] [--variant_index VARIANT_INDEX] [--seed SEED] [sim_dir]
+python runscripts/manual/analysisMultigen.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output_prefix OUTPUT_PREFIX] [--variant_index VARIANT_INDEX] [--seed SEED] [sim_dir]
 
-python runscripts/manual/analysisSingle.py [-h] [--verbose] [--plot PLOT [PLOT ...]] [--output_prefix OUTPUT_PREFIX] [--variant_index VARIANT_INDEX] [--seed SEED] [--generation GENERATION] [--daughter DAUGHTER] [sim_dir]
+python runscripts/manual/analysisSingle.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output_prefix OUTPUT_PREFIX] [--variant_index VARIANT_INDEX] [--seed SEED] [--generation GENERATION] [--daughter DAUGHTER] [sim_dir]
 
-python runscripts/manual/analysisVariant.py [-h] [--verbose] [--plot PLOT [PLOT ...]] [--output_prefix OUTPUT_PREFIX] [sim_dir]
+python runscripts/manual/analysisVariant.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output_prefix OUTPUT_PREFIX] [sim_dir]
 ```
 
 If you default the parameters, it will pick the latest simulation directory, the first variant, the first generation, and so on.
-
-Set the environment variable `WC_ANALYZE_FAST` to run the analysis scripts in parallel processes.
 
 Set the environment variable `DEBUG_GC=1` to check for Python memory leaks in the analysis scripts.
 

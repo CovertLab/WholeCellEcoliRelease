@@ -16,6 +16,7 @@ import datetime
 import errno
 import re
 import os
+import pprint as pp
 import time
 
 import wholecell
@@ -112,8 +113,9 @@ class ScriptBase(object):
 
 	def list_variant_dirs(self, sim_path):
 		"""List the available variant subdirectories of the given sim_path,
+		in alphabetical order,
 		returning for each a tuple (subdir_name, variant_type, variant_index),
-		with the variant_index as an int.
+		where the variant_index is an int.
 		"""
 		available = []
 
@@ -151,12 +153,21 @@ class ScriptBase(object):
 		adds the default value to the help text.
 		"""
 		default = bool(default)
+		examples = 'true or 1' if default else 'false or 0'
 		group = parser.add_mutually_exclusive_group()
 		group.add_argument('--' + name, nargs='?', default=default,
 			const='true',  # needed for nargs='?'
 			type=str_to_bool,
-			help='{}. Default = {}'.format(help, default))
+			help='({}, {}) {}'.format('bool', examples, help))
 		group.add_argument('--no_' + name, dest=name, action='store_false')
+
+	def define_option(self, parser, name, datatype, default, help):
+			"""Add an option with the given name and datatype to the parser."""
+			parser.add_argument('--' + name,
+				type=datatype,
+				default=default,
+				help='({}, {}) {}'.format(datatype.__name__, default, help)
+				)
 
 	def define_parameter_sim_dir(self, parser):
 		"""Add a `sim_dir` parameter to the command line parser. parse_args()
@@ -176,7 +187,8 @@ class ScriptBase(object):
 	def define_parameter_variant_index(self, parser):
 		"""Add a `variant_index` parameter to the command line parser.
 		parse_args() will then use the `variant_index` and `sim_path`
-		arguments, call find_variant_dir(), and set `args.variant_dir`.
+		arguments, call find_variant_dir(), and set `args.variant_dir` to the
+		first matching variant.
 
 		Call this in overridden define_parameters() methods as needed.
 		"""
@@ -255,8 +267,7 @@ class ScriptBase(object):
 			location = ' at ' + location
 
 		print '{}: {}{}'.format(time.ctime(), self.description(), location)
-		if args.verbose:
-			print '    args: {}'.format(args)
+		pp.pprint({'Arguments': vars(args)})
 
 		start_sec = time.clock()
 		self.run(args)

@@ -35,6 +35,8 @@ Workflow options:
 		expression is not fit to protein synthesis demands
 	DISABLE_RNAPOLY_CAPACITY_FITTING (int, "0"): if nonzero, RNA polymerase
 		expression is not fit to RNA synthesis demands
+	WC_ANALYZE_FAST (anything, --): if set, run each analysis plot in a separate
+		process
 
 Simulation parameters:
 	N_GENS (int, "1"): the number of generations to be simulated
@@ -68,8 +70,6 @@ Additional variables:
 
 Environment variables that matter when running the workflow:
 	DEBUG_GC (int, "0"): if nonzero, enable leak detection in the analysis plots
-	WC_ANALYZE_FAST (anything, --): if set, run each analysis plot in a separate
-		process
 '''
 
 from fireworks import Firework, LaunchPad, Workflow, ScriptTask
@@ -145,6 +145,18 @@ if not RUN_AGGREGATE_ANALYSIS:
 WC_ECOLI_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_DIRECTORY = filepath.makedirs(WC_ECOLI_DIRECTORY, "out")
 CACHED_SIM_DATA_DIRECTORY = os.path.join(WC_ECOLI_DIRECTORY, "cached")
+
+# To run each analysis plot in a separate process, ask the analysis Firetasks
+# for several CPUs (it will clip to the number available) and allocate multiple
+# CPUs from SLURM via the Fireworks Queue Adaptor. Otherwise, let the qadapter
+# YAML file request the number of CPUs so we can tune it to ask for extra CPUs
+# in order to get proportionally more RAM, e.g. after running many generations.
+if "WC_ANALYZE_FAST" in os.environ:
+	analysis_cpus = 8
+	analysis_q_cpus = {"cpus_per_task": analysis_cpus}
+else:
+	analysis_cpus = 1
+	analysis_q_cpus = {}
 
 now = datetime.datetime.now()
 SUBMISSION_TIME = "%04d%02d%02d.%02d%02d%02d.%06d" % (
@@ -244,10 +256,7 @@ fw_name = "FitSimDataTask_Level_1"
 if VERBOSE_QUEUE:
 	print "Queueing {}".format(fw_name)
 
-if PARALLEL_FITTER:
-	cpusForFitter = 8
-else:
-	cpusForFitter = 1
+cpusForFitter = 8 if PARALLEL_FITTER else 1
 fw_fit_level_1 = Firework(
 	FitSimDataTask(
 		fit_level = 1,
@@ -421,10 +430,11 @@ if RUN_AGGREGATE_ANALYSIS:
 			input_directory = os.path.join(INDIV_OUT_DIRECTORY),
 			input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
 			output_plots_directory = VARIANT_PLOT_DIRECTORY,
+			cpus = analysis_cpus,
 			metadata = metadata,
 			),
 		name = fw_name,
-		spec = {"_queueadapter": {"job_name": fw_name}, "_priority":5}
+		spec = {"_queueadapter": dict(analysis_q_cpus, job_name=fw_name), "_priority":5}
 		)
 	wf_fws.append(fw_variant_analysis)
 
@@ -488,10 +498,11 @@ for i in VARIANTS_TO_RUN:
 				input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
 				input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
 				output_plots_directory = COHORT_PLOT_DIRECTORY,
+				cpus = analysis_cpus,
 				metadata = metadata,
 				),
 			name = fw_name,
-			spec = {"_queueadapter": {"job_name": fw_name}, "_priority":4}
+			spec = {"_queueadapter": dict(analysis_q_cpus, job_name=fw_name), "_priority":4}
 			)
 		wf_fws.append(fw_this_variant_cohort_analysis)
 
@@ -514,10 +525,11 @@ for i in VARIANTS_TO_RUN:
 					input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
 					input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
 					output_plots_directory = SEED_PLOT_DIRECTORY,
+					cpus = analysis_cpus,
 					metadata = metadata,
 					),
 				name = fw_name,
-				spec = {"_queueadapter": {"job_name": fw_name}, "_priority":3}
+				spec = {"_queueadapter": dict(analysis_q_cpus, job_name=fw_name), "_priority":3}
 				)
 			wf_fws.append(fw_this_variant_this_seed_this_analysis)
 
@@ -629,10 +641,11 @@ for i in VARIANTS_TO_RUN:
 							input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
 							input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
 							output_plots_directory = CELL_PLOT_OUT_DIRECTORY,
+							cpus = analysis_cpus,
 							metadata = metadata,
 							),
 						name = fw_name,
-						spec = {"_queueadapter": {"job_name": fw_name}, "_priority":2}
+						spec = {"_queueadapter": dict(analysis_q_cpus, job_name=fw_name), "_priority":2}
 						)
 
 					wf_fws.append(fw_this_variant_this_gen_this_sim_analysis)

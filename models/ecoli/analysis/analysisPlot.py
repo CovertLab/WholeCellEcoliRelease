@@ -26,7 +26,7 @@ from __future__ import division
 
 import abc
 import matplotlib as mp
-from wholecell.utils import memory_debug
+from wholecell.utils import memory_debug, parallelization
 
 
 class AnalysisPlot(object):
@@ -37,8 +37,14 @@ class AnalysisPlot(object):
 	Call main() to run an analysis plot for a Firetask.
 
 	Use the environment variable 'DEBUG_GC' to enable memory leak debugging.
+
+	Inputs:
+		cpus: allotted number of CPU cores; default (0) => all available cores
 	"""
 	__metaclass__ = abc.ABCMeta
+
+	def __init__(self, cpus=0):
+		self.cpus = cpus if cpus > 0 else parallelization.cpus()
 
 	@abc.abstractmethod
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile,
@@ -55,8 +61,8 @@ class AnalysisPlot(object):
 
 	@classmethod
 	def main(cls, inputDir, plotOutDir, plotOutFileName, simDataFile,
-			validationDataFile=None, metadata=None):
+			validationDataFile=None, metadata=None, cpus=0):
 		"""Run an analysis plot for a Firetask."""
-		instance = cls()
+		instance = cls(cpus)
 		instance.plot(inputDir, plotOutDir, plotOutFileName, simDataFile,
 			validationDataFile, metadata)

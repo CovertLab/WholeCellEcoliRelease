@@ -3,9 +3,6 @@ Run all multigen analysis plots for initial sim #0 of a given variant of a
 given simulation.
 
 Run with '-h' for command line help.
-
-Set the environment variable WC_ANALYZE_FAST to run multiple analysis scripts
-in parallel processes.
 """
 
 from __future__ import absolute_import
@@ -56,7 +53,8 @@ class AnalysisMultigen(AnalysisBase):
 			metadata=args.metadata,
 			plots_to_run=args.plot,
 			output_filename_prefix=args.output_prefix,
-		)
+			cpus=args.cpus,
+			)
 		task.run_task({})
 
 

@@ -34,7 +34,6 @@ class AnalysisCohort(AnalysisBase):
 		input_variant_directory = os.path.join(sim_path, variant_dir_name)
 		sim_data_modified = os.path.join(input_variant_directory, 'kb',
 			constants.SERIALIZED_SIM_DATA_MODIFIED)
-		# TODO(jerry): Load simData_Modified into metadata?
 		output_dir = filepath.makedirs(input_variant_directory, 'plotOut')
 
 		task = AnalysisCohortTask(
@@ -45,7 +44,8 @@ class AnalysisCohort(AnalysisBase):
 			metadata=args.metadata,
 			plots_to_run=args.plot,
 			output_filename_prefix=args.output_prefix,
-		)
+			cpus=args.cpus,
+			)
 		task.run_task({})
 
 
