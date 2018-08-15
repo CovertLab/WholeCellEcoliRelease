@@ -12,7 +12,7 @@ Kafka is built on Zookeeper, which is a platform for coordinating access to an a
 
 If you have access to a remote Kafka cluster, you can just specify the host as an option to the various boot scripts supplied here:
 
-    python agent/boot.py --host ip.to.remote.cluster:9092
+    python -m agent.boot --host ip.to.remote.cluster:9092
 
 If you don't have access to a remote cluster, you can install Kafka locally by downloading the packages [here](https://www.apache.org/dyn/closer.cgi?path=/kafka/2.0.0/kafka_2.11-2.0.0.tgz). 
 
@@ -42,11 +42,11 @@ The available roles are
 
 In the first tab start the environmental context:
 
-    0> python agent/boot.py outer
+    0> python -m agent.boot outer
 
 This has started the environmental process and is waiting for simulations initialize and register. Let's do that now. In a new tab:
 
-    1> python agent/boot.py inner --id 1
+    1> python -m agent.boot inner --id 1
 
 When starting individual simulations the `id` argument is required. Assigning a unique id to each simulation allows the environment to communicate in specific ways with each simulation. You will see a message sent from the newly initialized simulation on the `environment_listen` topic:
 
@@ -58,7 +58,7 @@ and also if you go back to the environment tab you will see it has received a me
 
 Let's start another one in another tab:
 
-    2> python agent/boot.py inner --id 2
+    2> python -m agent.boot inner --id 2
     <-- environment_listen: {'event': 'SIMULATION_INITIALIZED', 'id': '2'}
 
 We will see this message has also reached the environmental process:
@@ -67,7 +67,7 @@ We will see this message has also reached the environmental process:
 
 Now that we have a couple of simulations running, let's start the execution. In yet another tab (the `control` tab):
 
-    3> python agent/boot.py trigger
+    3> python -m agent.boot trigger
 
 You will see this sends a message to the `environment_control` topic:
 
@@ -94,7 +94,7 @@ The environment will wait until it has received messages from all its registered
 
 Once this has gone on awhile and you are ready to stop the simulation, you can call shutdown from the command tab:
 
-    3> python agent/boot.py shutdown
+    3> python -m agent.boot shutdown
 
 This sends an `ENVIRONMENT_SHUTDOWN` message on the `environment_control` topic:
 
