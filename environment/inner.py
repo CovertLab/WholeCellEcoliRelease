@@ -116,9 +116,12 @@ class Inner(Agent):
 					'time': stop,
 					'changes': changes})
 
-			if message['event'] == event.SHUTDOWN_SIMULATION:
+			elif message['event'] == event.SHUTDOWN_SIMULATION:
 				self.send(self.kafka_config['simulation_send'], {
 					'event': event.SIMULATION_SHUTDOWN,
 					'inner_id': self.id})
 
 				self.shutdown()
+
+			else:
+				print('unexpected event {}: {}'.format(message['event'], message))

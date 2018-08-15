@@ -67,7 +67,7 @@ class EnvironmentControl(Agent):
 	def shutdown_simulation(self, id):
 		self.send(self.kafka_config['simulation_receive'], {
 			'event': event.SHUTDOWN_SIMULATION,
-			'id': id})
+			'inner_id': id})
 
 def main():
 	"""

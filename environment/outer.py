@@ -94,6 +94,7 @@ class Outer(Agent):
 		in which case the environment can proceed to the next step.
 		"""
 
+		# TODO(Ryan): replace this with something that isn't O(n^2)
 		ready = True
 		for id, simulation in self.simulations.iteritems():
 			if simulation['message_id'] > simulation['last_message_id']:
@@ -142,10 +143,10 @@ class Outer(Agent):
 		if message['event'] == event.SIMULATION_INITIALIZED:
 			self.initialize_simulation(message['inner_id'])
 
-		if message['event'] == event.TRIGGER_EXECUTION:
+		elif message['event'] == event.TRIGGER_EXECUTION:
 			self.send_concentrations()
 
-		if message['event'] == event.SIMULATION_ENVIRONMENT:
+		elif message['event'] == event.SIMULATION_ENVIRONMENT:
 			if message['inner_id'] in self.simulations:
 				simulation = self.simulations[message['inner_id']]
 
@@ -162,7 +163,7 @@ class Outer(Agent):
 							self.environment.update_concentrations(changes)
 							self.send_concentrations()
 
-		if message['event'] == event.SHUTDOWN_ENVIRONMENT:
+		elif message['event'] == event.SHUTDOWN_ENVIRONMENT:
 			if len(self.simulations) > 0:
 				if self.ready_to_advance():
 					self.send_shutdown()
@@ -171,12 +172,15 @@ class Outer(Agent):
 			else:
 				self.shutdown()
 
-		if message['event'] == event.SIMULATION_SHUTDOWN:
+		elif message['event'] == event.SIMULATION_SHUTDOWN:
 			if message['inner_id'] in self.simulations:
 				gone = self.simulations.pop(message['inner_id'], {'inner_id': -1})
 				self.environment.remove_simulation(message['inner_id'])
 
 				print('simulation shutdown: ' + str(gone))
 
-				if not any(self.simulations):
+				if not self.simulations:
 					self.shutdown()
+
+		else:
+			print('unexpected event {}: {}'.format(message['event'], message))

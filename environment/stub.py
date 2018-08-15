@@ -17,6 +17,8 @@ class SimulationStub(object):
 	def __init__(self):
 		self.local_time = 0
 		self.local_set = False
+		self.concentrations = {}
+		self.environment_change = {}
 
 	def time(self):
 		return self.local_time
