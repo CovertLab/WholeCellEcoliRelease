@@ -4,11 +4,11 @@ import json
 import uuid
 import argparse
 
-import environment.event as event
-from environment.agent import Agent
-from environment.outer import Outer
-from environment.inner import Inner
-from environment.stub import SimulationStub, EnvironmentStub
+import agent.event as event
+from agent.agent import Agent
+from agent.outer import Outer
+from agent.inner import Inner
+from agent.stub import SimulationStub, EnvironmentStub
 
 default_kafka_config = {
 	'host': '127.0.0.1:9092',

@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 import json
 from confluent_kafka import Producer, Consumer, KafkaError
 
-import environment.event as event
+import agent.event as event
 
 def delivery_report(err, msg):
 	"""
