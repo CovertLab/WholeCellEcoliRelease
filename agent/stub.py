@@ -11,7 +11,7 @@ class SimulationStub(object):
 	This class is not meant to be functional but rather to implement in the simplest way 
 	the interface the agents expect when interacting with the simulation.
 
-	Full interface documented in `environment/inner.py`.
+	Full interface documented in `agent/inner.py`.
 	"""
 
 	def __init__(self):
@@ -58,7 +58,7 @@ class EnvironmentStub(object):
 	any environmental simulation must have to fulfill the conditions of being a coordinating
 	external context for integrating the changes of each simulation.
 
-	Full interface described in `environment/outer.py`.
+	Full interface described in `agent/outer.py`.
 	"""
 
 	def __init__(self, volume, concentrations):
