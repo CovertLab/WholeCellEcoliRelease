@@ -18,8 +18,13 @@ default_kafka_config = {
 	'subscribe_topics': []}
 
 class BootOuter(object):
+
 	"""
 	Initialize the `EnvironmentStub`, pass it to the `Outer` agent and launch the process.
+
+	This is a demonstration of how to initialize an Outer component. In the place of 
+	`EnvironmentStub` you would substitute your own environment class that meets the interface
+	defined in `Outer`. 
 	"""
 
 	def __init__(self, kafka_config):
@@ -34,8 +39,14 @@ class BootOuter(object):
 		self.outer = Outer(kafka_config, self.environment)
 
 class BootInner(object):
+
 	"""
 	Initialize the `SimulationStub`, pass it to the `Inner` agent and launch the process.
+
+	This is a demonstration of how to initialize an Inner component. When creating your 
+	own simulation you would supply a class that meets the same interface as the `SimulationStub`
+	that would be driven by the Inner agent in response to messages from its corresponding 
+	Outer agent.
 	"""
 
 	def __init__(self, id, kafka_config):
@@ -47,9 +58,12 @@ class BootInner(object):
 			self.simulation)
 
 class EnvironmentControl(Agent):
+
 	"""
-	Send messages to the `Outer` agent to trigger execution and shutodwn the environment or
-	individual simulations.
+	Send messages to the other agents in the system to trigger execution and/or shutdown
+	the Outer agent (which sends messages to shutdown all the associated Inner agents) or
+	shutdown specific Inner agents directly (which then report back to the Outer agent and
+	then terminate).
 	"""
 
 	def __init__(self, kafka_config=default_kafka_config):
