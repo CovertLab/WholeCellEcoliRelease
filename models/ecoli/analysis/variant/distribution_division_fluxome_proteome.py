@@ -10,11 +10,10 @@ import numpy as np
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import units, parallelization
+from wholecell.utils import parallelization, units
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from scipy.stats import pearsonr
-from multiprocessing import Pool
 
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
 from models.ecoli.analysis import variantAnalysisPlot
@@ -196,7 +195,6 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		if not os.path.exists(plotOutDir):
 			os.mkdir(plotOutDir)
 
-		print "Loading validation data"
 		validation_data = cPickle.load(open(validationDataFile, "rb"))
 
 		schmidtCounts = validation_data.protein.schmidt2015Data["glucoseCounts"]
@@ -207,14 +205,9 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		toyaFluxesDict = dict(zip(toyaReactions, toyaFluxes))
 		toyaStdevDict = dict(zip(toyaReactions, toyaStdev))
 
-		print "Getting simulation paths"
 		ap = AnalysisPaths(inputDir, variant_plot = True)
 
-
-		print "Initializing worker pool"
-		pool = Pool(processes=parallelization.plotter_cpus())
-
-		print "Begin processing"
+		pool = parallelization.pool(processes=self.cpus)
 
 		# Get simulation time data
 		start = time.time()

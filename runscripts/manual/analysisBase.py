@@ -12,7 +12,7 @@ import cPickle
 import os
 import sys
 
-from wholecell.utils import constants, scriptBase
+from wholecell.utils import constants, scriptBase, parallelization
 
 
 class AnalysisBase(scriptBase.ScriptBase):
@@ -57,6 +57,11 @@ class AnalysisBase(scriptBase.ScriptBase):
 		parser.add_argument('-o', '--output_prefix', default='',
 			help='Prefix for all the output plot filenames.')
 
+		parser.add_argument('-c', '--cpus', type=int, default=1,
+			help='The number of CPU processes to use. The given value will be'
+				 ' limited to the available number of CPU cores. Default = 1.'
+			)
+
 	def parse_args(self):
 		"""Parse the command line args into an `argparse.Namespace`, including
 		the `sim_dir` and `sim_path` args; sanitize args.plot; attach the
@@ -88,6 +93,8 @@ class AnalysisBase(scriptBase.ScriptBase):
 			metadata = args.metadata
 			metadata['variant_function'] = variant_type
 			metadata['variant_index'] = variant_index
+
+		args.cpus = max(min(args.cpus, parallelization.cpus()), 1)
 
 		return args
 

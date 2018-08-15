@@ -15,7 +15,6 @@ from __future__ import division
 import cPickle
 import errno
 import os
-import pprint as pp
 
 from wholecell.fireworks.firetasks.simulation import SimulationTask
 from wholecell.fireworks.firetasks import VariantSimDataTask
@@ -37,6 +36,12 @@ class RunSimulation(scriptBase.ScriptBase):
 				' unambiguous prefixes.)'.format(self.description()))
 
 	def define_parameters(self, parser):
+		def add_option(name, key, datatype, help):
+			"""Add an option with the given name and datatype to the parser using
+			DEFAULT_SIMULATION_KWARGS[key] for the default value.
+			"""
+			default = DEFAULT_SIMULATION_KWARGS[key]
+			self.define_option(parser, name, datatype, default, help)
 		def add_bool_option(name, key, help):
 			"""Add a boolean option parameter with the given name to the parser
 			using DEFAULT_SIMULATION_KWARGS[key] for the default value. The CLI
@@ -55,20 +60,39 @@ class RunSimulation(scriptBase.ScriptBase):
 				 ' models/ecoli/sim/variants/__init__.py for the possible'
 				 ' variant choices. Default = wildtype 0 0')
 
+		add_option('length_sec', 'lengthSec', int,
+			help='The maximum simulation time, in seconds. Useful for short'
+				 ' simulations. Default is 3 hours'
+			)
+		add_option('timestep_safety_frac', 'timeStepSafetyFraction', float,
+			help='Scale the time step by this factor if conditions are'
+				 ' favorable, up the the limit of the max time step'
+			)
+		add_option('timestep_max', 'maxTimeStep', float,
+			help='the maximum time step, in seconds'
+			)
+		add_option('timestep_update_freq', 'updateTimeStepFreq', int,
+			help='frequency at which the time step is updated'  # TODO: explain
+			)
+
 		add_bool_option('mass_distribution', 'massDistribution',
-			help='if True, a mass coefficient is drawn from a normal distribution'
-				 ' centered on 1; otherwise it is set equal to 1')
+			help='If true, a mass coefficient is drawn from a normal distribution'
+				 ' centered on 1; otherwise it is set equal to 1'
+			)
 		add_bool_option('growth_rate_noise', 'growthRateNoise',
-			help='if True, a growth rate coefficient is drawn from a normal'
-				 ' distribution centered on 1; otherwise it is set equal to 1')
+			help='If true, a growth rate coefficient is drawn from a normal'
+				 ' distribution centered on 1; otherwise it is set equal to 1'
+			)
 		add_bool_option('d_period_division', 'dPeriodDivision',
-			help='if True, ends simulation once D period has occurred after'
+			help='If true, ends simulation once D period has occurred after'
 				 ' chromosome termination; otherwise simulation terminates once'
-				 ' a given mass has been added to the cell')
+				 ' a given mass has been added to the cell'
+			)
 		add_bool_option('translation_supply', 'translationSupply',
-			help='if True, the ribosome elongation rate is limited by the'
+			help='If true, the ribosome elongation rate is limited by the'
 				 ' condition specific rate of amino acid supply; otherwise the'
-				 ' elongation rate is set by condition')
+				 ' elongation rate is set by condition'
+			)
 
 	def parse_args(self):
 		args = super(RunSimulation, self).parse_args()
@@ -88,8 +112,6 @@ class RunSimulation(scriptBase.ScriptBase):
 
 		variant_type = args.variant[0]
 		variants_to_run = xrange(int(args.variant[1]), int(args.variant[2]) + 1)
-
-		pp.pprint({'Sim parameters': vars(args)})
 
 		# Write the metadata file.
 		metadata = {
@@ -151,10 +173,10 @@ class RunSimulation(scriptBase.ScriptBase):
 				input_sim_data=variant_sim_data_modified_file,
 				output_directory=cell_sim_out_directory,
 				seed=j,
-				# length_sec=wc_lengthsec,  # TODO(jerry) int option
-				# timestep_safety_frac=timestep_safety_frac,  # TODO(jerry) float option
-				# timestep_max=timestep_max,  # TODO(jerry) float option
-				# timestep_update_freq=timestep_update_freq,  # TODO(jerry) int option
+				length_sec=args.length_sec,
+				timestep_safety_frac=args.timestep_safety_frac,
+				timestep_max=args.timestep_max,
+				timestep_update_freq=args.timestep_update_freq,
 				mass_distribution=args.mass_distribution,
 				growth_rate_noise=args.growth_rate_noise,
 				d_period_division=args.d_period_division,
