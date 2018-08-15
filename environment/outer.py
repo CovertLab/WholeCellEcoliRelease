@@ -8,21 +8,21 @@ from environment.agent import Agent
 class Outer(Agent):
 
 	"""
-	Outer: coordinate the communication between individual simulations and the larger
-	environmental context.
+	Outer: coordinate the communication between inner agents running their individual simulations
+	and the containing environmental context.
 
 	This class represents the larger environmental context for each of the individual simulation
-	agents. The general flow is that each simulation will declare its existence to the 
-	environment until the environment receives a signal from the control process to begin execution.
-	Once this signal is received the environment will broadcast the local environmental
-	concentrations to each simulation, at which point they will perform their local calculations
-	and report back with their updated local environment. Once the environmental context receives
-	a message from each simulation these changes are integrated, and the new updated environmental
-	concentrations will be sent back. This loop will continue until the environment receives a 
-	message to shutdown, when it will send a message to each simulation to shutdown and wait for
+	agents. The general flow is that each inner agent will declare its existence to the 
+	outer agent until the outer agent receives a signal from the control process to begin execution.
+	Once this signal is received the outer agent will broadcast the local environmental
+	concentrations to each inner agent, at which point they will perform their local calculations
+	and report back with their updated local environment. Once the outer agent receives
+	a message from each inner agent these changes are integrated, and the newly updated environmental
+	concentrations will be sent back. This loop will continue until the outer agent receives a 
+	message to shutdown, when it will send a message to each inner agent to shutdown and wait for
 	acknowledgements, at which point it will shutdown itself.
 
-	Simulations may also be added and removed while the execution is running without interruption.
+	Inner agents may also be added and removed while the execution is running without interruption.
 
 	The interaction with the environmental simulation is mediated through an interface defined
 	by the following functions:
@@ -74,7 +74,7 @@ class Outer(Agent):
 		self.environment.add_simulation(id)
 
 	def send_concentrations(self):
-		""" Send updated concentrations to each individual simulation agent. """
+		""" Send updated concentrations to each inner agent. """
 
 		concentrations = self.environment.get_concentrations()
 		run_until = self.environment.run_until()
@@ -90,8 +90,8 @@ class Outer(Agent):
 
 	def ready_to_advance(self):
 		"""
-		Predicate to determine if the environment has heard back from all known simulations,
-		in which case the environment can proceed to the next step.
+		Predicate to determine if the outer agent has heard back from all known inner agents,
+		in which case the outer agent can proceed to the next step.
 		"""
 
 		# TODO(Ryan): replace this with something that isn't O(n^2)
@@ -114,28 +114,28 @@ class Outer(Agent):
 
 	def receive(self, topic, message):
 		"""
-		Receive messages from associated simulation agents.
+		Receive messages from associated inner agents.
 
-		The environment receives messages from both its associated simulation agents and also
+		The environment receives messages from both its associated inner agents and also
 		the control agent.
 
 		Control messages:
 
-		* TRIGGER_EXECUTION: Send messages to all associated simulations to begin execution.
-		* SHUTDOWN_ENVIRONMENT: Send messages to simulations notifying them that the environment
-		    is shutting, and wait for acknowledgement before exiting.
+		* TRIGGER_EXECUTION: Send messages to all registered inner agents to begin execution.
+		* SHUTDOWN_ENVIRONMENT: Send messages to inner agents notifying them that the outer agent
+		    is shutting down, and wait for acknowledgement before exiting.
 
 		Simulation messages:
 
-		* SIMULATION_INITIALIZED: Registers inner simulations that will be driven once the
+		* SIMULATION_INITIALIZED: Registers inner agents that will be driven once the
 		    TRIGGER_EXECUTION event is received.
-		* SIMULATION_ENVIRONMENT: Received from each simulation when it has computed its 
-		    environmental changes up to the specified `run_until`. The environment will wait
+		* SIMULATION_ENVIRONMENT: Received from each inner agent when it has computed its 
+		    environmental changes up to the specified `run_until`. The outer agent will wait
 		    until it has heard from each simulation, integrate their changes and then calculate
-		    the new local environment for each simulation and respond with an `ENVIRONMENT_UPDATED`
+		    the new local environment for each inner agent and respond with an `ENVIRONMENT_UPDATED`
 		    message.
-		* SIMULATION_SHUTDOWN: Received when the simulation has completed. Once all simulations
-		    have reported back that they have shut down the environment can complete.
+		* SIMULATION_SHUTDOWN: Received when an inner agent has completed. Once all inner agents
+		    have reported back that they have shut down the outer agent can complete.
 		"""
 
 		print('--> {}: {}'.format(topic, message))

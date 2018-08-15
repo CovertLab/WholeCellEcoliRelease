@@ -11,7 +11,7 @@ class Inner(Agent):
 	Inner: acts as an independent simulation in a larger environmental context.
 
 	This class wraps a simulation and mediates the communication between messages
-	received from the larger environmental context and the operation of the simulation.
+	received from the coordinating outer agent and the operation of the simulation.
 
 	The interface a simulation must provide to work inside of this class is composed
 	of the following methods:
@@ -36,9 +36,9 @@ class Inner(Agent):
 	* simulation.finalize()
 	    Release any resources and perform any final cleanup.
 
-	If this interface is fulfilled, the simulation can be an Agent in the larger
-	environmental simulation. Each Inner Agent will be run in its own thread/process and
-	communicate with the larger environmental simulation through message passing.
+	If this interface is fulfilled, the simulation can be an agent in the larger
+	environmental simulation. Each inner agent will be run in its own thread/process and
+	communicate with the outer agent through message passing.
 	"""
 
 	def __init__(self, kafka_config, id, simulation):
@@ -48,11 +48,10 @@ class Inner(Agent):
 		Args:
 		    kafka_config (dict): Kafka configuration information with the following keys:
 		        `host`: the Kafka host.
-		        `simulation_receive`: The topic the environmental simulation will be sending
-		            messages on.
-		        `simulation_send`: The topic the environment will be listening to for 
-		            updates from the individual simulation agents.
-		    id (string): Unique identifier for this agent in the environmental simulation.
+		        `simulation_receive`: The topic the outer agent will be sending messages on.
+		        `simulation_send`: The topic the outer agent will be listening to for 
+		            updates from the inner agents.
+		    id (string): Unique identifier for this agent.
 		        When the agent receives messages, it will filter out and respond to only 
 		        those containing its `id`.
 		    simulation (Simulation): The actual simulation which will perform the calculations.
@@ -65,7 +64,7 @@ class Inner(Agent):
 		super(Inner, self).__init__(id, kafka_config)
 
 	def initialize(self):
-		""" Announce the existence of this simulation agent to the larger environmental context. """
+		""" Announce the existence of this inner agent to the outer agent. """
 
 		self.send(self.kafka_config['simulation_send'], {
 			'event': event.SIMULATION_INITIALIZED,
@@ -80,15 +79,15 @@ class Inner(Agent):
 		"""
 		Respond to messages from the environment.
 
-		The Inner Agent responds to only two message: ENVIRONMENT_UPDATED and SHUTDOWN_SIMULATION.
+		The inner agent responds to only two message: ENVIRONMENT_UPDATED and SHUTDOWN_SIMULATION.
 		SHUTDOWN_SIMULATION is called when the system as a whole is shutting down.
 		ENVIRONMENT_UPDATED is where the real work of the agent is performed. It receives a 
-		message from the environment containing the following keys:
+		message from the outer agent containing the following keys:
 
 		* `concentrations`: a dictionary containing the updated local concentrations.
 		* `run_until`: how long to run the simulation until before reporting back the new 
 		    environmental changes.
-		* `message_id`: the id of the message as provided by the environmental simulation,
+		* `message_id`: the id of the message as provided by the outer agent,
 		    to be returned as an acknowledgement that the message was processed along with 
 		    the updated environmental changes.
 
