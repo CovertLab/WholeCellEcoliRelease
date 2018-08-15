@@ -29,6 +29,8 @@ class SimulationStub(object):
 	def set_local_environment(self, concentrations):
 		self.concentrations = concentrations
 
+		# TODO(Ryan): consider if the outer agent should send a previous message establishing
+		#     what keys are in this dict to avoid this preset state. 
 		if not self.local_set:
 			self.environment_change = {}
 			for molecule in self.concentrations.keys():
