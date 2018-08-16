@@ -92,8 +92,8 @@ class Environment(wholecell.states.external_state.ExternalState):
 					)
 				)
 
-
 	def tableCreate(self, tableWriter):
+		self.container.tableCreate(tableWriter)
 		tableWriter.writeAttributes(
 			nutrientTimeSeriesLabel = self.nutrients_time_series_label,
 			)
@@ -101,7 +101,7 @@ class Environment(wholecell.states.external_state.ExternalState):
 
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
-			nutrients = self.nutrients.ljust(self._nutrients_name_max_length),
+			nutrientCondition = self.nutrients.ljust(self._nutrients_name_max_length),
 			nutrientConcentrations = self._concentrations,
 			environmentDeltas = self.deltas,
 			)

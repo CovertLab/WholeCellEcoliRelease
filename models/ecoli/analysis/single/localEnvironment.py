@@ -38,9 +38,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		if not os.path.exists(plotOutDir):
 			os.mkdir(plotOutDir)
-		#
-		# # Load data from KB
-		# sim_data = cPickle.load(open(simDataFile, 'rb'))
 
 		# Load masses
 		mass = TableReader(os.path.join(simOutDir, 'Mass'))
@@ -73,7 +70,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		nutrient_names = environment.readAttribute('objectNames')
 		nutrient_concentrations = environment.readColumn('nutrientConcentrations')
 		nutrient_condition = environment.readColumn('nutrientCondition')
-		# environment_volume = environment.readColumn('volume')
 		environment.close()
 
 		# get times of nutrient shifts
@@ -98,8 +94,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		fbaResults = TableReader(os.path.join(simOutDir, 'FBAResults'))
 		reactionIDs = np.array(fbaResults.readAttribute('reactionIDs'))
 		externalExchangeFluxes = np.array(fbaResults.readColumn('externalExchangeFluxes'))
-		importExchangeMolecules = np.array(fbaResults.readAttribute('importExchangeMolecules'))
+		externalExchangeMolecules = np.array(fbaResults.readAttribute('externalExchangeMolecules'))
 		importConstraints = np.array(fbaResults.readColumn('importConstraint'))
+		importExchanges = np.array(fbaResults.readColumn('importExchange'))
 		fbaResults.close()
 
 		# Build a mapping from nutrient_name to color
@@ -115,17 +112,16 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		fig = plt.figure(figsize=(30, 30))
 		ax1_1 = plt.subplot2grid((7, 2), (0, 0), rowspan=1, colspan=1)
 		ax1_2 = plt.subplot2grid((7, 2), (1, 0), rowspan=1, colspan=1)
-		ax1_3 = plt.subplot2grid((7, 2), (2, 0), rowspan=1, colspan=1)
-		ax1_4 = plt.subplot2grid((7, 2), (3, 0), rowspan=1, colspan=1)
-		# ax2_1 = plt.subplot2grid((7, 2), (0, 1), rowspan=1, colspan=1)
-		ax2_2 = plt.subplot2grid((7, 2), (1, 1), rowspan=3, colspan=1)
+		ax1_3 = plt.subplot2grid((7, 2), (2, 0), rowspan=4, colspan=1)
+		# ax1_4 = plt.subplot2grid((7, 2), (3, 0), rowspan=3, colspan=1)
+		ax2_1 = plt.subplot2grid((7, 2), (0, 1), rowspan=1, colspan=1)
+		ax2_2 = plt.subplot2grid((7, 2), (2, 1), rowspan=3, colspan=1)
 
 		# total cell mass
 		ax1_1.plot(time, total_dry_mass, linewidth=2)
 		ax1_1.ticklabel_format(useOffset=False)
 		ax1_1.set_xlabel('Time (sec)')
 		ax1_1.set_ylabel('Dry Cell Mass (fg)')
-		# ax1_1.set_title('Dry Cell Mass')
 
 		# cell mass fractions
 		ax1_2.plot(time, mass_fractions, linewidth=2)
@@ -134,13 +130,15 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		ax1_2.set_title('Mass Fractions of Biomass Components')
 		ax1_2.legend(massLabels, loc='best')
 
-		# plot whether molecule is import constrained
-		ax1_3.imshow(importConstraints.T, aspect='auto', cmap=plt.cm.binary,
+		# plot whether molecule is import exchanged
+		ax1_3.imshow(importExchanges.T, aspect='auto', cmap=plt.cm.binary,
 			interpolation='nearest', extent=[0,time[-1],len(importConstraints.T)-0.5,-0.5])
-		ax1_3.set_title('Import Constrained Molecules (boolean)')
+		# ax1_3.imshow(importConstraints.T, aspect='auto', cmap=plt.cm.Reds,
+		# 	interpolation='nearest', extent=[0,time[-1],len(importConstraints.T)-0.5,-0.5])
+		ax1_3.set_title('Import Exchange Molecules (boolean)')
 		ax1_3.set_xlabel('Time (sec)')
-		ax1_3.set_yticks(np.arange(len(importConstraints.T)))
-		ax1_3.set_yticklabels(importExchangeMolecules, fontsize=8)
+		ax1_3.set_yticks(np.arange(len(importExchanges.T)))
+		ax1_3.set_yticklabels(externalExchangeMolecules, fontsize=8)
 
 		# exchange fluxes
 		for idx, (reactionID, externalExchangeFlux) in enumerate(zip(reactionIDs, externalExchangeFluxes.T)):
@@ -149,23 +147,14 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			fluxRange = meanNormFlux.max() - meanNormFlux.min()
 
 			if fluxRange > RANGE_THRESHOLD:
-				ax1_4.plot(time, externalExchangeFlux, linewidth=2, label=reactionID, color=rxnIdToColor[reactionID])
+				ax2_1.plot(time, externalExchangeFlux, linewidth=2, label=reactionID, color=rxnIdToColor[reactionID])
 
-		ax1_4.set_yscale('symlog')
-		ax1_4.set_xlabel('Time (sec)')
-		ax1_4.set_ylabel('symlog Flux {}'.format(FLUX_UNITS.strUnit()))
-		ax1_4.set_title('Exchange Fluxes')
-		ax1_4.legend(bbox_to_anchor=(0.5, -0.25), loc=9, borderaxespad=0.,
-			ncol=1, prop={'size': 10})
+		ax2_1.set_yscale('symlog')
+		ax2_1.set_xlabel('Time (sec)')
+		ax2_1.set_ylabel('symlog Flux {}'.format(FLUX_UNITS.strUnit()))
+		ax2_1.set_title('Exchange Fluxes')
+		ax2_1.legend(bbox_to_anchor=(0.5, -0.25), loc=9, borderaxespad=0., ncol=1, prop={'size': 10})
 
-		# # environment volume
-		# ax2_1.plot(time, environment_volume, linewidth=2)
-		# ax2_1.set_xlabel('Time (sec)')
-		# ax2_1.set_ylabel('Volume (L)')
-		# ax2_1.set_title('Environment Volume')
-		# if np.isnan(environment_volume[0]):
-		# 	ax2_1.text(0.5, 0.5, 'infinite', fontsize=24, color='red', horizontalalignment='center',
-		# 			verticalalignment='center', transform=ax2_1.transAxes)
 
 		## environment concentrations
 
@@ -186,24 +175,17 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			ax1_1.set_xlim([0, XLIMIT])
 			ax1_2.set_xlim([0, XLIMIT])
 			ax1_3.set_xlim([0, XLIMIT])
-			ax1_4.set_xlim([0, XLIMIT])
+			# ax1_4.set_xlim([0, XLIMIT])
+			ax2_1.set_xlim([0, XLIMIT])
 			ax2_2.set_xlim([0, XLIMIT])
 
-			# autoscale_y(ax1_1)
-			# autoscale_y(ax1_2)
-			# autoscale_y(ax1_4)
-			# autoscale_y(ax2_2)
 		else:
 			ax1_1.set_xlim([0, time[-1]])
 			ax1_2.set_xlim([0, time[-1]])
-			ax1_3.set_xlim([0, time[-1]])
-			ax1_4.set_xlim([0, time[-1]])
+			# ax1_3.set_xlim([0, time[-1]])
+			# ax1_4.set_xlim([0, time[-1]])
+			ax2_1.set_xlim([0, time[-1]])
 			ax2_2.set_xlim([0, time[-1]])
-
-			# autoscale_y(ax1_1)
-			# autoscale_y(ax1_2)
-			# autoscale_y(ax1_4)
-			# autoscale_y(ax2_2)
 
 
 		# plot vertical lines at nutrient shifts
@@ -215,13 +197,17 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		for time in nutrient_shift_times:
 			ax1_2.plot([time, time], [ymin, ymax], color='k', linestyle='--')
 
-		ymin, ymax = ax1_3.get_ylim()
-		for time in nutrient_shift_times:
-			ax1_3.plot([time, time], [ymin, ymax], color='k', linestyle='--')
+		# ymin, ymax = ax1_3.get_ylim()
+		# for time in nutrient_shift_times:
+		# 	ax1_3.plot([time, time], [ymin, ymax], color='k', linestyle='--')
 
-		ymin, ymax = ax1_4.get_ylim()
+		# ymin, ymax = ax1_4.get_ylim()
+		# for time in nutrient_shift_times:
+		# 	ax1_4.plot([time, time], [ymin, ymax], color='k', linestyle='--')
+
+		ymin, ymax = ax2_1.get_ylim()
 		for time in nutrient_shift_times:
-			ax1_4.plot([time, time], [ymin, ymax], color='k', linestyle='--')
+			ax2_1.plot([time, time], [ymin, ymax], color='k', linestyle='--')
 
 		ymin, ymax = ax2_2.get_ylim()
 		for time in nutrient_shift_times:
@@ -238,32 +224,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		exportFigure(plt, plotOutDir, plotOutFileName,metadata)
 		plt.close('all')
 
-
-
-def autoscale_y(ax,margin=0.1):
-	"""This function rescales the y-axis based on the data that is visible given the current xlim of the axis.
-	ax -- a matplotlib axes object
-	margin -- the fraction of the total height of the y-data to pad the upper and lower ylims"""
-
-	def get_bottom_top(line):
-		xd = line.get_xdata()
-		yd = line.get_ydata()
-		lo,hi = ax.get_xlim()
-		y_displayed = yd[((xd>lo) & (xd<hi))]
-		h = np.max(y_displayed) - np.min(y_displayed)
-		bot = np.min(y_displayed)-margin*h
-		top = np.max(y_displayed)+margin*h
-		return bot,top
-
-	lines = ax.get_lines()
-	bot,top = np.inf, -np.inf
-
-	for line in lines:
-		new_bot, new_top = get_bottom_top(line)
-		if new_bot < bot: bot = new_bot
-		if new_top > top: top = new_top
-
-	ax.set_ylim(bot,top)
 
 
 if __name__ == '__main__':
