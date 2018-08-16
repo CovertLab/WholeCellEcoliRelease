@@ -66,7 +66,7 @@ class Metabolism(wholecell.processes.process.Process):
 		initial_environment = sim_data.external_state.environment.nutrients_time_series[nutrients_time_series_label][0][1]
 
 		# save nutrient names for environment view, using all moleculeIDs in local environment
-		self.environment_nutrients_names = self._external_states['Environment']._moleculeIDs
+		self.environment_molecule_ids = self._external_states['Environment']._moleculeIDs
 
 		# initialize exchange_data according to initial concentrations in environment
 		self.exchange_data = self.updateExchangeData(sim_data.external_state.environment.environment_dict[initial_environment])
@@ -193,7 +193,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 		## Views
 		# views of environment
-		self.environment_nutrients = self.environmentView(self.environment_nutrients_names)
+		self.environment_molecules = self.environmentView(self.environment_molecule_ids)
 
 		# views of metabolism
 		self.metaboliteNames = self.fba.getOutputMoleculeIDs()
@@ -238,7 +238,7 @@ class Metabolism(wholecell.processes.process.Process):
 		current_nutrients = self._external_states['Environment'].nutrients
 
 		# recalculate exchange_data based on current environment
-		current_environment = dict(zip(self.environment_nutrients_names, self.environment_nutrients.totalConcentrations() * COUNTS_UNITS / VOLUME_UNITS))
+		current_environment = dict(zip(self.environment_molecule_ids, self.environment_molecules.totalConcentrations() * COUNTS_UNITS / VOLUME_UNITS))
 		self.exchange_data = self.updateExchangeData(current_environment)
 
 		self.concModificationsBasedOnCondition = self.getBiomassAsConcentrations(

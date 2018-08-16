@@ -66,6 +66,6 @@ class ExternalState(object):
 			for row in molecule_concentrations:
 				self.environment.environment_dict[label].update({row["molecule id"]: row["concentration"]})
 
-		# initial state, default is minimal
-		initial_environment = "minimal"
-		self.environment.nutrients = self.environment.environment_dict[initial_environment]
+		# initial state based on default nutrient time series
+		self.environment.nutrients = self.environment.environment_dict[
+			self.environment.nutrients_time_series[self.environment.nutrients_time_series_label][0][1]]
