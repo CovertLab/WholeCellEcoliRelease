@@ -88,7 +88,10 @@ class Metabolism(object):
 		importConstrainedExchangeMolecules = {}
 		secretionExchangeMolecules = self.secretion_exchange_molecules
 
-		for molecule_id, concentration in molecules.iteritems():
+		#remove molecules with 0 conc
+		nonzero_molecules = {molecule_id:concentration for molecule_id, concentration in molecules.items() if concentration.asNumber() != 0}
+
+		for molecule_id, concentration in nonzero_molecules.iteritems():
 
 			# skip if concentration is 0. Do not include these nonexistent molecules in FBA problem definition.
 			if molecule_id != 'GLC[p]' and concentration.asNumber() == 0:
@@ -101,16 +104,16 @@ class Metabolism(object):
 			elif molecule_id == 'GLC[p]':
 				# if any molecules in glc_vmax_conditions['1'] is ABSENT:
 				# TODO (ERAN) -- condition['1'] is the same as [glc]<threshold, this can be removed
-				if not all(key in molecules for key in self.glc_vmax_conditions['1']):
+				if not all(key in nonzero_molecules for key in self.glc_vmax_conditions['1']):
 					importConstrainedExchangeMolecules[molecule_id] = 0 * (units.mmol / units.g / units.h)
 				# if any molecules in glc_vmax_conditions['2'] is ABSENT:
-				elif not all(key in molecules for key in self.glc_vmax_conditions['2']):
+				elif not all(key in nonzero_molecules for key in self.glc_vmax_conditions['2']):
 					importConstrainedExchangeMolecules[molecule_id] = 10 * (units.mmol / units.g / units.h)
 				# if any molecules in glc_vmax_conditions['3'] is PRESENT:
-				elif any(key in molecules for key in self.glc_vmax_conditions['3']):
+				elif any(key in nonzero_molecules for key in self.glc_vmax_conditions['3']):
 					importConstrainedExchangeMolecules[molecule_id] = 10 * (units.mmol / units.g / units.h)
 				# if any molecules in glc_vmax_conditions['4'] is ABSENT:
-				elif not all(key in molecules for key in self.glc_vmax_conditions['4']):
+				elif not all(key in nonzero_molecules for key in self.glc_vmax_conditions['4']):
 					importConstrainedExchangeMolecules[molecule_id] = 100 * (units.mmol / units.g / units.h)
 				else:
 					importConstrainedExchangeMolecules[molecule_id] = 20 * (units.mmol / units.g / units.h)
