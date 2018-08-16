@@ -65,10 +65,12 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# Load data from bulk molecules
 			bulkMoleculesReader = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 			bulkMoleculeIds = bulkMoleculesReader.readAttribute("objectNames")
+			bulkMoleculeCounts = bulkMoleculesReader.readColumn("counts")
+
 			# Get the concentration of intracellular phe
 			pheId = ["PHE[c]"]
 			pheIndex = np.array([bulkMoleculeIds.index(x) for x in pheId])
-			pheCounts = bulkMoleculesReader.readColumn("counts")[:, pheIndex].reshape(-1)
+			pheCounts = bulkMoleculeCounts[:, pheIndex].reshape(-1)
 			pheMols = 1. / nAvogadro * pheCounts
 			volume = cellMass / cellDensity
 			pheConcentration = pheMols * 1. / volume
@@ -76,26 +78,26 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# Get the amount of active tyrR (that isn't promoter bound)
 			tyrRActiveId = ["MONOMER0-162[c]"]
 			tyrRActiveIndex = np.array([bulkMoleculeIds.index(x) for x in tyrRActiveId])
-			tyrRActiveCounts = bulkMoleculesReader.readColumn("counts")[:, tyrRActiveIndex].reshape(-1)
+			tyrRActiveCounts = bulkMoleculeCounts[:, tyrRActiveIndex].reshape(-1)
 
 			# Get the amount of inactive tyrR
 			tyrRInactiveId = ["PD00413[c]"]
 			tyrRInactiveIndex = np.array([bulkMoleculeIds.index(x) for x in tyrRInactiveId])
-			tyrRInactiveCounts = bulkMoleculesReader.readColumn("counts")[:, tyrRInactiveIndex].reshape(-1)
+			tyrRInactiveCounts = bulkMoleculeCounts[:, tyrRInactiveIndex].reshape(-1)
 
 			# Get the promoter-bound status of the tyrA gene
 			tyrATfBoundId = ["EG11039_RNA__MONOMER0-162"]
 			tyrATfBoundIndex = np.array([bulkMoleculeIds.index(x) for x in tyrATfBoundId])
-			tyrATfBoundCounts = bulkMoleculesReader.readColumn("counts")[:, tyrATfBoundIndex].reshape(-1)
+			tyrATfBoundCounts = bulkMoleculeCounts[:, tyrATfBoundIndex].reshape(-1)
 
 			# Get the amount of monomeric tyrA
 			tyrAProteinId = ["CHORISMUTPREPHENDEHYDROG-MONOMER[c]"]
 			tyrAProteinIndex = np.array([bulkMoleculeIds.index(x) for x in tyrAProteinId])
-			tyrAProteinCounts = bulkMoleculesReader.readColumn("counts")[:, tyrAProteinIndex].reshape(-1)
+			tyrAProteinCounts = bulkMoleculeCounts[:, tyrAProteinIndex].reshape(-1)
 
 			tyrAComplexId = ["CHORISMUTPREPHENDEHYDROG-CPLX[c]"]
 			tyrAComplexIndex = np.array([bulkMoleculeIds.index(x) for x in tyrAComplexId])
-			tyrAComplexCounts = bulkMoleculesReader.readColumn("counts")[:, tyrAComplexIndex].reshape(-1)
+			tyrAComplexCounts = bulkMoleculeCounts[:, tyrAComplexIndex].reshape(-1)
 
 			bulkMoleculesReader.close()
 

@@ -85,14 +85,15 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 			moleculeIds = bulkMolecules.readAttribute("objectNames")
+			bulkMoleculeCounts = bulkMolecules.readColumn("counts")
 
 			idx_16s = np.array([moleculeIds.index(comp) for comp in ids_16s], np.int)
 			idx_23s = np.array([moleculeIds.index(comp) for comp in ids_23s], np.int)
 			idx_5s = np.array([moleculeIds.index(comp) for comp in ids_5s], np.int)
 
-			rrn16s_count_bulk = bulkMolecules.readColumn("counts")[:, idx_16s].sum(axis=1)
-			rrn23s_count_bulk = bulkMolecules.readColumn("counts")[:, idx_23s].sum(axis=1)
-			rrn5s_count_bulk = bulkMolecules.readColumn("counts")[:, idx_5s].sum(axis=1)
+			rrn16s_count_bulk = bulkMoleculeCounts[:, idx_16s].sum(axis=1)
+			rrn23s_count_bulk = bulkMoleculeCounts[:, idx_23s].sum(axis=1)
+			rrn5s_count_bulk = bulkMoleculeCounts[:, idx_5s].sum(axis=1)
 
 			uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 

@@ -108,11 +108,12 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 				# Account for bulk molecules
 				bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+				bulkMoleculeCounts = bulkMolecules.readColumn("counts")
 				moleculeIds = bulkMolecules.readAttribute("objectNames")
 				proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in ids_protein], np.int)
-				proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
+				proteinCountsBulk = bulkMoleculeCounts[:, proteinIndexes]
 				rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
-				avgRnaCounts = bulkMolecules.readColumn("counts")[:, rnaIndexes].mean(axis = 0)
+				avgRnaCounts = bulkMoleculeCounts[:, rnaIndexes].mean(axis = 0)
 				bulkMolecules.close()
 				if i == 0:
 					# Skip first few time steps for 1st generation (becaused complexes have not yet formed during these steps)
