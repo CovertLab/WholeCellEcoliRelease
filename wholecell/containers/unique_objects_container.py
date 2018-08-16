@@ -292,6 +292,46 @@ class UniqueObjectsContainer(object):
 	def objectNames(self):
 		return tuple(self._names)
 
+	def counts(self, collectionNames=None):
+		"""
+		Get the counts of objects for each collection name.
+
+		Parameters
+		----------
+		collectionNames : iterable of strings
+			The names of the collections.  If None (default), then all
+			collections are used in their original ordering.
+
+		Returns
+		-------
+		A vector (1D numpy.ndarray) of counts.
+
+		"""
+		object_counts = np.array(
+			[(x["_entryState"] == self._entryActive).sum() for x in self._collections])
+
+		if collectionNames is None:
+			return object_counts
+		else:
+			return object_counts[self._collectionNamesToIndexes(collectionNames)]
+
+	def _collectionNamesToIndexes(self, collectionNames):
+		"""
+		Convert an iterable of collection names into their corresponding
+		indices into the ordered list of collections.
+
+		Parameters
+		----------
+		collectionNames : iterable of strings
+			The names of the collections.
+
+		Returns
+		-------
+		An array of indices (non-negative integers).
+
+		"""
+		return np.array([self._nameToIndexMapping[name] for name in collectionNames])
+
 	def emptyLike(self):
 		specifications = deepcopy(self._specifications)
 		specs_to_remove = self._defaultSpecification.keys()
