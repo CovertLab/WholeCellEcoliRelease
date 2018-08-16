@@ -1,7 +1,6 @@
 """
 Plot protein monomer counts
 
-@author: John Mason, Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 5/27/2014
 """
@@ -24,8 +23,6 @@ from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
 
 
-# TODO: account for complexation
-
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		if not os.path.isdir(simOutDir):
@@ -38,49 +35,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
-		ids_complexation = sim_data.process.complexation.moleculeNames
-		ids_complexation_complexes = sim_data.process.complexation.ids_complexes
-		ids_equilibrium = sim_data.process.equilibrium.moleculeNames
-		ids_equilibrium_complexes = sim_data.process.equilibrium.ids_complexes
-		ids_translation = sim_data.process.translation.monomerData["id"].tolist()
-		ids_protein = sorted(set(ids_complexation + ids_equilibrium + ids_translation))
-		bulkContainer = BulkObjectsContainer(ids_protein, dtype = np.float64)
-		view_complexation = bulkContainer.countsView(ids_complexation)
-		view_complexation_complexes = bulkContainer.countsView(ids_complexation_complexes)
-		view_equilibrium = bulkContainer.countsView(ids_equilibrium)
-		view_equilibrium_complexes = bulkContainer.countsView(ids_equilibrium_complexes)
-		view_translation = bulkContainer.countsView(ids_translation)
-
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
-		proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in ids_protein], np.int)
-		proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
-		bulkMolecules.close()
-
-		# Account for monomers
-		bulkContainer.countsIs(proteinCountsBulk.mean(axis = 0))
-
-		# Account for unique molecules
-		uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
-		ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
-		rnaPolyIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
-		nActiveRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
-		nActiveRnaPoly = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnaPolyIndex]
-		uniqueMoleculeCounts.close()
-		bulkContainer.countsInc(nActiveRibosome.mean(), [sim_data.moleculeIds.s30_fullComplex, sim_data.moleculeIds.s50_fullComplex])
-		bulkContainer.countsInc(nActiveRnaPoly.mean(), [sim_data.moleculeIds.rnapFull])
-
-		# Account for small-molecule bound complexes
-		view_equilibrium.countsInc(
-			np.dot(sim_data.process.equilibrium.stoichMatrixMonomers(), view_equilibrium_complexes.counts() * -1)
-			)
-
-		# Account for monomers in complexed form
-		view_complexation.countsInc(
-			np.dot(sim_data.process.complexation.stoichMatrixMonomers(), view_complexation_complexes.counts() * -1)
-			)
-
-		avgCounts = view_translation.counts()
+		monomerCounts = TableReader(os.path.join(simOutDir, "MonomerCounts"))
+		avgCounts = monomerCounts.readColumn("monomerCounts").mean(axis=0)
 
 		relativeCounts = avgCounts / avgCounts.sum()
 
