@@ -21,6 +21,7 @@ from scipy.sparse import csr_matrix
 
 import wholecell.processes.process
 from wholecell.utils import units
+import copy
 
 from wholecell.utils.random import stochasticRound
 from wholecell.utils.constants import REQUEST_PRIORITY_METABOLISM
@@ -79,10 +80,10 @@ class Metabolism(wholecell.processes.process.Process):
 		energyCostPerWetMass = sim_data.constants.darkATP * initDryMass / initCellMass
 
 		# Setup molecules in external environment that can be exchanged
-		externalExchangedMolecules = sim_data.external_state.environment.nutrient_data["secretionExchangeMolecules"]
+		externalExchangedMolecules = copy.copy(sim_data.process.metabolism.exchange_data_dict["secretionExchangeMolecules"])
 		self.metaboliteNamesFromNutrients = set()
 		for time, nutrientsLabel in sim_data.external_state.environment.nutrients_time_series[nutrients_time_series_label]:
-			externalExchangedMolecules += sim_data.external_state.environment.nutrient_data["importExchangeMolecules"][nutrientsLabel]
+			externalExchangedMolecules += sim_data.process.metabolism.exchange_data_dict["importExchangeMolecules"][nutrientsLabel]
 
 			self.metaboliteNamesFromNutrients.update(
 				sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(

@@ -43,8 +43,136 @@ class Metabolism(object):
 		else:
 			self.kinetic_objective_weight = sim_data.constants.metabolismKineticObjectiveWeightQuadratic
 
+		# glc's upper bound for FBA import constraint.
+		self.glc_vmax_conditions = {
+			'1': ['GLC[p]'],
+			'2': ['CA+2[p]', 'MG+2[p]', 'PI[p]'],
+			'3': ['CPD-183[p]', 'INDOLE[p]', 'NITRATE[p]', 'NITRITE[p]', 'CPD-520[p]', 'TUNGSTATE[p]'],
+			'4': ['OXYGEN-MOLECULE[p]'],
+			}
+
+		self.exchange_data_dict = self._getExchangeDataDict(raw_data)
+
 		self._buildBiomass(raw_data, sim_data)
 		self._buildMetabolism(raw_data, sim_data)
+
+	def _getExchangeDataDict(self, raw_data):
+		'''
+		Creates a dictionary that specifies categories of molecules exchanged between
+		 cell and environment. The categories are used to set different constraints
+		 on FBA.
+		The categories of molecules include:
+			- externalExchangeMolecules: All exchange molecules, both import and
+				secretion exchanged molecules.
+			- importExchangeMolecules: molecules that can be imported from the
+				environment into the cell.
+			- importConstrainedExchangeMolecules: exchange molecules that have
+				an upper bound on their flux.
+			- importUnconstrainedExchangeMolecules: exchange molecules that do
+				not have an upper bound on their flux.
+			- secretionExchangeMolecules: molecules that can be secreted by the
+				cell into the environment.
+		Notes
+		-----
+			- if the output does not exactly match previous exchange_data, it could
+			 influence FBA results.
+		'''
+		externalExchangeMolecules = {}
+		importExchangeMolecules = {}
+		secretionExchangeMolecules = set()
+		importConstrainedExchangeMolecules = {}
+		importUnconstrainedExchangeMolecules = {}
+		nutrientsList = [(x, getattr(raw_data.condition.environment, x)) for x in dir(raw_data.condition.environment) if
+						 not x.startswith("__")]
+		for nutrientsName, nutrients in nutrientsList:
+			externalExchangeMolecules[nutrientsName] = set()
+			importExchangeMolecules[nutrientsName] = set()
+			importConstrainedExchangeMolecules[nutrientsName] = {}
+			importUnconstrainedExchangeMolecules[nutrientsName] = []
+
+			concentration_dict = {}
+			for item in nutrients:
+				concentration_dict[item['molecule id']] = item['concentration']
+
+			for nutrient in nutrients:
+				# skip if concentration is 0. Do not include these nonexistent molecules in FBA problem definition.
+				if nutrient["molecule id"] != 'GLC[p]' and nutrient["concentration"].asNumber() == 0:
+					continue
+
+				# if GLC, add to import constrained
+				elif nutrient["molecule id"] == 'GLC[p]':
+					# if any molecules in glc_vmax_conditions['1'] is ABSENT:
+					if not all(key in concentration_dict for key in self.glc_vmax_conditions['1']):
+						importConstrainedExchangeMolecules[nutrientsName][nutrient["molecule id"]] = 0 * (
+									units.mmol / units.g / units.h)
+					# if any molecules in glc_vmax_conditions['2'] is ABSENT:
+					elif not all(key in concentration_dict for key in self.glc_vmax_conditions['2']):
+						importConstrainedExchangeMolecules[nutrientsName][nutrient["molecule id"]] = 10 * (
+									units.mmol / units.g / units.h)
+					# if any molecules in glc_vmax_conditions['3'] is PRESENT:
+					elif any(key in concentration_dict for key in self.glc_vmax_conditions['3']):
+						importConstrainedExchangeMolecules[nutrientsName][nutrient["molecule id"]] = 10 * (
+									units.mmol / units.g / units.h)
+					# if any molecules in glc_vmax_conditions['4'] is ABSENT:
+					elif not all(key in concentration_dict for key in self.glc_vmax_conditions['4']):
+						importConstrainedExchangeMolecules[nutrientsName][nutrient["molecule id"]] = 100 * (
+									units.mmol / units.g / units.h)
+					else:
+						importConstrainedExchangeMolecules[nutrientsName][nutrient["molecule id"]] = 20 * (
+									units.mmol / units.g / units.h)
+
+					externalExchangeMolecules[nutrientsName].add(nutrient["molecule id"])
+					importExchangeMolecules[nutrientsName].add(nutrient["molecule id"])
+
+				# add to import unconstrained if concentration >= threshold
+				else:
+					importUnconstrainedExchangeMolecules[nutrientsName].append(nutrient["molecule id"])
+					externalExchangeMolecules[nutrientsName].add(nutrient["molecule id"])
+					importExchangeMolecules[nutrientsName].add(nutrient["molecule id"])
+
+			for secretion in raw_data.secretions:
+				if secretion["lower bound"] and secretion["upper bound"]:
+					# "non-growth associated maintenance", not included in our metabolic model
+					continue
+
+				else:
+					externalExchangeMolecules[nutrientsName].add(secretion["molecule id"])
+					secretionExchangeMolecules.add(secretion["molecule id"])
+
+			externalExchangeMolecules[nutrientsName] = sorted(externalExchangeMolecules[nutrientsName])
+			importExchangeMolecules[nutrientsName] = sorted(importExchangeMolecules[nutrientsName])
+
+		secretionExchangeMolecules = sorted(secretionExchangeMolecules)
+
+		return {
+			"externalExchangeMolecules": externalExchangeMolecules,
+			"importExchangeMolecules": importExchangeMolecules,
+			"importConstrainedExchangeMolecules": importConstrainedExchangeMolecules,
+			"importUnconstrainedExchangeMolecules": importUnconstrainedExchangeMolecules,
+			"secretionExchangeMolecules": secretionExchangeMolecules,
+		}
+
+	def getExchangeData(self, nutrient_label):
+		'''
+		Returns exchange data, using nutrient_labels corresponding to
+		files in reconstruction.ecoli.flat.condition.environment
+		'''
+
+		externalExchangeMolecules = self.exchange_data_dict['externalExchangeMolecules'][nutrient_label]
+		importExchangeMolecules = self.exchange_data_dict['importExchangeMolecules'][nutrient_label]
+		importConstrainedExchangeMolecules = self.exchange_data_dict['importConstrainedExchangeMolecules'][
+			nutrient_label]
+		importUnconstrainedExchangeMolecules = self.exchange_data_dict['importUnconstrainedExchangeMolecules'][
+			nutrient_label]
+		secretionExchangeMolecules = self.exchange_data_dict['secretionExchangeMolecules']
+
+		return {
+			"externalExchangeMolecules": externalExchangeMolecules,
+			"importExchangeMolecules": importExchangeMolecules,
+			"importConstrainedExchangeMolecules": importConstrainedExchangeMolecules,
+			"importUnconstrainedExchangeMolecules": importUnconstrainedExchangeMolecules,
+			"secretionExchangeMolecules": secretionExchangeMolecules,
+		}
 
 	def _buildBiomass(self, raw_data, sim_data):
 		wildtypeIDs = set(entry["molecule id"] for entry in raw_data.biomass)
@@ -155,13 +283,12 @@ class Metabolism(object):
 			metaboliteConcentrations.append(value.asNumber(units.mol / units.L))
 
 		# save concentrations as class variables
-		self.nutrient_data = sim_data.external_state.environment.nutrient_data
 		self.concentrationUpdates = ConcentrationUpdates(dict(zip(
 			metaboliteIDs,
 			(units.mol / units.L) * np.array(metaboliteConcentrations)
 			)),
 			raw_data.equilibriumReactions,
-			self.nutrient_data,
+			self.exchange_data_dict,
 		)
 		self.concDict = self.concentrationUpdates.concentrationsBasedOnNutrients("minimal")
 		self.nutrientsToInternalConc = {}
@@ -474,8 +601,8 @@ class Metabolism(object):
 
 		newObjective = None
 
-		self._unconstrainedExchangeMolecules = self.nutrient_data["importUnconstrainedExchangeMolecules"][currentNutrients]
-		self._constrainedExchangeMolecules = self.nutrient_data["importConstrainedExchangeMolecules"][currentNutrients]
+		self._unconstrainedExchangeMolecules = self.exchange_data_dict["importUnconstrainedExchangeMolecules"][currentNutrients]
+		self._constrainedExchangeMolecules = self.exchange_data_dict["importConstrainedExchangeMolecules"][currentNutrients]
 		concDict = self.concentrationUpdates.concentrationsBasedOnNutrients(currentNutrients, self.nutrientsToInternalConc)
 		if concModificationsBasedOnCondition is not None:
 			concDict.update(concModificationsBasedOnCondition)
@@ -497,10 +624,10 @@ class Metabolism(object):
 
 # Class used to update metabolite concentrations based on the current nutrient conditions
 class ConcentrationUpdates(object):
-	def __init__(self, concDict, equilibriumReactions, nutrientData):
+	def __init__(self, concDict, equilibriumReactions, exchange_data_dict):
 		self.units = units.getUnit(concDict.values()[0])
 		self.defaultConcentrationsDict = dict((key, concDict[key].asNumber(self.units)) for key in concDict)
-		self.nutrient_data = nutrientData
+		self.exchange_data_dict = exchange_data_dict
 
 		# factor of internal amino acid increase if maino acids present in nutrients
 		self.moleculeScaleFactors = {
@@ -540,8 +667,8 @@ class ConcentrationUpdates(object):
 			return dict(zip(metaboliteTargetIds, concentrations))
 
 		nutrientFluxes = {
-			"importConstrainedExchangeMolecules": self.nutrient_data["importConstrainedExchangeMolecules"][nutrientsLabel],
-			"importUnconstrainedExchangeMolecules": self.nutrient_data["importUnconstrainedExchangeMolecules"][nutrientsLabel],
+			"importConstrainedExchangeMolecules": self.exchange_data_dict["importConstrainedExchangeMolecules"][nutrientsLabel],
+			"importUnconstrainedExchangeMolecules": self.exchange_data_dict["importUnconstrainedExchangeMolecules"][nutrientsLabel],
 		}
 
 		concDict = dict(zip(metaboliteTargetIds, concentrations))
