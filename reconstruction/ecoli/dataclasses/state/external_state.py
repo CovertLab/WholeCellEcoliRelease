@@ -2,25 +2,15 @@
 Simulation data for external state
 
 This base class includes all data associated with states external to the cells.
-
-	- environment.nutrient_data: a dictionary including the following keys and their values:
-		- externalExchangeMolecules: a dictionary of all the nutrient condition names, with a list of molecules as their values.
-		- importExchangeMolecules: a dictionary of all the nutrient condition names, with a list of molecules as their values.
-		- importConstrainedExchangeMolecules: a dictionary of all the nutrient condition names, with a list of molecules as their values.
-		- importUnconstrainedExchangeMolecules: a dictionary of all the nutrient condition names, with a list of molecules as their values.
-		- secretionExchangeMolecules: a list of exchange molecules
+Initializes the environment using conditions and time series from raw_data.
 
 	- environment.nutrients_time_series: a dictionary of all time series.
-
 	- environment.nutrients_time_series_label: a string specifying the time series
 		used for the current simulation.
-
-	Functions:
-	----------
-	- _buildEnvironment: initializes the environment using conditions and time series
-		from raw_data.
-
-	- _getNutrientData: pulls nutrient data from raw_data, saves it in environment.nutrient_data
+	- environment.nutrients: a dictionary of environmental nutrients (keys) and
+		their concentrations (values).
+	- environment.environment_dict: a dictionary of all environments, each one
+		itself a dictionary nutrients (keys) and their concentrations (values).
 
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
@@ -44,26 +34,47 @@ class ExternalState(object):
 
 		self.environment = Environment(raw_data, sim_data)
 
-		self._buildEnvironment(raw_data, sim_data)
-
-	def _buildEnvironment(self, raw_data, sim_data):
-
-		self.environment.nutrient_data = self._getNutrientData(raw_data)
+		# default parameters
 		self.environment.nutrients_time_series_label = "000000_basal"
 
+		# create a dictionary of all nutrient time series
 		self.environment.nutrients_time_series = {}
 		for label in dir(raw_data.condition.timeseries):
 			if label.startswith("__"):
 				continue
-
 			self.environment.nutrients_time_series[label] = []
 			timeseries = getattr(raw_data.condition.timeseries, label)
 			for row in timeseries:
 				self.environment.nutrients_time_series[label].append((
 					row["time"].asNumber(units.s),
-					row["nutrients"].encode("utf-8")
+					row["nutrients"].encode("utf-8"),
 					))
 
+		# create a dictionary with all saved environments, including molecules of concentration == 0
+		self.environment.environment_dict = {}
+		for label in dir(raw_data.condition.environment):
+			if label.startswith("__"):
+				continue
+			self.environment.environment_dict[label] = {}
+
+			#initiate all molecules with 0 concentrations
+			for row in raw_data.condition.environment_molecules:
+				self.environment.environment_dict[label].update({row["molecule id"]: 0 * (units.mmol / units.L)})
+
+			# update non-zero concentrations
+			molecule_concentrations = getattr(raw_data.condition.environment, label)
+			for row in molecule_concentrations:
+				self.environment.environment_dict[label].update({row["molecule id"]: row["concentration"]})
+
+		# initial state, default is minimal
+		initial_environment = "minimal"
+		self.environment.nutrients = self.environment.environment_dict[initial_environment]
+
+
+		#TODO (Eran) remove this, make it exchange_data in metabolism
+		self.environment.nutrient_data = self._getNutrientData(raw_data)
+
+	# TODO (Eran) remove this and replace with getExchangeData in metabolism
 	def _getNutrientData(self, raw_data):
 
 		externalExchangeMolecules = {}
