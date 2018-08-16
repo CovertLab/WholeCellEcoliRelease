@@ -37,7 +37,7 @@ class Environment(wholecell.states.external_state.ExternalState):
 		self._moleculeIDs = None
 		self._concentrations = None
 
-		self.deltas = {}
+		self._deltas = None
 
 		super(Environment, self).__init__(*args, **kwargs)
 
@@ -103,7 +103,6 @@ class Environment(wholecell.states.external_state.ExternalState):
 		tableWriter.append(
 			nutrientCondition = self.nutrients.ljust(self._nutrients_name_max_length),
 			nutrientConcentrations = self._concentrations,
-			environmentDeltas = self.deltas,
 			)
 
 class EnvironmentViewBase(object):
@@ -155,6 +154,8 @@ class EnvironmentView(EnvironmentViewBase):
 
 
 	def countsInc(self, molecule_ids, counts):
-		self._state.deltas = dict(zip(molecule_ids, counts))
+		self._state._deltas = counts
+		#TODO (Eran) save deltas for external environment dict(zip(molecule_ids, counts))
+		#TODO (Eran) deltas size varies because of changing importExchange.  This will need to be fixed for a listener to save these
 
 		return

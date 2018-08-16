@@ -70,6 +70,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		nutrient_names = environment.readAttribute('objectNames')
 		nutrient_concentrations = environment.readColumn('nutrientConcentrations')
 		nutrient_condition = environment.readColumn('nutrientCondition')
+		# environment_deltas = environment.readColumn('environmentDeltas')
 		environment.close()
 
 		# get times of nutrient shifts
