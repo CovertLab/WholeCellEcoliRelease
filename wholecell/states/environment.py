@@ -37,7 +37,7 @@ class Environment(wholecell.states.external_state.ExternalState):
 		self._moleculeIDs = None
 		self._concentrations = None
 
-		self.save_accumulated_deltas = False
+		self.deltas = {}
 
 		super(Environment, self).__init__(*args, **kwargs)
 
@@ -102,11 +102,12 @@ class Environment(wholecell.states.external_state.ExternalState):
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
 			nutrients = self.nutrients.ljust(self._nutrients_name_max_length),
-			nutrientConcentrations=self._concentrations,
+			nutrientConcentrations = self._concentrations,
+			environmentDeltas = self.deltas,
 			)
 
 class EnvironmentViewBase(object):
-	_stateID = 'LocalEnvironment'
+	_stateID = 'Environment'
 
 	def __init__(self, state, process, query): # weight, priority, coupling id, option to not evaluate the query
 		self._state = state
@@ -154,7 +155,6 @@ class EnvironmentView(EnvironmentViewBase):
 
 
 	def countsInc(self, molecule_ids, counts):
-		if self._state.save_accumulated_deltas:
-			self._state.accumulate_deltas(molecule_ids, counts)
+		self._state.deltas = dict(zip(molecule_ids, counts))
 
 		return

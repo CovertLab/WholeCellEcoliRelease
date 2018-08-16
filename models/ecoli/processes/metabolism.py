@@ -65,8 +65,7 @@ class Metabolism(wholecell.processes.process.Process):
 		nutrients_time_series_label = sim_data.external_state.environment.nutrients_time_series_label
 		initial_environment = sim_data.external_state.environment.nutrients_time_series[nutrients_time_series_label][0][1]
 
-		# save nutrient names for environment view, using all moleculeIDs in local environment
-		self.environment_molecule_ids = self._external_states['Environment']._moleculeIDs
+
 
 		# initialize exchange_data according to initial concentrations in environment
 		self.exchange_data = self.updateExchangeData(sim_data.external_state.environment.environment_dict[initial_environment])
@@ -100,6 +99,12 @@ class Metabolism(wholecell.processes.process.Process):
 					)
 				)
 		externalExchangedMolecules = sorted(set(externalExchangedMolecules))
+
+		# save nutrient names for environment view, using all moleculeIDs in local environment
+		# TODO (Eran) make all environment molecules into external exchange molecules, not just this subset
+		self.environment_molecule_ids = self._external_states['Environment']._moleculeIDs
+		self.external_exchange_molecule_ids = externalExchangedMolecules
+
 		self.metaboliteNamesFromNutrients = sorted(self.metaboliteNamesFromNutrients)
 
 		moleculeMasses = dict(zip(externalExchangedMolecules, sim_data.getter.getMass(externalExchangedMolecules).asNumber(MASS_UNITS / COUNTS_UNITS)))
@@ -194,6 +199,7 @@ class Metabolism(wholecell.processes.process.Process):
 		## Views
 		# views of environment
 		self.environment_molecules = self.environmentView(self.environment_molecule_ids)
+		self.external_exchange_molecules = self.environmentView(self.external_exchange_molecule_ids)
 
 		# views of metabolism
 		self.metaboliteNames = self.fba.getOutputMoleculeIDs()
@@ -367,6 +373,12 @@ class Metabolism(wholecell.processes.process.Process):
 		self.metabolites.countsIs(metaboliteCountsFinal)
 
 		exFluxes = ((COUNTS_UNITS / VOLUME_UNITS) * self.fba.getExternalExchangeFluxes() / coefficient).asNumber(units.mmol / units.g / units.h)
+
+		# change in nutrient counts, used in non-infinite environments
+		delta_nutrients = ((1 / countsToMolar) * (COUNTS_UNITS / VOLUME_UNITS) * self.fba.getExternalExchangeFluxes()).asNumber().astype(int)
+
+		# TODO (Eran) use environment_molecule_ids rather than external_exchange_molecules, delta_nutrients needs to be for all env molecules
+		self.environment_molecules.countsInc(self.external_exchange_molecule_ids, delta_nutrients)
 
 		# Write outputs to listeners
 		self.writeToListener("FBAResults", "deltaMetabolites", metaboliteCountsFinal - metaboliteCountsInit)
