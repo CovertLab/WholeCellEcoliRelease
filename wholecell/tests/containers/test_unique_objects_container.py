@@ -256,6 +256,17 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 		self.assertEqual(len(objectSet), 35)
 
+
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
+	def test_counts(self):
+		self.container.objectsNew('DNA polymerase', 15)
+
+		all_object_counts = self.container.counts()
+		partial_object_counts = self.container.counts(["DNA polymerase"])
+
+		self.assertEqual(tuple(all_object_counts), tuple([15, 20]))
+		self.assertEqual(partial_object_counts, 15)
+
 	# Internal tests
 
 	# Global references
