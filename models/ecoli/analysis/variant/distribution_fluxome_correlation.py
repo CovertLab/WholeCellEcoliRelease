@@ -10,11 +10,10 @@ from matplotlib import pyplot as plt
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import units, parallelization
+from wholecell.utils import parallelization, units
 
 from wholecell.utils.sparkline import whitePadSparklineAxis
 from scipy.stats import pearsonr
-from multiprocessing import Pool
 
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
 from wholecell.analysis.analysis_tools import exportFigure
@@ -107,7 +106,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 		ap = AnalysisPaths(inputDir, variant_plot = True)
 
-		pool = Pool(processes=parallelization.plotter_cpus())
+		pool = parallelization.pool(processes=self.cpus)
 		args = zip(range(ap.n_variant), [ap] * ap.n_variant, [toyaReactions] * ap.n_variant, [toyaFluxesDict] * ap.n_variant, [toyaStdevDict] * ap.n_variant)
 		result = pool.map(getPCC, args)
 		cPickle.dump(result, open("pcc_results_fluxome.cPickle", "w"), cPickle.HIGHEST_PROTOCOL)

@@ -22,21 +22,12 @@
 ## Upgrade the installers:
 #   pip install --upgrade pip setuptools virtualenv wheel
 #
-## Install requires numpy before running requirements.txt
-#   pip install numpy==1.14.3
+## Pip needs a local numpy before installing the other packages:
+#   pip install numpy==1.14.5
 #
 ## For Sherlock:
 ## See /share/PI/mcovert/installation_notes/scipy_with_openblas.txt on how
-## to build scipy from source using a site.cfg file that contains:
-##
-##      [atlas]
-##      atlas_libs = openblas
-##      libraries = openblas
-##
-##      [openblas]
-##      libraries = openblas
-##      library_dirs = /share/sw/free/openblas/0.2.15/lib
-##      include_dirs = /share/sw/free/openblas/0.2.15/include
+## to build scipy from source using a site.cfg file.
 #
 ## Then install all the other packages listed here:
 #   CVXOPT_BUILD_GLPK=1 pip install -r requirements.txt --no-binary cvxopt
@@ -60,6 +51,7 @@ chardet==3.0.4
 click==6.7
 colorama==0.3.9
 configparser==3.5.0
+confluent-kafka==0.11.5
 coverage==4.5.1
 cplex==12.8.0.0
 CVXcanon==0.1.1
@@ -74,7 +66,7 @@ ecos==2.0.5
 enum34==1.1.6
 Equation==1.2.1
 fastcache==1.0.2
-FireWorks==1.7.5
+FireWorks==1.7.6
 Flask==1.0.2
 flask-paginate==0.5.1
 funcsigs==1.0.2

@@ -35,6 +35,8 @@ Workflow options:
 		expression is not fit to protein synthesis demands
 	DISABLE_RNAPOLY_CAPACITY_FITTING (int, "0"): if nonzero, RNA polymerase
 		expression is not fit to RNA synthesis demands
+	WC_ANALYZE_FAST (anything, --): if set, run each analysis plot in a separate
+		process
 
 Simulation parameters:
 	N_GENS (int, "1"): the number of generations to be simulated
@@ -68,8 +70,6 @@ Additional variables:
 
 Environment variables that matter when running the workflow:
 	DEBUG_GC (int, "0"): if nonzero, enable leak detection in the analysis plots
-	WC_ANALYZE_FAST (anything, --): if set, run each analysis plot in a separate
-		process
 '''
 
 from fireworks import Firework, LaunchPad, Workflow, ScriptTask
@@ -92,23 +92,9 @@ from wholecell.utils import filepath
 import yaml
 import os
 import datetime
-import subprocess
 import collections
 import cPickle
 
-def run_cmd(cmd):
-	environ = {
-		"PATH": os.environ["PATH"],
-		"LD_LIBRARY_PATH": os.environ["LD_LIBRARY_PATH"],
-		"LANG": "C",
-		"LC_ALL": "C",
-		}
-	out = subprocess.Popen(cmd, stdout = subprocess.PIPE, env=environ).communicate()[0]
-	return out
-
-def write_file(filename, content):
-	with open(filename, "w") as f:
-		f.write(content)
 
 #### Initial setup ###
 
@@ -160,6 +146,18 @@ WC_ECOLI_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_DIRECTORY = filepath.makedirs(WC_ECOLI_DIRECTORY, "out")
 CACHED_SIM_DATA_DIRECTORY = os.path.join(WC_ECOLI_DIRECTORY, "cached")
 
+# To run each analysis plot in a separate process, ask the analysis Firetasks
+# for several CPUs (it will clip to the number available) and allocate multiple
+# CPUs from SLURM via the Fireworks Queue Adaptor. Otherwise, let the qadapter
+# YAML file request the number of CPUs so we can tune it to ask for extra CPUs
+# in order to get proportionally more RAM, e.g. after running many generations.
+if "WC_ANALYZE_FAST" in os.environ:
+	analysis_cpus = 8
+	analysis_q_cpus = {"cpus_per_task": analysis_cpus}
+else:
+	analysis_cpus = 1
+	analysis_q_cpus = {}
+
 now = datetime.datetime.now()
 SUBMISSION_TIME = "%04d%02d%02d.%02d%02d%02d.%06d" % (
 	now.year, now.month, now.day,
@@ -194,9 +192,9 @@ for i in VARIANTS_TO_RUN:
 
 ### Write metadata
 metadata = {
-	"git_hash": run_cmd(["git", "rev-parse", "HEAD"]),
-	"git_branch": run_cmd(["git", "symbolic-ref", "--short", "HEAD"]),
-	"git_diff": run_cmd(["git", "diff"]),
+	"git_hash": filepath.run_cmd(line="git rev-parse HEAD"),
+	"git_branch": filepath.run_cmd(line="git symbolic-ref --short HEAD"),
+	"git_diff": filepath.run_cmd(line="git diff"),
 	"description": os.environ.get("DESC", ""),
 	"time": SUBMISSION_TIME,
 	"total_gens": str(N_GENS),
@@ -211,9 +209,9 @@ metadata = {
 for key, value in metadata.iteritems():
 	if not isinstance(value, basestring):
 		continue
-	write_file(os.path.join(METADATA_DIRECTORY, key), value)
+	filepath.write_file(os.path.join(METADATA_DIRECTORY, key), value)
 
-with open(os.path.join(METADATA_DIRECTORY, constants.SERIALIZED_METADATA_FILE), "w") as f:
+with open(os.path.join(METADATA_DIRECTORY, constants.SERIALIZED_METADATA_FILE), "wb") as f:
 	cPickle.dump(metadata, f, cPickle.HIGHEST_PROTOCOL)
 
 #### Create workflow
@@ -225,7 +223,7 @@ with open(LAUNCHPAD_FILE) as f:
 # Store list of FireWorks
 wf_fws = []
 
-# Store links defining parent/child relationships of FireWorks
+# Store links defining parent/child dependency relationships of FireWorks
 wf_links = collections.defaultdict(list)
 
 
@@ -258,10 +256,7 @@ fw_name = "FitSimDataTask_Level_1"
 if VERBOSE_QUEUE:
 	print "Queueing {}".format(fw_name)
 
-if PARALLEL_FITTER:
-	cpusForFitter = 8
-else:
-	cpusForFitter = 1
+cpusForFitter = 8 if PARALLEL_FITTER else 1
 fw_fit_level_1 = Firework(
 	FitSimDataTask(
 		fit_level = 1,
@@ -435,10 +430,11 @@ if RUN_AGGREGATE_ANALYSIS:
 			input_directory = os.path.join(INDIV_OUT_DIRECTORY),
 			input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
 			output_plots_directory = VARIANT_PLOT_DIRECTORY,
+			cpus = analysis_cpus,
 			metadata = metadata,
 			),
 		name = fw_name,
-		spec = {"_queueadapter": {"job_name": fw_name}, "_priority":5}
+		spec = {"_queueadapter": dict(analysis_q_cpus, job_name=fw_name), "_priority":5}
 		)
 	wf_fws.append(fw_variant_analysis)
 
@@ -448,7 +444,7 @@ fw_this_variant_this_gen_this_sim_compression = None
 
 for i in VARIANTS_TO_RUN:
 	if VERBOSE_QUEUE:
-		print "Queueing Variant {}".format(i)
+		print "Queueing Variant {} {}".format(VARIANT, i)
 	VARIANT_DIRECTORY = os.path.join(INDIV_OUT_DIRECTORY, VARIANT + "_%06d" % i)
 	VARIANT_SIM_DATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "kb")
 	VARIANT_METADATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "metadata")
@@ -502,10 +498,11 @@ for i in VARIANTS_TO_RUN:
 				input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
 				input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
 				output_plots_directory = COHORT_PLOT_DIRECTORY,
+				cpus = analysis_cpus,
 				metadata = metadata,
 				),
 			name = fw_name,
-			spec = {"_queueadapter": {"job_name": fw_name}, "_priority":4}
+			spec = {"_queueadapter": dict(analysis_q_cpus, job_name=fw_name), "_priority":4}
 			)
 		wf_fws.append(fw_this_variant_cohort_analysis)
 
@@ -528,10 +525,11 @@ for i in VARIANTS_TO_RUN:
 					input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
 					input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
 					output_plots_directory = SEED_PLOT_DIRECTORY,
+					cpus = analysis_cpus,
 					metadata = metadata,
 					),
 				name = fw_name,
-				spec = {"_queueadapter": {"job_name": fw_name}, "_priority":3}
+				spec = {"_queueadapter": dict(analysis_q_cpus, job_name=fw_name), "_priority":3}
 				)
 			wf_fws.append(fw_this_variant_this_seed_this_analysis)
 
@@ -643,10 +641,11 @@ for i in VARIANTS_TO_RUN:
 							input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
 							input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
 							output_plots_directory = CELL_PLOT_OUT_DIRECTORY,
+							cpus = analysis_cpus,
 							metadata = metadata,
 							),
 						name = fw_name,
-						spec = {"_queueadapter": {"job_name": fw_name}, "_priority":2}
+						spec = {"_queueadapter": dict(analysis_q_cpus, job_name=fw_name), "_priority":2}
 						)
 
 					wf_fws.append(fw_this_variant_this_gen_this_sim_analysis)

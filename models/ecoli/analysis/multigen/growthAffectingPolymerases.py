@@ -79,9 +79,10 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# Get free counts
 			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 			moleculeIds = bulkMolecules.readAttribute("objectNames")
+			bulkMoleculeCounts = bulkMolecules.readColumn("counts")
 			rnapId = "APORNAP-CPLX[c]"
 			rnapIndex = moleculeIds.index(rnapId)
-			rnapCountsBulk = bulkMolecules.readColumn("counts")[:, rnapIndex]
+			rnapCountsBulk = bulkMoleculeCounts[:, rnapIndex]
 			bulkMolecules.close()
 
 			# Get active counts
@@ -134,15 +135,15 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			# Get counts of 30S and 50S mRNA, rProteins, rRNA, and full complex counts
 			initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-			freeProteinCounts30S = bulkMolecules.readColumn("counts")[:, proteinIndexes30S]
-			rnaCounts30S = bulkMolecules.readColumn("counts")[:, rnaIndexes30S]
-			freeRRnaCounts30S = bulkMolecules.readColumn("counts")[:, rRnaIndexes30S]
-			complexCounts30S = bulkMolecules.readColumn("counts")[:, complexIndexes30S]
+			freeProteinCounts30S = bulkMoleculeCounts[:, proteinIndexes30S]
+			rnaCounts30S = bulkMoleculeCounts[:, rnaIndexes30S]
+			freeRRnaCounts30S = bulkMoleculeCounts[:, rRnaIndexes30S]
+			complexCounts30S = bulkMoleculeCounts[:, complexIndexes30S]
 
-			freeProteinCounts50S = bulkMolecules.readColumn("counts")[:, proteinIndexes50S]
-			rnaCounts50S = bulkMolecules.readColumn("counts")[:, rnaIndexes50S]
-			freeRRnaCounts50S = bulkMolecules.readColumn("counts")[:, rRnaIndexes50S]
-			complexCounts50S = bulkMolecules.readColumn("counts")[:, complexIndexes50S]
+			freeProteinCounts50S = bulkMoleculeCounts[:, proteinIndexes50S]
+			rnaCounts50S = bulkMoleculeCounts[:, rnaIndexes50S]
+			freeRRnaCounts50S = bulkMoleculeCounts[:, rRnaIndexes50S]
+			complexCounts50S = bulkMoleculeCounts[:, complexIndexes50S]
 
 			bulkMolecules.close()
 

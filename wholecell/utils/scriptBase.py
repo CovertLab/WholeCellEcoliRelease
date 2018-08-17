@@ -16,6 +16,7 @@ import datetime
 import errno
 import re
 import os
+import pprint as pp
 import time
 
 import wholecell
@@ -65,6 +66,15 @@ def find_sim_path(directory=None):
 		raise IOError(errno.ENOENT, '{} is not a simulation path'.format(input_dir))
 	return input_dir
 
+def str_to_bool(s):
+	"""Convert a string command line parameter value to a bool. This ignores
+	case, accepting true, false, 1, or 0.
+	"""
+	s = s.lower()
+	if s not in {'true', 'false', '1', '0'}:
+		raise ValueError('Expected a bool, not %s' % s)
+	return s in {'true', '1'}
+
 
 class ScriptBase(object):
 	"""Abstract base class for scripts. This defines a template where
@@ -81,8 +91,14 @@ class ScriptBase(object):
 	VARIANT_DIR_PATTERN = re.compile(r'([a-zA-Z_\d]+)_(\d+)\Z')
 
 	def description(self):
-		"""Describe the command line program."""
+		"""Describe the command line program. This defaults to the class name."""
 		return type(self).__name__
+
+	def help(self):
+		"""Return help text for the Command Line Interface. This defaults to a
+		string constructed around `self.description()`.
+		"""
+		return 'Run {}.'.format(self.description())
 
 	def timestamp(self, dt=None):
 		"""Construct a datetime-timestamp from `dt`; default = now()."""
@@ -97,8 +113,9 @@ class ScriptBase(object):
 
 	def list_variant_dirs(self, sim_path):
 		"""List the available variant subdirectories of the given sim_path,
+		in alphabetical order,
 		returning for each a tuple (subdir_name, variant_type, variant_index),
-		with the variant_index as an int.
+		where the variant_index is an int.
 		"""
 		available = []
 
@@ -128,6 +145,30 @@ class ScriptBase(object):
 		parser.add_argument('--verbose', action='store_true',
 			help='Enable verbose logging.')
 
+	def define_parameter_bool(self, parser, name, default, help):
+		"""Add a boolean option parameter to the parser. The CLI input can be
+		`--name`, `--no_name`, `--name true`, `--name false`, `--name 1`,
+		`--name 0`, `--name=true`, etc. The default can be True or False, and
+		changing it won't affect any of those explicit input forms. This method
+		adds the default value to the help text.
+		"""
+		default = bool(default)
+		examples = 'true or 1' if default else 'false or 0'
+		group = parser.add_mutually_exclusive_group()
+		group.add_argument('--' + name, nargs='?', default=default,
+			const='true',  # needed for nargs='?'
+			type=str_to_bool,
+			help='({}, {}) {}'.format('bool', examples, help))
+		group.add_argument('--no_' + name, dest=name, action='store_false')
+
+	def define_option(self, parser, name, datatype, default, help):
+			"""Add an option with the given name and datatype to the parser."""
+			parser.add_argument('--' + name,
+				type=datatype,
+				default=default,
+				help='({}, {}) {}'.format(datatype.__name__, default, help)
+				)
+
 	def define_parameter_sim_dir(self, parser):
 		"""Add a `sim_dir` parameter to the command line parser. parse_args()
 		will then use `args.sim_dir` to add `args.sim_path`.
@@ -146,7 +187,8 @@ class ScriptBase(object):
 	def define_parameter_variant_index(self, parser):
 		"""Add a `variant_index` parameter to the command line parser.
 		parse_args() will then use the `variant_index` and `sim_path`
-		arguments, call find_variant_dir(), and set `args.variant_dir`.
+		arguments, call find_variant_dir(), and set `args.variant_dir` to the
+		first matching variant.
 
 		Call this in overridden define_parameters() methods as needed.
 		"""
@@ -191,8 +233,7 @@ class ScriptBase(object):
 		(A `Namespace` is an object with attributes and some methods like
 		`__repr__()` and `__eq__()`. Call `vars(args)` to turn it into a dict.)
 		"""
-		parser = argparse.ArgumentParser(
-			description='Run {}.'.format(self.description()))
+		parser = argparse.ArgumentParser(description=self.help())
 
 		self.define_parameters(parser)
 
@@ -226,8 +267,7 @@ class ScriptBase(object):
 			location = ' at ' + location
 
 		print '{}: {}{}'.format(time.ctime(), self.description(), location)
-		if args.verbose:
-			print '    args: {}'.format(args)
+		pp.pprint({'Arguments': vars(args)})
 
 		start_sec = time.clock()
 		self.run(args)

@@ -75,10 +75,12 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 						# Get molecule counts
 						bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 						moleculeIds = bulkMolecules.readAttribute("objectNames")
+						bulkMoleculeCounts = bulkMolecules.readColumn("counts")
+
 						meneIndex = moleculeIds.index(enzymeId)
-						meneCounts = bulkMolecules.readColumn("counts")[:, meneIndex]
+						meneCounts = bulkMoleculeCounts[:, meneIndex]
 						endProductIndices = [moleculeIds.index(x) for x in endProductIds]
-						endProductCounts = bulkMolecules.readColumn("counts")[:, endProductIndices]
+						endProductCounts = bulkMoleculeCounts[:, endProductIndices]
 						bulkMolecules.close()
 
 						# Compute time with zero counts of tetramer (MENE-CPLX)

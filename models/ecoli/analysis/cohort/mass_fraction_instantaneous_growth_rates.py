@@ -1,5 +1,4 @@
 """
-@author: Heejo Choi
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 1/19/2017
 """
@@ -38,23 +37,9 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			os.mkdir(plotOutDir)
 
 		ap = AnalysisPaths(seedOutDir, cohort_plot = True)
-		sim_data = cPickle.load(open(simDataFile, "rb"))
-
-		T_ADD_AA = None
-		T_CUT_AA = None
-		nutrients_time_series_label = sim_data.external_state.environment.nutrients_time_series_label
-		if "aa" in nutrients_time_series_label:
-			if "add" in nutrients_time_series_label and "cut" in nutrients_time_series_label:
-				T_ADD_AA = sim_data.external_state.environment.nutrients_time_series[nutrients_time_series_label][1][0]
-				T_CUT_AA = sim_data.external_state.environment.nutrients_time_series[nutrients_time_series_label][2][0]
 
 		# Get all cells
 		allDir = ap.get_cells(seed=[0])
-		nCells = allDir.shape[0]
-		nGens = ap.n_generation
-
-		massNames = ["dryMass", "proteinMass", "rnaMass", "dnaMass",]
-		cleanNames = ["Dry mass", "Protein mass", "RNA Mass", "DNA mass",]
 
 		# fig = plt.figure(figsize = (14, 10))
 		# ax1 = plt.subplot2grid((4,2), (0,0), rowspan = 4)

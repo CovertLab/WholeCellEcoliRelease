@@ -34,25 +34,25 @@ class RunFitter(scriptBase.ScriptBase):
 		# for an existing sim_dir directory.
 		parser.add_argument('sim_outdir', nargs='?', default='manual',
 			help='The simulation "out/" subdirectory to write to.'
-				 ' Default = "manual".')
+				 ' Default = "manual".'
+			)
 		parser.add_argument('-c', '--cpus', type=int, default=1,
-			help='The number of CPU processes to use. Default = 1.')
+			help='The number of CPU processes to use. Default = 1.'
+			)
 		parser.add_argument('--cached', action='store_true',
 			help='Copy a cached "' + constants.SERIALIZED_FIT1_FILENAME
-				 + '" file instead of generating it.')
+				 + '" file instead of generating it.'
+			)
 		parser.add_argument('-d', '--debug', action='store_true',
 			help="Enable Fitter debugging: Fit only one arbitrarily-chosen"
 				 " transcription factor for a faster debug cycle. Don't use it"
-				 " for an actual simulation.")
-		parser.add_argument(
-			'--disable-ribosome-fitting',
-			action='store_true',
-			help= "If set, ribosome expression will not be fit to protein synthesis demands."
+				 " for an actual simulation."
 			)
-		parser.add_argument(
-			'--disable-rnapoly-fitting',
-			action='store_true',
-			help= "If set, RNA polymerase expression will not be fit to protein synthesis demands."
+		self.define_parameter_bool(parser, 'ribosome_fitting', True,
+			help="Fit ribosome expression to protein synthesis demands"
+			)
+		self.define_parameter_bool(parser, 'rnapoly_fitting', True,
+			help="Fit RNA polymerase expression to protein synthesis demands"
 			)
 
 	def parse_args(self):
@@ -74,48 +74,47 @@ class RunFitter(scriptBase.ScriptBase):
 		validation_data_file = os.path.join(
 			kb_directory, constants.SERIALIZED_VALIDATION_DATA)
 
-		task1 = InitRawDataTask(
-			output=raw_data_file,
-		)
-		task1.run_task({})
-
 		if args.debug or args.cached:
 			print "{}{}Fitter".format(
 				'DEBUG ' if args.debug else '',
 				'CACHED ' if args.cached else '',
-			)
+				)
 
-		task2 = FitSimDataTask(
-			fit_level=1,
-			input_data=raw_data_file,
-			output_data=sim_data_file,
-			cached=args.cached,  # bool
-			cached_data=cached_sim_data_file,  # cached file to copy
-			cpus=args.cpus,
-			debug=args.debug,
-			disable_ribosome_capacity_fitting=args.disable_ribosome_fitting,
-			disable_rnapoly_capacity_fitting=args.disable_rnapoly_fitting
-		)
-		task2.run_task({})
+		tasks = [
+			InitRawDataTask(
+				output=raw_data_file,
+				),
 
-		task3 = SymlinkTask(
-			to=constants.SERIALIZED_FIT1_FILENAME,
-			link=most_fit_filename,
-			overwrite_if_exists=True,
-		)
-		task3.run_task({})
+			FitSimDataTask(
+				fit_level=1,
+				input_data=raw_data_file,
+				output_data=sim_data_file,
+				cached=args.cached,  # bool
+				cached_data=cached_sim_data_file,  # cached file to copy
+				cpus=args.cpus,
+				debug=args.debug,
+				disable_ribosome_capacity_fitting=not args.ribosome_fitting,
+				disable_rnapoly_capacity_fitting=not args.rnapoly_fitting
+				),
 
-		task4 = InitRawValidationDataTask(
-			output=raw_validation_data_file,
-		)
-		task4.run_task({})
+			SymlinkTask(
+				to=constants.SERIALIZED_FIT1_FILENAME,
+				link=most_fit_filename,
+				overwrite_if_exists=True,
+				),
 
-		task5 = InitValidationDataTask(
-			validation_data_input=raw_validation_data_file,
-			knowledge_base_raw=raw_data_file,
-			output_data=validation_data_file,
-		)
-		task5.run_task({})
+			InitRawValidationDataTask(
+				output=raw_validation_data_file,
+				),
+
+			InitValidationDataTask(
+				validation_data_input=raw_validation_data_file,
+				knowledge_base_raw=raw_data_file,
+				output_data=validation_data_file,
+				),
+			]
+		for task in tasks:
+			task.run_task({})
 
 		print '\n\t'.join(['Wrote', raw_data_file, sim_data_file,
 			most_fit_filename, raw_validation_data_file, validation_data_file])

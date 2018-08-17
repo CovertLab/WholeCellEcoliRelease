@@ -8,6 +8,7 @@ import shutil
 import sys
 
 from fireworks import FireTaskBase, explicit_serialize
+from wholecell.utils import parallelization
 from reconstruction.ecoli.fit_sim_data_1 import fitSimData_1
 from reconstruction.ecoli.fit_sim_data_2 import fitSimData_2
 
@@ -15,7 +16,7 @@ from reconstruction.ecoli.fit_sim_data_2 import fitSimData_2
 class FitSimDataTask(FireTaskBase):
 
 	_fw_name = "FitSimDataTask"
-	required_params = ["fit_level", "input_data", "output_data"]
+	required_params = ["fit_level", "input_data", "output_data", "cpus"]
 	optional_params = [
 		"sim_out_dir",
 		"disable_ribosome_capacity_fitting",
@@ -37,15 +38,16 @@ class FitSimDataTask(FireTaskBase):
 					print ("Warning: could not copy cached sim data due to"
 						   " exception (%s), running fitter") % (exc,)
 
-			if self["cpus"] > 1:
+			cpus = min(self["cpus"], parallelization.cpus())
+			if cpus > 1:
 				print ("Warning: running fitter in parallel with %i processes -"
-					   " ensure there are enough cpus_per_task allocated" % (self["cpus"],))
+					   " ensure there are enough cpus_per_task allocated" % (cpus,))
 
 			with open(self["input_data"], "rb") as f:
 				raw_data = cPickle.load(f)
 
 			sim_data = fitSimData_1(
-				raw_data, cpus=self["cpus"], debug=self["debug"],
+				raw_data, cpus=cpus, debug=self["debug"],
 				disable_ribosome_capacity_fitting=self['disable_ribosome_capacity_fitting'],
 				disable_rnapoly_capacity_fitting=self['disable_rnapoly_capacity_fitting'],
 				)
