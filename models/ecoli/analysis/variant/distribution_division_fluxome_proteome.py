@@ -28,12 +28,13 @@ trim = 0.05
 def getPCCProteome((variant, ap, monomerIds, schmidt_counts)):
 	try:
 		simDir = ap.get_cells(variant = [variant])[0]
+		simOutDir = os.path.join(simDir, "simOut")
 		sim_data = cPickle.load(open(ap.get_variant_kb(variant), "rb"))
 
 		ids_translation = sim_data.process.translation.monomerData["id"].tolist()
 		schmidt_idx = [ids_translation.index(x) for x in monomerIds]
 
-		monomerCounts = TableReader(os.path.join(simDir, "MonomerCounts"))
+		monomerCounts = TableReader(os.path.join(simOutDir, "MonomerCounts"))
 		avgCounts = monomerCounts.readColumn("monomerCounts").mean(axis=0)
 		sim_schmidt_counts = avgCounts[schmidt_idx]
 
