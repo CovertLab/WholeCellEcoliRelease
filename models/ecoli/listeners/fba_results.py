@@ -67,6 +67,8 @@ class FBAResults(wholecell.listeners.listener.Listener):
 		self.kineticObjectiveValues = np.zeros(len(self.kineticTargetFluxNames))
 		self.deltaMetabolites = np.zeros(len(self.metaboliteNamesFromNutrients), np.float64)
 		self.targetConcentrations = np.zeros(len(self.homeostaticTargetMolecules))
+
+		# exchange with environment
 		self.externalExchangeMolecules = self._external_states['Environment']._moleculeIDs
 
 	def tableCreate(self, tableWriter):
@@ -84,16 +86,16 @@ class FBAResults(wholecell.listeners.listener.Listener):
 	def tableAppend(self, tableWriter):
 		# save if importExchangeMolecules are constrained
 		import_constraint = []
-		for id in self.externalExchangeMolecules:
-			if id in self.metabolism.exchange_data['importConstrainedExchangeMolecules'].keys():
+		for molecule_id in self.externalExchangeMolecules:
+			if molecule_id in self.metabolism.exchange_data['importConstrainedExchangeMolecules'].keys():
 				import_constraint.append(True)
 			else:
 				import_constraint.append(False)
 
 		# save if externalExchangeMolecules are in importExchangeMolecules
 		import_exchange = []
-		for id in self.externalExchangeMolecules:
-			if id in self.metabolism.exchange_data['importExchangeMolecules']:
+		for molecule_id in self.externalExchangeMolecules:
+			if molecule_id in self.metabolism.exchange_data['importExchangeMolecules']:
 				import_exchange.append(True)
 			else:
 				import_exchange.append(False)

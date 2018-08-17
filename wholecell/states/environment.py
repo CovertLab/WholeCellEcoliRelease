@@ -37,7 +37,7 @@ class Environment(wholecell.states.external_state.ExternalState):
 		self._moleculeIDs = None
 		self._concentrations = None
 
-		self._deltas = None
+		self._environment_deltas = None
 
 		super(Environment, self).__init__(*args, **kwargs)
 
@@ -67,7 +67,7 @@ class Environment(wholecell.states.external_state.ExternalState):
 		self.container.countsIs(self._concentrations)
 
 		# the length of the longest nutrients name, for padding in nutrients listener
-		self._nutrients_name_max_length = len(max([t[1] for t in self.current_time_series], key=len))
+		self._nutrients_name_max_length = max([len(t[1]) for t in self.current_time_series])
 
 
 	def update(self):
@@ -154,7 +154,7 @@ class EnvironmentView(EnvironmentViewBase):
 
 
 	def countsInc(self, molecule_ids, counts):
-		self._state._deltas = counts
+		self._state._environment_deltas = counts
 		#TODO (Eran) save deltas for external environment dict(zip(molecule_ids, counts))
 		#TODO (Eran) deltas size varies because of changing importExchange.  This will need to be fixed for a listener to save these
 

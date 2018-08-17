@@ -49,12 +49,12 @@ class Metabolism(object):
 			self.kinetic_objective_weight = sim_data.constants.metabolismKineticObjectiveWeightQuadratic
 
 		# glc's upper bound for FBA import constraint.
-		self.glc_vmax_conditions = {
-			'1': ['GLC[p]'],
-			'2': ['CA+2[p]', 'MG+2[p]', 'PI[p]'],
-			'3': ['CPD-183[p]', 'INDOLE[p]', 'NITRATE[p]', 'NITRITE[p]', 'CPD-520[p]', 'TUNGSTATE[p]'],
-			'4': ['OXYGEN-MOLECULE[p]'],
-			}
+		self.glc_vmax_conditions = [
+			['GLC[p]'],
+			['CA+2[p]', 'MG+2[p]', 'PI[p]'],
+			['CPD-183[p]', 'INDOLE[p]', 'NITRATE[p]', 'NITRITE[p]', 'CPD-520[p]', 'TUNGSTATE[p]'],
+			['OXYGEN-MOLECULE[p]']
+		]
 
 		self.secretion_exchange_molecules = self._getSecretionExchangeData(raw_data)
 		self.exchange_data_dict = self._getExchangeDataDict(raw_data, sim_data)
@@ -104,16 +104,16 @@ class Metabolism(object):
 			elif molecule_id == 'GLC[p]':
 				# if any molecules in glc_vmax_conditions['1'] is ABSENT:
 				# TODO (ERAN) -- condition['1'] is the same as [glc]<threshold, this can be removed
-				if not all(key in nonzero_molecules for key in self.glc_vmax_conditions['1']):
+				if not all(molecule in nonzero_molecules for molecule in self.glc_vmax_conditions[0]):
 					importConstrainedExchangeMolecules[molecule_id] = 0 * (units.mmol / units.g / units.h)
 				# if any molecules in glc_vmax_conditions['2'] is ABSENT:
-				elif not all(key in nonzero_molecules for key in self.glc_vmax_conditions['2']):
+				elif not all(molecule in nonzero_molecules for molecule in self.glc_vmax_conditions[1]):
 					importConstrainedExchangeMolecules[molecule_id] = 10 * (units.mmol / units.g / units.h)
 				# if any molecules in glc_vmax_conditions['3'] is PRESENT:
-				elif any(key in nonzero_molecules for key in self.glc_vmax_conditions['3']):
+				elif any(molecule in nonzero_molecules for molecule in self.glc_vmax_conditions[2]):
 					importConstrainedExchangeMolecules[molecule_id] = 10 * (units.mmol / units.g / units.h)
 				# if any molecules in glc_vmax_conditions['4'] is ABSENT:
-				elif not all(key in nonzero_molecules for key in self.glc_vmax_conditions['4']):
+				elif not all(molecule in nonzero_molecules for molecule in self.glc_vmax_conditions[3]):
 					importConstrainedExchangeMolecules[molecule_id] = 100 * (units.mmol / units.g / units.h)
 				else:
 					importConstrainedExchangeMolecules[molecule_id] = 20 * (units.mmol / units.g / units.h)

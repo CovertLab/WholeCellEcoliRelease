@@ -21,7 +21,6 @@ from scipy.sparse import csr_matrix
 
 import wholecell.processes.process
 from wholecell.utils import units
-import copy
 
 from wholecell.utils.random import stochasticRound
 from wholecell.utils.constants import REQUEST_PRIORITY_METABOLISM
@@ -88,7 +87,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Setup molecules in external environment that can be exchanged
 		#TODO (Eran) this can be replaced with reference to exchange_data
-		externalExchangedMolecules = copy.copy(sim_data.process.metabolism.exchange_data_dict["secretionExchangeMolecules"])
+		externalExchangedMolecules = sim_data.process.metabolism.exchange_data_dict["secretionExchangeMolecules"][:]
 		self.metaboliteNamesFromNutrients = set()
 		for time, nutrientsLabel in sim_data.external_state.environment.nutrients_time_series[nutrients_time_series_label]:
 			externalExchangedMolecules += sim_data.process.metabolism.exchange_data_dict["importExchangeMolecules"][nutrientsLabel]
@@ -196,12 +195,12 @@ class Metabolism(wholecell.processes.process.Process):
 		# External molecules
 		self.externalMoleculeIDs = self.fba.getExternalMoleculeIDs()
 
-		## Views
-		# views of environment
+		## Construct views
+		# views on environment
 		self.environment_molecules = self.environmentView(self.environment_molecule_ids)
 		self.external_exchange_molecules = self.environmentView(self.external_exchange_molecule_ids)
 
-		# views of metabolism
+		# views on metabolism bulk molecules
 		self.metaboliteNames = self.fba.getOutputMoleculeIDs()
 		self.metabolites = self.bulkMoleculesView(self.metaboliteNamesFromNutrients)
 		self.catalysts = self.bulkMoleculesView(self.catalystsList)
