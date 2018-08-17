@@ -64,21 +64,17 @@ class MonomerCounts(wholecell.listeners.listener.Listener):
 		# Construct dictionary to quickly find bulk molecule indexes from IDs
 		molecule_dict = {mol: i for i, mol in enumerate(bulk_molecule_ids)}
 
+		def get_molecule_indexes(keys):
+			return np.array([molecule_dict[x] for x in keys])
+
 		# Get indexes of all relevant bulk molecules
-		self.monomer_idx = np.array(
-			[molecule_dict[x] for x in self.monomer_ids])
-		self.complexation_molecule_idx = np.array(
-			[molecule_dict[x] for x in complexation_molecule_ids])
-		self.complexation_complex_idx = np.array(
-			[molecule_dict[x] for x in complexation_complex_ids])
-		self.equilibrium_molecule_idx = np.array(
-			[molecule_dict[x] for x in equilibrium_molecule_ids])
-		self.equilibrium_complex_idx = np.array(
-			[molecule_dict[x] for x in equilibrium_complex_ids])
-		self.ribosome_subunit_idx = np.array(
-			[molecule_dict[x] for x in ribosome_subunit_ids])
-		self.rnap_subunit_idx = np.array(
-			[molecule_dict[x] for x in rnap_subunit_ids])
+		self.monomer_idx = get_molecule_indexes(self.monomer_ids)
+		self.complexation_molecule_idx = get_molecule_indexes(complexation_molecule_ids)
+		self.complexation_complex_idx = get_molecule_indexes(complexation_complex_ids)
+		self.equilibrium_molecule_idx = get_molecule_indexes(equilibrium_molecule_ids)
+		self.equilibrium_complex_idx = get_molecule_indexes(equilibrium_complex_ids)
+		self.ribosome_subunit_idx = get_molecule_indexes(ribosome_subunit_ids)
+		self.rnap_subunit_idx = get_molecule_indexes(rnap_subunit_ids)
 
 		# Get indexes of all unique molecules that need to be accounted for
 		self.uniqueMolecules = sim.internal_states["UniqueMolecules"]
@@ -102,12 +98,11 @@ class MonomerCounts(wholecell.listeners.listener.Listener):
 		n_active_rnap = uniqueMoleculeCounts[self.rnap_idx]
 
 		# Account for monomers in bulk molecule complexes
-		complex_monomer_counts = np.dot(np.negative(
-			bulkMoleculeCounts[self.complexation_complex_idx]),
-			self.complexation_stoich.T)
-		equilibrium_monomer_counts = np.dot(np.negative(
-			bulkMoleculeCounts[self.equilibrium_complex_idx]),
-			self.equilibrium_stoich.T)
+		complex_monomer_counts = np.dot(self.complexation_stoich,
+			np.negative(bulkMoleculeCounts[self.complexation_complex_idx]))
+		equilibrium_monomer_counts = np.dot(self.equilibrium_stoich,
+			np.negative(bulkMoleculeCounts[self.equilibrium_complex_idx]))
+
 		bulkMoleculeCounts[self.complexation_molecule_idx] += complex_monomer_counts.astype(np.int)
 		bulkMoleculeCounts[self.equilibrium_molecule_idx] += equilibrium_monomer_counts.astype(np.int)
 

@@ -94,7 +94,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 				cell_volume = cellMass[idx_timepoint]/cell_density
 
 				# Read bulkCounts at selected timepoint, and normalize
-				normalized_counts = counts[idx_timepoint]*(expected_initial_volume/cell_volume)
+				normalized_counts = counts[idx_timepoint, :]*(expected_initial_volume/cell_volume)
 
 				# Get protein monomer counts for calculations now that all complexes are dissociated
 				protein_counts[gen_idx, seed_idx, :] = normalized_counts
