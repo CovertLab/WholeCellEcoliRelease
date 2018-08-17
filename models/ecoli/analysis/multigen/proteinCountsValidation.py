@@ -35,26 +35,17 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		validation_data = cPickle.load(open(validationDataFile, "rb"))
 
-		ids_complexation = sim_data.process.complexation.moleculeNames
-		ids_complexation_complexes = sim_data.process.complexation.ids_complexes
-		ids_equilibrium = sim_data.process.equilibrium.moleculeNames
-		ids_equilibrium_complexes = sim_data.process.equilibrium.ids_complexes
 		ids_translation = sim_data.process.translation.monomerData["id"].tolist()
-		ids_protein = sorted(set(ids_complexation + ids_equilibrium + ids_translation))
-		bulkContainer = BulkObjectsContainer(ids_protein, dtype = np.float64)
-		view_complexation = bulkContainer.countsView(ids_complexation)
-		view_complexation_complexes = bulkContainer.countsView(ids_complexation_complexes)
-		view_equilibrium = bulkContainer.countsView(ids_equilibrium)
-		view_equilibrium_complexes = bulkContainer.countsView(ids_equilibrium_complexes)
-		view_translation = bulkContainer.countsView(ids_translation)
-		view_validation_schmidt = bulkContainer.countsView(validation_data.protein.schmidt2015Data["monomerId"].tolist())
+		schmidt_idx = [ids_translation.index(x) for x in validation_data.protein.schmidt2015Data["monomerId"].tolist()]
+
+		schmidt_counts = validation_data.protein.schmidt2015Data["glucoseCounts"]
 
 		# Get all cells
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
 		allDir = ap.get_cells()
 
-		View_Validation_Schmidt = []
+		sim_schmidt_counts_multigen = []
 
 		fig = plt.figure(figsize = (4, 4))
 
@@ -63,52 +54,22 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			simOutDir = os.path.join(simDir, "simOut")
 
-			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-			moleculeIds = bulkMolecules.readAttribute("objectNames")
-			proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in ids_protein], np.int)
-			proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
-			bulkMolecules.close()
+			monomerCounts = TableReader(os.path.join(simOutDir, "MonomerCounts"))
+			avgCounts = monomerCounts.readColumn("monomerCounts").mean(axis=0)
+			sim_schmidt_counts = avgCounts[schmidt_idx]
 
-			# Account for monomers
-			bulkContainer.countsIs(proteinCountsBulk.mean(axis = 0))
+			sim_schmidt_counts_multigen.append(sim_schmidt_counts)
 
-			# Account for unique molecules
-			uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
-			ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
-			rnaPolyIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
-			nActiveRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
-			nActiveRnaPoly = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnaPolyIndex]
-			uniqueMoleculeCounts.close()
-			bulkContainer.countsInc(nActiveRibosome.mean(), [sim_data.moleculeIds.s30_fullComplex, sim_data.moleculeIds.s50_fullComplex])
-			bulkContainer.countsInc(nActiveRnaPoly.mean(), [sim_data.moleculeIds.rnapFull])
-
-			# Account for small-molecule bound complexes
-			view_equilibrium.countsInc(
-				np.dot(sim_data.process.equilibrium.stoichMatrixMonomers(), view_equilibrium_complexes.counts() * -1)
-				)
-
-			# Account for monomers in complexed form
-			view_complexation.countsInc(
-				np.dot(sim_data.process.complexation.stoichMatrixMonomers(), view_complexation_complexes.counts() * -1)
-				)
-
-			view_validation_schmidt = bulkContainer.countsView(validation_data.protein.schmidt2015Data["monomerId"].tolist())
-			View_Validation_Schmidt.append(view_validation_schmidt.counts())
-
-		View_Validation_Schmidt = (np.array(View_Validation_Schmidt)).mean(axis = 0)
-
-		# Schmidt Counts
-		schmidtLabels = validation_data.protein.schmidt2015Data["monomerId"]
-		schmidtCounts = validation_data.protein.schmidt2015Data["glucoseCounts"]
+		sim_schmidt_counts_multigen = (np.array(sim_schmidt_counts_multigen)).mean(axis = 0)
 
 		axis = plt.subplot(1,1,1)
 
-		axis.plot(np.log10(schmidtCounts + 1), np.log10(View_Validation_Schmidt + 1), 'o', color = "black", markersize = 6, alpha = 0.1, zorder = 1, markeredgewidth = 0.0)
-		# print pearsonr( np.log10(View_Validation_Schmidt + 1), np.log10(schmidtCounts + 1) )[0]
+		axis.plot(np.log10(schmidt_counts + 1), np.log10(sim_schmidt_counts_multigen + 1), 'o', color = "black", markersize = 6, alpha = 0.1, zorder = 1, markeredgewidth = 0.0)
+		# print pearsonr( np.log10(sim_schmidt_counts_mulitgen + 1), np.log10(schmidtCounts + 1) )[0]
 
 		maxLine = np.ceil(
-						max((np.log10(schmidtCounts + 1)).max(),
-						(np.log10(View_Validation_Schmidt + 1)).max())
+						max((np.log10(schmidt_counts + 1)).max(),
+						(np.log10(sim_schmidt_counts_multigen + 1)).max())
 					)
 		plt.plot([0, maxLine], [0, maxLine], '-k')
 
