@@ -14,7 +14,6 @@ from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import variantAnalysisPlot
 from wholecell.utils import parallelization
 from wholecell.utils.sparkline import whitePadSparklineAxis
-from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from scipy.stats import pearsonr
 
 SHUFFLE_VARIANT_TAG = "ShuffleParams"
@@ -24,59 +23,20 @@ FONT_SIZE=9
 trim = 0.05
 
 
-def getPCC((variant, ap, monomerIds, schmidtCounts)):
+def getPCC((variant, ap, monomerIds, schmidt_counts)):
 	try:
 		simDir = ap.get_cells(variant = [variant])[0]
-
+		simOutDir = os.path.join(simDir, "simOut")
 		sim_data = cPickle.load(open(ap.get_variant_kb(variant), "rb"))
 
-		ids_complexation = sim_data.process.complexation.moleculeNames
-		ids_complexation_complexes = sim_data.process.complexation.ids_complexes
-		ids_equilibrium = sim_data.process.equilibrium.moleculeNames
-		ids_equilibrium_complexes = sim_data.process.equilibrium.ids_complexes
 		ids_translation = sim_data.process.translation.monomerData["id"].tolist()
-		ids_protein = sorted(set(ids_complexation + ids_equilibrium + ids_translation))
+		schmidt_idx = [ids_translation.index(x) for x in monomerIds]
 
-		bulkContainer = BulkObjectsContainer(ids_protein, dtype = np.float64)
-		view_complexation = bulkContainer.countsView(ids_complexation)
-		view_complexation_complexes = bulkContainer.countsView(ids_complexation_complexes)
-		view_equilibrium = bulkContainer.countsView(ids_equilibrium)
-		view_equilibrium_complexes = bulkContainer.countsView(ids_equilibrium_complexes)
-		view_translation = bulkContainer.countsView(ids_translation)
-		view_validation_schmidt = bulkContainer.countsView(monomerIds)
+		monomerCounts = TableReader(os.path.join(simOutDir, "MonomerCounts"))
+		avgCounts = monomerCounts.readColumn("monomerCounts").mean(axis=0)
+		sim_schmidt_counts = avgCounts[schmidt_idx]
 
-		simOutDir = os.path.join(simDir, "simOut")
-
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
-		proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in ids_protein], np.int)
-		proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
-		bulkMolecules.close()
-
-		# Account for monomers
-		bulkContainer.countsIs(proteinCountsBulk.mean(axis = 0))
-
-		# Account for unique molecules
-		uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
-		ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
-		rnaPolyIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
-		nActiveRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
-		nActiveRnaPoly = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnaPolyIndex]
-		uniqueMoleculeCounts.close()
-		bulkContainer.countsInc(nActiveRibosome.mean(), [sim_data.moleculeIds.s30_fullComplex, sim_data.moleculeIds.s50_fullComplex])
-		bulkContainer.countsInc(nActiveRnaPoly.mean(), [sim_data.moleculeIds.rnapFull])
-
-		# Account for small-molecule bound complexes
-		view_equilibrium.countsInc(
-			np.dot(sim_data.process.equilibrium.stoichMatrixMonomers(), view_equilibrium_complexes.counts() * -1)
-			)
-
-		# Account for monomers in complexed form
-		view_complexation.countsInc(
-			np.dot(sim_data.process.complexation.stoichMatrixMonomers(), view_complexation_complexes.counts() * -1)
-			)
-
-		pcc, pval = pearsonr(np.log10(view_validation_schmidt.counts() + 1), np.log10(schmidtCounts + 1))
+		pcc, pval = pearsonr(np.log10(sim_schmidt_counts + 1), np.log10(schmidt_counts + 1))
 
 		return pcc, pval
 

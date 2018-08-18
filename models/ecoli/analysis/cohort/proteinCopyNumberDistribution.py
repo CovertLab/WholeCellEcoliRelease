@@ -52,63 +52,14 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		for gen_idx in range(n_generation):
 			sim_dirs_grouped_by_gen.append(ap.get_cells(generation = [gen_idx]))
 
-		# Load simDataFile
+		# Load simDataFile and get constants
 		sim_data = cPickle.load(open(simDataFile))
-
-		# Get IDs for complex of proteins and constituent protein monomers,
-		# and IDs for only the complexed proteins
-		ids_complexation = sim_data.process.complexation.moleculeNames
-		ids_complexation_complex = sim_data.process.complexation.ids_complexes
-
-		# Get IDs for complex of proteins and small molecules, and associated
-		# protein monomers and small molecules, and IDs for only the complexes
-		ids_equilibrium = sim_data.process.equilibrium.moleculeNames
-		ids_equilibrium_complex = sim_data.process.equilibrium.ids_complexes
-
-		# Get IDs for all protein monomers
-		ids_translation = sim_data.process.translation.monomerData["id"].tolist()
+		cell_density = sim_data.constants.cellDensity
+		ids_translation = sim_data.process.translation.monomerData["id"]
 		n_proteins = len(ids_translation)
 
-		# Get data for proteins in ribosomes
-		data_50s = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s50_fullComplex)
-		data_30s = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s30_fullComplex)
-		ids_ribosome_subunit = data_50s["subunitIds"].tolist() + data_30s["subunitIds"].tolist()
-
-		# Get data for proteins in RNAP
-		data_rnap = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.rnapFull)
-		ids_rnap_subunit = data_rnap["subunitIds"].tolist()
-
-		# Get all monomer stoichiometric matrices for protein complexes
-		# These matrices will be used to dissociate complexes into its constituent
-		# monomer proteins
-		complex_stoich = sim_data.process.complexation.stoichMatrixMonomers()
-		equilibrium_stoich = sim_data.process.equilibrium.stoichMatrixMonomers()
-		ribosome_subunit_stoich = np.hstack((data_50s["subunitStoich"], data_30s["subunitStoich"]))
-		rnap_subunit_stoich = data_rnap["subunitStoich"]
-
-		# Get cell density constant
-		cell_density = sim_data.constants.cellDensity
-
-		# Load simData from first simulation to extract indices
+		# Load simData from first simulation
 		simOutDir = os.path.join(sim_dirs_grouped_by_gen[0][0], "simOut")
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-
-		# Read molecule IDs and cache "ID: index" in a dictionary
-		molecule_ids = bulkMolecules.readAttribute("objectNames")
-		molecule_dict = {mol: i for i, mol in enumerate(molecule_ids)}
-
-		# Get indices from IDs of protein-protein complexes and constituent monomers
-		idx_complexation = np.array([molecule_dict[x] for x in ids_complexation])
-		idx_complexation_complex = np.array([molecule_dict[x] for x in ids_complexation_complex])
-
-		# Get indices from IDs of protein-small molecule complexes and constituent monomers
-		idx_equilibrium = np.array([molecule_dict[x] for x in ids_equilibrium])
-		idx_equilibrium_complex = np.array([molecule_dict[x] for x in ids_equilibrium_complex])  # Only complexes
-
-		# Get indices from IDs of protein monomers, and proteins from ribosomes and RNAPs
-		idx_translation = np.array([molecule_dict[x] for x in ids_translation])
-		idx_ribosome_subunit = np.array([molecule_dict[x] for x in ids_ribosome_subunit])
-		idx_rnap_subunit = np.array([molecule_dict[x] for x in ids_rnap_subunit])
 
 		# Get mass data and calculate initial cell volume (used as standard volume
 		# when normalizing protein counts)
@@ -127,9 +78,10 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 				simOutDir = os.path.join(simDir, "simOut")
 
-				# Get BulkMolecule and time data
-				bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-				time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+				# Read counts of protein monomers at chosen timepoint
+				monomerCounts = TableReader(os.path.join(simOutDir, "MonomerCounts"))
+				counts = monomerCounts.readColumn("monomerCounts")
+				time = monomerCounts.readColumn("time")
 
 				# Pick out random timepoint
 				idx_timepoint = np.random.randint(0, high=len(time))
@@ -141,37 +93,11 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 				# Calculate cell volume chosen timepoint
 				cell_volume = cellMass[idx_timepoint]/cell_density
 
-				# Read counts of all bulk molecules at chosen timepoint
-				bulkCounts = bulkMolecules.readColumn("counts")[idx_timepoint, :]
-				bulkCounts = bulkCounts[np.newaxis, :]  # Convert to column vector
-
-				# Load unique molecule data for RNAP and ribosomes
-				# Note: Inactive ribosomes and RNA polymerases are accounted for
-				# in molecule counts in Complexes, not UniqueMoleculeCounts
-				uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
-				idx_ribosome = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
-				idx_rnap = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
-				n_active_ribosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[idx_timepoint, idx_ribosome]
-				n_active_rnap = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[idx_timepoint, idx_rnap]
-
-				# Dissociate all complexes
-				# Stoichiometric matrices are in dtype float64 - needs casting to integers
-				complex_monomer_counts = np.dot(np.negative(bulkCounts[:, idx_complexation_complex]), complex_stoich.T)
-				equilibrium_monomer_counts = np.dot(np.negative(bulkCounts[:, idx_equilibrium_complex]), equilibrium_stoich.T)
-				bulkCounts[:, idx_complexation] += complex_monomer_counts.astype(np.int)
-				bulkCounts[:, idx_equilibrium] += equilibrium_monomer_counts.astype(np.int)
-
-				# Add subunits from RNAP and ribosomes
-				n_ribosome_subunit = n_active_ribosome*ribosome_subunit_stoich[np.newaxis, :]
-				n_rnap_subunit = n_active_rnap*rnap_subunit_stoich[np.newaxis, :]
-				bulkCounts[:, idx_ribosome_subunit] += n_ribosome_subunit.astype(np.int)
-				bulkCounts[:, idx_rnap_subunit] += n_rnap_subunit.astype(np.int)
-
 				# Read bulkCounts at selected timepoint, and normalize
-				bulkCounts_normalized = bulkCounts*(expected_initial_volume/cell_volume)
+				normalized_counts = counts[idx_timepoint, :]*(expected_initial_volume/cell_volume)
 
 				# Get protein monomer counts for calculations now that all complexes are dissociated
-				protein_counts[gen_idx, seed_idx, :] = bulkCounts_normalized[:, idx_translation]
+				protein_counts[gen_idx, seed_idx, :] = normalized_counts
 
 		# Calculate statistics
 		protein_counts_mean_over_seed = protein_counts.mean(axis=1)

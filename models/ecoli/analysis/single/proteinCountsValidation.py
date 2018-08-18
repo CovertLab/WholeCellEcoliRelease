@@ -16,7 +16,6 @@ import cPickle
 from scipy.stats import pearsonr
 
 from wholecell.io.tablereader import TableReader
-from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
 
@@ -29,70 +28,35 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		if not os.path.exists(plotOutDir):
 			os.mkdir(plotOutDir)
 
-
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		validation_data = cPickle.load(open(validationDataFile, "rb"))
 
-		ids_complexation = sim_data.process.complexation.moleculeNames
-		ids_complexation_complexes = sim_data.process.complexation.ids_complexes
-		ids_equilibrium = sim_data.process.equilibrium.moleculeNames
-		ids_equilibrium_complexes = sim_data.process.equilibrium.ids_complexes
 		ids_translation = sim_data.process.translation.monomerData["id"].tolist()
-		ids_protein = sorted(set(ids_complexation + ids_equilibrium + ids_translation))
-		bulkContainer = BulkObjectsContainer(ids_protein, dtype = np.float64)
-		view_complexation = bulkContainer.countsView(ids_complexation)
-		view_complexation_complexes = bulkContainer.countsView(ids_complexation_complexes)
-		view_equilibrium = bulkContainer.countsView(ids_equilibrium)
-		view_equilibrium_complexes = bulkContainer.countsView(ids_equilibrium_complexes)
-		view_validation = bulkContainer.countsView(validation_data.protein.wisniewski2014Data["monomerId"].tolist())
-		view_validation_schmidt = bulkContainer.countsView(validation_data.protein.schmidt2015Data["monomerId"].tolist())
+		wisniewski_idx = [ids_translation.index(x) for x in validation_data.protein.wisniewski2014Data["monomerId"].tolist()]
+		schmidt_idx = [ids_translation.index(x) for x in validation_data.protein.schmidt2015Data["monomerId"].tolist()]
 
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
-		proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in ids_protein], np.int)
-		proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
-		bulkMolecules.close()
+		monomerCounts = TableReader(os.path.join(simOutDir, "MonomerCounts"))
+		avgCounts = monomerCounts.readColumn("monomerCounts").mean(axis=0)
+		sim_wisniewski_counts = avgCounts[wisniewski_idx]
+		sim_schmidt_counts = avgCounts[schmidt_idx]
 
-		# Account for monomers
-		bulkContainer.countsIs(proteinCountsBulk.mean(axis = 0))
-
-		# Account for unique molecules
-		uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
-		ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
-		rnaPolyIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
-		nActiveRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
-		nActiveRnaPoly = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnaPolyIndex]
-		uniqueMoleculeCounts.close()
-		bulkContainer.countsInc(nActiveRibosome.mean(), [sim_data.moleculeIds.s30_fullComplex, sim_data.moleculeIds.s50_fullComplex])
-		bulkContainer.countsInc(nActiveRnaPoly.mean(), [sim_data.moleculeIds.rnapFull])
-
-		# Account for small-molecule bound complexes
-		view_equilibrium.countsInc(
-			np.dot(sim_data.process.equilibrium.stoichMatrixMonomers(), view_equilibrium_complexes.counts() * -1)
-			)
-
-		# Account for monomers in complexed form
-		view_complexation.countsInc(
-			np.dot(sim_data.process.complexation.stoichMatrixMonomers(), view_complexation_complexes.counts() * -1)
-			)
-
-		wisniewskiCounts = validation_data.protein.wisniewski2014Data["avgCounts"]
+		wisniewski_counts = validation_data.protein.wisniewski2014Data["avgCounts"]
+		schmidt_counts = validation_data.protein.schmidt2015Data["glucoseCounts"]
 
 		fig, ax = plt.subplots(2, sharey=True, figsize = (8.5, 11))
 
 		# Wisniewski Counts
-		ax[0].scatter(np.log10(wisniewskiCounts + 1), np.log10(view_validation.counts() + 1), c='w', edgecolor = 'k', alpha=.7)
+		ax[0].scatter(np.log10(wisniewski_counts + 1), np.log10(sim_wisniewski_counts + 1), c='w', edgecolor = 'k', alpha=.7)
 		ax[0].set_xlabel("log10(Wisniewski 2014 Counts)")
-		ax[0].set_title("Pearson r: %0.2f" % pearsonr(np.log10(view_validation.counts() + 1), np.log10(wisniewskiCounts + 1))[0])
+		ax[0].set_title("Pearson r: %0.2f" % pearsonr(np.log10(sim_wisniewski_counts + 1), np.log10(wisniewski_counts + 1))[0])
 
 		# Schmidt Counts
-		schmidtCounts = validation_data.protein.schmidt2015Data["glucoseCounts"]
 		ax[1].scatter(
-			np.log10(schmidtCounts + 1),
-			np.log10(view_validation_schmidt.counts() + 1),
+			np.log10(schmidt_counts + 1),
+			np.log10(sim_schmidt_counts + 1),
 			c='w', edgecolor = 'k', alpha=.7)
 		ax[1].set_xlabel("log10(Schmidt 2015 Counts)")
-		ax[1].set_title("Pearson r: %0.2f" % pearsonr(np.log10(view_validation_schmidt.counts() + 1), np.log10(schmidtCounts + 1))[0])
+		ax[1].set_title("Pearson r: %0.2f" % pearsonr(np.log10(sim_schmidt_counts + 1), np.log10(schmidt_counts + 1))[0])
 
 		plt.ylabel("log10(Simulation Average Counts)")
 		# NOTE: This Pearson correlation goes up (at the time of writing) about 0.05 if you only

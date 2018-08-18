@@ -38,26 +38,19 @@ class UniqueMoleculeCounts(wholecell.listeners.listener.Listener):
 	def allocate(self):
 		super(UniqueMoleculeCounts, self).allocate()
 
-		# TODO: add interface to unique objects container
 		self.uniqueMoleculeCounts = np.zeros(
-			len(self.uniqueMolecules.container._names),
+			len(self.uniqueMolecules.container.objectNames()),
 			np.int64
 			)
 
 
 	def update(self):
-		# TODO: add interface to unique objects container
-
-		for i in xrange(self.uniqueMoleculeCounts.size):
-			self.uniqueMoleculeCounts[i] = (
-				self.uniqueMolecules.container._collections[i]["_entryState"]
-				== self.uniqueMolecules.container._entryActive
-				).sum()
+		self.uniqueMoleculeCounts = self.uniqueMolecules.container.counts()
 
 
 	def tableCreate(self, tableWriter):
 		tableWriter.writeAttributes(
-			uniqueMoleculeIds = self.uniqueMolecules.container._names
+			uniqueMoleculeIds = self.uniqueMolecules.container.objectNames()
 			)
 
 
