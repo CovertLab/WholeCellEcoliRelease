@@ -33,15 +33,12 @@ class Replication(object):
 		self.genome_C_count = self.genome_sequence.count("C")
 
 	def _buildGeneData(self, raw_data, sim_data):
-		genomeLength = len(raw_data.genome_sequence)
 		self.geneData = np.zeros(len(raw_data.genes),
-			dtype = [('name'				,	'a50'),
-					('rnaId'                ,   'a50'),
-					('endCoordinate'		,	'int64')])
+			dtype = [('name', 'a50'),
+					('rnaId', 'a50')])
 
 		self.geneData['name'] = [x['id'] for x in raw_data.genes]
 		self.geneData['rnaId'] = [x['rnaId'] for x in raw_data.genes]
-		self.geneData['endCoordinate'] = [(x['coordinate'] + x['length']) % genomeLength if x['direction'] == '+' else (x['coordinate'] - x['length']) % genomeLength for x in raw_data.genes]
 
 	def _buildReplication(self, raw_data, sim_data):
 		# Map ATGC to 8 bit integers
@@ -51,11 +48,11 @@ class Replication(object):
 			numerical_sequence[i] = ntMapping[letter] # Build genome sequence as small integers
 
 		# Create 4 possible polymerization sequences
-		oriC = raw_data.parameters['oriCCenter'].asNumber()
-		terC = raw_data.parameters['terCCenter'].asNumber()
+		oric_coordinate = raw_data.parameters['oriCCenter'].asNumber()
+		terc_coordinate = raw_data.parameters['terCCenter'].asNumber()
 
-		self.forward_sequence = numerical_sequence[np.hstack((np.arange(oriC, self.genome_length),np.arange(0, terC)))]
-		self.reverse_sequence = numerical_sequence[np.arange(oriC, terC, -1)]
+		self.forward_sequence = numerical_sequence[np.hstack((np.arange(oric_coordinate, self.genome_length),np.arange(0, terc_coordinate)))]
+		self.reverse_sequence = numerical_sequence[np.arange(oric_coordinate, terc_coordinate, -1)]
 		self.forward_complement_sequence = self._reverseComplement(self.forward_sequence)
 		self.reverse_complement_sequence = self._reverseComplement(self.reverse_sequence)
 
