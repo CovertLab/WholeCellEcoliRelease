@@ -56,14 +56,38 @@ class Metabolism(object):
 			['OXYGEN-MOLECULE[p]']
 		]
 
-		self._secretion_exchange_molecules = self._getSecretionExchangeData(raw_data)
+		self.all_external_exchange_molecules = self._getAllExternalExchangeMolecules(raw_data)
+		self._secretion_exchange_molecules = self._getSecretionExchangeMolecules(raw_data)
 		self._exchange_data_dict = self._getExchangeDataDict(raw_data, sim_data)
+		self.import_exchange =[]
+		self.import_constraint = []
 
-		# initialize exchange_data
+		# initialize exchange_data, import_exchange, and import_constraints
 		self.exchange_data = self.getExchangeData('minimal')
+		self.saveImportConstraints(self.exchange_data)
 
 		self._buildBiomass(raw_data, sim_data)
 		self._buildMetabolism(raw_data, sim_data)
+
+
+	def saveImportConstraints(self, exchange_data):
+		'''
+		Saves import_constraint and import_exchange for the fba_results listener.
+		import_constraint saves all importConstrainedExchangeMolecules as true, and the rest as false.
+		import_exchange saves all importExchangeMolecules as true, and the rest as false.
+		'''
+
+		# molecules from all_external_exchange_molecules set to 'true' if they are current importExchangeMolecules.
+		self.import_exchange = [
+			molecule_id in exchange_data['importExchangeMolecules']
+			for molecule_id in self.all_external_exchange_molecules
+			]
+
+		# molecules from all_external_exchange_molecules set to 'true' if they are current importConstrainedExchangeMolecules.
+		self.import_constraint = [
+			molecule_id in exchange_data['importConstrainedExchangeMolecules']
+			for molecule_id in self.all_external_exchange_molecules
+			]
 
 
 	def exchangeDataFromConcentrations(self, molecules):
@@ -137,6 +161,7 @@ class Metabolism(object):
 			"secretionExchangeMolecules": secretionExchangeMolecules,
 		}
 
+
 	def _getExchangeDataDict(self, raw_data, sim_data):
 		'''
 		Returns a dictionary of exchange_data for the initial environment listed in condition.environment. This dictionary
@@ -168,6 +193,7 @@ class Metabolism(object):
 			"secretionExchangeMolecules": secretionExchangeMolecules,
 		}
 
+
 	def getExchangeData(self, environment_label):
 		'''
 		Returns exchange_data for a given environment_label saved in _exchange_data_dict.
@@ -187,11 +213,11 @@ class Metabolism(object):
 			"secretionExchangeMolecules": secretionExchangeMolecules,
 		}
 
-	def _getSecretionExchangeData(self, raw_data):
-		'''
-		get list of secretion exchange molecules from raw data
-		'''
 
+	def _getSecretionExchangeMolecules(self, raw_data):
+		'''
+		get list of all secretion exchange molecules from raw data
+		'''
 		secretionExchangeMolecules = []
 		for secretion in raw_data.secretions:
 			if secretion["lower bound"] and secretion["upper bound"]:
@@ -201,6 +227,19 @@ class Metabolism(object):
 				secretionExchangeMolecules.append(secretion["molecule id"])
 
 		return secretionExchangeMolecules
+
+
+	def _getAllExternalExchangeMolecules(self, raw_data):
+		'''
+		get list of all external exchange molecules from raw data
+		'''
+		externalExchangeData = []
+		# initiate all molecules with 0 concentrations
+		for row in raw_data.condition.environment_molecules:
+			externalExchangeData.append(row["molecule id"])
+
+		return externalExchangeData
+
 
 	def _buildBiomass(self, raw_data, sim_data):
 		wildtypeIDs = set(entry["molecule id"] for entry in raw_data.biomass)
