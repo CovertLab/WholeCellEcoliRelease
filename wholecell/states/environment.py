@@ -59,8 +59,8 @@ class Environment(wholecell.states.external_state.ExternalState):
 		self._times = [t[0] for t in self.current_time_series]
 
 		# initialize molecule IDs and concentrations based on initial environment
-		self._moleculeIDs = [id for id, concentration in self.environment_dict[self.nutrients].iteritems()]
-		self._concentrations = np.array([concentration.asNumber() for id, concentration in self.environment_dict[self.nutrients].iteritems()])
+		self._moleculeIDs = [molecule_id for molecule_id, concentration in self.environment_dict[self.nutrients].iteritems()]
+		self._concentrations = np.array([concentration.asNumber() for molecule_id, concentration in self.environment_dict[self.nutrients].iteritems()])
 
 		# create bulk container for molecule concentrations. This uses concentrations instead of counts.
 		self.container = BulkObjectsContainer(self._moleculeIDs, dtype=np.float64)

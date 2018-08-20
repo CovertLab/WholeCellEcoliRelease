@@ -54,6 +54,7 @@ class Metabolism(wholecell.processes.process.Process):
 		self.cellDensity = sim_data.constants.cellDensity
 		self.ngam = sim_data.constants.nonGrowthAssociatedMaintenance
 
+		self.getExchangeData = sim_data.process.metabolism.getExchangeData
 		self.exchangeConstraints = sim_data.process.metabolism.exchangeConstraints
 		self.updateExchangeData = sim_data.process.metabolism.exchangeDataFromConcentrations
 
@@ -63,7 +64,6 @@ class Metabolism(wholecell.processes.process.Process):
 		# Create objective for homeostatic constraints
 		nutrients_time_series_label = sim_data.external_state.environment.nutrients_time_series_label
 		initial_environment = sim_data.external_state.environment.nutrients_time_series[nutrients_time_series_label][0][1]
-
 
 
 		# initialize exchange_data according to initial concentrations in environment
@@ -87,14 +87,13 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Setup molecules in external environment that can be exchanged
 		#TODO (Eran) this can be replaced with reference to exchange_data
-		externalExchangedMolecules = sim_data.process.metabolism.exchange_data_dict["secretionExchangeMolecules"][:]
+		externalExchangedMolecules = self.getExchangeData('minimal')['secretionExchangeMolecules'][:]
 		self.metaboliteNamesFromNutrients = set()
-		for time, nutrientsLabel in sim_data.external_state.environment.nutrients_time_series[nutrients_time_series_label]:
-			externalExchangedMolecules += sim_data.process.metabolism.exchange_data_dict["importExchangeMolecules"][nutrientsLabel]
-
+		for time, environment_label in sim_data.external_state.environment.nutrients_time_series[nutrients_time_series_label]:
+			externalExchangedMolecules += self.getExchangeData(environment_label)['importExchangeMolecules']
 			self.metaboliteNamesFromNutrients.update(
 				sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
-					nutrientsLabel, sim_data.process.metabolism.nutrientsToInternalConc
+					environment_label, sim_data.process.metabolism.nutrientsToInternalConc
 					)
 				)
 		externalExchangedMolecules = sorted(set(externalExchangedMolecules))
