@@ -48,12 +48,18 @@ class Metabolism(object):
 		else:
 			self.kinetic_objective_weight = sim_data.constants.metabolismKineticObjectiveWeightQuadratic
 
-		# glc's upper bound for FBA import constraint.
+		# lists of molecules whose presence modifies glc's upper bound for FBA import constraint, whose default is 20 (mmol/g DCW/hr).
+		# This is implemented to reproduce glc maximum uptake previous instantiated in environment files, but now done explicitly here.
+		# TODO (Eran) transport should do away with these conditional requirements for determining GLC flux.
 		self.glc_vmax_conditions = [
+			# if any of these molecules are ABSENT, GLC upper bound is set to 0 (mmol/g DCW/hr)
 			['GLC[p]'],
+			# if any of these molecules are ABSENT, GLC upper bound is set to 100 (mmol/g DCW/hr)
+			['OXYGEN-MOLECULE[p]'],
+			# if any of these molecules are ABSENT, GLC upper bound is set to 10 (mmol/g DCW/hr)
 			['CA+2[p]', 'MG+2[p]', 'PI[p]'],
+			# if any of these molecules are PRESENT, GLC upper bound is set to 10 (mmol/g DCW/hr)
 			['CPD-183[p]', 'INDOLE[p]', 'NITRATE[p]', 'NITRITE[p]', 'CPD-520[p]', 'TUNGSTATE[p]'],
-			['OXYGEN-MOLECULE[p]']
 		]
 
 		self.all_external_exchange_molecules = self._getAllExternalExchangeMolecules(raw_data)
@@ -126,20 +132,24 @@ class Metabolism(object):
 			elif concentration.asNumber() < IMPORT_CONSTRAINT_THRESHOLD:
 				importConstrainedExchangeMolecules[molecule_id] = 0 * (units.mmol / units.g / units.h)
 
-			# if GLC, add to import constrained
+			# The logic below is used to change GLC's upper bound flux based on what nutrients are present in the environment.
+			# The order of this logic is important. First, if GLC is absent from the environment, the upper bound flux is 0.
+			# If molecules in condition[1] (oxygen) are absent, the upper bound flux is 100 to match anaerobic glucose uptake.
+			# If either molecules in condition[2] are absent or condition[3] are present, the upper bound flux is 10.
+			# Finally, if none of these conditions are true, the upper bound is set to the default of 20.
 			elif molecule_id == 'GLC[p]':
-				# if any molecule in glc_vmax_conditions[1] is ABSENT:
+				# if any molecule in glc_vmax_conditions[0] is ABSENT:
 				if not all(molecule in nonzero_molecules for molecule in self.glc_vmax_conditions[0]):
 					importConstrainedExchangeMolecules[molecule_id] = 0 * (units.mmol / units.g / units.h)
-				# if any molecule in glc_vmax_conditions[2] is ABSENT:
+				# if any molecule in glc_vmax_conditions[3] is ABSENT:
 				elif not all(molecule in nonzero_molecules for molecule in self.glc_vmax_conditions[1]):
-					importConstrainedExchangeMolecules[molecule_id] = 10 * (units.mmol / units.g / units.h)
-				# if any molecule in glc_vmax_conditions[3] is PRESENT:
-				elif any(molecule in nonzero_molecules for molecule in self.glc_vmax_conditions[2]):
-					importConstrainedExchangeMolecules[molecule_id] = 10 * (units.mmol / units.g / units.h)
-				# if any molecule in glc_vmax_conditions[4] is ABSENT:
-				elif not all(molecule in nonzero_molecules for molecule in self.glc_vmax_conditions[3]):
 					importConstrainedExchangeMolecules[molecule_id] = 100 * (units.mmol / units.g / units.h)
+				# if any molecule in glc_vmax_conditions[1] is ABSENT:
+				elif not all(molecule in nonzero_molecules for molecule in self.glc_vmax_conditions[2]):
+					importConstrainedExchangeMolecules[molecule_id] = 10 * (units.mmol / units.g / units.h)
+				# if any molecule in glc_vmax_conditions[2] is PRESENT:
+				elif any(molecule in nonzero_molecules for molecule in self.glc_vmax_conditions[3]):
+					importConstrainedExchangeMolecules[molecule_id] = 10 * (units.mmol / units.g / units.h)
 				else:
 					importConstrainedExchangeMolecules[molecule_id] = 20 * (units.mmol / units.g / units.h)
 
