@@ -59,12 +59,12 @@ class ExternalState(object):
 
 			#initiate all molecules with 0 concentrations
 			for row in raw_data.condition.environment_molecules:
-				self.environment.environment_dict[label].update({row["molecule id"]: 0 * (units.mmol / units.L)})
+				self.environment.environment_dict[label].update({row["molecule id"]: 0})
 
-			# update non-zero concentrations
+			# update non-zero concentrations, remove units
 			molecule_concentrations = getattr(raw_data.condition.environment, label)
 			for row in molecule_concentrations:
-				self.environment.environment_dict[label].update({row["molecule id"]: row["concentration"]})
+				self.environment.environment_dict[label].update({row["molecule id"]: row["concentration"].asNumber()})
 
 		# initial state based on default nutrient time series
 		self.environment.nutrients = self.environment.environment_dict[

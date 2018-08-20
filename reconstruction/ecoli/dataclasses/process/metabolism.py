@@ -121,15 +121,15 @@ class Metabolism(object):
 		secretionExchangeMolecules = self._secretion_exchange_molecules
 
 		#remove molecules with 0 conc
-		nonzero_molecules = {molecule_id:concentration for molecule_id, concentration in molecules.items() if concentration.asNumber() != 0}
+		nonzero_molecules = {molecule_id:concentration for molecule_id, concentration in molecules.items() if concentration != 0}
 
 		for molecule_id, concentration in nonzero_molecules.iteritems():
 
 			# skip if concentration is 0. Do not include these nonexistent molecules in FBA problem definition.
-			if molecule_id != 'GLC[p]' and concentration.asNumber() == 0:
+			if molecule_id != 'GLC[p]' and concentration == 0:
 				continue
 
-			elif concentration.asNumber() < IMPORT_CONSTRAINT_THRESHOLD:
+			elif concentration < IMPORT_CONSTRAINT_THRESHOLD:
 				importConstrainedExchangeMolecules[molecule_id] = 0 * (units.mmol / units.g / units.h)
 
 			# The logic below is used to change GLC's upper bound flux based on what nutrients are present in the environment.
