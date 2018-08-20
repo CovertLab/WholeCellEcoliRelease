@@ -48,7 +48,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		rRna = mass.readColumn('rRnaMass')
 		mRna = mass.readColumn('mRnaMass')
 		dna = mass.readColumn('dnaMass')
-		smallMolecules = mass.readColumn('smallMoleculeMass')
+		small_molecules = mass.readColumn('smallMoleculeMass')
 		total_dry_mass = mass.readColumn('dryMass')
 
 		mass_fractions = np.vstack([
@@ -57,15 +57,14 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			tRna / tRna[0],
 			mRna / mRna[0],
 			dna / dna[0],
-			smallMolecules / smallMolecules[0],
+			small_molecules / small_molecules[0],
 			]).T
-		massLabels = ['Protein', 'rRNA', 'tRNA', 'mRNA', 'DNA', 'Small Mol.s']
+		mass_labels = ['Protein', 'rRNA', 'tRNA', 'mRNA', 'DNA', 'Small Mol.s']
 
 		# Load time
-		initialTime = TableReader(
-			os.path.join(simOutDir, 'Main')).readAttribute('initialTime')
+		initial_time = TableReader(os.path.join(simOutDir, 'Main')).readAttribute('initialTime')
 		time = TableReader(os.path.join(simOutDir, 'Main')).readColumn(
-			'time') - initialTime
+			'time') - initial_time
 
 		# Load environment data
 		environment = TableReader(os.path.join(simOutDir, 'Environment'))
@@ -94,23 +93,23 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		nutrient_shift = [c.replace(' ', '') for c in nutrient_shift]
 
 		# Load flux data
-		fbaResults = TableReader(os.path.join(simOutDir, 'FBAResults'))
-		reactionIDs = np.array(fbaResults.readAttribute('reactionIDs'))
-		externalExchangeFluxes = np.array(fbaResults.readColumn('externalExchangeFluxes'))
-		externalExchangeMolecules = np.array(fbaResults.readAttribute('externalExchangeMolecules'))
-		importConstraints = np.array(fbaResults.readColumn('importConstraint'))
-		importExchanges = np.array(fbaResults.readColumn('importExchange'))
-		fbaResults.close()
+		fba_results = TableReader(os.path.join(simOutDir, 'FBAResults'))
+		reaction_ids = np.array(fba_results.readAttribute('reactionIDs'))
+		external_exchange_fluxes = np.array(fba_results.readColumn('externalExchangeFluxes'))
+		external_exchange_molecules = np.array(fba_results.readAttribute('externalExchangeMolecules'))
+		import_constraints = np.array(fba_results.readColumn('importConstraint'))
+		import_exchanges = np.array(fba_results.readColumn('importExchange'))
+		fba_results.close()
 
 		# Build a mapping from nutrient_name to color
-		idToColor = {}
+		id_to_color = {}
 		for nutrient_name, color in itertools.izip(nutrient_names, itertools.cycle(COLORS_LARGE)):
-			idToColor[nutrient_name] = color
+			id_to_color[nutrient_name] = color
 
-		# Build a mapping from reactionID to color
-		rxnIdToColor = {}
-		for reactionID, color in itertools.izip(reactionIDs, itertools.cycle(COLORS_LARGE)):
-			rxnIdToColor[reactionID] = color
+		# Build a mapping from reaction_id to color
+		rxn_id_to_color = {}
+		for reaction_id, color in itertools.izip(reaction_ids, itertools.cycle(COLORS_LARGE)):
+			rxn_id_to_color[reaction_id] = color
 
 		fig = plt.figure(figsize=(30, 30))
 		ax1_1 = plt.subplot2grid((7, 2), (0, 0), rowspan=1, colspan=1)
@@ -131,26 +130,26 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		ax1_2.set_xlabel('Time (sec)')
 		ax1_2.set_ylabel('Mass (normalized by t = 0)')
 		ax1_2.set_title('Mass Fractions of Biomass Components')
-		ax1_2.legend(massLabels, loc='best')
+		ax1_2.legend(mass_labels, loc='best')
 
 		# plot whether molecule is import exchanged
-		ax1_3.imshow(importExchanges.T, aspect='auto', cmap=plt.cm.binary,
-			interpolation='nearest', extent=[0,time[-1],len(importConstraints.T)-0.5,-0.5])
-		# ax1_3.imshow(importConstraints.T, aspect='auto', cmap=plt.cm.Reds,
-		# 	interpolation='nearest', extent=[0,time[-1],len(importConstraints.T)-0.5,-0.5])
+		ax1_3.imshow(import_exchanges.T, aspect='auto', cmap=plt.cm.binary,
+			interpolation='nearest', extent=[0,time[-1],len(import_constraints.T)-0.5,-0.5])
+		# ax1_3.imshow(import_constraints.T, aspect='auto', cmap=plt.cm.Reds,
+		# 	interpolation='nearest', extent=[0,time[-1],len(import_constraints.T)-0.5,-0.5])
 		ax1_3.set_title('Import Exchange Molecules (boolean)')
 		ax1_3.set_xlabel('Time (sec)')
-		ax1_3.set_yticks(np.arange(len(importExchanges.T)))
-		ax1_3.set_yticklabels(externalExchangeMolecules, fontsize=8)
+		ax1_3.set_yticks(np.arange(len(import_exchanges.T)))
+		ax1_3.set_yticklabels(external_exchange_molecules, fontsize=8)
 
 		# exchange fluxes
-		for idx, (reactionID, externalExchangeFlux) in enumerate(zip(reactionIDs, externalExchangeFluxes.T)):
-			runningMeanFlux = np.convolve(externalExchangeFlux, np.ones((MOVING_AVE_WINDOW_SIZE,))/MOVING_AVE_WINDOW_SIZE, mode='valid')
-			meanNormFlux = runningMeanFlux / np.mean(runningMeanFlux)
-			fluxRange = meanNormFlux.max() - meanNormFlux.min()
+		for idx, (reaction_id, external_exchange_flux) in enumerate(zip(reaction_ids, external_exchange_fluxes.T)):
+			running_mean_flux = np.convolve(external_exchange_flux, np.ones((MOVING_AVE_WINDOW_SIZE,))/MOVING_AVE_WINDOW_SIZE, mode='valid')
+			meanNormFlux = running_mean_flux / np.mean(running_mean_flux)
+			flux_range = meanNormFlux.max() - meanNormFlux.min()
 
-			if fluxRange > RANGE_THRESHOLD:
-				ax2_1.plot(time, externalExchangeFlux, linewidth=2, label=reactionID, color=rxnIdToColor[reactionID])
+			if flux_range > RANGE_THRESHOLD:
+				ax2_1.plot(time, external_exchange_flux, linewidth=2, label=reaction_id, color=rxn_id_to_color[reaction_id])
 
 		ax2_1.set_yscale('symlog')
 		ax2_1.set_xlabel('Time (sec)')
@@ -166,7 +165,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			if (not math.isnan(nutrient_concentrations[0, idx]) and (np.mean(
 					nutrient_concentrations[:, idx]) != 0)) and (not math.isinf(nutrient_concentrations[0, idx])):
 				ax2_2.plot(time, nutrient_concentrations[:, idx], linewidth=2,
-					label=nutrient_name, color=idToColor[nutrient_name])
+					label=nutrient_name, color=id_to_color[nutrient_name])
 		ax2_2.set_yscale('symlog',linthreshy=10, linscaley=1)
 		ax2_2.set_title('Environment Concentrations')
 		ax2_2.set_xlabel('Time (sec)')
