@@ -104,7 +104,24 @@ class Transcription(object):
 		# Load IDs of protein monomers
 		monomerIds = [rna['monomerId'] for rna in raw_data.rnas]
 
-		# TODO: Add units
+		oric_coordinate = raw_data.parameters['oriCCenter'].asNumber()
+		terc_coordinate = raw_data.parameters['terCCenter'].asNumber()
+		genome_length = len(raw_data.genome_sequence)
+
+		def get_replication_coordinate(coordinate):
+			replication_coordinate = ((coordinate - terc_coordinate)
+				% genome_length + terc_coordinate - oric_coordinate
+				)
+
+			if replication_coordinate < 0:
+				replication_coordinate += 1
+
+			return replication_coordinate
+
+		replicationCoordinate = [
+			get_replication_coordinate(x["coordinate"])
+			for x in raw_data.rnas]
+
 		rnaData = np.zeros(
 			n_rnas,
 			dtype = [
@@ -125,6 +142,7 @@ class Transcription(object):
 				('sequence', 'a{}'.format(maxSequenceLength)),
 				('geneId', 'a50'),
 				('KmEndoRNase', 'f8'),
+				('replicationCoordinate', 'int64'),
 				]
 			)
 
@@ -149,25 +167,27 @@ class Transcription(object):
 		rnaData['sequence'] = sequences
 		rnaData['geneId'] = geneIds
 		rnaData['KmEndoRNase'] = Km
+		rnaData['replicationCoordinate'] = replicationCoordinate
 
 		field_units = {
-			'id'			:	None,
-			'degRate'		:	1 / units.s,
-			'length'		:	units.nt,
-			'countsACGU'	:	units.nt,
-			'mw'			:	units.g / units.mol,
-			'isMRna'		:	None,
-			'isMiscRna'		:	None,
-			'isRRna'		:	None,
-			'isTRna'		:	None,
-			'isRRna23S'		:	None,
-			'isRRna16S'		:	None,
-			'isRRna5S'		:	None,
-			'isRProtein'	:	None,
-			'isRnap'		:	None,
-			'sequence'		:   None,
-			'geneId'		:	None,
-			'KmEndoRNase'	:	units.mol / units.L,
+			'id': None,
+			'degRate': 1 / units.s,
+			'length': units.nt,
+			'countsACGU': units.nt,
+			'mw': units.g / units.mol,
+			'isMRna': None,
+			'isMiscRna': None,
+			'isRRna': None,
+			'isTRna': None,
+			'isRRna23S': None,
+			'isRRna16S': None,
+			'isRRna5S':	None,
+			'isRProtein': None,
+			'isRnap': None,
+			'sequence': None,
+			'geneId': None,
+			'KmEndoRNase': units.mol / units.L,
+			'replicationCoordinate': None,
 			}
 
 		self.rnaExpression = {}
