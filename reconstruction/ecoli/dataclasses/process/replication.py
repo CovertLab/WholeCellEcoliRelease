@@ -13,6 +13,8 @@ import collections
 from wholecell.utils import units
 from wholecell.utils.polymerize import polymerize
 
+MAX_TIMESTEP_LEN = 2
+
 class Replication(object):
 	"""
 	SimulationData for the replication process
@@ -80,11 +82,9 @@ class Replication(object):
 			])
 
 		# Determine size of the matrix used by polymerize function
-		# TODO (Gwanggyu): This limits the maximum length of simulation
-		# timesteps to two seconds.
 		maxLen = np.int64(
 			self.sequence_lengths.max()
-			+ sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(units.nt / units.s) * 2
+			+ MAX_TIMESTEP_LEN * sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(units.nt / units.s)
 		)
 
 		self.replication_sequences = np.empty((4, maxLen), np.int8)
