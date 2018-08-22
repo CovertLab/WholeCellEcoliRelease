@@ -2092,7 +2092,54 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 	the parameters being fit.
 	"""
 
-	def makeG(sim_data, pPromoterBound):
+	def build_vector_k(sim_data):
+		"""
+		Construct vector k that contains existing fitted transcription
+		probabilities of RNAs in each relevant condition.
+
+		Returns
+		--------
+		- k: List of RNA synthesis probabilities per each RNA and condition
+		- kInfo: List of dictionaries that hold information on values of k -
+		kInfo[i]["condition"] and kInfo[i]["idx"] hold what condition and RNA
+		index the probability k[i] refers to, respectively.
+		"""
+
+		k, kInfo = [], []
+
+		for idx, rnaId in enumerate(sim_data.process.transcription.rnaData["id"]):
+			rnaIdNoLoc = rnaId[:-3]  # Remove compartment ID from RNA ID
+
+			# Get list of TFs that regulate this RNA
+			tfs = sim_data.process.transcription_regulation.targetTf.get(rnaIdNoLoc, [])
+			conditions = ["basal"]
+			tfsWithData = []
+
+			# Take only those TFs with active/inactive conditions data
+			# TODO (Gwanggyu): cache this list of conditions for each RNA
+			for tf in tfs:
+				if tf not in sorted(sim_data.tfToActiveInactiveConds):
+					continue
+
+				# Add conditions for selected TFs
+				conditions.append(tf + "__active")
+				conditions.append(tf + "__inactive")
+				tfsWithData.append(tf)
+
+			for condition in conditions:
+				# Skip basal conditions, unless the RNA is not regulated by any TFs
+				if len(tfsWithData) > 0 and condition == "basal":
+					continue
+
+				# Also gather RNA synthesis probabilities for each RNA per condition
+				k.append(sim_data.process.transcription.rnaSynthProb[condition][idx])
+				kInfo.append({"condition": condition, "idx": idx})
+
+		k = np.array(k)
+
+		return k, kInfo
+
+	def build_matrix_G(sim_data, pPromoterBound):
 		"""
 		Construct matrix G that contains probabilities of pPromoterBound as
 		elements. Each row of the matrix is named "[RNA]__[condition]", where
@@ -2117,13 +2164,9 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		- G: Matrix of values in pPromoterBound, rearranged based on each RNA
 		- rowNames: List of row names of G as strings
 		- colNames: List of column names of G as strings
-		- k: List of RNA synthesis probabilities per each RNA and condition
-		- kInfo: List of dictionaries that hold information on values of k -
-		kInfo[i]["condition"] and kInfo[i]["idx"] hold what condition and RNA
-		index the probability k[i] refers to, respectively.
 		"""
 
-		gI, gJ, gV, k, rowNames, colNames, kInfo = [], [], [], [], [], [], []
+		gI, gJ, gV, rowNames, colNames = [], [], [], [], []
 
 		for idx, rnaId in enumerate(sim_data.process.transcription.rnaData["id"]):
 			rnaIdNoLoc = rnaId[:-3]  # Remove compartment ID from RNA ID
@@ -2134,7 +2177,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 			tfsWithData = []
 
 			# Take only those TFs with active/inactive conditions data
-			# TODO: cache this list of TFs for each RNA
+			# TODO (Gwanggyu): cache this list of conditions for each RNA
 			for tf in tfs:
 				if tf not in sorted(sim_data.tfToActiveInactiveConds):
 					continue
@@ -2173,20 +2216,15 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 
 				gI.append(rowNames.index(rowName))
 				gJ.append(colNames.index(colName))
-				gV.append(1.)  # TODO: Why is this set to 1?
+				gV.append(1.)
 
-				# Also gather RNA synthesis probabilities for each RNA per condition
-				k.append(sim_data.process.transcription.rnaSynthProb[condition][idx])
-				kInfo.append({"condition": condition, "idx": idx})
-
-		k = np.array(k)
 		gI, gJ, gV = np.array(gI), np.array(gJ), np.array(gV)
 		G = np.zeros((len(rowNames), len(colNames)), np.float64)
 		G[gI, gJ] = gV
 
-		return G, rowNames, colNames, k, kInfo
+		return G, rowNames, colNames
 
-	def makeZ(sim_data, colNames):
+	def build_matrix_Z(sim_data, colNames):
 		"""
 		Construct matrix Z that connects all possible TF combinations with
 		each TF. Each row of the matrix corresponds to an RNA-(TF combination)
@@ -2206,7 +2244,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		correspond to combinations in the rows.
 		"""
 
-		# TODO: refactor this as a function, not a fixed dictionary
+		# TODO (Gwanggyu): refactor this as a function, not a fixed dictionary
 		combinationIdxToColIdxs = {
 			0: [0], 1: [0, 1], 2: [0, 2], 3: [0, 1, 2],
 			4: [0, 3], 5: [0, 1, 3], 6: [0, 2, 3], 7: [0, 1, 2, 3],
@@ -2258,7 +2296,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 
 		return Z
 
-	def makeT(sim_data, colNames):
+	def build_matrix_T(sim_data, colNames):
 		"""
 		Construct matrix T that specifies the direction of regulation for each
 		RNA-TF pair.
@@ -2316,7 +2354,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 
 		return T
 
-	def makeH(sim_data, colNames, pPromoterBound, r, fixedTFs, cellSpecs):
+	def build_matrix_H(sim_data, colNames, pPromoterBound, r, fixedTFs, cellSpecs):
 		"""
 		Construct matrix H that contains values of vector r as elements.
 		Each row of the matrix is named "[RNA]__[condition]", where
@@ -2448,7 +2486,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 
 		return H, pInit, pAlphaIdxs, pNotAlphaIdxs, fixedTFIdxs, pPromoterBoundIdxs, colNamesH
 
-	def makePdiff(sim_data, colNamesH):
+	def build_matrix_pdiff(sim_data, colNamesH):
 		"""
 		Construct matrix Pdiff that specifies the indexes of corresponding
 		TFs and conditions.
@@ -2544,34 +2582,40 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 	for tf in sim_data.tfToActiveInactiveConds:
 		if sim_data.process.transcription_regulation.tfToTfType[tf] == "2CS":
 			fixedTFs.append(tf)
-		if sim_data.process.transcription_regulation.tfToTfType[tf] == "1CS" and sim_data.tfToActiveInactiveConds[tf]["active nutrients"] == sim_data.tfToActiveInactiveConds[tf]["inactive nutrients"]:
+		if (sim_data.process.transcription_regulation.tfToTfType[tf] == "1CS"
+				and sim_data.tfToActiveInactiveConds[tf]["active nutrients"] ==
+				sim_data.tfToActiveInactiveConds[tf]["inactive nutrients"]):
 			fixedTFs.append(tf)
+
+	# Build vector of existing fitted transcription probabilities
+	k, kInfo = build_vector_k(sim_data)
 
 	# Repeat for a fixed maximum number of iterations
 	for i in xrange(PROMOTER_MAX_ITERATIONS):
-		# Construct matrices used in optimizing R
-		# TODO: Make these matrix names more meaningful
-		# TODO: separate the routine that gets k and kInfo
-		G, rowNamesG, colNamesG, k, kInfo = makeG(sim_data, pPromoterBound)
-		Z = makeZ(sim_data, colNamesG)
-		T = makeT(sim_data, colNamesG)
+		# Build matrices used in optimizing R
+		G, rowNamesG, colNamesG = build_matrix_G(sim_data, pPromoterBound)
+		Z = build_matrix_Z(sim_data, colNamesG)
+		T = build_matrix_T(sim_data, colNamesG)
 
-		# Optimize R such that the RNA polymerase initiation probabilities
-		# computed from current values of P in matrix G are close to fitted
-		# values.
+		# Optimize R such that transcription initiation probabilities computed
+		# from existing values of P in matrix G are close to fitted values.
 		R = Variable(G.shape[1])  # Vector of r's and alpha's
 
-		# Objective: minimize difference between k (fitted RNAP initiation
-		# probabilities) and G*R (computed initiation probabilities)
-		objective_r = Minimize(norm(G*(PROMOTER_SCALING*R) - PROMOTER_SCALING*k, PROMOTER_NORM_TYPE))
+		# Objective: minimize difference between k and G*R
+		objective_r = Minimize(
+			norm(G*(PROMOTER_SCALING*R) - PROMOTER_SCALING*k, PROMOTER_NORM_TYPE)
+			)
 
-		# Constraints
+		# Optimization constraints
 		# 1) 0 <= Z*R <= 1 : Assuming P = 1 for all TFs, all possible
-		# combinations of TFs should yield a valid RNAP initialization
-		# probability value between zero and one.
+		# combinations of TFs should yield a valid transcription probability
+		# value between zero and one.
 		# 2) T*R >= 0 : Values of r for positive regulation should be positive,
 		# and values of r for negative regulation should be negative.
-		constraint_r = [0 <= Z*(PROMOTER_SCALING*R), Z*(PROMOTER_SCALING*R) <= PROMOTER_SCALING*1, T*(PROMOTER_SCALING*R) >= 0]
+		constraint_r = [
+			0 <= Z*(PROMOTER_SCALING*R), Z*(PROMOTER_SCALING*R) <= PROMOTER_SCALING*1,
+			T*(PROMOTER_SCALING*R) >= 0
+			]
 
 		# Solve optimization problem
 		prob_r = Problem(objective_r, constraint_r)
@@ -2584,25 +2628,25 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		r = np.array(R.value).reshape(-1)
 
 		# Use optimal value of R to construct matrix H and vector Pdiff
-		# TODO: separate the routine that gets pInit
-		H, pInit, pAlphaIdxs, pNotAlphaIdxs, fixedTFIdxs, pPromoterBoundIdxs, colNamesH = makeH(sim_data, colNamesG, pPromoterBound, r, fixedTFs, cellSpecs)
-		Pdiff = makePdiff(sim_data, colNamesH)
+		H, pInit, pAlphaIdxs, pNotAlphaIdxs, fixedTFIdxs, pPromoterBoundIdxs, colNamesH = build_matrix_H(
+			sim_data, colNamesG, pPromoterBound, r, fixedTFs, cellSpecs)
+		pdiff = build_matrix_pdiff(sim_data, colNamesH)
 
 		# On first iteration, save the value of the initial p
 		if i == 0:
 			pInit0 = pInit.copy()
 
-		# Optimize P such that the RNA polymerase initiation probabilities
-		# computed from current values of R in matrix H are close to fitted
-		# values.
+		# Optimize P such that the transcription probabilities computed from
+		# current values of R in matrix H are close to fitted values.
 		P = Variable(H.shape[1])
 
-		# Boolean vector marking columns of H that correspond to alpha's and fixed TFs
+		# Construct a boolean vector that marks column indexes of H
+		# corresponding to alpha's and fixed TFs
 		D = np.zeros(H.shape[1])
 		D[pAlphaIdxs] = 1
 		D[fixedTFIdxs] = 1
 
-		# Initial p masked by D
+		# Mask initial p with boolean vector constructed above
 		Drhs = pInit0.copy()
 		Drhs[D != 1] = 0
 
@@ -2610,18 +2654,24 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		# probabilities) and H*P (computed initiation probabilities) while
 		# also minimizing deviation of P from the original value calculated
 		# from mean TF and ligand concentrations
-		objective_p = Minimize(norm(H*(PROMOTER_SCALING*P) - PROMOTER_SCALING*k, PROMOTER_NORM_TYPE) + PROMOTER_REG_COEFF*norm(P - pInit0, PROMOTER_NORM_TYPE))
+		objective_p = Minimize(
+			norm(H*(PROMOTER_SCALING*P) - PROMOTER_SCALING*k, PROMOTER_NORM_TYPE)
+			+ PROMOTER_REG_COEFF*norm(P - pInit0, PROMOTER_NORM_TYPE)
+			)
 
 		# Constraints
 		# 1) 0 <= P <= 1 : All DNA-bound probabilities should be between zero
 		# and one.
 		# 2) D*P == Drhs : Values of P that correspond to alpha's and fixed TFs
 		# should not change.
-		# 3) Pdiff*P >= 0.1 : There must be at least a difference of 0.1
+		# 3) pdiff*P >= 0.1 : There must be at least a difference of 0.1
 		# between binding probabilities of a TF in conditions TF__active and
 		# TF__inactive
-		# TODO: 0.1 should also be a parameter
-		constraint_p = [0 <= PROMOTER_SCALING*P, PROMOTER_SCALING*P <= PROMOTER_SCALING*1, np.diag(D)*(PROMOTER_SCALING*P) == PROMOTER_SCALING*Drhs, Pdiff*(PROMOTER_SCALING*P) >= PROMOTER_SCALING*PROMOTER_PDIFF_THRESHOLD]
+		constraint_p = [
+			0 <= PROMOTER_SCALING*P, PROMOTER_SCALING*P <= PROMOTER_SCALING*1,
+			np.diag(D)*(PROMOTER_SCALING*P) == PROMOTER_SCALING*Drhs,
+			pdiff*(PROMOTER_SCALING*P) >= PROMOTER_SCALING*PROMOTER_PDIFF_THRESHOLD
+			]
 
 		# Solve optimization problem
 		prob_p = Problem(objective_p, constraint_p)
@@ -2645,7 +2695,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 	sim_data.pPromoterBound = pPromoterBound
 	updateSynthProb(sim_data, kInfo, np.dot(H, p))
 
-	# TODO: This should be a separate function - fitLigandConcentration
+	# TODO (Gwanggyu): This should be a separate function - fitLigandConcentration
 	cellDensity = sim_data.constants.cellDensity
 
 	for tf in sorted(sim_data.tfToActiveInactiveConds):
