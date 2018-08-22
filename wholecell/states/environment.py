@@ -39,8 +39,9 @@ class Environment(wholecell.states.external_state.ExternalState):
 		self.nutrients_time_series = sim_data.external_state.environment.nutrients_time_series[
 			self.nutrients_time_series_label
 			]
-		self.nutrients = self.nutrients_time_series[0][1]
 		self.times = [t[0] for t in self.nutrients_time_series]
+
+		self.nutrients = self.nutrients_time_series[0][1]
 
 		# save the length of the longest nutrients name, for padding names in listener
 		self.nutrients_name_max_length = len(max([t[1] for t in self.nutrients_time_series], key=len))
