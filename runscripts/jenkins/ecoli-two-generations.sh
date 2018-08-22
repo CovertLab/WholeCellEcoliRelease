@@ -9,7 +9,7 @@ pyenv local wcEcoli2
 make clean
 make compile
 
-runscripts/jenkins/fireworks-config.sh $HOST $NAME $PORT $PASSWORD
+sh runscripts/jenkins/fireworks-config.sh $HOST $NAME $PORT $PASSWORD
 
 echo y | lpad reset
 

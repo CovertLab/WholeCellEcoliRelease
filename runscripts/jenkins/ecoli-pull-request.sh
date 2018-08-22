@@ -11,7 +11,7 @@ make compile
 
 PYTHONPATH=$PWD:$PYTHONPATH nosetests -a 'smalltest' --with-xunit --with-coverage --cover-package=wholecell --cover-xml
 
-runscripts/jenkins/fireworks-config.sh $HOST $NAME $PORT $PASSWORD
+sh runscripts/jenkins/fireworks-config.sh $HOST $NAME $PORT $PASSWORD
 
 echo y | lpad reset
 
