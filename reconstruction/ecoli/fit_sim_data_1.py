@@ -206,6 +206,7 @@ def fitSimData_1(
 			sim_data.translationSupplyRate[nutrients] = cellSpecs[condition_label]["translation_aa_supply"]
 
 	rVector = fitPromoterBoundProbability(sim_data, cellSpecs)
+	fitLigandConcentrations(sim_data, cellSpecs)
 
 	for condition_label in sorted(cellSpecs):
 		condition = sim_data.conditions[condition_label]
@@ -2060,9 +2061,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 	v_{synth, j} = \alpha_j + \sum_{i} P_{T,i}*r_{ij}
 
 	Due to constraints applied in the optimization, both v and P need to
-	be shifted from their initial values. Using the fit values of P, the set
-	concentrations of ligand metabolites and the kd's of the ligand-TF binding
-	reactions are also updated.
+	be shifted from their initial values.
 
 	Requires
 	--------
@@ -2077,8 +2076,6 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 	--------
 	- Probabilities of TFs binding to their promoters
 	- RNA synthesis probabilities
-	- Set concentrations of metabolites that act as ligands in 1CS
-	- kd's of equilibrium reactions in 1CS
 
 	Returns
 	--------
@@ -2094,7 +2091,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 
 	def build_vector_k(sim_data):
 		"""
-		Construct vector k that contains existing fitted transcription
+		Construct vector k that contains existing fit transcription
 		probabilities of RNAs in each relevant condition.
 
 		Returns
@@ -2131,7 +2128,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 				if len(tfsWithData) > 0 and condition == "basal":
 					continue
 
-				# Also gather RNA synthesis probabilities for each RNA per condition
+				# Gather RNA synthesis probabilities for each RNA per condition
 				k.append(sim_data.process.transcription.rnaSynthProb[condition][idx])
 				kInfo.append({"condition": condition, "idx": idx})
 
@@ -2531,7 +2528,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 
 	def fromArray(p, pPromoterBound, pPromoterBoundIdxs):
 		"""
-		Updates values in pPromoterBound with fitted probabilities.
+		Updates values in pPromoterBound with fit probabilities.
 
 		Inputs
 		------
@@ -2550,21 +2547,21 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 
 	def updateSynthProb(sim_data, kInfo, k):
 		"""
-		Updates RNA synthesis probabilities with fitted values of P and R.
+		Updates RNA synthesis probabilities with fit values of P and R.
 
 		Inputs
 		------
 		- kInfo: List of dictionaries that hold information on values of k -
 		kInfo[i]["condition"] and kInfo[i]["idx"] hold what condition and RNA
 		index the probability k[i] refers to, respectively.
-		- k: RNA synthesis probabilities computed from fitted P and R.
+		- k: RNA synthesis probabilities computed from fit P and R.
 
 		Modifies
 		--------
 		- RNA synthesis probabilities
 		"""
 
-		# Update sim_data values with fitted values
+		# Update sim_data values with fit values
 		for D, value in zip(kInfo, k):
 			sim_data.process.transcription.rnaSynthProb[D["condition"]][D["idx"]] = value
 
@@ -2587,7 +2584,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 				sim_data.tfToActiveInactiveConds[tf]["inactive nutrients"]):
 			fixedTFs.append(tf)
 
-	# Build vector of existing fitted transcription probabilities
+	# Build vector of existing fit transcription probabilities
 	k, kInfo = build_vector_k(sim_data)
 
 	# Repeat for a fixed maximum number of iterations
@@ -2598,7 +2595,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		T = build_matrix_T(sim_data, colNamesG)
 
 		# Optimize R such that transcription initiation probabilities computed
-		# from existing values of P in matrix G are close to fitted values.
+		# from existing values of P in matrix G are close to fit values.
 		R = Variable(G.shape[1])  # Vector of r's and alpha's
 
 		# Objective: minimize difference between k and G*R
@@ -2637,7 +2634,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 			pInit0 = pInit.copy()
 
 		# Optimize P such that the transcription probabilities computed from
-		# current values of R in matrix H are close to fitted values.
+		# current values of R in matrix H are close to fit values.
 		P = Variable(H.shape[1])
 
 		# Construct a boolean vector that marks column indexes of H
@@ -2650,7 +2647,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		Drhs = pInit0.copy()
 		Drhs[D != 1] = 0
 
-		# Objective: minimize difference between k (fitted RNAP initiation
+		# Objective: minimize difference between k (fit RNAP initiation
 		# probabilities) and H*P (computed initiation probabilities) while
 		# also minimizing deviation of P from the original value calculated
 		# from mean TF and ligand concentrations
@@ -2682,7 +2679,9 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 
 		# Get optimal value of P
 		p = np.array(P.value).reshape(-1)
-		fromArray(p, pPromoterBound, pPromoterBoundIdxs)  # Update pPromoterBound with fitted p
+
+		# Update pPromoterBound with fit p
+		fromArray(p, pPromoterBound, pPromoterBoundIdxs)
 
 		# Break from loop if parameters have converged
 		if np.abs(np.linalg.norm(np.dot(H, p) - k, PROMOTER_NORM_TYPE) - lastNorm) < PROMOTER_CONVERGENCE_THRESHOLD:
@@ -2690,19 +2689,42 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		else:
 			lastNorm = np.linalg.norm(np.dot(H, p) - k, PROMOTER_NORM_TYPE)
 
-	# Update sim_data with fitted bound probabilities and RNAP initiation
+	# Update sim_data with fit bound probabilities and RNAP initiation
 	# probabilities computed from these bound probabilities
 	sim_data.pPromoterBound = pPromoterBound
 	updateSynthProb(sim_data, kInfo, np.dot(H, p))
 
-	# TODO (Gwanggyu): This should be a separate function - fitLigandConcentration
+	return r
+
+
+def fitLigandConcentrations(sim_data, cellSpecs):
+	"""
+	Using the fit values of pPromoterBound, updates the set concentrations of
+	ligand metabolites and the kd's of the ligand-TF binding reactions.
+
+	Requires
+	--------
+	- Fitted pPromoterBound: probabilities that a TF will bind to its promoter,
+	fit by function fitPromoterBoundProbability().
+
+	Inputs
+	------
+	- cellSpecs {condition (str): dict} - information about each condition
+
+	Modifies
+	--------
+	- Set concentrations of metabolites that are ligands in 1CS
+	- kd's of equilibrium reactions in 1CS
+	"""
 	cellDensity = sim_data.constants.cellDensity
+	pPromoterBound = sim_data.pPromoterBound
 
 	for tf in sorted(sim_data.tfToActiveInactiveConds):
 		# Skip TFs that are not 1CS or are linked to genotypic perturbations
 		if sim_data.process.transcription_regulation.tfToTfType[tf] != "1CS":
 			continue
-		if len(sim_data.tfToActiveInactiveConds[tf]["active genotype perturbations"]) > 0 or len(sim_data.tfToActiveInactiveConds[tf]["inactive genotype perturbations"]) > 0:
+		if (len(sim_data.tfToActiveInactiveConds[tf]["active genotype perturbations"]) > 0
+				or len(sim_data.tfToActiveInactiveConds[tf]["inactive genotype perturbations"]) > 0):
 			continue
 
 		activeKey = tf + "__active"
@@ -2723,12 +2745,16 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 
 		# Calculate the concentrations of the metabolite under conditions where
 		# TF is active and inactive
-		activeCellVolume = cellSpecs[activeKey]["avgCellDryMassInit"] / cellDensity / sim_data.mass.cellDryMassFraction
-		activeCountsToMolar = 1 / (sim_data.constants.nAvogadro * activeCellVolume)
-		activeSignalConc = (activeCountsToMolar * cellSpecs[activeKey]["bulkAverageContainer"].count(metabolite)).asNumber(units.mol/units.L)
-		inactiveCellVolume = cellSpecs[inactiveKey]["avgCellDryMassInit"] / cellDensity / sim_data.mass.cellDryMassFraction
-		inactiveCountsToMolar = 1 / (sim_data.constants.nAvogadro * inactiveCellVolume)
-		inactiveSignalConc = (inactiveCountsToMolar * cellSpecs[inactiveKey]["bulkAverageContainer"].count(metabolite)).asNumber(units.mol/units.L)
+		activeCellVolume = (cellSpecs[activeKey]["avgCellDryMassInit"] /
+			cellDensity / sim_data.mass.cellDryMassFraction)
+		activeCountsToMolar = 1/(sim_data.constants.nAvogadro*activeCellVolume)
+		activeSignalConc = ((activeCountsToMolar * cellSpecs[activeKey]["bulkAverageContainer"].count(metabolite))
+			.asNumber(units.mol/units.L))
+		inactiveCellVolume = (cellSpecs[inactiveKey]["avgCellDryMassInit"] /
+			cellDensity / sim_data.mass.cellDryMassFraction)
+		inactiveCountsToMolar = 1/(sim_data.constants.nAvogadro * inactiveCellVolume)
+		inactiveSignalConc = ((inactiveCountsToMolar * cellSpecs[inactiveKey]["bulkAverageContainer"].count(metabolite))
+			.asNumber(units.mol/units.L))
 
 		# Update kd with fitted values of P and the bulk average concentrations
 		# of the metabolite, and use this fitted kd to recalculate the set
@@ -2743,7 +2769,8 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 				kdNew = (activeSignalConc**metaboliteCoeff) * p_active/(1 - p_active)
 
 			# Reset metabolite concentration with fitted P and kd
-			sim_data.process.metabolism.concentrationUpdates.moleculeSetAmounts[metabolite] = (kdNew*(1 - p_inactive)/p_inactive)**(1./metaboliteCoeff)*(units.mol/units.L)
+			sim_data.process.metabolism.concentrationUpdates.moleculeSetAmounts[metabolite] = (
+				(kdNew*(1 - p_inactive)/p_inactive)**(1./metaboliteCoeff)*(units.mol/units.L))
 
 		else:
 			if p_inactive < 1e-9:
@@ -2752,12 +2779,11 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 				kdNew = (inactiveSignalConc**metaboliteCoeff) * (1 - p_inactive)/p_inactive
 
 			# Reset metabolite concentration with fitted P and kd
-			sim_data.process.metabolism.concentrationUpdates.moleculeSetAmounts[metabolite] = (kdNew*p_active/(1 - p_active))**(1./metaboliteCoeff)*(units.mol/units.L)
+			sim_data.process.metabolism.concentrationUpdates.moleculeSetAmounts[metabolite] = (
+				(kdNew*p_active/(1 - p_active))**(1./metaboliteCoeff)*(units.mol/units.L))
 
 		# Fit reverse rate in line with fitted kd
 		sim_data.process.equilibrium.setRevRate(boundId + "[c]", kdNew*fwdRate)
-
-	return r
 
 
 def calculatePromoterBoundProbability(sim_data, cellSpecs):
@@ -2837,8 +2863,9 @@ def calculatePromoterBoundProbability(sim_data, cellSpecs):
 
 	return pPromoterBound
 
+
 def calculateRnapRecruitment(sim_data, r):
-	# TODO: Not really a good function name - calculation is not done here
+	# TODO (Gwanggyu): Not really a good function name - no calculation here
 	"""
 	Constructs a matrix (H) from values of r which can be multiplied with the
 	TF-RNA binding probability to compute RNAP recruitment probabilities for
