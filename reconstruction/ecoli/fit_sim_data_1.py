@@ -12,6 +12,7 @@ import numpy as np
 import os
 import scipy.optimize
 import cPickle
+from itertools import izip
 
 import wholecell
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
@@ -2089,14 +2090,17 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 	the parameters being fit.
 	"""
 
-	def build_vector_k(sim_data):
+	def build_vector_k(sim_data, cellSpecs):
 		"""
 		Construct vector k that contains existing fit transcription
-		probabilities of RNAs in each relevant condition.
+		probabilities of RNAs in each relevant condition, normalized by the
+		average copy number of the gene encoding the RNA while the cell grows
+		in that condition.
 
 		Returns
 		--------
-		- k: List of RNA synthesis probabilities per each RNA and condition
+		- k: List of RNA synthesis probabilities for each RNA and condition,
+		normalized by gene copy number.
 		- kInfo: List of dictionaries that hold information on values of k -
 		kInfo[i]["condition"] and kInfo[i]["idx"] hold what condition and RNA
 		index the probability k[i] refers to, respectively.
@@ -2104,7 +2108,24 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 
 		k, kInfo = [], []
 
-		for idx, rnaId in enumerate(sim_data.process.transcription.rnaData["id"]):
+		# Get C period and D period lengths. These values are currently
+		# assumed to be constant regardless of growth rate.
+		c_period = sim_data.growthRateParameters.c_period.asNumber(units.min)
+		d_period = sim_data.growthRateParameters.d_period.asNumber(units.min)
+
+		# Get lengths of forward and reverse sequences
+		forward_sequence_length = sim_data.process.replication.sequence_lengths[0]
+		reverse_sequence_length = sim_data.process.replication.sequence_lengths[1]
+
+		for idx, (rnaId, rnaCoordinate) in enumerate(
+				izip(sim_data.process.transcription.rnaData["id"],
+				sim_data.process.transcription.rnaData["replicationCoordinate"])):
+
+			if rnaCoordinate > 0:
+				relative_pos = float(rnaCoordinate)/forward_sequence_length
+			else:
+				relative_pos = float(-rnaCoordinate)/reverse_sequence_length
+
 			rnaIdNoLoc = rnaId[:-3]  # Remove compartment ID from RNA ID
 
 			# Get list of TFs that regulate this RNA
@@ -2128,8 +2149,17 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 				if len(tfsWithData) > 0 and condition == "basal":
 					continue
 
+				# Get specific doubling time for this condition
+				tau = cellSpecs[condition]["doubling_time"].asNumber(units.min)
+
+				# Calculate average copy number of gene for this condition
+				n_avg_copy = 2**(((1 - relative_pos)*c_period + d_period)/tau)
+
+				# Compute synthesis probability per gene copy
+				prob_per_copy = sim_data.process.transcription.rnaSynthProb[condition][idx] / n_avg_copy
+
 				# Gather RNA synthesis probabilities for each RNA per condition
-				k.append(sim_data.process.transcription.rnaSynthProb[condition][idx])
+				k.append(prob_per_copy)
 				kInfo.append({"condition": condition, "idx": idx})
 
 		k = np.array(k)
@@ -2174,7 +2204,6 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 			tfsWithData = []
 
 			# Take only those TFs with active/inactive conditions data
-			# TODO (Gwanggyu): cache this list of conditions for each RNA
 			for tf in tfs:
 				if tf not in sorted(sim_data.tfToActiveInactiveConds):
 					continue
@@ -2197,7 +2226,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 					# Add column for each TF that regulates each RNA
 					colName = rnaIdNoLoc + "__" + tf
 
-					# TODO: Are these checks necessary?
+					# TODO (Gwanggyu): Are these checks necessary?
 					if colName not in colNames:
 						colNames.append(colName)
 
@@ -2241,7 +2270,6 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		correspond to combinations in the rows.
 		"""
 
-		# TODO (Gwanggyu): refactor this as a function, not a fixed dictionary
 		combinationIdxToColIdxs = {
 			0: [0], 1: [0, 1], 2: [0, 2], 3: [0, 1, 2],
 			4: [0, 3], 5: [0, 1, 3], 6: [0, 2, 3], 7: [0, 1, 2, 3],
@@ -2390,7 +2418,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		- colNamesH: List of column names of H as strings
 		"""
 
-		rDict = dict([(colName, value) for colName, value in zip(colNames, r)])
+		rDict = dict([(colName, value) for colName, value in izip(colNames, r)])
 
 		pPromoterBoundIdxs = dict([(condition, {}) for condition in pPromoterBound])
 		hI, hJ, hV, rowNames, colNamesH, pInitI, pInitV = [], [], [], [], [], [], []
@@ -2562,7 +2590,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		"""
 
 		# Update sim_data values with fit values
-		for D, value in zip(kInfo, k):
+		for D, value in izip(kInfo, k):
 			sim_data.process.transcription.rnaSynthProb[D["condition"]][D["idx"]] = value
 
 		# Normalize values such that probabilities for each condition sum to one
@@ -2585,7 +2613,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 			fixedTFs.append(tf)
 
 	# Build vector of existing fit transcription probabilities
-	k, kInfo = build_vector_k(sim_data)
+	k, kInfo = build_vector_k(sim_data, cellSpecs)
 
 	# Repeat for a fixed maximum number of iterations
 	for i in xrange(PROMOTER_MAX_ITERATIONS):
