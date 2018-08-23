@@ -141,13 +141,13 @@ class Metabolism(object):
 				# if any molecule in glc_vmax_conditions[0] is ABSENT:
 				if not all(molecule in nonzero_molecules for molecule in self.glc_vmax_conditions[0]):
 					importConstrainedExchangeMolecules[molecule_id] = 0 * (units.mmol / units.g / units.h)
-				# if any molecule in glc_vmax_conditions[3] is ABSENT:
+				# if any molecule in glc_vmax_conditions[1] is ABSENT:
 				elif not all(molecule in nonzero_molecules for molecule in self.glc_vmax_conditions[1]):
 					importConstrainedExchangeMolecules[molecule_id] = 100 * (units.mmol / units.g / units.h)
-				# if any molecule in glc_vmax_conditions[1] is ABSENT:
+				# if any molecule in glc_vmax_conditions[2] is ABSENT:
 				elif not all(molecule in nonzero_molecules for molecule in self.glc_vmax_conditions[2]):
 					importConstrainedExchangeMolecules[molecule_id] = 10 * (units.mmol / units.g / units.h)
-				# if any molecule in glc_vmax_conditions[2] is PRESENT:
+				# if any molecule in glc_vmax_conditions[3] is PRESENT:
 				elif any(molecule in nonzero_molecules for molecule in self.glc_vmax_conditions[3]):
 					importConstrainedExchangeMolecules[molecule_id] = 10 * (units.mmol / units.g / units.h)
 				else:
