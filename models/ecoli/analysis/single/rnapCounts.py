@@ -27,15 +27,16 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			os.mkdir(plotOutDir)
 
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+		bulkMoleculeCounts = bulkMolecules.readColumn("counts")
 
 		moleculeIds = bulkMolecules.readAttribute("objectNames")
 		rnapId = "APORNAP-CPLX[c]"
 		rnapIndex = moleculeIds.index(rnapId)
-		rnapCountsBulk = bulkMolecules.readColumn("counts")[:, rnapIndex]
+		rnapCountsBulk = bulkMoleculeCounts[:, rnapIndex]
 
 		RNAP_RNA_IDS = ["EG10893_RNA[c]", "EG10894_RNA[c]", "EG10895_RNA[c]", "EG10896_RNA[c]"]
 		rnapRnaIndexes = np.array([moleculeIds.index(rnapRnaId) for rnapRnaId in RNAP_RNA_IDS], np.int)
-		rnapRnaCounts = bulkMolecules.readColumn("counts")[:, rnapRnaIndexes]
+		rnapRnaCounts = bulkMoleculeCounts[:, rnapRnaIndexes]
 
 		bulkMolecules.close()
 

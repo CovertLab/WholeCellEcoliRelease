@@ -43,6 +43,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Load count data for s30 proteins, rRNA, and final 30S complex
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+		bulkMoleculeCounts = bulkMolecules.readColumn("counts")
+
 		# Get indexes
 		moleculeIds = bulkMolecules.readAttribute("objectNames")
 		proteinIndexes = np.array([moleculeIds.index(protein) for protein in proteinIds], np.int)
@@ -53,10 +55,10 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Load data
 		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-		freeProteinCounts = bulkMolecules.readColumn("counts")[:, proteinIndexes]
-		rnaCounts = bulkMolecules.readColumn("counts")[:, rnaIndexes]
-		freeRRnaCounts = bulkMolecules.readColumn("counts")[:, rRnaIndexes]
-		complexCounts = bulkMolecules.readColumn("counts")[:, complexIndexes]
+		freeProteinCounts = bulkMoleculeCounts[:, proteinIndexes]
+		rnaCounts = bulkMoleculeCounts[:, rnaIndexes]
+		freeRRnaCounts = bulkMoleculeCounts[:, rRnaIndexes]
+		complexCounts = bulkMoleculeCounts[:, complexIndexes]
 
 		bulkMolecules.close()
 

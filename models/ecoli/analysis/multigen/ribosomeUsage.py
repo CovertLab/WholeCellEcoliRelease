@@ -75,70 +75,47 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			time, growthRate = getMassData(simDir, ["instantaniousGrowthRate"])
 			timeStep = units.s * TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
 			time = units.s * time
-			growthRate = (1 / units.s) * growthRate
-			doublingTime = 1 / growthRate * np.log(2)
 
 			## Ribosome counts and statistics ##
 
 			# Get ids for 30S and 50S subunits
-			proteinIds30S 	= sim_data.moleculeGroups.s30_proteins
-			rnaIds30S 		= [sim_data.process.translation.monomerData['rnaId'][np.where(sim_data.process.translation.monomerData['id'] == pid)[0][0]] for pid in proteinIds30S]
-			rRnaIds30S 		= sim_data.moleculeGroups.s30_16sRRNA
-			complexIds30S 	= [sim_data.moleculeIds.s30_fullComplex]
-
-			proteinIds50S 	= sim_data.moleculeGroups.s50_proteins
-			rnaIds50S 		= [sim_data.process.translation.monomerData['rnaId'][np.where(sim_data.process.translation.monomerData['id'] == pid)[0][0]] for pid in proteinIds50S]
-			rRnaIds50S 		= sim_data.moleculeGroups.s50_23sRRNA
-			rRnaIds50S.extend(sim_data.moleculeGroups.s50_5sRRNA)
-			complexIds50S 	= [sim_data.moleculeIds.s50_fullComplex]
+			complexIds30S = [sim_data.moleculeIds.s30_fullComplex]
+			complexIds50S = [sim_data.moleculeIds.s50_fullComplex]
 
 			# Get molecular weights for 30S and 50S subunits, and add these two for 70S
 			nAvogadro = sim_data.constants.nAvogadro
-			mw30S 	  = sim_data.getter.getMass(complexIds30S)
-			mw50S     = sim_data.getter.getMass(complexIds50S)
-			mw70S     = mw30S + mw50S
+			mw30S = sim_data.getter.getMass(complexIds30S)
+			mw50S = sim_data.getter.getMass(complexIds50S)
+			mw70S = mw30S + mw50S
 
 			# Get indexes for 30S and 50S subunits based on ids
-			bulkMoleculesDataFile 	= TableReader(os.path.join(simOutDir, "BulkMolecules"))
-			moleculeIds 			= bulkMoleculesDataFile.readAttribute("objectNames")
+			bulkMoleculesDataFile = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+			moleculeIds = bulkMoleculesDataFile.readAttribute("objectNames")
+			bulkMoleculeCounts = bulkMoleculesDataFile.readColumn("counts")
 
-			proteinIndexes30S 	= np.array([moleculeIds.index(protein) for protein in proteinIds30S], np.int)
-			rnaIndexes30S 		= np.array([moleculeIds.index(rna) for rna in rnaIds30S], np.int)
-			rRnaIndexes30S 		= np.array([moleculeIds.index(rRna) for rRna in rRnaIds30S], np.int)
-			complexIndexes30S 	= np.array([moleculeIds.index(comp) for comp in complexIds30S], np.int)
-
-			proteinIndexes50S 	= np.array([moleculeIds.index(protein) for protein in proteinIds50S], np.int)
-			rnaIndexes50S 		= np.array([moleculeIds.index(rna) for rna in rnaIds50S], np.int)
-			rRnaIndexes50S 		= np.array([moleculeIds.index(rRna) for rRna in rRnaIds50S], np.int)
-			complexIndexes50S 	= np.array([moleculeIds.index(comp) for comp in complexIds50S], np.int)
+			complexIndexes30S = np.array([moleculeIds.index(comp) for comp in complexIds30S], np.int)
+			complexIndexes50S = np.array([moleculeIds.index(comp) for comp in complexIds50S], np.int)
 
 			# Get counts of 30S and 50S mRNA, rProteins, rRNA, and full complex counts
-			freeProteinCounts30S 	= bulkMoleculesDataFile.readColumn("counts")[:, proteinIndexes30S]
-			rnaCounts30S 			= bulkMoleculesDataFile.readColumn("counts")[:, rnaIndexes30S]
-			freeRRnaCounts30S 		= bulkMoleculesDataFile.readColumn("counts")[:, rRnaIndexes30S]
-			complexCounts30S 		= bulkMoleculesDataFile.readColumn("counts")[:, complexIndexes30S]
-
-			freeProteinCounts50S 	= bulkMoleculesDataFile.readColumn("counts")[:, proteinIndexes50S]
-			rnaCounts50S 			= bulkMoleculesDataFile.readColumn("counts")[:, rnaIndexes50S]
-			freeRRnaCounts50S 		= bulkMoleculesDataFile.readColumn("counts")[:, rRnaIndexes50S]
-			complexCounts50S 		= bulkMoleculesDataFile.readColumn("counts")[:, complexIndexes50S]
+			complexCounts30S = bulkMoleculeCounts[:, complexIndexes30S]
+			complexCounts50S = bulkMoleculeCounts[:, complexIndexes50S]
 
 			bulkMoleculesDataFile.close()
 
 			# Get active ribosome counts
 			uniqueMoleculeCountsDataFile = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 
-			ribosomeIndex 	= uniqueMoleculeCountsDataFile.readAttribute("uniqueMoleculeIds").index("activeRibosome")
-			activeRibosome 	= uniqueMoleculeCountsDataFile.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
+			ribosomeIndex = uniqueMoleculeCountsDataFile.readAttribute("uniqueMoleculeIds").index("activeRibosome")
+			activeRibosome = uniqueMoleculeCountsDataFile.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
 
 			uniqueMoleculeCountsDataFile.close()
 
 			# Get ribosome data
-			ribosomeDataFile  = TableReader(os.path.join(simOutDir, "RibosomeData"))
+			ribosomeDataFile = TableReader(os.path.join(simOutDir, "RibosomeData"))
 
-			didInitialize     = ribosomeDataFile.readColumn("didInitialize")
+			didInitialize = ribosomeDataFile.readColumn("didInitialize")
 			actualElongations = ribosomeDataFile.readColumn("actualElongations")
-			didTerminate      = ribosomeDataFile.readColumn("didTerminate")
+			didTerminate = ribosomeDataFile.readColumn("didTerminate")
 			effectiveElongationRate = ribosomeDataFile.readColumn("effectiveElongationRate")
 
 			ribosomeDataFile.close()

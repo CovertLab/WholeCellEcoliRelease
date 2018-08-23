@@ -38,16 +38,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		nAvogadro = sim_data.constants.nAvogadro
-
-		ids_complexation = sim_data.process.complexation.moleculeNames
-		ids_complexation_complexes = sim_data.process.complexation.ids_complexes
-		ids_equilibrium = sim_data.process.equilibrium.moleculeNames
-		ids_equilibrium_complexes = sim_data.process.equilibrium.ids_complexes
 		ids_translation = sim_data.process.translation.monomerData["id"].tolist()
-
-		# Stoich matrices
-		complexStoich = sim_data.process.complexation.stoichMatrixMonomers()
-		equilibriumStoich = sim_data.process.equilibrium.stoichMatrixMonomers()
 
 		proteomeMWs = sim_data.getter.getMass(ids_translation)
 
@@ -60,18 +51,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		for simDir in allDirs:
 			simOutDir = os.path.join(simDir, "simOut")
 
-			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-			moleculeIds = bulkMolecules.readAttribute("objectNames")
-			counts = bulkMolecules.readColumn("counts")
-			bulkMolecules.close()
-
-			moleculeDict = {mol: i for i, mol in enumerate(moleculeIds)}
-			monomerIndexes = np.array([moleculeDict[moleculeId] for moleculeId in ids_translation], np.int)
-			equilibriumIndexes = np.array([moleculeDict[moleculeId] for moleculeId in ids_equilibrium], np.int)
-			equilibriumComplexesIndexes = np.array([moleculeDict[moleculeId] for moleculeId in ids_equilibrium_complexes], np.int)
-			complexationIndexes = np.array([moleculeDict[moleculeId] for moleculeId in ids_complexation], np.int)
-			complexationComplexesIndexes = np.array([moleculeDict[moleculeId] for moleculeId in ids_complexation_complexes], np.int)
-
 			# Load time
 			time = np.append(time, TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime)
 
@@ -80,11 +59,11 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			proteinMass = units.fg * massReader.readColumn("proteinMass")
 			massReader.close()
 
-			counts[:, equilibriumIndexes] += np.dot(counts[:, equilibriumComplexesIndexes] * -1, np.matrix.transpose(equilibriumStoich)).astype(np.int)
-			counts[:, complexationIndexes] += np.dot(counts[:, complexationComplexesIndexes] * -1, np.matrix.transpose(complexStoich)).astype(np.int)
+			monomerCounts = TableReader(os.path.join(simOutDir, "MonomerCounts"))
+			counts = monomerCounts.readColumn("monomerCounts")
 
 			# Get mass of proteins in cell
-			proteomeMasses = 1. / nAvogadro * counts[:, monomerIndexes] * proteomeMWs
+			proteomeMasses = 1. / nAvogadro * counts * proteomeMWs
 			if len(proteomeMassFractions):
 				proteomeMassFractions = np.concatenate((proteomeMassFractions, proteomeMasses.asNumber(units.fg).T / proteinMass.asNumber(units.fg)), axis = 1)
 			else:
