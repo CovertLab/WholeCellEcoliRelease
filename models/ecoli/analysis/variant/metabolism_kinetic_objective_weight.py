@@ -20,6 +20,7 @@ from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import variantAnalysisPlot
 from wholecell.utils import filepath, parallelization, units
+from wholecell.utils.sparkline import whitePadSparklineAxis
 
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS
 
@@ -258,65 +259,67 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				n_metabolites,
 				n_fluxes) = result
 
+		tick_labels = [r'$10^{%i}$' % (np.log10(x),) if x != 0 else '0' for x in lambdas]
 		lambdas = [np.log10(x) if x != 0 else np.nanmin(np.log10(lambdas[lambdas != 0]))-1 for x in lambdas]
 
 		plt.figure(figsize = (8.5, 22))
+		plt.style.use('seaborn-deep')
 		subplots = 8
 
 		# Growth rates
-		plt.subplot(subplots, 1, 1)
-		plt.style.use('seaborn-deep')
-		plt.bar(lambdas, growth_rates, align='center')
+		ax = plt.subplot(subplots, 1, 1)
+		plt.bar(lambdas, growth_rates / growth_rates[0], align='center')
+		plt.axhline(1, linestyle='--', color='k')
 		plt.ylim([0, 2])
-		plt.title('Growth rate deviation from no kinetics')
-		plt.ylabel('Deviation (1/hr)')
-
-		# Metabolite comparisons
-		plt.subplot(subplots, 1, 2)
-		plt.bar(lambdas, conc_correlation, align='center')
-		plt.ylim([0, 1])
-		plt.ylabel('PCC')
-		plt.title('Concentration correlation')
-
-		plt.subplot(subplots, 1, 3)
-		plt.bar(lambdas, n_conc_off_axis / n_metabolites, align='center')
-		plt.ylim([0, 1])
-		plt.ylabel('Fraction of concentrations')
-		plt.title('Concentrations off axis (>{:.0f}%)'.format(FRAC_CONC_OFF_AXIS*100))
+		plt.ylabel('Growth rate deviation\nfrom no kinetics')
+		whitePadSparklineAxis(ax, xAxis=False)
+		plt.yticks([0, 1, 2])
 
 		# Flux target comparisons
-		plt.subplot(subplots, 1, 4)
-		plt.bar(lambdas, nonzero_flux_correlation, align='center', color='r')
-		plt.bar(lambdas, flux_correlation, align='center')
+		ax = plt.subplot(subplots, 1, 2)
+		plt.bar(lambdas, nonzero_flux_correlation, align='center')
 		plt.ylim([0, 1])
-		plt.ylabel('PCC')
-		plt.title('Flux correlation')
+		plt.ylabel('Kinetic target flux PCC')
+		whitePadSparklineAxis(ax, xAxis=False)
 
-		plt.subplot(subplots, 1, 5)
+		ax = plt.subplot(subplots, 1, 3)
 		plt.bar(lambdas, n_flux_above_0 / n_fluxes, align='center')
 		plt.ylim([0, 1])
-		plt.ylabel('Fraction of fluxes')
-		plt.title('Flux above 0')
+		plt.ylabel('Fraction of fluxes\nabove 0')
+		whitePadSparklineAxis(ax, xAxis=False)
 
-		plt.subplot(subplots, 1, 6)
+		ax = plt.subplot(subplots, 1, 4)
 		plt.bar(lambdas, n_flux_off_axis / n_fluxes, align='center')
 		plt.ylim([0, 1])
-		plt.ylabel('Fraction of fluxes')
-		plt.title('Fluxes off axis (>{:.0f}%)'.format(FRAC_FLUX_OFF_AXIS*100))
+		plt.ylabel('Fraction of fluxes\noff axis (>{:.0f}%)'.format(FRAC_FLUX_OFF_AXIS*100))
+		whitePadSparklineAxis(ax, xAxis=False)
+
+		# Metabolite comparisons
+		ax = plt.subplot(subplots, 1, 5)
+		plt.bar(lambdas, conc_correlation, align='center')
+		plt.ylim([0, 1])
+		plt.ylabel('Concentration PCC')
+		whitePadSparklineAxis(ax, xAxis=False)
+
+		ax = plt.subplot(subplots, 1, 6)
+		plt.bar(lambdas, n_conc_off_axis / n_metabolites, align='center')
+		plt.ylim([0, 1])
+		plt.ylabel('Fraction of concentrations\noff axis (>{:.0f}%)'.format(FRAC_CONC_OFF_AXIS*100))
+		whitePadSparklineAxis(ax, xAxis=False)
 
 		# Toya comparison
-		plt.subplot(subplots, 1, 7)
-		plt.bar(lambdas, filtered_correlation_coefficient, align='center', color='r')
-		plt.bar(lambdas, correlation_coefficient, align='center')
+		ax = plt.subplot(subplots, 1, 7)
+		plt.bar(lambdas, filtered_correlation_coefficient, align='center')
 		plt.ylim([0, 1])
-		plt.ylabel('PCC')
-		plt.title('Central carbon flux correlation')
+		plt.ylabel('Central carbon flux PCC')
+		whitePadSparklineAxis(ax, xAxis=False)
 
 		# Viable sims
-		plt.subplot(subplots, 1, 8)
+		ax = plt.subplot(subplots, 1, 8)
 		plt.bar(lambdas, n_sims, align='center')
-		plt.ylabel('Number of sims')
-		plt.title('Sims with data')
+		plt.ylabel('Number of sims\nwith data')
+		whitePadSparklineAxis(ax)
+		plt.xticks(lambdas, tick_labels)
 
 		plt.xlabel('lambda')
 
@@ -332,6 +335,17 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			plt.text(homeostatic_objective_value[i], 0.8*kinetic_objective_value[i], i, horizontalalignment='center', verticalalignment='center')
 		plt.xlabel('Homeostatic Objective Value')
 		plt.ylabel('Kinetics Objective Value')
+
+		whitePadSparklineAxis(ax)
+
+		# Adjust limits to get tick labels to display
+		xlim = ax.get_xlim()
+		xlim = [10**np.floor(np.log10(xlim[0])), 10**np.ceil(np.log10(xlim[1]))]
+		ax.set_xticks(xlim)
+		ylim = ax.get_ylim()
+		ylim = [10**np.floor(np.log10(ylim[0])), 10**np.ceil(np.log10(ylim[1]))]
+		ax.set_yticks(ylim)
+
 		exportFigure(plt, plotOutDir, '{}_obj'.format(plotOutFileName), metadata)
 
 		plt.close('all')

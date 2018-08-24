@@ -149,6 +149,13 @@ This command will run forever until you `Ctrl-C` to kill it once you see that al
 
 `qlaunch` is relatively lightweight, so you can probably get away with running it on a login node.
 
+`qlaunch` will create block directories with stdout and stderr from each firework.  To troubleshoot any errors or just to see the output you would normally see from an interactive session, use the following commands to search the block directories for your desired fw_id:
+```bash
+./runscripts/fw_info.sh out 1
+./runscripts/fw_info.sh error 1
+```
+This will display the stdout and stderr from the execution of a firework with fw_id of 1.
+
 Using the manual runscripts
 ---------------------------
 
