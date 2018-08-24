@@ -7,7 +7,7 @@ import collections
 
 import numpy as np
 import sympy
-from sympy.matrices import eye
+from sympy.matrices import dense
 import Bio.Seq
 
 import wholecell.utils.unit_struct_array
@@ -43,7 +43,7 @@ leaf_types = (
 	numbers.Number,
 	functools.partial,
 	types.FunctionType,
-	type(eye(1)), # cannot reference `sympy.matrices.dense.MutableDenseMatrix` directly
+	dense.MutableDenseMatrix,
 	wholecell.utils.unit_struct_array.UnitStructArray)
 
 def is_hidden(attr):
