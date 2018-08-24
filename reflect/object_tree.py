@@ -1,13 +1,15 @@
 import re
 import unum
-import sympy
 import types
-import Bio.Seq
 import numbers
 import functools
 import collections
+
 import numpy as np
+import sympy
 from sympy.matrices import eye
+import Bio.Seq
+
 import wholecell.utils.unit_struct_array
 
 leaf_types = (
@@ -41,7 +43,7 @@ leaf_types = (
 	numbers.Number,
 	functools.partial,
 	types.FunctionType,
-	type(eye(1)),
+	type(eye(1)), # cannot reference `sympy.matrices.dense.MutableDenseMatrix` directly
 	wholecell.utils.unit_struct_array.UnitStructArray)
 
 def is_hidden(attr):
@@ -59,7 +61,7 @@ def is_leaf(value, leaves=leaf_types):
 	"""
 	return callable(value) or isinstance(value, leaves)
 
-def object_tree(o, path='', debug=None):
+def object_tree(obj, path='', debug=None):
 	"""
 	Given an object, exhaustively traverse down all attributes it contains until leaves are
 	reached and convert everything found into a dictionary.
@@ -71,7 +73,7 @@ def object_tree(o, path='', debug=None):
 	deserialization of the object and is intended to be a translation of a pickled object.
 
 	Args:
-		o (object): The object to inspect. 
+		obj (object): The object to inspect. 
 		path (optional str): The root path of this object tree. This will be built upon for 
 			each child of the current object found and reported in a value is provided for `debug`.
 		debug (optional str): If provided, prints paths of the attributes encountered. If the
@@ -82,19 +84,19 @@ def object_tree(o, path='', debug=None):
 	if debug == 'ALL':
 		print(path)
 
-	if is_leaf(o):
-		if callable(o) and (debug == 'CALLABLE'):
+	if is_leaf(obj):
+		if callable(obj) and (debug == 'CALLABLE'):
 			print(path)
-		return o
-	elif isinstance(o, collections.Mapping):
-		return {key: object_tree(o[key], "{}['{}']".format(path, key), debug) for key in o.keys()}
-	elif isinstance(o, collections.Sequence):
-		return [object_tree(subo, "{}[{}]".format(path, index), debug) for index, subo in enumerate(o)]
+		return obj
+	elif isinstance(obj, collections.Mapping):
+		return {key: object_tree(obj[key], "{}['{}']".format(path, key), debug) for key in obj.viewkeys()}
+	elif isinstance(obj, collections.Sequence):
+		return [object_tree(subobj, "{}[{}]".format(path, index), debug) for index, subobj in enumerate(obj)]
 	else:
-		attrs = dir(o)
-		tree = {attr: object_tree(getattr(o, attr), "{}.{}".format(path, attr), debug)
-		 for attr in attrs
-		 if not is_hidden(attr)}
-		tree['!type'] = type(o)
+		attrs = dir(obj)
+		tree = {attr: object_tree(getattr(obj, attr), "{}.{}".format(path, attr), debug)
+				for attr in attrs
+				if not is_hidden(attr)}
+		tree['!type'] = type(obj)
 
 		return tree
