@@ -27,40 +27,7 @@ Now that we have our object, we can transform it into a nested dictionary:
 sim_tree = o.object_tree(sim_data)
 ```
 
-The `sim_tree` dictionary that results has the same structure as `sim_data`, but all objects that aren't leaf types are now dictionaries with a `!type` key containing the original type. The full list of default leaf types are:
-
-    set
-    str
-    unicode
-    np.int_
-    np.intc
-    np.intp
-    np.int8
-    np.bool_
-    np.dtype
-    np.int16
-    np.int32
-    np.int64
-    np.uint8
-    np.uint16
-    np.uint32
-    np.uint64
-    np.float_
-    np.float16
-    np.float32
-    np.float64
-    np.ndarray
-    np.complex_
-    np.complex64
-    np.complex128
-    unum.Unum
-    Bio.Seq.Seq
-    sympy.Basic
-    numbers.Number
-    functools.partial
-    types.FunctionType
-    sympy.matrices.dense.MutableDenseArray
-    wholecell.utils.unit_struct_array.UnitStructArray
+The `sim_tree` dictionary that results has the same structure as `sim_data`, but all objects that aren't leaf types are now dictionaries with a `!type` key containing the original type. The full list of default leaf types are defined in the `leaf_types` tuple in `object_tree.py`.
 
 If you want, you can get some information about the structure as it is being explored. The second argument is `path`, which establishes the name of the root path, and the third argument is `debug`, which takes two options. If supplied with `'ALL'`, it will print out every path encountered during the traversal. If debug is set to `'CALLABLE'`, it will print out only those leaves which hold functions or methods.
 
