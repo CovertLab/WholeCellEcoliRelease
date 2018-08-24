@@ -11,7 +11,7 @@ Examine and transform the structure of a python object into a dictionary.
 First, import `object_tree`:
 
 ```python
-import reflect.object_tree as o
+import runscripts.reflect.object_tree as o
 ```
 
 Then, get the object you wish to examine. In our case we are going to take a look at `sim_data`:
