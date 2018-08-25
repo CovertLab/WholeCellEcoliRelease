@@ -2912,7 +2912,7 @@ def calculateRnapRecruitment(sim_data, r):
 	- Adds matrix H to sim_data
 	"""
 
-	hI, hJ, hV, rowNames, colNames, stateMasses = [], [], [], [], [], []
+	hI, hJ, hV, rowNames, colNames, stateMasses, rna_to_tf = [], [], [], [], [], [], []
 
 	for idx, rnaId in enumerate(sim_data.process.transcription.rnaData["id"]):
 		rnaIdNoLoc = rnaId[:-3]  # Remove compartment ID from RNA ID
@@ -2942,6 +2942,9 @@ def calculateRnapRecruitment(sim_data, r):
 			hJ.append(colNames.index(colName))
 			hV.append(r[colNames.index(colName)])
 
+			# Add index to the target RNA
+			rna_to_tf.append(idx)
+
 			stateMasses.append([0.]*6 + [tf["mass_g/mol"]] + [0.]*4)
 
 		# Add alpha column for each RNA
@@ -2964,6 +2967,9 @@ def calculateRnapRecruitment(sim_data, r):
 	H = np.zeros(shape, np.float64)
 	H[hI, hJ] = hV
 
+	# Get array to convert bound TF index to the index of the target RNA
+	rna_to_tf = np.array(rna_to_tf)
+
 	# Get column names corresponding to gene dosage/bound TF counts
 	geneCopyNumberColNames = [x for x in colNames if x.endswith("__alpha")]
 	boundTFColNames = [x for x in colNames if not x.endswith("__alpha")]
@@ -2979,7 +2985,7 @@ def calculateRnapRecruitment(sim_data, r):
 	sim_data.moleculeGroups.bulkMoleculesGeneCopyNumberDivision = geneCopyNumberColNames
 	sim_data.moleculeGroups.bulkMoleculesBoundTFDivision = boundTFColNames
 
-	# Add matrix H to sim_data
+	# Add outputs to sim_data
 	sim_data.process.transcription_regulation.recruitmentData = {
 		"hI": hI,
 		"hJ": hJ,
@@ -2989,6 +2995,7 @@ def calculateRnapRecruitment(sim_data, r):
 
 	sim_data.process.transcription_regulation.recruitmentColNames = colNames
 	sim_data.process.transcription_regulation.geneCopyNumberColNames = geneCopyNumberColNames
+	sim_data.process.transcription_regulation.rna_index_to_bound_tf_mapping = rna_to_tf
 
 
 def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
