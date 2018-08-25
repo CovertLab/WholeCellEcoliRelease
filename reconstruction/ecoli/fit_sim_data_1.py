@@ -2964,20 +2964,20 @@ def calculateRnapRecruitment(sim_data, r):
 	H = np.zeros(shape, np.float64)
 	H[hI, hJ] = hV
 
+	# Get column names corresponding to gene dosage/bound TF counts
+	geneDosageColNames = [x for x in colNames if x.endswith("__alpha")]
+	boundTFColNames = [x for x in colNames if not x.endswith("__alpha")]
+
 	# Deals with numerical tolerance issue of having negative alpha values
-	colIdxs = [colNames.index(colName) for colName in colNames if colName.endswith("__alpha")]
+	colIdxs = [colNames.index(colName) for colName in geneDosageColNames]
 	nRows = H.shape[0]
 	H[range(nRows), colIdxs] -= H[range(nRows), colIdxs].min()
 	hV = H[hI, hJ]
 
 	# Add promoter state (gene dosage/bound TF count) as bulk state
 	sim_data.internal_state.bulkMolecules.addToBulkState(colNames, stateMasses)
-	sim_data.moleculeGroups.bulkMoleculesGeneDosageDivision = [
-		x for x in colNames if x.endswith("__alpha")
-		]
-	sim_data.moleculeGroups.bulkMoleculesBoundTFDivision = [
-		x for x in colNames if not x.endswith("__alpha")
-		]
+	sim_data.moleculeGroups.bulkMoleculesGeneDosageDivision = geneDosageColNames
+	sim_data.moleculeGroups.bulkMoleculesBoundTFDivision = boundTFColNames
 
 	# Add matrix H to sim_data
 	sim_data.process.transcription_regulation.recruitmentData = {
@@ -2986,7 +2986,9 @@ def calculateRnapRecruitment(sim_data, r):
 		"hV": hV,
 		"shape": shape,
 		}
+
 	sim_data.process.transcription_regulation.recruitmentColNames = colNames
+	sim_data.process.transcription_regulation.geneDosageColNames = geneDosageColNames
 
 
 def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
