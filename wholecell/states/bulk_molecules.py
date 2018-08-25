@@ -68,7 +68,7 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
 		self.divisionIds['equally'] = sim_data.moleculeGroups.bulkMoleculesEqualDivision
 		self.divisionIds['fullChromosome'] = [sim_data.moleculeIds.fullChromosome]
 		self.divisionIds['partialChromosome'] = sim_data.moleculeGroups.partialChromosome
-		self.divisionIds['geneDosage'] = sim_data.moleculeGroups.bulkMoleculesGeneDosageDivision
+		self.divisionIds['geneCopyNumber'] = sim_data.moleculeGroups.bulkMoleculesGeneCopyNumberDivision
 		self.divisionIds['boundTF'] = sim_data.moleculeGroups.bulkMoleculesBoundTFDivision
 
 	def processRequestPriorityIs(self, processIndex, priorityLevel):

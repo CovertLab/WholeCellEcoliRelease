@@ -43,22 +43,19 @@ def calcInitialConditions(sim, sim_data):
 
 def initializeBulkMolecules(bulkMolCntr, sim_data, randomState, massCoeff):
 
-	## Set protein counts from expression
+	# Set protein counts from expression
 	initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff)
 
-	## Set RNA counts from expression
+	# Set RNA counts from expression
 	initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff)
 
-	## Set DNA
+	# Set DNA
 	initializeDNA(bulkMolCntr, sim_data, randomState)
 
-	## Set other biomass components
+	# Set other biomass components
 	initializeSmallMolecules(bulkMolCntr, sim_data, randomState, massCoeff)
 
-	## Set constitutive expression
-	initializeConstitutiveExpression(bulkMolCntr, sim_data, randomState)
-
-	## Form complexes
+	# Form complexes
 	initializeComplexation(bulkMolCntr, sim_data, randomState)
 
 def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
@@ -146,12 +143,6 @@ def initializeSmallMolecules(bulkMolCntr, sim_data, randomState, massCoeff):
 		moleculeIds
 		)
 
-def initializeConstitutiveExpression(bulkMolCntr, sim_data, randomState):
-	recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
-	alphaNames = [x for x in recruitmentColNames if x.endswith("__alpha")]
-	alphaView = bulkMolCntr.countsView(alphaNames)
-	alphaView.countsIs(1)
-
 def initializeComplexation(bulkMolCntr, sim_data, randomState):
 	moleculeNames = sim_data.process.complexation.moleculeNames
 	moleculeView = bulkMolCntr.countsView(moleculeNames)
@@ -187,8 +178,9 @@ def initializeComplexation(bulkMolCntr, sim_data, randomState):
 
 def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 	"""
-	Purpose: Initialize replication by creating an appropriate number of
-	replication forks given the cell growth rate.
+	Initializes replication by creating an appropriate number of replication
+	forks given the cell growth rate. This also initializes the gene dosage
+	bulk counts using the initial locations of the forks.
 	"""
 
 	# Determine the number and location of replication forks at the start of
@@ -231,6 +223,30 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 			chromosomeIndex = chromosomeIndexPolymerase,
 			massDiff_DNA = massIncreaseDna,
 			)
+
+	# Initialize gene dosage
+	geneCopyNumberColNames = sim_data.process.transcription_regulation.geneCopyNumberColNames
+	geneCopyNumberView = bulkMolCntr.countsView(geneCopyNumberColNames)
+	replicationCoordinate = sim_data.process.transcription.rnaData["replicationCoordinate"]
+
+	# Set all copy numbers to one initially
+	initialGeneCopyNumber = np.ones(len(geneCopyNumberColNames))
+
+	# Get coordinates of forks in both directions
+	forward_fork_coordinates = sequenceLength[sequenceIdx == 0]
+	reverse_fork_coordinates = np.negative(sequenceLength[sequenceIdx == 1])
+
+	assert len(forward_fork_coordinates) == len(reverse_fork_coordinates)
+
+	# Increment copy number by one for any gene that lies between two forks
+	for (forward, reverse) in izip(forward_fork_coordinates,
+			reverse_fork_coordinates):
+		initialGeneCopyNumber[
+			np.logical_and(replicationCoordinate < forward,
+				replicationCoordinate > reverse)
+			] += 1
+
+	geneCopyNumberView.countsIs(initialGeneCopyNumber)
 
 
 def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
@@ -492,6 +508,7 @@ def determineChromosomeState(C, D, tau, replication_length):
 	# Require that D is shorter than tau - time between completing DNA
 	# replication and cell division must be shorter than the time between two
 	# cell divisions.
+
 	assert D.asNumber(units.min) < tau.asNumber(units.min), "The D period must be shorter than the doubling time tau."
 
 	# Calculate the number of active replication rounds
@@ -540,10 +557,10 @@ def determineChromosomeState(C, D, tau, replication_length):
 		chromosomeIndex += [0] * (4*n_event)
 
 	# Convert to numpy arrays
-	sequenceIdx = np.array(sequenceIdx)
-	sequenceLength = np.array(sequenceLength)
-	replicationRound = np.array(replicationRound)
-	chromosomeIndex = np.array(chromosomeIndex)
+	sequenceIdx = np.array(sequenceIdx, dtype=np.int8)
+	sequenceLength = np.array(sequenceLength, dtype=np.int)
+	replicationRound = np.array(replicationRound, dtype=np.int)
+	chromosomeIndex = np.array(chromosomeIndex, dtype=np.int)
 
 	return sequenceIdx, sequenceLength, replicationRound, chromosomeIndex
 
