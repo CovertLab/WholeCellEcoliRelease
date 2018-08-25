@@ -2970,10 +2970,14 @@ def calculateRnapRecruitment(sim_data, r):
 	H[range(nRows), colIdxs] -= H[range(nRows), colIdxs].min()
 	hV = H[hI, hJ]
 
-	# Add binding probability of each TF-RNA pair to bulkMolecules
+	# Add promoter state (gene dosage/bound TF count) as bulk state
 	sim_data.internal_state.bulkMolecules.addToBulkState(colNames, stateMasses)
-	sim_data.moleculeGroups.bulkMoleculesSetTo1Division = [x for x in colNames if x.endswith("__alpha")]  # Probabilities corresponding to alpha are always set to 1
-	sim_data.moleculeGroups.bulkMoleculesBinomialDivision += [x for x in colNames if not x.endswith("__alpha")]
+	sim_data.moleculeGroups.bulkMoleculesGeneDosageDivision = [
+		x for x in colNames if x.endswith("__alpha")
+		]
+	sim_data.moleculeGroups.bulkMoleculesBoundTFDivision = [
+		x for x in colNames if not x.endswith("__alpha")
+		]
 
 	# Add matrix H to sim_data
 	sim_data.process.transcription_regulation.recruitmentData = {
