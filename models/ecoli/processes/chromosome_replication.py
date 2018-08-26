@@ -9,6 +9,7 @@ ChromosomeReplication
 from __future__ import division
 
 import numpy as np
+from itertools import izip
 
 import wholecell.processes.process
 from wholecell.utils.polymerize import (buildSequences, polymerize,
@@ -42,8 +43,11 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
 			units.nt / units.s))
 			)
+		self.replication_coordinate = sim_data.process.transcription.rnaData[
+			"replicationCoordinate"]
 
-		# Create unique molecule views for dna polymerases/replication forks and origins of replication
+		# Create unique molecule views for dna polymerases/replication forks
+		# and origins of replication
 		self.activeDnaPoly = self.uniqueMoleculesView('dnaPolymerase')
 		self.oriCs = self.uniqueMoleculesView('originOfReplication')
 
@@ -52,6 +56,10 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.ppi = self.bulkMoleculeView('PPI[c]')
 		self.partialChromosomes = self.bulkMoleculesView(
 			sim_data.moleculeGroups.partialChromosome)
+
+		# Create bulk molecule view for gene copy number
+		self.gene_copy_number = self.bulkMoleculesView(
+			sim_data.process.transcription_regulation.geneCopyNumberColNames)
 
 		# Create bulk molecules view for full chromosome
 		self.full_chromosome = self.bulkMoleculeView("CHROM_FULL[c]")
@@ -233,6 +241,26 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Update counts of polymerized metabolites
 		self.dntps.countsDec(dNtpsUsed)
 		self.ppi.countInc(dNtpsUsed.sum())
+
+		# Increment copy numbers of replicated genes
+		new_gene_copies = np.zeros(len(self.replication_coordinate))
+
+		for (seq_idx, old_len, new_len) in izip(
+				sequenceIdx, sequenceLengths, updatedLengths):
+			# Fork on forward strand
+			if seq_idx == 0:
+				new_gene_copies[np.logical_and(
+					self.replication_coordinate >= old_len,
+					self.replication_coordinate < new_len
+					)] += 1
+			# Fork on reverse strand
+			elif seq_idx == 1:
+				new_gene_copies[np.logical_and(
+					self.replication_coordinate <= -old_len,
+					self.replication_coordinate > -new_len
+					)] += 1
+
+		self.gene_copy_number.countsInc(new_gene_copies)
 
 		## Module 3: replication termination
 		# Determine if any polymerases reached the end of their sequences. If
