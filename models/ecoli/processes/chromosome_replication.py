@@ -269,11 +269,6 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		terminalLengths = self.sequenceLengths[sequenceIdx]
 		didTerminate = (updatedLengths == terminalLengths)
 
-		terminatedChromosomes = np.bincount(
-			sequenceIdx[didTerminate],
-			minlength=self.sequences.shape[0]
-			)
-
 		# If any of the polymerases were terminated, check if all polymerases
 		# initiated the same round as the terminated polymerases has already
 		# been removed - if they have, update attributes of the remaining
@@ -354,12 +349,17 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 					# chromosome needs to be split
 					newChromosomeIndex += 1
 
-			# Delete terminated polymerases
-			activeDnaPoly.delByIndexes(np.where(didTerminate)[0])
+					# Delete terminated polymerases
+					activeDnaPoly.delByIndexes(
+						np.where(terminatedPolymerases)[0])
 
-			# Update counts of newly created chromosome halves. These will be
-			# "stitched" together in the ChromosomeFormation process
-			self.partialChromosomes.countsInc(terminatedChromosomes)
+					# Update counts of newly created chromosome halves. These
+					# will be "stitched" together in the ChromosomeFormation
+					# process
+					# TODO (Gwanggyu): Remove bulk state for partial
+					# chromosomes altogether. Remove chromosome formation
+					# process and just generate full chromosomes here.
+					self.partialChromosomes.countsInc([1, 1, 1, 1])
 
 
 	def _dnaPolymeraseElongationRate(self):
