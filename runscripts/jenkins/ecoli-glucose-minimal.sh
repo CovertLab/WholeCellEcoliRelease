@@ -43,5 +43,3 @@ bunzip2 -f /scratch/PI/mcovert/wc_ecoli/cached/simData_Fit_1.cPickle.bz2
 chmod 444 /scratch/PI/mcovert/wc_ecoli/cached/simData_Fit_1.cPickle
 
 mv out/2* /scratch/PI/mcovert/wc_ecoli/daily_build/
-
-PYTHONPATH=$PWD:$PYTHONPATH nosetests -a 'performance' --with-xunit --with-coverage --cover-package=wholecell --cover-xml
