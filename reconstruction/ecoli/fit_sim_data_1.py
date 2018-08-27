@@ -2995,6 +2995,7 @@ def calculateRnapRecruitment(sim_data, r):
 
 	sim_data.process.transcription_regulation.recruitmentColNames = colNames
 	sim_data.process.transcription_regulation.geneCopyNumberColNames = geneCopyNumberColNames
+	sim_data.process.transcription_regulation.boundTFColNames = boundTFColNames
 	sim_data.process.transcription_regulation.rna_index_to_bound_tf_mapping = rna_to_tf
 
 

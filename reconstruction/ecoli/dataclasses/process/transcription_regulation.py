@@ -46,12 +46,8 @@ class TranscriptionRegulation(object):
 			for targetToRemove in targetsToRemove:
 				sim_data.tfToFC[tf].pop(targetToRemove)
 
-		# Build dictionaries mapping transcription factors to the number of its
-		# targets, active transcription factors to their bound form, and
-		# transcription factors to their regulating type
-		self.tfNTargets = dict(
-			[(key, len(val)) for key, val in sim_data.tfToFC.iteritems()]
-			)
+		# Build dictionaries mapping transcription factors to their bound form,
+		# and to their regulating type
 		self.activeToBound = dict(
 			[(x["active TF"].encode("utf-8"), x["metabolite bound form"].encode("utf-8"))
 			for x in raw_data.tfOneComponentBound]
