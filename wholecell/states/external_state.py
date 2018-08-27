@@ -22,6 +22,9 @@ class ExternalState(object):
 		# Reference to sim
 		self._sim = None
 
+		# References to views
+		self._views = []
+
 		# Random number stream
 		self.randomState = None
 
@@ -36,6 +39,11 @@ class ExternalState(object):
 	# Allocate memory
 	def allocate(self):
 		pass
+
+
+	# Views
+	def viewAdd(self, view):
+		self._views.append(view)
 
 
 	# Saving and loading
