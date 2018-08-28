@@ -14,8 +14,6 @@ from wholecell.analysis.rdp import rdp
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import cohortAnalysisPlot
 
-FROM_CACHE = False
-
 GENS = np.arange(3, 9)
 
 
@@ -71,26 +69,16 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		# protein_index_of_interest_full = np.zeros((n_gens, n_monomers), dtype = np.bool)
 
-		if not FROM_CACHE:
-			print "Re-running - not using cache"
-			for gen_idx, simDir in enumerate(allDir):
-				simOutDir = os.path.join(simDir, "simOut")
+		for gen_idx, simDir in enumerate(allDir):
+			simOutDir = os.path.join(simDir, "simOut")
 
-				time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
-				# Get protein monomer counts
-				monomerCounts = TableReader(os.path.join(simOutDir, "MonomerCounts"))
-				proteinMonomerCounts = monomerCounts.readColumn("monomerCounts")
-				ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(np.float) + 1)
-				ratioFinalToInitialCountMultigen[gen_idx, :] = ratioFinalToInitialCount
-
-			# cPickle.dump(protein_index_of_interest_full, open(os.path.join(plotOutDir,"protein_index_of_interest_full.pickle"), "wb"))
-			cPickle.dump(ratioFinalToInitialCountMultigen, open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "wb"))
-
-		# protein_index_of_interest_full = cPickle.load(open(os.path.join(plotOutDir,"protein_index_of_interest_full.pickle"), "rb"))
-		# protein_index_of_interest = np.where(protein_index_of_interest_full.all(axis = 0))[0]
-
-		ratioFinalToInitialCountMultigen = cPickle.load(open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "rb"))
+			# Get protein monomer counts
+			monomerCounts = TableReader(os.path.join(simOutDir, "MonomerCounts"))
+			proteinMonomerCounts = monomerCounts.readColumn("monomerCounts")
+			ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(np.float) + 1)
+			ratioFinalToInitialCountMultigen[gen_idx, :] = ratioFinalToInitialCount
 
 		protein_index_of_interest = np.where(np.logical_and(ratioFinalToInitialCountMultigen > 1.6, ratioFinalToInitialCountMultigen < 2.4).all(axis = 0))[0]
 		first_gen_flat = ratioFinalToInitialCountMultigen[0,:] < 1.1

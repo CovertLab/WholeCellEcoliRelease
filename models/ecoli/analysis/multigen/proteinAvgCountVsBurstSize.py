@@ -11,8 +11,6 @@ from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
 
-FROM_CACHE = False
-
 CLOSE_TO_DOUBLE = 0.1
 
 
@@ -40,49 +38,36 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		initiationEventsPerMonomerMultigen = np.zeros((n_sims, n_monomers), dtype = np.int)
 		monomerAvgCountMultigen = np.zeros((n_sims, n_monomers), dtype=np.float)
 
-		if not FROM_CACHE:
+		for gen_idx, simDir in enumerate(allDir):
+			simOutDir = os.path.join(simDir, "simOut")
 
-			for gen_idx, simDir in enumerate(allDir):
-				simOutDir = os.path.join(simDir, "simOut")
+			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
-				time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+			monomerCounts = TableReader(os.path.join(simOutDir, "MonomerCounts"))
+			proteinMonomerCounts = monomerCounts.readColumn("monomerCounts")
 
-				monomerCounts = TableReader(os.path.join(simOutDir, "MonomerCounts"))
-				proteinMonomerCounts = monomerCounts.readColumn("monomerCounts")
+			## CALCULATIONS ##
+			monomerAverageCount = proteinMonomerCounts.mean(axis=0)
 
-				## CALCULATIONS ##
-				monomerAverageCount = proteinMonomerCounts.mean(axis=0)
+			# Calculate if monomer exists over course of cell cycle
+			monomerExist = proteinMonomerCounts.sum(axis=0) > 1
 
-				# Calculate if monomer exists over course of cell cycle
-				monomerExist = proteinMonomerCounts.sum(axis=0) > 1
+			# Calculate if monomer comes close to doubling
+			ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(np.float) + 1)
+			# monomerDouble = ratioFinalToInitialCount > (1 - CLOSE_TO_DOUBLE)
 
-				# Calculate if monomer comes close to doubling
-				ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(np.float) + 1)
-				# monomerDouble = ratioFinalToInitialCount > (1 - CLOSE_TO_DOUBLE)
+			# Load transcription initiation event data
+			rnapData = TableReader(os.path.join(simOutDir, "RnapData"))
+			initiationEventsPerRna = rnapData.readColumn("rnaInitEvent").sum(axis = 0)
 
-				# Load transcription initiation event data
-				rnapData = TableReader(os.path.join(simOutDir, "RnapData"))
-				initiationEventsPerRna = rnapData.readColumn("rnaInitEvent").sum(axis = 0)
+			# Map transcription initiation events to monomers
+			initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.rnaIndexToMonomerMapping]
 
-				# Map transcription initiation events to monomers
-				initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.rnaIndexToMonomerMapping]
-
-				# Log data
-				monomerExistMultigen[gen_idx,:] = monomerExist
-				ratioFinalToInitialCountMultigen[gen_idx,:] = ratioFinalToInitialCount
-				initiationEventsPerMonomerMultigen[gen_idx,:] = initiationEventsPerMonomer
-				monomerAvgCountMultigen[gen_idx, :] = monomerAverageCount
-
-			cPickle.dump(monomerExistMultigen, open(os.path.join(plotOutDir,"monomerExistMultigen.pickle"), "wb"))
-			cPickle.dump(ratioFinalToInitialCountMultigen, open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "wb"))
-			cPickle.dump(initiationEventsPerMonomerMultigen, open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "wb"))
-			cPickle.dump(monomerAvgCountMultigen, open(os.path.join(plotOutDir,"monomerAvgCountMultigen.pickle"), "wb"))
-
-		monomerExistMultigen = cPickle.load(open(os.path.join(plotOutDir,"monomerExistMultigen.pickle"), "rb"))
-		ratioFinalToInitialCountMultigen = cPickle.load(open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "rb"))
-		initiationEventsPerMonomerMultigen = cPickle.load(open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "rb"))
-		monomerAvgCountMultigen = cPickle.load(open(os.path.join(plotOutDir,"monomerAvgCountMultigen.pickle"), "rb"))
-
+			# Log data
+			monomerExistMultigen[gen_idx,:] = monomerExist
+			ratioFinalToInitialCountMultigen[gen_idx,:] = ratioFinalToInitialCount
+			initiationEventsPerMonomerMultigen[gen_idx,:] = initiationEventsPerMonomer
+			monomerAvgCountMultigen[gen_idx, :] = monomerAverageCount
 
 		existFractionPerMonomer = monomerExistMultigen.mean(axis=0)
 		averageFoldChangePerMonomer = ratioFinalToInitialCountMultigen.mean(axis=0)
