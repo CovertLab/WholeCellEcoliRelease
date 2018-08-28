@@ -1,3 +1,5 @@
+set -eu
+
 module load wcEcoli/sherlock2
 pyenv local wcEcoli2
 
