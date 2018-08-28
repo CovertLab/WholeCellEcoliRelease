@@ -4,6 +4,6 @@ pyenv local wcEcoli2
 make clean
 make compile
 
-set -eu
+set -e
 
 PYTHONPATH=$PWD:$PYTHONPATH nosetests -a 'performance' --with-xunit --with-coverage --cover-package=wholecell --cover-xml
