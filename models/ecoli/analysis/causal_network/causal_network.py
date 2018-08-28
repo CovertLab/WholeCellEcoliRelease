@@ -297,11 +297,17 @@ def add_replication_and_genes(simData, simOutDirs, node_list, edge_list, names_d
 		gene_node = Node("State", "Gene")
 
 		# Add attributes to the node
-		# TODO: Add common name and synonyms
+		# Add common name and synonyms
 		if geneId in names_dict:
-			attr = {'node_id': geneId, 'name': names_dict[geneId][0], 'synonyms': names_dict[geneId][1]}
+			attr = {'node_id': geneId,
+				'name': names_dict[geneId][0],
+				'synonyms': names_dict[geneId][1]
+				}
 		else:
-			attr = {'node_id': geneId, 'name': geneId}
+			attr = {'node_id': geneId,
+				'name': geneId
+				}
+			print geneId
 
 		gene_node.read_attributes(**attr)
 
@@ -394,20 +400,31 @@ def add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list,
 	# Loop through all genes (in the order listed in transcription)
 	for i, rnaId in enumerate(simData.process.transcription.rnaData["id"]):
 		geneId = simData.process.transcription.rnaData["geneId"][i]
+		isMRna = simData.process.transcription.rnaData["isMRna"][i]
 
 		# Initialize a single transcript node
 		rna_node = Node("State", "RNA")
 
 		# Add attributes to the node
-		# TODO: Add common name and synonyms
+		# Add common name and synonyms
 
-		import ipdb; ipdb.set_trace()
-		# TODO (Eran) remove compartment from name ('6S-RNA[c]' --> '6S-RNA')
-		# TODO (Eran) synonyms with quotation marks i names txt file
-		if rnaId in names_dict:
-			attr = {'node_id': rnaId, 'name': names_dict[rnaId][0], 'synonyms': names_dict[rnaId][1]}
+		# remove compartment tag
+		rnaId_no_c = rnaId[:-3]
+		if isMRna and geneId in names_dict:
+			attr = {'node_id': rnaId,
+				'name': names_dict[geneId][0]+'_RNA',
+				'synonyms': names_dict[geneId][1]
+				}
+		elif rnaId_no_c in names_dict:
+			attr = {'node_id': rnaId,
+				'name': names_dict[rnaId_no_c][0],
+				'synonyms': names_dict[rnaId_no_c][1]
+				}
 		else:
-			attr = {'node_id': rnaId, 'name': rnaId}
+			attr = {'node_id': rnaId,
+				'name': rnaId
+				}
+			print rnaId
 
 		rna_node.read_attributes(**attr)
 
@@ -531,7 +548,18 @@ def add_translation_and_monomers(simData, simOutDirs, node_list, edge_list, name
 
 		# Add attributes to the node
 		# TODO: Add common name and synonyms
-		attr = {'node_id': monomerId, 'name': monomerId}
+		monomerId_no_c = monomerId[:-3]
+		# Add common name, synonyms, molecular mass
+		if monomerId_no_c in names_dict:
+			attr = {'node_id': monomerId,
+				'name': names_dict[monomerId_no_c][0],
+				'synonyms': names_dict[monomerId_no_c][1],
+				}
+		else:
+			attr = {'node_id': monomerId,
+				'name': monomerId,
+				}
+			print monomerId
 		protein_node.read_attributes(**attr)
 
 		# Add dynamics data (counts) to the node.
@@ -713,10 +741,20 @@ def add_complexation_and_complexes(simData, simOutDirs, node_list, edge_list, na
 		# Add attributes to the node
 		# TODO: Get molecular mass using getMass().
 		# TODO: Get correct protein name and synonyms from EcoCyc
-		attr = {'node_id': complex,
-			'name': complex,
-			'constants': {'mass': 0}
-			}
+		complex_no_c = complex[:-3]
+		# Add common name, synonyms, molecular mass
+		if complex_no_c in names_dict:
+			attr = {'node_id': complex,
+				'name': names_dict[complex_no_c][0],
+				'synonyms': names_dict[complex_no_c][1],
+				'constants': {'mass': 0}
+				}
+		else:
+			attr = {'node_id': complex,
+				'name': complex,
+				'constants': {'mass': 0}
+				}
+			print complex
 		complex_node.read_attributes(**attr)
 
 		# Add dynamics data (counts) to the node.
@@ -858,11 +896,20 @@ def add_metabolism_and_metabolites(simData, simOutDirs, node_list, edge_list, na
 
 		# Add attributes to the node
 		# TODO: Get molecular mass using getMass(). Some of the metabolites do not have mass data?
-		# TODO: Get correct metabolite name and synonyms from EcoCyc
-		attr = {'node_id': metabolite,
-			'name': metabolite,
-			'constants': {'mass': 0}
-			}
+		# Add common name, synonyms, molecular mass
+		metabolite_no_c = metabolite[:-3]
+		if metabolite_no_c in names_dict:
+			attr = {'node_id': metabolite,
+				'name': names_dict[metabolite_no_c][0],
+				'synonyms': names_dict[metabolite_no_c][1],
+				'constants': {'mass': 0}
+				}
+		else:
+			attr = {'node_id': metabolite,
+				'name': metabolite,
+				'constants': {'mass': 0}
+				}
+			print metabolite
 		metabolite_node.read_attributes(**attr)
 
 		# Add dynamics data (counts) to the node.
