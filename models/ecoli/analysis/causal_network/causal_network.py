@@ -27,6 +27,8 @@ PATHWAY_LIST_HEADER = "pathway\tnodes"
 
 PATHWAYS_FILENAME = "models/ecoli/analysis/causal_network/metabolic_pathways.tsv"
 
+NAMES_PATHWAY = "models/ecoli/analysis/causal_network/names/"
+
 CHECK_SANITY = False
 GET_PATHWAY_INDEX = False
 N_GENS = 9 # TODO (Eran) this is structures as a multigen analysis, what if we want to analyze single gen?
@@ -83,6 +85,7 @@ class Node:
 		self.constants = None
 		self.dynamics = {}
 		self.dynamics_units = {}
+		self.names_dict = {}
 
 	def get_node_id(self):
 		"""
@@ -270,7 +273,7 @@ def add_global_nodes(simData, simOutDirs, node_list):
 	node_list.extend([mass_node, volume_node, chromosome_node])
 
 
-def add_replication_and_genes(simData, simOutDirs, node_list, edge_list):
+def add_replication_and_genes(simData, simOutDirs, node_list, edge_list, names_dict):
 	"""
 	Add replication process nodes and gene state nodes with dynamics data to
 	the node list, and the edges connected to the replication nodes to the edge
@@ -355,7 +358,7 @@ def add_replication_and_genes(simData, simOutDirs, node_list, edge_list):
 			edge_list.append(pol_to_replication_edge)
 
 
-def add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list):
+def add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list, names_dict):
 	"""
 	Add transcription process nodes and transcript state nodes with dynamics
 	data to the node list, and edges connected to the transcription nodes to
@@ -464,7 +467,7 @@ def add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list)
 		edge_list.append(pol_to_transcription_edge)
 
 
-def add_translation_and_monomers(simData, simOutDirs, node_list, edge_list):
+def add_translation_and_monomers(simData, simOutDirs, node_list, edge_list, names_dict):
 	"""
 	Add translation process nodes and protein (monomer) state nodes with
 	dynamics data to the node list, and edges connected to the translation
@@ -597,7 +600,7 @@ def add_translation_and_monomers(simData, simOutDirs, node_list, edge_list):
 			edge_list.append(subunit_to_translation_edge)
 
 
-def add_complexation_and_complexes(simData, simOutDirs, node_list, edge_list):
+def add_complexation_and_complexes(simData, simOutDirs, node_list, edge_list, names_dict):
 	"""
 	Add complexation process nodes and complex state nodes with dynamics data
 	to the node list, and edges connected to the complexation nodes to the edge
@@ -725,7 +728,7 @@ def add_complexation_and_complexes(simData, simOutDirs, node_list, edge_list):
 		node_list.append(complex_node)
 
 
-def add_metabolism_and_metabolites(simData, simOutDirs, node_list, edge_list):
+def add_metabolism_and_metabolites(simData, simOutDirs, node_list, edge_list, names_dict):
 	"""
 	Add metabolism process nodes and metabolite state nodes with dynamics data
 	to the node list, add edges connected to the metabolism nodes to the edge
@@ -873,7 +876,7 @@ def add_metabolism_and_metabolites(simData, simOutDirs, node_list, edge_list):
 		node_list.append(metabolite_node)
 
 
-def add_equilibrium(simData, simOutDirs, node_list, edge_list):
+def add_equilibrium(simData, simOutDirs, node_list, edge_list, names_dict):
 	"""
 	Add equilibrium nodes with dynamics data to the node list, and add edges
 	connected to the equilibrium nodes to the edge list. - Gwanggyu
@@ -1109,7 +1112,7 @@ def add_equilibrium(simData, simOutDirs, node_list, edge_list):
 		node_list.append(metabolite_node)
 
 
-def add_regulation(simData, simOutDirs, node_list, edge_list):
+def add_regulation(simData, simOutDirs, node_list, edge_list, names_dict):
 	"""
 	Add regulation nodes with dynamics data to the node list, and add edges
 	connected to the regulation nodes to the edge list. - Gwanggyu
@@ -1471,6 +1474,24 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 
 	simData = cPickle.load(open(simDataFile))
 
+	# create dict with id: (name, synonyms)
+	names_dict = {}
+	name_files = [f for f in os.listdir(NAMES_PATHWAY)]
+	for file_name in name_files:
+		with open(os.path.join(NAMES_PATHWAY, file_name)) as the_file:
+
+			all_data = [line.replace('"', '').replace('\n', '').replace('\r', '').split('\t') for line in the_file.readlines()]
+			header = all_data[0]
+			data = all_data[1:]
+
+			id_idx = header.index('Object ID')
+			synonym_idx = header.index('Synonyms')
+
+			for row in data:
+				if row[synonym_idx]:
+					synonyms = row[synonym_idx].split(' // ')
+					names_dict[row[id_idx]] = (synonyms[0], synonyms[1:])
+
 	# Get first cell from each generation
 	first_cell_lineage = []
 
@@ -1493,13 +1514,13 @@ def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFil
 	add_global_nodes(simData, simOutDirs, node_list)
 
 	# Add state/process-specific nodes and edges to the node list and edge list
-	add_replication_and_genes(simData, simOutDirs, node_list, edge_list)
-	add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list)
-	add_translation_and_monomers(simData, simOutDirs, node_list, edge_list)
-	add_complexation_and_complexes(simData, simOutDirs, node_list, edge_list)
-	add_metabolism_and_metabolites(simData, simOutDirs, node_list, edge_list)
-	add_equilibrium(simData, simOutDirs, node_list, edge_list)
-	add_regulation(simData, simOutDirs, node_list, edge_list)
+	add_replication_and_genes(simData, simOutDirs, node_list, edge_list, names_dict)
+	add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list, names_dict)
+	add_translation_and_monomers(simData, simOutDirs, node_list, edge_list, names_dict)
+	add_complexation_and_complexes(simData, simOutDirs, node_list, edge_list, names_dict)
+	add_metabolism_and_metabolites(simData, simOutDirs, node_list, edge_list, names_dict)
+	add_equilibrium(simData, simOutDirs, node_list, edge_list, names_dict)
+	add_regulation(simData, simOutDirs, node_list, edge_list, names_dict)
 
 	if GET_PATHWAY_INDEX:
 		pathway_to_genes, pathway_to_rxns = read_pathway_file()
