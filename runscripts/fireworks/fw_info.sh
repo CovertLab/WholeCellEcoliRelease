@@ -8,11 +8,11 @@
 #   - second position: fw_id - ID of firework to get info about
 #
 # Example use:
-#   ./runscripts/fw_info.sh out 1 - gets output info for firework with ID of 1
+#   ./runscripts/fireworks/fw_info.sh out 1 - gets output info for firework with ID of 1
 #
 # Notes:
 #   - For multiple files with same ID (eg reran firework or reset launchpad), this will display each one
-#   - TIP: add aliases out="./runscripts/fw_info.sh out" and err="./runscripts/fw_info.sh error"
+#   - TIP: add aliases out="./runscripts/fireworks/fw_info.sh out" and err="./runscripts/fireworks/fw_info.sh error"
 #     to your .bash_profile so you can call with just `out 1` or `err 1`
 
 fw="\"fw_id\": $2,"
