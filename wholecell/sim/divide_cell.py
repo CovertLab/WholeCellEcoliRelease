@@ -37,24 +37,6 @@ def divide_cell(sim):
 	filepath.makedirs(sim._outputDir, "Daughter1")
 	filepath.makedirs(sim._outputDir, "Daughter2")
 
-	# Check for uneven numbers of partial chromosomes. This should not happen
-	# too often if the four partial chromosomes are elongated in a roughly
-	# synchronized way.
-	# TODO (Gwanggyu): try to handle this case instead of raising an exception
-	partial_chromosome_counts = bulkMolecules.container.counts(
-		bulkMolecules.divisionIds['partialChromosome'])
-	uneven_counts = partial_chromosome_counts - partial_chromosome_counts.min()
-	if uneven_counts.any():
-		raise Exception("You won the lottery! There is an uneven number of partial chromosomes...")
-
-	# Transform any leftover partial chromosomes into full a chromosome. This
-	# should have happened in the chromosome_formation process but we could get
-	# unlucky and miss this in the final timestep.
-	bulkMolecules.container.countInc(
-		partial_chromosome_counts.min(),
-		bulkMolecules.divisionIds['fullChromosome'][0]
-		)
-
 	# Check if the cell is dead
 	isDead = False
 	if bulkMolecules.container.count(

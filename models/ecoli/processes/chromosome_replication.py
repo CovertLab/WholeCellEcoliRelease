@@ -45,6 +45,8 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			)
 		self.replication_coordinate = sim_data.process.transcription.rnaData[
 			"replicationCoordinate"]
+		self.D_period = sim_data.growthRateParameters.d_period.asNumber(
+			units.s)
 
 		# Create unique molecule views for dna polymerases/replication forks
 		# and origins of replication
@@ -54,15 +56,14 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Create bulk molecule views for polymerization reaction
 		self.dntps = self.bulkMoleculesView(sim_data.moleculeGroups.dNtpIds)
 		self.ppi = self.bulkMoleculeView('PPI[c]')
-		self.partialChromosomes = self.bulkMoleculesView(
-			sim_data.moleculeGroups.partialChromosome)
 
 		# Create bulk molecule view for gene copy number
 		self.gene_copy_number = self.bulkMoleculesView(
 			sim_data.process.transcription_regulation.geneCopyNumberColNames)
 
-		# Create bulk molecules view for full chromosome
-		self.full_chromosome = self.bulkMoleculeView("CHROM_FULL[c]")
+		# Create molecules views for bulk and unique full chromosomes
+		self.bulk_full_chromosome = self.bulkMoleculeView("CHROM_FULL[c]")
+		self.unique_full_chromosome = self.uniqueMoleculesView("fullChromosome")
 
 	def calculateRequest(self):
 
@@ -109,7 +110,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		activePolymerasePresent = (len(activeDnaPoly) > 0)
 		oriCs = self.oriCs.molecules()
 		n_oric = len(oriCs)
-		n_chromosomes = self.full_chromosome.total()[0]
+		n_chromosomes = self.bulk_full_chromosome.total()[0]
 
 		# If there are no chromosomes and oriC's, return immediately
 		if n_oric == 0 and n_chromosomes == 0:
@@ -134,7 +135,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 		# If conditions are true, initiate a round of replication on every
 		# origin of replication
-		if massPerOrigin >= 1.0 and self.partialChromosomes.counts().sum() == 0:
+		if massPerOrigin >= 1.0:
 			replication_initiated = True
 
 			# Get replication round indexes of active DNA polymerases
@@ -294,6 +295,13 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			# Get replication round index of the terminated polymerases
 			terminatedRound = replicationRound[didTerminate][0]
 
+			# Count number of new full chromosomes that should be created
+			n_new_chromosomes = 0
+
+			# Keep track of polymerases that should be deleted
+			polymerasesToDelete = np.zeros_like(chromosomeIndexPolymerase,
+				dtype=np.bool)
+
 			for chromosomeIndexTerminated in chromosomeIndexesTerminated:
 				# Get all remaining active polymerases initiated in the same
 				# replication round and in the given chromosome
@@ -349,17 +357,25 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 					# chromosome needs to be split
 					newChromosomeIndex += 1
 
-					# Delete terminated polymerases
-					activeDnaPoly.delByIndexes(
-						np.where(terminatedPolymerases)[0])
+					# Add terminated polymerases to the list to delete
+					polymerasesToDelete = np.logical_or(polymerasesToDelete,
+						terminatedPolymerases)
 
-					# Update counts of newly created chromosome halves. These
-					# will be "stitched" together in the ChromosomeFormation
-					# process
-					# TODO (Gwanggyu): Remove bulk state for partial
-					# chromosomes altogether. Remove chromosome formation
-					# process and just generate full chromosomes here.
-					self.partialChromosomes.countsInc([1, 1, 1, 1])
+					# Increment count of new full chromosome
+					n_new_chromosomes += 1
+
+			# Delete polymerases
+			activeDnaPoly.delByIndexes(np.where(polymerasesToDelete)[0])
+
+			# Generate new full chromosome molecules
+			if n_new_chromosomes > 0:
+				self.bulk_full_chromosome.countInc(n_new_chromosomes)
+				new_unique_full_chromosome = self.unique_full_chromosome.moleculesNew(
+					"fullChromosome", n_new_chromosomes
+					)
+				new_unique_full_chromosome.attrIs(
+					division_time = [self.time() + self.D_period]*n_new_chromosomes
+					)
 
 
 	def _dnaPolymeraseElongationRate(self):
