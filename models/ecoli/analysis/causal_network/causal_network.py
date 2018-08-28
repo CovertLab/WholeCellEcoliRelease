@@ -85,7 +85,6 @@ class Node:
 		self.constants = None
 		self.dynamics = {}
 		self.dynamics_units = {}
-		self.names_dict = {}
 
 	def get_node_id(self):
 		"""
@@ -299,7 +298,11 @@ def add_replication_and_genes(simData, simOutDirs, node_list, edge_list, names_d
 
 		# Add attributes to the node
 		# TODO: Add common name and synonyms
-		attr = {'node_id': geneId, 'name': geneId}
+		if geneId in names_dict:
+			attr = {'node_id': geneId, 'name': names_dict[geneId][0], 'synonyms': names_dict[geneId][1]}
+		else:
+			attr = {'node_id': geneId, 'name': geneId}
+
 		gene_node.read_attributes(**attr)
 
 		# Add dynamics data to the node. The rna synthesis probability shares
@@ -397,7 +400,15 @@ def add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list,
 
 		# Add attributes to the node
 		# TODO: Add common name and synonyms
-		attr = {'node_id': rnaId, 'name': rnaId}
+
+		import ipdb; ipdb.set_trace()
+		# TODO (Eran) remove compartment from name ('6S-RNA[c]' --> '6S-RNA')
+		# TODO (Eran) synonyms with quotation marks i names txt file
+		if rnaId in names_dict:
+			attr = {'node_id': rnaId, 'name': names_dict[rnaId][0], 'synonyms': names_dict[rnaId][1]}
+		else:
+			attr = {'node_id': rnaId, 'name': rnaId}
+
 		rna_node.read_attributes(**attr)
 
 		# Add dynamics data (counts) to the node.
