@@ -3,6 +3,8 @@ NAME=$2
 PORT=$3
 PASSWORD=$4
 
+set -eu
+
 module load wcEcoli/sherlock2
 pyenv local wcEcoli2
 
