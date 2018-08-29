@@ -1,9 +1,8 @@
 from __future__ import absolute_import, division, print_function
 
-import json
-
 import agent.event as event
 from agent.agent import Agent
+
 
 class Inner(Agent):
 
@@ -17,7 +16,7 @@ class Inner(Agent):
 	of the following methods:
 
 	* simulation.initialize_local_environment()
-	    Perfom any setup required for tracking changes to the local environment.
+	    Perform any setup required for tracking changes to the local environment.
 
 	* simulation.set_local_environment(concentrations)
 	    Receive a set of molecule ids to track and a dictionary containing the current
@@ -41,7 +40,7 @@ class Inner(Agent):
 	communicate with the outer agent through message passing.
 	"""
 
-	def __init__(self, kafka_config, id, simulation):
+	def __init__(self, kafka_config, agent_id, simulation):
 		"""
 		Initialize the agent.
 
@@ -51,7 +50,7 @@ class Inner(Agent):
 		        `simulation_receive`: The topic the outer agent will be sending messages on.
 		        `simulation_send`: The topic the outer agent will be listening to for 
 		            updates from the inner agents.
-		    id (string): Unique identifier for this agent.
+		    agent_id (string): Unique identifier for this agent.
 		        When the agent receives messages, it will filter out and respond to only 
 		        those containing its `id`.
 		    simulation (Simulation): The actual simulation which will perform the calculations.
@@ -61,7 +60,7 @@ class Inner(Agent):
 		self.simulation.initialize_local_environment()
 		kafka_config['subscribe_topics'] = [kafka_config['simulation_receive']]
 
-		super(Inner, self).__init__(id, kafka_config)
+		super(Inner, self).__init__(agent_id, kafka_config)
 
 	def initialize(self):
 		""" Announce the existence of this inner agent to the outer agent. """

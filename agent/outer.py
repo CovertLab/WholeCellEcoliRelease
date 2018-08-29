@@ -1,7 +1,5 @@
 from __future__ import absolute_import, division, print_function
 
-import json
-
 import agent.event as event
 from agent.agent import Agent
 
@@ -31,7 +29,7 @@ class Outer(Agent):
 	    Return the current simulation time for the environment.
 
 	* environment.add_simulation(id)
-	    
+
 	* environment.remove_simulation(id)
 
 	* environment.update_concentrations(changes)
@@ -46,7 +44,7 @@ class Outer(Agent):
 	    Returns a dictionary of simulation ids to concentrations coming from the environment.
 	"""
 
-	def __init__(self, kafka_config, environment):
+	def __init__(self, agent_id, kafka_config, environment):
 		self.environment = environment
 		self.simulations = {}
 		self.shutting_down = False
@@ -55,7 +53,7 @@ class Outer(Agent):
 			kafka_config['simulation_send'],
 			kafka_config['environment_control']]
 
-		super(Outer, self).__init__(id, kafka_config)
+		super(Outer, self).__init__(agent_id, kafka_config)
 
 	def initialize(self):
 		print('environment started')
@@ -63,15 +61,15 @@ class Outer(Agent):
 	def finalize(self):
 		print('environment shutting down')
 
-	def initialize_simulation(self, id):
+	def initialize_simulation(self, agent_id):
 		changes = {molecule: 0 for molecule in self.environment.molecule_ids()}
-		self.simulations[id] = {
+		self.simulations[agent_id] = {
 			'time': 0,
 			'message_id': -1,
 			'last_message_id': -1,
 			'changes': changes}
 
-		self.environment.add_simulation(id)
+		self.environment.add_simulation(agent_id)
 
 	def send_concentrations(self):
 		""" Send updated concentrations to each inner agent. """
@@ -79,14 +77,14 @@ class Outer(Agent):
 		concentrations = self.environment.get_concentrations()
 		run_until = self.environment.run_until()
 
-		for id, simulation in self.simulations.iteritems():
+		for agent_id, simulation in self.simulations.iteritems():
 			simulation['message_id'] += 1
 			self.send(self.kafka_config['simulation_receive'], {
-				'inner_id': id,
+				'inner_id': agent_id,
 				'message_id': simulation['message_id'],
 				'event': event.ENVIRONMENT_UPDATED,
-				'concentrations': concentrations[id],
-				'run_until': run_until[id]})
+				'concentrations': concentrations[agent_id],
+				'run_until': run_until[agent_id]})
 
 	def ready_to_advance(self):
 		"""
@@ -96,7 +94,7 @@ class Outer(Agent):
 
 		# TODO(Ryan): replace this with something that isn't O(n^2)
 		ready = True
-		for id, simulation in self.simulations.iteritems():
+		for agent_id, simulation in self.simulations.iteritems():
 			if simulation['message_id'] > simulation['last_message_id']:
 				ready = False
 				break
@@ -104,12 +102,15 @@ class Outer(Agent):
 		return ready
 
 	def simulation_changes(self):
-		return {id: simulation['changes'] for id, simulation in self.simulations.iteritems()}
+		return {
+			agent_id: simulation['changes']
+			for agent_id, simulation in self.simulations.iteritems()
+			}
 
 	def send_shutdown(self):
-		for id, simulation in self.simulations.iteritems():
+		for agent_id, simulation in self.simulations.iteritems():
 			self.send(self.kafka_config['simulation_receive'], {
-				'inner_id': id,
+				'inner_id': agent_id,
 				'event': event.SHUTDOWN_SIMULATION})
 
 	def receive(self, topic, message):

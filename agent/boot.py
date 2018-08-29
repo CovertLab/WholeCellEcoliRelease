@@ -1,7 +1,5 @@
 from __future__ import absolute_import, division, print_function
 
-import json
-import uuid
 import argparse
 
 import agent.event as event
@@ -10,7 +8,7 @@ from agent.outer import Outer
 from agent.inner import Inner
 from agent.stub import SimulationStub, EnvironmentStub
 
-default_kafka_config = {
+DEFAULT_KAFKA_CONFIG = {
 	'host': '127.0.0.1:9092',
 	'simulation_send': 'environment_listen',
 	'simulation_receive': 'environment_broadcast',
@@ -36,7 +34,7 @@ class BootOuter(object):
 			'blue': 12}
 
 		self.environment = EnvironmentStub(volume, concentrations)
-		self.outer = Outer(kafka_config, self.environment)
+		self.outer = Outer('EnvironmentStub', kafka_config, self.environment)
 
 class BootInner(object):
 
@@ -49,8 +47,8 @@ class BootInner(object):
 	Outer agent.
 	"""
 
-	def __init__(self, id, kafka_config):
-		self.id = id
+	def __init__(self, agent_id, kafka_config):
+		self.id = agent_id
 		self.simulation = SimulationStub()
 		self.inner = Inner(
 			kafka_config,
@@ -66,9 +64,11 @@ class EnvironmentControl(Agent):
 	then terminate).
 	"""
 
-	def __init__(self, kafka_config=default_kafka_config):
-		id = 'environment_control'
-		super(EnvironmentControl, self).__init__(id, kafka_config)
+	def __init__(self, kafka_config=None):
+		if kafka_config is None:
+			kafka_config = DEFAULT_KAFKA_CONFIG.copy()
+		agent_id = 'environment_control'
+		super(EnvironmentControl, self).__init__(agent_id, kafka_config)
 
 	def trigger_execution(self):
 		self.send(self.kafka_config['environment_control'], {
@@ -78,10 +78,10 @@ class EnvironmentControl(Agent):
 		self.send(self.kafka_config['environment_control'], {
 			'event': event.SHUTDOWN_ENVIRONMENT})
 
-	def shutdown_simulation(self, id):
+	def shutdown_simulation(self, agent_id):
 		self.send(self.kafka_config['simulation_receive'], {
-			'event': event.SHUTDOWN_SIMULATION,
-			'inner_id': id})
+			'event':    event.SHUTDOWN_SIMULATION,
+			'inner_id': agent_id})
 
 def main():
 	"""
@@ -133,10 +133,10 @@ def main():
 		if not args.id:
 			raise ValueError('--id must be supplied for inner command')
 
-		inner = BootInner(args.id, kafka_config)
+		BootInner(args.id, kafka_config)
 
 	elif args.command == 'outer':
-		outer = BootOuter(kafka_config)
+		BootOuter(kafka_config)
 
 	elif args.command == 'trigger':
 		control = EnvironmentControl(kafka_config)

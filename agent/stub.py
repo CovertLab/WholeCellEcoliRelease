@@ -33,13 +33,13 @@ class SimulationStub(object):
 		#     what keys are in this dict to avoid this preset state. 
 		if not self.local_set:
 			self.environment_change = {}
-			for molecule in self.concentrations.keys():
+			for molecule in self.concentrations.iterkeys():
 				self.environment_change[molecule] = 0
 			self.local_set = True
 
 	def run_incremental(self, run_until):
 		time.sleep(1)
-		for molecule in self.concentrations.keys():
+		for molecule in self.concentrations.iterkeys():
 			self.environment_change[molecule] += random.randint(1, 6)
 		self.local_time = run_until
 
@@ -71,23 +71,23 @@ class EnvironmentStub(object):
 	def time(self):
 		return self._time
 
-	def add_simulation(self, id):
+	def add_simulation(self, agent_id):
 		state = {}
-		self.simulations[id] = state
+		self.simulations[agent_id] = state
 
-	def remove_simulation(self, id):
-		return self.simulations.pop(id, {})
+	def remove_simulation(self, agent_id):
+		return self.simulations.pop(agent_id, {})
 
 	def update_concentrations(self, all_changes):
 		self._time += self.run_for
-		for id, changes in all_changes.iteritems():
+		for agent_id, changes in all_changes.iteritems():
 			for molecule, change in changes.iteritems():
 				self.concentrations[molecule] += change
 
 	def run_until(self):
 		until = {}
-		for id in self.simulations.keys():
-			until[id] = self.time() + self.run_for
+		for agent_id in self.simulations.iterkeys():
+			until[agent_id] = self.time() + self.run_for
 
 		return until
 
@@ -96,7 +96,7 @@ class EnvironmentStub(object):
 
 	def get_concentrations(self):
 		concentrations = {}
-		for id in self.simulations.keys():
-			concentrations[id] = self.concentrations
-		
+		for agent_id in self.simulations.iterkeys():
+			concentrations[agent_id] = self.concentrations
+
 		return concentrations
