@@ -61,7 +61,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 			moleculeIds = bulkMolecules.readAttribute("objectNames")
-			mRnaIndexes_bulk = np.array([moleculeIds.index(x) for x in mRnaIds])
+			mol_indices = {mol: i for i, mol in enumerate(moleculeIds)}
+			mRnaIndexes_bulk = np.array([mol_indices[x] for x in mRnaIds])
 			moleculeCounts = bulkMolecules.readColumn("counts")[:, mRnaIndexes_bulk]
 			bulkMolecules.close()
 			moleculeCountsSumOverTime = moleculeCounts.sum(axis = 0)
