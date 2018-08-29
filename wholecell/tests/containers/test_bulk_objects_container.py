@@ -159,20 +159,6 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 
 
 	@noseAttrib.attr('smalltest', 'bulkObjects')
-	def test_countView(self):
-		countView = self.container.countView(OBJECT_NAMES[2])
-		incCount = 333.0
-		newCount = OBJECT_COUNTS[2] + incCount
-		countView.countInc(incCount)
-
-		npt.assert_equal(countView.count(), newCount)
-
-		newCount -= incCount
-		countView.countDec(incCount)
-		npt.assert_equal(countView.count(), newCount)
-
-
-	@noseAttrib.attr('smalltest', 'bulkObjects')
 	def test_count(self):
 		npt.assert_equal(
 			self.container.count(OBJECT_NAMES[0]),
