@@ -120,6 +120,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		self._smcp = glp.glp_smcp()  # simplex solver control parameters
 		glp.glp_init_smcp(self._smcp)
 		self._smcp.msg_lev = glp.GLP_MSG_ERR
+		self.simplex_iteration_limit = 10000
 		self._n_vars = 0
 		self._n_eq_constraints = 0
 
@@ -444,6 +445,13 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 			glp.glp_set_obj_dir(self._lp, glp.GLP_MIN)
 
 		result = glp.glp_simplex(self._lp, self._smcp)
+
+		# If no solution within iteration limit, switch to dual method to find solution
+		if result == glp.GLP_EITLIM:
+			print('Warning: could not find solution with primal method, switching to dual')
+			self.simplex_method = SimplexMethod.DUALP
+			result = glp.glp_simplex(self._lp, self._smcp)
+			self.simplex_method = SimplexMethod.PRIMAL
 
 		if result != 0:
 			raise RuntimeError(SIMPLEX_RETURN_CODE_TO_STRING.get(
