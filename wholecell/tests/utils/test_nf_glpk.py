@@ -86,7 +86,6 @@ class Test_NetworkFlowGLPK(unittest.TestCase):
 		nf.simplex_method = SimplexMethod.DUAL
 		self.assertEqual(nf.simplex_method, SimplexMethod.DUAL)
 
-		self.assertEqual(nf.simplex_iteration_limit, 2**31 - 1)
 		limit = 1000
 		nf.simplex_iteration_limit = limit
 		self.assertEqual(nf.simplex_iteration_limit, limit)
