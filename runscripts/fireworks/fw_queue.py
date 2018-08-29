@@ -7,7 +7,7 @@ a workflow (wf) for Fireworks, and submits them to the queue.
 Several environmental variables can be specified, shown below with their (type, default value).
 These are set as follows, and otherwise revert to their default value:
 
-	VARIABLE=VALUE python runscripts/fw_queue.py
+	VARIABLE=VALUE python runscripts/fireworks/fw_queue.py
 
 Set description:
 	DESC (str, ""): a description of the simulation, used to name output folder
