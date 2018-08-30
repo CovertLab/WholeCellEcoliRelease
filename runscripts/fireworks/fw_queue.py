@@ -41,7 +41,7 @@ Workflow options:
 Simulation parameters:
 	N_GENS (int, "1"): the number of generations to be simulated
 	N_INIT_SIMS (int, "1"): the number of initial simulations
-	SINGLE_DAUGHTERS (int, "0"): if nonzero, the simulation will generate only
+	SINGLE_DAUGHTERS (int, "1"): if nonzero, the simulation will generate only
 		one daughter cell for each new generation rather than two, thus avoiding
 		an exponential increase in the number of simulations
 	WC_LENGTHSEC (int, "10800"): sets the maximum simulation time in seconds, useful
@@ -125,7 +125,7 @@ D_PERIOD_DIVISION = bool(int(os.environ.get("D_PERIOD_DIVISION", DEFAULT_SIMULAT
 TRANSLATION_SUPPLY = bool(int(os.environ.get("TRANSLATION_SUPPLY", DEFAULT_SIMULATION_KWARGS["translationSupply"])))
 N_INIT_SIMS = int(os.environ.get("N_INIT_SIMS", "1"))
 N_GENS = int(os.environ.get("N_GENS", "1"))
-SINGLE_DAUGHTERS = bool(int(os.environ.get("SINGLE_DAUGHTERS", "0")))
+SINGLE_DAUGHTERS = bool(int(os.environ.get("SINGLE_DAUGHTERS", "1")))
 LAUNCHPAD_FILE = str(os.environ.get("LAUNCHPAD_FILE", "my_launchpad.yaml"))
 COMPRESS_OUTPUT = bool(int(os.environ.get("COMPRESS_OUTPUT", "0")))
 SIM_DESCRIPTION = os.environ.get("DESC", "").replace(" ", "_")
