@@ -398,7 +398,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 				oriCs.attrIs(chromosomeIndex=chromosomeIndexOriC)
 
 				# Delete terminated polymerases
-				activeDnaPoly.delByIndexes(np.where(terminatedPolymerases)[0])
+				activeDnaPoly.delByIndexes(np.where(polymerasesToDelete)[0])
 
 			# Generate new full chromosome molecules
 			if n_new_chromosomes > 0:
