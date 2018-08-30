@@ -16,7 +16,6 @@ from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
 
-USE_CACHE = False # value of this boolean may change (see line 67)
 PLOT_ZEROS_ON_LINE = 2.5e-6
 
 complexToMonomer = {
@@ -68,11 +67,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			print "Requires figure5B.pickle from figure5B_E_F_G.py"
 			return
 
-		# Check if cache exists
-		if os.path.exists(os.path.join(plotOutDir, "%s.cPickle" % plotOutFileName)):
-			global USE_CACHE
-			USE_CACHE = True
-
 		# Get all cells
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 		allDir = ap.get_cells()
@@ -106,87 +100,76 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				monomersInComplexes.append(subunitId)
 		monomersInManyComplexes_id = list(set(monomersInManyComplexes))
 
-		if not USE_CACHE:
-			# Initialize minimum number (counts) of each functional unit
-			minProteinCounts = np.ones(rnaIds.shape[0], np.float64) * np.inf
+		# Initialize minimum number (counts) of each functional unit
+		minProteinCounts = np.ones(rnaIds.shape[0], np.float64) * np.inf
 
-			for i, simDir in enumerate(allDir):
-				print i
-				simOutDir = os.path.join(simDir, "simOut")
+		for i, simDir in enumerate(allDir):
+			print i
+			simOutDir = os.path.join(simDir, "simOut")
 
-				# Account for bulk molecules
-				bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-				moleculeIds = bulkMolecules.readAttribute("objectNames")
-				proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in ids_protein], np.int)
-				proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
-				bulkMolecules.close()
+			# Account for bulk molecules
+			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+			moleculeIds = bulkMolecules.readAttribute("objectNames")
+			proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in ids_protein], np.int)
+			proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
+			bulkMolecules.close()
 
-				if i == 0:
-					# Skip first few time steps for 1st generation (becaused complexes have not yet formed during these steps)
-					bulkContainer.countsIs(np.min(proteinCountsBulk[5:, :], axis = 0))
-				else:
-					bulkContainer.countsIs(proteinCountsBulk.min(axis = 0))
+			if i == 0:
+				# Skip first few time steps for 1st generation (becaused complexes have not yet formed during these steps)
+				bulkContainer.countsIs(np.min(proteinCountsBulk[5:, :], axis = 0))
+			else:
+				bulkContainer.countsIs(proteinCountsBulk.min(axis = 0))
 
-				# Unique molecules
-				uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
-				ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
-				rnaPolyIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
-				nActiveRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
-				nActiveRnaPoly = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnaPolyIndex]
-				uniqueMoleculeCounts.close()
-				# Account for unique molecules
-				bulkContainer.countsInc(nActiveRibosome.mean(), [sim_data.moleculeIds.s30_fullComplex, sim_data.moleculeIds.s50_fullComplex])
-				bulkContainer.countsInc(nActiveRnaPoly.mean(), [sim_data.moleculeIds.rnapFull])
-				# Account for small-molecule bound complexes
-				view_equilibrium.countsInc(np.dot(sim_data.process.equilibrium.stoichMatrixMonomers(), view_equilibrium_complexes.counts() * -1))
+			# Unique molecules
+			uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
+			ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
+			rnaPolyIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
+			nActiveRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
+			nActiveRnaPoly = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnaPolyIndex]
+			uniqueMoleculeCounts.close()
+			# Account for unique molecules
+			bulkContainer.countsInc(nActiveRibosome.mean(), [sim_data.moleculeIds.s30_fullComplex, sim_data.moleculeIds.s50_fullComplex])
+			bulkContainer.countsInc(nActiveRnaPoly.mean(), [sim_data.moleculeIds.rnapFull])
+			# Account for small-molecule bound complexes
+			view_equilibrium.countsInc(np.dot(sim_data.process.equilibrium.stoichMatrixMonomers(), view_equilibrium_complexes.counts() * -1))
 
-				# Minimum monomer counts
-				minMonomerCounts = view_translation.counts()
+			# Minimum monomer counts
+			minMonomerCounts = view_translation.counts()
 
-				# Get counts of "functional units" (ie. complexed forms)
-				minProteinCounts_thisGen = minMonomerCounts[:]
-				minComplexCounts = view_complexation_complexes.counts()
+			# Get counts of "functional units" (ie. complexed forms)
+			minProteinCounts_thisGen = minMonomerCounts[:]
+			minComplexCounts = view_complexation_complexes.counts()
 
-				for j, complexId in enumerate(ids_complexation_complexes):
-					# Map all subsunits to the minimum counts of the complex (ignores counts of monomers)
-					# Some subunits are involved in multiple complexes - these cases are kept track separately
-					# by monomersInManyComplexes_dict
-					subunitIds = sim_data.process.complexation.getMonomers(complexId)["subunitIds"]
+			for j, complexId in enumerate(ids_complexation_complexes):
+				# Map all subsunits to the minimum counts of the complex (ignores counts of monomers)
+				# Some subunits are involved in multiple complexes - these cases are kept track separately
+				# by monomersInManyComplexes_dict
+				subunitIds = sim_data.process.complexation.getMonomers(complexId)["subunitIds"]
 
-					for subunitId in subunitIds:
-						if subunitId not in ids_translation:
-							if subunitId in monomerToTranslationMonomer:
-								# couple monomers have different ID in ids_translation
-								subunitId = monomerToTranslationMonomer[subunitId]
-							elif "CPLX" in subunitId:
-								# few transcription factors are complexed with ions
-								subunitId = complexToMonomer[subunitId]
-							elif "RNA" in subunitId:
-								continue
+				for subunitId in subunitIds:
+					if subunitId not in ids_translation:
+						if subunitId in monomerToTranslationMonomer:
+							# couple monomers have different ID in ids_translation
+							subunitId = monomerToTranslationMonomer[subunitId]
+						elif "CPLX" in subunitId:
+							# few transcription factors are complexed with ions
+							subunitId = complexToMonomer[subunitId]
+						elif "RNA" in subunitId:
+							continue
 
-						if subunitId not in monomersInManyComplexes_id:
-							minProteinCounts_thisGen[ids_translation.index(subunitId)] = minComplexCounts[j]
-						else:
-							minProteinCounts_thisGen[ids_translation.index(subunitId)] = np.inf
+					if subunitId not in monomersInManyComplexes_id:
+						minProteinCounts_thisGen[ids_translation.index(subunitId)] = minComplexCounts[j]
+					else:
+						minProteinCounts_thisGen[ids_translation.index(subunitId)] = np.inf
 
-							if complexId not in monomersInManyComplexes_dict[subunitId]:
-								monomersInManyComplexes_dict[subunitId][complexId] = np.inf
+						if complexId not in monomersInManyComplexes_dict[subunitId]:
+							monomersInManyComplexes_dict[subunitId][complexId] = np.inf
 
-							prev_entry = monomersInManyComplexes_dict[subunitId][complexId]
-							monomersInManyComplexes_dict[subunitId][complexId] = min(prev_entry, minComplexCounts[j])
+						prev_entry = monomersInManyComplexes_dict[subunitId][complexId]
+						monomersInManyComplexes_dict[subunitId][complexId] = min(prev_entry, minComplexCounts[j])
 
-				# Store
-				minProteinCounts = np.minimum(minProteinCounts, minProteinCounts_thisGen)
-
-			# Cache
-			D = {"minProteinCounts": minProteinCounts, "monomersInManyComplexes_dict": monomersInManyComplexes_dict}
-			cPickle.dump(D, open(os.path.join(plotOutDir, "%s.cPickle" % plotOutFileName), "wb"))
-
-		else:
-			# Using cached data
-			D = cPickle.load(open(os.path.join(plotOutDir, "%s.cPickle" % plotOutFileName), "rb"))
-			minProteinCounts = D["minProteinCounts"]
-			monomersInManyComplexes_dict = D["monomersInvolvedInManyComplexes_dict"]
+			# Store
+			minProteinCounts = np.minimum(minProteinCounts, minProteinCounts_thisGen)
 
 		# Plot
 		plt.figure(figsize = (11, 8.5))
