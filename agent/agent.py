@@ -46,12 +46,12 @@ class Agent(object):
 	using the configured Kafka Producer.
 	"""
 
-	def __init__(self, id, kafka_config):
+	def __init__(self, agent_id, kafka_config):
 		"""
 		Initialize the Agent object with a unique id and kafka configuration.
 
 		Args:
-		    id (str): A unique identifier which distinguishes this agent from 
+		    agent_id (str): A unique identifier which distinguishes this agent from
 		        the rest of the agents in the system.
 
 		    kafka_config (dict): A dictionary containing Kafka configuration information.
@@ -65,18 +65,19 @@ class Agent(object):
 		        to represent topics for sending messages to. 
 		"""
 
-		self.id = id
+		self.id = str(agent_id)
 		self.kafka_config = kafka_config
 
 		self.producer = Producer({
 			'bootstrap.servers': self.kafka_config['host']})
 
+		self.running = False
 		self.consumer = None
 		if self.kafka_config['subscribe_topics']:
 			self.consumer = Consumer({
 				'bootstrap.servers': self.kafka_config['host'],
 				'enable.auto.commit': True,
-				'group.id': 'simulation-' + str(id),
+				'group.id': 'simulation-' + agent_id,
 				'default.topic.config': {
 					'auto.offset.reset': 'latest'}})
 
@@ -124,6 +125,9 @@ class Agent(object):
 					self.running = False
 
 			else:
+				# `raw.value()` is implemented in C with a docstring that
+				# suggests it needs a `payload` argument. Suppress the warning.
+				# noinspection PyArgumentList
 				message = json.loads(raw.value().decode('utf-8'))
 
 				if message['event'] == event.GLOBAL_SHUTDOWN:

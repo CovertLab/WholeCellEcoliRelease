@@ -7,7 +7,7 @@ a workflow (wf) for Fireworks, and submits them to the queue.
 Several environmental variables can be specified, shown below with their (type, default value).
 These are set as follows, and otherwise revert to their default value:
 
-	VARIABLE=VALUE python runscripts/fw_queue.py
+	VARIABLE=VALUE python runscripts/fireworks/fw_queue.py
 
 Set description:
 	DESC (str, ""): a description of the simulation, used to name output folder
@@ -142,7 +142,7 @@ if not RUN_AGGREGATE_ANALYSIS:
 
 ### Set path variables and create directories
 
-WC_ECOLI_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+WC_ECOLI_DIRECTORY = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT_DIRECTORY = filepath.makedirs(WC_ECOLI_DIRECTORY, "out")
 CACHED_SIM_DATA_DIRECTORY = os.path.join(WC_ECOLI_DIRECTORY, "cached")
 
