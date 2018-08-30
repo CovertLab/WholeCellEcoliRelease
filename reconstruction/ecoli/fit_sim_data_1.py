@@ -2573,9 +2573,11 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 			for tf in sorted(pPromoterBoundIdxs[condition]):
 				pPromoterBound[condition][tf] = p[pPromoterBoundIdxs[condition][tf]]
 
-	def updateSynthProb(sim_data, kInfo, k):
+	def updateSynthProb(sim_data, cellSpecs, kInfo, k):
 		"""
-		Updates RNA synthesis probabilities with fit values of P and R.
+		Updates RNA synthesis probabilities with fit values of P and R. The
+		expected average copy number of genes for the condition are multiplied
+		to the per-copy probabilities.
 
 		Inputs
 		------
@@ -2587,11 +2589,45 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		Modifies
 		--------
 		- RNA synthesis probabilities
+
+		Notes
+		--------
+		These values are used to calculate pre-set probabilities for
+		pools of mRNA, tRNA, and rRNA, and the genes that encode RNAP and
+		ribosome subunits.
 		"""
 
+		# Get C period and D period lengths. These values are currently
+		# assumed to be constant regardless of growth rate.
+		c_period = sim_data.growthRateParameters.c_period.asNumber(units.min)
+		d_period = sim_data.growthRateParameters.d_period.asNumber(units.min)
+
+		# Get lengths of forward and reverse sequences
+		forward_sequence_length = sim_data.process.replication.sequence_lengths[0]
+		reverse_sequence_length = sim_data.process.replication.sequence_lengths[1]
+
+		# Get replication coordinates of each RNA
+		replicationCoordinate = sim_data.process.transcription.rnaData["replicationCoordinate"]
+
 		# Update sim_data values with fit values
-		for D, value in izip(kInfo, k):
-			sim_data.process.transcription.rnaSynthProb[D["condition"]][D["idx"]] = value
+		for D, k_value in izip(kInfo, k):
+			condition = D["condition"]
+			rna_idx = D["idx"]
+
+			# Get coordinate of RNA
+			rnaCoordinate = replicationCoordinate[rna_idx]
+			if rnaCoordinate > 0:
+				relative_pos = float(rnaCoordinate)/forward_sequence_length
+			else:
+				relative_pos = float(-rnaCoordinate)/reverse_sequence_length
+
+			# Get specific doubling time for this condition
+			tau = cellSpecs[condition]["doubling_time"].asNumber(units.min)
+
+			# Calculate average copy number of gene for this condition
+			n_avg_copy = 2 ** (((1 - relative_pos) * c_period + d_period) / tau)
+
+			sim_data.process.transcription.rnaSynthProb[condition][rna_idx] = k_value*n_avg_copy
 
 		# Normalize values such that probabilities for each condition sum to one
 		for condition in sim_data.process.transcription.rnaSynthProb:
@@ -2720,7 +2756,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 	# Update sim_data with fit bound probabilities and RNAP initiation
 	# probabilities computed from these bound probabilities
 	sim_data.pPromoterBound = pPromoterBound
-	updateSynthProb(sim_data, kInfo, np.dot(H, p))
+	updateSynthProb(sim_data, cellSpecs, kInfo, np.dot(H, p))
 
 	return r
 
