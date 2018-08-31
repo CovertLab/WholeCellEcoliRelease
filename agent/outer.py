@@ -32,13 +32,13 @@ class Outer(Agent):
 
 	* environment.remove_simulation(id)
 
-	* environment.update_concentrations(changes)
+	* environment.update_from_simulations(changes)
         `changes` is a dictionary of simulation ids to counts
 
-	* environment.run_until()
+	* environment.run_simulations_until()
 	    Returns a dictionary of simulation ids to time points for each simulation to run until.
 
-	* environment.molecule_ids()
+	* environment.get_molecule_ids()
 
 	* environment.get_concentrations()
 	    Returns a dictionary of simulation ids to concentrations coming from the environment.
@@ -62,7 +62,7 @@ class Outer(Agent):
 		print('environment shutting down')
 
 	def initialize_simulation(self, agent_id):
-		changes = {molecule: 0 for molecule in self.environment.molecule_ids()}
+		changes = {molecule: 0 for molecule in self.environment.get_molecule_ids()}
 		self.simulations[agent_id] = {
 			'time': 0,
 			'message_id': -1,
@@ -75,7 +75,7 @@ class Outer(Agent):
 		""" Send updated concentrations to each inner agent. """
 
 		concentrations = self.environment.get_concentrations()
-		run_until = self.environment.run_until()
+		run_until = self.environment.run_simulations_until()
 
 		for agent_id, simulation in self.simulations.iteritems():
 			simulation['message_id'] += 1
@@ -85,6 +85,8 @@ class Outer(Agent):
 				'event': event.ENVIRONMENT_UPDATED,
 				'concentrations': concentrations[agent_id],
 				'run_until': run_until[agent_id]})
+
+		self.environment.run_incremental(run_until[self.environment.agent_id])
 
 	def ready_to_advance(self):
 		"""
@@ -161,7 +163,7 @@ class Outer(Agent):
 							self.send_shutdown()
 						else:
 							changes = self.simulation_changes()
-							self.environment.update_concentrations(changes)
+							self.environment.update_from_simulations(changes)
 							self.send_concentrations()
 
 		elif message['event'] == event.SHUTDOWN_ENVIRONMENT:

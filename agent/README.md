@@ -1,4 +1,4 @@
-# Environment
+# Agent
 
 Distributed simulation of whole cell agents relative to a shared environment.
 

@@ -164,7 +164,7 @@ class Simulation(object):
 			state.calculatePreEvolveStateMass()
 			state.calculatePostEvolveStateMass()
 
-		# Update environment state according to the current time in timeseries
+		# Update environment state according to the current time in time series
 		for external_state in self.external_states.itervalues():
 			external_state.update()
 
@@ -399,3 +399,17 @@ class Simulation(object):
 			raise Exception, "Timestep adjustment did not converge, last attempt was %f" % (candidateTimeStep)
 
 		return candidateTimeStep
+
+	## Agent interface
+	def initialize_local_environment(self):
+		pass
+
+	def set_local_environment(self, concentrations):
+		# concentrations are received as a dict
+		self.external_states['Environment'].set_local_environment(concentrations)
+
+	def get_environment_change(self):
+		# sends environment a dictionary with relevant state changes
+		return {'volume': self.listeners['Mass'].volume,
+				'environment_change': self.external_states['Environment'].get_environment_change(),
+				}

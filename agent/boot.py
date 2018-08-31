@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
+import os
 import argparse
 
 import agent.event as event
@@ -7,6 +8,7 @@ from agent.agent import Agent
 from agent.outer import Outer
 from agent.inner import Inner
 from agent.stub import SimulationStub, EnvironmentStub
+
 
 DEFAULT_KAFKA_CONFIG = {
 	'host': '127.0.0.1:9092',
@@ -48,12 +50,13 @@ class BootInner(object):
 	"""
 
 	def __init__(self, agent_id, kafka_config):
-		self.id = agent_id
+		self.agent_id = agent_id
 		self.simulation = SimulationStub()
 		self.inner = Inner(
 			kafka_config,
-			self.id,
+			self.agent_id,
 			self.simulation)
+
 
 class EnvironmentControl(Agent):
 
@@ -80,7 +83,7 @@ class EnvironmentControl(Agent):
 
 	def shutdown_simulation(self, agent_id):
 		self.send(self.kafka_config['simulation_receive'], {
-			'event':    event.SHUTDOWN_SIMULATION,
+			'event': event.SHUTDOWN_SIMULATION,
 			'inner_id': agent_id})
 
 def main():
@@ -120,6 +123,12 @@ def main():
 		'--simulation-send',
 		default='environment_listen',
 		help='topic the simulations will send messages on')
+
+	parser.add_argument(
+		'--working-dir',
+		default=os.getcwd(),
+		help='the directory containing the project files'
+	)
 
 	args = parser.parse_args()
 	kafka_config = {
