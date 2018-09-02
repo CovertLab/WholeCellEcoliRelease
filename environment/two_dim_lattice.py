@@ -23,13 +23,15 @@ if not in_sherlock:
 
 # Constants
 N_AVOGADRO = constants.N_A # TODO (ERAN) get this from sim_data.constants.nAvogadro
+PI = constants.pi
 
 N_DIMS = 2
 BINS_PER_EDGE = 20
 TOTAL_VOLUME = 1E-11  # (L) TODO (Eran) initialize this value
 EDGE_LENGTH = 1.  # TODO -- units!
 
-DIFFUSION = 0.00001 # diffusion constant. TODO -- units!
+DIFFUSION = 0.00001  # diffusion constant. TODO -- units!
+ORIENTATION_JITTER = PI/40  # radians
 
 # Derived parameters
 BIN_VOLUME = TOTAL_VOLUME / (BINS_PER_EDGE*BINS_PER_EDGE)
@@ -83,7 +85,10 @@ class EnvironmentSpatialLattice(object):
 		''' Update location for all agent_ids '''
 		for agent_id, location in self.locations.iteritems():
 			# Move the cell around randomly
-			self.locations[agent_id] = (location + np.random.normal(0, 0.005, N_DIMS)) % EDGE_LENGTH
+			self.locations[agent_id][0:2] = (location[0:2] + np.random.normal(0, 0.005, N_DIMS)) % EDGE_LENGTH
+
+			# Orientation jitter
+			self.locations[agent_id][2] = (location[2] + np.random.normal(0, ORIENTATION_JITTER))
 
 
 	def run_diffusion(self):
@@ -132,12 +137,19 @@ class EnvironmentSpatialLattice(object):
 
 
 	def output_locations(self):
-		'''plot cell locations'''
-		locations = self.locations.values()
-		plot_volume=[v * 100 for v in self.volumes.values()]
-		x = [location[1] * BINS_PER_EDGE - 0.5 for location in locations]
-		y = [location[0] * BINS_PER_EDGE - 0.5 for location in locations]
-		plt.scatter(x, y, s=plot_volume, c='k')
+		'''plot cell locations and orientations'''
+		for agent_id, location in self.locations.iteritems():
+			y = location[0] * BINS_PER_EDGE - 0.5
+			x = location[1] * BINS_PER_EDGE - 0.5
+			theta = location[2]
+			plot_volume = self.volumes[agent_id]
+			length = plot_volume / 2  # TODO (eran) get actual length
+
+			dx = length * np.sin(theta)
+			dy = length * np.cos(theta)
+
+			plt.plot([x-dx, x+dx], [y-dy, y+dy], color='blue', linewidth=10)
+
 
 		if not in_sherlock:
 			plt.pause(0.0001)
@@ -158,7 +170,7 @@ class EnvironmentSpatialLattice(object):
 			self.volumes[agent_id] = update['volume']
 			change_counts = update['environment_change']
 
-			location = self.locations[agent_id] * BINS_PER_EDGE
+			location = self.locations[agent_id][0:2] * BINS_PER_EDGE
 			bin_site = tuple(np.floor(location).astype(int))
 
 			change_concentrations = self.counts_to_concentration(change_counts.values())
@@ -176,7 +188,7 @@ class EnvironmentSpatialLattice(object):
 		concentrations = {}
 		for agent_id in self.simulations.keys():
 			# get concentration from cell's given bin
-			location = self.locations[agent_id] * BINS_PER_EDGE
+			location = self.locations[agent_id][0:2] * BINS_PER_EDGE
 			bin_site = tuple(np.floor(location).astype(int))
 			concentrations[agent_id] = dict(zip(self._molecule_ids, self.lattice[:,bin_site[0],bin_site[1]]))
 		return concentrations
@@ -191,9 +203,10 @@ class EnvironmentSpatialLattice(object):
 
 		# Place cell at a random initial location
 		location = np.random.uniform(0,EDGE_LENGTH,N_DIMS)
+		orientation = np.random.uniform(0, 2*PI)
 
 		self.simulations[agent_id] = state
-		self.locations[agent_id] = location
+		self.locations[agent_id] = np.hstack((location, orientation))
 		self.volumes[agent_id] = 1.
 
 
