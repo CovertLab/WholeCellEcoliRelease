@@ -28,7 +28,7 @@ class Outer(Agent):
 	* environment.time()
 	    Return the current simulation time for the environment.
 
-	* environment.add_simulation(id)
+	* environment.add_simulation(id, state)
 
 	* environment.remove_simulation(id)
 
@@ -61,15 +61,15 @@ class Outer(Agent):
 	def finalize(self):
 		print('environment shutting down')
 
-	def initialize_simulation(self, agent_id):
-		changes = {molecule: 0 for molecule in self.environment.get_molecule_ids()}
+	def initialize_simulation(self, message):
+		agent_id = message['inner_id']
 		self.simulations[agent_id] = {
 			'time': 0,
 			'message_id': -1,
 			'last_message_id': -1,
-			'changes': changes}
+			'changes': message['changes']}
 
-		self.environment.add_simulation(agent_id)
+		self.environment.add_simulation(agent_id, message['changes'])
 
 	def send_concentrations(self):
 		""" Send updated concentrations to each inner agent. """
@@ -106,8 +106,7 @@ class Outer(Agent):
 	def simulation_changes(self):
 		return {
 			agent_id: simulation['changes']
-			for agent_id, simulation in self.simulations.iteritems()
-			}
+			for agent_id, simulation in self.simulations.iteritems()}
 
 	def send_shutdown(self):
 		for agent_id, simulation in self.simulations.iteritems():
@@ -144,7 +143,7 @@ class Outer(Agent):
 		print('--> {}: {}'.format(topic, message))
 
 		if message['event'] == event.SIMULATION_INITIALIZED:
-			self.initialize_simulation(message['inner_id'])
+			self.initialize_simulation(message)
 
 		elif message['event'] == event.TRIGGER_EXECUTION:
 			self.send_concentrations()
