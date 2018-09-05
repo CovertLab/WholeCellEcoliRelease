@@ -55,10 +55,10 @@ class EnvironmentSpatialLattice(object):
 
 		self.simulations = {}
 		self.locations = {}
-		self.volumes = {}
 
 		self._molecule_ids = concentrations.keys()
 		self.concentrations = concentrations.values()
+		self.molecule_index = {molecule: index for index, molecule in enumerate(self._molecule_ids)}
 
 		# Create lattice and fill each site with concentrations dictionary
 		# Molecule identities are defined along the major axis, with spatial dimensions along the other two axes.
@@ -71,7 +71,7 @@ class EnvironmentSpatialLattice(object):
 		if os.path.exists("out/manual/locations.txt"):
 			os.remove("out/manual/locations.txt")
 
-		glucose_lattice = self.lattice[self._molecule_ids.index('GLC[p]')]
+		glucose_lattice = self.lattice[self.molecule_index['GLC[p]']]
 		plt.imshow(glucose_lattice, vmin=0, vmax=25, cmap='YlGn')
 		plt.colorbar()
 		plt.axis('off')
@@ -139,7 +139,7 @@ class EnvironmentSpatialLattice(object):
 
 	def output_environment(self):
 		'''plot environment lattice'''
-		glucose_lattice = self.lattice[self._molecule_ids.index('GLC[p]')]
+		glucose_lattice = self.lattice[self.molecule_index['GLC[p]']]
 
 		plt.clf()
 		plt.imshow(glucose_lattice, cmap='YlGn')
@@ -153,7 +153,7 @@ class EnvironmentSpatialLattice(object):
 			y = location[0] * PATCHES_PER_EDGE / EDGE_LENGTH - 0.5
 			x = location[1] * PATCHES_PER_EDGE / EDGE_LENGTH - 0.5
 			theta = location[2]
-			volume = self.volumes[agent_id]
+			volume = self.simulations[agent_id]['volume']
 
 			# get length, scaled to lattice resolution
 			length = self.volume_to_length(volume)
@@ -185,10 +185,9 @@ class EnvironmentSpatialLattice(object):
 		return total_length
 
 
-	def counts_to_concentration(self, counts):
-		''' Convert an array of counts to concentrations '''
-		concentrations = [count / (PATCH_VOLUME * N_AVOGADRO) for count in counts]
-		return concentrations
+	def count_to_concentration(self, count):
+		''' Convert count to concentrations '''
+		return count / (PATCH_VOLUME * N_AVOGADRO)
 
 
 	def update_from_simulations(self, all_changes):
@@ -196,16 +195,15 @@ class EnvironmentSpatialLattice(object):
 		Use change counts from all the inner simulations, convert them to concentrations,
 		and add to the environmental concentrations of each molecule at each simulation's location
 		'''
-		for agent_id, update in all_changes.iteritems():
-			self.volumes[agent_id] = update['volume']
-			change_counts = update['environment_change']
-
+		self.simulations = all_changes
+		for agent_id, state in self.simulations.iteritems():
 			location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH
 			patch_site = tuple(np.floor(location).astype(int))
 
-			change_concentrations = self.counts_to_concentration(change_counts.values())
-			for molecule, change_conc in zip(change_counts.keys(), change_concentrations):
-				self.lattice[self._molecule_ids.index(molecule), patch_site[0], patch_site[1]] += change_conc
+			for molecule, count in state['environment_change'].iteritems():
+				concentration = self.count_to_concentration(count)
+				index = self.molecule_index[molecule]
+				self.lattice[index, patch_site[0], patch_site[1]] += concentration
 
 
 	def get_molecule_ids(self):
@@ -229,22 +227,18 @@ class EnvironmentSpatialLattice(object):
 		return self._time
 
 
-	def add_simulation(self, agent_id):
-		state = {}
-
+	def add_simulation(self, agent_id, state):
 		# Place cell at a random initial location
 		location = np.random.uniform(0,EDGE_LENGTH,N_DIMS)
 		orientation = np.random.uniform(0, 2*PI)
 
 		self.simulations[agent_id] = state
 		self.locations[agent_id] = np.hstack((location, orientation))
-		self.volumes[agent_id] = 1.
 
 
 	def remove_simulation(self, agent_id):
 		self.simulations.pop(agent_id, {})
 		self.locations.pop(agent_id, {})
-		self.volumes.pop(agent_id, {})
 
 
 	def run_simulations_until(self):

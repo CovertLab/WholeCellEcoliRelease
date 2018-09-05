@@ -71,8 +71,7 @@ class EnvironmentStub(object):
 	def time(self):
 		return self._time
 
-	def add_simulation(self, agent_id):
-		state = {}
+	def add_simulation(self, agent_id, state):
 		self.simulations[agent_id] = state
 
 	def remove_simulation(self, agent_id):

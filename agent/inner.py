@@ -67,7 +67,8 @@ class Inner(Agent):
 
 		self.send(self.kafka_config['simulation_send'], {
 			'event': event.SIMULATION_INITIALIZED,
-			'inner_id': self.agent_id})
+			'inner_id': self.agent_id,
+			'changes': self.simulation.get_environment_change()})
 
 	def finalize(self):
 		""" Trigger any clean up the simulation needs to perform before exiting. """
