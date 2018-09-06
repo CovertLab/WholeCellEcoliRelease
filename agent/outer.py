@@ -71,11 +71,17 @@ class Outer(Agent):
 
 		self.environment.add_simulation(agent_id, message['changes'])
 
+	def update_state(self):
+		""" Called before each simulation is updated with the current state of the system. """
+		pass
+
 	def send_concentrations(self):
 		""" Send updated concentrations to each inner agent. """
 
 		concentrations = self.environment.get_concentrations()
 		run_until = self.environment.run_simulations_until()
+
+		self.update_state()
 
 		for agent_id, simulation in self.simulations.iteritems():
 			simulation['message_id'] += 1

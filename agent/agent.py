@@ -147,12 +147,13 @@ class Agent(object):
 				present will throw errors.
 		"""
 
-		print('<-- {}: {}'.format(topic, message))
+		encoded = json.dumps(message).encode('utf-8')
+		print('<-- {} ({}): {}'.format(topic, len(encoded), encoded))
 
 		self.producer.poll(0)
 		self.producer.produce(
 			topic,
-			json.dumps(message).encode('utf-8'),
+			encoded,
 			callback=delivery_report)
 
 		self.producer.flush()

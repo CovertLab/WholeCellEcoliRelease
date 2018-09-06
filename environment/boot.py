@@ -18,6 +18,27 @@ from wholecell.fireworks.firetasks import VariantSimDataTask
 
 
 
+class EnvironmentAgent(Outer):
+	def build_state(self):
+		lattice = {
+			molecule: self.environment.lattice[index].tolist()
+			for index, molecule in enumerate(self.environment.get_molecule_ids())}
+
+		simulations = {
+			agent_id: {
+				'volume': state['volume'],
+				'location': self.environment.locations[agent_id][0:2].tolist(),
+				'orientation': self.environment.locations[agent_id][2]}
+			for agent_id, state in self.environment.simulations.iteritems()}
+
+		return {
+			'time': self.environment.time(),
+			'lattice': lattice,
+			'simulations': simulations}
+
+	def update_state(self):
+		self.send(self.kafka_config['environment_visualization'], self.build_state())
+
 class BootEnvironmentSpatialLattice(object):
 	def __init__(self, kafka_config):
 		raw_data = KnowledgeBaseEcoli()
@@ -32,8 +53,8 @@ class BootEnvironmentSpatialLattice(object):
 			# get non-zero concentrations (assuming units.mmol / units.L)
 			molecule_concentrations = getattr(raw_data.condition.environment, label)
 			environment_non_zero_dict = {
-				row["molecule id"]: row["concentration"].asNumber() for row in molecule_concentrations
-				}
+				row["molecule id"]: row["concentration"].asNumber()
+				for row in molecule_concentrations}
 
 			# update environment_dict with non zero concentrations
 			self.environment_dict[label].update(environment_non_zero_dict)
@@ -42,7 +63,7 @@ class BootEnvironmentSpatialLattice(object):
 		concentrations = self.environment_dict['minimal']
 
 		self.environment = EnvironmentSpatialLattice(concentrations)
-		self.outer = Outer(str(self.environment.agent_id), kafka_config, self.environment)
+		self.outer = EnvironmentAgent(str(self.environment.agent_id), kafka_config, self.environment)
 
 
 class BootEcoli(object):
@@ -125,18 +146,23 @@ def main():
 
 	parser.add_argument(
 		'--environment-control',
-		default='environment_control',
+		default='environment-control',
 		help='topic the environment will receive control messages on')
 
 	parser.add_argument(
 		'--simulation-receive',
-		default='environment_broadcast',
+		default='environment-broadcast',
 		help='topic the simulations will receive messages on')
 
 	parser.add_argument(
 		'--simulation-send',
-		default='environment_listen',
+		default='environment-listen',
 		help='topic the simulations will send messages on')
+
+	parser.add_argument(
+		'--environment-visualization',
+		default='environment-state',
+		help='topic the environment will send state information on')
 
 	parser.add_argument(
 		'--working-dir',
@@ -150,6 +176,7 @@ def main():
 		'environment_control': args.environment_control,
 		'simulation_receive': args.simulation_receive,
 		'simulation_send': args.simulation_send,
+		'environment_visualization': args.environment_visualization,
 		'subscribe_topics': []}
 
 	if args.command == 'lattice':
