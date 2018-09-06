@@ -111,17 +111,17 @@ def main():
 
 	parser.add_argument(
 		'--environment-control',
-		default='environment_control',
+		default='environment-control',
 		help='topic the environment will receive control messages on')
 
 	parser.add_argument(
 		'--simulation-receive',
-		default='environment_broadcast',
+		default='environment-broadcast',
 		help='topic the simulations will receive messages on')
 
 	parser.add_argument(
 		'--simulation-send',
-		default='environment_listen',
+		default='environment-listen',
 		help='topic the simulations will send messages on')
 
 	parser.add_argument(
