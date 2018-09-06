@@ -32,8 +32,8 @@ class EnvironmentAgent(Outer):
 		for agent_id, state in self.environment.simulations.iteritems():
 			simulations[agent_id] = {
 				'volume': state['volume'],
-				'location': self.environment.locations[agent_id][0],
-				'orientation': self.environment.locations[agent_id][1]
+				'location': self.environment.locations[agent_id][0:2].tolist(),
+				'orientation': self.environment.locations[agent_id][2]
 			}
 
 		return {
