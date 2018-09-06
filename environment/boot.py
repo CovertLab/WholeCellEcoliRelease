@@ -25,22 +25,19 @@ class EnvironmentAgent(Outer):
 	def build_state(self):
 		lattice = {
 			molecule: self.environment.lattice[index].tolist()
-			for index, molecule in enumerate(self.environment.get_molecule_ids())
-		}
+			for index, molecule in enumerate(self.environment.get_molecule_ids())}
 
-		simulations = {}
-		for agent_id, state in self.environment.simulations.iteritems():
-			simulations[agent_id] = {
+		simulations = {
+			agent_id: {
 				'volume': state['volume'],
 				'location': self.environment.locations[agent_id][0:2].tolist(),
-				'orientation': self.environment.locations[agent_id][2]
-			}
+				'orientation': self.environment.locations[agent_id][2]}
+			for agent_id, state in self.environment.simulations.iteritems()}
 
 		return {
 			'time': self.environment.time(),
 			'lattice': lattice,
-			'simulations': simulations,
-		}
+			'simulations': simulations}
 
 	def update_state(self):
 		self.send(self.kafka_config['environment_visualization'], self.build_state())
