@@ -19,9 +19,6 @@ from wholecell.fireworks.firetasks import VariantSimDataTask
 
 
 class EnvironmentAgent(Outer):
-	def __init__(self, agent_id, kafka_config, environment):
-		super(EnvironmentAgent, self).__init__(agent_id, kafka_config, environment)
-
 	def build_state(self):
 		lattice = {
 			molecule: self.environment.lattice[index].tolist()
