@@ -7,17 +7,17 @@ import os
 import numpy as np
 from scipy import constants
 
-in_sherlock = 'SHERLOCK' in os.environ
+animating = 'ENVIRONMENT_ANIMATION' in os.environ
 
 import matplotlib
 
 # Turn off interactive plotting when running on sherlock
-if not in_sherlock:
+if animating:
 	matplotlib.use('TKAgg')
 
 import matplotlib.pyplot as plt
 
-if not in_sherlock:
+if animating:
 	plt.ion()
 	fig = plt.figure()
 
@@ -150,8 +150,8 @@ class EnvironmentSpatialLattice(object):
 	def output_locations(self):
 		'''plot cell locations and orientations'''
 		for agent_id, location in self.locations.iteritems():
-			y = location[0] * PATCHES_PER_EDGE / EDGE_LENGTH - 0.5
-			x = location[1] * PATCHES_PER_EDGE / EDGE_LENGTH - 0.5
+			y = location[0] * PATCHES_PER_EDGE / EDGE_LENGTH
+			x = location[1] * PATCHES_PER_EDGE / EDGE_LENGTH
 			theta = location[2]
 			volume = self.simulations[agent_id]['volume']
 
@@ -166,7 +166,7 @@ class EnvironmentSpatialLattice(object):
 			plt.plot([x-dx*9.5/20, x+dx*9.5/20], [y-dy*9.5/20, y+dy*9.5/20],
 				color='slateblue', linewidth=CELL_RADIUS/EDGE_LENGTH*450, solid_capstyle='round')
 
-		if not in_sherlock:
+		if animating:
 			plt.pause(0.0001)
 
 
