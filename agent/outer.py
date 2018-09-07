@@ -3,6 +3,43 @@ from __future__ import absolute_import, division, print_function
 import agent.event as event
 from agent.agent import Agent
 
+
+class BaseEnvironmentSimulation(object):
+	"""Abstract base class for the Outer agent's Environment simulation."""
+
+	# A key for the run_simulations_until() dict to store the environment's own run_until.
+	ENVIRONMENT_ID = -1
+
+	def time(self):
+		"""Return the current simulation time for the environment."""
+
+	def add_simulation(self, agent_id, state):
+		"""Register an inner agent."""
+
+	def remove_simulation(self, agent_id):
+		"""Unregister an inner agent."""
+
+	def update_from_simulations(self, changes):
+		"""Update the environment's state of the inner agent simulations given the
+		changes dictionary mapping agent_id to dictionary of molecule counts.
+		"""
+
+	def run_simulations_until(self):
+		"""Return a dictionary of agent_id to time for each inner agent simulation to
+		run until. There's also an entry with the key ENVIRONMENT_ID for this
+		environment simulation itself.
+		"""
+
+	def get_molecule_ids(self):
+		"""Return the list of molecule IDs."""
+
+	def get_concentrations(self):
+		"""Return a dictionary of agent_id to concentrations coming from the environment."""
+
+	def run_incremental(self, time):
+		"""Run the environment's own simulation until the given time."""
+
+
 class Outer(Agent):
 
 	"""
@@ -22,26 +59,7 @@ class Outer(Agent):
 
 	Inner agents may also be added and removed while the execution is running without interruption.
 
-	The interaction with the environmental simulation is mediated through an interface defined
-	by the following functions:
-
-	* environment.time()
-	    Return the current simulation time for the environment.
-
-	* environment.add_simulation(id, state)
-
-	* environment.remove_simulation(id)
-
-	* environment.update_from_simulations(changes)
-        `changes` is a dictionary of simulation ids to counts
-
-	* environment.run_simulations_until()
-	    Returns a dictionary of simulation ids to time points for each simulation to run until.
-
-	* environment.get_molecule_ids()
-
-	* environment.get_concentrations()
-	    Returns a dictionary of simulation ids to concentrations coming from the environment.
+	The context environmental simulation is an instance of BaseEnvironmentSimulation.
 	"""
 
 	def __init__(self, agent_id, kafka_config, environment):
@@ -92,7 +110,7 @@ class Outer(Agent):
 				'concentrations': concentrations[agent_id],
 				'run_until': run_until[agent_id]})
 
-		self.environment.run_incremental(run_until[self.environment.agent_id])
+		self.environment.run_incremental(run_until[BaseEnvironmentSimulation.ENVIRONMENT_ID])
 
 	def ready_to_advance(self):
 		"""

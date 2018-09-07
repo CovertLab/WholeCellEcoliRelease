@@ -17,6 +17,9 @@ if not in_sherlock:
 
 import matplotlib.pyplot as plt
 
+from agent.outer import BaseEnvironmentSimulation
+
+
 if not in_sherlock:
 	plt.ion()
 	fig = plt.figure()
@@ -45,16 +48,14 @@ CELL_RADIUS = 0.5 # (micrometers)
 ORIENTATION_JITTER = PI/40  # (radians/s)
 LOCATION_JITTER = 0.01 # (micrometers/s)
 
-class EnvironmentSpatialLattice(object):
+class EnvironmentSpatialLattice(BaseEnvironmentSimulation):
 	def __init__(self, concentrations):
 		self._time = 0
 		self._timestep = 1.0
 		self.run_for = 5
 
-		self.agent_id = -1
-
-		self.simulations = {}
-		self.locations = {}
+		self.simulations = {}  # map of agent_id to simulation state
+		self.locations = {}    # map of agent_id to location and orientation
 
 		self._molecule_ids = concentrations.keys()
 		self.concentrations = concentrations.values()
@@ -214,7 +215,7 @@ class EnvironmentSpatialLattice(object):
 	def get_concentrations(self):
 		'''returns a dict with {molecule_id: conc} for each sim give its current location'''
 		concentrations = {}
-		for agent_id in self.simulations.keys():
+		for agent_id in self.simulations.iterkeys():
 			# get concentration from cell's given bin
 			location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH
 			patch_site = tuple(np.floor(location).astype(int))
@@ -244,10 +245,10 @@ class EnvironmentSpatialLattice(object):
 	def run_simulations_until(self):
 		until = {}
 		run_until = self.time() + self.run_for
-		for agent_id in self.simulations.keys():
+		for agent_id in self.simulations.iterkeys():
 			until[agent_id] = run_until
 
-		# Pass the environment a run_until
-		until[self.agent_id] = run_until
+		# Store the environment's own run_until
+		until[self.ENVIRONMENT_ID] = run_until
 
 		return until
