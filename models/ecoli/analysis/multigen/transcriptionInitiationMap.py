@@ -11,8 +11,6 @@ from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
 
-FROM_CACHE = False
-
 CLOSE_TO_DOUBLE = 0.1
 
 

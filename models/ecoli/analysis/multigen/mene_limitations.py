@@ -44,10 +44,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		if not os.path.exists(plotOutDir):
 			os.mkdir(plotOutDir)
 
-		BUILD_CACHE = True
-		if os.path.exists(os.path.join(plotOutDir, "figure5D.pickle")):
-			BUILD_CACHE = False
-
 		enzymeComplexId = "MENE-CPLX[c]"
 		enzymeMonomerId = "O-SUCCINYLBENZOATE-COA-LIG-MONOMER[c]"
 		enzymeRnaId = "EG12437_RNA[c]"
@@ -80,90 +76,60 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		metaboliteIndexes = [moleculeIds.index(x) for x in metaboliteIds]
 		bulkMolecules.close()
 
-		if BUILD_CACHE:
-			time = []
-			enzymeFluxes = []
-			enzymeComplexCounts = []
-			enzymeMonomerCounts = []
-			enzymeRnaCounts = []
-			enzymeRnaInitEvent = []
-			metaboliteCounts = np.array([])
+		time = []
+		enzymeFluxes = []
+		enzymeComplexCounts = []
+		enzymeMonomerCounts = []
+		enzymeRnaCounts = []
+		enzymeRnaInitEvent = []
+		metaboliteCounts = np.array([])
 
-			cellMass = []
-			dryMass = []
-			timeStepSec = []
-			generationTicks = [0.]
+		cellMass = []
+		dryMass = []
+		timeStepSec = []
+		generationTicks = [0.]
 
-			nTranscriptionInitEventsPerGen = []
-			nAvgTetramersPerGen = []
+		nTranscriptionInitEventsPerGen = []
+		nAvgTetramersPerGen = []
 
-			for gen, simDir in enumerate(allDir):
-				simOutDir = os.path.join(simDir, "simOut")
+		for gen, simDir in enumerate(allDir):
+			simOutDir = os.path.join(simDir, "simOut")
 
-				time += TableReader(os.path.join(simOutDir, "Main")).readColumn("time").tolist()
-				generationTicks.append(time[-1])
-				timeStepSec += TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec").tolist()
-				cellMass += TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass").tolist()
-				dryMass += TableReader(os.path.join(simOutDir, "Mass")).readColumn("dryMass").tolist()
+			time += TableReader(os.path.join(simOutDir, "Main")).readColumn("time").tolist()
+			generationTicks.append(time[-1])
+			timeStepSec += TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec").tolist()
+			cellMass += TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass").tolist()
+			dryMass += TableReader(os.path.join(simOutDir, "Mass")).readColumn("dryMass").tolist()
 
-				bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-				moleculeCounts = bulkMolecules.readColumn("counts")
-				enzymeComplexCountsInThisGen = moleculeCounts[:, enzymeComplexIndex].tolist()
-				enzymeMonomerCounts += moleculeCounts[:, enzymeMonomerIndex].tolist()
-				enzymeRnaCounts += moleculeCounts[:, enzymeRnaIndex].tolist()
+			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+			moleculeCounts = bulkMolecules.readColumn("counts")
+			enzymeComplexCountsInThisGen = moleculeCounts[:, enzymeComplexIndex].tolist()
+			enzymeMonomerCounts += moleculeCounts[:, enzymeMonomerIndex].tolist()
+			enzymeRnaCounts += moleculeCounts[:, enzymeRnaIndex].tolist()
 
-				enzymeComplexCounts += enzymeComplexCountsInThisGen
-				nAvgTetramersPerGen.append(np.mean(enzymeComplexCountsInThisGen))
+			enzymeComplexCounts += enzymeComplexCountsInThisGen
+			nAvgTetramersPerGen.append(np.mean(enzymeComplexCountsInThisGen))
 
-				if gen == 0:
-					metaboliteCounts = moleculeCounts[:, metaboliteIndexes]
-				else:
-					metaboliteCounts = np.vstack((metaboliteCounts, moleculeCounts[:, metaboliteIndexes]))
-				bulkMolecules.close()
+			if gen == 0:
+				metaboliteCounts = moleculeCounts[:, metaboliteIndexes]
+			else:
+				metaboliteCounts = np.vstack((metaboliteCounts, moleculeCounts[:, metaboliteIndexes]))
+			bulkMolecules.close()
 
-				fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
-				reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
-				reactionFluxes = np.array(fbaResults.readColumn("reactionFluxes"))
-				enzymeFluxes += reactionFluxes[:, np.where(reactionIDs == reactionId)[0][0]].tolist()
-				fbaResults.close()
+			fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
+			reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
+			reactionFluxes = np.array(fbaResults.readColumn("reactionFluxes"))
+			enzymeFluxes += reactionFluxes[:, np.where(reactionIDs == reactionId)[0][0]].tolist()
+			fbaResults.close()
 
-				rnapDataReader = TableReader(os.path.join(simOutDir, "RnapData"))
-				rnaInitEventsInThisGen = rnapDataReader.readColumn("rnaInitEvent")[:, np.where(rnaIds == enzymeRnaId)[0][0]].tolist()
-				rnapDataReader.close()
+			rnapDataReader = TableReader(os.path.join(simOutDir, "RnapData"))
+			rnaInitEventsInThisGen = rnapDataReader.readColumn("rnaInitEvent")[:, np.where(rnaIds == enzymeRnaId)[0][0]].tolist()
+			rnapDataReader.close()
 
-				enzymeRnaInitEvent += rnaInitEventsInThisGen
-				nTranscriptionInitEventsPerGen.append(np.sum(rnaInitEventsInThisGen))
+			enzymeRnaInitEvent += rnaInitEventsInThisGen
+			nTranscriptionInitEventsPerGen.append(np.sum(rnaInitEventsInThisGen))
 
-
-			time = np.array(time)
-			cPickle.dump({
-				"time": time,
-				"enzymeRnaInitEvent": enzymeRnaInitEvent,
-				"enzymeRnaCounts": enzymeRnaCounts,
-				"enzymeMonomerCounts": enzymeMonomerCounts,
-				"enzymeComplexCounts": enzymeComplexCounts,
-				"enzymeFluxes": enzymeFluxes,
-				"metaboliteCounts": metaboliteCounts,
-				"dryMass": dryMass,
-				"cellMass": cellMass,
-				"timeStepSec": timeStepSec,
-				"generationTicks": generationTicks,
-				"nTranscriptionInitEventsPerGen": nTranscriptionInitEventsPerGen,	# storing value to report in paper
-				"nAvgTetramersPerGen": nAvgTetramersPerGen,							# storing value to report in paper
-				}, open(os.path.join(plotOutDir, "figure5D.pickle"), "wb"))
-		else:
-			D = cPickle.load(open(os.path.join(plotOutDir, "figure5D.pickle"), "r"))
-			time = D["time"]
-			enzymeRnaInitEvent = D["enzymeRnaInitEvent"]
-			enzymeRnaCounts = D["enzymeRnaCounts"]
-			enzymeMonomerCounts = D["enzymeMonomerCounts"]
-			enzymeComplexCounts = D["enzymeComplexCounts"]
-			enzymeFluxes = D["enzymeFluxes"]
-			metaboliteCounts = D["metaboliteCounts"]
-			dryMass = D["dryMass"]
-			cellMass = D["cellMass"]
-			timeStepSec = D["timeStepSec"]
-			generationTicks = D["generationTicks"]
+		time = np.array(time)
 
 		cellVolume = units.g * np.array(cellMass) / cellDensity
 		coefficient = (units.fg * np.array(dryMass)) / (units.fg * np.array(cellMass)) * cellDensity * (timeStepSec * units.s)

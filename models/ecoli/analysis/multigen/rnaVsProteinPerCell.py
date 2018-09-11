@@ -42,7 +42,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		return
 
 		HIGHLIGHT_GENES = False
-		USE_CACHE = False # value of this boolean may change (see line 50)
 
 		if not os.path.isdir(seedOutDir):
 			raise Exception, "seedOutDir does not currently exist as a directory"
@@ -58,10 +57,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		else:
 			print "Requires figure5B.pickle from figure5B_E_F_G.py"
 			return
-
-		# Check if cache exists
-		if os.path.exists(os.path.join(plotOutDir, "%s.cPickle" % plotOutFileName)):
-			USE_CACHE = True
 
 		# Get all cells
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
@@ -98,88 +93,77 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		monomersInvolvedInManyComplexes_dict = {}
 		for x in monomersInvolvedInManyComplexes_id:
 			monomersInvolvedInManyComplexes_dict[x] = {}
-		USE_CACHE = False
-		if not USE_CACHE:
-			# Get average (over timesteps) counts for All genseration (ie. All cells)
-			avgRnaCounts_forAllCells = np.zeros(rnaIds.shape[0], np.float64)
-			avgProteinCounts_forAllCells = np.zeros(rnaIds.shape[0], np.float64)
-			for i, simDir in enumerate(allDir):
-				simOutDir = os.path.join(simDir, "simOut")
 
-				# Account for bulk molecules
-				bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-				bulkMoleculeCounts = bulkMolecules.readColumn("counts")
-				moleculeIds = bulkMolecules.readAttribute("objectNames")
-				proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in ids_protein], np.int)
-				proteinCountsBulk = bulkMoleculeCounts[:, proteinIndexes]
-				rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
-				avgRnaCounts = bulkMoleculeCounts[:, rnaIndexes].mean(axis = 0)
-				bulkMolecules.close()
-				if i == 0:
-					# Skip first few time steps for 1st generation (becaused complexes have not yet formed during these steps)
-					bulkContainer.countsIs(np.mean(proteinCountsBulk[5:, :], axis = 0))
-				else:
-					bulkContainer.countsIs(proteinCountsBulk.mean(axis = 0))
+		# Get average (over timesteps) counts for All genseration (ie. All cells)
+		avgRnaCounts_forAllCells = np.zeros(rnaIds.shape[0], np.float64)
+		avgProteinCounts_forAllCells = np.zeros(rnaIds.shape[0], np.float64)
+		for i, simDir in enumerate(allDir):
+			simOutDir = os.path.join(simDir, "simOut")
 
-				# Unique molecules
-				uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
-				ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
-				rnaPolyIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
-				nActiveRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
-				nActiveRnaPoly = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnaPolyIndex]
-				uniqueMoleculeCounts.close()
+			# Account for bulk molecules
+			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+			bulkMoleculeCounts = bulkMolecules.readColumn("counts")
+			moleculeIds = bulkMolecules.readAttribute("objectNames")
+			proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in ids_protein], np.int)
+			proteinCountsBulk = bulkMoleculeCounts[:, proteinIndexes]
+			rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
+			avgRnaCounts = bulkMoleculeCounts[:, rnaIndexes].mean(axis = 0)
+			bulkMolecules.close()
+			if i == 0:
+				# Skip first few time steps for 1st generation (becaused complexes have not yet formed during these steps)
+				bulkContainer.countsIs(np.mean(proteinCountsBulk[5:, :], axis = 0))
+			else:
+				bulkContainer.countsIs(proteinCountsBulk.mean(axis = 0))
 
-				# Account for unique molecules
-				bulkContainer.countsInc(nActiveRibosome.mean(), [sim_data.moleculeIds.s30_fullComplex, sim_data.moleculeIds.s50_fullComplex])
-				bulkContainer.countsInc(nActiveRnaPoly.mean(), [sim_data.moleculeIds.rnapFull])
+			# Unique molecules
+			uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
+			ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
+			rnaPolyIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
+			nActiveRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
+			nActiveRnaPoly = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnaPolyIndex]
+			uniqueMoleculeCounts.close()
 
-				# Account for small-molecule bound complexes
-				view_equilibrium.countsInc(np.dot(sim_data.process.equilibrium.stoichMatrixMonomers(), view_equilibrium_complexes.counts() * -1))
+			# Account for unique molecules
+			bulkContainer.countsInc(nActiveRibosome.mean(), [sim_data.moleculeIds.s30_fullComplex, sim_data.moleculeIds.s50_fullComplex])
+			bulkContainer.countsInc(nActiveRnaPoly.mean(), [sim_data.moleculeIds.rnapFull])
 
-				# Average counts of monomers
-				avgMonomerCounts = view_translation.counts()
+			# Account for small-molecule bound complexes
+			view_equilibrium.countsInc(np.dot(sim_data.process.equilibrium.stoichMatrixMonomers(), view_equilibrium_complexes.counts() * -1))
 
-				# Get counts of "functional units" (ie. complexed forms)
-				avgProteinCounts = avgMonomerCounts[:]
-				avgComplexCounts = view_complexation_complexes.counts()
+			# Average counts of monomers
+			avgMonomerCounts = view_translation.counts()
 
-				for j, complexId in enumerate(ids_complexation_complexes):
-					# Map all subsunits to the average counts of the complex (ignores counts of monomers)
-					# Some subunits are involved in multiple complexes - these cases are kept track
-					subunitIds = sim_data.process.complexation.getMonomers(complexId)["subunitIds"]
+			# Get counts of "functional units" (ie. complexed forms)
+			avgProteinCounts = avgMonomerCounts[:]
+			avgComplexCounts = view_complexation_complexes.counts()
 
-					for subunitId in subunitIds:
-						if subunitId not in ids_translation:
-							if subunitId in monomerToTranslationMonomer:
-								# couple monomers have different ID in ids_translation
-								subunitId = monomerToTranslationMonomer[subunitId]
-							elif "CPLX" in subunitId:
-								# few transcription factors are complexed with ions
-								subunitId = complexToMonomer[subunitId]
-							elif "RNA" in subunitId:
-								continue
+			for j, complexId in enumerate(ids_complexation_complexes):
+				# Map all subsunits to the average counts of the complex (ignores counts of monomers)
+				# Some subunits are involved in multiple complexes - these cases are kept track
+				subunitIds = sim_data.process.complexation.getMonomers(complexId)["subunitIds"]
 
-						if subunitId not in monomersInvolvedInManyComplexes_id:
-							avgProteinCounts[ids_translation.index(subunitId)] = avgComplexCounts[j]
-						else:
-							if complexId not in monomersInvolvedInManyComplexes_dict[subunitId]:
-								monomersInvolvedInManyComplexes_dict[subunitId][complexId] = 0.
-							monomersInvolvedInManyComplexes_dict[subunitId][complexId] += avgComplexCounts[j]
+				for subunitId in subunitIds:
+					if subunitId not in ids_translation:
+						if subunitId in monomerToTranslationMonomer:
+							# couple monomers have different ID in ids_translation
+							subunitId = monomerToTranslationMonomer[subunitId]
+						elif "CPLX" in subunitId:
+							# few transcription factors are complexed with ions
+							subunitId = complexToMonomer[subunitId]
+						elif "RNA" in subunitId:
+							continue
 
-				# Store
-				avgRnaCounts_forAllCells += avgRnaCounts
-				avgProteinCounts_forAllCells += avgProteinCounts
+					if subunitId not in monomersInvolvedInManyComplexes_id:
+						avgProteinCounts[ids_translation.index(subunitId)] = avgComplexCounts[j]
+					else:
+						if complexId not in monomersInvolvedInManyComplexes_dict[subunitId]:
+							monomersInvolvedInManyComplexes_dict[subunitId][complexId] = 0.
+						monomersInvolvedInManyComplexes_dict[subunitId][complexId] += avgComplexCounts[j]
 
-			# Cache
-			D = {"rna": avgRnaCounts_forAllCells, "protein": avgProteinCounts_forAllCells, "monomersInManyComplexes": monomersInvolvedInManyComplexes_dict}
-			cPickle.dump(D, open(os.path.join(plotOutDir, "%s.cPickle" % plotOutFileName), "wb"))
+			# Store
+			avgRnaCounts_forAllCells += avgRnaCounts
+			avgProteinCounts_forAllCells += avgProteinCounts
 
-		else:
-			# Using cached data
-			D = cPickle.load(open(os.path.join(plotOutDir, "%s.cPickle" % plotOutFileName), "rb"))
-			avgRnaCounts_forAllCells = D["rna"]
-			avgProteinCounts_forAllCells = D["protein"]
-			monomersInvolvedInManyComplexes_dict = D["monomersInManyComplexes"]
 
 		# Per cell
 		avgRnaCounts_perCell = avgRnaCounts_forAllCells / float(len(allDir))

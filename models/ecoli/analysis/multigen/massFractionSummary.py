@@ -62,6 +62,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		axesList[len(massNames) - 1].set_xlabel("Time (hr)")
 
 		plt.subplots_adjust(hspace = 0.2, wspace = 0.5)
+		fig.tight_layout()
+
 		exportFigure(plt, plotOutDir, plotOutFileName,metadata)
 		plt.close("all")
 

@@ -59,8 +59,7 @@ class CellDivision(wholecell.listeners.listener.Listener):
 			self.massCoeff = sim.randomState.normal(loc = 1.0, scale = 0.1)
 
 		# View on full chromosomes
-		self.fullChromosomeView = self.internal_states['BulkMolecules'].container.countView('CHROM_FULL[c]')
-		self.fullChromosomeView = self.internal_states['BulkMolecules'].container.countView(sim_data.moleculeIds.fullChromosome)
+		self.fullChromosomeView = self.internal_states['BulkMolecules'].container.countsView([sim_data.moleculeIds.fullChromosome])
 		self.uniqueMoleculeContainer = self.internal_states['UniqueMolecules'].container
 
 		self.divisionMassMultiplier = 1.

@@ -11,7 +11,6 @@ from wholecell.io.tablereader import TableReader
 import cPickle
 
 from wholecell.utils import units
-FROM_CACHE = False
 
 from wholecell.utils.sparkline import whitePadSparklineAxis
 from wholecell.analysis.analysis_tools import exportFigure
@@ -68,95 +67,81 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		monomerCountInitialMultigen = np.zeros((n_sims, n_monomers), dtype = np.int)
 		cellMassInitialMultigen = np.zeros(n_sims, dtype = np.float)
 
-		if not FROM_CACHE:
+		for gen_idx, simDir in enumerate(allDir):
+			simOutDir = os.path.join(simDir, "simOut")
 
-			for gen_idx, simDir in enumerate(allDir):
-				simOutDir = os.path.join(simDir, "simOut")
+			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
-				time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+			## READ DATA ##
+			# Read in bulk ids and counts
+			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-				## READ DATA ##
-				# Read in bulk ids and counts
-				bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+			if first_build:
+				moleculeIds = bulkMolecules.readAttribute("objectNames")
 
-				if first_build:
-					moleculeIds = bulkMolecules.readAttribute("objectNames")
+				complexationIdx = np.array([moleculeIds.index(x) for x in ids_complexation]) # Complexe of proteins, and protein monomers
+				complexation_complexesIdx = np.array([moleculeIds.index(x) for x in ids_complexation_complexes]) # Only complexes
+				equilibriumIdx = np.array([moleculeIds.index(x) for x in ids_equilibrium]) # Complexes of proteins + small molecules, small molecules, protein monomers
+				equilibrium_complexesIdx = np.array([moleculeIds.index(x) for x in ids_equilibrium_complexes]) # Only complexes
+				translationIdx = np.array([moleculeIds.index(x) for x in ids_translation]) # Only protein monomers
 
-					complexationIdx = np.array([moleculeIds.index(x) for x in ids_complexation]) # Complexe of proteins, and protein monomers
-					complexation_complexesIdx = np.array([moleculeIds.index(x) for x in ids_complexation_complexes]) # Only complexes
-					equilibriumIdx = np.array([moleculeIds.index(x) for x in ids_equilibrium]) # Complexes of proteins + small molecules, small molecules, protein monomers
-					equilibrium_complexesIdx = np.array([moleculeIds.index(x) for x in ids_equilibrium_complexes]) # Only complexes
-					translationIdx = np.array([moleculeIds.index(x) for x in ids_translation]) # Only protein monomers
+				ribosomeIdx = np.array([moleculeIds.index(x) for x in ribosome_subunit_ids])
+				rnapIdx = np.array([moleculeIds.index(x) for x in rnap_subunit_ids])
 
-					ribosomeIdx = np.array([moleculeIds.index(x) for x in ribosome_subunit_ids])
-					rnapIdx = np.array([moleculeIds.index(x) for x in rnap_subunit_ids])
+				first_build = False
 
-					first_build = False
+			bulkCounts = bulkMolecules.readColumn("counts")
+			bulkMolecules.close()
 
-				bulkCounts = bulkMolecules.readColumn("counts")
-				bulkMolecules.close()
+			# Dissociate protein-protein complexes
+			bulkCounts[:, complexationIdx] += np.dot(sim_data.process.complexation.stoichMatrixMonomers(), bulkCounts[:, complexation_complexesIdx].transpose() * -1).transpose()
 
-				# Dissociate protein-protein complexes
-				bulkCounts[:, complexationIdx] += np.dot(sim_data.process.complexation.stoichMatrixMonomers(), bulkCounts[:, complexation_complexesIdx].transpose() * -1).transpose()
+			# Dissociate protein-small molecule complexes
+			bulkCounts[:, equilibriumIdx] += np.dot(sim_data.process.equilibrium.stoichMatrixMonomers(), bulkCounts[:, equilibrium_complexesIdx].transpose() * -1).transpose()
 
-				# Dissociate protein-small molecule complexes
-				bulkCounts[:, equilibriumIdx] += np.dot(sim_data.process.equilibrium.stoichMatrixMonomers(), bulkCounts[:, equilibrium_complexesIdx].transpose() * -1).transpose()
+			# Load unique molecule data for RNAP and ribosomes
+			uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
+			ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
+			rnaPolyIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
+			nActiveRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
+			nActiveRnaPoly = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnaPolyIndex]
+			uniqueMoleculeCounts.close()
 
-				# Load unique molecule data for RNAP and ribosomes
-				uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
-				ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
-				rnaPolyIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
-				nActiveRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
-				nActiveRnaPoly = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnaPolyIndex]
-				uniqueMoleculeCounts.close()
+			# Add subunits from RNAP and ribosomes
+			ribosomeSubunitCounts = (nActiveRibosome.reshape((nActiveRibosome.size,1)) * ribosome_subunit_stoich.reshape((1,ribosome_subunit_stoich.size)))
+			rnapSubunitCounts = (nActiveRnaPoly.reshape((nActiveRnaPoly.size,1)) * rnap_subunit_stoich.reshape((1,rnap_subunit_stoich.size)))
 
-				# Add subunits from RNAP and ribosomes
-				ribosomeSubunitCounts = (nActiveRibosome.reshape((nActiveRibosome.size,1)) * ribosome_subunit_stoich.reshape((1,ribosome_subunit_stoich.size)))
-				rnapSubunitCounts = (nActiveRnaPoly.reshape((nActiveRnaPoly.size,1)) * rnap_subunit_stoich.reshape((1,rnap_subunit_stoich.size)))
+			bulkCounts[:, ribosomeIdx] += ribosomeSubunitCounts
+			bulkCounts[:, rnapIdx] += rnapSubunitCounts
 
-				bulkCounts[:, ribosomeIdx] += ribosomeSubunitCounts
-				bulkCounts[:, rnapIdx] += rnapSubunitCounts
+			# Get protein monomer counts for calculations now that all complexes are dissociated
+			proteinMonomerCounts = bulkCounts[:, translationIdx]
 
-				# Get protein monomer counts for calculations now that all complexes are dissociated
-				proteinMonomerCounts = bulkCounts[:, translationIdx]
+			## CALCULATIONS ##
+			# Calculate if monomer exists over course of cell cycle
+			monomerExist = proteinMonomerCounts.sum(axis=0) > 1
 
-				## CALCULATIONS ##
-				# Calculate if monomer exists over course of cell cycle
-				monomerExist = proteinMonomerCounts.sum(axis=0) > 1
+			# Calculate if monomer comes close to doubling
+			ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(np.float) + 1)
+			# monomerDouble = ratioFinalToInitialCount > (1 - CLOSE_TO_DOUBLE)
 
-				# Calculate if monomer comes close to doubling
-				ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(np.float) + 1)
-				# monomerDouble = ratioFinalToInitialCount > (1 - CLOSE_TO_DOUBLE)
+			# Load transcription initiation event data
+			rnapData = TableReader(os.path.join(simOutDir, "RnapData"))
+			initiationEventsPerRna = rnapData.readColumn("rnaInitEvent").sum(axis = 0)
 
-				# Load transcription initiation event data
-				rnapData = TableReader(os.path.join(simOutDir, "RnapData"))
-				initiationEventsPerRna = rnapData.readColumn("rnaInitEvent").sum(axis = 0)
+			# Map transcription initiation events to monomers
+			initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.rnaIndexToMonomerMapping]
 
-				# Map transcription initiation events to monomers
-				initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.rnaIndexToMonomerMapping]
+			# Load cell mass
+			cellMassInitial = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")[0]
 
-				# Load cell mass
-				cellMassInitial = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")[0]
+			# Log data
+			monomerExistMultigen[gen_idx,:] = monomerExist
+			ratioFinalToInitialCountMultigen[gen_idx,:] = ratioFinalToInitialCount
+			initiationEventsPerMonomerMultigen[gen_idx,:] = initiationEventsPerMonomer
+			monomerCountInitialMultigen[gen_idx,:] = proteinMonomerCounts[0,:]
+			cellMassInitialMultigen[gen_idx] = cellMassInitial
 
-				# Log data
-				monomerExistMultigen[gen_idx,:] = monomerExist
-				ratioFinalToInitialCountMultigen[gen_idx,:] = ratioFinalToInitialCount
-				initiationEventsPerMonomerMultigen[gen_idx,:] = initiationEventsPerMonomer
-				monomerCountInitialMultigen[gen_idx,:] = proteinMonomerCounts[0,:]
-				cellMassInitialMultigen[gen_idx] = cellMassInitial
-
-			cPickle.dump(monomerExistMultigen, open(os.path.join(plotOutDir,"monomerExistMultigen.pickle"), "wb"))
-			cPickle.dump(ratioFinalToInitialCountMultigen, open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "wb"))
-			cPickle.dump(initiationEventsPerMonomerMultigen, open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "wb"))
-			cPickle.dump(monomerCountInitialMultigen, open(os.path.join(plotOutDir,"monomerCountInitialMultigen.pickle"), "wb"))
-			cPickle.dump(cellMassInitialMultigen, open(os.path.join(plotOutDir,"cellMassInitialMultigen.pickle"), "wb"))
-
-
-		monomerExistMultigen = cPickle.load(open(os.path.join(plotOutDir,"monomerExistMultigen.pickle"), "rb"))
-		ratioFinalToInitialCountMultigen = cPickle.load(open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "rb"))
-		initiationEventsPerMonomerMultigen = cPickle.load(open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "rb"))
-		monomerCountInitialMultigen = cPickle.load(open(os.path.join(plotOutDir,"monomerCountInitialMultigen.pickle"), "rb"))
-		cellMassInitialMultigen = cPickle.load(open(os.path.join(plotOutDir,"cellMassInitialMultigen.pickle"), "rb"))
 		cellMassInitialMultigen = units.fg * cellMassInitialMultigen
 
 		existFractionPerMonomer = monomerExistMultigen.mean(axis=0)

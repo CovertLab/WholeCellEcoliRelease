@@ -67,7 +67,8 @@ class Inner(Agent):
 
 		self.send(self.kafka_config['simulation_send'], {
 			'event': event.SIMULATION_INITIALIZED,
-			'inner_id': self.id})
+			'inner_id': self.agent_id,
+			'changes': self.simulation.get_environment_change()})
 
 	def finalize(self):
 		""" Trigger any clean up the simulation needs to perform before exiting. """
@@ -95,7 +96,7 @@ class Inner(Agent):
 		message containing the local changes as calculated by the simulation.
 		"""
 
-		if message['inner_id'] == self.id:
+		if message['inner_id'] == self.agent_id:
 			print('--> {}: {}'.format(topic, message))
 
 			if message['event'] == event.ENVIRONMENT_UPDATED:
@@ -109,7 +110,7 @@ class Inner(Agent):
 
 				self.send(self.kafka_config['simulation_send'], {
 					'event': event.SIMULATION_ENVIRONMENT,
-					'inner_id': self.id,
+					'inner_id': self.agent_id,
 					'message_id': message['message_id'],
 					'time': stop,
 					'changes': changes})
@@ -117,7 +118,7 @@ class Inner(Agent):
 			elif message['event'] == event.SHUTDOWN_SIMULATION:
 				self.send(self.kafka_config['simulation_send'], {
 					'event': event.SIMULATION_SHUTDOWN,
-					'inner_id': self.id})
+					'inner_id': self.agent_id})
 
 				self.shutdown()
 
