@@ -63,7 +63,7 @@ class BootEnvironmentSpatialLattice(object):
 		concentrations = self.environment_dict['minimal']
 
 		self.environment = EnvironmentSpatialLattice(concentrations)
-		self.outer = EnvironmentAgent(str(self.environment.agent_id), kafka_config, self.environment)
+		self.outer = EnvironmentAgent('EnvironmentSpatialLattice', kafka_config, self.environment)
 
 
 class BootEcoli(object):
