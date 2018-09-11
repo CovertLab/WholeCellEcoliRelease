@@ -236,7 +236,7 @@ class EnvironmentSpatialLattice(BaseEnvironmentSimulation):
 		self.simulations[agent_id] = state
 		self.locations[agent_id] = np.hstack((location, orientation))
 
-
+p
 	def remove_simulation(self, agent_id):
 		self.simulations.pop(agent_id, {})
 		self.locations.pop(agent_id, {})
@@ -247,8 +247,5 @@ class EnvironmentSpatialLattice(BaseEnvironmentSimulation):
 		run_until = self.time() + self.run_for
 		for agent_id in self.simulations.iterkeys():
 			until[agent_id] = run_until
-
-		# Store the environment's own run_until
-		until[self.ENVIRONMENT_ID] = run_until
 
 		return until
