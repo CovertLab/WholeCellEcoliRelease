@@ -95,19 +95,20 @@ class Outer(Agent):
 		concentrations = self.environment.get_concentrations()
 		run_until = self.environment.run_simulations_until()
 
-		self.update_state()
+		if run_until:
+			self.update_state()
 
-		for agent_id, simulation in self.simulations.iteritems():
-			simulation['message_id'] += 1
-			self.send(self.kafka_config['simulation_receive'], {
-				'inner_id': agent_id,
-				'message_id': simulation['message_id'],
-				'event': event.ENVIRONMENT_UPDATED,
-				'concentrations': concentrations[agent_id],
-				'run_until': run_until[agent_id]})
+			for agent_id, simulation in self.simulations.iteritems():
+				simulation['message_id'] += 1
+				self.send(self.kafka_config['simulation_receive'], {
+					'inner_id': agent_id,
+					'message_id': simulation['message_id'],
+					'event': event.ENVIRONMENT_UPDATED,
+					'concentrations': concentrations[agent_id],
+					'run_until': run_until[agent_id]})
 
-		minimum_until = min(run_until.values()) if run_until else 0
-		self.environment.run_incremental(minimum_until)
+			minimum_until = min(run_until.values())
+			self.environment.run_incremental(minimum_until)
 
 	def ready_to_advance(self):
 		"""

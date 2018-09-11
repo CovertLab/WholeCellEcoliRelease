@@ -17,7 +17,7 @@ if animating:
 
 import matplotlib.pyplot as plt
 
-from agent.outer import BaseEnvironmentSimulation
+from agent.outer import EnvironmentSimulation
 
 
 if animating:
@@ -48,7 +48,7 @@ CELL_RADIUS = 0.5 # (micrometers)
 ORIENTATION_JITTER = PI/40  # (radians/s)
 LOCATION_JITTER = 0.01 # (micrometers/s)
 
-class EnvironmentSpatialLattice(BaseEnvironmentSimulation):
+class EnvironmentSpatialLattice(EnvironmentSimulation):
 	def __init__(self, concentrations):
 		self._time = 0
 		self._timestep = 1.0
@@ -236,7 +236,7 @@ class EnvironmentSpatialLattice(BaseEnvironmentSimulation):
 		self.simulations[agent_id] = state
 		self.locations[agent_id] = np.hstack((location, orientation))
 
-p
+
 	def remove_simulation(self, agent_id):
 		self.simulations.pop(agent_id, {})
 		self.locations.pop(agent_id, {})
