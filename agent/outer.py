@@ -106,7 +106,7 @@ class Outer(Agent):
 				'concentrations': concentrations[agent_id],
 				'run_until': run_until[agent_id]})
 
-		minimum_until = min(run_until.values())
+		minimum_until = min(run_until.values()) if run_until else 0
 		self.environment.run_incremental(minimum_until)
 
 	def ready_to_advance(self):
