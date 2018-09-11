@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 import time
 import random
 
-from .outer import BaseEnvironmentSimulation
+from .outer import EnvironmentSimulation
 
 
 class SimulationStub(object):
@@ -52,7 +52,7 @@ class SimulationStub(object):
 	def finalize(self):
 		pass
 
-class EnvironmentStub(BaseEnvironmentSimulation):
+class EnvironmentStub(EnvironmentSimulation):
 
 	"""
 	Provide a stub for the environmental context.
@@ -91,8 +91,6 @@ class EnvironmentStub(BaseEnvironmentSimulation):
 		run_until = self.time() + self.run_for
 		for agent_id in self.simulations.iterkeys():
 			until[agent_id] = run_until
-
-		until[self.ENVIRONMENT_ID] = run_until
 
 		return until
 

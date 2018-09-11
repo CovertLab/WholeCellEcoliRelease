@@ -4,11 +4,8 @@ import agent.event as event
 from agent.agent import Agent
 
 
-class BaseEnvironmentSimulation(object):
+class EnvironmentSimulation(object):
 	"""Abstract base class for the Outer agent's Environment simulation."""
-
-	# A key for the run_simulations_until() dict to store the environment's own run_until.
-	ENVIRONMENT_ID = -1
 
 	def time(self):
 		"""Return the current simulation time for the environment."""
@@ -26,8 +23,7 @@ class BaseEnvironmentSimulation(object):
 
 	def run_simulations_until(self):
 		"""Return a dictionary of agent_id to time for each inner agent simulation to
-		run until. There's also an entry with the key ENVIRONMENT_ID for this
-		environment simulation itself.
+		run until. The environment will run until it reaches the minimum of these.
 		"""
 
 	def get_molecule_ids(self):
@@ -110,7 +106,8 @@ class Outer(Agent):
 				'concentrations': concentrations[agent_id],
 				'run_until': run_until[agent_id]})
 
-		self.environment.run_incremental(run_until[BaseEnvironmentSimulation.ENVIRONMENT_ID])
+		minimum_until = min(run_until.values())
+		self.environment.run_incremental(minimum_until)
 
 	def ready_to_advance(self):
 		"""
