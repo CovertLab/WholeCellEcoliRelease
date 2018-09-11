@@ -69,6 +69,12 @@ class Outer(Agent):
 			'last_message_id': -1,
 			'changes': message['changes']}
 
+		self.send(self.kafka_config['simulation_receive'], {
+			'event': event.SYNCHRONIZE_SIMULATION,
+			'inner_id': agent_id,
+			'state': self.environment.simulation_state(),
+		})
+
 		self.environment.add_simulation(agent_id, message['changes'])
 
 	def update_state(self):

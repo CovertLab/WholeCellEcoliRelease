@@ -115,6 +115,9 @@ class Inner(Agent):
 					'time': stop,
 					'changes': changes})
 
+			elif message['event'] == event.SYNCHRONIZE_SIMULATION:
+				self.simulation.synchronize_state(message['state'])
+
 			elif message['event'] == event.SHUTDOWN_SIMULATION:
 				self.send(self.kafka_config['simulation_send'], {
 					'event': event.SIMULATION_SHUTDOWN,

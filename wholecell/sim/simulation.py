@@ -411,5 +411,7 @@ class Simulation(object):
 	def get_environment_change(self):
 		# sends environment a dictionary with relevant state changes
 		return {'volume': self.listeners['Mass'].volume,
-				'environment_change': self.external_states['Environment'].get_environment_change(),
-				}
+				'environment_change': self.external_states['Environment'].get_environment_change()}
+
+	def synchronize_state(self, state):
+		self._timeTotal = state['time']

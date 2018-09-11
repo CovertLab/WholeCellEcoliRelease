@@ -210,7 +210,7 @@ def switch():
 	parser.add_argument(
 		'--shepherd-control',
 		default='shepherd-control',
-		help='topic the environment will send state information on')
+		help='topic the shepherd will receive messages on')
 
 	parser.add_argument(
 		'--working-dir',
