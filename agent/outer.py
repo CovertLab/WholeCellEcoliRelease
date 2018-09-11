@@ -5,7 +5,7 @@ from agent.agent import Agent
 
 
 class EnvironmentSimulation(object):
-	"""Abstract base class for the Outer agent's Environment simulation."""
+	"""Interface for the Outer agent's Environment simulation."""
 
 	def time(self):
 		"""Return the current simulation time for the environment."""
@@ -55,10 +55,24 @@ class Outer(Agent):
 
 	Inner agents may also be added and removed while the execution is running without interruption.
 
-	The context environmental simulation is an instance of BaseEnvironmentSimulation.
+	The context environmental simulation is an instance of EnvironmentSimulation.
 	"""
 
 	def __init__(self, agent_id, kafka_config, environment):
+		"""
+		Construct the Agent.
+
+		Args:
+			agent_id (str): Unique identifier for this agent.
+			kafka_config (dict): Kafka configuration information with the following keys:
+				`host`: the Kafka server host address.
+				`environment_control`: The topic this agent will use to listen for trigger
+					and shutdown messages.
+				`simulation_send`: The topic this agent will use to listen for simulation
+					updates from inner agents.
+			environment (EnvironmentSimulation): The actual simulation which will perform
+				the calculations.
+		"""
 		self.environment = environment
 		self.simulations = {}
 		self.shutting_down = False

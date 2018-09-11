@@ -36,7 +36,7 @@ it easy to watch all these processeses at once.)
 
    1. In the first tab start an environment model:
 
-      `> python -m environment.boot lattice`
+      `> ENVIRONMENT_ANIMATION=1 python -m environment.boot lattice`
 
       This starts the environment and opens a "microscope" view onto the plate, waiting for cell simulations to register.
 
