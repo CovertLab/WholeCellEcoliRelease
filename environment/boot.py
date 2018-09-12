@@ -239,7 +239,7 @@ def switch():
 		'subscribe_topics': []}
 
 	if args.command == 'lattice':
-		BootEnvironmentSpatialLattice(kafka_config)
+		BootEnvironmentSpatialLattice('lattice', {'kafka_config': kafka_config})
 
 	elif args.command == 'ecoli':
 		if not args.id:
