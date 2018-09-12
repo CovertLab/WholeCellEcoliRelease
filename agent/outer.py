@@ -16,6 +16,11 @@ class EnvironmentSimulation(object):
 	def remove_simulation(self, agent_id):
 		"""Unregister an inner agent."""
 
+	def simulation_parameters(self, agent_id):
+		"""Generate any parameters a simulation may need to know about from the environment,
+		such as the current time step.
+		"""
+
 	def update_from_simulations(self, changes):
 		"""Update the environment's state of the inner agent simulations given the
 		changes dictionary mapping agent_id to dictionary of molecule counts.
@@ -92,7 +97,7 @@ class Outer(Agent):
 	def initialize_simulation(self, message):
 		agent_id = message['inner_id']
 		self.simulations[agent_id] = {
-			'time': 0,
+			'time': self.environment.time(),
 			'message_id': -1,
 			'last_message_id': -1,
 			'changes': message['changes']}
@@ -100,7 +105,7 @@ class Outer(Agent):
 		self.send(self.kafka_config['simulation_receive'], {
 			'event': event.SYNCHRONIZE_SIMULATION,
 			'inner_id': agent_id,
-			'state': self.environment.simulation_state(),
+			'state': self.environment.simulation_parameters(agent_id),
 		})
 
 		self.environment.add_simulation(agent_id, message['changes'])

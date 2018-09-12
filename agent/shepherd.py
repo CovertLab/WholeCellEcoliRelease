@@ -27,21 +27,26 @@ class AgentShepherd(Agent):
 		else:
 			print('agent initializer not found for {}'.format(agent_type))
 
-	def remove_agent(self, agent_id):
-		return self.agents.pop(agent_id)
+	def remove_agent(self, agent_prefix):
+		removing = filter(lambda key: key.startswith(agent_prefix), self.agents.iterkeys())
+		removed = {}
+		for key in removing:
+			self.send(self.kafka_config['simulation_receive'], {
+				'event': event.SHUTDOWN_SIMULATION,
+				'inner_id': key})
+
+			removed[key] = self.agents.pop(key)
+
+		return removed
 
 	def receive(self, topic, message):
 		print('--> {}: {}'.format(topic, message))
 
-		if message['event'] == event.INITIALIZE_AGENT:
+		if message['event'] == event.ADD_AGENT:
 			self.add_agent(
 				message['agent_id'],
 				message['agent_type'],
 				message['agent_config'])
 
-		elif message['event'] == event.SHUTDOWN_AGENT:
-			self.send(self.kafka_config['environment_control'], {
-				'event': event.SHUTDOWN_SIMULATION,
-				'inner_id': message['agent_id']})
-
-			self.remove_agent(agent_id)
+		elif message['event'] == event.REMOVE_AGENT:
+			self.remove_agent(message['agent_prefix'])

@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 import os
+import uuid
 import cPickle
 import argparse
 
@@ -136,17 +137,26 @@ class ShepherdControl(EnvironmentControl):
 		agent_id = 'shepherd_control'
 		super(ShepherdControl, self).__init__(agent_id, kafka_config)
 
-	def initialize_agent(self, agent_id, agent_type, agent_config):
+	def add_agent(self, agent_id, agent_type, agent_config):
 		self.send(self.kafka_config['shepherd_control'], {
-			'event': event.INITIALIZE_AGENT,
+			'event': event.ADD_AGENT,
 			'agent_id': agent_id,
 			'agent_type': agent_type,
 			'agent_config': agent_config})
 
+	def add_ecoli(self):
+		self.add_agent(str(uuid.uuid1()), 'ecoli', {})
+
+	def remove_agent(self, prefix):
+		""" Remove an agent given a prefix of its id """
+		self.send(self.kafka_config['shepherd_control'], {
+			'event': event.REMOVE_AGENT,
+			'agent_prefix': prefix})
+
 	def lattice_experiment(self, simulations):
-		self.initialize_agent('lattice', 'lattice', {})
+		self.add_agent('lattice', 'lattice', {})
 		for index in range(simulations):
-			self.initialize_agent(str(index), 'ecoli', {})
+			self.add_ecoli()
 
 
 def switch():
@@ -164,7 +174,7 @@ def switch():
 
 	parser.add_argument(
 		'command',
-		choices=['ecoli', 'lattice', 'shepherd', 'experiment'],
+		choices=['ecoli', 'lattice', 'shepherd', 'experiment', 'add', 'remove'],
 		help='which command to boot')
 
 	parser.add_argument(
@@ -257,6 +267,14 @@ def switch():
 		initializers['ecoli'] = initialize_ecoli
 
 		shepherd = AgentShepherd('shepherd', kafka_config, initializers)
+
+	elif args.command == 'add':
+		control = ShepherdControl(kafka_config)
+		control.add_ecoli()
+
+	elif args.command == 'remove':
+		control = ShepherdControl(kafka_config)
+		control.remove_agent(args.id)
 
 	elif args.command == 'experiment':
 		control = ShepherdControl(kafka_config)

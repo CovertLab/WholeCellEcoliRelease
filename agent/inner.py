@@ -13,6 +13,9 @@ class CellSimulation(object):
 	def initialize_local_environment(self):
 		"""Perform any setup required for tracking changes to the local environment."""
 
+	def synchronize_state(self, state):
+		"""Receive any state from the environment, like current time step."""
+
 	def set_local_environment(self, concentrations):
 		"""Ingest a dictionary of the current chemical concentrations in the
 		local environment.
