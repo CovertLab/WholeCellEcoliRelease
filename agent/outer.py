@@ -3,6 +3,44 @@ from __future__ import absolute_import, division, print_function
 import agent.event as event
 from agent.agent import Agent
 
+
+class EnvironmentSimulation(object):
+	"""Interface for the Outer agent's Environment simulation."""
+
+	def time(self):
+		"""Return the current simulation time for the environment."""
+
+	def add_simulation(self, agent_id, state):
+		"""Register an inner agent."""
+
+	def remove_simulation(self, agent_id):
+		"""Unregister an inner agent."""
+
+	def simulation_parameters(self, agent_id):
+		"""Generate any parameters a simulation may need to know about from the environment,
+		such as the current time step.
+		"""
+
+	def update_from_simulations(self, changes):
+		"""Update the environment's state of the inner agent simulations given the
+		changes dictionary mapping agent_id to dictionary of molecule counts.
+		"""
+
+	def run_simulations_until(self):
+		"""Return a dictionary of agent_id to time for each inner agent simulation to
+		run until. The environment will run until it reaches the minimum of these.
+		"""
+
+	def get_molecule_ids(self):
+		"""Return the list of molecule IDs."""
+
+	def get_concentrations(self):
+		"""Return a dictionary of agent_id to concentrations coming from the environment."""
+
+	def run_incremental(self, time):
+		"""Run the environment's own simulation until the given time."""
+
+
 class Outer(Agent):
 
 	"""
@@ -22,29 +60,24 @@ class Outer(Agent):
 
 	Inner agents may also be added and removed while the execution is running without interruption.
 
-	The interaction with the environmental simulation is mediated through an interface defined
-	by the following functions:
-
-	* environment.time()
-	    Return the current simulation time for the environment.
-
-	* environment.add_simulation(id, state)
-
-	* environment.remove_simulation(id)
-
-	* environment.update_from_simulations(changes)
-        `changes` is a dictionary of simulation ids to counts
-
-	* environment.run_simulations_until()
-	    Returns a dictionary of simulation ids to time points for each simulation to run until.
-
-	* environment.get_molecule_ids()
-
-	* environment.get_concentrations()
-	    Returns a dictionary of simulation ids to concentrations coming from the environment.
+	The context environmental simulation is an instance of EnvironmentSimulation.
 	"""
 
 	def __init__(self, agent_id, kafka_config, environment):
+		"""
+		Construct the Agent.
+
+		Args:
+			agent_id (str): Unique identifier for this agent.
+			kafka_config (dict): Kafka configuration information with the following keys:
+				`host`: the Kafka server host address.
+				`environment_control`: The topic this agent will use to listen for trigger
+					and shutdown messages.
+				`simulation_send`: The topic this agent will use to listen for simulation
+					updates from inner agents.
+			environment (EnvironmentSimulation): The actual simulation which will perform
+				the calculations.
+		"""
 		self.environment = environment
 		self.simulations = {}
 		self.shutting_down = False
@@ -64,10 +97,16 @@ class Outer(Agent):
 	def initialize_simulation(self, message):
 		agent_id = message['inner_id']
 		self.simulations[agent_id] = {
-			'time': 0,
+			'time': self.environment.time(),
 			'message_id': -1,
 			'last_message_id': -1,
 			'changes': message['changes']}
+
+		self.send(self.kafka_config['simulation_receive'], {
+			'event': event.SYNCHRONIZE_SIMULATION,
+			'inner_id': agent_id,
+			'state': self.environment.simulation_parameters(agent_id),
+		})
 
 		self.environment.add_simulation(agent_id, message['changes'])
 
@@ -81,18 +120,20 @@ class Outer(Agent):
 		concentrations = self.environment.get_concentrations()
 		run_until = self.environment.run_simulations_until()
 
-		self.update_state()
+		if run_until:
+			self.update_state()
 
-		for agent_id, simulation in self.simulations.iteritems():
-			simulation['message_id'] += 1
-			self.send(self.kafka_config['simulation_receive'], {
-				'inner_id': agent_id,
-				'message_id': simulation['message_id'],
-				'event': event.ENVIRONMENT_UPDATED,
-				'concentrations': concentrations[agent_id],
-				'run_until': run_until[agent_id]})
+			for agent_id, simulation in self.simulations.iteritems():
+				simulation['message_id'] += 1
+				self.send(self.kafka_config['simulation_receive'], {
+					'inner_id': agent_id,
+					'message_id': simulation['message_id'],
+					'event': event.ENVIRONMENT_UPDATED,
+					'concentrations': concentrations[agent_id],
+					'run_until': run_until[agent_id]})
 
-		self.environment.run_incremental(run_until[self.environment.agent_id])
+			minimum_until = min(run_until.values())
+			self.environment.run_incremental(minimum_until)
 
 	def ready_to_advance(self):
 		"""

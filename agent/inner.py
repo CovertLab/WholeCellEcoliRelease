@@ -4,56 +4,59 @@ import agent.event as event
 from agent.agent import Agent
 
 
+class CellSimulation(object):
+	"""Interface for the Inner agent's cell simulation."""
+
+	def time(self):
+		"""Return the current time according to this CellSimulation."""
+
+	def initialize_local_environment(self):
+		"""Perform any setup required for tracking changes to the local environment."""
+
+	def synchronize_state(self, state):
+		"""Receive any state from the environment, like current time step."""
+
+	def set_local_environment(self, concentrations):
+		"""Ingest a dictionary of the current chemical concentrations in the
+		local environment.
+	    """
+
+	def run_incremental(self, run_until):
+		"""Run this CellSimulation until the given time."""
+
+	def get_environment_change(self):
+		"""Return the accumulated changes to the local environment as calculated
+		by the CellSimulation during `run_incremental(run_until)`.
+		"""
+
+	def finalize(self):
+		"""Release any resources and perform any final cleanup."""
+
+
 class Inner(Agent):
 
 	"""
-	Inner: acts as an independent simulation in a larger environmental context.
+	Inner: an independent cell simulation in a larger environmental context.
 
-	This class wraps a simulation and mediates the communication between messages
-	received from the coordinating outer agent and the operation of the simulation.
-
-	The interface a simulation must provide to work inside of this class is composed
-	of the following methods:
-
-	* simulation.initialize_local_environment()
-	    Perform any setup required for tracking changes to the local environment.
-
-	* simulation.set_local_environment(concentrations)
-	    Receive a set of molecule ids to track and a dictionary containing the current
-	    current concentrations in the local environment.
-
-	* simulation.time()
-	    Return the current time according to the simulation.
-
-	* simulation.run_incremental(run_until)
-	    Run the simulation until the given time.
-
-	* simulation.get_environment_change()
-	    Return the accumulated changes to the local environment as calculated by the 
-	    simulation during `run_incremental(run_until)`.
-
-	* simulation.finalize()
-	    Release any resources and perform any final cleanup.
-
-	If this interface is fulfilled, the simulation can be an agent in the larger
-	environmental simulation. Each inner agent will be run in its own thread/process and
-	communicate with the outer agent through message passing.
+	This class wraps an instance of CellSimulation into an Agent and mediates
+	the message passing communication with the coordinating Outer agent running
+	an environmental simulation.
 	"""
 
 	def __init__(self, kafka_config, agent_id, simulation):
 		"""
-		Initialize the agent.
+		Construct the agent.
 
 		Args:
-		    kafka_config (dict): Kafka configuration information with the following keys:
-		        `host`: the Kafka host.
-		        `simulation_receive`: The topic the outer agent will be sending messages on.
-		        `simulation_send`: The topic the outer agent will be listening to for 
-		            updates from the inner agents.
-		    agent_id (string): Unique identifier for this agent.
-		        When the agent receives messages, it will filter out and respond to only 
-		        those containing its `id`.
-		    simulation (Simulation): The actual simulation which will perform the calculations.
+			kafka_config (dict): Kafka configuration information with the following keys:
+				`host`: the Kafka server host address.
+				`simulation_receive`: The topic this agent will listen to.
+				`simulation_send`: The topic this agent will use to send simulation
+					updates to the environment.
+			agent_id (str): Unique identifier for this agent.
+				This agent will only respond to messages addressed to its inner agent_id.
+			simulation (CellSimulation): The actual simulation which will perform the
+				calculations.
 		"""
 
 		self.simulation = simulation
@@ -63,7 +66,7 @@ class Inner(Agent):
 		super(Inner, self).__init__(agent_id, kafka_config)
 
 	def initialize(self):
-		""" Announce the existence of this inner agent to the outer agent. """
+		"""Initialization: Register this inner agent with the outer agent."""
 
 		self.send(self.kafka_config['simulation_send'], {
 			'event': event.SIMULATION_INITIALIZED,
@@ -115,6 +118,9 @@ class Inner(Agent):
 					'time': stop,
 					'changes': changes})
 
+			elif message['event'] == event.SYNCHRONIZE_SIMULATION:
+				self.simulation.synchronize_state(message['state'])
+
 			elif message['event'] == event.SHUTDOWN_SIMULATION:
 				self.send(self.kafka_config['simulation_send'], {
 					'event': event.SIMULATION_SHUTDOWN,
@@ -124,3 +130,4 @@ class Inner(Agent):
 
 			else:
 				print('unexpected event {}: {}'.format(message['event'], message))
+

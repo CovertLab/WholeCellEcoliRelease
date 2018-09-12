@@ -3,7 +3,11 @@ from __future__ import absolute_import, division, print_function
 import time
 import random
 
-class SimulationStub(object):
+from .inner import CellSimulation
+from .outer import EnvironmentSimulation
+
+
+class SimulationStub(CellSimulation):
 
 	"""
 	Provide a stub for the simulation.
@@ -49,7 +53,7 @@ class SimulationStub(object):
 	def finalize(self):
 		pass
 
-class EnvironmentStub(object):
+class EnvironmentStub(EnvironmentSimulation):
 
 	"""
 	Provide a stub for the environmental context.
@@ -85,8 +89,9 @@ class EnvironmentStub(object):
 
 	def run_simulations_until(self):
 		until = {}
-		for agent_id in self.simulations.keys():
-			until[agent_id] = self.time() + self.run_for
+		run_until = self.time() + self.run_for
+		for agent_id in self.simulations.iterkeys():
+			until[agent_id] = run_until
 
 		return until
 
@@ -95,7 +100,7 @@ class EnvironmentStub(object):
 
 	def get_concentrations(self):
 		concentrations = {}
-		for agent_id in self.simulations.keys():
+		for agent_id in self.simulations.iterkeys():
 			concentrations[agent_id] = self.concentrations
 
 		return concentrations

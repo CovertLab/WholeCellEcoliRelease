@@ -14,11 +14,14 @@ import time
 
 import numpy as np
 
+from agent.inner import CellSimulation
+
 from wholecell.listeners.evaluation_time import EvaluationTime
 from wholecell.utils import filepath
 
 import wholecell.loggers.shell
 import wholecell.loggers.disk
+
 
 DEFAULT_SIMULATION_KWARGS = dict(
 	seed = 0,
@@ -55,7 +58,7 @@ DEFAULT_LISTENER_CLASSES = (
 	EvaluationTime,
 	)
 
-class Simulation(object):
+class Simulation(CellSimulation):
 	""" Simulation """
 
 	# Attributes that must be set by a subclass
@@ -400,7 +403,9 @@ class Simulation(object):
 
 		return candidateTimeStep
 
-	## Agent interface
+
+	## Additional CellSimulation methods for embedding in an Agent
+
 	def initialize_local_environment(self):
 		pass
 
@@ -411,5 +416,8 @@ class Simulation(object):
 	def get_environment_change(self):
 		# sends environment a dictionary with relevant state changes
 		return {'volume': self.listeners['Mass'].volume,
-				'environment_change': self.external_states['Environment'].get_environment_change(),
-				}
+				'environment_change': self.external_states['Environment'].get_environment_change()}
+
+	def synchronize_state(self, state):
+		self._initialTime = state['time']
+		self._timeTotal = state['time']

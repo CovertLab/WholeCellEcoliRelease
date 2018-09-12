@@ -7,17 +7,20 @@ import os
 import numpy as np
 from scipy import constants
 
-in_sherlock = 'SHERLOCK' in os.environ
+animating = 'ENVIRONMENT_ANIMATION' in os.environ
 
 import matplotlib
 
 # Turn off interactive plotting when running on sherlock
-if not in_sherlock:
+if animating:
 	matplotlib.use('TKAgg')
 
 import matplotlib.pyplot as plt
 
-if not in_sherlock:
+from agent.outer import EnvironmentSimulation
+
+
+if animating:
 	plt.ion()
 	fig = plt.figure()
 
@@ -45,16 +48,14 @@ CELL_RADIUS = 0.5 # (micrometers)
 ORIENTATION_JITTER = PI/40  # (radians/s)
 LOCATION_JITTER = 0.01 # (micrometers/s)
 
-class EnvironmentSpatialLattice(object):
+class EnvironmentSpatialLattice(EnvironmentSimulation):
 	def __init__(self, concentrations):
 		self._time = 0
 		self._timestep = 1.0
 		self.run_for = 5
 
-		self.agent_id = -1
-
-		self.simulations = {}
-		self.locations = {}
+		self.simulations = {}  # map of agent_id to simulation state
+		self.locations = {}    # map of agent_id to location and orientation
 
 		self._molecule_ids = concentrations.keys()
 		self.concentrations = concentrations.values()
@@ -150,8 +151,8 @@ class EnvironmentSpatialLattice(object):
 	def output_locations(self):
 		'''plot cell locations and orientations'''
 		for agent_id, location in self.locations.iteritems():
-			y = location[0] * PATCHES_PER_EDGE / EDGE_LENGTH - 0.5
-			x = location[1] * PATCHES_PER_EDGE / EDGE_LENGTH - 0.5
+			y = location[0] * PATCHES_PER_EDGE / EDGE_LENGTH
+			x = location[1] * PATCHES_PER_EDGE / EDGE_LENGTH
 			theta = location[2]
 			volume = self.simulations[agent_id]['volume']
 
@@ -166,7 +167,7 @@ class EnvironmentSpatialLattice(object):
 			plt.plot([x-dx*9.5/20, x+dx*9.5/20], [y-dy*9.5/20, y+dy*9.5/20],
 				color='slateblue', linewidth=CELL_RADIUS/EDGE_LENGTH*450, solid_capstyle='round')
 
-		if not in_sherlock:
+		if animating:
 			plt.pause(0.0001)
 
 
@@ -214,7 +215,7 @@ class EnvironmentSpatialLattice(object):
 	def get_concentrations(self):
 		'''returns a dict with {molecule_id: conc} for each sim give its current location'''
 		concentrations = {}
-		for agent_id in self.simulations.keys():
+		for agent_id in self.simulations.iterkeys():
 			# get concentration from cell's given bin
 			location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH
 			patch_site = tuple(np.floor(location).astype(int))
@@ -236,6 +237,9 @@ class EnvironmentSpatialLattice(object):
 		self.locations[agent_id] = np.hstack((location, orientation))
 
 
+	def simulation_parameters(self, agent_id):
+		return {'time': self._time}
+
 	def remove_simulation(self, agent_id):
 		self.simulations.pop(agent_id, {})
 		self.locations.pop(agent_id, {})
@@ -244,10 +248,7 @@ class EnvironmentSpatialLattice(object):
 	def run_simulations_until(self):
 		until = {}
 		run_until = self.time() + self.run_for
-		for agent_id in self.simulations.keys():
+		for agent_id in self.simulations.iterkeys():
 			until[agent_id] = run_until
-
-		# Pass the environment a run_until
-		until[self.agent_id] = run_until
 
 		return until
