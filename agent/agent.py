@@ -113,9 +113,12 @@ class Agent(object):
 		while self.running:
 			raw = self.consumer.poll(timeout=1.0)  # timeout (in seconds) so ^C works
 
+			# calling initialize() once consumer is established so as not to miss
+			# immediate responses to initialization sends
 			if not self.initialized:
 				self.initialize()
 				self.initialized = True
+
 			if raw is None:
 				continue
 			if raw.error():
