@@ -41,7 +41,14 @@ class AgentShepherd(Agent):
 
 	def add_agent(self, agent_id, agent_type, agent_config):
 		"""
-		
+		Add a new agent for the shepherd to track.
+
+		Args:
+		    agent_id (str): Unique identifier for the new agent.
+		    agent_type (str): Specifies which type of agent to create.
+		        Must be one of the keys of this shepherd's `initializers` dictionary.
+		    agent_config (dict): Any parameters the agent needs for initialization. This
+		        dictionary will be passed to the initializer on invocation along with the agent_id.
 		"""
 
 		initializer = self.agent_initializers.get(agent_type, None)
@@ -56,6 +63,15 @@ class AgentShepherd(Agent):
 			print('agent initializer not found for {}'.format(agent_type))
 
 	def remove_agent(self, agent_prefix):
+		"""
+		Remove an agent from the pool given a prefix of its id.
+
+		Args:
+		    agent_prefix (str): This prefix will match all agent ids that begin with the
+		        given string. This way you don't need to type a whole uuid, and can even remove
+		        multiple agents at once if their ids are logically grouped by prefix.
+		"""
+
 		removing = filter(lambda key: key.startswith(agent_prefix), self.agents.iterkeys())
 		print('removing agents {}'.format(removing))
 
@@ -75,6 +91,11 @@ class AgentShepherd(Agent):
 		return removed
 
 	def receive(self, topic, message):
+		"""
+		This agent receives two events: ADD_AGENT and REMOVE_AGENT, who's message contents
+		match the arguments to the functions above.
+		"""
+
 		print('--> {}: {}'.format(topic, message))
 
 		if message['event'] == event.ADD_AGENT:
