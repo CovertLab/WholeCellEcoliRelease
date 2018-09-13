@@ -174,7 +174,15 @@ def switch():
 
 	parser.add_argument(
 		'command',
-		choices=['ecoli', 'lattice', 'shepherd', 'experiment', 'add', 'remove'],
+		choices=[
+			'ecoli',
+			'lattice',
+			'shepherd',
+			'experiment',
+			'add',
+			'remove',
+			'trigger',
+			'shutdown'],
 		help='which command to boot')
 
 	parser.add_argument(
@@ -248,6 +256,20 @@ def switch():
 		BootEcoli(args.id, {
 			'kafka_config': kafka_config,
 			'working_dir': args.working_dir})
+
+	elif args.command == 'trigger':
+		control = EnvironmentControl('environment_control', kafka_config)
+		control.trigger_execution()
+		control.shutdown()
+
+	elif args.command == 'shutdown':
+		control = EnvironmentControl('environment_control', kafka_config)
+
+		if not args.id:
+			control.shutdown_environment()
+		else:
+			control.shutdown_simulation(args.id)
+		control.shutdown()
 
 	elif args.command == 'shepherd':
 		initializers = {}
