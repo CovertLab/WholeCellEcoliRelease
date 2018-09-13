@@ -8,11 +8,7 @@ Transcription initiation sub-model.
 TODO:
 - use transcription units instead of single genes
 - match sigma factors to promoters
-- implement transcriptional regulation
-- modulate initiation probabilities as a function of gene copy number
-- match measured levels of active RNA polymerase instead of initiating to completion
 
-@author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 4/26/14
 """
@@ -81,8 +77,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.isTRna = sim_data.process.transcription.rnaData["isTRna"]
 		self.isRProtein = sim_data.process.transcription.rnaData['isRProtein']
 		self.isRnap = sim_data.process.transcription.rnaData['isRnap']
-		self.isRegulated = np.array([1 if x[:-3] in sim_data.process.transcription_regulation.targetTf or x in perturbations else 0 for x in sim_data.process.transcription.rnaData["id"]], dtype = np.bool)
-		self.setIdxs = self.isRRna | self.isTRna | self.isRProtein | self.isRnap | self.isRegulated
+		self.setIdxs = self.isRRna | self.isTRna | self.isRProtein | self.isRnap
 
 		# Synthesis probabilities for different categories of genes
 		self.rnaSynthProbFractions = sim_data.process.transcription.rnaSynthProbFraction
@@ -97,7 +92,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.rnaSynthProb = self.recruitmentMatrix.dot(self.recruitmentView.total())
 		if len(self.genetic_perturbations) > 0:
 			self.rnaSynthProb[self.genetic_perturbations["fixedRnaIdxs"]] = self.genetic_perturbations["fixedSynthProbs"]
-		regProbs = self.rnaSynthProb[self.isRegulated]
 
 		# Adjust probabilities to not be negative
 		self.rnaSynthProb[self.rnaSynthProb < 0] = 0.0
@@ -112,7 +106,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.rnaSynthProb[self.isMRna] *= synthProbFractions["mRna"] / self.rnaSynthProb[self.isMRna].sum()
 		self.rnaSynthProb[self.isTRna] *= synthProbFractions["tRna"] / self.rnaSynthProb[self.isTRna].sum()
 		self.rnaSynthProb[self.isRRna] *= synthProbFractions["rRna"] / self.rnaSynthProb[self.isRRna].sum()
-		self.rnaSynthProb[self.isRegulated] = regProbs
 		self.rnaSynthProb[self.isRProtein] = self.rnaSynthProbRProtein[current_nutrients]
 		self.rnaSynthProb[self.isRnap] = self.rnaSynthProbRnaPolymerase[current_nutrients]
 		self.rnaSynthProb[self.rnaSynthProb < 0] = 0
@@ -172,7 +165,9 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.writeToListener("RnapData", "rnaInitEvent", nNewRnas)
 
 	def _calculateActivationProb(self, fracActiveRnap, rnaLengths, rnaPolymeraseElongationRate, synthProb):
-		''' Calculate expected RNAP termination rate based on RNAP elongation rate
+		'''
+		Calculates expected RNAP termination rate based on RNAP elongation rate
+
 		allTranscriptionTimes: Vector of times required to transcribe each transcript
 		allTranscriptionTimestepCounts: Vector of numbers of timesteps required to transcribe each transcript
 		averageTranscriptionTimeStepCounts: Average number of timesteps required to transcribe a transcript, weighted by synthesis probabilities
