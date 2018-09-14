@@ -14,12 +14,13 @@ flags when done. It should work fine to nest `with detect_leaks(False)` for a
 block of code inside `with detect_leaks(True)`.
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 from contextlib import contextmanager
 import gc
 import os
+import sys
+import traceback
 
 
 # See https://pymotw.com/2/gc/ for more info on using the gc interface.
@@ -59,7 +60,10 @@ def detect_leaks(enabled=None):
 	yield  # yield to the `with` statement body
 
 	if enabled:
-		gc.collect()  # prints lines like "gc: uncollectable <CleanupGraph 0x10045f810>"
-		# Examine the gc.garbage list here?
+		if gc.collect():  # prints lines like "gc: uncollectable <CleanupGraph 0x10045f810>"
+			# Print some stack trace to show where the uncollectables were found
+			print('gc uncollectables detected in:', file=sys.stderr)
+			traceback.print_stack(limit=3)
+			# Examine the gc.garbage list here?
 
 	gc.set_debug(saved_debug_flags)

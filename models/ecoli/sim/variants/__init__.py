@@ -17,9 +17,6 @@ from models.ecoli.sim.variants.starvation_variant import starvationVariantTotalI
 from models.ecoli.sim.variants.metabolism_target_range import metabolismTargetRange
 from models.ecoli.sim.variants.metabolism_target_range import metabolismTargetRangeTotalIndices
 
-from models.ecoli.sim.variants.growth_rate import growthRate
-from models.ecoli.sim.variants.growth_rate import growthRateTotalIndices
-
 from models.ecoli.sim.variants.nutrientTimeSeries import nutrientTimeSeries
 from models.ecoli.sim.variants.nutrientTimeSeries import nutrientTimeSeriesTotalIndices
 
@@ -74,7 +71,6 @@ nameToFunctionMapping = {
 	"timeStep": timeStep,
 	"starvationVariant": starvationVariant,
 	"metabolismTargetRange":metabolismTargetRange,
-	"growthRate": growthRate,
 	"scalingFactor": scalingFactor,
 	"nutrientTimeSeries": nutrientTimeSeries,
 	"tfActivity": tfActivity,
@@ -99,7 +95,6 @@ nameToNumIndicesMapping = {
 	"timeStep": timeStepTotalIndices,
 	"starvationVariant": starvationVariantTotalIndices,
 	"metabolismTargetRangeTotalIndices":metabolismTargetRangeTotalIndices,
-	"growthRate": growthRateTotalIndices,
 	"scalingFactor": scalingFactorTotalIndices,
 	"nutrientTimeSeries": nutrientTimeSeriesTotalIndices,
 	"tfActivity": tfActivityTotalIndices,
