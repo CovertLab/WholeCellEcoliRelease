@@ -2,11 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 import errno
 import os
-<<<<<<< HEAD
 import uuid
-import cPickle
-=======
->>>>>>> 746bf4551aa37390603b2a7e7b4796e25529325e
 import argparse
 
 import agent.event as event
@@ -82,12 +78,8 @@ class BootEcoli(object):
 	This class initializes an EcoliSimulation, passes it to the `Inner` agent, and launches the simulation.
 	The EcoliSimulation is initialized by passing it a pathname to sim_data, along with simulation parameters.
 	'''
-<<<<<<< HEAD
-	def __init__(self, agent_id, agent_config):
-=======
-	def __init__(self, agent_id, kafka_config, working_dir,
+	def __init__(self, agent_id, agent_config,
 			variant_type='wildtype', variant_index=0, seed=0):
->>>>>>> 746bf4551aa37390603b2a7e7b4796e25529325e
 		self.agent_id = agent_id
 		kafka_config = agent_config['kafka_config']
 		working_dir = agent_config['working_dir']
@@ -296,7 +288,9 @@ def switch():
 			raise ValueError('the "ecoli" command needs an --id argument')
 
 		BootEcoli(
-			args.id, kafka_config, args.working_dir,
+			args.id,
+			{'kafka_config': kafka_config,
+			 'working_dir': args.working_dir},
 			variant_type=args.variant, variant_index=args.index, seed=args.seed)
 
 	elif args.command == 'trigger':
