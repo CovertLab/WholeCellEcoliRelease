@@ -12,7 +12,7 @@ def starvationVariant(sim_data, index):
 	# Vary code turning on and off for simulation
 
 	if index == 0:
-		return CONTROL_OUTPUT
+		return CONTROL_OUTPUT, sim_data
 	elif index == 1:
 		sim_data.translationSaturation = True
 	elif index == 2:
@@ -34,4 +34,4 @@ def starvationVariant(sim_data, index):
 	return dict(
 		shortName = "glc={},transSat={}".format(sim_data.glucoseLimitation, sim_data.translationSaturation),
 		desc = "glucoseLimitation={},by {},translationSaturation={}, f={}".format(sim_data.glucoseLimitation, sim_data.fractionGlucoseLimit, sim_data.translationSaturation, sim_data.synthetase_km_scale)
-		)
+		), sim_data

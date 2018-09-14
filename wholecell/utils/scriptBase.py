@@ -100,17 +100,6 @@ class ScriptBase(object):
 		"""
 		return 'Run {}.'.format(self.description())
 
-	def timestamp(self, dt=None):
-		"""Construct a datetime-timestamp from `dt`; default = now()."""
-		if not dt:
-			dt = datetime.datetime.now()
-
-		# TODO: Simplify to `format(datetime_value, '%Y%m%d.%H%M%S.%f')`?
-		return "%04d%02d%02d.%02d%02d%02d.%06d" % (
-			dt.year, dt.month, dt.day,
-			dt.hour, dt.minute, dt.second,
-			dt.microsecond)
-
 	def list_variant_dirs(self, sim_path):
 		"""List the available variant subdirectories of the given sim_path,
 		in alphabetical order,

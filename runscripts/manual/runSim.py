@@ -12,7 +12,6 @@ Set PYTHONPATH when running this.
 from __future__ import absolute_import
 from __future__ import division
 
-import cPickle
 import errno
 import os
 
@@ -115,11 +114,10 @@ class RunSimulation(scriptBase.ScriptBase):
 
 		# Write the metadata file.
 		metadata = {
-			"git_hash":           fp.run_cmd(line="git rev-parse HEAD"),
-			"git_branch":         fp.run_cmd(line="git symbolic-ref --short HEAD"),
-			# "git_diff":           fp.run_cmd(line="git diff"),
+			"git_hash":           fp.run_cmdline("git rev-parse HEAD"),
+			"git_branch":         fp.run_cmdline("git symbolic-ref --short HEAD"),
 			"description":        "a manual run",
-			"time":               self.timestamp(),
+			"time":               fp.timestamp(),
 			"total_gens":         1,
 			"analysis_type":      None,
 			"variant":            variant_type,
@@ -129,12 +127,8 @@ class RunSimulation(scriptBase.ScriptBase):
 			"translation_supply": args.translation_supply,
 			}
 		metadata_dir = fp.makedirs(args.sim_path, 'metadata')
-		metadata_path = os.path.join(metadata_dir, constants.SERIALIZED_METADATA_FILE)
-		with open(metadata_path, "wb") as f:
-			cPickle.dump(metadata, f, cPickle.HIGHEST_PROTOCOL)
-
-		# TODO(jerry) Also write the redundant individual metadata_dir/key files?
-		# If we want text metadata, just write metadata in Pickle protocol 0 or JSON.
+		metadata_path = os.path.join(metadata_dir, constants.JSON_METADATA_FILE)
+		fp.write_json_file(metadata_path, metadata)
 
 
 		# Set up variant, seed, and generation directories.
