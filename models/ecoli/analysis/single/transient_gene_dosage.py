@@ -21,10 +21,11 @@ from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import filepath
 
-RNA_ID_LIST = ['RRFA-RRNA', 'alaU-tRNA', 'EG10375_RNA',
-	'EG11586_RNA', 'EG11315_RNA', 'G7559_RNA', 'G7432_RNA',
-	'RNA0-126', 'G7179_RNA', 'EG11981_RNA', 'G6985_RNA',
-	'EG11744_RNA']
+RNA_ID_LIST = ['RRFA-RRNA', # rRNA
+	'alaU-tRNA', # tRNA
+	'EG10375_RNA', 'EG11586_RNA', 'EG11315_RNA',
+	'G7559_RNA', 'G7432_RNA', 'RNA0-126', 'G7179_RNA',
+	'EG11981_RNA', 'G6985_RNA', 'EG11744_RNA'] # mRNAs, with different positions
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
@@ -78,7 +79,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			ax1 = plt.subplot(gs[i, 0])
 			ax1.set_xlabel("Time [s]")
 			ax1.set_ylabel("Gene dosage (copy number)")
-			ax1.set_ylim([0, 8])
+			ax1.set_ylim([0, 10])
 			ax1.set_title("%s, position = %.2f" % (rna_id, rna_pos))
 			ax1.plot(time, gene_dosages[:, i], color='b')
 
