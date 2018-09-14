@@ -137,6 +137,7 @@ class ShepherdControl(EnvironmentControl):
 		agent_id = 'shepherd_control'
 		super(ShepherdControl, self).__init__(agent_id, kafka_config)
 
+	# TODO (Ryan): set this up to send messages to a particular shepherd.
 	def add_agent(self, agent_id, agent_type, agent_config):
 		self.send(self.kafka_config['shepherd_control'], {
 			'event': event.ADD_AGENT,
@@ -164,10 +165,6 @@ def switch():
 	Parse the arguments for the command line interface to the simulation and launch the
 	respective commands.
 	"""
-
-	# TODO (eran) share argparse code with agent/boot.py
-	# One way to do that is via a base class similar to ScriptBase.py or shared subroutines.
-	# another way is argparse.ArgumentParser(parents=[parent_parser]): https://docs.python.org/2/library/argparse.html?highlight=argparse#parents
 
 	parser = argparse.ArgumentParser(
 		description='Run the agents for the environmental context simulation')
@@ -204,7 +201,7 @@ def switch():
 		'--number',
 		type=int,
 		default=3,
-		help='number of agents to spawn in lattice experiment')
+		help='number of cell agents to spawn in lattice experiment')
 
 	parser.add_argument(
 		'--environment-control',

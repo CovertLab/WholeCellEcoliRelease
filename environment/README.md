@@ -55,11 +55,11 @@ You will see a message sent from the newly initialized simulation on the `enviro
 
 6. Finally, use the agent module to trigger the environmental simulation in a separate "command" tab:
 
-   `> python -m agent.boot trigger`
+   `> python -m environment.boot trigger`
 
 7. To stop the simulation, run `shutdown` in the command tab:
 
-   `> python -m agent.boot shutdown`
+   `> python -m environment.boot shutdown`
 
 ## Agent Shepherd
 
