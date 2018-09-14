@@ -237,6 +237,9 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		self.locations[agent_id] = np.hstack((location, orientation))
 
 
+	def simulation_parameters(self, agent_id):
+		return {'time': self._time}
+
 	def remove_simulation(self, agent_id):
 		self.simulations.pop(agent_id, {})
 		self.locations.pop(agent_id, {})

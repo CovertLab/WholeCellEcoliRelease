@@ -67,15 +67,18 @@ class EnvironmentControl(Agent):
 	then terminate).
 	"""
 
-	def __init__(self, kafka_config=None):
+	def __init__(self, agent_id, kafka_config=None):
 		if kafka_config is None:
 			kafka_config = DEFAULT_KAFKA_CONFIG.copy()
-		agent_id = 'environment_control'
 		super(EnvironmentControl, self).__init__(agent_id, kafka_config)
 
 	def trigger_execution(self):
 		self.send(self.kafka_config['environment_control'], {
 			'event': event.TRIGGER_EXECUTION})
+
+	def pause_execution(self):
+		self.send(self.kafka_config['environment_control'], {
+			'event': event.PAUSE_ENVIRONMENT})
 
 	def shutdown_environment(self):
 		self.send(self.kafka_config['environment_control'], {
@@ -97,7 +100,7 @@ def main():
 
 	parser.add_argument(
 		'command',
-		choices=['inner', 'outer', 'trigger', 'shutdown'],
+		choices=['inner', 'outer', 'trigger', 'pause', 'shutdown'],
 		help='which command to boot')
 
 	parser.add_argument(
@@ -148,12 +151,17 @@ def main():
 		BootOuter(kafka_config)
 
 	elif args.command == 'trigger':
-		control = EnvironmentControl(kafka_config)
+		control = EnvironmentControl('environment_control', kafka_config)
 		control.trigger_execution()
 		control.shutdown()
 
+	elif args.command == 'pause':
+		control = EnvironmentControl('environment_control', kafka_config)
+		control.pause_execution()
+		control.shutdown()
+
 	elif args.command == 'shutdown':
-		control = EnvironmentControl(kafka_config)
+		control = EnvironmentControl('environment_control', kafka_config)
 
 		if not args.id:
 			control.shutdown_environment()

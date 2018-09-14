@@ -16,6 +16,12 @@ class EnvironmentSimulation(object):
 	def remove_simulation(self, agent_id):
 		"""Unregister an inner agent."""
 
+	def simulation_parameters(self, agent_id):
+		"""Generate any parameters a simulation may need to know about from the environment,
+		such as the current time step.
+		"""
+		return {}
+
 	def update_from_simulations(self, changes):
 		"""Update the environment's state of the inner agent simulations given the
 		changes dictionary mapping agent_id to dictionary of molecule counts.
@@ -75,6 +81,7 @@ class Outer(Agent):
 		"""
 		self.environment = environment
 		self.simulations = {}
+		self.paused = True
 		self.shutting_down = False
 
 		kafka_config['subscribe_topics'] = [
@@ -92,10 +99,16 @@ class Outer(Agent):
 	def initialize_simulation(self, message):
 		agent_id = message['inner_id']
 		self.simulations[agent_id] = {
-			'time': 0,
+			'time': self.environment.time(),
 			'message_id': -1,
 			'last_message_id': -1,
 			'changes': message['changes']}
+
+		self.send(self.kafka_config['simulation_receive'], {
+			'event': event.SYNCHRONIZE_SIMULATION,
+			'inner_id': agent_id,
+			'state': self.environment.simulation_parameters(agent_id),
+		})
 
 		self.environment.add_simulation(agent_id, message['changes'])
 
@@ -138,6 +151,15 @@ class Outer(Agent):
 				break
 
 		return ready
+
+	def advance(self):
+		if not self.paused and self.ready_to_advance():
+			if self.shutting_down:
+				self.send_shutdown()
+			else:
+				changes = self.simulation_changes()
+				self.environment.update_from_simulations(changes)
+				self.send_concentrations()
 
 	def simulation_changes(self):
 		return {
@@ -182,7 +204,8 @@ class Outer(Agent):
 			self.initialize_simulation(message)
 
 		elif message['event'] == event.TRIGGER_EXECUTION:
-			self.send_concentrations()
+			self.paused = False
+			self.advance()
 
 		elif message['event'] == event.SIMULATION_ENVIRONMENT:
 			if message['inner_id'] in self.simulations:
@@ -193,13 +216,10 @@ class Outer(Agent):
 					simulation['time'] = message['time']
 					simulation['last_message_id'] = message['message_id']
 
-					if self.ready_to_advance():
-						if self.shutting_down:
-							self.send_shutdown()
-						else:
-							changes = self.simulation_changes()
-							self.environment.update_from_simulations(changes)
-							self.send_concentrations()
+					self.advance()
+
+		elif message['event'] == event.PAUSE_ENVIRONMENT:
+			self.paused = True
 
 		elif message['event'] == event.SHUTDOWN_ENVIRONMENT:
 			if len(self.simulations) > 0:
