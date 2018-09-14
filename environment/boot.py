@@ -182,6 +182,7 @@ def switch():
 			'add',
 			'remove',
 			'trigger',
+			'pause',
 			'shutdown'],
 		help='which command to boot')
 
@@ -262,6 +263,11 @@ def switch():
 		control.trigger_execution()
 		control.shutdown()
 
+	elif args.command == 'pause':
+		control = EnvironmentControl('environment_control', kafka_config)
+		control.pause_execution()
+		control.shutdown()
+
 	elif args.command == 'shutdown':
 		control = EnvironmentControl('environment_control', kafka_config)
 
@@ -293,14 +299,17 @@ def switch():
 	elif args.command == 'add':
 		control = ShepherdControl(kafka_config)
 		control.add_ecoli()
+		control.shutdown()
 
 	elif args.command == 'remove':
 		control = ShepherdControl(kafka_config)
 		control.remove_agent(args.id)
+		control.shutdown()
 
 	elif args.command == 'experiment':
 		control = ShepherdControl(kafka_config)
 		control.lattice_experiment(args.number)
+		control.shutdown()
 
 if __name__ == '__main__':
 	switch()

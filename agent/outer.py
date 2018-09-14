@@ -20,6 +20,7 @@ class EnvironmentSimulation(object):
 		"""Generate any parameters a simulation may need to know about from the environment,
 		such as the current time step.
 		"""
+		return {}
 
 	def update_from_simulations(self, changes):
 		"""Update the environment's state of the inner agent simulations given the
@@ -80,6 +81,7 @@ class Outer(Agent):
 		"""
 		self.environment = environment
 		self.simulations = {}
+		self.paused = True
 		self.shutting_down = False
 
 		kafka_config['subscribe_topics'] = [
@@ -150,6 +152,15 @@ class Outer(Agent):
 
 		return ready
 
+	def advance(self):
+		if not self.paused and self.ready_to_advance():
+			if self.shutting_down:
+				self.send_shutdown()
+			else:
+				changes = self.simulation_changes()
+				self.environment.update_from_simulations(changes)
+				self.send_concentrations()
+
 	def simulation_changes(self):
 		return {
 			agent_id: simulation['changes']
@@ -193,7 +204,8 @@ class Outer(Agent):
 			self.initialize_simulation(message)
 
 		elif message['event'] == event.TRIGGER_EXECUTION:
-			self.send_concentrations()
+			self.paused = False
+			self.advance()
 
 		elif message['event'] == event.SIMULATION_ENVIRONMENT:
 			if message['inner_id'] in self.simulations:
@@ -204,13 +216,10 @@ class Outer(Agent):
 					simulation['time'] = message['time']
 					simulation['last_message_id'] = message['message_id']
 
-					if self.ready_to_advance():
-						if self.shutting_down:
-							self.send_shutdown()
-						else:
-							changes = self.simulation_changes()
-							self.environment.update_from_simulations(changes)
-							self.send_concentrations()
+					self.advance()
+
+		elif message['event'] == event.PAUSE_ENVIRONMENT:
+			self.paused = True
 
 		elif message['event'] == event.SHUTDOWN_ENVIRONMENT:
 			if len(self.simulations) > 0:

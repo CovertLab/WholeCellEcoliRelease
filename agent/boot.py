@@ -76,6 +76,10 @@ class EnvironmentControl(Agent):
 		self.send(self.kafka_config['environment_control'], {
 			'event': event.TRIGGER_EXECUTION})
 
+	def pause_execution(self):
+		self.send(self.kafka_config['environment_control'], {
+			'event': event.PAUSE_ENVIRONMENT})
+
 	def shutdown_environment(self):
 		self.send(self.kafka_config['environment_control'], {
 			'event': event.SHUTDOWN_ENVIRONMENT})
@@ -96,7 +100,7 @@ def main():
 
 	parser.add_argument(
 		'command',
-		choices=['inner', 'outer', 'trigger', 'shutdown'],
+		choices=['inner', 'outer', 'trigger', 'pause', 'shutdown'],
 		help='which command to boot')
 
 	parser.add_argument(
@@ -149,6 +153,11 @@ def main():
 	elif args.command == 'trigger':
 		control = EnvironmentControl('environment_control', kafka_config)
 		control.trigger_execution()
+		control.shutdown()
+
+	elif args.command == 'pause':
+		control = EnvironmentControl('environment_control', kafka_config)
+		control.pause_execution()
 		control.shutdown()
 
 	elif args.command == 'shutdown':
