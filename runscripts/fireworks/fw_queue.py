@@ -91,9 +91,7 @@ from wholecell.utils import constants
 from wholecell.utils import filepath
 import yaml
 import os
-import datetime
 import collections
-import cPickle
 
 
 #### Initial setup ###
@@ -158,11 +156,7 @@ else:
 	analysis_cpus = 1
 	analysis_q_cpus = {}
 
-now = datetime.datetime.now()
-SUBMISSION_TIME = "%04d%02d%02d.%02d%02d%02d.%06d" % (
-	now.year, now.month, now.day,
-	now.hour, now.minute, now.second,
-	now.microsecond)
+SUBMISSION_TIME = filepath.timestamp()
 INDIV_OUT_DIRECTORY = filepath.makedirs(OUT_DIRECTORY, SUBMISSION_TIME + "__" + SIM_DESCRIPTION)
 KB_DIRECTORY = filepath.makedirs(INDIV_OUT_DIRECTORY, "kb")
 METADATA_DIRECTORY = filepath.makedirs(INDIV_OUT_DIRECTORY, "metadata")
@@ -192,12 +186,11 @@ for i in VARIANTS_TO_RUN:
 
 ### Write metadata
 metadata = {
-	"git_hash": filepath.run_cmd(line="git rev-parse HEAD"),
-	"git_branch": filepath.run_cmd(line="git symbolic-ref --short HEAD"),
-	"git_diff": filepath.run_cmd(line="git diff"),
+	"git_hash": filepath.run_cmdline("git rev-parse HEAD"),
+	"git_branch": filepath.run_cmdline("git symbolic-ref --short HEAD"),
 	"description": os.environ.get("DESC", ""),
 	"time": SUBMISSION_TIME,
-	"total_gens": str(N_GENS),
+	"total_gens": N_GENS,
 	"analysis_type": None,
 	"variant": VARIANT,
 	"mass_distribution": MASS_DISTRIBUTION,
@@ -206,13 +199,11 @@ metadata = {
 	"translation_supply": TRANSLATION_SUPPLY,
 	}
 
-for key, value in metadata.iteritems():
-	if not isinstance(value, basestring):
-		continue
-	filepath.write_file(os.path.join(METADATA_DIRECTORY, key), value)
+metadata_path = os.path.join(METADATA_DIRECTORY, constants.JSON_METADATA_FILE)
+filepath.write_json_file(metadata_path, metadata)
 
-with open(os.path.join(METADATA_DIRECTORY, constants.SERIALIZED_METADATA_FILE), "wb") as f:
-	cPickle.dump(metadata, f, cPickle.HIGHEST_PROTOCOL)
+git_diff = filepath.run_cmdline("git diff", trim=False)
+filepath.write_file(os.path.join(METADATA_DIRECTORY, "git_diff"), git_diff)
 
 #### Create workflow
 

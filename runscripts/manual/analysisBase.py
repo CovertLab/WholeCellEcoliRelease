@@ -8,11 +8,10 @@ Set PYTHONPATH when running this.
 from __future__ import absolute_import
 from __future__ import division
 
-import cPickle
 import os
 import sys
 
-from wholecell.utils import constants, scriptBase, parallelization
+from wholecell.utils import constants, scriptBase, parallelization, filepath
 
 
 class AnalysisBase(scriptBase.ScriptBase):
@@ -66,7 +65,7 @@ class AnalysisBase(scriptBase.ScriptBase):
 		"""Parse the command line args into an `argparse.Namespace`, including
 		the `sim_dir` and `sim_path` args; sanitize args.plot; attach the
 		`args.input_validation_data` path, the `args.metadata_path` path
-		"<sim_path>/metadata/metadata.cPickle", and the `args.metadata` dict
+		"<sim_path>/metadata/metadata.json", and the `args.metadata` dict
 		loaded from `metadata_path`. If the superclass set `args.variant_dir`,
 		also set `args.variant_dir_name` and metadata fields `variant_function`
 		and `variant_index`.
@@ -84,9 +83,8 @@ class AnalysisBase(scriptBase.ScriptBase):
 			args.sim_path, 'kb', constants.SERIALIZED_VALIDATION_DATA)
 
 		args.metadata_path = os.path.join(
-			args.sim_path, 'metadata', constants.SERIALIZED_METADATA_FILE)
-		with open(args.metadata_path) as f:
-			args.metadata = cPickle.load(f)
+			args.sim_path, 'metadata', constants.JSON_METADATA_FILE)
+		args.metadata = filepath.read_json_file(args.metadata_path)
 
 		if 'variant_dir' in args:
 			args.variant_dir_name, variant_type, variant_index = args.variant_dir
