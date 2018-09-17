@@ -20,7 +20,7 @@ from models.ecoli.sim.simulation import EcoliSimulation
 
 from wholecell.utils import constants
 import wholecell.utils.filepath as fp
-from models.ecoli.sim.variants import variant
+from models.ecoli.sim.variants import apply_variant
 
 
 
@@ -93,7 +93,7 @@ class BootEcoli(object):
 				'Missing "{}".  Run the Fitter?'.format(sim_data_fit))
 
 		# Apply the variant to transform simData_Most_Fit.cPickle
-		info, sim_data = variant.apply_variant(
+		info, sim_data = apply_variant.apply_variant(
 			sim_data_file=sim_data_fit,
 			variant_type=variant_type,
 			variant_index=variant_index

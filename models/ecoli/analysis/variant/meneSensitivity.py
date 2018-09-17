@@ -39,7 +39,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		# Get cells
 		ap = AnalysisPaths(inputDir, variant_plot = True)
 		if ap.n_variant != 9:
-			print "This plot expects all variants of meneParams"
+			print "This plot expects all variants of mene_params"
 			return
 
 		# Get constants from wildtype variant

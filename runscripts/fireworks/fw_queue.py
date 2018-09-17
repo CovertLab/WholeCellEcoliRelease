@@ -72,7 +72,12 @@ Environment variables that matter when running the workflow:
 	DEBUG_GC (int, "0"): if nonzero, enable leak detection in the analysis plots
 '''
 
+import collections
+import os
+
+import yaml
 from fireworks import Firework, LaunchPad, Workflow, ScriptTask
+
 from wholecell.fireworks.firetasks import InitRawDataTask
 from wholecell.fireworks.firetasks import InitRawValidationDataTask
 from wholecell.fireworks.firetasks import InitValidationDataTask
@@ -86,26 +91,17 @@ from wholecell.fireworks.firetasks import AnalysisCohortTask
 from wholecell.fireworks.firetasks import AnalysisSingleTask
 from wholecell.fireworks.firetasks import AnalysisMultiGenTask
 from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
-
 from wholecell.utils import constants
 from wholecell.utils import filepath
-import yaml
-import os
-import collections
 
 
 #### Initial setup ###
-
 
 ### Set variant variables
 
 VARIANT = os.environ.get("VARIANT", "wildtype")
 FIRST_VARIANT_INDEX = int(os.environ.get("FIRST_VARIANT_INDEX", "0"))
 LAST_VARIANT_INDEX = int(os.environ.get("LAST_VARIANT_INDEX", "0"))
-
-if LAST_VARIANT_INDEX == -1:
-	from models.ecoli.sim.variants import nameToNumIndicesMapping
-	LAST_VARIANT_INDEX = nameToNumIndicesMapping[VARIANT]
 
 # This variable gets iterated over in multiple places
 # So be careful if you change it to xrange
