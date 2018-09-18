@@ -21,8 +21,10 @@ from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import filepath
 
-RNA_ID_LIST = ['RRFA-RRNA', # rRNA
+RNA_ID_LIST = ['RRFA-RRNA', 'RRLA-RRNA', 'RRSA-RRNA', # rRNAs
 	'alaU-tRNA', # tRNA
+	'EG10864_RNA', # ribosomal protein
+	'EG10893_RNA', # RNA polymerase
 	'EG10375_RNA', 'EG11586_RNA', 'EG11315_RNA',
 	'G7559_RNA', 'G7432_RNA', 'RNA0-126', 'G7179_RNA',
 	'EG11981_RNA', 'G6985_RNA', 'EG11744_RNA'] # mRNAs, with different positions
