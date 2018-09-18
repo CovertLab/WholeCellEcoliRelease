@@ -200,7 +200,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		run_until = np.sort([state['time'] for state in self.simulations.values()])
 		now = run_until[0]
 		later = run_until[run_until > now]
-		next_until = later[0] if later.size > 0 else self._time + self.run_for
+		next_until = later[0] if later.size > 0 else self.time() + self.run_for
 
 		for agent_id, state in self.simulations.iteritems():
 			if state['time'] == now:
@@ -212,7 +212,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 					index = self.molecule_index[molecule]
 					self.lattice[index, patch_site[0], patch_site[1]] += concentration
 
-		return next_until
+		return (now, next_until)
 
 	def get_molecule_ids(self):
 		''' Return the ids of all molecule species in the environment '''

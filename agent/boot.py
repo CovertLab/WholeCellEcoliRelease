@@ -72,22 +72,20 @@ class EnvironmentControl(Agent):
 			kafka_config = DEFAULT_KAFKA_CONFIG.copy()
 		super(EnvironmentControl, self).__init__(agent_id, kafka_config)
 
-	def trigger_execution(self):
+	def trigger_execution(self, agent_id):
 		self.send(self.kafka_config['environment_control'], {
-			'event': event.TRIGGER_EXECUTION})
+			'event': event.TRIGGER_EXECUTION,
+			'agent_id': agent_id})
 
 	def pause_execution(self):
 		self.send(self.kafka_config['environment_control'], {
-			'event': event.PAUSE_ENVIRONMENT})
+			'event': event.PAUSE_ENVIRONMENT,
+			'agent_id': agent_id})
 
-	def shutdown_environment(self):
-		self.send(self.kafka_config['environment_control'], {
-			'event': event.SHUTDOWN_ENVIRONMENT})
-
-	def shutdown_simulation(self, agent_id):
-		self.send(self.kafka_config['simulation_receive'], {
-			'event': event.SHUTDOWN_SIMULATION,
-			'inner_id': agent_id})
+	def shutdown_agent(self):
+		self.send(self.kafka_config['agent_receive'], {
+			'event': event.SHUTDOWN_AGENT,
+			'agent_id': agent_id})
 
 def main():
 	"""

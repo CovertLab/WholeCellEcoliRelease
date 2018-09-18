@@ -116,24 +116,22 @@ class Outer(Agent):
 		""" Called before each simulation is updated with the current state of the system. """
 		pass
 
-	def send_concentrations(self):
+	def send_concentrations(self, run_until):
 		""" Send updated concentrations to each inner agent. """
 
 		concentrations = self.environment.get_concentrations()
-		run_until = self.environment.run_simulations_until()
+		
+		self.update_state()
 
-		if run_until:
-			self.update_state()
-
-			for inner_id, simulation in self.simulations.iteritems():
-				simulation['message_id'] += 1
-				self.send(self.kafka_config['simulation_receive'], {
-					'outer_id': self.agent_id,
-					'inner_id': inner_id,
-					'message_id': simulation['message_id'],
-					'event': event.ENVIRONMENT_UPDATED,
-					'concentrations': concentrations[inner_id],
-					'run_until': run_until[inner_id]})
+		for inner_id, simulation in self.simulations.iteritems():
+			simulation['message_id'] += 1
+			self.send(self.kafka_config['simulation_receive'], {
+				'outer_id': self.agent_id,
+				'inner_id': inner_id,
+				'message_id': simulation['message_id'],
+				'event': event.ENVIRONMENT_UPDATED,
+				'concentrations': concentrations[inner_id],
+				'run_until': run_until})
 
 	def ready_to_advance(self):
 		"""
@@ -156,15 +154,9 @@ class Outer(Agent):
 				self.send_shutdown()
 			else:
 				update = self.simulation_update()
-				run_until = self.environment.update_from_simulations(update)
-				run_until = [
-					simulation['state']['time']
-					for inner_id, simulation in self.simulations.iteritems()]
-
-				minimum_until = min(run_until)
-				self.environment.run_incremental(minimum_until)
-
-				self.send_concentrations()
+				(now, run_until) = self.environment.update_from_simulations(update)
+				self.environment.run_incremental(now)
+				self.send_concentrations(run_until)
 
 	def simulation_update(self):
 		return {

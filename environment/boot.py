@@ -317,21 +317,17 @@ def switch():
 
 	elif args.command == 'trigger':
 		control = EnvironmentControl('environment_control', kafka_config)
-		control.trigger_execution()
+		control.trigger_execution(args.id)
 		control.shutdown()
 
 	elif args.command == 'pause':
 		control = EnvironmentControl('environment_control', kafka_config)
-		control.pause_execution()
+		control.pause_execution(args.id)
 		control.shutdown()
 
 	elif args.command == 'shutdown':
 		control = EnvironmentControl('environment_control', kafka_config)
-
-		if not args.id:
-			control.shutdown_environment()
-		else:
-			control.shutdown_simulation(args.id)
+		control.shutdown_agent(args.id)
 		control.shutdown()
 
 	elif args.command == 'shepherd':
