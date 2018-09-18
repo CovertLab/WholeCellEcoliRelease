@@ -163,9 +163,11 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 				)
 
 			# Calculate and set attributes of newly created polymerases
-			sequenceIdx = np.tile(np.array([0, 1, 2, 3]), n_oric)
-			sequenceLength = np.zeros(n_new_polymerase, dtype=np.int)
-			replicationRound = np.ones(n_new_polymerase, dtype=np.int)*(
+			sequenceIdx = np.tile(
+				np.array([0, 1, 2, 3], dtype=np.int8),
+				n_oric)
+			sequenceLength = np.zeros(n_new_polymerase, dtype=np.int64)
+			replicationRound = np.ones(n_new_polymerase, dtype=np.int64)*(
 				replicationRound.max() + 1)
 
 			# Polymerases inherit index of the OriC's they were initiated from

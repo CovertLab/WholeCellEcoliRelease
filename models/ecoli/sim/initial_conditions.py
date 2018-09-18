@@ -558,9 +558,9 @@ def determineChromosomeState(C, D, tau, replication_length):
 
 	# Convert to numpy arrays
 	sequenceIdx = np.array(sequenceIdx, dtype=np.int8)
-	sequenceLength = np.array(sequenceLength, dtype=np.int)
-	replicationRound = np.array(replicationRound, dtype=np.int)
-	chromosomeIndex = np.array(chromosomeIndex, dtype=np.int)
+	sequenceLength = np.array(sequenceLength, dtype=np.int64)
+	replicationRound = np.array(replicationRound, dtype=np.int64)
+	chromosomeIndex = np.array(chromosomeIndex, dtype=np.int64)
 
 	return sequenceIdx, sequenceLength, replicationRound, chromosomeIndex
 
