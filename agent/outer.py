@@ -3,6 +3,10 @@ from __future__ import absolute_import, division, print_function
 import agent.event as event
 from agent.agent import Agent
 
+def merge(a, b):
+	c = a.copy()
+	c.update(b)
+	return c
 
 class EnvironmentSimulation(object):
 	"""Interface for the Outer agent's Environment simulation."""
@@ -98,8 +102,12 @@ class Outer(Agent):
 
 	def initialize_simulation(self, message):
 		inner_id = message['inner_id']
+		environment_time = self.environment.time()
+		simulation_time = max(environment_time, message.get('time', environment_time)),
+
+		message['state']['time'] = simulation_time
 		self.simulations[inner_id] = {
-			'time': self.environment.time(),
+			'time': simulation_time,
 			'message_id': -1,
 			'last_message_id': -1,
 			'state': message['state']}
@@ -116,10 +124,10 @@ class Outer(Agent):
 		""" Called before each simulation is updated with the current state of the system. """
 		pass
 
-	def send_concentrations(self, run_until):
+	def send_concentrations(self, now, run_until):
 		""" Send updated concentrations to each inner agent. """
 
-		concentrations = self.environment.get_concentrations()
+		concentrations = self.environment.get_concentrations(now)
 		
 		self.update_state()
 
@@ -156,7 +164,7 @@ class Outer(Agent):
 				update = self.simulation_update()
 				(now, run_until) = self.environment.update_from_simulations(update)
 				self.environment.run_incremental(now)
-				self.send_concentrations(run_until)
+				self.send_concentrations(now, run_until)
 
 	def simulation_update(self):
 		return {
@@ -196,7 +204,7 @@ class Outer(Agent):
 		    have reported back that they have shut down the outer agent can complete.
 		"""
 
-		if message['outer_id'] == self.agent_id || message['agent_id'] == self.agent_id:
+		if message.get('outer_id', message.get('agent_id')) == self.agent_id:
 			print('--> {}: {}'.format(topic, message))
 
 			if message['event'] == event.SIMULATION_INITIALIZED:
@@ -212,6 +220,7 @@ class Outer(Agent):
 
 					if message['message_id'] == simulation['message_id']:
 						simulation['state'] = message['state']
+						simulation['state']['time'] = message['time']
 						simulation['last_message_id'] = message['message_id']
 
 						self.advance()

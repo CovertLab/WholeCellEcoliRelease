@@ -197,10 +197,13 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		and add to the environmental concentrations of each molecule at each simulation's location
 		'''
 		self.simulations.update(update)
+		
 		run_until = np.sort([state['time'] for state in self.simulations.values()])
-		now = run_until[0]
+		now = run_until[0] if run_until.size > 0 else 0
 		later = run_until[run_until > now]
 		next_until = later[0] if later.size > 0 else self.time() + self.run_for
+
+		print('run until: {} - now {} | later {} - next_until {}'.format(run_until, now, later, next_until))
 
 		for agent_id, state in self.simulations.iteritems():
 			if state['time'] == now:
@@ -219,15 +222,18 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		return self._molecule_ids
 
 
-	def get_concentrations(self):
+	def get_concentrations(self, now):
 		'''returns a dict with {molecule_id: conc} for each sim give its current location'''
 		concentrations = {}
-		for agent_id in self.simulations.iterkeys():
-			# get concentration from cell's given bin
-			location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH
-			patch_site = tuple(np.floor(location).astype(int))
+		for agent_id, simulation in self.simulations.iteritems():
+			if simulation['time'] == now:
+				# get concentration from cell's given bin
+				location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH
+				patch_site = tuple(np.floor(location).astype(int))
+				concentrations[agent_id] = dict(zip(
+					self._molecule_ids,
+					self.lattice[:,patch_site[0],patch_site[1]]))
 
-			concentrations[agent_id] = dict(zip(self._molecule_ids, self.lattice[:,patch_site[0],patch_site[1]]))
 		return concentrations
 
 

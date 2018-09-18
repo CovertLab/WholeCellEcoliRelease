@@ -69,11 +69,13 @@ class Inner(Agent):
 	def initialize(self):
 		"""Initialization: Register this inner agent with the outer agent."""
 
+		state = self.simulation.get_environment_change()
 		self.send(self.kafka_config['simulation_send'], {
+			'time': self.simulation.time(),
 			'event': event.SIMULATION_INITIALIZED,
 			'outer_id': self.outer_id,
 			'inner_id': self.agent_id,
-			'changes': self.simulation.get_environment_change()})
+			'state': state})
 
 	def finalize(self):
 		""" Trigger any clean up the simulation needs to perform before exiting. """
@@ -101,7 +103,7 @@ class Inner(Agent):
 		message containing the local changes as calculated by the simulation.
 		"""
 
-		if message['inner_id'] == self.agent_id || message['agent_id'] == self.agent_id:
+		if message.get('inner_id', message.get('agent_id')) == self.agent_id:
 			print('--> {}: {}'.format(topic, message))
 
 			if message['event'] == event.ENVIRONMENT_UPDATED:
@@ -111,16 +113,16 @@ class Inner(Agent):
 				self.simulation.run_incremental(message['run_until'])
 
 				stop = self.simulation.time()
-				changes = self.simulation.get_environment_change()
+				update = self.simulation.get_environment_change()
+				update['time'] = stop
 
 				self.send(self.kafka_config['simulation_send'], {
 					'event': event.SIMULATION_ENVIRONMENT,
+					'time': stop,
 					'outer_id': self.outer_id,
 					'inner_id': self.agent_id,
 					'message_id': message['message_id'],
-					'state': {
-						'time': stop,
-						'changes': changes}})
+					'state': update})
 
 			elif message['event'] == event.SYNCHRONIZE_SIMULATION:
 				self.simulation.synchronize_state(message['state'])
