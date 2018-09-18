@@ -206,7 +206,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		print('run until: {} - now {} | later {} - next_until {}'.format(run_until, now, later, next_until))
 
 		for agent_id, state in self.simulations.iteritems():
-			if state['time'] == now:
+			if state['time'] <= now:
 				location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH
 				patch_site = tuple(np.floor(location).astype(int))
 

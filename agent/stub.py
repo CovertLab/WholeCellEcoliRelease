@@ -6,7 +6,6 @@ import random
 from .inner import CellSimulation
 from .outer import EnvironmentSimulation
 
-
 class SimulationStub(CellSimulation):
 
 	"""
@@ -33,8 +32,8 @@ class SimulationStub(CellSimulation):
 	def set_local_environment(self, concentrations):
 		self.concentrations = concentrations
 
-		# TODO(Ryan): consider if the outer agent should send a previous message establishing
-		#     what keys are in this dict to avoid this preset state. 
+		# TODO(Ryan): consider if the outer agent should send a previous message
+		#     establishing what keys are in this dict to avoid this preset state. 
 		if not self.local_set:
 			self.environment_change = {}
 			for molecule in self.concentrations.iterkeys():
@@ -42,13 +41,25 @@ class SimulationStub(CellSimulation):
 			self.local_set = True
 
 	def run_incremental(self, run_until):
-		time.sleep(1)
+		interrupt_frequency = 6
+		interrupt = random.randint(1, interrupt_frequency)
+		interrupted = interrupt > 5
+		step = (run_until - self.local_time) / interrupt_frequency
+		until = random.randint(
+			0, interrupt_frequency - 1) * step if interrupted else run_until
+		span = until - self.local_time
+
+		time.sleep(random.randint(1, interrupt_frequency))
+
 		for molecule in self.concentrations.iterkeys():
-			self.environment_change[molecule] += random.randint(1, 6)
-		self.local_time = run_until
+			self.environment_change[molecule] += random.randint(1, 6) * span
+
+		self.local_time = until
 
 	def get_environment_change(self):
-		return self.environment_change
+		return {
+			'deltas': self.environment_change
+		}
 
 	def finalize(self):
 		pass
@@ -66,14 +77,14 @@ class EnvironmentStub(EnvironmentSimulation):
 	"""
 
 	def __init__(self, volume, concentrations):
-		self._time = 0
+		self.global_time = 0
 		self.run_for = 1
 		self.volume = volume
 		self.simulations = {}
 		self.concentrations = concentrations
 
 	def time(self):
-		return self._time
+		return self.global_time
 
 	def add_simulation(self, agent_id, state):
 		self.simulations[agent_id] = state
@@ -81,26 +92,39 @@ class EnvironmentStub(EnvironmentSimulation):
 	def remove_simulation(self, agent_id):
 		return self.simulations.pop(agent_id, {})
 
-	def update_from_simulations(self, all_changes):
-		self._time += self.run_for
-		for agent_id, changes in all_changes.iteritems():
+	def update_from_simulations(self, update):
+		self.simulations.update(update)
+
+		run_until = np.sort([state['time'] for state in self.simulations.values()])
+		now = run_until[0] if run_until.size > 0 else 0
+		later = run_until[run_until > now]
+		next_until = later[0] if later.size > 0 else self.time() + self.run_for
+
+		print('run until: {} - now {} | later {} - next_until {}'.format(run_until, now, later, next_until))
+
+		self.global_time += self.run_for
+		for agent_id, state in self.simulations.iteritems():
 			for molecule, change in changes.iteritems():
 				self.concentrations[molecule] += change
 
-	def run_simulations_until(self):
-		until = {}
-		run_until = self.time() + self.run_for
-		for agent_id in self.simulations.iterkeys():
-			until[agent_id] = run_until
+		return (now, next_until)
 
-		return until
+	# def run_simulations_until(self):
+	# 	until = {}
+	# 	run_until = self.time() + self.run_for
+	# 	for agent_id in self.simulations.iterkeys():
+	# 		until[agent_id] = run_until
+
+	# 	return until
 
 	def get_molecule_ids(self):
 		return self.concentrations.keys()
 
-	def get_concentrations(self):
-		concentrations = {}
-		for agent_id in self.simulations.iterkeys():
-			concentrations[agent_id] = self.concentrations
+	def get_concentrations(self, now):
+		state = {}
+		for agent_id, simulation in self.simulations.iteritems():
+			if simulation['time'] <= now:
+				state[agent_id] = self.concentrations
 
-		return concentrations
+		return state
+

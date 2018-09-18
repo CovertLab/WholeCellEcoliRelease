@@ -347,7 +347,7 @@ def switch():
 		initializers['lattice'] = initialize_lattice
 		initializers['ecoli'] = initialize_ecoli
 
-		shepherd = AgentShepherd('shepherd', kafka_config, initializers)
+		shepherd = AgentShepherd('environment-shepherd', kafka_config, initializers)
 
 	elif args.command == 'add':
 		control = ShepherdControl(kafka_config)
