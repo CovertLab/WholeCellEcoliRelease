@@ -43,7 +43,7 @@ class Inner(Agent):
 	an environmental simulation.
 	"""
 
-	def __init__(self, kafka_config, agent_id, simulation):
+	def __init__(self, kafka_config, agent_id, outer_id, simulation):
 		"""
 		Construct the agent.
 
@@ -59,6 +59,7 @@ class Inner(Agent):
 				calculations.
 		"""
 
+		self.outer_id = outer_id
 		self.simulation = simulation
 		self.simulation.initialize_local_environment()
 		kafka_config['subscribe_topics'] = [kafka_config['simulation_receive']]
@@ -70,6 +71,7 @@ class Inner(Agent):
 
 		self.send(self.kafka_config['simulation_send'], {
 			'event': event.SIMULATION_INITIALIZED,
+			'outer_id': self.outer_id,
 			'inner_id': self.agent_id,
 			'changes': self.simulation.get_environment_change()})
 
@@ -99,7 +101,7 @@ class Inner(Agent):
 		message containing the local changes as calculated by the simulation.
 		"""
 
-		if message['inner_id'] == self.agent_id:
+		if message['inner_id'] == self.agent_id || message['agent_id'] == self.agent_id:
 			print('--> {}: {}'.format(topic, message))
 
 			if message['event'] == event.ENVIRONMENT_UPDATED:
@@ -113,17 +115,20 @@ class Inner(Agent):
 
 				self.send(self.kafka_config['simulation_send'], {
 					'event': event.SIMULATION_ENVIRONMENT,
+					'outer_id': self.outer_id,
 					'inner_id': self.agent_id,
 					'message_id': message['message_id'],
-					'time': stop,
-					'changes': changes})
+					'state': {
+						'time': stop,
+						'changes': changes}})
 
 			elif message['event'] == event.SYNCHRONIZE_SIMULATION:
 				self.simulation.synchronize_state(message['state'])
 
-			elif message['event'] == event.SHUTDOWN_SIMULATION:
+			elif message['event'] == event.SHUTDOWN_AGENT:
 				self.send(self.kafka_config['simulation_send'], {
 					'event': event.SIMULATION_SHUTDOWN,
+					'outer_id': self.outer_id,
 					'inner_id': self.agent_id})
 
 				self.shutdown()

@@ -96,8 +96,8 @@ class AgentShepherd(Agent):
 			removed[key] = self.agents.pop(key)
 			if removed[key]['process'].is_alive():
 				self.send(self.kafka_config['simulation_receive'], {
-					'event': event.SHUTDOWN_SIMULATION,
-					'inner_id': key})
+					'event': event.SHUTDOWN_AGENT,
+					'agent_id': key})
 
 		print('removal complete {}'.format(removing))
 

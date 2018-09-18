@@ -78,11 +78,14 @@ class BootEcoli(object):
 	This class initializes an EcoliSimulation, passes it to the `Inner` agent, and launches the simulation.
 	The EcoliSimulation is initialized by passing it a pathname to sim_data, along with simulation parameters.
 	'''
-	def __init__(self, agent_id, agent_config,
+	def __init__(
+			self, agent_id, agent_config,
 			variant_type='wildtype', variant_index=0, seed=0):
 		self.agent_id = agent_id
 		kafka_config = agent_config['kafka_config']
 		working_dir = agent_config['working_dir']
+		outer_id = agent_config['outer_id']
+		start_time = agent_config.get('start_time', 0)
 
 		sim_path = fp.makedirs(working_dir, 'out', 'manual')
 		sim_data_fit = os.path.join(sim_path, 'kb', 'simData_Most_Fit.cPickle')
@@ -102,6 +105,7 @@ class BootEcoli(object):
 		options = {
 			"simData":                sim_data,
 			"outputDir":              output_dir,
+			"initialTime":            start_time,
 			"logToDisk":              True,
 			"overwriteExistingFiles": True,
 			"seed":                   seed,
@@ -139,6 +143,7 @@ class BootEcoli(object):
 		self.inner = Inner(
 			kafka_config,
 			self.agent_id,
+			outer_id,
 			self.simulation)
 
 
@@ -163,19 +168,23 @@ class ShepherdControl(EnvironmentControl):
 			'agent_type': agent_type,
 			'agent_config': agent_config})
 
-	def add_ecoli(self):
-		self.add_agent(str(uuid.uuid1()), 'ecoli', {})
-
 	def remove_agent(self, prefix):
 		""" Remove an agent given a prefix of its id """
 		self.send(self.kafka_config['shepherd_control'], {
 			'event': event.REMOVE_AGENT,
 			'agent_prefix': prefix})
 
+	def add_ecoli(self, lattice_id):
+		self.add_agent(
+			str(uuid.uuid1()),
+			'ecoli',
+			{'outer_id': lattice_id})
+
 	def lattice_experiment(self, simulations):
-		self.add_agent('lattice', 'lattice', {})
+		lattice_id = str(uuid.uuid1())
+		self.add_agent(lattice_id, 'lattice', {})
 		for index in range(simulations):
-			self.add_ecoli()
+			self.add_ecoli(lattice_id)
 
 
 def switch():
@@ -204,6 +213,18 @@ def switch():
 	parser.add_argument(
 		'--id',
 		help='unique identifier for a new simulation agent')
+
+	parser.add_argument(
+		'--agent-id',
+		help='unique identifier for addressing a particular agent')
+
+	parser.add_argument(
+		'--inner-id',
+		help='unique identifier for inner agent')
+
+	parser.add_argument(
+		'--outer-id',
+		help='unique identifier for outer agent')
 
 	parser.add_argument(
 		'-v', '--variant',
@@ -281,7 +302,8 @@ def switch():
 		'subscribe_topics': []}
 
 	if args.command == 'lattice':
-		BootEnvironmentSpatialLattice('lattice', {'kafka_config': kafka_config})
+		agent_id = args.id || 'lattice'
+		BootEnvironmentSpatialLattice(agent_id, {'kafka_config': kafka_config})
 
 	elif args.command == 'ecoli':
 		if not args.id:

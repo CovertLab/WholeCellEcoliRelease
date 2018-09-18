@@ -191,21 +191,28 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		return count / (PATCH_VOLUME * N_AVOGADRO)
 
 
-	def update_from_simulations(self, all_changes):
+	def update_from_simulations(self, update):
 		'''
 		Use change counts from all the inner simulations, convert them to concentrations,
 		and add to the environmental concentrations of each molecule at each simulation's location
 		'''
-		self.simulations = all_changes
+		self.simulations.update(update)
+		run_until = np.sort([state['time'] for state in self.simulations.values()])
+		now = run_until[0]
+		later = run_until[run_until > now]
+		next_until = later[0] if later.size > 0 else self._time + self.run_for
+
 		for agent_id, state in self.simulations.iteritems():
-			location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH
-			patch_site = tuple(np.floor(location).astype(int))
+			if state['time'] == now:
+				location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH
+				patch_site = tuple(np.floor(location).astype(int))
 
-			for molecule, count in state['environment_change'].iteritems():
-				concentration = self.count_to_concentration(count)
-				index = self.molecule_index[molecule]
-				self.lattice[index, patch_site[0], patch_site[1]] += concentration
+				for molecule, count in state['environment_change'].iteritems():
+					concentration = self.count_to_concentration(count)
+					index = self.molecule_index[molecule]
+					self.lattice[index, patch_site[0], patch_site[1]] += concentration
 
+		return next_until
 
 	def get_molecule_ids(self):
 		''' Return the ids of all molecule species in the environment '''
