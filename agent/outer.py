@@ -134,10 +134,10 @@ class Outer(Agent):
 		for inner_id, simulation in self.simulations.iteritems():
 			simulation['message_id'] += 1
 			self.send(self.kafka_config['simulation_receive'], {
+				'event': event.ENVIRONMENT_UPDATED,
 				'outer_id': self.agent_id,
 				'inner_id': inner_id,
 				'message_id': simulation['message_id'],
-				'event': event.ENVIRONMENT_UPDATED,
 				'concentrations': concentrations[inner_id],
 				'run_until': run_until})
 
