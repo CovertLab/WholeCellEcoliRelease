@@ -58,18 +58,15 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		perturbations = getattr(sim_data, "genetic_perturbations", {})
 
 		if len(perturbations) > 0:
-			rnaIdxs, synthProbs = zip(
-				*[(int(np.where(sim_data.process.transcription.rnaData["id"] == rnaId)[0]), synthProb)
-					for rnaId, synthProb in sim_data.genetic_perturbations.iteritems()]
-				)
-			fixedSynthProbs = [synthProb for (rnaIdx, synthProb)
-				in sorted(zip(rnaIdxs, synthProbs), key = lambda pair: pair[0])]
-			fixedRnaIdxs = [rnaIdx for (rnaIdx, synthProb)
-				in sorted(zip(rnaIdxs, synthProbs), key = lambda pair: pair[0])]
+			probability_indexes = [
+				(index, sim_data.genetic_perturbations[rna_data['id']])
+				for index, rna_data in
+				enumerate(sim_data.process.transcription.rnaData)
+				if rna_data['id'] in sim_data.genetic_perturbations]
 
 			self.genetic_perturbations = {
-				"fixedRnaIdxs": fixedRnaIdxs,
-				"fixedSynthProbs": fixedSynthProbs
+				'fixedRnaIdxs': map(lambda pair: pair[0], probability_indexes),
+				'fixedSynthProbs': map(lambda pair: pair[1], probability_indexes)
 				}
 
 		# If initiationShuffleIdxs does not exist, set value to None
