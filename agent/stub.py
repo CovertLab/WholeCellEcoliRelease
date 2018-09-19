@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 import time
+import numpy as np
 import random
 
 from .inner import CellSimulation
@@ -46,8 +47,10 @@ class SimulationStub(CellSimulation):
 		interrupted = interrupt > 5
 		step = (run_until - self.local_time) / interrupt_frequency
 		until = random.randint(
-			0, interrupt_frequency - 1) * step if interrupted else run_until
+			1, interrupt_frequency - 1) * step + self.local_time if interrupted else run_until
 		span = until - self.local_time
+
+		print('================ simulation | run_until: {}, until: {}, step: {}, span: {}'.format(run_until, until, step, span))
 
 		time.sleep(random.randint(1, interrupt_frequency))
 
@@ -58,8 +61,8 @@ class SimulationStub(CellSimulation):
 
 	def get_environment_change(self):
 		return {
-			'deltas': self.environment_change
-		}
+			'changes': self.environment_change,
+			'time': self.time()}
 
 	def finalize(self):
 		pass
@@ -98,24 +101,22 @@ class EnvironmentStub(EnvironmentSimulation):
 		run_until = np.sort([state['time'] for state in self.simulations.values()])
 		now = run_until[0] if run_until.size > 0 else 0
 		later = run_until[run_until > now]
+
+		self.run_incremental(now)
+
 		next_until = later[0] if later.size > 0 else self.time() + self.run_for
 
-		print('run until: {} - now {} | later {} - next_until {}'.format(run_until, now, later, next_until))
+		print('============= environment | run until: {}, now: {}, later: {}, next_until: {}, time: {}'.format(run_until, now, later, next_until, self.time()))
 
-		self.global_time += self.run_for
 		for agent_id, state in self.simulations.iteritems():
-			for molecule, change in changes.iteritems():
+			for molecule, change in state['changes'].iteritems():
 				self.concentrations[molecule] += change
 
 		return (now, next_until)
 
-	# def run_simulations_until(self):
-	# 	until = {}
-	# 	run_until = self.time() + self.run_for
-	# 	for agent_id in self.simulations.iterkeys():
-	# 		until[agent_id] = run_until
-
-	# 	return until
+	def run_incremental(self, run_until):
+		time.sleep(2)
+		self.global_time = run_until
 
 	def get_molecule_ids(self):
 		return self.concentrations.keys()

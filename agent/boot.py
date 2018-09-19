@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 import os
 import uuid
+import numpy as np
 import argparse
 
 import agent.event as event

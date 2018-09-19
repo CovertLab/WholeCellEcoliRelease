@@ -103,7 +103,9 @@ class Outer(Agent):
 	def initialize_simulation(self, message):
 		inner_id = message['inner_id']
 		environment_time = self.environment.time()
-		simulation_time = max(environment_time, message.get('time', environment_time)),
+		simulation_time = max(environment_time, message.get('time', environment_time))
+
+		print('initialize ------> environment_time: {}, simulation_time: {}'.format(environment_time, simulation_time))
 
 		message['state']['time'] = simulation_time
 		self.simulations[inner_id] = {
@@ -132,14 +134,15 @@ class Outer(Agent):
 		self.update_state()
 
 		for inner_id, simulation in self.simulations.iteritems():
-			simulation['message_id'] += 1
-			self.send(self.kafka_config['simulation_receive'], {
-				'event': event.ENVIRONMENT_UPDATED,
-				'outer_id': self.agent_id,
-				'inner_id': inner_id,
-				'message_id': simulation['message_id'],
-				'concentrations': concentrations[inner_id],
-				'run_until': run_until})
+			if inner_id in concentrations:
+				simulation['message_id'] += 1
+				self.send(self.kafka_config['simulation_receive'], {
+					'event': event.ENVIRONMENT_UPDATED,
+					'outer_id': self.agent_id,
+					'inner_id': inner_id,
+					'message_id': simulation['message_id'],
+					'concentrations': concentrations[inner_id],
+					'run_until': run_until})
 
 	def ready_to_advance(self):
 		"""
@@ -163,7 +166,6 @@ class Outer(Agent):
 			else:
 				update = self.simulation_update()
 				(now, run_until) = self.environment.update_from_simulations(update)
-				self.environment.run_incremental(now)
 				self.send_concentrations(now, run_until)
 
 	def simulation_update(self):
