@@ -1,5 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
+import numpy as np
+
 import agent.event as event
 from agent.agent import Agent
 
@@ -165,7 +167,19 @@ class Outer(Agent):
 				self.send_shutdown()
 			else:
 				update = self.simulation_update()
-				(now, run_until) = self.environment.update_from_simulations(update)
+				ran = np.sort([state['time'] for state in update.values()])
+				now = ran[0] if ran.size > 0 else 0
+				later = ran[ran > now]
+
+				self.environment.update_from_simulations(update, now)
+				self.environment.run_incremental(now)
+
+				run_until = self.environment.time() + self.environment.run_for
+				if later.size > 0:
+					run_until = later[0] 
+
+				print('============= environment | ran: {}, now: {}, later: {}, run_until: {}, time: {}'.format(ran, now, later, run_until, self.environment.time()))
+
 				self.send_concentrations(now, run_until)
 
 	def simulation_update(self):

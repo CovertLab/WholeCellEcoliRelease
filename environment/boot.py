@@ -261,6 +261,11 @@ def switch():
 		help='number of cell agents to spawn in lattice experiment')
 
 	parser.add_argument(
+		'--agent-receive',
+		default='agent-receive',
+		help='topic agents will receive control messages on')
+
+	parser.add_argument(
 		'--environment-control',
 		default='environment-control',
 		help='topic the environment will receive control messages on')

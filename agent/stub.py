@@ -95,24 +95,12 @@ class EnvironmentStub(EnvironmentSimulation):
 	def remove_simulation(self, agent_id):
 		return self.simulations.pop(agent_id, {})
 
-	def update_from_simulations(self, update):
+	def update_from_simulations(self, update, now):
 		self.simulations.update(update)
 
-		run_until = np.sort([state['time'] for state in self.simulations.values()])
-		now = run_until[0] if run_until.size > 0 else 0
-		later = run_until[run_until > now]
-
-		self.run_incremental(now)
-
-		next_until = later[0] if later.size > 0 else self.time() + self.run_for
-
-		print('============= environment | run until: {}, now: {}, later: {}, next_until: {}, time: {}'.format(run_until, now, later, next_until, self.time()))
-
-		for agent_id, state in self.simulations.iteritems():
+		for agent_id, state in update.iteritems():
 			for molecule, change in state['changes'].iteritems():
 				self.concentrations[molecule] += change
-
-		return (now, next_until)
 
 	def run_incremental(self, run_until):
 		time.sleep(2)
