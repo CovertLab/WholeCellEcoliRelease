@@ -5,11 +5,6 @@ import numpy as np
 import agent.event as event
 from agent.agent import Agent
 
-def merge(a, b):
-	c = a.copy()
-	c.update(b)
-	return c
-
 class EnvironmentSimulation(object):
 	"""Interface for the Outer agent's Environment simulation."""
 
@@ -107,7 +102,7 @@ class Outer(Agent):
 		environment_time = self.environment.time()
 		simulation_time = max(environment_time, message.get('time', environment_time))
 
-		print('initialize ------> environment_time: {}, simulation_time: {}'.format(environment_time, simulation_time))
+		print('================ initialize | environment_time: {}, simulation_time: {}'.format(environment_time, simulation_time))
 
 		message['state']['time'] = simulation_time
 		self.simulations[inner_id] = {
