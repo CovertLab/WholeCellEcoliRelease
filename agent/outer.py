@@ -132,7 +132,6 @@ class Outer(Agent):
 		""" Send updated concentrations to each inner agent. """
 
 		concentrations = self.environment.get_concentrations(now)
-		
 		self.update_state()
 
 		for inner_id, simulation in self.simulations.iteritems():
