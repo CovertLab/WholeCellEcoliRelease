@@ -199,6 +199,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		self.simulations.update(update)
 
 		for agent_id, simulation in self.simulations.iteritems():
+			# only apply changes if we have reached this simulation's time point.
 			if simulation['time'] <= now:
 				state = simulation['state']
 				location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH
@@ -218,6 +219,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		'''returns a dict with {molecule_id: conc} for each sim give its current location'''
 		concentrations = {}
 		for agent_id, simulation in self.simulations.iteritems():
+			# only provide concentrations if we have reached this simulation's time point.
 			if simulation['time'] <= now:
 				# get concentration from cell's given bin
 				location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH

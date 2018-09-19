@@ -287,6 +287,7 @@ def switch():
 	args = parser.parse_args()
 	kafka_config = {
 		'host': args.kafka_host,
+		'agent_receive': args.agent_receive,
 		'environment_control': args.environment_control,
 		'simulation_receive': args.simulation_receive,
 		'simulation_send': args.simulation_send,

@@ -23,7 +23,7 @@ class EnvironmentSimulation(object):
 		"""
 		return {}
 
-	def update_from_simulations(self, changes):
+	def update_from_simulations(self, update, now):
 		"""Update the environment's state of the inner agent simulations given the
 		changes dictionary mapping agent_id to dictionary of molecule counts.
 		"""
@@ -31,7 +31,7 @@ class EnvironmentSimulation(object):
 	def get_molecule_ids(self):
 		"""Return the list of molecule IDs."""
 
-	def get_concentrations(self):
+	def get_concentrations(self, now):
 		"""Return a dictionary of agent_id to concentrations coming from the environment."""
 
 	def run_incremental(self, time):
@@ -148,6 +148,17 @@ class Outer(Agent):
 		return ready
 
 	def advance(self):
+		"""
+		Advance the environment once it has heard back from all registered simulations,
+		then send out the newly calculated concentrations to each simulation.
+
+		This will check first to see if all simulations are ready to advance, then it
+		will check to see how long each simulation actually ran, only advancing to
+		the earliest time point a simulation hit. In this way the environment is always
+		running behind the simulations, and each simulation only runs once all other
+		simulations have caught up to it (including the environment).
+		"""
+
 		if not self.paused and self.ready_to_advance():
 			if self.shutting_down:
 				self.send_shutdown()
@@ -174,7 +185,7 @@ class Outer(Agent):
 			self.send(self.kafka_config['simulation_receive'], {
 				'outer_id': self.agent_id,
 				'inner_id': inner_id,
-				'event': event.SHUTDOWN_SIMULATION})
+				'event': event.SHUTDOWN_AGENT})
 
 	def receive(self, topic, message):
 		"""

@@ -84,7 +84,7 @@ class Agent(object):
 
 		if self.consumer:
 			topics = self.kafka_config['subscribe_topics']
-			topics.append('agent_receive')
+			topics.append('agent-receive')
 			self.consumer.subscribe(topics)
 
 			self.poll()

@@ -163,6 +163,11 @@ def main():
 		help='address for Kafka server')
 
 	parser.add_argument(
+		'--agent-receive',
+		default='agent-receive',
+		help='topic agents will receive control messages on')
+
+	parser.add_argument(
 		'--environment-control',
 		default='environment-control',
 		help='topic the environment will receive control messages on')
@@ -196,6 +201,7 @@ def main():
 	args = parser.parse_args()
 	kafka_config = {
 		'host': args.kafka_host,
+		'agent_receive': args.agent_receive,
 		'environment_control': args.environment_control,
 		'simulation_receive': args.simulation_receive,
 		'simulation_send': args.simulation_send,
@@ -243,7 +249,7 @@ def main():
 
 	elif args.command == 'add':
 		control = EnvironmentControl('environment_control', kafka_config)
-		control.add_inner(args.outer_id, {})
+		control.add_inner(args.id, {})
 		control.shutdown()
 
 	elif args.command == 'remove':
