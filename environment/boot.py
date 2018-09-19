@@ -215,18 +215,6 @@ def switch():
 		help='unique identifier for a new simulation agent')
 
 	parser.add_argument(
-		'--agent-id',
-		help='unique identifier for addressing a particular agent')
-
-	parser.add_argument(
-		'--inner-id',
-		help='unique identifier for inner agent')
-
-	parser.add_argument(
-		'--outer-id',
-		help='unique identifier for outer agent')
-
-	parser.add_argument(
 		'-v', '--variant',
 		default='wildtype',
 		help='The variant type name. See models/ecoli/sim/variants/__init__.py'
@@ -356,7 +344,7 @@ def switch():
 
 	elif args.command == 'add':
 		control = ShepherdControl(kafka_config)
-		control.add_ecoli()
+		control.add_ecoli(args.id)
 		control.shutdown()
 
 	elif args.command == 'remove':
