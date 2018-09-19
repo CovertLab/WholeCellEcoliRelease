@@ -12,10 +12,8 @@ class SimulationStub(CellSimulation):
 	"""
 	Provide a stub for the simulation.
 
-	This class is not meant to be functional but rather to implement in the simplest way 
-	the interface the agents expect when interacting with the simulation.
-
-	Full interface documented in `agent/inner.py`.
+	This class is intended to be a demonstration implementation of the CellSimulation
+    interface from `agent/inner.py`.
 	"""
 
 	def __init__(self):
@@ -42,12 +40,18 @@ class SimulationStub(CellSimulation):
 			self.local_set = True
 
 	def run_incremental(self, run_until):
+		# The following emulates simulations taking less time than the provided
+		# `run_until` in order to validate that the environment as a whole proceeds
+		# from time step to time step correctly.
+
+		# (1 / interrupt_frequency) is how often the interrupt occurs
 		interrupt_frequency = 6
 		interrupt = random.randint(1, interrupt_frequency)
-		interrupted = interrupt > 5
+		interrupted = interrupt > interrupt_frequency - 1
 		step = (run_until - self.local_time) / interrupt_frequency
-		until = random.randint(
-			1, interrupt_frequency - 1) * step + self.local_time if interrupted else run_until
+		until = run_until
+		if interrupted:
+			until = random.randint(1, interrupt_frequency - 1) * step + self.local_time
 		span = until - self.local_time
 
 		print('================ simulation | run_until: {}, until: {}, step: {}, span: {}'.format(run_until, until, step, span))
@@ -60,9 +64,7 @@ class SimulationStub(CellSimulation):
 		self.local_time = until
 
 	def get_environment_change(self):
-		return {
-			'changes': self.environment_change,
-			'time': self.time()}
+		return {'changes': self.environment_change}
 
 	def finalize(self):
 		pass
@@ -72,8 +74,9 @@ class EnvironmentStub(EnvironmentSimulation):
 	"""
 	Provide a stub for the environmental context.
 
-	Like the stub above for simulations, this class is meant to demonstrate the interface
-	any environmental simulation must have to fulfill the conditions of being a coordinating
+	Like the stub above for simulations, this class is meant to demonstrate the
+	EnvironmentSimulation interface defined in `agent/outer.py` that any environmental
+	simulation must implement to fulfill the conditions of being a coordinating
 	external context for integrating the changes of each simulation.
 
 	Full interface described in `agent/outer.py`.
@@ -98,9 +101,11 @@ class EnvironmentStub(EnvironmentSimulation):
 	def update_from_simulations(self, update, now):
 		self.simulations.update(update)
 
-		for agent_id, state in update.iteritems():
-			for molecule, change in state['changes'].iteritems():
-				self.concentrations[molecule] += change
+		for agent_id, simulation in self.simulations.iteritems():
+			if simulation['time'] <= now:
+				state = simulation['state']
+				for molecule, change in state['changes'].iteritems():
+					self.concentrations[molecule] += change
 
 	def run_incremental(self, run_until):
 		time.sleep(2)

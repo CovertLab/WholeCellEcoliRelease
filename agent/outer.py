@@ -28,11 +28,6 @@ class EnvironmentSimulation(object):
 		changes dictionary mapping agent_id to dictionary of molecule counts.
 		"""
 
-	def run_simulations_until(self):
-		"""Return a dictionary of agent_id to time for each inner agent simulation to
-		run until. The environment will run until it reaches the minimum of these.
-		"""
-
 	def get_molecule_ids(self):
 		"""Return the list of molecule IDs."""
 
@@ -102,9 +97,6 @@ class Outer(Agent):
 		environment_time = self.environment.time()
 		simulation_time = max(environment_time, message.get('time', environment_time))
 
-		print('================ initialize | environment_time: {}, simulation_time: {}'.format(environment_time, simulation_time))
-
-		message['state']['time'] = simulation_time
 		self.simulations[inner_id] = {
 			'time': simulation_time,
 			'message_id': -1,
@@ -117,7 +109,7 @@ class Outer(Agent):
 			'outer_id': self.agent_id,
 			'state': self.environment.simulation_parameters(inner_id)})
 
-		self.environment.add_simulation(inner_id, message['state'])
+		self.environment.add_simulation(inner_id, message)
 
 	def update_state(self):
 		""" Called before each simulation is updated with the current state of the system. """
@@ -160,12 +152,13 @@ class Outer(Agent):
 			if self.shutting_down:
 				self.send_shutdown()
 			else:
-				update = self.simulation_update()
-				ran = np.sort([state['time'] for state in update.values()])
+				ran = np.sort([
+					simulation['time']
+					for simulation in self.simulations.values()])
 				now = ran[0] if ran.size > 0 else 0
 				later = ran[ran > now]
 
-				self.environment.update_from_simulations(update, now)
+				self.environment.update_from_simulations(self.simulations, now)
 				self.environment.run_incremental(now)
 
 				run_until = self.environment.time() + self.environment.run_for
@@ -175,11 +168,6 @@ class Outer(Agent):
 				print('============= environment | ran: {}, now: {}, later: {}, run_until: {}, time: {}'.format(ran, now, later, run_until, self.environment.time()))
 
 				self.send_concentrations(now, run_until)
-
-	def simulation_update(self):
-		return {
-			agent_id: simulation['state']
-			for agent_id, simulation in self.simulations.iteritems()}
 
 	def send_shutdown(self):
 		for inner_id, simulation in self.simulations.iteritems():
@@ -230,7 +218,7 @@ class Outer(Agent):
 
 					if message['message_id'] == simulation['message_id']:
 						simulation['state'] = message['state']
-						simulation['state']['time'] = message['time']
+						simulation['time'] = message['time']
 						simulation['last_message_id'] = message['message_id']
 
 						self.advance()

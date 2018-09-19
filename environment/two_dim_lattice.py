@@ -154,7 +154,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 			y = location[0] * PATCHES_PER_EDGE / EDGE_LENGTH
 			x = location[1] * PATCHES_PER_EDGE / EDGE_LENGTH
 			theta = location[2]
-			volume = self.simulations[agent_id]['volume']
+			volume = self.simulations[agent_id]['state']['volume']
 
 			# get length, scaled to lattice resolution
 			length = self.volume_to_length(volume)
@@ -198,8 +198,9 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		'''
 		self.simulations.update(update)
 
-		for agent_id, state in self.simulations.iteritems():
-			if state['time'] <= now:
+		for agent_id, simulation in self.simulations.iteritems():
+			if simulation['time'] <= now:
+				state = simulation['state']
 				location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH
 				patch_site = tuple(np.floor(location).astype(int))
 
@@ -217,7 +218,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		'''returns a dict with {molecule_id: conc} for each sim give its current location'''
 		concentrations = {}
 		for agent_id, simulation in self.simulations.iteritems():
-			if simulation['time'] == now:
+			if simulation['time'] <= now:
 				# get concentration from cell's given bin
 				location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH
 				patch_site = tuple(np.floor(location).astype(int))
@@ -248,11 +249,3 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		self.simulations.pop(agent_id, {})
 		self.locations.pop(agent_id, {})
 
-
-	def run_simulations_until(self):
-		until = {}
-		run_until = self.time() + self.run_for
-		for agent_id in self.simulations.iterkeys():
-			until[agent_id] = run_until
-
-		return until

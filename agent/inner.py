@@ -69,9 +69,11 @@ class Inner(Agent):
 	def initialize(self):
 		"""Initialization: Register this inner agent with the outer agent."""
 
+		now = self.simulation.time()
 		state = self.simulation.get_environment_change()
+
 		self.send(self.kafka_config['simulation_send'], {
-			'time': self.simulation.time(),
+			'time': now,
 			'event': event.SIMULATION_INITIALIZED,
 			'outer_id': self.outer_id,
 			'inner_id': self.agent_id,
@@ -114,7 +116,6 @@ class Inner(Agent):
 
 				stop = self.simulation.time()
 				update = self.simulation.get_environment_change()
-				update['time'] = stop
 
 				self.send(self.kafka_config['simulation_send'], {
 					'event': event.SIMULATION_ENVIRONMENT,

@@ -32,10 +32,10 @@ class EnvironmentAgent(Outer):
 
 		simulations = {
 			agent_id: {
-				'volume': state['volume'],
+				'volume': simulation['state']['volume'],
 				'location': self.environment.locations[agent_id][0:2].tolist(),
 				'orientation': self.environment.locations[agent_id][2]}
-			for agent_id, state in self.environment.simulations.iteritems()}
+			for agent_id, simulation in self.environment.simulations.iteritems()}
 
 		return {
 			'time': self.environment.time(),
