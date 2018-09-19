@@ -201,9 +201,6 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		run_until = np.sort([state['time'] for state in self.simulations.values()])
 		now = run_until[0] if run_until.size > 0 else 0
 		later = run_until[run_until > now]
-		next_until = later[0] if later.size > 0 else self.time() + self.run_for
-
-		print('run until: {} - now {} | later {} - next_until {}'.format(run_until, now, later, next_until))
 
 		for agent_id, state in self.simulations.iteritems():
 			if state['time'] <= now:
@@ -214,6 +211,11 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 					concentration = self.count_to_concentration(count)
 					index = self.molecule_index[molecule]
 					self.lattice[index, patch_site[0], patch_site[1]] += concentration
+
+		self.run_incremental(now)
+		next_until = later[0] if later.size > 0 else self.time() + self.run_for
+
+		print('============== environment | run until: {}, now: {}, later: {}, next_until: {}, time: {}'.format(run_until, now, later, next_until, self.time()))
 
 		return (now, next_until)
 
