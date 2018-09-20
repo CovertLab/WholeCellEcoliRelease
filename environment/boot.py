@@ -186,6 +186,10 @@ class ShepherdControl(EnvironmentControl):
 
 
 class EnvironmentCommand(AgentCommand):
+	"""
+	Extend `AgentCommand` with new commands related to the lattice and ecoli experiments
+	"""
+
 	def __init__(self):
 		choices = ['ecoli', 'lattice']
 		description = '''

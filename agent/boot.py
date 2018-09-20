@@ -126,6 +126,16 @@ class EnvironmentControl(Agent):
 			self.add_inner(outer_id, {})
 
 class AgentCommand(object):
+	"""
+	Control simulations from the command line.
+
+	This class provides a means to send messages to simulations running in a
+	distributed environment from the command line. Override `add_arguments` to 
+	add more arguments to the argument parser. Override `execute` to respond to more 
+	commands. Override `shepherd_initializers` to provide more types of agents the
+	AgentShepherd can spawn.
+	"""
+
 	def __init__(self, choices, description=None):
 		self.default_choices = [
 			'inner',
@@ -163,6 +173,10 @@ class AgentCommand(object):
 		parser.add_argument(
 			'--id',
 			help='unique identifier for simulation agent')
+
+		parser.add_argument(
+			'--outer-id',
+			help='unique identifier for outer agent this inner agent will join')
 
 		parser.add_argument(
 			'--number',
@@ -215,10 +229,18 @@ class AgentCommand(object):
 	def inner(self, args):
 		if not args.id:
 			raise ValueError('--id must be supplied for inner command')
-		BootInner(args.id, {'kafka_config': self.kafka_config})
+		if not args.outer_id:
+			raise ValueError('--outer-id must be supplied for inner command')
+
+		BootInner(args.id, {
+			'kafka_config': self.kafka_config,
+			'outer_id': args.outer_id})
 
 	def outer(self, args):
-		BootOuter(args.id, {'kafka_config': self.kafka_config, 'outer_id': args.outer_id})
+		if not args.id:
+			raise ValueError('--id must be supplied for outer command')
+
+		BootOuter(args.id, {'kafka_config': self.kafka_config})
 
 	def trigger(self, args):
 		control = EnvironmentControl('environment_control', self.kafka_config)

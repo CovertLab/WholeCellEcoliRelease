@@ -40,18 +40,18 @@ it easy to watch all these processeses at once.)
 
    1. In the first tab start an Environment model:
 
-      `> python -m environment.boot lattice`
+      `> python -m environment.boot lattice --id lattice`
 
       This creates the Environment agent, waiting for Cell simulations to register.
 
       **NOTE:** If you didn't open the browser-based visualization, you can have the
       Environment agent open a "microscope" view onto the plate by launching it like this:
 
-      `> ENVIRONMENT_ANIMATION=1 python -m environment.boot lattice`
+      `> ENVIRONMENT_ANIMATION=1 python -m environment.boot lattice --id lattice`
 
    2. Now start a Cell agent in a new tab:
 
-      `> python -m environment.boot ecoli --id 1`
+      `> python -m environment.boot ecoli --id 1 --outer-id lattice`
 
       **Optional:** Supply additional arguments to set a variant, seed, and so on.
       Use the `-h` argument for help. 
@@ -68,11 +68,11 @@ You will see a message sent from the newly initialized simulation on the `enviro
 
 6. Finally, run this in a separate "command" tab to start the simulation clock:
 
-   `> python -m environment.boot trigger`
+   `> python -m environment.boot trigger --id lattice`
 
 7. To stop the simulation, run `shutdown` in the command tab:
 
-   `> python -m environment.boot shutdown`
+   `> python -m environment.boot shutdown --id lattice`
 
 ## Agent Shepherd
 
@@ -86,11 +86,11 @@ Now that it is running you can start an experiment:
 
 This will generate an environment agent and three simulation agents, all running in the shepherd's tab. You still need to trigger execution:
 
-   `> python -m environment.boot trigger`
+   `> python -m environment.boot trigger --id xxxxxx-xxxx-xxxxxxxxxx`
 
-Now that they are running, you can add new agents with `add`:
+Substitute the id for the id assigned to your lattice. Now that they are running, you can add new agents with `add`:
 
-   `> python -m environment.boot add`
+   `> python -m environment.boot add --id xxxxxx-xxxx-xxxxxxxxxx`
 
 Or remove them with `remove` given an id. This can be just the prefix of the agent's id so you don't have to type the whole uuid:
 
@@ -98,6 +98,6 @@ Or remove them with `remove` given an id. This can be just the prefix of the age
 
 Finally, to shut down the experiment call `shutdown` as before:
 
-   `> python -m environment.boot shutdown`
+   `> python -m environment.boot shutdown --id xxxxxx-xxxx-xxxxxxxxxx`
 
 Notice this just shuts down the experiment, the shepherd is still running and a new experiment can be started. To shut down the shepherd process, just `Ctrl-C`.
