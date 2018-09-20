@@ -176,7 +176,7 @@ class Outer(Agent):
 
 				# apply all the updates received from the simulations to the
 				# environment's original time point
-				self.environment.update_from_simulations(update, now)
+				self.environment.update_from_simulations(self.simulations, now)
 
 				# run the environment to the current time point
 				self.environment.run_incremental(now)
