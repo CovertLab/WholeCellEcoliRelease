@@ -163,16 +163,28 @@ class Outer(Agent):
 			if self.shutting_down:
 				self.send_shutdown()
 			else:
+				# compare the length of each simulation's run
 				ran = np.sort([
 					simulation['time']
 					for simulation in self.simulations.values()])
+
+				# find the earliest time a simulation ran to
 				now = ran[0] if ran.size > 0 else 0
+
+				# find any other (longer) run times
 				later = ran[ran > now]
 
-				self.environment.update_from_simulations(self.simulations, now)
+				# apply all the updates received from the simulations to the
+				# environment's original time point
+				self.environment.update_from_simulations(update, now)
+
+				# run the environment to the current time point
 				self.environment.run_incremental(now)
 
+				# find the next time for simulations to achieve
 				run_until = self.environment.time() + self.environment.run_for
+
+				# unless there is an earlier time a simulation arrived at
 				if later.size > 0:
 					run_until = later[0] 
 
