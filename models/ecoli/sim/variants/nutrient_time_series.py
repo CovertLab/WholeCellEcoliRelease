@@ -1,17 +1,11 @@
-
 CONTROL_OUTPUT = dict(
 	shortName = "control",
 	desc = "Control simulation"
 	)
 
-def nutrientTimeSeriesTotalIndices(sim_data):
+
+def nutrient_time_series(sim_data, index):
 	n_nutrients_time_series = len(sim_data.external_state.environment.nutrients_time_series)
-	return n_nutrients_time_series
-
-
-def nutrientTimeSeries(sim_data, index):
-
-	n_nutrients_time_series = nutrientTimeSeriesTotalIndices(sim_data)
 
 	if index % n_nutrients_time_series == 0:
 		return CONTROL_OUTPUT, sim_data

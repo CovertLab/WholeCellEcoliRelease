@@ -109,3 +109,12 @@ class EcoliSimulation(Simulation):
 
 class EcoliDaughterSimulation(EcoliSimulation):
 	_initialConditionsFunction = setDaughterInitialConditions
+
+
+def ecoli_simulation(**options):
+	"""Instantiate an initial EcoliSimulation or a daughter
+	EcoliDaughterSimulation with the given options, depending on whether
+	there's a non-None `inheritedStatePath` option.
+	"""
+	is_daughter = options.get('inheritedStatePath', None) is not None
+	return EcoliDaughterSimulation(**options) if is_daughter else EcoliSimulation(**options)

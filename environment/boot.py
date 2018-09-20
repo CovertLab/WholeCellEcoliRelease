@@ -16,11 +16,11 @@ from environment.two_dim_lattice import EnvironmentSpatialLattice
 # Raw data class
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 
-from models.ecoli.sim.simulation import EcoliSimulation
+from models.ecoli.sim.simulation import ecoli_simulation
 
 from wholecell.utils import constants
 import wholecell.utils.filepath as fp
-from models.ecoli.sim.variants import variant
+from models.ecoli.sim.variants import apply_variant
 
 
 
@@ -75,17 +75,28 @@ class BootEnvironmentSpatialLattice(object):
 
 class BootEcoli(object):
 	'''
-	This class initializes an EcoliSimulation, passes it to the `Inner` agent, and launches the simulation.
-	The EcoliSimulation is initialized by passing it a pathname to sim_data, along with simulation parameters.
+	Instantiates an initial or daughter EcoliSimulation, passes it to the
+	`Inner` agent, and launches the simulation. `agent_config` fields:
+		* kafka_config
+		* working_dir (wcEcoli path containing the sim path out/manual/)
+		* inherited_state_path (optional, to make a daughter cell)
+		* variant_type (optional)
+		* variant_index (optional)
+		* seed (optional)
 	'''
 	def __init__(
 			self, agent_id, agent_config,
 			variant_type='wildtype', variant_index=0, seed=0):
 		self.agent_id = agent_id
+
 		kafka_config = agent_config['kafka_config']
 		working_dir = agent_config['working_dir']
 		outer_id = agent_config['outer_id']
 		start_time = agent_config.get('start_time', 0)
+		inherited_state_path = agent_config.get('inherited_state_path', None)
+		variant_type = agent_config.get('variant_type', 'wildtype')
+		variant_index = agent_config.get('variant_index', 0)
+		seed = agent_config.get('seed', 0)
 
 		sim_path = fp.makedirs(working_dir, 'out', 'manual')
 		sim_data_fit = os.path.join(sim_path, 'kb', 'simData_Most_Fit.cPickle')
@@ -96,7 +107,7 @@ class BootEcoli(object):
 				'Missing "{}".  Run the Fitter?'.format(sim_data_fit))
 
 		# Apply the variant to transform simData_Most_Fit.cPickle
-		info, sim_data = variant.apply_variant(
+		info, sim_data = apply_variant.apply_variant(
 			sim_data_file=sim_data_fit,
 			variant_type=variant_type,
 			variant_index=variant_index
@@ -106,6 +117,7 @@ class BootEcoli(object):
 			"simData":                sim_data,
 			"outputDir":              output_dir,
 			"initialTime":            start_time,
+			"inheritedStatePath":     inherited_state_path,
 			"logToDisk":              True,
 			"overwriteExistingFiles": True,
 			"seed":                   seed,
@@ -139,7 +151,7 @@ class BootEcoli(object):
 		metadata_path = os.path.join(metadata_dir, constants.JSON_METADATA_FILE)
 		fp.write_json_file(metadata_path, metadata)
 
-		self.simulation = EcoliSimulation(**options)
+		self.simulation = ecoli_simulation(**options)
 		self.inner = Inner(
 			kafka_config,
 			self.agent_id,
@@ -174,17 +186,17 @@ class ShepherdControl(EnvironmentControl):
 			'event': event.REMOVE_AGENT,
 			'agent_prefix': prefix})
 
-	def add_ecoli(self, lattice_id):
+	def add_ecoli(self, agent_config):
 		self.add_agent(
 			str(uuid.uuid1()),
 			'ecoli',
-			{'outer_id': lattice_id})
+			agent_config)
 
 	def lattice_experiment(self, simulations):
 		lattice_id = str(uuid.uuid1())
 		self.add_agent(lattice_id, 'lattice', {})
 		for index in range(simulations):
-			self.add_ecoli(lattice_id)
+			self.add_ecoli({'outer_id': lattice_id})
 
 
 def switch():
@@ -194,21 +206,33 @@ def switch():
 	"""
 
 	parser = argparse.ArgumentParser(
-		description='Run an agent for the environmental context simulation')
+		description='Run an agent for the environmental context simulation.'
+					' The commands are:'
+					' `add [--variant V] [--index I] [--seed S]` ask the Shepherd to add an Ecoli agent,'
+					' `ecoli --id ID [--working-dir D] [--variant V] [--index I] [--seed S]` run an Ecoli agent in this process,'
+					' `experiment [--number N]` ask the Shepherd to run a Lattice agent and N Ecoli agents,'
+					' `lattice` run a Lattice environment agent in this process,'
+					' `pause` pause the simulation,'
+					' `remove --id ID` ask all Shepherds to remove agents "ID*",'
+					' `shepherd [--working-dir D]` run a Shepherd agent in this process,'
+					' `shutdown` shut down the environment agent and all its connected agents,'
+					' `trigger` start running the simulation'
+		)
 
 	parser.add_argument(
 		'command',
 		choices=[
-			'ecoli',
-			'lattice',
-			'shepherd',
-			'experiment',
 			'add',
-			'remove',
-			'trigger',
+			'ecoli',
+			'experiment',
+			'lattice',
 			'pause',
-			'shutdown'],
-		help='which command to boot')
+			'remove',
+			'shepherd',
+			'shutdown',
+			'trigger',
+			],
+		help='The command to run')
 
 	parser.add_argument(
 		'--id',
@@ -281,8 +305,7 @@ def switch():
 	parser.add_argument(
 		'--working-dir',
 		default=os.getcwd(),
-		help='the directory containing the sim path out/manual/'
-	)
+		help='the directory containing the sim path out/manual/')
 
 	args = parser.parse_args()
 	kafka_config = {
@@ -303,11 +326,14 @@ def switch():
 		if not args.id:
 			raise ValueError('the "ecoli" command needs an --id argument')
 
-		BootEcoli(
-			args.id,
-			{'kafka_config': kafka_config,
-			 'working_dir': args.working_dir},
-			variant_type=args.variant, variant_index=args.index, seed=args.seed)
+		agent_config = dict(
+			kafka_config=kafka_config,
+			working_dir=args.working_dir,
+			variant_type=args.variant,
+			variant_index=args.index,
+			seed=args.seed,
+			)
+		BootEcoli(args.id, agent_config)
 
 	elif args.command == 'trigger':
 		control = EnvironmentControl('environment_control', kafka_config)
@@ -328,9 +354,9 @@ def switch():
 		initializers = {}
 
 		def initialize_ecoli(agent_id, agent_config):
-			agent_config = dict(agent_config)
-			agent_config['kafka_config'] = kafka_config
-			agent_config['working_dir'] = args.working_dir
+			agent_config = dict(agent_config,
+				kafka_config=kafka_config,
+				working_dir=args.working_dir)
 			return BootEcoli(agent_id, agent_config)
 
 		def initialize_lattice(agent_id, agent_config):
@@ -344,11 +370,19 @@ def switch():
 		shepherd = AgentShepherd('environment-shepherd', kafka_config, initializers)
 
 	elif args.command == 'add':
+		agent_config = dict(
+			variant_type=args.variant,
+			variant_index=args.index,
+			seed=args.seed,
+			outer_id=args.id,
+			)
 		control = ShepherdControl(kafka_config)
-		control.add_ecoli(args.id)
+		control.add_ecoli(agent_config)
 		control.shutdown()
 
 	elif args.command == 'remove':
+		if not args.id:
+			raise ValueError('the "remove" command needs an --id argument')
 		control = ShepherdControl(kafka_config)
 		control.remove_agent(args.id)
 		control.shutdown()

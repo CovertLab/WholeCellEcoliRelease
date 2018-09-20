@@ -1,19 +1,15 @@
+import numpy as np
 
 CONTROL_OUTPUT = dict(
 	shortName = "control",
 	desc = "Control simulation"
 	)
 
-def allShuffleParamsTotalIndices(sim_data):
-	return None
 
-
-def allShuffleParams(sim_data, index):
-
+def all_shuffle_params(sim_data, index):
 	if index == 0:
 		return CONTROL_OUTPUT, sim_data
 
-	import numpy as np
 	np.random.seed(index)
 
 	# Shuffle transcription initiation

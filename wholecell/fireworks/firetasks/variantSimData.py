@@ -5,7 +5,7 @@ import os
 import sys
 
 from fireworks import FireTaskBase, explicit_serialize
-from models.ecoli.sim.variants import variant
+from models.ecoli.sim.variants import apply_variant
 
 
 @explicit_serialize
@@ -19,7 +19,7 @@ class VariantSimDataTask(FireTaskBase):
 		]
 
 	def run_task(self, fw_spec):
-		info, sim_data = variant.apply_variant(self["input_sim_data"], self["variant_function"], self["variant_index"])
+		info, sim_data = apply_variant.apply_variant(self["input_sim_data"], self["variant_function"], self["variant_index"])
 
 		sys.setrecursionlimit(4000)
 

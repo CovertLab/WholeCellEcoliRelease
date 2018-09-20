@@ -1,15 +1,10 @@
-
 CONTROL_OUTPUT = dict(
 	shortName = "control",
 	desc = "Control simulation"
 	)
 
-def catalystShuffleParamsTotalIndices(sim_data):
-	return None
 
-
-def catalystShuffleParams(sim_data, index):
-
+def catalyst_shuffle_params(sim_data, index):
 	if index == 0:
 		return CONTROL_OUTPUT, sim_data
 

@@ -78,26 +78,26 @@ You will see a message sent from the newly initialized simulation on the `enviro
 
 An alternate way to start the simulation is to use the agent shepherd, which will manage the spawning and removal of agents with multiprocessing rather than launching each in its own tab. To do this first start the agent shepherd:
 
-    `> python -m environment.boot shepherd`
+   `> python -m environment.boot shepherd`
 
 Now that it is running you can start an experiment:
 
-    `> python -m environment.boot experiment --number 3`
+   `> python -m environment.boot experiment --number 3`
 
 This will generate an environment agent and three simulation agents, all running in the shepherd's tab. You still need to trigger execution:
 
-    `> python -m environment.boot trigger`
+   `> python -m environment.boot trigger`
 
 Now that they are running, you can add new agents with `add`:
 
-    `> python -m environment.boot add`
+   `> python -m environment.boot add`
 
 Or remove them with `remove` given an id. This can be just the prefix of the agent's id so you don't have to type the whole uuid:
 
-    `> python -m environment.boot remove --id dgaf`
+   `> python -m environment.boot remove --id dgaf`
 
 Finally, to shut down the experiment call `shutdown` as before:
 
-    `> python -m environment.boot shutdown`
+   `> python -m environment.boot shutdown`
 
 Notice this just shuts down the experiment, the shepherd is still running and a new experiment can be started. To shut down the shepherd process, just `Ctrl-C`.

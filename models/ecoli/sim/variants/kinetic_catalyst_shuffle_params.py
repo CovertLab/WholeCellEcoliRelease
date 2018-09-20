@@ -1,19 +1,15 @@
+import numpy as np
 
 CONTROL_OUTPUT = dict(
 	shortName = "control",
 	desc = "Control simulation"
 	)
 
-def kineticCatalystShuffleParamsTotalIndices(sim_data):
-	return None
 
-
-def kineticCatalystShuffleParams(sim_data, index):
-
+def kinetic_catalyst_shuffle_params(sim_data, index):
 	if index == 0:
 		return CONTROL_OUTPUT, sim_data
 
-	import numpy as np
 	np.random.seed(index)
 	idxs = np.arange(len(sim_data.process.metabolism.reactionCatalystsList))
 	np.random.shuffle(idxs)
