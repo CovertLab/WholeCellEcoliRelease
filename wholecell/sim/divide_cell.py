@@ -2,7 +2,7 @@
 divide_cell.py
 Functions needed for division from mother cell into daughter cells
 """
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 import os
@@ -15,6 +15,15 @@ from wholecell.utils import filepath
 from wholecell.utils import units
 
 BINOMIAL_COEFF = 0.5
+
+
+def zero_elongation_rate():
+	return {
+		"d1_elng_rate": 0.,
+		"d2_elng_rate": 0.,
+		"d1_elng_rate_factor": 0.,
+		"d2_elng_rate_factor": 0.,
+		}
 
 
 def divide_cell(sim):
@@ -32,8 +41,12 @@ def divide_cell(sim):
 	current_nutrients = sim.external_states['Environment'].nutrients
 
 	# Create output directories
-	filepath.makedirs(sim._outputDir, "Daughter1")
-	filepath.makedirs(sim._outputDir, "Daughter2")
+	d1_path = filepath.makedirs(sim._outputDir, "Daughter1")
+	d2_path = filepath.makedirs(sim._outputDir, "Daughter2")
+	print('Writing daughter cell data to {} et al.'.format(d1_path))
+	# TODO(jerry): In a multi-scale sim, set inherited_state_path=d1_path and
+	# inherited_state_path=d2_path in the daughter cell agent_config dicts,
+	# along with the correct variant_type, variant_index, and seed.
 
 	# Check for uneven numbers of partial chromosomes. This should not happen
 	# too often if the four partial chromosomes are elongated in a roughly
@@ -75,8 +88,7 @@ def divide_cell(sim):
 		d2_bulkMolCntr = bulkMolecules.container.emptyLike()
 		d1_uniqueMolCntr = uniqueMolecules.container.emptyLike()
 		d2_uniqueMolCntr = uniqueMolecules.container.emptyLike()
-		daughter_elng_rates = {"d1_elng_rate": 0., "d2_elng_rate": 0.,
-			"d1_elng_rate_factor": 0., "d2_elng_rate_factor": 0.}
+		daughter_elng_rates = zero_elongation_rate()
 	else:
 		# Divide the chromosome into two daughter cells
 		# The output is used when dividing both bulk molecules and unique
@@ -274,6 +286,8 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts, curre
 	moleculeSet = uniqueMolecules.container.objectsInCollection('activeRibosome')
 	moleculeAttributeDict = uniqueMoleculesToDivide['activeRibosome']
 	n_ribosomes = len(moleculeSet)
+
+	daughter_elng_rates = zero_elongation_rate()
 
 	if n_ribosomes > 0:
 		# Read the ribosome elongation rate of the mother cell
