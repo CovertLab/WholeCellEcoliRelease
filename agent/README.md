@@ -130,6 +130,15 @@ The environment receives this message and waits until it receives all outstandin
 
 At this point all three processes have exited.
 
+Alternatively, you can pause the simulation if you want to restart it later (unlike shutdown, which actually terminates the simulations). 
+
+    4> python -m agent.boot pause --id out
+
+While paused the simulations will not progress, but they are still running and available to resume with `trigger`:
+
+    5> python -m agent.boot trigger --id out
+
+Now they are all happily running again.
 
 **Tip:** You can shut down an individual agent (say #1) like this:
 
