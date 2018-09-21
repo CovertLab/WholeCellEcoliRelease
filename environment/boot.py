@@ -256,6 +256,8 @@ class EnvironmentCommand(AgentCommand):
 	def ecoli(self, args):
 		if not args.id:
 			raise ValueError('the "ecoli" command needs an --id argument')
+		if not args.outer_id:
+			raise ValueError('the "ecoli" command needs an --outer-id argument')
 
 		agent_config = dict(
 			kafka_config=self.kafka_config,
@@ -263,6 +265,7 @@ class EnvironmentCommand(AgentCommand):
 			variant_type=args.variant,
 			variant_index=args.index,
 			seed=args.seed,
+			outer_id=args.outer_id
 			)
 		BootEcoli(args.id, agent_config)
 

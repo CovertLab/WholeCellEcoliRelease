@@ -250,4 +250,3 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 	def remove_simulation(self, agent_id):
 		self.simulations.pop(agent_id, {})
 		self.locations.pop(agent_id, {})
-

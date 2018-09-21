@@ -138,4 +138,3 @@ class Inner(Agent):
 
 			else:
 				print('unexpected event {}: {}'.format(message['event'], message))
-

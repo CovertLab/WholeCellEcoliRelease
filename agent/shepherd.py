@@ -49,6 +49,8 @@ class AgentShepherd(Agent):
 	def initialize(self):
 		print('agent shepherd waiting')
 
+	
+	# TODO(Ryan): add command to list agent state
 	def add_agent(self, agent_id, agent_type, agent_config):
 		"""
 		Add a new agent for the shepherd to track.
