@@ -109,19 +109,23 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		# Adjust probabilities to not be negative
 		self.rnaSynthProb[self.rnaSynthProb < 0] = 0.0
 		self.rnaSynthProb /= self.rnaSynthProb.sum()
-		if np.any(self.rnaSynthProb < 0):
-			raise Exception("Have negative RNA synthesis probabilities")
 
 		# Adjust synthesis probabilities depending on environment
 		current_nutrients = self._external_states['Environment'].nutrients
-
 		synthProbFractions = self.rnaSynthProbFractions[current_nutrients]
+
+		# Allocate synthesis probabilities based on type of RNA
 		self.rnaSynthProb[self.isMRna] *= synthProbFractions["mRna"] / self.rnaSynthProb[self.isMRna].sum()
 		self.rnaSynthProb[self.isTRna] *= synthProbFractions["tRna"] / self.rnaSynthProb[self.isTRna].sum()
 		self.rnaSynthProb[self.isRRna] *= synthProbFractions["rRna"] / self.rnaSynthProb[self.isRRna].sum()
+
+		# Set fixed synthesis probabilities for RProteins and RNAPs
 		self.rnaSynthProb[self.isRProtein] = self.rnaSynthProbRProtein[current_nutrients]
 		self.rnaSynthProb[self.isRnap] = self.rnaSynthProbRnaPolymerase[current_nutrients]
-		self.rnaSynthProb[self.rnaSynthProb < 0] = 0
+
+		assert self.rnaSynthProb[self.setIdxs].sum() < 1.0
+
+		# Scale remaining synthesis probabilities accordingly
 		scaleTheRestBy = (1. - self.rnaSynthProb[self.setIdxs].sum()) / self.rnaSynthProb[~self.setIdxs].sum()
 		self.rnaSynthProb[~self.setIdxs] *= scaleTheRestBy
 
