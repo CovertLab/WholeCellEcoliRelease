@@ -72,12 +72,12 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		if os.path.exists("out/manual/locations.txt"):
 			os.remove("out/manual/locations.txt")
 
-		glucose_lattice = self.lattice[self.molecule_index['GLC[p]']]
-		plt.imshow(glucose_lattice, vmin=0, vmax=25, cmap='YlGn')
-		plt.colorbar()
-		plt.axis('off')
-		plt.pause(0.0001)
-
+		if animating:
+			glucose_lattice = self.lattice[self.molecule_index['GLC[p]']]
+			plt.imshow(glucose_lattice, vmin=0, vmax=25, cmap='YlGn')
+			plt.colorbar()
+			plt.axis('off')
+			plt.pause(0.0001)
 
 	def evolve(self):
 		''' Evolve environment '''
@@ -130,8 +130,9 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 
 	def run_incremental(self, run_until):
 		''' Simulate until run_until '''
-		self.output_environment()
-		self.output_locations()
+		if animating:
+			self.output_environment()
+			self.output_locations()
 
 		while self._time < run_until:
 			self._time += self._timestep
