@@ -290,17 +290,6 @@ class EnvironmentCommand(AgentCommand):
 		control.lattice_experiment(args.number)
 		control.shutdown()
 
-	def execute(self):
-		args = self.args
-		if args.command == 'lattice':
-			self.lattice(args)
-
-		elif args.command == 'ecoli':
-			self.ecoli(args)
-
-		else:
-			super(EnvironmentCommand, self).execute()
-
 
 if __name__ == '__main__':
 	command = EnvironmentCommand()

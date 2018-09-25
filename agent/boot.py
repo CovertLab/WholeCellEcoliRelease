@@ -297,33 +297,11 @@ class AgentCommand(object):
 
 	def execute(self):
 		args = self.args
-
-		if args.command == 'inner':
-			self.inner(args)
-
-		elif args.command == 'outer':
-			self.outer(args)
-
-		elif args.command == 'trigger':
-			self.trigger(args)
-
-		elif args.command == 'pause':
-			self.pause(args)
-
-		elif args.command == 'shepherd':
-			self.shepherd(args)
-
-		elif args.command == 'add':
-			self.add(args)
-
-		elif args.command == 'remove':
-			self.remove(args)
-
-		elif args.command == 'experiment':
-			self.experiment(args)
-
-		elif args.command == 'shutdown':
-			self.shutdown(args)
+		command = args.command
+		if command in self.choices:
+			getattr(self, command)(args)
+		else:
+			raise ValueError("unrecognized command: {}".format(command))
 
 if __name__ == '__main__':
 	command = AgentCommand([])
