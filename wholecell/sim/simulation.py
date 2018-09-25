@@ -415,8 +415,9 @@ class Simulation(CellSimulation):
 
 	def get_environment_change(self):
 		# sends environment a dictionary with relevant state changes
-		return {'volume': self.listeners['Mass'].volume,
-				'environment_change': self.external_states['Environment'].get_environment_change()}
+		return {
+			'volume': self.listeners['Mass'].volume,
+			'environment_change': self.external_states['Environment'].get_environment_change()}
 
 	def synchronize_state(self, state):
 		if 'time' in state:

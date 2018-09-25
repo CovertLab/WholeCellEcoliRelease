@@ -49,6 +49,8 @@ class AgentShepherd(Agent):
 	def initialize(self):
 		print('agent shepherd waiting')
 
+	
+	# TODO(Ryan): add command to list agent state
 	def add_agent(self, agent_id, agent_type, agent_config):
 		"""
 		Add a new agent for the shepherd to track.
@@ -80,7 +82,7 @@ class AgentShepherd(Agent):
 
 	def remove_agent(self, agent_prefix):
 		"""
-		Remove an agent from the pool given a prefix of its id.
+		Remove all agents from the pool with an id containing the given prefix.
 
 		Args:
 		    agent_prefix (str): This prefix will match all agent ids that begin with the
@@ -95,9 +97,9 @@ class AgentShepherd(Agent):
 		for key in removing:
 			removed[key] = self.agents.pop(key)
 			if removed[key]['process'].is_alive():
-				self.send(self.kafka_config['simulation_receive'], {
-					'event': event.SHUTDOWN_SIMULATION,
-					'inner_id': key})
+				self.send(self.kafka_config['agent_receive'], {
+					'event': event.SHUTDOWN_AGENT,
+					'agent_id': key})
 
 		print('removal complete {}'.format(removing))
 

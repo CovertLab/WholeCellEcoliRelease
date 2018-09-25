@@ -1,8 +1,9 @@
 from __future__ import absolute_import, division, print_function
 
+import numpy as np
+
 import agent.event as event
 from agent.agent import Agent
-
 
 class EnvironmentSimulation(object):
 	"""Interface for the Outer agent's Environment simulation."""
@@ -22,21 +23,19 @@ class EnvironmentSimulation(object):
 		"""
 		return {}
 
-	def update_from_simulations(self, changes):
-		"""Update the environment's state of the inner agent simulations given the
-		changes dictionary mapping agent_id to dictionary of molecule counts.
-		"""
-
-	def run_simulations_until(self):
-		"""Return a dictionary of agent_id to time for each inner agent simulation to
-		run until. The environment will run until it reaches the minimum of these.
+	def update_from_simulations(self, update, now):
+		"""Update the environment's state of only the inner agent simulations that have reached
+		but not passed the `now` time point, given the `update` dictionary mapping agent_id to
+		dictionary of molecule counts.
 		"""
 
 	def get_molecule_ids(self):
 		"""Return the list of molecule IDs."""
 
-	def get_concentrations(self):
-		"""Return a dictionary of agent_id to concentrations coming from the environment."""
+	def get_concentrations(self, now):
+		"""Return a dictionary of agent_id to concentrations coming from the environment for
+		each agent that has run to `now` but not past.
+		"""
 
 	def run_incremental(self, time):
 		"""Run the environment's own simulation until the given time."""
@@ -97,45 +96,44 @@ class Outer(Agent):
 		print('environment shutting down')
 
 	def initialize_simulation(self, message):
-		agent_id = message['inner_id']
-		self.simulations[agent_id] = {
-			'time': self.environment.time(),
+		inner_id = message['inner_id']
+		environment_time = self.environment.time()
+		simulation_time = max(environment_time, message.get('time', environment_time))
+
+		self.simulations[inner_id] = {
+			'time': simulation_time,
 			'message_id': -1,
 			'last_message_id': -1,
-			'changes': message['changes']}
+			'state': message['state']}
 
 		self.send(self.kafka_config['simulation_receive'], {
 			'event': event.SYNCHRONIZE_SIMULATION,
-			'inner_id': agent_id,
-			'state': self.environment.simulation_parameters(agent_id),
-		})
+			'inner_id': inner_id,
+			'outer_id': self.agent_id,
+			'state': self.environment.simulation_parameters(inner_id)})
 
-		self.environment.add_simulation(agent_id, message['changes'])
+		self.environment.add_simulation(inner_id, message)
 
 	def update_state(self):
 		""" Called before each simulation is updated with the current state of the system. """
 		pass
 
-	def send_concentrations(self):
+	def send_concentrations(self, now, run_until):
 		""" Send updated concentrations to each inner agent. """
 
-		concentrations = self.environment.get_concentrations()
-		run_until = self.environment.run_simulations_until()
+		concentrations = self.environment.get_concentrations(now)
+		self.update_state()
 
-		if run_until:
-			self.update_state()
-
-			for agent_id, simulation in self.simulations.iteritems():
+		for inner_id, simulation in self.simulations.iteritems():
+			if inner_id in concentrations:
 				simulation['message_id'] += 1
 				self.send(self.kafka_config['simulation_receive'], {
-					'inner_id': agent_id,
-					'message_id': simulation['message_id'],
 					'event': event.ENVIRONMENT_UPDATED,
-					'concentrations': concentrations[agent_id],
-					'run_until': run_until[agent_id]})
-
-			minimum_until = min(run_until.values())
-			self.environment.run_incremental(minimum_until)
+					'outer_id': self.agent_id,
+					'inner_id': inner_id,
+					'message_id': simulation['message_id'],
+					'concentrations': concentrations[inner_id],
+					'run_until': run_until})
 
 	def ready_to_advance(self):
 		"""
@@ -153,24 +151,56 @@ class Outer(Agent):
 		return ready
 
 	def advance(self):
+		"""
+		Advance the environment once it has heard back from all registered simulations,
+		then send out the newly calculated concentrations to each simulation.
+
+		This will check first to see if all cells are ready to advance, then it
+		will check to see how long each cell actually ran, only advancing to
+		the earliest time point a cell hit. In this way the environment is always
+		running behind the cells, and each cell only runs once all other
+		cells and the environment have caught up to it.
+		"""
+
 		if not self.paused and self.ready_to_advance():
 			if self.shutting_down:
 				self.send_shutdown()
 			else:
-				changes = self.simulation_changes()
-				self.environment.update_from_simulations(changes)
-				self.send_concentrations()
+				# compare the length of each simulation's run
+				ran = np.sort([
+					simulation['time']
+					for simulation in self.simulations.values()])
 
-	def simulation_changes(self):
-		return {
-			agent_id: simulation['changes']
-			for agent_id, simulation in self.simulations.iteritems()}
+				# find the earliest time a simulation ran to
+				now = ran[0] if ran.size > 0 else 0
+
+				# find any other (longer) run times
+				later = ran[ran > now]
+
+				# apply all the updates received from the simulations to the
+				# environment's original time point
+				self.environment.update_from_simulations(self.simulations, now)
+
+				# run the environment to the current time point
+				self.environment.run_incremental(now)
+
+				# find the next time for simulations to achieve
+				run_until = self.environment.time() + self.environment.run_for
+
+				# unless there is an earlier time a simulation arrived at
+				if later.size > 0:
+					run_until = later[0] 
+
+				print('============= environment | ran: {}, now: {}, later: {}, run_until: {}, time: {}'.format(ran, now, later, run_until, self.environment.time()))
+
+				self.send_concentrations(now, run_until)
 
 	def send_shutdown(self):
-		for agent_id, simulation in self.simulations.iteritems():
+		for inner_id, simulation in self.simulations.iteritems():
 			self.send(self.kafka_config['simulation_receive'], {
-				'inner_id': agent_id,
-				'event': event.SHUTDOWN_SIMULATION})
+				'outer_id': self.agent_id,
+				'inner_id': inner_id,
+				'event': event.SHUTDOWN_AGENT})
 
 	def receive(self, topic, message):
 		"""
@@ -198,47 +228,48 @@ class Outer(Agent):
 		    have reported back that they have shut down the outer agent can complete.
 		"""
 
-		print('--> {}: {}'.format(topic, message))
+		if message.get('outer_id', message.get('agent_id')) == self.agent_id:
+			print('--> {}: {}'.format(topic, message))
 
-		if message['event'] == event.SIMULATION_INITIALIZED:
-			self.initialize_simulation(message)
+			if message['event'] == event.SIMULATION_INITIALIZED:
+				self.initialize_simulation(message)
 
-		elif message['event'] == event.TRIGGER_EXECUTION:
-			self.paused = False
-			self.advance()
+			elif message['event'] == event.TRIGGER_EXECUTION:
+				self.paused = False
+				self.advance()
 
-		elif message['event'] == event.SIMULATION_ENVIRONMENT:
-			if message['inner_id'] in self.simulations:
-				simulation = self.simulations[message['inner_id']]
+			elif message['event'] == event.SIMULATION_ENVIRONMENT:
+				if message['inner_id'] in self.simulations:
+					simulation = self.simulations[message['inner_id']]
 
-				if message['message_id'] == simulation['message_id']:
-					simulation['changes'] = message['changes']
-					simulation['time'] = message['time']
-					simulation['last_message_id'] = message['message_id']
+					if message['message_id'] == simulation['message_id']:
+						simulation['state'] = message['state']
+						simulation['time'] = message['time']
+						simulation['last_message_id'] = message['message_id']
 
-					self.advance()
+						self.advance()
 
-		elif message['event'] == event.PAUSE_ENVIRONMENT:
-			self.paused = True
+			elif message['event'] == event.PAUSE_ENVIRONMENT:
+				self.paused = True
 
-		elif message['event'] == event.SHUTDOWN_ENVIRONMENT:
-			if len(self.simulations) > 0:
-				if self.ready_to_advance():
-					self.send_shutdown()
+			elif message['event'] == event.SHUTDOWN_AGENT:
+				if len(self.simulations) > 0:
+					if self.ready_to_advance():
+						self.send_shutdown()
+					else:
+						self.shutting_down = True
 				else:
-					self.shutting_down = True
-			else:
-				self.shutdown()
-
-		elif message['event'] == event.SIMULATION_SHUTDOWN:
-			if message['inner_id'] in self.simulations:
-				gone = self.simulations.pop(message['inner_id'], {'inner_id': -1})
-				self.environment.remove_simulation(message['inner_id'])
-
-				print('simulation shutdown: ' + str(gone))
-
-				if not self.simulations:
 					self.shutdown()
 
-		else:
-			print('unexpected event {}: {}'.format(message['event'], message))
+			elif message['event'] == event.SIMULATION_SHUTDOWN:
+				if message['inner_id'] in self.simulations:
+					gone = self.simulations.pop(message['inner_id'], {'inner_id': -1})
+					self.environment.remove_simulation(message['inner_id'])
+
+					print('simulation shutdown: ' + str(gone))
+
+					if not self.simulations:
+						self.shutdown()
+
+			else:
+				print('unexpected event {}: {}'.format(message['event'], message))
