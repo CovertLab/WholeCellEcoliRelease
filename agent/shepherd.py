@@ -82,7 +82,7 @@ class AgentShepherd(Agent):
 
 	def remove_agent(self, agent_prefix):
 		"""
-		Remove an agent from the pool given a prefix of its id.
+		Remove all agents from the pool with an id containing the given prefix.
 
 		Args:
 		    agent_prefix (str): This prefix will match all agent ids that begin with the
@@ -97,7 +97,7 @@ class AgentShepherd(Agent):
 		for key in removing:
 			removed[key] = self.agents.pop(key)
 			if removed[key]['process'].is_alive():
-				self.send(self.kafka_config['simulation_receive'], {
+				self.send(self.kafka_config['agent_receive'], {
 					'event': event.SHUTDOWN_AGENT,
 					'agent_id': key})
 
