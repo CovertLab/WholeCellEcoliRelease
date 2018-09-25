@@ -84,9 +84,7 @@ class BootEcoli(object):
 		* variant_index (optional)
 		* seed (optional)
 	'''
-	def __init__(
-			self, agent_id, agent_config,
-			variant_type='wildtype', variant_index=0, seed=0):
+	def __init__(self, agent_id, agent_config):
 		self.agent_id = agent_id
 
 		kafka_config = agent_config['kafka_config']
@@ -195,15 +193,15 @@ class EnvironmentCommand(AgentCommand):
 		description = '''
 		Run an agent for the environmental context simulation.
 		The commands are:
-		`add [--variant V] [--index I] [--seed S]` ask the Shepherd to add an Ecoli agent,
-		`ecoli --id ID [--working-dir D] [--variant V] [--index I] [--seed S]` run an Ecoli agent in this process,
+		`add --id OUTER_ID [--variant V] [--index I] [--seed S]` ask the Shepherd to add an Ecoli agent,
+		`ecoli --id ID --outer-id OUTER_ID [--working-dir D] [--variant V] [--index I] [--seed S]` run an Ecoli agent in this process,
 		`experiment [--number N]` ask the Shepherd to run a Lattice agent and N Ecoli agents,
 		`lattice` run a Lattice environment agent in this process,
-		`pause` pause the simulation,
-		`remove --id ID` ask all Shepherds to remove agents "ID*",
+		`pause --id OUTER_ID` pause the simulation,
+		`remove --id OUTER_ID` ask all Shepherds to remove agents "ID*",
 		`shepherd [--working-dir D]` run a Shepherd agent in this process,
-		`shutdown` shut down the environment agent and all its connected agents,
-		`trigger` start running the simulation'''
+		`shutdown --id OUTER_ID` shut down the environment agent and all its connected agents,
+		`trigger --id OUTER_ID` start running the simulation'''
 
 		super(EnvironmentCommand, self).__init__(choices, description)
 

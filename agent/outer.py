@@ -24,8 +24,9 @@ class EnvironmentSimulation(object):
 		return {}
 
 	def update_from_simulations(self, update, now):
-		"""Update the environment's state of the inner agent simulations given the
-		changes dictionary mapping agent_id to dictionary of molecule counts.
+		"""Update the environment's state of only the inner agent simulations that have reached
+		but not passed the `now` time point, given the `update` dictionary mapping agent_id to
+		dictionary of molecule counts.
 		"""
 
 	def get_molecule_ids(self):
@@ -152,11 +153,11 @@ class Outer(Agent):
 		Advance the environment once it has heard back from all registered simulations,
 		then send out the newly calculated concentrations to each simulation.
 
-		This will check first to see if all simulations are ready to advance, then it
-		will check to see how long each simulation actually ran, only advancing to
-		the earliest time point a simulation hit. In this way the environment is always
-		running behind the simulations, and each simulation only runs once all other
-		simulations have caught up to it (including the environment).
+		This will check first to see if all cells are ready to advance, then it
+		will check to see how long each cell actually ran, only advancing to
+		the earliest time point a cell hit. In this way the environment is always
+		running behind the cells, and each cell only runs once all other
+		cells and the environment have caught up to it.
 		"""
 
 		if not self.paused and self.ready_to_advance():
