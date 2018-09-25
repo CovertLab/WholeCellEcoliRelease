@@ -28,8 +28,8 @@ class SimulationStub(CellSimulation):
 	def initialize_local_environment(self):
 		pass
 
-	def set_local_environment(self, concentrations):
-		self.concentrations = concentrations
+	def set_local_environment(self, update):
+		self.concentrations = update['concentrations']
 
 		# TODO(Ryan): consider if the outer agent should send a previous message
 		#     establishing what keys are in this dict to avoid this preset state. 
@@ -114,11 +114,12 @@ class EnvironmentStub(EnvironmentSimulation):
 	def get_molecule_ids(self):
 		return self.concentrations.keys()
 
-	def get_concentrations(self, now):
+	def simulation_updates(self, now):
 		state = {}
 		for agent_id, simulation in self.simulations.iteritems():
 			if simulation['time'] <= now:
-				state[agent_id] = self.concentrations
+				state[agent_id] = {}
+				state[agent_id]['concentrations'] = self.concentrations
 
 		return state
 

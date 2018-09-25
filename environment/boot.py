@@ -80,6 +80,7 @@ class BootEcoli(object):
 		* kafka_config
 		* working_dir (wcEcoli path containing the sim path out/manual/)
 		* inherited_state_path (optional, to make a daughter cell)
+		* start_time (optional)
 		* variant_type (optional)
 		* variant_index (optional)
 		* seed (optional)
@@ -232,7 +233,8 @@ class EnvironmentCommand(AgentCommand):
 		initializers = super(EnvironmentCommand, self).shepherd_initializers(args)
 
 		def initialize_ecoli(agent_id, agent_config):
-			agent_config = dict(agent_config,
+			agent_config = dict(
+				agent_config,
 				kafka_config=self.kafka_config,
 				working_dir=args.working_dir)
 			return BootEcoli(agent_id, agent_config)
@@ -263,8 +265,7 @@ class EnvironmentCommand(AgentCommand):
 			variant_type=args.variant,
 			variant_index=args.index,
 			seed=args.seed,
-			outer_id=args.outer_id
-			)
+			outer_id=args.outer_id)
 		BootEcoli(args.id, agent_config)
 
 	def add(self, args):

@@ -409,9 +409,9 @@ class Simulation(CellSimulation):
 	def initialize_local_environment(self):
 		pass
 
-	def set_local_environment(self, concentrations):
+	def set_local_environment(self, update):
 		# concentrations are received as a dict
-		self.external_states['Environment'].set_local_environment(concentrations)
+		self.external_states['Environment'].set_local_environment(update['concentrations'])
 
 	def get_environment_change(self):
 		# sends environment a dictionary with relevant state changes

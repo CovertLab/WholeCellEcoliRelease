@@ -111,8 +111,8 @@ class Inner(Agent):
 			print('--> {}: {}'.format(topic, message))
 
 			if message['event'] == event.ENVIRONMENT_UPDATED:
-				self.simulation.set_local_environment(
-					message['concentrations'])
+				update = message['state']
+				self.simulation.set_local_environment(update)
 
 				self.simulation.run_incremental(message['run_until'])
 

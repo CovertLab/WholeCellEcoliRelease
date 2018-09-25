@@ -32,7 +32,7 @@ class EnvironmentSimulation(object):
 	def get_molecule_ids(self):
 		"""Return the list of molecule IDs."""
 
-	def get_concentrations(self, now):
+	def simulation_updates(self, now):
 		"""Return a dictionary of agent_id to concentrations coming from the environment for
 		each agent that has run to `now` but not past.
 		"""
@@ -118,21 +118,21 @@ class Outer(Agent):
 		""" Called before each simulation is updated with the current state of the system. """
 		pass
 
-	def send_concentrations(self, now, run_until):
+	def send_updates(self, now, run_until):
 		""" Send updated concentrations to each inner agent. """
 
-		concentrations = self.environment.get_concentrations(now)
+		update = self.environment.simulation_updates(now)
 		self.update_state()
 
 		for inner_id, simulation in self.simulations.iteritems():
-			if inner_id in concentrations:
+			if inner_id in update:
 				simulation['message_id'] += 1
 				self.send(self.kafka_config['simulation_receive'], {
 					'event': event.ENVIRONMENT_UPDATED,
 					'outer_id': self.agent_id,
 					'inner_id': inner_id,
 					'message_id': simulation['message_id'],
-					'concentrations': concentrations[inner_id],
+					'state': update[inner_id],
 					'run_until': run_until})
 
 	def ready_to_advance(self):
@@ -193,7 +193,7 @@ class Outer(Agent):
 
 				print('============= environment | ran: {}, now: {}, later: {}, run_until: {}, time: {}'.format(ran, now, later, run_until, self.environment.time()))
 
-				self.send_concentrations(now, run_until)
+				self.send_updates(now, run_until)
 
 	def send_shutdown(self):
 		for inner_id, simulation in self.simulations.iteritems():
@@ -212,6 +212,7 @@ class Outer(Agent):
 		Control messages:
 
 		* TRIGGER_EXECUTION: Send messages to all registered inner agents to begin execution.
+		* PAUSE_ENVIRONMENT: Stop sending messages until another TRIGGER_ENVIRONMENT is received.
 		* SHUTDOWN_ENVIRONMENT: Send messages to inner agents notifying them that the outer agent
 		    is shutting down, and wait for acknowledgement before exiting.
 
