@@ -23,16 +23,13 @@ class EnvironmentSimulation(object):
 		"""
 		return {}
 
-	def update_from_simulations(self, update, now):
+	def apply_inner_update(self, update, now):
 		"""Update the environment's state of only the inner agent simulations that have reached
 		but not passed the `now` time point, given the `update` dictionary mapping agent_id to
 		dictionary of molecule counts.
 		"""
 
-	def get_molecule_ids(self):
-		"""Return the list of molecule IDs."""
-
-	def simulation_updates(self, now):
+	def generate_outer_update(self, now):
 		"""Return a dictionary of agent_id to concentrations coming from the environment for
 		each agent that has run to `now` but not past.
 		"""
@@ -121,7 +118,7 @@ class Outer(Agent):
 	def send_updates(self, now, run_until):
 		""" Send updated concentrations to each inner agent. """
 
-		update = self.environment.simulation_updates(now)
+		update = self.environment.generate_outer_update(now)
 		self.update_state()
 
 		for inner_id, simulation in self.simulations.iteritems():
@@ -179,7 +176,7 @@ class Outer(Agent):
 
 				# apply all the updates received from the simulations to the
 				# environment's original time point
-				self.environment.update_from_simulations(self.simulations, now)
+				self.environment.apply_inner_update(self.simulations, now)
 
 				# run the environment to the current time point
 				self.environment.run_incremental(now)
