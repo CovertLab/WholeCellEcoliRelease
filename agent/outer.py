@@ -33,7 +33,9 @@ class EnvironmentSimulation(object):
 		"""Return the list of molecule IDs."""
 
 	def get_concentrations(self, now):
-		"""Return a dictionary of agent_id to concentrations coming from the environment."""
+		"""Return a dictionary of agent_id to concentrations coming from the environment for
+		each agent that has run to `now` but not past.
+		"""
 
 	def run_incremental(self, time):
 		"""Run the environment's own simulation until the given time."""

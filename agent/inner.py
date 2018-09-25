@@ -55,6 +55,8 @@ class Inner(Agent):
 					updates to the environment.
 			agent_id (str): Unique identifier for this agent.
 				This agent will only respond to messages addressed to its inner agent_id.
+			outer_id (str): Unique identifier for the outer agent this agent belongs to.
+		        All messages to an outer agent will be addressed to this id.
 			simulation (CellSimulation): The actual simulation which will perform the
 				calculations.
 		"""
