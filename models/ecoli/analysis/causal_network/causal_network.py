@@ -6,19 +6,21 @@ from a multi-generation simulation.
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/26/2018
 """
+from __future__ import absolute_import
 from __future__ import division
 
-import argparse
-import os
 import cPickle
-
 import numpy as np
-import csv
+import os
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
+from models.ecoli.analysis import singleAnalysisPlot
+from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
+from wholecell.utils import filepath
 import wholecell.utils.constants
 from wholecell.utils import units
+
+from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 
 NODE_LIST_HEADER = "ID\tclass\tcategory\tname\tsynonyms\tconstants\n"
 EDGE_LIST_HEADER = "src_node_id\tdst_node_id\tstoichiometry\tprocess\n"
@@ -29,9 +31,8 @@ PATHWAYS_FILENAME = "models/ecoli/analysis/causal_network/metabolic_pathways.tsv
 
 NAMES_PATHWAY = "models/ecoli/analysis/causal_network/names/"
 
-CHECK_SANITY = False
+CHECK_SANITY = True
 GET_PATHWAY_INDEX = False
-N_GENS = 9 # TODO (Eran) this is structures as a multigen analysis, what if we want to analyze single gen?
 DYNAMICS_PRECISION = 6
 PROBABILITY_PRECISION = 4
 TIME_PRECISION = 2
@@ -212,35 +213,28 @@ class Edge:
 		edgelist_file.write(edge_row)
 
 
-def add_global_nodes(simData, simOutDirs, node_list):
+def add_global_nodes(sim_data, simOutDir, node_list):
 	"""
 	Add global state nodes to the node list.
 	"""
 	# Get bulkMolecule IDs from first simOut directory
-	simOutDir = simOutDirs[0]
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	moleculeIDs = bulkMolecules.readAttribute("objectNames")
 
 	# Get index of full chromosome
-	full_chrom_idx = moleculeIDs.index(simData.moleculeGroups.fullChromosome[0])
+	full_chrom_idx = moleculeIDs.index(sim_data.moleculeIds.fullChromosome)
 
-	mass_array = np.empty(0)
-	volume_array = np.empty(0)
-	fc_counts_array = np.empty(0, dtype=np.int)
+	# Extract dynamics data from each generation
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+	counts = bulkMolecules.readColumn("counts")
 
-	# Loop through all generations
-	for simOutDir in simOutDirs:
-		# Extract dynamics data from each generation
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		counts = bulkMolecules.readColumn("counts")
+	cell_mass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")
+	cell_volume = ((1.0/sim_data.constants.cellDensity)*(units.fg*cell_mass)).asNumber(units.L)
 
-		cell_mass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")
-		cell_volume = ((1.0/simData.constants.cellDensity)*(units.fg*cell_mass)).asNumber(units.L)
-
-		# Append to existing array
-		fc_counts_array = np.concatenate((fc_counts_array, counts[:, full_chrom_idx].astype(np.int)))
-		mass_array = np.concatenate((mass_array, cell_mass))
-		volume_array = np.concatenate((volume_array, cell_volume))
+	# Append to existing array
+	fc_counts_array = counts[:, full_chrom_idx].astype(np.int)
+	mass_array = cell_mass
+	volume_array = cell_volume
 
 	# Add total cell mass node to node list
 	mass_node = Node("State", "Global")
@@ -272,27 +266,21 @@ def add_global_nodes(simData, simOutDirs, node_list):
 	node_list.extend([mass_node, volume_node, chromosome_node])
 
 
-def add_replication_and_genes(simData, simOutDirs, node_list, edge_list, names_dict):
+def add_replication_and_genes(sim_data, simOutDir, node_list, edge_list, names_dict):
 	"""
 	Add replication process nodes and gene state nodes with dynamics data to
 	the node list, and the edges connected to the replication nodes to the edge
 	list. - Heejo
 	"""
-	dntp_ids = simData.moleculeGroups.dNtpIds
+	dntp_ids = sim_data.moleculeGroups.dNtpIds
 	ppi_id = "PPI[c]"
 	dnap_ids = ['CPLX0-2361[c]', 'CPLX0-3761[c]', 'CPLX0-3925[c]', 'CPLX0-7910[c]']
 
-	# Assemble dynamics data from all generations
-	rnaSynthProb = []
-	for simOutDir in simOutDirs:
-		rnaSynthProbReader = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
-		rnaSynthProb_thisGen = rnaSynthProbReader.readColumn("rnaSynthProb")
-		rnaSynthProbReader.close()
-		rnaSynthProb.append(rnaSynthProb_thisGen)
-	rnaSynthProb = np.concatenate(rnaSynthProb)
+	rnaSynthProbReader = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
+	rnaSynthProb = rnaSynthProbReader.readColumn("rnaSynthProb")
 
 	# Loop through all genes (in the order listed in transcription)
-	for i, geneId in enumerate(simData.process.transcription.rnaData["geneId"]):
+	for i, geneId in enumerate(sim_data.process.transcription.rnaData["geneId"]):
 		# Initialize a single gene node
 		gene_node = Node("State", "Gene")
 
@@ -307,7 +295,6 @@ def add_replication_and_genes(simData, simOutDirs, node_list, edge_list, names_d
 			attr = {'node_id': geneId,
 				'name': geneId
 				}
-			print geneId
 
 		gene_node.read_attributes(**attr)
 
@@ -367,40 +354,30 @@ def add_replication_and_genes(simData, simOutDirs, node_list, edge_list, names_d
 			edge_list.append(pol_to_replication_edge)
 
 
-def add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list, names_dict):
+def add_transcription_and_transcripts(sim_data, simOutDir, node_list, edge_list, names_dict):
 	"""
 	Add transcription process nodes and transcript state nodes with dynamics
 	data to the node list, and edges connected to the transcription nodes to
 	the edge list. - Heejo
 	"""
-	ntp_ids = simData.moleculeGroups.ntpIds
+	ntp_ids = sim_data.moleculeGroups.ntpIds
 	ppi_id = "PPI[c]"
 	rnap_id = "APORNAP-CPLX[c]"
 
 	# Get bulkMolecule IDs from first simOut directory
-	simOutDir = simOutDirs[0]
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	moleculeIDs = bulkMolecules.readAttribute("objectNames")
 
-	# Get dynamics data from all simOutDirs
-	counts_array = np.empty((0, len(moleculeIDs)), dtype=np.int)
-	nRnaInits = []
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+	counts_array = bulkMolecules.readColumn("counts")
 
-	for simOutDir in simOutDirs:
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		counts = bulkMolecules.readColumn("counts")
-		counts_array = np.concatenate((counts_array, counts))
-
-		rnapDataReader = TableReader(os.path.join(simOutDir, "RnapData"))
-		rnaInitEvent = rnapDataReader.readColumn("rnaInitEvent")
-		rnapDataReader.close()
-		nRnaInits.append(rnaInitEvent)
-	nRnaInits = np.concatenate(nRnaInits)
+	rnapDataReader = TableReader(os.path.join(simOutDir, "RnapData"))
+	n_rna_inits = rnapDataReader.readColumn("rnaInitEvent")
 
 	# Loop through all genes (in the order listed in transcription)
-	for i, rnaId in enumerate(simData.process.transcription.rnaData["id"]):
-		geneId = simData.process.transcription.rnaData["geneId"][i]
-		isMRna = simData.process.transcription.rnaData["isMRna"][i]
+	for i, rnaId in enumerate(sim_data.process.transcription.rnaData["id"]):
+		geneId = sim_data.process.transcription.rnaData["geneId"][i]
+		isMRna = sim_data.process.transcription.rnaData["isMRna"][i]
 
 		# Initialize a single transcript node
 		rna_node = Node("State", "RNA")
@@ -424,7 +401,6 @@ def add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list,
 			attr = {'node_id': rnaId,
 				'name': rnaId
 				}
-			print rnaId
 
 		rna_node.read_attributes(**attr)
 
@@ -456,7 +432,7 @@ def add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list,
 
 		# Add dynamics data to the node. The number of transcription initiation
 		# events (per gene per second) shares the same index as the rnaId.
-		dynamics = {"transcription initiations": list(nRnaInits[:, i])}
+		dynamics = {"transcription initiations": list(n_rna_inits[:, i])}
 		dynamics_units = {"transcription initiations": "N"}
 		transcription_node.read_dynamics(dynamics, dynamics_units)
 
@@ -495,50 +471,38 @@ def add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list,
 		edge_list.append(pol_to_transcription_edge)
 
 
-def add_translation_and_monomers(simData, simOutDirs, node_list, edge_list, names_dict):
+def add_translation_and_monomers(sim_data, simOutDir, node_list, edge_list, names_dict):
 	"""
 	Add translation process nodes and protein (monomer) state nodes with
 	dynamics data to the node list, and edges connected to the translation
 	nodes to the edge list. - Heejo
 	"""
 	# Create nodes for amino acids
-	aa_ids = simData.moleculeGroups.aaIDs
+	aa_ids = sim_data.moleculeGroups.aaIDs
 	gtp_id = "GTP[c]"
 	gdp_id = "GDP[c]"
 	water_id = "WATER[c]"
 	ppi_id = "PPI[c]"
 
-	ribosome_subunit_ids = [simData.moleculeGroups.s30_fullComplex[0], simData.moleculeGroups.s50_fullComplex[0]]
-	n_avogadro = simData.constants.nAvogadro
+	ribosome_subunit_ids = [sim_data.moleculeIds.s30_fullComplex, sim_data.moleculeIds.s50_fullComplex]
+	n_avogadro = sim_data.constants.nAvogadro
 
 	# Get bulkMolecule IDs from first simOut directory
-	simOutDir = simOutDirs[0]
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	moleculeIDs = bulkMolecules.readAttribute("objectNames")
 
-	nMonomers = len(simData.process.translation.monomerData)
+	translationResults = TableReader(os.path.join(simOutDir, "RibosomeData"))
+	prob_translation_array = translationResults.readColumn('probTranslationPerTranscript')
 
-	# Get dynamics data from all simOutDirs
-	probTranslation_array = np.empty((0, nMonomers), dtype=np.int)
-	counts_array = np.empty((0, len(moleculeIDs)), dtype=np.int)
-	volume_array = np.empty(0)
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+	counts_array = bulkMolecules.readColumn("counts")
 
-	for simOutDir in simOutDirs:
-		translationResults = TableReader(os.path.join(simOutDir, "RibosomeData"))
-		probTranslationPerTranscript = translationResults.readColumn('probTranslationPerTranscript')
-		probTranslation_array = np.concatenate((probTranslation_array, probTranslationPerTranscript))
-
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		counts = bulkMolecules.readColumn("counts")
-		counts_array = np.concatenate((counts_array, counts))
-
-		# Extract dynamics data from each generation
-		cell_mass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")
-		cell_volume = ((1.0/simData.constants.cellDensity)*(units.fg*cell_mass)).asNumber(units.L)
-		volume_array = np.concatenate((volume_array, cell_volume))
+	# Extract dynamics data from each generation
+	cell_mass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")
+	volume_array = ((1.0/sim_data.constants.cellDensity)*(units.fg*cell_mass)).asNumber(units.L)
 
 	# Loop through all translatable genes
-	for idx, data in enumerate(simData.process.translation.monomerData):
+	for idx, data in enumerate(sim_data.process.translation.monomerData):
 		monomerId = data[0]
 		rnaId = data[1]
 		geneId = rnaId.split("_RNA[c]")[0]
@@ -559,7 +523,6 @@ def add_translation_and_monomers(simData, simOutDirs, node_list, edge_list, name
 			attr = {'node_id': monomerId,
 				'name': monomerId,
 				}
-			print monomerId
 		protein_node.read_attributes(**attr)
 
 		# Add dynamics data (counts) to the node.
@@ -591,7 +554,7 @@ def add_translation_and_monomers(simData, simOutDirs, node_list, edge_list, name
 		translation_node.read_attributes(**attr)
 
 		# Add dynamics data (probability of translation initiation per transcript) to the node.
-		dynamics = {'probability of initiating translation': list(probTranslation_array[:, idx])}
+		dynamics = {'probability of initiating translation': list(prob_translation_array[:, idx])}
 		dynamics_units = {'probability of initiating translation': 'p'}
 		translation_node.read_dynamics(dynamics, dynamics_units)
 
@@ -639,50 +602,41 @@ def add_translation_and_monomers(simData, simOutDirs, node_list, edge_list, name
 			edge_list.append(subunit_to_translation_edge)
 
 
-def add_complexation_and_complexes(simData, simOutDirs, node_list, edge_list, names_dict):
+def add_complexation_and_complexes(sim_data, simOutDir, node_list, edge_list, names_dict):
 	"""
 	Add complexation process nodes and complex state nodes with dynamics data
 	to the node list, and edges connected to the complexation nodes to the edge
 	list. - Eran
 	"""
-	simOutDir = simOutDirs[0]
 
-	# TODO (Eran) raw_data is here used to get complexation stoichiometry. This can be saved to sim_data and then retrieved here.
-	from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
+	# TODO (Eran) raw_data is here used to get complexation stoichiometry.
+	# This can be saved to sim_data and then retrieved here.
 	raw_data = KnowledgeBaseEcoli()
 
 	# Get bulkMolecule IDs from first simOut directory
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	moleculeIDs = bulkMolecules.readAttribute("objectNames")
 
-	n_avogadro = simData.constants.nAvogadro
+	n_avogadro = sim_data.constants.nAvogadro
 
 	# List of all complex IDs and reaction IDs
-	complex_ids = simData.process.complexation.ids_complexes + EQUILIBRIUM_COMPLEXES_IN_COMPLEXATION
-	reactionIDs = simData.process.complexation.ids_reactions
+	complex_ids = sim_data.process.complexation.ids_complexes + EQUILIBRIUM_COMPLEXES_IN_COMPLEXATION
+	reactionIDs = sim_data.process.complexation.ids_reactions
 
-	# Get dynamics data from all simOutDirs (# rxns/ts for complexation, counts)
-	reactions_array = np.empty((0, len(reactionIDs)))
-	counts_array = np.empty((0, len(moleculeIDs)))
-	volume_array = np.empty(0)
+	complexationResults = TableReader(os.path.join(simOutDir, "ComplexationListener"))
+	reactions_array = complexationResults.readColumn('reactionRates')
 
-	for simOutDir in simOutDirs:
-		complexationResults = TableReader(os.path.join(simOutDir, "ComplexationListener"))
-		reactionRates = complexationResults.readColumn('reactionRates')
-		reactions_array = np.concatenate((reactions_array, reactionRates))
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+	counts_array = bulkMolecules.readColumn("counts")
 
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		counts = bulkMolecules.readColumn("counts")
-		counts_array = np.concatenate((counts_array, counts))
+	# Extract dynamics data from each generation
+	cell_mass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")
+	volume_array = ((1.0 / sim_data.constants.cellDensity) * (units.fg * cell_mass)).asNumber(units.L)
 
-		# Extract dynamics data from each generation
-		cell_mass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")
-		cell_volume = ((1.0 / simData.constants.cellDensity) * (units.fg * cell_mass)).asNumber(units.L)
-		volume_array = np.concatenate((volume_array, cell_volume))
-
-	# Get complexation stoichiometry from simData
+	# Get complexation stoichiometry from sim_data
 	complexStoich = {}
-	# TODO (Eran) save complexationReactions in sim_data, so that raw_data won't be needed
+	# TODO (Eran) save complexationReactions in sim_data, so that raw_data
+	# won't be needed
 	for reaction in raw_data.complexationReactions:
 		stoich = {}
 		for molecule in reaction['stoichiometry']:
@@ -754,7 +708,6 @@ def add_complexation_and_complexes(simData, simOutDirs, node_list, edge_list, na
 				'name': complex,
 				'constants': {'mass': 0}
 				}
-			print complex
 		complex_node.read_attributes(**attr)
 
 		# Add dynamics data (counts) to the node.
@@ -777,7 +730,7 @@ def add_complexation_and_complexes(simData, simOutDirs, node_list, edge_list, na
 		node_list.append(complex_node)
 
 
-def add_metabolism_and_metabolites(simData, simOutDirs, node_list, edge_list, names_dict):
+def add_metabolism_and_metabolites(sim_data, simOutDir, node_list, edge_list, names_dict):
 	"""
 	Add metabolism process nodes and metabolite state nodes with dynamics data
 	to the node list, add edges connected to the metabolism nodes to the edge
@@ -785,7 +738,6 @@ def add_metabolism_and_metabolites(simData, simOutDirs, node_list, edge_list, na
 	Note: forward and reverse reactions are represented as separate nodes.
 	"""
 	# Get reaction list from first simOut directory
-	simOutDir = simOutDirs[0]
 	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 	reactionIDs = fbaResults.readAttribute("reactionIDs")
 
@@ -793,33 +745,23 @@ def add_metabolism_and_metabolites(simData, simOutDirs, node_list, edge_list, na
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	moleculeIDs = bulkMolecules.readAttribute("objectNames")
 
-	n_avogadro = simData.constants.nAvogadro
+	n_avogadro = sim_data.constants.nAvogadro
 
-	# Get dynamics data from all simOutDirs (flux for reactions, counts for
-	# metabolites)
-	flux_array = np.empty((0, len(reactionIDs)))
-	counts_array = np.empty((0, len(moleculeIDs)), dtype=np.int)
-	volume_array = np.empty(0)
+	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
+	flux_array = fbaResults.readColumn('reactionFluxes')
 
-	for simOutDir in simOutDirs:
-		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
-		reactionFluxes = fbaResults.readColumn('reactionFluxes')
-		flux_array = np.concatenate((flux_array, reactionFluxes))
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+	counts_array = bulkMolecules.readColumn("counts")
 
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		counts = bulkMolecules.readColumn("counts")
-		counts_array = np.concatenate((counts_array, counts))
+	# Extract dynamics data from each generation
+	cell_mass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")
+	volume_array = ((1.0 / sim_data.constants.cellDensity) * (units.fg * cell_mass)).asNumber(units.L)
 
-		# Extract dynamics data from each generation
-		cell_mass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")
-		cell_volume = ((1.0 / simData.constants.cellDensity) * (units.fg * cell_mass)).asNumber(units.L)
-		volume_array = np.concatenate((volume_array, cell_volume))
+	# Get all reaction stoichiometry from sim_data
+	reactionStoich = sim_data.process.metabolism.reactionStoich
 
-	# Get all reaction stoichiometry from simData
-	reactionStoich = simData.process.metabolism.reactionStoich
-
-	# Get reaction to catalyst dict from simData
-	reactionCatalysts = simData.process.metabolism.reactionCatalysts
+	# Get reaction to catalyst dict from sim_data
+	reactionCatalysts = sim_data.process.metabolism.reactionCatalysts
 
 	# Initialize list of metabolite IDs
 	metabolite_ids = []
@@ -909,7 +851,6 @@ def add_metabolism_and_metabolites(simData, simOutDirs, node_list, edge_list, na
 				'name': metabolite,
 				'constants': {'mass': 0}
 				}
-			print metabolite
 		metabolite_node.read_attributes(**attr)
 
 		# Add dynamics data (counts) to the node.
@@ -934,52 +875,42 @@ def add_metabolism_and_metabolites(simData, simOutDirs, node_list, edge_list, na
 		node_list.append(metabolite_node)
 
 
-def add_equilibrium(simData, simOutDirs, node_list, edge_list, names_dict):
+def add_equilibrium(sim_data, simOutDir, node_list, edge_list, names_dict):
 	"""
 	Add equilibrium nodes with dynamics data to the node list, and add edges
 	connected to the equilibrium nodes to the edge list. - Gwanggyu
 	"""
-	# Get equilibrium-specific data from simData
-	equilibriumMoleculeIds = simData.process.equilibrium.moleculeNames
-	equilibriumRxnIds = simData.process.equilibrium.rxnIds
-	equilibriumStoichMatrix = simData.process.equilibrium.stoichMatrix()
-	equilibriumRatesFwd = np.array(simData.process.equilibrium.ratesFwd, dtype=np.float32)
-	equilibriumRatesRev = np.array(simData.process.equilibrium.ratesRev, dtype=np.float32)
+	# Get equilibrium-specific data from sim_data
+	equilibriumMoleculeIds = sim_data.process.equilibrium.moleculeNames
+	equilibriumRxnIds = sim_data.process.equilibrium.rxnIds
+	equilibriumStoichMatrix = sim_data.process.equilibrium.stoichMatrix()
+	equilibriumRatesFwd = np.array(sim_data.process.equilibrium.ratesFwd, dtype=np.float32)
+	equilibriumRatesRev = np.array(sim_data.process.equilibrium.ratesRev, dtype=np.float32)
 
-	# Get transcription factor-specific data from simData
-	recruitmentColNames = simData.process.transcription_regulation.recruitmentColNames
+	# Get transcription factor-specific data from sim_data
+	recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
 	tf_ids = sorted(set([x.split("__")[-1] for x in recruitmentColNames if
 		x.split("__")[-1] != "alpha"]))
-	tfToTfType = simData.process.transcription_regulation.tfToTfType
+	tfToTfType = sim_data.process.transcription_regulation.tfToTfType
 
 	# Get bulkMolecule IDs from first simOut directory
-	simOutDir = simOutDirs[0]
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	moleculeIDs = bulkMolecules.readAttribute("objectNames")
 
-	# Get dynamics data from all simOutDirs
-	counts_array = np.empty((0, len(moleculeIDs)), dtype=np.int)
-	pPromoterBoundArray = np.empty((0, len(tf_ids)))
-	reactions_array = np.empty((0, len(equilibriumRxnIds)))
+	equilibriumResults = TableReader(os.path.join(simOutDir, "EquilibriumListener"))
+	reactions_array = equilibriumResults.readColumn('reactionRates')
 
-	for simOutDir in simOutDirs:
-		equilibriumResults = TableReader(os.path.join(simOutDir, "EquilibriumListener"))
-		reactionRates = equilibriumResults.readColumn('reactionRates')
-		reactions_array = np.concatenate((reactions_array, reactionRates))
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+	counts_array = bulkMolecules.readColumn("counts")
 
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		counts = bulkMolecules.readColumn("counts")
-		counts_array = np.concatenate((counts_array, counts))
-
-		rnaSynthProb = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
-		pPromoterBound = rnaSynthProb.readColumn("pPromoterBound")
-		pPromoterBoundArray = np.concatenate((pPromoterBoundArray, pPromoterBound))
+	rnaSynthProb = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
+	pPromoterBoundArray = rnaSynthProb.readColumn("pPromoterBound")
 
 	# Get IDs of complexes that were already added
-	complexation_complex_ids = simData.process.complexation.ids_complexes
+	complexation_complex_ids = sim_data.process.complexation.ids_complexes
 
 	# Get list of complex IDs in equilibrium
-	equilibrium_complex_ids = simData.process.equilibrium.ids_complexes
+	equilibrium_complex_ids = sim_data.process.equilibrium.ids_complexes
 
 	# Loop through each equilibrium reaction
 	for reactionIdx, rxnId in enumerate(equilibriumRxnIds):
@@ -1041,19 +972,19 @@ def add_equilibrium(simData, simOutDirs, node_list, edge_list, names_dict):
 
 		equilibrium_node.read_dynamics(dynamics, dynamics_units)
 
-	# Get 2CS-specific data from simData
-	tcsMoleculeIds = simData.process.two_component_system.moleculeNames
-	tcsRxnIds = simData.process.two_component_system.rxnIds
-	tcsStoichMatrix = simData.process.two_component_system.stoichMatrix()
-	tcsRatesFwd = np.array(simData.process.two_component_system.ratesFwd, dtype=np.float32)
-	tcsRatesRev = np.array(simData.process.two_component_system.ratesRev, dtype=np.float32)
+	# Get 2CS-specific data from sim_data
+	tcsMoleculeIds = sim_data.process.two_component_system.moleculeNames
+	tcsRxnIds = sim_data.process.two_component_system.rxnIds
+	tcsStoichMatrix = sim_data.process.two_component_system.stoichMatrix()
+	tcsRatesFwd = np.array(sim_data.process.two_component_system.ratesFwd, dtype=np.float32)
+	tcsRatesRev = np.array(sim_data.process.two_component_system.ratesRev, dtype=np.float32)
 
 	# Initialize list of complex IDs in 2CS (should need instance variable)
 	tcs_complex_ids = []
 
 	# Get lists of monomers that were already added
 	monomer_ids = []
-	for monomerData in simData.process.translation.monomerData:
+	for monomerData in sim_data.process.translation.monomerData:
 		monomer_ids.append(monomerData[0])
 
 	# Loop through each 2CS reaction
@@ -1170,33 +1101,26 @@ def add_equilibrium(simData, simOutDirs, node_list, edge_list, names_dict):
 		node_list.append(metabolite_node)
 
 
-def add_regulation(simData, simOutDirs, node_list, edge_list, names_dict):
+def add_regulation(sim_data, simOutDir, node_list, edge_list, names_dict):
 	"""
 	Add regulation nodes with dynamics data to the node list, and add edges
 	connected to the regulation nodes to the edge list. - Gwanggyu
 	"""
-	# Get regulation-specific data from simData
-	tfToFC = simData.tfToFC
+	# Get regulation-specific data from sim_data
+	tfToFC = sim_data.tfToFC
 
 	# Get bulkMolecule IDs from first simOut directory
-	simOutDir = simOutDirs[0]
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	moleculeIDs = bulkMolecules.readAttribute("objectNames")
 
-	# Get dynamics data from all simOutDirs
-	counts_array = np.empty((0, len(moleculeIDs)), dtype=np.int)
-
-	# TF-DNA bound counts are stored in bulkMolecules counts
-	for simOutDir in simOutDirs:
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		counts = bulkMolecules.readColumn("counts")
-		counts_array = np.concatenate((counts_array, counts))
+	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+	counts_array = bulkMolecules.readColumn("counts")
 
 	# Get IDs of genes and RNAs
 	gene_ids = []
 	rna_ids = []
 
-	for gene_id, rna_id, _ in simData.process.replication.geneData:
+	for gene_id, rna_id, _ in sim_data.process.replication.geneData:
 		gene_ids.append(gene_id)
 		rna_ids.append(rna_id)
 
@@ -1260,17 +1184,11 @@ def add_regulation(simData, simOutDirs, node_list, edge_list, names_dict):
 				edge_list.append(regulation_edge_to_gene)
 
 
-def add_time_data(simOutDirs, dynamics_file):
+def add_time_data(simOutDir, dynamics_file):
 	"""
 	Add time data to the dynamics file. - Gwanggyu
 	"""
-	time = []
-
-	# Loop through all generations
-	for simOutDir in simOutDirs:
-		# Extract time data from each generation
-		t = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-		time += list(t)
+	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
 	time_string = format_dynamics_string(time, "time")
 
@@ -1383,35 +1301,33 @@ def read_pathway_file():
 	return pathway_to_genes, pathway_to_rxns
 
 
-def get_pathway_to_nodes(simData, simOutDirs, pathway_to_genes, pathway_to_rxns):
+def get_pathway_to_nodes(sim_data, simOutDir, pathway_to_genes, pathway_to_rxns):
 	"""
-	Reads simData and constructs dictionary that links each pathway to a set of
+	Reads sim_data and constructs dictionary that links each pathway to a set of
 	all node IDs that are part of the pathway, starting from the list of
 	associated gene and reaction nodes that are given as inputs.
 	"""
 	# Get bulkMolecule IDs from first simOut directory
-	simOutDir = simOutDirs[0]
 	bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 	moleculeIDs = bulkMolecules.readAttribute("objectNames")
 
 	# Get reaction IDs from first simOut directory
-	simOutDir = simOutDirs[0]
 	fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 	reactionIDs = fbaResults.readAttribute("reactionIDs")
 
 	# Get dictionary of genes IDs to RNA IDs
 	gene2rna = {}
-	for gene_id, rna_id, _ in simData.process.replication.geneData:
+	for gene_id, rna_id, _ in sim_data.process.replication.geneData:
 		gene2rna[gene_id] = rna_id + "[c]"
 
 	# Get dictionary of RNA IDs to monomer IDs
 	rna2monomer = {}
-	for monomer_data in simData.process.translation.monomerData:
+	for monomer_data in sim_data.process.translation.monomerData:
 		rna2monomer[monomer_data[1]] = monomer_data[0]
 
 	# Get TF to RNA data
 	rna2tf = {}
-	tfToFC = simData.tfToFC
+	tfToFC = sim_data.tfToFC
 	for tf, transcriptIDdict in tfToFC.items():
 		tfID = tf + "[c]"
 
@@ -1435,12 +1351,12 @@ def get_pathway_to_nodes(simData, simOutDirs, pathway_to_genes, pathway_to_rxns)
 					rna2tf[transcriptID + "[c]"] = [tfID]
 
 	# Get reaction to metabolite and enzyme data
-	reactionStoich = simData.process.metabolism.reactionStoich
-	reactionCatalysts = simData.process.metabolism.reactionCatalysts
+	reactionStoich = sim_data.process.metabolism.reactionStoich
+	reactionCatalysts = sim_data.process.metabolism.reactionCatalysts
 
 	# Get list of complex ids in complexation
-	complexation_complex_ids = simData.process.complexation.ids_complexes
-	equilibrium_complex_ids = simData.process.equilibrium.ids_complexes
+	complexation_complex_ids = sim_data.process.complexation.ids_complexes
+	equilibrium_complex_ids = sim_data.process.equilibrium.ids_complexes
 
 	# Initialize dictionary
 	pathway_to_nodes = {}
@@ -1520,129 +1436,102 @@ def check_nodes_in_pathways(node_ids, pathway_to_nodes):
 				print("Node ID %s in pathway %s not found in the list of node IDs." % (node_id, pathway))
 
 
-def main(seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile=None, metadata=None):
-	if not os.path.isdir(seedOutDir):
-		raise Exception, "seedOutDir does not currently exist as a directory"
+class Plot(singleAnalysisPlot.SingleAnalysisPlot):
+	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+		if not os.path.isdir(simOutDir):
+			raise Exception, "simOutDir does not currently exist as a directory"
 
-	if not os.path.exists(plotOutDir):
-		os.mkdir(plotOutDir)
+		filepath.makedirs(plotOutDir)
 
-	ap = AnalysisPaths(seedOutDir, multi_gen_plot=True)
-	assert ap.n_generation >= N_GENS
+		with open(simDataFile, 'rb') as f:
+			sim_data = cPickle.load(f)
+		with open(validationDataFile, 'rb') as f:
+			validation_data = cPickle.load(f)
 
-	simData = cPickle.load(open(simDataFile))
+		# create dict with id: (name, synonyms)
+		names_dict = {}
+		name_files = [f for f in os.listdir(NAMES_PATHWAY)]
+		for file_name in name_files:
+			with open(os.path.join(NAMES_PATHWAY, file_name)) as the_file:
 
-	# create dict with id: (name, synonyms)
-	names_dict = {}
-	name_files = [f for f in os.listdir(NAMES_PATHWAY)]
-	for file_name in name_files:
-		with open(os.path.join(NAMES_PATHWAY, file_name)) as the_file:
+				all_data = [line.replace('"', '').replace('\n', '').replace('\r', '').split('\t') for line in the_file.readlines()]
+				header = all_data[0]
+				data = all_data[1:]
 
-			all_data = [line.replace('"', '').replace('\n', '').replace('\r', '').split('\t') for line in the_file.readlines()]
-			header = all_data[0]
-			data = all_data[1:]
+				id_idx = header.index('Object ID')
+				synonym_idx = header.index('Synonyms')
 
-			id_idx = header.index('Object ID')
-			synonym_idx = header.index('Synonyms')
+				for row in data:
+					if row[synonym_idx]:
+						synonyms = row[synonym_idx].split(' // ')
+						names_dict[row[id_idx]] = (synonyms[0], synonyms[1:])
 
-			for row in data:
-				if row[synonym_idx]:
-					synonyms = row[synonym_idx].split(' // ')
-					names_dict[row[id_idx]] = (synonyms[0], synonyms[1:])
+		# Initialize node list and edge list
+		node_list = []
+		edge_list = []
 
-	# Get first cell from each generation
-	first_cell_lineage = []
+		# Add global nodes to the node list
+		add_global_nodes(sim_data, simOutDir, node_list)
 
-	# For all generation indexes subject to analysis, get first cell
-	for gen_idx in range(N_GENS):
-		first_cell_lineage.append(ap.get_cells(generation=[gen_idx])[0])
-
-	simOutDirs = []
-
-	# Go through first cells in each generation
-	for gen, simDir in enumerate(first_cell_lineage):
-		simOutDir = os.path.join(simDir, "simOut")
-		simOutDirs.append(simOutDir)
-
-	# Initialize node list and edge list
-	node_list = []
-	edge_list = []
-
-	# Add global nodes to the node list
-	add_global_nodes(simData, simOutDirs, node_list)
-
-	# Add state/process-specific nodes and edges to the node list and edge list
-	add_replication_and_genes(simData, simOutDirs, node_list, edge_list, names_dict)
-	add_transcription_and_transcripts(simData, simOutDirs, node_list, edge_list, names_dict)
-	add_translation_and_monomers(simData, simOutDirs, node_list, edge_list, names_dict)
-	add_complexation_and_complexes(simData, simOutDirs, node_list, edge_list, names_dict)
-	add_metabolism_and_metabolites(simData, simOutDirs, node_list, edge_list, names_dict)
-	add_equilibrium(simData, simOutDirs, node_list, edge_list, names_dict)
-	add_regulation(simData, simOutDirs, node_list, edge_list, names_dict)
-
-	if GET_PATHWAY_INDEX:
-		pathway_to_genes, pathway_to_rxns = read_pathway_file()
-		pathway_to_nodes = get_pathway_to_nodes(simData, simOutDirs, pathway_to_genes, pathway_to_rxns)
-
-	# Check for network sanity (optional)
-	if CHECK_SANITY:
-		print("Performing sanity check on network...")
-		node_ids = find_duplicate_nodes(node_list)
-		find_runaway_edges(node_ids, edge_list)
+		# Add state/process-specific nodes and edges to the node list and edge list
+		add_replication_and_genes(sim_data, simOutDir, node_list, edge_list, names_dict)
+		add_transcription_and_transcripts(sim_data, simOutDir, node_list, edge_list, names_dict)
+		add_translation_and_monomers(sim_data, simOutDir, node_list, edge_list, names_dict)
+		add_complexation_and_complexes(sim_data, simOutDir, node_list, edge_list, names_dict)
+		add_metabolism_and_metabolites(sim_data, simOutDir, node_list, edge_list, names_dict)
+		add_equilibrium(sim_data, simOutDir, node_list, edge_list, names_dict)
+		add_regulation(sim_data, simOutDir, node_list, edge_list, names_dict)
 
 		if GET_PATHWAY_INDEX:
-			check_nodes_in_pathways(node_ids, pathway_to_nodes)
+			pathway_to_genes, pathway_to_rxns = read_pathway_file()
+			pathway_to_nodes = get_pathway_to_nodes(sim_data, simOutDir, pathway_to_genes, pathway_to_rxns)
 
-		print("Sanity check completed.")
+		# Check for network sanity (optional)
+		if CHECK_SANITY:
+			print("Performing sanity check on network...")
+			node_ids = find_duplicate_nodes(node_list)
+			find_runaway_edges(node_ids, edge_list)
 
-	print("Total number of nodes: %d" % (len(node_list)))
-	print("Total number of edges: %d" % (len(edge_list)))
+			if GET_PATHWAY_INDEX:
+				check_nodes_in_pathways(node_ids, pathway_to_nodes)
 
-	# Open node/edge list files and dynamics file
-	nodelist_file = open(os.path.join(plotOutDir, plotOutFileName + "_nodelist.tsv"), 'w')
-	edgelist_file = open(os.path.join(plotOutDir, plotOutFileName + "_edgelist.tsv"), 'w')
-	dynamics_file = open(os.path.join(plotOutDir, plotOutFileName + "_dynamics.tsv"), 'w')
+			print("Sanity check completed.")
 
-	if GET_PATHWAY_INDEX:
-		pathwaylist_file = open(os.path.join(plotOutDir, plotOutFileName + "_pathwaylist.tsv"), 'w')
+		print("Total number of nodes: %d" % (len(node_list)))
+		print("Total number of edges: %d" % (len(edge_list)))
 
-	# Write header rows to each of the files
-	nodelist_file.write(NODE_LIST_HEADER)
-	edgelist_file.write(EDGE_LIST_HEADER)
-	dynamics_file.write(DYNAMICS_HEADER)
+		# Open node/edge list files and dynamics file
+		nodelist_file = open(os.path.join(plotOutDir, plotOutFileName + "_nodelist.tsv"), 'w')
+		edgelist_file = open(os.path.join(plotOutDir, plotOutFileName + "_edgelist.tsv"), 'w')
+		dynamics_file = open(os.path.join(plotOutDir, plotOutFileName + "_dynamics.tsv"), 'w')
 
-	if GET_PATHWAY_INDEX:
-		pathwaylist_file.write(PATHWAY_LIST_HEADER)
+		if GET_PATHWAY_INDEX:
+			pathwaylist_file = open(os.path.join(plotOutDir, plotOutFileName + "_pathwaylist.tsv"), 'w')
 
-	# Add time and global dynamics data to dynamics file
-	add_time_data(simOutDirs, dynamics_file)
+		# Write header rows to each of the files
+		nodelist_file.write(NODE_LIST_HEADER)
+		edgelist_file.write(EDGE_LIST_HEADER)
+		dynamics_file.write(DYNAMICS_HEADER)
 
-	# Write node, edge list and dynamics data tsv files
-	for node in node_list:
-		node.write_nodelist(nodelist_file)
-		node.write_dynamics(dynamics_file)
+		if GET_PATHWAY_INDEX:
+			pathwaylist_file.write(PATHWAY_LIST_HEADER)
 
-	for edge in edge_list:
-		edge.write_edgelist(edgelist_file)
+		# Add time and global dynamics data to dynamics file
+		add_time_data(simOutDir, dynamics_file)
 
-	# Write pathway data to pathway file
-	if GET_PATHWAY_INDEX:
-		for pathway_name, node_ids in pathway_to_nodes.items():
-			pathwaylist_file.write("%s\t%s\n" % (pathway_name, ", ".join(node_ids)))
+		# Write node, edge list and dynamics data tsv files
+		for node in node_list:
+			node.write_nodelist(nodelist_file)
+			node.write_dynamics(dynamics_file)
+
+		for edge in edge_list:
+			edge.write_edgelist(edgelist_file)
+
+		# Write pathway data to pathway file
+		if GET_PATHWAY_INDEX:
+			for pathway_name, node_ids in pathway_to_nodes.items():
+				pathwaylist_file.write("%s\t%s\n" % (pathway_name, ", ".join(node_ids)))
 
 
-if __name__ == "__main__":
-	defaultSimDataFile = os.path.join(
-		wholecell.utils.constants.SERIALIZED_KB_DIR,
-		wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME
-	)
-
-	parser = argparse.ArgumentParser()
-	parser.add_argument("simOutDir", help="Directory containing simulation output", type=str)
-	parser.add_argument("plotOutDir", help="Directory containing plot output (will get created if necessary)", type=str)
-	parser.add_argument("plotOutFileName", help="File name to produce", type=str)
-	parser.add_argument("--simDataFile", help="KB file name", type=str, default=defaultSimDataFile)
-
-	args = parser.parse_args().__dict__
-
-	main(args["simOutDir"], args["plotOutDir"], args["plotOutFileName"], args["simDataFile"])
+if __name__ == '__main__':
+	Plot().cli()

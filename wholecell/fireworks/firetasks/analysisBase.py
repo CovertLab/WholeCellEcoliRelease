@@ -60,7 +60,11 @@ class AnalysisBase(FiretaskBase):
 
 		exceptionFileList = []
 		for f in fileList:
-			mod = importlib.import_module(self.MODULE_PATH + '.' + f[:-3])
+			if f != "causal_network.py":
+				mod = importlib.import_module(self.MODULE_PATH + '.' + f[:-3])
+			else:
+				mod = importlib.import_module("models.ecoli.analysis.causal_network.causal_network")
+
 			args = self.plotter_args(f)
 
 			if pool:
