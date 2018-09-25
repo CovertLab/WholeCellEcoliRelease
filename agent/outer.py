@@ -24,13 +24,13 @@ class EnvironmentSimulation(object):
 		return {}
 
 	def apply_inner_update(self, update, now):
-		"""Update the environment's state of only the inner agent simulations that have reached
+		"""Update the environment's state from only the inner agent simulations that have reached
 		but not passed the `now` time point, given the `update` dictionary mapping agent_id to
-		dictionary of molecule counts.
+		the changes calculated during their run.
 		"""
 
 	def generate_outer_update(self, now):
-		"""Return a dictionary of agent_id to concentrations coming from the environment for
+		"""Return a dictionary of agent_id to updates coming from the environment for
 		each agent that has run to `now` but not past.
 		"""
 

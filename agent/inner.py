@@ -17,15 +17,13 @@ class CellSimulation(object):
 		"""Receive any state from the environment, like current time step."""
 
 	def apply_outer_update(self, update):
-		"""Ingest a dictionary of the current chemical concentrations in the
-		local environment.
-	    """
+		"""Apply the update received from the environment to this simulation."""
 
 	def run_incremental(self, run_until):
 		"""Run this CellSimulation until the given time."""
 
 	def generate_inner_update(self):
-		"""Return the accumulated changes to the local environment as calculated
+		"""Generate the update that will be sent to the environment based on changes calculated
 		by the CellSimulation during `run_incremental(run_until)`.
 		"""
 
