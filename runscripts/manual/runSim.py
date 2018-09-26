@@ -1,23 +1,19 @@
 """
 Run a simple simulation, assuming you've run the Fitter. This does not run
-multiple initial simulations, multiple generations, or multiple daughters per
-generation.
+multiple initial simulations or multiple daughters per generation.
 
-TODO: Share lots of code with fw_queue.py.
+TODO: Share more code with fw_queue.py.
 
 Run with '-h' for command line help.
 Set PYTHONPATH when running this.
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
-import cPickle
 import errno
 import os
 
-from wholecell.fireworks.firetasks.simulation import SimulationTask
-from wholecell.fireworks.firetasks import VariantSimDataTask
+from wholecell.fireworks.firetasks import SimulationDaughterTask, SimulationTask, VariantSimDataTask
 from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
 from wholecell.utils import constants, scriptBase
 import wholecell.utils.filepath as fp
@@ -58,11 +54,19 @@ class RunSimulation(scriptBase.ScriptBase):
 			metavar=('VARIANT_TYPE', 'FIRST_INDEX', 'LAST_INDEX'),
 			help='The variant type name, first index, and last index. See'
 				 ' models/ecoli/sim/variants/__init__.py for the possible'
-				 ' variant choices. Default = wildtype 0 0')
-
+				 ' variant choices. Default = wildtype 0 0'
+			)
+		parser.add_argument('-g', '--generations', type=int, default=1,
+			help='Number of cell generations to run. (Single daughters only.)'
+				 ' Default = 1'
+			)
+		parser.add_argument('-s', '--seed', type=int, default=0,
+			help='Cell simulation seed. Default = 0'
+			)
 		add_option('length_sec', 'lengthSec', int,
 			help='The maximum simulation time, in seconds. Useful for short'
-				 ' simulations. Default is 3 hours'
+				 ' simulations; not so useful for multiple generations.'
+				 ' Default is 3 hours'
 			)
 		add_option('timestep_safety_frac', 'timeStepSafetyFraction', float,
 			help='Scale the time step by this factor if conditions are'
@@ -115,12 +119,11 @@ class RunSimulation(scriptBase.ScriptBase):
 
 		# Write the metadata file.
 		metadata = {
-			"git_hash":           fp.run_cmd(line="git rev-parse HEAD"),
-			"git_branch":         fp.run_cmd(line="git symbolic-ref --short HEAD"),
-			# "git_diff":           fp.run_cmd(line="git diff"),
+			"git_hash":           fp.run_cmdline("git rev-parse HEAD"),
+			"git_branch":         fp.run_cmdline("git symbolic-ref --short HEAD"),
 			"description":        "a manual run",
-			"time":               self.timestamp(),
-			"total_gens":         1,
+			"time":               fp.timestamp(),
+			"total_gens":         args.generations,
 			"analysis_type":      None,
 			"variant":            variant_type,
 			"mass_distribution":  args.mass_distribution,
@@ -129,12 +132,8 @@ class RunSimulation(scriptBase.ScriptBase):
 			"translation_supply": args.translation_supply,
 			}
 		metadata_dir = fp.makedirs(args.sim_path, 'metadata')
-		metadata_path = os.path.join(metadata_dir, constants.SERIALIZED_METADATA_FILE)
-		with open(metadata_path, "wb") as f:
-			cPickle.dump(metadata, f, cPickle.HIGHEST_PROTOCOL)
-
-		# TODO(jerry) Also write the redundant individual metadata_dir/key files?
-		# If we want text metadata, just write metadata in Pickle protocol 0 or JSON.
+		metadata_path = os.path.join(metadata_dir, constants.JSON_METADATA_FILE)
+		fp.write_json_file(metadata_path, metadata)
 
 
 		# Set up variant, seed, and generation directories.
@@ -158,31 +157,46 @@ class RunSimulation(scriptBase.ScriptBase):
 				)
 			task.run_task({})
 
-			j = 0  # init sim number. Don't loop over range(N_INIT_SIMS).
+			j = args.seed  # init sim number. This could loop over a range(N_INIT_SIMS).
 			seed_directory = fp.makedirs(variant_directory, "%06d" % j)
 
-			k = 0  # generation number. (NOTE: Looping over range(N_GENS) would
-			# require selecting SimulationTask vs. SimulationDaughterTask.)
-			gen_directory = fp.makedirs(seed_directory, "generation_%06d" % k)
+			for k in xrange(args.generations):  # generation number k
+				gen_directory = fp.makedirs(seed_directory, "generation_%06d" % k)
 
-			l = 0  # daughter number. Don't support 2**k daughters.
-			cell_directory = fp.makedirs(gen_directory, "%06d" % l)
-			cell_sim_out_directory = fp.makedirs(cell_directory, "simOut")
+				# l is the daughter number among all of this generation's cells,
+				# which is 0 for single-daughters but would span range(2**k) if
+				# every parent had 2 daughters.
+				l = 0
+				cell_directory = fp.makedirs(gen_directory, "%06d" % l)
+				cell_sim_out_directory = fp.makedirs(cell_directory, "simOut")
 
-			task = SimulationTask(
-				input_sim_data=variant_sim_data_modified_file,
-				output_directory=cell_sim_out_directory,
-				seed=j,
-				length_sec=args.length_sec,
-				timestep_safety_frac=args.timestep_safety_frac,
-				timestep_max=args.timestep_max,
-				timestep_update_freq=args.timestep_update_freq,
-				mass_distribution=args.mass_distribution,
-				growth_rate_noise=args.growth_rate_noise,
-				d_period_division=args.d_period_division,
-				translation_supply=args.translation_supply,
-				)
-			task.run_task({})
+				options = dict(
+					input_sim_data=variant_sim_data_modified_file,
+					output_directory=cell_sim_out_directory,
+					seed=j,
+					length_sec=args.length_sec,
+					timestep_safety_frac=args.timestep_safety_frac,
+					timestep_max=args.timestep_max,
+					timestep_update_freq=args.timestep_update_freq,
+					mass_distribution=args.mass_distribution,
+					growth_rate_noise=args.growth_rate_noise,
+					d_period_division=args.d_period_division,
+					translation_supply=args.translation_supply,
+					)
+
+				if k == 0:
+					task = SimulationTask(**options)
+				else:
+					parent_gen_directory = os.path.join(seed_directory, "generation_%06d" % (k - 1))
+					parent_cell_directory = os.path.join(parent_gen_directory, "%06d" % (l // 2))
+					parent_cell_sim_out_directory = os.path.join(parent_cell_directory, "simOut")
+					daughter_state_directory = os.path.join(
+						parent_cell_sim_out_directory, "Daughter%d" % (l % 2 + 1))
+					task = SimulationDaughterTask(
+						inherited_state_path=daughter_state_directory,
+						**options
+						)
+				task.run_task({})
 
 
 if __name__ == '__main__':

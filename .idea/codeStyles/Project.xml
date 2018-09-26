@@ -10,7 +10,6 @@
     <Python>
       <option name="ALIGN_COLLECTIONS_AND_COMPREHENSIONS" value="false" />
       <option name="ALIGN_MULTILINE_IMPORTS" value="false" />
-      <option name="DICT_ALIGNMENT" value="1" />
       <option name="OPTIMIZE_IMPORTS_SORT_IMPORTS" value="false" />
       <option name="OPTIMIZE_IMPORTS_JOIN_FROM_IMPORTS_WITH_SAME_SOURCE" value="true" />
       <option name="FROM_IMPORT_PARENTHESES_FORCE_IF_MULTILINE" value="true" />

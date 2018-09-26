@@ -1,14 +1,10 @@
-
 """
-
-TODO:
-- document math
-- raise/warn if physiological metabolite concentration targets appear to be smaller than what
+TODO: document math
+TODO: raise/warn if physiological metabolite concentration targets appear to be smaller than what
   is needed at this time step size
-
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 from itertools import izip
 import scipy.sparse
@@ -17,17 +13,16 @@ import numpy as np
 import os
 import cPickle
 
-from wholecell.containers.bulk_objects_container import BulkObjectsContainer
-from wholecell.utils.fitting import normalize, countsFromMassAndExpression, calcProteinCounts, masses_and_counts_for_homeostatic_target
-from wholecell.utils.polymerize import buildSequences, computeMassIncrease
+from wholecell.utils.fitting import normalize, countsFromMassAndExpression, masses_and_counts_for_homeostatic_target
+from wholecell.utils.polymerize import computeMassIncrease
 from wholecell.utils import units
 from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
 
-
 from wholecell.io.tablereader import TableReader
 
+
 def calcInitialConditions(sim, sim_data):
-	assert sim._inheritedStatePath == None
+	assert sim._inheritedStatePath is None
 	randomState = sim.randomState
 
 	massCoeff = 1.0
@@ -416,7 +411,7 @@ def initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 
 
 def setDaughterInitialConditions(sim, sim_data):
-	assert sim._inheritedStatePath != None
+	assert sim._inheritedStatePath is not None
 	isDead = cPickle.load(open(os.path.join(sim._inheritedStatePath, "IsDead.cPickle"), "rb"))
 	sim._isDead = isDead
 
@@ -432,7 +427,6 @@ def setDaughterInitialConditions(sim, sim_data):
 	unique_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "UniqueMolecules"))
 	sim.internal_states["UniqueMolecules"].tableLoad(unique_table_reader, 0)
 
-	time_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "Time"))
 	initialTime = TableReader(os.path.join(sim._inheritedStatePath, "Time")).readAttribute("initialTime")
 	sim._initialTime = initialTime
 

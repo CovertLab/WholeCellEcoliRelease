@@ -25,7 +25,7 @@ from wholecell.utils.filepath import makedirs
 from models.ecoli.analysis import cohortAnalysisPlot
 
 # Number of RNAs sampled for Plot 1
-RNA_SAMPLE_COUNT = 50
+RNA_SAMPLE_COUNT = 10
 
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
@@ -123,7 +123,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		# Plot 1: Histograms of average RNA counts and individual RNA
 		# counts for each generation
 		fig = plt.figure()
-		fig.set_size_inches(5*n_generation, 5*(RNA_SAMPLE_COUNT + 1))
+		fig.set_size_inches(4*n_generation, 4*(RNA_SAMPLE_COUNT + 1))
 		gs = gridspec.GridSpec(RNA_SAMPLE_COUNT + 1, n_generation)
 		tick_params_plot1 = {"which": "both", "direction": "out", "top": False, "right": False}
 
