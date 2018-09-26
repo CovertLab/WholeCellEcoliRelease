@@ -80,7 +80,7 @@ class AgentShepherd(Agent):
 		else:
 			print('agent initializer not found for {}'.format(agent_type))
 
-	def remove_agent(self, agent_prefix):
+	def remove_prefix(self, agent_prefix):
 		"""
 		Remove all agents from the pool with an id containing the given prefix.
 
@@ -89,21 +89,30 @@ class AgentShepherd(Agent):
 		        given string. This way you don't need to type a whole uuid, and can even remove
 		        multiple agents at once if their ids are logically grouped by prefix.
 		"""
-
 		removing = filter(lambda key: key.startswith(agent_prefix), self.agents.iterkeys())
 		print('removing agents {}'.format(removing))
 
 		removed = {}
-		for key in removing:
-			removed[key] = self.agents.pop(key)
-			if removed[key]['process'].is_alive():
-				self.send(self.kafka_config['agent_receive'], {
-					'event': event.SHUTDOWN_AGENT,
-					'agent_id': key})
+		for agent_id in removing:
+			removed[agent_id] = self.remove_agent(agent_id)
 
 		print('removal complete {}'.format(removing))
 
 		return removed
+
+	def remove_agent(self, agent_id):
+		"""
+		Remove the agent with the given `agent_id`.
+		"""
+
+		if agent_id in self.agents:
+			agent = self.agents.pop(agent_id)
+			if agent['process'].is_alive():
+				self.send(self.kafka_config['agent_receive'], {
+					'event': event.SHUTDOWN_AGENT,
+					'agent_id': agent_id})
+
+			return agent
 
 	def receive(self, topic, message):
 		"""
@@ -120,4 +129,7 @@ class AgentShepherd(Agent):
 				message['agent_config'])
 
 		elif message['event'] == event.REMOVE_AGENT:
-			self.remove_agent(message['agent_prefix'])
+			if 'agent_prefix' in message:
+				self.remove_prefix(message['agent_prefix'])
+			else:
+				self.remove_agent(message['agent_id'])
