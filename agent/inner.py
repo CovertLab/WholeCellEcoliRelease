@@ -41,7 +41,7 @@ class Inner(Agent):
 	an environmental simulation.
 	"""
 
-	def __init__(self, kafka_config, agent_id, outer_id, simulation):
+	def __init__(self, agent_id, outer_id, agent_type, kafka_config, simulation):
 		"""
 		Construct the agent.
 
@@ -64,7 +64,7 @@ class Inner(Agent):
 		self.simulation.initialize_local_environment()
 		kafka_config['subscribe_topics'] = [kafka_config['simulation_receive']]
 
-		super(Inner, self).__init__(agent_id, kafka_config)
+		super(Inner, self).__init__(agent_id, agent_type, kafka_config)
 
 	def initialize(self):
 		"""Initialization: Register this inner agent with the outer agent."""
@@ -78,6 +78,28 @@ class Inner(Agent):
 			'outer_id': self.outer_id,
 			'inner_id': self.agent_id,
 			'state': state})
+
+	def divide_cell(self, message):
+		division = self.simulation.divide()
+		for daughter in division['daughters']:
+			config = daughter.get(config, {})
+			if not 'outer_id' in config:
+				config['outer_id'] = self.outer_id
+			agent_type = daughter.get(
+					'type',
+					message.get(
+						'daughter_type',
+						self.agent_type))
+
+			self.send(self.kafka_config['shepherd_control'], {
+				'event': event.ADD_AGENT,
+				'agent_id': daughter.get('id', uuid.uuid1()),
+				'agent_type': agent_type,
+				'agent_config': config})
+
+		self.send(self.kafka_config['shepherd_control'], {
+			'event': event.REMOVE_AGENT,
+			'agent_id': self.id})
 
 	def finalize(self):
 		""" Trigger any clean up the simulation needs to perform before exiting. """
@@ -124,6 +146,9 @@ class Inner(Agent):
 					'inner_id': self.agent_id,
 					'message_id': message['message_id'],
 					'state': update})
+
+			elif message['event'] == event.DIVIDE_CELL:
+				self.divide_cell(message)
 
 			elif message['event'] == event.SYNCHRONIZE_SIMULATION:
 				self.simulation.synchronize_state(message['state'])

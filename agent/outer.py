@@ -60,7 +60,7 @@ class Outer(Agent):
 	The context environmental simulation is an instance of EnvironmentSimulation.
 	"""
 
-	def __init__(self, agent_id, kafka_config, environment):
+	def __init__(self, agent_id, agent_type, kafka_config, environment):
 		"""
 		Construct the Agent.
 
@@ -84,7 +84,7 @@ class Outer(Agent):
 			kafka_config['simulation_send'],
 			kafka_config['environment_control']]
 
-		super(Outer, self).__init__(agent_id, kafka_config)
+		super(Outer, self).__init__(agent_id, agent_type, kafka_config)
 
 	def initialize(self):
 		print('environment started')

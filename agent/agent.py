@@ -46,7 +46,7 @@ class Agent(object):
 	using the configured Kafka Producer.
 	"""
 
-	def __init__(self, agent_id, kafka_config):
+	def __init__(self, agent_id, agent_type, kafka_config):
 		"""
 		Initialize the Agent object with a unique id and kafka configuration.
 
@@ -66,6 +66,7 @@ class Agent(object):
 		"""
 
 		self.agent_id = agent_id
+		self.agent_type = agent_type
 		self.kafka_config = kafka_config
 
 		self.producer = Producer({

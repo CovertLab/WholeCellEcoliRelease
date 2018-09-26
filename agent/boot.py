@@ -30,7 +30,7 @@ class BootOuter(object):
 	defined in `Outer`. 
 	"""
 
-	def __init__(self, agent_id, agent_config):
+	def __init__(self, agent_id, agent_type, agent_config):
 		volume = 1
 		concentrations = {
 			'yellow': 5,
@@ -39,7 +39,7 @@ class BootOuter(object):
 			'blue': 12}
 
 		self.environment = EnvironmentStub(volume, concentrations)
-		self.outer = Outer(agent_id, agent_config['kafka_config'], self.environment)
+		self.outer = Outer(agent_id, agent_type, agent_config['kafka_config'], self.environment)
 
 class BootInner(object):
 
@@ -52,14 +52,15 @@ class BootInner(object):
 	Outer agent.
 	"""
 
-	def __init__(self, agent_id, agent_config):
+	def __init__(self, agent_id, agent_type, agent_config):
 		self.agent_id = agent_id
 		self.outer_id = agent_config['outer_id']
 		self.simulation = SimulationStub()
 		self.inner = Inner(
-			agent_config['kafka_config'],
 			self.agent_id,
 			self.outer_id,
+			agent_type,
+			agent_config['kafka_config'],
 			self.simulation)
 
 
@@ -75,7 +76,7 @@ class EnvironmentControl(Agent):
 	def __init__(self, agent_id, kafka_config=None):
 		if kafka_config is None:
 			kafka_config = DEFAULT_KAFKA_CONFIG.copy()
-		super(EnvironmentControl, self).__init__(agent_id, kafka_config)
+		super(EnvironmentControl, self).__init__(agent_id, 'control', kafka_config)
 
 	def trigger_execution(self, agent_id):
 		self.send(self.kafka_config['environment_control'], {
@@ -264,16 +265,16 @@ class AgentCommand(object):
 	def shepherd_initializers(self, args):
 		initializers = {}
 
-		def initialize_inner(agent_id, agent_config):
+		def initialize_inner(agent_id, agent_type, agent_config):
 			agent_config = dict(agent_config)
 			agent_config['kafka_config'] = self.kafka_config
 			agent_config['working_dir'] = args.working_dir
-			return BootInner(agent_id, agent_config)
+			return BootInner(agent_id, agent_type, agent_config)
 
-		def initialize_outer(agent_id, agent_config):
+		def initialize_outer(agent_id, agent_type, agent_config):
 			agent_config = dict(agent_config)
 			agent_config['kafka_config'] = self.kafka_config
-			return BootOuter(agent_id, agent_config)
+			return BootOuter(agent_id, agent_type, agent_config)
 
 		initializers['inner'] = initialize_inner
 		initializers['outer'] = initialize_outer

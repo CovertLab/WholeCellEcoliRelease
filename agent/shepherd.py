@@ -44,7 +44,7 @@ class AgentShepherd(Agent):
 		self.agent_initializers = agent_initializers
 
 		kafka_config['subscribe_topics'] = [kafka_config['shepherd_control']]
-		super(AgentShepherd, self).__init__(agent_id, kafka_config)
+		super(AgentShepherd, self).__init__(agent_id, 'shepherd', kafka_config)
 
 	def initialize(self):
 		print('agent shepherd waiting')
@@ -68,7 +68,7 @@ class AgentShepherd(Agent):
 			process = mp.Process(
 				target=initializer,
 				name=agent_id,
-				args=(agent_id, agent_config))
+				args=(agent_id, agent_type, agent_config))
 
 			self.agents[agent_id] = {
 				'process': process,

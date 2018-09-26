@@ -46,7 +46,7 @@ class EnvironmentAgent(Outer):
 		self.send(self.kafka_config['environment_visualization'], self.build_state())
 
 class BootEnvironmentSpatialLattice(object):
-	def __init__(self, agent_id, agent_config):
+	def __init__(self, agent_id, agent_type, agent_config):
 		kafka_config = agent_config['kafka_config']
 		raw_data = KnowledgeBaseEcoli()
 		# create a dictionary with all saved environments
@@ -70,7 +70,7 @@ class BootEnvironmentSpatialLattice(object):
 		concentrations = self.environment_dict['minimal']
 
 		self.environment = EnvironmentSpatialLattice(concentrations)
-		self.outer = EnvironmentAgent(agent_id, kafka_config, self.environment)
+		self.outer = EnvironmentAgent(agent_id, agent_Type, kafka_config, self.environment)
 
 
 class BootEcoli(object):
@@ -85,7 +85,7 @@ class BootEcoli(object):
 		* variant_index (optional)
 		* seed (optional)
 	'''
-	def __init__(self, agent_id, agent_config):
+	def __init__(self, agent_id, agent_type, agent_config):
 		self.agent_id = agent_id
 
 		kafka_config = agent_config['kafka_config']
@@ -152,9 +152,10 @@ class BootEcoli(object):
 
 		self.simulation = ecoli_simulation(**options)
 		self.inner = Inner(
-			kafka_config,
 			self.agent_id,
 			outer_id,
+			agent_type,
+			kafka_config,
 			self.simulation)
 
 
@@ -232,17 +233,17 @@ class EnvironmentCommand(AgentCommand):
 	def shepherd_initializers(self, args):
 		initializers = super(EnvironmentCommand, self).shepherd_initializers(args)
 
-		def initialize_ecoli(agent_id, agent_config):
+		def initialize_ecoli(agent_id, agent_type, agent_config):
 			agent_config = dict(
 				agent_config,
 				kafka_config=self.kafka_config,
 				working_dir=args.working_dir)
-			return BootEcoli(agent_id, agent_config)
+			return BootEcoli(agent_id, agent_type, agent_config)
 
-		def initialize_lattice(agent_id, agent_config):
+		def initialize_lattice(agent_id, agent_type, agent_config):
 			agent_config = dict(agent_config)
 			agent_config['kafka_config'] = self.kafka_config
-			return BootEnvironmentSpatialLattice(agent_id, agent_config)
+			return BootEnvironmentSpatialLattice(agent_id, agent_type, agent_config)
 
 		initializers['lattice'] = initialize_lattice
 		initializers['ecoli'] = initialize_ecoli
