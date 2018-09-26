@@ -279,13 +279,6 @@ class EnvironmentCommand(AgentCommand):
 		control.add_ecoli(agent_config)
 		control.shutdown()
 
-	def remove(self, args):
-		if not args.id:
-			raise ValueError('the "remove" command needs an --id argument')
-		control = ShepherdControl(self.kafka_config)
-		control.remove_agent(args.id)
-		control.shutdown()
-
 	def experiment(self, args):
 		control = ShepherdControl(self.kafka_config)
 		control.lattice_experiment(args.number)

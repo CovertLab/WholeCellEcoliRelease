@@ -100,11 +100,16 @@ class EnvironmentControl(Agent):
 			'agent_type': agent_type,
 			'agent_config': agent_config})
 
-	def remove_agent(self, prefix):
-		""" Remove an agent given a prefix of its id """
-		self.send(self.kafka_config['shepherd_control'], {
-			'event': event.REMOVE_AGENT,
-			'agent_prefix': prefix})
+	def remove_agent(self, agent_id):
+		"""
+		Remove an agent given either its id or a prefix of its id.
+
+		Args:
+		    agent_id (dict): contains either the key `agent_id` or `agent_prefix`.
+		        If given an `agent_id`, matches that id exactly.
+		        If given `agent_prefix` it will remove any agent whose id has that prefix"""
+		remove = dict(agent_id, event=event.REMOVE_AGENT)
+		self.send(self.kafka_config['shepherd_control'], remove)
 
 	def add_inner(self, outer_id, agent_config):
 		agent_config['outer_id'] = outer_id
@@ -177,6 +182,10 @@ class AgentCommand(object):
 		parser.add_argument(
 			'--outer-id',
 			help='unique identifier for outer agent this inner agent will join')
+
+		parser.add_argument(
+			'--prefix',
+			help='matches any id with the given prefix')
 
 		parser.add_argument(
 			'--number',
@@ -282,7 +291,12 @@ class AgentCommand(object):
 
 	def remove(self, args):
 		control = EnvironmentControl('environment_control', self.kafka_config)
-		control.remove_agent(args.id)
+		if args.id:
+			control.remove_agent({'agent_id': args.id})
+		elif args.prefix:
+			control.remove_agent({'agent_prefix': args.prefix})
+		else:
+			raise ValueError('either --id or --prefix must be provided')
 		control.shutdown()
 
 	def experiment(self, args):
