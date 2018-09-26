@@ -128,6 +128,8 @@ def divide_cell(sim):
 	saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter2", "Time"),
 		sim.timeStepSec())
 
+	return [d1_path, d2_path]
+
 
 def chromosomeDivision(bulkMolecules, randomState):
 	"""

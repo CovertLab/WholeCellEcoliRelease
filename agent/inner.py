@@ -1,5 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
+import uuid
+
 import agent.event as event
 from agent.agent import Agent
 
@@ -26,6 +28,9 @@ class CellSimulation(object):
 		"""Generate the update that will be sent to the environment based on changes calculated
 		by the CellSimulation during `run_incremental(run_until)`.
 		"""
+
+	def divide(self):
+		"""Perform cell division on the simulation and return information about the daughters."""
 
 	def finalize(self):
 		"""Release any resources and perform any final cleanup."""
@@ -81,25 +86,39 @@ class Inner(Agent):
 
 	def divide_cell(self, message):
 		division = self.simulation.divide()
-		for daughter in division['daughters']:
-			config = daughter.get(config, {})
-			if not 'outer_id' in config:
-				config['outer_id'] = self.outer_id
+		daughter_ids = []
+
+		for daughter in division:
+			agent_id = daughter.get('id', str(uuid.uuid1()))
+			daughter_ids.append(agent_id)
+
 			agent_type = daughter.get(
 					'type',
 					message.get(
 						'daughter_type',
 						self.agent_type))
 
+			agent_config = dict(
+				daughter,
+				parent_id=self.agent_id,
+				outer_id=self.outer_id)
+
 			self.send(self.kafka_config['shepherd_control'], {
 				'event': event.ADD_AGENT,
-				'agent_id': daughter.get('id', uuid.uuid1()),
+				'agent_id': agent_id,
 				'agent_type': agent_type,
-				'agent_config': config})
+				'agent_config': agent_config})
+
+		self.send(self.kafka_config['simulation_send'], {
+			'event': event.CELL_DIVISION,
+			'time': division[0]['start_time'],
+			'agent_id': self.agent_id,
+			'outer_id': self.outer_id,
+			'daughter_ids': daughter_ids})
 
 		self.send(self.kafka_config['shepherd_control'], {
 			'event': event.REMOVE_AGENT,
-			'agent_id': self.id})
+			'agent_id': self.agent_id})
 
 	def finalize(self):
 		""" Trigger any clean up the simulation needs to perform before exiting. """

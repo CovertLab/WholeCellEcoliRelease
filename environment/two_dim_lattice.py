@@ -237,7 +237,6 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 	def time(self):
 		return self._time
 
-
 	def add_simulation(self, agent_id, state):
 		# Place cell at a random initial location
 		location = np.random.uniform(0,EDGE_LENGTH,N_DIMS)
@@ -246,9 +245,38 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		self.simulations[agent_id] = state
 		self.locations[agent_id] = np.hstack((location, orientation))
 
-
 	def simulation_parameters(self, agent_id):
 		return {'time': self._time}
+
+	def simulation_state(self, agent_id):
+		return {
+			'simulation': self.simulations[agent_id],
+			'location': self.locations[agent_id]}
+
+	def rotation_matrix(self, orientation):
+		sin = np.sin(-orientation)
+		cos = np.cos(-orientation)
+		return np.matrix([
+			[cos, -sin],
+			[sin, cos]])
+
+	def daughter_location(self, location, orientation, length, index):
+		center = np.array([length * 0.25, 0])
+		rotation = self.rotation_matrix(orientation + index * np.pi)
+		translation = (center * rotation).A1
+		return (location + translation)
+
+	def apply_parent_state(self, agent_id, parent):
+		parent_location = parent['location']
+		index = parent['index']
+		orientation = parent_location[2]
+		volume = self.simulations[agent_id]['state']['volume']
+		length = self.volume_to_length(volume)
+		location = self.daughter_location(parent_location[0:2], orientation, length, index)
+
+		print("parent: {} - daughter: {}".format(parent_location, location))
+
+		self.locations[agent_id] = np.hstack((location, orientation))
 
 	def remove_simulation(self, agent_id):
 		self.simulations.pop(agent_id, {})

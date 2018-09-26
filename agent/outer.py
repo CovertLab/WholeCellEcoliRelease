@@ -77,6 +77,7 @@ class Outer(Agent):
 		"""
 		self.environment = environment
 		self.simulations = {}
+		self.parent_state = {}
 		self.paused = True
 		self.shutting_down = False
 
@@ -110,6 +111,9 @@ class Outer(Agent):
 			'state': self.environment.simulation_parameters(inner_id)})
 
 		self.environment.add_simulation(inner_id, message)
+
+		if inner_id in self.parent_state:
+			self.environment.apply_parent_state(inner_id, self.parent_state.pop(inner_id))
 
 	def update_state(self):
 		""" Called before each simulation is updated with the current state of the system. """
@@ -192,6 +196,16 @@ class Outer(Agent):
 
 				self.send_updates(now, run_until)
 
+	def cell_division(self, message):
+		agent_id = message['agent_id']
+		parent = self.environment.simulation_state(agent_id)
+		for index, daughter_id in enumerate(message['daughter_ids']):
+			state = dict(parent, index=index)
+			if daughter_id in self.simulations:
+				self.environment.apply_parent_state(daughter_id, state)
+			else:
+				self.parent_state[daughter_id] = state
+
 	def send_shutdown(self):
 		for inner_id, simulation in self.simulations.iteritems():
 			self.send(self.kafka_config['simulation_receive'], {
@@ -249,6 +263,9 @@ class Outer(Agent):
 
 			elif message['event'] == event.PAUSE_ENVIRONMENT:
 				self.paused = True
+
+			elif message['event'] == event.CELL_DIVISION:
+				self.cell_division(message)
 
 			elif message['event'] == event.SHUTDOWN_AGENT:
 				if len(self.simulations) > 0:

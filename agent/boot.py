@@ -93,6 +93,11 @@ class EnvironmentControl(Agent):
 			'event': event.SHUTDOWN_AGENT,
 			'agent_id': agent_id})
 
+	def divide_cell(self, agent_id):
+		self.send(self.kafka_config['simulation_receive'], {
+			'event': event.DIVIDE_CELL,
+			'agent_id': agent_id})
+
 	# TODO (Ryan): set this up to send messages to a particular shepherd.
 	def add_agent(self, agent_id, agent_type, agent_config):
 		self.send(self.kafka_config['shepherd_control'], {
@@ -152,6 +157,7 @@ class AgentCommand(object):
 			'remove',
 			'trigger',
 			'pause',
+			'divide',
 			'shutdown']
 		self.choices = self.default_choices + choices
 
@@ -298,6 +304,11 @@ class AgentCommand(object):
 			control.remove_agent({'agent_prefix': args.prefix})
 		else:
 			raise ValueError('either --id or --prefix must be provided')
+		control.shutdown()
+
+	def divide(self, args):
+		control = EnvironmentControl('environment_control', self.kafka_config)
+		control.divide_cell(args.id)
 		control.shutdown()
 
 	def experiment(self, args):

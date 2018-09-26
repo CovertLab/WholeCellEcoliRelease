@@ -89,6 +89,7 @@ class AgentShepherd(Agent):
 		        given string. This way you don't need to type a whole uuid, and can even remove
 		        multiple agents at once if their ids are logically grouped by prefix.
 		"""
+
 		removing = filter(lambda key: key.startswith(agent_prefix), self.agents.iterkeys())
 		print('removing agents {}'.format(removing))
 

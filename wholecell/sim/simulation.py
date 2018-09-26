@@ -104,6 +104,7 @@ class Simulation(CellSimulation):
 
 		# Set time variables
 		self._simulationStep = 0
+		self.daughter_paths = []
 
 		self.randomState = np.random.RandomState(seed = np.uint32(self._seed % np.iinfo(np.uint32).max))
 
@@ -238,7 +239,7 @@ class Simulation(CellSimulation):
 				hook.finalize(self)
 
 			# Divide mother into daughter cells
-			self._divideCellFunction()
+			self.daughter_paths = self._divideCellFunction()
 
 			# Finish logging
 			for logger in self.loggers.itervalues():
@@ -423,3 +424,16 @@ class Simulation(CellSimulation):
 		if 'time' in state:
 			self._initialTime = state['time']
 			self._timeTotal = state['time']
+
+	def divide(self):
+		self.cellCycleComplete()
+		self.finalize()
+
+		config = {
+			'start_time': self.time()}
+
+		daughters = map(
+			lambda path: dict(config, inherited_state_path=path),
+			self.daughter_paths)
+
+		return daughters

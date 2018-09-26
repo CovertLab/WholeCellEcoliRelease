@@ -70,7 +70,7 @@ class BootEnvironmentSpatialLattice(object):
 		concentrations = self.environment_dict['minimal']
 
 		self.environment = EnvironmentSpatialLattice(concentrations)
-		self.outer = EnvironmentAgent(agent_id, agent_Type, kafka_config, self.environment)
+		self.outer = EnvironmentAgent(agent_id, agent_type, kafka_config, self.environment)
 
 
 class BootEcoli(object):
@@ -78,6 +78,7 @@ class BootEcoli(object):
 	Instantiates an initial or daughter EcoliSimulation, passes it to the
 	`Inner` agent, and launches the simulation. `agent_config` fields:
 		* kafka_config
+	    * outer_id (id of environmental context agent)
 		* working_dir (wcEcoli path containing the sim path out/manual/)
 		* inherited_state_path (optional, to make a daughter cell)
 		* start_time (optional)
