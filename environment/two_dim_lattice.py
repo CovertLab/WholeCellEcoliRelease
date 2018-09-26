@@ -192,7 +192,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		return count / (PATCH_VOLUME * N_AVOGADRO)
 
 
-	def update_from_simulations(self, update, now):
+	def apply_inner_update(self, update, now):
 		'''
 		Use change counts from all the inner simulations, convert them to concentrations,
 		and add to the environmental concentrations of each molecule at each simulation's location
@@ -211,25 +211,27 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 					index = self.molecule_index[molecule]
 					self.lattice[index, patch_site[0], patch_site[1]] += concentration
 
+
 	def get_molecule_ids(self):
 		''' Return the ids of all molecule species in the environment '''
 		return self._molecule_ids
 
 
-	def get_concentrations(self, now):
+	def generate_outer_update(self, now):
 		'''returns a dict with {molecule_id: conc} for each sim give its current location'''
-		concentrations = {}
+		update = {}
 		for agent_id, simulation in self.simulations.iteritems():
 			# only provide concentrations if we have reached this simulation's time point.
 			if simulation['time'] <= now:
 				# get concentration from cell's given bin
 				location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH
 				patch_site = tuple(np.floor(location).astype(int))
-				concentrations[agent_id] = dict(zip(
+				update[agent_id] = {}
+				update[agent_id]['concentrations'] = dict(zip(
 					self._molecule_ids,
 					self.lattice[:,patch_site[0],patch_site[1]]))
 
-		return concentrations
+		return update
 
 
 	def time(self):

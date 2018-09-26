@@ -16,16 +16,14 @@ class CellSimulation(object):
 	def synchronize_state(self, state):
 		"""Receive any state from the environment, like current time step."""
 
-	def set_local_environment(self, concentrations):
-		"""Ingest a dictionary of the current chemical concentrations in the
-		local environment.
-	    """
+	def apply_outer_update(self, update):
+		"""Apply the update received from the environment to this simulation."""
 
 	def run_incremental(self, run_until):
 		"""Run this CellSimulation until the given time."""
 
-	def get_environment_change(self):
-		"""Return the accumulated changes to the local environment as calculated
+	def generate_inner_update(self):
+		"""Generate the update that will be sent to the environment based on changes calculated
 		by the CellSimulation during `run_incremental(run_until)`.
 		"""
 
@@ -72,7 +70,7 @@ class Inner(Agent):
 		"""Initialization: Register this inner agent with the outer agent."""
 
 		now = self.simulation.time()
-		state = self.simulation.get_environment_change()
+		state = self.simulation.generate_inner_update()
 
 		self.send(self.kafka_config['simulation_send'], {
 			'time': now,
@@ -111,13 +109,13 @@ class Inner(Agent):
 			print('--> {}: {}'.format(topic, message))
 
 			if message['event'] == event.ENVIRONMENT_UPDATED:
-				self.simulation.set_local_environment(
-					message['concentrations'])
+				update = message['state']
+				self.simulation.apply_outer_update(update)
 
 				self.simulation.run_incremental(message['run_until'])
 
 				stop = self.simulation.time()
-				update = self.simulation.get_environment_change()
+				update = self.simulation.generate_inner_update()
 
 				self.send(self.kafka_config['simulation_send'], {
 					'event': event.SIMULATION_ENVIRONMENT,

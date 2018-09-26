@@ -409,11 +409,11 @@ class Simulation(CellSimulation):
 	def initialize_local_environment(self):
 		pass
 
-	def set_local_environment(self, concentrations):
+	def apply_outer_update(self, update):
 		# concentrations are received as a dict
-		self.external_states['Environment'].set_local_environment(concentrations)
+		self.external_states['Environment'].set_local_environment(update['concentrations'])
 
-	def get_environment_change(self):
+	def generate_inner_update(self):
 		# sends environment a dictionary with relevant state changes
 		return {
 			'volume': self.listeners['Mass'].volume,
