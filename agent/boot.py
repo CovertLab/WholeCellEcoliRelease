@@ -100,15 +100,17 @@ class EnvironmentControl(Agent):
 			'agent_type': agent_type,
 			'agent_config': agent_config})
 
-	def remove_agent(self, agent_id):
+	def remove_agent(self, agent_query):
 		"""
 		Remove an agent given either its id or a prefix of its id.
 
 		Args:
-		    agent_id (dict): contains either the key `agent_id` or `agent_prefix`.
+		    agent_query (dict): contains either the key `agent_id` or `agent_prefix`.
 		        If given an `agent_id`, matches that id exactly.
-		        If given `agent_prefix` it will remove any agent whose id has that prefix"""
-		remove = dict(agent_id, event=event.REMOVE_AGENT)
+		        If given `agent_prefix` it will remove any agent whose id has that prefix
+                """
+
+		remove = dict(agent_query, event=event.REMOVE_AGENT)
 		self.send(self.kafka_config['shepherd_control'], remove)
 
 	def add_inner(self, outer_id, agent_config):
