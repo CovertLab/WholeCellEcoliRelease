@@ -84,8 +84,7 @@ class Inner(Agent):
 			'inner_id': self.agent_id,
 			'state': state})
 
-	def divide_cell(self, message):
-		division = self.simulation.divide()
+	def divide_cell(self, message, division):
 		daughter_ids = []
 
 		for daughter in division:
@@ -167,7 +166,8 @@ class Inner(Agent):
 					'state': update})
 
 			elif message['event'] == event.DIVIDE_CELL:
-				self.divide_cell(message)
+				division = self.simulation.divide()
+				self.divide_cell(message, division)
 
 			elif message['event'] == event.SYNCHRONIZE_SIMULATION:
 				self.simulation.synchronize_state(message['state'])

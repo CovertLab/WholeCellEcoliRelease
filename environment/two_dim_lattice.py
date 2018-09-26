@@ -261,9 +261,9 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 			[sin, cos]])
 
 	def daughter_location(self, location, orientation, length, index):
-		center = np.array([length * 0.25, 0])
-		rotation = self.rotation_matrix(orientation + index * np.pi)
-		translation = (center * rotation).A1
+		offset = np.array([length * 0.25, 0])
+		rotation = self.rotation_matrix(orientation + (index * np.pi))
+		translation = (offset * rotation).A1
 		return (location + translation)
 
 	def apply_parent_state(self, agent_id, parent):
