@@ -31,7 +31,7 @@ PATHWAYS_FILENAME = "models/ecoli/analysis/causal_network/metabolic_pathways.tsv
 
 NAMES_PATHWAY = "models/ecoli/analysis/causal_network/names/"
 
-CHECK_SANITY = True
+CHECK_SANITY = False
 GET_PATHWAY_INDEX = False
 DYNAMICS_PRECISION = 6
 PROBABILITY_PRECISION = 4
