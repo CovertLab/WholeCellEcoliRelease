@@ -75,6 +75,7 @@ class Outer(Agent):
 			environment (EnvironmentSimulation): The actual simulation which will perform
 				the calculations.
 		"""
+
 		self.environment = environment
 		self.simulations = {}
 		self.parent_state = {}
@@ -92,6 +93,20 @@ class Outer(Agent):
 
 	def finalize(self):
 		print('environment shutting down')
+
+	def add_simulation(self, message):
+		agent_config = message.get('agent_config', {})
+		agent_config['outer_id'] = self.agent_id
+		agent_config['start_time'] = message.get('time', self.environment.time())
+
+		self.send(self.kafka_config['shepherd_control'], {
+			'event': event.ADD_AGENT,
+			'agent_id': message.get('agent_id', str(uuid.uuid1())),
+			'agent_type': message['agent_type'],
+			'agent_config': agent_config})
+
+	def remove_simulation(self, message):
+		pass
 
 	def initialize_simulation(self, message):
 		inner_id = message['inner_id']
@@ -137,6 +152,17 @@ class Outer(Agent):
 					'message_id': simulation['message_id'],
 					'state': update[inner_id],
 					'run_until': run_until})
+
+	def simulation_update(self, message):
+		if message['inner_id'] in self.simulations:
+			simulation = self.simulations[message['inner_id']]
+
+			if message['message_id'] == simulation['message_id']:
+				simulation['state'] = message['state']
+				simulation['time'] = message['time']
+				simulation['last_message_id'] = message['message_id']
+
+				self.advance()
 
 	def ready_to_advance(self):
 		"""
@@ -208,12 +234,32 @@ class Outer(Agent):
 			else:
 				self.parent_state[daughter_id] = state
 
+	def simulation_shutdown(self, message):
+		if message['inner_id'] in self.simulations:
+			gone = self.simulations.pop(message['inner_id'], {'inner_id': -1})
+			self.environment.remove_simulation(message['inner_id'])
+			self.update_state()
+
+			print('simulation shutdown: ' + str(gone))
+
+			if not self.simulations:
+				self.shutdown()
+
 	def send_shutdown(self):
 		for inner_id, simulation in self.simulations.iteritems():
 			self.send(self.kafka_config['simulation_receive'], {
 				'outer_id': self.agent_id,
 				'inner_id': inner_id,
 				'event': event.SHUTDOWN_AGENT})
+
+	def shutdown(self, message):
+		if len(self.simulations) > 0:
+			if self.ready_to_advance():
+				self.send_shutdown()
+			else:
+				self.shutting_down = True
+		else:
+			self.shutdown()
 
 	def receive(self, topic, message):
 		"""
@@ -245,50 +291,34 @@ class Outer(Agent):
 		if message.get('outer_id', message.get('agent_id')) == self.agent_id:
 			print('--> {}: {}'.format(topic, message))
 
-			if message['event'] == event.SIMULATION_INITIALIZED:
-				self.initialize_simulation(message)
+			if message['event'] == event.ADD_SIMULATION:
+				self.add_simulation(message)
+
+			elif message['event'] == event.REMOVE_SIMULATION:
+				self.remove_simulation(message)
 
 			elif message['event'] == event.TRIGGER_EXECUTION:
 				self.paused = False
 				self.advance()
 
-			elif message['event'] == event.SIMULATION_ENVIRONMENT:
-				if message['inner_id'] in self.simulations:
-					simulation = self.simulations[message['inner_id']]
-
-					if message['message_id'] == simulation['message_id']:
-						simulation['state'] = message['state']
-						simulation['time'] = message['time']
-						simulation['last_message_id'] = message['message_id']
-
-						self.advance()
-
 			elif message['event'] == event.PAUSE_ENVIRONMENT:
 				self.paused = True
 				self.update_state()
 
+			elif message['event'] == event.SHUTDOWN_AGENT:
+				self.shutdown(message)
+
+			elif message['event'] == event.SIMULATION_INITIALIZED:
+				self.initialize_simulation(message)
+
+			elif message['event'] == event.SIMULATION_ENVIRONMENT:
+				self.simulation_update(message)
+
 			elif message['event'] == event.CELL_DIVISION:
 				self.cell_division(message)
 
-			elif message['event'] == event.SHUTDOWN_AGENT:
-				if len(self.simulations) > 0:
-					if self.ready_to_advance():
-						self.send_shutdown()
-					else:
-						self.shutting_down = True
-				else:
-					self.shutdown()
-
 			elif message['event'] == event.SIMULATION_SHUTDOWN:
-				if message['inner_id'] in self.simulations:
-					gone = self.simulations.pop(message['inner_id'], {'inner_id': -1})
-					self.environment.remove_simulation(message['inner_id'])
-					self.update_state()
-
-					print('simulation shutdown: ' + str(gone))
-
-					if not self.simulations:
-						self.shutdown()
+				self.simulation_shutdown(message)
 
 			else:
 				print('unexpected event {}: {}'.format(message['event'], message))

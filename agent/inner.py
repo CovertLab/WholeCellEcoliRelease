@@ -84,6 +84,27 @@ class Inner(Agent):
 			'inner_id': self.agent_id,
 			'state': state})
 
+	def environment_update(self, message):
+		update = message['state']
+		self.simulation.apply_outer_update(update)
+
+		self.simulation.run_incremental(message['run_until'])
+
+		stop = self.simulation.time()
+		update = self.simulation.generate_inner_update()
+
+		self.send(self.kafka_config['simulation_send'], {
+			'event': event.SIMULATION_ENVIRONMENT,
+			'time': stop,
+			'outer_id': self.outer_id,
+			'inner_id': self.agent_id,
+			'message_id': message['message_id'],
+			'state': update})
+
+		division = self.simulation.daughter_config()
+		if division:
+			self.divide_cell({}, division)
+
 	def divide_cell(self, message, division):
 		daughter_ids = []
 
@@ -119,6 +140,14 @@ class Inner(Agent):
 			'event': event.REMOVE_AGENT,
 			'agent_id': self.agent_id})
 
+	def shutdown(self, message):
+		self.send(self.kafka_config['simulation_send'], {
+			'event': event.SIMULATION_SHUTDOWN,
+			'outer_id': self.outer_id,
+			'inner_id': self.agent_id})
+
+		self.shutdown()
+
 	def finalize(self):
 		""" Trigger any clean up the simulation needs to perform before exiting. """
 
@@ -149,21 +178,7 @@ class Inner(Agent):
 			print('--> {}: {}'.format(topic, message))
 
 			if message['event'] == event.ENVIRONMENT_UPDATED:
-				update = message['state']
-				self.simulation.apply_outer_update(update)
-
-				self.simulation.run_incremental(message['run_until'])
-
-				stop = self.simulation.time()
-				update = self.simulation.generate_inner_update()
-
-				self.send(self.kafka_config['simulation_send'], {
-					'event': event.SIMULATION_ENVIRONMENT,
-					'time': stop,
-					'outer_id': self.outer_id,
-					'inner_id': self.agent_id,
-					'message_id': message['message_id'],
-					'state': update})
+				self.environment_update(message)
 
 			elif message['event'] == event.DIVIDE_CELL:
 				division = self.simulation.divide()
@@ -173,12 +188,7 @@ class Inner(Agent):
 				self.simulation.synchronize_state(message['state'])
 
 			elif message['event'] == event.SHUTDOWN_AGENT:
-				self.send(self.kafka_config['simulation_send'], {
-					'event': event.SIMULATION_SHUTDOWN,
-					'outer_id': self.outer_id,
-					'inner_id': self.agent_id})
-
-				self.shutdown()
+				self.shutdown(message)
 
 			else:
 				print('unexpected event {}: {}'.format(message['event'], message))

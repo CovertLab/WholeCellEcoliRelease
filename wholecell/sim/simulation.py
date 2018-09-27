@@ -425,10 +425,7 @@ class Simulation(CellSimulation):
 			self._initialTime = state['time']
 			self._timeTotal = state['time']
 
-	def divide(self):
-		self.cellCycleComplete()
-		self.finalize()
-
+	def daugther_config(self):
 		config = {
 			'start_time': self.time()}
 
@@ -437,3 +434,9 @@ class Simulation(CellSimulation):
 			self.daughter_paths)
 
 		return daughters
+
+	def divide(self):
+		self.cellCycleComplete()
+		self.finalize()
+
+		return self.daughter_config()
