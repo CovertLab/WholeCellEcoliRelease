@@ -265,6 +265,7 @@ class Outer(Agent):
 
 			elif message['event'] == event.PAUSE_ENVIRONMENT:
 				self.paused = True
+				self.update_state()
 
 			elif message['event'] == event.CELL_DIVISION:
 				self.cell_division(message)
