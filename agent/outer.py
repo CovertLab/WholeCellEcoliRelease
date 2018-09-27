@@ -115,6 +115,8 @@ class Outer(Agent):
 		if inner_id in self.parent_state:
 			self.environment.apply_parent_state(inner_id, self.parent_state.pop(inner_id))
 
+		self.update_state()
+
 	def update_state(self):
 		""" Called before each simulation is updated with the current state of the system. """
 		pass
@@ -280,6 +282,7 @@ class Outer(Agent):
 				if message['inner_id'] in self.simulations:
 					gone = self.simulations.pop(message['inner_id'], {'inner_id': -1})
 					self.environment.remove_simulation(message['inner_id'])
+					self.update_state()
 
 					print('simulation shutdown: ' + str(gone))
 
