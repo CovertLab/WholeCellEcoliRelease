@@ -1995,7 +1995,7 @@
 "L-RIBULOSE"	L-RIBULOSE	"ribulose"	150.131
 "L-RIBULOSE-5-P"	L-RIBULOSE-5-P	"L-ribulose-5-P"	228.095
 "CPD-18661"	CPD-18661	"selenazolidine-4-carboxylic acid"	180.065
-"L-SELENOCYSTEINE"	L-SELENOCYSTEINE	U	168.054
+"L-SELENOCYSTEINE"	L-SELENOCYSTEINE	"L-selenocysteine" // "U"	168.054
 "SELENOMETHIONINE"	SELENOMETHIONINE	"selenium L-methionine" // "seleno-L-methionine"	196.107
 "SER"	SER	"serine" // "S" // "L-ser"	105.093
 "TARTRATE"	TARTRATE	"weinsaeure" // "(+)-tartrate" // "tartrate" // "tartaric acid" // "(R,R)-tartrate" // "L-tartaric acid" // "L(+)-tartaric acid" // "(2R,3R)-tartaric acid" // "(2R,3R)-tartrate" // "L-tartarate" // "L-threarate"	148.072
