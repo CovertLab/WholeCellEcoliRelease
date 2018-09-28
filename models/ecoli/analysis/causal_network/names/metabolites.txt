@@ -1740,7 +1740,7 @@
 "DIHYDROXY-ACETONE-PHOSPHATE"	DIHYDROXY-ACETONE-PHOSPHATE	"dihydroxyacetone phosphate" // "dihydroxyacetone-P" // "di-OH-acetone-P" // "dihydroxy-acetone phosphate" // "3-hydroxy-2-oxopropyl phosphate"	168.043
 "GLYCEROPHOSPHOGLYCEROL"	GLYCEROPHOSPHOGLYCEROL	"diglycerol phosphate" // "bis(2,3-dihydroxypropyl) phosphate"	245.146
 "CPD0-2030"	CPD0-2030		258.144
-"GLY"	GLY	"G" // "aminoacetic acid"	75.067
+"GLY"	GLY	"glycine" // "G" // "aminoacetic acid"	75.067
 "BETAINE"	BETAINE	"oxyneurine" // "lycine" // "acidin-pepsin" // "betaine" // "trimethylammonioacetate" // "<i>N,N,N</i>-trimethylglycine"	117.147
 "CPD0-2276"	CPD0-2276		103.121
 "CPD-9383"	CPD-9383	"Methyl glycinate"	89.094
@@ -1910,12 +1910,12 @@
 "CPD0-2539"	CPD0-2539		
 "L-ALPHA-AMINO-EPSILON-KETO-PIMELATE"	L-ALPHA-AMINO-EPSILON-KETO-PIMELATE	"L-2-Amino-6-oxopimelate" // "L-2-Amino-6-oxoheptanedioate"	188.16
 "L-ARABITOL"	L-ARABITOL	"L-arabinol" // "L-arabitol" // "L-lyxitol" // "(2S,4S)-pentane-1,2,3,4,5-pentol"	152.147
-"ARG"	ARG	"2-amino-5-guanidinovaleric acid" // R // "arginine" // "L-arg"	175.21
+"ARG"	ARG	"arginine" // "2-amino-5-guanidinovaleric acid" // R // "L-arg"	175.21
 "L-ARGININO-SUCCINATE"	L-ARGININO-SUCCINATE	"<i>N</i>-(L-arginino)-succinate" // "arginino-succinate"	289.267
 "ASCORBATE"	ASCORBATE	"L-ascorbic acid" // "ascorbate" // "vitamin C" // "ascorbic acid"	175.118
 "L-ASCORBATE-6-PHOSPHATE"	L-ASCORBATE-6-PHOSPHATE		253.082
 "ASN"	ASN	"asparagine" // "&alpha;-aminosuccinamic acid" // "(-)-asparagine" // "(S)-2,4-diamino-4-oxobutanoic acid" // "(S)-asparagine" // "2,4-diamino-4-oxobutanoic acid, (S)-" // "2-aminosuccinamic acid, L-" // "agedoite" // "altheine" // "asparagine acid" // "aspartic acid &beta;-amide" // "butanoic acid, 2,4-diamino-4-oxo-, (S)-" // "L-2,4-diamino-4-oxobutanoic acid" // "L-asparatamine" // "L-&beta;-asparagine" // N // "L-asn"	132.119
-"L-ASPARTATE"	L-ASPARTATE	"L-aspartic acid" // "aspartic acid" // D // "aspartate" // "L-asp"	132.096
+"L-ASPARTATE"	L-ASPARTATE	"aspartate" // "L-aspartic acid" // "aspartic acid" // D // "L-asp"	132.096
 "L-ASPARTATE-SEMIALDEHYDE"	L-ASPARTATE-SEMIALDEHYDE	"L-aspartic 4-semialdehyde" // "L-aspartate-4-semialdehyde" // "L-aspartate &beta;-semialdehyde"	117.104
 "L-BETA-ASPARTYL-P"	L-BETA-ASPARTYL-P	"4-phospho-L-aspartate" // "L-4-aspartyl phosphate" // "L-&beta;-aspartyl-P" // "L-&beta;-aspartyl-phosphate" // "L-aspartyl-4-P" // "L-aspartyl-&beta;-phosphate" // "4-phosphonato-L-aspartate"	211.068
 "L-AZASERINE"	L-AZASERINE	"azaserine"	174.136
@@ -1926,7 +1926,7 @@
 "CPD-2483"	CPD-2483	"L-4-amino-3-isoxazolidinone" // "L-4-amino-3-isoxazolidone"	103.1
 "L-CYSTATHIONINE"	L-CYSTATHIONINE	"cystathionine"	222.259
 "L-CYSTEATE"	L-CYSTEATE	"L-cysteic acid" // "3-sulfoalanine" // "2-amino-3-sulfopropionic acid" // "(<i>R</i>)-cysteate" // "3-sulfo-L-alanine" // "(2R)-2-amino-3-sulfopropanoic acid"	168.144
-"CYS"	CYS	C // "carbocysteine" // "cysteine" // "Cys" // "L-cys"	121.154
+"CYS"	CYS	"cysteine" // C // "carbocysteine" // "Cys" // "L-cys"	121.154
 "CYS-GLY"	CYS-GLY	"Cys-Gly"	178.206
 "CYSTINE"	CYSTINE		240.292
 "L-DEHYDRO-ASCORBATE"	L-DEHYDRO-ASCORBATE	"dehydroascorbate"	174.11
@@ -1941,15 +1941,15 @@
 "CPD-330"	CPD-330	"L-galactono-&gamma;-lactone" // "L-galactonate-&gamma;-lactone" // "L-galactonic acid-&gamma;-lactone" // "L-galactonic acid-g-lactone"	178.141
 "CPD-17157"	CPD-17157		178.141
 "CPD-3607"	CPD-3607	"L-glucopyranose"	180.157
-"GLT"	GLT	"1-amino-propane-1,3-dicarboxylic acid" // "glutacid" // "glutaminic acid" // "L-glutamic acid" // "&alpha;-aminoglutaric acid" // "E" // "glt" // "glut" // "L-glu" // "2-aminopentanedioic acid"	146.122
+"GLT"	GLT	"L-glutamate" // "1-amino-propane-1,3-dicarboxylic acid" // "glutacid" // "glutaminic acid" // "L-glutamic acid" // "&alpha;-aminoglutaric acid" // "E" // "glt" // "glut" // "L-glu" // "2-aminopentanedioic acid"	146.122
 "CPD-18649"	CPD-18649	"5-methyl L-glutamate" // "glutamic acid, 5-methylester"	161.157
 "CPD-18648"	CPD-18648	"L-glutamic acid gamma-monohydroxamate" // "L-5-<i>N</i>-hydroxyglutamine"	162.145
 "L-GLUTAMATE_GAMMA-SEMIALDEHYDE"	L-GLUTAMATE_GAMMA-SEMIALDEHYDE	"glutamic &gamma;-semialdehyde" // "L-glutamate &gamma;-semialdehyde" // "glutamate-semialdehyde"	131.131
-"GLN"	GLN	"Q" // "proglumide" // "glum" // "glutamine" // "glumin" // "2-aminoglutaramic acid" // "glutamic acid 5-amide" // "L-gln"	146.146
+"GLN"	GLN	"glutamine" // "Q" // "proglumide" // "glum" // "glumin" // "2-aminoglutaramic acid" // "glutamic acid 5-amide" // "L-gln"	146.146
 "L-GLYCERALDEHYDE"	L-GLYCERALDEHYDE	"(S)-2,3-dihydroxypropanal" // "L-(-)-glyceraldehyde" // "L-2,3-Dihydroxypropanal" // "L-2,3-Dihydroxypropionaldehyde" // "L-Aldotriose" // "L-Glycerose"	90.079
 "L-GLYCERALDEHYDE-3-PHOSPHATE"	L-GLYCERALDEHYDE-3-PHOSPHATE	"L-glyceraldehyde-3-phosphate" // "L-GAP"	168.043
 "L-GULONATE"	L-GULONATE	"gulonate"	195.149
-"HIS"	HIS	"glyoxaline-5-alanine" // "&alpha;-amino-4-imidazoleproprionic acid" // "(S)-&alpha;-amino-1H-imidazole-4-propanoic acid" // H // "histidine" // "L-his"	155.156
+"HIS"	HIS	"histidine" // "glyoxaline-5-alanine" // "&alpha;-amino-4-imidazoleproprionic acid" // "(S)-&alpha;-amino-1H-imidazole-4-propanoic acid" // H // "L-his"	155.156
 "CPD0-918"	CPD0-918		171.178
 "L-HISTIDINOL-P"	L-HISTIDINOL-P	"histidinol-P" // "L-histidinol-p" // "histidinol phosphate"	220.144
 "HOMOARGININE"	HOMOARGININE		189.237
@@ -1960,17 +1960,17 @@
 "CPD0-1090"	CPD0-1090	"L-idaric acid"	208.124
 "L-IDONATE"	L-IDONATE	"L-idonic acid" // "(<i>R</i>)-idonate"	195.149
 "CPD0-1690"	CPD0-1690		174.222
-"ILE"	ILE	I // "iso-leucine" // "L-ile"	131.174
+"ILE"	ILE	"L-isoleucine" // "I" // "iso-leucine" // "L-ile"	131.174
 "CPD-14736"	CPD-14736	"kynurenine"	208.216
-"LEU"	LEU	"(2S)-&alpha;-2-amino-4-methylvaleric acid" // "L" // "leucine" // "2-amino-4-methylvaleric acid" // "(2S)-&alpha;-leucine" // "L-leu"	131.174
+"LEU"	LEU	"leucine" // "(2S)-&alpha;-2-amino-4-methylvaleric acid" // "L" // "2-amino-4-methylvaleric acid" // "(2S)-&alpha;-leucine" // "L-leu"	131.174
 "CPD0-2555"	CPD0-2555	"Leu-Gly"	188.226
 "CPD0-1907"	CPD0-1907	"3-[3-(methoxycarbonyl)prop-2-enoylamino]-2-((2S)-2,6-diaminohexanoylamino)propanoate"	345.375
-"LYS"	LYS	K // "lysine" // "L-lys" // "2,6-diaminohexanoic acid" // "lysine acid"	147.197
+"LYS"	LYS	"lysine" // "K" // "L-lys" // "2,6-diaminohexanoic acid" // "lysine acid"	147.197
 "CPD0-1198"	CPD0-1198		165.122
 "CPD-16618"	CPD-16618	"(3<i>R</i>)-3-hydroxy-4-oxobutanoate"	117.081
 "CPD0-1197"	CPD0-1197		195.149
 "CPD0-1908"	CPD0-1908	"3-[3-(methoxycarbonyl)prop-2-enoylamino]-2-((2S)-2-amino-4-methylthiobutanoylamino)propanoate"	347.385
-"MET"	MET	"M" // "methionine" // "L-met"	149.207
+"MET"	MET	"methionine" // "M" // "L-met"	149.207
 "CPD-3739"	CPD-3739	"(S)-amino-4-(methylsulphonyl)butyric acid"	182.171
 "CPD-8990"	CPD-8990	"L-methionine-<i>R</i>-sulfoxide"	165.207
 "CPD-8989"	CPD-8989		165.207
@@ -1980,10 +1980,10 @@
 "L-2-AMINOPENTANOIC-ACID"	L-2-AMINOPENTANOIC-ACID	"L-2-aminopentanoic acid" // "L-(+)-2-aminovaleric acid" // "L-2-aminopentanoate"	117.147
 "L-ORNITHINE"	L-ORNITHINE	"Ornithine" // "2, 5-diaminovaleric acid" // "2, 5-diaminopentanoic acid" // "2, 5-diaminopentanoate" // "&alpha;,&delta;-diaminovaleric acid"	133.17
 "L-PENICILLAMINE"	L-PENICILLAMINE		149.207
-"PHE"	PHE	"2S-&alpha;-phenylalanine" // F // "endophenyl" // "phenylalanine" // "L-phe"	165.191
+"PHE"	PHE	"phenylalanine" // "2S-&alpha;-phenylalanine" // F // "endophenyl" // "L-phe"	165.191
 "L-PHOSPHINOTHRICIN"	L-PHOSPHINOTHRICIN	"glufosinate" // "DL-phosphinothricin" // "phosphinothricin" // "phosphinothricine" // "(S)-phosphinothricin" // "(S)-2-amino-4-(hydroxymethylphosphinyl)butyric acid" // "(S)-4-[hydroxy(methyl)phosphinyl]-2-aminobutyric acid" // "L-glufosinate"	180.12
 "L-PIPECOLATE"	L-PIPECOLATE	"(<i>S</i>)-pipecolate" // "L-pipecolic acid" // "(<i>S</i>)-pipecolic acid"	129.158
-"PRO"	PRO	"2-pyrrolidinecarboxylic acid" // P // "proline" // "prol" // "L-pro"	115.132
+"PRO"	PRO	"proline" // "2-pyrrolidinecarboxylic acid" // P // "prol" // "L-pro"	115.132
 "CPD-821"	CPD-821	"stachydrine" // "<I>N,N</I>-dimethyl L-proline" // "proline betaine" // "(<i>S</i>)-2-carboxylato-1,1-dimethylpyrrolidinium" // "<I>N,N</I>-dimethylproline" // "(2S)-1,1-dimethylpyrrolidinium-2-carboxylate"	143.185
 "CPD0-2182"	CPD0-2182		174.199
 "QUINATE"	QUINATE	"(-)-quinic acid" // "(-)-quinate" // "(1S,3R,4S,5R)-1,3,4,5-tetrahydroxycyclohexanecarboxylate"	191.16
@@ -1997,18 +1997,18 @@
 "CPD-18661"	CPD-18661	"selenazolidine-4-carboxylic acid"	180.065
 "L-SELENOCYSTEINE"	L-SELENOCYSTEINE	U	168.054
 "SELENOMETHIONINE"	SELENOMETHIONINE	"selenium L-methionine" // "seleno-L-methionine"	196.107
-"SER"	SER	S // "serine" // "L-ser"	105.093
+"SER"	SER	"serine" // "S" // "L-ser"	105.093
 "TARTRATE"	TARTRATE	"weinsaeure" // "(+)-tartrate" // "tartrate" // "tartaric acid" // "(R,R)-tartrate" // "L-tartaric acid" // "L(+)-tartaric acid" // "(2R,3R)-tartaric acid" // "(2R,3R)-tartrate" // "L-tartarate" // "L-threarate"	148.072
 "CPD0-1572"	CPD0-1572	"L-THFA"	115.108
 "CPD0-1571"	CPD0-1571	"gamma-thioproline" // "T4C"	133.165
 "CPD-644"	CPD-644	"L-threo-phenylserine" // "L-<i>threo</i>-phenylserine" // "L-<i>threo</i>-&beta;-phenylserine" // "(2S,3S)-2-amino-3-hydroxy-3-phenylpropanoate"	181.191
-"THR"	THR	"T" // "thre" // "L-thr" // "threonine" // "2-amino-3-hydroxybutyric acid"	119.12
+"THR"	THR	"threonine" // "T" // "thre" // "L-thr" // "2-amino-3-hydroxybutyric acid"	119.12
 "L-THREONINE-O-3-PHOSPHATE"	L-THREONINE-O-3-PHOSPHATE	"O-phospho-L-threonine" // "phosphothreonine"	197.084
 "CPD0-1351"	CPD0-1351		119.143
-"TRP"	TRP	W // "tryptacin" // "trofan" // "tryptophan" // "2-amino-3-indolylpropanic acid" // "L-trp"	204.228
+"TRP"	TRP	"tryptophan" // "W" // "tryptacin" // "trofan" // "2-amino-3-indolylpropanic acid" // "L-trp"	204.228
 "CPD0-1913"	CPD0-1913		379.369
-"TYR"	TYR	"Y" // "tyrosine" // "L-tyr"	181.191
-"VAL"	VAL	V // "valine" // "L-val"	117.147
+"TYR"	TYR	"tyrosine" // "Y" // "L-tyr"	181.191
+"VAL"	VAL	"valine" // "V" // "L-val"	117.147
 "L-XYLULOSE"	L-XYLULOSE	"xylulose" // "L-threo-pent-2-ulose"	150.131
 "CPD0-1115"	CPD0-1115		228.095
 "L-XYLULOSE-5-P"	L-XYLULOSE-5-P	"L-xylulose 5P"	228.095
