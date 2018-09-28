@@ -1915,7 +1915,7 @@
 "ASCORBATE"	ASCORBATE	"L-ascorbic acid" // "ascorbate" // "vitamin C" // "ascorbic acid"	175.118
 "L-ASCORBATE-6-PHOSPHATE"	L-ASCORBATE-6-PHOSPHATE		253.082
 "ASN"	ASN	"asparagine" // "&alpha;-aminosuccinamic acid" // "(-)-asparagine" // "(S)-2,4-diamino-4-oxobutanoic acid" // "(S)-asparagine" // "2,4-diamino-4-oxobutanoic acid, (S)-" // "2-aminosuccinamic acid, L-" // "agedoite" // "altheine" // "asparagine acid" // "aspartic acid &beta;-amide" // "butanoic acid, 2,4-diamino-4-oxo-, (S)-" // "L-2,4-diamino-4-oxobutanoic acid" // "L-asparatamine" // "L-&beta;-asparagine" // N // "L-asn"	132.119
-"L-ASPARTATE"	L-ASPARTATE	"aspartate" // "L-aspartic acid" // "aspartic acid" // D // "L-asp"	132.096
+"L-ASPARTATE"	L-ASPARTATE	"aspartic acid" // "aspartate" // "L-aspartic acid" // "D" // "L-asp"	132.096
 "L-ASPARTATE-SEMIALDEHYDE"	L-ASPARTATE-SEMIALDEHYDE	"L-aspartic 4-semialdehyde" // "L-aspartate-4-semialdehyde" // "L-aspartate &beta;-semialdehyde"	117.104
 "L-BETA-ASPARTYL-P"	L-BETA-ASPARTYL-P	"4-phospho-L-aspartate" // "L-4-aspartyl phosphate" // "L-&beta;-aspartyl-P" // "L-&beta;-aspartyl-phosphate" // "L-aspartyl-4-P" // "L-aspartyl-&beta;-phosphate" // "4-phosphonato-L-aspartate"	211.068
 "L-AZASERINE"	L-AZASERINE	"azaserine"	174.136
@@ -1941,7 +1941,7 @@
 "CPD-330"	CPD-330	"L-galactono-&gamma;-lactone" // "L-galactonate-&gamma;-lactone" // "L-galactonic acid-&gamma;-lactone" // "L-galactonic acid-g-lactone"	178.141
 "CPD-17157"	CPD-17157		178.141
 "CPD-3607"	CPD-3607	"L-glucopyranose"	180.157
-"GLT"	GLT	"L-glutamate" // "1-amino-propane-1,3-dicarboxylic acid" // "glutacid" // "glutaminic acid" // "L-glutamic acid" // "&alpha;-aminoglutaric acid" // "E" // "glt" // "glut" // "L-glu" // "2-aminopentanedioic acid"	146.122
+"GLT"	GLT	"L-glutamic acid" // "L-glutamate" // "1-amino-propane-1,3-dicarboxylic acid" // "glutacid" // "glutaminic acid" // "&alpha;-aminoglutaric acid" // "E" // "glt" // "glut" // "L-glu" // "2-aminopentanedioic acid"	146.122
 "CPD-18649"	CPD-18649	"5-methyl L-glutamate" // "glutamic acid, 5-methylester"	161.157
 "CPD-18648"	CPD-18648	"L-glutamic acid gamma-monohydroxamate" // "L-5-<i>N</i>-hydroxyglutamine"	162.145
 "L-GLUTAMATE_GAMMA-SEMIALDEHYDE"	L-GLUTAMATE_GAMMA-SEMIALDEHYDE	"glutamic &gamma;-semialdehyde" // "L-glutamate &gamma;-semialdehyde" // "glutamate-semialdehyde"	131.131
@@ -1960,7 +1960,7 @@
 "CPD0-1090"	CPD0-1090	"L-idaric acid"	208.124
 "L-IDONATE"	L-IDONATE	"L-idonic acid" // "(<i>R</i>)-idonate"	195.149
 "CPD0-1690"	CPD0-1690		174.222
-"ILE"	ILE	"L-isoleucine" // "I" // "iso-leucine" // "L-ile"	131.174
+"ILE"	ILE	"isoleucine" // "L-isoleucine" // "I" // "iso-leucine" // "L-ile"	131.174
 "CPD-14736"	CPD-14736	"kynurenine"	208.216
 "LEU"	LEU	"leucine" // "(2S)-&alpha;-2-amino-4-methylvaleric acid" // "L" // "2-amino-4-methylvaleric acid" // "(2S)-&alpha;-leucine" // "L-leu"	131.174
 "CPD0-2555"	CPD0-2555	"Leu-Gly"	188.226
