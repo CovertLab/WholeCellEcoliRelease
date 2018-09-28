@@ -52,7 +52,7 @@ class ExternalState(object):
 
 		# create a dictionary with all saved environments, including molecules of concentration == 0
 		self.environment.environment_dict = {}
-		for label in dir(raw_data.condition.environment):
+		for label in dir(raw_data.condition.media):
 			if label.startswith("__"):
 				continue
 			self.environment.environment_dict[label] = {}
@@ -62,7 +62,7 @@ class ExternalState(object):
 				self.environment.environment_dict[label].update({row["molecule id"]: 0})
 
 			# update non-zero concentrations, remove units
-			molecule_concentrations = getattr(raw_data.condition.environment, label)
+			molecule_concentrations = getattr(raw_data.condition.media, label)
 			for row in molecule_concentrations:
 				self.environment.environment_dict[label].update({row["molecule id"]: row["concentration"].asNumber()})
 
