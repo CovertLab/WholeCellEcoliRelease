@@ -174,7 +174,7 @@ class Metabolism(object):
 
 	def _getExchangeDataDict(self, raw_data, sim_data):
 		'''
-		Returns a dictionary of exchange_data for the initial environment listed in condition.environment. This dictionary
+		Returns a dictionary of exchange_data for the initial environment listed in condition.media. This dictionary
 		is used to quickly pull up  exchange data for these different environments by their name.
 		'''
 
