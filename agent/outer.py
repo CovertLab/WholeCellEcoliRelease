@@ -94,16 +94,23 @@ class Outer(Agent):
 	def finalize(self):
 		print('environment shutting down')
 
-	def add_simulation(self, message):
-		agent_config = message.get('agent_config', {})
-		agent_config['outer_id'] = self.agent_id
-		agent_config['start_time'] = message.get('time', self.environment.time())
+	# def add_simulation(self, message):
+	# 	agent_id = message.get('agent_id', str(uuid.uuid1()))
+	# 	agent_type = message.get('agent_type', 'inner')
+	# 	agent_config = message.get('agent_config', {})
+	# 	agent_config['outer_id'] = self.agent_id
+	# 	agent_config['start_time'] = message.get('time', self.environment.time())
 
-		self.send(self.kafka_config['shepherd_control'], {
-			'event': event.ADD_AGENT,
-			'agent_id': message.get('agent_id', str(uuid.uuid1())),
-			'agent_type': message['agent_type'],
-			'agent_config': agent_config})
+	# 	parameters = self.environment.simulation_parameters(agent_id)
+	# 	agent_config.update(parameters)
+
+	# 	self.prior_state[agent_id] = agent_config
+
+	# 	self.send(self.kafka_config['shepherd_control'], {
+	# 		'event': event.ADD_AGENT,
+	# 		'agent_id': agent_id,
+	# 		'agent_type': agent_type,
+	# 		'agent_config': agent_config})
 
 	def remove_simulation(self, message):
 		pass
@@ -119,11 +126,15 @@ class Outer(Agent):
 			'last_message_id': -1,
 			'state': message['state']}
 
+		# if inner_id in self.prior_state:
+		# 	message['state'].update(self.prior_state.pop(inner_id))
+
+		parameters = self.environment.simulation_parameters(inner_id)
 		self.send(self.kafka_config['simulation_receive'], {
 			'event': event.SYNCHRONIZE_SIMULATION,
 			'inner_id': inner_id,
 			'outer_id': self.agent_id,
-			'state': self.environment.simulation_parameters(inner_id)})
+			'state': parameters})
 
 		self.environment.add_simulation(inner_id, message)
 
@@ -291,11 +302,11 @@ class Outer(Agent):
 		if message.get('outer_id', message.get('agent_id')) == self.agent_id:
 			print('--> {}: {}'.format(topic, message))
 
-			if message['event'] == event.ADD_SIMULATION:
-				self.add_simulation(message)
+			# if message['event'] == event.ADD_SIMULATION:
+			# 	self.add_simulation(message)
 
-			elif message['event'] == event.REMOVE_SIMULATION:
-				self.remove_simulation(message)
+			# elif message['event'] == event.REMOVE_SIMULATION:
+			# 	self.remove_simulation(message)
 
 			elif message['event'] == event.TRIGGER_EXECUTION:
 				self.paused = False

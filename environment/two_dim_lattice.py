@@ -239,8 +239,8 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 
 	def add_simulation(self, agent_id, state):
 		# Place cell at a random initial location
-		location = state.get('location', np.random.uniform(0,EDGE_LENGTH,N_DIMS))
-		orientation = state.get('orientation', np.random.uniform(0, 2*PI))
+		location = state['state'].get('location', np.random.uniform(0,EDGE_LENGTH,N_DIMS))
+		orientation = state['state'].get('orientation', np.random.uniform(0, 2*PI))
 
 		self.simulations[agent_id] = state
 		self.locations[agent_id] = np.hstack((location, orientation))
