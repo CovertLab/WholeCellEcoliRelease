@@ -43,7 +43,7 @@ class EnvironmentAgent(Outer):
 			'simulations': simulations}
 
 	def update_state(self):
-		self.send(self.kafka_config['environment_visualization'], self.build_state())
+		self.send(self.topics['visualization_receive'], self.build_state())
 
 class BootEnvironmentSpatialLattice(object):
 	def __init__(self, agent_id, agent_type, agent_config):
@@ -70,7 +70,7 @@ class BootEnvironmentSpatialLattice(object):
 		concentrations = self.environment_dict['minimal']
 
 		self.environment = EnvironmentSpatialLattice(concentrations)
-		self.outer = EnvironmentAgent(agent_id, agent_type, kafka_config, self.environment)
+		self.outer = EnvironmentAgent(agent_id, agent_type, agent_config, self.environment)
 
 
 class BootEcoli(object):
@@ -156,7 +156,7 @@ class BootEcoli(object):
 			self.agent_id,
 			outer_id,
 			agent_type,
-			kafka_config,
+			agent_config,
 			self.simulation)
 
 
@@ -169,9 +169,8 @@ class ShepherdControl(EnvironmentControl):
 	then terminate).
 	"""
 
-	def __init__(self, kafka_config):
-		agent_id = 'shepherd_control'
-		super(ShepherdControl, self).__init__(agent_id, kafka_config)
+	def __init__(self, agent_config):
+		super(ShepherdControl, self).__init__(str(uuid.uuid1()), agent_config)
 
 	def add_ecoli(self, agent_config):
 		self.add_agent(
@@ -276,13 +275,13 @@ class EnvironmentCommand(AgentCommand):
 			variant_index=args.index,
 			seed=args.seed,
 			outer_id=args.id,
-			)
-		control = ShepherdControl(self.kafka_config)
+			kafka_config=self.kafka_config)
+		control = ShepherdControl(agent_config)
 		control.add_ecoli(agent_config)
 		control.shutdown()
 
 	def experiment(self, args):
-		control = ShepherdControl(self.kafka_config)
+		control = ShepherdControl({'kafka_config': self.kafka_config})
 		control.lattice_experiment(args.number)
 		control.shutdown()
 

@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
+import sys
 import numpy as np
 
 import agent.event as event
@@ -60,7 +61,7 @@ class Outer(Agent):
 	The context environmental simulation is an instance of EnvironmentSimulation.
 	"""
 
-	def __init__(self, agent_id, agent_type, kafka_config, environment):
+	def __init__(self, agent_id, agent_type, agent_config, environment):
 		"""
 		Construct the Agent.
 
@@ -82,11 +83,11 @@ class Outer(Agent):
 		self.paused = True
 		self.shutting_down = False
 
-		kafka_config['subscribe_topics'] = [
-			kafka_config['simulation_send'],
-			kafka_config['environment_control']]
+		kafka_config = agent_config['kafka_config']
+		kafka_config['subscribe'].append(
+			kafka_config['topics']['environment_receive'])
 
-		super(Outer, self).__init__(agent_id, agent_type, kafka_config)
+		super(Outer, self).__init__(agent_id, agent_type, agent_config)
 
 	def initialize(self):
 		print('environment started')
@@ -94,53 +95,29 @@ class Outer(Agent):
 	def finalize(self):
 		print('environment shutting down')
 
-	# def add_simulation(self, message):
-	# 	agent_id = message.get('agent_id', str(uuid.uuid1()))
-	# 	agent_type = message.get('agent_type', 'inner')
-	# 	agent_config = message.get('agent_config', {})
-	# 	agent_config['outer_id'] = self.agent_id
-	# 	agent_config['start_time'] = message.get('time', self.environment.time())
-
-	# 	parameters = self.environment.simulation_parameters(agent_id)
-	# 	agent_config.update(parameters)
-
-	# 	self.prior_state[agent_id] = agent_config
-
-	# 	self.send(self.kafka_config['shepherd_control'], {
-	# 		'event': event.ADD_AGENT,
-	# 		'agent_id': agent_id,
-	# 		'agent_type': agent_type,
-	# 		'agent_config': agent_config})
-
-	def remove_simulation(self, message):
-		pass
-
-	def initialize_simulation(self, message):
+	def cell_initialize(self, message):
 		inner_id = message['inner_id']
 		environment_time = self.environment.time()
 		simulation_time = max(environment_time, message.get('time', environment_time))
+		if not inner_id in self.simulations:
+			self.simulations[inner_id] = {}
+		simulation = self.simulations[inner_id]
 
-		self.simulations[inner_id] = {
+		simulation.update({
 			'time': simulation_time,
 			'message_id': -1,
 			'last_message_id': -1,
-			'state': message['state']}
-
-		# if inner_id in self.prior_state:
-		# 	message['state'].update(self.prior_state.pop(inner_id))
+			'state': message['state'],
+			'agent_config': message['agent_config']})
 
 		parameters = self.environment.simulation_parameters(inner_id)
-		self.send(self.kafka_config['simulation_receive'], {
-			'event': event.SYNCHRONIZE_SIMULATION,
+		self.send(self.topics['cell_receive'], {
+			'event': event.ENVIRONMENT_SYNCHRONIZE,
 			'inner_id': inner_id,
 			'outer_id': self.agent_id,
 			'state': parameters})
 
-		self.environment.add_simulation(inner_id, message)
-
-		if inner_id in self.parent_state:
-			self.environment.apply_parent_state(inner_id, self.parent_state.pop(inner_id))
-
+		self.environment.add_simulation(inner_id, simulation)
 		self.update_state()
 
 	def update_state(self):
@@ -156,23 +133,34 @@ class Outer(Agent):
 		for inner_id, simulation in self.simulations.iteritems():
 			if inner_id in update:
 				simulation['message_id'] += 1
-				self.send(self.kafka_config['simulation_receive'], {
-					'event': event.ENVIRONMENT_UPDATED,
+				self.send(self.topics['cell_receive'], {
+					'event': event.ENVIRONMENT_UPDATE,
 					'outer_id': self.agent_id,
 					'inner_id': inner_id,
 					'message_id': simulation['message_id'],
 					'state': update[inner_id],
 					'run_until': run_until})
 
-	def simulation_update(self, message):
-		if message['inner_id'] in self.simulations:
-			simulation = self.simulations[message['inner_id']]
+	def cell_exchange(self, message):
+		agent_id = message['inner_id']
+		if agent_id in self.simulations:
+			simulation = self.simulations[agent_id]
 
 			if message['message_id'] == simulation['message_id']:
-				simulation['state'] = message['state']
+				state = message['state']
+				simulation['state'] = state
 				simulation['time'] = message['time']
-				simulation['last_message_id'] = message['message_id']
-
+				if state['division']:
+					parent = self.environment.simulation_state(agent_id)
+					for index, daughter in enumerate(state['division']):
+						daughter_id = daughter.get('id', str(uuid.uuid1()))
+						self.simulations[daughter_id] = dict(
+							parent, 
+							index=index,
+							last_message_id=sys.maxint)
+				else:
+					simulation['last_message_id'] = message['message_id']
+				
 				self.advance()
 
 	def ready_to_advance(self):
@@ -235,17 +223,17 @@ class Outer(Agent):
 
 				self.send_updates(now, run_until)
 
-	def cell_division(self, message):
-		agent_id = message['agent_id']
-		parent = self.environment.simulation_state(agent_id)
-		for index, daughter_id in enumerate(message['daughter_ids']):
-			state = dict(parent, index=index)
-			if daughter_id in self.simulations:
-				self.environment.apply_parent_state(daughter_id, state)
-			else:
-				self.parent_state[daughter_id] = state
+	# def cell_division(self, message):
+	# 	agent_id = message['agent_id']
+	# 	parent = self.environment.simulation_state(agent_id)
+	# 	for index, daughter_id in enumerate(message['daughter_ids']):
+	# 		state = dict(parent, index=index)
+	# 		if daughter_id in self.simulations:
+	# 			self.environment.apply_parent_state(daughter_id, state)
+	# 		else:
+	# 			self.parent_state[daughter_id] = state
 
-	def simulation_shutdown(self, message):
+	def cell_shutdown(self, message):
 		if message['inner_id'] in self.simulations:
 			gone = self.simulations.pop(message['inner_id'], {'inner_id': -1})
 			self.environment.remove_simulation(message['inner_id'])
@@ -258,7 +246,7 @@ class Outer(Agent):
 
 	def send_shutdown(self):
 		for inner_id, simulation in self.simulations.iteritems():
-			self.send(self.kafka_config['simulation_receive'], {
+			self.send(self.topics['cell_receive'], {
 				'outer_id': self.agent_id,
 				'inner_id': inner_id,
 				'event': event.SHUTDOWN_AGENT})
@@ -302,34 +290,28 @@ class Outer(Agent):
 		if message.get('outer_id', message.get('agent_id')) == self.agent_id:
 			print('--> {}: {}'.format(topic, message))
 
-			# if message['event'] == event.ADD_SIMULATION:
-			# 	self.add_simulation(message)
-
-			# elif message['event'] == event.REMOVE_SIMULATION:
-			# 	self.remove_simulation(message)
-
-			elif message['event'] == event.TRIGGER_EXECUTION:
+			if message['event'] == event.TRIGGER_AGENT:
 				self.paused = False
 				self.advance()
 
-			elif message['event'] == event.PAUSE_ENVIRONMENT:
+			elif message['event'] == event.PAUSE_AGENT:
 				self.paused = True
 				self.update_state()
 
 			elif message['event'] == event.SHUTDOWN_AGENT:
 				self.shutdown(message)
 
-			elif message['event'] == event.SIMULATION_INITIALIZED:
-				self.initialize_simulation(message)
+			elif message['event'] == event.CELL_INITIALIZE:
+				self.cell_initialize(message)
 
-			elif message['event'] == event.SIMULATION_ENVIRONMENT:
-				self.simulation_update(message)
+			elif message['event'] == event.CELL_EXCHANGE:
+				self.cell_exchange(message)
 
 			elif message['event'] == event.CELL_DIVISION:
 				self.cell_division(message)
 
-			elif message['event'] == event.SIMULATION_SHUTDOWN:
-				self.simulation_shutdown(message)
+			elif message['event'] == event.CELL_SHUTDOWN:
+				self.cell_shutdown(message)
 
 			else:
 				print('unexpected event {}: {}'.format(message['event'], message))

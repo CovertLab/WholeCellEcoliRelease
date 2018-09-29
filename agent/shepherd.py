@@ -24,7 +24,7 @@ class AgentShepherd(Agent):
 	    naming commit hashes.
 	"""
 
-	def __init__(self, agent_id, kafka_config, agent_initializers):
+	def __init__(self, agent_id, agent_config, agent_initializers):
 		"""
 		Initialize the AgentShepherd with its id, kafka config and a dictionary of initializers,
 		which determine what kind of agents the shepherd is able to spawn.
@@ -43,8 +43,11 @@ class AgentShepherd(Agent):
 		self.agents = {}
 		self.agent_initializers = agent_initializers
 
-		kafka_config['subscribe_topics'] = [kafka_config['shepherd_control']]
-		super(AgentShepherd, self).__init__(agent_id, 'shepherd', kafka_config)
+		kafka_config = agent_config['kafka_config']
+		kafka_config['subscribe'].append(
+			kafka_config['topics']['shepherd_receive'])
+
+		super(AgentShepherd, self).__init__(agent_id, 'shepherd', agent_config)
 
 	def initialize(self):
 		print('agent shepherd waiting')
@@ -109,11 +112,25 @@ class AgentShepherd(Agent):
 		if agent_id in self.agents:
 			agent = self.agents.pop(agent_id)
 			if agent['process'].is_alive():
-				self.send(self.kafka_config['agent_receive'], {
+				self.send(self.topics['agent_receive'], {
 					'event': event.SHUTDOWN_AGENT,
 					'agent_id': agent_id})
 
 			return agent
+
+	def filter_type(self, agents, message):
+		matching = self.agents
+		if 'agent_type' in message:
+			matching = filter(
+				lambda agent: agent['type'] == message['agent_type'],
+				self.agents)
+		return matching
+
+	def agent_control(self, agent_event, agents, message):
+		matching = self.filter_type(self.agents, message)
+		for agent in matching:
+			self.send(self.topics['agent_receive'], {
+				'event': agent_event})
 
 	def receive(self, topic, message):
 		"""
@@ -121,6 +138,7 @@ class AgentShepherd(Agent):
 		match the arguments to the functions above.
 		"""
 
+		# if message['agent_id'] == self.agent_id:
 		print('--> {}: {}'.format(topic, message))
 
 		if message['event'] == event.ADD_AGENT:
@@ -134,3 +152,14 @@ class AgentShepherd(Agent):
 				self.remove_prefix(message['agent_prefix'])
 			else:
 				self.remove_agent(message['agent_id'])
+
+		# elif message['event'] == event.TRIGGER_AGENT:
+		# 	self.agent_control(event.TRIGGER_AGENT, self.agents, message)
+
+		# elif message['event'] == event.PAUSE_AGENT:
+		# 	self.agent_control(event.PAUSE_AGENT, self.agents, message)
+
+		# elif message['event'] == event.SHUTDOWN_AGENT:
+		# 	self.agent_control(event.SHUTDOWN_AGENT, self.agents, message)
+
+			

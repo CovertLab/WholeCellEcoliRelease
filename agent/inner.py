@@ -46,7 +46,7 @@ class Inner(Agent):
 	an environmental simulation.
 	"""
 
-	def __init__(self, agent_id, outer_id, agent_type, kafka_config, simulation):
+	def __init__(self, agent_id, outer_id, agent_type, agent_config, simulation):
 		"""
 		Construct the agent.
 
@@ -67,9 +67,12 @@ class Inner(Agent):
 		self.outer_id = outer_id
 		self.simulation = simulation
 		self.simulation.initialize_local_environment()
-		kafka_config['subscribe_topics'] = [kafka_config['simulation_receive']]
 
-		super(Inner, self).__init__(agent_id, agent_type, kafka_config)
+		kafka_config = agent_config['kafka_config']
+		kafka_config['subscribe'].append(
+			kafka_config['topics']['cell_receive'])
+
+		super(Inner, self).__init__(agent_id, agent_type, agent_config)
 
 	def initialize(self):
 		"""Initialization: Register this inner agent with the outer agent."""
@@ -77,11 +80,12 @@ class Inner(Agent):
 		now = self.simulation.time()
 		state = self.simulation.generate_inner_update()
 
-		self.send(self.kafka_config['simulation_send'], {
+		self.send(self.topics['environment_receive'], {
 			'time': now,
-			'event': event.SIMULATION_INITIALIZED,
+			'event': event.CELL_INITIALIZE,
 			'outer_id': self.outer_id,
 			'inner_id': self.agent_id,
+			'agent_config': self.agent_config,
 			'state': state})
 
 	def environment_update(self, message):
@@ -93,15 +97,20 @@ class Inner(Agent):
 		stop = self.simulation.time()
 		update = self.simulation.generate_inner_update()
 
-		self.send(self.kafka_config['simulation_send'], {
-			'event': event.SIMULATION_ENVIRONMENT,
+		# if update.get('division', []):
+		# 	for daughter in update['division']:
+		# 		if not 'id' in daughter:
+		# 			daughter['id'] = str(uuid.uuid1())
+
+		self.send(self.topics['environment_receive'], {
+			'event': event.CELL_EXCHANGE,
 			'time': stop,
 			'outer_id': self.outer_id,
 			'inner_id': self.agent_id,
 			'message_id': message['message_id'],
 			'state': update})
 
-		division = self.simulation.daughter_config()
+		division = update.get('division', [])
 		if division:
 			self.divide_cell({}, division)
 
@@ -113,36 +122,36 @@ class Inner(Agent):
 			daughter_ids.append(agent_id)
 
 			agent_type = daughter.get(
-					'type',
-					message.get(
-						'daughter_type',
-						self.agent_type))
+				'type',
+				message.get(
+					'daughter_type',
+					self.agent_type))
 
 			agent_config = dict(
 				daughter,
 				parent_id=self.agent_id,
 				outer_id=self.outer_id)
 
-			self.send(self.kafka_config['shepherd_control'], {
+			self.send(self.topics['shepherd_receive'], {
 				'event': event.ADD_AGENT,
 				'agent_id': agent_id,
 				'agent_type': agent_type,
 				'agent_config': agent_config})
 
-		self.send(self.kafka_config['simulation_send'], {
-			'event': event.CELL_DIVISION,
-			'time': division[0]['start_time'],
-			'agent_id': self.agent_id,
-			'outer_id': self.outer_id,
-			'daughter_ids': daughter_ids})
+		# self.send(self.topics['environment_receive'], {
+		# 	'event': event.CELL_DIVISION,
+		# 	'time': division[0]['start_time'],
+		# 	'agent_id': self.agent_id,
+		# 	'outer_id': self.outer_id,
+		# 	'daughter_ids': daughter_ids})
 
-		self.send(self.kafka_config['shepherd_control'], {
+		self.send(self.topics['shepherd_receive'], {
 			'event': event.REMOVE_AGENT,
 			'agent_id': self.agent_id})
 
-	def shutdown(self, message):
-		self.send(self.kafka_config['simulation_send'], {
-			'event': event.SIMULATION_SHUTDOWN,
+	def cell_shutdown(self, message):
+		self.send(self.topics['environment_receive'], {
+			'event': event.CELL_SHUTDOWN,
 			'outer_id': self.outer_id,
 			'inner_id': self.agent_id})
 
@@ -177,18 +186,18 @@ class Inner(Agent):
 		if message.get('inner_id', message.get('agent_id')) == self.agent_id:
 			print('--> {}: {}'.format(topic, message))
 
-			if message['event'] == event.ENVIRONMENT_UPDATED:
+			if message['event'] == event.ENVIRONMENT_UPDATE:
 				self.environment_update(message)
 
 			elif message['event'] == event.DIVIDE_CELL:
 				division = self.simulation.divide()
 				self.divide_cell(message, division)
 
-			elif message['event'] == event.SYNCHRONIZE_SIMULATION:
+			elif message['event'] == event.ENVIRONMENT_SYNCHRONIZE:
 				self.simulation.synchronize_state(message['state'])
 
 			elif message['event'] == event.SHUTDOWN_AGENT:
-				self.shutdown(message)
+				self.cell_shutdown(message)
 
 			else:
 				print('unexpected event {}: {}'.format(message['event'], message))

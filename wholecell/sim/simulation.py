@@ -414,18 +414,7 @@ class Simulation(CellSimulation):
 		# concentrations are received as a dict
 		self.external_states['Environment'].set_local_environment(update['concentrations'])
 
-	def generate_inner_update(self):
-		# sends environment a dictionary with relevant state changes
-		return {
-			'volume': self.listeners['Mass'].volume,
-			'environment_change': self.external_states['Environment'].get_environment_change()}
-
-	def synchronize_state(self, state):
-		if 'time' in state:
-			self._initialTime = state['time']
-			self._timeTotal = state['time']
-
-	def daugther_config(self):
+	def daughter_config(self):
 		config = {
 			'start_time': self.time()}
 
@@ -434,6 +423,18 @@ class Simulation(CellSimulation):
 			self.daughter_paths)
 
 		return daughters
+
+	def generate_inner_update(self):
+		# sends environment a dictionary with relevant state changes
+		return {
+			'volume': self.listeners['Mass'].volume,
+			'division': self.daughter_config(),
+			'environment_change': self.external_states['Environment'].get_environment_change()}
+
+	def synchronize_state(self, state):
+		if 'time' in state:
+			self._initialTime = state['time']
+			self._timeTotal = state['time']
 
 	def divide(self):
 		self.cellCycleComplete()

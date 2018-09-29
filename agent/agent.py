@@ -46,7 +46,7 @@ class Agent(object):
 	using the configured Kafka Producer.
 	"""
 
-	def __init__(self, agent_id, agent_type, kafka_config):
+	def __init__(self, agent_id, agent_type, agent_config):
 		"""
 		Initialize the Agent object with a unique id and kafka configuration.
 
@@ -67,7 +67,11 @@ class Agent(object):
 
 		self.agent_id = agent_id
 		self.agent_type = agent_type
-		self.kafka_config = kafka_config
+		self.agent_config = agent_config
+		self.kafka_config = agent_config['kafka_config']
+		self.topics = self.kafka_config['topics']
+
+		print(self.agent_config)
 
 		self.producer = Producer({
 			'bootstrap.servers': self.kafka_config['host']})
@@ -75,7 +79,7 @@ class Agent(object):
 		self.running = False
 		self.initialized = False
 		self.consumer = None
-		if self.kafka_config['subscribe_topics']:
+		if self.kafka_config['subscribe']:
 			self.consumer = Consumer({
 				'bootstrap.servers': self.kafka_config['host'],
 				'enable.auto.commit': True,
@@ -84,7 +88,8 @@ class Agent(object):
 					'auto.offset.reset': 'latest'}})
 
 		if self.consumer:
-			topics = self.kafka_config['subscribe_topics'] + [self.kafka_config['agent_receive']]
+			topics = self.kafka_config['subscribe'] + [self.topics['agent_receive']]
+			print(topics)
 			self.consumer.subscribe(topics)
 
 			self.poll()
@@ -162,7 +167,7 @@ class Agent(object):
 		# content (always a unicode string in Python 3) w/o \u escapes. Encode that into
 		# UTF-8 bytes. print() can decode UTF-8 bytes but not \u escapes.
 		encoded = json.dumps(message, ensure_ascii=False).encode('utf-8')
-		print('<-- {} ({}): {}'.format(topic, len(encoded), encoded))
+		print('<-- {}: {} ({}): {}'.format(topic, self.agent_id, len(encoded), encoded))
 
 		self.producer.poll(0)
 		self.producer.produce(
@@ -179,7 +184,7 @@ class Agent(object):
 		This is the main method that needs to be overridden by a subclass to provide the 
 		behavior for the agent. This method is invoked each time the agent receives a message
 		on one of the topics originally subscribed to, which was supplied in the 
-		kafka_config['subscribe_topics'] array.
+		kafka_config['subscribe'] array.
 
 		By convention, each message contains an `event` key which can be switched on in this
 		method to trigger a specific response.
