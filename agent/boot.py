@@ -82,19 +82,31 @@ class EnvironmentControl(Agent):
 		super(EnvironmentControl, self).__init__(agent_id, 'control', agent_config)
 
 	def trigger_execution(self, agent_id):
-		self.send(self.topics['environment_receive'], {
-			'event': event.TRIGGER_AGENT,
-			'agent_id': agent_id})
+		if agent_id:
+			self.send(self.topics['environment_receive'], {
+				'event': event.TRIGGER_AGENT,
+				'agent_id': agent_id})
+		else:
+			self.send(self.topics['shepherd_receive'], {
+				'event': event.TRIGGER_ALL})
 
 	def pause_execution(self, agent_id):
-		self.send(self.topics['environment_receive'], {
-			'event': event.PAUSE_AGENT,
-			'agent_id': agent_id})
+		if agent_id:
+			self.send(self.topics['environment_receive'], {
+				'event': event.PAUSE_AGENT,
+				'agent_id': agent_id})
+		else:
+			self.send(self.topics['shepherd_receive'], {
+				'event': event.PAUSE_ALL})
 
 	def shutdown_agent(self, agent_id):
-		self.send(self.topics['agent_receive'], {
-			'event': event.SHUTDOWN_AGENT,
-			'agent_id': agent_id})
+		if agent_id:
+			self.send(self.topics['agent_receive'], {
+				'event': event.SHUTDOWN_AGENT,
+				'agent_id': agent_id})
+		else:
+			self.send(self.topics['shepherd_receive'], {
+				'event': event.SHUTDOWN_ALL})
 
 	def divide_cell(self, agent_id):
 		self.send(self.topics['cell_receive'], {

@@ -5,8 +5,8 @@ from __future__ import absolute_import, division, print_function
 # environment and simulation control messages
 TRIGGER_AGENT = 'TRIGGER_AGENT'
 PAUSE_AGENT = 'PAUSE_AGENT'
+SHUTDOWN_AGENT = 'SHUTDOWN_AGENT'
 DIVIDE_CELL = 'DIVIDE_CELL'
-GLOBAL_SHUTDOWN = 'GLOBAL_SHUTDOWN'
 
 # events for inner and outer communication
 CELL_INITIALIZE = 'CELL_INITIALIZE'
@@ -19,4 +19,9 @@ ENVIRONMENT_UPDATE = 'ENVIRONMENT_UPDATE'
 # events for the agent shepherd
 ADD_AGENT = 'ADD_AGENT'
 REMOVE_AGENT = 'REMOVE_AGENT'
-SHUTDOWN_AGENT = 'SHUTDOWN_AGENT'
+TRIGGER_ALL = 'TRIGGER_ALL'
+PAUSE_ALL = 'PAUSE_ALL'
+SHUTDOWN_ALL = 'SHUTDOWN_ALL'
+
+# universal agent messages
+GLOBAL_SHUTDOWN = 'GLOBAL_SHUTDOWN'

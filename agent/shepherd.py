@@ -75,6 +75,7 @@ class AgentShepherd(Agent):
 
 			self.agents[agent_id] = {
 				'process': process,
+				'id': agent_id,
 				'type': agent_type,
 				'config': agent_config}
 
@@ -119,18 +120,19 @@ class AgentShepherd(Agent):
 			return agent
 
 	def filter_type(self, agents, message):
-		matching = self.agents
+		matching = self.agents.values()
 		if 'agent_type' in message:
 			matching = filter(
 				lambda agent: agent['type'] == message['agent_type'],
-				self.agents)
+				matching)
 		return matching
 
 	def agent_control(self, agent_event, agents, message):
 		matching = self.filter_type(self.agents, message)
 		for agent in matching:
 			self.send(self.topics['agent_receive'], {
-				'event': agent_event})
+				'event': agent_event,
+				'agent_id': agent['id']})
 
 	def receive(self, topic, message):
 		"""
@@ -153,13 +155,11 @@ class AgentShepherd(Agent):
 			else:
 				self.remove_agent(message['agent_id'])
 
-		# elif message['event'] == event.TRIGGER_AGENT:
-		# 	self.agent_control(event.TRIGGER_AGENT, self.agents, message)
+		elif message['event'] == event.TRIGGER_ALL:
+			self.agent_control(event.TRIGGER_AGENT, self.agents, message)
 
-		# elif message['event'] == event.PAUSE_AGENT:
-		# 	self.agent_control(event.PAUSE_AGENT, self.agents, message)
+		elif message['event'] == event.PAUSE_ALL:
+			self.agent_control(event.PAUSE_AGENT, self.agents, message)
 
-		# elif message['event'] == event.SHUTDOWN_AGENT:
-		# 	self.agent_control(event.SHUTDOWN_AGENT, self.agents, message)
-
-			
+		elif message['event'] == event.SHUTDOWN_ALL:
+			self.agent_control(event.SHUTDOWN_AGENT, self.agents, message)

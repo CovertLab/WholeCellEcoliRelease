@@ -68,6 +68,8 @@ class Inner(Agent):
 		self.simulation = simulation
 		self.simulation.initialize_local_environment()
 
+		self.last_update = {}
+
 		kafka_config = agent_config['kafka_config']
 		kafka_config['subscribe'].append(
 			kafka_config['topics']['cell_receive'])
@@ -88,19 +90,14 @@ class Inner(Agent):
 			'agent_config': self.agent_config,
 			'state': state})
 
-	def environment_update(self, message):
-		update = message['state']
-		self.simulation.apply_outer_update(update)
-
-		self.simulation.run_incremental(message['run_until'])
-
+	def cell_exchange(self, message):
 		stop = self.simulation.time()
 		update = self.simulation.generate_inner_update()
 
-		# if update.get('division', []):
-		# 	for daughter in update['division']:
-		# 		if not 'id' in daughter:
-		# 			daughter['id'] = str(uuid.uuid1())
+		if update.get('division', []):
+			for daughter in update['division']:
+				if not 'id' in daughter:
+					daughter['id'] = str(uuid.uuid1())
 
 		self.send(self.topics['environment_receive'], {
 			'event': event.CELL_EXCHANGE,
@@ -113,6 +110,12 @@ class Inner(Agent):
 		division = update.get('division', [])
 		if division:
 			self.divide_cell({}, division)
+
+	def environment_update(self, message):
+		self.last_update = message
+		self.simulation.apply_outer_update(message['state'])
+		self.simulation.run_incremental(message['run_until'])
+		self.cell_exchange(message)
 
 	def divide_cell(self, message, division):
 		daughter_ids = []
@@ -137,13 +140,6 @@ class Inner(Agent):
 				'agent_id': agent_id,
 				'agent_type': agent_type,
 				'agent_config': agent_config})
-
-		# self.send(self.topics['environment_receive'], {
-		# 	'event': event.CELL_DIVISION,
-		# 	'time': division[0]['start_time'],
-		# 	'agent_id': self.agent_id,
-		# 	'outer_id': self.outer_id,
-		# 	'daughter_ids': daughter_ids})
 
 		self.send(self.topics['shepherd_receive'], {
 			'event': event.REMOVE_AGENT,
@@ -191,7 +187,7 @@ class Inner(Agent):
 
 			elif message['event'] == event.DIVIDE_CELL:
 				division = self.simulation.divide()
-				self.divide_cell(message, division)
+				self.cell_exchange(self.last_update)
 
 			elif message['event'] == event.ENVIRONMENT_SYNCHRONIZE:
 				self.simulation.synchronize_state(message['state'])

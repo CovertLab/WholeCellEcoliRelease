@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 import sys
+import uuid
 import numpy as np
 
 import agent.event as event
@@ -110,6 +111,12 @@ class Outer(Agent):
 			'state': message['state'],
 			'agent_config': message['agent_config']})
 
+		print('=============== initializing simulation {}'.format(simulation))
+
+		self.environment.add_simulation(inner_id, simulation)
+		if simulation.get('daughter'):
+			self.environment.apply_parent_state(inner_id, simulation)
+
 		parameters = self.environment.simulation_parameters(inner_id)
 		self.send(self.topics['cell_receive'], {
 			'event': event.ENVIRONMENT_SYNCHRONIZE,
@@ -117,7 +124,6 @@ class Outer(Agent):
 			'outer_id': self.agent_id,
 			'state': parameters})
 
-		self.environment.add_simulation(inner_id, simulation)
 		self.update_state()
 
 	def update_state(self):
@@ -156,8 +162,10 @@ class Outer(Agent):
 						daughter_id = daughter.get('id', str(uuid.uuid1()))
 						self.simulations[daughter_id] = dict(
 							parent, 
+							daughter=True,
 							index=index,
 							last_message_id=sys.maxint)
+						print('================ daughter: {}'.format(self.simulations[daughter_id]))
 				else:
 					simulation['last_message_id'] = message['message_id']
 				
@@ -223,16 +231,6 @@ class Outer(Agent):
 
 				self.send_updates(now, run_until)
 
-	# def cell_division(self, message):
-	# 	agent_id = message['agent_id']
-	# 	parent = self.environment.simulation_state(agent_id)
-	# 	for index, daughter_id in enumerate(message['daughter_ids']):
-	# 		state = dict(parent, index=index)
-	# 		if daughter_id in self.simulations:
-	# 			self.environment.apply_parent_state(daughter_id, state)
-	# 		else:
-	# 			self.parent_state[daughter_id] = state
-
 	def cell_shutdown(self, message):
 		if message['inner_id'] in self.simulations:
 			gone = self.simulations.pop(message['inner_id'], {'inner_id': -1})
@@ -251,7 +249,7 @@ class Outer(Agent):
 				'inner_id': inner_id,
 				'event': event.SHUTDOWN_AGENT})
 
-	def shutdown(self, message):
+	def shutdown_inner(self, message):
 		if len(self.simulations) > 0:
 			if self.ready_to_advance():
 				self.send_shutdown()
@@ -299,16 +297,13 @@ class Outer(Agent):
 				self.update_state()
 
 			elif message['event'] == event.SHUTDOWN_AGENT:
-				self.shutdown(message)
+				self.shutdown_inner(message)
 
 			elif message['event'] == event.CELL_INITIALIZE:
 				self.cell_initialize(message)
 
 			elif message['event'] == event.CELL_EXCHANGE:
 				self.cell_exchange(message)
-
-			elif message['event'] == event.CELL_DIVISION:
-				self.cell_division(message)
 
 			elif message['event'] == event.CELL_SHUTDOWN:
 				self.cell_shutdown(message)
