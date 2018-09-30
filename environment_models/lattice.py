@@ -223,6 +223,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		for agent_id, simulation in self.simulations.iteritems():
 			# only apply changes if we have reached this simulation's time point.
 			if simulation['time'] <= now:
+				print('=================== simulation update: {}'.format(simulation))
 				state = simulation['state']
 				location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH
 				patch_site = tuple(np.floor(location).astype(int))
@@ -275,9 +276,9 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		return {'time': time}
 
 	def simulation_state(self, agent_id):
-		return {
-			'simulation': self.simulations[agent_id],
-			'location': self.locations[agent_id]}
+		return dict(
+			self.simulations[agent_id],
+			location=self.locations[agent_id])
 
 	def rotation_matrix(self, orientation):
 		sin = np.sin(-orientation)

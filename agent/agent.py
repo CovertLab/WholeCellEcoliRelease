@@ -71,8 +71,6 @@ class Agent(object):
 		self.kafka_config = agent_config['kafka_config']
 		self.topics = self.kafka_config['topics']
 
-		print(self.agent_config)
-
 		self.producer = Producer({
 			'bootstrap.servers': self.kafka_config['host']})
 
@@ -89,7 +87,6 @@ class Agent(object):
 
 		if self.consumer:
 			topics = self.kafka_config['subscribe'] + [self.topics['agent_receive']]
-			print(topics)
 			self.consumer.subscribe(topics)
 
 			self.poll()
@@ -151,7 +148,7 @@ class Agent(object):
 				else:
 					self.receive(raw.topic(), message)
 
-	def send(self, topic, message):
+	def send(self, topic, message, print_send=True):
 		"""
 		Send a dictionary as a message on the given topic. 
 
@@ -167,7 +164,13 @@ class Agent(object):
 		# content (always a unicode string in Python 3) w/o \u escapes. Encode that into
 		# UTF-8 bytes. print() can decode UTF-8 bytes but not \u escapes.
 		encoded = json.dumps(message, ensure_ascii=False).encode('utf-8')
-		print('<-- {}: {} ({}): {}'.format(topic, self.agent_id, len(encoded), encoded))
+
+		if print_send:
+			print('<-- {} ({}) [{}]: {}'.format(
+				self.agent_id,
+				topic,
+				len(encoded),
+				encoded))
 
 		self.producer.poll(0)
 		self.producer.produce(

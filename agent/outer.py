@@ -125,6 +125,7 @@ class Outer(Agent):
 			'state': parameters})
 
 		self.update_state()
+		self.advance()
 
 	def update_state(self):
 		""" Called before each simulation is updated with the current state of the system. """
@@ -161,14 +162,16 @@ class Outer(Agent):
 					for index, daughter in enumerate(state['division']):
 						daughter_id = daughter.get('id', str(uuid.uuid1()))
 						self.simulations[daughter_id] = dict(
-							parent, 
+							parent,
+							time=simulation['time'],
 							daughter=True,
 							index=index,
-							last_message_id=sys.maxint)
+							message_id=0,
+							last_message_id=-1)
 						print('================ daughter: {}'.format(self.simulations[daughter_id]))
 				else:
 					simulation['last_message_id'] = message['message_id']
-				
+
 				self.advance()
 
 	def ready_to_advance(self):

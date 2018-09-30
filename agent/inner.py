@@ -186,8 +186,7 @@ class Inner(Agent):
 				self.environment_update(message)
 
 			elif message['event'] == event.DIVIDE_CELL:
-				division = self.simulation.divide()
-				self.cell_exchange(self.last_update)
+				self.simulation.divide()
 
 			elif message['event'] == event.ENVIRONMENT_SYNCHRONIZE:
 				self.simulation.synchronize_state(message['state'])

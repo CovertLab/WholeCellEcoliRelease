@@ -43,7 +43,10 @@ class EnvironmentAgent(Outer):
 			'simulations': simulations}
 
 	def update_state(self):
-		self.send(self.topics['visualization_receive'], self.build_state())
+		self.send(
+			self.topics['visualization_receive'],
+			self.build_state(),
+			print_send=False)
 
 class BootEnvironmentSpatialLattice(object):
 	def __init__(self, agent_id, agent_type, agent_config, media):
