@@ -54,6 +54,7 @@ ACTIVE = [
 	"rnapCapacity.py",
 	"rnapCounts.py",
 	"rnaseCounts.py",
+	"trna_charging.py",
 	"tRnaCounts.py",
 	"tRnaCountsTrace.py",
 	"trpRegulation.py",

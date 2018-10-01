@@ -10,7 +10,7 @@ class SimulationTask(FireTaskBase):
 
 	_fw_name = "SimulationTask"
 	required_params = ["input_sim_data", "output_directory"]
-	optional_params = ["seed", "length_sec", "timestep_safety_frac", "timestep_max", "timestep_update_freq", "log_to_shell", "log_to_disk_every", "mass_distribution", "growth_rate_noise", "d_period_division", "translation_supply"]
+	optional_params = ["seed", "length_sec", "timestep_safety_frac", "timestep_max", "timestep_update_freq", "log_to_shell", "log_to_disk_every", "mass_distribution", "growth_rate_noise", "d_period_division", "translation_supply", "trna_charging"]
 
 	def run_task(self, fw_spec):
 
@@ -22,7 +22,7 @@ class SimulationTask(FireTaskBase):
 			sim_data = cPickle.load(input_sim_data)
 
 		options = {}
-		
+
 		options["simData"] = sim_data
 		options["outputDir"] = self["output_directory"]
 		options["logToDisk"] = True
@@ -39,6 +39,7 @@ class SimulationTask(FireTaskBase):
 		options["growthRateNoise"] = self.get("growth_rate_noise", DEFAULT_SIMULATION_KWARGS["growthRateNoise"])
 		options["dPeriodDivision"] = self.get("d_period_division", DEFAULT_SIMULATION_KWARGS["dPeriodDivision"])
 		options["translationSupply"] = self.get("translation_supply", DEFAULT_SIMULATION_KWARGS["translationSupply"])
+		options["trna_charging"] = self.get("trna_charging", DEFAULT_SIMULATION_KWARGS["trna_charging"])
 
 		sim = EcoliSimulation(**options)
 
