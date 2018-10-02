@@ -14,10 +14,8 @@ import numpy as np
 import os
 
 from models.ecoli.analysis import singleAnalysisPlot
-from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import filepath
-import wholecell.utils.constants
 from wholecell.utils import units
 
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
@@ -25,11 +23,7 @@ from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 NODE_LIST_HEADER = "ID\tclass\tcategory\tname\tsynonyms\tconstants\n"
 EDGE_LIST_HEADER = "src_node_id\tdst_node_id\tstoichiometry\tprocess\n"
 DYNAMICS_HEADER = "node\ttype\tunits\tdynamics\n"
-PATHWAY_LIST_HEADER = "pathway\tnodes"
-
-PATHWAYS_FILENAME = "models/ecoli/analysis/causal_network/metabolic_pathways.tsv"
-
-NAMES_PATHWAY = "models/ecoli/analysis/causal_network/names/"
+NAMES_PATHWAY = "models/ecoli/analysis/causality_network/names/"
 
 CHECK_SANITY = False
 GET_PATHWAY_INDEX = False
@@ -37,19 +31,22 @@ DYNAMICS_PRECISION = 6
 PROBABILITY_PRECISION = 4
 TIME_PRECISION = 2
 
-# Proteins that are reactants and products of a metabolic reaction
-PROTEINS_IN_METABOLISM = ["EG50003-MONOMER[c]", "PHOB-MONOMER[c]", "PTSI-MONOMER[c]", "PTSH-MONOMER[c]"]
+# Proteins that are reactants or products of a metabolic reaction
+PROTEINS_IN_METABOLISM = ["EG50003-MONOMER[c]", "PHOB-MONOMER[c]",
+	"PTSI-MONOMER[c]", "PTSH-MONOMER[c]"]
 
-# Equilibrium complexes that are formed from deleted equilibrium reactions, but
-# are reactants in a complexation reaction
-EQUILIBRIUM_COMPLEXES_IN_COMPLEXATION = ["CPLX0-7620[c]", "CPLX0-7701[c]", "CPLX0-7677[c]", "MONOMER0-1781[c]", "CPLX0-7702[c]"]
+# Equilibrium complexes that are formed from deactivated equilibrium reactions,
+# but are reactants in a complexation reaction
+EQUILIBRIUM_COMPLEXES_IN_COMPLEXATION = ["CPLX0-7620[c]", "CPLX0-7701[c]",
+	"CPLX0-7677[c]", "MONOMER0-1781[c]", "CPLX0-7702[c]"]
 
 # Metabolites that are used as ligands in equilibrium, but do not participate
 # in any metabolic reactions
 METABOLITES_ONLY_IN_EQUILIBRIUM = ["4FE-4S[c]", "NITRATE[p]"]
 
 # Molecules in 2CS reactions that are not proteins
-NONPROTEIN_MOLECULES_IN_2CS = ["ATP[c]", "ADP[c]", "WATER[c]", "PI[c]", "PROTON[c]", "PHOSPHO-PHOB[c]"]
+NONPROTEIN_MOLECULES_IN_2CS = ["ATP[c]", "ADP[c]", "WATER[c]", "PI[c]",
+	"PROTON[c]", "PHOSPHO-PHOB[c]"]
 
 class Node:
 	"""
@@ -1278,29 +1275,6 @@ def format_dynamics_string(dynamics, datatype):
 	return dynamics_string
 
 
-def read_pathway_file():
-	"""
-	Reads the pathway file whose filename is specified in PATHWAYS_FILENAME.
-	The file is assumed to have 4 columns - pathway IDs, pathway names, the
-	list of genes associated with the pathway, and the list of reactions
-	associated with the pathway. Note: pathway IDs are currently not being
-	read here.
-	"""
-	pathway_to_genes = {}
-	pathway_to_rxns = {}
-
-	with open(PATHWAYS_FILENAME) as pathway_file:
-		tsv_reader = csv.reader(pathway_file, delimiter="\t")
-		next(tsv_reader, None)  # Ignore header
-
-		# Loop through each row and build dictionary
-		for row in tsv_reader:
-			pathway_to_genes[row[1]] = eval(row[2])
-			pathway_to_rxns[row[1]] = eval(row[3])
-
-	return pathway_to_genes, pathway_to_rxns
-
-
 def get_pathway_to_nodes(sim_data, simOutDir, pathway_to_genes, pathway_to_rxns):
 	"""
 	Reads sim_data and constructs dictionary that links each pathway to a set of
@@ -1512,9 +1486,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		nodelist_file.write(NODE_LIST_HEADER)
 		edgelist_file.write(EDGE_LIST_HEADER)
 		dynamics_file.write(DYNAMICS_HEADER)
-
-		if GET_PATHWAY_INDEX:
-			pathwaylist_file.write(PATHWAY_LIST_HEADER)
 
 		# Add time and global dynamics data to dynamics file
 		add_time_data(simOutDir, dynamics_file)
