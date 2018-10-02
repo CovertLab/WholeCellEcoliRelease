@@ -63,6 +63,8 @@ class BuildNetwork(object):
 		# Create dict with id: (name, synonyms)
 		self.names_dict = {}
 		name_files = [f for f in os.listdir(NAMES_PATHWAY)]
+
+		import ipdb; ipdb.set_trace()
 		
 		for file_name in name_files:
 			with open(os.path.join(NAMES_PATHWAY, file_name)) as f:
