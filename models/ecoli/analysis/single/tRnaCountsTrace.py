@@ -1,7 +1,6 @@
 """
 Plot tRNA counts
 
-@author: Heejo Choi
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 5/19/2017
 """
@@ -33,16 +32,22 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		isTRna = sim_data.process.transcription.rnaData["isTRna"]
 		rnaIds = sim_data.process.transcription.rnaData["id"][isTRna]
+		charged_trna_ids = sim_data.process.transcription.charged_trna_names
+
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		moleculeIds = bulkMolecules.readAttribute("objectNames")
-		rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
-		rnaCountsBulk = bulkMolecules.readColumn("counts")[:, rnaIndexes]
-		bulkMolecules.close()
+		mol_indices = {mol: i for i, mol in enumerate(moleculeIds)}
+
+		uncharged_indices = np.array([mol_indices[moleculeId] for moleculeId in rnaIds], np.int)
+		charged_indices = np.array([mol_indices[moleculeId] for moleculeId in charged_trna_ids], np.int)
+
+		bulk_counts = bulkMolecules.readColumn("counts")
+		rna_counts = bulk_counts[:, uncharged_indices] + bulk_counts[:, charged_indices]
 
 		# Plot
 		fig = plt.figure(figsize = (8.5, 11))
 		ax = plt.subplot(1, 1, 1)
-		ax.plot(time, rnaCountsBulk)
+		ax.plot(time, rna_counts)
 		ax.set_xlim([time[0], time[-1]])
 		ax.set_xlabel("Time (s)")
 		ax.set_ylabel("Counts of tRNAs")

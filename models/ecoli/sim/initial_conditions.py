@@ -36,6 +36,11 @@ def calcInitialConditions(sim, sim_data):
 	initializeBulkMolecules(bulkMolCntr, sim_data, randomState, massCoeff)
 	initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
 
+	# Must be called after unique and bulk molecules are initialized to get
+	# concentrations for ribosomes, tRNA, synthetases etc from cell volume
+	if sim._trna_charging:
+		initialize_trna_charging(sim_data, sim.internal_states, sim.processes['PolypeptideElongation'].calculate_trna_charging)
+
 def initializeBulkMolecules(bulkMolCntr, sim_data, randomState, massCoeff):
 
 	## Set protein counts from expression
@@ -66,6 +71,57 @@ def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, rand
 	# Activate ribosomes, with fraction based on environmental conditions
 	initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
 
+def initialize_trna_charging(sim_data, states, calc_charging):
+	'''
+	Initializes charged tRNA from uncharged tRNA and amino acids
+
+	Inputs:
+		sim_data (SimulationDataEcoli object)
+		states (dict with internal_state objects as values) - internal states of sim
+		calc_charging (function) - function to calculate charging of tRNA
+
+	Notes:
+		Does not adjust for mass of amino acids on charged tRNA (~0.01% of cell mass)
+	'''
+
+	# Calculate cell volume for concentrations
+	mass = 0
+	for state in states.values():
+		state.calculatePreEvolveStateMass()
+		mass += np.sum(state._masses)
+	cell_volume = units.fg * mass / sim_data.constants.cellDensity
+	counts_to_molar = 1 / (sim_data.constants.nAvogadro * cell_volume)
+
+	# Get molecule views and concentrations
+	transcription = sim_data.process.transcription
+	aa_from_synthetase = transcription.aa_from_synthetase
+	aa_from_trna = transcription.aa_from_trna
+	bulk_molecules = states['BulkMolecules'].container
+	synthetases = bulk_molecules.countsView(transcription.synthetase_names)
+	uncharged_trna = bulk_molecules.countsView(transcription.rnaData['id'][transcription.rnaData['isTRna']])
+	charged_trna = bulk_molecules.countsView(transcription.charged_trna_names)
+	aas = bulk_molecules.countsView(sim_data.moleculeGroups.aaIDs)
+	ribosome_counts = states['UniqueMolecules'].container.counts(['activeRibosome'])
+
+	synthetase_conc = counts_to_molar * np.dot(aa_from_synthetase, synthetases.counts())
+	uncharged_trna_conc = counts_to_molar * np.dot(aa_from_trna, uncharged_trna.counts())
+	charged_trna_conc = counts_to_molar * np.dot(aa_from_trna, charged_trna.counts())
+	aa_conc = counts_to_molar * aas.counts()
+	ribosome_conc = counts_to_molar * ribosome_counts
+
+	# Estimate fraction of amino acids from sequences, excluding first index for padding of -1
+	_, aas_in_sequences = np.unique(sim_data.process.translation.translationSequences, return_counts=True)
+	f = aas_in_sequences[1:] / np.sum(aas_in_sequences[1:])
+
+	# Estimate initial charging state
+	fraction_charged, _ = calc_charging(synthetase_conc, uncharged_trna_conc, charged_trna_conc, aa_conc, ribosome_conc, f)
+
+	# Update counts of tRNA to match charging
+	total_trna_counts = uncharged_trna.counts() + charged_trna.counts()
+	charged_trna_counts = np.round(total_trna_counts * np.dot(fraction_charged, aa_from_trna))
+	uncharged_trna_counts = total_trna_counts - charged_trna_counts
+	charged_trna.countsIs(charged_trna_counts)
+	uncharged_trna.countsIs(uncharged_trna_counts)
 
 def initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff):
 

@@ -7,6 +7,7 @@ ACTIVE = [
 	"cellCycleLengthsCorrelation.py",
 	"centralCarbonMetabolismCorrelationTimeCourse.py",
 	"centralCarbonMetabolismScatter.py",
+	"charging_molecules.py",
 	"environmental_shift_fluxes.py",
 	"subgenerationalTranscription.py",
 	"subgenerationalTranscriptionEnvironmentDependence.py",
