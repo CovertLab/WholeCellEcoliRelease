@@ -13,16 +13,17 @@ class CellSimulation(object):
 	def initialize_local_environment(self):
 		"""Perform any setup required for tracking changes to the local environment."""
 
-	def set_local_environment(self, concentrations):
-		"""Ingest a dictionary of the current chemical concentrations in the
-		local environment.
-	    """
+	def synchronize_state(self, state):
+		"""Receive any state from the environment, like current time step."""
+
+	def apply_outer_update(self, update):
+		"""Apply the update received from the environment to this simulation."""
 
 	def run_incremental(self, run_until):
 		"""Run this CellSimulation until the given time."""
 
-	def get_environment_change(self):
-		"""Return the accumulated changes to the local environment as calculated
+	def generate_inner_update(self):
+		"""Generate the update that will be sent to the environment based on changes calculated
 		by the CellSimulation during `run_incremental(run_until)`.
 		"""
 
@@ -40,7 +41,7 @@ class Inner(Agent):
 	an environmental simulation.
 	"""
 
-	def __init__(self, kafka_config, agent_id, simulation):
+	def __init__(self, kafka_config, agent_id, outer_id, simulation):
 		"""
 		Construct the agent.
 
@@ -52,10 +53,13 @@ class Inner(Agent):
 					updates to the environment.
 			agent_id (str): Unique identifier for this agent.
 				This agent will only respond to messages addressed to its inner agent_id.
+			outer_id (str): Unique identifier for the outer agent this agent belongs to.
+		        All messages to an outer agent will be addressed to this id.
 			simulation (CellSimulation): The actual simulation which will perform the
 				calculations.
 		"""
 
+		self.outer_id = outer_id
 		self.simulation = simulation
 		self.simulation.initialize_local_environment()
 		kafka_config['subscribe_topics'] = [kafka_config['simulation_receive']]
@@ -65,10 +69,15 @@ class Inner(Agent):
 	def initialize(self):
 		"""Initialization: Register this inner agent with the outer agent."""
 
+		now = self.simulation.time()
+		state = self.simulation.generate_inner_update()
+
 		self.send(self.kafka_config['simulation_send'], {
+			'time': now,
 			'event': event.SIMULATION_INITIALIZED,
+			'outer_id': self.outer_id,
 			'inner_id': self.agent_id,
-			'changes': self.simulation.get_environment_change()})
+			'state': state})
 
 	def finalize(self):
 		""" Trigger any clean up the simulation needs to perform before exiting. """
@@ -96,28 +105,33 @@ class Inner(Agent):
 		message containing the local changes as calculated by the simulation.
 		"""
 
-		if message['inner_id'] == self.agent_id:
+		if message.get('inner_id', message.get('agent_id')) == self.agent_id:
 			print('--> {}: {}'.format(topic, message))
 
 			if message['event'] == event.ENVIRONMENT_UPDATED:
-				self.simulation.set_local_environment(
-					message['concentrations'])
+				update = message['state']
+				self.simulation.apply_outer_update(update)
 
 				self.simulation.run_incremental(message['run_until'])
 
 				stop = self.simulation.time()
-				changes = self.simulation.get_environment_change()
+				update = self.simulation.generate_inner_update()
 
 				self.send(self.kafka_config['simulation_send'], {
 					'event': event.SIMULATION_ENVIRONMENT,
+					'time': stop,
+					'outer_id': self.outer_id,
 					'inner_id': self.agent_id,
 					'message_id': message['message_id'],
-					'time': stop,
-					'changes': changes})
+					'state': update})
 
-			elif message['event'] == event.SHUTDOWN_SIMULATION:
+			elif message['event'] == event.SYNCHRONIZE_SIMULATION:
+				self.simulation.synchronize_state(message['state'])
+
+			elif message['event'] == event.SHUTDOWN_AGENT:
 				self.send(self.kafka_config['simulation_send'], {
 					'event': event.SIMULATION_SHUTDOWN,
+					'outer_id': self.outer_id,
 					'inner_id': self.agent_id})
 
 				self.shutdown()

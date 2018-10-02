@@ -1,14 +1,10 @@
-
 """
-
-TODO:
-- document math
-- raise/warn if physiological metabolite concentration targets appear to be smaller than what
+TODO: document math
+TODO: raise/warn if physiological metabolite concentration targets appear to be smaller than what
   is needed at this time step size
-
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 from itertools import izip
 import scipy.sparse
@@ -17,17 +13,16 @@ import numpy as np
 import os
 import cPickle
 
-from wholecell.containers.bulk_objects_container import BulkObjectsContainer
-from wholecell.utils.fitting import normalize, countsFromMassAndExpression, calcProteinCounts, masses_and_counts_for_homeostatic_target
-from wholecell.utils.polymerize import buildSequences, computeMassIncrease
+from wholecell.utils.fitting import normalize, countsFromMassAndExpression, masses_and_counts_for_homeostatic_target
+from wholecell.utils.polymerize import computeMassIncrease
 from wholecell.utils import units
 from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
 
-
 from wholecell.io.tablereader import TableReader
 
+
 def calcInitialConditions(sim, sim_data):
-	assert sim._inheritedStatePath == None
+	assert sim._inheritedStatePath is None
 	randomState = sim.randomState
 
 	massCoeff = 1.0
@@ -40,6 +35,11 @@ def calcInitialConditions(sim, sim_data):
 	# Set up states
 	initializeBulkMolecules(bulkMolCntr, sim_data, randomState, massCoeff)
 	initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
+
+	# Must be called after unique and bulk molecules are initialized to get
+	# concentrations for ribosomes, tRNA, synthetases etc from cell volume
+	if sim._trna_charging:
+		initialize_trna_charging(sim_data, sim.internal_states, sim.processes['PolypeptideElongation'].calculate_trna_charging)
 
 def initializeBulkMolecules(bulkMolCntr, sim_data, randomState, massCoeff):
 
@@ -68,6 +68,57 @@ def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, rand
 	# Activate ribosomes, with fraction based on environmental conditions
 	initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
 
+def initialize_trna_charging(sim_data, states, calc_charging):
+	'''
+	Initializes charged tRNA from uncharged tRNA and amino acids
+
+	Inputs:
+		sim_data (SimulationDataEcoli object)
+		states (dict with internal_state objects as values) - internal states of sim
+		calc_charging (function) - function to calculate charging of tRNA
+
+	Notes:
+		Does not adjust for mass of amino acids on charged tRNA (~0.01% of cell mass)
+	'''
+
+	# Calculate cell volume for concentrations
+	mass = 0
+	for state in states.values():
+		state.calculatePreEvolveStateMass()
+		mass += np.sum(state._masses)
+	cell_volume = units.fg * mass / sim_data.constants.cellDensity
+	counts_to_molar = 1 / (sim_data.constants.nAvogadro * cell_volume)
+
+	# Get molecule views and concentrations
+	transcription = sim_data.process.transcription
+	aa_from_synthetase = transcription.aa_from_synthetase
+	aa_from_trna = transcription.aa_from_trna
+	bulk_molecules = states['BulkMolecules'].container
+	synthetases = bulk_molecules.countsView(transcription.synthetase_names)
+	uncharged_trna = bulk_molecules.countsView(transcription.rnaData['id'][transcription.rnaData['isTRna']])
+	charged_trna = bulk_molecules.countsView(transcription.charged_trna_names)
+	aas = bulk_molecules.countsView(sim_data.moleculeGroups.aaIDs)
+	ribosome_counts = states['UniqueMolecules'].container.counts(['activeRibosome'])
+
+	synthetase_conc = counts_to_molar * np.dot(aa_from_synthetase, synthetases.counts())
+	uncharged_trna_conc = counts_to_molar * np.dot(aa_from_trna, uncharged_trna.counts())
+	charged_trna_conc = counts_to_molar * np.dot(aa_from_trna, charged_trna.counts())
+	aa_conc = counts_to_molar * aas.counts()
+	ribosome_conc = counts_to_molar * ribosome_counts
+
+	# Estimate fraction of amino acids from sequences, excluding first index for padding of -1
+	_, aas_in_sequences = np.unique(sim_data.process.translation.translationSequences, return_counts=True)
+	f = aas_in_sequences[1:] / np.sum(aas_in_sequences[1:])
+
+	# Estimate initial charging state
+	fraction_charged, _ = calc_charging(synthetase_conc, uncharged_trna_conc, charged_trna_conc, aa_conc, ribosome_conc, f)
+
+	# Update counts of tRNA to match charging
+	total_trna_counts = uncharged_trna.counts() + charged_trna.counts()
+	charged_trna_counts = np.round(total_trna_counts * np.dot(fraction_charged, aa_from_trna))
+	uncharged_trna_counts = total_trna_counts - charged_trna_counts
+	charged_trna.countsIs(charged_trna_counts)
+	uncharged_trna.countsIs(uncharged_trna_counts)
 
 def initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff):
 
@@ -432,7 +483,7 @@ def initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 
 
 def setDaughterInitialConditions(sim, sim_data):
-	assert sim._inheritedStatePath != None
+	assert sim._inheritedStatePath is not None
 	isDead = cPickle.load(open(os.path.join(sim._inheritedStatePath, "IsDead.cPickle"), "rb"))
 	sim._isDead = isDead
 
@@ -448,7 +499,6 @@ def setDaughterInitialConditions(sim, sim_data):
 	unique_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "UniqueMolecules"))
 	sim.internal_states["UniqueMolecules"].tableLoad(unique_table_reader, 0)
 
-	time_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "Time"))
 	initialTime = TableReader(os.path.join(sim._inheritedStatePath, "Time")).readAttribute("initialTime")
 	sim._initialTime = initialTime
 

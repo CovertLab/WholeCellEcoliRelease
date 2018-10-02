@@ -1,4 +1,20 @@
-import collections
+"""
+Variant for analyzing transcription factor activity in active and inactive
+conditions. Will set the condition for each TF and the appropriate nutrients
+and/or genetic perturbations for the TF to be active or inactive.
+
+Modifies:
+	sim_data.condition
+	sim_data.external_state.environment.nutrients_time_series_label
+	sim_data.external_state.environment.nutrients_time_series
+	sim_data.genetic_perturbations
+
+Expected variant indices (dependent on length of sim_data.tfToActiveInactiveConds):
+	0: control
+	1+: modify condition for one transcription factor
+		(odd values will be active TF, even values will be inactive TF)
+"""
+
 import numpy as np
 
 CONTROL_OUTPUT = dict(
@@ -6,21 +22,16 @@ CONTROL_OUTPUT = dict(
 	desc = "Control simulation"
 	)
 
-def tfActivityTotalIndices(sim_data):
+
+def tf_activity(sim_data, index):
 	nNutrientTimeSeries = len(sim_data.tfToActiveInactiveConds)
-	return (2 * nNutrientTimeSeries + 1)
-
-
-def tfActivity(sim_data, index):
-
-	nTfActivityTimeSeries = tfActivityTotalIndices(sim_data)
+	nTfActivityTimeSeries = (2 * nNutrientTimeSeries + 1)
 
 	if index % nTfActivityTimeSeries == 0:
 		return CONTROL_OUTPUT, sim_data
 
 	tfList = ["basal (no TF)"] + sorted(sim_data.tfToActiveInactiveConds)
 	tf = tfList[(index + 1) // 2]
-	tfStatus = None
 	if index % 2 == 1:
 		tfStatus = "active"
 	else:

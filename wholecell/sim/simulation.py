@@ -31,6 +31,7 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	dPeriodDivision = False,
 	growthRateNoise = False,
 	translationSupply = True,
+	trna_charging = False,
 	timeStepSafetyFraction = 1.3,
 	maxTimeStep = 0.9,#2.0, # TODO: Reset to 2 once we update PopypeptideElongation
 	updateTimeStepFreq = 5,
@@ -413,12 +414,17 @@ class Simulation(CellSimulation):
 	def initialize_local_environment(self):
 		pass
 
-	def set_local_environment(self, concentrations):
+	def apply_outer_update(self, update):
 		# concentrations are received as a dict
-		self.external_states['Environment'].set_local_environment(concentrations)
+		self.external_states['Environment'].set_local_environment(update['concentrations'])
 
-	def get_environment_change(self):
+	def generate_inner_update(self):
 		# sends environment a dictionary with relevant state changes
-		return {'volume': self.listeners['Mass'].volume,
-				'environment_change': self.external_states['Environment'].get_environment_change(),
-				}
+		return {
+			'volume': self.listeners['Mass'].volume,
+			'environment_change': self.external_states['Environment'].get_environment_change()}
+
+	def synchronize_state(self, state):
+		if 'time' in state:
+			self._initialTime = state['time']
+			self._timeTotal = state['time']

@@ -1,3 +1,20 @@
+"""
+Lattice
+
+A two-dimensional lattice environmental model
+
+## Physics
+# Diffusion constant of glucose in 0.5 and 1.5 percent agarose gel = ~6 * 10^-10 m^2/s (Weng et al. 2005. Transport of glucose and poly(ethylene glycol)s in agarose gels).
+# Conversion to micrometers: 6 * 10^-10 m^2/s = 600 micrometers^2/s.
+
+## Cell biophysics
+# rotational diffusion in liquid medium with viscosity = 1 mPa.s: Dr = 3.5+/-0.3 rad^2/s (Saragosti, et al. 2012. Modeling E. coli tumbles by rotational diffusion.)
+# translational diffusion in liquid medium with viscosity = 1 mPa.s: Dt=100 micrometers^2/s (Saragosti, et al. 2012. Modeling E. coli tumbles by rotational diffusion.)
+
+
+@organization: Covert Lab, Department of Bioengineering, Stanford University
+"""
+
 from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import division
@@ -25,28 +42,30 @@ if animating:
 	fig = plt.figure()
 
 # Constants
-N_AVOGADRO = constants.N_A # TODO (ERAN) get this from sim_data.constants.nAvogadro
+N_AVOGADRO = constants.N_A
 PI = np.pi
 
 # Lattice parameters
 N_DIMS = 2
-PATCHES_PER_EDGE = 10
-TOTAL_VOLUME = 1E-11  # (L)
-EDGE_LENGTH = 10.  # (micrometers). for reference: e.coli length is on average 2 micrometers.
+PATCHES_PER_EDGE = 10 # TODO (Eran) this should scale to accomodate diffusion
+
+EDGE_LENGTH = 10.0  # (micrometers)
+DEPTH = 3000.0 # (micrometers). An average Petri dish has a depth of 3-4 mm
+TOTAL_VOLUME = (DEPTH * EDGE_LENGTH**2) * (10**-15) # (L)
 
 # Physical constants
-DIFFUSION = 0.001  # diffusion constant. (micrometers^2/s) # TODO (Eran) calculate correct diffusion rate
+DIFFUSION = 0.1  # (micrometers^2/s)
 
 # Derived environmental constants
-PATCH_VOLUME = TOTAL_VOLUME / (PATCHES_PER_EDGE*PATCHES_PER_EDGE)
+PATCH_VOLUME = TOTAL_VOLUME / (PATCHES_PER_EDGE**2)
 DX = EDGE_LENGTH / PATCHES_PER_EDGE  # intervals in x- directions (assume y- direction equivalent)
 DX2 = DX*DX
 # DT = DX2 * DX2 / (2 * DIFFUSION * (DX2 + DX2)) # upper limit on the time scale (go with at least 50% of this)
 
 # Cell constants
 CELL_RADIUS = 0.5 # (micrometers)
-ORIENTATION_JITTER = PI/40  # (radians/s)
-LOCATION_JITTER = 0.01 # (micrometers/s)
+ROTATIONAL_JITTER = 0.05 # (radians/s)
+TRANSLATIONAL_JITTER = 0.001 # (micrometers/s)
 
 class EnvironmentSpatialLattice(EnvironmentSimulation):
 	def __init__(self, concentrations):
@@ -72,18 +91,16 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		if os.path.exists("out/manual/locations.txt"):
 			os.remove("out/manual/locations.txt")
 
-		glucose_lattice = self.lattice[self.molecule_index['GLC[p]']]
-		plt.imshow(glucose_lattice, vmin=0, vmax=25, cmap='YlGn')
-		plt.colorbar()
-		plt.axis('off')
-		plt.pause(0.0001)
-
+		if animating:
+			glucose_lattice = self.lattice[self.molecule_index['GLC[p]']]
+			plt.imshow(glucose_lattice, vmin=0, vmax=25, cmap='YlGn')
+			plt.colorbar()
+			plt.axis('off')
+			plt.pause(0.0001)
 
 	def evolve(self):
 		''' Evolve environment '''
 
-		# TODO (Eran) updating location with the environment causes cells to jump at run_for ts, and then cells deposit
-		# all of their deltas at the jumps, rather than along their path laid out during evolve()
 		self.update_locations()
 
 		self.run_diffusion()
@@ -92,15 +109,16 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 	def update_locations(self):
 		''' Update location for all agent_ids '''
 		for agent_id, location in self.locations.iteritems():
-			# Move the cell around randomly
-			self.locations[agent_id][0:2] = (location[0:2] +
-				np.random.normal(scale=np.sqrt(LOCATION_JITTER * self._timestep), size=N_DIMS)
-				) % EDGE_LENGTH
 
-			# Orientation jitter
-			self.locations[agent_id][2] = (location[2] +
-				np.random.normal(scale=ORIENTATION_JITTER * self._timestep)
-				)
+			# Translational diffusion
+			self.locations[agent_id][0:2] += np.random.normal(scale=np.sqrt(TRANSLATIONAL_JITTER * self._timestep), size=N_DIMS)
+
+			# Bounce cells off of lattice edges
+			self.locations[agent_id][0:2][self.locations[agent_id][0:2] >= EDGE_LENGTH] -= 2 * self.locations[agent_id][0:2][self.locations[agent_id][0:2]>= EDGE_LENGTH] % EDGE_LENGTH
+
+			# Rotational diffusion
+			self.locations[agent_id][2] = (location[2] + np.random.normal(scale=ROTATIONAL_JITTER * self._timestep)) % (2 * PI)
+
 
 	def run_diffusion(self):
 		change_lattice = np.zeros(self.lattice.shape)
@@ -130,8 +148,9 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 
 	def run_incremental(self, run_until):
 		''' Simulate until run_until '''
-		self.output_environment()
-		self.output_locations()
+		if animating:
+			self.output_environment()
+			self.output_locations()
 
 		while self._time < run_until:
 			self._time += self._timestep
@@ -143,9 +162,13 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		glucose_lattice = self.lattice[self.molecule_index['GLC[p]']]
 
 		plt.clf()
+		# plt.imshow(np.pad(glucose_lattice, ((1,1),(1,1)), 'wrap'), cmap='YlGn')
 		plt.imshow(glucose_lattice, cmap='YlGn')
+		plt.title('time: ' + str(self._time) + ' (s)')
 		plt.colorbar()
 		plt.axis('off')
+		# plt.ylim((-DX, EDGE_LENGTH+DX))
+		# plt.xlim((-DX, EDGE_LENGTH+DX))
 
 
 	def output_locations(self):
@@ -154,7 +177,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 			y = location[0] * PATCHES_PER_EDGE / EDGE_LENGTH
 			x = location[1] * PATCHES_PER_EDGE / EDGE_LENGTH
 			theta = location[2]
-			volume = self.simulations[agent_id]['volume']
+			volume = self.simulations[agent_id]['state']['volume']
 
 			# get length, scaled to lattice resolution
 			length = self.volume_to_length(volume)
@@ -163,9 +186,8 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 			dy = length * PATCHES_PER_EDGE / EDGE_LENGTH * np.cos(theta)
 
 			plt.plot([x-dx/2, x+dx/2], [y-dy/2, y+dy/2],
-				color='salmon', linewidth=CELL_RADIUS/EDGE_LENGTH*600, solid_capstyle='round')
-			plt.plot([x-dx*9.5/20, x+dx*9.5/20], [y-dy*9.5/20, y+dy*9.5/20],
-				color='slateblue', linewidth=CELL_RADIUS/EDGE_LENGTH*450, solid_capstyle='round')
+				color='slateblue', linewidth=CELL_RADIUS/EDGE_LENGTH*600, solid_capstyle='round')
+
 
 		if animating:
 			plt.pause(0.0001)
@@ -191,20 +213,24 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		return count / (PATCH_VOLUME * N_AVOGADRO)
 
 
-	def update_from_simulations(self, all_changes):
+	def apply_inner_update(self, update, now):
 		'''
 		Use change counts from all the inner simulations, convert them to concentrations,
 		and add to the environmental concentrations of each molecule at each simulation's location
 		'''
-		self.simulations = all_changes
-		for agent_id, state in self.simulations.iteritems():
-			location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH
-			patch_site = tuple(np.floor(location).astype(int))
+		self.simulations.update(update)
 
-			for molecule, count in state['environment_change'].iteritems():
-				concentration = self.count_to_concentration(count)
-				index = self.molecule_index[molecule]
-				self.lattice[index, patch_site[0], patch_site[1]] += concentration
+		for agent_id, simulation in self.simulations.iteritems():
+			# only apply changes if we have reached this simulation's time point.
+			if simulation['time'] <= now:
+				state = simulation['state']
+				location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH
+				patch_site = tuple(np.floor(location).astype(int))
+
+				for molecule, count in state['environment_change'].iteritems():
+					concentration = self.count_to_concentration(count)
+					index = self.molecule_index[molecule]
+					self.lattice[index, patch_site[0], patch_site[1]] += concentration
 
 
 	def get_molecule_ids(self):
@@ -212,16 +238,21 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		return self._molecule_ids
 
 
-	def get_concentrations(self):
+	def generate_outer_update(self, now):
 		'''returns a dict with {molecule_id: conc} for each sim give its current location'''
-		concentrations = {}
-		for agent_id in self.simulations.iterkeys():
-			# get concentration from cell's given bin
-			location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH
-			patch_site = tuple(np.floor(location).astype(int))
+		update = {}
+		for agent_id, simulation in self.simulations.iteritems():
+			# only provide concentrations if we have reached this simulation's time point.
+			if simulation['time'] <= now:
+				# get concentration from cell's given bin
+				location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH
+				patch_site = tuple(np.floor(location).astype(int))
+				update[agent_id] = {}
+				update[agent_id]['concentrations'] = dict(zip(
+					self._molecule_ids,
+					self.lattice[:,patch_site[0],patch_site[1]]))
 
-			concentrations[agent_id] = dict(zip(self._molecule_ids, self.lattice[:,patch_site[0],patch_site[1]]))
-		return concentrations
+		return update
 
 
 	def time(self):
@@ -237,15 +268,9 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		self.locations[agent_id] = np.hstack((location, orientation))
 
 
+	def simulation_parameters(self, agent_id):
+		return {'time': self._time}
+
 	def remove_simulation(self, agent_id):
 		self.simulations.pop(agent_id, {})
 		self.locations.pop(agent_id, {})
-
-
-	def run_simulations_until(self):
-		until = {}
-		run_until = self.time() + self.run_for
-		for agent_id in self.simulations.iterkeys():
-			until[agent_id] = run_until
-
-		return until

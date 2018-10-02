@@ -62,6 +62,9 @@ Modeling options:
 	TRANSLATION_SUPPLY (int, "1"): if nonzero, the ribosome elongation rate is
 		limited by the condition specific rate of amino acid supply; otherwise
 		the elongation rate is set by condition
+	TRNA_CHARGING (int, "0"): if nonzero, tRNA charging reactions are modeled
+		and the ribosome elongation rate is set by the amount of charged tRNA
+		present.  This option will override TRANSLATION_SUPPLY in the simulation.
 
 Additional variables:
 	LAUNCHPAD_FILE (str, "my_launchpad.yaml"): set launchpad config file location
@@ -72,7 +75,12 @@ Environment variables that matter when running the workflow:
 	DEBUG_GC (int, "0"): if nonzero, enable leak detection in the analysis plots
 '''
 
+import collections
+import os
+
+import yaml
 from fireworks import Firework, LaunchPad, Workflow, ScriptTask
+
 from wholecell.fireworks.firetasks import InitRawDataTask
 from wholecell.fireworks.firetasks import InitRawValidationDataTask
 from wholecell.fireworks.firetasks import InitValidationDataTask
@@ -86,26 +94,17 @@ from wholecell.fireworks.firetasks import AnalysisCohortTask
 from wholecell.fireworks.firetasks import AnalysisSingleTask
 from wholecell.fireworks.firetasks import AnalysisMultiGenTask
 from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
-
 from wholecell.utils import constants
 from wholecell.utils import filepath
-import yaml
-import os
-import collections
 
 
 #### Initial setup ###
-
 
 ### Set variant variables
 
 VARIANT = os.environ.get("VARIANT", "wildtype")
 FIRST_VARIANT_INDEX = int(os.environ.get("FIRST_VARIANT_INDEX", "0"))
 LAST_VARIANT_INDEX = int(os.environ.get("LAST_VARIANT_INDEX", "0"))
-
-if LAST_VARIANT_INDEX == -1:
-	from models.ecoli.sim.variants import nameToNumIndicesMapping
-	LAST_VARIANT_INDEX = nameToNumIndicesMapping[VARIANT]
 
 # This variable gets iterated over in multiple places
 # So be careful if you change it to xrange
@@ -121,6 +120,7 @@ MASS_DISTRIBUTION = bool(int(os.environ.get("MASS_DISTRIBUTION", DEFAULT_SIMULAT
 GROWTH_RATE_NOISE = bool(int(os.environ.get("GROWTH_RATE_NOISE", DEFAULT_SIMULATION_KWARGS["growthRateNoise"])))
 D_PERIOD_DIVISION = bool(int(os.environ.get("D_PERIOD_DIVISION", DEFAULT_SIMULATION_KWARGS["dPeriodDivision"])))
 TRANSLATION_SUPPLY = bool(int(os.environ.get("TRANSLATION_SUPPLY", DEFAULT_SIMULATION_KWARGS["translationSupply"])))
+TRNA_CHARGING = bool(int(os.environ.get("TRNA_CHARGING", DEFAULT_SIMULATION_KWARGS["trna_charging"])))
 N_INIT_SIMS = int(os.environ.get("N_INIT_SIMS", "1"))
 N_GENS = int(os.environ.get("N_GENS", "1"))
 SINGLE_DAUGHTERS = bool(int(os.environ.get("SINGLE_DAUGHTERS", "1")))
@@ -197,6 +197,7 @@ metadata = {
 	"growth_rate_noise": GROWTH_RATE_NOISE,
 	"d_period_division": D_PERIOD_DIVISION,
 	"translation_supply": TRANSLATION_SUPPLY,
+	"trna_charging": TRNA_CHARGING,
 	}
 
 metadata_path = os.path.join(METADATA_DIRECTORY, constants.JSON_METADATA_FILE)
@@ -561,6 +562,7 @@ for i in VARIANTS_TO_RUN:
 							growth_rate_noise = GROWTH_RATE_NOISE,
 							d_period_division = D_PERIOD_DIVISION,
 							translation_supply = TRANSLATION_SUPPLY,
+							trna_charging = TRNA_CHARGING,
 							),
 						name = fw_name,
 						spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": 1}, "_priority":10}
@@ -585,6 +587,7 @@ for i in VARIANTS_TO_RUN:
 							growth_rate_noise = GROWTH_RATE_NOISE,
 							d_period_division = D_PERIOD_DIVISION,
 							translation_supply = TRANSLATION_SUPPLY,
+							trna_charging = TRNA_CHARGING,
 							),
 						name = fw_name,
 						spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": 1}, "_priority":11}

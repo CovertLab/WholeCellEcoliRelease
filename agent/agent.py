@@ -72,6 +72,7 @@ class Agent(object):
 			'bootstrap.servers': self.kafka_config['host']})
 
 		self.running = False
+		self.initialized = False
 		self.consumer = None
 		if self.kafka_config['subscribe_topics']:
 			self.consumer = Consumer({
@@ -81,21 +82,22 @@ class Agent(object):
 				'default.topic.config': {
 					'auto.offset.reset': 'latest'}})
 
-		self.initialize()
-
 		if self.consumer:
-			self.consumer.subscribe(
-				self.kafka_config['subscribe_topics'])
+			topics = self.kafka_config['subscribe_topics'] + [self.kafka_config['agent_receive']]
+			self.consumer.subscribe(topics)
 
 			self.poll()
+		else:
+			self.initialize()
+			self.initialized = True
 
 	def initialize(self):
 		"""
 		Initialize the Agent in the system.
 
-		This method is called after the Producer has been initialized but before the 
-		consumer loop is started. It is a good place to send any initialization messages
-		to other agents before falling into the polling cycle.
+		This method is called after the Producer and Consumer have been initialized.
+		It is a good place to send any initialization messages to other agents before
+		falling into the polling cycle.
 		"""
 
 		pass
@@ -113,6 +115,14 @@ class Agent(object):
 		self.running = True
 		while self.running:
 			raw = self.consumer.poll(timeout=1.0)  # timeout (in seconds) so ^C works
+
+			# calling initialize() once consumer is established so as not to miss
+			# immediate responses to initialization sends. If `poll` is not called before an
+			# initialization message is sent then an immediate response could be missed.
+			if not self.initialized:
+				self.initialize()
+				self.initialized = True
+
 			if raw is None:
 				continue
 			if raw.error():
