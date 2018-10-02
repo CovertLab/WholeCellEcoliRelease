@@ -54,15 +54,22 @@ class Agent(object):
 		    agent_id (str): A unique identifier which distinguishes this agent from
 		        the rest of the agents in the system.
 
-		    kafka_config (dict): A dictionary containing Kafka configuration information.
-		        The relevant keys are:
+		    agent_type (str): A string indicating which type of agent this is. This is helpful
+		        for spawning new agents of the same type from the agent shepherd.
 
-		        * host (str): The address of the host machine running Kakfa.
-		        * subscribe_topics (array[str]): A list of topics for the Consumer to subscribe. 
-		            to. If this is an empty array then no Consumer will be initialized.
+		    agent_config (dict): A dictionary containing any configuration information the agent
+		        might need. Subclasses use this extensively, but the only key that needs to be
+		        present for the base agent class is:
 
-                Additional keys can be provided for use in the overriding agent class
-		        to represent topics for sending messages to. 
+		        * kafka_config (dict): A dictionary containing all of the kafka configuration 
+                    information, including:
+
+		            * host (str): The address of the host machine running Kakfa.
+		            * subscribe (array[str]): A list of topics for the Consumer to subscribe. 
+		                to. If this is an empty array then no Consumer will be initialized.
+		            * topics (dict[str, str]): A mapping from topic roles to specific topics.
+		                These topics provide a way to send messages to the various agents in the
+		                system.
 		"""
 
 		self.agent_id = agent_id
@@ -111,8 +118,8 @@ class Agent(object):
 
 		Once poll is called, the thread will be claimed and any interaction with the 
 		system from this point on will be mediated through message passing. This is called
-		at the end of the base class's `__init__(agent_id, kafka_config)` method and does not need to be
-		called manually by the subclass.
+		at the end of the base class's `__init__(agent_id, kafka_config)` method and does not
+		need to be called manually by the subclass.
 		"""
 
 		self.running = True
@@ -158,6 +165,7 @@ class Agent(object):
 				needs to be JSON serializable, so must contain only basic types like `str`,
 				`int`, `float`, `list`, `tuple`, `array`, and `dict`. Any functions or objects
 				present will throw errors.
+		    print_send (boolean): Whether or not to print the message that is sent.
 		"""
 
 		# json.dumps(m, ensure_ascii=False) returns a str or unicode string, depending on

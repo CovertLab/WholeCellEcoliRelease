@@ -20,21 +20,40 @@ class EnvironmentSimulation(object):
 		"""Unregister an inner agent."""
 
 	def simulation_parameters(self, agent_id):
-		"""Generate any parameters a simulation may need to know about from the environment,
-		such as the current time step.
+		"""
+		During initialization of a new simulation, generate any parameters a simulation may
+		need to know about from the environment, such as the current time step.
+		"""
+		return {}
+
+	def simulation_state(self, agent_id):
+		"""
+		Return the state the environment is tracking about the simulation given by `agent_id`.
 		"""
 		return {}
 
 	def apply_inner_update(self, update, now):
-		"""Update the environment's state from only the inner agent simulations that have reached
+		"""
+		Update the environment's state from only the inner agent simulations that have reached
 		but not passed the `now` time point, given the `update` dictionary mapping agent_id to
 		the changes calculated during their run.
 		"""
 
 	def generate_outer_update(self, now):
-		"""Return a dictionary of agent_id to updates coming from the environment for
+		"""
+		Return a dictionary of agent_id to updates coming from the environment for
 		each agent that has run to `now` but not past.
 		"""
+
+	def apply_parent_state(self, agent_id, agent_config):
+		"""
+		After cell division, this function is called when a new daughter cell is initialized
+		by the environment in order to apply any state the environment was tracking about the 
+		parent cell (like location and orientation etc).
+		"""
+
+	def run_for(self):
+		"""Return the length of time simulations should run for this time period."""
 
 	def run_incremental(self, time):
 		"""Run the environment's own simulation until the given time."""
@@ -68,12 +87,20 @@ class Outer(Agent):
 
 		Args:
 			agent_id (str): Unique identifier for this agent.
-			kafka_config (dict): Kafka configuration information with the following keys:
-				`host`: the Kafka server host address.
-				`environment_control`: The topic this agent will use to listen for trigger
-					and shutdown messages.
-				`simulation_send`: The topic this agent will use to listen for simulation
-					updates from inner agents.
+		    agent_type (str): The type of this agent, for coordination with the agent shepherd.
+			agent_config (dict): A dictionary containing any information needed to run this
+		        outer agent. The only required key is `kafka_config` containing Kafka configuration
+		        information with the following keys:
+
+				* `host`: the Kafka server host address.
+				* `topics`: a dictionary mapping topic roles to specific topics used by the agent
+		            to communicate with other agents. The relevant ones to this agent are:
+
+				    * `environment_receive`: The topic this agent will use to listen for
+		                any messages addressed to it, either from related simulations or 
+		                from control messages from other processes (such as trigger and shutdown).
+				    * `cell_receive`: The topic this agent will use to send messages to its
+		                associated cell simulations.
 			environment (EnvironmentSimulation): The actual simulation which will perform
 				the calculations.
 		"""
@@ -97,6 +124,22 @@ class Outer(Agent):
 		print('environment shutting down')
 
 	def cell_initialize(self, message):
+		"""
+		Handle the initialization of a new cell simulation.
+
+		A variety of tasks are performed when a new cell simulation is created. First, we compare
+		the simulation's time to our environment's time to see if these need to be synchronized.
+		Next, we notify our environment simulation of the new cell simulation. Then we check to see
+		if the new simulation is a daughter cell, in which case we notify the environment of its
+		parent state so that it can inherit properties tracked by the environment (such as location
+		and orientation). Then we send the synchronization message to the inner agent so that the 
+		cell can be updated about any pertinent environmental state. After that we call
+		`update_state` so that subclasses can perform whatever operation they need to perform when
+		the state of the simulation changes (such as sending state notifications to listening
+		visualizations). Finally, the outer agent is advanced if all associated inner agents are
+		ready to advance.
+		"""
+
 		inner_id = message['inner_id']
 		environment_time = self.environment.time()
 		simulation_time = max(environment_time, message.get('time', environment_time))
@@ -128,11 +171,17 @@ class Outer(Agent):
 		self.advance()
 
 	def update_state(self):
-		""" Called before each simulation is updated with the current state of the system. """
+		"""
+		Called when the overall state of the environment simulation and its associated cell
+		simulations is changed so that external listening processes can be notified.
+		"""
 		pass
 
 	def send_updates(self, now, run_until):
-		""" Send updated concentrations to each inner agent. """
+		"""
+		Send updates from the environment simulation out to the inner agents and their associated
+		cell simulations and tell them when to `run_until`, if they have stopped at `now`. 
+		"""
 
 		update = self.environment.generate_outer_update(now)
 		self.update_state()
@@ -149,6 +198,17 @@ class Outer(Agent):
 					'run_until': run_until})
 
 	def cell_exchange(self, message):
+		"""
+		Handle messages from inner agents about the behavior of their cell simulations.
+
+		This updates the state for each cell simulation and also handles the case of cell division,
+		where the state of the parent cell is stored in order to apply it to each daughter cell
+		when they initialize.
+
+		Also, this (along with `cell_initialize`) is the main point at which the outer agent
+		is advanced if all cell simulations are ready.
+		"""
+
 		agent_id = message['inner_id']
 		if agent_id in self.simulations:
 			simulation = self.simulations[agent_id]
@@ -224,7 +284,7 @@ class Outer(Agent):
 				self.environment.run_incremental(now)
 
 				# find the next time for simulations to achieve
-				run_until = self.environment.time() + self.environment.run_for
+				run_until = self.environment.time() + self.environment.run_for()
 
 				# unless there is an earlier time a simulation arrived at
 				if later.size > 0:
@@ -270,21 +330,21 @@ class Outer(Agent):
 
 		Control messages:
 
-		* TRIGGER_EXECUTION: Send messages to all registered inner agents to begin execution.
-		* PAUSE_ENVIRONMENT: Stop sending messages until another TRIGGER_ENVIRONMENT is received.
-		* SHUTDOWN_ENVIRONMENT: Send messages to inner agents notifying them that the outer agent
+		* TRIGGER_AGENT: Send messages to all registered inner agents to begin execution.
+		* PAUSE_AGENT: Stop sending messages until another TRIGGER_AGENT is received.
+		* SHUTDOWN_AGENT: Send messages to inner agents notifying them that the outer agent
 		    is shutting down, and wait for acknowledgement before exiting.
 
 		Simulation messages:
 
-		* SIMULATION_INITIALIZED: Registers inner agents that will be driven once the
-		    TRIGGER_EXECUTION event is received.
-		* SIMULATION_ENVIRONMENT: Received from each inner agent when it has computed its 
+		* CELL_INITIALIZE: Registers inner agents that will be driven once the
+		    TRIGGER_AGENT event is received.
+		* CELL_EXCHANGE: Received from each inner agent when it has computed its 
 		    environmental changes up to the specified `run_until`. The outer agent will wait
 		    until it has heard from each simulation, integrate their changes and then calculate
-		    the new local environment for each inner agent and respond with an `ENVIRONMENT_UPDATED`
+		    the new local environment for each inner agent and respond with an `ENVIRONMENT_UPDATE`
 		    message.
-		* SIMULATION_SHUTDOWN: Received when an inner agent has completed. Once all inner agents
+		* CELL_SHUTDOWN: Received when an inner agent has completed. Once all inner agents
 		    have reported back that they have shut down the outer agent can complete.
 		"""
 

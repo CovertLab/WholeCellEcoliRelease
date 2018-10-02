@@ -25,9 +25,6 @@ class SimulationStub(CellSimulation):
 	def time(self):
 		return self.local_time
 
-	def initialize_local_environment(self):
-		pass
-
 	def apply_outer_update(self, update):
 		self.concentrations = update['concentrations']
 
@@ -85,10 +82,10 @@ class EnvironmentStub(EnvironmentSimulation):
 
 	def __init__(self, volume, concentrations):
 		self.global_time = 0
-		self.run_for = 1
 		self.volume = volume
 		self.simulations = {}
 		self.concentrations = concentrations
+		self._run_for = 1
 
 	def time(self):
 		return self.global_time
@@ -107,6 +104,9 @@ class EnvironmentStub(EnvironmentSimulation):
 				state = simulation['state']
 				for molecule, change in state['changes'].iteritems():
 					self.concentrations[molecule] += change
+
+	def run_for(self):
+		return self._run_for
 
 	def run_incremental(self, run_until):
 		time.sleep(2)

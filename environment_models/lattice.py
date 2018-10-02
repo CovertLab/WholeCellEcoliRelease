@@ -71,7 +71,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 	def __init__(self, concentrations):
 		self._time = 0
 		self._timestep = 1.0
-		self.run_for = 5
+		self._run_for = 5
 
 		self.simulations = {}  # map of agent_id to simulation state
 		self.locations = {}    # map of agent_id to location and orientation
@@ -304,6 +304,9 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		print("================= parent: {} - daughter: {}".format(parent_location, location))
 
 		self.locations[agent_id] = np.hstack((location, orientation))
+
+	def run_for(self):
+		return self._run_for
 
 	def remove_simulation(self, agent_id):
 		self.simulations.pop(agent_id, {})
