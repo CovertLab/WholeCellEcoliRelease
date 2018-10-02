@@ -40,18 +40,18 @@ it easy to watch all these processeses at once.)
 
    1. In the first tab start an Environment model:
 
-      `> python -m environment.boot lattice --id lattice`
+      `> python -m environment_models.boot lattice --id lattice`
 
       This creates the Environment agent, waiting for Cell simulations to register.
 
       **NOTE:** If you didn't open the browser-based visualization, you can have the
       Environment agent open a "microscope" view onto the plate by launching it like this:
 
-      `> ENVIRONMENT_ANIMATION=1 python -m environment.boot lattice --id lattice`
+      `> ENVIRONMENT_ANIMATION=1 python -m environment_models.boot lattice --id lattice`
 
    2. Now start a Cell agent in a new tab:
 
-      `> python -m environment.boot ecoli --id 1 --outer-id lattice`
+      `> python -m environment_models.boot ecoli --id 1 --outer-id lattice`
 
       **Optional:** Supply additional arguments to set a variant, seed, and so on.
       Use the `-h` argument for help. 
@@ -68,37 +68,41 @@ You will see a message sent from the newly initialized simulation on the `enviro
 
 6. Finally, run this in a separate "command" tab to start the simulation clock:
 
-   `> python -m environment.boot trigger --id lattice`
+   `> python -m environment_models.boot trigger --id lattice`
 
 7. To stop the simulation, run `shutdown` in the command tab:
 
-   `> python -m environment.boot shutdown --id lattice`
+   `> python -m environment_models.boot shutdown --id lattice`
 
 ## Agent Shepherd
 
 An alternate way to start the simulation is to use the agent shepherd, which will manage the spawning and removal of agents with multiprocessing rather than launching each in its own tab. To do this first start the agent shepherd:
 
-   `> python -m environment.boot shepherd`
+   `> python -m environment_models.boot shepherd`
 
 Now that it is running you can start an experiment:
 
-   `> python -m environment.boot experiment --number 3`
+   `> python -m environment_models.boot experiment --number 3`
 
 This will send four `ADD_AGENT` messages to the shepherd, one for the environment agent and three for the simulation agents. Note the `agent_id` for the lattice as you will need this for future control messages (like trigger and shutdown). These messages are received by the shepherd and you will see them all boot in the shepherd's tab. You still need to trigger execution, which requires the `agent_id` of the environment:
 
-   `> python -m environment.boot trigger --id xxxxxx-xxxx-xxxxxxxxxx`
+   `> python -m environment_models.boot trigger --id xxxxxx-xxxx-xxxxxxxxxx`
+
+If you know that this is the only environment you are running, or you want to control all environments at once, you can omit the `--id` option:
+
+   `> python -m environment_models.boot trigger`
 
 Now that they are running, you can add new agents with `add`:
 
-   `> python -m environment.boot add --id xxxxxx-xxxx-xxxxxxxxxx`
+   `> python -m environment_models.boot add --id xxxxxx-xxxx-xxxxxxxxxx`
 
 Or remove them with `remove` given an id. This can be just the prefix of the agent's id so you don't have to type the whole uuid:
 
-   `> python -m environment.boot remove --id dgaf`
+   `> python -m environment_models.boot remove --id dgaf`
 
 Finally, to shut down the experiment call `shutdown` as before:
 
-   `> python -m environment.boot shutdown --id xxxxxx-xxxx-xxxxxxxxxx`
+   `> python -m environment_models.boot shutdown --id xxxxxx-xxxx-xxxxxxxxxx`
 
 Notice this just shuts down the experiment, the shepherd is still running and a new experiment can be started. To shut down the shepherd process, just `Ctrl-C`.
 
@@ -109,6 +113,7 @@ To summarize, the list of agent control commands is:
 * trigger - start the simulation
 * pause - pause the simulation
 * shutdown - shutdown the simulation
+* divide - trigger cell division in the given simulation
 
 Spawning specific agents:
 
