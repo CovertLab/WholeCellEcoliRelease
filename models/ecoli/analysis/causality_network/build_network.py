@@ -64,8 +64,6 @@ class BuildNetwork(object):
 		self.names_dict = {}
 		name_files = [f for f in os.listdir(NAMES_PATHWAY)]
 
-		import ipdb; ipdb.set_trace()
-		
 		for file_name in name_files:
 			with open(os.path.join(NAMES_PATHWAY, file_name)) as f:
 
@@ -74,12 +72,33 @@ class BuildNetwork(object):
 				data = all_data[1:]
 
 				id_idx = header.index('Object ID')
+				name_idx = header.index('Display Name')
 				synonym_idx = header.index('Synonyms')
 
 				for row in data:
-					if row[synonym_idx]:
-						synonyms = row[synonym_idx].split(' // ')
-						self.names_dict[row[id_idx]] = (synonyms[0], synonyms[1:])
+					self.names_dict[row[id_idx]] = (row[name_idx], row[synonym_idx])
+
+		# add translation, transcription to names dictionary, using gene ID for name
+		with open(os.path.join(NAMES_PATHWAY, 'genes.tsv')) as f:
+
+			all_data = [line.replace('"', '').replace('\n', '').replace('\r', '').split('\t') for line in f.readlines()]
+			header = all_data[0]
+			data = all_data[1:]
+
+			id_idx = header.index('Object ID')
+			name_idx = header.index('Display Name')
+			synonym_idx = header.index('Synonyms')
+
+			for row in data:
+				gene_id = row[id_idx]
+				gene_name = row[name_idx]
+				synonyms = row[synonym_idx]
+
+				transcription_id = gene_id + '_TRANSCRIPTION'
+				translation_id = gene_id + '_TRANSLATION'
+
+				self.names_dict[transcription_id] = (gene_name, synonyms)
+				self.names_dict[translation_id] = (gene_name, synonyms)
 
 		self.node_list = []
 		self.edge_list = []
