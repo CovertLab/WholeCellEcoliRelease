@@ -408,9 +408,6 @@ class Simulation(CellSimulation):
 
 	## Additional CellSimulation methods for embedding in an Agent
 
-	def initialize_local_environment(self):
-		pass
-
 	def apply_outer_update(self, update):
 		# concentrations are received as a dict
 		self.external_states['Environment'].set_local_environment(update['concentrations'])
