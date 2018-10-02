@@ -219,6 +219,9 @@ class Inner(Agent):
 			elif message['event'] == event.DIVIDE_CELL:
 				self.simulation.divide()
 
+			elif message['event'] == event.PAUSE_AGENT:
+				pass
+
 			elif message['event'] == event.SHUTDOWN_AGENT:
 				self.cell_shutdown(message)
 

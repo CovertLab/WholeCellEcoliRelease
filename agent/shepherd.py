@@ -183,10 +183,10 @@ class AgentShepherd(Agent):
 				self.remove_agent(message['agent_id'])
 
 		elif message['event'] == event.TRIGGER_ALL:
-			self.agent_control(event.TRIGGER_AGENT, self.agents, message.get('agent_type'))
+			self.agent_control(event.TRIGGER_AGENT, self.agents.values(), message.get('agent_type'))
 
 		elif message['event'] == event.PAUSE_ALL:
-			self.agent_control(event.PAUSE_AGENT, self.agents, message.get('agent_type'))
+			self.agent_control(event.PAUSE_AGENT, self.agents.values(), message.get('agent_type'))
 
 		elif message['event'] == event.SHUTDOWN_ALL:
-			self.agent_control(event.SHUTDOWN_AGENT, self.agents, message.get('agent_type'))
+			self.agent_control(event.SHUTDOWN_AGENT, self.agents.values(), message.get('agent_type'))
