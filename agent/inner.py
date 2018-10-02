@@ -75,7 +75,6 @@ class Inner(Agent):
 
 		self.outer_id = outer_id
 		self.simulation = simulation
-		self.simulation.initialize_local_environment()
 
 		kafka_config = agent_config['kafka_config']
 		kafka_config['subscribe'].append(

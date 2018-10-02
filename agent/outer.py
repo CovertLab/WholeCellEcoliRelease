@@ -217,7 +217,7 @@ class Outer(Agent):
 				state = message['state']
 				simulation['state'] = state
 				simulation['time'] = message['time']
-				if state['division']:
+				if state.get('division'):
 					parent = self.environment.simulation_state(agent_id)
 					for index, daughter in enumerate(state['division']):
 						daughter_id = daughter.get('id', str(uuid.uuid1()))
