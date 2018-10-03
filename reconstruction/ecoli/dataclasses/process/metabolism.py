@@ -120,8 +120,8 @@ class Metabolism(object):
 		importConstrainedExchangeMolecules = {}
 		secretionExchangeMolecules = self._secretion_exchange_molecules
 
-		#remove molecules with 0 conc
-		nonzero_molecules = {molecule_id:concentration for molecule_id, concentration in molecules.items() if concentration != 0}
+		#remove molecules with low concentration
+		nonzero_molecules = {molecule_id:concentration for molecule_id, concentration in molecules.items() if concentration >= 0.00001}
 
 		for molecule_id, concentration in nonzero_molecules.iteritems():
 
