@@ -22,8 +22,6 @@ from wholecell.utils import units
 from models.ecoli.analysis.causality_network.network_components import Node, Edge, NODELIST_FILENAME, EDGELIST_FILENAME, NODE_LIST_HEADER, EDGE_LIST_HEADER
 from wholecell.utils.scriptBase import default_wcecoli_out_subdir_path, find_sim_path
 
-NAMES_PATHWAY = "models/ecoli/analysis/causality_network/names/"
-
 # Proteins that are reactants or products of a metabolic reaction
 PROTEINS_IN_METABOLISM = ["EG50003-MONOMER[c]", "PHOB-MONOMER[c]",
 	"PTSI-MONOMER[c]", "PTSH-MONOMER[c]"]
@@ -60,12 +58,13 @@ class BuildNetwork(object):
 
 		# Create dict with id: (name, synonyms)
 		self.names_dict = {}
-		name_files = [f for f in os.listdir(NAMES_PATHWAY)]
+		names_pathway = os.path.join(os.path.abspath(__file__), "names")
+		file_names = [f for f in os.listdir(names_pathway)]
 
-		for file_name in name_files:
-			with open(os.path.join(NAMES_PATHWAY, file_name)) as f:
+		for file_name in file_names:
+			with open(os.path.join(names_pathway, file_name)) as f:
 
-				all_data = [line.replace('"', '').replace('\n', '').replace('\r', '').split('\t') for line in f.readlines()]
+				all_data = [line.replace('"', '').replace('\n', '').replace('\r', '').split('\t')for line in f.readlines()]
 				header = all_data[0]
 				data = all_data[1:]
 
@@ -76,8 +75,9 @@ class BuildNetwork(object):
 				for row in data:
 					self.names_dict[row[id_idx]] = (row[name_idx], row[synonym_idx])
 
-		# add translation, transcription to names dictionary, using gene ID for name
-		with open(os.path.join(NAMES_PATHWAY, 'genes.tsv')) as f:
+		# add names for translation and transcription nodes to the names
+		# dictionary, using gene ID for name
+		with open(os.path.join(names_pathway, 'genes.tsv')) as f:
 
 			all_data = [line.replace('"', '').replace('\n', '').replace('\r', '').split('\t') for line in f.readlines()]
 			header = all_data[0]
@@ -104,11 +104,18 @@ class BuildNetwork(object):
 
 
 	def run(self):
+		"""
+		Build the network and write node/edge list files.
+		"""
 		self._build_network()
 		self._write_files()
 
 
 	def _build_network(self):
+		"""
+		Add nodes and edges to the node/edge lists, and check for network
+		sanity (optional).
+		"""
 		# Add global nodes to the node list
 		self._add_global_nodes()
 
@@ -128,6 +135,9 @@ class BuildNetwork(object):
 
 
 	def _write_files(self):
+		"""
+		Write node/edge list as separate .tsv files.
+		"""
 		# Open node/edge list files
 		nodelist_file = open(os.path.join(self.output_dir, NODELIST_FILENAME), 'w')
 		edgelist_file = open(os.path.join(self.output_dir, EDGELIST_FILENAME), 'w')
