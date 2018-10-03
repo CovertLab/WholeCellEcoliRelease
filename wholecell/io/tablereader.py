@@ -1,11 +1,9 @@
 
 from __future__ import division
+from __future__ import print_function
 
 import os
 import json
-import re
-
-from itertools import izip
 
 import numpy as np
 
@@ -127,21 +125,28 @@ class TableReader(object):
 			)
 
 
-	def readColumn(self, name):
+	def readColumn(self, name, indices=None, block_read=True):
 		"""
 		Load a full column (all entries).
 
-		Parameters
-		----------
-		name : str
-			The name of the column.
+		Parameters:
+			name (str): The name of the column.
+			indices (ndarray): Numpy array of ints. The specific indices at each
+				time point to read. If None, reads in all data. If provided, can
+				give a performance boost for files with many entries.
+				NOTE: performance benefit might only be realized if the file
+				is in the disk cache (i.e. the file has been recently read),
+				which should typically be the case.
+			block_read (bool): If True, will only read one block per time point,
+				otherwise will seek between contiguous data. Only applies if
+				indices are given.
+				NOTE: If False and indices are spread out, reading can be orders
+				of magnitude slower.
 
-		Returns
-		-------
-		A NumPy array, with entries along the first dimension.
+		Returns:
+			ndarray: data read with entries along the first dimension
 
-		Notes
-		-----
+		Notes:
 		If entry sizes varies, this method cannot be used.
 
 		Output will be squeezed; e.g. scalars or scalar-likes written with
@@ -157,6 +162,7 @@ class TableReader(object):
 
 		TODO (John): Open in binary mode.
 
+		TODO: Select criteria to automatically select between two methods for indices
 		"""
 
 		if name not in self._columnNames:
@@ -172,11 +178,66 @@ class TableReader(object):
 		nEntries = sizes.size
 
 		with open(os.path.join(self._dirColumns, name, tw.FILE_DATA)) as dataFile:
-			dataFile.seek(offsets[0])
+			if indices is None:
+				dataFile.seek(offsets[0])
 
-			return np.fromstring(
-				dataFile.read(), dtype
-				).reshape(nEntries, -1).squeeze()
+				return np.fromstring(
+					dataFile.read(), dtype
+					).reshape(nEntries, -1).squeeze()
+			else:
+				type_size = np.dtype(dtype).itemsize
+				n_items = int(sizes[0] / type_size)
+				data = np.zeros((nEntries, len(indices)), dtype)
+
+				dataFile.seek(offsets[0])
+
+				# Precalculate seeks for each entry
+				# Sort to improve speed of seeking
+				sort_indices = np.argsort(indices)
+				indices = indices[sort_indices]
+				seeks = np.zeros_like(indices)
+				seeks[0] = indices[0] * type_size
+				seeks[1:] = (indices[1:] - indices[:-1] - 1) * type_size
+				last_seek = (n_items - indices[-1] - 1) * type_size
+
+				if block_read:
+					# Read only from first to last index of interest
+					seek = last_seek + seeks[0]
+					indices -= indices[0]
+					dataFile.seek(seeks[0], 1)
+					for i in range(nEntries):
+						data[i, sort_indices] = np.fromstring(
+							dataFile.read((indices[-1]+1) * type_size), dtype
+							)[indices]
+						dataFile.seek(seek, 1)
+				else:
+					# Group contiguous data (seek of 0) into one read
+					grouped_indices = []
+					read_lengths = []
+					new_seeks = [seeks[0]]
+					current_group = [sort_indices[0]]
+					for idx, seek in zip(sort_indices[1:], seeks[1:]):
+						if seek == 0:
+							current_group += [idx]
+						else:
+							new_seeks += [seek]
+							read_lengths += [len(current_group)]
+							grouped_indices += [np.array(current_group)]
+							current_group = [idx]
+					read_lengths += [len(current_group)]
+					grouped_indices += [np.array(current_group)]
+
+					# Loop over data to read only indices of interest
+					read_info = zip(grouped_indices, read_lengths, new_seeks)
+					for i in range(nEntries):
+						for idx, n_reads, seek in read_info:
+							dataFile.seek(seek, 1)
+							data[i, idx] = np.fromstring(
+								dataFile.read(n_reads * type_size), dtype
+								)
+						dataFile.seek(last_seek, 1)
+
+				return data.squeeze()
 
 
 	def iterColumn(self, name):

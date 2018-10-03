@@ -129,22 +129,26 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			synthetase_indices = np.array([mol_indices[mol] for mol in synthetase_names])
 			uncharged_trna_indices = np.array([mol_indices[mol] for mol in uncharged_trna_names])
 			charged_trna_indices = np.array([mol_indices[mol] for mol in charged_trna_names])
-			bulk_counts = bulk_reader.readColumn('counts')
+			all_indices = np.hstack((synthetase_indices, uncharged_trna_indices, charged_trna_indices))
+			bulk_counts = bulk_reader.readColumn('counts', all_indices)
+			new_synthetase_indices = np.arange(len(synthetase_indices))
+			new_uncharged_trna_indcies = new_synthetase_indices[-1] + np.arange(len(uncharged_trna_indices)) + 1
+			new_charged_trna_indcies = new_uncharged_trna_indcies[-1] + np.arange(len(uncharged_trna_indices)) + 1
 
 			## Synthetase counts
-			synthetase_counts = np.dot(bulk_counts[:, synthetase_indices], aa_from_synthetase)
+			synthetase_counts = np.dot(bulk_counts[:, new_synthetase_indices], aa_from_synthetase)
 			if initial_synthetase_counts is None:
 				initial_synthetase_counts = synthetase_counts[1, :]
 			normalized_synthetase_counts = synthetase_counts / initial_synthetase_counts
 
 			## Uncharged tRNA counts
-			uncharged_trna_counts = np.dot(bulk_counts[:, uncharged_trna_indices], aa_from_trna)
+			uncharged_trna_counts = np.dot(bulk_counts[:, new_uncharged_trna_indcies], aa_from_trna)
 			if initial_uncharged_trna_counts is None:
 				initial_uncharged_trna_counts = uncharged_trna_counts[1, :]
 			normalized_uncharged_trna_counts = uncharged_trna_counts / initial_uncharged_trna_counts
 
 			## Charged tRNA counts
-			charged_trna_counts = np.dot(bulk_counts[:, charged_trna_indices], aa_from_trna)
+			charged_trna_counts = np.dot(bulk_counts[:, new_charged_trna_indcies], aa_from_trna)
 			if initial_charged_trna_counts is None:
 				initial_charged_trna_counts = charged_trna_counts[1, :]
 			normalized_charged_trna_counts = charged_trna_counts / initial_charged_trna_counts
