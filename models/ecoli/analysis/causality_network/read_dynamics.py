@@ -18,196 +18,7 @@ from wholecell.io.tablereader import TableReader
 from wholecell.utils import filepath
 from wholecell.utils import units
 
-from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
-
-NODE_LIST_HEADER = "ID\tclass\tcategory\tname\tsynonyms\tconstants\n"
-EDGE_LIST_HEADER = "src_node_id\tdst_node_id\tstoichiometry\tprocess\n"
-DYNAMICS_HEADER = "node\ttype\tunits\tdynamics\n"
-NAMES_PATHWAY = "models/ecoli/analysis/causality_network/names/"
-
-CHECK_SANITY = False
-GET_PATHWAY_INDEX = False
-DYNAMICS_PRECISION = 6
-PROBABILITY_PRECISION = 4
-TIME_PRECISION = 2
-
-# Proteins that are reactants or products of a metabolic reaction
-PROTEINS_IN_METABOLISM = ["EG50003-MONOMER[c]", "PHOB-MONOMER[c]",
-	"PTSI-MONOMER[c]", "PTSH-MONOMER[c]"]
-
-# Equilibrium complexes that are formed from deactivated equilibrium reactions,
-# but are reactants in a complexation reaction
-EQUILIBRIUM_COMPLEXES_IN_COMPLEXATION = ["CPLX0-7620[c]", "CPLX0-7701[c]",
-	"CPLX0-7677[c]", "MONOMER0-1781[c]", "CPLX0-7702[c]"]
-
-# Metabolites that are used as ligands in equilibrium, but do not participate
-# in any metabolic reactions
-METABOLITES_ONLY_IN_EQUILIBRIUM = ["4FE-4S[c]", "NITRATE[p]"]
-
-# Molecules in 2CS reactions that are not proteins
-NONPROTEIN_MOLECULES_IN_2CS = ["ATP[c]", "ADP[c]", "WATER[c]", "PI[c]",
-	"PROTON[c]", "PHOSPHO-PHOB[c]"]
-
-class Node:
-	"""
-	Class definition for a node in the causal network.
-	"""
-
-	def __init__(self, node_class, node_type):
-		"""
-		Initializes instance variables. Node class and type must be given as
-		arguments.
-
-		Variables:
-			node_class: Class of node, string, either "State" or "Process"
-			node_type: Type of node, string, e.g. "Gene", "Metabolism"
-			node_id: Unique ID of node, string, e.g. "EG11274", "CPLX-125[c]"
-			name: Generic name of node, string, e.g. "trpL", "pyruvate"
-			synonyms: List of synonyms of node, list of strings
-				e.g. ["anth", "tryD", tryp-4"]
-			constants: Dictionary with constant names as keys and constants as
-				values, dictionary, e.g. {"reversibility": 0, "Km": 1e-6}
-			dynamics: Dictionary with dynamics data type as keys and list of
-				time-series data as values, dictionary,
-				e.g. {"counts": [8151, 8525, ...],
-					  "concentration": [1.151e-7, 1.155e-7, ...]}
-			dynamics_units: Dictionary with dynamics data type as keys and its
-				units as values (must share same keys with dynamics),
-				dictionary, e.g. {"counts": "N", "concentration": "mol/L"}
-		"""
-		self.node_class = node_class
-		self.node_type = node_type
-		self.node_id = None
-		self.name = None
-		self.synonyms = None
-		self.constants = None
-		self.dynamics = {}
-		self.dynamics_units = {}
-
-	def get_node_id(self):
-		"""
-		Return ID of node.
-		"""
-		return self.node_id
-
-	def read_attributes(self, node_id, name, synonyms="", constants=""):
-		"""
-		Sets the remaining attribute variables of the node. Argument can be
-		in the form of a single dictionary with names of each argument names as
-		keys.
-		"""
-		self.node_id = node_id
-		self.name = name
-		self.synonyms = synonyms
-		self.constants = constants
-
-	def read_dynamics(self, dynamics, dynamics_units):
-		"""
-		Sets the dynamics variable of the node.
-		"""
-		self.dynamics = dynamics
-		self.dynamics_units = dynamics_units
-
-	def write_nodelist(self, nodelist_file):
-		"""
-		Writes a single row specifying the given node to the nodelist file.
-		"""
-		# Format single string with attributes of the node separated by commas
-		node_row = "%s\t%s\t%s\t%s\t%s\t%s\n" % (
-			self.node_id, self.node_class, self.node_type,
-			self.name, self.synonyms, self.constants,
-			)
-
-		# Write line to nodelist file
-		nodelist_file.write(node_row)
-
-	def write_dynamics(self, dynamics_file):
-		"""
-		Writes a single row of dynamics data for each dynamics variable
-		associated with the node.
-		"""
-		# Iterate through all dynamics variables associated with the node
-		for name, dynamics in self.dynamics.items():
-			unit = self.dynamics_units.get(name, "")
-
-			# Format dynamics string depending on data type
-			if unit == "N":
-				dynamics_string = format_dynamics_string(dynamics, "int")
-			elif unit == "prob":
-				dynamics_string = format_dynamics_string(dynamics, "prob")
-			else:
-				dynamics_string = format_dynamics_string(dynamics, "float")
-
-			# Format single string with dynamic attributes separated by commas
-			dynamics_row = "%s\t%s\t%s\t%s\n" % (
-				self.node_id, name, unit, dynamics_string
-				)
-
-			# Write line to dynamics file
-			dynamics_file.write(dynamics_row)
-
-
-class Edge:
-	"""
-	Class definition for an edge in the causal network.
-	"""
-
-	def __init__(self, process):
-		"""
-		Initializes instance variables. Edge type must be given as arguments.
-
-		Variables:
-			edge_type: Type of edge (type of the process node the edge is
-				attached to), string, e.g. "Complexation", "Metabolism"
-			src_id: ID of the source node, string, e.g. "RXN0-2382"
-			dst_id: ID of the destination node, string, e.g. "WATER[c]"
-			stoichiometry: (Only for metabolism edges) Stoichiometric
-				coefficient of reaction-metabolite pair, integer, e.g. 1
-		"""
-		self.process = process
-		self.src_id = None
-		self.dst_id = None
-		self.stoichiometry = None
-
-	def get_src_id(self):
-		"""
-		Return ID of source node.
-		"""
-		return self.src_id
-
-	def get_dst_id(self):
-		"""
-		Return ID of destination node.
-		"""
-		return self.dst_id
-
-	def get_process(self):
-		"""
-		Return process associated with the edge.
-		"""
-		return self.process
-
-	def read_attributes(self, src_id, dst_id, stoichiometry=""):
-		"""
-		Sets the remaining attribute variables of the node. Argument can be
-		in the form of a single dictionary with names of each argument names as
-		keys.
-		"""
-		self.src_id = src_id
-		self.dst_id = dst_id
-		self.stoichiometry = stoichiometry
-
-	def write_edgelist(self, edgelist_file):
-		"""
-		Writes a single row specifying the given edge to the edgelist file.
-		"""
-		# Format single string with attributes of the edge separated by commas
-		edge_row = "%s\t%s\t%s\t%s\n" % (
-			self.src_id, self.dst_id, self.stoichiometry, self.process,
-			)
-
-		# Write line to edgelist file
-		edgelist_file.write(edge_row)
+from models.ecoli.analysis.causality_network.network_components import Node, Edge, NODELIST_FILENAME, EDGELIST_FILENAME, NODE_LIST_HEADER, EDGE_LIST_HEADER
 
 
 def add_global_nodes(sim_data, simOutDir, node_list):
@@ -1397,19 +1208,6 @@ def get_pathway_to_nodes(sim_data, simOutDir, pathway_to_genes, pathway_to_rxns)
 	return pathway_to_nodes
 
 
-def check_nodes_in_pathways(node_ids, pathway_to_nodes):
-	"""
-	Check if any node in pathway_to_nodes dictionary does not exist in the
-	network we constructed.
-	"""
-	print("Checking pathway-node key...")
-
-	for pathway, node_list in pathway_to_nodes.items():
-		for node_id in node_list:
-			if node_id not in node_ids:
-				print("Node ID %s in pathway %s not found in the list of node IDs." % (node_id, pathway))
-
-
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		if not os.path.isdir(simOutDir):
@@ -1421,24 +1219,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			sim_data = cPickle.load(f)
 		with open(validationDataFile, 'rb') as f:
 			validation_data = cPickle.load(f)
-
-		# create dict with id: (name, synonyms)
-		names_dict = {}
-		name_files = [f for f in os.listdir(NAMES_PATHWAY)]
-		for file_name in name_files:
-			with open(os.path.join(NAMES_PATHWAY, file_name)) as the_file:
-
-				all_data = [line.replace('"', '').replace('\n', '').replace('\r', '').split('\t') for line in the_file.readlines()]
-				header = all_data[0]
-				data = all_data[1:]
-
-				id_idx = header.index('Object ID')
-				synonym_idx = header.index('Synonyms')
-
-				for row in data:
-					if row[synonym_idx]:
-						synonyms = row[synonym_idx].split(' // ')
-						names_dict[row[id_idx]] = (synonyms[0], synonyms[1:])
 
 		# Initialize node list and edge list
 		node_list = []
@@ -1475,16 +1255,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		print("Total number of edges: %d" % (len(edge_list)))
 
 		# Open node/edge list files and dynamics file
-		nodelist_file = open(os.path.join(plotOutDir, plotOutFileName + "_nodelist.tsv"), 'w')
-		edgelist_file = open(os.path.join(plotOutDir, plotOutFileName + "_edgelist.tsv"), 'w')
 		dynamics_file = open(os.path.join(plotOutDir, plotOutFileName + "_dynamics.tsv"), 'w')
 
-		if GET_PATHWAY_INDEX:
-			pathwaylist_file = open(os.path.join(plotOutDir, plotOutFileName + "_pathwaylist.tsv"), 'w')
-
-		# Write header rows to each of the files
-		nodelist_file.write(NODE_LIST_HEADER)
-		edgelist_file.write(EDGE_LIST_HEADER)
+		# Write header row to dynamics file
 		dynamics_file.write(DYNAMICS_HEADER)
 
 		# Add time and global dynamics data to dynamics file
@@ -1492,16 +1265,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Write node, edge list and dynamics data tsv files
 		for node in node_list:
-			node.write_nodelist(nodelist_file)
 			node.write_dynamics(dynamics_file)
-
-		for edge in edge_list:
-			edge.write_edgelist(edgelist_file)
-
-		# Write pathway data to pathway file
-		if GET_PATHWAY_INDEX:
-			for pathway_name, node_ids in pathway_to_nodes.items():
-				pathwaylist_file.write("%s\t%s\n" % (pathway_name, ", ".join(node_ids)))
 
 
 if __name__ == '__main__':

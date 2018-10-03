@@ -13,17 +13,15 @@ import cPickle
 import numpy as np
 import os
 import argparse
+from itertools import izip
 
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import filepath
 from wholecell.utils import units
 
-from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
-from models.ecoli.analysis.causality_network.network_components import Node, Edge, NODELIST_FILENAME, EDGELIST_FILENAME
+from models.ecoli.analysis.causality_network.network_components import Node, Edge, NODELIST_FILENAME, EDGELIST_FILENAME, NODE_LIST_HEADER, EDGE_LIST_HEADER
 from wholecell.utils.scriptBase import default_wcecoli_out_subdir_path, find_sim_path
 
-NODE_LIST_HEADER = "ID\tclass\tcategory\tname\tsynonyms\tconstants\n"
-EDGE_LIST_HEADER = "src_node_id\tdst_node_id\tstoichiometry\tprocess\n"
 NAMES_PATHWAY = "models/ecoli/analysis/causality_network/names/"
 
 # Proteins that are reactants or products of a metabolic reaction
@@ -125,7 +123,6 @@ class BuildNetwork(object):
 
 		# Check for network sanity (optional)
 		if self.check_sanity:
-			print("Checking sanity...")
 			self._find_duplicate_nodes()
 			self._find_runaway_edges()
 
@@ -152,18 +149,33 @@ class BuildNetwork(object):
 		Add global state nodes to the node list.
 		"""
 		# Add total cell mass node to node list
-		mass_node = Node("State", "Global")
-		attr = {'node_id': "global", 'name': "Total cell mass"}
+		mass_node = Node()
+		attr = {
+			"node_class": "State",
+			"node_type": "Global",
+			"node_id": "global",
+			"name": "Total cell mass"
+			}
 		mass_node.read_attributes(**attr)
 
 		# Add total cell volume node to node list
-		volume_node = Node("State", "Global")
-		attr = {'node_id': "global", 'name': "Total cell volume"}
+		volume_node = Node()
+		attr = {
+			"node_class": "State",
+			"node_type": "Global",
+			"node_id": "global",
+			"name": "Total cell volume"
+			}
 		volume_node.read_attributes(**attr)
 
 		# Add chromosome count node to node list
-		chromosome_node = Node("State", "Global")
-		attr = {'node_id': "global", 'name': "Full chromosome counts"}
+		chromosome_node = Node()
+		attr = {
+			"node_class": "State",
+			"node_type": "Global",
+			"node_id": "global",
+			"name": "Full chromosome counts"
+			}
 		chromosome_node.read_attributes(**attr)
 
 		self.node_list.extend([mass_node, volume_node, chromosome_node])
@@ -181,18 +193,24 @@ class BuildNetwork(object):
 				self.sim_data.process.transcription.rnaData["geneId"]):
 			
 			# Initialize a single gene node
-			gene_node = Node("State", "Gene")
+			gene_node = Node()
 
 			# Add attributes to the node
 			# Add common name and synonyms
 			if geneId in self.names_dict:
-				attr = {'node_id': geneId,
-					'name': self.names_dict[geneId][0],
-					'synonyms': self.names_dict[geneId][1]
+				attr = {
+					"node_class": "State",
+					"node_type": "Gene",
+					"node_id": geneId,
+					"name": self.names_dict[geneId][0],
+					"synonyms": self.names_dict[geneId][1]
 					}
 			else:
-				attr = {'node_id': geneId,
-					'name': geneId
+				attr = {
+					"node_class": "State",
+					"node_type": "Gene",
+					"node_id": geneId,
+					"name": geneId
 					}
 
 			gene_node.read_attributes(**attr)
@@ -217,7 +235,7 @@ class BuildNetwork(object):
 			isMRna = self.sim_data.process.transcription.rnaData["isMRna"][i]
 
 			# Initialize a single transcript node
-			rna_node = Node("State", "RNA")
+			rna_node = Node()
 
 			# Add attributes to the node
 			# Add common name and synonyms
@@ -225,17 +243,26 @@ class BuildNetwork(object):
 			# remove compartment tag
 			rnaId_no_c = rnaId[:-3]
 			if isMRna and geneId in self.names_dict:
-				attr = {'node_id': rnaId,
+				attr = {
+					'node_class': 'State',
+					'node_type': 'RNA',
+					'node_id': rnaId,
 					'name': self.names_dict[geneId][0] + '_RNA',
 					'synonyms': self.names_dict[geneId][1]
 					}
 			elif rnaId_no_c in self.names_dict:
-				attr = {'node_id': rnaId,
+				attr = {
+					'node_class': 'State',
+					'node_type': 'RNA',
+					'node_id': rnaId,
 					'name': self.names_dict[rnaId_no_c][0],
 					'synonyms': self.names_dict[rnaId_no_c][1]
 					}
 			else:
-				attr = {'node_id': rnaId,
+				attr = {
+					'node_class': 'State',
+					'node_type': 'RNA',
+					'node_id': rnaId,
 					'name': rnaId
 					}
 
@@ -245,13 +272,17 @@ class BuildNetwork(object):
 			self.node_list.append(rna_node)
 
 			# Initialize a single transcription node for each gene
-			transcription_node = Node("Process", "Transcription")
+			transcription_node = Node()
 
 			# Add attributes to the node
 			# TODO: Add common name and synonyms
 			transcription_node_id = "%s_TRANSCRIPTION" % geneId
-			attr = {'node_id': transcription_node_id,
-				'name': transcription_node_id}
+			attr = {
+				'node_class': 'Process',
+				'node_type': 'Transcription',
+				'node_id': transcription_node_id,
+				'name': transcription_node_id
+				}
 			transcription_node.read_attributes(**attr)
 
 			# Append transcription node to node_list
@@ -311,19 +342,25 @@ class BuildNetwork(object):
 			geneId = rnaId.split("_RNA[c]")[0]
 
 			# Initialize a single protein node
-			protein_node = Node("State", "Protein")
+			protein_node = Node()
 
 			# Add attributes to the node
 			# TODO: Add common name and synonyms
 			monomerId_no_c = monomerId[:-3]
 			# Add common name, synonyms, molecular mass
 			if monomerId_no_c in self.names_dict:
-				attr = {'node_id': monomerId,
+				attr = {
+					'node_class': 'State',
+					'node_type': 'Protein',
+					'node_id': monomerId,
 					'name': self.names_dict[monomerId_no_c][0],
 					'synonyms': self.names_dict[monomerId_no_c][1],
 					}
 			else:
-				attr = {'node_id': monomerId,
+				attr = {
+					'node_class': 'State',
+					'node_type': 'Protein',
+					'node_id': monomerId,
 					'name': monomerId,
 					}
 			protein_node.read_attributes(**attr)
@@ -332,13 +369,17 @@ class BuildNetwork(object):
 			self.node_list.append(protein_node)
 
 			# Initialize a single translation node for each transcript
-			translation_node = Node("Process", "Translation")
+			translation_node = Node()
 
 			# Add attributes to the node
 			# TODO: Add common name and synonyms
 			translation_node_id = "%s_TRANSLATION" % geneId
-			attr = {'node_id': translation_node_id,
-				'name': translation_node_id}
+			attr = {
+				'node_class': 'Process',
+				'node_type': 'Translation',
+				'node_id': translation_node_id,
+				'name': translation_node_id
+				}
 			translation_node.read_attributes(**attr)
 
 			# Append translation node to node_list
@@ -390,45 +431,37 @@ class BuildNetwork(object):
 		list, and edges connected to the complexation nodes to the edge
 		list.
 		"""
-
-		# TODO (Eran) raw_data is here used to get complexation stoichiometry.
-		# This can be saved to sim_data and then retrieved here.
-		raw_data = KnowledgeBaseEcoli()
-
 		# List of all complex IDs and reaction IDs
 		complex_ids = self.sim_data.process.complexation.ids_complexes + EQUILIBRIUM_COMPLEXES_IN_COMPLEXATION
-		reactionIDs = self.sim_data.process.complexation.ids_reactions
+		reaction_ids = self.sim_data.process.complexation.ids_reactions
 
-		# Get complexation stoichiometry from sim_data
-		complexStoich = {}
-		# TODO (Eran) save complexationReactions in sim_data, so that raw_data
-		# won't be needed
-		for reaction in raw_data.complexationReactions:
-			stoich = {}
-			for molecule in reaction['stoichiometry']:
-				molecule_name = '%s[%s]' % (
-				molecule['molecule'], molecule['location'])
-				stoich[molecule_name] = molecule['coeff']
-			complexStoich[reaction['id']] = stoich
+		molecule_ids = self.sim_data.process.complexation.moleculeNames
+		stoich_matrix = self.sim_data.process.complexation.stoichMatrix()
 
 		# Loop through all complexation reactions
-		for idx, reaction in enumerate(reactionIDs):
+		for idx, reaction_id in enumerate(reaction_ids):
 			# Initialize a single complexation node for each complexation reaction
-			complexation_node = Node("Process", "Complexation")
+			complexation_node = Node()
 
 			# Add attributes to the node
-			attr = {'node_id': reaction, 'name': reaction}
+			attr = {
+				'node_class': 'Process',
+				'node_type': 'Complexation',
+				'node_id': reaction_id,
+				'name': reaction_id
+				}
 			complexation_node.read_attributes(**attr)
 
 			# Append node to node_list
 			self.node_list.append(complexation_node)
 
-			# Get reaction stoichiometry from complexStoich
-			stoich_dict = complexStoich[reaction]
+			# Get reaction stoichiometry from stoichimetric matrix
+			stoich_vector = stoich_matrix[:, idx]
+			molecule_idxs = np.where(stoich_vector)[0]
+			stoich_coeffs = stoich_vector[molecule_idxs]
 
 			# Loop through all proteins participating in the reaction
-			for protein, stoich in stoich_dict.items():
-
+			for molecule_idx, stoich in izip(molecule_idxs, stoich_coeffs):
 				# Initialize complex edge
 				complex_edge = Edge("Complexation")
 
@@ -436,13 +469,15 @@ class BuildNetwork(object):
 				# Note: the direction of the edge is determined by the sign of the
 				# stoichiometric coefficient.
 				if stoich > 0:
-					attr = {'src_id': reaction,
-						'dst_id': protein,
+					attr = {
+						'src_id': reaction_id,
+						'dst_id': molecule_ids[molecule_idx],
 						'stoichiometry': stoich
 						}
 				else:
-					attr = {'src_id': protein,
-						'dst_id': reaction,
+					attr = {
+						'src_id': molecule_ids[molecule_idx],
+						'dst_id': reaction_id,
 						'stoichiometry': stoich
 						}
 				complex_edge.read_attributes(**attr)
@@ -452,21 +487,25 @@ class BuildNetwork(object):
 
 		for complex in complex_ids:
 			# Initialize a single complex node for each complex
-			complex_node = Node("State", "Complex")
+			complex_node = Node()
 
 			# Add attributes to the node
-			# TODO: Get molecular mass using getMass().
-			# TODO: Get correct protein name and synonyms from EcoCyc
 			complex_no_c = complex[:-3]
 			# Add common name, synonyms, molecular mass
 			if complex_no_c in self.names_dict:
-				attr = {'node_id': complex,
+				attr = {
+					'node_class': 'State',
+					'node_type': 'Complex',
+					'node_id': complex,
 					'name': self.names_dict[complex_no_c][0],
 					'synonyms': self.names_dict[complex_no_c][1],
 					'constants': {'mass': 0}
 					}
 			else:
-				attr = {'node_id': complex,
+				attr = {
+					'node_class': 'State',
+					'node_type': 'Complex',
+					'node_id': complex,
 					'name': complex,
 					'constants': {'mass': 0}
 					}
@@ -493,10 +532,15 @@ class BuildNetwork(object):
 		# Loop through all reactions
 		for reaction_id, stoich_dict in reactionStoich.iteritems():
 			# Initialize a single metabolism node for each reaction
-			metabolism_node = Node("Process", "Metabolism")
+			metabolism_node = Node()
 
 			# Add attributes to the node
-			attr = {'node_id': reaction_id, 'name': reaction_id}
+			attr = {
+				'node_class': 'Process',
+				'node_type': 'Metabolism',
+				'node_id': reaction_id,
+				'name': reaction_id
+				}
 			metabolism_node.read_attributes(**attr)
 
 			# Append node to node_list
@@ -508,7 +552,8 @@ class BuildNetwork(object):
 			# Add an edge from each catalyst to the metabolism node
 			for catalyst in catalyst_list:
 				metabolism_edge = Edge("Metabolism")
-				attr = {'src_id': catalyst,
+				attr = {
+					'src_id': catalyst,
 					'dst_id': reaction_id
 					}
 
@@ -528,12 +573,14 @@ class BuildNetwork(object):
 				# Note: the direction of the edge is determined by the sign of the
 				# stoichiometric coefficient.
 				if stoich > 0:
-					attr = {'src_id': reaction_id,
+					attr = {
+						'src_id': reaction_id,
 						'dst_id': metabolite,
 						'stoichiometry': stoich
 						}
 				else:
-					attr = {'src_id': metabolite,
+					attr = {
+						'src_id': metabolite,
 						'dst_id': reaction_id,
 						'stoichiometry': stoich
 						}
@@ -548,20 +595,26 @@ class BuildNetwork(object):
 				continue
 
 			# Initialize a single metabolite node for each metabolite
-			metabolite_node = Node("State", "Metabolite")
+			metabolite_node = Node()
 
 			# Add attributes to the node
 			# TODO: Get molecular mass using getMass(). Some of the metabolites do not have mass data?
 			# Add common name, synonyms, molecular mass
 			metabolite_no_c = metabolite[:-3]
 			if metabolite_no_c in self.names_dict:
-				attr = {'node_id': metabolite,
+				attr = {
+					'node_class': 'State',
+					'node_type': 'Metabolite',
+					'node_id': metabolite,
 					'name': self.names_dict[metabolite_no_c][0],
 					'synonyms': self.names_dict[metabolite_no_c][1],
 					'constants': {'mass': 0}
 					}
 			else:
-				attr = {'node_id': metabolite,
+				attr = {
+					'node_class': 'State',
+					'node_type': 'Metabolite',
+					'node_id': metabolite,
 					'name': metabolite,
 					'constants': {'mass': 0}
 					}
@@ -600,11 +653,14 @@ class BuildNetwork(object):
 		for reactionIdx, rxnId in enumerate(equilibriumRxnIds):
 
 			# Initialize a single equilibrium node for each equilibrium reaction
-			equilibrium_node = Node("Process", "Equilibrium")
+			equilibrium_node = Node()
 
 			# Add attributes to the node
 			rxnName = rxnId[:-4] + " equilibrium reaction"
-			attr = {'node_id': rxnId,
+			attr = {
+				'node_class': 'Process',
+				'node_type': 'Equilibrium',
+				'node_id': rxnId,
 				'name': rxnName,
 				'constants': {'rateFwd': equilibriumRatesFwd[reactionIdx],
 					'rateRev': equilibriumRatesRev[reactionIdx]}
@@ -668,11 +724,14 @@ class BuildNetwork(object):
 		for reactionIdx, rxnId in enumerate(tcsRxnIds):
 
 			# Initialize a single equilibrium node for each equilibrium reaction
-			equilibrium_node = Node("Process", "Equilibrium")
+			equilibrium_node = Node()
 
 			# Add attributes to the node
 			rxnName = rxnId[:-4] + " two-component system reaction"
-			attr = {'node_id': rxnId,
+			attr = {
+				'node_class': 'Process',
+				'node_type': 'Equilibrium',
+				'node_id': rxnId,
 				'name': rxnName,
 				'constants': {'rateFwd': tcsRatesFwd[reactionIdx],
 					'rateRev': tcsRatesRev[reactionIdx]}
@@ -721,12 +780,15 @@ class BuildNetwork(object):
 				continue
 
 			# Initialize a single complex node for each complex
-			complex_node = Node("State", "Complex")
+			complex_node = Node()
 
 			# Add attributes to the node
 			# TODO: Get molecular mass using getMass().
 			# TODO: Get correct protein name and synonyms from EcoCyc
-			attr = {'node_id': complex_id,
+			attr = {
+				'node_class': 'State',
+				'node_type': 'Complex',
+				'node_id': complex_id,
 				'name': complex_id,
 				'constants': {'mass': 0}
 				}
@@ -738,12 +800,15 @@ class BuildNetwork(object):
 		# Loop through metabolites that only appear in equilibrium
 		for metabolite in METABOLITES_ONLY_IN_EQUILIBRIUM:
 			# Initialize a single metabolite node for each metabolite
-			metabolite_node = Node("State", "Metabolite")
+			metabolite_node = Node()
 
 			# Add attributes to the node
 			# TODO: Get molecular mass using getMass(). Some of the metabolites do not have mass data?
 			# TODO: Get correct metabolite name and synonyms from EcoCyc
-			attr = {'node_id': metabolite,
+			attr = {
+				'node_class': 'State',
+				'node_type': 'Metabolite',
+				'node_id': metabolite,
 				'name': metabolite,
 				'constants': {'mass': 0}
 				}
@@ -778,13 +843,16 @@ class BuildNetwork(object):
 			gene_id = gene_ids[rna_ids.index(rna_id)]
 
 			# Initialize a single regulation node for each TF-gene pair
-			regulation_node = Node("Process", "Regulation")
+			regulation_node = Node()
 
 			# Add attributes to the node
 			# TODO: Add gene regulation strength constants?
 			reg_id = tf + "_" + gene_id + "_REGULATION"
 			reg_name = tf + "-" + gene_id + " gene regulation"
-			attr = {'node_id': reg_id,
+			attr = {
+				'node_class': 'Process',
+				'node_type': 'Regulation',
+				'node_id': reg_id,
 				'name': reg_name,
 				}
 			regulation_node.read_attributes(**attr)
@@ -793,7 +861,8 @@ class BuildNetwork(object):
 
 			# Add edge from TF to this regulation node
 			regulation_edge_from_tf = Edge("Regulation")
-			attr = {'src_id': tf_id,
+			attr = {
+				'src_id': tf_id,
 				'dst_id': reg_id,
 				}
 			regulation_edge_from_tf.read_attributes(**attr)
@@ -801,7 +870,8 @@ class BuildNetwork(object):
 
 			# Add edge from this regulation node to the gene
 			regulation_edge_to_gene = Edge("Regulation")
-			attr = {'src_id': reg_id,
+			attr = {
+				'src_id': reg_id,
 				'dst_id': gene_id,
 				}
 			regulation_edge_to_gene.read_attributes(**attr)

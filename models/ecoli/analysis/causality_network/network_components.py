@@ -11,6 +11,10 @@ from __future__ import division
 NODELIST_FILENAME = "causality_network_node_list.tsv"
 EDGELIST_FILENAME = "causality_network_edge_list.tsv"
 
+NODE_LIST_HEADER = "ID\tclass\ttype\tname\tsynonyms\tconstants\n"
+EDGE_LIST_HEADER = "src_node_id\tdst_node_id\tstoichiometry\tprocess\n"
+DYNAMICS_HEADER = "node\ttype\tunits\tdynamics\n"
+
 DYNAMICS_PRECISION = 6
 PROBABILITY_PRECISION = 4
 TIME_PRECISION = 2
@@ -20,7 +24,7 @@ class Node:
 	Class definition for a node in the causality network.
 	"""
 
-	def __init__(self, node_class, node_type):
+	def __init__(self):
 		"""
 		Initializes instance variables. Node class and type must be given as
 		arguments.
@@ -42,8 +46,8 @@ class Node:
 				units as values (must share same keys with dynamics),
 				dictionary, e.g. {"counts": "N", "concentration": "mol/L"}
 		"""
-		self.node_class = node_class
-		self.node_type = node_type
+		self.node_class = None
+		self.node_type = None
 		self.node_id = None
 		self.name = None
 		self.synonyms = None
@@ -57,16 +61,29 @@ class Node:
 		"""
 		return self.node_id
 
-	def read_attributes(self, node_id, name, synonyms="", constants=""):
+	def read_attributes(self, node_class, node_type, node_id, name,
+			synonyms="", constants=""):
 		"""
-		Sets the remaining attribute variables of the node. Argument can be
-		in the form of a single dictionary with names of each argument names as
-		keys.
+		Sets the attribute variables of the node. Argument can be in the form
+		of a single dictionary with names of each argument names as keys.
 		"""
+		self.node_class = node_class
+		self.node_type = node_type
 		self.node_id = node_id
 		self.name = name
 		self.synonyms = synonyms
 		self.constants = constants
+
+	def read_attributes_from_tsv(self, tsv_line):
+		"""
+		Reads attributes (node type and node id) from a tab-delimited line in
+		the node_list.tsv file.
+		"""
+		split_tsv_line = tsv_line[:-1].split('\t')
+
+		self.node_type = split_tsv_line[2]
+		self.node_id = split_tsv_line[0]
+
 
 	def read_dynamics(self, dynamics, dynamics_units):
 		"""
@@ -94,20 +111,20 @@ class Node:
 		associated with the node.
 		"""
 		# Iterate through all dynamics variables associated with the node
-		for name, dynamics in self.dynamics.items():
-			unit = self.dynamics_units.get(name, "")
+		for dynamics_name, dynamics_data in self.dynamics.iteritems():
+			unit = self.dynamics_units.get(dynamics_name, "")
 
 			# Format dynamics string depending on data type
 			if unit == "N":
-				dynamics_string = self._format_dynamics_string(dynamics, "int")
+				dynamics_string = self._format_dynamics_string(dynamics_data, "int")
 			elif unit == "prob":
-				dynamics_string = self._format_dynamics_string(dynamics, "prob")
+				dynamics_string = self._format_dynamics_string(dynamics_data, "prob")
 			else:
-				dynamics_string = self._format_dynamics_string(dynamics, "float")
+				dynamics_string = self._format_dynamics_string(dynamics_data, "float")
 
 			# Format single string with dynamic attributes separated by commas
 			dynamics_row = "%s\t%s\t%s\t%s\n" % (
-				self.node_id, name, unit, dynamics_string
+				self.node_id, dynamics_name, unit, dynamics_string
 				)
 
 			# Write line to dynamics file
