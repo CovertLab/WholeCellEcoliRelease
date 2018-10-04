@@ -38,6 +38,9 @@ class EnvironmentAgent(Outer):
 			for agent_id, simulation in self.environment.simulations.iteritems()}
 
 		return {
+			'outer_id': self.agent_id,
+			'agent_type': 'ecoli',
+			'running': not self.paused,
 			'time': self.environment.time(),
 			'lattice': lattice,
 			'simulations': simulations}

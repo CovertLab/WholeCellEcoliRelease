@@ -261,9 +261,9 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 
 	def add_simulation(self, agent_id, simulation):
 		# Place cell at either the provided or a random initial location
-		location = simulation.get(
+		location = simulation['agent_config'].get(
 			'location', np.random.uniform(0,EDGE_LENGTH,N_DIMS))
-		orientation = simulation.get(
+		orientation = simulation['agent_config'].get(
 			'orientation', np.random.uniform(0, 2*PI))
 
 		self.simulations[agent_id] = simulation
