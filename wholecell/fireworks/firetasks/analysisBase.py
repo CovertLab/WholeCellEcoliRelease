@@ -60,11 +60,7 @@ class AnalysisBase(FiretaskBase):
 
 		exceptionFileList = []
 		for f in fileList:
-			if f != "read_dynamics.py":
-				mod = importlib.import_module(self.MODULE_PATH + '.' + f[:-3])
-			else:
-				mod = importlib.import_module("models.ecoli.analysis.causality_network.read_sim_results")
-
+			mod = importlib.import_module(self.MODULE_PATH + '.' + f[:-3])
 			args = self.plotter_args(f)
 
 			if pool:

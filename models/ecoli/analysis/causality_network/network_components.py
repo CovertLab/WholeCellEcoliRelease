@@ -10,10 +10,11 @@ from __future__ import division
 
 NODELIST_FILENAME = "causality_network_node_list.tsv"
 EDGELIST_FILENAME = "causality_network_edge_list.tsv"
+DYNAMICS_FILENAME = "causality_network_dynamics.tsv"
 
 NODE_LIST_HEADER = "ID\tclass\ttype\tname\tsynonyms\tconstants\n"
 EDGE_LIST_HEADER = "src_node_id\tdst_node_id\tstoichiometry\tprocess\n"
-DYNAMICS_HEADER = "node\ttype\tunits\tdynamics\n"
+DYNAMICS_HEADER = "ID\ttype\tunits\tdynamics\n"
 
 DYNAMICS_PRECISION = 6
 PROBABILITY_PRECISION = 4
@@ -61,7 +62,7 @@ class Node:
 		"""
 		return self.node_id
 
-	def read_attributes(self, node_class, node_type, node_id, name,
+	def read_attributes(self, node_class, node_type, node_id, name="",
 			synonyms="", constants=""):
 		"""
 		Sets the attribute variables of the node. Argument can be in the form
@@ -83,6 +84,8 @@ class Node:
 
 		self.node_type = split_tsv_line[2]
 		self.node_id = split_tsv_line[0]
+
+		return (self.node_id, self.node_type)
 
 
 	def read_dynamics(self, dynamics, dynamics_units):
@@ -119,6 +122,8 @@ class Node:
 				dynamics_string = self._format_dynamics_string(dynamics_data, "int")
 			elif unit == "prob":
 				dynamics_string = self._format_dynamics_string(dynamics_data, "prob")
+			elif unit == "s":
+				dynamics_string = self._format_dynamics_string(dynamics_data, "time")
 			else:
 				dynamics_string = self._format_dynamics_string(dynamics_data, "float")
 

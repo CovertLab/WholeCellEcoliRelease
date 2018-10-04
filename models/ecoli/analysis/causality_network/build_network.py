@@ -163,7 +163,7 @@ class BuildNetwork(object):
 		attr = {
 			"node_class": "State",
 			"node_type": "Global",
-			"node_id": "global",
+			"node_id": "cell_mass",
 			"name": "Total cell mass"
 			}
 		mass_node.read_attributes(**attr)
@@ -173,22 +173,12 @@ class BuildNetwork(object):
 		attr = {
 			"node_class": "State",
 			"node_type": "Global",
-			"node_id": "global",
+			"node_id": "cell_volume",
 			"name": "Total cell volume"
 			}
 		volume_node.read_attributes(**attr)
 
-		# Add chromosome count node to node list
-		chromosome_node = Node()
-		attr = {
-			"node_class": "State",
-			"node_type": "Global",
-			"node_id": "global",
-			"name": "Full chromosome counts"
-			}
-		chromosome_node.read_attributes(**attr)
-
-		self.node_list.extend([mass_node, volume_node, chromosome_node])
+		self.node_list.extend([mass_node, volume_node])
 
 
 	def _add_replication_and_genes(self):
