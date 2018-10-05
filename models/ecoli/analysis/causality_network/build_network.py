@@ -15,7 +15,6 @@ import os
 import argparse
 from itertools import izip
 
-from wholecell.io.tablereader import TableReader
 from wholecell.utils import filepath
 from wholecell.utils import units
 
@@ -58,7 +57,7 @@ class BuildNetwork(object):
 
 		# Create dict with id: (name, synonyms)
 		self.names_dict = {}
-		names_pathway = os.path.join(os.path.abspath(__file__), "names")
+		names_pathway = os.path.join(os.path.dirname(os.path.abspath(__file__)), "names")
 		file_names = [f for f in os.listdir(names_pathway)]
 
 		for file_name in file_names:
