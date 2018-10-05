@@ -12,14 +12,9 @@ from __future__ import division
 import cPickle
 import numpy as np
 import os
-import argparse
 from itertools import izip
 
-from wholecell.utils import filepath
-from wholecell.utils import units
-
 from models.ecoli.analysis.causality_network.network_components import Node, Edge, NODELIST_FILENAME, EDGELIST_FILENAME, NODE_LIST_HEADER, EDGE_LIST_HEADER
-from wholecell.utils.scriptBase import default_wcecoli_out_subdir_path, find_sim_path
 
 # Proteins that are reactants or products of a metabolic reaction
 PROTEINS_IN_METABOLISM = ["EG50003-MONOMER[c]", "PHOB-MONOMER[c]",

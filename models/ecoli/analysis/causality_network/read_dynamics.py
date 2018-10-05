@@ -18,7 +18,7 @@ from wholecell.io.tablereader import TableReader
 from wholecell.utils import filepath
 from wholecell.utils import units
 
-from models.ecoli.analysis.causality_network.network_components import Node, Edge
+from models.ecoli.analysis.causality_network.network_components import Node
 
 REQUIRED_COLUMNS = [
 	("BulkMolecules", "counts"),
@@ -83,9 +83,10 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 
 		# Import attributes of each node from existing node list file
 		with open(nodeListFile, 'r') as node_file, open(os.path.join(plotOutDir, dynamicsFileName), 'w') as dynamics_file:
+			next(node_file)  # Skip header
 			add_time_row(columns, dynamics_file)
 
-			for line in node_file.readlines()[1:]:
+			for line in node_file:
 				node = Node()
 				node_id, node_type = node.read_attributes_from_tsv(line)
 
