@@ -97,6 +97,11 @@ class RunSimulation(scriptBase.ScriptBase):
 				 ' condition specific rate of amino acid supply; otherwise the'
 				 ' elongation rate is set by condition'
 			)
+		add_bool_option('trna_charging', 'trna_charging',
+			help='if True, tRNA charging reactions are modeled and the ribosome'
+				 ' elongation rate is set by the amount of charged tRNA	present.'
+				 ' This option will override TRANSLATION_SUPPLY in the simulation.'
+			)
 
 	def parse_args(self):
 		args = super(RunSimulation, self).parse_args()
@@ -130,6 +135,7 @@ class RunSimulation(scriptBase.ScriptBase):
 			"growth_rate_noise":  args.growth_rate_noise,
 			"d_period_division":  args.d_period_division,
 			"translation_supply": args.translation_supply,
+			"trna_charging":      args.trna_charging,
 			}
 		metadata_dir = fp.makedirs(args.sim_path, 'metadata')
 		metadata_path = os.path.join(metadata_dir, constants.JSON_METADATA_FILE)
@@ -182,6 +188,7 @@ class RunSimulation(scriptBase.ScriptBase):
 					growth_rate_noise=args.growth_rate_noise,
 					d_period_division=args.d_period_division,
 					translation_supply=args.translation_supply,
+					trna_charging=args.trna_charging,
 					)
 
 				if k == 0:

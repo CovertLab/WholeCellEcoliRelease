@@ -82,6 +82,10 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.rrna_index = sim_data.process.rna_decay.rrna_index
 		self.rtrna_index = sim_data.process.rna_decay.rtrna_index
 
+		# Load information about charged tRNA
+		self.charged_trna_names = sim_data.process.transcription.charged_trna_names
+		self.charged_trna = self.bulkMoleculesView(self.charged_trna_names)
+
 		# Load first-order RNA degradation rates (estimated by mRNA half-life data)
 		self.rnaDegRates = sim_data.process.transcription.rnaData['degRate']
 
@@ -108,7 +112,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.endoDegradationSMatrix[h2oIdx, :] = 0
 		self.endoDegradationSMatrix[ppiIdx, :] = 1
 		self.endoDegradationSMatrix[hIdx, :] = 0
-		
+
 		# Build Views
 		self.rnas = self.bulkMoleculesView(rnaIds)
 		self.h2o = self.bulkMoleculesView(["WATER[c]"])
@@ -149,7 +153,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		rnasTotal[self.rrsaIdx] += self.ribosome30S.total()
 		rnasTotal[[self.rrlaIdx, self.rrfaIdx]] += self.ribosome50S.total()
 		rnasTotal[[self.rrlaIdx, self.rrfaIdx, self.rrsaIdx]] += self.activeRibosomes.total()
-
+		rnasTotal[self.isTRna] += self.charged_trna.total()
 
 		# Calculate endoRNase active fraction based on Michaelis-Menten kinetics
 		if not self.EndoRNaseCoop:
@@ -158,7 +162,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# Calculate endoRNase active fraction based on generalized Michaelis-Menten kinetics
 		if self.EndoRNaseCoop:
 			fracEndoRnaseSaturated = (countsToMolar * rnasTotal) / self.Km / (1 + units.sum((countsToMolar * rnasTotal) / self.Km))
-		
+
 		Kd = self.rnaDegRates
 		Kcat = self.KcatEndoRNases
 		EndoR = sum(self.endoRnases.total())
@@ -219,7 +223,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		nMRNAsToDegrade = np.zeros(len(RNAspecificity))
 		nTRNAsToDegrade = np.zeros(len(RNAspecificity))
 		nRRNAsToDegrade = np.zeros(len(RNAspecificity))
-		
+
 		# Boolean variable (nRNAs) that tracks availability of RNAs for a given gene
 		nRNAs = rnasTotal.astype(np.bool)
 
@@ -327,5 +331,5 @@ class RnaDegradation(wholecell.processes.process.Process):
 			self.h.countsInc(fragmentBasesDigested.sum())
 			self.fragmentBases.countsDec(fragmentBasesDigested)
 			NucleotideRecycling = fragmentBasesDigested.sum()
-		
+
 		self.writeToListener("RnaDegradationListener", "fragmentBasesDigested", NucleotideRecycling)

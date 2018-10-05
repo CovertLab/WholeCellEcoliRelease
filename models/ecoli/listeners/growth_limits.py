@@ -35,6 +35,8 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 		# Computed, saved attributes
 		self.aaIds = sim_data.moleculeGroups.aaIDs
 		self.ntpIds = sim_data.moleculeGroups.ntpIds
+		self.uncharged_trna_ids = sim_data.process.transcription.rnaData['id'][sim_data.process.transcription.rnaData['isTRna']]
+		self.charged_trna_ids = sim_data.process.transcription.charged_trna_names
 
 	# Allocate memory
 	def allocate(self):
@@ -52,6 +54,9 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 		self.aaRequestSize = np.zeros(len(self.aaIds), np.float64)
 		self.aaAllocated = np.zeros(len(self.aaIds), np.float64)
 		self.aasUsed = np.zeros(len(self.aaIds), np.float64)
+
+		self.fraction_trna_charged = np.zeros(len(self.uncharged_trna_ids), np.float64)
+		self.net_charged = np.zeros(len(self.uncharged_trna_ids), np.int)
 
 		# For transcription
 		self.ntpPoolSize = np.zeros(len(self.ntpIds), np.float64)
@@ -78,6 +83,8 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 			aaRequestSize = self.aaRequestSize,
 			aaAllocated = self.aaAllocated,
 			aasUsed = self.aasUsed,
+			fraction_trna_charged = self.fraction_trna_charged,
+			net_charged = self.net_charged,
 			ntpPoolSize = self.ntpPoolSize,
 			ntpRequestSize = self.ntpRequestSize,
 			ntpAllocated = self.ntpAllocated,
