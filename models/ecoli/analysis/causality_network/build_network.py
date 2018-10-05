@@ -239,7 +239,7 @@ class BuildNetwork(object):
 			# Add attributes to the node
 			# Add common name and synonyms
 
-			# remove compartment tag
+			# Remove compartment tag
 			rnaId_no_c = rnaId[:-3]
 			if isMRna and geneId in self.names_dict:
 				attr = {
@@ -274,7 +274,6 @@ class BuildNetwork(object):
 			transcription_node = Node()
 
 			# Add attributes to the node
-			# TODO: Add common name and synonyms
 			transcription_node_id = "%s_TRANSCRIPTION" % geneId
 			attr = {
 				'node_class': 'Process',
@@ -318,6 +317,7 @@ class BuildNetwork(object):
 			pol_to_transcription_edge.read_attributes(**attr)
 			self.edge_list.append(pol_to_transcription_edge)
 
+
 	def _add_translation_and_monomers(self):
 		"""
 		Add translation process nodes and protein (monomer) state nodes to the
@@ -344,8 +344,8 @@ class BuildNetwork(object):
 			protein_node = Node()
 
 			# Add attributes to the node
-			# TODO: Add common name and synonyms
 			monomerId_no_c = monomerId[:-3]
+
 			# Add common name, synonyms, molecular mass
 			if monomerId_no_c in self.names_dict:
 				attr = {
@@ -371,7 +371,6 @@ class BuildNetwork(object):
 			translation_node = Node()
 
 			# Add attributes to the node
-			# TODO: Add common name and synonyms
 			translation_node_id = "%s_TRANSLATION" % geneId
 			attr = {
 				'node_class': 'Process',
@@ -423,6 +422,7 @@ class BuildNetwork(object):
 				attr = {'src_id': subunit_id, 'dst_id': translation_node_id}
 				subunit_to_translation_edge.read_attributes(**attr)
 				self.edge_list.append(subunit_to_translation_edge)
+
 
 	def _add_complexation_and_complexes(self):
 		"""
@@ -484,18 +484,18 @@ class BuildNetwork(object):
 				# Append edge to edge_list
 				self.edge_list.append(complex_edge)
 
-		for complex in complex_ids:
+		for complex_id in complex_ids:
 			# Initialize a single complex node for each complex
 			complex_node = Node()
 
 			# Add attributes to the node
-			complex_no_c = complex[:-3]
+			complex_no_c = complex_id[:-3]
 			# Add common name, synonyms, molecular mass
 			if complex_no_c in self.names_dict:
 				attr = {
 					'node_class': 'State',
 					'node_type': 'Complex',
-					'node_id': complex,
+					'node_id': complex_id,
 					'name': self.names_dict[complex_no_c][0],
 					'synonyms': self.names_dict[complex_no_c][1],
 					'constants': {'mass': 0}
@@ -504,14 +504,15 @@ class BuildNetwork(object):
 				attr = {
 					'node_class': 'State',
 					'node_type': 'Complex',
-					'node_id': complex,
-					'name': complex,
+					'node_id': complex_id,
+					'name': complex_id,
 					'constants': {'mass': 0}
 					}
 			complex_node.read_attributes(**attr)
 
 			# Append node to node_list
 			self.node_list.append(complex_node)
+
 
 	def _add_metabolism_and_metabolites(self):
 		"""
@@ -621,6 +622,7 @@ class BuildNetwork(object):
 
 			# Append node to node_list
 			self.node_list.append(metabolite_node)
+
 
 	def _add_equilibrium(self):
 		"""
@@ -815,6 +817,7 @@ class BuildNetwork(object):
 
 			# Append node to node_list
 			self.node_list.append(metabolite_node)
+
 
 	def _add_regulation(self):
 		"""
