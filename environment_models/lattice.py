@@ -288,7 +288,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 			[sin, cos]])
 
 	def daughter_location(self, location, orientation, length, index):
-		offset = np.array([length * 0.25, 0])
+		offset = np.array([length * 0.5, 0])
 		rotation = self.rotation_matrix(-orientation + (index * np.pi))
 		translation = (offset * rotation).A1
 		return (location + translation)

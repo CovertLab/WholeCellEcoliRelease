@@ -83,14 +83,14 @@ class BootEcoli(object):
 	'''
 	Instantiates an initial or daughter EcoliSimulation, passes it to the
 	`Inner` agent, and launches the simulation. `agent_config` fields:
-		* kafka_config
+	    * kafka_config
 	    * outer_id (id of environmental context agent)
-		* working_dir (wcEcoli path containing the sim path out/manual/)
-		* inherited_state_path (optional, to make a daughter cell)
-		* start_time (optional)
-		* variant_type (optional)
-		* variant_index (optional)
-		* seed (optional)
+	    * working_dir (wcEcoli path containing the sim path out/manual/)
+	    * inherited_state_path (optional, to make a daughter cell)
+	    * start_time (optional)
+	    * variant_type (optional)
+	    * variant_index (optional)
+	    * seed (optional)
 	'''
 	def __init__(self, agent_id, agent_type, agent_config):
 		self.agent_id = agent_id

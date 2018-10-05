@@ -25,6 +25,12 @@ class CellSimulation(object):
 		"""
 		Generate the update that will be sent to the environment based on changes calculated
 		by the CellSimulation during `run_incremental(run_until)`.
+
+		If the dictionary returned by this function contains a `division` key it will trigger
+		preparations for cell division in the environment. The value for this key is a pair of
+		dictionaries, of which the only required key is `id` containing the new daughter id.
+		Additional keys are specific to the particular implementation of `EnvironmentSimulation`
+		that receives this update (see `outer.py`).
 		"""
 
 	def divide(self):
@@ -50,27 +56,27 @@ class Inner(Agent):
 		Construct the agent.
 
 		Args:
-			agent_id (str): Unique identifier for this agent.
-				This agent will only respond to messages addressed to its inner agent_id.
-			outer_id (str): Unique identifier for the outer agent this agent belongs to.
+		    agent_id (str): Unique identifier for this agent.
+		        This agent will only respond to messages addressed to its inner agent_id.
+		    outer_id (str): Unique identifier for the outer agent this agent belongs to.
 		        All messages to an outer agent will be addressed to this id.
 		    agent_type (str): The type of this agent, for coordination with the agent shepherd.
-			agent_config (dict): A dictionary containing any information needed to run this
+		    agent_config (dict): A dictionary containing any information needed to run this
 		        outer agent. The only required key is `kafka_config` containing Kafka configuration
 		        information with the following keys:
 
-				* `host`: the Kafka server host address.
-				* `topics`: a dictionary mapping topic roles to specific topics used by the agent
+		        * `host`: the Kafka server host address.
+		        * `topics`: a dictionary mapping topic roles to specific topics used by the agent
 		            to communicate with other agents. The relevant ones to this agent are:
 
-				    * `cell_receive`: The topic this agent will receive messages on from the 
+		            * `cell_receive`: The topic this agent will receive messages on from the 
 		                environment or relevant control processes.
-				    * `environment_receive`: The topic this agent will send messages to its 
+		            * `environment_receive`: The topic this agent will send messages to its 
 		                associated outer agent (given by `outer_id`) and environmental simulation.
-				    * `shepherd_receive`: The topic this agent will send messages on for 
+		            * `shepherd_receive`: The topic this agent will send messages on for 
 		                adding agents to and removing agents from the environment.
-			simulation (CellSimulation): The actual simulation which will perform the
-				calculations.
+		    simulation (CellSimulation): The actual simulation which will perform the
+		        calculations.
 		"""
 
 		self.outer_id = outer_id
@@ -196,7 +202,7 @@ class Inner(Agent):
 		    relevant keys in this update are:
 
 		    * `state`: a dictionary containing the updated state from the environment.
-		    * `run_until`: how long to run the simulation until before reporting back the new 
+		    * `run_until`: how long to run the cell simulation until before reporting back the new 
 		        environmental changes.
 		    * `message_id`: the id of the message as provided by the outer agent,
 		        to be returned as an acknowledgement that the message was processed along with 

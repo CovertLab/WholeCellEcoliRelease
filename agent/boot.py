@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 import os
+import copy
 import uuid
 import numpy as np
 import argparse
@@ -77,11 +78,11 @@ class EnvironmentControl(Agent):
 	"""
 
 	def __init__(self, agent_id, agent_config=None):
-		if not 'kafka_config' in agent_config:
-			agent_config['kafka_config'] = DEFAULT_KAFKA_CONFIG.copy()
+		if 'kafka_config' not in agent_config:
+			agent_config['kafka_config'] = copy.deepcopy(DEFAULT_KAFKA_CONFIG)
 		super(EnvironmentControl, self).__init__(agent_id, 'control', agent_config)
 
-	def trigger_execution(self, agent_id):
+	def trigger_execution(self, agent_id=''):
 		if agent_id:
 			self.send(self.topics['environment_receive'], {
 				'event': event.TRIGGER_AGENT,
@@ -90,7 +91,7 @@ class EnvironmentControl(Agent):
 			self.send(self.topics['shepherd_receive'], {
 				'event': event.TRIGGER_ALL})
 
-	def pause_execution(self, agent_id):
+	def pause_execution(self, agent_id=''):
 		if agent_id:
 			self.send(self.topics['environment_receive'], {
 				'event': event.PAUSE_AGENT,
@@ -99,7 +100,7 @@ class EnvironmentControl(Agent):
 			self.send(self.topics['shepherd_receive'], {
 				'event': event.PAUSE_ALL})
 
-	def shutdown_agent(self, agent_id):
+	def shutdown_agent(self, agent_id=''):
 		if agent_id:
 			self.send(self.topics['agent_receive'], {
 				'event': event.SHUTDOWN_AGENT,

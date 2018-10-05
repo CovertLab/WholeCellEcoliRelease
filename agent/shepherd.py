@@ -34,17 +34,17 @@ class AgentShepherd(Agent):
 
 		Args:
 		    agent_id (str): A unique identifier for the new agent.
-			agent_config (dict): A dictionary containing any information needed to run this
+		    agent_config (dict): A dictionary containing any information needed to run this
 		        outer agent. The only required key is `kafka_config` containing Kafka configuration
 		        information with the following keys:
 
-				* `host`: the Kafka server host address.
-				* `topics`: a dictionary mapping topic roles to specific topics used by the agent
+		        * `host`: the Kafka server host address.
+		        * `topics`: a dictionary mapping topic roles to specific topics used by the agent
 		            to communicate with other agents. The relevant ones to this agent are:
 
-				    * `shepherd_receive`: The topic this agent will be listening to for directives
+		            * `shepherd_receive`: The topic this agent will be listening to for directives
 		                to add or remove agents from the simulation.
-				    * `agent_receive`: The topic this agent will send control messages on for 
+		            * `agent_receive`: The topic this agent will send control messages on for 
 		                triggering, pausing or shutting agents down.
 		    agent_initializers (dict): This is the set of agents this shepherd will be able to
 		        spawn. The values are callables that take two arguments, `agent_id` (str) and

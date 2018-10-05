@@ -86,23 +86,23 @@ class Outer(Agent):
 		Construct the Agent.
 
 		Args:
-			agent_id (str): Unique identifier for this agent.
+		    agent_id (str): Unique identifier for this agent.
 		    agent_type (str): The type of this agent, for coordination with the agent shepherd.
-			agent_config (dict): A dictionary containing any information needed to run this
+		    agent_config (dict): A dictionary containing any information needed to run this
 		        outer agent. The only required key is `kafka_config` containing Kafka configuration
 		        information with the following keys:
 
-				* `host`: the Kafka server host address.
-				* `topics`: a dictionary mapping topic roles to specific topics used by the agent
+		        * `host`: the Kafka server host address.
+		        * `topics`: a dictionary mapping topic roles to specific topics used by the agent
 		            to communicate with other agents. The relevant ones to this agent are:
 
-				    * `environment_receive`: The topic this agent will use to listen for
+		            * `environment_receive`: The topic this agent will use to listen for
 		                any messages addressed to it, either from related simulations or 
 		                from control messages from other processes (such as trigger and shutdown).
-				    * `cell_receive`: The topic this agent will use to send messages to its
+		            * `cell_receive`: The topic this agent will use to send messages to its
 		                associated cell simulations.
-			environment (EnvironmentSimulation): The actual simulation which will perform
-				the calculations.
+		    environment (EnvironmentSimulation): The actual simulation which will perform
+		        the calculations.
 		"""
 
 		self.environment = environment
@@ -143,9 +143,10 @@ class Outer(Agent):
 		inner_id = message['inner_id']
 		environment_time = self.environment.time()
 		simulation_time = max(environment_time, message.get('time', environment_time))
-		if not inner_id in self.simulations:
-			self.simulations[inner_id] = {}
-		simulation = self.simulations[inner_id]
+		# if not inner_id in self.simulations:
+		# 	self.simulations[inner_id] = {}
+		# simulation = self.simulations[inner_id]
+		simulation = self.simulations.setdefault(inner_id, {})
 
 		simulation.update({
 			'time': simulation_time,
@@ -213,10 +214,17 @@ class Outer(Agent):
 		if agent_id in self.simulations:
 			simulation = self.simulations[agent_id]
 
+			# check to make sure the message we just received is the most recent message we
+			# sent to the inner agent
 			if message['message_id'] == simulation['message_id']:
 				state = message['state']
 				simulation['state'] = state
 				simulation['time'] = message['time']
+
+				# if the update we received from the inner agent contains a `division` key,
+				# prepare the state of each impending daughter cell. The `division` value
+				# contains a pair of dictionaries which must contain an `id` in addition to
+				# whatever keys are relevant to the implementation of `EnvironmentSimulation`.
 				if state.get('division'):
 					parent = self.environment.simulation_state(agent_id)
 					for index, daughter in enumerate(state['division']):
