@@ -46,21 +46,16 @@ class BuildCausalityNetworkTask(FireTaskBase):
 		print("\n{}: --- Starting {} ---".format(
 			time.ctime(startTime), type(self).__name__))
 
-		exceptionFileList = []
 		self['node_list_file'] = os.path.join(
 			self["output_network_directory"], NODELIST_FILENAME)
 
 		if not os.path.isfile(self['node_list_file']):
 			print("{}: Building causality network".format(time.ctime()))
 
-			try:
-				causality_network = BuildNetwork(
-					self["input_sim_data"], self["output_network_directory"],
-					self["check_sanity"])
-				causality_network.run()
-			except Exception:
-				traceback.print_exc()
-				exceptionFileList.append("build_network.py")
+			causality_network = BuildNetwork(
+				self["input_sim_data"], self["output_network_directory"],
+				self["check_sanity"])
+			causality_network.run()
 
 		self['output_filename_prefix'] = self.get('output_filename_prefix', '')
 
@@ -70,19 +65,9 @@ class BuildCausalityNetworkTask(FireTaskBase):
 
 		print("{}: Reading simulation results for causality network"
 			.format(time.ctime()))
-		try:
-			mod.Plot.main(*args)
-		except Exception:
-			traceback.print_exc()
-			exceptionFileList.append("read_dynamics.py")
+		mod.Plot.main(*args)
 
 		timeTotal = time.time() - startTime
 
 		duration = time.strftime("%H:%M:%S", time.gmtime(timeTotal))
-		if exceptionFileList:
-			print("Completed analysis in {} with an exception in:".format(duration))
-			for file in exceptionFileList:
-				print("\t{}".format(file))
-			raise Exception("Error in analysis")
-		else:
-			print("Completed analysis in {}".format(duration))
+		print("Completed building causality network in {}".format(duration))
