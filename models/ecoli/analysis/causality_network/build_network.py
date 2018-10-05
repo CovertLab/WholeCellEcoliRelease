@@ -484,18 +484,18 @@ class BuildNetwork(object):
 				# Append edge to edge_list
 				self.edge_list.append(complex_edge)
 
-		for complex in complex_ids:
+		for complex_id in complex_ids:
 			# Initialize a single complex node for each complex
 			complex_node = Node()
 
 			# Add attributes to the node
-			complex_no_c = complex[:-3]
+			complex_no_c = complex_id[:-3]
 			# Add common name, synonyms, molecular mass
 			if complex_no_c in self.names_dict:
 				attr = {
 					'node_class': 'State',
 					'node_type': 'Complex',
-					'node_id': complex,
+					'node_id': complex_id,
 					'name': self.names_dict[complex_no_c][0],
 					'synonyms': self.names_dict[complex_no_c][1],
 					'constants': {'mass': 0}
@@ -504,8 +504,8 @@ class BuildNetwork(object):
 				attr = {
 					'node_class': 'State',
 					'node_type': 'Complex',
-					'node_id': complex,
-					'name': complex,
+					'node_id': complex_id,
+					'name': complex_id,
 					'constants': {'mass': 0}
 					}
 			complex_node.read_attributes(**attr)
