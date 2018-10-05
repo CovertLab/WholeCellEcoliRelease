@@ -10,3 +10,4 @@ from analysisSingle import AnalysisSingleTask
 from analysisMultiGen import AnalysisMultiGenTask
 from analysisCohort import AnalysisCohortTask
 from analysisVariant import AnalysisVariantTask
+from buildCausalityNetwork import BuildCausalityNetworkTask
