@@ -30,23 +30,28 @@ if ANIMATE:
 	plt.ion()
 	fig, (ax1, ax2, ax3, ax4, ax5, ax6) = plt.subplots(6, 1)
 
-# simulation parameters
+## Simulation parameters
+# cell size
 length = 4.0  # micrometers
 radius = 0.5  # micrometers
 diameter = 2 * radius
 
+# discretization of lattice
 bin_size = 0.05  # micrometers
 
+# time
 T = 10.0  # total time
 dt = .0001  # time step
 n = int(T / dt)  # number of iterations
 
-# animation parameters
+# constants
+PI = np.pi
+
+## Animation parameters
 n_animate = 50
 n_plot = 20
 animate_step = n // n_animate
 plot_step = n // n_plot
-
 
 # get number of bins and bin size
 bins_x = int(length / bin_size)  # number of bins along x
@@ -59,7 +64,7 @@ zero_cyto = np.zeros((bins_y, bins_x))
 zero_mem = np.zeros((bins_mem,))
 edges_template = np.pad(np.zeros((bins_y-2, bins_x-2)), (1,1), 'constant', constant_values=(1,1))
 
-# indices for the membrane specifying sites along the cylinder, and the caps.
+# indices for the membrane, specifying contact sites along the body of the cylinder, and the caps.
 edge_length = bins_y/2 - 1
 body_indices = range(edge_length, edge_length + bins_x)
 cap1_indices = range(0, edge_length)
@@ -68,9 +73,6 @@ cap2_indices = range(edge_length + bins_x, bins_mem)
 # laplacian kernels for diffusion
 laplace_kernel_2D = np.array([[0.5, 1.0, 0.5], [1.0, -6., 1.0], [0.5, 1.0, 0.5]])
 laplace_kernel_1D = np.array([1.0, -2.0, 1.0])
-
-# constants
-PI = np.pi
 
 # chemical parameters
 diffusion = 2.5  # micrometer**2/sec
@@ -82,19 +84,17 @@ k_de = 0.7  # sec**-1
 k_E = 0.093  # micrometer**3/sec
 
 ## Initialize molecular fields
-MinD_conc = 110 / (PI * radius ** 2)  # 1000/micrometer
-MinE_conc = 100 / (PI * radius ** 2)  # 350/micrometer
-
+MinD_conc = 110 / (PI * radius ** 2)  # reported: 1000/micrometer
+MinE_conc = 100 / (PI * radius ** 2)  # reported: 350/micrometer
 # cytoplasm
 DD_c = abs(np.random.normal(MinD_conc, 50, (bins_y, bins_x)))
 DT_c = abs(np.random.normal(MinD_conc, 50, (bins_y, bins_x)))
 E_c = abs(np.random.normal(MinE_conc, 50, (bins_y, bins_x)))
-
 # membrane
 DT_m = abs(np.random.normal(0, 50, (bins_mem,)))
 EDT_m = abs(np.random.normal(0, 50, (bins_mem,)))
 
-# Initialize arrays for plotting
+## Initialize arrays for plotting
 # cytoplasm
 DD_c_out = np.empty((bins_y, bins_x, n_plot))
 DT_c_out = np.empty((bins_y, bins_x, n_plot))
@@ -104,7 +104,6 @@ DT_m_out = np.empty((bins_mem, n_plot))
 EDT_m_out = np.empty((bins_mem, n_plot))
 
 save_concentrations = np.zeros((5,n_animate))
-
 
 def show_patterns(DT_m, EDT_m, MinDD_c, MinDT_c, MinE_c, concentrations, time):
 	# clear non-imshow plots
@@ -309,4 +308,4 @@ if SAVE_PLOT:
 	axes[0, 4].set_title('[MinD:ATP] membrane', fontsize=6)
 	axes[0, 5].set_title('[MinE:MinD:ATP] membrane', fontsize=6)
 	plt.subplots_adjust(hspace=0.5)
-	plt.savefig('runscripts/prototypes/spatiality/minD_minE/out/min_dynamics.pdf', bbox_inches='tight')
+	plt.savefig('prototypes/spatiality/minD_minE/out/min_dynamics.pdf', bbox_inches='tight')
