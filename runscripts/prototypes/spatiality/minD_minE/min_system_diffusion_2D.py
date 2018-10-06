@@ -1,6 +1,10 @@
 """
 PDE simulation of MinE/MinD spatial dynamics.
 
+The cytoplasm is modeled as a 2-dimensional field that contains three types of molecules: MinD-ADP, MinD-ATP, MinE.
+The membrane is a 1-dimensional field that wraps from the midpoint of one cap to the midpoint of the other cap. It
+contains MinD-ATP and MinE-MinD-ATP.
+
 based on:
 	Huang, K.C., Meir, Y., & Wingreen, N.S. (2003).
 	Dynamic structures in Escherichia coli: spontaneous formation of MinE rings and MinD polar zones.
@@ -32,22 +36,8 @@ radius = 0.5  # micrometers
 diameter = 2 * radius
 
 bin_size = 0.05  # micrometers
-bins_x = int(length / bin_size)  # number of bins along x
-bins_y = int(diameter / bin_size)  # number of bins along y
-bins_mem = bins_x + bins_y - 2  # membrane goes along x and wraps around to each cap's midpoint. subtract 2 for the corners
-dx = length / bins_x
 
-zero_cyto = np.zeros((bins_y, bins_x))
-zero_mem = np.zeros((bins_mem,))
-edges_template = np.pad(np.zeros((bins_y-2, bins_x-2)), (1,1), 'constant', constant_values=(1,1))
-
-# indices for the membrane specifying sites along the cylinder, and the caps.
-edge_length = bins_y/2 - 1
-cyl_indices = range(edge_length, edge_length + bins_x)
-cap1_indices = range(0, edge_length)
-cap2_indices = range(edge_length + bins_x, bins_mem)
-
-T = 40.0  # total time
+T = 10.0  # total time
 dt = .0001  # time step
 n = int(T / dt)  # number of iterations
 
@@ -56,6 +46,24 @@ n_animate = 50
 n_plot = 20
 animate_step = n // n_animate
 plot_step = n // n_plot
+
+
+# get number of bins and bin size
+bins_x = int(length / bin_size)  # number of bins along x
+bins_y = int(diameter / bin_size)  # number of bins along y
+bins_mem = bins_x + bins_y - 2  # membrane goes along x and wraps around to each cap's midpoint. subtract 2 for the corners
+dx = length / bins_x
+
+# make templates
+zero_cyto = np.zeros((bins_y, bins_x))
+zero_mem = np.zeros((bins_mem,))
+edges_template = np.pad(np.zeros((bins_y-2, bins_x-2)), (1,1), 'constant', constant_values=(1,1))
+
+# indices for the membrane specifying sites along the cylinder, and the caps.
+edge_length = bins_y/2 - 1
+body_indices = range(edge_length, edge_length + bins_x)
+cap1_indices = range(0, edge_length)
+cap2_indices = range(edge_length + bins_x, bins_mem)
 
 # laplacian kernels for diffusion
 laplace_kernel_2D = np.array([[0.5, 1.0, 0.5], [1.0, -6., 1.0], [0.5, 1.0, 0.5]])
@@ -86,7 +94,7 @@ E_c = abs(np.random.normal(MinE_conc, 50, (bins_y, bins_x)))
 DT_m = abs(np.random.normal(0, 50, (bins_mem,)))
 EDT_m = abs(np.random.normal(0, 50, (bins_mem,)))
 
-# Initialize arrays for plot
+# Initialize arrays for plotting
 # cytoplasm
 DD_c_out = np.empty((bins_y, bins_x, n_plot))
 DT_c_out = np.empty((bins_y, bins_x, n_plot))
@@ -138,22 +146,45 @@ def show_patterns(DT_m, EDT_m, MinDD_c, MinDT_c, MinE_c, concentrations, time):
 	plt.pause(0.00000001)
 
 def c_to_m(Z):
-	# membrane contact
+	'''
+	Gives the 1D membrane contact with a given 2D cytoplasm. The membrane wraps from the midpoint of one cap to the
+	midpoint of the other cap. It wraps around the cytoplasm, so is in contact with both the top and the bottom of the
+	2D cytoplasmic field. The contact is the average concentration of the membrane at the points of contact.
+
+	Inputs:
+		- A cytoplasmic 2D field.
+
+	Returns:
+		- The membrane's 1D contact with the cytoplasmic field, using the average of both sides of the cytoplasm.
+	'''
+
 	contact = np.copy(zero_mem)
 	cap1 = Z[1:-1,0]
 	cap2 = Z[1:-1,-1]
 
 	# membrane contact along cylinder body and both caps
-	contact[cyl_indices] += (Z[0,:] + Z[-1,:])
+	contact[body_indices] += (Z[0,:] + Z[-1,:])
 	contact[cap1_indices] += np.flipud(cap1[:edge_length]) + cap1[edge_length:]
 	contact[cap2_indices] += np.flipud(cap2[:edge_length]) + cap2[edge_length:]
 
 	return contact / 2
 
 def m_to_c(Z):
-	# cytoplasm contact along cylinder body and both caps
+	'''
+	Gives the DD cytoplasmic contact with a given 1D membrane. The membrane wraps from the midpoint of one cap to the
+	midpoint of the other cap. It wraps around the cytoplasm, so is in contact with both the top and the bottom of the
+	2D cytoplasmic field. The contact is the average concentration of the membrane at the points of contact.
+
+	Inputs:
+		- A membrane's 1D field.
+
+	Returns:
+		- The cytoplasm's contact with the membrane, given as a 2D array with zeros in the middle of the body.
+		Both the bottom and top of the cytoplasm are in contact with the same regions of the membrane.
+	'''
+	
 	contact = np.copy(zero_cyto)
-	body = Z[cyl_indices]
+	body = Z[body_indices]
 	cap1 = np.concatenate((np.flipud(Z[cap1_indices]), Z[cap1_indices]))
 	cap2 = np.concatenate((np.flipud(Z[cap2_indices]), Z[cap2_indices]))
 
@@ -165,28 +196,23 @@ def m_to_c(Z):
 	return contact
 
 
-# Simulate the PDE with the finite difference method.
+# Simulate the PDEs with the finite difference method.
 for i in range(n):
 
-	## Diffusion
-	# cytoplasm
-	d_DD_c = convolve(DD_c, laplace_kernel_2D, mode='reflect') // dx**2 * diffusion
-	d_DT_c = convolve(DT_c, laplace_kernel_2D, mode='reflect') // dx**2 * diffusion
-	d_E_c = convolve(E_c, laplace_kernel_2D, mode='reflect') // dx**2 * diffusion
-
-	# membrane
-	d_ET_m = convolve(DT_m, laplace_kernel_1D, mode='reflect') // dx * diffusion #**0.5
-	d_EDT_m = convolve(EDT_m, laplace_kernel_1D, mode='reflect') // dx * diffusion #**0.5
-
 	## Save current values
-	# cytoplasm
 	DD_c_0 = np.copy(DD_c)
 	DT_c_0 = np.copy(DT_c)
 	E_c_0 = np.copy(E_c)
-
-	# membrane
 	DT_m_0 = np.copy(DT_m)
 	EDT_m_0 = np.copy(EDT_m)
+
+	## Diffusion
+	d_DD_c = convolve(DD_c, laplace_kernel_2D, mode='reflect') // dx**2 * diffusion
+	d_DT_c = convolve(DT_c, laplace_kernel_2D, mode='reflect') // dx**2 * diffusion
+	d_E_c = convolve(E_c, laplace_kernel_2D, mode='reflect') // dx**2 * diffusion
+	d_ET_m = convolve(DT_m, laplace_kernel_1D, mode='reflect') // dx * diffusion #**0.5
+	d_EDT_m = convolve(EDT_m, laplace_kernel_1D, mode='reflect') // dx * diffusion #**0.5
+
 
 	## Calculate reaction rates
 	# get rates for cytoplasm
@@ -204,25 +230,22 @@ for i in range(n):
 	rxn_3_m = k_de * EDT_m_0
 
 	## Update the variables
-	# update cytoplasm
 	DD_c = DD_c_0 + (d_DD_c - rxn_4_c + rxn_3_c) * dt
 	DT_c = DT_c_0 + (d_DT_c + rxn_4_c - rxn_1_c) * dt
 	E_c = E_c_0 + (d_E_c + rxn_3_c - rxn_2_c) * dt
-
-	# update membrane
 	DT_m = DT_m_0 + (d_ET_m - rxn_2_m + rxn_1_m) * dt
 	EDT_m = EDT_m_0 + (d_EDT_m - rxn_3_m + rxn_2_m) * dt
 
-	# disallow negatives
+	## Disallow negatives
 	DD_c[DD_c < 0] = 0.0
 	DT_c[DT_c < 0] = 0.0
 	E_c[E_c < 0] = 0.0
 	DT_m[DT_m < 0] = 0.0
 	EDT_m[EDT_m < 0] = 0.0
 
-	# plot the state of the system.
+	# Plot the state of the system.
 	if ANIMATE and i % animate_step == 0 and i < n_animate * animate_step:
-		# reaction balance
+		# check reaction balance
 		diff_rxn_1 = np.sum(rxn_1_c) - 2 * np.sum(rxn_1_m)
 		diff_rxn_2 = np.sum(rxn_2_c) - 2 * np.sum(rxn_2_m)
 		diff_rxn_3 = np.sum(rxn_3_c) - 2 * np.sum(rxn_3_m)
@@ -286,4 +309,4 @@ if SAVE_PLOT:
 	axes[0, 4].set_title('[MinD:ATP] membrane', fontsize=6)
 	axes[0, 5].set_title('[MinE:MinD:ATP] membrane', fontsize=6)
 	plt.subplots_adjust(hspace=0.5)
-	plt.savefig('user/min_system.pdf', bbox_inches='tight')
+	plt.savefig('runscripts/prototypes/spatiality/minD_minE/out/min_dynamics.pdf', bbox_inches='tight')
