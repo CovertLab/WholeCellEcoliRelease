@@ -44,14 +44,14 @@ T = 10.0  # total time
 dt = .0001  # time step
 n = int(T / dt)  # number of iterations
 
-# constants
-PI = np.pi
-
 ## Animation parameters
 n_animate = 50
 n_plot = 20
 animate_step = n // n_animate
 plot_step = n // n_plot
+
+## constants
+PI = np.pi
 
 # get number of bins and bin size
 bins_x = int(length / bin_size)  # number of bins along x
@@ -161,7 +161,7 @@ def c_to_m(Z):
 	cap1 = Z[1:-1,0]
 	cap2 = Z[1:-1,-1]
 
-	# membrane contact along cylinder body and both caps
+	# membrane contact along the cylinder's body and both caps
 	contact[body_indices] += (Z[0,:] + Z[-1,:])
 	contact[cap1_indices] += np.flipud(cap1[:edge_length]) + cap1[edge_length:]
 	contact[cap2_indices] += np.flipud(cap2[:edge_length]) + cap2[edge_length:]
