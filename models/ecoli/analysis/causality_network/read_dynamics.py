@@ -234,7 +234,7 @@ def read_transcription_dynamics(sim_data, node, node_id, columns, indexes, volum
 	"""
 	Reads dynamics data for transcription nodes from simulation output.
 	"""
-	gene_id = node_id.split("_TRANSCRIPTION")[0]
+	gene_id = node_id.split("_TRS")[0]
 	gene_idx = indexes["Genes"][gene_id]
 
 	dynamics = {
@@ -251,7 +251,7 @@ def read_translation_dynamics(sim_data, node, node_id, columns, indexes, volume)
 	"""
 	Reads dynamics data for translation nodes from a simulation output.
 	"""
-	rna_id = node_id.split("_TRANSLATION")[0] + "_RNA[c]"
+	rna_id = node_id.split("_TRL")[0] + "_RNA[c]"
 	translation_idx = indexes["TranslatedRnas"][rna_id]
 
 	dynamics = {

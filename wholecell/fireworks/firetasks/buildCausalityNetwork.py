@@ -49,6 +49,8 @@ class BuildCausalityNetworkTask(FireTaskBase):
 		self['node_list_file'] = os.path.join(
 			self["output_network_directory"], NODELIST_FILENAME)
 
+		self["check_sanity"] = self.get("check_sanity", False)
+
 		if not os.path.isfile(self['node_list_file']):
 			print("{}: Building causality network".format(time.ctime()))
 
@@ -70,4 +72,6 @@ class BuildCausalityNetworkTask(FireTaskBase):
 		timeTotal = time.time() - startTime
 
 		duration = time.strftime("%H:%M:%S", time.gmtime(timeTotal))
-		print("Completed building causality network in {}".format(duration))
+		print("{}: Completed building causality network in {}".format(
+			time.ctime(), duration)
+			)
