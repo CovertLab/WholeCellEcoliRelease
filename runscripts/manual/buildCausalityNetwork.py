@@ -68,7 +68,6 @@ class BuildCausalityNetwork(AnalysisBase):
 			check_sanity=args.check_sanity,
 			metadata=args.metadata,
 			output_filename_prefix=args.output_prefix,
-			cpus=args.cpus,
 			)
 		task.run_task({})
 

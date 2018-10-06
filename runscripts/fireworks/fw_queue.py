@@ -682,7 +682,6 @@ for i in VARIANTS_TO_RUN:
 							input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
 							output_network_directory = VARIANT_SIM_DATA_DIRECTORY,
 							output_dynamics_directory = CELL_PLOT_OUT_DIRECTORY,
-							cpus = analysis_cpus,
 							metadata = metadata,
 							),
 						name=fw_name,
@@ -704,8 +703,6 @@ for i in VARIANTS_TO_RUN:
 						wf_links[fw_this_variant_this_gen_this_sim_causality_network].extend(compression_fws)
 
 ## Create workflow
-
-
 if VERBOSE_QUEUE:
 	print "Creating workflow."
 

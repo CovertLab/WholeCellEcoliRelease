@@ -1,3 +1,7 @@
+"""
+Run the analysis scripts that generate input files to the Causality Network
+tool.
+"""
 from __future__ import absolute_import, division, print_function
 
 import importlib
@@ -24,8 +28,7 @@ class BuildCausalityNetworkTask(FireTaskBase):
 		]
 	optional_params = [
 		"output_filename_prefix",
-		"check_sanity",
-		"cpus",
+		"check_sanity"
 		]
 
 	MODULE_PATH = 'models.ecoli.analysis.causality_network'
