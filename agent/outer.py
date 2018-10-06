@@ -143,9 +143,6 @@ class Outer(Agent):
 		inner_id = message['inner_id']
 		environment_time = self.environment.time()
 		simulation_time = max(environment_time, message.get('time', environment_time))
-		# if not inner_id in self.simulations:
-		# 	self.simulations[inner_id] = {}
-		# simulation = self.simulations[inner_id]
 		simulation = self.simulations.setdefault(inner_id, {})
 
 		simulation.update({
@@ -214,8 +211,8 @@ class Outer(Agent):
 		if agent_id in self.simulations:
 			simulation = self.simulations[agent_id]
 
-			# check to make sure the message we just received is the most recent message we
-			# sent to the inner agent
+			# check to make sure the message we just received is in reply to the most recent
+			# message we sent to the inner agent
 			if message['message_id'] == simulation['message_id']:
 				state = message['state']
 				simulation['state'] = state
