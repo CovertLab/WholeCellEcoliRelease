@@ -79,14 +79,14 @@ class Inner(Agent):
 		        calculations.
 		"""
 
-		self.outer_id = outer_id
-		self.simulation = simulation
-
 		kafka_config = agent_config['kafka_config']
 		kafka_config['subscribe'].append(
 			kafka_config['topics']['cell_receive'])
 
 		super(Inner, self).__init__(agent_id, agent_type, agent_config)
+
+		self.outer_id = outer_id
+		self.simulation = simulation
 
 	def initialize(self):
 		"""

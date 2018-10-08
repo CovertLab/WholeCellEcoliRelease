@@ -92,15 +92,6 @@ class Agent(object):
 				'default.topic.config': {
 					'auto.offset.reset': 'latest'}})
 
-		if self.consumer:
-			topics = self.kafka_config['subscribe'] + [self.topics['agent_receive']]
-			self.consumer.subscribe(topics)
-
-			self.poll()
-		else:
-			self.initialize()
-			self.initialized = True
-
 	def initialize(self):
 		"""
 		Initialize the Agent in the system.
@@ -111,6 +102,20 @@ class Agent(object):
 		"""
 
 		pass
+
+	def start(self):
+		"""
+		Start the polling loop if we have a consumer, otherwise just call `initialize` directly
+		"""
+
+		if self.consumer:
+			topics = self.kafka_config['subscribe'] + [self.topics['agent_receive']]
+			self.consumer.subscribe(topics)
+
+			self.poll()
+		else:
+			self.initialize()
+			self.initialized = True
 
 	def poll(self):
 		"""

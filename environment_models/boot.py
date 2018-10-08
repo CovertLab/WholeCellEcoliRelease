@@ -78,6 +78,8 @@ class BootEnvironmentSpatialLattice(object):
 		self.environment = EnvironmentSpatialLattice(concentrations)
 		self.outer = EnvironmentAgent(agent_id, agent_type, agent_config, self.environment)
 
+	def start(self):
+		self.outer.start()
 
 class BootEcoli(object):
 	'''
@@ -165,6 +167,8 @@ class BootEcoli(object):
 			agent_config,
 			self.simulation)
 
+	def start(self):
+		self.inner.start()
 
 class ShepherdControl(EnvironmentControl):
 
@@ -250,16 +254,18 @@ class EnvironmentCommand(AgentCommand):
 				agent_config,
 				kafka_config=self.kafka_config,
 				working_dir=args.working_dir)
-			return BootEcoli(agent_id, agent_type, agent_config)
+			ecoli = BootEcoli(agent_id, agent_type, agent_config)
+			ecoli.start()
 
 		def initialize_lattice(agent_id, agent_type, agent_config):
 			agent_config = dict(agent_config)
 			agent_config['kafka_config'] = self.kafka_config
-			return BootEnvironmentSpatialLattice(
+			lattice = BootEnvironmentSpatialLattice(
 				agent_id,
 				agent_type,
 				agent_config,
 				agent_config.get('media', args.media))
+			lattice.start()
 
 		initializers['lattice'] = initialize_lattice
 		initializers['ecoli'] = initialize_ecoli
@@ -268,7 +274,11 @@ class EnvironmentCommand(AgentCommand):
 
 	def lattice(self, args):
 		agent_id = args.id or 'lattice'
-		BootEnvironmentSpatialLattice(agent_id, {'kafka_config': self.kafka_config}, args.media)
+		lattice = BootEnvironmentSpatialLattice(
+			agent_id,
+			{'kafka_config': self.kafka_config},
+			args.media)
+		lattice.start()
 
 	def ecoli(self, args):
 		if not args.id:
@@ -283,7 +293,8 @@ class EnvironmentCommand(AgentCommand):
 			variant_index=args.index,
 			seed=args.seed,
 			outer_id=args.outer_id)
-		BootEcoli(args.id, agent_config)
+		ecoli = BootEcoli(args.id, agent_config)
+		ecoli.start()
 
 	def add(self, args):
 		agent_config = dict(

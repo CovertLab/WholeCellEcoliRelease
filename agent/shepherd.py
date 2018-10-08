@@ -52,14 +52,14 @@ class AgentShepherd(Agent):
 		        a new agent process.
 		"""
 
-		self.agents = {}
-		self.agent_initializers = agent_initializers
-
 		kafka_config = agent_config['kafka_config']
 		kafka_config['subscribe'].append(
 			kafka_config['topics']['shepherd_receive'])
 
 		super(AgentShepherd, self).__init__(agent_id, 'shepherd', agent_config)
+
+		self.agents = {}
+		self.agent_initializers = agent_initializers
 
 	def initialize(self):
 		print('agent shepherd waiting')

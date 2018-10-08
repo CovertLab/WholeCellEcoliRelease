@@ -45,6 +45,9 @@ class BootOuter(object):
 		self.environment = EnvironmentStub(volume, concentrations)
 		self.outer = Outer(agent_id, agent_type, agent_config, self.environment)
 
+	def start(self):
+		self.outer.start()
+
 class BootInner(object):
 
 	"""
@@ -67,6 +70,8 @@ class BootInner(object):
 			agent_config,
 			self.simulation)
 
+	def start(self):
+		self.inner.start()
 
 class EnvironmentControl(Agent):
 
@@ -80,6 +85,7 @@ class EnvironmentControl(Agent):
 	def __init__(self, agent_id, agent_config=None):
 		if 'kafka_config' not in agent_config:
 			agent_config['kafka_config'] = copy.deepcopy(DEFAULT_KAFKA_CONFIG)
+
 		super(EnvironmentControl, self).__init__(agent_id, 'control', agent_config)
 
 	def trigger_execution(self, agent_id=''):
@@ -269,7 +275,8 @@ class AgentCommand(object):
 		if not args.id:
 			raise ValueError('--id must be supplied for outer command')
 
-		BootOuter(args.id, {'kafka_config': self.kafka_config})
+		outer = BootOuter(args.id, {'kafka_config': self.kafka_config})
+		outer.start()
 
 	def trigger(self, args):
 		control = EnvironmentControl('control', self.kafka_config)
@@ -288,12 +295,14 @@ class AgentCommand(object):
 			agent_config = dict(agent_config)
 			agent_config['kafka_config'] = self.kafka_config
 			agent_config['working_dir'] = args.working_dir
-			return BootInner(agent_id, agent_type, agent_config)
+			inner = BootInner(agent_id, agent_type, agent_config)
+			inner.start()
 
 		def initialize_outer(agent_id, agent_type, agent_config):
 			agent_config = dict(agent_config)
 			agent_config['kafka_config'] = self.kafka_config
-			return BootOuter(agent_id, agent_type, agent_config)
+			outer = BootOuter(agent_id, agent_type, agent_config)
+			outer.start()
 
 		initializers['inner'] = initialize_inner
 		initializers['outer'] = initialize_outer
@@ -306,6 +315,7 @@ class AgentCommand(object):
 			'shepherd',
 			{'kafka_config': self.kafka_config},
 			initializers)
+		shepherd.start()
 
 	def add(self, args):
 		control = EnvironmentControl('control', self.kafka_config)

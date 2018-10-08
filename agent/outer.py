@@ -105,17 +105,17 @@ class Outer(Agent):
 		        the calculations.
 		"""
 
-		self.environment = environment
-		self.simulations = {}
-		self.parent_state = {}
-		self.paused = True
-		self.shutting_down = False
-
 		kafka_config = agent_config['kafka_config']
 		kafka_config['subscribe'].append(
 			kafka_config['topics']['environment_receive'])
 
 		super(Outer, self).__init__(agent_id, agent_type, agent_config)
+
+		self.environment = environment
+		self.simulations = {}
+		self.parent_state = {}
+		self.paused = True
+		self.shutting_down = False
 
 	def initialize(self):
 		print('environment started')
