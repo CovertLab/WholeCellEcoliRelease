@@ -24,8 +24,7 @@ DEFAULT_KAFKA_CONFIG = {
 		'visualization_receive': 'environment-state'},
 	'subscribe': []}
 
-class BootOuter(object):
-
+def boot_outer(agent_id, agent_type, agent_config):
 	"""
 	Initialize the `EnvironmentStub`, pass it to the `Outer` agent and launch the process.
 
@@ -34,22 +33,17 @@ class BootOuter(object):
 	defined in `Outer`. 
 	"""
 
-	def __init__(self, agent_id, agent_type, agent_config):
-		volume = 1
-		concentrations = {
-			'yellow': 5,
-			'green': 11,
-			'red': 44,
-			'blue': 12}
+	volume = 1
+	concentrations = {
+		'yellow': 5,
+		'green': 11,
+		'red': 44,
+		'blue': 12}
 
-		self.environment = EnvironmentStub(volume, concentrations)
-		self.outer = Outer(agent_id, agent_type, agent_config, self.environment)
+	environment = EnvironmentStub(volume, concentrations)
+	return Outer(agent_id, agent_type, agent_config, environment)
 
-	def start(self):
-		self.outer.start()
-
-class BootInner(object):
-
+def boot_inner(agent_id, agent_type, agent_config):
 	"""
 	Initialize the `SimulationStub`, pass it to the `Inner` agent and launch the process.
 
@@ -59,19 +53,16 @@ class BootInner(object):
 	Outer agent.
 	"""
 
-	def __init__(self, agent_id, agent_type, agent_config):
-		self.agent_id = agent_id
-		self.outer_id = agent_config['outer_id']
-		self.simulation = SimulationStub()
-		self.inner = Inner(
-			self.agent_id,
-			self.outer_id,
-			agent_type,
-			agent_config,
-			self.simulation)
+	agent_id = agent_id
+	outer_id = agent_config['outer_id']
+	simulation = SimulationStub()
 
-	def start(self):
-		self.inner.start()
+	return Inner(
+		agent_id,
+		outer_id,
+		agent_type,
+		agent_config,
+		simulation)
 
 class EnvironmentControl(Agent):
 
@@ -267,15 +258,16 @@ class AgentCommand(object):
 		if not args.outer_id:
 			raise ValueError('--outer-id must be supplied for inner command')
 
-		BootInner(args.id, 'inner', {
+		inner = boot_inner(args.id, 'inner', {
 			'kafka_config': self.kafka_config,
 			'outer_id': args.outer_id})
+		inner.start()
 
 	def outer(self, args):
 		if not args.id:
 			raise ValueError('--id must be supplied for outer command')
 
-		outer = BootOuter(args.id, {'kafka_config': self.kafka_config})
+		outer = boot_outer(args.id, {'kafka_config': self.kafka_config})
 		outer.start()
 
 	def trigger(self, args):
@@ -295,13 +287,13 @@ class AgentCommand(object):
 			agent_config = dict(agent_config)
 			agent_config['kafka_config'] = self.kafka_config
 			agent_config['working_dir'] = args.working_dir
-			inner = BootInner(agent_id, agent_type, agent_config)
+			inner = boot_inner(agent_id, agent_type, agent_config)
 			inner.start()
 
 		def initialize_outer(agent_id, agent_type, agent_config):
 			agent_config = dict(agent_config)
 			agent_config['kafka_config'] = self.kafka_config
-			outer = BootOuter(agent_id, agent_type, agent_config)
+			outer = boot_outer(agent_id, agent_type, agent_config)
 			outer.start()
 
 		initializers['inner'] = initialize_inner
