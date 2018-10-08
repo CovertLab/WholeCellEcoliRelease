@@ -13,12 +13,15 @@ based on:
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
+from __future__ import absolute_import
+# from __future__ import division
+# from __future__ import print_function
 import numpy as np
 from scipy.ndimage import convolve
 
 import matplotlib
 
-ANIMATE = False
+ANIMATE = True
 SAVE_PLOT = True
 
 if ANIMATE:
@@ -40,7 +43,7 @@ diameter = 2 * radius
 bin_size = 0.05  # micrometers
 
 # time
-T = 10.0  # total time
+T = 50.0  # total time
 dt = .0001  # time step
 n = int(T / dt)  # number of iterations
 
@@ -50,9 +53,6 @@ n_plot = 20
 animate_step = n // n_animate
 plot_step = n // n_plot
 
-## constants
-PI = np.pi
-
 # get number of bins and bin size
 bins_x = int(length / bin_size)  # number of bins along x
 bins_y = int(diameter / bin_size)  # number of bins along y
@@ -60,18 +60,22 @@ bins_mem = bins_x + bins_y - 2  # membrane goes along x and wraps around to each
 dx = length / bins_x
 
 # make templates
-zero_cyto = np.zeros((bins_y, bins_x))
-zero_mem = np.zeros((bins_mem,))
 edges_template = np.pad(np.zeros((bins_y-2, bins_x-2)), (1,1), 'constant', constant_values=(1,1))
 
 # indices for the membrane, specifying contact sites along the body of the cylinder, and the caps.
-edge_length = bins_y/2 - 1
-body_indices = range(edge_length, edge_length + bins_x)
-cap1_indices = range(0, edge_length)
-cap2_indices = range(edge_length + bins_x, bins_mem)
+edge_length = bins_y/2 - 1 # TODO (Eran) -- get rid of this
+
+top_membrane = [(i,0) for i in range(1,bins_y/2)]
+top_membrane.extend([(0,i) for i in range(bins_x)])
+top_membrane.extend([(i,-1) for i in range(1,bins_y/2)])
+
+bottom_membrane = [(i,0) for i in range(bins_y/2,bins_y-1)]
+bottom_membrane.extend([(-1,i) for i in range(bins_x)])
+bottom_membrane.extend([(i,-1) for i in range(bins_y/2,bins_y-1)])
 
 # laplacian kernels for diffusion
-laplace_kernel_2D = np.array([[0.5, 1.0, 0.5], [1.0, -6., 1.0], [0.5, 1.0, 0.5]])
+laplace_kernel_2D = np.array([[0.0, 1.0, 0.0], [1.0, -4.0, 1.0], [0.0, 1.0, 0.0]])
+# laplace_kernel_2D = np.array([[0.5, 1.0, 0.5], [1.0, -6., 1.0], [0.5, 1.0, 0.5]])
 laplace_kernel_1D = np.array([1.0, -2.0, 1.0])
 
 # chemical parameters
@@ -84,8 +88,8 @@ k_de = 0.7  # sec**-1
 k_E = 0.093  # micrometer**3/sec
 
 ## Initialize molecular fields
-MinD_conc = 110 / (PI * radius ** 2)  # reported: 1000/micrometer
-MinE_conc = 100 / (PI * radius ** 2)  # reported: 350/micrometer
+MinD_conc = 110 / (np.pi * radius ** 2)  # reported: 1000/micrometer
+MinE_conc = 100 / (np.pi * radius ** 2)  # reported: 350/micrometer
 # cytoplasm
 DD_c = abs(np.random.normal(MinD_conc, 50, (bins_y, bins_x)))
 DT_c = abs(np.random.normal(MinD_conc, 50, (bins_y, bins_x)))
@@ -112,8 +116,9 @@ def show_patterns(DT_m, EDT_m, MinDD_c, MinDT_c, MinE_c, concentrations, time):
 	ax6.clear()
 
 	# plot
-	ax1.plot(DT_m.T)
-	ax2.plot(EDT_m.T)
+	ax1.plot(DT_m.T, 'b')
+	# ax1.plot(EDT_m.T, 'r')
+	ax2.plot(EDT_m.T, 'r')
 	ax1.axvline(x=edge_length, linestyle='--', linewidth=1, color='k')
 	ax1.axvline(x=edge_length + bins_x - 2, linestyle='--', linewidth=1, color='k')
 	ax2.axvline(x=edge_length, linestyle='--', linewidth=1, color='k')
@@ -144,56 +149,6 @@ def show_patterns(DT_m, EDT_m, MinDD_c, MinDT_c, MinE_c, concentrations, time):
 	fig.suptitle('t = ' + str(time) + ' (s)', fontsize=16)
 	plt.pause(0.00000001)
 
-def c_to_m(Z):
-	'''
-	Gives the 1D membrane contact with a given 2D cytoplasm. The membrane wraps from the midpoint of one cap to the
-	midpoint of the other cap. It wraps around the cytoplasm, so is in contact with both the top and the bottom of the
-	2D cytoplasmic field. The contact is the average concentration of the membrane at the points of contact.
-
-	Inputs:
-		- A cytoplasmic 2D field.
-
-	Returns:
-		- The membrane's 1D contact with the cytoplasmic field, using the average of both sides of the cytoplasm.
-	'''
-
-	contact = np.copy(zero_mem)
-	cap1 = Z[1:-1,0]
-	cap2 = Z[1:-1,-1]
-
-	# membrane contact along the cylinder's body and both caps
-	contact[body_indices] += (Z[0,:] + Z[-1,:])
-	contact[cap1_indices] += np.flipud(cap1[:edge_length]) + cap1[edge_length:]
-	contact[cap2_indices] += np.flipud(cap2[:edge_length]) + cap2[edge_length:]
-
-	return contact / 2
-
-def m_to_c(Z):
-	'''
-	Gives the DD cytoplasmic contact with a given 1D membrane. The membrane wraps from the midpoint of one cap to the
-	midpoint of the other cap. It wraps around the cytoplasm, so is in contact with both the top and the bottom of the
-	2D cytoplasmic field. The contact is the average concentration of the membrane at the points of contact.
-
-	Inputs:
-		- A membrane's 1D field.
-
-	Returns:
-		- The cytoplasm's contact with the membrane, given as a 2D array with zeros in the middle of the body.
-		Both the bottom and top of the cytoplasm are in contact with the same regions of the membrane.
-	'''
-	
-	contact = np.copy(zero_cyto)
-	body = Z[body_indices]
-	cap1 = np.concatenate((np.flipud(Z[cap1_indices]), Z[cap1_indices]))
-	cap2 = np.concatenate((np.flipud(Z[cap2_indices]), Z[cap2_indices]))
-
-	contact[0,:] += body
-	contact[-1,:] += body
-	contact[1:-1,0] += cap1
-	contact[1:-1,-1] += cap2
-
-	return contact
-
 
 # Simulate the PDEs with the finite difference method.
 for i in range(n):
@@ -206,26 +161,45 @@ for i in range(n):
 	EDT_m_0 = np.copy(EDT_m)
 
 	## Diffusion
-	d_DD_c = convolve(DD_c, laplace_kernel_2D, mode='reflect') // dx**2 * diffusion
-	d_DT_c = convolve(DT_c, laplace_kernel_2D, mode='reflect') // dx**2 * diffusion
-	d_E_c = convolve(E_c, laplace_kernel_2D, mode='reflect') // dx**2 * diffusion
-	d_ET_m = convolve(DT_m, laplace_kernel_1D, mode='reflect') // dx * diffusion #**0.5
-	d_EDT_m = convolve(EDT_m, laplace_kernel_1D, mode='reflect') // dx * diffusion #**0.5
+	d_DD_c = convolve(DD_c, laplace_kernel_2D, mode='reflect') / dx**2 * diffusion
+	d_DT_c = convolve(DT_c, laplace_kernel_2D, mode='reflect') / dx**2 * diffusion
+	d_E_c = convolve(E_c, laplace_kernel_2D, mode='reflect') / dx**2 * diffusion
+	d_ET_m = convolve(DT_m, laplace_kernel_1D, mode='reflect') / dx**2 * diffusion #**0.5
+	d_EDT_m = convolve(EDT_m, laplace_kernel_1D, mode='reflect') / dx**2 * diffusion #**0.5
 
+	## Get values at cytoplasm-membrane contact sites
+	# cytoplasm to membrane contacts
+	E_c_top = np.array([E_c_0[idx] for idx in top_membrane])
+	E_c_bottom = np.array([E_c_0[idx] for idx in bottom_membrane])
+	E_c_exchange = (E_c_top + E_c_bottom)/2
+
+	DT_c_top = np.array([DT_c_0[idx] for idx in top_membrane])
+	DT_c_bottom = np.array([DT_c_0[idx] for idx in bottom_membrane])
+	DT_c_exchange = (DT_c_top + DT_c_bottom)/2
+
+	# membrane to cytoplasm contacts
+	DT_m_exchange = np.zeros((bins_y, bins_x))
+	for mem_idx, cyto_idx in enumerate(top_membrane):
+		DT_m_exchange[cyto_idx] = DT_m_0[mem_idx]
+	for mem_idx, cyto_idx in enumerate(bottom_membrane):
+		DT_m_exchange[cyto_idx] = DT_m_0[mem_idx]
+
+	EDT_m_exchange = np.zeros((bins_y, bins_x))
+	for mem_idx, cyto_idx in enumerate(top_membrane):
+		EDT_m_exchange[cyto_idx] = EDT_m_0[mem_idx]
+	for mem_idx, cyto_idx in enumerate(bottom_membrane):
+		EDT_m_exchange[cyto_idx] = EDT_m_0[mem_idx]
 
 	## Calculate reaction rates
 	# get rates for cytoplasm
-	m_to_c_DT_m_0 = m_to_c(DT_m_0)
-	m_to_c_EDT_m_0 = m_to_c(EDT_m_0)
-
-	rxn_1_c = (k_D + k_dD * (m_to_c_DT_m_0 + m_to_c_EDT_m_0)) * edges_template * DT_c_0
-	rxn_2_c = k_E * m_to_c_DT_m_0 * E_c_0
-	rxn_3_c = k_de * m_to_c_EDT_m_0
+	rxn_1_c = (k_D + k_dD * (DT_m_exchange + EDT_m_exchange)) * edges_template * DT_c_0
+	rxn_2_c = k_E * DT_m_exchange * E_c_0
+	rxn_3_c = k_de * EDT_m_exchange
 	rxn_4_c = k_ADP_ATP * DD_c_0
 
 	# get rates for membrane
-	rxn_1_m = (k_D + k_dD * (DT_m_0 + EDT_m_0)) * c_to_m(DT_c_0)
-	rxn_2_m = k_E * DT_m_0 * c_to_m(E_c_0)
+	rxn_1_m = (k_D + k_dD * (DT_m_0 + EDT_m_0)) * DT_c_exchange
+	rxn_2_m = k_E * DT_m_0 * E_c_exchange
 	rxn_3_m = k_de * EDT_m_0
 
 	## Update the variables
