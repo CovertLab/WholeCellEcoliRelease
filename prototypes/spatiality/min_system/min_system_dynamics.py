@@ -5,10 +5,6 @@ The cytoplasm is modeled as a 2-dimensional field that contains three types of m
 The membrane is a 1-dimensional field that wraps from the midpoint of one cap to the midpoint of the other cap. It
 contains MinD-ATP and MinE-MinD-ATP.
 
-based on:
-	Huang, K.C., Meir, Y., & Wingreen, N.S. (2003).
-	Dynamic structures in Escherichia coli: spontaneous formation of MinE rings and MinD polar zones.
-	Proceedings of the National Academy of Sciences, 100(22), 12724-12728.
 
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
@@ -23,6 +19,7 @@ import matplotlib
 
 ANIMATE = True
 SAVE_PLOT = True
+INIT_IN_HALF = True
 
 if ANIMATE:
 	matplotlib.use('TKAgg')
@@ -31,11 +28,11 @@ import matplotlib.pyplot as plt
 
 if ANIMATE:
 	plt.ion()
-	fig, (ax1, ax2, ax3, ax4, ax5, ax6, ax7) = plt.subplots(7, 1)
+	fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 1)
 
 ## Simulation parameters
 # cell size
-length = 10.0  # micrometers
+length = 4.0  # micrometers
 radius = 0.5  # micrometers
 diameter = 2 * radius
 
@@ -43,7 +40,7 @@ diameter = 2 * radius
 bin_size = 0.05  # micrometers
 
 # time
-T = 150.0  # total time
+T = 50.0  # total time
 dt = .0001  # time step
 n = int(T / dt)  # number of iterations
 
@@ -60,18 +57,19 @@ bins_mem = bins_x + bins_y - 2  # membrane goes along x and wraps around to each
 dx = length / bins_x
 
 # make templates
-edges_template = np.pad(np.zeros((bins_y-2, bins_x-2)), (1,1), 'constant', constant_values=(1,1))
+edges_template = np.pad(np.zeros((bins_y-2, bins_x-2)), (1, 1), 'constant', constant_values=(1, 1))
 
 # indices for the membrane, specifying contact sites along the body of the cylinder, and the caps.
-edge_length = bins_y/2 - 1 # TODO (Eran) -- get rid of this
+cap_pos1 = bins_y/2 - 1 # TODO (Eran) -- get rid of this
+cap_pos2 = bins_y/2 + bins_x - 2
 
-top_membrane = [(i,0) for i in range(1,bins_y/2)]
-top_membrane.extend([(0,i) for i in range(bins_x)])
-top_membrane.extend([(i,-1) for i in range(1,bins_y/2)])
+top_membrane = [(i, 0) for i in range(1, bins_y/2)]
+top_membrane.extend([(0, i) for i in range(bins_x)])
+top_membrane.extend([(i, -1) for i in range(1, bins_y/2)])
 
-bottom_membrane = [(i,0) for i in range(bins_y/2,bins_y-1)]
-bottom_membrane.extend([(-1,i) for i in range(bins_x)])
-bottom_membrane.extend([(i,-1) for i in range(bins_y/2,bins_y-1)])
+bottom_membrane = [(i, 0) for i in range(bins_y/2, bins_y-1)]
+bottom_membrane.extend([(-1, i) for i in range(bins_x)])
+bottom_membrane.extend([(i, -1) for i in range(bins_y/2, bins_y-1)])
 
 # laplacian kernels for diffusion
 laplace_kernel_2D = np.array([[0.0, 1.0, 0.0], [1.0, -4.0, 1.0], [0.0, 1.0, 0.0]])
@@ -84,8 +82,8 @@ diffusion = 2.5  # micrometer**2/sec
 k_ADP_ATP = 1  # sec**-1
 k_D = 0.025  # micrometer/sec
 k_dD = 0.0015  # micrometer**3/sec
-k_de = 0.7  # sec**-1
-k_E = 0.093  # micrometer**3/sec
+k_de = 0.7*2  # sec**-1 # the 2x factor helps counteract the volumetric differences between the surface area of a cylinder and SA of a rectangle
+k_E = 0.093*2  # micrometer**3/sec
 
 ## Initialize molecular fields
 MinD_conc = 1000 / (np.pi * radius ** 2)  # reported: 1000/micrometer
@@ -95,11 +93,12 @@ DD_c = np.random.normal(MinD_conc, 1, (bins_y, bins_x))
 DT_c = np.random.normal(MinD_conc, 1, (bins_y, bins_x))
 E_c = np.random.normal(MinE_conc, 1, (bins_y, bins_x))
 
-# # put all MinD in one half to speed up time to oscillations
-# DD_c[:, 0:bins_x/2] = DD_c[:, 0:bins_x/2]*2
-# DD_c[:, bins_x/2:bins_x] = DD_c[:, bins_x/2:bins_x]*0.0001
-# DT_c[:, 0:bins_x/2] = DT_c[:, 0:bins_x/2]*2
-# DT_c[:, bins_x/2:bins_x] = DT_c[:, bins_x/2:bins_x]*0.0001
+if INIT_IN_HALF:
+	# put all MinD in one half of the cytoplasm to speed up time to oscillations
+	DD_c[:, 0:bins_x/2] = DD_c[:, 0:bins_x/2]*2
+	DD_c[:, bins_x/2:bins_x] = DD_c[:, bins_x/2:bins_x]*0.0
+	DT_c[:, 0:bins_x/2] = DT_c[:, 0:bins_x/2]*2
+	DT_c[:, bins_x/2:bins_x] = DT_c[:, bins_x/2:bins_x]*0.0
 
 # membrane
 DT_m = np.random.normal(MinD_conc, 1, (bins_mem,))
@@ -114,31 +113,22 @@ E_c_out = np.empty((bins_y, bins_x, n_plot))
 DT_m_out = np.empty((bins_mem, n_plot))
 EDT_m_out = np.empty((bins_mem, n_plot))
 
-save_concentrations = np.zeros((5,n_animate))
 
-def show_patterns(DT_m, EDT_m, MinDD_c, MinDT_c, MinE_c, concentrations, time, rxn_1_m, rxn_2_m, rxn_3_m):
+def show_patterns(DT_m, EDT_m, MinDD_c, MinDT_c, MinE_c, time):
 	# clear non-imshow plots
 	ax1.clear()
 	ax2.clear()
-	ax6.clear()
-	ax7.clear()
 
 	# plot
 	ax1.plot(DT_m.T, 'b')
-	# ax1.plot(EDT_m.T, 'r')
 	ax2.plot(EDT_m.T, 'r')
-	ax1.axvline(x=edge_length, linestyle='--', linewidth=1, color='k')
-	ax1.axvline(x=edge_length + bins_x, linestyle='--', linewidth=1, color='k')
-	ax2.axvline(x=edge_length, linestyle='--', linewidth=1, color='k')
-	ax2.axvline(x=edge_length + bins_x, linestyle='--', linewidth=1, color='k')
+	ax1.axvline(x=cap_pos1, linestyle='--', linewidth=1, color='k')
+	ax1.axvline(x=cap_pos2, linestyle='--', linewidth=1, color='k')
+	ax2.axvline(x=cap_pos1, linestyle='--', linewidth=1, color='k')
+	ax2.axvline(x=cap_pos2, linestyle='--', linewidth=1, color='k')
 	ax3.imshow(MinDD_c, cmap='YlGnBu', aspect="auto")
 	ax4.imshow(MinDT_c, cmap='YlGnBu', aspect="auto")
 	ax5.imshow(MinE_c, cmap='YlOrRd', aspect="auto")
-	ax6.plot(concentrations.T)
-
-	ax7.plot(rxn_1_m, 'g')
-	ax7.plot(rxn_2_m, 'r')
-	ax7.plot(rxn_3_m, 'k')
 
 	# turn off axes
 	ax1.xaxis.set_visible(False)
@@ -155,7 +145,6 @@ def show_patterns(DT_m, EDT_m, MinDD_c, MinDT_c, MinE_c, concentrations, time, r
 	ax3.set_title('[MinD:ADP] cytoplasm')
 	ax4.set_title('[MinD:ATP] cytoplasm')
 	ax5.set_title('[MinE] cytoplasm')
-	ax6.set_title('avg concentrations')
 
 	plt.subplots_adjust(hspace=0.9)
 	fig.suptitle('t = ' + str(time) + ' (s)', fontsize=16)
@@ -183,11 +172,11 @@ for i in range(n):
 	# cytoplasm to membrane contacts
 	E_c_top = np.array([E_c_0[idx] for idx in top_membrane])
 	E_c_bottom = np.array([E_c_0[idx] for idx in bottom_membrane])
-	exchange_E_c = (E_c_top + E_c_bottom)/2
+	exchange_E_c = (E_c_top + E_c_bottom) / 2
 
 	DT_c_top = np.array([DT_c_0[idx] for idx in top_membrane])
 	DT_c_bottom = np.array([DT_c_0[idx] for idx in bottom_membrane])
-	DT_c_exchange = (DT_c_top + DT_c_bottom)/2
+	DT_c_exchange = (DT_c_top + DT_c_bottom) / 2
 
 	# membrane to cytoplasm contacts
 	exchange_DT_m = np.zeros((bins_y, bins_x))
@@ -222,6 +211,7 @@ for i in range(n):
 	EDT_m = EDT_m_0 + (-rxn_3_m + rxn_2_m) * dt
 
 	# ## Disallow negatives
+	# TODO (Eran) throw an exception if negative
 	# DD_c[DD_c < 0] = 0.0
 	# DT_c[DT_c < 0] = 0.0
 	# E_c[E_c < 0] = 0.0
@@ -237,8 +227,7 @@ for i in range(n):
 		mean_DT_m = np.mean(DT_m)
 		mean_EDT_m = np.mean(EDT_m)
 
-		save_concentrations[:,i/animate_step] = [mean_DD_c,mean_DT_c,mean_E_c,mean_DT_m,mean_EDT_m]
-		show_patterns(DT_m, EDT_m, DD_c, DT_c, E_c, save_concentrations, i * dt, rxn_1_m, rxn_2_m, rxn_3_m)
+		show_patterns(DT_m, EDT_m, DD_c, DT_c, E_c, i * dt)
 
 
 	if SAVE_PLOT and i % plot_step == 0 and i < n_plot * plot_step:
@@ -258,16 +247,16 @@ if SAVE_PLOT:
 	for slice in xrange(n_plot):
 		axes[slice, 0].text(0.5, 0.5, str(slice*plot_step*dt)+'s')
 
-		axes[slice, 1].imshow(DT_c_out[:,:,slice], cmap='YlGnBu', aspect="auto")
+		axes[slice, 1].imshow(DT_c_out[:, :, slice], cmap='YlGnBu', aspect="auto")
 		axes[slice, 2].imshow(DD_c_out[:, :, slice], cmap='YlGnBu', aspect="auto")
-		axes[slice, 3].imshow(E_c_out[:,:,slice], cmap='YlOrRd', aspect="auto")
-		axes[slice, 4].plot(DT_m_out[:,slice].T)
-		axes[slice, 5].plot(EDT_m_out[:,slice].T)
+		axes[slice, 3].imshow(E_c_out[:, :, slice], cmap='YlOrRd', aspect="auto")
+		axes[slice, 4].plot(DT_m_out[:, slice].T)
+		axes[slice, 5].plot(EDT_m_out[:, slice].T)
 
-		axes[slice, 4].axvline(x=edge_length, linestyle='--', linewidth=1, color='k')
-		axes[slice, 4].axvline(x=edge_length+bins_x, linestyle='--', linewidth=1, color='k')
-		axes[slice, 5].axvline(x=edge_length, linestyle='--', linewidth=1, color='k')
-		axes[slice, 5].axvline(x=edge_length+bins_x, linestyle='--', linewidth=1, color='k')
+		axes[slice, 4].axvline(x=cap_pos1, linestyle='--', linewidth=1, color='k')
+		axes[slice, 4].axvline(x=cap_pos2, linestyle='--', linewidth=1, color='k')
+		axes[slice, 5].axvline(x=cap_pos1, linestyle='--', linewidth=1, color='k')
+		axes[slice, 5].axvline(x=cap_pos2, linestyle='--', linewidth=1, color='k')
 
 		axes[slice, 0].axis('off')
 		axes[slice, 1].set_xticks([])
@@ -287,4 +276,4 @@ if SAVE_PLOT:
 	axes[0, 4].set_title('[MinD:ATP] membrane', fontsize=6)
 	axes[0, 5].set_title('[MinE:MinD:ATP] membrane', fontsize=6)
 	plt.subplots_adjust(hspace=0.5)
-	plt.savefig('prototypes/spatiality/minD_minE/out/min_dynamics.pdf', bbox_inches='tight')
+	plt.savefig('prototypes/spatiality/min_system/out/min_dynamics.pdf', bbox_inches='tight')
