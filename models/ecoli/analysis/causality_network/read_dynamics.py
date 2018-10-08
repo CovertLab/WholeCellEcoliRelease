@@ -127,6 +127,10 @@ def read_global_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	"""
 	cell_mass = columns[("Mass", "cellMass")]
 
+	# Reset IDs of global nodes to "global" in dynamics files
+	# (Requested by Fathom)
+	node.node_id = "global"
+
 	if node_id == "cell_mass":
 		dynamics = {
 			"mass": cell_mass,
