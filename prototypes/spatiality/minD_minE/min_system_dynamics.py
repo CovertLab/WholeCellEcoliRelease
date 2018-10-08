@@ -31,11 +31,11 @@ import matplotlib.pyplot as plt
 
 if ANIMATE:
 	plt.ion()
-	fig, (ax1, ax2, ax3, ax4, ax5, ax6) = plt.subplots(6, 1)
+	fig, (ax1, ax2, ax3, ax4, ax5, ax6, ax7) = plt.subplots(7, 1)
 
 ## Simulation parameters
 # cell size
-length = 4.0  # micrometers
+length = 10.0  # micrometers
 radius = 0.5  # micrometers
 diameter = 2 * radius
 
@@ -43,13 +43,13 @@ diameter = 2 * radius
 bin_size = 0.05  # micrometers
 
 # time
-T = 50.0  # total time
+T = 150.0  # total time
 dt = .0001  # time step
 n = int(T / dt)  # number of iterations
 
 ## Animation parameters
 n_animate = 50
-n_plot = 20
+n_plot = 30
 animate_step = n // n_animate
 plot_step = n // n_plot
 
@@ -88,15 +88,22 @@ k_de = 0.7  # sec**-1
 k_E = 0.093  # micrometer**3/sec
 
 ## Initialize molecular fields
-MinD_conc = 110 / (np.pi * radius ** 2)  # reported: 1000/micrometer
-MinE_conc = 100 / (np.pi * radius ** 2)  # reported: 350/micrometer
+MinD_conc = 1000 / (np.pi * radius ** 2)  # reported: 1000/micrometer
+MinE_conc = 350 / (np.pi * radius ** 2)  # reported: 350/micrometer
 # cytoplasm
-DD_c = abs(np.random.normal(MinD_conc, 50, (bins_y, bins_x)))
-DT_c = abs(np.random.normal(MinD_conc, 50, (bins_y, bins_x)))
-E_c = abs(np.random.normal(MinE_conc, 50, (bins_y, bins_x)))
+DD_c = np.random.normal(MinD_conc, 1, (bins_y, bins_x))
+DT_c = np.random.normal(MinD_conc, 1, (bins_y, bins_x))
+E_c = np.random.normal(MinE_conc, 1, (bins_y, bins_x))
+
+# # put all MinD in one half to speed up time to oscillations
+# DD_c[:, 0:bins_x/2] = DD_c[:, 0:bins_x/2]*2
+# DD_c[:, bins_x/2:bins_x] = DD_c[:, bins_x/2:bins_x]*0.0001
+# DT_c[:, 0:bins_x/2] = DT_c[:, 0:bins_x/2]*2
+# DT_c[:, bins_x/2:bins_x] = DT_c[:, bins_x/2:bins_x]*0.0001
+
 # membrane
-DT_m = abs(np.random.normal(0, 50, (bins_mem,)))
-EDT_m = abs(np.random.normal(0, 50, (bins_mem,)))
+DT_m = np.random.normal(MinD_conc, 1, (bins_mem,))
+EDT_m = np.random.normal(MinE_conc, 1, (bins_mem,))
 
 ## Initialize arrays for plotting
 # cytoplasm
@@ -109,24 +116,29 @@ EDT_m_out = np.empty((bins_mem, n_plot))
 
 save_concentrations = np.zeros((5,n_animate))
 
-def show_patterns(DT_m, EDT_m, MinDD_c, MinDT_c, MinE_c, concentrations, time):
+def show_patterns(DT_m, EDT_m, MinDD_c, MinDT_c, MinE_c, concentrations, time, rxn_1_m, rxn_2_m, rxn_3_m):
 	# clear non-imshow plots
 	ax1.clear()
 	ax2.clear()
 	ax6.clear()
+	ax7.clear()
 
 	# plot
 	ax1.plot(DT_m.T, 'b')
 	# ax1.plot(EDT_m.T, 'r')
 	ax2.plot(EDT_m.T, 'r')
 	ax1.axvline(x=edge_length, linestyle='--', linewidth=1, color='k')
-	ax1.axvline(x=edge_length + bins_x - 2, linestyle='--', linewidth=1, color='k')
+	ax1.axvline(x=edge_length + bins_x, linestyle='--', linewidth=1, color='k')
 	ax2.axvline(x=edge_length, linestyle='--', linewidth=1, color='k')
-	ax2.axvline(x=edge_length + bins_x - 2, linestyle='--', linewidth=1, color='k')
+	ax2.axvline(x=edge_length + bins_x, linestyle='--', linewidth=1, color='k')
 	ax3.imshow(MinDD_c, cmap='YlGnBu', aspect="auto")
 	ax4.imshow(MinDT_c, cmap='YlGnBu', aspect="auto")
 	ax5.imshow(MinE_c, cmap='YlOrRd', aspect="auto")
 	ax6.plot(concentrations.T)
+
+	ax7.plot(rxn_1_m, 'g')
+	ax7.plot(rxn_2_m, 'r')
+	ax7.plot(rxn_3_m, 'k')
 
 	# turn off axes
 	ax1.xaxis.set_visible(False)
@@ -161,68 +173,63 @@ for i in range(n):
 	EDT_m_0 = np.copy(EDT_m)
 
 	## Diffusion
-	d_DD_c = convolve(DD_c, laplace_kernel_2D, mode='reflect') / dx**2 * diffusion
-	d_DT_c = convolve(DT_c, laplace_kernel_2D, mode='reflect') / dx**2 * diffusion
-	d_E_c = convolve(E_c, laplace_kernel_2D, mode='reflect') / dx**2 * diffusion
-	d_ET_m = convolve(DT_m, laplace_kernel_1D, mode='reflect') / dx**2 * diffusion #**0.5
-	d_EDT_m = convolve(EDT_m, laplace_kernel_1D, mode='reflect') / dx**2 * diffusion #**0.5
+	diffusion_DD_c = convolve(DD_c, laplace_kernel_2D, mode='reflect') / dx**2 * diffusion
+	diffusion_DT_c = convolve(DT_c, laplace_kernel_2D, mode='reflect') / dx**2 * diffusion
+	diffusion_E_c = convolve(E_c, laplace_kernel_2D, mode='reflect') / dx**2 * diffusion
+	# diffusion_ET_m = convolve(DT_m, laplace_kernel_1D, mode='reflect') / dx * diffusion
+	# diffusion_EDT_m = convolve(EDT_m, laplace_kernel_1D, mode='reflect') / dx * diffusion
 
 	## Get values at cytoplasm-membrane contact sites
 	# cytoplasm to membrane contacts
 	E_c_top = np.array([E_c_0[idx] for idx in top_membrane])
 	E_c_bottom = np.array([E_c_0[idx] for idx in bottom_membrane])
-	E_c_exchange = (E_c_top + E_c_bottom)/2
+	exchange_E_c = (E_c_top + E_c_bottom)/2
 
 	DT_c_top = np.array([DT_c_0[idx] for idx in top_membrane])
 	DT_c_bottom = np.array([DT_c_0[idx] for idx in bottom_membrane])
 	DT_c_exchange = (DT_c_top + DT_c_bottom)/2
 
 	# membrane to cytoplasm contacts
-	DT_m_exchange = np.zeros((bins_y, bins_x))
+	exchange_DT_m = np.zeros((bins_y, bins_x))
 	for mem_idx, cyto_idx in enumerate(top_membrane):
-		DT_m_exchange[cyto_idx] = DT_m_0[mem_idx]
+		exchange_DT_m[cyto_idx] = DT_m_0[mem_idx]
 	for mem_idx, cyto_idx in enumerate(bottom_membrane):
-		DT_m_exchange[cyto_idx] = DT_m_0[mem_idx]
+		exchange_DT_m[cyto_idx] = DT_m_0[mem_idx]
 
-	EDT_m_exchange = np.zeros((bins_y, bins_x))
+	exchange_EDT_m = np.zeros((bins_y, bins_x))
 	for mem_idx, cyto_idx in enumerate(top_membrane):
-		EDT_m_exchange[cyto_idx] = EDT_m_0[mem_idx]
+		exchange_EDT_m[cyto_idx] = EDT_m_0[mem_idx]
 	for mem_idx, cyto_idx in enumerate(bottom_membrane):
-		EDT_m_exchange[cyto_idx] = EDT_m_0[mem_idx]
+		exchange_EDT_m[cyto_idx] = EDT_m_0[mem_idx]
 
 	## Calculate reaction rates
 	# get rates for cytoplasm
-	rxn_1_c = (k_D + k_dD * (DT_m_exchange + EDT_m_exchange)) * edges_template * DT_c_0
-	rxn_2_c = k_E * DT_m_exchange * E_c_0
-	rxn_3_c = k_de * EDT_m_exchange
+	rxn_1_c = (k_D + k_dD * (exchange_DT_m + exchange_EDT_m)) * edges_template * DT_c_0
+	rxn_2_c = k_E * exchange_DT_m * E_c_0
+	rxn_3_c = k_de * exchange_EDT_m
 	rxn_4_c = k_ADP_ATP * DD_c_0
 
 	# get rates for membrane
 	rxn_1_m = (k_D + k_dD * (DT_m_0 + EDT_m_0)) * DT_c_exchange
-	rxn_2_m = k_E * DT_m_0 * E_c_exchange
+	rxn_2_m = k_E * DT_m_0 * exchange_E_c
 	rxn_3_m = k_de * EDT_m_0
 
 	## Update the variables
-	DD_c = DD_c_0 + (d_DD_c - rxn_4_c + rxn_3_c) * dt
-	DT_c = DT_c_0 + (d_DT_c + rxn_4_c - rxn_1_c) * dt
-	E_c = E_c_0 + (d_E_c + rxn_3_c - rxn_2_c) * dt
-	DT_m = DT_m_0 + (d_ET_m - rxn_2_m + rxn_1_m) * dt
-	EDT_m = EDT_m_0 + (d_EDT_m - rxn_3_m + rxn_2_m) * dt
+	DD_c = DD_c_0 + (diffusion_DD_c - rxn_4_c + rxn_3_c) * dt
+	DT_c = DT_c_0 + (diffusion_DT_c + rxn_4_c - rxn_1_c) * dt
+	E_c = E_c_0 + (diffusion_E_c + rxn_3_c - rxn_2_c) * dt
+	DT_m = DT_m_0 + (-rxn_2_m + rxn_1_m) * dt
+	EDT_m = EDT_m_0 + (-rxn_3_m + rxn_2_m) * dt
 
-	## Disallow negatives
-	DD_c[DD_c < 0] = 0.0
-	DT_c[DT_c < 0] = 0.0
-	E_c[E_c < 0] = 0.0
-	DT_m[DT_m < 0] = 0.0
-	EDT_m[EDT_m < 0] = 0.0
+	# ## Disallow negatives
+	# DD_c[DD_c < 0] = 0.0
+	# DT_c[DT_c < 0] = 0.0
+	# E_c[E_c < 0] = 0.0
+	# DT_m[DT_m < 0] = 0.0
+	# EDT_m[EDT_m < 0] = 0.0
 
 	# Plot the state of the system.
 	if ANIMATE and i % animate_step == 0 and i < n_animate * animate_step:
-		# check reaction balance
-		diff_rxn_1 = np.sum(rxn_1_c) - 2 * np.sum(rxn_1_m)
-		diff_rxn_2 = np.sum(rxn_2_c) - 2 * np.sum(rxn_2_m)
-		diff_rxn_3 = np.sum(rxn_3_c) - 2 * np.sum(rxn_3_m)
-
 		# mean concentrations
 		mean_DD_c = np.mean(DD_c)
 		mean_DT_c = np.mean(DT_c)
@@ -230,10 +237,8 @@ for i in range(n):
 		mean_DT_m = np.mean(DT_m)
 		mean_EDT_m = np.mean(EDT_m)
 
-		print "diff_rxn_1 = {:.2f} | diff_rxn_2 = {:.2f} | diff_rxn_3 = {:.2f}".format(diff_rxn_1,diff_rxn_2,diff_rxn_3)
-
 		save_concentrations[:,i/animate_step] = [mean_DD_c,mean_DT_c,mean_E_c,mean_DT_m,mean_EDT_m]
-		show_patterns(DT_m, EDT_m, DD_c, DT_c, E_c, save_concentrations, i * dt)
+		show_patterns(DT_m, EDT_m, DD_c, DT_c, E_c, save_concentrations, i * dt, rxn_1_m, rxn_2_m, rxn_3_m)
 
 
 	if SAVE_PLOT and i % plot_step == 0 and i < n_plot * plot_step:
@@ -260,9 +265,9 @@ if SAVE_PLOT:
 		axes[slice, 5].plot(EDT_m_out[:,slice].T)
 
 		axes[slice, 4].axvline(x=edge_length, linestyle='--', linewidth=1, color='k')
-		axes[slice, 4].axvline(x=edge_length+bins_x-2, linestyle='--', linewidth=1, color='k')
+		axes[slice, 4].axvline(x=edge_length+bins_x, linestyle='--', linewidth=1, color='k')
 		axes[slice, 5].axvline(x=edge_length, linestyle='--', linewidth=1, color='k')
-		axes[slice, 5].axvline(x=edge_length+bins_x-2, linestyle='--', linewidth=1, color='k')
+		axes[slice, 5].axvline(x=edge_length+bins_x, linestyle='--', linewidth=1, color='k')
 
 		axes[slice, 0].axis('off')
 		axes[slice, 1].set_xticks([])
