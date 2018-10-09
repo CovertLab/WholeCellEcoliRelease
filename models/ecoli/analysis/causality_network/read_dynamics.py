@@ -23,7 +23,7 @@ from models.ecoli.analysis.causality_network.network_components import (
 
 REQUIRED_COLUMNS = [
 	("BulkMolecules", "counts"),
-	("ComplexationListener", "reactionRates"),
+	("ComplexationListener", "complexationEvents"),
 	("EquilibriumListener", "reactionRates"),
 	("FBAResults", "reactionFluxes"),
 	("Mass", "cellMass"),
@@ -279,10 +279,10 @@ def read_complexation_dynamics(sim_data, node, node_id, columns, indexes, volume
 	reaction_idx = indexes["ComplexationReactions"][node_id]
 
 	dynamics = {
-		'reaction rate': columns[("ComplexationListener", "reactionRates")][:, reaction_idx],
+		'complexation events': columns[("ComplexationListener", "complexationEvents")][:, reaction_idx],
 		}
 	dynamics_units = {
-		'reaction rate': 'rxns/s',
+		'complexation events': 'N',
 		}
 
 	node.read_dynamics(dynamics, dynamics_units)

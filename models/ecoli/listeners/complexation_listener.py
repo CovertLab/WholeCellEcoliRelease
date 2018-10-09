@@ -36,7 +36,7 @@ class ComplexationListener(wholecell.listeners.listener.Listener):
 	def allocate(self):
 		super(ComplexationListener, self).allocate()
 
-		self.reactionRates = np.zeros(len(self.reactionIDs), np.float64)
+		self.complexationEvents = np.zeros(len(self.reactionIDs), np.float64)
 
 
 	def tableCreate(self, tableWriter):
@@ -50,5 +50,5 @@ class ComplexationListener(wholecell.listeners.listener.Listener):
 		tableWriter.append(
 			time = self.time(),
 			simulationStep = self.simulationStep(),
-			reactionRates = self.reactionRates,
+			complexationEvents = self.complexationEvents,
 			)

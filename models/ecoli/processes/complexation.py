@@ -54,7 +54,7 @@ class Complexation(wholecell.processes.process.Process):
 		moleculeCounts = self.molecules.total()
 
 		# Macromolecule complexes are requested
-		updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
+		updatedMoleculeCounts, complexationEvents = mccFormComplexesWithPrebuiltMatrices(
 			moleculeCounts,
 			self.randomState.randint(RAND_MAX),
 			self.stoichMatrix,
@@ -68,7 +68,7 @@ class Complexation(wholecell.processes.process.Process):
 		moleculeCounts = self.molecules.counts()
 
 		# Macromolecule complexes are formed from their subunits
-		updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
+		updatedMoleculeCounts, complexationEvents = mccFormComplexesWithPrebuiltMatrices(
 			moleculeCounts,
 			self.randomState.randint(RAND_MAX),
 			self.stoichMatrix,
@@ -78,6 +78,4 @@ class Complexation(wholecell.processes.process.Process):
 		self.molecules.countsIs(updatedMoleculeCounts)
 
 		# Write outputs to listeners
-		self.writeToListener("ComplexationListener", "reactionRates", (
-			(moleculeCounts[self.product_indices] - updatedMoleculeCounts[self.product_indices]) / self.timeStepSec()
-			))
+		self.writeToListener("ComplexationListener", "complexationEvents", complexationEvents)
