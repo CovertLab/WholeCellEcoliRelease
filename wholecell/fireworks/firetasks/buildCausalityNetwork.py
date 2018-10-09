@@ -28,11 +28,10 @@ class BuildCausalityNetworkTask(FireTaskBase):
 		]
 	optional_params = [
 		"output_filename_prefix",
-		"check_sanity"
+		"check_sanity",
 		]
 
-	MODULE_PATH = 'models.ecoli.analysis.causality_network'
-	READER_FILE = models.ecoli.analysis.causality_network.READER
+	READER_FILE_PATH = 'models.ecoli.analysis.causality_network.read_dynamics'
 
 	def plotter_args(self):
 		return (
@@ -64,8 +63,7 @@ class BuildCausalityNetworkTask(FireTaskBase):
 
 		self['output_filename_prefix'] = self.get('output_filename_prefix', '')
 
-		mod = importlib.import_module(
-			self.MODULE_PATH + "." + self.READER_FILE)
+		mod = importlib.import_module(self.READER_FILE_PATH)
 		args = self.plotter_args()
 
 		print("{}: Reading simulation results for causality network"

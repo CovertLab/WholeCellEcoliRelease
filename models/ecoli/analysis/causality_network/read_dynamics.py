@@ -6,8 +6,7 @@ simulation.
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/26/2018
 """
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import cPickle
 import numpy as np
@@ -18,7 +17,9 @@ from wholecell.io.tablereader import TableReader
 from wholecell.utils import filepath
 from wholecell.utils import units
 
-from models.ecoli.analysis.causality_network.network_components import Node
+from models.ecoli.analysis.causality_network.network_components import (
+	Node, DYNAMICS_HEADER
+	)
 
 REQUIRED_COLUMNS = [
 	("BulkMolecules", "counts"),
@@ -83,7 +84,10 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 
 		# Import attributes of each node from existing node list file
 		with open(nodeListFile, 'r') as node_file, open(os.path.join(plotOutDir, dynamicsFileName), 'w') as dynamics_file:
-			next(node_file)  # Skip header
+			next(node_file)  # Skip header of node list
+
+			# Add header and time row for dynamics file
+			dynamics_file.write(DYNAMICS_HEADER + "\n")
 			add_time_row(columns, dynamics_file)
 
 			for line in node_file:
@@ -104,17 +108,17 @@ def add_time_row(columns, dynamics_file):
 	attr = {
 		'node_class': 'time',
 		'node_type': 'time',
-		'node_id': 'time'
+		'node_id': 'time',
 		}
 	time_node.read_attributes(**attr)
 
 	time = columns[("Main", "time")]
 
 	dynamics = {
-		'time': time
+		'time': time,
 		}
 	dynamics_units = {
-		'time': 's'
+		'time': 's',
 		}
 
 	time_node.read_dynamics(dynamics, dynamics_units)
@@ -143,10 +147,10 @@ def read_global_dynamics(sim_data, node, node_id, columns, indexes, volume):
 		cell_volume = ((1.0 / sim_data.constants.cellDensity) * (
 					units.fg * cell_mass)).asNumber(units.L)
 		dynamics = {
-			'volume': cell_volume
+			'volume': cell_volume,
 			}
 		dynamics_units = {
-			'volume': 'L'
+			'volume': 'L',
 			}
 
 	else:
@@ -165,11 +169,11 @@ def read_gene_dynamics(sim_data, node, node_id, columns, indexes, volume):
 
 	dynamics = {
 		"transcription probability": columns[("RnaSynthProb", "rnaSynthProb")][:, gene_index],
-		"gene copy number": columns[("BulkMolecules", "counts")][:, copy_number_index]
+		"gene copy number": columns[("BulkMolecules", "counts")][:, copy_number_index],
 		}
 	dynamics_units = {
 		"transcription probability": "p",
-		"gene copy number": "N"
+		"gene copy number": "N",
 		}
 
 	node.read_dynamics(dynamics, dynamics_units)
@@ -182,10 +186,10 @@ def read_rna_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	rna_index = indexes["Rnas"][node_id]
 
 	dynamics = {
-		"counts": columns[("BulkMolecules", "counts")][:, rna_index]
+		"counts": columns[("BulkMolecules", "counts")][:, rna_index],
 		}
 	dynamics_units = {
-		"counts": "N"
+		"counts": "N",
 		}
 
 	node.read_dynamics(dynamics, dynamics_units)
@@ -201,11 +205,11 @@ def read_protein_dynamics(sim_data, node, node_id, columns, indexes, volume):
 
 	dynamics = {
 		'counts': counts,
-		'concentration': concentration
+		'concentration': concentration,
 		}
 	dynamics_units = {
 		'counts': 'N',
-		'concentration': 'mmol/L'
+		'concentration': 'mmol/L',
 		}
 
 	node.read_dynamics(dynamics, dynamics_units)
@@ -224,11 +228,11 @@ def read_metabolite_dynamics(sim_data, node, node_id, columns, indexes, volume):
 
 	dynamics = {
 		'counts': counts,
-		'concentration': concentration
+		'concentration': concentration,
 		}
 	dynamics_units = {
 		'counts': 'N',
-		'concentration': 'mmol/L'
+		'concentration': 'mmol/L',
 		}
 
 	node.read_dynamics(dynamics, dynamics_units)
@@ -242,10 +246,10 @@ def read_transcription_dynamics(sim_data, node, node_id, columns, indexes, volum
 	gene_idx = indexes["Genes"][gene_id]
 
 	dynamics = {
-		"transcription initiations": columns[("RnapData", "rnaInitEvent")][:, gene_idx]
+		"transcription initiations": columns[("RnapData", "rnaInitEvent")][:, gene_idx],
 		}
 	dynamics_units = {
-		"transcription initiations": "N"
+		"transcription initiations": "N",
 		}
 
 	node.read_dynamics(dynamics, dynamics_units)
@@ -259,10 +263,10 @@ def read_translation_dynamics(sim_data, node, node_id, columns, indexes, volume)
 	translation_idx = indexes["TranslatedRnas"][rna_id]
 
 	dynamics = {
-		'translation probability': columns[("RibosomeData", "probTranslationPerTranscript")][:, translation_idx]
+		'translation probability': columns[("RibosomeData", "probTranslationPerTranscript")][:, translation_idx],
 		}
 	dynamics_units = {
-		'translation probability': 'p'
+		'translation probability': 'p',
 		}
 
 	node.read_dynamics(dynamics, dynamics_units)
@@ -275,10 +279,10 @@ def read_complexation_dynamics(sim_data, node, node_id, columns, indexes, volume
 	reaction_idx = indexes["ComplexationReactions"][node_id]
 
 	dynamics = {
-		'reaction rate': columns[("ComplexationListener", "reactionRates")][:, reaction_idx]
+		'reaction rate': columns[("ComplexationListener", "reactionRates")][:, reaction_idx],
 		}
 	dynamics_units = {
-		'reaction rate': 'rxns/s'
+		'reaction rate': 'rxns/s',
 		}
 
 	node.read_dynamics(dynamics, dynamics_units)
@@ -291,10 +295,10 @@ def read_metabolism_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	reaction_idx = indexes["MetabolismReactions"][node_id]
 
 	dynamics = {
-		'flux': columns[("FBAResults", "reactionFluxes")][:, reaction_idx]
+		'flux': columns[("FBAResults", "reactionFluxes")][:, reaction_idx],
 		}
 	dynamics_units = {
-		'flux': 'mmol/gCDW/h'
+		'flux': 'mmol/gCDW/h',
 		}
 
 	node.read_dynamics(dynamics, dynamics_units)
@@ -311,10 +315,10 @@ def read_equilibrium_dynamics(sim_data, node, node_id, columns, indexes, volume)
 		return  # 2CS reaction
 
 	dynamics = {
-		'reaction rate': columns[("EquilibriumListener", "reactionRates")][:, reaction_idx]
+		'reaction rate': columns[("EquilibriumListener", "reactionRates")][:, reaction_idx],
 		}
 	dynamics_units = {
-		'reaction rate': 'rxns/s'
+		'reaction rate': 'rxns/s',
 		}
 
 	node.read_dynamics(dynamics, dynamics_units)
@@ -330,10 +334,10 @@ def read_regulation_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	bound_tf_idx = indexes["BulkMolecules"][bound_tf_id]
 
 	dynamics = {
-		'bound TFs': columns[("BulkMolecules", "counts")][:, bound_tf_idx]
+		'bound TFs': columns[("BulkMolecules", "counts")][:, bound_tf_idx],
 		}
 	dynamics_units = {
-		'bound TFs': 'N'
+		'bound TFs': 'N',
 		}
 
 	node.read_dynamics(dynamics, dynamics_units)

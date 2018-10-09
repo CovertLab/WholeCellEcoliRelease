@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Constructs a causality network of simulation components from sim_data, and
 generates files for node lists and edge lists.
@@ -6,15 +5,17 @@ generates files for node lists and edge lists.
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/26/2018
 """
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import cPickle
 import numpy as np
 import os
 from itertools import izip
 
-from models.ecoli.analysis.causality_network.network_components import Node, Edge, NODELIST_FILENAME, EDGELIST_FILENAME, NODE_LIST_HEADER, EDGE_LIST_HEADER
+from models.ecoli.analysis.causality_network.network_components import (
+	Node, Edge, NODELIST_FILENAME, EDGELIST_FILENAME, NODE_LIST_HEADER,
+	EDGE_LIST_HEADER
+	)
 
 # Proteins that are reactants or products of a metabolic reaction
 PROTEINS_IN_METABOLISM = ["EG50003-MONOMER[c]", "PHOB-MONOMER[c]",
@@ -111,20 +112,27 @@ class BuildNetwork(object):
 		"""
 		Write node/edge list as separate .tsv files.
 		"""
-		# Open node/edge list files
-		nodelist_file = open(os.path.join(self.output_dir, NODELIST_FILENAME), 'w')
-		edgelist_file = open(os.path.join(self.output_dir, EDGELIST_FILENAME), 'w')
+		# Open node list file
+		with open(os.path.join(
+				self.output_dir, NODELIST_FILENAME), 'w') as nodelist_file:
 
-		# Write header rows to each of the files
-		nodelist_file.write(NODE_LIST_HEADER)
-		edgelist_file.write(EDGE_LIST_HEADER)
+			# Write header row
+			nodelist_file.write(NODE_LIST_HEADER + "\n")
 
-		# Write node, edge list files
-		for node in self.node_list:
-			node.write_nodelist(nodelist_file)
+			# Write one row for each node
+			for node in self.node_list:
+				node.write_nodelist(nodelist_file)
 
-		for edge in self.edge_list:
-			edge.write_edgelist(edgelist_file)
+		# Open edge list file
+		with open(os.path.join(
+				self.output_dir, EDGELIST_FILENAME), 'w') as edgelist_file:
+
+			# Write header row
+			edgelist_file.write(EDGE_LIST_HEADER + "\n")
+
+			# Write one row for each edge
+			for edge in self.edge_list:
+				edge.write_edgelist(edgelist_file)
 
 
 	def _add_global_nodes(self):
@@ -172,7 +180,7 @@ class BuildNetwork(object):
 				"node_type": "Gene",
 				"node_id": gene_id,
 				"name": gene_name,
-				"synonyms": gene_synonym
+				"synonyms": gene_synonym,
 				}
 
 			gene_node.read_attributes(**attr)
@@ -217,7 +225,7 @@ class BuildNetwork(object):
 				'node_type': 'RNA',
 				'node_id': rna_id,
 				'name': rna_name,
-				'synonyms': rna_synonyms
+				'synonyms': rna_synonyms,
 				}
 
 			rna_node.read_attributes(**attr)
@@ -237,7 +245,7 @@ class BuildNetwork(object):
 				'node_type': 'Transcription',
 				'node_id': transcription_id,
 				'name': transcription_name,
-				'synonyms': transcription_synonyms
+				'synonyms': transcription_synonyms,
 				}
 			transcription_node.read_attributes(**attr)
 
@@ -248,7 +256,7 @@ class BuildNetwork(object):
 			gene_to_transcription_edge = Edge("Transcription")
 			attr = {
 				'src_id': gene_id,
-				'dst_id': transcription_id
+				'dst_id': transcription_id,
 				}
 			gene_to_transcription_edge.read_attributes(**attr)
 			self.edge_list.append(gene_to_transcription_edge)
@@ -257,7 +265,7 @@ class BuildNetwork(object):
 			transcription_to_rna_edge = Edge("Transcription")
 			attr = {
 				'src_id': transcription_id,
-				'dst_id': rna_id
+				'dst_id': rna_id,
 				}
 			transcription_to_rna_edge.read_attributes(**attr)
 			self.edge_list.append(transcription_to_rna_edge)
@@ -267,7 +275,7 @@ class BuildNetwork(object):
 				ntp_to_transcription_edge = Edge("Transcription")
 				attr = {
 					'src_id': ntp_id,
-					'dst_id': transcription_id
+					'dst_id': transcription_id,
 					}
 				ntp_to_transcription_edge.read_attributes(**attr)
 				self.edge_list.append(ntp_to_transcription_edge)
@@ -276,7 +284,7 @@ class BuildNetwork(object):
 			transcription_to_ppi_edge = Edge("Transcription")
 			attr = {
 				'src_id': transcription_id,
-				'dst_id': ppi_id
+				'dst_id': ppi_id,
 				}
 			transcription_to_ppi_edge.read_attributes(**attr)
 			self.edge_list.append(transcription_to_ppi_edge)
@@ -285,7 +293,7 @@ class BuildNetwork(object):
 			pol_to_transcription_edge = Edge("Transcription")
 			attr = {
 				'src_id': rnap_id,
-				'dst_id': transcription_id
+				'dst_id': transcription_id,
 				}
 			pol_to_transcription_edge.read_attributes(**attr)
 			self.edge_list.append(pol_to_transcription_edge)
@@ -356,7 +364,7 @@ class BuildNetwork(object):
 				'node_type': 'Translation',
 				'node_id': translation_id,
 				'name': translation_name,
-				'synonyms': translation_synonyms
+				'synonyms': translation_synonyms,
 				}
 			translation_node.read_attributes(**attr)
 
@@ -365,41 +373,59 @@ class BuildNetwork(object):
 
 			# Add edge from transcript to translation node
 			rna_to_translation_edge = Edge("Translation")
-			attr = {'src_id': rna_id, 'dst_id': translation_id}
+			attr = {
+				'src_id': rna_id,
+				'dst_id': translation_id,
+				}
 			rna_to_translation_edge.read_attributes(**attr)
 			self.edge_list.append(rna_to_translation_edge)
 
 			# Add edge from translation to monomer node
 			translation_to_protein_edge = Edge("Translation")
-			attr = {'src_id': translation_id, 'dst_id': monomer_id}
+			attr = {
+				'src_id': translation_id,
+				'dst_id': monomer_id,
+				}
 			translation_to_protein_edge.read_attributes(**attr)
 			self.edge_list.append(translation_to_protein_edge)
 
 			# Add edges from amino acids to translation node
 			for aa_id in aa_ids:
 				aa_to_translation_edge = Edge("Translation")
-				attr = {'src_id': aa_id, 'dst_id': translation_id}
+				attr = {
+					'src_id': aa_id,
+					'dst_id': translation_id,
+					}
 				aa_to_translation_edge.read_attributes(**attr)
 				self.edge_list.append(aa_to_translation_edge)
 
 			# Add edges from other reactants to translation node
 			for reactant_id in [gtp_id, water_id]:
 				reactant_to_translation_edge = Edge("Translation")
-				attr = {'src_id': reactant_id, 'dst_id': translation_id}
+				attr = {
+					'src_id': reactant_id,
+					'dst_id': translation_id,
+					}
 				reactant_to_translation_edge.read_attributes(**attr)
 				self.edge_list.append(reactant_to_translation_edge)
 
 			# Add edges from translation to other product nodes
 			for product_id in [gdp_id, ppi_id, water_id]:
 				translation_to_product_edge = Edge("Translation")
-				attr = {'src_id': translation_id, 'dst_id': product_id}
+				attr = {
+					'src_id': translation_id,
+					'dst_id': product_id,
+					}
 				translation_to_product_edge.read_attributes(**attr)
 				self.edge_list.append(translation_to_product_edge)
 
 			# Add edges from ribosome subunits to translation node
 			for subunit_id in ribosome_subunit_ids:
 				subunit_to_translation_edge = Edge("Translation")
-				attr = {'src_id': subunit_id, 'dst_id': translation_id}
+				attr = {
+					'src_id': subunit_id,
+					'dst_id': translation_id,
+					}
 				subunit_to_translation_edge.read_attributes(**attr)
 				self.edge_list.append(subunit_to_translation_edge)
 
@@ -427,7 +453,7 @@ class BuildNetwork(object):
 				'node_class': 'Process',
 				'node_type': 'Complexation',
 				'node_id': reaction_id,
-				'name': reaction_id
+				'name': reaction_id,
 				}
 			complexation_node.read_attributes(**attr)
 
@@ -451,13 +477,13 @@ class BuildNetwork(object):
 					attr = {
 						'src_id': reaction_id,
 						'dst_id': molecule_ids[molecule_idx],
-						'stoichiometry': stoich
+						'stoichiometry': stoich,
 						}
 				else:
 					attr = {
 						'src_id': molecule_ids[molecule_idx],
 						'dst_id': reaction_id,
-						'stoichiometry': stoich
+						'stoichiometry': stoich,
 						}
 				complex_edge.read_attributes(**attr)
 
@@ -478,7 +504,7 @@ class BuildNetwork(object):
 				'node_type': 'Complex',
 				'node_id': complex_id,
 				'name': complex_name,
-				'synonyms': complex_synonyms
+				'synonyms': complex_synonyms,
 				}
 
 			complex_node.read_attributes(**attr)
@@ -512,7 +538,7 @@ class BuildNetwork(object):
 				'node_class': 'Process',
 				'node_type': 'Metabolism',
 				'node_id': reaction_id,
-				'name': reaction_id
+				'name': reaction_id,
 				}
 			metabolism_node.read_attributes(**attr)
 
@@ -527,7 +553,7 @@ class BuildNetwork(object):
 				metabolism_edge = Edge("Metabolism")
 				attr = {
 					'src_id': catalyst,
-					'dst_id': reaction_id
+					'dst_id': reaction_id,
 					}
 
 				metabolism_edge.read_attributes(**attr)
@@ -550,13 +576,13 @@ class BuildNetwork(object):
 					attr = {
 						'src_id': reaction_id,
 						'dst_id': metabolite,
-						'stoichiometry': stoich
+						'stoichiometry': stoich,
 						}
 				else:
 					attr = {
 						'src_id': metabolite,
 						'dst_id': reaction_id,
-						'stoichiometry': stoich
+						'stoichiometry': stoich,
 						}
 				metabolism_edge.read_attributes(**attr)
 
@@ -641,7 +667,7 @@ class BuildNetwork(object):
 					attr = {
 						'src_id': moleculeId,
 						'dst_id': rxn_id,
-						'stoichiometry': stoich
+						'stoichiometry': stoich,
 						}
 
 					equilibrium_edge.read_attributes(**attr)
@@ -653,7 +679,7 @@ class BuildNetwork(object):
 					attr = {
 						'src_id': rxn_id,
 						'dst_id': moleculeId,
-						'stoichiometry': stoich
+						'stoichiometry': stoich,
 						}
 
 					equilibrium_edge.read_attributes(**attr)
@@ -708,7 +734,7 @@ class BuildNetwork(object):
 					attr = {
 						'src_id': moleculeId,
 						'dst_id': rxn_id,
-						'stoichiometry': stoich
+						'stoichiometry': stoich,
 						}
 
 					equilibrium_edge.read_attributes(**attr)
@@ -720,7 +746,7 @@ class BuildNetwork(object):
 					attr = {
 						'src_id': rxn_id,
 						'dst_id': moleculeId,
-						'stoichiometry': stoich
+						'stoichiometry': stoich,
 						}
 
 					equilibrium_edge.read_attributes(**attr)
@@ -744,7 +770,7 @@ class BuildNetwork(object):
 				'node_type': 'Complex',
 				'node_id': complex_id,
 				'name': complex_name,
-				'synonyms': complex_synonyms
+				'synonyms': complex_synonyms,
 				}
 			complex_node.read_attributes(**attr)
 
@@ -766,7 +792,7 @@ class BuildNetwork(object):
 				'node_type': 'Metabolite',
 				'node_id': metabolite_id,
 				'name': metabolite_name,
-				'synonyms': metabolite_synonyms
+				'synonyms': metabolite_synonyms,
 				}
 			metabolite_node.read_attributes(**attr)
 

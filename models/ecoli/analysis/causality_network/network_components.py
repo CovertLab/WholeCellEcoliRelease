@@ -5,22 +5,27 @@ Classes for the Nodes and Edges of a causality network.
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 9/28/2018
 """
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 NODELIST_FILENAME = "causality_network_node_list.tsv"
 EDGELIST_FILENAME = "causality_network_edge_list.tsv"
 DYNAMICS_FILENAME = "causality_network_dynamics.tsv"
 
-NODE_LIST_HEADER = "ID\tclass\ttype\tname\tsynonyms\tconstants\n"
-EDGE_LIST_HEADER = "src_node_id\tdst_node_id\tstoichiometry\tprocess\n"
-DYNAMICS_HEADER = "ID\ttype\tunits\tdynamics\n"
+NODE_LIST_HEADER = "\t".join(
+	["ID", "class", "type", "name", "synonyms", "constants"]
+	)
+EDGE_LIST_HEADER = "\t".join(
+	["src_node_id", "dst_node_id", "stoichiometry", "process"]
+	)
+DYNAMICS_HEADER = "\t".join(
+	["ID", "type", "units", "dynamics"]
+	)
 
 DYNAMICS_PRECISION = 6
 PROBABILITY_PRECISION = 4
 TIME_PRECISION = 2
 
-class Node:
+class Node(object):
 	"""
 	Class definition for a node in the causality network.
 	"""
@@ -100,13 +105,13 @@ class Node:
 		Writes a single row specifying the given node to the nodelist file.
 		"""
 		# Format single string with attributes of the node separated by commas
-		node_row = "%s\t%s\t%s\t%s\t%s\t%s\n" % (
+		node_row = "%s\t%s\t%s\t%s\t%s\t%s" % (
 			self.node_id, self.node_class, self.node_type,
 			self.name, self.synonyms, self.constants,
 			)
 
 		# Write line to nodelist file
-		nodelist_file.write(node_row)
+		nodelist_file.write(node_row + "\n")
 
 	def write_dynamics(self, dynamics_file):
 		"""
@@ -128,12 +133,12 @@ class Node:
 				dynamics_string = self._format_dynamics_string(dynamics_data, "float")
 
 			# Format single string with dynamic attributes separated by commas
-			dynamics_row = "%s\t%s\t%s\t%s\n" % (
+			dynamics_row = "%s\t%s\t%s\t%s" % (
 				self.node_id, dynamics_name, unit, dynamics_string
 				)
 
 			# Write line to dynamics file
-			dynamics_file.write(dynamics_row)
+			dynamics_file.write(dynamics_row + "\n")
 
 	def _format_dynamics_string(self, dynamics, datatype):
 		"""
@@ -168,7 +173,7 @@ class Node:
 		return dynamics_string
 
 
-class Edge:
+class Edge(object):
 	"""
 	Class definition for an edge in the causality network.
 	"""
@@ -223,9 +228,9 @@ class Edge:
 		Writes a single row specifying the given edge to the edgelist file.
 		"""
 		# Format single string with attributes of the edge separated by commas
-		edge_row = "%s\t%s\t%s\t%s\n" % (
+		edge_row = "%s\t%s\t%s\t%s" % (
 			self.src_id, self.dst_id, self.stoichiometry, self.process,
 			)
 
 		# Write line to edgelist file
-		edgelist_file.write(edge_row)
+		edgelist_file.write(edge_row + "\n")
