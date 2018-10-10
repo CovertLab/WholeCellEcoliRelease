@@ -1,6 +1,12 @@
 """
-Constructs a causality network of simulation components from sim_data, and
-generates files for node lists and edge lists.
+Constructs a network representations of simulation components from sim_data, and generates files for node lists and edge lists.
+
+
+args:
+	--check_sanity, if set to True, checks if there are any nodes with duplicate IDs in the network.
+
+
+
 
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/26/2018
@@ -37,11 +43,9 @@ NONPROTEIN_MOLECULES_IN_2CS = ["ATP[c]", "ADP[c]", "WATER[c]", "PI[c]",
 
 class BuildNetwork(object):
 	"""
-	Constructs a causality network of simulation components, namely states and
-	processes, of a whole-cell simulation using sim_data. Writes two files
-	(node list and edge list) that are subsequently used by the dynamics
-	reader to extract simulation results, and for the visual representation
-	of the network.
+	Constructs a causality network of simulation components, namely states and processes, of a whole-cell simulation
+	using sim_data. Writes two files (node list and edge list) that are subsequently used by the dynamics reader to
+	extract simulation results, and for the visual representation of the network.
 	"""
 	def __init__(self, sim_data_file, output_dir, check_sanity=False):
 		# Open simulation data and save as attribute
@@ -51,29 +55,7 @@ class BuildNetwork(object):
 		self.output_dir = output_dir
 		self.check_sanity = check_sanity
 
-		# Create dict with id: (name, synonyms)
-		self.names_dict = {}
-		names_pathway = os.path.join(os.path.dirname(os.path.abspath(__file__)), "names")
-		file_names = [f for f in os.listdir(names_pathway)]
-
-		for file_name in file_names:
-			with open(os.path.join(names_pathway, file_name)) as f:
-
-				all_data = [line.replace('"', '').replace('\n', '').replace('\r', '').split('\t')
-					for line in f.readlines()]
-				header_row = all_data[0]
-				data_rows = all_data[1:]
-
-				id_idx = header_row.index('Object ID')
-				name_idx = header_row.index('Display Name')
-				synonym_idx = header_row.index('Synonyms')
-
-				for row in data_rows:
-					if row[synonym_idx]:
-						self.names_dict[row[id_idx]] = (
-							row[name_idx],
-							row[synonym_idx].replace("[","").replace("]","").split(", ")
-							)
+		self.names_dict = self.sim_data.fathom.common_names
 
 		self.node_list = []
 		self.edge_list = []

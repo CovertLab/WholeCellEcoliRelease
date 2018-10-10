@@ -123,6 +123,13 @@ LIST_OF_DICT_FILENAMES = (
 	os.path.join("condition", "timeseries", "000025_cut_aa.tsv"),
 	os.path.join("condition", "timeseries", "000026_add_and_cut_aa.tsv"),
 	os.path.join("condition", "timeseries", "000027_example.tsv"),
+	os.path.join("common_names", "genes.tsv"),
+	os.path.join("common_names", "metabolites.tsv"),
+	os.path.join("common_names", "mrna.tsv"),
+	os.path.join("common_names", "polypeptides.tsv"),
+	os.path.join("common_names", "protein-complexes.tsv"),
+	os.path.join("common_names", "reactions.tsv"),
+	os.path.join("common_names", "rnas.tsv"),
 	)
 SEQUENCE_FILE = 'sequence.fasta'
 LIST_OF_PARAMETER_FILENAMES = ("parameters.tsv", "mass_parameters.tsv")
