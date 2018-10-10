@@ -36,7 +36,7 @@ class ComplexationListener(wholecell.listeners.listener.Listener):
 	def allocate(self):
 		super(ComplexationListener, self).allocate()
 
-		self.complexationEvents = np.zeros(len(self.reactionIDs), np.float64)
+		self.complexationEvents = np.zeros(len(self.reactionIDs), np.int64)
 
 
 	def tableCreate(self, tableWriter):

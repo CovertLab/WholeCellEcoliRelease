@@ -69,10 +69,11 @@ class BuildNetwork(object):
 				synonym_idx = header_row.index('Synonyms')
 
 				for row in data_rows:
-					self.names_dict[row[id_idx]] = (
-						row[name_idx],
-						row[synonym_idx].replace("[","").replace("]","").split(", ")
-						)
+					if row[synonym_idx]:
+						self.names_dict[row[id_idx]] = (
+							row[name_idx],
+							row[synonym_idx].replace("[","").replace("]","").split(", ")
+							)
 
 		self.node_list = []
 		self.edge_list = []
