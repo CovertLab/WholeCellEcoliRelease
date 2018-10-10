@@ -30,13 +30,18 @@ Call, from this directory:
 
     python min_system_dynamics.py
 
-# Visualization
-
-This prototype has options for live animation using interactive mode of matplotlib and a summary plot. These can be selected at the top of the script: ANIMATE = True, SAVE_PLOT = True.
-
-The output for a cell with length = 4.0 and radius = 0.5 should look like this:
-![min_dynamics_4um](https://user-images.githubusercontent.com/6809431/46636418-cb8f1c80-cb0c-11e8-82ec-4080f55fef7c.png)
 
 # Applications for whole-cell modeling
 
 This provides a mechanistic model of the Min system, with the potential to predict the formation of the septum for cell division. As it is, the length of the prototype is fixed; the WCM would require a dynamically-changing length. The prototype also has fixed concentrations of MinD and MinE; in the WCM this would need to be updated by the simulation.
+
+# Visualization
+
+This prototype has options for live animation using interactive mode of matplotlib and a summary plot. These can be selected at the top of the script: ANIMATE = True, SAVE_PLOT = True.
+
+Example output for a cell with length = 4.0 and radius = 0.5:
+![min_dynamics_4um](https://github.com/CovertLab/wcEcoli/blob/master/prototype/spatiality/min_system/output/min_dynamics_4um.png)
+
+
+Example output for a cell with length = 10.0 and radius = 0.5:
+![min_dynamics_10um](https://github.com/CovertLab/wcEcoli/blob/master/prototype/spatiality/min_system/output/min_dynamics_10um.png)
