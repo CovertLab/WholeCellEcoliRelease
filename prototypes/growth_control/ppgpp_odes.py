@@ -1,8 +1,11 @@
+#! /usr/bin/python
+
 '''
 Direct port of Bosdriesz from mathematica file
-Uses ppGpp kinetics to model up/down shifts
+Uses ppGpp kinetics to model up/down shifts in nutrients
 
 Working version of the mathematica script supplied in the supplement.
+Naming convention mostly mirrors the mathematica script for easy comparison.
 Shifts in conditions are simulated as a change in AA production rate and produce
 similar results to their paper figure although not explicitly shown in their
 mathematica file.
@@ -10,10 +13,15 @@ mathematica file.
 
 from __future__ import division
 
+import argparse
+import os
+
 from matplotlib import pyplot as plt
+import numpy as np
 from scipy.integrate import odeint
 from scipy.integrate import ode
-import numpy as np
+
+file_location = os.path.dirname(os.path.realpath(__file__))
 
 nAA = 20
 tmax = 10000
@@ -59,22 +67,60 @@ nAmet = 300
 rmax = proteinContent / (cellVolume*nAvogadro/1e6) / (7459*1.65)
 
 
-def dcdt_ode(t, c):
-	return dcdt(c, t)
+def dcdt_ode(t, c, args):
+	'''
+	Derivatives function that is called by ode from scipy.integrate
 
-def dcdt(c, t):
+	Switches order of arguments to fit the expectation of ode but sharing
+	dcdt code.
+
+	Args:
+		t (float): time of integration step
+		c (array[floats]): concentrations at integration step
+		args (tuple): tuple to match the additional arguments in dcdt
+			(shift (float), single_shift (bool))
+
+	Returns:
+		array[floats]: rates of change of each concentration
+	'''
+
+	return dcdt(c, t, *args)
+
+def dcdt(c, t, shift=0, single_shift=False):
+	'''
+	Derivatives function that is called by odeint from scipy.integrate
+
+	Args:
+		t (float): time of integration step
+		c (array[floats]): concentrations at integration step
+		shift (float): indicator of nutrient shift direction
+			0 (default): no shift
+			positive: upshift
+			negative: downshit
+		single_shift (bool): whether to shift all amino acids (False, default)
+			or a single AA (True)
+
+	Returns:
+		array[floats]: rates of change of each concentration
+	'''
+
 	dc = np.zeros_like(c)
 
 	# shift - not in mathematica file
-	shift = np.ones(nAA)
+	shift_magnitude = np.ones(nAA)
 	if t > 2000:
 		# downshifts
-		shift = 0.5*np.ones(nAA)  # all downshift - increase ppGpp, decrease ribosomes
-		# shift[-1] = 0.5  # single nutrient downshift
-
+		if shift < 0:
+			if single_shift:
+				shift_magnitude[-1] = 0.5  # single nutrient downshift
+			else:
+				shift_magnitude = 0.5*np.ones(nAA)  # all downshift - increase ppGpp, decrease ribosomes
 		# upshifts
-		# shift = 2*np.ones(nAA)  # all upshift - decrease ppGpp, increase ribosomes
-		# shift [-1] = 2  # single nutrient upshift
+		elif shift > 0:
+			if single_shift:
+				shift_magnitude [-1] = 2  # single nutrient upshift
+			else:
+				shift_magnitude = 2*np.ones(nAA)  # all upshift - decrease ppGpp, increase ribosomes
 
 	aa = c[aa_indices]
 	taa = c[ta_indices]
@@ -83,7 +129,7 @@ def dcdt(c, t):
 
 	tf = tau * r - taa
 
-	vAAsynt = shift * bm * e * kn * (1 - r/rmax) / (nAmet * (1 + aa / kIa))
+	vAAsynt = shift_magnitude * bm * e * kn * (1 - r/rmax) / (nAmet * (1 + aa / kIa))
 	vtRNAchar = ks * sTot * tf * aa / (kMaa * kMtf * (1 + tf / kMtf + aa / kMaa + tf * aa / kMaa / kMtf))  # modified with `1 +`
 	numeratorRibosome = 1 + np.sum(f * (krta/taa + tf/taa*krta/krt))
 	vR = krib*r / numeratorRibosome
@@ -110,70 +156,106 @@ def dcdt(c, t):
 
 	return dc
 
+def simulate(args):
+	'''
+	Simulate the ODE system and plot the results
 
-# initial conditions
-co = np.zeros(2*nAA + 2)
-co[aa_indices] = kIa  # aa (100)
-co[ta_indices] = 0.1*tau*rmax  # charged tRNA (4.063)
-co[ppgpp_index] = kIppGpp  # ppGpp (1)
-co[r_index] = 0.2*rmax  # ribosome (16.25)
-tmax = 5000
-to = 0
-t = np.linspace(to,tmax,tmax)
+	Args:
+		args: arguments parsed from the command line
+	'''
 
-## solve ode with odeint (lsoda)
-# sol = odeint(dcdt, co, t)
+	# Handle arguments from argparse
+	shift = args.shift
+	single_shift = args.single_shift
+	method = args.method  # adams (forward), bdf (backward), lsoda
+	order = args.order
+	dt = args.timestep
+	output_file = os.path.join(file_location, args.output)
+	f_params = (shift, single_shift)
 
-## solve ode with ode (vode, forward or backward)
-sol = np.zeros((tmax, len(co)))
-solver = ode(dcdt_ode)
-solver.set_integrator('vode', method='adams', order=2)  # forward
-# solver.set_integrator('vode', method='bdf', order=2)  # backward
-solver.set_initial_value(co, to)
+	# initial conditions
+	co = np.zeros(2*nAA + 2)
+	co[aa_indices] = kIa  # aa (100)
+	co[ta_indices] = 0.1*tau*rmax  # charged tRNA (4.063)
+	co[ppgpp_index] = kIppGpp  # ppGpp (1)
+	co[r_index] = 0.2*rmax  # ribosome (16.25)
+	tmax = 5000
+	to = 0
+	t = np.linspace(to,tmax,tmax)
 
-sol = [co]
-t = [to]
-dt = 1
-while solver.successful() and solver.t < tmax:
-	solver.integrate(solver.t + dt)
-	sol.append(solver.y)
-	t.append(solver.t)
+	# solve ode with odeint (lsoda)
+	if method == 'lsoda':
+		sol = odeint(dcdt, co, t, args=f_params)
+	# solve ode with ode (vode, forward or backward)
+	else:
+		sol = np.zeros((tmax, len(co)))
+		solver = ode(dcdt_ode)
+		solver.set_f_params(f_params)
+		solver.set_integrator('vode', method=method, order=order)
+		solver.set_initial_value(co, to)
 
-t = np.array(t)
-sol = np.array(sol)
+		sol = [co]
+		t = [to]
+		while solver.successful() and solver.t < tmax:
+			solver.integrate(solver.t + dt)
+			sol.append(solver.y)
+			t.append(solver.t)
 
-# solution timeseries
-aa = sol[:,aa_indices]
-taa = sol[:,ta_indices]
-ppgpp = sol[:,ppgpp_index]
-r = sol[:,r_index]
+	t = np.array(t)
+	sol = np.array(sol)
 
-# derived timeseries
-tf = tau * r.reshape(-1,1) - taa
-numeratorRibosome = 1 + np.sum(f * (krta / taa + tf / taa * krta / krt), axis=1)
-vElongation = krib / numeratorRibosome
+	# solution timeseries
+	aa = sol[:,aa_indices]
+	taa = sol[:,ta_indices]
+	ppgpp = sol[:,ppgpp_index]
+	r = sol[:,r_index]
 
-# plot results
-n_subplots = 5
-plt.figure(figsize=(6,9))
-plt.subplot(n_subplots,1,1)
-plt.plot(t, ppgpp)
-plt.ylabel('[ppGpp]')
+	# derived timeseries
+	tf = tau * r.reshape(-1,1) - taa
+	numeratorRibosome = 1 + np.sum(f * (krta / taa + tf / taa * krta / krt), axis=1)
+	vElongation = krib / numeratorRibosome
 
-plt.subplot(n_subplots,1,2)
-plt.plot(t, r)
-plt.ylabel('[ribosomes]')
+	# plot results
+	n_subplots = 5
+	plt.figure(figsize=(6,9))
+	plt.subplot(n_subplots,1,1)
+	plt.plot(t, ppgpp)
+	plt.ylabel('[ppGpp]')
 
-plt.subplot(n_subplots,1,3)
-plt.plot(t, aa)
-plt.ylabel('[AA]')
+	plt.subplot(n_subplots,1,2)
+	plt.plot(t, r)
+	plt.ylabel('[ribosomes]')
 
-plt.subplot(n_subplots,1,4)
-plt.plot(t, taa)
-plt.ylabel('[charged tRNA]')
+	plt.subplot(n_subplots,1,3)
+	plt.plot(t, aa)
+	plt.ylabel('[AA]')
 
-plt.subplot(n_subplots,1,5)
-plt.plot(t, vElongation)
-plt.ylabel('Elongation Rate (AA/s)')
+	plt.subplot(n_subplots,1,4)
+	plt.plot(t, taa)
+	plt.ylabel('[charged tRNA]')
 
-plt.show()
+	plt.subplot(n_subplots,1,5)
+	plt.plot(t, vElongation)
+	plt.ylabel('Elongation Rate (AA/s)')
+
+	plt.savefig(output_file)
+
+if __name__ == '__main__':
+	parser = argparse.ArgumentParser(description='Simulate growth control with ppGpp dynamics')
+
+	parser.add_argument('-o', '--output', default='ppgpp',
+		help='Output filename for plot (default: ppgpp)')
+	parser.add_argument('-s', '--shift', type=int, default=0,
+		help='Shift direction (0 (default): no shift, positive: upshift, negative: downshift)')
+	parser.add_argument('-m', '--method', default='adams',
+		help='ODE solver method (adams (default, forward), bdf (backward), lsoda (adaptive)')
+	parser.add_argument('--order', type=int, default=2,
+		help='Order of solver method (default: 2), <= 12 for adams, <= 5 for bdf, not implemented for lsoda')
+	parser.add_argument('-t', '--timestep', type=float, default=1,
+		help='Timestep to advance for each integration (default: 1), not implemented for lsoda')
+	parser.add_argument('--single-shift', action='store_true',
+		help='Shift only one amino acid if set')
+
+	args = parser.parse_args()
+
+	simulate(args)
