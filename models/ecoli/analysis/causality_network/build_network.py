@@ -5,6 +5,7 @@ and generates files for node lists and edge lists.
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/26/2018
 """
+
 from __future__ import absolute_import, division, print_function
 
 import cPickle
@@ -24,6 +25,16 @@ NODE_ID_SUFFIX = {
 	"regulation": "_REG",
 	}
 
+"""
+The following groups of molecules participate in multiple processes and are
+thus identified here to prevent the addition of duplicate nodes.
+
+Note:
+	Identifying multi-process participatory molecules in this way is not
+	required because --check_sanity checks for duplicate nodes. However,
+	identifying such molecules here can streamline network building by
+	eliminating the need to search through nodes that were added previously.
+"""
 # Proteins that are reactants or products of a metabolic reaction
 PROTEINS_IN_METABOLISM = ["EG50003-MONOMER[c]", "PHOB-MONOMER[c]",
 	"PTSI-MONOMER[c]", "PTSH-MONOMER[c]"]
@@ -37,7 +48,7 @@ EQUILIBRIUM_COMPLEXES_IN_COMPLEXATION = ["CPLX0-7620[c]", "CPLX0-7701[c]",
 # in any metabolic reactions
 METABOLITES_ONLY_IN_EQUILIBRIUM = ["4FE-4S[c]", "NITRATE[p]"]
 
-# Molecules in 2CS reactions that are not proteins
+# Molecules in 2CS (two component system) reactions that are not proteins
 NONPROTEIN_MOLECULES_IN_2CS = ["ATP[c]", "ADP[c]", "WATER[c]", "PI[c]",
 	"PROTON[c]", "PHOSPHO-PHOB[c]"]
 
