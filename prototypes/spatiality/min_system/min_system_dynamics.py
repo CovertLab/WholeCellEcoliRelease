@@ -276,4 +276,4 @@ if SAVE_PLOT:
 	axes[0, 4].set_title('[MinD:ATP] membrane', fontsize=6)
 	axes[0, 5].set_title('[MinE:MinD:ATP] membrane', fontsize=6)
 	plt.subplots_adjust(hspace=0.5)
-	plt.savefig('prototypes/spatiality/min_system/out/min_dynamics.pdf', bbox_inches='tight')
+	plt.savefig('prototypes/spatiality/min_system/output/min_dynamics.pdf', bbox_inches='tight')
