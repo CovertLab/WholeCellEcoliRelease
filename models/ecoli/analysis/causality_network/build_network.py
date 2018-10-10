@@ -1,54 +1,58 @@
 """
 BuildNetwork
 
-Constructs a network representations of simulation components from sim_data, and generates files for node lists and edge lists.
-
-args:
-  --check_sanity, if set to True, checks if there are any nodes with duplicate IDs in the network.
-  TODO: have check_sanity looks for disconnected nodes, and edges with non-existent nodes.
+Constructs a network representations of simulation components from sim_data,
+and generates files for node lists and edge lists.
 
 Adding new nodes to the network:
 -------------------------------
 
-To add a new type of nodes to the network (either a state or process), you need to write a new function within this file
-(build_network.py), which goes through all of the instances of the new node type, and for each instance creates a node:
+To add a new type of nodes to the network (either a state or process), you need
+to write a new function within this file (build_network.py), which goes through
+all of the instances of the new node type, and for each instance creates a
+node:
 
-  new_node = Node()
+	new_node = Node()
 
-adds attributes (**attr), which include "node_class", "node_type", "node_id", "name", and "synonyms":
+adds attributes (**attr), which include "node_class", "node_type", "node_id",
+"name", and "synonyms":
 
-  new_node.read_attributes(**attr)
+	new_node.read_attributes(**attr)
 
 and appends the node to the node list:
 
-  self.node_list.append(new_node)
+	self.node_list.append(new_node)
 
-The relevant edges that connect the new node to other nodes also need to be specified:
+The relevant edges that connect the new node to other nodes also need to be
+specified:
 
-  new_edge = Edge("Edge Type")
+	new_edge = Edge("Edge Type")
 
 The source and destination ids for that edge are added with an attribute:
 
-  attr = {
-     'src_id': source_id,
-     'dst_id': destination_id,
-     }
+	attr = {
+		'src_id': source_id,
+		'dst_id': destination_id,
+		}
 
-  new_edge.read_attributes(**attr)
+	new_edge.read_attributes(**attr)
 
 and the edge is then added to the edge list:
 
-  self.edge_list.append(new_edge)
+	self.edge_list.append(new_edge)
 
-With a complete node and edge list, you are ready to add dynamics data to each node. This is done in read_dynamics.py.
-You first need to choose appropriate dynamics data to represents that node's activity, and make sure it is saved in a
-listener. read_dynamics.py uses saved listener output to load dynamics into each node.
+With a complete node and edge list, you are ready to add dynamics data to each
+node. This is done in read_dynamics.py. You first need to choose appropriate
+dynamics data to represents that node's activity, and make sure it is saved in
+a listener. read_dynamics.py uses saved listener output to load dynamics into
+each node.
 
-read_dynamics.py might require a new function to the dynamics data if it is of a new node type, specified in the TYPE_SWITCHER
-dictionary. When the node list is read, nodes of the new type will be passed into the new function, which assigns that
-node dynamics from listener output:
+read_dynamics.py might require a new function to the dynamics data if it is of
+a new node type, specified in the TYPE_TO_READER_FUNCTION dictionary. When the
+node list is read, nodes of the new type will be passed into the new function,
+which assigns that node dynamics from listener output:
 
-  node.read_dynamics(dynamics, dynamics_units)
+	node.read_dynamics(dynamics, dynamics_units)
 
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/26/2018
@@ -117,6 +121,8 @@ class BuildNetwork(object):
 			output_dir: output directory for the node list and edge list files.
 			check_sanity: if set to True, checks if there are any nodes with
 			duplicate IDs in the network.
+			TODO: have check_sanity looks for disconnected nodes, and edges
+			with non-existent nodes.
 		"""
 		# Open simulation data and save as attribute
 		with open(sim_data_file, 'rb') as f:
