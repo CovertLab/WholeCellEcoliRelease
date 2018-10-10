@@ -220,7 +220,7 @@ cpdef np.ndarray[np.int64_t, ndim=1] mccFormComplexes(
 
 	moleculeIndexes, overlappingReactions = mccBuildMatrices(stoichiometricMatrix)
 
-	updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
+	updatedMoleculeCounts, complexationEvents = mccFormComplexesWithPrebuiltMatrices(
 		moleculeCounts,
 		seed,
 		stoichiometricMatrix,
