@@ -1,9 +1,11 @@
 """
+BuildNetwork
+
 Constructs a network representations of simulation components from sim_data, and generates files for node lists and edge lists.
 
 args:
-	--check_sanity, if set to True, checks if there are any nodes with duplicate IDs in the network.
-	TODO: have check_sanity looks for disconnected nodes, and edges with non-existent nodes.
+  --check_sanity, if set to True, checks if there are any nodes with duplicate IDs in the network.
+  TODO: have check_sanity looks for disconnected nodes, and edges with non-existent nodes.
 
 Adding new nodes to the network:
 -------------------------------
@@ -11,32 +13,32 @@ Adding new nodes to the network:
 To add a new type of nodes to the network (either a state or process), you need to write a new function within this file
 (build_network.py), which goes through all of the instances of the new node type, and for each instance creates a node:
 
-	new_node = Node()
+  new_node = Node()
 
 adds attributes (**attr), which include "node_class", "node_type", "node_id", "name", and "synonyms":
 
-	new_node.read_attributes(**attr)
+  new_node.read_attributes(**attr)
 
 and appends the node to the node list:
 
-	self.node_list.append(new_node)
+  self.node_list.append(new_node)
 
 The relevant edges that connect the new node to other nodes also need to be specified:
 
-	new_edge = Edge("Edge Type")
+  new_edge = Edge("Edge Type")
 
 The source and destination ids for that edge are added with an attribute:
 
-	attr = {
-		'src_id': source_id,
-		'dst_id': destination_id,
-		}
+  attr = {
+     'src_id': source_id,
+     'dst_id': destination_id,
+     }
 
-	new_edge.read_attributes(**attr)
+  new_edge.read_attributes(**attr)
 
 and the edge is then added to the edge list:
 
-	self.edge_list.append(new_edge)
+  self.edge_list.append(new_edge)
 
 With a complete node and edge list, you are ready to add dynamics data to each node. This is done in read_dynamics.py.
 You first need to choose appropriate dynamics data to represents that node's activity, and make sure it is saved in a
@@ -46,12 +48,11 @@ read_dynamics.py might require a new function to the dynamics data if it is of a
 dictionary. When the node list is read, nodes of the new type will be passed into the new function, which assigns that
 node dynamics from listener output:
 
-	node.read_dynamics(dynamics, dynamics_units)
-
-
+  node.read_dynamics(dynamics, dynamics_units)
 
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/26/2018
+
 """
 from __future__ import absolute_import, division, print_function
 
@@ -65,6 +66,23 @@ from models.ecoli.analysis.causality_network.network_components import (
 	EDGE_LIST_HEADER
 	)
 
+# Suffixes that are added to the node IDs of a particular type of node
+NODE_ID_SUFFIX = {
+	"transcription": "_TRS",
+	"translation": "_TRL",
+	"regulation": "_REG",
+	}
+
+"""
+The following groups of molecules participate in multiple processes and are
+thus identified here to prevent the addition of duplicate nodes.
+
+Note:
+	Identifying multi-process participatory molecules in this way is not
+	required because --check_sanity checks for duplicate nodes. However,
+	identifying such molecules here can streamline network building by
+	eliminating the need to search through nodes that were added previously.
+"""
 # Proteins that are reactants or products of a metabolic reaction
 PROTEINS_IN_METABOLISM = ["EG50003-MONOMER[c]", "PHOB-MONOMER[c]",
 	"PTSI-MONOMER[c]", "PTSH-MONOMER[c]"]
@@ -78,18 +96,28 @@ EQUILIBRIUM_COMPLEXES_IN_COMPLEXATION = ["CPLX0-7620[c]", "CPLX0-7701[c]",
 # in any metabolic reactions
 METABOLITES_ONLY_IN_EQUILIBRIUM = ["4FE-4S[c]", "NITRATE[p]"]
 
-# Molecules in 2CS reactions that are not proteins
+# Molecules in 2CS (two component system) reactions that are not proteins
 NONPROTEIN_MOLECULES_IN_2CS = ["ATP[c]", "ADP[c]", "WATER[c]", "PI[c]",
 	"PROTON[c]", "PHOSPHO-PHOB[c]"]
 
 
 class BuildNetwork(object):
 	"""
-	Constructs a causality network of simulation components, namely states and processes, of a whole-cell simulation
-	using sim_data. Writes two files (node list and edge list) that are subsequently used by the dynamics reader to
-	extract simulation results, and for the visual representation of the network.
+	Constructs a causality network of simulation components, namely states and
+	processes, of a whole-cell simulation using sim_data. Writes two files
+	(node list and edge list) that are subsequently used by the dynamics reader
+	to extract simulation results, and for the visual representation of the
+	network.
 	"""
 	def __init__(self, sim_data_file, output_dir, check_sanity=False):
+		"""
+		Args:
+			sim_data_file: path to the variant sim_data cPickle file used for
+			building the network.
+			output_dir: output directory for the node list and edge list files.
+			check_sanity: if set to True, checks if there are any nodes with
+			duplicate IDs in the network.
+		"""
 		# Open simulation data and save as attribute
 		with open(sim_data_file, 'rb') as f:
 			self.sim_data = cPickle.load(f)
@@ -262,7 +290,7 @@ class BuildNetwork(object):
 			transcription_node = Node()
 
 			# Add attributes to the node
-			transcription_id = "%s_TRS" % gene_id
+			transcription_id = gene_id + NODE_ID_SUFFIX["transcription"]
 			transcription_name = gene_name + " transcription"
 			transcription_synonyms = [x + " transcription" for x in gene_synonyms]
 			attr = {
@@ -381,7 +409,7 @@ class BuildNetwork(object):
 			translation_node = Node()
 
 			# Add attributes to the node
-			translation_id = "%s_TRL" % gene_id
+			translation_id = gene_id + NODE_ID_SUFFIX["translation"]
 			translation_name = gene_name + " translation"
 			translation_synonyms = [x + " translation" for x in gene_synonyms]
 			attr = {
@@ -854,7 +882,7 @@ class BuildNetwork(object):
 			regulation_node = Node()
 
 			# Add attributes to the node
-			reg_id = tf + "_" + gene_id + "_REG"
+			reg_id = tf + "_" + gene_id + NODE_ID_SUFFIX["regulation"]
 			reg_name = tf + "-" + gene_id + " gene regulation"
 			attr = {
 				'node_class': 'Process',

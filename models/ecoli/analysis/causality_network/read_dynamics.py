@@ -18,8 +18,9 @@ from wholecell.utils import filepath
 from wholecell.utils import units
 
 from models.ecoli.analysis.causality_network.network_components import (
-	Node, DYNAMICS_HEADER
+	Node, DYNAMICS_HEADER, COUNT_UNITS, PROB_UNITS
 	)
+from models.ecoli.analysis.causality_network.build_network import NODE_ID_SUFFIX
 
 REQUIRED_COLUMNS = [
 	("BulkMolecules", "counts"),
@@ -94,7 +95,7 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 				node = Node()
 				node_id, node_type = node.read_attributes_from_tsv(line)
 
-				read_func = TYPE_SWITCHER[node_type]
+				read_func = TYPE_TO_READER_FUNCTION[node_type]
 				read_func(sim_data, node, node_id, columns, indexes, volume)
 
 				node.write_dynamics(dynamics_file)
@@ -172,8 +173,8 @@ def read_gene_dynamics(sim_data, node, node_id, columns, indexes, volume):
 		"gene copy number": columns[("BulkMolecules", "counts")][:, copy_number_index],
 		}
 	dynamics_units = {
-		"transcription probability": "p",
-		"gene copy number": "N",
+		"transcription probability": PROB_UNITS,
+		"gene copy number": COUNT_UNITS,
 		}
 
 	node.read_dynamics(dynamics, dynamics_units)
@@ -189,7 +190,7 @@ def read_rna_dynamics(sim_data, node, node_id, columns, indexes, volume):
 		"counts": columns[("BulkMolecules", "counts")][:, rna_index],
 		}
 	dynamics_units = {
-		"counts": "N",
+		"counts": COUNT_UNITS,
 		}
 
 	node.read_dynamics(dynamics, dynamics_units)
@@ -208,7 +209,7 @@ def read_protein_dynamics(sim_data, node, node_id, columns, indexes, volume):
 		'concentration': concentration,
 		}
 	dynamics_units = {
-		'counts': 'N',
+		'counts': COUNT_UNITS,
 		'concentration': 'mmol/L',
 		}
 
@@ -231,7 +232,7 @@ def read_metabolite_dynamics(sim_data, node, node_id, columns, indexes, volume):
 		'concentration': concentration,
 		}
 	dynamics_units = {
-		'counts': 'N',
+		'counts': COUNT_UNITS,
 		'concentration': 'mmol/L',
 		}
 
@@ -242,14 +243,14 @@ def read_transcription_dynamics(sim_data, node, node_id, columns, indexes, volum
 	"""
 	Reads dynamics data for transcription nodes from simulation output.
 	"""
-	gene_id = node_id.split("_TRS")[0]
+	gene_id = node_id.split(NODE_ID_SUFFIX["transcription"])[0]
 	gene_idx = indexes["Genes"][gene_id]
 
 	dynamics = {
 		"transcription initiations": columns[("RnapData", "rnaInitEvent")][:, gene_idx],
 		}
 	dynamics_units = {
-		"transcription initiations": "N",
+		"transcription initiations": COUNT_UNITS,
 		}
 
 	node.read_dynamics(dynamics, dynamics_units)
@@ -259,14 +260,14 @@ def read_translation_dynamics(sim_data, node, node_id, columns, indexes, volume)
 	"""
 	Reads dynamics data for translation nodes from a simulation output.
 	"""
-	rna_id = node_id.split("_TRL")[0] + "_RNA[c]"
+	rna_id = node_id.split(NODE_ID_SUFFIX["translation"])[0] + "_RNA[c]"
 	translation_idx = indexes["TranslatedRnas"][rna_id]
 
 	dynamics = {
 		'translation probability': columns[("RibosomeData", "probTranslationPerTranscript")][:, translation_idx],
 		}
 	dynamics_units = {
-		'translation probability': 'p',
+		'translation probability': PROB_UNITS,
 		}
 
 	node.read_dynamics(dynamics, dynamics_units)
@@ -282,7 +283,7 @@ def read_complexation_dynamics(sim_data, node, node_id, columns, indexes, volume
 		'complexation events': columns[("ComplexationListener", "complexationEvents")][:, reaction_idx],
 		}
 	dynamics_units = {
-		'complexation events': 'N',
+		'complexation events': COUNT_UNITS,
 		}
 
 	node.read_dynamics(dynamics, dynamics_units)
@@ -337,13 +338,13 @@ def read_regulation_dynamics(sim_data, node, node_id, columns, indexes, volume):
 		'bound TFs': columns[("BulkMolecules", "counts")][:, bound_tf_idx],
 		}
 	dynamics_units = {
-		'bound TFs': 'N',
+		'bound TFs': COUNT_UNITS,
 		}
 
 	node.read_dynamics(dynamics, dynamics_units)
 
 
-TYPE_SWITCHER = {
+TYPE_TO_READER_FUNCTION = {
 	"Global": read_global_dynamics,
 	"Gene": read_gene_dynamics,
 	"RNA": read_rna_dynamics,
