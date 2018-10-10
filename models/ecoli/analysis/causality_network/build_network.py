@@ -1,12 +1,6 @@
 """
-Constructs a network representations of simulation components from sim_data, and generates files for node lists and edge lists.
-
-
-args:
-	--check_sanity, if set to True, checks if there are any nodes with duplicate IDs in the network.
-
-
-
+Constructs a network representations of simulation components from sim_data,
+and generates files for node lists and edge lists.
 
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/26/2018
@@ -22,6 +16,13 @@ from models.ecoli.analysis.causality_network.network_components import (
 	Node, Edge, NODELIST_FILENAME, EDGELIST_FILENAME, NODE_LIST_HEADER,
 	EDGE_LIST_HEADER
 	)
+
+# Suffixes that are added to the node IDs of a particular type of node
+NODE_ID_SUFFIX = {
+	"transcription": "_TRS",
+	"translation": "_TRL",
+	"regulation": "_REG",
+	}
 
 # Proteins that are reactants or products of a metabolic reaction
 PROTEINS_IN_METABOLISM = ["EG50003-MONOMER[c]", "PHOB-MONOMER[c]",
@@ -43,11 +44,21 @@ NONPROTEIN_MOLECULES_IN_2CS = ["ATP[c]", "ADP[c]", "WATER[c]", "PI[c]",
 
 class BuildNetwork(object):
 	"""
-	Constructs a causality network of simulation components, namely states and processes, of a whole-cell simulation
-	using sim_data. Writes two files (node list and edge list) that are subsequently used by the dynamics reader to
-	extract simulation results, and for the visual representation of the network.
+	Constructs a causality network of simulation components, namely states and
+	processes, of a whole-cell simulation using sim_data. Writes two files
+	(node list and edge list) that are subsequently used by the dynamics reader
+	to extract simulation results, and for the visual representation of the
+	network.
 	"""
 	def __init__(self, sim_data_file, output_dir, check_sanity=False):
+		"""
+		Args:
+			sim_data_file: path to the variant sim_data cPickle file used for
+			building the network.
+			output_dir: output directory for the node list and edge list files.
+			check_sanity: if set to True, checks if there are any nodes with
+			duplicate IDs in the network.
+		"""
 		# Open simulation data and save as attribute
 		with open(sim_data_file, 'rb') as f:
 			self.sim_data = cPickle.load(f)
@@ -220,7 +231,7 @@ class BuildNetwork(object):
 			transcription_node = Node()
 
 			# Add attributes to the node
-			transcription_id = "%s_TRS" % gene_id
+			transcription_id = gene_id + NODE_ID_SUFFIX["transcription"]
 			transcription_name = gene_name + " transcription"
 			transcription_synonyms = [x + " transcription" for x in gene_synonyms]
 			attr = {
@@ -339,7 +350,7 @@ class BuildNetwork(object):
 			translation_node = Node()
 
 			# Add attributes to the node
-			translation_id = "%s_TRL" % gene_id
+			translation_id = gene_id + NODE_ID_SUFFIX["translation"]
 			translation_name = gene_name + " translation"
 			translation_synonyms = [x + " translation" for x in gene_synonyms]
 			attr = {
@@ -812,7 +823,7 @@ class BuildNetwork(object):
 			regulation_node = Node()
 
 			# Add attributes to the node
-			reg_id = tf + "_" + gene_id + "_REG"
+			reg_id = tf + "_" + gene_id + NODE_ID_SUFFIX["regulation"]
 			reg_name = tf + "-" + gene_id + " gene regulation"
 			attr = {
 				'node_class': 'Process',

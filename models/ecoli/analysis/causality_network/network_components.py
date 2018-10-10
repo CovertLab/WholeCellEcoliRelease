@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Classes for the Nodes and Edges of a causality network.
 
@@ -7,10 +6,12 @@ Classes for the Nodes and Edges of a causality network.
 """
 from __future__ import absolute_import, division, print_function
 
+# Filenames
 NODELIST_FILENAME = "causality_network_node_list.tsv"
 EDGELIST_FILENAME = "causality_network_edge_list.tsv"
 DYNAMICS_FILENAME = "causality_network_dynamics.tsv"
 
+# Headers
 NODE_LIST_HEADER = "\t".join(
 	["ID", "class", "type", "name", "synonyms", "constants"]
 	)
@@ -21,6 +22,11 @@ DYNAMICS_HEADER = "\t".join(
 	["ID", "type", "units", "dynamics"]
 	)
 
+# Special strings used as units to designate type of dynamics
+COUNT_UNITS = "N"
+PROB_UNITS = "prob"
+
+# Precision settings for numbers in the dynamics file
 DYNAMICS_PRECISION = 6
 PROBABILITY_PRECISION = 4
 TIME_PRECISION = 2
@@ -123,9 +129,9 @@ class Node(object):
 			unit = self.dynamics_units.get(dynamics_name, "")
 
 			# Format dynamics string depending on data type
-			if unit == "N":
+			if unit == COUNT_UNITS:
 				dynamics_string = self._format_dynamics_string(dynamics_data, "int")
-			elif unit == "prob":
+			elif unit == PROB_UNITS:
 				dynamics_string = self._format_dynamics_string(dynamics_data, "prob")
 			elif unit == "s":
 				dynamics_string = self._format_dynamics_string(dynamics_data, "time")
