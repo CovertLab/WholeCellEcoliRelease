@@ -316,50 +316,20 @@ class BuildNetwork(object):
 			self.node_list.append(transcription_node)
 
 			# Add edge from gene to transcription node
-			gene_to_transcription_edge = Edge("Transcription")
-			attr = {
-				'src_id': gene_id,
-				'dst_id': transcription_id,
-				}
-			gene_to_transcription_edge.read_attributes(**attr)
-			self.edge_list.append(gene_to_transcription_edge)
+			self._append_edge("Transcription", gene_id, transcription_id)
 
 			# Add edge from transcription to transcript node
-			transcription_to_rna_edge = Edge("Transcription")
-			attr = {
-				'src_id': transcription_id,
-				'dst_id': rna_id,
-				}
-			transcription_to_rna_edge.read_attributes(**attr)
-			self.edge_list.append(transcription_to_rna_edge)
+			self._append_edge("Transcription", transcription_id, rna_id)
 
 			# Add edges from NTPs to transcription nodes
 			for ntp_id in ntp_ids:
-				ntp_to_transcription_edge = Edge("Transcription")
-				attr = {
-					'src_id': ntp_id,
-					'dst_id': transcription_id,
-					}
-				ntp_to_transcription_edge.read_attributes(**attr)
-				self.edge_list.append(ntp_to_transcription_edge)
+				self._append_edge("Transcription", ntp_id, transcription_id)
 
 			# Add edge from transcription to Ppi
-			transcription_to_ppi_edge = Edge("Transcription")
-			attr = {
-				'src_id': transcription_id,
-				'dst_id': ppi_id,
-				}
-			transcription_to_ppi_edge.read_attributes(**attr)
-			self.edge_list.append(transcription_to_ppi_edge)
+			self._append_edge("Transcription", transcription_id, ppi_id)
 
 			# Add edges from RNA polymerases to transcription
-			pol_to_transcription_edge = Edge("Transcription")
-			attr = {
-				'src_id': rnap_id,
-				'dst_id': transcription_id,
-				}
-			pol_to_transcription_edge.read_attributes(**attr)
-			self.edge_list.append(pol_to_transcription_edge)
+			self._append_edge("Transcription", rnap_id, transcription_id)
 
 
 	def _add_translation_and_monomers(self):
@@ -435,62 +405,26 @@ class BuildNetwork(object):
 			self.node_list.append(translation_node)
 
 			# Add edge from transcript to translation node
-			rna_to_translation_edge = Edge("Translation")
-			attr = {
-				'src_id': rna_id,
-				'dst_id': translation_id,
-				}
-			rna_to_translation_edge.read_attributes(**attr)
-			self.edge_list.append(rna_to_translation_edge)
+			self._append_edge("Translation", rna_id, translation_id)
 
 			# Add edge from translation to monomer node
-			translation_to_protein_edge = Edge("Translation")
-			attr = {
-				'src_id': translation_id,
-				'dst_id': monomer_id,
-				}
-			translation_to_protein_edge.read_attributes(**attr)
-			self.edge_list.append(translation_to_protein_edge)
+			self._append_edge("Translation", translation_id, monomer_id)
 
 			# Add edges from amino acids to translation node
 			for aa_id in aa_ids:
-				aa_to_translation_edge = Edge("Translation")
-				attr = {
-					'src_id': aa_id,
-					'dst_id': translation_id,
-					}
-				aa_to_translation_edge.read_attributes(**attr)
-				self.edge_list.append(aa_to_translation_edge)
+				self._append_edge("Translation", aa_id, translation_id)
 
 			# Add edges from other reactants to translation node
 			for reactant_id in [gtp_id, water_id]:
-				reactant_to_translation_edge = Edge("Translation")
-				attr = {
-					'src_id': reactant_id,
-					'dst_id': translation_id,
-					}
-				reactant_to_translation_edge.read_attributes(**attr)
-				self.edge_list.append(reactant_to_translation_edge)
+				self._append_edge("Translation", reactant_id, translation_id)
 
 			# Add edges from translation to other product nodes
 			for product_id in [gdp_id, ppi_id, water_id]:
-				translation_to_product_edge = Edge("Translation")
-				attr = {
-					'src_id': translation_id,
-					'dst_id': product_id,
-					}
-				translation_to_product_edge.read_attributes(**attr)
-				self.edge_list.append(translation_to_product_edge)
+				self._append_edge("Translation", translation_id, product_id)
 
 			# Add edges from ribosome subunits to translation node
 			for subunit_id in ribosome_subunit_ids:
-				subunit_to_translation_edge = Edge("Translation")
-				attr = {
-					'src_id': subunit_id,
-					'dst_id': translation_id,
-					}
-				subunit_to_translation_edge.read_attributes(**attr)
-				self.edge_list.append(subunit_to_translation_edge)
+				self._append_edge("Translation", subunit_id, translation_id)
 
 
 	def _add_complexation_and_complexes(self):
@@ -530,28 +464,16 @@ class BuildNetwork(object):
 
 			# Loop through all proteins participating in the reaction
 			for molecule_index, stoich in izip(molecule_indices, stoich_coeffs):
-				# Initialize complex edge
-				complex_edge = Edge("Complexation")
-
-				# Add attributes to the complex edge
+				# Add complexation edges
 				# Note: the direction of the edge is determined by the sign of the
 				# stoichiometric coefficient.
 				if stoich > 0:
-					attr = {
-						'src_id': reaction_id,
-						'dst_id': molecule_ids[molecule_index],
-						'stoichiometry': stoich,
-						}
+					self._append_edge("Complexation", reaction_id,
+						molecule_ids[molecule_index], stoich)
 				else:
-					attr = {
-						'src_id': molecule_ids[molecule_index],
-						'dst_id': reaction_id,
-						'stoichiometry': stoich,
-						}
-				complex_edge.read_attributes(**attr)
+					self._append_edge("Complexation",
+						molecule_ids[molecule_index], reaction_id, stoich)
 
-				# Append edge to edge_list
-				self.edge_list.append(complex_edge)
 
 		for complex_id in complex_ids:
 			# Initialize a single complex node for each complex
@@ -613,14 +535,7 @@ class BuildNetwork(object):
 
 			# Add an edge from each catalyst to the metabolism node
 			for catalyst in catalyst_list:
-				metabolism_edge = Edge("Metabolism")
-				attr = {
-					'src_id': catalyst,
-					'dst_id': reaction_id,
-					}
-
-				metabolism_edge.read_attributes(**attr)
-				self.edge_list.append(metabolism_edge)
+				self._append_edge("Metabolism", catalyst, reaction_id)
 
 			# Loop through all metabolites participating in the reaction
 			for metabolite, stoich in stoich_dict.items():
@@ -629,28 +544,15 @@ class BuildNetwork(object):
 				if metabolite not in metabolite_ids:
 					metabolite_ids.append(metabolite)
 
-				# Initialize Metabolism edge
-				metabolism_edge = Edge("Metabolism")
-
-				# Add attributes to the Metabolism edge
+				# Add Metabolism edges
 				# Note: the direction of the edge is determined by the sign of the
 				# stoichiometric coefficient.
 				if stoich > 0:
-					attr = {
-						'src_id': reaction_id,
-						'dst_id': metabolite,
-						'stoichiometry': stoich,
-						}
+					self._append_edge("Metabolism", reaction_id, metabolite,
+						stoich)
 				else:
-					attr = {
-						'src_id': metabolite,
-						'dst_id': reaction_id,
-						'stoichiometry': stoich,
-						}
-				metabolism_edge.read_attributes(**attr)
-
-				# Append edge to edge_list
-				self.edge_list.append(metabolism_edge)
+					self._append_edge("Metabolism", metabolite, reaction_id,
+						stoich)
 
 		# Loop through all metabolites
 		for metabolite_id in metabolite_ids:
@@ -722,31 +624,15 @@ class BuildNetwork(object):
 			for molecule_index, stoich in enumerate(equilibrium_stoich_matrix_column):
 				molecule_id = equilibrium_molecule_ids[molecule_index]
 
-				# If the stoichiometric coefficient is negative, add reactant edge
-				# to the equilibrium node
-				if stoich < 0:
-					equilibrium_edge = Edge("Equilibrium")
-					attr = {
-						'src_id': molecule_id,
-						'dst_id': reaction_id,
-						'stoichiometry': stoich,
-						}
-
-					equilibrium_edge.read_attributes(**attr)
-					self.edge_list.append(equilibrium_edge)
-
-				# If the coefficient is positive, add product edge
-				elif stoich > 0:
-					equilibrium_edge = Edge("Equilibrium")
-					attr = {
-						'src_id': reaction_id,
-						'dst_id': molecule_id,
-						'stoichiometry': stoich,
-						}
-
-					equilibrium_edge.read_attributes(**attr)
-					self.edge_list.append(equilibrium_edge)
-
+				# Add Equilibrium edges
+				# Note: the direction of the edge is determined by the sign of the
+				# stoichiometric coefficient.
+				if stoich > 0:
+					self._append_edge("Equilibrium", reaction_id, molecule_id,
+						stoich)
+				else:
+					self._append_edge("Equilibrium", molecule_id, reaction_id,
+						stoich)
 
 		# Get 2CS-specific data from sim_data
 		tcs_molecule_ids = self.sim_data.process.two_component_system.moleculeNames
@@ -789,30 +675,15 @@ class BuildNetwork(object):
 				if molecule_id not in monomer_ids + NONPROTEIN_MOLECULES_IN_2CS:
 					tcs_complex_ids.append(molecule_id)
 
-				# If the stoichiometric coefficient is negative, add reactant edge
-				# to the equilibrium node
-				if stoich < 0:
-					equilibrium_edge = Edge("Equilibrium")
-					attr = {
-						'src_id': molecule_id,
-						'dst_id': reaction_id,
-						'stoichiometry': stoich,
-						}
-
-					equilibrium_edge.read_attributes(**attr)
-					self.edge_list.append(equilibrium_edge)
-
-				# If the coefficient is positive, add product edge
-				elif stoich > 0:
-					equilibrium_edge = Edge("Equilibrium")
-					attr = {
-						'src_id': reaction_id,
-						'dst_id': molecule_id,
-						'stoichiometry': stoich,
-						}
-
-					equilibrium_edge.read_attributes(**attr)
-					self.edge_list.append(equilibrium_edge)
+				# Add Equilibrium edges
+				# Note: the direction of the edge is determined by the sign of the
+				# stoichiometric coefficient.
+				if stoich > 0:
+					self._append_edge("Equilibrium", reaction_id, molecule_id,
+						stoich)
+				else:
+					self._append_edge("Equilibrium", molecule_id, reaction_id,
+						stoich)
 
 		# Add new complexes that were encountered here
 		for complex_id in list(set(equilibrium_complex_ids + tcs_complex_ids)):
@@ -904,22 +775,10 @@ class BuildNetwork(object):
 			self.node_list.append(regulation_node)
 
 			# Add edge from TF to this regulation node
-			regulation_edge_from_tf = Edge("Regulation")
-			attr = {
-				'src_id': tf_id,
-				'dst_id': reg_id,
-				}
-			regulation_edge_from_tf.read_attributes(**attr)
-			self.edge_list.append(regulation_edge_from_tf)
+			self._append_edge("Regulation", tf_id, reg_id)
 
 			# Add edge from this regulation node to the gene
-			regulation_edge_to_gene = Edge("Regulation")
-			attr = {
-				'src_id': reg_id,
-				'dst_id': gene_id,
-				}
-			regulation_edge_to_gene.read_attributes(**attr)
-			self.edge_list.append(regulation_edge_to_gene)
+			self._append_edge("Regulation", reg_id, gene_id)
 
 
 	def _find_duplicate_nodes(self):
@@ -939,3 +798,17 @@ class BuildNetwork(object):
 		if len(duplicate_ids) > 0:
 			raise Exception("%d node IDs were found to be duplicate: %s"
 				% (len(duplicate_ids), duplicate_ids))
+
+
+	def _append_edge(self, type, src, dst, stoichiometry=""):
+		"""
+		Helper function for appending new nodes to the network.
+		"""
+		edge = Edge(type)
+		attr = {
+			'src_id': src,
+			'dst_id': dst,
+			'stoichiometry': stoichiometry,
+			}
+		edge.read_attributes(**attr)
+		self.edge_list.append(edge)
