@@ -32,6 +32,8 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 	def initialize(self, sim, sim_data):
 		super(RibosomeData, self).initialize(sim, sim_data)
 
+		self.nMonomers = len(sim_data.process.translation.monomerData)
+
 		# Logged quantities
 		self.registerLoggedQuantity(
 			"Fraction\nribosomes\nstalled",
@@ -72,6 +74,8 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		self.processElongationRate = 0.
 		self.translationSupply = np.zeros(21, np.float64)
 		self.numTrpATerminated = 0.
+		self.probTranslationPerTranscript = np.zeros(self.nMonomers, np.float64)
+
 
 	def update(self):
 		if self.ribosomeStalls.size:
@@ -119,4 +123,5 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 			processElongationRate = self.processElongationRate,
 			translationSupply = self.translationSupply,
 			numTrpATerminated = self.numTrpATerminated,
+			probTranslationPerTranscript = self.probTranslationPerTranscript,
 			)

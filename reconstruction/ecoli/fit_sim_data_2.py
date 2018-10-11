@@ -73,7 +73,7 @@ def fitSimData_2(kb, simOutDir):
 
 		complexationMoleculeCounts = complexationMoleculesView.counts()
 
-		updatedCompMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
+		updatedCompMoleculeCounts, complexationEvents = mccFormComplexesWithPrebuiltMatrices(
 			complexationMoleculeCounts,
 			seed,
 			complexationStoichMatrix,

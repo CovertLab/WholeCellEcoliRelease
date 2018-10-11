@@ -87,7 +87,7 @@ cpdef mccBuildMatrices(np.ndarray[np.int64_t, ndim=2] stoichiometricMatrix):
 @cython.wraparound(False)
 @cython.nonecheck(False)
 @cython.cdivision(True)
-cpdef np.ndarray[np.int64_t, ndim=1] mccFormComplexesWithPrebuiltMatrices(
+cpdef tuple mccFormComplexesWithPrebuiltMatrices(
 		np.ndarray[np.int64_t, ndim=1] moleculeCounts,
 		unsigned int seed,
 		np.ndarray[np.int64_t, ndim=2] stoichiometricMatrix,
@@ -111,6 +111,9 @@ cpdef np.ndarray[np.int64_t, ndim=1] mccFormComplexesWithPrebuiltMatrices(
 	# Create vectors for choosing reactions
 	cdef np.ndarray[np.int64_t, ndim=1] reactionIsPossible = np.empty(nReactions, np.int64)
 	cdef np.ndarray[np.int64_t, ndim=1] reactionCumulative = np.empty_like(reactionIsPossible)
+
+	# Create vector for saving number of events for each complexation reaction (number of reactions / time step)
+	cdef np.ndarray[np.int64_t, ndim=1] complexationEvents = np.zeros(nReactions, np.int64)
 
 	# Find which reactions are possible
 	cdef int reactionIndex, subunitIndex, moleculeIndex
@@ -177,6 +180,8 @@ cpdef np.ndarray[np.int64_t, ndim=1] mccFormComplexesWithPrebuiltMatrices(
 				stoichiometricMatrix[moleculeIndex, reactionIndex]
 				)
 
+			complexationEvents[reactionIndex] += 1
+
 		# Update relevant reactions
 		for overlapIndex in range(maxReactionOverlap):
 			reactionIndex2 = overlappingReactions[reactionIndex, overlapIndex]
@@ -197,7 +202,7 @@ cpdef np.ndarray[np.int64_t, ndim=1] mccFormComplexesWithPrebuiltMatrices(
 
 			reactionIsPossible[reactionIndex2] = reactionPossible
 
-	return updatedMoleculeCounts
+	return updatedMoleculeCounts, complexationEvents
 
 
 @cython.boundscheck(False)
@@ -215,7 +220,7 @@ cpdef np.ndarray[np.int64_t, ndim=1] mccFormComplexes(
 
 	moleculeIndexes, overlappingReactions = mccBuildMatrices(stoichiometricMatrix)
 
-	updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
+	updatedMoleculeCounts, complexationEvents = mccFormComplexesWithPrebuiltMatrices(
 		moleculeCounts,
 		seed,
 		stoichiometricMatrix,

@@ -209,7 +209,7 @@ def initializeComplexation(bulkMolCntr, sim_data, randomState):
 	# form complexes until no new complexes form (some complexes are complexes of complexes)
 	while True:
 		moleculeCounts = moleculeView.counts()
-		updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
+		updatedMoleculeCounts, complexationEvents = mccFormComplexesWithPrebuiltMatrices(
 			moleculeCounts,
 			randomState.randint(1000),
 			stoichMatrix,
