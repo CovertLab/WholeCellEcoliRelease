@@ -91,8 +91,6 @@ def boot_ecoli(agent_id, agent_type, agent_config):
 	    * variant_index (optional)
 	    * seed (optional)
 	'''
-	agent_id = agent_id
-
 	kafka_config = agent_config['kafka_config']
 	working_dir = agent_config['working_dir']
 	outer_id = agent_config['outer_id']
@@ -101,6 +99,25 @@ def boot_ecoli(agent_id, agent_type, agent_config):
 	variant_type = agent_config.get('variant_type', 'wildtype')
 	variant_index = agent_config.get('variant_index', 0)
 	seed = agent_config.get('seed', 0)
+
+	# create the inner agent before instantiating so we can send a message to the lattice
+	# without waiting for the simulation to boot
+	inner = Inner(
+		agent_id,
+		outer_id,
+		agent_type,
+		agent_config,
+		None)
+
+	volume = agent_config.get('volume', 1.2)
+	inner.send(kafka_config['topics']['environment_receive'], {
+		'event': event.CELL_DECLARE,
+		'agent_id': outer_id,
+		'inner_id': agent_id,
+		'agent_config': agent_config,
+		'state': {
+			'volume': volume,
+			'environment_change': {}}})
 
 	sim_path = fp.makedirs(working_dir, 'out', 'manual')
 	sim_data_fit = os.path.join(sim_path, 'kb', 'simData_Most_Fit.cPickle')
@@ -153,14 +170,9 @@ def boot_ecoli(agent_id, agent_type, agent_config):
 	metadata_path = os.path.join(metadata_dir, constants.JSON_METADATA_FILE)
 	fp.write_json_file(metadata_path, metadata)
 
-	simulation = ecoli_simulation(**options)
+	inner.simulation = ecoli_simulation(**options)
 
-	return Inner(
-		agent_id,
-		outer_id,
-		agent_type,
-		agent_config,
-		simulation)
+	return inner
 
 class ShepherdControl(EnvironmentControl):
 

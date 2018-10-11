@@ -260,14 +260,18 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		return self._time
 
 	def add_simulation(self, agent_id, simulation):
-		# Place cell at either the provided or a random initial location
-		location = simulation['agent_config'].get(
-			'location', np.random.uniform(0,EDGE_LENGTH,N_DIMS))
-		orientation = simulation['agent_config'].get(
-			'orientation', np.random.uniform(0, 2*PI))
+		if agent_id not in self.simulations:
+			self.simulations[agent_id] = {}
+		self.simulations[agent_id].update(simulation)
 
-		self.simulations[agent_id] = simulation
-		self.locations[agent_id] = np.hstack((location, orientation))
+		if agent_id not in self.locations:
+			# Place cell at either the provided or a random initial location
+			location = simulation['agent_config'].get(
+				'location', np.random.uniform(0,EDGE_LENGTH,N_DIMS))
+			orientation = simulation['agent_config'].get(
+				'orientation', np.random.uniform(0, 2*PI))
+
+			self.locations[agent_id] = np.hstack((location, orientation))
 
 	def simulation_parameters(self, agent_id):
 		time = self._time
@@ -297,7 +301,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		parent_location = parent['location']
 		index = parent['index']
 		orientation = parent_location[2]
-		volume = self.simulations[agent_id]['state']['volume']
+		volume = self.simulations[agent_id]['state']['volume'] * 0.5
 		length = self.volume_to_length(volume)
 		location = self.daughter_location(parent_location[0:2], orientation, length, index)
 

@@ -414,7 +414,8 @@ class Simulation(CellSimulation):
 
 	def daughter_config(self):
 		config = {
-			'start_time': self.time()}
+			'start_time': self.time(),
+			'volume': self.listeners['Mass'].volume * 0.5}
 
 		daughters = map(
 			lambda path: dict(config, inherited_state_path=path),
