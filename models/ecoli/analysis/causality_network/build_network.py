@@ -583,7 +583,7 @@ class BuildNetwork(object):
 		Note: forward and reverse reactions are represented as separate nodes.
 		"""
 		# Get all reaction stoichiometry from sim_data
-		reaction_stoic = self.sim_data.process.metabolism.reactionStoich
+		reaction_stoich = self.sim_data.process.metabolism.reactionStoich
 
 		# Get reaction to catalyst dict from sim_data
 		reaction_catalysts = self.sim_data.process.metabolism.reactionCatalysts
@@ -592,7 +592,7 @@ class BuildNetwork(object):
 		metabolite_ids = []
 
 		# Loop through all reactions
-		for reaction_id, stoich_dict in reaction_stoic.iteritems():
+		for reaction_id, stoich_dict in reaction_stoich.iteritems():
 			# Initialize a single metabolism node for each reaction
 			metabolism_node = Node()
 
@@ -749,7 +749,7 @@ class BuildNetwork(object):
 
 
 		# Get 2CS-specific data from sim_data
-		tcs_molecules = self.sim_data.process.two_component_system.moleculeNames
+		tcs_molecule_ids = self.sim_data.process.two_component_system.moleculeNames
 		tcs_reaction_ids = self.sim_data.process.two_component_system.rxnIds
 		tcs_stoich_matrix = self.sim_data.process.two_component_system.stoichMatrix()
 
@@ -760,7 +760,7 @@ class BuildNetwork(object):
 		# Get lists of monomers that were already added
 		monomer_ids = list(self.sim_data.process.translation.monomerData["id"])
 
-		# Loop through each 2CS reaction_id
+		# Loop through each 2CS reaction
 		for reaction_index, reaction_id in enumerate(tcs_reaction_ids):
 
 			# Initialize a single equilibrium node for each equilibrium reaction
@@ -784,7 +784,7 @@ class BuildNetwork(object):
 
 			# Loop through each element in column
 			for molecule_index, stoich in enumerate(tcs_stoich_matrix_column):
-				molecule_id = tcs_molecules[molecule_index]
+				molecule_id = tcs_molecule_ids[molecule_index]
 
 				if molecule_id not in monomer_ids + NONPROTEIN_MOLECULES_IN_2CS:
 					tcs_complex_ids.append(molecule_id)
