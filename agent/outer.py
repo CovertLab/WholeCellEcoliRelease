@@ -159,29 +159,11 @@ class Outer(Agent):
 		ready to advance.
 		"""
 
-		# inner_id = message['inner_id']
-		# environment_time = self.environment.time()
-		# simulation_time = max(environment_time, message.get('time', environment_time))
-		# simulation = self.simulations.setdefault(inner_id, {})
-
-		# simulation.update({
-		# 	'time': simulation_time,
-		# 	'message_id': -1,
-		# 	'last_message_id': -1,
-		# 	'state': message['state'],
-		# 	'agent_config': message['agent_config']})
-
 		self.cell_declare(message)
 
 		inner_id = message['inner_id']
 		simulation = self.simulations[inner_id]
 		print('=============== initializing simulation {}'.format(simulation))
-
-		# self.environment.add_simulation(inner_id, simulation)
-		# if simulation.get('daughter'):
-		# 	self.environment.apply_parent_state(inner_id, simulation)
-
-		# self.update_state()
 
 		parameters = self.environment.simulation_parameters(inner_id)
 		self.send(self.topics['cell_receive'], {
