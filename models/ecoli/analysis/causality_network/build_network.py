@@ -507,7 +507,7 @@ class BuildNetwork(object):
 		stoich_matrix = self.sim_data.process.complexation.stoichMatrix()
 
 		# Loop through all complexation reactions
-		for idx, reaction_id in enumerate(reaction_ids):
+		for reaction_index, reaction_id in enumerate(reaction_ids):
 			# Initialize a single complexation node for each complexation reaction
 			complexation_node = Node()
 
@@ -524,12 +524,12 @@ class BuildNetwork(object):
 			self.node_list.append(complexation_node)
 
 			# Get reaction stoichiometry from stoichimetric matrix
-			stoich_vector = stoich_matrix[:, idx]
-			molecule_idxs = np.where(stoich_vector)[0]
-			stoich_coeffs = stoich_vector[molecule_idxs]
+			stoich_vector = stoich_matrix[:, reaction_index]
+			molecule_indices = np.where(stoich_vector)[0]
+			stoich_coeffs = stoich_vector[molecule_indices]
 
 			# Loop through all proteins participating in the reaction
-			for molecule_idx, stoich in izip(molecule_idxs, stoich_coeffs):
+			for molecule_index, stoich in izip(molecule_indices, stoich_coeffs):
 				# Initialize complex edge
 				complex_edge = Edge("Complexation")
 
@@ -539,12 +539,12 @@ class BuildNetwork(object):
 				if stoich > 0:
 					attr = {
 						'src_id': reaction_id,
-						'dst_id': molecule_ids[molecule_idx],
+						'dst_id': molecule_ids[molecule_index],
 						'stoichiometry': stoich,
 						}
 				else:
 					attr = {
-						'src_id': molecule_ids[molecule_idx],
+						'src_id': molecule_ids[molecule_index],
 						'dst_id': reaction_id,
 						'stoichiometry': stoich,
 						}
@@ -583,16 +583,16 @@ class BuildNetwork(object):
 		Note: forward and reverse reactions are represented as separate nodes.
 		"""
 		# Get all reaction stoichiometry from sim_data
-		reactionStoich = self.sim_data.process.metabolism.reactionStoich
+		reaction_stoic = self.sim_data.process.metabolism.reactionStoich
 
 		# Get reaction to catalyst dict from sim_data
-		reactionCatalysts = self.sim_data.process.metabolism.reactionCatalysts
+		reaction_catalysts = self.sim_data.process.metabolism.reactionCatalysts
 
 		# Initialize list of metabolite IDs
 		metabolite_ids = []
 
 		# Loop through all reactions
-		for reaction_id, stoich_dict in reactionStoich.iteritems():
+		for reaction_id, stoich_dict in reaction_stoic.iteritems():
 			# Initialize a single metabolism node for each reaction
 			metabolism_node = Node()
 
@@ -609,7 +609,7 @@ class BuildNetwork(object):
 			self.node_list.append(metabolism_node)
 
 			# Get list of proteins that catalyze this reaction
-			catalyst_list = reactionCatalysts.get(reaction_id, [])
+			catalyst_list = reaction_catalysts.get(reaction_id, [])
 
 			# Add an edge from each catalyst to the metabolism node
 			for catalyst in catalyst_list:
@@ -686,9 +686,9 @@ class BuildNetwork(object):
 		equilibrium nodes to the edge list.
 		"""
 		# Get equilibrium-specific data from sim_data
-		equilibriumMoleculeIds = self.sim_data.process.equilibrium.moleculeNames
-		equilibriumRxnIds = self.sim_data.process.equilibrium.rxnIds
-		equilibriumStoichMatrix = self.sim_data.process.equilibrium.stoichMatrix()
+		equilibrium_molecule_ids = self.sim_data.process.equilibrium.moleculeNames
+		equilibrium_reaction_ids = self.sim_data.process.equilibrium.rxnIds
+		equilibrium_stoich_matrix = self.sim_data.process.equilibrium.stoichMatrix()
 
 		# Get IDs of complexes that were already added
 		complexation_complex_ids = self.sim_data.process.complexation.ids_complexes
@@ -697,18 +697,18 @@ class BuildNetwork(object):
 		equilibrium_complex_ids = self.sim_data.process.equilibrium.ids_complexes
 
 		# Loop through each equilibrium reaction
-		for rxn_idx, rxn_id in enumerate(equilibriumRxnIds):
+		for reaction_index, reaction_id in enumerate(equilibrium_reaction_ids):
 
 			# Initialize a single equilibrium node for each equilibrium reaction
 			equilibrium_node = Node()
 
 			# Add attributes to the node
-			rxn_name = rxn_id[:-4] + " equilibrium rxn"
+			reaction_name = reaction_id[:-4] + " equilibrium rxn"
 			attr = {
 				'node_class': 'Process',
 				'node_type': 'Equilibrium',
-				'node_id': rxn_id,
-				'name': rxn_name,
+				'node_id': reaction_id,
+				'name': reaction_name,
 				}
 			equilibrium_node.read_attributes(**attr)
 
@@ -716,20 +716,19 @@ class BuildNetwork(object):
 			self.node_list.append(equilibrium_node)
 
 			# Extract column corresponding to reaction in the stoichiometric matrix
-			equilibriumStoichMatrixColumn = equilibriumStoichMatrix[:, rxn_idx]
+			equilibrium_stoich_matrix_column = equilibrium_stoich_matrix[:, reaction_index]
 
 			# Loop through each element in column
-			for moleculeIdx, stoich in enumerate(
-					equilibriumStoichMatrixColumn):
-				moleculeId = equilibriumMoleculeIds[moleculeIdx]
+			for molecule_index, stoich in enumerate(equilibrium_stoich_matrix_column):
+				molecule_id = equilibrium_molecule_ids[molecule_index]
 
 				# If the stoichiometric coefficient is negative, add reactant edge
 				# to the equilibrium node
 				if stoich < 0:
 					equilibrium_edge = Edge("Equilibrium")
 					attr = {
-						'src_id': moleculeId,
-						'dst_id': rxn_id,
+						'src_id': molecule_id,
+						'dst_id': reaction_id,
 						'stoichiometry': stoich,
 						}
 
@@ -740,8 +739,8 @@ class BuildNetwork(object):
 				elif stoich > 0:
 					equilibrium_edge = Edge("Equilibrium")
 					attr = {
-						'src_id': rxn_id,
-						'dst_id': moleculeId,
+						'src_id': reaction_id,
+						'dst_id': molecule_id,
 						'stoichiometry': stoich,
 						}
 
@@ -750,9 +749,9 @@ class BuildNetwork(object):
 
 
 		# Get 2CS-specific data from sim_data
-		tcsMoleculeIds = self.sim_data.process.two_component_system.moleculeNames
-		tcsRxnIds = self.sim_data.process.two_component_system.rxnIds
-		tcsStoichMatrix = self.sim_data.process.two_component_system.stoichMatrix()
+		tcs_molecules = self.sim_data.process.two_component_system.moleculeNames
+		tcs_reaction_ids = self.sim_data.process.two_component_system.rxnIds
+		tcs_stoich_matrix = self.sim_data.process.two_component_system.stoichMatrix()
 
 		# Initialize list of complex IDs in 2CS
 		# TODO (ggsun): add this to sim_data
@@ -761,19 +760,19 @@ class BuildNetwork(object):
 		# Get lists of monomers that were already added
 		monomer_ids = list(self.sim_data.process.translation.monomerData["id"])
 
-		# Loop through each 2CS reaction
-		for rxn_idx, rxn_id in enumerate(tcsRxnIds):
+		# Loop through each 2CS reaction_id
+		for reaction_index, reaction_id in enumerate(tcs_reaction_ids):
 
 			# Initialize a single equilibrium node for each equilibrium reaction
 			equilibrium_node = Node()
 
 			# Add attributes to the node
-			rxn_name = rxn_id[:-4] + " 2CS rxn"
+			reaction_name = reaction_id[:-4] + " 2CS rxn"
 			attr = {
 				'node_class': 'Process',
 				'node_type': 'Equilibrium',
-				'node_id': rxn_id,
-				'name': rxn_name,
+				'node_id': reaction_id,
+				'name': reaction_name,
 				}
 			equilibrium_node.read_attributes(**attr)
 
@@ -781,22 +780,22 @@ class BuildNetwork(object):
 			self.node_list.append(equilibrium_node)
 
 			# Extract column corresponding to reaction in the stoichiometric matrix
-			tcsStoichMatrixColumn = tcsStoichMatrix[:, rxn_idx]
+			tcs_stoich_matrix_column = tcs_stoich_matrix[:, reaction_index]
 
 			# Loop through each element in column
-			for moleculeIdx, stoich in enumerate(tcsStoichMatrixColumn):
-				moleculeId = tcsMoleculeIds[moleculeIdx]
+			for molecule_index, stoich in enumerate(tcs_stoich_matrix_column):
+				molecule_id = tcs_molecules[molecule_index]
 
-				if moleculeId not in monomer_ids + NONPROTEIN_MOLECULES_IN_2CS:
-					tcs_complex_ids.append(moleculeId)
+				if molecule_id not in monomer_ids + NONPROTEIN_MOLECULES_IN_2CS:
+					tcs_complex_ids.append(molecule_id)
 
 				# If the stoichiometric coefficient is negative, add reactant edge
 				# to the equilibrium node
 				if stoich < 0:
 					equilibrium_edge = Edge("Equilibrium")
 					attr = {
-						'src_id': moleculeId,
-						'dst_id': rxn_id,
+						'src_id': molecule_id,
+						'dst_id': reaction_id,
 						'stoichiometry': stoich,
 						}
 
@@ -807,8 +806,8 @@ class BuildNetwork(object):
 				elif stoich > 0:
 					equilibrium_edge = Edge("Equilibrium")
 					attr = {
-						'src_id': rxn_id,
-						'dst_id': moleculeId,
+						'src_id': reaction_id,
+						'dst_id': molecule_id,
 						'stoichiometry': stoich,
 						}
 
@@ -869,18 +868,18 @@ class BuildNetwork(object):
 		the regulation nodes to the edge list.
 		"""
 		# Get recruitment column names from sim_data
-		recruitmentColNames = self.sim_data.process.transcription_regulation.recruitmentColNames
+		recruitment_column_names = self.sim_data.process.transcription_regulation.recruitmentColNames
 
 		# Get IDs of genes and RNAs
 		gene_ids = self.sim_data.process.replication.geneData["name"]
 		rna_ids = list(self.sim_data.process.replication.geneData["rnaId"])
 
 		# Loop through all recruitment column names
-		for recruitmentColName in recruitmentColNames:
-			if recruitmentColName.endswith("__alpha"):
+		for recruitment_column_name in recruitment_column_names:
+			if recruitment_column_name.endswith("__alpha"):
 				continue
 
-			rna_id, tf = recruitmentColName.split("__")
+			rna_id, tf = recruitment_column_name.split("__")
 
 			# Add localization ID to the TF ID
 			tf_id = tf + "[c]"
