@@ -86,6 +86,10 @@ Note:
 	required because --check_sanity checks for duplicate nodes. However,
 	identifying such molecules here can streamline network building by
 	eliminating the need to search through nodes that were added previously.
+
+TODO:
+	Future proof by programmatically finding multi-process participatory
+	molecules (maybe dictionary of booleans).
 """
 # Proteins that are reactants or products of a metabolic reaction
 PROTEINS_IN_METABOLISM = ["EG50003-MONOMER[c]", "PHOB-MONOMER[c]",
