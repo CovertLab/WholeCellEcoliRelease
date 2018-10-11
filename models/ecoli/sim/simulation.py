@@ -36,7 +36,8 @@ from models.ecoli.listeners.growth_limits import GrowthLimits
 from models.ecoli.listeners.cell_division import CellDivision
 from models.ecoli.listeners.rna_synth_prob import RnaSynthProb
 from models.ecoli.listeners.monomer_counts import MonomerCounts
-
+from models.ecoli.listeners.complexation_listener import ComplexationListener
+from models.ecoli.listeners.equilibrium_listener import EquilibriumListener
 
 # Analysis
 import models.ecoli.analysis.single
@@ -86,6 +87,8 @@ class EcoliSimulation(Simulation):
 		CellDivision,
 		RnaSynthProb,
 		MonomerCounts,
+		ComplexationListener,
+		EquilibriumListener,
 		)
 
 	_hookClasses = ()
