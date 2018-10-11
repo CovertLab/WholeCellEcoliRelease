@@ -43,6 +43,8 @@ class Complexation(wholecell.processes.process.Process):
 
 		self.prebuiltMatrices = mccBuildMatrices(self.stoichMatrix)
 
+		self.product_indices = [idx for idx in np.where(np.any(self.stoichMatrix > 0, axis=1))[0]]
+
 		# Build views
 		moleculeNames = sim_data.process.complexation.moleculeNames
 		self.molecules = self.bulkMoleculesView(moleculeNames)
@@ -52,7 +54,7 @@ class Complexation(wholecell.processes.process.Process):
 		moleculeCounts = self.molecules.total()
 
 		# Macromolecule complexes are requested
-		updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
+		updatedMoleculeCounts, complexationEvents = mccFormComplexesWithPrebuiltMatrices(
 			moleculeCounts,
 			self.randomState.randint(RAND_MAX),
 			self.stoichMatrix,
@@ -66,7 +68,7 @@ class Complexation(wholecell.processes.process.Process):
 		moleculeCounts = self.molecules.counts()
 
 		# Macromolecule complexes are formed from their subunits
-		updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
+		updatedMoleculeCounts, complexationEvents = mccFormComplexesWithPrebuiltMatrices(
 			moleculeCounts,
 			self.randomState.randint(RAND_MAX),
 			self.stoichMatrix,
@@ -74,3 +76,6 @@ class Complexation(wholecell.processes.process.Process):
 			)
 
 		self.molecules.countsIs(updatedMoleculeCounts)
+
+		# Write outputs to listeners
+		self.writeToListener("ComplexationListener", "complexationEvents", complexationEvents)

@@ -18,6 +18,7 @@ from reconstruction.ecoli.dataclasses.getterFunctions import getterFunctions
 from reconstruction.ecoli.dataclasses.moleculeGroups import MoleculeGroups
 from reconstruction.ecoli.dataclasses.moleculeIds import MoleculeIds
 from reconstruction.ecoli.dataclasses.constants import Constants
+from reconstruction.ecoli.dataclasses.getNames import GetNames
 from reconstruction.ecoli.dataclasses.state.internal_state import InternalState
 from reconstruction.ecoli.dataclasses.state.external_state import ExternalState
 from reconstruction.ecoli.dataclasses.process.process import Process
@@ -76,6 +77,9 @@ class SimulationDataEcoli(object):
 		#### VARIANT CODE ####
 		self.translationSaturation = True
 		#### VARIANT CODE ####
+
+		# Fathom visualization-tool related data
+		self.fathom = GetNames(raw_data, self)
 
 	def _addHardCodedAttributes(self):
 		self.molecular_weight_keys = [

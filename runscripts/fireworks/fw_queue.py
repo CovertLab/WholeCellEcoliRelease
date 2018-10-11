@@ -37,6 +37,8 @@ Workflow options:
 		expression is not fit to RNA synthesis demands
 	WC_ANALYZE_FAST (anything, --): if set, run each analysis plot in a separate
 		process
+	BUILD_CAUSALITY_NETWORK (int, "0"): if nonzero, causality network files are
+		generated from simulation output
 
 Simulation parameters:
 	N_GENS (int, "1"): the number of generations to be simulated
@@ -93,6 +95,7 @@ from wholecell.fireworks.firetasks import AnalysisVariantTask
 from wholecell.fireworks.firetasks import AnalysisCohortTask
 from wholecell.fireworks.firetasks import AnalysisSingleTask
 from wholecell.fireworks.firetasks import AnalysisMultiGenTask
+from wholecell.fireworks.firetasks import BuildCausalityNetworkTask
 from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
 from wholecell.utils import constants
 from wholecell.utils import filepath
@@ -134,6 +137,7 @@ PARALLEL_FITTER = bool(int(os.environ.get("PARALLEL_FITTER", "0")))
 DEBUG_FITTER = bool(int(os.environ.get("DEBUG_FITTER", "0")))
 DISABLE_RIBOSOME_CAPACITY_FITTING = bool(int(os.environ.get("DISABLE_RIBOSOME_CAPACITY_FITTING", "0")))
 DISABLE_RNAPOLY_CAPACITY_FITTING = bool(int(os.environ.get("DISABLE_RNAPOLY_CAPACITY_FITTING", "0")))
+BUILD_CAUSALITY_NETWORK = bool(int(os.environ.get("BUILD_CAUSALITY_NETWORK", "0")))
 
 if not RUN_AGGREGATE_ANALYSIS:
 	COMPRESS_OUTPUT = False
@@ -611,20 +615,24 @@ for i in VARIANTS_TO_RUN:
 					fw_parent_sim = sims_this_seed[k - 1][l // 2]
 					wf_links[fw_parent_sim].append(fw_this_variant_this_gen_this_sim)
 
+				if COMPRESS_OUTPUT:
+					# Output compression job
+					fw_name = "ScriptTask_compression_simulation__Seed_%d__Gen_%d__Cell_%d" % (
+					j, k, l)
+					fw_this_variant_this_gen_this_sim_compression = Firework(
+						ScriptTask(
+							script='for dir in %s; do echo "Compressing $dir"; find "$dir" -type f | xargs bzip2; done' % os.path.join(
+								CELL_SIM_OUT_DIRECTORY, "*")
+							),
+						name=fw_name,
+						spec={"_queueadapter": {"job_name": fw_name},
+							"_priority": 0}
+						)
+
+					wf_fws.append(
+						fw_this_variant_this_gen_this_sim_compression)
+
 				if RUN_AGGREGATE_ANALYSIS:
-					if COMPRESS_OUTPUT:
-						# Output compression job
-						fw_name = "ScriptTask_compression_simulation__Seed_%d__Gen_%d__Cell_%d" % (j, k, l)
-						fw_this_variant_this_gen_this_sim_compression = Firework(
-							ScriptTask(
-								script = 'for dir in %s; do echo "Compressing $dir"; find "$dir" -type f | xargs bzip2; done' % os.path.join(CELL_SIM_OUT_DIRECTORY, "*")
-								),
-							name = fw_name,
-							spec = {"_queueadapter": {"job_name": fw_name}, "_priority":0}
-							)
-
-						wf_fws.append(fw_this_variant_this_gen_this_sim_compression)
-
 					metadata["analysis_type"] = "single"
 
 					# AnalysisSingle task
@@ -646,7 +654,6 @@ for i in VARIANTS_TO_RUN:
 
 					wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_this_gen_this_sim_analysis)
 
-
 					if COMPRESS_OUTPUT:
 						# Don't compress any outputs or validation data until all analysis scripts (single gen, multigen, and cohort) have finished running
 						compression_fws = [
@@ -663,9 +670,39 @@ for i in VARIANTS_TO_RUN:
 							for data in data_fws:
 								wf_links[data].append(compression)
 
+
+				if BUILD_CAUSALITY_NETWORK:
+					metadata["analysis_type"] = "causality_network"
+
+					# BuildCausalityNetwork task
+					fw_name = "BuildCausalityNetworkTask__Var_%d__Seed_%d__Gen_%d__Cell_%d" % (i, j, k, l)
+					fw_this_variant_this_gen_this_sim_causality_network = Firework(
+						BuildCausalityNetworkTask(
+							input_results_directory = CELL_SIM_OUT_DIRECTORY,
+							input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
+							output_network_directory = VARIANT_SIM_DATA_DIRECTORY,
+							output_dynamics_directory = CELL_PLOT_OUT_DIRECTORY,
+							metadata = metadata,
+							),
+						name=fw_name,
+						spec={"_queueadapter": dict(analysis_q_cpus,
+							job_name=fw_name), "_priority": 2}
+						)
+
+					wf_fws.append(fw_this_variant_this_gen_this_sim_causality_network)
+
+					wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_this_gen_this_sim_causality_network)
+
+					if COMPRESS_OUTPUT:
+						# Don't compress any outputs or sim_data until
+						# causality network scripts have finished running
+						compression_fws = [
+							fw_this_variant_sim_data_compression,
+							fw_this_variant_this_gen_this_sim_compression
+						]
+						wf_links[fw_this_variant_this_gen_this_sim_causality_network].extend(compression_fws)
+
 ## Create workflow
-
-
 if VERBOSE_QUEUE:
 	print "Creating workflow."
 

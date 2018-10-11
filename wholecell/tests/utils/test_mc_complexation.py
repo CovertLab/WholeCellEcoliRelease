@@ -65,7 +65,7 @@ class Test_mc_complexation(unittest.TestCase):
 		for i,test_moleculeCount in enumerate(test_moleculeCounts):
 			prebuiltMatrices = mccBuildMatrices(stoichMatrix)
 
-			updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
+			updatedMoleculeCounts, complexationEvents = mccFormComplexesWithPrebuiltMatrices(
 				test_moleculeCount,
 				seed,
 				stoichMatrix,

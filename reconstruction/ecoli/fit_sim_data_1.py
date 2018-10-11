@@ -1665,7 +1665,7 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 		complexationMoleculeCounts = complexationMoleculesView.counts()
 
 		# Form complexes
-		updatedCompMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
+		updatedCompMoleculeCounts, complexationEvents = mccFormComplexesWithPrebuiltMatrices(
 			complexationMoleculeCounts,
 			seed,
 			complexationStoichMatrix,

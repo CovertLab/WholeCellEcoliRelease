@@ -128,6 +128,7 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 
 		# Write number of initalized ribosomes to listener
 		self.writeToListener("RibosomeData", "didInitialize", nNewProteins.sum())
+		self.writeToListener("RibosomeData", "probTranslationPerTranscript", proteinInitProb)
 
 	def _calculateActivationProb(self, fracActiveRibosome, proteinLengths, ribosomeElongationRate, proteinInitProb, timeStepSec):
 		# Calculate expected ribosome termination rate based on ribosome elongation rate
