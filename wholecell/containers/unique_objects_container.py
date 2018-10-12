@@ -1,22 +1,21 @@
 """
-unqiue_objects_container.py
+A UniqueObjectsContainer tracks the attributes of unique objects, which are
+typically molecules.
 
-UniqueObjectsContainer is a object that tracks the attributes of unique
-objects, which are typically molecules.  It supports saving and loading by
-appending entries in a structured array to tables with the same sets of fields.
-
-The UniqueObjectsContainer uses _UniqueObject objects to present a clean
-interface to a specific molecule"s attributes.
+The UniqueObjectsContainer uses _UniqueObject instances to present O-O proxies
+to specific molecules.
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 from copy import deepcopy
-import warnings
 from itertools import izip
 from functools import partial
 
 import numpy as np
+import zlib
+
+import wholecell.utils.linear_programming as lp
 
 # TODO: object transfer between UniqueObjectsContainer instances
 # TODO: unique id for each object based on
@@ -28,27 +27,107 @@ class UniqueObjectsContainerException(Exception):
 	pass
 
 
+def decomp(specifications, compressed_collections, global_ref_count):
+	"""Decompress the arguments into a UniqueObjectsContainer. "decomp" is
+	intentionally short and awkward for intended use limited to pickling. It
+	calls the constructor to set up indexes and caches, unlike `__setstate__`.
+
+	CAUTION: Future edits are expected to maintain backward compatibility with
+	stored pickled arguments (e.g. via optional args) or explicitly detach
+	(e.g. `__reduce__` to a new unpickling function.)
+
+	The current stored format is sensitive to all the internal representation
+	details including inactive entries, bookkeeping fields, and index fields
+	which could all be reconstructed here.
+
+	Args:
+		specifications (dict): dtype specs as passed to UniqueObjectsContainer()
+		compressed_collections (list[bytes]): zlib-compressed bytes of the collections ndarrays
+		global_ref_count (int): the size of the global references ndarray
+
+	Returns:
+		A filled-in UniqueObjectsContainer.
+	"""
+	container = UniqueObjectsContainer(specifications)
+	_collections = container._collections
+
+	# Decompress the _collections arrays.
+	for index, data in enumerate(compressed_collections):
+		_collections[index] = decompress_ndarray(data, _collections[index].dtype)
+
+	# Reconstruct the _globalReference array.
+	grefs = np.zeros(global_ref_count, container._globalReference.dtype)
+	container._globalReference = grefs
+	for collectionIndex, collection in enumerate(_collections):
+		for objectIndex, entry in enumerate(collection):
+			if entry["_entryState"] == container._entryActive:
+				global_ref = grefs[entry["_globalIndex"]]
+				global_ref["_entryState"] = container._entryActive
+				global_ref["_collectionIndex"] = collectionIndex
+				global_ref["_objectIndex"] = objectIndex
+
+	return container
+
+
+def compress_ndarray(array):
+	return zlib.compress(array.tobytes(), 9)
+
+def decompress_ndarray(compressed_bytes, dtype):
+	return np.frombuffer(zlib.decompress(compressed_bytes), dtype)
+
+
+def make_dtype_spec(dict_of_dtype_specs):
+	"""Construct a structured dtype spec from a dict of {name: dtype} specs.
+	Sort it to ensure a consistent storage format for the structured values.
+	"""
+	return sorted([
+		(attrName, attrType)
+		for attrName, attrType in dict_of_dtype_specs.iteritems()
+		])
+
+
 class UniqueObjectsContainer(object):
 	"""
-	UniqueObjectsContainer
+	Essentially a database of unique molecules and other unique objects kept in
+	a dict of structured arrays (that is, a dict of ndarrays of structs). Each
+	structured array (DB table) names a collection of similar objects, each
+	array entry (DB row) holds the state for a unique object instance, and the
+	structured array fields (DB columns) hold its attributes.
+	Used for unique molecules state and partitions.
 
-	Essentially a dict of structured arrays, where the structured array
-	fields are attributes of the unique molecules.  Used for the unique
-	molecules state and partitions.
+	Parameters:
+		specifications (Dict[str, Dict[str, str]]): Maps the unique molecule
+			names (collection names) to the {attribute_name: dtype} molecule
+			attributes (structured array fields). The dtype declarations are
+			strings describing NumPy scalar types.
+
+			Example: {
+				'DNA polymerase': {'bound': 'bool', 'location': 'int32'},
+				'RNA polymerase': {'bound': 'bool', 'location': 'int32', 'decay': 'float32'},
+				}
+
+	You can store a UniqueObjectsContainer via TableWriter or (for a single
+	snapshot) more compactly via pickling.
 	"""
 
 	# State descriptions
-	_entryInactive = 0 # a clear entry
+	_entryInactive = 0 # an available entry; 0 works for np.zeros() allocation
 	_entryActive = 1 # an entry that is in use
+	# TODO(jerry): Store the _entryState in a parallel array? Or keep a count
+	#   of active entries and always compact them? Do int8 _entryState fields
+	#   make in-memory performance faster than int64 (better cache locality) or
+	#   slower (maybe misaligned following fields)? What about in TableWriter?
+	#   When pickling, the data gets compressed so the impact is smaller.
+	# TODO(jerry): Use narrower index fields?
 
-	_defaultSpecification = {
-		"_entryState":np.int64, # see state descriptions above
+	_defaultSpecification = {  # bookkeeping fields to add to every struct type
+		"_entryState":np.int8, # see state descriptions above
 		"_globalIndex":np.int64, # index in the _globalReference array (collection)
-		"_uniqueId":"{}str".format(_MAX_ID_SIZE) # unique ID assigned to each object
+		# "_uniqueId":"{}str".format(_MAX_ID_SIZE), # unique ID assigned to each object
 		}
 
 	_globalReferenceDtype = {
-		"_entryState":np.int64, # see state descriptions above
+		"_entryState":np.int8, # see state descriptions above
 		"_collectionIndex":np.int64,
 		"_objectIndex":np.int64,
 		}
@@ -67,16 +146,12 @@ class UniqueObjectsContainer(object):
 		}
 
 	def __init__(self, specifications):
-		self._names = [] # sorted list of object names
-
-		self._collections = [] # ordered list of collections (which are arrays)
+		self._collections = [] # ordered list of numpy structured arrays
 		self._nameToIndexMapping = {} # collectionName:index of associated structured array
-
-		self._tableNames = [] # collection index:table name
 
 		self._specifications = deepcopy(specifications) # collectionName:{attributeName:type}
 
-		self._names = sorted(self._specifications.keys())
+		self._names = tuple(sorted(self._specifications.keys())) # sorted collection names
 
 		defaultSpecKeys = self._defaultSpecification.viewkeys()
 
@@ -97,90 +172,87 @@ class UniqueObjectsContainer(object):
 		for collectionIndex, collectionName in enumerate(self._names):
 			specification = self._specifications[collectionName]
 
-			# Create the collection (structured array)
-			newArray = np.zeros( # start out empty
-				1,
-				dtype = [
-					(attrName, attrType)
-					for attrName, attrType in specification.viewitems()
-					]
-				)
+			# Create the structured array collection with 1 inactive entry.
+			newArray = np.zeros(1, dtype = make_dtype_spec(specification))
 
 			# Create references to collections
 			self._collections.append(newArray)
 			self._nameToIndexMapping[collectionName] = collectionIndex
 
-		# Create an array which handles global references to objects in all collections
+		# Create an array which handles global references to objects in all
+		# _collections. This is an index across all the unique object names
+		# (molecule types) in this container.
 		self._globalReference = np.zeros(
-			1,
-			dtype = [
-				(attrName, attrType)
-				for attrName, attrType in self._globalReferenceDtype.viewitems()
-				]
-			)
+			1, dtype = make_dtype_spec(self._globalReferenceDtype))
 
+
+	def __reduce__(self):
+		"""Reduce the container to its defining state for pickling.
+		Compress the state for transmission efficiency.
+		Return a callable object and its args.
+		"""
+		# TODO(jerry): Compress the specs?
+		# TODO(jerry): Squeeze out inactive entries and _entryState fields, but
+		#   indicate which slots are inactive or else make __eq__ ignore
+		#   differences in their positions and impact on indexes. Worth the work?
+		specs = self._copy_specs()
+		compressed_collections = [compress_ndarray(col) for col in self._collections]
+		return decomp, (specs, compressed_collections, self._globalReference.size)
+
+
+	def _growArray(self, array, nObjects):
+		"""Grow the array if needed to make room for nObjects, then return the
+		new array and the indexes of nObjects inactive entries.
+		"""
+		freeIndexes = np.where(
+			array["_entryState"] == self._entryInactive
+			)[0]
+
+		nFreeIndexes = freeIndexes.size
+
+		newArray = array
+		if nFreeIndexes < nObjects:
+			oldSize = array.size
+			nNewEntries = max(
+				np.int64(oldSize * self._fractionExtendEntries),
+				nObjects - nFreeIndexes
+				)
+
+			newArray = np.append(
+				array,
+				np.zeros(nNewEntries, dtype = array.dtype)
+				)
+
+			freeIndexes = np.concatenate((
+				freeIndexes,
+				oldSize + np.arange(nNewEntries)
+				))
+
+		return newArray, freeIndexes[:nObjects]
 
 	def _getFreeIndexes(self, collectionIndex, nObjects):
-		# Returns indexes of unoccupied entries, extending the arrays when neccesary
-
-		collection = self._collections[collectionIndex]
-
-		freeCollectionIndexes = np.where(
-			collection["_entryState"] == self._entryInactive
-			)[0]
-
-		nFreeCollectionIndexes = freeCollectionIndexes.size
-
-		if nFreeCollectionIndexes < nObjects:
-			oldSize = collection.size
-			nNewEntries = max(
-				np.int64(oldSize * self._fractionExtendEntries),
-				nObjects - nFreeCollectionIndexes
-				)
-
-			self._collections[collectionIndex] = np.append(
-				collection,
-				np.zeros(nNewEntries, dtype = collection.dtype)
-				)
-
-			freeCollectionIndexes = np.concatenate((
-				freeCollectionIndexes,
-				oldSize + np.arange(nNewEntries)
-				))
-
-		freeGlobalIndexes = np.where(
-			self._globalReference["_entryState"] == self._entryInactive
-			)[0]
-
-		nFreeGlobalIndexes = freeGlobalIndexes.size
-
-		if nFreeGlobalIndexes < nObjects:
-			oldSize = self._globalReference.size
-			nNewEntries = max(
-				np.int64(oldSize * self._fractionExtendEntries),
-				nObjects - nFreeGlobalIndexes
-				)
-
-			self._globalReference = np.append(
-				self._globalReference,
-				np.zeros(nNewEntries, dtype = self._globalReference.dtype)
-				)
-
-			freeGlobalIndexes = np.concatenate((
-				freeGlobalIndexes,
-				oldSize + np.arange(nNewEntries)
-				))
-
-		return freeCollectionIndexes[:nObjects], freeGlobalIndexes[:nObjects]
+		"""Return indexes of nObjects inactive entries in the specified
+		collection and in _globalReference after extending the arrays if needed.
+		"""
+		self._collections[collectionIndex], freeIndexes = self._growArray(
+			self._collections[collectionIndex], nObjects)
+		self._globalReference, freeGlobalIndexes = self._growArray(
+			self._globalReference, nObjects)
+		return freeIndexes, freeGlobalIndexes
 
 
 	def objectsNew(self, collectionName, nObjects, **attributes):
+		"""Add nObjects new objects/molecules of the named type, all with the
+		given attributes. Returns a _UniqueObjectSet proxy for the new entries.
+		"""
 		collectionIndex = self._nameToIndexMapping[collectionName]
 		objectIndexes, globalIndexes = self._getFreeIndexes(collectionIndex, nObjects)
 
 		collection = self._collections[collectionIndex]
 
 		# TODO: restore unique object IDs
+		# TODO(jerry): Would it be faster to copy one new entry to all rows
+		# then set the _globalIndex columns?
 
 		collection["_entryState"][objectIndexes] = self._entryActive
 		collection["_globalIndex"][objectIndexes] = globalIndexes
@@ -197,26 +269,46 @@ class UniqueObjectsContainer(object):
 
 
 	def objectNew(self, collectionName, **attributes):
+		"""Add a new object/molecule of the named type with the given
+		attributes. Returns a _UniqueObject proxy for the new entry.
+		"""
 		(molecule,) = self.objectsNew(collectionName, 1, **attributes) # NOTE: tuple unpacking
 
 		return molecule
 
 
 	def objectsDel(self, objects):
+		"""Delete unique objects given a _UniqueObjectSet or other iterable of
+		_UniqueObject proxies.
+		"""
 		for obj in objects:
 			self.objectDel(obj)
 
 
 	def objectDel(self, obj):
+		"""Delete a unique object given its _UniqueObject proxy."""
 		# TODO: profile this in processes that delete lots of objects
+		# TODO(jerry): This should just call a public method on _UniqueObject
+		# that modifies the proxy and calls a private method to modify the
+		# container, which could be a different container.
+		assert obj._container == self
+
 		collection = self._collections[obj._collectionIndex]
 		collection[obj._objectIndex].fill(0)
 
 		self._globalReference[obj._globalIndex].fill(0)
 
+		obj._globalIndex = -1
+		obj._collectionIndex = -1
+		obj._objectIndex = -1
+
 
 	def objects(self, **operations):
-		# Return all objects, optionally evaluating a query on !!every!! molecule (generally not what you want to do)
+		"""Return a _UniqueObjectSet proxy for all objects (molecules) that
+		satisfy an optional attribute query. Querying every object is generally
+		not what you want to do. The queried attributes must be in all the
+		collections (all molecule types).
+		"""
 		if operations:
 			results = []
 
@@ -235,7 +327,10 @@ class UniqueObjectsContainer(object):
 
 
 	def objectsInCollection(self, collectionName, **operations):
-		# Return all objects belonging to a collection and that optionally satisfy a set of attribute queries
+		"""Return a _UniqueObjectSet proxy for all objects (molecules) belonging
+		to a named collection that satisfy an optional attribute query.
+		"""
+		# TODO(jerry): Special case the empty query?
 		collectionIndex = self._nameToIndexMapping[collectionName]
 
 		result = self._queryObjects(collectionIndex, **operations)
@@ -246,8 +341,11 @@ class UniqueObjectsContainer(object):
 
 
 	def objectsInCollections(self, collectionNames, **operations):
-		# Return all objects belonging to a set of collections that optionally satisfy a set of attribute queries
-
+		"""Return a _UniqueObjectSet proxy for all objects (molecules)
+		belonging to the given collection names that satisfy an optional
+		attribute query. The queried attributes must be in all the named
+		collections.
+		"""
 		collectionIndexes = [self._nameToIndexMapping[collectionName] for collectionName in collectionNames]
 		results = []
 
@@ -261,8 +359,15 @@ class UniqueObjectsContainer(object):
 
 
 	def _queryObjects(self, collectionIndex, **operations):
-		# Performs a series of comparison operations on a collection, and
-		# returns a boolean-value array that is True where every comparison was True
+		"""For the structured array at the given index, perform the given
+		comparison operations and return a boolean array that's True where
+		entries passed all the comparisons. `operations` is a dict
+		`{attribute_name: (comparison_operator_str, query_value)}`.
+
+		The comparison_operator_str is one of '>', '>=', '<', '<=', '==', '!=',
+		'in', 'not in'. `operations` can perform at most one comparison per
+		attribute. The matched sets are intersected together.
+		"""
 		operations["_entryState"] = ("==", self._entryActive)
 		collection = self._collections[collectionIndex]
 
@@ -279,33 +384,36 @@ class UniqueObjectsContainer(object):
 
 
 	def objectsByGlobalIndex(self, globalIndexes):
+		"""Return a _UniqueObjectSet proxy for the objects (molecules) with the
+		given global indexes (that is, global over all named collections).
+		"""
 		return _UniqueObjectSet(self, globalIndexes)
 
 
 	def objectByGlobalIndex(self, globalIndex):
+		"""Return a _UniqueObject proxy for the object (molecule) with the
+		given global index (that is, global over all named collections).
+		"""
 		return _UniqueObject(self, globalIndex)
 
 
-	def objectByGlobalIndexDel(self, globalIndex):
-		self.objectsByGlobalIndexDel(np.array(globalIndex))
-
 	def objectNames(self):
-		return tuple(self._names)
+		"""Return a tuple of the object names (AKA molecule type names or
+		collection names) sorted by name.
+		"""
+		return self._names
 
 	def counts(self, collectionNames=None):
 		"""
 		Get the counts of objects for each collection name.
 
-		Parameters
-		----------
-		collectionNames : iterable of strings
-			The names of the collections.  If None (default), then all
-			collections are used in their original ordering.
+		Parameters:
+			collectionNames (iterable of str): The collection names. If None
+				(default), then all collections are counted in sorted-name order.
 
-		Returns
-		-------
-		A vector (1D numpy.ndarray) of counts.
-
+		Returns:
+			A vector (1D numpy.ndarray) of counts in the order of the requested
+			collectionNames or else in the order of `self.objectNames()`.
 		"""
 		object_counts = np.array(
 			[(x["_entryState"] == self._entryActive).sum() for x in self._collections])
@@ -320,32 +428,64 @@ class UniqueObjectsContainer(object):
 		Convert an iterable of collection names into their corresponding
 		indices into the ordered list of collections.
 
-		Parameters
-		----------
-		collectionNames : iterable of strings
-			The names of the collections.
+		Parameters:
+			collectionNames (iterable of str): The collection names.
 
-		Returns
-		-------
-		An array of indices (non-negative integers).
-
+		Returns:
+			An array of indices (non-negative integers).
 		"""
 		return np.array([self._nameToIndexMapping[name] for name in collectionNames])
 
-	def emptyLike(self):
+	def _copy_specs(self):
+		"""Return a copy of the collection specifications without bookkeeping
+		specs, as suitable for constructing a new UniqueObjectsContainer.
+		"""
 		specifications = deepcopy(self._specifications)
 		specs_to_remove = self._defaultSpecification.keys()
 		for moleculeName, moleculeSpecs in specifications.iteritems():
 			for spec in specs_to_remove:
 				moleculeSpecs.pop(spec)
+		return specifications
+
+	def emptyLike(self):
+		"""Return a new container with the same specs, akin to np.zeros_like()."""
+		specifications = self._copy_specs()
 		new_copy = UniqueObjectsContainer(specifications)
 		return new_copy
 
 	def __eq__(self, other):
-		return np.all(
-			(selfCollection == otherCollection).all()
-			for (selfCollection, otherCollection) in izip(self._collections, other._collections)
-			) and np.all(self._globalReference == other._globalReference)
+		# TODO(jerry): Ignore inactive entries and index values.
+		# TODO(jerry): Don't access other's private fields.
+		if not isinstance(other, UniqueObjectsContainer):
+			return False
+		if self._specifications != other._specifications:
+			return False
+		for (selfCollection, otherCollection) in izip(self._collections, other._collections):
+			if not np.array_equal(selfCollection, otherCollection):
+				return False
+		return True
+
+	def __ne__(self, other):
+		# assertNotEquals() calls `!=`.
+		return not (self == other)
+
+
+	def loadSnapshot(self, other):
+		"""Load data from a snapshot UniqueObjectsContainer which must have the
+		same specifications, otherwise there's been a schema change.
+		"""
+		assert isinstance(other, UniqueObjectsContainer)
+
+		if self._specifications != other._specifications:
+			raise ValueError(
+				'Schema change loading a UniqueObjectsContainer snapshot',
+				other._specifications, self._specifications)
+
+		assert self._names == other._names  # double check
+
+		self._globalReference = other._globalReference.copy()
+		for index, collection in enumerate(other._collections):
+			self._collections[index] = collection.copy()
 
 
 	def tableCreate(self, tableWriter):
@@ -372,11 +512,16 @@ class UniqueObjectsContainer(object):
 				self._collections[self._names.index(fieldName)] = value
 
 
+def copy_if_ndarray(object):
+	"""Copy an ndarray object or return any other type of object as is.
+	Prevent making a view instead of a copy.  # <-- TODO(jerry): Explain.
+	"""
+	return object.copy() if isinstance(object, np.ndarray) else object
+
+
 class _UniqueObject(object):
 	"""
-	_UniqueObject
-
-	A wrapper around a row in a container, refering to a specific unique object.
+	A proxy for a row in a container, referring to a specific unique object.
 	Primarily used as a way to manipulate individual molecules with a python
 	object-like interface.
 	"""
@@ -385,48 +530,42 @@ class _UniqueObject(object):
 
 
 	def __init__(self, container, globalIndex):
+		"""Construct a _UniqueObject proxy for the unique object (molecule) in
+		the given container with the given global index.
+		"""
 		self._container = container
 		self._globalIndex = globalIndex
-		self._collectionIndex = container._globalReference[globalIndex]["_collectionIndex"]
-		self._objectIndex = container._globalReference[globalIndex]["_objectIndex"]
+		globalReference = container._globalReference[globalIndex]
+		self._collectionIndex = globalReference["_collectionIndex"]
+		self._objectIndex = globalReference["_objectIndex"]
 
 
-	def name(self):
-		return self._container._collectionNames[self._collectionIndex]
-
-
-	def uniqueId(self):
-		return self.attr("_uniqueId")
+	# def uniqueId(self):
+	# 	return self.attr("_uniqueId")
 
 
 	def attr(self, attribute):
+		"""Return the named attribute of the unique object."""
 		entry = self._container._collections[self._collectionIndex][self._objectIndex]
 
 		if entry["_entryState"] == self._container._entryInactive:
 			raise UniqueObjectsContainerException("Attempted to access an inactive object.")
 
-		if isinstance(entry[attribute], np.ndarray):
-			# Prevent making a view instead of a copy
-			return entry[attribute].copy()
-
-		else:
-			return entry[attribute]
+		return copy_if_ndarray(entry[attribute])
 
 
 	def attrs(self, *attributes):
+		"""Return a tuple containing the named attributes of the unique object."""
 		entry = self._container._collections[self._collectionIndex][self._objectIndex]
 
 		if entry["_entryState"] == self._container._entryInactive:
 			raise UniqueObjectsContainerException("Attempted to access an inactive object.")
 
-		# See note in .attr
-		return tuple(
-			entry[attribute].copy() if isinstance(entry[attribute], np.ndarray) else entry[attribute]
-			for attribute in attributes
-			)
+		return tuple(copy_if_ndarray(entry[attribute]) for attribute in attributes)
 
 
 	def attrIs(self, **attributes):
+		"""Set named attributes of the unique object."""
 		entry = self._container._collections[self._collectionIndex][self._objectIndex]
 
 		if entry["_entryState"] == self._container._entryInactive:
@@ -464,13 +603,16 @@ class _UniqueObject(object):
 
 class _UniqueObjectSet(object):
 	"""
-	_UniqueObjectSet
-
-	A set of objects, stored internally by their global indexes.  Iterable and
-	ordered.  Accessors allow for manipulating sets in lump.
+	An ordered sequence of _UniqueObject proxies for unique objects (molecules).
+	Iterable and ordered.  Accessors allow for manipulating sets in lump.
+	Internally this stores the objects' global indexes.
 	"""
 
 	def __init__(self, container, globalIndexes):
+		"""Construct a _UniqueObjectSet for unique objects (molecules) in the
+		given container with the given global indexes. The result is an
+		iterable, ordered sequence (not really a set).
+		"""
 		self._container = container
 		self._globalIndexes = np.array(globalIndexes, np.int)
 
@@ -495,10 +637,15 @@ class _UniqueObjectSet(object):
 		if not self._container is other._container:
 			raise UniqueObjectsContainerException("Object comparisons across UniqueMoleculesContainer objects not supported.")
 
-		return (self._globalIndexes == other._globalIndexes).all()
+		return np.array_equal(self._globalIndexes, other._globalIndexes)
+
+	def __ne__(self, other):
+		return not self.__eq__(other)
 
 
+	# TODO: More set-like operations (intersection, etc.)
 	def __or__(self, other):
+		# Use `|` -- not `or` -- to call this set operation.
 		if not self._container is other._container:
 			raise UniqueObjectsContainerException("Object comparisons across UniqueMoleculesContainer objects not supported.")
 
@@ -512,24 +659,27 @@ class _UniqueObjectSet(object):
 		return _UniqueObject(self._container, self._globalIndexes[index])
 
 
-	def uniqueIds(self):
-		return self.attr("_uniqueId")
+	# def uniqueIds(self):
+	# 	return self.attr("_uniqueId")
 
 
 	def attr(self, attribute):
+		"""Return the named attribute for all objects in this collection."""
 		if self._globalIndexes.size == 0:
 			raise UniqueObjectsContainerException("Object set is empty")
 
-		if (self._container._globalReference["_entryState"][self._globalIndexes] == self._container._entryInactive).any():
+		container = self._container
+		globalReference = container._globalReference
+		if (globalReference["_entryState"][self._globalIndexes] == container._entryInactive).any():
 			raise UniqueObjectsContainerException("One or more object was deleted from the set")
 
 		# TODO: cache these properties? should be static
-		collectionIndexes = self._container._globalReference["_collectionIndex"][self._globalIndexes]
-		objectIndexes = self._container._globalReference["_objectIndex"][self._globalIndexes]
+		collectionIndexes = globalReference["_collectionIndex"][self._globalIndexes]
+		objectIndexes = globalReference["_objectIndex"][self._globalIndexes]
 
 		uniqueColIndexes, inverse = np.unique(collectionIndexes, return_inverse = True)
 
-		attributeDtype = self._container._collections[uniqueColIndexes[0]].dtype[attribute]
+		attributeDtype = container._collections[uniqueColIndexes[0]].dtype[attribute]
 
 		values = np.zeros(
 			self._globalIndexes.size,
@@ -540,38 +690,45 @@ class _UniqueObjectSet(object):
 			globalObjIndexes = np.where(inverse == i)
 			objectIndexesInCollection = objectIndexes[globalObjIndexes]
 
-			values[globalObjIndexes] = self._container._collections[collectionIndex][attribute][objectIndexesInCollection]
+			values[globalObjIndexes] = container._collections[collectionIndex][attribute][objectIndexesInCollection]
 
 		return values
 
 
 	def attrs(self, *attributes):
+		"""Return a tuple containing the named attributes for all objects in
+		this sequence.
+		"""
 		return tuple(
 			self.attr(attribute) for attribute in attributes
 			)
 
 
 	def attrsAsStructArray(self, *attributes):
-
+		"""Return a structured array containing the named (or all) attributes
+		from all objects in this sequence.
+		"""
 		if self._globalIndexes.size == 0:
 			raise UniqueObjectsContainerException("Object set is empty")
 
-		if (self._container._globalReference["_entryState"][self._globalIndexes] == self._container._entryInactive).any():
+		container = self._container
+		globalReference = container._globalReference
+		if (globalReference["_entryState"][self._globalIndexes] == container._entryInactive).any():
 			raise UniqueObjectsContainerException("One or more object was deleted from the set")
 
 		# TODO: cache these properties? should be static
-		collectionIndexes = self._container._globalReference["_collectionIndex"][self._globalIndexes]
-		objectIndexes = self._container._globalReference["_objectIndex"][self._globalIndexes]
+		collectionIndexes = globalReference["_collectionIndex"][self._globalIndexes]
+		objectIndexes = globalReference["_objectIndex"][self._globalIndexes]
 
 		uniqueColIndexes, inverse = np.unique(collectionIndexes, return_inverse = True)
 
 		if len(attributes) == 0:
-			attributes = self._container._collections[uniqueColIndexes[0]].dtype.names
+			attributes = container._collections[uniqueColIndexes[0]].dtype.names
 
 		attributes = list(attributes)
 
 		attributeDtypes = [
-			(attribute, self._container._collections[uniqueColIndexes[0]].dtype[attribute])
+			(attribute, container._collections[uniqueColIndexes[0]].dtype[attribute])
 			for attribute in attributes
 			]
 
@@ -584,20 +741,23 @@ class _UniqueObjectSet(object):
 			globalObjIndexes = np.where(inverse == i)
 			objectIndexesInCollection = objectIndexes[globalObjIndexes]
 
-			values[globalObjIndexes] = self._container._collections[collectionIndex][attributes][objectIndexesInCollection]
+			values[globalObjIndexes] = container._collections[collectionIndex][attributes][objectIndexesInCollection]
 
 		return values
 
 	def attrIs(self, **attributes):
+		"""Set named attributes of all the unique objects in this sequence."""
 		if self._globalIndexes.size == 0:
 			raise UniqueObjectsContainerException("Object set is empty")
 
-		if (self._container._globalReference["_entryState"][self._globalIndexes] == self._container._entryInactive).any():
+		container = self._container
+		globalReference = container._globalReference
+		if (globalReference["_entryState"][self._globalIndexes] == container._entryInactive).any():
 			raise UniqueObjectsContainerException("One or more object was deleted from the set")
 
 		# TODO: cache these properties? should be static
-		collectionIndexes = self._container._globalReference["_collectionIndex"][self._globalIndexes]
-		objectIndexes = self._container._globalReference["_objectIndex"][self._globalIndexes]
+		collectionIndexes = globalReference["_collectionIndex"][self._globalIndexes]
+		objectIndexes = globalReference["_objectIndex"][self._globalIndexes]
 
 		uniqueColIndexes, inverse = np.unique(collectionIndexes, return_inverse = True)
 
@@ -609,19 +769,25 @@ class _UniqueObjectSet(object):
 				valuesAsArray = np.array(values, ndmin = 1)
 
 				if valuesAsArray.shape[0] == 1: # is a singleton
-					self._container._collections[collectionIndex][attribute][objectIndexesInCollection] = valuesAsArray
+					container._collections[collectionIndex][attribute][objectIndexesInCollection] = valuesAsArray
 
 				else:
-					self._container._collections[collectionIndex][attribute][objectIndexesInCollection] = valuesAsArray[globalObjIndexes]
+					container._collections[collectionIndex][attribute][objectIndexesInCollection] = valuesAsArray[globalObjIndexes]
 
 
 	def delByIndexes(self, indexes):
+		"""Delete unique objects by indexes into this sequence."""
+		# TODO(jerry): This could just call a delete method on all its
+		# _UniqueObject instances, which in turn could call objectDel() on the
+		# container or split the work so they each update their private state.
 
 		globalIndexes = self._globalIndexes[indexes]
 
 		# TODO: cache these properties? should be static
-		collectionIndexes = self._container._globalReference["_collectionIndex"][globalIndexes]
-		objectIndexes = self._container._globalReference["_objectIndex"][globalIndexes]
+		container = self._container
+		globalReference = container._globalReference
+		collectionIndexes = globalReference["_collectionIndex"][globalIndexes]
+		objectIndexes = globalReference["_objectIndex"][globalIndexes]
 
 		uniqueColIndexes, inverse = np.unique(collectionIndexes, return_inverse = True)
 
@@ -629,14 +795,11 @@ class _UniqueObjectSet(object):
 			globalObjIndexes = np.where(inverse == i)
 			objectIndexesInCollection = objectIndexes[globalObjIndexes]
 
-			self._container._collections[collectionIndex][objectIndexesInCollection] = np.zeros(1, dtype=self._container._collections[collectionIndex].dtype)
+			container._collections[collectionIndex][objectIndexesInCollection] = np.zeros(
+				1, dtype=container._collections[collectionIndex].dtype)
 
-		self._container._globalReference[globalIndexes] = np.zeros(1, dtype=self._container._globalReference.dtype)
+		globalReference[globalIndexes] = np.zeros(1, dtype=globalReference.dtype)
 
-	# TODO: set-like operations (union, intersection, etc.)
-
-
-import wholecell.utils.linear_programming as lp
 
 def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, randomState):
 	# Arguments:

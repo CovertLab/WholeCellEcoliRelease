@@ -1,8 +1,32 @@
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
+import zlib
+
+
+def decomp(compressed_names, dtype, compressed_counts):
+	"""Decompress the names and counts into a BulkObjectsContainer. "decomp" is
+	intentionally short and awkward for intended use limited to pickling. It
+	calls the constructor to set up indexes and caches, unlike `__setstate__`.
+
+	CAUTION: Future edits are expected to maintain backward compatibility with
+	stored pickled arguments (e.g. via optional args) or explicitly detach
+	(e.g. `__reduce__` to a new unpickling function.)
+
+	Args:
+		compressed_names (bytes) zlib-compressed tab-separated object names
+		dtype (str) array-protocol typestring [dtype.str]
+		compressed_counts (bytes) zlib-compressed bytes of the counts ndarray
+	"""
+	names = zlib.decompress(compressed_names).split('\t')
+	counts_array = np.frombuffer(zlib.decompress(compressed_counts), dtype)
+	container = BulkObjectsContainer(names, counts_array.dtype)
+	container.countsIs(counts_array)
+	return container
+
+decomp.__safe_for_unpickling__ = True
+
 
 class BulkObjectsContainer(object):
 	"""
@@ -31,13 +55,16 @@ class BulkObjectsContainer(object):
 	If used more than once, creating a view is more efficient than operating on
 	the container directly.
 
-	Parameters
-	----------
-	objectNames : iterable of strings
-		The names that will be used to refer to the elements of the
-		underlying vector.
-	dtype : a valid NumPy datatype identifier (default: np.int64)
-		The data type of the underlying array.
+	You can store a BulkObjectsContainer via TableWriter or (for a single
+	snapshot) more compactly via pickling.
+
+	Parameters:
+		objectNames (iterable of str):
+			The names that will be used to refer to the elements of the
+			underlying vector.
+		dtype (a valid NumPy datatype identifier): (default: np.int64)
+			The data type of the underlying array. The dtype must be a scalar,
+			not a structured type (with fields) nor a subarray (with a shape).
 
 	See also
 	--------
@@ -72,8 +99,6 @@ class BulkObjectsContainer(object):
 		self._objectNames = tuple(objectNames)
 		self._nObjects = len(self._objectNames)
 
-		self._dtype = dtype
-
 		# Store the indices for each element in a dictionary for faster
 		# (on average, O(1)) look-up (list.index is slow, O(n))
 		self._objectIndex = {
@@ -81,23 +106,36 @@ class BulkObjectsContainer(object):
 			for index, objectName in enumerate(self._objectNames)
 			}
 
-		self._counts = np.zeros(self._nObjects, self._dtype)
+		self._counts = np.zeros(self._nObjects, dtype)
+		self._dtype = self._counts.dtype
+
+
+	def __reduce__(self):
+		"""Reduce the container to defining state for pickling.
+		Compress the state for transmission efficiency.
+		Return a callable object and its args.
+		"""
+		compact_names = '\t'.join(self._objectNames)
+		compressed_names = zlib.compress(compact_names, 9)
+		compressed_counts = zlib.compress(self._counts.tobytes(), 9)
+		dtype = self._counts.dtype
+
+		if self._counts.ndim != 1 or dtype.shape or dtype.names or dtype.subdtype:
+			raise ValueError("Pickling is implemented only for a simple BulkObjectsContainer")
+
+		return decomp, (compressed_names, dtype.str, compressed_counts)
 
 
 	def counts(self, names = None):
 		"""
 		Get the counts of objects.
 
-		Parameters
-		----------
-		names : iterable of strings
-			The names of the objects.  If None (default), then all objects are
-			used in their original ordering.
+		Parameters:
+			names (iterable of str): The names of the objects.  If None
+				(default), then all objects are counted in their original ordering.
 
-		Returns
-		-------
-		A vector (1D numpy.ndarray) of counts.
-
+		Returns:
+			A vector (1D numpy.ndarray) of counts.
 		"""
 
 		if names is None:
@@ -111,14 +149,10 @@ class BulkObjectsContainer(object):
 		"""
 		Set the counts of objects.
 
-		Parameters
-		----------
-		values : array-like
-			The assigned counts.
-		names : iterable of strings
-			The names of the objects.  If None (default), then all objects are
-			used in their original ordering.
-
+		Parameters:
+			values (array-like): The assigned counts.
+			names (iterable of str): The names of the objects.  If None
+				(default), then all objects are counted in their original ordering.
 		"""
 
 		if names is None:
@@ -132,14 +166,10 @@ class BulkObjectsContainer(object):
 		"""
 		Increment the counts of objects.
 
-		Parameters
-		----------
-		values : array-like
-			The added counts.
-		names : iterable of strings
-			The names of the objects.  If None (default), then all objects are
-			used in their original ordering.
-
+		Parameters:
+			values (array-like): The added counts.
+			names (iterable of str): The names of the objects.  If None
+				(default), then all objects are accessed in their original ordering.
 		"""
 
 		values = np.asarray(values, dtype=self._dtype)
@@ -154,14 +184,10 @@ class BulkObjectsContainer(object):
 		"""
 		Decrement the counts of objects.
 
-		Parameters
-		----------
-		values : array-like
-			The subtracted counts.
-		names : iterable of strings
-			The names of the objects.  If None (default), then all objects are
-			used in their original ordering.
-
+		Parameters:
+			values (array-like): The subtracted counts.
+			names (iterable of str): The names of the objects.  If None
+				(default), then all objects are accessed in their original ordering.
 		"""
 
 		values = np.asarray(values, dtype=self._dtype)
@@ -176,15 +202,12 @@ class BulkObjectsContainer(object):
 		"""
 		Create a view on a set of objects.
 
-		Parameters
-		----------
-		names : iterable of strings
-			The names of the objects.  If None (default), then all objects are
-			used in their original ordering.
+		Parameters:
+			names (iterable of str): The names of the objects.  If None
+				(default), then all objects are accessed in their original ordering.
 
-		Returns
-		-------
-		A _BulkObjectsView instance.
+		Returns:
+			A _BulkObjectsView instance.
 
 		Notes
 		-----
@@ -194,7 +217,6 @@ class BulkObjectsContainer(object):
 		TODO (John): Get rid of the default behavior, as it serves no practical
 			purpose or advantage over just operating on the
 			BulkObjectsContainer itself.
-
 		"""
 
 		if names is None:
@@ -208,14 +230,11 @@ class BulkObjectsContainer(object):
 		"""
 		Get the count of an object.
 
-		Parameters
-		----------
-		name : object name
+		Parameters:
+			name (str): The object name.
 
-		Returns
-		-------
-		A scalar.
-
+		Returns:
+			A scalar.
 		"""
 		return self._counts[self._objectIndex[name]]
 
@@ -224,12 +243,9 @@ class BulkObjectsContainer(object):
 		"""
 		Set the count of an object.
 
-		Parameters
-		----------
-		value : scalar
-			The assigned count.
-		name : object name
-
+		Parameters:
+			value (scalar): The assigned count.
+			name (str): The object name.
 		"""
 		self._counts[self._objectIndex[name]] = value
 
@@ -238,12 +254,9 @@ class BulkObjectsContainer(object):
 		"""
 		Increment the count of an object.
 
-		Parameters
-		----------
-		value : scalar
-			The added count.
-		name : object name
-
+		Parameters:
+			value (scalar): The added count.
+			name (str): The object name.
 		"""
 		self._counts[self._objectIndex[name]] += value
 
@@ -252,12 +265,9 @@ class BulkObjectsContainer(object):
 		"""
 		Decrement the count of an object.
 
-		Parameters
-		----------
-		value : scalar
-			The subtracted count.
-		name : object name
-
+		Parameters:
+			value (scalar): The subtracted count.
+			name (str): The object name.
 		"""
 		self._counts[self._objectIndex[name]] -= value
 
@@ -266,14 +276,11 @@ class BulkObjectsContainer(object):
 		"""
 		The names (in order) of all objects.
 
-		Parameters
-		----------
-		(none)
+		Parameters:
+			(none)
 
-		Returns
-		-------
-		A tuple of strings.
-
+		Returns:
+			A tuple of strings.
 		"""
 		return self._objectNames
 
@@ -284,9 +291,8 @@ class BulkObjectsContainer(object):
 
 		Notes
 		-----
-		This is not totally analogous to numpy.empty_like, as it fills in the
-		counts with zeros (whereas numpy.empty_like's contents are arbitrary).
-
+		This is analogous to numpy.zeros_like, not numpy.empty_like, as it
+		fills in the counts with zeros.
 		"""
 		names = self.objectNames()
 		new_copy = BulkObjectsContainer(names, dtype = self._dtype)
@@ -297,60 +303,72 @@ class BulkObjectsContainer(object):
 		Convert an iterable of names into their corresponding indices into the
 		underlying array representation.
 
-		Parameters
-		----------
-		names : iterable of strings
-			The names of the objects.
+		Parameters:
+			names (iterable of str): The names of the objects.
 
-		Returns
-		-------
-		An arrary of indices (non-negative integers).
+		Returns:
+			An arrary of indices (non-negative integers).
 
 		TODO (John): Handle the case that names is None, returning
 			np.arange(self._nObjects).  This would simplify many other methods.
 			We can't use slice(None) because we need the data to be copied on
 			retrieval.  Otherwise modifying an output array (e.g. an array
 			return by .counts()) would modify the underlying data.
-
 		"""
 		return np.array([self._objectIndex[name] for name in names])
 
 
 	def __eq__(self, other):
 		"""
-		Return whether the counts of one BulkObjectsContainer instance are all
+		Return whether the contents of one BulkObjectsContainer instance are
 		equal to another.
 
-		Parameters
-		----------
-		other : a BulkObjectContainer instance
+		Parameters:
+			other (BulkObjectContainer): To compare with.
 
-		Returns
-		-------
-		True if all counts are the same, otherwise False.
+		Returns:
+			True if the object names and counts are the same, otherwise False.
+			The dtypes don't need to be equal.
 
 		Notes
 		-----
-		TODO (John): This should fail if the elements of one container are
-			different from another, even if their sizes are the same.
-
 		TODO (John): If all elements are the same but in a different order,
 			this method should be sensitive to that.
 
 		TODO (John): This method really shouldn't be inspecting a private
 			attribute of another object.
-
 		"""
-		return (self._counts == other._counts).all()
+		if not isinstance(other, BulkObjectsContainer):
+			return False
+		if self._objectNames != other.objectNames():
+			return False
+		return np.array_equal(self._counts, other._counts)
+
+	def __ne__(self, other):
+		# assertNotEquals() calls `!=`.
+		return not (self == other)
+
+
+	def loadSnapshot(self, other):
+		"""Load data from a snapshot BulkObjectsContainer which must have the
+		same object names, otherwise there's been a schema change.
+		"""
+		assert isinstance(other, BulkObjectsContainer)
+
+		if self._objectNames != other.objectNames():
+			raise ValueError(
+				'Schema change loading a BulkObjectsContainer snapshot',
+				other.objectNames(), self._objectNames)
+
+		self.countsIs(other.counts())
 
 
 	def tableCreate(self, tableWriter):
 		"""
 		Write the names of the objects to a 'table' file's attributes.
 
-		Parameters
-		----------
-		tableWriter : a TableWriter instance
+		Parameters:
+			tableWriter (TableWriter): A TableWriter to write to,
 
 		Notes
 		-----
@@ -370,10 +388,8 @@ class BulkObjectsContainer(object):
 		"""
 		Append the current counts of the objects to a 'table' file.
 
-		Parameters
-		----------
-		tableWriter : a TableWriter instance
-
+		Parameters:
+			tableWriter (TableWriter): A TableWriter to write to.
 		"""
 		tableWriter.append(
 			counts = self._counts
@@ -384,33 +400,28 @@ class BulkObjectsContainer(object):
 		"""
 		Load the counts of objects from a 'table' file.
 
-		Parameters
-		----------
-		tableReader : a TableReader instance
-		tableIndex : non-negative integer
-			Specify which row of the table to row.
+		Parameters:
+			tableReader (TableReader): A TableReader to read from.
+			tableIndex (non-negative integer): Specifies which table row to read.
 
 		TODO (John): If this was a class method, it could instantiate with the
 			correct object names instead of asserting that the names are
 			correct.
-
 		"""
 
 		assert self._objectNames == tuple(tableReader.readAttribute("objectNames"))
 
-		self._counts = tableReader.readRow(tableIndex)["counts"]
+		self._counts[:] = tableReader.readRow(tableIndex)["counts"]
 
 
 class _BulkObjectsView(object):
 	"""
 	A view onto selected objects in a BulkObjectsContainer.
 
-	Parameters
-	----------
-	container : a BulkObjectsContainer instance
-	indexes : an iterable of indices (non-negative integers)
-		Specify the indices into the BulkObjectContainer's _counts attribute
-		associated with this view's objects.
+	Parameters:
+		container (BulkObjectsContainer): Instance to view.
+		indexes (iterable of int): non-negative indices into the
+			BulkObjectContainer's _counts attribute for this view's objects.
 
 	Notes
 	-----
@@ -419,7 +430,6 @@ class _BulkObjectsView(object):
 
 	TODO (John): Consider passing the array reference rather than the container
 		itself - then we don't have to access the 'private' _counts attribute.
-
 	"""
 
 	def __init__(self, container, indexes):
@@ -431,14 +441,11 @@ class _BulkObjectsView(object):
 		"""
 		Get the counts of all objects.
 
-		Parameters
-		----------
-		(none)
+		Parameters:
+			(none)
 
-		Returns
-		-------
-		A vector (1D numpy.ndarray) of counts.
-
+		Returns:
+			A vector (1D numpy.ndarray) of counts.
 		"""
 		return self._container._counts[self._indexes]
 
@@ -447,11 +454,8 @@ class _BulkObjectsView(object):
 		"""
 		Set the counts of all objects.
 
-		Parameters
-		----------
-		values : array-like
-			The assigned counts.
-
+		Parameters:
+			values (array-like): The assigned counts.
 		"""
 		self._container._counts[self._indexes] = values
 
@@ -460,11 +464,8 @@ class _BulkObjectsView(object):
 		"""
 		Increment the counts of all objects.
 
-		Parameters
-		----------
-		values : array-like
-			The added counts.
-
+		Parameters:
+		values (array-like): The added counts.
 		"""
 		values = np.asarray(values, dtype=self._container._dtype)
 		self._container._counts[self._indexes] += values
@@ -474,11 +475,8 @@ class _BulkObjectsView(object):
 		"""
 		Decrement the counts of all objects.
 
-		Parameters
-		----------
-		values : array-like
-			The subtracted counts.
-
+		Parameters:
+			values (array-like): The subtracted counts.
 		"""
 		values = np.asarray(values, dtype=self._container._dtype)
 		self._container._counts[self._indexes] -= values
