@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 import os
+import copy
 import uuid
 import numpy as np
 import argparse
@@ -15,13 +16,15 @@ from agent.stub import SimulationStub, EnvironmentStub
 
 DEFAULT_KAFKA_CONFIG = {
 	'host': '127.0.0.1:9092',
-	'simulation_send': 'environment_listen',
-	'simulation_receive': 'environment_broadcast',
-	'environment_control': 'environment_control',
-	'subscribe_topics': []}
+	'topics': {
+		'agent_receive': 'agent-receive',
+		'environment_receive': 'environment-receive',
+		'cell_receive': 'cell-receive',
+		'shepherd_receive': 'shepherd-receive',
+		'visualization_receive': 'environment-state'},
+	'subscribe': []}
 
-class BootOuter(object):
-
+def boot_outer(agent_id, agent_type, agent_config):
 	"""
 	Initialize the `EnvironmentStub`, pass it to the `Outer` agent and launch the process.
 
@@ -30,19 +33,17 @@ class BootOuter(object):
 	defined in `Outer`. 
 	"""
 
-	def __init__(self, agent_id, agent_config):
-		volume = 1
-		concentrations = {
-			'yellow': 5,
-			'green': 11,
-			'red': 44,
-			'blue': 12}
+	volume = 1
+	concentrations = {
+		'yellow': 5,
+		'green': 11,
+		'red': 44,
+		'blue': 12}
 
-		self.environment = EnvironmentStub(volume, concentrations)
-		self.outer = Outer(agent_id, agent_config['kafka_config'], self.environment)
+	environment = EnvironmentStub(volume, concentrations)
+	return Outer(agent_id, agent_type, agent_config, environment)
 
-class BootInner(object):
-
+def boot_inner(agent_id, agent_type, agent_config):
 	"""
 	Initialize the `SimulationStub`, pass it to the `Inner` agent and launch the process.
 
@@ -52,16 +53,16 @@ class BootInner(object):
 	Outer agent.
 	"""
 
-	def __init__(self, agent_id, agent_config):
-		self.agent_id = agent_id
-		self.outer_id = agent_config['outer_id']
-		self.simulation = SimulationStub()
-		self.inner = Inner(
-			agent_config['kafka_config'],
-			self.agent_id,
-			self.outer_id,
-			self.simulation)
+	agent_id = agent_id
+	outer_id = agent_config['outer_id']
+	simulation = SimulationStub()
 
+	return Inner(
+		agent_id,
+		outer_id,
+		agent_type,
+		agent_config,
+		simulation)
 
 class EnvironmentControl(Agent):
 
@@ -72,29 +73,47 @@ class EnvironmentControl(Agent):
 	then terminate).
 	"""
 
-	def __init__(self, agent_id, kafka_config=None):
-		if kafka_config is None:
-			kafka_config = DEFAULT_KAFKA_CONFIG.copy()
-		super(EnvironmentControl, self).__init__(agent_id, kafka_config)
+	def __init__(self, agent_id, agent_config=None):
+		if 'kafka_config' not in agent_config:
+			agent_config['kafka_config'] = copy.deepcopy(DEFAULT_KAFKA_CONFIG)
 
-	def trigger_execution(self, agent_id):
-		self.send(self.kafka_config['environment_control'], {
-			'event': event.TRIGGER_EXECUTION,
-			'agent_id': agent_id})
+		super(EnvironmentControl, self).__init__(agent_id, 'control', agent_config)
 
-	def pause_execution(self, agent_id):
-		self.send(self.kafka_config['environment_control'], {
-			'event': event.PAUSE_ENVIRONMENT,
-			'agent_id': agent_id})
+	def trigger_execution(self, agent_id=''):
+		if agent_id:
+			self.send(self.topics['environment_receive'], {
+				'event': event.TRIGGER_AGENT,
+				'agent_id': agent_id})
+		else:
+			self.send(self.topics['shepherd_receive'], {
+				'event': event.TRIGGER_ALL})
 
-	def shutdown_agent(self, agent_id):
-		self.send(self.kafka_config['agent_receive'], {
-			'event': event.SHUTDOWN_AGENT,
+	def pause_execution(self, agent_id=''):
+		if agent_id:
+			self.send(self.topics['environment_receive'], {
+				'event': event.PAUSE_AGENT,
+				'agent_id': agent_id})
+		else:
+			self.send(self.topics['shepherd_receive'], {
+				'event': event.PAUSE_ALL})
+
+	def shutdown_agent(self, agent_id=''):
+		if agent_id:
+			self.send(self.topics['agent_receive'], {
+				'event': event.SHUTDOWN_AGENT,
+				'agent_id': agent_id})
+		else:
+			self.send(self.topics['shepherd_receive'], {
+				'event': event.SHUTDOWN_ALL})
+
+	def divide_cell(self, agent_id):
+		self.send(self.topics['cell_receive'], {
+			'event': event.DIVIDE_CELL,
 			'agent_id': agent_id})
 
 	# TODO (Ryan): set this up to send messages to a particular shepherd.
 	def add_agent(self, agent_id, agent_type, agent_config):
-		self.send(self.kafka_config['shepherd_control'], {
+		self.send(self.topics['shepherd_receive'], {
 			'event': event.ADD_AGENT,
 			'agent_id': agent_id,
 			'agent_type': agent_type,
@@ -111,7 +130,7 @@ class EnvironmentControl(Agent):
                 """
 
 		remove = dict(agent_query, event=event.REMOVE_AGENT)
-		self.send(self.kafka_config['shepherd_control'], remove)
+		self.send(self.topics['shepherd_receive'], remove)
 
 	def add_inner(self, outer_id, agent_config):
 		agent_config['outer_id'] = outer_id
@@ -153,6 +172,7 @@ class AgentCommand(object):
 			'remove',
 			'trigger',
 			'pause',
+			'divide',
 			'shutdown']
 		self.choices = self.default_choices + choices
 
@@ -163,13 +183,13 @@ class AgentCommand(object):
 		self.args = self.parser.parse_args()
 		self.kafka_config = {
 			'host': self.args.kafka_host,
-			'agent_receive': self.args.agent_receive,
-			'environment_control': self.args.environment_control,
-			'simulation_receive': self.args.simulation_receive,
-			'simulation_send': self.args.simulation_send,
-			'shepherd_control': self.args.shepherd_control,
-			'environment_visualization': self.args.environment_visualization,
-			'subscribe_topics': []}
+			'topics': {
+				'agent_receive': self.args.agent_receive,
+				'environment_receive': self.args.environment_receive,
+				'cell_receive': self.args.cell_receive,
+				'shepherd_receive': self.args.shepherd_receive,
+				'visualization_receive': self.args.visualization_receive},
+			'subscribe': []}
 
 	def add_arguments(self, parser):
 		parser.add_argument(
@@ -206,29 +226,24 @@ class AgentCommand(object):
 			help='topic agents will receive control messages on')
 
 		parser.add_argument(
-			'--environment-control',
-			default='environment-control',
-			help='topic the environment will receive control messages on')
+			'--environment-receive',
+			default='environment-receive',
+			help='topic the environment will receive messages on')
 
 		parser.add_argument(
-			'--simulation-receive',
-			default='environment-broadcast',
+			'--cell-receive',
+			default='cell-receive',
 			help='topic the simulations will receive messages on')
 
 		parser.add_argument(
-			'--simulation-send',
-			default='environment-listen',
-			help='topic the simulations will send messages on')
+			'--shepherd-receive',
+			default='shepherd-receive',
+			help='topic the shepherd will receive messages on')
 
 		parser.add_argument(
-			'--environment-visualization',
+			'--visualization-receive',
 			default='environment-state',
 			help='topic the environment will send state information on')
-
-		parser.add_argument(
-			'--shepherd-control',
-			default='shepherd-control',
-			help='topic the shepherd will receive messages on')
 
 		parser.add_argument(
 			'--working-dir',
@@ -243,39 +258,43 @@ class AgentCommand(object):
 		if not args.outer_id:
 			raise ValueError('--outer-id must be supplied for inner command')
 
-		BootInner(args.id, {
+		inner = boot_inner(args.id, 'inner', {
 			'kafka_config': self.kafka_config,
 			'outer_id': args.outer_id})
+		inner.start()
 
 	def outer(self, args):
 		if not args.id:
 			raise ValueError('--id must be supplied for outer command')
 
-		BootOuter(args.id, {'kafka_config': self.kafka_config})
+		outer = boot_outer(args.id, {'kafka_config': self.kafka_config})
+		outer.start()
 
 	def trigger(self, args):
-		control = EnvironmentControl('environment_control', self.kafka_config)
+		control = EnvironmentControl('control', self.kafka_config)
 		control.trigger_execution(args.id)
 		control.shutdown()
 
 	def pause(self, args):
-		control = EnvironmentControl('environment_control', self.kafka_config)
+		control = EnvironmentControl('control', self.kafka_config)
 		control.pause_execution(args.id)
 		control.shutdown()
 
 	def shepherd_initializers(self, args):
 		initializers = {}
 
-		def initialize_inner(agent_id, agent_config):
+		def initialize_inner(agent_id, agent_type, agent_config):
 			agent_config = dict(agent_config)
 			agent_config['kafka_config'] = self.kafka_config
 			agent_config['working_dir'] = args.working_dir
-			return BootInner(agent_id, agent_config)
+			inner = boot_inner(agent_id, agent_type, agent_config)
+			inner.start()
 
-		def initialize_outer(agent_id, agent_config):
+		def initialize_outer(agent_id, agent_type, agent_config):
 			agent_config = dict(agent_config)
 			agent_config['kafka_config'] = self.kafka_config
-			return BootOuter(agent_id, agent_config)
+			outer = boot_outer(agent_id, agent_type, agent_config)
+			outer.start()
 
 		initializers['inner'] = initialize_inner
 		initializers['outer'] = initialize_outer
@@ -284,15 +303,19 @@ class AgentCommand(object):
 
 	def shepherd(self, args):
 		initializers = self.shepherd_initializers(args)
-		shepherd = AgentShepherd('agent-shepherd', self.kafka_config, initializers)
+		shepherd = AgentShepherd(
+			'shepherd',
+			{'kafka_config': self.kafka_config},
+			initializers)
+		shepherd.start()
 
 	def add(self, args):
-		control = EnvironmentControl('environment_control', self.kafka_config)
+		control = EnvironmentControl('control', self.kafka_config)
 		control.add_inner(args.id, {})
 		control.shutdown()
 
 	def remove(self, args):
-		control = EnvironmentControl('environment_control', self.kafka_config)
+		control = EnvironmentControl('control', self.kafka_config)
 		if args.id:
 			control.remove_agent({'agent_id': args.id})
 		elif args.prefix:
@@ -301,13 +324,18 @@ class AgentCommand(object):
 			raise ValueError('either --id or --prefix must be provided')
 		control.shutdown()
 
+	def divide(self, args):
+		control = EnvironmentControl('control', self.kafka_config)
+		control.divide_cell(args.id)
+		control.shutdown()
+
 	def experiment(self, args):
-		control = EnvironmentControl('environment_control', self.kafka_config)
+		control = EnvironmentControl('control', self.kafka_config)
 		control.stub_experiment(args.number)
 		control.shutdown()
 
 	def shutdown(self, args):
-		control = EnvironmentControl('environment_control', self.kafka_config)
+		control = EnvironmentControl('control', self.kafka_config)
 		control.shutdown_agent(args.id)
 		control.shutdown()
 

@@ -71,7 +71,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 	def __init__(self, concentrations):
 		self._time = 0
 		self._timestep = 1.0
-		self.run_for = 5
+		self._run_for = 5
 
 		self.simulations = {}  # map of agent_id to simulation state
 		self.locations = {}    # map of agent_id to location and orientation
@@ -223,6 +223,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		for agent_id, simulation in self.simulations.iteritems():
 			# only apply changes if we have reached this simulation's time point.
 			if simulation['time'] <= now:
+				print('=================== simulation update: {}'.format(simulation))
 				state = simulation['state']
 				location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH
 				patch_site = tuple(np.floor(location).astype(int))
@@ -258,18 +259,58 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 	def time(self):
 		return self._time
 
+	def add_simulation(self, agent_id, simulation):
+		if agent_id not in self.simulations:
+			self.simulations[agent_id] = {}
+		self.simulations[agent_id].update(simulation)
 
-	def add_simulation(self, agent_id, state):
-		# Place cell at a random initial location
-		location = np.random.uniform(0,EDGE_LENGTH,N_DIMS)
-		orientation = np.random.uniform(0, 2*PI)
+		if agent_id not in self.locations:
+			# Place cell at either the provided or a random initial location
+			location = simulation['agent_config'].get(
+				'location', np.random.uniform(0,EDGE_LENGTH,N_DIMS))
+			orientation = simulation['agent_config'].get(
+				'orientation', np.random.uniform(0, 2*PI))
 
-		self.simulations[agent_id] = state
-		self.locations[agent_id] = np.hstack((location, orientation))
-
+			self.locations[agent_id] = np.hstack((location, orientation))
 
 	def simulation_parameters(self, agent_id):
-		return {'time': self._time}
+		time = self._time
+		if agent_id in self.simulations:
+			time = max(time, self.simulations[agent_id]['time'])
+		return {'time': time}
+
+	def simulation_state(self, agent_id):
+		return dict(
+			self.simulations[agent_id],
+			location=self.locations[agent_id])
+
+	def rotation_matrix(self, orientation):
+		sin = np.sin(orientation)
+		cos = np.cos(orientation)
+		return np.matrix([
+			[cos, -sin],
+			[sin, cos]])
+
+	def daughter_location(self, location, orientation, length, index):
+		offset = np.array([length * 0.5, 0])
+		rotation = self.rotation_matrix(-orientation + (index * np.pi))
+		translation = (offset * rotation).A1
+		return (location + translation)
+
+	def apply_parent_state(self, agent_id, parent):
+		parent_location = parent['location']
+		index = parent['index']
+		orientation = parent_location[2]
+		volume = self.simulations[agent_id]['state']['volume'] * 0.5
+		length = self.volume_to_length(volume)
+		location = self.daughter_location(parent_location[0:2], orientation, length, index)
+
+		print("================= parent: {} - daughter: {}".format(parent_location, location))
+
+		self.locations[agent_id] = np.hstack((location, orientation))
+
+	def run_for(self):
+		return self._run_for
 
 	def remove_simulation(self, agent_id):
 		self.simulations.pop(agent_id, {})
