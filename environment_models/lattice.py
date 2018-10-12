@@ -274,9 +274,11 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 			self.locations[agent_id] = np.hstack((location, orientation))
 
 	def simulation_parameters(self, agent_id):
-		time = self._time
-		if agent_id in self.simulations:
-			time = max(time, self.simulations[agent_id]['time'])
+		latest = max([
+			simulation['time']
+			for agent_id, simulation
+			in self.simulations.iteritems()])
+		time = max(self._time, latest)
 		return {'time': time}
 
 	def simulation_state(self, agent_id):
@@ -292,7 +294,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 			[sin, cos]])
 
 	def daughter_location(self, location, orientation, length, index):
-		offset = np.array([length * 0.5, 0])
+		offset = np.array([length * 0.75, 0])
 		rotation = self.rotation_matrix(-orientation + (index * np.pi))
 		translation = (offset * rotation).A1
 		return (location + translation)

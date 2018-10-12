@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 import sys
+import math
 import uuid
 import numpy as np
 
@@ -117,6 +118,8 @@ class Outer(Agent):
 		self.paused = True
 		self.shutting_down = False
 
+		self.update_state()
+
 	def initialize(self):
 		print('environment started')
 
@@ -125,14 +128,21 @@ class Outer(Agent):
 
 	def cell_declare(self, message):
 		inner_id = message['inner_id']
-		environment_time = self.environment.time()
-		simulation_time = max(environment_time, message.get('time', environment_time))
+
+		simulation_time = self.environment.time()
+		if self.simulations:
+			latest = max([
+				simulation['time']
+				for agent_id, simulation
+				in self.simulations.iteritems()])
+			simulation_time = max(simulation_time, latest)
+
 		simulation = self.simulations.setdefault(inner_id, {})
 
 		simulation.update({
 			'time': simulation_time,
 			'message_id': -1,
-			'last_message_id': -1,
+			'last_message_id': -2,
 			'state': message['state'],
 			'agent_config': message['agent_config']})
 
@@ -163,7 +173,12 @@ class Outer(Agent):
 
 		inner_id = message['inner_id']
 		simulation = self.simulations[inner_id]
+
 		print('=============== initializing simulation {}'.format(simulation))
+
+		simulation.update({
+			'message_id': -1,
+			'last_message_id': -1})
 
 		parameters = self.environment.simulation_parameters(inner_id)
 		self.send(self.topics['cell_receive'], {
@@ -278,8 +293,9 @@ class Outer(Agent):
 			else:
 				# compare the length of each simulation's run
 				ran = np.sort([
-					simulation['time']
-					for simulation in self.simulations.values()])
+					math.ceil(simulation['time'])
+					for simulation
+					in self.simulations.values()])
 
 				# find the earliest time a simulation ran to
 				now = ran[0] if ran.size > 0 else 0
@@ -360,7 +376,7 @@ class Outer(Agent):
 		"""
 
 		if message.get('outer_id', message.get('agent_id')) == self.agent_id:
-			print('--> {}: {}'.format(topic, message))
+			print('--> {} ({}) [{}]: {}'.format(topic, message['event'], self.agent_id, message))
 
 			if message['event'] == event.TRIGGER_AGENT:
 				self.paused = False
