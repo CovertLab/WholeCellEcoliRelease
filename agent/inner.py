@@ -213,7 +213,7 @@ class Inner(Agent):
 		"""
 
 		if message.get('inner_id', message.get('agent_id')) == self.agent_id:
-			print('--> {}: {}'.format(topic, message))
+			print('--> {} ({}) [{}]: {}'.format(topic, message['event'], self.agent_id, message))
 
 			if message['event'] == event.ENVIRONMENT_SYNCHRONIZE:
 				self.simulation.synchronize_state(message['state'])
