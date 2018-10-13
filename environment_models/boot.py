@@ -38,125 +38,141 @@ class EnvironmentAgent(Outer):
 			for agent_id, simulation in self.environment.simulations.iteritems()}
 
 		return {
+			'outer_id': self.agent_id,
+			'agent_type': 'ecoli',
+			'running': not self.paused,
 			'time': self.environment.time(),
 			'lattice': lattice,
 			'simulations': simulations}
 
 	def update_state(self):
-		self.send(self.kafka_config['environment_visualization'], self.build_state())
+		self.send(
+			self.topics['visualization_receive'],
+			self.build_state(),
+			print_send=False)
 
-class BootEnvironmentSpatialLattice(object):
-	def __init__(self, agent_id, agent_config, media):
-		print("Media condition: %s" % (media))
-		kafka_config = agent_config['kafka_config']
-		raw_data = KnowledgeBaseEcoli()
-		# create a dictionary with all saved environments
-		self.environment_dict = {}
-		for label in vars(raw_data.condition.media):
-			# initiate all molecules with 0 concentrations
-			self.environment_dict[label] = {
-				row["molecule id"]: 0 for row in raw_data.condition.environment_molecules
-				}
+def boot_lattice(agent_id, agent_type, agent_config, media):
+	print("Media condition: %s" % (media))
+	kafka_config = agent_config['kafka_config']
+	raw_data = KnowledgeBaseEcoli()
 
-			# get non-zero concentrations (assuming units.mmol / units.L)
-			molecule_concentrations = getattr(raw_data.condition.media, label)
-			environment_non_zero_dict = {
-				row["molecule id"]: row["concentration"].asNumber()
-				for row in molecule_concentrations}
+	# create a dictionary with all saved environments
+	environment_dict = {}
+	for label in vars(raw_data.condition.media):
+		# initiate all molecules with 0 concentrations
+		environment_dict[label] = {
+			row["molecule id"]: 0
+			for row in raw_data.condition.environment_molecules}
 
-			# update environment_dict with non zero concentrations
-			self.environment_dict[label].update(environment_non_zero_dict)
+		# get non-zero concentrations (assuming units.mmol / units.L)
+		molecule_concentrations = getattr(raw_data.condition.media, label)
+		environment_non_zero_dict = {
+			row["molecule id"]: row["concentration"].asNumber()
+			for row in molecule_concentrations}
 
-		concentrations = self.environment_dict[media]
+		# update environment_dict with non zero concentrations
+		environment_dict[label].update(environment_non_zero_dict)
 
-		self.environment = EnvironmentSpatialLattice(concentrations)
-		self.outer = EnvironmentAgent(agent_id, kafka_config, self.environment)
+	concentrations = environment_dict[media]
+	environment = EnvironmentSpatialLattice(concentrations)
 
+	return EnvironmentAgent(agent_id, agent_type, agent_config, environment)
 
-class BootEcoli(object):
+def boot_ecoli(agent_id, agent_type, agent_config):
 	'''
 	Instantiates an initial or daughter EcoliSimulation, passes it to the
 	`Inner` agent, and launches the simulation. `agent_config` fields:
-		* kafka_config
-		* working_dir (wcEcoli path containing the sim path out/manual/)
-		* inherited_state_path (optional, to make a daughter cell)
-		* start_time (optional)
-		* variant_type (optional)
-		* variant_index (optional)
-		* seed (optional)
+	    * kafka_config
+	    * outer_id (id of environmental context agent)
+	    * working_dir (wcEcoli path containing the sim path out/manual/)
+	    * inherited_state_path (optional, to make a daughter cell)
+	    * start_time (optional)
+	    * variant_type (optional)
+	    * variant_index (optional)
+	    * seed (optional)
 	'''
-	def __init__(self, agent_id, agent_config):
-		self.agent_id = agent_id
+	kafka_config = agent_config['kafka_config']
+	working_dir = agent_config['working_dir']
+	outer_id = agent_config['outer_id']
+	start_time = agent_config.get('start_time', 0)
+	inherited_state_path = agent_config.get('inherited_state_path', None)
+	variant_type = agent_config.get('variant_type', 'wildtype')
+	variant_index = agent_config.get('variant_index', 0)
+	seed = agent_config.get('seed', 0)
 
-		kafka_config = agent_config['kafka_config']
-		working_dir = agent_config['working_dir']
-		outer_id = agent_config['outer_id']
-		start_time = agent_config.get('start_time', 0)
-		inherited_state_path = agent_config.get('inherited_state_path', None)
-		variant_type = agent_config.get('variant_type', 'wildtype')
-		variant_index = agent_config.get('variant_index', 0)
-		seed = agent_config.get('seed', 0)
+	# create the inner agent before instantiating so we can send a message to the lattice
+	# without waiting for the simulation to boot
+	inner = Inner(
+		agent_id,
+		outer_id,
+		agent_type,
+		agent_config,
+		None)
 
-		sim_path = fp.makedirs(working_dir, 'out', 'manual')
-		sim_data_fit = os.path.join(sim_path, 'kb', 'simData_Most_Fit.cPickle')
-		output_dir = os.path.join(sim_path, 'sim_' + self.agent_id, 'simOut')
+	volume = agent_config.get('volume', 1.2)
+	inner.send(kafka_config['topics']['environment_receive'], {
+		'event': event.CELL_DECLARE,
+		'agent_id': outer_id,
+		'inner_id': agent_id,
+		'agent_config': agent_config,
+		'state': {
+			'volume': volume,
+			'environment_change': {}}})
 
-		if not os.path.isfile(sim_data_fit):
-			raise IOError(errno.ENOENT,
-				'Missing "{}".  Run the Fitter?'.format(sim_data_fit))
+	sim_path = fp.makedirs(working_dir, 'out', 'manual')
+	sim_data_fit = os.path.join(sim_path, 'kb', 'simData_Most_Fit.cPickle')
+	output_dir = os.path.join(sim_path, 'sim_' + agent_id, 'simOut')
 
-		# Apply the variant to transform simData_Most_Fit.cPickle
-		info, sim_data = apply_variant.apply_variant(
-			sim_data_file=sim_data_fit,
-			variant_type=variant_type,
-			variant_index=variant_index
-			)
+	if not os.path.isfile(sim_data_fit):
+		raise IOError(
+			errno.ENOENT,
+			'Missing "{}".  Run the Fitter?'.format(sim_data_fit))
 
-		options = {
-			"simData":                sim_data,
-			"outputDir":              output_dir,
-			"initialTime":            start_time,
-			"inheritedStatePath":     inherited_state_path,
-			"logToDisk":              True,
-			"overwriteExistingFiles": True,
-			"seed":                   seed,
-			"timeStepSafetyFraction": 1.3,
-			"maxTimeStep":            0.9,
-			"updateTimeStepFreq":     5,
-			"logToShell":             True,
-			"logToDiskEvery":         1,
-			"massDistribution":       True,
-			"growthRateNoise":        False,
-			"dPeriodDivision":        False,
-			"translationSupply":      True,
-			}
+	# Apply the variant to transform simData_Most_Fit.cPickle
+	info, sim_data = apply_variant.apply_variant(
+		sim_data_file=sim_data_fit,
+		variant_type=variant_type,
+		variant_index=variant_index)
 
-		# Write a metadata file to aid analysis plots.
-		# TODO(jerry): Skip it if another cell already wrote one?
-		metadata = {
-			"git_hash":           fp.run_cmdline("git rev-parse HEAD"),
-			"git_branch":         fp.run_cmdline("git symbolic-ref --short HEAD"),
-			"description":        "an Ecoli Cell Agent",
-			"time":               fp.timestamp(),
-			# "total_gens":       1,  # not known in advance for multi-scale sims
-			"analysis_type":      None,
-			"variant":            variant_type,
-			"mass_distribution":  options['massDistribution'],
-			"growth_rate_noise":  options['growthRateNoise'],
-			"d_period_division":  options['dPeriodDivision'],
-			"translation_supply": options['translationSupply'],
-			}
-		metadata_dir = fp.makedirs(sim_path, 'metadata')
-		metadata_path = os.path.join(metadata_dir, constants.JSON_METADATA_FILE)
-		fp.write_json_file(metadata_path, metadata)
+	options = {
+		"simData":                sim_data,
+		"outputDir":              output_dir,
+		"initialTime":            start_time,
+		"inheritedStatePath":     inherited_state_path,
+		"logToDisk":              True,
+		"overwriteExistingFiles": True,
+		"seed":                   seed,
+		"timeStepSafetyFraction": 1.3,
+		"maxTimeStep":            0.9,
+		"updateTimeStepFreq":     5,
+		"logToShell":             True,
+		"logToDiskEvery":         1,
+		"massDistribution":       True,
+		"growthRateNoise":        False,
+		"dPeriodDivision":        False,
+		"translationSupply":      True}
 
-		self.simulation = ecoli_simulation(**options)
-		self.inner = Inner(
-			kafka_config,
-			self.agent_id,
-			outer_id,
-			self.simulation)
+	# Write a metadata file to aid analysis plots.
+	# TODO(jerry): Skip it if another cell already wrote one?
+	metadata = {
+		"git_hash":           fp.run_cmdline("git rev-parse HEAD"),
+		"git_branch":         fp.run_cmdline("git symbolic-ref --short HEAD"),
+		"description":        "an Ecoli Cell Agent",
+		"time":               fp.timestamp(),
+		# "total_gens":       1,  # not known in advance for multi-scale sims
+		"analysis_type":      None,
+		"variant":            variant_type,
+		"mass_distribution":  options['massDistribution'],
+		"growth_rate_noise":  options['growthRateNoise'],
+		"d_period_division":  options['dPeriodDivision'],
+		"translation_supply": options['translationSupply']}
+	metadata_dir = fp.makedirs(sim_path, 'metadata')
+	metadata_path = os.path.join(metadata_dir, constants.JSON_METADATA_FILE)
+	fp.write_json_file(metadata_path, metadata)
 
+	inner.simulation = ecoli_simulation(**options)
+
+	return inner
 
 class ShepherdControl(EnvironmentControl):
 
@@ -167,9 +183,8 @@ class ShepherdControl(EnvironmentControl):
 	then terminate).
 	"""
 
-	def __init__(self, kafka_config):
-		agent_id = 'shepherd_control'
-		super(ShepherdControl, self).__init__(agent_id, kafka_config)
+	def __init__(self, agent_config):
+		super(ShepherdControl, self).__init__(str(uuid.uuid1()), agent_config)
 
 	def add_ecoli(self, agent_config):
 		self.add_agent(
@@ -238,17 +253,23 @@ class EnvironmentCommand(AgentCommand):
 	def shepherd_initializers(self, args):
 		initializers = super(EnvironmentCommand, self).shepherd_initializers(args)
 
-		def initialize_ecoli(agent_id, agent_config):
+		def initialize_ecoli(agent_id, agent_type, agent_config):
 			agent_config = dict(
 				agent_config,
 				kafka_config=self.kafka_config,
 				working_dir=args.working_dir)
-			return BootEcoli(agent_id, agent_config)
+			ecoli = boot_ecoli(agent_id, agent_type, agent_config)
+			ecoli.start()
 
-		def initialize_lattice(agent_id, agent_config):
+		def initialize_lattice(agent_id, agent_type, agent_config):
 			agent_config = dict(agent_config)
 			agent_config['kafka_config'] = self.kafka_config
-			return BootEnvironmentSpatialLattice(agent_id, agent_config, agent_config.get('media', args.media))
+			lattice = boot_lattice(
+				agent_id,
+				agent_type,
+				agent_config,
+				agent_config.get('media', args.media))
+			lattice.start()
 
 		initializers['lattice'] = initialize_lattice
 		initializers['ecoli'] = initialize_ecoli
@@ -257,7 +278,11 @@ class EnvironmentCommand(AgentCommand):
 
 	def lattice(self, args):
 		agent_id = args.id or 'lattice'
-		BootEnvironmentSpatialLattice(agent_id, {'kafka_config': self.kafka_config}, args.media)
+		lattice = boot_lattice(
+			agent_id,
+			{'kafka_config': self.kafka_config},
+			args.media)
+		lattice.start()
 
 	def ecoli(self, args):
 		if not args.id:
@@ -272,7 +297,8 @@ class EnvironmentCommand(AgentCommand):
 			variant_index=args.index,
 			seed=args.seed,
 			outer_id=args.outer_id)
-		BootEcoli(args.id, agent_config)
+		ecoli = boot_ecoli(args.id, agent_config)
+		ecoli.start()
 
 	def add(self, args):
 		agent_config = dict(
@@ -280,13 +306,13 @@ class EnvironmentCommand(AgentCommand):
 			variant_index=args.index,
 			seed=args.seed,
 			outer_id=args.id,
-			)
-		control = ShepherdControl(self.kafka_config)
+			kafka_config=self.kafka_config)
+		control = ShepherdControl(agent_config)
 		control.add_ecoli(agent_config)
 		control.shutdown()
 
 	def experiment(self, args):
-		control = ShepherdControl(self.kafka_config)
+		control = ShepherdControl({'kafka_config': self.kafka_config})
 		control.lattice_experiment(args)
 		control.shutdown()
 

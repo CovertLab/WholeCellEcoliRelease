@@ -13,38 +13,53 @@ class AgentShepherd(Agent):
 	type and each value is a function that takes two arguments, an `agent_id` and an `agent_config`
 	dictionary. Each time an agent is added, it is done so by calling one of these initializers.
 
-	AgentShepherd responds to two messages, ADD_AGENT and REMOVE_AGENT.
+	AgentShepherd responds to two agent lifecycle messages, ADD_AGENT and REMOVE_AGENT, as well as
+	three control messages, TRIGGER_ALL, PAUSE_ALL, and SHUTDOWN_ALL, which apply these messages to
+	every agent in its process pool.
 
 	* ADD_AGENT: takes an `agent_id`, an `agent_type` which is the key to an initializer, and
 	    `agent_config`, which is passed to the initializer when spawning the new agent. Each
 	    agent is a separate process using the python `multiprocessing` library.
-	* REMOVE_AGENT: takes an `agent_prefix` which will remove all agents whose ids start with
-	    the given string. This enables you to remove several agents at once, or to just supply
-	    the beginning of a long agent id string (like a uuid), similar to git's behavior when
-	    naming commit hashes.
+
+	* REMOVE_AGENT: takes an `agent_id` to remove or an `agent_prefix`, which will remove all
+	    agents whose ids start with the given string. This enables you to remove several agents
+	    at once, or to just supply the beginning of a long agent id string (like a uuid), similar
+	    to git's behavior when naming commit hashes.
 	"""
 
-	def __init__(self, agent_id, kafka_config, agent_initializers):
+	def __init__(self, agent_id, agent_config, agent_initializers):
 		"""
 		Initialize the AgentShepherd with its id, kafka config and a dictionary of initializers,
 		which determine what kind of agents the shepherd is able to spawn.
 
 		Args:
 		    agent_id (str): A unique identifier for the new agent.
-		    kafka_config (dict): a set of entries describing how to connect to and interact with
-		        kafka. The key `shepherd_control` is required and names the topic the shepherd
-		        will communicate on.
+		    agent_config (dict): A dictionary containing any information needed to run this
+		        outer agent. The only required key is `kafka_config` containing Kafka configuration
+		        information with the following keys:
+
+		        * `host`: the Kafka server host address.
+		        * `topics`: a dictionary mapping topic roles to specific topics used by the agent
+		            to communicate with other agents. The relevant ones to this agent are:
+
+		            * `shepherd_receive`: The topic this agent will be listening to for directives
+		                to add or remove agents from the simulation.
+		            * `agent_receive`: The topic this agent will send control messages on for 
+		                triggering, pausing or shutting agents down.
 		    agent_initializers (dict): This is the set of agents this shepherd will be able to
 		        spawn. The values are callables that take two arguments, `agent_id` (str) and
 		        `agent_config` (dict), and will be passed to `multiprocessing.Process` to spawn
 		        a new agent process.
 		"""
 
+		kafka_config = agent_config['kafka_config']
+		kafka_config['subscribe'].append(
+			kafka_config['topics']['shepherd_receive'])
+
+		super(AgentShepherd, self).__init__(agent_id, 'shepherd', agent_config)
+
 		self.agents = {}
 		self.agent_initializers = agent_initializers
-
-		kafka_config['subscribe_topics'] = [kafka_config['shepherd_control']]
-		super(AgentShepherd, self).__init__(agent_id, kafka_config)
 
 	def initialize(self):
 		print('agent shepherd waiting')
@@ -68,10 +83,11 @@ class AgentShepherd(Agent):
 			process = mp.Process(
 				target=initializer,
 				name=agent_id,
-				args=(agent_id, agent_config))
+				args=(agent_id, agent_type, agent_config))
 
 			self.agents[agent_id] = {
 				'process': process,
+				'id': agent_id,
 				'type': agent_type,
 				'config': agent_config}
 
@@ -89,6 +105,7 @@ class AgentShepherd(Agent):
 		        given string. This way you don't need to type a whole uuid, and can even remove
 		        multiple agents at once if their ids are logically grouped by prefix.
 		"""
+
 		removing = filter(lambda key: key.startswith(agent_prefix), self.agents.iterkeys())
 		print('removing agents {}'.format(removing))
 
@@ -108,17 +125,48 @@ class AgentShepherd(Agent):
 		if agent_id in self.agents:
 			agent = self.agents.pop(agent_id)
 			if agent['process'].is_alive():
-				self.send(self.kafka_config['agent_receive'], {
+				self.send(self.topics['agent_receive'], {
 					'event': event.SHUTDOWN_AGENT,
 					'agent_id': agent_id})
 
 			return agent
 
+	def filter_type(self, agents, agent_type):
+		"""
+		Find agents only of the given `agent_type`
+		"""
+
+		if agent_type:
+			agents = filter(
+				lambda agent: agent['type'] == agent_type,
+				agents)
+		return agents
+
+	def agent_control(self, agent_event, agents, agent_type=None):
+		"""
+		Send a control message of the given `agent_event` type to each agent of the given
+		`agent_type`, if not `None`, otherwise to every agent.
+		"""
+
+		matching = self.filter_type(agents, agent_type)
+		for agent in matching:
+			self.send(self.topics['agent_receive'], {
+				'event': agent_event,
+				'agent_id': agent['id']})
+
 	def receive(self, topic, message):
 		"""
-		This agent receives two events: ADD_AGENT and REMOVE_AGENT, who's message contents
-		match the arguments to the functions above.
+		This agent receives two agent lifecycle events: ADD_AGENT and REMOVE_AGENT, who's message
+		contents match the arguments to the functions above.
+
+		In addition it receives three control messages: TRIGGER_ALL, PAUSE_ALL, and SHUTDOWN_ALL,
+		which apply the corresponding control messages to every agent in their agent pool, or just 
+		those of a given type if `agent_type` is providing as well.
 		"""
+
+		# TODO (Ryan): Make the shepherd respond to messages addressed to it, rather than every
+		#     message of the given type.
+		# if message['agent_id'] == self.agent_id:
 
 		print('--> {}: {}'.format(topic, message))
 
@@ -133,3 +181,12 @@ class AgentShepherd(Agent):
 				self.remove_prefix(message['agent_prefix'])
 			else:
 				self.remove_agent(message['agent_id'])
+
+		elif message['event'] == event.TRIGGER_ALL:
+			self.agent_control(event.TRIGGER_AGENT, self.agents.values(), message.get('agent_type'))
+
+		elif message['event'] == event.PAUSE_ALL:
+			self.agent_control(event.PAUSE_AGENT, self.agents.values(), message.get('agent_type'))
+
+		elif message['event'] == event.SHUTDOWN_ALL:
+			self.agent_control(event.SHUTDOWN_AGENT, self.agents.values(), message.get('agent_type'))

@@ -10,15 +10,13 @@ from itertools import izip
 import scipy.sparse
 
 import numpy as np
-import os
-import cPickle
 
 from wholecell.utils.fitting import normalize, countsFromMassAndExpression, masses_and_counts_for_homeostatic_target
 from wholecell.utils.polymerize import computeMassIncrease
 from wholecell.utils import units
 from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
 
-from wholecell.io.tablereader import TableReader
+from wholecell.sim.divide_cell import load_inherited_state
 
 
 def calcInitialConditions(sim, sim_data):
@@ -483,24 +481,23 @@ def initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 
 
 def setDaughterInitialConditions(sim, sim_data):
-	assert sim._inheritedStatePath is not None
-	isDead = cPickle.load(open(os.path.join(sim._inheritedStatePath, "IsDead.cPickle"), "rb"))
-	sim._isDead = isDead
+	inherited_state_path = sim._inheritedStatePath
+	assert inherited_state_path is not None
 
-	elngRate = cPickle.load(open(os.path.join(sim._inheritedStatePath, "ElngRate.cPickle"), "rb"))
-	elng_rate_factor = cPickle.load(open(os.path.join(sim._inheritedStatePath, "elng_rate_factor.cPickle"), "rb"))
+	inherited_state = load_inherited_state(inherited_state_path)
+
+	sim._isDead = inherited_state['is_dead']
+
+	elngRate = inherited_state['elng_rate']
+	elng_rate_factor = inherited_state['elng_rate_factor']
 	if sim._growthRateNoise:
 		sim.processes["PolypeptideElongation"].setElngRate = elngRate
 		sim.processes["PolypeptideElongation"].elngRateFactor = elng_rate_factor
 
-	bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkMolecules"))
-	sim.internal_states["BulkMolecules"].tableLoad(bulk_table_reader, 0)
+	sim.internal_states["BulkMolecules"].loadSnapshot(inherited_state['bulk_molecules'])
+	sim.internal_states["UniqueMolecules"].loadSnapshot(inherited_state['unique_molecules'])
 
-	unique_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "UniqueMolecules"))
-	sim.internal_states["UniqueMolecules"].tableLoad(unique_table_reader, 0)
-
-	initialTime = TableReader(os.path.join(sim._inheritedStatePath, "Time")).readAttribute("initialTime")
-	sim._initialTime = initialTime
+	sim._initialTime = inherited_state['initial_time']
 
 
 def determineChromosomeState(C, D, tau, replication_length):

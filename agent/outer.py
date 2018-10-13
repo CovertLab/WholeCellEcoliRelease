@@ -1,5 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
+import sys
+import uuid
 import numpy as np
 
 import agent.event as event
@@ -18,21 +20,40 @@ class EnvironmentSimulation(object):
 		"""Unregister an inner agent."""
 
 	def simulation_parameters(self, agent_id):
-		"""Generate any parameters a simulation may need to know about from the environment,
-		such as the current time step.
+		"""
+		During initialization of a new simulation, generate any parameters a simulation may
+		need to know about from the environment, such as the current time step.
+		"""
+		return {}
+
+	def simulation_state(self, agent_id):
+		"""
+		Return the state the environment is tracking about the simulation given by `agent_id`.
 		"""
 		return {}
 
 	def apply_inner_update(self, update, now):
-		"""Update the environment's state from only the inner agent simulations that have reached
+		"""
+		Update the environment's state from only the inner agent simulations that have reached
 		but not passed the `now` time point, given the `update` dictionary mapping agent_id to
 		the changes calculated during their run.
 		"""
 
 	def generate_outer_update(self, now):
-		"""Return a dictionary of agent_id to updates coming from the environment for
+		"""
+		Return a dictionary of agent_id to updates coming from the environment for
 		each agent that has run to `now` but not past.
 		"""
+
+	def apply_parent_state(self, agent_id, agent_config):
+		"""
+		After cell division, this function is called when a new daughter cell is initialized
+		by the environment in order to apply any state the environment was tracking about the 
+		parent cell (like location and orientation etc).
+		"""
+
+	def run_for(self):
+		"""Return the length of time simulations should run for this time period."""
 
 	def run_incremental(self, time):
 		"""Run the environment's own simulation until the given time."""
@@ -60,31 +81,41 @@ class Outer(Agent):
 	The context environmental simulation is an instance of EnvironmentSimulation.
 	"""
 
-	def __init__(self, agent_id, kafka_config, environment):
+	def __init__(self, agent_id, agent_type, agent_config, environment):
 		"""
 		Construct the Agent.
 
 		Args:
-			agent_id (str): Unique identifier for this agent.
-			kafka_config (dict): Kafka configuration information with the following keys:
-				`host`: the Kafka server host address.
-				`environment_control`: The topic this agent will use to listen for trigger
-					and shutdown messages.
-				`simulation_send`: The topic this agent will use to listen for simulation
-					updates from inner agents.
-			environment (EnvironmentSimulation): The actual simulation which will perform
-				the calculations.
+		    agent_id (str): Unique identifier for this agent.
+		    agent_type (str): The type of this agent, for coordination with the agent shepherd.
+		    agent_config (dict): A dictionary containing any information needed to run this
+		        outer agent. The only required key is `kafka_config` containing Kafka configuration
+		        information with the following keys:
+
+		        * `host`: the Kafka server host address.
+		        * `topics`: a dictionary mapping topic roles to specific topics used by the agent
+		            to communicate with other agents. The relevant ones to this agent are:
+
+		            * `environment_receive`: The topic this agent will use to listen for
+		                any messages addressed to it, either from related simulations or 
+		                from control messages from other processes (such as trigger and shutdown).
+		            * `cell_receive`: The topic this agent will use to send messages to its
+		                associated cell simulations.
+		    environment (EnvironmentSimulation): The actual simulation which will perform
+		        the calculations.
 		"""
+
+		kafka_config = agent_config['kafka_config']
+		kafka_config['subscribe'].append(
+			kafka_config['topics']['environment_receive'])
+
+		super(Outer, self).__init__(agent_id, agent_type, agent_config)
+
 		self.environment = environment
 		self.simulations = {}
+		self.parent_state = {}
 		self.paused = True
 		self.shutting_down = False
-
-		kafka_config['subscribe_topics'] = [
-			kafka_config['simulation_send'],
-			kafka_config['environment_control']]
-
-		super(Outer, self).__init__(agent_id, kafka_config)
 
 	def initialize(self):
 		print('environment started')
@@ -92,31 +123,69 @@ class Outer(Agent):
 	def finalize(self):
 		print('environment shutting down')
 
-	def initialize_simulation(self, message):
+	def cell_declare(self, message):
 		inner_id = message['inner_id']
 		environment_time = self.environment.time()
 		simulation_time = max(environment_time, message.get('time', environment_time))
+		simulation = self.simulations.setdefault(inner_id, {})
 
-		self.simulations[inner_id] = {
+		simulation.update({
 			'time': simulation_time,
 			'message_id': -1,
 			'last_message_id': -1,
-			'state': message['state']}
+			'state': message['state'],
+			'agent_config': message['agent_config']})
 
-		self.send(self.kafka_config['simulation_receive'], {
-			'event': event.SYNCHRONIZE_SIMULATION,
+		self.environment.add_simulation(inner_id, simulation)
+		if simulation.get('daughter'):
+			self.environment.apply_parent_state(inner_id, simulation)
+
+		self.update_state()
+
+	def cell_initialize(self, message):
+		"""
+		Handle the initialization of a new cell simulation.
+
+		A variety of tasks are performed when a new cell simulation is created. First, we compare
+		the simulation's time to our environment's time to see if these need to be synchronized.
+		Next, we notify our environment simulation of the new cell simulation. Then we check to see
+		if the new simulation is a daughter cell, in which case we notify the environment of its
+		parent state so that it can inherit properties tracked by the environment (such as location
+		and orientation). Then we send the synchronization message to the inner agent so that the 
+		cell can be updated about any pertinent environmental state. After that we call
+		`update_state` so that subclasses can perform whatever operation they need to perform when
+		the state of the simulation changes (such as sending state notifications to listening
+		visualizations). Finally, the outer agent is advanced if all associated inner agents are
+		ready to advance.
+		"""
+
+		self.cell_declare(message)
+
+		inner_id = message['inner_id']
+		simulation = self.simulations[inner_id]
+		print('=============== initializing simulation {}'.format(simulation))
+
+		parameters = self.environment.simulation_parameters(inner_id)
+		self.send(self.topics['cell_receive'], {
+			'event': event.ENVIRONMENT_SYNCHRONIZE,
 			'inner_id': inner_id,
 			'outer_id': self.agent_id,
-			'state': self.environment.simulation_parameters(inner_id)})
+			'state': parameters})
 
-		self.environment.add_simulation(inner_id, message)
+		self.advance()
 
 	def update_state(self):
-		""" Called before each simulation is updated with the current state of the system. """
+		"""
+		Called when the overall state of the environment simulation and its associated cell
+		simulations is changed so that external listening processes can be notified.
+		"""
 		pass
 
 	def send_updates(self, now, run_until):
-		""" Send updated concentrations to each inner agent. """
+		"""
+		Send updates from the environment simulation out to the inner agents and their associated
+		cell simulations and tell them when to `run_until`, if they have stopped at `now`. 
+		"""
 
 		update = self.environment.generate_outer_update(now)
 		self.update_state()
@@ -124,13 +193,57 @@ class Outer(Agent):
 		for inner_id, simulation in self.simulations.iteritems():
 			if inner_id in update:
 				simulation['message_id'] += 1
-				self.send(self.kafka_config['simulation_receive'], {
-					'event': event.ENVIRONMENT_UPDATED,
+				self.send(self.topics['cell_receive'], {
+					'event': event.ENVIRONMENT_UPDATE,
 					'outer_id': self.agent_id,
 					'inner_id': inner_id,
 					'message_id': simulation['message_id'],
 					'state': update[inner_id],
 					'run_until': run_until})
+
+	def cell_exchange(self, message):
+		"""
+		Handle messages from inner agents about the behavior of their cell simulations.
+
+		This updates the state for each cell simulation and also handles the case of cell division,
+		where the state of the parent cell is stored in order to apply it to each daughter cell
+		when they initialize.
+
+		Also, this (along with `cell_initialize`) is the main point at which the outer agent
+		is advanced if all cell simulations are ready.
+		"""
+
+		agent_id = message['inner_id']
+		if agent_id in self.simulations:
+			simulation = self.simulations[agent_id]
+
+			# check to make sure the message we just received is in reply to the most recent
+			# message we sent to the inner agent
+			if message['message_id'] == simulation['message_id']:
+				state = message['state']
+				simulation['state'] = state
+				simulation['time'] = message['time']
+
+				# if the update we received from the inner agent contains a `division` key,
+				# prepare the state of each impending daughter cell. The `division` value
+				# contains a pair of dictionaries which must contain an `id` in addition to
+				# whatever keys are relevant to the implementation of `EnvironmentSimulation`.
+				if state.get('division'):
+					parent = self.environment.simulation_state(agent_id)
+					for index, daughter in enumerate(state['division']):
+						daughter_id = daughter.get('id', str(uuid.uuid1()))
+						self.simulations[daughter_id] = dict(
+							parent,
+							time=simulation['time'],
+							daughter=True,
+							index=index,
+							message_id=0,
+							last_message_id=-1)
+						print('================ daughter: {}'.format(self.simulations[daughter_id]))
+				else:
+					simulation['last_message_id'] = message['message_id']
+
+				self.advance()
 
 	def ready_to_advance(self):
 		"""
@@ -182,7 +295,7 @@ class Outer(Agent):
 				self.environment.run_incremental(now)
 
 				# find the next time for simulations to achieve
-				run_until = self.environment.time() + self.environment.run_for
+				run_until = self.environment.time() + self.environment.run_for()
 
 				# unless there is an earlier time a simulation arrived at
 				if later.size > 0:
@@ -192,12 +305,32 @@ class Outer(Agent):
 
 				self.send_updates(now, run_until)
 
+	def cell_shutdown(self, message):
+		if message['inner_id'] in self.simulations:
+			gone = self.simulations.pop(message['inner_id'], {'inner_id': -1})
+			self.environment.remove_simulation(message['inner_id'])
+			self.update_state()
+
+			print('simulation shutdown: ' + str(gone))
+
+			if not self.simulations:
+				self.shutdown()
+
 	def send_shutdown(self):
 		for inner_id, simulation in self.simulations.iteritems():
-			self.send(self.kafka_config['simulation_receive'], {
+			self.send(self.topics['cell_receive'], {
 				'outer_id': self.agent_id,
 				'inner_id': inner_id,
 				'event': event.SHUTDOWN_AGENT})
+
+	def shutdown_inner(self, message):
+		if len(self.simulations) > 0:
+			if self.ready_to_advance():
+				self.send_shutdown()
+			else:
+				self.shutting_down = True
+		else:
+			self.shutdown()
 
 	def receive(self, topic, message):
 		"""
@@ -208,66 +341,49 @@ class Outer(Agent):
 
 		Control messages:
 
-		* TRIGGER_EXECUTION: Send messages to all registered inner agents to begin execution.
-		* PAUSE_ENVIRONMENT: Stop sending messages until another TRIGGER_ENVIRONMENT is received.
-		* SHUTDOWN_ENVIRONMENT: Send messages to inner agents notifying them that the outer agent
+		* TRIGGER_AGENT: Send messages to all registered inner agents to begin execution.
+		* PAUSE_AGENT: Stop sending messages until another TRIGGER_AGENT is received.
+		* SHUTDOWN_AGENT: Send messages to inner agents notifying them that the outer agent
 		    is shutting down, and wait for acknowledgement before exiting.
 
 		Simulation messages:
 
-		* SIMULATION_INITIALIZED: Registers inner agents that will be driven once the
-		    TRIGGER_EXECUTION event is received.
-		* SIMULATION_ENVIRONMENT: Received from each inner agent when it has computed its 
+		* CELL_INITIALIZE: Registers inner agents that will be driven once the
+		    TRIGGER_AGENT event is received.
+		* CELL_EXCHANGE: Received from each inner agent when it has computed its 
 		    environmental changes up to the specified `run_until`. The outer agent will wait
 		    until it has heard from each simulation, integrate their changes and then calculate
-		    the new local environment for each inner agent and respond with an `ENVIRONMENT_UPDATED`
+		    the new local environment for each inner agent and respond with an `ENVIRONMENT_UPDATE`
 		    message.
-		* SIMULATION_SHUTDOWN: Received when an inner agent has completed. Once all inner agents
+		* CELL_SHUTDOWN: Received when an inner agent has completed. Once all inner agents
 		    have reported back that they have shut down the outer agent can complete.
 		"""
 
 		if message.get('outer_id', message.get('agent_id')) == self.agent_id:
 			print('--> {}: {}'.format(topic, message))
 
-			if message['event'] == event.SIMULATION_INITIALIZED:
-				self.initialize_simulation(message)
-
-			elif message['event'] == event.TRIGGER_EXECUTION:
+			if message['event'] == event.TRIGGER_AGENT:
 				self.paused = False
 				self.advance()
 
-			elif message['event'] == event.SIMULATION_ENVIRONMENT:
-				if message['inner_id'] in self.simulations:
-					simulation = self.simulations[message['inner_id']]
-
-					if message['message_id'] == simulation['message_id']:
-						simulation['state'] = message['state']
-						simulation['time'] = message['time']
-						simulation['last_message_id'] = message['message_id']
-
-						self.advance()
-
-			elif message['event'] == event.PAUSE_ENVIRONMENT:
+			elif message['event'] == event.PAUSE_AGENT:
 				self.paused = True
+				self.update_state()
 
 			elif message['event'] == event.SHUTDOWN_AGENT:
-				if len(self.simulations) > 0:
-					if self.ready_to_advance():
-						self.send_shutdown()
-					else:
-						self.shutting_down = True
-				else:
-					self.shutdown()
+				self.shutdown_inner(message)
 
-			elif message['event'] == event.SIMULATION_SHUTDOWN:
-				if message['inner_id'] in self.simulations:
-					gone = self.simulations.pop(message['inner_id'], {'inner_id': -1})
-					self.environment.remove_simulation(message['inner_id'])
+			elif message['event'] == event.CELL_DECLARE:
+				self.cell_declare(message)
 
-					print('simulation shutdown: ' + str(gone))
+			elif message['event'] == event.CELL_INITIALIZE:
+				self.cell_initialize(message)
 
-					if not self.simulations:
-						self.shutdown()
+			elif message['event'] == event.CELL_EXCHANGE:
+				self.cell_exchange(message)
+
+			elif message['event'] == event.CELL_SHUTDOWN:
+				self.cell_shutdown(message)
 
 			else:
 				print('unexpected event {}: {}'.format(message['event'], message))
