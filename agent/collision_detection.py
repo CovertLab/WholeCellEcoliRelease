@@ -9,16 +9,24 @@ plt.ion()
 fig = plt.figure()
 from agent.grid import Grid, Rectangle
 
-def CollisionDetection(agent_specs, lattice_size, dx):
+def collision_detection(agents, lattice_size, dx):
 	grid = Grid([lattice_size, lattice_size], dx)
 
-	for agent, specs in agent_specs.iteritems():
-		box = specs['indices']
+	for agent_id, agent in agents.iteritems():
+		box = agent['indices']
 		grid.impress(box)
 
 	total_overlap = grid.overlap()
 
-	return grid, total_overlap
+	# get forces
+	forces = {}
+	for agent_id, agent in agents.iteritems():
+		location = agent['location']
+		box = agent['indices']
+		forces[agent_id] = grid.get_forces(location, box)
+
+	return grid, total_overlap, forces
+
 
 def accept(delta):
 	prob_accept = np.exp(-delta/10)
@@ -27,17 +35,18 @@ def accept(delta):
 
 
 def volume_exclusion(agents):
-	grid, overlap = CollisionDetection(agents, edge_length, resolution)
+	grid, overlap, forces = collision_detection(agents, edge_length, resolution)
 	while overlap > 0:
 		agents_new = agents.copy()
 
 		# update one agent at a time
 		for agent_id, specs in agents_new.iteritems():
 			agent = agents_new[agent_id]
+			force = np.array([force_vec / 1000 for force_vec in forces[agent_id]])
 
 			searching = True
 			while searching:
-				location = agent['location'] + np.random.normal(scale=np.sqrt(TRANSLATIONAL_JITTER), size=2)
+				location = agent['location'] + force + np.random.normal(scale=np.sqrt(TRANSLATIONAL_JITTER), size=2)
 				orientation = agent['orientation'] + np.random.normal(scale=ROTATIONAL_JITTER) % (2 * np.pi)
 
 				# check if agent is in the environmental bounds
@@ -49,7 +58,7 @@ def volume_exclusion(agents):
 			agent['orientation'] = orientation
 			agent['indices'] = indices
 
-			grid_new, overlap_new = CollisionDetection(agents_new, edge_length, resolution)
+			grid_new, overlap_new, forces_new = collision_detection(agents_new, edge_length, resolution)
 
 			if overlap_new <= overlap:
 				agents = agents_new
@@ -77,7 +86,7 @@ agents = {
 	'aardvark': {
 		'location': (5, 5),
 		'orientation': 3*np.pi/4,
-		'length': 2.5,
+		'length': 3,
 		'radius': 0.5},
 	'basilisk': {
 		'location': (4, 7),

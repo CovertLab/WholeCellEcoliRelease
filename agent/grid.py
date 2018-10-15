@@ -120,3 +120,21 @@ class Grid(object):
 		total_overlap = np.sum(np.sum(self.grid[self.grid>1]))
 
 		return total_overlap
+
+	def get_forces(self, midpoint, indices):
+		location = tuple([int(i / self.dx) for i in midpoint])
+
+		force_vectors = set()
+		total_force = [0.0, 0.0]
+
+		for index in indices:
+			# find collisions, get force vector for each.
+			if self.grid[index] > 1:
+				force_vector = tuple([location[0] - index[0], location[1] - index[1]])
+				force_vectors.update([force_vector])
+
+		for force in force_vectors:
+			total_force[0] += force[0]
+			total_force[1] += force[1]
+
+		return total_force
