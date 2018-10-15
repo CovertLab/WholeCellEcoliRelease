@@ -87,13 +87,13 @@ class Rectangle(object):
 			end]).render(dx)
 		perimeter = [left, right]
 
-		indexes = np.concatenate([
+		indices = np.concatenate([
 			map(lambda x: [x, left[1]],
 				range(left[0], right[0] + 1))
 			for left, right
 			in zip(left, right)])
 
-		return set(map(tuple, indexes))
+		return set(map(tuple, indices))
 
 class Grid(object):
 	def __init__(self, bounds, dx):
@@ -106,7 +106,21 @@ class Grid(object):
 		self.dimension = self.bounds / dx
 		self.grid = np.zeros(map(int, self.dimension))
 
-	def impress(self, shape):
-		indexes = shape.render(self.dx)
-		for index in indexes:
+	def impress(self, indices):
+		# indices = shape.render(self.dx)
+
+		for index in indices:
 			self.grid[index[0]][index[1]] += 1
+
+	def check_in_bounds(self, indices):
+		for (x,y) in indices:
+			if x >= self.grid.shape[0] or x < 0 or y >= self.grid.shape[0] or y < 0:
+				return False
+		return True
+
+	def overlap(self):
+		total_overlap = np.sum(np.sum(self.grid[self.grid>1]))
+
+
+
+		return total_overlap

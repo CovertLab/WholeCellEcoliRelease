@@ -11,51 +11,29 @@ from agent.grid import Grid, Rectangle
 
 def CollisionDetection(agent_specs, lattice_size, dx):
 
-	n_sites = int(lattice_size / dx)
 	grid = Grid([lattice_size, lattice_size], dx)
-	# collision_grid = np.zeros((n_sites, n_sites))
 
 	for agent, specs in agent_specs.iteritems():
-		location = specs['location']
-		orientation = specs['orientation']
-		length = specs['length']
-		radius = specs['radius']
+		# location = specs['location']
+		# orientation = specs['orientation']
+		# length = specs['length']
+		# radius = specs['radius']
 
-		box = Rectangle([radius, length], location, orientation)
+		box = specs['indices']
 		grid.impress(box)
 
-		# half_length = length/2
-		# cos = np.cos(orientation)
-		# sin = np.sin(orientation)
+	total_overlap = grid.overlap()
 
-		# NW = [
-		# 	location[0] - half_length * cos - radius * sin,
-		# 	location[1] - half_length * sin + radius * cos]
+	return grid, total_overlap
 
-		# NE = [
-		# 	location[0] + half_length * cos - radius * sin,
-		# 	location[1] + half_length * sin + radius * cos]
+def accept(delta):
+	prob_accept = np.exp(-delta/10)
 
-		# SW = [
-		# 	location[0] - half_length * cos + radius * sin,
-		# 	location[1] - half_length * sin - radius * cos]
+	return prob_accept
 
-		# SE = [
-		# 	location[0] + half_length * cos + radius * sin,
-		# 	location[1] + half_length * sin - radius * cos]
 
-		# NW_d = [int(x / dx) for x in NW]
-		# NE_d = [int(x / dx) for x in NE]
-		# SW_d = [int(x / dx) for x in SW]
-		# SE_d = [int(x / dx) for x in SE]
-
-		# collision_grid[NW_d[0], NW_d[1]] += 1
-		# collision_grid[NE_d[0], NE_d[1]] += 1
-		# collision_grid[SW_d[0], SW_d[1]] += 1
-		# collision_grid[SE_d[0], SE_d[1]] += 1
-
-	return grid
-
+ROTATIONAL_JITTER = 0.1 # (radians/s)
+TRANSLATIONAL_JITTER = 0.01 # (micrometers/s)
 
 
 edge_length = 10
@@ -63,29 +41,69 @@ resolution = 0.1
 agents = {
 	'aardvark': {
 		'location': (5, 5),
-		'orientation': np.pi/4,
-		'length': 4.0,
+		'orientation': 3*np.pi/4,
+		'length': 2.0,
 		'radius': 0.5},
 	'basilisk': {
-		'location': (5, 5),
+		'location': (4, 7),
 		'orientation': 0,
-		'length': 5.0,
+		'length': 4.0,
 		'radius': 1.0},
 	'capybara': {
-		'location': (7, 7),
-		'orientation': np.pi*2/5,
+		'location': (7, 8),
+		'orientation': np.pi/4,
 		'length': 3.0,
-		'radius': 2.0},
+		'radius': 0.5},
 	'dingo': {
 		'location': (4, 4),
-		'orientation': np.pi*8/5,
-		'length': 7.0,
+		'orientation': np.pi/5,
+		'length': 4.0,
 		'radius': 1.0}}
 
-grid = CollisionDetection(agents, edge_length, resolution)
+#give agents indices
+for agent_id, agent in agents.iteritems():
+	box = Rectangle([agent['radius'], agent['length']], agent['location'], agent['orientation'])
+	indices = box.render(resolution)
+	agent['indices'] = indices
+
+grid, overlap = CollisionDetection(agents, edge_length, resolution)
 
 plt.imshow(grid.grid)
 plt.savefig('grid.png')
 plt.pause(0.0001)
+
+while overlap > 0:
+
+	agents_new = agents.copy()
+
+	for agent_id, specs in agents_new.iteritems():
+		agent = agents_new[agent_id]
+
+		searching = True
+		while searching:
+			location = agent['location'] + np.random.normal(scale=np.sqrt(TRANSLATIONAL_JITTER), size=2)
+			orientation = agent['orientation'] + np.random.normal(scale=ROTATIONAL_JITTER) % (2 * np.pi)
+
+			# check if shape is in the bounds
+			box = Rectangle([agent['radius'], agent['length']], location, orientation)
+			indices = box.render(resolution)
+			searching = not grid.check_in_bounds(indices)
+
+		agent['location'] = location
+		agent['orientation'] = orientation
+		agent['indices'] = indices
+
+		grid_new, overlap_new = CollisionDetection(agents_new, edge_length, resolution)
+
+		if overlap_new <= overlap:
+			agents = agents_new
+			grid, overlap = CollisionDetection(agents, edge_length, resolution)
+		elif np.random.rand() < accept(overlap_new - overlap):
+			agents = agents_new
+			grid, overlap = CollisionDetection(agents, edge_length, resolution)
+
+	plt.imshow(grid.grid)
+	plt.savefig('grid.png')
+	plt.pause(0.0001)
 
 import ipdb; ipdb.set_trace()
