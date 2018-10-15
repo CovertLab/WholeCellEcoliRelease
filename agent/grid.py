@@ -123,18 +123,14 @@ class Grid(object):
 
 	def get_forces(self, midpoint, indices):
 		location = tuple([int(i / self.dx) for i in midpoint])
-
-		force_vectors = set()
-		total_force = [0.0, 0.0]
+		total_force = np.array([0.0, 0.0])
 
 		for index in indices:
 			# find collisions, get force vector for each.
 			if self.grid[index] > 1:
-				force_vector = tuple([location[0] - index[0], location[1] - index[1]])
-				force_vectors.update([force_vector])
+				total_force[0] += location[0] - index[0]
+				total_force[1] += location[1] - index[1]
 
-		for force in force_vectors:
-			total_force[0] += force[0]
-			total_force[1] += force[1]
+		total_force *= 0.1 * (self.dx ** 2)
 
 		return total_force

@@ -28,8 +28,8 @@ def collision_detection(agents, lattice_size, dx):
 	return grid, total_overlap, forces
 
 
-def accept(delta):
-	prob_accept = np.exp(-delta/10)
+def accept(delta, temp):
+	prob_accept = np.exp(-delta/temp)
 
 	return prob_accept
 
@@ -42,7 +42,7 @@ def volume_exclusion(agents):
 		# update one agent at a time
 		for agent_id, specs in agents_new.iteritems():
 			agent = agents_new[agent_id]
-			force = np.array([force_vec / 1000 for force_vec in forces[agent_id]])
+			force = forces[agent_id]
 
 			searching = True
 			while searching:
@@ -68,7 +68,7 @@ def volume_exclusion(agents):
 				plt.imshow(grid.grid)
 				plt.pause(0.0001)
 
-			elif np.random.rand() < accept(overlap_new - overlap):
+			elif np.random.rand() < accept(overlap_new - overlap, TEMPERATURE):
 				agents = agents_new
 				grid = grid_new
 				overlap = overlap_new
@@ -77,8 +77,9 @@ def volume_exclusion(agents):
 				plt.pause(0.0001)
 
 
-ROTATIONAL_JITTER = 0.1 # (radians/s)
-TRANSLATIONAL_JITTER = 0.01 # (micrometers/s)
+ROTATIONAL_JITTER = 0.0 #0.1 # (radians/s)
+TRANSLATIONAL_JITTER = 0.0 #0.01 # (micrometers/s)
+TEMPERATURE = 20 # for acceptance function
 
 edge_length = 10
 resolution = 0.1
