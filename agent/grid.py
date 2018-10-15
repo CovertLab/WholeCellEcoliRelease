@@ -107,8 +107,6 @@ class Grid(object):
 		self.grid = np.zeros(map(int, self.dimension))
 
 	def impress(self, indices):
-		# indices = shape.render(self.dx)
-
 		for index in indices:
 			self.grid[index[0]][index[1]] += 1
 
@@ -120,7 +118,5 @@ class Grid(object):
 
 	def overlap(self):
 		total_overlap = np.sum(np.sum(self.grid[self.grid>1]))
-
-
 
 		return total_overlap
