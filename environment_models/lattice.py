@@ -34,6 +34,7 @@ if animating:
 
 import matplotlib.pyplot as plt
 
+from agent.grid import Grid
 from agent.outer import EnvironmentSimulation
 
 
@@ -95,7 +96,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		self._time = 0
 		self._timestep = 1.0
 		self._run_for = 5
-n
+
 		self.simulations = {}  # map of agent_id to simulation state
 		self.locations = {}    # map of agent_id to location and orientation
 

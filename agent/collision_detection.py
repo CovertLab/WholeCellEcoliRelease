@@ -29,7 +29,7 @@ def collision_detection(grid, agents):
 		shape = shapes[agent_id]
 		forces[agent_id] = grid.forces(location, shape)
 
-	return overlap, forces
+	return overlap, shapes, forces
 
 
 def accept(delta, temp):
@@ -37,8 +37,8 @@ def accept(delta, temp):
 	return np.random.rand() < probability_threshold
 
 
-def volume_exclusion(grid, agents, scale=1., callback=null_callback):
-	overlap, forces = collision_detection(grid, agents)
+def volume_exclusion(grid, agents, scale=1., callback=None):
+	overlap, shapes, forces = collision_detection(grid, agents)
 	while overlap > 0:
 		potential_agents = copy.deepcopy(agents)
 
@@ -51,7 +51,7 @@ def volume_exclusion(grid, agents, scale=1., callback=null_callback):
 			agent['location'] += force * scale + location_jitter
 			agent['orientation'] += orientation_jitter
 
-		overlap_new, forces_new = collision_detection(grid, potential_agents)
+		overlap_new, shapes, forces_new = collision_detection(grid, potential_agents)
 
 		delta_overlap = overlap_new - overlap
 		if delta_overlap <= 0 or accept(delta_overlap, TEMPERATURE):
@@ -59,7 +59,10 @@ def volume_exclusion(grid, agents, scale=1., callback=null_callback):
 			overlap = overlap_new
 			forces = forces_new
 
-			callback(agents, overlap, forces, grid)
+			if callback:
+				callback(agents, overlap, forces, grid)
+
+	return agents
 
 
 if __name__ == '__main__':
