@@ -37,9 +37,10 @@ def accept(delta, temp):
 	return np.random.rand() < probability_threshold
 
 
-def volume_exclusion(grid, agents, scale=1., callback=None):
+def volume_exclusion(grid, agents, scale=1., max_cycles=100, callback=None):
 	overlap, shapes, forces = collision_detection(grid, agents)
-	while overlap > 0:
+	cycles = 0
+	while overlap > 0 and cycles < max_cycles:
 		potential_agents = copy.deepcopy(agents)
 
 		# update one agent at a time
@@ -61,6 +62,8 @@ def volume_exclusion(grid, agents, scale=1., callback=None):
 
 			if callback:
 				callback(agents, overlap, forces, grid)
+
+		cycles += 1
 
 	return agents
 

@@ -36,7 +36,7 @@ import matplotlib.pyplot as plt
 
 from agent.grid import Grid
 from agent.outer import EnvironmentSimulation
-
+from agent.collision_detection import volume_exclusion
 
 if animating:
 	plt.ion()
@@ -131,17 +131,39 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 
 
 	def update_locations(self):
+		def make_shape(agent):
+			return Rectangle(
+				[agent['radius'],
+				 agent['length']],
+				agent['location'],
+				agent['orientation'])
+
+		agents = {
+			agent_id: {
+				'radius': CELL_RADIUS,
+				'length': length = self.volume_to_length(agent['state']['volume'])
+				'location': self.locations[agent_id][0:2],
+				'orientation': self.locations[agent_id][2],
+				'render': make_shape}
+			for agent_id, agent
+			in self.simulations.iteritems()}
+
+		exclusion = volume_exclusion(self.grid, agents)
+
 		''' Update location for all agent_ids '''
 		for agent_id, location in self.locations.iteritems():
+			self.locations[agent_id][0:2] = exclusion[agent_id]['location']
+			self.locations[agent_id][2] = exclusion[agent_id]['orientation']
 
-			# Translational diffusion
-			self.locations[agent_id][0:2] += np.random.normal(scale=np.sqrt(TRANSLATIONAL_JITTER * self._timestep), size=N_DIMS)
 
-			# Bounce cells off of lattice edges
-			self.locations[agent_id][0:2][self.locations[agent_id][0:2] >= EDGE_LENGTH] -= 2 * self.locations[agent_id][0:2][self.locations[agent_id][0:2]>= EDGE_LENGTH] % EDGE_LENGTH
+			# # Translational diffusion
+			# self.locations[agent_id][0:2] += np.random.normal(scale=np.sqrt(TRANSLATIONAL_JITTER * self._timestep), size=N_DIMS)
 
-			# Rotational diffusion
-			self.locations[agent_id][2] = (location[2] + np.random.normal(scale=ROTATIONAL_JITTER * self._timestep)) % (2 * PI)
+			# # Bounce cells off of lattice edges
+			# self.locations[agent_id][0:2][self.locations[agent_id][0:2] >= EDGE_LENGTH] -= 2 * self.locations[agent_id][0:2][self.locations[agent_id][0:2]>= EDGE_LENGTH] % EDGE_LENGTH
+
+			# # Rotational diffusion
+			# self.locations[agent_id][2] = (location[2] + np.random.normal(scale=ROTATIONAL_JITTER * self._timestep)) % (2 * PI)
 
 
 	def run_diffusion(self):
