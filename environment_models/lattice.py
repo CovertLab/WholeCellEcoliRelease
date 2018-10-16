@@ -47,15 +47,17 @@ PI = np.pi
 
 # Lattice parameters
 N_DIMS = 2
-PATCHES_PER_EDGE = 10 # TODO (Eran) this should scale to accomodate diffusion
+PATCHES_PER_EDGE = 20 # TODO (Eran) this should scale to accomodate diffusion
 
 EDGE_LENGTH = 10.0  # (micrometers)
 DEPTH = 3000.0 # (micrometers). An average Petri dish has a depth of 3-4 mm
 TOTAL_VOLUME = (DEPTH * EDGE_LENGTH**2) * (10**-15) # (L)
 
+UPDATE_ENV_FIELD = False
+
 # Gradient parameters
 ENV_GRADIENT = True
-CENTER = [0.5, 0.5] # the center point of a gaussian gradient
+CENTER = [0.9, 0.9] # the center point of a gaussian gradient, in range [0., 1.]
 CENTER_COORDINATES = [coordinate * EDGE_LENGTH for coordinate in CENTER]
 ST_DEV = 10.0
 
@@ -119,13 +121,13 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 	def gaussian(self, distance):
 		return np.exp(-np.power(distance, 2.) / (2 * np.power(ST_DEV, 2.)))
 
-	
 	def evolve(self):
 		''' Evolve environment '''
 
 		self.update_locations()
 
-		self.run_diffusion()
+		if UPDATE_ENV_FIELD:
+			self.run_diffusion()
 
 
 	def update_locations(self):
@@ -242,18 +244,20 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		'''
 		self.simulations.update(update)
 
-		for agent_id, simulation in self.simulations.iteritems():
-			# only apply changes if we have reached this simulation's time point.
-			if simulation['time'] <= now:
-				print('=================== simulation update: {}'.format(simulation))
-				state = simulation['state']
-				location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH
-				patch_site = tuple(np.floor(location).astype(int))
+		if UPDATE_ENV_FIELD:
 
-				for molecule, count in state['environment_change'].iteritems():
-					concentration = self.count_to_concentration(count)
-					index = self.molecule_index[molecule]
-					self.lattice[index, patch_site[0], patch_site[1]] += concentration
+			for agent_id, simulation in self.simulations.iteritems():
+				# only apply changes if we have reached this simulation's time point.
+				if simulation['time'] <= now:
+					print('=================== simulation update: {}'.format(simulation))
+					state = simulation['state']
+					location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH
+					patch_site = tuple(np.floor(location).astype(int))
+
+					for molecule, count in state['environment_change'].iteritems():
+						concentration = self.count_to_concentration(count*10000)
+						index = self.molecule_index[molecule]
+						self.lattice[index, patch_site[0], patch_site[1]] += concentration
 
 
 	def get_molecule_ids(self):
