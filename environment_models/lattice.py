@@ -34,7 +34,7 @@ if animating:
 
 import matplotlib.pyplot as plt
 
-from agent.grid import Grid
+from agent.grid import Grid, Rectangle, within
 from agent.outer import EnvironmentSimulation
 from agent.collision_detection import volume_exclusion
 
@@ -99,6 +99,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 
 		self.simulations = {}  # map of agent_id to simulation state
 		self.locations = {}    # map of agent_id to location and orientation
+		self.grid = Grid([EDGE_LENGTH, EDGE_LENGTH], 0.1)
 
 		self._molecule_ids = concentrations.keys()
 		self.concentrations = concentrations.values()
@@ -133,7 +134,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 	def update_locations(self):
 		def make_shape(agent):
 			return Rectangle(
-				[agent['radius'],
+				[agent['radius'] * 2,
 				 agent['length']],
 				agent['location'],
 				agent['orientation'])
@@ -141,7 +142,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		agents = {
 			agent_id: {
 				'radius': CELL_RADIUS,
-				'length': length = self.volume_to_length(agent['state']['volume'])
+				'length': self.volume_to_length(agent['state']['volume']),
 				'location': self.locations[agent_id][0:2],
 				'orientation': self.locations[agent_id][2],
 				'render': make_shape}
@@ -152,8 +153,11 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 
 		''' Update location for all agent_ids '''
 		for agent_id, location in self.locations.iteritems():
-			self.locations[agent_id][0:2] = exclusion[agent_id]['location']
-			self.locations[agent_id][2] = exclusion[agent_id]['orientation']
+			translation_jitter = np.random.normal(scale=np.sqrt(TRANSLATIONAL_JITTER * self._timestep), size=N_DIMS)
+			orientation_jitter = np.random.normal(scale=ROTATIONAL_JITTER * self._timestep)
+
+			location[0:2] = exclusion[agent_id]['location'] + translation_jitter
+			location[2] = (exclusion[agent_id]['orientation'] + orientation_jitter) % (2 * PI)
 
 
 			# # Translational diffusion
@@ -287,13 +291,32 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 
 	def generate_outer_update(self, now):
 		'''returns a dict with {molecule_id: conc} for each sim give its current location'''
+
+		bounds = [PATCHES_PER_EDGE, PATCHES_PER_EDGE]
+		def constrain(bounds, point):
+			if not within(bounds, point):
+				print('outside bounds {}: {}'.format(bounds, point))
+
+			x = point[0]
+			y = point[1]
+			if x < 0:
+				x = 0
+			if y < 0:
+				y = 0
+			if x >= bounds[0]:
+				x = bounds[0]
+			if y >= bounds[1]:
+				y = bounds[1]
+
+			return point
+
 		update = {}
 		for agent_id, simulation in self.simulations.iteritems():
 			# only provide concentrations if we have reached this simulation's time point.
 			if simulation['time'] <= now:
 				# get concentration from cell's given bin
 				location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH
-				patch_site = tuple(np.floor(location).astype(int))
+				patch_site = constrain(bounds, tuple(np.floor(location).astype(int)))
 				update[agent_id] = {}
 				update[agent_id]['concentrations'] = dict(zip(
 					self._molecule_ids,

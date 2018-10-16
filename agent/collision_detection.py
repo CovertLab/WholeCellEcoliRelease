@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 
 from agent.grid import Grid, Rectangle
 
+TEMPERATURE = 20 # for acceptance function
+
 def collision_detection(grid, agents):
 	grid.reset()
 
@@ -80,7 +82,6 @@ if __name__ == '__main__':
 
 	ROTATIONAL_JITTER = 0.1 # (radians/s)
 	TRANSLATIONAL_JITTER = 0.0001 # (micrometers/s)
-	TEMPERATURE = 20 # for acceptance function
 
 	edge_length = 10
 	resolution = 0.1
