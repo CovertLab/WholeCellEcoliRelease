@@ -177,17 +177,20 @@ def boot_ecoli(agent_id, agent_type, agent_config):
 	return inner
 
 def boot_chemotax(agent_id, agent_type, agent_config):
-
+	# kafka_config = agent_config['kafka_config']
 	agent_id = agent_id
 	outer_id = agent_config['outer_id']
+
 	simulation = Chemotax()
 
-	return Inner(
+	inner = Inner(
 		agent_id,
 		outer_id,
 		agent_type,
 		agent_config,
 		simulation)
+
+	return inner
 
 
 class ShepherdControl(EnvironmentControl):
@@ -299,6 +302,7 @@ class EnvironmentCommand(AgentCommand):
 				agent_config,
 				kafka_config=self.kafka_config,
 				working_dir=args.working_dir)
+			time.sleep(5)
 			chemotax = boot_chemotax(agent_id, agent_type, agent_config)
 			chemotax.start()
 
@@ -340,7 +344,8 @@ class EnvironmentCommand(AgentCommand):
 			outer_id=args.id,
 			kafka_config=self.kafka_config)
 		control = ShepherdControl(agent_config)
-		control.add_ecoli(agent_config)
+		# control.add_ecoli(agent_config)
+		control.add_chemotax_surrogate(agent_config)
 		control.shutdown()
 
 	def experiment(self, args):

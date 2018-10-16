@@ -12,7 +12,11 @@ class Chemotax(CellSimulation):
 	def __init__(self):
 		self.local_time = 0
 		self.concentrations = {}
+
+		self.volume = 1.0
+		self.division = False
 		self.environment_change = {}
+
 
 	def time(self):
 		return self.local_time
@@ -29,7 +33,10 @@ class Chemotax(CellSimulation):
 
 	def generate_inner_update(self):
 		return {
-			'environment_change': self.environment_change}
+			'volume': self.volume,
+			# 'division': self.division,
+			'environment_change': self.environment_change,
+			}
 
 	def finalize(self):
 		pass
