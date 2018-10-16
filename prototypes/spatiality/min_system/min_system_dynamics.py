@@ -55,11 +55,11 @@ diameter = 2 * radius
 # chemical parameters
 params = {
 	'diffusion' : 2.5,  # micrometer**2/sec
-	'k_ADP_ATP' : 1,  # sec**-1
-	'k_D' : 0.025,  # micrometer/sec
-	'k_dD' : 0.0015,  # micrometer**3/sec
-	'k_de' : 0.7*3,  # sec**-1 # the multiplied factor counteracts differences between the SA:Vol of a cylinder and SA:Vol of a rectangle
-	'k_E' : 0.093*3,  # micrometer**3/sec
+	'k_ADP_ATP' : 1,  # sec**-1. Conversion rate of MinD:ADP to MinD:ATP
+	'k_D' : 0.025,  # micrometer/sec. Spontaneous attachment rate of MinD:ATP to membrane
+	'k_dD' : 0.0015,  # micrometer**3/sec. Recruitment of MinD:ATP to membrane by attached MinD
+	'k_de' : 0.7*3,  # sec**-1. Rate of ATP hydrolysis in MinE:MinD:ATP complex, breaks apart complex and releases phosphate
+	'k_E' : 0.093*3,  # micrometer**3/sec. Rate of MinE attachment to membrane-associated MinD:ATP complex
 	}
 
 # molecule indices
