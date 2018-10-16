@@ -2,13 +2,13 @@ from __future__ import absolute_import, division, print_function
 
 import copy
 import numpy as np
+import argparse
 
 # matplotlib stuff
 import matplotlib
 matplotlib.use('TKAgg')
 import matplotlib.pyplot as plt
-plt.ion()
-fig = plt.figure()
+
 from agent.grid import Grid, Rectangle
 
 def collision_detection(grid, agents):
@@ -37,7 +37,7 @@ def accept(delta, temp):
 	return np.random.rand() < probability_threshold
 
 
-def volume_exclusion(grid, agents, scale=1.):
+def volume_exclusion(grid, agents, scale=1., callback=null_callback):
 	overlap, forces = collision_detection(grid, agents)
 	while overlap > 0:
 		potential_agents = copy.deepcopy(agents)
@@ -59,19 +59,27 @@ def volume_exclusion(grid, agents, scale=1.):
 			overlap = overlap_new
 			forces = forces_new
 
-			plt.imshow(grid.grid)
-			plt.pause(0.0001)
+			callback(agents, overlap, forces, grid)
 
 
 if __name__ == '__main__':
-    ROTATIONAL_JITTER = 0.1 # (radians/s)
-    TRANSLATIONAL_JITTER = 0.0001 # (micrometers/s)
-    TEMPERATURE = 20 # for acceptance function
+	parser = argparse.ArgumentParser(description='volume exclusion')
+	parser.add_argument('--animating', default=False, action='store_true')
+	args = parser.parse_args()
 
-    edge_length = 10
-    resolution = 0.1
-    agents = {}
-    animals = [
+	animating = args.animating
+	if animating:
+		plt.ion()
+		fig = plt.figure()
+
+	ROTATIONAL_JITTER = 0.1 # (radians/s)
+	TRANSLATIONAL_JITTER = 0.0001 # (micrometers/s)
+	TEMPERATURE = 20 # for acceptance function
+
+	edge_length = 10
+	resolution = 0.1
+	agents = {}
+	animals = [
 		'aardvark',
 		'basilisk',
 		'capybara',
@@ -99,23 +107,31 @@ if __name__ == '__main__':
 		'yak',
 		'zebrafish']
 
-    def make_shape(agent):
-    	return Rectangle(
-    		[agent['radius'],
-    		 agent['length']],
-    		agent['location'],
-    		agent['orientation'])
+	def make_shape(agent):
+		return Rectangle(
+			[agent['radius'],
+			 agent['length']],
+			agent['location'],
+			agent['orientation'])
 
-    for animal in animals:
-    	agents[animal] = {
-    		'location': np.random.random(2) * 7 + 1.5,
-    		'orientation': np.random.random(1)[0] * np.pi * 2,
-    		'length': 2,
-    		'radius': 0.5,
-    		'render': make_shape}
+	for animal in animals:
+		agents[animal] = {
+			'location': np.random.random(2) * 7 + 1.5,
+			'orientation': np.random.random(1)[0] * np.pi * 2,
+			'length': 2,
+			'radius': 0.5,
+			'render': make_shape}
 
-    grid = Grid([edge_length, edge_length], resolution)
+	grid = Grid([edge_length, edge_length], resolution)
 
-    volume_exclusion(grid, agents)
+	def null_callback(agents, overlap, forces, grid):
+		pass
 
-    import ipdb; ipdb.set_trace()
+	def animation_callback(agents, overlap, forces, grid):
+		plt.imshow(grid.grid)
+		plt.pause(0.0001)
+
+	callback = animation_callback if animating else null_callback
+	volume_exclusion(grid, agents, callback=callback)
+
+	import ipdb; ipdb.set_trace()
