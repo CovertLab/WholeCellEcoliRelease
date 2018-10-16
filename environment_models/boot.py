@@ -12,6 +12,7 @@ from agent.shepherd import AgentShepherd
 from agent.boot import EnvironmentControl, AgentCommand
 
 from environment_models.lattice import EnvironmentSpatialLattice
+from environment_models.surrogates.chemotax import Chemotax
 
 # Raw data class
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
@@ -174,6 +175,20 @@ def boot_ecoli(agent_id, agent_type, agent_config):
 
 	return inner
 
+def boot_chemotax(agent_id, agent_type, agent_config):
+
+	agent_id = agent_id
+	outer_id = agent_config['outer_id']
+	simulation = Chemotax()
+
+	return Inner(
+		agent_id,
+		outer_id,
+		agent_type,
+		agent_config,
+		simulation)
+
+
 class ShepherdControl(EnvironmentControl):
 
 	"""
@@ -196,7 +211,14 @@ class ShepherdControl(EnvironmentControl):
 		lattice_id = str(uuid.uuid1())
 		self.add_agent(lattice_id, 'lattice', {'media': args.media})
 		for index in range(args.number):
-			self.add_ecoli({'outer_id': lattice_id})
+			# self.add_ecoli({'outer_id': lattice_id})
+			self.add_chemotax_surrogate({'outer_id': lattice_id})
+
+	def add_chemotax_surrogate(self, agent_config):
+		self.add_agent(
+			str(uuid.uuid1()),
+			'chemotax',
+			agent_config)
 
 
 class EnvironmentCommand(AgentCommand):
@@ -205,7 +227,7 @@ class EnvironmentCommand(AgentCommand):
 	"""
 
 	def __init__(self):
-		choices = ['ecoli', 'lattice']
+		choices = ['ecoli', 'chemotax', 'lattice']
 		description = '''
 		Run an agent for the environmental context simulation.
 		The commands are:
@@ -271,8 +293,17 @@ class EnvironmentCommand(AgentCommand):
 				agent_config.get('media', args.media))
 			lattice.start()
 
+		def initialize_chemotax_surrogate(agent_id, agent_type, agent_config):
+			agent_config = dict(
+				agent_config,
+				kafka_config=self.kafka_config,
+				working_dir=args.working_dir)
+			chemotax = boot_chemotax(agent_id, agent_type, agent_config)
+			chemotax.start()
+
 		initializers['lattice'] = initialize_lattice
 		initializers['ecoli'] = initialize_ecoli
+		initializers['chemotax'] = initialize_chemotax_surrogate
 
 		return initializers
 
