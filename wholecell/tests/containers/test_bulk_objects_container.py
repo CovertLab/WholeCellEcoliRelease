@@ -6,9 +6,12 @@ test_bulk_objects_container.py
 @data: Created 2/27/2014
 '''
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
+import cPickle
+import os
+import shutil
+import tempfile
 import unittest
 
 import numpy as np
@@ -16,28 +19,41 @@ import numpy.testing as npt
 import nose.plugins.attrib as noseAttrib
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
+from wholecell.io.tablereader import TableReader
+from wholecell.io.tablewriter import TableWriter
+
 
 OBJECT_NAMES = ('ATP', 'glucose', 'glycine')
 OBJECT_COUNTS = [100, 20, 10]
 
+# A compressible object name list.
+ELEMENTS = '''Actinium Aluminum Americium Barium Berkelium Beryllium
+	Bohrium Cadmium Calcium Californium Cerium Cesium Chromium
+	Copernicium Curium Darmstadtium Dubnium Dysprosium Einsteinium
+	Erbium Europium Fermium Flerovium Francium Gadolinium Gallium Germanium
+	Hafnium Hassium Helium Holmium Indium Iridium Lanthanum Lawrencium
+	Lithium Livermorium Lutetium Magnesium Meitnerium Mendelevium Molybdenum
+	Moscovium Neodymium Neptunium Nihonium Niobium Nobelium Osmium Palladium
+	Platinum Plutonium Polonium Potassium Praseodymium Promethium Protactinium
+	Radium Rhenium Rhodium Roentgenium Rubidium Ruthenium Rutherfordium
+	Samarium Scandium Seaborgium Selenium Sodium Strontium Tantalum Technetium
+	Tellurium Terbium Thallium Thorium Thulium Titanium Uranium Vanadium
+	Ytterbium Yttrium Zirconium'''.split()
+
 
 class Test_BulkObjectsContainer(unittest.TestCase):
-	@classmethod
-	def setupClass(cls):
-		pass
-
-
-	@classmethod
-	def tearDownClass(cls):
-		pass
-
-
 	def setUp(self):
 		self.container = createContainer()
-
+		self.test_dir = None
 
 	def tearDown(self):
-		pass
+		if self.test_dir:
+			shutil.rmtree(self.test_dir)
+
+	def make_test_dir(self):
+		if not self.test_dir:
+			self.test_dir = tempfile.mkdtemp()
+
 
 	# Interface methods
 
@@ -204,8 +220,33 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 		npt.assert_equal(self.container.count(OBJECT_NAMES[0]), newCount)
 
 
-	# Internal methods
+	@noseAttrib.attr('smalltest', 'bulkObjects')
+	def test_emptyLike(self):
+		e1 = self.container.emptyLike()
+		e2 = self.container.emptyLike()
+		self.assertNotEqual(self.container, e1)
+		self.assertEqual(e1, e2)
+		self.assertEqual(OBJECT_NAMES, e1.objectNames())
+		npt.assert_array_equal((0, 0, 0), e1.counts())
 
+	@noseAttrib.attr('smalltest', 'bulkObjects')
+	def test_copyCounts(self):
+		npt.assert_array_equal(OBJECT_COUNTS, self.container.counts())
+
+		c1 = self.container.emptyLike()
+		c2 = BulkObjectsContainer(OBJECT_NAMES[1:])
+		self.assertNotEqual(self.container, c1)
+		self.assertNotEqual(c1, c2)
+
+		c1.loadSnapshot(self.container)
+		self.assertEqual(self.container, c1)
+		npt.assert_array_equal(OBJECT_COUNTS, c1.counts())
+
+		with self.assertRaises(ValueError):  # different object names
+			c2.loadSnapshot(self.container)
+
+
+	# Internal methods
 
 	@noseAttrib.attr('smalltest', 'bulkObjects')
 	def test_namesToIndexes(self):
@@ -233,9 +274,101 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest', 'bulkObjects')
 	def test_eq(self):
+		self.assertEqual(self.container, self.container)
+		self.assertNotEqual(self.container, object())
+
 		newContainer = createContainer()
 
+		self.assertEqual(newContainer, self.container)
 		npt.assert_equal(self.container.counts(), newContainer.counts())
+
+		container2 = BulkObjectsContainer(tuple('abcdefghijklmnopqrstuvwxyz'))
+		self.assertNotEquals(self.container, container2)  # different names and shape
+
+		# __eq__() tests the counts. The dtypes may differ.
+		newContainer.countsIs(7 + 9876 * np.arange(len(OBJECT_NAMES)))
+		container3 = BulkObjectsContainer(OBJECT_NAMES, 'int16')
+		self.assertNotEqual(newContainer, container3)
+		container3.countsIs(7 + 9876 * np.arange(len(OBJECT_NAMES)))
+		self.assertEqual(newContainer, container3)
+
+
+	# I/O
+
+	@noseAttrib.attr('smalltest', 'bulkObjects')
+	def test_pickle(self):
+		# Test a float64 container.
+		container = BulkObjectsContainer(ELEMENTS, dtype=np.float64)
+		container.countsIs(1 + 1234.56 * np.arange(len(ELEMENTS)))
+
+		data = cPickle.dumps(container, cPickle.HIGHEST_PROTOCOL)
+		container2 = cPickle.loads(data)
+		# print("Pickled a BulkObjectsContainer of {} float64 to {} bytes".format(
+		# 	len(ELEMENT_NAMES), len(data)))
+
+		assert container == container2
+
+		# Check container2's internals after custom unpickling.
+		np.testing.assert_array_equal(container._counts, container2._counts)
+		assert container._nObjects == container2._nObjects
+		assert container._dtype == container2._dtype
+		assert container._objectIndex == container2._objectIndex
+
+		# Test an int16 container.
+		container3 = BulkObjectsContainer(ELEMENTS, dtype=np.int16)
+		container3.countsIs(301 * np.arange(len(ELEMENTS)))
+
+		data = cPickle.dumps(container3, cPickle.HIGHEST_PROTOCOL)
+		container4 = cPickle.loads(data)
+		# print("Pickled a BulkObjectsContainer of {} int16 to {} bytes".format(
+		# 	len(ELEMENT_NAMES), len(data)))
+
+		assert container4 == container3
+
+		# Test that an unpickled container is mutable as always. It's at risk
+		# because np.frombuffer(f.read()) gets an ndarray onto a readonly byte str.
+		e = container4.count('Einsteinium')
+		container4.countInc(1010, 'Einsteinium')
+		self.assertEqual(1010 + e, container4.count('Einsteinium'))
+
+	@noseAttrib.attr('smalltest', 'bulkObjects')
+	def test_cannot_pickle(self):
+		"""Try to pickle a container whose dtype has fields or a subarray."""
+		container = BulkObjectsContainer(ELEMENTS, dtype=[('a', 'f4'), ('b', 'i4')])
+		with self.assertRaises(ValueError):
+			cPickle.dumps(container)
+
+		container = BulkObjectsContainer(ELEMENTS, dtype='(2,3)f8')
+		with self.assertRaises(ValueError):
+			cPickle.dumps(container)
+
+		container = BulkObjectsContainer([OBJECT_NAMES, OBJECT_NAMES], dtype='f8')
+		with self.assertRaises(TypeError):
+			cPickle.dumps(container)
+
+	@noseAttrib.attr('smalltest', 'bulkObjects')
+	def test_write_table(self):
+		self.make_test_dir()
+		path = os.path.join(self.test_dir, 'BulkMolecules')
+
+		container = BulkObjectsContainer(ELEMENTS, dtype=np.float64)
+		container.countsIs(234 * np.arange(len(ELEMENTS)))  # values fit in in16
+
+		table_writer = TableWriter(path)
+		container.tableCreate(table_writer)
+		container.tableAppend(table_writer)
+		table_writer.close()
+
+		# Read the data into a container with a different dtype.
+		# This should not change its dtype.
+		# Note: The constructor takes any dtype spec and keeps a dtype object.
+		table_reader = TableReader(path)
+		container2 = BulkObjectsContainer(ELEMENTS, dtype='int16')
+		container2.tableLoad(table_reader, 0)
+
+		assert container2 == container
+		assert container2._dtype == np.int16
+
 
 # TODO: view tests
 
