@@ -37,7 +37,7 @@ def accept(delta, temp):
 	return np.random.rand() < probability_threshold
 
 
-def volume_exclusion(grid, agents):
+def volume_exclusion(grid, agents, scale=1.):
 	overlap, forces = collision_detection(grid, agents)
 	while overlap > 0:
 		potential_agents = copy.deepcopy(agents)
@@ -48,7 +48,7 @@ def volume_exclusion(grid, agents):
 			location_jitter = 0 # np.random.normal(scale=np.sqrt(TRANSLATIONAL_JITTER), size=2)
 			orientation_jitter = 0 # np.random.normal(scale=ROTATIONAL_JITTER) % (2 * np.pi)
 
-			agent['location'] += force + location_jitter
+			agent['location'] += force * scale + location_jitter
 			agent['orientation'] += orientation_jitter
 
 		overlap_new, forces_new = collision_detection(grid, potential_agents)
@@ -63,58 +63,59 @@ def volume_exclusion(grid, agents):
 			plt.pause(0.0001)
 
 
-ROTATIONAL_JITTER = 0.1 # (radians/s)
-TRANSLATIONAL_JITTER = 0.0001 # (micrometers/s)
-TEMPERATURE = 20 # for acceptance function
+if __name__ == '__main__':
+    ROTATIONAL_JITTER = 0.1 # (radians/s)
+    TRANSLATIONAL_JITTER = 0.0001 # (micrometers/s)
+    TEMPERATURE = 20 # for acceptance function
 
-edge_length = 10
-resolution = 0.1
-agents = {}
-animals = [
-	'aardvark',
-	'basilisk',
-	'capybara',
-	'dingo',
-	'elephant',
-	'fox',
-	'groundhog',
-	'hyena',
-	'ibis',
-	'jackal',
-	'koala',
-	'llama',
-	'marmuset',
-	'narwhal',
-	'ocelot',
-	'panda',
-	'quail',
-	'rhinoceros',
-	'shark',
-	'tapir',
-	'urchin',
-	'vole',
-	'whale',
-	'xenons',
-	'yak',
-	'zebrafish']
+    edge_length = 10
+    resolution = 0.1
+    agents = {}
+    animals = [
+		'aardvark',
+		'basilisk',
+		'capybara',
+		'dingo',
+		'elephant',
+		'fox',
+		'groundhog',
+		'hyena',
+		'ibis',
+		'jackal',
+		'koala',
+		'llama',
+		'marmuset',
+		'narwhal',
+		'ocelot',
+		'panda',
+		'quail',
+		'rhinoceros',
+		'shark',
+		'tapir',
+		'urchin',
+		'vole',
+		'whale',
+		'xenons',
+		'yak',
+		'zebrafish']
 
-def make_shape(agent):
-	return Rectangle(
-		[agent['radius'],
-		 agent['length']],
-		agent['location'],
-		agent['orientation'])
+    def make_shape(agent):
+    	return Rectangle(
+    		[agent['radius'],
+    		 agent['length']],
+    		agent['location'],
+    		agent['orientation'])
 
-for animal in animals:
-	agents[animal] = {
-		'location': np.random.random(2) * 7 + 1.5,
-		'orientation': np.random.random(1)[0] * np.pi * 2,
-		'length': 2,
-		'radius': 0.5,
-		'render': make_shape}
+    for animal in animals:
+    	agents[animal] = {
+    		'location': np.random.random(2) * 7 + 1.5,
+    		'orientation': np.random.random(1)[0] * np.pi * 2,
+    		'length': 2,
+    		'radius': 0.5,
+    		'render': make_shape}
 
-grid = Grid([edge_length, edge_length], resolution)
+    grid = Grid([edge_length, edge_length], resolution)
 
-volume_exclusion(grid, agents)
+    volume_exclusion(grid, agents)
 
-import ipdb; ipdb.set_trace()
+    import ipdb; ipdb.set_trace()
