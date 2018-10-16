@@ -53,6 +53,12 @@ EDGE_LENGTH = 10.0  # (micrometers)
 DEPTH = 3000.0 # (micrometers). An average Petri dish has a depth of 3-4 mm
 TOTAL_VOLUME = (DEPTH * EDGE_LENGTH**2) * (10**-15) # (L)
 
+# Gradient parameters
+ENV_GRADIENT = True
+CENTER = [0.5, 0.5] # the center point of a gaussian gradient
+CENTER_COORDINATES = [coordinate * EDGE_LENGTH for coordinate in CENTER]
+ST_DEV = 10.0
+
 # Physical constants
 DIFFUSION = 0.1  # (micrometers^2/s)
 
@@ -86,6 +92,18 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		for idx, molecule in enumerate(self._molecule_ids):
 			self.lattice[idx].fill(self.concentrations[idx])
 
+		# Add gradient
+		if ENV_GRADIENT:
+			for x_patch in xrange(PATCHES_PER_EDGE):
+				for y_patch in xrange(PATCHES_PER_EDGE):
+					# distance from middle of patch to center coordinates
+					dx = (x_patch + 0.5) * EDGE_LENGTH / PATCHES_PER_EDGE - CENTER_COORDINATES[0]
+					dy = (y_patch + 0.5) * EDGE_LENGTH / PATCHES_PER_EDGE - CENTER_COORDINATES[1]
+					distance = np.sqrt(dx ** 2 + dy ** 2)
+					scale = self.gaussian(distance)
+					# multiply glucose gradient by scale
+					self.lattice[self._molecule_ids.index('GLC[p]')][x_patch][y_patch] *= scale
+
 		if os.path.exists("out/manual/environment.txt"):
 			os.remove("out/manual/environment.txt")
 		if os.path.exists("out/manual/locations.txt"):
@@ -98,6 +116,10 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 			plt.axis('off')
 			plt.pause(0.0001)
 
+	def gaussian(self, distance):
+		return np.exp(-np.power(distance, 2.) / (2 * np.power(ST_DEV, 2.)))
+
+	
 	def evolve(self):
 		''' Evolve environment '''
 
