@@ -4,10 +4,10 @@ import copy
 import numpy as np
 import argparse
 
-# matplotlib stuff
-import matplotlib
-matplotlib.use('TKAgg')
-import matplotlib.pyplot as plt
+# # matplotlib stuff
+# import matplotlib
+# matplotlib.use('TKAgg')
+# import matplotlib.pyplot as plt
 
 from agent.grid import Grid, Rectangle
 
@@ -76,9 +76,9 @@ if __name__ == '__main__':
 	args = parser.parse_args()
 
 	animating = args.animating
-	if animating:
-		plt.ion()
-		fig = plt.figure()
+	# if animating:
+	# 	plt.ion()
+	# 	fig = plt.figure()
 
 	ROTATIONAL_JITTER = 0.1 # (radians/s)
 	TRANSLATIONAL_JITTER = 0.0001 # (micrometers/s)
@@ -135,8 +135,10 @@ if __name__ == '__main__':
 		pass
 
 	def animation_callback(agents, overlap, forces, grid):
-		plt.imshow(grid.grid)
-		plt.pause(0.0001)
+		pass
+
+		# plt.imshow(grid.grid)
+		# plt.pause(0.0001)
 
 	callback = animation_callback if animating else null_callback
 	volume_exclusion(grid, agents, callback=callback)

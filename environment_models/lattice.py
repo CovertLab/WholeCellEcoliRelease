@@ -149,7 +149,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 			for agent_id, agent
 			in self.simulations.iteritems()}
 
-		exclusion = volume_exclusion(self.grid, agents)
+		exclusion = volume_exclusion(self.grid, agents, scale=0.3)
 
 		''' Update location for all agent_ids '''
 		for agent_id, location in self.locations.iteritems():
@@ -158,16 +158,6 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 
 			location[0:2] = exclusion[agent_id]['location'] + translation_jitter
 			location[2] = (exclusion[agent_id]['orientation'] + orientation_jitter) % (2 * PI)
-
-
-			# # Translational diffusion
-			# self.locations[agent_id][0:2] += np.random.normal(scale=np.sqrt(TRANSLATIONAL_JITTER * self._timestep), size=N_DIMS)
-
-			# # Bounce cells off of lattice edges
-			# self.locations[agent_id][0:2][self.locations[agent_id][0:2] >= EDGE_LENGTH] -= 2 * self.locations[agent_id][0:2][self.locations[agent_id][0:2]>= EDGE_LENGTH] % EDGE_LENGTH
-
-			# # Rotational diffusion
-			# self.locations[agent_id][2] = (location[2] + np.random.normal(scale=ROTATIONAL_JITTER * self._timestep)) % (2 * PI)
 
 
 	def run_diffusion(self):
