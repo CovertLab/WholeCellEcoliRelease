@@ -67,12 +67,35 @@ CELL_RADIUS = 0.5 # (micrometers)
 ROTATIONAL_JITTER = 0.05 # (radians/s)
 TRANSLATIONAL_JITTER = 0.001 # (micrometers/s)
 
+# these are the molecules that will show a difference in gradient for minimal media:
+# --------------------------------------------------
+# AMMONIUM[c]: -3451555
+# CARBON-MONOXIDE[p]: 127
+# CL-[p]: -3682
+# CPD0-2167[c]: 611
+# CPD-108[p]: 127
+# CPD-560[p]: 4397
+# CPD-10774[c]: 6116
+# GLC[p]: -6389373
+# GLYCOLLATE[c]: 3483039
+# INDOLE[p]: 4982
+# K+[p]: -138237
+# METOH[p]: 25
+# MG+2[p]: -6139
+# NA+[p]: -139
+# PI[p]: -560427
+# PROTON[p]: 6374126
+# S-ADENOSYL-4-METHYLTHIO-2-OXOBUTANOATE[c]: 25
+# SULFATE[p]: -82322
+# UNDECAPRENYL-DIPHOSPHATE[p]: 5373
+# -------------------------------------------------
+
 class EnvironmentSpatialLattice(EnvironmentSimulation):
 	def __init__(self, concentrations):
 		self._time = 0
 		self._timestep = 1.0
 		self._run_for = 5
-
+n
 		self.simulations = {}  # map of agent_id to simulation state
 		self.locations = {}    # map of agent_id to location and orientation
 

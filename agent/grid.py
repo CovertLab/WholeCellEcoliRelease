@@ -104,7 +104,7 @@ class Grid(object):
 		self.bounds = np.array(bounds)
 		self.dx = dx
 		self.dimension = self.bounds / dx
-		self.grid = np.zeros(map(int, self.dimension))
+		self.grid = np.full(map(int, self.dimension), -1)
 
 	def impress(self, indices):
 		for index in indices:
@@ -117,20 +117,27 @@ class Grid(object):
 		return True
 
 	def overlap(self):
-		total_overlap = np.sum(np.sum(self.grid[self.grid>1]))
+		total_overlap = np.sum(np.sum(self.grid[self.grid > 0]))
 
 		return total_overlap
 
 	def get_forces(self, midpoint, indices):
-		location = tuple([int(i / self.dx) for i in midpoint])
+		location = np.array([int(i / self.dx) for i in midpoint])
 		total_force = np.array([0.0, 0.0])
 
+		pixels = 0.
 		for index in indices:
 			# find collisions, get force vector for each.
-			if self.grid[index] > 1:
-				total_force[0] += location[0] - index[0]
-				total_force[1] += location[1] - index[1]
+			if self.grid[index] > 0:
+				pixels += 1
+				total_force += location - np.array(index)
 
-		total_force *= 0.1 * (self.dx ** 2)
+		magnitude = np.linalg.norm(total_force)
+		if magnitude == 0:
+			total_force *= 0
+		else:
+			total_force /= magnitude
+			
+		total_force *= 30 * (self.dx ** 2)
 
 		return total_force
