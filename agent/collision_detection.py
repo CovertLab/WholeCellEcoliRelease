@@ -1,7 +1,9 @@
 from __future__ import absolute_import, division, print_function
 
+import copy
 import numpy as np
 
+# matplotlib stuff
 import matplotlib
 matplotlib.use('TKAgg')
 import matplotlib.pyplot as plt
@@ -9,72 +11,51 @@ plt.ion()
 fig = plt.figure()
 from agent.grid import Grid, Rectangle
 
-def collision_detection(agents, lattice_size, dx):
-	grid = Grid([lattice_size, lattice_size], dx)
+def collision_detection(grid, agents):
+	grid.reset()
+
+	shapes = {}
+	forces = {}
 
 	for agent_id, agent in agents.iteritems():
-		box = agent['indices']
-		grid.impress(box)
+		shapes[agent_id] = agent['render'](agent)
+		grid.impress(shapes[agent_id])
 
-	total_overlap = grid.overlap()
+	overlap = grid.overlap()
 
 	# get forces
-	forces = {}
 	for agent_id, agent in agents.iteritems():
 		location = agent['location']
-		box = agent['indices']
-		forces[agent_id] = grid.get_forces(location, box)
+		shape = shapes[agent_id]
+		forces[agent_id] = grid.forces(location, shape)
 
-	return grid, total_overlap, forces
+	return overlap, forces
 
 
 def accept(delta, temp):
-	prob_accept = np.exp(-delta/temp)
+	probability_threshold = np.exp(-delta/temp)
+	return np.random.rand() < probability_threshold
 
-	return prob_accept
 
-
-def volume_exclusion(agents):
-	introspect = {}
-
-	grid, overlap, forces = collision_detection(agents, edge_length, resolution)
-	cycles = 0
+def volume_exclusion(grid, agents):
+	overlap, forces = collision_detection(grid, agents)
 	while overlap > 0:
-		agents_new = agents.copy()
-		introspect['searches'] = {}
+		potential_agents = copy.deepcopy(agents)
 
 		# update one agent at a time
-		for agent_id, specs in agents_new.iteritems():
-			agent = agents_new[agent_id]
+		for agent_id, agent in potential_agents.iteritems():
 			force = forces[agent_id]
+			location_jitter = 0 # np.random.normal(scale=np.sqrt(TRANSLATIONAL_JITTER), size=2)
+			orientation_jitter = 0 # np.random.normal(scale=ROTATIONAL_JITTER) % (2 * np.pi)
 
-			location = agent['location'] + force + np.random.normal(scale=np.sqrt(TRANSLATIONAL_JITTER), size=2)
-			orientation = agent['orientation'] + np.random.normal(scale=ROTATIONAL_JITTER) % (2 * np.pi)
+			agent['location'] += force + location_jitter
+			agent['orientation'] += orientation_jitter
 
-			# check if agent is in the environmental bounds
-			box = Rectangle([agent['radius'], agent['length']], location, orientation)
-			indices = box.render(resolution)
-			in_bounds = grid.check_in_bounds(indices)
+		overlap_new, forces_new = collision_detection(grid, potential_agents)
 
-			if in_bounds:
-				agent['location'] = location
-				agent['orientation'] = orientation
-				agent['indices'] = indices
-
-		grid_new, overlap_new, forces_new = collision_detection(agents_new, edge_length, resolution)
-
-		if overlap_new <= overlap:
-			agents = agents_new
-			grid = grid_new
-			overlap = overlap_new
-			forces = forces_new
-
-			plt.imshow(grid.grid)
-			plt.pause(0.0001)
-
-		elif np.random.rand() < accept(overlap_new - overlap, TEMPERATURE):
-			agents = agents_new
-			grid = grid_new
+		delta_overlap = overlap_new - overlap
+		if delta_overlap <= 0 or accept(delta_overlap, TEMPERATURE):
+			agents = potential_agents
 			overlap = overlap_new
 			forces = forces_new
 
@@ -82,8 +63,8 @@ def volume_exclusion(agents):
 			plt.pause(0.0001)
 
 
-ROTATIONAL_JITTER = 0.01 # (radians/s)
-TRANSLATIONAL_JITTER = 0.001 # (micrometers/s)
+ROTATIONAL_JITTER = 0.1 # (radians/s)
+TRANSLATIONAL_JITTER = 0.0001 # (micrometers/s)
 TEMPERATURE = 20 # for acceptance function
 
 edge_length = 10
@@ -104,22 +85,36 @@ animals = [
 	'llama',
 	'marmuset',
 	'narwhal',
-	'ocelot']
-	
+	'ocelot',
+	'panda',
+	'quail',
+	'rhinoceros',
+	'shark',
+	'tapir',
+	'urchin',
+	'vole',
+	'whale',
+	'xenons',
+	'yak',
+	'zebrafish']
+
+def make_shape(agent):
+	return Rectangle(
+		[agent['radius'],
+		 agent['length']],
+		agent['location'],
+		agent['orientation'])
+
 for animal in animals:
 	agents[animal] = {
 		'location': np.random.random(2) * 7 + 1.5,
 		'orientation': np.random.random(1)[0] * np.pi * 2,
 		'length': 2,
-		'radius': 0.5}
+		'radius': 0.5,
+		'render': make_shape}
 
-#give agents indices
-for agent_id, agent in agents.iteritems():
-	box = Rectangle([agent['radius'], agent['length']], agent['location'], agent['orientation'])
-	indices = box.render(resolution)
-	agent['indices'] = indices
+grid = Grid([edge_length, edge_length], resolution)
 
-volume_exclusion(agents)
-
+volume_exclusion(grid, agents)
 
 import ipdb; ipdb.set_trace()

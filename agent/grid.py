@@ -5,8 +5,22 @@ import numpy as np
 def raster(location, dx):
 	return map(int, np.floor(location / dx))
 
-class Line(object):
+def within(bounds, point):
+	return point[0] >= 0 and point[1] >= 0 and point[0] < bounds[0] and point[1] < bounds[1]
+
+class Shape(object):
+	def __init__(self):
+		self.renders = {}
+
+	def indices(self, dx):
+		if dx not in self.renders:
+			self.renders[dx] = self.render(dx)
+		return self.renders[dx]
+
+class Line(Shape):
 	def __init__(self, begin, end):
+		super(Line, self).__init__()
+
 		self.begin = begin
 		self.end = end
 
@@ -23,8 +37,10 @@ class Line(object):
 			raster(interpolate(y), dx)
 			for y in xrange(begin, end + 1)]
 
-class Chain(object):
+class Chain(Shape):
 	def __init__(self, points):
+		super(Chain, self).__init__()
+
 		self.points = points
 
 	def render(self, dx):
@@ -44,8 +60,10 @@ class Chain(object):
 
 		return cover
 
-class Rectangle(object):
+class Rectangle(Shape):
 	def __init__(self, dimension, location, orientation):
+		super(Rectangle, self).__init__()
+
 		self.dimension = np.array(dimension)
 		self.location = np.array(location)
 		self.orientation = orientation
@@ -106,31 +124,46 @@ class Grid(object):
 		self.dimension = self.bounds / dx
 		self.grid = np.full(map(int, self.dimension), -1)
 
-	def impress(self, indices):
-		for index in indices:
-			self.grid[index[0]][index[1]] += 1
+	def reset(self):
+		self.grid.fill(-1)
 
-	def check_in_bounds(self, indices):
-		for (x,y) in indices:
-			if x >= self.grid.shape[0] or x < 0 or y >= self.grid.shape[0] or y < 0:
+	def impress(self, shape):
+		indices = shape.indices(self.dx)
+		for index in indices:
+			if within(self.dimension, index):
+				self.grid[index[0]][index[1]] += 1
+
+	def check_in_bounds(self, shape):
+		for index in shape.indices(self.dx):
+			if within(self.grid.shape, index):
 				return False
 		return True
 
 	def overlap(self):
 		total_overlap = np.sum(np.sum(self.grid[self.grid > 0]))
-
 		return total_overlap
 
-	def get_forces(self, midpoint, indices):
+	def forces(self, midpoint, shape):
 		location = np.array([int(i / self.dx) for i in midpoint])
 		total_force = np.array([0.0, 0.0])
 
 		pixels = 0.
-		for index in indices:
-			# find collisions, get force vector for each.
-			if self.grid[index] > 0:
-				pixels += 1
-				total_force += location - np.array(index)
+		for index in shape.indices(self.dx):
+			if within(self.dimension, index):
+				# find collisions, get force vector for each.
+				if self.grid[index] > 0:
+					pixels += 1
+					total_force += location - np.array(index)
+			else:
+				# check for boundaries
+				if index[0] < 0:
+					total_force[0] += 1
+				if index[0] >= self.dimension[0]:
+					total_force[0] -= 1
+				if index[1] < 0:
+					total_force[1] += 1
+				if index[1] >= self.dimension[1]:
+					total_force[1] -= 1
 
 		magnitude = np.linalg.norm(total_force)
 		if magnitude == 0:
@@ -138,6 +171,6 @@ class Grid(object):
 		else:
 			total_force /= magnitude
 			
-		total_force *= 30 * (self.dx ** 2)
+		total_force *= 15 * (self.dx ** 2)
 
 		return total_force
