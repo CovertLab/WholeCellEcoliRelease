@@ -3,28 +3,110 @@ from __future__ import absolute_import, division, print_function
 import numpy as np
 
 def raster(location, dx):
+	''' translate a location from continuous values to an index into a grid of the given dx '''
+
 	return map(int, np.floor(location / dx))
 
 def within(bounds, point):
+	''' determine whether the given point is within the provided bounding box '''
+
 	return point[0] >= 0 and point[1] >= 0 and point[0] < bounds[0] and point[1] < bounds[1]
 
+def normalize(vector):
+	''' normalize the given vector based on its magnitude '''
+
+	magnitude = np.linalg.norm(vector)
+	if magnitude == 0:
+		vector *= 0
+	else:
+		vector /= magnitude
+
+
 class Shape(object):
+	'''
+	Base class for renderable shapes.
+
+	This class provides a base class for defining shapes, and speifically the translation from
+	some idealized expression of a shape into a series of indexes into a grid of a given dx.
+
+	Clients of a Shape subclass will interact with it through the `indexes(dx)` method, which
+	returns the rendered indexes if this dx has already been seen, or
+	calls render if this dx is novel, memoizing the result.
+
+	Subclassing Shape requires only defining the `__init__` method which accepts the information
+	callers will be providing to express the shape (its minimal representation), and overriding the
+	`render` method, which translates from the minimal represention to a series of indexes into a
+	grid (the maximal representation). 
+	'''
+
 	def __init__(self):
+		'''
+		Setup the dictionary that will contain the various mappings from dx to indexes returned
+		by `render(dx)`.
+		'''
 		self.renders = {}
 
-	def indices(self, dx):
+	def indexes(self, dx):
+		'''
+		Return indexes if we have already calculated them for this dx, otherwise call render(dx)
+
+		This is a memoization of `render(dx)`
+
+		Args:
+		    dx (float): resolution of the grid this shape will be applied to.
+
+		Returns:
+		    list(tuple(int, int)): a list of indexes into a grid of the given dx this shape occupies.
+		'''
+
 		if dx not in self.renders:
 			self.renders[dx] = self.render(dx)
 		return self.renders[dx]
 
+	def render(self, dx):
+		'''
+		Translate from the minimal representation of this shape into a series of indexes into a
+		grid of the given dx.
+
+		Args:
+		    dx (float): resolution of the grid this shape will be applied to.
+
+		Returns:
+		    list(pair(int)): a list of indexes into a grid of the given dx this shape occupies.
+		'''
+		return []
+
 class Line(Shape):
+	'''
+	Translate a begin and end point into a single index tuple for each row.
+	'''
+
 	def __init__(self, begin, end):
+		'''
+		Create a line with the given begin and end points.
+
+		Args:
+		    begin (pair(float)): A pair describing the begin point of the line.
+		    end (pair(float)): A pair describing the end point of the line.
+		'''
 		super(Line, self).__init__()
 
-		self.begin = begin
-		self.end = end
+		self.begin = np.array(begin)
+		self.end = np.array(end)
 
 	def render(self, dx):
+		'''
+		Render the line from begin and end points to indexes into a grid of the given dx.
+
+		This function uses interpolation to find the points along the line. We first find the indexes
+		for each row of the grid this line is present in, then for each index we find the ratio of
+		how far along the line that index is and use this ratio to scale the begin and end
+		points of the line. 
+
+		Args:
+		    dx (float): The resolution of the grid we are rendering on to.
+		'''
+
 		begin = raster(self.begin, dx)[1]
 		end = raster(self.end, dx)[1] + 1
 		interval = end - begin
@@ -38,6 +120,10 @@ class Line(Shape):
 			for y in xrange(begin, end + 1)]
 
 class Chain(Shape):
+	'''
+	Represent a sequence of lines as a series of endpoints.
+	'''
+
 	def __init__(self, points):
 		super(Chain, self).__init__()
 
@@ -105,13 +191,13 @@ class Rectangle(Shape):
 			end]).render(dx)
 		perimeter = [left, right]
 
-		indices = np.concatenate([
+		indexes = np.concatenate([
 			map(lambda x: [x, left[1]],
 				range(left[0], right[0] + 1))
 			for left, right
 			in zip(left, right)])
 
-		return set(map(tuple, indices))
+		return set(map(tuple, indexes))
 
 class Grid(object):
 	def __init__(self, bounds, dx):
@@ -128,13 +214,13 @@ class Grid(object):
 		self.grid.fill(-1)
 
 	def impress(self, shape):
-		indices = shape.indices(self.dx)
-		for index in indices:
+		indexes = shape.indexes(self.dx)
+		for index in indexes:
 			if within(self.dimension, index):
 				self.grid[index[0]][index[1]] += 1
 
 	def check_in_bounds(self, shape):
-		for index in shape.indices(self.dx):
+		for index in shape.indexes(self.dx):
 			if within(self.grid.shape, index):
 				return False
 		return True
@@ -148,7 +234,7 @@ class Grid(object):
 		total_force = np.array([0.0, 0.0])
 
 		pixels = 0.
-		for index in shape.indices(self.dx):
+		for index in shape.indexes(self.dx):
 			if within(self.dimension, index):
 				# find collisions, get force vector for each.
 				if self.grid[index] > 0:
@@ -166,14 +252,7 @@ class Grid(object):
 					total_force[1] -= 1
 				pixels += 1
 
-		# magnitude = np.linalg.norm(total_force)
-		# if magnitude == 0:
-		# 	total_force *= 0
-		# else:
-		# 	total_force /= magnitude
-		# total_force *= 15 * (self.dx ** 2)
-			
 		scaling = 1. / np.sqrt(pixels) if pixels > 0 else 1
-		total_force *= scaling * 1 * (self.dx ** 2)
+		total_force *= scaling * (self.dx ** 2)
 
 		return total_force
