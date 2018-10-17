@@ -205,24 +205,17 @@ class ShepherdControl(EnvironmentControl):
 	def __init__(self, agent_config):
 		super(ShepherdControl, self).__init__(str(uuid.uuid1()), agent_config)
 
-	def add_ecoli(self, agent_config):
+	def add_cell(self, agent_type, agent_config):
 		self.add_agent(
 			str(uuid.uuid1()),
-			'ecoli',
+			agent_type,
 			agent_config)
 
 	def lattice_experiment(self, args):
 		lattice_id = str(uuid.uuid1())
 		self.add_agent(lattice_id, 'lattice', {'media': args.media})
 		for index in range(args.number):
-			# self.add_ecoli({'outer_id': lattice_id})
-			self.add_chemotax_surrogate({'outer_id': lattice_id})
-
-	def add_chemotax_surrogate(self, agent_config):
-		self.add_agent(
-			str(uuid.uuid1()),
-			'chemotax',
-			agent_config)
+			self.add_cell(args.type, {'outer_id': lattice_id})
 
 
 class EnvironmentCommand(AgentCommand):
@@ -235,9 +228,9 @@ class EnvironmentCommand(AgentCommand):
 		description = '''
 		Run an agent for the environmental context simulation.
 		The commands are:
-		`add --id OUTER_ID [--variant V] [--index I] [--seed S]` ask the Shepherd to add an Ecoli agent,
+		`add --id OUTER_ID [--type T] [--variant V] [--index I] [--seed S]` ask the Shepherd to add an agent of type T,
 		`ecoli --id ID --outer-id OUTER_ID [--working-dir D] [--variant V] [--index I] [--seed S]` run an Ecoli agent in this process,
-		`experiment [--number N] [--media M]` ask the Shepherd to run a Lattice agent and N Ecoli agents in media condition M,
+		`experiment [--number N] [--type T] [--media M]` ask the Shepherd to run a lattice environment with N agents of type T in media condition M,
 		`lattice --id ID [--media M]` run a Lattice environment agent in this process in media condition M,
 		`pause --id OUTER_ID` pause the simulation,
 		`remove --id OUTER_ID` ask all Shepherds to remove agents "ID*",
@@ -273,6 +266,12 @@ class EnvironmentCommand(AgentCommand):
 			type=str,
 			default='minimal',
 			help='The environment media')
+
+		parser.add_argument(
+			'-t', '--type',
+			type=str,
+			default='ecoli',
+			help='The agent type')
 
 		return parser
 
@@ -344,8 +343,7 @@ class EnvironmentCommand(AgentCommand):
 			outer_id=args.id,
 			kafka_config=self.kafka_config)
 		control = ShepherdControl(agent_config)
-		# control.add_ecoli(agent_config)
-		control.add_chemotax_surrogate(agent_config)
+		control.add_cell(args.type, agent_config)
 		control.shutdown()
 
 	def experiment(self, args):

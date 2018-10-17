@@ -19,28 +19,26 @@ class Chemotax(CellSimulation):
 		self.environment_change = {}
 		self.volume = 1.0
 
-		self.internal_concentrations = {'GLC[p]': 0.0}
+		self.memory = {'GLC[p]': 0.0}
 		self.state = None
 		self.motile_force = [0.0, 0.0] # magnitude and relative orientation
 
 		# self.division = False
-		# self.motile_states = ['tumble', 'run']
+		# TODO (Eran) include state names (['run', 'tumble'])
 
 
 	def update_state(self):
 
-		# self.motile_force = [0.1, np.pi/32]
-
 		# update state based on change in concentration
-		if self.external_concentrations['GLC[p]'] >= self.internal_concentrations['GLC[p]']:
-			# self.state = 'run'
+		if self.external_concentrations['GLC[p]'] >= self.memory['GLC[p]']:
+			# run
 			self.motile_force = [0.1, 0.0]
 		else:
-			# self.state = 'tumble'
+			# tumble
 			self.motile_force = [0.02, np.random.normal(scale=TUMBLE_JITTER)]
 
 		# update memory to current concentrations
-		self.internal_concentrations = self.external_concentrations
+		self.memory = self.external_concentrations
 
 	def time(self):
 		return self.local_time
@@ -63,6 +61,3 @@ class Chemotax(CellSimulation):
 			'motile_force': self.motile_force,
 			'environment_change': self.environment_change,
 			}
-
-	def finalize(self):
-		pass

@@ -68,7 +68,7 @@ DIFFUSION = 0.1  # (micrometers^2/s)
 PATCH_VOLUME = TOTAL_VOLUME / (PATCHES_PER_EDGE**2)
 DX = EDGE_LENGTH / PATCHES_PER_EDGE  # intervals in x- directions (assume y- direction equivalent)
 DX2 = DX*DX
-# DT = DX2 * DX2 / (2 * DIFFUSION * (DX2 + DX2)) # upper limit on the time scale (go with at least 50% of this)
+DT = 0.5 * DX2 * DX2 / (2 * DIFFUSION * (DX2 + DX2)) # upper limit on the time scale (go with at least 50% of this)
 
 # Cell constants
 CELL_RADIUS = 0.5 # (micrometers)
@@ -78,7 +78,7 @@ TRANSLATIONAL_JITTER = 0.001 # (micrometers/s)
 class EnvironmentSpatialLattice(EnvironmentSimulation):
 	def __init__(self, concentrations):
 		self._time = 0
-		self._timestep = 1.0
+		self._timestep = 1.0 #DT
 		self._run_for = 5
 
 		self.simulations = {}  # map of agent_id to simulation state
@@ -139,9 +139,9 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 			direction = self.motile_forces[agent_id][1]
 
 			# Motile forces
-			self.locations[agent_id][2] = (location[2] + direction) % (2 * PI)
-			self.locations[agent_id][0] += magnitude * np.cos(self.locations[agent_id][2])
-			self.locations[agent_id][1] += magnitude * np.sin(self.locations[agent_id][2])
+			self.locations[agent_id][2] = (location[2] + direction * self._timestep) #% (2 * PI)
+			self.locations[agent_id][0] += magnitude * np.cos(self.locations[agent_id][2]) * self._timestep
+			self.locations[agent_id][1] += magnitude * np.sin(self.locations[agent_id][2]) * self._timestep
 
 			# # Translational diffusion
 			# self.locations[agent_id][0:2] += np.random.normal(scale=np.sqrt(TRANSLATIONAL_JITTER * self._timestep), size=N_DIMS)
@@ -252,7 +252,8 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 				print('=================== simulation update: {}'.format(simulation))
 				state = simulation['state']
 
-				self.motile_forces[agent_id] = state['motile_force']
+				if 'motile_force' in state:
+					self.motile_forces[agent_id] = state['motile_force']
 
 				if UPDATE_ENV_FIELD:
 					location = self.locations[agent_id][0:2] * PATCHES_PER_EDGE / EDGE_LENGTH
