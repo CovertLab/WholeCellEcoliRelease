@@ -164,13 +164,16 @@ class Grid(object):
 					total_force[1] += 1
 				if index[1] >= self.dimension[1]:
 					total_force[1] -= 1
+				pixels += 1
 
-		magnitude = np.linalg.norm(total_force)
-		if magnitude == 0:
-			total_force *= 0
-		else:
-			total_force /= magnitude
+		# magnitude = np.linalg.norm(total_force)
+		# if magnitude == 0:
+		# 	total_force *= 0
+		# else:
+		# 	total_force /= magnitude
+		# total_force *= 15 * (self.dx ** 2)
 			
-		total_force *= 15 * (self.dx ** 2)
+		scaling = 1. / np.sqrt(pixels) if pixels > 0 else 1
+		total_force *= scaling * 1 * (self.dx ** 2)
 
 		return total_force
