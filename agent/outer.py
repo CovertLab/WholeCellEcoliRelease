@@ -56,6 +56,9 @@ class EnvironmentSimulation(object):
 	def run_for(self):
 		"""Return the length of time simulations should run for this time period."""
 
+	def max_time(self):
+		"""Return the maximum time for the simulations."""
+
 	def run_incremental(self, time):
 		"""Run the environment's own simulation until the given time."""
 
@@ -288,7 +291,7 @@ class Outer(Agent):
 		"""
 
 		if not self.paused and self.ready_to_advance():
-			if self.shutting_down:
+			if self.shutting_down or self.environment.time() > self.environment.max_time():
 				self.send_shutdown()
 			else:
 				# compare the length of each simulation's run

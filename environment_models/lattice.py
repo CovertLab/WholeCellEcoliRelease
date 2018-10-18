@@ -42,21 +42,20 @@ if animating:
 N_AVOGADRO = constants.N_A
 PI = np.pi
 
+UPDATE_ENV_FIELD = False
+ENV_GRADIENT = True
+
 # Lattice parameters
 N_DIMS = 2
-PATCHES_PER_EDGE = 30 # TODO (Eran) this should scale to accomodate diffusion
-
 EDGE_LENGTH = 10.0  # (micrometers)
+PATCHES_PER_EDGE = 30 # TODO (Eran) this should scale to accomodate diffusion
 DEPTH = 3000.0 # (micrometers). An average Petri dish has a depth of 3-4 mm
 TOTAL_VOLUME = (DEPTH * EDGE_LENGTH**2) * (10**-15) # (L)
 
 # laplacian kernel for diffusion
 LAPLACIAN_2D = np.array([[0.0, 1.0, 0.0], [1.0, -4.0, 1.0], [0.0, 1.0, 0.0]])
 
-UPDATE_ENV_FIELD = False
-
 # Gradient parameters
-ENV_GRADIENT = True
 CENTER = [0.5, 0.5] # the center point of a gaussian gradient, in range [0., 1.]
 CENTER_COORDINATES = [coordinate * EDGE_LENGTH for coordinate in CENTER]
 ST_DEV = 10.0
@@ -80,6 +79,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		self._time = 0
 		self._timestep = 1.0 #DT
 		self._run_for = 5
+		self._max_time = 1200
 
 		self.simulations = {}  # map of agent_id to simulation state
 		self.locations = {}    # map of agent_id to location and orientation
@@ -139,9 +139,9 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 			direction = self.motile_forces[agent_id][1]
 
 			# Motile forces
-			self.locations[agent_id][2] = (location[2] + direction * self._timestep) #% (2 * PI)
-			self.locations[agent_id][0] += magnitude * np.cos(self.locations[agent_id][2]) * self._timestep
-			self.locations[agent_id][1] += magnitude * np.sin(self.locations[agent_id][2]) * self._timestep
+			self.locations[agent_id][2] = (location[2] + direction * self._run_for) #% (2 * PI)
+			self.locations[agent_id][0] += magnitude * np.cos(self.locations[agent_id][2]) * self._run_for
+			self.locations[agent_id][1] += magnitude * np.sin(self.locations[agent_id][2]) * self._run_for
 
 			# # Translational diffusion
 			# self.locations[agent_id][0:2] += np.random.normal(scale=np.sqrt(TRANSLATIONAL_JITTER * self._timestep), size=N_DIMS)
@@ -149,8 +149,9 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 			# # Rotational diffusion
 			# self.locations[agent_id][2] = (location[2] + np.random.normal(scale=ROTATIONAL_JITTER * self._timestep)) % (2 * PI)
 
-			# Bounce cells off of lattice edges
-			self.locations[agent_id][0:2][self.locations[agent_id][0:2] >= EDGE_LENGTH] -= 2 * self.locations[agent_id][0:2][self.locations[agent_id][0:2]>= EDGE_LENGTH] % EDGE_LENGTH
+			# Enforce lattice edges
+			self.locations[agent_id][0:2][self.locations[agent_id][0:2] > EDGE_LENGTH] = EDGE_LENGTH - DX/2 #-= self.locations[agent_id][0:2][self.locations[agent_id][0:2] > EDGE_LENGTH] % EDGE_LENGTH
+			self.locations[agent_id][0:2][self.locations[agent_id][0:2] < 0] = 0.0 #-= self.locations[agent_id][0:2][self.locations[agent_id][0:2] < 0]
 
 
 	def run_diffusion(self):
@@ -347,6 +348,9 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 
 	def run_for(self):
 		return self._run_for
+
+	def max_time(self):
+		return self._max_time
 
 	def remove_simulation(self, agent_id):
 		self.simulations.pop(agent_id, {})

@@ -13,7 +13,8 @@ TUMBLE_JITTER = 0.4 # (radians)
 class Chemotaxis(CellSimulation):
 
 	def __init__(self):
-		self.local_time = 0
+		self.initial_time = 0.0
+		self.local_time = 0.0
 		self.timestep = 1.0
 		self.external_concentrations = {'GLC[p]': 0.0}
 		self.environment_change = {}
@@ -23,8 +24,10 @@ class Chemotaxis(CellSimulation):
 		self.state = None
 		self.motile_force = [0.0, 0.0] # magnitude and relative orientation
 
-		# self.division = False
-		# TODO (Eran) include state names (['run', 'tumble'])
+		self.division = []
+		self.division_time = 400
+
+		# TODO (Eran) include state names (['run', 'tumble']) and make surrogate into a proper state machine
 
 
 	def update_state(self):
@@ -32,13 +35,21 @@ class Chemotaxis(CellSimulation):
 		# update state based on change in concentration
 		if self.external_concentrations['GLC[p]'] >= self.memory['GLC[p]']:
 			# run
-			self.motile_force = [0.1, 0.0]
+			self.motile_force = [0.02, 0.0]
 		else:
 			# tumble
-			self.motile_force = [0.02, np.random.normal(scale=TUMBLE_JITTER)]
+			self.motile_force = [0.005, np.random.normal(scale=TUMBLE_JITTER)]
 
 		# update memory to current concentrations
 		self.memory = self.external_concentrations
+
+		# divide cell
+		if self.local_time >= self.initial_time + self.division_time:
+			self.divide()
+
+
+	def divide(self):
+		self.division = [{'time': self.local_time}, {'time': self.local_time}]
 
 	def time(self):
 		return self.local_time
@@ -51,7 +62,7 @@ class Chemotaxis(CellSimulation):
 			self.environment_change[molecule] = 0
 
 	def run_incremental(self, run_until):
-		# update state once per update
+		# update state once per message exchange
 		self.update_state()
 		self.local_time = run_until
 
@@ -60,4 +71,9 @@ class Chemotaxis(CellSimulation):
 			'volume': self.volume,
 			'motile_force': self.motile_force,
 			'environment_change': self.environment_change,
+			'division': self.division,
 			}
+
+	def synchronize_state(self, state):
+		if 'time' in state:
+			self.initial_time = state['time']
