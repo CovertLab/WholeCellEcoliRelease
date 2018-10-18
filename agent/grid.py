@@ -16,10 +16,13 @@ def normalize(vector):
 	''' normalize the given vector based on its magnitude '''
 
 	magnitude = np.linalg.norm(vector)
+	normal = vector.copy()
 	if magnitude == 0:
-		vector *= 0
+		normal *= 0
 	else:
-		vector /= magnitude
+		normal /= magnitude
+
+	return normal
 
 
 class Shape(object):
@@ -45,6 +48,13 @@ class Shape(object):
 		by `render(dx)`.
 		'''
 		self.renders = {}
+
+	def center(self):
+		'''
+		Retrieve the center point of this shape.
+		'''
+
+		return np.array([0, 0])
 
 	def indexes(self, dx):
 		'''
@@ -122,14 +132,32 @@ class Line(Shape):
 class Chain(Shape):
 	'''
 	Represent a sequence of lines as a series of endpoints.
+
+	The Chain represents a sequence of lines as a series of points, with a line drawn between each
+	point and the next point in the sequence. Once these are defined it uses a series of calls
+	to Line to do the actual line rendering between the points.
 	'''
 
 	def __init__(self, points):
+		'''
+		Initialize a chain of lines with their endpoints.
+		
+		Args:
+		    points (list(pair(float))): A list of 2d points
+		'''
 		super(Chain, self).__init__()
 
 		self.points = points
 
 	def render(self, dx):
+		'''
+		Convert the list of points into a series of lines, then render those lines.
+
+		Args:
+		    dx (float): the incremental step size of the smallest unit within the grid being
+		        rendered on to.
+		'''
+
 		cover = []
 		if len(self.points) > 0:
 			if len(self.points) > 1:
@@ -147,14 +175,41 @@ class Chain(Shape):
 		return cover
 
 class Rectangle(Shape):
+	'''
+	Translate a midpoint, a dimension, and an orientation into the 2d area it represents.
+
+	The strategy for rendering a rectangle is to find the corners, render each side as a chain of
+	lines (see `Chain` above), then using those lines as the bounds of a series of ranges, one
+	for each row in the rectangle.
+	'''
+
 	def __init__(self, dimension, location, orientation):
+		'''
+		Construct a rectangle from its dimension, location (midpoint) and orientation.
+
+		Args:
+		    dimension (pair(float)): The width and height of this rectangle
+		    location (pair(float)): The midpoint of this rectangle
+		    orientation (float): The rotation angle of this rectangle
+		'''
+
 		super(Rectangle, self).__init__()
 
 		self.dimension = np.array(dimension)
 		self.location = np.array(location)
 		self.orientation = orientation
 
+	def center(self):
+		return self.location
+
 	def corners(self):
+		'''
+		Find the corners of this rectangle given its dimension, location and orientation
+
+		Returns:
+		    np.array(np.array(float)): A four element array with one point for each corner
+		'''
+
 		cos = np.cos(self.orientation)
 		sin = np.sin(self.orientation)
 		diagonal = self.dimension * 0.5
@@ -174,6 +229,14 @@ class Rectangle(Shape):
 				 [ sin, -cos]]])]
 
 	def render(self, dx):
+		'''
+		Translate this rectangle's dimension, location, and orientation into a series of indexes
+		into a grid with the given dx.
+
+		Args:
+		    dx (float): the smallest width represented in the grid.
+		'''
+
 		corners = self.corners()
 		corners.sort(key=lambda x: x[1])
 		begin = corners[0]
@@ -200,10 +263,16 @@ class Rectangle(Shape):
 		return set(map(tuple, indexes))
 
 class Grid(object):
+	'''
+	A 2d grid of integer values representing the presence and overlap of shapes.
+
+	
+	'''
+
 	def __init__(self, bounds, dx):
-		"""
-		Create a grid out of the given bounds
-		"""
+		'''
+		Create a grid out of the given bounds with the given dx.
+		'''
 
 		self.bounds = np.array(bounds)
 		self.dx = dx
@@ -229,8 +298,8 @@ class Grid(object):
 		total_overlap = np.sum(np.sum(self.grid[self.grid > 0]))
 		return total_overlap
 
-	def forces(self, midpoint, shape):
-		location = np.array([int(i / self.dx) for i in midpoint])
+	def forces(self, shape):
+		location = np.array([int(i / self.dx) for i in shape.center()])
 		total_force = np.array([0.0, 0.0])
 
 		pixels = 0.
@@ -252,7 +321,22 @@ class Grid(object):
 					total_force[1] -= 1
 				pixels += 1
 
-		scaling = 1. / np.sqrt(pixels) if pixels > 0 else 1
+		# scaling = 15
+		# total_force = normalize(total_force)
+
+		scaling = 1.5 / np.sqrt(pixels) if pixels > 0 else 1
 		total_force *= scaling * (self.dx ** 2)
 
 		return total_force
+
+	def collision_detection(self, shapes):
+		self.reset()
+		for shape_id, shape in shapes.iteritems():
+			self.impress(shapes[shape_id])
+
+		overlap = self.overlap()
+		forces = {
+			shape_id: self.forces(shape)
+			for shape_id, shape in shapes.iteritems()}
+
+		return overlap, forces

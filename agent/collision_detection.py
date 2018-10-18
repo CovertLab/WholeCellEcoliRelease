@@ -4,34 +4,14 @@ import copy
 import numpy as np
 import argparse
 
-# # matplotlib stuff
-# import matplotlib
-# matplotlib.use('TKAgg')
-# import matplotlib.pyplot as plt
+# matplotlib stuff
+import matplotlib
+matplotlib.use('TKAgg')
+import matplotlib.pyplot as plt
 
 from agent.grid import Grid, Rectangle
 
 TEMPERATURE = 20 # for acceptance function
-
-def collision_detection(grid, agents):
-	grid.reset()
-
-	shapes = {}
-	forces = {}
-
-	for agent_id, agent in agents.iteritems():
-		shapes[agent_id] = agent['render'](agent)
-		grid.impress(shapes[agent_id])
-
-	overlap = grid.overlap()
-
-	# get forces
-	for agent_id, agent in agents.iteritems():
-		location = agent['location']
-		shape = shapes[agent_id]
-		forces[agent_id] = grid.forces(location, shape)
-
-	return overlap, shapes, forces
 
 
 def accept(delta, temp):
@@ -39,13 +19,20 @@ def accept(delta, temp):
 	return np.random.rand() < probability_threshold
 
 
+def make_shapes(agents):
+	return {
+		agent_id: agent['render'](agent)
+		for agent_id, agent in agents.iteritems()}
+
+
 def volume_exclusion(grid, agents, scale=1., max_cycles=100, callback=None):
-	overlap, shapes, forces = collision_detection(grid, agents)
+	shapes = make_shapes(agents)
+	overlap, forces = grid.collision_detection(shapes)
+
 	cycles = 0
 	while overlap > 0 and cycles < max_cycles:
 		potential_agents = copy.deepcopy(agents)
 
-		# update one agent at a time
 		for agent_id, agent in potential_agents.iteritems():
 			force = forces[agent_id]
 			location_jitter = 0 # np.random.normal(scale=np.sqrt(TRANSLATIONAL_JITTER), size=2)
@@ -54,12 +41,14 @@ def volume_exclusion(grid, agents, scale=1., max_cycles=100, callback=None):
 			agent['location'] += force * scale + location_jitter
 			agent['orientation'] += orientation_jitter
 
-		overlap_new, shapes, forces_new = collision_detection(grid, potential_agents)
+		shapes_new = make_shapes(potential_agents)
+		overlap_new, forces_new = grid.collision_detection(shapes_new)
 
 		delta_overlap = overlap_new - overlap
 		if delta_overlap <= 0 or accept(delta_overlap, TEMPERATURE):
 			agents = potential_agents
 			overlap = overlap_new
+			shapes = shapes_new
 			forces = forces_new
 
 			if callback:
@@ -76,9 +65,9 @@ if __name__ == '__main__':
 	args = parser.parse_args()
 
 	animating = args.animating
-	# if animating:
-	# 	plt.ion()
-	# 	fig = plt.figure()
+	if animating:
+		plt.ion()
+		fig = plt.figure()
 
 	ROTATIONAL_JITTER = 0.1 # (radians/s)
 	TRANSLATIONAL_JITTER = 0.0001 # (micrometers/s)
@@ -135,10 +124,10 @@ if __name__ == '__main__':
 		pass
 
 	def animation_callback(agents, overlap, forces, grid):
-		pass
+		# pass
 
-		# plt.imshow(grid.grid)
-		# plt.pause(0.0001)
+		plt.imshow(grid.grid)
+		plt.pause(0.0001)
 
 	callback = animation_callback if animating else null_callback
 	volume_exclusion(grid, agents, callback=callback)
