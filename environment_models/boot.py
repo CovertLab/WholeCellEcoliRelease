@@ -13,7 +13,7 @@ from agent.shepherd import AgentShepherd
 from agent.boot import EnvironmentControl, AgentCommand
 
 from environment_models.lattice import EnvironmentSpatialLattice
-from environment_models.surrogates.chemotax import Chemotax
+from environment_models.surrogates.chemotaxis import Chemotaxis
 
 # Raw data class
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
@@ -176,12 +176,11 @@ def boot_ecoli(agent_id, agent_type, agent_config):
 
 	return inner
 
-def boot_chemotax(agent_id, agent_type, agent_config):
-	# kafka_config = agent_config['kafka_config']
+def boot_chemotaxis(agent_id, agent_type, agent_config):
 	agent_id = agent_id
 	outer_id = agent_config['outer_id']
 
-	simulation = Chemotax()
+	simulation = Chemotaxis()
 
 	inner = Inner(
 		agent_id,
@@ -224,7 +223,7 @@ class EnvironmentCommand(AgentCommand):
 	"""
 
 	def __init__(self):
-		choices = ['ecoli', 'chemotax', 'lattice']
+		choices = ['ecoli', 'chemotaxis', 'lattice']
 		description = '''
 		Run an agent for the environmental context simulation.
 		The commands are:
@@ -296,18 +295,18 @@ class EnvironmentCommand(AgentCommand):
 				agent_config.get('media', args.media))
 			lattice.start()
 
-		def initialize_chemotax_surrogate(agent_id, agent_type, agent_config):
+		def initialize_chemotaxis_surrogate(agent_id, agent_type, agent_config):
 			agent_config = dict(
 				agent_config,
 				kafka_config=self.kafka_config,
 				working_dir=args.working_dir)
 			time.sleep(5)
-			chemotax = boot_chemotax(agent_id, agent_type, agent_config)
-			chemotax.start()
+			chemotaxis = boot_chemotaxis(agent_id, agent_type, agent_config)
+			chemotaxis.start()
 
 		initializers['lattice'] = initialize_lattice
 		initializers['ecoli'] = initialize_ecoli
-		initializers['chemotax'] = initialize_chemotax_surrogate
+		initializers['chemotaxis'] = initialize_chemotaxis_surrogate
 
 		return initializers
 

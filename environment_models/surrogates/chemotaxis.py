@@ -7,10 +7,10 @@ import random
 from agent.inner import CellSimulation
 
 
-TUMBLE_JITTER = 0.4 # (radians/s)
+TUMBLE_JITTER = 0.4 # (radians)
 
 
-class Chemotax(CellSimulation):
+class Chemotaxis(CellSimulation):
 
 	def __init__(self):
 		self.local_time = 0
