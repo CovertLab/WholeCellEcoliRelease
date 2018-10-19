@@ -104,7 +104,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.isRRna = sim_data.process.transcription.rnaData["isRRna"]
 		self.isTRna = sim_data.process.transcription.rnaData["isTRna"]
 
-		self.rnaLens = sim_data.process.transcription.rnaData['length'].asNumber()
+		self.rna_lengths = sim_data.process.transcription.rnaData['length'].asNumber()
 
 		# Build stoichiometric matrix
 		endCleavageMetaboliteIds = [id_ + "[c]" for id_ in sim_data.moleculeGroups.fragmentNT_IDs]
@@ -273,31 +273,39 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# endo and exonucleases. Assuming complete hydrolysis for now. Note
 		# that one additional water molecule is needed for each RNA to
 		# hydrolyze the 5' diphosphate.
-		waterForNewRnas = np.dot(n_rnas_to_degrade, self.rnaLens)
+		waterForNewRnas = np.dot(n_rnas_to_degrade, self.rna_lengths)
 		waterForLeftOverFragments = self.fragmentBases.total().sum()
 		self.h2o.requestIs(waterForNewRnas + waterForLeftOverFragments)
 		
 
 	def evolveState(self):
+		n_degraded_rna = self.rnas.counts()
 
-		self.writeToListener("RnaDegradationListener", "countRnaDegraded", self.rnas.counts())
-		self.writeToListener("RnaDegradationListener", "nucleotidesFromDegradation", (self.rnas.counts() * self.rnaLens).sum())
+		self.writeToListener(
+			"RnaDegradationListener", "countRnaDegraded", n_degraded_rna
+			)
+		self.writeToListener(
+			"RnaDegradationListener", "nucleotidesFromDegradation",
+			np.dot(n_degraded_rna, self.rna_lengths)
+			)
 
 		# Calculate endolytic cleavage events
 
-		# Modeling assumption: Once a RNA is cleaved by an endonuclease it's resulting nucleotides
-		# are lumped together as "polymerized fragments". These fragments can carry over from
-		# previous timesteps. We are also assuming that during endonucleolytic cleavage the 5'
-		# terminal phosphate is removed. This is modeled as all of the fragments being one
-		# long linear chain of "fragment bases".
+		# Modeling assumption: Once a RNA is cleaved by an endonuclease its
+		# resulting nucleotides are lumped together as "polymerized fragments".
+		# These fragments can carry over from previous timesteps. We are also
+		# assuming that during endonucleolytic cleavage the 5'terminal
+		# phosphate is removed. This is modeled as all of the fragments being
+		# one long linear chain of "fragment bases".
 
 		# Example:
-		# PPi-Base-PO4(-)-Base-PO4(-)-Base-PO4(-)-Base-OH
-		#			==>
-		#			Pi-FragmentBase-PO4(-)-FragmentBase-PO4(-)-FragmentBase-PO4(-)-FragmentBase + PPi
+		# PPi-Base-PO4(-)-Base-PO4(-)-Base-OH
+		# ==>
+		# Pi-FragmentBase-PO4(-)-FragmentBase-PO4(-)-FragmentBase + PPi
 		# Note: Lack of -OH on 3' end of chain
 
-		metabolitesEndoCleavage = np.dot(self.endoDegradationSMatrix, self.rnas.counts())
+		metabolitesEndoCleavage = np.dot(
+			self.endoDegradationSMatrix, n_degraded_rna)
 		self.rnas.countsIs(0)
 		self.fragmentMetabolites.countsInc(metabolitesEndoCleavage)
 
@@ -307,37 +315,49 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		# Calculate exolytic cleavage events
 
-		# Modeling assumption: We model fragments as one long fragment chain of polymerized nucleotides.
-		# We are also assuming that there is no sequence specificity or bias towards which nucleotides
-		# are hydrolyzed.
+		# Modeling assumption: We model fragments as one long fragment chain of
+		# polymerized nucleotides. We are also assuming that there is no
+		# sequence specificity or bias towards which nucleotides are
+		# hydrolyzed.
 
 		# Example:
-		# Pi-FragmentBase-PO4(-)-FragmentBase-PO4(-)-FragmentBase-PO4(-)-FragmentBase + 4 H2O
-		#			==>
-		#			3 NMP + 3 H(+)
+		# Pi-FragmentBase-PO4(-)-FragmentBase-PO4(-)-FragmentBase + 3 H2O
+		# ==>
+		# 3 NMP + 3 H(+)
 		# Note: Lack of -OH on 3' end of chain
 
-		nExoRNases = self.exoRnases.counts()
-		exoCapacity = nExoRNases.sum() * self.KcatExoRNase * (units.s * self.timeStepSec())
-		NucleotideRecycling = self.fragmentBases.counts().sum()
+		n_exornases = self.exoRnases.counts()
+		n_fragment_bases = self.fragmentBases.counts()
+		n_fragment_bases_sum = n_fragment_bases.sum()
 
-		if exoCapacity >= self.fragmentBases.counts().sum():
-			self.nmps.countsInc(self.fragmentBases.counts())
-			self.h2o.countsDec(self.fragmentBases.counts().sum())
-			self.h.countsInc(self.fragmentBases.counts().sum())
+		exornase_capacity = n_exornases.sum() * self.KcatExoRNase * (
+				units.s * self.timeStepSec()
+			)
+
+		if exornase_capacity >= n_fragment_bases_sum:
+			self.nmps.countsInc(n_fragment_bases)
+			self.h2o.countsDec(n_fragment_bases_sum)
+			self.h.countsInc(n_fragment_bases_sum)
 			self.fragmentBases.countsIs(0)
 
-		else:
-			fragmentSpecificity = self.fragmentBases.counts() / self.fragmentBases.counts().sum()
-			possibleBasesToDigest = self.randomState.multinomial(exoCapacity, fragmentSpecificity)
-			fragmentBasesDigested = self.fragmentBases.counts() - np.fmax(self.fragmentBases.counts() - possibleBasesToDigest, 0)
-			self.nmps.countsInc(fragmentBasesDigested)
-			self.h2o.countsDec(fragmentBasesDigested.sum())
-			self.h.countsInc(fragmentBasesDigested.sum())
-			self.fragmentBases.countsDec(fragmentBasesDigested)
-			NucleotideRecycling = fragmentBasesDigested.sum()
+			total_fragment_bases_digested = n_fragment_bases_sum
 
-		self.writeToListener("RnaDegradationListener", "fragmentBasesDigested", NucleotideRecycling)
+		else:
+			fragmentSpecificity = n_fragment_bases / n_fragment_bases_sum
+			possibleBasesToDigest = self.randomState.multinomial(
+				exornase_capacity, fragmentSpecificity)
+			n_fragment_bases_digested = n_fragment_bases - np.fmax(
+				n_fragment_bases - possibleBasesToDigest, 0)
+
+			total_fragment_bases_digested = n_fragment_bases_digested.sum()
+
+			self.nmps.countsInc(n_fragment_bases_digested)
+			self.h2o.countsDec(total_fragment_bases_digested)
+			self.h.countsInc(total_fragment_bases_digested)
+			self.fragmentBases.countsDec(n_fragment_bases_digested)
+
+		self.writeToListener("RnaDegradationListener",
+			"fragmentBasesDigested", total_fragment_bases_digested)
 
 
 	def _calculate_total_n_to_degrade(self, specificity, total_kcat_endornase):
