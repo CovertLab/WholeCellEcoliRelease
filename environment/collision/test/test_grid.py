@@ -36,24 +36,30 @@ class TestGrid(unittest.TestCase):
 
 	@noseAttrib.attr('grid', 'shape')
 	def test_line(self):
-		print('line')
-		print(self.line.indexes(0.1))
+		indexes = self.line.indexes(0.1)
 
-		npt.assert_equal(1, 1)
+		print('line')
+		print(indexes)
+
+		npt.assert_equal(len(indexes), 22)
 
 	@noseAttrib.attr('grid', 'shape')
 	def test_chain(self):
-		print('chain')
-		print(self.chain.indexes(0.1))
+		indexes = self.chain.indexes(0.1)
 
-		npt.assert_equal(1, 1)
+		print('chain')
+		print(indexes)
+
+		npt.assert_equal(len(indexes), 53)
 
 	@noseAttrib.attr('grid', 'shape')
 	def test_rectangle(self):
-		print('rectangle')
-		print(self.rectangle.indexes(0.1))
+		indexes = self.rectangle.indexes(0.1)
 
-		npt.assert_equal(1, 1)
+		print('rectangle')
+		print(indexes)
+
+		npt.assert_equal(len(indexes), 229)
 
 	@noseAttrib.attr('grid', 'shape')
 	def test_grid(self):
