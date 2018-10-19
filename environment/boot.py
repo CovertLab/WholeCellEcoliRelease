@@ -12,8 +12,8 @@ from agent.inner import Inner
 from agent.shepherd import AgentShepherd
 from agent.boot import EnvironmentControl, AgentCommand
 
-from environment_models.lattice import EnvironmentSpatialLattice
-from environment_models.surrogates.chemotaxis import Chemotaxis
+from environment.lattice import EnvironmentSpatialLattice
+from environment.surrogates.chemotaxis import Chemotaxis
 
 # Raw data class
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
