@@ -169,7 +169,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# Michaelis-Menten kinetics
 		if self.EndoRNaseCoop:
 			frac_endornase_saturated = (
-				(countsToMolar * rna_counts) / self.Km / (
+				countsToMolar * rna_counts / self.Km / (
 				1 + units.sum((countsToMolar * rna_counts) / self.Km))
 			).asNumber()
 		else:
@@ -183,8 +183,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		total_endornase_counts = np.sum(endornase_counts)
 		diff_relative_first_order_decay = units.sum(
 			units.abs(self.rnaDegRates * rna_counts -
-				total_kcat_endornase
-					* frac_endornase_saturated)
+				total_kcat_endornase * frac_endornase_saturated)
 			)
 		endornase_per_rna = total_endornase_counts.astype(np.float) / np.sum(rna_counts)
 
@@ -207,73 +206,50 @@ class RnaDegradation(wholecell.processes.process.Process):
 			trna_specificity = np.dot(frac_endornase_saturated, self.isTRna)
 			rrna_specificity = np.dot(frac_endornase_saturated, self.isRRna)
 	
-			n_total_mrnas_to_degrade = np.round(
-				(mrna_specificity
-				* total_kcat_endornase
-				* (units.s * self.timeStepSec())).asNumber()
+			n_total_mrnas_to_degrade = self._calculate_total_n_to_degrade(
+				mrna_specificity,
+				total_kcat_endornase
 				)
-			n_total_trnas_to_degrade = np.round(
-				(trna_specificity
-				* total_kcat_endornase
-				* (units.s * self.timeStepSec())).asNumber()
+			n_total_trnas_to_degrade = self._calculate_total_n_to_degrade(
+				trna_specificity,
+				total_kcat_endornase
 				)
-			n_total_rrnas_to_degrade = np.round(
-				(rrna_specificity
-				* total_kcat_endornase
-				* (units.s * self.timeStepSec())).asNumber()
+			n_total_rrnas_to_degrade = self._calculate_total_n_to_degrade(
+				rrna_specificity,
+				total_kcat_endornase
 				)
 	
 			# Compute RNAse specificity
 			rna_specificity = frac_endornase_saturated / np.sum(frac_endornase_saturated)
 	
-			n_mrnas_to_degrade = np.zeros(len(rna_specificity))
-			n_trnas_to_degrade = np.zeros(len(rna_specificity))
-			n_rrnas_to_degrade = np.zeros(len(rna_specificity))
-	
-			# Boolean variable (rna_exists) that tracks availability of RNAs
-			# for a given gene
+			# Boolean variable that tracks existence of each RNA
 			rna_exists = rna_counts.astype(np.bool)
+
+			# Compute degradation probabilities of each RNA: for mRNAs, this
+			# is based on the specificity of each mRNA. For tRNAs and rRNAs,
+			# this is distributed evenly.
 			mrna_deg_probs = 1. / np.dot(rna_specificity, self.isMRna * rna_exists) * rna_specificity * self.isMRna * rna_exists
 			trna_deg_probs = 1. / np.sum(self.isTRna * rna_exists) * self.isTRna * rna_exists
 			rrna_deg_probs = 1. / np.sum(self.isRRna * rna_exists) * self.isRRna * rna_exists
-			
+
+			# Mask RNA counts into each class of RNAs
 			mrna_counts = rna_counts * self.isMRna
 			trna_counts = rna_counts * self.isTRna
 			rrna_counts = rna_counts * self.isRRna
 	
-			# Determine mRNAs to be degraded according to RNA specificities and
-			# total counts of mRNAs degraded
-			if mrna_counts.sum() != 0:
-				while n_mrnas_to_degrade.sum() < n_total_mrnas_to_degrade:
-					n_mrnas_to_degrade += np.fmin(
-							self.randomState.multinomial(
-								n_total_mrnas_to_degrade - n_mrnas_to_degrade.sum(),
-								mrna_deg_probs
-								),
-							mrna_counts
-						)
-	
-			# Determine tRNAs and rRNAs to be degraded (with equal specificity)
-			# depending on total counts degraded, respectively
-			if trna_counts.sum() != 0:
-				while n_trnas_to_degrade.sum() < n_total_trnas_to_degrade:
-					n_trnas_to_degrade += np.fmin(
-							self.randomState.multinomial(
-								n_total_trnas_to_degrade - n_trnas_to_degrade.sum(),
-								trna_deg_probs
-								),
-							trna_counts
-						)
-			
-			if rrna_counts.sum() != 0:
-				while n_rrnas_to_degrade.sum() < n_total_rrnas_to_degrade:
-					n_rrnas_to_degrade += np.fmin(
-							self.randomState.multinomial(
-								n_total_rrnas_to_degrade - n_rrnas_to_degrade.sum(),
-								rrna_deg_probs
-								),
-							rrna_counts
-						)
+			# Determine number of individual RNAs to be degraded for each class
+			# of RNA.
+			n_mrnas_to_degrade = self._get_rnas_to_degrade(
+				n_total_mrnas_to_degrade, mrna_deg_probs, mrna_counts
+				)
+
+			n_trnas_to_degrade = self._get_rnas_to_degrade(
+				n_total_trnas_to_degrade, trna_deg_probs, trna_counts
+				)
+
+			n_rrnas_to_degrade = self._get_rnas_to_degrade(
+				n_total_rrnas_to_degrade, rrna_deg_probs, rrna_counts
+				)
 	
 			n_rnas_to_degrade = n_mrnas_to_degrade + n_trnas_to_degrade + n_rrnas_to_degrade
 
@@ -362,3 +338,36 @@ class RnaDegradation(wholecell.processes.process.Process):
 			NucleotideRecycling = fragmentBasesDigested.sum()
 
 		self.writeToListener("RnaDegradationListener", "fragmentBasesDigested", NucleotideRecycling)
+
+
+	def _calculate_total_n_to_degrade(self, specificity, total_kcat_endornase):
+		"""
+		Calculate the total number of RNAs to degrade for a specific class of
+		RNAs, based on the specificity of endoRNases on that specific class and
+		the total kcat value of the endoRNases.
+		"""
+		return np.round(
+			(specificity * total_kcat_endornase
+			 * (units.s * self.timeStepSec())).asNumber()
+			)
+
+	def _get_rnas_to_degrade(self, n_total_rnas_to_degrade, rna_deg_probs,
+			rna_counts):
+		"""
+		Distributes the total count of RNAs to degrade for each class of RNAs
+		into individual RNAs, based on the given degradation probabilities
+		of individual RNAs.
+		"""
+		n_rnas_to_degrade = np.zeros_like(rna_counts)
+
+		if rna_counts.sum() != 0:
+			while n_rnas_to_degrade.sum() < n_total_rnas_to_degrade:
+				n_rnas_to_degrade += np.fmin(
+					self.randomState.multinomial(
+						n_total_rnas_to_degrade - n_rnas_to_degrade.sum(),
+						rna_deg_probs
+						),
+					rna_counts
+					)
+
+		return n_rnas_to_degrade
