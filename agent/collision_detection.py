@@ -6,7 +6,7 @@ import argparse
 
 # matplotlib stuff
 import matplotlib
-matplotlib.use('TKAgg')
+matplotlib.use('TKAgg', warn=False)
 import matplotlib.pyplot as plt
 
 from agent.grid import Grid, Rectangle
@@ -14,20 +14,56 @@ from agent.grid import Grid, Rectangle
 TEMPERATURE = 20 # for acceptance function
 
 
-def accept(delta, temp):
-	probability_threshold = np.exp(-delta/temp)
+def accept(delta, temperature):
+	'''
+	Accept the delta at a probability dependent on the temperature.
+
+	Args:
+	    delta (float): A positive delta for gradient descent that is acceptable based on the
+	        given temperature.
+	    temperature (float): A higher temperature is more likely to accept the delta. 
+	'''
+
+	probability_threshold = np.exp(-delta / temperature)
 	return np.random.rand() < probability_threshold
 
 
 def make_shapes(agents):
+	'''
+	Make a dictionary out of each agent dictionary based on the function provided under its
+	`render` key.
+
+	Args:
+	    agents (dict(str, dict(str, *))): Each agent dictionary requires at least a `render` key
+	        with a function that accepts the agent dictionary and returns a `Shape` object.
+	'''
+
 	return {
 		agent_id: agent['render'](agent)
 		for agent_id, agent in agents.iteritems()}
 
 
-def volume_exclusion(grid, agents, scale=1., max_cycles=100, callback=None):
+def volume_exclusion(grid, agents, scale=1., max_cycles=100, callback=None, jitter=False):
+	'''
+	Perform volume exclusion on the agents in this grid.
+
+	This function takes a grid and a dictionary of agents with locations and orientations and
+	returns those same agents with their locations and orientations updated to avoid any collisions
+	between them.
+
+	Args:
+	    grid (Grid): The grid these agents will be placed on.
+	    agents (dict(str, dict(str, *))): A dictionary of agent dictionaries. These agents have
+	        three required keys:
+
+	        * location: the location of this agent's midpoint.
+	        * orientation: the direction this agent is facing.
+	        * render: a function that accepts the agent dictionary and a dx and returns a
+	            `Shape` object representing the indexes into a grid of the given dx.
+	'''
+
 	shapes = make_shapes(agents)
-	overlap, forces = grid.collision_detection(shapes)
+	overlap, forces = grid.collisions(shapes)
 
 	cycles = 0
 	while overlap > 0 and cycles < max_cycles:
@@ -35,14 +71,18 @@ def volume_exclusion(grid, agents, scale=1., max_cycles=100, callback=None):
 
 		for agent_id, agent in potential_agents.iteritems():
 			force = forces[agent_id]
-			location_jitter = 0 # np.random.normal(scale=np.sqrt(TRANSLATIONAL_JITTER), size=2)
-			orientation_jitter = 0 # np.random.normal(scale=ROTATIONAL_JITTER) % (2 * np.pi)
+
+			location_jitter = 0
+			orientation_jitter = 0
+			if jitter:
+				location_jitter = np.random.normal(scale=np.sqrt(TRANSLATIONAL_JITTER), size=2)
+				orientation_jitter = np.random.normal(scale=ROTATIONAL_JITTER) % (2 * np.pi)
 
 			agent['location'] += force * scale + location_jitter
 			agent['orientation'] += orientation_jitter
 
 		shapes_new = make_shapes(potential_agents)
-		overlap_new, forces_new = grid.collision_detection(shapes_new)
+		overlap_new, forces_new = grid.collisions(shapes_new)
 
 		delta_overlap = overlap_new - overlap
 		if delta_overlap <= 0 or accept(delta_overlap, TEMPERATURE):
@@ -60,6 +100,8 @@ def volume_exclusion(grid, agents, scale=1., max_cycles=100, callback=None):
 
 
 if __name__ == '__main__':
+	''' Perform volume exclusion on a test example and animate in matplotlib '''
+
 	parser = argparse.ArgumentParser(description='volume exclusion')
 	parser.add_argument('--animating', default=False, action='store_true')
 	args = parser.parse_args()

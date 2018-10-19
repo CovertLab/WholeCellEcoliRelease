@@ -26,13 +26,11 @@ from scipy import constants
 
 animating = 'ENVIRONMENT_ANIMATION' in os.environ
 
-import matplotlib
-
 # Turn off interactive plotting when running on sherlock
 if animating:
+	import matplotlib
 	matplotlib.use('TKAgg')
-
-import matplotlib.pyplot as plt
+	import matplotlib.pyplot as plt
 
 from agent.grid import Grid, Rectangle, within
 from agent.outer import EnvironmentSimulation

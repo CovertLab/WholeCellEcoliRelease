@@ -264,14 +264,26 @@ class Rectangle(Shape):
 
 class Grid(object):
 	'''
-	A 2d grid of integer values representing the presence and overlap of shapes.
+	A 2d grid of integer values representing the presence and overlap of shapes, useful for
+	collision detection.
 
-	
+	The grid starts out empty (fill = -1) and accepts any number of `Shape` objects to impress
+	into the grid. It achieves this by rendering the shapes into a series of indexes based on the
+	dx of the grid, then incrementing the value at each index. Once this is complete any values
+	in the grid greater than zero represent the overlap of two or more shapes. These values can then
+	be read again by each shape to determine the total force on that shape (assuming each shape will
+	be pushed away by overlap). The sum of all vectors from overlap to the midpoint of each shape
+	represents the total force the shape is subjected to. 
 	'''
 
 	def __init__(self, bounds, dx):
 		'''
 		Create a grid out of the given bounds with the given dx.
+
+		Args:
+		    bounds (pair(float)): The outer bounds of this grid. It is assumed the origin of the
+		        grid is (0, 0). TODO (Ryan): generalize this to a grid of any bounds.
+		    dx (float): The resolution of the grid (the dimensions of the smallest area).
 		'''
 
 		self.bounds = np.array(bounds)
@@ -280,25 +292,47 @@ class Grid(object):
 		self.grid = np.full(map(int, self.dimension), -1)
 
 	def reset(self):
+		''' Reset the grid back to its empty state (fill = -1) '''
+
 		self.grid.fill(-1)
 
 	def impress(self, shape):
+		'''
+		Impress the area represented by this shape onto the grid. This is done by finding the
+		indexes of the shape given this grid's dx, then incrementing the value at each index. Any
+		indexes that lie outside the grid are ignored.
+
+		Args:
+		    shape (Shape): The shape we are going to impress.
+		'''
+
 		indexes = shape.indexes(self.dx)
 		for index in indexes:
 			if within(self.dimension, index):
 				self.grid[index[0]][index[1]] += 1
 
-	def check_in_bounds(self, shape):
-		for index in shape.indexes(self.dx):
-			if within(self.grid.shape, index):
-				return False
-		return True
-
 	def overlap(self):
+		''' Find the total overlap given by the previously impressed shapes '''
+
 		total_overlap = np.sum(np.sum(self.grid[self.grid > 0]))
 		return total_overlap
 
 	def forces(self, shape):
+		'''
+		Given a shape, find the sum of all the vectors from any overlap to this shape's midpoint.
+
+		To find the total force, we iterate through each index of the shape into this grid and find
+		overlap, then find the vector from each overlapping index to this shape's `center()` and
+		sum them. Finally, we divide by the square root of the total number of overlapping pixels
+		to convert from 2d to 1d proportionality.
+
+		Any index that is outside of the bounds of this grid is treated as overlap for the purposes
+		of calculating this force.
+
+		Args:
+		    shape (Shape): The shape we are finding the forces for.
+		'''
+
 		location = np.array([int(i / self.dx) for i in shape.center()])
 		total_force = np.array([0.0, 0.0])
 
@@ -329,7 +363,19 @@ class Grid(object):
 
 		return total_force
 
-	def collision_detection(self, shapes):
+	def collisions(self, shapes):
+		'''
+		Given a collection of shapes, find the total overlap and all forces on all shapes.
+
+		Args:
+		    shapes (list(Shape)): The shapes we will find the collisions for
+
+		Returns:
+		    overlap (int): Total overlap (value to be minimized)
+		    forces (dict(str, pair(float))): A dictionary from shape id to total force vector for
+		        that shape.
+		'''
+
 		self.reset()
 		for shape_id, shape in shapes.iteritems():
 			self.impress(shapes[shape_id])
