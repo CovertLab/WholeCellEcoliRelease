@@ -166,10 +166,9 @@ if __name__ == '__main__':
 		pass
 
 	def animation_callback(agents, overlap, forces, grid):
-		# pass
-
-		plt.imshow(grid.grid)
-		plt.pause(0.0001)
+		if animating:
+			plt.imshow(grid.grid)
+			plt.pause(0.0001)
 
 	callback = animation_callback if animating else null_callback
 	volume_exclusion(grid, agents, callback=callback)
