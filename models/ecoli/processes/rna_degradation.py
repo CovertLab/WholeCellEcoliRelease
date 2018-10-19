@@ -168,11 +168,15 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# Calculate the fraction of active endoRNases for each RNA based on
 		# Michaelis-Menten kinetics
 		if self.EndoRNaseCoop:
-			frac_endornase_saturated = (countsToMolar * rna_counts) / self.Km / (
+			frac_endornase_saturated = (
+				(countsToMolar * rna_counts) / self.Km / (
 				1 + units.sum((countsToMolar * rna_counts) / self.Km))
+			).asNumber()
 		else:
-			frac_endornase_saturated = countsToMolar * rna_counts / (self.Km + (
+			frac_endornase_saturated = (
+				countsToMolar * rna_counts / (self.Km + (
 				countsToMolar * rna_counts))
+			).asNumber()
 
 		# Calculate difference in degradation rates from first-order decay
 		# and the number of EndoRNases per one molecule of RNA
@@ -199,9 +203,9 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		if self.EndoRNaseFunc:
 			# Dissect RNAse specificity into mRNA, tRNA, and rRNA
-			mrna_specificity = units.dot(frac_endornase_saturated, self.isMRna)
-			trna_specificity = units.dot(frac_endornase_saturated, self.isTRna)
-			rrna_specificity = units.dot(frac_endornase_saturated, self.isRRna)
+			mrna_specificity = np.dot(frac_endornase_saturated, self.isMRna)
+			trna_specificity = np.dot(frac_endornase_saturated, self.isTRna)
+			rrna_specificity = np.dot(frac_endornase_saturated, self.isRRna)
 	
 			n_total_mrnas_to_degrade = np.round(
 				(mrna_specificity
@@ -220,7 +224,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 				)
 	
 			# Compute RNAse specificity
-			rna_specificity = (frac_endornase_saturated / units.sum(frac_endornase_saturated)).asNumber()
+			rna_specificity = frac_endornase_saturated / np.sum(frac_endornase_saturated)
 	
 			n_mrnas_to_degrade = np.zeros(len(rna_specificity))
 			n_trnas_to_degrade = np.zeros(len(rna_specificity))
