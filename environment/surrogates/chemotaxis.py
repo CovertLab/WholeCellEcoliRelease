@@ -9,54 +9,58 @@ from agent.inner import CellSimulation
 
 TUMBLE_JITTER = 0.4 # (radians)
 
-
 class Chemotaxis(CellSimulation):
 	'''
 	Simple chemotaxis surrogate that can move up glucose gradients. It can take on two states 'run' and 'tumble'.
-	State is a function of the current glucose concentrations, and the 'memory' of glucose concentrations from the prior
-	time step.
+	State is a function of the current glucose concentrations, and internal CheY concentrations -- the 'memory' of
+	glucose concentrations from the previous time step.
 
-	This model is not tuned to actual e. coli chemotaxis behavior.
-
-	# TODO (Eran) include state names (['run', 'tumble']) and make surrogate into a proper state machine
+	TODO (Eran) make surrogate into a proper state machine
+	TODO (Eran) make transition rates between states a function of CheY
+	TODO (Eran) dynamically update CheY
+	TODO (Eran) fit transition rates to experimental results
 	'''
 
 	def __init__(self):
 		self.initial_time = 0.0
 		self.local_time = 0.0
-		self.timestep = 1.0
-		self.external_concentrations = {'GLC[p]': 0.0}
+		# self.timestep = 1.0
 		self.environment_change = {}
 		self.volume = 1.0
+		self.division_time = 100
 
-		self.memory = {'GLC[p]': 0.0}
-		self.state = None
-		self.motile_force = [0.0, 0.0] # magnitude and relative orientation
-
+		# initial state
+		self.state = ['tumble']
+		self.external_concentrations = {'GLC[p]': 0.0}
+		self.internal_concentrations = {'CheY': 0.0}
+		self.motile_force = [0.0, 0.0] # initial magnitude and relative orientation
 		self.division = []
-		self.division_time = 500
+
 
 	def update_state(self):
+		# update state based on internal and external concentrations
 
-		# update state based on change in concentration
-		if self.external_concentrations['GLC[p]'] >= self.memory['GLC[p]']:
-			# run
-			self.motile_force = [0.02, 0.0]
+		if self.external_concentrations['GLC[p]'] >= self.internal_concentrations['CheY']:
+			self.state = 'run'
 		else:
-			# tumble
+			self.state = 'tumble'
+
+		# update intracellular concentrations (memory)
+		self.internal_concentrations['CheY'] = self.external_concentrations['GLC[p]']
+
+	def update_behavior(self):
+		# update behavior based on the current state of the system
+
+		if self.state is 'run':
+			self.motile_force = [0.02, 0.0]
+		elif self.state is 'tumble':
 			self.motile_force = [0.005, np.random.normal(scale=TUMBLE_JITTER)]
 
-		# update memory to current concentrations
-		self.memory = self.external_concentrations
-
-		# divide cell
-		if self.local_time >= self.initial_time + self.division_time:
-			self.divide()
-
-		time.sleep(0.1) # pause for better coordination with Lens visualization. TODO: remove this
-
 	def divide(self):
-		self.division = [{'time': self.local_time}, {'time': self.local_time}]
+		# update division state based on time since initialization
+
+		if self.local_time >= self.initial_time + self.division_time:
+			self.division = [{'time': self.local_time}, {'time': self.local_time}]
 
 		return self.division
 
@@ -73,7 +77,11 @@ class Chemotaxis(CellSimulation):
 	def run_incremental(self, run_until):
 		# update state once per message exchange
 		self.update_state()
+		self.update_behavior()
+		self.divide()
 		self.local_time = run_until
+
+		time.sleep(1.0)  # pause for better coordination with Lens visualization. TODO: remove this
 
 	def generate_inner_update(self):
 		return {

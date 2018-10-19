@@ -43,6 +43,7 @@ N_AVOGADRO = constants.N_A
 PI = np.pi
 
 UPDATE_ENV_FIELD = False
+ALLOW_JITTER = False
 ENV_GRADIENT = True
 
 # Lattice parameters
@@ -143,11 +144,12 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 			self.locations[agent_id][0] += magnitude * np.cos(self.locations[agent_id][2]) * self._run_for
 			self.locations[agent_id][1] += magnitude * np.sin(self.locations[agent_id][2]) * self._run_for
 
-			# # Translational diffusion
-			# self.locations[agent_id][0:2] += np.random.normal(scale=np.sqrt(TRANSLATIONAL_JITTER * self._timestep), size=N_DIMS)
-			#
-			# # Rotational diffusion
-			# self.locations[agent_id][2] = (location[2] + np.random.normal(scale=ROTATIONAL_JITTER * self._timestep)) % (2 * PI)
+			if ALLOW_JITTER:
+				# Translational diffusion
+				self.locations[agent_id][0:2] += np.random.normal(scale=np.sqrt(TRANSLATIONAL_JITTER * self._timestep), size=N_DIMS)
+
+				# Rotational diffusion
+				self.locations[agent_id][2] = (location[2] + np.random.normal(scale=ROTATIONAL_JITTER * self._timestep)) % (2 * PI)
 
 			# Enforce lattice edges
 			self.locations[agent_id][0:2][self.locations[agent_id][0:2] > EDGE_LENGTH] = EDGE_LENGTH - DX/2 #-= self.locations[agent_id][0:2][self.locations[agent_id][0:2] > EDGE_LENGTH] % EDGE_LENGTH
