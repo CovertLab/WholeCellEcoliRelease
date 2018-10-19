@@ -300,7 +300,7 @@ class EnvironmentCommand(AgentCommand):
 				agent_config,
 				kafka_config=self.kafka_config,
 				working_dir=args.working_dir)
-			time.sleep(5)
+			time.sleep(5) # this gives the environment long enough to initialize
 			chemotaxis = boot_chemotaxis(agent_id, agent_type, agent_config)
 			chemotaxis.start()
 
