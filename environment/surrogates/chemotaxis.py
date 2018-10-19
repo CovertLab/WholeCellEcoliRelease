@@ -11,6 +11,15 @@ TUMBLE_JITTER = 0.4 # (radians)
 
 
 class Chemotaxis(CellSimulation):
+	'''
+	Simple chemotaxis surrogate that can move up glucose gradients. It can take on two states 'run' and 'tumble'.
+	State is a function of the current glucose concentrations, and the 'memory' of glucose concentrations from the prior
+	time step.
+
+	This model is not tuned to actual e. coli chemotaxis behavior.
+
+	# TODO (Eran) include state names (['run', 'tumble']) and make surrogate into a proper state machine
+	'''
 
 	def __init__(self):
 		self.initial_time = 0.0
@@ -26,9 +35,6 @@ class Chemotaxis(CellSimulation):
 
 		self.division = []
 		self.division_time = 500
-
-		# TODO (Eran) include state names (['run', 'tumble']) and make surrogate into a proper state machine
-
 
 	def update_state(self):
 
