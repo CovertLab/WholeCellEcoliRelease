@@ -142,3 +142,10 @@ reconstruction/ecoli/dataclasses/process/two_component_system_odes_fitter.py
 
 # Mongo Explorer plugin:
 .idea/mongoSettings.xml
+
+# LaTeX compilation files #
+###########################
+*.aux
+*.fdb_latexmk
+*.fls
+*.synctex.gz
