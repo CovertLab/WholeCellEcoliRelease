@@ -25,7 +25,7 @@ class Chemotaxis(CellSimulation):
 		self.motile_force = [0.0, 0.0] # magnitude and relative orientation
 
 		self.division = []
-		self.division_time = 400
+		self.division_time = 500
 
 		# TODO (Eran) include state names (['run', 'tumble']) and make surrogate into a proper state machine
 
@@ -47,9 +47,12 @@ class Chemotaxis(CellSimulation):
 		if self.local_time >= self.initial_time + self.division_time:
 			self.divide()
 
+		time.sleep(0.1) # pause for better coordination with Lens visualization. TODO: remove this
 
 	def divide(self):
 		self.division = [{'time': self.local_time}, {'time': self.local_time}]
+
+		return self.division
 
 	def time(self):
 		return self.local_time

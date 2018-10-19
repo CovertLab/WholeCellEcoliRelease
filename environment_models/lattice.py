@@ -79,7 +79,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		self._time = 0
 		self._timestep = 1.0 #DT
 		self._run_for = 5
-		self._max_time = 1200
+		self._max_time = 2000
 
 		self.simulations = {}  # map of agent_id to simulation state
 		self.locations = {}    # map of agent_id to location and orientation
