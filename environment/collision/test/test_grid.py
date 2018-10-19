@@ -6,7 +6,7 @@ import numpy as np
 import numpy.testing as npt
 import nose.plugins.attrib as noseAttrib
 
-from agent.grid import Line, Chain, Rectangle, Grid
+from environment.collision.grid import Line, Chain, Rectangle, Grid
 
 class TestGrid(unittest.TestCase):
 	@classmethod
@@ -34,33 +34,35 @@ class TestGrid(unittest.TestCase):
 		pass
 
 
-	@noseAttrib.attr('grid')
+	@noseAttrib.attr('grid', 'shape')
 	def test_line(self):
 		print('line')
-		print(self.line.render(0.1))
+		print(self.line.indexes(0.1))
 
 		npt.assert_equal(1, 1)
 
-	@noseAttrib.attr('grid')
+	@noseAttrib.attr('grid', 'shape')
 	def test_chain(self):
 		print('chain')
-		print(self.chain.render(0.1))
+		print(self.chain.indexes(0.1))
 
 		npt.assert_equal(1, 1)
 
-	@noseAttrib.attr('grid')
+	@noseAttrib.attr('grid', 'shape')
 	def test_rectangle(self):
 		print('rectangle')
-		print(self.rectangle.render(0.1))
+		print(self.rectangle.indexes(0.1))
 
 		npt.assert_equal(1, 1)
 
-	@noseAttrib.attr('grid')
+	@noseAttrib.attr('grid', 'shape')
 	def test_grid(self):
 		self.grid.impress(self.rectangle)
 
-		print('grid')
 		unique, counts = np.unique(np.concatenate(self.grid.grid), return_counts=True)
-		print(dict(zip(unique, counts)))
+		outcome = dict(zip(unique, counts))
 
-		npt.assert_equal(1, 1)
+		print('grid')
+		print(outcome)
+
+		npt.assert_equal(outcome[0], 229)
