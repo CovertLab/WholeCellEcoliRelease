@@ -68,7 +68,10 @@ TICKS_FRACTIONAL_MARGIN = 0.9 # prevent ticks from being too close to the edge
 
 FIGSIZE = (4, 4)
 
-OUTDIR = 'out'
+OUTDIR = os.path.join(
+	os.path.split(__file__)[0],
+	'out'
+	)
 EXTENSION = ( # Choose one
 	# 'png'
 	'pdf'
