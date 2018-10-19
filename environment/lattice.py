@@ -32,9 +32,9 @@ if animating:
 	matplotlib.use('TKAgg')
 	import matplotlib.pyplot as plt
 
-from agent.grid import Grid, Rectangle, within
 from agent.outer import EnvironmentSimulation
-from agent.collision_detection import volume_exclusion
+from environment.collision.grid import Grid, Rectangle, within
+from environment.collision.volume_exclusion import volume_exclusion
 
 if animating:
 	plt.ion()
