@@ -9,7 +9,7 @@ import matplotlib
 matplotlib.use('TKAgg', warn=False)
 import matplotlib.pyplot as plt
 
-from agent.grid import Grid, Rectangle
+from environment.collision.grid import Grid, Rectangle
 
 TEMPERATURE = 20 # for acceptance function
 
