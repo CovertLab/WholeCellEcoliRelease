@@ -100,7 +100,11 @@ def volume_exclusion(grid, agents, scale=1., max_cycles=100, callback=None, jitt
 
 
 if __name__ == '__main__':
-	''' Perform volume exclusion on a test example and animate in matplotlib '''
+	'''
+	Perform volume exclusion on a test example and animate in matplotlib
+
+	This __main__ is purely for demonstration purposes.
+	'''
 
 	parser = argparse.ArgumentParser(description='volume exclusion')
 	parser.add_argument('--animating', default=False, action='store_true')
@@ -173,4 +177,6 @@ if __name__ == '__main__':
 	callback = animation_callback if animating else null_callback
 	volume_exclusion(grid, agents, callback=callback)
 
+	# either keep the matplotlib window open (if animating) or provide some way to introspect
+	# the grid using the pdb console.
 	import ipdb; ipdb.set_trace()
