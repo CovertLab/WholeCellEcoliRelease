@@ -103,7 +103,14 @@ if __name__ == '__main__':
 	'''
 	Perform volume exclusion on a test example and animate in matplotlib
 
-	This __main__ is purely for demonstration purposes.
+	This __main__ is purely for demonstration purposes. Note that if using the matplotlib
+	animation, each frame will progressively slow down for reasons known only to matplotlib. In 
+	the absence of animation (invoking without the `--animating` flag) it proceeds at the normal
+	rate. 
+
+	To run, type:
+
+        > python -m environment.collision.volume_exclusion --animating
 	'''
 
 	parser = argparse.ArgumentParser(description='volume exclusion')
