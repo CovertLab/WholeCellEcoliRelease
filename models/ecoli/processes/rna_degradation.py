@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Submodel for RNA degradation.
 
@@ -185,7 +183,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 			units.abs(self.rnaDegRates * rna_counts -
 				total_kcat_endornase * frac_endornase_saturated)
 			)
-		endornase_per_rna = total_endornase_counts.astype(np.float) / np.sum(rna_counts)
+		endornase_per_rna = total_endornase_counts / np.sum(rna_counts)
 
 		self.writeToListener("RnaDegradationListener",
 			"FractionActiveEndoRNases",
@@ -365,18 +363,38 @@ class RnaDegradation(wholecell.processes.process.Process):
 		Calculate the total number of RNAs to degrade for a specific class of
 		RNAs, based on the specificity of endoRNases on that specific class and
 		the total kcat value of the endoRNases.
+
+		Args:
+			specificity: Sum of fraction of active endoRNases for all RNAs
+			in a given class
+			total_kcat_endornase: The summed kcat of all existing endoRNases
+		Returns:
+			Total number of RNAs to degrade for the given class of RNAs
 		"""
 		return np.round(
 			(specificity * total_kcat_endornase
 			 * (units.s * self.timeStepSec())).asNumber()
 			)
 
+
 	def _get_rnas_to_degrade(self, n_total_rnas_to_degrade, rna_deg_probs,
 			rna_counts):
 		"""
 		Distributes the total count of RNAs to degrade for each class of RNAs
 		into individual RNAs, based on the given degradation probabilities
-		of individual RNAs.
+		of individual RNAs. The upper bound is set by the current count of the
+		specific RNA.
+
+		Args:
+			n_total_rnas_to_degrade: Total number of RNAs to degrade for the
+			given class of RNAs (integer, scalar)
+			rna_deg_probs: Degradation probabilities of each RNA (vector of
+			equal length to the total number of different RNAs)
+			rna_counts: Current counts of each RNA molecule (vector of equal
+			length to the total number of different RNAs)
+		Returns:
+			Vector of equal length to rna_counts, specifying the number of
+			molecules to degrade for each RNA
 		"""
 		n_rnas_to_degrade = np.zeros_like(rna_counts)
 
