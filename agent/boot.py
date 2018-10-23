@@ -212,7 +212,7 @@ class AgentCommand(object):
 		parser.add_argument(
 			'--number',
 			type=int,
-			default=3,
+			default=0,
 			help='number of cell agents to spawn in experiment')
 
 		parser.add_argument(

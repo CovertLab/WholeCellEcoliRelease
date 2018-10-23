@@ -180,9 +180,9 @@ class Agent(object):
 
 		if print_send:
 			print('<-- {} ({}) [{}]: {}'.format(
-				self.agent_id,
 				topic,
-				len(encoded),
+				message.get('event', 'generic'),
+				self.agent_id,
 				encoded))
 
 		self.producer.poll(0)
