@@ -100,40 +100,47 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		# Get all inactive RNA polymerases
 		self.inactiveRnaPolys.requestAll()
 
-		# Calculate synthesis probabilities based on transcription regulation
-		self.rnaSynthProb = self.recruitmentMatrix.dot(
-			self.recruitmentView.total())
-		if len(self.genetic_perturbations) > 0:
-			self.rnaSynthProb[self.genetic_perturbations["fixedRnaIdxs"]] = self.genetic_perturbations["fixedSynthProbs"]
-
-		# Adjust probabilities to not be negative
-		self.rnaSynthProb[self.rnaSynthProb < 0] = 0.0
-		self.rnaSynthProb /= self.rnaSynthProb.sum()
-
-		# Adjust synthesis probabilities depending on environment
+		# Read current environment
 		current_nutrients = self._external_states['Environment'].nutrients
-		synthProbFractions = self.rnaSynthProbFractions[current_nutrients]
 
-		# Allocate synthesis probabilities based on type of RNA
-		self.rnaSynthProb[self.isMRna] *= synthProbFractions["mRna"] / self.rnaSynthProb[self.isMRna].sum()
-		self.rnaSynthProb[self.isTRna] *= synthProbFractions["tRna"] / self.rnaSynthProb[self.isTRna].sum()
-		self.rnaSynthProb[self.isRRna] *= synthProbFractions["rRna"] / self.rnaSynthProb[self.isRRna].sum()
+		if self.chromosomes.total()[0] > 0:
+			# Calculate synthesis probabilities based on transcription regulation
+			self.rnaSynthProb = self.recruitmentMatrix.dot(
+				self.recruitmentView.total())
+			if len(self.genetic_perturbations) > 0:
+				self.rnaSynthProb[self.genetic_perturbations["fixedRnaIdxs"]] = self.genetic_perturbations["fixedSynthProbs"]
 
-		# Set fixed synthesis probabilities for RProteins and RNAPs
-		self.rnaSynthProb[self.isRProtein] = self.rnaSynthProbRProtein[current_nutrients]
-		self.rnaSynthProb[self.isRnap] = self.rnaSynthProbRnaPolymerase[current_nutrients]
+			# Adjust probabilities to not be negative
+			self.rnaSynthProb[self.rnaSynthProb < 0] = 0.0
+			self.rnaSynthProb /= self.rnaSynthProb.sum()
 
-		assert self.rnaSynthProb[self.setIdxs].sum() < 1.0
+			# Adjust synthesis probabilities depending on environment
+			synthProbFractions = self.rnaSynthProbFractions[current_nutrients]
 
-		# Scale remaining synthesis probabilities accordingly
-		scaleTheRestBy = (1. - self.rnaSynthProb[self.setIdxs].sum()) / self.rnaSynthProb[~self.setIdxs].sum()
-		self.rnaSynthProb[~self.setIdxs] *= scaleTheRestBy
+			# Allocate synthesis probabilities based on type of RNA
+			self.rnaSynthProb[self.isMRna] *= synthProbFractions["mRna"] / self.rnaSynthProb[self.isMRna].sum()
+			self.rnaSynthProb[self.isTRna] *= synthProbFractions["tRna"] / self.rnaSynthProb[self.isTRna].sum()
+			self.rnaSynthProb[self.isRRna] *= synthProbFractions["rRna"] / self.rnaSynthProb[self.isRRna].sum()
 
-		# Shuffle initiation rates if we're running the variant that calls this
-		# (In general, this should lead to a cell which does not grow and
-		# divide)
-		if self.shuffleIdxs is not None:
-			self.rnaSynthProb = self.rnaSynthProb[self.shuffleIdxs]
+			# Set fixed synthesis probabilities for RProteins and RNAPs
+			self.rnaSynthProb[self.isRProtein] = self.rnaSynthProbRProtein[current_nutrients]
+			self.rnaSynthProb[self.isRnap] = self.rnaSynthProbRnaPolymerase[current_nutrients]
+
+			assert self.rnaSynthProb[self.setIdxs].sum() < 1.0
+
+			# Scale remaining synthesis probabilities accordingly
+			scaleTheRestBy = (1. - self.rnaSynthProb[self.setIdxs].sum()) / self.rnaSynthProb[~self.setIdxs].sum()
+			self.rnaSynthProb[~self.setIdxs] *= scaleTheRestBy
+
+			# Shuffle initiation rates if we're running the variant that calls this
+			# (In general, this should lead to a cell which does not grow and
+			# divide)
+			if self.shuffleIdxs is not None:
+				self.rnaSynthProb = self.rnaSynthProb[self.shuffleIdxs]
+
+		# If there are no chromosomes in the cell, set all probs to zero
+		else:
+			self.rnaSynthProb = np.zeros(self.recruitmentMatrix.shape[0])
 
 		self.fracActiveRnap = self.fracActiveRnapDict[current_nutrients]
 		self.rnaPolymeraseElongationRate = self.rnaPolymeraseElongationRateDict[current_nutrients]
