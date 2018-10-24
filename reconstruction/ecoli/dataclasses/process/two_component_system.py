@@ -317,7 +317,9 @@ class TwoComponentSystem(object):
 			import reconstruction.ecoli.dataclasses.process.two_component_system_odes
 			import reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter
 			self.derivatives = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivatives
+			self.derivativesFlipped = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivativesFlipped
 			self.derivativesJacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivativesJacobian
+			self.derivativesJacobianFlipped = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivativesJacobianFlipped
 			self.derivativesFitter = reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter.derivatives
 			self.derivativesFitterJacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter.derivativesJacobian
 			cPickle.dump(self.stoichMatrix(), open(os.path.join(fixturesDir, "S.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
@@ -327,7 +329,9 @@ class TwoComponentSystem(object):
 			import reconstruction.ecoli.dataclasses.process.two_component_system_odes
 			import reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter
 			self.derivatives = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivatives
+			self.derivativesFlipped = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivativesFlipped
 			self.derivativesJacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivativesJacobian
+			self.derivativesJacobianFlipped = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivativesJacobianFlipped
 			self.derivativesFitter = reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter.derivatives
 			self.derivativesFitterJacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter.derivativesJacobian
 
@@ -418,7 +422,12 @@ class TwoComponentSystem(object):
 		Calculate change in molecule counts until the next time step.
 		'''
 		y_init = moleculeCounts / (cellVolume * nAvogadro)
-		y = scipy.integrate.odeint(self.derivatives, y_init, t = [0, timeStepSec], Dfun = self.derivativesJacobian, mxstep = 10000)
+
+		sol = scipy.integrate.solve_ivp(
+			self.derivativesFlipped, [0, timeStepSec], y_init,
+			method="BDF", t_eval=[0, timeStepSec],
+			jac=self.derivativesJacobianFlipped)
+		y = sol.y.T
 
 		if np.any(y[-1, :] * (cellVolume * nAvogadro) <= -1):
 			raise Exception, "Have negative values -- probably due to numerical instability"
