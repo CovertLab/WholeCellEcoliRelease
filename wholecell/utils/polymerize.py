@@ -310,7 +310,6 @@ class polymerize(object): # Class name is lowercase because interface is functio
 
 		#self._totalMonomers = self._sequenceMonomers[:, self._activeSequencesIndexes, self._currentStep:].sum(axis = 1).cumsum(axis = 1)
 		#self._totalMonomers = sum_monomers_reference_implementation(self._sequenceMonomers, self._activeSequencesIndexes, self._currentStep)
-		# self._totalMonomers = sum_monomers(self._sequenceMonomers, self._activeSequencesIndexes, self._currentStep)
 
 		# totalReactions: ndarray of integer, shape (num_steps - currentStep,),
 		#     the cumulative number of reactions in currentStep to the end for
