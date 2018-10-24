@@ -46,7 +46,7 @@ def sum_monomers(
 		sequenceMonomers, np.int64_t[:] activeSequencesIndexes, currentStep):
 	"""
 	Sum up the total number of monomers of each type needed to continue building
-	the active sequences through currentStep and following steps.
+	the active sequences for the currentStep.
 
 	Workaround: Cython doesn't support boolean array Memoryviews, so accept an
 	untyped sequenceMonomers array and pass a uint8[] view of it to _sum_monomers().
@@ -88,15 +88,14 @@ def _sum_monomers(
 			raise IndexError('activeSequencesIndexes[%s]=%s is out of range(%s)'
 				% (iseq, seq, maxSequences))
 
-	cdef np.ndarray totalMonomers = np.empty((nMonomers, maxSteps - currentStep), dtype=np.int32)
-	cdef Int32[:, :] _totalMonomers = totalMonomers # a typed memoryview of totalMonomers
+	cdef np.ndarray totalMonomers = np.empty(nMonomers, dtype=np.int32)
+	cdef Int32[:] _totalMonomers = totalMonomers # a typed memoryview of totalMonomers
 
 	for monomer in xrange(nMonomers):
 		total = 0
-		for step in xrange(currentStep, maxSteps):
-			for iseq in xrange(nActiveSequences):
-				seq = activeSequencesIndexes[iseq]
-				total += sequenceMonomers[monomer, seq, step]
-			_totalMonomers[monomer, step - currentStep] = total
+		for iseq in xrange(nActiveSequences):
+			seq = activeSequencesIndexes[iseq]
+			total += sequenceMonomers[monomer, seq, currentStep]
+		_totalMonomers[monomer] = total
 
 	return totalMonomers
