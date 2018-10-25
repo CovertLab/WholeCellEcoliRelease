@@ -57,7 +57,7 @@ class TwoComponentSystem(wholecell.processes.process.Process):
 		self.cellVolume = cellMass / self.cellDensity
 
 		# Solve ODEs to next time step
-		self.req, self.allMoleculeChanges = self.moleculesToNextTimeStep(moleculeCounts, self.cellVolume, self.nAvogadro, self.timeStepSec())
+		self.req, self.allMoleculeChanges = self.moleculesToNextTimeStep(moleculeCounts, self.cellVolume, self.nAvogadro, self.timeStepSec(), "BDF")
 
 		# Request counts of molecules needed
 		self.molecules.requestIs(self.req)

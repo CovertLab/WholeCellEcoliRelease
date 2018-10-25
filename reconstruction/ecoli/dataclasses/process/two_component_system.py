@@ -417,17 +417,24 @@ class TwoComponentSystem(object):
 		self.derivativesFitterSymbolic = dy
 
 
-	def moleculesToNextTimeStep(self, moleculeCounts, cellVolume, nAvogadro, timeStepSec):
+	def moleculesToNextTimeStep(self, moleculeCounts, cellVolume, nAvogadro, timeStepSec, solver="LSODA"):
 		'''
 		Calculate change in molecule counts until the next time step.
 		'''
 		y_init = moleculeCounts / (cellVolume * nAvogadro)
 
-		sol = scipy.integrate.solve_ivp(
-			self.derivativesFlipped, [0, timeStepSec], y_init,
-			method="BDF", t_eval=[0, timeStepSec],
-			jac=self.derivativesJacobianFlipped)
-		y = sol.y.T
+		if solver == "BDF":
+			sol = scipy.integrate.solve_ivp(
+				self.derivativesFlipped, [0, timeStepSec], y_init,
+				method="BDF", t_eval=[0, timeStepSec],
+				jac=self.derivativesJacobianFlipped
+				)
+			y = sol.y.T
+		else:
+			y = scipy.integrate.odeint(
+				self.derivativesFitter, y_init,
+				t=[0, timeStepSec], Dfun=self.derivativesFitterJacobian
+				)
 
 		if np.any(y[-1, :] * (cellVolume * nAvogadro) <= -1):
 			raise Exception, "Have negative values -- probably due to numerical instability"
