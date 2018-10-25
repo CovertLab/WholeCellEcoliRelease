@@ -18,28 +18,25 @@ cimport cython
 ctypedef Py_ssize_t Index # array index type
 ctypedef np.int32_t Int32
 
-def sum_monomers_reference_implementation(
-		sequenceMonomers, activeSequencesIndexes, Index currentStep):
+def sum_monomers_reference_implementation(sequenceMonomers, activeSequencesIndexes):
 	"""
 	Sum up the total number of monomers of each type needed to continue building
-	the active sequences through currentStep and following steps. (This is the
+	the active sequences through currentStep. (This is the
 	Python reference implementation, compiled by Cython.)
 
 	Arguments:
-	sequenceMonomers -- bool[monomer #, sequence #, step #] indicating whether
+	sequenceMonomers -- bool[monomer #, sequence #] indicating whether
 		a given monomer gets used in a step of a sequence
 	activeSequencesIndexes -- an array of sequences that are still active, i.e.
 		have not yet run out of source monomers
-	currentStep -- the current sequence step number
 
 	Result:
-	count[monomer #, step #] indicating how many of each monomer will be needed
-		by the combined active sequences in the currentStep and following steps
+	count[monomer #] indicating how many of each monomer will be needed
+		by the combined active sequences in the currentStep
 	"""
 	totalMonomers = (
-		sequenceMonomers[:, activeSequencesIndexes, currentStep:] # filter to active sequences
-		.sum(axis=1) # sum over all active sequences
-		.cumsum(axis=1)) # cumsum from currentStep to the last step
+		sequenceMonomers[:, activeSequencesIndexes] # filter to active sequences
+		.sum(axis=1)) # sum over all active sequences
 	return totalMonomers
 
 def sum_monomers(
