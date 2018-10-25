@@ -43,7 +43,7 @@ def sum_monomers_reference_implementation(
 	return totalMonomers
 
 def sum_monomers(
-		sequenceMonomers, np.int64_t[:] activeSequencesIndexes, currentStep):
+		sequenceMonomers, np.int64_t[:] activeSequencesIndexes):
 	"""
 	Sum up the total number of monomers of each type needed to continue building
 	the active sequences for the currentStep.
@@ -52,7 +52,7 @@ def sum_monomers(
 	untyped sequenceMonomers array and pass a uint8[] view of it to _sum_monomers().
 	"""
 	return _sum_monomers(
-		sequenceMonomers.view(dtype=np.uint8), activeSequencesIndexes, currentStep)
+		sequenceMonomers.view(dtype=np.uint8), activeSequencesIndexes)
 
 # See:
 # http://cython.readthedocs.io/en/latest/src/tutorial/numpy.html
@@ -68,20 +68,15 @@ def sum_monomers(
 @cython.wraparound(False)   # --> Without boundscheck(False) this is slower!
 @cython.boundscheck(False)
 def _sum_monomers(
-		np.uint8_t[:, :, ::1] sequenceMonomers not None,
-		np.int64_t[::1] activeSequencesIndexes not None,
-		Index currentStep):
+		np.uint8_t[:, :] sequenceMonomers not None,
+		np.int64_t[::1] activeSequencesIndexes not None):
 	cdef Index nMonomers = sequenceMonomers.shape[0]
 	cdef Index maxSequences = sequenceMonomers.shape[1]
-	cdef Index maxSteps = sequenceMonomers.shape[2]
 	cdef Index nActiveSequences = activeSequencesIndexes.shape[0]
 	cdef Int32 total = 0
 	cdef Index monomer, step, iseq, seq
 
-	# Do the bounds-checks once before looping *if* @cython.boundscheck(False).
-	# Note: Testing 'currentStep not in xrange(maxSteps)' is very slow!
-	if currentStep < 0 or currentStep >= maxSteps:
-		raise IndexError('currentStep %s is out of range(%s)' % (currentStep, maxSteps))
+	# # Do the bounds-checks once before looping *if* @cython.boundscheck(False).
 	for iseq in xrange(nActiveSequences):
 		seq = activeSequencesIndexes[iseq]
 		if seq < 0 or seq >= maxSequences:
@@ -95,7 +90,7 @@ def _sum_monomers(
 		total = 0
 		for iseq in xrange(nActiveSequences):
 			seq = activeSequencesIndexes[iseq]
-			total += sequenceMonomers[monomer, seq, currentStep]
+			total += sequenceMonomers[monomer, seq]
 		_totalMonomers[monomer] = total
 
 	return totalMonomers
