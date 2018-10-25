@@ -101,13 +101,37 @@ from wholecell.utils import constants
 from wholecell.utils import filepath
 
 
+def get_environment(variable, default):
+	'''
+	Gets an environmental variable value and prints a confirmation of the
+	variable and value if it is in the environment.
+
+	Args:
+		variable (str): name of environmental variable to get
+		default (str): default value if variable is not in the environment
+
+	Returns:
+		str: value of the environmental variable or default if it doesn't exist
+	'''
+
+	value = os.environ.get(variable, None)
+
+	if value is not None:
+		print('\t{}: {}'.format(variable, value))
+	else:
+		value = default
+
+	return value
+
+print('Parsed environmental variables:')
+
 #### Initial setup ###
 
 ### Set variant variables
 
-VARIANT = os.environ.get("VARIANT", "wildtype")
-FIRST_VARIANT_INDEX = int(os.environ.get("FIRST_VARIANT_INDEX", "0"))
-LAST_VARIANT_INDEX = int(os.environ.get("LAST_VARIANT_INDEX", "0"))
+VARIANT = get_environment("VARIANT", "wildtype")
+FIRST_VARIANT_INDEX = int(get_environment("FIRST_VARIANT_INDEX", "0"))
+LAST_VARIANT_INDEX = int(get_environment("LAST_VARIANT_INDEX", "0"))
 
 # This variable gets iterated over in multiple places
 # So be careful if you change it to xrange
@@ -115,29 +139,29 @@ VARIANTS_TO_RUN = range(FIRST_VARIANT_INDEX, LAST_VARIANT_INDEX + 1)
 
 ### Set other simulation parameters
 
-WC_LENGTHSEC = int(os.environ.get("WC_LENGTHSEC", DEFAULT_SIMULATION_KWARGS["lengthSec"]))
-TIMESTEP_SAFETY_FRAC = float(os.environ.get("TIMESTEP_SAFETY_FRAC", DEFAULT_SIMULATION_KWARGS["timeStepSafetyFraction"]))
-TIMESTEP_MAX = float(os.environ.get("TIMESTEP_MAX", DEFAULT_SIMULATION_KWARGS["maxTimeStep"]))
-TIMESTEP_UPDATE_FREQ = int(os.environ.get("TIMESTEP_UPDATE_FREQ", DEFAULT_SIMULATION_KWARGS["updateTimeStepFreq"]))
-MASS_DISTRIBUTION = bool(int(os.environ.get("MASS_DISTRIBUTION", DEFAULT_SIMULATION_KWARGS["massDistribution"])))
-GROWTH_RATE_NOISE = bool(int(os.environ.get("GROWTH_RATE_NOISE", DEFAULT_SIMULATION_KWARGS["growthRateNoise"])))
-D_PERIOD_DIVISION = bool(int(os.environ.get("D_PERIOD_DIVISION", DEFAULT_SIMULATION_KWARGS["dPeriodDivision"])))
-TRANSLATION_SUPPLY = bool(int(os.environ.get("TRANSLATION_SUPPLY", DEFAULT_SIMULATION_KWARGS["translationSupply"])))
-TRNA_CHARGING = bool(int(os.environ.get("TRNA_CHARGING", DEFAULT_SIMULATION_KWARGS["trna_charging"])))
-N_INIT_SIMS = int(os.environ.get("N_INIT_SIMS", "1"))
-N_GENS = int(os.environ.get("N_GENS", "1"))
-SINGLE_DAUGHTERS = bool(int(os.environ.get("SINGLE_DAUGHTERS", "1")))
-LAUNCHPAD_FILE = str(os.environ.get("LAUNCHPAD_FILE", "my_launchpad.yaml"))
-COMPRESS_OUTPUT = bool(int(os.environ.get("COMPRESS_OUTPUT", "0")))
-SIM_DESCRIPTION = os.environ.get("DESC", "").replace(" ", "_")
-VERBOSE_QUEUE = bool(int(os.environ.get("VERBOSE_QUEUE", "1")))
-RUN_AGGREGATE_ANALYSIS = bool(int(os.environ.get("RUN_AGGREGATE_ANALYSIS", "1")))
-CACHED_SIM_DATA = bool(int(os.environ.get("CACHED_SIM_DATA", "0")))
-PARALLEL_FITTER = bool(int(os.environ.get("PARALLEL_FITTER", "0")))
-DEBUG_FITTER = bool(int(os.environ.get("DEBUG_FITTER", "0")))
-DISABLE_RIBOSOME_CAPACITY_FITTING = bool(int(os.environ.get("DISABLE_RIBOSOME_CAPACITY_FITTING", "0")))
-DISABLE_RNAPOLY_CAPACITY_FITTING = bool(int(os.environ.get("DISABLE_RNAPOLY_CAPACITY_FITTING", "0")))
-BUILD_CAUSALITY_NETWORK = bool(int(os.environ.get("BUILD_CAUSALITY_NETWORK", "0")))
+WC_LENGTHSEC = int(get_environment("WC_LENGTHSEC", DEFAULT_SIMULATION_KWARGS["lengthSec"]))
+TIMESTEP_SAFETY_FRAC = float(get_environment("TIMESTEP_SAFETY_FRAC", DEFAULT_SIMULATION_KWARGS["timeStepSafetyFraction"]))
+TIMESTEP_MAX = float(get_environment("TIMESTEP_MAX", DEFAULT_SIMULATION_KWARGS["maxTimeStep"]))
+TIMESTEP_UPDATE_FREQ = int(get_environment("TIMESTEP_UPDATE_FREQ", DEFAULT_SIMULATION_KWARGS["updateTimeStepFreq"]))
+MASS_DISTRIBUTION = bool(int(get_environment("MASS_DISTRIBUTION", DEFAULT_SIMULATION_KWARGS["massDistribution"])))
+GROWTH_RATE_NOISE = bool(int(get_environment("GROWTH_RATE_NOISE", DEFAULT_SIMULATION_KWARGS["growthRateNoise"])))
+D_PERIOD_DIVISION = bool(int(get_environment("D_PERIOD_DIVISION", DEFAULT_SIMULATION_KWARGS["dPeriodDivision"])))
+TRANSLATION_SUPPLY = bool(int(get_environment("TRANSLATION_SUPPLY", DEFAULT_SIMULATION_KWARGS["translationSupply"])))
+TRNA_CHARGING = bool(int(get_environment("TRNA_CHARGING", DEFAULT_SIMULATION_KWARGS["trna_charging"])))
+N_INIT_SIMS = int(get_environment("N_INIT_SIMS", "1"))
+N_GENS = int(get_environment("N_GENS", "1"))
+SINGLE_DAUGHTERS = bool(int(get_environment("SINGLE_DAUGHTERS", "1")))
+LAUNCHPAD_FILE = str(get_environment("LAUNCHPAD_FILE", "my_launchpad.yaml"))
+COMPRESS_OUTPUT = bool(int(get_environment("COMPRESS_OUTPUT", "0")))
+SIM_DESCRIPTION = get_environment("DESC", "").replace(" ", "_")
+VERBOSE_QUEUE = bool(int(get_environment("VERBOSE_QUEUE", "1")))
+RUN_AGGREGATE_ANALYSIS = bool(int(get_environment("RUN_AGGREGATE_ANALYSIS", "1")))
+CACHED_SIM_DATA = bool(int(get_environment("CACHED_SIM_DATA", "0")))
+PARALLEL_FITTER = bool(int(get_environment("PARALLEL_FITTER", "0")))
+DEBUG_FITTER = bool(int(get_environment("DEBUG_FITTER", "0")))
+DISABLE_RIBOSOME_CAPACITY_FITTING = bool(int(get_environment("DISABLE_RIBOSOME_CAPACITY_FITTING", "0")))
+DISABLE_RNAPOLY_CAPACITY_FITTING = bool(int(get_environment("DISABLE_RNAPOLY_CAPACITY_FITTING", "0")))
+BUILD_CAUSALITY_NETWORK = bool(int(get_environment("BUILD_CAUSALITY_NETWORK", "0")))
 
 if not RUN_AGGREGATE_ANALYSIS:
 	COMPRESS_OUTPUT = False
