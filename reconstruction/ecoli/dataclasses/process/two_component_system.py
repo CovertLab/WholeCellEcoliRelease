@@ -439,16 +439,18 @@ class TwoComponentSystem(object):
 		by solving an initial value ODE problem.
 
 		Args:
-			moleculeCounts: current counts of molecules involved in the ODE
-			cellVolume: current volume of cell
-			nAvogadro: Avogadro's number
-			timeStepSec: current length of timestep
-			solver: ODE solver to use
+			moleculeCounts (1d ndarray, ints): current counts of molecules
+			involved in the ODE
+			cellVolume (float): current volume of cell
+			nAvogadro (float): Avogadro's number
+			timeStepSec (float): current length of timestep in seconds
+			solver (str): name of the ODE solver to use
 
 		Returns:
-			moleculesNeeded: counts of molecules that need to be consumed
-			allMoleculesChanges: expected changes in molecule counts after
-			timestep
+			moleculesNeeded (1d ndarray, ints): counts of molecules that need
+			to be consumed
+			allMoleculesChanges (1d ndarray, ints): expected changes in
+			molecule counts after timestep
 		"""
 		y_init = moleculeCounts / (cellVolume * nAvogadro)
 
