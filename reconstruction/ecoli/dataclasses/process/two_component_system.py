@@ -26,8 +26,6 @@ import wholecell
 from wholecell.utils import filepath
 from wholecell.utils import units
 from wholecell.utils.write_ode_file import writeOdeFile
-import reconstruction.ecoli.dataclasses.process.two_component_system_odes
-import reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter
 
 
 class TwoComponentSystem(object):
@@ -328,6 +326,10 @@ class TwoComponentSystem(object):
 			writeOdeFile(odeFile, self.derivativesSymbolic, self.derivativesJacobianSymbolic)
 			writeOdeFile(odeFitterFile, self.derivativesFitterSymbolic, self.derivativesFitterJacobianSymbolic)
 
+			# Modules are imported here to ensure the files exist before import
+			import reconstruction.ecoli.dataclasses.process.two_component_system_odes
+			import reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter
+
 			self.derivatives = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivatives
 			self.derivatives_jacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivativesJacobian
 			self.derivatives_fitter = reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter.derivatives
@@ -337,6 +339,10 @@ class TwoComponentSystem(object):
 			cPickle.dump(self.ratesFwd, open(os.path.join(fixturesDir, "ratesFwd.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
 			cPickle.dump(self.ratesRev, open(os.path.join(fixturesDir, "ratesRev.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
 		else:
+			# Modules are imported here to ensure the files exist before import
+			import reconstruction.ecoli.dataclasses.process.two_component_system_odes
+			import reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter
+
 			self.derivatives = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivatives
 			self.derivatives_jacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivativesJacobian
 			self.derivatives_fitter = reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter.derivatives
