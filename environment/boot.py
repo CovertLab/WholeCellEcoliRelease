@@ -212,7 +212,17 @@ class ShepherdControl(EnvironmentControl):
 
 	def lattice_experiment(self, args):
 		lattice_id = str(uuid.uuid1())
-		self.add_agent(lattice_id, 'lattice', {'media': args.media})
+		self.add_agent(lattice_id, 'lattice', {
+			'media': args.media,
+			'static_concentrations': args.static_concentrations,
+			'diffusion': args.diffusion,
+			'gradient': {'seed': args.gradient},
+			'translation_jitter': args.translation_jitter,
+			'rotation_jitter': args.rotation_jitter,
+			'cell_radius': args.cell_radius,
+			'edge_length': args.edge_length,
+			'patches_per_edge': args.patches_per_edge})
+
 		for index in range(args.number):
 			self.add_cell(args.type, {'outer_id': lattice_id})
 
@@ -271,6 +281,56 @@ class EnvironmentCommand(AgentCommand):
 			type=str,
 			default='ecoli',
 			help='The agent type')
+
+		parser.add_argument(
+			'-sc', '--static-concentrations',
+			type=bool,
+			default=False,
+			action='store_true',
+			help='Whether the concentrations of patches can change')
+
+		parser.add_argument(
+			'-d', '--diffusion',
+			type=float,
+			default=0.1,
+			help='The diffusion rate')
+
+		parser.add_argument(
+			'-g', '--gradient',
+			type=bool,
+			default=False,
+			action='store_true'
+			help='Whether to provide an initial gradient')
+
+		parser.add_argument(
+			'-tj', '--translation-jitter',
+			type=float,
+			default=0.001,
+			help='How much to randomly translate positions each cycle')
+
+		parser.add_argument(
+			'-rj', '--rotation-jitter',
+			type=float,
+			default=0.05,
+			help='How much to randomly rotate positions each cycle')
+
+		parser.add_argument(
+			'-cr', '--cell-radius',
+			type=float,
+			default=0.5,
+			help='Radius of each cell')
+
+		parser.add_argument(
+			'-el', '--edge-length',
+			type=float,
+			default=0.5,
+			help='Total length of one side of the simulated environment')
+
+		parser.add_argument(
+			'-ppe', '--patches-per-edge',
+			type=int,
+			default=10,
+			help='Number of patches to divide a side of the environment into')
 
 		return parser
 
