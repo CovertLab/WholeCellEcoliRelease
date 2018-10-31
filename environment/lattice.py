@@ -24,15 +24,15 @@ from scipy.ndimage import convolve
 
 animating = 'ENVIRONMENT_ANIMATION' in os.environ
 
-import matplotlib
-
 # Turn off interactive plotting when running on sherlock
 if animating:
+	import matplotlib
 	matplotlib.use('TKAgg')
-
-import matplotlib.pyplot as plt
+	import matplotlib.pyplot as plt
 
 from agent.outer import EnvironmentSimulation
+from environment.collision.grid import Grid, Rectangle, within
+from environment.collision.volume_exclusion import volume_exclusion
 
 if animating:
 	plt.ion()
@@ -66,6 +66,29 @@ LAPLACIAN_2D = np.array([[0.0, 1.0, 0.0], [1.0, -4.0, 1.0], [0.0, 1.0, 0.0]])
 # DX = EDGE_LENGTH / PATCHES_PER_EDGE  # intervals in x- directions (assume y- direction equivalent)
 # DX2 = DX*DX
 # DT = 0.5 * DX2 * DX2 / (2 * DIFFUSION * (DX2 + DX2)) # upper limit on the time scale (go with at least 50% of this)
+
+# these are the molecules that will show a difference in gradient for minimal media:
+# --------------------------------------------------
+# AMMONIUM[c]: -3451555
+# CARBON-MONOXIDE[p]: 127
+# CL-[p]: -3682
+# CPD0-2167[c]: 611
+# CPD-108[p]: 127
+# CPD-560[p]: 4397
+# CPD-10774[c]: 6116
+# GLC[p]: -6389373
+# GLYCOLLATE[c]: 3483039
+# INDOLE[p]: 4982
+# K+[p]: -138237
+# METOH[p]: 25
+# MG+2[p]: -6139
+# NA+[p]: -139
+# PI[p]: -560427
+# PROTON[p]: 6374126
+# S-ADENOSYL-4-METHYLTHIO-2-OXOBUTANOATE[c]: 25
+# SULFATE[p]: -82322
+# UNDECAPRENYL-DIPHOSPHATE[p]: 5373
+# -------------------------------------------------
 
 class EnvironmentSpatialLattice(EnvironmentSimulation):
 	def __init__(self, config): # concentrations):
@@ -101,6 +124,8 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		self.simulations = {}  # map of agent_id to simulation state
 		self.locations = {}    # map of agent_id to location and orientation
 		self.motile_forces = {}	# map of agent_id to motile force, with magnitude and relative orientation
+
+		self.grid = Grid([self.edge_length, self.edge_length], 0.1)
 
 		self._molecule_ids = config['concentrations'].keys()
 		self.concentrations = config['concentrations'].values()
@@ -152,7 +177,6 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 	def update_locations(self):
 		''' Update location for all agent_ids '''
 		for agent_id, location in self.locations.iteritems():
-
 			magnitude = self.motile_forces[agent_id][0]
 			direction = self.motile_forces[agent_id][1]
 
@@ -161,14 +185,43 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 			self.locations[agent_id][0] += magnitude * np.cos(self.locations[agent_id][2]) * self._run_for
 			self.locations[agent_id][1] += magnitude * np.sin(self.locations[agent_id][2]) * self._run_for
 
-			# Translational diffusion
-			self.locations[agent_id][0:2] += np.random.normal(scale=np.sqrt(self.translation_jitter * self._timestep), size=N_DIMS)
-			# Rotational diffusion
-			self.locations[agent_id][2] = (location[2] + np.random.normal(scale=self.rotation_jitter * self._timestep)) % (2 * PI)
+			translation_jitter = np.random.normal(scale=np.sqrt(self.translation_jitter * self._timestep), size=N_DIMS)
+			orientation_jitter = np.random.normal(scale=self.rotation_jitter * self._timestep)
+
+			self.locations[agent_id][0:2] += translation_jitter
+			self.locations[agent_id][2] += rotation_jitter
+
+			# # Translational diffusion
+			# self.locations[agent_id][0:2] += np.random.normal(scale=np.sqrt(self.translation_jitter * self._timestep), size=N_DIMS)
+			# # Rotational diffusion
+			# self.locations[agent_id][2] = (location[2] + np.random.normal(scale=self.rotation_jitter * self._timestep)) % (2 * PI)
 
 			# Enforce lattice edges
 			self.locations[agent_id][0:2][self.locations[agent_id][0:2] > self.edge_length] = self.edge_length - self.dx/2 #-= self.locations[agent_id][0:2][self.locations[agent_id][0:2] > self.edge_length] % self.edge_length
 			self.locations[agent_id][0:2][self.locations[agent_id][0:2] < 0] = 0.0 #-= self.locations[agent_id][0:2][self.locations[agent_id][0:2] < 0]
+
+		def make_shape(agent):
+			return Rectangle(
+				[agent['radius'] * 2,
+				 agent['length']],
+				agent['location'],
+				agent['orientation'])
+
+		agents = {
+			agent_id: {
+				'radius': CELL_RADIUS,
+				'length': self.volume_to_length(agent['state']['volume']),
+				'location': self.locations[agent_id][0:2],
+				'orientation': self.locations[agent_id][2],
+				'render': make_shape}
+			for agent_id, agent
+			in self.simulations.iteritems()}
+
+		exclusion = volume_exclusion(self.grid, agents, scale=0.3)
+
+		for agent_id, location in self.locations.iteritems():
+			location[0:2] = exclusion[agent_id]['location']
+			location[2] = (exclusion[agent_id]['orientation']) % (2 * PI)
 
 
 	def run_diffusion(self):
@@ -290,13 +343,32 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 
 	def generate_outer_update(self, now):
 		'''returns a dict with {molecule_id: conc} for each sim give its current location'''
+
+		bounds = [PATCHES_PER_EDGE, PATCHES_PER_EDGE]
+		def constrain(bounds, point):
+			if not within(bounds, point):
+				print('outside bounds {}: {}'.format(bounds, point))
+
+			x = point[0]
+			y = point[1]
+			if x < 0:
+				x = 0
+			if y < 0:
+				y = 0
+			if x >= bounds[0]:
+				x = bounds[0]
+			if y >= bounds[1]:
+				y = bounds[1]
+
+			return point
+
 		update = {}
 		for agent_id, simulation in self.simulations.iteritems():
 			# only provide concentrations if we have reached this simulation's time point.
 			if simulation['time'] <= now:
 				# get concentration from cell's given bin
 				location = self.locations[agent_id][0:2] * self.patches_per_edge / self.edge_length
-				patch_site = tuple(np.floor(location).astype(int))
+				patch_site = constrain(bounds, tuple(np.floor(location).astype(int)))
 				update[agent_id] = {}
 				update[agent_id]['concentrations'] = dict(zip(
 					self._molecule_ids,
