@@ -44,28 +44,9 @@ PI = np.pi
 
 # Lattice parameters
 N_DIMS = 2
-# EDGE_LENGTH = 10.0  # (micrometers)
-# PATCHES_PER_EDGE = 30 # TODO (Eran) this should scale to accomodate diffusion
-
-# DEPTH = 3000.0 # (micrometers). An average Petri dish has a depth of 3-4 mm
-# TOTAL_VOLUME = (DEPTH * EDGE_LENGTH**2) * (10**-15) # (L)
 
 # laplacian kernel for diffusion
 LAPLACIAN_2D = np.array([[0.0, 1.0, 0.0], [1.0, -4.0, 1.0], [0.0, 1.0, 0.0]])
-
-# Gradient parameters
-# CENTER = [0.5, 0.5] # the center point of a gaussian gradient, in range [0., 1.]
-# CENTER_COORDINATES = [coordinate * EDGE_LENGTH for coordinate in CENTER]
-# ST_DEV = 10.0
-
-# Physical constants
-# DIFFUSION = 0.1  # (micrometers^2/s)
-
-# Derived environmental constants
-# PATCH_VOLUME = TOTAL_VOLUME / (PATCHES_PER_EDGE**2)
-# DX = EDGE_LENGTH / PATCHES_PER_EDGE  # intervals in x- directions (assume y- direction equivalent)
-# DX2 = DX*DX
-# DT = 0.5 * DX2 * DX2 / (2 * DIFFUSION * (DX2 + DX2)) # upper limit on the time scale (go with at least 50% of this)
 
 # these are the molecules that will show a difference in gradient for minimal media:
 # --------------------------------------------------
@@ -186,15 +167,10 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 			self.locations[agent_id][1] += magnitude * np.sin(self.locations[agent_id][2]) * self._run_for
 
 			translation_jitter = np.random.normal(scale=np.sqrt(self.translation_jitter * self._timestep), size=N_DIMS)
-			orientation_jitter = np.random.normal(scale=self.rotation_jitter * self._timestep)
+			rotation_jitter = np.random.normal(scale=self.rotation_jitter * self._timestep)
 
 			self.locations[agent_id][0:2] += translation_jitter
 			self.locations[agent_id][2] += rotation_jitter
-
-			# # Translational diffusion
-			# self.locations[agent_id][0:2] += np.random.normal(scale=np.sqrt(self.translation_jitter * self._timestep), size=N_DIMS)
-			# # Rotational diffusion
-			# self.locations[agent_id][2] = (location[2] + np.random.normal(scale=self.rotation_jitter * self._timestep)) % (2 * PI)
 
 			# Enforce lattice edges
 			self.locations[agent_id][0:2][self.locations[agent_id][0:2] > self.edge_length] = self.edge_length - self.dx/2 #-= self.locations[agent_id][0:2][self.locations[agent_id][0:2] > self.edge_length] % self.edge_length
@@ -209,7 +185,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 
 		agents = {
 			agent_id: {
-				'radius': CELL_RADIUS,
+				'radius': self.cell_radius,
 				'length': self.volume_to_length(agent['state']['volume']),
 				'location': self.locations[agent_id][0:2],
 				'orientation': self.locations[agent_id][2],
