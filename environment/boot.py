@@ -53,8 +53,9 @@ class EnvironmentAgent(Outer):
 			self.build_state(),
 			print_send=False)
 
-def boot_lattice(agent_id, agent_type, agent_config, media):
-	print("Media condition: %s" % (media))
+def boot_lattice(agent_id, agent_type, agent_config):
+	media = agent_config['media']
+	print("Media condition: {}".format(media))
 	kafka_config = agent_config['kafka_config']
 	raw_data = KnowledgeBaseEcoli()
 
@@ -76,7 +77,8 @@ def boot_lattice(agent_id, agent_type, agent_config, media):
 		environment_dict[label].update(environment_non_zero_dict)
 
 	concentrations = environment_dict[media]
-	environment = EnvironmentSpatialLattice(concentrations)
+	agent_config['concentrations'] = concentrations
+	environment = EnvironmentSpatialLattice(agent_config)
 
 	return EnvironmentAgent(agent_id, agent_type, agent_config, environment)
 
@@ -283,8 +285,7 @@ class EnvironmentCommand(AgentCommand):
 			help='The agent type')
 
 		parser.add_argument(
-			'-sc', '--static-concentrations',
-			type=bool,
+			'-S', '--static-concentrations',
 			default=False,
 			action='store_true',
 			help='Whether the concentrations of patches can change')
@@ -297,37 +298,36 @@ class EnvironmentCommand(AgentCommand):
 
 		parser.add_argument(
 			'-g', '--gradient',
-			type=bool,
 			default=False,
-			action='store_true'
+			action='store_true',
 			help='Whether to provide an initial gradient')
 
 		parser.add_argument(
-			'-tj', '--translation-jitter',
+			'-j', '--translation-jitter',
 			type=float,
 			default=0.001,
 			help='How much to randomly translate positions each cycle')
 
 		parser.add_argument(
-			'-rj', '--rotation-jitter',
+			'-J', '--rotation-jitter',
 			type=float,
 			default=0.05,
 			help='How much to randomly rotate positions each cycle')
 
 		parser.add_argument(
-			'-cr', '--cell-radius',
+			'-R', '--cell-radius',
 			type=float,
 			default=0.5,
 			help='Radius of each cell')
 
 		parser.add_argument(
-			'-el', '--edge-length',
+			'-E', '--edge-length',
 			type=float,
-			default=0.5,
+			default=10.0,
 			help='Total length of one side of the simulated environment')
 
 		parser.add_argument(
-			'-ppe', '--patches-per-edge',
+			'-P', '--patches-per-edge',
 			type=int,
 			default=10,
 			help='Number of patches to divide a side of the environment into')
@@ -351,8 +351,7 @@ class EnvironmentCommand(AgentCommand):
 			lattice = boot_lattice(
 				agent_id,
 				agent_type,
-				agent_config,
-				agent_config.get('media', args.media))
+				agent_config)
 			lattice.start()
 
 		def initialize_chemotaxis_surrogate(agent_id, agent_type, agent_config):
@@ -374,8 +373,8 @@ class EnvironmentCommand(AgentCommand):
 		agent_id = args.id or 'lattice'
 		lattice = boot_lattice(
 			agent_id,
-			{'kafka_config': self.kafka_config},
-			args.media)
+			'lattice',
+			{'kafka_config': self.kafka_config})
 		lattice.start()
 
 	def ecoli(self, args):

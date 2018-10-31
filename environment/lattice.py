@@ -344,7 +344,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 	def generate_outer_update(self, now):
 		'''returns a dict with {molecule_id: conc} for each sim give its current location'''
 
-		bounds = [PATCHES_PER_EDGE, PATCHES_PER_EDGE]
+		bounds = [self.patches_per_edge, self.patches_per_edge]
 		def constrain(bounds, point):
 			if not within(bounds, point):
 				print('outside bounds {}: {}'.format(bounds, point))
