@@ -13,18 +13,20 @@ moleculesToNextTimeStep()
 
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 import os
 import cPickle
+import scipy
+import re
+import sympy as sp
+
 import wholecell
 from wholecell.utils import filepath
 from wholecell.utils import units
 from wholecell.utils.write_ode_file import writeOdeFile
-import scipy
-import re
-import sympy as sp
+
 
 class TwoComponentSystem(object):
 	def __init__(self, raw_data, sim_data):
@@ -46,23 +48,24 @@ class TwoComponentSystem(object):
 		stoichMatrixMass = []
 
 		independentMolecules = []
-		independentMoleculeIds = []
+		independent_molecule_indexes = []
 		independentToDependentMolecules = {}
 
 		activeToInactiveTF = {} #convention: active TF is the DNA-binding form
 
 		# Build template reactions
-		signalingTemplate = {1: ["POS-LIGAND-BOUND-HK-PHOSPHORYLATION_RXN", 
-								"POS-LIGAND-BOUND-HK-PHOSPHOTRANSFER_RXN", 
-								"POS-RR-DEPHOSPHORYLATION_RXN",
-								"POS-HK-PHOSPHORYLATION_RXN",
-								"POS-HK-PHOSPHOTRANSFER_RXN",
-								], 
-							-1: ["NEG-HK-PHOSPHORYLATION_RXN",
-								"NEG-HK-PHOSPHOTRANSFER_RXN",
-								"NEG-RR-DEPHOSPHORYLATION_RXN",
-								],
-							}
+		signalingTemplate = {
+			1: ["POS-LIGAND-BOUND-HK-PHOSPHORYLATION_RXN",
+				"POS-LIGAND-BOUND-HK-PHOSPHOTRANSFER_RXN",
+				"POS-RR-DEPHOSPHORYLATION_RXN",
+				"POS-HK-PHOSPHORYLATION_RXN",
+				"POS-HK-PHOSPHOTRANSFER_RXN",
+				],
+			-1: ["NEG-HK-PHOSPHORYLATION_RXN",
+				"NEG-HK-PHOSPHOTRANSFER_RXN",
+				"NEG-RR-DEPHOSPHORYLATION_RXN",
+				],
+			}
 
 		reactionTemplate = {}
 		for reactionIndex, reaction in enumerate(raw_data.twoComponentSystemTemplates):
@@ -116,7 +119,7 @@ class TwoComponentSystem(object):
 					# Build matrix with linearly independent rows based on network orientation
 					if str(molecule["molecule"]) in ["HK", "RR", "ATP"] and moleculeName not in independentMolecules:
 						independentMolecules.append(moleculeName)
-						independentMoleculeIds.append(moleculeIndex)
+						independent_molecule_indexes.append(moleculeIndex)
 
 						# Map linearly independent molecules (rows) to their dependents (phosphorylated forms of histidine kinases and response regulators)
 						if str(molecule["molecule"]) != "ATP":
@@ -137,7 +140,7 @@ class TwoComponentSystem(object):
 					if system["orientation"] == 1:
 						if str(molecule["molecule"]) == "HK-LIGAND" and moleculeName not in independentMolecules:
 							independentMolecules.append(moleculeName)
-							independentMoleculeIds.append(moleculeIndex)
+							independent_molecule_indexes.append(moleculeIndex)
 
 							# Map the linearly independent ligand-bound histidine kinases to their dependents (phosphorylated forms of ligand-bound histidine kinases)
 							independentToDependentMolecules[moleculeName] = "{}[{}]".format(
@@ -160,7 +163,7 @@ class TwoComponentSystem(object):
 		self.ratesRev = np.array(ratesRev)
 
 		self.independentMolecules = np.array(independentMolecules)
-		self.independentMoleculeIds = np.array(independentMoleculeIds)
+		self.independent_molecule_indexes = np.array(independent_molecule_indexes)
 		self.independentToDependentMolecules = independentToDependentMolecules
 
 		self.independentMoleculesAtpIndex = np.where(self.independentMolecules == "ATP[c]")[0][0]
@@ -184,6 +187,7 @@ class TwoComponentSystem(object):
 		# Map active TF to inactive TF
 		self.activeToInactiveTF = activeToInactiveTF
 
+
 	def _buildComplexToMonomer(self, modifiedFormsMonomers, tcsMolecules):
 		'''
 		Maps each complex to a dictionary that maps each subunit of the complex to its stoichiometry
@@ -197,6 +201,7 @@ class TwoComponentSystem(object):
 
 		return D
 
+
 	def stoichMatrix(self):
 		'''
 		Builds stoichiometry matrix
@@ -208,6 +213,7 @@ class TwoComponentSystem(object):
 		out = np.zeros(shape, np.float64)
 		out[self._stoichMatrixI, self._stoichMatrixJ] = self._stoichMatrixV
 		return out
+
 
 	def massMatrix(self):
 		'''
@@ -221,11 +227,13 @@ class TwoComponentSystem(object):
 		out[self._stoichMatrixI, self._stoichMatrixJ] = self._stoichMatrixMass
 		return out
 
+
 	def massBalance(self):
 		'''
 		Sum along the columns of the massBalance matrix to check for reaction mass balance
 		'''
 		return np.sum(self.balanceMatrix, axis=0)
+
 
 	def stoichMatrixMonomers(self):
 		'''
@@ -262,9 +270,11 @@ class TwoComponentSystem(object):
 		out[stoichMatrixMonomersI, stoichMatrixMonomersJ] = stoichMatrixMonomersV
 		return out
 
+
 	def _populateDerivativeAndJacobian(self):
 		'''
-		Creates callable functions for computing the derivative and the Jacobian.
+		Creates callable functions for computing the derivative and the
+		Jacobian.
 		'''
 		fixturesDir = filepath.makedirs(
 			os.path.dirname(os.path.dirname(wholecell.__file__)),
@@ -312,29 +322,37 @@ class TwoComponentSystem(object):
 		if needToCreate:
 			self._makeDerivative()
 			self._makeDerivativeFitter()
+
 			writeOdeFile(odeFile, self.derivativesSymbolic, self.derivativesJacobianSymbolic)
 			writeOdeFile(odeFitterFile, self.derivativesFitterSymbolic, self.derivativesFitterJacobianSymbolic)
+
+			# Modules are imported here to ensure the files exist before import
 			import reconstruction.ecoli.dataclasses.process.two_component_system_odes
 			import reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter
+
 			self.derivatives = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivatives
-			self.derivativesJacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivativesJacobian
-			self.derivativesFitter = reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter.derivatives
-			self.derivativesFitterJacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter.derivativesJacobian
+			self.derivatives_jacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivativesJacobian
+			self.derivatives_fitter = reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter.derivatives
+			self.derivatives_fitter_jacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter.derivativesJacobian
+
 			cPickle.dump(self.stoichMatrix(), open(os.path.join(fixturesDir, "S.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
 			cPickle.dump(self.ratesFwd, open(os.path.join(fixturesDir, "ratesFwd.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
 			cPickle.dump(self.ratesRev, open(os.path.join(fixturesDir, "ratesRev.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
 		else:
+			# Modules are imported here to ensure the files exist before import
 			import reconstruction.ecoli.dataclasses.process.two_component_system_odes
 			import reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter
+
 			self.derivatives = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivatives
-			self.derivativesJacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivativesJacobian
-			self.derivativesFitter = reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter.derivatives
-			self.derivativesFitterJacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter.derivativesJacobian
+			self.derivatives_jacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivativesJacobian
+			self.derivatives_fitter = reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter.derivatives
+			self.derivatives_fitter_jacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter.derivativesJacobian
+
 
 	def _makeDerivative(self):
 		'''
-		Creates symbolic representation of the ordinary differential equations and the Jacobian.
-		Used during simulations.
+		Creates symbolic representation of the ordinary differential equations
+		and the Jacobian. Used during simulations.
 		'''
 		S = self.stoichMatrix()
 
@@ -368,11 +386,12 @@ class TwoComponentSystem(object):
 		self.derivativesJacobianSymbolic = J
 		self.derivativesSymbolic = dy
 
+
 	def _makeDerivativeFitter(self):
 		'''
-		Creates symbolic representation of the ordinary differential equations and the Jacobian
-		assuming ATP, ADP, Pi, water and protons are at steady state.
-		Used in the fitter.
+		Creates symbolic representation of the ordinary differential equations
+		and the Jacobian assuming ATP, ADP, Pi, water and protons are at
+		steady state. Used in the fitter.
 		'''
 		S = self.stoichMatrix()
 
@@ -413,63 +432,128 @@ class TwoComponentSystem(object):
 		self.derivativesFitterSymbolic = dy
 
 
-	def moleculesToNextTimeStep(self, moleculeCounts, cellVolume, nAvogadro, timeStepSec):
-		'''
-		Calculate change in molecule counts until the next time step.
-		'''
+	def moleculesToNextTimeStep(self, moleculeCounts, cellVolume,
+			nAvogadro, timeStepSec, solver="LSODA"):
+		"""
+		Calculates the changes in the counts of molecules in the next timestep
+		by solving an initial value ODE problem.
+
+		Args:
+			moleculeCounts (1d ndarray, ints): current counts of molecules
+			involved in the ODE
+			cellVolume (float): current volume of cell
+			nAvogadro (float): Avogadro's number
+			timeStepSec (float): current length of timestep in seconds
+			solver (str): name of the ODE solver to use
+
+		Returns:
+			moleculesNeeded (1d ndarray, ints): counts of molecules that need
+			to be consumed
+			allMoleculesChanges (1d ndarray, ints): expected changes in
+			molecule counts after timestep
+		"""
 		y_init = moleculeCounts / (cellVolume * nAvogadro)
-		y = scipy.integrate.odeint(self.derivatives, y_init, t = [0, timeStepSec], Dfun = self.derivativesJacobian, mxstep = 10000)
+
+		if solver == "BDF":
+			# Note: solve_ivp requires the order of arguments (t and y) for the
+			# derivative and jacobian functions to be flipped relative to the
+			# requirements of odeint. Wrapper functions were used to do this
+			# without changing the original functions.
+			sol = scipy.integrate.solve_ivp(
+				self.derivatives_flipped, [0, timeStepSec], y_init,
+				method="BDF", t_eval=[0, timeStepSec],
+				jac=self.derivatives_jacobian_flipped
+				)
+			y = sol.y.T
+		else:
+			y = scipy.integrate.odeint(
+				self.derivatives, y_init,
+				t=[0, timeStepSec], Dfun=self.derivatives_jacobian
+				)
 
 		if np.any(y[-1, :] * (cellVolume * nAvogadro) <= -1):
-			raise Exception, "Have negative values -- probably due to numerical instability"
+			raise Exception(
+				"Solution to ODE for two-component systems has negative values."
+				)
 
 		y[y < 0] = 0
 		yMolecules = y * (cellVolume * nAvogadro)
 		dYMolecules = yMolecules[-1, :] - yMolecules[0, :]
 
-		dependencyMatrix = self.dependencyMatrix
+		independentMoleculesCounts = np.array(
+			[np.round(dYMolecules[x]) for x in self.independent_molecule_indexes]
+			)
 
-		independentMoleculesCounts = np.array([np.round(dYMolecules[x]) for x in self.independentMoleculeIds])
-
-		# To ensure that we have non-negative counts of phosphate, we must have the following (which can be seen from the dependency matrix)
-		independentMoleculesCounts[self.independentMoleculesAtpIndex] = independentMoleculesCounts[:self.independentMoleculesAtpIndex].sum() + independentMoleculesCounts[(self.independentMoleculesAtpIndex + 1):].sum()
+		# To ensure that we have non-negative counts of phosphate, we must
+		# have the following (which can be seen from the dependency matrix)
+		independentMoleculesCounts[self.independentMoleculesAtpIndex] = (
+			independentMoleculesCounts[:self.independentMoleculesAtpIndex].sum()
+			+ independentMoleculesCounts[(self.independentMoleculesAtpIndex + 1):].sum()
+			)
 
 		# Calculate changes in molecule counts for all molecules
-		allMoleculesChanges = np.dot(dependencyMatrix, independentMoleculesCounts)
+		allMoleculesChanges = np.dot(
+			self.dependencyMatrix, independentMoleculesCounts)
 
-		moleculesNeeded = allMoleculesChanges.copy()
-		moleculesNeeded[moleculesNeeded >= 0] = 0
-		return (-1* moleculesNeeded), allMoleculesChanges
+		moleculesNeeded = np.negative(allMoleculesChanges).clip(min=0)
+
+		return moleculesNeeded, allMoleculesChanges
 
 
 	def moleculesToSS(self, moleculeCounts, cellVolume, nAvogadro, timeStepSec):
-		'''
-		Calculate change in molecule counts until steady state.
-		'''
+		"""
+		Calculates the changes in the counts of molecules as the system
+		reaches steady state
+
+		Args:
+			moleculeCounts: current counts of molecules involved in the ODE
+			cellVolume: current volume of cell
+			nAvogadro: Avogadro's number
+			timeStepSec: current length of timestep (set to large number)
+
+		Returns:
+			moleculesNeeded: counts of molecules that need to be consumed
+			allMoleculesChanges: expected changes in molecule counts after
+			timestep
+		"""
+		# TODO (Gwanggyu): This function should probably get merged with the
+		# function above.
+
 		y_init = moleculeCounts / (cellVolume * nAvogadro)
-		y = scipy.integrate.odeint(self.derivativesFitter, y_init, t = [0, timeStepSec], Dfun = self.derivativesFitterJacobian)
+
+		y = scipy.integrate.odeint(
+			self.derivatives_fitter, y_init,
+			t=[0, timeStepSec], Dfun=self.derivatives_fitter_jacobian
+			)
 
 		if np.any(y[-1, :] * (cellVolume * nAvogadro) <= -1):
-			raise Exception, "Have negative values -- probably due to numerical instability"
+			raise Exception(
+				"Solution to ODE for two-component systems has negative values."
+				)
 
 		y[y < 0] = 0
 		yMolecules = y * (cellVolume * nAvogadro)
 		dYMolecules = yMolecules[-1, :] - yMolecules[0, :]
 
-		dependencyMatrix = self.dependencyMatrix
+		independentMoleculesCounts = np.array(
+			[np.round(dYMolecules[x]) for x in self.independent_molecule_indexes]
+			)
 
-		independentMoleculesCounts = np.array([np.round(dYMolecules[x]) for x in self.independentMoleculeIds])
-
-		# To ensure that we have non-negative counts of phosphate, we must have the following (which can be seen from the dependency matrix)
-		independentMoleculesCounts[self.independentMoleculesAtpIndex] = independentMoleculesCounts[:self.independentMoleculesAtpIndex].sum() + independentMoleculesCounts[(self.independentMoleculesAtpIndex + 1):].sum()
+		# To ensure that we have non-negative counts of phosphate, we must
+		# have the following (which can be seen from the dependency matrix)
+		independentMoleculesCounts[self.independentMoleculesAtpIndex] = (
+			independentMoleculesCounts[:self.independentMoleculesAtpIndex].sum()
+			+ independentMoleculesCounts[(self.independentMoleculesAtpIndex + 1):].sum()
+			)
 
 		# Calculate changes in molecule counts for all molecules
-		allMoleculesChanges = np.dot(dependencyMatrix, independentMoleculesCounts)
+		allMoleculesChanges = np.dot(
+			self.dependencyMatrix, independentMoleculesCounts)
 
-		moleculesNeeded = allMoleculesChanges.copy()
-		moleculesNeeded[moleculesNeeded >= 0] = 0
-		
-		return (-1* moleculesNeeded), allMoleculesChanges
+		moleculesNeeded = np.negative(allMoleculesChanges).clip(min=0)
+
+		return moleculesNeeded, allMoleculesChanges
+
 
 	def getMonomers(self, cplxId):
 		'''
@@ -486,6 +570,7 @@ class TwoComponentSystem(object):
 			out = {'subunitIds' : cplxId, 'subunitStoich' : 1}
 		return out
 
+
 	def getReactionName(self, templateName, systemMolecules):
 		'''
 		Returns reaction name for a particular system.
@@ -499,6 +584,7 @@ class TwoComponentSystem(object):
 
 		return reactionName
 
+
 	def makeDependencyMatrix(self):
 		'''
 		Builds matrix mapping linearly independent molecules (ATP, histidine kinases, 
@@ -510,7 +596,7 @@ class TwoComponentSystem(object):
 		dependencyMatrixJ = []
 		dependencyMatrixV = []
 
-		for independentMoleculeIndex, independentMoleculeId in enumerate(self.independentMoleculeIds):
+		for independentMoleculeIndex, independentMoleculeId in enumerate(self.independent_molecule_indexes):
 			dependencyMatrixI.append(independentMoleculeId)
 			dependencyMatrixJ.append(independentMoleculeIndex)
 			dependencyMatrixV.append(1)
@@ -533,7 +619,7 @@ class TwoComponentSystem(object):
 			else:
 				dependencyMatrixV.append(-1)
 
-		for col in np.arange(self.independentMoleculeIds.size):
+		for col in np.arange(self.independent_molecule_indexes.size):
 			if col == dependencyMatrixATPJ:
 				continue
 			else:
@@ -551,3 +637,19 @@ class TwoComponentSystem(object):
 
 		out[dependencyMatrixI, dependencyMatrixJ] = dependencyMatrixV
 		return out
+
+
+	def derivatives_flipped(self, t, y):
+		"""
+		Wrapper function to flip the order of arguments of the derivative
+		function given as an argument to solve_ivp.
+		"""
+		return self.derivatives(y, t)
+
+
+	def derivatives_jacobian_flipped(self, t, y):
+		"""
+		Wrapper function to flip the order of arguments of the Jacobian
+		function given as an argument to solve_ivp.
+		"""
+		return self.derivatives_jacobian(y, t)
