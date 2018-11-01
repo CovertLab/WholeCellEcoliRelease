@@ -100,10 +100,10 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		self.dx = self.edge_length / self.patches_per_edge
 		self.dx2 = self.dx * self.dx
 		# upper limit on the time scale (go with at least 50% of this)
-		self.dt = 0.5 * self.dx2 * self.dx2 / (2 * self.diffusion * (self.dx2 + self.dx2))
+		self.dt = 0.5 * self.dx2 * self.dx2 / (2 * self.diffusion * (self.dx2 + self.dx2)) if self.diffusion else 0
 
-		self.simulations = {}  # map of agent_id to simulation state
-		self.locations = {}    # map of agent_id to location and orientation
+		self.simulations = {}   # map of agent_id to simulation state
+		self.locations = {}     # map of agent_id to location and orientation
 		self.motile_forces = {}	# map of agent_id to motile force, with magnitude and relative orientation
 
 		self.grid = Grid([self.edge_length, self.edge_length], 0.1)

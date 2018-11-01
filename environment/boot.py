@@ -194,6 +194,29 @@ def boot_chemotaxis(agent_id, agent_type, agent_config):
 	return inner
 
 
+def configure_lattice(args, defaults={}):
+	config = defaults.copy()
+	if args.static_concentrations is not None:
+		config['static_concentrations'] = args.static_concentrations
+	if args.gradient is not None:
+		config['gradient'] = {'seed': args.gradient}
+	if args.media is not None:
+		config['media'] = args.media
+	if args.diffusion is not None:
+		config['diffusion'] = args.diffusion
+	if args.translation_jitter is not None:
+		config['translation_jitter'] = args.translation_jitter
+	if args.rotation_jitter is not None:
+		config['rotation_jitter'] = args.rotation_jitter
+	if args.cell_radius is not None:
+		config['cell_radius'] = args.cell_radius
+	if args.edge_length is not None:
+		config['edge_length'] = args.edge_length
+	if args.patches_per_edge is not None:
+		config['patches_per_edge'] = args.patches_per_edge
+	return config
+
+
 class ShepherdControl(EnvironmentControl):
 
 	"""
@@ -214,19 +237,29 @@ class ShepherdControl(EnvironmentControl):
 
 	def lattice_experiment(self, args):
 		lattice_id = str(uuid.uuid1())
-		self.add_agent(lattice_id, 'lattice', {
-			'media': args.media,
-			'static_concentrations': args.static_concentrations,
-			'diffusion': args.diffusion,
-			'gradient': {'seed': args.gradient},
-			'translation_jitter': args.translation_jitter,
-			'rotation_jitter': args.rotation_jitter,
-			'cell_radius': args.cell_radius,
-			'edge_length': args.edge_length,
-			'patches_per_edge': args.patches_per_edge})
+		lattice_config = configure_lattice(args)
+		self.add_agent(lattice_id, 'lattice', lattice_config)
 
 		for index in range(args.number):
-			self.add_cell(args.type, {'outer_id': lattice_id})
+			self.add_cell(args.type or 'ecoli', {
+				'outer_id': lattice_id})
+
+	def chemotaxis_experiment(self, args):
+		lattice_id = str(uuid.uuid1())
+		chemotaxis_defaults = {
+			'static_concentrations': True,
+			'gradient': {'seed': True},
+			'diffusion': 0.0,
+			'translation_jitter': 0.0,
+			'rotation_jitter': 0.0,
+			'edge_length': 10.0,
+			'patches_per_edge': 30}
+		lattice_config = configure_lattice(args, chemotaxis_defaults)
+		self.add_agent(lattice_id, 'lattice', lattice_config)
+
+		for index in range(args.number):
+			self.add_cell(args.type or 'chemotaxis', {
+				'outer_id': lattice_id})
 
 
 class EnvironmentCommand(AgentCommand):
@@ -235,7 +268,7 @@ class EnvironmentCommand(AgentCommand):
 	"""
 
 	def __init__(self):
-		choices = ['ecoli', 'chemotaxis', 'lattice']
+		choices = ['ecoli', 'chemotaxis', 'lattice', 'chemotaxis-experiment']
 		description = '''
 		Run an agent for the environmental context simulation.
 		The commands are:
@@ -281,55 +314,48 @@ class EnvironmentCommand(AgentCommand):
 		parser.add_argument(
 			'-t', '--type',
 			type=str,
-			default='ecoli',
 			help='The agent type')
 
 		parser.add_argument(
 			'-S', '--static-concentrations',
-			default=False,
+			default=None,
 			action='store_true',
 			help='Whether the concentrations of patches can change')
 
 		parser.add_argument(
 			'-d', '--diffusion',
 			type=float,
-			default=0.1,
 			help='The diffusion rate')
 
 		parser.add_argument(
 			'-g', '--gradient',
-			default=False,
+			default=None,
 			action='store_true',
 			help='Whether to provide an initial gradient')
 
 		parser.add_argument(
 			'-j', '--translation-jitter',
 			type=float,
-			default=0.001,
 			help='How much to randomly translate positions each cycle')
 
 		parser.add_argument(
 			'-J', '--rotation-jitter',
 			type=float,
-			default=0.05,
 			help='How much to randomly rotate positions each cycle')
 
 		parser.add_argument(
 			'-R', '--cell-radius',
 			type=float,
-			default=0.5,
 			help='Radius of each cell')
 
 		parser.add_argument(
 			'-E', '--edge-length',
 			type=float,
-			default=10.0,
 			help='Total length of one side of the simulated environment')
 
 		parser.add_argument(
 			'-P', '--patches-per-edge',
 			type=int,
-			default=10,
 			help='Number of patches to divide a side of the environment into')
 
 		return parser
@@ -401,12 +427,17 @@ class EnvironmentCommand(AgentCommand):
 			outer_id=args.id,
 			kafka_config=self.kafka_config)
 		control = ShepherdControl(agent_config)
-		control.add_cell(args.type, agent_config)
+		control.add_cell(args.type or 'ecoli', agent_config)
 		control.shutdown()
 
 	def experiment(self, args):
 		control = ShepherdControl({'kafka_config': self.kafka_config})
 		control.lattice_experiment(args)
+		control.shutdown()
+
+	def chemotaxis_experiment(self, args):
+		control = ShepherdControl({'kafka_config': self.kafka_config})
+		control.chemotaxis_experiment(args)
 		control.shutdown()
 
 
