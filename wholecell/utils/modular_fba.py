@@ -1194,18 +1194,26 @@ class FluxBalanceAnalysis(object):
 		if reactionIDs is None:
 			reactionIDs = self.getKineticTargetFluxNames()
 		values = np.zeros(len(reactionIDs))
+
+		# Get all reaction fluxes at once for faster performance
+		if self._solver.quadratic_objective:
+			unity_ids = np.array([self._generatedID_quadFluxRelax.format(rxn) for rxn in reactionIDs])
+		else:
+			unity_ids = np.hstack([[self._generatedID_amountUnder.format(rxn), self._generatedID_amountOver.format(rxn)] for rxn in reactionIDs])
+		fluxes = {rxn: flux for rxn, flux in izip(unity_ids, self.getReactionFluxes(unity_ids))}
+
 		for idx, reactionID in enumerate(reactionIDs):
 			if reactionID not in self._kineticTargetFluxes:
 				raise FBAError("No kinetic target set for reaction {}.".format(reactionID))
 
 			if self._solver.quadratic_objective:
 				quadUnityID = self._generatedID_quadFluxRelax.format(reactionID)
-				relax = self.getReactionFlux(quadUnityID)**2 * self._solver.getFlowObjectiveCoeff(quadUnityID)
+				relax = fluxes[quadUnityID]**2 * self._solver.getFlowObjectiveCoeff(quadUnityID)
 			else:
 				belowUnityID = self._generatedID_amountUnder.format(reactionID)
 				aboveUnityID = self._generatedID_amountOver.format(reactionID)
-				relaxUp = self.getReactionFlux(belowUnityID) * self._solver.getFlowObjectiveCoeff(belowUnityID)
-				relaxDown = self.getReactionFlux(aboveUnityID) * self._solver.getFlowObjectiveCoeff(aboveUnityID)
+				relaxUp = fluxes[belowUnityID] * self._solver.getFlowObjectiveCoeff(belowUnityID)
+				relaxDown = fluxes[aboveUnityID] * self._solver.getFlowObjectiveCoeff(aboveUnityID)
 
 				relax = relaxUp + relaxDown
 

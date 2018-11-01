@@ -684,7 +684,9 @@ class Metabolism(object):
 		concDict = self.concentrationUpdates.concentrationsBasedOnNutrients(currentNutrients, self.nutrientsToInternalConc)
 		if concModificationsBasedOnCondition is not None:
 			concDict.update(concModificationsBasedOnCondition)
-		newObjective = dict((key, concDict[key].asNumber(targetUnits)) for key in concDict)
+
+		conversion = targetUnits.asUnit(self.concentrationUpdates.units)
+		newObjective = dict((key, (val / conversion).asNumber()) for key, val in concDict.iteritems())
 
 		externalMoleculeLevels = np.zeros(len(exchangeIDs), np.float64)
 
