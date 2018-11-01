@@ -254,7 +254,7 @@ class ShepherdControl(EnvironmentControl):
 			'diffusion': 0.0,
 			'translation_jitter': 0.0,
 			'rotation_jitter': 0.0,
-			'edge_length': 10.0,
+			'edge_length': 20.0,
 			'patches_per_edge': 30}
 		lattice_config = configure_lattice(args, chemotaxis_defaults)
 		self.add_agent(lattice_id, 'lattice', lattice_config)

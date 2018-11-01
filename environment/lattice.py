@@ -72,7 +72,7 @@ LAPLACIAN_2D = np.array([[0.0, 1.0, 0.0], [1.0, -4.0, 1.0], [0.0, 1.0, 0.0]])
 # -------------------------------------------------
 
 class EnvironmentSpatialLattice(EnvironmentSimulation):
-	def __init__(self, config): # concentrations):
+	def __init__(self, config):
 		self._time = 0
 		self._timestep = 1.0 #DT
 		self._run_for = 5
