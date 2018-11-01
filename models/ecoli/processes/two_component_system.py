@@ -1,16 +1,13 @@
-#!/usr/bin/env python
-
 """
 Two component system
 
 Two component system sub-model
 
-@author: Heejo Choi
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 5/3/2016
 
 """
-
+from __future__ import absolute_import, division, print_function
 import numpy as np
 
 import wholecell.processes.process
@@ -56,11 +53,17 @@ class TwoComponentSystem(wholecell.processes.process.Process):
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg).asNumber(units.g)
 		self.cellVolume = cellMass / self.cellDensity
 
-		# Solve ODEs to next time step
-		self.req, self.allMoleculeChanges = self.moleculesToNextTimeStep(moleculeCounts, self.cellVolume, self.nAvogadro, self.timeStepSec())
+		# Solve ODEs to next time step using the BDF solver through solve_ivp.
+		# Note: the BDF solver has been empirically tested to be the fastest
+		# solver for this setting among the list of solvers that can be used
+		# by the scipy ODE suite.
+		self.molecules_required, self.all_molecule_changes = self.moleculesToNextTimeStep(
+			moleculeCounts, self.cellVolume, self.nAvogadro,
+			self.timeStepSec(), solver="BDF"
+			)
 
 		# Request counts of molecules needed
-		self.molecules.requestIs(self.req)
+		self.molecules.requestIs(self.molecules_required)
 
 
 	def evolveState(self):
@@ -68,13 +71,20 @@ class TwoComponentSystem(wholecell.processes.process.Process):
 		moleculeCounts = self.molecules.counts()
 
 		# Check if any molecules were allocated fewer counts than requested
-		if (self.req > moleculeCounts).any():
+		if (self.molecules_required > moleculeCounts).any():
 
-			# Solve ODEs to next time step using the the counts of molecules allocated to this process
-			_, self.allMoleculeChanges = self.moleculesToNextTimeStep(moleculeCounts, self.cellVolume, self.nAvogadro, self.timeStepSec())
+			# Solve ODEs to next time step using the the counts of molecules
+			# allocated to this process using the LSODA solver through odeint.
+			# Note: for this setting where the counts of molecules are
+			# relatively small, the default LSODA solver used by odeint was
+			# empirically tested to be the fastest.
+			_, self.all_molecule_changes = self.moleculesToNextTimeStep(
+				moleculeCounts, self.cellVolume, self.nAvogadro,
+				self.timeStepSec()
+				)
 
 			# Increment changes in molecule counts
-			self.molecules.countsInc(self.allMoleculeChanges)
+			self.molecules.countsInc(self.all_molecule_changes)
 		else:
 			# Increment changes in molecule counts
-			self.molecules.countsInc(self.allMoleculeChanges)
+			self.molecules.countsInc(self.all_molecule_changes)
