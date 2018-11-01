@@ -44,6 +44,8 @@ class EnvironmentAgent(Outer):
 			'agent_type': 'ecoli',
 			'running': not self.paused,
 			'time': self.environment.time(),
+			'edge_length': self.environment.edge_length,
+			'cell_radius': self.environment.cell_radius,
 			'lattice': lattice,
 			'simulations': simulations}
 
