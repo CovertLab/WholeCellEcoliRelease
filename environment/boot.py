@@ -183,15 +183,27 @@ def boot_ecoli(agent_id, agent_type, agent_config):
 def boot_chemotaxis(agent_id, agent_type, agent_config):
 	agent_id = agent_id
 	outer_id = agent_config['outer_id']
-
-	simulation = Chemotaxis()
+	volume = 1.0
+	kafka_config = agent_config['kafka_config']
 
 	inner = Inner(
 		agent_id,
 		outer_id,
 		agent_type,
 		agent_config,
-		simulation)
+		None)
+
+	inner.send(kafka_config['topics']['environment_receive'], {
+		'event': event.CELL_DECLARE,
+		'agent_id': outer_id,
+		'inner_id': agent_id,
+		'agent_config': agent_config,
+		'state': {
+			'volume': volume,
+			'environment_change': {}}})
+
+	simulation = Chemotaxis()
+	inner.simulation = simulation
 
 	return inner
 
