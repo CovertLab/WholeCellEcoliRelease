@@ -1,13 +1,11 @@
 """
-Plots things relevant to DNA replication
+Plots simulation outputs relevant to DNA replication
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/17/2015
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -21,7 +19,6 @@ from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
 
 PLACE_HOLDER = -1
-
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
@@ -49,13 +46,11 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		numberOfOric = dnaPolyFile.readColumn("numberOfOric")
 		criticalMassPerOriC = dnaPolyFile.readColumn("criticalMassPerOriC")
 		criticalInitiationMass = dnaPolyFile.readColumn("criticalInitiationMass")
-		dnaPolyFile.close()
 
 		# Load dna mass data
 		massFile = TableReader(os.path.join(simOutDir, "Mass"))
 		totalMass = massFile.readColumn("cellMass")
 		dnaMass = massFile.readColumn("dnaMass")
-		massFile.close()
 
 		# Setup elongation length data
 		reverseIdx = 1
@@ -64,7 +59,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		sequenceLength[reverseSequences] = -1 * sequenceLength[reverseSequences]
 		sequenceLength[sequenceLength == PLACE_HOLDER] = np.nan
 
-		# Count pairs of forks, initation, and termination events
+		# Count pairs of forks, initiation, and termination events
 		pairsOfForks = (sequenceIdx != PLACE_HOLDER).sum(axis = 1) / 4
 
 		# Count chromosome equivalents
@@ -113,9 +108,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		ax = plt.subplot(7,1,5, sharex=ax)
 		ax.plot(time / 60., criticalMassPerOriC, linewidth=2)
+		ax.plot(time / 60., np.ones_like(time), "k--", linewidth=2)
 		ax.set_xticks([0, time.max() / 60])
 		ax.set_yticks([0.5, 1.0])
-		# ax.set_ylim([0.4, 1.1])
 		ax.set_ylabel("Critical mass\nper oriC")
 
 		ax = plt.subplot(7,1,6, sharex=ax)
@@ -133,18 +128,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		ax.set_xlim([0, time.max() / 60])
 		ax.set_xlabel("Time (min)")
 
+		plt.tight_layout()
+
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
-		plt.close("all")
-
-		plt.figure(figsize = (8.5, 11))
-
-		for idx in [0,1,2,3]:
-			ax = plt.subplot(4,1,idx+1)
-			data = (sequenceIdx == idx).sum(axis=1)
-			ax.plot(time / 60., data)
-			ax.set_ylim([0, data.max()+1])
-
-		exportFigure(plt, plotOutDir, 'replicationSequenceIdx')
 		plt.close("all")
 
 
