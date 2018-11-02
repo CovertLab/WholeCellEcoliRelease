@@ -85,7 +85,7 @@ class EnvironmentStub(EnvironmentSimulation):
 		self.volume = volume
 		self.simulations = {}
 		self.concentrations = concentrations
-		self._run_for = 1
+		self.run_for = 1.0
 
 	def time(self):
 		return self.global_time
@@ -105,8 +105,8 @@ class EnvironmentStub(EnvironmentSimulation):
 				for molecule, change in state['changes'].iteritems():
 					self.concentrations[molecule] += change
 
-	def run_for(self):
-		return self._run_for
+	def run_for_time(self):
+		return self.run_for
 
 	def run_incremental(self, run_until):
 		time.sleep(2)

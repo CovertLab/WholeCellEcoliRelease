@@ -75,10 +75,10 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 	def __init__(self, config):
 		self._time = 0
 		self._timestep = 1.0 #DT
-		self._run_for = 5
 		self._max_time = 2000
 
 		# configured parameters
+		self.run_for = config.get('run_for', 5.0)
 		self.edge_length = config.get('edge_length', 10.0)
 		self.patches_per_edge = config.get('patches_per_edge', 10)
 		self.cell_radius = config.get('cell_radius', 0.5)
@@ -162,9 +162,9 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 			direction = self.motile_forces[agent_id][1]
 
 			# Motile forces
-			self.locations[agent_id][2] = (location[2] + direction * self._run_for) #% (2 * PI)
-			self.locations[agent_id][0] += magnitude * np.cos(self.locations[agent_id][2]) * self._run_for
-			self.locations[agent_id][1] += magnitude * np.sin(self.locations[agent_id][2]) * self._run_for
+			self.locations[agent_id][2] = (location[2] + direction * self.run_for) #% (2 * PI)
+			self.locations[agent_id][0] += magnitude * np.cos(self.locations[agent_id][2]) * self.run_for
+			self.locations[agent_id][1] += magnitude * np.sin(self.locations[agent_id][2]) * self.run_for
 
 			translation_jitter = np.random.normal(scale=np.sqrt(self.translation_jitter * self._timestep), size=N_DIMS)
 			rotation_jitter = np.random.normal(scale=self.rotation_jitter * self._timestep)
@@ -411,8 +411,8 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 
 		self.locations[agent_id] = np.hstack((location, orientation))
 
-	def run_for(self):
-		return self._run_for
+	def run_for_time(self):
+		return self.run_for
 
 	def max_time(self):
 		return self._max_time

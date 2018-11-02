@@ -53,7 +53,7 @@ class EnvironmentSimulation(object):
 		parent cell (like location and orientation etc).
 		"""
 
-	def run_for(self):
+	def run_for_time(self):
 		"""Return the length of time simulations should run for this time period."""
 
 	def max_time(self):
@@ -314,7 +314,7 @@ class Outer(Agent):
 				self.environment.run_incremental(now)
 
 				# find the next time for simulations to achieve
-				run_until = self.environment.time() + self.environment.run_for()
+				run_until = self.environment.time() + self.environment.run_for_time()
 
 				# unless there is an earlier time a simulation arrived at
 				if later.size > 0:

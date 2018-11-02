@@ -52,9 +52,13 @@ class Chemotaxis(CellSimulation):
 		# update behavior based on the current state of the system
 
 		if self.state is 'run':
-			self.motile_force = [0.02, 0.0]
+			force = 0.02
+			torque = 0.0
+			self.motile_force = [force, torque]
 		elif self.state is 'tumble':
-			self.motile_force = [0.005, np.random.normal(scale=TUMBLE_JITTER)]
+			force = 0.005
+			torque = np.random.normal(scale=TUMBLE_JITTER)
+			self.motile_force = [force, torque]
 
 	def check_division(self):
 		# update division state based on time since initialization
@@ -78,7 +82,7 @@ class Chemotaxis(CellSimulation):
 		# update state once per message exchange
 		self.update_state()
 		self.update_behavior()
-		self.check_division()
+		# self.check_division()
 		self.local_time = run_until
 
 		time.sleep(1.0)  # pause for better coordination with Lens visualization. TODO: remove this

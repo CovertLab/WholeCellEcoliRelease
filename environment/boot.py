@@ -205,11 +205,15 @@ def boot_chemotaxis(agent_id, agent_type, agent_config):
 	simulation = Chemotaxis()
 	inner.simulation = simulation
 
+	time.sleep(5) # to give the environment long enough to boot
+
 	return inner
 
 
 def configure_lattice(args, defaults={}):
 	config = defaults.copy()
+	if args.run_for is not None:
+		config['run_for'] = args.run_for
 	if args.static_concentrations is not None:
 		config['static_concentrations'] = args.static_concentrations
 	if args.gradient is not None:
@@ -261,6 +265,7 @@ class ShepherdControl(EnvironmentControl):
 	def chemotaxis_experiment(self, args):
 		lattice_id = str(uuid.uuid1())
 		chemotaxis_defaults = {
+			'run_for' : 2.0,
 			'static_concentrations': True,
 			'gradient': {'seed': True},
 			'diffusion': 0.0,
@@ -329,6 +334,12 @@ class EnvironmentCommand(AgentCommand):
 			'-t', '--type',
 			type=str,
 			help='The agent type')
+
+		parser.add_argument(
+			'-r', '--run_for',
+			# type=float,
+			default=5.0,
+			help='time, in seconds, between message from cell and environment')
 
 		parser.add_argument(
 			'-S', '--static-concentrations',
