@@ -13,6 +13,7 @@ from agent.shepherd import AgentShepherd
 from agent.boot import EnvironmentControl, AgentCommand
 
 from environment.lattice import EnvironmentSpatialLattice
+from environment.surrogates.chemotaxis import Chemotaxis
 
 # Raw data class
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
@@ -43,6 +44,8 @@ class EnvironmentAgent(Outer):
 			'agent_type': 'ecoli',
 			'running': not self.paused,
 			'time': self.environment.time(),
+			'edge_length': self.environment.edge_length,
+			'cell_radius': self.environment.cell_radius,
 			'lattice': lattice,
 			'simulations': simulations}
 
@@ -52,8 +55,9 @@ class EnvironmentAgent(Outer):
 			self.build_state(),
 			print_send=False)
 
-def boot_lattice(agent_id, agent_type, agent_config, media):
-	print("Media condition: %s" % (media))
+def boot_lattice(agent_id, agent_type, agent_config):
+	media = agent_config['media']
+	print("Media condition: {}".format(media))
 	kafka_config = agent_config['kafka_config']
 	raw_data = KnowledgeBaseEcoli()
 
@@ -75,7 +79,8 @@ def boot_lattice(agent_id, agent_type, agent_config, media):
 		environment_dict[label].update(environment_non_zero_dict)
 
 	concentrations = environment_dict[media]
-	environment = EnvironmentSpatialLattice(concentrations)
+	agent_config['concentrations'] = concentrations
+	environment = EnvironmentSpatialLattice(agent_config)
 
 	return EnvironmentAgent(agent_id, agent_type, agent_config, environment)
 
@@ -175,6 +180,61 @@ def boot_ecoli(agent_id, agent_type, agent_config):
 
 	return inner
 
+def boot_chemotaxis(agent_id, agent_type, agent_config):
+	agent_id = agent_id
+	outer_id = agent_config['outer_id']
+	volume = 1.0
+	kafka_config = agent_config['kafka_config']
+
+	inner = Inner(
+		agent_id,
+		outer_id,
+		agent_type,
+		agent_config,
+		None)
+
+	inner.send(kafka_config['topics']['environment_receive'], {
+		'event': event.CELL_DECLARE,
+		'agent_id': outer_id,
+		'inner_id': agent_id,
+		'agent_config': agent_config,
+		'state': {
+			'volume': volume,
+			'environment_change': {}}})
+
+	simulation = Chemotaxis()
+	inner.simulation = simulation
+
+	time.sleep(5) # to give the environment long enough to boot
+
+	return inner
+
+
+def configure_lattice(args, defaults={}):
+	config = defaults.copy()
+	if args.run_for is not None:
+		config['run_for'] = args.run_for
+	if args.static_concentrations is not None:
+		config['static_concentrations'] = args.static_concentrations
+	if args.gradient is not None:
+		config['gradient'] = {'seed': args.gradient}
+	if args.media is not None:
+		config['media'] = args.media
+	if args.diffusion is not None:
+		config['diffusion'] = args.diffusion
+	if args.translation_jitter is not None:
+		config['translation_jitter'] = args.translation_jitter
+	if args.rotation_jitter is not None:
+		config['rotation_jitter'] = args.rotation_jitter
+	if args.cell_radius is not None:
+		config['cell_radius'] = args.cell_radius
+	if args.edge_length is not None:
+		config['edge_length'] = args.edge_length
+	if args.patches_per_edge is not None:
+		config['patches_per_edge'] = args.patches_per_edge
+	return config
+
+
 class ShepherdControl(EnvironmentControl):
 
 	"""
@@ -187,17 +247,38 @@ class ShepherdControl(EnvironmentControl):
 	def __init__(self, agent_config):
 		super(ShepherdControl, self).__init__(str(uuid.uuid1()), agent_config)
 
-	def add_ecoli(self, agent_config):
+	def add_cell(self, agent_type, agent_config):
 		self.add_agent(
 			str(uuid.uuid1()),
-			'ecoli',
+			agent_type,
 			agent_config)
 
 	def lattice_experiment(self, args):
 		lattice_id = str(uuid.uuid1())
-		self.add_agent(lattice_id, 'lattice', {'media': args.media})
+		lattice_config = configure_lattice(args)
+		self.add_agent(lattice_id, 'lattice', lattice_config)
+
 		for index in range(args.number):
-			self.add_ecoli({'outer_id': lattice_id})
+			self.add_cell(args.type or 'ecoli', {
+				'outer_id': lattice_id})
+
+	def chemotaxis_experiment(self, args):
+		lattice_id = str(uuid.uuid1())
+		chemotaxis_defaults = {
+			'run_for' : 1.0,
+			'static_concentrations': True,
+			'gradient': {'seed': True},
+			'diffusion': 0.0,
+			'translation_jitter': 0.0,
+			'rotation_jitter': 0.0,
+			'edge_length': 20.0,
+			'patches_per_edge': 30}
+		lattice_config = configure_lattice(args, chemotaxis_defaults)
+		self.add_agent(lattice_id, 'lattice', lattice_config)
+
+		for index in range(args.number):
+			self.add_cell(args.type or 'chemotaxis', {
+				'outer_id': lattice_id})
 
 
 class EnvironmentCommand(AgentCommand):
@@ -206,13 +287,13 @@ class EnvironmentCommand(AgentCommand):
 	"""
 
 	def __init__(self):
-		choices = ['ecoli', 'lattice']
+		choices = ['ecoli', 'chemotaxis', 'lattice', 'chemotaxis-experiment']
 		description = '''
 		Run an agent for the environmental context simulation.
 		The commands are:
-		`add --id OUTER_ID [--variant V] [--index I] [--seed S]` ask the Shepherd to add an Ecoli agent,
+		`add --id OUTER_ID [--type T] [--variant V] [--index I] [--seed S]` ask the Shepherd to add an agent of type T,
 		`ecoli --id ID --outer-id OUTER_ID [--working-dir D] [--variant V] [--index I] [--seed S]` run an Ecoli agent in this process,
-		`experiment [--number N] [--media M]` ask the Shepherd to run a Lattice agent and N Ecoli agents in media condition M,
+		`experiment [--number N] [--type T] [--media M]` ask the Shepherd to run a lattice environment with N agents of type T in media condition M,
 		`lattice --id ID [--media M]` run a Lattice environment agent in this process in media condition M,
 		`pause --id OUTER_ID` pause the simulation,
 		`remove --id OUTER_ID` ask all Shepherds to remove agents "ID*",
@@ -249,6 +330,59 @@ class EnvironmentCommand(AgentCommand):
 			default='minimal',
 			help='The environment media')
 
+		parser.add_argument(
+			'-t', '--type',
+			type=str,
+			help='The agent type')
+
+		parser.add_argument(
+			'-r', '--run_for',
+			# type=float,
+			default=5.0,
+			help='time, in seconds, between message from cell and environment')
+
+		parser.add_argument(
+			'-S', '--static-concentrations',
+			default=None,
+			action='store_true',
+			help='Whether the concentrations of patches can change')
+
+		parser.add_argument(
+			'-d', '--diffusion',
+			type=float,
+			help='The diffusion rate')
+
+		parser.add_argument(
+			'-g', '--gradient',
+			default=None,
+			action='store_true',
+			help='Whether to provide an initial gradient')
+
+		parser.add_argument(
+			'-j', '--translation-jitter',
+			type=float,
+			help='How much to randomly translate positions each cycle')
+
+		parser.add_argument(
+			'-J', '--rotation-jitter',
+			type=float,
+			help='How much to randomly rotate positions each cycle')
+
+		parser.add_argument(
+			'-R', '--cell-radius',
+			type=float,
+			help='Radius of each cell')
+
+		parser.add_argument(
+			'-E', '--edge-length',
+			type=float,
+			help='Total length of one side of the simulated environment')
+
+		parser.add_argument(
+			'-P', '--patches-per-edge',
+			type=int,
+			help='Number of patches to divide a side of the environment into')
+
 		return parser
 
 	def shepherd_initializers(self, args):
@@ -268,12 +402,21 @@ class EnvironmentCommand(AgentCommand):
 			lattice = boot_lattice(
 				agent_id,
 				agent_type,
-				agent_config,
-				agent_config.get('media', args.media))
+				agent_config)
 			lattice.start()
+
+		def initialize_chemotaxis_surrogate(agent_id, agent_type, agent_config):
+			agent_config = dict(
+				agent_config,
+				kafka_config=self.kafka_config,
+				working_dir=args.working_dir)
+			time.sleep(5) # this gives the environment long enough to initialize
+			chemotaxis = boot_chemotaxis(agent_id, agent_type, agent_config)
+			chemotaxis.start()
 
 		initializers['lattice'] = initialize_lattice
 		initializers['ecoli'] = initialize_ecoli
+		initializers['chemotaxis'] = initialize_chemotaxis_surrogate
 
 		return initializers
 
@@ -281,8 +424,8 @@ class EnvironmentCommand(AgentCommand):
 		agent_id = args.id or 'lattice'
 		lattice = boot_lattice(
 			agent_id,
-			{'kafka_config': self.kafka_config},
-			args.media)
+			'lattice',
+			{'kafka_config': self.kafka_config})
 		lattice.start()
 
 	def ecoli(self, args):
@@ -309,12 +452,17 @@ class EnvironmentCommand(AgentCommand):
 			outer_id=args.id,
 			kafka_config=self.kafka_config)
 		control = ShepherdControl(agent_config)
-		control.add_ecoli(agent_config)
+		control.add_cell(args.type or 'ecoli', agent_config)
 		control.shutdown()
 
 	def experiment(self, args):
 		control = ShepherdControl({'kafka_config': self.kafka_config})
 		control.lattice_experiment(args)
+		control.shutdown()
+
+	def chemotaxis_experiment(self, args):
+		control = ShepherdControl({'kafka_config': self.kafka_config})
+		control.chemotaxis_experiment(args)
 		control.shutdown()
 
 

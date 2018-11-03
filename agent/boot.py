@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 import os
+import re
 import copy
 import uuid
 import numpy as np
@@ -343,7 +344,8 @@ class AgentCommand(object):
 		args = self.args
 		command = args.command
 		if command in self.choices:
-			getattr(self, command)(args)
+			underscore = re.sub(r'-+', '_', command)
+			getattr(self, underscore)(args)
 		else:
 			raise ValueError("unrecognized command: {}".format(command))
 
