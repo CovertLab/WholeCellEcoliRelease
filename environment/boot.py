@@ -265,7 +265,7 @@ class ShepherdControl(EnvironmentControl):
 	def chemotaxis_experiment(self, args):
 		lattice_id = str(uuid.uuid1())
 		chemotaxis_defaults = {
-			'run_for' : 2.0,
+			'run_for' : 1.0,
 			'static_concentrations': True,
 			'gradient': {'seed': True},
 			'diffusion': 0.0,
