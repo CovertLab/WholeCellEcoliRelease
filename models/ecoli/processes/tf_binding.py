@@ -5,7 +5,6 @@ TfBinding
 
 Bind transcription factors to DNA
 
-@author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/14/16
 """
@@ -29,112 +28,135 @@ class TfBinding(wholecell.processes.process.Process):
 	def initialize(self, sim, sim_data):
 		super(TfBinding, self).initialize(sim, sim_data)
 
-		# Get IDs of free DNA targets (alpha), and transcription factor bound targets (tfNames)
-		recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
-		self.tfs = sorted(set([x.split("__")[-1] for x in recruitmentColNames if x.split("__")[-1] != "alpha"]))
-		alphaNames = [x for x in recruitmentColNames if x.endswith("__alpha")]
-		tfNames = {}
+		# Get IDs of gene copy numbers and transcription factor bound targets
+		bound_tf_names = sim_data.process.transcription_regulation.boundTFColNames
+		gene_copy_names = sim_data.process.transcription_regulation.geneCopyNumberColNames
+		self.tfs = sorted(set([x.split("__")[-1] for x in bound_tf_names]))
+
+		tf_to_bound_tfs = {}
+		self.tf_to_target_index = {}
 		for tf in self.tfs:
-			tfNames[tf] = [x for x in recruitmentColNames if x.endswith("__" + tf)]
+			tf_to_bound_tfs[tf] = [x for x in bound_tf_names if x.endswith("__" + tf)]
+			self.tf_to_target_index[tf] = [
+				gene_copy_names.index(x.split("__")[0] + "__alpha")
+				for x in tf_to_bound_tfs[tf]
+				]
+
+		self.n_tfs = len(self.tfs)
 
 		# Get constants
 		self.nAvogadro = sim_data.constants.nAvogadro
 		self.cellDensity = sim_data.constants.cellDensity
 
 		# Create dictionaries and method
-		self.tfNTargets = sim_data.process.transcription_regulation.tfNTargets
 		self.pPromoterBoundTF = sim_data.process.transcription_regulation.pPromoterBoundTF
 		self.tfToTfType = sim_data.process.transcription_regulation.tfToTfType
 
 		# Build views
-		self.alphaView = self.bulkMoleculesView(alphaNames)
-		self.tfDnaBoundViews = {}
-		self.tfMoleculeActiveView = {}
-		self.tfMoleculeInactiveView = {}
+		self.gene_copy_view = self.bulkMoleculesView(gene_copy_names)
+		self.bound_tf_views = {}
+		self.active_tf_view = {}
+		self.inactive_tf_view = {}
+
 		for tf in self.tfs:
-			self.tfDnaBoundViews[tf] = self.bulkMoleculesView(tfNames[tf])
-			self.tfMoleculeActiveView[tf] = self.bulkMoleculeView(tf + "[c]")
+			self.bound_tf_views[tf] = self.bulkMoleculesView(tf_to_bound_tfs[tf])
+			self.active_tf_view[tf] = self.bulkMoleculeView(tf + "[c]")
+
 			if self.tfToTfType[tf] == "1CS":
 				if tf == sim_data.process.transcription_regulation.activeToBound[tf]:
-					self.tfMoleculeInactiveView[tf] = self.bulkMoleculeView(sim_data.process.equilibrium.getUnbound(tf + "[c]"))
+					self.inactive_tf_view[tf] = self.bulkMoleculeView(
+						sim_data.process.equilibrium.getUnbound(tf + "[c]"))
 				else:
-					self.tfMoleculeInactiveView[tf] = self.bulkMoleculeView(sim_data.process.transcription_regulation.activeToBound[tf] + "[c]")
+					self.inactive_tf_view[tf] = self.bulkMoleculeView(
+						sim_data.process.transcription_regulation.activeToBound[tf] + "[c]")
 			elif self.tfToTfType[tf] == "2CS":
-				self.tfMoleculeInactiveView[tf] = self.bulkMoleculeView(sim_data.process.two_component_system.activeToInactiveTF[tf + "[c]"])
+				self.inactive_tf_view[tf] = self.bulkMoleculeView(
+					sim_data.process.two_component_system.activeToInactiveTF[tf + "[c]"])
 
 
 	def calculateRequest(self):
-		# Request all counts of free DNA targets
-		self.alphaView.requestAll()
+		# Get current copy numbers of each gene
+		self.gene_copy_numbers = self.gene_copy_view.total()
 
 		# Request all counts of active transcription factors
-		for view in self.tfMoleculeActiveView.itervalues():
+		for view in self.active_tf_view.itervalues():
 			view.requestAll()
 
 		# Request all counts of DNA bound transcription factors
-		for view in self.tfDnaBoundViews.itervalues():
+		for view in self.bound_tf_views.itervalues():
 			view.requestAll()
 
 
 	def evolveState(self):
-		# Set counts of all free DNA targets to 1
-		self.alphaView.countsIs(1)
-
 		# Create vectors for storing values
-		nTfs = len(self.tfs)
-		pPromotersBound = np.zeros(nTfs, np.float64)
-		nPromotersBound = np.zeros(nTfs, np.float64)
-		nActualBound = np.zeros(nTfs, np.float64)
+		pPromotersBound = np.zeros(self.n_tfs, np.float64)
+		nPromotersBound = np.zeros(self.n_tfs, np.float64)
+		nActualBound = np.zeros(self.n_tfs, np.float64)
 
 		for i, tf in enumerate(self.tfs):
 			# Get counts of transcription factors
-			tfActiveCounts = self.tfMoleculeActiveView[tf].count()
-			tfInactiveCounts = None
-			if self.tfToTfType[tf] != "0CS":
-				tfInactiveCounts = self.tfMoleculeInactiveView[tf].total()
-			tfBoundCounts = self.tfDnaBoundViews[tf].counts()
-			promoterCounts = self.tfNTargets[tf]
+			active_tf_counts = self.active_tf_view[tf].count()
+			bound_tf_counts = self.bound_tf_views[tf].counts()
+			target_gene_counts = self.gene_copy_numbers[
+				self.tf_to_target_index[tf]]
 
-			# Free all DNA-bound transcription factors into free active transcription factors
-			self.tfDnaBoundViews[tf].countsIs(0)
-			self.tfMoleculeActiveView[tf].countInc(tfBoundCounts.sum())
+			# Free all DNA-bound transcription factors into free active
+			# transcription factors
+			self.bound_tf_views[tf].countsIs(0)
+			self.active_tf_view[tf].countInc(bound_tf_counts.sum())
 
-			# If there are no active transcription factors, continue to the next transcription factor
-			if tfActiveCounts == 0:
+			# If there are no active transcription factors, continue to the
+			# next transcription factor
+			if active_tf_counts == 0:
 				continue
 
 			# Compute probability of binding the promoter
-			pPromoterBound = None
 			if self.tfToTfType[tf] == "0CS":
-				if tfActiveCounts + tfBoundCounts.sum() > 0:
+				if active_tf_counts + bound_tf_counts.sum() > 0:
 					pPromoterBound = 1.
 				else:
 					pPromoterBound = 0.
 			else:
-				pPromoterBound = self.pPromoterBoundTF(tfActiveCounts, tfInactiveCounts)
+				tfInactiveCounts = self.inactive_tf_view[tf].total()
+				pPromoterBound = self.pPromoterBoundTF(
+					active_tf_counts, tfInactiveCounts)
 
 			# Determine the number of available promoter sites to bind
-			nToBind = int(stochasticRound(self.randomState, promoterCounts * pPromoterBound))
+			n_to_bind = int(stochasticRound(
+				self.randomState, target_gene_counts.sum()*pPromoterBound)
+				)
 
-			# If there are no promoter sites to bind, continue to the next transcription factor
-			if nToBind == 0:
+			# If there are no promoter sites to bind, continue to the next
+			# transcription factor
+			if n_to_bind == 0:
 				continue
 
-			# Determine randomly which DNA targets to bind based on which of the following is most limiting:
-			# number of promoter sites to bind, number of DNA targets, or number of active transcription factors
-			boundLocs = np.zeros_like(tfBoundCounts)
-			boundLocs[
-				self.randomState.choice(tfBoundCounts.size, size = np.min((nToBind, tfBoundCounts.size, self.tfMoleculeActiveView[tf].count())), replace = False)
+			# Determine randomly which DNA targets to bind based on which of
+			# the following is more limiting:
+			# number of promoter sites to bind, or number of active
+			# transcription factors
+			bound_locs = np.zeros(target_gene_counts.sum(), dtype=np.int)
+			bound_locs[
+				self.randomState.choice(
+					target_gene_counts.sum(),
+					size=np.min((n_to_bind, self.active_tf_view[tf].count())),
+					replace=False)
 				] = 1
 
-			# Update counts of free and DNA-bound transcription factors
-			self.tfMoleculeActiveView[tf].countDec(boundLocs.sum())
-			self.tfDnaBoundViews[tf].countsIs(boundLocs)
+			# Update count of free transcription factors
+			self.active_tf_view[tf].countDec(bound_locs.sum())
+
+			# Update count of bound transcription factors
+			bound_tf_counts_updated = np.ediff1d(
+				bound_locs.cumsum()[np.cumsum(target_gene_counts) - 1],
+				to_begin=bound_locs[:target_gene_counts[0]].sum())
+
+			self.bound_tf_views[tf].countsIs(bound_tf_counts_updated)
 
 			# Record values
 			pPromotersBound[i] = pPromoterBound
-			nPromotersBound[i] = pPromoterBound * self.tfNTargets[tf]
-			nActualBound[i] = boundLocs.sum()
+			nPromotersBound[i] = pPromoterBound*target_gene_counts.sum()
+			nActualBound[i] = bound_locs.sum()
 
 		# Write values to listeners
 		self.writeToListener("RnaSynthProb", "pPromoterBound", pPromotersBound)
