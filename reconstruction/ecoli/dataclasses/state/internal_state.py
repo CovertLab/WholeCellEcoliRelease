@@ -14,7 +14,6 @@ from reconstruction.ecoli.dataclasses.state.uniqueMolecules import UniqueMolecul
 
 from reconstruction.ecoli.dataclasses.state import stateFunctions as sf
 
-import re
 import numpy as np
 
 class InternalState(object):
@@ -91,9 +90,9 @@ class InternalState(object):
 		# Add active RNA polymerase
 		rnaPolyComplexMass = self.bulkMolecules.bulkData["mass"][self.bulkMolecules.bulkData["id"] == "APORNAP-CPLX[c]"]
 		rnaPolyAttributes = {
-				'rnaIndex' : 'i8',
-				'transcriptLength' : 'i8'
-				}
+			"rnaIndex": "i8",
+			"transcriptLength": "i8"
+			}
 		self.uniqueMolecules.addToUniqueState('activeRnaPoly', rnaPolyAttributes, rnaPolyComplexMass)
 
 		# Add active ribosome
@@ -107,32 +106,32 @@ class InternalState(object):
 			]
 		ribosomeMass = ribosome30SMass + ribosome50SMass
 		ribosomeAttributes = {
-				'proteinIndex' : 'i8',
-				'peptideLength': 'i8'
-				}
-		self.uniqueMolecules.addToUniqueState('activeRibosome', ribosomeAttributes, ribosomeMass)
+			"proteinIndex": "i8",
+			"peptideLength": "i8",
+			}
+		self.uniqueMolecules.addToUniqueState("activeRibosome", ribosomeAttributes, ribosomeMass)
 
 		# Add active DNA polymerase
-		dnaPolyMass = units.g / units.mol * np.zeros_like(rnaPolyComplexMass) # NOTE: dnaPolymerases currently have no mass
+		dnaPolyMass = units.g / units.mol * np.zeros_like(rnaPolyComplexMass)
 		dnaPolymeraseAttributes = {
-				'sequenceIdx' : 'i8',
-				'sequenceLength' : 'i8',
-				'replicationRound' : 'i8',
-				'chromosomeIndex' : 'i8',
-				}
-		self.uniqueMolecules.addToUniqueState('dnaPolymerase', dnaPolymeraseAttributes, dnaPolyMass)
+			"sequenceIdx": "i8",
+			"sequenceLength": "i8",
+			"replicationRound": "i8",
+			"chromosomeIndex": "i8",
+			}
+		self.uniqueMolecules.addToUniqueState("dnaPolymerase", dnaPolymeraseAttributes, dnaPolyMass)
 
 		# Origin of replication
-		originMass = units.g / units.mol * np.zeros_like(rnaPolyComplexMass) # NOTE: origins currently have no mass
+		originMass = units.g / units.mol * np.zeros_like(rnaPolyComplexMass)
 		originAttributes = {
-				'chromosomeIndex': 'i8',
-				}
-		self.uniqueMolecules.addToUniqueState('originOfReplication', originAttributes, originMass)
+			"chromosomeIndex": "i8",
+			}
+		self.uniqueMolecules.addToUniqueState("originOfReplication", originAttributes, originMass)
 
 		# Full chromosome
-		fullChromosomeMass = units.g / units.mol * np.zeros_like(rnaPolyComplexMass) # NOTE: origins currently have no mass
+		fullChromosomeMass = units.g / units.mol * np.zeros_like(rnaPolyComplexMass)
 		fullChromosomeAttributes = {"division_time" : "f8"}
-		self.uniqueMolecules.addToUniqueState('fullChromosome', fullChromosomeAttributes, fullChromosomeMass)
+		self.uniqueMolecules.addToUniqueState("fullChromosome", fullChromosomeAttributes, fullChromosomeMass)
 
 
 	def _buildCompartments(self, raw_data, sim_data):

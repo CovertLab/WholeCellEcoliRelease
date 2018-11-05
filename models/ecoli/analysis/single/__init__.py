@@ -46,6 +46,7 @@ ACTIVE = [
 	"rnapCapacity.py",
 	"rnapCounts.py",
 	"rnaseCounts.py",
+	"transient_gene_dosage.py",
 	"trna_charging.py",
 	"tRnaCounts.py",
 	"trpRegulation.py",
