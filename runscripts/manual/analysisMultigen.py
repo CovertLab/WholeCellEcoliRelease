@@ -31,7 +31,6 @@ class AnalysisMultigen(AnalysisBase):
 
 		args.seed_str = '%06d' % (args.seed,)
 
-		args.metadata['analysis_type'] = 'multigen'
 		args.metadata["seed"] = args.seed_str
 		return args
 

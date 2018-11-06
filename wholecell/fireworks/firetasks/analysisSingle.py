@@ -33,6 +33,8 @@ class AnalysisSingleTask(AnalysisBase):
 	TAGS = models.ecoli.analysis.single.TAGS
 
 	def plotter_args(self, module_filename):
+		self["metadata"] = dict(self["metadata"], analysis_type = "single")
+
 		return (
 			self["input_results_directory"],
 			self["output_plots_directory"],

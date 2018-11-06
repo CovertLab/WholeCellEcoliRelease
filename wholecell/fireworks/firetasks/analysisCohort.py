@@ -33,6 +33,8 @@ class AnalysisCohortTask(AnalysisBase):
 	TAGS = models.ecoli.analysis.cohort.TAGS
 
 	def plotter_args(self, module_filename):
+		self["metadata"] = dict(self["metadata"], analysis_type = "cohort")
+
 		return (
 			self["input_variant_directory"],
 			self["output_plots_directory"],

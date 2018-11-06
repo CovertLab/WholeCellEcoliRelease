@@ -39,7 +39,6 @@ class AnalysisSingle(AnalysisBase):
 		args.daughter_str = '%06d' % (args.daughter,)
 
 		metadata = args.metadata
-		metadata['analysis_type'] = 'single'
 		metadata['seed'] = args.seed_str
 		metadata['gen'] = args.gen_str
 

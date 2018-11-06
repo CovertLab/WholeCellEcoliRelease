@@ -18,39 +18,66 @@ DEFAULT_IMAGE_TYPE = '.pdf'
 def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None, transparent = False):
 
 	if metadata != None and "analysis_type" in metadata:
+
 		if metadata["analysis_type"] == 'single':
 			# Format metadata signature for single gen figure
-			metadata_signature = "_".join([str(metadata["time"])[:13],
-					str(metadata["variant_function"]),
-					str(metadata["variant_index"]),
-					"Seed", str(metadata["seed"]),
-					"Gen", str(metadata["gen"])+'/'+str(int(metadata["total_gens"])-1),
-					"Githash", str(metadata["git_hash"])[:10],
-					"Desc", str(metadata["description"])])
+			metadata_signature = "_".join([
+				str(metadata["time"])[:13],
+				str(metadata["variant_function"]),
+				str(metadata["variant_index"]),
+				"Seed",
+				str(metadata["seed"]),
+				"Gen",
+				str(metadata["gen"]) + '/' + str(int(metadata["total_gens"])-1),
+				"Githash",
+				str(metadata["git_hash"])[:10],
+				"Desc",
+				str(metadata["description"])
+				])
+
 		elif metadata["analysis_type"] == 'multigen':
 			# Format metadata signature for multi gen figure
-			metadata_signature = "_".join([str(metadata["time"][:13]),
-					str(metadata["variant_function"]),
-					str(metadata["variant_index"]),
-					"Seed", str(metadata["seed"]),
-					str(metadata["total_gens"]), "gens",
-					"Githash", str(metadata["git_hash"])[:10],
-					"Desc", str(metadata["description"])])
+			metadata_signature = "_".join([
+				str(metadata["time"][:13]),
+				str(metadata["variant_function"]),
+				str(metadata["variant_index"]),
+				"Seed",
+				str(metadata["seed"]),
+				str(metadata["total_gens"]),
+				"gens",
+				"Githash",
+				str(metadata["git_hash"])[:10],
+				"Desc",
+				str(metadata["description"])
+				])
+
 		elif metadata["analysis_type"] == 'cohort':
 			# Format metadata signature for cohort figure
-			metadata_signature = "_".join([str(metadata["time"][:13]),
-					str(metadata["variant_function"]),
-					str(metadata["variant_index"]),
-					str(metadata["total_gens"]), "gens",
-					"Githash", str(metadata["git_hash"])[:10],
-					"Desc", str(metadata["description"])])
+			metadata_signature = "_".join([
+				str(metadata["time"][:13]),
+				str(metadata["variant_function"]),
+				str(metadata["variant_index"]),
+				str(metadata["total_gens"]),
+				"gens",
+				"Githash",
+				str(metadata["git_hash"])[:10],
+				"Desc",
+				str(metadata["description"])
+				])
+
 		elif metadata["analysis_type"] == 'variant':
 			# Format metadata signature for variant figure
-			metadata_signature = "_".join([str(metadata["time"][:13]),
-					str(metadata["total_variants"]), "variants",
-					str(metadata["total_gens"]), "gens",
-					"Githash", str(metadata["git_hash"])[:10],
-					"Desc", str(metadata["description"])])
+			metadata_signature = "_".join([
+				str(metadata["time"][:13]),
+				str(metadata["total_variants"]),
+				"variants",
+				str(metadata["total_gens"]),
+				"gens",
+				"Githash",
+				str(metadata["git_hash"])[:10],
+				"Desc",
+				str(metadata["description"])
+				])
 
 		# Add metadata signature to the bottom of the plot
 		plt.figtext(0,0, metadata_signature, size=8)

@@ -229,6 +229,7 @@ metadata = {
 	"total_gens": N_GENS,
 	"analysis_type": None,
 	"variant": VARIANT,
+	"total_variants": str(len(VARIANTS_TO_RUN)),
 	"mass_distribution": MASS_DISTRIBUTION,
 	"growth_rate_noise": GROWTH_RATE_NOISE,
 	"d_period_division": D_PERIOD_DIVISION,
@@ -448,10 +449,6 @@ VARIANT_PLOT_DIRECTORY = os.path.join(INDIV_OUT_DIRECTORY, "plotOut")
 fw_variant_analysis = None
 
 if RUN_AGGREGATE_ANALYSIS:
-
-	metadata["analysis_type"] = "variant"
-	metadata["total_variants"] = str(len(VARIANTS_TO_RUN))
-
 	fw_name = "AnalysisVariantTask"
 	fw_variant_analysis = Firework(
 		AnalysisVariantTask(
@@ -477,8 +474,7 @@ for i in VARIANTS_TO_RUN:
 	VARIANT_DIRECTORY = os.path.join(INDIV_OUT_DIRECTORY, VARIANT + "_%06d" % i)
 	VARIANT_SIM_DATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "kb")
 	VARIANT_METADATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "metadata")
-	metadata["variant_function"] = VARIANT
-	metadata["variant_index"] = i
+	md_cohort = dict(metadata, variant_function = VARIANT, variant_index = i)
 
 	# Variant simData creation task
 	fw_name = "VariantSimDataTask_%06d" % (i,)
@@ -519,7 +515,6 @@ for i in VARIANTS_TO_RUN:
 	fw_this_variant_cohort_analysis = None
 
 	if RUN_AGGREGATE_ANALYSIS:
-		metadata["analysis_type"] = "cohort"
 		fw_name = "AnalysisCohortTask__Var_%02d" % (i,)
 		fw_this_variant_cohort_analysis = Firework(
 			AnalysisCohortTask(
@@ -529,7 +524,7 @@ for i in VARIANTS_TO_RUN:
 				output_plots_directory = COHORT_PLOT_DIRECTORY,
 				plots_to_run = PLOTS,
 				cpus = analysis_cpus,
-				metadata = metadata,
+				metadata = md_cohort,
 				),
 			name = fw_name,
 			spec = {"_queueadapter": dict(analysis_q_cpus, job_name=fw_name), "_priority":4}
@@ -543,11 +538,9 @@ for i in VARIANTS_TO_RUN:
 			print "\tQueueing Seed {}".format(j)
 		SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
 		SEED_PLOT_DIRECTORY = os.path.join(SEED_DIRECTORY, "plotOut")
-		metadata["seed"] = j
+		md_multigen = dict(md_cohort, seed = j)
 
 		if RUN_AGGREGATE_ANALYSIS:
-			metadata["analysis_type"] = 'multigen'
-
 			fw_name = "AnalysisMultiGenTask__Var_%02d__Seed_%06d" % (i, j)
 			fw_this_variant_this_seed_this_analysis = Firework(
 				AnalysisMultiGenTask(
@@ -557,7 +550,7 @@ for i in VARIANTS_TO_RUN:
 					output_plots_directory = SEED_PLOT_DIRECTORY,
 					plots_to_run = PLOTS,
 					cpus = analysis_cpus,
-					metadata = metadata,
+					metadata = md_multigen,
 					),
 				name = fw_name,
 				spec = {"_queueadapter": dict(analysis_q_cpus, job_name=fw_name), "_priority":3}
@@ -573,7 +566,7 @@ for i in VARIANTS_TO_RUN:
 			if VERBOSE_QUEUE:
 				print "\t\tQueueing Gen %02d." % (k,)
 			GEN_DIRECTORY = os.path.join(SEED_DIRECTORY, "generation_%06d" % k)
-			metadata["gen"] = k
+			md_single = dict(md_multigen, gen = k)
 
 			for l in (xrange(2**k) if not SINGLE_DAUGHTERS else [0]):
 
@@ -668,8 +661,6 @@ for i in VARIANTS_TO_RUN:
 						fw_this_variant_this_gen_this_sim_compression)
 
 				if RUN_AGGREGATE_ANALYSIS:
-					metadata["analysis_type"] = "single"
-
 					# AnalysisSingle task
 					fw_name = "AnalysisSingleTask__Var_%d__Seed_%d__Gen_%d__Cell_%d" % (i, j, k, l)
 					fw_this_variant_this_gen_this_sim_analysis = Firework(
@@ -680,7 +671,7 @@ for i in VARIANTS_TO_RUN:
 							output_plots_directory = CELL_PLOT_OUT_DIRECTORY,
 							plots_to_run = PLOTS,
 							cpus = analysis_cpus,
-							metadata = metadata,
+							metadata = md_single,
 							),
 						name = fw_name,
 						spec = {"_queueadapter": dict(analysis_q_cpus, job_name=fw_name), "_priority":2}
@@ -708,8 +699,6 @@ for i in VARIANTS_TO_RUN:
 
 
 				if BUILD_CAUSALITY_NETWORK:
-					metadata["analysis_type"] = "causality_network"
-
 					# BuildCausalityNetwork task
 					fw_name = "BuildCausalityNetworkTask__Var_%d__Seed_%d__Gen_%d__Cell_%d" % (i, j, k, l)
 					fw_this_variant_this_gen_this_sim_causality_network = Firework(
@@ -718,10 +707,10 @@ for i in VARIANTS_TO_RUN:
 							input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
 							output_network_directory = VARIANT_SIM_DATA_DIRECTORY,
 							output_dynamics_directory = CELL_PLOT_OUT_DIRECTORY,
-							metadata = metadata,
+							metadata = md_single,
 							),
-						name=fw_name,
-						spec={"_queueadapter": dict(analysis_q_cpus,
+						name = fw_name,
+						spec = {"_queueadapter": dict(analysis_q_cpus,
 							job_name=fw_name), "_priority": 2}
 						)
 
