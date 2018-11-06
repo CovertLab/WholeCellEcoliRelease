@@ -79,9 +79,6 @@ class MoleculeGroups(object):
 				'EG11547_RNA[c]', 'EG10746_RNA[c]', 'G7842_RNA[c]',
 				'EG10743_RNA[c]'],
 
-			'partialChromosome': ["CHROM_FORWARD[c]", "CHROM_REVERSE[c]",
-				"CHROM_FORWARD_COMPLEMENT[c]", "CHROM_REVERSE_COMPLEMENT[c]"],
-
 			'rProteins': ['EG10872-MONOMER[c]', 'EG10879-MONOMER[c]',
 				'EG11232-MONOMER[c]', 'EG10877-MONOMER[c]', 'EG10876-MONOMER[c]',
 				'EG10892-MONOMER[c]', 'EG10874-MONOMER[c]',	'EG50001-MONOMER[c]',

@@ -1,7 +1,6 @@
 """
 SimulationData for replication process
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 02/13/2015
 """
@@ -14,8 +13,12 @@ import collections
 from wholecell.utils import units
 from wholecell.utils.polymerize import polymerize
 
+MAX_TIMESTEP_LEN = 2
+
 class Replication(object):
-	""" Replication """
+	"""
+	SimulationData for the replication process
+	"""
 
 	def __init__(self, raw_data, sim_data):
 		self._n_nt_types = len(sim_data.dNtpOrder)
@@ -33,17 +36,20 @@ class Replication(object):
 		self.genome_C_count = self.genome_sequence.count("C")
 
 	def _buildGeneData(self, raw_data, sim_data):
-		genomeLength = len(raw_data.genome_sequence)
+		"""
+		Build gene-associated simulation data from raw data.
+		"""
 		self.geneData = np.zeros(len(raw_data.genes),
-			dtype = [('name'				,	'a50'),
-					('rnaId'                ,   'a50'),
-					('endCoordinate'		,	'int64')])
+			dtype = [('name', 'a50'),
+					('rnaId', 'a50')])
 
 		self.geneData['name'] = [x['id'] for x in raw_data.genes]
 		self.geneData['rnaId'] = [x['rnaId'] for x in raw_data.genes]
-		self.geneData['endCoordinate'] = [(x['coordinate'] + x['length']) % genomeLength if x['direction'] == '+' else (x['coordinate'] - x['length']) % genomeLength for x in raw_data.genes]
 
 	def _buildReplication(self, raw_data, sim_data):
+		"""
+		Build replication-associated simulation data from raw data.
+		"""
 		# Map ATGC to 8 bit integers
 		numerical_sequence = np.empty(self.genome_length, np.int8)
 		ntMapping = collections.OrderedDict([(ntpId, i) for i, ntpId in enumerate(sim_data.dNtpOrder)])
@@ -51,11 +57,18 @@ class Replication(object):
 			numerical_sequence[i] = ntMapping[letter] # Build genome sequence as small integers
 
 		# Create 4 possible polymerization sequences
-		oriC = raw_data.parameters['oriCCenter'].asNumber()
-		terC = raw_data.parameters['terCCenter'].asNumber()
+		oric_coordinate = raw_data.parameters['oriCCenter'].asNumber()
+		terc_coordinate = raw_data.parameters['terCCenter'].asNumber()
 
-		self.forward_sequence = numerical_sequence[np.hstack((np.arange(oriC, self.genome_length),np.arange(0, terC)))]
-		self.reverse_sequence = numerical_sequence[np.arange(oriC, terC, -1)]
+		# Forward sequence includes oriC
+		self.forward_sequence = numerical_sequence[
+			np.hstack((np.arange(oric_coordinate, self.genome_length),
+			np.arange(0, terc_coordinate)))]
+
+		# Reverse sequence includes terC
+		self.reverse_sequence = numerical_sequence[
+			np.arange(oric_coordinate - 1, terc_coordinate - 1, -1)]
+
 		self.forward_complement_sequence = self._reverseComplement(self.forward_sequence)
 		self.reverse_complement_sequence = self._reverseComplement(self.reverse_sequence)
 
@@ -63,16 +76,16 @@ class Replication(object):
 
 		# Build sequence matrix for polymerize function in replication process
 		self.sequence_lengths = np.array([
-										self.forward_sequence.size,
-										self.reverse_sequence.size,
-										self.forward_complement_sequence.size,
-										self.reverse_complement_sequence.size
-										])
+			self.forward_sequence.size, self.reverse_sequence.size,
+			self.forward_complement_sequence.size,
+			self.reverse_complement_sequence.size
+			])
 
+		# Determine size of the matrix used by polymerize function
 		maxLen = np.int64(
 			self.sequence_lengths.max()
-			+ sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(units.nt / units.s) * 2 # * sim_data.timeStepSec # TODO: FIX
-			)
+			+ MAX_TIMESTEP_LEN * sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(units.nt / units.s)
+		)
 
 		self.replication_sequences = np.empty((4, maxLen), np.int8)
 		self.replication_sequences.fill(polymerize.PAD_VALUE)
@@ -82,14 +95,12 @@ class Replication(object):
 		self.replication_sequences[2, :self.forward_complement_sequence.size] = self.forward_complement_sequence
 		self.replication_sequences[3, :self.reverse_complement_sequence.size] = self.reverse_complement_sequence
 
-		# Get polymeriezd nucleotide weights
+		# Get polymerized nucleotide weights
 		self.replicationMonomerWeights = (
-			(
-				sim_data.getter.getMass(sim_data.moleculeGroups.dNtpIds)
-				- sim_data.getter.getMass(["PPI[c]"])
-				)
+			(sim_data.getter.getMass(sim_data.moleculeGroups.dNtpIds)
+			- sim_data.getter.getMass(["PPI[c]"]))
 			/ raw_data.constants['nAvogadro']
-			)
+		)
 
 	def _reverseComplement(self, sequenceVector):
 		return (self._n_nt_types - 1) - sequenceVector

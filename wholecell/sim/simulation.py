@@ -379,6 +379,10 @@ class Simulation(CellSimulation):
 		self._cellCycleComplete = True
 
 
+	def get_sim_data(self):
+		return self._simData
+
+
 	def _adjustTimeStep(self):
 		# Adjust timestep if needed or at a frequency of updateTimeStepFreq regardless
 		validTimeSteps = self._maxTimeStep * np.ones(len(self.processes))
