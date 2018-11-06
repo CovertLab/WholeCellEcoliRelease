@@ -12,3 +12,16 @@ ACTIVE = [
 	"tfFitComparison.py",
 	"tfTarget.py",
 ]
+
+TAGS = {
+	'ACTIVE': ACTIVE,   # all active analyses in this category
+	'CORE': [           # the default list to run in development
+		"growthConditionComparison.py",
+		],
+	'PAPER': [
+		"adder_sizer.py",
+		"doubling_time_histogram.py",
+		"meneSensitivity.py",
+		"growth_condition_comparison_validation.py",
+		],
+	}

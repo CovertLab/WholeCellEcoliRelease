@@ -51,3 +51,91 @@ ACTIVE = [
 	"trpRegulation.py",
 	"twoComponentSystem.py",
 ]
+
+TAGS = {
+	'ACTIVE': ACTIVE,   # all active analyses in this category
+	'CORE': [           # the default list to run in development
+		"aaCounts.py",
+		"dntpCounts.py",
+		"evaluationTime.py",
+		"glucoseAndOxygenExchangeFluxes.py",
+		"massBalanceDynamics.py",
+		"massFractionSummary.py",
+		"mrnaCounts.py",
+		"ntpCounts.py",
+		"processMassBalance.py",
+		"proteinCounts.py",
+		"replication.py",
+		"ribosomeCounts.py",
+		"rnapActiveFraction.py",
+		"rnapCounts.py",
+		"rnaseCounts.py",
+		],
+	'FITTER': [
+		"KmOptimization.py",
+		"KmRNAdecayComparison.py",
+		],
+	'GROWTH': [
+		"growthLimits.py",  # TODO(jerry): include this?
+		"trna_charging.py",
+		],
+	'METABOLISM': [
+		"aaExchangeFluxes.py",
+		"allReactionFluxes.py",
+		"centralCarbonMetabolism.py",
+		"centralCarbonMetabolismCorrelationTimeCourse.py",
+		"centralCarbonMetabolismScatter.py",
+		"concentrationDeviation.py",
+		"fbaOptimizationProblem.py",
+		"glucoseAndOxygenExchangeFluxes.py",
+		"glucoseMassYield.py",
+		"kineticsFluxComparison.py",
+		"kineticsFluxComparisonKcatOnly.py",
+		"metabolismMassBalance.py",  # TODO(jerry): include this?
+		"metaboliteComparison.py",
+		"metabolites.py",
+		],
+	'PAPER': [
+		"expression_rna_01_low.py",
+		"expression_rna_02_med.py",
+		"expression_rna_03_high.py",
+		],
+	'RNA_DEGRADATION': [
+		"rnaDegradationCounts.py",
+		"rnaseCounts.py",
+		],
+	'REGULATION': [
+		"equilibriumComparison.py",
+		"trpRegulation.py",
+		"twoComponentSystem.py",
+		],
+	'TRANSCRIPTION': [
+		"mRnaHalfLives.py",
+		"mrnaCounts.py",
+		"mrnaVsProteinCounts.py",
+		"rnaSynthesisProbabilities.py",
+		"rnapActiveFraction.py",
+		"rnapCapacity.py",
+		"rnapCounts.py",
+		"tRnaCounts.py",
+		],
+	'TRANSLATION': [
+		"growthLimits.py",
+		"mrnaVsProteinCounts.py",
+		"proteinCounts.py",
+		"ribosome30SCounts.py",
+		"ribosome50SCounts.py",
+		"ribosomeCapacity.py",
+		"ribosomeCounts.py",
+		"trna_charging.py",
+		],
+	'TWO_COMPONENT_SYSTEM': [
+		"twoComponentSystem.py",
+		],
+	'VALIDATION': [
+		"centralCarbonMetabolism.py",
+		"centralCarbonMetabolismCorrelationTimeCourse.py",
+		"centralCarbonMetabolismScatter.py",
+		"proteinCountsValidation.py",
+		],
+	}

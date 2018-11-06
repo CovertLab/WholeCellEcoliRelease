@@ -21,3 +21,37 @@ ACTIVE = [
 	# "transcriptionGenomeCoverage.py",
 	# "transcriptionGenomeCoverageSecondHalf.py",
 	]
+
+TAGS = {
+	'ACTIVE': ACTIVE,   # all active analyses in this category
+	'CORE': [           # the default list to run in development
+		"proteinCopyNumberDistribution.py",  # TODO(jerry): an empty CORE list could be annoying, so include this?
+		],
+	'DIVISION': [
+		"initialVsFinalMass.py",
+		],
+	'HETEROGENEITY': [
+		"proteinCopyNumberDistribution.py",
+		"rnaCopyNumberDistribution.py",
+		],
+	'METABOLISM': [
+		"centralCarbonMetabolismCorrelationTimeCourse.py",
+		"centralCarbonMetabolismScatter.py",
+		"kinetics_flux_comparison.py",
+		],
+	'PAPER': [
+		"centralCarbonMetabolismScatter.py",
+		"doubling_times_histogram_all.py",
+		"expression_dynamics.py",
+		"kinetics_flux_comparison.py",
+		"histogramDoublingTime.py",
+		"histogramFinalMass.py",
+		"histogramGrowthRate.py",
+		"mass_fraction_instantaneous_growth_rates.py",
+		],
+	'TRANSCRIPTION': [
+		# "transcriptFrequency.py",
+		# "transcriptionGenomeCoverage.py",
+		# "transcriptionGenomeCoverageSecondHalf.py",
+		],
+	}
