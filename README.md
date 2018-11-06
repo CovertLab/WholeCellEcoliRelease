@@ -82,7 +82,7 @@ lpad reset
 To queue up a single simulation in Fireworks:
 
 ```bash
-DESC="Example run of a single simulation." python runscripts/fw_queue.py
+DESC="Example run of a single simulation." python runscripts/fireworks/fw_queue.py
 ```
 
 The `DESC` text should be more descriptive so you can readily distinguish your runs.
@@ -92,7 +92,7 @@ The `DESC` text should be more descriptive so you can readily distinguish your r
 To queue multiple simulations (in this case 4 simulations) in fireworks:
 
 ```bash
-DESC="Example run of multiple simulations." N_INIT_SIMS=4 python runscripts/fw_queue.py
+DESC="Example run of multiple simulations." N_INIT_SIMS=4 python runscripts/fireworks/fw_queue.py
 ```
 
 ### Multiple generations
@@ -100,21 +100,21 @@ DESC="Example run of multiple simulations." N_INIT_SIMS=4 python runscripts/fw_q
 To queue multiple generations (in this case 4 generations) from a single mother cell:
 
 ```bash
-DESC="Example run of multiple generations." N_GENS=4 python runscripts/fw_queue.py
+DESC="Example run of multiple generations." N_GENS=4 python runscripts/fireworks/fw_queue.py
 ```
 
 To queue multiple generations (in this case 3 generations) from multiple mother cells (in this case 2 mother cells:
 
 ```bash
-DESC="Example run of multiple generations from multiple mother cells." N_GENS=3 N_INIT_SIMS=2 python runscripts/fw_queue.py
+DESC="Example run of multiple generations from multiple mother cells." N_GENS=3 N_INIT_SIMS=2 python runscripts/fireworks/fw_queue.py
 ```
 
 ### Shifting nutrient conditions
 
-To queue a simulation that switches between environments, use the "nutrientTimeSeries" variant, and give the range of indices (in this case from 1 to 1) specifying conditions defined in wcEcoli/reconstruction/ecoli/flat/condition/timeseries:
+To queue a simulation that switches between environments, use the "nutrient_time_series" variant, and give the range of indices (in this case from 1 to 1) specifying conditions defined in wcEcoli/reconstruction/ecoli/flat/condition/timeseries:
 
 ```bash
-DESC="Example run of nutrient shifts." VARIANT="nutrientTimeSeries" FIRST_VARIANT_INDEX=1 LAST_VARIANT_INDEX=1 python runscripts/fw_queue.py
+DESC="Example run of nutrient shifts." VARIANT="nutrient_time_series" FIRST_VARIANT_INDEX=1 LAST_VARIANT_INDEX=1 python runscripts/fireworks/fw_queue.py
 ```
 
 ### Using the cached sim data object
@@ -122,7 +122,7 @@ DESC="Example run of nutrient shifts." VARIANT="nutrientTimeSeries" FIRST_VARIAN
 To use the cached sim data object, use the CACHED_SIM_DATA environment variable:
 
 ```bash
-DESC="Example run with cached sim data." CACHED_SIM_DATA=1 python runscripts/fw_queue.py
+DESC="Example run with cached sim data." CACHED_SIM_DATA=1 python runscripts/fireworks/fw_queue.py
 ```
 
 ### Using an interactive node to run a Fireworks workflow

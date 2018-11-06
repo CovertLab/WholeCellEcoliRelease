@@ -71,6 +71,8 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		self.waterIndex = sim_data.submassNameToIndex["water"]
 
+		self.cellDensity = sim_data.constants.cellDensity.asNumber(units.g / units.L)
+
 
 		# Set initial values
 
@@ -164,6 +166,9 @@ class Mass(wholecell.listeners.listener.Listener):
 		self.proteinMass = submasses[self.proteinIndex]
 		self.smallMoleculeMass = submasses[self.smallMoleculeIndexes]
 
+		# TODO (Eran) use this volume everywhere in the codebase that is currently calculating volume
+		self.volume = self.cellMass / self.cellDensity
+
 		processInitialMass = preEvolveMasses.sum(axis = 1)
 		processFinalMass = postEvolveMasses.sum(axis = 1)
 
@@ -235,4 +240,5 @@ class Mass(wholecell.listeners.listener.Listener):
 			relProcessMassDifferences = self.relProcessMassDifferences.astype(np.float64),
 			smallMoleculeMass = list(self.smallMoleculeMass),
 			instantaniousGrowthRate = self.instantaniousGrowthRate,
+			cellVolume = self.volume
 			)

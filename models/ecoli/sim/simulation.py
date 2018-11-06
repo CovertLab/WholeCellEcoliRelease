@@ -17,7 +17,6 @@ from models.ecoli.processes.polypeptide_elongation import PolypeptideElongation
 from models.ecoli.processes.transcript_initiation import TranscriptInitiation
 from models.ecoli.processes.transcript_elongation import TranscriptElongation
 from models.ecoli.processes.protein_degradation import ProteinDegradation
-from models.ecoli.processes.chromosome_formation import ChromosomeFormation
 from models.ecoli.processes.equilibrium import Equilibrium
 from models.ecoli.processes.tf_binding import TfBinding
 from models.ecoli.processes.two_component_system import TwoComponentSystem
@@ -36,7 +35,8 @@ from models.ecoli.listeners.growth_limits import GrowthLimits
 from models.ecoli.listeners.cell_division import CellDivision
 from models.ecoli.listeners.rna_synth_prob import RnaSynthProb
 from models.ecoli.listeners.monomer_counts import MonomerCounts
-
+from models.ecoli.listeners.complexation_listener import ComplexationListener
+from models.ecoli.listeners.equilibrium_listener import EquilibriumListener
 
 # Analysis
 import models.ecoli.analysis.single
@@ -66,7 +66,6 @@ class EcoliSimulation(Simulation):
 		ChromosomeReplication,
 		ProteinDegradation,
 		Complexation,
-		ChromosomeFormation,
 		Equilibrium,
 		TfBinding,
 		TwoComponentSystem,
@@ -86,6 +85,8 @@ class EcoliSimulation(Simulation):
 		CellDivision,
 		RnaSynthProb,
 		MonomerCounts,
+		ComplexationListener,
+		EquilibriumListener,
 		)
 
 	_hookClasses = ()
@@ -109,3 +110,12 @@ class EcoliSimulation(Simulation):
 
 class EcoliDaughterSimulation(EcoliSimulation):
 	_initialConditionsFunction = setDaughterInitialConditions
+
+
+def ecoli_simulation(**options):
+	"""Instantiate an initial EcoliSimulation or a daughter
+	EcoliDaughterSimulation with the given options, depending on whether
+	there's a non-None `inheritedStatePath` option.
+	"""
+	is_daughter = options.get('inheritedStatePath', None) is not None
+	return EcoliDaughterSimulation(**options) if is_daughter else EcoliSimulation(**options)

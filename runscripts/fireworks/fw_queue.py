@@ -7,7 +7,7 @@ a workflow (wf) for Fireworks, and submits them to the queue.
 Several environmental variables can be specified, shown below with their (type, default value).
 These are set as follows, and otherwise revert to their default value:
 
-	VARIABLE=VALUE python runscripts/fw_queue.py
+	VARIABLE=VALUE python runscripts/fireworks/fw_queue.py
 
 Set description:
 	DESC (str, ""): a description of the simulation, used to name output folder
@@ -37,11 +37,13 @@ Workflow options:
 		expression is not fit to RNA synthesis demands
 	WC_ANALYZE_FAST (anything, --): if set, run each analysis plot in a separate
 		process
+	BUILD_CAUSALITY_NETWORK (int, "0"): if nonzero, causality network files are
+		generated from simulation output
 
 Simulation parameters:
 	N_GENS (int, "1"): the number of generations to be simulated
 	N_INIT_SIMS (int, "1"): the number of initial simulations
-	SINGLE_DAUGHTERS (int, "0"): if nonzero, the simulation will generate only
+	SINGLE_DAUGHTERS (int, "1"): if nonzero, the simulation will generate only
 		one daughter cell for each new generation rather than two, thus avoiding
 		an exponential increase in the number of simulations
 	WC_LENGTHSEC (int, "10800"): sets the maximum simulation time in seconds, useful
@@ -62,6 +64,9 @@ Modeling options:
 	TRANSLATION_SUPPLY (int, "1"): if nonzero, the ribosome elongation rate is
 		limited by the condition specific rate of amino acid supply; otherwise
 		the elongation rate is set by condition
+	TRNA_CHARGING (int, "0"): if nonzero, tRNA charging reactions are modeled
+		and the ribosome elongation rate is set by the amount of charged tRNA
+		present.  This option will override TRANSLATION_SUPPLY in the simulation.
 
 Additional variables:
 	LAUNCHPAD_FILE (str, "my_launchpad.yaml"): set launchpad config file location
@@ -72,7 +77,12 @@ Environment variables that matter when running the workflow:
 	DEBUG_GC (int, "0"): if nonzero, enable leak detection in the analysis plots
 '''
 
+import collections
+import os
+
+import yaml
 from fireworks import Firework, LaunchPad, Workflow, ScriptTask
+
 from wholecell.fireworks.firetasks import InitRawDataTask
 from wholecell.fireworks.firetasks import InitRawValidationDataTask
 from wholecell.fireworks.firetasks import InitValidationDataTask
@@ -85,29 +95,43 @@ from wholecell.fireworks.firetasks import AnalysisVariantTask
 from wholecell.fireworks.firetasks import AnalysisCohortTask
 from wholecell.fireworks.firetasks import AnalysisSingleTask
 from wholecell.fireworks.firetasks import AnalysisMultiGenTask
+from wholecell.fireworks.firetasks import BuildCausalityNetworkTask
 from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
-
 from wholecell.utils import constants
 from wholecell.utils import filepath
-import yaml
-import os
-import datetime
-import collections
-import cPickle
 
+
+def get_environment(variable, default):
+	'''
+	Gets an environmental variable value and prints a confirmation of the
+	variable and value if it is in the environment.
+
+	Args:
+		variable (str): name of environmental variable to get
+		default (str): default value if variable is not in the environment
+
+	Returns:
+		str: value of the environmental variable or default if it doesn't exist
+	'''
+
+	value = os.environ.get(variable, None)
+
+	if value is not None:
+		print('\t{}: {}'.format(variable, value))
+	else:
+		value = default
+
+	return value
+
+print('Parsed environmental variables:')
 
 #### Initial setup ###
 
-
 ### Set variant variables
 
-VARIANT = os.environ.get("VARIANT", "wildtype")
-FIRST_VARIANT_INDEX = int(os.environ.get("FIRST_VARIANT_INDEX", "0"))
-LAST_VARIANT_INDEX = int(os.environ.get("LAST_VARIANT_INDEX", "0"))
-
-if LAST_VARIANT_INDEX == -1:
-	from models.ecoli.sim.variants import nameToNumIndicesMapping
-	LAST_VARIANT_INDEX = nameToNumIndicesMapping[VARIANT]
+VARIANT = get_environment("VARIANT", "wildtype")
+FIRST_VARIANT_INDEX = int(get_environment("FIRST_VARIANT_INDEX", "0"))
+LAST_VARIANT_INDEX = int(get_environment("LAST_VARIANT_INDEX", "0"))
 
 # This variable gets iterated over in multiple places
 # So be careful if you change it to xrange
@@ -115,34 +139,36 @@ VARIANTS_TO_RUN = range(FIRST_VARIANT_INDEX, LAST_VARIANT_INDEX + 1)
 
 ### Set other simulation parameters
 
-WC_LENGTHSEC = int(os.environ.get("WC_LENGTHSEC", DEFAULT_SIMULATION_KWARGS["lengthSec"]))
-TIMESTEP_SAFETY_FRAC = float(os.environ.get("TIMESTEP_SAFETY_FRAC", DEFAULT_SIMULATION_KWARGS["timeStepSafetyFraction"]))
-TIMESTEP_MAX = float(os.environ.get("TIMESTEP_MAX", DEFAULT_SIMULATION_KWARGS["maxTimeStep"]))
-TIMESTEP_UPDATE_FREQ = int(os.environ.get("TIMESTEP_UPDATE_FREQ", DEFAULT_SIMULATION_KWARGS["updateTimeStepFreq"]))
-MASS_DISTRIBUTION = bool(int(os.environ.get("MASS_DISTRIBUTION", DEFAULT_SIMULATION_KWARGS["massDistribution"])))
-GROWTH_RATE_NOISE = bool(int(os.environ.get("GROWTH_RATE_NOISE", DEFAULT_SIMULATION_KWARGS["growthRateNoise"])))
-D_PERIOD_DIVISION = bool(int(os.environ.get("D_PERIOD_DIVISION", DEFAULT_SIMULATION_KWARGS["dPeriodDivision"])))
-TRANSLATION_SUPPLY = bool(int(os.environ.get("TRANSLATION_SUPPLY", DEFAULT_SIMULATION_KWARGS["translationSupply"])))
-N_INIT_SIMS = int(os.environ.get("N_INIT_SIMS", "1"))
-N_GENS = int(os.environ.get("N_GENS", "1"))
-SINGLE_DAUGHTERS = bool(int(os.environ.get("SINGLE_DAUGHTERS", "0")))
-LAUNCHPAD_FILE = str(os.environ.get("LAUNCHPAD_FILE", "my_launchpad.yaml"))
-COMPRESS_OUTPUT = bool(int(os.environ.get("COMPRESS_OUTPUT", "0")))
-SIM_DESCRIPTION = os.environ.get("DESC", "").replace(" ", "_")
-VERBOSE_QUEUE = bool(int(os.environ.get("VERBOSE_QUEUE", "1")))
-RUN_AGGREGATE_ANALYSIS = bool(int(os.environ.get("RUN_AGGREGATE_ANALYSIS", "1")))
-CACHED_SIM_DATA = bool(int(os.environ.get("CACHED_SIM_DATA", "0")))
-PARALLEL_FITTER = bool(int(os.environ.get("PARALLEL_FITTER", "0")))
-DEBUG_FITTER = bool(int(os.environ.get("DEBUG_FITTER", "0")))
-DISABLE_RIBOSOME_CAPACITY_FITTING = bool(int(os.environ.get("DISABLE_RIBOSOME_CAPACITY_FITTING", "0")))
-DISABLE_RNAPOLY_CAPACITY_FITTING = bool(int(os.environ.get("DISABLE_RNAPOLY_CAPACITY_FITTING", "0")))
+WC_LENGTHSEC = int(get_environment("WC_LENGTHSEC", DEFAULT_SIMULATION_KWARGS["lengthSec"]))
+TIMESTEP_SAFETY_FRAC = float(get_environment("TIMESTEP_SAFETY_FRAC", DEFAULT_SIMULATION_KWARGS["timeStepSafetyFraction"]))
+TIMESTEP_MAX = float(get_environment("TIMESTEP_MAX", DEFAULT_SIMULATION_KWARGS["maxTimeStep"]))
+TIMESTEP_UPDATE_FREQ = int(get_environment("TIMESTEP_UPDATE_FREQ", DEFAULT_SIMULATION_KWARGS["updateTimeStepFreq"]))
+MASS_DISTRIBUTION = bool(int(get_environment("MASS_DISTRIBUTION", DEFAULT_SIMULATION_KWARGS["massDistribution"])))
+GROWTH_RATE_NOISE = bool(int(get_environment("GROWTH_RATE_NOISE", DEFAULT_SIMULATION_KWARGS["growthRateNoise"])))
+D_PERIOD_DIVISION = bool(int(get_environment("D_PERIOD_DIVISION", DEFAULT_SIMULATION_KWARGS["dPeriodDivision"])))
+TRANSLATION_SUPPLY = bool(int(get_environment("TRANSLATION_SUPPLY", DEFAULT_SIMULATION_KWARGS["translationSupply"])))
+TRNA_CHARGING = bool(int(get_environment("TRNA_CHARGING", DEFAULT_SIMULATION_KWARGS["trna_charging"])))
+N_INIT_SIMS = int(get_environment("N_INIT_SIMS", "1"))
+N_GENS = int(get_environment("N_GENS", "1"))
+SINGLE_DAUGHTERS = bool(int(get_environment("SINGLE_DAUGHTERS", "1")))
+LAUNCHPAD_FILE = str(get_environment("LAUNCHPAD_FILE", "my_launchpad.yaml"))
+COMPRESS_OUTPUT = bool(int(get_environment("COMPRESS_OUTPUT", "0")))
+SIM_DESCRIPTION = get_environment("DESC", "").replace(" ", "_")
+VERBOSE_QUEUE = bool(int(get_environment("VERBOSE_QUEUE", "1")))
+RUN_AGGREGATE_ANALYSIS = bool(int(get_environment("RUN_AGGREGATE_ANALYSIS", "1")))
+CACHED_SIM_DATA = bool(int(get_environment("CACHED_SIM_DATA", "0")))
+PARALLEL_FITTER = bool(int(get_environment("PARALLEL_FITTER", "0")))
+DEBUG_FITTER = bool(int(get_environment("DEBUG_FITTER", "0")))
+DISABLE_RIBOSOME_CAPACITY_FITTING = bool(int(get_environment("DISABLE_RIBOSOME_CAPACITY_FITTING", "0")))
+DISABLE_RNAPOLY_CAPACITY_FITTING = bool(int(get_environment("DISABLE_RNAPOLY_CAPACITY_FITTING", "0")))
+BUILD_CAUSALITY_NETWORK = bool(int(get_environment("BUILD_CAUSALITY_NETWORK", "0")))
 
 if not RUN_AGGREGATE_ANALYSIS:
 	COMPRESS_OUTPUT = False
 
 ### Set path variables and create directories
 
-WC_ECOLI_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+WC_ECOLI_DIRECTORY = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT_DIRECTORY = filepath.makedirs(WC_ECOLI_DIRECTORY, "out")
 CACHED_SIM_DATA_DIRECTORY = os.path.join(WC_ECOLI_DIRECTORY, "cached")
 
@@ -158,11 +184,7 @@ else:
 	analysis_cpus = 1
 	analysis_q_cpus = {}
 
-now = datetime.datetime.now()
-SUBMISSION_TIME = "%04d%02d%02d.%02d%02d%02d.%06d" % (
-	now.year, now.month, now.day,
-	now.hour, now.minute, now.second,
-	now.microsecond)
+SUBMISSION_TIME = filepath.timestamp()
 INDIV_OUT_DIRECTORY = filepath.makedirs(OUT_DIRECTORY, SUBMISSION_TIME + "__" + SIM_DESCRIPTION)
 KB_DIRECTORY = filepath.makedirs(INDIV_OUT_DIRECTORY, "kb")
 METADATA_DIRECTORY = filepath.makedirs(INDIV_OUT_DIRECTORY, "metadata")
@@ -192,27 +214,25 @@ for i in VARIANTS_TO_RUN:
 
 ### Write metadata
 metadata = {
-	"git_hash": filepath.run_cmd(line="git rev-parse HEAD"),
-	"git_branch": filepath.run_cmd(line="git symbolic-ref --short HEAD"),
-	"git_diff": filepath.run_cmd(line="git diff"),
+	"git_hash": filepath.run_cmdline("git rev-parse HEAD"),
+	"git_branch": filepath.run_cmdline("git symbolic-ref --short HEAD"),
 	"description": os.environ.get("DESC", ""),
 	"time": SUBMISSION_TIME,
-	"total_gens": str(N_GENS),
+	"total_gens": N_GENS,
 	"analysis_type": None,
 	"variant": VARIANT,
 	"mass_distribution": MASS_DISTRIBUTION,
 	"growth_rate_noise": GROWTH_RATE_NOISE,
 	"d_period_division": D_PERIOD_DIVISION,
 	"translation_supply": TRANSLATION_SUPPLY,
+	"trna_charging": TRNA_CHARGING,
 	}
 
-for key, value in metadata.iteritems():
-	if not isinstance(value, basestring):
-		continue
-	filepath.write_file(os.path.join(METADATA_DIRECTORY, key), value)
+metadata_path = os.path.join(METADATA_DIRECTORY, constants.JSON_METADATA_FILE)
+filepath.write_json_file(metadata_path, metadata)
 
-with open(os.path.join(METADATA_DIRECTORY, constants.SERIALIZED_METADATA_FILE), "wb") as f:
-	cPickle.dump(metadata, f, cPickle.HIGHEST_PROTOCOL)
+git_diff = filepath.run_cmdline("git diff", trim=False)
+filepath.write_file(os.path.join(METADATA_DIRECTORY, "git_diff"), git_diff)
 
 #### Create workflow
 
@@ -570,6 +590,7 @@ for i in VARIANTS_TO_RUN:
 							growth_rate_noise = GROWTH_RATE_NOISE,
 							d_period_division = D_PERIOD_DIVISION,
 							translation_supply = TRANSLATION_SUPPLY,
+							trna_charging = TRNA_CHARGING,
 							),
 						name = fw_name,
 						spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": 1}, "_priority":10}
@@ -594,6 +615,7 @@ for i in VARIANTS_TO_RUN:
 							growth_rate_noise = GROWTH_RATE_NOISE,
 							d_period_division = D_PERIOD_DIVISION,
 							translation_supply = TRANSLATION_SUPPLY,
+							trna_charging = TRNA_CHARGING,
 							),
 						name = fw_name,
 						spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": 1}, "_priority":11}
@@ -617,20 +639,24 @@ for i in VARIANTS_TO_RUN:
 					fw_parent_sim = sims_this_seed[k - 1][l // 2]
 					wf_links[fw_parent_sim].append(fw_this_variant_this_gen_this_sim)
 
+				if COMPRESS_OUTPUT:
+					# Output compression job
+					fw_name = "ScriptTask_compression_simulation__Seed_%d__Gen_%d__Cell_%d" % (
+					j, k, l)
+					fw_this_variant_this_gen_this_sim_compression = Firework(
+						ScriptTask(
+							script='for dir in %s; do echo "Compressing $dir"; find "$dir" -type f | xargs bzip2; done' % os.path.join(
+								CELL_SIM_OUT_DIRECTORY, "*")
+							),
+						name=fw_name,
+						spec={"_queueadapter": {"job_name": fw_name},
+							"_priority": 0}
+						)
+
+					wf_fws.append(
+						fw_this_variant_this_gen_this_sim_compression)
+
 				if RUN_AGGREGATE_ANALYSIS:
-					if COMPRESS_OUTPUT:
-						# Output compression job
-						fw_name = "ScriptTask_compression_simulation__Seed_%d__Gen_%d__Cell_%d" % (j, k, l)
-						fw_this_variant_this_gen_this_sim_compression = Firework(
-							ScriptTask(
-								script = 'for dir in %s; do echo "Compressing $dir"; find "$dir" -type f | xargs bzip2; done' % os.path.join(CELL_SIM_OUT_DIRECTORY, "*")
-								),
-							name = fw_name,
-							spec = {"_queueadapter": {"job_name": fw_name}, "_priority":0}
-							)
-
-						wf_fws.append(fw_this_variant_this_gen_this_sim_compression)
-
 					metadata["analysis_type"] = "single"
 
 					# AnalysisSingle task
@@ -652,7 +678,6 @@ for i in VARIANTS_TO_RUN:
 
 					wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_this_gen_this_sim_analysis)
 
-
 					if COMPRESS_OUTPUT:
 						# Don't compress any outputs or validation data until all analysis scripts (single gen, multigen, and cohort) have finished running
 						compression_fws = [
@@ -669,9 +694,39 @@ for i in VARIANTS_TO_RUN:
 							for data in data_fws:
 								wf_links[data].append(compression)
 
+
+				if BUILD_CAUSALITY_NETWORK:
+					metadata["analysis_type"] = "causality_network"
+
+					# BuildCausalityNetwork task
+					fw_name = "BuildCausalityNetworkTask__Var_%d__Seed_%d__Gen_%d__Cell_%d" % (i, j, k, l)
+					fw_this_variant_this_gen_this_sim_causality_network = Firework(
+						BuildCausalityNetworkTask(
+							input_results_directory = CELL_SIM_OUT_DIRECTORY,
+							input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
+							output_network_directory = VARIANT_SIM_DATA_DIRECTORY,
+							output_dynamics_directory = CELL_PLOT_OUT_DIRECTORY,
+							metadata = metadata,
+							),
+						name=fw_name,
+						spec={"_queueadapter": dict(analysis_q_cpus,
+							job_name=fw_name), "_priority": 2}
+						)
+
+					wf_fws.append(fw_this_variant_this_gen_this_sim_causality_network)
+
+					wf_links[fw_this_variant_this_gen_this_sim].append(fw_this_variant_this_gen_this_sim_causality_network)
+
+					if COMPRESS_OUTPUT:
+						# Don't compress any outputs or sim_data until
+						# causality network scripts have finished running
+						compression_fws = [
+							fw_this_variant_sim_data_compression,
+							fw_this_variant_this_gen_this_sim_compression
+						]
+						wf_links[fw_this_variant_this_gen_this_sim_causality_network].extend(compression_fws)
+
 ## Create workflow
-
-
 if VERBOSE_QUEUE:
 	print "Creating workflow."
 

@@ -109,8 +109,8 @@ class InternalState(object):
 		rnaPolyComplexMass = self.bulkMolecules.bulkData["mass"][
 			self.bulkMolecules.bulkData["id"] == sim_data.moleculeIds.rnapFull]
 		rnaPolyAttributes = {
-			'rnaIndex' : 'i8',
-			'transcriptLength' : 'i8'
+			"rnaIndex": "i8",
+			"transcriptLength": "i8"
 			}
 
 		self.uniqueMolecules.addToUniqueState('activeRnaPoly', rnaPolyAttributes, rnaPolyComplexMass)
@@ -124,11 +124,10 @@ class InternalState(object):
 			self.bulkMolecules.bulkData["id"] == sim_data.moleculeIds.s50_fullComplex]
 		ribosomeMass = ribosome30SMass + ribosome50SMass
 		ribosomeAttributes = {
-			'proteinIndex' : 'i8',
-			'peptideLength': 'i8'
+			"proteinIndex": "i8",
+			"peptideLength": "i8",
 			}
-
-		self.uniqueMolecules.addToUniqueState('activeRibosome', ribosomeAttributes, ribosomeMass)
+		self.uniqueMolecules.addToUniqueState("activeRibosome", ribosomeAttributes, ribosomeMass)
 
 		# Add active replisomes
 		# Note that the replisome does not functionally replicate the
@@ -165,10 +164,10 @@ class InternalState(object):
 		# elongation of DNA.
 		dnaPolyMass = (units.g/units.mol) * np.zeros_like(rnaPolyComplexMass)
 		dnaPolymeraseAttributes = {
-			'sequenceIdx' : 'i8',
-			'sequenceLength' : 'i8',
-			'replicationRound' : 'i8',
-			'chromosomeIndex' : 'i8',
+			"sequenceIdx": "i8",
+			"sequenceLength": "i8",
+			"replicationRound": "i8",
+			"chromosomeIndex" : "i8",
 			}
 
 		self.uniqueMolecules.addToUniqueState('dnaPolymerase', dnaPolymeraseAttributes, dnaPolyMass)
@@ -179,7 +178,7 @@ class InternalState(object):
 		# new DNA polymerases and replisomes initiated on the same oriC.
 		originMass = (units.g/units.mol) * np.zeros_like(rnaPolyComplexMass)
 		originAttributes = {
-			'chromosomeIndex': 'i8',
+			"chromosomeIndex": "i8",
 			}
 
 		self.uniqueMolecules.addToUniqueState('originOfReplication', originAttributes, originMass)

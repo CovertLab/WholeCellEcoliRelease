@@ -22,9 +22,11 @@ import wholecell.views.view
 from wholecell.containers.unique_objects_container import UniqueObjectsContainer, _partition
 from wholecell.utils import units
 
+
 DEFAULT_ATTRIBUTES = {
 	"_partitionedProcess":np.int64
 	}
+
 
 class UniqueMolecules(wholecell.states.internal_state.InternalState):
 	"""
@@ -36,12 +38,18 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 
 	_name = "UniqueMolecules"
 
-	def __init__(self, *args, **kwargs):
+	def __init__(self):
+		super(UniqueMolecules, self).__init__()
+
 		self.container = None
 
 		self._submassNameToProperty = collections.OrderedDict()
 
-		super(UniqueMolecules, self).__init__(*args, **kwargs)
+		self.uniqueMoleculeDefinitions = None
+		self.submassNameToIndex = None
+		self._moleculeIds = None
+		self._moleculeMasses = None
+		self._unassignedPartitionedValue = None
 
 
 	def initialize(self, sim, sim_data):
@@ -197,6 +205,11 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 				masses[processIndex, :] += massDiffs[processIndex == processIndexes, :].sum(axis = 0)
 
 		return masses
+
+
+	def loadSnapshot(self, container):
+		"""Copy contents from `container`, which must have the same specifications."""
+		self.container.loadSnapshot(container)
 
 
 	def tableCreate(self, tableWriter):

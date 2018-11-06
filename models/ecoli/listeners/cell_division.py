@@ -59,9 +59,7 @@ class CellDivision(wholecell.listeners.listener.Listener):
 			self.massCoeff = sim.randomState.normal(loc = 1.0, scale = 0.1)
 
 		# View on full chromosomes
-		self.fullChromosomeView = self.internal_states['BulkMolecules'].container.countView('CHROM_FULL[c]')
-		self.partialChromosomeView = self.internal_states['BulkMolecules'].container.countsView(self.internal_states['BulkMolecules'].divisionIds['partialChromosome'])
-		self.fullChromosomeView = self.internal_states['BulkMolecules'].container.countView(sim_data.moleculeIds.fullChromosome)
+		self.fullChromosomeView = self.internal_states['BulkMolecules'].container.countsView([sim_data.moleculeIds.fullChromosome])
 		self.uniqueMoleculeContainer = self.internal_states['UniqueMolecules'].container
 
 		self.divisionMassMultiplier = 1.
@@ -87,11 +85,7 @@ class CellDivision(wholecell.listeners.listener.Listener):
 			self.setInitial = True
 			self.dryMassInitial = self.dryMass
 
-		partial_chromosome_counts = self.partialChromosomeView.counts()
-		uneven_counts = partial_chromosome_counts - partial_chromosome_counts.min()
-
 		# Ends simulation once D period has occured after chromosome termination
-
 		if self.d_period_division:
 			fullChrom = self.uniqueMoleculeContainer.objectsInCollection("fullChromosome")
 			if len(fullChrom):
@@ -108,20 +102,10 @@ class CellDivision(wholecell.listeners.listener.Listener):
 
 					fullChrom.delByIndexes(np.where(division_times == divide_at_time)[0])
 
-					if not uneven_counts.any():
-					# if self.fullChromosomeView.count() > 1:
-						self._sim.cellCycleComplete()
+					self._sim.cellCycleComplete()
 		else:
 			# End simulation once the mass of an average cell is
 			# added to current cell.
 			current_nutrients = self._external_states['Environment'].nutrients
 			if self.dryMass - self.dryMassInitial >= self.expectedDryMassIncreaseDict[current_nutrients].asNumber(units.fg) * self.divisionMassMultiplier:
-				if not uneven_counts.any():
-				# if self.fullChromosomeView.count() > 1:
-					self._sim.cellCycleComplete()
-
-
-		# if self.dryMass >= 2. * self.dryMassInitial:
-		# 	if not uneven_counts.any():
-		# 	# if self.fullChromosomeView.count() > 1:
-		# 		self._sim.cellCycleComplete()
+				self._sim.cellCycleComplete()

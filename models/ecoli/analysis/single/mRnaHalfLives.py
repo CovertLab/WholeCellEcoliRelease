@@ -17,6 +17,7 @@ import cPickle
 
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
 from models.ecoli.analysis import singleAnalysisPlot
 
 
@@ -39,14 +40,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		expectedDegradationRate = sim_data.process.transcription.rnaData['degRate'][isMRna].asNumber()
 
-
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-
-		# Note that MoleculeIDs is replaced by objectNames
-
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
-		rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
-		rnaCountsBulk = bulkMolecules.readColumn("counts")[:, rnaIndexes]
+		rnaCountsBulk, = read_bulk_molecule_counts(simOutDir, rnaIds)
 		rnaCounts = rnaCountsBulk[1:,:]
 		rnaCountsTotal = rnaCounts.sum(axis = 0)
 

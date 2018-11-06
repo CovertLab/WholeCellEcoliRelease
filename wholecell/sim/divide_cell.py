@@ -2,7 +2,7 @@
 divide_cell.py
 Functions needed for division from mother cell into daughter cells
 """
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 import os
@@ -10,17 +10,27 @@ import cPickle
 from copy import deepcopy
 from itertools import izip
 
-from wholecell.io.tablewriter import TableWriter
+from wholecell.utils.constants import SERIALIZED_INHERITED_STATE
 from wholecell.utils import filepath
 from wholecell.utils import units
 
 BINOMIAL_COEFF = 0.5
 
 
+def zero_elongation_rate():
+	return {
+		"d1_elng_rate": 0.,
+		"d2_elng_rate": 0.,
+		"d1_elng_rate_factor": 0.,
+		"d2_elng_rate_factor": 0.,
+		}
+
+
 def divide_cell(sim):
 	"""
-	Divides simulated states (chromosome, bulkMolecules, and uniqueMolecules)
-	of a dividing cell randomly into two daughter cells.
+	Divide simulated states (chromosome, bulkMolecules, and uniqueMolecules)
+	of a dividing cell randomly into two daughter cells, saving the data for
+	the daughter cells' `_initialConditionsFunction()` method to read.
 	"""
 	# Assign data from simulation required
 	randomState = sim.randomState
@@ -28,30 +38,18 @@ def divide_cell(sim):
 	bulkMolecules = sim.internal_states['BulkMolecules']
 	uniqueMolecules = sim.internal_states['UniqueMolecules']
 
+	sim_data = sim.get_sim_data()
+
 	# TODO (Eran): division should be based on both nutrient and gene perturbation condition
 	current_nutrients = sim.external_states['Environment'].nutrients
 
 	# Create output directories
-	filepath.makedirs(sim._outputDir, "Daughter1")
-	filepath.makedirs(sim._outputDir, "Daughter2")
-
-	# Check for uneven numbers of partial chromosomes. This should not happen
-	# too often if the four partial chromosomes are elongated in a roughly
-	# synchronized way.
-	# TODO (Gwanggyu): try to handle this case instead of raising an exception
-	partial_chromosome_counts = bulkMolecules.container.counts(
-		bulkMolecules.divisionIds['partialChromosome'])
-	uneven_counts = partial_chromosome_counts - partial_chromosome_counts.min()
-	if uneven_counts.any():
-		raise Exception("You won the lottery! There is an uneven number of partial chromosomes...")
-
-	# Transform any leftover partial chromosomes into full a chromosome. This
-	# should have happened in the chromosome_formation process but we could get
-	# unlucky and miss this in the final timestep.
-	bulkMolecules.container.countInc(
-		partial_chromosome_counts.min(),
-		bulkMolecules.divisionIds['fullChromosome'][0]
-		)
+	d1_path = filepath.makedirs(sim._outputDir, "Daughter1")
+	d2_path = filepath.makedirs(sim._outputDir, "Daughter2")
+	print('Writing daughter cell data to {} et al.'.format(d1_path))
+	# TODO(jerry): In a multi-scale sim, set inherited_state_path=d1_path and
+	# inherited_state_path=d2_path in the daughter cell agent_config dicts,
+	# along with the correct variant_type, variant_index, and seed.
 
 	# Check if the cell is dead
 	isDead = False
@@ -64,19 +62,13 @@ def divide_cell(sim):
 	elif sim._isDead:
 		isDead = True
 
-	with open(os.path.join(sim._outputDir, "Daughter1", "IsDead.cPickle"), 'wb') as f:
-		cPickle.dump(isDead, f)
-	with open(os.path.join(sim._outputDir, "Daughter2", "IsDead.cPickle"), 'wb') as f:
-		cPickle.dump(isDead, f)
-
 	if isDead:
 		# Cell is dead - set daughter cell containers to empty values
 		d1_bulkMolCntr = bulkMolecules.container.emptyLike()
 		d2_bulkMolCntr = bulkMolecules.container.emptyLike()
 		d1_uniqueMolCntr = uniqueMolecules.container.emptyLike()
 		d2_uniqueMolCntr = uniqueMolecules.container.emptyLike()
-		daughter_elng_rates = {"d1_elng_rate": 0., "d2_elng_rate": 0.,
-			"d1_elng_rate_factor": 0., "d2_elng_rate_factor": 0.}
+		daughter_elng_rates = zero_elongation_rate()
 	else:
 		# Divide the chromosome into two daughter cells
 		# The output is used when dividing both bulk molecules and unique
@@ -85,36 +77,35 @@ def divide_cell(sim):
 
 		# Create divided containers
 		d1_bulkMolCntr, d2_bulkMolCntr = divideBulkMolecules(
-			bulkMolecules, randomState, chromosome_counts)
+			bulkMolecules, uniqueMolecules, randomState, chromosome_counts,
+			sim_data)
 		d1_uniqueMolCntr, d2_uniqueMolCntr, daughter_elng_rates = (
 			divideUniqueMolecules(uniqueMolecules, randomState,
 			chromosome_counts, current_nutrients, sim)
 			)
 
-	# Save divided containers
-	saveContainer(d1_bulkMolCntr, os.path.join(
-		sim._outputDir, "Daughter1", "BulkMolecules"))
-	saveContainer(d2_bulkMolCntr, os.path.join(
-		sim._outputDir, "Daughter2", "BulkMolecules"))
-	saveContainer(d1_uniqueMolCntr, os.path.join(
-		sim._outputDir, "Daughter1", "UniqueMolecules"))
-	saveContainer(d2_uniqueMolCntr, os.path.join(
-		sim._outputDir, "Daughter2", "UniqueMolecules"))
+	# Save the daughter initialization state.
+	initial_time = sim.time() + sim.timeStepSec()
+	save_inherited_state(
+		d1_path,
+		is_dead=isDead,
+		initial_time=initial_time,
+		elng_rate=daughter_elng_rates["d1_elng_rate"],
+		elng_rate_factor=daughter_elng_rates["d1_elng_rate_factor"],
+		bulk_molecules=d1_bulkMolCntr,
+		unique_molecules=d1_uniqueMolCntr,
+		)
+	save_inherited_state(
+		d2_path,
+		is_dead=isDead,
+		initial_time=initial_time,
+		elng_rate=daughter_elng_rates["d2_elng_rate"],
+		elng_rate_factor=daughter_elng_rates["d2_elng_rate_factor"],
+		bulk_molecules=d2_bulkMolCntr,
+		unique_molecules=d2_uniqueMolCntr,
+		)
 
-	with open(os.path.join(sim._outputDir, "Daughter1", "ElngRate.cPickle"), 'wb') as f:
-		cPickle.dump(daughter_elng_rates["d1_elng_rate"], f)
-	with open(os.path.join(sim._outputDir, "Daughter2", "ElngRate.cPickle"), 'wb') as f:
-		cPickle.dump(daughter_elng_rates["d2_elng_rate"], f)
-	with open(os.path.join(sim._outputDir, "Daughter1", "elng_rate_factor.cPickle"), 'wb') as f:
-		cPickle.dump(daughter_elng_rates["d1_elng_rate_factor"], f)
-	with open(os.path.join(sim._outputDir, "Daughter2", "elng_rate_factor.cPickle"), 'wb') as f:
-		cPickle.dump(daughter_elng_rates["d2_elng_rate_factor"], f)
-
-	# Save daughter cell initial time steps
-	saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter1", "Time"),
-		sim.timeStepSec())
-	saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter2", "Time"),
-		sim.timeStepSec())
+	return [d1_path, d2_path]
 
 
 def chromosomeDivision(bulkMolecules, randomState):
@@ -146,16 +137,21 @@ def chromosomeDivision(bulkMolecules, randomState):
 		size=d1_chromosome_count, replace=False
 		)
 
+	d1_chromosome_mask = np.zeros(full_chromosome_count, dtype=np.bool)
+	d1_chromosome_mask[d1_chromosome_indexes] = 1
+
 	return {"d1_chromosome_count": d1_chromosome_count,
 		"d2_chromosome_count": d2_chromosome_count,
-		"d1_chromosome_indexes": d1_chromosome_indexes
+		"d1_chromosome_indexes": d1_chromosome_indexes,
+		"d1_chromosome_mask": d1_chromosome_mask,
 		}
 
 
-def divideBulkMolecules(bulkMolecules, randomState, chromosome_counts):
+def divideBulkMolecules(bulkMolecules, uniqueMolecules, randomState,
+		chromosome_counts, sim_data):
 	"""
-	Randomly divides bulk molecules into two daughter cells based on the
-	division ID of the molecule. 
+	Divide bulk molecules into two daughter cells based on the division ID of
+	the molecule.
 	"""
 	# Initialize containers for daughter cells
 	d1_bulk_molecules_container = bulkMolecules.container.emptyLike()
@@ -177,7 +173,7 @@ def divideBulkMolecules(bulkMolecules, randomState, chromosome_counts):
 	# Check that no bulk molecules need to be divided equally
 	assert len(bulkMolecules.divisionIds['equally']) == 0
 
-	# Handle chromosome division
+	# Divide full chromosomes
 	d1_chromosome_count = chromosome_counts['d1_chromosome_count']
 	d2_chromosome_count = chromosome_counts['d2_chromosome_count']
 	d1_bulk_molecules_container.countIs(d1_chromosome_count,
@@ -185,17 +181,96 @@ def divideBulkMolecules(bulkMolecules, randomState, chromosome_counts):
 	d2_bulk_molecules_container.countIs(d2_chromosome_count,
 		bulkMolecules.divisionIds['fullChromosome'][0])
 
-	# Set basal transcription values to 1 for both daughter cells
-	# TODO: Add assertion that these elements have zero mass
-	d1_bulk_molecules_container.countsIs(1,
-		bulkMolecules.divisionIds['setTo1'])
-	d2_bulk_molecules_container.countsIs(1,
-		bulkMolecules.divisionIds['setTo1'])
+	# Calculate gene copy numbers for each chromosome from chromosome state
+	replicationCoordinate = sim_data.process.transcription.rnaData[
+		"replicationCoordinate"]
+	replication_forks = uniqueMolecules.container.objectsInCollection(
+		'dnaPolymerase')
+	d1_chromosome_mask = chromosome_counts['d1_chromosome_mask']
+
+	full_chromosome_count = len(d1_chromosome_mask)
+
+	# Initialize all gene counts to one
+	gene_counts_array = np.ones(
+		(full_chromosome_count, len(replicationCoordinate)),
+		dtype=np.int
+		)
+
+	# Add to gene counts if there are active replication forks
+	if len(replication_forks) > 0:
+		sequenceIdx, sequenceLength, replicationRound, chromosomeIndex = replication_forks.attrs(
+			'sequenceIdx', 'sequenceLength', 'replicationRound', 'chromosomeIndex'
+			)
+
+		for chrom_idx in np.arange(0, full_chromosome_count):
+			chromosomeMatch = (chromosomeIndex == chrom_idx)
+
+			forward_fork_coordinates = sequenceLength[
+				np.logical_and(chromosomeMatch, (sequenceIdx == 0))
+				]
+			reverse_fork_coordinates = np.negative(sequenceLength[
+				np.logical_and(chromosomeMatch, (sequenceIdx == 1))
+				])
+
+			assert len(forward_fork_coordinates) == len(reverse_fork_coordinates)
+
+			for (forward, reverse) in izip(forward_fork_coordinates,
+					reverse_fork_coordinates):
+				gene_counts_array[chrom_idx,
+					np.logical_and(replicationCoordinate < forward,
+						replicationCoordinate > reverse)
+					] += 1
+
+	# Divide genes counts based on chromosome division results
+	molecule_counts = bulkMolecules.container.counts(
+		bulkMolecules.divisionIds['geneCopyNumber'])
+
+	assert np.all(molecule_counts == gene_counts_array.sum(axis=0))
+
+	d1_gene_counts = gene_counts_array[d1_chromosome_mask, :].sum(axis=0)
+	d2_gene_counts = gene_counts_array[~d1_chromosome_mask, :].sum(axis=0)
+
+	# Set gene copy numbers in daughter cells
+	d1_bulk_molecules_container.countsIs(d1_gene_counts,
+		bulkMolecules.divisionIds['geneCopyNumber'])
+	d2_bulk_molecules_container.countsIs(d2_gene_counts,
+		bulkMolecules.divisionIds['geneCopyNumber'])
+
+	# Divide bound TFs based on gene copy numbers for each chromosome
+	molecule_counts = bulkMolecules.container.counts(
+		bulkMolecules.divisionIds['boundTF'])
+
+	# Bound TFs are first divided binomially. Since the number of bound TFs
+	# cannot be larger than the copy number of the target gene, the "overshoot"
+	# counts for each daughter are added to the counts for the other daughter.
+	d1_tf_counts = randomState.binomial(molecule_counts, p=BINOMIAL_COEFF)
+	d2_tf_counts = molecule_counts - d1_tf_counts
+
+	rna_index_to_bound_tf_mapping = sim_data.process.transcription_regulation.rna_index_to_bound_tf_mapping
+
+	d1_tf_overshoot = (
+		d1_tf_counts - d1_gene_counts[rna_index_to_bound_tf_mapping]
+		).clip(min=0)
+	d2_tf_overshoot = (
+		d2_tf_counts - d2_gene_counts[rna_index_to_bound_tf_mapping]
+		).clip(min=0)
+
+	d1_tf_counts = d1_tf_counts - d1_tf_overshoot + d2_tf_overshoot
+	d2_tf_counts = d2_tf_counts - d2_tf_overshoot + d1_tf_overshoot
+
+	assert np.all(d1_tf_counts + d2_tf_counts == molecule_counts)
+
+	# Set bound TF counts in daughter cells
+	d1_bulk_molecules_container.countsIs(d1_tf_counts,
+		bulkMolecules.divisionIds['boundTF'])
+	d2_bulk_molecules_container.countsIs(d2_tf_counts,
+		bulkMolecules.divisionIds['boundTF'])
 
 	return d1_bulk_molecules_container, d2_bulk_molecules_container
 
 
-def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts, current_nutrients, sim):
+def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts,
+		current_nutrients, sim):
 	"""
 	Divides unique molecules of the mother cell to the two daughter cells. Each
 	class of unique molecules is divided in a different way.
@@ -274,6 +349,8 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts, curre
 	moleculeSet = uniqueMolecules.container.objectsInCollection('activeRibosome')
 	moleculeAttributeDict = uniqueMoleculesToDivide['activeRibosome']
 	n_ribosomes = len(moleculeSet)
+
+	daughter_elng_rates = zero_elongation_rate()
 
 	if n_ribosomes > 0:
 		# Read the ribosome elongation rate of the mother cell
@@ -484,18 +561,16 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts, curre
 	return d1_unique_molecules_container, d2_unique_molecules_container, daughter_elng_rates
 
 
-def saveContainer(container, path):
-	table_writer = TableWriter(path)
-	container.tableCreate(table_writer)
-	container.tableAppend(table_writer)
+def save_inherited_state(daughter_path, **inherited_state):
+	"""Save the `inherited_state` dict for a daughter cell."""
+	with open(os.path.join(daughter_path, SERIALIZED_INHERITED_STATE), 'wb') as f:
+		cPickle.dump(inherited_state, f, cPickle.HIGHEST_PROTOCOL)
 
-
-def saveTime(finalTime, path, timeStepSec):
-	timeFile = TableWriter(path)
-
-	# Metadata
-	timeFile.writeAttributes(initialTime=finalTime + timeStepSec)
-	timeFile.close()
+def load_inherited_state(daughter_path):
+	"""Load `inherited_state` dict to initialize a daughter cell."""
+	with open(os.path.join(daughter_path, SERIALIZED_INHERITED_STATE), "rb") as f:
+		inherited_state = cPickle.load(f)
+	return inherited_state
 
 
 def resetChromosomeIndex(oldChromosomeIndex, chromosomeCount):

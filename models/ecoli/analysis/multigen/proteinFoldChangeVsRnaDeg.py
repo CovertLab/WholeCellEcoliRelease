@@ -12,7 +12,6 @@ from wholecell.utils import units
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
 
-FROM_CACHE = False
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
@@ -42,38 +41,31 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		ratioFinalToInitialCountMultigen = np.zeros((n_sims, n_monomers), dtype = np.float)
 		initiationEventsPerMonomerMultigen = np.zeros((n_sims, n_monomers), dtype = np.int)
 
-		if not FROM_CACHE:
-			for gen_idx, simDir in enumerate(allDir):
-				simOutDir = os.path.join(simDir, "simOut")
+		for gen_idx, simDir in enumerate(allDir):
+			simOutDir = os.path.join(simDir, "simOut")
 
-				time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
-				## READ DATA ##
-				monomerCounts = TableReader(os.path.join(simOutDir, "MonomerCounts"))
-				proteinMonomerCounts = monomerCounts.readColumn("monomerCounts")
+			## READ DATA ##
+			monomerCounts = TableReader(os.path.join(simOutDir, "MonomerCounts"))
+			proteinMonomerCounts = monomerCounts.readColumn("monomerCounts")
 
-				## CALCULATIONS ##
-				# Calculate if monomer comes close to doubling
-				ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(np.float) + 1)
+			## CALCULATIONS ##
+			# Calculate if monomer comes close to doubling
+			ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(np.float) + 1)
 
-				# Load transcription initiation event data
-				# rnapData = TableReader(os.path.join(simOutDir, "RnapData"))
-				# initiationEventsPerRna = rnapData.readColumn("rnaInitEvent").sum(axis = 0)
+			# Load transcription initiation event data
+			# rnapData = TableReader(os.path.join(simOutDir, "RnapData"))
+			# initiationEventsPerRna = rnapData.readColumn("rnaInitEvent").sum(axis = 0)
 
-				# Map transcription initiation events to monomers
-				# initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.rnaIndexToMonomerMapping]
+			# Map transcription initiation events to monomers
+			# initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.rnaIndexToMonomerMapping]
 
-				# Log data
-				ratioFinalToInitialCount[np.logical_and(ratioFinalToInitialCount == 1., proteinMonomerCounts[0,:] == 0)] = np.nan
+			# Log data
+			ratioFinalToInitialCount[np.logical_and(ratioFinalToInitialCount == 1., proteinMonomerCounts[0,:] == 0)] = np.nan
 
-				ratioFinalToInitialCountMultigen[gen_idx,:] = ratioFinalToInitialCount
-				# initiationEventsPerMonomerMultigen[gen_idx,:] = initiationEventsPerMonomer
-
-			cPickle.dump(ratioFinalToInitialCountMultigen, open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "wb"))
-			# cPickle.dump(initiationEventsPerMonomerMultigen, open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "wb"))
-
-		ratioFinalToInitialCountMultigen = cPickle.load(open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "rb"))
-		# initiationEventsPerMonomerMultigen = cPickle.load(open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "rb"))
+			ratioFinalToInitialCountMultigen[gen_idx,:] = ratioFinalToInitialCount
+			# initiationEventsPerMonomerMultigen[gen_idx,:] = initiationEventsPerMonomer
 
 		# uniqueBurstSizes = np.unique(initiationEventsPerMonomerMultigen)
 		degradationRates = sim_data.process.transcription.rnaData['degRate'].asNumber(1/units.s)

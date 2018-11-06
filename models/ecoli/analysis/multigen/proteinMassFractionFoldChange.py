@@ -14,8 +14,6 @@ import cPickle
 from wholecell.utils import units
 from models.ecoli.analysis import multigenAnalysisPlot
 
-FROM_CACHE = False
-
 CLOSE_TO_DOUBLE = 0.1
 
 
@@ -50,69 +48,48 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		cellMassInitMultigen = np.zeros(n_sims, dtype=np.float)
 		cellMassFinalMultigen = np.zeros(n_sims, dtype=np.float)
 
-		if not FROM_CACHE:
+		for gen_idx, simDir in enumerate(allDir):
+			simOutDir = os.path.join(simDir, "simOut")
 
-			for gen_idx, simDir in enumerate(allDir):
-				simOutDir = os.path.join(simDir, "simOut")
+			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
-				time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+			cellMass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")
+			cellMassInit = cellMass[0]
+			cellMassFinal = cellMass[-1]
+			cellMass = cellMass.mean()
 
-				cellMass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")
-				cellMassInit = cellMass[0]
-				cellMassFinal = cellMass[-1]
-				cellMass = cellMass.mean()
+			monomerCounts = TableReader(os.path.join(simOutDir, "MonomerCounts"))
+			proteinMonomerCounts = monomerCounts.readColumn("monomerCounts")
 
-				monomerCounts = TableReader(os.path.join(simOutDir, "MonomerCounts"))
-				proteinMonomerCounts = monomerCounts.readColumn("monomerCounts")
+			## CALCULATIONS ##
+			monomerAverageCount = proteinMonomerCounts.mean(axis=0)
 
-				## CALCULATIONS ##
-				monomerAverageCount = proteinMonomerCounts.mean(axis=0)
+			# Calculate if monomer exists over course of cell cycle
+			monomerExist = proteinMonomerCounts.sum(axis=0) > 1
 
-				# Calculate if monomer exists over course of cell cycle
-				monomerExist = proteinMonomerCounts.sum(axis=0) > 1
+			# Calculate if monomer comes close to doubling
+			ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(np.float) + 1)
+			# monomerDouble = ratioFinalToInitialCount > (1 - CLOSE_TO_DOUBLE)
+			monomerInitialCount = proteinMonomerCounts[0,:]
 
-				# Calculate if monomer comes close to doubling
-				ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(np.float) + 1)
-				# monomerDouble = ratioFinalToInitialCount > (1 - CLOSE_TO_DOUBLE)
-				monomerInitialCount = proteinMonomerCounts[0,:]
+			# Load transcription initiation event data
+			rnapData = TableReader(os.path.join(simOutDir, "RnapData"))
+			initiationEventsPerRna = rnapData.readColumn("rnaInitEvent").sum(axis = 0)
 
-				# Load transcription initiation event data
-				rnapData = TableReader(os.path.join(simOutDir, "RnapData"))
-				initiationEventsPerRna = rnapData.readColumn("rnaInitEvent").sum(axis = 0)
+			# Map transcription initiation events to monomers
+			initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.rnaIndexToMonomerMapping]
 
-				# Map transcription initiation events to monomers
-				initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.rnaIndexToMonomerMapping]
+			# Log data
+			monomerExistMultigen[gen_idx,:] = monomerExist
+			ratioFinalToInitialCountMultigen[gen_idx,:] = ratioFinalToInitialCount
+			initiationEventsPerMonomerMultigen[gen_idx,:] = initiationEventsPerMonomer
+			monomerAvgCountMultigen[gen_idx, :] = monomerAverageCount
+			cellMassMultigen[gen_idx] = cellMass
+			monomerInitialCountMultigen[gen_idx,:] = monomerInitialCount
 
-				# Log data
-				monomerExistMultigen[gen_idx,:] = monomerExist
-				ratioFinalToInitialCountMultigen[gen_idx,:] = ratioFinalToInitialCount
-				initiationEventsPerMonomerMultigen[gen_idx,:] = initiationEventsPerMonomer
-				monomerAvgCountMultigen[gen_idx, :] = monomerAverageCount
-				cellMassMultigen[gen_idx] = cellMass
-				monomerInitialCountMultigen[gen_idx,:] = monomerInitialCount
+			cellMassInitMultigen[gen_idx] = cellMassInit
+			cellMassFinalMultigen[gen_idx] = cellMassFinal
 
-				cellMassInitMultigen[gen_idx] = cellMassInit
-				cellMassFinalMultigen[gen_idx] = cellMassFinal
-
-			cPickle.dump(monomerExistMultigen, open(os.path.join(plotOutDir,"monomerExistMultigen.pickle"), "wb"))
-			cPickle.dump(ratioFinalToInitialCountMultigen, open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "wb"))
-			cPickle.dump(initiationEventsPerMonomerMultigen, open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "wb"))
-			cPickle.dump(monomerAvgCountMultigen, open(os.path.join(plotOutDir,"monomerAvgCountMultigen.pickle"), "wb"))
-			cPickle.dump(cellMassMultigen, open(os.path.join(plotOutDir,"cellMassMultigen.pickle"), "wb"))
-			cPickle.dump(monomerInitialCountMultigen, open(os.path.join(plotOutDir,"monomerInitialCountMultigen.pickle"), "wb"))
-			cPickle.dump(cellMassInitMultigen, open(os.path.join(plotOutDir,"cellMassInitMultigen.pickle"), "wb"))
-			cPickle.dump(cellMassFinalMultigen, open(os.path.join(plotOutDir,"cellMassFinalMultigen.pickle"), "wb"))
-
-
-
-		monomerExistMultigen = cPickle.load(open(os.path.join(plotOutDir,"monomerExistMultigen.pickle"), "rb"))
-		ratioFinalToInitialCountMultigen = cPickle.load(open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "rb"))
-		initiationEventsPerMonomerMultigen = cPickle.load(open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "rb"))
-		monomerAvgCountMultigen = cPickle.load(open(os.path.join(plotOutDir,"monomerAvgCountMultigen.pickle"), "rb"))
-		cellMassMultigen = cPickle.load(open(os.path.join(plotOutDir,"cellMassMultigen.pickle"), "rb"))
-		monomerInitialCountMultigen = cPickle.load(open(os.path.join(plotOutDir,"monomerInitialCountMultigen.pickle"), "rb"))
-		cellMassInitMultigen = cPickle.load(open(os.path.join(plotOutDir,"cellMassInitMultigen.pickle"), "rb"))
-		cellMassFinalMultigen = cPickle.load(open(os.path.join(plotOutDir,"cellMassFinalMultigen.pickle"), "rb"))
 
 		monomerFinalCountMultigen = ratioFinalToInitialCountMultigen * (monomerInitialCountMultigen + 1) - 1
 

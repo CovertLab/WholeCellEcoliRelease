@@ -39,7 +39,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		# Get cells
 		ap = AnalysisPaths(inputDir, variant_plot = True)
 		if ap.n_variant != 9:
-			print "This plot expects all variants of meneParams"
+			print "This plot expects all variants of mene_params"
 			return
 
 		# Get constants from wildtype variant
@@ -52,66 +52,50 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		endProductIds = ["REDUCED-MENAQUINONE[c]", "CPD-12115[c]"]
 		TARGET_CONC = len(endProductIds) * TARGET_CONC_SINGLE
 
-		# Check for cache
-		cacheFileName = "%s.pickle" % plotOutFileName
-		CACHE_EXISTS = False
-		if os.path.exists(os.path.join(plotOutDir, cacheFileName)):
-			CACHE_EXISTS = True
+		# Investigate each variant
+		meneDepletion = np.zeros([ap.n_seed, ap.n_variant])
+		endProductDepletion = np.zeros([ap.n_seed, ap.n_variant])
 
-		if not CACHE_EXISTS:
-			# Investigate each variant
-			meneDepletion = np.zeros([ap.n_seed, ap.n_variant])
-			endProductDepletion = np.zeros([ap.n_seed, ap.n_variant])
+		for variant in xrange(ap.n_variant):
+			for seed in xrange(ap.n_seed):
+				cells = ap.get_cells(variant = [variant], seed = [seed])
+				timeMeneDepleted = [] # seconds
+				timeEndProdDepleted = [] # seconds
 
-			for variant in xrange(ap.n_variant):
-				for seed in xrange(ap.n_seed):
-					cells = ap.get_cells(variant = [variant], seed = [seed])
-					timeMeneDepleted = [] # seconds
-					timeEndProdDepleted = [] # seconds
+				for i, simDir in enumerate(cells):
+					simOutDir = os.path.join(simDir, "simOut")
 
-					for i, simDir in enumerate(cells):
-						simOutDir = os.path.join(simDir, "simOut")
+					# Get molecule counts
+					bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+					moleculeIds = bulkMolecules.readAttribute("objectNames")
+					bulkMoleculeCounts = bulkMolecules.readColumn("counts")
 
-						# Get molecule counts
-						bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-						moleculeIds = bulkMolecules.readAttribute("objectNames")
-						bulkMoleculeCounts = bulkMolecules.readColumn("counts")
+					meneIndex = moleculeIds.index(enzymeId)
+					meneCounts = bulkMoleculeCounts[:, meneIndex]
+					endProductIndices = [moleculeIds.index(x) for x in endProductIds]
+					endProductCounts = bulkMoleculeCounts[:, endProductIndices]
+					bulkMolecules.close()
 
-						meneIndex = moleculeIds.index(enzymeId)
-						meneCounts = bulkMoleculeCounts[:, meneIndex]
-						endProductIndices = [moleculeIds.index(x) for x in endProductIds]
-						endProductCounts = bulkMoleculeCounts[:, endProductIndices]
-						bulkMolecules.close()
+					# Compute time with zero counts of tetramer (MENE-CPLX)
+					timeStepSec = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
+					meneDepletionIndices = np.where(meneCounts == 0)[0]
+					timeMeneDepleted.append(timeStepSec[meneDepletionIndices].sum())
 
-						# Compute time with zero counts of tetramer (MENE-CPLX)
-						timeStepSec = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
-						meneDepletionIndices = np.where(meneCounts == 0)[0]
-						timeMeneDepleted.append(timeStepSec[meneDepletionIndices].sum())
+					# Compute time with end products under the target concentration
+					mass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass") * units.fg
+					volume = mass / cellDensity
+					endProductConcentrations = np.sum([endProductCounts[:, col] / nAvogadro / volume for col in xrange(endProductCounts.shape[1])], axis = 0)
+					endProductDepletionIndices = np.where(endProductConcentrations < ((1 - THRESHOLD) * TARGET_CONC))[0]
+					timeEndProdDepleted.append(timeStepSec[endProductDepletionIndices].sum())
 
-						# Compute time with end products under the target concentration
-						mass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass") * units.fg
-						volume = mass / cellDensity
-						endProductConcentrations = np.sum([endProductCounts[:, col] / nAvogadro / volume for col in xrange(endProductCounts.shape[1])], axis = 0)
-						endProductDepletionIndices = np.where(endProductConcentrations < ((1 - THRESHOLD) * TARGET_CONC))[0]
-						timeEndProdDepleted.append(timeStepSec[endProductDepletionIndices].sum())
+				# Record MENE-CPLX depletion
+				totalTime = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")[-1] + timeStepSec[-1]
+				fractionMeneDepleted = np.sum(timeMeneDepleted) / totalTime
+				meneDepletion[seed, variant] = fractionMeneDepleted
 
-					# Record MENE-CPLX depletion
-					totalTime = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")[-1] + timeStepSec[-1]
-					fractionMeneDepleted = np.sum(timeMeneDepleted) / totalTime
-					meneDepletion[seed, variant] = fractionMeneDepleted
-
-					# Record end product depletion
-					fractionEndProdDepleted = np.sum(timeEndProdDepleted) / totalTime
-					endProductDepletion[seed, variant] = fractionEndProdDepleted
-
-			# Cache
-			D = {"mene": meneDepletion, "endProduct": endProductDepletion}
-			cPickle.dump(D, open(os.path.join(plotOutDir, cacheFileName), "wb"))
-
-		else:
-			D = cPickle.load(open(os.path.join(plotOutDir, cacheFileName), "rb"))
-			meneDepletion = D["mene"]
-			endProductDepletion = D["endProduct"]
+				# Record end product depletion
+				fractionEndProdDepleted = np.sum(timeEndProdDepleted) / totalTime
+				endProductDepletion[seed, variant] = fractionEndProdDepleted
 
 		# Compute average and standard deviations
 		meneDepletion_avg = np.average(meneDepletion, axis = 0)

@@ -25,13 +25,17 @@ from wholecell.utils.constants import REQUEST_PRIORITY_DEFAULT
 
 ASSERT_POSITIVE_COUNTS = True
 
+
 class NegativeCountsError(Exception):
 	pass
+
 
 class BulkMolecules(wholecell.states.internal_state.InternalState):
 	_name = 'BulkMolecules'
 
-	def __init__(self, *args, **kwargs):
+	def __init__(self):
+		super(BulkMolecules, self).__init__()
+
 		self.container = None
 		self._moleculeMass = None
 		self._moleculeIDs = None
@@ -40,7 +44,10 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
 		self._countsAllocatedFinal = None
 		self._countsUnallocated = None
 
-		super(BulkMolecules, self).__init__(*args, **kwargs)
+		self._processIDs = None
+		self._submassNameToIndex = None
+		self._processPriorities = None
+		self.divisionIds = {}
 
 
 	def initialize(self, sim, sim_data):
@@ -67,8 +74,8 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
 		self.divisionIds['binomial'] = sim_data.moleculeGroups.bulkMoleculesBinomialDivision
 		self.divisionIds['equally'] = sim_data.moleculeGroups.bulkMoleculesEqualDivision
 		self.divisionIds['fullChromosome'] = [sim_data.moleculeIds.fullChromosome]
-		self.divisionIds['partialChromosome'] = sim_data.moleculeGroups.partialChromosome
-		self.divisionIds['setTo1'] = sim_data.moleculeGroups.bulkMoleculesSetTo1Division
+		self.divisionIds['geneCopyNumber'] = sim_data.moleculeGroups.bulkMoleculesGeneCopyNumberDivision
+		self.divisionIds['boundTF'] = sim_data.moleculeGroups.bulkMoleculesBoundTFDivision
 
 	def processRequestPriorityIs(self, processIndex, priorityLevel):
 		self._processPriorities[processIndex] = priorityLevel
@@ -188,6 +195,10 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
 			)
 
 
+	def loadSnapshot(self, container):
+		"""Load data from a snapshot `container`."""
+		self.container.loadSnapshot(container)
+
 	def tableCreate(self, tableWriter):
 		self.container.tableCreate(tableWriter)
 		tableWriter.writeAttributes(
@@ -238,8 +249,13 @@ def calculatePartition(processPriorities, countsRequested, counts, countsPartiti
 
 		counts -= allocations.sum(axis = 1)
 
+
 class BulkMoleculesViewBase(wholecell.views.view.View):
 	_stateID = 'BulkMolecules'
+
+	def __init__(self, *args, **kwargs):
+		super(BulkMoleculesViewBase, self).__init__(*args, **kwargs)
+		self._containerIndexes = None  # subclasses must set this
 
 	def _updateQuery(self):
 		self._totalIs(self._state.container._counts[self._containerIndexes])
@@ -286,10 +302,6 @@ class BulkMoleculesView(BulkMoleculesViewBase):
 		return self._counts()
 
 
-	def mass(self):
-		return self._mass()
-
-
 	def countsIs(self, values):
 		self._countsIs(values)
 
@@ -312,10 +324,6 @@ class BulkMoleculeView(BulkMoleculesViewBase):
 
 	def count(self):
 		return self._counts()[0]
-
-
-	def mass(self):
-		return self._mass()
 
 
 	def countIs(self, value):

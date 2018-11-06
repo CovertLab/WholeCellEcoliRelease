@@ -3,6 +3,8 @@ NAME=$2
 PORT=$3
 PASSWORD=$4
 
+set -e
+
 mkdir -p /scratch/PI/mcovert/jenkins/fireworks/logs/launchpad
 echo "logdir: /scratch/PI/mcovert/jenkins/fireworks/logs/launchpad" >> my_launchpad.yaml
 echo "host: $HOST" >> my_launchpad.yaml

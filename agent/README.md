@@ -1,4 +1,4 @@
-# Environment
+# Agent
 
 Distributed simulation of whole cell agents relative to a shared environment.
 
@@ -14,16 +14,38 @@ If you have access to a remote Kafka cluster, you can just specify the host as a
 
     python -m agent.boot --host ip.to.remote.cluster:9092
 
-If you don't have access to a remote cluster, you can install Kafka locally by downloading the packages [here](https://www.apache.org/dyn/closer.cgi?path=/kafka/2.0.0/kafka_2.11-2.0.0.tgz). 
+If you don't have access to a remote cluster, you can install Kafka locally.
+ 
+1. If you don't already have it, [download Java JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
+   1. Run the JDK installer.
+   2. Set `JAVA_HOME` in your shell setup file (e.g. `.bash_profile` or `.profile`):
 
-Once untarred, start Zookeeper first:
+      `export JAVA_HOME=$(/usr/libexec/java_home)`
 
-    # in your untar directory
-    > ./bin/zookeeper-server-start.sh ./config/zookeeper.properties
+   3. Restart your shell to get the `JAVA_HOME` setting.
+   4. Test it
 
-then start Kafka:
+      `java -version`
 
-    > ./bin/kafka-server-start.sh ./config/server.properties
+      That should print something like
+
+      `java version "1.8.0_181"`
+
+2. [Download the Apache Kafka server software](https://www.apache.org/dyn/closer.cgi?path=/kafka/2.0.0/kafka_2.11-2.0.0.tgz).
+   1. [Optional] Test the integrity of the downloaded `.tgz` file by [computing its SHA-1 checksum](https://www.apache.org/info/verification.html)
+and pasting the checksum into [the verification page](https://www.apache.org/info/verification.html).
+   2. Untar the `.tgz` file in a suitable directory.
+
+      `tar xvf kafka_2.11-2.0.0.tgz`
+
+3. In your untar directory, start Zookeeper first:
+
+   `./bin/zookeeper-server-start.sh ./config/zookeeper.properties`
+
+   It will keep running until forced to shut down.
+4. In another shell tab, in the same untar directory, start the Kafka server:
+
+    `./bin/kafka-server-start.sh ./config/server.properties`
 
 With this you should be ready to go.
 
@@ -42,40 +64,40 @@ The available roles are
 
 In the first tab start the environmental context:
 
-    0> python -m agent.boot outer
+    0> python -m agent.boot outer --id out
 
-This has started the environmental process and is waiting for simulations initialize and register. Let's do that now. In a new tab:
+Each outer agent must be assigned a unique `id` so that inner agents can connect to it. This has started the environmental process and is waiting for simulations initialize and register. Let's do that now. In a new tab:
 
-    1> python -m agent.boot inner --id 1
+    1> python -m agent.boot inner --id 1 --outer-id out
 
 When starting individual simulations the `id` argument is required. Assigning a unique id to each simulation allows the environment to communicate in specific ways with each simulation. You will see a message sent from the newly initialized simulation on the `environment_listen` topic:
 
-    <-- environment_listen: {'event': 'SIMULATION_INITIALIZED', 'id': '1'}
+    <-- environment_listen: {'event': 'SIMULATION_INITIALIZED', 'inner_id': '1', 'outer_id': 'out'}
 
 and also if you go back to the environment tab you will see it has received a message from the new simulation:
 
-    --> environment_listen: {u'event': u'SIMULATION_INITIALIZED', u'id': u'1'}
+    --> environment_listen: {u'event': u'SIMULATION_INITIALIZED', 'inner_id': '1', 'outer_id': 'out'}
 
 Let's start another one in another tab:
 
-    2> python -m agent.boot inner --id 2
-    <-- environment_listen: {'event': 'SIMULATION_INITIALIZED', 'id': '2'}
+    2> python -m agent.boot inner --id 2 --outer-id out
+    <-- environment_listen: {'event': 'SIMULATION_INITIALIZED', 'inner_id': '2', 'outer_id': 'out'}
 
 We will see this message has also reached the environmental process:
 
-    --> environment_listen: {u'event': u'SIMULATION_INITIALIZED', u'id': u'2'}
+    --> environment_listen: {u'event': u'SIMULATION_INITIALIZED', 'inner_id': u'2', 'outer_id': 'out'}
 
 Now that we have a couple of simulations running, let's start the execution. In yet another tab (the `control` tab):
 
-    3> python -m agent.boot trigger
+    3> python -m agent.boot trigger --id out
 
 You will see this sends a message to the `environment_control` topic:
 
-    <-- environment_control: {'event': 'TRIGGER_EXECUTION'}
+    <-- environment_control: {'event': 'TRIGGER_EXECUTION', 'agent_id': 'out'}
 
 which is then received by the environment:
 
-    --> environment_control: {u'event': u'TRIGGER_EXECUTION'}
+    --> environment_control: {u'event': u'TRIGGER_EXECUTION', 'agent_id': 'out'}
 
 Now things have started to run. You will see in the environment tab that it has sent two messages out along the `environment_broadcast` topic:
 
@@ -94,16 +116,32 @@ The environment will wait until it has received messages from all its registered
 
 Once this has gone on awhile and you are ready to stop the simulation, you can call shutdown from the command tab:
 
-    3> python -m agent.boot shutdown
+    3> python -m agent.boot shutdown --id out
 
 This sends an `ENVIRONMENT_SHUTDOWN` message on the `environment_control` topic:
 
-    <-- environment_control: {'event': 'SHUTDOWN_ENVIRONMENT'}
+    <-- environment_control: {'event': 'SHUTDOWN_AGENT', 'agent_id': 'out'}
 
 The environment receives this message and waits until it receives all outstanding messages from the individual simulations, and then sends a shutdown message to each one:
 
-    --> environment_control: {u'event': u'SHUTDOWN_ENVIRONMENT'}
-    <-- environment_broadcast: {'id': u'1', 'event': 'SHUTDOWN_SIMULATION'}
-    <-- environment_broadcast: {'id': u'2', 'event': 'SHUTDOWN_SIMULATION'}
+    --> environment_control: {u'event': u'SHUTDOWN_AGENT', 'agent_id': 'out'}
+    <-- environment_broadcast: {'inner_id': '1', 'outer_id': 'out', 'event': 'SHUTDOWN_SIMULATION'}
+    <-- environment_broadcast: {'inner_id': '2', 'outer_id': 'out', 'event': 'SHUTDOWN_SIMULATION'}
 
 At this point all three processes have exited.
+
+Alternatively, you can pause the simulation if you want to restart it later (unlike shutdown, which actually terminates the simulations). 
+
+    4> python -m agent.boot pause --id out
+
+While paused the simulations will not progress, but they are still running and available to resume with `trigger`:
+
+    5> python -m agent.boot trigger --id out
+
+Now they are all happily running again.
+
+**Tip:** You can shut down an individual agent (say #1) like this:
+
+    python -m agent.boot shutdown --id 1
+
+That's handy if the Outer agent raised an exception and exited.

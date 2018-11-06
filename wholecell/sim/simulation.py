@@ -14,11 +14,14 @@ import time
 
 import numpy as np
 
+from agent.inner import CellSimulation
+
 from wholecell.listeners.evaluation_time import EvaluationTime
 from wholecell.utils import filepath
 
 import wholecell.loggers.shell
 import wholecell.loggers.disk
+
 
 DEFAULT_SIMULATION_KWARGS = dict(
 	seed = 0,
@@ -28,6 +31,7 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	dPeriodDivision = False,
 	growthRateNoise = False,
 	translationSupply = True,
+	trna_charging = False,
 	timeStepSafetyFraction = 1.3,
 	maxTimeStep = 0.9,#2.0, # TODO: Reset to 2 once we update PopypeptideElongation
 	updateTimeStepFreq = 5,
@@ -55,7 +59,7 @@ DEFAULT_LISTENER_CLASSES = (
 	EvaluationTime,
 	)
 
-class Simulation(object):
+class Simulation(CellSimulation):
 	""" Simulation """
 
 	# Attributes that must be set by a subclass
@@ -101,6 +105,7 @@ class Simulation(object):
 
 		# Set time variables
 		self._simulationStep = 0
+		self.daughter_paths = []
 
 		self.randomState = np.random.RandomState(seed = np.uint32(self._seed % np.iinfo(np.uint32).max))
 
@@ -164,7 +169,7 @@ class Simulation(object):
 			state.calculatePreEvolveStateMass()
 			state.calculatePostEvolveStateMass()
 
-		# Update environment state according to the current time in timeseries
+		# Update environment state according to the current time in time series
 		for external_state in self.external_states.itervalues():
 			external_state.update()
 
@@ -235,7 +240,7 @@ class Simulation(object):
 				hook.finalize(self)
 
 			# Divide mother into daughter cells
-			self._divideCellFunction()
+			self.daughter_paths = self._divideCellFunction()
 
 			# Finish logging
 			for logger in self.loggers.itervalues():
@@ -374,6 +379,10 @@ class Simulation(object):
 		self._cellCycleComplete = True
 
 
+	def get_sim_data(self):
+		return self._simData
+
+
 	def _adjustTimeStep(self):
 		# Adjust timestep if needed or at a frequency of updateTimeStepFreq regardless
 		validTimeSteps = self._maxTimeStep * np.ones(len(self.processes))
@@ -399,3 +408,39 @@ class Simulation(object):
 			raise Exception, "Timestep adjustment did not converge, last attempt was %f" % (candidateTimeStep)
 
 		return candidateTimeStep
+
+
+	## Additional CellSimulation methods for embedding in an Agent
+
+	def apply_outer_update(self, update):
+		# concentrations are received as a dict
+		self.external_states['Environment'].set_local_environment(update['concentrations'])
+
+	def daughter_config(self):
+		config = {
+			'start_time': self.time(),
+			'volume': self.listeners['Mass'].volume * 0.5}
+
+		daughters = map(
+			lambda path: dict(config, inherited_state_path=path),
+			self.daughter_paths)
+
+		return daughters
+
+	def generate_inner_update(self):
+		# sends environment a dictionary with relevant state changes
+		return {
+			'volume': self.listeners['Mass'].volume,
+			'division': self.daughter_config(),
+			'environment_change': self.external_states['Environment'].get_environment_change()}
+
+	def synchronize_state(self, state):
+		if 'time' in state:
+			self._initialTime = state['time']
+			self._timeTotal = state['time']
+
+	def divide(self):
+		self.cellCycleComplete()
+		self.finalize()
+
+		return self.daughter_config()

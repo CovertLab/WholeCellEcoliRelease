@@ -38,6 +38,7 @@ class Equilibrium(wholecell.processes.process.Process):
 		# Create matrix and method
 		self.stoichMatrix = sim_data.process.equilibrium.stoichMatrix().astype(np.int64)
 		self.fluxesAndMoleculesToSS = sim_data.process.equilibrium.fluxesAndMoleculesToSS
+		self.product_indices = [idx for idx in np.where(np.any(self.stoichMatrix > 0, axis=1))[0]]
 
 		# Build views
 		moleculeNames = sim_data.process.equilibrium.moleculeNames
@@ -79,6 +80,10 @@ class Equilibrium(wholecell.processes.process.Process):
 		assert(np.all(moleculeCounts + np.dot(self.stoichMatrix, rxnFluxes) >= 0))
 
 		# Increment changes in molecule counts
-		self.molecules.countsInc(
-			np.dot(self.stoichMatrix, rxnFluxes)
-			)
+		deltaMolecules = np.dot(self.stoichMatrix, rxnFluxes)
+		self.molecules.countsInc(deltaMolecules)
+
+		# Write outputs to listeners
+		self.writeToListener("EquilibriumListener", "reactionRates", (
+			deltaMolecules[self.product_indices] / self.timeStepSec()
+			))

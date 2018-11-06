@@ -26,3 +26,8 @@ metabolismKineticObjectiveWeightQuadratic	1e-9
 secretion_penalty_coeff	1e-5	
 SensitivityAnalysisAlpha	0	
 SensitivityAnalysisKcatEndo	0	
+synthetase_charging_rate	100	1/units.s	Bosdriesz et al. FEBS. 2015.
+Km_synthetase_uncharged_trna	1	units.umol/units.L	Bosdriesz et al. FEBS. 2015.
+Km_synthetase_amino_acid	100	units.umol/units.L	Bosdriesz et al. FEBS. 2015.
+Kdissociation_charged_trna_ribosome	1	units.umol/units.L	Bosdriesz et al. FEBS. 2015.
+Kdissociation_uncharged_trna_ribosome	500	units.umol/units.L	Bosdriesz et al. FEBS. 2015.

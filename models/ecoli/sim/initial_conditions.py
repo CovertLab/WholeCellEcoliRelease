@@ -1,33 +1,26 @@
-
 """
-
-TODO:
-- document math
-- raise/warn if physiological metabolite concentration targets appear to be smaller than what
+TODO: document math
+TODO: raise/warn if physiological metabolite concentration targets appear to be smaller than what
   is needed at this time step size
-
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 from itertools import izip
 import scipy.sparse
 
 import numpy as np
-import os
-import cPickle
 
-from wholecell.containers.bulk_objects_container import BulkObjectsContainer
-from wholecell.utils.fitting import normalize, countsFromMassAndExpression, calcProteinCounts, masses_and_counts_for_homeostatic_target
-from wholecell.utils.polymerize import buildSequences, computeMassIncrease
+from wholecell.utils.fitting import normalize, countsFromMassAndExpression, masses_and_counts_for_homeostatic_target
+from wholecell.utils.polymerize import computeMassIncrease
 from wholecell.utils import units
 from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
 
+from wholecell.sim.divide_cell import load_inherited_state
 
-from wholecell.io.tablereader import TableReader
 
 def calcInitialConditions(sim, sim_data):
-	assert sim._inheritedStatePath == None
+	assert sim._inheritedStatePath is None
 	randomState = sim.randomState
 
 	massCoeff = 1.0
@@ -41,24 +34,26 @@ def calcInitialConditions(sim, sim_data):
 	initializeBulkMolecules(bulkMolCntr, sim_data, randomState, massCoeff)
 	initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
 
+	# Must be called after unique and bulk molecules are initialized to get
+	# concentrations for ribosomes, tRNA, synthetases etc from cell volume
+	if sim._trna_charging:
+		initialize_trna_charging(sim_data, sim.internal_states, sim.processes['PolypeptideElongation'].calculate_trna_charging)
+
 def initializeBulkMolecules(bulkMolCntr, sim_data, randomState, massCoeff):
 
-	## Set protein counts from expression
+	# Set protein counts from expression
 	initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff)
 
-	## Set RNA counts from expression
+	# Set RNA counts from expression
 	initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff)
 
-	## Set DNA
+	# Set DNA
 	initializeDNA(bulkMolCntr, sim_data, randomState)
 
-	## Set other biomass components
+	# Set other biomass components
 	initializeSmallMolecules(bulkMolCntr, sim_data, randomState, massCoeff)
 
-	## Set constitutive expression
-	initializeConstitutiveExpression(bulkMolCntr, sim_data, randomState)
-
-	## Form complexes
+	# Form complexes
 	initializeComplexation(bulkMolCntr, sim_data, randomState)
 
 def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
@@ -71,6 +66,57 @@ def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, rand
 	# Activate ribosomes, with fraction based on environmental conditions
 	initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
 
+def initialize_trna_charging(sim_data, states, calc_charging):
+	'''
+	Initializes charged tRNA from uncharged tRNA and amino acids
+
+	Inputs:
+		sim_data (SimulationDataEcoli object)
+		states (dict with internal_state objects as values) - internal states of sim
+		calc_charging (function) - function to calculate charging of tRNA
+
+	Notes:
+		Does not adjust for mass of amino acids on charged tRNA (~0.01% of cell mass)
+	'''
+
+	# Calculate cell volume for concentrations
+	mass = 0
+	for state in states.values():
+		state.calculatePreEvolveStateMass()
+		mass += np.sum(state._masses)
+	cell_volume = units.fg * mass / sim_data.constants.cellDensity
+	counts_to_molar = 1 / (sim_data.constants.nAvogadro * cell_volume)
+
+	# Get molecule views and concentrations
+	transcription = sim_data.process.transcription
+	aa_from_synthetase = transcription.aa_from_synthetase
+	aa_from_trna = transcription.aa_from_trna
+	bulk_molecules = states['BulkMolecules'].container
+	synthetases = bulk_molecules.countsView(transcription.synthetase_names)
+	uncharged_trna = bulk_molecules.countsView(transcription.rnaData['id'][transcription.rnaData['isTRna']])
+	charged_trna = bulk_molecules.countsView(transcription.charged_trna_names)
+	aas = bulk_molecules.countsView(sim_data.moleculeGroups.aaIDs)
+	ribosome_counts = states['UniqueMolecules'].container.counts(['activeRibosome'])
+
+	synthetase_conc = counts_to_molar * np.dot(aa_from_synthetase, synthetases.counts())
+	uncharged_trna_conc = counts_to_molar * np.dot(aa_from_trna, uncharged_trna.counts())
+	charged_trna_conc = counts_to_molar * np.dot(aa_from_trna, charged_trna.counts())
+	aa_conc = counts_to_molar * aas.counts()
+	ribosome_conc = counts_to_molar * ribosome_counts
+
+	# Estimate fraction of amino acids from sequences, excluding first index for padding of -1
+	_, aas_in_sequences = np.unique(sim_data.process.translation.translationSequences, return_counts=True)
+	f = aas_in_sequences[1:] / np.sum(aas_in_sequences[1:])
+
+	# Estimate initial charging state
+	fraction_charged, _ = calc_charging(synthetase_conc, uncharged_trna_conc, charged_trna_conc, aa_conc, ribosome_conc, f)
+
+	# Update counts of tRNA to match charging
+	total_trna_counts = uncharged_trna.counts() + charged_trna.counts()
+	charged_trna_counts = np.round(total_trna_counts * np.dot(fraction_charged, aa_from_trna))
+	uncharged_trna_counts = total_trna_counts - charged_trna_counts
+	charged_trna.countsIs(charged_trna_counts)
+	uncharged_trna.countsIs(uncharged_trna_counts)
 
 def initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff):
 
@@ -146,12 +192,6 @@ def initializeSmallMolecules(bulkMolCntr, sim_data, randomState, massCoeff):
 		moleculeIds
 		)
 
-def initializeConstitutiveExpression(bulkMolCntr, sim_data, randomState):
-	recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
-	alphaNames = [x for x in recruitmentColNames if x.endswith("__alpha")]
-	alphaView = bulkMolCntr.countsView(alphaNames)
-	alphaView.countsIs(1)
-
 def initializeComplexation(bulkMolCntr, sim_data, randomState):
 	moleculeNames = sim_data.process.complexation.moleculeNames
 	moleculeView = bulkMolCntr.countsView(moleculeNames)
@@ -167,7 +207,7 @@ def initializeComplexation(bulkMolCntr, sim_data, randomState):
 	# form complexes until no new complexes form (some complexes are complexes of complexes)
 	while True:
 		moleculeCounts = moleculeView.counts()
-		updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
+		updatedMoleculeCounts, complexationEvents = mccFormComplexesWithPrebuiltMatrices(
 			moleculeCounts,
 			randomState.randint(1000),
 			stoichMatrix,
@@ -187,8 +227,9 @@ def initializeComplexation(bulkMolCntr, sim_data, randomState):
 
 def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 	"""
-	Purpose: Initialize replication by creating an appropriate number of
-	replication forks given the cell growth rate.
+	Initializes replication by creating an appropriate number of replication
+	forks given the cell growth rate. This also initializes the gene dosage
+	bulk counts using the initial locations of the forks.
 	"""
 
 	# Determine the number and location of replication forks at the start of
@@ -242,6 +283,30 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 
 		bulkMolCntr.countsDec(3*n_replisome, sim_data.moleculeGroups.replisome_trimer_subunits)
 		bulkMolCntr.countsDec(n_replisome, sim_data.moleculeGroups.replisome_monomer_subunits)
+
+	# Initialize gene dosage
+	geneCopyNumberColNames = sim_data.process.transcription_regulation.geneCopyNumberColNames
+	geneCopyNumberView = bulkMolCntr.countsView(geneCopyNumberColNames)
+	replicationCoordinate = sim_data.process.transcription.rnaData["replicationCoordinate"]
+
+	# Set all copy numbers to one initially
+	initialGeneCopyNumber = np.ones(len(geneCopyNumberColNames))
+
+	# Get coordinates of forks in both directions
+	forward_fork_coordinates = sequenceLength[sequenceIdx == 0]
+	reverse_fork_coordinates = np.negative(sequenceLength[sequenceIdx == 1])
+
+	assert len(forward_fork_coordinates) == len(reverse_fork_coordinates)
+
+	# Increment copy number by one for any gene that lies between two forks
+	for (forward, reverse) in izip(forward_fork_coordinates,
+			reverse_fork_coordinates):
+		initialGeneCopyNumber[
+			np.logical_and(replicationCoordinate < forward,
+				replicationCoordinate > reverse)
+			] += 1
+
+	geneCopyNumberView.countsIs(initialGeneCopyNumber)
 
 
 def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
@@ -427,25 +492,23 @@ def initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 
 
 def setDaughterInitialConditions(sim, sim_data):
-	assert sim._inheritedStatePath != None
-	isDead = cPickle.load(open(os.path.join(sim._inheritedStatePath, "IsDead.cPickle"), "rb"))
-	sim._isDead = isDead
+	inherited_state_path = sim._inheritedStatePath
+	assert inherited_state_path is not None
 
-	elngRate = cPickle.load(open(os.path.join(sim._inheritedStatePath, "ElngRate.cPickle"), "rb"))
-	elng_rate_factor = cPickle.load(open(os.path.join(sim._inheritedStatePath, "elng_rate_factor.cPickle"), "rb"))
+	inherited_state = load_inherited_state(inherited_state_path)
+
+	sim._isDead = inherited_state['is_dead']
+
+	elngRate = inherited_state['elng_rate']
+	elng_rate_factor = inherited_state['elng_rate_factor']
 	if sim._growthRateNoise:
 		sim.processes["PolypeptideElongation"].setElngRate = elngRate
 		sim.processes["PolypeptideElongation"].elngRateFactor = elng_rate_factor
 
-	bulk_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "BulkMolecules"))
-	sim.internal_states["BulkMolecules"].tableLoad(bulk_table_reader, 0)
+	sim.internal_states["BulkMolecules"].loadSnapshot(inherited_state['bulk_molecules'])
+	sim.internal_states["UniqueMolecules"].loadSnapshot(inherited_state['unique_molecules'])
 
-	unique_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "UniqueMolecules"))
-	sim.internal_states["UniqueMolecules"].tableLoad(unique_table_reader, 0)
-
-	time_table_reader = TableReader(os.path.join(sim._inheritedStatePath, "Time"))
-	initialTime = TableReader(os.path.join(sim._inheritedStatePath, "Time")).readAttribute("initialTime")
-	sim._initialTime = initialTime
+	sim._initialTime = inherited_state['initial_time']
 
 
 def determineChromosomeState(C, D, tau, replication_length):
@@ -502,6 +565,7 @@ def determineChromosomeState(C, D, tau, replication_length):
 	# Require that D is shorter than tau - time between completing DNA
 	# replication and cell division must be shorter than the time between two
 	# cell divisions.
+
 	assert D.asNumber(units.min) < tau.asNumber(units.min), "The D period must be shorter than the doubling time tau."
 
 	# Calculate the number of active replication rounds
@@ -554,12 +618,12 @@ def determineChromosomeState(C, D, tau, replication_length):
 		chromosomeIndexReplisome += [0] * (2*n_event)
 
 	# Convert to numpy arrays
-	sequenceIdx = np.array(sequenceIdx)
-	sequenceLength = np.array(sequenceLength)
-	replicationRoundPolymerase = np.array(replicationRoundPolymerase)
-	replicationRoundReplisome = np.array(replicationRoundReplisome)
-	chromosomeIndexPolymerase = np.array(chromosomeIndexPolymerase)
-	chromosomeIndexReplisome = np.array(chromosomeIndexReplisome)
+	sequenceIdx = np.array(sequenceIdx, dtype=np.int8)
+	sequenceLength = np.array(sequenceLength, dtype=np.int64)
+	replicationRoundPolymerase = np.array(replicationRoundPolymerase, dtype=np.int64)
+	replicationRoundReplisome = np.array(replicationRoundReplisome, dtype=np.int64)
+	chromosomeIndexPolymerase = np.array(chromosomeIndexPolymerase, dtype=np.int64)
+	chromosomeIndexReplisome = np.array(chromosomeIndexReplisome, dtype=np.int64)
 
 	return sequenceIdx, sequenceLength, replicationRoundPolymerase, chromosomeIndexPolymerase, replicationRoundReplisome, chromosomeIndexReplisome
 

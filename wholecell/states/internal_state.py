@@ -29,9 +29,14 @@ class InternalState(object):
 		self._views = []
 
 		# Random number stream
-		self.randomState = None
+		self.randomState = None  # Set at the first time step by Simulation._evolveState()
 
 		self.seed = None
+
+		self._masses = None
+		self._unallocatedMassIndex = 0
+		self._preEvolveStateMassIndex = 0
+		self._postEvolveStateMassIndex = 0
 
 
 	# Construct state-process graph, calculate constants

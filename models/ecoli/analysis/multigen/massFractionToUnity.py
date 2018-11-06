@@ -69,6 +69,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		axesList[-1].set_xlabel('Time (min)')
 
+		fig.tight_layout()
+
 		exportFigure(plt, plotOutDir, plotOutFileName,metadata)
 		plt.close("all")
 

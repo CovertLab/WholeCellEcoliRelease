@@ -20,7 +20,6 @@ from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
 
-USE_CACHE = False
 N_GENES_TO_PLOT = -1
 
 
@@ -49,122 +48,95 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		mRnaSynthProb = np.array([synthProb[x] for x in mRnaIndexes])
 		mRnaIds = np.array([rnaIds[x] for x in mRnaIndexes])
 
-		if not USE_CACHE:
-			# Get whether or not mRNAs were transcribed
-			time = []
-			transcribedBool = []
-			simulatedSynthProbs = []
-			transcriptionEvents = []
-			for gen, simDir in enumerate(allDir):
-				simOutDir = os.path.join(simDir, "simOut")
+		# Get whether or not mRNAs were transcribed
+		time = []
+		transcribedBool = []
+		simulatedSynthProbs = []
+		transcriptionEvents = []
+		for gen, simDir in enumerate(allDir):
+			simOutDir = os.path.join(simDir, "simOut")
 
-				time += TableReader(os.path.join(simOutDir, "Main")).readColumn("time").tolist()
+			time += TableReader(os.path.join(simOutDir, "Main")).readColumn("time").tolist()
 
-				rnaSynthProb = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
-				simulatedSynthProb = np.mean(rnaSynthProb.readColumn("rnaSynthProb")[:, mRnaIndexes], axis = 0)
-				rnaSynthProb.close()
-				simulatedSynthProbs.append(simulatedSynthProb)
+			rnaSynthProb = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
+			simulatedSynthProb = np.mean(rnaSynthProb.readColumn("rnaSynthProb")[:, mRnaIndexes], axis = 0)
+			rnaSynthProb.close()
+			simulatedSynthProbs.append(simulatedSynthProb)
 
-				bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-				moleculeIds = bulkMolecules.readAttribute("objectNames")
-				mRnaIndexes_bulk = np.array([moleculeIds.index(x) for x in mRnaIds])
-				moleculeCounts = bulkMolecules.readColumn("counts")[:, mRnaIndexes_bulk]
-				bulkMolecules.close()
-				moleculeCountsSumOverTime = moleculeCounts.sum(axis = 0)
-				mRnasTranscribed = np.array([x != 0 for x in moleculeCountsSumOverTime])
-				transcribedBool.append(mRnasTranscribed)
+			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+			moleculeIds = bulkMolecules.readAttribute("objectNames")
+			mRnaIndexes_bulk = np.array([moleculeIds.index(x) for x in mRnaIds])
+			moleculeCounts = bulkMolecules.readColumn("counts")[:, mRnaIndexes_bulk]
+			bulkMolecules.close()
+			moleculeCountsSumOverTime = moleculeCounts.sum(axis = 0)
+			mRnasTranscribed = np.array([x != 0 for x in moleculeCountsSumOverTime])
+			transcribedBool.append(mRnasTranscribed)
 
-				rnapDataReader = TableReader(os.path.join(simOutDir, "RnapData"))
-				rnaInitEvent = rnapDataReader.readColumn("rnaInitEvent")[:, mRnaIndexes]
-				rnapDataReader.close()
+			rnapDataReader = TableReader(os.path.join(simOutDir, "RnapData"))
+			rnaInitEvent = rnapDataReader.readColumn("rnaInitEvent")[:, mRnaIndexes]
+			rnapDataReader.close()
 
-				if gen == 0:
-					transcriptionEvents = (rnaInitEvent != 0)
-				else:
-					transcriptionEvents = np.vstack((transcriptionEvents, (rnaInitEvent != 0)))
+			if gen == 0:
+				transcriptionEvents = (rnaInitEvent != 0)
+			else:
+				transcriptionEvents = np.vstack((transcriptionEvents, (rnaInitEvent != 0)))
 
-			time = np.array(time)
-			transcribedBool = np.array(transcribedBool)
-			simulatedSynthProbs = np.array(simulatedSynthProbs)
+		time = np.array(time)
+		transcribedBool = np.array(transcribedBool)
+		simulatedSynthProbs = np.array(simulatedSynthProbs)
 
-			indexingOrder = np.argsort(np.mean(simulatedSynthProbs, axis = 0))
-			transcribedBoolOrdered = np.mean(transcribedBool, axis = 0)[indexingOrder]
-			simulatedSynthProbsOrdered = np.mean(simulatedSynthProbs, axis = 0)[indexingOrder]
-			transcriptionEventsOrdered = transcriptionEvents[:, indexingOrder]
-			mRnaIdsOrdered = mRnaIds[indexingOrder]
+		indexingOrder = np.argsort(np.mean(simulatedSynthProbs, axis = 0))
+		transcribedBoolOrdered = np.mean(transcribedBool, axis = 0)[indexingOrder]
+		simulatedSynthProbsOrdered = np.mean(simulatedSynthProbs, axis = 0)[indexingOrder]
+		transcriptionEventsOrdered = transcriptionEvents[:, indexingOrder]
+		mRnaIdsOrdered = mRnaIds[indexingOrder]
 
-			alwaysPresentIndexes = np.where(transcribedBoolOrdered == 1.)[0]
-			neverPresentIndexes = np.where(transcribedBoolOrdered == 0.)[0]
-			sometimesPresentIndexes = np.array([x for x in np.arange(len(transcribedBoolOrdered)) if x not in alwaysPresentIndexes and x not in neverPresentIndexes])
-			colors = np.repeat("g", len(transcribedBoolOrdered))
-			colors[alwaysPresentIndexes] = "b"
-			colors[neverPresentIndexes] = "r"
+		alwaysPresentIndexes = np.where(transcribedBoolOrdered == 1.)[0]
+		neverPresentIndexes = np.where(transcribedBoolOrdered == 0.)[0]
+		sometimesPresentIndexes = np.array([x for x in np.arange(len(transcribedBoolOrdered)) if x not in alwaysPresentIndexes and x not in neverPresentIndexes])
+		colors = np.repeat("g", len(transcribedBoolOrdered))
+		colors[alwaysPresentIndexes] = "b"
+		colors[neverPresentIndexes] = "r"
 
-			# Assemble data
-			alwaysTranscriptionEvents_E = []
-			alwaysTranscriptionEvents_N = []
-			alwaysId_E = []
-			alwaysId_N = []
-			for i in alwaysPresentIndexes:
-				v = (time[transcriptionEventsOrdered[:, i]] / 3600.).tolist()
-				if transcriptionEventsOrdered[:, i].sum() == 0:
-					v = [-1]
+		# Assemble data
+		alwaysTranscriptionEvents_E = []
+		alwaysTranscriptionEvents_N = []
+		alwaysId_E = []
+		alwaysId_N = []
+		for i in alwaysPresentIndexes:
+			v = (time[transcriptionEventsOrdered[:, i]] / 3600.).tolist()
+			if transcriptionEventsOrdered[:, i].sum() == 0:
+				v = [-1]
 
-				if mRnaIdsOrdered[i] in essentialRnas:
-					alwaysTranscriptionEvents_E.append(v)
-				else:
-					alwaysTranscriptionEvents_N.append(v)
-			
-			neverTranscriptionEvents_E = []
-			neverTranscriptionEvents_N = []
-			for i in neverPresentIndexes:
-				v = (time[transcriptionEventsOrdered[:, i]] / 3600.).tolist()
-				if transcriptionEventsOrdered[:, i].sum() == 0:
-					v = [-1]
-				
-				if mRnaIdsOrdered[i] in essentialRnas:
-					neverTranscriptionEvents_E.append(v)
-				else:
-					neverTranscriptionEvents_N.append(v)
+			if mRnaIdsOrdered[i] in essentialRnas:
+				alwaysTranscriptionEvents_E.append(v)
+			else:
+				alwaysTranscriptionEvents_N.append(v)
+
+		neverTranscriptionEvents_E = []
+		neverTranscriptionEvents_N = []
+		for i in neverPresentIndexes:
+			v = (time[transcriptionEventsOrdered[:, i]] / 3600.).tolist()
+			if transcriptionEventsOrdered[:, i].sum() == 0:
+				v = [-1]
+
+			if mRnaIdsOrdered[i] in essentialRnas:
+				neverTranscriptionEvents_E.append(v)
+			else:
+				neverTranscriptionEvents_N.append(v)
 
 
-			sometimesTranscriptionEvents_E = []
-			sometimesTranscriptionEvents_N = []
-			for i in sometimesPresentIndexes:
-				v = (time[transcriptionEventsOrdered[:, i]] / 3600.).tolist()
-				if transcriptionEventsOrdered[:, i].sum() == 0:
-					v = [-1]
-				
-				if mRnaIdsOrdered[i] in essentialRnas:
-					sometimesTranscriptionEvents_E.append(v)
-				else:
-					sometimesTranscriptionEvents_N.append(v)
+		sometimesTranscriptionEvents_E = []
+		sometimesTranscriptionEvents_N = []
+		for i in sometimesPresentIndexes:
+			v = (time[transcriptionEventsOrdered[:, i]] / 3600.).tolist()
+			if transcriptionEventsOrdered[:, i].sum() == 0:
+				v = [-1]
 
-			cPickle.dump({
-				"time": time, 
-				"always_E": alwaysTranscriptionEvents_E,
-				"always_N": alwaysTranscriptionEvents_N, 
-				"never_E": neverTranscriptionEvents_E, 
-				"never_N": neverTranscriptionEvents_N,
-				"sometimes_E": sometimesTranscriptionEvents_E,
-				"sometimes_N": sometimesTranscriptionEvents_N,
-				"transcriptionFrequency": transcribedBoolOrdered,
-				"colors": colors,
-				"id": mRnaIdsOrdered,
-				}, open(os.path.join(plotOutDir, "transcriptionEvents.pickle"), "wb"))
-
-		if USE_CACHE:
-			D = cPickle.load(open(os.path.join(plotOutDir, "transcriptionEvents.pickle"), "r"))
-			time = D["time"]
-			alwaysTranscriptionEvents_E = D["always_E"]
-			alwaysTranscriptionEvents_N = D["always_N"]
-			neverTranscriptionEvents_E = D["never_E"]
-			neverTranscriptionEvents_N = D["never_N"]
-			sometimesTranscriptionEvents_E = D["sometimes_E"]
-			sometimesTranscriptionEvents_N = D["sometimes_N"]
-			transcribedBoolOrdered = D["transcriptionFrequency"]
-			colors = D["colors"]
-			mRnaIdsOrdered = D["id"]
+			if mRnaIdsOrdered[i] in essentialRnas:
+				sometimesTranscriptionEvents_E.append(v)
+			else:
+				sometimesTranscriptionEvents_N.append(v)
 
 		# Plot
 		blue = [0, 0, 1]

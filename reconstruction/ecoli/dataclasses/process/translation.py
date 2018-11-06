@@ -14,6 +14,8 @@ from wholecell.utils import units
 from wholecell.utils.unit_struct_array import UnitStructArray
 from wholecell.utils.polymerize import polymerize
 
+MAX_TIMESTEP_LEN = 2
+
 class Translation(object):
 	""" Translation """
 
@@ -140,7 +142,7 @@ class Translation(object):
 
 		maxLen = np.int64(
 			self.monomerData["length"].asNumber().max()
-			+ sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s)
+			+ MAX_TIMESTEP_LEN * sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s)
 			)
 
 		self.translationSequences = np.empty((sequences.shape[0], maxLen), np.int8)
