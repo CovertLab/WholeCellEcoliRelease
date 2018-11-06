@@ -221,6 +221,7 @@ metadata = {
 	"total_gens": N_GENS,
 	"analysis_type": None,
 	"variant": VARIANT,
+	"total_variants": str(len(VARIANTS_TO_RUN)),
 	"mass_distribution": MASS_DISTRIBUTION,
 	"growth_rate_noise": GROWTH_RATE_NOISE,
 	"d_period_division": D_PERIOD_DIVISION,
@@ -440,8 +441,6 @@ VARIANT_PLOT_DIRECTORY = os.path.join(INDIV_OUT_DIRECTORY, "plotOut")
 fw_variant_analysis = None
 
 if RUN_AGGREGATE_ANALYSIS:
-	metadata["total_variants"] = str(len(VARIANTS_TO_RUN))
-
 	fw_name = "AnalysisVariantTask"
 	fw_variant_analysis = Firework(
 		AnalysisVariantTask(
@@ -466,8 +465,7 @@ for i in VARIANTS_TO_RUN:
 	VARIANT_DIRECTORY = os.path.join(INDIV_OUT_DIRECTORY, VARIANT + "_%06d" % i)
 	VARIANT_SIM_DATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "kb")
 	VARIANT_METADATA_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "metadata")
-	metadata["variant_function"] = VARIANT
-	md_cohort = dict(metadata, variant_index = i)
+	md_cohort = dict(metadata, variant_function = VARIANT, variant_index = i)
 
 	# Variant simData creation task
 	fw_name = "VariantSimDataTask_%06d" % (i,)

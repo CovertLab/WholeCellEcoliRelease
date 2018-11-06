@@ -33,7 +33,7 @@ class AnalysisVariantTask(AnalysisBase):
 	ACTIVE_MODULES = models.ecoli.analysis.variant.ACTIVE
 
 	def plotter_args(self, module_filename):
-		self["metadata"]["analysis_type"] = "variant"
+		self["metadata"] = dict(self["metadata"], analysis_type = "variant")
 
 		return (
 			self["input_directory"],
