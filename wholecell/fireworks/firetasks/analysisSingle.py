@@ -34,6 +34,8 @@ class AnalysisSingleTask(AnalysisBase):
 	ACTIVE_MODULES = models.ecoli.analysis.single.ACTIVE
 
 	def plotter_args(self, module_filename):
+		self["metadata"] = dict(self["metadata"], analysis_type = "single")
+
 		return (
 			self["input_results_directory"],
 			self["output_plots_directory"],

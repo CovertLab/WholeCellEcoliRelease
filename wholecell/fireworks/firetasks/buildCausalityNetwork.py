@@ -34,6 +34,8 @@ class BuildCausalityNetworkTask(FireTaskBase):
 	READER_FILE_PATH = 'models.ecoli.analysis.causality_network.read_dynamics'
 
 	def plotter_args(self):
+		self["metadata"] = dict(self["metadata"], analysis_type = "causality_network")
+
 		return (
 			self["input_results_directory"],
 			self["output_dynamics_directory"],

@@ -34,6 +34,8 @@ class AnalysisMultiGenTask(AnalysisBase):
 	ACTIVE_MODULES = models.ecoli.analysis.multigen.ACTIVE
 
 	def plotter_args(self, module_filename):
+		self["metadata"] = dict(self["metadata"], analysis_type = "multigen")
+
 		return (
 			self["input_seed_directory"],
 			self["output_plots_directory"],
