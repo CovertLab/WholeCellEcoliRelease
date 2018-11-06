@@ -441,7 +441,6 @@ fw_variant_analysis = None
 
 if RUN_AGGREGATE_ANALYSIS:
 
-	metadata["analysis_type"] = "variant"
 	metadata["total_variants"] = str(len(VARIANTS_TO_RUN))
 
 	fw_name = "AnalysisVariantTask"
@@ -510,7 +509,6 @@ for i in VARIANTS_TO_RUN:
 	fw_this_variant_cohort_analysis = None
 
 	if RUN_AGGREGATE_ANALYSIS:
-		metadata["analysis_type"] = "cohort"
 		fw_name = "AnalysisCohortTask__Var_%02d" % (i,)
 		fw_this_variant_cohort_analysis = Firework(
 			AnalysisCohortTask(
@@ -536,8 +534,6 @@ for i in VARIANTS_TO_RUN:
 		metadata["seed"] = j
 
 		if RUN_AGGREGATE_ANALYSIS:
-			metadata["analysis_type"] = 'multigen'
-
 			fw_name = "AnalysisMultiGenTask__Var_%02d__Seed_%06d" % (i, j)
 			fw_this_variant_this_seed_this_analysis = Firework(
 				AnalysisMultiGenTask(
@@ -657,8 +653,6 @@ for i in VARIANTS_TO_RUN:
 						fw_this_variant_this_gen_this_sim_compression)
 
 				if RUN_AGGREGATE_ANALYSIS:
-					metadata["analysis_type"] = "single"
-
 					# AnalysisSingle task
 					fw_name = "AnalysisSingleTask__Var_%d__Seed_%d__Gen_%d__Cell_%d" % (i, j, k, l)
 					fw_this_variant_this_gen_this_sim_analysis = Firework(
@@ -696,8 +690,6 @@ for i in VARIANTS_TO_RUN:
 
 
 				if BUILD_CAUSALITY_NETWORK:
-					metadata["analysis_type"] = "causality_network"
-
 					# BuildCausalityNetwork task
 					fw_name = "BuildCausalityNetworkTask__Var_%d__Seed_%d__Gen_%d__Cell_%d" % (i, j, k, l)
 					fw_this_variant_this_gen_this_sim_causality_network = Firework(
@@ -708,8 +700,8 @@ for i in VARIANTS_TO_RUN:
 							output_dynamics_directory = CELL_PLOT_OUT_DIRECTORY,
 							metadata = metadata,
 							),
-						name=fw_name,
-						spec={"_queueadapter": dict(analysis_q_cpus,
+						name = fw_name,
+						spec = {"_queueadapter": dict(analysis_q_cpus,
 							job_name=fw_name), "_priority": 2}
 						)
 
