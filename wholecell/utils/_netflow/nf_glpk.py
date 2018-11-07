@@ -80,11 +80,7 @@ def _toIndexArray(array):
 	"""Convert an array to a GLPK IntArray of indexes: Convert the indexes to
 	int, add 1 to each, and prepend a dummy value.
 	"""
-	# TODO(Jerry): IF this is a performance issue, try caching the array, or
-	# calling glp.as_intArray(list) to quickly convert a list of int (it
-	# prepends 1 uninitialized element but we still need to add 1 to each
-	# element), or making an ndarray(dtype=int32) and using NumPy to add 1 to
-	# each element and then calling glp.intArray_frompointer(ndarray.data).
+
 	ia = glp.intArray(len(array) + 1)
 	ia[0] = -1
 	for (i, value) in enumerate(array):
@@ -95,15 +91,7 @@ def _toDoubleArray(array):
 	"""Convert an array to a GLPK DoubleArray of indexes: Convert the values to
 	double and prepend a dummy value.
 	"""
-	# TODO(Jerry): IF this is a performance issue, try caching the array, or
-	# calling glp.as_doubleArray(list) to quickly convert a list of float (it
-	# prepends 1 uninitialized element), or making an ndarray(dtype=float64)
-	# and then calling glp.doubleArray_frompointer(array.data).
-	#
-	# glp.as_doubleArray() is promising but it'll raise a TypeError if the
-	# argument isn't a list, and it'll return NULL (which comes through as
-	# None?) if any element is not a float. See
-	# https://github.com/biosustain/swiglpk/blob/master/swiglpk/glpk.i
+
 	da = glp.doubleArray(len(array) + 1)
 	da[0] = np.nan
 	for (i, value) in enumerate(array):
@@ -130,6 +118,8 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		self._objective = {}
 		self._materialCoeffs = defaultdict(list)
 		self._materialIdxLookup = {}
+		self._flow_index_arrays = {}
+		self._coeff_arrays = {}
 
 		self._eqConstBuilt = False
 		self._solved = False
@@ -271,7 +261,6 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 
 		return idx
 
-
 	def setFlowMaterialCoeff(self, flow, material, coefficient):
 		if self._eqConstBuilt:
 			if material not in self._materialIdxLookup:
@@ -291,8 +280,9 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 			if length != len(coeffs):
 				raise ValueError("Array sizes must match")
 
-			colIdxs = _toIndexArray(flowIdxs)
-			data = _toDoubleArray(coeffs)
+			colIdxs = self._flow_index_arrays[material]
+			data = self._coeff_arrays[material]
+			data[flowLoc + 1] = float(coefficient)  # swiglpk offsets index by 1
 			glp.glp_set_mat_row(self._lp, rowIdx, length, colIdxs, data)
 		else:
 			idx = self._getVar(flow)
@@ -344,9 +334,9 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		self._solve()
 
 		return np.array(
-			[glp.glp_get_col_prim(self._lp, 1 + self._flows[flow])
-			 if flow in self._flows else None
-			 for flow in flows]
+			[self._col_primals[self._flows[flow]]
+			if flow in self._flows else None
+			for flow in flows]
 			)
 
 	def getShadowPrices(self, materials):
@@ -356,9 +346,9 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		self._solve()
 
 		return np.array(
-			[glp.glp_get_row_dual(self._lp, 1 + self._materialIdxLookup[material])
-			 if material in self._materialIdxLookup else None
-			 for material in materials]
+			[self._row_duals[self._materialIdxLookup[material]]
+			if material in self._materialIdxLookup else None
+			for material in materials]
 			)
 
 	def getReducedCosts(self, fluxNames):
@@ -368,9 +358,9 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		self._solve()
 
 		return np.array(
-			[glp.glp_get_col_dual(self._lp, 1 + self._flows[fluxName])
-			 if fluxName in self._flows else None
-			 for fluxName in fluxNames]
+			[self._col_duals[self._flows[fluxName]]
+			if fluxName in self._flows else None
+			for fluxName in fluxNames]
 			)
 
 	def getObjectiveValue(self):
@@ -432,8 +422,29 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 			glp.glp_set_row_bnds(self._lp, row, glp.GLP_FX, 0.0, 0.0)
 		glp.glp_load_matrix(self._lp, n_elems, rowIdxs, colIdxs, data)
 
+		self._cache_glp_arrays()
+
 		self._eqConstBuilt = True
 
+	def _cache_glp_arrays(self):
+		'''
+		Caches the arrays needed for the swiglpk interface so they don't need
+		to be recomputed at each time step.  Called after the constraints are
+		built so the indices won't change.  Coefficients will still need to be
+		updated.
+
+		Note: self._flow_index_arrays and self._coeff_arrays mirror the
+		information in self._materialCoeffs but also contain padded values for
+		the solver. self._materialCoeffs is used in	getSMatrix() and is useful
+		for efficient indexing when updating coefficients so it should be kept.
+		'''
+
+		for material in self._materialCoeffs:
+			coeff, flowIdxs = zip(*self._materialCoeffs[material])
+			flowIdxs = _toIndexArray(flowIdxs)
+			coeff = _toDoubleArray(coeff)
+			self._flow_index_arrays[material] = flowIdxs
+			self._coeff_arrays[material] = coeff
 
 	def _solve(self):
 		if self._solved:
@@ -460,3 +471,8 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 			raise RuntimeError(self.status_string)
 
 		self._solved = True
+
+		# Read results for better performance when accessing individual values
+		self._col_primals = glp.get_col_primals(self._lp)
+		self._col_duals = glp.get_col_duals(self._lp)
+		self._row_duals = glp.get_row_duals(self._lp)

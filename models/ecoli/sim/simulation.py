@@ -17,7 +17,6 @@ from models.ecoli.processes.polypeptide_elongation import PolypeptideElongation
 from models.ecoli.processes.transcript_initiation import TranscriptInitiation
 from models.ecoli.processes.transcript_elongation import TranscriptElongation
 from models.ecoli.processes.protein_degradation import ProteinDegradation
-from models.ecoli.processes.chromosome_formation import ChromosomeFormation
 from models.ecoli.processes.equilibrium import Equilibrium
 from models.ecoli.processes.tf_binding import TfBinding
 from models.ecoli.processes.two_component_system import TwoComponentSystem
@@ -67,7 +66,6 @@ class EcoliSimulation(Simulation):
 		ChromosomeReplication,
 		ProteinDegradation,
 		Complexation,
-		ChromosomeFormation,
 		Equilibrium,
 		TfBinding,
 		TwoComponentSystem,

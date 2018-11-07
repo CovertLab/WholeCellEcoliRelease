@@ -62,18 +62,14 @@ class Test_polymerize(unittest.TestCase):
 			[0, 1, 3, 0, 0]
 			])
 		self.makeSequenceMonomers(sequences)
-		expected = np.array([
-			[2, 3, 4, 6, 7],
-			[0, 1, 1, 1, 1],
-			[0, 0, 0, 0, 0],
-			[1, 2, 4, 5, 5]
-			])
-		tot = sum_monomers(self.sequenceMonomers, self.activeSequences, 0)
-		assert_equal(tot, expected)
+		immediate = np.array([2, 0, 0, 1])
 
-		tot2 = sum_monomers_reference_implementation(self.sequenceMonomers,
-			self.activeSequences, 0)
-		assert_equal(tot2, expected)
+		tot = sum_monomers(self.sequenceMonomers[:, :, 0], self.activeSequences)
+		assert_equal(tot, immediate)
+
+		tot2 = sum_monomers_reference_implementation(self.sequenceMonomers[:, :, 0],
+			self.activeSequences)
+		assert_equal(tot2, immediate)
 
 	@noseAttrib.attr('polymerizeNew')
 	@noseAttrib.attr('smalltest')
@@ -87,18 +83,14 @@ class Test_polymerize(unittest.TestCase):
 		self.makeSequenceMonomers(sequences)
 		self.activeSequences = np.array([0, 2]) # 2/4 sequences active
 		currentStep = 2
-		expected = np.array([
-			[2, 3, 4],
-			[0, 1, 1],
-			[0, 0, 0],
-			[0, 0, 0]
-			])
-		tot = sum_monomers(self.sequenceMonomers, self.activeSequences, currentStep)
-		assert_equal(tot, expected)
+		immediate = np.array([2, 0, 0, 0])
 
-		tot2 = sum_monomers_reference_implementation(self.sequenceMonomers,
-			self.activeSequences, currentStep)
-		assert_equal(tot2, expected)
+		tot = sum_monomers(self.sequenceMonomers[:, :, currentStep], self.activeSequences)
+		assert_equal(tot, immediate)
+
+		tot2 = sum_monomers_reference_implementation(self.sequenceMonomers[:, :, currentStep],
+			self.activeSequences)
+		assert_equal(tot2, immediate)
 
 	@noseAttrib.attr('polymerizeNew')
 	@noseAttrib.attr('smalltest')

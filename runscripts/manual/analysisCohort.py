@@ -24,7 +24,6 @@ class AnalysisCohort(AnalysisBase):
 
 	def parse_args(self):
 		args = super(AnalysisCohort, self).parse_args()
-		args.metadata['analysis_type'] = 'cohort'
 		return args
 
 	def run(self, args):
