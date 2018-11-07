@@ -34,6 +34,8 @@ class AnalysisCohortTask(AnalysisBase):
 	ACTIVE_MODULES = models.ecoli.analysis.cohort.ACTIVE
 
 	def plotter_args(self, module_filename):
+		self["metadata"] = dict(self["metadata"], analysis_type = "cohort")
+
 		return (
 			self["input_variant_directory"],
 			self["output_plots_directory"],

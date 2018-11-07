@@ -26,7 +26,6 @@ class AnalysisVariant(AnalysisBase):
 				'No simulation variant directories found')
 
 		metadata = args.metadata
-		metadata['analysis_type'] = 'variant'
 		metadata['total_variants'] = str(len(variant_dirs))
 
 		return args
