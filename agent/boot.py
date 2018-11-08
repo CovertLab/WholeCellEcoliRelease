@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 import os
 import re
 import copy
+import json
 import uuid
 import numpy as np
 import argparse
@@ -251,34 +252,39 @@ class AgentCommand(object):
 			default=os.getcwd(),
 			help='the directory containing the project files')
 
+		parser.add_argument(
+			'--config',
+			default='{}',
+			help='any configuration for agents')
+
 		return parser
 
 	def inner(self, args):
-		if not args.id:
+		if not args['id']:
 			raise ValueError('--id must be supplied for inner command')
-		if not args.outer_id:
+		if not args['outer_id']:
 			raise ValueError('--outer-id must be supplied for inner command')
 
-		inner = boot_inner(args.id, 'inner', {
+		inner = boot_inner(args['id'], 'inner', {
 			'kafka_config': self.kafka_config,
-			'outer_id': args.outer_id})
+			'outer_id': args['outer_id']})
 		inner.start()
 
 	def outer(self, args):
-		if not args.id:
+		if not args['id']:
 			raise ValueError('--id must be supplied for outer command')
 
-		outer = boot_outer(args.id, {'kafka_config': self.kafka_config})
+		outer = boot_outer(args['id'], {'kafka_config': self.kafka_config})
 		outer.start()
 
 	def trigger(self, args):
 		control = EnvironmentControl('control', self.kafka_config)
-		control.trigger_execution(args.id)
+		control.trigger_execution(args['id'])
 		control.shutdown()
 
 	def pause(self, args):
 		control = EnvironmentControl('control', self.kafka_config)
-		control.pause_execution(args.id)
+		control.pause_execution(args['id'])
 		control.shutdown()
 
 	def shepherd_initializers(self, args):
@@ -287,7 +293,7 @@ class AgentCommand(object):
 		def initialize_inner(agent_id, agent_type, agent_config):
 			agent_config = dict(agent_config)
 			agent_config['kafka_config'] = self.kafka_config
-			agent_config['working_dir'] = args.working_dir
+			agent_config['working_dir'] = args['working_dir']
 			inner = boot_inner(agent_id, agent_type, agent_config)
 			inner.start()
 
@@ -312,39 +318,41 @@ class AgentCommand(object):
 
 	def add(self, args):
 		control = EnvironmentControl('control', self.kafka_config)
-		control.add_inner(args.id, {})
+		control.add_inner(args['id'], {})
 		control.shutdown()
 
 	def remove(self, args):
 		control = EnvironmentControl('control', self.kafka_config)
-		if args.id:
-			control.remove_agent({'agent_id': args.id})
-		elif args.prefix:
-			control.remove_agent({'agent_prefix': args.prefix})
+		if args['id']:
+			control.remove_agent({'agent_id': args['id']})
+		elif args['prefix']:
+			control.remove_agent({'agent_prefix': args['prefix']})
 		else:
 			raise ValueError('either --id or --prefix must be provided')
 		control.shutdown()
 
 	def divide(self, args):
 		control = EnvironmentControl('control', self.kafka_config)
-		control.divide_cell(args.id)
+		control.divide_cell(args['id'])
 		control.shutdown()
 
 	def experiment(self, args):
 		control = EnvironmentControl('control', self.kafka_config)
-		control.stub_experiment(args.number)
+		control.stub_experiment(args['number'])
 		control.shutdown()
 
 	def shutdown(self, args):
 		control = EnvironmentControl('control', self.kafka_config)
-		control.shutdown_agent(args.id)
+		control.shutdown_agent(args['id'])
 		control.shutdown()
 
 	def execute(self):
-		args = self.args
-		command = args.command
+		command = self.args.command
 		if command in self.choices:
+			config = json.loads(self.args.config)
 			underscore = re.sub(r'-+', '_', command)
+			args = vars(self.args)
+			args['config'] = config
 			getattr(self, underscore)(args)
 		else:
 			raise ValueError("unrecognized command: {}".format(command))

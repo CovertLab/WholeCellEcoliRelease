@@ -212,26 +212,26 @@ def boot_chemotaxis(agent_id, agent_type, agent_config):
 
 def configure_lattice(args, defaults={}):
 	config = defaults.copy()
-	if args.run_for is not None:
-		config['run_for'] = args.run_for
-	if args.static_concentrations is not None:
-		config['static_concentrations'] = args.static_concentrations
-	if args.gradient is not None:
-		config['gradient'] = {'seed': args.gradient}
-	if args.media is not None:
-		config['media'] = args.media
-	if args.diffusion is not None:
-		config['diffusion'] = args.diffusion
-	if args.translation_jitter is not None:
-		config['translation_jitter'] = args.translation_jitter
-	if args.rotation_jitter is not None:
-		config['rotation_jitter'] = args.rotation_jitter
-	if args.cell_radius is not None:
-		config['cell_radius'] = args.cell_radius
-	if args.edge_length is not None:
-		config['edge_length'] = args.edge_length
-	if args.patches_per_edge is not None:
-		config['patches_per_edge'] = args.patches_per_edge
+	if args['run_for'] is not None:
+		config['run_for'] = args['run_for']
+	if args['static_concentrations'] is not None:
+		config['static_concentrations'] = args['static_concentrations']
+	if args['gradient'] is not None:
+		config['gradient'] = {'seed': args['gradient']}
+	if args['media'] is not None:
+		config['media'] = args['media']
+	if args['diffusion'] is not None:
+		config['diffusion'] = args['diffusion']
+	if args['translation_jitter'] is not None:
+		config['translation_jitter'] = args['translation_jitter']
+	if args['rotation_jitter'] is not None:
+		config['rotation_jitter'] = args['rotation_jitter']
+	if args['cell_radius'] is not None:
+		config['cell_radius'] = args['cell_radius']
+	if args['edge_length'] is not None:
+		config['edge_length'] = args['edge_length']
+	if args['patches_per_edge'] is not None:
+		config['patches_per_edge'] = args['patches_per_edge']
 	return config
 
 
@@ -258,8 +258,8 @@ class ShepherdControl(EnvironmentControl):
 		lattice_config = configure_lattice(args)
 		self.add_agent(lattice_id, 'lattice', lattice_config)
 
-		for index in range(args.number):
-			self.add_cell(args.type or 'ecoli', {
+		for index in range(args['number']):
+			self.add_cell(args['type'] or 'ecoli', {
 				'outer_id': lattice_id})
 
 	def chemotaxis_experiment(self, args):
@@ -276,8 +276,8 @@ class ShepherdControl(EnvironmentControl):
 		lattice_config = configure_lattice(args, chemotaxis_defaults)
 		self.add_agent(lattice_id, 'lattice', lattice_config)
 
-		for index in range(args.number):
-			self.add_cell(args.type or 'chemotaxis', {
+		for index in range(args['number']):
+			self.add_cell(args['type'] or 'chemotaxis', {
 				'outer_id': lattice_id})
 
 
@@ -392,7 +392,7 @@ class EnvironmentCommand(AgentCommand):
 			agent_config = dict(
 				agent_config,
 				kafka_config=self.kafka_config,
-				working_dir=args.working_dir)
+				working_dir=args['working_dir'])
 			ecoli = boot_ecoli(agent_id, agent_type, agent_config)
 			ecoli.start()
 
@@ -409,7 +409,7 @@ class EnvironmentCommand(AgentCommand):
 			agent_config = dict(
 				agent_config,
 				kafka_config=self.kafka_config,
-				working_dir=args.working_dir)
+				working_dir=args['working_dir'])
 			time.sleep(5) # this gives the environment long enough to initialize
 			chemotaxis = boot_chemotaxis(agent_id, agent_type, agent_config)
 			chemotaxis.start()
@@ -421,7 +421,7 @@ class EnvironmentCommand(AgentCommand):
 		return initializers
 
 	def lattice(self, args):
-		agent_id = args.id or 'lattice'
+		agent_id = args['id'] or 'lattice'
 		lattice = boot_lattice(
 			agent_id,
 			'lattice',
@@ -429,30 +429,30 @@ class EnvironmentCommand(AgentCommand):
 		lattice.start()
 
 	def ecoli(self, args):
-		if not args.id:
+		if not args['id']:
 			raise ValueError('the "ecoli" command needs an --id argument')
-		if not args.outer_id:
+		if not args['outer_id']:
 			raise ValueError('the "ecoli" command needs an --outer-id argument')
 
 		agent_config = dict(
 			kafka_config=self.kafka_config,
-			working_dir=args.working_dir,
-			variant_type=args.variant,
-			variant_index=args.index,
-			seed=args.seed,
-			outer_id=args.outer_id)
-		ecoli = boot_ecoli(args.id, agent_config)
+			working_dir=args['working_dir'],
+			variant_type=args['variant'],
+			variant_index=args['index'],
+			seed=args['seed'],
+			outer_id=args['outer_id'])
+		ecoli = boot_ecoli(args['id'], agent_config)
 		ecoli.start()
 
 	def add(self, args):
 		agent_config = dict(
-			variant_type=args.variant,
-			variant_index=args.index,
-			seed=args.seed,
-			outer_id=args.id,
+			variant_type=args['variant'],
+			variant_index=args['index'],
+			seed=args['seed'],
+			outer_id=args['id'],
 			kafka_config=self.kafka_config)
 		control = ShepherdControl(agent_config)
-		control.add_cell(args.type or 'ecoli', agent_config)
+		control.add_cell(args['type'] or 'ecoli', agent_config)
 		control.shutdown()
 
 	def experiment(self, args):
