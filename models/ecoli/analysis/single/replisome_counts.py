@@ -29,23 +29,35 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		if not os.path.exists(plotOutDir):
 			os.mkdir(plotOutDir)
 
+		with open(simDataFile, 'rb') as f:
+			sim_data = cPickle.load(f)
+
+		# Listeners used
+		unique_molecule_counts_reader = TableReader(
+			os.path.join(simOutDir, "UniqueMoleculeCounts")
+			)
+		replication_reader = TableReader(
+			os.path.join(simOutDir, "ReplicationData")
+			)
+		bulk_molecules_reader = TableReader(
+			os.path.join(simOutDir, "BulkMolecules")
+			)
+		main_reader = TableReader(
+			os.path.join(simOutDir, "Main")
+			)
+
 		# Load counts of DNA polymerases, active replisomes, and OriC's
-		uniqueMoleculeCounts = TableReader(
-			os.path.join(simOutDir, "UniqueMoleculeCounts"))
 		unique_molecule_ids = [
 			"activeReplisome", "dnaPolymerase", "originOfReplication"]
-		unique_molecule_idx = np.array([uniqueMoleculeCounts.readAttribute(
+		unique_molecule_idx = np.array([unique_molecule_counts_reader.readAttribute(
 			"uniqueMoleculeIds").index(x) for x in unique_molecule_ids])
-		unique_molecule_counts = uniqueMoleculeCounts.readColumn(
+		unique_molecule_counts = unique_molecule_counts_reader.readColumn(
 			"uniqueMoleculeCounts")[:, unique_molecule_idx]
 
 		# Load data on cell mass per origin
-		replicationData = TableReader(
-			os.path.join(simOutDir, "ReplicationData"))
-		criticalMassPerOriC = replicationData.readColumn("criticalMassPerOriC")
+		criticalMassPerOriC = replication_reader.readColumn("criticalMassPerOriC")
 
 		# Load IDs of direct replisome subunits
-		sim_data = cPickle.load(open(simDataFile, "rb"))
 		replisome_subunit_ids = []
 		replisome_subunit_ids.extend(
 			sim_data.moleculeGroups.replisome_trimer_subunits)
@@ -53,22 +65,21 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			sim_data.moleculeGroups.replisome_monomer_subunits)
 
 		# Load IDs of DNA polymerase III core enzyme subunits
-		replisome_subunit_ids.extend(sim_data.process.complexation.getMonomers(
-			'CPLX0-2361[c]')['subunitIds'])
+		replisome_subunit_ids.extend(
+			sim_data.process.complexation.getMonomers(
+				'CPLX0-2361[c]')['subunitIds']
+			)
 
 		# Load counts of replisome subunits
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
+		moleculeIds = bulk_molecules_reader.readAttribute("objectNames")
 		replisome_subunit_idx = np.array([moleculeIds.index(x)
 			for x in replisome_subunit_ids])
-		replisome_subunit_counts = bulkMolecules.readColumn(
+		replisome_subunit_counts = bulk_molecules_reader.readColumn(
 			"counts")[:, replisome_subunit_idx]
 
 		# Load time data
-		initialTime = TableReader(
-			os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(
-			os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
 
 		# Plot figures
 		fig = plt.figure()
