@@ -75,9 +75,9 @@ class EnvironmentControl(Agent):
 	def add_agent(self, agent_id, agent_type, agent_config):
 		self.send(self.topics['shepherd_receive'], {
 			'event': event.ADD_AGENT,
-			'agent_id': agent_id,
-			'agent_type': agent_type,
-			'agent_config': agent_config})
+			'id': agent_id,
+			'type': agent_type,
+			'config': agent_config})
 
 	def remove_agent(self, agent_query):
 		"""
@@ -159,6 +159,15 @@ class AgentCommand(object):
 			help='unique identifier for simulation agent')
 
 		parser.add_argument(
+			'--type',
+			help='type of the agent to add')
+
+		parser.add_argument(
+			'--config',
+			default='{}',
+			help='json dictionary of config values to pass to the agent')
+
+		parser.add_argument(
 			'--outer-id',
 			help='unique identifier for outer agent this inner agent will join')
 
@@ -207,10 +216,10 @@ class AgentCommand(object):
 			default=os.getcwd(),
 			help='the directory containing the project files')
 
-		parser.add_argument(
-			'--config',
-			default='{}',
-			help='any configuration for agents')
+		# parser.add_argument(
+		# 	'--config',
+		# 	default='{}',
+		# 	help='any configuration for agents')
 
 		return parser
 
