@@ -107,8 +107,14 @@ TAGS = {
 		],
 	'REGULATION': [
 		"equilibriumComparison.py",
+		"transient_gene_dosage.py",
 		"trpRegulation.py",
 		"twoComponentSystem.py",
+		],
+	'REPLICATION': [
+		"replication.py",
+		"replisome_counts.py",
+		"transient_gene_dosage.py",
 		],
 	'TRANSCRIPTION': [
 		"mRnaHalfLives.py",
