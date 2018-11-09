@@ -25,7 +25,6 @@ ACTIVE = [
 	"mRnaHalfLives.py",
 	"massFractionSummary.py",
 	"massFractions.py",
-	"metabolismMassBalance.py",
 	"metaboliteComparison.py",
 	"metabolites.py",
 	"mrnaCounts.py",
@@ -92,7 +91,6 @@ TAGS = {
 		"glucoseMassYield.py",
 		"kineticsFluxComparison.py",
 		"kineticsFluxComparisonKcatOnly.py",
-		"metabolismMassBalance.py",  # TODO(jerry): include this?
 		"metaboliteComparison.py",
 		"metabolites.py",
 		],
