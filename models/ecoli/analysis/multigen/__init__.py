@@ -23,7 +23,6 @@ ACTIVE = [
 	"mene_limitations.py",
 	# "probProteinExistAndDouble.py",
 	"proteinAvgCountVsBurstSize.py",
-	"proteinConcentrations.py",
 	"proteinCountVsFoldChange.py",
 	"proteinCountsValidation.py",
 	"proteinExistVsBurstSize.py",
