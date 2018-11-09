@@ -1,16 +1,19 @@
 from __future__ import absolute_import
 from __future__ import division
 
+import cPickle
+from itertools import izip
 import os
 
-import numpy as np
 from matplotlib import pyplot as plt
+import numpy as np
 
-from wholecell.io.tablereader import TableReader
-from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
+from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.io.tablereader import TableReader
+from wholecell.utils import units
 
-THRESHOLD = 1e-5
+THRESHOLD = 1e-13  # roughly, the mass of an electron
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
@@ -21,20 +24,43 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		if not os.path.exists(plotOutDir):
 			os.mkdir(plotOutDir)
 
+		with open(simDataFile, 'rb') as f:
+			sim_data = cPickle.load(f)
+
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
 		mass = TableReader(os.path.join(simOutDir, "Mass"))
+		fba_results = TableReader(os.path.join(simOutDir, "FBAResults"))
 
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = (
-			TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-			) / 60.
+		initialTime = main_reader.readAttribute("initialTime")
+		time = (main_reader.readColumn("time") - initialTime) / 60.
+		n_timesteps = time.shape[0]
 
-		relProcessMassDifferences = mass.readColumn("relProcessMassDifferences")
-
-		relProcessMassDifferences[relProcessMassDifferences == 0] = np.nan
-
+		processMassDifferences = mass.readColumn("processMassDifferences")
 		processNames = mass.readAttribute("processNames")
+		metabolism_index = processNames.index('Metabolism')
 
-		mass.close()
+		# Adjust metabolism for exchange fluxes
+		## Exchange fluxes will not capture rounding to single molecule level
+		## so need to use change in metabolites as the mass coming into the cell
+		metabolites = fba_results.readAttribute('outputMoleculeIDs')
+		delta_metabolites = fba_results.readColumn('deltaMetabolites')
+
+		conversion = 1e15 / sim_data.constants.nAvogadro.asNumber(1 / units.mol)
+		metabolism_mass_imported = np.zeros(delta_metabolites.shape[0])
+		for mol, flux in izip(metabolites, delta_metabolites.T):
+			mol_mass = sim_data.getter.getMass([mol])[0].asNumber(units.g / units.mol)
+			metabolism_mass_imported += mol_mass * conversion * flux
+
+		## Normalize with initial mass to get relative mass difference
+		metabolism_mass_difference = processMassDifferences[:, metabolism_index]
+		adjusted_metabolism = (metabolism_mass_difference - metabolism_mass_imported).reshape(-1, 1)
+		processMassDifferences = np.hstack((
+			processMassDifferences[:, :metabolism_index+1].reshape(n_timesteps, -1),
+			adjusted_metabolism,
+			processMassDifferences[:, metabolism_index+1:].reshape(n_timesteps, -1),
+			))
+		processNames =  processNames[:metabolism_index+1] + ['Metabolism\n(exchange adjusted)'] + processNames[metabolism_index+1:]
+		processMassDifferences[processMassDifferences == 0] = np.nan
 
 		plt.figure(figsize = (8.5, 11))
 
@@ -43,12 +69,12 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		n_cols = int(np.sqrt(n_processes))
 		n_rows = int(np.ceil(n_processes/n_cols))
 
-		axis = [time.min(), time.max(), np.nanmin(np.abs(relProcessMassDifferences)), np.nanmax(np.abs(relProcessMassDifferences))]
+		axis = [time.min(), time.max(), np.nanmin(np.abs(processMassDifferences)), np.nanmax(np.abs(processMassDifferences))]
 
 		for i, processName in enumerate(processNames):
 			plt.subplot(n_rows, n_cols, i+1)
 
-			series = relProcessMassDifferences[:, i].copy()
+			series = np.abs(processMassDifferences[:, i])
 			t = time.copy()
 
 			t = t[series != 0]
@@ -80,6 +106,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 			plt.axis(axis)
 
+		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close("all")
 
