@@ -1,9 +1,6 @@
-#!/usr/bin/env python
-
 """
 RibosomeData
 
-@author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 5/21/14
 """
@@ -34,32 +31,17 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 
 		self.nMonomers = len(sim_data.process.translation.monomerData)
 
-		# Logged quantities
-		self.registerLoggedQuantity(
-			"Fraction\nribosomes\nstalled",
-			"fractionStalled",
-			".3f"
-			)
-
 
 	# Allocate memory
 	def allocate(self):
 		super(RibosomeData, self).allocate()
 
-		# Computed, saved attributes
-		self.stallingRateTotal = 0
-		self.stallingRateMean = 0
-		self.stallingRateStd = 0
-		self.fractionStalled = 0
-
 		# Attributes broadcast by the PolypeptideElongation process
-		self.ribosomeStalls = np.zeros(0, np.int64)
 		self.aaCountInSequence = np.zeros(21, np.int64)
 		self.aaCounts = np.zeros(21, np.int64)
 		self.actualElongations = 0
 		self.actualElongationHist = np.zeros(22, np.int64)
 		self.elongationsNonTerminatingHist = np.zeros(22, np.int64)
-		self.expectedElongations = 0
 		self.didTerminate = 0
 		self.didInitialize = 0
 		self.terminationLoss = 0
@@ -78,18 +60,7 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 
 
 	def update(self):
-		if self.ribosomeStalls.size:
-			# TODO: divide rates by time step length
-			self.stallingRateTotal = self.ribosomeStalls.sum()
-			self.stallingRateMean = self.ribosomeStalls.mean()
-			self.stallingRateStd = self.ribosomeStalls.std()
-			self.fractionStalled = (self.ribosomeStalls > 0).mean()
-
-		else:
-			self.stallingRateTotal = 0
-			self.stallingRateMean = 0
-			self.stallingRateStd = 0
-			self.fractionStalled = 0
+		pass
 
 	def tableCreate(self, tableWriter):
 		pass
@@ -99,16 +70,11 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		tableWriter.append(
 			time = self.time(),
 			simulationStep = self.simulationStep(),
-			stallingRateTotal = self.stallingRateTotal,
-			stallingRateMean = self.stallingRateMean,
-			stallingRateStd = self.stallingRateStd,
-			fractionStalled = self.fractionStalled,
 			aaCountInSequence = self.aaCountInSequence,
 			aaCounts = self.aaCounts,
 			actualElongations = self.actualElongations,
 			actualElongationHist = self.actualElongationHist,
 			elongationsNonTerminatingHist = self.elongationsNonTerminatingHist,
-			expectedElongations = self.expectedElongations,
 			didTerminate = self.didTerminate,
 			didInitialize = self.didInitialize,
 			terminationLoss = self.terminationLoss,

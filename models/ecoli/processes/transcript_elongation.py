@@ -122,18 +122,13 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.inactiveRnaPolys.countInc(nTerminated)
 		self.ppi.countInc(nElongations - nInitialized)
 
-		# Calculate stalls
-		expectedElongations = np.fmin(self.rnapElngRate, terminalLengths - transcriptLengths)
-		rnapStalls = expectedElongations - sequenceElongations
 
 		# Write outputs to listeners
 		self.writeToListener("TranscriptElongationListener", "countRnaSynthesized", terminatedRnas)
 		self.writeToListener("TranscriptElongationListener", "countNTPsUSed", nElongations)
 		self.writeToListener("GrowthLimits", "ntpUsed", ntpsUsed)
-		self.writeToListener("RnapData", "rnapStalls", rnapStalls)
 		self.writeToListener("RnapData", "ntpCountInSequence", ntpCountInSequence)
 		self.writeToListener("RnapData", "ntpCounts", ntpCounts)
-		self.writeToListener("RnapData", "expectedElongations", expectedElongations.sum())
 		self.writeToListener("RnapData", "actualElongations", sequenceElongations.sum())
 		self.writeToListener("RnapData", "didTerminate", didTerminate.sum())
 		self.writeToListener("RnapData", "terminationLoss", (terminalLengths - transcriptLengths)[didTerminate].sum())
