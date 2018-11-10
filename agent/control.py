@@ -283,6 +283,10 @@ class AgentCommand(object):
 	def add(self, args):
 		control = EnvironmentControl('control', self.kafka_config)
 		# control.add_inner(args['id'], {})
+		kafka = DEFAULT_KAFKA_CONFIG.copy()
+		if 'kafka_config' in args['config']:
+			kafka.update(args['config']['kafka_config'])
+		args['config']['kafka_config'] = kafka
 		control.add_agent(args['id'], args['type'], args['config'])
 		control.shutdown()
 

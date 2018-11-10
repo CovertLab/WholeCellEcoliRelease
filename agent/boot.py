@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
+import json
 import uuid
 import argparse
 
@@ -26,6 +27,7 @@ def boot_outer(agent_id, agent_type, agent_config):
 		'blue': 12}
 
 	environment = EnvironmentStub(volume, concentrations)
+	print('outer! {}'.format(agent_config))
 	return Outer(agent_id, agent_type, agent_config, environment)
 
 def boot_inner(agent_id, agent_type, agent_config):
@@ -42,6 +44,7 @@ def boot_inner(agent_id, agent_type, agent_config):
 	outer_id = agent_config['outer_id']
 	simulation = SimulationStub()
 
+	print('inner... {}'.format(agent_config))
 	return Inner(
 		agent_id,
 		outer_id,
@@ -65,19 +68,21 @@ class BootAgent(object):
 
 	def add_arguments(self, parser):
 		parser.add_argument(
-			'id',
+			'--id',
 			default=uuid.uuid1(),
 			help='id of the new agent')
 
 		parser.add_argument(
-			'type',
+			'--type',
 			default='inner',
 			help='type of the new agent')
 
 		parser.add_argument(
-			'config',
+			'--config',
 			default='{}',
 			help='configuration for the new agent')
+
+		return parser
 
 	def execute(self):
 		args = vars(self.args)
