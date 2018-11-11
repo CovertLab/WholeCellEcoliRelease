@@ -53,7 +53,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 					initial_time = main_reader.readAttribute("initialTime")
 
 					# Get doubling time
-					gen_doubling_times.append((time.max() - initial_time) / 60.)
+					gen_doubling_times.append((time[-1] - initial_time) / 60.)
 				except:
 					# Skip sims that were not able to complete division
 					continue
@@ -78,9 +78,9 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 			axes.axvline(gen_doubling_times.mean(), color='k', linestyle='dashed', linewidth=2)
 			axes.text(
-				gen_doubling_times.mean() + 0.1, 1,
-				"Mean = %.2f, Var = %.2f, n = %d" %
-				(gen_doubling_times.mean(), gen_doubling_times.var(), len(gen_doubling_times), ))
+				gen_doubling_times.mean(), 1,
+				"Mean = %.2f, Std = %.2f, n = %d" %
+				(gen_doubling_times.mean(), gen_doubling_times.std(), len(gen_doubling_times), ))
 			axes.set_ylabel("Generation %d" % (idx, ))
 
 		axesList[-1].set_xlabel("Doubling time (min))")

@@ -79,9 +79,9 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 			axes.axvline(gen_final_masses.mean(), color='k', linestyle='dashed', linewidth=2)
 			axes.text(
-				gen_final_masses.mean() + 0.01, 1,
-				"Mean = %.2f, Var = %.2f, n = %d" %
-				(gen_final_masses.mean(), gen_final_masses.var(), len(gen_final_masses), ))
+				gen_final_masses.mean(), 1,
+				"Mean = %.2f, Std = %.2f, n = %d" %
+				(gen_final_masses.mean(), gen_final_masses.std(), len(gen_final_masses), ))
 			axes.set_ylabel("Generation %d" % (idx, ))
 
 		axesList[-1].set_xlabel("Final mass (pg)")
