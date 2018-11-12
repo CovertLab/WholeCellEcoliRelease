@@ -4,8 +4,6 @@ ACTIVE = [
 	"centralCarbonMetabolismCorrelationTimeCourse.py",
 	"centralCarbonMetabolismScatter.py",
 	"doubling_times_histogram_all.py",
-	# "compositionFitting.py",
-	# "compositionFittingByGeneration.py",
 	"expression_dynamics.py",
 	"growthDynamics.py",
 	# "proteinFoldChangeVsTranscriptionFrequency.py",

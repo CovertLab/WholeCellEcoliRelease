@@ -11,7 +11,6 @@ ACTIVE = [
 	"functionalUnits.py",
 	"functionalUnitsFC.py",
 	"growthAffectingPolymerases.py",
-	# "growthRateControl.py",
 	# "initiationNoiseVsFoldChange.py",
 	"kineticsFluxComparison.py",
 	"limitedEnzymeGlutcyslig.py",
@@ -65,7 +64,6 @@ TAGS = {
 	'GROWTH': [
 		"charging_molecules.py",
 		"growthAffectingPolymerases.py",
-		# "growthRateControl.py",
 		],
 	'METABOLISM': [
 		"centralCarbonMetabolismCorrelationTimeCourse.py",
