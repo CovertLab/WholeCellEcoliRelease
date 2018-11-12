@@ -11,7 +11,6 @@ ACTIVE = [
 	"functionalUnits.py",
 	"functionalUnitsFC.py",
 	"growthAffectingPolymerases.py",
-	# "initiationNoiseVsFoldChange.py",
 	"kineticsFluxComparison.py",
 	"limitedEnzymeGlutcyslig.py",
 	"limitedEnzymeUgd.py",
