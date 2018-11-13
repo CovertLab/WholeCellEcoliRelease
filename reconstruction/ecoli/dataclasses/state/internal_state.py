@@ -76,9 +76,9 @@ class InternalState(object):
 		self.bulkMolecules.addToBulkState(modifiedFormIds, modifiedFormMasses)
 
 		# Set chromosome
-		chromosomeIds = stateFunctions.createIdsWithCompartments(raw_data.chromosome)
+		chromosomeIds = stateFunctions.createIdsWithCompartments(raw_data.full_chromosome)
 		chromosomeMasses = (units.g/units.mol) * (
-			stateFunctions.createMassesByCompartments(raw_data.chromosome))
+			stateFunctions.createMassesByCompartments(raw_data.full_chromosome))
 
 		self.bulkMolecules.addToBulkState(chromosomeIds, chromosomeMasses)
 
