@@ -9,12 +9,14 @@ from __future__ import absolute_import
 from __future__ import division
 
 import cPickle
+import os
+
 from matplotlib import pyplot as plt
 import numpy as np
-import os
 
 from models.ecoli.analysis import singleAnalysisPlot
 from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import filepath
 
@@ -35,12 +37,17 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		main_reader = TableReader(os.path.join(simOutDir, 'Main'))
 
 		# Load data
-		time = main_reader.readColumn('time')
+		initial_time = main_reader.readAttribute('initialTime')
+		time = main_reader.readColumn('time') - initial_time
+
+		names = ['ATP[c]']  # Replace with desired list of names
+		(counts,) = read_bulk_molecule_counts(simOutDir, (names,))
 
 		plt.figure()
 
 		### Create Plot ###
 
+		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close('all')
 
