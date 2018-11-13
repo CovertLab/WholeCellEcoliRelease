@@ -278,8 +278,8 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts,
 	- active ribosome: random binomial division, but the ribosome elongation
 	rates of the daughter cells are set such that the two daughter cells have
 	equal translational capacities, with an optional noise.
-	- active DNA polymerases, oriCs: divided based on the chromosome each
-	molecule is associated to.
+	- active DNA polymerases, replisomes, oriCs: divided based on the
+	chromosome each molecule is associated to.
 	- full chromosomes: assign to both daughter cells the same count of unique
 	fullChromosome states as the mother cell. (Note: this unique state is just
 	a placeholder for the cell division time attribute - its count essentially
@@ -302,7 +302,7 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts,
 	# TODO (Gwanggyu): RNAPs should also be unequally divided once gene dosage
 	# is modeled and RNAPs are assigned to a specific chromosome.
 	nonbinomial_unique_molecules = ['dnaPolymerase', 'originOfReplication',
-		'fullChromosome', 'activeRibosome']
+		'activeReplisome', 'fullChromosome', 'activeRibosome']
 
 	# Binomially divide unique molecules that should be binomially split
 	# Note: again, the only unique molecules split here are the active RNAPs.
@@ -446,6 +446,47 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts,
 		d1_unique_molecules_container.objectsNew('dnaPolymerase', n_d1,
 			**d1_dividedAttributesDict)
 		d2_unique_molecules_container.objectsNew('dnaPolymerase', n_d2,
+			**d2_dividedAttributesDict)
+
+	# Divide active replisomes according to chromosomes they were bound to
+	moleculeSet = uniqueMolecules.container.objectsInCollection('activeReplisome')
+	moleculeAttributeDict = uniqueMoleculesToDivide['activeReplisome']
+	n_replisomes = len(moleculeSet)
+
+	if n_replisomes > 0:
+		replicationRound, chromosomeIndex = moleculeSet.attrs(
+			'replicationRound', 'chromosomeIndex'
+		)
+
+		# Divide replisomes based on their chromosome indexes
+		d1_bool = np.zeros(n_replisomes, dtype=bool)
+		for index in d1_chromosome_indexes:
+			d1_bool = np.logical_or(d1_bool, chromosomeIndex == index)
+		d2_bool = np.logical_not(d1_bool)
+
+		# Add the divided replisomes to the daughter cell containers
+		d1_dividedAttributesDict = {}
+		d2_dividedAttributesDict = {}
+		for moleculeAttribute in moleculeAttributeDict.iterkeys():
+			d1_dividedAttributesDict[moleculeAttribute] = (
+				moleculeSet.attr(moleculeAttribute)[d1_bool]
+			)
+			d2_dividedAttributesDict[moleculeAttribute] = (
+				moleculeSet.attr(moleculeAttribute)[d2_bool]
+			)
+
+		n_d1 = d1_bool.sum()
+		n_d2 = d2_bool.sum()
+
+		# Reset the chromosome indexes of the polymerases assigned to each daughter cell
+		d1_dividedAttributesDict['chromosomeIndex'] = resetChromosomeIndex(
+			d1_dividedAttributesDict['chromosomeIndex'], d1_chromosome_count)
+		d2_dividedAttributesDict['chromosomeIndex'] = resetChromosomeIndex(
+			d2_dividedAttributesDict['chromosomeIndex'], d2_chromosome_count)
+
+		d1_unique_molecules_container.objectsNew('activeReplisome', n_d1,
+			**d1_dividedAttributesDict)
+		d2_unique_molecules_container.objectsNew('activeReplisome', n_d2,
 			**d2_dividedAttributesDict)
 
 	# Divide oriCs according to the chromosomes they are associated to

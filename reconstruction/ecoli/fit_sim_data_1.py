@@ -45,6 +45,7 @@ RNA_EXPRESSION_ADJUSTMENTS = {
 	"EG10139_RNA[c]": 10,  # cdsA, CDP-diglyceride synthetase
 	"EG12298_RNA[c]": 10,  # yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition viability
 	"EG11672_RNA[c]": 10,  # atoB, acetyl-CoA acetyltransferase; This RNA is fit for the anaerobic condition viability
+	"EG10238_RNA[c]": 10,  # dnaE, DNA polymerase III subunit alpha; This RNA is fit for the sims to produce enough DNAPs for timely replication
 	}
 RNA_DEG_RATES_ADJUSTMENTS = {
 	"EG11493_RNA[c]": 2,  # pabC, aminodeoxychorismate lyase
@@ -786,21 +787,24 @@ def setTranslationEfficiencies(sim_data):
 
 def setRNAExpression(sim_data):
 	"""
-	This function's goal is to set expression levels for a subset of metabolic RNAs.
-	It first gathers the index of the RNA's it wants to modify, then changes the expression
-	levels of those RNAs, within sim_data, based on the specified adjustment factor.
+	This function's goal is to set expression levels for a subset of RNAs.
+	It first gathers the index of the RNA's it wants to modify, then changes
+	the expression levels of those RNAs, within sim_data, based on the
+	specified adjustment factor.
 	These adjustments were made so that the simulation could run.
 
 	Requires
 	--------
-	- For each RNA that needs to be modified, it takes in a hard coded adjustment factor.
+	- For each RNA that needs to be modified, it takes in a hard coded
+	adjustment factor.
 
 	Modifies
 	--------
-	- This function modifies the basal RNA expression levels set in sim_data, for the chosen RNAs.
-	It takes their current basal expression and multiplies them by the factor specified in adjustments.
-	- After updating the basal expression levels for the given genes, the function normalizes all the basal
-	expression levels.
+	- This function modifies the basal RNA expression levels set in sim_data,
+	for the chosen RNAs. It takes their current basal expression and multiplies
+	them by the factor specified in adjustments.
+	- After updating the basal expression levels for the given genes, the
+	function normalizes all the basal expression levels.
 	"""
 
 	for rna in RNA_EXPRESSION_ADJUSTMENTS:
