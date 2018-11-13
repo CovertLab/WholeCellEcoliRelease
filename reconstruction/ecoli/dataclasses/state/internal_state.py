@@ -180,12 +180,14 @@ class InternalState(object):
 		# One full chromosome molecule is added when chromosome replication is
 		# complete, and sets cell division to happen after a length of time
 		# specified by the D period (if D_PERIOD_DIVISION is set to True). The
-		# full chromosome that a cell inherits from its mother has the index of
-		# zero, and the chromosome that is initially replicated from this
-		# inherited chromosome gets the index of one. If more chromosomes are
-		# made during a single cycle, those chromosomes get indexes starting
-		# from two. The cell divides at the division time specified by the
-		# division_time attribute of the chromosome with index one.
+		# chromosomes are indexed in the order they are formed - thus, the
+		# "oldest" full chromosome that a cell inherited from its mother has
+		# the index of zero, and the chromosome that is initially replicated
+		# from this inherited chromosome gets the index of one. If more
+		# chromosomes are made during a single cycle, those chromosomes get
+		# indexes starting from two. The cell divides at the division time
+		# specified by the division_time attribute of the chromosome with index
+		# one.
 		fullChromosomeMass = (units.g/units.mol) * (
 			stateFunctions.createMassesByCompartments(raw_data.full_chromosome))
 		fullChromosomeAttributes = {
