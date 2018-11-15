@@ -5,6 +5,8 @@ PASSWORD=$4
 
 set -e
 
+runscripts/jenkins/purge.sh daily_build 10
+
 module load wcEcoli/sherlock2
 pyenv local wcEcoli2
 
