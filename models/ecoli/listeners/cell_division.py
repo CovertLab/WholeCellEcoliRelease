@@ -100,11 +100,6 @@ class CellDivision(wholecell.listeners.listener.Listener):
 				divide_at_time = division_time[chromosomeIndex == 1][0]
 
 				if self.time() >= divide_at_time:
-					print("grep_marker cell division occurs - time: {}".format(self.time()))
-					print("grep_marker cell division occurs - relative time: {}".format(self.time() - self._sim.initialTime()))
-					print("grep_marker cell division occurs - divide time: {}".format(divide_at_time))
-					print("grep_marker cell division occurs - cell mass: {}".format(self.cellMass))
-
 					self._sim.cellCycleComplete()
 		else:
 			# End simulation once the mass of an average cell is
