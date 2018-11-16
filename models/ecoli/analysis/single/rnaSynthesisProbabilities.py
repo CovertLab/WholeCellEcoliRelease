@@ -1,7 +1,6 @@
 """
 Plot rna synthesis probabilities
 
-@author: Heejo Choi
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 9/9/2016
 """
@@ -9,71 +8,103 @@ Plot rna synthesis probabilities
 from __future__ import absolute_import
 from __future__ import division
 
-import os
-
-import numpy as np
 import cPickle
-from matplotlib import pyplot as plt
+import os
+from itertools import izip
 
-from wholecell.io.tablereader import TableReader
-from wholecell.analysis.analysis_tools import exportFigure
+from matplotlib import pyplot as plt
+import numpy as np
+
 from models.ecoli.analysis import singleAnalysisPlot
+from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
+from wholecell.io.tablereader import TableReader
+from wholecell.utils import filepath
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
+			raise Exception, 'simOutDir does not currently exist as a directory'
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
+		filepath.makedirs(plotOutDir)
 
-		sim_data = cPickle.load(open(simDataFile, "rb"))
+		with open(simDataFile, 'rb') as f:
+			sim_data = cPickle.load(f)
+
+		# Load info from sim_data
 		isMRna = sim_data.process.transcription.rnaData["isMRna"]
 		isRRna = sim_data.process.transcription.rnaData["isRRna"]
 		isTRna = sim_data.process.transcription.rnaData["isTRna"]
+		nutrients = sim_data.conditions[sim_data.condition]["nutrients"]
+		synth_prob_fractions = sim_data.process.transcription.rnaSynthProbFraction[nutrients]
 
-		rnaSynthProbListener = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
-		rnaIds = rnaSynthProbListener.readAttribute('rnaIds')
-		rnaSynthProb = rnaSynthProbListener.readColumn('rnaSynthProb')
-		time = rnaSynthProbListener.readColumn('time')
-		rnaSynthProbListener.close()
+		# Get "average" synthesis probability fractions set by the fitter
+		mrna_avg_synth_prob = synth_prob_fractions["mRna"]
+		trna_avg_synth_prob = synth_prob_fractions["tRna"]
+		rrna_avg_synth_prob = synth_prob_fractions["rRna"]
 
-		mRnaSynthProb = rnaSynthProb[:, isMRna].sum(axis = 1)
-		rRnaSynthProb = rnaSynthProb[:, isRRna].sum(axis = 1)
-		tRnaSynthProb = rnaSynthProb[:, isTRna].sum(axis = 1)
+		# Listeners used
+		rna_synth_prob_reader = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
+		mass_reader = TableReader(os.path.join(simOutDir, "Mass"))
 
+		# Load data
+		rna_synth_prob = rna_synth_prob_reader.readColumn('rnaSynthProb')
+		time = rna_synth_prob_reader.readColumn('time')
+		mrna_synth_prob = rna_synth_prob[:, isMRna].sum(axis = 1)
+		trna_synth_prob = rna_synth_prob[:, isTRna].sum(axis = 1)
+		rrna_synth_prob = rna_synth_prob[:, isRRna].sum(axis = 1)
 
+		n_mrnas = np.sum(isMRna)
+		n_trnas = np.sum(isTRna)
+		n_rrnas = np.sum(isRRna)
+
+		mrna_mass = mass_reader.readColumn("mRnaMass")
+		trna_mass = mass_reader.readColumn("tRnaMass")
+		rrna_mass = mass_reader.readColumn("rRnaMass")
 
 		# Plot
-		rows = 3
-		cols = 1
-		fig = plt.figure(figsize = (11, 8.5))
-		plt.figtext(0.4, 0.96, "RNA synthesis probabilities over time", fontsize = 12)
-		nMRnas = np.sum(isMRna)
-		nRRnas = np.sum(isRRna)
-		nTRnas = np.sum(isTRna)
-		subplotOrder = [mRnaSynthProb, rRnaSynthProb, tRnaSynthProb]
-		subplotTitles = ["mRNA\n(sum of %s mRNAs)" % nMRnas, "rRNA\n(sum of %s rRNAs)" % nRRnas, "tRNA\n(sum of %s tRNAs)" % nTRnas]
+		fig = plt.figure(figsize = (10, 15))
 
-		for index, rnaSynthProb in enumerate(subplotOrder):
-			ax = plt.subplot(rows, cols, index + 1)
-			ax.plot(time, rnaSynthProb)
+		synth_probs = [mrna_synth_prob, trna_synth_prob, rrna_synth_prob]
+		avg_synth_probs = [
+			mrna_avg_synth_prob,
+			trna_avg_synth_prob,
+			rrna_avg_synth_prob,
+			]
+		normalized_mass = [
+			mrna_mass/mrna_mass[0],
+			trna_mass/trna_mass[0],
+			rrna_mass/rrna_mass[0],
+			]
+		subplot_titles = [
+			"mRNA\n(sum of %s mRNAs)" % n_mrnas,
+			"tRNA\n(sum of %s tRNAs)" % n_trnas,
+			"rRNA\n(sum of %s rRNAs)" % n_rrnas,
+			]
 
-			ax.set_title(subplotTitles[index], fontsize = 10)
-			ymin = np.min(rnaSynthProb)
-			ymax = np.max(rnaSynthProb)
-			yaxisBuffer = np.around(1.2*(ymax - ymin), 3)
-			ax.set_ylim([ymin, yaxisBuffer])
-			ax.set_yticks([ymin, ymax, yaxisBuffer])
-			ax.set_yticklabels([ymin, np.around(ymax, 3), yaxisBuffer], fontsize = 10)
-			ax.set_xlim([time[0], time[-1]])
-			ax.tick_params(axis = "x", labelsize = 10)
-			ax.spines["left"].set_visible(False)
-			ax.spines["right"].set_visible(False)
+		for index, (title, synth_prob, avg_synth_prob, mass) in enumerate(izip(
+				subplot_titles, synth_probs, avg_synth_probs, normalized_mass)):
 
+			ax1 = plt.subplot(3, 1, index + 1)
+			ax1.plot(time[1:], synth_prob[1:], label="Sum of synthesis probabilities")
+			ax1.axhline(avg_synth_prob,
+				linestyle="--", color='k', linewidth=3,
+				label="Fit fraction of transcription probabilities")
 
-		plt.subplots_adjust(hspace = 0.5, )
+			ax1.set_title(title)
+			ax1.set_xlim([time[0], time[-1]])
+			ax1.set_ylim([0, synth_prob.max()*1.2])
+			ax1.set_xlabel("Time [s]")
+			ax1.set_ylabel("Transcription probability")
+			ax1.legend(loc=2)
+
+			ax2 = ax1.twinx()
+			ax2.plot(time[1:], mass[1:], label="Normalized mass", color='r')
+			ax2.set_ylabel("Mass (normalized by t=0)")
+			ax2.legend(loc=1)
+
+		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 
 		plt.close("all")
