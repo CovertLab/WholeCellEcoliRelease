@@ -68,9 +68,8 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.gene_copy_number = self.bulkMoleculesView(
 			sim_data.process.transcription_regulation.geneCopyNumberColNames)
 
-		# Create molecules views for bulk and unique full chromosomes
-		self.bulk_full_chromosome = self.bulkMoleculeView("CHROM_FULL[c]")
-		self.unique_full_chromosome = self.uniqueMoleculesView("fullChromosome")
+		# Create molecules views for full chromosomes
+		self.full_chromosome = self.uniqueMoleculesView("fullChromosome")
 
 
 	def calculateRequest(self):
@@ -111,6 +110,9 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.activeDnaPoly.requestAll()
 		self.activeReplisome.requestAll()
 
+		# Request all full chromosomes
+		self.full_chromosome.requestAll()
+
 		# Get sequences for all active forks
 		sequenceIdx, sequenceLength = activeDnaPoly.attrs(
 			'sequenceIdx', 'sequenceLength'
@@ -148,7 +150,8 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 		oriCs = self.oriCs.molecules()
 		n_oric = len(oriCs)
-		n_chromosomes = self.bulk_full_chromosome.total()[0]
+		full_chromosomes = self.full_chromosome.molecules()
+		n_chromosomes = len(full_chromosomes)
 
 		# If there are no chromosomes and oriC's, return immediately
 		if n_oric == 0 and n_chromosomes == 0:
@@ -338,6 +341,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 				'chromosomeIndex', 'replicationRound'
 				)
 			chromosomeIndexOriC = oriCs.attr('chromosomeIndex')
+			chromosomeIndexFullChromosome = full_chromosomes.attr('chromosomeIndex')
 
 			# If new DNAPs were added in this timestep, append attributes of
 			# these polymerases
@@ -375,7 +379,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 			# Get chromosome indexes of the terminated polymerases
 			chromosomeIndexesTerminated = np.unique(chromosomeIndexPolymerase[terminatedPolymerases])
-			newChromosomeIndex = chromosomeIndexPolymerase.max() + 1
+			newChromosomeIndex = chromosomeIndexFullChromosome.max() + 1
 
 			# Get replication round index of the terminated polymerases
 			terminatedRound = replicationRoundPolymerase[terminatedPolymerases][0]
@@ -407,6 +411,9 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 				# Get all active replisomes in the given chromosome
 				chromosomeMatchReplisome = (
 						chromosomeIndexReplisome == chromosomeIndexTerminated)
+
+				# Initialize chromosome indexes of new full chromosomes
+				chromosomeIndexFullChromosomeNew = []
 
 				# If all active polymerases are terminated polymerases, we are
 				# ready to split the chromosome and update the attributes.
@@ -468,16 +475,19 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 						chromosomeMatchReplisome)
 						)
 
-					# Increment the new chromosome index in case another
-					# chromosome needs to be split
-					newChromosomeIndex += 1
-
 					# Add terminated polymerases to the list to delete
 					polymerasesToDelete = np.logical_or(polymerasesToDelete,
 						terminatedPolymerases)
 
 					# Increment count of new full chromosome
 					n_new_chromosomes += 1
+
+					# Append chromosome index of new full chromosome
+					chromosomeIndexFullChromosomeNew.append(newChromosomeIndex)
+
+					# Increment the new chromosome index in case another
+					# chromosome needs to be split
+					newChromosomeIndex += 1
 
 			# If new DNAPs and replisomes were added in the same timestep,
 			# partition indexes and reset attributes of old and new DNAPs and
@@ -521,12 +531,12 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 			# Generate new full chromosome molecules
 			if n_new_chromosomes > 0:
-				self.bulk_full_chromosome.countInc(n_new_chromosomes)
-				new_unique_full_chromosome = self.unique_full_chromosome.moleculesNew(
+				new_full_chromosome = self.full_chromosome.moleculesNew(
 					"fullChromosome", n_new_chromosomes
 					)
-				new_unique_full_chromosome.attrIs(
-					division_time = [self.time() + self.D_period]*n_new_chromosomes
+				new_full_chromosome.attrIs(
+					division_time = [self.time() + self.D_period]*n_new_chromosomes,
+					chromosomeIndex = chromosomeIndexFullChromosomeNew,
 					)
 
 			# Increment counts of replisome subunits

@@ -47,9 +47,6 @@ def initializeBulkMolecules(bulkMolCntr, sim_data, randomState, massCoeff):
 	# Set RNA counts from expression
 	initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff)
 
-	# Set DNA
-	initializeDNA(bulkMolCntr, sim_data, randomState)
-
 	# Set other biomass components
 	initializeSmallMolecules(bulkMolCntr, sim_data, randomState, massCoeff)
 
@@ -57,7 +54,10 @@ def initializeBulkMolecules(bulkMolCntr, sim_data, randomState, massCoeff):
 	initializeComplexation(bulkMolCntr, sim_data, randomState)
 
 def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
+	# Initialize counts of full chromosomes
+	initializeFullChromosome(bulkMolCntr, uniqueMolCntr, sim_data)
 
+	# Initialize unique molecules relevant to replication
 	initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data)
 
 	# Activate rna polys, with fraction based on environmental conditions
@@ -160,11 +160,6 @@ def initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff):
 		randomState.multinomial(nRnas, rnaExpression)
 		)
 
-def initializeDNA(bulkMolCntr, sim_data, randomState):
-
-	chromosomeView = bulkMolCntr.countsView([sim_data.moleculeIds.fullChromosome])
-	chromosomeView.countsIs([1])
-
 # TODO: remove checks for zero concentrations (change to assertion)
 # TODO: move any rescaling logic to KB/fitting
 def initializeSmallMolecules(bulkMolCntr, sim_data, randomState, massCoeff):
@@ -223,6 +218,18 @@ def initializeComplexation(bulkMolCntr, sim_data, randomState):
 			break
 
 	bulkMolCntr.countsIs(rnaseCounts, rnases)
+
+
+def initializeFullChromosome(bulkMolCntr, uniqueMolCntr, sim_data):
+	"""
+	Initializes the counts of full chromosomes to one. The division_time of
+	this initial chromosome is set to be zero for consistency.
+	"""
+	full_chromosome = uniqueMolCntr.objectsNew("fullChromosome", 1)
+	full_chromosome.attrIs(
+		division_time = 0.0,
+		chromosomeIndex = 0,
+		)
 
 
 def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):

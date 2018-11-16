@@ -21,7 +21,6 @@ CSV_DIALECT = csv.excel_tab
 FLAT_DIR = os.path.join(os.path.dirname(__file__), "flat")
 LIST_OF_DICT_FILENAMES = (
 	"biomass.tsv",
-	"chromosome.tsv",
 	"compartments.tsv",
 	"complexationReactions.tsv",
 	"disabledKineticReactions.tsv",
@@ -30,6 +29,7 @@ LIST_OF_DICT_FILENAMES = (
 	"enzymeKinetics.tsv",
 	"equilibriumReactions.tsv",
 	"foldChanges.tsv",
+	"full_chromosome.tsv",
 	"genes.tsv",
 	"growthRateDependentParameters.tsv",
 	"massAtReplicationInitiation.tsv",

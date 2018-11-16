@@ -75,13 +75,6 @@ class InternalState(object):
 
 		self.bulkMolecules.addToBulkState(modifiedFormIds, modifiedFormMasses)
 
-		# Set chromosome
-		chromosomeIds = stateFunctions.createIdsWithCompartments(raw_data.chromosome)
-		chromosomeMasses = (units.g/units.mol) * (
-			stateFunctions.createMassesByCompartments(raw_data.chromosome))
-
-		self.bulkMolecules.addToBulkState(chromosomeIds, chromosomeMasses)
-
 		# Set fragments
 		fragments = []
 		
@@ -149,8 +142,8 @@ class InternalState(object):
 				3*np.sum(trimer_mass, axis=0) + np.sum(monomer_mass, axis=0))
 
 		replisomeAttributes = {
-			'replicationRound' : 'i8',
-			'chromosomeIndex' : 'i8',
+			'replicationRound': 'i8',
+			'chromosomeIndex': 'i8',
 			}
 
 		self.uniqueMolecules.addToUniqueState('activeReplisome', replisomeAttributes, replisomeMass)
@@ -167,7 +160,7 @@ class InternalState(object):
 			"sequenceIdx": "i8",
 			"sequenceLength": "i8",
 			"replicationRound": "i8",
-			"chromosomeIndex" : "i8",
+			"chromosomeIndex": "i8",
 			}
 
 		self.uniqueMolecules.addToUniqueState('dnaPolymerase', dnaPolymeraseAttributes, dnaPolyMass)
@@ -184,13 +177,22 @@ class InternalState(object):
 		self.uniqueMolecules.addToUniqueState('originOfReplication', originAttributes, originMass)
 
 		# Add full chromosomes
-		# Note that full chromosomes are conceptual molecules and have zero
-		# mass. These molecules are added when chromosome replication is
-		# complete, and sets the cell division time to be D period time later.
-		# (only relevant if D_PERIOD_DIVISION is set to True)
-		fullChromosomeMass = (units.g/units.mol) * np.zeros_like(rnaPolyComplexMass)
+		# One full chromosome molecule is added when chromosome replication is
+		# complete, and sets cell division to happen after a length of time
+		# specified by the D period (if D_PERIOD_DIVISION is set to True). The
+		# chromosomes are indexed in the order they are formed - thus, the
+		# "oldest" full chromosome that a cell inherited from its mother has
+		# the index of zero, and the chromosome that is initially replicated
+		# from this inherited chromosome gets the index of one. If more
+		# chromosomes are made during a single cycle, those chromosomes get
+		# indexes starting from two. The cell divides at the division time
+		# specified by the division_time attribute of the chromosome with index
+		# one.
+		fullChromosomeMass = (units.g/units.mol) * (
+			stateFunctions.createMassesByCompartments(raw_data.full_chromosome))
 		fullChromosomeAttributes = {
-			"division_time" : "f8"
+			"division_time": "f8",
+			"chromosomeIndex": "i8",
 			}
 
 		self.uniqueMolecules.addToUniqueState('fullChromosome', fullChromosomeAttributes, fullChromosomeMass)
