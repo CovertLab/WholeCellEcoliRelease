@@ -35,6 +35,7 @@ ACTIVE = [
 	"proteinCounts.py",
 	"proteinCountsValidation.py",
 	"replication.py",
+	"replisome_counts.py",
 	"ribosome30SCounts.py",
 	"ribosome50SCounts.py",
 	"ribosomeCapacity.py",

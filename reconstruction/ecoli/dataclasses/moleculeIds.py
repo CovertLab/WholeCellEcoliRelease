@@ -21,7 +21,6 @@ class MoleculeIds(object):
 			'rnapFull':	'APORNAP-CPLX[c]',
 			's30_fullComplex': 'CPLX0-3953[c]',
 			's50_fullComplex': 'CPLX0-3962[c]',
-			'fullChromosome': "CHROM_FULL[c]",
 		}
 
 		self.__dict__.update(moleculeIds)

@@ -62,6 +62,13 @@ class MoleculeGroups(object):
 			's50_5sRRNA': ['RRFA-RRNA[c]', 'RRFB-RRNA[c]', 'RRFC-RRNA[c]',
 				'RRFD-RRNA[c]', 'RRFE-RRNA[c]', 'RRFG-RRNA[c]', 'RRFH-RRNA[c]'],
 
+			# TODO: 'EG10245-MONOMER[c]' (DNAP III subunit tau) should be added
+			# to the list of trimer subunits once frame-shifting proteins are
+			# produced.
+			'replisome_trimer_subunits': ['CPLX0-2361[c]', 'CPLX0-3761[c]'],
+			'replisome_monomer_subunits': ['CPLX0-3621[c]', 'EG10239-MONOMER[c]',
+				'EG11500-MONOMER[c]', 'EG11412-MONOMER[c]'],
+
 			'aaIDs': sim_data.amino_acid_1_to_3_ordered.values(),
 			'fragmentNT_IDs': [x['id'].replace('Polymerized','Fragment')
 				for x in raw_data.polymerized if x['is_ntp'] and not x['is_end']],

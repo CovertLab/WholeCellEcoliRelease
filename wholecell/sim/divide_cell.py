@@ -53,8 +53,7 @@ def divide_cell(sim):
 
 	# Check if the cell is dead
 	isDead = False
-	if bulkMolecules.container.count(
-			bulkMolecules.divisionIds['fullChromosome'][0]) == 0 and (
+	if uniqueMolecules.container.counts(["fullChromosome"])[0] == 0 and (
 			sim.time() - sim.initialTime()) > sim.lengthSec():
 		# If the cell does not have any full chromosomes at the end of its
 		# maximal simulation duration, the cell is considered dead
@@ -70,10 +69,10 @@ def divide_cell(sim):
 		d2_uniqueMolCntr = uniqueMolecules.container.emptyLike()
 		daughter_elng_rates = zero_elongation_rate()
 	else:
-		# Divide the chromosome into two daughter cells
+		# Divide full chromosomes into two daughter cells
 		# The output is used when dividing both bulk molecules and unique
 		# molecules
-		chromosome_counts = chromosomeDivision(bulkMolecules, randomState)
+		chromosome_counts = chromosomeDivision(uniqueMolecules, randomState)
 
 		# Create divided containers
 		d1_bulkMolCntr, d2_bulkMolCntr = divideBulkMolecules(
@@ -108,35 +107,26 @@ def divide_cell(sim):
 	return [d1_path, d2_path]
 
 
-def chromosomeDivision(bulkMolecules, randomState):
+def chromosomeDivision(uniqueMolecules, randomState):
 	"""
-	Randomly divides full chromosome counts into two daughter cells. If there
-	are even number of chromosomes, the count is divided evenly to the two
-	daughter cells. If there are odd number of chromosomes, one daughter cell
-	is chosen randomly to receive one more.
-	Note: the actual allocation of chromosomes to the daughter cells are not
+	Splits chromosome indexes into two daughter cells. All the even indexes go
+	into one daughter cell, while the odd indexes go into the other cell.
+	Note: the actual division of chromosomes to the daughter cells are not
 	performed in this function.
 	"""
-	full_chromosome_count = bulkMolecules.container.count(
-		bulkMolecules.divisionIds['fullChromosome'][0])
+	full_chromosome_count = uniqueMolecules.container.counts(["fullChromosome"])[0]
 
-	# Divide evenly between both daughters if there are even number of
-	# chromosomes or give an extra to one cell if odd
-	if full_chromosome_count % 2 == 0:
-		d1_chromosome_count = full_chromosome_count // 2
-		d2_chromosome_count = full_chromosome_count // 2
+	# Randomly decide which daughter gets the even indexes
+	d1_gets_even_index = randomState.rand() < BINOMIAL_COEFF
+
+	if d1_gets_even_index:
+		d1_chromosome_indexes = np.arange(0, full_chromosome_count, 2)
+		d1_chromosome_count = len(d1_chromosome_indexes)
 	else:
-		d1_chromosome_count = full_chromosome_count // 2
-		d1_chromosome_count += randomState.binomial(1, p=BINOMIAL_COEFF)
-		d2_chromosome_count = full_chromosome_count - d1_chromosome_count
+		d1_chromosome_indexes = np.arange(1, full_chromosome_count, 2)
+		d1_chromosome_count = len(d1_chromosome_indexes)
 
-	assert d1_chromosome_count + d2_chromosome_count == full_chromosome_count
-
-	d1_chromosome_indexes = randomState.choice(
-		np.arange(full_chromosome_count),
-		size=d1_chromosome_count, replace=False
-		)
-
+	d2_chromosome_count = full_chromosome_count - d1_chromosome_count
 	d1_chromosome_mask = np.zeros(full_chromosome_count, dtype=np.bool)
 	d1_chromosome_mask[d1_chromosome_indexes] = 1
 
@@ -172,14 +162,6 @@ def divideBulkMolecules(bulkMolecules, uniqueMolecules, randomState,
 
 	# Check that no bulk molecules need to be divided equally
 	assert len(bulkMolecules.divisionIds['equally']) == 0
-
-	# Divide full chromosomes
-	d1_chromosome_count = chromosome_counts['d1_chromosome_count']
-	d2_chromosome_count = chromosome_counts['d2_chromosome_count']
-	d1_bulk_molecules_container.countIs(d1_chromosome_count,
-		bulkMolecules.divisionIds['fullChromosome'][0])
-	d2_bulk_molecules_container.countIs(d2_chromosome_count,
-		bulkMolecules.divisionIds['fullChromosome'][0])
 
 	# Calculate gene copy numbers for each chromosome from chromosome state
 	replicationCoordinate = sim_data.process.transcription.rnaData[
@@ -278,8 +260,8 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts,
 	- active ribosome: random binomial division, but the ribosome elongation
 	rates of the daughter cells are set such that the two daughter cells have
 	equal translational capacities, with an optional noise.
-	- active DNA polymerases, oriCs: divided based on the chromosome each
-	molecule is associated to.
+	- active DNA polymerases, replisomes, oriCs: divided based on the
+	chromosome each molecule is associated to.
 	- full chromosomes: assign to both daughter cells the same count of unique
 	fullChromosome states as the mother cell. (Note: this unique state is just
 	a placeholder for the cell division time attribute - its count essentially
@@ -302,7 +284,7 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts,
 	# TODO (Gwanggyu): RNAPs should also be unequally divided once gene dosage
 	# is modeled and RNAPs are assigned to a specific chromosome.
 	nonbinomial_unique_molecules = ['dnaPolymerase', 'originOfReplication',
-		'fullChromosome', 'activeRibosome']
+		'activeReplisome', 'fullChromosome', 'activeRibosome']
 
 	# Binomially divide unique molecules that should be binomially split
 	# Note: again, the only unique molecules split here are the active RNAPs.
@@ -407,7 +389,8 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts,
 		d2_unique_molecules_container.objectsNew('activeRibosome', n_d2,
 			**d2_dividedAttributesDict)
 
-	# Divide DNA polymerases according to chromosomes they were bound to
+	# Divide DNA polymerases according to the indexes of the chromosomes they
+	# were bound to
 	moleculeSet = uniqueMolecules.container.objectsInCollection('dnaPolymerase')
 	moleculeAttributeDict = uniqueMoleculesToDivide['dnaPolymerase']
 	n_dnaps = len(moleculeSet)
@@ -448,7 +431,50 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts,
 		d2_unique_molecules_container.objectsNew('dnaPolymerase', n_d2,
 			**d2_dividedAttributesDict)
 
-	# Divide oriCs according to the chromosomes they are associated to
+	# Divide active replisomes according to the indexes of the chromosomes they
+	# were bound to
+	moleculeSet = uniqueMolecules.container.objectsInCollection('activeReplisome')
+	moleculeAttributeDict = uniqueMoleculesToDivide['activeReplisome']
+	n_replisomes = len(moleculeSet)
+
+	if n_replisomes > 0:
+		replicationRound, chromosomeIndex = moleculeSet.attrs(
+			'replicationRound', 'chromosomeIndex'
+		)
+
+		# Divide replisomes based on their chromosome indexes
+		d1_bool = np.zeros(n_replisomes, dtype=bool)
+		for index in d1_chromosome_indexes:
+			d1_bool = np.logical_or(d1_bool, chromosomeIndex == index)
+		d2_bool = np.logical_not(d1_bool)
+
+		# Add the divided replisomes to the daughter cell containers
+		d1_dividedAttributesDict = {}
+		d2_dividedAttributesDict = {}
+		for moleculeAttribute in moleculeAttributeDict.iterkeys():
+			d1_dividedAttributesDict[moleculeAttribute] = (
+				moleculeSet.attr(moleculeAttribute)[d1_bool]
+			)
+			d2_dividedAttributesDict[moleculeAttribute] = (
+				moleculeSet.attr(moleculeAttribute)[d2_bool]
+			)
+
+		n_d1 = d1_bool.sum()
+		n_d2 = d2_bool.sum()
+
+		# Reset the chromosome indexes of the polymerases assigned to each daughter cell
+		d1_dividedAttributesDict['chromosomeIndex'] = resetChromosomeIndex(
+			d1_dividedAttributesDict['chromosomeIndex'], d1_chromosome_count)
+		d2_dividedAttributesDict['chromosomeIndex'] = resetChromosomeIndex(
+			d2_dividedAttributesDict['chromosomeIndex'], d2_chromosome_count)
+
+		d1_unique_molecules_container.objectsNew('activeReplisome', n_d1,
+			**d1_dividedAttributesDict)
+		d2_unique_molecules_container.objectsNew('activeReplisome', n_d2,
+			**d2_dividedAttributesDict)
+
+	# Divide oriCs according to the indexes of the chromosomes they are
+	# associated to
 	moleculeSet = uniqueMolecules.container.objectsInCollection('originOfReplication')
 	moleculeAttributeDict = uniqueMoleculesToDivide['originOfReplication']
 	n_oric = len(moleculeSet)
@@ -487,21 +513,21 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts,
 		d2_unique_molecules_container.objectsNew('originOfReplication', n_d2,
 			**d2_dividedAttributesDict)
 
-	# Divide unique fullChromosomes
+	# Divide full chromosomes based on their indexes
 	moleculeSet = uniqueMolecules.container.objectsInCollection('fullChromosome')
 	moleculeAttributeDict = uniqueMoleculesToDivide['fullChromosome']
 	n_full_chromosome = len(moleculeSet)
 
 	if n_full_chromosome > 0:
-		# Add full chromosome unique molecule states to both daughter cells
-		# Note: The fullChromosome unique molecule is simply a placeholder to
-		# log cell division data. Daughter cells should get one molecule each.
-		d1_bool = np.ones(n_full_chromosome, dtype=bool)
-		d2_bool = np.ones(n_full_chromosome, dtype=bool)
+		chromosomeIndex = moleculeSet.attr('chromosomeIndex')
 
-		n_d1 = n_full_chromosome
-		n_d2 = n_full_chromosome
+		# Divide full chromosomes based on their indexes
+		d1_bool = np.zeros(n_full_chromosome, dtype=bool)
+		for index in d1_chromosome_indexes:
+			d1_bool = np.logical_or(d1_bool, chromosomeIndex == index)
+		d2_bool = np.logical_not(d1_bool)
 
+		# Add the divided full chromosomes to the daughter cell containers
 		d1_dividedAttributesDict = {}
 		d2_dividedAttributesDict = {}
 		for moleculeAttribute in moleculeAttributeDict.iterkeys():
@@ -511,6 +537,15 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts,
 			d2_dividedAttributesDict[moleculeAttribute] = (
 				moleculeSet.attr(moleculeAttribute)[d2_bool]
 			)
+
+		n_d1 = d1_bool.sum()
+		n_d2 = d2_bool.sum()
+
+		# Reset chromosome indexes of full chromosomes assigned to each daughter
+		d1_dividedAttributesDict['chromosomeIndex'] = resetChromosomeIndex(
+			d1_dividedAttributesDict['chromosomeIndex'], d1_chromosome_count)
+		d2_dividedAttributesDict['chromosomeIndex'] = resetChromosomeIndex(
+			d2_dividedAttributesDict['chromosomeIndex'], d2_chromosome_count)
 
 		d1_unique_molecules_container.objectsNew('fullChromosome', n_d1,
 			**d1_dividedAttributesDict)
@@ -536,10 +571,14 @@ def resetChromosomeIndex(oldChromosomeIndex, chromosomeCount):
 	"""
 	Resets the chromosome index array of the daughter cell such that the array
 	elements index the chromosomes with consecutive integers starting from
-	zero. Returns the new index array.
+	zero. The original chromosome indexes are sorted such that the new indexes
+	retain the ordering of the original indexes (oldest chromosome first).
+	Returns the new index array.
 	"""
 	newChromosomeIndex = np.zeros_like(oldChromosomeIndex, dtype=np.int)
-	for newIndex, oldIndex in izip(np.arange(chromosomeCount), np.unique(oldChromosomeIndex)):
+	for newIndex, oldIndex in izip(
+			np.arange(chromosomeCount),
+			np.sort(np.unique(oldChromosomeIndex))):
 		indexMatch = (oldChromosomeIndex == oldIndex)
 		newChromosomeIndex[indexMatch] = newIndex
 

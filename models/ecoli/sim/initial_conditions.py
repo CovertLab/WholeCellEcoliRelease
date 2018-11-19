@@ -47,9 +47,6 @@ def initializeBulkMolecules(bulkMolCntr, sim_data, randomState, massCoeff):
 	# Set RNA counts from expression
 	initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff)
 
-	# Set DNA
-	initializeDNA(bulkMolCntr, sim_data, randomState)
-
 	# Set other biomass components
 	initializeSmallMolecules(bulkMolCntr, sim_data, randomState, massCoeff)
 
@@ -57,7 +54,10 @@ def initializeBulkMolecules(bulkMolCntr, sim_data, randomState, massCoeff):
 	initializeComplexation(bulkMolCntr, sim_data, randomState)
 
 def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
+	# Initialize counts of full chromosomes
+	initializeFullChromosome(bulkMolCntr, uniqueMolCntr, sim_data)
 
+	# Initialize unique molecules relevant to replication
 	initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data)
 
 	# Activate rna polys, with fraction based on environmental conditions
@@ -160,11 +160,6 @@ def initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff):
 		randomState.multinomial(nRnas, rnaExpression)
 		)
 
-def initializeDNA(bulkMolCntr, sim_data, randomState):
-
-	chromosomeView = bulkMolCntr.countsView([sim_data.moleculeIds.fullChromosome])
-	chromosomeView.countsIs([1])
-
 # TODO: remove checks for zero concentrations (change to assertion)
 # TODO: move any rescaling logic to KB/fitting
 def initializeSmallMolecules(bulkMolCntr, sim_data, randomState, massCoeff):
@@ -225,6 +220,18 @@ def initializeComplexation(bulkMolCntr, sim_data, randomState):
 	bulkMolCntr.countsIs(rnaseCounts, rnases)
 
 
+def initializeFullChromosome(bulkMolCntr, uniqueMolCntr, sim_data):
+	"""
+	Initializes the counts of full chromosomes to one. The division_time of
+	this initial chromosome is set to be zero for consistency.
+	"""
+	full_chromosome = uniqueMolCntr.objectsNew("fullChromosome", 1)
+	full_chromosome.attrIs(
+		division_time = 0.0,
+		chromosomeIndex = 0,
+		)
+
+
 def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 	"""
 	Initializes replication by creating an appropriate number of replication
@@ -245,9 +252,10 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 
 	# Generate arrays specifying appropriate initial replication conditions
 	n_oric, chromosomeIndexOriC = determineOriCState(C, D, tau)
-	sequenceIdx, sequenceLength, replicationRound, chromosomeIndexPolymerase = determineChromosomeState(
+	sequenceIdx, sequenceLength, replicationRoundPolymerase, chromosomeIndexPolymerase, replicationRoundReplisome, chromosomeIndexReplisome = determineChromosomeState(
 		C, D, tau, replication_length)
-	n_dnap = sequenceIdx.size
+	n_dnap = replicationRoundPolymerase.size
+	n_replisome = replicationRoundReplisome.size
 
 	oriC = uniqueMolCntr.objectsNew('originOfReplication', n_oric)
 	oriC.attrIs(chromosomeIndex = chromosomeIndexOriC)
@@ -268,10 +276,20 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		dnaPoly.attrIs(
 			sequenceIdx = sequenceIdx,
 			sequenceLength = sequenceLength,
-			replicationRound = replicationRound,
+			replicationRound = replicationRoundPolymerase,
 			chromosomeIndex = chromosomeIndexPolymerase,
 			massDiff_DNA = massIncreaseDna,
 			)
+
+		# Add active replisomes as unique molecules and set attributes
+		activeReplisomes = uniqueMolCntr.objectsNew('activeReplisome', n_replisome)
+		activeReplisomes.attrIs(
+			replicationRound=replicationRoundReplisome,
+			chromosomeIndex=chromosomeIndexReplisome,
+		)
+
+		bulkMolCntr.countsDec(3*n_replisome, sim_data.moleculeGroups.replisome_trimer_subunits)
+		bulkMolCntr.countsDec(n_replisome, sim_data.moleculeGroups.replisome_monomer_subunits)
 
 	# Initialize gene dosage
 	geneCopyNumberColNames = sim_data.process.transcription_regulation.geneCopyNumberColNames
@@ -502,8 +520,8 @@ def setDaughterInitialConditions(sim, sim_data):
 
 def determineChromosomeState(C, D, tau, replication_length):
 	"""
-	Calculates the number and position of replicating DNA polymerases at the
-	beginning of the cell cycle.
+	Calculates the number and position of replicating DNA polymerases and
+	replisomes at the beginning of the cell cycle.
 
 	Inputs
 	--------
@@ -517,7 +535,6 @@ def determineChromosomeState(C, D, tau, replication_length):
 
 	Returns
 	--------
-	- n_oric: the number of OriC's in the cell at initiation.
 	- sequenceIdx: an index for each of the four types/directions of DNA
 	replication - leading and lagging strand of the forward and the reverse
 	fork = 4 total. This vector is always simply [0,1,2,3] repeated once for
@@ -528,15 +545,15 @@ def determineChromosomeState(C, D, tau, replication_length):
 	that even though in reality some polymerases are replicating in different
 	directions,	all values here are calculated as though each starts at 0 and
 	goes up to the total number of base-pairs to be replicated.
-	- replicationRound: an integer stating in which replication round the
-	polymerase referenced by sequenceIdx has been initiated. Each time all
-	origins of replication in the cell fire, a new replication round has
-	started. This array is integer-valued, and counts from 0 (the oldest round)
-	up to n (the most recent round).
-	- chromosomeIndex: indicator variable for which chromosome the polymerases
-	are associated with and therefore which daughter cell should inherit each
-	polymerase. Since there is only one chromosome initially, all indexes are
-	set to zero.
+	- replicationRoundPolymerase/replicationRoundReplisome: an integer stating
+	in which replication round the polymerase/replisome has been initiated.
+	Each time all origins of replication in the cell fire, a new replication
+	round has started. This array is integer-valued, and counts from 0 (the
+	oldest round) up to n (the most recent round).
+	- chromosomeIndex/chromosomeIndexReplisome: indicator variable for which
+	chromosome the polymerases/replisomes are associated with and therefore
+	which daughter cell should inherit each polymerase/replisome. Since there
+	is only one chromosome initially, all indexes are set to zero.
 
 	Notes
 	--------
@@ -565,8 +582,10 @@ def determineChromosomeState(C, D, tau, replication_length):
 	# Initialize arrays to be returned
 	sequenceIdx = []
 	sequenceLength = []
-	replicationRound = []
-	chromosomeIndex = []
+	replicationRoundPolymerase = []
+	replicationRoundReplisome = []
+	chromosomeIndexPolymerase = []
+	chromosomeIndexReplisome = []
 
 	# Loop through active replication rounds, starting from the oldest round.
 	# If n_round = 0 skip loop entirely - no active replication round.
@@ -593,23 +612,27 @@ def determineChromosomeState(C, D, tau, replication_length):
 		sequenceLength += [fork_location] * (4*n_event)
 
 		# replicationRound is the index of the replication round that the
-		# polymerases belong to - for each replication round, all origins in
-		# the cell are fired simultaneously, and the initiated polymerases
+		# molecules belong to - for each replication round, all origins in
+		# the cell are fired simultaneously, and the initiated molecules
 		# share the same round index
-		replicationRound += [n] * (4*n_event)
+		replicationRoundPolymerase += [n] * (4*n_event)
+		replicationRoundReplisome += [n] * (2*n_event)
 
 		# chromosomeIndex indicates which daughter cell will inherit the
-		# polymerase. Since there is only one initial chromosome, all
-		# polymerases are initially given index zero.
-		chromosomeIndex += [0] * (4*n_event)
+		# molecule. Since there is only one initial chromosome, all molecules
+		# are initially given index zero.
+		chromosomeIndexPolymerase += [0] * (4*n_event)
+		chromosomeIndexReplisome += [0] * (2*n_event)
 
 	# Convert to numpy arrays
 	sequenceIdx = np.array(sequenceIdx, dtype=np.int8)
 	sequenceLength = np.array(sequenceLength, dtype=np.int64)
-	replicationRound = np.array(replicationRound, dtype=np.int64)
-	chromosomeIndex = np.array(chromosomeIndex, dtype=np.int64)
+	replicationRoundPolymerase = np.array(replicationRoundPolymerase, dtype=np.int64)
+	replicationRoundReplisome = np.array(replicationRoundReplisome, dtype=np.int64)
+	chromosomeIndexPolymerase = np.array(chromosomeIndexPolymerase, dtype=np.int64)
+	chromosomeIndexReplisome = np.array(chromosomeIndexReplisome, dtype=np.int64)
 
-	return sequenceIdx, sequenceLength, replicationRound, chromosomeIndex
+	return sequenceIdx, sequenceLength, replicationRoundPolymerase, chromosomeIndexPolymerase, replicationRoundReplisome, chromosomeIndexReplisome
 
 
 def determineOriCState(C, D, tau):

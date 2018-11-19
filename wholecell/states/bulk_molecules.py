@@ -73,7 +73,6 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
 		self.divisionIds = {}
 		self.divisionIds['binomial'] = sim_data.moleculeGroups.bulkMoleculesBinomialDivision
 		self.divisionIds['equally'] = sim_data.moleculeGroups.bulkMoleculesEqualDivision
-		self.divisionIds['fullChromosome'] = [sim_data.moleculeIds.fullChromosome]
 		self.divisionIds['geneCopyNumber'] = sim_data.moleculeGroups.bulkMoleculesGeneCopyNumberDivision
 		self.divisionIds['boundTF'] = sim_data.moleculeGroups.bulkMoleculesBoundTFDivision
 

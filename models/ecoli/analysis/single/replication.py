@@ -67,10 +67,12 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		chromEquivalents = dnaMass / chromMass
 
 		# Count full chromosomes
-		bulkMoleculesFile = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		bulkIds = bulkMoleculesFile.readAttribute("objectNames")
-		chromIdx = bulkIds.index("CHROM_FULL[c]")
-		fullChromosomeCounts = bulkMoleculesFile.readColumn("counts")[:,chromIdx]
+		unique_molecule_counts_reader = TableReader(
+			os.path.join(simOutDir, "UniqueMoleculeCounts"))
+		full_chromosome_index = unique_molecule_counts_reader.readAttribute(
+			"uniqueMoleculeIds").index("fullChromosome")
+		full_chromosome_counts = unique_molecule_counts_reader.readColumn(
+			"uniqueMoleculeCounts")[:, full_chromosome_index]
 
 		# Count critical initiation mass equivalents
 		# criticalInitiationMass[0] = criticalInitiationMass[1]
@@ -120,10 +122,10 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		ax.set_ylim([0, numberOfOric.max() + 1])
 
 		ax = plt.subplot(7,1,7, sharex=ax)
-		ax.plot(time / 60., fullChromosomeCounts, linewidth=2)
+		ax.plot(time / 60., full_chromosome_counts, linewidth=2)
 		ax.set_xticks([0, time.max() / 60])
 		ax.set_ylabel("Full\nchromosomes")
-		ax.set_ylim([0, fullChromosomeCounts.max() + 1])
+		ax.set_ylim([0, full_chromosome_counts.max() + 1])
 
 		ax.set_xlim([0, time.max() / 60])
 		ax.set_xlabel("Time (min)")

@@ -50,7 +50,10 @@ class MonomerCounts(wholecell.listeners.listener.Listener):
 			sim_data.moleculeIds.rnapFull)
 		rnap_subunit_ids = rnap_subunits["subunitIds"].tolist()
 
-		# TODO (Gwanggyu): Add replisomes once they are explicitly modeled
+		# Get IDs of replisome subunits
+		replisome_trimer_subunits = sim_data.moleculeGroups.replisome_trimer_subunits
+		replisome_monomer_subunits = sim_data.moleculeGroups.replisome_monomer_subunits
+		replisome_subunit_ids = replisome_trimer_subunits + replisome_monomer_subunits
 
 		# Get stoichiometric matrices for complexation, equilibrium, and the
 		# assembly of unique molecules
@@ -60,6 +63,9 @@ class MonomerCounts(wholecell.listeners.listener.Listener):
 			(ribosome_50s_subunits["subunitStoich"],
 			ribosome_30s_subunits["subunitStoich"]))
 		self.rnap_stoich = rnap_subunits["subunitStoich"]
+		self.replisome_stoich = np.hstack(
+			(3*np.ones(len(replisome_trimer_subunits)),
+			np.ones(len(replisome_monomer_subunits))))
 
 		# Construct dictionary to quickly find bulk molecule indexes from IDs
 		molecule_dict = {mol: i for i, mol in enumerate(bulk_molecule_ids)}
@@ -75,12 +81,14 @@ class MonomerCounts(wholecell.listeners.listener.Listener):
 		self.equilibrium_complex_idx = get_molecule_indexes(equilibrium_complex_ids)
 		self.ribosome_subunit_idx = get_molecule_indexes(ribosome_subunit_ids)
 		self.rnap_subunit_idx = get_molecule_indexes(rnap_subunit_ids)
+		self.replisome_subunit_idx = get_molecule_indexes(replisome_subunit_ids)
 
 		# Get indexes of all unique molecules that need to be accounted for
 		self.uniqueMolecules = sim.internal_states["UniqueMolecules"]
 		unique_molecule_ids = self.uniqueMolecules.container.objectNames()
 		self.ribosome_idx = unique_molecule_ids.index("activeRibosome")
 		self.rnap_idx = unique_molecule_ids.index("activeRnaPoly")
+		self.replisome_idx = unique_molecule_ids.index("activeReplisome")
 
 	def allocate(self):
 		super(MonomerCounts, self).allocate()
@@ -96,6 +104,7 @@ class MonomerCounts(wholecell.listeners.listener.Listener):
 		uniqueMoleculeCounts = self.uniqueMolecules.container.counts()
 		n_active_ribosome = uniqueMoleculeCounts[self.ribosome_idx]
 		n_active_rnap = uniqueMoleculeCounts[self.rnap_idx]
+		n_active_replisome = uniqueMoleculeCounts[self.replisome_idx]
 
 		# Account for monomers in bulk molecule complexes
 		complex_monomer_counts = np.dot(self.complexation_stoich,
@@ -109,8 +118,10 @@ class MonomerCounts(wholecell.listeners.listener.Listener):
 		# Account for monomers in unique molecule complexes
 		n_ribosome_subunit = n_active_ribosome * self.ribosome_stoich
 		n_rnap_subunit = n_active_rnap * self.rnap_stoich
+		n_replisome_subunit = n_active_replisome * self.replisome_stoich
 		bulkMoleculeCounts[self.ribosome_subunit_idx] += n_ribosome_subunit.astype(np.int)
 		bulkMoleculeCounts[self.rnap_subunit_idx] += n_rnap_subunit.astype(np.int)
+		bulkMoleculeCounts[self.replisome_subunit_idx] += n_replisome_subunit.astype(np.int)
 
 		# Update monomerCounts
 		self.monomerCounts = bulkMoleculeCounts[self.monomer_idx]

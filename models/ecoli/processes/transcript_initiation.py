@@ -76,7 +76,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		# Views
 		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
 		self.inactiveRnaPolys = self.bulkMoleculeView("APORNAP-CPLX[c]")
-		self.chromosomes = self.bulkMoleculeView('CHROM_FULL[c]')
+		self.full_chromosomes = self.uniqueMoleculesView('fullChromosome')
 		self.recruitmentView = self.bulkMoleculesView(recruitmentColNames)
 
 		# ID Groups
@@ -103,7 +103,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		# Read current environment
 		current_nutrients = self._external_states['Environment'].nutrients
 
-		if self.chromosomes.total()[0] > 0:
+		if self.full_chromosomes.total()[0] > 0:
 			# Calculate synthesis probabilities based on transcription regulation
 			self.rnaSynthProb = self.recruitmentMatrix.dot(
 				self.recruitmentView.total())
@@ -150,7 +150,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.writeToListener("RnaSynthProb", "rnaSynthProb", self.rnaSynthProb)
 
 		# no synthesis if no chromosome
-		if self.chromosomes.total()[0] == 0:
+		if self.full_chromosomes.total()[0] == 0:
 			return
 
 		# Calculate RNA polymerases to activate based on probabilities
