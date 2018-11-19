@@ -390,6 +390,9 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			# Count number of new full chromosomes that should be created
 			n_new_chromosomes = 0
 
+			# Initialize chromosome indexes of new full chromosomes
+			chromosomeIndexFullChromosomeNew = []
+
 			# Keep track of polymerases that should be deleted
 			polymerasesToDelete = np.zeros_like(chromosomeIndexPolymerase,
 				dtype=np.bool)
@@ -411,9 +414,6 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 				# Get all active replisomes in the given chromosome
 				chromosomeMatchReplisome = (
 						chromosomeIndexReplisome == chromosomeIndexTerminated)
-
-				# Initialize chromosome indexes of new full chromosomes
-				chromosomeIndexFullChromosomeNew = []
 
 				# If all active polymerases are terminated polymerases, we are
 				# ready to split the chromosome and update the attributes.
