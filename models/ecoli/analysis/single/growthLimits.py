@@ -1,115 +1,93 @@
 """
-Plots various effects that may be limiting growth
+Plots various simulation components that may be limiting growth
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/18/2015
 """
 
 from __future__ import absolute_import
+from __future__ import division
 
+import cPickle
 import os
 
-import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
+import numpy as np
 
-from wholecell.io.tablereader import TableReader
-from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
+from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
+from wholecell.io.tablereader import TableReader
+from wholecell.utils import filepath
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
+			raise Exception, 'simOutDir does not currently exist as a directory'
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
+		filepath.makedirs(plotOutDir)
 
-		# Load data from KB
-		sim_data = cPickle.load(open(simDataFile, "rb"))
+		with open(simDataFile, 'rb') as f:
+			sim_data = cPickle.load(f)
+
 		nAvogadro = sim_data.constants.nAvogadro
 		moleculeIds = sim_data.moleculeGroups.aaIDs
 		moleculeIds.append('GTP[c] (translation)')
 		moleculeIds.extend(sim_data.moleculeGroups.ntpIds)
 
-		# Load time
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		# Listeners used
+		main_reader = TableReader(os.path.join(simOutDir, 'Main'))
+		growth_limits_reader = TableReader(os.path.join(simOutDir, "GrowthLimits"))
 
-		# Load data
-		growthLimitsDataFile = TableReader(os.path.join(simOutDir, "GrowthLimits"))
+		# Load time
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
 
 		# Translation
-		gtpPoolSize = growthLimitsDataFile.readColumn("gtpPoolSize")
-		gtpRequestSize = growthLimitsDataFile.readColumn("gtpRequestSize")
-		gtpAllocated = growthLimitsDataFile.readColumn("gtpAllocated")
-		gtpUsed = growthLimitsDataFile.readColumn("gtpUsed")
+		gtpPoolSize = growth_limits_reader.readColumn("gtpPoolSize")
+		gtpRequestSize = growth_limits_reader.readColumn("gtpRequestSize")
+		gtpAllocated = growth_limits_reader.readColumn("gtpAllocated")
+		gtpUsed = growth_limits_reader.readColumn("gtpUsed")
 
-		aaPoolSize = growthLimitsDataFile.readColumn("aaPoolSize")
-		aaRequestSize = growthLimitsDataFile.readColumn("aaRequestSize")
-		aaAllocated = growthLimitsDataFile.readColumn("aaAllocated")
-		aasUsed = growthLimitsDataFile.readColumn("aasUsed")
+		aaPoolSize = growth_limits_reader.readColumn("aaPoolSize")
+		aaRequestSize = growth_limits_reader.readColumn("aaRequestSize")
+		aaAllocated = growth_limits_reader.readColumn("aaAllocated")
+		aasUsed = growth_limits_reader.readColumn("aasUsed")
 
 		# Transcription
-		ntpPoolSize = growthLimitsDataFile.readColumn("ntpPoolSize")
-		ntpRequestSize = growthLimitsDataFile.readColumn("ntpRequestSize")
-		ntpAllocated = growthLimitsDataFile.readColumn("ntpAllocated")
-		ntpUsed = growthLimitsDataFile.readColumn("ntpUsed")
-
+		ntpPoolSize = growth_limits_reader.readColumn("ntpPoolSize")
+		ntpRequestSize = growth_limits_reader.readColumn("ntpRequestSize")
+		ntpAllocated = growth_limits_reader.readColumn("ntpAllocated")
+		ntpUsed = growth_limits_reader.readColumn("ntpUsed")
 
 		# Create aggregate
 		poolSize = np.hstack((
 			aaPoolSize,
-			gtpPoolSize.reshape(gtpPoolSize.size,1),
-			ntpPoolSize
+			gtpPoolSize.reshape(gtpPoolSize.size, 1),
+			ntpPoolSize,
 			))
 		requestSize = np.hstack((
 			aaRequestSize,
-			gtpRequestSize.reshape(gtpPoolSize.size,1),
-			ntpRequestSize
-			))
+			gtpRequestSize.reshape(gtpPoolSize.size, 1),
+			ntpRequestSize,
+			)).astype(np.int64)
 		allocated = np.hstack((
 			aaAllocated,
-			gtpAllocated.reshape(gtpPoolSize.size,1),
-			ntpAllocated
+			gtpAllocated.reshape(gtpPoolSize.size, 1),
+			ntpAllocated,
 			))
 		used =  np.hstack((
 			aasUsed,
-			gtpUsed.reshape(gtpPoolSize.size,1),
-			ntpUsed
+			gtpUsed.reshape(gtpPoolSize.size, 1),
+			ntpUsed,
 			))
-
-		growthLimitsDataFile.close()
-
-
-		# Load ATP usage
-		# ATPusageListenerFile = TableReader(os.path.join(simOutDir, "ATPhydrolyzedUsageListener"))
-		# atpsHydrolyzed = ATPusageListenerFile.readColumn('atpsHydrolyzed')
-		# ATPusageListenerFile.close()
-
-
-		# bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		# bulkMoleculeIds = bulkMolecules.readAttribute("objectNames")
-		# bulkMolecules.close()
-
 
 		# Plot
 		fig = plt.figure(figsize = (11, 11))
 
-		# Plot GTP consumption
-		# plt.rc('xtick', labelsize=5)
-		# plt.rc('ytick', labelsize=5)
-		# plt.plot(time / 60., gtpUsed)
-		# plt.plot(time / 60., atpsHydrolyzed)
-		# plt.xlabel("Time (min)", fontsize = 5)
-		# plt.ylabel("GTP counts", fontsize = 5)
-		print "GTP consumption by polypeptide elongation = %d" % np.sum(gtpUsed)
-		# print "ATP hydrolyzed for non-growth associated maintenance = %d" % np.sum(atpsHydrolyzed)
-
 		for idx in range(len(moleculeIds)):
-			ax = plt.subplot(7,4,idx+1)
+			ax = plt.subplot(7, 4, idx+1)
 			ax.plot(time / 60., poolSize[:,idx], linewidth=2, label="pool size", color='k')
 			ax.plot(time / 60., requestSize[:,idx], linewidth=2, label="request size", color='b')
 			ax.plot(time / 60., allocated[:,idx], linewidth=2, label="allocated", color='r', linestyle='--')
@@ -117,9 +95,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 			# Highlight title if request is greater than pool
 			bbox = None
-			if (poolSize < requestSize)[:,idx].any() or (allocated < requestSize)[:,idx].any():
+			if (poolSize[:, idx] < requestSize[:, idx]).any() or (allocated[:, idx] < requestSize[:, idx]).any():
 				bbox = {'facecolor':'red', 'alpha':0.5, 'pad':10}
-			elif (used[:,idx] < allocated[:,idx]).any():
+			elif (used[:, idx] < allocated[:, idx]).any():
 				bbox = {'facecolor':'orange', 'alpha':0.5, 'pad':10}
 			ax.set_title(moleculeIds[idx], bbox=bbox)
 
@@ -150,7 +128,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		ax.set_xlabel("Highlights pool/allocation limit", fontsize=12, bbox={'facecolor':'red', 'alpha':0.5, 'pad':10})
 
 		# Save
-		plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
+		plt.tight_layout()
 
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close("all")
