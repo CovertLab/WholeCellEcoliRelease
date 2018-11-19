@@ -161,7 +161,7 @@ Using the manual runscripts
 
 These scripts will run the fitter, simulation, and analysis steps directly without Fireworks. They're handy for development, e.g. running under the PyCharm debugger. They have command line interfaces built on `argparse`, which means for one thing that you can use shorter option names as long as they're unambiguous.
 
-Use the `-h` or `--help` switch to get complete, up-to-date documentation on the options.
+_Use the `-h` or `--help` switch to get complete, up-to-date documentation on the options._
 
 
 To run all the parameter-fitter steps:
@@ -188,6 +188,7 @@ python runscripts/manual/analysisVariant.py [-h] [--plot PLOT [PLOT ...]] [--cpu
 ```
 
 If you default the parameters, it will pick the latest simulation directory, the first variant, the first generation, and so on.
+The list of PLOTs can include filenames like `aaCounts` and TAGS like `CORE`. The default is to run the CORE set of plots recommended for everyday development.
 
 Set the environment variable `DEBUG_GC=1` to check for Python memory leaks in the analysis scripts.
 

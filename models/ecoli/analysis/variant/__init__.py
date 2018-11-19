@@ -2,14 +2,7 @@
 # Tip: Edit this during development to run ones you're working on first.
 ACTIVE = [
 	"adder_sizer.py",
-	"conditionalFlux.py",
-	"distribution_cell_division_time.py",
-	"distribution_division_fluxome_proteome.py",
-	"distribution_fluxome_correlation.py",
-	"distribution_proteome_correlation.py",
 	"doubling_time_histogram.py",
-	"parameterShuffle.py",
-	"parameterShuffleSplom.py",
 	"meneSensitivity.py",
 	"growth_condition_comparison_validation.py",
 	"growthConditionComparison.py",
@@ -19,3 +12,16 @@ ACTIVE = [
 	"tfFitComparison.py",
 	"tfTarget.py",
 ]
+
+TAGS = {
+	'ACTIVE': ACTIVE,   # all active analyses in this category
+	'CORE': [           # the default list to run in development
+		"growthConditionComparison.py",
+		],
+	'PAPER': [
+		"adder_sizer.py",
+		"doubling_time_histogram.py",
+		"meneSensitivity.py",
+		"growth_condition_comparison_validation.py",
+		],
+	}

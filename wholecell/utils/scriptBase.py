@@ -7,8 +7,7 @@ Run with '-h' for command line help.
 Set PYTHONPATH when running this.
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import abc
 import argparse
@@ -28,8 +27,8 @@ ROOT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(wholecell.__file__))
 
 def default_wcecoli_out_subdir_path():
 	"""Return an absolute path to the most interesting subdirectory of
-	wcEcoli/out/: the one that starts with the latest timestamp or else the
-	alphabetically first subdirectory.
+	wcEcoli/out/: the subdirectory name that starts with the latest timestamp
+	or (if none) the one that's first alphabetically.
 	"""
 	out_dir = os.path.join(ROOT_PATH, 'out')
 	fallback = None
@@ -169,9 +168,11 @@ class ScriptBase(object):
 		Call this in overridden define_parameters() methods as needed.
 		"""
 		parser.add_argument('sim_dir', nargs='?',
-			help='The simulation "out/" subdirectory to read from (optionally'
-				 ' starting with "out/"), or an absolute directory name, or'
-				 ' default to the the most interesting subdirectory of "out/".')
+			help='''The simulation "out/" subdirectory to read from (optionally
+				starting with "out/"), or an absolute directory name, or
+				default to the "out/" subdirectory name that starts with
+				the latest timestamp or else the one that's first
+				alphabetically.''')
 
 	def define_parameter_variant_index(self, parser):
 		"""Add a `variant_index` parameter to the command line parser.
@@ -255,7 +256,7 @@ class ScriptBase(object):
 		if location:
 			location = ' at ' + location
 
-		print '{}: {}{}'.format(time.ctime(), self.description(), location)
+		print('{}: {}{}'.format(time.ctime(), self.description(), location))
 		pp.pprint({'Arguments': vars(args)})
 
 		start_sec = time.clock()
@@ -263,7 +264,7 @@ class ScriptBase(object):
 		end_sec = time.clock()
 		elapsed = datetime.timedelta(seconds = (end_sec - start_sec))
 
-		print "Run in {}h {}m {}s total".format(*str(elapsed).split(':'))
+		print("Run in {}h {}m {}s total".format(*str(elapsed).split(':')))
 
 
 class TestScript(ScriptBase):
@@ -274,7 +275,7 @@ class TestScript(ScriptBase):
 		parser.add_argument('--seed', default='000001', help='simulation seed')
 
 	def run(self, args):
-		print "[TEST] Run args:", args
+		print("[TEST] Run args:", args)
 
 
 if __name__ == '__main__':

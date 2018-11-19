@@ -1,5 +1,4 @@
 """
-@author: Javier Carrera
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/27/2016
 """
@@ -14,20 +13,8 @@ from matplotlib import pyplot as plt
 
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
 from models.ecoli.analysis import singleAnalysisPlot
-
-THRESHOLD = 1e-13 # roughly, the mass of an electron
-
-FG_PER_DALTON = 1.6605402e-9
-
-# TODO: get these from the KB
-REPRESENTATIVE_MASSES = {
-	"proton":1.007 * FG_PER_DALTON,
-	"amino acid":109 * FG_PER_DALTON,
-	"ATP":551 * FG_PER_DALTON,
-	"protein":40e3 * FG_PER_DALTON,
-	"ribosome":2700e3 * FG_PER_DALTON
-	}
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
@@ -42,25 +29,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			os.mkdir(plotOutDir)
 
 		if sim_data.constants.EndoRNaseCooperation:
-
-			mass = TableReader(os.path.join(simOutDir, "Mass"))
-
-			initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-
-			processMassDifferences = mass.readColumn("processMassDifferences")
-
-			processNames = mass.readAttribute("processNames")
-
-			mass.close()
-
-			avgProcessMassDifferences = np.abs(processMassDifferences).sum(axis = 0) / len(time)
-
-			index = np.arange(len(processNames))
-
 			width = 1
-
-			sim_data = cPickle.load(open(simDataFile, "rb"))
 
 			LossKm = sim_data.process.rna_decay.StatsFit['LossKm']
 			LossKmOpt = sim_data.process.rna_decay.StatsFit['LossKmOpt']
@@ -105,11 +74,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			r1 = axes.barh(index, StatsFit, width, log = True, color = (0.2, 0.2, 0.9))
 
 			axes.set_yticks(index+width/2)
-			axes.set_yticklabels(ScoreNames) #, rotation = -45)
-
-			# If a THRESHOLD is defined:
-			# axes.plot([THRESHOLD, THRESHOLD], [index[0], index[-1]+width], 'k--', linewidth=3)
-			# plt.text(THRESHOLD, index[-1], "electron", rotation = "vertical", va = "center", ha = "right")
+			axes.set_yticklabels(ScoreNames)
 
 			rnaDegRates = sim_data.process.transcription.rnaData['degRate']
 
@@ -118,10 +83,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
 
 			rnaIds = sim_data.process.transcription.rnaData["id"]
-			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-			moleculeIds = bulkMolecules.readAttribute("objectNames")
-			rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
-			rnaCountsBulk = bulkMolecules.readColumn("counts")[:, rnaIndexes]
+			(rnaCountsBulk,) = read_bulk_molecule_counts(simOutDir, rnaIds)
 			rnaCountsInitial = rnaCountsBulk[-1, :]
 			rnaConcInitial = countsToMolar * rnaCountsInitial
 			rnaDecay = rnaConcInitial * rnaDegRates

@@ -31,6 +31,13 @@ Workflow options:
 	COMPRESS_OUTPUT (int, "0"): if nonzero, outputs will be compressed (.bz2)
 	RUN_AGGREGATE_ANALYSIS (int, "1"): if nonzero, all analyses are run on
 		simulation output
+	PLOTS (str, "CORE"): Which analyses to run (if RUN_AGGREGATE_ANALYSIS is
+		true). This should name one or more tags. For more than one tag,
+		separate them with whitespace and remember shell quoting. ACTIVE
+		includes all active plots. CORE includes just the plots recommended for
+		everyday development. You can also name specific analysis files but any
+		analysis categories that don't have such a filename will print error
+		messages.
 	DISABLE_RIBOSOME_CAPACITY_FITTING (int, "0"): if nonzero, ribosome
 		expression is not fit to protein synthesis demands
 	DISABLE_RNAPOLY_CAPACITY_FITTING (int, "0"): if nonzero, RNA polymerase
@@ -156,6 +163,7 @@ COMPRESS_OUTPUT = bool(int(get_environment("COMPRESS_OUTPUT", "0")))
 SIM_DESCRIPTION = get_environment("DESC", "").replace(" ", "_")
 VERBOSE_QUEUE = bool(int(get_environment("VERBOSE_QUEUE", "1")))
 RUN_AGGREGATE_ANALYSIS = bool(int(get_environment("RUN_AGGREGATE_ANALYSIS", "1")))
+PLOTS = get_environment("PLOTS", "CORE").split()
 CACHED_SIM_DATA = bool(int(get_environment("CACHED_SIM_DATA", "0")))
 PARALLEL_FITTER = bool(int(get_environment("PARALLEL_FITTER", "0")))
 DEBUG_FITTER = bool(int(get_environment("DEBUG_FITTER", "0")))
@@ -447,6 +455,7 @@ if RUN_AGGREGATE_ANALYSIS:
 			input_directory = os.path.join(INDIV_OUT_DIRECTORY),
 			input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
 			output_plots_directory = VARIANT_PLOT_DIRECTORY,
+			plots_to_run = PLOTS,
 			cpus = analysis_cpus,
 			metadata = metadata,
 			),
@@ -513,6 +522,7 @@ for i in VARIANTS_TO_RUN:
 				input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
 				input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
 				output_plots_directory = COHORT_PLOT_DIRECTORY,
+				plots_to_run = PLOTS,
 				cpus = analysis_cpus,
 				metadata = md_cohort,
 				),
@@ -538,6 +548,7 @@ for i in VARIANTS_TO_RUN:
 					input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
 					input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
 					output_plots_directory = SEED_PLOT_DIRECTORY,
+					plots_to_run = PLOTS,
 					cpus = analysis_cpus,
 					metadata = md_multigen,
 					),
@@ -658,6 +669,7 @@ for i in VARIANTS_TO_RUN:
 							input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
 							input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
 							output_plots_directory = CELL_PLOT_OUT_DIRECTORY,
+							plots_to_run = PLOTS,
 							cpus = analysis_cpus,
 							metadata = md_single,
 							),

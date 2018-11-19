@@ -43,7 +43,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		bulkMolecules.close()
 
-		plt.figure(figsize = (8.5, 11))
+		plt.figure(figsize = (8.5, 8.5))
 
 		for idx in xrange(4):
 
@@ -54,8 +54,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			plt.ylabel("Counts")
 			plt.title(dntpIDs[idx])
 
-		plt.subplots_adjust(hspace = 0.5)
-
+		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close("all")
 

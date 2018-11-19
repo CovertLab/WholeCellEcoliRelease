@@ -17,7 +17,7 @@ sh runscripts/jenkins/fireworks-config.sh $HOST $NAME $PORT $PASSWORD
 
 echo y | lpad reset
 
-PYTHONPATH=$PWD DESC="Daily build." SINGLE_DAUGHTERS=1 N_GENS=25 MASS_DISTRIBUTION=0 COMPRESS_OUTPUT=1 python runscripts/fireworks/fw_queue.py
+PYTHONPATH=$PWD DESC="Daily build." SINGLE_DAUGHTERS=1 N_GENS=25 MASS_DISTRIBUTION=0 COMPRESS_OUTPUT=1 PLOTS=ACTIVE python runscripts/fireworks/fw_queue.py
 
 PYTHONPATH=$PWD rlaunch rapidfire --nlaunches 0
 
@@ -36,10 +36,6 @@ cd out/2*/wildtype_000000/000000/plotOut/low_res_plots/
 
 curl -F file=@massFractionSummary.png -F channels=#jenkins -F token=xoxb-17787270916-3VkwrS6348nn9DJz8bDs6EYG https://slack.com/api/files.upload
 
-cd $TOP_DIR
-cd out/2*/wildtype_000000/plotOut/low_res_plots/
-
-curl -F file=@massFractionSummary.png -F channels=#jenkins -F token=xoxb-17787270916-3VkwrS6348nn9DJz8bDs6EYG https://slack.com/api/files.upload
 cd $TOP_DIR
 
 cp out/2*/kb/rawData.cPickle.bz2 /scratch/PI/mcovert/wc_ecoli/cached/

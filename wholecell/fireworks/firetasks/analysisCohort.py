@@ -5,8 +5,7 @@ by default the ACTIVE plots listed in that package's `__init__.py`.
 If the `DEBUG_GC` environment variable is true, enable memory leak detection.
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 from fireworks import explicit_serialize
 from wholecell.fireworks.firetasks.analysisBase import AnalysisBase
@@ -31,7 +30,7 @@ class AnalysisCohortTask(AnalysisBase):
 		"cpus",
 		]
 	MODULE_PATH = 'models.ecoli.analysis.cohort'
-	ACTIVE_MODULES = models.ecoli.analysis.cohort.ACTIVE
+	TAGS = models.ecoli.analysis.cohort.TAGS
 
 	def plotter_args(self, module_filename):
 		self["metadata"] = dict(self["metadata"], analysis_type = "cohort")

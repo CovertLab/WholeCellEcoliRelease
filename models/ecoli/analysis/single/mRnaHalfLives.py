@@ -109,9 +109,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 				rnaDegradationRate5.append(-1)
 				expectedDegradationRateSubset5.append(-1)
 
-		np.savetxt(os.path.join(plotOutDir, 'RNAdecayPredicted.txt'), rnaDegradationRate3)
-		np.savetxt(os.path.join(plotOutDir, 'RNAdecayExpected.txt'), expectedDegradationRate)
-
 		# reduction of genes
 		expectedDegR = []
 		predictedDegR = []
