@@ -1,27 +1,29 @@
 """
 Plots rnap capacity
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/18/2015
 """
 
-from __future__ import absolute_import
+from __future__ import division
 
+import cPickle
 import os
 
-import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
+import numpy as np
+import os
 
-from wholecell.io.tablereader import TableReader
-from wholecell.utils import units
-from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
+from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
+from wholecell.io.tablereader import TableReader
+from wholecell.utils import filepath
+from wholecell.utils import units
 
 FONT = {
-		'size'	:	8
-		}
+	'size':	8
+	}
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
@@ -29,86 +31,98 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		if not os.path.isdir(simOutDir):
 			raise Exception, "simOutDir does not currently exist as a directory"
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
+		filepath.makedirs(plotOutDir)
+
+		with open(simDataFile, 'rb') as f:
+			sim_data = cPickle.load(f)
 
 		# Load data from KB
-		sim_data = cPickle.load(open(simDataFile, "rb"))
 		nAvogadro = sim_data.constants.nAvogadro
 
-		rnapSubunitIds = sim_data.process.complexation.getMonomers("APORNAP-CPLX[c]")['subunitIds']
-		rnapSubunitStoich = sim_data.process.complexation.getMonomers("APORNAP-CPLX[c]")['subunitStoich']
-		massFullRnapComplex = sim_data.getter.getMass(["APORNAP-CPLX[c]"])[0]
-		rnapSubunitMasses = sim_data.getter.getMass(rnapSubunitIds)
+		# Listeners used
+		unique_molecules_reader = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		rnap_reader = TableReader(os.path.join(simOutDir, "RnapData"))
 
-		elongationRate = float(sim_data.growthRateParameters.rnaPolymeraseElongationRate.asNumber(units.nt / units.s))
+		# Get ID and mass of inactive (bulk) RNAP
+		inactive_rnap_id = sim_data.moleculeIds.rnapFull
+		rnap_mass = sim_data.getter.getMass([inactive_rnap_id])[0]
+
+		# Read time data
+		initial_time = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initial_time
+		timeStep = main_reader.readColumn("timeStepSec")
+
+		# Calculate the elongation rate for the given condition
+		nutrients = sim_data.conditions[sim_data.condition]["nutrients"]
+		elongation_rate = sim_data.process.transcription.rnaPolymeraseElongationRateDict[nutrients].asNumber(units.aa/units.s) * timeStep
 
 		# Load rnap data
-		rnapDataFile = TableReader(os.path.join(simOutDir, "RnapData"))
+		actual_elongations = rnap_reader.readColumn("actualElongations")
 
-		actualElongations = rnapDataFile.readColumn("actualElongations")
-		expectedElongations_recorded = rnapDataFile.readColumn("expectedElongations")
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-
-		rnapDataFile.close()
-
-		# Load count data for s30 proteins, rRNA, and final 30S complex
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-
-		# Get indexes
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
-		rnapSubunitIndexes = np.array([moleculeIds.index(comp) for comp in rnapSubunitIds], np.int)
-
-		# Load data
-		rnapSubunitCounts = bulkMolecules.readColumn("counts")[:, rnapSubunitIndexes]
-
-		bulkMolecules.close()
-
-		uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
-
-		rnapIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
-		activeRnap = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, rnapIndex]
-
-		uniqueMoleculeCounts.close()
+		# Load counts of subunits and active ribosomes
+		(inactive_rnap_counts, ) = read_bulk_molecule_counts(
+			simOutDir, ([inactive_rnap_id], ))
+		active_rnap_index = unique_molecules_reader.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
+		active_rnap_counts = unique_molecules_reader.readColumn("uniqueMoleculeCounts")[:, active_rnap_index]
 
 		# Calculate statistics
-		totalRnap = (activeRnap + np.min(rnapSubunitCounts / rnapSubunitStoich))
-		totalRnapCapacity = totalRnap * elongationRate
+		total_rnap_counts = active_rnap_counts + inactive_rnap_counts
+		total_rnap_capacity = total_rnap_counts * elongation_rate
 
-		freeSubunitMass = (rnapSubunitMasses * rnapSubunitCounts / nAvogadro).asNumber(units.fg).sum(axis = 1)
-		activeRnapMass = (massFullRnapComplex * activeRnap / nAvogadro).asNumber(units.fg)
-		totalRnapMass = freeSubunitMass + activeRnapMass
-		massFractionActive = activeRnapMass / totalRnapMass
+		mass_fraction_active = active_rnap_counts/total_rnap_counts
 
-		plt.figure(figsize = (8.5, 11))
+		plt.figure(figsize = (8.5, 15))
 		plt.rc('font', **FONT)
 
-		rnapCapacity_axis = plt.subplot(4,1,1)
-		rnapCapacity_axis.plot(time / 60., totalRnapCapacity, label="Theoretical total rnap capacity", linewidth=2, color='b')
-		rnapCapacity_axis.plot(time / 60., actualElongations, label="Actual elongations", linewidth=2, color='r')
-		rnapCapacity_axis.set_ylabel("Amino acids polymerized")
-		rnapCapacity_axis.legend(ncol=2)
+		total_rnap_capacity_axis = plt.subplot(6,1,1)
+		total_rnap_capacity_axis.plot(
+			time / 60., total_rnap_capacity,
+			label="Theoretical total RNAP capacity", linewidth=2, color='b')
+		total_rnap_capacity_axis.plot(
+			time / 60., actual_elongations,
+			label="Actual elongations", linewidth=2, color='r')
+		total_rnap_capacity_axis.set_ylabel("Nucleotides polymerized")
+		total_rnap_capacity_axis.legend(ncol=2)
 
-		fractionalCapacity_axis = plt.subplot(4,1,2)
-		fractionalCapacity_axis.plot(time / 60., actualElongations / totalRnapCapacity, label="Fraction of rnap capacity used", linewidth=2, color='k')
-		fractionalCapacity_axis.set_ylabel("Fraction of rnap capacity used")
-		fractionalCapacity_axis.set_yticks(np.arange(0., 1.05, 0.05))
-		#fractionalCapacity_axis.get_yaxis().grid(b=True, which='major', color='b', linestyle='--')
-		fractionalCapacity_axis.grid(b=True, which='major', color='b', linestyle='--')
+		active_rnap_capacity_axis = plt.subplot(6,1,2)
+		active_rnap_capacity_axis.plot(
+			time / 60., active_rnap_counts * elongation_rate,
+			label="Theoretical active RNAP capacity", linewidth=2, color='b')
+		active_rnap_capacity_axis.plot(
+			time / 60., actual_elongations,
+			label="Actual elongations", linewidth=2, color='r')
+		active_rnap_capacity_axis.set_ylabel("Nucleotides polymerized")
+		active_rnap_capacity_axis.legend(ncol=2)
 
-		effectiveElongationRate_axis = plt.subplot(4,1,3)
-		effectiveElongationRate_axis.plot(time / 60., actualElongations / activeRnap, label="Effective elongation rate", linewidth=2, color='k')
+		inactive_rnap_capacity_axis = plt.subplot(6,1,3)
+		inactive_rnap_capacity_axis.plot(
+			time / 60., inactive_rnap_counts * elongation_rate,
+			label="Theoretical inactive ribosome capacity", linewidth=2, color='b')
+		inactive_rnap_capacity_axis.set_ylabel("Nucleotides polymerized")
+		inactive_rnap_capacity_axis.legend(ncol=2)
+
+		fractionalCapacity_axis = plt.subplot(6,1,4)
+		fractionalCapacity_axis.plot(
+			time / 60., actual_elongations / total_rnap_capacity,
+			linewidth=2, color='k')
+		fractionalCapacity_axis.set_ylabel("Fraction of total RNAP capacity used")
+
+		effectiveElongationRate_axis = plt.subplot(6,1,5)
+		effectiveElongationRate_axis.plot(
+			time / 60., actual_elongations / active_rnap_counts,
+			linewidth=2, color='k')
 		effectiveElongationRate_axis.set_ylabel("Effective elongation rate (aa/s/rnap)")
 
-		fractionActive_axis = plt.subplot(4,1,4)
-		fractionActive_axis.plot(time / 60., massFractionActive, label="Mass fraction active", linewidth=2, color='k')
-		fractionActive_axis.set_ylabel("Mass fraction of active rnaps")
+		fractionActive_axis = plt.subplot(6,1,6)
+		fractionActive_axis.plot(
+			time / 60., mass_fraction_active,
+			linewidth=2, color='k')
+		fractionActive_axis.set_ylabel("Mass fraction of active RNAPs")
 		fractionActive_axis.set_yticks(np.arange(0., 1.1, 0.1))
 
 		# Save
-		plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
-
+		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close("all")
 

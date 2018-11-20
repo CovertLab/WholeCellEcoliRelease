@@ -376,24 +376,14 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			self.water.countInc(nElongations - nInitialized)
 			net_charged = np.zeros(len(self.uncharged_trna_names))
 
-		# Report stalling information
-		expectedElongations = np.fmin(
-			self.ribosomeElongationRate,
-			terminalLengths - peptideLengths
-			)
-
-		ribosomeStalls = expectedElongations - sequenceElongations
-
 		# Write data to listeners
 		self.writeToListener("GrowthLimits", "net_charged", net_charged)
 		self.writeToListener("GrowthLimits", "aasUsed", aas_used)
 		self.writeToListener("GrowthLimits", "gtpUsed", self.gtpUsed)
 
-		self.writeToListener("RibosomeData", "ribosomeStalls", ribosomeStalls)
 		self.writeToListener("RibosomeData", "aaCountInSequence", aaCountInSequence)
 		self.writeToListener("RibosomeData", "aaCounts", aa_counts_for_translation)
 
-		self.writeToListener("RibosomeData", "expectedElongations", expectedElongations.sum())
 		self.writeToListener("RibosomeData", "actualElongations", sequenceElongations.sum())
 		self.writeToListener("RibosomeData", "actualElongationHist", np.histogram(sequenceElongations, bins = np.arange(0,23))[0])
 		self.writeToListener("RibosomeData", "elongationsNonTerminatingHist", np.histogram(sequenceElongations[~didTerminate], bins=np.arange(0,23))[0])

@@ -5,8 +5,7 @@ Run with '-h' for command line help.
 Set PYTHONPATH when running this.
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 import sys
@@ -49,9 +48,12 @@ class AnalysisBase(scriptBase.ScriptBase):
 
 		if not self.plot_name:  # not pre-specified
 			parser.add_argument('-p', '--plot', nargs='+', default=[],
-				help='One or more analysis plot files to run, e.g.'
-					 ' "figure2e.py". The default is to run all ACTIVE plots'
-					 " listed in this category's __init__.py file.")
+				help='''Names the analysis plots to run, e.g. plot filenames
+					like "aaCounts.py" or "aaCounts" and tags like "METABOLISM"
+					as defined in this category's __init__.py file. If omitted,
+					the default is "CORE", which names the plots recommended
+					for everyday development. Use "ACTIVE" to run all active
+					plots in this category.''')
 
 		parser.add_argument('-o', '--output_prefix', default='',
 			help='Prefix for all the output plot filenames.')
@@ -76,8 +78,6 @@ class AnalysisBase(scriptBase.ScriptBase):
 
 		if self.plot_name:
 			args.plot = [self.plot_name]
-		args.plot = [name if name.endswith('.py') else name + '.py'
-			for name in args.plot]
 
 		args.input_validation_data = os.path.join(
 			args.sim_path, 'kb', constants.SERIALIZED_VALIDATION_DATA)
@@ -104,7 +104,7 @@ class TestAnalysis(AnalysisBase):
 		super(TestAnalysis, self).__init__(analysis_plotter=self)
 
 	def run(self, analysis_args):
-		print "[TEST] Analysis args:", analysis_args
+		print("[TEST] Analysis args:", analysis_args)
 
 
 if __name__ == '__main__':

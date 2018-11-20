@@ -1,15 +1,19 @@
-from __future__ import absolute_import
+from __future__ import division, absolute_import
 
+import cPickle
 import os
 
-import numpy as np
 from matplotlib import pyplot as plt
+import numpy as np
+import os
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
-from wholecell.io.tablereader import TableReader
-from wholecell.utils import units
-from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import cohortAnalysisPlot
+from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
+from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
+from wholecell.io.tablereader import TableReader
+from wholecell.utils import filepath
+from wholecell.utils import units
 
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
@@ -17,8 +21,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		if not os.path.isdir(variantDir):
 			raise Exception, "variantDir does not currently exist as a directory"
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
+		filepath.makedirs(plotOutDir)
 
 		# Get all cells in each seed
 		ap = AnalysisPaths(variantDir, cohort_plot = True)
@@ -26,63 +29,66 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		max_cells_in_gen = 0
 		for genIdx in range(ap.n_generation):
 			n_cells = len(ap.get_cells(generation = [genIdx]))
+
 			if n_cells > max_cells_in_gen:
 				max_cells_in_gen = n_cells
 
-		fig, axesList = plt.subplots(ap.n_generation)
+		fig, axesList = plt.subplots(ap.n_generation,
+			sharex=True, sharey=True, figsize=(6, 3*ap.n_generation))
 
-		growth_rate = np.zeros((max_cells_in_gen, ap.n_generation))
+		all_growth_rates = []
 
 		for genIdx in range(ap.n_generation):
 			gen_cells = ap.get_cells(generation = [genIdx])
+			gen_growth_rates = []
+
 			for simDir in gen_cells:
-				simOutDir = os.path.join(simDir, "simOut")
-				# growthRate = np.nanmean(TableReader(os.path.join(simOutDir, "Mass")).readColumn("instantaniousGrowthRate"))
-				# growthRate = (1 / units.s) * growthRate
-				# growthRate = growthRate.asNumber(1 / units.min)
+				try:
+					simOutDir = os.path.join(simDir, "simOut")
 
-				time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-				initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-				doubling_time = (time[-1] - initialTime) * units.s
-				averageGrowthRate = np.log(2) / doubling_time.asNumber(units.min)
-				growth_rate[np.where(simDir == gen_cells)[0], genIdx] = averageGrowthRate
+					# Listeners used
+					main_reader = TableReader(os.path.join(simOutDir, "Main"))
 
+					# Load data
+					time = main_reader.readColumn("time")
+					initialTime = main_reader.readAttribute("initialTime")
 
-		norm_growth_rate = growth_rate / growth_rate.mean(axis=0)
-		norm_max = norm_growth_rate.max()
-		norm_min = norm_growth_rate.min()
-		norm_median = np.median(norm_growth_rate)
-		norm_std = norm_growth_rate.std()
+					# Get growth rate
+					doubling_time = (time[-1] - initialTime) * units.s
+					averageGrowthRate = np.log(2) / doubling_time.asNumber(units.min)
+					gen_growth_rates.append(averageGrowthRate)
+				except:
+					# Skip sims that were not able to complete division
+					continue
 
-		bin_max = norm_median + 1*norm_std
-		bin_min = norm_median - 1*norm_std
-		nbins = 200
-		bin_width = (bin_max - bin_min) / nbins
+			all_growth_rates.append(np.array(gen_growth_rates))
 
-		# Plot initial vs final masses
+		# Plot histograms of growth rates
 		if ap.n_generation == 1:
 			axesList = [axesList]
 
 		for idx, axes in enumerate(axesList):
+			gen_growth_rates = all_growth_rates[idx]
+
 			if max_cells_in_gen > 1:
-				axes.hist(norm_growth_rate[:,idx].flatten(), bins=np.arange(bin_min, bin_max, bin_width))
+				axes.hist(
+					gen_growth_rates,
+					int(np.ceil(np.sqrt(len(gen_growth_rates))))
+					)
 			else:
-				axes.plot(norm_growth_rate[:,idx], 1, 'x')
+				axes.plot(gen_growth_rates, 1, 'x')
 				axes.set_ylim([0, 2])
 
-			axes.axvline(norm_growth_rate[:,idx].mean() + norm_growth_rate[:,idx].std(), color='k', linewidth=1, alpha = 0.5)
-			axes.axvline(norm_growth_rate[:,idx].mean() - norm_growth_rate[:,idx].std(), color='k', linewidth=1, alpha = 0.5)
-			# mean = growth_rate[:,idx].mean()
-			# variance = growth_rate[:,idx].var()
-			# sd = variance**2.
-			# ypos = np.array(axes.get_ylim()).mean()
-			#axes.text(growth_rate[:,idx].mean(), ypos, "Mean:{}\nSD:{}\nSD/Mean:{}"%(mean, sd, sd / mean))
-			axes.set_xticks([0.5, 0.8, 1.0, 1.2, 1.5])
-			axes.set_xlim([bin_min, bin_max])
-		axesList[-1].set_xlabel("Normed Growth rate")
-		axesList[ap.n_generation / 2].set_ylabel("Frequency")
+			axes.axvline(gen_growth_rates.mean(), color='k', linestyle='dashed', linewidth=2)
+			axes.text(
+				gen_growth_rates.mean(), 1,
+				"Mean = %.4f, Std = %.4f, n = %d" %
+				(gen_growth_rates.mean(), gen_growth_rates.std(), len(gen_growth_rates), ))
+			axes.set_ylabel("Generation %d" % (idx, ))
 
-		plt.subplots_adjust(hspace = 0.2, wspace = 0.5)
+		axesList[-1].set_xlabel("Growth rate (1/min)")
+
+		plt.tight_layout()
 
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close("all")

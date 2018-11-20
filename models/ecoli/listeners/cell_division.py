@@ -3,9 +3,8 @@
 """
 CellDivision
 
-Cell division listener. Checks for cell division criteria..
+Cell division listener. Checks for cell division criteria.
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 4/18/2016
 """
@@ -58,8 +57,7 @@ class CellDivision(wholecell.listeners.listener.Listener):
 		if sim._massDistribution:
 			self.massCoeff = sim.randomState.normal(loc = 1.0, scale = 0.1)
 
-		# View on full chromosomes
-		self.fullChromosomeView = self.internal_states['BulkMolecules'].container.countsView([sim_data.moleculeIds.fullChromosome])
+		# Get container for unique molecules
 		self.uniqueMoleculeContainer = self.internal_states['UniqueMolecules'].container
 
 		self.divisionMassMultiplier = 1.
@@ -85,23 +83,23 @@ class CellDivision(wholecell.listeners.listener.Listener):
 			self.setInitial = True
 			self.dryMassInitial = self.dryMass
 
-		# Ends simulation once D period has occured after chromosome termination
+		# Ends simulation once D period has occurred after chromosome termination
 		if self.d_period_division:
-			fullChrom = self.uniqueMoleculeContainer.objectsInCollection("fullChromosome")
-			if len(fullChrom):
-				# print "grep_marker cell division check - full chromosome division times: {}".format(fullChrom.attr("division_time"))
+			# Get all existing full chromosomes
+			full_chromosomes = self.uniqueMoleculeContainer.objectsInCollection("fullChromosome")
 
-				division_times = fullChrom.attr("division_time")
-				divide_at_time = division_times.min()
+			# If there are two or more full chromosomes,
+			if len(full_chromosomes) >= 2:
+				# Extract attributes from existing full chromosomes
+				division_time, chromosomeIndex = full_chromosomes.attrs(
+					"division_time", "chromosomeIndex"
+					)
+
+				# Set division time to be the time set by the chromosome with
+				# index 1
+				divide_at_time = division_time[chromosomeIndex == 1][0]
 
 				if self.time() >= divide_at_time:
-					print "grep_marker cell division occurs - time: {}".format(self.time())
-					print "grep_marker cell division occurs - relative time: {}".format(self.time() - self._sim.initialTime())
-					print "grep_marker cell division occurs - divide time: {}".format(divide_at_time)
-					print "grep_marker cell division occurs - cell mass: {}".format(self.cellMass)
-
-					fullChrom.delByIndexes(np.where(division_times == divide_at_time)[0])
-
 					self._sim.cellCycleComplete()
 		else:
 			# End simulation once the mass of an average cell is

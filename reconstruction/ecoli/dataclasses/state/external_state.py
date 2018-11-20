@@ -22,8 +22,6 @@ from wholecell.utils.unit_struct_array import UnitStructArray
 
 from reconstruction.ecoli.dataclasses.state.environment import Environment
 
-from reconstruction.ecoli.dataclasses.state import stateFunctions as sf
-
 import re
 import numpy as np
 

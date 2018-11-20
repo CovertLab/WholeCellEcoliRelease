@@ -10,6 +10,7 @@ import matplotlib.gridspec as gridspec
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
 from wholecell.utils import units
 import cPickle
 from models.ecoli.analysis import multigenAnalysisPlot
@@ -74,21 +75,33 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			growthRate = (1 / units.s) * growthRate
 			doublingTime = 1 / growthRate * np.log(2)
 
+			# Get ids for 30S and 50S subunits
+			proteinIds30S = sim_data.moleculeGroups.s30_proteins
+			rRnaIds30S = sim_data.moleculeGroups.s30_16sRRNA
+			complexIds30S = [sim_data.moleculeIds.s30_fullComplex]
+
+			proteinIds50S = sim_data.moleculeGroups.s50_proteins
+			rRnaIds50S = sim_data.moleculeGroups.s50_23sRRNA
+			rRnaIds50S.extend(sim_data.moleculeGroups.s50_5sRRNA)
+			complexIds50S = [sim_data.moleculeIds.s50_fullComplex]
+
+			rnapId = ["APORNAP-CPLX[c]"]
+
+			# Read bulk molecules
+			(rnapCountsBulk, freeProteinCounts30S, freeRRnaCounts30S, complexCounts30S,
+				freeProteinCounts50S, freeRRnaCounts50S, complexCounts50S
+				) = read_bulk_molecule_counts(simOutDir,
+				(rnapId, proteinIds30S, rRnaIds30S, complexIds30S,
+				proteinIds50S, rRnaIds50S, complexIds50S)
+				)
+
+			complexCounts30S = complexCounts30S.reshape(-1, 1)
+			complexCounts50S = complexCounts50S.reshape(-1, 1)
+
 			## RNAP counts and statistics ##
-
-			# Get free counts
-			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-			moleculeIds = bulkMolecules.readAttribute("objectNames")
-			bulkMoleculeCounts = bulkMolecules.readColumn("counts")
-			rnapId = "APORNAP-CPLX[c]"
-			rnapIndex = moleculeIds.index(rnapId)
-			rnapCountsBulk = bulkMoleculeCounts[:, rnapIndex]
-			bulkMolecules.close()
-
 			# Get active counts
 			uniqueMolecules = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 			rnapIndex = uniqueMolecules.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
-			initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 			rnapCountsActive = uniqueMolecules.readColumn("uniqueMoleculeCounts")[:, rnapIndex]
 			uniqueMolecules.close()
 
@@ -107,46 +120,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 
 			## Ribosome counts and statistics ##
-
-			# Get ids for 30S and 50S subunits
-			proteinIds30S = sim_data.moleculeGroups.s30_proteins
-			rnaIds30S = [sim_data.process.translation.monomerData['rnaId'][np.where(sim_data.process.translation.monomerData['id'] == pid)[0][0]] for pid in proteinIds30S]
-			rRnaIds30S = sim_data.moleculeGroups.s30_16sRRNA
-			complexIds30S = [sim_data.moleculeIds.s30_fullComplex]
-
-			proteinIds50S = sim_data.moleculeGroups.s50_proteins
-			rnaIds50S = [sim_data.process.translation.monomerData['rnaId'][np.where(sim_data.process.translation.monomerData['id'] == pid)[0][0]] for pid in proteinIds50S]
-			rRnaIds50S = sim_data.moleculeGroups.s50_23sRRNA
-			rRnaIds50S.extend(sim_data.moleculeGroups.s50_5sRRNA)
-			complexIds50S = [sim_data.moleculeIds.s50_fullComplex]
-
-			# Get indexes for 30S and 50S subunits based on ids
-			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-			moleculeIds = bulkMolecules.readAttribute("objectNames")
-			proteinIndexes30S = np.array([moleculeIds.index(protein) for protein in proteinIds30S], np.int)
-			rnaIndexes30S = np.array([moleculeIds.index(rna) for rna in rnaIds30S], np.int)
-			rRnaIndexes30S = np.array([moleculeIds.index(rRna) for rRna in rRnaIds30S], np.int)
-			complexIndexes30S = np.array([moleculeIds.index(comp) for comp in complexIds30S], np.int)
-
-			proteinIndexes50S = np.array([moleculeIds.index(protein) for protein in proteinIds50S], np.int)
-			rnaIndexes50S = np.array([moleculeIds.index(rna) for rna in rnaIds50S], np.int)
-			rRnaIndexes50S = np.array([moleculeIds.index(rRna) for rRna in rRnaIds50S], np.int)
-			complexIndexes50S = np.array([moleculeIds.index(comp) for comp in complexIds50S], np.int)
-
-			# Get counts of 30S and 50S mRNA, rProteins, rRNA, and full complex counts
-			initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-			freeProteinCounts30S = bulkMoleculeCounts[:, proteinIndexes30S]
-			rnaCounts30S = bulkMoleculeCounts[:, rnaIndexes30S]
-			freeRRnaCounts30S = bulkMoleculeCounts[:, rRnaIndexes30S]
-			complexCounts30S = bulkMoleculeCounts[:, complexIndexes30S]
-
-			freeProteinCounts50S = bulkMoleculeCounts[:, proteinIndexes50S]
-			rnaCounts50S = bulkMoleculeCounts[:, rnaIndexes50S]
-			freeRRnaCounts50S = bulkMoleculeCounts[:, rRnaIndexes50S]
-			complexCounts50S = bulkMoleculeCounts[:, complexIndexes50S]
-
-			bulkMolecules.close()
-
 			# Get active ribosome counts
 			uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 

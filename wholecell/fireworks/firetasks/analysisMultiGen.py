@@ -5,8 +5,7 @@ by default the ACTIVE plots listed in that package's `__init__.py`.
 If the `DEBUG_GC` environment variable is true, enable memory leak detection.
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 from fireworks import explicit_serialize
 
@@ -31,7 +30,7 @@ class AnalysisMultiGenTask(AnalysisBase):
 		"cpus",
 		]
 	MODULE_PATH = 'models.ecoli.analysis.multigen'
-	ACTIVE_MODULES = models.ecoli.analysis.multigen.ACTIVE
+	TAGS = models.ecoli.analysis.multigen.TAGS
 
 	def plotter_args(self, module_filename):
 		self["metadata"] = dict(self["metadata"], analysis_type = "multigen")

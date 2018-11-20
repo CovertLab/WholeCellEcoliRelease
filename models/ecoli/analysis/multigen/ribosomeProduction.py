@@ -10,6 +10,7 @@ import matplotlib.gridspec as gridspec
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
 from wholecell.utils import units
 import cPickle
 from models.ecoli.analysis import multigenAnalysisPlot
@@ -83,17 +84,14 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			ids_5s.extend(sim_data.moleculeGroups.s50_5sRRNA)
 			ids_5s.append(sim_data.moleculeIds.s50_fullComplex)
 
-			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-			moleculeIds = bulkMolecules.readAttribute("objectNames")
-			bulkMoleculeCounts = bulkMolecules.readColumn("counts")
+			(rrn16s_count_bulk, rrn23s_count_bulk, rrn5s_count_bulk
+				) = read_bulk_molecule_counts(simOutDir,
+				(ids_16s, ids_23s, ids_5s)
+				)
 
-			idx_16s = np.array([moleculeIds.index(comp) for comp in ids_16s], np.int)
-			idx_23s = np.array([moleculeIds.index(comp) for comp in ids_23s], np.int)
-			idx_5s = np.array([moleculeIds.index(comp) for comp in ids_5s], np.int)
-
-			rrn16s_count_bulk = bulkMoleculeCounts[:, idx_16s].sum(axis=1)
-			rrn23s_count_bulk = bulkMoleculeCounts[:, idx_23s].sum(axis=1)
-			rrn5s_count_bulk = bulkMoleculeCounts[:, idx_5s].sum(axis=1)
+			rrn16s_count_bulk = rrn16s_count_bulk.sum(axis=1)
+			rrn23s_count_bulk = rrn23s_count_bulk.sum(axis=1)
+			rrn5s_count_bulk = rrn5s_count_bulk.sum(axis=1)
 
 			uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 

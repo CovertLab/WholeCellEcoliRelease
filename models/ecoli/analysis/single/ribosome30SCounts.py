@@ -1,7 +1,6 @@
 """
 Plots counts of 30S rRNA, associated proteins, and complexes
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 9/5/2014
 """
@@ -20,8 +19,8 @@ from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
 
 FONT = {
-		'size'	:	8
-		}
+	'size':	8
+	}
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
@@ -67,7 +66,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		uniqueMoleculeCounts.close()
 
-		plt.figure(figsize = (8.5, 11))
+		plt.figure(figsize = (8.5, 15))
 		plt.rc('font', **FONT)
 
 		for idx in xrange(len(proteinIds)):
@@ -108,7 +107,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		ribosome_axis.set_xlabel('Active ribosome')
 
 		# Save
-		plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
+		plt.tight_layout()
 
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close("all")

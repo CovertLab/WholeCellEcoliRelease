@@ -4,10 +4,10 @@ Abstract base class for a Firetask that runs a category of analysis plots.
 If the `DEBUG_GC` environment variable is true, enable memory leak detection.
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import abc
+from collections import OrderedDict
 import importlib
 import multiprocessing as mp
 import sys
@@ -25,9 +25,19 @@ class AnalysisBase(FiretaskBase):
 	Each subclass should set the usual Firetask class variables _fw_name,
 	required_params, and optional_params; also
 
-		ACTIVE_MODULES = the list of active module names for this category to
-			use if the caller doesn't provide a specific list.
-		MODULE_PATH = the module pathname to load for this subclass of analysis
+		TAGS = the dictionary that maps tag names to lists of analysis plot
+			module filenames (in this category) to run.
+
+			Use all uppercase for tag names so they don't conflict with module
+			filenames.
+
+			The tag 'CORE' lists the plots to run by default when the argument
+			list is empty.
+
+			The tag 'ACTIVE' lists all active plots in this category. The
+			nightly build should run 'ACTIVE'.
+
+		MODULE_PATH = the module pathname for loading this subclass's analysis
 			plots.
 
 	Optional params include plots_to_run, output_filename_prefix, cpus.
@@ -40,14 +50,41 @@ class AnalysisBase(FiretaskBase):
 		"""
 		raise NotImplementedError
 
+	def expand_plot_names(self, plot_names, name_dict):
+		'''Recursively expand TAGS and plot names that lack the '.py' suffix,
+		adding the names to name_dict. name_dict is an OrderedDict doing the
+		job of an OrderedSet class.
+		'''
+		for name in plot_names:
+			if name in self.TAGS:
+				self.expand_plot_names(self.TAGS[name], name_dict)
+			elif name.endswith('.py'):
+				name_dict[name] = True
+			else:
+				name_dict[name + '.py'] = True
+
+	def list_plot_files(self, plot_names):
+		'''List the plot module files (within self.MODULE_PATH) named by the
+		given list of plot names, doing these transformations:
+
+			* Default to the 'CORE' tag if plot_names is empty.
+			* Expand all TAGS as defined by self.TAGS.
+			* Append '.py' to filenames as needed.
+			* Deduplicate entries but preserve the order.
+		'''
+		if not plot_names:
+			plot_names = ['CORE']
+		name_dict = OrderedDict()
+		self.expand_plot_names(plot_names, name_dict)
+		return name_dict.keys()
+
 	def run_task(self, fw_spec):
 		startTime = time.time()
-		print "\n{}: --- Starting {} ---".format(
-			time.ctime(startTime), type(self).__name__)
+		print("\n{}: --- Starting {} ---".format(
+			time.ctime(startTime), type(self).__name__))
 
-		fileList = self.get("plots_to_run", [])
-		if not fileList:
-			fileList = self.ACTIVE_MODULES
+		plot_names = self.get("plots_to_run", [])
+		fileList = self.list_plot_files(plot_names)
 
 		self['output_filename_prefix'] = self.get('output_filename_prefix', '')
 
@@ -60,13 +97,19 @@ class AnalysisBase(FiretaskBase):
 
 		exceptionFileList = []
 		for f in fileList:
-			mod = importlib.import_module(self.MODULE_PATH + '.' + f[:-3])
+			try:
+				mod = importlib.import_module(self.MODULE_PATH + '.' + f[:-3])
+			except ImportError:
+				traceback.print_exc()
+				exceptionFileList.append(f)
+				continue
+
 			args = self.plotter_args(f)
 
 			if pool:
 				results[f] = pool.apply_async(run_plot, args=(mod.Plot, args, f))
 			else:
-				print "{}: Running {}".format(time.ctime(), f)
+				print("{}: Running {}".format(time.ctime(), f))
 				try:
 					mod.Plot.main(*args)
 				except Exception:
@@ -84,12 +127,12 @@ class AnalysisBase(FiretaskBase):
 
 		duration = time.strftime("%H:%M:%S", time.gmtime(timeTotal))
 		if exceptionFileList:
-			print "Completed analysis in {} with an exception in:".format(duration)
+			print("Completed analysis in {} with an exception in:".format(duration))
 			for file in exceptionFileList:
-				print "\t{}".format(file)
+				print("\t{}".format(file))
 			raise Exception("Error in analysis")
 		else:
-			print "Completed analysis in {}".format(duration)
+			print("Completed analysis in {}".format(duration))
 
 
 def run_plot(plot_class, args, name):
@@ -98,7 +141,7 @@ def run_plot(plot_class, args, name):
 	to use just 1 CPU core each.
 	"""
 	try:
-		print "{}: Running {}".format(time.ctime(), name)
+		print("{}: Running {}".format(time.ctime(), name))
 		plot_class.main(*args, cpus=1)
 	except KeyboardInterrupt:
 		sys.exit(1)
