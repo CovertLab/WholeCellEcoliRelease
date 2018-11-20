@@ -17,9 +17,10 @@ DEFAULT_IMAGE_TYPE = '.pdf'
 
 def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None, transparent = False):
 
-	if metadata != None and "analysis_type" in metadata:
+	if metadata is not None and "analysis_type" in metadata:
+		analysis_type = metadata["analysis_type"]
 
-		if metadata["analysis_type"] == 'single':
+		if analysis_type == 'single':
 			# Format metadata signature for single gen figure
 			metadata_signature = "_".join([
 				str(metadata["time"])[:13],
@@ -35,7 +36,7 @@ def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None, transparent = 
 				str(metadata["description"])
 				])
 
-		elif metadata["analysis_type"] == 'multigen':
+		elif analysis_type == 'multigen':
 			# Format metadata signature for multi gen figure
 			metadata_signature = "_".join([
 				str(metadata["time"][:13]),
@@ -51,7 +52,7 @@ def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None, transparent = 
 				str(metadata["description"])
 				])
 
-		elif metadata["analysis_type"] == 'cohort':
+		elif analysis_type == 'cohort':
 			# Format metadata signature for cohort figure
 			metadata_signature = "_".join([
 				str(metadata["time"][:13]),
@@ -65,7 +66,7 @@ def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None, transparent = 
 				str(metadata["description"])
 				])
 
-		elif metadata["analysis_type"] == 'variant':
+		elif analysis_type == 'variant':
 			# Format metadata signature for variant figure
 			metadata_signature = "_".join([
 				str(metadata["time"][:13]),
@@ -78,6 +79,9 @@ def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None, transparent = 
 				"Desc",
 				str(metadata["description"])
 				])
+
+		else:
+			raise ValueError('Unknown analysis_type {}'.format(analysis_type))
 
 		# Add metadata signature to the bottom of the plot
 		plt.figtext(0,0, metadata_signature, size=8)
@@ -125,8 +129,6 @@ def read_bulk_molecule_counts(sim_out_dir, mol_names):
 
 	TODO: generalize to any TableReader, not just BulkMolecules, if readColumn method
 	is used for those tables.
-	TODO: change readColumn() to readColumn2D() when available so reshape doesn't need
-	to be called.
 	'''
 
 	# Convert an array to tuple to ensure correct dimensions
@@ -145,7 +147,7 @@ def read_bulk_molecule_counts(sim_out_dir, mol_names):
 
 	lengths = [len(names) for names in mol_names]
 	indices = np.hstack([[mol_indices[mol] for mol in names] for names in mol_names])
-	bulk_counts = bulk_reader.readColumn('counts', indices).reshape(-1, len(indices))
+	bulk_counts = bulk_reader.readColumn2D('counts', indices)
 
 	start_slice = 0
 	for length in lengths:

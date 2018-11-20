@@ -503,15 +503,6 @@ class UniqueObjectsContainer(object):
 			)
 
 
-	def tableLoad(self, tableReader, tableIndex):
-		for fieldName, value in tableReader.readRow(tableIndex).viewitems():
-			if fieldName == "_globalReference":
-				self._globalReference = value
-
-			else:
-				self._collections[self._names.index(fieldName)] = value
-
-
 def copy_if_ndarray(object):
 	"""Copy an ndarray object or return any other type of object as is.
 	Prevent making a view instead of a copy.  # <-- TODO(jerry): Explain.

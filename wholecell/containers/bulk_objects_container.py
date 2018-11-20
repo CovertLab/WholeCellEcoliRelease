@@ -396,24 +396,6 @@ class BulkObjectsContainer(object):
 			)
 
 
-	def tableLoad(self, tableReader, tableIndex):
-		"""
-		Load the counts of objects from a 'table' file.
-
-		Parameters:
-			tableReader (TableReader): A TableReader to read from.
-			tableIndex (non-negative integer): Specifies which table row to read.
-
-		TODO (John): If this was a class method, it could instantiate with the
-			correct object names instead of asserting that the names are
-			correct.
-		"""
-
-		assert self._objectNames == tuple(tableReader.readAttribute("objectNames"))
-
-		self._counts[:] = tableReader.readRow(tableIndex)["counts"]
-
-
 class _BulkObjectsView(object):
 	"""
 	A view onto selected objects in a BulkObjectsContainer.

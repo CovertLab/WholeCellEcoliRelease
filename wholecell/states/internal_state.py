@@ -94,17 +94,13 @@ class InternalState(object):
 		return self._masses
 
 
-	# Saving and loading
+	# Saving
 
 	def tableCreate(self, tableWriter):
 		pass
 
 
 	def tableAppend(self, tableWriter):
-		pass
-
-
-	def tableLoad(self, tableReader, tableIndex):
 		pass
 
 

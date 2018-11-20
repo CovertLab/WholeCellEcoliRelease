@@ -72,6 +72,7 @@ user/*
 # kernprof.py output #
 ######################
 *.lprof
+*.prof
 
 # pyenv python version #
 ########################
