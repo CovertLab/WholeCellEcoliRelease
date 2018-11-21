@@ -220,10 +220,6 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		#self.container.tableAppend(tableWriter)
 
 
-	def tableLoad(self, tableReader, tableIndex):
-		self.container.tableLoad(tableReader, tableIndex)
-
-
 class UniqueMoleculesView(wholecell.views.view.View):
 	_stateID = "UniqueMolecules"
 

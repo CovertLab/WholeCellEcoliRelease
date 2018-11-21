@@ -46,17 +46,13 @@ class ExternalState(object):
 		self._views.append(view)
 
 
-	# Saving and loading
+	# Saving
 
 	def tableCreate(self, tableWriter):
 		pass
 
 
 	def tableAppend(self, tableWriter):
-		pass
-
-
-	def tableLoad(self, tableReader, tableIndex):
 		pass
 
 

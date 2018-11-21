@@ -161,12 +161,13 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 
 			## Calculate statistics involving ribosome efficiency ##
-			aaUsed = TableReader(os.path.join(simOutDir, "GrowthLimits")).readColumn("aasUsed")
-			aaAllocated = TableReader(os.path.join(simOutDir, "GrowthLimits")).readColumn("aaAllocated")
-			aaRequested = TableReader(os.path.join(simOutDir, "GrowthLimits")).readColumn("aaRequestSize")
-			aaPoolsize = TableReader(os.path.join(simOutDir, "GrowthLimits")).readColumn("aaPoolSize")
+			growth_limits_table = TableReader(os.path.join(simOutDir, "GrowthLimits"))
+			aaUsed = growth_limits_table.readColumn("aasUsed")
+			aaAllocated = growth_limits_table.readColumn("aaAllocated")
+			aaRequested = growth_limits_table.readColumn("aaRequestSize")
+			aaPoolsize = growth_limits_table.readColumn("aaPoolSize")
 
-			allocatedRibosomes = TableReader(os.path.join(simOutDir, "GrowthLimits")).readColumn("activeRibosomeAllocated")
+			allocatedRibosomes = growth_limits_table.readColumn("activeRibosomeAllocated")
 			allocatedElongationRate = aaUsed.sum(axis=1) / allocatedRibosomes * timeStep.asNumber(units.s)
 
 			## Load other data
