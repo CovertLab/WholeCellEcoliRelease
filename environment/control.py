@@ -131,7 +131,7 @@ class EnvironmentCommand(AgentCommand):
 
 		parser.add_argument(
 			'-r', '--run_for',
-			# type=float,
+			type=float,
 			default=5.0,
 			help='time, in seconds, between message from cell and environment')
 
@@ -179,41 +179,6 @@ class EnvironmentCommand(AgentCommand):
 
 		return parser
 
-	# def shepherd_initializers(self, args):
-	# 	initializers = super(EnvironmentCommand, self).shepherd_initializers(args)
-
-	# 	def initialize_ecoli(agent_id, agent_type, agent_config):
-	# 		agent_config = dict(
-	# 			agent_config,
-	# 			kafka_config=self.kafka_config,
-	# 			working_dir=args['working_dir'])
-	# 		ecoli = boot_ecoli(agent_id, agent_type, agent_config)
-	# 		ecoli.start()
-
-	# 	def initialize_lattice(agent_id, agent_type, agent_config):
-	# 		agent_config = dict(agent_config)
-	# 		agent_config['kafka_config'] = self.kafka_config
-	# 		lattice = boot_lattice(
-	# 			agent_id,
-	# 			agent_type,
-	# 			agent_config)
-	# 		lattice.start()
-
-	# 	def initialize_chemotaxis_surrogate(agent_id, agent_type, agent_config):
-	# 		agent_config = dict(
-	# 			agent_config,
-	# 			kafka_config=self.kafka_config,
-	# 			working_dir=args['working_dir'])
-	# 		time.sleep(5) # this gives the environment long enough to initialize
-	# 		chemotaxis = boot_chemotaxis(agent_id, agent_type, agent_config)
-	# 		chemotaxis.start()
-
-	# 	initializers['lattice'] = initialize_lattice
-	# 	initializers['ecoli'] = initialize_ecoli
-	# 	initializers['chemotaxis'] = initialize_chemotaxis_surrogate
-
-	# 	return initializers
-
 	def lattice(self, args):
 		agent_id = args['id'] or 'lattice'
 		lattice = boot_lattice(
@@ -237,17 +202,6 @@ class EnvironmentCommand(AgentCommand):
 			outer_id=args['outer_id'])
 		ecoli = boot_ecoli(args['id'], agent_config)
 		ecoli.start()
-
-	# def add(self, args):
-	# 	agent_config = dict(
-	# 		variant_type=args['variant'],
-	# 		variant_index=args['index'],
-	# 		seed=args['seed'],
-	# 		outer_id=args['id'],
-	# 		kafka_config=self.kafka_config)
-	# 	control = ShepherdControl(agent_config)
-	# 	control.add_cell(args['type'] or 'ecoli', agent_config)
-	# 	control.shutdown()
 
 	def experiment(self, args):
 		control = ShepherdControl({'kafka_config': self.kafka_config})
