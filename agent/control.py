@@ -25,7 +25,7 @@ DEFAULT_KAFKA_CONFIG = {
 		'visualization_receive': 'environment-state'},
 	'subscribe': []}
 
-class EnvironmentControl(Agent):
+class AgentControl(Agent):
 	"""
 	Send messages to the other agents in the system to trigger execution and/or shutdown
 	the Outer agent (which sends messages to shutdown all the associated Inner agents) or
@@ -37,7 +37,7 @@ class EnvironmentControl(Agent):
 		if 'kafka_config' not in agent_config:
 			agent_config['kafka_config'] = copy.deepcopy(DEFAULT_KAFKA_CONFIG)
 
-		super(EnvironmentControl, self).__init__(agent_id, 'control', agent_config)
+		super(AgentControl, self).__init__(agent_id, 'control', agent_config)
 
 	def trigger_execution(self, agent_id=''):
 		if agent_id:
@@ -73,11 +73,16 @@ class EnvironmentControl(Agent):
 
 	# TODO (Ryan): set this up to send messages to a particular shepherd.
 	def add_agent(self, agent_id, agent_type, agent_config):
+		kafka = DEFAULT_KAFKA_CONFIG.copy()
+		if 'kafka_config' in agent_config:
+			kafka.update(agent_config['kafka_config'])
+		agent_config['kafka_config'] = kafka
+
 		self.send(self.topics['shepherd_receive'], {
 			'event': event.ADD_AGENT,
-			'id': agent_id,
-			'type': agent_type,
-			'config': agent_config})
+			'agent_id': agent_id,
+			'agent_type': agent_type,
+			'agent_config': agent_config})
 
 	def remove_agent(self, agent_query):
 		"""
@@ -92,24 +97,11 @@ class EnvironmentControl(Agent):
 		remove = dict(agent_query, event=event.REMOVE_AGENT)
 		self.send(self.topics['shepherd_receive'], remove)
 
-	# def add_inner(self, outer_id, agent_config):
-	# 	agent_config['outer_id'] = outer_id
-	# 	self.add_agent(
-	# 		str(uuid.uuid1()),
-	# 		'inner',
-	# 		agent_config)
-
-	# def add_outer(self, agent_id, agent_config):
-	# 	self.add_agent(
-	# 		agent_id,
-	# 		'outer',
-	# 		agent_config)
-
 	def stub_experiment(self, inner_number):
 		outer_id = str(uuid.uuid1())
-		self.add_outer(outer_id, {})
+		self.add_agent(outer_id, 'outer', {})
 		for index in range(inner_number):
-			self.add_inner(outer_id, {})
+			self.add_agent(str(uuid.uuid1()), 'inner', {'outer_id': outer_id})
 
 class AgentCommand(object):
 	"""
@@ -216,82 +208,25 @@ class AgentCommand(object):
 			default=os.getcwd(),
 			help='the directory containing the project files')
 
-		# parser.add_argument(
-		# 	'--config',
-		# 	default='{}',
-		# 	help='any configuration for agents')
-
 		return parser
 
-	# def inner(self, args):
-	# 	if not args['id']:
-	# 		raise ValueError('--id must be supplied for inner command')
-	# 	if not args['outer_id']:
-	# 		raise ValueError('--outer-id must be supplied for inner command')
-
-	# 	inner = boot_inner(args['id'], 'inner', {
-	# 		'kafka_config': self.kafka_config,
-	# 		'outer_id': args['outer_id']})
-	# 	inner.start()
-
-	# def outer(self, args):
-	# 	if not args['id']:
-	# 		raise ValueError('--id must be supplied for outer command')
-
-	# 	outer = boot_outer(args['id'], {'kafka_config': self.kafka_config})
-	# 	outer.start()
-
 	def trigger(self, args):
-		control = EnvironmentControl('control', self.kafka_config)
+		control = AgentControl('control', self.kafka_config)
 		control.trigger_execution(args['id'])
 		control.shutdown()
 
 	def pause(self, args):
-		control = EnvironmentControl('control', self.kafka_config)
+		control = AgentControl('control', self.kafka_config)
 		control.pause_execution(args['id'])
 		control.shutdown()
 
-	# def shepherd_initializers(self, args):
-	# 	initializers = {}
-
-	# 	def initialize_inner(agent_id, agent_type, agent_config):
-	# 		agent_config = dict(agent_config)
-	# 		agent_config['kafka_config'] = self.kafka_config
-	# 		agent_config['working_dir'] = args['working_dir']
-	# 		inner = boot_inner(agent_id, agent_type, agent_config)
-	# 		inner.start()
-
-	# 	def initialize_outer(agent_id, agent_type, agent_config):
-	# 		agent_config = dict(agent_config)
-	# 		agent_config['kafka_config'] = self.kafka_config
-	# 		outer = boot_outer(agent_id, agent_type, agent_config)
-	# 		outer.start()
-
-	# 	initializers['inner'] = initialize_inner
-	# 	initializers['outer'] = initialize_outer
-
-	# 	return initializers
-
-	# def shepherd(self, args):
-	# 	initializers = self.shepherd_initializers(args)
-	# 	shepherd = AgentShepherd(
-	# 		'shepherd',
-	# 		{'kafka_config': self.kafka_config},
-	# 		initializers)
-	# 	shepherd.start()
-
 	def add(self, args):
-		control = EnvironmentControl('control', self.kafka_config)
-		# control.add_inner(args['id'], {})
-		kafka = DEFAULT_KAFKA_CONFIG.copy()
-		if 'kafka_config' in args['config']:
-			kafka.update(args['config']['kafka_config'])
-		args['config']['kafka_config'] = kafka
+		control = AgentControl('control', self.kafka_config)
 		control.add_agent(args['id'], args['type'], args['config'])
 		control.shutdown()
 
 	def remove(self, args):
-		control = EnvironmentControl('control', self.kafka_config)
+		control = AgentControl('control', self.kafka_config)
 		if args['id']:
 			control.remove_agent({'agent_id': args['id']})
 		elif args['prefix']:
@@ -301,17 +236,17 @@ class AgentCommand(object):
 		control.shutdown()
 
 	def divide(self, args):
-		control = EnvironmentControl('control', self.kafka_config)
+		control = AgentControl('control', self.kafka_config)
 		control.divide_cell(args['id'])
 		control.shutdown()
 
 	def experiment(self, args):
-		control = EnvironmentControl('control', self.kafka_config)
+		control = AgentControl('control', self.kafka_config)
 		control.stub_experiment(args['number'])
 		control.shutdown()
 
 	def shutdown(self, args):
-		control = EnvironmentControl('control', self.kafka_config)
+		control = AgentControl('control', self.kafka_config)
 		control.shutdown_agent(args['id'])
 		control.shutdown()
 

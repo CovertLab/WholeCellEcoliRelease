@@ -10,7 +10,7 @@ import agent.event as event
 from agent.outer import Outer
 from agent.inner import Inner
 from agent.shepherd import AgentShepherd
-from agent.boot import EnvironmentControl, AgentCommand
+from agent.control import EnvironmentControl, AgentCommand
 
 from environment.lattice import EnvironmentSpatialLattice
 from environment.surrogates.chemotaxis import Chemotaxis
