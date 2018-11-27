@@ -96,7 +96,7 @@ def boot_ecoli(agent_id, agent_type, agent_config):
 	    * seed (optional)
 	'''
 	kafka_config = agent_config['kafka_config']
-	working_dir = agent_config['working_dir']
+	working_dir = agent_config.get('working_dir', os.getcwd())
 	outer_id = agent_config['outer_id']
 	start_time = agent_config.get('start_time', 0)
 	inherited_state_path = agent_config.get('inherited_state_path', None)
