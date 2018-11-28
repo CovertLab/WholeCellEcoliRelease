@@ -21,6 +21,8 @@ import wholecell.utils.linear_programming as lp
 # TODO: unique id for each object based on
 #	hash(time, collectionIndex, arrayIndex, containerName) at creation time
 
+ZLIB_LEVEL = 7
+
 _MAX_ID_SIZE = 40 # max length of the unique id assigned to objects
 
 class UniqueObjectsContainerException(Exception):
@@ -70,7 +72,7 @@ def decomp(specifications, compressed_collections, global_ref_count):
 
 
 def compress_ndarray(array):
-	return zlib.compress(array.tobytes(), 9)
+	return zlib.compress(array.tobytes(), ZLIB_LEVEL)
 
 def decompress_ndarray(compressed_bytes, dtype):
 	return np.frombuffer(zlib.decompress(compressed_bytes), dtype)
@@ -180,7 +182,7 @@ class UniqueObjectsContainer(object):
 			self._nameToIndexMapping[collectionName] = collectionIndex
 
 		# Create an array which handles global references to objects in all
-		# _collections. This is an index across all the unique object names
+		# _collections, i.e. an index across all the unique object names
 		# (molecule types) in this container.
 		self._globalReference = np.zeros(
 			1, dtype = make_dtype_spec(self._globalReferenceDtype))

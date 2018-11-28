@@ -4,6 +4,8 @@ from __future__ import absolute_import, division, print_function
 import numpy as np
 import zlib
 
+ZLIB_LEVEL = 7
+
 
 def decomp(compressed_names, dtype, compressed_counts):
 	"""Decompress the names and counts into a BulkObjectsContainer. "decomp" is
@@ -116,8 +118,8 @@ class BulkObjectsContainer(object):
 		Return a callable object and its args.
 		"""
 		compact_names = '\t'.join(self._objectNames)
-		compressed_names = zlib.compress(compact_names, 9)
-		compressed_counts = zlib.compress(self._counts.tobytes(), 9)
+		compressed_names = zlib.compress(compact_names, ZLIB_LEVEL)
+		compressed_counts = zlib.compress(self._counts.tobytes(), ZLIB_LEVEL)
 		dtype = self._counts.dtype
 
 		if self._counts.ndim != 1 or dtype.shape or dtype.names or dtype.subdtype:
