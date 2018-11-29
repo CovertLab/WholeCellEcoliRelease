@@ -107,54 +107,45 @@ def diff_trees(a, b, path=''):
 	symmetrical difference this function must be called both ways.
 	"""
 
+	# if they aren't they same type, they are clearly different. Also this lets us
+	# safely assume throughout the rest of the function that a and b are the same type
+	if type(a) != type(b):
+		return (a, b)
+
 	# if they are numpy arrays, compare them using the numpy `array_equal` method.
-	if isinstance(a, np.ndarray):
-		if isinstance(b, np.ndarray):
-			if not np.array_equal(a, b):
-				return diff_trees(a.tolist(), b.tolist())
-		else:
-			return (a, b)
+	elif isinstance(a, np.ndarray):
+		if not np.array_equal(a, b):
+			return diff_trees(a.tolist(), b.tolist())
+
 	# if they are unums compare them with numpy (?)
     # TODO(Ryan): figure out how to compare unums
 	elif isinstance(a, unum.Unum):
-		if isinstance(b, unum.Unum):
-			if not np.array_equal(a, b):
-				return diff_trees(a.tolist(), b.tolist())
-		else:
-			return (a, b)
+		if not np.array_equal(a, b):
+			return diff_trees(a.tolist(), b.tolist())
+
 	# if they are leafs use python equality comparison
 	elif is_leaf(a):
-		if is_leaf(b):
-			try:
-				if a != b:
-					return (a, b)
-			except:
-				print('a and b failed to compare: {} {} {} {}'.format(path, a, b, type(a)))
-		else:
+		if a != b:
 			return (a, b)
+
 	# if they are dictionaries then diff the value under each key
 	elif isinstance(a, collections.Mapping):
-		if isinstance(b, collections.Mapping):
-			diff = {}
-			for key, subtree in a.iteritems():
-				subdiff = diff_trees(subtree, b.get(key), "{}['{}']".format(path, key))
-				if subdiff:
-					diff[key] = subdiff
-			return diff
-		else:
-			return (a, b)
+		diff = {}
+		for key, subtree in a.iteritems():
+			subdiff = diff_trees(subtree, b.get(key), "{}['{}']".format(path, key))
+			if subdiff:
+				diff[key] = subdiff
+		return diff
+
 	# if they are arrays then compare each element at each index
 	elif isinstance(a, collections.Sequence):
-		if isinstance(b, collections.Sequence):
-			diff = []
-			for index in xrange(len(a)):
-				if index >= len(b):
-					diff += a[index:]
-					break
+		diff = []
+		for index in xrange(len(a)):
+			if index >= len(b):
+				diff += a[index:]
+				break
 
-				subdiff = diff_trees(a[index], b[index], "{}[{}]".format(path, index))
-				if subdiff:
-					diff[index] = subdiff
-			return diff
-		else:
-			return (a, b)
+			subdiff = diff_trees(a[index], b[index], "{}[{}]".format(path, index))
+			if subdiff:
+				diff[index] = subdiff
+		return diff
