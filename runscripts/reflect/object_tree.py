@@ -120,8 +120,8 @@ def diff_trees(a, b, path=''):
 	# if they are unums compare them with numpy (?)
     # TODO(Ryan): figure out how to compare unums
 	elif isinstance(a, unum.Unum):
-		if not np.array_equal(a, b):
-			return diff_trees(a.tolist(), b.tolist())
+		if not np.array_equal(a.asNumber(), b.asNumber()):
+			return diff_trees(a.asNumber().tolist(), b.asNumber().tolist())
 
 	# if they are leafs use python equality comparison
 	elif is_leaf(a):
@@ -149,3 +149,7 @@ def diff_trees(a, b, path=''):
 			if subdiff:
 				diff[index] = subdiff
 		return diff
+
+	# this should never happen
+	else:
+		print('value not considered by `diff_trees`: {} {}'.format(a, b))
