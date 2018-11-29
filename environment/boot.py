@@ -54,7 +54,7 @@ class EnvironmentAgent(Outer):
 			print_send=False)
 
 def boot_lattice(agent_id, agent_type, agent_config):
-	media = agent_config['media']
+	media = agent_config.get('media', 'minimal')
 	print("Media condition: {}".format(media))
 	kafka_config = agent_config['kafka_config']
 	raw_data = KnowledgeBaseEcoli()
