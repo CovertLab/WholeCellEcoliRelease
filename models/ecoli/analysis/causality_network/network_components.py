@@ -13,7 +13,7 @@ DYNAMICS_FILENAME = "causality_network_dynamics.tsv"
 
 # Headers
 NODE_LIST_HEADER = "\t".join(
-	["ID", "class", "type", "name", "synonyms", "constants"]
+	["ID", "class", "type", "name", "synonyms", "constants", "url"]
 	)
 EDGE_LIST_HEADER = "\t".join(
 	["src_node_id", "dst_node_id", "stoichiometry", "process"]
@@ -57,6 +57,9 @@ class Node(object):
 			dynamics_units: Dictionary with dynamics data type as keys and its
 				units as values (must share same keys with dynamics),
 				dictionary, e.g. {"counts": "N", "concentration": "mol/L"}
+			url: URL to EcoCyc page, string, eg. "https://ecocyc.org/ECOLI/
+				substring-search?type=NIL&object=EG11028&quickSearch=Quick+
+				Search"
 		"""
 		self.node_class = None
 		self.node_type = None
@@ -66,6 +69,7 @@ class Node(object):
 		self.constants = None
 		self.dynamics = {}
 		self.dynamics_units = {}
+		self.url = None
 
 	def get_node_id(self):
 		"""
@@ -74,7 +78,7 @@ class Node(object):
 		return self.node_id
 
 	def read_attributes(self, node_class, node_type, node_id, name="",
-			synonyms="", constants=""):
+			synonyms="", constants="", url=""):
 		"""
 		Sets the attribute variables of the node. Argument can be in the form
 		of a single dictionary with names of each argument names as keys.
@@ -85,6 +89,7 @@ class Node(object):
 		self.name = name
 		self.synonyms = synonyms
 		self.constants = constants
+		self.url = url
 
 	def read_attributes_from_tsv(self, tsv_line):
 		"""
@@ -111,9 +116,9 @@ class Node(object):
 		Writes a single row specifying the given node to the nodelist file.
 		"""
 		# Format single string with attributes of the node separated by commas
-		node_row = "%s\t%s\t%s\t%s\t%s\t%s" % (
+		node_row = "%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
 			self.node_id, self.node_class, self.node_type,
-			self.name, self.synonyms, self.constants,
+			self.name, self.synonyms, self.constants, self.url,
 			)
 
 		# Write line to nodelist file
