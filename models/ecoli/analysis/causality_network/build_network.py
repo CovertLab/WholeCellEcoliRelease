@@ -77,6 +77,10 @@ NODE_ID_SUFFIX = {
 	"regulation": "_REG",
 	}
 
+# URL template
+URL_TEMPLATE = "https://ecocyc.org/ECOLI/substring-search?type=NIL&object={0}&"\
+			   "quickSearch=Quick+Search"
+
 """
 The following groups of molecules participate in multiple processes and are
 thus identified here to prevent the addition of duplicate nodes.
@@ -238,12 +242,16 @@ class BuildNetwork(object):
 			# Get name and synonyms for gene
 			gene_name, gene_synonym = self.names_dict.get(gene_id, (gene_id, [gene_id]))
 
+			# Get URL for gene
+			gene_url = URL_TEMPLATE.format(gene_id)
+
 			attr = {
 				"node_class": "State",
 				"node_type": "Gene",
 				"node_id": gene_id,
 				"name": gene_name,
 				"synonyms": gene_synonym,
+				"url": gene_url,
 				}
 
 			gene_node.read_attributes(**attr)
