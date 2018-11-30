@@ -64,9 +64,6 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 		gene_ids = sim_data.process.transcription.rnaData["geneId"]
 		indexes["Genes"] = build_index_dict(gene_ids)
 
-		rna_ids = sim_data.process.transcription.rnaData["id"]
-		indexes["Rnas"] = build_index_dict(rna_ids)
-
 		translated_rna_ids = sim_data.process.translation.monomerData["rnaId"]
 		indexes["TranslatedRnas"] = build_index_dict(translated_rna_ids)
 
@@ -184,10 +181,10 @@ def read_rna_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	"""
 	Reads dynamics data for transcript (RNA) nodes from simulation output.
 	"""
-	rna_index = indexes["Rnas"][node_id]
+	count_index = indexes["BulkMolecules"][node_id]
 
 	dynamics = {
-		"counts": columns[("BulkMolecules", "counts")][:, rna_index],
+		"counts": columns[("BulkMolecules", "counts")][:, count_index],
 		}
 	dynamics_units = {
 		"counts": COUNT_UNITS,
