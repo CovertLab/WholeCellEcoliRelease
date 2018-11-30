@@ -1,5 +1,8 @@
+from __future__ import absolute_import, division, print_function
+
 import os
 import cPickle
+from pprint import pprint
 
 from runscripts.manual.runFitter import RunFitter
 from runscripts.reflect.object_tree import object_tree, diff_trees
@@ -13,11 +16,11 @@ if __name__ == '__main__':
 		'out',
 		'manual',
 		'kb',
-		'simData_Most_Fit.cPickle')
+		'simData_Fit_1.cPickle')
 
 	with open(sim_data_file, "rb") as f:
 		once = object_tree(cPickle.load(f))
-		
+
 	second = RunFitter()
 	second.cli()
 
@@ -27,5 +30,5 @@ if __name__ == '__main__':
 	recent = diff_trees(once, twice)
 	newer = diff_trees(twice, once)
 
-	print(recent)
-	print(newer)
+	pprint(recent)
+	pprint(newer)

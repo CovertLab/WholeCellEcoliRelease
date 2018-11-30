@@ -112,16 +112,17 @@ def diff_trees(a, b, path=''):
 	if type(a) != type(b):
 		return (a, b)
 
-	# if they are numpy arrays, compare them using the numpy `array_equal` method.
+	# if they are numpy arrays, compare them using a numpy testing function
 	elif isinstance(a, np.ndarray):
-		if not np.array_equal(a, b):
-			return diff_trees(a.tolist(), b.tolist())
+		delta = compare_arrays(a, b)
+		if delta:
+			return delta
 
 	# if they are unums compare them with numpy (?)
     # TODO(Ryan): figure out how to compare unums
 	elif isinstance(a, unum.Unum):
-		if not np.array_equal(a.asNumber(), b.asNumber()):
-			return diff_trees(a.asNumber().tolist(), b.asNumber().tolist())
+		a0, b0 = a.matchUnits(b)
+		return diff_trees(a0.asNumber(), b0.asNumber())
 
 	# if they are leafs use python equality comparison
 	elif is_leaf(a):
@@ -147,9 +148,26 @@ def diff_trees(a, b, path=''):
 
 			subdiff = diff_trees(a[index], b[index], "{}[{}]".format(path, index))
 			if subdiff:
-				diff[index] = subdiff
+				diff.append(subdiff)
 		return diff
 
 	# this should never happen
 	else:
 		print('value not considered by `diff_trees`: {} {}'.format(a, b))
+
+def elide(value, max_len=100):
+	repr_ = repr(value)
+	if len(repr_) > max_len:
+		return repr_[:max_len] + '...'
+	return value
+
+def compare_arrays(array1, array2):
+	'''Compare two ndarrays, checking the shape and all elements, allowing for
+	NaN values and non-numeric values. Return a summary description of array
+	differences, or '' if the arrays match.
+	'''
+	try:
+		np.testing.assert_array_equal(array1, array2)
+		return ''
+	except AssertionError as e:
+		return elide(e.message)
