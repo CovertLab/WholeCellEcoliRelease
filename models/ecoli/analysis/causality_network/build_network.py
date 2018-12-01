@@ -80,6 +80,11 @@ NODE_ID_SUFFIX = {
 	"regulation": "_REG",
 	}
 
+# URL template
+URL_TEMPLATE = "https://ecocyc.org/ECOLI/substring-search?type=NIL&object={0}&"\
+			   "quickSearch=Quick+Search"
+URL_TEMPLATE_COMPOUND = "https://ecocyc.org/compound?orgid=ECOLI&id={0}"
+
 """
 The following groups of molecules participate in multiple processes and are
 thus identified here to prevent the addition of duplicate nodes.
@@ -288,12 +293,16 @@ class BuildNetwork(object):
 			# Get name and synonyms for gene
 			gene_name, gene_synonym = self.names_dict.get(gene_id, (gene_id, [gene_id]))
 
+			# Get URL for gene
+			gene_url = URL_TEMPLATE.format(gene_id)
+
 			attr = {
 				"node_class": "State",
 				"node_type": "Gene",
 				"node_id": gene_id,
 				"name": gene_name,
 				"synonyms": gene_synonym,
+				"url": gene_url,
 				}
 
 			gene_node.read_attributes(**attr)
@@ -339,6 +348,7 @@ class BuildNetwork(object):
 				'node_id': rna_id,
 				'name': rna_name,
 				'synonyms': rna_synonyms,
+				'url': URL_TEMPLATE.format(gene_id),
 				}
 
 			rna_node.read_attributes(**attr)
@@ -359,6 +369,7 @@ class BuildNetwork(object):
 				'node_id': transcription_id,
 				'name': transcription_name,
 				'synonyms': transcription_synonyms,
+				'url': URL_TEMPLATE.format(gene_id),
 				}
 			transcription_node.read_attributes(**attr)
 
@@ -428,6 +439,7 @@ class BuildNetwork(object):
 				'node_id': monomer_id,
 				'name': monomer_name,
 				'synonyms': monomer_synonyms,
+				'url': URL_TEMPLATE.format(gene_id),
 				}
 
 			protein_node.read_attributes(**attr)
@@ -448,6 +460,7 @@ class BuildNetwork(object):
 				'node_id': translation_id,
 				'name': translation_name,
 				'synonyms': translation_synonyms,
+				'url': URL_TEMPLATE.format(gene_id),
 				}
 			translation_node.read_attributes(**attr)
 
@@ -501,6 +514,7 @@ class BuildNetwork(object):
 				'node_type': 'Complexation',
 				'node_id': reaction_id,
 				'name': reaction_id,
+				'url': URL_TEMPLATE.format(reaction_id.replace("_RXN", "")),
 				}
 			complexation_node.read_attributes(**attr)
 
@@ -540,6 +554,7 @@ class BuildNetwork(object):
 				'node_id': complex_id,
 				'name': complex_name,
 				'synonyms': complex_synonyms,
+				'url': URL_TEMPLATE.format(complex_id_no_compartment),
 				}
 
 			complex_node.read_attributes(**attr)
@@ -568,12 +583,22 @@ class BuildNetwork(object):
 			# Initialize a single metabolism node for each reaction
 			metabolism_node = Node()
 
+			# Get URL for metabolism reaction
+			if reaction_id.startswith("TRANS"):
+				reaction_url_tag = "-".join(reaction_id.split("-")[:3])
+			elif reaction_id.startswith("RXN"):
+				reaction_url_tag = "-".join(reaction_id.split("-")[:2])
+			else:
+				reaction_url_tag =  reaction_id.split("-RXN")[0] + "-RXN"
+			reaction_url = URL_TEMPLATE.format(reaction_url_tag.replace(" (reverse)", ""))
+
 			# Add attributes to the node
 			attr = {
 				'node_class': 'Process',
 				'node_type': 'Metabolism',
 				'node_id': reaction_id,
 				'name': reaction_id,
+				'url': reaction_url,
 				}
 			metabolism_node.read_attributes(**attr)
 
@@ -624,6 +649,7 @@ class BuildNetwork(object):
 				'node_id': metabolite_id,
 				'name': metabolite_name,
 				'synonyms': metabolite_synonyms,
+				'url': URL_TEMPLATE_COMPOUND.format(metabolite_id_no_compartment),
 				}
 
 			metabolite_node.read_attributes(**attr)
