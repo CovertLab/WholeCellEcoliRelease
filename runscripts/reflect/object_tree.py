@@ -24,6 +24,16 @@ leaf_types = (
 	dense.MutableDenseMatrix,
 	wholecell.utils.unit_struct_array.UnitStructArray)
 
+
+class Repr(object):
+	'''A Repr has the given repr() string without quotes and != any other value.'''
+	def __init__(self, repr_):
+		self.repr_ = repr_
+
+	def __repr__(self):
+		return self.repr_
+
+
 def has_python_vars(obj):
 	"""
 	Returns true if the given object has any Python instance variables, that is
@@ -95,16 +105,12 @@ def object_tree(obj, path='', debug=None):
 
 		return tree
 
-def diff_trees(a, b, path=''):
+def diff_trees(a, b):
 	"""
-	Find the difference between two trees a and b. Returns `None` if equal, otherwise
-	each point in the tree at which the values differ will contain a tuple containing
-	each tree's respective differing value (a's value will be index 0, b's index 1).
-	This operation is not symmetrical (like set difference): if there are extra keys
-	in the second tree (b) this difference will not be reported. Entries in the first
-	tree are removed if equal to their counterparts in the second, so that the 
-	difference will be empty if b is a superset (supertree) of a. To find the complete
-	symmetrical difference this function must be called both ways.
+	Find the difference between two trees a and b. Returns `None` or an empty
+	collection (str, dict, list) if they're equal, otherwise each point in the
+	tree at which the values differ will have the tuple (a's value, b's value).
+	This operation is symmetrical.
 	"""
 
 	# if they aren't they same type, they are clearly different. Also this lets us
@@ -114,17 +120,14 @@ def diff_trees(a, b, path=''):
 
 	# if they are numpy arrays, compare them using a numpy testing function
 	elif isinstance(a, np.ndarray):
-		delta = compare_arrays(a, b)
-		if delta:
-			return delta
+		return compare_ndarrays(a, b)
 
-	# if they are unums compare them with numpy (?)
-    # TODO(Ryan): figure out how to compare unums
+	# if they are Unums compare their contents with matching units
 	elif isinstance(a, unum.Unum):
 		a0, b0 = a.matchUnits(b)
 		return diff_trees(a0.asNumber(), b0.asNumber())
 
-	# if they are leafs use python equality comparison
+	# if they are leafs (including strings) use python equality comparison
 	elif is_leaf(a):
 		if a != b:
 			return (a, b)
@@ -132,21 +135,24 @@ def diff_trees(a, b, path=''):
 	# if they are dictionaries then diff the value under each key
 	elif isinstance(a, collections.Mapping):
 		diff = {}
-		for key, subtree in a.iteritems():
-			subdiff = diff_trees(subtree, b.get(key), "{}['{}']".format(path, key))
+		na = Repr('--')
+		nb = Repr('--')
+		for key in set(a.keys()) | set(b.keys()):
+			subdiff = diff_trees(a.get(key, na), b.get(key, nb))
 			if subdiff:
 				diff[key] = subdiff
 		return diff
 
-	# if they are arrays then compare each element at each index
+	# if they are sequences then compare each element at each index
 	elif isinstance(a, collections.Sequence):
+		if len(a) > len(b):
+			b = list(b) + (len(a) - len(b)) * [Repr('--')]
+		elif len(b) > len(a):
+			a = list(a) + (len(b) - len(a)) * [Repr('--')]
+
 		diff = []
 		for index in xrange(len(a)):
-			if index >= len(b):
-				diff += a[index:]
-				break
-
-			subdiff = diff_trees(a[index], b[index], "{}[{}]".format(path, index))
+			subdiff = diff_trees(a[index], b[index])
 			if subdiff:
 				diff.append(subdiff)
 		return diff
@@ -155,13 +161,13 @@ def diff_trees(a, b, path=''):
 	else:
 		print('value not considered by `diff_trees`: {} {}'.format(a, b))
 
-def elide(value, max_len=100):
+def elide(value, max_len=200):
 	repr_ = repr(value)
 	if len(repr_) > max_len:
-		return repr_[:max_len] + '...'
+		return Repr(repr_[:max_len] + '...')
 	return value
 
-def compare_arrays(array1, array2):
+def compare_ndarrays(array1, array2):
 	'''Compare two ndarrays, checking the shape and all elements, allowing for
 	NaN values and non-numeric values. Return a summary description of array
 	differences, or '' if the arrays match.
