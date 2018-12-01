@@ -11,7 +11,7 @@ import traceback
 
 from fireworks import FireTaskBase, explicit_serialize
 from models.ecoli.analysis.causality_network.build_network import BuildNetwork
-from models.ecoli.analysis.causality_network.network_components import NODELIST_FILENAME, DYNAMICS_FILENAME
+from models.ecoli.analysis.causality_network.network_components import NODELIST_FILENAME, NODELIST_JSON, DYNAMICS_FILENAME
 import models.ecoli.analysis.causality_network
 
 
@@ -51,7 +51,8 @@ class BuildCausalityNetworkTask(FireTaskBase):
 			time.ctime(startTime), type(self).__name__))
 
 		self['node_list_file'] = os.path.join(
-			self["output_network_directory"], NODELIST_FILENAME)
+			self["output_network_directory"], NODELIST_JSON)
+			# self["output_network_directory"], NODELIST_FILENAME)
 
 		self["check_sanity"] = self.get("check_sanity", False)
 

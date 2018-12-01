@@ -63,12 +63,15 @@ from __future__ import absolute_import, division, print_function
 import cPickle
 import numpy as np
 import os
+import ast
+import json
 from itertools import izip
 
 from models.ecoli.analysis.causality_network.network_components import (
-	Node, Edge, NODELIST_FILENAME, EDGELIST_FILENAME, NODE_LIST_HEADER,
-	EDGE_LIST_HEADER
-	)
+	Node, Edge,
+	NODELIST_FILENAME, EDGELIST_FILENAME,
+	NODE_LIST_HEADER, EDGE_LIST_HEADER,
+	NODELIST_JSON, EDGELIST_JSON)
 
 # Suffixes that are added to the node IDs of a particular type of node
 NODE_ID_SUFFIX = {
@@ -146,7 +149,8 @@ class BuildNetwork(object):
 		Build the network and write node/edge list files.
 		"""
 		self._build_network()
-		self._write_files()
+		self._write_json()
+		# self._write_files()
 
 
 	def _build_network(self):
@@ -196,6 +200,52 @@ class BuildNetwork(object):
 			# Write one row for each edge
 			for edge in self.edge_list:
 				edge.write_edgelist(edgelist_file)
+
+
+	def _write_json(self):
+		"""
+		Write node and edge lists as json files.
+		"""
+		def node_dict(node):
+			synonyms = []
+			if isinstance(node.synonyms, list):
+				synonyms = node.synonyms
+
+			# Some of the synonyms are strings of list-like entities and some are actual lists
+			# --------------------------------------------------------------------------------
+			# try:
+			# 	synonyms = ast.literal_eval(node.synonyms or '[]')
+			# except:
+			# 	print('parsing synonyms failed for {} {}'.format(type(node.synonyms), node.synonyms))
+
+			return {
+				'ID': node.node_id,
+				'type': node.node_type,
+				'name': node.name,
+				'class': node.node_class,
+				'synonyms': synonyms,
+				'constants': node.constants}
+
+		nodes = [node_dict(node) for node in self.node_list]
+		node_json = json.dumps(nodes)
+		node_path = os.path.join(self.output_dir, NODELIST_JSON)
+		print('writing {} nodes to node file {}'.format(len(nodes), node_path))
+		with open(node_path, 'w') as node_file:
+			node_file.write(node_json)
+
+		def edge_dict(edge):
+			return {
+				'src_node_id': edge.src_id,
+				'dst_node_id': edge.dst_id,
+				'stoichiometry': edge.stoichiometry,
+				'process': edge.process}
+
+		edges = [edge_dict(edge) for edge in self.edge_list]
+		edge_json = json.dumps(edges)
+		edge_path = os.path.join(self.output_dir, EDGELIST_JSON)
+		print('writing {} edges to edge file {}'.format(len(edges), edge_path))
+		with open(edge_path, 'w') as edge_file:
+			edge_file.write(edge_json)
 
 
 	def _add_global_nodes(self):

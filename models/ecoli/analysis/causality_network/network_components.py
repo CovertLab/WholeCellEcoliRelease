@@ -10,6 +10,8 @@ from __future__ import absolute_import, division, print_function
 NODELIST_FILENAME = "causality_network_node_list.tsv"
 EDGELIST_FILENAME = "causality_network_edge_list.tsv"
 DYNAMICS_FILENAME = "causality_network_dynamics.tsv"
+NODELIST_JSON = 'nodes.json'
+EDGELIST_JSON = 'edges.json'
 
 # Headers
 NODE_LIST_HEADER = "\t".join(
@@ -145,6 +147,18 @@ class Node(object):
 
 			# Write line to dynamics file
 			dynamics_file.write(dynamics_row + "\n")
+
+	def dynamics_dict(self):
+		all_dynamics = []
+		for name, data in self.dynamics.iteritems():
+			unit = self.dynamics_units.get(name, "")
+			dynamics = {
+				'units': unit,
+				'type': self.node_type,
+				'id': self.node_id,
+				'dynamics': data.tolist()}
+			all_dynamics.append(dynamics)
+		return all_dynamics
 
 	def _format_dynamics_string(self, dynamics, datatype):
 		"""
