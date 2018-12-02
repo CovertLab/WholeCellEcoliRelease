@@ -23,7 +23,7 @@ class getterFunctions(object):
 		self._buildLocations(raw_data, sim_data)
 
 	def getMass(self, ids):
-		assert isinstance(ids, list) or isinstance(ids, np.ndarray)
+		assert isinstance(ids, (list, np.ndarray))
 		try:
 			idx = [np.where(self._allMass['id'] == re.sub("\[[a-z]\]","", i))[0][0] for i in ids]
 

@@ -58,6 +58,7 @@ class EnvironmentSimulation(object):
 
 	def max_time(self):
 		"""Return the maximum time for the simulations."""
+		return float('inf')
 
 	def run_incremental(self, time):
 		"""Run the environment's own simulation until the given time."""

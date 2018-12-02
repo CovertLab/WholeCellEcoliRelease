@@ -1,5 +1,4 @@
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import cPickle
 import time
@@ -8,40 +7,39 @@ import shutil
 import sys
 
 from fireworks import FireTaskBase, explicit_serialize
-from wholecell.utils import parallelization
 from reconstruction.ecoli.fit_sim_data_1 import fitSimData_1
 from reconstruction.ecoli.fit_sim_data_2 import fitSimData_2
+
 
 @explicit_serialize
 class FitSimDataTask(FireTaskBase):
 
 	_fw_name = "FitSimDataTask"
-	required_params = ["fit_level", "input_data", "output_data", "cpus"]
+	required_params = [
+		"fit_level", "input_data", "output_data", "cpus",
+		"disable_ribosome_capacity_fitting",
+		"disable_rnapoly_capacity_fitting",
+		]
 	optional_params = [
 		"sim_out_dir",
-		"disable_ribosome_capacity_fitting",
-		"disable_rnapoly_capacity_fitting"
 		]
 
 	def run_task(self, fw_spec):
+		fit_level = self["fit_level"]
+		print("{}: Creating/Fitting sim_data (level {})".format(time.ctime(), fit_level))
 
-		print "%s: Creating/Fitting sim_data (Level %d)" % (time.ctime(), self["fit_level"])
-
-		if self["fit_level"] == 1:
+		if fit_level == 1:
 			if self["cached"]:
 				try:
 					shutil.copyfile(self["cached_data"], self["output_data"])
 					mod_time = time.ctime(os.path.getctime(self["cached_data"]))
-					print "Copied sim data from cache (modified %s)" % (mod_time,)
+					print("Copied sim data from cache (last modified {})".format(mod_time))
 					return
 				except Exception as exc:
-					print ("Warning: could not copy cached sim data due to"
-						   " exception (%s), running fitter") % (exc,)
+					print("Warning: Could not copy cached sim data due to"
+						  " exception ({}). Running Fitter.".format(exc))
 
-			cpus = min(self["cpus"], parallelization.cpus())
-			if cpus > 1:
-				print ("Warning: running fitter in parallel with %i processes -"
-					   " ensure there are enough cpus_per_task allocated" % (cpus,))
+			cpus = self["cpus"]
 
 			with open(self["input_data"], "rb") as f:
 				raw_data = cPickle.load(f)
@@ -57,7 +55,7 @@ class FitSimDataTask(FireTaskBase):
 				cPickle.dump(sim_data, f, protocol = cPickle.HIGHEST_PROTOCOL)
 
 		# TODO: Get rid of this if not used
-		if self["fit_level"] == 2:
+		if fit_level == 2:
 			with open(self["input_data"], "rb") as f:
 				sim_data = cPickle.load(f)
 
