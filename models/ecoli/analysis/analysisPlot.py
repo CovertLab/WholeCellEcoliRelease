@@ -44,7 +44,7 @@ class AnalysisPlot(object):
 	__metaclass__ = abc.ABCMeta
 
 	def __init__(self, cpus=0):
-		self.cpus = cpus if cpus > 0 else parallelization.cpus()
+		self.cpus = parallelization.cpus(cpus)
 
 	@abc.abstractmethod
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile,

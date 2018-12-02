@@ -92,7 +92,7 @@ class AnalysisBase(scriptBase.ScriptBase):
 			metadata['variant_function'] = variant_type
 			metadata['variant_index'] = variant_index
 
-		args.cpus = max(min(args.cpus, parallelization.cpus()), 1)
+		args.cpus = parallelization.cpus(args.cpus)
 
 		return args
 
