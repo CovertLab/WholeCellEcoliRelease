@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 import unum
 import numpy as np
+import re
 import types
 import numbers
 import functools
@@ -24,6 +25,8 @@ leaf_types = (
 	dense.MutableDenseMatrix,
 	wholecell.utils.unit_struct_array.UnitStructArray)
 
+
+WHITESPACE = re.compile(r'\s+')
 
 class Repr(object):
 	'''A Repr has the given repr() string without quotes and != any other value.'''
@@ -116,7 +119,7 @@ def diff_trees(a, b):
 	# if they aren't they same type, they are clearly different. Also this lets us
 	# safely assume throughout the rest of the function that a and b are the same type
 	if type(a) != type(b):
-		return (a, b)
+		return elide(a, max_len=400), elide(b, max_len=400)
 
 	# if they are numpy arrays, compare them using a numpy testing function
 	elif isinstance(a, np.ndarray):
@@ -130,7 +133,7 @@ def diff_trees(a, b):
 	# if they are leafs (including strings) use python equality comparison
 	elif is_leaf(a):
 		if a != b:
-			return (a, b)
+			return elide(a), elide(b)
 
 	# if they are dictionaries then diff the value under each key
 	elif isinstance(a, collections.Mapping):
@@ -162,6 +165,7 @@ def diff_trees(a, b):
 		print('value not considered by `diff_trees`: {} {}'.format(a, b))
 
 def elide(value, max_len=200):
+	'''Return a value with the same repr but elided if it'd be longer than max.'''
 	repr_ = repr(value)
 	if len(repr_) > max_len:
 		return Repr(repr_[:max_len] + '...')
@@ -176,4 +180,4 @@ def compare_ndarrays(array1, array2):
 		np.testing.assert_array_equal(array1, array2)
 		return ''
 	except AssertionError as e:
-		return elide(e.message)
+		return elide(Repr(WHITESPACE.sub(' ', e.message).strip()))

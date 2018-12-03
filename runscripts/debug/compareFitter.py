@@ -47,4 +47,4 @@ if __name__ == '__main__':
 	twice = load_fit_tree(dir2)
 
 	recent = diff_trees(once, twice)
-	pprint(recent)
+	pprint(recent, width=160)
