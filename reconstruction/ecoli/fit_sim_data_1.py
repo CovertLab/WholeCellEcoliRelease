@@ -3200,7 +3200,14 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 	km_filepath = os.path.join(fixturesDir, "km.cPickle")
 
 	if os.path.exists(km_filepath):
-		KmcountsCached = cPickle.load(open(km_filepath, "rb"))
+		with open(km_filepath, "rb") as f:
+			KmcountsCached = cPickle.load(f)
+
+		# KmcountsCached fits a set of Km values to give the expected degradation rates.
+		# It takes 1.5 - 3 minutes to recompute.
+		# R_aux calculates the difference of the degradation rate based on these
+		# Km values and the expected rate so this sum seems like a reliable test of
+		# whether the cache fits current input data.
 		if np.sum(np.abs(R_aux(KmcountsCached))) > 1e-15:
 			needToUpdate = True
 	else:
@@ -3217,7 +3224,9 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 
 		if VERBOSE: print("Running non-linear optimization")
 		KmCooperativeModel = scipy.optimize.fsolve(LossFunction, Kmcounts, fprime = LossFunctionP)
-		cPickle.dump(KmCooperativeModel, open(km_filepath, "wb"))
+
+		with open(km_filepath, "wb") as f:
+			cPickle.dump(KmCooperativeModel, f, protocol=cPickle.HIGHEST_PROTOCOL)
 	else:
 		if VERBOSE:
 			print("Not running non-linear optimization--using cached result {}".format(km_filepath))
