@@ -110,6 +110,7 @@ reconstruction/ecoli/dataclasses/process/two_component_system_odes_fitter.py
 *.pickle
 *.log
 *.hdf
+*.tar.gz
 /build/
 
 # PyCharm files #
