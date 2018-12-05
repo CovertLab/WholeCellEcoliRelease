@@ -121,6 +121,10 @@ def diff_trees(a, b):
 	if type(a) != type(b):
 		return elide(a, max_len=400), elide(b, max_len=400)
 
+	# if they are floats, handle various kinds of values
+	elif isinstance(a, float):
+		return compare_floats(a, b)
+
 	# if they are numpy arrays, compare them using a numpy testing function
 	elif isinstance(a, np.ndarray):
 		return compare_ndarrays(a, b)
@@ -171,13 +175,42 @@ def elide(value, max_len=200):
 		return Repr(repr_[:max_len] + '...')
 	return value
 
+def simplify_error_message(message):
+	return elide(Repr(WHITESPACE.sub(' ', message).strip()))
+
+def compare_floats(f1, f2):
+	'''Compare two floats, allowing some tolerance, NaN, and Inf values.
+	Return 0.0 (which is falsey) if they match, else (f1, f2).
+	'''
+	if f1 == f2 or np.isnan(f1) and np.isnan(f2):
+		return 0.0
+	try:
+		np.testing.assert_array_almost_equal_nulp(f1, f2, nulp=400)
+		return 0.0
+	except AssertionError:
+		# FWIW, the error.message tells the NULP difference.
+		return f1, f2
+
 def compare_ndarrays(array1, array2):
 	'''Compare two ndarrays, checking the shape and all elements, allowing for
-	NaN values and non-numeric values. Return a summary description of array
-	differences, or '' if the arrays match.
+	NaN values and non-numeric values. Return () if they match, else a tuple of
+	diff info or just a diff description.
+
+	TODO(jerry): Allow tolerance for float elements of structured arrays and
+	  handle NaN and Inf values.
 	'''
+	if issubclass(array1.dtype.type, np.floating):
+		try:
+			# This handles float tolerance but not NaN and Inf.
+			np.testing.assert_array_almost_equal_nulp(array1, array2, nulp=400)
+			return ()
+		except AssertionError as e:
+			# return elide(array1), elide(array2), simplify_error_message(e.message)
+			pass  # try again, below
+
 	try:
+		# This handles non-float dtypes, also NaN and Inf, but no tolerance.
 		np.testing.assert_array_equal(array1, array2)
-		return ''
+		return ()
 	except AssertionError as e:
-		return elide(Repr(WHITESPACE.sub(' ', e.message).strip()))
+		return simplify_error_message(e.message)
