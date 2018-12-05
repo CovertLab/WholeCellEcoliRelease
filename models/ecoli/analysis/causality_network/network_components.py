@@ -72,6 +72,7 @@ class Node(object):
 		self.dynamics = {}
 		self.dynamics_units = {}
 		self.url = None
+		self.location = None
 
 	def get_node_id(self):
 		"""
@@ -80,7 +81,7 @@ class Node(object):
 		return self.node_id
 
 	def read_attributes(self, node_class, node_type, node_id, name="",
-			synonyms="", constants="", url=""):
+						synonyms="", constants="", url="", location=""):
 		"""
 		Sets the attribute variables of the node. Argument can be in the form
 		of a single dictionary with names of each argument names as keys.
@@ -92,6 +93,7 @@ class Node(object):
 		self.synonyms = synonyms
 		self.constants = constants
 		self.url = url
+		self.location = location
 
 	def read_attributes_from_tsv(self, tsv_line):
 		"""

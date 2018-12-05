@@ -62,6 +62,7 @@ from __future__ import absolute_import, division, print_function
 
 import cPickle
 import numpy as np
+import re
 import os
 import ast
 import json
@@ -116,6 +117,22 @@ METABOLITES_ONLY_IN_EQUILIBRIUM = ["4FE-4S[c]", "NITRATE[p]"]
 NONPROTEIN_MOLECULES_IN_2CS = ["ATP[c]", "ADP[c]", "WATER[c]", "PI[c]",
 	"PROTON[c]", "PHOSPHO-PHOB[c]"]
 
+COMPARTMENTS = {
+	"n": "nucleoid",
+	"j": "projection",
+	"w": "negative",
+	"c": "cytoplasm",
+	"e": "extracellular",
+	"m": "membrane",
+	"o": "outer membrane",
+	"p": "periplasm",
+	"l": "pilus",
+	"i": "inner membrane"}
+
+def molecule_compartment(molecule):
+	match = re.match(r'.+\[(.)\]$', molecule)
+	if match:
+		return COMPARTMENTS.get(match.groups()[0])
 
 class BuildNetwork(object):
 	"""
@@ -229,7 +246,9 @@ class BuildNetwork(object):
 				'name': node.name,
 				'class': node.node_class,
 				'synonyms': synonyms,
-				'constants': node.constants}
+				'constants': node.constants,
+				'url': node.url,
+				'location': node.location}
 
 		nodes = [node_dict(node) for node in self.node_list]
 		node_json = json.dumps(nodes)
@@ -303,6 +322,7 @@ class BuildNetwork(object):
 				"name": gene_name,
 				"synonyms": gene_synonym,
 				"url": gene_url,
+				"location": COMPARTMENTS['n'],
 				}
 
 			gene_node.read_attributes(**attr)
@@ -338,7 +358,8 @@ class BuildNetwork(object):
 
 			if is_mrna:
 				rna_name = gene_name + " mRNA"
-				rna_synonyms = [x + " mRNA" for x in gene_synonyms]
+				if isinstance(gene_synonyms, list):
+					rna_synonyms = [x + " mRNA" for x in gene_synonyms]
 			else:
 				rna_name, rna_synonyms = self.names_dict.get(rna_id_no_compartment, (rna_id, [rna_id]))
 
@@ -349,6 +370,7 @@ class BuildNetwork(object):
 				'name': rna_name,
 				'synonyms': rna_synonyms,
 				'url': URL_TEMPLATE.format(gene_id),
+				'location': molecule_compartment(rna_id),
 				}
 
 			rna_node.read_attributes(**attr)
@@ -362,7 +384,11 @@ class BuildNetwork(object):
 			# Add attributes to the node
 			transcription_id = gene_id + NODE_ID_SUFFIX["transcription"]
 			transcription_name = gene_name + " transcription"
-			transcription_synonyms = [x + " transcription" for x in gene_synonyms]
+			if isinstance(gene_synonyms, list):
+				transcription_synonyms = [x + " transcription" for x in gene_synonyms]
+			else:
+				transcription_synonyms = [gene_synonyms]
+
 			attr = {
 				'node_class': 'Process',
 				'node_type': 'Transcription',
@@ -370,6 +396,7 @@ class BuildNetwork(object):
 				'name': transcription_name,
 				'synonyms': transcription_synonyms,
 				'url': URL_TEMPLATE.format(gene_id),
+				'location': molecule_compartment(transcription_id),
 				}
 			transcription_node.read_attributes(**attr)
 
@@ -440,6 +467,7 @@ class BuildNetwork(object):
 				'name': monomer_name,
 				'synonyms': monomer_synonyms,
 				'url': URL_TEMPLATE.format(gene_id),
+				'location': molecule_compartment(monomer_id),
 				}
 
 			protein_node.read_attributes(**attr)
@@ -453,7 +481,11 @@ class BuildNetwork(object):
 			# Add attributes to the node
 			translation_id = gene_id + NODE_ID_SUFFIX["translation"]
 			translation_name = gene_name + " translation"
-			translation_synonyms = [x + " translation" for x in gene_synonyms]
+			if isinstance(gene_synonyms, list):
+				translation_synonyms = [x + " translation" for x in gene_synonyms]
+			else:
+				translation_synonyms = [gene_synonyms]
+
 			attr = {
 				'node_class': 'Process',
 				'node_type': 'Translation',
@@ -461,6 +493,7 @@ class BuildNetwork(object):
 				'name': translation_name,
 				'synonyms': translation_synonyms,
 				'url': URL_TEMPLATE.format(gene_id),
+				'location': molecule_compartment(translation_id),
 				}
 			translation_node.read_attributes(**attr)
 
@@ -515,6 +548,7 @@ class BuildNetwork(object):
 				'node_id': reaction_id,
 				'name': reaction_id,
 				'url': URL_TEMPLATE.format(reaction_id.replace("_RXN", "")),
+				'location': molecule_compartment(reaction_id),
 				}
 			complexation_node.read_attributes(**attr)
 
@@ -555,6 +589,7 @@ class BuildNetwork(object):
 				'name': complex_name,
 				'synonyms': complex_synonyms,
 				'url': URL_TEMPLATE.format(complex_id_no_compartment),
+				'location': molecule_compartment(complex_id),
 				}
 
 			complex_node.read_attributes(**attr)
@@ -599,6 +634,7 @@ class BuildNetwork(object):
 				'node_id': reaction_id,
 				'name': reaction_id,
 				'url': reaction_url,
+				'location': molecule_compartment(reaction_id),
 				}
 			metabolism_node.read_attributes(**attr)
 
@@ -650,6 +686,7 @@ class BuildNetwork(object):
 				'name': metabolite_name,
 				'synonyms': metabolite_synonyms,
 				'url': URL_TEMPLATE_COMPOUND.format(metabolite_id_no_compartment),
+				'location': molecule_compartment(metabolite_id),
 				}
 
 			metabolite_node.read_attributes(**attr)
@@ -687,6 +724,7 @@ class BuildNetwork(object):
 				'node_type': 'Equilibrium',
 				'node_id': reaction_id,
 				'name': reaction_name,
+				'location': molecule_compartment(reaction_id),
 				}
 			equilibrium_node.read_attributes(**attr)
 
@@ -735,6 +773,7 @@ class BuildNetwork(object):
 				'node_type': 'Equilibrium',
 				'node_id': reaction_id,
 				'name': reaction_name,
+				'location': molecule_compartment(reaction_id),
 				}
 			equilibrium_node.read_attributes(**attr)
 
@@ -780,6 +819,7 @@ class BuildNetwork(object):
 				'node_id': complex_id,
 				'name': complex_name,
 				'synonyms': complex_synonyms,
+				'location': molecule_compartment(complex_id),
 				}
 			complex_node.read_attributes(**attr)
 
@@ -802,6 +842,7 @@ class BuildNetwork(object):
 				'node_id': metabolite_id,
 				'name': metabolite_name,
 				'synonyms': metabolite_synonyms,
+				'location': molecule_compartment(metabolite_id),
 				}
 			metabolite_node.read_attributes(**attr)
 
@@ -845,6 +886,7 @@ class BuildNetwork(object):
 				'node_type': 'Regulation',
 				'node_id': reg_id,
 				'name': reg_name,
+				'location': molecule_compartment(reg_id),
 				}
 			regulation_node.read_attributes(**attr)
 
