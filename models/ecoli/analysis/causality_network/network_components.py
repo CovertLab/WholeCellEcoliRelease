@@ -167,6 +167,29 @@ class Node(object):
 			all_dynamics.append(dynamics)
 		return all_dynamics
 
+	def to_dict(self):
+		synonyms = []
+		if isinstance(self.synonyms, list):
+			synonyms = self.synonyms
+
+			# Some of the synonyms are strings of list-like entities and some are actual lists
+			# --------------------------------------------------------------------------------
+			# try:
+			# 	synonyms = ast.literal_eval(self.synonyms or '[]')
+			# except:
+			# 	print('parsing synonyms failed for {} {}'.format(type(self.synonyms), self.synonyms))
+
+		return {
+			'ID': self.node_id,
+			'type': self.node_type,
+			'name': self.name,
+			'class': self.node_class,
+			'synonyms': synonyms,
+			'constants': self.constants,
+			'url': self.url,
+			'location': self.location}
+		
+
 	def _format_dynamics_string(self, dynamics, datatype):
 		"""
 		Formats the string of dynamics data that is printed out to the dynamics

@@ -228,29 +228,8 @@ class BuildNetwork(object):
 		"""
 		Write node and edge lists as json files.
 		"""
-		def node_dict(node):
-			synonyms = []
-			if isinstance(node.synonyms, list):
-				synonyms = node.synonyms
 
-			# Some of the synonyms are strings of list-like entities and some are actual lists
-			# --------------------------------------------------------------------------------
-			# try:
-			# 	synonyms = ast.literal_eval(node.synonyms or '[]')
-			# except:
-			# 	print('parsing synonyms failed for {} {}'.format(type(node.synonyms), node.synonyms))
-
-			return {
-				'ID': node.node_id,
-				'type': node.node_type,
-				'name': node.name,
-				'class': node.node_class,
-				'synonyms': synonyms,
-				'constants': node.constants,
-				'url': node.url,
-				'location': node.location}
-
-		nodes = [node_dict(node) for node in self.node_list]
+		nodes = [node.to_dict() for node in self.node_list]
 		node_json = json.dumps(nodes)
 		node_path = os.path.join(self.output_dir, NODELIST_JSON)
 		print('writing {} nodes to node file {}'.format(len(nodes), node_path))

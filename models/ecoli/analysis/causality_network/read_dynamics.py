@@ -42,11 +42,11 @@ def get_safe_name(s):
 	return fname
 
 class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
-	def do_plot(self, simOutDir, plotOutDir, dynamicsFileName, simDataFile, nodeListFile, metadata):
+	def do_plot(self, simOutDir, seriesOutDir, dynamicsFileName, simDataFile, nodeListFile, metadata):
 		if not os.path.isdir(simOutDir):
 			raise Exception, "simOutDir does not currently exist as a directory"
 
-		filepath.makedirs(plotOutDir)
+		filepath.makedirs(seriesOutDir)
 
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
@@ -87,7 +87,7 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 			units.fg * columns[("Mass", "cellMass")])).asNumber(units.L)
 
 		with open(nodeListFile, 'r') as node_file:
-			nodes = json.load(node_file)
+			node_dicts = json.load(node_file)
 
 		def dynamics_mapping(dynamics, safe):
 			return [{
@@ -98,17 +98,26 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 				for index, dyn in enumerate(dynamics)]
 
 		name_mapping = {}
-		for node_dict in nodes:
+		root = os.path.dirname(seriesOutDir)
+
+		def build_dynamics(node_dict):
 			node = Node()
 			node.node_id = node_dict['ID']
 			node.node_type = node_dict['type']
+			reader = TYPE_TO_READER_FUNCTION.get(node.node_type)
+			if reader:
+				reader(sim_data, node, node.node_id, columns, indexes, volume)
+			return node
+		
+		nodes = [build_dynamics(node_dict) for node_dict in node_dicts]
+		nodes.append(time_node(columns))
+
+		for node in nodes:
 			dynamics_path = get_safe_name(node.node_id)
-			reader = TYPE_TO_READER_FUNCTION[node.node_type]
-			reader(sim_data, node, node.node_id, columns, indexes, volume)
 			dynamics = node.dynamics_dict()
 			dynamics_json = json.dumps(dynamics)
 
-			with open(os.path.join(plotOutDir, dynamics_path + '.json'), 'w') as dynamics_file:
+			with open(os.path.join(seriesOutDir, dynamics_path + '.json'), 'w') as dynamics_file:
 				dynamics_file.write(dynamics_json)
 
 			name_mapping[node.node_id] = dynamics_mapping(dynamics, dynamics_path)
@@ -117,28 +126,8 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 		with open(os.path.join(root, 'series.json'), 'w') as series_file:
 			series_file.write(json.dumps(name_mapping))
 
-		# # Import attributes of each node from existing node list file
-		# with open(nodeListFile, 'r') as node_file, open(os.path.join(plotOutDir, dynamicsFileName), 'w') as dynamics_file:
-		# 	next(node_file)  # Skip header of node list
 
-		# 	# Add header and time row for dynamics file
-		# 	dynamics_file.write(DYNAMICS_HEADER + "\n")
-		# 	add_time_row(columns, dynamics_file)
-
-		# 	for line in node_file:
-		# 		node = Node()
-		# 		node_id, node_type = node.read_attributes_from_tsv(line)
-
-		# 		read_func = TYPE_TO_READER_FUNCTION[node_type]
-		# 		read_func(sim_data, node, node_id, columns, indexes, volume)
-
-		# 		node.write_dynamics(dynamics_file)
-
-
-def add_time_row(columns, dynamics_file):
-	"""
-	Adds a time row to the dynamics file.
-	"""
+def time_node(columns):
 	time_node = Node()
 	attr = {
 		'node_class': 'time',
@@ -157,7 +146,7 @@ def add_time_row(columns, dynamics_file):
 		}
 
 	time_node.read_dynamics(dynamics, dynamics_units)
-	time_node.write_dynamics(dynamics_file)
+	return time_node
 
 
 def read_global_dynamics(sim_data, node, node_id, columns, indexes, volume):
