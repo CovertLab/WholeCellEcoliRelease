@@ -14,6 +14,7 @@ import Bio.Seq
 
 import wholecell.utils.unit_struct_array
 
+NULP = 0  # float comparison tolerance, in Number of Units in the Last Place
 
 leaf_types = (
 	unum.Unum,
@@ -110,9 +111,15 @@ def object_tree(obj, path='', debug=None):
 
 def diff_trees(a, b):
 	"""
-	Find the difference between two trees a and b. Returns `None` or an empty
-	collection (str, dict, list) if they're equal, otherwise each point in the
-	tree at which the values differ will have the tuple (a's value, b's value).
+	Find the differences between two trees or leaf nodes a and b. Return a
+	falsely value if the inputs match OR a truthy value that explains or
+	summarizes their differences, where each point in the tree where the inputs
+	differ will be a tuple (a's value, b's value, optional description).
+
+	Floating point numbers are compared with the tolerance set by the constant
+	NULP (Number of Units in the Last Place), allowing for NaN and infinite
+	values. (Adjust the tolerance level NULP if needed.)
+
 	This operation is symmetrical.
 	"""
 
@@ -179,13 +186,14 @@ def simplify_error_message(message):
 	return elide(Repr(WHITESPACE.sub(' ', message).strip()))
 
 def compare_floats(f1, f2):
-	'''Compare two floats, allowing some tolerance, NaN, and Inf values.
+	'''Compare two floats, allowing some tolerance, NaN, and Inf values. This
+	considers all types of NaN to match.
 	Return 0.0 (which is falsey) if they match, else (f1, f2).
 	'''
 	if f1 == f2 or np.isnan(f1) and np.isnan(f2):
 		return 0.0
 	try:
-		np.testing.assert_array_almost_equal_nulp(f1, f2, nulp=400)
+		np.testing.assert_array_almost_equal_nulp(f1, f2, nulp=NULP)
 		return 0.0
 	except AssertionError:
 		# FWIW, the error.message tells the NULP difference.
@@ -202,7 +210,7 @@ def compare_ndarrays(array1, array2):
 	if issubclass(array1.dtype.type, np.floating):
 		try:
 			# This handles float tolerance but not NaN and Inf.
-			np.testing.assert_array_almost_equal_nulp(array1, array2, nulp=400)
+			np.testing.assert_array_almost_equal_nulp(array1, array2, nulp=NULP)
 			return ()
 		except AssertionError as e:
 			# return elide(array1), elide(array2), simplify_error_message(e.message)

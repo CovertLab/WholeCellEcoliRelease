@@ -5,7 +5,6 @@ import cPickle
 from pprint import pprint
 import sys
 
-from runscripts.manual.runFitter import RunFitter
 from runscripts.reflect.object_tree import object_tree, diff_trees
 
 
@@ -27,24 +26,19 @@ def load_fit_tree(out_subdir):
 # Compare the output of two fitter runs, optionally running the fitter first.
 
 if __name__ == '__main__':
-	if len(sys.argv) > 2:    # diff the two named sim dirs
-		dir1 = sys.argv[1]
-		dir2 = sys.argv[2]
-	elif len(sys.argv) > 1:  # diff the named sim dir against 'manual'
-		dir1 = 'manual'
-		dir2 = sys.argv[1]
-	else:                    # run in 'new' then diff against 'manual'
-		dir1 = 'manual'
-		dir2 = 'new'
+	if len(sys.argv) < 3:
+		print('''Usage: {} SIMDIR1 SIMDIR2
+Compare the Fitter output between the two out/ sim-dirs and print a summary of
+the differences.'''.format(sys.argv[0]))
+		exit(2)
+
+	dir1 = sys.argv[1]
+	dir2 = sys.argv[2]
 
 	once = load_fit_tree(dir1)
-
-	if dir2 == 'new':  # TODO(jerry): Drop this RunFitter() feature?
-		sys.argv[1:] = [dir2]
-		second = RunFitter()
-		second.cli()
-
 	twice = load_fit_tree(dir2)
 
-	recent = diff_trees(once, twice)
-	pprint(recent, width=160)
+	diffs = diff_trees(once, twice)
+	pprint(diffs, width=160)
+
+	exit(3 if diffs else 0)
