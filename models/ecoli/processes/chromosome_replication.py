@@ -57,7 +57,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.replisome_monomers = self.bulkMoleculesView(
 			sim_data.moleculeGroups.replisome_monomer_subunits)
 		self.activeReplisome = self.uniqueMoleculesView('activeReplisome')
-		self.activeDnaPoly = self.uniqueMoleculesView('dnaPolymerase')
+		self.activeDnaPoly = self.uniqueMoleculesView('partial_chromosome')
 		self.oriCs = self.uniqueMoleculesView('originOfReplication')
 
 		# Create bulk molecule views for polymerization reaction

@@ -49,20 +49,20 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 
 
 	def update(self):
-		dnaPolymerases = self.uniqueMolecules.container.objectsInCollection('dnaPolymerase')
+		partial_chromosomes = self.uniqueMolecules.container.objectsInCollection('partial_chromosome')
 		oriCs = self.uniqueMolecules.container.objectsInCollection('originOfReplication')
 
 		self.numberOfOric = len(oriCs)
 
-		if len(dnaPolymerases) > 0:
-			sequenceIdx, sequenceLength = dnaPolymerases.attrs(
+		if len(partial_chromosomes) > 0:
+			sequenceIdx, sequenceLength = partial_chromosomes.attrs(
 				"sequenceIdx", "sequenceLength"
 				)
 			self.sequenceIdx[:] = PLACE_HOLDER
 			self.sequenceIdx[:sequenceIdx.size] = sequenceIdx
 			self.sequenceLength[:] = np.NAN
 			self.sequenceLength[:sequenceLength.size] = sequenceLength
-		elif len(dnaPolymerases) == 0:
+		elif len(partial_chromosomes) == 0:
 			self.sequenceIdx[:] = PLACE_HOLDER
 			self.sequenceLength[:] = PLACE_HOLDER
 
