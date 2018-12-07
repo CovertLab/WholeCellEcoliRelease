@@ -87,14 +87,12 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		# Determine sequences that can be elongated
 		rnaIndexes, transcriptLengths, massDiffRna = activeRnaPolys.attrs('rnaIndex', 'transcriptLength', 'massDiff_mRNA')
 		sequences = buildSequences(self.rnaSequences, rnaIndexes, transcriptLengths, self.rnapElngRate)
-		ntpCountInSequence = np.bincount(sequences[sequences != polymerize.PAD_VALUE], minlength = 4)
 
 		# Polymerize transcripts based on sequences and available nucleotides
 		reactionLimit = ntpCounts.sum()
 		result = polymerize(sequences, ntpCounts, reactionLimit, self.randomState)
 		sequenceElongations = result.sequenceElongation
 		ntpsUsed = result.monomerUsages
-		nElongations = result.nReactions
 
 		# Calculate changes in mass associated with polymerization and update active polymerases
 		massIncreaseRna = computeMassIncrease(sequences, sequenceElongations, self.ntWeights)
@@ -127,8 +125,6 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.writeToListener("TranscriptElongationListener", "countRnaSynthesized", terminatedRnas)
 		self.writeToListener("TranscriptElongationListener", "countNTPsUSed", nElongations)
 		self.writeToListener("GrowthLimits", "ntpUsed", ntpsUsed)
-		self.writeToListener("RnapData", "ntpCountInSequence", ntpCountInSequence)
-		self.writeToListener("RnapData", "ntpCounts", ntpCounts)
 		self.writeToListener("RnapData", "actualElongations", sequenceElongations.sum())
 		self.writeToListener("RnapData", "didTerminate", didTerminate.sum())
 		self.writeToListener("RnapData", "terminationLoss", (terminalLengths - transcriptLengths)[didTerminate].sum())

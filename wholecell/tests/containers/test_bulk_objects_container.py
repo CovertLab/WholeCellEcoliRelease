@@ -348,6 +348,7 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest', 'bulkObjects')
 	def test_write_table(self):
+		"""Test writing the container to a Table."""
 		self.make_test_dir()
 		path = os.path.join(self.test_dir, 'BulkMolecules')
 
@@ -359,15 +360,13 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 		container.tableAppend(table_writer)
 		table_writer.close()
 
-		# Read the data into a container with a different dtype.
-		# This should not change its dtype.
-		# Note: The constructor takes any dtype spec and keeps a dtype object.
+		# Read and check the data.
+		# ASSUMES: One table row appended, readColumn() squeezes the array to
+		# 1D, and various internal details about how this container writes a
+		# table such as keeping unused array elements.
 		table_reader = TableReader(path)
-		container2 = BulkObjectsContainer(ELEMENTS, dtype='int16')
-		container2.tableLoad(table_reader, 0)
-
-		assert container2 == container
-		assert container2._dtype == np.int16
+		self.assertEqual(ELEMENTS, table_reader.readAttribute('objectNames'))
+		npt.assert_array_equal(container.counts(), table_reader.readColumn('counts'))
 
 
 # TODO: view tests

@@ -49,15 +49,12 @@ class Listener(object):
 		pass
 
 
-	# Saving and loading
+	# Saving
 
 	def tableCreate(self, tableWriter):
 		pass
 
 	def tableAppend(self, tableWriter):
-		pass
-
-	def tableLoad(self, tableReader, tableIndex):
 		pass
 
 

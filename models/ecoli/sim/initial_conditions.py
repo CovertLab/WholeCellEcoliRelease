@@ -20,6 +20,14 @@ from wholecell.sim.divide_cell import load_inherited_state
 
 
 def calcInitialConditions(sim, sim_data):
+	'''Calculate the initial conditions for a new cell without inherited state
+	from a parent cell.
+
+	Params:
+		sim: The simulation object, which must not have an _inheritedStatePath,
+			otherwise the simulation should use setDaughterInitialConditions()
+		sim_data: to initialize state from
+	'''
 	assert sim._inheritedStatePath is None
 	randomState = sim.randomState
 
@@ -499,6 +507,15 @@ def initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 
 
 def setDaughterInitialConditions(sim, sim_data):
+	'''Calculate the initial conditions for a new cell from state inherited
+	from a parent cell, stored in a file.
+
+	Params:
+		sim: The simulation object, which must have an _inheritedStatePath to
+			name the file directory to load the state from, otherwise the
+			simulation should use calcInitialConditions()
+		sim_data: Unused argument needed to conform to an informal interface
+	'''
 	inherited_state_path = sim._inheritedStatePath
 	assert inherited_state_path is not None
 

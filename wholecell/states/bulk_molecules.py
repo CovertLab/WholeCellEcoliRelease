@@ -213,10 +213,6 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
 			atpRequested = self._countsRequested[self.container._objectNames.index("ATP[c]"), :],
 			)
 
-	def tableLoad(self, tableReader, tableIndex):
-		self.container.tableLoad(tableReader, tableIndex)
-
-
 
 def calculatePartition(processPriorities, countsRequested, counts, countsPartitioned):
 	# TODO: reduce the arrays to elements where counts != 0

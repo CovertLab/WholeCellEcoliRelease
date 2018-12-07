@@ -88,7 +88,13 @@ class AnalysisBase(FiretaskBase):
 
 		self['output_filename_prefix'] = self.get('output_filename_prefix', '')
 
-		cpus = min(self.get("cpus", 1), parallelization.cpus())
+		# TODO(jerry): Restructure the code to `exec` the analyses using their
+		# command line interpreters rather than `fork` them via mp.Pool(), to
+		# work around Issue #392 with `fork`. For this to call the command line
+		# code, it should not run analyses via this firetask.
+		# Meanwhile, parallelization.cpus() returns 1 on macOS unless the
+		# caller overrides that safety check.
+		cpus = parallelization.cpus(self.get("cpus", 1))
 		pool = None
 		results = {}
 
