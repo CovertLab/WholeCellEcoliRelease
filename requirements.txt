@@ -5,8 +5,20 @@
 #   brew install pyenv-virtualenv
 #   brew install pyenv-virtualenvwrapper
 #   brew install glpk
+#   brew install openssl
 #   brew install swig           # needed to install pip CVXcanon
 #   brew install suite-sparse   # needed for cvxopt to use glpk
+#   brew install xz             # needed for pyenv to use zlib
+#
+#
+## On macOS Mojave or higher (10.14+), use the steps to install additional
+## SDK headers on https://github.com/pyenv/pyenv/wiki/Common-build-problems
+#
+## On macOS, see https://github.com/CovertLab/wcEcoli/wiki/How-to-set-up-the-runtime-environment-for-the-model
+## to fix non-determinism problems in BLAS, numpy, and scipy. In short:
+## * Install OpenBLAS 0.3.5 via brew when available, otherwise compile it from source.
+## * pip install numpy==1.14.5 scipy==1.0.1 --no-binary numpy,scipy --force-reinstall
+#
 #
 ## Download and install other packages according to their instructions
 #	CPLEX from IBM (free for students)
@@ -22,7 +34,7 @@
 ## Upgrade the installers:
 #   pip install --upgrade pip setuptools virtualenv wheel
 #
-## Pip needs a local numpy before installing the other packages:
+## Pip might need a local numpy before installing the other packages:
 #   pip install numpy==1.14.5
 #
 ## For Sherlock:
