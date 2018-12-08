@@ -16,7 +16,7 @@ If you have access to a remote Kafka cluster, you can just specify the host as a
 
 If you don't have access to a remote cluster, you can install Kafka locally.
  
-1. If you don't already have it, [download Java JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
+1. If you don't already have it, [download Open JDK 8](https://jdk.java.net/8/).
    1. Run the JDK installer.
    2. Set `JAVA_HOME` in your shell setup file (e.g. `.bash_profile` or `.profile`):
 
