@@ -1,4 +1,3 @@
-import os
 
 from wholecell.sim.simulation import Simulation
 
@@ -37,10 +36,6 @@ from models.ecoli.listeners.rna_synth_prob import RnaSynthProb
 from models.ecoli.listeners.monomer_counts import MonomerCounts
 from models.ecoli.listeners.complexation_listener import ComplexationListener
 from models.ecoli.listeners.equilibrium_listener import EquilibriumListener
-
-# Analysis
-import models.ecoli.analysis.single
-import models.ecoli.analysis.cohort
 
 from models.ecoli.sim.initial_conditions import calcInitialConditions
 from wholecell.sim.divide_cell import divide_cell

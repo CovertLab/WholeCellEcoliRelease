@@ -1,10 +1,9 @@
 from __future__ import absolute_import, division, print_function
 
 import json
-import uuid
 import argparse
 
-from agent.agent import Agent
+from agent.control import DEFAULT_KAFKA_CONFIG
 from agent.outer import Outer
 from agent.inner import Inner
 from agent.stub import SimulationStub, EnvironmentStub
@@ -39,6 +38,8 @@ def boot_inner(agent_id, agent_type, agent_config):
 	that would be driven by the Inner agent in response to messages from its corresponding 
 	Outer agent.
 	"""
+	if 'outer_id' not in agent_config:
+		raise ValueError("--outer-id required")
 
 	agent_id = agent_id
 	outer_id = agent_config['outer_id']
@@ -58,10 +59,7 @@ class BootAgent(object):
 	"""
 
 	def __init__(self):
-		description='Boot agents for the environmental context simulation'
-		parser = argparse.ArgumentParser(description=description)
-		self.parser = self.add_arguments(parser)
-		self.args = self.parser.parse_args()
+		self.description='Boot agents for the environmental context simulation'
 		self.agent_types = {
 			'outer': boot_outer,
 			'inner': boot_inner}
@@ -69,26 +67,39 @@ class BootAgent(object):
 	def add_arguments(self, parser):
 		parser.add_argument(
 			'--id',
-			default=uuid.uuid1(),
+			required=True,
 			help='id of the new agent')
 
 		parser.add_argument(
+			'--outer-id',
+			help="ID of the new agent's outer environment agent")
+
+		parser.add_argument(
 			'--type',
-			default='inner',
+			required=True,
+			choices=self.agent_types,
 			help='type of the new agent')
 
 		parser.add_argument(
 			'--config',
 			default='{}',
-			help='configuration for the new agent')
+			help='''JSON configuration dictionary for the new agent.''')
 
 		return parser
 
 	def execute(self):
-		args = vars(self.args)
-		args['config'] = json.loads(self.args.config)
+		parser = argparse.ArgumentParser(description=self.description)
+		parser = self.add_arguments(parser)
+		parse_args = parser.parse_args()
+
+		args = vars(parse_args)
+		agent_config = dict(json.loads(parse_args.config))
+		agent_config.setdefault('kafka_config', DEFAULT_KAFKA_CONFIG)
+		if args['outer_id']:
+			agent_config.setdefault('outer_id', args['outer_id'])
+
 		boot = self.agent_types[args['type']]
-		agent = boot(args['id'], args['type'], args['config'])
+		agent = boot(args['id'], args['type'], agent_config)
 		agent.start()
 
 if __name__ == '__main__':

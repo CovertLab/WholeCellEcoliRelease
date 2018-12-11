@@ -5,15 +5,10 @@ import re
 import copy
 import json
 import uuid
-import numpy as np
 import argparse
 
 import agent.event as event
 from agent.agent import Agent
-from agent.outer import Outer
-from agent.inner import Inner
-from agent.shepherd import AgentShepherd
-from agent.stub import SimulationStub, EnvironmentStub
 
 DEFAULT_KAFKA_CONFIG = {
 	'host': '127.0.0.1:9092',
@@ -109,9 +104,8 @@ class AgentCommand(object):
 
 	This class provides a means to send messages to simulations running in a
 	distributed environment from the command line. Override `add_arguments` to 
-	add more arguments to the argument parser. Override `execute` to respond to more 
-	commands. Override `shepherd_initializers` to provide more types of agents the
-	AgentShepherd can spawn.
+	add more arguments to the argument parser. To respond to more commands,
+	supply a `choices` list and implement the methods it names.
 	"""
 
 	def __init__(self, choices, description=None):
@@ -127,7 +121,9 @@ class AgentCommand(object):
 
 		if not description:
 			description='Boot agents for the environmental context simulation'
-		parser = argparse.ArgumentParser(description=description)
+		parser = argparse.ArgumentParser(
+			description=description,
+			formatter_class=argparse.RawDescriptionHelpFormatter)
 		self.parser = self.add_arguments(parser)
 		self.args = self.parser.parse_args()
 		self.kafka_config = {
@@ -144,7 +140,7 @@ class AgentCommand(object):
 		parser.add_argument(
 			'command',
 			choices=self.choices,
-			help='which command to boot')
+			help='which command to run')
 
 		parser.add_argument(
 			'--id',
@@ -152,7 +148,8 @@ class AgentCommand(object):
 
 		parser.add_argument(
 			'--type',
-			help='type of the agent to add')
+			default='ecoli',
+			help='type of the agent to add (default: ecoli)')
 
 		parser.add_argument(
 			'--config',
@@ -168,14 +165,14 @@ class AgentCommand(object):
 			help='matches any id with the given prefix')
 
 		parser.add_argument(
-			'--number',
+			'-n', '--number',
 			type=int,
 			default=0,
-			help='number of cell agents to spawn in experiment')
+			help='number of cell agents to spawn in the experiment (default: 0)')
 
 		parser.add_argument(
 			'--kafka-host',
-			default='127.0.0.1:9092',
+			default=DEFAULT_KAFKA_CONFIG['host'],
 			help='address for Kafka server')
 
 		parser.add_argument(
@@ -210,6 +207,11 @@ class AgentCommand(object):
 
 		return parser
 
+	def require(self, args, *argnames):
+		for name in argnames:
+			if args.get(name) is None:
+				raise ValueError('--{} needed'.format(name))
+
 	def trigger(self, args):
 		control = AgentControl('control', self.kafka_config)
 		control.trigger_execution(args['id'])
@@ -221,8 +223,10 @@ class AgentCommand(object):
 		control.shutdown()
 
 	def add(self, args):
+		self.require(args, 'id', 'type')
 		control = AgentControl('control', self.kafka_config)
-		control.add_agent(args['id'], args['type'], args['config'])
+		config = dict(args['config'], outer_id=args['id'])
+		control.add_agent(str(uuid.uuid1()), args['type'] or 'ecoli', config)
 		control.shutdown()
 
 	def remove(self, args):
@@ -236,11 +240,13 @@ class AgentCommand(object):
 		control.shutdown()
 
 	def divide(self, args):
+		self.require(args, 'id')
 		control = AgentControl('control', self.kafka_config)
 		control.divide_cell(args['id'])
 		control.shutdown()
 
 	def experiment(self, args):
+		self.require(args, 'number')
 		control = AgentControl('control', self.kafka_config)
 		control.stub_experiment(args['number'])
 		control.shutdown()

@@ -1,7 +1,8 @@
 # Environment
 
-Models of environments, which can be interfaced with cells via the agent module. Includes boot.py for starting both
-environments and cells.
+Models of environments, which can be interfaced with cells via the agent module.
+Includes command line tools `environment.boot` for running environment and cell agents
+and `environment.control` for sending commands to agents.
 
 ## Setup
 
@@ -10,7 +11,7 @@ See the top-level [README.md](../README.md) for general setup instructions, and 
 
 ## Usage
 
-1. To run Cell simulations, you need to have the sim_data files. You can generate them via the
+1. To run Whole Cell E.coli simulations, you need to have the sim_data files. You can generate them via the
 runFitter manual runscript. In the wcEcoli directory:
 
     `> PYTHONPATH="$PWD" python runscripts/manual/runFitter.py`
@@ -34,97 +35,99 @@ server and browser window per the instructions on that page. To recap:
 
    2. Open a browser window onto [http://localhost:33332](http://localhost:33332)
 
-4. Boot an Environment agent and Cell agents through this environment directory, with
-each process in a new terminal tab. (**Tip:** Use iTerm split windows to make
-it easy to watch all these processeses at once.)
+4. You can run an Environment agent and Cell agents directly from the command line although we usually do it via an agent Shepherd (see below).
 
-   1. In the first tab start an Environment model:
+   (**Tip:** Run each process in a new terminal tab. Use iTerm split windows to make it easy to watch them all at once.)
 
-      `> python -m environment.boot lattice --id lattice`
+   In the first tab start an Environment model agent:
+
+      `> python -m environment.boot --type lattice --id lattice`
 
       This creates the Environment agent, waiting for Cell simulations to register.
+      You can optionally pass in a JSON `--config '{...}'` dictionary.
 
-      **NOTE:** If you didn't open the browser-based visualization, you can have the
+      **VARIATION:** If you didn't open the browser-based visualization, you can have the
       Environment agent open a "microscope" view onto the plate by launching it like this:
 
-      `> ENVIRONMENT_ANIMATION=1 python -m environment.boot lattice --id lattice`
+      `> ENVIRONMENT_ANIMATION=1 python -m environment.boot --type lattice --id lattice`
 
-   2. Now start a Cell agent in a new tab:
+5. Now start a Cell agent in a new tab:
 
-      `> python -m environment.boot ecoli --id 1 --outer-id lattice`
+    `> python -m environment.boot --type ecoli --id 1 --outer-id lattice`
 
-      **Optional:** Supply additional arguments to set a variant, seed, and so on.
-      Use the `-h` argument for help. 
+   You'll see messages like this one from the Cell agent to the Environment agent,
+   declaring itself to the environment and giving its current state:
 
-5. Start as many cells as desired, each with its own unique id (agent name), and each in a
+   `<-- environment-receive (CELL_DECLARE) [1]: {"inner_id": "1", "agent_config": {...}, "state": {"volume": 1.2, "environment_change": {}}, "event": "CELL_DECLARE", "agent_id": "lattice"}`
+
+   In turn, the cell will receive messages like this:
+
+   `--> cell-receive (ENVIRONMENT_SYNCHRONIZE) [1]: {u'inner_id': u'1', u'state': {u'time': 0}, u'outer_id': u'lattice', u'event': u'ENVIRONMENT_SYNCHRONIZE'}`
+
+6. Start as many cells as desired, each with its own unique id (agent name), and each in a
 separate terminal tab.
-You will see a message sent from the newly initialized simulation on the `environment_listen` topic:
 
-   `<-- environment_listen: {'event': 'SIMULATION_INITIALIZED', 'id': '1'}`
+7. Finally, run `trigger` in a separate "command" tab to start the simulation clock:
 
-   and in the environment tab you will see it has received a message from the new Cell simulation:
+   `> python -m environment.control trigger --id lattice`
 
-   `--> environment_listen: {u'event': u'SIMULATION_INITIALIZED', u'id': u'1'}`
+8. To stop the simulation, run `shutdown` in the command tab:
 
-6. Finally, run this in a separate "command" tab to start the simulation clock:
-
-   `> python -m environment.boot trigger --id lattice`
-
-7. To stop the simulation, run `shutdown` in the command tab:
-
-   `> python -m environment.boot shutdown --id lattice`
+   `> python -m environment.control shutdown --id lattice`
 
 ## Agent Shepherd
 
-An alternate way to start the simulation is to use the agent shepherd, which will manage the spawning and removal of agents with multiprocessing rather than launching each in its own tab. To do this first start the agent shepherd:
+The current way to start the simulation is to use the agent Shepherd, which will manage the spawning and removal of agents as subprocesses rather than launching each in its own tab.
 
-   `> python -m environment.boot shepherd`
+Clone the [CovertLab/shepherd](https://github.com/CovertLab/shepherd) repo and run:
 
-Now that it is running you can start an experiment:
+   `> lein run`
 
-   `> python -m environment.boot experiment --number 3`
+Now that it is running you can start an experiment in another terminal tab:
+
+   `> python -m environment.control experiment --number 3`
 
 This will send four `ADD_AGENT` messages to the shepherd, one for the environment agent and three for the simulation agents. Note the `agent_id` for the lattice as you will need this for future control messages (like trigger and shutdown). These messages are received by the shepherd and you will see them all boot in the shepherd's tab. You still need to trigger execution, which requires the `agent_id` of the environment:
 
-   `> python -m environment.boot trigger --id xxxxxx-xxxx-xxxxxxxxxx`
+   `> python -m environment.control trigger --id xxxxxx-xxxx-xxxxxxxxxx`
 
 If you know that this is the only environment you are running, or you want to control all environments at once, you can omit the `--id` option:
 
-   `> python -m environment.boot trigger`
+   `> python -m environment.control trigger`
 
 Now that they are running, you can add new agents with `add`:
 
-   `> python -m environment.boot add --id xxxxxx-xxxx-xxxxxxxxxx`
+   `> python -m environment.control add --id xxxxxx-xxxx-xxxxxxxxxx`
 
 Or remove them with `remove` given an id. This can be just the prefix of the agent's id so you don't have to type the whole uuid:
 
-   `> python -m environment.boot remove --id dgaf`
+   `> python -m environment.control remove --id dgaf`
 
 Finally, to shut down the experiment call `shutdown` as before:
 
-   `> python -m environment.boot shutdown --id xxxxxx-xxxx-xxxxxxxxxx`
+   `> python -m environment.control shutdown --id xxxxxx-xxxx-xxxxxxxxxx`
 
 Notice this just shuts down the experiment, the shepherd is still running and a new experiment can be started. To shut down the shepherd process, just `Ctrl-C`.
 
-## commands
+## command summary
 
-To summarize, the list of agent control commands is:
+This is just a summary.
+Use the `-h` argument to get complete usage help on these command line programs.
 
-* trigger - start the simulation
-* pause - pause the simulation
+The environment.boot commands run an agent in the current shell tab:
+
+* ecoli - an ecoli cell agent
+* lattice - a two dimensional lattice environment agent
+* chemotaxis - a chemotaxis surrogate that can move up glucose gradients within a chemotaxis_experiment
+
+The environment.control commands include:
+
+* trigger - start/resume the simulation clock
+* pause - pause the simulation clock
 * shutdown - shutdown the simulation
-* divide - trigger cell division in the given simulation
 
-Spawning specific agents:
+Some environment.control commands require an [agent shepherd](https://github.com/CovertLab/shepherd), including:
 
-* inner - start an inner agent
-* outer - start an outer agent
-* ecoli - start an ecoli agent
-* lattice - start a two dimensional lattice agent
-
-Shepherd oriented commands:
-
-* shepherd - start the agent shepherd
-* add - add an agent to the agent shepherd
-* remove - remove an agent from the agent shepherd
-* experiment - spawn an experiment from the agent shepherd
+* add - ask the shepherd to spawn an agent and add it to an environment
+* remove - ask the shepherd to remove an agent
+* experiment - ask the shepherd to spawn a lattice and multiple cell agents
