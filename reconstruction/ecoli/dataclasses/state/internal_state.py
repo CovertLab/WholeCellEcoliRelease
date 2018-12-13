@@ -129,7 +129,8 @@ class InternalState(object):
 		# specified by the D period (if D_PERIOD_DIVISION is set to True).
 		# The "has_induced_division" attribute is initially set to False, and
 		# is reset to True when division_time was reached and the cell has
-		# divided.
+		# divided. The "mother_domain_index" keeps track of the index of the
+		# oldest chromosome domain of the full chromosome.
 		fullChromosomeMass = (units.g/units.mol) * (
 			stateFunctions.createMassesByCompartments(raw_data.full_chromosome))
 		fullChromosomeAttributes = {
@@ -142,6 +143,11 @@ class InternalState(object):
 
 
 		# Add chromosome domains
+		# Chromosome domains are zero-mass molecules that accounts for the
+		# structures of replicating chromosomes. Each replication initiation
+		# event creates two new chromosome domains that are given a unique
+		# integer "domain_index". These two new domains are child domains of
+		# the original domain that the origin belonged to.
 		chromosome_domain_mass = (units.g/units.mol) * np.zeros_like(rnaPolyComplexMass)
 		chromosome_domain_attributes = {
 			"domain_index": "i8",
@@ -152,28 +158,6 @@ class InternalState(object):
 		sim_data.process.replication.no_child_place_holder = -1
 
 		self.uniqueMolecules.addToUniqueState('chromosome_domain', chromosome_domain_attributes, chromosome_domain_mass)
-
-
-		# Add partial chromosomes
-		# Partial chromosome unique molecules are the molecules that keep track
-		# of the masses of the replicating strands of chromosomes. Two partial
-		# chromosomes are added per one replication fork being initiated, one
-		# for the leading strand, and one for the lagging strand. The
-		# representation of this molecule was decoupled with the modeling of
-		# replisomes to simplify the process by which the polymerize function
-		# handles the elongation of DNA.
-		partial_chromosome_mass = (units.g/units.mol) * np.zeros_like(rnaPolyComplexMass)
-		partial_chromosome_attributes = {
-			"leading_strand": "?",
-			"right_replichore": "?",
-			"sequence_length": "i8",
-			"domain_index": "i8",
-			}
-
-		self.uniqueMolecules.addToUniqueState(
-			'partial_chromosome',
-			partial_chromosome_attributes, partial_chromosome_mass
-			)
 
 
 		# Add active replisomes
@@ -197,10 +181,11 @@ class InternalState(object):
 
 		replisomeAttributes = {
 			"domain_index": "i8",
+			"right_replichore": "?",
 			"coordinates": "i8",
 			}
 
-		self.uniqueMolecules.addToUniqueState('activeReplisome', replisomeAttributes, replisomeMass)
+		self.uniqueMolecules.addToUniqueState('active_replisome', replisomeAttributes, replisomeMass)
 
 
 		# Add origins of replication

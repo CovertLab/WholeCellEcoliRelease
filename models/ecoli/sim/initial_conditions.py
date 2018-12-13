@@ -313,6 +313,7 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 			)
 		activeReplisomes.attrIs(
 			coordinates = replisome_state["coordinates"],
+			right_replichore = replisome_state["right_replichore"],
 			domain_index = replisome_state["domain_index"],
 		)
 
@@ -330,10 +331,10 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 
 	# Get coordinates of forks in both directions
 	forward_fork_coordinates = replisome_state["coordinates"][
-		replisome_state["coordinates"] >= 0
+		replisome_state["right_replichore"]
 	]
 	reverse_fork_coordinates = replisome_state["coordinates"][
-		replisome_state["coordinates"] < 0
+		np.logical_not(replisome_state["right_replichore"])
 	]
 
 	assert len(forward_fork_coordinates) == len(reverse_fork_coordinates)
@@ -602,8 +603,9 @@ def determine_chromosome_state(C, D, tau, replichore_length, place_holder):
 	replisome_state: dictionary of attributes for the replisome molecules
 	with the following keys.
 	- coordinates: a vector of integers that indicates where the replisomes
-	are located on the chromosome relative to the origin, in base pairs. The
-	right replisome is assigned positive coordinates.
+	are located on the chromosome relative to the origin, in base pairs.
+	- right_replichore: a vector of boolean values that indicates whether the
+	replisome is on the right replichore (True) or the left replichore (False).
 	- domain_index: a vector of integers indicating which chromosome domain the
 	replisomes belong to. The index of the "mother" domain of the replication
 	fork is assigned to the replisome.
@@ -633,13 +635,14 @@ def determine_chromosome_state(C, D, tau, replichore_length, place_holder):
 	# Initialize arrays for partial chromosomes
 	n_partial_chromosomes = 4*(2**n_round - 1)
 	leading_strand = np.zeros(n_partial_chromosomes, dtype=np.bool)
-	right_replichore = np.zeros(n_partial_chromosomes, dtype=np.bool)
+	right_replichore_pchrom = np.zeros(n_partial_chromosomes, dtype=np.bool)
 	sequence_length = np.zeros(n_partial_chromosomes, dtype=np.int64)
 	domain_index_pchrom = np.zeros(n_partial_chromosomes, dtype=np.int64)
 
 	# Initialize arrays for replisomes
 	n_replisomes = 2*(2**n_round - 1)
 	coordinates = np.zeros(n_replisomes, dtype=np.int64)
+	right_replichore_replisome = np.zeros(n_replisomes, dtype=np.bool)
 	domain_index_replisome = np.zeros(n_replisomes, dtype=np.int64)
 
 	# Initialize child domain array for chromosome domains
@@ -671,7 +674,7 @@ def determine_chromosome_state(C, D, tau, replichore_length, place_holder):
 			4*(2**(round_idx + 1) - 1)
 			] = np.tile(np.array([True, False, True, False]), n_event)
 
-		right_replichore[
+		right_replichore_pchrom[
 			4*(2**round_idx - 1):
 			4*(2**(round_idx + 1) - 1)
 			] = np.tile(np.array([True, False, False, True]), n_event)
@@ -694,6 +697,11 @@ def determine_chromosome_state(C, D, tau, replichore_length, place_holder):
 			2*(2**(round_idx + 1) - 1)
 			] = np.tile(np.array([fork_location, -fork_location]), n_event)
 
+		right_replichore_replisome[
+			2 * (2 ** round_idx - 1):
+			2 * (2 ** (round_idx + 1) - 1)
+			] = np.tile(np.array([True, False]), n_event)
+
 		for i, domain_index in enumerate(
 				np.arange(2**round_idx - 1, 2**(round_idx+1) - 1)):
 			domain_index_replisome[
@@ -713,13 +721,14 @@ def determine_chromosome_state(C, D, tau, replichore_length, place_holder):
 
 	pchrom_state = {
 		"leading_strand": leading_strand,
-		"right_replichore": right_replichore,
+		"right_replichore": right_replichore_pchrom,
 		"sequence_length": sequence_length,
 		"domain_index": domain_index_pchrom,
 		}
 
 	replisome_state = {
 		"coordinates": coordinates,
+		"right_replichore": right_replichore_replisome,
 		"domain_index": domain_index_replisome,
 		}
 
