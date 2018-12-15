@@ -76,8 +76,9 @@ class Replication(object):
 
 		# Build sequence matrix for polymerize function in replication process
 		self.sequence_lengths = np.array([
-			self.forward_sequence.size, self.reverse_sequence.size,
+			self.forward_sequence.size,
 			self.forward_complement_sequence.size,
+			self.reverse_sequence.size,
 			self.reverse_complement_sequence.size
 			])
 
@@ -91,8 +92,8 @@ class Replication(object):
 		self.replication_sequences.fill(polymerize.PAD_VALUE)
 
 		self.replication_sequences[0, :self.forward_sequence.size] = self.forward_sequence
-		self.replication_sequences[1, :self.reverse_sequence.size] = self.reverse_sequence
-		self.replication_sequences[2, :self.forward_complement_sequence.size] = self.forward_complement_sequence
+		self.replication_sequences[1, :self.forward_complement_sequence.size] = self.forward_complement_sequence
+		self.replication_sequences[2, :self.reverse_sequence.size] = self.reverse_sequence
 		self.replication_sequences[3, :self.reverse_complement_sequence.size] = self.reverse_complement_sequence
 
 		# Get polymerized nucleotide weights

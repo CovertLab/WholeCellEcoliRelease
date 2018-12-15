@@ -261,12 +261,11 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 	replichore_length = np.ceil(0.5*genome_length) * units.nt
 
 	# Generate arrays specifying appropriate initial replication conditions
-	oric_state, pchrom_state, replisome_state, domain_state = determine_chromosome_state(
+	oric_state, replisome_state, domain_state = determine_chromosome_state(
 		C, D, tau, replichore_length, sim_data.process.replication.no_child_place_holder
 		)
 
 	n_oric = oric_state["domain_index"].size
-	n_pchrom = pchrom_state["domain_index"].size
 	n_replisome = replisome_state["domain_index"].size
 	n_domain = domain_state["domain_index"].size
 
@@ -287,34 +286,24 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		# Update mass to account for DNA strands that have already been
 		# elongated.
 		sequences = sim_data.process.replication.replication_sequences
-		sequence_elongations = pchrom_state["sequence_length"].astype(np.int64)
+		fork_coordinates = replisome_state["coordinates"]
+		sequence_elongations = np.abs(np.repeat(fork_coordinates, 2))
+
 		mass_increase_dna = computeMassIncrease(
-				np.tile(sequences, (n_pchrom//4, 1)),
+				np.tile(sequences, (n_replisome//2, 1)),
 				sequence_elongations,
 				sim_data.process.replication.replicationMonomerWeights.asNumber(units.fg)
 				)
 
-		# Add replicating partial chromosomes as unique molecules and set
-		# attributes
-		partial_chromosomes = uniqueMolCntr.objectsNew(
-			'partial_chromosome', n_pchrom
-			)
-		partial_chromosomes.attrIs(
-			leading_strand = pchrom_state["leading_strand"],
-			right_replichore = pchrom_state["right_replichore"],
-			sequence_length = pchrom_state["sequence_length"],
-			domain_index = pchrom_state["domain_index"],
-			massDiff_DNA = mass_increase_dna,
-			)
-
 		# Add active replisomes as unique molecules and set attributes
-		activeReplisomes = uniqueMolCntr.objectsNew(
-			'activeReplisome', n_replisome
+		active_replisomes = uniqueMolCntr.objectsNew(
+			'active_replisome', n_replisome
 			)
-		activeReplisomes.attrIs(
+		active_replisomes.attrIs(
 			coordinates = replisome_state["coordinates"],
 			right_replichore = replisome_state["right_replichore"],
 			domain_index = replisome_state["domain_index"],
+			massDiff_DNA = mass_increase_dna[0::2] + mass_increase_dna[1::2],
 		)
 
 		# Remove replisome subunits from bulk molecules
@@ -563,7 +552,7 @@ def setDaughterInitialConditions(sim, sim_data):
 
 def determine_chromosome_state(C, D, tau, replichore_length, place_holder):
 	"""
-	Calculates the attributes of oriC's, partial chromosomes, and replisomes on
+	Calculates the attributes of oriC's, replisomes, and chromosome domains on
 	the chromosomes at the beginning of the cell cycle.
 
 	Inputs
@@ -584,21 +573,6 @@ def determine_chromosome_state(C, D, tau, replichore_length, place_holder):
 	following keys.
 	- domain_index: a vector of integers indicating which chromosome domain the
 	oriC sequence belongs to.
-
-	pchrom_state: dictionary of attributes for the partial chromosome molecules
-	with the following keys.
-	- leading_strand: a vector of boolean values that indicates whether the
-	partial chromosome being replicated is a leading strand (True) or a lagging
-	strand (False).
-	- right_replichore: a vector of boolean values that indicates whether the
-	partial chromosome is on the right replichore (True) or the left replichore
-	(False).
-	- sequence_length: the lengths of the partial chromosomes in base pairs.
-	The leading and lagging strands on the same replichore always have the
-	same sequence lengths.
-	- domain_index: a vector of integers indicating which chromosome domain the
-	originating forks of the partial chromosomes belong to. Note that this is
-	different from where the partial chromosomes are physically located.
 
 	replisome_state: dictionary of attributes for the replisome molecules
 	with the following keys.
@@ -632,13 +606,6 @@ def determine_chromosome_state(C, D, tau, replichore_length, place_holder):
 	n_round = int(np.floor(
 		(C.asNumber(units.min) + D.asNumber(units.min))/tau.asNumber(units.min)))
 
-	# Initialize arrays for partial chromosomes
-	n_partial_chromosomes = 4*(2**n_round - 1)
-	leading_strand = np.zeros(n_partial_chromosomes, dtype=np.bool)
-	right_replichore_pchrom = np.zeros(n_partial_chromosomes, dtype=np.bool)
-	sequence_length = np.zeros(n_partial_chromosomes, dtype=np.int64)
-	domain_index_pchrom = np.zeros(n_partial_chromosomes, dtype=np.int64)
-
 	# Initialize arrays for replisomes
 	n_replisomes = 2*(2**n_round - 1)
 	coordinates = np.zeros(n_replisomes, dtype=np.int64)
@@ -665,31 +632,8 @@ def determine_chromosome_state(C, D, tau, replichore_length, place_holder):
 			replichore_length.asNumber(units.nt)))
 
 		# Add 2^n initiation events per round. A single initiation event
-		# generates two replication forks and four partial chromosomes.
+		# generates two replication forks.
 		n_event = 2**round_idx
-
-		# Set attributes of partial chromosomes for this replication round
-		leading_strand[
-			4*(2**round_idx - 1):
-			4*(2**(round_idx + 1) - 1)
-			] = np.tile(np.array([True, False, True, False]), n_event)
-
-		right_replichore_pchrom[
-			4*(2**round_idx - 1):
-			4*(2**(round_idx + 1) - 1)
-			] = np.tile(np.array([True, False, False, True]), n_event)
-
-		sequence_length[
-			4*(2**round_idx - 1):
-			4*(2**(round_idx + 1) - 1)
-			] = np.repeat(fork_location, 4*n_event)
-
-		for i, domain_index in enumerate(
-				np.arange(2**round_idx - 1, 2**(round_idx+1) - 1)):
-			domain_index_pchrom[
-				4*(2**round_idx - 1) + 4*i:
-				4*(2**round_idx - 1) + 4*(i+1)
-				] = np.repeat(domain_index, 4)
 
 		# Set attributes of replisomes for this replication round
 		coordinates[
@@ -719,13 +663,6 @@ def determine_chromosome_state(C, D, tau, replichore_length, place_holder):
 		"domain_index": domain_index_oric,
 		}
 
-	pchrom_state = {
-		"leading_strand": leading_strand,
-		"right_replichore": right_replichore_pchrom,
-		"sequence_length": sequence_length,
-		"domain_index": domain_index_pchrom,
-		}
-
 	replisome_state = {
 		"coordinates": coordinates,
 		"right_replichore": right_replichore_replisome,
@@ -737,4 +674,4 @@ def determine_chromosome_state(C, D, tau, replichore_length, place_holder):
 		"domain_index": domain_index_domains,
 		}
 
-	return oric_state, pchrom_state, replisome_state, domain_state
+	return oric_state, replisome_state, domain_state
