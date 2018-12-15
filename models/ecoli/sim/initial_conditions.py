@@ -18,7 +18,6 @@ from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWi
 
 from wholecell.sim.divide_cell import load_inherited_state
 
-CHILD_DOMAIN_PLACE_HOLDER = -1
 
 def calcInitialConditions(sim, sim_data):
 	'''Calculate the initial conditions for a new cell without inherited state

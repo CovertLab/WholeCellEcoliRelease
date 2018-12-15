@@ -103,15 +103,17 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			self.replisome_trimers.requestIs(6*n_oric)
 			self.replisome_monomers.requestIs(2*n_oric)
 
+		# Request all chromosome domains
+		self.chromosome_domain.requestAll()
+
 		# If there are no active forks return
 		active_replisomes = self.active_replisome.allMolecules()
 		n_active_replisomes = len(active_replisomes)
 		if n_active_replisomes == 0:
 			return
 
-		# Request all replisomes, chromosomal domains, and full chromosomes
+		# Request all replisomes and full chromosomes
 		self.active_replisome.requestAll()
-		self.chromosome_domain.requestAll()
 		self.full_chromosome.requestAll()
 
 		# Get current locations of all replication forks
@@ -148,13 +150,12 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		n_oric = len(oriCs)
 
 		full_chromosomes = self.full_chromosome.molecules()
-		n_full_chromosomes = len(full_chromosomes)
 
 		# Get existing chromosome domains
 		chromosome_domains = self.chromosome_domain.molecules()
 
-		# If there are no chromosomes, return immediately
-		if n_full_chromosomes == 0:
+		# If there are no origins, return immediately
+		if n_oric == 0:
 			return
 
 		# Get number of available replisome subunits
@@ -420,7 +421,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 					)
 				new_full_chromosome.attrIs(
 					division_time = [self.time() + self.D_period]*n_new_chromosomes,
-					has_induced_division = False,
+					has_induced_division = [False]*n_new_chromosomes,
 					mother_domain_index = mother_domain_new_chromosomes,
 					)
 
