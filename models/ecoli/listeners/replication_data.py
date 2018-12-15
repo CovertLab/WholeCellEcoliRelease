@@ -3,9 +3,9 @@
 """
 ReplicationData
 
-Replication fork position listener. Represents position of replication forks over time.
+Replication fork position listener. Represents position of replication forks
+over time.
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 5/13/2014
 """
@@ -38,10 +38,8 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 	def allocate(self):
 		super(ReplicationData, self).allocate()
 
-		self.sequenceIdx = np.zeros(75, np.int64)
-		self.sequenceIdx.fill(PLACE_HOLDER)
-		self.sequenceLength = np.zeros(75, np.float64)
-		self.sequenceLength.fill(PLACE_HOLDER)
+		self.sequence_length = np.zeros(75, np.float64)
+		self.sequence_length.fill(PLACE_HOLDER)
 
 		self.numberOfOric = np.nan
 		self.criticalMassPerOriC = 0.
@@ -49,22 +47,18 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 
 
 	def update(self):
-		partial_chromosomes = self.uniqueMolecules.container.objectsInCollection('partial_chromosome')
+		active_replisomes = self.uniqueMolecules.container.objectsInCollection('active_replisome')
 		oriCs = self.uniqueMolecules.container.objectsInCollection('originOfReplication')
 
 		self.numberOfOric = len(oriCs)
 
-		if len(partial_chromosomes) > 0:
-			sequenceIdx, sequenceLength = partial_chromosomes.attrs(
-				"sequenceIdx", "sequenceLength"
-				)
-			self.sequenceIdx[:] = PLACE_HOLDER
-			self.sequenceIdx[:sequenceIdx.size] = sequenceIdx
-			self.sequenceLength[:] = np.NAN
-			self.sequenceLength[:sequenceLength.size] = sequenceLength
-		elif len(partial_chromosomes) == 0:
-			self.sequenceIdx[:] = PLACE_HOLDER
-			self.sequenceLength[:] = PLACE_HOLDER
+		if len(active_replisomes) > 0:
+			fork_coordinates = active_replisomes.attr("coordinates")
+			self.sequence_length[:] = np.nan
+			self.sequence_length[:fork_coordinates.size] = fork_coordinates
+
+		else:
+			self.sequence_length[:] = PLACE_HOLDER
 
 	def tableCreate(self, tableWriter):
 		pass
@@ -72,8 +66,7 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
-			sequenceIdx = self.sequenceIdx,
-			sequenceLength = self.sequenceLength,
+			sequence_length = self.sequence_length,
 			numberOfOric = self.numberOfOric,
 			criticalMassPerOriC = self.criticalMassPerOriC,
 			criticalInitiationMass = self.criticalInitiationMass,
