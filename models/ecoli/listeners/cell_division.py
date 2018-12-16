@@ -91,16 +91,25 @@ class CellDivision(wholecell.listeners.listener.Listener):
 			# If there are two or more full chromosomes,
 			if len(full_chromosomes) >= 2:
 				# Extract attributes from existing full chromosomes
-				division_time, chromosomeIndex = full_chromosomes.attrs(
-					"division_time", "chromosomeIndex"
+				division_time, has_induced_division = full_chromosomes.attrs(
+					"division_time", "has_induced_division"
 					)
 
-				# Set division time to be the time set by the chromosome with
-				# index 1
-				divide_at_time = division_time[chromosomeIndex == 1][0]
+				# Set division time to be the minimum division_time of the
+				# chromosome that have not yet induced cell division
+				divide_at_time = division_time[~has_induced_division].min()
 
 				if self.time() >= divide_at_time:
 					self._sim.cellCycleComplete()
+
+					# Mark the chromosome that induced division
+					divide_at_time_index = np.where(
+						division_time == divide_at_time)[0][0]
+					has_induced_division[divide_at_time_index] = True
+					full_chromosomes.attrIs(
+						has_induced_division=has_induced_division
+						)
+
 		else:
 			# End simulation once the mass of an average cell is
 			# added to current cell.
