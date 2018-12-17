@@ -625,7 +625,7 @@ def determine_chromosome_state(C, D, tau, replichore_length, place_holder):
 	for round_idx in np.arange(n_round):
 		# Determine at which location (base) of the chromosome the replication
 		# forks should be initialized to
-		rel_location = 1 - (((round_idx + 1)*tau - D)/C)
+		rel_location = 1.0 - (((round_idx + 1.0)*tau - D)/C)
 		rel_location = units.convertNoUnitToNumber(rel_location)
 		fork_location = np.floor(rel_location*(
 			replichore_length.asNumber(units.nt)))
