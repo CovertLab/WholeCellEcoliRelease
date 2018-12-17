@@ -241,11 +241,12 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
-			## Fork position
+			## Fork position and counts
 			replication_data_file = TableReader(
 				os.path.join(simOutDir, "ReplicationData"))
 			fork_coordinates = replication_data_file.readColumn(
 				"fork_coordinates")
+			pairsOfForks = (fork_coordinates != PLACE_HOLDER).sum(axis=1) / 2
 			fork_coordinates[fork_coordinates == PLACE_HOLDER] = np.nan
 
 			# Down sample dna polymerase position, every position is only plotted once here
@@ -262,7 +263,6 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			ax3.set_yticklabels(['-terC', 'oriC', '+terC'])
 
 			# Pairs of forks
-			pairsOfForks = (fork_coordinates != PLACE_HOLDER).sum(axis = 1) / 2
 			ax4.plot(time / 60., pairsOfForks, linewidth=2, color = color, alpha = alpha)
 			ax4.set_yticks(np.arange(0,7))
 			ax4.set_ylim([0, 6.1])

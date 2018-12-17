@@ -49,9 +49,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		totalMass = massFile.readColumn("cellMass")
 		dnaMass = massFile.readColumn("dnaMass")
 
-		# Setup elongation length data
-		fork_coordinates[fork_coordinates == PLACE_HOLDER] = np.nan
-
 		# Count pairs of forks, initiation, and termination events
 		pairsOfForks = (fork_coordinates != PLACE_HOLDER).sum(axis = 1) / 2
 
@@ -70,6 +67,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Count critical initiation mass equivalents
 		# criticalInitiationMass[0] = criticalInitiationMass[1]
 		criticalMassEquivalents = totalMass / criticalInitiationMass
+
+		# Setup fork location data
+		fork_coordinates[fork_coordinates == PLACE_HOLDER] = np.nan
 
 		# Plot stuff
 		plt.figure(figsize = (8.5, 11))

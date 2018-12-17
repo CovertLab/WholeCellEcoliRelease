@@ -42,10 +42,13 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# Get fork positions
 			replication_data_file = TableReader(os.path.join(simOutDir, "ReplicationData"))
 			fork_coordinates = replication_data_file.readColumn("fork_coordinates")
-			fork_coordinates[fork_coordinates == PLACE_HOLDER] = np.nan
+
+			# Get fork counts
+			pairsOfForks = (fork_coordinates != PLACE_HOLDER).sum(axis = 1) / 2
 
 			# Down sample dna polymerase position, every position is only plotted once here
 			# using numpy ninja-ness
+			fork_coordinates[fork_coordinates == PLACE_HOLDER] = np.nan
 			unique, index, value = np.unique(fork_coordinates, return_index=True, return_inverse=True)
 			m = np.zeros_like(value, dtype=bool)
 			m[index] = True
@@ -57,9 +60,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			axesList[0].set_yticks([-1 * genomeLength / 2, 0, genomeLength / 2])
 			axesList[0].set_yticklabels(['-terC', 'oriC', '+terC'])
 			axesList[0].set_ylabel("DNA polymerase\nposition (nt)")
-
-			# Plot fork counts
-			pairsOfForks = (fork_coordinates != PLACE_HOLDER).sum(axis = 1) / 2
 
 			axesList[1].plot(time, pairsOfForks, linewidth=2)
 			axesList[1].set_yticks(np.arange(0,7))
