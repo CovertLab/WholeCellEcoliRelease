@@ -38,8 +38,8 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 	def allocate(self):
 		super(ReplicationData, self).allocate()
 
-		self.sequence_length = np.zeros(75, np.float64)
-		self.sequence_length.fill(PLACE_HOLDER)
+		self.fork_coordinates = np.zeros(75, np.float64)
+		self.fork_coordinates.fill(PLACE_HOLDER)
 
 		self.numberOfOric = np.nan
 		self.criticalMassPerOriC = 0.
@@ -54,11 +54,10 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 
 		if len(active_replisomes) > 0:
 			fork_coordinates = active_replisomes.attr("coordinates")
-			self.sequence_length[:] = np.nan
-			self.sequence_length[:fork_coordinates.size] = fork_coordinates
-
+			self.fork_coordinates[:] = PLACE_HOLDER
+			self.fork_coordinates[:fork_coordinates.size] = fork_coordinates
 		else:
-			self.sequence_length[:] = PLACE_HOLDER
+			self.fork_coordinates[:] = PLACE_HOLDER
 
 	def tableCreate(self, tableWriter):
 		pass
@@ -66,7 +65,7 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
-			sequence_length = self.sequence_length,
+			fork_coordinates = self.fork_coordinates,
 			numberOfOric = self.numberOfOric,
 			criticalMassPerOriC = self.criticalMassPerOriC,
 			criticalInitiationMass = self.criticalInitiationMass,
