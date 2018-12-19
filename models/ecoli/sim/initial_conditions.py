@@ -377,14 +377,12 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	isTRna = sim_data.process.transcription.rnaData['isTRna']
 	isRProtein = sim_data.process.transcription.rnaData['isRProtein']
 	isRnap = sim_data.process.transcription.rnaData['isRnap']
-	isRegulated = np.array([1 if x[:-3] in sim_data.process.transcription_regulation.targetTf or x in perturbations else 0 for x in sim_data.process.transcription.rnaData["id"]], dtype = np.bool)
-	setIdxs = isRRna | isTRna | isRProtein | isRnap | isRegulated
+	setIdxs = isRRna | isTRna | isRProtein | isRnap
 
 	# Calculate synthesis probabilities based on transcription regulation
 	rnaSynthProb = recruitmentMatrix.dot(recruitmentView)
 	if len(genetic_perturbations) > 0:
 		rnaSynthProb[genetic_perturbations['fixedRnaIdxs']] = genetic_perturbations['fixedSynthProbs']
-	regProbs = rnaSynthProb[isRegulated]
 
 	# Adjust probabilities to not be negative
 	rnaSynthProb[rnaSynthProb < 0] = 0.0
@@ -394,13 +392,18 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 
 	# Adjust synthesis probabilities depending on environment
 	synthProbFractions = rnaSynthProbFractions[currentNutrients]
+
+	# Allocate synthesis probabilities based on type of RNA
 	rnaSynthProb[isMRna] *= synthProbFractions['mRna'] / rnaSynthProb[isMRna].sum()
 	rnaSynthProb[isTRna] *= synthProbFractions['tRna'] / rnaSynthProb[isTRna].sum()
 	rnaSynthProb[isRRna] *= synthProbFractions['rRna'] / rnaSynthProb[isRRna].sum()
-	rnaSynthProb[isRegulated] = regProbs
+
+	# Set fixed synthesis probabilities for RProteins and RNAPs
 	rnaSynthProb[isRProtein] = rnaSynthProbRProtein[currentNutrients]
 	rnaSynthProb[isRnap] = rnaSynthProbRnaPolymerase[currentNutrients]
-	rnaSynthProb[rnaSynthProb < 0] = 0 # to avoid precision issue
+
+	assert rnaSynthProb[setIdxs].sum() < 1.0
+
 	scaleTheRestBy = (1. - rnaSynthProb[setIdxs].sum()) / rnaSynthProb[~setIdxs].sum()
 	rnaSynthProb[~setIdxs] *= scaleTheRestBy
 
