@@ -162,7 +162,7 @@ class Agent(object):
 
 	def send(self, topic, message, print_send=True):
 		"""
-		Send a dictionary as a message on the given topic. 
+		Send a dictionary as a message on the given topic.
 
 		Args:
 			topic (str): The Kafka topic to send the message on.
@@ -170,7 +170,7 @@ class Agent(object):
 				needs to be JSON serializable, so must contain only basic types like `str`,
 				`int`, `float`, `list`, `tuple`, `array`, and `dict`. Any functions or objects
 				present will throw errors.
-		    print_send (boolean): Whether or not to print the message that is sent.
+		    print_send (bool): Whether or not to print the message that is sent.
 		"""
 
 		# json.dumps(m, ensure_ascii=False) returns a str or unicode string, depending on

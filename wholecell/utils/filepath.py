@@ -87,10 +87,10 @@ def write_file(filename, content):
 	with open(filename, "w") as f:
 		f.write(content)
 
-def write_json_file(filename, obj):
+def write_json_file(filename, obj, indent=4):
 	"""Write `obj` to a file in a pretty JSON format. This supports Unicode."""
 	# Indentation puts a newline after each ',' so suppress the space there.
-	message = json.dumps(obj, ensure_ascii=False, indent=4,
+	message = json.dumps(obj, ensure_ascii=False, indent=indent,
 		separators=(',', ': '), sort_keys=True) + '\n'
 	write_file(filename, message.encode('utf-8'))
 

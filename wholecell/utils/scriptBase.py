@@ -256,15 +256,24 @@ class ScriptBase(object):
 		if location:
 			location = ' at ' + location
 
-		print('{}: {}{}'.format(time.ctime(), self.description(), location))
+		start_wall_sec = time.time()
+		print('{}: {}{}'.format(
+			time.ctime(start_wall_sec), self.description(), location))
 		pp.pprint({'Arguments': vars(args)})
 
-		start_sec = time.clock()
+		start_process_sec = time.clock()
 		self.run(args)
-		end_sec = time.clock()
-		elapsed = datetime.timedelta(seconds = (end_sec - start_sec))
+		end_process_sec = time.clock()
+		elapsed_process = end_process_sec - start_process_sec
 
-		print("Run in {}h {}m {}s total".format(*str(elapsed).split(':')))
+		end_wall_sec = time.time()
+		elapsed_wall = end_wall_sec - start_wall_sec
+		print("{}: Elapsed time {:1.2f} sec ({}); {:1.2f} sec in process".format(
+			time.ctime(end_wall_sec),
+			elapsed_wall,
+			datetime.timedelta(seconds=elapsed_wall),
+			elapsed_process,
+			))
 
 
 class TestScript(ScriptBase):

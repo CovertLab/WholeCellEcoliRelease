@@ -481,101 +481,33 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_write_table(self):
+		"""Test writing the container to a Table."""
 		self.make_test_dir()
 		path = os.path.join(self.test_dir, 'UniqueObjects')
 
 		self.container.objectsNew('Chocolate', 2001, percent=75.0, nuts=True)
+
 		rna_objects = self.container.objectsInCollection('RNA polymerase')
-		self.container.objectDel(rna_objects[0])
+		self.assertEqual(20, len(rna_objects))
+		self.container.objectDel(rna_objects[1])
+		rna_objects2 = self.container.objectsInCollection('RNA polymerase')
+		self.assertEqual(19, len(rna_objects2))
 
 		table_writer = TableWriter(path)
 		self.container.tableCreate(table_writer)
 		self.container.tableAppend(table_writer)
 		table_writer.close()
 
+		# Read and check the data.
+		# ASSUMES: One table row appended, readColumn() squeezes the array to
+		# 1D, and various internal details about how this container writes a
+		# table such as including unused array elements.
 		table_reader = TableReader(path)
-		container2 = UniqueObjectsContainer(TEST_KB)
-		container2.tableLoad(table_reader, 0)
-		self.assertEqual(container2, self.container)
-
-		# Test that internal fields are properly restored which __eq__() assumes.
-		self.assertEqual(self.container.objectNames(), container2.objectNames())
-		self.assertEqual(self.container._nameToIndexMapping, container2._nameToIndexMapping)
-		npt.assert_array_equal(self.container._globalReference, container2._globalReference)
-
-
-	# @noseAttrib.attr('mediumtest', 'uniqueObjects', 'containerObject', 'saveload')
-	# def test_save_load(self):
-	# 	# Create file, save values, close
-	# 	path = os.path.join('fixtures', 'test', 'test_unique_objects_container.hdf')
-
-	# 	h5file = tables.open_file(
-	# 		path,
-	# 		mode = 'w',
-	# 		title = 'File for UniqueObjectsContainer IO'
-	# 		)
-
-	# 	self.container.pytablesCreate(h5file)
-
-	# 	self.container.timeStepIs(0)
-
-	# 	self.container.pytablesAppend(h5file)
-
-	# 	h5file.close()
-
-	# 	# Open, load, and compare
-	# 	h5file = tables.open_file(path)
-
-	# 	loadedContainer = UniqueObjectsContainer(TEST_KB)
-
-	# 	loadedContainer.pytablesLoad(h5file, 0)
-
-	# 	self.assertEqual(
-	# 		self.container,
-	# 		loadedContainer
-	# 		)
-
-	# 	h5file.close()
-
-
-	# @noseAttrib.attr('mediumtest', 'uniqueObjects', 'containerObject', 'saveload')
-	# def test_save_load_later(self):
-	# 	# Create file, save values, close
-	# 	path = os.path.join('fixtures', 'test', 'test_unique_objects_container.hdf')
-
-	# 	h5file = tables.open_file(
-	# 		path,
-	# 		mode = 'w',
-	# 		title = 'File for UniqueObjectsContainer IO'
-	# 		)
-
-	# 	self.container.pytablesCreate(h5file)
-
-	# 	self.container.timeStepIs(0)
-
-	# 	self.container.pytablesAppend(h5file)
-
-	# 	self.container.objectsNew('DNA polymerase', 5)
-
-	# 	self.container.timeStepIs(1)
-
-	# 	self.container.pytablesAppend(h5file)
-
-	# 	h5file.close()
-
-	# 	# Open, load, and compare
-	# 	h5file = tables.open_file(path)
-
-	# 	loadedContainer = UniqueObjectsContainer(TEST_KB)
-
-	# 	loadedContainer.pytablesLoad(h5file, 1)
-
-	# 	self.assertEqual(
-	# 		self.container,
-	# 		loadedContainer
-	# 		)
-
-	# 	h5file.close()
+		names = self.container.objectNames()
+		self.assertEqual(list(names), table_reader.readAttribute('collectionNames'))
+		for index, name in enumerate(names):
+			expected = self.container._collections[index]
+			npt.assert_array_equal(expected, table_reader.readColumn(name))
 
 
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
