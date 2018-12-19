@@ -117,6 +117,11 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 			dynamics = node.dynamics_dict()
 			dynamics_json = json.dumps(dynamics)
 
+			if node.node_type == "Global":
+				# Reset IDs of global nodes to "global" in dynamics files
+				# (Requested by Fathom)
+				node.node_id = "global"
+
 			with open(os.path.join(seriesOutDir, dynamics_path + '.json'), 'w') as dynamics_file:
 				dynamics_file.write(dynamics_json)
 
@@ -154,10 +159,6 @@ def read_global_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	Reads global dynamics from simulation output.
 	"""
 	cell_mass = columns[("Mass", "cellMass")]
-
-	# Reset IDs of global nodes to "global" in dynamics files
-	# (Requested by Fathom)
-	node.node_id = "global"
 
 	if node_id == "cell_mass":
 		dynamics = {
