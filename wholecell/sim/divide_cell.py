@@ -72,17 +72,17 @@ def divide_cell(sim):
 		# Divide full chromosomes into two daughter cells
 		# The output is used when dividing both bulk molecules and unique
 		# molecules
+		no_child_place_holder = sim_data.process.replication.no_child_place_holder
 		chromosome_division_results = chromosomeDivision(
-			uniqueMolecules, randomState, sim_data)
+			uniqueMolecules, randomState, no_child_place_holder)
 
 		# Create divided containers
 		d1_bulkMolCntr, d2_bulkMolCntr = divideBulkMolecules(
-			bulkMolecules, uniqueMolecules, randomState, chromosome_division_results,
-			sim_data)
+			bulkMolecules, uniqueMolecules, randomState,
+			chromosome_division_results, sim_data)
 		d1_uniqueMolCntr, d2_uniqueMolCntr, daughter_elng_rates = (
 			divideUniqueMolecules(uniqueMolecules, randomState,
-			chromosome_division_results, current_nutrients, sim)
-			)
+				chromosome_division_results, current_nutrients, sim))
 
 	# Save the daughter initialization state.
 	initial_time = sim.time() + sim.timeStepSec()
@@ -108,7 +108,7 @@ def divide_cell(sim):
 	return [d1_path, d2_path]
 
 
-def chromosomeDivision(uniqueMolecules, randomState, sim_data):
+def chromosomeDivision(uniqueMolecules, randomState, no_child_place_holder):
 	"""
 	Splits chromosome domain indexes into two daughter cells. If there are an
 	even number of full chromosomes, each cell gets an equal amount of full
@@ -128,22 +128,15 @@ def chromosomeDivision(uniqueMolecules, randomState, sim_data):
 		"domain_index", "child_domains"
 		)
 
-	# Get placeholder value for domains without children
-	place_holder = sim_data.process.replication.no_child_place_holder
-
 	# Randomly decide which daughter gets first full chromosome
 	d1_gets_first_chromosome = randomState.rand() < BINOMIAL_COEFF
 
-	if d1_gets_first_chromosome:
-		d1_mother_domain_indexes = mother_domain_index[0::2]
-		d1_all_domain_indexes = get_descendent_domains(
-			d1_mother_domain_indexes, domain_index, child_domains, place_holder
-			)
-	else:
-		d1_mother_domain_indexes = mother_domain_index[1::2]
-		d1_all_domain_indexes = get_descendent_domains(
-			d1_mother_domain_indexes, domain_index, child_domains, place_holder
-			)
+	index = not d1_gets_first_chromosome
+	d1_mother_domain_indexes = mother_domain_index[index::2]
+	d1_all_domain_indexes = get_descendent_domains(
+		d1_mother_domain_indexes, domain_index,
+		child_domains, no_child_place_holder
+		)
 
 	d1_chromosome_count = d1_mother_domain_indexes.size
 	d2_chromosome_count = full_chromosome_count - d1_chromosome_count
@@ -554,7 +547,7 @@ def flatten(l):
 	"""
 	Flattens a nested list into a single list.
 	"""
-	return [item for sublist in l for item in sublist]
+	return sum(l, [])
 
 
 def follow_domain_tree(domain, domain_index, child_domains, place_holder):

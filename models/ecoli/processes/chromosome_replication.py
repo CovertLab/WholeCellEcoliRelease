@@ -192,8 +192,8 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			# Calculate the domain indexes of new domains and oriC's
 			max_domain_index = domain_index_existing_domain.max()
 			domain_index_new = np.arange(
-				max_domain_index + 1,
-				max_domain_index + 2*n_oric + 1
+				max_domain_index + 1, max_domain_index + 2*n_oric + 1,
+				dtype=np.int32
 				)
 
 			# Add new oriC's, replisomes, and domains
@@ -221,12 +221,14 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 				)
 
 			# Calculate and set attributes of newly created replisomes.
-			# New replisomes inherit the domain indexes of the OriC's they
-			# were initiated from.
+			# New replisomes inherit the domain indexes of the oriC's they
+			# were initiated from. Two replisomes are formed per oriC, one on
+			# the right replichore, and one on the left.
 			coordinates = np.zeros(n_new_replisome, dtype=np.int64)
 			right_replichore = np.tile(
 				np.array([True, False], dtype=np.bool), n_oric)
-			domain_index_new_replisome = np.repeat(domain_index_existing_oric, 2)
+			domain_index_new_replisome = np.repeat(
+				domain_index_existing_oric, 2)
 
 			active_replisomes_new.attrIs(
 				coordinates=coordinates,
@@ -238,11 +240,13 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			# no children domains
 			chromosome_domain_new.attrIs(
 				domain_index=domain_index_new,
-				child_domains=self.no_child_place_holder*np.ones((n_new_domain, 2)),
+				child_domains=np.full(
+					(n_new_domain, 2), self.no_child_place_holder,
+					dtype=np.int32)
 				)
 
 			# Add new domains as children of existing domains
-			child_domains[new_parent_domains] = domain_index_new.reshape(2, -1).T
+			child_domains[new_parent_domains] = domain_index_new.reshape(-1, 2)
 
 			chromosome_domains.attrIs(
 				child_domains=child_domains

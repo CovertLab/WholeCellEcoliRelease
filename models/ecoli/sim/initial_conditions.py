@@ -609,16 +609,24 @@ def determine_chromosome_state(C, D, tau, replichore_length, place_holder):
 	n_replisomes = 2*(2**n_round - 1)
 	coordinates = np.zeros(n_replisomes, dtype=np.int64)
 	right_replichore_replisome = np.zeros(n_replisomes, dtype=np.bool)
-	domain_index_replisome = np.zeros(n_replisomes, dtype=np.int64)
+	domain_index_replisome = np.zeros(n_replisomes, dtype=np.int32)
 
 	# Initialize child domain array for chromosome domains
 	n_domains = 2**(n_round + 1) - 1
-	child_domains = np.empty((n_domains, 2), dtype=np.int64)
-	child_domains[:] = place_holder
+	child_domains = np.full((n_domains, 2), place_holder, dtype=np.int32)
 
 	# Set domain_index attribute of oriC's and chromosome domains
-	domain_index_oric = np.arange(2**n_round - 1, 2**(n_round + 1) - 1, dtype=np.int64)
-	domain_index_domains = np.arange(0, n_domains, dtype=np.int64)
+	domain_index_oric = np.arange(2**n_round - 1, 2**(n_round + 1) - 1, dtype=np.int32)
+	domain_index_domains = np.arange(0, n_domains, dtype=np.int32)
+
+	def n_events_before_this_round(round_idx):
+		"""
+		Calculates the number of replication events that happen before the
+		replication round index given as an argument. Since 2**i events happen
+		at each round i = 0, 1, ..., the sum of the number of events before
+		round j is 2**j - 1.
+		"""
+		return 2**round_idx - 1
 
 	# Loop through active replication rounds, starting from the oldest round.
 	# If n_round = 0 skip loop entirely - no active replication round.
@@ -632,30 +640,34 @@ def determine_chromosome_state(C, D, tau, replichore_length, place_holder):
 
 		# Add 2^n initiation events per round. A single initiation event
 		# generates two replication forks.
-		n_event = 2**round_idx
+		n_events_this_round = 2**round_idx
 
 		# Set attributes of replisomes for this replication round
 		coordinates[
-			2*(2**round_idx - 1):
-			2*(2**(round_idx + 1) - 1)
-			] = np.tile(np.array([fork_location, -fork_location]), n_event)
+			2*n_events_before_this_round(round_idx):
+			2*n_events_before_this_round(round_idx + 1)
+			] = np.tile(np.array([fork_location, -fork_location]), n_events_this_round)
 
 		right_replichore_replisome[
-			2 * (2 ** round_idx - 1):
-			2 * (2 ** (round_idx + 1) - 1)
-			] = np.tile(np.array([True, False]), n_event)
+			2*n_events_before_this_round(round_idx):
+			2*n_events_before_this_round(round_idx + 1)
+			] = np.tile(np.array([True, False]), n_events_this_round)
 
 		for i, domain_index in enumerate(
-				np.arange(2**round_idx - 1, 2**(round_idx+1) - 1)):
+				np.arange(n_events_before_this_round(round_idx),
+					n_events_before_this_round(round_idx+1))):
 			domain_index_replisome[
-				2*(2**round_idx - 1) + 2*i:
-				2*(2**round_idx - 1) + 2*(i+1)
+				2*n_events_before_this_round(round_idx) + 2*i:
+				2*n_events_before_this_round(round_idx) + 2*(i+1)
 				] = np.repeat(domain_index, 2)
 
 		# Set attributes of chromosome domains for this replication round
 		for i, domain_index in enumerate(
-				np.arange(2**(round_idx + 1) - 1, 2**(round_idx + 2) - 1, 2)):
-			child_domains[2**round_idx - 1 + i, :] = np.array([domain_index, domain_index + 1])
+				np.arange(n_events_before_this_round(round_idx + 1),
+					n_events_before_this_round(round_idx + 2), 2)):
+			child_domains[
+				n_events_before_this_round(round_idx) + i, :
+				] = np.array([domain_index, domain_index + 1])
 
 	# Convert to numpy arrays and wrap into dictionaries
 	oric_state = {

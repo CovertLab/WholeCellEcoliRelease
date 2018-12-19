@@ -38,8 +38,7 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 	def allocate(self):
 		super(ReplicationData, self).allocate()
 
-		self.fork_coordinates = np.zeros(75, np.float64)
-		self.fork_coordinates.fill(PLACE_HOLDER)
+		self.fork_coordinates = np.full(75, PLACE_HOLDER, np.float64)
 
 		self.numberOfOric = np.nan
 		self.criticalMassPerOriC = 0.

@@ -83,7 +83,17 @@ class CellDivision(wholecell.listeners.listener.Listener):
 			self.setInitial = True
 			self.dryMassInitial = self.dryMass
 
-		# Ends simulation once D period has occurred after chromosome termination
+		# If D_PERIOD_DIVISION is set to True, the cell should divide after a
+		# fixed length of time (D period) has passed after the completion of
+		# chromosome replication. At completion of replication, we calculate
+		# this division time by adding the D period length to the current time,
+		# and storing this value as an attribute of the full_chromosome
+		# molecule that gets formed at termination of replication. It is
+		# possible for one more round of replication to be completed before
+		# the cell divides if the cell is growing fast - so we take the minimum
+		# division_time value from all existing full chromosomes, and mark the
+		# chromosome if the chromosome has already induced division to avoid
+		# double counting.
 		if self.d_period_division:
 			# Get all existing full chromosomes
 			full_chromosomes = self.uniqueMoleculeContainer.objectsInCollection("fullChromosome")

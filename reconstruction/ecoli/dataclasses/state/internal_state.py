@@ -136,7 +136,7 @@ class InternalState(object):
 		fullChromosomeAttributes = {
 			"division_time": "f8",
 			"has_induced_division": "?",
-			"mother_domain_index": "i8",
+			"mother_domain_index": "i4",
 			}
 
 		self.uniqueMolecules.addToUniqueState('fullChromosome', fullChromosomeAttributes, fullChromosomeMass)
@@ -150,8 +150,8 @@ class InternalState(object):
 		# the original domain that the origin belonged to.
 		chromosome_domain_mass = (units.g/units.mol) * np.zeros_like(rnaPolyComplexMass)
 		chromosome_domain_attributes = {
-			"domain_index": "i8",
-			"child_domains": ("i8", 2)
+			"domain_index": "i4",
+			"child_domains": ("i4", 2)
 			}
 
 		# Placeholder value for domains without children domains
@@ -180,7 +180,7 @@ class InternalState(object):
 				3*np.sum(trimer_mass, axis=0) + np.sum(monomer_mass, axis=0))
 
 		replisomeAttributes = {
-			"domain_index": "i8",
+			"domain_index": "i4",
 			"right_replichore": "?",
 			"coordinates": "i8",
 			}
@@ -194,7 +194,7 @@ class InternalState(object):
 		# new partial chromosomes and replisomes initiated on the same oriC.
 		originMass = (units.g/units.mol) * np.zeros_like(rnaPolyComplexMass)
 		originAttributes = {
-			"domain_index": "i8",
+			"domain_index": "i4",
 			}
 
 		self.uniqueMolecules.addToUniqueState('originOfReplication', originAttributes, originMass)
