@@ -43,13 +43,11 @@ def divide_cell(sim):
 	# TODO (Eran): division should be based on both nutrient and gene perturbation condition
 	current_nutrients = sim.external_states['Environment'].nutrients
 
-	# Create output directories
-	d1_path = filepath.makedirs(sim._outputDir, "Daughter1")
-	d2_path = filepath.makedirs(sim._outputDir, "Daughter2")
+	# Create the output directory
+	sim_out_dir = filepath.makedirs(sim._outputDir)
+	d1_path = os.path.join(sim_out_dir, SERIALIZED_INHERITED_STATE % 1)
+	d2_path = os.path.join(sim_out_dir, SERIALIZED_INHERITED_STATE % 2)
 	print('Writing daughter cell data to {} et al.'.format(d1_path))
-	# TODO(jerry): In a multi-scale sim, set inherited_state_path=d1_path and
-	# inherited_state_path=d2_path in the daughter cell agent_config dicts,
-	# along with the correct variant_type, variant_index, and seed.
 
 	# Check if the cell is dead
 	isDead = False
@@ -84,6 +82,7 @@ def divide_cell(sim):
 			)
 
 	# Save the daughter initialization state.
+	# TODO(jerry): Include the variant_type and variant_index? The seed?
 	initial_time = sim.time() + sim.timeStepSec()
 	save_inherited_state(
 		d1_path,
@@ -557,12 +556,12 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_counts,
 
 def save_inherited_state(daughter_path, **inherited_state):
 	"""Save the `inherited_state` dict for a daughter cell."""
-	with open(os.path.join(daughter_path, SERIALIZED_INHERITED_STATE), 'wb') as f:
+	with open(daughter_path, 'wb') as f:
 		cPickle.dump(inherited_state, f, cPickle.HIGHEST_PROTOCOL)
 
 def load_inherited_state(daughter_path):
 	"""Load `inherited_state` dict to initialize a daughter cell."""
-	with open(os.path.join(daughter_path, SERIALIZED_INHERITED_STATE), "rb") as f:
+	with open(daughter_path, "rb") as f:
 		inherited_state = cPickle.load(f)
 	return inherited_state
 

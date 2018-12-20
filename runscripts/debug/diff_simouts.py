@@ -149,16 +149,19 @@ def diff_simout(simout_dir1, simout_dir2):
 	subdirs2 = set(os.listdir(simout_dir2))
 
 	# ------------------------------------------------------------------------
-	# Ignore the daughter cell inherited state directories. They don't contain
-	# Tables and they only depend on wholecell/sim/divide_cell.py, not the
-	# actual simulation.
-	#
 	# Ignore the EvaluationTime table since CPU timing measurements will always
 	# vary. It isn't really simulation output.
+	#
+	# Ignore the Daughter* cell inherited state pickle files. They don't
+	# contain Tables and they only depend on wholecell/sim/divide_cell.py, not
+	# the actual simulation.
 	# ------------------------------------------------------------------------
-	subdirs = (subdirs1 | subdirs2) - {'Daughter1', 'Daughter2', 'EvaluationTime'}
+	subdirs = (subdirs1 | subdirs2) - {'EvaluationTime'}
 
 	for subdir in subdirs:
+		if subdir.endswith('.cPickle'):
+			continue
+
 		diffs.update(diff_subdirs(subdir, simout_dir1, simout_dir2))
 
 	return diffs

@@ -197,10 +197,11 @@ class RunSimulation(scriptBase.ScriptBase):
 					parent_gen_directory = os.path.join(seed_directory, "generation_%06d" % (k - 1))
 					parent_cell_directory = os.path.join(parent_gen_directory, "%06d" % (l // 2))
 					parent_cell_sim_out_directory = os.path.join(parent_cell_directory, "simOut")
-					daughter_state_directory = os.path.join(
-						parent_cell_sim_out_directory, "Daughter%d" % (l % 2 + 1))
+					daughter_state_path = os.path.join(
+						parent_cell_sim_out_directory,
+						constants.SERIALIZED_INHERITED_STATE % (l % 2 + 1))
 					task = SimulationDaughterTask(
-						inherited_state_path=daughter_state_directory,
+						inherited_state_path=daughter_state_path,
 						**options
 						)
 				task.run_task({})

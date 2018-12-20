@@ -148,11 +148,8 @@ class Inner(Agent):
 		outer agent, inheriting properties from their parent cell.
 		"""
 
-		daughter_ids = []
-
 		for daughter in division:
 			agent_id = daughter.get('id', str(uuid.uuid1()))
-			daughter_ids.append(agent_id)
 
 			agent_type = daughter.get(
 				'type',
@@ -165,11 +162,20 @@ class Inner(Agent):
 				parent_id=self.agent_id,
 				outer_id=self.outer_id)
 
-			self.send(self.topics['shepherd_receive'], {
+			# Send the inherited state data as a blob instead of a file path.
+			inherited_state_path = agent_config.pop('inherited_state_path', None)
+			add_agent_message = {
 				'event': event.ADD_AGENT,
 				'agent_id': agent_id,
 				'agent_type': agent_type,
-				'agent_config': agent_config})
+				'agent_config': agent_config}
+
+			if inherited_state_path:
+				with open(inherited_state_path, 'rb') as f:
+					add_agent_message['blobs'] = [f.read()]
+				# TODO(jerry): Delete the file?
+
+			self.send(self.topics['shepherd_receive'], add_agent_message)
 
 		self.send(self.topics['shepherd_receive'], {
 			'event': event.REMOVE_AGENT,
@@ -213,22 +219,23 @@ class Inner(Agent):
 		"""
 
 		if message.get('inner_id', message.get('agent_id')) == self.agent_id:
-			print('--> {} ({}) [{}]: {}'.format(topic, message['event'], self.agent_id, message))
+			self.print_message(topic, message)
+			message_event = message['event']
 
-			if message['event'] == event.ENVIRONMENT_SYNCHRONIZE:
+			if message_event == event.ENVIRONMENT_SYNCHRONIZE:
 				self.simulation.synchronize_state(message['state'])
 
-			elif message['event'] == event.ENVIRONMENT_UPDATE:
+			elif message_event == event.ENVIRONMENT_UPDATE:
 				self.environment_update(message)
 
-			elif message['event'] == event.DIVIDE_CELL:
+			elif message_event == event.DIVIDE_CELL:
 				self.simulation.divide()
 
-			elif message['event'] == event.PAUSE_AGENT:
+			elif message_event == event.PAUSE_AGENT:
 				pass
 
-			elif message['event'] == event.SHUTDOWN_AGENT:
+			elif message_event == event.SHUTDOWN_AGENT:
 				self.cell_shutdown(message)
 
 			else:
-				print('unexpected event {}: {}'.format(message['event'], message))
+				print('unexpected event {}: {}'.format(message_event, message))

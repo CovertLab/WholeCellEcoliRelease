@@ -12,6 +12,7 @@ class EnvironmentSimulation(object):
 
 	def time(self):
 		"""Return the current simulation time for the environment."""
+		return 0
 
 	def add_simulation(self, agent_id, state):
 		"""Register an inner agent."""
@@ -44,6 +45,7 @@ class EnvironmentSimulation(object):
 		Return a dictionary of agent_id to updates coming from the environment for
 		each agent that has run to `now` but not past.
 		"""
+		return {}
 
 	def apply_parent_state(self, agent_id, agent_config):
 		"""
@@ -54,6 +56,7 @@ class EnvironmentSimulation(object):
 
 	def run_for_time(self):
 		"""Return the length of time simulations should run for this time period."""
+		return 0
 
 	def max_time(self):
 		"""Return the maximum time for the simulations."""
@@ -291,7 +294,10 @@ class Outer(Agent):
 		"""
 
 		if not self.paused and self.ready_to_advance():
-			if self.shutting_down or self.environment.time() > self.environment.max_time():
+			if self.shutting_down:
+				self.send_shutdown()
+			elif self.environment.time() > self.environment.max_time():
+				print('Passed max_time {}'.format(self.environment.max_time()))
 				self.send_shutdown()
 			else:
 				# compare the length of each simulation's run
@@ -379,7 +385,7 @@ class Outer(Agent):
 		"""
 
 		if message.get('outer_id', message.get('agent_id')) == self.agent_id:
-			print('--> {} ({}) [{}]: {}'.format(topic, message['event'], self.agent_id, message))
+			self.print_message(topic, message)
 
 			if message['event'] == event.TRIGGER_AGENT:
 				self.paused = False

@@ -75,7 +75,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 	def __init__(self, config):
 		self._time = 0
 		self._timestep = 1.0 #DT
-		self._max_time = 2000
+		self._max_time = 10e6
 
 		# configured parameters
 		self.run_for = config.get('run_for', 5.0)

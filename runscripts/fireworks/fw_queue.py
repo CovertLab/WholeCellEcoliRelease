@@ -603,13 +603,14 @@ for i in VARIANTS_TO_RUN:
 					PARENT_GEN_DIRECTORY = os.path.join(SEED_DIRECTORY, "generation_%06d" % (k - 1))
 					PARENT_CELL_DIRECTORY = os.path.join(PARENT_GEN_DIRECTORY, "%06d" % (l // 2))
 					PARENT_CELL_SIM_OUT_DIRECTORY = os.path.join(PARENT_CELL_DIRECTORY, "simOut")
-					DAUGHTER_STATE_DIRECTORY = os.path.join(PARENT_CELL_SIM_OUT_DIRECTORY, "Daughter%d" % (l % 2 + 1))
+					DAUGHTER_STATE_PATH = os.path.join(PARENT_CELL_SIM_OUT_DIRECTORY,
+						constants.SERIALIZED_INHERITED_STATE % (l % 2 + 1))
 
 					fw_this_variant_this_gen_this_sim = Firework(
 						SimulationDaughterTask(
 							input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
 							output_directory = CELL_SIM_OUT_DIRECTORY,
-							inherited_state_path = DAUGHTER_STATE_DIRECTORY,
+							inherited_state_path = DAUGHTER_STATE_PATH,
 							seed = (j + 1) * ((2**k - 1) + l),
 							length_sec = WC_LENGTHSEC,
 							timestep_safety_frac = TIMESTEP_SAFETY_FRAC,

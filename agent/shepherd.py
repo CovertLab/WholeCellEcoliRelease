@@ -168,7 +168,7 @@ class AgentShepherd(Agent):
 		#     message of the given type.
 		# if message['agent_id'] == self.agent_id:
 
-		print('--> {} ({}) [{}]: {}'.format(topic, message['event'], self.agent_id, message))
+		self.print_message(topic, message)
 
 		if message['event'] == event.ADD_AGENT:
 			self.add_agent(

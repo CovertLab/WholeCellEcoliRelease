@@ -1,9 +1,24 @@
 from __future__ import absolute_import, division, print_function
 
+from chunk import Chunk
+import io
 import json
+import struct
 from confluent_kafka import Producer, Consumer, KafkaError
 
 import agent.event as event
+
+
+# Chunk header: type and size.
+# TODO(jerry): Move CHUNK_HEADER to a shared module.
+CHUNK_HEADER = struct.Struct('>4s I')
+JSON_CHUNK_TYPE = 'JSON'  # a JSON chunk contains a JSON dictionary message
+BLOB_CHUNK_TYPE = 'BLOB'  # a BLOB chunk contains a bytes
+
+BLOBS = 'blobs' # message dict key for a sequence of binary large objects
+				# (bytes), unsuitable for the JSON part of the payload, or to
+				# print to a log, or to put in a command-line arg.
+
 
 def delivery_report(err, msg):
 	"""
@@ -144,8 +159,7 @@ class Agent(object):
 				if raw.error().code() == KafkaError._PARTITION_EOF:
 					continue
 				else:
-					print('error in kafka consumer:')
-					print(raw.error())
+					print('Error in kafka consumer:', raw.error())
 
 					self.running = False
 
@@ -153,7 +167,9 @@ class Agent(object):
 				# `raw.value()` is implemented in C with a docstring that
 				# suggests it needs a `payload` argument. Suppress the warning.
 				# noinspection PyArgumentList
-				message = json.loads(raw.value().decode('utf-8'))
+				message = self.decode_payload(raw.value())
+				if not message:
+					continue
 
 				if message['event'] == event.GLOBAL_SHUTDOWN:
 					self.shutdown()
@@ -162,36 +178,107 @@ class Agent(object):
 
 	def send(self, topic, message, print_send=True):
 		"""
-		Send a dictionary as a message on the given topic.
+		Send a Kafka message on the given topic. The payload is a transmitted
+		as a JSON dictionary chunk and optional BLOB chunks.
 
 		Args:
 			topic (str): The Kafka topic to send the message on.
+
 			message (dict): A dictionary containing the message to send. This dictionary
-				needs to be JSON serializable, so must contain only basic types like `str`,
+				needs to be JSON serializable, so it must contain only basic types like `str`,
 				`int`, `float`, `list`, `tuple`, `array`, and `dict`. Any functions or objects
 				present will throw errors.
+
+				SPECIAL CASE: `message[BLOBS]`, if present, is a sequence of BLOBs (bytes).
+
 		    print_send (bool): Whether or not to print the message that is sent.
 		"""
+		payload = self.encode_payload(message)
+
+		if print_send:
+			self.print_message(topic, message, False)
+
+		self.producer.poll(0)
+		self.producer.produce(
+			topic,
+			payload,
+			callback=delivery_report)
+
+		self.producer.flush()
+
+	def print_message(self, topic, message, incoming=True):
+		"""Print the incoming or outgoing message to the console/log, redacting
+		any BLOBs.
+		"""
+		num_blobs = 0
+		redacted_message = dict(message)
+		if BLOBS in message:
+			num_blobs = len(message[BLOBS])
+			del redacted_message[BLOBS]
+
+		print('{} {} {}'       # <-- topic event
+			  ' [{} {}]:'      # [agent_type agent_id]
+			  ' {}{}'.format(  # {message dict} + 2 BLOBs
+			'-->' if incoming else '<--',
+			topic,
+			message.get('event', 'generic'),
+
+			self.agent_type,
+			self.agent_id,
+
+			redacted_message,
+			' + {} BLOBs'.format(num_blobs) if num_blobs else '',
+			))
+
+	def encode_payload(self, message):
+		"""Encode a `message` dictionary as a Kafka message payload chunk
+		stream. The first chunk holds the JSON message. Following chunks hold
+		BLOBs extracted from `message[BLOBS]`.
+		"""
+		message = dict(message)
+		blobs = message.pop(BLOBS, [])
 
 		# json.dumps(m, ensure_ascii=False) returns a str or unicode string, depending on
 		# content (always a unicode string in Python 3) w/o \u escapes. Encode that into
 		# UTF-8 bytes. print() can decode UTF-8 bytes but not \u escapes.
 		encoded = json.dumps(message, ensure_ascii=False).encode('utf-8')
 
-		if print_send:
-			print('<-- {} ({}) [{}]: {}'.format(
-				topic,
-				message.get('event', 'generic'),
-				self.agent_id,
-				encoded))
+		payload = [
+			CHUNK_HEADER.pack(JSON_CHUNK_TYPE, len(encoded)),
+			encoded]
+		for blob in blobs:
+			payload.append(CHUNK_HEADER.pack(BLOB_CHUNK_TYPE, len(blob)))
+			payload.append(blob)
 
-		self.producer.poll(0)
-		self.producer.produce(
-			topic,
-			encoded,
-			callback=delivery_report)
+		return b''.join(payload)
 
-		self.producer.flush()
+	def decode_payload(self, payload):
+		"""Decode a Kafka message payload chunk stream."""
+		bytestream = io.BytesIO(payload)
+
+		chunk = Chunk(bytestream, align=False)
+		if chunk.getname() != JSON_CHUNK_TYPE:
+			print('Error: Each Agent message must start with a JSON chunk')
+			return {}
+
+		json_message = chunk.read().decode('utf-8')
+		message = json.loads(json_message)
+		chunk.close()
+
+		blobs = []
+		while True:
+			try:
+				chunk = Chunk(bytestream, align=False)
+			except EOFError:
+				break
+
+			if chunk.getname() == BLOB_CHUNK_TYPE:
+				blobs.append(chunk.read())
+
+			chunk.close()
+
+		message[BLOBS] = blobs
+		return message
 
 	def receive(self, topic, message):
 		"""
@@ -204,6 +291,10 @@ class Agent(object):
 
 		By convention, each message contains an `event` key which can be switched on in this
 		method to trigger a specific response.
+
+		`message[BLOBS]` is a list (often empty) of bytes BLOBs.
+		Don't print the BLOBs or send them on a command line. Call
+		`self.print_message(topic, message)` to print/log the message.
 
 		Args:
 		    topic (str): The Kafka topic this message was received on.
