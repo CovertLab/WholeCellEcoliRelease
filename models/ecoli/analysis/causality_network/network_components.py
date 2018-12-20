@@ -10,10 +10,12 @@ from __future__ import absolute_import, division, print_function
 NODELIST_FILENAME = "causality_network_node_list.tsv"
 EDGELIST_FILENAME = "causality_network_edge_list.tsv"
 DYNAMICS_FILENAME = "causality_network_dynamics.tsv"
+NODELIST_JSON = 'nodes.json'
+EDGELIST_JSON = 'edges.json'
 
 # Headers
 NODE_LIST_HEADER = "\t".join(
-	["ID", "class", "type", "name", "synonyms", "constants"]
+	["ID", "class", "type", "name", "synonyms", "constants", "url"]
 	)
 EDGE_LIST_HEADER = "\t".join(
 	["src_node_id", "dst_node_id", "stoichiometry", "process"]
@@ -57,6 +59,9 @@ class Node(object):
 			dynamics_units: Dictionary with dynamics data type as keys and its
 				units as values (must share same keys with dynamics),
 				dictionary, e.g. {"counts": "N", "concentration": "mol/L"}
+			url: URL to EcoCyc page, string, eg. "https://ecocyc.org/ECOLI/
+				substring-search?type=NIL&object=EG11028&quickSearch=Quick+
+				Search"
 		"""
 		self.node_class = None
 		self.node_type = None
@@ -66,6 +71,8 @@ class Node(object):
 		self.constants = None
 		self.dynamics = {}
 		self.dynamics_units = {}
+		self.url = None
+		self.location = None
 
 	def get_node_id(self):
 		"""
@@ -74,7 +81,7 @@ class Node(object):
 		return self.node_id
 
 	def read_attributes(self, node_class, node_type, node_id, name="",
-			synonyms="", constants=""):
+						synonyms="", constants="", url="", location=""):
 		"""
 		Sets the attribute variables of the node. Argument can be in the form
 		of a single dictionary with names of each argument names as keys.
@@ -85,6 +92,8 @@ class Node(object):
 		self.name = name
 		self.synonyms = synonyms
 		self.constants = constants
+		self.url = url
+		self.location = location
 
 	def read_attributes_from_tsv(self, tsv_line):
 		"""
@@ -111,9 +120,9 @@ class Node(object):
 		Writes a single row specifying the given node to the nodelist file.
 		"""
 		# Format single string with attributes of the node separated by commas
-		node_row = "%s\t%s\t%s\t%s\t%s\t%s" % (
+		node_row = "%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
 			self.node_id, self.node_class, self.node_type,
-			self.name, self.synonyms, self.constants,
+			self.name, self.synonyms, self.constants, self.url,
 			)
 
 		# Write line to nodelist file
@@ -145,6 +154,41 @@ class Node(object):
 
 			# Write line to dynamics file
 			dynamics_file.write(dynamics_row + "\n")
+
+	def dynamics_dict(self):
+		all_dynamics = []
+		for name, data in self.dynamics.iteritems():
+			unit = self.dynamics_units.get(name, "")
+			dynamics = {
+				'units': unit,
+				'type': self.node_type,
+				'id': self.node_id,
+				'dynamics': data.tolist()}
+			all_dynamics.append(dynamics)
+		return all_dynamics
+
+	def to_dict(self):
+		synonyms = []
+		if isinstance(self.synonyms, list):
+			synonyms = self.synonyms
+
+			# Some of the synonyms are strings of list-like entities and some are actual lists
+			# --------------------------------------------------------------------------------
+			# try:
+			# 	synonyms = ast.literal_eval(self.synonyms or '[]')
+			# except:
+			# 	print('parsing synonyms failed for {} {}'.format(type(self.synonyms), self.synonyms))
+
+		return {
+			'ID': self.node_id,
+			'type': self.node_type,
+			'name': self.name,
+			'class': self.node_class,
+			'synonyms': synonyms,
+			'constants': self.constants,
+			'url': self.url,
+			'location': self.location}
+		
 
 	def _format_dynamics_string(self, dynamics, datatype):
 		"""

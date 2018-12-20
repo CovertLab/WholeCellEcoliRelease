@@ -11,6 +11,8 @@ from __future__ import absolute_import, division, print_function
 import cPickle
 import numpy as np
 import os
+import json
+import hashlib
 
 from models.ecoli.analysis import causalityNetworkAnalysis
 from wholecell.io.tablereader import TableReader
@@ -35,12 +37,16 @@ REQUIRED_COLUMNS = [
 	("RibosomeData", "probTranslationPerTranscript"),
 	]
 
+def get_safe_name(s):
+	fname = str(int(hashlib.sha256(s.encode('utf-8')).hexdigest(), 16) % 10 **16)
+	return fname
+
 class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
-	def do_plot(self, simOutDir, plotOutDir, dynamicsFileName, simDataFile, nodeListFile, metadata):
+	def do_plot(self, simOutDir, seriesOutDir, dynamicsFileName, simDataFile, nodeListFile, metadata):
 		if not os.path.isdir(simOutDir):
 			raise Exception, "simOutDir does not currently exist as a directory"
 
-		filepath.makedirs(plotOutDir)
+		filepath.makedirs(seriesOutDir)
 
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
@@ -64,9 +70,6 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 		gene_ids = sim_data.process.transcription.rnaData["geneId"]
 		indexes["Genes"] = build_index_dict(gene_ids)
 
-		rna_ids = sim_data.process.transcription.rnaData["id"]
-		indexes["Rnas"] = build_index_dict(rna_ids)
-
 		translated_rna_ids = sim_data.process.translation.monomerData["rnaId"]
 		indexes["TranslatedRnas"] = build_index_dict(translated_rna_ids)
 
@@ -83,28 +86,53 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 		volume = ((1.0 / sim_data.constants.cellDensity) * (
 			units.fg * columns[("Mass", "cellMass")])).asNumber(units.L)
 
-		# Import attributes of each node from existing node list file
-		with open(nodeListFile, 'r') as node_file, open(os.path.join(plotOutDir, dynamicsFileName), 'w') as dynamics_file:
-			next(node_file)  # Skip header of node list
+		with open(nodeListFile, 'r') as node_file:
+			node_dicts = json.load(node_file)
 
-			# Add header and time row for dynamics file
-			dynamics_file.write(DYNAMICS_HEADER + "\n")
-			add_time_row(columns, dynamics_file)
+		def dynamics_mapping(dynamics, safe):
+			return [{
+				'index': index,
+				'units': dyn['units'],
+				'type': dyn['type'],
+				'filename': safe + '.json'}
+				for index, dyn in enumerate(dynamics)]
 
-			for line in node_file:
-				node = Node()
-				node_id, node_type = node.read_attributes_from_tsv(line)
+		name_mapping = {}
+		root = os.path.dirname(seriesOutDir)
 
-				read_func = TYPE_TO_READER_FUNCTION[node_type]
-				read_func(sim_data, node, node_id, columns, indexes, volume)
+		def build_dynamics(node_dict):
+			node = Node()
+			node.node_id = node_dict['ID']
+			node.node_type = node_dict['type']
+			reader = TYPE_TO_READER_FUNCTION.get(node.node_type)
+			if reader:
+				reader(sim_data, node, node.node_id, columns, indexes, volume)
+			return node
+		
+		nodes = [build_dynamics(node_dict) for node_dict in node_dicts]
+		nodes.append(time_node(columns))
 
-				node.write_dynamics(dynamics_file)
+		for node in nodes:
+			dynamics_path = get_safe_name(node.node_id)
+			dynamics = node.dynamics_dict()
+			dynamics_json = json.dumps(dynamics)
+
+			if node.node_type == "Global":
+				# Reset IDs of global nodes to "global" in dynamics files
+				# (Requested by Fathom)
+				node.node_id = "global"
+
+			with open(os.path.join(seriesOutDir, dynamics_path + '.json'), 'w') as dynamics_file:
+				dynamics_file.write(dynamics_json)
+
+			name_mapping[node.node_id] = dynamics_mapping(dynamics, dynamics_path)
+
+		root = os.path.dirname(nodeListFile)
+		with open(os.path.join(root, 'series.json'), 'w') as series_file:
+			series_file.write(json.dumps(name_mapping))
 
 
-def add_time_row(columns, dynamics_file):
-	"""
-	Adds a time row to the dynamics file.
-	"""
+def time_node(columns):
 	time_node = Node()
 	attr = {
 		'node_class': 'time',
@@ -123,7 +151,7 @@ def add_time_row(columns, dynamics_file):
 		}
 
 	time_node.read_dynamics(dynamics, dynamics_units)
-	time_node.write_dynamics(dynamics_file)
+	return time_node
 
 
 def read_global_dynamics(sim_data, node, node_id, columns, indexes, volume):
@@ -131,10 +159,6 @@ def read_global_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	Reads global dynamics from simulation output.
 	"""
 	cell_mass = columns[("Mass", "cellMass")]
-
-	# Reset IDs of global nodes to "global" in dynamics files
-	# (Requested by Fathom)
-	node.node_id = "global"
 
 	if node_id == "cell_mass":
 		dynamics = {
@@ -184,10 +208,10 @@ def read_rna_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	"""
 	Reads dynamics data for transcript (RNA) nodes from simulation output.
 	"""
-	rna_index = indexes["Rnas"][node_id]
+	count_index = indexes["BulkMolecules"][node_id]
 
 	dynamics = {
-		"counts": columns[("BulkMolecules", "counts")][:, rna_index],
+		"counts": columns[("BulkMolecules", "counts")][:, count_index],
 		}
 	dynamics_units = {
 		"counts": COUNT_UNITS,
