@@ -17,9 +17,10 @@ TODO:
 from __future__ import division
 
 import numpy as np
+from arrow import StochasticSystem
 
 import wholecell.processes.process
-from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
+# from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
 
 # Maximum unsigned int value + 1 for randint() to seed srand from C stdlib
 RAND_MAX = 2**32
@@ -41,9 +42,14 @@ class Complexation(wholecell.processes.process.Process):
 		# Create matrices and vectors that describe reaction stoichiometries 
 		self.stoichMatrix = sim_data.process.complexation.stoichMatrix().astype(np.int64, order = "F")
 
-		self.prebuiltMatrices = mccBuildMatrices(self.stoichMatrix)
+		# semi-quantitative rate constants
+		self.rates = np.full((self.stoichMatrix.shape[1],), 1000)
 
-		self.product_indices = [idx for idx in np.where(np.any(self.stoichMatrix > 0, axis=1))[0]]
+		# build stochastic system simulation
+		self.system = StochasticSystem(self.stoichMatrix.transpose(), self.rates)
+
+		# self.prebuiltMatrices = mccBuildMatrices(self.stoichMatrix)
+		# self.product_indices = [idx for idx in np.where(np.any(self.stoichMatrix > 0, axis=1))[0]]
 
 		# Build views
 		moleculeNames = sim_data.process.complexation.moleculeNames
@@ -53,13 +59,17 @@ class Complexation(wholecell.processes.process.Process):
 	def calculateRequest(self):
 		moleculeCounts = self.molecules.total()
 
-		# Macromolecule complexes are requested
-		updatedMoleculeCounts, complexationEvents = mccFormComplexesWithPrebuiltMatrices(
-			moleculeCounts,
-			self.randomState.randint(RAND_MAX),
-			self.stoichMatrix,
-			*self.prebuiltMatrices
-			)
+		# # Macromolecule complexes are requested
+		# updatedMoleculeCounts, complexationEvents = mccFormComplexesWithPrebuiltMatrices(
+		# 	moleculeCounts,
+		# 	self.randomState.randint(RAND_MAX),
+		# 	self.stoichMatrix,
+		# 	*self.prebuiltMatrices
+		# 	)
+
+		
+		history, steps, events = self.system.evolve(moleculeCounts, self._sim.timeStepSec())
+		updatedMoleculeCounts = history[-1]
 
 		self.molecules.requestIs(np.fmax(moleculeCounts - updatedMoleculeCounts, 0))
 
@@ -67,15 +77,18 @@ class Complexation(wholecell.processes.process.Process):
 	def evolveState(self):
 		moleculeCounts = self.molecules.counts()
 
-		# Macromolecule complexes are formed from their subunits
-		updatedMoleculeCounts, complexationEvents = mccFormComplexesWithPrebuiltMatrices(
-			moleculeCounts,
-			self.randomState.randint(RAND_MAX),
-			self.stoichMatrix,
-			*self.prebuiltMatrices
-			)
+		# # Macromolecule complexes are formed from their subunits
+		# updatedMoleculeCounts, complexationEvents = mccFormComplexesWithPrebuiltMatrices(
+		# 	moleculeCounts,
+		# 	self.randomState.randint(RAND_MAX),
+		# 	self.stoichMatrix,
+		# 	*self.prebuiltMatrices
+		# 	)
+
+		history, steps, events = self.system.evolve(moleculeCounts, self._sim.timeStepSec())
+		updatedMoleculeCounts = history[-1]
 
 		self.molecules.countsIs(updatedMoleculeCounts)
 
 		# Write outputs to listeners
-		self.writeToListener("ComplexationListener", "complexationEvents", complexationEvents)
+		self.writeToListener("ComplexationListener", "complexationEvents", events)
