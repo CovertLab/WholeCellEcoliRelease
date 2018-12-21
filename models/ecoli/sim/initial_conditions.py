@@ -236,7 +236,8 @@ def initializeFullChromosome(bulkMolCntr, uniqueMolCntr, sim_data):
 	full_chromosome = uniqueMolCntr.objectsNew("fullChromosome", 1)
 	full_chromosome.attrIs(
 		division_time = 0.0,
-		chromosomeIndex = 0,
+		has_induced_division = True,
+		mother_domain_index = 0,
 		)
 
 
@@ -254,48 +255,57 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 	D = sim_data.growthRateParameters.d_period.asUnit(units.min)
 	tau = sim_data.conditionToDoublingTime[sim_data.condition].asUnit(units.min)
 
-	# Calculate replication length
+	# Calculate length of replichore
 	genome_length = sim_data.process.replication.genome_length
-	replication_length = np.ceil(0.5*genome_length) * units.nt
+	replichore_length = np.ceil(0.5*genome_length) * units.nt
 
 	# Generate arrays specifying appropriate initial replication conditions
-	n_oric, chromosomeIndexOriC = determineOriCState(C, D, tau)
-	sequenceIdx, sequenceLength, replicationRoundPolymerase, chromosomeIndexPolymerase, replicationRoundReplisome, chromosomeIndexReplisome = determineChromosomeState(
-		C, D, tau, replication_length)
-	n_dnap = replicationRoundPolymerase.size
-	n_replisome = replicationRoundReplisome.size
+	oric_state, replisome_state, domain_state = determine_chromosome_state(
+		C, D, tau, replichore_length, sim_data.process.replication.no_child_place_holder
+		)
 
+	n_oric = oric_state["domain_index"].size
+	n_replisome = replisome_state["domain_index"].size
+	n_domain = domain_state["domain_index"].size
+
+	# Add OriC molecules with the proposed attributes
 	oriC = uniqueMolCntr.objectsNew('originOfReplication', n_oric)
-	oriC.attrIs(chromosomeIndex = chromosomeIndexOriC)
+	oriC.attrIs(
+		domain_index = oric_state["domain_index"],
+		)
 
-	if n_dnap != 0:
-		# Update mass to account for DNA strands that have already been elongated
-		# Determine the sequences of already-replicated DNA
+	# Add chromosome domain molecules with the proposed attributes
+	chromosome_domains = uniqueMolCntr.objectsNew("chromosome_domain", n_domain)
+	chromosome_domains.attrIs(
+		domain_index = domain_state["domain_index"],
+		child_domains = domain_state["child_domains"],
+		)
+
+	if n_replisome != 0:
+		# Update mass to account for DNA strands that have already been
+		# elongated.
 		sequences = sim_data.process.replication.replication_sequences
-		sequenceElongations = sequenceLength.astype(np.int64)
-		massIncreaseDna = computeMassIncrease(
-				np.tile(sequences, (n_dnap//4, 1)),
-				sequenceElongations,
+		fork_coordinates = replisome_state["coordinates"]
+		sequence_elongations = np.abs(np.repeat(fork_coordinates, 2))
+
+		mass_increase_dna = computeMassIncrease(
+				np.tile(sequences, (n_replisome//2, 1)),
+				sequence_elongations,
 				sim_data.process.replication.replicationMonomerWeights.asNumber(units.fg)
 				)
 
-		# Add replicating DNA polymerases as unique molecules and set attributes
-		dnaPoly = uniqueMolCntr.objectsNew('dnaPolymerase', n_dnap)
-		dnaPoly.attrIs(
-			sequenceIdx = sequenceIdx,
-			sequenceLength = sequenceLength,
-			replicationRound = replicationRoundPolymerase,
-			chromosomeIndex = chromosomeIndexPolymerase,
-			massDiff_DNA = massIncreaseDna,
-			)
-
 		# Add active replisomes as unique molecules and set attributes
-		activeReplisomes = uniqueMolCntr.objectsNew('activeReplisome', n_replisome)
-		activeReplisomes.attrIs(
-			replicationRound=replicationRoundReplisome,
-			chromosomeIndex=chromosomeIndexReplisome,
+		active_replisomes = uniqueMolCntr.objectsNew(
+			'active_replisome', n_replisome
+			)
+		active_replisomes.attrIs(
+			coordinates = replisome_state["coordinates"],
+			right_replichore = replisome_state["right_replichore"],
+			domain_index = replisome_state["domain_index"],
+			massDiff_DNA = mass_increase_dna[0::2] + mass_increase_dna[1::2],
 		)
 
+		# Remove replisome subunits from bulk molecules
 		bulkMolCntr.countsDec(3*n_replisome, sim_data.moleculeGroups.replisome_trimer_subunits)
 		bulkMolCntr.countsDec(n_replisome, sim_data.moleculeGroups.replisome_monomer_subunits)
 
@@ -308,8 +318,12 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 	initialGeneCopyNumber = np.ones(len(geneCopyNumberColNames))
 
 	# Get coordinates of forks in both directions
-	forward_fork_coordinates = sequenceLength[sequenceIdx == 0]
-	reverse_fork_coordinates = np.negative(sequenceLength[sequenceIdx == 1])
+	forward_fork_coordinates = replisome_state["coordinates"][
+		replisome_state["right_replichore"]
+	]
+	reverse_fork_coordinates = replisome_state["coordinates"][
+		np.logical_not(replisome_state["right_replichore"])
+	]
 
 	assert len(forward_fork_coordinates) == len(reverse_fork_coordinates)
 
@@ -538,149 +552,140 @@ def setDaughterInitialConditions(sim, sim_data):
 	sim._initialTime = inherited_state['initial_time']
 
 
-def determineChromosomeState(C, D, tau, replication_length):
+def determine_chromosome_state(C, D, tau, replichore_length, place_holder):
 	"""
-	Calculates the number and position of replicating DNA polymerases and
-	replisomes at the beginning of the cell cycle.
+	Calculates the attributes of oriC's, replisomes, and chromosome domains on
+	the chromosomes at the beginning of the cell cycle.
 
 	Inputs
 	--------
 	- C: the C period of the cell, the length of time between replication
-	initiation and replication completion.
+	initiation and replication termination.
 	- D: the D period of the cell, the length of time between completing
 	replication of the chromosome and division of the cell.
 	- tau: the doubling time of the cell
-	- replication_length: the amount of DNA to be replicated per fork, usually
+	- replichore_length: the amount of DNA to be replicated per fork, usually
 	half of the genome, in base-pairs
+	- place_holder: placeholder value for chromosome domains without child
+	domains
 
 	Returns
 	--------
-	- sequenceIdx: an index for each of the four types/directions of DNA
-	replication - leading and lagging strand of the forward and the reverse
-	fork = 4 total. This vector is always simply [0,1,2,3] repeated once for
-	each replication event. i.e. for three active replication events (6 forks,
-	12 polymerases) sequenceIdx = [0,1,2,3,0,1,2,3,0,1,2,3]
-	- sequenceLength: the position in the genome that each polymerase
-	referenced in sequenceIdx has reached, in base-pairs. This is handled such
-	that even though in reality some polymerases are replicating in different
-	directions,	all values here are calculated as though each starts at 0 and
-	goes up to the total number of base-pairs to be replicated.
-	- replicationRoundPolymerase/replicationRoundReplisome: an integer stating
-	in which replication round the polymerase/replisome has been initiated.
-	Each time all origins of replication in the cell fire, a new replication
-	round has started. This array is integer-valued, and counts from 0 (the
-	oldest round) up to n (the most recent round).
-	- chromosomeIndex/chromosomeIndexReplisome: indicator variable for which
-	chromosome the polymerases/replisomes are associated with and therefore
-	which daughter cell should inherit each polymerase/replisome. Since there
-	is only one chromosome initially, all indexes are set to zero.
+	oric_state: dictionary of attributes for the oriC molecules with the
+	following keys.
+	- domain_index: a vector of integers indicating which chromosome domain the
+	oriC sequence belongs to.
 
-	Notes
-	--------
-	If NO polymerases are active at the start of the cell cycle, equivalent to
-	the C + D periods being shorter than the doubling rate tau, then this
-	function returns empty lists. dnaPoly.attrIs() should not be run in this
-	case, as no DNA replication will be underway.
+	replisome_state: dictionary of attributes for the replisome molecules
+	with the following keys.
+	- coordinates: a vector of integers that indicates where the replisomes
+	are located on the chromosome relative to the origin, in base pairs.
+	- right_replichore: a vector of boolean values that indicates whether the
+	replisome is on the right replichore (True) or the left replichore (False).
+	- domain_index: a vector of integers indicating which chromosome domain the
+	replisomes belong to. The index of the "mother" domain of the replication
+	fork is assigned to the replisome.
+
+	domain_state: dictionary of attributes for the chromosome domains with the
+	following keys.
+	- domain_index: the indexes of the domains.
+	- child_domains: the (n_domain X 2) array of the domain indexes of the two
+	children domains that are connected on the oriC side with the given domain.
 	"""
 
 	# All inputs must be positive numbers
 	assert C.asNumber(units.min) >= 0, "C value can't be negative."
 	assert D.asNumber(units.min) >= 0, "D value can't be negative."
 	assert tau.asNumber(units.min) >= 0, "tau value can't be negative."
-	assert replication_length.asNumber(units.nt) >= 0, "replication_length value can't be negative."
+	assert replichore_length.asNumber(units.nt) >= 0, "replichore_length value can't be negative."
 
 	# Require that D is shorter than tau - time between completing DNA
 	# replication and cell division must be shorter than the time between two
 	# cell divisions.
-
 	assert D.asNumber(units.min) < tau.asNumber(units.min), "The D period must be shorter than the doubling time tau."
 
 	# Calculate the number of active replication rounds
 	n_round = int(np.floor(
 		(C.asNumber(units.min) + D.asNumber(units.min))/tau.asNumber(units.min)))
 
-	# Initialize arrays to be returned
-	sequenceIdx = []
-	sequenceLength = []
-	replicationRoundPolymerase = []
-	replicationRoundReplisome = []
-	chromosomeIndexPolymerase = []
-	chromosomeIndexReplisome = []
+	# Initialize arrays for replisomes
+	n_replisomes = 2*(2**n_round - 1)
+	coordinates = np.zeros(n_replisomes, dtype=np.int64)
+	right_replichore_replisome = np.zeros(n_replisomes, dtype=np.bool)
+	domain_index_replisome = np.zeros(n_replisomes, dtype=np.int32)
+
+	# Initialize child domain array for chromosome domains
+	n_domains = 2**(n_round + 1) - 1
+	child_domains = np.full((n_domains, 2), place_holder, dtype=np.int32)
+
+	# Set domain_index attribute of oriC's and chromosome domains
+	domain_index_oric = np.arange(2**n_round - 1, 2**(n_round + 1) - 1, dtype=np.int32)
+	domain_index_domains = np.arange(0, n_domains, dtype=np.int32)
+
+	def n_events_before_this_round(round_idx):
+		"""
+		Calculates the number of replication events that happen before the
+		replication round index given as an argument. Since 2**i events happen
+		at each round i = 0, 1, ..., the sum of the number of events before
+		round j is 2**j - 1.
+		"""
+		return 2**round_idx - 1
 
 	# Loop through active replication rounds, starting from the oldest round.
 	# If n_round = 0 skip loop entirely - no active replication round.
-	for n in xrange(n_round):
+	for round_idx in np.arange(n_round):
 		# Determine at which location (base) of the chromosome the replication
 		# forks should be initialized to
-		rel_location = 1 - (((n + 1)*tau - D)/C)
+		rel_location = 1.0 - (((round_idx + 1.0)*tau - D)/C)
 		rel_location = units.convertNoUnitToNumber(rel_location)
 		fork_location = np.floor(rel_location*(
-			replication_length.asNumber(units.nt)))
+			replichore_length.asNumber(units.nt)))
 
 		# Add 2^n initiation events per round. A single initiation event
-		# generates two replication forks and four elongating strands
-		# (polymerases).
-		n_event = 2**n
+		# generates two replication forks.
+		n_events_this_round = 2**round_idx
 
-		# sequenceIdx refers to the type of the strands that the polymerase is
-		# elongating - i.e. forward and reverse, lagging and leading strands.
-		sequenceIdx += [0, 1, 2, 3] * n_event
+		# Set attributes of replisomes for this replication round
+		coordinates[
+			2*n_events_before_this_round(round_idx):
+			2*n_events_before_this_round(round_idx + 1)
+			] = np.tile(np.array([fork_location, -fork_location]), n_events_this_round)
 
-		# sequenceLength refers to how far along the chromosome the polymerases
-		# have elongated to. All four are assumed to have elongated up to the
-		# replication fork.
-		sequenceLength += [fork_location] * (4*n_event)
+		right_replichore_replisome[
+			2*n_events_before_this_round(round_idx):
+			2*n_events_before_this_round(round_idx + 1)
+			] = np.tile(np.array([True, False]), n_events_this_round)
 
-		# replicationRound is the index of the replication round that the
-		# molecules belong to - for each replication round, all origins in
-		# the cell are fired simultaneously, and the initiated molecules
-		# share the same round index
-		replicationRoundPolymerase += [n] * (4*n_event)
-		replicationRoundReplisome += [n] * (2*n_event)
+		for i, domain_index in enumerate(
+				np.arange(n_events_before_this_round(round_idx),
+					n_events_before_this_round(round_idx+1))):
+			domain_index_replisome[
+				2*n_events_before_this_round(round_idx) + 2*i:
+				2*n_events_before_this_round(round_idx) + 2*(i+1)
+				] = np.repeat(domain_index, 2)
 
-		# chromosomeIndex indicates which daughter cell will inherit the
-		# molecule. Since there is only one initial chromosome, all molecules
-		# are initially given index zero.
-		chromosomeIndexPolymerase += [0] * (4*n_event)
-		chromosomeIndexReplisome += [0] * (2*n_event)
+		# Set attributes of chromosome domains for this replication round
+		for i, domain_index in enumerate(
+				np.arange(n_events_before_this_round(round_idx + 1),
+					n_events_before_this_round(round_idx + 2), 2)):
+			child_domains[
+				n_events_before_this_round(round_idx) + i, :
+				] = np.array([domain_index, domain_index + 1])
 
-	# Convert to numpy arrays
-	sequenceIdx = np.array(sequenceIdx, dtype=np.int8)
-	sequenceLength = np.array(sequenceLength, dtype=np.int64)
-	replicationRoundPolymerase = np.array(replicationRoundPolymerase, dtype=np.int64)
-	replicationRoundReplisome = np.array(replicationRoundReplisome, dtype=np.int64)
-	chromosomeIndexPolymerase = np.array(chromosomeIndexPolymerase, dtype=np.int64)
-	chromosomeIndexReplisome = np.array(chromosomeIndexReplisome, dtype=np.int64)
+	# Convert to numpy arrays and wrap into dictionaries
+	oric_state = {
+		"domain_index": domain_index_oric,
+		}
 
-	return sequenceIdx, sequenceLength, replicationRoundPolymerase, chromosomeIndexPolymerase, replicationRoundReplisome, chromosomeIndexReplisome
+	replisome_state = {
+		"coordinates": coordinates,
+		"right_replichore": right_replichore_replisome,
+		"domain_index": domain_index_replisome,
+		}
 
+	domain_state = {
+		"child_domains": child_domains,
+		"domain_index": domain_index_domains,
+		}
 
-def determineOriCState(C, D, tau):
-	"""
-	Calculates the number of OriC's in a cell upon initiation and the indexes
-	of chromosomes that the OriC's belong to, determined by the replication
-	state of the chromosome.
-
-	Inputs
-	--------
-	- C: the C period of the cell, the length of time between replication
-	initiation and replication completion.
-	- D: the D period of the cell, the length of time between completing
-	replication of the chromosome and division of the cell.
-	- tau: the doubling time of the cell
-
-	Returns
-	--------
-	- n_oric: the number of OriC's in the cell at initiation.
-	- chromosomeIndex: indicator variable for which chromosome the oriC's are
-	associated with and therefore which daughter cell should inherit each oriC.
-	Since there is only one chromosome initially, all indexes are set to zero.
-	"""
-
-	# Number active replication generations (can be many initiations per gen.)
-	n_round = int(np.floor(
-		(C.asNumber(units.min) + D.asNumber(units.min))/tau.asNumber(units.min)))
-	n_oric = 2**n_round
-	chromosomeIndex = np.zeros(n_oric, dtype=np.int)
-
-	return n_oric, chromosomeIndex
+	return oric_state, replisome_state, domain_state

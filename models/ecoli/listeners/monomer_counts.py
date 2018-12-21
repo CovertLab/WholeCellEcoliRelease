@@ -88,7 +88,7 @@ class MonomerCounts(wholecell.listeners.listener.Listener):
 		unique_molecule_ids = self.uniqueMolecules.container.objectNames()
 		self.ribosome_idx = unique_molecule_ids.index("activeRibosome")
 		self.rnap_idx = unique_molecule_ids.index("activeRnaPoly")
-		self.replisome_idx = unique_molecule_ids.index("activeReplisome")
+		self.replisome_idx = unique_molecule_ids.index("active_replisome")
 
 	def allocate(self):
 		super(MonomerCounts, self).allocate()

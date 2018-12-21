@@ -122,6 +122,44 @@ class InternalState(object):
 			}
 		self.uniqueMolecules.addToUniqueState("activeRibosome", ribosomeAttributes, ribosomeMass)
 
+
+		# Add full chromosomes
+		# One full chromosome molecule is added when chromosome replication is
+		# complete, and sets cell division to happen after a length of time
+		# specified by the D period (if D_PERIOD_DIVISION is set to True).
+		# The "has_induced_division" attribute is initially set to False, and
+		# is reset to True when division_time was reached and the cell has
+		# divided. The "mother_domain_index" keeps track of the index of the
+		# oldest chromosome domain of the full chromosome.
+		fullChromosomeMass = (units.g/units.mol) * (
+			stateFunctions.createMassesByCompartments(raw_data.full_chromosome))
+		fullChromosomeAttributes = {
+			"division_time": "f8",
+			"has_induced_division": "?",
+			"mother_domain_index": "i4",
+			}
+
+		self.uniqueMolecules.addToUniqueState('fullChromosome', fullChromosomeAttributes, fullChromosomeMass)
+
+
+		# Add chromosome domains
+		# Chromosome domains are zero-mass molecules that accounts for the
+		# structures of replicating chromosomes. Each replication initiation
+		# event creates two new chromosome domains that are given a unique
+		# integer "domain_index". These two new domains are child domains of
+		# the original domain that the origin belonged to.
+		chromosome_domain_mass = (units.g/units.mol) * np.zeros_like(rnaPolyComplexMass)
+		chromosome_domain_attributes = {
+			"domain_index": "i4",
+			"child_domains": ("i4", 2)
+			}
+
+		# Placeholder value for domains without children domains
+		sim_data.process.replication.no_child_place_holder = -1
+
+		self.uniqueMolecules.addToUniqueState('chromosome_domain', chromosome_domain_attributes, chromosome_domain_mass)
+
+
 		# Add active replisomes
 		# Note that the replisome does not functionally replicate the
 		# chromosome, but instead keeps track of the mass associated with
@@ -142,60 +180,24 @@ class InternalState(object):
 				3*np.sum(trimer_mass, axis=0) + np.sum(monomer_mass, axis=0))
 
 		replisomeAttributes = {
-			'replicationRound': 'i8',
-			'chromosomeIndex': 'i8',
+			"domain_index": "i4",
+			"right_replichore": "?",
+			"coordinates": "i8",
 			}
 
-		self.uniqueMolecules.addToUniqueState('activeReplisome', replisomeAttributes, replisomeMass)
+		self.uniqueMolecules.addToUniqueState('active_replisome', replisomeAttributes, replisomeMass)
 
-		# Add active DNA polymerase
-		# Note that active DNA polymerases are conceptual molecules and have
-		# zero mass. Two active DNA polymerases are assigned per replication
-		# fork, and these molecules functionally replicate the chromosome, one
-		# on the leading strand, and one on the lagging strand. This was done
-		# to simplify the process by which the polymerize function handles the
-		# elongation of DNA.
-		dnaPolyMass = (units.g/units.mol) * np.zeros_like(rnaPolyComplexMass)
-		dnaPolymeraseAttributes = {
-			"sequenceIdx": "i8",
-			"sequenceLength": "i8",
-			"replicationRound": "i8",
-			"chromosomeIndex": "i8",
-			}
-
-		self.uniqueMolecules.addToUniqueState('dnaPolymerase', dnaPolymeraseAttributes, dnaPolyMass)
 
 		# Add origins of replication
 		# Note that origins are conceptual molecules and have zero mass. The
 		# chromosomeIndexes of oriC's determine the chromosomeIndexes of the
-		# new DNA polymerases and replisomes initiated on the same oriC.
+		# new partial chromosomes and replisomes initiated on the same oriC.
 		originMass = (units.g/units.mol) * np.zeros_like(rnaPolyComplexMass)
 		originAttributes = {
-			"chromosomeIndex": "i8",
+			"domain_index": "i4",
 			}
 
 		self.uniqueMolecules.addToUniqueState('originOfReplication', originAttributes, originMass)
-
-		# Add full chromosomes
-		# One full chromosome molecule is added when chromosome replication is
-		# complete, and sets cell division to happen after a length of time
-		# specified by the D period (if D_PERIOD_DIVISION is set to True). The
-		# chromosomes are indexed in the order they are formed - thus, the
-		# "oldest" full chromosome that a cell inherited from its mother has
-		# the index of zero, and the chromosome that is initially replicated
-		# from this inherited chromosome gets the index of one. If more
-		# chromosomes are made during a single cycle, those chromosomes get
-		# indexes starting from two. The cell divides at the division time
-		# specified by the division_time attribute of the chromosome with index
-		# one.
-		fullChromosomeMass = (units.g/units.mol) * (
-			stateFunctions.createMassesByCompartments(raw_data.full_chromosome))
-		fullChromosomeAttributes = {
-			"division_time": "f8",
-			"chromosomeIndex": "i8",
-			}
-
-		self.uniqueMolecules.addToUniqueState('fullChromosome', fullChromosomeAttributes, fullChromosomeMass)
 
 
 	def _buildCompartments(self, raw_data, sim_data):

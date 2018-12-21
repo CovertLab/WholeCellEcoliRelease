@@ -18,7 +18,7 @@ from wholecell.utils import units
 
 class ChromosomeReplication(wholecell.processes.process.Process):
 	"""
-	Performs initiation, elongation, and termination of active DNA polymerases
+	Performs initiation, elongation, and termination of active partial chromosomes
 	that replicate the chromosome.
 	"""
 
@@ -38,7 +38,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			)
 		self.getDnaCriticalMass = sim_data.growthRateParameters.getDnaCriticalMass
 		self.nutrientToDoublingTime = sim_data.nutrientToDoublingTime
-		self.sequenceLengths = sim_data.process.replication.sequence_lengths
+		self.replichore_lengths = sim_data.process.replication.sequence_lengths[0::2]
 		self.sequences = sim_data.process.replication.replication_sequences
 		self.polymerized_dntp_weights = sim_data.process.replication.replicationMonomerWeights
 		self.dnaPolyElngRate = int(
@@ -50,15 +50,15 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.D_period = sim_data.growthRateParameters.d_period.asNumber(
 			units.s)
 
-		# Create molecule views for replisome subunits, active replisomes, DNA
-		# polymerases, and origins of replication
+		# Create molecule views for replisome subunits, active replisomes,
+		# origins of replication, and chromosome domains
 		self.replisome_trimers = self.bulkMoleculesView(
 			sim_data.moleculeGroups.replisome_trimer_subunits)
 		self.replisome_monomers = self.bulkMoleculesView(
 			sim_data.moleculeGroups.replisome_monomer_subunits)
-		self.activeReplisome = self.uniqueMoleculesView('activeReplisome')
-		self.activeDnaPoly = self.uniqueMoleculesView('dnaPolymerase')
+		self.active_replisome = self.uniqueMoleculesView('active_replisome')
 		self.oriCs = self.uniqueMoleculesView('originOfReplication')
+		self.chromosome_domain = self.uniqueMoleculesView('chromosome_domain')
 
 		# Create bulk molecule views for polymerization reaction
 		self.dntps = self.bulkMoleculesView(sim_data.moleculeGroups.dNtpIds)
@@ -71,6 +71,8 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Create molecules views for full chromosomes
 		self.full_chromosome = self.uniqueMoleculesView("fullChromosome")
 
+		# Get placeholder value for domains without children
+		self.no_child_place_holder = sim_data.process.replication.no_child_place_holder
 
 	def calculateRequest(self):
 
@@ -101,27 +103,27 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			self.replisome_trimers.requestIs(6*n_oric)
 			self.replisome_monomers.requestIs(2*n_oric)
 
+		# Request all chromosome domains
+		self.chromosome_domain.requestAll()
+
 		# If there are no active forks return
-		activeDnaPoly = self.activeDnaPoly.allMolecules()
-		if len(activeDnaPoly) == 0:
+		active_replisomes = self.active_replisome.allMolecules()
+		n_active_replisomes = len(active_replisomes)
+		if n_active_replisomes == 0:
 			return
 
-		# Request all active DNA polymerases and replisomes
-		self.activeDnaPoly.requestAll()
-		self.activeReplisome.requestAll()
-
-		# Request all full chromosomes
+		# Request all replisomes and full chromosomes
+		self.active_replisome.requestAll()
 		self.full_chromosome.requestAll()
 
-		# Get sequences for all active forks
-		sequenceIdx, sequenceLength = activeDnaPoly.attrs(
-			'sequenceIdx', 'sequenceLength'
-			)
+		# Get current locations of all replication forks
+		fork_coordinates = active_replisomes.attr("coordinates")
+		sequence_length = np.abs(np.repeat(fork_coordinates, 2))
 
 		sequences = buildSequences(
 			self.sequences,
-			sequenceIdx,
-			sequenceLength,
+			np.tile(np.arange(4), n_active_replisomes//2),
+			sequence_length,
 			self._dnaPolymeraseElongationRate()
 			)
 
@@ -129,7 +131,8 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		sequenceComposition = np.bincount(
 			sequences[sequences != polymerize.PAD_VALUE], minlength=4)
 
-		# If one dNTP is limiting then limit the request for the other three by the same ratio
+		# If one dNTP is limiting then limit the request for the other three by
+		# the same ratio
 		dNtpsTotal = self.dntps.total()
 		maxFractionalReactionLimit = (np.fmin(1, dNtpsTotal / sequenceComposition)).min()
 
@@ -138,23 +141,21 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			maxFractionalReactionLimit * sequenceComposition)
 
 	def evolveState(self):
-
 		## Module 1: Replication initiation
-		# Get number of active DNA polymerases, replisomes, and oriCs
-		activeDnaPoly = self.activeDnaPoly.molecules()
-		n_active_polymerase = len(activeDnaPoly)
-		activePolymerasePresent = (n_active_polymerase > 0)
-
-		activeReplisome = self.activeReplisome.molecules()
-		n_active_replisome = len(activeReplisome)
+		# Get number of existing replisomes, oriCs, full chromosomes
+		active_replisomes = self.active_replisome.molecules()
+		n_active_replisomes = len(active_replisomes)
 
 		oriCs = self.oriCs.molecules()
 		n_oric = len(oriCs)
-		full_chromosomes = self.full_chromosome.molecules()
-		n_chromosomes = len(full_chromosomes)
 
-		# If there are no chromosomes and oriC's, return immediately
-		if n_oric == 0 and n_chromosomes == 0:
+		full_chromosomes = self.full_chromosome.molecules()
+
+		# Get existing chromosome domains
+		chromosome_domains = self.chromosome_domain.molecules()
+
+		# If there are no origins, return immediately
+		if n_oric == 0:
 			return
 
 		# Get number of available replisome subunits
@@ -174,66 +175,81 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# If all conditions are met, initiate a round of replication on every
 		# origin of replication
 		if initiate_replication:
-			# Get replication round indexes of active DNA polymerases
-			if activePolymerasePresent:
-				replicationRound = activeDnaPoly.attr('replicationRound')
-			else:
-				# Set to -1 to set values for new polymerases to 0
-				replicationRound = np.array([-1])
+			# Get attributes of existing oriCs and domains
+			domain_index_existing_oric = oriCs.attr('domain_index')
+			domain_index_existing_domain, child_domains = chromosome_domains.attrs(
+				'domain_index', 'child_domains')
 
-			# Get chromosome indexes of current oriCs
-			chromosomeIndexOriC = oriCs.attr('chromosomeIndex')
+			# Get indexes of the domains that would be getting child domains
+			# (domains that contain an origin)
+			new_parent_domains = np.where(np.in1d(domain_index_existing_domain,
+				domain_index_existing_oric))[0]
 
-			# Calculate number of new DNA polymerases and replisomes required
-			n_new_polymerase = 4*n_oric
+			# Calculate counts of new replisomes and domains to add
 			n_new_replisome = 2*n_oric
+			n_new_domain = 2*n_oric
 
-			# Add new polymerases, oriC's, and replisomes
-			activeDnaPolyNew = self.activeDnaPoly.moleculesNew(
-				"dnaPolymerase",
-				n_new_polymerase
+			# Calculate the domain indexes of new domains and oriC's
+			max_domain_index = domain_index_existing_domain.max()
+			domain_index_new = np.arange(
+				max_domain_index + 1, max_domain_index + 2*n_oric + 1,
+				dtype=np.int32
 				)
+
+			# Add new oriC's, replisomes, and domains
 			oriCsNew = self.oriCs.moleculesNew(
 				"originOfReplication",
 				n_oric
 				)
-			activeReplisomeNew = self.activeReplisome.moleculesNew(
-				"activeReplisome",
+			active_replisomes_new = self.active_replisome.moleculesNew(
+				"active_replisome",
 				n_new_replisome
-			)
-
-			# Calculate and set attributes of newly created polymerases
-			# Polymerases inherit the chromosome indexes of the OriC's they
-			# were initiated from
-			sequenceIdx = np.tile(
-				np.array([0, 1, 2, 3], dtype=np.int8), n_oric)
-			sequenceLength = np.zeros(n_new_polymerase, dtype=np.int64)
-			replicationRoundPolymerase = np.ones(n_new_polymerase,
-				dtype=np.int64)*(replicationRound.max() + 1)
-			chromosomeIndexPolymerase = np.repeat(chromosomeIndexOriC, 4)
-
-			activeDnaPolyNew.attrIs(
-				sequenceIdx=sequenceIdx,
-				sequenceLength=sequenceLength,
-				replicationRound=replicationRoundPolymerase,
-				chromosomeIndex=chromosomeIndexPolymerase,
+				)
+			chromosome_domain_new = self.chromosome_domain.moleculesNew(
+				"chromosome_domain",
+				n_new_domain
 				)
 
-			# Calculate and set attributes of newly created oriCs
-            # New OriC's inherit the chromosome indexes of the old OriC's they
-			# were replicated from.
-			oriCsNew.attrIs(chromosomeIndex=chromosomeIndexOriC)
+			# Set attributes of new oriC's, and reset attributes of existing
+			# oriC's
+            # All oriC's must be assigned new domain indexes
+			oriCs.attrIs(
+				domain_index=domain_index_new[:n_oric],
+				)
+			oriCsNew.attrIs(
+				domain_index=domain_index_new[n_oric:],
+				)
 
 			# Calculate and set attributes of newly created replisomes.
-			# New replisomes inherit the chromosome indexes of the OriC's they
-			# were initiated from.
-			replicationRoundReplisome = np.ones(n_new_replisome,
-				dtype=np.int64)*(replicationRound.max() + 1)
-			chromosomeIndexReplisome = np.repeat(chromosomeIndexOriC, 2)
+			# New replisomes inherit the domain indexes of the oriC's they
+			# were initiated from. Two replisomes are formed per oriC, one on
+			# the right replichore, and one on the left.
+			coordinates = np.zeros(n_new_replisome, dtype=np.int64)
+			right_replichore = np.tile(
+				np.array([True, False], dtype=np.bool), n_oric)
+			domain_index_new_replisome = np.repeat(
+				domain_index_existing_oric, 2)
 
-			activeReplisomeNew.attrIs(
-				replicationRound=replicationRoundReplisome,
-				chromosomeIndex=chromosomeIndexReplisome,
+			active_replisomes_new.attrIs(
+				coordinates=coordinates,
+				right_replichore=right_replichore,
+				domain_index=domain_index_new_replisome,
+				)
+
+			# Set attributes of new chromosome domains. All new domains have
+			# no children domains
+			chromosome_domain_new.attrIs(
+				domain_index=domain_index_new,
+				child_domains=np.full(
+					(n_new_domain, 2), self.no_child_place_holder,
+					dtype=np.int32)
+				)
+
+			# Add new domains as children of existing domains
+			child_domains[new_parent_domains] = domain_index_new.reshape(-1, 2)
+
+			chromosome_domains.attrIs(
+				child_domains=child_domains
 				)
 
 			# Decrement counts of replisome subunits
@@ -247,27 +263,31 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			self.criticalInitiationMass.asNumber(units.fg))
 
 		## Module 2: replication elongation
-		# If no active polymerases are present, return immediately
-		# Note: the new DNA polymerases activated in the previous module are
-		# not elongated until the next timestep.
-		if n_active_polymerase == 0:
+		# If no active replisomes are present, return immediately
+		# Note: the new replication forks added in the previous module are not
+		# elongated until the next timestep.
+		if n_active_replisomes == 0:
 			return
 
-		# Build sequences to polymerize
+		# Get allocated counts of dNTPs
 		dNtpCounts = self.dntps.counts()
-		sequenceIdx, sequenceLengths, massDiffDna = activeDnaPoly.attrs(
-			'sequenceIdx', 'sequenceLength', 'massDiff_DNA'
-			)
 
+		# Get attributes of existing replisomes
+		domain_index_replisome, right_replichore, coordinates, massDiff_DNA = active_replisomes.attrs(
+			"domain_index", "right_replichore", "coordinates", "massDiff_DNA"
+			)
+		sequence_length = np.abs(np.repeat(coordinates, 2))
+
+		# Build sequences to polymerize
 		sequences = buildSequences(
 			self.sequences,
-			sequenceIdx,
-			sequenceLengths,
+			np.tile(np.arange(4), n_active_replisomes // 2),
+			sequence_length,
 			self._dnaPolymeraseElongationRate()
 			)
 
 		# Use polymerize algorithm to quickly calculate the number of
-		# elongations each "polymerase" catalyzes
+		# elongations each fork catalyzes
 		reactionLimit = dNtpCounts.sum()
 
 		result = polymerize(
@@ -280,21 +300,26 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		sequenceElongations = result.sequenceElongation
 		dNtpsUsed = result.monomerUsages
 
-		# Compute mass increase for each polymerizing chromosome
-		massIncreaseDna = computeMassIncrease(
+		# Compute mass increase for each elongated sequence
+		mass_increase_dna = computeMassIncrease(
 			sequences,
 			sequenceElongations,
 			self.polymerized_dntp_weights.asNumber(units.fg)
 			)
 
-		updatedMass = massDiffDna + massIncreaseDna
+		# Compute masses that should be added to each replisome
+		updatedMass = massDiff_DNA + mass_increase_dna[0::2] + mass_increase_dna[1::2]
 
-		# Update positions of each "polymerase"
-		updatedLengths = sequenceLengths + sequenceElongations
+		# Update positions of each fork
+		updated_length = sequence_length + sequenceElongations
+		updated_coordinates = updated_length[0::2]
 
-		activeDnaPoly.attrIs(
-			sequenceLength=updatedLengths,
-			massDiff_DNA=updatedMass
+		# Reverse signs of fork coordinates on left replichore
+		updated_coordinates[~right_replichore] = -updated_coordinates[~right_replichore]
+
+		active_replisomes.attrIs(
+			coordinates = updated_coordinates,
+			massDiff_DNA = updatedMass,
 			)
 
 		# Update counts of polymerized metabolites
@@ -304,230 +329,94 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Increment copy numbers of replicated genes
 		new_gene_copies = np.zeros(len(self.replication_coordinate))
 
-		for (seq_idx, old_len, new_len) in izip(
-				sequenceIdx, sequenceLengths, updatedLengths):
-			# Fork on forward strand
-			if seq_idx == 0:
+		for (rr, old_coord, new_coord) in izip(
+				right_replichore, coordinates, updated_coordinates):
+			# Fork on right replichore
+			if rr:
 				new_gene_copies[np.logical_and(
-					self.replication_coordinate >= old_len,
-					self.replication_coordinate < new_len
+					self.replication_coordinate >= old_coord,
+					self.replication_coordinate < new_coord
 					)] += 1
-			# Fork on reverse strand
-			elif seq_idx == 1:
+			# Fork on left replichore
+			else:
 				new_gene_copies[np.logical_and(
-					self.replication_coordinate <= -old_len,
-					self.replication_coordinate > -new_len
+					self.replication_coordinate <= old_coord,
+					self.replication_coordinate > new_coord
 					)] += 1
 
 		self.gene_copy_number.countsInc(new_gene_copies)
 
 		## Module 3: replication termination
-		# Determine if any polymerases reached the end of their sequences. If
-		# so, terminate replication and update the attributes of the remaining
-		# polymerases and OriC's to reflect the new chromosome structure.
-		terminalLengths = self.sequenceLengths[sequenceIdx]
-		terminatedPolymerases = (updatedLengths == terminalLengths)
+		# Determine if any forks have reached the end of their sequences. If
+		# so, delete the replisomes and domains that were terminated.
+		terminal_lengths = self.replichore_lengths[
+			np.tile(np.arange(2), n_active_replisomes // 2)]
+		terminated_replisomes = (np.abs(updated_coordinates) == terminal_lengths)
 
-		# If any of the polymerases were terminated, check if all polymerases
-		# initiated the same round as the terminated polymerases has already
-		# been removed - if they have, update attributes of the remaining
-		# polymerases and oriC's, and remove the polymerases.
-		if terminatedPolymerases.sum() > 0:
-			# Get attributes from active DNA polymerases and oriC's
-			chromosomeIndexPolymerase, replicationRoundPolymerase = activeDnaPoly.attrs(
-				'chromosomeIndex', 'replicationRound'
+		# If any forks were terminated,
+		if terminated_replisomes.sum() > 0:
+			# Get domain indexes of terminated forks
+			terminated_domains = np.unique(domain_index_replisome[terminated_replisomes])
+
+			# Get attributes of existing domains and full chromosomes
+			domain_index_domains, child_domains = chromosome_domains.attrs(
+				"domain_index", "child_domains"
 				)
-			chromosomeIndexReplisome, replicationRoundReplisome = activeReplisome.attrs(
-				'chromosomeIndex', 'replicationRound'
-				)
-			chromosomeIndexOriC = oriCs.attr('chromosomeIndex')
-			chromosomeIndexFullChromosome = full_chromosomes.attr('chromosomeIndex')
+			mother_domain_index = full_chromosomes.attr("mother_domain_index")
 
-			# If new DNAPs were added in this timestep, append attributes of
-			# these polymerases
-			if initiate_replication:
-				chromosomeIndexPolymeraseNew, replicationRoundPolymeraseNew = activeDnaPolyNew.attrs(
-					'chromosomeIndex', 'replicationRound'
-					)
-				chromosomeIndexReplisomeNew, replicationRoundReplisomeNew = activeReplisomeNew.attrs(
-					'chromosomeIndex', 'replicationRound'
-					)
-				chromosomeIndexOriCNew = oriCsNew.attr('chromosomeIndex')
-
-				chromosomeIndexPolymerase = np.append(
-					chromosomeIndexPolymerase, chromosomeIndexPolymeraseNew
-					)
-				replicationRoundPolymerase = np.append(
-					replicationRoundPolymerase, replicationRoundPolymeraseNew
-					)
-				chromosomeIndexReplisome = np.append(
-					chromosomeIndexReplisome, chromosomeIndexReplisomeNew
-					)
-				replicationRoundReplisome = np.append(
-					replicationRoundReplisome, replicationRoundReplisomeNew
-					)
-				chromosomeIndexOriC = np.append(
-					chromosomeIndexOriC, chromosomeIndexOriCNew
-					)
-
-				terminatedPolymerases = np.pad(terminatedPolymerases,
-					(0, n_new_polymerase), 'constant')
-
-			# Check that all terminated polymerases were initiated in the same
-			# replication round
-			assert np.unique(replicationRoundPolymerase[terminatedPolymerases]).size == 1
-
-			# Get chromosome indexes of the terminated polymerases
-			chromosomeIndexesTerminated = np.unique(chromosomeIndexPolymerase[terminatedPolymerases])
-			newChromosomeIndex = chromosomeIndexFullChromosome.max() + 1
-
-			# Get replication round index of the terminated polymerases
-			terminatedRound = replicationRoundPolymerase[terminatedPolymerases][0]
-
-			# Initialize array of replisomes that need to be terminated
-			terminatedReplisomes = np.zeros_like(chromosomeIndexReplisome, dtype=bool)
+			# Initialize array of replisomes and domains that should be deleted
+			replisomes_to_delete = np.zeros_like(domain_index_replisome, dtype=np.bool)
+			domains_to_delete = np.zeros_like(domain_index_domains, dtype=np.bool)
 
 			# Count number of new full chromosomes that should be created
 			n_new_chromosomes = 0
 
-			# Initialize chromosome indexes of new full chromosomes
-			chromosomeIndexFullChromosomeNew = []
+			# Initialize array for mother domain indexes of full chromosomes
+			mother_domain_new_chromosomes = []
 
-			# Keep track of polymerases that should be deleted
-			polymerasesToDelete = np.zeros_like(chromosomeIndexPolymerase,
-				dtype=np.bool)
+			for terminated_domain_index in terminated_domains:
+				# Get all terminated replisomes in the terminated domain
+				terminated_domain_matching_replisomes = np.logical_and(
+					domain_index_replisome == terminated_domain_index,
+					terminated_replisomes
+					)
 
-			for chromosomeIndexTerminated in chromosomeIndexesTerminated:
-				# Get all remaining active polymerases initiated in the same
-				# replication round and in the given chromosome
-				replicationRoundMatchPolymerase = (
-						replicationRoundPolymerase == terminatedRound)
-				chromosomeMatchPolymerase = (
-						chromosomeIndexPolymerase == chromosomeIndexTerminated)
-				remainingPolymerasesChromosome = np.logical_and(
-					replicationRoundMatchPolymerase, chromosomeMatchPolymerase)
-
-				# Get all terminated polymerases in the given chromosome
-				terminatedPolymerasesChromosome = np.logical_and(
-					terminatedPolymerases, chromosomeMatchPolymerase)
-
-				# Get all active replisomes in the given chromosome
-				chromosomeMatchReplisome = (
-						chromosomeIndexReplisome == chromosomeIndexTerminated)
-
-				# If all active polymerases are terminated polymerases, we are
+				# If both replisomes in the domain have terminated, we are
 				# ready to split the chromosome and update the attributes.
-				if remainingPolymerasesChromosome.sum() == terminatedPolymerasesChromosome.sum():
-
-					# For each set of polymerases/replisomes initiated in the
-					# same replication round, update the chromosome indexes to
-					# a new index for half of the polymerases/replisomes.
-					for roundIdx in np.arange(terminatedRound + 1,
-							replicationRoundPolymerase.max() + 1):
-
-						replicationRoundMatchPolymerase = (
-								replicationRoundPolymerase == roundIdx)
-						polymerasesToSplit = np.logical_and(
-							replicationRoundMatchPolymerase,
-							chromosomeMatchPolymerase)
-						n_matches_polymerase = polymerasesToSplit.sum()
-
-						replicationRoundMatchReplisome = (
-								replicationRoundReplisome == roundIdx)
-						replisomesToSplit = np.logical_and(
-							replicationRoundMatchReplisome,
-							chromosomeMatchReplisome)
-						n_matches_replisome = replisomesToSplit.sum()
-
-						# Number of polymerases/replisomes initiated in a
-						# single round must be a multiple of eight/four.
-						assert n_matches_polymerase % 8 == 0
-						assert n_matches_replisome % 4 == 0
-
-						# Update the chromosome indexes for half of the polymerases
-						secondHalfIdxPolymerase = np.where(
-							polymerasesToSplit)[0][(n_matches_polymerase // 2):]
-						chromosomeIndexPolymerase[secondHalfIdxPolymerase] = newChromosomeIndex
-
-						secondHalfIdxReplisome = np.where(
-							replisomesToSplit)[0][(n_matches_replisome // 2):]
-						chromosomeIndexReplisome[secondHalfIdxReplisome] = newChromosomeIndex
-
-					# Get oriC's in the chromosome getting divided
-					chromosomeMatchOriC = (chromosomeIndexOriC == chromosomeIndexTerminated)
-					n_matches = chromosomeMatchOriC.sum()
-
-					# Number of OriC's in a dividing chromosome should be even
-					assert n_matches % 2 == 0
-
-					# Update the chromosome indexes for half of the OriC's
-					secondHalfIdx = np.where(chromosomeMatchOriC)[0][(n_matches // 2):]
-					chromosomeIndexOriC[secondHalfIdx] = newChromosomeIndex
-
-					# Add replisomes with the same replication round and
-					# chromosome index as the terminating DNAPs to the list
-					# of replisomes to terminate.
-					replicationRoundMatchReplisome = (
-						replicationRoundReplisome == terminatedRound)
-
-					terminatedReplisomes = np.logical_or(terminatedReplisomes,
-						np.logical_and(replicationRoundMatchReplisome,
-						chromosomeMatchReplisome)
+				if terminated_domain_matching_replisomes.sum() == 2:
+					# Tag replisomes and domains with the given domain index
+					# for deletion
+					replisomes_to_delete = np.logical_or(
+						replisomes_to_delete,
+						terminated_domain_matching_replisomes
 						)
 
-					# Add terminated polymerases to the list to delete
-					polymerasesToDelete = np.logical_or(polymerasesToDelete,
-						terminatedPolymerases)
+					domain_matching_domains = (
+							domain_index_domains == terminated_domain_index)
+					domains_to_delete = np.logical_or(
+						domains_to_delete,
+						domain_matching_domains
+						)
+
+					# Get child domains of deleted domain
+					child_domains_this_domain = child_domains[
+						np.where(domain_matching_domains)[0], :]
+
+					# Edit mother domain index of one existing full chromosome
+					# to index of first child domain
+					mother_domain_index[
+						np.where(mother_domain_index == terminated_domain_index)[0]
+						] = child_domains_this_domain[:, 0]
 
 					# Increment count of new full chromosome
 					n_new_chromosomes += 1
 
 					# Append chromosome index of new full chromosome
-					chromosomeIndexFullChromosomeNew.append(newChromosomeIndex)
+					mother_domain_new_chromosomes.append(child_domains_this_domain[:, 1])
 
-					# Increment the new chromosome index in case another
-					# chromosome needs to be split
-					newChromosomeIndex += 1
-
-			# If new DNAPs and replisomes were added in the same timestep,
-			# partition indexes and reset attributes of old and new DNAPs and
-			# replisomes separately
-			if initiate_replication:
-				# Reset chromosomeIndex for old DNAPs, replisomes and oriC's
-				activeDnaPoly.attrIs(
-					chromosomeIndex=chromosomeIndexPolymerase[:n_active_polymerase]
-					)
-				activeReplisome.attrIs(
-					chromosomeIndex=chromosomeIndexReplisome[:n_active_replisome]
-					)
-				oriCs.attrIs(chromosomeIndex=chromosomeIndexOriC[:n_oric])
-
-				# Reset chromosomeIndex for new DNAPs, replisomes and oriC's
-				activeDnaPolyNew.attrIs(
-					chromosomeIndex=chromosomeIndexPolymerase[n_active_polymerase:]
-					)
-				activeReplisomeNew.attrIs(
-					chromosomeIndex=chromosomeIndexReplisome[n_active_replisome]
-					)
-				oriCsNew.attrIs(chromosomeIndex=chromosomeIndexOriC[n_oric:])
-
-				# Delete terminated polymerases
-				activeDnaPoly.delByIndexes(
-					np.where(polymerasesToDelete[:n_active_polymerase])[0]
-					)
-				activeReplisome.delByIndexes(
-					np.where(terminatedReplisomes[:n_active_replisome])[0]
-					)
-
-			else:
-				# Reset chromosomeIndex for DNAPs, replisomes, and oriC's
-				activeDnaPoly.attrIs(chromosomeIndex=chromosomeIndexPolymerase)
-				activeReplisome.attrIs(chromosomeIndex=chromosomeIndexReplisome)
-				oriCs.attrIs(chromosomeIndex=chromosomeIndexOriC)
-
-				# Delete terminated polymerases and replisomes
-				activeDnaPoly.delByIndexes(np.where(polymerasesToDelete)[0])
-				activeReplisome.delByIndexes(np.where(terminatedReplisomes)[0])
+			# Delete terminated replisomes and domains
+			active_replisomes.delByIndexes(np.where(replisomes_to_delete)[0])
+			chromosome_domains.delByIndexes(np.where(domains_to_delete)[0])
 
 			# Generate new full chromosome molecules
 			if n_new_chromosomes > 0:
@@ -536,12 +425,19 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 					)
 				new_full_chromosome.attrIs(
 					division_time = [self.time() + self.D_period]*n_new_chromosomes,
-					chromosomeIndex = chromosomeIndexFullChromosomeNew,
+					has_induced_division = [False]*n_new_chromosomes,
+					mother_domain_index = mother_domain_new_chromosomes,
+					)
+
+				# Reset mother domain index of existing chromosomes that have
+				# finished replication
+				full_chromosomes.attrIs(
+					mother_domain_index = mother_domain_index,
 					)
 
 			# Increment counts of replisome subunits
-			self.replisome_trimers.countsInc(3*terminatedReplisomes.sum())
-			self.replisome_monomers.countsInc(terminatedReplisomes.sum())
+			self.replisome_trimers.countsInc(3*replisomes_to_delete.sum())
+			self.replisome_monomers.countsInc(replisomes_to_delete.sum())
 
 
 	def _dnaPolymeraseElongationRate(self):
