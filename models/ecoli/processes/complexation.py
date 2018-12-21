@@ -46,7 +46,7 @@ class Complexation(wholecell.processes.process.Process):
 		self.rates = np.full((self.stoichMatrix.shape[1],), 1000)
 
 		# build stochastic system simulation
-		self.system = StochasticSystem(self.stoichMatrix.transpose(), self.rates)
+		self.system = StochasticSystem(self.stoichMatrix, self.rates)
 
 		# self.prebuiltMatrices = mccBuildMatrices(self.stoichMatrix)
 		# self.product_indices = [idx for idx in np.where(np.any(self.stoichMatrix > 0, axis=1))[0]]
@@ -68,8 +68,8 @@ class Complexation(wholecell.processes.process.Process):
 		# 	)
 
 		
-		history, steps, events = self.system.evolve(moleculeCounts, self._sim.timeStepSec())
-		updatedMoleculeCounts = history[-1]
+		time, counts, events = self.system.evolve(moleculeCounts, self._sim.timeStepSec())
+		updatedMoleculeCounts = counts[-1]
 
 		self.molecules.requestIs(np.fmax(moleculeCounts - updatedMoleculeCounts, 0))
 
@@ -85,8 +85,8 @@ class Complexation(wholecell.processes.process.Process):
 		# 	*self.prebuiltMatrices
 		# 	)
 
-		history, steps, events = self.system.evolve(moleculeCounts, self._sim.timeStepSec())
-		updatedMoleculeCounts = history[-1]
+		time, counts, events = self.system.evolve(moleculeCounts, self._sim.timeStepSec())
+		updatedMoleculeCounts = counts[-1]
 
 		self.molecules.countsIs(updatedMoleculeCounts)
 
