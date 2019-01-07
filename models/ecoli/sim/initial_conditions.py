@@ -237,7 +237,7 @@ def initializeFullChromosome(bulkMolCntr, uniqueMolCntr, sim_data):
 	full_chromosome.attrIs(
 		division_time = 0.0,
 		has_induced_division = True,
-		mother_domain_index = 0,
+		domain_index = 0,
 		)
 
 
