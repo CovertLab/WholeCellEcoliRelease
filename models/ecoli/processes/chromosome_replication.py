@@ -372,7 +372,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			n_new_chromosomes = 0
 
 			# Initialize array for domain indexes of new full chromosomes
-			domain_index_new_full_chromes = []
+			domain_index_new_full_chroms = []
 
 			for terminated_domain_index in terminated_domains:
 				# Get all terminated replisomes in the terminated domain
@@ -412,7 +412,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 					n_new_chromosomes += 1
 
 					# Append chromosome index of new full chromosome
-					domain_index_new_full_chromes.append(child_domains_this_domain[:, 1])
+					domain_index_new_full_chroms.append(child_domains_this_domain[:, 1])
 
 			# Delete terminated replisomes and domains
 			active_replisomes.delByIndexes(np.where(replisomes_to_delete)[0])
@@ -426,7 +426,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 				new_full_chromosome.attrIs(
 					division_time = [self.time() + self.D_period]*n_new_chromosomes,
 					has_induced_division = [False]*n_new_chromosomes,
-					domain_index = domain_index_new_full_chromes,
+					domain_index = domain_index_new_full_chroms,
 					)
 
 				# Reset domain index of existing chromosomes that have finished
