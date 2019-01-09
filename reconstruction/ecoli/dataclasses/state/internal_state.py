@@ -97,6 +97,10 @@ class InternalState(object):
 		Add data (name, mass, and attribute data structure) for all classes of
 		unique molecules.
 		"""
+		# Initialize lists of molecule names for each division mode
+		sim_data.moleculeGroups.unique_molecules_active_ribosome_division = []
+		sim_data.moleculeGroups.unique_molecules_domain_index_division = []
+		sim_data.moleculeGroups.unique_molecules_binomial_division = []
 
 		# Add active RNA polymerase
 		rnaPolyComplexMass = self.bulkMolecules.bulkData["mass"][
@@ -107,6 +111,11 @@ class InternalState(object):
 			}
 
 		self.uniqueMolecules.addToUniqueState('activeRnaPoly', rnaPolyAttributes, rnaPolyComplexMass)
+
+		# RNAPs are currently not associated to a specific location on the
+		# chromosome, and is divided binomially.
+		sim_data.moleculeGroups.unique_molecules_binomial_division.append(
+			'activeRnaPoly')
 
 		# Add active ribosome
 		# TODO: This is a bad hack that works because in the fitter
@@ -122,6 +131,11 @@ class InternalState(object):
 			}
 		self.uniqueMolecules.addToUniqueState("activeRibosome", ribosomeAttributes, ribosomeMass)
 
+		# Active ribosomes are currently divided binomially, but the ribosome
+		# elongation rates of daughter cells are set in such a way that the two
+		# daughters have identical translational capacities.
+		sim_data.moleculeGroups.unique_molecules_active_ribosome_division.append(
+			'activeRibosome')
 
 		# Add full chromosomes
 		# One full chromosome molecule is added when chromosome replication is
@@ -129,17 +143,21 @@ class InternalState(object):
 		# specified by the D period (if D_PERIOD_DIVISION is set to True).
 		# The "has_induced_division" attribute is initially set to False, and
 		# is reset to True when division_time was reached and the cell has
-		# divided. The "mother_domain_index" keeps track of the index of the
-		# oldest chromosome domain of the full chromosome.
+		# divided. The "domain_index" keeps track of the index of the oldest
+		# chromosome domain that is part of the full chromosome.
 		fullChromosomeMass = (units.g/units.mol) * (
 			stateFunctions.createMassesByCompartments(raw_data.full_chromosome))
 		fullChromosomeAttributes = {
 			"division_time": "f8",
 			"has_induced_division": "?",
-			"mother_domain_index": "i4",
+			"domain_index": "i4",
 			}
 
 		self.uniqueMolecules.addToUniqueState('fullChromosome', fullChromosomeAttributes, fullChromosomeMass)
+
+		# Full chromosomes are divided based on their domain index
+		sim_data.moleculeGroups.unique_molecules_domain_index_division.append(
+			'fullChromosome')
 
 
 		# Add chromosome domains
@@ -159,6 +177,9 @@ class InternalState(object):
 
 		self.uniqueMolecules.addToUniqueState('chromosome_domain', chromosome_domain_attributes, chromosome_domain_mass)
 
+		# Chromosome domains are divided based on their domain index
+		sim_data.moleculeGroups.unique_molecules_domain_index_division.append(
+			'chromosome_domain')
 
 		# Add active replisomes
 		# Note that the replisome does not functionally replicate the
@@ -187,6 +208,9 @@ class InternalState(object):
 
 		self.uniqueMolecules.addToUniqueState('active_replisome', replisomeAttributes, replisomeMass)
 
+		# Active replisomes are divided based on their domain index
+		sim_data.moleculeGroups.unique_molecules_domain_index_division.append(
+			'active_replisome')
 
 		# Add origins of replication
 		# Note that origins are conceptual molecules and have zero mass. The
@@ -198,6 +222,10 @@ class InternalState(object):
 			}
 
 		self.uniqueMolecules.addToUniqueState('originOfReplication', originAttributes, originMass)
+
+		# oriC's are divided based on their domain index
+		sim_data.moleculeGroups.unique_molecules_domain_index_division.append(
+			'originOfReplication')
 
 
 	def _buildCompartments(self, raw_data, sim_data):

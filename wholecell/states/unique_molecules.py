@@ -51,6 +51,8 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		self._moleculeMasses = None
 		self._unassignedPartitionedValue = None
 
+		self.division_modes = {}
+
 
 	def initialize(self, sim, sim_data):
 		super(UniqueMolecules, self).initialize(sim, sim_data)
@@ -89,6 +91,10 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 			).asNumber(units.fg)
 
 		self._unassignedPartitionedValue = self._nProcesses
+
+		self.division_modes['active_ribosome'] = sim_data.moleculeGroups.unique_molecules_active_ribosome_division
+		self.division_modes['domain_index'] = sim_data.moleculeGroups.unique_molecules_domain_index_division
+		self.division_modes['binomial'] = sim_data.moleculeGroups.unique_molecules_binomial_division
 
 
 	def partition(self):
