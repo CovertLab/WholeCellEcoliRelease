@@ -25,48 +25,30 @@ class getterFunctions(object):
 	def getMass(self, ids):
 		assert isinstance(ids, (list, np.ndarray))
 		try:
-			idx = [np.where(self._allMass['id'] == re.sub("\[[a-z]\]","", i))[0][0] for i in ids]
+			masses = [self._all_mass[self._location_tag.sub('', i)] for i in ids]
+		except KeyError:
+			raise Exception("Unrecognized id: {}".format(i))
 
-		except IndexError:
-			if i not in self._allMass["id"]:
-				raise Exception("Unrecognized id: {}".format(i))
-
-			else:
-				raise
-
-		return self._allMass['mass'][idx]
+		return self._mass_units * np.array(masses)
 
 	def getLocation(self, ids):
 		assert isinstance(ids, list) or isinstance(ids, np.ndarray)
 		return [self._locationDict[x] for x in ids]
 
 	def _buildAllMasses(self, raw_data, sim_data):
-		size = len(raw_data.rnas) + len(raw_data.proteins) + len(raw_data.proteinComplexes) + len(raw_data.metabolites) + len(raw_data.modifiedForms) + len(raw_data.polymerized) + len(raw_data.water) + len(raw_data.full_chromosome)
-		allMass = np.empty(size,
-			dtype = [
-					('id',		'a50'),
-					('mass',	"f8")
-					]
-			)
+		all_mass = {}
+		all_mass.update({x['id']: np.sum(x['mw']) for x in raw_data.rnas})
+		all_mass.update({x['id']: np.sum(x['mw']) for x in raw_data.proteins})
+		all_mass.update({x['id']: np.sum(x['mw']) for x in raw_data.proteinComplexes})
+		all_mass.update({x['id']: np.sum(x['mw7.2']) for x in raw_data.metabolites})
+		all_mass.update({x['id']: np.sum(x['mw7.2']) for x in raw_data.modifiedForms})
+		all_mass.update({x['id']: np.sum(x['mw']) for x in raw_data.polymerized})
+		all_mass.update({x['id']: np.sum(x['mw7.2']) for x in raw_data.water})
+		all_mass.update({x['id']: np.sum(x['mw']) for x in raw_data.full_chromosome})
 
-		listMass = []
-		listMass.extend([(x['id'],np.sum(x['mw'])) for x in raw_data.rnas])
-		listMass.extend([(x['id'],np.sum(x['mw'])) for x in raw_data.proteins])
-		listMass.extend([(x['id'],np.sum(x['mw'])) for x in raw_data.proteinComplexes])
-		listMass.extend([(x['id'],np.sum(x['mw7.2'])) for x in raw_data.metabolites])
-		listMass.extend([(x['id'],np.sum(x['mw7.2'])) for x in raw_data.modifiedForms])
-		listMass.extend([(x['id'],np.sum(x['mw'])) for x in raw_data.polymerized])
-		listMass.extend([(x['id'],np.sum(x['mw7.2'])) for x in raw_data.water])
-		listMass.extend([(x['id'],np.sum(x['mw'])) for x in raw_data.full_chromosome])
-
-		allMass[:] = listMass
-
-		field_units = {
-			'id'		:	None,
-			'mass'		:	units.g / units.mol,
-			}
-
-		self._allMass = UnitStructArray(allMass, field_units) # TODO: change to dict?
+		self._all_mass = all_mass
+		self._mass_units = units.g / units.mol
+		self._location_tag = re.compile('\[[a-z]\]')
 
 	def _buildLocations(self, raw_data, sim_data):
 		locationDict = {}
