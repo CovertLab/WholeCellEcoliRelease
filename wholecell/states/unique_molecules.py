@@ -238,14 +238,16 @@ class UniqueMoleculesView(wholecell.views.view.View):
 
 		self._queryResult = self._state.container.objectsInCollections(
 			self._query[0],
+			read_only=True,
 			**self._query[1]
 			)
 
 		self._totalIs(len(self._queryResult))
 
+
 	def molecules_read_only(self):
-		# TODO (Gwanggyu): This is NOT yet read-only!
 		return self._queryResult
+
 
 	def molecules(self):
 		return self._state.container.objectsInCollections(
@@ -253,6 +255,7 @@ class UniqueMoleculesView(wholecell.views.view.View):
 			_partitionedProcess = ("==", self._processIndex),
 			**self._query[1]
 			)
+
 
 	# NOTE: these accessors do not enforce any sort of consistency between the query
 	# and the objects created/deleted.  As such it may make more sense for these
