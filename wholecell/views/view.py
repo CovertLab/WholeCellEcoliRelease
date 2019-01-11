@@ -50,7 +50,7 @@ class View(object):
 
 	# Query
 
-	def total(self):
+	def total_counts(self):
 		return self._totalCount.copy()
 
 	# Request

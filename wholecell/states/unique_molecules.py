@@ -243,7 +243,8 @@ class UniqueMoleculesView(wholecell.views.view.View):
 
 		self._totalIs(len(self._queryResult))
 
-	def allMolecules(self):
+	def molecules_read_only(self):
+		# TODO (Gwanggyu): This is NOT yet read-only!
 		return self._queryResult
 
 	def molecules(self):

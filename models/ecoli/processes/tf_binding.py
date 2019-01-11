@@ -76,7 +76,7 @@ class TfBinding(wholecell.processes.process.Process):
 
 	def calculateRequest(self):
 		# Get current copy numbers of each gene
-		self.gene_copy_numbers = self.gene_copy_view.total()
+		self.gene_copy_numbers = self.gene_copy_view.total_counts()
 
 		# Request all counts of active transcription factors
 		for view in self.active_tf_view.itervalues():
@@ -117,7 +117,7 @@ class TfBinding(wholecell.processes.process.Process):
 				else:
 					pPromoterBound = 0.
 			else:
-				tfInactiveCounts = self.inactive_tf_view[tf].total()
+				tfInactiveCounts = self.inactive_tf_view[tf].total_counts()
 				pPromoterBound = self.pPromoterBoundTF(
 					active_tf_counts, tfInactiveCounts)
 

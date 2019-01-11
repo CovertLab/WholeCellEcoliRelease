@@ -80,7 +80,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.oriCs.requestAll()
 
 		# Get total count of existing oriC's
-		n_oric = self.oriCs.total()[0]
+		n_oric = self.oriCs.total_counts()[0]
 
 		# Get current cell mass
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg)
@@ -107,8 +107,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.chromosome_domain.requestAll()
 
 		# If there are no active forks return
-		active_replisomes = self.active_replisome.allMolecules()
-		n_active_replisomes = len(active_replisomes)
+		n_active_replisomes = self.active_replisome.total_counts()[0]
 		if n_active_replisomes == 0:
 			return
 
@@ -117,6 +116,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.full_chromosome.requestAll()
 
 		# Get current locations of all replication forks
+		active_replisomes = self.active_replisome.molecules_read_only()
 		fork_coordinates = active_replisomes.attr("coordinates")
 		sequence_length = np.abs(np.repeat(fork_coordinates, 2))
 
@@ -133,7 +133,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 		# If one dNTP is limiting then limit the request for the other three by
 		# the same ratio
-		dNtpsTotal = self.dntps.total()
+		dNtpsTotal = self.dntps.total_counts()
 		maxFractionalReactionLimit = (np.fmin(1, dNtpsTotal / sequenceComposition)).min()
 
 		# Request dNTPs
