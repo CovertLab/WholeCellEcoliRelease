@@ -147,7 +147,7 @@ simplegeneric==0.8.1
 singledispatch==3.4.0.3
 six==1.11.0
 statistics==1.0.3.5
-stochastic-arrow==0.0.11
+stochastic-arrow==0.0.12
 subprocess32==3.5.2
 swiglpk==1.4.4
 sympy==1.1.1
