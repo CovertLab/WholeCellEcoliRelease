@@ -334,6 +334,8 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_division_resu
 					)
 				d1_bool[d1_indexes] = True
 				d2_bool = np.logical_not(d1_bool)
+			else:
+				continue
 
 		elif molecule_name in uniqueMolecules.division_modes['domain_index']:
 			# Divide molecules associated with chromosomes based on the index
@@ -349,6 +351,8 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_division_resu
 
 				n_d1 = d1_bool.sum()
 				n_d2 = d2_bool.sum()
+			else:
+				continue
 
 		elif molecule_name in uniqueMolecules.division_modes['binomial']:
 			# Binomially divide molecules with binomial division modes.
@@ -366,6 +370,8 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_division_resu
 					)
 				d1_bool[d1_indexes] = True
 				d2_bool = np.logical_not(d1_bool)
+			else:
+				continue
 
 		else:
 			raise Exception, "Division mode not specified for unique molecule %s. Unable to divide cell." % (molecule_name, )
