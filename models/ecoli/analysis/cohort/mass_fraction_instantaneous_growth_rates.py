@@ -7,7 +7,6 @@ from __future__ import absolute_import
 
 import os
 import numpy as np
-import cPickle
 from matplotlib import pyplot as plt
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
@@ -67,10 +66,12 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		for gen, simDir in enumerate(allDir):
 			simOutDir = os.path.join(simDir, "simOut")
-			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-			timeStep = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
-			mass = TableReader(os.path.join(simOutDir, "Mass"))
 
+			main_reader = TableReader(os.path.join(simOutDir, "Main"))
+			time = main_reader.readColumn("time")
+			timeStep = main_reader.readColumn("timeStepSec")
+
+			mass = TableReader(os.path.join(simOutDir, "Mass"))
 			cellMass = mass.readColumn("cellMass")
 			proteinMass = mass.readColumn("proteinMass")
 			rnaMass = mass.readColumn("rnaMass")
@@ -155,10 +156,12 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		for gen, simDir in enumerate(allDir):
 			simOutDir = os.path.join(simDir, "simOut")
-			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-			timeStep = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
-			mass = TableReader(os.path.join(simOutDir, "Mass"))
 
+			main_reader = TableReader(os.path.join(simOutDir, "Main"))
+			time = main_reader.readColumn("time")
+			timeStep = main_reader.readColumn("timeStepSec")
+
+			mass = TableReader(os.path.join(simOutDir, "Mass"))
 			cellMass = mass.readColumn("cellMass")
 			proteinMass = mass.readColumn("proteinMass")
 			rnaMass = mass.readColumn("rnaMass")

@@ -35,10 +35,11 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		for simDir in allDir:
 			simOutDir = os.path.join(simDir, "simOut")
-			#initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-			timeSteps = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
-			initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-			absoluteTime = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+
+			main_reader = TableReader(os.path.join(simOutDir, "Main"))
+			timeSteps = main_reader.readColumn("timeStepSec")
+			initialTime = main_reader.readAttribute("initialTime")
+			absoluteTime = main_reader.readColumn("time")
 			relativeTime = absoluteTime - initialTime
 
 			plt.subplot(3,1,1)

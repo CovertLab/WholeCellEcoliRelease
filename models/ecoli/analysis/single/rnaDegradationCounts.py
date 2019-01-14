@@ -69,9 +69,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		exoproteinIndexes = np.array([moleculeIds.index(protein) for protein in exoRnaseIds], np.int)
 		endoproteinIndexes = np.array([moleculeIds.index(protein) for protein in endoRnaseIds], np.int)
 
-		# Load data
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 		RnaseCounts = bulkMoleculeCounts[:, proteinIndexes]
 
 		exoRnaseCounts = bulkMoleculeCounts[:, exoproteinIndexes]
@@ -107,8 +104,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Load metabolism production
 		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
 		deltaMetabolites = fbaResults.readColumn("deltaMetabolites")
 		outputMoleculeIDs = np.array(fbaResults.readAttribute("metaboliteNames"))
 		fbaResults.close()

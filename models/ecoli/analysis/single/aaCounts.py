@@ -37,8 +37,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		aaIndexes = np.array([moleculeIds.index(aaId) for aaId in aaIDs], np.int)
 		aaCounts = bulkMolecules.readColumn("counts")[:, aaIndexes]
 
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
 
 		bulkMolecules.close()
 

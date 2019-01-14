@@ -70,7 +70,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			# Factors of critical initiation mass
 			totalMass = mass.readColumn("cellMass")
-			criticalInitiationMass = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("criticalInitiationMass")
+			criticalInitiationMass = replication_data_file.readColumn("criticalInitiationMass")
 			criticalMassEquivalents = totalMass / criticalInitiationMass
 
 			axesList[2].plot(time, criticalMassEquivalents, linewidth=2)
@@ -87,13 +87,13 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			mass.close()
 
 			# Number of oriC
-			numberOfOric = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("numberOfOric")
+			numberOfOric = replication_data_file.readColumn("numberOfOric")
 			axesList[4].plot(time, numberOfOric, linewidth=2)
 			axesList[4].set_ylabel("Number of\noriC")
 			axesList[4].set_xlim([0, time.max()])
 
 			# Mass per oriC
-			criticalMassPerOriC = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("criticalMassPerOriC")
+			criticalMassPerOriC = replication_data_file.readColumn("criticalMassPerOriC")
 			axesList[5].plot(time, criticalMassPerOriC, linewidth=2)
 			axesList[5].set_ylabel("Critical mass\nper oriC")
 			axesList[5].set_xlim([0, time.max()])

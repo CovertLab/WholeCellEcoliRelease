@@ -42,8 +42,10 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		moleculeIds = bulkMolecules.readAttribute("objectNames")
 		moleculeIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in TCS_IDS], np.int)
 		moleculeCounts = bulkMolecules.readColumn("counts")[:, moleculeIndexes]
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
 
 		bulkMolecules.close()
 

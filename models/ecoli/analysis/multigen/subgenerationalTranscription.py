@@ -75,8 +75,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			simOutDir = os.path.join(simDir, "simOut")
 
 			if gen < FIRST_N_GENS:
-				time += TableReader(os.path.join(simOutDir, "Main")).readColumn("time").tolist()
-				time_eachGen.append(TableReader(os.path.join(simOutDir, "Main")).readColumn("time").tolist()[0])
+				main_reader = TableReader(os.path.join(simOutDir, "Main"))
+				time += main_reader.readColumn("time").tolist()
+				time_eachGen.append(main_reader.readColumn("time").tolist()[0])
 
 			rnaSynthProb = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
 			simulatedSynthProb = np.mean(rnaSynthProb.readColumn("rnaSynthProb")[:, mRnaIndexes], axis = 0)

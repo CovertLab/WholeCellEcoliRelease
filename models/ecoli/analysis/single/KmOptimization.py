@@ -11,7 +11,6 @@ import cPickle
 import numpy as np
 from matplotlib import pyplot as plt
 
-from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
 from models.ecoli.analysis import singleAnalysisPlot

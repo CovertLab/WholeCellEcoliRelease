@@ -70,8 +70,6 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		for gen_idx, simDir in enumerate(allDir):
 			simOutDir = os.path.join(simDir, "simOut")
 
-			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-
 			## READ DATA ##
 			# Read in bulk ids and counts
 			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))

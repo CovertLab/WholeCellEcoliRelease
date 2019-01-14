@@ -77,20 +77,22 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				simOutDir = os.path.join(simDir, "simOut")
 
 				try:
-					time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+					main_reader = TableReader(os.path.join(simOutDir, "Main"))
+					time = main_reader.readColumn("time")
 				except Exception as e:
 					print 'Error with data for %s: %s' % (simDir, e)
 					continue
 
 				doubling_time[idx] = time[-1] - time[0]
-				timeStepSec = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
+				timeStepSec = main_reader.readColumn("timeStepSec")
 
 				meanRnaMass[idx] = TableReader(os.path.join(simOutDir, "Mass")).readColumn("rnaMass").mean()
 				meanElngRate[idx] = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("effectiveElongationRate").mean()
 
-				numOrigin = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("numberOfOric")
+				replicationData = TableReader(os.path.join(simOutDir, "ReplicationData"))
+				numOrigin = replicationData.readColumn("numberOfOric")
 
-				massPerOric = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("criticalMassPerOriC")
+				massPerOric = replicationData.readColumn("criticalMassPerOriC")
 				idxInit = np.where(massPerOric >= 1)[0]
 				numOriginAtInit = numOrigin[idxInit - 1]
 				if numOriginAtInit.size:

@@ -52,7 +52,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		for simDir in allDirs:
 			simOutDir = os.path.join(simDir, "simOut")
 			# Load time
-			initialTime = 0#TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+			initialTime = 0  # TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
 			# Load mass data

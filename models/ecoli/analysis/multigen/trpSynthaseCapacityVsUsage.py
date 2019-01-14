@@ -61,9 +61,10 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			trpSynKcat = 2**( (37. - 25.) / 10.) * 4.1 # From PMID 6402362 (kcat of 4.1/s measured at 25 C)
 
-			initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")[BURN_IN:]
-			timeStep = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")[BURN_IN:]
+			main_reader = TableReader(os.path.join(simOutDir, "Main"))
+			# initialTime = main_reader.readAttribute("initialTime")
+			time = main_reader.readColumn("time")[BURN_IN:]
+			timeStep = main_reader.readColumn("timeStepSec")[BURN_IN:]
 
 
 			trpSynMaxCapacity = trpSynKcat * trpSynCounts * timeStep

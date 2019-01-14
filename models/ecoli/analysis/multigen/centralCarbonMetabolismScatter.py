@@ -62,7 +62,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			simOutDir = os.path.join(simDir, "simOut")
 
 			mainListener = TableReader(os.path.join(simOutDir, "Main"))
-			timeStepSec = mainListener.readColumn("timeStepSec")
 			mainListener.close()
 
 			massListener = TableReader(os.path.join(simOutDir, "Mass"))

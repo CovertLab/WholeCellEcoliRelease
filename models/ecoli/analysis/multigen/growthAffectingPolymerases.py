@@ -131,7 +131,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# Get elongation rate data
 			ribosomeDataFile = TableReader(os.path.join(simOutDir, "RibosomeData"))
 			actualElongations = ribosomeDataFile.readColumn("actualElongations")
-			ribosomeDataFile.close()
 
 			# Calculate statistics
 			rProteinCounts = np.hstack((freeProteinCounts50S, freeProteinCounts30S))
@@ -156,8 +155,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			ratioRNAPtoRibosome = totalRnap.astype(np.float) / ribosomeCounts.astype(np.float)
 			ribosomeConcentration = ((1 / sim_data.constants.nAvogadro) * ribosomeCounts) / ((1.0 / sim_data.constants.cellDensity) * (units.fg * cellMass))
 
-			averageRibosomeElongationRate = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("effectiveElongationRate")
-			processElongationRate = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("processElongationRate")
+			averageRibosomeElongationRate = ribosomeDataFile.readColumn("effectiveElongationRate")
+			processElongationRate = ribosomeDataFile.readColumn("processElongationRate")
 
 
 			## Calculate statistics involving ribosome efficiency ##
@@ -171,7 +170,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			allocatedElongationRate = aaUsed.sum(axis=1) / allocatedRibosomes * timeStep.asNumber(units.s)
 
 			## Load other data
-			translationSupply = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("translationSupply")
+			translationSupply = ribosomeDataFile.readColumn("translationSupply")
 
 
 			## Plotting ##

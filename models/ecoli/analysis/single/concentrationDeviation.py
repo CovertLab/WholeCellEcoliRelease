@@ -54,8 +54,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		homeostaticRangeObjFractionHigher = sim_data.constants.metabolismHomeostaticRangeObjFractionHigher
 
 		# Load time
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
 
 		# Calculate concentration data
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))

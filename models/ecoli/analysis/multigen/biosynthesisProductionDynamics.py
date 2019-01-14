@@ -14,7 +14,6 @@ import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
 
 from wholecell.io.tablereader import TableReader
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
@@ -33,9 +32,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
 		allDirs = ap.get_cells()
-
-		# Load data from KB
-		sim_data = cPickle.load(open(simDataFile, "rb"))
 
 		tfs = [
 			"putA", "aldA", "gdhA", "carA", "carB", "argD",

@@ -37,9 +37,12 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 		externalExchangeFluxes = fbaResults.readColumn("externalExchangeFluxes")
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-		timeStepSec = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
+
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
+		timeStepSec = main_reader.readColumn("timeStepSec")
+
 		externalMoleculeIDs = np.array(fbaResults.readAttribute("externalMoleculeIDs"))
 		fbaResults.close()
 
@@ -51,7 +54,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		glucoseFlux = FLUX_UNITS * externalExchangeFluxes[:, glucoseIdx]
 
 		mass = TableReader(os.path.join(simOutDir, "Mass"))
-		cellMass = MASS_UNITS * mass.readColumn("cellMass")
+		# cellMass = MASS_UNITS * mass.readColumn("cellMass")
 		cellDryMass = MASS_UNITS * mass.readColumn("dryMass")
 		growth = GROWTH_UNITS * mass.readColumn("growth") / timeStepSec
 		mass.close()

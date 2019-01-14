@@ -41,7 +41,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		transcriptionFreq = 0.64
 		metaboliteId = "UDP-GLUCURONATE[c]"
 
-		sim_data = cPickle.load(open(simDataFile, "rb"))
 		rnaIds = sim_data.process.transcription.rnaData["id"]
 		isMRna = sim_data.process.transcription.rnaData["isMRna"]
 		mRnaIndexes = np.where(isMRna)[0]

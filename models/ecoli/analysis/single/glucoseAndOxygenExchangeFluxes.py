@@ -19,8 +19,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			os.mkdir(plotOutDir)
 
 		# Exchange flux
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
 
 		fba_results = TableReader(os.path.join(simOutDir, "FBAResults"))
 		exFlux = fba_results.readColumn("externalExchangeFluxes")

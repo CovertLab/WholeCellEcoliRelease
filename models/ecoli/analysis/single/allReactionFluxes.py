@@ -4,10 +4,9 @@
 @date: Created 7/14/2016
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -38,8 +37,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		if not os.path.exists(plotOutDir):
 			os.mkdir(plotOutDir)
 
-		sim_data = cPickle.load(open(simDataFile, "rb"))
-
 		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 		reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
@@ -57,7 +54,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		plt.figure(figsize = (17, 11))
 
 		for idx, (reactionID, reactionFlux) in enumerate(zip(reactionIDs, reactionFluxes.T)):
-			runningMeanFlux = np.convolve(reactionFlux[BURN_IN_PERIOD:], np.ones((MOVING_AVE_WINDOW_SIZE,))/MOVING_AVE_WINDOW_SIZE, mode='valid')
+			runningMeanFlux = np.convolve(reactionFlux[BURN_IN_PERIOD:],
+				np.ones((MOVING_AVE_WINDOW_SIZE,)) / MOVING_AVE_WINDOW_SIZE,
+				mode='valid')
 
 			meanNormFlux = runningMeanFlux / np.mean(runningMeanFlux)
 			fluxRange = meanNormFlux.max() - meanNormFlux.min()

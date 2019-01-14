@@ -39,8 +39,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		normalizedCounts = metaboliteCounts / metaboliteCounts[1, :]
 
 		# Read time info from the listener
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
 		enzymeKineticsdata.close()
 
 		colors = COLORS_LARGE # to match colors between the pdf and html plots

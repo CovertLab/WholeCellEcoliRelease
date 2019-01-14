@@ -35,8 +35,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		cellDensity = sim_data.constants.cellDensity
 
 		# Load time
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
 
 		# Load mass data
 		# Total cell mass is needed to compute concentrations (since we have cell density)

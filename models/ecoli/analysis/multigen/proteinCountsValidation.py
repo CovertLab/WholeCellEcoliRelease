@@ -14,10 +14,8 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 import cPickle
-from scipy.stats import pearsonr
 
 from wholecell.io.tablereader import TableReader
-from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure

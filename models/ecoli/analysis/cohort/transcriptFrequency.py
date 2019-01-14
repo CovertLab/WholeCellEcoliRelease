@@ -58,7 +58,6 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		moleculeIds = bulkMolecules.readAttribute("objectNames")
 		mRnaIndexes_bulk = [moleculeIds.index(x) for x in mRnaIds]
-		bulkMolecules.close()
 
 		# Get frequency data
 		hadTranscribed = None
@@ -68,13 +67,11 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 			moleculeCounts = bulkMolecules.readColumn("counts")[:, mRnaIndexes_bulk]
-			bulkMolecules.close()
 			moleculeCounts_sumOverTime = moleculeCounts.sum(axis = 0)
 			mRnasTranscribed = np.array([x != 0 for x in moleculeCounts_sumOverTime])
 
 			rnaSynthProb = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
 			simulatedSynthProb_ = rnaSynthProb.readColumn("rnaSynthProb")
-			rnaSynthProb.close()
 
 			if hadTranscribed is None:
 				hadTranscribed = mRnasTranscribed
