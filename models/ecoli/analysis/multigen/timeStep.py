@@ -42,18 +42,18 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			absoluteTime = main_reader.readColumn("time")
 			relativeTime = absoluteTime - initialTime
 
-			plt.subplot(3,1,1)
+			self.subplot(3,1,1)
 			plt.title("Simulation Time Steps")
 			plt.plot(timeSteps)
 			plt.xlabel("Increment")
 			plt.ylabel("timeStep (s)")
 
-			plt.subplot(3,1,2)
+			self.subplot(3,1,2)
 			plt.plot(absoluteTime,timeSteps)
 			plt.xlabel("Cell time (s)")
 			plt.ylabel("timeStep (s)")
 
-			plt.subplot(3,1,3)
+			self.subplot(3,1,3)
 			plt.plot(relativeTime,timeSteps)
 			plt.xlabel("Relative cell time (s)")
 			plt.ylabel("timeStep (s)")

@@ -158,7 +158,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 1)
+			ax = self.subplot(nRows, 1, 1)
 			ax.plot(time, trpConcentration.asNumber(units.umol / units.L), color = "b")
 			plt.ylabel("Internal TRP Conc. [uM]", fontsize = 6)
 
@@ -173,7 +173,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 2)
+			ax = self.subplot(nRows, 1, 2)
 			ax.plot(time, trpRActiveCounts)
 			ax.plot(time, trpRInactiveCounts)
 			ax.plot(time, trpRTotalCounts)
@@ -191,7 +191,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 3)
+			ax = self.subplot(nRows, 1, 3)
 			ax.plot(time, tfBoundCountsMA)
 			plt.ylabel("TrpR Bound To Promoters\n(Moving Average)", fontsize = 6)
 
@@ -206,7 +206,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 4)
+			ax = self.subplot(nRows, 1, 4)
 			ax.plot(time, synthProbsMA)
 			plt.ylabel("Regulated Gene Synthesis Prob.\n(Moving Average)", fontsize = 6)
 
@@ -221,7 +221,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 5)
+			ax = self.subplot(nRows, 1, 5)
 			ax.plot(time, trpAProteinTotalCounts, color = "b")
 			plt.ylabel("TrpA Counts", fontsize = 6)
 
@@ -236,7 +236,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 6)
+			ax = self.subplot(nRows, 1, 6)
 			ax.plot(time, trpAProteinTotalConcentration.asNumber(units.umol / units.L), color = "b")
 			plt.ylabel("TrpA Concentration", fontsize = 6)
 
@@ -251,7 +251,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 7)
+			ax = self.subplot(nRows, 1, 7)
 			ax.plot(time, trpARnaCounts, color = "b")
 			plt.ylabel("TrpA mRNA Counts", fontsize = 6)
 
@@ -266,7 +266,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 8)
+			ax = self.subplot(nRows, 1, 8)
 			ax.plot(time, trpARnaConcentration.asNumber(units.umol / units.L), color = "b")
 			plt.ylabel("TrpA mRNA Concentration", fontsize = 6)
 
@@ -281,7 +281,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 9)
+			ax = self.subplot(nRows, 1, 9)
 			ax.plot(time / 3600., proteomeMassFraction, color = "b")
 			plt.ylabel("TrpA MAss FRaction of Proteome", fontsize = 6)
 
@@ -296,7 +296,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 10)
+			ax = self.subplot(nRows, 1, 10)
 			ax.plot(time, nTrpATranslated, color = "b")
 			plt.ylabel("Number of TrpA translation events", fontsize = 6)
 

@@ -98,7 +98,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		scatterAxis.set_xlabel("Translation efficiency per monomer")
 
 		#scatterAxis.set_ylim([0., 1.1])
-		scatterAxis.set_xlim([-10., 1000.])
+		scatterAxis.set_xlim([0.01, 1000.])
 
 		yhistAxis.hist(averageFoldChangePerMonomer, bins = 125, orientation='horizontal', log = True)
 		xhistAxis.hist(translationEff, bins = np.logspace(np.log10(0.01), np.log10(1000.), 125), log = True, range = [-10., 1000.])

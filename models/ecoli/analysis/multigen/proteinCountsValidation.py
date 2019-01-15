@@ -78,8 +78,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		axis.spines["top"].set_visible(False)
 		axis.spines["left"].set_position(("outward", 10))
 		axis.spines["bottom"].set_position(("outward", 10))
-		axis.tick_params(right = "off")
-		axis.tick_params(top = "off")
+		axis.tick_params(right=False, top=False)
 		axis.tick_params(which = "both", direction = "out")
 
 		axis.set_xlim([-0.07, maxLine])

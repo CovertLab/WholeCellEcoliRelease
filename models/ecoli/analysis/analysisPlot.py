@@ -26,6 +26,7 @@ from __future__ import division
 
 import abc
 import matplotlib as mp
+from matplotlib import pyplot as plt
 from wholecell.utils import memory_debug, parallelization
 
 
@@ -45,6 +46,59 @@ class AnalysisPlot(object):
 
 	def __init__(self, cpus=0):
 		self.cpus = parallelization.cpus(cpus)
+		self._axeses = {}
+
+	def subplot(self, *args):
+		"""
+		Create a subplot or return the axes previously created with the same
+		args tuple. Either way, make it the current axes.
+
+		The caller must use consistent args for each subplot, e.g. `(2, 2, 1)`
+		vs. `(221,)`. Don't intermix them.
+
+		This does not yet support keyword args.
+
+		Use this to work around this matplotlib 2.2.2 deprecation when you want
+		to retrieve a previously-created axes (subplot):
+
+			MatplotlibDeprecationWarning: Adding an axes using the same
+			arguments as a previous axes currently reuses the earlier instance.
+			In a future version, a new instance will always be created and
+			returned.  Meanwhile, this warning can be suppressed, and the
+			future behavior ensured, by passing a unique label to each axes
+			instance.
+
+		Args:
+			*args (Tuple[int]): subplot grid and index args
+
+		Returns:
+			(axes): the created or retrieved axes object; now the current one
+		"""
+		axes = self._axeses.get(args)
+		if not axes:
+			self._axeses[args] = axes = plt.subplot(*args)
+		plt.sca(axes)
+		return axes
+
+	@staticmethod
+	def set_ylim(axes, ymin, ymax):
+		"""
+		Set the axes y-limits, avoiding the matplotlib warning:
+
+			UserWarning: Attempting to set identical bottom==top results
+
+		Args:
+			axes (axes): the axes to modify
+			ymin (float): the minimum y value
+			ymax (float): the maximum y value
+
+		Returns:
+			ylimits (Tuple[float]): the new y-axis limits as (`bottom`, `top`)
+		"""
+		if ymin == ymax:
+			ymin -= 0.001
+			ymax += 0.001
+		return axes.set_ylim(ymin, ymax)
 
 	@abc.abstractmethod
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile,
@@ -58,6 +112,8 @@ class AnalysisPlot(object):
 		with memory_debug.detect_leaks(), mp.rc_context():
 			self.do_plot(inputDir, plotOutDir, plotOutFileName, simDataFile,
 				validationDataFile, metadata)
+
+		self._axeses = {}
 
 	@classmethod
 	def main(cls, inputDir, plotOutDir, plotOutFileName, simDataFile,

@@ -121,15 +121,15 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			axes.tick_params(
 				axis='x',          # changes apply to the x-axis
 				which='both',      # both major and minor ticks are affected
-				bottom='off',      # ticks along the bottom edge are off
-				top='off',         # ticks along the top edge are off
-				labelbottom='off') # labels along the bottom edge are off
+				bottom=False,      # ticks along the bottom edge are off
+				top=False,         # ticks along the top edge are off
+				labelbottom=False) # labels along the bottom edge are off
 			axes.tick_params(
 				axis='y',          # changes apply to the x-axis
 				which='both',      # both major and minor ticks are affected
-				left='off',      # ticks along the bottom edge are off
-				right='off',         # ticks along the top edge are off
-				labelleft='off') # labels along the bottom edge are off
+				left=False,        # ticks along the bottom edge are off
+				right=False,       # ticks along the top edge are off
+				labelleft=False)   # labels along the bottom edge are off
 
 			axes.set_xlabel("")
 			axes.set_ylabel("")
@@ -210,15 +210,15 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			axes.tick_params(
 				axis='x',          # changes apply to the x-axis
 				which='both',      # both major and minor ticks are affected
-				bottom='off',      # ticks along the bottom edge are off
-				top='off',         # ticks along the top edge are off
-				labelbottom='off') # labels along the bottom edge are off
+				bottom=False,      # ticks along the bottom edge are off
+				top=False,         # ticks along the top edge are off
+				labelbottom=False) # labels along the bottom edge are off
 			axes.tick_params(
 				axis='y',          # changes apply to the x-axis
 				which='both',      # both major and minor ticks are affected
-				left='off',      # ticks along the bottom edge are off
-				right='off',         # ticks along the top edge are off
-				labelleft='off') # labels along the bottom edge are off
+				left=False,        # ticks along the bottom edge are off
+				right=False,       # ticks along the top edge are off
+				labelleft=False)   # labels along the bottom edge are off
 
 			axes.set_xlabel("")
 			axes.set_ylabel("")

@@ -120,7 +120,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			A = rnaCountsAveraged[:, subplotIdx]
 			try:
-				kdeg, _, _, _ = np.linalg.lstsq(A[:, np.newaxis], y)
+				kdeg, _, _, _ = np.linalg.lstsq(A[:, np.newaxis], y, rcond=None)
 			except ValueError:
 				# TODO: Come up with a better/more descriptive error message
 				# This is to handle errors that occurs when running short simulations

@@ -157,7 +157,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 					for i in range(synthProbs.shape[1])]).T
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 1)
+			ax = self.subplot(nRows, 1, 1)
 			ax.plot(time, argConcentration.asNumber(units.umol / units.L), color = "b")
 			plt.ylabel("Internal ARG Conc. [uM]", fontsize = 6)
 
@@ -172,7 +172,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 2)
+			ax = self.subplot(nRows, 1, 2)
 			ax.semilogy(time, argRActiveCounts, color = "b")
 			ax.semilogy(time, argRInactiveCounts, color = "r")
 			ax.semilogy(time, argRTotalCounts, color = "g")
@@ -190,7 +190,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 3)
+			ax = self.subplot(nRows, 1, 3)
 			ax.plot(time, tfBoundCountsMA)
 			plt.ylabel("ArgR Bound To Promoters\n(Moving Average)", fontsize = 6)
 
@@ -205,7 +205,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 4)
+			ax = self.subplot(nRows, 1, 4)
 			ax.plot(time, synthProbsMA)
 			plt.ylabel("Regulated Gene Synthesis Prob.\n(Moving Average)", fontsize = 6)
 
@@ -220,7 +220,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 5)
+			ax = self.subplot(nRows, 1, 5)
 			ax.plot(time, carAProteinTotalCounts, color = "b")
 			plt.ylabel("CarA Counts", fontsize = 6)
 
@@ -235,7 +235,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 6)
+			ax = self.subplot(nRows, 1, 6)
 			ax.plot(time, carAProteinTotalConcentration.asNumber(units.umol / units.L), color = "b")
 			plt.ylabel("CarA Concentration", fontsize = 6)
 
@@ -250,7 +250,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 7)
+			ax = self.subplot(nRows, 1, 7)
 			ax.plot(time, carARnaCounts, color = "b")
 			plt.ylabel("CarA mRNA Counts", fontsize = 6)
 
@@ -265,7 +265,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 8)
+			ax = self.subplot(nRows, 1, 8)
 			ax.plot(time, carARnaConcentration.asNumber(units.umol / units.L), color = "b")
 			plt.ylabel("CarA mRNA\nConcentration", fontsize = 6)
 
@@ -280,7 +280,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(nRows, 1, 9)
+			ax = self.subplot(nRows, 1, 9)
 			ax.plot(time / 3600., proteomeMassFraction, color = "b")
 			plt.ylabel("CarA Mass Fraction\nof Proteome", fontsize = 6)
 

@@ -163,7 +163,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				synthProbMA = np.convolve(synthProb, np.ones(width) / width, mode = "same")
 
 				##############################################################
-				ax = plt.subplot(nTfs, 3, tfIdx * 3 + 1)
+				ax = self.subplot(nTfs, 3, tfIdx * 3 + 1)
 				ax.plot(time, monomerCounts, color = "b")
 				plt.title("%s counts" % monomerId, fontsize = 8)
 
@@ -178,7 +178,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				##############################################################
 
 				##############################################################
-				ax = plt.subplot(nTfs, 3, tfIdx * 3 + 2)
+				ax = self.subplot(nTfs, 3, tfIdx * 3 + 2)
 				ax.plot(time, rnaCounts, color = "b")
 				plt.title("%s counts" % rnaId, fontsize = 8)
 
@@ -193,7 +193,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				##############################################################
 
 				##############################################################
-				ax = plt.subplot(nTfs, 3, tfIdx * 3 + 3)
+				ax = self.subplot(nTfs, 3, tfIdx * 3 + 3)
 				ax.plot(time, synthProb, color = "b")
 				ax.plot(time, synthProbMA, color = "k")
 				plt.title("%s synth prob" % rnaId, fontsize = 8)

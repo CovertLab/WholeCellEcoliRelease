@@ -95,7 +95,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 				ymin = np.amin(moleculeCounts[:, (idx * num_subentries) + subentryIdx] / (cellVolume * nAvogadro))
 				ymax = np.amax(moleculeCounts[:, (idx * num_subentries) + subentryIdx] / (cellVolume * nAvogadro))
-				ax.set_ylim([ymin, ymax])
+				self.set_ylim(ax, ymin, ymax)
 				ax.set_yticks([ymin, ymax])
 				ax.set_yticklabels(["%0.2e" % ymin, "%0.2e" % ymax])
 				ax.spines['top'].set_visible(False)
@@ -122,10 +122,12 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			if np.any(np.isfinite(phosphorylation)):
 				ymin = np.nanmin(phosphorylation)
 				ymax = np.nanmax(phosphorylation)
+				if ymin == ymax:
+					ymin, ymax = -0.001, 0.001
 			else:
 				ymin = 0
 				ymax = 1
-			ax.set_ylim([ymin, ymax])
+			self.set_ylim(ax, ymin, ymax)
 			ax.set_yticks([ymin, ymax])
 			ax.set_yticklabels(["%0.2e" % ymin, "%0.2e" % ymax])
 			ax.spines['top'].set_visible(False)
