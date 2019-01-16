@@ -9,7 +9,6 @@ simulation.
 from __future__ import absolute_import, division, print_function
 
 import cPickle
-import numpy as np
 import os
 import json
 import hashlib
@@ -20,7 +19,7 @@ from wholecell.utils import filepath
 from wholecell.utils import units
 
 from models.ecoli.analysis.causality_network.network_components import (
-	Node, DYNAMICS_HEADER, COUNT_UNITS, PROB_UNITS
+	Node, COUNT_UNITS, PROB_UNITS
 	)
 from models.ecoli.analysis.causality_network.build_network import NODE_ID_SUFFIX
 
@@ -81,7 +80,7 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 
 		equilibrium_rxn_ids = sim_data.process.equilibrium.rxnIds
 		indexes["EquilibriumReactions"] = build_index_dict(equilibrium_rxn_ids)
-		
+
 		# Cache cell volume array (used for calculating concentrations)
 		volume = ((1.0 / sim_data.constants.cellDensity) * (
 			units.fg * columns[("Mass", "cellMass")])).asNumber(units.L)
@@ -98,7 +97,6 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 				for index, dyn in enumerate(dynamics)]
 
 		name_mapping = {}
-		root = os.path.dirname(seriesOutDir)
 
 		def build_dynamics(node_dict):
 			node = Node()
@@ -108,7 +106,7 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 			if reader:
 				reader(sim_data, node, node.node_id, columns, indexes, volume)
 			return node
-		
+
 		nodes = [build_dynamics(node_dict) for node_dict in node_dicts]
 		nodes.append(time_node(columns))
 
@@ -246,7 +244,7 @@ def read_metabolite_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	"""
 	try:
 		count_index = indexes["BulkMolecules"][node_id]
-	except:
+	except Exception:
 		return  # Metabolite not being modeled
 	counts = columns[("BulkMolecules", "counts")][:, count_index]
 	concentration = (((1 / sim_data.constants.nAvogadro) * counts)/(units.L * volume)).asNumber(units.mmol/units.L)
@@ -336,7 +334,7 @@ def read_equilibrium_dynamics(sim_data, node, node_id, columns, indexes, volume)
 	# TODO (ggsun): Fluxes for 2CS reactions are not being listened to.
 	try:
 		reaction_idx = indexes["EquilibriumReactions"][node_id]
-	except:
+	except Exception:
 		return  # 2CS reaction
 
 	dynamics = {

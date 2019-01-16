@@ -56,10 +56,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Listeners used
 		main_reader = TableReader(os.path.join(simOutDir, 'Main'))
-		bulk_molecules_reader = TableReader(
-			os.path.join(simOutDir, "BulkMolecules"))
-		synth_prob_reader = TableReader(
-			os.path.join(simOutDir, "RnaSynthProb"))
+		bulk_molecules_reader = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+		synth_prob_reader = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
 
 		# Load data
 		time = main_reader.readColumn('time')

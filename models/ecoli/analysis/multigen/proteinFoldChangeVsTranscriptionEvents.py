@@ -40,8 +40,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		for gen_idx, simDir in enumerate(allDir):
 			simOutDir = os.path.join(simDir, "simOut")
 
-			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-
 			## READ DATA ##
 			monomerCounts = TableReader(os.path.join(simOutDir, "MonomerCounts"))
 			proteinMonomerCounts = monomerCounts.readColumn("monomerCounts")
@@ -93,7 +91,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		scatterAxis.set_xlabel("Transcription events per generation\n" + r"Clipped $[0, 1000]$")
 
 		scatterAxis.set_ylim([0., 10.])
-		scatterAxis.set_xlim([0., 1000.])
+		scatterAxis.set_xlim([1., 1000.])
 
 		yhistAxis.hist(ratioToPlot, bins = 125, orientation='horizontal', range = [0., 10.], log = True)
 		xhistAxis.hist(burstSizeToPlot, bins = np.logspace(0., 10., 125), log = True)#, range = [0., 1000.])

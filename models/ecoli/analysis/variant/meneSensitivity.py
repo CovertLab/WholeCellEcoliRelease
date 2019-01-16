@@ -56,6 +56,8 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		meneDepletion = np.zeros([ap.n_seed, ap.n_variant])
 		endProductDepletion = np.zeros([ap.n_seed, ap.n_variant])
 
+		simOutDir = None
+
 		for variant in xrange(ap.n_variant):
 			for seed in xrange(ap.n_seed):
 				cells = ap.get_cells(variant = [variant], seed = [seed])
@@ -89,6 +91,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 					timeEndProdDepleted.append(timeStepSec[endProductDepletionIndices].sum())
 
 				# Record MENE-CPLX depletion
+				# TODO(jerry): Is this meant to read from the inner loop's last simOutDir?
 				totalTime = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")[-1] + timeStepSec[-1]
 				fractionMeneDepleted = np.sum(timeMeneDepleted) / totalTime
 				meneDepletion[seed, variant] = fractionMeneDepleted

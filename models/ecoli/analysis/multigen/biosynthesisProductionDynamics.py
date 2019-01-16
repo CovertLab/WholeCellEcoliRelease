@@ -14,7 +14,6 @@ import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
 
 from wholecell.io.tablereader import TableReader
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
@@ -33,9 +32,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
 		allDirs = ap.get_cells()
-
-		# Load data from KB
-		sim_data = cPickle.load(open(simDataFile, "rb"))
 
 		tfs = [
 			"putA", "aldA", "gdhA", "carA", "carB", "argD",
@@ -167,7 +163,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				synthProbMA = np.convolve(synthProb, np.ones(width) / width, mode = "same")
 
 				##############################################################
-				ax = plt.subplot(nTfs, 3, tfIdx * 3 + 1)
+				ax = self.subplot(nTfs, 3, tfIdx * 3 + 1)
 				ax.plot(time, monomerCounts, color = "b")
 				plt.title("%s counts" % monomerId, fontsize = 8)
 
@@ -182,7 +178,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				##############################################################
 
 				##############################################################
-				ax = plt.subplot(nTfs, 3, tfIdx * 3 + 2)
+				ax = self.subplot(nTfs, 3, tfIdx * 3 + 2)
 				ax.plot(time, rnaCounts, color = "b")
 				plt.title("%s counts" % rnaId, fontsize = 8)
 
@@ -197,7 +193,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				##############################################################
 
 				##############################################################
-				ax = plt.subplot(nTfs, 3, tfIdx * 3 + 3)
+				ax = self.subplot(nTfs, 3, tfIdx * 3 + 3)
 				ax.plot(time, synthProb, color = "b")
 				ax.plot(time, synthProbMA, color = "k")
 				plt.title("%s synth prob" % rnaId, fontsize = 8)

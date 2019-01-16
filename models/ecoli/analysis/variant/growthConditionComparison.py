@@ -86,8 +86,6 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 			uniqueMoleculeCounts.close()
 
-			initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-			t = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 			timeStepSec = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
 
 			if variant in rnaToProteinDict.keys():

@@ -44,8 +44,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		for gen_idx, simDir in enumerate(allDir):
 			simOutDir = os.path.join(simDir, "simOut")
 
-			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-
 			## READ DATA ##
 			monomerCounts = TableReader(os.path.join(simOutDir, "MonomerCounts"))
 			proteinMonomerCounts = monomerCounts.readColumn("monomerCounts")

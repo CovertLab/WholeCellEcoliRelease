@@ -95,11 +95,14 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		for gen, simDir in enumerate(allDir):
 			simOutDir = os.path.join(simDir, "simOut")
 
-			time += TableReader(os.path.join(simOutDir, "Main")).readColumn("time").tolist()
+			main_reader = TableReader(os.path.join(simOutDir, "Main"))
+			time += main_reader.readColumn("time").tolist()
 			generationTicks.append(time[-1])
-			timeStepSec += TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec").tolist()
-			cellMass += TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass").tolist()
-			dryMass += TableReader(os.path.join(simOutDir, "Mass")).readColumn("dryMass").tolist()
+			timeStepSec += main_reader.readColumn("timeStepSec").tolist()
+
+			mass = TableReader(os.path.join(simOutDir, "Mass"))
+			cellMass += mass.readColumn("cellMass").tolist()
+			dryMass += mass.readColumn("dryMass").tolist()
 
 			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 			moleculeCounts = bulkMolecules.readColumn("counts")
@@ -247,10 +250,13 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			for gen, simDir in enumerate(allDir):
 				simOutDir = os.path.join(simDir, "simOut")
 
-				time_ = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-				timeStepSec = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
-				cellMass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")
-				dryMass = TableReader(os.path.join(simOutDir, "Mass")).readColumn("dryMass")
+				main_reader = TableReader(os.path.join(simOutDir, "Main"))
+				time_ = main_reader.readColumn("time")
+				timeStepSec = main_reader.readColumn("timeStepSec")
+
+				mass = TableReader(os.path.join(simOutDir, "Mass"))
+				cellMass = mass.readColumn("cellMass")
+				dryMass = mass.readColumn("dryMass")
 
 				bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 				moleculeCounts = bulkMolecules.readColumn("counts")

@@ -8,11 +8,9 @@ Plot of charged tRNA
 from __future__ import absolute_import
 from __future__ import division
 
-import cPickle
 import os
 
 from matplotlib import pyplot as plt
-import numpy as np
 
 from models.ecoli.analysis import singleAnalysisPlot
 from wholecell.analysis.analysis_tools import exportFigure

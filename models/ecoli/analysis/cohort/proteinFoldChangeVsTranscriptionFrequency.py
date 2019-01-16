@@ -70,8 +70,6 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		for gen_idx, simDir in enumerate(allDir):
 			simOutDir = os.path.join(simDir, "simOut")
 
-			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-
 			## READ DATA ##
 			# Read in bulk ids and counts
 			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
@@ -264,28 +262,28 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		scatterAxis.tick_params(
 			axis='both',          # which axis
 			which='both',      # both major and minor ticks are affected
-			right='off',      # ticks along the bottom edge are off
-			left='on',         # ticks along the top edge are off
-			top = 'off',
-			bottom = 'on',
+			right=False,       # ticks along the bottom edge are off
+			left=True,         # ticks along the top edge are off
+			top = False,
+			bottom = True,
 			)
 
 		yhistAxis.tick_params(
 			axis='both',          # which axis
 			which='both',      # both major and minor ticks are affected
-			right='off',      # ticks along the bottom edge are off
-			left='on',         # ticks along the top edge are off
-			top = 'off',
-			bottom = 'on',
+			right=False,       # ticks along the bottom edge are off
+			left=True,         # ticks along the top edge are off
+			top = False,
+			bottom = True,
 			)
 
 		# xhistAxis.tick_params(
 		# 	axis='both',          # which axis
 		# 	which='both',      # both major and minor ticks are affected
-		# 	right='off',      # ticks along the bottom edge are off
-		# 	left='on',         # ticks along the top edge are off
-		# 	top = 'off',
-		# 	bottom = 'on',
+		# 	right=False,      # ticks along the bottom edge are off
+		# 	left=True,         # ticks along the top edge are off
+		# 	top=False,
+		# 	bottom=True,
 		# 	)
 
 		plt.subplots_adjust(wspace=0.3, hspace=0.3, bottom = 0.2)

@@ -43,9 +43,10 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		rnapRnaIndexes = np.array([moleculeIds.index(rnapRnaId) for rnapRnaId in RNase_IDS], np.int)
 		rnapRnaCounts = bulkMolecules.readColumn("counts")[:, rnapRnaIndexes]
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-		bulkMolecules.close()
+
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
 
 		plt.figure(figsize = (8.5, 11))
 		plt.rc('xtick', labelsize=7)

@@ -64,7 +64,6 @@ import cPickle
 import numpy as np
 import re
 import os
-import ast
 import json
 from itertools import izip
 
@@ -150,8 +149,8 @@ class BuildNetwork(object):
 			output_dir: output directory for the node list and edge list files.
 			check_sanity: if set to True, checks if there are any nodes with
 			duplicate IDs in the network.
-			TODO: have check_sanity looks for disconnected nodes, and edges
-			with non-existent nodes.
+				# TODO: have check_sanity looks for disconnected nodes, and edges
+				# with non-existent nodes.
 		"""
 		# Open simulation data and save as attribute
 		with open(sim_data_file, 'rb') as f:
@@ -897,11 +896,11 @@ class BuildNetwork(object):
 				% (len(duplicate_ids), duplicate_ids))
 
 
-	def _append_edge(self, type, src, dst, stoichiometry=""):
+	def _append_edge(self, type_, src, dst, stoichiometry=""):
 		"""
 		Helper function for appending new nodes to the network.
 		"""
-		edge = Edge(type)
+		edge = Edge(type_)
 		attr = {
 			'src_id': src,
 			'dst_id': dst,

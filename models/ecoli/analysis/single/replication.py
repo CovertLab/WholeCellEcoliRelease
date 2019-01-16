@@ -34,8 +34,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		genomeLength = len(sim_data.process.replication.genome_sequence)
 
 		# Load time
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
 
 		# Load replication data
 		replication_data_file = TableReader(os.path.join(simOutDir, "ReplicationData"))

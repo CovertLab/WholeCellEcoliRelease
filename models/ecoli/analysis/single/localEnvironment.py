@@ -10,12 +10,10 @@ from __future__ import print_function
 from __future__ import division
 
 import os
-import cPickle
 import math
 
 import numpy as np
 from matplotlib import pyplot as plt
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 import itertools
 
 from wholecell.io.tablereader import TableReader
@@ -62,9 +60,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		mass_labels = ['Protein', 'rRNA', 'tRNA', 'mRNA', 'DNA', 'Small Mol.s']
 
 		# Load time
-		initial_time = TableReader(os.path.join(simOutDir, 'Main')).readAttribute('initialTime')
-		time = TableReader(os.path.join(simOutDir, 'Main')).readColumn(
-			'time') - initial_time
+		main_reader = TableReader(os.path.join(simOutDir, 'Main'))
+		initial_time = main_reader.readAttribute('initialTime')
+		time = main_reader.readColumn('time') - initial_time
 
 		# Load environment data
 		environment = TableReader(os.path.join(simOutDir, 'Environment'))

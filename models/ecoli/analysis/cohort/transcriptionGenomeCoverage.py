@@ -82,7 +82,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		ax.set_xlabel("mRNA transcripts\n(in order of decreasing expected basal expression)", fontsize = 10)
 		ax.set_xlim([0, numMRnas])
 		ax.set_ylim([-.05, 1.05])
-		ax.tick_params(which = "both", direction = "out", top = "off")
+		ax.tick_params(which="both", direction="out", top=False)
 		ax.spines["top"].set_visible(False)
 
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)

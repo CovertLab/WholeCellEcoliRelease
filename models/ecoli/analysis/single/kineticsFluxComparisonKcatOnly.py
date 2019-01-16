@@ -47,9 +47,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		reactionConstraint = enzymeKineticsReader.readColumn("reactionConstraint")
 		enzymeKineticsReader.close()
 
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-
 		targetAve = np.mean(targetFluxes[BURN_IN_STEPS:, :], axis = 0)
 		actualAve = np.mean(actualFluxes[BURN_IN_STEPS:, :], axis = 0)
 

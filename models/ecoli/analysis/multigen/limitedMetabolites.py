@@ -54,8 +54,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			enzymeKineticsData.close()
 
 			# Read time info from the listener
-			initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+			main_reader = TableReader(os.path.join(simOutDir, "Main"))
+			initialTime = main_reader.readAttribute("initialTime")
+			time = main_reader.readColumn("time")
 
 			metaboliteLimited = np.zeros((len(time), nMetabolites))
 
