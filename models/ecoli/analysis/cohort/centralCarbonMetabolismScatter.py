@@ -104,7 +104,6 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		plt.plot(toyaVsReactionAve[:,1], toyaVsReactionAve[:,0], "ob", markeredgewidth = 0.1, alpha = 0.9)
 		plt.xlabel("Toya 2010 Reaction Flux [mmol/g/hr]")
 		plt.ylabel("Mean WCM Reaction Flux [mmol/g/hr]")
-		ax = plt.axes()
 		whitePadSparklineAxis(ax)
 
 		ax.set_xlim([-20, 30])

@@ -11,7 +11,6 @@ from __future__ import division
 
 import os
 
-import numpy as np
 from matplotlib import pyplot as plt
 
 from wholecell.io.tablereader import TableReader
@@ -27,24 +26,21 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		if not os.path.exists(plotOutDir):
 			os.mkdir(plotOutDir)
 
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
-
-		RIBOSOME_RNA_IDS = ["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"]
-		ribosomeRnaIndexes = np.array([moleculeIds.index(rRnaId) for rRnaId in RIBOSOME_RNA_IDS], np.int)
-		ribosomeRnaCountsBulk = bulkMolecules.readColumn("counts")[:, ribosomeRnaIndexes]
-
-		bulkMolecules.close()
+		# bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+		#
+		# moleculeIds = bulkMolecules.readAttribute("objectNames")
+		#
+		# RIBOSOME_RNA_IDS = ["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"]
+		# ribosomeRnaIndexes = np.array([moleculeIds.index(rRnaId) for rRnaId in RIBOSOME_RNA_IDS], np.int)
+		# ribosomeRnaCountsBulk = bulkMolecules.readColumn("counts")[:, ribosomeRnaIndexes]
 
 		uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
-
 		ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-		nActive = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
 
-		uniqueMoleculeCounts.close()
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
+		nActive = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
 
 		plt.figure(figsize = (8.5, 11))
 

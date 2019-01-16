@@ -18,7 +18,6 @@ import cPickle
 from wholecell.io.tablereader import TableReader
 from wholecell.utils.fitting import normalize
 from wholecell.utils import units
-from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
 

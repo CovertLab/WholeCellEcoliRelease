@@ -14,10 +14,8 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 import cPickle
-from scipy.stats import pearsonr
 
 from wholecell.io.tablereader import TableReader
-from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
@@ -80,8 +78,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		axis.spines["top"].set_visible(False)
 		axis.spines["left"].set_position(("outward", 10))
 		axis.spines["bottom"].set_position(("outward", 10))
-		axis.tick_params(right = "off")
-		axis.tick_params(top = "off")
+		axis.tick_params(right=False, top=False)
 		axis.tick_params(which = "both", direction = "out")
 
 		axis.set_xlim([-0.07, maxLine])

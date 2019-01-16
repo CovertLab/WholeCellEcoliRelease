@@ -35,7 +35,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		generations = []
 		for idx, simDir in enumerate(allDir):
 			simOutDir = os.path.join(simDir, "simOut")
-			initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
 			cellCycleLengths.append((time[-1] - time[0]) / 60. / 60.)

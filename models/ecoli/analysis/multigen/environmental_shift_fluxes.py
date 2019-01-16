@@ -279,7 +279,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			plt.figure(figAll.number)
 			for idx, transport in enumerate(transports):
-				ax = plt.subplot(subplotRows, subplotCols, idx + 1)
+				ax = self.subplot(subplotRows, subplotCols, idx + 1)
 
 				if firstGen:
 					ax.axhline(0, color = "#aaaaaa", linewidth = 0.25)
@@ -292,7 +292,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 					ax.plot(time[timeIdx], maFlux[timeIdx], color = "b", linewidth = 0.5)
 
 			for idx, (reactant, product) in enumerate(zip(reactants, products)):
-				ax = plt.subplot(subplotRows, subplotCols, idx + 1 + len(transports))
+				ax = self.subplot(subplotRows, subplotCols, idx + 1 + len(transports))
 				totalFlux = np.zeros_like(flux[:, 0])
 
 				for rxn in rxnStoich:
@@ -317,7 +317,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			plt.figure(figFull.number)
 			for idx, (reactant, product) in enumerate(zip(fullReactants, fullProducts)):
-				ax = plt.subplot(3, 1, idx+1)
+				ax = self.subplot(3, 1, idx+1)
 				totalFlux = np.zeros_like(flux[:, 0])
 
 				for rxn in rxnStoich:
@@ -344,7 +344,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		plt.figure(figAll.number)
 		for i in range(subplotRows * subplotCols):
-			ax = plt.subplot(subplotRows, subplotCols, i + 1)
+			ax = self.subplot(subplotRows, subplotCols, i + 1)
 			plt.minorticks_off()
 
 			whitePadSparklineAxis(ax)
@@ -356,14 +356,14 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 
 		for i in range(subplotRows * subplotCols):
-			ax = plt.subplot(subplotRows, subplotCols, i + 1)
+			ax = self.subplot(subplotRows, subplotCols, i + 1)
 			ax.set_axis_off()
 
 		exportFigure(plt, plotOutDir, plotOutFileName + "_stripped", metadata)
 
 		plt.figure(figFull.number)
 		for i in range(3):
-			ax = plt.subplot(3, 1, i+1)
+			ax = self.subplot(3, 1, i+1)
 			plt.minorticks_off()
 
 			whitePadSparklineAxis(ax)

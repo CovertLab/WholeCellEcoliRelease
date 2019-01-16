@@ -21,13 +21,6 @@ FONT_SIZE=8
 trim = 0.03
 
 
-# def sparklineAxis(axis):
-# 	axis.spines['top'].set_visible(False)
-# 	axis.spines['bottom'].set_visible(False)
-# 	axis.xaxis.set_ticks_position('none')
-# 	axis.tick_params(which = 'both', direction = 'out')
-
-
 def mm2inch(value):
 	return value * 0.0393701
 
@@ -106,33 +99,21 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			# rnaOverProtein = rnaMass / proteinMass
 			# ax2.plot(time / 60., rnaOverProtein, color = color, alpha = alpha, linewidth=2)
 
-
-			## Fork position
-			sequenceIdx = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("sequenceIdx")
-			sequenceLength = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("sequenceLength")
-			reverseIdx = 1
-			reverseCompIdx = 3
-			reverseSequences = np.logical_or(sequenceIdx == reverseIdx, sequenceIdx == reverseCompIdx)
-			sequenceLength[reverseSequences] = -1 * sequenceLength[reverseSequences]
-			sequenceLength[sequenceLength == PLACE_HOLDER] = np.nan
+			# Get fork positions
+			replication_data_file = TableReader(
+				os.path.join(simOutDir, "ReplicationData"))
+			fork_coordinates = replication_data_file.readColumn(
+				"fork_coordinates")
+			fork_coordinates[fork_coordinates == PLACE_HOLDER] = np.nan
 
 			# Down sample dna polymerase position, every position is only plotted once here
 			# using numpy ninja-ness
-			unique, index, value = np.unique(sequenceLength, return_index=True, return_inverse=True)
+			unique, index, value = np.unique(fork_coordinates,
+				return_index=True, return_inverse=True)
 			m = np.zeros_like(value, dtype=bool)
 			m[index] = True
-			m = m.reshape(sequenceLength.shape)
-			sequenceLength[~m] = np.nan
-
-			# ax3.plot(time / 60., sequenceLength, marker=',', markersize=2, linewidth=0, color = color, alpha = alpha)
-			# ax3.set_yticks([-1 * genomeLength / 2, 0, genomeLength / 2])
-			# ax3.set_yticklabels(['-terC', 'oriC', '+terC'])
-
-			## Pairs of forks
-			# pairsOfForks = (sequenceIdx != PLACE_HOLDER).sum(axis = 1) / 4
-			# ax4.plot(time / 60., pairsOfForks, linewidth=2, color = color, alpha = alpha)
-			# ax4.set_yticks(np.arange(0,7))
-			# ax4.set_ylim([0, 6])
+			m = m.reshape(fork_coordinates.shape)
+			fork_coordinates[~m] = np.nan
 
 
 		y_ticks = ax0.get_yticks()
@@ -204,15 +185,15 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			axes.tick_params(
 				axis='x',          # changes apply to the x-axis
 				which='both',      # both major and minor ticks are affected
-				bottom='off',      # ticks along the bottom edge are off
-				top='off',         # ticks along the top edge are off
-				labelbottom='off') # labels along the bottom edge are off
+				bottom=False,      # ticks along the bottom edge are off
+				top=False,         # ticks along the top edge are off
+				labelbottom=False) # labels along the bottom edge are off
 			axes.tick_params(
 				axis='y',          # changes apply to the x-axis
 				which='both',      # both major and minor ticks are affected
-				left='off',      # ticks along the bottom edge are off
-				right='off',         # ticks along the top edge are off
-				labelleft='off') # labels along the bottom edge are off
+				left=False,      # ticks along the bottom edge are off
+				right=False,         # ticks along the top edge are off
+				labelleft=False) # labels along the bottom edge are off
 
 			axes.set_xlabel("")
 			axes.set_ylabel("")
@@ -253,57 +234,28 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
-			## Cell mass
-			# mass = TableReader(os.path.join(simOutDir, "Mass"))
-			# cellMass = mass.readColumn("cellMass")
-			# ax0.plot(time / 60., cellMass, color = color, alpha = alpha, linewidth=2)
-
-			## Inst. growth rate
-			# growthRate = mass.readColumn("instantaniousGrowthRate")
-			# growthRate = (1 / units.s) * growthRate
-			# growthRate = growthRate.asNumber(1 / units.min)
-			# growthRate[abs(growthRate - np.median(growthRate)) > 1.25 * np.nanstd(growthRate)] = np.nan
-			# ax1.plot(time / 60., growthRate, color = color, alpha = alpha)
-
-			## Rna over protein
-			# Get active ribosome counts
-			# uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
-			# ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
-			# ribosomeCounts = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
-			# uniqueMoleculeCounts.close()
-			# ribosomeConcentration = ((1 / sim_data.constants.nAvogadro) * ribosomeCounts) / ((1.0 / sim_data.constants.cellDensity) * (units.fg * cellMass))
-			# ribosomeConcentration = ribosomeConcentration.asNumber(units.umol / units.L)
-			# ax2.plot(time / 60., ribosomeConcentration, color = color, alpha = alpha, linewidth=2)
-			# ax2.set_ylim([20., 35.])
-			# rnaMass = mass.readColumn("rnaMass")
-			# proteinMass = mass.readColumn("proteinMass")
-			# rnaOverProtein = rnaMass / proteinMass
-			# ax2.plot(time / 60., rnaOverProtein, color = color, alpha = alpha, linewidth=2)
-
-
-			## Fork position
-			sequenceIdx = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("sequenceIdx")
-			sequenceLength = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("sequenceLength")
-			reverseIdx = 1
-			reverseCompIdx = 3
-			reverseSequences = np.logical_or(sequenceIdx == reverseIdx, sequenceIdx == reverseCompIdx)
-			sequenceLength[reverseSequences] = -1 * sequenceLength[reverseSequences]
-			sequenceLength[sequenceLength == PLACE_HOLDER] = np.nan
+			## Fork position and counts
+			replication_data_file = TableReader(
+				os.path.join(simOutDir, "ReplicationData"))
+			fork_coordinates = replication_data_file.readColumn(
+				"fork_coordinates")
+			pairsOfForks = (fork_coordinates != PLACE_HOLDER).sum(axis=1) / 2
+			fork_coordinates[fork_coordinates == PLACE_HOLDER] = np.nan
 
 			# Down sample dna polymerase position, every position is only plotted once here
 			# using numpy ninja-ness
-			unique, index, value = np.unique(sequenceLength, return_index=True, return_inverse=True)
+			unique, index, value = np.unique(fork_coordinates,
+				return_index=True, return_inverse=True)
 			m = np.zeros_like(value, dtype=bool)
 			m[index] = True
-			m = m.reshape(sequenceLength.shape)
-			sequenceLength[~m] = np.nan
+			m = m.reshape(fork_coordinates.shape)
+			fork_coordinates[~m] = np.nan
 
-			ax3.plot(time / 60., sequenceLength, marker=',', markersize=2, linewidth=0, color = color, alpha = alpha)
+			ax3.plot(time / 60., fork_coordinates, marker=',', markersize=2, linewidth=0, color = color, alpha = alpha)
 			ax3.set_yticks([-1 * genomeLength / 2, 0, genomeLength / 2])
 			ax3.set_yticklabels(['-terC', 'oriC', '+terC'])
 
 			# Pairs of forks
-			pairsOfForks = (sequenceIdx != PLACE_HOLDER).sum(axis = 1) / 4
 			ax4.plot(time / 60., pairsOfForks, linewidth=2, color = color, alpha = alpha)
 			ax4.set_yticks(np.arange(0,7))
 			ax4.set_ylim([0, 6.1])
@@ -379,15 +331,15 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			axes.tick_params(
 				axis='x',          # changes apply to the x-axis
 				which='both',      # both major and minor ticks are affected
-				bottom='off',      # ticks along the bottom edge are off
-				top='off',         # ticks along the top edge are off
-				labelbottom='off') # labels along the bottom edge are off
+				bottom=False,      # ticks along the bottom edge are off
+				top=False,         # ticks along the top edge are off
+				labelbottom=False) # labels along the bottom edge are off
 			axes.tick_params(
 				axis='y',          # changes apply to the x-axis
 				which='both',      # both major and minor ticks are affected
-				left='off',      # ticks along the bottom edge are off
-				right='off',         # ticks along the top edge are off
-				labelleft='off') # labels along the bottom edge are off
+				left=False,        # ticks along the bottom edge are off
+				right=False,       # ticks along the top edge are off
+				labelleft=False)   # labels along the bottom edge are off
 
 			axes.set_xlabel("")
 			axes.set_ylabel("")

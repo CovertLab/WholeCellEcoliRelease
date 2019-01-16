@@ -25,8 +25,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			os.mkdir(plotOutDir)
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		oriC = sim_data.constants.oriCCenter.asNumber()
-		terC = sim_data.constants.terCCenter.asNumber()
 		genomeLength = len(sim_data.process.replication.genome_sequence)
 
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
@@ -41,33 +39,27 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") / 60. / 60.
 			mass = TableReader(os.path.join(simOutDir, "Mass"))
 
-			division_time = time.max()
+			# Get fork positions
+			replication_data_file = TableReader(os.path.join(simOutDir, "ReplicationData"))
+			fork_coordinates = replication_data_file.readColumn("fork_coordinates")
 
-			# Plot dna polymerase position
-			sequenceIdx = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("sequenceIdx")
-			sequenceLength = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("sequenceLength")
-			reverseIdx = 1
-			reverseCompIdx = 3
-			reverseSequences = np.logical_or(sequenceIdx == reverseIdx, sequenceIdx == reverseCompIdx)
-			sequenceLength[reverseSequences] = -1 * sequenceLength[reverseSequences]
-			sequenceLength[sequenceLength == PLACE_HOLDER] = np.nan
+			# Get fork counts
+			pairsOfForks = (fork_coordinates != PLACE_HOLDER).sum(axis = 1) / 2
 
 			# Down sample dna polymerase position, every position is only plotted once here
 			# using numpy ninja-ness
-			unique, index, value = np.unique(sequenceLength, return_index=True, return_inverse=True)
+			fork_coordinates[fork_coordinates == PLACE_HOLDER] = np.nan
+			unique, index, value = np.unique(fork_coordinates, return_index=True, return_inverse=True)
 			m = np.zeros_like(value, dtype=bool)
 			m[index] = True
-			m = m.reshape(sequenceLength.shape)
-			sequenceLength[~m] = np.nan
+			m = m.reshape(fork_coordinates.shape)
+			fork_coordinates[~m] = np.nan
 
-			axesList[0].plot(time, sequenceLength, marker=',', markersize=1, linewidth=0)
+			axesList[0].plot(time, fork_coordinates, marker=',', markersize=1, linewidth=0)
 			axesList[0].set_xlim([0, time.max()])
 			axesList[0].set_yticks([-1 * genomeLength / 2, 0, genomeLength / 2])
 			axesList[0].set_yticklabels(['-terC', 'oriC', '+terC'])
 			axesList[0].set_ylabel("DNA polymerase\nposition (nt)")
-
-			# Plot dna polymerase counts
-			pairsOfForks = (sequenceIdx != PLACE_HOLDER).sum(axis = 1) / 4
 
 			axesList[1].plot(time, pairsOfForks, linewidth=2)
 			axesList[1].set_yticks(np.arange(0,7))
@@ -78,7 +70,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			# Factors of critical initiation mass
 			totalMass = mass.readColumn("cellMass")
-			criticalInitiationMass = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("criticalInitiationMass")
+			criticalInitiationMass = replication_data_file.readColumn("criticalInitiationMass")
 			criticalMassEquivalents = totalMass / criticalInitiationMass
 
 			axesList[2].plot(time, criticalMassEquivalents, linewidth=2)
@@ -95,13 +87,13 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			mass.close()
 
 			# Number of oriC
-			numberOfOric = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("numberOfOric")
+			numberOfOric = replication_data_file.readColumn("numberOfOric")
 			axesList[4].plot(time, numberOfOric, linewidth=2)
 			axesList[4].set_ylabel("Number of\noriC")
 			axesList[4].set_xlim([0, time.max()])
 
 			# Mass per oriC
-			criticalMassPerOriC = TableReader(os.path.join(simOutDir, "ReplicationData")).readColumn("criticalMassPerOriC")
+			criticalMassPerOriC = replication_data_file.readColumn("criticalMassPerOriC")
 			axesList[5].plot(time, criticalMassPerOriC, linewidth=2)
 			axesList[5].set_ylabel("Critical mass\nper oriC")
 			axesList[5].set_xlim([0, time.max()])

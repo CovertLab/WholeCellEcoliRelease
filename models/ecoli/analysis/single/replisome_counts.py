@@ -16,7 +16,6 @@ from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
 
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import units
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
 
@@ -48,7 +47,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Load counts of DNA polymerases, active replisomes, and OriC's
 		unique_molecule_ids = [
-			"activeReplisome", "dnaPolymerase", "originOfReplication"]
+			"active_replisome", "originOfReplication"]
 		unique_molecule_idx = np.array([unique_molecule_counts_reader.readAttribute(
 			"uniqueMoleculeIds").index(x) for x in unique_molecule_ids])
 		unique_molecule_counts = unique_molecule_counts_reader.readColumn(

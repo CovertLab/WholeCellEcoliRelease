@@ -72,7 +72,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				tfTargetSynthProbIds.append(tfTarget + "[c]")
 				tfTargetSynthProbIndices.append(rnaIds.index(tfTargetSynthProbIds[-1]))
 			tfTargetBoundCountsAll = bulkMoleculesReader.readColumn("counts")[:, tfTargetBoundIndices]
-			tfTargetSynthProbAll = rnaSynthProbReader.readColumn("rnaSynthProb")[:, tfTargetSynthProbIndices]
+			# tfTargetSynthProbAll = rnaSynthProbReader.readColumn("rnaSynthProb")[:, tfTargetSynthProbIndices]
 
 			for targetIdx, tfTarget in enumerate(sorted(sim_data.tfToFC[tf])):
 				tfTargetBoundCounts = tfTargetBoundCountsAll[:, targetIdx].reshape(-1)

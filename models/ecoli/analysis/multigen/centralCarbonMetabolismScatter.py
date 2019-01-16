@@ -62,7 +62,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			simOutDir = os.path.join(simDir, "simOut")
 
 			mainListener = TableReader(os.path.join(simOutDir, "Main"))
-			timeStepSec = mainListener.readColumn("timeStepSec")
 			mainListener.close()
 
 			massListener = TableReader(os.path.join(simOutDir, "Mass"))
@@ -109,9 +108,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		plt.plot([ylim[0], ylim[1]], [ylim[0], ylim[1]], color = "k")
 		plt.xlabel("Toya 2010 Reaction Flux [mmol/g/hr]")
 		plt.ylabel("Mean WCM Reaction Flux [mmol/g/hr]")
-		ax = plt.axes()
+		ax = plt.gca()
 		ax.set_ylim(plt.xlim())
-		whitePadSparklineAxis(plt.axes())
+		whitePadSparklineAxis(ax)
 
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close("all")

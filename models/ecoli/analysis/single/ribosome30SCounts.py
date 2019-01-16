@@ -50,8 +50,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		complexIndexes = np.array([moleculeIds.index(comp) for comp in complexIds], np.int)
 
 		# Load data
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
 		freeProteinCounts = bulkMoleculeCounts[:, proteinIndexes]
 		rnaCounts = bulkMoleculeCounts[:, rnaIndexes]
 		freeRRnaCounts = bulkMoleculeCounts[:, rRnaIndexes]

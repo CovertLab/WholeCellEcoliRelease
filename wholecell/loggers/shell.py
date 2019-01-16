@@ -10,8 +10,9 @@ Prints a very brief summary of a whole-cell simulation to standard output
 @date: Created 3/29/2013
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
+import datetime
 import time
 import sys
 import numpy as np
@@ -38,6 +39,10 @@ class Shell(wholecell.loggers.logger.Logger):
 		self._header = None
 		self._headerBoundary = None
 
+		self.nLines = -1
+		self.startTime = time.time()
+		self.startSimTime = 0
+
 
 	def initialize(self, sim):
 		self.columns = []
@@ -57,6 +62,7 @@ class Shell(wholecell.loggers.logger.Logger):
 		# Collect Metadata
 		self.nLines = -1
 		self.startTime = time.time()
+		self.startSimTime = sim.time()
 
 		# Print initial state
 		self.append(sim)
@@ -176,18 +182,17 @@ class Shell(wholecell.loggers.logger.Logger):
 		sys.stdout.write("Simulation finished:\n")
 
 		simTime = sim.time()
+		simLength = simTime - self.startSimTime
+		runtime = time.time() - self.startTime
 
-		# Length
-		h = np.floor(simTime // 3600)
-		m = np.floor((simTime % 3600) // 60)
-		s = simTime % 60
-		sys.stdout.write(" - Length: %d:%02d:%02.0f\n" % (h, m, s))
+		sys.stdout.write(" - Sim length: {}\n".format(hms(simLength)))
+		sys.stdout.write(" - Sim end time: {}\n".format(hms(simTime)))
+		sys.stdout.write(" - Runtime: {}\n".format(hms(runtime)))
 
-		# Runtime
-		diff = time.time() - self.startTime
-		m, s = divmod(diff, 60)
-		h, m = divmod(m, 60)
-		sys.stdout.write(" - Runtime: %d:%02d:%02.0f\n" % (h, m, s))
-
-		# New line
 		sys.stdout.write("\n")
+
+def hms(seconds):
+	"""Format a time interval of seconds as [days] h:mm:ss."""
+	# Rounding gets e.g. '0:08:29' instead of '0:08:28.809659'.
+	delta = datetime.timedelta(seconds=round(seconds))
+	return str(delta)

@@ -101,7 +101,7 @@ def analyze_variant((variant, ap, toya_reactions, toya_fluxes, outlier_filter)):
 		metabolite_ids = fba_results_reader.readAttribute('homeostaticTargetMolecules')
 		bulk_ids = bulk_reader.readAttribute('objectNames')
 
-		bulk_idxs = [bulk_ids.index(id) for id in metabolite_ids]
+		bulk_idxs = [bulk_ids.index(id_) for id_ in metabolite_ids]
 		actual_counts = bulk_reader.readColumn('counts')[:, bulk_idxs]
 		actual_conc.append(np.mean((1. / n_avogadro / volume * actual_counts.T).asNumber(COUNTS_UNITS / VOLUME_UNITS), axis=1))
 		target_conc.append(np.nanmean(fba_results_reader.readColumn('targetConcentrations')[1:, :], axis=0))
@@ -229,7 +229,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		kinetic_objective_std = np.zeros(n_variants)
 
 		# Pull information from sim data and listeners in parallel
-		pool = parallelization.pool(processes=self.cpus)
+		pool = parallelization.pool(num_processes=self.cpus)
 		args = zip(
 			variants,
 			[ap] * n_variants,

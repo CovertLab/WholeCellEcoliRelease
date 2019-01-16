@@ -75,11 +75,13 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		N = 100
 		for idx, simDir in enumerate(allDir):
 			simOutDir = os.path.join(simDir, "simOut")
-			initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+
+			main_reader = TableReader(os.path.join(simOutDir, "Main"))
+			initialTime = main_reader.readAttribute("initialTime")
+			time = main_reader.readColumn("time") - initialTime
 			N = np.fmin(N, time.size)
 
-			dts.append(TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec"))
+			dts.append(main_reader.readColumn("timeStepSec"))
 
 			rnaDegradationListener = TableReader(os.path.join(simOutDir, "RnaDegradationListener"))
 			rnaDegradedCounts.append(rnaDegradationListener.readColumn('countRnaDegraded')[:, rnaIdxs])
@@ -118,7 +120,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			A = rnaCountsAveraged[:, subplotIdx]
 			try:
-				kdeg, _, _, _ = np.linalg.lstsq(A[:, np.newaxis], y)
+				kdeg, _, _, _ = np.linalg.lstsq(A[:, np.newaxis], y, rcond=None)
 			except ValueError:
 				# TODO: Come up with a better/more descriptive error message
 				# This is to handle errors that occurs when running short simulations

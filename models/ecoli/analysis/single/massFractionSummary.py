@@ -46,8 +46,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		dna = mass.readColumn("dnaMass")
 		smallMolecules = mass.readColumn("smallMoleculeMass")
 
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		t = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = main_reader.readAttribute("initialTime")
+		t = main_reader.readColumn("time") - initialTime
 
 
 		masses = np.vstack([
