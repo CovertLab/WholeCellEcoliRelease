@@ -17,7 +17,8 @@ TODO:
 from __future__ import division
 
 import numpy as np
-from arrow import StochasticSystem
+# from arrow import StochasticSystem
+from arrow import Arrow
 
 import wholecell.processes.process
 # from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
@@ -40,13 +41,15 @@ class Complexation(wholecell.processes.process.Process):
 		super(Complexation, self).initialize(sim, sim_data)
 
 		# Create matrices and vectors that describe reaction stoichiometries 
-		self.stoichMatrix = sim_data.process.complexation.stoichMatrix().astype(np.int64, order = "F")
+		self.stoichMatrix = sim_data.process.complexation.stoichMatrix().astype(np.int64) # , order = "F")
 
 		# semi-quantitative rate constants
 		self.rates = np.full((self.stoichMatrix.shape[1],), 1000)
 
 		# build stochastic system simulation
-		self.system = StochasticSystem(self.stoichMatrix, self.rates)
+		self.system = Arrow(self.stoichMatrix.T, self.rates)
+
+		# self.system = StochasticSystem(self.stoichMatrix, self.rates)
 
 		# self.prebuiltMatrices = mccBuildMatrices(self.stoichMatrix)
 		# self.product_indices = [idx for idx in np.where(np.any(self.stoichMatrix > 0, axis=1))[0]]
@@ -68,8 +71,11 @@ class Complexation(wholecell.processes.process.Process):
 		# 	)
 
 		
-		time, counts, events = self.system.evolve(moleculeCounts, self._sim.timeStepSec())
-		updatedMoleculeCounts = counts[-1]
+		# time, counts, events = self.system.evolve(moleculeCounts, self._sim.timeStepSec())
+		# updatedMoleculeCounts = counts[-1]
+
+		result = self.system.evolve(self._sim.timeStepSec(), moleculeCounts)
+		updatedMoleculeCounts = result['outcome']
 
 		self.molecules.requestIs(np.fmax(moleculeCounts - updatedMoleculeCounts, 0))
 
@@ -85,8 +91,12 @@ class Complexation(wholecell.processes.process.Process):
 		# 	*self.prebuiltMatrices
 		# 	)
 
-		time, counts, events = self.system.evolve(moleculeCounts, self._sim.timeStepSec())
-		updatedMoleculeCounts = counts[-1]
+		# time, counts, events = self.system.evolve(moleculeCounts, self._sim.timeStepSec())
+		# updatedMoleculeCounts = counts[-1]
+
+		result = self.system.evolve(self._sim.timeStepSec(), moleculeCounts)
+		updatedMoleculeCounts = result['outcome']
+		events = result['occurrences']
 
 		self.molecules.countsIs(updatedMoleculeCounts)
 
