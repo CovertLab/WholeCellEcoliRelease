@@ -49,11 +49,6 @@ class Complexation(wholecell.processes.process.Process):
 		# build stochastic system simulation
 		self.system = Arrow(self.stoichMatrix.T, self.rates)
 
-		# self.system = StochasticSystem(self.stoichMatrix, self.rates)
-
-		# self.prebuiltMatrices = mccBuildMatrices(self.stoichMatrix)
-		# self.product_indices = [idx for idx in np.where(np.any(self.stoichMatrix > 0, axis=1))[0]]
-
 		# Build views
 		moleculeNames = sim_data.process.complexation.moleculeNames
 		self.molecules = self.bulkMoleculesView(moleculeNames)
@@ -61,18 +56,6 @@ class Complexation(wholecell.processes.process.Process):
 
 	def calculateRequest(self):
 		moleculeCounts = self.molecules.total()
-
-		# # Macromolecule complexes are requested
-		# updatedMoleculeCounts, complexationEvents = mccFormComplexesWithPrebuiltMatrices(
-		# 	moleculeCounts,
-		# 	self.randomState.randint(RAND_MAX),
-		# 	self.stoichMatrix,
-		# 	*self.prebuiltMatrices
-		# 	)
-
-		
-		# time, counts, events = self.system.evolve(moleculeCounts, self._sim.timeStepSec())
-		# updatedMoleculeCounts = counts[-1]
 
 		result = self.system.evolve(self._sim.timeStepSec(), moleculeCounts)
 		updatedMoleculeCounts = result['outcome']
@@ -82,17 +65,6 @@ class Complexation(wholecell.processes.process.Process):
 
 	def evolveState(self):
 		moleculeCounts = self.molecules.counts()
-
-		# # Macromolecule complexes are formed from their subunits
-		# updatedMoleculeCounts, complexationEvents = mccFormComplexesWithPrebuiltMatrices(
-		# 	moleculeCounts,
-		# 	self.randomState.randint(RAND_MAX),
-		# 	self.stoichMatrix,
-		# 	*self.prebuiltMatrices
-		# 	)
-
-		# time, counts, events = self.system.evolve(moleculeCounts, self._sim.timeStepSec())
-		# updatedMoleculeCounts = counts[-1]
 
 		result = self.system.evolve(self._sim.timeStepSec(), moleculeCounts)
 		updatedMoleculeCounts = result['outcome']
