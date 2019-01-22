@@ -392,7 +392,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 						)
 
 					domain_matching_domains = (
-							domain_index_domains == terminated_domain_index)
+						domain_index_domains == terminated_domain_index)
 					domains_to_delete = np.logical_or(
 						domains_to_delete,
 						domain_matching_domains
@@ -400,19 +400,19 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 					# Get child domains of deleted domain
 					child_domains_this_domain = child_domains[
-						np.where(domain_matching_domains)[0], :]
+						np.where(domain_matching_domains)[0][0], :]
 
 					# Modify domain index of one existing full chromosome to
 					# index of first child domain
 					domain_index_full_chroms[
 						np.where(domain_index_full_chroms == terminated_domain_index)[0]
-						] = child_domains_this_domain[:, 0]
+						] = child_domains_this_domain[0]
 
 					# Increment count of new full chromosome
 					n_new_chromosomes += 1
 
 					# Append chromosome index of new full chromosome
-					domain_index_new_full_chroms.append(child_domains_this_domain[:, 1])
+					domain_index_new_full_chroms.append(child_domains_this_domain[1])
 
 			# Delete terminated replisomes and domains
 			active_replisomes.delByIndexes(np.where(replisomes_to_delete)[0])
