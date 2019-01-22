@@ -16,7 +16,6 @@ from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
 
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import units
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
 

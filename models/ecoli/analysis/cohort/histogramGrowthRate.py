@@ -1,8 +1,5 @@
 from __future__ import division, absolute_import
 
-import cPickle
-import os
-
 from matplotlib import pyplot as plt
 import numpy as np
 import os
@@ -10,7 +7,6 @@ import os
 from models.ecoli.analysis import cohortAnalysisPlot
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
-from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import filepath
 from wholecell.utils import units
@@ -57,7 +53,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 					doubling_time = (time[-1] - initialTime) * units.s
 					averageGrowthRate = np.log(2) / doubling_time.asNumber(units.min)
 					gen_growth_rates.append(averageGrowthRate)
-				except:
+				except Exception:
 					# Skip sims that were not able to complete division
 					continue
 

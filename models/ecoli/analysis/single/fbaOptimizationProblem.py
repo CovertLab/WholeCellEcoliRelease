@@ -54,7 +54,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		plt.figure(figsize = (8.5, 11))
 
 		# Plot all shadow prices
-		ax = plt.subplot(3, 2, 1)
+		ax = self.subplot(3, 2, 1)
 		ax.set_prop_cycle('color', COLORS_SMALL)
 		ax.plot(time[burnIn:], shadowPrices[burnIn:, :])
 		ax.set_xlabel('Time (s)', fontsize=8)
@@ -62,7 +62,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		ax.tick_params(axis='both', which='major', labelsize=6)
 
 		# Plot all reduced costs
-		ax = plt.subplot(3, 2, 3)
+		ax = self.subplot(3, 2, 3)
 		ax.set_prop_cycle('color', COLORS_SMALL)
 		ax.plot(time[burnIn:], reducedCosts[burnIn:, :])
 		ax.set_xlabel('Time (s)', fontsize=8)
@@ -76,7 +76,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		outliers = np.unique(np.where((shadowPrices[burnIn:, :] > mean + nStd*std) | (shadowPrices[burnIn:, :] < mean - nStd*std))[1])
 		idx = outliers[np.argsort(means[outliers])][::-1]
 
-		ax = plt.subplot(3, 2, 2)
+		ax = self.subplot(3, 2, 2)
 		ax.set_prop_cycle('color', COLORS_SMALL)
 		ax.set_xlabel('Time (s)', fontsize=8)
 		ax.set_ylabel('Shadow Price\n(Metabolites)', fontsize=8)
@@ -92,7 +92,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		outliers = np.unique(np.where((reducedCosts[burnIn:, :] > mean + nStd*std) | (reducedCosts[burnIn:, :] < mean - nStd*std))[1])
 		idx = outliers[np.argsort(means[outliers])][::-1]
 
-		ax = plt.subplot(3, 2, 4)
+		ax = self.subplot(3, 2, 4)
 		ax.set_prop_cycle('color', COLORS_SMALL)
 		ax.set_xlabel('Time (s)', fontsize=8)
 		ax.set_ylabel('Reduced Costs\n(Reactions)', fontsize=8)
@@ -109,7 +109,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		outliers = np.unique(np.where((reducedCosts[burnIn:, :] > mean + nStd*std) | (reducedCosts[burnIn:, :] < mean - nStd*std))[1])
 		idx = outliers[np.argsort(means[outliers])][::-1]
 
-		ax = plt.subplot(3, 2, 4)
+		ax = self.subplot(3, 2, 4)
 		ax.set_prop_cycle('color', COLORS_SMALL)
 		ax.set_xlabel('Time (s)', fontsize=8)
 		ax.set_ylabel('Reduced Costs\n(Reactions)', fontsize=8)
@@ -126,7 +126,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			kineticsReducedCosts = reducedCosts[:, kineticsIdx]
 
 			# Plot all reduced costs for kinetically constrained reactions
-			ax = plt.subplot(3, 2, 5)
+			ax = self.subplot(3, 2, 5)
 			ax.set_prop_cycle('color', COLORS_SMALL)
 			ax.plot(time[burnIn:], kineticsReducedCosts[burnIn:, :])
 			ax.set_xlabel('Time (s)', fontsize=8)
@@ -140,7 +140,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			outliers = np.unique(np.where((kineticsReducedCosts[burnIn:, :] > mean + nStd*std) | (kineticsReducedCosts[burnIn:, :] < mean - nStd*std))[1])
 			idx = outliers[np.argsort(means[outliers])][::-1]
 
-			ax = plt.subplot(3, 2, 6)
+			ax = self.subplot(3, 2, 6)
 			ax.set_prop_cycle('color', COLORS_SMALL)
 			ax.set_xlabel('Time (s)', fontsize=8)
 			ax.set_ylabel('Reduced Costs\n(Kinetically Constrained Reactions)', fontsize=8)

@@ -68,9 +68,10 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			doublingTime = 1 / growthRate * np.log(2)
 
 			## Calculate ribosomal rna doubling times ##
-			rrn16S_produced = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("rrn16S_produced")
-			rrn23S_produced = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("rrn23S_produced")
-			rrn5S_produced = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("rrn5S_produced")
+			ribosomeData = TableReader(os.path.join(simOutDir, "RibosomeData"))
+			rrn16S_produced = ribosomeData.readColumn("rrn16S_produced")
+			rrn23S_produced = ribosomeData.readColumn("rrn23S_produced")
+			rrn5S_produced = ribosomeData.readColumn("rrn5S_produced")
 
 			ids_16s = []
 			ids_16s.extend(sim_data.moleculeGroups.s30_16sRRNA)
@@ -111,9 +112,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			rrn5S_doubling_time[rrn5S_doubling_time.asNumber() == np.inf] = np.nan * units.s
 
 			## Calculate ribosomal rna actual initiation probabilities ##
-			rrn16S_init_prob = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("rrn16S_init_prob")
-			rrn23S_init_prob = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("rrn23S_init_prob")
-			rrn5S_init_prob = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("rrn5S_init_prob")
+			rrn16S_init_prob = ribosomeData.readColumn("rrn16S_init_prob")
+			rrn23S_init_prob = ribosomeData.readColumn("rrn23S_init_prob")
+			rrn5S_init_prob = ribosomeData.readColumn("rrn5S_init_prob")
 
 			idx_16s = np.zeros(len(sim_data.moleculeGroups.s30_16sRRNA), dtype=np.int)
 			for idx, id16s in enumerate(sim_data.moleculeGroups.s30_16sRRNA):
@@ -133,7 +134,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			rrn5s_fit_init_prob = sim_data.process.transcription.rnaSynthProb[condition][idx_5s].sum()
 
 			## Calculated expected multinomial variance ##
-			total_rna_init = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("total_rna_init")
+			total_rna_init = ribosomeData.readColumn("total_rna_init")
 			rrn16s_exp_variance = total_rna_init * rrn16s_fit_init_prob * (1 - rrn16s_fit_init_prob)
 			rrn23s_exp_variance = total_rna_init * rrn23s_fit_init_prob * (1 - rrn23s_fit_init_prob)
 			rrn5s_exp_variance = total_rna_init * rrn5s_fit_init_prob * (1 - rrn5s_fit_init_prob)
@@ -143,7 +144,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			rrn5s_actual_variance = rrn5s_fit_init_prob.std() ** 2
 
 			## Load other recorded parameters ##
-			averageElongationRate = TableReader(os.path.join(simOutDir, "RibosomeData")).readColumn("effectiveElongationRate")
+			averageElongationRate = ribosomeData.readColumn("effectiveElongationRate")
 
 			## Plotting ##
 

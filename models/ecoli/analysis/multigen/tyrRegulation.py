@@ -133,7 +133,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			tyrASynthProbMA = np.convolve(tyrASynthProb, np.ones(width) / width, mode = "same")
 
 			##############################################################
-			ax = plt.subplot(6, 1, 1)
+			ax = self.subplot(6, 1, 1)
 			ax.plot(time, pheConcentration.asNumber(units.umol / units.L), color = "b")
 			plt.ylabel("Internal PHE Conc. [uM]", fontsize = 6)
 
@@ -148,7 +148,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(6, 1, 2)
+			ax = self.subplot(6, 1, 2)
 			ax.plot(time, tyrRActiveCounts)
 			ax.plot(time, tyrRInactiveCounts)
 			ax.plot(time, tyrRTotalCounts)
@@ -166,7 +166,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(6, 1, 3)
+			ax = self.subplot(6, 1, 3)
 			ax.plot(time, tyrATfBoundCounts, color = "b")
 			ax.plot(time, tyrATfBoundCountsMA, color = "g")
 			plt.ylabel("TyrR Bound To tyrA Promoter", fontsize = 6)
@@ -182,7 +182,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(6, 1, 4)
+			ax = self.subplot(6, 1, 4)
 			ax.plot(time, tyrASynthProb, color = "b")
 			ax.plot(time, tyrASynthProbMA, color = "g")
 			plt.ylabel("tyrA Synthesis Prob.", fontsize = 6)
@@ -198,7 +198,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 
 			##############################################################
-			ax = plt.subplot(6, 1, 5)
+			ax = self.subplot(6, 1, 5)
 			ax.plot(time, tyrAProteinTotalCounts, color = "b")
 			plt.ylabel("TyrA Counts", fontsize = 6)
 
@@ -214,7 +214,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 
 			##############################################################
-			ax = plt.subplot(6, 1, 6)
+			ax = self.subplot(6, 1, 6)
 			ax.plot(time / 3600., proteomeMassFraction, color = "b")
 			plt.ylabel("TyrA Mass Fraction of Proteome", fontsize = 6)
 

@@ -24,8 +24,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		aaIDs = sim_data.moleculeGroups.aaIDs
 
 		# Amino acid exchanges fluxes
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
 		fba_results = TableReader(os.path.join(simOutDir, "FBAResults"))
 		externalExchangeFluxes = fba_results.readColumn("externalExchangeFluxes")
 		externalMoleculeIDs = fba_results.readAttribute("externalMoleculeIDs")

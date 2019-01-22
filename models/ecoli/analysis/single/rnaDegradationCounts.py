@@ -24,26 +24,6 @@ FONT = {
 		}
 
 
-def setAxisMaxMin(axis, data):
-	ymax = np.max(data)
-	ymin = 0
-	if ymin == ymax:
-		axis.set_yticks([ymin])
-	else:
-		axis.set_yticks([ymin, ymax])
-
-def sparklineAxis(axis, x, y, tickPos, lineType, color):
-	axis.plot(x, y, linestyle = 'steps' + lineType, color = color, linewidth = 2)
-	axis.spines['top'].set_visible(False)
-	axis.spines['bottom'].set_visible(False)
-	axis.yaxis.set_ticks_position(tickPos)
-	axis.xaxis.set_ticks_position('none')
-	axis.tick_params(which = 'both', direction = 'out')
-	axis.tick_params(labelbottom = 'off')
-	for tl in axis.get_yticklabels():
-		tl.set_color(color)
-
-
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		if not os.path.isdir(simOutDir):
@@ -69,9 +49,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		exoproteinIndexes = np.array([moleculeIds.index(protein) for protein in exoRnaseIds], np.int)
 		endoproteinIndexes = np.array([moleculeIds.index(protein) for protein in endoRnaseIds], np.int)
 
-		# Load data
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 		RnaseCounts = bulkMoleculeCounts[:, proteinIndexes]
 
 		exoRnaseCounts = bulkMoleculeCounts[:, exoproteinIndexes]
@@ -107,8 +84,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Load metabolism production
 		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
 		deltaMetabolites = fbaResults.readColumn("deltaMetabolites")
 		outputMoleculeIDs = np.array(fbaResults.readAttribute("metaboliteNames"))
 		fbaResults.close()

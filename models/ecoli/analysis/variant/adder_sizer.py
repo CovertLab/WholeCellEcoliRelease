@@ -157,15 +157,15 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			ax.tick_params(
 				axis='x',
 				which='both',
-				bottom='off',
-				top='off',
-				labelbottom='off')
+				bottom=False,
+				top=False,
+				labelbottom=False)
 			ax.tick_params(
 				axis='y',
 				which='both',
-				left='off',
-				right='off',
-				labelleft='off')
+				left=False,
+				right=False,
+				labelleft=False)
 
 			ax.set_xlabel("")
 			ax.set_ylabel("")

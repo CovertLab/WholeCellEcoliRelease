@@ -38,8 +38,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		cellDensity = sim_data.constants.cellDensity
 
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
+		initialTime = main_reader.readAttribute("initialTime")
+		time = main_reader.readColumn("time") - initialTime
 
 		massListener = TableReader(os.path.join(simOutDir, "Mass"))
 		cellMass = massListener.readColumn("cellMass") * units.fg

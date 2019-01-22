@@ -9,14 +9,12 @@ Plots frequency of observing at least 1 protein.
 from __future__ import absolute_import
 
 import os
-import cPickle
 
 import numpy as np
 import matplotlib.pyplot as plt
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
-from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
 

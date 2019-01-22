@@ -30,8 +30,7 @@ COLOR_FSUB = "b"
 
 def remove_xaxis(axis):
 	axis.spines["bottom"].set_visible(False)
-	axis.tick_params(bottom = "off")
-	axis.tick_params(axis = "x", labelbottom = 'off')
+	axis.tick_params(bottom=False, axis="x", labelbottom=False)
 	axis.set_xlabel("")
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
@@ -75,8 +74,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			simOutDir = os.path.join(simDir, "simOut")
 
 			if gen < FIRST_N_GENS:
-				time += TableReader(os.path.join(simOutDir, "Main")).readColumn("time").tolist()
-				time_eachGen.append(TableReader(os.path.join(simOutDir, "Main")).readColumn("time").tolist()[0])
+				main_reader = TableReader(os.path.join(simOutDir, "Main"))
+				time += main_reader.readColumn("time").tolist()
+				time_eachGen.append(main_reader.readColumn("time").tolist()[0])
 
 			rnaSynthProb = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
 			simulatedSynthProb = np.mean(rnaSynthProb.readColumn("rnaSynthProb")[:, mRnaIndexes], axis = 0)
@@ -222,16 +222,15 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		alwaysAxis.set_ylim([-1, len(always)])
 		alwaysAxis.set_xticks([])
 		alwaysAxis.set_yticks([])
-		alwaysAxis.tick_params(top = "off")
-		alwaysAxis.tick_params(bottom = "off")
-		alwaysAxis.tick_params(axis = "x", labelbottom = 'off')
-		
+		alwaysAxis.tick_params(top=False, bottom=False)
+		alwaysAxis.tick_params(axis="x", labelbottom=False)
+
 		sometimesAxis.eventplot(sometimesTranscriptionEvents, orientation = "horizontal", linewidths = 2., linelengths = 4., color = COLOR_FSUB)
 		sometimesAxis.set_xlim([0, time[-1] / 3600.])
 		sometimesAxis.set_ylim([-1, len(sometimes)])
 		sometimesAxis.set_xticks([0, time[-1] / 3600.])
 		sometimesAxis.set_yticks([])
-		sometimesAxis.tick_params(top = "off")
+		sometimesAxis.tick_params(top=False)
 		sometimesAxis.tick_params(which = 'both', direction = 'out', labelsize = 12)
 		sometimesXmin, sometimesXmax = sometimesAxis.get_xlim()
 		time_eachGen = np.array(time_eachGen)
@@ -291,7 +290,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		remove_xaxis(ax)
 		plt.savefig(os.path.join(plotOutDir, "figure5E__clean.pdf"))
 
-		if PLOT_DENOMINATOR_N_EACH_FREQ_GROUP:	
+		if PLOT_DENOMINATOR_N_EACH_FREQ_GROUP:
 			fig = plt.figure()
 			ax = plt.subplot(1, 1, 1)
 			ax.bar(xloc + width, [plotRed / float(nRed), plotGreen / float(nGreen), plotBlue / float(nBlue)], width, color = [COLOR_F0, COLOR_FSUB, COLOR_F1], edgecolor = "none")

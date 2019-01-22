@@ -34,7 +34,7 @@ def sparklineAxis(axis, x, y, tickPos, lineType, color):
 	axis.yaxis.set_ticks_position(tickPos)
 	axis.xaxis.set_ticks_position('none')
 	axis.tick_params(which = 'both', direction = 'out')
-	#axis.tick_params(labelbottom = 'off')
+
 	for tl in axis.get_yticklabels():
 		tl.set_color(color)
 
