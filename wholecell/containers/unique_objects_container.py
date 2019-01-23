@@ -247,8 +247,10 @@ class UniqueObjectsContainer(object):
 
 
 	def objectsNew(self, collectionName, nObjects, **attributes):
-		"""Add nObjects new objects/molecules of the named type, all with the
-		given attributes. Returns a _UniqueObjectSet proxy for the new entries.
+		"""
+		Add nObjects new objects/molecules of the named type, all with the
+		given attributes. Returns a _UniqueObjectSet proxy for the new entries,
+		with read and write access.
 		"""
 		collectionIndex = self._nameToIndexMapping[collectionName]
 		objectIndexes, globalIndexes = self._getFreeIndexes(collectionIndex, nObjects)
@@ -270,7 +272,7 @@ class UniqueObjectsContainer(object):
 		self._globalReference["_collectionIndex"][globalIndexes] = collectionIndex
 		self._globalReference["_objectIndex"][globalIndexes] = objectIndexes
 
-		return _UniqueObjectSet(self, globalIndexes)
+		return _UniqueObjectSet(self, globalIndexes, read_only=False)
 
 
 	def objectNew(self, collectionName, **attributes):
@@ -308,7 +310,7 @@ class UniqueObjectsContainer(object):
 		obj._objectIndex = -1
 
 
-	def objects(self, read_only=False, **operations):
+	def objects(self, read_only=True, **operations):
 		"""Return a _UniqueObjectSet proxy for all objects (molecules) that
 		satisfy an optional attribute query. Querying every object is generally
 		not what you want to do. The queried attributes must be in all the
@@ -323,7 +325,8 @@ class UniqueObjectsContainer(object):
 			return _UniqueObjectSet(self, np.concatenate([
 				self._collections[collectionIndex]["_globalIndex"][result]
 				for collectionIndex, result in enumerate(results)
-				]))
+				]),
+				read_only=read_only)
 
 		else:
 			return _UniqueObjectSet(self,
@@ -332,7 +335,7 @@ class UniqueObjectsContainer(object):
 				)
 
 
-	def objectsInCollection(self, collectionName, read_only=False, **operations):
+	def objectsInCollection(self, collectionName, read_only=True, **operations):
 		"""Return a _UniqueObjectSet proxy for all objects (molecules) belonging
 		to a named collection that satisfy an optional attribute query.
 		"""
@@ -347,7 +350,7 @@ class UniqueObjectsContainer(object):
 			)
 
 
-	def objectsInCollections(self, collectionNames, read_only=False, **operations):
+	def objectsInCollections(self, collectionNames, read_only=True, **operations):
 		"""Return a _UniqueObjectSet proxy for all objects (molecules)
 		belonging to the given collection names that satisfy an optional
 		attribute query. The queried attributes must be in all the named
@@ -393,18 +396,18 @@ class UniqueObjectsContainer(object):
 		)
 
 
-	def objectsByGlobalIndex(self, globalIndexes):
+	def objectsByGlobalIndex(self, globalIndexes, read_only=True):
 		"""Return a _UniqueObjectSet proxy for the objects (molecules) with the
 		given global indexes (that is, global over all named collections).
 		"""
-		return _UniqueObjectSet(self, globalIndexes)
+		return _UniqueObjectSet(self, globalIndexes, read_only=read_only)
 
 
-	def objectByGlobalIndex(self, globalIndex):
+	def objectByGlobalIndex(self, globalIndex, read_only=True):
 		"""Return a _UniqueObject proxy for the object (molecule) with the
 		given global index (that is, global over all named collections).
 		"""
-		return _UniqueObject(self, globalIndex)
+		return _UniqueObject(self, globalIndex, read_only=read_only)
 
 
 	def objectNames(self):
@@ -609,10 +612,13 @@ class _UniqueObjectSet(object):
 	Internally this stores the objects' global indexes.
 	"""
 
-	def __init__(self, container, globalIndexes, read_only=False):
-		"""Construct a _UniqueObjectSet for unique objects (molecules) in the
+	def __init__(self, container, globalIndexes, read_only=True):
+		"""
+		Construct a _UniqueObjectSet for unique objects (molecules) in the
 		given container with the given global indexes. The result is an
-		iterable, ordered sequence (not really a set).
+		iterable, ordered sequence (not really a set). If the read_only
+		argument is set to true, deleting of the objects or editing of
+		their attributes are prohibited.
 		"""
 		self._container = container
 		self._globalIndexes = np.array(globalIndexes, np.int)

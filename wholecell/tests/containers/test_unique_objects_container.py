@@ -512,7 +512,10 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_objectSet_attribute_accessing(self):
-		objectSet = self.container.objects(chromosomeLocation = ('>=', 0))
+		objectSet = self.container.objects(
+			chromosomeLocation = ('>=', 0),
+			read_only=False
+			)
 
 		self.assertEqual(len(objectSet), 20)
 
