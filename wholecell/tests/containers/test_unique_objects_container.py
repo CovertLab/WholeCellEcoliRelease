@@ -18,7 +18,7 @@ import numpy as np
 import numpy.testing as npt
 import nose.plugins.attrib as noseAttrib
 
-from wholecell.containers.unique_objects_container import UniqueObjectsContainer, UniqueObjectsContainerException
+from wholecell.containers.unique_objects_container import UniqueObjectsContainer, UniqueObjectsContainerException, UniqueObjectsPermissionException
 from wholecell.io.tablereader import TableReader
 from wholecell.io.tablewriter import TableWriter
 
@@ -573,6 +573,27 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		self.assertEqual(
 			20,
 			(~boundToChromosome).sum()
+			)
+
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
+	def test_read_only(self):
+		molecules = self.container.objectsInCollection('RNA polymerase')
+		n_molecules = len(molecules)
+
+		with self.assertRaises(UniqueObjectsPermissionException) as context:
+			molecules.attrIs(chromosomeLocation = np.ones(n_molecules))
+
+		self.assertEqual(
+			str(context.exception),
+			"Can't modify attributes of read-only objects."
+			)
+
+		with self.assertRaises(UniqueObjectsPermissionException) as context:
+			molecules.delByIndexes(np.ones(n_molecules))
+
+		self.assertEqual(
+			str(context.exception),
+			"Can't delete molecules from read-only objects."
 			)
 
 
