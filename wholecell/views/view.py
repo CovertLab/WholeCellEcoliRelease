@@ -53,6 +53,10 @@ class View(object):
 	def total_counts(self):
 		return self._totalCount.copy()
 
+	# TODO (ggsun): deprecated alias, should be deleted
+	total = total_counts
+
+
 	# Request
 
 	def requestIs(self, value):

@@ -255,6 +255,10 @@ class UniqueMoleculesView(wholecell.views.view.View):
 		return self._queryResult
 
 
+	# TODO (ggsun): deprecated alias, should be deleted
+	allMolecules = molecules_read_only
+
+
 	def molecules(self):
 		return self._state.container.objectsInCollections(
 			self._query[0],
