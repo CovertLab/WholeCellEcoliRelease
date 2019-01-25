@@ -33,7 +33,7 @@ def __truediv__(self, other):
 				unit[u] = -exp
 			else:
 				del unit[u]
-	return Unum(unit, self._value.__truediv__(other._value))
+	return Unum(unit, self._value / other._value)
 
 def __rtruediv__(self, other):
 	return Unum.coerceToUnum(other).__truediv__(self)
