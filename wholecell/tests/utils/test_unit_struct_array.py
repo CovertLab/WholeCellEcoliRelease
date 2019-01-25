@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Test unit_struct_array.py
 
@@ -7,33 +5,23 @@ Test unit_struct_array.py
 @organization: Covert Lab, Department of Chemical Engineering, Stanford University
 @date: Created 8/14/2014
 """
+
+from __future__ import absolute_import, division, print_function
+
 from wholecell.utils.unit_struct_array import UnitStructArray
-from wholecell.utils.units import g, mol, fg
+from wholecell.utils.units import g, mol
 import numpy as np
 
 import nose.plugins.attrib as noseAttrib
-import nose.tools as noseTools
 import unittest
 
+
 class Test_unit_struct_array(unittest.TestCase):
-	
-
-	@classmethod
-	def setUpClass(cls):
-		pass
-
-	@classmethod
-	def tearDownClass(cls):
-		pass
 
 	def setUp(self):
 		self.struct_array = np.zeros(3, dtype = [('id','a10'),('mass',np.float64)])
 		self.units = {'id' : None, 'mass' : g}
 		self.us_array = UnitStructArray(self.struct_array, self.units)
-
-	def tearDown(self):
-		pass
-
 
 	@noseAttrib.attr('smalltest','unitstructarray')
 	def test_init(self):
@@ -52,7 +40,7 @@ class Test_unit_struct_array(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest','unitstructarray')
 	def test_field(self):
-		self.assertTrue(
+		self.assertEqual(
 			self.us_array['id'].tolist(),
 			self.struct_array['id'].tolist()
 			)
@@ -128,4 +116,3 @@ class Test_unit_struct_array(unittest.TestCase):
 		with self.assertRaises(Exception) as context:
 			self.us_array['mass'] = [1,2,3]
 		self.assertEqual(context.exception.message, 'Units do not match! Quantity has units your input does not!\n')
-		
