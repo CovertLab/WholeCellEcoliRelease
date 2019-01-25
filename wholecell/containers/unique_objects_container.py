@@ -28,6 +28,9 @@ _MAX_ID_SIZE = 40 # max length of the unique id assigned to objects
 class UniqueObjectsContainerException(Exception):
 	pass
 
+class UniqueObjectsPermissionException(Exception):
+	pass
+
 
 def decomp(specifications, compressed_collections, global_ref_count):
 	"""Decompress the arguments into a UniqueObjectsContainer. "decomp" is
@@ -244,8 +247,10 @@ class UniqueObjectsContainer(object):
 
 
 	def objectsNew(self, collectionName, nObjects, **attributes):
-		"""Add nObjects new objects/molecules of the named type, all with the
-		given attributes. Returns a _UniqueObjectSet proxy for the new entries.
+		"""
+		Add nObjects new objects/molecules of the named type, all with the
+		given attributes. Returns a _UniqueObjectSet proxy for the new entries,
+		with read and write access.
 		"""
 		collectionIndex = self._nameToIndexMapping[collectionName]
 		objectIndexes, globalIndexes = self._getFreeIndexes(collectionIndex, nObjects)
@@ -267,7 +272,7 @@ class UniqueObjectsContainer(object):
 		self._globalReference["_collectionIndex"][globalIndexes] = collectionIndex
 		self._globalReference["_objectIndex"][globalIndexes] = objectIndexes
 
-		return _UniqueObjectSet(self, globalIndexes)
+		return _UniqueObjectSet(self, globalIndexes, read_only=False)
 
 
 	def objectNew(self, collectionName, **attributes):
@@ -305,11 +310,13 @@ class UniqueObjectsContainer(object):
 		obj._objectIndex = -1
 
 
-	def objects(self, **operations):
-		"""Return a _UniqueObjectSet proxy for all objects (molecules) that
+	def objects(self, read_only=True, **operations):
+		"""
+		Return a _UniqueObjectSet proxy for all objects (molecules) that
 		satisfy an optional attribute query. Querying every object is generally
 		not what you want to do. The queried attributes must be in all the
-		collections (all molecule types).
+		collections (all molecule types). If read_only is set to True, deleting
+		of the objects or editing of their attributes are prohibited.
 		"""
 		if operations:
 			results = []
@@ -320,17 +327,22 @@ class UniqueObjectsContainer(object):
 			return _UniqueObjectSet(self, np.concatenate([
 				self._collections[collectionIndex]["_globalIndex"][result]
 				for collectionIndex, result in enumerate(results)
-				]))
+				]),
+				read_only=read_only)
 
 		else:
 			return _UniqueObjectSet(self,
-				np.where(self._globalReference["_entryState"] == self._entryActive)[0]
+				np.where(self._globalReference["_entryState"] == self._entryActive)[0],
+				read_only=read_only
 				)
 
 
-	def objectsInCollection(self, collectionName, **operations):
-		"""Return a _UniqueObjectSet proxy for all objects (molecules) belonging
-		to a named collection that satisfy an optional attribute query.
+	def objectsInCollection(self, collectionName, read_only=True, **operations):
+		"""
+		Return a _UniqueObjectSet proxy for all objects (molecules) belonging
+		to a named collection that satisfy an optional attribute query. If
+		read_only is set to True, deleting of the objects or editing of their
+		attributes are prohibited.
 		"""
 		# TODO(jerry): Special case the empty query?
 		collectionIndex = self._nameToIndexMapping[collectionName]
@@ -338,15 +350,17 @@ class UniqueObjectsContainer(object):
 		result = self._queryObjects(collectionIndex, **operations)
 
 		return _UniqueObjectSet(self,
-			self._collections[collectionIndex]["_globalIndex"][result]
+			self._collections[collectionIndex]["_globalIndex"][result],
+			read_only=read_only
 			)
 
 
-	def objectsInCollections(self, collectionNames, **operations):
+	def objectsInCollections(self, collectionNames, read_only=True, **operations):
 		"""Return a _UniqueObjectSet proxy for all objects (molecules)
 		belonging to the given collection names that satisfy an optional
 		attribute query. The queried attributes must be in all the named
-		collections.
+		collections. If read_only is set to True, deleting of the objects
+		or editing of their attributes are prohibited.
 		"""
 		collectionIndexes = [self._nameToIndexMapping[collectionName] for collectionName in collectionNames]
 		results = []
@@ -354,10 +368,13 @@ class UniqueObjectsContainer(object):
 		for collectionIndex in collectionIndexes:
 			results.append(self._queryObjects(collectionIndex, **operations))
 
-		return _UniqueObjectSet(self, np.concatenate([
+		return _UniqueObjectSet(self,
+			np.concatenate([
 			self._collections[collectionIndex]["_globalIndex"][result]
 			for collectionIndex, result in izip(collectionIndexes, results)
-			]))
+			]),
+			read_only=read_only
+			)
 
 
 	def _queryObjects(self, collectionIndex, **operations):
@@ -385,18 +402,18 @@ class UniqueObjectsContainer(object):
 		)
 
 
-	def objectsByGlobalIndex(self, globalIndexes):
+	def objectsByGlobalIndex(self, globalIndexes, read_only=True):
 		"""Return a _UniqueObjectSet proxy for the objects (molecules) with the
 		given global indexes (that is, global over all named collections).
 		"""
-		return _UniqueObjectSet(self, globalIndexes)
+		return _UniqueObjectSet(self, globalIndexes, read_only=read_only)
 
 
-	def objectByGlobalIndex(self, globalIndex):
+	def objectByGlobalIndex(self, globalIndex, read_only=True):
 		"""Return a _UniqueObject proxy for the object (molecule) with the
 		given global index (that is, global over all named collections).
 		"""
-		return _UniqueObject(self, globalIndex)
+		return _UniqueObject(self, globalIndex, read_only=read_only)
 
 
 	def objectNames(self):
@@ -601,13 +618,17 @@ class _UniqueObjectSet(object):
 	Internally this stores the objects' global indexes.
 	"""
 
-	def __init__(self, container, globalIndexes):
-		"""Construct a _UniqueObjectSet for unique objects (molecules) in the
+	def __init__(self, container, globalIndexes, read_only=True):
+		"""
+		Construct a _UniqueObjectSet for unique objects (molecules) in the
 		given container with the given global indexes. The result is an
-		iterable, ordered sequence (not really a set).
+		iterable, ordered sequence (not really a set). If read_only is set
+		to True, deleting of the objects or editing of their attributes are
+		prohibited.
 		"""
 		self._container = container
 		self._globalIndexes = np.array(globalIndexes, np.int)
+		self._read_only = read_only
 
 
 	def __contains__(self, uniqueObject):
@@ -663,6 +684,7 @@ class _UniqueObjectSet(object):
 
 		container = self._container
 		globalReference = container._globalReference
+
 		if (globalReference["_entryState"][self._globalIndexes] == container._entryInactive).any():
 			raise UniqueObjectsContainerException("One or more object was deleted from the set")
 
@@ -706,6 +728,7 @@ class _UniqueObjectSet(object):
 
 		container = self._container
 		globalReference = container._globalReference
+
 		if (globalReference["_entryState"][self._globalIndexes] == container._entryInactive).any():
 			raise UniqueObjectsContainerException("One or more object was deleted from the set")
 
@@ -739,7 +762,15 @@ class _UniqueObjectSet(object):
 		return values
 
 	def attrIs(self, **attributes):
-		"""Set named attributes of all the unique objects in this sequence."""
+		"""
+		Set named attributes of all the unique objects in this sequence.
+		This is not permitted for read-only sets.
+		"""
+		if self._read_only:
+			raise UniqueObjectsPermissionException(
+				"Can't modify attributes of read-only objects."
+			)
+
 		if self._globalIndexes.size == 0:
 			raise UniqueObjectsContainerException("Object set is empty")
 
@@ -769,10 +800,18 @@ class _UniqueObjectSet(object):
 
 
 	def delByIndexes(self, indexes):
-		"""Delete unique objects by indexes into this sequence."""
+		"""
+		Delete unique objects by indexes into this sequence.
+		This is not permitted for read-only sets.
+		"""
 		# TODO(jerry): This could just call a delete method on all its
 		# _UniqueObject instances, which in turn could call objectDel() on the
 		# container or split the work so they each update their private state.
+
+		if self._read_only:
+			raise UniqueObjectsPermissionException(
+				"Can't delete molecules from read-only objects."
+			)
 
 		globalIndexes = self._globalIndexes[indexes]
 

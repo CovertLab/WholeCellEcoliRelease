@@ -99,7 +99,7 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 
 	def partition(self):
 		# Remove any prior partition assignments
-		objects = self.container.objects()
+		objects = self.container.objects(read_only=False)
 		if len(objects) > 0:
 			objects.attrIs(_partitionedProcess = self._unassignedPartitionedValue)
 
@@ -154,7 +154,8 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 
 		for view in self._views:
 			molecules = self.container.objectsByGlobalIndex(
-				np.where(partitionedMolecules[:, view._processIndex])[0]
+				np.where(partitionedMolecules[:, view._processIndex])[0],
+				read_only=False
 				)
 
 			if len(molecules):
@@ -167,7 +168,7 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		if self.simulationStep() == 0:
 			# Set everything to the "unassigned" value
 			# TODO: consider allowing a default value option for unique objects
-			objects = self.container.objects()
+			objects = self.container.objects(read_only=False)
 
 			if len(objects) > 0:
 				objects.attrIs(_partitionedProcess = self._unassignedPartitionedValue)
@@ -241,7 +242,7 @@ class UniqueMoleculesView(wholecell.views.view.View):
 
 	def _updateQuery(self):
 		# TODO: generalize this logic (both here and in the state)
-
+		# Note: this defaults to a read-only view to the objects
 		self._queryResult = self._state.container.objectsInCollections(
 			self._query[0],
 			**self._query[1]
@@ -249,15 +250,23 @@ class UniqueMoleculesView(wholecell.views.view.View):
 
 		self._totalIs(len(self._queryResult))
 
-	def allMolecules(self):
+
+	def molecules_read_only(self):
 		return self._queryResult
+
+
+	# TODO (ggsun): deprecated alias, should be deleted
+	allMolecules = molecules_read_only
+
 
 	def molecules(self):
 		return self._state.container.objectsInCollections(
 			self._query[0],
+			read_only=False,
 			_partitionedProcess = ("==", self._processIndex),
 			**self._query[1]
 			)
+
 
 	# NOTE: these accessors do not enforce any sort of consistency between the query
 	# and the objects created/deleted.  As such it may make more sense for these

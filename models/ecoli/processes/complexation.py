@@ -51,7 +51,7 @@ class Complexation(wholecell.processes.process.Process):
 
 
 	def calculateRequest(self):
-		moleculeCounts = self.molecules.total()
+		moleculeCounts = self.molecules.total_counts()
 
 		# Macromolecule complexes are requested
 		updatedMoleculeCounts, complexationEvents = mccFormComplexesWithPrebuiltMatrices(

@@ -81,8 +81,8 @@ class ProteinDegradation(wholecell.processes.process.Process):
 
 		# Determine how many proteins to degrade based on the degradation rates and counts of each protein
 		nProteinsToDegrade = np.fmin(
-			self.randomState.poisson(self._proteinDegRates() * self.proteins.total()),
-			self.proteins.total()
+			self.randomState.poisson(self._proteinDegRates() * self.proteins.total_counts()),
+			self.proteins.total_counts()
 			)
 
 		# Determine the number of hydrolysis reactions
