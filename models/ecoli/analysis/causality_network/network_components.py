@@ -161,7 +161,7 @@ class Node(object):
 			unit = self.dynamics_units.get(name, "")
 			dynamics = {
 				'units': unit,
-				'type': self.node_type,
+				'type': name,
 				'id': self.node_id,
 				'dynamics': data.tolist()}
 			all_dynamics.append(dynamics)
