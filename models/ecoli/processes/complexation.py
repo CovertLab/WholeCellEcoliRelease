@@ -17,8 +17,7 @@ TODO:
 from __future__ import division
 
 import numpy as np
-# from arrow import StochasticSystem
-from arrow import Arrow
+from arrow import StochasticSystem
 
 import wholecell.processes.process
 # from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
@@ -47,7 +46,7 @@ class Complexation(wholecell.processes.process.Process):
 		self.rates = np.full((self.stoichMatrix.shape[1],), 1000)
 
 		# build stochastic system simulation
-		self.system = Arrow(self.stoichMatrix.T, self.rates)
+		self.system = StochasticSystem(self.stoichMatrix.T, self.rates)
 
 		# Build views
 		moleculeNames = sim_data.process.complexation.moleculeNames
