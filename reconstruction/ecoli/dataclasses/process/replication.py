@@ -74,17 +74,15 @@ class Replication(object):
 
 		assert self.forward_sequence.size + self.reverse_sequence.size == self.genome_length
 
-		# Build sequence matrix for polymerize function in replication process
-		self.sequence_lengths = np.array([
+		# Log array of lengths of each replichore
+		self.replichore_lengths = np.array([
 			self.forward_sequence.size,
-			self.forward_complement_sequence.size,
 			self.reverse_sequence.size,
-			self.reverse_complement_sequence.size
 			])
 
 		# Determine size of the matrix used by polymerize function
 		maxLen = np.int64(
-			self.sequence_lengths.max()
+			self.replichore_lengths.max()
 			+ MAX_TIMESTEP_LEN * sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(units.nt / units.s)
 		)
 

@@ -2122,8 +2122,8 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		d_period = sim_data.growthRateParameters.d_period.asNumber(units.min)
 
 		# Get lengths of forward and reverse sequences
-		forward_sequence_length = sim_data.process.replication.sequence_lengths[0]
-		reverse_sequence_length = sim_data.process.replication.sequence_lengths[1]
+		forward_sequence_length = sim_data.process.replication.replichore_lengths[0]
+		reverse_sequence_length = sim_data.process.replication.replichore_lengths[1]
 
 		for idx, (rnaId, rnaCoordinate) in enumerate(
 				izip(sim_data.process.transcription.rnaData["id"],
@@ -2611,8 +2611,8 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		d_period = sim_data.growthRateParameters.d_period.asNumber(units.min)
 
 		# Get lengths of forward and reverse sequences
-		forward_sequence_length = sim_data.process.replication.sequence_lengths[0]
-		reverse_sequence_length = sim_data.process.replication.sequence_lengths[1]
+		forward_sequence_length = sim_data.process.replication.replichore_lengths[0]
+		reverse_sequence_length = sim_data.process.replication.replichore_lengths[1]
 
 		# Get replication coordinates of each RNA
 		replicationCoordinate = sim_data.process.transcription.rnaData["replicationCoordinate"]
