@@ -16,8 +16,6 @@ import numpy as np
 
 import wholecell.listeners.listener
 
-PLACE_HOLDER = -1
-
 class ReplicationData(wholecell.listeners.listener.Listener):
 	""" ReplicationData """
 
@@ -38,7 +36,7 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 	def allocate(self):
 		super(ReplicationData, self).allocate()
 
-		self.fork_coordinates = np.full(75, PLACE_HOLDER, np.float64)
+		self.fork_coordinates = np.full(75, np.nan, np.float64)
 
 		self.numberOfOric = np.nan
 		self.criticalMassPerOriC = 0.
@@ -53,10 +51,10 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 
 		if len(active_replisomes) > 0:
 			fork_coordinates = active_replisomes.attr("coordinates")
-			self.fork_coordinates[:] = PLACE_HOLDER
+			self.fork_coordinates[:] = np.nan
 			self.fork_coordinates[:fork_coordinates.size] = fork_coordinates
 		else:
-			self.fork_coordinates[:] = PLACE_HOLDER
+			self.fork_coordinates[:] = np.nan
 
 	def tableCreate(self, tableWriter):
 		pass

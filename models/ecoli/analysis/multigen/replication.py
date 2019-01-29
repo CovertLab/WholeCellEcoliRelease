@@ -11,8 +11,6 @@ from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
 
-PLACE_HOLDER = -1
-
 CRITICAL_N = [1, 2, 4, 8]
 
 
@@ -44,11 +42,10 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			fork_coordinates = replication_data_file.readColumn("fork_coordinates")
 
 			# Get fork counts
-			pairsOfForks = (fork_coordinates != PLACE_HOLDER).sum(axis = 1) / 2
+			pairsOfForks = np.logical_not(np.isnan(fork_coordinates)).sum(axis=1) / 2
 
 			# Down sample dna polymerase position, every position is only plotted once here
 			# using numpy ninja-ness
-			fork_coordinates[fork_coordinates == PLACE_HOLDER] = np.nan
 			unique, index, value = np.unique(fork_coordinates, return_index=True, return_inverse=True)
 			m = np.zeros_like(value, dtype=bool)
 			m[index] = True

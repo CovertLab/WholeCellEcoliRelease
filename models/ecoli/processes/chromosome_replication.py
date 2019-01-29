@@ -38,7 +38,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			)
 		self.getDnaCriticalMass = sim_data.growthRateParameters.getDnaCriticalMass
 		self.nutrientToDoublingTime = sim_data.nutrientToDoublingTime
-		self.replichore_lengths = sim_data.process.replication.sequence_lengths[0::2]
+		self.replichore_lengths = sim_data.process.replication.replichore_lengths
 		self.sequences = sim_data.process.replication.replication_sequences
 		self.polymerized_dntp_weights = sim_data.process.replication.replicationMonomerWeights
 		self.dnaPolyElngRate = int(

@@ -45,8 +45,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		rna_coordinates = sim_data.process.transcription.rnaData[
 			"replicationCoordinate"][rna_idx]
 
-		forward_sequence_length = sim_data.process.replication.sequence_lengths[0]
-		reverse_sequence_length = sim_data.process.replication.sequence_lengths[1]
+		forward_sequence_length = sim_data.process.replication.replichore_lengths[0]
+		reverse_sequence_length = sim_data.process.replication.replichore_lengths[1]
 
 		relative_positions = np.array([float(x)/forward_sequence_length
 			if x > 0 else float(-x)/reverse_sequence_length
