@@ -14,6 +14,9 @@ class TranscriptionRegulation(object):
 		# Build lookups
 		self._buildLookups(raw_data, sim_data)
 
+		# Get list of all transcription factor IDs
+		self.tf_ids = sim_data.tfToFC.keys()
+
 		# Build dictionary mapping transcription factors to their Kds
 		self.tfKd = {}
 
@@ -29,7 +32,7 @@ class TranscriptionRegulation(object):
 		# Build dictionary mapping RNA targets to its regulators
 		self.targetTf = {}
 
-		for tf in sim_data.tfToFC:
+		for tf in self.tf_ids:
 			targets = sim_data.tfToFC[tf]
 			targetsToRemove = []
 
