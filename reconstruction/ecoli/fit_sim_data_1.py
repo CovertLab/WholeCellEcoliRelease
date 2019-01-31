@@ -2958,7 +2958,15 @@ def calculateRnapRecruitment(sim_data, r):
 
 	hI, hJ, hV, rowNames, colNames, stateMasses, rna_to_tf = [], [], [], [], [], [], []
 
-	for idx, rnaId in enumerate(sim_data.process.transcription.rnaData["id"]):
+	# Get list of transcription units and TF IDs
+	all_trs_units = sim_data.process.transcription.rnaData["id"]
+	all_tfs = sim_data.process.transcription_regulation.tf_ids
+
+	# Initialize basal_prob vector and delta_prob sparse matrix
+	basal_prob = np.zeros(len(all_trs_units))
+	deltaI, deltaJ, deltaV = [], [], []
+
+	for rna_idx, rnaId in enumerate(all_trs_units):
 		rnaIdNoLoc = rnaId[:-3]  # Remove compartment ID from RNA ID
 
 		tfs = sim_data.process.transcription_regulation.targetTf.get(rnaIdNoLoc, [])
@@ -2986,8 +2994,14 @@ def calculateRnapRecruitment(sim_data, r):
 			hJ.append(colNames.index(colName))
 			hV.append(r[colNames.index(colName)])
 
+			# Set element in delta to value in r that corresponds to the
+			# transcription unit of the row, and the TF of the column
+			deltaI.append(rna_idx)
+			deltaJ.append(all_tfs.index(tf["id"]))
+			deltaV.append(r[colNames.index(colName)])
+
 			# Add index to the target RNA
-			rna_to_tf.append(idx)
+			rna_to_tf.append(rna_idx)
 
 			stateMasses.append([0.]*6 + [tf["mass_g/mol"]] + [0.]*4)
 
@@ -3001,9 +3015,16 @@ def calculateRnapRecruitment(sim_data, r):
 		hJ.append(colNames.index(colName))
 		hV.append(r[colNames.index(colName)])
 
+		# Set element in basal_prob to the transcription unit's value for alpha
+		basal_prob[rna_idx] = r[colNames.index(colName)]
+
 		stateMasses.append([0.]*11)
 
 	stateMasses = (units.g/units.mol)*np.array(stateMasses)
+
+	# Convert to arrays
+	deltaI, deltaJ, deltaV = np.array(deltaI), np.array(deltaJ), np.array(deltaV)
+	delta_shape = (len(all_trs_units), len(all_tfs))
 
 	# Construct matrix H
 	hI, hJ, hV = np.array(hI), np.array(hJ), np.array(hV)
@@ -3024,6 +3045,9 @@ def calculateRnapRecruitment(sim_data, r):
 	H[range(nRows), colIdxs] -= H[range(nRows), colIdxs].min()
 	hV = H[hI, hJ]
 
+	# Rescale basal probabilities such that there are no negative probabilities
+	basal_prob -= basal_prob.min()
+
 	# Add promoter state (gene dosage/bound TF count) as bulk state
 	sim_data.internal_state.bulkMolecules.addToBulkState(colNames, stateMasses)
 	sim_data.moleculeGroups.bulkMoleculesGeneCopyNumberDivision = geneCopyNumberColNames
@@ -3035,6 +3059,15 @@ def calculateRnapRecruitment(sim_data, r):
 		"hJ": hJ,
 		"hV": hV,
 		"shape": shape,
+		}
+
+	# Add basal_prob vector and delta_prob matrix to sim_data
+	sim_data.process.transcription_regulation.basal_prob = basal_prob
+	sim_data.process.transcription_regulation.delta_prob = {
+		"deltaI": deltaI,
+		"deltaJ": deltaJ,
+		"deltaV": deltaV,
+		"shape": delta_shape,
 		}
 
 	sim_data.process.transcription_regulation.recruitmentColNames = colNames
