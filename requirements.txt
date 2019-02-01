@@ -1,4 +1,4 @@
-v## How to build a Whole Cell pyenv virtualenv:
+## How to build a Whole Cell pyenv virtualenv:
 ## Prepare as needed. Install these packages using your local package
 ## manager such as brew on macOS:
 #   brew install pyenv

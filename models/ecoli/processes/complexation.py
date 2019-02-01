@@ -20,7 +20,6 @@ import numpy as np
 from arrow import StochasticSystem
 
 import wholecell.processes.process
-# from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
 
 # Maximum unsigned int value + 1 for randint() to seed srand from C stdlib
 RAND_MAX = 2**32
@@ -40,7 +39,7 @@ class Complexation(wholecell.processes.process.Process):
 		super(Complexation, self).initialize(sim, sim_data)
 
 		# Create matrices and vectors that describe reaction stoichiometries 
-		self.stoichMatrix = sim_data.process.complexation.stoichMatrix().astype(np.int64) # , order = "F")
+		self.stoichMatrix = sim_data.process.complexation.stoichMatrix().astype(np.int64)
 
 		# semi-quantitative rate constants
 		self.rates = np.full((self.stoichMatrix.shape[1],), 1000)
