@@ -71,6 +71,10 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Create molecules views for full chromosomes
 		self.full_chromosome = self.uniqueMoleculesView("fullChromosome")
 
+		# Create view for promoters and log counts of transcription factors
+		self.promoters = self.uniqueMoleculesView("promoter")
+		self.n_tf = len(sim_data.process.transcription_regulation.tf_ids)
+
 		# Get placeholder value for domains without children
 		self.no_child_place_holder = sim_data.process.replication.no_child_place_holder
 
@@ -115,6 +119,9 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.active_replisome.requestAll()
 		self.full_chromosome.requestAll()
 
+		# Request all promoters
+		self.promoters.requestAll()
+
 		# Get current locations of all replication forks
 		active_replisomes = self.active_replisome.molecules_read_only()
 		fork_coordinates = active_replisomes.attr("coordinates")
@@ -151,8 +158,10 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 		full_chromosomes = self.full_chromosome.molecules()
 
-		# Get existing chromosome domains
+		# Get existing chromosome domains and their attributes
 		chromosome_domains = self.chromosome_domain.molecules()
+		domain_index_existing_domain, child_domains = chromosome_domains.attrs(
+			'domain_index', 'child_domains')
 
 		# If there are no origins, return immediately
 		if n_oric == 0:
@@ -177,8 +186,6 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		if initiate_replication:
 			# Get attributes of existing oriCs and domains
 			domain_index_existing_oric = oriCs.attr('domain_index')
-			domain_index_existing_domain, child_domains = chromosome_domains.attrs(
-				'domain_index', 'child_domains')
 
 			# Get indexes of the domains that would be getting child domains
 			# (domains that contain an origin)
@@ -345,6 +352,65 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 					)] += 1
 
 		self.gene_copy_number.countsInc(new_gene_copies)
+
+		# Handle promoters that were replicated
+		promoters = self.promoters.molecules()
+
+		trs_unit_index, coordinates_promoters, domain_index_promoters = promoters.attrs(
+			"trs_unit_index", "coordinates", "domain_index")
+
+		# Get mask array of promoters that were replicated in this timestep
+		replicated_promoters = np.zeros_like(trs_unit_index, dtype=np.bool)
+
+		for (rr, old_coord, new_coord) in izip(
+				right_replichore, coordinates, updated_coordinates):
+			# Fork on right replichore
+			if rr:
+				replicated_promoters = np.logical_or(
+					replicated_promoters,
+					np.logical_and(
+						coordinates_promoters >= old_coord,
+						coordinates_promoters < new_coord
+						)
+					)
+			# Fork on left replichore
+			else:
+				replicated_promoters = np.logical_or(
+					replicated_promoters,
+					np.logical_and(
+						coordinates_promoters <= old_coord,
+						coordinates_promoters > new_coord
+						)
+					)
+
+		n_new_promoters = 2*replicated_promoters.sum()
+
+		if n_new_promoters > 0:
+			# Delete original promoters
+			promoters.delByIndexes(np.where(replicated_promoters)[0])
+
+			# Set up attributes for the replicated promoters
+			trs_unit_index_new = trs_unit_index[replicated_promoters]
+			coordinates_promoters_new = coordinates_promoters[replicated_promoters]
+			parent_domain_index_promoters = domain_index_promoters[replicated_promoters]
+
+			domain_index_promoters_new = child_domains[
+				np.array([np.where(domain_index_existing_domain == idx)[0][0]
+					for idx in parent_domain_index_promoters]),
+				:]
+
+			# Add new promoters with new domain indexes
+			promoters_new = self.promoters.moleculesNew(
+				"promoter", n_new_promoters
+				)
+
+			promoters_new.attrIs(
+				trs_unit_index=np.repeat(trs_unit_index_new, 2),
+				coordinates=np.repeat(coordinates_promoters_new, 2),
+				domain_index=domain_index_promoters_new.T.flatten(),
+				bound_tfs=np.zeros((n_new_promoters, self.n_tf)),
+				)
+
 
 		## Module 3: replication termination
 		# Determine if any forks have reached the end of their sequences. If

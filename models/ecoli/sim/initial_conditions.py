@@ -312,7 +312,7 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 	# Initialize gene dosage
 	geneCopyNumberColNames = sim_data.process.transcription_regulation.geneCopyNumberColNames
 	geneCopyNumberView = bulkMolCntr.countsView(geneCopyNumberColNames)
-	replicationCoordinate = sim_data.process.transcription.rnaData["replicationCoordinate"]
+	replication_coordinate = sim_data.process.transcription.rnaData["replicationCoordinate"]
 
 	# Set all copy numbers to one initially
 	initialGeneCopyNumber = np.ones(len(geneCopyNumberColNames))
@@ -331,11 +331,101 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 	for (forward, reverse) in izip(forward_fork_coordinates,
 			reverse_fork_coordinates):
 		initialGeneCopyNumber[
-			np.logical_and(replicationCoordinate < forward,
-				replicationCoordinate > reverse)
+			np.logical_and(replication_coordinate < forward,
+				replication_coordinate > reverse)
 			] += 1
 
 	geneCopyNumberView.countsIs(initialGeneCopyNumber)
+
+	# Initialize attributes of promoters
+	trs_unit_index, promoter_coordinates, promoter_domain_index = [], [], []
+
+	# Loop through all chromosome domains
+	for domain_idx in domain_state["domain_index"]:
+
+		# If the domain is the mother domain of the initial chromosome,
+		if domain_idx == 0:
+			if n_replisome == 0:
+				# No replisomes - all promoters should fall in this domain
+				trs_unit_mask = np.ones_like(
+					replication_coordinate, dtype=np.bool
+					)
+
+			else:
+				# Get domain boundaries
+				domain_boundaries = replisome_state["coordinates"][
+					replisome_state["domain_index"] == 0
+				]
+
+				# Add promoters for transcription units outside of this boundary
+				trs_unit_mask = np.logical_or(
+					replication_coordinate > domain_boundaries.max(),
+					replication_coordinate < domain_boundaries.min()
+					)
+
+		# If the domain contains the origin,
+		elif np.isin(domain_idx, oric_state["domain_index"]):
+			# Get index of the parent domain
+			parent_domain_idx = domain_state["domain_index"][
+				np.where(domain_state["child_domains"] == domain_idx)[0]
+				]
+
+			# Get domain boundaries of the parent domain
+			parent_domain_boundaries = replisome_state["coordinates"][
+				replisome_state["domain_index"] == parent_domain_idx
+			]
+
+			# Add promoters for transcription units inside this boundary
+			trs_unit_mask = np.logical_and(
+				replication_coordinate < parent_domain_boundaries.max(),
+				replication_coordinate > parent_domain_boundaries.min()
+				)
+
+		# If the domain neither contains the origin nor the terminus,
+		else:
+			# Get index of the parent domain
+			parent_domain_idx = domain_state["domain_index"][
+				np.where(domain_state["child_domains"] == domain_idx)[0]
+			]
+
+			# Get domain boundaries of the parent domain
+			parent_domain_boundaries = replisome_state["coordinates"][
+				replisome_state["domain_index"] == parent_domain_idx
+			]
+
+			# Get domain boundaries of this domain
+			domain_boundaries = replisome_state["coordinates"][
+				replisome_state["domain_index"] == domain_idx
+			]
+
+			# Add promoters for transcription units between the boundaries
+			trs_unit_mask = np.logical_or(
+				np.logical_and(
+					replication_coordinate < parent_domain_boundaries.max(),
+					replication_coordinate > domain_boundaries.max()
+				),
+				np.logical_and(
+					replication_coordinate > parent_domain_boundaries.min(),
+					replication_coordinate < domain_boundaries.min()
+					)
+				)
+
+		# Append attributes to existing list
+		trs_unit_index.extend(np.nonzero(trs_unit_mask)[0])
+		promoter_coordinates.extend(replication_coordinate[trs_unit_mask])
+		promoter_domain_index.extend(np.full(trs_unit_mask.sum(), domain_idx))
+
+	# Add promoters as unique molecules and set attributes
+	n_promoter = len(trs_unit_index)
+	n_tf = len(sim_data.process.transcription_regulation.tf_ids)
+
+	promoters = uniqueMolCntr.objectsNew('promoter', n_promoter)
+	promoters.attrIs(
+		trs_unit_index=np.array(trs_unit_index),
+		coordinates=np.array(promoter_coordinates),
+		domain_index=np.array(promoter_domain_index),
+		bound_tfs=np.zeros((n_promoter, n_tf), dtype=np.bool),
+		)
 
 
 def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
