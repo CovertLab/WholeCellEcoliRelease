@@ -33,7 +33,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 	def __init__(self):
 		super(TranscriptInitiation, self).__init__()
 
-
 	def initialize(self, sim, sim_data):
 		super(TranscriptInitiation, self).initialize(sim, sim_data)
 
@@ -48,6 +47,16 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.recruitmentMatrix = scipy.sparse.csr_matrix(
 			(recruitmentData["hV"], (recruitmentData["hI"], recruitmentData["hJ"])),
 			shape = recruitmentData["shape"]
+			)
+
+		# Create matrices to calculate rnaSynthProb - using new matrices
+		self.basal_prob = sim_data.process.transcription_regulation.basal_prob
+		self.n_trs_units = len(self.basal_prob)
+		delta_prob = sim_data.process.transcription_regulation.delta_prob
+		self.delta_prob_matrix = scipy.sparse.csr_matrix(
+			(delta_prob['deltaV'],
+			(delta_prob['deltaI'], delta_prob['deltaJ'])),
+			shape=delta_prob['shape']
 			)
 
 		self.maxRibosomeElongationRate = float(
@@ -78,6 +87,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.inactiveRnaPolys = self.bulkMoleculeView("APORNAP-CPLX[c]")
 		self.full_chromosomes = self.uniqueMoleculesView('fullChromosome')
 		self.recruitmentView = self.bulkMoleculesView(recruitmentColNames)
+		self.promoters = self.uniqueMoleculesView('promoter')
 
 		# ID Groups
 		self.is_16SrRNA = sim_data.process.transcription.rnaData['isRRna16S']
@@ -100,6 +110,17 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		# Get all inactive RNA polymerases
 		self.inactiveRnaPolys.requestAll()
 
+		# Get attributes of promoters
+		promoters = self.promoters.molecules_read_only()
+		n_promoters = self.promoters.total_counts()
+		trs_unit_index, bound_tfs = promoters.attrs("trs_unit_index", "bound_tfs")
+
+		# Construct matrix that maps promoters to transcription units
+		trs_unit_to_promoter = scipy.sparse.csr_matrix(
+			(np.ones(n_promoters), (trs_unit_index, np.arange(n_promoters))),
+			shape=(self.n_trs_units, n_promoters)
+			)
+
 		# Read current environment
 		current_nutrients = self._external_states['Environment'].nutrients
 
@@ -107,6 +128,19 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 			# Calculate synthesis probabilities based on transcription regulation
 			self.rnaSynthProb = self.recruitmentMatrix.dot(
 				self.recruitmentView.total_counts())
+
+			# Calculate probabilities of the RNAP binding to the promoters
+			self.synth_prob_per_promoter = (
+				self.basal_prob[trs_unit_index] +
+				np.squeeze(np.asarray(
+					self.delta_prob_matrix[trs_unit_index, :].multiply(
+						bound_tfs).sum(axis=1)
+					))
+				)
+
+			synth_prob_per_trs_unit = trs_unit_to_promoter.dot(
+				self.synth_prob_per_promoter)
+
 			if len(self.genetic_perturbations) > 0:
 				self.rnaSynthProb[self.genetic_perturbations["fixedRnaIdxs"]] = self.genetic_perturbations["fixedSynthProbs"]
 

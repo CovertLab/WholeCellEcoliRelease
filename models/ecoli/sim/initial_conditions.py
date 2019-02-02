@@ -68,6 +68,8 @@ def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, rand
 	# Initialize unique molecules relevant to replication
 	initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data)
 
+	# TODO (ggsun): initialize binding of transcription factors
+
 	# Activate rna polys, with fraction based on environmental conditions
 	initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
 
@@ -430,14 +432,15 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 
 def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	"""
-	Purpose: Activates RNA polymerases as unique molecules, and distributes them along length of genes,
-	decreases counts of unactivated RNA polymerases (APORNAP-CPLX[c]).
+	Purpose: Activates RNA polymerases as unique molecules, and distributes
+	them along length of genes, decreases counts of unactivated RNA polymerases
+	(APORNAP-CPLX[c]).
 
-	Normalizes RNA poly placement per length of completed RNA, with synthesis probability based on each environmental condition
+	Normalizes RNA poly placement per length of completed RNA, with synthesis
+	probability based on each environmental condition
 	"""
 
 	# Load parameters
-	nAvogadro = sim_data.constants.nAvogadro
 	rnaLengths = sim_data.process.transcription.rnaData['length'].asNumber()
 	currentNutrients = sim_data.conditions[sim_data.condition]['nutrients']
 	fracActiveRnap = sim_data.process.transcription.rnapFractionActiveDict[currentNutrients]
@@ -458,6 +461,27 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 			shape = recruitmentData['shape']
 		)
 
+	# Parameters for rnaSynthProb - using new matrices
+	basal_prob = sim_data.process.transcription_regulation.basal_prob
+	n_trs_units = len(basal_prob)
+	delta_prob = sim_data.process.transcription_regulation.delta_prob
+	delta_prob_matrix = scipy.sparse.csr_matrix(
+		(delta_prob['deltaV'],
+		(delta_prob['deltaI'], delta_prob['deltaJ'])),
+		shape=delta_prob['shape']
+		)
+
+	# Get attributes of promoters
+	promoters = uniqueMolCntr.objectsInCollection("promoter")
+	n_promoters = len(promoters)
+	trs_unit_index, bound_tfs = promoters.attrs("trs_unit_index", "bound_tfs")
+
+	# Construct matrix that maps promoters to transcription units
+	trs_unit_to_promoter = scipy.sparse.csr_matrix(
+		(np.ones(n_promoters), (trs_unit_index, np.arange(n_promoters))),
+		shape=(n_trs_units, n_promoters)
+		)
+
 	# Synthesis probabilities for different categories of genes
 	rnaSynthProbFractions = sim_data.process.transcription.rnaSynthProbFraction
 	rnaSynthProbRProtein = sim_data.process.transcription.rnaSynthProbRProtein
@@ -466,11 +490,18 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	# Determine changes from genetic perturbations
 	genetic_perturbations = {}
 	perturbations = getattr(sim_data, 'genetic_perturbations', {})
+
 	if len(perturbations) > 0:
-		rnaIdxs, synthProbs = zip(*[(int(np.where(sim_data.process.transcription.rnaData['id'] == rnaId)[0]), synthProb) for rnaId, synthProb in sim_data.genetic_perturbations.iteritems()])
-		fixedSynthProbs = [synthProb for (rnaIdx, synthProb) in sorted(zip(rnaIdxs, synthProbs), key = lambda pair: pair[0])]
-		fixedRnaIdxs = [rnaIdx for (rnaIdx, synthProb) in sorted(zip(rnaIdxs, synthProbs), key = lambda pair: pair[0])]
-		genetic_perturbations = {'fixedRnaIdxs': fixedRnaIdxs, 'fixedSynthProbs': fixedSynthProbs}
+		probability_indexes = [
+			(index, sim_data.genetic_perturbations[rna_data['id']])
+			for index, rna_data in
+			enumerate(sim_data.process.transcription.rnaData)
+			if rna_data['id'] in sim_data.genetic_perturbations]
+
+		genetic_perturbations = {
+			'fixedRnaIdxs': map(lambda pair: pair[0], probability_indexes),
+			'fixedSynthProbs': map(lambda pair: pair[1], probability_indexes)
+			}
 
 	# If initiationShuffleIdxs does not exist, set value to None
 	shuffleIdxs = getattr(sim_data.process.transcription, 'initiationShuffleIdxs', None)
@@ -487,6 +518,16 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	rnaSynthProb = recruitmentMatrix.dot(recruitmentView)
 	if len(genetic_perturbations) > 0:
 		rnaSynthProb[genetic_perturbations['fixedRnaIdxs']] = genetic_perturbations['fixedSynthProbs']
+
+	# Calculate probabilities of the RNAP binding to the promoters
+	synth_prob_per_promoter = (
+		basal_prob[trs_unit_index] +
+		np.squeeze(np.asarray(
+			delta_prob_matrix[trs_unit_index, :].multiply(bound_tfs).sum(axis=1)
+			))
+		)
+
+	synth_prob_per_trs_unit = trs_unit_to_promoter.dot(synth_prob_per_promoter)
 
 	# Adjust probabilities to not be negative
 	rnaSynthProb[rnaSynthProb < 0] = 0.0
