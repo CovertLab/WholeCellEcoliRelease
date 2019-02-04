@@ -1,7 +1,6 @@
-# M9 media + 0.4pct. glucose + amino acids.
-# amino acid concentrations unknown
-# M9 recipe from: Maniatis, T., Fritsch, E. F., & Sambrook, J. (1982).
-# Molecular cloning: a laboratory manual (Vol. 545). Cold Spring Harbor, NY: Cold spring harbor laboratory.
+# M9 media + 0.4pct. glucose + amino acids (5x Supplement EZ without VA Vitamin Solution).
+# F. C. Neidhardt, P. L. Bloch, D. F. Smith, Journal of bacteriology 119, 736 (1974).
+# https://ecocyc.org/ECOLI/NEW-IMAGE?type=Growth-Media&object=MIX0-76
 "molecule id"	"concentration (units.mmol / units.L)"
 "GLC[p]"	22.203
 "OXYGEN-MOLECULE[p]"	Infinity
@@ -24,23 +23,23 @@
 "L-SELENOCYSTEINE[c]"	Infinity
 "GLC-D-LACTONE[c]"	Infinity
 "CYTOSINE[c]"	Infinity
-"L-ALPHA-ALANINE[p]"	Infinity
-"ARG[p]"	Infinity
-"ASN[p]"	Infinity
-"L-ASPARTATE[p]"	Infinity
-"CYS[p]"	Infinity
-"GLT[p]"	Infinity
-"GLN[p]"	Infinity
-"GLY[p]"	Infinity
-"HIS[p]"	Infinity
-"ILE[p]"	Infinity
-"LEU[p]"	Infinity
-"LYS[p]"	Infinity
-"MET[p]"	Infinity
-"PHE[p]"	Infinity
-"PRO[p]"	Infinity
-"SER[p]"	Infinity
-"THR[p]"	Infinity
-"TRP[p]"	Infinity
-"TYR[p]"	Infinity
-"VAL[p]"	Infinity
+"L-ALPHA-ALANINE[p]"	0.8
+"ARG[p]"	5.2
+"ASN[p]"	0.4
+"L-ASPARTATE[p]"	0.4
+"CYS[p]"	0.1
+"GLT[p]"	0.6
+"GLN[p]"	0.6
+"GLY[p]"	0.8
+"HIS[p]"	0.2
+"ILE[p]"	0.4
+"LEU[p]"	0.8
+"LYS[p]"	0.4
+"MET[p]"	0.2
+"PHE[p]"	0.4
+"PRO[p]"	0.4
+"SER[p]"	10.0
+"THR[p]"	0.4
+"TRP[p]"	0.1
+"TYR[p]"	0.2
+"VAL[p]"	0.6

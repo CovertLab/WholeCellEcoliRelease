@@ -35,7 +35,7 @@ reverseReactionString = "{} (reverse)"
 # threshold (units.mmol / units.L) separates concentrations that are import constrained with
 # max flux = 0 from unconstrained molecules.
 # TODO (Eran) remove this once a transport kinetics process is operating
-IMPORT_CONSTRAINT_THRESHOLD =  0.1
+IMPORT_CONSTRAINT_THRESHOLD =  0.01
 
 class Metabolism(object):
 	""" Metabolism """
