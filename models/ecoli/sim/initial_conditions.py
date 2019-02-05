@@ -19,7 +19,7 @@ from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWi
 
 from wholecell.sim.divide_cell import load_inherited_state
 
-RAND_MAX = 2**32
+RAND_MAX = 2**31
 
 def calcInitialConditions(sim, sim_data):
 	'''Calculate the initial conditions for a new cell without inherited state

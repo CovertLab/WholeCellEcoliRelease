@@ -22,7 +22,7 @@ from arrow import StochasticSystem
 import wholecell.processes.process
 
 # Maximum unsigned int value + 1 for randint() to seed srand from C stdlib
-RAND_MAX = 2**32
+RAND_MAX = 2**31
 
 class Complexation(wholecell.processes.process.Process):
 	""" Complexation """
