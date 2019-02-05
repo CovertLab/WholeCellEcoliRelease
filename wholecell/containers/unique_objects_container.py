@@ -25,6 +25,10 @@ ZLIB_LEVEL = 7
 
 _MAX_ID_SIZE = 40 # max length of the unique id assigned to objects
 
+READ_ONLY = 0
+READ_EDIT = 1
+READ_EDIT_DELETE = 2
+
 class UniqueObjectsContainerException(Exception):
 	pass
 
@@ -254,7 +258,7 @@ class UniqueObjectsContainer(object):
 		"""
 		Add nObjects new objects/molecules of the named type, all with the
 		given attributes. Returns a _UniqueObjectSet proxy for the new entries,
-		with read and write access.
+		with read and edit access.
 		"""
 		collectionIndex = self._nameToIndexMapping[collectionName]
 		objectIndexes, globalIndexes = self._getFreeIndexes(collectionIndex, nObjects)
@@ -276,7 +280,7 @@ class UniqueObjectsContainer(object):
 		self._globalReference["_collectionIndex"][globalIndexes] = collectionIndex
 		self._globalReference["_objectIndex"][globalIndexes] = objectIndexes
 
-		return _UniqueObjectSet(self, globalIndexes, read_only=False)
+		return _UniqueObjectSet(self, globalIndexes, access=READ_EDIT)
 
 
 	def objectNew(self, collectionName, **attributes):
@@ -314,13 +318,14 @@ class UniqueObjectsContainer(object):
 		obj._objectIndex = -1
 
 
-	def objects(self, read_only=True, **operations):
+	def objects(self, access=READ_ONLY, **operations):
 		"""
 		Return a _UniqueObjectSet proxy for all objects (molecules) that
 		satisfy an optional attribute query. Querying every object is generally
 		not what you want to do. The queried attributes must be in all the
-		collections (all molecule types). If read_only is set to True, deleting
-		of the objects or editing of their attributes are prohibited.
+		collections (all molecule types). The access argument determines the
+		level of access permission the proxy has to the molecules in the
+		container.
 		"""
 		if operations:
 			results = []
@@ -332,21 +337,21 @@ class UniqueObjectsContainer(object):
 				self._collections[collectionIndex]["_globalIndex"][result]
 				for collectionIndex, result in enumerate(results)
 				]),
-				read_only=read_only)
+				access=access)
 
 		else:
 			return _UniqueObjectSet(self,
 				np.where(self._globalReference["_entryState"] == self._entryActive)[0],
-				read_only=read_only
+				access=access
 				)
 
 
-	def objectsInCollection(self, collectionName, read_only=True, **operations):
+	def objectsInCollection(self, collectionName, access=READ_ONLY, **operations):
 		"""
 		Return a _UniqueObjectSet proxy for all objects (molecules) belonging
-		to a named collection that satisfy an optional attribute query. If
-		read_only is set to True, deleting of the objects or editing of their
-		attributes are prohibited.
+		to a named collection that satisfy an optional attribute query. The
+		access argument determines the level of access permission the proxy has
+		to the molecules in the container.
 		"""
 		# TODO(jerry): Special case the empty query?
 		collectionIndex = self._nameToIndexMapping[collectionName]
@@ -355,16 +360,16 @@ class UniqueObjectsContainer(object):
 
 		return _UniqueObjectSet(self,
 			self._collections[collectionIndex]["_globalIndex"][result],
-			read_only=read_only
+			access=access
 			)
 
 
-	def objectsInCollections(self, collectionNames, read_only=True, **operations):
+	def objectsInCollections(self, collectionNames, access=READ_ONLY, **operations):
 		"""Return a _UniqueObjectSet proxy for all objects (molecules)
 		belonging to the given collection names that satisfy an optional
 		attribute query. The queried attributes must be in all the named
-		collections. If read_only is set to True, deleting of the objects
-		or editing of their attributes are prohibited.
+		collections. The access argument determines the level of access
+		permission the proxy has to the molecules in the container.
 		"""
 		collectionIndexes = [self._nameToIndexMapping[collectionName] for collectionName in collectionNames]
 		results = []
@@ -377,7 +382,7 @@ class UniqueObjectsContainer(object):
 			self._collections[collectionIndex]["_globalIndex"][result]
 			for collectionIndex, result in izip(collectionIndexes, results)
 			]),
-			read_only=read_only
+			access=access
 			)
 
 
@@ -406,18 +411,18 @@ class UniqueObjectsContainer(object):
 		)
 
 
-	def objectsByGlobalIndex(self, globalIndexes, read_only=True):
+	def objectsByGlobalIndex(self, globalIndexes, access=READ_ONLY):
 		"""Return a _UniqueObjectSet proxy for the objects (molecules) with the
 		given global indexes (that is, global over all named collections).
 		"""
-		return _UniqueObjectSet(self, globalIndexes, read_only=read_only)
+		return _UniqueObjectSet(self, globalIndexes, access=access)
 
 
-	def objectByGlobalIndex(self, globalIndex, read_only=True):
+	def objectByGlobalIndex(self, globalIndex, access=READ_ONLY):
 		"""Return a _UniqueObject proxy for the object (molecule) with the
 		given global index (that is, global over all named collections).
 		"""
-		return _UniqueObject(self, globalIndex, read_only=read_only)
+		return _UniqueObject(self, globalIndex, access=access)
 
 
 	def objectNames(self):
@@ -708,17 +713,17 @@ class _UniqueObjectSet(object):
 	Internally this stores the objects' global indexes.
 	"""
 
-	def __init__(self, container, globalIndexes, read_only=True):
+	def __init__(self, container, globalIndexes, access=READ_ONLY):
 		"""
 		Construct a _UniqueObjectSet for unique objects (molecules) in the
 		given container with the given global indexes. The result is an
-		iterable, ordered sequence (not really a set). If read_only is set
-		to True, deleting of the objects or editing of their attributes are
-		prohibited.
+		iterable, ordered sequence (not really a set). The access argument
+		determines the level of access permission this instance has to the
+		molecules in the container.
 		"""
 		self._container = container
 		self._globalIndexes = np.array(globalIndexes, np.int)
-		self._read_only = read_only
+		self._access = access
 
 
 	def __contains__(self, uniqueObject):
@@ -859,7 +864,7 @@ class _UniqueObjectSet(object):
 		True, this submits an edit request to the container, and the container
 		waits until merge to actually perform the edits.
 		"""
-		if self._read_only:
+		if self._access < READ_EDIT:
 			raise UniqueObjectsPermissionException(
 				"Can't modify attributes of read-only objects."
 			)
@@ -916,9 +921,9 @@ class _UniqueObjectSet(object):
 		# _UniqueObject instances, which in turn could call objectDel() on the
 		# container or split the work so they each update their private state.
 
-		if self._read_only:
+		if self._access < READ_EDIT_DELETE:
 			raise UniqueObjectsPermissionException(
-				"Can't delete molecules from read-only objects."
+				"Can't delete molecules from read-only or read-and-edit only objects."
 			)
 
 		globalIndexes = self._globalIndexes[indexes]
