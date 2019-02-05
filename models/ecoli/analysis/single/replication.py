@@ -18,8 +18,6 @@ from wholecell.utils import units
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
 
-PLACE_HOLDER = -1
-
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		if not os.path.isdir(simOutDir):
@@ -51,7 +49,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		dnaMass = massFile.readColumn("dnaMass")
 
 		# Count pairs of forks, initiation, and termination events
-		pairsOfForks = (fork_coordinates != PLACE_HOLDER).sum(axis = 1) / 2
+		pairsOfForks = np.logical_not(np.isnan(fork_coordinates)).sum(axis = 1)/2
 
 		# Count chromosome equivalents
 		chromMass = (sim_data.getter.getMass(['CHROM_FULL[c]'])[0] / sim_data.constants.nAvogadro).asNumber(units.fg)
@@ -68,9 +66,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Count critical initiation mass equivalents
 		# criticalInitiationMass[0] = criticalInitiationMass[1]
 		criticalMassEquivalents = totalMass / criticalInitiationMass
-
-		# Setup fork location data
-		fork_coordinates[fork_coordinates == PLACE_HOLDER] = np.nan
 
 		# Plot stuff
 		plt.figure(figsize = (8.5, 11))

@@ -54,7 +54,7 @@ class Complexation(wholecell.processes.process.Process):
 
 
 	def calculateRequest(self):
-		moleculeCounts = self.molecules.total()
+		moleculeCounts = self.molecules.total_counts()
 
 		result = self.system.evolve(self._sim.timeStepSec(), moleculeCounts)
 		updatedMoleculeCounts = result['outcome']

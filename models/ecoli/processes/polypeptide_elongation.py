@@ -131,16 +131,16 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			self.ribosomeElongationRate = np.min([22, int(stochasticRound(self.randomState,
 				self.elngRateFactor * self.ribosomeElongationRateDict[current_nutrients].asNumber(units.aa / units.s) * self.timeStepSec()))])
 
+		# If there are no active ribosomes, return immediately
+		if self.activeRibosomes.total_counts()[0] == 0:
+			return
+
 		# Request all active ribosomes
 		self.activeRibosomes.requestAll()
 
-		activeRibosomes = self.activeRibosomes.allMolecules()
-
-		if len(activeRibosomes) == 0:
-			return
-
 		# Build sequences to request appropriate amount of amino acids to
 		# polymerize for next timestep
+		activeRibosomes = self.activeRibosomes.molecules_read_only()
 		proteinIndexes, peptideLengths = activeRibosomes.attrs(
 					'proteinIndex', 'peptideLength'
 					)
@@ -162,11 +162,11 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			counts_to_molar = 1 / (self.nAvogadro * cell_volume)
 
 			# Get counts and convert synthetase and tRNA to a per AA basis
-			synthetase_counts = np.dot(self.aa_from_synthetase, self.synthetases.total())
-			aa_counts = self.aas.total()
-			uncharged_trna_counts = np.dot(self.aa_from_trna, self.uncharged_trna.total())
-			charged_trna_counts = np.dot(self.aa_from_trna, self.charged_trna.total())
-			ribosome_counts = len(self.activeRibosomes.allMolecules())
+			synthetase_counts = np.dot(self.aa_from_synthetase, self.synthetases.total_counts())
+			aa_counts = self.aas.total_counts()
+			uncharged_trna_counts = np.dot(self.aa_from_trna, self.uncharged_trna.total_counts())
+			charged_trna_counts = np.dot(self.aa_from_trna, self.charged_trna.total_counts())
+			ribosome_counts = self.activeRibosomes.total_counts()[0]
 
 			# Get concentration
 			f = aasInSequences / aasInSequences.sum()
@@ -183,12 +183,12 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 			aa_counts_for_translation = v_rib * f * self._sim.timeStepSec() / counts_to_molar.asNumber(MICROMOLAR_UNITS)
 
-			total_trna = self.charged_trna.total() + self.uncharged_trna.total()
+			total_trna = self.charged_trna.total_counts() + self.uncharged_trna.total_counts()
 			final_charged_trna = np.dot(fraction_charged, self.aa_from_trna * total_trna)
 
-			charged_trna_request = self.charged_trna.total() - final_charged_trna
+			charged_trna_request = self.charged_trna.total_counts() - final_charged_trna
 			charged_trna_request[charged_trna_request < 0] = 0
-			uncharged_trna_request = final_charged_trna - self.charged_trna.total()
+			uncharged_trna_request = final_charged_trna - self.charged_trna.total_counts()
 			uncharged_trna_request[uncharged_trna_request < 0] = 0
 
 			self.aa_counts_for_translation = np.array(aa_counts_for_translation)
@@ -231,13 +231,13 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			fraction_charged = np.zeros(len(self.aaNames))
 
 		self.writeToListener("GrowthLimits", "fraction_trna_charged", np.dot(fraction_charged, self.aa_from_trna))
-		self.writeToListener("GrowthLimits", "aaPoolSize", self.aas.total())
+		self.writeToListener("GrowthLimits", "aaPoolSize", self.aas.total_counts())
 		self.writeToListener("GrowthLimits", "aaRequestSize", aa_counts_for_translation)
 
 		# Request GTP for polymerization based on sequences
 		gtpsHydrolyzed = np.int64(np.ceil(self.gtpPerElongation * aa_counts_for_translation.sum()))
 
-		self.writeToListener("GrowthLimits", "gtpPoolSize", self.gtp.total()[0])
+		self.writeToListener("GrowthLimits", "gtpPoolSize", self.gtp.total_counts()[0])
 		self.writeToListener("GrowthLimits", "gtpRequestSize", gtpsHydrolyzed)
 
 		# GTP hydrolysis is carried out in Metabolism process for growth associated maintenence
@@ -510,8 +510,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		if inputTimeStep > 1.0:
 			return False
 
-		activeRibosomes = float(self.activeRibosomes.total()[0])
-		self.gtpAvailable = float(self.gtp.total()[0])
+		activeRibosomes = float(self.activeRibosomes.total_counts()[0])
+		self.gtpAvailable = float(self.gtp.total_counts()[0])
 
 		# Without an estimate on ribosome counts, require a short timestep until estimates available
 		if activeRibosomes == 0:
@@ -535,7 +535,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		# If gtpAvailable is 0 and the timeStep is short, use the gtp produced this timeStep as the estimate
 		if self.gtpAvailable == 0 and self.timeStepSec() <= .2:
-			self.gtpAvailable = self.gtp.total()[0]
+			self.gtpAvailable = self.gtp.total_counts()[0]
 
 		if (self.gtpAvailable * .9) < self.gtpUsed:
 			return False

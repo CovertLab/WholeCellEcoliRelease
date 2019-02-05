@@ -47,7 +47,7 @@ class Equilibrium(wholecell.processes.process.Process):
 
 	def calculateRequest(self):
 		# Get molecule counts
-		moleculeCounts = self.molecules.total()
+		moleculeCounts = self.molecules.total_counts()
 
 		# Get cell mass and volume
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg).asNumber(units.g)

@@ -15,8 +15,6 @@ from wholecell.utils.sparkline import whitePadSparklineAxis
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import cohortAnalysisPlot
 
-PLACE_HOLDER = -1
-
 FONT_SIZE=8
 trim = 0.03
 
@@ -104,7 +102,6 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 				os.path.join(simOutDir, "ReplicationData"))
 			fork_coordinates = replication_data_file.readColumn(
 				"fork_coordinates")
-			fork_coordinates[fork_coordinates == PLACE_HOLDER] = np.nan
 
 			# Down sample dna polymerase position, every position is only plotted once here
 			# using numpy ninja-ness
@@ -239,8 +236,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 				os.path.join(simOutDir, "ReplicationData"))
 			fork_coordinates = replication_data_file.readColumn(
 				"fork_coordinates")
-			pairsOfForks = (fork_coordinates != PLACE_HOLDER).sum(axis=1) / 2
-			fork_coordinates[fork_coordinates == PLACE_HOLDER] = np.nan
+			pairsOfForks = np.logical_not(np.isnan(fork_coordinates)).sum(axis=1) / 2
 
 			# Down sample dna polymerase position, every position is only plotted once here
 			# using numpy ninja-ness

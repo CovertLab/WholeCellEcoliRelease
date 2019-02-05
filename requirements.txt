@@ -14,11 +14,6 @@
 ## On macOS Mojave or higher (10.14+), use the steps to install additional
 ## SDK headers on https://github.com/pyenv/pyenv/wiki/Common-build-problems
 #
-## On macOS, see https://github.com/CovertLab/wcEcoli/wiki/How-to-set-up-the-runtime-environment-for-the-model
-## to fix non-determinism problems in BLAS, numpy, and scipy. In short:
-## * Install OpenBLAS 0.3.5 via brew when available, otherwise compile it from source.
-## * pip install numpy==1.14.5 scipy==1.0.1 --no-binary numpy,scipy --force-reinstall
-#
 #
 ## Download and install other packages according to their instructions
 #	CPLEX from IBM (free for students)
@@ -34,12 +29,20 @@
 ## Upgrade the installers:
 #   pip install --upgrade pip setuptools virtualenv wheel
 #
-## Pip might need a local numpy before installing the other packages:
+## See https://github.com/CovertLab/wcEcoli/wiki/How-to-set-up-the-runtime-environment-for-the-model
+## and /share/PI/mcovert/installation_notes/openblas.txt on Sherlock
+## to build openblas, numpy, and scipy from source to fix non-determinism problems.
+## In short:
+#    * Install OpenBLAS 0.3.5 or later via brew or compile it from source.
+#    * Create ~/.numpy-site.cfg pointing to wherever your openblas installation is:
+#        [openblas]
+#        libraries = openblas
+#        library_dirs = /opt/OpenBLAS/lib
+#        include_dirs = /opt/OpenBLAS/include
+#    * pip install numpy==1.14.5 scipy==1.0.1 --no-binary numpy,scipy --force-reinstall
+## If you don't need to install numpy from source, pip might need a local numpy
+## before installing the other packages:
 #   pip install numpy==1.14.5
-#
-## For Sherlock:
-## See /share/PI/mcovert/installation_notes/scipy_with_openblas.txt on how
-## to build scipy from source using a site.cfg file.
 #
 ## Then install all the other packages listed here:
 #   CVXOPT_BUILD_GLPK=1 pip install -r requirements.txt --no-binary cvxopt

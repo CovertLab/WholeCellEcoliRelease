@@ -57,23 +57,25 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.rnapElngRate = int(stochasticRound(self.randomState,
 			self.rnaPolymeraseElongationRateDict[current_nutrients].asNumber(units.nt / units.s) * self.timeStepSec()))
 
-		# Request all active RNA polymerases
-		activeRnaPolys = self.activeRnaPolys.allMolecules()
-		if len(activeRnaPolys) == 0:
+		# If there are no active RNA polymerases, return immediately
+		if self.activeRnaPolys.total_counts()[0] == 0:
 			return
+
+		# Request all active RNA polymerases
 		self.activeRnaPolys.requestAll()
 
 		# Determine total possible sequences of nucleotides that can be transcribed in this time step for each polymerase
+		activeRnaPolys = self.activeRnaPolys.molecules_read_only()
 		rnaIndexes, transcriptLengths = activeRnaPolys.attrs('rnaIndex', 'transcriptLength')
 		sequences = buildSequences(self.rnaSequences, rnaIndexes, transcriptLengths, self.rnapElngRate)
 		sequenceComposition = np.bincount(sequences[sequences != polymerize.PAD_VALUE], minlength = 4)
 
 		# Calculate if any nucleotides are limited and request up to the number in the sequences or number available
-		ntpsTotal = self.ntps.total()
+		ntpsTotal = self.ntps.total_counts()
 		maxFractionalReactionLimit = np.fmin(1, ntpsTotal / sequenceComposition)
 		self.ntps.requestIs(maxFractionalReactionLimit * sequenceComposition)
 
-		self.writeToListener("GrowthLimits", "ntpPoolSize", self.ntps.total())
+		self.writeToListener("GrowthLimits", "ntpPoolSize", self.ntps.total_counts())
 		self.writeToListener("GrowthLimits", "ntpRequestSize", maxFractionalReactionLimit * sequenceComposition)
 
 	def evolveState(self):

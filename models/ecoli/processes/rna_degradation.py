@@ -145,17 +145,17 @@ class RnaDegradation(wholecell.processes.process.Process):
 		counts_to_molar = 1 / (self.nAvogadro * cell_volume)
 
 		# Get total counts of RNAs including rRNAs and charged tRNAs
-		rna_counts = self.rnas.total().copy()
-		rna_counts[self.rrsaIdx] += self.ribosome30S.total()
-		rna_counts[[self.rrlaIdx, self.rrfaIdx]] += self.ribosome50S.total()
-		rna_counts[[self.rrlaIdx, self.rrfaIdx, self.rrsaIdx]] += self.activeRibosomes.total()
-		rna_counts[self.isTRna.astype(np.bool)] += self.charged_trna.total()
+		rna_counts = self.rnas.total_counts().copy()
+		rna_counts[self.rrsaIdx] += self.ribosome30S.total_counts()
+		rna_counts[[self.rrlaIdx, self.rrfaIdx]] += self.ribosome50S.total_counts()
+		rna_counts[[self.rrlaIdx, self.rrfaIdx, self.rrsaIdx]] += self.activeRibosomes.total_counts()
+		rna_counts[self.isTRna.astype(np.bool)] += self.charged_trna.total_counts()
 
 		# Compute RNA concentrations
 		rna_conc_molar = counts_to_molar * rna_counts
 
 		# Get counts of endoRNases
-		endornase_counts = self.endoRnases.total().copy()
+		endornase_counts = self.endoRnases.total_counts().copy()
 		total_kcat_endornase = units.dot(self.KcatEndoRNases, endornase_counts)
 
 		# Calculate the fraction of active endoRNases for each RNA based on
@@ -252,7 +252,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 				self.randomState.poisson(
 					(self.rnaDegRates * rna_counts).asNumber()
 					),
-				self.rnas.total()
+				self.rnas.total_counts()
 				)
 
 		self.rnas.requestIs(n_rnas_to_degrade)
@@ -265,7 +265,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# that one additional water molecule is needed for each RNA to
 		# hydrolyze the 5' diphosphate.
 		waterForNewRnas = np.dot(n_rnas_to_degrade, self.rna_lengths)
-		waterForLeftOverFragments = self.fragmentBases.total().sum()
+		waterForLeftOverFragments = self.fragmentBases.total_counts().sum()
 		self.h2o.requestIs(waterForNewRnas + waterForLeftOverFragments)
 		
 
