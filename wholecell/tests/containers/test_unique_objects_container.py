@@ -18,7 +18,11 @@ import numpy as np
 import numpy.testing as npt
 import nose.plugins.attrib as noseAttrib
 
-from wholecell.containers.unique_objects_container import UniqueObjectsContainer, UniqueObjectsContainerException, UniqueObjectsPermissionException
+from wholecell.containers.unique_objects_container import (
+	UniqueObjectsContainer, UniqueObjectsContainerException, UniqueObjectsPermissionException,
+	READ_ONLY, READ_EDIT, READ_EDIT_DELETE
+	)
+
 from wholecell.io.tablereader import TableReader
 from wholecell.io.tablewriter import TableWriter
 
@@ -247,7 +251,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		for molecule in self.container.objectsInCollection('RNA polymerase'):
 			molecule.attrIs(
 				boundToChromosome = True,
-				chromosomeLocation = 100
+				chromosomeLocation = 100,
 				)
 
 		for molecule in self.container.objectsInCollection('RNA polymerase'):
@@ -514,7 +518,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	def test_objectSet_attribute_accessing(self):
 		objectSet = self.container.objects(
 			chromosomeLocation = ('>=', 0),
-			read_only=False
+			access=READ_EDIT
 			)
 
 		self.assertEqual(len(objectSet), 20)
@@ -548,7 +552,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 		# Test setters
 
-		objectSet.attrIs(chromosomeLocation = np.ones(20))
+		objectSet.attrIs(chromosomeLocation = np.ones(20), apply_at_merge = False)
 
 		chromosomeLocation = objectSet.attr('chromosomeLocation')
 
@@ -559,7 +563,8 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 		objectSet.attrIs(
 			chromosomeLocation = np.zeros(20),
-			boundToChromosome = np.zeros(20, np.bool)
+			boundToChromosome = np.zeros(20, np.bool),
+			apply_at_merge = False
 			)
 
 		chromosomeLocation, boundToChromosome = objectSet.attrs(
@@ -577,7 +582,9 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_read_only(self):
-		molecules = self.container.objectsInCollection('RNA polymerase')
+		molecules = self.container.objectsInCollection(
+			'RNA polymerase', access=READ_ONLY
+			)
 		n_molecules = len(molecules)
 
 		with self.assertRaises(UniqueObjectsPermissionException) as context:
@@ -593,8 +600,24 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 		self.assertEqual(
 			str(context.exception),
-			"Can't delete molecules from read-only objects."
+			"Can't delete molecules from read-only or read-and-edit only objects."
 			)
+
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
+	def test_read_edit(self):
+		molecules = self.container.objectsInCollection(
+			'RNA polymerase', access=READ_EDIT
+			)
+		n_molecules = len(molecules)
+
+		with self.assertRaises(UniqueObjectsPermissionException) as context:
+			molecules.delByIndexes(np.ones(n_molecules))
+
+		self.assertEqual(
+			str(context.exception),
+			"Can't delete molecules from read-only or read-and-edit only objects."
+			)
+
 
 
 def createContainer():
