@@ -101,7 +101,9 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		# Remove any prior partition assignments
 		objects = self.container.objects(read_only=False)
 		if len(objects) > 0:
-			objects.attrIs(_partitionedProcess = self._unassignedPartitionedValue)
+			objects.attrIs(
+				_partitionedProcess = self._unassignedPartitionedValue,
+				apply_at_merge = False)
 
 		# Gather requests
 		nMolecules = self.container._globalReference.size
@@ -159,7 +161,10 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 				)
 
 			if len(molecules):
-				molecules.attrIs(_partitionedProcess = view._processIndex)
+				molecules.attrIs(
+					_partitionedProcess = view._processIndex,
+					apply_at_merge = False,
+					)
 
 
 	def calculatePreEvolveStateMass(self):
@@ -171,16 +176,22 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 			objects = self.container.objects(read_only=False)
 
 			if len(objects) > 0:
-				objects.attrIs(_partitionedProcess = self._unassignedPartitionedValue)
+				objects.attrIs(
+					_partitionedProcess = self._unassignedPartitionedValue,
+					apply_at_merge = False,
+					)
 
 		self._masses[self._preEvolveStateMassIndex, ...] = self._calculateMass()
 
 
 	def merge(self):
-		# Operations are performed directly on the container, so there is no
-		# "merge" operation needed
-
-		pass
+		"""
+		Apply all edits made to named attributes of unique objects in the
+		container.
+		WARNING: This does not check whether conflicting requests were made on
+		the same attribute of the same unique molecule.
+		"""
+		self.container.merge()
 
 
 	def calculatePostEvolveStateMass(self):
