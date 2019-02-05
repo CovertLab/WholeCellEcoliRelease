@@ -42,10 +42,11 @@ class Complexation(wholecell.processes.process.Process):
 		self.stoichMatrix = sim_data.process.complexation.stoichMatrix().astype(np.int64)
 
 		# semi-quantitative rate constants
-		self.rates = np.full((self.stoichMatrix.shape[1],), 1000)
+		self.rates = sim_data.process.complexation.rates
 
 		# build stochastic system simulation
-		self.system = StochasticSystem(self.stoichMatrix.T, self.rates)
+		seed = self.randomState.randint(RAND_MAX)
+		self.system = StochasticSystem(self.stoichMatrix.T, self.rates, random_seed=seed)
 
 		# Build views
 		moleculeNames = sim_data.process.complexation.moleculeNames

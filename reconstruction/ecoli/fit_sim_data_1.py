@@ -14,10 +14,11 @@ import scipy.optimize
 import cPickle
 from itertools import izip
 
+from arrow import StochasticSystem
+
 import wholecell
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from reconstruction.ecoli.simulation_data import SimulationDataEcoli
-from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
 
 from wholecell.utils import filepath, parallelization
 from wholecell.utils import units
@@ -1613,10 +1614,6 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 
 	# Data for complexation
 	complexationStoichMatrix = sim_data.process.complexation.stoichMatrix().astype(np.int64, order = "F")
-	complexationPrebuiltMatrices = mccBuildMatrices(
-		complexationStoichMatrix
-		)
-
 	# Data for equilibrium binding
 	# equilibriumDerivatives = sim_data.process.equilibrium.derivatives
 	# equilibriumDerivativesJacobian = sim_data.process.equilibrium.derivativesJacobian
@@ -1675,12 +1672,13 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 		complexationMoleculeCounts = complexationMoleculesView.counts()
 
 		# Form complexes
-		updatedCompMoleculeCounts, complexationEvents = mccFormComplexesWithPrebuiltMatrices(
-			complexationMoleculeCounts,
-			seed,
-			complexationStoichMatrix,
-			*complexationPrebuiltMatrices
-			)
+		time_step = 1
+		complexation_rates = sim_data.process.complexation.rates
+		system = StochasticSystem(complexationStoichMatrix.T, complexation_rates, random_seed=seed)
+		complexation_result = system.evolve(time_step, complexationMoleculeCounts)
+
+		updatedCompMoleculeCounts = complexation_result['outcome']
+		complexationEvents = complexation_result['occurrences']
 
 		complexationMoleculesView.countsIs(updatedCompMoleculeCounts)
 
