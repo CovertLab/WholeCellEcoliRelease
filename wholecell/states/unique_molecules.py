@@ -20,7 +20,7 @@ import numpy as np
 import wholecell.states.internal_state
 import wholecell.views.view
 from wholecell.containers.unique_objects_container import (
-	UniqueObjectsContainer, _partition, READ_ONLY, READ_EDIT, READ_EDIT_DELETE
+	UniqueObjectsContainer, _partition, Access
 	)
 from wholecell.utils import units
 
@@ -101,7 +101,7 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 
 	def partition(self):
 		# Remove any prior partition assignments
-		objects = self.container.objects(access=READ_EDIT)
+		objects = self.container.objects(access=Access.READ_EDIT)
 		if len(objects) > 0:
 			objects.attrIs(
 				_partitionedProcess = self._unassignedPartitionedValue,
@@ -159,7 +159,7 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		for view in self._views:
 			molecules = self.container.objectsByGlobalIndex(
 				np.where(partitionedMolecules[:, view._processIndex])[0],
-				access=READ_EDIT
+				access=Access.READ_EDIT
 				)
 
 			if len(molecules):
@@ -175,7 +175,7 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		if self.simulationStep() == 0:
 			# Set everything to the "unassigned" value
 			# TODO: consider allowing a default value option for unique objects
-			objects = self.container.objects(access=READ_EDIT)
+			objects = self.container.objects(access=Access.READ_EDIT)
 
 			if len(objects) > 0:
 				objects.attrIs(
@@ -271,7 +271,7 @@ class UniqueMoleculesView(wholecell.views.view.View):
 	def molecules_read_and_edit(self):
 		return self._state.container.objectsInCollections(
 			self._query[0],
-			access=READ_EDIT,
+			access=Access.READ_EDIT,
 			**self._query[1]
 			)
 
@@ -283,7 +283,7 @@ class UniqueMoleculesView(wholecell.views.view.View):
 	def molecules(self):
 		return self._state.container.objectsInCollections(
 			self._query[0],
-			access=READ_EDIT_DELETE,
+			access=Access.READ_EDIT_DELETE,
 			_partitionedProcess = ("==", self._processIndex),
 			**self._query[1]
 			)

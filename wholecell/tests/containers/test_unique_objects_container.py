@@ -19,8 +19,8 @@ import numpy.testing as npt
 import nose.plugins.attrib as noseAttrib
 
 from wholecell.containers.unique_objects_container import (
-	UniqueObjectsContainer, UniqueObjectsContainerException, UniqueObjectsPermissionException,
-	READ_ONLY, READ_EDIT, READ_EDIT_DELETE
+	UniqueObjectsContainer, UniqueObjectsContainerException,
+	UniqueObjectsPermissionException, Access
 	)
 
 from wholecell.io.tablereader import TableReader
@@ -518,7 +518,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	def test_objectSet_attribute_accessing(self):
 		objectSet = self.container.objects(
 			chromosomeLocation = ('>=', 0),
-			access=READ_EDIT
+			access=Access.READ_EDIT
 			)
 
 		self.assertEqual(len(objectSet), 20)
@@ -583,7 +583,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_read_only(self):
 		molecules = self.container.objectsInCollection(
-			'RNA polymerase', access=READ_ONLY
+			'RNA polymerase', access=Access.READ_ONLY
 			)
 		n_molecules = len(molecules)
 
@@ -606,7 +606,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_read_edit(self):
 		molecules = self.container.objectsInCollection(
-			'RNA polymerase', access=READ_EDIT
+			'RNA polymerase', access=Access.READ_EDIT
 			)
 		n_molecules = len(molecules)
 

@@ -11,6 +11,7 @@ from __future__ import absolute_import, division, print_function
 from copy import deepcopy
 from itertools import izip
 from functools import partial
+from enum import Enum
 
 import numpy as np
 import zlib
@@ -25,9 +26,7 @@ ZLIB_LEVEL = 7
 
 _MAX_ID_SIZE = 40 # max length of the unique id assigned to objects
 
-READ_ONLY = 0
-READ_EDIT = 1
-READ_EDIT_DELETE = 2
+Access = Enum('Access', 'READ_ONLY READ_EDIT READ_EDIT_DELETE')
 
 class UniqueObjectsContainerException(Exception):
 	pass
@@ -280,7 +279,7 @@ class UniqueObjectsContainer(object):
 		self._globalReference["_collectionIndex"][globalIndexes] = collectionIndex
 		self._globalReference["_objectIndex"][globalIndexes] = objectIndexes
 
-		return _UniqueObjectSet(self, globalIndexes, access=READ_EDIT)
+		return _UniqueObjectSet(self, globalIndexes, access=Access.READ_EDIT)
 
 
 	def objectNew(self, collectionName, **attributes):
@@ -318,7 +317,7 @@ class UniqueObjectsContainer(object):
 		obj._objectIndex = -1
 
 
-	def objects(self, access=READ_ONLY, **operations):
+	def objects(self, access=Access.READ_ONLY, **operations):
 		"""
 		Return a _UniqueObjectSet proxy for all objects (molecules) that
 		satisfy an optional attribute query. Querying every object is generally
@@ -346,7 +345,7 @@ class UniqueObjectsContainer(object):
 				)
 
 
-	def objectsInCollection(self, collectionName, access=READ_ONLY, **operations):
+	def objectsInCollection(self, collectionName, access=Access.READ_ONLY, **operations):
 		"""
 		Return a _UniqueObjectSet proxy for all objects (molecules) belonging
 		to a named collection that satisfy an optional attribute query. The
@@ -364,7 +363,7 @@ class UniqueObjectsContainer(object):
 			)
 
 
-	def objectsInCollections(self, collectionNames, access=READ_ONLY, **operations):
+	def objectsInCollections(self, collectionNames, access=Access.READ_ONLY, **operations):
 		"""Return a _UniqueObjectSet proxy for all objects (molecules)
 		belonging to the given collection names that satisfy an optional
 		attribute query. The queried attributes must be in all the named
@@ -411,14 +410,14 @@ class UniqueObjectsContainer(object):
 		)
 
 
-	def objectsByGlobalIndex(self, globalIndexes, access=READ_ONLY):
+	def objectsByGlobalIndex(self, globalIndexes, access=Access.READ_ONLY):
 		"""Return a _UniqueObjectSet proxy for the objects (molecules) with the
 		given global indexes (that is, global over all named collections).
 		"""
 		return _UniqueObjectSet(self, globalIndexes, access=access)
 
 
-	def objectByGlobalIndex(self, globalIndex, access=READ_ONLY):
+	def objectByGlobalIndex(self, globalIndex, access=Access.READ_ONLY):
 		"""Return a _UniqueObject proxy for the object (molecule) with the
 		given global index (that is, global over all named collections).
 		"""
@@ -563,15 +562,19 @@ class UniqueObjectsContainer(object):
 		implemented yet. The two request lists are reset after all the requests
 		have been fulfilled.
 		"""
+		global_reference = self._globalReference
+
 		# Loop through edit requests
 		for req in self._edit_requests:
-			if (self._globalReference["_entryState"][
-					req["globalIndexes"]] == self._entryInactive).any():
+			global_indexes = req["globalIndexes"]
+
+			if (global_reference[global_indexes][
+					"_entryState"] == self._entryInactive).any():
 				raise UniqueObjectsContainerException(
 					"One or more object was deleted from the set")
 
-			collectionIndexes = self._globalReference["_collectionIndex"][req["globalIndexes"]]
-			objectIndexes = self._globalReference["_objectIndex"][req["globalIndexes"]]
+			collectionIndexes = global_reference[global_indexes]["_collectionIndex"]
+			objectIndexes = global_reference[global_indexes]["_objectIndex"]
 
 			uniqueColIndexes, inverse = np.unique(collectionIndexes,
 				return_inverse=True)
@@ -594,8 +597,10 @@ class UniqueObjectsContainer(object):
 
 		# Loop through delete requests
 		for req in self._delete_requests:
-			collectionIndexes = self._globalReference["_collectionIndex"][req["globalIndexes"]]
-			objectIndexes = self._globalReference["_objectIndex"][req["globalIndexes"]]
+			global_indexes = req["globalIndexes"]
+
+			collectionIndexes = global_reference[global_indexes]["_collectionIndex"]
+			objectIndexes = global_reference[global_indexes]["_objectIndex"]
 
 			uniqueColIndexes, inverse = np.unique(collectionIndexes,
 				return_inverse=True)
@@ -608,8 +613,8 @@ class UniqueObjectsContainer(object):
 					objectIndexesInCollection] = np.zeros(
 					1, dtype=self._collections[collectionIndex].dtype)
 
-			self._globalReference[req["globalIndexes"]] = np.zeros(1,
-				dtype=self._globalReference.dtype)
+			global_reference[global_indexes] = np.zeros(1,
+				dtype=global_reference.dtype)
 
 		# Reset request lists
 		self._edit_requests = []
@@ -713,7 +718,7 @@ class _UniqueObjectSet(object):
 	Internally this stores the objects' global indexes.
 	"""
 
-	def __init__(self, container, globalIndexes, access=READ_ONLY):
+	def __init__(self, container, globalIndexes, access=Access.READ_ONLY):
 		"""
 		Construct a _UniqueObjectSet for unique objects (molecules) in the
 		given container with the given global indexes. The result is an
@@ -864,7 +869,7 @@ class _UniqueObjectSet(object):
 		True, this submits an edit request to the container, and the container
 		waits until merge to actually perform the edits.
 		"""
-		if self._access < READ_EDIT:
+		if self._access == Access.READ_ONLY:
 			raise UniqueObjectsPermissionException(
 				"Can't modify attributes of read-only objects."
 			)
@@ -917,15 +922,14 @@ class _UniqueObjectSet(object):
 		Submits a request to delete unique objects by indexes into this
 		sequence. This is not permitted for read-only sets.
 		"""
-		# TODO(jerry): This could just call a delete method on all its
-		# _UniqueObject instances, which in turn could call objectDel() on the
-		# container or split the work so they each update their private state.
-
-		if self._access < READ_EDIT_DELETE:
+		if self._access != Access.READ_EDIT_DELETE:
 			raise UniqueObjectsPermissionException(
 				"Can't delete molecules from read-only or read-and-edit only objects."
 			)
 
+		# TODO(jerry): This could just call a delete method on all its
+		# _UniqueObject instances, which in turn could call objectDel() on the
+		# container or split the work so they each update their private state.
 		globalIndexes = self._globalIndexes[indexes]
 
 		self._container.add_delete_request(globalIndexes)
