@@ -196,31 +196,18 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 				dtype=np.int32
 				)
 
-			# Add new oriC's, replisomes, and domains
-			oriCsNew = self.oriCs.moleculesNew(
-				"originOfReplication",
-				n_oric
-				)
-			active_replisomes_new = self.active_replisome.moleculesNew(
-				"active_replisome",
-				n_new_replisome
-				)
-			chromosome_domain_new = self.chromosome_domain.moleculesNew(
-				"chromosome_domain",
-				n_new_domain
-				)
-
-			# Set attributes of new oriC's, and reset attributes of existing
-			# oriC's
+			# Add new oriC's, and reset attributes of existing oriC's
             # All oriC's must be assigned new domain indexes
 			oriCs.attrIs(
 				domain_index=domain_index_new[:n_oric],
 				)
-			oriCsNew.attrIs(
+			self.oriCs.moleculesNew(
+				"originOfReplication",
+				n_oric,
 				domain_index=domain_index_new[n_oric:],
 				)
 
-			# Calculate and set attributes of newly created replisomes.
+			# Add and set attributes of newly created replisomes.
 			# New replisomes inherit the domain indexes of the oriC's they
 			# were initiated from. Two replisomes are formed per oriC, one on
 			# the right replichore, and one on the left.
@@ -230,15 +217,19 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			domain_index_new_replisome = np.repeat(
 				domain_index_existing_oric, 2)
 
-			active_replisomes_new.attrIs(
+			self.active_replisome.moleculesNew(
+				"active_replisome",
+				n_new_replisome,
 				coordinates=coordinates,
 				right_replichore=right_replichore,
 				domain_index=domain_index_new_replisome,
 				)
 
-			# Set attributes of new chromosome domains. All new domains have
-			# no children domains
-			chromosome_domain_new.attrIs(
+			# Add and set attributes of new chromosome domains. All new domains
+			# should have have no children domains.
+			self.chromosome_domain.moleculesNew(
+				"chromosome_domain",
+				n_new_domain,
 				domain_index=domain_index_new,
 				child_domains=np.full(
 					(n_new_domain, 2), self.no_child_place_holder,
@@ -420,13 +411,11 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 			# Generate new full chromosome molecules
 			if n_new_chromosomes > 0:
-				new_full_chromosome = self.full_chromosome.moleculesNew(
-					"fullChromosome", n_new_chromosomes
-					)
-				new_full_chromosome.attrIs(
-					division_time = [self.time() + self.D_period]*n_new_chromosomes,
-					has_induced_division = [False]*n_new_chromosomes,
-					domain_index = domain_index_new_full_chroms,
+				self.full_chromosome.moleculesNew(
+					"fullChromosome", n_new_chromosomes,
+					division_time=[self.time() + self.D_period]*n_new_chromosomes,
+					has_induced_division=[False] * n_new_chromosomes,
+					domain_index=domain_index_new_full_chroms,
 					)
 
 				# Reset domain index of existing chromosomes that have finished

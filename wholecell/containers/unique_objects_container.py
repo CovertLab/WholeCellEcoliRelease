@@ -256,8 +256,7 @@ class UniqueObjectsContainer(object):
 	def objectsNew(self, collectionName, nObjects, **attributes):
 		"""
 		Add nObjects new objects/molecules of the named type, all with the
-		given attributes. Returns a _UniqueObjectSet proxy for the new entries,
-		with read and edit access.
+		given attributes.
 		"""
 		collectionIndex = self._nameToIndexMapping[collectionName]
 		objectIndexes, globalIndexes = self._getFreeIndexes(collectionIndex, nObjects)
@@ -279,16 +278,13 @@ class UniqueObjectsContainer(object):
 		self._globalReference["_collectionIndex"][globalIndexes] = collectionIndex
 		self._globalReference["_objectIndex"][globalIndexes] = objectIndexes
 
-		return _UniqueObjectSet(self, globalIndexes, access=Access.READ_EDIT)
-
 
 	def objectNew(self, collectionName, **attributes):
-		"""Add a new object/molecule of the named type with the given
+		"""
+		Add a new object/molecule of the named type with the given
 		attributes. Returns a _UniqueObject proxy for the new entry.
 		"""
-		(molecule,) = self.objectsNew(collectionName, 1, **attributes) # NOTE: tuple unpacking
-
-		return molecule
+		self.objectsNew(collectionName, 1, **attributes) # NOTE: tuple unpacking
 
 
 	def objectsDel(self, objects):
