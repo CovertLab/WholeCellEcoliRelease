@@ -366,22 +366,21 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 				right_replichore, coordinates, updated_coordinates):
 			# Fork on right replichore
 			if rr:
-				replicated_promoters = np.logical_or(
-					replicated_promoters,
+				replicated_promoters[
 					np.logical_and(
 						coordinates_promoters >= old_coord,
 						coordinates_promoters < new_coord
 						)
-					)
+					] = True
 			# Fork on left replichore
 			else:
-				replicated_promoters = np.logical_or(
-					replicated_promoters,
+				replicated_promoters[
 					np.logical_and(
 						coordinates_promoters <= old_coord,
 						coordinates_promoters > new_coord
 						)
-					)
+					] = True
+
 
 		n_new_promoters = 2*replicated_promoters.sum()
 
