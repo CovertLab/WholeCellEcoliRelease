@@ -303,6 +303,7 @@ class UniqueMoleculesView(wholecell.views.view.View):
 	def moleculeNew(self, moleculeName, **attributes):
 		self._state.container.objectNew(
 			moleculeName,
+			apply_at_merge=True,
 			_partitionedProcess = self._processIndex,
 			**attributes
 			)
@@ -312,6 +313,7 @@ class UniqueMoleculesView(wholecell.views.view.View):
 		self._state.container.objectsNew(
 			moleculeName,
 			nMolecules,
+			apply_at_merge=True,
 			_partitionedProcess = self._processIndex,
 			**attributes
 			)

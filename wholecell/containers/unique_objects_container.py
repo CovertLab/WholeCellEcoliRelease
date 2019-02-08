@@ -161,9 +161,10 @@ class UniqueObjectsContainer(object):
 
 		self._names = tuple(sorted(self._specifications.keys())) # sorted collection names
 
-		# List of edit and delete requests
+		# List of edit, delete, and new molecule requests
 		self._edit_requests = []
 		self._delete_requests = []
+		self._new_molecule_requests = []
 
 		defaultSpecKeys = self._defaultSpecification.viewkeys()
 
@@ -253,38 +254,48 @@ class UniqueObjectsContainer(object):
 		return freeIndexes, freeGlobalIndexes
 
 
-	def objectsNew(self, collectionName, nObjects, **attributes):
+	def objectsNew(self, collectionName, nObjects, apply_at_merge=True, **attributes):
 		"""
 		Add nObjects new objects/molecules of the named type, all with the
 		given attributes.
 		"""
-		collectionIndex = self._nameToIndexMapping[collectionName]
-		objectIndexes, globalIndexes = self._getFreeIndexes(collectionIndex, nObjects)
+		if apply_at_merge:
+			new_molecule_request = {
+				"collectionName": collectionName,
+				"nObjects": nObjects,
+				"attr": attributes,
+				}
+			self._new_molecule_requests.append(new_molecule_request)
 
-		collection = self._collections[collectionIndex]
+		else:
+			collectionIndex = self._nameToIndexMapping[collectionName]
+			objectIndexes, globalIndexes = self._getFreeIndexes(collectionIndex, nObjects)
 
-		# TODO: restore unique object IDs
-		# TODO(jerry): Would it be faster to copy one new entry to all rows
-		# then set the _globalIndex columns?
+			collection = self._collections[collectionIndex]
 
-		collection["_entryState"][objectIndexes] = self._entryActive
-		collection["_globalIndex"][objectIndexes] = globalIndexes
-		# collection["_uniqueId"][objectIndexes] = uniqueObjectIds
+			# TODO: restore unique object IDs
+			# TODO(jerry): Would it be faster to copy one new entry to all rows
+			# then set the _globalIndex columns?
 
-		for attrName, attrValue in attributes.viewitems():
-			collection[attrName][objectIndexes] = attrValue
+			collection["_entryState"][objectIndexes] = self._entryActive
+			collection["_globalIndex"][objectIndexes] = globalIndexes
+			# collection["_uniqueId"][objectIndexes] = uniqueObjectIds
 
-		self._globalReference["_entryState"][globalIndexes] = self._entryActive
-		self._globalReference["_collectionIndex"][globalIndexes] = collectionIndex
-		self._globalReference["_objectIndex"][globalIndexes] = objectIndexes
+			for attrName, attrValue in attributes.viewitems():
+				collection[attrName][objectIndexes] = attrValue
+
+			self._globalReference["_entryState"][globalIndexes] = self._entryActive
+			self._globalReference["_collectionIndex"][globalIndexes] = collectionIndex
+			self._globalReference["_objectIndex"][globalIndexes] = objectIndexes
 
 
-	def objectNew(self, collectionName, **attributes):
+	def objectNew(self, collectionName, apply_at_merge=True, **attributes):
 		"""
 		Add a new object/molecule of the named type with the given
 		attributes. Returns a _UniqueObject proxy for the new entry.
 		"""
-		self.objectsNew(collectionName, 1, **attributes) # NOTE: tuple unpacking
+		self.objectsNew(collectionName, 1,
+			apply_at_merge=apply_at_merge, **attributes) # NOTE: tuple unpacking
 
 
 	def objectsDel(self, objects):
@@ -612,10 +623,38 @@ class UniqueObjectsContainer(object):
 			global_reference[global_indexes] = np.zeros(1,
 				dtype=global_reference.dtype)
 
+		# Loop through new molecule requests
+		for req in self._new_molecule_requests:
+			collectionName = req["collectionName"]
+			nObjects = req["nObjects"]
+			attributes = req["attr"]
+
+			collectionIndex = self._nameToIndexMapping[collectionName]
+			objectIndexes, globalIndexes = self._getFreeIndexes(collectionIndex,
+				nObjects)
+
+			collection = self._collections[collectionIndex]
+
+			# TODO: restore unique object IDs
+			# TODO(jerry): Would it be faster to copy one new entry to all rows
+			# then set the _globalIndex columns?
+
+			collection["_entryState"][objectIndexes] = self._entryActive
+			collection["_globalIndex"][objectIndexes] = globalIndexes
+			# collection["_uniqueId"][objectIndexes] = uniqueObjectIds
+
+			for attrName, attrValue in attributes.viewitems():
+				collection[attrName][objectIndexes] = attrValue
+
+			self._globalReference["_entryState"][globalIndexes] = self._entryActive
+			self._globalReference["_collectionIndex"][
+				globalIndexes] = collectionIndex
+			self._globalReference["_objectIndex"][globalIndexes] = objectIndexes
+
 		# Reset request lists
 		self._edit_requests = []
 		self._delete_requests = []
-
+		self._new_molecule_requests = []
 
 
 def copy_if_ndarray(object):
