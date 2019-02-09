@@ -166,6 +166,9 @@ class UniqueObjectsContainer(object):
 		self._delete_requests = []
 		self._new_molecule_requests = []
 
+		# Set value to indicate no process has been assigned to the object set
+		self.no_process_index = -1
+
 		defaultSpecKeys = self._defaultSpecification.viewkeys()
 
 		# Add the attributes used internally
@@ -254,15 +257,20 @@ class UniqueObjectsContainer(object):
 		return freeIndexes, freeGlobalIndexes
 
 
-	def objectsNew(self, collectionName, nObjects, apply_at_merge=True, **attributes):
+	def objectsNew(self, collectionName, nObjects,
+			process_index=None, apply_at_merge=True, **attributes):
 		"""
 		Add nObjects new objects/molecules of the named type, all with the
 		given attributes.
 		"""
+		if process_index is None:
+			process_index = self.no_process_index
+
 		if apply_at_merge:
 			new_molecule_request = {
 				"collectionName": collectionName,
 				"nObjects": nObjects,
+				"source_process_index": process_index,
 				"attr": attributes,
 				}
 			self._new_molecule_requests.append(new_molecule_request)
@@ -289,12 +297,14 @@ class UniqueObjectsContainer(object):
 			self._globalReference["_objectIndex"][globalIndexes] = objectIndexes
 
 
-	def objectNew(self, collectionName, apply_at_merge=True, **attributes):
+	def objectNew(self, collectionName,
+			process_index=None, apply_at_merge=True, **attributes):
 		"""
 		Add a new object/molecule of the named type with the given
 		attributes. Returns a _UniqueObject proxy for the new entry.
 		"""
 		self.objectsNew(collectionName, 1,
+			process_index=process_index,
 			apply_at_merge=apply_at_merge, **attributes) # NOTE: tuple unpacking
 
 
@@ -352,13 +362,17 @@ class UniqueObjectsContainer(object):
 				)
 
 
-	def objectsInCollection(self, collectionName, access=Access.READ_ONLY, **operations):
+	def objectsInCollection(self, collectionName, process_index=None,
+			access=Access.READ_ONLY, **operations):
 		"""
 		Return a _UniqueObjectSet proxy for all objects (molecules) belonging
 		to a named collection that satisfy an optional attribute query. The
 		access argument determines the level of access permission the proxy has
 		to the molecules in the container.
 		"""
+		if process_index is None:
+			process_index = self.no_process_index
+
 		# TODO(jerry): Special case the empty query?
 		collectionIndex = self._nameToIndexMapping[collectionName]
 
@@ -366,17 +380,22 @@ class UniqueObjectsContainer(object):
 
 		return _UniqueObjectSet(self,
 			self._collections[collectionIndex]["_globalIndex"][result],
+			process_index,
 			access=access
 			)
 
 
-	def objectsInCollections(self, collectionNames, access=Access.READ_ONLY, **operations):
+	def objectsInCollections(self, collectionNames, process_index=None,
+			access=Access.READ_ONLY, **operations):
 		"""Return a _UniqueObjectSet proxy for all objects (molecules)
 		belonging to the given collection names that satisfy an optional
 		attribute query. The queried attributes must be in all the named
 		collections. The access argument determines the level of access
 		permission the proxy has to the molecules in the container.
 		"""
+		if process_index is None:
+			process_index = self.no_process_index
+
 		collectionIndexes = [self._nameToIndexMapping[collectionName] for collectionName in collectionNames]
 		results = []
 
@@ -388,6 +407,7 @@ class UniqueObjectsContainer(object):
 			self._collections[collectionIndex]["_globalIndex"][result]
 			for collectionIndex, result in izip(collectionIndexes, results)
 			]),
+			process_index,
 			access=access
 			)
 
@@ -537,26 +557,28 @@ class UniqueObjectsContainer(object):
 			)
 
 
-	def add_edit_request(self, globalIndexes, attrs):
+	def add_edit_request(self, globalIndexes, process_index, attrs):
 		"""
 		Adds an edit request made from a _UniqueObjectSet instance to the list
 		of requests to handle. The actual edits are made during merge().
 		"""
 		edit_request = {
 			"globalIndexes": globalIndexes,
+			"source_process_index": process_index,
 			"attrs": attrs,
 			}
 
 		self._edit_requests.append(edit_request)
 
 
-	def add_delete_request(self, globalIndexes):
+	def add_delete_request(self, globalIndexes, process_index):
 		"""
 		Adds a delete request made from a _UniqueObjectSet instance to the list
 		of requests to handle. The actual deletions are done during merge().
 		"""
 		delete_request = {
 			"globalIndexes": globalIndexes,
+			"source_process_index": process_index,
 			}
 
 		self._delete_requests.append(delete_request)
@@ -753,7 +775,8 @@ class _UniqueObjectSet(object):
 	Internally this stores the objects' global indexes.
 	"""
 
-	def __init__(self, container, globalIndexes, access=Access.READ_ONLY):
+	def __init__(self, container, globalIndexes, process_index=None,
+			access=Access.READ_ONLY):
 		"""
 		Construct a _UniqueObjectSet for unique objects (molecules) in the
 		given container with the given global indexes. The result is an
@@ -763,6 +786,11 @@ class _UniqueObjectSet(object):
 		"""
 		self._container = container
 		self._globalIndexes = np.array(globalIndexes, np.int)
+
+		if process_index is None:
+			process_index = container.no_process_index
+
+		self._process_index = process_index
 		self._access = access
 
 
@@ -914,7 +942,9 @@ class _UniqueObjectSet(object):
 
 		# Submit edit request to container
 		if apply_at_merge:
-			self._container.add_edit_request(self._globalIndexes, attributes)
+			self._container.add_edit_request(
+				self._globalIndexes, self._process_index, attributes
+				)
 
 		# Make edit directly on container now
 		else:
@@ -967,7 +997,9 @@ class _UniqueObjectSet(object):
 		# container or split the work so they each update their private state.
 		globalIndexes = self._globalIndexes[indexes]
 
-		self._container.add_delete_request(globalIndexes)
+		self._container.add_delete_request(
+			globalIndexes, self._process_index
+			)
 
 
 def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, randomState):

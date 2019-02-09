@@ -271,6 +271,7 @@ class UniqueMoleculesView(wholecell.views.view.View):
 	def molecules_read_and_edit(self):
 		return self._state.container.objectsInCollections(
 			self._query[0],
+			process_index=self._processIndex,
 			access=Access.READ_EDIT,
 			**self._query[1]
 			)
@@ -283,6 +284,7 @@ class UniqueMoleculesView(wholecell.views.view.View):
 	def molecules(self):
 		return self._state.container.objectsInCollections(
 			self._query[0],
+			process_index=self._processIndex,
 			access=Access.READ_EDIT_DELETE,
 			_partitionedProcess = ("==", self._processIndex),
 			**self._query[1]
@@ -303,6 +305,7 @@ class UniqueMoleculesView(wholecell.views.view.View):
 	def moleculeNew(self, moleculeName, **attributes):
 		self._state.container.objectNew(
 			moleculeName,
+			process_index=self._processIndex,
 			apply_at_merge=True,
 			_partitionedProcess = self._processIndex,
 			**attributes
@@ -313,6 +316,7 @@ class UniqueMoleculesView(wholecell.views.view.View):
 		self._state.container.objectsNew(
 			moleculeName,
 			nMolecules,
+			process_index=self._processIndex,
 			apply_at_merge=True,
 			_partitionedProcess = self._processIndex,
 			**attributes
