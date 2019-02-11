@@ -28,8 +28,8 @@ FILE_ATTRIBUTES = "attributes.json"
 
 # Chunk type and size.
 CHUNK_HEADER = struct.Struct('>4s I')
-COLUMN_CHUNK_TYPE = 'COLM'  # column file's header chunk
-BLOCK_CHUNK_TYPE = 'BLOC'   # data block chunk
+COLUMN_CHUNK_TYPE = b'COLM'  # column file's header chunk
+BLOCK_CHUNK_TYPE = b'BLOC'   # data block chunk
 
 # Column header struct. See the pack() calls for field details.
 COLUMN_STRUCT = struct.Struct('>2I 2H')
@@ -193,6 +193,10 @@ class _Column(object):
 		"""
 
 		value = np.asarray(value, self._dtype)
+		if value.nbytes == 0:
+			# Replace an empty row with [0] to preserve num_rows without special
+			# cases in the rest of the writer, reader, and downstream code.
+			value = np.zeros(1, value.dtype)
 		data_bytes = value.tobytes()
 
 		# First entry: Write the column header.
