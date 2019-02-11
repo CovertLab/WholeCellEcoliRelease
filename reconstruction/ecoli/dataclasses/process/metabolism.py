@@ -65,12 +65,6 @@ class Metabolism(object):
 		self.all_external_exchange_molecules = self._getAllExternalExchangeMolecules(raw_data)
 		self._secretion_exchange_molecules = self._getSecretionExchangeMolecules(raw_data)
 		self._exchange_data_dict = self._getExchangeDataDict(raw_data, sim_data)
-		self.import_exchange =[]
-		self.import_constraint = []
-
-		# initialize exchange_data, import_exchange, and import_constraints
-		self.exchange_data = self.getExchangeData('minimal')
-		self.saveImportConstraints(self.exchange_data)
 
 		self._buildBiomass(raw_data, sim_data)
 		self._buildMetabolism(raw_data, sim_data)
@@ -84,16 +78,18 @@ class Metabolism(object):
 		'''
 
 		# molecules from all_external_exchange_molecules set to 'true' if they are current importExchangeMolecules.
-		self.import_exchange = [
+		import_exchange = [
 			molecule_id in exchange_data['importExchangeMolecules']
 			for molecule_id in self.all_external_exchange_molecules
 			]
 
 		# molecules from all_external_exchange_molecules set to 'true' if they are current importConstrainedExchangeMolecules.
-		self.import_constraint = [
+		import_constraint = [
 			molecule_id in exchange_data['importConstrainedExchangeMolecules']
 			for molecule_id in self.all_external_exchange_molecules
 			]
+
+		return import_exchange, import_constraint
 
 
 	def exchangeDataFromConcentrations(self, molecules):
