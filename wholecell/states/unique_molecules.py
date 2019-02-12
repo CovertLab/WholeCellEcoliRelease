@@ -20,14 +20,9 @@ import numpy as np
 import wholecell.states.internal_state
 import wholecell.views.view
 from wholecell.containers.unique_objects_container import (
-	UniqueObjectsContainer, _partition, Access
+	UniqueObjectsContainer, Access
 	)
 from wholecell.utils import units
-
-
-DEFAULT_ATTRIBUTES = {
-	"_partitionedProcess":np.int64
-	}
 
 
 class UniqueMolecules(wholecell.states.internal_state.InternalState):
@@ -62,14 +57,10 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		super(UniqueMolecules, self).initialize(sim, sim_data)
 
 		# Used to store information for cell division
-		# Should not contain DEFAULT_ATTRIBUTES
 		self.uniqueMoleculeDefinitions = deepcopy(sim_data.internal_state.uniqueMolecules.uniqueMoleculeDefinitions)
 
 		# Used to send information to the container
-		# Should contain DEFAULT_ATTRIBUTES
 		molDefs = sim_data.internal_state.uniqueMolecules.uniqueMoleculeDefinitions.copy()
-
-		defaultAttributes = DEFAULT_ATTRIBUTES.copy()
 
 		self.submassNameToIndex = sim_data.submassNameToIndex
 
@@ -87,7 +78,6 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 			molDef.update(defaultMassAttributes)
 
 		for molDef in molDefs.viewvalues():
-			molDef.update(defaultAttributes)
 			molDef.update(defaultMassAttributes)
 
 		self.container = UniqueObjectsContainer(molDefs, self.submass_diff_names)
@@ -106,72 +96,10 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 
 
 	def partition(self):
-		# Remove any prior partition assignments
-		objects = self.container.objects(access=Access.READ_EDIT)
-		if len(objects) > 0:
-			objects.attrIs(
-				_partitionedProcess = self._unassignedPartitionedValue
-				)
-
-		# Gather requests
-		nMolecules = self.container._globalReference.size
-		nViews = len(self._views)
-
-		objectRequestsArray = np.zeros((nMolecules, nViews), np.bool)
-		requestNumberVector = np.zeros(nViews, np.int64)
-		requestProcessArray = np.zeros((nViews, self._nProcesses), np.bool)
-
-		for viewIndex, view in enumerate(self._views):
-			objectRequestsArray[view._queryResult._globalIndexes, viewIndex] = True
-
-			requestNumberVector[viewIndex] = view._request()
-
-			requestProcessArray[viewIndex, view._processIndex] = True
-
-		# TODO: move this logic to the _partition function
-		if requestNumberVector.sum() == 0:
-			return
-
-		# Don't calculate on non-requesting views
-		doCalculatePartition = (requestNumberVector > 0)
-
-		objectRequestsArray[:, ~doCalculatePartition] = False
-
-		partitionedMolecules = np.zeros((nMolecules, self._nProcesses), np.bool)
-
-		# Grant non-overlapping requests all of the relevant molecules
-		overlappingRequests = np.dot(objectRequestsArray.T, objectRequestsArray)
-
-		overlappingRequests[np.identity(nViews, np.bool)] = False
-
-		# TODO: ignore overlapping requests with a process
-
-		noOverlap = ~overlappingRequests.any(0)
-
-		for viewIndex in np.where(noOverlap)[0]:
-			# NOTE: there may be a way to vectorize this
-			partitionedMolecules[:,self._views[viewIndex]._processIndex] |= objectRequestsArray[:, viewIndex]
-
-		doCalculatePartition[noOverlap] = False
-
-		if doCalculatePartition.any():
-			partitionedMolecules |= _partition(
-				objectRequestsArray[:, doCalculatePartition],
-				requestNumberVector[doCalculatePartition],
-				requestProcessArray[doCalculatePartition, :],
-				self.randomState
-				)
-
-		for view in self._views:
-			molecules = self.container.objectsByGlobalIndex(
-				np.where(partitionedMolecules[:, view._processIndex])[0],
-				access=Access.READ_EDIT
-				)
-
-			if len(molecules):
-				molecules.attrIs(
-					_partitionedProcess = view._processIndex,
-					)
+		"""
+		Unique molecules are not partitioned.
+		"""
+		pass
 
 
 	def calculatePreEvolveStateMass(self):
@@ -180,17 +108,6 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		evolveState(). Since no unique molecules are partitioned to specific
 		processes, all masses are marked as "unassigned".
 		"""
-
-		if self.simulationStep() == 0:
-			# Set everything to the "unassigned" value
-			# TODO: consider allowing a default value option for unique objects
-			objects = self.container.objects(access=Access.READ_EDIT)
-
-			if len(objects) > 0:
-				objects.attrIs(
-					_partitionedProcess = self._unassignedPartitionedValue,
-					)
-
 		masses = np.zeros(self._masses.shape[1:], np.float64)
 
 		for moleculeId, moleculeMasses in izip(
@@ -269,31 +186,6 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		self.container.reset_requests()
 
 
-	def _calculateMass(self):
-		masses = np.zeros(self._masses.shape[1:], np.float64)
-
-		submassDiffNames = self._submassNameToProperty.values() # TODO: cache
-
-		for moleculeId, moleculeMasses in izip(self._moleculeIds, self._moleculeMasses):
-			molecules = self.container.objectsInCollection(moleculeId)
-
-			if len(molecules) == 0:
-				continue
-
-			processIndexes = molecules.attr("_partitionedProcess")
-
-			countPerProcess = np.bincount(processIndexes, minlength = self._nProcesses + 1)
-
-			masses += np.outer(countPerProcess, moleculeMasses)
-
-			massDiffs = molecules.attrsAsStructArray(*submassDiffNames).view((np.float64, len(submassDiffNames)))
-
-			for processIndex in np.arange(self._nProcesses + 1):
-				masses[processIndex, :] += massDiffs[processIndex == processIndexes, :].sum(axis = 0)
-
-		return masses
-
-
 	def loadSnapshot(self, container):
 		"""Copy contents from `container`, which must have the same specifications."""
 		self.container.loadSnapshot(container)
@@ -325,6 +217,8 @@ class UniqueMoleculesView(wholecell.views.view.View):
 		# Note: this defaults to a read-only view to the objects
 		self._queryResult = self._state.container.objectsInCollections(
 			self._query[0],
+			process_index=self._processIndex,
+			access=Access.READ_ONLY,
 			**self._query[1]
 			)
 
@@ -353,7 +247,6 @@ class UniqueMoleculesView(wholecell.views.view.View):
 			self._query[0],
 			process_index=self._processIndex,
 			access=Access.READ_EDIT_DELETE,
-			_partitionedProcess = ("==", self._processIndex),
 			**self._query[1]
 			)
 
@@ -373,7 +266,6 @@ class UniqueMoleculesView(wholecell.views.view.View):
 		self._state.container.objectNew(
 			moleculeName,
 			process_index=self._processIndex,
-			_partitionedProcess = self._processIndex,
 			**attributes
 			)
 
@@ -383,6 +275,5 @@ class UniqueMoleculesView(wholecell.views.view.View):
 			moleculeName,
 			nMolecules,
 			process_index=self._processIndex,
-			_partitionedProcess = self._processIndex,
 			**attributes
 			)
