@@ -264,8 +264,8 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		dNtpCounts = self.dntps.counts()
 
 		# Get attributes of existing replisomes
-		domain_index_replisome, right_replichore, coordinates, massDiff_DNA = active_replisomes.attrs(
-			"domain_index", "right_replichore", "coordinates", "massDiff_DNA"
+		domain_index_replisome, right_replichore, coordinates = active_replisomes.attrs(
+			"domain_index", "right_replichore", "coordinates"
 			)
 		sequence_length = np.abs(np.repeat(coordinates, 2))
 
@@ -299,7 +299,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			)
 
 		# Compute masses that should be added to each replisome
-		updatedMass = massDiff_DNA + mass_increase_dna[0::2] + mass_increase_dna[1::2]
+		added_dna_mass = mass_increase_dna[0::2] + mass_increase_dna[1::2]
 
 		# Update positions of each fork
 		updated_length = sequence_length + sequenceElongations
@@ -308,9 +308,12 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Reverse signs of fork coordinates on left replichore
 		updated_coordinates[~right_replichore] = -updated_coordinates[~right_replichore]
 
+		# Update attributes and submasses of replisomes
 		active_replisomes.attrIs(
 			coordinates = updated_coordinates,
-			massDiff_DNA = updatedMass,
+			)
+		active_replisomes.add_submass_by_name(
+			"DNA", added_dna_mass
 			)
 
 		# Update counts of polymerized metabolites

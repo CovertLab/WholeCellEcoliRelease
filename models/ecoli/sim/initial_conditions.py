@@ -235,7 +235,6 @@ def initializeFullChromosome(bulkMolCntr, uniqueMolCntr, sim_data):
 	"""
 	uniqueMolCntr.objectsNew(
 		"fullChromosome", 1,
-		apply_at_merge=False,
 		division_time=0.0,
 		has_induced_division=True,
 		domain_index=0,
@@ -272,14 +271,12 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 	# Add OriC molecules with the proposed attributes
 	uniqueMolCntr.objectsNew(
 		'originOfReplication', n_oric,
-		apply_at_merge=False,
 		domain_index=oric_state["domain_index"],
 		)
 
 	# Add chromosome domain molecules with the proposed attributes
 	uniqueMolCntr.objectsNew(
 		"chromosome_domain", n_domain,
-		apply_at_merge=False,
 		domain_index=domain_state["domain_index"],
 		child_domains=domain_state["child_domains"],
 		)
@@ -300,7 +297,6 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		# Add active replisomes as unique molecules and set attributes
 		uniqueMolCntr.objectsNew(
 			'active_replisome', n_replisome,
-			apply_at_merge=False,
 			coordinates=replisome_state["coordinates"],
 			right_replichore=replisome_state["right_replichore"],
 			domain_index=replisome_state["domain_index"],
@@ -453,7 +449,6 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	#update molecules. Attributes include which rnas are being transcribed, and the position (length)
 	uniqueMolCntr.objectsNew(
 		'activeRnaPoly', rnaPolyToActivate,
-		apply_at_merge=False,
 		rnaIndex=rnaIndices,
 		transcriptLength=updatedLengths,
 		massDiff_mRNA=massIncreaseRna,
@@ -517,7 +512,6 @@ def initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	# Create active 70S ribosomes and assign their protein Indices calculated above
 	uniqueMolCntr.objectsNew(
 		'activeRibosome', ribosomeToActivate,
-		apply_at_merge=False,
 		proteinIndex=proteinIndices,
 		peptideLength=updatedLengths,
 		massDiff_protein=massIncreaseProtein,

@@ -552,7 +552,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 		# Test setters
 
-		objectSet.attrIs(chromosomeLocation = np.ones(20), apply_at_merge = False)
+		objectSet.attrIs(chromosomeLocation = np.ones(20))
 
 		chromosomeLocation = objectSet.attr('chromosomeLocation')
 
@@ -563,8 +563,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 		objectSet.attrIs(
 			chromosomeLocation = np.zeros(20),
-			boundToChromosome = np.zeros(20, np.bool),
-			apply_at_merge = False
+			boundToChromosome = np.zeros(20, np.bool)
 			)
 
 		chromosomeLocation, boundToChromosome = objectSet.attrs(

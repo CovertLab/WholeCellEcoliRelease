@@ -52,6 +52,8 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		self._moleculeIds = None
 		self._moleculeMasses = None
 		self._unassignedPartitionedValue = None
+		self.submass_diff_names = None
+		self._mass_changes = None
 
 		self.division_modes = {}
 
@@ -73,10 +75,13 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 
 		# Add the submass difference attributes for processes to operate
 		defaultMassAttributes = {}
+		self.submass_diff_names = []
+
 		for submassName in self.submassNameToIndex.viewkeys():
 			massDiffPropertyName = "massDiff_" + submassName
 			defaultMassAttributes[massDiffPropertyName] = np.float64
 			self._submassNameToProperty[submassName] = massDiffPropertyName
+			self.submass_diff_names.append(massDiffPropertyName)
 
 		for molDef in self.uniqueMoleculeDefinitions.viewvalues():
 			molDef.update(defaultMassAttributes)
@@ -85,12 +90,13 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 			molDef.update(defaultAttributes)
 			molDef.update(defaultMassAttributes)
 
-		self.container = UniqueObjectsContainer(molDefs)
+		self.container = UniqueObjectsContainer(molDefs, self.submass_diff_names)
 
 		self._moleculeIds = sim_data.internal_state.uniqueMolecules.uniqueMoleculeMasses["id"]
 		self._moleculeMasses = (
 			sim_data.internal_state.uniqueMolecules.uniqueMoleculeMasses["mass"] / sim_data.constants.nAvogadro
-			).asNumber(units.fg)
+			).asNumber(units.fg)[np.argsort(self._moleculeIds)]
+		self._moleculeIds = np.sort(self._moleculeIds)
 
 		self._unassignedPartitionedValue = self._nProcesses
 
@@ -104,8 +110,8 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		objects = self.container.objects(access=Access.READ_EDIT)
 		if len(objects) > 0:
 			objects.attrIs(
-				_partitionedProcess = self._unassignedPartitionedValue,
-				apply_at_merge = False)
+				_partitionedProcess = self._unassignedPartitionedValue
+				)
 
 		# Gather requests
 		nMolecules = self.container._globalReference.size
@@ -165,12 +171,15 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 			if len(molecules):
 				molecules.attrIs(
 					_partitionedProcess = view._processIndex,
-					apply_at_merge = False,
 					)
 
 
 	def calculatePreEvolveStateMass(self):
-		# Compute partitioned masses
+		"""
+		Computes the summed masses of all unique molecules, prior to
+		evolveState(). Since no unique molecules are partitioned to specific
+		processes, all masses are marked as "unassigned".
+		"""
 
 		if self.simulationStep() == 0:
 			# Set everything to the "unassigned" value
@@ -180,10 +189,30 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 			if len(objects) > 0:
 				objects.attrIs(
 					_partitionedProcess = self._unassignedPartitionedValue,
-					apply_at_merge = False,
 					)
 
-		self._masses[self._preEvolveStateMassIndex, ...] = self._calculateMass()
+		masses = np.zeros(self._masses.shape[1:], np.float64)
+
+		for moleculeId, moleculeMasses in izip(
+				self._moleculeIds, self._moleculeMasses):
+			# Get all molecules of a particular type
+			molecules = self.container.objectsInCollection(moleculeId)
+			n_molecules = len(molecules)
+
+			if n_molecules == 0:
+				continue
+
+			# Add basal masses of the molecule to last row
+			masses[self._unassignedPartitionedValue, :] += moleculeMasses*n_molecules
+
+			# Add additional masses of the molecule to last row
+			massDiffs = molecules.attrsAsStructArray(
+				*self.submass_diff_names).view(
+				(np.float64, len(self.submass_diff_names))
+				)
+			masses[self._unassignedPartitionedValue, :] += massDiffs.sum(axis=0)
+
+		self._masses[self._preEvolveStateMassIndex, ...] = masses
 
 
 	def merge(self):
@@ -197,9 +226,41 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 
 
 	def calculatePostEvolveStateMass(self):
-		# Compute partitioned masses
+		"""
+		Computes the summed masses of all unique molecules, after
+		evolveState(). If certain process added or deleted molecules, or
+		changed the mass differences of molecules, the corresponding change
+		of mass is assigned to the index of the process.
+		"""
+		# Get mass calculated before evolveState()
+		masses = self._masses[self._preEvolveStateMassIndex, ...].copy()
 
-		self._masses[self._postEvolveStateMassIndex, ...] = self._calculateMass()
+		# Get list of requests
+		_, submass_requests, delete_requests, new_molecule_requests = self.container.get_requests()
+
+		for req in submass_requests:
+			for attribute, values in req["added_masses"].viewitems():
+				submass_index = self.submass_diff_names.index(attribute)
+				masses[req["source_process_index"], submass_index] += values.sum()
+
+		for req in delete_requests:
+			# Subtract masses of the deleted molecules themselves
+			deleted_masses = self._moleculeMasses[req["collection_indexes"], :].sum(axis=0)
+			masses[req["source_process_index"], :] -= deleted_masses
+
+			# Subtract deleted submasses
+			masses[req["source_process_index"], :] -= req["deleted_submasses"]
+
+		for req in new_molecule_requests:
+			# Add masses of the added molecules themselves
+			collection_index = np.where(self._moleculeIds == req["collectionName"])[0][0]
+			masses_per_molecule = self._moleculeMasses[collection_index, :]
+			masses[req["source_process_index"], :] += masses_per_molecule * req["nObjects"]
+
+		self._masses[self._postEvolveStateMassIndex, ...] = masses
+
+		# Reset request lists in container
+		self.container.reset_requests()
 
 
 	def _calculateMass(self):
@@ -306,7 +367,6 @@ class UniqueMoleculesView(wholecell.views.view.View):
 		self._state.container.objectNew(
 			moleculeName,
 			process_index=self._processIndex,
-			apply_at_merge=True,
 			_partitionedProcess = self._processIndex,
 			**attributes
 			)
@@ -317,7 +377,6 @@ class UniqueMoleculesView(wholecell.views.view.View):
 			moleculeName,
 			nMolecules,
 			process_index=self._processIndex,
-			apply_at_merge=True,
 			_partitionedProcess = self._processIndex,
 			**attributes
 			)
