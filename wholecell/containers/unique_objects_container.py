@@ -1010,6 +1010,12 @@ class _UniqueObjectSet(object):
 		if self._globalIndexes.size == 0:
 			raise UniqueObjectsContainerException("Object set is empty")
 
+		for attr in attributes.keys():
+			if attr in self._container.submass_diff_names:
+				raise UniqueObjectsPermissionException(
+					"Can't modify submass differences with attrIs(). Use add_submass_by_name() or add_submass_by_array() instead."
+				)
+
 		# Submit edit request to container
 		if self._process_index is not None:
 			self._container.add_edit_request(

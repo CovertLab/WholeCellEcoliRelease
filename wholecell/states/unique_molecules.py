@@ -257,6 +257,12 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 			masses_per_molecule = self._moleculeMasses[collection_index, :]
 			masses[req["source_process_index"], :] += masses_per_molecule * req["nObjects"]
 
+			# Add submass differences
+			for attribute, values in req["attr"].viewitems():
+				if attribute in self.submass_diff_names:
+					submass_index = self.submass_diff_names.index(attribute)
+					masses[req["source_process_index"], submass_index] += values.sum()
+
 		self._masses[self._postEvolveStateMassIndex, ...] = masses
 
 		# Reset request lists in container
