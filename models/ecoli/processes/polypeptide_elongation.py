@@ -135,9 +135,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		if self.activeRibosomes.total_counts()[0] == 0:
 			return
 
-		# Request all active ribosomes
-		self.activeRibosomes.requestAll()
-
 		# Build sequences to request appropriate amount of amino acids to
 		# polymerize for next timestep
 		activeRibosomes = self.activeRibosomes.molecules_read_only()

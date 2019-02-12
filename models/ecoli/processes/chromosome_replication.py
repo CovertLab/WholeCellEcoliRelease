@@ -75,10 +75,6 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.no_child_place_holder = sim_data.process.replication.no_child_place_holder
 
 	def calculateRequest(self):
-
-		# Request all unique origins of replication
-		self.oriCs.requestAll()
-
 		# Get total count of existing oriC's
 		n_oric = self.oriCs.total_counts()[0]
 
@@ -103,17 +99,10 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			self.replisome_trimers.requestIs(6*n_oric)
 			self.replisome_monomers.requestIs(2*n_oric)
 
-		# Request all chromosome domains
-		self.chromosome_domain.requestAll()
-
 		# If there are no active forks return
 		n_active_replisomes = self.active_replisome.total_counts()[0]
 		if n_active_replisomes == 0:
 			return
-
-		# Request all replisomes and full chromosomes
-		self.active_replisome.requestAll()
-		self.full_chromosome.requestAll()
 
 		# Get current locations of all replication forks
 		active_replisomes = self.active_replisome.molecules_read_only()

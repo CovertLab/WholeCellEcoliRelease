@@ -61,9 +61,6 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		if self.activeRnaPolys.total_counts()[0] == 0:
 			return
 
-		# Request all active RNA polymerases
-		self.activeRnaPolys.requestAll()
-
 		# Determine total possible sequences of nucleotides that can be transcribed in this time step for each polymerase
 		activeRnaPolys = self.activeRnaPolys.molecules_read_only()
 		rnaIndexes, transcriptLengths = activeRnaPolys.attrs('rnaIndex', 'transcriptLength')
