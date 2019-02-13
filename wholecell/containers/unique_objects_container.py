@@ -11,6 +11,7 @@ from __future__ import absolute_import, division, print_function
 from copy import deepcopy
 from itertools import izip
 from functools import partial
+from enum import Enum
 
 import numpy as np
 import zlib
@@ -24,6 +25,8 @@ import wholecell.utils.linear_programming as lp
 ZLIB_LEVEL = 7
 
 _MAX_ID_SIZE = 40 # max length of the unique id assigned to objects
+
+Access = Enum('Access', 'READ_ONLY READ_EDIT READ_EDIT_DELETE')
 
 class UniqueObjectsContainerException(Exception):
 	pass
@@ -158,6 +161,10 @@ class UniqueObjectsContainer(object):
 
 		self._names = tuple(sorted(self._specifications.keys())) # sorted collection names
 
+		# List of edit and delete requests
+		self._edit_requests = []
+		self._delete_requests = []
+
 		defaultSpecKeys = self._defaultSpecification.viewkeys()
 
 		# Add the attributes used internally
@@ -250,7 +257,7 @@ class UniqueObjectsContainer(object):
 		"""
 		Add nObjects new objects/molecules of the named type, all with the
 		given attributes. Returns a _UniqueObjectSet proxy for the new entries,
-		with read and write access.
+		with read and edit access.
 		"""
 		collectionIndex = self._nameToIndexMapping[collectionName]
 		objectIndexes, globalIndexes = self._getFreeIndexes(collectionIndex, nObjects)
@@ -272,7 +279,7 @@ class UniqueObjectsContainer(object):
 		self._globalReference["_collectionIndex"][globalIndexes] = collectionIndex
 		self._globalReference["_objectIndex"][globalIndexes] = objectIndexes
 
-		return _UniqueObjectSet(self, globalIndexes, read_only=False)
+		return _UniqueObjectSet(self, globalIndexes, access=Access.READ_EDIT)
 
 
 	def objectNew(self, collectionName, **attributes):
@@ -310,13 +317,14 @@ class UniqueObjectsContainer(object):
 		obj._objectIndex = -1
 
 
-	def objects(self, read_only=True, **operations):
+	def objects(self, access=Access.READ_ONLY, **operations):
 		"""
 		Return a _UniqueObjectSet proxy for all objects (molecules) that
 		satisfy an optional attribute query. Querying every object is generally
 		not what you want to do. The queried attributes must be in all the
-		collections (all molecule types). If read_only is set to True, deleting
-		of the objects or editing of their attributes are prohibited.
+		collections (all molecule types). The access argument determines the
+		level of access permission the proxy has to the molecules in the
+		container.
 		"""
 		if operations:
 			results = []
@@ -328,21 +336,21 @@ class UniqueObjectsContainer(object):
 				self._collections[collectionIndex]["_globalIndex"][result]
 				for collectionIndex, result in enumerate(results)
 				]),
-				read_only=read_only)
+				access=access)
 
 		else:
 			return _UniqueObjectSet(self,
 				np.where(self._globalReference["_entryState"] == self._entryActive)[0],
-				read_only=read_only
+				access=access
 				)
 
 
-	def objectsInCollection(self, collectionName, read_only=True, **operations):
+	def objectsInCollection(self, collectionName, access=Access.READ_ONLY, **operations):
 		"""
 		Return a _UniqueObjectSet proxy for all objects (molecules) belonging
-		to a named collection that satisfy an optional attribute query. If
-		read_only is set to True, deleting of the objects or editing of their
-		attributes are prohibited.
+		to a named collection that satisfy an optional attribute query. The
+		access argument determines the level of access permission the proxy has
+		to the molecules in the container.
 		"""
 		# TODO(jerry): Special case the empty query?
 		collectionIndex = self._nameToIndexMapping[collectionName]
@@ -351,16 +359,16 @@ class UniqueObjectsContainer(object):
 
 		return _UniqueObjectSet(self,
 			self._collections[collectionIndex]["_globalIndex"][result],
-			read_only=read_only
+			access=access
 			)
 
 
-	def objectsInCollections(self, collectionNames, read_only=True, **operations):
+	def objectsInCollections(self, collectionNames, access=Access.READ_ONLY, **operations):
 		"""Return a _UniqueObjectSet proxy for all objects (molecules)
 		belonging to the given collection names that satisfy an optional
 		attribute query. The queried attributes must be in all the named
-		collections. If read_only is set to True, deleting of the objects
-		or editing of their attributes are prohibited.
+		collections. The access argument determines the level of access
+		permission the proxy has to the molecules in the container.
 		"""
 		collectionIndexes = [self._nameToIndexMapping[collectionName] for collectionName in collectionNames]
 		results = []
@@ -373,7 +381,7 @@ class UniqueObjectsContainer(object):
 			self._collections[collectionIndex]["_globalIndex"][result]
 			for collectionIndex, result in izip(collectionIndexes, results)
 			]),
-			read_only=read_only
+			access=access
 			)
 
 
@@ -402,18 +410,18 @@ class UniqueObjectsContainer(object):
 		)
 
 
-	def objectsByGlobalIndex(self, globalIndexes, read_only=True):
+	def objectsByGlobalIndex(self, globalIndexes, access=Access.READ_ONLY):
 		"""Return a _UniqueObjectSet proxy for the objects (molecules) with the
 		given global indexes (that is, global over all named collections).
 		"""
-		return _UniqueObjectSet(self, globalIndexes, read_only=read_only)
+		return _UniqueObjectSet(self, globalIndexes, access=access)
 
 
-	def objectByGlobalIndex(self, globalIndex, read_only=True):
+	def objectByGlobalIndex(self, globalIndex, access=Access.READ_ONLY):
 		"""Return a _UniqueObject proxy for the object (molecule) with the
 		given global index (that is, global over all named collections).
 		"""
-		return _UniqueObject(self, globalIndex, read_only=read_only)
+		return _UniqueObject(self, globalIndex, access=access)
 
 
 	def objectNames(self):
@@ -522,6 +530,98 @@ class UniqueObjectsContainer(object):
 			)
 
 
+	def add_edit_request(self, globalIndexes, attrs):
+		"""
+		Adds an edit request made from a _UniqueObjectSet instance to the list
+		of requests to handle. The actual edits are made during merge().
+		"""
+		edit_request = {
+			"globalIndexes": globalIndexes,
+			"attrs": attrs,
+			}
+
+		self._edit_requests.append(edit_request)
+
+
+	def add_delete_request(self, globalIndexes):
+		"""
+		Adds a delete request made from a _UniqueObjectSet instance to the list
+		of requests to handle. The actual deletions are done during merge().
+		"""
+		delete_request = {
+			"globalIndexes": globalIndexes,
+			}
+
+		self._delete_requests.append(delete_request)
+
+
+	def merge(self):
+		"""
+		Loops through the list of edit and delete requests and makes the
+		requested changes. Note that there is no sort of conflict management
+		implemented yet. The two request lists are reset after all the requests
+		have been fulfilled.
+		"""
+		global_reference = self._globalReference
+
+		# Loop through edit requests
+		for req in self._edit_requests:
+			global_indexes = req["globalIndexes"]
+
+			if (global_reference[global_indexes][
+					"_entryState"] == self._entryInactive).any():
+				raise UniqueObjectsContainerException(
+					"One or more object was deleted from the set")
+
+			collectionIndexes = global_reference[global_indexes]["_collectionIndex"]
+			objectIndexes = global_reference[global_indexes]["_objectIndex"]
+
+			uniqueColIndexes, inverse = np.unique(collectionIndexes,
+				return_inverse=True)
+
+			for i, collectionIndex in enumerate(uniqueColIndexes):
+				globalObjIndexes = np.where(inverse == i)
+				objectIndexesInCollection = objectIndexes[globalObjIndexes]
+
+				for attribute, values in req["attrs"].viewitems():
+					valuesAsArray = np.array(values, ndmin=1)
+
+					if valuesAsArray.shape[0] == 1:  # is a singleton
+						self._collections[collectionIndex][attribute][
+							objectIndexesInCollection] = valuesAsArray
+
+					else:
+						self._collections[collectionIndex][attribute][
+							objectIndexesInCollection] = valuesAsArray[
+							globalObjIndexes]
+
+		# Loop through delete requests
+		for req in self._delete_requests:
+			global_indexes = req["globalIndexes"]
+
+			collectionIndexes = global_reference[global_indexes]["_collectionIndex"]
+			objectIndexes = global_reference[global_indexes]["_objectIndex"]
+
+			uniqueColIndexes, inverse = np.unique(collectionIndexes,
+				return_inverse=True)
+
+			for i, collectionIndex in enumerate(uniqueColIndexes):
+				globalObjIndexes = np.where(inverse == i)
+				objectIndexesInCollection = objectIndexes[globalObjIndexes]
+
+				self._collections[collectionIndex][
+					objectIndexesInCollection] = np.zeros(
+					1, dtype=self._collections[collectionIndex].dtype)
+
+			global_reference[global_indexes] = np.zeros(1,
+				dtype=global_reference.dtype)
+
+		# Reset request lists
+		self._edit_requests = []
+		self._delete_requests = []
+
+
+
 def copy_if_ndarray(object):
 	"""Copy an ndarray object or return any other type of object as is.
 	Prevent making a view instead of a copy.  # <-- TODO(jerry): Explain.
@@ -618,17 +718,17 @@ class _UniqueObjectSet(object):
 	Internally this stores the objects' global indexes.
 	"""
 
-	def __init__(self, container, globalIndexes, read_only=True):
+	def __init__(self, container, globalIndexes, access=Access.READ_ONLY):
 		"""
 		Construct a _UniqueObjectSet for unique objects (molecules) in the
 		given container with the given global indexes. The result is an
-		iterable, ordered sequence (not really a set). If read_only is set
-		to True, deleting of the objects or editing of their attributes are
-		prohibited.
+		iterable, ordered sequence (not really a set). The access argument
+		determines the level of access permission this instance has to the
+		molecules in the container.
 		"""
 		self._container = container
 		self._globalIndexes = np.array(globalIndexes, np.int)
-		self._read_only = read_only
+		self._access = access
 
 
 	def __contains__(self, uniqueObject):
@@ -761,12 +861,15 @@ class _UniqueObjectSet(object):
 
 		return values
 
-	def attrIs(self, **attributes):
+
+	def attrIs(self, apply_at_merge=True, **attributes):
 		"""
 		Set named attributes of all the unique objects in this sequence.
-		This is not permitted for read-only sets.
+		This is not permitted for read-only sets. If apply_at_merge is set to
+		True, this submits an edit request to the container, and the container
+		waits until merge to actually perform the edits.
 		"""
-		if self._read_only:
+		if self._access == Access.READ_ONLY:
 			raise UniqueObjectsPermissionException(
 				"Can't modify attributes of read-only objects."
 			)
@@ -774,63 +877,62 @@ class _UniqueObjectSet(object):
 		if self._globalIndexes.size == 0:
 			raise UniqueObjectsContainerException("Object set is empty")
 
-		container = self._container
-		globalReference = container._globalReference
-		if (globalReference["_entryState"][self._globalIndexes] == container._entryInactive).any():
-			raise UniqueObjectsContainerException("One or more object was deleted from the set")
+		# Submit edit request to container
+		if apply_at_merge:
+			self._container.add_edit_request(self._globalIndexes, attributes)
 
-		# TODO: cache these properties? should be static
-		collectionIndexes = globalReference["_collectionIndex"][self._globalIndexes]
-		objectIndexes = globalReference["_objectIndex"][self._globalIndexes]
+		# Make edit directly on container now
+		else:
+			container = self._container
+			globalReference = container._globalReference
 
-		uniqueColIndexes, inverse = np.unique(collectionIndexes, return_inverse = True)
+			if (globalReference["_entryState"][
+					self._globalIndexes] == container._entryInactive).any():
+				raise UniqueObjectsContainerException(
+					"One or more object was deleted from the set")
 
-		for i, collectionIndex in enumerate(uniqueColIndexes):
-			globalObjIndexes = np.where(inverse == i)
-			objectIndexesInCollection = objectIndexes[globalObjIndexes]
+			# TODO: cache these properties? should be static
+			collectionIndexes = globalReference["_collectionIndex"][
+				self._globalIndexes]
+			objectIndexes = globalReference["_objectIndex"][
+				self._globalIndexes]
 
-			for attribute, values in attributes.viewitems():
-				valuesAsArray = np.array(values, ndmin = 1)
+			uniqueColIndexes, inverse = np.unique(collectionIndexes,
+				return_inverse=True)
 
-				if valuesAsArray.shape[0] == 1: # is a singleton
-					container._collections[collectionIndex][attribute][objectIndexesInCollection] = valuesAsArray
+			for i, collectionIndex in enumerate(uniqueColIndexes):
+				globalObjIndexes = np.where(inverse == i)
+				objectIndexesInCollection = objectIndexes[globalObjIndexes]
 
-				else:
-					container._collections[collectionIndex][attribute][objectIndexesInCollection] = valuesAsArray[globalObjIndexes]
+				for attribute, values in attributes.viewitems():
+					valuesAsArray = np.array(values, ndmin=1)
+
+					if valuesAsArray.shape[0] == 1:  # is a singleton
+						container._collections[collectionIndex][attribute][
+							objectIndexesInCollection] = valuesAsArray
+
+					else:
+						container._collections[collectionIndex][attribute][
+							objectIndexesInCollection] = valuesAsArray[
+							globalObjIndexes]
 
 
 	def delByIndexes(self, indexes):
 		"""
-		Delete unique objects by indexes into this sequence.
-		This is not permitted for read-only sets.
+		Submits a request to delete unique objects by indexes into this
+		sequence. This is not permitted for read-only sets.
 		"""
+		if self._access != Access.READ_EDIT_DELETE:
+			raise UniqueObjectsPermissionException(
+				"Can't delete molecules from read-only or read-and-edit only objects."
+			)
+
 		# TODO(jerry): This could just call a delete method on all its
 		# _UniqueObject instances, which in turn could call objectDel() on the
 		# container or split the work so they each update their private state.
-
-		if self._read_only:
-			raise UniqueObjectsPermissionException(
-				"Can't delete molecules from read-only objects."
-			)
-
 		globalIndexes = self._globalIndexes[indexes]
 
-		# TODO: cache these properties? should be static
-		container = self._container
-		globalReference = container._globalReference
-		collectionIndexes = globalReference["_collectionIndex"][globalIndexes]
-		objectIndexes = globalReference["_objectIndex"][globalIndexes]
-
-		uniqueColIndexes, inverse = np.unique(collectionIndexes, return_inverse = True)
-
-		for i, collectionIndex in enumerate(uniqueColIndexes):
-			globalObjIndexes = np.where(inverse == i)
-			objectIndexesInCollection = objectIndexes[globalObjIndexes]
-
-			container._collections[collectionIndex][objectIndexesInCollection] = np.zeros(
-				1, dtype=container._collections[collectionIndex].dtype)
-
-		globalReference[globalIndexes] = np.zeros(1, dtype=globalReference.dtype)
+		self._container.add_delete_request(globalIndexes)
 
 
 def _partition(objectRequestsArray, requestNumberVector, requestProcessArray, randomState):
