@@ -19,7 +19,9 @@ import numpy as np
 
 import wholecell.states.internal_state
 import wholecell.views.view
-from wholecell.containers.unique_objects_container import UniqueObjectsContainer, _partition
+from wholecell.containers.unique_objects_container import (
+	UniqueObjectsContainer, _partition, Access
+	)
 from wholecell.utils import units
 
 
@@ -99,9 +101,11 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 
 	def partition(self):
 		# Remove any prior partition assignments
-		objects = self.container.objects(read_only=False)
+		objects = self.container.objects(access=Access.READ_EDIT)
 		if len(objects) > 0:
-			objects.attrIs(_partitionedProcess = self._unassignedPartitionedValue)
+			objects.attrIs(
+				_partitionedProcess = self._unassignedPartitionedValue,
+				apply_at_merge = False)
 
 		# Gather requests
 		nMolecules = self.container._globalReference.size
@@ -155,11 +159,14 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		for view in self._views:
 			molecules = self.container.objectsByGlobalIndex(
 				np.where(partitionedMolecules[:, view._processIndex])[0],
-				read_only=False
+				access=Access.READ_EDIT
 				)
 
 			if len(molecules):
-				molecules.attrIs(_partitionedProcess = view._processIndex)
+				molecules.attrIs(
+					_partitionedProcess = view._processIndex,
+					apply_at_merge = False,
+					)
 
 
 	def calculatePreEvolveStateMass(self):
@@ -168,19 +175,25 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		if self.simulationStep() == 0:
 			# Set everything to the "unassigned" value
 			# TODO: consider allowing a default value option for unique objects
-			objects = self.container.objects(read_only=False)
+			objects = self.container.objects(access=Access.READ_EDIT)
 
 			if len(objects) > 0:
-				objects.attrIs(_partitionedProcess = self._unassignedPartitionedValue)
+				objects.attrIs(
+					_partitionedProcess = self._unassignedPartitionedValue,
+					apply_at_merge = False,
+					)
 
 		self._masses[self._preEvolveStateMassIndex, ...] = self._calculateMass()
 
 
 	def merge(self):
-		# Operations are performed directly on the container, so there is no
-		# "merge" operation needed
-
-		pass
+		"""
+		Apply all edits made to named attributes of unique objects in the
+		container.
+		WARNING: This does not check whether conflicting requests were made on
+		the same attribute of the same unique molecule.
+		"""
+		self.container.merge()
 
 
 	def calculatePostEvolveStateMass(self):
@@ -255,6 +268,14 @@ class UniqueMoleculesView(wholecell.views.view.View):
 		return self._queryResult
 
 
+	def molecules_read_and_edit(self):
+		return self._state.container.objectsInCollections(
+			self._query[0],
+			access=Access.READ_EDIT,
+			**self._query[1]
+			)
+
+
 	# TODO (ggsun): deprecated alias, should be deleted
 	allMolecules = molecules_read_only
 
@@ -262,7 +283,7 @@ class UniqueMoleculesView(wholecell.views.view.View):
 	def molecules(self):
 		return self._state.container.objectsInCollections(
 			self._query[0],
-			read_only=False,
+			access=Access.READ_EDIT_DELETE,
 			_partitionedProcess = ("==", self._processIndex),
 			**self._query[1]
 			)
