@@ -81,7 +81,8 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_delete_molecules(self):
-		molecules = self.container.objectsInCollection('RNA polymerase')
+		molecules = self.container.objectsInCollection(
+			'RNA polymerase', access=Access.READ_EDIT_DELETE)
 
 		self.container.objectsDel(molecules)
 
@@ -248,7 +249,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	# Attribute access
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_attribute_setting(self):
-		for molecule in self.container.objectsInCollection('RNA polymerase'):
+		for molecule in self.container.objectsInCollection('RNA polymerase', access=Access.READ_EDIT):
 			molecule.attrIs(
 				boundToChromosome = True,
 				chromosomeLocation = 100,
@@ -436,7 +437,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 		KB2 = {'RNA': {'boundToChromosome': 'bool', 'chromosomeLocation': 'uint32'},
 			'RSA:': {'boundToChromosome': 'bool', 'chromosomeLocation': 'uint32'}}
-		c1 = UniqueObjectsContainer(KB2)
+		c1 = UniqueObjectsContainer(KB2, [])
 		self.assertNotEqual(self.container, c1)
 
 		with self.assertRaises(ValueError):  # different specifications
@@ -620,7 +621,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 
 def createContainer():
-	container = UniqueObjectsContainer(TEST_KB)
+	container = UniqueObjectsContainer(TEST_KB, [])
 
 	container.objectsNew(
 		'RNA polymerase',
