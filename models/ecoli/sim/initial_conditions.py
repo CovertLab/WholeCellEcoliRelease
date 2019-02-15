@@ -10,6 +10,7 @@ from itertools import izip
 import scipy.sparse
 
 import numpy as np
+from arrow import StochasticSystem
 
 from wholecell.utils.fitting import normalize, countsFromMassAndExpression, masses_and_counts_for_homeostatic_target
 from wholecell.utils.polymerize import computeMassIncrease
@@ -18,6 +19,7 @@ from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWi
 
 from wholecell.sim.divide_cell import load_inherited_state
 
+RAND_MAX = 2**31
 
 def calcInitialConditions(sim, sim_data):
 	'''Calculate the initial conditions for a new cell without inherited state
@@ -204,23 +206,24 @@ def initializeComplexation(bulkMolCntr, sim_data, randomState):
 	rnaseCounts = bulkMolCntr.countsView(rnases).counts()
 	bulkMolCntr.countsIs(0, rnases)
 
-	stoichMatrix = sim_data.process.complexation.stoichMatrix().astype(np.int64, order = "F")
-	prebuiltMatrices = mccBuildMatrices(stoichMatrix)
+	stoichMatrix = sim_data.process.complexation.stoichMatrix().astype(np.int64)
+
+	time_step = 1
+	seed = randomState.randint(RAND_MAX)
+	complexation_rates = sim_data.process.complexation.rates
+	system = StochasticSystem(stoichMatrix.T, complexation_rates, random_seed=seed)
 
 	# form complexes until no new complexes form (some complexes are complexes of complexes)
 	while True:
 		moleculeCounts = moleculeView.counts()
-		updatedMoleculeCounts, complexationEvents = mccFormComplexesWithPrebuiltMatrices(
-			moleculeCounts,
-			randomState.randint(1000),
-			stoichMatrix,
-			*prebuiltMatrices
-			)
+		complexation_result = system.evolve(time_step, moleculeCounts)
+
+		updatedMoleculeCounts = complexation_result['outcome']
+		complexationEvents = complexation_result['occurrences']
 
 		bulkMolCntr.countsIs(
 			updatedMoleculeCounts,
-			moleculeNames,
-			)
+			moleculeNames)
 
 		if not np.any(moleculeCounts - updatedMoleculeCounts):
 			break
