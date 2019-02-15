@@ -12,8 +12,8 @@ import agent.event as event
 # Chunk header: type and size.
 # TODO(jerry): Move CHUNK_HEADER to a shared module.
 CHUNK_HEADER = struct.Struct('>4s I')
-JSON_CHUNK_TYPE = 'JSON'  # a JSON chunk contains a JSON dictionary message
-BLOB_CHUNK_TYPE = 'BLOB'  # a BLOB chunk contains a bytes
+JSON_CHUNK_TYPE = b'JSON'  # a JSON chunk contains a JSON dictionary message
+BLOB_CHUNK_TYPE = b'BLOB'  # a BLOB chunk contains a bytes
 
 BLOBS = 'blobs' # message dict key for a sequence of binary large objects
 				# (bytes), unsuitable for the JSON part of the payload, or to

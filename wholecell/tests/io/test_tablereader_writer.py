@@ -29,6 +29,7 @@ DATA = {key: np.arange(10.0) + ord(key[0]) for key in COLUMNS}
 
 # TODO(jerry): Test structured dtypes.
 
+@noseAttrib.attr('smalltest', 'table')
 class Test_TableReader_Writer(unittest.TestCase):
 	def setUp(self):
 		self.test_dir = None
@@ -44,7 +45,6 @@ class Test_TableReader_Writer(unittest.TestCase):
 			self.test_dir = tempfile.mkdtemp()
 			self.table_path = os.path.join(self.test_dir, 'Main')
 
-	@noseAttrib.attr('smalltest', 'table')
 	def test_basic(self):
 		'''Test a table with some float arrays and no attributes.'''
 		self.make_test_dir()
@@ -89,7 +89,6 @@ class Test_TableReader_Writer(unittest.TestCase):
 
 		reader.close()
 
-	@noseAttrib.attr('smalltest', 'table')
 	def test_readColumn2D(self):
 		'''Test readColumn2D() vs. readColumn() array squeezing.
 		readColumn2D() should always return a 2D array.
@@ -186,7 +185,6 @@ class Test_TableReader_Writer(unittest.TestCase):
 		self.assertEqual(2, reader.readColumn('1D', index2).ndim)
 		self.assertEqual(2, reader.readColumn('2D', index2).ndim)
 
-	@noseAttrib.attr('smalltest', 'table')
 	def test_attributes(self):
 		'''Test a table with attributes and no columns.'''
 		def check_attributes(attribute_dict):
@@ -224,7 +222,6 @@ class Test_TableReader_Writer(unittest.TestCase):
 
 		reader.close()
 
-	@noseAttrib.attr('smalltest', 'table')
 	def test_array_dimensions(self):
 		'''Test 0D, 2D, and non-uniform array lengths, also automatic int to
 		float value conversion.
@@ -258,7 +255,6 @@ class Test_TableReader_Writer(unittest.TestCase):
 		expected = np.vstack((DATA[column_name], DATA[column_name]))
 		npt.assert_array_equal(expected, actual)
 
-	@noseAttrib.attr('smalltest', 'table')
 	def test_scalars(self):
 		'''Test the case where all rows contain scalars, where readColumn()
 		returns a 1-D array instead of a 2-D array!
@@ -279,7 +275,6 @@ class Test_TableReader_Writer(unittest.TestCase):
 		self.assertEqual((3,), actual.shape)
 		npt.assert_array_equal([20, 21, 22], actual)
 
-	@noseAttrib.attr('smalltest', 'table')
 	def test_1_element_arrays(self):
 		'''Test the case where all rows contain 1-element arrays, where
 		readColumn() returns a 1-D array instead of a 2-D array!
@@ -300,7 +295,24 @@ class Test_TableReader_Writer(unittest.TestCase):
 		self.assertEqual((3,), actual.shape)
 		npt.assert_array_equal([20, 21, 22], actual)
 
-	@noseAttrib.attr('smalltest', 'table')
+	def test_0_element_arrays(self):
+		'''Test the case where all rows contain 0-element arrays.'''
+		self.make_test_dir()
+
+		# --- Write ---
+		writer = TableWriter(self.table_path)
+		writer.append(val=[])  # an empty row becomes [0] to preserve num_rows
+		writer.append(val=[])
+		writer.append(val=[])
+		writer.close()
+
+		# --- Read ---
+		reader = TableReader(self.table_path)
+		actual = reader.readColumn2D('val')
+		self.assertEqual(2, actual.ndim)
+		self.assertEqual((3, 1), actual.shape)
+		npt.assert_array_equal(np.zeros((3, 1)), actual)
+
 	def test_big_entries(self):
 		'''Test entries that are larger than BLOCK_BYTES_GOAL.'''
 		self.make_test_dir()
@@ -324,7 +336,6 @@ class Test_TableReader_Writer(unittest.TestCase):
 		npt.assert_array_equal(np.vstack(5 * [ints]), actual_ints)
 		npt.assert_array_equal(np.vstack(5 * [floats]), actual_floats)
 
-	@noseAttrib.attr('smalltest', 'table')
 	def test_many_entries(self):
 		'''Test enough entries to pack into many blocks.'''
 		self.make_test_dir()
@@ -347,7 +358,6 @@ class Test_TableReader_Writer(unittest.TestCase):
 		npt.assert_array_equal(np.vstack(rows * [ints]), actual_ints)
 		npt.assert_array_equal(np.vstack(rows * [floats]), actual_floats)
 
-	@noseAttrib.attr('smalltest', 'table')
 	def test_path_clash(self):
 		'''Test two TableWriters trying to write to the same directory.'''
 		self.make_test_dir()
@@ -357,7 +367,6 @@ class Test_TableReader_Writer(unittest.TestCase):
 		with self.assertRaises(TableExistsError):
 			TableWriter(self.table_path)
 
-	@noseAttrib.attr('smalltest', 'table')
 	def test_v2_clash(self):
 		'''Test a TableWriter trying to write to a V2 table's directory.'''
 		self.make_test_dir()
@@ -366,7 +375,6 @@ class Test_TableReader_Writer(unittest.TestCase):
 		with self.assertRaises(TableExistsError):
 			TableWriter(self.table_path)
 
-	@noseAttrib.attr('smalltest', 'table')
 	def test_attribute_errors(self):
 		'''Test errors adding attributes.'''
 		self.make_test_dir()

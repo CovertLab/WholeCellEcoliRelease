@@ -78,6 +78,10 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Get total count of existing oriC's
 		n_oric = self.oriCs.total_counts()[0]
 
+		# If there are no origins, return immediately
+		if n_oric == 0:
+			return
+
 		# Get current cell mass
 		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg)
 
