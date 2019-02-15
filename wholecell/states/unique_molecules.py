@@ -275,17 +275,14 @@ class UniqueMoleculesView(wholecell.views.view.View):
 			)
 
 
-	# NOTE: these accessors do not enforce any sort of consistency between the query
-	# and the objects created/deleted.  As such it may make more sense for these
-	# to be process methods, not view methods. - JM
-	def moleculeDel(self, molecule):
-		self._state.container.objectDel(molecule)
-
-
-	def moleculesDel(self, molecules):
-		self._state.container.objectsDel(molecules)
-
-
+	# NOTE: these accessors do not enforce any sort of consistency between the
+	# query and the objects created/deleted.  As such it may make more sense
+	# for these to be process methods, not view methods. - JM
+	# NOTE: these methods have been conventionally used to add new molecules
+	# of the same type as the original query of the view. Since views can
+	# look into combinations of molecules of different types, enforcing this
+	# by setting moleculeName to be equal to self._query[0] would be wrong
+	# (self._query[0] can theoretically be a list of molecule names). - GS
 	def moleculeNew(self, moleculeName, **attributes):
 		self._state.container.objectNew(
 			moleculeName,
