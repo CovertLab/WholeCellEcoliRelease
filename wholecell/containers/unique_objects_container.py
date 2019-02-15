@@ -56,7 +56,7 @@ def decomp(specifications, compressed_collections, global_ref_count):
 	Returns:
 		A filled-in UniqueObjectsContainer.
 	"""
-	container = UniqueObjectsContainer(specifications)
+	container = UniqueObjectsContainer(specifications, [])
 	_collections = container._collections
 
 	# Decompress the _collections arrays.
@@ -163,7 +163,7 @@ class UniqueObjectsContainer(object):
 
 		# List of edit, submass, delete, and new molecule requests
 		self._edit_requests = []
-		self._submass_requests = []
+		self._add_submass_requests = []
 		self._delete_requests = []
 		self._new_molecule_requests = []
 
@@ -214,6 +214,24 @@ class UniqueObjectsContainer(object):
 		return decomp, (specs, compressed_collections, self._globalReference.size)
 
 
+	def __eq__(self, other):
+		# TODO(jerry): Ignore inactive entries and index values.
+		# TODO(jerry): Don't access other's private fields.
+		if not isinstance(other, UniqueObjectsContainer):
+			return False
+		if self._specifications != other._specifications:
+			return False
+		for (selfCollection, otherCollection) in izip(self._collections, other._collections):
+			if not np.array_equal(selfCollection, otherCollection):
+				return False
+		return True
+
+
+	def __ne__(self, other):
+		# assertNotEquals() calls `!=`.
+		return not (self == other)
+
+
 	def _growArray(self, array, nObjects):
 		"""Grow the array if needed to make room for nObjects, then return the
 		new array and the indexes of nObjects inactive entries.
@@ -244,6 +262,7 @@ class UniqueObjectsContainer(object):
 
 		return newArray, freeIndexes[:nObjects]
 
+
 	def _getFreeIndexes(self, collectionIndex, nObjects):
 		"""Return indexes of nObjects inactive entries in the specified
 		collection and in _globalReference after extending the arrays if needed.
@@ -259,37 +278,21 @@ class UniqueObjectsContainer(object):
 			**attributes):
 		"""
 		Add nObjects new objects/molecules of the named type, all with the
-		given attributes.
+		given attributes. If process_index is given (meaning new objects are
+		requested through views), the new objects are added at merge.
+		Otherwise, the new objects are added immediately.
 		"""
 		if process_index is not None:
 			new_molecule_request = {
 				"collectionName": collectionName,
 				"nObjects": nObjects,
 				"source_process_index": process_index,
-				"attr": attributes,
+				"attributes": attributes,
 				}
 			self._new_molecule_requests.append(new_molecule_request)
 
 		else:
-			collectionIndex = self._nameToIndexMapping[collectionName]
-			objectIndexes, globalIndexes = self._getFreeIndexes(collectionIndex, nObjects)
-
-			collection = self._collections[collectionIndex]
-
-			# TODO: restore unique object IDs
-			# TODO(jerry): Would it be faster to copy one new entry to all rows
-			# then set the _globalIndex columns?
-
-			collection["_entryState"][objectIndexes] = self._entryActive
-			collection["_globalIndex"][objectIndexes] = globalIndexes
-			# collection["_uniqueId"][objectIndexes] = uniqueObjectIds
-
-			for attrName, attrValue in attributes.viewitems():
-				collection[attrName][objectIndexes] = attrValue
-
-			self._globalReference["_entryState"][globalIndexes] = self._entryActive
-			self._globalReference["_collectionIndex"][globalIndexes] = collectionIndex
-			self._globalReference["_objectIndex"][globalIndexes] = objectIndexes
+			self._add_new_objects(collectionName, nObjects, attributes)
 
 
 	def objectNew(self, collectionName, process_index=None, **attributes):
@@ -444,6 +447,7 @@ class UniqueObjectsContainer(object):
 		"""
 		return self._names
 
+
 	def counts(self, collectionNames=None):
 		"""
 		Get the counts of objects for each collection name.
@@ -464,6 +468,7 @@ class UniqueObjectsContainer(object):
 		else:
 			return object_counts[self._collectionNamesToIndexes(collectionNames)]
 
+
 	def _collectionNamesToIndexes(self, collectionNames):
 		"""
 		Convert an iterable of collection names into their corresponding
@@ -477,6 +482,7 @@ class UniqueObjectsContainer(object):
 		"""
 		return np.array([self._nameToIndexMapping[name] for name in collectionNames])
 
+
 	def _copy_specs(self):
 		"""Return a copy of the collection specifications without bookkeeping
 		specs, as suitable for constructing a new UniqueObjectsContainer.
@@ -488,27 +494,12 @@ class UniqueObjectsContainer(object):
 				moleculeSpecs.pop(spec)
 		return specifications
 
+
 	def emptyLike(self):
 		"""Return a new container with the same specs, akin to np.zeros_like()."""
 		specifications = self._copy_specs()
 		new_copy = UniqueObjectsContainer(specifications, self.submass_diff_names)
 		return new_copy
-
-	def __eq__(self, other):
-		# TODO(jerry): Ignore inactive entries and index values.
-		# TODO(jerry): Don't access other's private fields.
-		if not isinstance(other, UniqueObjectsContainer):
-			return False
-		if self._specifications != other._specifications:
-			return False
-		for (selfCollection, otherCollection) in izip(self._collections, other._collections):
-			if not np.array_equal(selfCollection, otherCollection):
-				return False
-		return True
-
-	def __ne__(self, other):
-		# assertNotEquals() calls `!=`.
-		return not (self == other)
 
 
 	def loadSnapshot(self, other):
@@ -560,15 +551,17 @@ class UniqueObjectsContainer(object):
 
 	def add_submass_request(self, globalIndexes, process_index, added_masses):
 		"""
-		Needs documentation
+		Adds an add_submass request made from a _UniqueObjectSet instance to
+		the list of requests to handle. The actual edits are made during
+		merge().
 		"""
-		submass_request = {
+		add_submass_request = {
 			"globalIndexes": globalIndexes,
 			"source_process_index": process_index,
 			"added_masses": added_masses,
 			}
 
-		self._submass_requests.append(submass_request)
+		self._add_submass_requests.append(add_submass_request)
 
 
 	def add_delete_request(self, globalIndexes, process_index):
@@ -586,11 +579,12 @@ class UniqueObjectsContainer(object):
 
 	def get_requests(self):
 		"""
-		Returns tuple of lists of edit, delete, and new molecule requests.
+		Returns tuple of lists of edit, add_submass, delete, and new molecule
+		requests.
 		"""
 		return (
 			self._edit_requests,
-			self._submass_requests,
+			self._add_submass_requests,
 			self._delete_requests,
 			self._new_molecule_requests
 			)
@@ -601,14 +595,73 @@ class UniqueObjectsContainer(object):
 		Empties the lists containing edit, delete, and new molecule requests.
 		"""
 		self._edit_requests = []
-		self._submass_requests = []
+		self._add_submass_requests = []
 		self._delete_requests = []
 		self._new_molecule_requests = []
 
 
+	def _add_new_objects(self, collectionName, nObjects, attributes):
+		"""
+		Adds new objects to array with the given initial attributes.
+		"""
+		collectionIndex = self._nameToIndexMapping[collectionName]
+		objectIndexes, globalIndexes = self._getFreeIndexes(collectionIndex, nObjects)
+
+		collection = self._collections[collectionIndex]
+
+		# TODO: restore unique object IDs
+		# TODO(jerry): Would it be faster to copy one new entry to all rows
+		# then set the _globalIndex columns?
+		collection["_entryState"][objectIndexes] = self._entryActive
+		collection["_globalIndex"][objectIndexes] = globalIndexes
+
+		for attrName, attrValue in attributes.viewitems():
+			collection[attrName][objectIndexes] = attrValue
+
+		self._globalReference["_entryState"][globalIndexes] = self._entryActive
+		self._globalReference["_collectionIndex"][globalIndexes] = collectionIndex
+		self._globalReference["_objectIndex"][globalIndexes] = objectIndexes
+
+
+	def _delete_objects(self, global_indexes):
+		"""
+		Deletes objects referenced by global_indexes. Returns the collection
+		indexes of the deleted molecules, and the sum of submass differences
+		of all the delete molecules.
+		"""
+		global_reference = self._globalReference
+
+		collection_indexes = global_reference[global_indexes]["_collectionIndex"]
+		object_indexes = global_reference[global_indexes]["_objectIndex"]
+
+		deleted_submasses = np.zeros(len(self.submass_diff_names))
+
+		unique_col_indexes, inverse = np.unique(collection_indexes,
+			return_inverse=True)
+
+		for i, collection_index in enumerate(unique_col_indexes):
+			globalObjIndexes = np.where(inverse == i)
+			objectIndexesInCollection = object_indexes[globalObjIndexes]
+
+			for i, submass_diff_name in enumerate(self.submass_diff_names):
+				deleted_submasses[i] += self._collections[
+					collection_index][submass_diff_name][
+					objectIndexesInCollection].sum()
+
+			self._collections[collection_index][
+				objectIndexesInCollection] = np.zeros(
+				1, dtype=self._collections[collection_index].dtype)
+
+		global_reference[global_indexes] = np.zeros(1,
+			dtype=global_reference.dtype)
+
+		return collection_indexes, deleted_submasses
+
+
 	def set_attribute(self, global_indexes, attributes):
 		"""
-		Needs documentation.
+		Overwrites existing attributes of objects with the attributes given as
+		the argument.
 		"""
 		globalReference = self._globalReference
 
@@ -642,7 +695,8 @@ class UniqueObjectsContainer(object):
 
 	def add_to_attribute(self, global_indexes, attributes):
 		"""
-		Needs documentation.
+		Adds to the existing attributes of objects with the values given as
+		the argument. Ideally only used for submass difference attributes.
 		"""
 		globalReference = self._globalReference
 
@@ -677,80 +731,37 @@ class UniqueObjectsContainer(object):
 	def merge(self):
 		"""
 		Loops through the list of edit and delete requests and makes the
-		requested changes. Note that there is no sort of conflict management
-		implemented yet. The two request lists are reset after all the requests
-		have been fulfilled.
+		requested changes. Raises exception if conflicting requests are made on
+		the same object. The request lists are reset (emptied) after the
+		UniqueMolecules class computes the mass changes that occurred in each
+		process.
 		"""
-		global_reference = self._globalReference
-
 		# Loop through edit requests
 		for req in self._edit_requests:
 			self.set_attribute(req["globalIndexes"], req["attrs"])
 
 
 		# Loop through submass requests
-		for req in self._submass_requests:
+		for req in self._add_submass_requests:
 			self.add_to_attribute(req["globalIndexes"], req["added_masses"])
 
 
 		# Loop through delete requests
 		for req in self._delete_requests:
-			global_indexes = req["globalIndexes"]
-
-			collectionIndexes = global_reference[global_indexes]["_collectionIndex"]
-			objectIndexes = global_reference[global_indexes]["_objectIndex"]
+			collection_indexes, deleted_submasses = self._delete_objects(
+				req["globalIndexes"]
+				)
 
 			# Add new keys to request (used to calculate mass difference)
-			req["collection_indexes"] = collectionIndexes
-			req["deleted_submasses"] = np.zeros(len(self.submass_diff_names))
-
-			uniqueColIndexes, inverse = np.unique(collectionIndexes,
-				return_inverse=True)
-
-			for i, collectionIndex in enumerate(uniqueColIndexes):
-				globalObjIndexes = np.where(inverse == i)
-				objectIndexesInCollection = objectIndexes[globalObjIndexes]
-
-				for i, submass_diff_name in enumerate(self.submass_diff_names):
-					req["deleted_submasses"][i] += self._collections[
-						collectionIndex][submass_diff_name][
-						objectIndexesInCollection].sum()
-
-				self._collections[collectionIndex][
-					objectIndexesInCollection] = np.zeros(
-					1, dtype=self._collections[collectionIndex].dtype)
-
-			global_reference[global_indexes] = np.zeros(1,
-				dtype=global_reference.dtype)
+			req["collection_indexes"] = collection_indexes
+			req["deleted_submasses"] = deleted_submasses
 
 
 		# Loop through new molecule requests
 		for req in self._new_molecule_requests:
-			collectionName = req["collectionName"]
-			nObjects = req["nObjects"]
-			attributes = req["attr"]
-
-			collectionIndex = self._nameToIndexMapping[collectionName]
-			objectIndexes, globalIndexes = self._getFreeIndexes(collectionIndex,
-				nObjects)
-
-			collection = self._collections[collectionIndex]
-
-			# TODO: restore unique object IDs
-			# TODO(jerry): Would it be faster to copy one new entry to all rows
-			# then set the _globalIndex columns?
-
-			collection["_entryState"][objectIndexes] = self._entryActive
-			collection["_globalIndex"][objectIndexes] = globalIndexes
-			# collection["_uniqueId"][objectIndexes] = uniqueObjectIds
-
-			for attrName, attrValue in attributes.viewitems():
-				collection[attrName][objectIndexes] = attrValue
-
-			self._globalReference["_entryState"][globalIndexes] = self._entryActive
-			self._globalReference["_collectionIndex"][
-				globalIndexes] = collectionIndex
-			self._globalReference["_objectIndex"][globalIndexes] = objectIndexes
+			self._add_new_objects(
+				req["collectionName"], req["nObjects"], req["attributes"]
+				)
 
 
 def copy_if_ndarray(object):
@@ -767,10 +778,10 @@ class _UniqueObject(object):
 	object-like interface.
 	"""
 
-	__slots__ = ("_container", "_globalIndex", "_collectionIndex", "_objectIndex")
+	__slots__ = ("_container", "_globalIndex", "_collectionIndex", "_objectIndex", "_access")
 
 
-	def __init__(self, container, globalIndex):
+	def __init__(self, container, globalIndex, access=Access.READ_ONLY):
 		"""Construct a _UniqueObject proxy for the unique object (molecule) in
 		the given container with the given global index.
 		"""
@@ -779,6 +790,7 @@ class _UniqueObject(object):
 		globalReference = container._globalReference[globalIndex]
 		self._collectionIndex = globalReference["_collectionIndex"]
 		self._objectIndex = globalReference["_objectIndex"]
+		self._access = access
 
 
 	# def uniqueId(self):
@@ -807,6 +819,18 @@ class _UniqueObject(object):
 
 	def attrIs(self, **attributes):
 		"""Set named attributes of the unique object."""
+		if self._access == Access.READ_ONLY:
+			raise UniqueObjectsPermissionException(
+				"Can't modify attributes of read-only objects."
+			)
+
+		# Submass attributes must be edited through specialized methods.
+		for attr in attributes.keys():
+			if attr in self._container.submass_diff_names:
+				raise UniqueObjectsPermissionException(
+					"Can't modify submass differences with attrIs(). Use add_submass_by_name() or add_submass_by_array() instead."
+					)
+
 		entry = self._container._collections[self._collectionIndex][self._objectIndex]
 
 		if entry["_entryState"] == self._container._entryInactive:
@@ -872,7 +896,7 @@ class _UniqueObjectSet(object):
 
 
 	def __iter__(self):
-		return (_UniqueObject(self._container, globalIndex)
+		return (_UniqueObject(self._container, globalIndex, access=self._access)
 			for globalIndex in self._globalIndexes)
 
 
@@ -903,7 +927,8 @@ class _UniqueObjectSet(object):
 
 
 	def __getitem__(self, index):
-		return _UniqueObject(self._container, self._globalIndexes[index])
+		return _UniqueObject(self._container, self._globalIndexes[index],
+			access=self._access)
 
 
 	# def uniqueIds(self):
@@ -1010,6 +1035,7 @@ class _UniqueObjectSet(object):
 		if self._globalIndexes.size == 0:
 			raise UniqueObjectsContainerException("Object set is empty")
 
+		# Submass attributes must be edited through specialized methods.
 		for attr in attributes.keys():
 			if attr in self._container.submass_diff_names:
 				raise UniqueObjectsPermissionException(
@@ -1031,7 +1057,12 @@ class _UniqueObjectSet(object):
 
 	def add_submass_by_name(self, submass_name, delta_mass):
 		"""
-		Needs documentation.
+		Adds a given amount of mass to a specific submass type whose name is
+		given as the argument. This should be used when a single specific
+		submass needs to be added to unique molecules.
+		- submass_name (str): name of submass being added (e.g. "DNA")
+		- delta_mass (1D array, length equal to number of objects in set): mass
+		being added to each unique object
 		"""
 		if self._access == Access.READ_ONLY:
 			raise UniqueObjectsPermissionException(
@@ -1046,13 +1077,13 @@ class _UniqueObjectSet(object):
 			submass_attr_name: delta_mass
 			}
 
-		# Submit edit request to container
+		# If the call comes from a process, submit request to container
 		if self._process_index is not None:
 			self._container.add_submass_request(
 				self._globalIndexes, self._process_index, added_masses
 				)
 
-		# Make edit directly on container now
+		# Otherwise make edit directly on container
 		else:
 			self._container.add_to_attribute(
 				self._globalIndexes, added_masses
@@ -1061,7 +1092,12 @@ class _UniqueObjectSet(object):
 
 	def add_submass_by_array(self, delta_mass):
 		"""
-		Needs documentation.
+		Adds a given amount of mass, given as an array, to all submass types.
+		This should be used when multiple types of submasses need to be added
+		to unique molecules simultaneously.
+		- delta_mass (ndarray, with shape (N, M), N: number of objects in set
+			M: number of submass types)
+			: array of submasses being added to each object.
 		"""
 		if self._access == Access.READ_ONLY:
 			raise UniqueObjectsPermissionException(
@@ -1073,15 +1109,15 @@ class _UniqueObjectSet(object):
 
 		added_masses = {}
 		for i, submass_attr_name in enumerate(self._container.submass_diff_names):
-			added_masses[submass_attr_name] = delta_mass[i]
+			added_masses[submass_attr_name] = delta_mass[:, i]
 
-		# Submit edit request to container
+		# If the call comes from a process, submit request to container
 		if self._process_index is not None:
 			self._container.add_submass_request(
 				self._globalIndexes, self._process_index, added_masses
 				)
 
-		# Make edit directly on container now
+		# Otherwise make edit directly on container
 		else:
 			self._container.add_to_attribute(
 				self._globalIndexes, added_masses
