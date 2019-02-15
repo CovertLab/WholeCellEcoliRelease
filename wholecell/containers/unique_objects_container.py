@@ -9,7 +9,7 @@ to specific molecules.
 from __future__ import absolute_import, division, print_function
 
 from copy import deepcopy
-from itertools import izip
+from itertools import izip, product
 from functools import partial
 from enum import Enum
 
@@ -32,6 +32,9 @@ class UniqueObjectsContainerException(Exception):
 	pass
 
 class UniqueObjectsPermissionException(Exception):
+	pass
+
+class UniqueObjectsMergeConflictException(Exception):
 	pass
 
 
@@ -535,7 +538,7 @@ class UniqueObjectsContainer(object):
 			)
 
 
-	def add_edit_request(self, globalIndexes, process_index, attrs):
+	def add_edit_request(self, globalIndexes, process_index, attributes):
 		"""
 		Adds an edit request made from a _UniqueObjectSet instance to the list
 		of requests to handle. The actual edits are made during merge().
@@ -543,7 +546,7 @@ class UniqueObjectsContainer(object):
 		edit_request = {
 			"globalIndexes": globalIndexes,
 			"source_process_index": process_index,
-			"attrs": attrs,
+			"attributes": attributes,
 			}
 
 		self._edit_requests.append(edit_request)
@@ -736,10 +739,20 @@ class UniqueObjectsContainer(object):
 		UniqueMolecules class computes the mass changes that occurred in each
 		process.
 		"""
+		conflict_manager = []
+
 		# Loop through edit requests
 		for req in self._edit_requests:
-			self.set_attribute(req["globalIndexes"], req["attrs"])
+			self.set_attribute(req["globalIndexes"], req["attributes"])
+			conflict_manager.extend(
+				list(product(req["globalIndexes"], req["attributes"].keys()))
+				)
 
+		# Check for multiple edit requests on the same attribute of a same molecule
+		if len(conflict_manager) != len(set(conflict_manager)):
+			raise UniqueObjectsMergeConflictException(
+				"Merge conflict detected - two processes attempted to edit same attribute of same unique molecule."
+				)
 
 		# Loop through submass requests
 		for req in self._add_submass_requests:
