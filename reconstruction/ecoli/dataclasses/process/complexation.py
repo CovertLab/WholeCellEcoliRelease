@@ -86,6 +86,10 @@ class Complexation(object):
 				molecularMass = sim_data.getter.getMass([moleculeName]).asNumber(units.g / units.mol)[0]
 				stoichMatrixMass.append(molecularMass)
 
+		self.rates = np.full(
+			(len(raw_data.complexationReactions),),
+			raw_data.parameters['complexation_rate'].asNumber())
+
 		self._stoichMatrixI = np.array(stoichMatrixI)
 		self._stoichMatrixJ = np.array(stoichMatrixJ)
 		self._stoichMatrixV = np.array(stoichMatrixV)
