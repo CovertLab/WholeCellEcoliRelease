@@ -376,7 +376,7 @@ class UniqueObjectsContainer(object):
 
 		return _UniqueObjectSet(self,
 			self._collections[collectionIndex]["_globalIndex"][result],
-			process_index,
+			process_index=process_index,
 			access=access
 			)
 
@@ -400,7 +400,7 @@ class UniqueObjectsContainer(object):
 			self._collections[collectionIndex]["_globalIndex"][result]
 			for collectionIndex, result in izip(collectionIndexes, results)
 			]),
-			process_index,
+			process_index=process_index,
 			access=access
 			)
 

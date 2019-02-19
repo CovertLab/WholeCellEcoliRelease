@@ -190,7 +190,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 				)
 
 			# Add new oriC's, and reset attributes of existing oriC's
-            # All oriC's must be assigned new domain indexes
+			# All oriC's must be assigned new domain indexes
 			oriCs.attrIs(
 				domain_index=domain_index_new[:n_oric],
 				)
