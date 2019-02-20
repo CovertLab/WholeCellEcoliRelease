@@ -87,7 +87,8 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 		translated_rna_ids = sim_data.process.translation.monomerData["rnaId"]
 		indexes["TranslatedRnas"] = build_index_dict(translated_rna_ids)
 
-		metabolism_rxn_ids = sim_data.process.metabolism.reactionStoich.keys()
+		metabolism_rxn_ids = TableReader(
+			os.path.join(simOutDir, "FBAResults")).readAttribute("reactionIDs")
 		indexes["MetabolismReactions"] = build_index_dict(metabolism_rxn_ids)
 
 		complexation_rxn_ids = sim_data.process.complexation.ids_reactions
