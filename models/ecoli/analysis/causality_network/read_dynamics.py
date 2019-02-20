@@ -22,6 +22,9 @@ from models.ecoli.analysis.causality_network.network_components import (
 	Node, COUNT_UNITS, PROB_UNITS
 	)
 from models.ecoli.analysis.causality_network.build_network import NODE_ID_SUFFIX
+from models.ecoli.processes.metabolism import (
+	COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
+	)
 
 REQUIRED_COLUMNS = [
 	("BulkMolecules", "counts"),
@@ -29,6 +32,7 @@ REQUIRED_COLUMNS = [
 	("EquilibriumListener", "reactionRates"),
 	("FBAResults", "reactionFluxes"),
 	("Mass", "cellMass"),
+	("Mass", "dryMass"),
 	("Main", "time"),
 	("RnaSynthProb", "pPromoterBound"),
 	("RnaSynthProb", "rnaSynthProb"),
@@ -55,6 +59,17 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 		for table_name, column_name in REQUIRED_COLUMNS:
 			columns[(table_name, column_name)] = TableReader(
 				os.path.join(simOutDir, table_name)).readColumn(column_name)
+
+		# Convert units of metabolic fluxes in listener to mmol/gCDW/h
+		conversion_coeffs = (
+			columns[("Mass", "dryMass")] / columns[("Mass", "cellMass")]
+			* sim_data.constants.cellDensity.asNumber(MASS_UNITS / VOLUME_UNITS)
+			)
+
+		columns[("FBAResults", "reactionFluxesConverted")] = (
+			(COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (
+			columns[("FBAResults", "reactionFluxes")].T / conversion_coeffs).T
+			).asNumber(units.mmol/units.g/units.h)
 
 		# Construct dictionaries of indexes where needed
 		indexes = {}
@@ -313,7 +328,7 @@ def read_metabolism_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	reaction_idx = indexes["MetabolismReactions"][node_id]
 
 	dynamics = {
-		'flux': columns[("FBAResults", "reactionFluxes")][:, reaction_idx],
+		'flux': columns[("FBAResults", "reactionFluxesConverted")][:, reaction_idx],
 		}
 	dynamics_units = {
 		'flux': 'mmol/gCDW/h',
