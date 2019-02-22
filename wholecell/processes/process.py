@@ -86,9 +86,9 @@ class Process(object):
 			self._internal_states['BulkMolecules'], self, moleculeIDs)
 
 
-	def uniqueMoleculesView(self, moleculeName, **attributes):
+	def uniqueMoleculesView(self, moleculeName):
 		return wholecell.states.unique_molecules.UniqueMoleculesView(
-			self._internal_states['UniqueMolecules'], self, (moleculeName, attributes))
+			self._internal_states['UniqueMolecules'], self, moleculeName)
 
 
 	# Communicate with listeners

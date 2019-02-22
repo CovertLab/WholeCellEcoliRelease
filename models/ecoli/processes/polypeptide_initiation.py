@@ -114,7 +114,6 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 
 		# Create active 70S ribosomes and assign their protein indexes calculated above
 		self.activeRibosomes.moleculesNew(
-			"activeRibosome",
 			ribosomeToActivate,
 			proteinIndex = proteinIndexes
 			)

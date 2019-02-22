@@ -219,19 +219,17 @@ class UniqueMoleculesView(wholecell.views.view.View):
 
 		self._queryResult = None # TODO: store query results with the state
 
-		if isinstance(self._query[0], basestring):
-			self._query = list(self._query)
-			self._query[0] = [self._query[0]]
+		# self._query must be the name of a unique molecule
+		assert isinstance(self._query, basestring)
 
 
 	def _updateQuery(self):
 		# TODO: generalize this logic (both here and in the state)
 		# Note: this defaults to a read-only view to the objects
-		self._queryResult = self._state.container.objectsInCollections(
-			self._query[0],
+		self._queryResult = self._state.container.objectsInCollection(
+			self._query,
 			process_index=self._processIndex,
-			access=Access.READ_ONLY,
-			**self._query[1]
+			access=Access.READ_ONLY
 			)
 
 		self._totalIs(len(self._queryResult))
@@ -252,11 +250,10 @@ class UniqueMoleculesView(wholecell.views.view.View):
 		read and edit access to attributes. The process cannot delete molecules
 		with this view.
 		"""
-		return self._state.container.objectsInCollections(
-			self._query[0],
+		return self._state.container.objectsInCollection(
+			self._query,
 			process_index=self._processIndex,
-			access=Access.READ_EDIT,
-			**self._query[1]
+			access=Access.READ_EDIT
 			)
 
 
@@ -267,36 +264,35 @@ class UniqueMoleculesView(wholecell.views.view.View):
 	def molecules(self):
 		"""
 		Returns a UniqueObjectSet corresponding to the given query with full
-		access.
+		read, edit, and delete access.
 		"""
-		return self._state.container.objectsInCollections(
-			self._query[0],
+		return self._state.container.objectsInCollection(
+			self._query,
 			process_index=self._processIndex,
-			access=Access.READ_EDIT_DELETE,
-			**self._query[1]
+			access=Access.READ_EDIT_DELETE
 			)
 
 
-	# NOTE: these accessors do not enforce any sort of consistency between the
-	# query and the objects created/deleted.  As such it may make more sense
-	# for these to be process methods, not view methods. - JM
-	# NOTE: these methods have been conventionally used to add new molecules
-	# of the same type as the original query of the view. Since views can
-	# look into combinations of molecules of different types, enforcing this
-	# by setting moleculeName to be equal to self._query[0] would be wrong
-	# (self._query[0] can theoretically be a list of molecule names). - GS
-	def moleculeNew(self, moleculeName, **attributes):
+	def moleculeNew(self, **attributes):
+		"""
+		Adds a single object of the same type as the queried molecule to the
+		container with the given attributes.
+		"""
 		self._state.container.add_new_molecule_request(
-			moleculeName,
+			self._query,
 			1,
 			process_index=self._processIndex,
 			**attributes
 			)
 
 
-	def moleculesNew(self, moleculeName, nMolecules, **attributes):
+	def moleculesNew(self, nMolecules, **attributes):
+		"""
+		Adds nMolecules objects of the same type as the queried molecule to the
+		container with the given attributes.
+		"""
 		self._state.container.add_new_molecule_request(
-			moleculeName,
+			self._query,
 			nMolecules,
 			process_index=self._processIndex,
 			**attributes
