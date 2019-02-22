@@ -37,6 +37,9 @@ class UniqueObjectsPermissionException(Exception):
 class UniqueObjectsMergeConflictException(Exception):
 	pass
 
+class UniqueObjectsInvalidSubmassNameException(Exception):
+	pass
+
 
 def decomp(specifications, compressed_collections, global_ref_count):
 	"""Decompress the arguments into a UniqueObjectsContainer. "decomp" is
@@ -1079,6 +1082,12 @@ class _UniqueObjectSet(object):
 			raise UniqueObjectsContainerException("Object set is empty")
 
 		submass_attr_name = "massDiff_" + submass_name
+
+		if submass_attr_name not in self._container.submass_diff_names:
+			raise UniqueObjectsInvalidSubmassNameException(
+				"\"%s\" is not a valid submass name." % (submass_name, )
+			)
+
 		added_masses = {
 			submass_attr_name: delta_mass
 			}

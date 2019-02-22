@@ -302,12 +302,8 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		updated_coordinates[~right_replichore] = -updated_coordinates[~right_replichore]
 
 		# Update attributes and submasses of replisomes
-		active_replisomes.attrIs(
-			coordinates = updated_coordinates,
-			)
-		active_replisomes.add_submass_by_name(
-			"DNA", added_dna_mass
-			)
+		active_replisomes.attrIs(coordinates = updated_coordinates)
+		active_replisomes.add_submass_by_name("DNA", added_dna_mass)
 
 		# Update counts of polymerized metabolites
 		self.dntps.countsDec(dNtpsUsed)
