@@ -164,11 +164,8 @@ class UniqueObjectsContainer(object):
 		self._names = tuple(sorted(self._specifications.keys())) # sorted collection names
 		self.submass_diff_names = submass_diff_names
 
-		# List of edit, submass, delete, and new molecule requests
-		self._edit_requests = []
-		self._add_submass_requests = []
-		self._delete_requests = []
-		self._new_molecule_requests = []
+		# List of requests
+		self._requests = []
 
 		defaultSpecKeys = self._defaultSpecification.viewkeys()
 
@@ -287,12 +284,13 @@ class UniqueObjectsContainer(object):
 		"""
 		if process_index is not None:
 			new_molecule_request = {
+				"type": "new_molecule",
 				"collectionName": collectionName,
 				"nObjects": nObjects,
 				"source_process_index": process_index,
 				"attributes": attributes,
 				}
-			self._new_molecule_requests.append(new_molecule_request)
+			self._requests.append(new_molecule_request)
 
 		else:
 			self._add_new_objects(collectionName, nObjects, attributes)
@@ -544,12 +542,13 @@ class UniqueObjectsContainer(object):
 		of requests to handle. The actual edits are made during merge().
 		"""
 		edit_request = {
+			"type": "edit",
 			"globalIndexes": globalIndexes,
 			"source_process_index": process_index,
 			"attributes": attributes,
 			}
 
-		self._edit_requests.append(edit_request)
+		self._requests.append(edit_request)
 
 
 	def add_submass_request(self, globalIndexes, process_index, added_masses):
@@ -558,13 +557,14 @@ class UniqueObjectsContainer(object):
 		the list of requests to handle. The actual edits are made during
 		merge().
 		"""
-		add_submass_request = {
+		submass_request = {
+			"type": "submass",
 			"globalIndexes": globalIndexes,
 			"source_process_index": process_index,
 			"added_masses": added_masses,
 			}
 
-		self._add_submass_requests.append(add_submass_request)
+		self._requests.append(submass_request)
 
 
 	def add_delete_request(self, globalIndexes, process_index):
@@ -573,34 +573,26 @@ class UniqueObjectsContainer(object):
 		of requests to handle. The actual deletions are done during merge().
 		"""
 		delete_request = {
+			"type": "delete",
 			"globalIndexes": globalIndexes,
 			"source_process_index": process_index,
 			}
 
-		self._delete_requests.append(delete_request)
+		self._requests.append(delete_request)
 
 
 	def get_requests(self):
 		"""
-		Returns tuple of lists of edit, add_submass, delete, and new molecule
-		requests.
+		Returns list of requests.
 		"""
-		return (
-			self._edit_requests,
-			self._add_submass_requests,
-			self._delete_requests,
-			self._new_molecule_requests
-			)
+		return self._requests
 
 
 	def reset_requests(self):
 		"""
-		Empties the lists containing edit, delete, and new molecule requests.
+		Empties the list of requests.
 		"""
-		self._edit_requests = []
-		self._add_submass_requests = []
-		self._delete_requests = []
-		self._new_molecule_requests = []
+		self._requests = []
 
 
 	def _add_new_objects(self, collectionName, nObjects, attributes):
@@ -733,47 +725,48 @@ class UniqueObjectsContainer(object):
 
 	def merge(self):
 		"""
-		Loops through the list of edit and delete requests and makes the
-		requested changes. Raises exception if conflicting requests are made on
-		the same object. The request lists are reset (emptied) after the
-		UniqueMolecules class computes the mass changes that occurred in each
-		process.
+		Loops through the list of all requests and makes the requested changes.
+		Raises exception if conflicting requests are made on the same object.
+		The request lists are reset (emptied) after the UniqueMolecules class
+		computes the mass changes that occurred in each process.
 		"""
-		conflict_manager = []
+		resolver = []
 
-		# Loop through edit requests
-		for req in self._edit_requests:
-			self.set_attribute(req["globalIndexes"], req["attributes"])
-			conflict_manager.extend(
-				list(product(req["globalIndexes"], req["attributes"].keys()))
-				)
+		# Loop through all requests
+		for req in self._requests:
+			# Apply requested attribute edits
+			if req["type"] == "edit":
+				self.set_attribute(req["globalIndexes"], req["attributes"])
+				resolver.extend(
+					list(product(req["globalIndexes"], req["attributes"].keys()))
+					)
+
+			# Apply requested submass edits
+			if req["type"] == "submass":
+				self.add_to_attribute(req["globalIndexes"], req["added_masses"])
+
+
+			# Apply requested deletions
+			if req["type"] == "delete":
+				collection_indexes, deleted_submasses = self._delete_objects(
+					req["globalIndexes"]
+					)
+
+				# Add new keys to request (used to calculate mass difference)
+				req["collection_indexes"] = collection_indexes
+				req["deleted_submasses"] = deleted_submasses
+
+
+			# Apply requested new molecule additions
+			if req["type"] == "new_molecule":
+				self._add_new_objects(
+					req["collectionName"], req["nObjects"], req["attributes"]
+					)
 
 		# Check for multiple edit requests on the same attribute of a same molecule
-		if len(conflict_manager) != len(set(conflict_manager)):
+		if len(resolver) != len(set(resolver)):
 			raise UniqueObjectsMergeConflictException(
 				"Merge conflict detected - two processes attempted to edit same attribute of same unique molecule."
-				)
-
-		# Loop through submass requests
-		for req in self._add_submass_requests:
-			self.add_to_attribute(req["globalIndexes"], req["added_masses"])
-
-
-		# Loop through delete requests
-		for req in self._delete_requests:
-			collection_indexes, deleted_submasses = self._delete_objects(
-				req["globalIndexes"]
-				)
-
-			# Add new keys to request (used to calculate mass difference)
-			req["collection_indexes"] = collection_indexes
-			req["deleted_submasses"] = deleted_submasses
-
-
-		# Loop through new molecule requests
-		for req in self._new_molecule_requests:
-			self._add_new_objects(
-				req["collectionName"], req["nObjects"], req["attributes"]
 				)
 
 

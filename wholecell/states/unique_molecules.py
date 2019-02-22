@@ -153,42 +153,44 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		# Get mass calculated before evolveState()
 		masses = self._masses[self._preEvolveStateMassIndex, ...].copy()
 
-		# Get list of requests (edit requests not needed)
-		_, add_submass_requests, delete_requests, new_molecule_requests = self.container.get_requests()
+		# Get list of requests
+		requests = self.container.get_requests()
 
-		# Loop through requests to add submass
-		for req in add_submass_requests:
-			process_index = req["source_process_index"]
+		# Loop through all requests
+		for req in requests:
+			# Apply mass added/subtracted from submass requests
+			if req["type"] == "submass":
+				process_index = req["source_process_index"]
 
-			for attribute, values in req["added_masses"].viewitems():
-				submass_index = self._submass_diff_name_to_index[attribute]
-				masses[process_index, submass_index] += values.sum()
-
-		# Loop through delete requests
-		for req in delete_requests:
-			process_index = req["source_process_index"]
-
-			# Subtract masses of the deleted molecules themselves
-			deleted_masses = self._molecule_masses[req["collection_indexes"], :].sum(axis=0)
-			masses[process_index, :] -= deleted_masses
-
-			# Subtract submasses of the deleted molecules
-			masses[process_index, :] -= req["deleted_submasses"]
-
-		# Loop through new molecule requests
-		for req in new_molecule_requests:
-			process_index = req["source_process_index"]
-
-			# Add masses of the added molecules themselves
-			collection_index = self._molecule_id_to_index[req["collectionName"]]
-			masses_per_molecule = self._molecule_masses[collection_index, :]
-			masses[process_index, :] += masses_per_molecule * req["nObjects"]
-
-			# Add submass differences that the molecules were initialized with
-			for attribute, values in req["attributes"].viewitems():
-				if attribute in self.submass_diff_names:
+				for attribute, values in req["added_masses"].viewitems():
 					submass_index = self._submass_diff_name_to_index[attribute]
 					masses[process_index, submass_index] += values.sum()
+
+			# Delete mass of removed objects
+			if req["type"] == "delete":
+				process_index = req["source_process_index"]
+
+				# Subtract masses of the deleted molecules themselves
+				deleted_masses = self._molecule_masses[req["collection_indexes"], :].sum(axis=0)
+				masses[process_index, :] -= deleted_masses
+
+				# Subtract submasses of the deleted molecules
+				masses[process_index, :] -= req["deleted_submasses"]
+
+			# Add mass from new objects
+			if req["type"] == "new_molecule":
+				process_index = req["source_process_index"]
+
+				# Add masses of the added molecules themselves
+				collection_index = self._molecule_id_to_index[req["collectionName"]]
+				masses_per_molecule = self._molecule_masses[collection_index, :]
+				masses[process_index, :] += masses_per_molecule * req["nObjects"]
+
+				# Add submass differences that the molecules were initialized with
+				for attribute, values in req["attributes"].viewitems():
+					if attribute in self.submass_diff_names:
+						submass_index = self._submass_diff_name_to_index[attribute]
+						masses[process_index, submass_index] += values.sum()
 
 		self._masses[self._postEvolveStateMassIndex, ...] = masses
 
