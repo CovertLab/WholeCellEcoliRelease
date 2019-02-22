@@ -277,26 +277,13 @@ class UniqueObjectsContainer(object):
 		return freeIndexes, freeGlobalIndexes
 
 
-	def objectsNew(self, collectionName, nObjects, process_index=None,
-			**attributes):
+	def objectsNew(self, collectionName, nObjects, **attributes):
 		"""
 		Add nObjects new objects/molecules of the named type, all with the
-		given attributes. If process_index is given (meaning new objects are
-		requested through views), the new objects are added at merge.
-		Otherwise, the new objects are added immediately.
+		given attributes. The objects added here do not wait for merge and are
+		added immediately.
 		"""
-		if process_index is not None:
-			new_molecule_request = {
-				"type": "new_molecule",
-				"collectionName": collectionName,
-				"nObjects": nObjects,
-				"source_process_index": process_index,
-				"attributes": attributes,
-				}
-			self._requests.append(new_molecule_request)
-
-		else:
-			self._add_new_objects(collectionName, nObjects, attributes)
+		self._add_new_objects(collectionName, nObjects, attributes)
 
 
 	def objectNew(self, collectionName, process_index=None, **attributes):
@@ -582,6 +569,24 @@ class UniqueObjectsContainer(object):
 			}
 
 		self._requests.append(delete_request)
+
+
+	def add_new_molecule_request(self, collectionName, nObjects, process_index,
+			**attributes):
+		"""
+		Adds a new molecule request made from an instance of UniqueMoleculeView
+		to the list of requests to handle. The new objects are added during
+		merge().
+		"""
+		new_molecule_request = {
+			"type": "new_molecule",
+			"collectionName": collectionName,
+			"nObjects": nObjects,
+			"source_process_index": process_index,
+			"attributes": attributes,
+			}
+
+		self._requests.append(new_molecule_request)
 
 
 	def get_requests(self):

@@ -286,15 +286,16 @@ class UniqueMoleculesView(wholecell.views.view.View):
 	# by setting moleculeName to be equal to self._query[0] would be wrong
 	# (self._query[0] can theoretically be a list of molecule names). - GS
 	def moleculeNew(self, moleculeName, **attributes):
-		self._state.container.objectNew(
+		self._state.container.add_new_molecule_request(
 			moleculeName,
+			1,
 			process_index=self._processIndex,
 			**attributes
 			)
 
 
 	def moleculesNew(self, moleculeName, nMolecules, **attributes):
-		self._state.container.objectsNew(
+		self._state.container.add_new_molecule_request(
 			moleculeName,
 			nMolecules,
 			process_index=self._processIndex,
