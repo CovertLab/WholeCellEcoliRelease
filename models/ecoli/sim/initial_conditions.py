@@ -208,7 +208,7 @@ def initializeComplexation(bulkMolCntr, sim_data, randomState):
 
 	stoichMatrix = sim_data.process.complexation.stoichMatrix().astype(np.int64)
 
-	time_step = 1
+	time_step = RAND_MAX
 	seed = randomState.randint(RAND_MAX)
 	complexation_rates = sim_data.process.complexation.rates
 	system = StochasticSystem(stoichMatrix.T, complexation_rates, random_seed=seed)
