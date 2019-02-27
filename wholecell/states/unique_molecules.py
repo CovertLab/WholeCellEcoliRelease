@@ -71,7 +71,7 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 			molDef.update(defaultMassAttributes)
 
 		self.container = UniqueObjectsContainer(
-			self.uniqueMoleculeDefinitions, self._submass_diff_names)
+			self.uniqueMoleculeDefinitions, submass_diff_names=self._submass_diff_names)
 
 		# Get ordered list of molecule ids and masses
 		self._molecule_ids = tuple(sorted(self.uniqueMoleculeDefinitions.keys()))

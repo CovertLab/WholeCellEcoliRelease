@@ -39,7 +39,7 @@ class UniqueObjectsInvalidSubmassNameException(Exception):
 	pass
 
 
-def decomp(specifications, compressed_collections, global_ref_count):
+def decomp(specifications, compressed_collections, global_ref_count, submass_diff_names=None):
 	"""Decompress the arguments into a UniqueObjectsContainer. "decomp" is
 	intentionally short and awkward for intended use limited to pickling. It
 	calls the constructor to set up indexes and caches, unlike `__setstate__`.
@@ -56,11 +56,18 @@ def decomp(specifications, compressed_collections, global_ref_count):
 		specifications (dict): dtype specs as passed to UniqueObjectsContainer()
 		compressed_collections (list[bytes]): zlib-compressed bytes of the collections ndarrays
 		global_ref_count (int): the size of the global references ndarray
+		submass_diff_names (optional, list[strings]): list of the names of
+			submass difference attributes
 
 	Returns:
 		A filled-in UniqueObjectsContainer.
 	"""
-	container = UniqueObjectsContainer(specifications, [])
+	if submass_diff_names is not None:
+		container = UniqueObjectsContainer(
+			specifications, submass_diff_names=submass_diff_names)
+	else:
+		container = UniqueObjectsContainer(specifications)
+
 	_collections = container._collections
 
 	# Decompress the _collections arrays.
@@ -145,7 +152,7 @@ class UniqueObjectsContainer(object):
 		"not in":partial(np.lib.arraysetops.in1d, invert = True)
 		}
 
-	def __init__(self, specifications, submass_diff_names):
+	def __init__(self, specifications, submass_diff_names=None):
 		"""
 		Parameters:
 			specifications (Dict[str, Dict[str, str]]): Maps the unique molecule
@@ -158,8 +165,8 @@ class UniqueObjectsContainer(object):
 					'RNA polymerase': {'bound': 'bool', 'location': 'int32', 'decay': 'float32'},
 					}
 
-			submass_diff_names (List[str]): List of attribute names that
-				correspond to added masses of the unique molecule.
+			submass_diff_names (optional, List[str]): List of attribute names
+				that correspond to added masses of the unique molecule.
 				TODO (ggsun): Ideally, the container should be agnostic to
 					this information. This list is passed to distinguish
 					edits to the container that would change the mass of the
@@ -170,8 +177,13 @@ class UniqueObjectsContainer(object):
 
 		self._specifications = deepcopy(specifications) # collectionName:{attributeName:type}
 		self._names = tuple(sorted(self._specifications.keys())) # sorted collection names
-		self.submass_diff_names_list = submass_diff_names
-		self.submass_diff_names_set = frozenset(submass_diff_names)
+
+		if submass_diff_names is not None:
+			self.submass_diff_names_list = submass_diff_names
+			self.submass_diff_names_set = frozenset(submass_diff_names)
+		else:
+			self.submass_diff_names_list = []
+			self.submass_diff_names_set = frozenset()
 
 		# List of requests
 		self._requests = []
@@ -219,9 +231,17 @@ class UniqueObjectsContainer(object):
 		# TODO(jerry): Squeeze out inactive entries and _entryState fields, but
 		#   indicate which slots are inactive or else make __eq__ ignore
 		#   differences in their positions and impact on indexes. Worth the work?
+		if len(self._requests) != 0:
+			raise UniqueObjectsContainerException(
+				"Cannot pickle container with unapplied requests. Run .merge() to apply the requests before pickling."
+				)
+
 		specs = self._copy_specs()
 		compressed_collections = [compress_ndarray(col) for col in self._collections]
-		return decomp, (specs, compressed_collections, self._globalReference.size)
+		return decomp, (
+			specs, compressed_collections, self._globalReference.size,
+			self.submass_diff_names_list
+			)
 
 
 	def __eq__(self, other):
@@ -230,6 +250,8 @@ class UniqueObjectsContainer(object):
 		if not isinstance(other, UniqueObjectsContainer):
 			return False
 		if self._specifications != other._specifications:
+			return False
+		if self.submass_diff_names_list != other.submass_diff_names_list:
 			return False
 		for (selfCollection, otherCollection) in izip(self._collections, other._collections):
 			if not np.array_equal(selfCollection, otherCollection):
