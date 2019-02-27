@@ -208,7 +208,7 @@ def initializeComplexation(bulkMolCntr, sim_data, randomState):
 
 	stoichMatrix = sim_data.process.complexation.stoichMatrix().astype(np.int64)
 
-	time_step = 1
+	duration = RAND_MAX
 	seed = randomState.randint(RAND_MAX)
 	complexation_rates = sim_data.process.complexation.rates
 	system = StochasticSystem(stoichMatrix.T, complexation_rates, random_seed=seed)
@@ -216,7 +216,7 @@ def initializeComplexation(bulkMolCntr, sim_data, randomState):
 	# form complexes until no new complexes form (some complexes are complexes of complexes)
 	while True:
 		moleculeCounts = moleculeView.counts()
-		complexation_result = system.evolve(time_step, moleculeCounts)
+		complexation_result = system.evolve(duration, moleculeCounts)
 
 		updatedMoleculeCounts = complexation_result['outcome']
 		complexationEvents = complexation_result['occurrences']

@@ -2,7 +2,6 @@ from __future__ import absolute_import, division, print_function
 
 import copy
 import numpy as np
-import imageio
 import argparse
 
 # matplotlib stuff
@@ -200,9 +199,6 @@ if __name__ == '__main__':
 
 	callback = animation_callback if animate or write else null_callback
 	volume_exclusion(grid, agents, callback=callback, write=write, frames=frames)
-
-	if write:
-		imageio.mimsave(write, frames, duration=0.2)
 
 	# either keep the matplotlib window open (if animate) or provide some way to introspect
 	# the grid using the pdb console.
