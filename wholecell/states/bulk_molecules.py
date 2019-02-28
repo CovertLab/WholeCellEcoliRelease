@@ -279,6 +279,13 @@ class BulkMoleculesViewBase(wholecell.views.view.View):
 		values = np.asarray(values, dtype=self._containerIndexes.dtype)
 		self._state._countsAllocatedFinal[self._containerIndexes, self._processIndex] -= values
 
+	# Request
+	def requestIs(self, value):
+		self._requestedCount[:] = value
+
+	def requestAll(self):
+		self._requestedCount[:] = self._totalCount
+
 
 class BulkMoleculesView(BulkMoleculesViewBase):
 	def __init__(self, *args, **kwargs):

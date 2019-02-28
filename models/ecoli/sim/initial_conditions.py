@@ -236,12 +236,11 @@ def initializeFullChromosome(bulkMolCntr, uniqueMolCntr, sim_data):
 	Initializes the counts of full chromosomes to one. The division_time of
 	this initial chromosome is set to be zero for consistency.
 	"""
-	full_chromosome = uniqueMolCntr.objectsNew("fullChromosome", 1)
-	full_chromosome.attrIs(
-		division_time = 0.0,
-		has_induced_division = True,
-		domain_index = 0,
-		apply_at_merge = False
+	uniqueMolCntr.objectsNew(
+		"fullChromosome", 1,
+		division_time=0.0,
+		has_induced_division=True,
+		domain_index=0,
 		)
 
 
@@ -273,18 +272,16 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 	n_domain = domain_state["domain_index"].size
 
 	# Add OriC molecules with the proposed attributes
-	oriC = uniqueMolCntr.objectsNew('originOfReplication', n_oric)
-	oriC.attrIs(
-		domain_index = oric_state["domain_index"],
-		apply_at_merge = False,
+	uniqueMolCntr.objectsNew(
+		'originOfReplication', n_oric,
+		domain_index=oric_state["domain_index"],
 		)
 
 	# Add chromosome domain molecules with the proposed attributes
-	chromosome_domains = uniqueMolCntr.objectsNew("chromosome_domain", n_domain)
-	chromosome_domains.attrIs(
-		domain_index = domain_state["domain_index"],
-		child_domains = domain_state["child_domains"],
-		apply_at_merge = False,
+	uniqueMolCntr.objectsNew(
+		"chromosome_domain", n_domain,
+		domain_index=domain_state["domain_index"],
+		child_domains=domain_state["child_domains"],
 		)
 
 	if n_replisome != 0:
@@ -301,16 +298,13 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 				)
 
 		# Add active replisomes as unique molecules and set attributes
-		active_replisomes = uniqueMolCntr.objectsNew(
-			'active_replisome', n_replisome
+		uniqueMolCntr.objectsNew(
+			'active_replisome', n_replisome,
+			coordinates=replisome_state["coordinates"],
+			right_replichore=replisome_state["right_replichore"],
+			domain_index=replisome_state["domain_index"],
+			massDiff_DNA=mass_increase_dna[0::2] + mass_increase_dna[1::2],
 			)
-		active_replisomes.attrIs(
-			coordinates = replisome_state["coordinates"],
-			right_replichore = replisome_state["right_replichore"],
-			domain_index = replisome_state["domain_index"],
-			massDiff_DNA = mass_increase_dna[0::2] + mass_increase_dna[1::2],
-			apply_at_merge = False,
-		)
 
 		# Remove replisome subunits from bulk molecules
 		bulkMolCntr.countsDec(3*n_replisome, sim_data.moleculeGroups.replisome_trimer_subunits)
@@ -456,13 +450,13 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	massIncreaseRna[updatedLengths != 0] += endWeight  # add endWeight to all new Rna
 
 	#update molecules. Attributes include which rnas are being transcribed, and the position (length)
-	activeRnaPolys = uniqueMolCntr.objectsNew('activeRnaPoly', rnaPolyToActivate)
-	activeRnaPolys.attrIs(
-		rnaIndex = rnaIndices,
-		transcriptLength = updatedLengths,
-		massDiff_mRNA = massIncreaseRna,
-		apply_at_merge = False,
+	uniqueMolCntr.objectsNew(
+		'activeRnaPoly', rnaPolyToActivate,
+		rnaIndex=rnaIndices,
+		transcriptLength=updatedLengths,
+		massDiff_mRNA=massIncreaseRna,
 		)
+
 	bulkMolCntr.countsIs(inactiveRnaPolyCounts - rnaPolyToActivate, ['APORNAP-CPLX[c]'])
 
 
@@ -519,12 +513,11 @@ def initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	massIncreaseProtein[updatedLengths != 0] += endWeight  # add endWeight to all new Rna
 
 	# Create active 70S ribosomes and assign their protein Indices calculated above
-	activeRibosomes = uniqueMolCntr.objectsNew('activeRibosome', ribosomeToActivate)
-	activeRibosomes.attrIs(
-		proteinIndex = proteinIndices,
-		peptideLength = updatedLengths,
-		massDiff_protein = massIncreaseProtein,
-		apply_at_merge = False,
+	uniqueMolCntr.objectsNew(
+		'activeRibosome', ribosomeToActivate,
+		proteinIndex=proteinIndices,
+		peptideLength=updatedLengths,
+		massDiff_protein=massIncreaseProtein,
 		)
 
 	# decrease free 30S and 50S ribosomal subunit counts

@@ -75,10 +75,6 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.no_child_place_holder = sim_data.process.replication.no_child_place_holder
 
 	def calculateRequest(self):
-
-		# Request all unique origins of replication
-		self.oriCs.requestAll()
-
 		# Get total count of existing oriC's
 		n_oric = self.oriCs.total_counts()[0]
 
@@ -107,17 +103,10 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			self.replisome_trimers.requestIs(6*n_oric)
 			self.replisome_monomers.requestIs(2*n_oric)
 
-		# Request all chromosome domains
-		self.chromosome_domain.requestAll()
-
 		# If there are no active forks return
 		n_active_replisomes = self.active_replisome.total_counts()[0]
 		if n_active_replisomes == 0:
 			return
-
-		# Request all replisomes and full chromosomes
-		self.active_replisome.requestAll()
-		self.full_chromosome.requestAll()
 
 		# Get current locations of all replication forks
 		active_replisomes = self.active_replisome.molecules_read_only()
@@ -200,31 +189,17 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 				dtype=np.int32
 				)
 
-			# Add new oriC's, replisomes, and domains
-			oriCsNew = self.oriCs.moleculesNew(
-				"originOfReplication",
-				n_oric
-				)
-			active_replisomes_new = self.active_replisome.moleculesNew(
-				"active_replisome",
-				n_new_replisome
-				)
-			chromosome_domain_new = self.chromosome_domain.moleculesNew(
-				"chromosome_domain",
-				n_new_domain
-				)
-
-			# Set attributes of new oriC's, and reset attributes of existing
-			# oriC's
-            # All oriC's must be assigned new domain indexes
+			# Add new oriC's, and reset attributes of existing oriC's
+			# All oriC's must be assigned new domain indexes
 			oriCs.attrIs(
 				domain_index=domain_index_new[:n_oric],
 				)
-			oriCsNew.attrIs(
+			self.oriCs.moleculesNew(
+				n_oric,
 				domain_index=domain_index_new[n_oric:],
 				)
 
-			# Calculate and set attributes of newly created replisomes.
+			# Add and set attributes of newly created replisomes.
 			# New replisomes inherit the domain indexes of the oriC's they
 			# were initiated from. Two replisomes are formed per oriC, one on
 			# the right replichore, and one on the left.
@@ -234,15 +209,17 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			domain_index_new_replisome = np.repeat(
 				domain_index_existing_oric, 2)
 
-			active_replisomes_new.attrIs(
+			self.active_replisome.moleculesNew(
+				n_new_replisome,
 				coordinates=coordinates,
 				right_replichore=right_replichore,
 				domain_index=domain_index_new_replisome,
 				)
 
-			# Set attributes of new chromosome domains. All new domains have
-			# no children domains
-			chromosome_domain_new.attrIs(
+			# Add and set attributes of new chromosome domains. All new domains
+			# should have have no children domains.
+			self.chromosome_domain.moleculesNew(
+				n_new_domain,
 				domain_index=domain_index_new,
 				child_domains=np.full(
 					(n_new_domain, 2), self.no_child_place_holder,
@@ -277,8 +254,8 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		dNtpCounts = self.dntps.counts()
 
 		# Get attributes of existing replisomes
-		domain_index_replisome, right_replichore, coordinates, massDiff_DNA = active_replisomes.attrs(
-			"domain_index", "right_replichore", "coordinates", "massDiff_DNA"
+		domain_index_replisome, right_replichore, coordinates = active_replisomes.attrs(
+			"domain_index", "right_replichore", "coordinates"
 			)
 		sequence_length = np.abs(np.repeat(coordinates, 2))
 
@@ -312,7 +289,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			)
 
 		# Compute masses that should be added to each replisome
-		updatedMass = massDiff_DNA + mass_increase_dna[0::2] + mass_increase_dna[1::2]
+		added_dna_mass = mass_increase_dna[0::2] + mass_increase_dna[1::2]
 
 		# Update positions of each fork
 		updated_length = sequence_length + sequenceElongations
@@ -321,10 +298,9 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Reverse signs of fork coordinates on left replichore
 		updated_coordinates[~right_replichore] = -updated_coordinates[~right_replichore]
 
-		active_replisomes.attrIs(
-			coordinates = updated_coordinates,
-			massDiff_DNA = updatedMass,
-			)
+		# Update attributes and submasses of replisomes
+		active_replisomes.attrIs(coordinates = updated_coordinates)
+		active_replisomes.add_submass_by_name("DNA", added_dna_mass)
 
 		# Update counts of polymerized metabolites
 		self.dntps.countsDec(dNtpsUsed)
@@ -424,13 +400,11 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 			# Generate new full chromosome molecules
 			if n_new_chromosomes > 0:
-				new_full_chromosome = self.full_chromosome.moleculesNew(
-					"fullChromosome", n_new_chromosomes
-					)
-				new_full_chromosome.attrIs(
-					division_time = [self.time() + self.D_period]*n_new_chromosomes,
-					has_induced_division = [False]*n_new_chromosomes,
-					domain_index = domain_index_new_full_chroms,
+				self.full_chromosome.moleculesNew(
+					n_new_chromosomes,
+					division_time=[self.time() + self.D_period]*n_new_chromosomes,
+					has_induced_division=[False] * n_new_chromosomes,
+					domain_index=domain_index_new_full_chroms,
 					)
 
 				# Reset domain index of existing chromosomes that have finished

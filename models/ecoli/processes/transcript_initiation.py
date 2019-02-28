@@ -178,9 +178,9 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 			startIndex += counts
 
 		# Create the active RNA polymerases
-		activeRnaPolys = self.activeRnaPolys.moleculesNew(
-			"activeRnaPoly", rnaPolyToActivate)
-		activeRnaPolys.attrIs(rnaIndex = rnaIndexes)
+		self.activeRnaPolys.moleculesNew(
+			rnaPolyToActivate, rnaIndex = rnaIndexes
+			)
 		self.inactiveRnaPolys.countDec(nNewRnas.sum())
 
 		# Write outputs to listeners

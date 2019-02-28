@@ -61,9 +61,6 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		if self.activeRnaPolys.total_counts()[0] == 0:
 			return
 
-		# Request all active RNA polymerases
-		self.activeRnaPolys.requestAll()
-
 		# Determine total possible sequences of nucleotides that can be transcribed in this time step for each polymerase
 		activeRnaPolys = self.activeRnaPolys.molecules_read_only()
 		rnaIndexes, transcriptLengths = activeRnaPolys.attrs('rnaIndex', 'transcriptLength')
@@ -87,7 +84,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			return
 
 		# Determine sequences that can be elongated
-		rnaIndexes, transcriptLengths, massDiffRna = activeRnaPolys.attrs('rnaIndex', 'transcriptLength', 'massDiff_mRNA')
+		rnaIndexes, transcriptLengths = activeRnaPolys.attrs('rnaIndex', 'transcriptLength')
 		sequences = buildSequences(self.rnaSequences, rnaIndexes, transcriptLengths, self.rnapElngRate)
 
 		# Polymerize transcripts based on sequences and available nucleotides
@@ -97,12 +94,12 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		ntpsUsed = result.monomerUsages
 
 		# Calculate changes in mass associated with polymerization and update active polymerases
-		massIncreaseRna = computeMassIncrease(sequences, sequenceElongations, self.ntWeights)
-		updatedMass = massDiffRna + massIncreaseRna
+		added_mrna_mass = computeMassIncrease(sequences, sequenceElongations, self.ntWeights)
 		didInitialize = (transcriptLengths == 0) & (sequenceElongations > 0)
 		updatedLengths = transcriptLengths + sequenceElongations
-		updatedMass[didInitialize] += self.endWeight
-		activeRnaPolys.attrIs(transcriptLength = updatedLengths, massDiff_mRNA = updatedMass)
+		added_mrna_mass[didInitialize] += self.endWeight
+		activeRnaPolys.attrIs(transcriptLength = updatedLengths)
+		activeRnaPolys.add_submass_by_name("mRNA", added_mrna_mass)
 
 		# Determine if transcript has reached the end of the sequence
 		terminalLengths = self.rnaLengths[rnaIndexes]

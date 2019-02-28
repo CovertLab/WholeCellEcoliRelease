@@ -390,9 +390,11 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_division_resu
 				molecule_set.attr(molecule_attribute)[d2_bool]
 			)
 
-		d1_unique_molecules_container.objectsNew(molecule_name, n_d1,
+		d1_unique_molecules_container.objectsNew(
+			molecule_name, n_d1,
 			**d1_divided_attributes_dict)
-		d2_unique_molecules_container.objectsNew(molecule_name, n_d2,
+		d2_unique_molecules_container.objectsNew(
+			molecule_name, n_d2,
 			**d2_divided_attributes_dict)
 
 	return d1_unique_molecules_container, d2_unique_molecules_container, daughter_elng_rates
