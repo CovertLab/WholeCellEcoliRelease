@@ -62,11 +62,8 @@ def decomp(specifications, compressed_collections, global_ref_count, submass_dif
 	Returns:
 		A filled-in UniqueObjectsContainer.
 	"""
-	if submass_diff_names is not None:
-		container = UniqueObjectsContainer(
-			specifications, submass_diff_names=submass_diff_names)
-	else:
-		container = UniqueObjectsContainer(specifications)
+	container = UniqueObjectsContainer(
+		specifications, submass_diff_names=submass_diff_names)
 
 	_collections = container._collections
 
