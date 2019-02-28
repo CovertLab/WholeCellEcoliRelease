@@ -18,7 +18,11 @@ import numpy as np
 import numpy.testing as npt
 import nose.plugins.attrib as noseAttrib
 
-from wholecell.containers.unique_objects_container import UniqueObjectsContainer, UniqueObjectsContainerException, UniqueObjectsPermissionException
+from wholecell.containers.unique_objects_container import (
+	UniqueObjectsContainer, UniqueObjectsContainerException,
+	UniqueObjectsPermissionException, Access
+	)
+
 from wholecell.io.tablereader import TableReader
 from wholecell.io.tablewriter import TableWriter
 
@@ -77,7 +81,8 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_delete_molecules(self):
-		molecules = self.container.objectsInCollection('RNA polymerase')
+		molecules = self.container.objectsInCollection(
+			'RNA polymerase', access=Access.READ_EDIT_DELETE)
 
 		self.container.objectsDel(molecules)
 
@@ -241,13 +246,35 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 				invalidLocations
 				)
 
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
+	def test_merge(self):
+		container = createContainer()
+		n_objects = len(container.objects())
+
+		container.add_request(
+			type="new_molecule",
+			collectionName="RNA polymerase",
+			nObjects=1,
+			attributes={
+				"boundToChromosome": True,
+				"chromosomeLocation": 0
+				}
+			)
+
+		# Object should not be added before .merge()
+		self.assertEqual(n_objects, len(container.objects()))
+
+		container.merge()
+		self.assertEqual(n_objects + 1, len(container.objects()))
+
+
 	# Attribute access
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_attribute_setting(self):
-		for molecule in self.container.objectsInCollection('RNA polymerase'):
+		for molecule in self.container.objectsInCollection('RNA polymerase', access=Access.READ_EDIT):
 			molecule.attrIs(
 				boundToChromosome = True,
-				chromosomeLocation = 100
+				chromosomeLocation = 100,
 				)
 
 		for molecule in self.container.objectsInCollection('RNA polymerase'):
@@ -370,9 +397,15 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		self.assertEqual(self.container, self.container)
 		self.assertNotEqual(self.container, object())
 
+		# Test against other container with different massdiff names
+		container_empty_massdiff = createContainer()
+		self.assertEqual(self.container, container_empty_massdiff)
+
+		container_empty_massdiff.submass_diff_names_list = []
+		self.assertNotEqual(self.container, container_empty_massdiff)
+
 		# Test against other, presumably identical container
 		otherContainer = createContainer()
-
 		self.assertEqual(self.container, otherContainer)
 
 		self.container.objectsNew(
@@ -403,6 +436,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 			'Chocolate', 1, nuts=False, percent=95.0, chromosomeLocation=1000)
 		self.assertNotEqual(self.container, otherContainer)
 
+
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_emptyLike(self):
 		e1 = self.container.emptyLike()
@@ -432,7 +466,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 		KB2 = {'RNA': {'boundToChromosome': 'bool', 'chromosomeLocation': 'uint32'},
 			'RSA:': {'boundToChromosome': 'bool', 'chromosomeLocation': 'uint32'}}
-		c1 = UniqueObjectsContainer(KB2)
+		c1 = UniqueObjectsContainer(KB2, [])
 		self.assertNotEqual(self.container, c1)
 
 		with self.assertRaises(ValueError):  # different specifications
@@ -452,11 +486,27 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		# Test that internal fields are properly restored which __eq__() assumes.
 		self.assertEqual(self.container.objectNames(), container2.objectNames())
 		self.assertEqual(self.container._nameToIndexMapping, container2._nameToIndexMapping)
+		self.assertEqual(self.container.submass_diff_names_list, container2.submass_diff_names_list)
 		npt.assert_array_equal(self.container._globalReference, container2._globalReference)
 
 		# Test on a collection with added & deleted entries.
 		self.container.objectsNew('Chocolate', 101, percent=95.0, nuts=False)
 		self.assertNotEqual(self.container, container2)
+
+		# Test that container with unapplied requests does not get pickled
+		self.container.add_request(
+				type="delete",
+				globalIndexes=np.array([0]),
+			)
+		with self.assertRaises(UniqueObjectsContainerException) as context:
+			cPickle.dumps(self.container)
+
+		self.assertEqual(
+			str(context.exception),
+			"Cannot pickle container with unapplied requests. Run .merge() to apply the requests before pickling."
+			)
+
+		self.container._requests = []
 
 		counts = self.container.counts(['RNA polymerase', 'DNA polymerase'])
 		rna_objects = self.container.objectsInCollection('RNA polymerase')
@@ -514,7 +564,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	def test_objectSet_attribute_accessing(self):
 		objectSet = self.container.objects(
 			chromosomeLocation = ('>=', 0),
-			read_only=False
+			access=Access.READ_EDIT
 			)
 
 		self.assertEqual(len(objectSet), 20)
@@ -577,7 +627,9 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_read_only(self):
-		molecules = self.container.objectsInCollection('RNA polymerase')
+		molecules = self.container.objectsInCollection(
+			'RNA polymerase', access=Access.READ_ONLY
+			)
 		n_molecules = len(molecules)
 
 		with self.assertRaises(UniqueObjectsPermissionException) as context:
@@ -593,12 +645,28 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 		self.assertEqual(
 			str(context.exception),
-			"Can't delete molecules from read-only objects."
+			"Can't delete molecules from read-only or read-and-edit only objects."
+			)
+
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
+	def test_read_edit(self):
+		molecules = self.container.objectsInCollection(
+			'RNA polymerase', access=Access.READ_EDIT
+			)
+		n_molecules = len(molecules)
+
+		with self.assertRaises(UniqueObjectsPermissionException) as context:
+			molecules.delByIndexes(np.ones(n_molecules))
+
+		self.assertEqual(
+			str(context.exception),
+			"Can't delete molecules from read-only or read-and-edit only objects."
 			)
 
 
+
 def createContainer():
-	container = UniqueObjectsContainer(TEST_KB)
+	container = UniqueObjectsContainer(TEST_KB, ["massDiff_RNA"])
 
 	container.objectsNew(
 		'RNA polymerase',

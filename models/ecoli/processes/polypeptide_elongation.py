@@ -135,9 +135,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		if self.activeRibosomes.total_counts()[0] == 0:
 			return
 
-		# Request all active ribosomes
-		self.activeRibosomes.requestAll()
-
 		# Build sequences to request appropriate amount of amino acids to
 		# polymerize for next timestep
 		activeRibosomes = self.activeRibosomes.molecules_read_only()
@@ -258,8 +255,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			return
 
 		# Build amino acids sequences for each ribosome to polymerize
-		proteinIndexes, peptideLengths, massDiffProtein = activeRibosomes.attrs(
-			'proteinIndex', 'peptideLength', 'massDiff_protein'
+		proteinIndexes, peptideLengths = activeRibosomes.attrs(
+			'proteinIndex', 'peptideLength'
 			)
 
 		sequences = buildSequences(
@@ -294,7 +291,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		nElongations = result.nReactions
 
 		# Update masses of ribosomes attached to polymerizing polypeptides
-		massIncreaseProtein = computeMassIncrease(
+		added_protein_mass = computeMassIncrease(
 			sequences,
 			sequenceElongations,
 			self.aaWeightsIncorporated
@@ -307,19 +304,15 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			(peptideLengths == 0)
 			)
 
-		updatedMass = massDiffProtein + massIncreaseProtein
-
-		updatedMass[didInitialize] += self.endWeight
+		added_protein_mass[didInitialize] += self.endWeight
 
 		# Write current average elongation to listener
 		currElongRate = (sequenceElongations.sum() / len(activeRibosomes)) / self.timeStepSec()
 		self.writeToListener("RibosomeData", "effectiveElongationRate", currElongRate)
 
 		# Update active ribosomes, terminating if neccessary
-		activeRibosomes.attrIs(
-			peptideLength = updatedLengths,
-			massDiff_protein = updatedMass
-			)
+		activeRibosomes.attrIs(peptideLength = updatedLengths)
+		activeRibosomes.add_submass_by_name("protein", added_protein_mass)
 
 		# Ribosomes that reach the end of their sequences are terminated and
 		# dissociated into 30S and 50S subunits. The polypeptide that they are polymerizing

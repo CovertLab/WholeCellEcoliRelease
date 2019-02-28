@@ -31,3 +31,4 @@ Km_synthetase_uncharged_trna	1	units.umol/units.L	Bosdriesz et al. FEBS. 2015.
 Km_synthetase_amino_acid	100	units.umol/units.L	Bosdriesz et al. FEBS. 2015.
 Kdissociation_charged_trna_ribosome	1	units.umol/units.L	Bosdriesz et al. FEBS. 2015.
 Kdissociation_uncharged_trna_ribosome	500	units.umol/units.L	Bosdriesz et al. FEBS. 2015.
+complexation_rate	1000.0	1/units.s	Placeholder (estimated from Neidhardt).

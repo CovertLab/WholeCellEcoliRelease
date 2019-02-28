@@ -43,7 +43,15 @@ def make_shapes(agents):
 		for agent_id, agent in agents.iteritems()}
 
 
-def volume_exclusion(grid, agents, scale=1., max_cycles=100, callback=None, jitter=False):
+def volume_exclusion(
+		grid,
+		agents,
+		scale=1.,
+		max_cycles=100,
+		callback=None,
+		jitter=False,
+		write=None,
+		frames=None):
 	'''
 	Perform volume exclusion on the agents in this grid.
 
@@ -92,7 +100,7 @@ def volume_exclusion(grid, agents, scale=1., max_cycles=100, callback=None, jitt
 			forces = forces_new
 
 			if callback:
-				callback(agents, overlap, forces, grid)
+				callback(agents, overlap, forces, grid, write=write, frames=frames)
 
 		cycles += 1
 
@@ -114,12 +122,16 @@ if __name__ == '__main__':
 	'''
 
 	parser = argparse.ArgumentParser(description='volume exclusion')
-	parser.add_argument('--animating', default=False, action='store_true')
+	parser.add_argument('--animate', default=False, action='store_true')
+	parser.add_argument('--write', type=str, default=None)
 	args = parser.parse_args()
 
-	animating = args.animating
-	if animating:
+	animate = args.animate
+	write = args.write
+	if animate:
 		plt.ion()
+		fig = plt.figure()
+	elif write:
 		fig = plt.figure()
 
 	ROTATIONAL_JITTER = 0.1 # (radians/s)
@@ -173,17 +185,21 @@ if __name__ == '__main__':
 
 	grid = Grid([edge_length, edge_length], resolution)
 
-	def null_callback(agents, overlap, forces, grid):
+	def null_callback(agents, overlap, forces, grid, write=None, frames=None):
 		pass
 
-	def animation_callback(agents, overlap, forces, grid):
-		if animating:
+	def animation_callback(agents, overlap, forces, grid, write=None, frames=None):
+		if animate:
 			plt.imshow(grid.grid)
 			plt.pause(0.0001)
+		if write:
+			frames.append(grid.grid.copy())
 
-	callback = animation_callback if animating else null_callback
-	volume_exclusion(grid, agents, callback=callback)
+	frames = []
 
-	# either keep the matplotlib window open (if animating) or provide some way to introspect
+	callback = animation_callback if animate or write else null_callback
+	volume_exclusion(grid, agents, callback=callback, write=write, frames=frames)
+
+	# either keep the matplotlib window open (if animate) or provide some way to introspect
 	# the grid using the pdb console.
 	import ipdb; ipdb.set_trace()

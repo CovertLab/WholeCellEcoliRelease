@@ -139,13 +139,21 @@ class Simulation(CellSimulation):
 		self._isDead = False
 		self._finalized = False
 
-		for internal_state in self.internal_states.itervalues():
+		for state_name, internal_state in self.internal_states.iteritems():
+			# initialize random streams
+			internal_state.seed = self._seedFromName(state_name)
+			internal_state.randomState = np.random.RandomState(seed=internal_state.seed)
+
 			internal_state.initialize(self, sim_data)
 
 		for external_state in self.external_states.itervalues():
 			external_state.initialize(self, sim_data)
 
-		for process in self.processes.itervalues():
+		for process_name, process in self.processes.iteritems():
+			# initialize random streams
+			process.seed = self._seedFromName(process_name)
+			process.randomState = np.random.RandomState(seed=process.seed)
+
 			process.initialize(self, sim_data)
 
 		for listener in self.listeners.itervalues():
@@ -256,16 +264,6 @@ class Simulation(CellSimulation):
 
 	# Calculate temporal evolution
 	def _evolveState(self):
-
-		if self._simulationStep <= 1:
-			# Update randstreams
-			for stateName, state in self.internal_states.iteritems():
-				state.seed = self._seedFromName(stateName)
-				state.randomState = np.random.RandomState(seed = state.seed)
-
-			for processName, process in self.processes.iteritems():
-				process.seed = self._seedFromName(processName)
-				process.randomState = np.random.RandomState(seed = process.seed)
 
 		self._adjustTimeStep()
 

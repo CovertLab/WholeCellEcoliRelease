@@ -70,8 +70,8 @@ class FBAResults(wholecell.listeners.listener.Listener):
 
 		# exchange with environment
 		self.externalExchangeMolecules = self.metabolism.all_external_exchange_molecules
-		self.import_constraint = self.metabolism.import_constraint
-		self.import_exchange = self.metabolism.import_exchange
+		self.import_constraint = [False] * len(self.externalExchangeMolecules)
+		self.import_exchange = [False] * len(self.externalExchangeMolecules)
 
 
 	def tableCreate(self, tableWriter):

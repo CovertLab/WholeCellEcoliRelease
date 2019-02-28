@@ -22,6 +22,9 @@ from models.ecoli.analysis.causality_network.network_components import (
 	Node, COUNT_UNITS, PROB_UNITS
 	)
 from models.ecoli.analysis.causality_network.build_network import NODE_ID_SUFFIX
+from models.ecoli.processes.metabolism import (
+	COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
+	)
 
 REQUIRED_COLUMNS = [
 	("BulkMolecules", "counts"),
@@ -29,6 +32,7 @@ REQUIRED_COLUMNS = [
 	("EquilibriumListener", "reactionRates"),
 	("FBAResults", "reactionFluxes"),
 	("Mass", "cellMass"),
+	("Mass", "dryMass"),
 	("Main", "time"),
 	("RnaSynthProb", "pPromoterBound"),
 	("RnaSynthProb", "rnaSynthProb"),
@@ -56,6 +60,17 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 			columns[(table_name, column_name)] = TableReader(
 				os.path.join(simOutDir, table_name)).readColumn(column_name)
 
+		# Convert units of metabolic fluxes in listener to mmol/gCDW/h
+		conversion_coeffs = (
+			columns[("Mass", "dryMass")] / columns[("Mass", "cellMass")]
+			* sim_data.constants.cellDensity.asNumber(MASS_UNITS / VOLUME_UNITS)
+			)
+
+		columns[("FBAResults", "reactionFluxesConverted")] = (
+			(COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (
+			columns[("FBAResults", "reactionFluxes")].T / conversion_coeffs).T
+			).asNumber(units.mmol/units.g/units.h)
+
 		# Construct dictionaries of indexes where needed
 		indexes = {}
 
@@ -72,7 +87,8 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 		translated_rna_ids = sim_data.process.translation.monomerData["rnaId"]
 		indexes["TranslatedRnas"] = build_index_dict(translated_rna_ids)
 
-		metabolism_rxn_ids = sim_data.process.metabolism.reactionStoich.keys()
+		metabolism_rxn_ids = TableReader(
+			os.path.join(simOutDir, "FBAResults")).readAttribute("reactionIDs")
 		indexes["MetabolismReactions"] = build_index_dict(metabolism_rxn_ids)
 
 		complexation_rxn_ids = sim_data.process.complexation.ids_reactions
@@ -313,7 +329,7 @@ def read_metabolism_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	reaction_idx = indexes["MetabolismReactions"][node_id]
 
 	dynamics = {
-		'flux': columns[("FBAResults", "reactionFluxes")][:, reaction_idx],
+		'flux': columns[("FBAResults", "reactionFluxesConverted")][:, reaction_idx],
 		}
 	dynamics_units = {
 		'flux': 'mmol/gCDW/h',

@@ -17,6 +17,7 @@ import numpy as np
 
 import wholecell.listeners.listener
 from wholecell.utils import units
+from wholecell.containers.unique_objects_container import Access
 
 class CellDivision(wholecell.listeners.listener.Listener):
 	""" CellDivision """
@@ -97,7 +98,7 @@ class CellDivision(wholecell.listeners.listener.Listener):
 		if self.d_period_division:
 			# Get all existing full chromosomes
 			full_chromosomes = self.uniqueMoleculeContainer.objectsInCollection(
-				"fullChromosome", read_only=False)
+				"fullChromosome", access=Access.READ_EDIT)
 
 			# If there are two or more full chromosomes,
 			if len(full_chromosomes) >= 2:
