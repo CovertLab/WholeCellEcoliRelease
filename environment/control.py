@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
+import time
 import uuid
 
 from agent.control import AgentControl, AgentCommand
@@ -30,6 +31,8 @@ class ShepherdControl(AgentControl):
 		print('Creating lattice agent_id {} and {} cell agents\n'.format(
 			lattice_id, num_cells))
 		self.add_agent(lattice_id, 'lattice', {})
+
+		time.sleep(10)
 
 		for index in range(num_cells):
 			self.add_cell(args['type'] or 'ecoli', {
