@@ -422,8 +422,8 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 	n_promoter = len(trs_unit_index)
 	n_tf = len(sim_data.process.transcription_regulation.tf_ids)
 
-	promoters = uniqueMolCntr.objectsNew('promoter', n_promoter)
-	promoters.attrIs(
+	uniqueMolCntr.objectsNew(
+		'promoter', n_promoter,
 		trs_unit_index=np.array(trs_unit_index),
 		coordinates=np.array(promoter_coordinates),
 		domain_index=np.array(promoter_domain_index),

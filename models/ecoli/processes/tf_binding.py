@@ -10,7 +10,6 @@ Bind transcription factors to DNA
 """
 
 import numpy as np
-import scipy
 
 import wholecell.processes.process
 from wholecell.utils.random import stochasticRound
@@ -50,7 +49,8 @@ class TfBinding(wholecell.processes.process.Process):
 		self.pPromoterBoundTF = sim_data.process.transcription_regulation.pPromoterBoundTF
 		self.tfToTfType = sim_data.process.transcription_regulation.tfToTfType
 
-		# Get DNA polymerase elongation rate
+		# Get DNA polymerase elongation rate (used to mask out promoters that
+		# is expected to be replicated in the current timestep)
 		self.dnaPolyElngRate = int(
 			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
 			units.nt / units.s))
@@ -80,8 +80,8 @@ class TfBinding(wholecell.processes.process.Process):
 		bulk_molecule_ids = sim_data.internal_state.bulkMolecules.bulkData["id"]
 		tf_indexes = [np.where(bulk_molecule_ids == tf_id + "[c]")[0][0]
 			for tf_id in self.tfs]
-		self.active_tf_masses = sim_data.internal_state.bulkMolecules.bulkData[
-			"mass"][tf_indexes]
+		self.active_tf_masses = (sim_data.internal_state.bulkMolecules.bulkData[
+			"mass"][tf_indexes]/self.nAvogadro).asNumber(units.fg)
 
 
 	def calculateRequest(self):
@@ -93,39 +93,52 @@ class TfBinding(wholecell.processes.process.Process):
 	def evolveState(self):
 		# Get attributes of all promoters
 		promoters = self.promoters.molecules_read_and_edit()
-		trs_unit_index, coordinates_promoter, domain_index_promoter, bound_tfs = promoters.attrs(
+		trs_unit_index, coordinates_promoters, domain_index_promoters, bound_tfs = promoters.attrs(
 			"trs_unit_index", "coordinates", "domain_index", "bound_tfs"
 			)
 
 		# Get attributes of replisomes
 		replisomes = self.active_replisomes.molecules_read_only()
-		domain_index_replisome, right_replichore, coordinates_replisome = replisomes.attrs(
-			"domain_index", "right_replichore", "coordinates",
-			)
 
-		# Construct mask for promoters that are expected to be replicated in
-		# the current timestep. Transcription factors should not bind to these
-		# promoters in this timestep.
-		elongation_length = self.dnaPolyElngRate*self.timeStepSec()
-		collision_mask = np.zeros_like(coordinates_promoter, dtype=np.bool)
+		# If there are active replisomes, construct mask for promoters that are
+		# expected to be replicated in the current timestep. Transcription
+		# factors should not bind to these promoters in this timestep.
+		# TODO (ggsun): This assumes that replisomes elongate at maximum rates.
+		# 	Ideally this should be done in the reconciler.
+		collision_mask = np.zeros_like(coordinates_promoters, dtype=np.bool)
 
-		for domain_index, rr, coord in izip(
-				domain_index_replisome, right_replichore, coordinates_replisome):
-			if rr:
-				collision_mask[np.logical_and(
-					domain_index_promoter == domain_index,
-					coordinates_promoter >= coord,
-					coordinates_promoter < coord + elongation_length
-					)] = True
-			else:
-				collision_mask[np.logical_and(
-					domain_index_promoter == domain_index,
-					coordinates_promoter <= coord,
-					coordinates_promoter > coord - elongation_length
-					)] = True
+		if len(replisomes) > 0:
+			domain_index_replisome, right_replichore, coordinates_replisome = replisomes.attrs(
+				"domain_index", "right_replichore", "coordinates",
+				)
+
+			elongation_length = np.ceil(self.dnaPolyElngRate*self.timeStepSec())
+
+			for domain_index, rr, coord in izip(
+					domain_index_replisome, right_replichore, coordinates_replisome):
+				if rr:
+					collision_mask[np.logical_and(
+						domain_index_promoters == domain_index,
+						np.logical_and(
+							coordinates_promoters >= coord,
+							coordinates_promoters <= coord + elongation_length
+							)
+						)] = True
+				else:
+					collision_mask[np.logical_and(
+						domain_index_promoters == domain_index,
+						np.logical_and(
+							coordinates_promoters <= coord,
+							coordinates_promoters >= coord - elongation_length
+							)
+						)] = True
 
 		# Calculate number of bound TFs for each TF prior to changes
 		n_bound_tfs = bound_tfs[~collision_mask, :].sum(axis=0)
+
+		# Initialize new bound_tfs array
+		bound_tfs_new = np.zeros_like(bound_tfs, dtype=np.bool)
+		bound_tfs_new[collision_mask, :] = bound_tfs[collision_mask, :]
 
 		# Create vectors for storing values
 		pPromotersBound = np.zeros(self.n_tfs, np.float64)
@@ -137,14 +150,14 @@ class TfBinding(wholecell.processes.process.Process):
 			active_tf_counts = self.active_tf_view[tf_id].count()
 			bound_tf_counts = n_bound_tfs[tf_idx]
 
-			# Free all DNA-bound transcription factors into free active
-			# transcription factors
-			self.active_tf_view[tf_id].countInc(bound_tf_counts)
-
 			# If there are no active transcription factors to work with,
 			# continue to the next transcription factor
 			if active_tf_counts + bound_tf_counts == 0:
 				continue
+
+			# Free all DNA-bound transcription factors into free active
+			# transcription factors
+			self.active_tf_view[tf_id].countInc(bound_tf_counts)
 
 			# Compute probability of binding the promoter
 			if self.tfToTfType[tf_id] == "0CS":
@@ -166,38 +179,38 @@ class TfBinding(wholecell.processes.process.Process):
 				self.randomState, n_available_promoters*pPromoterBound)
 				)
 
-			# If there are no promoter sites to bind, continue to the next
-			# transcription factor
-			if n_to_bind == 0:
-				continue
+			if n_to_bind > 0:
+				# Determine randomly which DNA targets to bind based on which of
+				# the following is more limiting:
+				# number of promoter sites to bind, or number of active
+				# transcription factors
+				bound_locs = np.zeros(n_available_promoters, dtype=np.bool)
+				bound_locs[
+					self.randomState.choice(
+						n_available_promoters,
+						size=np.min((n_to_bind, self.active_tf_view[tf_id].count())),
+						replace=False)
+					] = True
 
-			# Determine randomly which DNA targets to bind based on which of
-			# the following is more limiting:
-			# number of promoter sites to bind, or number of active
-			# transcription factors
-			bound_locs = np.zeros(n_available_promoters, dtype=np.bool)
-			bound_locs[
-				self.randomState.choice(
-					n_available_promoters,
-					size=np.min((n_to_bind, self.active_tf_view[tf_id].count())),
-					replace=False)
-				] = True
+				# Update count of free transcription factors
+				self.active_tf_view[tf_id].countDec(bound_locs.sum())
 
-			# Update count of free transcription factors
-			self.active_tf_view[tf_id].countDec(bound_locs.sum())
-
-			# Update bound_tfs array
-			bound_tfs[available_promoters, tf_idx] = bound_locs
+				# Update bound_tfs array
+				bound_tfs_new[available_promoters, tf_idx] = bound_locs
 
 			# Record values
 			pPromotersBound[tf_idx] = pPromoterBound
 			nPromotersBound[tf_idx] = n_to_bind
 			nActualBound[tf_idx] = bound_locs.sum()
 
+		delta_tfs = bound_tfs_new.astype(np.int8) - bound_tfs.astype(np.int8)
+		mass_diffs = delta_tfs.dot(self.active_tf_masses)
+
 		# Reset bound_tfs attribute of promoters
-		promoters.attrIs(
-			bound_tfs=bound_tfs
-			)
+		promoters.attrIs(bound_tfs=bound_tfs_new)
+
+		# Add mass_diffs array to promoter submass
+		promoters.add_submass_by_array(mass_diffs)
 
 		# Write values to listeners
 		self.writeToListener("RnaSynthProb", "pPromoterBound", pPromotersBound)

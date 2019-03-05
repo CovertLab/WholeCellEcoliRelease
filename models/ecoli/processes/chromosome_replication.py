@@ -51,7 +51,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			units.s)
 
 		# Create molecule views for replisome subunits, active replisomes,
-		# origins of replication, and chromosome domains
+		# origins of replication, chromosome domains, and free active TFs
 		self.replisome_trimers = self.bulkMoleculesView(
 			sim_data.moleculeGroups.replisome_trimer_subunits)
 		self.replisome_monomers = self.bulkMoleculesView(
@@ -59,6 +59,9 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.active_replisome = self.uniqueMoleculesView('active_replisome')
 		self.oriCs = self.uniqueMoleculesView('originOfReplication')
 		self.chromosome_domain = self.uniqueMoleculesView('chromosome_domain')
+		self.active_tfs = self.bulkMoleculesView(
+			[x + "[c]" for x in sim_data.process.transcription_regulation.tf_ids]
+			)
 
 		# Create bulk molecule views for polymerization reaction
 		self.dntps = self.bulkMoleculesView(sim_data.moleculeGroups.dNtpIds)
@@ -333,31 +336,36 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Handle promoters that were replicated
 		promoters = self.promoters.molecules()
 
-		trs_unit_index, coordinates_promoters, domain_index_promoters = promoters.attrs(
-			"trs_unit_index", "coordinates", "domain_index")
+		trs_unit_index, coordinates_promoters, domain_index_promoters, bound_tfs = promoters.attrs(
+			"trs_unit_index", "coordinates", "domain_index", "bound_tfs")
 
 		# Get mask array of promoters that were replicated in this timestep
 		replicated_promoters = np.zeros_like(trs_unit_index, dtype=np.bool)
 
-		for (rr, old_coord, new_coord) in izip(
-				right_replichore, coordinates, updated_coordinates):
+		for (domain_index, rr, old_coord, new_coord) in izip(
+				domain_index_replisome, right_replichore,
+				coordinates, updated_coordinates):
 			# Fork on right replichore
 			if rr:
 				replicated_promoters[
 					np.logical_and(
-						coordinates_promoters >= old_coord,
-						coordinates_promoters < new_coord
-						)
-					] = True
+						domain_index_promoters == domain_index,
+						np.logical_and(
+							coordinates_promoters >= old_coord,
+							coordinates_promoters < new_coord,
+							)
+						)] = True
 			# Fork on left replichore
 			else:
 				replicated_promoters[
 					np.logical_and(
-						coordinates_promoters <= old_coord,
-						coordinates_promoters > new_coord
+						domain_index_promoters == domain_index,
+						np.logical_and(
+							coordinates_promoters <= old_coord,
+							coordinates_promoters > new_coord
+							)
 						)
 					] = True
-
 
 		n_new_promoters = 2*replicated_promoters.sum()
 
@@ -365,26 +373,32 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			# Delete original promoters
 			promoters.delByIndexes(np.where(replicated_promoters)[0])
 
+			# Add freed active tfs
+			self.active_tfs.countsInc(
+				bound_tfs[replicated_promoters, :].sum(axis=0)
+				)
+
 			# Set up attributes for the replicated promoters
-			trs_unit_index_new = trs_unit_index[replicated_promoters]
-			coordinates_promoters_new = coordinates_promoters[replicated_promoters]
+			trs_unit_index_new = np.repeat(
+				trs_unit_index[replicated_promoters], 2
+				)
+			coordinates_promoters_new = np.repeat(
+				coordinates_promoters[replicated_promoters], 2
+				)
 			parent_domain_index_promoters = domain_index_promoters[replicated_promoters]
 
 			domain_index_promoters_new = child_domains[
 				np.array([np.where(domain_index_existing_domain == idx)[0][0]
 					for idx in parent_domain_index_promoters]),
-				:]
+				:].flatten()
 
 			# Add new promoters with new domain indexes
-			promoters_new = self.promoters.moleculesNew(
-				"promoter", n_new_promoters
-				)
-
-			promoters_new.attrIs(
-				trs_unit_index=np.repeat(trs_unit_index_new, 2),
-				coordinates=np.repeat(coordinates_promoters_new, 2),
-				domain_index=domain_index_promoters_new.T.flatten(),
-				bound_tfs=np.zeros((n_new_promoters, self.n_tf)),
+			self.promoters.moleculesNew(
+				n_new_promoters,
+				trs_unit_index=trs_unit_index_new,
+				coordinates=coordinates_promoters_new,
+				domain_index=domain_index_promoters_new,
+				bound_tfs=np.zeros((n_new_promoters, self.n_tf), dtype=np.bool),
 				)
 
 
