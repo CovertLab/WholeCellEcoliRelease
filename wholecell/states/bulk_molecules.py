@@ -73,8 +73,6 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
 		self.division_mode = {}
 		self.division_mode['binomial'] = sim_data.moleculeGroups.bulkMoleculesBinomialDivision
 		self.division_mode['equally'] = sim_data.moleculeGroups.bulkMoleculesEqualDivision
-		self.division_mode['geneCopyNumber'] = sim_data.moleculeGroups.bulkMoleculesGeneCopyNumberDivision
-		self.division_mode['boundTF'] = sim_data.moleculeGroups.bulkMoleculesBoundTFDivision
 
 	def processRequestPriorityIs(self, processIndex, priorityLevel):
 		self._processPriorities[processIndex] = priorityLevel

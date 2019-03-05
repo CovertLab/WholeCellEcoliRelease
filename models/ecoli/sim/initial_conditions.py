@@ -312,36 +312,10 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		bulkMolCntr.countsDec(3*n_replisome, sim_data.moleculeGroups.replisome_trimer_subunits)
 		bulkMolCntr.countsDec(n_replisome, sim_data.moleculeGroups.replisome_monomer_subunits)
 
-	# Initialize gene dosage
-	geneCopyNumberColNames = sim_data.process.transcription_regulation.geneCopyNumberColNames
-	geneCopyNumberView = bulkMolCntr.countsView(geneCopyNumberColNames)
-	replication_coordinate = sim_data.process.transcription.rnaData["replicationCoordinate"]
-
-	# Set all copy numbers to one initially
-	initialGeneCopyNumber = np.ones(len(geneCopyNumberColNames))
-
-	# Get coordinates of forks in both directions
-	forward_fork_coordinates = replisome_state["coordinates"][
-		replisome_state["right_replichore"]
-	]
-	reverse_fork_coordinates = replisome_state["coordinates"][
-		np.logical_not(replisome_state["right_replichore"])
-	]
-
-	assert len(forward_fork_coordinates) == len(reverse_fork_coordinates)
-
-	# Increment copy number by one for any gene that lies between two forks
-	for (forward, reverse) in izip(forward_fork_coordinates,
-			reverse_fork_coordinates):
-		initialGeneCopyNumber[
-			np.logical_and(replication_coordinate < forward,
-				replication_coordinate > reverse)
-			] += 1
-
-	geneCopyNumberView.countsIs(initialGeneCopyNumber)
-
 	# Initialize attributes of promoters
 	trs_unit_index, promoter_coordinates, promoter_domain_index = [], [], []
+	replication_coordinate = sim_data.process.transcription.rnaData[
+		"replicationCoordinate"]
 
 	# Loop through all chromosome domains
 	for domain_idx in domain_state["domain_index"]:

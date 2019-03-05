@@ -67,10 +67,6 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.dntps = self.bulkMoleculesView(sim_data.moleculeGroups.dNtpIds)
 		self.ppi = self.bulkMoleculeView('PPI[c]')
 
-		# Create bulk molecule view for gene copy number
-		self.gene_copy_number = self.bulkMoleculesView(
-			sim_data.process.transcription_regulation.geneCopyNumberColNames)
-
 		# Create molecules views for full chromosomes
 		self.full_chromosome = self.uniqueMoleculesView("fullChromosome")
 
@@ -312,26 +308,6 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Update counts of polymerized metabolites
 		self.dntps.countsDec(dNtpsUsed)
 		self.ppi.countInc(dNtpsUsed.sum())
-
-		# Increment copy numbers of replicated genes
-		new_gene_copies = np.zeros(len(self.replication_coordinate))
-
-		for (rr, old_coord, new_coord) in izip(
-				right_replichore, coordinates, updated_coordinates):
-			# Fork on right replichore
-			if rr:
-				new_gene_copies[np.logical_and(
-					self.replication_coordinate >= old_coord,
-					self.replication_coordinate < new_coord
-					)] += 1
-			# Fork on left replichore
-			else:
-				new_gene_copies[np.logical_and(
-					self.replication_coordinate <= old_coord,
-					self.replication_coordinate > new_coord
-					)] += 1
-
-		self.gene_copy_number.countsInc(new_gene_copies)
 
 		# Handle promoters that were replicated
 		promoters = self.promoters.molecules()

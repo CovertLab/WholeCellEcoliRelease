@@ -76,8 +76,7 @@ def divide_cell(sim):
 
 		# Create divided containers
 		d1_bulkMolCntr, d2_bulkMolCntr = divideBulkMolecules(
-			bulkMolecules, uniqueMolecules, randomState,
-			chromosome_division_results, sim_data)
+			bulkMolecules, randomState)
 		d1_uniqueMolCntr, d2_uniqueMolCntr, daughter_elng_rates = (
 			divideUniqueMolecules(uniqueMolecules, randomState,
 				chromosome_division_results, current_nutrients, sim))
@@ -147,8 +146,7 @@ def chromosomeDivision(uniqueMolecules, randomState, no_child_place_holder):
 		}
 
 
-def divideBulkMolecules(bulkMolecules, uniqueMolecules, randomState,
-		chromosome_division_results, sim_data):
+def divideBulkMolecules(bulkMolecules, randomState):
 	"""
 	Divide bulk molecules into two daughter cells based on the division mode of
 	the molecule.
@@ -172,88 +170,6 @@ def divideBulkMolecules(bulkMolecules, uniqueMolecules, randomState,
 
 	# Check that no bulk molecules need to be divided equally
 	assert len(bulkMolecules.division_mode['equally']) == 0
-
-	# Calculate gene copy numbers for each chromosome from chromosome state
-	# Get total gene copy number
-	total_gene_counts = bulkMolecules.container.counts(
-		bulkMolecules.division_mode['geneCopyNumber'])
-
-	# Get coordinates of genes and existing replication forks
-	replicationCoordinate = sim_data.process.transcription.rnaData[
-		"replicationCoordinate"]
-	active_replisomes = uniqueMolecules.container.objectsInCollection(
-		"active_replisome")
-
-	# Get all domain indexes that should be moved to daughter 1
-	d1_all_domain_indexes = chromosome_division_results['d1_all_domain_indexes']
-
-	# Initialize gene counts for daughter 1 to one
-	d1_gene_counts = np.ones(len(replicationCoordinate), dtype=np.int64)
-
-	# Add to gene counts if there are active replication forks
-	if len(active_replisomes) > 0:
-		coordinates, right_replichore, domain_index = active_replisomes.attrs(
-			"coordinates", "right_replichore", "domain_index"
-			)
-
-		# Get indexes of d1 domains in domain_index
-		d1_domains_in_domain_index = np.where(np.in1d(domain_index, d1_all_domain_indexes))[0]
-
-		# Filter out attributes of replisomes that belong to daughter 1
-		d1_coordinates = coordinates[d1_domains_in_domain_index]
-		d1_right_replichore = right_replichore[d1_domains_in_domain_index]
-
-		forward_fork_coordinates = d1_coordinates[d1_right_replichore]
-		reverse_fork_coordinates = d1_coordinates[~d1_right_replichore]
-
-		assert len(forward_fork_coordinates) == len(reverse_fork_coordinates)
-
-		# Increment gene counts if gene is between two replication forks
-		for (forward, reverse) in izip(forward_fork_coordinates,
-				reverse_fork_coordinates):
-			d1_gene_counts[
-				np.logical_and(replicationCoordinate < forward,
-					replicationCoordinate > reverse)
-				] += 1
-
-	# Set gene copy numbers in daughter 2 by subtracting from total count
-	d2_gene_counts = total_gene_counts - d1_gene_counts
-
-	# Set gene copy numbers in daughter cells
-	d1_bulk_molecules_container.countsIs(d1_gene_counts,
-		bulkMolecules.division_mode['geneCopyNumber'])
-	d2_bulk_molecules_container.countsIs(d2_gene_counts,
-		bulkMolecules.division_mode['geneCopyNumber'])
-
-	# Divide bound TFs based on gene copy numbers for each chromosome
-	molecule_counts = bulkMolecules.container.counts(
-		bulkMolecules.division_mode['boundTF'])
-
-	# Bound TFs are first divided binomially. Since the number of bound TFs
-	# cannot be larger than the copy number of the target gene, the "overshoot"
-	# counts for each daughter are added to the counts for the other daughter.
-	d1_tf_counts = randomState.binomial(molecule_counts, p=BINOMIAL_COEFF)
-	d2_tf_counts = molecule_counts - d1_tf_counts
-
-	rna_index_to_bound_tf_mapping = sim_data.process.transcription_regulation.rna_index_to_bound_tf_mapping
-
-	d1_tf_overshoot = (
-		d1_tf_counts - d1_gene_counts[rna_index_to_bound_tf_mapping]
-		).clip(min=0)
-	d2_tf_overshoot = (
-		d2_tf_counts - d2_gene_counts[rna_index_to_bound_tf_mapping]
-		).clip(min=0)
-
-	d1_tf_counts = d1_tf_counts - d1_tf_overshoot + d2_tf_overshoot
-	d2_tf_counts = d2_tf_counts - d2_tf_overshoot + d1_tf_overshoot
-
-	assert np.all(d1_tf_counts + d2_tf_counts == molecule_counts)
-
-	# Set bound TF counts in daughter cells
-	d1_bulk_molecules_container.countsIs(d1_tf_counts,
-		bulkMolecules.division_mode['boundTF'])
-	d2_bulk_molecules_container.countsIs(d2_tf_counts,
-		bulkMolecules.division_mode['boundTF'])
 
 	return d1_bulk_molecules_container, d2_bulk_molecules_container
 
