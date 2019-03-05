@@ -443,8 +443,8 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 
 	# Load parameters
 	rnaLengths = sim_data.process.transcription.rnaData['length'].asNumber()
-	currentNutrients = sim_data.conditions[sim_data.condition]['nutrients']
-	fracActiveRnap = sim_data.process.transcription.rnapFractionActiveDict[currentNutrients]
+	current_nutrients = sim_data.conditions[sim_data.condition]['nutrients']
+	fracActiveRnap = sim_data.process.transcription.rnapFractionActiveDict[current_nutrients]
 	inactiveRnaPolyCounts = bulkMolCntr.countsView(['APORNAP-CPLX[c]']).counts()[0]
 	rnaSequences = sim_data.process.transcription.transcriptionSequences
 	ntWeights = sim_data.process.transcription.transcriptionMonomerWeights
@@ -454,15 +454,6 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	rnaPolyToActivate = np.int64(fracActiveRnap * inactiveRnaPolyCounts)
 
 	# Parameters for rnaSynthProb
-	recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
-	recruitmentView = bulkMolCntr.counts(recruitmentColNames)
-	recruitmentData = sim_data.process.transcription_regulation.recruitmentData
-	recruitmentMatrix = scipy.sparse.csr_matrix(
-			(recruitmentData['hV'], (recruitmentData['hI'], recruitmentData['hJ'])),
-			shape = recruitmentData['shape']
-		)
-
-	# Parameters for rnaSynthProb - using new matrices
 	basal_prob = sim_data.process.transcription_regulation.basal_prob
 	n_trs_units = len(basal_prob)
 	delta_prob = sim_data.process.transcription_regulation.delta_prob
@@ -508,82 +499,94 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	shuffleIdxs = getattr(sim_data.process.transcription, 'initiationShuffleIdxs', None)
 
 	# ID Groups
-	isRRna = sim_data.process.transcription.rnaData['isRRna']
-	isMRna = sim_data.process.transcription.rnaData['isMRna']
-	isTRna = sim_data.process.transcription.rnaData['isTRna']
-	isRProtein = sim_data.process.transcription.rnaData['isRProtein']
-	isRnap = sim_data.process.transcription.rnaData['isRnap']
-	setIdxs = isRRna | isTRna | isRProtein | isRnap
-
-	# Calculate synthesis probabilities based on transcription regulation
-	rnaSynthProb = recruitmentMatrix.dot(recruitmentView)
-	if len(genetic_perturbations) > 0:
-		rnaSynthProb[genetic_perturbations['fixedRnaIdxs']] = genetic_perturbations['fixedSynthProbs']
+	idx_16Srrna = np.where(sim_data.process.transcription.rnaData['isRRna16S'])[0]
+	idx_23Srrna = np.where(sim_data.process.transcription.rnaData['isRRna23S'])[0]
+	idx_5Srrna = np.where(sim_data.process.transcription.rnaData['isRRna5S'])[0]
+	idx_rrna = np.where(sim_data.process.transcription.rnaData['isRRna'])[0]
+	idx_mrna = np.where(sim_data.process.transcription.rnaData["isMRna"])[0]
+	idx_trna = np.where(sim_data.process.transcription.rnaData["isTRna"])[0]
+	idx_rprotein = np.where(sim_data.process.transcription.rnaData['isRProtein'])[0]
+	idx_rnap = np.where(sim_data.process.transcription.rnaData['isRnap'])[0]
 
 	# Calculate probabilities of the RNAP binding to the promoters
-	synth_prob_per_promoter = (
+	promoter_init_probs = (
 		basal_prob[trs_unit_index] +
-		np.squeeze(np.asarray(
-			delta_prob_matrix[trs_unit_index, :].multiply(bound_tfs).sum(axis=1)
-			))
+		np.squeeze(
+			np.asarray(
+			delta_prob_matrix[trs_unit_index, :].multiply(
+				bound_tfs).sum(axis=1))
+			)
 		)
 
-	synth_prob_per_trs_unit = trs_unit_to_promoter.dot(synth_prob_per_promoter)
+	if len(genetic_perturbations) > 0:
+		rescale_initiation_probs(
+			promoter_init_probs, trs_unit_index,
+			genetic_perturbations["fixedRnaIdxs"],
+			genetic_perturbations["fixedSynthProbs"]
+			)
 
 	# Adjust probabilities to not be negative
-	rnaSynthProb[rnaSynthProb < 0] = 0.0
-	rnaSynthProb /= rnaSynthProb.sum()
-	if np.any(rnaSynthProb < 0):
+	promoter_init_probs[promoter_init_probs < 0] = 0.0
+	promoter_init_probs /= promoter_init_probs.sum()
+	if np.any(promoter_init_probs < 0):
 		raise Exception("Have negative RNA synthesis probabilities")
 
 	# Adjust synthesis probabilities depending on environment
-	synthProbFractions = rnaSynthProbFractions[currentNutrients]
+	synthProbFractions = rnaSynthProbFractions[current_nutrients]
 
-	# Allocate synthesis probabilities based on type of RNA
-	rnaSynthProb[isMRna] *= synthProbFractions['mRna'] / rnaSynthProb[isMRna].sum()
-	rnaSynthProb[isTRna] *= synthProbFractions['tRna'] / rnaSynthProb[isTRna].sum()
-	rnaSynthProb[isRRna] *= synthProbFractions['rRna'] / rnaSynthProb[isRRna].sum()
+	# Create masks for different types of RNAs
+	is_mrna = np.isin(trs_unit_index, idx_mrna)
+	is_trna = np.isin(trs_unit_index, idx_trna)
+	is_rrna = np.isin(trs_unit_index, idx_rrna)
+	is_rprotein = np.isin(trs_unit_index, idx_rprotein)
+	is_rnap = np.isin(trs_unit_index, idx_rnap)
+	is_fixed = is_trna | is_rrna | is_rprotein | is_rnap
+
+	# Rescale initiation probabilities based on type of RNA
+	promoter_init_probs[is_mrna] *= synthProbFractions["mRna"] / promoter_init_probs[is_mrna].sum()
+	promoter_init_probs[is_trna] *= synthProbFractions["tRna"] / promoter_init_probs[is_trna].sum()
+	promoter_init_probs[is_rrna] *= synthProbFractions["rRna"] / promoter_init_probs[is_rrna].sum()
 
 	# Set fixed synthesis probabilities for RProteins and RNAPs
-	rnaSynthProb[isRProtein] = rnaSynthProbRProtein[currentNutrients]
-	rnaSynthProb[isRnap] = rnaSynthProbRnaPolymerase[currentNutrients]
+	rescale_initiation_probs(
+		promoter_init_probs, trs_unit_index,
+		np.concatenate((idx_rprotein, idx_rnap)),
+		np.concatenate((
+			rnaSynthProbRProtein[current_nutrients],
+			rnaSynthProbRnaPolymerase[current_nutrients]))
+		)
 
-	assert rnaSynthProb[setIdxs].sum() < 1.0
+	assert promoter_init_probs[is_fixed].sum() < 1.0
 
-	scaleTheRestBy = (1. - rnaSynthProb[setIdxs].sum()) / rnaSynthProb[~setIdxs].sum()
-	rnaSynthProb[~setIdxs] *= scaleTheRestBy
-
-	# Shuffle initiation rates if we're running the variant that calls this
-	if shuffleIdxs is not None:
-		rnaSynthProb = rnaSynthProb[shuffleIdxs]
+	scaleTheRestBy = (1. - promoter_init_probs[is_fixed].sum()) / promoter_init_probs[~is_fixed].sum()
+	promoter_init_probs[~is_fixed] *= scaleTheRestBy
 
 	# normalize to length of rna
-	synthProbLengthAdjusted = rnaSynthProb * rnaLengths
-	synthProbNormalized = synthProbLengthAdjusted / synthProbLengthAdjusted.sum()
+	init_prob_length_adjusted = promoter_init_probs * rnaLengths[trs_unit_index]
+	init_prob_normalized = init_prob_length_adjusted / init_prob_length_adjusted.sum()
 
-	# Sample a multinomial distribution of synthesis probabilities to determine what RNA are initialized
-	nNewRnas = randomState.multinomial(rnaPolyToActivate, synthProbNormalized)
+	# Sample a multinomial distribution of synthesis probabilities to determine
+	# what RNA are initialized
+	n_initiations = randomState.multinomial(
+		rnaPolyToActivate, init_prob_normalized)
 
 	# RNA Indices
-	rnaIndices = np.empty(rnaPolyToActivate, np.int64)
-	startIndex = 0
-	nonzeroCount = (nNewRnas > 0)
-	for rnaIndex, counts in izip(np.arange(nNewRnas.size)[nonzeroCount], nNewRnas[nonzeroCount]):
-		rnaIndices[startIndex:startIndex+counts] = rnaIndex
-		startIndex += counts
+	rnaIndexes = np.repeat(trs_unit_index, n_initiations)
 
 	# TODO (Eran) -- make sure there aren't any rnapolys at same location on same gene
-	updatedLengths = np.array(randomState.rand(rnaPolyToActivate) * rnaLengths[rnaIndices], dtype=np.int)
+	updatedLengths = np.array(
+		randomState.rand(rnaPolyToActivate) * rnaLengths[rnaIndexes], dtype=np.int)
 
 	# update mass
-	sequences = rnaSequences[rnaIndices]
+	sequences = rnaSequences[rnaIndexes]
 	massIncreaseRna = computeMassIncrease(sequences, updatedLengths, ntWeights)
 	massIncreaseRna[updatedLengths != 0] += endWeight  # add endWeight to all new Rna
 
-	#update molecules. Attributes include which rnas are being transcribed, and the position (length)
+	# update molecules. Attributes include which rnas are being transcribed,
+	# and the position (length)
 	uniqueMolCntr.objectsNew(
 		'activeRnaPoly', rnaPolyToActivate,
-		rnaIndex=rnaIndices,
+		rnaIndex=rnaIndexes,
 		transcriptLength=updatedLengths,
 		massDiff_mRNA=massIncreaseRna,
 		)
@@ -822,3 +825,17 @@ def determine_chromosome_state(C, D, tau, replichore_length, place_holder):
 		}
 
 	return oric_state, replisome_state, domain_state
+
+
+def rescale_initiation_probs(init_probs, trs_unit_index, fixed_trs_units,
+		fixed_synth_probs):
+	"""
+	Rescales the initiation probabilities of each promoter such that the
+	total synthesis probabilities of certain types of RNAs are fixed to
+	a predetermined value. For instance, if there are two copies of
+	promoters for RNA A, whose synthesis probability should be fixed to
+	0.1, each promoter is given an initiation probability of 0.05.
+	"""
+	for rna_idx, synth_prob in izip(fixed_trs_units, fixed_synth_probs):
+		fixed_rna_mask = (trs_unit_index == rna_idx)
+		init_probs[fixed_rna_mask] = synth_prob / fixed_rna_mask.sum()
