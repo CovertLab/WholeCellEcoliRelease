@@ -118,7 +118,7 @@ class InternalState(object):
 			'activeRnaPoly')
 
 		# Add active ribosome
-		# TODO: This is a bad hack that works because in the fitter
+		# TODO: This is a bad hack that works because in the parca
 		# I have forced expression to be these subunits only
 		ribosome30SMass = self.bulkMolecules.bulkData["mass"][
 			self.bulkMolecules.bulkData["id"] == sim_data.moleculeIds.s30_fullComplex]

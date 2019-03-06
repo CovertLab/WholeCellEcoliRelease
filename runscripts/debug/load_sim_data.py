@@ -1,6 +1,6 @@
 '''
 Script to quickly load raw_data and sim_data to interactively explore contents
-through ipdb instead of running the fitter. Shortcut names rd and sd are created
+through ipdb instead of running the parca. Shortcut names rd and sd are created
 for typing ease.
 
 Use:
