@@ -247,6 +247,18 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			self.criticalInitiationMass.asNumber(units.fg))
 
 		## Module 2: replication elongation
+		# Get attributes of promoters
+		promoters = self.promoters.molecules()
+
+		trs_unit_index, coordinates_promoters, domain_index_promoters, bound_tfs = promoters.attrs(
+			"trs_unit_index", "coordinates", "domain_index", "bound_tfs")
+
+		# Write gene copy numbers to listener
+		self.writeToListener(
+			"RnaSynthProb", "gene_copy_number",
+			np.bincount(trs_unit_index, minlength=len(self.replication_coordinate))
+			)
+
 		# If no active replisomes are present, return immediately
 		# Note: the new replication forks added in the previous module are not
 		# elongated until the next timestep.
@@ -310,11 +322,6 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.ppi.countInc(dNtpsUsed.sum())
 
 		# Handle promoters that were replicated
-		promoters = self.promoters.molecules()
-
-		trs_unit_index, coordinates_promoters, domain_index_promoters, bound_tfs = promoters.attrs(
-			"trs_unit_index", "coordinates", "domain_index", "bound_tfs")
-
 		# Get mask array of promoters that were replicated in this timestep
 		replicated_promoters = np.zeros_like(trs_unit_index, dtype=np.bool)
 
