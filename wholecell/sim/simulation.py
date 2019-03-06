@@ -337,7 +337,6 @@ class Simulation(CellSimulation):
 
 	def _seedFromName(self, name):
 		return np.uint32((self._seed + hash(name)) % np.iinfo(np.uint64).max)
-		# return np.uint32((self._seed + self.simulationStep() + hash(name)) % np.iinfo(np.uint64).max)
 
 
 	def initialTime(self):
@@ -421,9 +420,11 @@ class Simulation(CellSimulation):
 			'start_time': self.time(),
 			'volume': self.listeners['Mass'].volume * 0.5}
 
-		daughters = map(
-			lambda path: dict(config, inherited_state_path=path),
-			self.daughter_paths)
+		daughters = []
+		for i, path in enumerate(self.daughter_paths):
+			daughters.append(dict(config,
+				inherited_state_path=path,
+				seed=37 * self._seed + 47 * i + 57))
 
 		return daughters
 

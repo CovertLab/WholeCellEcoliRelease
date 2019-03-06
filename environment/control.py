@@ -18,7 +18,6 @@ class ShepherdControl(AgentControl):
 		super(ShepherdControl, self).__init__(str(uuid.uuid1()), agent_config)
 
 	def add_cell(self, agent_type, agent_config):
-		# TODO(jerry): Seed each cell differently.
 		# TODO(jerry): Bring back the --variant choice?
 		self.add_agent(
 			str(uuid.uuid1()),
@@ -37,7 +36,8 @@ class ShepherdControl(AgentControl):
 		for index in range(num_cells):
 			self.add_cell(args['type'] or 'ecoli', {
 				'outer_id': lattice_id,
-				'working_dir': args['working_dir']})
+				'working_dir': args['working_dir'],
+				'seed': index})
 
 	def chemotaxis_experiment(self, args):
 		lattice_id = str(uuid.uuid1())
@@ -57,7 +57,8 @@ class ShepherdControl(AgentControl):
 
 		for index in range(num_cells):
 			self.add_cell(args['type'] or 'chemotaxis', {
-				'outer_id': lattice_id})
+				'outer_id': lattice_id,
+				'seed': index})
 
 
 class EnvironmentCommand(AgentCommand):

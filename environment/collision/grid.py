@@ -10,7 +10,7 @@ def raster(location, dx):
 def within(bounds, point):
 	''' determine whether the given point is within the provided bounding box '''
 
-	return point[0] >= 0 and point[1] >= 0 and point[0] < bounds[0] and point[1] < bounds[1]
+	return 0 <= point[0] < bounds[0] and 0 <= point[1] < bounds[1]
 
 def normalize(vector):
 	''' normalize the given vector based on its magnitude '''
@@ -252,7 +252,7 @@ class Rectangle(Shape):
 			begin,
 			a if a[0] > b[0] else b,
 			end]).render(dx)
-		perimeter = [left, right]
+		# perimeter = [left, right]
 
 		indexes = np.concatenate([
 			map(lambda x: [x, left[1]],
