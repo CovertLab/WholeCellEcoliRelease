@@ -50,7 +50,7 @@ class SimulationStub(CellSimulation):
 			until = random.randint(1, interrupt_frequency - 1) * step + self.local_time
 		span = until - self.local_time
 
-		print('================ simulation | run_until: {}, until: {}, step: {}, span: {}'.format(run_until, until, step, span))
+		# print('=== simulation | run_until: {}, until: {}, step: {}, span: {}'.format(run_until, until, step, span))
 
 		time.sleep(random.randint(1, interrupt_frequency))
 

@@ -180,7 +180,7 @@ class Outer(Agent):
 		inner_id = message['inner_id']
 		simulation = self.simulations[inner_id]
 
-		print('=============== initializing simulation {}'.format(simulation))
+		# print('=== initializing simulation {}'.format(simulation))
 
 		simulation.update({
 			'message_id': -1,
@@ -260,7 +260,7 @@ class Outer(Agent):
 							index=index,
 							message_id=0,
 							last_message_id=-1)
-						print('================ daughter: {}'.format(self.simulations[daughter_id]))
+						# print('=== daughter: {}'.format(self.simulations[daughter_id]))
 				else:
 					simulation['last_message_id'] = message['message_id']
 
@@ -326,7 +326,7 @@ class Outer(Agent):
 				if later.size > 0:
 					run_until = later[0] 
 
-				print('============= environment | ran: {}, now: {}, later: {}, run_until: {}, time: {}'.format(ran, now, later, run_until, self.environment.time()))
+				# print('=== environment | ran: {}, now: {}, later: {}, run_until: {}, time: {}'.format(ran, now, later, run_until, self.environment.time()))
 
 				self.send_updates(now, run_until)
 
