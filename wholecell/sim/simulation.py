@@ -422,9 +422,13 @@ class Simulation(CellSimulation):
 
 		daughters = []
 		for i, path in enumerate(self.daughter_paths):
+			# This uses primes to calculate seeds that diverge from small
+			# initial seeds and further in later generations. Like for process
+			# seeds, this depends only on _seed, not on randomState so it won't
+			# vary with simulation code details.
 			daughters.append(dict(config,
 				inherited_state_path=path,
-				seed=37 * self._seed + 47 * i + 57))
+				seed=37 * self._seed + 47 * i + 997))
 
 		return daughters
 
