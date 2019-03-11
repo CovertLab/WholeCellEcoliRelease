@@ -81,7 +81,7 @@ ecos==2.0.5
 enum34==1.1.6
 Equation==1.2.1
 fastcache==1.0.2
-FireWorks==1.7.6
+FireWorks==1.8.7
 Flask==1.0.2
 flask-paginate==0.5.1
 funcsigs==1.0.2
