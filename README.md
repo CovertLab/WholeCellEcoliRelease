@@ -159,7 +159,7 @@ This will display the stdout and stderr from the execution of a firework with fw
 Using the manual runscripts
 ---------------------------
 
-These scripts will run the parca, simulation, and analysis steps directly without Fireworks. They're handy for development, e.g. running under the PyCharm debugger. They have command line interfaces built on `argparse`, which means for one thing that you can use shorter option names as long as they're unambiguous.
+These scripts will run the parameter calculator (parca), simulation, and analysis steps directly without Fireworks. They're handy for development, e.g. running under the PyCharm debugger. They have command line interfaces built on `argparse`, which means for one thing that you can use shorter option names as long as they're unambiguous.
 
 _Use the `-h` or `--help` switch to get complete, up-to-date documentation on the options._
 

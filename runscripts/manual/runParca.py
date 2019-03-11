@@ -1,6 +1,6 @@
 """
-Run the Parca. The output goes into the named subdirectory of wcEcoli/out/,
-defaulting to "manual".
+Run the Parameter Calculator (Parca).
+The output goes into the named subdirectory of wcEcoli/out/, defaulting to "manual".
 
 TODO: Default to a typical timestamped directory name instead of "manual"?
 

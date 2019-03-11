@@ -1,6 +1,6 @@
 """
-Run a simple simulation, assuming you've run the Parca. This does not run
-multiple initial simulations or multiple daughters per generation.
+Run a simple simulation, assuming you've run the parameter calculator first (Parca).
+This does not run multiple initial simulations or multiple daughters per generation.
 
 TODO: Share more code with fw_queue.py.
 

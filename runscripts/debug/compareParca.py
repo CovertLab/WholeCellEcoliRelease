@@ -9,7 +9,7 @@ from runscripts.reflect.object_tree import object_tree, diff_trees
 
 
 def load_fit_tree(out_subdir):
-	'''Load the Parca's output as an object_tree.'''
+	'''Load the parameter calculator's (Parca's) output as an object_tree.'''
 	path = os.path.join(
 		os.getcwd(),
 		'out',
