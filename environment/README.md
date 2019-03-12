@@ -12,9 +12,9 @@ See the top-level [README.md](../README.md) for general setup instructions, and 
 ## Usage
 
 1. To run Whole Cell E.coli simulations, you need to have the sim_data files. You can generate them via the
-runFitter manual runscript. In the wcEcoli directory:
+runParca manual runscript. In the wcEcoli directory:
 
-    `> PYTHONPATH="$PWD" python runscripts/manual/runFitter.py`
+    `> PYTHONPATH="$PWD" python runscripts/manual/runParca.py`
 
 2. See [agent/README.md](../agent/README.md) for instructions to set up your Zookeeper and Kafka servers. To recap:
 

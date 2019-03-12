@@ -52,7 +52,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			if x > 0 else float(-x)/reverse_sequence_length
 			for x in rna_coordinates])
 
-		all_fitter_synth_probs = sim_data.process.transcription.rnaSynthProb[sim_data.condition]
+		all_parca_synth_probs = sim_data.process.transcription.rnaSynthProb[sim_data.condition]
 
 		# Listeners used
 		main_reader = TableReader(os.path.join(simOutDir, 'Main'))
@@ -70,7 +70,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			"counts")[:, dosage_idx]
 		synth_probs = synth_prob_reader.readColumn(
 			"rnaSynthProb")[:, rna_idx]
-		fitter_synth_probs = all_fitter_synth_probs[rna_idx]
+		parca_synth_probs = all_parca_synth_probs[rna_idx]
 
 		n_plots = len(RNA_ID_LIST)
 
@@ -82,7 +82,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			ax1 = plt.subplot(gs[i, 0])
 			ax1.set_ylabel("Transcription probability")
 			ax1.plot(time, synth_probs[:, i], label="Transcription probability")
-			ax1.axhline(fitter_synth_probs[i],
+			ax1.axhline(parca_synth_probs[i],
 				linestyle="--", color='k', linewidth=3,
 				label="Fit transcription probability")
 			ax1.legend(loc=2)

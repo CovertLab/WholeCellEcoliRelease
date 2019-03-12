@@ -159,14 +159,14 @@ This will display the stdout and stderr from the execution of a firework with fw
 Using the manual runscripts
 ---------------------------
 
-These scripts will run the fitter, simulation, and analysis steps directly without Fireworks. They're handy for development, e.g. running under the PyCharm debugger. They have command line interfaces built on `argparse`, which means for one thing that you can use shorter option names as long as they're unambiguous.
+These scripts will run the parameter calculator (parca), simulation, and analysis steps directly without Fireworks. They're handy for development, e.g. running under the PyCharm debugger. They have command line interfaces built on `argparse`, which means for one thing that you can use shorter option names as long as they're unambiguous.
 
 _Use the `-h` or `--help` switch to get complete, up-to-date documentation on the options._
 
 
-To run all the parameter-fitter steps:
+To run all the parameter calculation steps:
 ```bash
-python runscripts/manual/runFitter.py [-h] [--cpus CPUS] [--cached] [--debug] [sim_outdir]
+python runscripts/manual/runParca.py [-h] [--cpus CPUS] [--cached] [--debug] [sim_outdir]
 ```
 
 To do a simple simulation run:

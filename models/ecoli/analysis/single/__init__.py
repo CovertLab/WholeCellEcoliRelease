@@ -70,7 +70,7 @@ TAGS = {
 		"rnapCounts.py",
 		"rnaseCounts.py",
 		],
-	'FITTER': [
+	'PARCA': [
 		"KmOptimization.py",
 		"KmRNAdecayComparison.py",
 		],

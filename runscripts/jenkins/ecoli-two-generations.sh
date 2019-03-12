@@ -37,11 +37,11 @@ curl -F file=@massFractionSummary.png -F channels=#jenkins -F token=xoxb-1778727
 cd $TOP_DIR
 rm -fr out/*
 
-# Run everything with WC_ANALYZE_FAST and PARALLEL_FITTER
+# Run everything with WC_ANALYZE_FAST and PARALLEL_PARCA
 
 echo y | lpad reset
 
-PYTHONPATH=$PWD DESC="2 generations completion test." WC_ANALYZE_FAST=1 SINGLE_DAUGHTERS=1 N_GENS=2 PARALLEL_FITTER=1 PLOTS=ACTIVE python runscripts/fireworks/fw_queue.py
+PYTHONPATH=$PWD DESC="2 generations completion test." WC_ANALYZE_FAST=1 SINGLE_DAUGHTERS=1 N_GENS=2 PARALLEL_PARCA=1 PLOTS=ACTIVE python runscripts/fireworks/fw_queue.py
 
 PYTHONPATH=$PWD rlaunch rapidfire --nlaunches 0
 

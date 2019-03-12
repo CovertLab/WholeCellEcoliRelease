@@ -50,8 +50,8 @@ besides building the `sim_tree` dictionary, will print out all instance variable
 ```python
 sim_data.process.two_component_system.derivatives: <function derivatives at 0x11f9771b8>
 sim_data.process.two_component_system.derivativesJacobian: <function derivativesJacobian at 0x11f977230>
-sim_data.process.two_component_system.derivativesFitter: <function derivatives at 0x11f977488>
-sim_data.process.two_component_system.derivativesFitterJacobian: <function derivativesJacobian at 0x11f977500>
+sim_data.process.two_component_system.derivativesParca: <function derivatives at 0x11f977488>
+sim_data.process.two_component_system.derivativesParcaJacobian: <function derivativesJacobian at 0x11f977500>
 sim_data.process.equilibrium.derivatives: <function derivatives at 0x11f977398>
 sim_data.process.equilibrium.derivativesJacobian: <function derivativesJacobian at 0x11f977578>
 ```

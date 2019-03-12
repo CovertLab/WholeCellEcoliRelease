@@ -22,12 +22,12 @@ Variant variables:
 
 Workflow options:
 	CACHED_SIM_DATA (int, "0"): if nonzero, previously cached data will be used
-		to run the simulation instead of running the fitter; useful for repeated
-		simulations where raw_data/fitter files are not changed
-	PARALLEL_FITTER (int, "0"): if nonzero, some fitter operations will run in
+		to run the simulation instead of running the parca; useful for repeated
+		simulations where raw_data/parca files are not changed
+	PARALLEL_PARCA (int, "0"): if nonzero, some parca operations will run in
 		parallel instead of serially
-	DEBUG_FITTER (int, "0"): if nonzero, this reduces the number of TFs and
-		conditions; allows for faster debugging of fitter
+	DEBUG_PARCA (int, "0"): if nonzero, this reduces the number of TFs and
+		conditions; allows for faster debugging of parca
 	COMPRESS_OUTPUT (int, "0"): if nonzero, outputs will be compressed (.bz2)
 	RUN_AGGREGATE_ANALYSIS (int, "1"): if nonzero, all analyses are run on
 		simulation output
@@ -165,8 +165,8 @@ VERBOSE_QUEUE = bool(int(get_environment("VERBOSE_QUEUE", "1")))
 RUN_AGGREGATE_ANALYSIS = bool(int(get_environment("RUN_AGGREGATE_ANALYSIS", "1")))
 PLOTS = get_environment("PLOTS", "CORE").split()
 CACHED_SIM_DATA = bool(int(get_environment("CACHED_SIM_DATA", "0")))
-PARALLEL_FITTER = bool(int(get_environment("PARALLEL_FITTER", "0")))
-DEBUG_FITTER = bool(int(get_environment("DEBUG_FITTER", "0")))
+PARALLEL_PARCA = bool(int(get_environment("PARALLEL_PARCA", "0")))
+DEBUG_PARCA = bool(int(get_environment("DEBUG_PARCA", "0")))
 DISABLE_RIBOSOME_CAPACITY_FITTING = bool(int(get_environment("DISABLE_RIBOSOME_CAPACITY_FITTING", "0")))
 DISABLE_RNAPOLY_CAPACITY_FITTING = bool(int(get_environment("DISABLE_RNAPOLY_CAPACITY_FITTING", "0")))
 BUILD_CAUSALITY_NETWORK = bool(int(get_environment("BUILD_CAUSALITY_NETWORK", "0")))
@@ -285,7 +285,7 @@ fw_name = "FitSimDataTask_Level_1"
 if VERBOSE_QUEUE:
 	print "Queueing {}".format(fw_name)
 
-cpusForFitter = 8 if PARALLEL_FITTER else 1
+cpusForParca = 8 if PARALLEL_PARCA else 1
 fw_fit_level_1 = Firework(
 	FitSimDataTask(
 		fit_level = 1,
@@ -293,13 +293,13 @@ fw_fit_level_1 = Firework(
 		output_data = os.path.join(KB_DIRECTORY, filename_sim_data_fit_1),
 		cached = CACHED_SIM_DATA,
 		cached_data = os.path.join(CACHED_SIM_DATA_DIRECTORY, filename_sim_data_fit_1),
-		cpus = cpusForFitter,
-		debug = DEBUG_FITTER,
+		cpus = cpusForParca,
+		debug = DEBUG_PARCA,
 		disable_ribosome_capacity_fitting = DISABLE_RIBOSOME_CAPACITY_FITTING,
 		disable_rnapoly_capacity_fitting = DISABLE_RNAPOLY_CAPACITY_FITTING,
 		),
 	name = fw_name,
-	spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": cpusForFitter}, "_priority":1}
+	spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": cpusForParca}, "_priority":1}
 	)
 
 wf_fws.append(fw_fit_level_1)

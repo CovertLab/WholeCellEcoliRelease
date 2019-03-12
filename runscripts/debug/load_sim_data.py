@@ -1,7 +1,7 @@
 '''
 Script to quickly load raw_data and sim_data to interactively explore contents
-through ipdb instead of running the fitter. Shortcut names rd and sd are created
-for typing ease.
+through ipdb instead of running the parameter calculator (parca).
+Shortcut names rd and sd are created for typing ease.
 
 Use:
 	python runscripts/manual/load_sim_data.py

@@ -132,7 +132,7 @@ def initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff):
 
 	monomersView = bulkMolCntr.countsView(sim_data.process.translation.monomerData["id"])
 	monomerMass = massCoeff * sim_data.mass.getFractionMass(sim_data.conditionToDoublingTime[sim_data.condition])["proteinMass"] / sim_data.mass.avgCellToInitialCellConvFactor
-	# TODO: unify this logic with the fitter so it doesn't fall out of step
+	# TODO: unify this logic with the parca so it doesn't fall out of step
 	# again (look at the calcProteinCounts function)
 
 	monomerExpression = normalize(

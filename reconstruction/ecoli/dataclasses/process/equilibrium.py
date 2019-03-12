@@ -7,7 +7,7 @@ _populateDerivativeAndJacobian()
 	Assumes a directory structure
 
 fluxesAndMoleculesToSS()
-	Consider relocating (since it's useful for both the fitter and simulation)
+	Consider relocating (since it's useful for both the parca and simulation)
 """
 
 from __future__ import absolute_import

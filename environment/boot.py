@@ -137,7 +137,7 @@ def boot_ecoli(agent_id, agent_type, agent_config):
 	if not os.path.isfile(sim_data_fit):
 		raise IOError(
 			errno.ENOENT,
-			'Missing "{}".  Run the Fitter?'.format(sim_data_fit))
+			'Missing "{}".  Run the Parca?'.format(sim_data_fit))
 
 	# Apply the variant to transform simData_Most_Fit.cPickle
 	info, sim_data = apply_variant.apply_variant(

@@ -38,7 +38,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		nutrients = sim_data.conditions[sim_data.condition]["nutrients"]
 		synth_prob_fractions = sim_data.process.transcription.rnaSynthProbFraction[nutrients]
 
-		# Get "average" synthesis probability fractions set by the fitter
+		# Get "average" synthesis probability fractions set by the parca
 		mrna_avg_synth_prob = synth_prob_fractions["mRna"]
 		trna_avg_synth_prob = synth_prob_fractions["tRna"]
 		rrna_avg_synth_prob = synth_prob_fractions["rRna"]

@@ -16,8 +16,8 @@ class SimulationTask(FireTaskBase):
 
 		print "%s: Running simulation" % time.ctime()
 
-		# load the sim_data from the output of the fitter
-		# TODO(spanglry): make the fitter output JSON and this load from JSON instead
+		# load the sim_data from the output of the parameter calculator (parca)
+		# TODO(spanglry): make the parca output JSON and this load from JSON instead
 		with open(self["input_sim_data"], "rb") as input_sim_data:
 			sim_data = cPickle.load(input_sim_data)
 
