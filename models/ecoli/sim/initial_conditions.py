@@ -473,9 +473,6 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	shuffleIdxs = getattr(sim_data.process.transcription, 'initiationShuffleIdxs', None)
 
 	# ID Groups
-	idx_16Srrna = np.where(sim_data.process.transcription.rnaData['isRRna16S'])[0]
-	idx_23Srrna = np.where(sim_data.process.transcription.rnaData['isRRna23S'])[0]
-	idx_5Srrna = np.where(sim_data.process.transcription.rnaData['isRRna5S'])[0]
 	idx_rrna = np.where(sim_data.process.transcription.rnaData['isRRna'])[0]
 	idx_mrna = np.where(sim_data.process.transcription.rnaData["isMRna"])[0]
 	idx_trna = np.where(sim_data.process.transcription.rnaData["isTRna"])[0]
@@ -534,6 +531,17 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 
 	scaleTheRestBy = (1. - promoter_init_probs[is_fixed].sum()) / promoter_init_probs[~is_fixed].sum()
 	promoter_init_probs[~is_fixed] *= scaleTheRestBy
+
+	# Compute synthesis probabilities of each transcription unit
+	trs_unit_synth_probs = trs_unit_to_promoter.dot(promoter_init_probs)
+
+	# Shuffle initiation rates if we're running the variant that calls this
+	if shuffleIdxs is not None:
+		rescale_initiation_probs(
+			promoter_init_probs, trs_unit_index,
+			np.arange(n_trs_units),
+			trs_unit_synth_probs[shuffleIdxs]
+			)
 
 	# normalize to length of rna
 	init_prob_length_adjusted = promoter_init_probs * rnaLengths[trs_unit_index]

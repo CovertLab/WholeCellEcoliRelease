@@ -70,6 +70,11 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 				'fixedSynthProbs': map(lambda pair: pair[1], probability_indexes)
 				}
 
+		# If initiationShuffleIdxs does not exist, set value to None
+		self.shuffleIdxs = getattr(
+			sim_data.process.transcription, "initiationShuffleIdxs", None
+			)
+
 		# Views
 		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
 		self.inactiveRnaPolys = self.bulkMoleculeView("APORNAP-CPLX[c]")
@@ -173,6 +178,15 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		# Compute synthesis probabilities of each transcription unit
 		trs_unit_synth_probs = trs_unit_to_promoter.dot(self.promoter_init_probs)
 		self.writeToListener("RnaSynthProb", "rnaSynthProb", trs_unit_synth_probs)
+
+		# Shuffle synthesis probabilities if we're running the variant that
+		# calls this (In general, this should lead to a cell which does not
+		# grow and divide)
+		if self.shuffleIdxs is not None:
+			self._rescale_initiation_probs(
+				np.arange(self.n_trs_units),
+				trs_unit_synth_probs[self.shuffleIdxs]
+				)
 
 		# no synthesis if no chromosome
 		if self.full_chromosomes.total_counts()[0] == 0:
