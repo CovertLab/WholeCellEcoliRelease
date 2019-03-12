@@ -3,7 +3,8 @@ Variant to compare varying levels of menE expression to show subgenerational
 expression.
 
 Modifies:
-	sim_data.process.transcription_regulation.recruitmentData
+	sim_data.process.transcription_regulation.basal_prob
+	sim_data.process.transcription_regulation.delta_prob
 	sim_data.process.transcription.rnaExpression
 
 Expected variant indices (dependent on FACTORS):
@@ -26,14 +27,15 @@ def mene_params(sim_data, index):
 		return CONTROL_OUTPUT, sim_data
 
 	adjustFactor = FACTORS[index]
-	mene_rnaIndex = np.where(sim_data.process.transcription.rnaData["id"] == "EG12437_RNA[c]")[0]
-	mene_recruitmentIndices = np.where(sim_data.process.transcription_regulation.recruitmentData["hI"] == mene_rnaIndex)[0]
+	mene_rna_index = np.where(sim_data.process.transcription.rnaData["id"] == "EG12437_RNA[c]")[0]
+	mene_delta_prob_indices = np.where(sim_data.process.transcription_regulation.delta_prob["deltaI"] == mene_rna_index)[0]
 
-	# Adjust transcript synthesis probability in recruitmentData
-	sim_data.process.transcription_regulation.recruitmentData["hV"][mene_recruitmentIndices] *= adjustFactor
+	# Adjust transcript synthesis probability in basal_prob and delta_prob
+	sim_data.process.transcription_regulation.basal_prob[mene_rna_index] *= adjustFactor
+	sim_data.process.transcription_regulation.delta_prob["deltaV"][mene_delta_prob_indices] *= adjustFactor
 
 	# Adjust rna expression data in order to impact initial condition
-	sim_data.process.transcription.rnaExpression[sim_data.condition][mene_rnaIndex] *= adjustFactor
+	sim_data.process.transcription.rnaExpression[sim_data.condition][mene_rna_index] *= adjustFactor
 
 	return dict(
 		shortName = "{}_meneParams".format(index),
