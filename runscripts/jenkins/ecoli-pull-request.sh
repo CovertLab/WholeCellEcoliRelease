@@ -17,7 +17,7 @@ sh runscripts/jenkins/fireworks-config.sh $HOST $NAME $PORT $PASSWORD
 
 echo y | lpad reset
 
-PYTHONPATH=$PWD DESC="2 generations completion test." WC_ANALYZE_FAST=1 SINGLE_DAUGHTERS=1 N_GENS=2 MASS_DISTRIBUTION=0 PARALLEL_FITTER=1 COMPRESS_OUTPUT=0 PLOTS=ACTIVE python runscripts/fireworks/fw_queue.py
+PYTHONPATH=$PWD DESC="2 generations completion test." WC_ANALYZE_FAST=1 SINGLE_DAUGHTERS=1 N_GENS=2 MASS_DISTRIBUTION=0 PARALLEL_PARCA=1 COMPRESS_OUTPUT=0 PLOTS=ACTIVE python runscripts/fireworks/fw_queue.py
 
 PYTHONPATH=$PWD rlaunch rapidfire --nlaunches 0
 

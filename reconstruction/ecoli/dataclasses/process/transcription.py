@@ -196,7 +196,7 @@ class Transcription(object):
 		self.rnaSynthProb = {}
 
 		# Set basal expression and synthesis probabilities - conditional values
-        # are set in the fitter.
+        # are set in the parca.
 		self.rnaExpression["basal"] = expression / expression.sum()
 		self.rnaSynthProb["basal"] = synthProb / synthProb.sum()
 

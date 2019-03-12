@@ -1,5 +1,5 @@
 """
-The fitter, aka parameter calculator.
+The parca, aka parameter calculator.
 
 TODO: establish a controlled language for function behaviors (i.e. create* set* fit*)
 TODO: functionalize so that values are not both set and returned from some methods
@@ -105,7 +105,7 @@ def fitSimData_1(
 
 	# Limit the number of conditions that are being fit so that execution time decreases
 	if debug:
-		print("Warning: Running the Fitter in debug mode - not all conditions will be fit")
+		print("Warning: Running the Parca in debug mode - not all conditions will be fit")
 		key = sim_data.tfToActiveInactiveConds.keys()[0]
 		sim_data.tfToActiveInactiveConds = {key: sim_data.tfToActiveInactiveConds[key]}
 
@@ -145,7 +145,7 @@ def fitSimData_1(
 	cpus = parallelization.cpus(cpus, advice='mac override')
 
 	if cpus > 1:
-		print("Starting {} Fitter processes".format(cpus))
+		print("Starting {} Parca processes".format(cpus))
 		pool = mp.Pool(processes = cpus)
 		conds = sorted(sim_data.tfToActiveInactiveConds)
 		results = [
@@ -192,7 +192,7 @@ def fitSimData_1(
 	sim_data.process.translation.ribosomeFractionActiveDict = {}
 
 	if cpus > 1:
-		print("Starting {} Fitter processes".format(cpus))
+		print("Starting {} Parca processes".format(cpus))
 		pool = mp.Pool(processes = cpus)
 		results = [pool.apply_async(fitCondition, (sim_data, cellSpecs[condition], condition)) for condition in sorted(cellSpecs)]
 		pool.close()

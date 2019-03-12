@@ -9,7 +9,7 @@ _populateDerivativeAndJacobian()
 	Assumes a directory structure
 
 moleculesToNextTimeStep()
-	Consider relocating (since it's useful for both the fitter and simulation)
+	Consider relocating (since it's useful for both the parca and simulation)
 
 """
 
@@ -285,9 +285,9 @@ class TwoComponentSystem(object):
 			os.path.dirname(os.path.dirname(wholecell.__file__)),
 			"reconstruction", "ecoli", "dataclasses", "process", "two_component_system_odes.py"
 			)
-		odeFitterFile = os.path.join(
+		odeParcaFile = os.path.join(
 			os.path.dirname(os.path.dirname(wholecell.__file__)),
-			"reconstruction", "ecoli", "dataclasses", "process", "two_component_system_odes_fitter.py"
+			"reconstruction", "ecoli", "dataclasses", "process", "two_component_system_odes_parca.py"
 			)
 
 		needToCreate = False
@@ -295,7 +295,7 @@ class TwoComponentSystem(object):
 		if not os.path.exists(odeFile):
 			needToCreate = True
 
-		if not os.path.exists(odeFitterFile):
+		if not os.path.exists(odeParcaFile):
 			needToCreate = True
 
 		if os.path.exists(os.path.join(fixturesDir, "S.cPickle")):
@@ -321,19 +321,19 @@ class TwoComponentSystem(object):
 
 		if needToCreate:
 			self._makeDerivative()
-			self._makeDerivativeFitter()
+			self._makeDerivativeParca()
 
 			writeOdeFile(odeFile, self.derivativesSymbolic, self.derivativesJacobianSymbolic)
-			writeOdeFile(odeFitterFile, self.derivativesFitterSymbolic, self.derivativesFitterJacobianSymbolic)
+			writeOdeFile(odeParcaFile, self.derivativesParcaSymbolic, self.derivativesParcaJacobianSymbolic)
 
 			# Modules are imported here to ensure the files exist before import
 			import reconstruction.ecoli.dataclasses.process.two_component_system_odes
-			import reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter
+			import reconstruction.ecoli.dataclasses.process.two_component_system_odes_parca
 
 			self.derivatives = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivatives
 			self.derivatives_jacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivativesJacobian
-			self.derivatives_fitter = reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter.derivatives
-			self.derivatives_fitter_jacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter.derivativesJacobian
+			self.derivatives_parca = reconstruction.ecoli.dataclasses.process.two_component_system_odes_parca.derivatives
+			self.derivatives_parca_jacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes_parca.derivativesJacobian
 
 			cPickle.dump(self.stoichMatrix(), open(os.path.join(fixturesDir, "S.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
 			cPickle.dump(self.ratesFwd, open(os.path.join(fixturesDir, "ratesFwd.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
@@ -341,12 +341,12 @@ class TwoComponentSystem(object):
 		else:
 			# Modules are imported here to ensure the files exist before import
 			import reconstruction.ecoli.dataclasses.process.two_component_system_odes
-			import reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter
+			import reconstruction.ecoli.dataclasses.process.two_component_system_odes_parca
 
 			self.derivatives = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivatives
 			self.derivatives_jacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivativesJacobian
-			self.derivatives_fitter = reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter.derivatives
-			self.derivatives_fitter_jacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter.derivativesJacobian
+			self.derivatives_parca = reconstruction.ecoli.dataclasses.process.two_component_system_odes_parca.derivatives
+			self.derivatives_parca_jacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes_parca.derivativesJacobian
 
 
 	def _makeDerivative(self):
@@ -387,11 +387,11 @@ class TwoComponentSystem(object):
 		self.derivativesSymbolic = dy
 
 
-	def _makeDerivativeFitter(self):
+	def _makeDerivativeParca(self):
 		'''
 		Creates symbolic representation of the ordinary differential equations
 		and the Jacobian assuming ATP, ADP, Pi, water and protons are at
-		steady state. Used in the fitter.
+		steady state. Used in the parca.
 		'''
 		S = self.stoichMatrix()
 
@@ -428,8 +428,8 @@ class TwoComponentSystem(object):
 		dy = sp.Matrix(dy)
 		J = dy.jacobian(y)
 
-		self.derivativesFitterJacobianSymbolic = J
-		self.derivativesFitterSymbolic = dy
+		self.derivativesParcaJacobianSymbolic = J
+		self.derivativesParcaSymbolic = dy
 
 
 	def moleculesToNextTimeStep(self, moleculeCounts, cellVolume,
@@ -522,8 +522,8 @@ class TwoComponentSystem(object):
 		y_init = moleculeCounts / (cellVolume * nAvogadro)
 
 		y = scipy.integrate.odeint(
-			self.derivatives_fitter, y_init,
-			t=[0, timeStepSec], Dfun=self.derivatives_fitter_jacobian
+			self.derivatives_parca, y_init,
+			t=[0, timeStepSec], Dfun=self.derivatives_parca_jacobian
 			)
 
 		if np.any(y[-1, :] * (cellVolume * nAvogadro) <= -1):

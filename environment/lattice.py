@@ -206,7 +206,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 			molecule = self.lattice[index]
 
 			# run diffusion if molecule field is not uniform
-			if (len(set(molecule.flatten())) != 1):
+			if len(set(molecule.flatten())) != 1:
 				change_lattice[index] = self.diffusion_timestep(molecule)
 
 		self.lattice += change_lattice
@@ -296,7 +296,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		for agent_id, simulation in self.simulations.iteritems():
 			# only apply changes if we have reached this simulation's time point.
 			if simulation['time'] <= now:
-				print('=================== simulation update: {}'.format(simulation))
+				# print('=== simulation update: {}'.format(simulation))
 				state = simulation['state']
 
 				if 'motile_force' in state:
@@ -397,7 +397,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		offset = np.array([length * 0.75, 0])
 		rotation = self.rotation_matrix(-orientation + (index * np.pi))
 		translation = (offset * rotation).A1
-		return (location + translation)
+		return location + translation
 
 	def apply_parent_state(self, agent_id, parent):
 		parent_location = parent['location']
@@ -407,7 +407,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		length = self.volume_to_length(volume)
 		location = self.daughter_location(parent_location[0:2], orientation, length, index)
 
-		print("================= parent: {} - daughter: {}".format(parent_location, location))
+		# print("=== parent: {} - daughter: {}".format(parent_location, location))
 
 		self.locations[agent_id] = np.hstack((location, orientation))
 

@@ -9,51 +9,52 @@ and `environment.control` for sending commands to agents.
 See the top-level [README.md](../README.md) for general setup instructions, and the
 [agent README.md](../agent/README.md) for multi-agent simulation setup.
 
-## Usage
-
 1. To run Whole Cell E.coli simulations, you need to have the sim_data files. You can generate them via the
 runFitter manual runscript. In the wcEcoli directory:
 
     `> PYTHONPATH="$PWD" python runscripts/manual/runFitter.py`
 
-2. See [agent/README.md](../agent/README.md) for instructions to set up your Zookeeper and Kafka servers. To recap:
+## Zookeeper and Kafka
+
+2. See [agent/README.md](../agent/README.md) for instructions to set up, start, and stop your Zookeeper and Kafka servers. To recap:
 
    1. Start Zookeeper in the directory where you untarred the Kafka and Zookeeper software:
 
-      `> ./bin/zookeeper-server-start.sh ./config/zookeeper.properties`
+      `> bin/zookeeper-server-start.sh config/zookeeper.properties`
 
    2. Then start the Kafka server in another shell tab in the same directory:
 
-      `> ./bin/kafka-server-start.sh ./config/server.properties`
+      `> bin/kafka-server-start.sh config/server.properties --override listeners=PLAINTEXT://127.0.0.1:9092`
 
-3. **Optional:** Start the [Environment visualization](https://github.com/CovertLab/environment)
-server and browser window per the instructions on that page. To recap:
+3. **Optional:** Start the "Lens" environment visualization server and browser window per the instructions on the [CovertLab/shepherd](https://github.com/CovertLab/shepherd) page. To recap:
 
-   1. Run the visualization server in the root directory of that repository:
+   1. Run the Lens visualization server in the root directory of the [CovertLab/shepherd](https://github.com/CovertLab/shepherd) repository:
 
-      `> lein run`
+      `> lein run -m shepherd.lens`
 
    2. Open a browser window onto [http://localhost:33332](http://localhost:33332)
 
-4. You can run an Environment agent and Cell agents directly from the command line although we usually do it via an agent Shepherd (see below).
+## One Agent Per Terminal Tab
 
-   (**Tip:** Run each process in a new terminal tab. Use iTerm split windows to make it easy to watch them all at once.)
+**Note:** This section describes how to launch the an Environment and Cell agent processes directly from the command line, but we usually use the **Agent Shepherd** approach described in the next section.
 
-   In the first tab start an Environment model agent:
+**Tip:** Run each process in a new terminal tab. Use iTerm split windows to make it easy to watch them all at once.
+
+4. In the first terminal tab, launch an Environment agent:
 
       `> python -m environment.boot --type lattice --id lattice`
 
-      This creates the Environment agent, waiting for Cell simulations to register.
+      The Environment agent will wait for Cell simulation agents to register.
       You can optionally pass in a JSON `--config '{...}'` dictionary.
 
-      **VARIATION:** If you didn't open the browser-based visualization, you can have the
+      **Variation:** If you didn't open the Lens browser-based visualization, you can have the
       Environment agent open a "microscope" view onto the plate by launching it like this:
 
       `> ENVIRONMENT_ANIMATION=1 python -m environment.boot --type lattice --id lattice`
 
 5. Now start a Cell agent in a new tab:
 
-    `> python -m environment.boot --type ecoli --id 1 --outer-id lattice`
+   `> python -m environment.boot --type ecoli --id 1 --outer-id lattice`
 
    You'll see messages like this one from the Cell agent to the Environment agent,
    declaring itself to the environment and giving its current state:
@@ -67,47 +68,62 @@ server and browser window per the instructions on that page. To recap:
 6. Start as many cells as desired, each with its own unique id (agent name), and each in a
 separate terminal tab.
 
-7. Finally, run `trigger` in a separate "command" tab to start the simulation clock:
+7. Finally, use a separate "command" tab to start the simulation running:
 
-   `> python -m environment.control trigger --id lattice`
+   `> python -m environment.control run`
 
-8. To stop the simulation, run `shutdown` in the command tab:
+   You can `pause` and `run` it all you like.
 
-   `> python -m environment.control shutdown --id lattice`
+8. To shut down the simulation, run `shutdown` in the command tab:
+
+   `> python -m environment.control shutdown`
 
 ## Agent Shepherd
 
-The current way to start the simulation is to use the agent Shepherd, which will manage the spawning and removal of agents as subprocesses rather than launching each in its own tab.
+The current way to start the simulation is to use the agent Shepherd, which will spawn
+agents as subprocesses so you don't have to launch each agent in its own tab.
+Furthermore, this enables cell division wherein a cell agent process ends and two
+new ones begin.
 
 Clone the [CovertLab/shepherd](https://github.com/CovertLab/shepherd) repo and run:
 
    `> lein run`
 
-Now that it is running you can start an experiment in another terminal tab:
+Use a "Lens" browser page to view the agents in action. To do this, open another shell
+tab onto the shepherd repo directory and run:
+
+   `> lein run -m shepherd.lens`
+
+then open a browser window onto [http://localhost:33332/](http://localhost:33332/)
+
+Now you can start a virtual microscope experiment in a "command" terminal tab:
 
    `> python -m environment.control experiment --number 3`
 
-This will send four `ADD_AGENT` messages to the shepherd, one for the environment agent and three for the simulation agents. Note the `agent_id` for the lattice as you will need this for future control messages (like trigger and shutdown). These messages are received by the shepherd and you will see them all boot in the shepherd's tab. You still need to trigger execution, which requires the `agent_id` of the environment:
+This will send four `ADD_AGENT` messages to the shepherd: one for the _lattice environment_ agent and three for the _cell simulation_ agents. Note the `agent_id` for the lattice as you will need this for future control messages (like `run` and `shutdown`). These messages are received by the shepherd and you will see all the agents' logs in the "shepherd" tab.
 
-   `> python -m environment.control trigger --id xxxxxx-xxxx-xxxxxxxxxx`
+You can `run`/`pause` the simulation at will:
 
-If you know that this is the only environment you are running, or you want to control all environments at once, you can omit the `--id` option:
+   `> python -m environment.control run`
 
-   `> python -m environment.control trigger`
+   `> python -m environment.control pause`
 
-Now that they are running, you can add new agents with `add`:
+You can add another cell agent:
 
-   `> python -m environment.control add --id xxxxxx-xxxx-xxxxxxxxxx`
+   `> python -m environment.control add`
 
-Or remove them with `remove` given an id. This can be just the prefix of the agent's id so you don't have to type the whole uuid:
+(If you're running multiple environment agents, you can specify a lattice environment agent id via the `--id` option.)
+
+You can remove a cell agent using the prefix of the agent's id (you don't have to type the whole id):
 
    `> python -m environment.control remove --id dgaf`
 
-Finally, to shut down the experiment call `shutdown` as before:
+Finally, to shut down the experiment, run `shutdown`:
 
-   `> python -m environment.control shutdown --id xxxxxx-xxxx-xxxxxxxxxx`
+   `> python -m environment.control shutdown`
 
-Notice this just shuts down the experiment, the shepherd is still running and a new experiment can be started. To shut down the shepherd process, just `Ctrl-C`.
+Notice this just shuts down the agents. The Shepherd is still running and ready for a new experiment.
+Use `Ctrl-C` to stop the Shepherd and Lens processes.
 
 ## command summary
 
@@ -122,7 +138,7 @@ The environment.boot commands run an agent in the current shell tab:
 
 The environment.control commands include:
 
-* trigger - start/resume the simulation clock
+* run - start/resume the simulation clock
 * pause - pause the simulation clock
 * shutdown - shutdown the simulation
 

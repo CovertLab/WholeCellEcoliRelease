@@ -1,6 +1,6 @@
 """
-Run a simple simulation, assuming you've run the Fitter. This does not run
-multiple initial simulations or multiple daughters per generation.
+Run a simple simulation, assuming you've run the parameter calculator first (Parca).
+This does not run multiple initial simulations or multiple daughters per generation.
 
 TODO: Share more code with fw_queue.py.
 
@@ -117,7 +117,7 @@ class RunSimulation(scriptBase.ScriptBase):
 		sim_data_file = os.path.join(kb_directory, 'simData_Fit_1.cPickle')
 		if not os.path.isfile(sim_data_file):
 			raise IOError(errno.ENOENT,
-				'Missing "{}".  Run the Fitter?'.format(sim_data_file))
+				'Missing "{}".  Run the Parca?'.format(sim_data_file))
 
 		variant_type = args.variant[0]
 		variants_to_run = xrange(int(args.variant[1]), int(args.variant[2]) + 1)

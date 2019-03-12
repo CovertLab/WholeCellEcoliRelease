@@ -37,7 +37,7 @@ class FitSimDataTask(FireTaskBase):
 					return
 				except Exception as exc:
 					print("Warning: Could not copy cached sim data due to"
-						  " exception ({}). Running Fitter.".format(exc))
+						  " exception ({}). Running Parca.".format(exc))
 
 			cpus = self["cpus"]
 

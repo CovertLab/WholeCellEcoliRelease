@@ -198,13 +198,12 @@ class Agent(object):
 		if print_send:
 			self.print_message(topic, message, False)
 
-		self.producer.poll(0)
 		self.producer.produce(
 			topic,
 			payload,
 			callback=delivery_report)
 
-		self.producer.flush()
+		self.producer.flush(timeout=1.0)
 
 	def print_message(self, topic, message, incoming=True):
 		"""Print the incoming or outgoing message to the console/log, redacting
@@ -315,8 +314,7 @@ class Agent(object):
 		self.running = False
 		self.finalize()
 
-		self.producer.flush()
-		self.producer.poll(0)
+		self.producer.flush(timeout=1.0)
 
 		if self.consumer:
 			self.consumer.commit()

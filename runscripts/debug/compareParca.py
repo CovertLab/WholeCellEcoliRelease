@@ -9,7 +9,7 @@ from runscripts.reflect.object_tree import object_tree, diff_trees
 
 
 def load_fit_tree(out_subdir):
-	'''Load the Fitter's output as an object_tree.'''
+	'''Load the parameter calculator's (Parca's) output as an object_tree.'''
 	path = os.path.join(
 		os.getcwd(),
 		'out',
@@ -23,12 +23,12 @@ def load_fit_tree(out_subdir):
 	return object_tree(sim_data)
 
 
-# Compare the output of two fitter runs, optionally running the fitter first.
+# Compare the output of two parca runs, optionally running the parca first.
 
 if __name__ == '__main__':
 	if len(sys.argv) < 3:
 		print('''Usage: {} SIMDIR1 SIMDIR2
-Compare the Fitter output between the two out/ sim-dirs and print a summary of
+Compare the Parca output between the two out/ sim-dirs and print a summary of
 the differences.'''.format(sys.argv[0]))
 		exit(2)
 

@@ -44,7 +44,7 @@ def default_wcecoli_out_subdir_path():
 		return fallback
 
 	raise IOError(errno.ENOENT,
-		'"{}" has no subdirectories.  Run the Fitter?'.format(out_dir))
+		'"{}" has no subdirectories.  Run the Parca?'.format(out_dir))
 
 def find_sim_path(directory=None):
 	"""Find a simulation path, looking for the given directory name as an

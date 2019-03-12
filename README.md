@@ -1,75 +1,101 @@
-Whole Cell Model - *Escherichia coli*
-===================================
+# Whole Cell Model - *Escherichia coli*
 
-This repository contains work to date on the [Covert Lab's](https://www.covert.stanford.edu/) Whole Cell Model for [*Escherichia coli*](https://en.wikipedia.org/wiki/Escherichia_coli), as well as some effort to create a framework for building whole cell models in general. 
+This repository contains work to date on the [Covert Lab's](https://www.covert.stanford.edu/) Whole Cell Model for [*Escherichia coli*](https://en.wikipedia.org/wiki/Escherichia_coli), as well as some effort to create a framework for building whole cell models in general.
 
-Until now most of the work has been on Stanford's local [Sherlock](https://www.sherlock.stanford.edu/) cluster, though recent efforts have enabled the simulation and its associated analyses to be run manually on a local machine.
 
-Usage
-======
+## Setup
 
-To run simulations on Sherlock, do the following:
+See [docs/README.md](docs/README.md) for docs on how to set up and run the model. As a shortcut, the core setup instructions are in:
 
-One time setup
---------------
-In your cloned `wcEcoli` directory, to set up the proper python environment, run:
+  1. [Required development tools](dev-tools.md) to install the basic tools, then
+  2. [Creating the "pyenv" runtime environment](create-pyenv.md) to set up the Python runtime environment for the model.
 
-```bash
-pyenv local wcEcoli2
-```
 
-Complete the one-time setup for fireworks as described in [wholecell/fireworks/README.md](wholecell/fireworks/README.md)
+## Quick start
 
-To access or install the necessary shared libraries...
-  * on Sherlock, execute the following *each time* you log in to Sherlock (*tip:* add it to your `$HOME/.bash_profile`):
-
-	```bash
-	module load wcEcoli/sherlock2
-	```
-
-  * on another computer, see [How to set up the runtime environment for the model](https://github.com/CovertLab/wcEcoli/wiki/How-to-set-up-the-runtime-environment-for-the-model) in the wiki.
-
-Set up the $PYTHONPATH like this (*tip:* add this to your `$HOME/.bash_profile`):
+Remember to set the `$PYTHONPATH` (*tip:* add this to your `$HOME/.bash_profile`):
 
 ```bash
 export PYTHONPATH="/path/to/wcEcoli:$PYTHONPATH"
 ```
 
-In your cloned `wcEcoli` directory, to compile cython plugins and any C functions with python bindings, run:
+In your cloned `wcEcoli` directory, compile the Cython code:
 
 ```bash
-make compile
+make clean compile
 ```
 
-You need to make sure the output from the model goes to the SCRATCH filesystem (which is larger) rather than SHERLOCK HOME. You'll need to make a symbolic link between the output directory of your `wcEcoli/` directory and a directory in SCRATCH. Within your wcEcoli diretory, there needs to be a folder named `out/`. The model puts its output in this folder, so we can basically tell the computer to send anything placed in this folder to SCRATCH instead. You can call the folder on SCRATCH whatever you want, but here is one option:
+
+There are three ways to run the model:
+
+   1. Use the manual runscripts.
+   2. Queue up a Fireworks workflow, then run it.
+   3. Use the multi-scale agent-based framework.
+
+[TODO] Summarize the differences and tradeoffs.
+
+
+## Using the manual runscripts
+
+These scripts will run the parameter calculator (parca), simulation, and analysis steps directly, without any workflow. They're handy for development, e.g. running under the PyCharm debugger. But you're responsible for running the scripts in order and for re-running the parca after relevant code changes.
+
+These scripts have command line interfaces built on `argparse`, so you can use shorter option names as long as they're unambiguous. Many options also have short forms like `-c8`.
+
+**NOTE:** _Use the `-h` or `--help` switch to get complete, up-to-date documentation on the command line options._ Below are just _some_ of the command line options.
+
+
+To run all the parameter calculation steps:
+```bash
+python runscripts/manual/runParca.py [-h] [--cpus CPUS] [--cached] [sim_outdir]
+```
+
+To do a simple simulation run:
 
 ```bash
-mkdir $SCRATCH/wcEcoli_out
+python runscripts/manual/runSim.py [-h] [--variant VARIANT_TYPE FIRST_INDEX LAST_INDEX] [--generations GENERATIONS] [--seed SEED] [sim_dir]
 ```
 
-Now, make sure an out directory in the cloned wcEcoli directory doesn't exist already and create a new symbolic link from out to the directory on SCRATCH that was just created above:
+To run all the analysis plots on the simulation output in a given `sim_dir`:
 
 ```bash
-ln -s $SCRATCH/wcEcoli_out out
+python runscripts/manual/analysisCohort.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output_prefix OUTPUT_PREFIX] [--variant_index VARIANT_INDEX] [sim_dir]
+
+python runscripts/manual/analysisMultigen.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output_prefix OUTPUT_PREFIX] [--variant_index VARIANT_INDEX] [--seed SEED] [sim_dir]
+
+python runscripts/manual/analysisSingle.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output_prefix OUTPUT_PREFIX] [--variant_index VARIANT_INDEX] [--seed SEED] [--generation GENERATION] [--daughter DAUGHTER] [sim_dir]
+
+python runscripts/manual/analysisVariant.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output_prefix OUTPUT_PREFIX] [sim_dir]
 ```
 
-Similarly, we would like to create a symbolic link to a shared sim data cache directory on PI_SCRATCH that should contain a copy of the newest sim data object (it should be updated daily with any new changes to the codebase):
+If you default the parameters, it will pick the latest simulation directory, the first variant, the first generation, and so on.
+The list of PLOTs can include filenames like `aaCounts` and TAGS like `CORE`. The default is to run the CORE set of plots recommended for everyday development.
+
+Set the environment variable `DEBUG_GC=1` to check for Python memory leaks in the analysis scripts.
+
+The `--plot` (or `-p`) optional parameter lets you pick one or more specific plots to run. For example, to run two analysis scripts on simulation variant #3 and put a filename prefix "v3_" on their output files (to distinguish them from other analysis runs):
 
 ```bash
-ln -s $PI_SCRATCH/wc_ecoli/cached cached
+python runscripts/manual/analysisCohort.py --plot compositionFitting.py figure2e.py --variant_index 3 --output_prefix v3_
 ```
 
-Running a simulation
--------------------- 
+You can also run an individual analysis script directly:
 
-There are two ways to run a simulation:
+```bash
+python models/ecoli/analysis/cohort/transcriptFrequency.py [-h] [--verbose] [-o OUTPUT_PREFIX] [-v VARIANT_INDEX] [sim_dir]
+```
 
-   1. Queue up a Fireworks workflow, then run it.
-   2. Use the manual runscripts.
+## Causality
 
-The command line program `fw_queue.py` queues up a Fireworks workflow including parameter fitting, the simulation itself, and lots of analysis plots.
+After running a simulation, see the [CovertLab/causality](https://github.com/CovertLab/causality) repo for the visualization tool to examine the model's causal links and simulation output correlations.
 
-The source file `fw_queue.py` begins with documentation on its many options. Below are a few usage examples.
+
+## Running an entire Fireworks workflow
+
+[TODO] Link to documentation for setting up MongoDB et al to run Fireworks.
+
+The command line program `fw_queue.py` queues up a Fireworks workflow including parameter calculations, the simulation itself, and lots of analysis plots.
+
+The `fw_queue.py` source code begins with documentation on its many options. Below are a few usage examples.
 
 But first, note that you can reset the Fireworks queue (if needed) via:
 
@@ -156,57 +182,8 @@ This command will run forever until you `Ctrl-C` to kill it once you see that al
 ```
 This will display the stdout and stderr from the execution of a firework with fw_id of 1.
 
-Using the manual runscripts
----------------------------
 
-These scripts will run the fitter, simulation, and analysis steps directly without Fireworks. They're handy for development, e.g. running under the PyCharm debugger. They have command line interfaces built on `argparse`, which means for one thing that you can use shorter option names as long as they're unambiguous.
-
-_Use the `-h` or `--help` switch to get complete, up-to-date documentation on the options._
-
-
-To run all the parameter-fitter steps:
-```bash
-python runscripts/manual/runFitter.py [-h] [--cpus CPUS] [--cached] [--debug] [sim_outdir]
-```
-
-To do a simple simulation run:
-
-```bash
-python runscripts/manual/runSim.py [-h] [--variant VARIANT_TYPE FIRST_INDEX LAST_INDEX] [sim_dir]
-```
-
-To run all the analysis plots on a given `sim_dir`:
-
-```bash
-python runscripts/manual/analysisCohort.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output_prefix OUTPUT_PREFIX] [--variant_index VARIANT_INDEX] [sim_dir]
-
-python runscripts/manual/analysisMultigen.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output_prefix OUTPUT_PREFIX] [--variant_index VARIANT_INDEX] [--seed SEED] [sim_dir]
-
-python runscripts/manual/analysisSingle.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output_prefix OUTPUT_PREFIX] [--variant_index VARIANT_INDEX] [--seed SEED] [--generation GENERATION] [--daughter DAUGHTER] [sim_dir]
-
-python runscripts/manual/analysisVariant.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output_prefix OUTPUT_PREFIX] [sim_dir]
-```
-
-If you default the parameters, it will pick the latest simulation directory, the first variant, the first generation, and so on.
-The list of PLOTs can include filenames like `aaCounts` and TAGS like `CORE`. The default is to run the CORE set of plots recommended for everyday development.
-
-Set the environment variable `DEBUG_GC=1` to check for Python memory leaks in the analysis scripts.
-
-The `--plot` (or `-p`) optional parameter lets you pick one or more specific plots to run. For example, to run two analysis scripts on simulation variant #3 and put a filename prefix "v3_" on their output files (to distinguish them from other analysis runs):
-
-```bash
-python runscripts/manual/analysisCohort.py --plot compositionFitting.py figure2e.py --variant_index 3 --output_prefix v3_
-```
-
-You can also run a particular analysis script directly:
-
-```bash
-python models/ecoli/analysis/cohort/transcriptFrequency.py [-h] [--verbose] [-o OUTPUT_PREFIX] [-v VARIANT_INDEX] [sim_dir]
-```
-
-
-Output
-------
+### Output
 
 The output is stored as a time-stamped sub-directory of the `out` directory, for example `out/20180703.215222.029168__multi-sim/`, where `DESC="multi-sim"` was one of the arguments to `fw_queue.py`.
 
@@ -226,3 +203,7 @@ gen 1:         0               1
 gen 2:     0       1       2       3
 ```
 
+
+## Multi-scale agent framework
+
+See [How to run multi-scale agents](environment/README.md).
