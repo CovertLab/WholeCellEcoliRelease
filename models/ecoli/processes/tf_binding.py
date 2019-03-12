@@ -41,6 +41,9 @@ class TfBinding(wholecell.processes.process.Process):
 			self.tf_to_trs_unit_idx[tf] = delta_prob['deltaI'][
 				delta_prob['deltaJ'] == i]
 
+		# Get total counts of transcription units
+		self.n_trs_units = delta_prob['shape'][0]
+
 		# Get constants
 		self.nAvogadro = sim_data.constants.nAvogadro
 		self.cellDensity = sim_data.constants.cellDensity
@@ -141,9 +144,11 @@ class TfBinding(wholecell.processes.process.Process):
 		bound_tfs_new[collision_mask, :] = bound_tfs[collision_mask, :]
 
 		# Create vectors for storing values
-		pPromotersBound = np.zeros(self.n_tfs, np.float64)
-		nPromotersBound = np.zeros(self.n_tfs, np.float64)
-		nActualBound = np.zeros(self.n_tfs, np.float64)
+		pPromotersBound = np.zeros(self.n_tfs, dtype=np.float64)
+		nPromotersBound = np.zeros(self.n_tfs, dtype=np.float64)
+		nActualBound = np.zeros(self.n_tfs, dtype=np.float64)
+		n_bound_tfs_per_trs_unit = np.zeros(
+			(self.n_trs_units, self.n_tfs), dtype=np.int16)
 
 		for tf_idx, tf_id in enumerate(self.tfs):
 			# Get counts of transcription factors
@@ -198,6 +203,11 @@ class TfBinding(wholecell.processes.process.Process):
 				# Update bound_tfs array
 				bound_tfs_new[available_promoters, tf_idx] = bound_locs
 
+			n_bound_tfs_per_trs_unit[:, tf_idx] = np.bincount(
+				trs_unit_index[bound_tfs_new[:, tf_idx]],
+				minlength=self.n_trs_units
+				)
+
 			# Record values
 			pPromotersBound[tf_idx] = pPromoterBound
 			nPromotersBound[tf_idx] = n_to_bind
@@ -216,3 +226,6 @@ class TfBinding(wholecell.processes.process.Process):
 		self.writeToListener("RnaSynthProb", "pPromoterBound", pPromotersBound)
 		self.writeToListener("RnaSynthProb", "nPromoterBound", nPromotersBound)
 		self.writeToListener("RnaSynthProb", "nActualBound", nActualBound)
+		self.writeToListener(
+			"RnaSynthProb", "n_bound_tfs_per_trs_unit", n_bound_tfs_per_trs_unit
+			)
