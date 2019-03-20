@@ -12,6 +12,7 @@ def within(bounds, point):
 
 	return 0 <= point[0] < bounds[0] and 0 <= point[1] < bounds[1]
 
+
 def normalize(vector):
 	''' normalize the given vector based on its magnitude '''
 

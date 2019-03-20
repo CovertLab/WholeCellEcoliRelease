@@ -6,20 +6,20 @@ This page goes through the Python environment setup steps in more detail and wit
 
 **Prerequisites:** Install the software tools as described in [dev-tools](dev-tools.md). That page covers installing pyenv and pyenv-virtualenv, initializing them in your shell profile, installing a C compiler, and more.
 
-**Sherlock??** Sherlock is the Stanford scientific computing cluster. Outside the Covert lab, just skip the Sherlock notes here. Inside the Covert lab, look in `$PI_HOME/downloads/` and `$PI_HOME/installation_notes/` for downloaded software packages and notes on compiling them, as needed to install new packages or new versions for the team.
+**Sherlock:** Sherlock is the Stanford scientific computing cluster. Outside the Covert lab, just skip our Sherlock notes. Inside the lab, look in `$PI_HOME/downloads/` and `$PI_HOME/installation_notes/` for downloaded software packages and notes on recompiling them as needed to install new packages or new versions for the team.
 
 
 ## Install native packages
 
 1. Use your package manager to install the needed packages [see the `requirements.txt` file for the current list].
 
-   For macOS:
+   **macOS**
 
    ```bash
    brew install glpk openssl readline swig suite-sparse xz
    ```
 
-   For Ubuntu:
+   **Ubuntu**
 
    ```bash
    sudo apt install -y glpk-utils libglpk-dev glpk-doc libssl-dev libreadline-dev \
@@ -29,7 +29,9 @@ This page goes through the Python environment setup steps in more detail and wit
 
    For Ubuntu, you might also need to find and install the proprietary package `python-glpk`.
 
-   For Sherlock, the needed packages are already installed. You just need to run this in your bash profile:
+   **Sherlock**
+
+   The needed packages are already installed. You just need to run this in your bash profile:
 
    ```bash
    module load wcEcoli/sherlock2
@@ -107,6 +109,10 @@ This page goes through the Python environment setup steps in more detail and wit
       cd ..
       ```
 
+   **Note:** If you get an `instruction not found` error while installing OpenBLAS, that probably means
+   your old assembler is incompatible with the Fortran compiler. Figure out how to update the assembler
+   or else install OpenBLAS 0.3.4 and suffer its threading bugs and inconsistent results.
+
 4. Create `~/.numpy-site.cfg` pointing to _your OpenBLAS installation directory._
 
    (If you want, you can download [site.cfg.example](https://github.com/numpy/numpy/blob/master/site.cfg.example) to your local file `~/.numpy-site.cfg` to start from their example configuration choices and documentation.)
@@ -165,16 +171,23 @@ This page goes through the Python environment setup steps in more detail and wit
 
    naming the library_dirs that you set above.
 
-9. Per [#161](https://github.com/CovertLab/wcEcoli/issues/161), the backend for `matplotlib` might need to be changed from `TkAgg` to the default -- or specifically to `agg`.
+9. **General preface that's important to know:** The wcEcoli software expects to run with `wcEcoli/` as both the current working directory and on the `$PYTHONPATH`.
 
-   This is only a problem when running under the "Fireworks" workflow manager. All the wcEcoli code expects to run with `wcEcoli` as the working directory and on the `PYTHONPATH`, but Fireworks' `rlaunch rapidfire` sets the current working directory to its `launcher_...` subdirectory instead. `rlaunch singleshot` does not have that problem, manual runscripts do not have that problem, and we're not sure about `qlaunch`.
+   **Issue [#161](https://github.com/CovertLab/wcEcoli/issues/161):** The matplotlib rendering "backend" might need to be changed from what its installer configures to `agg` (which in fact is what matplotlib will pick at runtime if not configured otherwise).
 
-   After installing or updating `matplotlib`, test if it can import pyplot:
+   The `wcEcoli/` directory contains a `matplotlibrc` file that configures matplotlib's backend to `agg` whenever you run with this working directory.
+
+   However when running under the "Fireworks" workflow manager, Fireworks’ `rlaunch rapidfire` sets the working directory to its `launcher_.../` subdirectory instead, so the backend can fail to load.
+   (`rlaunch singleshot` does not have that problem. Our manual runscripts do not have that problem, either. We're not sure about Fireworks’ `qlaunch`.)
+
+   **Workaround:** After installing or updating `matplotlib`, test if it can import pyplot:
 
       1. `cd` to a directory that does not have a `matplotlibrc` file, e.g. `wcEcoli/docs/`.
-      1. Use the `pyenv version` command to verify that the pyenv `wcEcoli2` is active. (This should be fine if the current directory is a subdirectory of `wcEcoli` and if the latter has a `.python-version` file previously set by `pyenv local wcEcoli2`.)
+      1. Run the `pyenv version` shell command to verify that the pyenv `wcEcoli2` is active. (It should be if the current directory is a subdirectory of `wcEcoli/` and if `wcEcoli/` has a `.python-version` file that was set by `pyenv local wcEcoli2`.)
       1. Start a python shell and type `import matplotlib.pyplot`
-         * If it raised `ImportError: No module named _tkinter`, then edit the relevant `site-packages/matplotlib/mpl-data/matplotlibrc` file, probably the one in `$PYENV_ROOT/versions/wcEcoli2/lib/python2.7/`, commenting out the line `backend : TkAgg`, then retest.
+         * If it raised `ImportError: No module named _tkinter` or `RuntimeError: Python is not installed as a framework`, then matplotlib couldn't load its backend.  
+           The workaround is to edit the relevant `site-packages/matplotlib/mpl-data/matplotlibrc` file, probably the one in `$PYENV_ROOT/versions/wcEcoli2/lib/python2.7/`.   
+           Comment out the line `backend : TkAgg` or `backend : macosx`, then retest.
          * If it didn't raise an error, run `matplotlib.get_backend()` and check that it returns `'agg'` or similar.
 
 10. Compile the project's native code.

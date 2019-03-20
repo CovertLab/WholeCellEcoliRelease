@@ -7,8 +7,8 @@ This repository contains work to date on the [Covert Lab's](https://www.covert.s
 
 See [docs/README.md](docs/README.md) for docs on how to set up and run the model. As a shortcut, the core setup instructions are in:
 
-  1. [Required development tools](dev-tools.md) to install the basic tools, then
-  2. [Creating the "pyenv" runtime environment](create-pyenv.md) to set up the Python runtime environment for the model.
+  1. [Required development tools](docs/dev-tools.md) to install the basic tools, then
+  2. [Creating the "pyenv" runtime environment](docs/create-pyenv.md) to set up the Python runtime environment for the model.
 
 
 ## Quick start

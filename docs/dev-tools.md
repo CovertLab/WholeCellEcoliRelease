@@ -3,15 +3,34 @@
 This page explains how to install the needed development tools. You won't have to revisit this very often.
 
 
+### First requirement: A package manager
+
+**macOS:** You'll need the [Homebrew](https://brew.sh/) package manager to install software tools and libraries.
+See the [Homebrew website](https://brew.sh/) about supported releases of macOS and how to install Homebrew.
+There is a substitute for Homebrew on older releases of macOS but you might still run into SDK API
+incompatibilities. We can't help you there short of suggesting that you update to the current
+release of macOS.
+
+**Linux:** You'll need to use `apt` or another package manager.
+
+**Windows:** _We have not tested our software on Windows._ You could run our software within a Linux
+virtual machine or go it alone on Windows. We won't be able to help you there.
+
+
 ## Required tools: gcc, make, git
 
-For macOS, you need Xcode's command line tools including the C compiler, make, and git. Run:
+### For macOS
+
+You'll need Xcode's command line tools including the C compiler, make, and git.
+
+Run this shell command to install _or update_ the command line tools:
 
 ```bash
 xcode-select --install
 ```
 
-For Ubuntu:
+
+### For Ubuntu
 
 ```bash
 sudo apt install -y gcc make build-essential wget curl llvm
@@ -102,12 +121,12 @@ _pyenv_ and _virtualenv_ are tools to install versions of Python and switch betw
   * [PyCharm](https://www.jetbrains.com/pycharm/) or PyCharm Pro -- a very productive Integrated Development Environment (IDE)
   * [Sublime Text 3](https://www.sublimetext.com/) -- a slick code editor with many speed features
   * [GitHub Desktop app](https://desktop.github.com/) -- greases the skids for common git operations and lets you compose commit messages while reviewing the edits
-  * [iTerm2](https://www.iterm2.com/) for macOS -- much nicer than the built-in Terminal app
+  * [iTerm2](https://www.iterm2.com/) for macOS -- much more helpful than the stock Terminal app
 
 
 ### PyCharm setup
 
-After building the pyenv and cloning the repo to a local directory, you can create a project in PyCharm.
+After [building the pyenv](docs/create-pyenv.md) and cloning the repo to a local directory, you can create a project in PyCharm.
 
 * Select the project's Python interpreter: PyCharm > Preferences > Project: wcEcoli > Project Interpreter > Add > **Existing environment** > [navigate to something like `/usr/local/var/pyenv/versions/wcEcoli2/python`].
 * Set Keyboard Shortcuts: Duplicate one of the available sets (e.g. "Mac OS X 10.5+"), then make changes to suit. A great change is to set Cmd-D (or Ctrl-D) for "Edit > Find > Add Selection for Next Occurrence". [This is like `find_under_expand` in Sublime Text. Cmd-G (or Ctrl-G) works like Sublime's `find_under_expand_skip`.]

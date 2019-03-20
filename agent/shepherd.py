@@ -45,7 +45,7 @@ class AgentShepherd(Agent):
 		            * `shepherd_receive`: The topic this agent will be listening to for directives
 		                to add or remove agents from the simulation.
 		            * `agent_receive`: The topic this agent will send control messages on for 
-		                triggering, pausing or shutting agents down.
+		                running, pausing, or shutting down agents.
 		    agent_initializers (dict): This is the set of agents this shepherd will be able to
 		        spawn. The values are callables that take two arguments, `agent_id` (str) and
 		        `agent_config` (dict), and will be passed to `multiprocessing.Process` to spawn
@@ -64,7 +64,7 @@ class AgentShepherd(Agent):
 	def initialize(self):
 		print('agent shepherd waiting')
 
-	
+
 	# TODO(Ryan): add command to list agent state
 	def add_agent(self, agent_id, agent_type, agent_config):
 		"""

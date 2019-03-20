@@ -44,9 +44,10 @@ class RunParca(scriptBase.ScriptBase):
 				 + '" file instead of generating it.'
 			)
 		parser.add_argument('-d', '--debug', action='store_true',
-			help="Enable Parca debugging: Fit only one arbitrarily-chosen"
-				 " transcription factor for a faster debug cycle. Don't use it"
-				 " for an actual simulation."
+			help="Enable Parca debugging: For a faster debug cycle, calculate"
+				 " only one arbitrarily-chosen transcription factor condition"
+				 " when adjusting gene expression levels, leaving the others at"
+				 " their input levels. Do not use this for an actual simulation."
 			)
 		self.define_parameter_bool(parser, 'ribosome_fitting', True,
 			help="Fit ribosome expression to protein synthesis demands"
