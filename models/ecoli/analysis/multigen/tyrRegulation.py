@@ -72,8 +72,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# Load data from RnaSynthProb listener
 			rna_synth_prob_reader = TableReader(
 				os.path.join(simOutDir, "RnaSynthProb"))
-			n_bound_tfs_per_trs_unit = rna_synth_prob_reader.readColumn(
-				"n_bound_tfs_per_trs_unit").reshape(
+			n_bound_TF_per_TU = rna_synth_prob_reader.readColumn(
+				"n_bound_TF_per_TU").reshape(
 				(-1, len(rna_ids), len(tf_ids)))
 
 			# Get the concentration of intracellular phe
@@ -95,7 +95,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			tyrRInactiveCounts = bulkMoleculeCounts[:, tyrRInactiveIndex].reshape(-1)
 
 			# Get the promoter-bound status of the tyrA gene
-			tyrATfBoundCounts = n_bound_tfs_per_trs_unit[:, tyrA_rna_index, tyrRIndex].reshape(-1)
+			tyrATfBoundCounts = n_bound_TF_per_TU[:, tyrA_rna_index, tyrRIndex].reshape(-1)
 
 			# Get the amount of monomeric tyrA
 			tyrAProteinId = ["CHORISMUTPREPHENDEHYDROG-MONOMER[c]"]

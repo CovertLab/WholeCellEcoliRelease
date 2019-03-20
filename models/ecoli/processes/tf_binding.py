@@ -30,19 +30,19 @@ class TfBinding(wholecell.processes.process.Process):
 		super(TfBinding, self).initialize(sim, sim_data)
 
 		# Get IDs of transcription factors
-		self.tfs = sim_data.process.transcription_regulation.tf_ids
-		self.n_tfs = len(self.tfs)
+		self.tf_ids = sim_data.process.transcription_regulation.tf_ids
+		self.n_TF = len(self.tf_ids)
 
 		# Build dict that maps TFs to transcription units they regulate
 		delta_prob = sim_data.process.transcription_regulation.delta_prob
-		self.tf_to_trs_unit_idx = {}
+		self.TF_to_TU_idx = {}
 
-		for i, tf in enumerate(self.tfs):
-			self.tf_to_trs_unit_idx[tf] = delta_prob['deltaI'][
+		for i, tf in enumerate(self.tf_ids):
+			self.TF_to_TU_idx[tf] = delta_prob['deltaI'][
 				delta_prob['deltaJ'] == i]
 
 		# Get total counts of transcription units
-		self.n_trs_units = delta_prob['shape'][0]
+		self.n_TU = delta_prob['shape'][0]
 
 		# Get constants
 		self.nAvogadro = sim_data.constants.nAvogadro
@@ -65,7 +65,7 @@ class TfBinding(wholecell.processes.process.Process):
 		self.active_tf_view = {}
 		self.inactive_tf_view = {}
 
-		for tf in self.tfs:
+		for tf in self.tf_ids:
 			self.active_tf_view[tf] = self.bulkMoleculeView(tf + "[c]")
 
 			if self.tfToTfType[tf] == "1CS":
@@ -82,7 +82,7 @@ class TfBinding(wholecell.processes.process.Process):
 		# Build array of active TF masses
 		bulk_molecule_ids = sim_data.internal_state.bulkMolecules.bulkData["id"]
 		tf_indexes = [np.where(bulk_molecule_ids == tf_id + "[c]")[0][0]
-			for tf_id in self.tfs]
+			for tf_id in self.tf_ids]
 		self.active_tf_masses = (sim_data.internal_state.bulkMolecules.bulkData[
 			"mass"][tf_indexes]/self.nAvogadro).asNumber(units.fg)
 
@@ -96,8 +96,8 @@ class TfBinding(wholecell.processes.process.Process):
 	def evolveState(self):
 		# Get attributes of all promoters
 		promoters = self.promoters.molecules_read_and_edit()
-		trs_unit_index, coordinates_promoters, domain_index_promoters, bound_tfs = promoters.attrs(
-			"trs_unit_index", "coordinates", "domain_index", "bound_tfs"
+		TU_index, coordinates_promoters, domain_index_promoters, bound_TF = promoters.attrs(
+			"TU_index", "coordinates", "domain_index", "bound_TF"
 			)
 
 		# Get attributes of replisomes
@@ -120,40 +120,39 @@ class TfBinding(wholecell.processes.process.Process):
 			for domain_index, rr, coord in izip(
 					domain_index_replisome, right_replichore, coordinates_replisome):
 				if rr:
-					collision_mask[np.logical_and(
-						domain_index_promoters == domain_index,
-						np.logical_and(
-							coordinates_promoters >= coord,
-							coordinates_promoters <= coord + elongation_length
-							)
-						)] = True
+					coordinates_mask = np.logical_and(
+						coordinates_promoters >= coord,
+						coordinates_promoters <= coord + elongation_length
+						)
 				else:
-					collision_mask[np.logical_and(
-						domain_index_promoters == domain_index,
-						np.logical_and(
-							coordinates_promoters <= coord,
-							coordinates_promoters >= coord - elongation_length
-							)
-						)] = True
+					coordinates_mask = np.logical_and(
+						coordinates_promoters <= coord,
+						coordinates_promoters >= coord - elongation_length
+						)
+
+				mask = np.logical_and(
+					domain_index_promoters == domain_index, coordinates_mask
+					)
+				collision_mask[mask] = True
 
 		# Calculate number of bound TFs for each TF prior to changes
-		n_bound_tfs = bound_tfs[~collision_mask, :].sum(axis=0)
+		n_bound_TF = bound_TF[~collision_mask, :].sum(axis=0)
 
-		# Initialize new bound_tfs array
-		bound_tfs_new = np.zeros_like(bound_tfs, dtype=np.bool)
-		bound_tfs_new[collision_mask, :] = bound_tfs[collision_mask, :]
+		# Initialize new bound_TF array
+		bound_TF_new = np.zeros_like(bound_TF, dtype=np.bool)
+		bound_TF_new[collision_mask, :] = bound_TF[collision_mask, :]
 
 		# Create vectors for storing values
-		pPromotersBound = np.zeros(self.n_tfs, dtype=np.float64)
-		nPromotersBound = np.zeros(self.n_tfs, dtype=np.float64)
-		nActualBound = np.zeros(self.n_tfs, dtype=np.float64)
-		n_bound_tfs_per_trs_unit = np.zeros(
-			(self.n_trs_units, self.n_tfs), dtype=np.int16)
+		pPromotersBound = np.zeros(self.n_TF, dtype=np.float64)
+		nPromotersBound = np.zeros(self.n_TF, dtype=np.float64)
+		nActualBound = np.zeros(self.n_TF, dtype=np.float64)
+		n_bound_TF_per_TU = np.zeros(
+			(self.n_TU, self.n_TF), dtype=np.int16)
 
-		for tf_idx, tf_id in enumerate(self.tfs):
+		for tf_idx, tf_id in enumerate(self.tf_ids):
 			# Get counts of transcription factors
 			active_tf_counts = self.active_tf_view[tf_id].count()
-			bound_tf_counts = n_bound_tfs[tf_idx]
+			bound_tf_counts = n_bound_TF[tf_idx]
 
 			# If there are no active transcription factors to work with,
 			# continue to the next transcription factor
@@ -174,7 +173,7 @@ class TfBinding(wholecell.processes.process.Process):
 
 			# Determine the number of available promoter sites
 			available_promoters = np.logical_and(
-				np.isin(trs_unit_index, self.tf_to_trs_unit_idx[tf_id]),
+				np.isin(TU_index, self.TF_to_TU_idx[tf_id]),
 				~collision_mask
 				)
 			n_available_promoters = available_promoters.sum()
@@ -200,12 +199,12 @@ class TfBinding(wholecell.processes.process.Process):
 				# Update count of free transcription factors
 				self.active_tf_view[tf_id].countDec(bound_locs.sum())
 
-				# Update bound_tfs array
-				bound_tfs_new[available_promoters, tf_idx] = bound_locs
+				# Update bound_TF array
+				bound_TF_new[available_promoters, tf_idx] = bound_locs
 
-			n_bound_tfs_per_trs_unit[:, tf_idx] = np.bincount(
-				trs_unit_index[bound_tfs_new[:, tf_idx]],
-				minlength=self.n_trs_units
+			n_bound_TF_per_TU[:, tf_idx] = np.bincount(
+				TU_index[bound_TF_new[:, tf_idx]],
+				minlength=self.n_TU
 				)
 
 			# Record values
@@ -213,11 +212,11 @@ class TfBinding(wholecell.processes.process.Process):
 			nPromotersBound[tf_idx] = n_to_bind
 			nActualBound[tf_idx] = bound_locs.sum()
 
-		delta_tfs = bound_tfs_new.astype(np.int8) - bound_tfs.astype(np.int8)
-		mass_diffs = delta_tfs.dot(self.active_tf_masses)
+		delta_TF = bound_TF_new.astype(np.int8) - bound_TF.astype(np.int8)
+		mass_diffs = delta_TF.dot(self.active_tf_masses)
 
-		# Reset bound_tfs attribute of promoters
-		promoters.attrIs(bound_tfs=bound_tfs_new)
+		# Reset bound_TF attribute of promoters
+		promoters.attrIs(bound_TF=bound_TF_new)
 
 		# Add mass_diffs array to promoter submass
 		promoters.add_submass_by_array(mass_diffs)
@@ -227,5 +226,5 @@ class TfBinding(wholecell.processes.process.Process):
 		self.writeToListener("RnaSynthProb", "nPromoterBound", nPromotersBound)
 		self.writeToListener("RnaSynthProb", "nActualBound", nActualBound)
 		self.writeToListener(
-			"RnaSynthProb", "n_bound_tfs_per_trs_unit", n_bound_tfs_per_trs_unit
+			"RnaSynthProb", "n_bound_TF_per_TU", n_bound_TF_per_TU
 			)

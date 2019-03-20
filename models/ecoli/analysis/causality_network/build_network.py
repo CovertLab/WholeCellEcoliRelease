@@ -842,10 +842,10 @@ class BuildNetwork(object):
 
 		# Build dict that maps TFs to indexes of transcription units they
 		# regulate
-		tf_to_trs_unit_idx = {}
+		TF_to_TU_idx = {}
 
 		for i, tf in enumerate(tf_ids):
-			tf_to_trs_unit_idx[tf] = delta_prob['deltaI'][
+			TF_to_TU_idx[tf] = delta_prob['deltaI'][
 				delta_prob['deltaJ'] == i]
 
 		# Build dict that maps RNA IDs to gene IDs
@@ -859,7 +859,7 @@ class BuildNetwork(object):
 		# Loop through all TFs
 		for tf_id in tf_ids:
 			# Get IDs of RNAs that are regulated by the TF
-			regulated_rna_ids = rna_ids[tf_to_trs_unit_idx[tf_id]]
+			regulated_rna_ids = rna_ids[TF_to_TU_idx[tf_id]]
 
 			for regulated_rna_id in regulated_rna_ids:
 				# Find corresponding ID of gene

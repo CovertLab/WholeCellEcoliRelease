@@ -37,7 +37,7 @@ REQUIRED_COLUMNS = [
 	("RnaSynthProb", "pPromoterBound"),
 	("RnaSynthProb", "rnaSynthProb"),
 	("RnaSynthProb", "gene_copy_number"),
-	("RnaSynthProb", "n_bound_tfs_per_trs_unit"),
+	("RnaSynthProb", "n_bound_TF_per_TU"),
 	("RnapData", "rnaInitEvent"),
 	("RibosomeData", "probTranslationPerTranscript"),
 	]
@@ -74,12 +74,12 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 			).asNumber(units.mmol/units.g/units.h)
 
 		# Reshape array for number of bound transcription factors
-		n_trs_units = len(sim_data.process.transcription.rnaData["id"])
-		n_tfs = len(sim_data.process.transcription_regulation.tf_ids)
+		n_TU = len(sim_data.process.transcription.rnaData["id"])
+		n_TF = len(sim_data.process.transcription_regulation.tf_ids)
 
-		columns[("RnaSynthProb", "n_bound_tfs_per_trs_unit")] = (
-			columns[("RnaSynthProb", "n_bound_tfs_per_trs_unit")]
-			).reshape(-1, n_trs_units, n_tfs)
+		columns[("RnaSynthProb", "n_bound_TF_per_TU")] = (
+			columns[("RnaSynthProb", "n_bound_TF_per_TU")]
+			).reshape(-1, n_TU, n_TF)
 
 		# Construct dictionaries of indexes where needed
 		indexes = {}
@@ -378,7 +378,7 @@ def read_regulation_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	tf_idx = indexes["TranscriptionFactors"][tf_id]
 
 	dynamics = {
-		'bound TFs': columns[("RnaSynthProb", "n_bound_tfs_per_trs_unit")][
+		'bound TFs': columns[("RnaSynthProb", "n_bound_TF_per_TU")][
 			:, gene_idx, tf_idx],
 		}
 	dynamics_units = {

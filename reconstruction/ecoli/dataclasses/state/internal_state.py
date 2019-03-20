@@ -236,7 +236,7 @@ class InternalState(object):
 		# is regulated by TFs. The promoter itself has zero mass but can hold
 		# the mass of the transcription factor that it is bound to. Its
 		# attributes are given as:
-		# - trs_unit_index (64-bit int): Index of the transcription unit that
+		# - TU_index (64-bit int): Index of the transcription unit that
 		# the promoter is associated with. This determines which TFs the
 		# promoter can bind to, and how the transcription probability is
 		# calculated.
@@ -246,17 +246,17 @@ class InternalState(object):
 		# - domain_index (32-bit int): Domain index of the chromosome domain
 		# that the promoter is bound to. This value is used to split the
 		# promoters at cell division.
-		# - bound_tfs (boolean array of length n_tf): A boolean array that
+		# - bound_TF (boolean array of length n_tf): A boolean array that
 		# shows which TFs the promoter is bound to. Note that one promoter can
 		# bind to multiple TFs.
 		n_tf = len(sim_data.process.transcription_regulation.tf_ids)
 
 		promoter_mass = (units.g/units.mol) * np.zeros_like(rnaPolyComplexMass)
 		promoter_attributes = {
-			"trs_unit_index": "i8",
+			"TU_index": "i8",
 			"coordinates": "i8",
 			"domain_index": "i4",
-			"bound_tfs": ("?", n_tf),
+			"bound_TF": ("?", n_tf),
 			}
 
 		self.uniqueMolecules.addToUniqueState("promoter", promoter_attributes, promoter_mass)

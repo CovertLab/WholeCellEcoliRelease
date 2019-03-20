@@ -57,8 +57,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			os.path.join(simOutDir, "RnaSynthProb"))
 		tf_ids = rna_synth_prob_reader.readAttribute("tf_ids")
 		rna_ids = rna_synth_prob_reader.readAttribute("rnaIds")
-		n_bound_tfs_per_trs_unit = rna_synth_prob_reader.readColumn(
-			"n_bound_tfs_per_trs_unit").reshape(
+		n_bound_TF_per_TU = rna_synth_prob_reader.readColumn(
+			"n_bound_TF_per_TU").reshape(
 			(-1, len(rna_ids), len(tf_ids)))
 
 		# Get indexes of trpR and its target RNAs
@@ -91,7 +91,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		trpRMonomerCounts = bulkMoleculeCounts[:, trpRMonomerIndex].reshape(-1)
 
 		# Get the promoter-bound status for all regulated genes
-		tfBoundCounts = n_bound_tfs_per_trs_unit[:, target_idx, trpRIndex]
+		tfBoundCounts = n_bound_TF_per_TU[:, target_idx, trpRIndex]
 
 		# Get the amount of monomeric trpA
 		trpAProteinId = ["TRYPSYN-APROTEIN[c]"]

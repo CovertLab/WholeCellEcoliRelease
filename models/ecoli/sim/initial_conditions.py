@@ -294,10 +294,10 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		sequence_elongations = np.abs(np.repeat(fork_coordinates, 2))
 
 		mass_increase_dna = computeMassIncrease(
-				np.tile(sequences, (n_replisome//2, 1)),
-				sequence_elongations,
-				sim_data.process.replication.replicationMonomerWeights.asNumber(units.fg)
-				)
+			np.tile(sequences, (n_replisome//2, 1)),
+			sequence_elongations,
+			sim_data.process.replication.replicationMonomerWeights.asNumber(units.fg)
+			)
 
 		# Add active replisomes as unique molecules and set attributes
 		uniqueMolCntr.objectsNew(
@@ -313,7 +313,7 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		bulkMolCntr.countsDec(n_replisome, sim_data.moleculeGroups.replisome_monomer_subunits)
 
 	# Initialize attributes of promoters
-	trs_unit_index, promoter_coordinates, promoter_domain_index = [], [], []
+	TU_index, promoter_coordinates, promoter_domain_index = [], [], []
 	replication_coordinate = sim_data.process.transcription.rnaData[
 		"replicationCoordinate"]
 
@@ -324,18 +324,16 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		if domain_idx == 0:
 			if n_replisome == 0:
 				# No replisomes - all promoters should fall in this domain
-				trs_unit_mask = np.ones_like(
-					replication_coordinate, dtype=np.bool
-					)
+				TU_mask = np.ones_like(replication_coordinate, dtype=np.bool)
 
 			else:
 				# Get domain boundaries
 				domain_boundaries = replisome_state["coordinates"][
 					replisome_state["domain_index"] == 0
-				]
+					]
 
 				# Add promoters for transcription units outside of this boundary
-				trs_unit_mask = np.logical_or(
+				TU_mask = np.logical_or(
 					replication_coordinate > domain_boundaries.max(),
 					replication_coordinate < domain_boundaries.min()
 					)
@@ -350,10 +348,10 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 			# Get domain boundaries of the parent domain
 			parent_domain_boundaries = replisome_state["coordinates"][
 				replisome_state["domain_index"] == parent_domain_idx
-			]
+				]
 
 			# Add promoters for transcription units inside this boundary
-			trs_unit_mask = np.logical_and(
+			TU_mask = np.logical_and(
 				replication_coordinate < parent_domain_boundaries.max(),
 				replication_coordinate > parent_domain_boundaries.min()
 				)
@@ -363,24 +361,24 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 			# Get index of the parent domain
 			parent_domain_idx = domain_state["domain_index"][
 				np.where(domain_state["child_domains"] == domain_idx)[0]
-			]
+				]
 
 			# Get domain boundaries of the parent domain
 			parent_domain_boundaries = replisome_state["coordinates"][
 				replisome_state["domain_index"] == parent_domain_idx
-			]
+				]
 
 			# Get domain boundaries of this domain
 			domain_boundaries = replisome_state["coordinates"][
 				replisome_state["domain_index"] == domain_idx
-			]
+				]
 
 			# Add promoters for transcription units between the boundaries
-			trs_unit_mask = np.logical_or(
+			TU_mask = np.logical_or(
 				np.logical_and(
 					replication_coordinate < parent_domain_boundaries.max(),
 					replication_coordinate > domain_boundaries.max()
-				),
+					),
 				np.logical_and(
 					replication_coordinate > parent_domain_boundaries.min(),
 					replication_coordinate < domain_boundaries.min()
@@ -388,20 +386,20 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 				)
 
 		# Append attributes to existing list
-		trs_unit_index.extend(np.nonzero(trs_unit_mask)[0])
-		promoter_coordinates.extend(replication_coordinate[trs_unit_mask])
-		promoter_domain_index.extend(np.full(trs_unit_mask.sum(), domain_idx))
+		TU_index.extend(np.nonzero(TU_mask)[0])
+		promoter_coordinates.extend(replication_coordinate[TU_mask])
+		promoter_domain_index.extend(np.full(TU_mask.sum(), domain_idx))
 
 	# Add promoters as unique molecules and set attributes
-	n_promoter = len(trs_unit_index)
+	n_promoter = len(TU_index)
 	n_tf = len(sim_data.process.transcription_regulation.tf_ids)
 
 	uniqueMolCntr.objectsNew(
 		'promoter', n_promoter,
-		trs_unit_index=np.array(trs_unit_index),
+		TU_index=np.array(TU_index),
 		coordinates=np.array(promoter_coordinates),
 		domain_index=np.array(promoter_domain_index),
-		bound_tfs=np.zeros((n_promoter, n_tf), dtype=np.bool),
+		bound_TF=np.zeros((n_promoter, n_tf), dtype=np.bool),
 		)
 
 
@@ -429,7 +427,7 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 
 	# Parameters for rnaSynthProb
 	basal_prob = sim_data.process.transcription_regulation.basal_prob
-	n_trs_units = len(basal_prob)
+	n_TUs = len(basal_prob)
 	delta_prob = sim_data.process.transcription_regulation.delta_prob
 	delta_prob_matrix = scipy.sparse.csr_matrix(
 		(delta_prob['deltaV'],
@@ -440,12 +438,12 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	# Get attributes of promoters
 	promoters = uniqueMolCntr.objectsInCollection("promoter")
 	n_promoters = len(promoters)
-	trs_unit_index, bound_tfs = promoters.attrs("trs_unit_index", "bound_tfs")
+	TU_index, bound_TF = promoters.attrs("TU_index", "bound_TF")
 
 	# Construct matrix that maps promoters to transcription units
-	trs_unit_to_promoter = scipy.sparse.csr_matrix(
-		(np.ones(n_promoters), (trs_unit_index, np.arange(n_promoters))),
-		shape=(n_trs_units, n_promoters)
+	TU_to_promoter = scipy.sparse.csr_matrix(
+		(np.ones(n_promoters), (TU_index, np.arange(n_promoters))),
+		shape=(n_TUs, n_promoters)
 		)
 
 	# Synthesis probabilities for different categories of genes
@@ -460,9 +458,9 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	if len(perturbations) > 0:
 		probability_indexes = [
 			(index, sim_data.genetic_perturbations[rna_data['id']])
-			for index, rna_data in
-			enumerate(sim_data.process.transcription.rnaData)
-			if rna_data['id'] in sim_data.genetic_perturbations]
+				for index, rna_data in enumerate(sim_data.process.transcription.rnaData)
+				if rna_data['id'] in sim_data.genetic_perturbations
+			]
 
 		genetic_perturbations = {
 			'fixedRnaIdxs': map(lambda pair: pair[0], probability_indexes),
@@ -481,17 +479,17 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 
 	# Calculate probabilities of the RNAP binding to the promoters
 	promoter_init_probs = (
-		basal_prob[trs_unit_index] +
+		basal_prob[TU_index] +
 		np.squeeze(
 			np.asarray(
-			delta_prob_matrix[trs_unit_index, :].multiply(
-				bound_tfs).sum(axis=1))
+				delta_prob_matrix[TU_index, :].multiply(bound_TF).sum(axis=1)
+				)
 			)
 		)
 
 	if len(genetic_perturbations) > 0:
 		rescale_initiation_probs(
-			promoter_init_probs, trs_unit_index,
+			promoter_init_probs, TU_index,
 			genetic_perturbations["fixedRnaIdxs"],
 			genetic_perturbations["fixedSynthProbs"]
 			)
@@ -506,11 +504,11 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	synthProbFractions = rnaSynthProbFractions[current_nutrients]
 
 	# Create masks for different types of RNAs
-	is_mrna = np.isin(trs_unit_index, idx_mrna)
-	is_trna = np.isin(trs_unit_index, idx_trna)
-	is_rrna = np.isin(trs_unit_index, idx_rrna)
-	is_rprotein = np.isin(trs_unit_index, idx_rprotein)
-	is_rnap = np.isin(trs_unit_index, idx_rnap)
+	is_mrna = np.isin(TU_index, idx_mrna)
+	is_trna = np.isin(TU_index, idx_trna)
+	is_rrna = np.isin(TU_index, idx_rrna)
+	is_rprotein = np.isin(TU_index, idx_rprotein)
+	is_rnap = np.isin(TU_index, idx_rnap)
 	is_fixed = is_trna | is_rrna | is_rprotein | is_rnap
 
 	# Rescale initiation probabilities based on type of RNA
@@ -520,11 +518,12 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 
 	# Set fixed synthesis probabilities for RProteins and RNAPs
 	rescale_initiation_probs(
-		promoter_init_probs, trs_unit_index,
+		promoter_init_probs, TU_index,
 		np.concatenate((idx_rprotein, idx_rnap)),
 		np.concatenate((
 			rnaSynthProbRProtein[current_nutrients],
-			rnaSynthProbRnaPolymerase[current_nutrients]))
+			rnaSynthProbRnaPolymerase[current_nutrients]
+			))
 		)
 
 	assert promoter_init_probs[is_fixed].sum() < 1.0
@@ -533,31 +532,34 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	promoter_init_probs[~is_fixed] *= scaleTheRestBy
 
 	# Compute synthesis probabilities of each transcription unit
-	trs_unit_synth_probs = trs_unit_to_promoter.dot(promoter_init_probs)
+	TU_synth_probs = TU_to_promoter.dot(promoter_init_probs)
 
 	# Shuffle initiation rates if we're running the variant that calls this
 	if shuffleIdxs is not None:
 		rescale_initiation_probs(
-			promoter_init_probs, trs_unit_index,
-			np.arange(n_trs_units),
-			trs_unit_synth_probs[shuffleIdxs]
+			promoter_init_probs, TU_index,
+			np.arange(n_TUs),
+			TU_synth_probs[shuffleIdxs]
 			)
 
 	# normalize to length of rna
-	init_prob_length_adjusted = promoter_init_probs * rnaLengths[trs_unit_index]
+	init_prob_length_adjusted = promoter_init_probs * rnaLengths[TU_index]
 	init_prob_normalized = init_prob_length_adjusted / init_prob_length_adjusted.sum()
 
 	# Sample a multinomial distribution of synthesis probabilities to determine
 	# what RNA are initialized
 	n_initiations = randomState.multinomial(
-		rnaPolyToActivate, init_prob_normalized)
+		rnaPolyToActivate, init_prob_normalized
+		)
 
 	# RNA Indices
-	rnaIndexes = np.repeat(trs_unit_index, n_initiations)
+	rnaIndexes = np.repeat(TU_index, n_initiations)
 
 	# TODO (Eran) -- make sure there aren't any rnapolys at same location on same gene
 	updatedLengths = np.array(
-		randomState.rand(rnaPolyToActivate) * rnaLengths[rnaIndexes], dtype=np.int)
+		randomState.rand(rnaPolyToActivate) * rnaLengths[rnaIndexes],
+		dtype=np.int
+		)
 
 	# update mass
 	sequences = rnaSequences[rnaIndexes]
@@ -809,7 +811,7 @@ def determine_chromosome_state(C, D, tau, replichore_length, place_holder):
 	return oric_state, replisome_state, domain_state
 
 
-def rescale_initiation_probs(init_probs, trs_unit_index, fixed_trs_units,
+def rescale_initiation_probs(init_probs, TU_index, fixed_TUs,
 		fixed_synth_probs):
 	"""
 	Rescales the initiation probabilities of each promoter such that the
@@ -818,6 +820,6 @@ def rescale_initiation_probs(init_probs, trs_unit_index, fixed_trs_units,
 	promoters for RNA A, whose synthesis probability should be fixed to
 	0.1, each promoter is given an initiation probability of 0.05.
 	"""
-	for rna_idx, synth_prob in izip(fixed_trs_units, fixed_synth_probs):
-		fixed_rna_mask = (trs_unit_index == rna_idx)
+	for rna_idx, synth_prob in izip(fixed_TUs, fixed_synth_probs):
+		fixed_rna_mask = (TU_index == rna_idx)
 		init_probs[fixed_rna_mask] = synth_prob / fixed_rna_mask.sum()

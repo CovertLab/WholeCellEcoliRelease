@@ -2957,14 +2957,14 @@ def calculateRnapRecruitment(sim_data, r):
 	colNames = []
 
 	# Get list of transcription units and TF IDs
-	all_trs_units = sim_data.process.transcription.rnaData["id"]
+	all_TUs = sim_data.process.transcription.rnaData["id"]
 	all_tfs = sim_data.process.transcription_regulation.tf_ids
 
 	# Initialize basal_prob vector and delta_prob sparse matrix
-	basal_prob = np.zeros(len(all_trs_units))
+	basal_prob = np.zeros(len(all_TUs))
 	deltaI, deltaJ, deltaV = [], [], []
 
-	for rna_idx, rnaId in enumerate(all_trs_units):
+	for rna_idx, rnaId in enumerate(all_TUs):
 		rnaIdNoLoc = rnaId[:-3]  # Remove compartment ID from RNA ID
 
 		tfs = sim_data.process.transcription_regulation.targetTf.get(rnaIdNoLoc, [])
@@ -3001,7 +3001,7 @@ def calculateRnapRecruitment(sim_data, r):
 
 	# Convert to arrays
 	deltaI, deltaJ, deltaV = np.array(deltaI), np.array(deltaJ), np.array(deltaV)
-	delta_shape = (len(all_trs_units), len(all_tfs))
+	delta_shape = (len(all_TUs), len(all_tfs))
 
 	# Rescale basal probabilities such that there are no negative probabilities
 	basal_prob -= basal_prob.min()

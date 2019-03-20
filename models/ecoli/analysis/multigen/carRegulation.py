@@ -78,8 +78,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# Load data from RnaSynthProb listener
 			rna_synth_prob_reader = TableReader(
 				os.path.join(simOutDir, "RnaSynthProb"))
-			n_bound_tfs_per_trs_unit = rna_synth_prob_reader.readColumn(
-				"n_bound_tfs_per_trs_unit").reshape((-1, len(rna_ids), len(tf_ids)))
+			n_bound_TF_per_TU = rna_synth_prob_reader.readColumn(
+				"n_bound_TF_per_TU").reshape((-1, len(rna_ids), len(tf_ids)))
 
 			# Get the concentration of intracellular arg
 			argId = ["ARG[c]"]
@@ -105,7 +105,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			argRMonomerCounts = bulkMoleculeCounts[:, argRMonomerIndex].reshape(-1)
 
 			# Get the promoter-bound status for all regulated genes
-			tfBoundCounts = n_bound_tfs_per_trs_unit[:, target_idx, argRIndex]
+			tfBoundCounts = n_bound_TF_per_TU[:, target_idx, argRIndex]
 
 			# Get the amount of monomeric carA
 			carAProteinId = ["CARBPSYN-SMALL[c]"]

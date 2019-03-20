@@ -194,12 +194,9 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 			# Add new oriC's, and reset attributes of existing oriC's
 			# All oriC's must be assigned new domain indexes
-			oriCs.attrIs(
-				domain_index=domain_index_new[:n_oric],
-				)
+			oriCs.attrIs(domain_index=domain_index_new[:n_oric])
 			self.oriCs.moleculesNew(
-				n_oric,
-				domain_index=domain_index_new[n_oric:],
+				n_oric, domain_index=domain_index_new[n_oric:]
 				)
 
 			# Add and set attributes of newly created replisomes.
@@ -250,13 +247,13 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Get attributes of promoters
 		promoters = self.promoters.molecules()
 
-		trs_unit_index, coordinates_promoters, domain_index_promoters, bound_tfs = promoters.attrs(
-			"trs_unit_index", "coordinates", "domain_index", "bound_tfs")
+		TU_index, coordinates_promoters, domain_index_promoters, bound_TF = promoters.attrs(
+			"TU_index", "coordinates", "domain_index", "bound_TF")
 
 		# Write gene copy numbers to listener
 		self.writeToListener(
 			"RnaSynthProb", "gene_copy_number",
-			np.bincount(trs_unit_index, minlength=len(self.replication_coordinate))
+			np.bincount(TU_index, minlength=len(self.replication_coordinate))
 			)
 
 		# If no active replisomes are present, return immediately
@@ -323,32 +320,28 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 		# Handle promoters that were replicated
 		# Get mask array of promoters that were replicated in this timestep
-		replicated_promoters = np.zeros_like(trs_unit_index, dtype=np.bool)
+		replicated_promoters = np.zeros_like(TU_index, dtype=np.bool)
 
 		for (domain_index, rr, old_coord, new_coord) in izip(
 				domain_index_replisome, right_replichore,
 				coordinates, updated_coordinates):
 			# Fork on right replichore
 			if rr:
-				replicated_promoters[
-					np.logical_and(
-						domain_index_promoters == domain_index,
-						np.logical_and(
-							coordinates_promoters >= old_coord,
-							coordinates_promoters < new_coord,
-							)
-						)] = True
+				coordinates_mask = np.logical_and(
+					coordinates_promoters >= old_coord,
+					coordinates_promoters < new_coord,
+					)
+
 			# Fork on left replichore
 			else:
-				replicated_promoters[
-					np.logical_and(
-						domain_index_promoters == domain_index,
-						np.logical_and(
-							coordinates_promoters <= old_coord,
-							coordinates_promoters > new_coord
-							)
-						)
-					] = True
+				coordinates_mask = np.logical_and(
+					coordinates_promoters <= old_coord,
+					coordinates_promoters > new_coord
+					)
+
+			mask = np.logical_and(
+				domain_index_promoters == domain_index, coordinates_mask)
+			replicated_promoters[mask] = True
 
 		n_new_promoters = 2*replicated_promoters.sum()
 
@@ -358,12 +351,12 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 			# Add freed active tfs
 			self.active_tfs.countsInc(
-				bound_tfs[replicated_promoters, :].sum(axis=0)
+				bound_TF[replicated_promoters, :].sum(axis=0)
 				)
 
 			# Set up attributes for the replicated promoters
-			trs_unit_index_new = np.repeat(
-				trs_unit_index[replicated_promoters], 2
+			TU_index_new = np.repeat(
+				TU_index[replicated_promoters], 2
 				)
 			coordinates_promoters_new = np.repeat(
 				coordinates_promoters[replicated_promoters], 2
@@ -378,10 +371,10 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			# Add new promoters with new domain indexes
 			self.promoters.moleculesNew(
 				n_new_promoters,
-				trs_unit_index=trs_unit_index_new,
+				TU_index=TU_index_new,
 				coordinates=coordinates_promoters_new,
 				domain_index=domain_index_promoters_new,
-				bound_tfs=np.zeros((n_new_promoters, self.n_tf), dtype=np.bool),
+				bound_TF=np.zeros((n_new_promoters, self.n_tf), dtype=np.bool),
 				)
 
 

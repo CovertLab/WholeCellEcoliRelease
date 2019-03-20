@@ -72,8 +72,8 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			rna_synth_prob_reader = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
 			rna_ids = rna_synth_prob_reader.readAttribute("rnaIds")
 			tf_ids = rna_synth_prob_reader.readAttribute("tf_ids")
-			n_bound_tfs_per_trs_unit = rna_synth_prob_reader.readColumn(
-				"n_bound_tfs_per_trs_unit").reshape((-1, len(rna_ids), len(tf_ids)))
+			n_bound_TF_per_TU = rna_synth_prob_reader.readColumn(
+				"n_bound_TF_per_TU").reshape((-1, len(rna_ids), len(tf_ids)))
 			gene_copy_number = rna_synth_prob_reader.readColumn("gene_copy_number")
 
 			tf_idx = tf_ids.index(tf)
@@ -82,7 +82,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				rna_ids.index(tf_target + "[c]") for tf_target in tf_targets
 				])
 
-			tfTargetBoundCountsAll = n_bound_tfs_per_trs_unit[:, tf_target_indexes, tf_idx]
+			tfTargetBoundCountsAll = n_bound_TF_per_TU[:, tf_target_indexes, tf_idx]
 			tfTargetSynthProbAll = rna_synth_prob_reader.readColumn("rnaSynthProb")[:, tf_target_indexes]
 			tf_target_gene_copies_all = gene_copy_number[:, tf_target_indexes]
 
