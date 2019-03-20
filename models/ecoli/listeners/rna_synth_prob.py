@@ -51,9 +51,7 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 
 		# This array gets flattened at tableAppend(). Resulting array should
 		# be reshaped before use.
-		self.n_bound_TF_per_TU = np.zeros(
-			(self.n_TU, self.n_TF), np.int16
-			)
+		self.n_bound_TF_per_TU = np.zeros((self.n_TU, self.n_TF), np.int16)
 
 
 	def tableCreate(self, tableWriter):

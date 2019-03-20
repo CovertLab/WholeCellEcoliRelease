@@ -266,8 +266,7 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 
 	# Generate arrays specifying appropriate initial replication conditions
 	oric_state, replisome_state, domain_state = determine_chromosome_state(
-		C, D, tau, replichore_length, sim_data.process.replication.no_child_place_holder
-		)
+		C, D, tau, replichore_length, sim_data.process.replication.no_child_place_holder)
 
 	n_oric = oric_state["domain_index"].size
 	n_replisome = replisome_state["domain_index"].size
@@ -276,15 +275,13 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 	# Add OriC molecules with the proposed attributes
 	uniqueMolCntr.objectsNew(
 		'originOfReplication', n_oric,
-		domain_index=oric_state["domain_index"],
-		)
+		domain_index=oric_state["domain_index"])
 
 	# Add chromosome domain molecules with the proposed attributes
 	uniqueMolCntr.objectsNew(
 		"chromosome_domain", n_domain,
 		domain_index=domain_state["domain_index"],
-		child_domains=domain_state["child_domains"],
-		)
+		child_domains=domain_state["child_domains"])
 
 	if n_replisome != 0:
 		# Update mass to account for DNA strands that have already been
@@ -296,8 +293,7 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		mass_increase_dna = computeMassIncrease(
 			np.tile(sequences, (n_replisome//2, 1)),
 			sequence_elongations,
-			sim_data.process.replication.replicationMonomerWeights.asNumber(units.fg)
-			)
+			sim_data.process.replication.replicationMonomerWeights.asNumber(units.fg))
 
 		# Add active replisomes as unique molecules and set attributes
 		uniqueMolCntr.objectsNew(
@@ -305,8 +301,7 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 			coordinates=replisome_state["coordinates"],
 			right_replichore=replisome_state["right_replichore"],
 			domain_index=replisome_state["domain_index"],
-			massDiff_DNA=mass_increase_dna[0::2] + mass_increase_dna[1::2],
-			)
+			massDiff_DNA=mass_increase_dna[0::2] + mass_increase_dna[1::2])
 
 		# Remove replisome subunits from bulk molecules
 		bulkMolCntr.countsDec(3*n_replisome, sim_data.moleculeGroups.replisome_trimer_subunits)
@@ -329,61 +324,50 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 			else:
 				# Get domain boundaries
 				domain_boundaries = replisome_state["coordinates"][
-					replisome_state["domain_index"] == 0
-					]
+					replisome_state["domain_index"] == 0]
 
 				# Add promoters for transcription units outside of this boundary
 				TU_mask = np.logical_or(
 					replication_coordinate > domain_boundaries.max(),
-					replication_coordinate < domain_boundaries.min()
-					)
+					replication_coordinate < domain_boundaries.min())
 
 		# If the domain contains the origin,
 		elif np.isin(domain_idx, oric_state["domain_index"]):
 			# Get index of the parent domain
 			parent_domain_idx = domain_state["domain_index"][
-				np.where(domain_state["child_domains"] == domain_idx)[0]
-				]
+				np.where(domain_state["child_domains"] == domain_idx)[0]]
 
 			# Get domain boundaries of the parent domain
 			parent_domain_boundaries = replisome_state["coordinates"][
-				replisome_state["domain_index"] == parent_domain_idx
-				]
+				replisome_state["domain_index"] == parent_domain_idx]
 
 			# Add promoters for transcription units inside this boundary
 			TU_mask = np.logical_and(
 				replication_coordinate < parent_domain_boundaries.max(),
-				replication_coordinate > parent_domain_boundaries.min()
-				)
+				replication_coordinate > parent_domain_boundaries.min())
 
 		# If the domain neither contains the origin nor the terminus,
 		else:
 			# Get index of the parent domain
 			parent_domain_idx = domain_state["domain_index"][
-				np.where(domain_state["child_domains"] == domain_idx)[0]
-				]
+				np.where(domain_state["child_domains"] == domain_idx)[0]]
 
 			# Get domain boundaries of the parent domain
 			parent_domain_boundaries = replisome_state["coordinates"][
-				replisome_state["domain_index"] == parent_domain_idx
-				]
+				replisome_state["domain_index"] == parent_domain_idx]
 
 			# Get domain boundaries of this domain
 			domain_boundaries = replisome_state["coordinates"][
-				replisome_state["domain_index"] == domain_idx
-				]
+				replisome_state["domain_index"] == domain_idx]
 
 			# Add promoters for transcription units between the boundaries
 			TU_mask = np.logical_or(
 				np.logical_and(
 					replication_coordinate < parent_domain_boundaries.max(),
-					replication_coordinate > domain_boundaries.max()
-					),
+					replication_coordinate > domain_boundaries.max()),
 				np.logical_and(
 					replication_coordinate > parent_domain_boundaries.min(),
-					replication_coordinate < domain_boundaries.min()
-					)
-				)
+					replication_coordinate < domain_boundaries.min()))
 
 		# Append attributes to existing list
 		TU_index.extend(np.nonzero(TU_mask)[0])
@@ -399,8 +383,7 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		TU_index=np.array(TU_index),
 		coordinates=np.array(promoter_coordinates),
 		domain_index=np.array(promoter_domain_index),
-		bound_TF=np.zeros((n_promoter, n_tf), dtype=np.bool),
-		)
+		bound_TF=np.zeros((n_promoter, n_tf), dtype=np.bool))
 
 
 def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
@@ -430,10 +413,8 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	n_TUs = len(basal_prob)
 	delta_prob = sim_data.process.transcription_regulation.delta_prob
 	delta_prob_matrix = scipy.sparse.csr_matrix(
-		(delta_prob['deltaV'],
-		(delta_prob['deltaI'], delta_prob['deltaJ'])),
-		shape=delta_prob['shape']
-		)
+		(delta_prob['deltaV'], (delta_prob['deltaI'], delta_prob['deltaJ'])),
+		shape=delta_prob['shape']).toarray()
 
 	# Get attributes of promoters
 	promoters = uniqueMolCntr.objectsInCollection("promoter")
@@ -443,8 +424,7 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	# Construct matrix that maps promoters to transcription units
 	TU_to_promoter = scipy.sparse.csr_matrix(
 		(np.ones(n_promoters), (TU_index, np.arange(n_promoters))),
-		shape=(n_TUs, n_promoters)
-		)
+		shape=(n_TUs, n_promoters))
 
 	# Synthesis probabilities for different categories of genes
 	rnaSynthProbFractions = sim_data.process.transcription.rnaSynthProbFraction
@@ -459,13 +439,11 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 		probability_indexes = [
 			(index, sim_data.genetic_perturbations[rna_data['id']])
 				for index, rna_data in enumerate(sim_data.process.transcription.rnaData)
-				if rna_data['id'] in sim_data.genetic_perturbations
-			]
+				if rna_data['id'] in sim_data.genetic_perturbations]
 
 		genetic_perturbations = {
 			'fixedRnaIdxs': map(lambda pair: pair[0], probability_indexes),
-			'fixedSynthProbs': map(lambda pair: pair[1], probability_indexes)
-			}
+			'fixedSynthProbs': map(lambda pair: pair[1], probability_indexes)}
 
 	# If initiationShuffleIdxs does not exist, set value to None
 	shuffleIdxs = getattr(sim_data.process.transcription, 'initiationShuffleIdxs', None)
@@ -478,21 +456,14 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	idx_rnap = np.where(sim_data.process.transcription.rnaData['isRnap'])[0]
 
 	# Calculate probabilities of the RNAP binding to the promoters
-	promoter_init_probs = (
-		basal_prob[TU_index] +
-		np.squeeze(
-			np.asarray(
-				delta_prob_matrix[TU_index, :].multiply(bound_TF).sum(axis=1)
-				)
-			)
-		)
+	promoter_init_probs = (basal_prob[TU_index] +
+		np.multiply(delta_prob_matrix[TU_index, :], bound_TF).sum(axis=1))
 
 	if len(genetic_perturbations) > 0:
 		rescale_initiation_probs(
 			promoter_init_probs, TU_index,
 			genetic_perturbations["fixedRnaIdxs"],
-			genetic_perturbations["fixedSynthProbs"]
-			)
+			genetic_perturbations["fixedSynthProbs"])
 
 	# Adjust probabilities to not be negative
 	promoter_init_probs[promoter_init_probs < 0] = 0.0
@@ -522,9 +493,7 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 		np.concatenate((idx_rprotein, idx_rnap)),
 		np.concatenate((
 			rnaSynthProbRProtein[current_nutrients],
-			rnaSynthProbRnaPolymerase[current_nutrients]
-			))
-		)
+			rnaSynthProbRnaPolymerase[current_nutrients])))
 
 	assert promoter_init_probs[is_fixed].sum() < 1.0
 
@@ -539,8 +508,7 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 		rescale_initiation_probs(
 			promoter_init_probs, TU_index,
 			np.arange(n_TUs),
-			TU_synth_probs[shuffleIdxs]
-			)
+			TU_synth_probs[shuffleIdxs])
 
 	# normalize to length of rna
 	init_prob_length_adjusted = promoter_init_probs * rnaLengths[TU_index]
@@ -549,8 +517,7 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	# Sample a multinomial distribution of synthesis probabilities to determine
 	# what RNA are initialized
 	n_initiations = randomState.multinomial(
-		rnaPolyToActivate, init_prob_normalized
-		)
+		rnaPolyToActivate, init_prob_normalized)
 
 	# RNA Indices
 	rnaIndexes = np.repeat(TU_index, n_initiations)
@@ -558,8 +525,7 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	# TODO (Eran) -- make sure there aren't any rnapolys at same location on same gene
 	updatedLengths = np.array(
 		randomState.rand(rnaPolyToActivate) * rnaLengths[rnaIndexes],
-		dtype=np.int
-		)
+		dtype=np.int)
 
 	# update mass
 	sequences = rnaSequences[rnaIndexes]
@@ -572,8 +538,7 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 		'activeRnaPoly', rnaPolyToActivate,
 		rnaIndex=rnaIndexes,
 		transcriptLength=updatedLengths,
-		massDiff_mRNA=massIncreaseRna,
-		)
+		massDiff_mRNA=massIncreaseRna)
 
 	bulkMolCntr.countsIs(inactiveRnaPolyCounts - rnaPolyToActivate, ['APORNAP-CPLX[c]'])
 
@@ -793,20 +758,16 @@ def determine_chromosome_state(C, D, tau, replichore_length, place_holder):
 				] = np.array([domain_index, domain_index + 1])
 
 	# Convert to numpy arrays and wrap into dictionaries
-	oric_state = {
-		"domain_index": domain_index_oric,
-		}
+	oric_state = {"domain_index": domain_index_oric}
 
 	replisome_state = {
 		"coordinates": coordinates,
 		"right_replichore": right_replichore_replisome,
-		"domain_index": domain_index_replisome,
-		}
+		"domain_index": domain_index_replisome}
 
 	domain_state = {
 		"child_domains": child_domains,
-		"domain_index": domain_index_domains,
-		}
+		"domain_index": domain_index_domains}
 
 	return oric_state, replisome_state, domain_state
 

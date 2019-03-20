@@ -56,8 +56,7 @@ class TfBinding(wholecell.processes.process.Process):
 		# is expected to be replicated in the current timestep)
 		self.dnaPolyElngRate = int(
 			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
-			units.nt / units.s))
-			)
+			units.nt / units.s)))
 
 		# Build views
 		self.promoters = self.uniqueMoleculesView("promoter")
@@ -97,8 +96,7 @@ class TfBinding(wholecell.processes.process.Process):
 		# Get attributes of all promoters
 		promoters = self.promoters.molecules_read_and_edit()
 		TU_index, coordinates_promoters, domain_index_promoters, bound_TF = promoters.attrs(
-			"TU_index", "coordinates", "domain_index", "bound_TF"
-			)
+			"TU_index", "coordinates", "domain_index", "bound_TF")
 
 		# Get attributes of replisomes
 		replisomes = self.active_replisomes.molecules_read_only()
@@ -112,27 +110,23 @@ class TfBinding(wholecell.processes.process.Process):
 
 		if len(replisomes) > 0:
 			domain_index_replisome, right_replichore, coordinates_replisome = replisomes.attrs(
-				"domain_index", "right_replichore", "coordinates",
-				)
+				"domain_index", "right_replichore", "coordinates")
 
 			elongation_length = np.ceil(self.dnaPolyElngRate*self.timeStepSec())
 
-			for domain_index, rr, coord in izip(
-					domain_index_replisome, right_replichore, coordinates_replisome):
+			for domain_index, rr, coord in izip(domain_index_replisome,
+					right_replichore, coordinates_replisome):
 				if rr:
 					coordinates_mask = np.logical_and(
 						coordinates_promoters >= coord,
-						coordinates_promoters <= coord + elongation_length
-						)
+						coordinates_promoters <= coord + elongation_length)
 				else:
 					coordinates_mask = np.logical_and(
 						coordinates_promoters <= coord,
-						coordinates_promoters >= coord - elongation_length
-						)
+						coordinates_promoters >= coord - elongation_length)
 
 				mask = np.logical_and(
-					domain_index_promoters == domain_index, coordinates_mask
-					)
+					domain_index_promoters == domain_index, coordinates_mask)
 				collision_mask[mask] = True
 
 		# Calculate number of bound TFs for each TF prior to changes
@@ -146,8 +140,7 @@ class TfBinding(wholecell.processes.process.Process):
 		pPromotersBound = np.zeros(self.n_TF, dtype=np.float64)
 		nPromotersBound = np.zeros(self.n_TF, dtype=np.float64)
 		nActualBound = np.zeros(self.n_TF, dtype=np.float64)
-		n_bound_TF_per_TU = np.zeros(
-			(self.n_TU, self.n_TF), dtype=np.int16)
+		n_bound_TF_per_TU = np.zeros((self.n_TU, self.n_TF), dtype=np.int16)
 
 		for tf_idx, tf_id in enumerate(self.tf_ids):
 			# Get counts of transcription factors
@@ -174,14 +167,12 @@ class TfBinding(wholecell.processes.process.Process):
 			# Determine the number of available promoter sites
 			available_promoters = np.logical_and(
 				np.isin(TU_index, self.TF_to_TU_idx[tf_id]),
-				~collision_mask
-				)
+				~collision_mask)
 			n_available_promoters = available_promoters.sum()
 
 			# Calculate the number of promoters that should be bound
 			n_to_bind = int(stochasticRound(
-				self.randomState, n_available_promoters*pPromoterBound)
-				)
+				self.randomState, n_available_promoters*pPromoterBound))
 
 			if n_to_bind > 0:
 				# Determine randomly which DNA targets to bind based on which of
@@ -204,8 +195,7 @@ class TfBinding(wholecell.processes.process.Process):
 
 			n_bound_TF_per_TU[:, tf_idx] = np.bincount(
 				TU_index[bound_TF_new[:, tf_idx]],
-				minlength=self.n_TU
-				)
+				minlength=self.n_TU)
 
 			# Record values
 			pPromotersBound[tf_idx] = pPromoterBound
@@ -226,5 +216,4 @@ class TfBinding(wholecell.processes.process.Process):
 		self.writeToListener("RnaSynthProb", "nPromoterBound", nPromotersBound)
 		self.writeToListener("RnaSynthProb", "nActualBound", nActualBound)
 		self.writeToListener(
-			"RnaSynthProb", "n_bound_TF_per_TU", n_bound_TF_per_TU
-			)
+			"RnaSynthProb", "n_bound_TF_per_TU", n_bound_TF_per_TU)

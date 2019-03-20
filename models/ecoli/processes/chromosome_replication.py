@@ -34,8 +34,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 		# Load parameters
 		self.criticalInitiationMass = sim_data.growthRateParameters.getDnaCriticalMass(
-			sim_data.conditionToDoublingTime[sim_data.condition]
-			)
+			sim_data.conditionToDoublingTime[sim_data.condition])
 		self.getDnaCriticalMass = sim_data.growthRateParameters.getDnaCriticalMass
 		self.nutrientToDoublingTime = sim_data.nutrientToDoublingTime
 		self.replichore_lengths = sim_data.process.replication.replichore_lengths
@@ -43,8 +42,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.polymerized_dntp_weights = sim_data.process.replication.replicationMonomerWeights
 		self.dnaPolyElngRate = int(
 			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
-			units.nt / units.s))
-			)
+			units.nt / units.s)))
 		self.replication_coordinate = sim_data.process.transcription.rnaData[
 			"replicationCoordinate"]
 		self.D_period = sim_data.growthRateParameters.d_period.asNumber(
@@ -60,8 +58,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.oriCs = self.uniqueMoleculesView('originOfReplication')
 		self.chromosome_domain = self.uniqueMoleculesView('chromosome_domain')
 		self.active_tfs = self.bulkMoleculesView(
-			[x + "[c]" for x in sim_data.process.transcription_regulation.tf_ids]
-			)
+			[x + "[c]" for x in sim_data.process.transcription_regulation.tf_ids])
 
 		# Create bulk molecule views for polymerization reaction
 		self.dntps = self.bulkMoleculesView(sim_data.moleculeGroups.dNtpIds)
@@ -120,8 +117,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			self.sequences,
 			np.tile(np.arange(4), n_active_replisomes//2),
 			sequence_length,
-			self._dnaPolymeraseElongationRate()
-			)
+			self._dnaPolymeraseElongationRate())
 
 		# Count number of each dNTP in sequences for the next timestep
 		sequenceComposition = np.bincount(
@@ -167,8 +163,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Note that we assume asynchronous initiation does not happen.
 		initiate_replication = (self.criticalMassPerOriC >= 1.0 and
 			np.all(n_replisome_trimers == 6*n_oric) and
-			np.all(n_replisome_monomers == 2*n_oric)
-			)
+			np.all(n_replisome_monomers == 2*n_oric))
 
 		# If all conditions are met, initiate a round of replication on every
 		# origin of replication
@@ -189,15 +184,13 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			max_domain_index = domain_index_existing_domain.max()
 			domain_index_new = np.arange(
 				max_domain_index + 1, max_domain_index + 2*n_oric + 1,
-				dtype=np.int32
-				)
+				dtype=np.int32)
 
 			# Add new oriC's, and reset attributes of existing oriC's
 			# All oriC's must be assigned new domain indexes
 			oriCs.attrIs(domain_index=domain_index_new[:n_oric])
 			self.oriCs.moleculesNew(
-				n_oric, domain_index=domain_index_new[n_oric:]
-				)
+				n_oric, domain_index=domain_index_new[n_oric:])
 
 			# Add and set attributes of newly created replisomes.
 			# New replisomes inherit the domain indexes of the oriC's they
@@ -213,8 +206,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 				n_new_replisome,
 				coordinates=coordinates,
 				right_replichore=right_replichore,
-				domain_index=domain_index_new_replisome,
-				)
+				domain_index=domain_index_new_replisome)
 
 			# Add and set attributes of new chromosome domains. All new domains
 			# should have have no children domains.
@@ -223,15 +215,13 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 				domain_index=domain_index_new,
 				child_domains=np.full(
 					(n_new_domain, 2), self.no_child_place_holder,
-					dtype=np.int32)
-				)
+					dtype=np.int32))
 
 			# Add new domains as children of existing domains
 			child_domains[new_parent_domains] = domain_index_new.reshape(-1, 2)
 
 			chromosome_domains.attrIs(
-				child_domains=child_domains
-				)
+				child_domains=child_domains)
 
 			# Decrement counts of replisome subunits
 			self.replisome_trimers.countsDec(6*n_oric)
@@ -253,8 +243,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Write gene copy numbers to listener
 		self.writeToListener(
 			"RnaSynthProb", "gene_copy_number",
-			np.bincount(TU_index, minlength=len(self.replication_coordinate))
-			)
+			np.bincount(TU_index, minlength=len(self.replication_coordinate)))
 
 		# If no active replisomes are present, return immediately
 		# Note: the new replication forks added in the previous module are not
@@ -267,8 +256,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 		# Get attributes of existing replisomes
 		domain_index_replisome, right_replichore, coordinates = active_replisomes.attrs(
-			"domain_index", "right_replichore", "coordinates"
-			)
+			"domain_index", "right_replichore", "coordinates")
 		sequence_length = np.abs(np.repeat(coordinates, 2))
 
 		# Build sequences to polymerize
@@ -276,8 +264,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			self.sequences,
 			np.tile(np.arange(4), n_active_replisomes // 2),
 			sequence_length,
-			self._dnaPolymeraseElongationRate()
-			)
+			self._dnaPolymeraseElongationRate())
 
 		# Use polymerize algorithm to quickly calculate the number of
 		# elongations each fork catalyzes
@@ -287,8 +274,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			sequences,
 			dNtpCounts,
 			reactionLimit,
-			self.randomState
-			)
+			self.randomState)
 
 		sequenceElongations = result.sequenceElongation
 		dNtpsUsed = result.monomerUsages
@@ -297,8 +283,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		mass_increase_dna = computeMassIncrease(
 			sequences,
 			sequenceElongations,
-			self.polymerized_dntp_weights.asNumber(units.fg)
-			)
+			self.polymerized_dntp_weights.asNumber(units.fg))
 
 		# Compute masses that should be added to each replisome
 		added_dna_mass = mass_increase_dna[0::2] + mass_increase_dna[1::2]
@@ -329,15 +314,13 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			if rr:
 				coordinates_mask = np.logical_and(
 					coordinates_promoters >= old_coord,
-					coordinates_promoters < new_coord,
-					)
+					coordinates_promoters < new_coord)
 
 			# Fork on left replichore
 			else:
 				coordinates_mask = np.logical_and(
 					coordinates_promoters <= old_coord,
-					coordinates_promoters > new_coord
-					)
+					coordinates_promoters > new_coord)
 
 			mask = np.logical_and(
 				domain_index_promoters == domain_index, coordinates_mask)
@@ -351,16 +334,12 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 			# Add freed active tfs
 			self.active_tfs.countsInc(
-				bound_TF[replicated_promoters, :].sum(axis=0)
-				)
+				bound_TF[replicated_promoters, :].sum(axis=0))
 
 			# Set up attributes for the replicated promoters
-			TU_index_new = np.repeat(
-				TU_index[replicated_promoters], 2
-				)
+			TU_index_new = np.repeat(TU_index[replicated_promoters], 2)
 			coordinates_promoters_new = np.repeat(
-				coordinates_promoters[replicated_promoters], 2
-				)
+				coordinates_promoters[replicated_promoters], 2)
 			parent_domain_index_promoters = domain_index_promoters[replicated_promoters]
 
 			domain_index_promoters_new = child_domains[
@@ -374,8 +353,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 				TU_index=TU_index_new,
 				coordinates=coordinates_promoters_new,
 				domain_index=domain_index_promoters_new,
-				bound_TF=np.zeros((n_new_promoters, self.n_tf), dtype=np.bool),
-				)
+				bound_TF=np.zeros((n_new_promoters, self.n_tf), dtype=np.bool))
 
 
 		## Module 3: replication termination
@@ -392,8 +370,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 			# Get attributes of existing domains and full chromosomes
 			domain_index_domains, child_domains = chromosome_domains.attrs(
-				"domain_index", "child_domains"
-				)
+				"domain_index", "child_domains")
 			domain_index_full_chroms = full_chromosomes.attr("domain_index")
 
 			# Initialize array of replisomes and domains that should be deleted
@@ -410,8 +387,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 				# Get all terminated replisomes in the terminated domain
 				terminated_domain_matching_replisomes = np.logical_and(
 					domain_index_replisome == terminated_domain_index,
-					terminated_replisomes
-					)
+					terminated_replisomes)
 
 				# If both replisomes in the domain have terminated, we are
 				# ready to split the chromosome and update the attributes.
@@ -420,15 +396,13 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 					# for deletion
 					replisomes_to_delete = np.logical_or(
 						replisomes_to_delete,
-						terminated_domain_matching_replisomes
-						)
+						terminated_domain_matching_replisomes)
 
 					domain_matching_domains = (
 						domain_index_domains == terminated_domain_index)
 					domains_to_delete = np.logical_or(
 						domains_to_delete,
-						domain_matching_domains
-						)
+						domain_matching_domains)
 
 					# Get child domains of deleted domain
 					child_domains_this_domain = child_domains[
@@ -456,14 +430,12 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 					n_new_chromosomes,
 					division_time=[self.time() + self.D_period]*n_new_chromosomes,
 					has_induced_division=[False] * n_new_chromosomes,
-					domain_index=domain_index_new_full_chroms,
-					)
+					domain_index=domain_index_new_full_chroms)
 
 				# Reset domain index of existing chromosomes that have finished
 				# replication
 				full_chromosomes.attrIs(
-					domain_index = domain_index_full_chroms,
-					)
+					domain_index = domain_index_full_chroms)
 
 			# Increment counts of replisome subunits
 			self.replisome_trimers.countsInc(3*replisomes_to_delete.sum())

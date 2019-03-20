@@ -79,8 +79,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			tf_idx = tf_ids.index(tf)
 			tf_targets = sim_data.tfToFC[tf]
 			tf_target_indexes = np.array([
-				rna_ids.index(tf_target + "[c]") for tf_target in tf_targets
-				])
+				rna_ids.index(tf_target + "[c]") for tf_target in tf_targets])
 
 			tfTargetBoundCountsAll = n_bound_TF_per_TU[:, tf_target_indexes, tf_idx]
 			tfTargetSynthProbAll = rna_synth_prob_reader.readColumn("rnaSynthProb")[:, tf_target_indexes]
@@ -92,8 +91,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 				expectedProbBound.append(sim_data.pPromoterBound[tf + "__" + tfStatus][tf])
 				simulatedProbBound.append(
-					(tfTargetBoundCounts[5:].astype(np.float64)/tf_target_copies[5:]).mean()
-					)
+					(tfTargetBoundCounts[5:].astype(np.float64)/tf_target_copies[5:]).mean())
 
 				tfTargetSynthProb = tfTargetSynthProbAll[:, i].reshape(-1)
 
@@ -244,8 +242,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			data_all['x'] = data_tf['x' + cb_obj.get("name")];
 			data_all['y'] = data_tf['y' + cb_obj.get("name")];
 			source_all.trigger('change');
-			"""
-			)
+			""")
 
 		toggle0 = Button(label = "0CS", callback = callback, name = "0")
 		toggle1 = Button(label = "1CS", callback = callback, name = "1")

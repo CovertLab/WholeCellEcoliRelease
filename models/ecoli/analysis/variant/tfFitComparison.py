@@ -88,8 +88,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				if tfType == "0CS":
 					expectedProbBound[0].append(sim_data.pPromoterBound[tf + "__" + tfStatus][tf])
 					simulatedProbBound[0].append(
-						(tfTargetBoundCounts[5:].astype(np.float64)/tf_target_copies[5:]).mean()
-						)
+						(tfTargetBoundCounts[5:].astype(np.float64)/tf_target_copies[5:]).mean())
 
 					expectedSynthProb[0].append(sim_data.process.transcription.rnaSynthProb[tf + "__" + tfStatus][rnaIdx])
 					simulatedSynthProb[0].append(tfTargetSynthProb[5:].mean())
@@ -97,16 +96,14 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				elif tfType == "1CS":
 					expectedProbBound[1].append(sim_data.pPromoterBound[tf + "__" + tfStatus][tf])
 					simulatedProbBound[1].append(
-						(tfTargetBoundCounts[5:].astype(np.float64)/tf_target_copies[5:]).mean()
-						)
+						(tfTargetBoundCounts[5:].astype(np.float64)/tf_target_copies[5:]).mean())
 
 					expectedSynthProb[1].append(sim_data.process.transcription.rnaSynthProb[tf + "__" + tfStatus][rnaIdx])
 					simulatedSynthProb[1].append(tfTargetSynthProb[5:].mean())
 				else:
 					expectedProbBound[2].append(sim_data.pPromoterBound[tf + "__" + tfStatus][tf])
 					simulatedProbBound[2].append(
-						(tfTargetBoundCounts[5:].astype(np.float64)/tf_target_copies[5:]).mean()
-						)
+						(tfTargetBoundCounts[5:].astype(np.float64)/tf_target_copies[5:]).mean())
 
 					expectedSynthProb[2].append(sim_data.process.transcription.rnaSynthProb[tf + "__" + tfStatus][rnaIdx])
 					simulatedSynthProb[2].append(tfTargetSynthProb[5:].mean())
@@ -121,11 +118,6 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		color = ["blue", "green", "red"]
 
 		for i in np.arange(3):
-			iExpectedProbBound = np.array(expectedProbBound[i])
-			iSimulatedProbBound = np.array(simulatedProbBound[i])
-			iExpectedSynthProb = np.array(expectedSynthProb[i])
-			iSimulatedSynthProb = np.array(simulatedSynthProb[i])
-
 			ax = plt.subplot(rows, cols, 1)
 			ax.scatter(np.log10(expectedProbBound[i]), np.log10(simulatedProbBound[i]), color = color[i], alpha = 0.5)
 			plt.xlabel("log10(Expected probability bound)", fontsize = 6)
