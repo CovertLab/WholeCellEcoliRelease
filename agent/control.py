@@ -21,12 +21,7 @@ DEFAULT_KAFKA_CONFIG = {
 	'subscribe': []}
 
 class AgentControl(Agent):
-	"""
-	Send messages to the other agents in the system to trigger execution and/or shutdown
-	the Outer agent (which sends messages to shutdown all the associated Inner agents) or
-	shutdown specific Inner agents directly (which then report back to the Outer agent and
-	then terminate).
-	"""
+	"""Send messages to agents in the system to control execution."""
 
 	def __init__(self, agent_id, agent_config=None):
 		if 'kafka_config' not in agent_config:
@@ -35,6 +30,7 @@ class AgentControl(Agent):
 		super(AgentControl, self).__init__(agent_id, 'control', agent_config)
 
 	def trigger_execution(self, agent_id=''):
+		"""Start or resume simulation."""
 		if agent_id:
 			self.send(self.topics['environment_receive'], {
 				'event': event.TRIGGER_AGENT,
@@ -113,7 +109,7 @@ class AgentCommand(object):
 			'experiment',
 			'add',
 			'remove',
-			'trigger',
+			'run',
 			'pause',
 			'divide',
 			'shutdown']
@@ -212,7 +208,7 @@ class AgentCommand(object):
 			if args.get(name) is None:
 				raise ValueError('--{} needed'.format(name))
 
-	def trigger(self, args):
+	def run(self, args):
 		control = AgentControl('control', self.kafka_config)
 		control.trigger_execution(args['id'])
 		control.shutdown()

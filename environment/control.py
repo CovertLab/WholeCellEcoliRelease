@@ -5,14 +5,9 @@ import uuid
 
 from agent.control import AgentControl, AgentCommand
 
-class ShepherdControl(AgentControl):
 
-	"""
-	Send messages to the other agents in the system to trigger execution and/or shutdown
-	the Outer agent (which sends messages to shutdown all the associated Inner agents) or
-	shutdown specific Inner agents directly (which then report back to the Outer agent and
-	then terminate).
-	"""
+class ShepherdControl(AgentControl):
+	"""Send messages to agents in the system to control execution."""
 
 	def __init__(self, agent_config):
 		super(ShepherdControl, self).__init__(str(uuid.uuid1()), agent_config)
@@ -78,7 +73,7 @@ The commands are:
     type T with JSON configuration C to the environment OUTER_ID,
 `remove --id AGENT_ID` ask all Shepherds to remove agent AGENT_ID,
 `remove --prefix ID` ask all Shepherds to remove agents "ID*",
-`trigger [--id OUTER_ID]` start running one or all simulations,
+`run [--id OUTER_ID]` start or resume one or all simulations,
 `pause [--id OUTER_ID]` pause one or all simulations,
 `divide --id AGENT_ID` ask a cell agent to divide,
 `shutdown [--id OUTER_ID]` shut down one or all environment agents and their

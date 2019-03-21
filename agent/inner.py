@@ -190,9 +190,7 @@ class Inner(Agent):
 		self.shutdown()
 
 	def finalize(self):
-		"""
-		Trigger any clean up the simulation needs to perform before exiting.
-		"""
+		"""Do any cleanup the simulation needs to perform before exiting."""
 
 		self.simulation.finalize()
 

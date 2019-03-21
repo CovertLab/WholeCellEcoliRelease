@@ -26,8 +26,10 @@ Workflow options:
 		simulations where raw_data/parca files are not changed
 	PARALLEL_PARCA (int, "0"): if nonzero, some parca operations will run in
 		parallel instead of serially
-	DEBUG_PARCA (int, "0"): if nonzero, this reduces the number of TFs and
-		conditions; allows for faster debugging of parca
+	DEBUG_PARCA (int, "0"): if nonzero, this makes Parca calculate only one
+		arbitrarily-chosen transcription factor condition when adjusting gene
+		expression levels, leaving the others at their input levels, for faster
+		Parca debugging; do not use this for an actual simulation
 	COMPRESS_OUTPUT (int, "0"): if nonzero, outputs will be compressed (.bz2)
 	RUN_AGGREGATE_ANALYSIS (int, "1"): if nonzero, all analyses are run on
 		simulation output
