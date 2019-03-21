@@ -36,6 +36,8 @@ REQUIRED_COLUMNS = [
 	("Main", "time"),
 	("RnaSynthProb", "pPromoterBound"),
 	("RnaSynthProb", "rnaSynthProb"),
+	("RnaSynthProb", "gene_copy_number"),
+	("RnaSynthProb", "n_bound_TF_per_TU"),
 	("RnapData", "rnaInitEvent"),
 	("RibosomeData", "probTranslationPerTranscript"),
 	]
@@ -71,6 +73,14 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 			columns[("FBAResults", "reactionFluxes")].T / conversion_coeffs).T
 			).asNumber(units.mmol/units.g/units.h)
 
+		# Reshape array for number of bound transcription factors
+		n_TU = len(sim_data.process.transcription.rnaData["id"])
+		n_TF = len(sim_data.process.transcription_regulation.tf_ids)
+
+		columns[("RnaSynthProb", "n_bound_TF_per_TU")] = (
+			columns[("RnaSynthProb", "n_bound_TF_per_TU")]
+			).reshape(-1, n_TU, n_TF)
+
 		# Construct dictionaries of indexes where needed
 		indexes = {}
 
@@ -96,6 +106,9 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 
 		equilibrium_rxn_ids = sim_data.process.equilibrium.rxnIds
 		indexes["EquilibriumReactions"] = build_index_dict(equilibrium_rxn_ids)
+
+		tf_ids = sim_data.process.transcription_regulation.tf_ids
+		indexes["TranscriptionFactors"] = build_index_dict(tf_ids)
 
 		# Cache cell volume array (used for calculating concentrations)
 		volume = ((1.0 / sim_data.constants.cellDensity) * (
@@ -198,12 +211,10 @@ def read_gene_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	Reads dynamics data for gene nodes from simulation output.
 	"""
 	gene_index = indexes["Genes"][node_id]
-	copy_number_id = sim_data.process.transcription.rnaData["id"][gene_index][:-3] + "__alpha"
-	copy_number_index = indexes["BulkMolecules"][copy_number_id]
 
 	dynamics = {
 		"transcription probability": columns[("RnaSynthProb", "rnaSynthProb")][:, gene_index],
-		"gene copy number": columns[("BulkMolecules", "counts")][:, copy_number_index],
+		"gene copy number": columns[("RnaSynthProb", "gene_copy_number")][:, gene_index],
 		}
 	dynamics_units = {
 		"transcription probability": PROB_UNITS,
@@ -364,11 +375,11 @@ def read_regulation_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	"""
 	tf_id, gene_id, _ = node_id.split("_")
 	gene_idx = indexes["Genes"][gene_id]
-	bound_tf_id = sim_data.process.transcription.rnaData["id"][gene_idx][:-3] + "__" + tf_id
-	bound_tf_idx = indexes["BulkMolecules"][bound_tf_id]
+	tf_idx = indexes["TranscriptionFactors"][tf_id]
 
 	dynamics = {
-		'bound TFs': columns[("BulkMolecules", "counts")][:, bound_tf_idx],
+		'bound TFs': columns[("RnaSynthProb", "n_bound_TF_per_TU")][
+			:, gene_idx, tf_idx],
 		}
 	dynamics_units = {
 		'bound TFs': COUNT_UNITS,

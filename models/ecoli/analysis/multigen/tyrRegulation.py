@@ -39,9 +39,14 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		nAvogadro = sim_data.constants.nAvogadro
 		cellDensity = sim_data.constants.cellDensity
 
-		recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
-		tfs = sorted(set([x.split("__")[-1] for x in recruitmentColNames if x.split("__")[-1] != "alpha"]))
-		tyrRIndex = [i for i, tf in enumerate(tfs) if tf == "MONOMER0-162"][0]
+		# Get list of TF and transcription unit IDs from first simOut directory
+		simOutDir = os.path.join(allDirs[0], "simOut")
+		rna_synth_prob_reader = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
+		tf_ids = rna_synth_prob_reader.readAttribute("tf_ids")
+		rna_ids = rna_synth_prob_reader.readAttribute("rnaIds")
+
+		tyrRIndex = tf_ids.index("MONOMER0-162")
+		tyrA_rna_index = rna_ids.index("EG11039_RNA[c]")
 
 		plt.figure(figsize = (8.5, 11))
 
@@ -59,13 +64,17 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			cellMass = units.fg * massReader.readColumn("cellMass")
 			proteinMass = units.fg * massReader.readColumn("proteinMass")
 
-
-			massReader.close()
-
 			# Load data from bulk molecules
 			bulkMoleculesReader = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 			bulkMoleculeIds = bulkMoleculesReader.readAttribute("objectNames")
 			bulkMoleculeCounts = bulkMoleculesReader.readColumn("counts")
+
+			# Load data from RnaSynthProb listener
+			rna_synth_prob_reader = TableReader(
+				os.path.join(simOutDir, "RnaSynthProb"))
+			n_bound_TF_per_TU = rna_synth_prob_reader.readColumn(
+				"n_bound_TF_per_TU").reshape(
+				(-1, len(rna_ids), len(tf_ids)))
 
 			# Get the concentration of intracellular phe
 			pheId = ["PHE[c]"]
@@ -86,9 +95,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			tyrRInactiveCounts = bulkMoleculeCounts[:, tyrRInactiveIndex].reshape(-1)
 
 			# Get the promoter-bound status of the tyrA gene
-			tyrATfBoundId = ["EG11039_RNA__MONOMER0-162"]
-			tyrATfBoundIndex = np.array([bulkMoleculeIds.index(x) for x in tyrATfBoundId])
-			tyrATfBoundCounts = bulkMoleculeCounts[:, tyrATfBoundIndex].reshape(-1)
+			tyrATfBoundCounts = n_bound_TF_per_TU[:, tyrA_rna_index, tyrRIndex].reshape(-1)
 
 			# Get the amount of monomeric tyrA
 			tyrAProteinId = ["CHORISMUTPREPHENDEHYDROG-MONOMER[c]"]
@@ -99,14 +106,11 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			tyrAComplexIndex = np.array([bulkMoleculeIds.index(x) for x in tyrAComplexId])
 			tyrAComplexCounts = bulkMoleculeCounts[:, tyrAComplexIndex].reshape(-1)
 
-			bulkMoleculesReader.close()
-
 			tyrAProteinTotalCounts = tyrAProteinCounts + 2 * tyrAComplexCounts
 
 			# Compute the tyrA mass in the cell
 			tyrAMw = sim_data.getter.getMass(tyrAProteinId)
 			tyrAMass = 1. / nAvogadro * tyrAProteinTotalCounts * tyrAMw
-
 
 			# Compute the proteome mass fraction
 			proteomeMassFraction = tyrAMass.asNumber(units.fg) / proteinMass.asNumber(units.fg)
@@ -120,8 +124,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			tyrASynthProb = rnaSynthProbReader.readColumn("rnaSynthProb")[:, tyrASynthProbIndex].reshape(-1)
 
 			tyrRBound = rnaSynthProbReader.readColumn("nActualBound")[:,tyrRIndex]
-
-			rnaSynthProbReader.close()
 
 			# Calculate total tyrR - active, inactive and bound
 			tyrRTotalCounts = tyrRActiveCounts + tyrRInactiveCounts + tyrRBound

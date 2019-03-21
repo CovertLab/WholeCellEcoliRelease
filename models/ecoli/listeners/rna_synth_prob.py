@@ -32,25 +32,32 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 
 		self.transcriptInitiation = sim.processes["TranscriptInitiation"]
 		self.rnaIds = sim_data.process.transcription.rnaData["id"]
+		self.n_TU = len(self.rnaIds)
 
-		recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
-		self.nTfs = len(set([x.split("__")[-1] for x in recruitmentColNames if x.split("__")[-1] != "alpha"]))
+		self.tf_ids = sim_data.process.transcription_regulation.tf_ids
+		self.n_TF = len(self.tf_ids)
 
 
 	# Allocate memory
 	def allocate(self):
 		super(RnaSynthProb, self).allocate()
 
-		self.rnaSynthProb = np.zeros(len(self.rnaIds), np.float64)
+		self.rnaSynthProb = np.zeros(self.n_TU, np.float64)
+		self.gene_copy_number = np.zeros(self.n_TU, np.int16)
 
-		self.pPromoterBound = np.zeros(self.nTfs, np.float64)
-		self.nPromoterBound = np.zeros(self.nTfs, np.float64)
-		self.nActualBound = np.zeros(self.nTfs, np.float64)
+		self.pPromoterBound = np.zeros(self.n_TF, np.float64)
+		self.nPromoterBound = np.zeros(self.n_TF, np.float64)
+		self.nActualBound = np.zeros(self.n_TF, np.float64)
+
+		# This array gets flattened at tableAppend(). Resulting array should
+		# be reshaped before use.
+		self.n_bound_TF_per_TU = np.zeros((self.n_TU, self.n_TF), np.int16)
 
 
 	def tableCreate(self, tableWriter):
 		tableWriter.writeAttributes(
 			rnaIds = list(self.rnaIds),
+			tf_ids = list(self.tf_ids),
 			)
 
 
@@ -59,7 +66,9 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 			time = self.time(),
 			simulationStep = self.simulationStep(),
 			rnaSynthProb = self.rnaSynthProb,
+			gene_copy_number = self.gene_copy_number,
 			pPromoterBound = self.pPromoterBound,
 			nPromoterBound = self.nPromoterBound,
 			nActualBound = self.nActualBound,
+			n_bound_TF_per_TU = self.n_bound_TF_per_TU,
 			)

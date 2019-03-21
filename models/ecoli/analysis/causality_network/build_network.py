@@ -833,48 +833,60 @@ class BuildNetwork(object):
 		Add regulation nodes with to the node list, and add edges connected to
 		the regulation nodes to the edge list.
 		"""
-		# Get recruitment column names from sim_data
-		recruitment_column_names = self.sim_data.process.transcription_regulation.recruitmentColNames
+		# Get list of transcription factor IDs and transcription unit IDs
+		tf_ids = self.sim_data.process.transcription_regulation.tf_ids
+		rna_ids = self.sim_data.process.transcription.rnaData["id"]
 
-		# Get IDs of genes and RNAs
-		gene_ids = self.sim_data.process.replication.geneData["name"]
-		rna_ids = list(self.sim_data.process.replication.geneData["rnaId"])
+		# Get delta_prob matrix from sim_data
+		delta_prob = self.sim_data.process.transcription_regulation.delta_prob
 
-		# Loop through all recruitment column names
-		for recruitment_column_name in recruitment_column_names:
-			if recruitment_column_name.endswith("__alpha"):
-				continue
+		# Build dict that maps TFs to indexes of transcription units they
+		# regulate
+		TF_to_TU_idx = {}
 
-			rna_id, tf = recruitment_column_name.split("__")
+		for i, tf in enumerate(tf_ids):
+			TF_to_TU_idx[tf] = delta_prob['deltaI'][
+				delta_prob['deltaJ'] == i]
 
-			# Add localization ID to the TF ID
-			tf_id = tf + "[c]"
+		# Build dict that maps RNA IDs to gene IDs
+		rna_id_to_gene_id = {}
 
-			# Find corresponding ID of gene
-			gene_id = gene_ids[rna_ids.index(rna_id)]
+		for rna_id, gene_id in izip(
+				self.sim_data.process.replication.geneData["rnaId"],
+				self.sim_data.process.replication.geneData["name"]):
+			rna_id_to_gene_id[rna_id + "[c]"] = gene_id
 
-			# Initialize a single regulation node for each TF-gene pair
-			regulation_node = Node()
+		# Loop through all TFs
+		for tf_id in tf_ids:
+			# Get IDs of RNAs that are regulated by the TF
+			regulated_rna_ids = rna_ids[TF_to_TU_idx[tf_id]]
 
-			# Add attributes to the node
-			reg_id = tf + "_" + gene_id + NODE_ID_SUFFIX["regulation"]
-			reg_name = tf + "-" + gene_id + " gene regulation"
-			attr = {
-				'node_class': 'Process',
-				'node_type': 'Regulation',
-				'node_id': reg_id,
-				'name': reg_name,
-				'location': molecule_compartment(reg_id),
-				}
-			regulation_node.read_attributes(**attr)
+			for regulated_rna_id in regulated_rna_ids:
+				# Find corresponding ID of gene
+				gene_id = rna_id_to_gene_id[regulated_rna_id]
 
-			self.node_list.append(regulation_node)
+				# Initialize a single regulation node for each TF-gene pair
+				regulation_node = Node()
 
-			# Add edge from TF to this regulation node
-			self._append_edge("Regulation", tf_id, reg_id)
+				# Add attributes to the node
+				reg_id = tf_id + "_" + gene_id + NODE_ID_SUFFIX["regulation"]
+				reg_name = tf_id + "-" + gene_id + " gene regulation"
+				attr = {
+					'node_class': 'Process',
+					'node_type': 'Regulation',
+					'node_id': reg_id,
+					'name': reg_name,
+					'location': molecule_compartment(reg_id),
+					}
+				regulation_node.read_attributes(**attr)
 
-			# Add edge from this regulation node to the gene
-			self._append_edge("Regulation", reg_id, gene_id)
+				self.node_list.append(regulation_node)
+
+				# Add edge from TF to this regulation node
+				self._append_edge("Regulation", tf_id + "[c]", reg_id)
+
+				# Add edge from this regulation node to the gene
+				self._append_edge("Regulation", reg_id, gene_id)
 
 
 	def _find_duplicate_nodes(self):

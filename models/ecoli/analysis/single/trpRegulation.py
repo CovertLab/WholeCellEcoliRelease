@@ -47,13 +47,25 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		cellMass = units.fg * massReader.readColumn("cellMass")
 		proteinMass = units.fg * massReader.readColumn("proteinMass")
 
-
-		massReader.close()
-
 		# Load data from bulk molecules
 		bulkMoleculesReader = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		bulkMoleculeIds = bulkMoleculesReader.readAttribute("objectNames")
 		bulkMoleculeCounts = bulkMoleculesReader.readColumn("counts")
+
+		# Load data from RnaSynthProb listener
+		rna_synth_prob_reader = TableReader(
+			os.path.join(simOutDir, "RnaSynthProb"))
+		tf_ids = rna_synth_prob_reader.readAttribute("tf_ids")
+		rna_ids = rna_synth_prob_reader.readAttribute("rnaIds")
+		n_bound_TF_per_TU = rna_synth_prob_reader.readColumn(
+			"n_bound_TF_per_TU").reshape(
+			(-1, len(rna_ids), len(tf_ids)))
+
+		# Get indexes of trpR and its target RNAs
+		trpRIndex = tf_ids.index("CPLX-125")
+		target_ids = sim_data.tfToFC["CPLX-125"].keys()
+		target_idx = np.array(
+			[rna_ids.index(target_id + "[c]") for target_id in target_ids])
 
 		# Get the concentration of intracellular trp
 		trpId = ["TRP[c]"]
@@ -79,9 +91,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		trpRMonomerCounts = bulkMoleculeCounts[:, trpRMonomerIndex].reshape(-1)
 
 		# Get the promoter-bound status for all regulated genes
-		tfBoundIds = [target + "__CPLX-125" for target in sim_data.tfToFC["CPLX-125"].keys()]
-		tfBoundIndex = np.array([bulkMoleculeIds.index(x) for x in tfBoundIds])
-		tfBoundCounts = bulkMoleculeCounts[:, tfBoundIndex]
+		tfBoundCounts = n_bound_TF_per_TU[:, target_idx, trpRIndex]
 
 		# Get the amount of monomeric trpA
 		trpAProteinId = ["TRYPSYN-APROTEIN[c]"]
@@ -92,8 +102,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		trpABComplexId = ["TRYPSYN[c]"]
 		trpABComplexIndex = np.array([bulkMoleculeIds.index(x) for x in trpABComplexId])
 		trpABComplexCounts = bulkMoleculeCounts[:, trpABComplexIndex].reshape(-1)
-
-		bulkMoleculesReader.close()
 
 		# Compute total counts of trpA in monomeric and complexed form
 		# (we know the stoichiometry)
@@ -114,9 +122,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		synthProbIndex = np.array([rnaIds.index(x) for x in synthProbIds])
 		synthProbs = rnaSynthProbReader.readColumn("rnaSynthProb")[:, synthProbIndex]
 
-		recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
-		tfs = sorted(set([x.split("__")[-1] for x in recruitmentColNames if x.split("__")[-1] != "alpha"]))
-		trpRIndex = [i for i, tf in enumerate(tfs) if tf == "CPLX-125"][0]
+		tf_ids = rnaSynthProbReader.readAttribute("tf_ids")
+		trpRIndex = [i for i, tf in enumerate(tf_ids) if tf == "CPLX-125"][0]
 		trpRBound = rnaSynthProbReader.readColumn("nActualBound")[:,trpRIndex]
 
 		rnaSynthProbReader.close()

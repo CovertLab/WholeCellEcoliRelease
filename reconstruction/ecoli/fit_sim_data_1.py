@@ -2935,11 +2935,12 @@ def calculatePromoterBoundProbability(sim_data, cellSpecs):
 
 
 def calculateRnapRecruitment(sim_data, r):
-	# TODO (Gwanggyu): Not really a good function name - no calculation here
 	"""
-	Constructs a matrix (H) from values of r which can be multiplied with the
-	TF-RNA binding probability to compute RNAP recruitment probabilities for
-	each RNA.
+	Constructs the basal_prob vector and delta_prob matrix from values of r.
+	The basal_prob vector holds the basal transcription probabilities of each
+	transcription unit. The delta_prob matrix holds the differences in
+	transcription probabilities when transcription factors bind to the
+	promoters of each transcription unit. Both values are stored in sim_data.
 
 	Requires
 	--------
@@ -2949,14 +2950,21 @@ def calculateRnapRecruitment(sim_data, r):
 
 	Modifies
 	--------
-	- Rescales alpha values in r such that all values are positive
-	- Adds binding probability of each TF-RNA pair as bulk molecules to sim_data
-	- Adds matrix H to sim_data
+	- Rescales values in basal_prob such that all values are positive
+	- Adds basal_prob and delta_prob arrays to sim_data
 	"""
 
-	hI, hJ, hV, rowNames, colNames, stateMasses, rna_to_tf = [], [], [], [], [], [], []
+	colNames = []
 
-	for idx, rnaId in enumerate(sim_data.process.transcription.rnaData["id"]):
+	# Get list of transcription units and TF IDs
+	all_TUs = sim_data.process.transcription.rnaData["id"]
+	all_tfs = sim_data.process.transcription_regulation.tf_ids
+
+	# Initialize basal_prob vector and delta_prob sparse matrix
+	basal_prob = np.zeros(len(all_TUs))
+	deltaI, deltaJ, deltaV = [], [], []
+
+	for rna_idx, rnaId in enumerate(all_TUs):
 		rnaIdNoLoc = rnaId[:-3]  # Remove compartment ID from RNA ID
 
 		tfs = sim_data.process.transcription_regulation.targetTf.get(rnaIdNoLoc, [])
@@ -2967,11 +2975,9 @@ def calculateRnapRecruitment(sim_data, r):
 			if tf not in sorted(sim_data.tfToActiveInactiveConds):
 				continue
 
-			tfsWithData.append({"id": tf, "mass_g/mol": sim_data.getter.getMass([tf]).asNumber(units.g/units.mol)})
-
-		# Add one row for each RNA
-		rowName = rnaIdNoLoc + "__basal"
-		rowNames.append(rowName)
+			tfsWithData.append(
+				{"id": tf, "mass_g/mol": sim_data.getter.getMass([tf]).asNumber(units.g/units.mol)}
+				)
 
 		# Add one column for each TF that regulates the RNA
 		for tf in tfsWithData:
@@ -2979,66 +2985,35 @@ def calculateRnapRecruitment(sim_data, r):
 			if colName not in colNames:
 				colNames.append(colName)
 
-			# Set element in H to value in r that corresponds to the column
-			hI.append(rowNames.index(rowName))
-			hJ.append(colNames.index(colName))
-			hV.append(r[colNames.index(colName)])
-
-			# Add index to the target RNA
-			rna_to_tf.append(idx)
-
-			stateMasses.append([0.]*6 + [tf["mass_g/mol"]] + [0.]*4)
+			# Set element in delta to value in r that corresponds to the
+			# transcription unit of the row, and the TF of the column
+			deltaI.append(rna_idx)
+			deltaJ.append(all_tfs.index(tf["id"]))
+			deltaV.append(r[colNames.index(colName)])
 
 		# Add alpha column for each RNA
 		colName = rnaIdNoLoc + "__alpha"
 		if colName not in colNames:
 			colNames.append(colName)
 
-		# Set element in H to the RNA's alpha value in r
-		hI.append(rowNames.index(rowName))
-		hJ.append(colNames.index(colName))
-		hV.append(r[colNames.index(colName)])
+		# Set element in basal_prob to the transcription unit's value for alpha
+		basal_prob[rna_idx] = r[colNames.index(colName)]
 
-		stateMasses.append([0.]*11)
+	# Convert to arrays
+	deltaI, deltaJ, deltaV = np.array(deltaI), np.array(deltaJ), np.array(deltaV)
+	delta_shape = (len(all_TUs), len(all_tfs))
 
-	stateMasses = (units.g/units.mol)*np.array(stateMasses)
+	# Rescale basal probabilities such that there are no negative probabilities
+	basal_prob -= basal_prob.min()
 
-	# Construct matrix H
-	hI, hJ, hV = np.array(hI), np.array(hJ), np.array(hV)
-	shape = (hI.max() + 1, hJ.max() + 1)
-	H = np.zeros(shape, np.float64)
-	H[hI, hJ] = hV
-
-	# Get array to convert bound TF index to the index of the target RNA
-	rna_to_tf = np.array(rna_to_tf)
-
-	# Get column names corresponding to gene dosage/bound TF counts
-	geneCopyNumberColNames = [x for x in colNames if x.endswith("__alpha")]
-	boundTFColNames = [x for x in colNames if not x.endswith("__alpha")]
-
-	# Deals with numerical tolerance issue of having negative alpha values
-	colIdxs = [colNames.index(colName) for colName in geneCopyNumberColNames]
-	nRows = H.shape[0]
-	H[range(nRows), colIdxs] -= H[range(nRows), colIdxs].min()
-	hV = H[hI, hJ]
-
-	# Add promoter state (gene dosage/bound TF count) as bulk state
-	sim_data.internal_state.bulkMolecules.addToBulkState(colNames, stateMasses)
-	sim_data.moleculeGroups.bulkMoleculesGeneCopyNumberDivision = geneCopyNumberColNames
-	sim_data.moleculeGroups.bulkMoleculesBoundTFDivision = boundTFColNames
-
-	# Add outputs to sim_data
-	sim_data.process.transcription_regulation.recruitmentData = {
-		"hI": hI,
-		"hJ": hJ,
-		"hV": hV,
-		"shape": shape,
+	# Add basal_prob vector and delta_prob matrix to sim_data
+	sim_data.process.transcription_regulation.basal_prob = basal_prob
+	sim_data.process.transcription_regulation.delta_prob = {
+		"deltaI": deltaI,
+		"deltaJ": deltaJ,
+		"deltaV": deltaV,
+		"shape": delta_shape,
 		}
-
-	sim_data.process.transcription_regulation.recruitmentColNames = colNames
-	sim_data.process.transcription_regulation.geneCopyNumberColNames = geneCopyNumberColNames
-	sim_data.process.transcription_regulation.boundTFColNames = boundTFColNames
-	sim_data.process.transcription_regulation.rna_index_to_bound_tf_mapping = rna_to_tf
 
 
 def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):

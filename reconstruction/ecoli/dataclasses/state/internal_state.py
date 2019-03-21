@@ -181,6 +181,7 @@ class InternalState(object):
 		sim_data.moleculeGroups.unique_molecules_domain_index_division.append(
 			'chromosome_domain')
 
+
 		# Add active replisomes
 		# Note that the replisome does not functionally replicate the
 		# chromosome, but instead keeps track of the mass associated with
@@ -212,6 +213,7 @@ class InternalState(object):
 		sim_data.moleculeGroups.unique_molecules_domain_index_division.append(
 			'active_replisome')
 
+
 		# Add origins of replication
 		# Note that origins are conceptual molecules and have zero mass. The
 		# chromosomeIndexes of oriC's determine the chromosomeIndexes of the
@@ -226,6 +228,43 @@ class InternalState(object):
 		# oriC's are divided based on their domain index
 		sim_data.moleculeGroups.unique_molecules_domain_index_division.append(
 			'originOfReplication')
+
+		# Add promoters
+		# Promoters are sequences on the DNA where RNA polymerases bind to and
+		# initiate transcription. They can also be bound to transcription
+		# factors(TFs), if the transcription unit associated with the promoter
+		# is regulated by TFs. The promoter itself has zero mass but can hold
+		# the mass of the transcription factor that it is bound to. Its
+		# attributes are given as:
+		# - TU_index (64-bit int): Index of the transcription unit that
+		# the promoter is associated with. This determines which TFs the
+		# promoter can bind to, and how the transcription probability is
+		# calculated.
+		# - coordinates (64-bit int): Location of the promoter on the
+		# chromosome, in base pairs from origin. This value does not change
+		# after the molecule is initialized.
+		# - domain_index (32-bit int): Domain index of the chromosome domain
+		# that the promoter is bound to. This value is used to split the
+		# promoters at cell division.
+		# - bound_TF (boolean array of length n_tf): A boolean array that
+		# shows which TFs the promoter is bound to. Note that one promoter can
+		# bind to multiple TFs.
+		n_tf = len(sim_data.process.transcription_regulation.tf_ids)
+
+		promoter_mass = (units.g/units.mol) * np.zeros_like(rnaPolyComplexMass)
+		promoter_attributes = {
+			"TU_index": "i8",
+			"coordinates": "i8",
+			"domain_index": "i4",
+			"bound_TF": ("?", n_tf),
+			}
+
+		self.uniqueMolecules.addToUniqueState("promoter", promoter_attributes, promoter_mass)
+
+		# Promoters are divided based on their domain index
+		sim_data.moleculeGroups.unique_molecules_domain_index_division.append(
+			"promoter"
+			)
 
 
 	def _buildCompartments(self, raw_data, sim_data):

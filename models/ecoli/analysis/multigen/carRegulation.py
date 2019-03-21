@@ -39,12 +39,15 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		nAvogadro = sim_data.constants.nAvogadro
 		cellDensity = sim_data.constants.cellDensity
 
-		recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
-		tfs = sorted(set([x.split("__")[-1] for x in recruitmentColNames if x.split("__")[-1] != "alpha"]))
-		argRIndex = [i for i, tf in enumerate(tfs) if tf == "CPLX0-228"][0]
+		simOutDir = os.path.join(allDirs[0], "simOut")
+		rna_synth_prob_reader = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
+		tf_ids = rna_synth_prob_reader.readAttribute("tf_ids")
+		rna_ids = rna_synth_prob_reader.readAttribute("rnaIds")
 
-		tfBoundIds = [target + "__CPLX0-228" for target in sim_data.tfToFC["CPLX0-228"].keys()]
-		synthProbIds = [target + "[c]" for target in sim_data.tfToFC["CPLX0-228"].keys()]
+		argRIndex = tf_ids.index("CPLX0-228")
+		target_ids = sim_data.tfToFC["CPLX0-228"].keys()
+		target_idx = np.array(
+			[rna_ids.index(target_id + "[c]") for target_id in target_ids])
 
 		plt.figure(figsize = (8.5, 13))
 		nRows = 9
@@ -61,7 +64,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			massReader = TableReader(os.path.join(simOutDir, "Mass"))
 			cellMass = units.fg * massReader.readColumn("cellMass")
 			proteinMass = units.fg * massReader.readColumn("proteinMass")
-			massReader.close()
 
 			# Load data from ribosome data listener
 			# ribosomeDataReader = TableReader(os.path.join(simOutDir, "RibosomeData"))
@@ -72,6 +74,12 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			bulkMoleculesReader = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 			bulkMoleculeIds = bulkMoleculesReader.readAttribute("objectNames")
 			bulkMoleculeCounts = bulkMoleculesReader.readColumn("counts")
+
+			# Load data from RnaSynthProb listener
+			rna_synth_prob_reader = TableReader(
+				os.path.join(simOutDir, "RnaSynthProb"))
+			n_bound_TF_per_TU = rna_synth_prob_reader.readColumn(
+				"n_bound_TF_per_TU").reshape((-1, len(rna_ids), len(tf_ids)))
 
 			# Get the concentration of intracellular arg
 			argId = ["ARG[c]"]
@@ -97,8 +105,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			argRMonomerCounts = bulkMoleculeCounts[:, argRMonomerIndex].reshape(-1)
 
 			# Get the promoter-bound status for all regulated genes
-			tfBoundIndex = np.array([bulkMoleculeIds.index(x) for x in tfBoundIds])
-			tfBoundCounts = bulkMoleculeCounts[:, tfBoundIndex]
+			tfBoundCounts = n_bound_TF_per_TU[:, target_idx, argRIndex]
 
 			# Get the amount of monomeric carA
 			carAProteinId = ["CARBPSYN-SMALL[c]"]
@@ -114,8 +121,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			carARnaId = ["EG10134_RNA[c]"]
 			carARnaIndex = np.array([bulkMoleculeIds.index(x) for x in carARnaId])
 			carARnaCounts = bulkMoleculeCounts[:, carARnaIndex].reshape(-1)
-
-			bulkMoleculesReader.close()
 
 			# Compute total counts and concentration of carA in monomeric and complexed form
 			# (we know the stoichiometry)
@@ -135,15 +140,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			proteomeMassFraction = carAMass.asNumber(units.fg) / proteinMass.asNumber(units.fg)
 
 			# Get the synthesis probability for all regulated genes
-			rnaSynthProbReader = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
-
-			rnaIds = rnaSynthProbReader.readAttribute("rnaIds")
-			synthProbIndex = np.array([rnaIds.index(x) for x in synthProbIds])
-			synthProbs = rnaSynthProbReader.readColumn("rnaSynthProb")[:, synthProbIndex]
-
-			argRBound = rnaSynthProbReader.readColumn("nActualBound")[:,argRIndex]
-
-			rnaSynthProbReader.close()
+			synthProbs = rna_synth_prob_reader.readColumn("rnaSynthProb")[:, target_idx]
+			argRBound = rna_synth_prob_reader.readColumn("nActualBound")[:,argRIndex]
 
 			# Calculate total argR - active, inactive, bound and monomeric
 			argRTotalCounts = 6 * (argRActiveCounts + argRInactiveCounts + argRBound) + argRMonomerCounts

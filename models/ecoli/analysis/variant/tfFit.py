@@ -58,68 +58,56 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		for variant, simDir in zip(variants, all_cells):
 			sim_data = cPickle.load(open(ap.get_variant_kb(variant), "rb"))
 
-			shape = sim_data.process.transcription_regulation.recruitmentData["shape"]
-			hI = sim_data.process.transcription_regulation.recruitmentData["hI"]
-			hJ = sim_data.process.transcription_regulation.recruitmentData["hJ"]
-			hV = sim_data.process.transcription_regulation.recruitmentData["hV"]
-			H = np.zeros(shape, np.float64)
-			H[hI, hJ] = hV
-			colNames = sim_data.process.transcription_regulation.recruitmentColNames
+			delta_prob = sim_data.process.transcription_regulation.delta_prob
 
 			tfList = ["basal (no TF)"] + sorted(sim_data.tfToActiveInactiveConds)
 			simOutDir = os.path.join(simDir, "simOut")
 			tf = tfList[(variant + 1) // 2]
-			tfStatus = None
+
 			if variant % 2 == 1:
 				tfStatus = "active"
 			else:
 				tfStatus = "inactive"
 
-			bulkMoleculesReader = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-			bulkMoleculeIds = bulkMoleculesReader.readAttribute("objectNames")
+			rna_synth_prob_reader = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
+			rna_ids = rna_synth_prob_reader.readAttribute("rnaIds")
+			tf_ids = rna_synth_prob_reader.readAttribute("tf_ids")
+			n_bound_TF_per_TU = rna_synth_prob_reader.readColumn(
+				"n_bound_TF_per_TU").reshape((-1, len(rna_ids), len(tf_ids)))
+			gene_copy_number = rna_synth_prob_reader.readColumn("gene_copy_number")
 
-			rnaSynthProbReader = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
-			rnaIds = rnaSynthProbReader.readAttribute("rnaIds")
+			tf_idx = tf_ids.index(tf)
+			tf_targets = sim_data.tfToFC[tf]
+			tf_target_indexes = np.array([
+				rna_ids.index(tf_target + "[c]") for tf_target in tf_targets])
 
-			tfTargetBoundIds = []
-			tfTargetBoundIndices = []
-			tfTargetSynthProbIds = []
-			tfTargetSynthProbIndices = []
-			for tfTarget in sorted(sim_data.tfToFC[tf]):
-				tfTargetBoundIds.append(tfTarget + "__" + tf)
-				tfTargetBoundIndices.append(bulkMoleculeIds.index(tfTargetBoundIds[-1]))
-				tfTargetSynthProbIds.append(tfTarget + "[c]")
-				tfTargetSynthProbIndices.append(rnaIds.index(tfTargetSynthProbIds[-1]))
-			tfTargetBoundCountsAll = bulkMoleculesReader.readColumn("counts")[:, tfTargetBoundIndices]
-			tfTargetSynthProbAll = rnaSynthProbReader.readColumn("rnaSynthProb")[:, tfTargetSynthProbIndices]
+			tfTargetBoundCountsAll = n_bound_TF_per_TU[:, tf_target_indexes, tf_idx]
+			tfTargetSynthProbAll = rna_synth_prob_reader.readColumn("rnaSynthProb")[:, tf_target_indexes]
+			tf_target_gene_copies_all = gene_copy_number[:, tf_target_indexes]
 
-			for targetIdx, tfTarget in enumerate(sorted(sim_data.tfToFC[tf])):
-				tfTargetBoundCounts = tfTargetBoundCountsAll[:, targetIdx].reshape(-1)
+			for i, tfTarget in enumerate(sorted(sim_data.tfToFC[tf])):
+				tfTargetBoundCounts = tfTargetBoundCountsAll[:, i].reshape(-1)
+				tf_target_copies = tf_target_gene_copies_all[:, i].reshape(-1)
 
 				expectedProbBound.append(sim_data.pPromoterBound[tf + "__" + tfStatus][tf])
-				simulatedProbBound.append(tfTargetBoundCounts[5:].mean())
+				simulatedProbBound.append(
+					(tfTargetBoundCounts[5:].astype(np.float64)/tf_target_copies[5:]).mean())
 
-				tfTargetSynthProbId = [tfTarget + "[c]"]
-				tfTargetSynthProbIndex = np.array([rnaIds.index(x) for x in tfTargetSynthProbId])
-				tfTargetSynthProb = tfTargetSynthProbAll[:, targetIdx].reshape(-1)
+				tfTargetSynthProb = tfTargetSynthProbAll[:, i].reshape(-1)
 
-				rnaIdx = np.where(sim_data.process.transcription.rnaData["id"] == tfTarget + "[c]")[0][0]
-				regulatingTfIdxs = np.where(H[rnaIdx, :])
+				target_idx = rna_ids.index(tfTarget + "[c]")
+				regulating_tf_idxs = delta_prob['deltaJ'][delta_prob['deltaI'] == target_idx]
 
-				for i in regulatingTfIdxs[0]:
-					if colNames[i].split("__")[1] != "alpha":
-						if tfTarget not in targetToTfType:
-							targetToTfType[tfTarget] = []
-						targetToTfType[tfTarget].append(sim_data.process.transcription_regulation.tfToTfType[colNames[i].split("__")[1]])
+				for i in regulating_tf_idxs:
+					if tfTarget not in targetToTfType:
+						targetToTfType[tfTarget] = []
+					targetToTfType[tfTarget].append(sim_data.process.transcription_regulation.tfToTfType[tf_ids[i]])
 
-				expectedSynthProb.append(sim_data.process.transcription.rnaSynthProb[tf + "__" + tfStatus][rnaIdx])
+				expectedSynthProb.append(sim_data.process.transcription.rnaSynthProb[tf + "__" + tfStatus][target_idx])
 				simulatedSynthProb.append(tfTargetSynthProb[5:].mean())
 
 				targetId.append(tfTarget)
 				targetCondition.append(tf + "__" + tfStatus)
-
-			bulkMoleculesReader.close()
-			rnaSynthProbReader.close()
 
 
 		expectedProbBound = np.array(expectedProbBound)
@@ -254,8 +242,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			data_all['x'] = data_tf['x' + cb_obj.get("name")];
 			data_all['y'] = data_tf['y' + cb_obj.get("name")];
 			source_all.trigger('change');
-			"""
-			)
+			""")
 
 		toggle0 = Button(label = "0CS", callback = callback, name = "0")
 		toggle1 = Button(label = "1CS", callback = callback, name = "1")

@@ -600,12 +600,13 @@ class UniqueObjectsContainer(object):
 		unique_col_indexes, inverse = np.unique(collection_indexes,
 			return_inverse=True)
 
-		for i, collection_index in enumerate(unique_col_indexes):
-			globalObjIndexes = np.where(inverse == i)
+		for idx, collection_index in enumerate(unique_col_indexes):
+			globalObjIndexes = np.where(inverse == idx)
 			objectIndexesInCollection = object_indexes[globalObjIndexes]
 
-			for i, submass_diff_name in enumerate(self.submass_diff_names_list):
-				deleted_submasses[i] += self._collections[
+			for submass_name_idx, submass_diff_name in enumerate(
+					self.submass_diff_names_list):
+				deleted_submasses[submass_name_idx] += self._collections[
 					collection_index][submass_diff_name][
 					objectIndexesInCollection].sum()
 
@@ -636,8 +637,8 @@ class UniqueObjectsContainer(object):
 		uniqueColIndexes, inverse = np.unique(collectionIndexes,
 			return_inverse=True)
 
-		for i, collectionIndex in enumerate(uniqueColIndexes):
-			globalObjIndexes = np.where(inverse == i)
+		for idx, collectionIndex in enumerate(uniqueColIndexes):
+			globalObjIndexes = np.where(inverse == idx)
 			objectIndexesInCollection = objectIndexes[globalObjIndexes]
 
 			for attribute, deltas in attributes.viewitems():
@@ -678,8 +679,11 @@ class UniqueObjectsContainer(object):
 		"""
 		resolver = []
 
+		priority = ["new_molecule", "edit", "submass", "delete"]
+		sorted_requests = sorted(self._requests, key=lambda k: priority.index(k["type"]))
+
 		# Loop through all requests
-		for req in self._requests:
+		for req in sorted_requests:
 			# Apply requested attribute edits
 			if req["type"] == "edit":
 				self.update_attribute(req["globalIndexes"], req["attributes"], 0)
@@ -688,12 +692,12 @@ class UniqueObjectsContainer(object):
 					)
 
 			# Apply requested submass edits
-			if req["type"] == "submass":
+			elif req["type"] == "submass":
 				self.update_attribute(req["globalIndexes"], req["added_masses"], 1)
 
 
 			# Apply requested deletions
-			if req["type"] == "delete":
+			elif req["type"] == "delete":
 				collection_indexes, deleted_submasses = self._delete_objects(
 					req["globalIndexes"]
 					)
@@ -702,9 +706,8 @@ class UniqueObjectsContainer(object):
 				req["collection_indexes"] = collection_indexes
 				req["deleted_submasses"] = deleted_submasses
 
-
 			# Apply requested new molecule additions
-			if req["type"] == "new_molecule":
+			elif req["type"] == "new_molecule":
 				self._add_new_objects(
 					req["collectionName"], req["nObjects"], req["attributes"]
 					)
@@ -715,11 +718,10 @@ class UniqueObjectsContainer(object):
 				"Merge conflict detected - two processes attempted to edit same attribute of same unique molecule."
 				)
 
-		# Copy list and empty the original
-		requests_copy = self._requests
+		# Empty the original list
 		self._requests = []
 
-		return requests_copy
+		return sorted_requests
 
 
 def copy_if_ndarray(object):
@@ -922,8 +924,8 @@ class _UniqueObjectSet(object):
 			dtype = attributeDtype
 			)
 
-		for i, collectionIndex in enumerate(uniqueColIndexes):
-			globalObjIndexes = np.where(inverse == i)
+		for idx, collectionIndex in enumerate(uniqueColIndexes):
+			globalObjIndexes = np.where(inverse == idx)
 			objectIndexesInCollection = objectIndexes[globalObjIndexes]
 
 			values[globalObjIndexes] = container._collections[collectionIndex][attribute][objectIndexesInCollection]
@@ -974,8 +976,8 @@ class _UniqueObjectSet(object):
 			dtype = attributeDtypes
 			)
 
-		for i, collectionIndex in enumerate(uniqueColIndexes):
-			globalObjIndexes = np.where(inverse == i)
+		for idx, collectionIndex in enumerate(uniqueColIndexes):
+			globalObjIndexes = np.where(inverse == idx)
 			objectIndexesInCollection = objectIndexes[globalObjIndexes]
 
 			values[globalObjIndexes] = container._collections[collectionIndex][attributes][objectIndexesInCollection]
