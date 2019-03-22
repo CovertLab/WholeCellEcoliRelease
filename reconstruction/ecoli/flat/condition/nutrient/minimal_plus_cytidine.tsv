@@ -1,0 +1,25 @@
+"molecule id"	"lower bound (units.mmol / units.g / units.h)"	"upper bound (units.mmol / units.g / units.h)"
+"ADP[c]"	3.15	3.15
+"PI[c]"	3.15	3.15
+"PROTON[c]"	3.15	3.15
+"GLC[p]"	NaN	20
+"OXYGEN-MOLECULE[p]"	NaN	NaN
+"AMMONIUM[c]"	NaN	NaN
+"PI[p]"	NaN	NaN
+"K+[p]"	NaN	NaN
+"SULFATE[p]"	NaN	NaN
+"FE+2[p]"	NaN	NaN
+"CA+2[p]"	NaN	NaN
+"CL-[p]"	NaN	NaN
+"CO+2[p]"	NaN	NaN
+"MG+2[p]"	NaN	NaN
+"MN+2[p]"	NaN	NaN
+"NI+2[p]"	NaN	NaN
+"ZN+2[p]"	NaN	NaN
+"WATER[p]"	NaN	NaN
+"CARBON-DIOXIDE[p]"	NaN	NaN
+"CPD0-1958[p]"	NaN	NaN
+"L-SELENOCYSTEINE[c]"	NaN	NaN
+"GLC-D-LACTONE[c]"	NaN	NaN
+"CYTOSINE[c]"	NaN	NaN
+"CYTIDINE[c]"	NaN	NaN

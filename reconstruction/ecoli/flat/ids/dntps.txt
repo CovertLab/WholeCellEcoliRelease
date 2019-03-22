@@ -1,0 +1,4 @@
+DATP
+DCTP
+DGTP
+TTP

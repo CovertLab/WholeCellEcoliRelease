@@ -1,0 +1,3 @@
+# Set the backend globally to Agg (non-interactive backend)
+backend: Agg
+
