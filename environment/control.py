@@ -26,7 +26,7 @@ class ShepherdControl(AgentControl):
 			lattice_id, num_cells))
 		self.add_agent(lattice_id, 'lattice', {})
 
-		time.sleep(10)
+		time.sleep(10)  # TODO(jerry): Wait for the Lattice to boot
 
 		for index in range(num_cells):
 			self.add_cell(args['type'] or 'ecoli', {

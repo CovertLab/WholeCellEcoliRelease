@@ -318,10 +318,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 
 
 	def generate_outer_update(self, now):
-		'''returns a dict with {molecule_id: conc} for each sim give its current location'''
-
-		bounds = [self.patches_per_edge, self.patches_per_edge]
-
+		'''Return a dict with {molecule_id: conc} for each sim at its current location'''
 		update = {}
 		for agent_id, simulation in self.simulations.iteritems():
 			# only provide concentrations if we have reached this simulation's time point.
@@ -341,9 +338,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		return self._time
 
 	def add_simulation(self, agent_id, simulation):
-		if agent_id not in self.simulations:
-			self.simulations[agent_id] = {}
-		self.simulations[agent_id].update(simulation)
+		self.simulations.setdefault(agent_id, {}).update(simulation)
 
 		if agent_id not in self.locations:
 			# Place cell at either the provided or a random initial location
@@ -383,9 +378,10 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		translation = (offset * rotation).A1
 		return location + translation
 
-	def apply_parent_state(self, agent_id, parent):
-		parent_location = parent['location']
-		index = parent['index']
+	def apply_parent_state(self, agent_id, simulation):
+		# TODO(jerry): Merge this into add_simulation().
+		parent_location = simulation['location']
+		index = simulation['index']
 		orientation = parent_location[2]
 		volume = self.simulations[agent_id]['state']['volume'] * 0.5
 		length = self.volume_to_length(volume)
