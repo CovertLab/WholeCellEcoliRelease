@@ -45,10 +45,13 @@ class ShepherdControl(AgentControl):
 			'gradient': {'seed': True},
 			'diffusion': 0.0,
 			'translation_jitter': 0.0,
-			'rotation_jitter': 0.0,
+			'rotation_jitter': 0.05,
 			'edge_length': 20.0,
 			'patches_per_edge': 30}
 		self.add_agent(lattice_id, 'lattice', chemotaxis_config)
+
+		# give lattice time before adding the cells
+		time.sleep(3)
 
 		for index in range(num_cells):
 			self.add_cell(args['type'] or 'chemotaxis', {

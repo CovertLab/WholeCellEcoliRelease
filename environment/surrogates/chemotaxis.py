@@ -2,12 +2,11 @@ from __future__ import absolute_import, division, print_function
 
 import time
 import numpy as np
-import random
 
 from agent.inner import CellSimulation
 
 
-TUMBLE_JITTER = 0.4 # (radians)
+TUMBLE_JITTER = 2.0 # (radians)
 
 class Chemotaxis(CellSimulation):
 	'''
@@ -15,10 +14,8 @@ class Chemotaxis(CellSimulation):
 	State is a function of the current glucose concentrations, and internal CheY concentrations -- the 'memory' of
 	glucose concentrations from the previous time step.
 
-	TODO (Eran) make surrogate into a proper state machine
-	TODO (Eran) make transition rates between states a function of CheY
-	TODO (Eran) dynamically update CheY
-	TODO (Eran) fit transition rates to experimental results
+	TODO (Eran) implement mechanistic model of chemotaxis pathway. The following paper's model shoud suffice:
+	Bray, Dennis, Robert B. Bourret, and Melvin I. Simon. "Computer simulation of the phosphorylation cascade controlling bacterial chemotaxis." Molecular Biology of the Cell (1993)
 	'''
 
 	def __init__(self):
@@ -32,13 +29,18 @@ class Chemotaxis(CellSimulation):
 		# initial state
 		self.state = ['tumble']
 		self.external_concentrations = {
-			'GLC[p]': 0.0
+			'GLC': 0.0
 		}
 		self.internal_concentrations = {
-			'CheY': 0.0,
-			'CheY-P': 0.0,
-			'CheZ' : 0.0,
-			'CheA' : 0.0,
+			'Sensor': 5.0,  # uM, (Bray, Bourret, Simon 1993)
+			'CheR': 1.0,    # uM, (Bray, Bourret, Simon 1993)
+			'CheB': 2.0,    # uM, (Bray, Bourret, Simon 1993)
+			'CheW': 5.0,    # uM, (Bray, Bourret, Simon 1993)
+			'CheA': 5.0,    # uM, (Bray, Bourret, Simon 1993)
+			'CheY': 10.0,   # uM, (Bray, Bourret, Simon 1993)
+			'CheY-P': 0.0,  # uM, (Bray, Bourret, Simon 1993)
+			'CheZ' : 20.0,  # uM, (Bray, Bourret, Simon 1993)
+			'Motor': 0.01   # uM, (Bray, Bourret, Simon 1993)
 		}
 		self.motile_force = [0.0, 0.0] # initial magnitude and relative orientation
 		self.division = []
@@ -46,30 +48,27 @@ class Chemotaxis(CellSimulation):
 
 	def update_state(self):
 		# update state based on internal and external concentrations
-
-		if self.external_concentrations['GLC[p]'] >= self.internal_concentrations['CheY-P']:
+		if self.external_concentrations['GLC'] >= self.internal_concentrations['CheY-P']:
 			self.state = 'run'
 		else:
 			self.state = 'tumble'
 
 		# update intracellular concentrations
-		self.internal_concentrations['CheY-P'] = self.external_concentrations['GLC[p]']
+		self.internal_concentrations['CheY-P'] = self.external_concentrations['GLC']
 
 	def update_behavior(self):
 		# update behavior based on the current state of the system
-
 		if self.state is 'run':
-			force = 0.02
+			force = 0.2
 			torque = 0.0
 			self.motile_force = [force, torque]
 		elif self.state is 'tumble':
-			force = 0.005
+			force = 0.05
 			torque = np.random.normal(scale=TUMBLE_JITTER)
 			self.motile_force = [force, torque]
 
 	def check_division(self):
 		# update division state based on time since initialization
-
 		if self.local_time >= self.initial_time + self.division_time:
 			self.division = [{'time': self.local_time}, {'time': self.local_time}]
 
@@ -92,7 +91,7 @@ class Chemotaxis(CellSimulation):
 		# self.check_division()
 		self.local_time = run_until
 
-		time.sleep(1.0)  # pause for better coordination with Lens visualization. TODO: remove this
+		time.sleep(0.2)  # pause for better coordination with Lens visualization. TODO: remove this
 
 	def generate_inner_update(self):
 		return {
