@@ -404,6 +404,8 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	rnaSequences = sim_data.process.transcription.transcriptionSequences
 	ntWeights = sim_data.process.transcription.transcriptionMonomerWeights
 	endWeight = sim_data.process.transcription.transcriptionEndWeight
+	replichore_lengths = sim_data.process.replication.replichore_lengths
+	chromosome_length = replichore_lengths.sum()
 
 	# Number of rnaPoly to activate
 	rnaPolyToActivate = np.int64(fracActiveRnap * inactiveRnaPolyCounts)
@@ -430,6 +432,12 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	rnaSynthProbFractions = sim_data.process.transcription.rnaSynthProbFraction
 	rnaSynthProbRProtein = sim_data.process.transcription.rnaSynthProbRProtein
 	rnaSynthProbRnaPolymerase = sim_data.process.transcription.rnaSynthProbRnaPolymerase
+
+	# Get coordinates and transcription directions of transcription units
+	replication_coordinate = sim_data.process.transcription.rnaData[
+		"replicationCoordinate"]
+	transcription_direction = sim_data.process.transcription.rnaData[
+		"direction"]
 
 	# Determine changes from genetic perturbations
 	genetic_perturbations = {}
@@ -520,24 +528,41 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 		rnaPolyToActivate, init_prob_normalized)
 
 	# RNA Indices
-	rnaIndexes = np.repeat(TU_index, n_initiations)
+	TU_index_rnap = np.repeat(TU_index, n_initiations)
 
-	# TODO (Eran) -- make sure there aren't any rnapolys at same location on same gene
-	updatedLengths = np.array(
-		randomState.rand(rnaPolyToActivate) * rnaLengths[rnaIndexes],
+	# Build list of starting coordinates and transcription directions
+	starting_coordinates = replication_coordinate[TU_index_rnap]
+	direction = transcription_direction[TU_index_rnap]
+
+	# Randomly advance RNAPs along the gene
+	# TODO (Eran): make sure there aren't any RNAPs at same location on same gene
+	updated_lengths = np.array(
+		randomState.rand(rnaPolyToActivate) * rnaLengths[TU_index_rnap],
 		dtype=np.int)
 
+	# Update coordinates based on the updated lengths of transcripts
+	updated_coordinates = starting_coordinates + np.multiply(
+		(2 * (direction - 0.5)).astype(np.int64), updated_lengths)
+
+	# Reset coordinates that go out of bounds
+	updated_coordinates[
+		updated_coordinates > replichore_lengths[0]] -= chromosome_length
+	updated_coordinates[
+		updated_coordinates < -replichore_lengths[1]] += chromosome_length
+
 	# update mass
-	sequences = rnaSequences[rnaIndexes]
-	massIncreaseRna = computeMassIncrease(sequences, updatedLengths, ntWeights)
-	massIncreaseRna[updatedLengths != 0] += endWeight  # add endWeight to all new Rna
+	sequences = rnaSequences[TU_index_rnap]
+	massIncreaseRna = computeMassIncrease(sequences, updated_lengths, ntWeights)
+	massIncreaseRna[updated_lengths != 0] += endWeight  # add endWeight to all new Rna
 
 	# update molecules. Attributes include which rnas are being transcribed,
 	# and the position (length)
 	uniqueMolCntr.objectsNew(
 		'activeRnaPoly', rnaPolyToActivate,
-		rnaIndex=rnaIndexes,
-		transcriptLength=updatedLengths,
+		TU_index=TU_index_rnap,
+		transcript_length=updated_lengths,
+		coordinates=updated_coordinates,
+		direction=direction,
 		massDiff_mRNA=massIncreaseRna)
 
 	bulkMolCntr.countsIs(inactiveRnaPolyCounts - rnaPolyToActivate, ['APORNAP-CPLX[c]'])

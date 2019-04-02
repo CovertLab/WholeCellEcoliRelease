@@ -54,6 +54,12 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.maxRibosomeElongationRate = float(
 			sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s))
 
+		# Get DNA polymerase elongation rate (used to mask out transcription
+		# units that are expected to be replicated in the current timestep)
+		self.dnaPolyElngRate = int(
+			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
+			units.nt / units.s)))
+
 		# Determine changes from genetic perturbations
 		self.genetic_perturbations = {}
 		perturbations = getattr(sim_data, "genetic_perturbations", {})
@@ -77,6 +83,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
 		self.inactiveRnaPolys = self.bulkMoleculeView("APORNAP-CPLX[c]")
 		self.full_chromosomes = self.uniqueMoleculesView('fullChromosome')
+		self.active_replisomes = self.uniqueMoleculesView("active_replisome")
 		self.promoters = self.uniqueMoleculesView('promoter')
 
 		# ID Groups
@@ -94,6 +101,12 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.rnaSynthProbRProtein = sim_data.process.transcription.rnaSynthProbRProtein
 		self.rnaSynthProbRnaPolymerase = sim_data.process.transcription.rnaSynthProbRnaPolymerase
 
+		# Coordinates and transcription directions of transcription units
+		self.replication_coordinate = sim_data.process.transcription.rnaData[
+			"replicationCoordinate"]
+		self.transcription_direction = sim_data.process.transcription.rnaData[
+			"direction"]
+
 
 	def calculateRequest(self):
 		# Get all inactive RNA polymerases
@@ -101,20 +114,21 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		# Get attributes of promoters
 		promoters = self.promoters.molecules_read_only()
-		self.TU_index, bound_TF = promoters.attrs("TU_index", "bound_TF")
+		TU_index, bound_TF = promoters.attrs("TU_index", "bound_TF")
 
 		# Read current environment
 		current_nutrients = self._external_states['Environment'].nutrients
 
 		if self.full_chromosomes.total_counts()[0] > 0:
 			# Calculate probabilities of the RNAP binding to each promoter
-			self.promoter_init_probs = (self.basal_prob[self.TU_index] +
-				np.multiply(self.delta_prob_matrix[self.TU_index, :], bound_TF).sum(axis=1))
+			self.promoter_init_probs = (self.basal_prob[TU_index] +
+				np.multiply(self.delta_prob_matrix[TU_index, :], bound_TF).sum(axis=1))
 
 			if len(self.genetic_perturbations) > 0:
 				self._rescale_initiation_probs(
 					self.genetic_perturbations["fixedRnaIdxs"],
-					self.genetic_perturbations["fixedSynthProbs"])
+					self.genetic_perturbations["fixedSynthProbs"],
+					TU_index)
 
 			# Adjust probabilities to not be negative
 			self.promoter_init_probs[self.promoter_init_probs < 0] = 0.0
@@ -124,11 +138,11 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 			synthProbFractions = self.rnaSynthProbFractions[current_nutrients]
 
 			# Create masks for different types of RNAs
-			is_mrna = np.isin(self.TU_index, self.idx_mrna)
-			is_trna = np.isin(self.TU_index, self.idx_trna)
-			is_rrna = np.isin(self.TU_index, self.idx_rrna)
-			is_rprotein = np.isin(self.TU_index, self.idx_rprotein)
-			is_rnap = np.isin(self.TU_index, self.idx_rnap)
+			is_mrna = np.isin(TU_index, self.idx_mrna)
+			is_trna = np.isin(TU_index, self.idx_trna)
+			is_rrna = np.isin(TU_index, self.idx_rrna)
+			is_rprotein = np.isin(TU_index, self.idx_rprotein)
+			is_rnap = np.isin(TU_index, self.idx_rnap)
 			is_fixed = is_trna | is_rrna | is_rprotein | is_rnap
 
 			# Rescale initiation probabilities based on type of RNA
@@ -142,7 +156,8 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 				np.concatenate((
 					self.rnaSynthProbRProtein[current_nutrients],
 					self.rnaSynthProbRnaPolymerase[current_nutrients]
-					)))
+					)),
+				TU_index)
 
 			assert self.promoter_init_probs[is_fixed].sum() < 1.0
 
@@ -152,17 +167,22 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		# If there are no chromosomes in the cell, set all probs to zero
 		else:
-			self.promoter_init_probs = np.zeros(len(self.TU_index))
+			self.promoter_init_probs = np.zeros(len(TU_index))
 
 		self.fracActiveRnap = self.fracActiveRnapDict[current_nutrients]
 		self.rnaPolymeraseElongationRate = self.rnaPolymeraseElongationRateDict[current_nutrients]
 
 
 	def evolveState(self):
+		# Get attributes of promoters
+		promoters = self.promoters.molecules_read_only()
+		TU_index, coordinates_promoters, domain_index_promoters, bound_TF = promoters.attrs(
+			"TU_index", "coordinates", "domain_index", "bound_TF")
+		
 		# Construct matrix that maps promoters to transcription units
-		n_promoters = len(self.TU_index)
+		n_promoters = len(TU_index)
 		TU_to_promoter = scipy.sparse.csr_matrix(
-			(np.ones(n_promoters), (self.TU_index, np.arange(n_promoters))),
+			(np.ones(n_promoters), (TU_index, np.arange(n_promoters))),
 			shape = (self.n_TUs, n_promoters))
 
 		# Compute synthesis probabilities of each transcription unit
@@ -175,7 +195,8 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		if self.shuffleIdxs is not None:
 			self._rescale_initiation_probs(
 				np.arange(self.n_TUs),
-				TU_synth_probs[self.shuffleIdxs])
+				TU_synth_probs[self.shuffleIdxs],
+				TU_index)
 
 		# no synthesis if no chromosome
 		if self.full_chromosomes.total_counts()[0] == 0:
@@ -185,29 +206,80 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.activationProb = self._calculateActivationProb(
 			self.fracActiveRnap, self.rnaLengths,
 			self.rnaPolymeraseElongationRate, TU_synth_probs)
-		rnaPolyToActivate = np.int64(
+		n_activated_rnap = np.int64(
 			self.activationProb * self.inactiveRnaPolys.count())
 
-		if rnaPolyToActivate == 0:
+		if n_activated_rnap == 0:
 			return
 
 		#### Growth control code ####
+
 		# Sample a multinomial distribution of initiation probabilities to
 		# determine what promoters are initialized
-		n_initiations = self.randomState.multinomial(rnaPolyToActivate, self.promoter_init_probs)
+		n_initiations = self.randomState.multinomial(
+			n_activated_rnap, self.promoter_init_probs)
 
-		# Build list of RNA indexes
-		rnaIndexes = np.repeat(self.TU_index, n_initiations)
+		# Get attributes of replisomes
+		replisomes = self.active_replisomes.molecules_read_only()
+
+		# If there are active replisomes, construct mask for promoters that are
+		# expected to be replicated in the current timestep.
+		# Assuming the replisome knocks off all RNAPs that it collides with,
+		# no transcription initiation should occur for these promoters.
+		# TODO (ggsun): This assumes that replisomes elongate at maximum rates.
+		# 	Ideally this should be done in the reconciler.
+		collision_mask = np.zeros_like(TU_index, dtype=np.bool)
+
+		if len(replisomes) > 0:
+			domain_index_replisome, right_replichore, coordinates_replisome = replisomes.attrs(
+				"domain_index", "right_replichore", "coordinates")
+
+			elongation_length = np.ceil(
+				self.dnaPolyElngRate * self.timeStepSec())
+
+			for rr, coord, dmn_idx in izip(right_replichore,
+					coordinates_replisome, domain_index_replisome):
+				if rr:
+					coordinates_mask = np.logical_and(
+						coordinates_promoters >= coord,
+						coordinates_promoters <= coord + elongation_length)
+				else:
+					coordinates_mask = np.logical_and(
+						coordinates_promoters <= coord,
+						coordinates_promoters >= coord - elongation_length)
+
+				mask = np.logical_and(domain_index_promoters == dmn_idx,
+					coordinates_mask)
+				collision_mask[mask] = True
+
+		# Set the number of initiations for these promoters to zero.
+		n_aborted_initiations = n_initiations[collision_mask].sum()
+		n_initiations[collision_mask] = 0
+		n_activated_rnap -= n_aborted_initiations
+
+		# Build list of transcription unit indexes and domain indexes for RNAPs
+		TU_index_rnap = np.repeat(TU_index, n_initiations)
+		domain_index_rnap = np.repeat(domain_index_promoters, n_initiations)
+
+		# Build list of starting coordinates and transcription directions
+		coordinates = self.replication_coordinate[TU_index_rnap]
+		direction = self.transcription_direction[TU_index_rnap]
 
 		# Create the active RNA polymerases
 		self.activeRnaPolys.moleculesNew(
-			rnaPolyToActivate, rnaIndex = rnaIndexes)
+			n_activated_rnap,
+			TU_index = TU_index_rnap,
+			domain_index = domain_index_rnap,
+			coordinates = coordinates,
+			direction = direction)
+
+		# Decrement counts of inactive RNAPs
 		self.inactiveRnaPolys.countDec(n_initiations.sum())
 
 		# Create masks for ribosomal RNAs
-		is_5Srrna = np.isin(self.TU_index, self.idx_5Srrna)
-		is_16Srrna = np.isin(self.TU_index, self.idx_16Srrna)
-		is_23Srrna = np.isin(self.TU_index, self.idx_23Srrna)
+		is_5Srrna = np.isin(TU_index, self.idx_5Srrna)
+		is_16Srrna = np.isin(TU_index, self.idx_16Srrna)
+		is_23Srrna = np.isin(TU_index, self.idx_23Srrna)
 
 		# Write outputs to listeners
 		self.writeToListener(
@@ -219,17 +291,19 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		self.writeToListener(
 			"RibosomeData", "rrn16S_init_prob",
-			n_initiations[is_16Srrna].sum() / float(rnaPolyToActivate))
+			n_initiations[is_16Srrna].sum() / float(n_activated_rnap))
 		self.writeToListener(
 			"RibosomeData", "rrn23S_init_prob",
-			n_initiations[is_23Srrna].sum() / float(rnaPolyToActivate))
+			n_initiations[is_23Srrna].sum() / float(n_activated_rnap))
 		self.writeToListener("RibosomeData", "rrn5S_init_prob",
-			n_initiations[is_5Srrna].sum() / float(rnaPolyToActivate))
+			n_initiations[is_5Srrna].sum() / float(n_activated_rnap))
+		self.writeToListener("RibosomeData", "total_rna_init", n_activated_rnap)
 
-		self.writeToListener("RibosomeData", "total_rna_init", rnaPolyToActivate)
-
-		self.writeToListener("RnapData", "didInitialize", rnaPolyToActivate)
+		self.writeToListener("RnapData", "didInitialize", n_activated_rnap)
 		self.writeToListener("RnapData", "rnaInitEvent", TU_to_promoter.dot(n_initiations))
+
+		self.writeToListener(
+			"ReplicationData", "n_aborted_initiations", n_aborted_initiations)
 
 
 	def _calculateActivationProb(self, fracActiveRnap, rnaLengths, rnaPolymeraseElongationRate, synthProb):
@@ -274,7 +348,8 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		return effectiveFracActiveRnap * expectedTerminationRate /(1 - effectiveFracActiveRnap)
 
 
-	def _rescale_initiation_probs(self, fixed_indexes, fixed_synth_probs):
+	def _rescale_initiation_probs(
+			self, fixed_indexes, fixed_synth_probs, TU_index):
 		"""
 		Rescales the initiation probabilities of each promoter such that the
 		total synthesis probabilities of certain types of RNAs are fixed to
@@ -283,5 +358,5 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		0.1, each promoter is given an initiation probability of 0.05.
 		"""
 		for idx, synth_prob in izip(fixed_indexes, fixed_synth_probs):
-			fixed_mask = (self.TU_index == idx)
+			fixed_mask = (TU_index == idx)
 			self.promoter_init_probs[fixed_mask] = synth_prob / fixed_mask.sum()

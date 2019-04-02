@@ -120,9 +120,13 @@ class Transcription(object):
 
 			return replication_coordinate
 
+		# Location of transcription initiation relative to origin
 		replicationCoordinate = [
 			get_replication_coordinate(x["coordinate"])
 			for x in raw_data.rnas]
+
+		# Direction of transcription
+		direction = [(x["direction"] == "+") for x in raw_data.rnas]
 
 		rnaData = np.zeros(
 			n_rnas,
@@ -145,6 +149,7 @@ class Transcription(object):
 				('geneId', 'a50'),
 				('KmEndoRNase', 'f8'),
 				('replicationCoordinate', 'int64'),
+				('direction', 'bool'),
 				]
 			)
 
@@ -170,6 +175,7 @@ class Transcription(object):
 		rnaData['geneId'] = geneIds
 		rnaData['KmEndoRNase'] = Km
 		rnaData['replicationCoordinate'] = replicationCoordinate
+		rnaData['direction'] = direction
 
 		field_units = {
 			'id': None,
@@ -190,6 +196,7 @@ class Transcription(object):
 			'geneId': None,
 			'KmEndoRNase': units.mol / units.L,
 			'replicationCoordinate': None,
+			'direction': None,
 			}
 
 		self.rnaExpression = {}
