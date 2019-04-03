@@ -1,0 +1,3 @@
+This directory contains files with data on environmental conditions. There is a corresponding directory ```reconstruction/ecoli/flat/condition/``` that includes files with data on how e. coli responds to some of these conditions.
+ 
+In particular, the media files names ```minimal```, ```minimal_plus_amino_acids```, ```with_aa```, are correspond to data in ```reconstruction/ecoli/flat/condition/```. That corresponding naming convention needs to be maintained for proper model functioning.  

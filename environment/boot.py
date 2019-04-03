@@ -32,7 +32,8 @@ class EnvironmentAgent(Outer):
 			agent_id: {
 				'volume': simulation['state']['volume'],
 				'location': self.environment.locations[agent_id][0:2].tolist(),
-				'orientation': self.environment.locations[agent_id][2]}
+				'orientation': self.environment.locations[agent_id][2],
+				'parent_id': simulation.get('parent_id', '')}
 			for agent_id, simulation in self.environment.simulations.iteritems()}
 
 		return {
@@ -54,7 +55,6 @@ class EnvironmentAgent(Outer):
 def boot_lattice(agent_id, agent_type, agent_config):
 	media = agent_config.get('media', 'minimal')
 	print("Media condition: {}".format(media))
-	# kafka_config = agent_config['kafka_config']
 	raw_data = KnowledgeBaseEcoli()
 
 	# create a dictionary with all saved environments
@@ -209,7 +209,7 @@ def boot_chemotaxis(agent_id, agent_type, agent_config):
 	simulation = Chemotaxis()
 	inner.simulation = simulation
 
-	time.sleep(5) # to give the environment long enough to boot
+	time.sleep(5)  # TODO(jerry): Wait for the Chemotaxis to boot
 
 	return inner
 

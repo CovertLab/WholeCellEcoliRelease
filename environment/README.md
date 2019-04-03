@@ -104,7 +104,7 @@ This will send four `ADD_AGENT` messages to the shepherd: one for the _lattice e
 
 You can `run`/`pause` the simulation at will:
 
-   `> python -m environment.control run`
+   `> python -m environment.control trigger`
 
    `> python -m environment.control pause`
 

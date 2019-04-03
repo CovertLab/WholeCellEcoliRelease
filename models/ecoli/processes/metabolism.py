@@ -67,12 +67,16 @@ class Metabolism(wholecell.processes.process.Process):
 		self._getBiomassAsConcentrations = sim_data.mass.getBiomassAsConcentrations
 		self.nutrientToDoublingTime = sim_data.nutrientToDoublingTime
 
-		# Create objective for homeostatic constraints
+		## BEGIN TRANSPORT
+		# get environment variables
 		nutrients_time_series_label = sim_data.external_state.environment.nutrients_time_series_label
 		initial_environment = sim_data.external_state.environment.nutrients_time_series[nutrients_time_series_label][0][1]
+		self.env_to_exchange_map = sim_data.external_state.environment.env_to_exchange_map
+		self.exchange_to_env_map = sim_data.external_state.environment.exchange_to_env_map
 
 		# initialize exchange_data according to initial concentrations in environment
 		self.exchange_data = self.updateExchangeData(sim_data.external_state.environment.environment_dict[initial_environment])
+		## END TRANSPORT
 
 		concDict = sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
 			initial_environment
@@ -90,6 +94,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 		energyCostPerWetMass = sim_data.constants.darkATP * initDryMass / initCellMass
 
+		## BEGIN TRANSPORT
 		# Setup molecules in external environment that can be exchanged
 		#TODO (Eran) this can be replaced with reference to exchange_data
 		externalExchangedMolecules = self.getExchangeData('minimal')['secretionExchangeMolecules'][:]
@@ -104,9 +109,9 @@ class Metabolism(wholecell.processes.process.Process):
 		externalExchangedMolecules = sorted(set(externalExchangedMolecules))
 
 		# save nutrient names for environment view, using all moleculeIDs in local environment
-		# TODO (Eran) make all environment molecules into external exchange molecules, not just this subset
 		self.environment_molecule_ids = self._external_states['Environment']._moleculeIDs
 		self.external_exchange_molecule_ids = externalExchangedMolecules
+		## END TRANSPORT
 
 		self.metaboliteNamesFromNutrients = sorted(self.metaboliteNamesFromNutrients)
 
@@ -202,7 +207,6 @@ class Metabolism(wholecell.processes.process.Process):
 		## Construct views
 		# views on environment
 		self.environment_molecules = self.environmentView(self.environment_molecule_ids)
-		self.external_exchange_molecules = self.environmentView(self.external_exchange_molecule_ids)
 
 		# views on metabolism bulk molecules
 		self.metaboliteNames = self.fba.getOutputMoleculeIDs()
@@ -243,6 +247,10 @@ class Metabolism(wholecell.processes.process.Process):
 		cellVolume = cellMass / self.cellDensity
 		countsToMolar = 1 / (self.nAvogadro * cellVolume)
 
+		# Coefficient to convert between flux (mol/g DCW/hr) basis and concentration (M) basis
+		coefficient = dryMass / cellMass * self.cellDensity * (self.timeStepSec() * units.s)
+
+		## BEGIN TRANSPORT
 		# TODO (Eran) remove dependence on current_nutrient label, work only with current_environment's concentrations
 		current_nutrients = self._external_states['Environment'].nutrients
 
@@ -255,9 +263,6 @@ class Metabolism(wholecell.processes.process.Process):
 			self.nutrientToDoublingTime.get(current_nutrients, self.nutrientToDoublingTime["minimal"])
 			)
 
-		# Coefficient to convert between flux (mol/g DCW/hr) basis and concentration (M) basis
-		coefficient = dryMass / cellMass * self.cellDensity * (self.timeStepSec() * units.s)
-
 		# Set external molecule levels
 		# TODO (Eran) remove current_nutrients
 		externalMoleculeLevels, newObjective = self.exchangeConstraints(
@@ -268,6 +273,7 @@ class Metabolism(wholecell.processes.process.Process):
 			self.exchange_data,
 			self.concModificationsBasedOnCondition,
 			)
+		## END TRANSPORT
 
 		updatedObjective = False
 		if newObjective != None and newObjective != self.homeostaticObjective:
@@ -296,6 +302,7 @@ class Metabolism(wholecell.processes.process.Process):
 		self.fba.setInternalMoleculeLevels(metaboliteConcentrations.asNumber(CONC_UNITS))
 
 		# Set external molecule levels
+		# TODO -- this can change external AA levels for the fba problem. Problematic for reliable control of environmental response
 		self._setExternalMoleculeLevels(externalMoleculeLevels, metaboliteConcentrations)
 
 		# Change the ngam and polypeptide elongation energy penalty only if they are noticably different from the current value
@@ -382,8 +389,12 @@ class Metabolism(wholecell.processes.process.Process):
 		# change in nutrient counts, used in non-infinite environments
 		delta_nutrients = ((1 / countsToMolar) * exchange_fluxes).asNumber().astype(int)
 
-		# TODO (Eran) use environment_molecule_ids rather than external_exchange_molecules, delta_nutrients needs to be for all env molecules
-		self.environment_molecules.countsInc(self.external_exchange_molecule_ids, delta_nutrients)
+		## BEGIN TRANSPORT
+		# convert exchange molecules to environmental molecules using mapping
+		self.external_exchange_molecule_ids = self.fba.getExternalMoleculeIDs()
+		mapped_environment_molecule_ids = [self.exchange_to_env_map[mol_id] for mol_id in self.external_exchange_molecule_ids]
+		self.environment_molecules.countsInc(mapped_environment_molecule_ids, delta_nutrients)
+		## END TRANSPORT
 
 		# Write outputs to listeners
 		self.writeToListener("FBAResults", "import_exchange", import_exchange)

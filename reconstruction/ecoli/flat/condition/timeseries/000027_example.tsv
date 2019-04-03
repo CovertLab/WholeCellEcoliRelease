@@ -1,7 +1,0 @@
-"time (units.s)"	"nutrients"
-0	"minimal_minus_oxygen"
-50	"minimal_plus_amino_acids"
-100	"minimal_minus_oxygen"
-150	"minimal"
-200	"minimal_minus_oxygen"
-250	"minimal_plus_amino_acids"

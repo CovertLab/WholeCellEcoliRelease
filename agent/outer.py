@@ -1,11 +1,15 @@
 from __future__ import absolute_import, division, print_function
 
+from collections import defaultdict
 import math
 import uuid
 import numpy as np
+import os
 
 import agent.event as event
 from agent.agent import Agent
+import wholecell.utils.filepath as fp
+
 
 class EnvironmentSimulation(object):
 	"""Interface for the Outer agent's Environment simulation."""
@@ -14,7 +18,7 @@ class EnvironmentSimulation(object):
 		"""Return the current simulation time for the environment."""
 		return 0
 
-	def add_simulation(self, agent_id, state):
+	def add_simulation(self, agent_id, simulation):
 		"""Register an inner agent."""
 
 	def remove_simulation(self, agent_id):
@@ -47,11 +51,12 @@ class EnvironmentSimulation(object):
 		"""
 		return {}
 
-	def apply_parent_state(self, agent_id, agent_config):
+	def apply_parent_state(self, agent_id, simulation):
 		"""
 		After cell division, this function is called when a new daughter cell is initialized
 		by the environment in order to apply any state the environment was tracking about the 
-		parent cell (like location and orientation etc).
+		parent cell (like location and orientation etc). `simulation` is a dict describing
+		the new daughter but here, some fields are just copied from the parent.
 		"""
 
 	def run_for_time(self):
@@ -120,9 +125,15 @@ class Outer(Agent):
 
 		self.environment = environment
 		self.simulations = {}
-		self.parent_state = {}
 		self.paused = True
 		self.shutting_down = False
+
+		# Log parent -> child relationships for analysis.
+		working_dir = agent_config.get('working_dir', os.getcwd())
+		output_dir = fp.makedirs(working_dir, 'out', 'manual',
+			'lattice_' + agent_id)
+		self.lineage_filename = os.path.join(output_dir, 'cell_lineage.json')
+		self.lineage = {}
 
 		self.update_state()
 
@@ -153,8 +164,14 @@ class Outer(Agent):
 			'agent_config': message['agent_config']})
 
 		self.environment.add_simulation(inner_id, simulation)
-		if simulation.get('daughter'):
+
+		parent_id = simulation.get('parent_id', '')
+		if parent_id:
 			self.environment.apply_parent_state(inner_id, simulation)
+
+		if inner_id not in self.lineage:
+			self.lineage[inner_id] = parent_id
+			fp.write_json_file(self.lineage_filename, self.lineage, indent=2)
 
 		self.update_state()
 
@@ -227,10 +244,9 @@ class Outer(Agent):
 		Handle messages from inner agents about the behavior of their cell simulations.
 
 		This updates the state for each cell simulation and also handles the case of cell division,
-		where the state of the parent cell is stored in order to apply it to each daughter cell
-		when they initialize.
+		where the lattice state (location, volume) of the parent cell is copied to daughter cells.
 
-		Also, this (along with `cell_initialize`) is the main point at which the outer agent
+		Also, this (along with `cell_initialize`) is the main juncture where the outer simulation
 		is advanced if all cell simulations are ready.
 		"""
 
@@ -245,10 +261,9 @@ class Outer(Agent):
 				simulation['state'] = state
 				simulation['time'] = message['time']
 
-				# if the update we received from the inner agent contains a `division` key,
-				# prepare the state of each impending daughter cell. The `division` value
-				# contains a pair of dictionaries which must contain an `id` in addition to
-				# whatever keys are relevant to the implementation of `EnvironmentSimulation`.
+				# if the update from the inner agent contains a non-empty `division` list,
+				# prepare the state of each impending daughter cell. The `division` list
+				# contains info dictionaries for the `EnvironmentSimulation`.
 				if state.get('division'):
 					parent = self.environment.simulation_state(agent_id)
 					for index, daughter in enumerate(state['division']):
@@ -256,7 +271,7 @@ class Outer(Agent):
 						self.simulations[daughter_id] = dict(
 							parent,
 							time=simulation['time'],
-							daughter=True,
+							parent_id=agent_id,
 							index=index,
 							message_id=0,
 							last_message_id=-1)
@@ -373,6 +388,7 @@ class Outer(Agent):
 
 		Simulation messages:
 
+		* CELL_DECLARE: Declare an inner agent. [How does this differ from CELL_INITIALIZE?]
 		* CELL_INITIALIZE: Registers inner agents that will be driven once the
 		    TRIGGER_AGENT event is received.
 		* CELL_EXCHANGE: Received from each inner agent when it has computed its 

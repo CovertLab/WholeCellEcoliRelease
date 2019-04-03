@@ -155,6 +155,7 @@ class TfBinding(wholecell.processes.process.Process):
 			# Free all DNA-bound transcription factors into free active
 			# transcription factors
 			self.active_tf_view[tf_id].countInc(bound_tf_counts)
+			active_tf_counts += bound_tf_counts
 
 			# Compute probability of binding the promoter
 			if self.tfToTfType[tf_id] == "0CS":
