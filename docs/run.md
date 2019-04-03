@@ -1,6 +1,6 @@
 # Running the model
 
-See the top level [README](../README.md) for general instructions and [README](README.md) for details on setup and running.
+See the top level [README](../README.md) for general instructions and [docs/README](README.md) for details on setup and running.
 
 [TODO] Describe the different ways to run the model and their tradeoffs. Reevaluate the doc organization. What to copy from "Computational Resources"?
 
