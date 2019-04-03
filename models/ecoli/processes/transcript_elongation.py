@@ -136,16 +136,16 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			] += self.chromosome_length
 
 		# Calculate changes in mass associated with polymerization
-		added_mrna_mass = computeMassIncrease(
+		added_rna_mass = computeMassIncrease(
 			sequences, sequenceElongations, self.ntWeights)
 		didInitialize = (transcript_lengths == 0) & (sequenceElongations > 0)
-		added_mrna_mass[didInitialize] += self.endWeight
+		added_rna_mass[didInitialize] += self.endWeight
 
 		# Update attributes and submasses of active RNAPs
 		activeRnaPolys.attrIs(
 			transcript_length=updated_lengths,
 			coordinates=updated_coordinates)
-		activeRnaPolys.add_submass_by_name("mRNA", added_mrna_mass)
+		activeRnaPolys.add_submass_by_name("RNA", added_rna_mass)
 
 		# Get attributes of replisomes
 		replisomes = self.active_replisomes.molecules_read_only()

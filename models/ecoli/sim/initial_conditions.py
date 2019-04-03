@@ -514,8 +514,7 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	# Shuffle initiation rates if we're running the variant that calls this
 	if shuffleIdxs is not None:
 		rescale_initiation_probs(
-			promoter_init_probs, TU_index,
-			np.arange(n_TUs),
+			promoter_init_probs, TU_index, np.arange(n_TUs),
 			TU_synth_probs[shuffleIdxs])
 
 	# normalize to length of rna
@@ -563,7 +562,7 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 		transcript_length=updated_lengths,
 		coordinates=updated_coordinates,
 		direction=direction,
-		massDiff_mRNA=massIncreaseRna)
+		massDiff_RNA=massIncreaseRna)
 
 	bulkMolCntr.countsIs(inactiveRnaPolyCounts - rnaPolyToActivate, ['APORNAP-CPLX[c]'])
 
