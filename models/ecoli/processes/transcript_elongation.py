@@ -252,4 +252,4 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			"RnapData", "terminationLoss",
 			(terminalLengths - transcript_lengths)[didTerminate].sum())
 
-		self.writeToListener("ReplicationData", "n_collisions", n_collisions)
+		self.writeToListener("RnapData", "n_collisions", n_collisions)

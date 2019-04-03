@@ -303,7 +303,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.writeToListener("RnapData", "rnaInitEvent", TU_to_promoter.dot(n_initiations))
 
 		self.writeToListener(
-			"ReplicationData", "n_aborted_initiations", n_aborted_initiations)
+			"RnapData", "n_aborted_initiations", n_aborted_initiations)
 
 
 	def _calculateActivationProb(self, fracActiveRnap, rnaLengths, rnaPolymeraseElongationRate, synthProb):

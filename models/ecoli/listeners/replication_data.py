@@ -3,8 +3,7 @@
 """
 ReplicationData
 
-Replication fork position listener. Represents position of replication forks
-over time.
+Replication listener. Records dynamics related to replication.
 
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 5/13/2014
@@ -56,9 +55,9 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 		else:
 			self.fork_coordinates[:] = np.nan
 
+
 	def tableCreate(self, tableWriter):
 		pass
-
 
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
