@@ -106,6 +106,14 @@ class Transcription(object):
 		# Load IDs of protein monomers
 		monomerIds = [rna['monomerId'] for rna in raw_data.rnas]
 
+		# Get index of gene corresponding to each RNA
+		gene_index = {gene["rnaId"]: i
+			for i, gene in enumerate(raw_data.genes)}
+
+		# Get list of coordinates and directions for each gene
+		coordinate_list = [gene["coordinate"] for gene in raw_data.genes]
+		direction_list = [gene["direction"] for gene in raw_data.genes]
+
 		oric_coordinate = raw_data.parameters['oriCCenter'].asNumber()
 		terc_coordinate = raw_data.parameters['terCCenter'].asNumber()
 		genome_length = len(raw_data.genome_sequence)
@@ -122,11 +130,13 @@ class Transcription(object):
 
 		# Location of transcription initiation relative to origin
 		replicationCoordinate = [
-			get_replication_coordinate(x["coordinate"])
-			for x in raw_data.rnas]
+			get_replication_coordinate(coordinate_list[gene_index[rna["id"]]])
+			for rna in raw_data.rnas]
 
 		# Direction of transcription
-		direction = [(x["direction"] == "+") for x in raw_data.rnas]
+		direction = [
+			(direction_list[gene_index[rna["id"]]] == "+")
+			for rna in raw_data.rnas]
 
 		rnaData = np.zeros(
 			n_rnas,
