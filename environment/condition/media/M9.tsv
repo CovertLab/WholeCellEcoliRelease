@@ -1,9 +1,7 @@
-# M9 media + malate.
-# malate concentration unknown
+# M9 media + 0.4pct. glucose.
 # M9 recipe from: Maniatis, T., Fritsch, E. F., & Sambrook, J. (1982).
 # Molecular cloning: a laboratory manual (Vol. 545). Cold Spring Harbor, NY: Cold spring harbor laboratory.
 "molecule id"	"concentration (units.mmol / units.L)"
-"MAL"	Infinity
 "OXYGEN-MOLECULE"	Infinity
 "AMMONIUM"	18.695
 "NA+"	103.7
