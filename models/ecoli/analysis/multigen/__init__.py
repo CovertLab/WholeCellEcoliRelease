@@ -48,6 +48,7 @@ ACTIVE = [
 TAGS = {
 	'ACTIVE': ACTIVE,   # all active analyses in this category
 	'CORE': [           # the default list to run in development
+		"cellCycleLength.py",
 		"massFractionSummary.py",
 		"massFractionToUnity.py",
 		"replication.py",

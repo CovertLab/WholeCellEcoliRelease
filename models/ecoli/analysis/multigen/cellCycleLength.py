@@ -11,6 +11,8 @@ from __future__ import absolute_import
 import os
 
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
+import numpy as np
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
@@ -37,14 +39,17 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			simOutDir = os.path.join(simDir, "simOut")
 			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
-			cellCycleLengths.append((time[-1] - time[0]) / 60. / 60.)
+			cellCycleLengths.append((time[-1] - time[0]) / 60.)
 			generations.append(idx)
 
 		plt.scatter(generations, cellCycleLengths)
 		plt.xlabel('Generation')
-		plt.ylabel('Time (hr)')
+		plt.ylabel('Time (min)')
 		plt.title('Cell cycle lengths')
 		plt.xticks(generations)
+		y_min, y_max = plt.ylim()
+		plt.ylim([np.floor(y_min), np.ceil(y_max)])
+		plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
 
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 
