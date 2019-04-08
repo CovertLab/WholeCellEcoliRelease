@@ -55,17 +55,16 @@ class RnapData(wholecell.listeners.listener.Listener):
 
 
 	def update(self):
+		self.active_rnap_coordinates[:] = np.nan
+
 		active_rnaps = self.uniqueMolecules.container.objectsInCollection(
 			'activeRnaPoly')
 
 		# Read coordinates of all active RNAPs
 		if len(active_rnaps) > 0:
 			active_rnap_coordinates = active_rnaps.attr("coordinates")
-			self.active_rnap_coordinates[:] = np.nan
 			self.active_rnap_coordinates[
 			:active_rnap_coordinates.size] = active_rnap_coordinates
-		else:
-			self.active_rnap_coordinates[:] = np.nan
 
 
 	def tableCreate(self, tableWriter):

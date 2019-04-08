@@ -124,10 +124,19 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		# Calculate updated transcript lengths and coordinates of RNAPs
 		updated_lengths = transcript_lengths + sequenceElongations
-		updated_coordinates = coordinates + np.multiply(
-			(2*(direction - 0.5)).astype(np.int64), sequenceElongations)
 
-		# Reset coordinates that go out of bounds
+		# Convert boolean array of directions to an array of 1's and -1's.
+		# True is converted to 1, False is converted to -1.
+		direction_converted = (2*(direction - 0.5)).astype(np.int64)
+
+		# Compute the updated coordinates of RNAPs. Coordinates of RNAPs
+		# moving in the positive direction are increased, whereas coordinates
+		# of RNAPs moving in the negative direction are decreased.
+		updated_coordinates = coordinates + np.multiply(
+			direction_converted, sequenceElongations)
+
+		# Reset coordinates of RNAPs that cross the boundaries between right
+		# and left replichores
 		updated_coordinates[
 			updated_coordinates > self.replichore_lengths[0]
 			] -= self.chromosome_length
@@ -180,8 +189,8 @@ class TranscriptElongation(wholecell.processes.process.Process):
 						coordinates <= coord,
 						coordinates >= coord - elongation_length)
 					final_mask = np.logical_and(
-						coordinates <= coord,
-						coordinates >= coord - elongation_length)
+						updated_coordinates <= coord,
+						updated_coordinates >= coord - elongation_length)
 
 				mask = np.logical_and(domain_index == dmn_idx,
 					np.logical_or(start_mask, final_mask))
