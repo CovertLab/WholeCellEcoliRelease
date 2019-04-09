@@ -94,7 +94,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		fba_results = TableReader(os.path.join(simOutDir, 'FBAResults'))
 		reaction_ids = np.array(fba_results.readAttribute('reactionIDs'))
 		external_exchange_fluxes = np.array(fba_results.readColumn('externalExchangeFluxes'))
-		external_exchange_molecules = np.array(fba_results.readAttribute('externalExchangeMolecules'))
+		all_external_exchange_molecules = np.array(fba_results.readAttribute('all_external_exchange_molecules'))
 		import_constraints = np.array(fba_results.readColumn('importConstraint'))
 		import_exchanges = np.array(fba_results.readColumn('importExchange'))
 		fba_results.close()
@@ -138,7 +138,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		ax1_3.set_title('Import Exchange Molecules (boolean)')
 		ax1_3.set_xlabel('Time (sec)')
 		ax1_3.set_yticks(np.arange(len(import_exchanges.T)))
-		ax1_3.set_yticklabels(external_exchange_molecules, fontsize=8)
+		ax1_3.set_yticklabels(all_external_exchange_molecules, fontsize=8)
 
 		# exchange fluxes
 		for idx, (reaction_id, external_exchange_flux) in enumerate(zip(reaction_ids, external_exchange_fluxes.T)):

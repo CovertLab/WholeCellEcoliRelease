@@ -46,6 +46,8 @@ class FBAResults(wholecell.listeners.listener.Listener):
 				)
 		self.metaboliteNamesFromNutrients = sorted(self.metaboliteNamesFromNutrients)
 
+		# exchange with environment
+		self.all_external_exchange_molecules = sim_data.process.metabolism.boundary.all_external_exchange_molecules
 
 	# Allocate memory
 	def allocate(self):
@@ -69,9 +71,8 @@ class FBAResults(wholecell.listeners.listener.Listener):
 		self.targetConcentrations = np.zeros(len(self.homeostaticTargetMolecules))
 
 		# exchange with environment
-		self.externalExchangeMolecules = self.metabolism.all_external_exchange_molecules
-		self.import_constraint = [False] * len(self.externalExchangeMolecules)
-		self.import_exchange = [False] * len(self.externalExchangeMolecules)
+		self.import_constraint = [False] * len(self.all_external_exchange_molecules)
+		self.import_exchange = [False] * len(self.all_external_exchange_molecules)
 
 
 	def tableCreate(self, tableWriter):
@@ -82,7 +83,7 @@ class FBAResults(wholecell.listeners.listener.Listener):
 			homeostaticTargetMolecules = self.homeostaticTargetMolecules,
 			kineticTargetFluxNames = self.kineticTargetFluxNames,
 			metaboliteNames = self.metaboliteNamesFromNutrients,
-			externalExchangeMolecules = self.externalExchangeMolecules
+			all_external_exchange_molecules = self.all_external_exchange_molecules,
 			)
 
 

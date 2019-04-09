@@ -13,7 +13,7 @@ class CellSimulation(object):
 		"""Return the current time according to this CellSimulation."""
 
 	def synchronize_state(self, state):
-		"""Receive any state from the environment, like current time step."""
+		"""Synchronize the cell's clock to the environment."""
 
 	def apply_outer_update(self, update):
 		"""Apply the update received from the environment to this simulation."""

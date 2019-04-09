@@ -2,6 +2,8 @@
 
 This repository contains work to date on the [Covert Lab's](https://www.covert.stanford.edu/) Whole Cell Model for [*Escherichia coli*](https://en.wikipedia.org/wiki/Escherichia_coli), as well as some effort to create a framework for building whole cell models in general.
 
+You can reach us at [AllenCenterCovertLab](mailto:allencentercovertlab@gmail.com).
+
 
 ## Setup
 
@@ -13,43 +15,49 @@ See [docs/README.md](docs/README.md) for docs on how to set up and run the model
 
 ## Quick start
 
-Remember to set the `$PYTHONPATH` (*tip:* add this to your `$HOME/.bash_profile`):
+Before running this code, remember to:
 
-```bash
-export PYTHONPATH="/path/to/wcEcoli:$PYTHONPATH"
-```
+1. `cd` to the top level of your cloned `wcEcoli` directory
+2. set the `$PYTHONPATH`
 
-In your cloned `wcEcoli` directory, compile the Cython code:
+   ```bash
+   export PYTHONPATH="/path/to/wcEcoli:$PYTHONPATH"
+   ```
 
-```bash
-make clean compile
-```
+3. In the `wcEcoli` directory, compile the Cython code:
+
+   ```bash
+   make clean compile
+   ```
 
 
 There are three ways to run the model:
 
-   1. Use the manual runscripts.
-   2. Queue up a Fireworks workflow, then run it.
-   3. Use the multi-scale agent-based framework.
-
-[TODO] Summarize the differences and tradeoffs.
+   1. Use the manual runscripts.  
+      They run each step directly, which is particularly handy to use with a
+      debugger. But you're responsible for properly sequencing the steps.
+   2. Queue up a Fireworks workflow, then run it.  
+      This will automatically run all the steps, including parameter calculation,
+      multiple cell simulations, and all the analysis plots.
+   3. Use the multi-scale agent-based framework.  
+      This runs multiple cells interactively on a simulated microscope slide.
 
 
 ## Using the manual runscripts
 
-These scripts will run the parameter calculator (parca), simulation, and analysis steps directly, without any workflow. They're handy for development, e.g. running under the PyCharm debugger. But you're responsible for running the scripts in order and for re-running the parca after relevant code changes.
+These scripts will run the parameter calculator (ParCa), cell simulations, and analysis steps directly, without any workflow. They're handy for development, e.g. running under the PyCharm debugger. But you're responsible for running the scripts in order and for re-running the ParCa after relevant code changes.
 
-These scripts have command line interfaces built on `argparse`, so you can use shorter option names as long as they're unambiguous. Many options also have short forms like `-c8`.
+These scripts have command line interfaces built on `argparse`, so you can use shorter option names as long as they're unambiguous, and also one-letter forms so you can use `--cpus 8`, or `--cpu 8`, or `-c8`.
 
 **NOTE:** _Use the `-h` or `--help` switch to get complete, up-to-date documentation on the command line options._ Below are just _some_ of the command line options.
 
 
-To run all the parameter calculation steps:
+To run the parameter calculator (ParCa), which is needed to prepare data for the simulation:
 ```bash
 python runscripts/manual/runParca.py [-h] [--cpus CPUS] [--cached] [sim_outdir]
 ```
 
-To do a simple simulation run:
+To simulate one or more cell generations with optional variants:
 
 ```bash
 python runscripts/manual/runSim.py [-h] [--variant VARIANT_TYPE FIRST_INDEX LAST_INDEX] [--generations GENERATIONS] [--seed SEED] [sim_dir]
@@ -67,18 +75,25 @@ python runscripts/manual/analysisSingle.py [-h] [--plot PLOT [PLOT ...]] [--cpus
 python runscripts/manual/analysisVariant.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output_prefix OUTPUT_PREFIX] [sim_dir]
 ```
 
-If you default the parameters, it will pick the latest simulation directory, the first variant, the first generation, and so on.
-The list of PLOTs can include filenames like `aaCounts` and TAGS like `CORE`. The default is to run the CORE set of plots recommended for everyday development.
+NOTE: The analysis plots currently look for multigen and variant output files
+in the directories written by a Fireworks workflow, not the directories written
+by `runSim.py`.
 
-Set the environment variable `DEBUG_GC=1` to check for Python memory leaks in the analysis scripts.
+If you default the parameters, the analysis scripts will pick the latest simulation directory, the first variant, the first generation, and so on.
+The list of PLOTs can include analysis class filenames like `aaCounts` (or `aaCounts.py`)
+and analysis group TAGS like `CORE`. The default is to run the `CORE` group of plots that are
+recommended for everyday development.
 
-The `--plot` (or `-p`) optional parameter lets you pick one or more specific plots to run. For example, to run two analysis scripts on simulation variant #3 and put a filename prefix "v3_" on their output files (to distinguish them from other analysis runs):
+Set the environment variable `DEBUG_GC=1` if you want to check for Python memory
+leaks when running the analysis plots.
+
+The `--plot` (or `-p`) optional parameter lets you pick one or more specific plots to run. For example, to run two analysis plots on simulation variant #3 and put a filename prefix "v3_" on their output files (to distinguish them from other analysis runs):
 
 ```bash
 python runscripts/manual/analysisCohort.py --plot compositionFitting.py figure2e.py --variant_index 3 --output_prefix v3_
 ```
 
-You can also run an individual analysis script directly:
+There's another way run an individual analysis plot:
 
 ```bash
 python models/ecoli/analysis/cohort/transcriptFrequency.py [-h] [--verbose] [-o OUTPUT_PREFIX] [-v VARIANT_INDEX] [sim_dir]
@@ -86,16 +101,17 @@ python models/ecoli/analysis/cohort/transcriptFrequency.py [-h] [--verbose] [-o 
 
 ## Causality
 
-After running a simulation, see the [CovertLab/causality](https://github.com/CovertLab/causality) repo for the visualization tool to examine the model's causal links and simulation output correlations.
+After running a simulation, see the [CovertLab/causality](https://github.com/CovertLab/causality) repo for the Causality visualization tool to examine the model's causal links and simulation output correlations.
 
 
 ## Running an entire Fireworks workflow
 
-[TODO] Link to documentation for setting up MongoDB et al to run Fireworks.
+See [wholecell/fireworks/README.md](wholecell/fireworks/README.md) for instructions to set up MongoDB as needed to run Fireworks.
 
-The command line program `fw_queue.py` queues up a Fireworks workflow including parameter calculations, the simulation itself, and lots of analysis plots.
+The command line program `fw_queue.py` queues up a Fireworks workflow including parameter calculations, the simulation itself, and analysis plots.
 
-The `fw_queue.py` source code begins with documentation on its many options. Below are a few usage examples.
+The `fw_queue.py` source code begins with documentation on its _many options._
+The options are set via environment variables. Below are a few usage examples.
 
 But first, note that you can reset the Fireworks queue (if needed) via:
 
@@ -105,17 +121,17 @@ lpad reset
 
 ### Single simulation
 
-To queue up a single simulation in Fireworks:
+To queue up a single simulation in Fireworks, including parameter calculations and analysis plots:
 
 ```bash
 DESC="Example run of a single simulation." python runscripts/fireworks/fw_queue.py
 ```
 
-The `DESC` text should be more descriptive so you can readily distinguish your runs.
+The `DESC` text should be more descriptive than this so you can readily distinguish your runs.
 
 ### Multiple simulations
 
-To queue multiple simulations (in this case 4 simulations) in fireworks:
+To queue multiple simulations, e.g. 4 simulations, each with a different initial seed:
 
 ```bash
 DESC="Example run of multiple simulations." N_INIT_SIMS=4 python runscripts/fireworks/fw_queue.py
@@ -123,7 +139,7 @@ DESC="Example run of multiple simulations." N_INIT_SIMS=4 python runscripts/fire
 
 ### Multiple generations
 
-To queue multiple generations (in this case 4 generations) from a single mother cell:
+To queue multiple generations, e.g. 4 generations from a single mother cell:
 
 ```bash
 DESC="Example run of multiple generations." N_GENS=4 python runscripts/fireworks/fw_queue.py
@@ -137,7 +153,7 @@ DESC="Example run of multiple generations from multiple mother cells." N_GENS=3 
 
 ### Shifting nutrient conditions
 
-To queue a simulation that switches between environments, use the "nutrient_time_series" variant, and give the range of indices (in this case from 1 to 1) specifying conditions defined in wcEcoli/environment/condition/timelines:
+To queue a simulation that switches between environments, use the "nutrient_time_series" variant and give the range of indices (in this case from 1 to 1) specifying conditions defined in wcEcoli/environment/condition/timelines:
 
 ```bash
 DESC="Example run of nutrient shifts." VARIANT="nutrient_time_series" FIRST_VARIANT_INDEX=1 LAST_VARIANT_INDEX=1 python runscripts/fireworks/fw_queue.py
@@ -145,37 +161,40 @@ DESC="Example run of nutrient shifts." VARIANT="nutrient_time_series" FIRST_VARI
 
 ### Using the cached sim data object
 
-To use the cached sim data object, use the CACHED_SIM_DATA environment variable:
+To use the cached sim data file, set the `CACHED_SIM_DATA` environment variable
+(TODO: Explain what creates a cached sim data file):
 
 ```bash
 DESC="Example run with cached sim data." CACHED_SIM_DATA=1 python runscripts/fireworks/fw_queue.py
 ```
 
-### Using an interactive node to run a Fireworks workflow
+### Using an interactive Sherlock node to run a Fireworks workflow
 
-To run simulations on an interactive session (after having queued them), run:
+To run queued simulations on an interactive Sherlock node:
 
 ```bash
 rlaunch rapidfire
 ```
 
-You probably only want to do this if you're running/debugging a single simulation.
+You probably only want to do this if you're running or debugging a single simulation
+(one initial seed, generation, and variant).
 
 Don't do this on a Sherlock login node.
 
-### Using the scheduler (SLURM) to run a Fireworks workflow
+### Using the SLURM scheduler on Linux to run a Fireworks workflow
 
-To run simulations using the cluster (you'll probably want to do this if you're running more than one simulation and/or more than one generation), run:
+To run simulations on a Sherlock cluster (helpful when running more than one simulation):
 
 ```bash
 qlaunch -r rapidfire --nlaunches infinite --sleep 5
 ```
 
-This command will run forever until you `Ctrl-C` to kill it once you see that all the output and analysis files have been generated.
+The `qlaunch` command will run forever. Hit `Ctrl-C` to kill it once the console
+logs shows that all the simulation and analysis steps have finished.
 
-`qlaunch` is relatively lightweight, so you can probably get away with running it on a login node.
+`qlaunch` is relatively lightweight, so it might work on a Sherlock login node.
 
-`qlaunch` will create block directories with stdout and stderr from each firework.  To troubleshoot any errors or just to see the output you would normally see from an interactive session, use the following commands to search the block directories for your desired fw_id:
+`qlaunch` will create block directories with stdout and stderr from each Firework.  To troubleshoot any errors or just to see the output you would normally see from an interactive session, use the following commands to search the block directories for your desired fw_id:
 ```bash
 ./runscripts/fw_info.sh out 1
 ./runscripts/fw_info.sh error 1

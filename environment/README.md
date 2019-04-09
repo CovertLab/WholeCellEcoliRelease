@@ -34,9 +34,12 @@ runFitter manual runscript. In the wcEcoli directory:
 
    2. Open a browser window onto [http://localhost:33332](http://localhost:33332)
 
-## One Agent Per Terminal Tab
+## One Agent Per Terminal Tab (esp. for debugging)
 
-**Note:** This section describes how to launch the an Environment and Cell agent processes directly from the command line, but we usually use the **Agent Shepherd** approach described in the next section.
+**Note:** This section describes how to launch Environment and Cell agent processes directly
+from the command line. We usually use the "Agent Shepherd" approach described in the next section,
+but the direct approach lets you launch agents under a debugger. You can use it for one or more
+agents together with others running under a shepherd.
 
 **Tip:** Run each process in a new terminal tab. Use iTerm split windows to make it easy to watch them all at once.
 
@@ -56,6 +59,9 @@ runFitter manual runscript. In the wcEcoli directory:
 
    `> python -m environment.boot --type ecoli --id 1 --outer-id lattice`
 
+   Vary the agent type and other parameters as needed. Each agent needs an `id` that's unique among the
+   currently running agents.
+
    You'll see messages like this one from the Cell agent to the Environment agent,
    declaring itself to the environment and giving its current state:
 
@@ -65,14 +71,31 @@ runFitter manual runscript. In the wcEcoli directory:
 
    `--> cell-receive (ENVIRONMENT_SYNCHRONIZE) [1]: {u'inner_id': u'1', u'state': {u'time': 0}, u'outer_id': u'lattice', u'event': u'ENVIRONMENT_SYNCHRONIZE'}`
 
-6. Start as many cells as desired, each with its own unique id (agent name), and each in a
-separate terminal tab.
+6. To debug an agent using the PyCharm debugger, first create a Run/Debug Configuration with the
+module name and parameters on the command lines above, e.g.
 
-7. Finally, use a separate "command" tab to start the simulation running:
+   ```
+   Name: cell agent
+   
+   Module name: environment.boot
+   Parameters: ecoli --id 40
+   Python interpreter: Python 2.7 (wcEcoli2)
+   Working directory: /Users/YOU/dev/wcEcoli
+   ☑︎ Add content roots to PYTHONPATH
+   ☑︎ Add source roots to PYTHONPATH
+   ☑︎ Run with Python console
+   ```
+
+   Then set your breakpoints and invoke the `Debug 'cell agent'` menu command.
+
+6. Start as many cells as desired, each with its own unique `id` agent name; each in a
+separate terminal tab or PyCharm run/debug tab.
+
+7. Finally, use another terminal tab to start the simulation running:
 
    `> python -m environment.control run`
 
-   You can `pause` and `run` it all you like.
+   You can `pause` and `run` it whenever you want.
 
 8. To shut down the simulation, run `shutdown` in the command tab:
 
@@ -80,10 +103,12 @@ separate terminal tab.
 
 ## Agent Shepherd
 
-The current way to start the simulation is to use the agent Shepherd, which will spawn
-agents as subprocesses so you don't have to launch each agent in its own tab.
+The usual way to start the simulation is to use the agent "Shepherd", which is a process
+that spawns agents in subprocesses (as requested via Kafka messages) so you don't have to
+launch each agent in its own terminal tab.
 Furthermore, this enables cell division wherein a cell agent process ends and two
 new ones begin.
+But to debug an agent, see the "One Agent Per Terminal Tab" instructions, above.
 
 Clone the [CovertLab/shepherd](https://github.com/CovertLab/shepherd) repo and run:
 
@@ -104,7 +129,7 @@ This will send four `ADD_AGENT` messages to the shepherd: one for the _lattice e
 
 You can `run`/`pause` the simulation at will:
 
-   `> python -m environment.control trigger`
+   `> python -m environment.control run`
 
    `> python -m environment.control pause`
 
