@@ -1,9 +1,7 @@
 #!/usr/bin/env python
-
 """
 RnapData
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/18/15
 """
@@ -32,11 +30,17 @@ class RnapData(wholecell.listeners.listener.Listener):
 		super(RnapData, self).initialize(sim, sim_data)
 
 		self.nRnaSpecies = sim_data.process.transcription.rnaData['id'].size
+		self.uniqueMolecules = sim.internal_states['UniqueMolecules']
 
 
 	# Allocate memory
 	def allocate(self):
 		super(RnapData, self).allocate()
+
+		# Positions of active RNAPs on the chromosome
+		# The size of this array must be larger than the maximum possible
+		# counts of active RNAPs at any timestep of the simulation.
+		self.active_rnap_coordinates = np.full(10000, np.nan, np.float64)
 
 		# Attributes broadcast by the PolypeptideElongation process
 		self.actualElongations = 0
@@ -45,8 +49,23 @@ class RnapData(wholecell.listeners.listener.Listener):
 		self.terminationLoss = 0
 		self.rnaInitEvent = np.zeros(self.nRnaSpecies, np.int64)
 
+		# Collisions with replisomes
+		self.n_aborted_initiations = 0
+		self.n_collisions = 0
+
+
 	def update(self):
-		pass
+		self.active_rnap_coordinates[:] = np.nan
+
+		active_rnaps = self.uniqueMolecules.container.objectsInCollection(
+			'activeRnaPoly')
+
+		# Read coordinates of all active RNAPs
+		if len(active_rnaps) > 0:
+			active_rnap_coordinates = active_rnaps.attr("coordinates")
+			self.active_rnap_coordinates[
+			:active_rnap_coordinates.size] = active_rnap_coordinates
+
 
 	def tableCreate(self, tableWriter):
 		pass
@@ -56,9 +75,12 @@ class RnapData(wholecell.listeners.listener.Listener):
 		tableWriter.append(
 			time = self.time(),
 			simulationStep = self.simulationStep(),
+			active_rnap_coordinates=self.active_rnap_coordinates,
 			actualElongations = self.actualElongations,
 			didTerminate = self.didTerminate,
 			didInitialize = self.didInitialize,
 			terminationLoss = self.terminationLoss,
 			rnaInitEvent = self.rnaInitEvent,
+			n_aborted_initiations=self.n_aborted_initiations,
+			n_collisions=self.n_collisions,
 			)

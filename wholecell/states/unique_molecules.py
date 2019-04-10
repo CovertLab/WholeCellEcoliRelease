@@ -46,7 +46,7 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		self._requests = []
 
 		self.uniqueMoleculeDefinitions = None
-		self.division_modes = {}
+		self.division_mode = {}
 
 
 	def initialize(self, sim, sim_data):
@@ -95,9 +95,8 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		# of the masses array
 		self._pre_evolve_state_mass_index = self._nProcesses
 
-		self.division_modes['active_ribosome'] = sim_data.moleculeGroups.unique_molecules_active_ribosome_division
-		self.division_modes['domain_index'] = sim_data.moleculeGroups.unique_molecules_domain_index_division
-		self.division_modes['binomial'] = sim_data.moleculeGroups.unique_molecules_binomial_division
+		self.division_mode['active_ribosome'] = sim_data.moleculeGroups.unique_molecules_active_ribosome_division
+		self.division_mode['domain_index'] = sim_data.moleculeGroups.unique_molecules_domain_index_division
 
 
 	def partition(self):

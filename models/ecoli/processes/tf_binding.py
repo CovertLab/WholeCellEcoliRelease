@@ -53,7 +53,7 @@ class TfBinding(wholecell.processes.process.Process):
 		self.tfToTfType = sim_data.process.transcription_regulation.tfToTfType
 
 		# Get DNA polymerase elongation rate (used to mask out promoters that
-		# is expected to be replicated in the current timestep)
+		# are expected to be replicated in the current timestep)
 		self.dnaPolyElngRate = int(
 			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
 			units.nt / units.s)))

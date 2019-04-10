@@ -100,21 +100,38 @@ class InternalState(object):
 		# Initialize lists of molecule names for each division mode
 		sim_data.moleculeGroups.unique_molecules_active_ribosome_division = []
 		sim_data.moleculeGroups.unique_molecules_domain_index_division = []
-		sim_data.moleculeGroups.unique_molecules_binomial_division = []
 
 		# Add active RNA polymerase
+		# The attributes of active RNA polymerases are given as:
+		# - TU_index (64-bit int): Index of the transcription unit that the
+		# RNA polymerase is elongating. This determines the sequence and the
+		# length of the RNA that the polymerase is elongating.
+		# - transcript_length (64-bit int): The current length of the RNA that
+		# the RNAP is elongating.
+		# - domain_index (32-bit int): Domain index of the chromosome domain
+		# that the RNAP is bound to. This value is used to split the RNAPs at
+		# cell division.
+		# - coordinates (64-bit int): Location of the RNAP on the chromosome,
+		# in base pairs from origin.
+		# - direction (bool): True if RNAP is moving in the positive direction
+		# of the coordinate, False if RNAP is moving in the negative direction.
+		# This is determined by the orientation of the gene that the RNAP is
+		# transcribing.
 		rnaPolyComplexMass = self.bulkMolecules.bulkData["mass"][
 			self.bulkMolecules.bulkData["id"] == sim_data.moleculeIds.rnapFull]
 		rnaPolyAttributes = {
-			"rnaIndex": "i8",
-			"transcriptLength": "i8"
+			"TU_index": "i8",
+			"transcript_length": "i8",
+			"domain_index": "i4",
+			"coordinates": "i8",
+			"direction": "?",
 			}
 
 		self.uniqueMolecules.addToUniqueState('activeRnaPoly', rnaPolyAttributes, rnaPolyComplexMass)
 
-		# RNAPs are currently not associated to a specific location on the
-		# chromosome, and is divided binomially.
-		sim_data.moleculeGroups.unique_molecules_binomial_division.append(
+		# RNAPs are divided based on the index of the chromosome domain they
+		# are bound to
+		sim_data.moleculeGroups.unique_molecules_domain_index_division.append(
 			'activeRnaPoly')
 
 		# Add active ribosome
