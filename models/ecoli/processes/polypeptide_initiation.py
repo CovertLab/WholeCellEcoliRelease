@@ -55,20 +55,20 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 		self.mRnas = self.bulkMoleculesView(mrnaIds)
 
 	def calculateRequest(self):
-		current_nutrients = self._external_states['Environment'].nutrients
+		current_media_id = self._external_states['Environment'].current_media_id
 
 		self.ribosome30S.requestAll()
 		self.ribosome50S.requestAll()
 		self.mRnas.requestAll()
 
-		self.fracActiveRibosome = self.fracActiveRibosomeDict[current_nutrients]
+		self.fracActiveRibosome = self.fracActiveRibosomeDict[current_media_id]
 
 		# Read ribosome elongation rate from last timestep
 		self.ribosomeElongationRate = self.readFromListener("RibosomeData", "effectiveElongationRate")
 
 		# If the ribosome elongation rate is zero (which is always the case for the first timestep), set ribosome elongation rate to one in dictionary
 		if self.ribosomeElongationRate == 0:
-			self.ribosomeElongationRate = self.ribosomeElongationRateDict[current_nutrients].asNumber(units.aa / units.s)
+			self.ribosomeElongationRate = self.ribosomeElongationRateDict[current_media_id].asNumber(units.aa / units.s)
 
 	def evolveState(self):
 		# Calculate number of ribosomes that could potentially be initalized based on

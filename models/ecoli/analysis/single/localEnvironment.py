@@ -25,7 +25,7 @@ from models.ecoli.analysis import singleAnalysisPlot
 
 FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
 
-RANGE_THRESHOLD = 2
+RANGE_THRESHOLD = 1e-1
 MOVING_AVE_WINDOW_SIZE = 200
 
 # set upper end on time (sec). False disables this feature
@@ -146,8 +146,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			meanNormFlux = running_mean_flux / np.mean(running_mean_flux)
 			flux_range = meanNormFlux.max() - meanNormFlux.min()
 
-			if flux_range > RANGE_THRESHOLD:
-				ax2_1.plot(time, external_exchange_flux, linewidth=2, label=reaction_id, color=rxn_id_to_color[reaction_id])
+			# if flux_range > RANGE_THRESHOLD:
+			ax2_1.plot(time, external_exchange_flux, linewidth=2) #, label=reaction_id, color=rxn_id_to_color[reaction_id])
 
 		ax2_1.set_yscale('symlog')
 		ax2_1.set_xlabel('Time (sec)')

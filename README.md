@@ -151,12 +151,12 @@ To queue multiple generations (in this case 3 generations) from multiple mother 
 DESC="Example run of multiple generations from multiple mother cells." N_GENS=3 N_INIT_SIMS=2 python runscripts/fireworks/fw_queue.py
 ```
 
-### Shifting nutrient conditions
+### Shifting media conditions
 
-To queue a simulation that switches between environments, use the "nutrient_time_series" variant and give the range of indices (in this case from 1 to 1) specifying conditions defined in wcEcoli/environment/condition/timelines:
+To queue a simulation that switches between environments, use the "timeline" variant and give the range of indices (in this case from 1 to 1) specifying conditions defined in wcEcoli/environment/condition/timelines:
 
 ```bash
-DESC="Example run of nutrient shifts." VARIANT="nutrient_time_series" FIRST_VARIANT_INDEX=1 LAST_VARIANT_INDEX=1 python runscripts/fireworks/fw_queue.py
+DESC="Example run of nutrient shifts." VARIANT="timeline" FIRST_VARIANT_INDEX=1 LAST_VARIANT_INDEX=1 python runscripts/fireworks/fw_queue.py
 ```
 
 ### Using the cached sim data object

@@ -63,6 +63,9 @@ class RunSimulation(scriptBase.ScriptBase):
 		parser.add_argument('-s', '--seed', type=int, default=0,
 			help='Cell simulation seed. Default = 0'
 			)
+		parser.add_argument('-t', '--timeline', type=str,
+			help='set timeline. Default = "0 minimal"'
+			)
 		add_option('length_sec', 'lengthSec', int,
 			help='The maximum simulation time, in seconds. Useful for short'
 				 ' simulations; not so useful for multiple generations.'
@@ -110,6 +113,9 @@ class RunSimulation(scriptBase.ScriptBase):
 		if not args.variant:
 			args.variant = ['wildtype', '0', '0']
 
+		if not args.timeline:
+			args.timeline = '0 minimal'
+
 		return args
 
 	def run(self, args):
@@ -131,6 +137,7 @@ class RunSimulation(scriptBase.ScriptBase):
 			"total_gens":         args.generations,
 			"analysis_type":      None,
 			"variant":            variant_type,
+			"timeline":           args.timeline,
 			"mass_distribution":  args.mass_distribution,
 			"growth_rate_noise":  args.growth_rate_noise,
 			"d_period_division":  args.d_period_division,
@@ -179,6 +186,7 @@ class RunSimulation(scriptBase.ScriptBase):
 				options = dict(
 					input_sim_data=variant_sim_data_modified_file,
 					output_directory=cell_sim_out_directory,
+					timeline=args.timeline,
 					seed=j,
 					length_sec=args.length_sec,
 					timestep_safety_frac=args.timestep_safety_frac,

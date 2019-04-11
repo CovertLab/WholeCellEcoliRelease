@@ -58,10 +58,11 @@ def boot_lattice(agent_id, agent_type, agent_config):
 	raw_data = KnowledgeBaseEcoli()
 
 	# create a dictionary with all saved environments
-	environment_dict = {}
+	# TODO (eran) -- this should share code with external_state.py
+	saved_media = {}
 	for label in vars(raw_data.condition.media):
 		# initiate all molecules with 0 concentrations
-		environment_dict[label] = {
+		saved_media[label] = {
 			row["molecule id"]: 0
 			for row in raw_data.condition.environment_molecules}
 
@@ -71,10 +72,10 @@ def boot_lattice(agent_id, agent_type, agent_config):
 			row["molecule id"]: row["concentration"].asNumber()
 			for row in molecule_concentrations}
 
-		# update environment_dict with non zero concentrations
-		environment_dict[label].update(environment_non_zero_dict)
+		# update saved_media with non zero concentrations
+		saved_media[label].update(environment_non_zero_dict)
 
-	concentrations = environment_dict[media]
+	concentrations = saved_media[media]
 	agent_config['concentrations'] = concentrations
 	environment = EnvironmentSpatialLattice(agent_config)
 

@@ -122,14 +122,14 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		# on the protein sequence matrix is set to 22. If timesteps longer than 1.0s are used, this feature will lead to errors in the effective ribosome
 		# elongation rate.
 
-		current_nutrients = self._external_states['Environment'].nutrients
+		current_media_id = self._external_states['Environment'].current_media_id
 
 		if self.translationSupply:
 			self.ribosomeElongationRate = np.min([self.maxRibosomeElongationRate, int(stochasticRound(self.randomState,
 				self.maxRibosomeElongationRate * self.timeStepSec()))]) # Will be set to maxRibosomeElongationRate if timeStepSec > 1.0s
 		else:
 			self.ribosomeElongationRate = np.min([22, int(stochasticRound(self.randomState,
-				self.elngRateFactor * self.ribosomeElongationRateDict[current_nutrients].asNumber(units.aa / units.s) * self.timeStepSec()))])
+				self.elngRateFactor * self.ribosomeElongationRateDict[current_media_id].asNumber(units.aa / units.s) * self.timeStepSec()))])
 
 		# If there are no active ribosomes, return immediately
 		if self.activeRibosomes.total_counts()[0] == 0:
@@ -208,7 +208,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			self.water.requestIs(aa_counts_for_translation.sum())
 		else:
 			if self.translationSupply:
-				translationSupplyRate = self.translation_aa_supply[current_nutrients] * self.elngRateFactor
+				translationSupplyRate = self.translation_aa_supply[current_media_id] * self.elngRateFactor
 
 				self.writeToListener("RibosomeData", "translationSupply", translationSupplyRate.asNumber())
 

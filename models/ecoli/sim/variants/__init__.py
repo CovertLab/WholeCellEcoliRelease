@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 from .gene_knockout import gene_knockout
 from .wildtype import wildtype
-from .nutrient_time_series import nutrient_time_series
+from .timelines import timelines
 from .tf_activity import tf_activity
 from .condition import condition
 from .transcription_initiation_shuffle_params import transcription_initiation_shuffle_params
@@ -27,7 +27,7 @@ nameToFunctionMapping = {
 	"mene_params": mene_params,
 	"metabolism_kinetic_objective_weight": metabolism_kinetic_objective_weight,
 	"monomer_deg_rate_shuffle_params": monomer_deg_rate_shuffle_params,
-	"nutrient_time_series": nutrient_time_series,
+	"timelines": timelines,
 	"rna_deg_rate_shuffle_params": rna_deg_rate_shuffle_params,
 	"tf_activity": tf_activity,
 	"transcription_initiation_shuffle_params": transcription_initiation_shuffle_params,
@@ -42,7 +42,7 @@ nameToFunctionMapping = {
 	"kineticTargetShuffleParams": kinetic_target_shuffle_params,
 	"meneParams": mene_params,
 	"monomerDegRateShuffleParams": monomer_deg_rate_shuffle_params,
-	"nutrientTimeSeries": nutrient_time_series,
+	"nutrientTimeSeries": timelines,
 	"tfActivity": tf_activity,
 	"transcriptionInitiationShuffleParams": transcription_initiation_shuffle_params,
 	"translationEfficienciesShuffleParams": translation_efficiencies_shuffle_params,

@@ -41,7 +41,7 @@ def calcInitialConditions(sim, sim_data):
 	uniqueMolCntr = sim.internal_states["UniqueMolecules"].container
 
 	# Set up states
-	initializeBulkMolecules(bulkMolCntr, sim_data, randomState, massCoeff)
+	initializeBulkMolecules(bulkMolCntr, sim_data, sim.external_states['Environment'].current_media_id, randomState, massCoeff)
 	initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
 
 	# Must be called after unique and bulk molecules are initialized to get
@@ -49,7 +49,7 @@ def calcInitialConditions(sim, sim_data):
 	if sim._trna_charging:
 		initialize_trna_charging(sim_data, sim.internal_states, sim.processes['PolypeptideElongation'].calculate_trna_charging)
 
-def initializeBulkMolecules(bulkMolCntr, sim_data, randomState, massCoeff):
+def initializeBulkMolecules(bulkMolCntr, sim_data, current_media_id, randomState, massCoeff):
 
 	# Set protein counts from expression
 	initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff)
@@ -58,7 +58,7 @@ def initializeBulkMolecules(bulkMolCntr, sim_data, randomState, massCoeff):
 	initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff)
 
 	# Set other biomass components
-	initializeSmallMolecules(bulkMolCntr, sim_data, randomState, massCoeff)
+	initializeSmallMolecules(bulkMolCntr, sim_data, current_media_id, randomState, massCoeff)
 
 	# Form complexes
 	initializeComplexation(bulkMolCntr, sim_data, randomState)
@@ -174,13 +174,13 @@ def initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff):
 
 # TODO: remove checks for zero concentrations (change to assertion)
 # TODO: move any rescaling logic to KB/fitting
-def initializeSmallMolecules(bulkMolCntr, sim_data, randomState, massCoeff):
+def initializeSmallMolecules(bulkMolCntr, sim_data, current_media_id, randomState, massCoeff):
 	avgCellFractionMass = sim_data.mass.getFractionMass(sim_data.conditionToDoublingTime[sim_data.condition])
 
 	mass = massCoeff * (avgCellFractionMass["proteinMass"] + avgCellFractionMass["rnaMass"] + avgCellFractionMass["dnaMass"]) / sim_data.mass.avgCellToInitialCellConvFactor
 
 	concDict = sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
-		sim_data.external_state.environment.nutrients_time_series[sim_data.external_state.environment.nutrients_time_series_label][0][1]
+		current_media_id
 		)
 	concDict.update(sim_data.mass.getBiomassAsConcentrations(sim_data.conditionToDoublingTime[sim_data.condition]))
 	moleculeIds = sorted(concDict)
@@ -398,8 +398,8 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 
 	# Load parameters
 	rnaLengths = sim_data.process.transcription.rnaData['length'].asNumber()
-	current_nutrients = sim_data.conditions[sim_data.condition]['nutrients']
-	fracActiveRnap = sim_data.process.transcription.rnapFractionActiveDict[current_nutrients]
+	current_media_id = sim_data.conditions[sim_data.condition]['nutrients']
+	fracActiveRnap = sim_data.process.transcription.rnapFractionActiveDict[current_media_id]
 	inactiveRnaPolyCounts = bulkMolCntr.countsView(['APORNAP-CPLX[c]']).counts()[0]
 	rnaSequences = sim_data.process.transcription.transcriptionSequences
 	ntWeights = sim_data.process.transcription.transcriptionMonomerWeights
@@ -480,7 +480,7 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 		raise Exception("Have negative RNA synthesis probabilities")
 
 	# Adjust synthesis probabilities depending on environment
-	synthProbFractions = rnaSynthProbFractions[current_nutrients]
+	synthProbFractions = rnaSynthProbFractions[current_media_id]
 
 	# Create masks for different types of RNAs
 	is_mrna = np.isin(TU_index, idx_mrna)
@@ -500,8 +500,8 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 		promoter_init_probs, TU_index,
 		np.concatenate((idx_rprotein, idx_rnap)),
 		np.concatenate((
-			rnaSynthProbRProtein[current_nutrients],
-			rnaSynthProbRnaPolymerase[current_nutrients])))
+			rnaSynthProbRProtein[current_media_id],
+			rnaSynthProbRnaPolymerase[current_media_id])))
 
 	assert promoter_init_probs[is_fixed].sum() < 1.0
 

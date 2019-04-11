@@ -35,13 +35,10 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 
 		# Get metabolite names similar to how it's done in the metabolism process
 		self.metaboliteNamesFromNutrients = set()
-		for time, nutrientsLabel in sim_data.external_state.environment.nutrients_time_series[
-			sim_data.external_state.environment.nutrients_time_series_label]:
-				self.metaboliteNamesFromNutrients.update(
-					sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
-						nutrientsLabel, sim_data.process.metabolism.nutrientsToInternalConc
-						)
-					)
+		for time, media_id in sim.external_states['Environment'].current_timeline:
+			self.metaboliteNamesFromNutrients.update(
+				sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
+					media_id, sim_data.process.metabolism.nutrientsToInternalConc))
 		self.metaboliteNamesFromNutrients = sorted(self.metaboliteNamesFromNutrients)
 
 	# Allocate memory

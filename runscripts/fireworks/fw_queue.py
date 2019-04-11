@@ -55,6 +55,7 @@ Simulation parameters:
 	SINGLE_DAUGHTERS (int, "1"): if nonzero, the simulation will generate only
 		one daughter cell for each new generation rather than two, thus avoiding
 		an exponential increase in the number of simulations
+	TIMELINE (str, "0 minimal"): sets the timeline of events for the simulation
 	WC_LENGTHSEC (int, "10800"): sets the maximum simulation time in seconds, useful
 		for short simulations (default is 3 hr)
 	TIMESTEP_MAX (float, "0.9"): sets the maximum time step
@@ -148,6 +149,7 @@ VARIANTS_TO_RUN = range(FIRST_VARIANT_INDEX, LAST_VARIANT_INDEX + 1)
 
 ### Set other simulation parameters
 
+TIMELINE = str(get_environment("TIMELINE", DEFAULT_SIMULATION_KWARGS["timeline"]))
 WC_LENGTHSEC = int(get_environment("WC_LENGTHSEC", DEFAULT_SIMULATION_KWARGS["lengthSec"]))
 TIMESTEP_SAFETY_FRAC = float(get_environment("TIMESTEP_SAFETY_FRAC", DEFAULT_SIMULATION_KWARGS["timeStepSafetyFraction"]))
 TIMESTEP_MAX = float(get_environment("TIMESTEP_MAX", DEFAULT_SIMULATION_KWARGS["maxTimeStep"]))
@@ -588,6 +590,7 @@ for i in VARIANTS_TO_RUN:
 							input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
 							output_directory = CELL_SIM_OUT_DIRECTORY,
 							seed = j,
+							timeline = TIMELINE,
 							length_sec = WC_LENGTHSEC,
 							timestep_safety_frac = TIMESTEP_SAFETY_FRAC,
 							timestep_max = TIMESTEP_MAX,
@@ -614,6 +617,7 @@ for i in VARIANTS_TO_RUN:
 							output_directory = CELL_SIM_OUT_DIRECTORY,
 							inherited_state_path = DAUGHTER_STATE_PATH,
 							seed = (j + 1) * ((2**k - 1) + l),
+							timeline = TIMELINE,
 							length_sec = WC_LENGTHSEC,
 							timestep_safety_frac = TIMESTEP_SAFETY_FRAC,
 							timestep_max = TIMESTEP_MAX,

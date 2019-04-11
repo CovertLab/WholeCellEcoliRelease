@@ -32,11 +32,12 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		T_ADD_AA = None
 		T_CUT_AA = None
-		nutrients_time_series_label = sim_data.external_state.environment.nutrients_time_series_label
-		if "aa" in nutrients_time_series_label:
-			if "add" in nutrients_time_series_label and "cut" in nutrients_time_series_label:
-				T_ADD_AA = sim_data.external_state.environment.nutrients_time_series[nutrients_time_series_label][1][0]
-				T_CUT_AA = sim_data.external_state.environment.nutrients_time_series[nutrients_time_series_label][2][0]
+		current_timeline_id = sim_data.external_state.environment.current_timeline_id
+
+		if current_timeline_id and "aa" in current_timeline_id:
+			if "add" in current_timeline_id and "cut" in current_timeline_id:
+				T_ADD_AA = sim_data.external_state.environment.saved_timelines[current_timeline_id][1][0]
+				T_CUT_AA = sim_data.external_state.environment.saved_timelines[current_timeline_id][2][0]
 
 		# Get all cells
 		allDir = ap.get_cells()

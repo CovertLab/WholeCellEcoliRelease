@@ -2,13 +2,19 @@
 
 """
 External state that represents environmental molecules and conditions.
-	- nutrients_time_series: a list of tuples that include time and nutrients in
-		which shifts occur.
-	- nutrients: a string specifying the current nutrient condition.
-	- times: a list of all times at which the nutrients shift.
+
+	Variables:
+		- current_media (dict): with {molecule_id: concentration}
+		- current_timeline (list): a list of events as tuples with (time, media_id)
+		- current_media_id (str): the current media's id
+		- current_timeline_id (str): the current timeline's id
+		- saved_media (dict): all saved media, keys are media_ids
+		- saved_timelines (dict): all saved timelines, keys are timeline_ids
+		- _times: a list of all times at which the media shifts
+
 	Functions:
-	----------
-	- update: updates nutrients according to nutrients_time_series
+		- update(): updates current_media_id according to saved_timelines
+
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
@@ -19,6 +25,8 @@ import wholecell.views.view
 
 from wholecell.utils import units
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
+
+from environment.condition.make_media import Media
 
 COUNTS_UNITS = units.mmol
 VOLUME_UNITS = units.L
@@ -41,59 +49,60 @@ class LocalEnvironment(wholecell.states.external_state.ExternalState):
 
 		super(LocalEnvironment, self).__init__(*args, **kwargs)
 
-	def initialize(self, sim, sim_data):
-		super(LocalEnvironment, self).initialize(sim, sim_data)
+	def initialize(self, sim, sim_data, timeline):
+		super(LocalEnvironment, self).initialize(sim, sim_data, timeline)
 
 		self._processIDs = sim.processes.keys()
 
 		# load constants
 		self._nAvogadro = sim_data.constants.nAvogadro
 
-		# environment time series data
-		self.environment_dict = sim_data.external_state.environment.environment_dict
-		self.nutrients_time_series_label = sim_data.external_state.environment.nutrients_time_series_label
+		# make media object
+		make_media = Media()
 
-		# get current nutrients label
-		self.current_time_series = sim_data.external_state.environment.nutrients_time_series[self.nutrients_time_series_label]
-		self.nutrients = self.current_time_series[0][1]
-		self._times = [t[0] for t in self.current_time_series]
+		# environment data
+		# if current_timeline_id is specified by variant, look it up in saved_timelines
+		if sim_data.external_state.environment.current_timeline_id:
+			self.current_timeline = sim_data.external_state.environment.saved_timelines[
+				sim_data.external_state.environment.current_timeline_id]
+		else:
+			self.current_timeline = make_media.make_timeline(timeline)
+
+		self.saved_media = sim_data.external_state.environment.saved_media
+		self.current_media_id = self.current_timeline[0][1]
+		self.current_media = self.saved_media[self.current_media_id]
+		self._times = [t[0] for t in self.current_timeline]
 
 		# initialize molecule IDs and concentrations based on initial environment
-		self._moleculeIDs = [molecule_id for molecule_id, concentration in self.environment_dict[self.nutrients].iteritems()]
-		self._concentrations = np.array([concentration for molecule_id, concentration in self.environment_dict[self.nutrients].iteritems()])
+		self._moleculeIDs = [molecule_id for molecule_id, concentration in self.current_media.iteritems()]
+		self._concentrations = np.array([concentration for molecule_id, concentration in self.current_media.iteritems()])
 		self._env_delta_counts = dict((molecule_id, 0) for molecule_id in self._moleculeIDs)
 
 		# create bulk container for molecule concentrations. This uses concentrations instead of counts.
 		self.container = BulkObjectsContainer(self._moleculeIDs, dtype=np.float64)
 		self.container.countsIs(self._concentrations)
 
-		# the length of the longest nutrients name, for padding in nutrients listener
-		self._nutrients_name_max_length = max([len(t[1]) for t in self.current_time_series])
+		# the length of the longest media_id, for padding in listener
+		self._media_id_max_length = max([len(t[1]) for t in self.current_timeline])
 
 
 	def update(self):
+		'''update self.current_media_id based on self.current_timeline and self.time'''
+
 		current_index = [i for i, t in enumerate(self._times) if self.time()>=t][-1]
 
-		# update nutrients based on nutrient_time_series. This updates the concentrations,
-		# and also the nutrients label is used in polypeptide_elongation to find
-		# a ribosomeElongationRate in ribosomeElongationRateDict
-		if self.nutrients != self.current_time_series[current_index][1]:
-			self.nutrients = self.current_time_series[current_index][1]
-			self._concentrations = np.array([concentration for id, concentration in self.environment_dict[self.nutrients].iteritems()])
+		if self.current_media_id != self.current_timeline[current_index][1]:
+			self.current_media_id = self.current_timeline[current_index][1]
+			self._concentrations = np.array([concentration for id, concentration in self.saved_media[self.current_media_id].iteritems()])
 			self.container.countsIs(self._concentrations)
 
 		if ASSERT_POSITIVE_CONCENTRATIONS and (self._concentrations < 0).any():
 			raise NegativeConcentrationError(
 					"Negative environment concentration(s) in self._concentrations:\n"
-					+ "\n".join(
-					"{}".format(
-						self._moleculeIDs[molIndex],
-						)
-					for molIndex in np.where(self._concentrations < 0)[0]
-					)
-				)
+					+ "\n".join("{}".format(self._moleculeIDs[molIndex])
+					for molIndex in np.where(self._concentrations < 0)[0]))
 
-	# Functions for multi-scaling interface
+	## Functions for multi-scaling interface
 	def set_local_environment(self, concentrations):
 		self._env_delta_counts = dict.fromkeys(self._env_delta_counts, 0)
 		for idx, molecule_id in enumerate(self._moleculeIDs):
@@ -109,12 +118,12 @@ class LocalEnvironment(wholecell.states.external_state.ExternalState):
 	def tableCreate(self, tableWriter):
 		self.container.tableCreate(tableWriter)
 		tableWriter.writeAttributes(
-			nutrientTimeSeriesLabel = self.nutrients_time_series_label,
+			# nutrientTimeSeriesLabel = self.current_timeline_id,
 			)
 
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
-			nutrientCondition = self.nutrients.ljust(self._nutrients_name_max_length),
+			nutrientCondition = self.current_media_id.ljust(self._media_id_max_length),
 			nutrientConcentrations = self._concentrations,
 			)
 

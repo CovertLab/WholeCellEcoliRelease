@@ -125,6 +125,6 @@ class CellDivision(wholecell.listeners.listener.Listener):
 		else:
 			# End simulation once the mass of an average cell is
 			# added to current cell.
-			current_nutrients = self._external_states['Environment'].nutrients
-			if self.dryMass - self.dryMassInitial >= self.expectedDryMassIncreaseDict[current_nutrients].asNumber(units.fg) * self.divisionMassMultiplier:
+			current_media_id = self._external_states['Environment'].current_media_id
+			if self.dryMass - self.dryMassInitial >= self.expectedDryMassIncreaseDict[current_media_id].asNumber(units.fg) * self.divisionMassMultiplier:
 				self._sim.cellCycleComplete()

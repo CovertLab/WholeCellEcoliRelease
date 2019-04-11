@@ -5,8 +5,6 @@ Functions for making media
 
 from __future__ import absolute_import, division, print_function
 
-import numpy as np
-
 from wholecell.utils import units
 
 # Raw data class
@@ -77,7 +75,7 @@ class Media(object):
 				row["molecule id"]: row["concentration"]
 				for row in molecule_concentrations}
 
-			# update environment_dict with non zero concentrations
+			# update saved_media with non zero concentrations
 			stock_media[label].update(environment_non_zero_dict)
 
 		return stock_media
@@ -200,3 +198,24 @@ class Media(object):
 				new_media[mol_id] = new_conc
 
 		return new_media
+
+	def make_timeline(self, timeline_str):
+		'''
+		Make a timeline from a string
+
+		Args:
+			timeline_str (str): 'time1 media_id1, time2 media_id2'
+		Returns:
+			timeline (list[tuple]): a list of tuples with (time (float), media_id (str))
+
+		TODO (Eran) make a parsing expression grammar for this: https://github.com/erikrose/parsimonious
+		TODO (Eran) expand capabilities to also pass in ingredients to be added from the prior event
+		'''
+
+		timeline = []
+		events_str = timeline_str.split(', ')
+		for event in events_str:
+			time, media = event.split()
+			timeline.append((float(time),media))
+
+		return timeline
