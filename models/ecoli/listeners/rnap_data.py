@@ -51,7 +51,16 @@ class RnapData(wholecell.listeners.listener.Listener):
 
 		# Collisions with replisomes
 		self.n_aborted_initiations = 0
-		self.n_collisions = 0
+		self.n_total_collisions = 0
+		self.n_headon_collisions = 0
+		self.n_codirectional_collisions = 0
+
+		# Locations of collisions on the chromosome
+		# The size of these arrays must be larger than the maximum possible
+		# numbers of collisions that can occur for each type in a single
+		# timestep.
+		self.headon_collision_coordinates = np.full(50, np.nan, np.float64)
+		self.codirectional_collision_coordinates = np.full(1000, np.nan, np.float64)
 
 
 	def update(self):
@@ -64,7 +73,7 @@ class RnapData(wholecell.listeners.listener.Listener):
 		if len(active_rnaps) > 0:
 			active_rnap_coordinates = active_rnaps.attr("coordinates")
 			self.active_rnap_coordinates[
-			:active_rnap_coordinates.size] = active_rnap_coordinates
+				:active_rnap_coordinates.size] = active_rnap_coordinates
 
 
 	def tableCreate(self, tableWriter):
@@ -82,5 +91,9 @@ class RnapData(wholecell.listeners.listener.Listener):
 			terminationLoss = self.terminationLoss,
 			rnaInitEvent = self.rnaInitEvent,
 			n_aborted_initiations=self.n_aborted_initiations,
-			n_collisions=self.n_collisions,
+			n_total_collisions=self.n_total_collisions,
+			n_headon_collisions=self.n_headon_collisions,
+			n_codirectional_collisions=self.n_codirectional_collisions,
+			headon_collision_coordinates=self.headon_collision_coordinates,
+			codirectional_collision_coordinates=self.codirectional_collision_coordinates,
 			)
