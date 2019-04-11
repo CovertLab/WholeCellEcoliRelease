@@ -126,6 +126,17 @@ class Process(object):
 							self._name,
 							attributeName,
 							listenerName))
+				elif writeMethod == WriteMethod.fill:
+					data = getattr(listener, attributeName)
+					if isinstance(data, np.ndarray):
+						data[:] = np.nan
+						data[:value.size] = value
+						setattr(listener, attributeName, data)
+					else:
+						warnings.warn("The {} process attempted to fill in {} on the {} listener, but it is not an ndarray".format(
+							self._name,
+							attributeName,
+							listenerName))
 				else:
 					raise warnings.warn("The {} process attempted to write {} to the {} listener, but used an invalid write method: {}".format(
 						self._name,
