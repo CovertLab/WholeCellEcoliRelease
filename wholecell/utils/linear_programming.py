@@ -4,12 +4,16 @@
 linearProgramming
 Wrapper over cvxopt to call glpk (can be extended in the future to use other solvers)
 Solves the problem:
+
 maximize f' x
 subject to
 	Ax == b
 	lb <= x <= ub
+
 Example call (trivial solution):
+
 >>> wholecell.util.linearProgramming.linearProgramming("maximize", numpy.ones(1), numpy.ones((1,1)), numpy.ones(1), numpy.ones(1), numpy.ones(1), "S", "C", None)
+
 @author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 3/22/2013
