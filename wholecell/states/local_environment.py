@@ -18,6 +18,8 @@ External state that represents environmental molecules and conditions.
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
+from __future__ import absolute_import
+
 import numpy as np
 
 import wholecell.states.external_state
