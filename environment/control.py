@@ -51,7 +51,7 @@ class ShepherdControl(AgentControl):
 		self.add_agent(lattice_id, 'lattice', chemotaxis_config)
 
 		# give lattice time before adding the cells
-		time.sleep(3)
+		time.sleep(15)
 
 		for index in range(num_cells):
 			self.add_cell(args['type'] or 'chemotaxis', {
