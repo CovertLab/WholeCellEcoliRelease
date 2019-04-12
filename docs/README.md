@@ -25,6 +25,7 @@ These are the docs for a variety of topics on the Whole Cell Model.
 * [A Whole-Cell Computational Model Predicts Phenotype from Genotype](https://www.cell.com/cell/abstract/S0092-8674(12)00776-3)
 
 ## dissertations
+* _Computational Simulations of Whole Cells: Strategies for Framework Design and Model Parameterization_, John Mason
 * _Development and Application of Whole-Cell Computational Models for Science and Engineering_, Jonathan Ross Karr
 * _Toward a Whole-Cell Model of Escherichia coli_, Derek Macklin
 * _Towards a Whole-Cell Model of Growth Rate and Cell Size Control in Escherichia coli_, Nicholas Ruggero
