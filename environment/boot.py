@@ -22,6 +22,8 @@ from wholecell.utils import constants
 import wholecell.utils.filepath as fp
 from models.ecoli.sim.variants import apply_variant
 
+DEFAULT_COLOR = [0.6, 0.4, 0.3]
+
 class EnvironmentAgent(Outer):
 	def build_state(self):
 		lattice = {
@@ -31,6 +33,7 @@ class EnvironmentAgent(Outer):
 		simulations = {
 			agent_id: {
 				'volume': simulation['state']['volume'],
+				'color': simulation['state'].get('color', DEFAULT_COLOR),
 				'location': self.environment.locations[agent_id][0:2].tolist(),
 				'orientation': self.environment.locations[agent_id][2],
 				'parent_id': simulation.get('parent_id', '')}
