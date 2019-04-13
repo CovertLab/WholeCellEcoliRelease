@@ -16,11 +16,13 @@ from environment.surrogates.chemotaxis import Chemotaxis
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 
 from models.ecoli.sim.simulation import ecoli_simulation
+from environment.condition.make_media import Media
 
 from wholecell.utils import constants
 import wholecell.utils.filepath as fp
 from models.ecoli.sim.variants import apply_variant
 
+DEFAULT_COLOR = [0.6, 0.4, 0.3]
 
 class EnvironmentAgent(Outer):
 	def build_state(self):
@@ -31,6 +33,7 @@ class EnvironmentAgent(Outer):
 		simulations = {
 			agent_id: {
 				'volume': simulation['state']['volume'],
+				'color': simulation['state'].get('color', DEFAULT_COLOR),
 				'location': self.environment.locations[agent_id][0:2].tolist(),
 				'orientation': self.environment.locations[agent_id][2],
 				'parent_id': simulation.get('parent_id', '')}
@@ -57,26 +60,11 @@ def boot_lattice(agent_id, agent_type, agent_config):
 	print("Media condition: {}".format(media))
 	raw_data = KnowledgeBaseEcoli()
 
-	# create a dictionary with all saved environments
-	# TODO (eran) -- this should share code with external_state.py
-	saved_media = {}
-	for label in vars(raw_data.condition.media):
-		# initiate all molecules with 0 concentrations
-		saved_media[label] = {
-			row["molecule id"]: 0
-			for row in raw_data.condition.environment_molecules}
+	# make media object
+	make_media = Media()
+	new_media = make_media.make_recipe(media)
 
-		# get non-zero concentrations (assuming units.mmol / units.L)
-		molecule_concentrations = getattr(raw_data.condition.media, label)
-		environment_non_zero_dict = {
-			row["molecule id"]: row["concentration"].asNumber()
-			for row in molecule_concentrations}
-
-		# update saved_media with non zero concentrations
-		saved_media[label].update(environment_non_zero_dict)
-
-	concentrations = saved_media[media]
-	agent_config['concentrations'] = concentrations
+	agent_config['concentrations'] = new_media
 	environment = EnvironmentSpatialLattice(agent_config)
 
 	return EnvironmentAgent(agent_id, agent_type, agent_config, environment)

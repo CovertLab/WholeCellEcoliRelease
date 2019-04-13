@@ -7,6 +7,7 @@ from agent.inner import CellSimulation
 
 
 TUMBLE_JITTER = 2.0 # (radians)
+DEFAULT_COLOR = [color/255 for color in [76, 0 , 153]]
 
 class Chemotaxis(CellSimulation):
 	'''
@@ -99,6 +100,7 @@ class Chemotaxis(CellSimulation):
 			'motile_force': self.motile_force,
 			'environment_change': self.environment_change,
 			'division': self.division,
+			'color': DEFAULT_COLOR,
 			}
 
 	def synchronize_state(self, state):

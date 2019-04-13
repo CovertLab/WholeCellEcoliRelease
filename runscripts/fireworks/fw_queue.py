@@ -55,7 +55,9 @@ Simulation parameters:
 	SINGLE_DAUGHTERS (int, "1"): if nonzero, the simulation will generate only
 		one daughter cell for each new generation rather than two, thus avoiding
 		an exponential increase in the number of simulations
-	TIMELINE (str, "0 minimal"): sets the timeline of events for the simulation
+	TIMELINE (str, "0 minimal"): sets the timeline of events for the simulation.
+		See	environment/condition/make_media.py, make_timeline() for timeline
+		formatting details.
 	WC_LENGTHSEC (int, "10800"): sets the maximum simulation time in seconds, useful
 		for short simulations (default is 3 hr)
 	TIMESTEP_MAX (float, "0.9"): sets the maximum time step
