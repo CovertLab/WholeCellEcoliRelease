@@ -93,3 +93,4 @@ class WriteMethod(Enum):
 	update = 1
 	increment = 2
 	append = 3
+	fill = 4

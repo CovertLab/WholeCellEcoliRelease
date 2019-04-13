@@ -13,6 +13,7 @@ import cPickle
 import os
 
 from matplotlib import pyplot as plt
+from matplotlib.lines import Line2D
 import numpy as np
 
 from models.ecoli.analysis import singleAnalysisPlot
@@ -40,6 +41,10 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		time = main_reader.readColumn('time') - initial_time
 		replisome_coordinates = replication_data_reader.readColumn("fork_coordinates")
 		rnap_coordinates = rnap_data_reader.readColumn("active_rnap_coordinates")
+		headon_collision_coordinates = rnap_data_reader.readColumn(
+			"headon_collision_coordinates")
+		codirectional_collision_coordinates = rnap_data_reader.readColumn(
+			"codirectional_collision_coordinates")
 
 		# Load replichore lengths
 		replichore_lengths = sim_data.process.replication.replichore_lengths
@@ -47,13 +52,27 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Plot
 		plt.figure(figsize = (20, 150))
 
+		# Scatter plot options for collisions
+		headon_params = {
+			"marker": "x", "markersize": 10, "linewidth": 0, "color": 'r',
+			"label": "head-on"}
+		codirectional_params = {
+			"marker": "x", "markersize": 10, "linewidth": 0, "color": 'b',
+			"label": "co-directional"}
+
 		# Plot coordinates of RNAPs
 		plt.plot(time / 60., rnap_coordinates, marker='.', markersize=1,
-			linewidth=0, color='gray', label="Active RNAPs")
+			linewidth=0, color='gray')
 
 		# Plot coordinates of replisomes
 		plt.plot(time / 60., replisome_coordinates, marker='.', markersize=5,
-			linewidth=0, color='k', label="Replisomes")
+			linewidth=0, color='k')
+
+		# Plot coordinates of collisions between RNAPs and replisomes
+		plt.plot(time / 60., headon_collision_coordinates,
+			**headon_params)
+		plt.plot(time / 60., codirectional_collision_coordinates,
+			**codirectional_params)
 
 		plt.xticks([0, time.max() / 60])
 		plt.yticks([-replichore_lengths[1], 0, replichore_lengths[0]],
@@ -62,6 +81,12 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		plt.ylabel("Position on chromosome (nt)")
 		plt.xlim([0, time.max() / 60])
 		plt.xlabel("Time (min)")
+
+		# Add legends for collision markers
+		legend_elements = [
+			Line2D([0], [0], **headon_params),
+			Line2D([0], [0], **codirectional_params)]
+		plt.legend(handles=legend_elements)
 
 		plt.tight_layout()
 

@@ -23,6 +23,7 @@ import wholecell.processes.process
 from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease
 from wholecell.utils import units
 from wholecell.utils.random import stochasticRound
+from wholecell.listeners.listener import WriteMethod
 
 class TranscriptElongation(wholecell.processes.process.Process):
 	""" TranscriptElongation """
@@ -135,6 +136,61 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		updated_coordinates = coordinates + np.multiply(
 			direction_converted, sequenceElongations)
 
+		# Get attributes of replisomes
+		replisomes = self.active_replisomes.molecules_read_only()
+
+		# If there are active replisomes, construct mask for RNAPs that are
+		# expected to collide with replisomes in the current timestep. If the
+		# sign of the differences between the updated coordinates of replisomes
+		# and RNAPs are opposite to the sign of the differences between the
+		# original coordinates, a collision occurs and the RNAP is knocked off
+		# the chromosome.
+		# TODO (ggsun): This assumes that replisomes elongate at maximum rates.
+		# 	Ideally this should be done in the reconciler.
+		all_collisions = np.zeros_like(coordinates, dtype=np.bool)
+		headon_collisions = np.zeros_like(coordinates, dtype=np.bool)
+
+		if len(replisomes) > 0:
+			domain_index_replisome, right_replichore, coordinates_replisome = replisomes.attrs(
+				"domain_index", "right_replichore", "coordinates")
+
+			elongation_length = np.ceil(
+				self.dnaPolyElngRate * self.timeStepSec())
+
+			for rr, coord_rep, dmn_idx in izip(right_replichore,
+					coordinates_replisome, domain_index_replisome):
+				if rr:
+					coordinates_mask = (
+						np.multiply(coordinates - coord_rep,
+							coordinates - (coord_rep + elongation_length)) < 0)
+				else:
+					coordinates_mask = (
+						np.multiply(coordinates - coord_rep,
+							coordinates - (coord_rep - elongation_length)) < 0)
+
+				all_collisions_mask = np.logical_and(
+					domain_index == dmn_idx, coordinates_mask)
+				all_collisions[all_collisions_mask] = True
+
+				# Collisions are head-on if replisomes and RNAPs are going in
+				# opposite directions, hence the exclusive OR
+				headon_collisions_mask = np.logical_and(
+					all_collisions_mask, np.logical_xor(direction, rr))
+				headon_collisions[headon_collisions_mask] = True
+
+		# Remaining collisions are codirectional
+		codirectional_collisions = np.logical_and(
+			all_collisions, ~headon_collisions)
+
+		n_total_collisions = all_collisions.sum()
+		n_headon_collisions = headon_collisions.sum()
+		n_codirectional_collisions = codirectional_collisions.sum()
+
+		# Get coordinates for where the collisions occur
+		headon_collision_coordinates = coordinates[headon_collisions]
+		codirectional_collision_coordinates = coordinates[
+			codirectional_collisions]
+
 		# Reset coordinates of RNAPs that cross the boundaries between right
 		# and left replichores
 		updated_coordinates[
@@ -156,63 +212,21 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			coordinates=updated_coordinates)
 		activeRnaPolys.add_submass_by_name("RNA", added_rna_mass)
 
-		# Get attributes of replisomes
-		replisomes = self.active_replisomes.molecules_read_only()
-
-		# If there are active replisomes, construct mask for RNAPs that are
-		# expected to collide with replisomes in the current timestep. We
-		# assume that if either the starting coordinate or the final coordinate
-		# of the RNAP lies within the expected trajectory of replisomes, the
-		# RNAP will collide with the replisome and fall off the chromosome.
-		# TODO (ggsun): This assumes that replisomes elongate at maximum rates.
-		# 	Ideally this should be done in the reconciler.
-		collision_mask = np.zeros_like(coordinates, dtype=np.bool)
-
-		if len(replisomes) > 0:
-			domain_index_replisome, right_replichore, coordinates_replisome = replisomes.attrs(
-				"domain_index", "right_replichore", "coordinates")
-
-			elongation_length = np.ceil(
-				self.dnaPolyElngRate * self.timeStepSec())
-
-			for rr, coord, dmn_idx in izip(right_replichore,
-					coordinates_replisome, domain_index_replisome):
-				if rr:
-					start_mask = np.logical_and(
-						coordinates >= coord,
-						coordinates <= coord + elongation_length)
-					final_mask = np.logical_and(
-						updated_coordinates >= coord,
-						updated_coordinates <= coord + elongation_length)
-				else:
-					start_mask = np.logical_and(
-						coordinates <= coord,
-						coordinates >= coord - elongation_length)
-					final_mask = np.logical_and(
-						updated_coordinates <= coord,
-						updated_coordinates >= coord - elongation_length)
-
-				mask = np.logical_and(domain_index == dmn_idx,
-					np.logical_or(start_mask, final_mask))
-				collision_mask[mask] = True
-
-		n_collisions = collision_mask.sum()
-
-		if n_collisions > 0:
+		if n_total_collisions > 0:
 			# Remove polymerases that are projected to collide with replisomes
-			activeRnaPolys.delByIndexes(np.where(collision_mask)[0])
+			activeRnaPolys.delByIndexes(np.where(all_collisions)[0])
 
 			# Increment counts of inactive RNA polymerases
-			self.inactiveRnaPolys.countInc(n_collisions)
+			self.inactiveRnaPolys.countInc(n_total_collisions)
 
 			# Get lengths of transcripts that were terminated prematurely as a
 			# result of the collision
-			incomplete_sequence_lengths = updated_lengths[collision_mask]
+			incomplete_sequence_lengths = updated_lengths[all_collisions]
 
 			# Increment counts of bases in incomplete transcripts
 			incomplete_sequences = buildSequences(
-				self.rnaSequences, TU_indexes[collision_mask],
-				np.zeros(n_collisions, dtype=np.int64),
+				self.rnaSequences, TU_indexes[all_collisions],
+				np.zeros(n_total_collisions, dtype=np.int64),
 				incomplete_sequence_lengths.max())
 
 			base_counts = np.zeros(4, dtype=np.int64)
@@ -221,12 +235,12 @@ class TranscriptElongation(wholecell.processes.process.Process):
 				base_counts += np.bincount(seq[:sl], minlength = 4)
 
 			self.fragmentBases.countsInc(base_counts)
-			self.ppi.countInc(n_collisions)
+			self.ppi.countInc(n_total_collisions)
 
 		# Determine if transcript has reached the end of the sequence
 		terminalLengths = self.rnaLengths[TU_indexes]
 		didTerminate = np.logical_and(
-			updated_lengths == terminalLengths,	~collision_mask)
+			updated_lengths == terminalLengths, ~all_collisions)
 		terminatedRnas = np.bincount(
 			TU_indexes[didTerminate], minlength = self.rnaSequences.shape[0])
 
@@ -244,7 +258,6 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.inactiveRnaPolys.countInc(nTerminated)
 		self.ppi.countInc(nElongations - nInitialized)
 
-
 		# Write outputs to listeners
 		self.writeToListener(
 			"TranscriptElongationListener", "countRnaSynthesized",
@@ -261,4 +274,16 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			"RnapData", "terminationLoss",
 			(terminalLengths - transcript_lengths)[didTerminate].sum())
 
-		self.writeToListener("RnapData", "n_collisions", n_collisions)
+		self.writeToListener(
+			"RnapData", "n_total_collisions", n_total_collisions)
+		self.writeToListener(
+			"RnapData", "n_headon_collisions", n_headon_collisions)
+		self.writeToListener(
+			"RnapData", "n_codirectional_collisions",
+			n_codirectional_collisions)
+		self.writeToListener(
+			"RnapData", "headon_collision_coordinates",
+			headon_collision_coordinates, writeMethod=WriteMethod.fill)
+		self.writeToListener(
+			"RnapData", "codirectional_collision_coordinates",
+			codirectional_collision_coordinates, writeMethod=WriteMethod.fill)
