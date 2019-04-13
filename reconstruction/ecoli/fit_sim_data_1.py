@@ -620,6 +620,7 @@ def expressionConverge(
 
 		initialExpression = expression.copy()
 		expression = setInitialRnaExpression(sim_data, expression, doubling_time)
+
 		bulkContainer = createBulkContainer(sim_data, expression, doubling_time)
 		avgCellDryMassInit, fitAvgSolubleTargetMolMass = rescaleMassForSolubleMetabolites(sim_data, bulkContainer, concDict, doubling_time)
 
@@ -1003,9 +1004,14 @@ def setInitialRnaExpression(sim_data, expression, doubling_time):
 	individualMasses_mRNA = sim_data.process.transcription.rnaData["mw"][sim_data.process.transcription.rnaData["isMRna"]] / sim_data.constants.nAvogadro
 
 	## Molecule expression distributions
-	distribution_rRNA23S = np.array([1.] + [0.] * (ids_rRNA23S.size-1)) # all expression from first rRNA operon
-	distribution_rRNA16S = np.array([1.] + [0.] * (ids_rRNA16S.size-1)) # all expression from first rRNA operon
-	distribution_rRNA5S = np.array([1.] + [0.] * (ids_rRNA5S.size-1)) # all expression from first rRNA operon
+	# For rRNAs it is assumed that all operons contribute equally to the
+	# overall expression level of each type of rRNA. As the average copy
+	# numbers of these operons throughout the cell cycle are different, the
+	# per-copy transcription probabilities of each gene ends up being
+	# different.
+	distribution_rRNA23S = np.full(ids_rRNA23S.size, 1./ids_rRNA23S.size)
+	distribution_rRNA16S = np.full(ids_rRNA16S.size, 1./ids_rRNA16S.size)
+	distribution_rRNA5S = np.full(ids_rRNA5S.size, 1./ids_rRNA5S.size)
 	distribution_tRNA = normalize(sim_data.mass.getTrnaDistribution()['molar_ratio_to_16SrRNA'])
 	distribution_mRNA = normalize(expression[sim_data.process.transcription.rnaData['isMRna']])
 
@@ -1168,6 +1174,7 @@ def createBulkContainer(sim_data, expression, doubling_time):
 	"""
 
 	total_count_RNA, ids_rnas, distribution_RNA = totalCountIdDistributionRNA(sim_data, expression, doubling_time)
+
 	total_count_protein, ids_protein, distribution_protein = totalCountIdDistributionProtein(sim_data, expression, doubling_time)
 	ids_molecules = sim_data.internal_state.bulkMolecules.bulkData["id"]
 
