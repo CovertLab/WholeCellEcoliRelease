@@ -58,7 +58,8 @@ class RnapData(wholecell.listeners.listener.Listener):
 		# Locations of collisions on the chromosome
 		# The size of these arrays must be larger than the maximum possible
 		# numbers of collisions that can occur for each type in a single
-		# timestep.
+		# timestep. Currently for +AA conditions the maximum values are around
+		# 35 and 600, respectively.
 		self.headon_collision_coordinates = np.full(50, np.nan, np.float64)
 		self.codirectional_collision_coordinates = np.full(1000, np.nan, np.float64)
 

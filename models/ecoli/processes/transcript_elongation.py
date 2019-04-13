@@ -240,7 +240,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		# Determine if transcript has reached the end of the sequence
 		terminalLengths = self.rnaLengths[TU_indexes]
 		didTerminate = np.logical_and(
-			updated_lengths == terminalLengths,	~all_collisions)
+			updated_lengths == terminalLengths, ~all_collisions)
 		terminatedRnas = np.bincount(
 			TU_indexes[didTerminate], minlength = self.rnaSequences.shape[0])
 
