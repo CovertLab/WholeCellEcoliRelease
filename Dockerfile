@@ -8,7 +8,7 @@
 #
 # You will be dropped into an `sh` shell where you can execute commands:
 #
-#     # nosetests -a smalltest
+#     # nosetests
 #
 # If this succeeds you should be good to go. Next, run the Parca:
 #
