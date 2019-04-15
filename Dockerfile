@@ -1,10 +1,14 @@
-# If you have docker installed, you can build this container with the following command:
+# If you have docker installed, you can build this image with the following command:
 #
 #     > docker build -t wholecell .
 #
-# Then you can enter the container with the following command:
+# Then you can create a new container from this image with the following command:
 #
-#     > docker run -it -d wholecell --name wholecelltest /bin/sh
+#     > docker run --name wholecelltest -it -d wholecell
+#
+# Once the container exists you can `exec` it to get a shell inside:
+#
+#     > docker exec -it wholecelltest /bin/sh
 #
 # You will be dropped into an `sh` shell where you can execute commands:
 #
