@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 import time
 import uuid
 
+from environment.condition.make_media import Media
 from agent.control import AgentControl, AgentCommand
 
 
@@ -24,7 +25,17 @@ class ShepherdControl(AgentControl):
 		num_cells = args['number']
 		print('Creating lattice agent_id {} and {} cell agents\n'.format(
 			lattice_id, num_cells))
-		self.add_agent(lattice_id, 'lattice', {})
+
+		# make media
+		media_id = args.get('media', 'minimal')
+		make_media = Media()
+		media = make_media.make_recipe(media_id)
+
+		lattice_config = {
+			'media_id': media_id,
+			'media': media}
+
+		self.add_agent(lattice_id, 'lattice', lattice_config)
 
 		time.sleep(10)  # TODO(jerry): Wait for the Lattice to boot
 
@@ -39,6 +50,10 @@ class ShepherdControl(AgentControl):
 		num_cells = args['number']
 		print('Creating lattice agent_id {} and {} cell agents\n'.format(
 			lattice_id, num_cells))
+
+		media_id = 'GLC'
+		media = {'GLC': 20.0}
+
 		chemotaxis_config = {
 			'run_for' : 1.0,
 			'static_concentrations': True,
@@ -47,7 +62,9 @@ class ShepherdControl(AgentControl):
 			'translation_jitter': 0.0,
 			'rotation_jitter': 0.05,
 			'edge_length': 20.0,
-			'patches_per_edge': 30}
+			'patches_per_edge': 30,
+			'media_id': media_id,
+			'media': media}
 		self.add_agent(lattice_id, 'lattice', chemotaxis_config)
 
 		# give lattice time before adding the cells
