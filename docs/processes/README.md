@@ -4,12 +4,12 @@ The Processes of the \emph{E. coli} model span several major areas of cellular p
 
 ### Process Index
 
-[Cell Division](cell_division.md)
-[Chromosome Replication](chromosome_replication.md)
-[Complexation](complexation.md)
-[Metabolism](metabolism.md)
-[Protein Degradation](protein_degradation.md)
-[RNA Degradation](rna_degradation.md)
-[Transcription](transcription.md)
-[Transcripton Regulation](transcription_regulation.md)
-[Translation](translation.md)
+* [Cell Division](cell_division.md)
+* [Chromosome Replication](chromosome_replication.md)
+* [Complexation](complexation.md)
+* [Metabolism](metabolism.md)
+* [Protein Degradation](protein_degradation.md)
+* [RNA Degradation](rna_degradation.md)
+* [Transcription](transcription.md)
+* [Transcripton Regulation](transcription_regulation.md)
+* [Translation](translation.md)
