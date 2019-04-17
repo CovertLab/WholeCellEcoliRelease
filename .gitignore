@@ -29,11 +29,7 @@ nosetests.*.xml
 
 # Output files #
 ################
-out
-out/*
-!out/out.txt
-!out/images.html
-!out/makeHtml.py
+/out
 
 # Cached sim data #
 ###################
@@ -80,12 +76,8 @@ user/*
 
 # files created from templates #
 ################################
-my_launchpad*.yaml
-my_qadapter*.yaml
-#=======
 *my_launchpad*.yaml
 *my_qadapter*.yaml
-
 
 # Fireworks output #
 ####################
@@ -126,6 +118,7 @@ reconstruction/ecoli/dataclasses/process/two_component_system_odes_fitter.py
 .idea/libraries
 .idea/codeStyleSettings.xml
 .idea/codeStyles/codeStyleConfig.xml
+.idea/inspectionProfiles/profiles_settings.xml
 
 # Potentially OK if editing it to project-jdk-name="Python 2.7" works:
 .idea/misc.xml

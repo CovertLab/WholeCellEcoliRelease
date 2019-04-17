@@ -16,7 +16,7 @@
 #
 # If this succeeds you should be good to go. Next, run the Parca:
 #
-#     # python runscripts/manual/runParca.py wholecellcontainer
+#     # python runscripts/manual/runParca.py
 
 
 FROM python:2.7.15-alpine
@@ -33,11 +33,12 @@ ENV CVXOPT_GLPK_INC_DIR=/usr/local/include
 ENV CVXOPT_BLAS_LIB=openblas
 ENV CVXOPT_LAPACK_LIB=openblas
 
+# Install all the pips within one Docker layer and don't cache the downloads.
 COPY requirements.txt /
-RUN pip install 'numpy==1.14.5'
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir 'numpy==1.14.5' \
+    && pip install --no-cache-dir -r requirements.txt
 
-COPY ./ /wcEcoli
+COPY . /wcEcoli
 WORKDIR /wcEcoli
 
 RUN make clean compile

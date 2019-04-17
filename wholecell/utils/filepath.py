@@ -82,7 +82,7 @@ def run_cmdline(line, trim=True):
 	"""
 	try:
 		return run_cmd(tokens=line.split(), trim=trim)
-	except StandardError, e:
+	except StandardError as e:
 		print('failed to run command line {}: {}'.format(line, e))
 		return None
 

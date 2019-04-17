@@ -7,10 +7,6 @@
 #   brew install pyenv pyenv-virtualenv pyenv-virtualenvwrapper
 #   brew install glpk openssl readline swig suite-sparse xz
 #
-## Optional: Download and install other packages according to their instructions
-## or take a wait-and-see approach with them:
-#	CPLEX from IBM (free for students)
-#
 ## Install the required version of Python via pyenv, and remember to enable it as
 ## a shared library:
 #   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.15
