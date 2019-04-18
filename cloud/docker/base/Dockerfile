@@ -1,6 +1,6 @@
 # This is the Dockerfile for building the environment for the whole cell model. It stops just
 # short of copying in the `wcEcoli` code. The Dockerfile at the root level of the project
-# starts from this point and simply copies the code into this container. 
+# starts from this point and simply copies the code into this container, then compiles the cython.
 
 FROM python:2.7.15-alpine
 
