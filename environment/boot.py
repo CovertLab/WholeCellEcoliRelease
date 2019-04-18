@@ -11,6 +11,7 @@ from agent.boot import BootAgent
 
 from environment.lattice import EnvironmentSpatialLattice
 from environment.surrogates.chemotaxis import Chemotaxis
+from environment.surrogates.endocrine import Endocrine
 from models.ecoli.sim.simulation import ecoli_simulation
 from environment.condition.make_media import Media
 
@@ -168,6 +169,35 @@ def boot_ecoli(agent_id, agent_type, agent_config):
 
 	return inner
 
+def boot_endocrine(agent_id, agent_type, agent_config):
+	agent_id = agent_id
+	outer_id = agent_config['outer_id']
+	volume = 1.0
+	kafka_config = agent_config['kafka_config']
+
+	inner = Inner(
+		agent_id,
+		outer_id,
+		agent_type,
+		agent_config,
+		None)
+
+	inner.send(kafka_config['topics']['environment_receive'], {
+		'event': event.CELL_DECLARE,
+		'agent_id': outer_id,
+		'inner_id': agent_id,
+		'agent_config': agent_config,
+		'state': {
+			'volume': volume,
+			'environment_change': {}}})
+
+	simulation = Endocrine()
+	inner.simulation = simulation
+
+	time.sleep(5)  # TODO(jerry): Wait for the Chemotaxis to boot
+
+	return inner
+
 def boot_chemotaxis(agent_id, agent_type, agent_config):
 	agent_id = agent_id
 	outer_id = agent_config['outer_id']
@@ -205,6 +235,7 @@ class BootEnvironment(BootAgent):
 			'lattice': boot_lattice,
 			'ecoli': boot_ecoli,
 			'chemotaxis': boot_chemotaxis,
+			'endocrine': boot_endocrine,
 			}
 
 if __name__ == '__main__':
