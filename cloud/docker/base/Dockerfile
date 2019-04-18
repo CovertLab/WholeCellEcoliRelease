@@ -1,23 +1,6 @@
-# If you have docker installed, you can build this image with the following command:
-#
-#     > docker build -t wholecell .
-#
-# Then you can create a new container from this image with the following command:
-#
-#     > docker run --name wholecelltest -it -d wholecell
-#
-# Once the container exists you can `exec` it to get a shell inside:
-#
-#     > docker exec -it wholecelltest /bin/sh
-#
-# You will be dropped into an `sh` shell where you can execute commands:
-#
-#     # nosetests
-#
-# If this succeeds you should be good to go. Next, run the Parca:
-#
-#     # python runscripts/manual/runParca.py
-
+# This is the Dockerfile for building the environment for the whole cell model. It stops just
+# short of copying in the `wcEcoli` code. The Dockerfile at the root level of the project
+# starts from this point and simply copies the code into this container. 
 
 FROM python:2.7.15-alpine
 
