@@ -19,7 +19,7 @@
 #     # python runscripts/manual/runParca.py
 
 
-FROM gcr.io/allen-discovery-center-mcovert/wcm-environment:latest
+FROM gcr.io/allen-discovery-center-mcovert/wcm-runtime:latest
 
 COPY . /wcEcoli
 WORKDIR /wcEcoli

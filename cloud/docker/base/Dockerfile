@@ -1,6 +1,13 @@
 # This is the Dockerfile for building the environment for the whole cell model. It stops just
-# short of copying in the `wcEcoli` code. The Dockerfile at the root level of the project
-# starts from this point and simply copies the code into this container, then compiles the cython.
+# short of copying in the `wcEcoli` code.
+#
+# To build locally, execute the following command:
+#
+#     > docker build -t wcm-runtime .
+#
+# To build using gcloud container service:
+#
+#     > gcloud builds submit --timeout=2h --tag gcr.io/allen-discovery-center-mcovert/wcm-runtime .
 
 FROM python:2.7.15-alpine
 
