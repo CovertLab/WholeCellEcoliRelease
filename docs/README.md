@@ -6,7 +6,7 @@ These are the docs for a variety of topics on the Whole Cell Model.
 
 * [Required development tools](dev-tools.md) -- installation and tips
 * [Creating the "pyenv" runtime environment](create-pyenv.md)
-* [Setting up to run FireWorks](wholecell/fireworks/README.md) -- needed only to run a FireWorks workflow of cell simulations and analysis plots
+* [Setting up to run FireWorks](../wholecell/fireworks/README.md) -- needed only to run a FireWorks workflow of cell simulations and analysis plots
 * [Set up Zookeeper and Kafka](../agent/README.md) -- needed only for multi-scale agents
 
 ## running
