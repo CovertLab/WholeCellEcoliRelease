@@ -1,6 +1,6 @@
 # If you have docker installed, you can build this image with the following command:
 #
-#     > docker build -t wholecell .
+#     > docker build -t wholecell -f cloud/docker/wholecell/Dockerfile .
 #
 # Then you can create a new container from this image with the following command:
 #
