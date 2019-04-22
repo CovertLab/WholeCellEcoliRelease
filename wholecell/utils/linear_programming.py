@@ -65,3 +65,4 @@ def linearProgramming(maximizeFlag, f, A, b, lb, ub, constraintTypes, variableTy
 	sol = cvxopt.solvers.lp(f_m, G_m, h_m, A = A_m, b = b_m, solver = "glpk")
 
 	return numpy.array(sol["x"]), sol
+

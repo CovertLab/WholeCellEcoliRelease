@@ -1,3 +1,8 @@
+.git*
+/.idea
+/docs
+/user
+
 # Compiled source #
 ###################
 *.pyc
@@ -40,11 +45,6 @@ cached
 fixtures/sim/*
 fixtures/kb/*
 fixtures/test/*
-
-# User files #
-################
-user/*
-!user/user.txt
 
 # C extensions #
 ################
@@ -106,38 +106,6 @@ reconstruction/ecoli/dataclasses/process/two_component_system_odes_fitter.py
 *.hdf
 *.tar.gz
 /build/
-
-# PyCharm files #
-#################
-# User-specific stuff:
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/dictionaries
-.idea/vcs.xml
-.idea/jsLibraryMappings.xml
-.idea/libraries
-.idea/codeStyleSettings.xml
-.idea/codeStyles/codeStyleConfig.xml
-.idea/inspectionProfiles/profiles_settings.xml
-
-# Potentially OK if editing it to project-jdk-name="Python 2.7" works:
-.idea/misc.xml
-
-# Sensitive or high-churn files:
-.idea/dataSources/
-.idea/dataSources.ids
-.idea/dataSources.xml
-.idea/dataSources.local.xml
-.idea/sqlDataSources.xml
-.idea/dynamic.xml
-.idea/uiDesigner.xml
-
-# Gradle:
-.idea/gradle.xml
-.idea/libraries
-
-# Mongo Explorer plugin:
-.idea/mongoSettings.xml
 
 # LaTeX compilation files #
 ###########################

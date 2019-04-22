@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 import time
 import uuid
 
+from environment.condition.make_media import Media
 from agent.control import AgentControl, AgentCommand
 
 
@@ -24,7 +25,17 @@ class ShepherdControl(AgentControl):
 		num_cells = args['number']
 		print('Creating lattice agent_id {} and {} cell agents\n'.format(
 			lattice_id, num_cells))
-		self.add_agent(lattice_id, 'lattice', {})
+
+		# make media
+		media_id = args.get('media', 'minimal')
+		make_media = Media()
+		media = make_media.make_recipe(media_id)
+
+		lattice_config = {
+			'media_id': media_id,
+			'media': media}
+
+		self.add_agent(lattice_id, 'lattice', lattice_config)
 
 		time.sleep(10)  # TODO(jerry): Wait for the Lattice to boot
 
@@ -34,11 +45,45 @@ class ShepherdControl(AgentControl):
 				'working_dir': args['working_dir'],
 				'seed': index})
 
+	def endocrine_experiment(self, args):
+		lattice_id = str(uuid.uuid1())
+		num_cells = args['number']
+		print('Creating lattice agent_id {} and {} cell agents\n'.format(
+			lattice_id, num_cells))
+
+		media_id = 'GLC'
+		media = {'GLC': 20.0, 'signal': 0.0}
+
+		endocrine_config = {
+			'run_for' : 1.0,
+			# 'static_concentrations': True,
+			# 'gradient': {'seed': True},
+			'diffusion': 0.05,
+			'translation_jitter': 0.01,
+			'rotation_jitter': 0.1,
+			'edge_length': 10.0,
+			'patches_per_edge': 10,
+			'media_id': media_id,
+			'media': media}
+		self.add_agent(lattice_id, 'lattice', endocrine_config)
+
+		# give lattice time before adding the cells
+		time.sleep(15)
+
+		for index in range(num_cells):
+			self.add_cell(args['type'] or 'endocrine', {
+				'outer_id': lattice_id,
+				'seed': index})
+
 	def chemotaxis_experiment(self, args):
 		lattice_id = str(uuid.uuid1())
 		num_cells = args['number']
 		print('Creating lattice agent_id {} and {} cell agents\n'.format(
 			lattice_id, num_cells))
+
+		media_id = 'GLC'
+		media = {'GLC': 20.0}
+
 		chemotaxis_config = {
 			'run_for' : 1.0,
 			'static_concentrations': True,
@@ -47,7 +92,9 @@ class ShepherdControl(AgentControl):
 			'translation_jitter': 0.0,
 			'rotation_jitter': 0.05,
 			'edge_length': 20.0,
-			'patches_per_edge': 30}
+			'patches_per_edge': 30,
+			'media_id': media_id,
+			'media': media}
 		self.add_agent(lattice_id, 'lattice', chemotaxis_config)
 
 		# give lattice time before adding the cells
@@ -65,7 +112,8 @@ class EnvironmentCommand(AgentCommand):
 	"""
 
 	def __init__(self):
-		choices = ['chemotaxis-experiment']
+		choices = ['chemotaxis-experiment',
+				   'endocrine-experiment']
 		description = '''
 Run an agent for the environmental context simulation.
 
@@ -82,7 +130,9 @@ The commands are:
 `shutdown [--id OUTER_ID]` shut down one or all environment agents and their
      connected agents,
 'chemotaxis-experiment [--number N] [--type T]` ask the Shepherd to run a
-    chemotaxis environment with N agents of type T'''
+    chemotaxis environment with N agents of type T
+'endocrine-experiment [--number N] [--type T]` ask the Shepherd to run a
+    endocrine environment with N agents of type T'''
 
 		super(EnvironmentCommand, self).__init__(choices, description)
 
@@ -98,6 +148,11 @@ The commands are:
 		control.chemotaxis_experiment(args)
 		control.shutdown()
 
+	def endocrine_experiment(self, args):
+		self.require(args, 'number')
+		control = ShepherdControl({'kafka_config': self.kafka_config})
+		control.endocrine_experiment(args)
+		control.shutdown()
 
 if __name__ == '__main__':
 	command = EnvironmentCommand()

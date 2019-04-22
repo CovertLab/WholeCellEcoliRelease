@@ -1,0 +1,128 @@
+\paragraph{RNA degradation}
+
+\subparagraph{Model Implementation.}
+The RNA decay sub-model encodes a molecular simulation of RNA degradation and occurs via two steps that represent RNase-mediated mechanisms. It is implemented in the \texttt{RNAdegradation} process (detailed in Algorithm \ref{RNA_degradation_algorithm}).
+
+\subparagraph{Endo-nucleolytic Cleavage.}
+First, the total counts of RNA degraded during a time step are computed as a fraction of the total capacity for endo-cleavage. Then, the total amount of RNA degraded is divided into different species (mRNA, tRNA, and rRNA) using known endoRNase::RNA affinities. Finally, non-functional RNA fragments are represented as an additional pseudo-metabolite in the \texttt{BulkMolecules} state.
+
+\subparagraph{Exo-nucleolytic Digestion.}
+The exoRNase enzymatic capacity is used to determine the fraction of RNA fragments that can be digested and converted to individual nucleotides that can be recycled by the \texttt{Metabolism} process.
+
+\subparagraph{Difference from \emph{M. genitalium} model.}
+The \emph{E. coli} model provides a more detailed, mechanistic representation in the \texttt{RNADegradation} process compared to the \emph{M. genitalium} model. Unlike the previous model, the gene functionality of endoRNase and exoRNase is mechanistically integrated to evaluate: (1) rates of RNA degradation due to endo-nucleolytic cleavage, and (2) rates of nucleotides digested by exoRNases. 
+
+\newpage
+%\subparagraph*{Associated files} 
+\textbf{Associated files}
+
+\begin{table}[h!]
+ \centering
+ \scriptsize
+ \begin{tabular}{c c c} 
+ \hline
+ \texttt{wcEcoli} Path & File & Type \\
+ \hline
+\texttt{wcEcoli/models/ecoli/processes} & \texttt{rna\_degradation.py} & process \\
+\texttt{wcEcoli/reconstruction/ecoli/dataclasses/process} & \texttt{rna\_decay.py} & data \\
+ \hline
+\end{tabular}
+\caption[Table of files for RNA degradation]{Table of files for RNA degradation.}
+\label{RNA_decay_files}
+\end{table}
+
+
+%\subparagraph*{Associated data}
+\textbf{Associated data}
+
+ \begin{table}[h!]
+ \centering
+ \begin{tabular}{p{1.9in} p{1in} p{1in} p{1in} p{0.75in}} 
+ \hline
+ Parameter & Symbol & Units & Value & Reference \\
+ \hline
+ EndoRNase catalytic rate & $K_{cat,endo}$ & non-functional RNA counts/s & 0.10 & See Source Code \\
+ ExoRNase catalytic rate & $K_{cat,exo}$ & nt digested/s & 50 & See Source Code \\
+ mRNA half-lives$^{(1)}$ & $\tau_{mRNA}$ & min & [1.30, 31.40] & \cite{bernstein2002global} \\
+ tRNA, rRNA half-lives & $\tau_{tRNA}$, $\tau_{rRNA}$ & hour & 48 & \cite{bernstein2002global} \\
+ Michaelis constant$^{(2)}$ & $K_{m}$ & RNA counts & - & See Table \ref{RNA_decay_files} \\
+ RNAse mechanism of action & - & endo-/exo-RNAse & - & See Source Code \\
+ EndoRNase specificity$^{(3)}$ & - & (mRNA, tRNA, rRNA)/RNase & Boolean & See Source Code \\
+ \hline
+\end{tabular}
+\caption[Table of parameters for RNA degradation]{Table of parameters for RNA degradation process.\\
+$^{(1)}$Non-measured mRNA half-lives were estimated as the average mRNA half-life (5.75 min).\\
+$^{(2)}$Michaelis constants were calculated by fitting the \texttt{RNADegradation} model to be equal to the first-order \texttt{RNADegradation} model, as follows:\\
+$K_{cat,endo} \cdot c_{endo} \frac{c_{RNA,i}/K_{m,i}}{\sum\limits_j c_{RNA,j}/K_{m,j}} = \frac{ln(2)}{\tau_{RNA,i}} \cdot c_{RNA,i}$\\ 
+$^{(3)}$Types of RNA that can be targeted by a given RNase.}
+\end{table}
+
+
+
+\begin{algorithm}%[H]
+\caption{Algorithm for RNA degradation: endo-cleavage for transcripts, and exo-nucleolytic digestion}
+\label{RNA_degradation_algorithm}
+\SetKwInOut{Input}{Input}\SetKwInOut{Result}{Result}
+\SetKwFunction{min}{min}
+\SetKwFunction{multinomial}{multinomial}
+\SetKwFunction{countNTs}{countNTs}
+\SetKwFunction{lengthFragments}{lengthFragments}
+
+    \Input{$K_{m,i}$ Michaelis constants of each mRNA transcript where $i = 1$ \KwTo $n_{RNA}$}
+    \Input{$K_{cat,endo}$, $K_{cat,exo}$ catalytic rate of endoRNase and exoRNase}
+    \Input{$c_{endo}$, $c_{exo}$ count of endoRNase and exoRNase}
+    \Input{$c_{frag,i}$ count of non-functional RNA fragments where $i=1$ \KwTo $4$ for AMP, CMP, GMP, UMP}
+    \Input{$c_{mRNA}$, $c_{tRNA}$, $c_{rRNA}$ count of each mRNA, tRNA and rRNA}
+    \Input{$c_{molec}$ count of small molecules where $molec \rightarrow $ [H$_2$O, PPI, Proton, NMPs]}
+    \Input{\multinomial{} function that draws samples from a multinomial distribution}
+    \Input{\countNTs{} function that returns counts of AMP, CMP, GMP, and UMP for a given non-functional RNA fragment}
+    \Input{\lengthFragments{} function that returns the total number of bases of all RNA fragments}
+    
+\tcc{Endo-nucleolytic cleveage}
+\textbf{1.} Calculate fraction of active endoRNases ($f_i$) that target each RNA where $i = 1$ \KwTo $n_{gene}$\\
+    \-\hspace{1cm} $f_i = \frac{ \frac{c_{RNA,i}} {K_{m,i}}} {1 + \sum{\frac{c_{RNA}} {K_{m}}}}$\\
+
+\textbf{2.} Calculate total counts of RNAs degraded ($R$)\\
+    \-\hspace{1cm} $R_{mRNA} = \sum{K_{cat,endo} \cdot c_{endo,mRNA} \cdot f_i}$ where $i = 1$ \KwTo $n_{mRNAs}$\\
+    \-\hspace{1cm} $R_{tRNA} = \sum{K_{cat,endo} \cdot c_{endo,tRNA} \cdot f_i}$ where $i = 1$ \KwTo $n_{tRNAs}$\\
+    \-\hspace{1cm} $R_{rRNA} = \sum{K_{cat,endo} \cdot c_{endo,rRNA} \cdot f_i}$ where $i = 1$ \KwTo $n_{rRNAs}$\\
+where $c_{endo,j}$: number of endoRNases targeting specific species considering endoRNase specificities, $j = 1$ \KwTo [mRNA, tRNA, rRNA]\\
+    
+\textbf{3.} Sample multinomial distribution $D$ times weighted by endoRNase::RNA affinities to determine which RNAs are converted into non-functional RNAs ($d_{i}$)\\
+    \-\hspace{1cm} $d_{i} =$ \multinomial{$R, \frac{f_i} {\sum{f}}$}\\
+    
+\textbf{4.} Increase number of RNA fragments. Decrease RNA counts and amount of water required for RNA hydrolysis by endoRNases ($c_{H_2O,endo}$)\\
+    \-\hspace{1cm} $c_{frag} = c_{frag} +$ \countNTs{$d_i$}\\
+    \-\hspace{1cm} $c_{RNA} = c_{RNA} - d_{RNA}$\\
+    \-\hspace{1cm} $c_{H_2O} = c_{H_2O} - c_{H_2O,endo}$\\
+    \-\hspace{1cm} $c_{PPi} = c_{PPi} + D$\\
+
+\end{algorithm}
+\newpage
+
+
+
+\begin{algorithm}[H]
+\tcc{Exo-nucleolytic digestion}
+\textbf{5.} Compute exoRNase capacity ($E$)\\
+    \-\hspace{1cm} $E = K_{cat,exo} \cdot c_{exo}$\\
+    \eIf{$E > \sum{c_{frag,i}}$}{
+      Update NMPs, water and proton counts\\
+      \-\hspace{1cm} $c_{NMP} = c_{NMP} + c_{frag}$\\
+        \-\hspace{1cm} $c_{H_2O} = c_{H_2O} -   $\lengthFragments{$c_{frag}$}\\
+        \-\hspace{1cm} $c_{proton} = c_{proton} + $ \lengthFragments{$c_{frag}$}\\
+  Set counts of RNA fragments equal to zero ($c_{frag,i} = 0$)\\
+    }
+    {
+      Sample multinomial distribution $c_{frag}$ with equal probability to determine which fragments are exo-digested ($c_{fragDig}$) and recycled\\
+        \-\hspace{1cm} $c_{fragDig,i} =$ \multinomial{$E, \frac{c_{frag,i}} {\sum{c_{frag}}}$}\\
+        Update NMPs, water, proton counts, and RNA fragments\\
+      \-\hspace{1cm} $c_{NMP} = c_{NMP} + c_{fragDig}$\\
+        \-\hspace{1cm} $c_{H_2O} = c_{H_2O} - $ \lengthFragments{$c_{fragDig}$}\\
+        \-\hspace{1cm} $c_{proton} = c_{proton} + $ \lengthFragments{$c_{fragDig}$}\\
+        \-\hspace{1cm} $c_{frag} = c_{frag} - c_{fragDig}$\\
+    }
+    \textbf{Result:} RNAs are selected and degraded by endoRNases, and non-functional RNA fragments are digested through exoRNases. During the process water is consumed, and amino acids are released. 
+ 
+\end{algorithm}
+\newpage

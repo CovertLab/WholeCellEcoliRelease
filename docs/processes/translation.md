@@ -1,0 +1,133 @@
+
+\paragraph{Translation}
+
+\subparagraph{Model implementation.}
+Translation is the process by which the coding sequences of mRNA transcripts are translated by 70S ribosomes into polypeptides that then fold into proteins. This process accounts for more than two thirds of an \emph{E. coli} cell's ATP consumption during rapid growth \cite{Russell:1995vc} and the majority of macromolecular mass accumulation. In the \emph{E. coli} model  translation occurs through the action of two processes in the model: \texttt{PolypeptideInitiation} and \texttt{PolypeptideElongation}.
+
+\texttt{PolypeptideInitiation} models the complementation of 30S and 50S ribosomal subunits into 70S ribosomes on mRNA transcripts. Full 70S ribosomes are formed on mRNA transcripts by sampling a multinomial distribution with probabilistic weights calculated from the abundance of mRNA transcripts, and each transcript's translational efficiency (See Algorithm \ref{polypeptide_initiation_algorithm}). Translational efficiencies were calculated from ribosomal profiling data \cite{li2014quantifying}.
+
+\texttt{PolypeptideElongation} models the polymerization of amino acids into polypeptides by ribosomes using an mRNA transcript as a template, and the termination of elongation once a ribosome has reached the end of an mRNA transcript. This process is implemented assuming that tRNA charging by synthetases, ternary complex formation (GTP : EF-Tu : charged-tRNA), and ternary complex diffusion to elongating ribosomes are not rate limiting for polypeptide polymerization. Given this assumption this process directly polymerizes amino acids based on the codon sequence of the mRNA transcript. Polymerization occurs across all ribosomes simultaneously and resources are allocated to maximize the progress of all ribosomes up to the limit of the expected ribosome elongation rate in a medium, available amino acids, and available transcripts (see Algorithm \ref{polypeptide_elongation_algorithm}). \\
+
+    
+\begin{algorithm}[H]
+\caption{Algorithm for ribosome initiation on mRNA transcripts}
+\label{polypeptide_initiation_algorithm}
+\SetKwInOut{Input}{Input}\SetKwInOut{Result}{Result}
+\SetKwFunction{min}{min}
+\SetKwFunction{multinomial}{multinomial}
+
+    \Input{$t_i$ translational efficiency of each mRNA transcript where $i = 1$ \KwTo $n_{gene}$}
+  \Input{$c_{mRNA,i}$ count of each mRNA transcript where $i = 1$ \KwTo $n_{gene}$}
+    \Input{$c_{30S}$ count of free 30S ribosomal subunit}
+    \Input{$c_{50S}$ count of free 50S ribosome subunit}
+    \Input{\multinomial{} function that draws samples from a multinomial distribution}
+    
+  \textbf{1.} Calculate probability ($p_i$) of forming a ribosome on each mRNA transcript weighted by the count and translational efficiency of the transcript.\\
+    \-\hspace{1cm} $p_i = \frac{c_{mRNA,i} \cdot t_i}{\sum\limits^{n_{gene}}_{i=1} c_{mRNA,i} \cdot t_i}$
+    
+    \textbf{2.} Calculate maximal number of ribosomes that could be formed.\\
+    \-\hspace{1cm} $r_{max} =$ \min{$c_{30S}, c_{50S}$}
+    
+    \textbf{3} Sample multinomial distribution $r_{max}$ times weighted by $p_i$ to determine which transcripts receive a ribosome and initiate ($n_{init,i}$).\\
+    \-\hspace{1cm} $n_{init,i} =$ \multinomial{$r_{max}, p_i$}
+    
+    \textbf{4} Assign $n_{init,i}$ ribosomes to mRNA transcript $i$. Decrement 30S and 50S counts.\\
+    \-\hspace{1cm} $c_{30S} = c_{30S} - \sum\limits^{n_{gene}}_{i=1} n_{init,i}$\\
+    \-\hspace{1cm} $c_{50S} = c_{50S} - \sum\limits^{n_{gene}}_{i=1} n_{init,i}$\\
+
+    \Result{70S ribosomes are formed from free 30S and 50S subunits on mRNA transcripts scaled by the count of the mRNA transcript and the transcript's translational efficiency.}
+\end{algorithm}
+\newpage
+\begin{algorithm}[H]
+\caption{Algorithm for peptide chain elongation and termination}
+\label{polypeptide_elongation_algorithm}
+\SetKwInOut{Input}{Input}\SetKwInOut{Result}{Result}
+\SetKwFunction{min}{min}
+\SetKwFunction{all}{all}
+
+  \Input{$e_{expected}$ expected elongation rate of ribosome ($e_{expected} < e_{max}$)}
+    \Input{$p_i$ position of ribosome on mRNA transcript $i = 1$ \KwTo $n_{ribosome}$}
+  \Input{$\delta t$ length of current time step}
+    \Input{$c_{GTP}$ counts of GTP molecules}
+  \Input{$L_j$ length of each mRNA $j = 1$ \KwTo $n_{gene}$ for each coding gene.}
+    
+    
+    \tcc{Elongate polypeptides up to limits of sequence, amino acids, or energy}
+    \For{each ribosome $i$ on mRNA transcript $j$}{
+      \textbf{1.} Based on ribosome position $p_i$ on mRNA transcript and expected elongation rate $e_{expected}$ determine ``stop condition'' position ($t_i$) for ribosome assuming no amino acid limitation. Stop condition is either maximal elongation rate scaled by the time step or the full length of sequence (i.e. the ribosome will terminate in this time step).\\
+      \-\hspace{1cm} $t_i = $ \min{$p_i + e_{expected} \cdot \delta t$, $L_j$}\\
+    
+      \textbf{2.} Derive sequence between ribosome position ($p_i$) and stop condition ($t_i$).
+
+  \textbf{3.} Based on derived sequence calculate the number of amino acids required to polymerize sequence $c^{req}_{aa,i}$ and number of GTP molecules required $c^{req}_{GTP}$.\\
+    
+    \textbf{4.} Elongate up to limits:\\
+    \eIf{\all{$c^{req}_{aa,k} < c_{aa,k}$} \textbf{and} $c^{req}_{GTP} < c_{GTP}$}{
+      Update the position of each ribosome to stop position\\
+      \-\hspace{1cm} $p_i = t_i$
+    }
+    {
+      \textbf{4a.} Attempt to elongate all polypeptide fragments.\\
+        \textbf{4b.} Update position of each ribosome to maximal position given the limitation of $c_{aa,k}$ and $c_{GTP}$.
+    }
+
+    \textbf{5.} Update counts of $c_{aa,k}$ and $c_{GTP}$ to reflect polymerization usage.
+    }
+    \tcc{Terminate ribosomes that have reached the end of their mRNA transcript}
+    \For{each ribosome $i$ on transcript $j$}{
+      \If{$p_i$ == $L_j$}{
+          \textbf{1.} Increment count of protein that corresponds to elongating polypeptide that has terminated.\\
+            
+            \textbf{2.} Dissociate ribosome and increment 30S and 50S counts.
+        
+        }
+    }
+    
+    \Result{Each ribosome is elongated up to the limit of available mRNA sequence, expected elongation rate, amino acid, or GTP limitation. Ribosomes that reach the end of their transcripts are terminated and released.}
+\end{algorithm}    
+
+
+\newpage
+%\subparagraph*{Associated files} 
+\textbf{Associated files}
+
+\begin{table}[h!]
+ \centering
+ \scriptsize
+ \begin{tabular}{c c c} 
+ \hline
+ \texttt{wcEcoli} Path & File & Type \\
+ \hline
+\texttt{wcEcoli/models/ecoli/processes} & \texttt{polypeptide\_initiation.py} & process \\
+\texttt{wcEcoli/models/ecoli/processes} & \texttt{polypeptide\_elongation.py} & process \\
+\texttt{wcEcoli/reconstruction/ecoli/dataclasses/process} & \texttt{translation.py} & data \\
+ \hline
+\end{tabular}
+\caption[Table of files for translation]{Table of files for translation.}
+\end{table}
+
+
+\subparagraph{Difference from \emph{M. genitalium} model.}   
+The \texttt{PolypeptideInitiation} process is implemented similarly in the \emph{M. genitalium} with a few key differences. As the model of \emph{E. coli} is not yet gene complete, the checks for initiation factors are not present. A major advance over the \emph{M. genitalium} model is that the probability of ribosome initiation on a transcript is now proportional to the product of the mRNA count and its translational efficiency. In the \emph{M. genitalium} model translational efficiency was not taken into account.
+
+The \texttt{PolypeptideElongation} algorithm is implemented similarly to the \emph{M. genitalium} model but again because the \emph{E. coli} model is not yet gene complete, elongation factors are not accounted for. Additionally, tRNAs and their synthetases are not accounted for explicitly. Instead, the model directly polymerizes amino acids. This avoids computational issues with the simulation time step, tRNA pool size, and tRNA over expression that were present in the \emph{M. genitalium} model. There is no implementation of ribosome stalling or tmRNAs. The polymerization resource allocation algorithm is the same as in \emph{M. genitalium}.
+
+
+%\subparagraph*{Associated data}
+\textbf{Associated data}
+
+\begin{table}[h!]
+ \centering
+ \begin{tabular}{c c c c c} 
+ \hline
+ Parameter & Symbol & Units & Value & Reference \\
+ \hline
+Translational efficiency$^{(1)}$ & $t_i$ & RIB/mRNA & [0, 5.11] & \cite{li2014quantifying}  \\
+Ribosome elongation rate & $e$ & aa/s & 18 (growth-dependent) & \cite{bremer2008modulation} \\
+Protein counts (validation data) & $c_{protein}$ & protein counts & [0, 250000] & \cite{schmidt2016quantitative}  \\
+ \hline
+\end{tabular}
+\caption[Table of parameters for translation]{Table of parameters for translation process.\\
+$^{(1)}$Non-measured translational efficiencies were estimated by the average translational efficiency (1.11 RIB/mRNA).
+}
+\end{table}

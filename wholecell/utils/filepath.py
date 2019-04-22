@@ -80,7 +80,11 @@ def run_cmdline(line, trim=True):
 		trim (bool): Whether to trim off trailing whitespace. This is useful
 			because the subprocess output usually ends with a newline.
 	"""
-	return run_cmd(tokens=line.split(), trim=trim)
+	try:
+		return run_cmd(tokens=line.split(), trim=trim)
+	except StandardError as e:
+		print('failed to run command line {}: {}'.format(line, e))
+		return None
 
 def write_file(filename, content):
 	"""Write string `content` as a text file."""
