@@ -86,8 +86,11 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		self.diffusion = config.get('diffusion', 0.1)
 		self.gradient = {
 			'seed': False,
-			'center': [0.5, 0.5],
-			'deviation': 10.0}
+			'molecules': {
+				'GLC':{
+					'center': [0.5, 0.5],
+					'deviation': 10.0},
+			}}
 		self.gradient.update(config.get('gradient', {}))
 		self.translation_jitter = config.get('translation_jitter', 0.001)
 		self.rotation_jitter = config.get('rotation_jitter', 0.05)
@@ -120,16 +123,18 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 
 		# Add gradient
 		if self.gradient['seed']:
-			center = [x * self.edge_length for x in self.gradient['center']]
-			for x_patch in xrange(self.patches_per_edge):
-				for y_patch in xrange(self.patches_per_edge):
-					# distance from middle of patch to center coordinates
-					dx = (x_patch + 0.5) * self.edge_length / self.patches_per_edge - center[0]
-					dy = (y_patch + 0.5) * self.edge_length / self.patches_per_edge - center[1]
-					distance = np.sqrt(dx ** 2 + dy ** 2)
-					scale = self.gaussian(distance)
-					# multiply glucose gradient by scale
-					self.lattice[self._molecule_ids.index('GLC')][x_patch][y_patch] *= scale
+			for molecule_id, specs in self.gradient['molecules'].iteritems():
+				center = [x * self.edge_length for x in specs['center']]
+				deviation = specs['deviation']
+				for x_patch in xrange(self.patches_per_edge):
+					for y_patch in xrange(self.patches_per_edge):
+						# distance from middle of patch to center coordinates
+						dx = (x_patch + 0.5) * self.edge_length / self.patches_per_edge - center[0]
+						dy = (y_patch + 0.5) * self.edge_length / self.patches_per_edge - center[1]
+						distance = np.sqrt(dx ** 2 + dy ** 2)
+						scale = self.gaussian(deviation, distance)
+						# multiply glucose gradient by scale
+						self.lattice[self._molecule_ids.index(molecule_id)][x_patch][y_patch] *= scale
 
 		if animating:
 			glucose_lattice = self.lattice[self.molecule_index['GLC']]
@@ -138,8 +143,8 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 			plt.axis('off')
 			plt.pause(0.0001)
 
-	def gaussian(self, distance):
-		return np.exp(-np.power(distance, 2.) / (2 * np.power(self.gradient['deviation'], 2.)))
+	def gaussian(self, deviation, distance):
+		return np.exp(-np.power(distance, 2.) / (2 * np.power(deviation, 2.)))
 
 	def evolve(self):
 		''' Evolve environment '''

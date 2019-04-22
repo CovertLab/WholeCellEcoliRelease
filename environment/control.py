@@ -81,13 +81,23 @@ class ShepherdControl(AgentControl):
 		print('Creating lattice agent_id {} and {} cell agents\n'.format(
 			lattice_id, num_cells))
 
-		media_id = 'GLC'
-		media = {'GLC': 20.0}
+		media_id = 'MeAsp'
+		media = {'GLC': 20.0,
+				 'MeAsp': 0.1}
 
 		chemotaxis_config = {
 			'run_for' : 1.0,
 			'static_concentrations': True,
-			'gradient': {'seed': True},
+			'gradient': {
+				'seed': True,
+				'molecules': {
+					'GLC':{
+						'center': [0.5, 0.5],
+						'deviation': 10.0},
+					'MeAsp': {
+						'center': [0.25, 0.25],
+						'deviation': 10.0}
+				}},
 			'diffusion': 0.0,
 			'translation_jitter': 0.0,
 			'rotation_jitter': 0.05,
