@@ -27,13 +27,21 @@ class ShepherdControl(AgentControl):
 			lattice_id, num_cells))
 
 		# make media
-		media_id = args.get('media', 'minimal')
+		timeline = args.get('timeline')
+		media_id = args.get('media')
 		make_media = Media()
+		if timeline:
+			current_timeline = make_media.make_timeline(timeline)
+			media_id = current_timeline[0][1]
+		else:
+			timeline = '0 ' + media_id
+			current_timeline = make_media.make_timeline(timeline)
 		media = make_media.make_recipe(media_id)
 
 		lattice_config = {
 			'media_id': media_id,
-			'media': media}
+			'media': media,
+			'timeline': current_timeline}
 
 		self.add_agent(lattice_id, 'lattice', lattice_config)
 
@@ -125,24 +133,24 @@ class EnvironmentCommand(AgentCommand):
 		choices = ['chemotaxis-experiment',
 				   'endocrine-experiment']
 		description = '''
-Run an agent for the environmental context simulation.
-
-The commands are:
-`experiment [--number N] [--type T] [--working-dir D]` ask the Shepherd to run
-    a lattice environment with N agents of type T,
-`add --id OUTER_ID [--type T] [--config C]` ask the Shepherd to add an agent of
-    type T with JSON configuration C to the environment OUTER_ID,
-`remove --id AGENT_ID` ask all Shepherds to remove agent AGENT_ID,
-`remove --prefix ID` ask all Shepherds to remove agents "ID*",
-`run [--id OUTER_ID]` start or resume one or all simulations,
-`pause [--id OUTER_ID]` pause one or all simulations,
-`divide --id AGENT_ID` ask a cell agent to divide,
-`shutdown [--id OUTER_ID]` shut down one or all environment agents and their
-     connected agents,
-'chemotaxis-experiment [--number N] [--type T]` ask the Shepherd to run a
-    chemotaxis environment with N agents of type T
-'endocrine-experiment [--number N] [--type T]` ask the Shepherd to run a
-    endocrine environment with N agents of type T'''
+	Run an agent for the environmental context simulation.
+	
+	The commands are:
+	`experiment [--number N] [--type T] [--working-dir D]` ask the Shepherd to run
+		a lattice environment with N agents of type T,
+	`add --id OUTER_ID [--type T] [--config C]` ask the Shepherd to add an agent of
+		type T with JSON configuration C to the environment OUTER_ID,
+	`remove --id AGENT_ID` ask all Shepherds to remove agent AGENT_ID,
+	`remove --prefix ID` ask all Shepherds to remove agents "ID*",
+	`run [--id OUTER_ID]` start or resume one or all simulations,
+	`pause [--id OUTER_ID]` pause one or all simulations,
+	`divide --id AGENT_ID` ask a cell agent to divide,
+	`shutdown [--id OUTER_ID]` shut down one or all environment agents and their
+		 connected agents,
+	'chemotaxis-experiment [--number N] [--type T]` ask the Shepherd to run a
+		chemotaxis environment with N agents of type T
+	'endocrine-experiment [--number N] [--type T]` ask the Shepherd to run a
+		endocrine environment with N agents of type T'''
 
 		super(EnvironmentCommand, self).__init__(choices, description)
 
@@ -163,6 +171,24 @@ The commands are:
 		control = ShepherdControl({'kafka_config': self.kafka_config})
 		control.endocrine_experiment(args)
 		control.shutdown()
+
+
+	def add_arguments(self, parser):
+		parser = super(EnvironmentCommand, self).add_arguments(parser)
+
+		parser.add_argument(
+			'-m', '--media',
+			type=str,
+			default='minimal',
+			help='The environment media')
+
+		parser.add_argument(
+			'-t', '--timeline',
+			type=str,
+			# default='0 minimal',
+			help='The timeline')
+
+		return parser
 
 if __name__ == '__main__':
 	command = EnvironmentCommand()
