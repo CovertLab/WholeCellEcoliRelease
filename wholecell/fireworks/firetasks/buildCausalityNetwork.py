@@ -7,12 +7,10 @@ from __future__ import absolute_import, division, print_function
 import importlib
 import os
 import time
-import traceback
 
 from fireworks import FireTaskBase, explicit_serialize
 from models.ecoli.analysis.causality_network.build_network import BuildNetwork
 from models.ecoli.analysis.causality_network.network_components import NODELIST_FILENAME, NODELIST_JSON, DYNAMICS_FILENAME
-import models.ecoli.analysis.causality_network
 
 
 @explicit_serialize
@@ -29,6 +27,7 @@ class BuildCausalityNetworkTask(FireTaskBase):
 	optional_params = [
 		"output_filename_prefix",
 		"check_sanity",
+		"force_update",
 		]
 
 	READER_FILE_PATH = 'models.ecoli.analysis.causality_network.read_dynamics'
@@ -56,7 +55,7 @@ class BuildCausalityNetworkTask(FireTaskBase):
 
 		self["check_sanity"] = self.get("check_sanity", False)
 
-		if not os.path.isfile(self['node_list_file']):
+		if self.get("force_update", False) or not os.path.isfile(self['node_list_file']):
 			print("{}: Building causality network".format(time.ctime()))
 
 			causality_network = BuildNetwork(

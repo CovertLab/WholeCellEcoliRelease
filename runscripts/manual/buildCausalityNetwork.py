@@ -31,6 +31,8 @@ class BuildCausalityNetwork(AnalysisBase):
 				 ' a subdirectory name like "000000". Default = 0.')
 		parser.add_argument('--check_sanity', action='store_true',
 			help='Check network sanity.')
+		parser.add_argument('-f', '--force', action='store_true',
+			help='Forces a rebuild of the causality network if set.')
 
 	def parse_args(self):
 		args = super(BuildCausalityNetwork, self).parse_args()
@@ -67,6 +69,7 @@ class BuildCausalityNetwork(AnalysisBase):
 			check_sanity=args.check_sanity,
 			metadata=args.metadata,
 			output_filename_prefix=args.output_prefix,
+			force_update=args.force,
 			)
 		task.run_task({})
 
