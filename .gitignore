@@ -142,6 +142,9 @@ reconstruction/ecoli/dataclasses/process/two_component_system_odes_fitter.py
 # LaTeX compilation files #
 ###########################
 *.aux
+*.bbl
+*.blg
 *.fdb_latexmk
 *.fls
 *.synctex.gz
+
