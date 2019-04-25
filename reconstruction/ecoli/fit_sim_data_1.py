@@ -620,6 +620,7 @@ def expressionConverge(
 
 		initialExpression = expression.copy()
 		expression = setInitialRnaExpression(sim_data, expression, doubling_time)
+
 		bulkContainer = createBulkContainer(sim_data, expression, doubling_time)
 		avgCellDryMassInit, fitAvgSolubleTargetMolMass = rescaleMassForSolubleMetabolites(sim_data, bulkContainer, concDict, doubling_time)
 
@@ -987,6 +988,11 @@ def setInitialRnaExpression(sim_data, expression, doubling_time):
 
 	avgCellFractionMass = sim_data.mass.getFractionMass(doubling_time)
 
+	# Mask arrays for rRNAs
+	is_rRNA23S = sim_data.process.transcription.rnaData["isRRna23S"]
+	is_rRNA16S = sim_data.process.transcription.rnaData["isRRna16S"]
+	is_rRNA5S = sim_data.process.transcription.rnaData["isRRna5S"]
+
 	## Mass fractions
 	totalMass_rRNA23S = avgCellFractionMass["rRna23SMass"] / sim_data.mass.avgCellToInitialCellConvFactor
 	totalMass_rRNA16S = avgCellFractionMass["rRna16SMass"] / sim_data.mass.avgCellToInitialCellConvFactor
@@ -1003,9 +1009,57 @@ def setInitialRnaExpression(sim_data, expression, doubling_time):
 	individualMasses_mRNA = sim_data.process.transcription.rnaData["mw"][sim_data.process.transcription.rnaData["isMRna"]] / sim_data.constants.nAvogadro
 
 	## Molecule expression distributions
-	distribution_rRNA23S = np.array([1.] + [0.] * (ids_rRNA23S.size-1)) # all expression from first rRNA operon
-	distribution_rRNA16S = np.array([1.] + [0.] * (ids_rRNA16S.size-1)) # all expression from first rRNA operon
-	distribution_rRNA5S = np.array([1.] + [0.] * (ids_rRNA5S.size-1)) # all expression from first rRNA operon
+
+	# Get C period and D period lengths. These values are currently
+	# assumed to be constant regardless of growth rate.
+	c_period = sim_data.growthRateParameters.c_period.asNumber(units.min)
+	d_period = sim_data.growthRateParameters.d_period.asNumber(units.min)
+
+	# Get lengths of right and left replichores
+	right_replichore_length = sim_data.process.replication.replichore_lengths[0]
+	left_replichore_length = sim_data.process.replication.replichore_lengths[1]
+
+	# Get doubling time in minutes
+	tau = doubling_time.asNumber(units.min)
+
+	# Get replication coordinates of rRNA genes
+	coord_rRNA23S = sim_data.process.transcription.rnaData["replicationCoordinate"][is_rRNA23S]
+	coord_rRNA16S = sim_data.process.transcription.rnaData["replicationCoordinate"][is_rRNA16S]
+	coord_rRNA5S = sim_data.process.transcription.rnaData["replicationCoordinate"][is_rRNA5S]
+
+	def get_average_copy_number(coord):
+		"""
+		Calculates the average copy number of a gene throughout the cell cycle
+		given the location of the gene in coordinates.
+		"""
+		# Calculate the relative position of the gene along the choromosome
+		# from its coordinate
+		if coord > 0:
+			relative_pos = float(coord)/right_replichore_length
+		else:
+			relative_pos = -float(coord)/left_replichore_length
+
+		# Return the predicted average copy number
+		n_avg_copy = 2**(((1 - relative_pos)*c_period + d_period) / tau)
+		return n_avg_copy
+
+	# Get average copy numbers for all rRNA genes
+	n_avg_copy_rRNA23S = np.array([
+		get_average_copy_number(coord) for coord in coord_rRNA23S])
+	n_avg_copy_rRNA16S = np.array([
+		get_average_copy_number(coord) for coord in coord_rRNA16S])
+	n_avg_copy_rRNA5S = np.array([
+		get_average_copy_number(coord) for coord in coord_rRNA5S])
+
+	# For rRNAs it is assumed that all operons have the same per-copy
+	# transcription probabilities. Since the positions of the operons and thus
+	# the average copy numbers of each rRNA gene are different, the
+	# distribution is given as the normalized ratio of the average copy numbers
+	# of each rRNA gene.
+	distribution_rRNA23S = normalize(n_avg_copy_rRNA23S)
+	distribution_rRNA16S = normalize(n_avg_copy_rRNA16S)
+	distribution_rRNA5S = normalize(n_avg_copy_rRNA5S)
+
 	distribution_tRNA = normalize(sim_data.mass.getTrnaDistribution()['molar_ratio_to_16SrRNA'])
 	distribution_mRNA = normalize(expression[sim_data.process.transcription.rnaData['isMRna']])
 
@@ -1168,6 +1222,7 @@ def createBulkContainer(sim_data, expression, doubling_time):
 	"""
 
 	total_count_RNA, ids_rnas, distribution_RNA = totalCountIdDistributionRNA(sim_data, expression, doubling_time)
+
 	total_count_protein, ids_protein, distribution_protein = totalCountIdDistributionProtein(sim_data, expression, doubling_time)
 	ids_molecules = sim_data.internal_state.bulkMolecules.bulkData["id"]
 
@@ -2119,18 +2174,18 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		c_period = sim_data.growthRateParameters.c_period.asNumber(units.min)
 		d_period = sim_data.growthRateParameters.d_period.asNumber(units.min)
 
-		# Get lengths of forward and reverse sequences
-		forward_sequence_length = sim_data.process.replication.replichore_lengths[0]
-		reverse_sequence_length = sim_data.process.replication.replichore_lengths[1]
+		# Get lengths of right and left replichores
+		right_replichore_length = sim_data.process.replication.replichore_lengths[0]
+		left_replichore_length = sim_data.process.replication.replichore_lengths[1]
 
 		for idx, (rnaId, rnaCoordinate) in enumerate(
 				izip(sim_data.process.transcription.rnaData["id"],
 				sim_data.process.transcription.rnaData["replicationCoordinate"])):
 
 			if rnaCoordinate > 0:
-				relative_pos = float(rnaCoordinate)/forward_sequence_length
+				relative_pos = float(rnaCoordinate)/right_replichore_length
 			else:
-				relative_pos = float(-rnaCoordinate)/reverse_sequence_length
+				relative_pos = float(-rnaCoordinate)/left_replichore_length
 
 			rnaIdNoLoc = rnaId[:-3]  # Remove compartment ID from RNA ID
 
@@ -2608,9 +2663,9 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		c_period = sim_data.growthRateParameters.c_period.asNumber(units.min)
 		d_period = sim_data.growthRateParameters.d_period.asNumber(units.min)
 
-		# Get lengths of forward and reverse sequences
-		forward_sequence_length = sim_data.process.replication.replichore_lengths[0]
-		reverse_sequence_length = sim_data.process.replication.replichore_lengths[1]
+		# Get lengths of right and left replichores
+		right_replichore_length = sim_data.process.replication.replichore_lengths[0]
+		left_replichore_length = sim_data.process.replication.replichore_lengths[1]
 
 		# Get replication coordinates of each RNA
 		replicationCoordinate = sim_data.process.transcription.rnaData["replicationCoordinate"]
@@ -2623,9 +2678,9 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 			# Get coordinate of RNA
 			rnaCoordinate = replicationCoordinate[rna_idx]
 			if rnaCoordinate > 0:
-				relative_pos = float(rnaCoordinate)/forward_sequence_length
+				relative_pos = float(rnaCoordinate)/right_replichore_length
 			else:
-				relative_pos = float(-rnaCoordinate)/reverse_sequence_length
+				relative_pos = float(-rnaCoordinate)/left_replichore_length
 
 			# Get specific doubling time for this condition
 			tau = cellSpecs[condition]["doubling_time"].asNumber(units.min)

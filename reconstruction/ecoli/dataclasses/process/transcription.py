@@ -83,21 +83,31 @@ class Transcription(object):
 		mws = np.array([rna['mw'] for rna in raw_data.rnas]).sum(axis = 1)
 		geneIds = np.array([rna['geneId'] for rna in raw_data.rnas])
 
-		# Construct boolean arrays for rRNA types
+		# Construct boolean arrays and index arrays for each rRNA type
 		n_rnas = len(rnaIds)
-		is23S = np.zeros(n_rnas, dtype = np.bool)
-		is16S = np.zeros(n_rnas, dtype = np.bool)
-		is5S = np.zeros(n_rnas, dtype = np.bool)
+		is_23S = np.zeros(n_rnas, dtype = np.bool)
+		is_16S = np.zeros(n_rnas, dtype = np.bool)
+		is_5S = np.zeros(n_rnas, dtype = np.bool)
+		idx_23S = []
+		idx_16S = []
+		idx_5S = []
 
 		for rnaIndex, rna in enumerate(raw_data.rnas):
 			if rna["type"] == "rRNA" and rna["id"].startswith("RRL"):
-				is23S[rnaIndex] = True
+				is_23S[rnaIndex] = True
+				idx_23S.append(rnaIndex)
 
 			if rna["type"] == "rRNA" and rna["id"].startswith("RRS"):
-				is16S[rnaIndex] = True
+				is_16S[rnaIndex] = True
+				idx_16S.append(rnaIndex)
 
 			if rna["type"] == "rRNA" and rna["id"].startswith("RRF"):
-				is5S[rnaIndex] = True
+				is_5S[rnaIndex] = True
+				idx_5S.append(rnaIndex)
+
+		idx_23S = np.array(idx_23S)
+		idx_16S = np.array(idx_16S)
+		idx_5S = np.array(idx_5S)
 
 		# Load sequence data
 		sequences = [rna['seq'] for rna in raw_data.rnas]
@@ -137,6 +147,34 @@ class Transcription(object):
 		direction = [
 			(direction_list[gene_index[rna["id"]]] == "+")
 			for rna in raw_data.rnas]
+
+		# Set the lengths, nucleotide counts, molecular weights, and sequences
+		# of each type of rRNAs to be identical to those of the first rRNA
+		# operon. Later in the sim, transcription of all rRNA genes are set to
+		# produce the rRNAs of the first operon. This is done to simplify the
+		# complexation reactions that form ribosomes. In reality, all of these
+		# genes produce rRNA molecules with slightly different sequences and
+		# molecular weights.
+		rnaLens[idx_23S] = rnaLens[idx_23S[0]]
+		rnaLens[idx_16S] = rnaLens[idx_16S[0]]
+		rnaLens[idx_5S] = rnaLens[idx_5S[0]]
+
+		ntCounts[idx_23S, :] = ntCounts[idx_23S[0], :]
+		ntCounts[idx_16S, :] = ntCounts[idx_16S[0], :]
+		ntCounts[idx_5S, :] = ntCounts[idx_5S[0], :]
+
+		mws[idx_23S] = mws[idx_23S[0]]
+		mws[idx_16S] = mws[idx_16S[0]]
+		mws[idx_5S] = mws[idx_5S[0]]
+
+		for idx in idx_23S[1:]:
+			sequences[idx] = sequences[idx_23S[0]]
+
+		for idx in idx_16S[1:]:
+			sequences[idx] = sequences[idx_16S[0]]
+
+		for idx in idx_5S[1:]:
+			sequences[idx] = sequences[idx_5S[0]]
 
 		rnaData = np.zeros(
 			n_rnas,
@@ -178,9 +216,9 @@ class Transcription(object):
 		rnaData['isRnap'] = [
             "{}[c]".format(x) in sim_data.moleculeGroups.rnapIds
             for x in monomerIds]
-		rnaData['isRRna23S'] = is23S
-		rnaData['isRRna16S'] = is16S
-		rnaData['isRRna5S'] = is5S
+		rnaData['isRRna23S'] = is_23S
+		rnaData['isRRna16S'] = is_16S
+		rnaData['isRRna5S'] = is_5S
 		rnaData['sequence'] = sequences
 		rnaData['geneId'] = geneIds
 		rnaData['KmEndoRNase'] = Km

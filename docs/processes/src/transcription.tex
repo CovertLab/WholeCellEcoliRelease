@@ -19,6 +19,9 @@ Transcription occurs through the action of two processes in the model: \texttt{T
 
 \texttt{TranscriptElongation} models nucleotide polymerization into RNA molecules by RNA polymerases. Polymerization occurs across all polymerases simultaneously and resources are allocated to maximize the progress of all polymerases up to the limit of the expected polymerase elongation rate and available nucleotides. The termination of RNA elongation occurs once a RNA polymerase has reached the end of the annotated gene. Details are in Algorithm \ref{transcript_elongation_algorithm}.
 
+\subparagraph{Model assumptions.}
+The \emph{E. coli} genome contains seven copies of the rRNA operon, and all seven copies contribute to the transcription of ribosomal RNAs. The sequences of the rRNA genes in these operons are known to be slightly different from one another, but it is unclear whether these small differences in sequence lead to significant functional differences between these molecules \cite{maeda2015strength}. In our model, we make the assumption that all seven rRNA operons produce rRNAs that have sequences identical to rRNAs from the \emph{rrnA} operon, such that there is only a single representation for each type of rRNA molecule (23S, 16S, 5S) inside the model. This significantly simplifies the modeling of the complexation reactions that produce the ribosomal subunits, as we do not need to consider all combinations of rRNAs that may be complexed together to form distinct ribosomal subunits.
+
 
 \subparagraph{Difference from \emph{M. genitalium} model.}
 The \emph{M. genitalium} model modeled RNA polymerase as existing in 4 states: free, non-specifically bound on a chromosome, bound to a promoter, and actively transcribing a gene. The \emph{E. coli} model simplifies this by assuming RNA polymerase exists in two states: free and actively transcribing. Every time step, free RNA polymerase transitions to the actively transcribing state to maintain an experimentally-observed active fraction of RNA polymerase. The \emph{E. coli} model does not yet include sigma, elongation or termination factors. The \textit{E. coli} model also currently treats each gene as its own transcription unit.\\
@@ -143,6 +146,6 @@ The \emph{M. genitalium} model modeled RNA polymerase as existing in 4 states: f
 
 \label{sec:references}
 \bibliographystyle{plain}
-\bibliography{supp_bib}
+\bibliography{references}
 
 \end{document}

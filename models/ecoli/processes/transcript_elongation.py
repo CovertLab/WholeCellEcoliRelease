@@ -55,6 +55,11 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
 			units.nt / units.s)))
 
+		# ID Groups of rRNAs
+		self.idx_16Srrna = np.where(sim_data.process.transcription.rnaData['isRRna16S'])[0]
+		self.idx_23Srrna = np.where(sim_data.process.transcription.rnaData['isRRna23S'])[0]
+		self.idx_5Srrna = np.where(sim_data.process.transcription.rnaData['isRRna5S'])[0]
+
 		# Views
 		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
 		self.bulkRnas = self.bulkMoleculesView(self.rnaIds)
@@ -244,6 +249,21 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		terminatedRnas = np.bincount(
 			TU_indexes[didTerminate], minlength = self.rnaSequences.shape[0])
 
+		# Assume transcription from all rRNA genes produce rRNAs from the first
+		# operon. This is done to simplify the complexation reactions that
+		# produce ribosomal subunits.
+		n_total_16Srrna = terminatedRnas[self.idx_16Srrna].sum()
+		n_total_23Srrna = terminatedRnas[self.idx_23Srrna].sum()
+		n_total_5Srrna = terminatedRnas[self.idx_5Srrna].sum()
+
+		terminatedRnas[self.idx_16Srrna] = 0
+		terminatedRnas[self.idx_23Srrna] = 0
+		terminatedRnas[self.idx_5Srrna] = 0
+
+		terminatedRnas[self.idx_16Srrna[0]] = n_total_16Srrna
+		terminatedRnas[self.idx_23Srrna[0]] = n_total_23Srrna
+		terminatedRnas[self.idx_5Srrna[0]] = n_total_5Srrna
+
 		# Remove polymerases that have finished transcription from unique
 		# molecules
 		activeRnaPolys.delByIndexes(np.where(didTerminate)[0])
@@ -254,7 +274,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		# Update bulk molecule counts
 		self.ntps.countsDec(ntpsUsed)
-		self.bulkRnas.countsIs(terminatedRnas)
+		self.bulkRnas.countsInc(terminatedRnas)
 		self.inactiveRnaPolys.countInc(nTerminated)
 		self.ppi.countInc(nElongations - nInitialized)
 
