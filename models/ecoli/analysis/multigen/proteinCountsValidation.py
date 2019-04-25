@@ -23,6 +23,7 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
 
+LOW_COUNT_THRESHOLD = 30
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
@@ -95,21 +96,50 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			view_validation_schmidt = bulkContainer.countsView(validation_data.protein.schmidt2015Data["monomerId"].tolist())
 			View_Validation_Schmidt.append(view_validation_schmidt.counts())
 
-		View_Validation_Schmidt = (np.array(View_Validation_Schmidt)).mean(axis = 0)
+		simulation_counts = (np.array(View_Validation_Schmidt)).mean(axis = 0)
 
 		# Schmidt Counts
 		schmidtLabels = validation_data.protein.schmidt2015Data["monomerId"]
-		schmidtCounts = validation_data.protein.schmidt2015Data["glucoseCounts"]
+		schmidt_counts = validation_data.protein.schmidt2015Data["glucoseCounts"]
+
+		# Set up mask for proteins with low counts
+		low_count_mask = schmidt_counts < LOW_COUNT_THRESHOLD
+		n_low_count = low_count_mask.sum()
+		n_high_count = schmidt_counts.size - n_low_count
+		
+		# Take logs
+		schmidt_counts_log = np.log10(schmidt_counts + 1)
+		simulation_counts_log = np.log10(simulation_counts + 1)
+
+		# Compute deviations
+		deviation_log = np.log10(np.abs(simulation_counts - schmidt_counts))
 
 		axis = plt.subplot(1,1,1)
 
-		axis.plot(np.log10(schmidtCounts + 1), np.log10(View_Validation_Schmidt + 1), 'o', color = "black", markersize = 6, alpha = 0.1, zorder = 1, markeredgewidth = 0.0)
-		# print pearsonr( np.log10(View_Validation_Schmidt + 1), np.log10(schmidtCounts + 1) )[0]
+		axis.plot(schmidt_counts_log, simulation_counts_log, 'o', color = "black", markersize = 6, alpha = 0.1, zorder = 1, markeredgewidth = 0.0)
+		print("R^2 (all proteins) = %.3f (n = %d)" % (
+			(pearsonr(simulation_counts_log, schmidt_counts_log)[0])**2,
+			schmidt_counts.size
+			))
+		print("R^2 (low-abundance proteins) = %.3f (n = %d)" % (
+			(pearsonr(simulation_counts_log[low_count_mask],
+				schmidt_counts_log[low_count_mask])[0])**2,
+			n_low_count
+			))
+		print("R^2 (high-abundance proteins) = %.3f (n = %d)" % (
+			(pearsonr(simulation_counts_log[~low_count_mask],
+				schmidt_counts_log[~low_count_mask])[0])**2,
+			n_high_count
+			))
+		
+		print("Average log deviation (low-abundance proteins) = %.3f" % (
+			deviation_log[low_count_mask].mean()))
+		print("Average log deviation (high-abundance proteins) = %.3f" % (
+			deviation_log[~low_count_mask].mean()))
 
 		maxLine = np.ceil(
-						max((np.log10(schmidtCounts + 1)).max(),
-						(np.log10(View_Validation_Schmidt + 1)).max())
-					)
+			max(schmidt_counts_log.max(), simulation_counts_log.max())
+			)
 		plt.plot([0, maxLine], [0, maxLine], '-k')
 
 		plt.xlim(xmin=0, xmax=maxLine)
