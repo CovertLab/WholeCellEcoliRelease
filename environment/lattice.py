@@ -97,10 +97,11 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		self.rotation_jitter = config.get('rotation_jitter', 0.05)
 		self.depth = config.get('depth', 3000.0)
 		self.timeline = config.get('timeline')
-		self.media_id = config.get('media_id')
-		self._times = [t[0] for t in self.timeline]
+		self.media_id = config.get('media_id', 'minimal')
+		if self.timeline:
+			self._times = [t[0] for t in self.timeline]
 
-		# make media object
+		# make media object for making new media
 		self.make_media = Media()
 
 		# derived parameters
@@ -117,16 +118,12 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		self.motile_forces = {}	# map of agent_id to motile force, with magnitude and relative orientation
 
 		self.grid = Grid([self.edge_length, self.edge_length], 0.1)
-
 		self._molecule_ids = config['concentrations'].keys()
 		self.concentrations = config['concentrations'].values()
 		self.molecule_index = {molecule: index for index, molecule in enumerate(self._molecule_ids)}
 
-		# Create lattice and fill each site with concentrations dictionary
-		# Molecule identities are defined along the major axis, with spatial dimensions along the other two axes.
-		self.lattice = np.empty([len(self._molecule_ids)] + [self.patches_per_edge for dim in xrange(N_DIMS)], dtype=np.float64)
-		for index, molecule in enumerate(self._molecule_ids):
-			self.lattice[index].fill(self.concentrations[index])
+		# fill all lattice patches with concentrations from self.concentrations
+		self.fill_lattice()
 
 		# Add gradient
 		if self.gradient['seed']:
@@ -150,6 +147,13 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 			plt.axis('off')
 			plt.pause(0.0001)
 
+	def fill_lattice(self):
+		# Create lattice and fill each site with concentrations dictionary
+		# Molecule identities are defined along the major axis, with spatial dimensions along the other two axes.
+		self.lattice = np.empty([len(self._molecule_ids)] + [self.patches_per_edge for dim in xrange(N_DIMS)], dtype=np.float64)
+		for index, molecule in enumerate(self._molecule_ids):
+			self.lattice[index].fill(self.concentrations[index])
+
 	def gaussian(self, deviation, distance):
 		return np.exp(-np.power(distance, 2.) / (2 * np.power(deviation, 2.)))
 
@@ -162,17 +166,22 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		if not self.static_concentrations:
 			self.run_diffusion()
 
+		# make sure all patches have concentrations of 0 or higher
+		self.lattice[self.lattice < 0.0] = 0.0
+
 	def update_media(self):
-		current_index = [i for i, t in enumerate(self._times) if self.time() >= t][-1]
-		if self.media_id != self.timeline[current_index][1]:
-			self.media_id = self.timeline[current_index][1]
+		if self.timeline:
+			current_index = [i for i, t in enumerate(self._times) if self.time() >= t][-1]
+			if self.media_id != self.timeline[current_index][1]:
+				self.media_id = self.timeline[current_index][1]
 
-			# make new_media
-			new_media = self.make_media.make_recipe(self.media_id)
+				# make new_media
+				new_media = self.make_media.make_recipe(self.media_id)
 
-			# update concentrations
-			self._molecule_ids = new_media.keys()
-			self.concentrations = new_media.values()
+				# update the lattice
+				self._molecule_ids = new_media.keys()
+				self.concentrations = new_media.values()
+				self.fill_lattice()
 
 	def update_locations(self):
 		''' Update location for all agent_ids '''
