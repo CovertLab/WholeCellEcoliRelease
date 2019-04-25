@@ -31,6 +31,7 @@ REQUIRED_COLUMNS = [
 	("ComplexationListener", "complexationEvents"),
 	("EquilibriumListener", "reactionRates"),
 	("FBAResults", "reactionFluxes"),
+	("GrowthLimits", "net_charged"),
 	("Mass", "cellMass"),
 	("Mass", "dryMass"),
 	("Main", "time"),
@@ -109,6 +110,10 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 
 		tf_ids = sim_data.process.transcription_regulation.tf_ids
 		indexes["TranscriptionFactors"] = build_index_dict(tf_ids)
+
+		rna_ids = sim_data.process.transcription.rnaData["id"]
+		trna_ids = rna_ids[sim_data.process.transcription.rnaData["isTRna"]]
+		indexes["Charging"] = build_index_dict(trna_ids)
 
 		# Cache cell volume array (used for calculating concentrations)
 		volume = ((1.0 / sim_data.constants.cellDensity) * (
@@ -388,6 +393,24 @@ def read_regulation_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	node.read_dynamics(dynamics, dynamics_units)
 
 
+def read_charging_dynamics(sim_data, node, node_id, columns, indexes, volume):
+	"""
+	Reads dynamics data for charging nodes from a simulation output.
+	"""
+
+	rna = '{}[c]'.format(node_id.split(' ')[0])
+	rna_idx = indexes["Charging"][rna]
+
+	dynamics = {
+		'reaction rate': columns[("GrowthLimits", "net_charged")][:, rna_idx]
+		}
+	dynamics_units = {
+		'reaction rate': 'rxns/s',
+		}
+
+	node.read_dynamics(dynamics, dynamics_units)
+
+
 TYPE_TO_READER_FUNCTION = {
 	"Global": read_global_dynamics,
 	"Gene": read_gene_dynamics,
@@ -401,6 +424,7 @@ TYPE_TO_READER_FUNCTION = {
 	"Equilibrium": read_equilibrium_dynamics,
 	"Metabolism": read_metabolism_dynamics,
 	"Regulation": read_regulation_dynamics,
+	"Charging": read_charging_dynamics,
 	}
 
 

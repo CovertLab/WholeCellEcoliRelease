@@ -643,6 +643,48 @@ class BuildNetwork(object):
 					self._append_edge("Metabolism", metabolite, reaction_id,
 						stoich)
 
+		# Add specific charging reactions
+		# TODO (Travis): add charged/uncharged tRNA as RNA not metabolites?
+		transcription = self.sim_data.process.transcription
+		uncharged_trnas = transcription.rnaData['id'][transcription.rnaData['isTRna']]
+		charging_stoich = transcription.charging_stoich_matrix().T
+		charging_molecules = np.array(transcription.charging_molecules)
+		synthetases = np.array(transcription.synthetase_names)
+		trna_to_synthetase = transcription.aa_from_trna.T.dot(transcription.aa_from_synthetase)
+		for stoich, trna, synth_idx in zip(charging_stoich, uncharged_trnas, trna_to_synthetase):
+			rxn = '{} net charging'.format(trna[:-3])
+
+			charging_node = Node()
+			attr = {
+				'node_class': 'Process',
+				'node_type': 'Charging',
+				'node_id': rxn,
+				'name': rxn,
+				'location': molecule_compartment(trna),
+				}
+			charging_node.read_attributes(**attr)
+
+			# Append node to node_list
+			self.node_list.append(charging_node)
+
+			for synthetase in synthetases[synth_idx != 0]:
+				self._append_edge("Charging", synthetase, rxn, 1)
+
+			# Loop through all metabolites participating in the reaction
+			mol_idx = np.where(stoich != 0)[0]
+			for mol, direction in zip(charging_molecules[mol_idx], stoich[mol_idx]):
+				# Add metabolites that were not encountered
+				if mol not in metabolite_ids:
+					metabolite_ids.append(mol)
+
+				# Add Charging edges
+				# Note: the direction of the edge is determined by the sign of the
+				# stoichiometric coefficient.
+				if direction > 0:
+					self._append_edge("Charging", rxn, mol, direction)
+				else:
+					self._append_edge("Charging", mol, rxn, direction)
+
 		# Loop through all metabolites
 		for metabolite_id in metabolite_ids:
 			# Skip proteins - they should have already been added
