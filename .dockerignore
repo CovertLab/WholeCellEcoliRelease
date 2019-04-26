@@ -1,4 +1,5 @@
 .git*
+.gcloudignore
 /.idea
 /docs
 /user

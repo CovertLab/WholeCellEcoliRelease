@@ -126,8 +126,8 @@ class RunSimulation(scriptBase.ScriptBase):
 
 		# Write the metadata file.
 		metadata = {
-			"git_hash":           fp.run_cmdline("git rev-parse HEAD") or 'container',
-			"git_branch":         fp.run_cmdline("git symbolic-ref --short HEAD") or 'container',
+			"git_hash":           fp.run_cmdline("git rev-parse HEAD") or '--',
+			"git_branch":         fp.run_cmdline("git symbolic-ref --short HEAD") or '--',
 			"description":        "a manual run",
 			"time":               fp.timestamp(),
 			"total_gens":         args.generations,

@@ -1,20 +1,28 @@
-# If you have docker installed, you can build this image with the following command:
+# Container image #2: wcm-code.
+# This Dockerfile builds a container image with the wcEcoli whole cell model
+# code, layered on the wcm-runtime container image.
 #
-#     > docker build -t wholecell -f cloud/docker/wholecell/Dockerfile .
+# To build locally from the wcEcoli/ project root directory:
 #
-# Then you can create a new container from this image with the following command:
+#     > docker build -f cloud/docker/wholecell/Dockerfile -t wcm-code .
 #
-#     > docker run --name wholecelltest -it -d wholecell
+# (If you want to build container image #3 on top of the locally-built base,
+# you'll have to edit that Dockerfile or upload this image.)
 #
-# Once the container exists you can `exec` it to get a shell inside:
+# To build using the Cloud Build service and store in the Container Registry,
+# from the wcEcoli/ project root directory:
 #
-#     > docker exec -it wholecelltest /bin/sh
+#     > gcloud builds submit --timeout=15m --config config-build-2-wcm-code.json
 #
-# You will be dropped into an `sh` shell where you can execute commands:
+# After building locally you can start up a new container from the image:
+#
+#     > docker run --name wholecelltest -it wcm-code
+#
+# It will start a shell where you can execute commands:
 #
 #     # nosetests
 #
-# If this succeeds you should be good to go. Next, run the Parca:
+# If this succeeds you should be good to go, e.g.:
 #
 #     # python runscripts/manual/runParca.py
 
@@ -26,3 +34,5 @@ WORKDIR /wcEcoli
 
 RUN make clean compile
 ENV PYTHONPATH=/wcEcoli
+
+CMD ["/bin/bash"]

@@ -62,7 +62,7 @@ This page goes through the Python environment setup steps in more detail and wit
         WARNING: The Python readline extension was not compiled. Missing the GNU readline lib?
         WARNING: The Python sqlite3 extension was not compiled. Missing the SQLite3 lib?
 
-2. Install the required version of Python via `pyenv`, and _remember to enable it as a shared library_:
+2. Install the required version of Python via `pyenv`, and _remember to enable it as a shared library_ so Theano can call into it:
 
    ```bash
    PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.15
