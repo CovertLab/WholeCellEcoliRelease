@@ -53,36 +53,6 @@ class ShepherdControl(AgentControl):
 				'working_dir': args['working_dir'],
 				'seed': index})
 
-	def endocrine_experiment(self, args):
-		lattice_id = str(uuid.uuid1())
-		num_cells = args['number']
-		print('Creating lattice agent_id {} and {} cell agents\n'.format(
-			lattice_id, num_cells))
-
-		media_id = 'GLC'
-		media = {'GLC': 20.0, 'signal': 0.0}
-
-		endocrine_config = {
-			'run_for' : 1.0,
-			# 'static_concentrations': True,
-			# 'gradient': {'seed': True},
-			'diffusion': 0.05,
-			'translation_jitter': 0.01,
-			'rotation_jitter': 0.1,
-			'edge_length': 10.0,
-			'patches_per_edge': 10,
-			'media_id': media_id,
-			'media': media}
-		self.add_agent(lattice_id, 'lattice', endocrine_config)
-
-		# give lattice time before adding the cells
-		time.sleep(15)
-
-		for index in range(num_cells):
-			self.add_cell(args['type'] or 'endocrine', {
-				'outer_id': lattice_id,
-				'seed': index})
-
 	def chemotaxis_experiment(self, args):
 		lattice_id = str(uuid.uuid1())
 		num_cells = args['number']
@@ -119,7 +89,37 @@ class ShepherdControl(AgentControl):
 		time.sleep(15)
 
 		for index in range(num_cells):
-			self.add_cell(args['type'] or 'chemotaxis', {
+			self.add_cell(args['type'] or 'chemotaxis', {  # TODO (Eran) default type does not seem to be working
+				'outer_id': lattice_id,
+				'seed': index})
+
+	def endocrine_experiment(self, args):
+		lattice_id = str(uuid.uuid1())
+		num_cells = args['number']
+		print('Creating lattice agent_id {} and {} cell agents\n'.format(
+			lattice_id, num_cells))
+
+		media_id = 'endocrine_signal'
+		media = {'signal': 0.0}
+
+		endocrine_config = {
+			'run_for' : 1.0,
+			# 'static_concentrations': True,
+			# 'gradient': {'seed': True},
+			'diffusion': 0.05,
+			'translation_jitter': 0.01,
+			'rotation_jitter': 0.1,
+			'edge_length': 10.0,
+			'patches_per_edge': 10,
+			'media_id': media_id,
+			'media': media}
+		self.add_agent(lattice_id, 'lattice', endocrine_config)
+
+		# give lattice time before adding the cells
+		time.sleep(15)
+
+		for index in range(num_cells):
+			self.add_cell(args['type'] or 'endocrine', {  # TODO (Eran) default type does not seem to be working
 				'outer_id': lattice_id,
 				'seed': index})
 

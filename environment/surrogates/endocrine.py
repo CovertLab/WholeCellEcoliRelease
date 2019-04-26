@@ -21,8 +21,8 @@ def subtract_lists(list1, list2):
 class Endocrine(CellSimulation):
 	''' Endocrine Surrogate '''
 
-	def __init__(self):
-		self.initial_time = 0.0
+	def __init__(self, state):
+		self.initial_time = state.get('time', 0.0)
 		self.local_time = 0.0
 		# self.timestep = 1.0
 		self.environment_change = {}
@@ -85,7 +85,7 @@ class Endocrine(CellSimulation):
 		# self.check_division()
 		self.local_time = run_until
 
-		time.sleep(0.2)  # pause for better coordination with Lens visualization. TODO: remove this
+		time.sleep(1)  # pause for better coordination with Lens visualization. TODO: remove this
 
 	def generate_inner_update(self):
 		return {
@@ -95,7 +95,3 @@ class Endocrine(CellSimulation):
 			'division': self.division,
 			'color': self.color,
 			}
-
-	def synchronize_state(self, state):
-		if 'time' in state:
-			self.initial_time = state['time']

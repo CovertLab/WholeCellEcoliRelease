@@ -5,6 +5,7 @@ import math
 import uuid
 import numpy as np
 import os
+import time
 
 import agent.event as event
 from agent.agent import Agent
@@ -137,13 +138,21 @@ class Outer(Agent):
 
 		self.update_state()
 
-	def initialize(self):
+	def preinitialize(self):
 		print('environment started')
 
 	def finalize(self):
 		print('environment shutting down')
 
-	def cell_declare(self, message):
+	def cell_update(self, message):
+		'''
+		Here we compare the simulation's time to our environment's time to see if these need to be
+		synchronized. Next, we notify our environment simulation of the new cell simulation. Then we
+		check to see if the new simulation is a daughter cell, in which case we notify the environment
+		of its parent state so that it can inherit properties tracked by the environment (such as
+		location and orientation).
+		'''
+
 		inner_id = message['inner_id']
 
 		simulation_time = self.environment.time()
@@ -175,24 +184,37 @@ class Outer(Agent):
 
 		self.update_state()
 
+	def cell_declare(self, message):
+		'''
+		Synchronize the inner agent with any pertinent state, and trigger its initialization.
+
+		After receiving a CELL_DECLARE message, this function sends an ENVIRONMENT_SYNCHRONIZE
+		message to the inner agent to trigger its initialization. The ENVIRONMENT_SYNCHRONIZE
+		message includes 'state', which can include variable needed for the cell's initialization.
+		'''
+
+		self.cell_update(message)
+		inner_id = message['inner_id']
+
+		# synchronize state of the new cell
+		parameters = self.environment.simulation_parameters(inner_id)
+		self.send(self.topics['cell_receive'], {
+			'event': event.ENVIRONMENT_SYNCHRONIZE,
+			'inner_id': inner_id,
+			'outer_id': self.agent_id,
+			'state': parameters})
+
 	def cell_initialize(self, message):
 		"""
-		Handle the initialization of a new cell simulation.
+		Prepares the initialization of a new cell simulation.
 
-		A variety of tasks are performed when a new cell simulation is created. First, we compare
-		the simulation's time to our environment's time to see if these need to be synchronized.
-		Next, we notify our environment simulation of the new cell simulation. Then we check to see
-		if the new simulation is a daughter cell, in which case we notify the environment of its
-		parent state so that it can inherit properties tracked by the environment (such as location
-		and orientation). Then we send the synchronization message to the inner agent so that the 
-		cell can be updated about any pertinent environmental state. After that we call
-		`update_state` so that subclasses can perform whatever operation they need to perform when
-		the state of the simulation changes (such as sending state notifications to listening
-		visualizations). Finally, the outer agent is advanced if all associated inner agents are
-		ready to advance.
+		First, update the cell  so that subclasses can perform whatever operation they need to
+		perform when the state of the simulation changes (such as sending state notifications to
+		listening visualizations). Finally, the outer agent is advanced if all associated inner
+		agents are ready to advance.
 		"""
 
-		self.cell_declare(message)
+		self.cell_update(message)
 
 		inner_id = message['inner_id']
 		simulation = self.simulations[inner_id]
@@ -202,13 +224,6 @@ class Outer(Agent):
 		simulation.update({
 			'message_id': -1,
 			'last_message_id': -1})
-
-		parameters = self.environment.simulation_parameters(inner_id)
-		self.send(self.topics['cell_receive'], {
-			'event': event.ENVIRONMENT_SYNCHRONIZE,
-			'inner_id': inner_id,
-			'outer_id': self.agent_id,
-			'state': parameters})
 
 		self.advance()
 

@@ -19,10 +19,11 @@ class Chemotaxis(CellSimulation):
 	Bray, Dennis, Robert B. Bourret, and Melvin I. Simon. "Computer simulation of the phosphorylation cascade controlling bacterial chemotaxis." Molecular Biology of the Cell (1993)
 	'''
 
-	def __init__(self):
-		self.initial_time = 0.0
+	def __init__(self, state):
+		self.initial_time = state.get('time', 0.0)
 		self.local_time = 0.0
 		# self.timestep = 1.0
+
 		self.environment_change = {}
 		self.volume = 1.0
 		self.division_time = 100
@@ -102,7 +103,3 @@ class Chemotaxis(CellSimulation):
 			'division': self.division,
 			'color': DEFAULT_COLOR,
 			}
-
-	def synchronize_state(self, state):
-		if 'time' in state:
-			self.initial_time = state['time']

@@ -107,7 +107,7 @@ class Agent(object):
 				'default.topic.config': {
 					'auto.offset.reset': 'latest'}})
 
-	def initialize(self):
+	def preinitialize(self):
 		"""
 		Initialize the Agent in the system.
 
@@ -129,7 +129,7 @@ class Agent(object):
 
 			self.poll()
 		else:
-			self.initialize()
+			self.preinitialize()
 			self.initialized = True
 
 	def poll(self):
@@ -150,7 +150,7 @@ class Agent(object):
 			# immediate responses to initialization sends. If `poll` is not called before an
 			# initialization message is sent then an immediate response could be missed.
 			if not self.initialized:
-				self.initialize()
+				self.preinitialize()
 				self.initialized = True
 
 			if raw is None:

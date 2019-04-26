@@ -12,9 +12,6 @@ class CellSimulation(object):
 	def time(self):
 		"""Return the current time according to this CellSimulation."""
 
-	def synchronize_state(self, state):
-		"""Synchronize the cell's clock to the environment."""
-
 	def apply_outer_update(self, update):
 		"""Apply the update received from the environment to this simulation."""
 
@@ -51,7 +48,7 @@ class Inner(Agent):
 	an environmental simulation.
 	"""
 
-	def __init__(self, agent_id, outer_id, agent_type, agent_config, simulation):
+	def __init__(self, agent_id, outer_id, agent_type, agent_config, boot_config, sim_initialize):
 		"""
 		Construct the agent.
 
@@ -79,6 +76,9 @@ class Inner(Agent):
 		        calculations.
 		"""
 
+		self.sim_initialize = sim_initialize
+		self.boot_config = boot_config
+
 		kafka_config = agent_config['kafka_config']
 		kafka_config['subscribe'].append(
 			kafka_config['topics']['cell_receive'])
@@ -86,13 +86,21 @@ class Inner(Agent):
 		super(Inner, self).__init__(agent_id, agent_type, agent_config)
 
 		self.outer_id = outer_id
-		self.simulation = simulation
 
-	def initialize(self):
+	def preinitialize(self):
+		kafka_config = self.agent_config['kafka_config']
+		state = self.agent_config['state']
+		self.send(kafka_config['topics']['environment_receive'], {
+			'event': event.CELL_DECLARE,
+			'agent_id': self.outer_id,
+			'inner_id': self.agent_id,
+			'agent_config': self.agent_config,
+			'state': state})
+
+	def send_initialize(self):
 		"""
 		Initialization: Register this inner agent with the outer agent.
 		"""
-
 		now = self.simulation.time()
 		state = self.simulation.generate_inner_update()
 
@@ -221,7 +229,8 @@ class Inner(Agent):
 			message_event = message['event']
 
 			if message_event == event.ENVIRONMENT_SYNCHRONIZE:
-				self.simulation.synchronize_state(message['state'])
+				self.simulation = self.sim_initialize(self.boot_config, message['state'])
+				self.send_initialize()
 
 			elif message_event == event.ENVIRONMENT_UPDATE:
 				self.environment_update(message)
