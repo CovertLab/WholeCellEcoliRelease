@@ -12,6 +12,7 @@ from agent.boot import BootAgent
 from environment.lattice import EnvironmentSpatialLattice
 from environment.surrogates.chemotaxis import Chemotaxis
 from environment.surrogates.endocrine import Endocrine
+from environment.surrogates.transport_lookup_minimal import TransportMinimal
 from models.ecoli.sim.simulation import ecoli_simulation
 from environment.condition.make_media import Media
 
@@ -65,18 +66,11 @@ def boot_lattice(agent_id, agent_type, agent_config):
 
 	return EnvironmentAgent(agent_id, agent_type, agent_config, environment)
 
+# wcEcoli initialize and boot
 def initialize_ecoli(boot_config, synchronize_config):
 	synchronize_config['initialTime'] = synchronize_config.pop('time')
 	boot_config.update(synchronize_config)
 	return ecoli_simulation(**boot_config)
-
-def initialize_chemotaxis(boot_config, synchronize_config):
-	boot_config.update(synchronize_config)
-	return Chemotaxis(boot_config)
-
-def initialize_endocrine(boot_config, synchronize_config):
-	boot_config.update(synchronize_config)
-	return Endocrine(boot_config)
 
 def boot_ecoli(agent_id, agent_type, agent_config):
 	'''
@@ -178,6 +172,11 @@ def boot_ecoli(agent_id, agent_type, agent_config):
 
 	return inner
 
+# Chemotaxis surrogate initialize and boot
+def initialize_chemotaxis(boot_config, synchronize_config):
+	boot_config.update(synchronize_config)
+	return Chemotaxis(boot_config)
+
 def boot_chemotaxis(agent_id, agent_type, agent_config):
 	agent_id = agent_id
 	outer_id = agent_config['outer_id']
@@ -199,6 +198,10 @@ def boot_chemotaxis(agent_id, agent_type, agent_config):
 
 	return inner
 
+# Endocrine surrogate initialize and boot
+def initialize_endocrine(boot_config, synchronize_config):
+	boot_config.update(synchronize_config)
+	return Endocrine(boot_config)
 
 def boot_endocrine(agent_id, agent_type, agent_config):
 	agent_id = agent_id
@@ -221,6 +224,32 @@ def boot_endocrine(agent_id, agent_type, agent_config):
 
 	return inner
 
+# Transport lookup minimal surrogate initialize and boot
+def initialize_transport_minimal(boot_config, synchronize_config):
+	boot_config.update(synchronize_config)
+	return TransportMinimal(boot_config)
+
+def boot_transport_minimal(agent_id, agent_type, agent_config):
+	agent_id = agent_id
+	outer_id = agent_config['outer_id']
+
+	# initialize state and options
+	state = {
+		'volume': 1.0,
+		'environment_change': {}}
+	agent_config['state'] = state
+	options = {}
+
+	inner = Inner(
+		agent_id,
+		outer_id,
+		agent_type,
+		agent_config,
+		options,
+		initialize_transport_minimal)
+
+	return inner
+
 
 class BootEnvironment(BootAgent):
 	def __init__(self):
@@ -230,6 +259,7 @@ class BootEnvironment(BootAgent):
 			'ecoli': boot_ecoli,
 			'chemotaxis': boot_chemotaxis,
 			'endocrine': boot_endocrine,
+			'transport_minimal': boot_transport_minimal,
 			}
 
 if __name__ == '__main__':

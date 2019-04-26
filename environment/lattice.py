@@ -16,28 +16,15 @@ A two-dimensional lattice environmental model
 """
 
 from __future__ import absolute_import, division, print_function
-import os
 
 import numpy as np
 from scipy import constants
 from scipy.ndimage import convolve
 
-animating = 'ENVIRONMENT_ANIMATION' in os.environ
-
-# Turn off interactive plotting when running on sherlock
-if animating:
-	import matplotlib
-	matplotlib.use('TKAgg')
-	import matplotlib.pyplot as plt
-
 from environment.condition.make_media import Media
 from agent.outer import EnvironmentSimulation
 from environment.collision.grid import Grid, Rectangle
 from environment.collision.volume_exclusion import volume_exclusion
-
-if animating:
-	plt.ion()
-	fig = plt.figure()
 
 # Constants
 N_AVOGADRO = constants.N_A
@@ -48,6 +35,11 @@ N_DIMS = 2
 
 # laplacian kernel for diffusion
 LAPLACIAN_2D = np.array([[0.0, 1.0, 0.0], [1.0, -4.0, 1.0], [0.0, 1.0, 0.0]])
+
+
+def gaussian(deviation, distance):
+	return np.exp(-np.power(distance, 2.) / (2 * np.power(deviation, 2.)))
+
 
 # these are the molecules that will show a difference in gradient for minimal media:
 # --------------------------------------------------
@@ -118,12 +110,13 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		self.motile_forces = {}	# map of agent_id to motile force, with magnitude and relative orientation
 
 		self.grid = Grid([self.edge_length, self.edge_length], 0.1)
+		media = config['concentrations']
 		self._molecule_ids = config['concentrations'].keys()
 		self.concentrations = config['concentrations'].values()
 		self.molecule_index = {molecule: index for index, molecule in enumerate(self._molecule_ids)}
 
 		# fill all lattice patches with concentrations from self.concentrations
-		self.fill_lattice()
+		self.fill_lattice(media)
 
 		# Add gradient
 		if self.gradient['seed']:
@@ -136,30 +129,13 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 						dx = (x_patch + 0.5) * self.edge_length / self.patches_per_edge - center[0]
 						dy = (y_patch + 0.5) * self.edge_length / self.patches_per_edge - center[1]
 						distance = np.sqrt(dx ** 2 + dy ** 2)
-						scale = self.gaussian(deviation, distance)
+						scale = gaussian(deviation, distance)
 						# multiply glucose gradient by scale
 						self.lattice[self._molecule_ids.index(molecule_id)][x_patch][y_patch] *= scale
 
-		if animating:
-			glucose_lattice = self.lattice[self.molecule_index['GLC']]
-			plt.imshow(glucose_lattice, vmin=0, vmax=25, cmap='YlGn')
-			plt.colorbar()
-			plt.axis('off')
-			plt.pause(0.0001)
-
-	def fill_lattice(self):
-		# Create lattice and fill each site with concentrations dictionary
-		# Molecule identities are defined along the major axis, with spatial dimensions along the other two axes.
-		self.lattice = np.empty([len(self._molecule_ids)] + [self.patches_per_edge for dim in xrange(N_DIMS)], dtype=np.float64)
-		for index, molecule in enumerate(self._molecule_ids):
-			self.lattice[index].fill(self.concentrations[index])
-
-	def gaussian(self, deviation, distance):
-		return np.exp(-np.power(distance, 2.) / (2 * np.power(deviation, 2.)))
 
 	def evolve(self):
 		''' Evolve environment '''
-
 		self.update_locations()
 		self.update_media()
 
@@ -169,19 +145,6 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		# make sure all patches have concentrations of 0 or higher
 		self.lattice[self.lattice < 0.0] = 0.0
 
-	def update_media(self):
-		if self.timeline:
-			current_index = [i for i, t in enumerate(self._times) if self.time() >= t][-1]
-			if self.media_id != self.timeline[current_index][1]:
-				self.media_id = self.timeline[current_index][1]
-
-				# make new_media
-				new_media = self.make_media.make_recipe(self.media_id)
-
-				# update the lattice
-				self._molecule_ids = new_media.keys()
-				self.concentrations = new_media.values()
-				self.fill_lattice()
 
 	def update_locations(self):
 		''' Update location for all agent_ids '''
@@ -231,6 +194,27 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 			location[2] = (exclusion[agent_id]['orientation']) % (2 * PI)
 
 
+	def update_media(self):
+		if self.timeline:
+			current_index = [i for i, t in enumerate(self._times) if self.time() >= t][-1]
+			if self.media_id != self.timeline[current_index][1]:
+				self.media_id = self.timeline[current_index][1]
+
+				# make new_media, update the lattice with new concentrations
+				new_media = self.make_media.make_recipe(self.media_id)
+				self.fill_lattice(new_media)
+
+				print('Media condition: ' + str(self.media_id))
+
+
+	def fill_lattice(self, media):
+		# Create lattice and fill each site with concentrations dictionary
+		# Molecule identities are defined along the major axis, with spatial dimensions along the other two axes.
+		self.lattice = np.empty([len(self._molecule_ids)] + [self.patches_per_edge for dim in xrange(N_DIMS)], dtype=np.float64)
+		for index, molecule_id in enumerate(self._molecule_ids):
+			self.lattice[index].fill(media[molecule_id])
+
+
 	def run_diffusion(self):
 		change_lattice = np.zeros(self.lattice.shape)
 		for index in xrange(len(self.lattice)):
@@ -246,57 +230,10 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 	def diffusion_timestep(self, lattice):
 		''' calculate concentration changes cause by diffusion'''
 		change_lattice = self.diffusion * self._timestep * convolve(lattice, LAPLACIAN_2D, mode='reflect') / self.dx2
-
 		return change_lattice
 
 
-	def run_incremental(self, run_until):
-		''' Simulate until run_until '''
-		if animating:
-			self.output_environment()
-			self.output_locations()
-
-		while self._time < run_until:
-			self._time += self._timestep
-			self.evolve()
-
-
-	def output_environment(self):
-		'''plot environment lattice'''
-		glucose_lattice = self.lattice[self.molecule_index['GLC']]
-
-		plt.clf()
-		# plt.imshow(np.pad(glucose_lattice, ((1,1),(1,1)), 'wrap'), cmap='YlGn')
-		plt.imshow(glucose_lattice, cmap='YlGn')
-		plt.title('time: ' + str(self._time) + ' (s)')
-		plt.colorbar()
-		plt.axis('off')
-		# plt.ylim((-self.dx, self.edge_length+self.dx))
-		# plt.xlim((-self.dx, self.edge_length+self.dx))
-
-
-	def output_locations(self):
-		'''plot cell locations and orientations'''
-		for agent_id, location in self.locations.iteritems():
-			y = location[0] * self.patches_per_edge / self.edge_length
-			x = location[1] * self.patches_per_edge / self.edge_length
-			theta = location[2]
-			volume = self.simulations[agent_id]['state']['volume']
-
-			# get length, scaled to lattice resolution
-			length = self.volume_to_length(volume)
-
-			dx = length * self.patches_per_edge / self.edge_length * np.sin(theta)
-			dy = length * self.patches_per_edge / self.edge_length * np.cos(theta)
-
-			plt.plot([x-dx/2, x+dx/2], [y-dy/2, y+dy/2],
-				color='slateblue', linewidth=self.cell_radius/self.edge_length*600, solid_capstyle='round')
-
-
-		if animating:
-			plt.pause(0.0001)
-
-
+	## Conversion functions
 	def volume_to_length(self, volume):
 		'''
 		get cell length from volume, using the following equation for capsule volume, with V=volume, r=radius,
@@ -311,11 +248,66 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 
 		return total_length
 
-
 	def count_to_concentration(self, count):
 		''' Convert count to concentrations '''
 		return count / (self.patch_volume * N_AVOGADRO)
 
+	def rotation_matrix(self, orientation):
+		sin = np.sin(orientation)
+		cos = np.cos(orientation)
+		return np.matrix([
+			[cos, -sin],
+			[sin, cos]])
+
+	# functions for getting values
+	def simulation_parameters(self, agent_id):
+		latest = max([
+			simulation['time']
+			for agent_id, simulation
+			in self.simulations.iteritems()])
+		time = max(self._time, latest)
+		return {'time': time}
+
+	def simulation_state(self, agent_id):
+		return dict(
+			self.simulations[agent_id],
+			location=self.locations[agent_id])
+
+	def get_molecule_ids(self):
+		''' Return the ids of all molecule species in the environment '''
+		return self._molecule_ids
+
+	def time(self):
+		return self._time
+
+	def run_for_time(self):
+		return self.run_for
+
+	def max_time(self):
+		return self._max_time
+
+
+	## Agent interface
+	def run_incremental(self, run_until):
+		''' Simulate until run_until '''
+		while self._time < run_until:
+			self._time += self._timestep
+			self.evolve()
+
+	def add_simulation(self, agent_id, simulation):
+		self.simulations.setdefault(agent_id, {}).update(simulation)
+
+		if agent_id not in self.locations:
+			# Place cell at either the provided or a random initial location
+			location = simulation['agent_config'].get(
+				'location', np.random.uniform(0, self.edge_length, N_DIMS))
+			orientation = simulation['agent_config'].get(
+				'orientation', np.random.uniform(0, 2*PI))
+
+			self.locations[agent_id] = np.hstack((location, orientation))
+
+		if agent_id not in self.motile_forces:
+			self.motile_forces[agent_id] = [0.0, 0.0]
 
 	def apply_inner_update(self, update, now):
 		'''
@@ -342,12 +334,6 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 						index = self.molecule_index[molecule]
 						self.lattice[index, patch_site[0], patch_site[1]] += concentration
 
-
-	def get_molecule_ids(self):
-		''' Return the ids of all molecule species in the environment '''
-		return self._molecule_ids
-
-
 	def generate_outer_update(self, now):
 		'''Return a dict with {molecule_id: conc} for each sim at its current location'''
 		update = {}
@@ -362,46 +348,9 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 					self._molecule_ids,
 					self.lattice[:, patch_site[0], patch_site[1]]))
 
+				update[agent_id]['media_id'] = self.media_id
+
 		return update
-
-
-	def time(self):
-		return self._time
-
-	def add_simulation(self, agent_id, simulation):
-		self.simulations.setdefault(agent_id, {}).update(simulation)
-
-		if agent_id not in self.locations:
-			# Place cell at either the provided or a random initial location
-			location = simulation['agent_config'].get(
-				'location', np.random.uniform(0, self.edge_length, N_DIMS))
-			orientation = simulation['agent_config'].get(
-				'orientation', np.random.uniform(0, 2*PI))
-
-			self.locations[agent_id] = np.hstack((location, orientation))
-
-		if agent_id not in self.motile_forces:
-			self.motile_forces[agent_id] = [0.0, 0.0]
-
-	def simulation_parameters(self, agent_id):
-		latest = max([
-			simulation['time']
-			for agent_id, simulation
-			in self.simulations.iteritems()])
-		time = max(self._time, latest)
-		return {'time': time}
-
-	def simulation_state(self, agent_id):
-		return dict(
-			self.simulations[agent_id],
-			location=self.locations[agent_id])
-
-	def rotation_matrix(self, orientation):
-		sin = np.sin(orientation)
-		cos = np.cos(orientation)
-		return np.matrix([
-			[cos, -sin],
-			[sin, cos]])
 
 	def daughter_location(self, location, orientation, length, index):
 		offset = np.array([length * 0.75, 0])
@@ -419,14 +368,7 @@ class EnvironmentSpatialLattice(EnvironmentSimulation):
 		location = self.daughter_location(parent_location[0:2], orientation, length, index)
 
 		# print("=== parent: {} - daughter: {}".format(parent_location, location))
-
 		self.locations[agent_id] = np.hstack((location, orientation))
-
-	def run_for_time(self):
-		return self.run_for
-
-	def max_time(self):
-		return self._max_time
 
 	def remove_simulation(self, agent_id):
 		self.simulations.pop(agent_id, {})
