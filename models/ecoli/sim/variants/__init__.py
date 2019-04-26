@@ -15,6 +15,7 @@ from .all_shuffle_params import all_shuffle_params
 from .mene_params import mene_params
 from .metabolism_kinetic_objective_weight import metabolism_kinetic_objective_weight
 from .rna_deg_rate_shuffle_params import rna_deg_rate_shuffle_params
+from .rrna_orientation import rrna_orientation
 
 
 nameToFunctionMapping = {
@@ -29,6 +30,7 @@ nameToFunctionMapping = {
 	"monomer_deg_rate_shuffle_params": monomer_deg_rate_shuffle_params,
 	"timelines": timelines,
 	"rna_deg_rate_shuffle_params": rna_deg_rate_shuffle_params,
+	"rrna_orientation": rrna_orientation,
 	"tf_activity": tf_activity,
 	"transcription_initiation_shuffle_params": transcription_initiation_shuffle_params,
 	"translation_efficiencies_shuffle_params": translation_efficiencies_shuffle_params,

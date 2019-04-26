@@ -60,7 +60,7 @@ class RnapData(wholecell.listeners.listener.Listener):
 		# numbers of collisions that can occur for each type in a single
 		# timestep. Currently for +AA conditions the maximum values are around
 		# 50 and 125, respectively.
-		self.headon_collision_coordinates = np.full(100, np.nan, np.float64)
+		self.headon_collision_coordinates = np.full(250, np.nan, np.float64)
 		self.codirectional_collision_coordinates = np.full(250, np.nan, np.float64)
 
 
