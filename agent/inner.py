@@ -72,8 +72,8 @@ class Inner(Agent):
 		                associated outer agent (given by `outer_id`) and environmental simulation.
 		            * `shepherd_receive`: The topic this agent will send messages on for 
 		                adding agents to and removing agents from the environment.
-		    simulation (CellSimulation): The actual simulation which will perform the
-		        calculations.
+		    boot_config (dict): a dictionary of options for initializing the simulation
+		    sim_initialize: the function for initializing a simulation. Requires boot_config and synchronize_config to run
 		"""
 
 		self.sim_initialize = sim_initialize

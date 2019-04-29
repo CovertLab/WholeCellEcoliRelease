@@ -161,10 +161,6 @@ class TransportMinimal(CellSimulation):
 			'transport_fluxes': self.transport_fluxes,
 			}
 
-	def synchronize_state(self, state):
-		if 'time' in state:
-			self.initial_time = state['time']
-
 
 	## Flux-related functions
 	def get_fluxes(self, flux_lookup, transport_reactions_ids):

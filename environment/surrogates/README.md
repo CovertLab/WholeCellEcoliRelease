@@ -10,13 +10,20 @@ Surrogates are used for developing some feature of either the environment or the
 
 Add surrogates into an environmental simulation using ```experiment``` from agent framework. This is the same way the whole cell model is added to an environmental simulation: 
 
-        python -m environment.boot experiment --number N --type T
+    python -m environment.boot experiment --number N --type T
         
 Here, ```T``` specifies the surrogate type, such as ```chemotaxis```, and ```N``` specifies the number of cells.
+
+Timelines are an optional argument:
+
+    python -m environment.boot experiment --number N --type T --timeline L
+
+Here, ```L``` would be a string specifying events with time (seconds) and media_id: ```'0 minimal, 100 minimal_plus_amino_acids, 200 minimal'```
 
 They can also be added to an already-running experiment with ```add```:
 
     python -m environment.boot add --type T
+
     
 # Making New Surrogates
 
