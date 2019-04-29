@@ -130,7 +130,7 @@ def chromosomeDivision(uniqueMolecules, randomState, no_child_place_holder):
 
 	index = not d1_gets_first_chromosome
 	d1_domain_index_full_chroms = domain_index_full_chroms[index::2]
-	d2_domain_index_full_chroms = domain_index_full_chroms[~index::2]
+	d2_domain_index_full_chroms = domain_index_full_chroms[not index::2]
 	d1_all_domain_indexes = get_descendent_domains(
 		d1_domain_index_full_chroms, domain_index_domains,
 		child_domains, no_child_place_holder
