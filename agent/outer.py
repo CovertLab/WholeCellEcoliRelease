@@ -129,10 +129,9 @@ class Outer(Agent):
 		self.paused = True
 		self.shutting_down = False
 
-		# Log parent -> child relationships for analysis.
+		# Log the child -> parent relationships for lineage analysis.
 		working_dir = agent_config.get('working_dir', os.getcwd())
-		output_dir = fp.makedirs(working_dir, 'out', 'manual',
-			'lattice_' + agent_id)
+		output_dir = fp.makedirs(working_dir, 'out', 'manual', agent_id)
 		self.lineage_filename = os.path.join(output_dir, 'cell_lineage.json')
 		self.lineage = {}
 
@@ -144,13 +143,12 @@ class Outer(Agent):
 	def finalize(self):
 		print('environment shutting down')
 
-	def cell_update(self, message):
+	def synchronize_new_cell(self, message):
 		'''
-		Here we compare the simulation's time to our environment's time to see if these need to be
-		synchronized. Next, we notify our environment simulation of the new cell simulation. Then we
-		check to see if the new simulation is a daughter cell, in which case we notify the environment
-		of its parent state so that it can inherit properties tracked by the environment (such as
-		location and orientation).
+		Synchronize clocks with a newly declared/initialized cell and register state info about that cell.
+		This gets called when a new cell agent optionally "declares" that it's coming into existence (so
+		Lens can add a stand-in cell without waiting for its simulation object to initialize) and when the
+		new cell agent reports that it's "initialized" as fully ready.
 		'''
 
 		inner_id = message['inner_id']
@@ -174,6 +172,7 @@ class Outer(Agent):
 
 		self.environment.add_simulation(inner_id, simulation)
 
+		# lineage tracing
 		parent_id = simulation.get('parent_id', '')
 		if parent_id:
 			self.environment.apply_parent_state(inner_id, simulation)
@@ -193,7 +192,7 @@ class Outer(Agent):
 		message includes 'state', which can include variable needed for the cell's initialization.
 		'''
 
-		self.cell_update(message)
+		self.synchronize_new_cell(message)
 		inner_id = message['inner_id']
 
 		# synchronize state of the new cell
@@ -214,7 +213,7 @@ class Outer(Agent):
 		agents are ready to advance.
 		"""
 
-		self.cell_update(message)
+		self.synchronize_new_cell(message)
 
 		inner_id = message['inner_id']
 		simulation = self.simulations[inner_id]

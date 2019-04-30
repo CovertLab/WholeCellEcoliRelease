@@ -79,6 +79,7 @@ class Inner(Agent):
 
 		self.sim_initialize = sim_initialize
 		self.boot_config = boot_config
+		self.generation = agent_config.get('generation', 0)
 
 		kafka_config = agent_config['kafka_config']
 		kafka_config['subscribe'].append(
@@ -155,11 +156,14 @@ class Inner(Agent):
 		"""
 		Perform agent cell division.
 
+		The generation count is increased and added to the daughter cells' agent_config.
+
 		This sends three messages to the agent shepherd: one `ADD_AGENT` for each new daughter cell,
 		and finally a `REMOVE_AGENT` for itself. These new agents will initialize and notify the 
 		outer agent, inheriting properties from their parent cell.
 		"""
 
+		generation = self.generation + 1
 		for daughter in division:
 			agent_id = daughter.get('id', str(uuid.uuid1()))
 
@@ -172,7 +176,8 @@ class Inner(Agent):
 			agent_config = dict(
 				daughter,
 				parent_id=self.agent_id,
-				outer_id=self.outer_id)
+				outer_id=self.outer_id,
+				generation=generation)
 
 			print('agent_type: ' + str(agent_type))
 			print('divide_config: ' + str(agent_config))

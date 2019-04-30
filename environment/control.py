@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 import time
 import uuid
+import datetime
 
 from environment.condition.make_media import Media
 from agent.control import AgentControl, AgentCommand
@@ -21,7 +22,9 @@ class ShepherdControl(AgentControl):
 			agent_config)
 
 	def lattice_experiment(self, args):
-		lattice_id = str(uuid.uuid1())
+		now = datetime.datetime.now()
+		time_stamp = now.strftime('%m-%d_%H-%M-%S')
+		lattice_id = time_stamp + '_lattice_' + str(uuid.uuid1())
 		num_cells = args['number']
 		print('Creating lattice agent_id {} and {} cell agents\n'.format(
 			lattice_id, num_cells))

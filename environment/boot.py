@@ -77,28 +77,30 @@ def initialize_ecoli(boot_config, synchronize_config):
 	boot_config.update(synchronize_config)
 	return ecoli_simulation(**boot_config)
 
-def get_ecoli_boot_config(agent_id, agent_config):
+def ecoli_boot_config(agent_id, agent_config):
 	'''
-	Sets up an ecoli simulation. Makes the metadata files. Returns a dictionary of options
-	Args:
-		agent_id (str): the id of this agent
-		agent_config (dict) with fields
-			* kafka_config
-			* outer_id (id of environmental context agent)
-			* working_dir (optional, wcEcoli path containing the sim path out/manual/)
-			* files (optional) list of data files:
-				files[0] -- inherited_state_path to make a daughter cell
-			* start_time (optional)
-			* variant_type (optional)
-			* variant_index (optional)
-			* seed (optional)
-			* volume (optional)
+	Instantiates an initial or daughter EcoliSimulation, passes it to a new	`Inner` agent.
+	Makes a simOut directory for the simulation in an embedded format:
+
+		out/manual/experiment_id/cohort_id/generation_id/cell_id/simOut
+
+	`agent_config` fields:
+	    * outer_id (id of outer environmental agent -- the experiment)
+	    * working_dir (optional, wcEcoli path containing the sim path out/manual/)
+	    * files (optional) list of data files:
+			files[0] -- inherited_state_path to make a daughter cell
+	    * start_time (optional)
+	    * variant_type (optional)
+	    * variant_index (optional)
+	    * seed (optional)
+	    * volume (optional)
+
 	Returns:
 		options (dict): simulation arguments for ecoli
 	'''
-
+	generation = agent_config.get('generation', 0)
 	working_dir = agent_config.get('working_dir', os.getcwd())
-	outer_id = agent_config['outer_id']
+	outer_id = agent_config.get('outer_id', 'lattice_000000')
 	start_time = agent_config.get('start_time', 0)
 	files = agent_config.get('files', [])
 	inherited_state_path = files[0] if files else None
@@ -112,10 +114,14 @@ def get_ecoli_boot_config(agent_id, agent_config):
 		'environment_change': {}}
 	agent_config['state'] = state
 
+	cohort_id = agent_id  # an experiment's initial agents are its cohort
+	generation_id = 'generation_%06d' % generation
+	cell_id = agent_id
+
 	# make options for boot config
-	sim_path = fp.makedirs(working_dir, 'out', 'manual')
-	sim_data_fit = os.path.join(sim_path, 'kb', 'simData_Most_Fit.cPickle')
-	output_dir = os.path.join(sim_path, 'sim_' + agent_id, 'simOut')
+	sim_out_path = fp.makedirs(working_dir, 'out')
+	sim_data_fit = os.path.join(sim_out_path, 'manual', 'kb', 'simData_Most_Fit.cPickle')
+	output_dir = os.path.join(sim_out_path, 'manual', outer_id, cohort_id, generation_id, cell_id, 'simOut')
 
 	if not os.path.isfile(sim_data_fit):
 		raise IOError(
@@ -159,12 +165,11 @@ def get_ecoli_boot_config(agent_id, agent_config):
 		"growth_rate_noise":  options['growthRateNoise'],
 		"d_period_division":  options['dPeriodDivision'],
 		"translation_supply": options['translationSupply']}
-	metadata_dir = fp.makedirs(sim_path, 'metadata')
+	metadata_dir = fp.makedirs(sim_out_path, 'manual', 'metadata')
 	metadata_path = os.path.join(metadata_dir, constants.JSON_METADATA_FILE)
 	fp.write_json_file(metadata_path, metadata)
 
 	return options
-
 
 def boot_ecoli(agent_id, agent_type, agent_config):
 	'''
@@ -173,7 +178,7 @@ def boot_ecoli(agent_id, agent_type, agent_config):
 	if 'outer_id' not in agent_config:
 		raise ValueError("--outer-id required")
 	outer_id = agent_config['outer_id']
-	options = get_ecoli_boot_config(agent_id, agent_config)
+	options = ecoli_boot_config(agent_id, agent_config)
 
 	inner = Inner(
 		agent_id,
