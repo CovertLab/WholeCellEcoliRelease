@@ -72,10 +72,12 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			initial_volumes.append(initial_volume)
 			added_volumes.append(added_volume)
 
+		plt.style.use('seaborn-deep')
+
 		plt.figure(figsize=(5, 5))
-		plt.scatter(initial_volumes[0], added_volumes[0], s=3, color='c', label="minimal")
-		plt.scatter(initial_volumes[1], added_volumes[1], s=3, color='m', label="anaerobic")
-		plt.scatter(initial_volumes[2], added_volumes[2], s=3, color='k', label="+AA")
+		plt.scatter(initial_volumes[0], added_volumes[0], s=3, label="minimal")
+		plt.scatter(initial_volumes[1], added_volumes[1], s=3, label="anaerobic")
+		plt.scatter(initial_volumes[2], added_volumes[2], s=3, label="+AA")
 		plt.xlim([0, 4])
 		plt.ylim([0, 4])
 		plt.xlabel("Birth Volume ($\mu m^3$)")

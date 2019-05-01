@@ -72,10 +72,18 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			growth_rates.append(growth_rate)
 			rna_to_protein_ratios.append(rna_to_protein_ratio)
 
+		plt.style.use('seaborn-deep')
+
 		plt.figure(figsize=(7.5, 7.5))
-		plt.scatter(growth_rates[0], rna_to_protein_ratios[0], s=3, color='c', label="minimal")
-		plt.scatter(growth_rates[1], rna_to_protein_ratios[1], s=3, color='m', label="anaerobic")
-		plt.scatter(growth_rates[2], rna_to_protein_ratios[2], s=3, color='k', label="+AA")
+		plt.scatter(growth_rates[0].mean(), rna_to_protein_ratios[0].mean(), s=10, label="minimal")
+		plt.scatter(growth_rates[1].mean(), rna_to_protein_ratios[1].mean(), s=10, label="anaerobic")
+		plt.scatter(growth_rates[2].mean(), rna_to_protein_ratios[2].mean(), s=10, label="+AA")
+
+		# Add linear plot proposed in Scott et al. (2010)
+		x_linear = np.linspace(0, 3, 100)
+		y_linear = 0.23*x_linear + 0.09
+		plt.plot(x_linear, y_linear, linewidth=3, color='k')
+
 		plt.xlim([0, 3])
 		plt.ylim([0, 0.75])
 		plt.xlabel("Growth rate $\lambda$ (hour$^{-1}$)")
