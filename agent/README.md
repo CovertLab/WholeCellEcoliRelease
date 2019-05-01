@@ -4,7 +4,7 @@ Distributed simulation of whole cell agents relative to a shared environment.
 
 ## Setup
 
-The simulation is written in [Python 2.7.15](https://www.python.org/), and depends on [Kafka](https://kafka.apache.org/) for mediating communication between the different processes.
+The simulation is written in [Python 2.7](https://www.python.org/), and depends on [Kafka](https://kafka.apache.org/) for mediating communication between the different processes.
 
 Kafka is a message passing system that allows decoupling of message senders and message receivers. It does this by providing two abstractions, a Consumer and a Producer. A Consumer can subscribe to any number of "topics" it will receive messages on, and a Producer can send to any topics it wishes. Topics are communication "channels" between processes that otherwise do not need to know who is sending and receiving these messages.
 

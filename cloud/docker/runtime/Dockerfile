@@ -15,12 +15,14 @@
 #     > gcloud builds submit --timeout=2h --tag gcr.io/allen-discovery-center-mcovert/wcm-runtime .
 #     > rm requirements.txt
 
-# DO NOT USE python:2.7.15-alpine since the simulation math comes out different!
+# DO NOT USE an alpine base since the simulation math comes out different!
 FROM python:2.7.16
 
 RUN apt-get update \
     && apt-get install -y glpk-utils libglpk-dev glpk-doc swig python-cvxopt \
-        gfortran llvm cmake ncurses-dev libreadline7 libreadline-dev
+        gfortran llvm cmake ncurses-dev libreadline7 libreadline-dev nano
+
+RUN echo "alias ls='ls --color=auto'" >> ~/.bashrc
 
 # Install openblas v0.3.5 (not buggy v0.3.3).
 # Future: Install openblas-dev via apt-get.
@@ -47,7 +49,7 @@ ENV CVXOPT_BUILD_GLPK=1 \
 
 # Install all the pips within one Docker layer and don't cache the downloads.
 COPY requirements.txt /
-RUN pip install --no-cache-dir 'numpy==1.14.5' --no-binary numpy \
+RUN pip install --no-cache-dir 'numpy==1.14.6' --no-binary numpy \
     && pip install --no-cache-dir -r requirements.txt --no-binary numpy,scipy,cvxopt
 
 CMD ["/bin/bash"]

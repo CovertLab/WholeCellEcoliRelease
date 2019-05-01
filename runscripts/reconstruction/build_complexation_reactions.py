@@ -177,7 +177,7 @@ rnaMass = getRnaMasses()
 idMass.update(rnaMass)
 ourLocations = getMonomerLocationsFromOurData()
 
-jsonData = yaml.load(open(ECOCYC_DUMP, "r"))
+jsonData = yaml.safe_load(open(ECOCYC_DUMP, "r"))
 reactionDataFiltered = removeBlaclistedReactions(jsonData["complexations"])
 idLocation = getLocations(reactionDataFiltered)
 getMasses(idMass, reactionDataFiltered)

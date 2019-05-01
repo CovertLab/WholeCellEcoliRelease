@@ -72,7 +72,7 @@ reactionIds = getReactionIds()
 reactionStoich = getReactionStoich()
 reactionReversibility = getReactionReversibility()
 
-jsonData = yaml.load(open(ECOCYC_DUMP, "r"))
+jsonData = yaml.safe_load(open(ECOCYC_DUMP, "r"))
 
 rxnNamesEnzymes = dict([(x["name"], x["annotation"]["enzymes"]) for x in jsonData["reactions"] if "enzymes" in x["annotation"]])
 
