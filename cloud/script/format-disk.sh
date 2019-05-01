@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -eu
+
 DIR=$1
 DEVICE=$2
 

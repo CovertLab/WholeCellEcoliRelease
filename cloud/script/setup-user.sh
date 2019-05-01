@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -eu
+
 NAME=$1
 EMAIL=$2
 
