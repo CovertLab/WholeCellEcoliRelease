@@ -42,10 +42,16 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# read constraint data
 		enzymeKineticsReader = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
-		targetFluxes = enzymeKineticsReader.readColumn("targetFluxes")
-		actualFluxes = enzymeKineticsReader.readColumn("actualFluxes")
+		allTargetFluxes = enzymeKineticsReader.readColumn("targetFluxes")
+		allActualFluxes = enzymeKineticsReader.readColumn("actualFluxes")
 		reactionConstraint = enzymeKineticsReader.readColumn("reactionConstraint")
+		kineticsConstrainedReactions = np.array(enzymeKineticsReader.readAttribute("kineticsConstrainedReactions"))
+		boundaryConstrainedReactions = np.array(enzymeKineticsReader.readAttribute("boundaryConstrainedReactions"))
 		enzymeKineticsReader.close()
+
+		# kinetic target fluxes
+		targetFluxes = allTargetFluxes[:, 0:len(kineticsConstrainedReactions)]
+		actualFluxes = allActualFluxes[:, 0:len(kineticsConstrainedReactions)]
 
 		targetAve = np.mean(targetFluxes[BURN_IN_STEPS:, :], axis = 0)
 		actualAve = np.mean(actualFluxes[BURN_IN_STEPS:, :], axis = 0)

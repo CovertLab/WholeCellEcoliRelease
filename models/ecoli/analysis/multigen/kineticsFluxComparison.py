@@ -49,8 +49,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
-		targetFluxList = []
-		actualFluxList = []
+		allTargetFluxList = []
+		allActualFluxList = []
 
 		for simDir in allDir:
 			simOutDir = os.path.join(simDir, "simOut")
@@ -68,27 +68,41 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			# read constraint data
 			enzymeKineticsReader = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
-			targetFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (enzymeKineticsReader.readColumn("targetFluxes").T / coefficient).T
-			actualFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (enzymeKineticsReader.readColumn("actualFluxes").T / coefficient).T
+			allTargetFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (enzymeKineticsReader.readColumn("targetFluxes").T / coefficient).T
+			allActualFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (enzymeKineticsReader.readColumn("actualFluxes").T / coefficient).T
 			reactionConstraint = enzymeKineticsReader.readColumn("reactionConstraint")
 			constrainedReactions = np.array(enzymeKineticsReader.readAttribute("constrainedReactions"))
+			kineticsConstrainedReactions = np.array(enzymeKineticsReader.readAttribute("kineticsConstrainedReactions"))
+			boundaryConstrainedReactions = np.array(enzymeKineticsReader.readAttribute("boundaryConstrainedReactions"))
 			enzymeKineticsReader.close()
 
-			targetFluxes = targetFluxes.asNumber(units.mmol / units.g / units.h)
-			actualFluxes = actualFluxes.asNumber(units.mmol / units.g / units.h)
+			allTargetFluxes = allTargetFluxes.asNumber(units.mmol / units.g / units.h)
+			allActualFluxes = allActualFluxes.asNumber(units.mmol / units.g / units.h)
 
-			targetAve = np.mean(targetFluxes[BURN_IN_STEPS:, :], axis = 0)
-			actualAve = np.mean(actualFluxes[BURN_IN_STEPS:, :], axis = 0)
+			allTargetAve = np.mean(allTargetFluxes[BURN_IN_STEPS:, :], axis=0)
+			allActualAve = np.mean(allActualFluxes[BURN_IN_STEPS:, :], axis=0)
 
-			if len(targetFluxList) == 0:
-				targetFluxList = np.array([targetAve])
-				actualFluxList = np.array([actualAve])
+			if len(allTargetFluxList) == 0:
+				allTargetFluxList = np.array([allTargetAve])
+				allActualFluxList = np.array([allActualAve])
 			else:
-				targetFluxList = np.concatenate((targetFluxList, np.array([targetAve])), axis = 0)
-				actualFluxList = np.concatenate((actualFluxList, np.array([actualAve])), axis = 0)
+				allTargetFluxList = np.concatenate((allTargetFluxList, np.array([allTargetAve])), axis = 0)
+				allActualFluxList = np.concatenate((allActualFluxList, np.array([allActualAve])), axis = 0)
 
-		targetAve = np.mean(targetFluxList, axis = 0)
-		actualAve = np.mean(actualFluxList, axis = 0)
+		allTargetAve = np.mean(allTargetFluxList, axis = 0)
+		allActualAve = np.mean(allActualFluxList, axis = 0)
+
+		n_kinetic_constrained_reactions = len(kineticsConstrainedReactions)
+
+		# boundary target fluxes
+		boundaryTargetAve = allTargetAve[n_kinetic_constrained_reactions:]
+		boundaryActualAve = allActualAve[n_kinetic_constrained_reactions:]
+
+		# kinetic target fluxes
+		targetFluxes = allTargetFluxes[:, :n_kinetic_constrained_reactions]
+		actualFluxes = allActualFluxes[:, :n_kinetic_constrained_reactions]
+		targetAve = allTargetAve[:n_kinetic_constrained_reactions]
+		actualAve = allActualAve[:n_kinetic_constrained_reactions]
 
 		thresholds = [2, 10]
 		categorization = np.zeros(reactionConstraint.shape[1])
@@ -102,7 +116,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		siteStr = "https://ecocyc.org/overviewsWeb/celOv.shtml?zoomlevel=1&orgid=ECOLI"
 		excluded = ['RXN0-2201', 'RXN-16000', 'RXN-12583', 'RXN-11496', 'DIMESULFREDUCT-RXN', '3.6.1.41-R[4/63051]5-NUCLEOTID-RXN'] # reactions not recognized by ecocyc
 		rxns = []
-		for i, reaction in enumerate(constrainedReactions[categorization == -2]):
+		for i, reaction in enumerate(kineticsConstrainedReactions[categorization == -2]):
 			rxn = re.findall(".+RXN", reaction)
 			if len(rxn) == 0:
 				rxn = re.findall("RXN[^-]*-[0-9]+", reaction)
@@ -116,7 +130,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		output.writerow(["ecocyc link:", siteStr])
 		output.writerow(["", "Target", "Actual", "Category"])
 
-		for reaction, target, flux, category in zip(constrainedReactions, targetAve, actualAve, categorization):
+		for reaction, target, flux, category in zip(kineticsConstrainedReactions, targetAve, actualAve, categorization):
 			output.writerow([reaction, target, flux, category])
 
 		csvFile.close()
@@ -129,6 +143,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		ax = plt.axes()
 		plt.loglog(axes_limits, axes_limits, 'k')
 		plt.loglog(targetAve, actualAve, "ob", markeredgewidth = 0.25, alpha = 0.25)
+		plt.loglog(boundaryTargetAve, boundaryActualAve, "ob", c='r', markeredgewidth=0.25, alpha=0.9, label='boundary fluxes')
 		plt.xlabel("Target Flux (mmol/g/hr)")
 		plt.ylabel("Actual Flux (mmol/g/hr)")
 		plt.minorticks_off()
@@ -137,6 +152,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		ax.set_xlim(axes_limits)
 		ax.set_yticks(axes_limits)
 		ax.set_xticks(axes_limits)
+		ax.legend()
 
 		exportFigure(plt, plotOutDir, plotOutFileName)
 		plt.close("all")
@@ -145,7 +161,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			data = dict(
 				x = targetAve,
 				y = actualAve,
-				reactionName = constrainedReactions)
+				reactionName = kineticsConstrainedReactions)
 			)
 
 		hover = HoverTool(
@@ -181,7 +197,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 
 		## bar plot of error
-		# sortedReactions = [constrainedReactions[x] for x in np.argsort(aveError)[::-1]]
+		# sortedReactions = [kineticsConstrainedReactions[x] for x in np.argsort(aveError)[::-1]]
 		# aveError[np.log10(aveError) == -np.inf] = 0
 
 		# source = ColumnDataSource(
@@ -227,7 +243,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		nTimesteps = len(time[BURN_IN_STEPS:])
 		x = time[BURN_IN_STEPS:]
 		y = actualFluxes[BURN_IN_STEPS:, 0]
-		reactionName = np.repeat(constrainedReactions[0], nTimesteps)
+		reactionName = np.repeat(kineticsConstrainedReactions[0], nTimesteps)
 
 		source = ColumnDataSource(
 			data = dict(
@@ -241,7 +257,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		# Plot remaining metabolites onto initialized figure
 		for m in np.arange(1, actualFluxes.shape[1]):
 			y = actualFluxes[BURN_IN_STEPS:, m]
-			reactionName = np.repeat(constrainedReactions[m], nTimesteps)
+			reactionName = np.repeat(kineticsConstrainedReactions[m], nTimesteps)
 
 			source = ColumnDataSource(
 				data = dict(

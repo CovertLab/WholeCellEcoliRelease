@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 import os
 import errno
+import shutil
 
 from agent.outer import Outer
 from agent.inner import Inner
@@ -11,12 +12,14 @@ from environment.lattice import EnvironmentSpatialLattice
 from environment.surrogates.chemotaxis import Chemotaxis
 from environment.surrogates.endocrine import Endocrine
 from environment.surrogates.transport_lookup_minimal import TransportMinimal
+from environment.surrogates.transport_composite import TransportComposite
 from models.ecoli.sim.simulation import ecoli_simulation
 from environment.condition.make_media import Media
 
 from wholecell.utils import constants
 import wholecell.utils.filepath as fp
 from models.ecoli.sim.variants import apply_variant
+from wholecell.utils import constants
 
 DEFAULT_COLOR = [0.6, 0.4, 0.3]
 
@@ -114,14 +117,25 @@ def ecoli_boot_config(agent_id, agent_config):
 		'environment_change': {}}
 	agent_config['state'] = state
 
-	cohort_id = agent_id  # an experiment's initial agents are its cohort
+	# TODO -- get actual cohort and cell ids
+	# TODO -- change analysis scripts to allow the agent_id to be used here
+	# TODO -- need to count number of initialized cells so that they won't over-write each other as 000000
+	cohort_id = '%06d' % 0  # analysis scripts require starting with 0
 	generation_id = 'generation_%06d' % generation
-	cell_id = agent_id
+	cell_id = '%06d' % 0    # analysis scripts require starting with 0
 
 	# make options for boot config
 	sim_out_path = fp.makedirs(working_dir, 'out')
-	sim_data_fit = os.path.join(sim_out_path, 'manual', 'kb', 'simData_Most_Fit.cPickle')
-	output_dir = os.path.join(sim_out_path, 'manual', outer_id, cohort_id, generation_id, cell_id, 'simOut')
+	sim_data_fit = os.path.join(sim_out_path, 'manual', 'kb', constants.SERIALIZED_SIM_DATA_MOST_FIT_FILENAME)
+	output_dir = os.path.join(sim_out_path, 'agent', outer_id, cohort_id, generation_id, cell_id, 'simOut')
+	variant_sim_data_directory = fp.makedirs(sim_out_path, 'agent', outer_id, 'kb')
+	variant_sim_data_modified_file = os.path.join(variant_sim_data_directory, constants.SERIALIZED_SIM_DATA_MODIFIED)
+	metadata_dir = fp.makedirs(sim_out_path, 'agent', 'metadata')
+	metadata_path = os.path.join(metadata_dir, constants.JSON_METADATA_FILE)
+
+	# copy sim_data into the experiment directory to support analysis
+	# TODO (Eran) -- revisit this copy. Re-consider where to put the parca output.
+	shutil.copy(sim_data_fit, variant_sim_data_modified_file)
 
 	if not os.path.isfile(sim_data_fit):
 		raise IOError(
@@ -158,15 +172,13 @@ def ecoli_boot_config(agent_id, agent_config):
 		"git_branch":         fp.run_cmdline("git symbolic-ref --short HEAD"),
 		"description":        "an Ecoli Cell Agent",
 		"time":               fp.timestamp(),
-		# "total_gens":       1,  # not known in advance for multi-scale sims
+		"total_gens":         0,  # not known in advance for multi-scale sims
 		"analysis_type":      None,
 		"variant":            variant_type,
 		"mass_distribution":  options['massDistribution'],
 		"growth_rate_noise":  options['growthRateNoise'],
 		"d_period_division":  options['dPeriodDivision'],
 		"translation_supply": options['translationSupply']}
-	metadata_dir = fp.makedirs(sim_out_path, 'manual', 'metadata')
-	metadata_path = os.path.join(metadata_dir, constants.JSON_METADATA_FILE)
 	fp.write_json_file(metadata_path, metadata)
 
 	return options
@@ -258,6 +270,14 @@ def boot_endocrine(agent_id, agent_type, agent_config):
 
 # Transport lookup minimal surrogate initialize and boot
 def initialize_transport_minimal(boot_config, synchronize_config):
+	'''
+	Args:
+		boot_config (dict): essential options for initializing a simulation
+		synchronize_config (dict): additional options that can be passed in for initialization
+
+	Returns:
+		simulation (CellSimulation): The actual simulation which will perform the calculations.
+	'''
 	boot_config.update(synchronize_config)
 	return TransportMinimal(boot_config)
 
@@ -282,6 +302,69 @@ def boot_transport_minimal(agent_id, agent_type, agent_config):
 
 	return inner
 
+# Transport composite initialize and boot
+def initialize_transport_composite(boot_config, synchronize_config):
+	'''
+	Initialization function for the transport composite agent. This sets up a network_config, which defines
+	how messages are passed between subprocesses and what functions can be used by the composite.
+
+	Args:
+		boot_config (dict): essential options for initializing a simulation
+		synchronize_config (dict): additional options that can be passed in for initialization
+
+	Returns:
+		simulation (CellSimulation): The actual composite simulation
+	'''
+
+	# configure the composite.
+	network_config = {}
+
+	# a dict mapping each subprocess to its initialization function
+	network_config['initialize'] = {
+		'transport': initialize_transport_minimal,
+		'ecoli': initialize_ecoli}
+
+	# connections between the messages of sub-agent simulations and those used by the composite
+	# organized as a network with {source_process.source_message: target_process.target_message}
+	network_config['message_connections'] = {
+		'ecoli.environment_change': 'composite.environment_change',
+		'ecoli.volume': 'composite.volume',
+		'ecoli.division': 'composite.division',
+		'transport.motile_force': 'composite.motile_force',
+		'transport.transport_fluxes': 'ecoli.transport_fluxes',
+	}
+
+	# TODO -- (eran) need to make connections between subprocess functions (such as time and divide)
+	# functions to be used by composite. {function_used_by_composite: source_process}
+	network_config['function_connections'] = {
+		'time': 'ecoli',
+		'divide': 'ecoli'}
+
+	return TransportComposite(boot_config, synchronize_config, network_config)
+
+def boot_transport_composite(agent_id, agent_type, agent_config):
+	agent_id = agent_id
+	outer_id = agent_config['outer_id']
+
+	# initialize state and options
+	state = {
+		'volume': 1.0,
+		'environment_change': {}}
+	agent_config['state'] = state
+
+	# options for ecoli
+	options = ecoli_boot_config(agent_id, agent_config)
+
+	inner = Inner(
+		agent_id,
+		outer_id,
+		agent_type,
+		agent_config,
+		options,
+		initialize_transport_composite)
+
+	return inner
+
 
 class BootEnvironment(BootAgent):
 	def __init__(self):
@@ -292,6 +375,7 @@ class BootEnvironment(BootAgent):
 			'chemotaxis': boot_chemotaxis,
 			'endocrine': boot_endocrine,
 			'transport_minimal': boot_transport_minimal,
+			'transport_composite': boot_transport_composite,
 			}
 
 if __name__ == '__main__':

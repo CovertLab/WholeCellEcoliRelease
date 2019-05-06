@@ -27,6 +27,7 @@ import wholecell.loggers.disk
 
 DEFAULT_SIMULATION_KWARGS = dict(
 	timeline = '0 minimal',
+	boundary_reactions = [],
 	seed = 0,
 	lengthSec = 3*60*60, # 3 hours max
 	initialTime = 0.,
@@ -414,7 +415,7 @@ class Simulation(CellSimulation):
 
 	def apply_outer_update(self, update):
 		# concentrations are received as a dict
-		self.external_states['Environment'].set_local_environment(update['concentrations'])
+		self.external_states['Environment'].set_local_environment(update)
 
 	def daughter_config(self):
 		config = {

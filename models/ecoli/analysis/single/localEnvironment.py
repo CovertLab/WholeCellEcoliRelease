@@ -67,13 +67,13 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Load environment data
 		environment = TableReader(os.path.join(simOutDir, 'Environment'))
 		nutrient_names = environment.readAttribute('objectNames')
-		nutrient_concentrations = environment.readColumn('nutrientConcentrations')
-		nutrient_condition = environment.readColumn('nutrientCondition')
+		media_concentrations = environment.readColumn('media_concentrations')
+		media_id = environment.readColumn('media_id')
 		# environment_deltas = environment.readColumn('environmentDeltas')
 		environment.close()
 
 		# get times of nutrient shifts
-		nutrient_shift = list(nutrient_condition)
+		nutrient_shift = list(media_id)
 		nutrient_shift_indices = [0]
 		index = 1
 		i = 1
@@ -160,9 +160,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# plot concentrations in environment
 		for idx, nutrient_name in enumerate(nutrient_names):
-			if (not math.isnan(nutrient_concentrations[0, idx]) and (np.mean(
-					nutrient_concentrations[:, idx]) != 0)) and (not math.isinf(nutrient_concentrations[0, idx])):
-				ax2_2.plot(time, nutrient_concentrations[:, idx], linewidth=2,
+			if (not math.isnan(media_concentrations[0, idx]) and (np.mean(
+					media_concentrations[:, idx]) != 0)) and (not math.isinf(media_concentrations[0, idx])):
+				ax2_2.plot(time, media_concentrations[:, idx], linewidth=2,
 					label=nutrient_name, color=id_to_color[nutrient_name])
 		ax2_2.set_yscale('symlog',linthreshy=10, linscaley=1)
 		ax2_2.set_title('Environment Concentrations')
@@ -215,8 +215,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# add text for nutrient shifts
 		ymin, ymax = ax1_1.get_ylim()
-		for idx, (nutrient_condition, time) in enumerate(zip(nutrient_shift, nutrient_shift_times)):
-			ax1_1.text(time, ymax+1, nutrient_condition, ha='left', va='bottom', rotation=45)
+		for idx, (media_id, time) in enumerate(zip(nutrient_shift, nutrient_shift_times)):
+			ax1_1.text(time, ymax+1, media_id, ha='left', va='bottom', rotation=45)
 
 
 		plt.subplots_adjust(wspace=0.2, hspace=0.4)

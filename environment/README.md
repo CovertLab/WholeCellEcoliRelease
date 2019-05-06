@@ -50,11 +50,6 @@ agents together with others running under a shepherd.
       The Environment agent will wait for Cell simulation agents to register.
       You can optionally pass in a JSON `--config '{...}'` dictionary.
 
-      **Variation:** If you didn't open the Lens browser-based visualization, you can have the
-      Environment agent open a "microscope" view onto the plate by launching it like this:
-
-      `> ENVIRONMENT_ANIMATION=1 python -m environment.boot --type lattice --id lattice`
-
 5. Now start a Cell agent in a new tab:
 
    `> python -m environment.boot --type ecoli --id 1 --outer-id lattice`

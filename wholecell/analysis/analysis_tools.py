@@ -29,7 +29,7 @@ def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None, transparent = 
 				"Seed",
 				str(metadata["seed"]),
 				"Gen",
-				str(metadata["gen"]) + '/' + str(int(metadata["total_gens"])-1),
+				str(metadata["gen"]) + '/' + str(int(metadata["total_gens"]) - 1),
 				"Githash",
 				str(metadata["git_hash"])[:10],
 				"Desc",

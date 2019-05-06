@@ -31,7 +31,11 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 
 		self.metabolism = sim.processes["Metabolism"]
 		self.metaboliteIDs = sorted(sim_data.process.metabolism.concDict)
-		self.nConstrainedReactions = len(self.metabolism.kineticsConstrainedReactions)
+		self.n_constrained_reactions = len(self.metabolism.kinetics_constrained_reactions)
+
+		# flux targets from boundary
+		self.n_boundary_constrained_reactions = len(self.metabolism.boundary_constrained_reactions)
+		self.n_all_constrained_reactions = self.n_constrained_reactions + self.n_boundary_constrained_reactions
 
 		# Get metabolite names similar to how it's done in the metabolism process
 		self.metaboliteNamesFromNutrients = set()
@@ -54,9 +58,11 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		self.enzymeIDs = self.metabolism.kineticsEnzymesList
 		self.enzymeCountsInit = np.zeros(len(self.metabolism.kineticsEnzymesList), np.float64)
 		self.countsToMolar = np.zeros(1, np.float64)
-		self.targetFluxes = np.zeros(self.nConstrainedReactions, np.float64)
-		self.actualFluxes = np.zeros(self.nConstrainedReactions, np.float64)
-		self.reactionConstraint = np.zeros(self.nConstrainedReactions, np.int)
+		self.targetFluxes = np.zeros(self.n_all_constrained_reactions, np.float64)
+		self.actualFluxes = np.zeros(self.n_all_constrained_reactions, np.float64)
+
+		# reactionConstraint is only for kinetic constrained reactions, without boundary constrained reactions
+		self.reactionConstraint = np.zeros(self.n_constrained_reactions, np.int)
 
 	def update(self):
 		pass
@@ -65,7 +71,9 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		tableWriter.writeAttributes(
 			enzymeIDs = self.enzymeIDs,
 			metaboliteNames = self.metaboliteNamesFromNutrients,
-			constrainedReactions = self.metabolism.kineticsConstrainedReactions,
+			constrainedReactions = self.metabolism.all_constrained_reactions,
+			kineticsConstrainedReactions = self.metabolism.kinetics_constrained_reactions,
+			boundaryConstrainedReactions = self.metabolism.boundary_constrained_reactions,
 			)
 
 

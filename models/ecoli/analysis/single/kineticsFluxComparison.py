@@ -59,24 +59,38 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# read constraint data
 		enzymeKineticsReader = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
-		targetFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (enzymeKineticsReader.readColumn("targetFluxes").T / coefficient).T
-		actualFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (enzymeKineticsReader.readColumn("actualFluxes").T / coefficient).T
+		allTargetFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (enzymeKineticsReader.readColumn("targetFluxes").T / coefficient).T
+		allActualFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (enzymeKineticsReader.readColumn("actualFluxes").T / coefficient).T
 		reactionConstraint = enzymeKineticsReader.readColumn("reactionConstraint")
 		constrainedReactions = np.array(enzymeKineticsReader.readAttribute("constrainedReactions"))
+		kineticsConstrainedReactions = np.array(enzymeKineticsReader.readAttribute("kineticsConstrainedReactions"))
+		boundaryConstrainedReactions = np.array(enzymeKineticsReader.readAttribute("boundaryConstrainedReactions"))
 		enzymeKineticsReader.close()
 
-		targetFluxes = targetFluxes.asNumber(units.mmol / units.g / units.h)
-		actualFluxes = actualFluxes.asNumber(units.mmol / units.g / units.h)
+		allTargetFluxes = allTargetFluxes.asNumber(units.mmol / units.g / units.h)
+		allActualFluxes = allActualFluxes.asNumber(units.mmol / units.g / units.h)
 
-		targetAve = np.mean(targetFluxes[BURN_IN_STEPS:, :], axis = 0)
-		actualAve = np.mean(actualFluxes[BURN_IN_STEPS:, :], axis = 0)
+		allTargetAve = np.mean(allTargetFluxes[BURN_IN_STEPS:, :], axis = 0)
+		allActualAve = np.mean(allActualFluxes[BURN_IN_STEPS:, :], axis = 0)
+
+		n_kinetic_constrained_reactions = len(kineticsConstrainedReactions)
+
+		# boundary target fluxes
+		boundaryTargetAve = allTargetAve[n_kinetic_constrained_reactions:]
+		boundaryActualAve = allActualAve[n_kinetic_constrained_reactions:]
+
+		# kinetic target fluxes
+		targetFluxes = allTargetFluxes[:, :n_kinetic_constrained_reactions]
+		actualFluxes = allActualFluxes[:, :n_kinetic_constrained_reactions]
+		targetAve = allTargetAve[:n_kinetic_constrained_reactions]
+		actualAve = allActualAve[:n_kinetic_constrained_reactions]
 
 		kcatOnlyReactions = np.all(constraintIsKcatOnly[reactionConstraint[BURN_IN_STEPS:,:]], axis = 0)
 		kmAndKcatReactions = ~np.any(constraintIsKcatOnly[reactionConstraint[BURN_IN_STEPS:,:]], axis = 0)
 		mixedReactions = ~(kcatOnlyReactions ^ kmAndKcatReactions)
 
 		thresholds = [2, 10]
-		categorization = np.zeros(reactionConstraint.shape[1])
+		categorization = np.zeros(n_kinetic_constrained_reactions)
 		categorization[actualAve == 0] = -2
 		categorization[actualAve == targetAve] = -1
 		for i, threshold in enumerate(thresholds):
@@ -87,7 +101,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		siteStr = "https://ecocyc.org/overviewsWeb/celOv.shtml?zoomlevel=1&orgid=ECOLI"
 		excluded = ['RXN0-2201', 'RXN-16000', 'RXN-12583', 'RXN-11496', 'DIMESULFREDUCT-RXN', '3.6.1.41-R[4/63051]5-NUCLEOTID-RXN'] # reactions not recognized by ecocyc
 		rxns = []
-		for i, reaction in enumerate(constrainedReactions):
+		for i, reaction in enumerate(kineticsConstrainedReactions):
 			if actualAve[i] == 0:
 				rxn = re.findall(".+RXN", reaction)
 				if len(rxn) == 0:
@@ -101,16 +115,16 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		output = csv.writer(csvFile, delimiter = "\t")
 		output.writerow(["ecocyc link:", siteStr])
 		output.writerow(["Km and kcat", "Target", "Actual", "Category"])
-		for reaction, target, flux, category in zip(constrainedReactions[kmAndKcatReactions], targetAve[kmAndKcatReactions], actualAve[kmAndKcatReactions], categorization[kmAndKcatReactions]):
+		for reaction, target, flux, category in zip(kineticsConstrainedReactions[kmAndKcatReactions], targetAve[kmAndKcatReactions], actualAve[kmAndKcatReactions], categorization[kmAndKcatReactions]):
 			output.writerow([reaction, target, flux, category])
 
 		output.writerow(["kcat only"])
-		for reaction, target, flux, category in zip(constrainedReactions[kcatOnlyReactions], targetAve[kcatOnlyReactions], actualAve[kcatOnlyReactions], categorization[kcatOnlyReactions]):
+		for reaction, target, flux, category in zip(kineticsConstrainedReactions[kcatOnlyReactions], targetAve[kcatOnlyReactions], actualAve[kcatOnlyReactions], categorization[kcatOnlyReactions]):
 			output.writerow([reaction, target, flux, category])
 
 		if np.sum(mixedReactions):
 			output.writerow(["mixed constraints"])
-			for reaction, target, flux, category in zip(constrainedReactions[mixedReactions], targetAve[mixedReactions], actualAve[mixedReactions], categorization[mixedReactions]):
+			for reaction, target, flux, category in zip(kineticsConstrainedReactions[mixedReactions], targetAve[mixedReactions], actualAve[mixedReactions], categorization[mixedReactions]):
 				output.writerow([reaction, target, flux, category])
 
 		csvFile.close()
@@ -123,6 +137,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		ax = plt.axes()
 		plt.loglog(axes_limits, axes_limits, 'k')
 		plt.loglog(targetAve, actualAve, "ob", markeredgewidth = 0.25, alpha = 0.25)
+		plt.loglog(boundaryTargetAve, boundaryActualAve, "ob", c='r', markeredgewidth=0.25, alpha=0.9, label='boundary fluxes')
 		plt.xlabel("Target Flux (mmol/g/hr)")
 		plt.ylabel("Actual Flux (mmol/g/hr)")
 		plt.minorticks_off()
@@ -131,6 +146,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		ax.set_xlim(axes_limits)
 		ax.set_yticks(axes_limits)
 		ax.set_xticks(axes_limits)
+		ax.legend()
 
 		exportFigure(plt, plotOutDir, plotOutFileName)
 		plt.close("all")
@@ -139,7 +155,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			data = dict(
 				x = targetAve,
 				y = actualAve,
-				reactionName = constrainedReactions)
+				reactionName = kineticsConstrainedReactions)
 			)
 
 		hover = HoverTool(
@@ -221,7 +237,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		nTimesteps = len(time[BURN_IN_STEPS:])
 		x = time[BURN_IN_STEPS:]
 		y = actualFluxes[BURN_IN_STEPS:, 0]
-		reactionName = np.repeat(constrainedReactions[0], nTimesteps)
+		reactionName = np.repeat(kineticsConstrainedReactions[0], nTimesteps)
 
 		source = ColumnDataSource(
 			data = dict(
@@ -235,7 +251,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Plot remaining metabolites onto initialized figure
 		for m in np.arange(1, actualFluxes.shape[1]):
 			y = actualFluxes[BURN_IN_STEPS:, m]
-			reactionName = np.repeat(constrainedReactions[m], nTimesteps)
+			reactionName = np.repeat(kineticsConstrainedReactions[m], nTimesteps)
 
 			source = ColumnDataSource(
 				data = dict(

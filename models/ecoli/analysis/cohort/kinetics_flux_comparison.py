@@ -67,30 +67,42 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 			# read constraint data
 			enzymeKineticsReader = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
-			targetFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (enzymeKineticsReader.readColumn("targetFluxes").T / coefficient).T
-			actualFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (enzymeKineticsReader.readColumn("actualFluxes").T / coefficient).T
+			allTargetFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (enzymeKineticsReader.readColumn("targetFluxes").T / coefficient).T
+			allActualFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (enzymeKineticsReader.readColumn("actualFluxes").T / coefficient).T
 			reactionConstraint = enzymeKineticsReader.readColumn("reactionConstraint")
 			constrainedReactions = np.array(enzymeKineticsReader.readAttribute("constrainedReactions"))
+			kineticsConstrainedReactions = np.array(enzymeKineticsReader.readAttribute("kineticsConstrainedReactions"))
+			boundaryConstrainedReactions = np.array(enzymeKineticsReader.readAttribute("boundaryConstrainedReactions"))
 			enzymeKineticsReader.close()
 
-			targetFluxes = targetFluxes.asNumber(units.mmol / units.g / units.h)
-			actualFluxes = actualFluxes.asNumber(units.mmol / units.g / units.h)
+			allTargetFluxes = allTargetFluxes.asNumber(units.mmol / units.g / units.h)
+			allActualFluxes = allActualFluxes.asNumber(units.mmol / units.g / units.h)
 
-			targetAve = np.nanmean(targetFluxes[burnIn, :], axis = 0)
-			actualAve = np.nanmean(actualFluxes[burnIn, :], axis = 0)
+			allTargetAve = np.nanmean(allTargetFluxes[burnIn, :], axis = 0)
+			allActualAve = np.nanmean(allActualFluxes[burnIn, :], axis = 0)
 
 			if len(targetFluxList) == 0:
-				targetFluxList = np.array([targetAve])
-				actualFluxList = np.array([actualAve])
+				targetFluxList = np.array([allTargetAve])
+				actualFluxList = np.array([allActualAve])
 				reactionConstraintList = np.array(reactionConstraint[burnIn, :])
 			else:
-				targetFluxList = np.concatenate((targetFluxList, np.array([targetAve])), axis = 0)
-				actualFluxList = np.concatenate((actualFluxList, np.array([actualAve])), axis = 0)
+				targetFluxList = np.concatenate((targetFluxList, np.array([allTargetAve])), axis = 0)
+				actualFluxList = np.concatenate((actualFluxList, np.array([allActualAve])), axis = 0)
 				reactionConstraintList = np.concatenate((reactionConstraintList, np.array(reactionConstraint[burnIn, :])), axis = 0)
 
+		n_kinetic_constrained_reactions = len(kineticsConstrainedReactions)
+
 		# determine average across all cells
-		targetAve = np.nanmean(targetFluxList, axis = 0)
-		actualAve = np.nanmean(actualFluxList, axis = 0)
+		allTargetAve = np.nanmean(targetFluxList, axis = 0)
+		allActualAve = np.nanmean(actualFluxList, axis = 0)
+
+		# boundary target fluxes
+		boundaryTargetAve = allTargetAve[n_kinetic_constrained_reactions:]
+		boundaryActualAve = allActualAve[n_kinetic_constrained_reactions:]
+
+		# kinetic target fluxes
+		targetAve = allTargetAve[:n_kinetic_constrained_reactions]
+		actualAve = allActualAve[:n_kinetic_constrained_reactions]
 
 		# categorize reactions that use constraints with only kcat, Km and kcat, or switch between both types of constraints
 		kcatOnlyReactions = np.all(constraintIsKcatOnly[reactionConstraintList], axis = 0)
@@ -110,16 +122,16 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		csvFile = open(os.path.join(plotOutDir, plotOutFileName + ".tsv"), "wb")
 		output = csv.writer(csvFile, delimiter = "\t")
 		output.writerow(["Km and kcat", "Target", "Actual", "Category"])
-		for reaction, target, flux, category in zip(constrainedReactions[kmAndKcatReactions], targetAve[kmAndKcatReactions], actualAve[kmAndKcatReactions], categorization[kmAndKcatReactions]):
+		for reaction, target, flux, category in zip(kineticsConstrainedReactions[kmAndKcatReactions], targetAve[kmAndKcatReactions], actualAve[kmAndKcatReactions], categorization[kmAndKcatReactions]):
 			output.writerow([reaction, target, flux, category])
 
 		output.writerow(["kcat only"])
-		for reaction, target, flux, category in zip(constrainedReactions[kcatOnlyReactions], targetAve[kcatOnlyReactions], actualAve[kcatOnlyReactions], categorization[kcatOnlyReactions]):
+		for reaction, target, flux, category in zip(kineticsConstrainedReactions[kcatOnlyReactions], targetAve[kcatOnlyReactions], actualAve[kcatOnlyReactions], categorization[kcatOnlyReactions]):
 			output.writerow([reaction, target, flux, category])
 
 		if np.sum(mixedReactions):
 			output.writerow(["mixed constraints"])
-			for reaction, target, flux, category in zip(constrainedReactions[mixedReactions], targetAve[mixedReactions], actualAve[mixedReactions], categorization[mixedReactions]):
+			for reaction, target, flux, category in zip(kineticsConstrainedReactions[mixedReactions], targetAve[mixedReactions], actualAve[mixedReactions], categorization[mixedReactions]):
 				output.writerow([reaction, target, flux, category])
 
 		csvFile.close()
@@ -138,6 +150,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		plt.plot([-5, 4], [-6, 3], 'k', linewidth = 0.5)
 		plt.plot([-6, 3], [-5, 4], 'k', linewidth = 0.5)
 		plt.plot(np.log10(targetAve), np.log10(actualAve), 'o', color = "black", markersize = 8, alpha = 0.15, zorder=1, markeredgewidth = 0.0)
+		plt.plot(np.log10(boundaryTargetAve), np.log10(boundaryActualAve), "ob", color="red", markeredgewidth=0.25, alpha=0.9, label='boundary fluxes')
 		plt.xlabel("Log10(Target Flux [mmol/g/hr])")
 		plt.ylabel("Log10(Actual Flux [mmol/g/hr])")
 		plt.title("PCC = %.3f, p = %s\n(%.3f, p = %s without points at zero)" % (pearsonAll[0], pearsonAll[1], pearsonNoZeros[0], pearsonNoZeros[1]))
@@ -149,6 +162,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		ax.set_xlim(xlim[0] - 0.5, xlim[1])
 		ax.set_yticks(range(-6, int(ylim[1]) + 1, 2))
 		ax.set_xticks(range(-6, int(xlim[1]) + 1, 2))
+		ax.legend()
 
 		exportFigure(plt, plotOutDir, plotOutFileName)
 

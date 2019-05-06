@@ -56,14 +56,18 @@ class LocalEnvironment(wholecell.states.external_state.ExternalState):
 
 		self._processIDs = sim.processes.keys()
 
+		# load target transport reactions from compartment
+		boundary_reactions = sim._boundary_reactions
+		self.transport_fluxes = {reaction: 0.0 for reaction in boundary_reactions}
+
 		# load constants
 		self._nAvogadro = sim_data.constants.nAvogadro
 
 		# make media object
 		make_media = Media()
 
-		# environment data
-		# if current_timeline_id is specified by variant, look it up in saved_timelines
+		# if current_timeline_id is specified by a variant in sim_data, look it up in saved_timelines.
+		# else, construct the timeline given to initialize
 		if sim_data.external_state.environment.current_timeline_id:
 			self.current_timeline = sim_data.external_state.environment.saved_timelines[
 				sim_data.external_state.environment.current_timeline_id]
@@ -84,8 +88,8 @@ class LocalEnvironment(wholecell.states.external_state.ExternalState):
 		self.container = BulkObjectsContainer(self._moleculeIDs, dtype=np.float64)
 		self.container.countsIs(self._concentrations)
 
-		# the length of the longest media_id, for padding in listener
-		self._media_id_max_length = max([len(t[1]) for t in self.current_timeline])
+		# set the maximum length for a media_id saved to the listener, this is used for padding
+		self._media_id_max_length = 25
 
 
 	def update(self):
@@ -105,10 +109,20 @@ class LocalEnvironment(wholecell.states.external_state.ExternalState):
 					for molIndex in np.where(self._concentrations < 0)[0]))
 
 	## Functions for multi-scaling interface
-	def set_local_environment(self, concentrations):
+	def set_local_environment(self, update):
+		# apply environment's concentrations
+		concentrations = update['concentrations']
 		self._env_delta_counts = dict.fromkeys(self._env_delta_counts, 0)
 		for idx, molecule_id in enumerate(self._moleculeIDs):
 			self._concentrations[idx] = concentrations[molecule_id]
+
+		# media_id passed from external overwrites the default timeline
+		# TODO (eran) -- fix this so that the current_timeline does not need to be re-written
+		self.current_media_id = update['media_id']
+		self.current_timeline = [(0.0, self.current_media_id)]
+
+		# get transport fluxes passed in from the environment
+		self.transport_fluxes = update.get('transport_fluxes', {})
 
 	def get_environment_change(self):
 		return self._env_delta_counts
@@ -125,8 +139,8 @@ class LocalEnvironment(wholecell.states.external_state.ExternalState):
 
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
-			nutrientCondition = self.current_media_id.ljust(self._media_id_max_length),
-			nutrientConcentrations = self._concentrations,
+			media_id = self.current_media_id.ljust(self._media_id_max_length),
+			media_concentrations = self._concentrations,
 			)
 
 class EnvironmentViewBase(object):
