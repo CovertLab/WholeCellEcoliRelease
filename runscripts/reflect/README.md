@@ -18,7 +18,7 @@ Then, get the object you wish to examine. In our case we are going to take a loo
 
 ```python
 import cPickle
-sim_data = cPickle.load(open('out/manual/kb/simData_Fit_1.cPickle', "rb"))
+sim_data = cPickle.load(open('out/manual/kb/simData.cPickle', "rb"))
 ```
 
 Now that we have our object, we can transform it into a nested dictionary:

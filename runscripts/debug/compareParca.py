@@ -5,6 +5,7 @@ import cPickle
 from pprint import pprint
 import sys
 
+from wholecell.utils import constants
 from runscripts.reflect.object_tree import object_tree, diff_trees
 
 
@@ -15,7 +16,7 @@ def load_fit_tree(out_subdir):
 		'out',
 		out_subdir,
 		'kb',
-		'simData_Fit_1.cPickle')
+		constants.SERIALIZED_SIM_DATA_FILENAME)
 
 	with open(path, "rb") as f:
 		sim_data = cPickle.load(f)

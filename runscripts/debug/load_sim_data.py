@@ -7,7 +7,7 @@ Use:
 	python runscripts/manual/load_sim_data.py
 
 Requires:
-	cached/ directory in wcEcoli root with rawData.cPickle and simData_Fit_1.cPickle
+	cached/ directory in wcEcoli root with rawData.cPickle and simData.cPickle
 
 Tip:
 Create an alias in your .bash_profile to easily run this by just typing lsd (or your
@@ -15,17 +15,23 @@ alias of choice):
 	alias lsd="python runscripts/manual/load_sim_data.py"
 '''
 
+from __future__ import absolute_import, division, print_function
+
 import cPickle
 import os
 
 import ipdb
 import numpy as np
 
+from wholecell.utils import constants
+
+
+_unused = np  # imported just to make np available in debugging; suppress the warning
 
 root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 data_dir = os.path.join(root_dir, 'cached')
-raw_data_filename = 'rawData.cPickle'
-sim_data_filename = 'simData_Fit_1.cPickle'
+raw_data_filename = constants.SERIALIZED_RAW_DATA
+sim_data_filename = constants.SERIALIZED_SIM_DATA_FILENAME
 
 raw_data = cPickle.load(open(os.path.join(data_dir, raw_data_filename), 'rb'))
 sim_data = cPickle.load(open(os.path.join(data_dir, sim_data_filename), 'rb'))

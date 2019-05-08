@@ -41,8 +41,8 @@ cd $TOP_DIR
 cp out/2*/kb/rawData.cPickle.bz2 /scratch/PI/mcovert/wc_ecoli/cached/
 bunzip2 -f /scratch/PI/mcovert/wc_ecoli/cached/rawData.cPickle.bz2
 chmod 444 /scratch/PI/mcovert/wc_ecoli/cached/rawData.cPickle
-cp out/2*/kb/simData_Fit_1.cPickle.bz2 /scratch/PI/mcovert/wc_ecoli/cached/
-bunzip2 -f /scratch/PI/mcovert/wc_ecoli/cached/simData_Fit_1.cPickle.bz2
-chmod 444 /scratch/PI/mcovert/wc_ecoli/cached/simData_Fit_1.cPickle
+cp out/2*/kb/simData.cPickle.bz2 /scratch/PI/mcovert/wc_ecoli/cached/
+bunzip2 -f /scratch/PI/mcovert/wc_ecoli/cached/simData.cPickle.bz2
+chmod 444 /scratch/PI/mcovert/wc_ecoli/cached/simData.cPickle
 
 mv out/2* /scratch/PI/mcovert/wc_ecoli/daily_build/

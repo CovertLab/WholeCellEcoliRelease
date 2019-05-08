@@ -116,7 +116,7 @@ class RunDaughter(scriptBase.ScriptBase):
 		input_variant_directory = os.path.join(args.sim_path, args.variant_dir_name)
 
 		kb_directory = os.path.join(args.sim_path, 'kb')
-		sim_data_file = os.path.join(kb_directory, 'simData_Fit_1.cPickle')
+		sim_data_file = os.path.join(kb_directory, constants.SERIALIZED_SIM_DATA_FILENAME)
 		if not os.path.isfile(sim_data_file):
 			raise IOError(errno.ENOENT,
 				'Missing "{}".  Run the Parca?'.format(sim_data_file))

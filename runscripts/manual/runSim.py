@@ -116,7 +116,7 @@ class RunSimulation(scriptBase.ScriptBase):
 
 	def run(self, args):
 		kb_directory = os.path.join(args.sim_path, 'kb')
-		sim_data_file = os.path.join(kb_directory, 'simData_Fit_1.cPickle')
+		sim_data_file = os.path.join(kb_directory, constants.SERIALIZED_SIM_DATA_FILENAME)
 		if not os.path.isfile(sim_data_file):
 			raise IOError(errno.ENOENT,
 				'Missing "{}".  Run the Parca?'.format(sim_data_file))
@@ -152,15 +152,13 @@ class RunSimulation(scriptBase.ScriptBase):
 			variant_sim_data_directory = fp.makedirs(variant_directory, "kb")
 			variant_metadata_directory = fp.makedirs(variant_directory, "metadata")
 
-			most_fit_filename = os.path.join(
-				kb_directory, constants.SERIALIZED_SIM_DATA_MOST_FIT_FILENAME)
 			variant_sim_data_modified_file = os.path.join(
 				variant_sim_data_directory, constants.SERIALIZED_SIM_DATA_MODIFIED)
 
 			task = VariantSimDataTask(
 				variant_function=variant_type,
 				variant_index=i,
-				input_sim_data=most_fit_filename,
+				input_sim_data=sim_data_file,
 				output_sim_data=variant_sim_data_modified_file,
 				variant_metadata_directory=variant_metadata_directory,
 				)

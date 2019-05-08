@@ -19,7 +19,6 @@ from environment.condition.make_media import Media
 from wholecell.utils import constants
 import wholecell.utils.filepath as fp
 from models.ecoli.sim.variants import apply_variant
-from wholecell.utils import constants
 
 DEFAULT_COLOR = [0.6, 0.4, 0.3]
 
@@ -88,6 +87,7 @@ def ecoli_boot_config(agent_id, agent_config):
 		out/manual/experiment_id/cohort_id/generation_id/cell_id/simOut
 
 	`agent_config` fields:
+	    * generation (optional, the cell generation number)
 	    * outer_id (id of outer environmental agent -- the experiment)
 	    * working_dir (optional, wcEcoli path containing the sim path out/manual/)
 	    * files (optional) list of data files:
@@ -96,7 +96,6 @@ def ecoli_boot_config(agent_id, agent_config):
 	    * variant_type (optional)
 	    * variant_index (optional)
 	    * seed (optional)
-	    * volume (optional)
 
 	Returns:
 		options (dict): simulation arguments for ecoli
@@ -126,7 +125,7 @@ def ecoli_boot_config(agent_id, agent_config):
 
 	# make options for boot config
 	sim_out_path = fp.makedirs(working_dir, 'out')
-	sim_data_fit = os.path.join(sim_out_path, 'manual', 'kb', constants.SERIALIZED_SIM_DATA_MOST_FIT_FILENAME)
+	sim_data_fit = os.path.join(sim_out_path, 'manual', 'kb', constants.SERIALIZED_SIM_DATA_FILENAME)
 	output_dir = os.path.join(sim_out_path, 'agent', outer_id, cohort_id, generation_id, cell_id, 'simOut')
 	variant_sim_data_directory = fp.makedirs(sim_out_path, 'agent', outer_id, 'kb')
 	variant_sim_data_modified_file = os.path.join(variant_sim_data_directory, constants.SERIALIZED_SIM_DATA_MODIFIED)
@@ -142,14 +141,14 @@ def ecoli_boot_config(agent_id, agent_config):
 			errno.ENOENT,
 			'Missing "{}".  Run the Parca?'.format(sim_data_fit))
 
-	# Apply the variant to transform simData_Most_Fit.cPickle
-	info, sim_data = apply_variant.apply_variant(
+	# Apply the variant to transform simData.cPickle
+	info, sim_data_modified = apply_variant.apply_variant(
 		sim_data_file=sim_data_fit,
 		variant_type=variant_type,
 		variant_index=variant_index)
 
 	options = {
-		"simData":                sim_data,
+		"simData":                sim_data_modified,
 		"outputDir":              output_dir,
 		"initialTime":            start_time,
 		"inheritedStatePath":     inherited_state_path,
