@@ -55,7 +55,7 @@ class RunParca(scriptBase.ScriptBase):
 	def parse_args(self):
 		args = super(RunParca, self).parse_args()
 		args.sim_path = filepath.makedirs(
-			scriptBase.ROOT_PATH, "out", args.sim_outdir)
+			filepath.ROOT_PATH, "out", args.sim_outdir)
 		return args
 
 	def run(self, args):
@@ -63,7 +63,7 @@ class RunParca(scriptBase.ScriptBase):
 		raw_data_file = os.path.join(kb_directory, constants.SERIALIZED_RAW_DATA)
 		sim_data_file = os.path.join(kb_directory, constants.SERIALIZED_SIM_DATA_FILENAME)
 		cached_sim_data_file = os.path.join(
-			scriptBase.ROOT_PATH, 'cached', constants.SERIALIZED_SIM_DATA_FILENAME)
+			filepath.ROOT_PATH, 'cached', constants.SERIALIZED_SIM_DATA_FILENAME)
 		raw_validation_data_file = os.path.join(
 			kb_directory, constants.SERIALIZED_RAW_VALIDATION_DATA)
 		validation_data_file = os.path.join(

@@ -94,6 +94,7 @@ jupyter-core==4.4.0
 kiwisolver==1.0.1
 lazy-object-proxy==1.3.1
 line-profiler==2.1.2
+llvmlite==0.28.0
 MarkupSafe==1.0
 matplotlib==2.2.2
 matplotlib-venn==0.11.5
@@ -106,6 +107,7 @@ mpmath==1.0.0
 multiprocess==0.70.6.1
 nbformat==4.4.0
 nose==1.3.7
+numba==0.43.1
 numpy==1.14.6
 optlang==1.4.2
 osqp==0.4.1
@@ -142,6 +144,7 @@ simplegeneric==0.8.1
 singledispatch==3.4.0.3
 six==1.11.0
 statistics==1.0.3.5
+stevedore==1.30.1
 stochastic-arrow==0.1.8
 subprocess32==3.5.2
 swiglpk==1.4.4

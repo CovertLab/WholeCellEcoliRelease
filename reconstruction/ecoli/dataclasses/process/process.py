@@ -6,21 +6,18 @@ SimulationData process associated data
 @date: Created 02/12/2015
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
-from reconstruction.ecoli.dataclasses.process.replication import Replication
-from reconstruction.ecoli.dataclasses.process.metabolism import Metabolism
-from reconstruction.ecoli.dataclasses.process.transcription import Transcription
-from reconstruction.ecoli.dataclasses.process.translation import Translation
-from reconstruction.ecoli.dataclasses.process.complexation import Complexation
-from reconstruction.ecoli.dataclasses.process.rna_decay import RnaDecay
-from reconstruction.ecoli.dataclasses.process.equilibrium import Equilibrium
-from reconstruction.ecoli.dataclasses.process.transcription_regulation import TranscriptionRegulation
-from reconstruction.ecoli.dataclasses.process.two_component_system import TwoComponentSystem
+from .replication import Replication
+from .metabolism import Metabolism
+from .transcription import Transcription
+from .translation import Translation
+from .complexation import Complexation
+from .rna_decay import RnaDecay
+from .equilibrium import Equilibrium
+from .transcription_regulation import TranscriptionRegulation
+from .two_component_system import TwoComponentSystem
 
-
-import re
-import numpy as np
 
 class Process(object):
 	""" Process """

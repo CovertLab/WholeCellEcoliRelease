@@ -16,7 +16,6 @@ from itertools import izip
 
 from arrow import StochasticSystem
 
-import wholecell
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from reconstruction.ecoli.simulation_data import SimulationDataEcoli
 
@@ -3226,11 +3225,7 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 			)
 
 	needToUpdate = False
-	fixturesDir = filepath.makedirs(
-			os.path.dirname(os.path.dirname(wholecell.__file__)),
-			"fixtures",
-			"endo_km"
-			)
+	fixturesDir = filepath.makedirs(filepath.ROOT_PATH, "fixtures", "endo_km")
 	km_filepath = os.path.join(fixturesDir, "km.cPickle")
 
 	if os.path.exists(km_filepath):

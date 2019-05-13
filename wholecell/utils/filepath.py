@@ -3,8 +3,7 @@ filepath.py
 File and filename path utilities.
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import datetime
 import errno
@@ -13,6 +12,11 @@ import io
 import os
 import subprocess
 
+import wholecell
+
+
+# The wcEcoli/ project root path which contains wholecell/.
+ROOT_PATH = os.path.dirname(os.path.dirname(os.path.realpath(wholecell.__file__)))
 
 def makedirs(path, *paths):
 	"""Join one or more path components, make that directory path (using the

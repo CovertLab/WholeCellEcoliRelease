@@ -189,9 +189,8 @@ def log_info(message):
 
 ### Set path variables and create directories
 
-WC_ECOLI_DIRECTORY = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-OUT_DIRECTORY = filepath.makedirs(WC_ECOLI_DIRECTORY, "out")
-CACHED_SIM_DATA_DIRECTORY = os.path.join(WC_ECOLI_DIRECTORY, "cached")
+OUT_DIRECTORY = filepath.makedirs(filepath.ROOT_PATH, "out")
+CACHED_SIM_DATA_DIRECTORY = os.path.join(filepath.ROOT_PATH, "cached")
 
 # To run each analysis plot in a separate process, ask the analysis Firetasks
 # for several CPUs (it will clip to the number available) and allocate multiple
@@ -271,6 +270,7 @@ wf_links = collections.defaultdict(list)
 ### Initialize KB
 
 filename_raw_data = constants.SERIALIZED_RAW_DATA
+filename_sim_data = constants.SERIALIZED_SIM_DATA_FILENAME
 filename_sim_data_modified = constants.SERIALIZED_SIM_DATA_MODIFIED
 
 fw_name = "InitRawData"
@@ -288,8 +288,6 @@ fw_init_raw_data = Firework(
 wf_fws.append(fw_init_raw_data)
 
 ### Fit (Level 1)
-
-filename_sim_data = constants.SERIALIZED_SIM_DATA_FILENAME
 
 fw_name = "CalculateSimData"
 

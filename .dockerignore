@@ -7,6 +7,7 @@
 # Compiled source #
 ###################
 *.pyc
+__pycache__
 
 # OS generated files #
 ######################

@@ -23,13 +23,12 @@ import os
 import ipdb
 import numpy as np
 
-from wholecell.utils import constants
+from wholecell.utils import constants, filepath
 
 
 _unused = np  # imported just to make np available in debugging; suppress the warning
 
-root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-data_dir = os.path.join(root_dir, 'cached')
+data_dir = os.path.join(filepath.ROOT_PATH, 'cached')
 raw_data_filename = constants.SERIALIZED_RAW_DATA
 sim_data_filename = constants.SERIALIZED_SIM_DATA_FILENAME
 

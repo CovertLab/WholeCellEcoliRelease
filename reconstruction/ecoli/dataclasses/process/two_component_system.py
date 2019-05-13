@@ -4,28 +4,20 @@ Two component systems.
 Note: Ligand binding to histidine kinases is modeled by equilibrium.
 
 TODOs:
-_populateDerivativeAndJacobian()
-	Decide if this caching is worthwhile
-	Assumes a directory structure
-
 moleculesToNextTimeStep()
 	Consider relocating (since it's useful for both the parca and simulation)
-
 """
 
 from __future__ import absolute_import, division, print_function
 
 import numpy as np
-import os
-import cPickle
 import scipy
 import re
 import sympy as sp
 
-import wholecell
-from wholecell.utils import filepath
+from wholecell.utils import build_ode
+from wholecell.utils import data
 from wholecell.utils import units
-from wholecell.utils.write_ode_file import writeOdeFile
 
 
 class TwoComponentSystem(object):
@@ -152,6 +144,7 @@ class TwoComponentSystem(object):
 					molecularMass = sim_data.getter.getMass([moleculeName]).asNumber(units.g / units.mol)[0]
 					stoichMatrixMass.append(molecularMass)
 
+		# TODO(jerry): Move most of the rest to a subroutine for __init__ and __setstate__?
 		self._stoichMatrixI = np.array(stoichMatrixI)
 		self._stoichMatrixJ = np.array(stoichMatrixJ)
 		self._stoichMatrixV = np.array(stoichMatrixV)
@@ -180,13 +173,30 @@ class TwoComponentSystem(object):
 		# The stoichometric matrix should balance out to numerical zero.
 		assert np.max([abs(x) for x in massBalanceArray]) < 1e-9
 
-		# Build matrices
-		self._populateDerivativeAndJacobian()
-		self.dependencyMatrix = self.makeDependencyMatrix()
-
 		# Map active TF to inactive TF
 		self.activeToInactiveTF = activeToInactiveTF
 
+		# Build matrices
+		self._populateDerivativeAndJacobian()
+		self.dependencyMatrix = self._makeDependencyMatrix()
+
+	def __getstate__(self):
+		"""Return the state to pickle, omitting derived attributes that
+		__setstate__() will recompute, esp. the ode_derivatives
+		that don't pickle.
+		"""
+		return data.dissoc_strict(self.__dict__, (
+			'derivativesSymbolic', 'derivativesJacobianSymbolic',
+			'derivativesParcaSymbolic', 'derivativesParcaJacobianSymbolic',
+			'derivatives', 'derivatives_jacobian',
+			'derivatives_parca', 'derivatives_parca_jacobian',
+			'dependencyMatrix'))
+
+	def __setstate__(self, state):
+		"""Restore instance attributes, recomputing some of them."""
+		self.__dict__.update(state)
+		self._populateDerivativeAndJacobian()
+		self.dependencyMatrix = self._makeDependencyMatrix()
 
 	def _buildComplexToMonomer(self, modifiedFormsMonomers, tcsMolecules):
 		'''
@@ -255,7 +265,7 @@ class TwoComponentSystem(object):
 			stoichMatrixMonomersV.append(1.)
 
 			for subunitId, subunitStoich in zip(D["subunitIds"], D["subunitStoich"]):
-				if subunitId in self.moleculeNames.tolist():		
+				if subunitId in self.moleculeNames.tolist():
 					rowIdx = self.moleculeNames.tolist().index(subunitId)
 					stoichMatrixMonomersI.append(rowIdx)
 					stoichMatrixMonomersJ.append(colIdx)
@@ -272,88 +282,21 @@ class TwoComponentSystem(object):
 
 
 	def _populateDerivativeAndJacobian(self):
-		'''
-		Creates callable functions for computing the derivative and the
-		Jacobian.
-		'''
-		fixturesDir = filepath.makedirs(
-			os.path.dirname(os.path.dirname(wholecell.__file__)),
-			"fixtures",
-			"twoComponentSystem"
-			)
-		odeFile = os.path.join(
-			os.path.dirname(os.path.dirname(wholecell.__file__)),
-			"reconstruction", "ecoli", "dataclasses", "process", "two_component_system_odes.py"
-			)
-		odeParcaFile = os.path.join(
-			os.path.dirname(os.path.dirname(wholecell.__file__)),
-			"reconstruction", "ecoli", "dataclasses", "process", "two_component_system_odes_parca.py"
-			)
+		'''Compile callable functions for computing the derivative and the Jacobian.'''
+		self._makeDerivative()
+		self._makeDerivativeParca()
 
-		needToCreate = False
+		self.derivatives = build_ode.derivatives(self.derivativesSymbolic)
+		self.derivatives_jacobian = build_ode.derivatives_jacobian(self.derivativesJacobianSymbolic)
 
-		if not os.path.exists(odeFile):
-			needToCreate = True
+		# TODO(jerry): Also JIT-compile derivatives_flipped() and derivatives_jacobian_flipped()?
 
-		if not os.path.exists(odeParcaFile):
-			needToCreate = True
-
-		if os.path.exists(os.path.join(fixturesDir, "S.cPickle")):
-			S = cPickle.load(open(os.path.join(fixturesDir, "S.cPickle"), "rb"))
-			if not np.all(S == self.stoichMatrix()):
-				needToCreate = True
-		else:
-			needToCreate = True
-
-		if os.path.exists(os.path.join(fixturesDir, "ratesFwd.cPickle")):
-			ratesFwd =  cPickle.load(open(os.path.join(fixturesDir, "ratesFwd.cPickle"), "rb"))
-			if not np.all(ratesFwd == self.ratesFwd):
-				needToCreate = True
-		else:
-			needToCreate = True
-
-		if os.path.exists(os.path.join(fixturesDir, "ratesRev.cPickle")):
-			ratesRev =  cPickle.load(open(os.path.join(fixturesDir, "ratesRev.cPickle"), "rb"))
-			if not np.all(ratesRev == self.ratesRev):
-				needToCreate = True
-		else:
-			needToCreate = True
-
-		if needToCreate:
-			self._makeDerivative()
-			self._makeDerivativeParca()
-
-			writeOdeFile(odeFile, self.derivativesSymbolic, self.derivativesJacobianSymbolic)
-			writeOdeFile(odeParcaFile, self.derivativesParcaSymbolic, self.derivativesParcaJacobianSymbolic)
-
-			# Modules are imported here to ensure the files exist before import
-			import reconstruction.ecoli.dataclasses.process.two_component_system_odes
-			import reconstruction.ecoli.dataclasses.process.two_component_system_odes_parca
-
-			self.derivatives = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivatives
-			self.derivatives_jacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivativesJacobian
-			self.derivatives_parca = reconstruction.ecoli.dataclasses.process.two_component_system_odes_parca.derivatives
-			self.derivatives_parca_jacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes_parca.derivativesJacobian
-
-			cPickle.dump(self.stoichMatrix(), open(os.path.join(fixturesDir, "S.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
-			cPickle.dump(self.ratesFwd, open(os.path.join(fixturesDir, "ratesFwd.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
-			cPickle.dump(self.ratesRev, open(os.path.join(fixturesDir, "ratesRev.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
-		else:
-			# Modules are imported here to ensure the files exist before import
-			import reconstruction.ecoli.dataclasses.process.two_component_system_odes
-			import reconstruction.ecoli.dataclasses.process.two_component_system_odes_parca
-
-			self.derivatives = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivatives
-			self.derivatives_jacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivativesJacobian
-			self.derivatives_parca = reconstruction.ecoli.dataclasses.process.two_component_system_odes_parca.derivatives
-			self.derivatives_parca_jacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes_parca.derivativesJacobian
+		# WORKAROUND: Avoid Numba LoweringError JIT-compiling these functions:
+		self.derivatives_parca = build_ode.derivatives(self.derivativesParcaSymbolic, jit=False)
+		self.derivatives_parca_jacobian = build_ode.derivatives_jacobian(self.derivativesParcaJacobianSymbolic, jit=False)
 
 
-	def _makeDerivative(self):
-		'''
-		Creates symbolic representation of the ordinary differential equations
-		and the Jacobian. Used during simulations.
-		'''
+	def _make_y_dy(self):
 		S = self.stoichMatrix()
 
 		yStrings = ["y[%d]" % x for x in xrange(S.shape[0])]
@@ -379,6 +322,16 @@ class TwoComponentSystem(object):
 				dy[thisIdx] += fluxForNegIdxs
 			for thisIdx in posIdxs:
 				dy[thisIdx] += fluxForPosIdxs
+
+		return y, dy
+
+
+	def _makeDerivative(self):
+		'''
+		Creates symbolic representation of the ordinary differential equations
+		and the Jacobian. Used during simulations.
+		'''
+		y, dy = self._make_y_dy()
 
 		dy = sp.Matrix(dy)
 		J = dy.jacobian(y)
@@ -393,31 +346,7 @@ class TwoComponentSystem(object):
 		and the Jacobian assuming ATP, ADP, Pi, water and protons are at
 		steady state. Used in the parca.
 		'''
-		S = self.stoichMatrix()
-
-		yStrings = ["y[%d]" % x for x in xrange(S.shape[0])]
-		y = sp.symbols(yStrings)
-		dy = [sp.symbol.S.Zero] * S.shape[0]
-
-		for colIdx in xrange(S.shape[1]):
-			negIdxs = np.where(S[:, colIdx] < 0)[0]
-			posIdxs = np.where(S[:, colIdx] > 0)[0]
-
-			reactantFlux = self.ratesFwd[colIdx]
-			for negIdx in negIdxs:
-				reactantFlux *= (y[negIdx] ** (-1 * S[negIdx, colIdx]))
-
-			productFlux = self.ratesRev[colIdx]
-			for posIdx in posIdxs:
-				productFlux *=  (y[posIdx] ** ( 1 * S[posIdx, colIdx]))
-
-			fluxForNegIdxs = (-1. * reactantFlux) + (1. * productFlux)
-			fluxForPosIdxs = ( 1. * reactantFlux) - (1. * productFlux)
-
-			for thisIdx in negIdxs:
-				dy[thisIdx] += fluxForNegIdxs
-			for thisIdx in posIdxs:
-				dy[thisIdx] += fluxForPosIdxs
+		y, dy = self._make_y_dy()
 
 		# Metabolism will keep these molecules at steady state
 		constantMolecules = ["ATP[c]", "ADP[c]", "PI[c]", "WATER[c]", "PROTON[c]"]
@@ -585,16 +514,16 @@ class TwoComponentSystem(object):
 		return reactionName
 
 
-	def makeDependencyMatrix(self):
+	def _makeDependencyMatrix(self):
 		'''
 		Builds matrix mapping linearly independent molecules (ATP, histidine kinases, 
 		response regulators, and ligand-bound histidine kinases for positively oriented 
 		networks) to their dependents.
 		'''
-		moleculeTypes = self.moleculeTypes
 		dependencyMatrixI = []
 		dependencyMatrixJ = []
 		dependencyMatrixV = []
+		dependencyMatrixATPJ = -1
 
 		for independentMoleculeIndex, independentMoleculeId in enumerate(self.independent_molecule_indexes):
 			dependencyMatrixI.append(independentMoleculeId)
@@ -604,7 +533,6 @@ class TwoComponentSystem(object):
 			if self.moleculeNames[independentMoleculeId] == "ATP[c]":
 				dependencyMatrixATPJ = independentMoleculeIndex
 			else:
-				moleculeType = moleculeTypes[independentMoleculeId]
 				dependentMoleculeId = int(np.where(self.moleculeNames == self.independentToDependentMolecules[self.moleculeNames[independentMoleculeId]])[0])
 				dependencyMatrixI.append(dependentMoleculeId)
 				dependencyMatrixJ.append(independentMoleculeIndex)

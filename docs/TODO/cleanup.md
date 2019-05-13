@@ -4,8 +4,8 @@ Repository clean-up
 
 1. Top-level directories
     * Clean up TODO directory (DONE)
-    * fixtures - should these all go in out/fixtures?
-    * runscripts - break into subdirs
+    * fixtures - eliminate? move them to out/fixtures?
+    * runscripts - break into subdirs (DONE)
 
 2. wholecell/processes (DONE)
     * Remove unneeded/outmoded processes (DONE)

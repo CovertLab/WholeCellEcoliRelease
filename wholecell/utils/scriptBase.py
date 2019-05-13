@@ -18,11 +18,7 @@ import os
 import pprint as pp
 import time
 
-import wholecell
-
-
-# The wcEcoli project root path.
-ROOT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(wholecell.__file__)))
+from wholecell.utils.filepath import ROOT_PATH
 
 
 def default_wcecoli_out_subdir_path():

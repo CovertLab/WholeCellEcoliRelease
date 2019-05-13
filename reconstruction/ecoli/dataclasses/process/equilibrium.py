@@ -2,24 +2,19 @@
 Equilibrium.
 
 TODOs:
-_populateDerivativeAndJacobian()
-	Decide if this caching is worthwhile
-	Assumes a directory structure
-
 fluxesAndMoleculesToSS()
 	Consider relocating (since it's useful for both the parca and simulation)
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
-import os
-import cPickle
-import wholecell
-from wholecell.utils import filepath
-from wholecell.utils import units
-from wholecell.utils.write_ode_file import writeOdeFileWithRates
 import sympy as sp
+
+from wholecell.utils import build_ode
+from wholecell.utils import data
+from wholecell.utils import units
+
 
 class EquilibriumError(Exception):
 	pass
@@ -39,8 +34,6 @@ class Equilibrium(object):
 		stoichMatrixI = []
 		stoichMatrixJ = []
 		stoichMatrixV = []
-
-		rxnIds = []
 
 		stoichMatrixMass = []
 		self.metaboliteSet = set()
@@ -118,6 +111,7 @@ class Equilibrium(object):
 				molecularMass = sim_data.getter.getMass([moleculeName]).asNumber(units.g / units.mol)[0]
 				stoichMatrixMass.append(molecularMass)
 
+		# TODO(jerry): Move the rest to a subroutine for __init__ and __setstate__?
 		self._stoichMatrixI = np.array(stoichMatrixI)
 		self._stoichMatrixJ = np.array(stoichMatrixJ)
 		self._stoichMatrixV = np.array(stoichMatrixV)
@@ -139,13 +133,29 @@ class Equilibrium(object):
 		assert np.max(np.absolute(massBalanceArray)) < 1e-9
 
 		# Build matrices
-		self._makeMatrices()
 		self._populateDerivativeAndJacobian()
 		self._complexIdxs = np.where(np.any(self.stoichMatrix() > 0, axis=1))[0]
 		self._monomerIdxs = [np.where(x < 0)[0] for x in self.stoichMatrix().T]
 		self._rxnNonZeroIdxs = [np.where(x != 0)[0] for x in self.stoichMatrix().T]
 		self._stoichMatrix = self.stoichMatrix()
 		self._stoichMatrixMonomers = self.stoichMatrixMonomers()
+
+	def __getstate__(self):
+		"""Return the state to pickle, omitting derived attributes that
+		__setstate__() will recompute, esp. those like the ode_derivatives
+		that don't pickle.
+		"""
+		return data.dissoc_strict(self.__dict__, (
+			'_stoichMatrix',
+			'Rp', 'Pp', 'metsToRxnFluxes',
+			'derivativesSymbolic', 'derivativesJacobianSymbolic',
+			'derivatives', 'derivativesJacobian'))
+
+	def __setstate__(self, state):
+		"""Restore instance attributes, recomputing some of them."""
+		self.__dict__.update(state)
+		self._stoichMatrix = self.stoichMatrix()
+		self._populateDerivativeAndJacobian()
 
 	def stoichMatrix(self):
 		'''
@@ -214,59 +224,13 @@ class Equilibrium(object):
 		return out
 
 	def _populateDerivativeAndJacobian(self):
-		'''
-		Creates callable functions for computing the derivative and the Jacobian.
-		'''
-		fixturesDir = filepath.makedirs(
-			os.path.dirname(os.path.dirname(wholecell.__file__)),
-			"fixtures",
-			"equilibrium"
-			)
-		odeFile = os.path.join(
-			os.path.dirname(os.path.dirname(wholecell.__file__)),
-			"reconstruction", "ecoli", "dataclasses", "process", "equilibrium_odes.py"
-			)
+		'''Compile callable functions for computing the derivative and the Jacobian.'''
+		self._makeMatrices()
+		self._makeDerivative()
 
-		needToCreate = False
-
-		if not os.path.exists(odeFile):
-			needToCreate = True
-
-		if os.path.exists(os.path.join(fixturesDir, "S.cPickle")):
-			S = cPickle.load(open(os.path.join(fixturesDir, "S.cPickle"), "rb"))
-			if not np.all(S == self.stoichMatrix()):
-				needToCreate = True
-		else:
-			needToCreate = True
-
-		if os.path.exists(os.path.join(fixturesDir, "ratesFwd.cPickle")):
-			ratesFwd =  cPickle.load(open(os.path.join(fixturesDir, "ratesFwd.cPickle"), "rb"))
-			if not np.all(ratesFwd == self.ratesFwd):
-				needToCreate = True
-		else:
-			needToCreate = True
-
-		if os.path.exists(os.path.join(fixturesDir, "ratesRev.cPickle")):
-			ratesRev =  cPickle.load(open(os.path.join(fixturesDir, "ratesRev.cPickle"), "rb"))
-			if not np.all(ratesRev == self.ratesRev):
-				needToCreate = True
-		else:
-			needToCreate = True
-
-		if needToCreate:
-			self._makeMatrices()
-			self._makeDerivative()
-			writeOdeFileWithRates(odeFile, self.derivativesSymbolic, self.derivativesJacobianSymbolic)
-			import reconstruction.ecoli.dataclasses.process.equilibrium_odes
-			self.derivatives = reconstruction.ecoli.dataclasses.process.equilibrium_odes.derivatives
-			self.derivativesJacobian = reconstruction.ecoli.dataclasses.process.equilibrium_odes.derivativesJacobian
-			cPickle.dump(self.stoichMatrix(), open(os.path.join(fixturesDir, "S.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
-			cPickle.dump(self.ratesFwd, open(os.path.join(fixturesDir, "ratesFwd.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
-			cPickle.dump(self.ratesRev, open(os.path.join(fixturesDir, "ratesRev.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
-		else:
-			import reconstruction.ecoli.dataclasses.process.equilibrium_odes
-			self.derivatives = reconstruction.ecoli.dataclasses.process.equilibrium_odes.derivatives
-			self.derivativesJacobian = reconstruction.ecoli.dataclasses.process.equilibrium_odes.derivativesJacobian
+		self.derivatives = build_ode.derivatives_with_rates(self.derivativesSymbolic)
+		self.derivativesJacobian = build_ode.derivatives_jacobian_with_rates(
+			self.derivativesJacobianSymbolic)
 
 	def _makeMatrices(self):
 		'''
@@ -312,12 +276,10 @@ class Equilibrium(object):
 			negIdxs = np.where(S[:, colIdx] < 0)[0]
 			posIdxs = np.where(S[:, colIdx] > 0)[0]
 
-			reactantFlux = self.ratesFwd[colIdx]
 			reactantFlux = ratesFwd[colIdx]
 			for negIdx in negIdxs:
 				reactantFlux *= (y[negIdx] ** (-1 * S[negIdx, colIdx]))
 
-			productFlux = self.ratesRev[colIdx]
 			productFlux = ratesRev[colIdx]
 			for posIdx in posIdxs:
 				productFlux *=  (y[posIdx] ** ( 1 * S[posIdx, colIdx]))
@@ -340,8 +302,6 @@ class Equilibrium(object):
 		'''
 		Calculate change in molecule counts and flux through reactions until steady state.
 		'''
-		rxnFluxes = np.zeros(self._stoichMatrix.shape[1])
-		yMoleculesFinal = np.zeros_like(moleculeCounts)
 		dYMolecules = np.zeros_like(moleculeCounts)
 		monomersTotal = moleculeCounts + np.dot(self._stoichMatrixMonomers, -1. * moleculeCounts[self._complexIdxs])
 		countsToMolarLog = -1. * (np.log10(cellVolume) + np.log10(nAvogadro))
@@ -363,9 +323,6 @@ class Equilibrium(object):
 
 
 	def _solveSS(self, x, S, kdLog, countsToMolarLog, monomerIdxs, nonZeroIdxs):
-		def error(x, S, kdLog, countsToMolarLog):
-			return np.abs(np.dot(-S, countsToMolarLog + np.log10(x)) - kdLog)
-
 		rxnFlux = 0.
 		maxIters = int(np.ceil(np.min(-x[monomerIdxs] / S[monomerIdxs])))
 
@@ -382,7 +339,7 @@ class Equilibrium(object):
 		already a monomer returns the monomer ID again with a stoichiometric
 		coefficient of one.
 		'''
-		info = self._moleculeRecursiveSearch(cplxId, self.stoichMatrix(), self.moleculeNames)
+		info = self._moleculeRecursiveSearch(cplxId, self._stoichMatrix, self.moleculeNames)
 		return {'subunitIds': np.array(info.keys()), 'subunitStoich': np.array(info.values())}
 
 	def getMetabolite(self, cplxId):
@@ -450,10 +407,10 @@ class Equilibrium(object):
 			if i == row:
 				continue
 			val = stoichMatrix[i][col]
-			sp = speciesList[i]
+			species = speciesList[i]
 
 			if val != 0:
-				x = self._moleculeRecursiveSearch(sp, stoichMatrix, speciesList)
+				x = self._moleculeRecursiveSearch(species, stoichMatrix, speciesList)
 				for j in x:
 					if j in total:
 						total[j] += x[j]*(np.absolute(val))
