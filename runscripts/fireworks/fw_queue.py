@@ -110,10 +110,10 @@ FitSimData (fw_calculate_sim_data)
 
 VariantSimData (fw_this_variant_sim_data)
 * CompressFitSimData if COMPRESS_OUTPUT
-* Simulation/SimulationDaughter * N_INIT_SIMS * N_GENS
+* Simulation/SimulationDaughter * N_INIT_SIMS
 
 Simulation/SimulationDaughter (fw_this_variant_this_gen_this_sim)
-* SimulationDaughter (* 2 if not SINGLE_DAUGHTERS) if N_GENS > 1
+* SimulationDaughter (* 2 if not SINGLE_DAUGHTERS) if GEN < N_GENS - 1
 * AnalysisSingle if RUN_AGGREGATE_ANALYSIS
 * AnalysisCohort if RUN_AGGREGATE_ANALYSIS and GEN == N_GENS - 1
 * AnalysisVariant if RUN_AGGREGATE_ANALYSIS and GEN == N_GENS - 1
