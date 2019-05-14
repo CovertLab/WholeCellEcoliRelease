@@ -87,6 +87,77 @@ Additional variables:
 
 Environment variables that matter when running the workflow:
 	DEBUG_GC (int, "0"): if nonzero, enable leak detection in the analysis plots
+
+
+-------------------------------------------------
+Current dependency network of existing FireTasks (each task has a list of its
+immediate downstream dependencies):
+
+InitRawData (fw_init_raw_data)
+* FitSimData
+* InitValidationData
+
+InitRawValidationData (fw_raw_validation_data)
+* InitValidationData
+
+InitValidationData (fw_validation_data)
+* CompressRawValidationData
+* CompressRawData
+
+FitSimData (fw_calculate_sim_data)
+* CompressRawData
+* VariantSimData
+
+VariantSimData (fw_this_variant_sim_data)
+* CompressFitSimData
+* Simulation/SimulationDaughter
+
+Simulation/SimulationDaughter (fw_this_variant_this_gen_this_sim)
+* SimulationDaughter
+* AnalysisCohort
+* AnalysisVariant
+* AnalysisMultiGen
+* BuildCausalityNetwork
+
+AnalysisSingle (fw_this_variant_this_gen_this_sim_analysis)
+* CompressVariantSimData
+* CompressValidationData
+* CompressSimulationOutput
+
+AnalysisVariant (fw_variant_analysis)
+* CompressVariantSimData
+* CompressValidationData
+* CompressSimulationOutput
+
+AnalysisCohort (fw_this_variant_cohort_analysis)
+* CompressVariantSimData
+* CompressValidationData
+* CompressSimulationOutput
+
+AnalysisMultiGen (fw_this_variant_this_seed_this_analysis)
+* CompressVariantSimData
+* CompressValidationData
+* CompressSimulationOutput
+
+BuildCausalityNetwork (fw_this_variant_this_gen_this_sim_causality_network)
+* CompressVariantSimData
+* CompressSimulationOutput
+
+CompressValidationData (fw_validation_data_compression)
+* CompressRawData
+* CompressRawValidationData
+
+CompressRawData (fw_raw_data_compression)
+
+CompressFitSimData (fw_sim_data_1_compression)
+
+CompressRawValidationData (fw_raw_validation_data_compression)
+
+CompressVariantSimData (fw_this_variant_sim_data_compression)
+
+CompressSimulationOutput (fw_this_variant_this_gen_this_sim_compression)
+-------------------------------------------------
+
 '''
 
 from __future__ import absolute_import, division, print_function
