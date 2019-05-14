@@ -87,6 +87,76 @@ Additional variables:
 
 Environment variables that matter when running the workflow:
 	DEBUG_GC (int, "0"): if nonzero, enable leak detection in the analysis plots
+
+
+-------------------------------------------------
+Current dependency network of existing FireTasks (each task has a list of its
+immediate downstream dependencies):
+
+InitRawData (fw_init_raw_data)
+* FitSimData
+* InitValidationData
+
+InitRawValidationData (fw_raw_validation_data)
+* InitValidationData
+
+InitValidationData (fw_validation_data)
+* CompressRawValidationData if COMPRESS_OUTPUT
+* CompressRawData if COMPRESS_OUTPUT
+
+FitSimData (fw_calculate_sim_data)
+* CompressRawData if COMPRESS_OUTPUT
+* VariantSimData * VARIANTS_TO_RUN
+
+VariantSimData (fw_this_variant_sim_data)
+* CompressFitSimData if COMPRESS_OUTPUT
+* Simulation/SimulationDaughter * N_INIT_SIMS
+
+Simulation/SimulationDaughter (fw_this_variant_this_gen_this_sim)
+* SimulationDaughter (* 2 if not SINGLE_DAUGHTERS) if GEN < N_GENS - 1
+* AnalysisSingle if RUN_AGGREGATE_ANALYSIS
+* AnalysisCohort if RUN_AGGREGATE_ANALYSIS and GEN == N_GENS - 1
+* AnalysisVariant if RUN_AGGREGATE_ANALYSIS and GEN == N_GENS - 1
+* AnalysisMultiGen if RUN_AGGREGATE_ANALYSIS and GEN == N_GENS - 1
+* BuildCausalityNetwork if BUILD_CAUSALITY_NETWORK
+
+AnalysisSingle (fw_this_variant_this_gen_this_sim_analysis)
+* CompressVariantSimData if COMPRESS_OUTPUT
+* CompressValidationData if COMPRESS_OUTPUT
+* CompressSimulationOutput if COMPRESS_OUTPUT
+
+AnalysisVariant (fw_variant_analysis)
+* CompressVariantSimData if COMPRESS_OUTPUT
+* CompressValidationData if COMPRESS_OUTPUT
+* CompressSimulationOutput if COMPRESS_OUTPUT
+
+AnalysisCohort (fw_this_variant_cohort_analysis)
+* CompressVariantSimData if COMPRESS_OUTPUT
+* CompressValidationData if COMPRESS_OUTPUT
+* CompressSimulationOutput if COMPRESS_OUTPUT
+
+AnalysisMultiGen (fw_this_variant_this_seed_this_analysis)
+* CompressVariantSimData if COMPRESS_OUTPUT
+* CompressValidationData if COMPRESS_OUTPUT
+* CompressSimulationOutput if COMPRESS_OUTPUT
+
+BuildCausalityNetwork (fw_this_variant_this_gen_this_sim_causality_network)
+* CompressVariantSimData if COMPRESS_OUTPUT
+* CompressSimulationOutput if COMPRESS_OUTPUT
+
+CompressValidationData (fw_validation_data_compression)
+
+CompressRawData (fw_raw_data_compression)
+
+CompressFitSimData (fw_sim_data_1_compression)
+
+CompressRawValidationData (fw_raw_validation_data_compression)
+
+CompressVariantSimData (fw_this_variant_sim_data_compression)
+
+CompressSimulationOutput (fw_this_variant_this_gen_this_sim_compression)
+-------------------------------------------------
+
 '''
 
 from __future__ import absolute_import, division, print_function
