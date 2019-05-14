@@ -1,6 +1,7 @@
 # Active analysis modules to run, in this order.
 # Tip: Edit this during development to run ones you're working on first.
 ACTIVE = [
+	"aa_conc.py",
 	"centralCarbonMetabolismCorrelationTimeCourse.py",
 	"centralCarbonMetabolismScatter.py",
 	"doubling_times_histogram_all.py",
@@ -28,11 +29,15 @@ TAGS = {
 	'DIVISION': [
 		"initialVsFinalMass.py",
 		],
+	'GROWTH': [
+		"aa_conc.py",
+		],
 	'HETEROGENEITY': [
 		"proteinCopyNumberDistribution.py",
 		"rnaCopyNumberDistribution.py",
 		],
 	'METABOLISM': [
+		"aa_conc.py",
 		"centralCarbonMetabolismCorrelationTimeCourse.py",
 		"centralCarbonMetabolismScatter.py",
 		"kinetics_flux_comparison.py",

@@ -1056,23 +1056,32 @@ class FluxBalanceAnalysis(object):
 				lowerBound=lb,
 				)
 
-	def setMoleculeSetpoint(self, moleculeID, coeff):
-		if moleculeID not in self._outputMoleculeIDs:
-			raise FBAError(
-				"setpointIs() only allows for modification of setpoint values, " +
-				"not adding new ones. %s is an unrecognized molecule" % moleculeID
+	def update_homeostatic_targets(self, objective):
+		'''
+		Sets the homeostatic objective target values.
+
+		Args:
+			objective (dict): targets for each molecule
+				{molecule (str): target (float)}
+		'''
+
+		for molecule_id, coeff in objective.items():
+			if molecule_id not in self._outputMoleculeIDs:
+				raise FBAError(
+					"This function only allows for modification of setpoint values, " +
+					"not adding new ones. %s is an unrecognized molecule" % moleculeID
+					)
+
+			pseudo_flux_id = self._generatedID_moleculesToEquivalents.format(molecule_id)
+
+			self._solver.setFlowMaterialCoeff(
+				pseudo_flux_id,
+				molecule_id,
+				-coeff
 				)
 
-		pseudoFluxID = self._generatedID_moleculesToEquivalents.format(moleculeID)
-
-		self._solver.setFlowMaterialCoeff(
-			pseudoFluxID,
-			moleculeID,
-			-coeff
-			)
-
-		i = self._outputMoleculeIDs.index(moleculeID)
-		self._outputMoleculeCoeffs[i][pseudoFluxID] = -coeff
+			i = self._outputMoleculeIDs.index(molecule_id)
+			self._outputMoleculeCoeffs[i][pseudo_flux_id] = -coeff
 
 	def setMaxMassAccumulated(self, maxAccumulation):
 		self._solver.setFlowBounds(

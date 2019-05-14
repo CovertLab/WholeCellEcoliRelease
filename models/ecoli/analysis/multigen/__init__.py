@@ -1,6 +1,7 @@
 # Active analysis modules to run, in this order.
 # Tip: Edit this during development to run ones you're working on first.
 ACTIVE = [
+	"aa_conc.py",
 	"biosynthesisProductionDynamics.py",
 	"carRegulation.py",
 	"cellCycleLength.py",
@@ -48,6 +49,7 @@ ACTIVE = [
 TAGS = {
 	'ACTIVE': ACTIVE,   # all active analyses in this category
 	'CORE': [           # the default list to run in development
+		"aa_conc.py",
 		"cellCycleLength.py",
 		"massFractionSummary.py",
 		"massFractionToUnity.py",
@@ -62,10 +64,12 @@ TAGS = {
 		"massShift.py",
 		],
 	'GROWTH': [
+		"aa_conc.py",
 		"charging_molecules.py",
 		"growthAffectingPolymerases.py",
 		],
 	'METABOLISM': [
+		"aa_conc.py",
 		"centralCarbonMetabolismCorrelationTimeCourse.py",
 		"centralCarbonMetabolismScatter.py",
 		"kineticsFluxComparison.py",

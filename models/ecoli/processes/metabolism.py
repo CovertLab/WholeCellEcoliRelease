@@ -212,6 +212,13 @@ class Metabolism(wholecell.processes.process.Process):
 		if hasattr(sim_data.process.metabolism, "catalystShuffleIdxs") and sim_data.process.metabolism.catalystShuffleIdxs != None:
 			self.shuffleCatalyzedIdxs = sim_data.process.metabolism.catalystShuffleIdxs
 
+		# Track updated AA concentration targets with tRNA charging
+		self.use_trna_charging = sim._trna_charging
+		self.aa_targets = {}
+		self.aa_targets_not_updated = set(['L-SELENOCYSTEINE[c]', 'GLT[c]', 'LEU[c]'])
+		self.aa_names = sim_data.moleculeGroups.aaIDs
+		self.aas = self.bulkMoleculesView(self.aa_names)
+
 	def calculateRequest(self):
 		self.metabolites.requestAll()
 		self.catalysts.requestAll()
@@ -242,6 +249,9 @@ class Metabolism(wholecell.processes.process.Process):
 			self.nutrientToDoublingTime.get(current_media, self.nutrientToDoublingTime["minimal"])
 			)
 
+		if self.use_trna_charging:
+			self.concModificationsBasedOnCondition.update(self.update_amino_acid_targets(countsToMolar))
+
 		# Set external molecule levels
 		externalMoleculeLevels, newObjective = self.exchangeConstraints(
 			self.externalMoleculeIDs,
@@ -252,30 +262,19 @@ class Metabolism(wholecell.processes.process.Process):
 			self.concModificationsBasedOnCondition,
 			)
 
-		updatedObjective = False
 		if newObjective != None and newObjective != self.homeostaticObjective:
-			# Build new fba instance with new objective
-			self.fbaObjectOptions["objective"] = newObjective
-			self.fba = FluxBalanceAnalysis(**self.fbaObjectOptions)
-			self.internalExchangeIdxs = np.array([self.metaboliteNamesFromNutrients.index(x) for x in self.fba.getOutputMoleculeIDs()])
+			self.fba.update_homeostatic_targets(newObjective)
 			self.homeostaticObjective = newObjective
-			updatedObjective = True
 
 		# After completing the burn-in, enable kinetic rates
 		if self.use_kinetics and (not self.burnInComplete) and (self._sim.time() > KINETICS_BURN_IN_PERIOD):
 			self.burnInComplete = True
 			self.fba.enableKineticTargets()
 
-		# Allow flexibility for solver in first time step after an environment shift
-		if updatedObjective:
-			self.fba.disableKineticTargets()
-			self.burnInComplete = False
-
 		#  Find metabolite concentrations from metabolite counts
 		metaboliteConcentrations =  countsToMolar * metaboliteCountsInit[self.internalExchangeIdxs]
 
 		# Make a dictionary of metabolite names to metabolite concentrations
-		metaboliteConcentrationsDict = dict(zip(self.metaboliteNames, metaboliteConcentrations))
 		self.fba.setInternalMoleculeLevels(metaboliteConcentrations.asNumber(CONC_UNITS))
 
 		# Set external molecule levels
@@ -432,6 +431,46 @@ class Metabolism(wholecell.processes.process.Process):
 			self.biomass_concentrations[doubling_time] = self._getBiomassAsConcentrations(doubling_time)
 
 		return self.biomass_concentrations[doubling_time]
+
+	def update_amino_acid_targets(self, counts_to_molar):
+		'''
+		Finds new amino acid concentration targets based on difference in supply
+		and number of amino acids used in polypeptide_elongation
+
+		Args:
+			counts_to_molar (float with mol/volume units): conversion from counts
+				to molar for the current state of the cell
+
+		Returns:
+			dict {AA name (str): AA conc (float with mol/volume units)}:
+				new concentration targets for each amino acid
+
+		Skips updates to certain molecules defined in self.aa_targets_not_updated:
+		- L-SELENOCYSTEINE: rare amino acid that led to high variability when updated
+		- GLT: high measured concentration that never doubled causing slow growth
+		- LEU: increase in concentration caused TF regulation to stop transcription
+		  of AA synthesis pathway genes
+
+		TODO:
+		- remove access to PolypeptideElongation class attribute (aa_count_diff)
+		'''
+
+		count_diff = self._sim.processes['PolypeptideElongation'].aa_count_diff
+
+		if len(count_diff):
+			for aa, diff in count_diff.items():
+				if aa in self.aa_targets_not_updated:
+					continue
+				self.aa_targets[aa] += diff
+		# First time step of a simulation so set target to current counts to prevent
+		# concentration jumps between generations
+		else:
+			for aa, counts in zip(self.aa_names, self.aas.total_counts()):
+				if aa in self.aa_targets_not_updated:
+					continue
+				self.aa_targets[aa] = counts
+
+		return {aa: counts * counts_to_molar for aa, counts in self.aa_targets.items()}
 
 
 class Boundary(object):
