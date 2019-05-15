@@ -423,6 +423,7 @@ TYPE_TO_READER_FUNCTION = {
 	"Complexation": read_complexation_dynamics,
 	"Equilibrium": read_equilibrium_dynamics,
 	"Metabolism": read_metabolism_dynamics,
+	"Transport": read_metabolism_dynamics,
 	"Regulation": read_regulation_dynamics,
 	"Charging": read_charging_dynamics,
 	}

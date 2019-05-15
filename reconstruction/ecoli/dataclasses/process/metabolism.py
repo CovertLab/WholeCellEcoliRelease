@@ -50,6 +50,13 @@ class Metabolism(object):
 
 		self.boundary = Boundary(raw_data, sim_data)
 
+		# make a list of transport reactions
+		transport_reactions_raw = raw_data.transport_reactions
+		self.transport_reactions = []
+		for transport_reaction in transport_reactions_raw:
+			reaction_id = transport_reaction.get('reaction id')
+			self.transport_reactions.append(reaction_id)
+
 		self._buildBiomass(raw_data, sim_data)
 		self._buildMetabolism(raw_data, sim_data)
 

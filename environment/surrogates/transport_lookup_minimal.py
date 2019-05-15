@@ -12,8 +12,10 @@ from reconstruction.spreadsheets import JsonReader
 TUMBLE_JITTER = 2.0 # (radians)
 DEFAULT_COLOR = [color/255 for color in [255, 69, 0]]
 
-CSV_DIALECT = csv.excel_tab
-TRANSPORT_REACTIONS_FILE = os.path.join("environment", "condition", "look_up_tables", "transport_reactions.tsv")
+TSV_DIALECT = csv.excel_tab
+REACTIONS_FILE = os.path.join("reconstruction", "ecoli", "flat", "reactions.tsv")
+TRANSPORT_IDS_FILE = os.path.join("reconstruction", "ecoli", "flat", "transport_reactions.tsv")
+
 LIST_OF_LOOKUP_FILES = (
 	os.path.join("environment", "condition", "look_up_tables", "avg_flux", "minimal.tsv"),
 	os.path.join("environment", "condition", "look_up_tables", "avg_flux", "minimal_minus_oxygen.tsv"),
@@ -64,18 +66,31 @@ class TransportMinimal(CellSimulation):
 		self.division = []
 
 		# make dict of transport reactions
-		self.all_transport_reactions = {}
-		with open(TRANSPORT_REACTIONS_FILE, 'rU') as csvfile:
-			reader = JsonReader(csvfile, dialect=CSV_DIALECT)
+		# get all reactions
+		all_reactions = {}
+		with open(REACTIONS_FILE, 'rU') as tsvfile:
+			reader = JsonReader(tsvfile, dialect=TSV_DIALECT)
 			for row in reader:
 				reaction_id = row["reaction id"]
 				stoichiometry = row["stoichiometry"]
 				reversible = row["is reversible"]
 				catalyzed = row["catalyzed by"]
-				self.all_transport_reactions[reaction_id] = {
+				all_reactions[reaction_id] = {
 					"stoichiometry": stoichiometry,
 					"is reversible": reversible,
 					"catalyzed by": catalyzed,
+				}
+
+		# make dict of reactions in TRANSPORT_IDS_FILE
+		self.all_transport_reactions = {}
+		with open(TRANSPORT_IDS_FILE, 'rU') as tsvfile:
+			reader = JsonReader(tsvfile, dialect=TSV_DIALECT)
+			for row in reader:
+				reaction_id = row["reaction id"]
+				self.all_transport_reactions[reaction_id] = {
+					"stoichiometry": all_reactions[reaction_id]["stoichiometry"],
+					"is reversible": all_reactions[reaction_id]["is reversible"],
+					"catalyzed by": all_reactions[reaction_id]["catalyzed by"],
 				}
 
 		# make a dictionary with saved average fluxes for all transport reactions, in the three conditions
@@ -84,8 +99,8 @@ class TransportMinimal(CellSimulation):
 		for file_name in LIST_OF_LOOKUP_FILES:
 			attrName = file_name.split(os.path.sep)[-1].split(".")[0]
 			self.flux_lookup[attrName] = {}
-			with open(file_name, 'rU') as csvfile:
-				reader = JsonReader(csvfile, dialect=CSV_DIALECT)
+			with open(file_name, 'rU') as tsvfile:
+				reader = JsonReader(tsvfile, dialect=TSV_DIALECT)
 				for row in reader:
 					reaction_id = row["reaction id"]
 					flux = row["average flux mmol/L"]

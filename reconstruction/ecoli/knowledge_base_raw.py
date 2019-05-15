@@ -52,6 +52,7 @@ LIST_OF_DICT_FILENAMES = (
 	"tfOneComponentBound.tsv",
 	"transcriptionUnits.tsv",
 	"translationEfficiency.tsv",
+	"transport_reactions.tsv",
 	"twoComponentSystemTemplates.tsv",
 	"twoComponentSystems.tsv",
 	"water.tsv",
