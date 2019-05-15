@@ -83,7 +83,7 @@ class ScriptBase(object):
 
 	# Regex to match a variant directory name. In the resulting match
 	# object, group 1 is the variant_type and group 2 is the variant_index.
-	VARIANT_DIR_PATTERN = re.compile(r'([\w\W]+)_(\d+)\Z')
+	VARIANT_DIR_PATTERN = re.compile(r'(.+)_(\d+)\Z')
 
 	def description(self):
 		"""Describe the command line program. This defaults to the class name."""
