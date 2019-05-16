@@ -1,26 +1,23 @@
 from __future__ import absolute_import, division, print_function
 
+import time
 import os
 import csv
-import time
 import math
 from scipy import constants
 
 from agent.inner import CellSimulation
+from environment.condition.look_up_tables.look_up import LookUp
 from reconstruction.spreadsheets import JsonReader
+from itertools import ifilter
 
-TUMBLE_JITTER = 2.0 # (radians)
-DEFAULT_COLOR = [color/255 for color in [255, 69, 0]]
-
-TSV_DIALECT = csv.excel_tab
+EXTERNAL_MOLECULES_FILE = os.path.join('environment', 'condition', 'environment_molecules.tsv')
 REACTIONS_FILE = os.path.join("reconstruction", "ecoli", "flat", "reactions.tsv")
 TRANSPORT_IDS_FILE = os.path.join("reconstruction", "ecoli", "flat", "transport_reactions.tsv")
 
-LIST_OF_LOOKUP_FILES = (
-	os.path.join("environment", "condition", "look_up_tables", "avg_flux", "minimal.tsv"),
-	os.path.join("environment", "condition", "look_up_tables", "avg_flux", "minimal_minus_oxygen.tsv"),
-	os.path.join("environment", "condition", "look_up_tables", "avg_flux", "minimal_plus_amino_acids.tsv"),
-)
+TSV_DIALECT = csv.excel_tab
+TUMBLE_JITTER = 2.0 # (radians)
+DEFAULT_COLOR = [color/255 for color in [255, 69, 0]]
 
 amino_acids = [
 	'L-ALPHA-ALANINE',
@@ -46,13 +43,18 @@ amino_acids = [
 	'VAL'
 ]
 
-class TransportMinimal(CellSimulation):
+aa_p_ids = [aa_id + "[p]" for aa_id in amino_acids]
+exchange_molecules = ["OXYGEN-MOLECULE[p]", "GLC[p]"]
+exchange_ids = exchange_molecules + aa_p_ids
+
+class TransportLookup(CellSimulation):
 	''''''
 
 	def __init__(self, state):
 		self.initial_time = state.get('time', 0.0)
 		self.local_time = state.get('time', 0.0)
 		self.media_id = state.get('media_id', 'minimal')
+		self.lookup_type = state.get('lookup', 'average')
 		self.timestep = 1.0
 		self.environment_change = {}
 		self.volume = 1.0  # (fL)
@@ -69,7 +71,9 @@ class TransportMinimal(CellSimulation):
 		# get all reactions
 		all_reactions = {}
 		with open(REACTIONS_FILE, 'rU') as tsvfile:
-			reader = JsonReader(tsvfile, dialect=TSV_DIALECT)
+			reader = JsonReader(
+				ifilter(lambda x: x.lstrip()[0] != "#", tsvfile), # Strip comments
+				dialect = TSV_DIALECT)
 			for row in reader:
 				reaction_id = row["reaction id"]
 				stoichiometry = row["stoichiometry"]
@@ -84,7 +88,9 @@ class TransportMinimal(CellSimulation):
 		# make dict of reactions in TRANSPORT_IDS_FILE
 		self.all_transport_reactions = {}
 		with open(TRANSPORT_IDS_FILE, 'rU') as tsvfile:
-			reader = JsonReader(tsvfile, dialect=TSV_DIALECT)
+			reader = JsonReader(
+				ifilter(lambda x: x.lstrip()[0] != "#", tsvfile), # Strip comments
+				dialect = TSV_DIALECT)
 			for row in reader:
 				reaction_id = row["reaction id"]
 				self.all_transport_reactions[reaction_id] = {
@@ -93,46 +99,54 @@ class TransportMinimal(CellSimulation):
 					"catalyzed by": all_reactions[reaction_id]["catalyzed by"],
 				}
 
-		# make a dictionary with saved average fluxes for all transport reactions, in the three conditions
-		# fluxes are in mmol/L
-		self.flux_lookup = {}
-		for file_name in LIST_OF_LOOKUP_FILES:
-			attrName = file_name.split(os.path.sep)[-1].split(".")[0]
-			self.flux_lookup[attrName] = {}
-			with open(file_name, 'rU') as tsvfile:
-				reader = JsonReader(tsvfile, dialect=TSV_DIALECT)
-				for row in reader:
-					reaction_id = row["reaction id"]
-					flux = row["average flux mmol/L"]
-					self.flux_lookup[attrName][reaction_id] = flux
+		# Make map of external molecule_ids with a location tag (as used in reaction stoichiometry) to molecule_ids in the environment
+		self.molecule_to_external_map = {}
+		self.external_to_molecule_map = {}
+		with open(EXTERNAL_MOLECULES_FILE, 'rU') as tsvfile:
+			reader = JsonReader(
+				ifilter(lambda x: x.lstrip()[0] != "#", tsvfile), # Strip comments
+				dialect = TSV_DIALECT)
+			for row in reader:
+				molecule_id = row['molecule id']
+				location = row['exchange molecule location']
+				self.molecule_to_external_map[molecule_id + location] = molecule_id
+				self.external_to_molecule_map[molecule_id] = molecule_id + location
 
-		# exchange_ids declares which molecules' exchange will be controlled by transport
-		aa_p_ids = [aa_id + "[p]" for aa_id in amino_acids]
-		exchange_molecules = ["OXYGEN-MOLECULE[p]", "GLC[p]"]
-		exchange_ids = exchange_molecules + aa_p_ids
-		self.transport_reactions_ids = self.reactions_from_exchange(exchange_ids)
+		# exchange_ids declares which molecules' exchange will be applied
+		self.transport_reaction_ids = self.reactions_from_exchange(exchange_ids)
 
-		# get the current flux lookup table, and set initial transport fluxes
-		self.current_flux_lookup = self.flux_lookup[self.media_id]
-		self.transport_fluxes = self.get_fluxes(self.current_flux_lookup, self.transport_reactions_ids)
+		# make look up object
+		self.look_up = LookUp()
 
+		# get the fluxes
+		self.transport_fluxes = self.look_up.look_up(
+			self.lookup_type,
+			self.media_id,
+			self.transport_reaction_ids)
+
+		# adjust the fluxes
+		# self.transport_fluxes = self.adjust_fluxes(self.transport_fluxes)
 
 	def update_state(self):
 		# nAvogadro is in 1/mol --> convert to 1/mmol. volume is in fL --> convert to L
 		self.molar_to_counts = (self.nAvogadro * 1e-3) * (self.volume * 1e-15)
 
 		# get transport fluxes
-		self.transport_fluxes = self.get_fluxes(self.current_flux_lookup, self.transport_reactions_ids)
+		self.transport_fluxes = self.look_up.look_up(
+			self.lookup_type,
+			self.media_id,
+			self.transport_reaction_ids)
+		# self.transport_fluxes = self.adjust_fluxes(self.transport_fluxes)
 
 		# convert to counts
 		delta_counts = self.flux_to_counts(self.transport_fluxes)
 
+		# Get the deltas for environmental molecules
 		environment_deltas = {}
-		for molecule in self.external_concentrations.keys():
-			# TODO -- use external exchange map rather than (molecule + '[p]')
-			molecule_p = molecule + '[p]'
-			if molecule_p in delta_counts:
-				environment_deltas[molecule] = delta_counts[molecule_p]
+		for molecule_id in delta_counts.keys():
+			if molecule_id in self.molecule_to_external_map:
+				external_molecule_id = self.molecule_to_external_map[molecule_id]
+				environment_deltas[external_molecule_id] = delta_counts[molecule_id]
 
 		# accumulate in environment_change
 		self.accumulate_deltas(environment_deltas)
@@ -153,9 +167,6 @@ class TransportMinimal(CellSimulation):
 	def apply_outer_update(self, update):
 		self.external_concentrations = update['concentrations']
 		self.media_id = update['media_id']
-
-		# update lookup table
-		self.current_flux_lookup = self.flux_lookup[self.media_id]
 
 		# reset environment change
 		self.environment_change = {}
@@ -181,22 +192,12 @@ class TransportMinimal(CellSimulation):
 			'transport_fluxes': self.transport_fluxes,
 			}
 
-
-	## Flux-related functions
-	def get_fluxes(self, flux_lookup, transport_reactions_ids):
-		# TODO -- get reversible reactions, some fluxes are negative
-		transport_fluxes = {
-			transport_id: max(flux_lookup[transport_id], 0.0)
-			for transport_id in transport_reactions_ids}
-		# transport_fluxes = self.adjust_fluxes(transport_fluxes)
-		return transport_fluxes
-
 	def adjust_fluxes(self, transport_fluxes):
 		'''adjust fluxes found by look up table'''
 
-		added_flux = 0  # 1e-2 * (1 + math.sin(10 * self.local_time))
+		time_constant = 10
 		adjusted_transport_fluxes = {
-			transport_id: max(flux + added_flux, 0.0)
+			transport_id: max(flux(1 + math.sin(time_constant * self.local_time)), 0.0)
 			for transport_id, flux in transport_fluxes.iteritems()}
 
 		return adjusted_transport_fluxes
