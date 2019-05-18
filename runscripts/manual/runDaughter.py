@@ -1,6 +1,9 @@
 """
-Run a simple daughter simulation, assuming you've run the parameter calculator (Parca)
-and parent generations first.  This does not run multiple generations.
+Run a simple daughter simulation.  This does not run multiple generations.
+
+Prerequisite: Run the parameter calculator (runParca.py).
+
+Prerequisite: Run the parent generations (runSim.py, runDaughter.py).
 
 TODO: Share more code with fw_queue.py.
 
@@ -10,12 +13,11 @@ Set PYTHONPATH when running this.
 
 from __future__ import absolute_import, division, print_function
 
-import errno
 import os
 
 from wholecell.fireworks.firetasks import SimulationDaughterTask
 from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
-from wholecell.utils import constants, scriptBase
+from wholecell.utils import constants, data, scriptBase
 import wholecell.utils.filepath as fp
 
 
@@ -24,12 +26,12 @@ class RunDaughter(scriptBase.ScriptBase):
 
 	def description(self):
 		"""Describe the command line program."""
-		return 'Whole Cell E. coli simulation'
+		return 'Whole Cell E. coli daughter simulation'
 
 	def help(self):
 		"""Return help text for the Command Line Interface."""
 		return ('Run a {}. (The option names are long but you can use any'
-				' unambiguous prefixes.)'.format(self.description()))
+				' unambiguous prefix.)'.format(self.description()))
 
 	def define_parameters(self, parser):
 		def add_option(name, key, datatype, help):
@@ -117,9 +119,12 @@ class RunDaughter(scriptBase.ScriptBase):
 
 		kb_directory = os.path.join(args.sim_path, 'kb')
 		sim_data_file = os.path.join(kb_directory, constants.SERIALIZED_SIM_DATA_FILENAME)
-		if not os.path.isfile(sim_data_file):
-			raise IOError(errno.ENOENT,
-				'Missing "{}".  Run the Parca?'.format(sim_data_file))
+		fp.verify_file_exists(sim_data_file, 'Run runParca?')
+
+		cli_sim_args = data.select_keys(vars(args),
+			('timeline', 'length_sec', 'timestep_safety_frac', 'timestep_max',
+			'timestep_update_freq', 'mass_distribution', 'growth_rate_noise',
+			'd_period_division', 'translation_supply', 'trna_charging'))
 
 		j = args.seed
 		k = args.generation
@@ -145,20 +150,10 @@ class RunDaughter(scriptBase.ScriptBase):
 			parent_cell_sim_out_directory,
 			constants.SERIALIZED_INHERITED_STATE % (l % 2 + 1))
 
-		options = dict(
+		options = dict(cli_sim_args,
 			input_sim_data=variant_sim_data_modified_file,
 			output_directory=cell_sim_out_directory,
-			timeline=args.timeline,
 			seed=(j + 1) * ((2**k - 1) + l),
-			length_sec=args.length_sec,
-			timestep_safety_frac=args.timestep_safety_frac,
-			timestep_max=args.timestep_max,
-			timestep_update_freq=args.timestep_update_freq,
-			mass_distribution=args.mass_distribution,
-			growth_rate_noise=args.growth_rate_noise,
-			d_period_division=args.d_period_division,
-			translation_supply=args.translation_supply,
-			trna_charging=args.trna_charging,
 			)
 
 		task = SimulationDaughterTask(

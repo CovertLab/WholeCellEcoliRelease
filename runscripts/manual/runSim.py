@@ -1,6 +1,15 @@
 """
-Run a simple simulation, assuming you've run the parameter calculator first (Parca).
-This does not run multiple initial simulations or multiple daughters per generation.
+Run wcEcoli cell simulations, supporting multiple variants, multiple initial
+seeds, and multiple generations, but only single daughters per generation.
+
+Prerequisite: Run the parameter calculator (runParca.py).
+
+Prerequisite: Generate the sim_data variant (makeVariants.py) before running
+`runSim.py --require_variants`.
+
+* Easy usage: runParca.py, then runSim.py, then analysis*.py.
+* Fancy usage: runParca.py, makeVariants.py, lots of runSim.py and
+  runDaughter.py runs, and analysis*.py, in a parallel workflow.
 
 TODO: Share more code with fw_queue.py.
 
@@ -10,13 +19,37 @@ Set PYTHONPATH when running this.
 
 from __future__ import absolute_import, division, print_function
 
-import errno
+import re
 import os
+from typing import Tuple
 
 from wholecell.fireworks.firetasks import SimulationDaughterTask, SimulationTask, VariantSimDataTask
 from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
-from wholecell.utils import constants, scriptBase
+from wholecell.utils import constants, data, scriptBase
 import wholecell.utils.filepath as fp
+
+
+SIM_DIR_PATTERN = r'({})__(.+)'.format(fp.TIMESTAMP_PATTERN)
+
+
+def parse_timestamp_description(sim_path):
+	# type: (str) -> Tuple[str, str]
+	"""Parse `timestamp, description` from a sim_path that ends with a dir like
+	'20190704.101500.123456__Latest_sim_run' or failing that, return defaults.
+	"""
+	sim_dir = os.path.basename(sim_path)
+	if not sim_dir:  # sim_path is empty or ends with '/'
+		sim_dir = os.path.basename(os.path.dirname(sim_path))
+
+	match = re.match(SIM_DIR_PATTERN, sim_dir)
+	if match:
+		timestamp = match.group(1)
+		description = match.group(2).replace('_', ' ')
+	else:
+		timestamp = fp.timestamp()
+		description = 'a manual run'
+
+	return timestamp, description
 
 
 class RunSimulation(scriptBase.ScriptBase):
@@ -28,8 +61,13 @@ class RunSimulation(scriptBase.ScriptBase):
 
 	def help(self):
 		"""Return help text for the Command Line Interface."""
-		return ('Run a {}. (The option names are long but you can use any'
-				' unambiguous prefixes.)'.format(self.description()))
+		return '''Run a {}.
+				If the sim_path ends with a dir like
+				"20190704.101500.123456__Latest_sim_run", this will get the
+				timestamp and description from the path to write into
+				metadata.json.
+				The command line option names are long but you can use any
+				unambiguous prefix.'''.format(self.description())
 
 	def define_parameters(self, parser):
 		def add_option(name, key, datatype, help):
@@ -52,17 +90,26 @@ class RunSimulation(scriptBase.ScriptBase):
 
 		parser.add_argument('-v', '--variant', nargs=3, default=['wildtype', '0', '0'],
 			metavar=('VARIANT_TYPE', 'FIRST_INDEX', 'LAST_INDEX'),
-			help='The variant type name, first index, and last index. See'
-				 ' models/ecoli/sim/variants/__init__.py for the possible'
-				 ' variant choices. Default = wildtype 0 0'
-			)
+			help='''The variant type name, first index, and last index to make
+				or require, depending on the --require_variants option. See
+				models/ecoli/sim/variants/__init__.py for the variant
+				type choices. Default = wildtype 0 0''')
+		self.define_parameter_bool(parser, 'require_variants', False,
+			help='''true => require the sim_data variant(s) specified by the
+				--variant option to already exist; false => make the variant(s).
+				Run makeVariants.py to make sim_data variants.''')
 		parser.add_argument('-g', '--generations', type=int, default=1,
 			help='Number of cell generations to run. (Single daughters only.)'
 				 ' Default = 1'
 			)
+		parser.add_argument('--total_gens', type=int,
+			help='(int) Total number of generations to write into the'
+				 ' metadata.json file. Default = the value of --generations.')
 		parser.add_argument('-s', '--seed', type=int, default=0,
-			help='Cell simulation seed. Default = 0'
+			help='First cell simulation seed. Default = 0'
 			)
+		self.define_option(parser, 'init_sims', int, 1,
+			'Number of initial sims (seeds) per variant.')
 		parser.add_argument('-t', '--timeline', type=str, default='0 minimal',
 			help='set timeline. Default = "0 minimal". See'
 				 ' environment/condition/make_media.py, make_timeline() for'
@@ -83,7 +130,6 @@ class RunSimulation(scriptBase.ScriptBase):
 		add_option('timestep_update_freq', 'updateTimeStepFreq', int,
 			help='frequency at which the time step is updated'  # TODO: explain
 			)
-
 		add_bool_option('mass_distribution', 'massDistribution',
 			help='If true, a mass coefficient is drawn from a normal distribution'
 				 ' centered on 1; otherwise it is set equal to 1'
@@ -110,103 +156,102 @@ class RunSimulation(scriptBase.ScriptBase):
 
 	def parse_args(self):
 		args = super(RunSimulation, self).parse_args()
-		args.sim_path = scriptBase.find_sim_path(args.sim_dir)
+
+		if args.total_gens is None:
+			args.total_gens = args.generations
 
 		return args
 
 	def run(self, args):
 		kb_directory = os.path.join(args.sim_path, 'kb')
 		sim_data_file = os.path.join(kb_directory, constants.SERIALIZED_SIM_DATA_FILENAME)
-		if not os.path.isfile(sim_data_file):
-			raise IOError(errno.ENOENT,
-				'Missing "{}".  Run the Parca?'.format(sim_data_file))
+		fp.verify_file_exists(sim_data_file, 'Run runParca?')
+
+		timestamp, description = parse_timestamp_description(args.sim_path)
 
 		variant_type = args.variant[0]
 		variants_to_run = xrange(int(args.variant[1]), int(args.variant[2]) + 1)
 
+		cli_sim_args = data.select_keys(vars(args),
+			('timeline', 'length_sec', 'timestep_safety_frac', 'timestep_max',
+			'timestep_update_freq', 'mass_distribution', 'growth_rate_noise',
+			'd_period_division', 'translation_supply', 'trna_charging'))
+
 		# Write the metadata file.
-		metadata = {
-			"git_hash":           fp.run_cmdline("git rev-parse HEAD") or '--',
-			"git_branch":         fp.run_cmdline("git symbolic-ref --short HEAD") or '--',
-			"description":        "a manual run",
-			"time":               fp.timestamp(),
-			"total_gens":         args.generations,
-			"analysis_type":      None,
-			"variant":            variant_type,
-			"timeline":           args.timeline,
-			"mass_distribution":  args.mass_distribution,
-			"growth_rate_noise":  args.growth_rate_noise,
-			"d_period_division":  args.d_period_division,
-			"translation_supply": args.translation_supply,
-			"trna_charging":      args.trna_charging,
-			}
+		cli_metadata_args = data.select_keys(vars(args),
+			('total_gens', 'timeline', 'mass_distribution', 'growth_rate_noise',
+			'd_period_division', 'translation_supply', 'trna_charging'))
+		metadata = dict(cli_metadata_args,
+			git_hash=fp.run_cmdline("git rev-parse HEAD") or '--',
+			git_branch=fp.run_cmdline("git symbolic-ref --short HEAD") or '--',
+			description=description,
+			time=timestamp,
+			analysis_type=None,
+			variant=variant_type,
+			total_variants=str(len(variants_to_run)),
+			)
 		metadata_dir = fp.makedirs(args.sim_path, 'metadata')
 		metadata_path = os.path.join(metadata_dir, constants.JSON_METADATA_FILE)
 		fp.write_json_file(metadata_path, metadata)
 
 
-		# Set up variant, seed, and generation directories.
 		# args.sim_path is called INDIV_OUT_DIRECTORY in fw_queue.
 		for i in variants_to_run:
-			variant_directory = fp.makedirs(args.sim_path, variant_type + "_%06d" % i)
-			variant_sim_data_directory = fp.makedirs(variant_directory, "kb")
-			variant_metadata_directory = fp.makedirs(variant_directory, "metadata")
+			variant_directory = os.path.join(args.sim_path, variant_type + "_%06d" % i)
+			variant_sim_data_directory = os.path.join(variant_directory, "kb")
 
 			variant_sim_data_modified_file = os.path.join(
 				variant_sim_data_directory, constants.SERIALIZED_SIM_DATA_MODIFIED)
 
-			task = VariantSimDataTask(
-				variant_function=variant_type,
-				variant_index=i,
-				input_sim_data=sim_data_file,
-				output_sim_data=variant_sim_data_modified_file,
-				variant_metadata_directory=variant_metadata_directory,
-				)
-			task.run_task({})
-
-			j = args.seed  # init sim number. This could loop over a range(N_INIT_SIMS).
-			seed_directory = fp.makedirs(variant_directory, "%06d" % j)
-
-			for k in xrange(args.generations):  # generation number k
-				gen_directory = fp.makedirs(seed_directory, "generation_%06d" % k)
-
-				# l is the daughter number among all of this generation's cells,
-				# which is 0 for single-daughters but would span range(2**k) if
-				# every parent had 2 daughters.
-				l = 0
-				cell_directory = fp.makedirs(gen_directory, "%06d" % l)
-				cell_sim_out_directory = fp.makedirs(cell_directory, "simOut")
-
-				options = dict(
-					input_sim_data=variant_sim_data_modified_file,
-					output_directory=cell_sim_out_directory,
-					timeline=args.timeline,
-					seed=j,
-					length_sec=args.length_sec,
-					timestep_safety_frac=args.timestep_safety_frac,
-					timestep_max=args.timestep_max,
-					timestep_update_freq=args.timestep_update_freq,
-					mass_distribution=args.mass_distribution,
-					growth_rate_noise=args.growth_rate_noise,
-					d_period_division=args.d_period_division,
-					translation_supply=args.translation_supply,
-					trna_charging=args.trna_charging,
+			if args.require_variants:
+				fp.verify_file_exists(
+					variant_sim_data_modified_file, 'Run makeVariants?')
+			else:
+				fp.makedirs(variant_sim_data_directory)
+				variant_metadata_directory = fp.makedirs(variant_directory,
+					"metadata")
+				task = VariantSimDataTask(
+					variant_function=variant_type,
+					variant_index=i,
+					input_sim_data=sim_data_file,
+					output_sim_data=variant_sim_data_modified_file,
+					variant_metadata_directory=variant_metadata_directory,
 					)
-
-				if k == 0:
-					task = SimulationTask(**options)
-				else:
-					parent_gen_directory = os.path.join(seed_directory, "generation_%06d" % (k - 1))
-					parent_cell_directory = os.path.join(parent_gen_directory, "%06d" % (l // 2))
-					parent_cell_sim_out_directory = os.path.join(parent_cell_directory, "simOut")
-					daughter_state_path = os.path.join(
-						parent_cell_sim_out_directory,
-						constants.SERIALIZED_INHERITED_STATE % (l % 2 + 1))
-					task = SimulationDaughterTask(
-						inherited_state_path=daughter_state_path,
-						**options
-						)
 				task.run_task({})
+
+			for j in xrange(args.seed, args.seed + args.init_sims):  # init sim seeds
+				seed_directory = fp.makedirs(variant_directory, "%06d" % j)
+
+				for k in xrange(args.generations):  # generation number k
+					gen_directory = fp.makedirs(seed_directory, "generation_%06d" % k)
+
+					# l is the daughter number among all of this generation's cells,
+					# which is 0 for single-daughters but would span range(2**k) if
+					# each parent had 2 daughters.
+					l = 0
+					cell_directory = fp.makedirs(gen_directory, "%06d" % l)
+					cell_sim_out_directory = fp.makedirs(cell_directory, "simOut")
+
+					options = dict(cli_sim_args,
+						input_sim_data=variant_sim_data_modified_file,
+						output_directory=cell_sim_out_directory,
+						seed=j,
+						)
+
+					if k == 0:
+						task = SimulationTask(**options)
+					else:
+						parent_gen_directory = os.path.join(seed_directory, "generation_%06d" % (k - 1))
+						parent_cell_directory = os.path.join(parent_gen_directory, "%06d" % (l // 2))
+						parent_cell_sim_out_directory = os.path.join(parent_cell_directory, "simOut")
+						daughter_state_path = os.path.join(
+							parent_cell_sim_out_directory,
+							constants.SERIALIZED_INHERITED_STATE % (l % 2 + 1))
+						task = SimulationDaughterTask(
+							inherited_state_path=daughter_state_path,
+							**options
+							)
+					task.run_task({})
 
 
 if __name__ == '__main__':

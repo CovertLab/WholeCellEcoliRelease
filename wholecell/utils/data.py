@@ -28,3 +28,8 @@ def dissoc_strict(mapping, keys):
 	for key in keys:
 		del result[key]
 	return result
+
+def select_keys(mapping, keys):
+	# type: (Mapping, Iterable) -> dict
+	"""Return a dict of the entries in mapping with the given keys."""
+	return {key: mapping[key] for key in keys}

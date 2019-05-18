@@ -17,7 +17,7 @@ from wholecell.fireworks.firetasks import InitRawDataTask
 from wholecell.fireworks.firetasks import InitRawValidationDataTask
 from wholecell.fireworks.firetasks import InitValidationDataTask
 from wholecell.utils import constants, scriptBase
-from wholecell.utils import filepath
+from wholecell.utils import filepath as fp
 
 
 class RunParca(scriptBase.ScriptBase):
@@ -27,11 +27,15 @@ class RunParca(scriptBase.ScriptBase):
 		super(RunParca, self).define_parameters(parser)
 
 		# NOTE: Don't name this arg sim_dir since that makes parse_args() look
-		# for an existing sim_dir directory.
+		# for an existing sim_dir directory while here we aim to create one.
 		parser.add_argument('sim_outdir', nargs='?', default='manual',
 			help='The simulation "out/" subdirectory to write to.'
 				 ' Default = "manual".'
 			)
+
+		parser.add_argument('--timestamp', action='store_true',
+			help='Timestamp the given `sim_outdir`, transforming e.g.'
+				 ' "Fast run" to "20190514.135600.123456__Fast_run".')
 		parser.add_argument('-c', '--cpus', type=int, default=1,
 			help='The number of CPU processes to use. Default = 1.'
 			)
@@ -54,16 +58,19 @@ class RunParca(scriptBase.ScriptBase):
 
 	def parse_args(self):
 		args = super(RunParca, self).parse_args()
-		args.sim_path = filepath.makedirs(
-			filepath.ROOT_PATH, "out", args.sim_outdir)
+
+		if args.timestamp:
+			args.sim_outdir = fp.timestamp() + '__' + args.sim_outdir.replace(' ', '_')
+
+		args.sim_path = fp.makedirs(fp.ROOT_PATH, "out", args.sim_outdir)
 		return args
 
 	def run(self, args):
-		kb_directory = filepath.makedirs(args.sim_path, "kb")
+		kb_directory = fp.makedirs(args.sim_path, "kb")
 		raw_data_file = os.path.join(kb_directory, constants.SERIALIZED_RAW_DATA)
 		sim_data_file = os.path.join(kb_directory, constants.SERIALIZED_SIM_DATA_FILENAME)
 		cached_sim_data_file = os.path.join(
-			filepath.ROOT_PATH, 'cached', constants.SERIALIZED_SIM_DATA_FILENAME)
+			fp.ROOT_PATH, 'cached', constants.SERIALIZED_SIM_DATA_FILENAME)
 		raw_validation_data_file = os.path.join(
 			kb_directory, constants.SERIALIZED_RAW_VALIDATION_DATA)
 		validation_data_file = os.path.join(

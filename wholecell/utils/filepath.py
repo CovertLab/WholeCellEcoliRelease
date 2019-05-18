@@ -18,6 +18,8 @@ import wholecell
 # The wcEcoli/ project root path which contains wholecell/.
 ROOT_PATH = os.path.dirname(os.path.dirname(os.path.realpath(wholecell.__file__)))
 
+TIMESTAMP_PATTERN = r'\d{8}\.\d{6}\.\d{6}'
+
 def makedirs(path, *paths):
 	"""Join one or more path components, make that directory path (using the
 	default mode 0o0777), and return the full path.
@@ -48,6 +50,20 @@ def timestamp(dt=None):
 		dt.year, dt.month, dt.day,
 		dt.hour, dt.minute, dt.second,
 		dt.microsecond)
+
+def verify_file_exists(file_path, message=''):
+	# type: (str, str) -> None
+	"""Raise an IOError if file_path isn't an existing file."""
+	if not os.path.isfile(file_path):
+		raise IOError(errno.ENOENT,
+			'Missing file "{}".  {}'.format(file_path, message))
+
+def verify_dir_exists(dir_path, message=''):
+	# type: (str, str) -> None
+	"""Raise an IOError if dir_path isn't an existing directory."""
+	if not os.path.isdir(dir_path):
+		raise IOError(errno.ENOENT,
+			'Missing dir "{}".  {}'.format(dir_path, message))
 
 def run_cmd(tokens, trim=True):
 	"""Run a shell command-line (in token list form) and return its output.

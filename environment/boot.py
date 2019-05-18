@@ -1,7 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
 import os
-import errno
 import shutil
 
 from agent.outer import Outer
@@ -136,11 +135,7 @@ def ecoli_boot_config(agent_id, agent_config):
 	# copy sim_data into the experiment directory to support analysis
 	# TODO (Eran) -- revisit this copy. Re-consider where to put the parca output.
 	shutil.copy(sim_data_fit, variant_sim_data_modified_file)
-
-	if not os.path.isfile(sim_data_fit):
-		raise IOError(
-			errno.ENOENT,
-			'Missing "{}".  Run the Parca?'.format(sim_data_fit))
+	fp.verify_file_exists(sim_data_fit, 'Run runParca?')
 
 	# Apply the variant to transform simData.cPickle
 	info, sim_data_modified = apply_variant.apply_variant(
