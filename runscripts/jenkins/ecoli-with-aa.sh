@@ -23,6 +23,10 @@ PYTHONPATH=$PWD rlaunch rapidfire --nlaunches 0
 
 N_FAILS=$(lpad get_fws -s FIZZLED -d count)
 
+if [ $N_FAILS -gt 0 ]; then
+  mv out/2* /scratch/PI/mcovert/wc_ecoli/failed/
+fi
+
 test $N_FAILS = 0
 
 mv out/2* /scratch/PI/mcovert/wc_ecoli/with_aa/
