@@ -35,7 +35,7 @@ class RunParca(scriptBase.ScriptBase):
 
 		parser.add_argument('--timestamp', action='store_true',
 			help='Timestamp the given `sim_outdir`, transforming e.g.'
-				 ' "Fast run" to "20190514.135600.123456__Fast_run".')
+				 ' "Fast run" to "20190514.135600__Fast_run".')
 		parser.add_argument('-c', '--cpus', type=int, default=1,
 			help='The number of CPU processes to use. Default = 1.'
 			)

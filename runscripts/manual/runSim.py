@@ -35,7 +35,7 @@ SIM_DIR_PATTERN = r'({})__(.+)'.format(fp.TIMESTAMP_PATTERN)
 def parse_timestamp_description(sim_path):
 	# type: (str) -> Tuple[str, str]
 	"""Parse `timestamp, description` from a sim_path that ends with a dir like
-	'20190704.101500.123456__Latest_sim_run' or failing that, return defaults.
+	'20190704.101500__Latest_sim_run' or failing that, return defaults.
 	"""
 	sim_dir = os.path.basename(sim_path)
 	if not sim_dir:  # sim_path is empty or ends with '/'
@@ -63,7 +63,7 @@ class RunSimulation(scriptBase.ScriptBase):
 		"""Return help text for the Command Line Interface."""
 		return '''Run a {}.
 				If the sim_path ends with a dir like
-				"20190704.101500.123456__Latest_sim_run", this will get the
+				"20190704.101500__Latest_sim_run", this will get the
 				timestamp and description from the path to write into
 				metadata.json.
 				The command line option names are long but you can use any

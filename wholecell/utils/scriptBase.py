@@ -29,12 +29,13 @@ def default_wcecoli_out_subdir_path():
 	or (if none) the one that's first alphabetically.
 	"""
 	out_dir = os.path.join(fp.ROOT_PATH, 'out')
+	timestamped = re.compile(fp.TIMESTAMP_PATTERN)
 	fallback = None
 
 	for directory in sorted(os.listdir(out_dir), reverse=True):
 		path = os.path.join(out_dir, directory)
 		if os.path.isdir(path):
-			if directory[0].isdigit():
+			if timestamped.match(directory):
 				return path
 			fallback = path
 
