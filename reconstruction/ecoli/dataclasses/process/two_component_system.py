@@ -362,7 +362,7 @@ class TwoComponentSystem(object):
 
 
 	def moleculesToNextTimeStep(self, moleculeCounts, cellVolume,
-			nAvogadro, timeStepSec, solver="LSODA"):
+			nAvogadro, timeStepSec, solver="LSODA", min_time_step=None):
 		"""
 		Calculates the changes in the counts of molecules in the next timestep
 		by solving an initial value ODE problem.
@@ -374,6 +374,8 @@ class TwoComponentSystem(object):
 			nAvogadro (float): Avogadro's number
 			timeStepSec (float): current length of timestep in seconds
 			solver (str): name of the ODE solver to use
+			min_time_step (int): if not None, timeStepSec will be scaled down until
+				it is below min_time_step if negative counts are encountered
 
 		Returns:
 			moleculesNeeded (1d ndarray, ints): counts of molecules that need
@@ -401,9 +403,15 @@ class TwoComponentSystem(object):
 				)
 
 		if np.any(y[-1, :] * (cellVolume * nAvogadro) <= -1):
-			raise Exception(
-				"Solution to ODE for two-component systems has negative values."
-				)
+			if min_time_step and timeStepSec > min_time_step:
+				# Call method again with a shorter time step until min_time_step is reached
+				return self.moleculesToNextTimeStep(
+					moleculeCounts, cellVolume, nAvogadro, timeStepSec/2,
+					solver=solver, min_time_step=min_time_step)
+			else:
+				raise Exception(
+					"Solution to ODE for two-component systems has negative values."
+					)
 
 		y[y < 0] = 0
 		yMolecules = y * (cellVolume * nAvogadro)

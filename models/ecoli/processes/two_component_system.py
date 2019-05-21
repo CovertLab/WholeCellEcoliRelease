@@ -72,19 +72,16 @@ class TwoComponentSystem(wholecell.processes.process.Process):
 
 		# Check if any molecules were allocated fewer counts than requested
 		if (self.molecules_required > moleculeCounts).any():
+			# Solve ODEs to a large time step using the the counts of molecules
+			# allocated to this process using the BDF solver for stable integration.
+			# The number of reactions has already been determined in calculateRequest
+			# and rates will be much lower with a fraction of total counts allocated
+			# so a much longer time scale is needed.
 
-			# Solve ODEs to next time step using the the counts of molecules
-			# allocated to this process using the LSODA solver through odeint.
-			# Note: for this setting where the counts of molecules are
-			# relatively small, the default LSODA solver used by odeint was
-			# empirically tested to be the fastest.
 			_, self.all_molecule_changes = self.moleculesToNextTimeStep(
 				moleculeCounts, self.cellVolume, self.nAvogadro,
-				self.timeStepSec()
+				10000, solver="BDF", min_time_step=self.timeStepSec()
 				)
 
-			# Increment changes in molecule counts
-			self.molecules.countsInc(self.all_molecule_changes)
-		else:
-			# Increment changes in molecule counts
-			self.molecules.countsInc(self.all_molecule_changes)
+		# Increment changes in molecule counts
+		self.molecules.countsInc(self.all_molecule_changes)
