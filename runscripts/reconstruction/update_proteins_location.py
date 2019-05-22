@@ -47,7 +47,7 @@ def getLocationDifferences(ourLocations, ecocycLocations):
 
 
 
-jsonData = yaml.load(open(ECOCYC_DUMP, "r"))
+jsonData = yaml.safe_load(open(ECOCYC_DUMP, "r"))
 
 ourLocations = getMonomerLocationsFromOurData()
 ecocycLocations = getMonomerLocationsFromEcocyc(jsonData["complexations"])

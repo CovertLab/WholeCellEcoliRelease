@@ -37,7 +37,7 @@ This page goes through the Python environment setup steps in more detail and wit
 1. Install the required version of Python via `pyenv`, and _remember to enable it as a shared library_:
 
    ```bash
-   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.15
+   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.16
    ```
 
 
@@ -47,7 +47,7 @@ This page goes through the Python environment setup steps in more detail and wit
 
    ```bash
    cd ~/dev/wcEcoli  # or wherever you cloned the `wcEcoli` project to
-   pyenv local 2.7.15
+   pyenv local 2.7.16
    pyenv virtualenv wcEcoli2
    pyenv local wcEcoli2
    ```
@@ -176,4 +176,4 @@ This page goes through the Python environment setup steps in more detail and wit
    nosetests
    ```
 
-   If the unit tests fail with an error message saying the loader can't load `.../pyenv/versions/.../lib/libpython2.7.a`, that means you didn't successfully `--enable-shared` when installing python. Go back to that step, run `PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.15 --force`, and repeat all the steps after it.
+   If the unit tests fail with an error message saying the loader can't load `.../pyenv/versions/.../lib/libpython2.7.a`, that means you didn't successfully `--enable-shared` when installing python. Go back to that step, run `PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.16 --force`, and repeat all the steps after it.
