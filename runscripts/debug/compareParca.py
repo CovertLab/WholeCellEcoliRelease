@@ -11,9 +11,11 @@ from runscripts.reflect.object_tree import object_tree, diff_trees
 
 def load_fit_tree(out_subdir):
 	'''Load the parameter calculator's (Parca's) output as an object_tree.'''
+	# For convenience, optionally add the prefix 'out/'.
+	if not os.path.isabs(out_subdir) and not os.path.isdir(out_subdir):
+		out_subdir = os.path.join('out', out_subdir)
+
 	path = os.path.join(
-		os.getcwd(),
-		'out',
 		out_subdir,
 		'kb',
 		constants.SERIALIZED_SIM_DATA_FILENAME)

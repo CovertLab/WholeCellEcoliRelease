@@ -50,7 +50,12 @@ def all_vars(obj):
 	"""
 	Returns a dict of all the object's instance variables stored in ordinary
 	fields and in compact slots. This expands on the built-in function `vars()`.
+	If the object implements the pickling method `__getstate__`, call that
+	instead to get its defining state.
 	"""
+	if hasattr(obj, '__getstate__'):
+		return obj.__getstate__()
+
 	attrs = getattr(obj, '__dict__', {})
 	attrs.update({key: getattr(obj, key) for key in getattr(obj, '__slots__', ())})
 	return attrs
