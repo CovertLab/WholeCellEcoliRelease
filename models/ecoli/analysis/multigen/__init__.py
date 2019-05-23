@@ -11,7 +11,6 @@ ACTIVE = [
 	"subgenerationalTranscription.py",
 	"subgenerationalTranscriptionEnvironmentDependence.py",
 	"functionalUnits.py",
-	"functionalUnitsFC.py",
 	"growthAffectingPolymerases.py",
 	# "growthRateControl.py",
 	# "initiationNoiseVsFoldChange.py",

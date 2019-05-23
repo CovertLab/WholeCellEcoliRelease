@@ -93,7 +93,6 @@ from wholecell.utils import constants
 from wholecell.utils import filepath
 import yaml
 import os
-import datetime
 import collections
 import cPickle
 
@@ -149,11 +148,7 @@ WC_ECOLI_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_DIRECTORY = filepath.makedirs(WC_ECOLI_DIRECTORY, "out")
 CACHED_SIM_DATA_DIRECTORY = os.path.join(WC_ECOLI_DIRECTORY, "cached")
 
-now = datetime.datetime.now()
-SUBMISSION_TIME = "%04d%02d%02d.%02d%02d%02d.%06d" % (
-	now.year, now.month, now.day,
-	now.hour, now.minute, now.second,
-	now.microsecond)
+SUBMISSION_TIME = filepath.timestamp()
 INDIV_OUT_DIRECTORY = filepath.makedirs(OUT_DIRECTORY, SUBMISSION_TIME + "__" + SIM_DESCRIPTION)
 KB_DIRECTORY = filepath.makedirs(INDIV_OUT_DIRECTORY, "kb")
 METADATA_DIRECTORY = filepath.makedirs(INDIV_OUT_DIRECTORY, "metadata")
@@ -183,9 +178,9 @@ for i in VARIANTS_TO_RUN:
 
 ### Write metadata
 metadata = {
-	"git_hash": filepath.run_cmd(line="git rev-parse HEAD"),
-	"git_branch": filepath.run_cmd(line="git symbolic-ref --short HEAD"),
-	"git_diff": filepath.run_cmd(line="git diff"),
+	"git_hash": filepath.run_cmdline("git rev-parse HEAD"),
+	"git_branch": filepath.run_cmdline("git symbolic-ref --short HEAD"),
+	"git_diff": filepath.run_cmdline("git diff", trim=False),
 	"description": os.environ.get("DESC", ""),
 	"time": SUBMISSION_TIME,
 	"total_gens": str(N_GENS),
@@ -209,7 +204,7 @@ with open(os.path.join(METADATA_DIRECTORY, constants.SERIALIZED_METADATA_FILE), 
 
 # Create launchpad
 with open(LAUNCHPAD_FILE) as f:
-	lpad = LaunchPad(**yaml.load(f))
+	lpad = LaunchPad(**yaml.safe_load(f))
 
 # Store list of FireWorks
 wf_fws = []
