@@ -402,7 +402,7 @@ class TwoComponentSystem(object):
 				t=[0, timeStepSec], Dfun=self.derivatives_jacobian
 				)
 
-		if np.any(y[-1, :] * (cellVolume * nAvogadro) <= -1):
+		if np.any(y[-1, :] * (cellVolume * nAvogadro) <= -1e-6):
 			if min_time_step and timeStepSec > min_time_step:
 				# Call method again with a shorter time step until min_time_step is reached
 				return self.moleculesToNextTimeStep(
