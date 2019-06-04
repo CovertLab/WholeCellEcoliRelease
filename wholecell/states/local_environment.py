@@ -28,7 +28,7 @@ import wholecell.views.view
 from wholecell.utils import units
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
-from environment.condition.make_media import Media
+from wholecell.utils.make_media import Media
 
 COUNTS_UNITS = units.mmol
 VOLUME_UNITS = units.L
@@ -101,6 +101,7 @@ class LocalEnvironment(wholecell.states.external_state.ExternalState):
 			self.current_media_id = self.current_timeline[current_index][1]
 			self._concentrations = np.array([concentration for id, concentration in self.saved_media[self.current_media_id].iteritems()])
 			self.container.countsIs(self._concentrations)
+			print('update media: {}'.format(self.current_media_id))
 
 		if ASSERT_POSITIVE_CONCENTRATIONS and (self._concentrations < 0).any():
 			raise NegativeConcentrationError(

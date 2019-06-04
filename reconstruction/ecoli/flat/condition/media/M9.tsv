@@ -1,0 +1,24 @@
+# M9 media + 0.4pct. glucose.
+# M9 recipe from: Maniatis, T., Fritsch, E. F., & Sambrook, J. (1982).
+# Molecular cloning: a laboratory manual (Vol. 545). Cold Spring Harbor, NY: Cold spring harbor laboratory.
+"molecule id"	"concentration (units.mmol / units.L)"
+"OXYGEN-MOLECULE"	Infinity
+"AMMONIUM"	18.695
+"NA+"	103.7
+"PI"	69.454
+"K+"	21.883
+"SULFATE"	2
+"FE+2"	Infinity
+"CA+2"	Infinity
+"CL-"	27.25
+"CO+2"	Infinity
+"MG+2"	2
+"MN+2"	Infinity
+"NI+2"	Infinity
+"ZN+2"	Infinity
+"WATER"	Infinity
+"CARBON-DIOXIDE"	Infinity
+"CPD0-1958"	Infinity
+"L-SELENOCYSTEINE"	Infinity
+"GLC-D-LACTONE"	Infinity
+"CYTOSINE"	Infinity

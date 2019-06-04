@@ -64,7 +64,7 @@ class RunDaughter(scriptBase.ScriptBase):
 			)
 		parser.add_argument('-t', '--timeline', type=str, default='0 minimal',
 			help='set timeline. Default = "0 minimal". See'
-				 ' environment/condition/make_media.py, make_timeline() for'
+				 ' wholecell/utils/make_media.py, make_timeline() for'
 				 ' timeline formatting details'
 			)
 		add_option('length_sec', 'lengthSec', int,

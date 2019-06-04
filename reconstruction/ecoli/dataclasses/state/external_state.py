@@ -19,7 +19,7 @@ from __future__ import absolute_import, division, print_function
 
 from wholecell.utils import units
 from reconstruction.ecoli.dataclasses.state.environment import Environment
-from environment.condition.make_media import Media
+from wholecell.utils.make_media import Media
 
 
 class ExternalState(object):
