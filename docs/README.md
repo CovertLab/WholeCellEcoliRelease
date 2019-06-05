@@ -6,14 +6,11 @@ These are the docs for a variety of topics on the Whole Cell Model.
 
 * [Required development tools](dev-tools.md) -- installation and tips
 * [Creating the "pyenv" runtime environment](create-pyenv.md)
-* [Setting up to run FireWorks](wholecell/fireworks/README.md) -- needed only to run a FireWorks workflow of cell simulations and analysis plots
-* [Set up Zookeeper and Kafka](../agent/README.md) -- needed only for multi-scale agents
+* [Setting up to run FireWorks](../wholecell/fireworks/README.md) -- needed only to run a FireWorks workflow of cell simulations and analysis plots
 
 ## running
 
 * [How to run the Whole Cell Model](run.md); actually the top level [README](../README.md) is more informative
-* [How to run the Causality visualization tool](https://github.com/CovertLab/causality)
-* [How to run multi-scale agents](../environment/README.md)
 
 ## development
 
