@@ -19,11 +19,17 @@ from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import filepath, units
 
+# First generation (counting from zero) from which to gather ratio values.
+# If fewer generations were run, this script quits early without plotting
+# anything.
+FIRST_GENERATION = 2
+
+FIGSIZE = (7.5, 7.5)
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		if metadata["variant"] != "condition":
-			print("This plot only runs for the 'condition' variant.")
+			print('This analysis only runs for the "condition" variant.')
 			return
 
 		if not os.path.isdir(inputDir):
@@ -32,18 +38,23 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		filepath.makedirs(plotOutDir)
 
 		ap = AnalysisPaths(inputDir, variant_plot=True)
+		n_gens = ap.n_generation
 		variants = ap.get_variants()
 
-		gens = [2, 3]
+		if n_gens - 1 < FIRST_GENERATION:
+			print('Not enough generations to plot.')
+			return
 
-		growth_rates = []
-		rna_to_protein_ratios = []
+		all_growth_rates = []
+		all_rna_to_protein_ratios = []
 
 		for variant in variants:
 			doubling_times = np.zeros(0)
-			rna_to_protein_ratio = np.zeros(0)
+			variant_rna_to_protein_ratios = np.zeros(0)
 			
-			all_cells = ap.get_cells(variant=[variant], generation=gens)
+			all_cells = ap.get_cells(
+				variant=[variant],
+				generation=range(FIRST_GENERATION, n_gens))
 
 			if len(all_cells) == 0:
 				continue
@@ -61,34 +72,39 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 						(doubling_times, (time[-1] - time[0])/3600.)
 						)
 					
-					rna_to_protein_ratio = np.hstack(
-						(rna_to_protein_ratio, rna_mass.mean()/protein_mass.mean())
+					variant_rna_to_protein_ratios = np.hstack(
+						(variant_rna_to_protein_ratios, rna_mass.mean()/protein_mass.mean())
 						)
 				except:
 					continue
 
-			growth_rate = np.log(2)/doubling_times
+			variant_growth_rates = np.log(2)/doubling_times
 
-			growth_rates.append(growth_rate)
-			rna_to_protein_ratios.append(rna_to_protein_ratio)
+			all_growth_rates.append(variant_growth_rates)
+			all_rna_to_protein_ratios.append(variant_rna_to_protein_ratios)
+
+		plt.figure(figsize=FIGSIZE)
 
 		plt.style.use('seaborn-deep')
+		color_cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
-		plt.figure(figsize=(7.5, 7.5))
-		plt.scatter(growth_rates[0].mean(), rna_to_protein_ratios[0].mean(), s=10, label="minimal")
-		plt.scatter(growth_rates[1].mean(), rna_to_protein_ratios[1].mean(), s=10, label="anaerobic")
-		plt.scatter(growth_rates[2].mean(), rna_to_protein_ratios[2].mean(), s=10, label="+AA")
+		for i in range(3):
+			plt.errorbar(
+				all_growth_rates[i].mean(),
+				all_rna_to_protein_ratios[i].mean(),
+				yerr=all_rna_to_protein_ratios[i].std(),
+				color=color_cycle[0], marker='o', markersize=5, linewidth=1,
+				capsize=2)
 
 		# Add linear plot proposed in Scott et al. (2010)
 		x_linear = np.linspace(0, 3, 100)
 		y_linear = 0.23*x_linear + 0.09
-		plt.plot(x_linear, y_linear, linewidth=3, color='k')
+		plt.plot(x_linear, y_linear, linewidth=2, color=color_cycle[2])
 
 		plt.xlim([0, 3])
-		plt.ylim([0, 0.75])
+		plt.ylim([0, 1.6])
 		plt.xlabel("Growth rate $\lambda$ (hour$^{-1}$)")
 		plt.ylabel("RNA/protein mass ratio")
-		plt.legend()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 
 		plt.close("all")
