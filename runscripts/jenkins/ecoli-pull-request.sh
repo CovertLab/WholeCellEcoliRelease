@@ -30,16 +30,4 @@ fi
 
 test $N_FAILS = 0
 
-export TOP_DIR="$PWD"
-
-cd out/2*/wildtype_000000/000000/generation_000000/000000/plotOut/low_res_plots/
-
-curl -F file=@massFractionSummary.png -F channels=#jenkins -F token=xoxb-17787270916-3VkwrS6348nn9DJz8bDs6EYG https://slack.com/api/files.upload
-
-cd $TOP_DIR
-cd out/2*/wildtype_000000/000000/plotOut/low_res_plots/
-
-curl -F file=@massFractionSummary.png -F channels=#jenkins -F token=xoxb-17787270916-3VkwrS6348nn9DJz8bDs6EYG https://slack.com/api/files.upload
-
-cd $TOP_DIR
 rm -fr out/*
