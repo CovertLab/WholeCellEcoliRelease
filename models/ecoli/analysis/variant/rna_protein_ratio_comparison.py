@@ -98,7 +98,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 		# Add linear plot proposed in Scott et al. (2010)
 		x_linear = np.linspace(0, 3, 100)
-		y_linear = 0.23*x_linear + 0.09
+		y_linear = x_linear/4.5 + 0.087
 		plt.plot(x_linear, y_linear, linewidth=2, color=color_cycle[2])
 
 		plt.xlim([0, 3])
