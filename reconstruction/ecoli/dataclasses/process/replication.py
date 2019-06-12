@@ -34,13 +34,18 @@ class Replication(object):
 
 	def _buildGeneData(self, raw_data, sim_data):
 		genomeLength = len(raw_data.genome_sequence)
-		self.geneData = np.zeros(len(raw_data.genes),
-			dtype = [('name'				,	'a50'),
-					('rnaId'                ,   'a50'),
-					('endCoordinate'		,	'int64')])
+		self.geneData = np.zeros(
+			len(raw_data.genes),
+			dtype=[('name', 'a50'),
+				('symbol', 'a7'),
+				('rnaId', 'a50'),
+				('monomerId', 'a50'),
+				('endCoordinate', 'int64')])
 
 		self.geneData['name'] = [x['id'] for x in raw_data.genes]
+		self.geneData['symbol'] = [x['symbol'] for x in raw_data.genes]
 		self.geneData['rnaId'] = [x['rnaId'] for x in raw_data.genes]
+		self.geneData['monomerId'] = [x['monomerId'] for x in raw_data.genes]
 		self.geneData['endCoordinate'] = [(x['coordinate'] + x['length']) % genomeLength if x['direction'] == '+' else (x['coordinate'] - x['length']) % genomeLength for x in raw_data.genes]
 
 	def _buildReplication(self, raw_data, sim_data):

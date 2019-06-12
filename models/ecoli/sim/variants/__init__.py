@@ -68,6 +68,9 @@ from models.ecoli.sim.variants.meneParams import meneParamsTotalIndices
 from models.ecoli.sim.variants.metabolism_kinetic_objective_weight import metabolism_kinetic_objective_weight
 from models.ecoli.sim.variants.metabolism_kinetic_objective_weight import metabolism_kinetic_objective_weight_indices
 
+from models.ecoli.sim.variants.param_sensitivity import param_sensitivity
+from models.ecoli.sim.variants.param_sensitivity import param_sensitivity_indices
+
 nameToFunctionMapping = {
 	"geneKnockout": geneKnockout,
 	"wildtype": wildtype,
@@ -91,6 +94,7 @@ nameToFunctionMapping = {
 	"allShuffleParams": allShuffleParams,
 	"meneParams": meneParams,
 	"metabolism_kinetic_objective_weight": metabolism_kinetic_objective_weight,
+	"param_sensitivity": param_sensitivity,
 }
 
 nameToNumIndicesMapping = {
@@ -116,4 +120,5 @@ nameToNumIndicesMapping = {
 	"allShuffleParams": allShuffleParamsTotalIndices,
 	"meneParams": meneParamsTotalIndices,
 	"metabolism_kinetic_objective_weight": metabolism_kinetic_objective_weight_indices,
+	"param_sensitivity": param_sensitivity_indices,
 }

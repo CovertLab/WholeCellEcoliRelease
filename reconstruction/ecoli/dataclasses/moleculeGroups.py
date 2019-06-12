@@ -31,9 +31,6 @@ class MoleculeGroups(object):
 			'polymerizedDNT_IDs': [x['id'] for x in raw_data.polymerized
 				if x['is_dntp'] and not x['is_end']], # TODO: end weight
 
-			'frameIDGeneSymbol_Dict': {x['monomerId']:x['symbol'] for x in raw_data.genes},
-			'frameIDGeneID_Dict': {x['monomerId']:x['id'] for x in raw_data.genes},
-
 			's30_proteins':	['EG10912-MONOMER[c]', 'EG10916-MONOMER[c]',
 				'EG10906-MONOMER[c]', 'EG10914-MONOMER[c]', 'EG10909-MONOMER[c]',
 				'EG10903-MONOMER[c]', 'EG10911-MONOMER[c]', 'EG10904-MONOMER[c]',
