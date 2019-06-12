@@ -1,0 +1,120 @@
+.git*
+.gcloudignore
+/.idea
+/docs
+/user
+
+# Compiled source #
+###################
+*.pyc
+__pycache__
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+
+# VIM temp files #
+##################
+*.swp
+
+# Coverage file #
+#################
+.coverage
+coverage.xml
+
+# Nosetests and Pytest #
+########################
+nosetests.xml
+nosetests.*.xml
+.pytest_cache
+
+# IPython notebook files #
+##########################
+.ipynb_checkpoints
+
+# Output files #
+################
+/out
+
+# Cached sim data #
+###################
+cached
+
+# Fixtures #
+############
+fixtures/sim/*
+fixtures/kb/*
+fixtures/test/*
+
+# C extensions #
+################
+*.so
+*.o
+
+# Cython generated C #
+######################
+/wholecell/utils/_build_sequences.c
+/wholecell/utils/_fastsums.c
+/wholecell/utils/mc_complexation.c
+/wholecell/utils/polymerize.c
+
+# Cython generated HTML listings #
+##################################
+/wholecell/utils/_build_sequences.html
+/wholecell/utils/_fastsums.html
+/wholecell/utils/mc_complexation.html
+/wholecell/utils/polymerize.html
+
+# kernprof.py output #
+######################
+*.lprof
+*.prof
+
+# pyenv python version #
+########################
+.python-version
+
+# files created from templates #
+################################
+*my_launchpad*.yaml
+*my_qadapter*.yaml
+
+# Fireworks output #
+####################
+launcher_*
+block_*
+FW.json
+
+# Parca output #
+#################
+reconstruction/ecoli/dataclasses/process/equilibrium_odes.py
+reconstruction/ecoli/dataclasses/process/two_component_system_odes.py
+reconstruction/ecoli/dataclasses/process/two_component_system_odes_parca.py
+reconstruction/ecoli/dataclasses/process/two_component_system_odes_fitter.py
+
+# Sublime Files #
+#################
+*.sublime*
+
+# Misc #
+########
+*.cPickle
+*.png
+*.csv#
+*.pickle
+*.log
+*.hdf
+*.tar.gz
+/build/
+
+# LaTeX compilation files #
+###########################
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+
