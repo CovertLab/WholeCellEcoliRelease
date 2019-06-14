@@ -40,10 +40,13 @@ class EquilibriumListener(wholecell.listeners.listener.Listener):
 
 
 	def tableCreate(self, tableWriter):
+		subcolumns = {
+			'reactionRates': 'reactionIds'}
+
 		tableWriter.writeAttributes(
 			complexIDs = self.complexIDs,
 			reactionIDs = self.reactionIDs,
-			)
+			subcolumns = subcolumns)
 
 
 	def tableAppend(self, tableWriter):

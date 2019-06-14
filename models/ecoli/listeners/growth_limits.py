@@ -68,7 +68,25 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 		pass
 
 	def tableCreate(self, tableWriter):
-		pass
+		subcolumns = {
+			'aaPoolSize': 'aaIds',
+			'aaRequestSize': 'aaIds',
+			'aaAllocated': 'aaIds',
+			'aasUsed': 'aaIds',
+
+			'fraction_trna_charged': 'uncharged_trna_ids',
+			'net_charged': 'uncharged_trna_ids',
+
+			'ntpPoolSize': 'ntpIds',
+			'ntpRequestSize': 'ntpIds',
+			'ntpAllocated': 'ntpIds',
+			'ntpUsed': 'ntpIds'}
+
+		tableWriter.writeAttributes(
+			aaIds = self.aaIds,
+			uncharged_trna_ids = self.uncharged_trna_ids,
+			ntpIds = self.ntpIds,
+			subcolumns = subcolumns)
 
 	def tableAppend(self, tableWriter):
 		tableWriter.append(

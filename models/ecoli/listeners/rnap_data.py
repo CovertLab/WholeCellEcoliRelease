@@ -13,7 +13,7 @@ import numpy as np
 import wholecell.listeners.listener
 
 VERBOSE = False
-
+MAX_RNAP_COORDINATES = 10000
 
 class RnapData(wholecell.listeners.listener.Listener):
 	""" RnapData """
@@ -29,7 +29,8 @@ class RnapData(wholecell.listeners.listener.Listener):
 	def initialize(self, sim, sim_data):
 		super(RnapData, self).initialize(sim, sim_data)
 
-		self.nRnaSpecies = sim_data.process.transcription.rnaData['id'].size
+		self.rnaIds = sim_data.process.transcription.rnaData['id']
+		self.nRnaSpecies = self.rnaIds.size
 		self.uniqueMolecules = sim.internal_states['UniqueMolecules']
 
 
@@ -40,7 +41,7 @@ class RnapData(wholecell.listeners.listener.Listener):
 		# Positions of active RNAPs on the chromosome
 		# The size of this array must be larger than the maximum possible
 		# counts of active RNAPs at any timestep of the simulation.
-		self.active_rnap_coordinates = np.full(10000, np.nan, np.float64)
+		self.active_rnap_coordinates = np.full(MAX_RNAP_COORDINATES, np.nan, np.float64)
 
 		# Attributes broadcast by the PolypeptideElongation process
 		self.actualElongations = 0
@@ -78,7 +79,19 @@ class RnapData(wholecell.listeners.listener.Listener):
 
 
 	def tableCreate(self, tableWriter):
-		pass
+		rnap_indexes = range(MAX_RNAP_COORDINATES)
+		collision_indexes = range(MAX_COLLISIONS)
+		subcolumns = {
+			'active_rnap_coordinates': 'rnap_indexes'
+			'rnaInitEvent': 'rnaIds',
+			'headon_collision_coordinates': 'collision_indexes',
+			'codirectional_collision_coordinates': 'collision_indexes'}
+
+		tableWriter.writeAttributes(
+			rnap_indexes = list(rnap_indexes),
+			collision_indexes = list(collision_indexes),
+			rnaIds = self.rnaIds,
+			subcolumns = subcolumns)
 
 
 	def tableAppend(self, tableWriter):
