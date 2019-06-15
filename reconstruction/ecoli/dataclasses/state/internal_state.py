@@ -261,7 +261,7 @@ class InternalState(object):
 		# chromosome, in base pairs from origin. This value does not change
 		# after the molecule is initialized.
 		# - domain_index (32-bit int): Domain index of the chromosome domain
-		# that the promoter is bound to. This value is used to split the
+		# that the promoter belongs to. This value is used to split the
 		# promoters at cell division.
 		# - bound_TF (boolean array of length n_tf): A boolean array that
 		# shows which TFs the promoter is bound to. Note that one promoter can
@@ -283,6 +283,34 @@ class InternalState(object):
 			"promoter"
 			)
 
+		# Add DnaA boxes
+		# DnaA boxes are 9-base sequence motifs on the DNA that bind to the
+		# protein DnaA. Except for DnaA boxes close to the origin, these boxes
+		# serve no functional role in replication initiation, but can
+		# effectively titrate away free DnaA molecules and control its
+		# concentration. The molecule itself has zero mass but it can hold the
+		# mass of the DnaA protein that it is bound to. Its attributes are
+		# given as:
+		# - coordinates (64-bit int): Location of the middle base (5th base) of
+		# the DnaA box, in base pairs from origin. This value does not change
+		# after the molecule is initialized.
+		# - domain_index (32-bit int): Domain index of the chromosome domain
+		# that the DnaA box belongs to. This value is used to allocate DnaA
+		# boxes to the two daughter cells at cell division.
+		# - DnaA_bound (boolean): True if bound to a DnaA protein, False if not
+		DnaA_box_mass = (units.g/units.mol) * np.zeros_like(rnaPolyComplexMass)
+		DnaA_box_attributes = {
+			"coordinates": "i8",
+			"domain_index": "i4",
+			"DnaA_bound": "?",
+			}
+
+		self.uniqueMolecules.addToUniqueState('DnaA_box',
+			DnaA_box_attributes, DnaA_box_mass)
+
+		# DnaA boxes are divided based on their domain index
+		sim_data.moleculeGroups.unique_molecules_domain_index_division.append(
+			'DnaA_box')
 
 	def _buildCompartments(self, raw_data, sim_data):
 		compartmentData = np.empty(len(raw_data.compartments),
