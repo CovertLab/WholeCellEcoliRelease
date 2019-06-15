@@ -16,12 +16,6 @@ The Processes of the *E. coli* model span several major areas of cellular physio
 
 ### Regeneration of pdf files from tex files
 
-Assuming all the dependencies have been installed, the pdf files can be compiled from the tex files by changing to the `src` directory and running the following commands
+Assuming all the dependencies have been installed (try `sudo apt install texlive-full` on linux if not), the pdf files can be compiled from the tex files with:
 
-      pdflatex PROCESS_NAME.tex
-      bibtex PROCESS_NAME.aux
-      pdflatex PROCESS_NAME.tex
-      pdflatex PROCESS_NAME.tex
-      mv PROCESS_NAME.pdf ../
-
-where `PROCESS_NAME` is replaced by the name of the process for which the `tex` file has been edited.
+      runscripts/fileManipulation/compile_process_pdf.sh docs/processes/src/<process>.tex
