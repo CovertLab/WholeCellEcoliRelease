@@ -41,7 +41,7 @@ class ComplexationListener(wholecell.listeners.listener.Listener):
 
 	def tableCreate(self, tableWriter):
 		subcolumns = {
-			'complexationEvents': 'reactionIDs'
+			'complexationEvents': 'reactionIDs'}
 
 		tableWriter.writeAttributes(
 			complexIDs = self.complexIDs,

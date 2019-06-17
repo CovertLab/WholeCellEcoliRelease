@@ -131,7 +131,7 @@ class MonomerCounts(wholecell.listeners.listener.Listener):
 			'monomerCounts': 'monomerIds'}
 
 		tableWriter.writeAttributes(
-			monomerIds = self.monomer_ids
+			monomerIds = self.monomer_ids,
 			subcolumns = subcolumns)
 
 	def tableAppend(self, tableWriter):

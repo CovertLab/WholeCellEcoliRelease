@@ -30,16 +30,17 @@ class TranscriptElongationListener(wholecell.listeners.listener.Listener):
 
 		self.countRnaSynthesized = np.zeros(sim_data.process.transcription.rnaData.fullArray().size, np.int64)
 		self.countNTPsUSed = 0
+		self.rnaIds = sim_data.process.transcription.rnaData['id']
+
 
 	def tableCreate(self, tableWriter):
-		rnaIds = sim_data.process.transcription.rnaData['id']
 		subcolumns = {
 			'countRnaSynthesized': 'rnaIds'}
 
 		tableWriter.writeAttributes( # TODO: reconsider attribute names
 			countRnaSynthesized = self.countUnits,
 			countNTPsUSed = self.countUnits,
-			rnaIds = rnaIds,
+			rnaIds = self.rnaIds,
 			subcolumns = subcolumns)
 
 	def tableAppend(self, tableWriter):

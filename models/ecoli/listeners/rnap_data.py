@@ -14,6 +14,7 @@ import wholecell.listeners.listener
 
 VERBOSE = False
 MAX_RNAP_COORDINATES = 10000
+MAX_COLLISIONS = 250
 
 class RnapData(wholecell.listeners.listener.Listener):
 	""" RnapData """
@@ -61,8 +62,8 @@ class RnapData(wholecell.listeners.listener.Listener):
 		# numbers of collisions that can occur for each type in a single
 		# timestep. Currently for +AA conditions the maximum values are around
 		# 50 and 125, respectively.
-		self.headon_collision_coordinates = np.full(250, np.nan, np.float64)
-		self.codirectional_collision_coordinates = np.full(250, np.nan, np.float64)
+		self.headon_collision_coordinates = np.full(MAX_COLLISIONS, np.nan, np.float64)
+		self.codirectional_collision_coordinates = np.full(MAX_COLLISIONS, np.nan, np.float64)
 
 
 	def update(self):
@@ -82,7 +83,7 @@ class RnapData(wholecell.listeners.listener.Listener):
 		rnap_indexes = range(MAX_RNAP_COORDINATES)
 		collision_indexes = range(MAX_COLLISIONS)
 		subcolumns = {
-			'active_rnap_coordinates': 'rnap_indexes'
+			'active_rnap_coordinates': 'rnap_indexes',
 			'rnaInitEvent': 'rnaIds',
 			'headon_collision_coordinates': 'collision_indexes',
 			'codirectional_collision_coordinates': 'collision_indexes'}

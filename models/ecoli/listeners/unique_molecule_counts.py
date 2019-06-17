@@ -54,7 +54,7 @@ class UniqueMoleculeCounts(wholecell.listeners.listener.Listener):
 			'uniqueMoleculeCounts': 'objectNames'}
 
 		tableWriter.writeAttributes(
-			uniqueMoleculeIds = self.uniqueMolecules.container.objectNames()
+			uniqueMoleculeIds = self.uniqueMolecules.container.objectNames(),
 			objectNames = objectNames,
 			subcolumns = subcolumns)
 

@@ -34,9 +34,9 @@ class RnaDegradationListener(wholecell.listeners.listener.Listener):
 		self.DiffRelativeFirstOrderDecay = 0.
 		self.FractEndoRRnaCounts = 0.
 		self.fragmentBasesDigested = 0
+		self.rnaIds = sim_data.process.transcription.rnaData['id']
 
 	def tableCreate(self, tableWriter):
-		rnaIds = sim_data.process.transcription.rnaData['id']
 		subcolumns = {
 			'countRnaDegraded': 'rnaIds'}
 
@@ -47,7 +47,8 @@ class RnaDegradationListener(wholecell.listeners.listener.Listener):
 			DiffRelativeFirstOrderDecay = self.countUnits,
 			FractEndoRRnaCounts = self.countUnits,
 			fragmentBasesDigested = self.countUnits,
-			rnaIds = rnaIds)
+			rnaIds = self.rnaIds,
+			subcolumns = subcolumns)
 
 	def tableAppend(self, tableWriter):
 		tableWriter.append(

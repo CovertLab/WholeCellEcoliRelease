@@ -41,7 +41,7 @@ class EquilibriumListener(wholecell.listeners.listener.Listener):
 
 	def tableCreate(self, tableWriter):
 		subcolumns = {
-			'reactionRates': 'reactionIds'}
+			'reactionRates': 'reactionIDs'}
 
 		tableWriter.writeAttributes(
 			complexIDs = self.complexIDs,

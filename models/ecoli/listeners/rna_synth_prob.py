@@ -60,7 +60,8 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 			'rnaSynthProb': 'rnaIds',
 			'pPromoterBound': 'tf_ids',
 			'nPromoterBound': 'tf_ids',
-			'nActualBound': 'tf_ids'}
+			'nActualBound': 'tf_ids',
+			'n_bound_TF_per_TU': 'rnaIds'}
 
 		tableWriter.writeAttributes(
 			rnaIds = list(self.rnaIds),

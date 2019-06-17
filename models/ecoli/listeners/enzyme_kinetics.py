@@ -72,7 +72,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 			'metaboliteCountsInit': 'metaboliteNames',
 			'metaboliteCountsFinal': 'metaboliteNames',
 			'metaboliteConcentrations': 'metaboliteNames',
-			'enzymeCountsInit': 'enzymeIds',
+			'enzymeCountsInit': 'enzymeIDs',
 			'targetFluxes': 'constrainedReactions',
 			'actualFluxes': 'constrainedReactions'}
 
