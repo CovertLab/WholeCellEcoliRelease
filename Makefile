@@ -1,8 +1,5 @@
 .PHONY: compile, clean
 
-PYTHON_INCLUDE=$(shell pyenv virtualenv-prefix)/include/python2.7
-PYTHON_LIB=$(shell pyenv virtualenv-prefix)/lib
-
 compile:
 	python2.7 setup.py build_ext --inplace
 	rm -fr build

@@ -7,21 +7,20 @@ You can reach us at [AllenCenterCovertLab](mailto:allencentercovertlab@gmail.com
 
 ## Setup
 
-See [docs/README.md](docs/README.md) for docs on how to set up and run the model. As a shortcut, the core setup instructions are in:
+See [docs/README.md](docs/README.md) for docs on how to set up and run the model.
 
-  1. [Required development tools](docs/dev-tools.md) to install the basic tools, then
-  2. [Creating the "pyenv" runtime environment](docs/create-pyenv.md) to set up the Python runtime environment for the model.
+In short, there are two alternative ways to set up to run the model: inside a Docker container vs. in a carefully constructed `pyenv` virtual environment.
 
 
 ## Quick start
 
-Before running this code, remember to:
+When running this code, prepare with these steps (the wcm-code Docker container already prepares this for you):
 
-1. `cd` to the top level of your cloned `wcEcoli` directory
-2. set the `$PYTHONPATH`
+1. `cd` to the top level of your `wcEcoli` directory.
+2. Set the `$PYTHONPATH`:
 
    ```bash
-   export PYTHONPATH="/path/to/wcEcoli:$PYTHONPATH"
+   export PYTHONPATH="$PWD:$PYTHONPATH"
    ```
 
 3. In the `wcEcoli` directory, compile the Cython code:

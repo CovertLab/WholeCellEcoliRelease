@@ -4,13 +4,14 @@
         "name": "gcr.io/cloud-builders/docker",
         "args": [
             "build",
-            "-t", "gcr.io/$PROJECT_ID/wcm-code",
+            "--build-arg", "from=gcr.io/allen-discovery-center-mcovert/${_WCM_RUNTIME}",
+            "-t", "gcr.io/$PROJECT_ID/${_WCM_CODE}",
             "-f", "cloud/docker/wholecell/Dockerfile",
             "."
         ]
     }
     ],
     "images": [
-        "gcr.io/$PROJECT_ID/wcm-code"
+        "gcr.io/$PROJECT_ID/${_WCM_CODE}"
     ]
 }
