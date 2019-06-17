@@ -39,12 +39,18 @@ class Replication(object):
 		"""
 		Build gene-associated simulation data from raw data.
 		"""
-		self.geneData = np.zeros(len(raw_data.genes),
-			dtype = [('name', 'a50'),
-					('rnaId', 'a50')])
+
+		self.geneData = np.zeros(
+			len(raw_data.genes),
+			dtype=[('name', 'a50'),
+				('symbol', 'a7'),
+				('rnaId', 'a50'),
+				('monomerId', 'a50')])
 
 		self.geneData['name'] = [x['id'] for x in raw_data.genes]
+		self.geneData['symbol'] = [x['symbol'] for x in raw_data.genes]
 		self.geneData['rnaId'] = [x['rnaId'] for x in raw_data.genes]
+		self.geneData['monomerId'] = [x['monomerId'] for x in raw_data.genes]
 
 	def _buildReplication(self, raw_data, sim_data):
 		"""

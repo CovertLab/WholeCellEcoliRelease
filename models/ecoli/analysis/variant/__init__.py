@@ -3,6 +3,7 @@
 ACTIVE = [
 	"adder_sizer.py",
 	"doubling_time_histogram.py",
+	"param_sensitivity.py",
 	"meneSensitivity.py",
 	"growth_condition_comparison_validation.py",
 	"growthConditionComparison.py",
@@ -22,6 +23,7 @@ TAGS = {
 		"adder_sizer.py",
 		"doubling_time_histogram.py",
 		"meneSensitivity.py",
+		"param_sensitivity.py",
 		"growth_condition_comparison_validation.py",
 		],
 	}

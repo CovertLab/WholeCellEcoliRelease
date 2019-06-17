@@ -14,6 +14,7 @@ from .kinetic_catalyst_shuffle_params import kinetic_catalyst_shuffle_params
 from .all_shuffle_params import all_shuffle_params
 from .mene_params import mene_params
 from .metabolism_kinetic_objective_weight import metabolism_kinetic_objective_weight
+from .param_sensitivity import param_sensitivity
 from .rna_deg_rate_shuffle_params import rna_deg_rate_shuffle_params
 from .rrna_orientation import rrna_orientation
 
@@ -28,6 +29,7 @@ nameToFunctionMapping = {
 	"mene_params": mene_params,
 	"metabolism_kinetic_objective_weight": metabolism_kinetic_objective_weight,
 	"monomer_deg_rate_shuffle_params": monomer_deg_rate_shuffle_params,
+	"param_sensitivity": param_sensitivity,
 	"timelines": timelines,
 	"rna_deg_rate_shuffle_params": rna_deg_rate_shuffle_params,
 	"rrna_orientation": rrna_orientation,
