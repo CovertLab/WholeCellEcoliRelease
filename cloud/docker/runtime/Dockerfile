@@ -1,17 +1,17 @@
 # Container image #1: wcm-runtime.
 # This Dockerfile builds the runtime environment for the whole cell model.
 #
-# To build this image from the wcEcoli/ project root directory:
+# To build this image locally from the wcEcoli/ project root directory:
 #
 #     > docker build -f cloud/docker/runtime/Dockerfile -t wcm-runtime .
 #
-# Add option `--build-arg from ABC` to build from a different base image but
+# Add option `--build-arg from=ABC` to build from a different base image but
 # DO NOT USE an alpine base since the simulation math comes out different!
 ARG from=python:2.7.16
 FROM ${from}
 
 RUN apt-get update \
-    && apt-get install -y glpk-utils libglpk-dev glpk-doc swig python-cvxopt \
+    && apt-get install -y swig python-cvxopt \
         gfortran llvm cmake ncurses-dev libreadline7 libreadline-dev nano
 
 RUN echo "alias ls='ls --color=auto'" >> ~/.bashrc
