@@ -25,7 +25,6 @@ def ingest_tables(key, sim_out, url='localhost:27017', database='wcm'):
 
 		reader = TableReader(os.path.join(sim_out, table_name))
 		table = getattr(db, table_name)
-		table.drop()
 
 		attribute_names = reader.attributeNames()
 		attributes = {
