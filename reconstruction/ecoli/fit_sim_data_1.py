@@ -65,6 +65,7 @@ PROMOTER_SCALING = 10  # Multiplied to all matrices for numerical stability
 PROMOTER_NORM_TYPE = 1  # Matrix 1-norm
 PROMOTER_MAX_ITERATIONS = 100
 PROMOTER_CONVERGENCE_THRESHOLD = 1e-9
+ECOS_0_TOLERANCE = 1e-12  # Tolerance to adjust solver output to 0
 
 BASAL_EXPRESSION_CONDITION = "M9 Glucose minus AAs"
 
@@ -210,6 +211,8 @@ def fitSimData_1(
 		if nutrients not in sim_data.translationSupplyRate.keys():
 			sim_data.translationSupplyRate[nutrients] = cellSpecs[condition_label]["translation_aa_supply"]
 
+	if VERBOSE > 0:
+		print('Fitting promoter binding')
 	rVector = fitPromoterBoundProbability(sim_data, cellSpecs)
 	fitLigandConcentrations(sim_data, cellSpecs)
 
@@ -1772,7 +1775,7 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 
 			nIters += 1
 			if nIters > 100:
-				raise Exception, "Equilibrium reactions are not converging!"
+				raise Exception("Equilibrium reactions are not converging!")
 
 		allMoleculeCounts[seed, :] = allMoleculesView.counts()
 
@@ -2740,13 +2743,14 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 
 		# Solve optimization problem
 		prob_r = Problem(objective_r, constraint_r)
-		prob_r.solve(solver = "GLPK")
+		prob_r.solve(solver='ECOS')
 
 		if prob_r.status != "optimal":
-			raise Exception, "Solver could not find optimal value"
+			raise Exception("Solver could not find optimal value")
 
 		# Get optimal value of R
 		r = np.array(R.value).reshape(-1)
+		r[np.abs(r) < ECOS_0_TOLERANCE] = 0  # Adjust to 0 for small values from solver tolerance
 
 		# Use optimal value of R to construct matrix H and vector Pdiff
 		H, pInit, pAlphaIdxs, pNotAlphaIdxs, fixedTFIdxs, pPromoterBoundIdxs, colNamesH = build_matrix_H(
@@ -2796,13 +2800,16 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 
 		# Solve optimization problem
 		prob_p = Problem(objective_p, constraint_p)
-		prob_p.solve(solver = "GLPK")
+		prob_p.solve(solver='ECOS')
 
 		if prob_p.status != "optimal":
-			raise Exception, "Solver could not find optimal value"
+			raise Exception("Solver could not find optimal value")
 
 		# Get optimal value of P
 		p = np.array(P.value).reshape(-1)
+		# Adjust for solver tolerance over bounds to get proper probabilities
+		p[p < 0] = 0
+		p[p > 1] = 1
 
 		# Update pPromoterBound with fit p
 		fromArray(p, pPromoterBound, pPromoterBoundIdxs)
@@ -3063,8 +3070,8 @@ def calculateRnapRecruitment(sim_data, r):
 	deltaI, deltaJ, deltaV = np.array(deltaI), np.array(deltaJ), np.array(deltaV)
 	delta_shape = (len(all_TUs), len(all_tfs))
 
-	# Rescale basal probabilities such that there are no negative probabilities
-	basal_prob -= basal_prob.min()
+	# Adjust any negative basal probabilities to 0
+	basal_prob[basal_prob < 0] = 0
 
 	# Add basal_prob vector and delta_prob matrix to sim_data
 	sim_data.process.transcription_regulation.basal_prob = basal_prob
