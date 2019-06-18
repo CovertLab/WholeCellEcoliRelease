@@ -203,7 +203,8 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
 			'counts': 'objectNames'}
 
 		tableWriter.writeAttributes(
-			processNames = self._processIDs)
+			processNames = self._processIDs,
+			subcolumns = subcolumns)
 
 	def tableAppend(self, tableWriter):
 		# self.container.tableAppend(tableWriter)
