@@ -251,10 +251,14 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Get attributes of DnaA boxes
 		DnaA_boxes = self.DnaA_boxes.molecules()
 
-		coordinates_DnaA_boxes, domain_index_DnaA_boxes = DnaA_boxes.attrs(
-			"coordinates", "domain_index")
+		coordinates_DnaA_boxes, domain_index_DnaA_boxes, DnaA_bound = DnaA_boxes.attrs(
+			"coordinates", "domain_index", "DnaA_bound")
 
-		# TODO: write data to DnaA_box listener
+		# Write DnaA_box copy numbers to listener
+		self.writeToListener(
+			"ReplicationData", "total_DnaA_boxes", len(DnaA_boxes))
+		self.writeToListener(
+			"ReplicationData", "free_DnaA_boxes", np.logical_not(DnaA_bound).sum())
 
 		# If no active replisomes are present, return immediately
 		# Note: the new replication forks added in the previous module are not
