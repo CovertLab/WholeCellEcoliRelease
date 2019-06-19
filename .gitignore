@@ -79,12 +79,8 @@ user/*
 
 # files created from templates #
 ################################
-my_launchpad*.yaml
-my_qadapter*.yaml
-#=======
-*my_launchpad*.yaml
-*my_qadapter*.yaml
-
+/my_launchpad*.yaml
+/my_qadapter*.yaml
 
 # Fireworks output #
 ####################
