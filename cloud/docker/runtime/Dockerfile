@@ -14,8 +14,8 @@ ARG from=python:2.7.16
 FROM ${from}
 
 RUN apt-get update \
-    && apt-get install -y swig python-cvxopt \
-        gfortran llvm cmake ncurses-dev libreadline7 libreadline-dev nano
+    && apt-get install -y swig gfortran llvm cmake ncurses-dev \
+        libreadline7 libreadline-dev nano
 
 RUN echo "alias ls='ls --color=auto'" >> ~/.bashrc
 
@@ -28,23 +28,11 @@ RUN (mkdir -p openblas && cd openblas \
     && make PREFIX=/usr install) \
     && rm -r openblas
 
-# Install glpk into /usr/local/lib/.
-RUN (mkdir -p glpk && cd glpk \
-    && curl -SL ftp://ftp.gnu.org/gnu/glpk/glpk-4.65.tar.gz | tar -xz \
-    && cd glpk-4.65 \
-    && ./configure && make install) \
-    && rm -r glpk
-
-ENV CVXOPT_BUILD_GLPK=1 \
-    CVXOPT_GLPK_LIB_DIR=/usr/local/lib \
-    CVXOPT_GLPK_INC_DIR=/usr/local/include \
-    CVXOPT_BLAS_LIB=openblas \
-    CVXOPT_LAPACK_LIB=openblas \
-    OPENBLAS_NUM_THREADS=1
+ENV OPENBLAS_NUM_THREADS=1
 
 # Install all the pips within one Docker layer and don't cache the downloads.
 COPY requirements.txt /
 RUN pip install --no-cache-dir 'numpy==1.14.6' --no-binary numpy \
-    && pip install --no-cache-dir -r requirements.txt --no-binary numpy,scipy,cvxopt
+    && pip install --no-cache-dir -r requirements.txt --no-binary numpy,scipy
 
 CMD ["/bin/bash"]

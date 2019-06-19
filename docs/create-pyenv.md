@@ -37,7 +37,7 @@ This page goes through the Python environment setup steps in more detail and wit
    ```bash
    sudo apt install -y glpk-utils libglpk-dev glpk-doc libssl-dev libreadline-dev \
      libncurses5-dev libncursesw5-dev libffi-dev zlib1g-dev libbz2-dev xz-utils \
-     libsqlite3-dev python-cvxopt tk-dev
+     libsqlite3-dev tk-dev
    ```
 
    For Ubuntu, you might also need to find and install the proprietary package `python-glpk`.
@@ -164,7 +164,7 @@ This page goes through the Python environment setup steps in more detail and wit
 7. Install the packages listed in `requirements.txt`:
 
    ```bash
-   CVXOPT_BUILD_GLPK=1 pip install -r requirements.txt --no-binary numpy,scipy,cvxopt
+   pip install -r requirements.txt --no-binary numpy,scipy
    pyenv rehash
    ```
 
