@@ -1,0 +1,11 @@
+logdir: {LOGDIR_QADAPTER}
+_fw_name: CommonAdapter
+_fw_q_type: SLURM
+rocket_launch: rlaunch -w {WCECOLI_PATH}/wholecell/fireworks/my_fworker.yaml -l {LAUNCHPAD_PATH} singleshot
+queue: mcovert
+account: null
+job_name: null
+pre_rocket: null
+post_rocket: null
+ntasks: 1
+cpus_per_node: 1

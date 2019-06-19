@@ -1,0 +1,9 @@
+logdir: {LOGDIR_LAUNCHPAD}
+host: {DB_HOST}
+name: {DB_NAME}
+username: {DB_USERNAME}
+password: {DB_PASSWORD}
+port: {DB_PORT}
+strm_lvl: INFO
+user_indices: []
+wf_user_indices: []
