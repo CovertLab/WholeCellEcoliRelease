@@ -318,43 +318,54 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.dntps.countsDec(dNtpsUsed)
 		self.ppi.countInc(dNtpsUsed.sum())
 
-		# Handle DNA motifs that were replicated
-		# Get mask array of promoters and DnaA boxes that should be replicated
-		# in this timestep
-		replicated_promoters = np.zeros_like(TU_index, dtype=np.bool)
-		replicated_DnaA_boxes = np.zeros_like(coordinates_DnaA_boxes,
-			dtype=np.bool)
 
-		for (domain_index, rr, old_coord, new_coord) in izip(
-				domain_index_replisome, right_replichore,
-				coordinates_replisome, updated_coordinates):
-			# Fork on right replichore
-			if rr:
-				coordinates_mask_promoters = np.logical_and(
-					coordinates_promoters >= old_coord,
-					coordinates_promoters < new_coord)
-				coordinates_mask_DnaA_boxes = np.logical_and(
-					coordinates_DnaA_boxes >= old_coord,
-					coordinates_DnaA_boxes < new_coord)
+		# Define function that identifies replicated DNA motifs
+		def get_replicated_motif_mask(motif_coordinates, motif_domain_indexes):
+			"""
+			Computes a mask array for DNA motifs that should be replicated in
+			this timestep, based on the old and new positions of replisomes.
 
-			# Fork on left replichore
-			else:
-				coordinates_mask_promoters = np.logical_and(
-					coordinates_promoters <= old_coord,
-					coordinates_promoters > new_coord)
-				coordinates_mask_DnaA_boxes = np.logical_and(
-					coordinates_DnaA_boxes <= old_coord,
-					coordinates_DnaA_boxes > new_coord)
+			Args:
+				motif_coordinates (ndarray): Replication coordinates of all
+				existing motifs
+				motif_domain_indexes (ndarray): Domain indexes of chromosome
+				domains that each motif belongs to
 
-			mask_promoters = np.logical_and(
-				domain_index_promoters == domain_index,
-				coordinates_mask_promoters)
-			mask_DnaA_boxes = np.logical_and(
-				domain_index_DnaA_boxes == domain_index,
-				coordinates_mask_DnaA_boxes)
+			Returns: Mask array of motifs that should be replicated in this
+			timestep
+			"""
+			# Initialize mask array
+			replicated_motifs = np.zeros_like(motif_coordinates, dtype=np.bool)
 
-			replicated_promoters[mask_promoters] = True
-			replicated_DnaA_boxes[mask_DnaA_boxes] = True
+			# Loop through all replisomes
+			for (domain_index, rr, old_coord, new_coord) in izip(
+					domain_index_replisome, right_replichore,
+					coordinates_replisome, updated_coordinates):
+				# Fork on right replichore
+				if rr:
+					coordinates_mask = np.logical_and(
+						motif_coordinates >= old_coord,
+						motif_coordinates < new_coord)
+
+				# Fork on left replichore
+				else:
+					coordinates_mask = np.logical_and(
+						motif_coordinates <= old_coord,
+						motif_coordinates > new_coord)
+
+				mask = np.logical_and(
+					motif_domain_indexes == domain_index,
+					coordinates_mask)
+
+				replicated_motifs[mask] = True
+
+			return replicated_motifs
+
+
+		replicated_promoters = get_replicated_motif_mask(
+			coordinates_promoters, domain_index_promoters)
+		replicated_DnaA_boxes = get_replicated_motif_mask(
+			coordinates_DnaA_boxes, domain_index_DnaA_boxes)
 
 		# Get counts of replicated promoters and DnaA boxes
 		n_new_promoters = 2*replicated_promoters.sum()

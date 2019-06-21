@@ -353,6 +353,9 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		"""
 		motif_index, motif_coordinates, motif_domain_index = [], [], []
 
+		def in_bounds(coordinates, lb, ub):
+			return np.logical_and(coordinates < ub, coordinates > lb)
+
 		# Loop through all chromosome domains
 		for domain_idx in domain_state["domain_index"]:
 
@@ -383,9 +386,9 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 					replisome_state["domain_index"] == parent_domain_idx]
 
 				# Add motifs inside this boundary
-				motif_mask = np.logical_and(
-					all_motif_coordinates < parent_domain_boundaries.max(),
-					all_motif_coordinates > parent_domain_boundaries.min())
+				motif_mask = in_bounds(all_motif_coordinates,
+					parent_domain_boundaries.min(),
+					parent_domain_boundaries.max())
 
 			# If the domain neither contains the origin nor the terminus,
 			else:
@@ -403,12 +406,13 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 
 				# Add motifs between the boundaries
 				motif_mask = np.logical_or(
-					np.logical_and(
-						all_motif_coordinates < parent_domain_boundaries.max(),
-						all_motif_coordinates > domain_boundaries.max()),
-					np.logical_and(
-						all_motif_coordinates > parent_domain_boundaries.min(),
-						all_motif_coordinates < domain_boundaries.min()))
+					in_bounds(all_motif_coordinates,
+						domain_boundaries.max(),
+						parent_domain_boundaries.max()),
+					in_bounds(all_motif_coordinates,
+						parent_domain_boundaries.min(),
+						domain_boundaries.min())
+					)
 
 			# Append attributes to existing list
 			motif_index.extend(np.nonzero(motif_mask)[0])

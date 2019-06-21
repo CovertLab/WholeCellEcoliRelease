@@ -44,7 +44,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		criticalMassPerOriC = replication_data_reader.readColumn(
 			"criticalMassPerOriC")
 
-		names = ['PD03831[c]', 'MONOMER0-160[c]']  # DnaA, DnaA-ATP complex
+		names = [sim_data.moleculeIds.DnaA,
+			sim_data.moleculeIds.DnaA_ATP_complex]
 		(counts,) = read_bulk_molecule_counts(simOutDir, (names,))
 
 		fig = plt.figure()
