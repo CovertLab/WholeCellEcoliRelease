@@ -41,6 +41,9 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 		self.criticalMassPerOriC = 0.
 		self.criticalInitiationMass = 0.
 
+		self.free_DnaA_boxes = 0
+		self.total_DnaA_boxes = 0
+
 
 	def update(self):
 		active_replisomes = self.uniqueMolecules.container.objectsInCollection('active_replisome')
@@ -63,4 +66,6 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 			numberOfOric = self.numberOfOric,
 			criticalMassPerOriC = self.criticalMassPerOriC,
 			criticalInitiationMass = self.criticalInitiationMass,
+			free_DnaA_boxes = self.free_DnaA_boxes,
+			total_DnaA_boxes = self.total_DnaA_boxes,
 			)

@@ -128,19 +128,19 @@ class Transcription(object):
 		terc_coordinate = raw_data.parameters['terCCenter'].asNumber()
 		genome_length = len(raw_data.genome_sequence)
 
-		def get_replication_coordinate(coordinate):
-			replication_coordinate = ((coordinate - terc_coordinate)
+		def get_relative_coordinates(coordinates):
+			relative_coordinates = ((coordinates - terc_coordinate)
 				% genome_length + terc_coordinate - oric_coordinate
 				)
 
-			if replication_coordinate < 0:
-				replication_coordinate += 1
+			if relative_coordinates < 0:
+				relative_coordinates += 1
 
-			return replication_coordinate
+			return relative_coordinates
 
 		# Location of transcription initiation relative to origin
 		replicationCoordinate = [
-			get_replication_coordinate(coordinate_list[gene_index[rna["id"]]])
+			get_relative_coordinates(coordinate_list[gene_index[rna["id"]]])
 			for rna in raw_data.rnas]
 
 		# Direction of transcription

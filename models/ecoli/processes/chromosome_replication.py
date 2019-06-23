@@ -67,9 +67,12 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Create molecules views for full chromosomes
 		self.full_chromosome = self.uniqueMoleculesView("fullChromosome")
 
-		# Create view for promoters and log counts of transcription factors
+		# Create view for promoters and get total number of TF types
 		self.promoters = self.uniqueMoleculesView("promoter")
 		self.n_tf = len(sim_data.process.transcription_regulation.tf_ids)
+
+		# Create view for DnaA boxes
+		self.DnaA_boxes = self.uniqueMoleculesView("DnaA_box")
 
 		# Get placeholder value for domains without children
 		self.no_child_place_holder = sim_data.process.replication.no_child_place_holder
@@ -196,7 +199,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			# New replisomes inherit the domain indexes of the oriC's they
 			# were initiated from. Two replisomes are formed per oriC, one on
 			# the right replichore, and one on the left.
-			coordinates = np.zeros(n_new_replisome, dtype=np.int64)
+			coordinates_replisome = np.zeros(n_new_replisome, dtype=np.int64)
 			right_replichore = np.tile(
 				np.array([True, False], dtype=np.bool), n_oric)
 			domain_index_new_replisome = np.repeat(
@@ -204,7 +207,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 			self.active_replisome.moleculesNew(
 				n_new_replisome,
-				coordinates=coordinates,
+				coordinates=coordinates_replisome,
 				right_replichore=right_replichore,
 				domain_index=domain_index_new_replisome)
 
@@ -245,6 +248,18 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			"RnaSynthProb", "gene_copy_number",
 			np.bincount(TU_index, minlength=len(self.replication_coordinate)))
 
+		# Get attributes of DnaA boxes
+		DnaA_boxes = self.DnaA_boxes.molecules()
+
+		coordinates_DnaA_boxes, domain_index_DnaA_boxes, DnaA_bound = DnaA_boxes.attrs(
+			"coordinates", "domain_index", "DnaA_bound")
+
+		# Write DnaA_box copy numbers to listener
+		self.writeToListener(
+			"ReplicationData", "total_DnaA_boxes", len(DnaA_boxes))
+		self.writeToListener(
+			"ReplicationData", "free_DnaA_boxes", np.logical_not(DnaA_bound).sum())
+
 		# If no active replisomes are present, return immediately
 		# Note: the new replication forks added in the previous module are not
 		# elongated until the next timestep.
@@ -255,9 +270,9 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		dNtpCounts = self.dntps.counts()
 
 		# Get attributes of existing replisomes
-		domain_index_replisome, right_replichore, coordinates = active_replisomes.attrs(
+		domain_index_replisome, right_replichore, coordinates_replisome = active_replisomes.attrs(
 			"domain_index", "right_replichore", "coordinates")
-		sequence_length = np.abs(np.repeat(coordinates, 2))
+		sequence_length = np.abs(np.repeat(coordinates_replisome, 2))
 
 		# Build sequences to polymerize
 		sequences = buildSequences(
@@ -303,31 +318,60 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.dntps.countsDec(dNtpsUsed)
 		self.ppi.countInc(dNtpsUsed.sum())
 
-		# Handle promoters that were replicated
-		# Get mask array of promoters that were replicated in this timestep
-		replicated_promoters = np.zeros_like(TU_index, dtype=np.bool)
 
-		for (domain_index, rr, old_coord, new_coord) in izip(
-				domain_index_replisome, right_replichore,
-				coordinates, updated_coordinates):
-			# Fork on right replichore
-			if rr:
-				coordinates_mask = np.logical_and(
-					coordinates_promoters >= old_coord,
-					coordinates_promoters < new_coord)
+		# Define function that identifies replicated DNA motifs
+		def get_replicated_motif_mask(motif_coordinates, motif_domain_indexes):
+			"""
+			Computes a mask array for DNA motifs that should be replicated in
+			this timestep, based on the old and new positions of replisomes.
 
-			# Fork on left replichore
-			else:
-				coordinates_mask = np.logical_and(
-					coordinates_promoters <= old_coord,
-					coordinates_promoters > new_coord)
+			Args:
+				motif_coordinates (ndarray): Replication coordinates of all
+				existing motifs
+				motif_domain_indexes (ndarray): Domain indexes of chromosome
+				domains that each motif belongs to
 
-			mask = np.logical_and(
-				domain_index_promoters == domain_index, coordinates_mask)
-			replicated_promoters[mask] = True
+			Returns: Mask array of motifs that should be replicated in this
+			timestep
+			"""
+			# Initialize mask array
+			replicated_motifs = np.zeros_like(motif_coordinates, dtype=np.bool)
 
+			# Loop through all replisomes
+			for (domain_index, rr, old_coord, new_coord) in izip(
+					domain_index_replisome, right_replichore,
+					coordinates_replisome, updated_coordinates):
+				# Fork on right replichore
+				if rr:
+					coordinates_mask = np.logical_and(
+						motif_coordinates >= old_coord,
+						motif_coordinates < new_coord)
+
+				# Fork on left replichore
+				else:
+					coordinates_mask = np.logical_and(
+						motif_coordinates <= old_coord,
+						motif_coordinates > new_coord)
+
+				mask = np.logical_and(
+					motif_domain_indexes == domain_index,
+					coordinates_mask)
+
+				replicated_motifs[mask] = True
+
+			return replicated_motifs
+
+
+		replicated_promoters = get_replicated_motif_mask(
+			coordinates_promoters, domain_index_promoters)
+		replicated_DnaA_boxes = get_replicated_motif_mask(
+			coordinates_DnaA_boxes, domain_index_DnaA_boxes)
+
+		# Get counts of replicated promoters and DnaA boxes
 		n_new_promoters = 2*replicated_promoters.sum()
+		n_new_DnaA_boxes = 2*replicated_DnaA_boxes.sum()
 
+		# Handle replicated promoters
 		if n_new_promoters > 0:
 			# Delete original promoters
 			promoters.delByIndexes(np.where(replicated_promoters)[0])
@@ -355,6 +399,28 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 				domain_index=domain_index_promoters_new,
 				bound_TF=np.zeros((n_new_promoters, self.n_tf), dtype=np.bool))
 
+		# Handle replicated DnaA boxes
+		if n_new_DnaA_boxes > 0:
+			# Delete original DnaA boxes
+			DnaA_boxes.delByIndexes(np.where(replicated_DnaA_boxes)[0])
+
+			# Set up attributes for the replicated DnaA boxes
+			coordinates_DnaA_boxes_new = np.repeat(
+				coordinates_DnaA_boxes[replicated_DnaA_boxes], 2)
+			parent_domain_index_DnaA_boxes = domain_index_DnaA_boxes[
+				replicated_DnaA_boxes]
+
+			domain_index_DnaA_boxes_new = child_domains[
+				np.array([np.where(domain_index_existing_domain == idx)[0][0]
+					for idx in parent_domain_index_DnaA_boxes]),
+				:].flatten()
+
+			# Add new DnaA boxes with new domain indexes
+			self.DnaA_boxes.moleculesNew(
+				n_new_DnaA_boxes,
+				coordinates=coordinates_DnaA_boxes_new,
+				domain_index=domain_index_DnaA_boxes_new,
+				DnaA_bound=np.zeros(n_new_DnaA_boxes, dtype=np.bool))
 
 		## Module 3: replication termination
 		# Determine if any forks have reached the end of their sequences. If
