@@ -176,7 +176,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		# Load one instance of sim_data to get number of parameters and ids
 		global sim_data
 		global validation_data
-		with open(os.path.join(inputDir, 'kb', constants.SERIALIZED_FIT1_FILENAME), 'rb') as f:
+		with open(os.path.join(inputDir, 'kb', constants.SERIALIZED_SIM_DATA_FILENAME), 'rb') as f:
 			sim_data = cPickle.load(f)
 		with open(validationDataFile, 'rb') as f:
 			validation_data = cPickle.load(f)
@@ -197,7 +197,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		if len(param_ids) != total_params:
 			raise ValueError('Number of adjusted parameters and list of ids do not match.')
 
-		pool = Pool(processes=parallelization.plotter_cpus())
+		pool = Pool(processes=parallelization.cpus())
 		args = zip(
 			variants,
 			[total_params] * n_variants,

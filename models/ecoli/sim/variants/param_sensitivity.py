@@ -140,7 +140,7 @@ def modify_params(sim_data, indices, factor):
 		synth_prob_indices) = param_indices(sim_data, indices)
 
 	synth_prob_set = set(synth_prob_indices)
-	recruitment_mask = np.array([hi in synth_prob_set for hi in sim_data.process.transcription_regulation.recruitmentData['hI']])
+	recruitment_mask = np.array([i in synth_prob_set for i in sim_data.process.transcription_regulation.delta_prob['deltaI']])
 
 	sim_data.process.transcription.rnaData.struct_array['degRate'][rna_deg_indices] *= factor
 	sim_data.process.translation.monomerData.struct_array['degRate'][protein_deg_indices] *= factor
@@ -149,7 +149,8 @@ def modify_params(sim_data, indices, factor):
 		synth_prob[synth_prob_indices] *= factor
 	for exp in sim_data.process.transcription.rnaExpression.values():
 		exp[synth_prob_indices] *= factor
-	sim_data.process.transcription_regulation.recruitmentData['hV'][recruitment_mask] *= factor
+	sim_data.process.transcription_regulation.basal_prob[synth_prob_indices] *= factor
+	sim_data.process.transcription_regulation.delta_prob['deltaV'][recruitment_mask] *= factor
 
 def param_sensitivity(sim_data, index):
 	# No modifications for first index as control

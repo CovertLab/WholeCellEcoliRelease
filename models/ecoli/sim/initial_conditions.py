@@ -10,7 +10,6 @@ from itertools import izip
 import scipy.sparse
 
 import numpy as np
-from arrow import StochasticSystem
 
 from wholecell.utils.fitting import normalize, countsFromMassAndExpression, masses_and_counts_for_homeostatic_target
 from wholecell.utils.polymerize import computeMassIncrease
@@ -227,24 +226,24 @@ def initializeComplexation(bulkMolCntr, sim_data, randomState):
 	rnaseCounts = bulkMolCntr.countsView(rnases).counts()
 	bulkMolCntr.countsIs(0, rnases)
 
-	stoichMatrix = sim_data.process.complexation.stoichMatrix().astype(np.int64)
-
-	duration = RAND_MAX
-	seed = randomState.randint(RAND_MAX)
-	complexation_rates = sim_data.process.complexation.rates
-	system = StochasticSystem(stoichMatrix.T, complexation_rates, random_seed=seed)
+	stoichMatrix = sim_data.process.complexation.stoichMatrix().astype(np.int64, order='F')
+	prebuiltMatrices = mccBuildMatrices(stoichMatrix)
 
 	# form complexes until no new complexes form (some complexes are complexes of complexes)
 	while True:
 		moleculeCounts = moleculeView.counts()
-		complexation_result = system.evolve(duration, moleculeCounts)
-
-		updatedMoleculeCounts = complexation_result['outcome']
-		complexationEvents = complexation_result['occurrences']
+		updatedMoleculeCounts, complexationEvents = mccFormComplexesWithPrebuiltMatrices(
+			moleculeCounts,
+			randomState.randint(1000),
+			stoichMatrix,
+			*prebuiltMatrices)
 
 		bulkMolCntr.countsIs(
 			updatedMoleculeCounts,
 			moleculeNames)
+
+		if np.any(updatedMoleculeCounts < 0):
+			raise ValueError('Negative counts after complexation')
 
 		if not np.any(moleculeCounts - updatedMoleculeCounts):
 			break
@@ -282,9 +281,16 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 	genome_length = sim_data.process.replication.genome_length
 	replichore_length = np.ceil(0.5*genome_length) * units.nt
 
+	# Calculate the maximum number of replisomes that could be formed with
+	# the existing counts of replisome subunits
+	n_max_replisomes = np.min(np.concatenate(
+		(bulkMolCntr.counts(sim_data.moleculeGroups.replisome_trimer_subunits)//3,
+		bulkMolCntr.counts(sim_data.moleculeGroups.replisome_monomer_subunits))))
+
 	# Generate arrays specifying appropriate initial replication conditions
 	oric_state, replisome_state, domain_state = determine_chromosome_state(
-		C, D, tau, replichore_length, sim_data.process.replication.no_child_place_holder)
+		C, D, tau, replichore_length, n_max_replisomes,
+		sim_data.process.replication.no_child_place_holder)
 
 	n_oric = oric_state["domain_index"].size
 	n_replisome = replisome_state["domain_index"].size
@@ -732,7 +738,8 @@ def setDaughterInitialConditions(sim, sim_data):
 	sim._initialTime = inherited_state['initial_time']
 
 
-def determine_chromosome_state(C, D, tau, replichore_length, place_holder):
+def determine_chromosome_state(C, D, tau, replichore_length, n_max_replisomes,
+		place_holder):
 	"""
 	Calculates the attributes of oriC's, replisomes, and chromosome domains on
 	the chromosomes at the beginning of the cell cycle.
@@ -744,6 +751,8 @@ def determine_chromosome_state(C, D, tau, replichore_length, place_holder):
 	- D: the D period of the cell, the length of time between completing
 	replication of the chromosome and division of the cell.
 	- tau: the doubling time of the cell
+	- n_max_replisomes: the maximum number of replisomes that can be formed
+	given the initial counts of replisome subunits
 	- replichore_length: the amount of DNA to be replicated per fork, usually
 	half of the genome, in base-pairs
 	- place_holder: placeholder value for chromosome domains without child
@@ -784,22 +793,28 @@ def determine_chromosome_state(C, D, tau, replichore_length, place_holder):
 	# cell divisions.
 	assert D.asNumber(units.min) < tau.asNumber(units.min), "The D period must be shorter than the doubling time tau."
 
+	# Calculate the maximum number of replication rounds given the maximum
+	# count of replisomes
+	n_max_rounds = int(np.log2(n_max_replisomes/2 + 1))
+
 	# Calculate the number of active replication rounds
-	n_round = int(np.floor(
-		(C.asNumber(units.min) + D.asNumber(units.min))/tau.asNumber(units.min)))
+	n_rounds = min(n_max_rounds,
+		int(np.floor(
+		(C.asNumber(units.min) + D.asNumber(units.min))/tau.asNumber(units.min)
+		)))
 
 	# Initialize arrays for replisomes
-	n_replisomes = 2*(2**n_round - 1)
+	n_replisomes = 2*(2**n_rounds - 1)
 	coordinates = np.zeros(n_replisomes, dtype=np.int64)
 	right_replichore_replisome = np.zeros(n_replisomes, dtype=np.bool)
 	domain_index_replisome = np.zeros(n_replisomes, dtype=np.int32)
 
 	# Initialize child domain array for chromosome domains
-	n_domains = 2**(n_round + 1) - 1
+	n_domains = 2**(n_rounds + 1) - 1
 	child_domains = np.full((n_domains, 2), place_holder, dtype=np.int32)
 
 	# Set domain_index attribute of oriC's and chromosome domains
-	domain_index_oric = np.arange(2**n_round - 1, 2**(n_round + 1) - 1, dtype=np.int32)
+	domain_index_oric = np.arange(2**n_rounds - 1, 2**(n_rounds + 1) - 1, dtype=np.int32)
 	domain_index_domains = np.arange(0, n_domains, dtype=np.int32)
 
 	def n_events_before_this_round(round_idx):
@@ -813,7 +828,7 @@ def determine_chromosome_state(C, D, tau, replichore_length, place_holder):
 
 	# Loop through active replication rounds, starting from the oldest round.
 	# If n_round = 0 skip loop entirely - no active replication round.
-	for round_idx in np.arange(n_round):
+	for round_idx in np.arange(n_rounds):
 		# Determine at which location (base) of the chromosome the replication
 		# forks should be initialized to
 		rel_location = 1.0 - (((round_idx + 1.0)*tau - D)/C)
