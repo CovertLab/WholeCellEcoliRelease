@@ -72,11 +72,21 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		sorted_TU_ids = [TU_ids[i][:-3] for i in sorted_index]  # [c] stripped
 		avg_inter_rnap_distance.sort()
 
+		# Get RNAP footprint size from validation data
+		RNAP_footprint_size = validation_data.dna_footprint_sizes[
+			sim_data.moleculeIds.rnapFull].asNumber(units.nt)
+
+		# Mark genes with RNAPs that are too close to each other
+		n_too_close = (avg_inter_rnap_distance < RNAP_footprint_size).sum()
+		bar_colors = ["r"]*n_too_close + ["b"]*(SAMPLE_SIZE - n_too_close)
+
 		# Plot the first n genes with shortest distances
 		plt.figure(figsize=(4, 12))
 		plt.barh(np.arange(SAMPLE_SIZE), avg_inter_rnap_distance[:SAMPLE_SIZE],
-			tick_label=sorted_TU_ids[:SAMPLE_SIZE])
+			tick_label=sorted_TU_ids[:SAMPLE_SIZE],
+			color=bar_colors)
 		plt.xlabel("Average distance between RNAPs (nt)")
+		plt.axvline(RNAP_footprint_size, linestyle='--', color='k')
 
 		# Add values to each bar
 		for i, v in enumerate(avg_inter_rnap_distance[:SAMPLE_SIZE]):
