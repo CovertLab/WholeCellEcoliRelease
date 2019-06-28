@@ -985,7 +985,6 @@ def setInitialRnaExpression(sim_data, expression, doubling_time):
 	ids_rRNA23S = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna23S"]] # 23S rRNA
 	ids_rRNA16S = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna16S"]] # 16S rRNA
 	ids_rRNA5S = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna5S"]] # 5s rRNA
-	ids_tRNA = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isTRna"]] # tRNAs
 	ids_mRNA = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isMRna"]] # mRNAs
 
 	avgCellFractionMass = sim_data.mass.getFractionMass(doubling_time)
@@ -1062,7 +1061,9 @@ def setInitialRnaExpression(sim_data, expression, doubling_time):
 	distribution_rRNA16S = normalize(n_avg_copy_rRNA16S)
 	distribution_rRNA5S = normalize(n_avg_copy_rRNA5S)
 
-	distribution_tRNA = normalize(sim_data.mass.getTrnaDistribution()['molar_ratio_to_16SrRNA'])
+	trna_distribution = sim_data.mass.getTrnaDistribution(doubling_time)
+	ids_tRNA = trna_distribution['id']
+	distribution_tRNA = normalize(trna_distribution['molar_ratio_to_16SrRNA'])
 	distribution_mRNA = normalize(expression[sim_data.process.transcription.rnaData['isMRna']])
 
 	# Construct bulk container

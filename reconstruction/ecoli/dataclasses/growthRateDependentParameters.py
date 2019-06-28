@@ -334,17 +334,15 @@ class Mass(object):
 
 		self._trna_ids = [x['rna id'] for x in raw_data.trnaData.trna_ratio_to_16SrRNA_0p4]
 
-	def getTrnaDistribution(self):
-		return self._getTrnaAbundanceAtGrowthRate(self._doubling_time)
-
-	def _getTrnaAbundanceAtGrowthRate(self, doubling_time):
+	def getTrnaDistribution(self, doubling_time):
 		assert type(doubling_time) == unum.Unum
 		assert type(doubling_time.asNumber()) == float
 		growth_rate = 1 / doubling_time
 		growth_rate = growth_rate.asNumber(1/units.h)
 
-		from scipy.interpolate import interp1d
-		trna_abundance_interpolation_functions = [interp1d(self._trna_growth_rates.asNumber(1/units.h), self._trna_ratio_to_16SrRNA_by_growth_rate[:,i]) for i in range(self._trna_ratio_to_16SrRNA_by_growth_rate.shape[1])]
+		trna_abundance_interpolation_functions = [
+			interpolate.interp1d(self._trna_growth_rates.asNumber(1/units.h), self._trna_ratio_to_16SrRNA_by_growth_rate[:,i])
+			for i in range(self._trna_ratio_to_16SrRNA_by_growth_rate.shape[1])]
 
 		abundance = np.zeros(len(self._trna_ids), dtype = [('id','a50'),('molar_ratio_to_16SrRNA', np.float64)])
 		abundance['id'] = self._trna_ids
