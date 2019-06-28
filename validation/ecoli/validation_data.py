@@ -37,6 +37,19 @@ class ValidationDataEcoli(object):
 		self.reactionFlux = ReactionFlux(validation_data_raw, knowledge_base_raw)
 		self.essentialGenes = EssentialGenes(validation_data_raw)
 		self.geneFunctions = GeneFunctions(validation_data_raw)
+		self._add_dna_footprint_sizes(validation_data_raw)
+
+	def _add_dna_footprint_sizes(self, validation_data_raw):
+		"""
+		Adds dictionary of DNA footprint sizes. Keys are the IDs of the
+		DNA-binding molecules; values are the sizes of their molecular
+		footprints on the DNA.
+		"""
+		self.dna_footprint_sizes = {}
+
+		for row in validation_data_raw.dna_footprint_sizes:
+			self.dna_footprint_sizes[row["molecule_ID"]] = row["footprint_size"]
+
 
 
 class Protein(object):

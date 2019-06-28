@@ -21,6 +21,7 @@ LIST_OF_DICT_FILENAMES = (
 	"wisniewski2014_supp2.tsv",
 	"schmidt2015_javier_table.tsv",
 	"toya_2010_central_carbon_fluxes.tsv",
+	"dna_footprint_sizes.tsv",
 	"essentialGenes.tsv",
 	"geneFunctions.tsv",
 	)

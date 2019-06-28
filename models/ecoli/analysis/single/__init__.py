@@ -11,6 +11,7 @@ ACTIVE = [
 	"centralCarbonMetabolismCorrelationTimeCourse.py",
 	"centralCarbonMetabolismScatter.py",
 	"concentrationDeviation.py",
+	"dnaA_box_dynamics.py",
 	"dntpCounts.py",
 	"equilibriumComparison.py",
 	"evaluationTime.py",
@@ -21,6 +22,7 @@ ACTIVE = [
 	"glucoseAndOxygenExchangeFluxes.py",
 	"glucoseMassYield.py",
 	"growthLimits.py",
+	"inter_rnap_distance.py",
 	"kineticsFluxComparison.py",
 	"kineticsFluxComparisonKcatOnly.py",
 	"mRnaHalfLives.py",
@@ -111,6 +113,7 @@ TAGS = {
 		"twoComponentSystem.py",
 		],
 	'REPLICATION': [
+		"dnaA_box_dynamics.py",
 		"replication.py",
 		"replisome_counts.py",
 		"transient_gene_dosage.py",
@@ -118,6 +121,7 @@ TAGS = {
 		"replisome_rnap_collisions.py",
 		],
 	'TRANSCRIPTION': [
+		"inter_rnap_distance.py",
 		"mRnaHalfLives.py",
 		"mrnaCounts.py",
 		"mrnaVsProteinCounts.py",
@@ -143,6 +147,7 @@ TAGS = {
 		"centralCarbonMetabolism.py",
 		"centralCarbonMetabolismCorrelationTimeCourse.py",
 		"centralCarbonMetabolismScatter.py",
+		"inter_rnap_distance.py",
 		"proteinCountsValidation.py",
 		],
 	}
