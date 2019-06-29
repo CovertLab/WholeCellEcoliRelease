@@ -77,7 +77,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			sim_data.moleculeIds.rnapFull].asNumber(units.nt)
 
 		# Mark genes with RNAPs that are too close to each other
-		n_too_close = (avg_inter_rnap_distance < RNAP_footprint_size).sum()
+		n_too_close = (avg_inter_rnap_distance[:SAMPLE_SIZE] < RNAP_footprint_size).sum()
 		bar_colors = ["r"]*n_too_close + ["b"]*(SAMPLE_SIZE - n_too_close)
 
 		# Plot the first n genes with shortest distances
