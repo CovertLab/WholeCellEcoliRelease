@@ -14,9 +14,10 @@ import numpy as np
 from matplotlib import pyplot as plt
 import cPickle
 
-
 from wholecell.io.tablereader import TableReader
 from models.ecoli.analysis import singleAnalysisPlot
+from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
@@ -26,9 +27,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		if not os.path.exists(plotOutDir):
 			os.mkdir(plotOutDir)
-
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
@@ -41,8 +39,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		RNase_RnaIDS = np.concatenate((endoRnase_RnaIDs, exoRnase_RnaIDs))
 		RNase_IDS = np.concatenate((RNase_IDS, RNase_RnaIDS))
 
-		rnapRnaIndexes = np.array([moleculeIds.index(rnapRnaId) for rnapRnaId in RNase_IDS], np.int)
-		rnapRnaCounts = bulkMolecules.readColumn("counts")[:, rnapRnaIndexes]
+		(rnapRnaCounts,) = read_bulk_molecule_counts(simOutDir, (RNase_IDS,))
 
 		main_reader = TableReader(os.path.join(simOutDir, "Main"))
 		initialTime = main_reader.readAttribute("initialTime")
@@ -87,35 +84,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			yloc = plt.MaxNLocator(max_yticks)
 			ax.yaxis.set_major_locator(yloc)
 
-			signal = rnapRnaCounts[:, rnapRnaCountsIdx]
-			if subplotIdx == 17:
-				np.savetxt(os.path.join(plotOutDir, 'PNPase-MONOMER[c].txt'), signal)
-			if subplotIdx == 35:
-				np.savetxt(os.path.join(plotOutDir, 'PNPase-RNA[c].txt'), signal)
-
-			# identifying periodicity on RNA and protein copy numbers
-			fourier = np.fft.fft(signal)
-
-			# copmuting mean and std values of the power spectral density
-			M = np.mean(abs(fourier))
-			S = np.std(abs(fourier))
-
-			# computing frequencies
-			n = signal.size
-			timestep = 1 # second
-			freq = np.fft.fftfreq(n, d=timestep)
-			fft_freq = sorted(zip(abs(fourier),freq))[n-6:n]
-
-			# identifing peaks (frequency and period) with maximum PSD
-			for i in xrange(0,len(fft_freq)):
-				if fft_freq[i][1] > 0.: # only positive frequencies
-					if 1. / fft_freq[i][1] < 3600.: # only periods lower than the doubling time
-						if abs(fft_freq[i][0] - M) / S > 3: # strong and significant fft
-							pass
-							# print RNase_IDS[rnapRnaCountsIdx], 1. / fft_freq[i][1] / 60. # period (min)
-
 		plt.subplots_adjust(hspace = 0.75, top = 0.95, bottom = 0.05)
-		plt.savefig(os.path.join(plotOutDir, plotOutFileName))
+		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+		plt.close('all')
 
 if __name__ == "__main__":
 	Plot().cli()
