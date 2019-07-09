@@ -12,7 +12,7 @@ INDEX_COLUMNS = [
 	'subcolumn_index']
 
 def tolist(a):
-	'''If value is np.ndarray, convert it to a list.'''
+	'''If value is np.ndarray, convert it to a list'''
 
 	value = a
 	if isinstance(a, np.ndarray):
