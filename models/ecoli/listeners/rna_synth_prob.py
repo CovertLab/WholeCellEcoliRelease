@@ -55,10 +55,18 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 
 
 	def tableCreate(self, tableWriter):
+		subcolumns = {
+			'gene_copy_number': 'rnaIds',
+			'rnaSynthProb': 'rnaIds',
+			'pPromoterBound': 'tf_ids',
+			'nPromoterBound': 'tf_ids',
+			'nActualBound': 'tf_ids',
+			'n_bound_TF_per_TU': 'rnaIds'}
+
 		tableWriter.writeAttributes(
 			rnaIds = list(self.rnaIds),
 			tf_ids = list(self.tf_ids),
-			)
+			subcolumns = subcolumns)
 
 
 	def tableAppend(self, tableWriter):

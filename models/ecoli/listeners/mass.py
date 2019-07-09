@@ -219,7 +219,7 @@ class Mass(wholecell.listeners.listener.Listener):
 			nucleoid_units = self.massUnits,
 			processNames = self.processNames,
 			smallMoleculeMass = list(self.smallMoleculeMass),
-			)
+			subcolumns = {})
 
 
 	def tableAppend(self, tableWriter):

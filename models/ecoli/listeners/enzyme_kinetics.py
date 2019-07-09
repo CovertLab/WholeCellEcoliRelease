@@ -68,13 +68,21 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		pass
 
 	def tableCreate(self, tableWriter):
+		subcolumns = {
+			'metaboliteCountsInit': 'metaboliteNames',
+			'metaboliteCountsFinal': 'metaboliteNames',
+			'metaboliteConcentrations': 'metaboliteNames',
+			'enzymeCountsInit': 'enzymeIDs',
+			'targetFluxes': 'constrainedReactions',
+			'actualFluxes': 'constrainedReactions'}
+
 		tableWriter.writeAttributes(
 			enzymeIDs = self.enzymeIDs,
 			metaboliteNames = self.metaboliteNamesFromNutrients,
 			constrainedReactions = self.metabolism.all_constrained_reactions,
 			kineticsConstrainedReactions = self.metabolism.kinetics_constrained_reactions,
 			boundaryConstrainedReactions = self.metabolism.boundary_constrained_reactions,
-			)
+			subcolumns = subcolumns)
 
 
 	def tableAppend(self, tableWriter):

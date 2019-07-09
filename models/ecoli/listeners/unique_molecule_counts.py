@@ -49,9 +49,14 @@ class UniqueMoleculeCounts(wholecell.listeners.listener.Listener):
 
 
 	def tableCreate(self, tableWriter):
+		objectNames = self.uniqueMolecules.container.objectNames()
+		subcolumns = {
+			'uniqueMoleculeCounts': 'objectNames'}
+
 		tableWriter.writeAttributes(
-			uniqueMoleculeIds = self.uniqueMolecules.container.objectNames()
-			)
+			uniqueMoleculeIds = self.uniqueMolecules.container.objectNames(),
+			objectNames = objectNames,
+			subcolumns = subcolumns)
 
 
 	def tableAppend(self, tableWriter):

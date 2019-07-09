@@ -127,9 +127,12 @@ class MonomerCounts(wholecell.listeners.listener.Listener):
 		self.monomerCounts = bulkMoleculeCounts[self.monomer_idx]
 
 	def tableCreate(self, tableWriter):
+		subcolumns = {
+			'monomerCounts': 'monomerIds'}
+
 		tableWriter.writeAttributes(
-			monomerIds = self.monomer_ids
-			)
+			monomerIds = self.monomer_ids,
+			subcolumns = subcolumns)
 
 	def tableAppend(self, tableWriter):
 		tableWriter.append(

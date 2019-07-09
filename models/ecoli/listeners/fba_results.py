@@ -74,6 +74,18 @@ class FBAResults(wholecell.listeners.listener.Listener):
 
 
 	def tableCreate(self, tableWriter):
+		subcolumns = {
+			'reactionFluxes': 'reactionIDs',
+			'externalExchangeFluxes': 'externalMoleculeIDs',
+			'shadowPrices': 'outputMoleculeIDs',
+			'reducedCosts': 'reactionIDs',
+			'homeostaticObjectiveValues': 'homeostaticTargetMolecules',
+			'kineticObjectiveValues': 'kineticTargetFluxNames',
+			'deltaMetabolites': 'metaboliteNames',
+			'targetConcentrations': 'homeostaticTargetMolecules',
+			'importConstraint': 'all_external_exchange_molecules',
+			'importExchange': 'all_external_exchange_molecules'}
+
 		tableWriter.writeAttributes(
 			reactionIDs = list(self.reactionIDs),
 			externalMoleculeIDs = self.externalMoleculeIDs,
@@ -82,7 +94,7 @@ class FBAResults(wholecell.listeners.listener.Listener):
 			kineticTargetFluxNames = self.kineticTargetFluxNames,
 			metaboliteNames = self.metaboliteNamesFromNutrients,
 			all_external_exchange_molecules = self.all_external_exchange_molecules,
-			)
+			subcolumns = subcolumns)
 
 
 	def tableAppend(self, tableWriter):
