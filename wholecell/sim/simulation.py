@@ -119,7 +119,7 @@ class Simulation(CellSimulation):
 		# None) so catch it *before* running the simulation in case _logToDisk
 		# doesn't.
 		if os.path.isdir(self._outputDir):
-			shutil.rmtree(self._outputDir)
+			shutil.rmtree(self._outputDir, ignore_errors=True)
 		filepath.makedirs(self._outputDir)
 
 		sim_data = self._simData

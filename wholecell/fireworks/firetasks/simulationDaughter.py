@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 import time
 import cPickle
 
@@ -14,7 +16,7 @@ class SimulationDaughterTask(FireTaskBase):
 
 	def run_task(self, fw_spec):
 
-		print "%s: Running simulation" % time.ctime()
+		print("%s: Running simulation" % time.ctime())
 
 		# load the sim_data from the output of the parameter calculator (parca)
 		# TODO(spanglry): make the parca output JSON and this load from JSON instead

@@ -4,15 +4,13 @@ Runs all single analysis plots for a given variant of a given sim.
 Run with '-h' for command line help.
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 
 from runscripts.manual.analysisBase import AnalysisBase
 from wholecell.fireworks.firetasks.analysisSingle import AnalysisSingleTask
 from wholecell.utils import constants
-from wholecell.utils import filepath
 
 
 class AnalysisSingle(AnalysisBase):
@@ -54,7 +52,7 @@ class AnalysisSingle(AnalysisBase):
 		input_dir = os.path.join(input_variant_directory, dirs, 'simOut')
 		sim_data_modified = os.path.join(input_variant_directory, 'kb',
 			constants.SERIALIZED_SIM_DATA_MODIFIED)
-		output_dir = filepath.makedirs(input_variant_directory, dirs, 'plotOut')
+		output_dir = os.path.join(input_variant_directory, dirs, self.OUTPUT_SUBDIR)
 
 		task = AnalysisSingleTask(
 			input_results_directory=input_dir,

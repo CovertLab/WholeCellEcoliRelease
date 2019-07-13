@@ -11,7 +11,7 @@ import json
 import io
 import os
 import subprocess
-from typing import Any, AnyStr, Iterable, Optional, Sequence
+from typing import Any, AnyStr, Generator, Iterable, Optional, Sequence, Tuple
 
 import wholecell
 
@@ -131,3 +131,10 @@ def read_json_file(filename):
 	"""Read and parse JSON file. This supports Unicode."""
 	with io.open(filename, encoding='utf-8') as f:
 		return json.load(f)
+
+def iter_variants(variant_type, first_index, last_index):
+	# type: (str, int, int) -> Generator[Tuple[int, str], None, None]
+	"""Generate Variant subdirs (index, name) over [first .. last] inclusive."""
+	# TODO(jerry): Return a list instead of generating items?
+	for i in xrange(first_index, last_index + 1):
+		yield i, os.path.join('{}_{:06d}'.format(variant_type, i))

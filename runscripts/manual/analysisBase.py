@@ -21,6 +21,8 @@ class AnalysisBase(scriptBase.ScriptBase):
 	run() is still an abstract method.
 	"""
 
+	OUTPUT_SUBDIR = 'plotOut'  # recommended
+
 	def __init__(self, analysis_plotter=None):
 		"""Instantiate with an optional AnalysisPlot to run (this only uses its
 		filename, not the instance), otherwise run all ACTIVE AnalysisPlots in

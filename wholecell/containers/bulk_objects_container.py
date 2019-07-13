@@ -43,7 +43,7 @@ class BulkObjectsContainer(object):
 
 	>>> names = ['A', 'B', 'C', 'D'] # names of some model variables
 	>>> container = BulkObjectsContainer(names)
-	>>> container.countIs('A', 10) # set A to 10
+	>>> container.countIs(10, 'A') # set A to 10
 	>>> container.countsInc(5) # increase the counts of everything by 5
 	>>> container.counts(['D', 'C']) # access D and C, in that order
 

@@ -5,15 +5,13 @@ given simulation.
 Run with '-h' for command line help.
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 
 from runscripts.manual.analysisBase import AnalysisBase
 from wholecell.fireworks.firetasks.analysisMultiGen import AnalysisMultiGenTask
 from wholecell.utils import constants
-from wholecell.utils import filepath
 
 
 class AnalysisMultigen(AnalysisBase):
@@ -42,7 +40,7 @@ class AnalysisMultigen(AnalysisBase):
 		input_path = os.path.join(input_variant_directory, args.seed_str)
 		sim_data_modified = os.path.join(input_variant_directory, 'kb',
 			constants.SERIALIZED_SIM_DATA_MODIFIED)
-		output_dir = filepath.makedirs(input_path, "plotOut")
+		output_dir = os.path.join(input_path, self.OUTPUT_SUBDIR)
 
 		task = AnalysisMultiGenTask(
 			input_seed_directory=input_path,

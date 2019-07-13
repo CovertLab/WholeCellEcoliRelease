@@ -4,14 +4,13 @@ Runs all variant analysis plots for a given sim.
 Run with '-h' for command line help.
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import errno
+import os
 
 from runscripts.manual.analysisBase import AnalysisBase
 from wholecell.fireworks.firetasks.analysisVariant import AnalysisVariantTask
-from wholecell.utils import filepath
 
 
 class AnalysisVariant(AnalysisBase):
@@ -31,7 +30,7 @@ class AnalysisVariant(AnalysisBase):
 		return args
 
 	def run(self, args):
-		output_dir = filepath.makedirs(args.sim_path, 'plotOut')
+		output_dir = os.path.join(args.sim_path, self.OUTPUT_SUBDIR)
 
 		task = AnalysisVariantTask(
 			input_directory=args.sim_path,

@@ -15,11 +15,14 @@ class FitSimDataTask(FireTaskBase):
 
 	_fw_name = "FitSimDataTask"
 	required_params = [
+		"cached",
+		"debug",
 		"input_data", "output_data", "cpus",
 		"disable_ribosome_capacity_fitting",
 		"disable_rnapoly_capacity_fitting",
 		]
 	optional_params = [
+		"cached_data",
 		"sim_out_dir",
 		]
 

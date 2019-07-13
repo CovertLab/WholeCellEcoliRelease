@@ -21,13 +21,13 @@ check that `os.path.isdir(simOutDir)`, instantiate an AnalysisPaths (except for
 SingleAnalysisPlot subclasses), etc.
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import abc
 import matplotlib as mp
 from matplotlib import pyplot as plt
 from wholecell.utils import memory_debug, parallelization
+from wholecell.utils import filepath as fp
 
 
 class AnalysisPlot(object):
@@ -109,6 +109,8 @@ class AnalysisPlot(object):
 	def plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile,
 			validationDataFile, metadata):
 		"""Public method to set up, make a plot, and cleanup."""
+		fp.makedirs(plotOutDir)  # TODO(jerry): don't repeat this in 132 do_plot() methods
+
 		with memory_debug.detect_leaks(), mp.rc_context():
 			self.do_plot(inputDir, plotOutDir, plotOutFileName, simDataFile,
 				validationDataFile, metadata)

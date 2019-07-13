@@ -11,7 +11,6 @@ import os
 from runscripts.manual.analysisBase import AnalysisBase
 from wholecell.fireworks.firetasks.buildCausalityNetwork import BuildCausalityNetworkTask
 from wholecell.utils import constants
-from wholecell.utils import filepath
 
 
 class BuildCausalityNetwork(AnalysisBase):
@@ -59,7 +58,7 @@ class BuildCausalityNetwork(AnalysisBase):
 		sim_data_modified = os.path.join(input_variant_directory, 'kb',
 			constants.SERIALIZED_SIM_DATA_MODIFIED)
 		network_output_dir = os.path.join(input_variant_directory, 'kb')
-		dynamics_output_dir = filepath.makedirs(input_variant_directory, dirs, 'seriesOut')
+		dynamics_output_dir = os.path.join(input_variant_directory, dirs, 'seriesOut')
 
 		task = BuildCausalityNetworkTask(
 			input_results_directory=input_dir,
@@ -68,9 +67,7 @@ class BuildCausalityNetwork(AnalysisBase):
 			output_dynamics_directory=dynamics_output_dir,
 			check_sanity=args.check_sanity,
 			metadata=args.metadata,
-			output_filename_prefix=args.output_prefix,
-			force_update=args.force,
-			)
+			force_update=args.force)
 		task.run_task({})
 
 

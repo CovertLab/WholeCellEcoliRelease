@@ -10,7 +10,8 @@ import time
 
 from fireworks import FireTaskBase, explicit_serialize
 from models.ecoli.analysis.causality_network.build_network import BuildNetwork
-from models.ecoli.analysis.causality_network.network_components import NODELIST_FILENAME, NODELIST_JSON, DYNAMICS_FILENAME
+from models.ecoli.analysis.causality_network.network_components import NODELIST_JSON, DYNAMICS_FILENAME
+from wholecell.utils import filepath as fp
 
 
 @explicit_serialize
@@ -20,12 +21,11 @@ class BuildCausalityNetworkTask(FireTaskBase):
 	required_params = [
 		"input_results_directory",
 		"input_sim_data",
-		"output_network_directory",
+		"output_network_directory",  # an output once per variant, else an input!
 		"output_dynamics_directory",
 		"metadata",
 		]
 	optional_params = [
-		"output_filename_prefix",
 		"check_sanity",
 		"force_update",
 		]
@@ -38,7 +38,7 @@ class BuildCausalityNetworkTask(FireTaskBase):
 		return (
 			self["input_results_directory"],
 			self["output_dynamics_directory"],
-			self['output_filename_prefix'] + DYNAMICS_FILENAME,
+			DYNAMICS_FILENAME,
 			self["input_sim_data"],
 			self["node_list_file"],
 			self["metadata"],
@@ -58,12 +58,13 @@ class BuildCausalityNetworkTask(FireTaskBase):
 		if self.get("force_update", False) or not os.path.isfile(self['node_list_file']):
 			print("{}: Building causality network".format(time.ctime()))
 
+			fp.makedirs(self["output_network_directory"])
 			causality_network = BuildNetwork(
 				self["input_sim_data"], self["output_network_directory"],
 				self["check_sanity"])
 			causality_network.run()
 
-		self['output_filename_prefix'] = self.get('output_filename_prefix', '')
+		fp.makedirs(self["output_dynamics_directory"])
 
 		mod = importlib.import_module(self.READER_FILE_PATH)
 		args = self.plotter_args()

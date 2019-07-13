@@ -18,7 +18,8 @@ class AnalysisVariantTask(AnalysisBase):
 
 	_fw_name = "AnalysisVariantTask"
 	required_params = [
-		"input_directory",
+		"input_directory",  # the firetask reads variant dirs,
+			# kb/SERIALIZED_VALIDATION_DATA, and the simOut dirs
 		"input_validation_data",
 		"output_plots_directory",
 		"metadata",
