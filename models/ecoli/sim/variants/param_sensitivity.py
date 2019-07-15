@@ -5,7 +5,7 @@ of parameters by a factor of 5 and decreases one tenth by 1/5 with 80% held cons
 Useful with variant analysis script param_sensitivity.py.
 
 Modifies:
-	sim_data.process.transcription.rnaData['degRate']
+	sim_data.process.transcription.rnaData['KmEndoRNase']
 	sim_data.process.translation.monomerData['degRate']
 	sim_data.process.translation.translationEfficienciesByMonomer
 	sim_data.process.transcription.rnaSynthProb: not actually used in sims
@@ -38,13 +38,13 @@ def number_params(sim_data):
 		sim_data (SimulationData object)
 
 	Returns:
-		int: number of RNA degradation rates
+		int: number of RNA degradation Km values
 		int: number of protein degradation rates
 		int: number of translation efficiencies
 		int: number of synthesis probabilities
 	'''
 
-	n_rna_deg_rates = len(sim_data.process.transcription.rnaData['degRate'])
+	n_rna_deg_rates = len(sim_data.process.transcription.rnaData['KmEndoRNase'])
 	n_protein_deg_rates = len(sim_data.process.translation.monomerData['degRate'])
 	n_translation_efficiencies = len(sim_data.process.translation.translationEfficienciesByMonomer)
 	n_synth_prob = len(sim_data.process.transcription.rnaSynthProb
@@ -91,7 +91,7 @@ def param_indices(sim_data, indices):
 		indices (ndarray[int]): indices for total parameter array
 
 	Returns:
-		ndarray[int]: indices for RNA degradation rates that will change
+		ndarray[int]: indices for RNA degradation Km values that will change
 		ndarray[int]: indices for protein degradation rates that will change
 		ndarray[int]: indices for translation efficiencies that will change
 		ndarray[int]: indices for synthesis probabilities that will change
@@ -132,7 +132,7 @@ def modify_params(sim_data, indices, factor):
 	synth_prob_set = set(synth_prob_indices)
 	recruitment_mask = np.array([hi in synth_prob_set for hi in sim_data.process.transcription_regulation.recruitmentData['hI']])
 
-	sim_data.process.transcription.rnaData.struct_array['degRate'][rna_deg_indices] *= factor
+	sim_data.process.transcription.rnaData.struct_array['KmEndoRNase'][rna_deg_indices] *= factor
 	sim_data.process.translation.monomerData.struct_array['degRate'][protein_deg_indices] *= factor
 	sim_data.process.translation.translationEfficienciesByMonomer[trans_eff_indices] *= factor
 	for synth_prob in sim_data.process.transcription.rnaSynthProb.values():

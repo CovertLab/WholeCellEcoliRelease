@@ -190,7 +190,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 		# IDs must match order from param_indices() from param_sensitivity.py variant
 		param_ids = np.array(
-			['{} RNA deg rate'.format(rna_to_gene[rna[:-3]]) for rna in rna_ids]
+			['{} RNA deg Km'.format(rna_to_gene[rna[:-3]]) for rna in rna_ids]
 			+ ['{} protein deg rate'.format(monomer_to_gene[monomer[:-3]]) for monomer in monomer_ids]
 			+ ['{} translation eff'.format(monomer_to_gene[monomer[:-3]]) for monomer in monomer_ids]
 			+ ['{} synth prob'.format(rna_to_gene[rna[:-3]]) for rna in rna_ids])
@@ -256,16 +256,19 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		# include 1 - 0.05 / total_params of the data (test each parameter for p<0.05).
 		n_stds = special.erfinv(2 * (1 - 0.05 / total_params) - 1) * np.sqrt(2)
 
-		# Plot histogram
-		plt.figure(figsize=(10, 4*n_outputs))
-
+		# Plot histograms
+		plt.figure(figsize=(16, 4*n_outputs))
+		n_cols = 4
+		top_limit = 20  # limit of the number of highest/lowest parameters to plot
 		for i, (z_diff, z_increase, z_decrease) in enumerate(zip(z_score_diff, z_score_increase, z_score_decrease)):
 			sorted_idx = np.argsort(z_diff)
+			above_idx = np.where(z_diff[sorted_idx] > n_stds)[0][-top_limit:]
+			below_idx = np.where(z_diff[sorted_idx] < -n_stds)[0][:top_limit]
 
-			## Plot data
-			ax = plt.subplot(n_outputs, 2, 2*i + 1)
+			## Plot z difference data
+			ax = plt.subplot(n_outputs, n_cols, n_cols*i + 1)
 			plt.yscale('symlog', linthreshold=0.01)
-			plt.bar(range(total_params), z_diff[sorted_idx])
+			plt.fill_between(range(total_params), z_diff[sorted_idx])
 			plt.axhline(n_stds , color='k', linestyle='--')
 			plt.axhline(-n_stds, color='k', linestyle='--')
 
@@ -282,11 +285,11 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				plt.xlabel('Sorted Parameters')
 			plt.ylabel('Z score\nparameter effect on {}\n(log scale)'.format(labels[i]))
 
-			## Plot data
-			ax = plt.subplot(n_outputs, 2, 2*i + 2)
+			## Plot single direction z data
+			ax = plt.subplot(n_outputs, n_cols, n_cols*i + 2)
 			plt.yscale('symlog', linthreshold=0.01)
-			plt.bar(range(total_params), z_increase[sorted_idx], color='g')
-			plt.bar(range(total_params), z_decrease[sorted_idx], color='r')
+			plt.step(range(total_params), z_increase[sorted_idx], color='g', linewidth=1, alpha=0.5)
+			plt.step(range(total_params), z_decrease[sorted_idx], color='r', linewidth=1, alpha=0.5)
 			plt.axhline(n_stds , color='k', linestyle='--')
 			plt.axhline(-n_stds, color='k', linestyle='--')
 
@@ -300,6 +303,42 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				plt.title('Positive and Negative\nParameter Changes')
 			if i == n_outputs - 1:
 				plt.xlabel('Sorted Parameters')
+
+			## Plot highest parameters
+			ax = plt.subplot(n_outputs, n_cols, n_cols*i + 3)
+			plt.yscale('symlog', linthreshold=0.01)
+			plt.bar(above_idx, z_diff[sorted_idx[above_idx]])
+			plt.axhline(n_stds, color='k', linestyle='--')
+
+			## Format axes
+			sparkline.whitePadSparklineAxis(ax)
+			ax.spines["bottom"].set_visible(False)
+			ax.tick_params(bottom=False)
+			plt.xticks(above_idx, param_ids[sorted_idx[above_idx]], rotation=90, fontsize=6)
+			plt.yticks([0, n_stds])
+			ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+			if i == 0:
+				plt.title('Highest Positive Effect Parameters')
+			if i == n_outputs - 1:
+				plt.xlabel('Parameter IDs')
+
+			## Plot lowest parameters
+			ax = plt.subplot(n_outputs, n_cols, n_cols*i + 4)
+			plt.yscale('symlog', linthreshold=0.01)
+			plt.bar(below_idx, z_diff[sorted_idx[below_idx]])
+			plt.axhline(-n_stds, color='k', linestyle='--')
+
+			## Format axes
+			sparkline.whitePadSparklineAxis(ax)
+			ax.spines["bottom"].set_visible(False)
+			ax.tick_params(bottom=False)
+			plt.xticks(below_idx, param_ids[sorted_idx[below_idx]], rotation=90, fontsize=6)
+			plt.yticks([-n_stds, 0])
+			ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+			if i == 0:
+				plt.title('Highest Negative Effect Parameters')
+			if i == n_outputs - 1:
+				plt.xlabel('Parameter IDs')
 
 		## Save figure
 		plt.tight_layout()
