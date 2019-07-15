@@ -1,3 +1,17 @@
+"""
+Knockout expression of a gene
+
+Modifies:
+	sim_data.process.transcription.rnaSynthProb
+	sim_data.process.transcription.rnaExpression
+	sim_data.process.transcription_regulation.recruitmentData
+
+Expected variant indices (depends on length of sim_data.process.transcription.rnaData):
+	0: control
+	1-4558: gene index to knockout
+"""
+
+import numpy as np
 
 CONTROL_OUTPUT = dict(
 	shortName = "control",
@@ -20,13 +34,20 @@ def geneKnockout(sim_data, index):
 
 	geneIndex = (index - 1) % nConditions
 
-	synthProb = sim_data.process.transcription.rnaData["synthProb"]
+	factor = 0  # Knockout expression
+	recruitment_mask = np.array([hi == geneIndex
+		for hi in sim_data.process.transcription_regulation.recruitmentData['hI']])
+	for synth_prob in sim_data.process.transcription.rnaSynthProb.values():
+		synth_prob[geneIndex] *= factor
+	for exp in sim_data.process.transcription.rnaExpression.values():
+		exp[geneIndex] *= factor
+	sim_data.process.transcription_regulation.recruitmentData['hV'][recruitment_mask] *= factor
 
-	synthProb[geneIndex] = 0.0
-
-	synthProb /= synthProb.sum()
-
-	sim_data.process.transcription.rnaData["synthProb"] = synthProb
+	# Renormalize parameters
+	for synth_prob in sim_data.process.transcription.rnaSynthProb.values():
+		synth_prob /= synth_prob.sum()
+	for exp in sim_data.process.transcription.rnaExpression.values():
+		exp /= exp.sum()
 
 	geneID = sim_data.process.transcription.rnaData["id"][geneIndex]
 

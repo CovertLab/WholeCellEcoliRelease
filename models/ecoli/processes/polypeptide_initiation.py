@@ -40,7 +40,7 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 
 		# Determine changes from parameter shuffling variant
 		shuffleIdxs = None
-		if hasattr(sim_data.process.translation, "translationEfficienciesShuffleIdxs") and sim_data.process.translation.translationEfficienciesShuffleIdxs != None:
+		if hasattr(sim_data.process.translation, "translationEfficienciesShuffleIdxs") and sim_data.process.translation.translationEfficienciesShuffleIdxs is not None:
 			shuffleIdxs = sim_data.process.translation.translationEfficienciesShuffleIdxs
 			self.translationEfficiencies = self.translationEfficiencies[shuffleIdxs]
 

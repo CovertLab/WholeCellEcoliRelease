@@ -86,7 +86,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.rnaDegRates = sim_data.process.transcription.rnaData['degRate']
 
 		shuffleIdxs = None
-		if hasattr(sim_data.process.transcription, "rnaDegRateShuffleIdxs") and sim_data.process.transcription.rnaDegRateShuffleIdxs != None:
+		if hasattr(sim_data.process.transcription, "rnaDegRateShuffleIdxs") and sim_data.process.transcription.rnaDegRateShuffleIdxs is not None:
 			shuffleIdxs = sim_data.process.transcription.rnaDegRateShuffleIdxs
 			self.rnaDegRates = self.rnaDegRates[shuffleIdxs]
 

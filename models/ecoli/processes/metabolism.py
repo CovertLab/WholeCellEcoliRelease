@@ -112,7 +112,7 @@ class Metabolism(wholecell.processes.process.Process):
 		self.getKineticConstraints = sim_data.process.metabolism.getKineticConstraints
 
 		# Remove disabled reactions so they don't get included in the FBA problem setup
-		if hasattr(sim_data.process.metabolism, "kineticTargetShuffleRxns") and sim_data.process.metabolism.kineticTargetShuffleRxns != None:
+		if hasattr(sim_data.process.metabolism, "kineticTargetShuffleRxns") and sim_data.process.metabolism.kineticTargetShuffleRxns is not None:
 			self.kineticsConstrainedReactions = sim_data.process.metabolism.kineticTargetShuffleRxns
 			self.active_constraints_mask = np.ones(len(self.kineticsConstrainedReactions), dtype=bool)
 		else:
@@ -198,11 +198,11 @@ class Metabolism(wholecell.processes.process.Process):
 		self.AAs = [x[:-3] for x in sorted(sim_data.amino_acid_1_to_3_ordered.values())]
 
 		self.shuffleIdxs = None
-		if hasattr(sim_data.process.metabolism, "kineticTargetShuffleIdxs") and sim_data.process.metabolism.kineticTargetShuffleIdxs != None:
+		if hasattr(sim_data.process.metabolism, "kineticTargetShuffleIdxs") and sim_data.process.metabolism.kineticTargetShuffleIdxs is not None:
 			self.shuffleIdxs = sim_data.process.metabolism.kineticTargetShuffleIdxs
 
 		self.shuffleCatalyzedIdxs = None
-		if hasattr(sim_data.process.metabolism, "catalystShuffleIdxs") and sim_data.process.metabolism.catalystShuffleIdxs != None:
+		if hasattr(sim_data.process.metabolism, "catalystShuffleIdxs") and sim_data.process.metabolism.catalystShuffleIdxs is not None:
 			self.shuffleCatalyzedIdxs = sim_data.process.metabolism.catalystShuffleIdxs
 
 	def calculateRequest(self):

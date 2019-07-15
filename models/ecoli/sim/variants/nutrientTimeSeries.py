@@ -1,3 +1,13 @@
+"""
+Nutrient variant for simulations in different environmental conditions
+Currently only initializes properly when starting in minimal media
+
+Modifies:
+	sim_data.external_state.environment.nutrients_time_series_label
+
+Expected variant indices:
+	tsv files from reconstruction/ecoli/flat/condition/timeseries/
+"""
 
 CONTROL_OUTPUT = dict(
 	shortName = "control",
