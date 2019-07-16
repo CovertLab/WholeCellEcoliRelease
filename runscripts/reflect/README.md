@@ -55,3 +55,23 @@ sim_data.process.two_component_system.derivativesParcaJacobian: <function deriva
 sim_data.process.equilibrium.derivatives: <function derivatives at 0x11f977398>
 sim_data.process.equilibrium.derivativesJacobian: <function derivativesJacobian at 0x11f977578>
 ```
+
+## model_inspection
+
+Inspect implementations in the model based on raw_data and sim_data and save to tsv files.
+
+### usage
+
+Specify inputs (raw_data and sim_data) and output directory:
+
+```bash
+runscripts/reflect/model_inspection.py -r path/to/raw_data.cPickle -s path/to/sim_data.cPickle -o output_dir/
+```
+
+If inputs are not specified, the script will run the parca to produce the output.  If output directory is not specified, the files will be saved in the script directory.
+
+Check options with:
+
+```bash
+runscripts/reflect/model_inspection.py -h
+```
