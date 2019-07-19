@@ -219,15 +219,18 @@ class Simulation(CellSimulation):
 		and then clean up.
 		"""
 
-		self.run_incremental(self._lengthSec + self.initialTime())
-		self.finalize()
+		try:
+			self.run_incremental(self._lengthSec + self.initialTime())
+			self.cellCycleComplete()
+		finally:
+			self.finalize()
 
 	def run_incremental(self, run_until):
 		"""
 		Run the simulation for a given amount of time.
 
 		Args:
-		    run_until (float): absolute time to run the simulation until. 
+		    run_until (float): absolute time to run the simulation until.
 		"""
 
 		# Simulate
@@ -246,8 +249,8 @@ class Simulation(CellSimulation):
 		"""
 		Clean up any details once the simulation has finished.
 		Specifically, this calls `finalize` in all hooks,
-		invokes the simulation's `_divideCellFunction` and then
-		shuts down all loggers
+		invokes the simulation's `_divideCellFunction` if the
+		cell cycle has completed and then shuts down all loggers.
 		"""
 
 		if not self._finalized:
@@ -256,7 +259,8 @@ class Simulation(CellSimulation):
 				hook.finalize(self)
 
 			# Divide mother into daughter cells
-			self.daughter_paths = self._divideCellFunction()
+			if self._cellCycleComplete:
+				self.daughter_paths = self._divideCellFunction()
 
 			# Finish logging
 			for logger in self.loggers.itervalues():
