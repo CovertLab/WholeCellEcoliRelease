@@ -339,9 +339,10 @@ class RunWcm(scriptBase.ScriptBase):
 			help='The number of CPU processes to use in relevant tasks.'
 				 ' Default = 1.')
 		self.define_parameter_bool(parser, 'dump', False,
-			help='Dump the built workflow Commands and Processes to files for'
+			help='Dump the built workflow to JSON files for'
 				 ' review *instead* of sending them to the Gaia workflow'
-				 ' server. This is useful for testing and debugging.')
+				 ' server. This is useful for testing and debugging. You can'
+				 ' upload them manually or re-run this program without `--dump`.')
 		parser.add_argument('-w', '--workers', type=int,
 			help='The number of worker nodes to launch, with a smart default.')
 

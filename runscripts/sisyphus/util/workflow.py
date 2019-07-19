@@ -18,10 +18,9 @@ from wholecell.utils import filepath as fp
 
 
 # Config details to pass to Gaia.
-# ASSUMES: An ssh tunnel is open. See runscripts/sisyphus/ssh-tunnel.sh.
-# ASSUMES: /etc/hosts has the line:
-#   127.0.0.1   zookeeper-prime
-GAIA_CONFIG = {'gaia_host': 'localhost:24442', 'kafka_host': 'localhost:9092'}
+# ASSUMES: gaia_host is reachable e.g. via an ssh tunnel set up by
+# runscripts/sisyphus/ssh-tunnel.sh.
+GAIA_CONFIG = {'gaia_host': 'localhost:24442'}
 
 
 def _rebase(path, old_prefix, new_prefix):
@@ -169,8 +168,8 @@ class Workflow(object):
 		steps = self.build_steps()
 
 		fp.makedirs('out')
-		commands_path = os.path.join('out', 'wcm-commands.json')
-		steps_path = os.path.join('out', 'wcm-steps.json')
+		commands_path = os.path.join('out', 'workflow-commands.json')
+		steps_path = os.path.join('out', 'workflow-steps.json')
 
 		self.log_info('\nWriting {}, {}'.format(commands_path, steps_path))
 		fp.write_json_file(commands_path, commands)
