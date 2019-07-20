@@ -36,7 +36,7 @@ def demo(worker_count=0, dump=False):
 		outputs=[filename],
 		storage_prefix=storage_prefix,
 		local_prefix='/tmp',
-		commands=[{'command': ['python', '-u', '-c', code]}])
+		command=['python', '-u', '-c', code])
 	wf.add_task(line_task)
 
 	if dump:
@@ -48,7 +48,7 @@ def cli():
 	parser = argparse.ArgumentParser(description='Demo workflow')
 	parser.add_argument('-w', '--workers', type=int, default=0,
 		help='number of worker nodes to launch; default = 0')
-	parser.add_argument('--dump', type=bool, default=False,
+	parser.add_argument('--dump', action='store_true',
 		help='Dump the built workflow to JSON files for your review *instead* of'
 			 ' sending them to the Gaia workflow server. This is useful for'
 			 ' testing and debugging. You can upload them manually or re-run'

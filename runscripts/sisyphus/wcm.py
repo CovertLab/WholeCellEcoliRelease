@@ -63,18 +63,20 @@ class WcmWorkflow(Workflow):
 		"""Construct a remote GCS storage path within the bucket."""
 		return os.path.join(self.storage_prefix, *path_elements)
 
-	def add_python_task(self, firetask, python_args, upstream_tasks=(), **kwargs):
-		# type: (str, Dict[str, Any], Iterable[Task], **Any) -> Task
+	def add_python_task(self, firetask, python_args, upstream_tasks=(), name='',
+			inputs=(), outputs=()):
+		# type: (str, Dict[str, Any], Iterable[Task], str, Iterable[str], Iterable[str]) -> Task
 		"""Add a Python task to the workflow and return it."""
-		config = dict(
-			kwargs,
+		return self.add_task(Task(
+			upstream_tasks=upstream_tasks,
+			name=name,
 			image=self.image,
-			commands=[{'command':
-				['python', '-u', '-m', 'wholecell.fireworks.runTask',
-					firetask, json.dumps(python_args)]}],
+			command=['python', '-u', '-m', 'wholecell.fireworks.runTask',
+					firetask, json.dumps(python_args)],
+			inputs=inputs,
+			outputs=outputs,
 			storage_prefix=self.storage_prefix,
-			local_prefix=self.local_prefix)
-		return self.add_task(Task(upstream_tasks, **config))
+			local_prefix=self.local_prefix))
 
 	def build(self, args):
 		# type: (Dict[str, Any]) -> None
@@ -336,8 +338,8 @@ class RunWcm(scriptBase.ScriptBase):
 		self.define_parameter_bool(parser, 'verbose', True,
 			help='Verbose workflow builder logging')
 		parser.add_argument('-c', '--cpus', type=int, default=1,
-			help='The number of CPU processes to use in relevant tasks.'
-				 ' Default = 1.')
+			help='The number of CPU processes to use in the Parca and analysis'
+				 ' steps. Default = 1.')
 		self.define_parameter_bool(parser, 'dump', False,
 			help='Dump the built workflow to JSON files for'
 				 ' review *instead* of sending them to the Gaia workflow'
