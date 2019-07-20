@@ -35,7 +35,7 @@ def demo(worker_count=0, dump=False):
 		inputs=[],
 		outputs=[filename],
 		storage_prefix=storage_prefix,
-		local_prefix='/tmp',
+		internal_prefix='/tmp',
 		command=['python', '-u', '-c', code])
 	wf.add_task(line_task)
 

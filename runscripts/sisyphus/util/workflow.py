@@ -79,7 +79,7 @@ class Task(object):
 	"""A workflow task builder."""
 
 	def __init__(self, upstream_tasks=(), name='', image='', command=(),
-			inputs=(), outputs=(), storage_prefix='', local_prefix=''):
+			inputs=(), outputs=(), storage_prefix='', internal_prefix=''):
 		# type: (Iterable[Task], str, str, Iterable[str], Iterable[str], Iterable[str], str, str) -> None
 		"""Construct a Workflow Task.
 		upstream_tasks and the `>>` operator are convenient ways to add inputs.
@@ -88,7 +88,7 @@ class Task(object):
 		assert image, 'Every task needs a Docker image name'
 		assert command, 'Every task needs a command list of tokens'
 		assert storage_prefix, 'Every task needs a storage_prefix'
-		assert local_prefix, 'Every task needs a local_prefix'
+		assert internal_prefix, 'Every task needs an internal_prefix'
 
 		self.name = name
 		self.image = image
@@ -96,7 +96,7 @@ class Task(object):
 		self.inputs = _copy_path_list(inputs or [])
 		self.outputs = _copy_path_list(outputs or [])
 		self.storage_prefix = storage_prefix
-		self.local_prefix = local_prefix
+		self.internal_prefix = internal_prefix
 
 		for task in upstream_tasks:
 			task >> self
@@ -126,8 +126,8 @@ class Task(object):
 		return dict(
 			name=self.name,
 			command=self.name,
-			inputs=_re_keyify(self.inputs, self.local_prefix, self.storage_prefix),
-			outputs=_re_keyify(self.outputs, self.local_prefix, self.storage_prefix))
+			inputs=_re_keyify(self.inputs, self.internal_prefix, self.storage_prefix),
+			outputs=_re_keyify(self.outputs, self.internal_prefix, self.storage_prefix))
 
 
 class Workflow(object):

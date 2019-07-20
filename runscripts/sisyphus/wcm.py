@@ -49,14 +49,14 @@ class WcmWorkflow(Workflow):
 		subdir = self.timestamp + ('__' + description if description else '')
 		self.storage_prefix = os.path.join(
 			STORAGE_PREFIX_ROOT, self.owner_id, subdir, '')
-		self.local_prefix = os.path.join(os.sep, 'wcEcoli', 'out', 'wf')
+		self.internal_prefix = os.path.join(os.sep, 'wcEcoli', 'out', 'wf')
 
 		self.log_info('\nStorage prefix: {}'.format(self.storage_prefix))
 
-	def local(self, *path_elements):
+	def internal(self, *path_elements):
 		# type: (*str) -> str
-		"""Construct a local file path within the task's container."""
-		return os.path.join(self.local_prefix, *path_elements)
+		"""Construct a file path that's internal to the task's container."""
+		return os.path.join(self.internal_prefix, *path_elements)
 
 	def remote(self, *path_elements):
 		# type: (*str) -> str
@@ -76,14 +76,14 @@ class WcmWorkflow(Workflow):
 			inputs=inputs,
 			outputs=outputs,
 			storage_prefix=self.storage_prefix,
-			local_prefix=self.local_prefix))
+			internal_prefix=self.internal_prefix))
 
 	def build(self, args):
 		# type: (Dict[str, Any]) -> None
 
 		# Joining with '' gets a path that ends with the path separator, which
-		# tells Sisyphus to copy/pack/unpack a directory.
-		kb_dir = self.local(ParcaTask.OUTPUT_SUBDIR, '')
+		# tells Sisyphus to pull or push an entire directory tree.
+		kb_dir = self.internal(ParcaTask.OUTPUT_SUBDIR, '')
 		sim_data_file = os.path.join(kb_dir, constants.SERIALIZED_SIM_DATA_FILENAME)
 		validation_data_file = os.path.join(kb_dir, constants.SERIALIZED_VALIDATION_DATA)
 
@@ -97,7 +97,7 @@ class WcmWorkflow(Workflow):
 		if args['workers'] is None:
 			args['workers'] = variant_count * args['init_sims']
 
-		metadata_file = self.local('metadata', constants.JSON_METADATA_FILE)
+		metadata_file = self.internal('metadata', constants.JSON_METADATA_FILE)
 		metadata = select_keys(args,
 			('generations', 'mass_distribution', 'growth_rate_noise',
 			'd_period_division', 'translation_supply', 'trna_charging'),
@@ -132,9 +132,9 @@ class WcmWorkflow(Workflow):
 			'd_period_division', 'translation_supply', 'trna_charging'))
 
 		for i, subdir in fp.iter_variants(*variant_spec):
-			variant_sim_data_dir = self.local(subdir,
+			variant_sim_data_dir = self.internal(subdir,
 				VariantSimDataTask.OUTPUT_SUBDIR_KB, '')
-			variant_metadata_dir = self.local(subdir,
+			variant_metadata_dir = self.internal(subdir,
 				VariantSimDataTask.OUTPUT_SUBDIR_METADATA, '')
 			variant_sim_data_modified_file = os.path.join(
 				variant_sim_data_dir, constants.SERIALIZED_SIM_DATA_MODIFIED)
@@ -156,7 +156,7 @@ class WcmWorkflow(Workflow):
 			variant_analysis_inputs.append(variant_sim_data_dir)
 
 			for j in xrange(args['init_sims']):  # seed
-				seed_dir = self.local(subdir, '{:06d}'.format(j))
+				seed_dir = self.internal(subdir, '{:06d}'.format(j))
 				md_multigen = dict(md_cohort, seed=j)
 
 				this_variant_this_seed_multigen_analysis_inputs = [kb_dir, variant_sim_data_dir]
@@ -252,9 +252,9 @@ class WcmWorkflow(Workflow):
 						outputs=[multigen_plot_dir])
 
 			if run_analysis:
-				cohort_plot_dir = self.local(subdir, AnalysisBase.OUTPUT_SUBDIR, '')
+				cohort_plot_dir = self.internal(subdir, AnalysisBase.OUTPUT_SUBDIR, '')
 				python_args = dict(
-					input_variant_directory=self.local(subdir),
+					input_variant_directory=self.internal(subdir),
 					input_sim_data=variant_sim_data_modified_file,
 					input_validation_data=validation_data_file,
 					output_plots_directory=cohort_plot_dir,
@@ -268,9 +268,9 @@ class WcmWorkflow(Workflow):
 					outputs=[cohort_plot_dir])
 
 		if run_analysis:
-			variant_plot_dir = self.local(AnalysisBase.OUTPUT_SUBDIR, '')
+			variant_plot_dir = self.internal(AnalysisBase.OUTPUT_SUBDIR, '')
 			python_args = dict(
-				input_directory=self.local(''),
+				input_directory=self.internal(''),
 				input_validation_data=validation_data_file,
 				output_plots_directory=variant_plot_dir,
 				plots_to_run=args['plot'],
