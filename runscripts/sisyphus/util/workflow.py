@@ -93,8 +93,8 @@ class Task(object):
 		self.name = name
 		self.image = image
 		self.command = _copy_as_list(command)
-		self.inputs = _copy_path_list(inputs or [])
-		self.outputs = _copy_path_list(outputs or [])
+		self.inputs = _copy_path_list(inputs)
+		self.outputs = _copy_path_list(outputs)
 		self.storage_prefix = storage_prefix
 		self.internal_prefix = internal_prefix
 
@@ -181,7 +181,7 @@ class Workflow(object):
 		commands_path = os.path.join('out', 'workflow-commands.json')
 		steps_path = os.path.join('out', 'workflow-steps.json')
 
-		self.log_info('\nWriting {}, {}'.format(commands_path, steps_path))
+		self.log_info('\nWriting {} {}'.format(commands_path, steps_path))
 		fp.write_json_file(commands_path, commands)
 		fp.write_json_file(steps_path, steps)
 

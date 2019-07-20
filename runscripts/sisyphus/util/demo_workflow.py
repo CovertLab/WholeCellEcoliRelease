@@ -32,7 +32,6 @@ def demo(worker_count=0, dump=False):
 	line_task = Task((),
 		name='lines',
 		image=DOCKER_IMAGE,
-		inputs=[],
 		outputs=[filename],
 		storage_prefix=storage_prefix,
 		internal_prefix='/tmp',
