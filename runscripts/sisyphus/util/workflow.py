@@ -9,7 +9,7 @@ if os.name == 'posix' and sys.version_info[0] < 3:
 	import subprocess32 as subprocess
 else:
 	import subprocess
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Callable, Dict, Iterable, List, Optional
 
 from gaia.client import Gaia
 from requests import ConnectionError
@@ -22,30 +22,32 @@ from wholecell.utils import filepath as fp
 # runscripts/sisyphus/ssh-tunnel.sh.
 GAIA_CONFIG = {'gaia_host': 'localhost:24442'}
 
+STDOUT_PATH = 'STDOUT'  # special pathname that captures stdout + stderror
 
-def _rebase(path, old_prefix, new_prefix):
+SPECIAL_PATHS = {  # map special pathnames to storage names
+	STDOUT_PATH: 'stdout.txt',
+	}
+
+
+def _rebase(path, internal_prefix, storage_prefix):
 	# type: (str, str, str) -> str
-	"""Return a path starting with new_prefix in place of old_prefix."""
-	new_path = os.path.join(new_prefix, os.path.relpath(path, old_prefix))
+	"""Return a path, remapping internal_prefix to storage_prefix and handling
+	special paths."""
+	head, tail = os.path.split(path)
+	if tail in SPECIAL_PATHS:
+		path = os.path.join(head, SPECIAL_PATHS[tail])
 
-	### Should new_prefix end with os.sep iff path does? relpath() drops the
-	### trailing os.sep. This `if` statement will reattach it but disable it
-	### until we figure out what to do.
-	# if path.endswith(os.sep) and not new_path.endswith(os.sep):
-	# 	new_path = os.path.join(new_path, '')
+	new_path = os.path.join(storage_prefix, os.path.relpath(path, internal_prefix))
 
-	assert '..' not in new_path, "Rebasing a path that doesn't start with old_prefix?"
+	assert '..' not in new_path, (
+		'''Can't rebase path "{}" that doesn't start with internal_prefix "{}"'''.format(
+			path, internal_prefix))
 	return new_path
 
-def _keyify(paths):
-	# type: (Iterable[str]) -> Dict[str, str]
-	"""Map sequential keys to the given paths."""
-	return {str(i): path for i, path in enumerate(paths)}
-
-def _re_keyify(paths, old_prefix, new_prefix):
-	# type: (Iterable[str], str, str) -> Dict[str, str]
-	"""Map sequential keys to rebased paths."""
-	return _keyify([_rebase(path, old_prefix, new_prefix) for path in paths])
+def _keyify(paths, fn):
+	# type: (Iterable[str], Callable[[str], str]) -> Dict[str, str]
+	"""Map sequential keys to fn(path)."""
+	return {str(i): fn(path) for i, path in enumerate(paths)}
 
 def _copy_as_list(value):
 	# type: (Iterable[str]) -> List[str]
@@ -83,6 +85,9 @@ class Task(object):
 		# type: (Iterable[Task], str, str, Iterable[str], Iterable[str], Iterable[str], str, str) -> None
 		"""Construct a Workflow Task.
 		upstream_tasks and the `>>` operator are convenient ways to add inputs.
+
+		An output path like 'local_prefix/subdir-path/STDOUT' will capture
+		stdout and store it to 'storage_prefix/subdir-path/stdout.txt'.
 		"""
 		assert name, 'Every task needs a name'
 		assert image, 'Every task needs a Docker image name'
@@ -112,22 +117,31 @@ class Task(object):
 	def build_command(self):
 		# type: () -> Dict[str, Any]
 		"""Build a Gaia Command to run this Task."""
+		def specialize(path):
+			# type: (str) -> str
+			tail = os.path.basename(path)
+			return tail if tail in SPECIAL_PATHS else path
+
 		return dict(
 			name=self.name,
 			image=self.image,
 			command=self.command,
-			inputs=_keyify(self.inputs),
-			outputs=_keyify(self.outputs),
+			inputs=_keyify(self.inputs, specialize),
+			outputs=_keyify(self.outputs, specialize),
 			vars={})
 
 	def build_step(self):
 		# type: () -> Dict[str, Any]
 		"""Build a Gaia Step to run this Task."""
+		def rebase(path):
+			# type: (str) -> str
+			return _rebase(path, self.internal_prefix, self.storage_prefix)
+
 		return dict(
 			name=self.name,
 			command=self.name,
-			inputs=_re_keyify(self.inputs, self.internal_prefix, self.storage_prefix),
-			outputs=_re_keyify(self.outputs, self.internal_prefix, self.storage_prefix))
+			inputs=_keyify(self.inputs, rebase),
+			outputs=_keyify(self.outputs, rebase))
 
 
 class Workflow(object):
@@ -211,6 +225,6 @@ class Workflow(object):
 			gaia.command(self.name, commands)
 			gaia.merge(self.name, steps)
 		except ConnectionError as e:
-			print('\n*** Did you set up port forwarding for gaia-base and'
-				  ' zookeeper-prime? See runscripts/sisyphus/ssh-tunnel.sh ***\n')
+			print('\n*** Did you set up port forwarding for gaia-base? See'
+				  ' runscripts/sisyphus/ssh-tunnel.sh ***\n')
 			raise e
