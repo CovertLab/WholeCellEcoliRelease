@@ -19,6 +19,7 @@ ACTIVE = [
 	"expression_rna_02_med.py",
 	"expression_rna_03_high.py",
 	"fbaOptimizationProblem.py",
+	"flagella_expression.py",
 	"glucoseAndOxygenExchangeFluxes.py",
 	"glucoseMassYield.py",
 	"growthLimits.py",
