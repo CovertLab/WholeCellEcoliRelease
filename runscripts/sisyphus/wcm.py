@@ -92,7 +92,7 @@ class WcmWorkflow(Workflow):
 		variant_type = variant_spec[0]
 		variant_count = variant_spec[2] + 1 - variant_spec[1]
 
-		run_analysis = args['run_analysis']
+		run_analysis = args['run_analysis'] and args['generations'] > 0
 
 		if args['workers'] is None:
 			args['workers'] = variant_count * args['init_sims']
@@ -368,7 +368,9 @@ class RunWcm(scriptBase.ScriptBase):
 
 		# Simulation
 		parser.add_argument('-g', '--generations', type=int, default=1,
-			help='Number of cell generations to run. Default = 1')
+			help='Number of cell generations to run. Set it to 0 to just run'
+				 ' Parca and make-variants with no sim generations or analysis.'
+				 ' Default = 1')
 		parser.add_argument('-i', '--init_sims', type=int, default=1,
 			help='(int; 1) Number of initial sims (seeds) per variant.'
 				 ' Default = 1')
@@ -429,7 +431,7 @@ class RunWcm(scriptBase.ScriptBase):
 		args = super(RunWcm, self).parse_args()
 		args.cpus = max(args.cpus, 1)
 
-		assert args.generations > 0
+		assert args.generations >= 0
 		assert args.init_sims > 0
 		assert args.length_sec > 0
 		assert args.cpus > 0
