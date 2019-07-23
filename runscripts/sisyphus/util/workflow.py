@@ -168,9 +168,9 @@ class Workflow(object):
 
 	def add_task(self, task):
 		# type: (Task) -> Task
-		"""Add a task object. Return it for chaining."""
+		"""Add a Task object. It creates a workflow step. Return it for chaining."""
 		self._tasks[task.name] = task
-		self.log_info('    Added task: {}'.format(task.name))
+		self.log_info('    Added step: {}'.format(task.name))
 		return task
 
 	def build_commands(self):
@@ -225,6 +225,6 @@ class Workflow(object):
 			gaia.command(self.name, commands)
 			gaia.merge(self.name, steps)
 		except ConnectionError as e:
-			print('\n*** Did you set up port forwarding for gaia-base? See'
+			print('\n*** Did you set up port forwarding to the gaia host? See'
 				  ' runscripts/sisyphus/ssh-tunnel.sh ***\n')
 			raise e
