@@ -49,39 +49,41 @@ class WcmWorkflow(Workflow):
 		subdir = self.timestamp + ('__' + description if description else '')
 		self.storage_prefix = os.path.join(
 			STORAGE_PREFIX_ROOT, self.owner_id, subdir, '')
-		self.local_prefix = os.path.join(os.sep, 'wcEcoli', 'out', 'wf')
+		self.internal_prefix = os.path.join(os.sep, 'wcEcoli', 'out', 'wf')
 
 		self.log_info('\nStorage prefix: {}'.format(self.storage_prefix))
 
-	def local(self, *path_elements):
+	def internal(self, *path_elements):
 		# type: (*str) -> str
-		"""Construct a local file path within the task's container."""
-		return os.path.join(self.local_prefix, *path_elements)
+		"""Construct a file path that's internal to the task's container."""
+		return os.path.join(self.internal_prefix, *path_elements)
 
 	def remote(self, *path_elements):
 		# type: (*str) -> str
 		"""Construct a remote GCS storage path within the bucket."""
 		return os.path.join(self.storage_prefix, *path_elements)
 
-	def add_python_task(self, firetask, python_args, upstream_tasks=(), **kwargs):
-		# type: (str, Dict[str, Any], Iterable[Task], **Any) -> Task
+	def add_python_task(self, firetask, python_args, upstream_tasks=(), name='',
+			inputs=(), outputs=()):
+		# type: (str, Dict[str, Any], Iterable[Task], str, Iterable[str], Iterable[str]) -> Task
 		"""Add a Python task to the workflow and return it."""
-		config = dict(
-			kwargs,
+		return self.add_task(Task(
+			upstream_tasks=upstream_tasks,
+			name=name,
 			image=self.image,
-			commands=[{'command':
-				['python', '-u', '-m', 'wholecell.fireworks.runTask',
-					firetask, json.dumps(python_args)]}],
+			command=['python', '-u', '-m', 'wholecell.fireworks.runTask',
+					firetask, json.dumps(python_args)],
+			inputs=inputs,
+			outputs=outputs,
 			storage_prefix=self.storage_prefix,
-			local_prefix=self.local_prefix)
-		return self.add_task(Task(upstream_tasks, **config))
+			internal_prefix=self.internal_prefix))
 
 	def build(self, args):
 		# type: (Dict[str, Any]) -> None
 
 		# Joining with '' gets a path that ends with the path separator, which
-		# tells Sisyphus to copy/pack/unpack a directory.
-		kb_dir = self.local(ParcaTask.OUTPUT_SUBDIR, '')
+		# tells Sisyphus to pull or push an entire directory tree.
+		kb_dir = self.internal(ParcaTask.OUTPUT_SUBDIR, '')
 		sim_data_file = os.path.join(kb_dir, constants.SERIALIZED_SIM_DATA_FILENAME)
 		validation_data_file = os.path.join(kb_dir, constants.SERIALIZED_VALIDATION_DATA)
 
@@ -90,12 +92,12 @@ class WcmWorkflow(Workflow):
 		variant_type = variant_spec[0]
 		variant_count = variant_spec[2] + 1 - variant_spec[1]
 
-		run_analysis = args['run_analysis']
+		run_analysis = args['run_analysis'] and args['generations'] > 0
 
 		if args['workers'] is None:
 			args['workers'] = variant_count * args['init_sims']
 
-		metadata_file = self.local('metadata', constants.JSON_METADATA_FILE)
+		metadata_file = self.internal('metadata', constants.JSON_METADATA_FILE)
 		metadata = select_keys(args,
 			('generations', 'mass_distribution', 'growth_rate_noise',
 			'd_period_division', 'translation_supply', 'trna_charging'),
@@ -130,9 +132,9 @@ class WcmWorkflow(Workflow):
 			'd_period_division', 'translation_supply', 'trna_charging'))
 
 		for i, subdir in fp.iter_variants(*variant_spec):
-			variant_sim_data_dir = self.local(subdir,
+			variant_sim_data_dir = self.internal(subdir,
 				VariantSimDataTask.OUTPUT_SUBDIR_KB, '')
-			variant_metadata_dir = self.local(subdir,
+			variant_metadata_dir = self.internal(subdir,
 				VariantSimDataTask.OUTPUT_SUBDIR_METADATA, '')
 			variant_sim_data_modified_file = os.path.join(
 				variant_sim_data_dir, constants.SERIALIZED_SIM_DATA_MODIFIED)
@@ -154,7 +156,7 @@ class WcmWorkflow(Workflow):
 			variant_analysis_inputs.append(variant_sim_data_dir)
 
 			for j in xrange(args['init_sims']):  # seed
-				seed_dir = self.local(subdir, '{:06d}'.format(j))
+				seed_dir = self.internal(subdir, '{:06d}'.format(j))
 				md_multigen = dict(md_cohort, seed=j)
 
 				this_variant_this_seed_multigen_analysis_inputs = [kb_dir, variant_sim_data_dir]
@@ -250,9 +252,9 @@ class WcmWorkflow(Workflow):
 						outputs=[multigen_plot_dir])
 
 			if run_analysis:
-				cohort_plot_dir = self.local(subdir, AnalysisBase.OUTPUT_SUBDIR, '')
+				cohort_plot_dir = self.internal(subdir, AnalysisBase.OUTPUT_SUBDIR, '')
 				python_args = dict(
-					input_variant_directory=self.local(subdir),
+					input_variant_directory=self.internal(subdir),
 					input_sim_data=variant_sim_data_modified_file,
 					input_validation_data=validation_data_file,
 					output_plots_directory=cohort_plot_dir,
@@ -266,9 +268,9 @@ class WcmWorkflow(Workflow):
 					outputs=[cohort_plot_dir])
 
 		if run_analysis:
-			variant_plot_dir = self.local(AnalysisBase.OUTPUT_SUBDIR, '')
+			variant_plot_dir = self.internal(AnalysisBase.OUTPUT_SUBDIR, '')
 			python_args = dict(
-				input_directory=self.local(''),
+				input_directory=self.internal(''),
 				input_validation_data=validation_data_file,
 				output_plots_directory=variant_plot_dir,
 				plots_to_run=args['plot'],
@@ -336,12 +338,13 @@ class RunWcm(scriptBase.ScriptBase):
 		self.define_parameter_bool(parser, 'verbose', True,
 			help='Verbose workflow builder logging')
 		parser.add_argument('-c', '--cpus', type=int, default=1,
-			help='The number of CPU processes to use in relevant tasks.'
-				 ' Default = 1.')
+			help='The number of CPU processes to use in the Parca and analysis'
+				 ' steps. Default = 1.')
 		self.define_parameter_bool(parser, 'dump', False,
-			help='Dump the built workflow Commands and Processes to files for'
+			help='Dump the built workflow to JSON files for'
 				 ' review *instead* of sending them to the Gaia workflow'
-				 ' server. This is useful for testing and debugging.')
+				 ' server. This is useful for testing and debugging. You can'
+				 ' upload them manually or re-run this program without `--dump`.')
 		parser.add_argument('-w', '--workers', type=int,
 			help='The number of worker nodes to launch, with a smart default.')
 
@@ -365,7 +368,9 @@ class RunWcm(scriptBase.ScriptBase):
 
 		# Simulation
 		parser.add_argument('-g', '--generations', type=int, default=1,
-			help='Number of cell generations to run. Default = 1')
+			help='Number of cell generations to run. Set it to 0 to just run'
+				 ' Parca and make-variants with no sim generations or analysis.'
+				 ' Default = 1')
 		parser.add_argument('-i', '--init_sims', type=int, default=1,
 			help='(int; 1) Number of initial sims (seeds) per variant.'
 				 ' Default = 1')
@@ -426,7 +431,7 @@ class RunWcm(scriptBase.ScriptBase):
 		args = super(RunWcm, self).parse_args()
 		args.cpus = max(args.cpus, 1)
 
-		assert args.generations > 0
+		assert args.generations >= 0
 		assert args.init_sims > 0
 		assert args.length_sec > 0
 		assert args.cpus > 0

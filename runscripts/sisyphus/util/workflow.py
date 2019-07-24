@@ -9,7 +9,7 @@ if os.name == 'posix' and sys.version_info[0] < 3:
 	import subprocess32 as subprocess
 else:
 	import subprocess
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Callable, Dict, Iterable, List, Optional
 
 from gaia.client import Gaia
 from requests import ConnectionError
@@ -18,47 +18,57 @@ from wholecell.utils import filepath as fp
 
 
 # Config details to pass to Gaia.
-# ASSUMES: An ssh tunnel is open. See runscripts/sisyphus/ssh-tunnel.sh.
-# ASSUMES: /etc/hosts has the line:
-#   127.0.0.1   zookeeper-prime
-GAIA_CONFIG = {'gaia_host': 'localhost:24442', 'kafka_host': 'localhost:9092'}
+# ASSUMES: gaia_host is reachable e.g. via an ssh tunnel set up by
+# runscripts/sisyphus/ssh-tunnel.sh.
+GAIA_CONFIG = {'gaia_host': 'localhost:24442'}
+
+STDOUT_PATH = 'STDOUT'  # special pathname that captures stdout + stderror
+
+SPECIAL_PATHS = {  # map special pathnames to storage names
+	STDOUT_PATH: 'stdout.txt',
+	}
 
 
-def _rebase(path, old_prefix, new_prefix):
+def _rebase(path, internal_prefix, storage_prefix):
 	# type: (str, str, str) -> str
-	"""Return a path starting with new_prefix in place of old_prefix."""
-	new_path = os.path.join(new_prefix, os.path.relpath(path, old_prefix))
+	"""Return a path, remapping internal_prefix to storage_prefix and handling
+	special paths."""
+	head, tail = os.path.split(path)
+	if tail in SPECIAL_PATHS:
+		path = os.path.join(head, SPECIAL_PATHS[tail])
 
-	### Should new_prefix end with os.sep iff path does? relpath() drops the
-	### trailing os.sep. This `if` statement will reattach it but disable it
-	### until we figure out what to do.
-	# if path.endswith(os.sep) and not new_path.endswith(os.sep):
-	# 	new_path = os.path.join(new_path, '')
+	new_path = os.path.join(storage_prefix, os.path.relpath(path, internal_prefix))
 
-	assert '..' not in new_path, "Rebasing a path that doesn't start with old_prefix?"
+	assert '..' not in new_path, (
+		'''Can't rebase path "{}" that doesn't start with internal_prefix "{}"'''.format(
+			path, internal_prefix))
 	return new_path
 
-def _keyify(paths):
-	# type: (Iterable[str]) -> Dict[str, str]
-	"""Map sequential keys to the given paths."""
-	return {str(i): path for i, path in enumerate(paths)}
+def _keyify(paths, fn):
+	# type: (Iterable[str], Callable[[str], str]) -> Dict[str, str]
+	"""Map sequential keys to fn(path)."""
+	return {str(i): fn(path) for i, path in enumerate(paths)}
 
-def _re_keyify(paths, old_prefix, new_prefix):
-	# type: (Iterable[str], str, str) -> Dict[str, str]
-	"""Map sequential keys to rebased paths."""
-	return _keyify([_rebase(path, old_prefix, new_prefix) for path in paths])
+def _copy_as_list(value):
+	# type: (Iterable[str]) -> List[str]
+	"""Copy an iterable of strings as a list."""
+	assert isinstance(value, Iterable) and not isinstance(value, basestring), (
+		'Expected a list, not {}'.format(repr(value)))
+	result = list(value)
+	for s in result:
+		assert isinstance(s, basestring), 'Expected a string, not {}'.format(s)
+	return result
 
 def _copy_path_list(value):
-	# type: (List[str]) -> List[str]
-	"""Copy a list and check that it's a list of absolute paths to catch goofs
-	like `outputs=plot_dir` (instead of `outputs=[plot_dir]`) or
-	`outputs=['out/metadata.json']`. Sisyphus needs absolute paths to mount
-	into the Docker container.
+	# type: (Iterable[str]) -> List[str]
+	"""Copy an iterable of strings as a list and check that they're absolute paths
+	to catch goofs like `outputs=plot_dir` or `outputs=['out/metadata.json']`.
+	Sisyphus needs absolute paths to mount into the Docker container.
 	"""
-	assert isinstance(value, list), 'Expected a list, not {}'.format(repr(value))
-	for path in value:
-		assert os.path.isabs(path), 'Expected a absolute path, not {}'.format(path)
-	return list(value)
+	result = _copy_as_list(value)
+	for path in result:
+		assert os.path.isabs(path), 'Expected an absolute path, not {}'.format(path)
+	return result
 
 def _launch_workers(worker_names):
 	# type: (List[str]) -> None
@@ -70,22 +80,28 @@ def _launch_workers(worker_names):
 class Task(object):
 	"""A workflow task builder."""
 
-	def __init__(self, upstream_tasks=(), **kwargs):
-		# type: (Iterable[Task], **Any) -> None
-		"""Construct a Workflow Task from the kwargs: name, image, commands,
-		inputs, and outputs.
-
+	def __init__(self, upstream_tasks=(), name='', image='', command=(),
+			inputs=(), outputs=(), storage_prefix='', internal_prefix=''):
+		# type: (Iterable[Task], str, str, Iterable[str], Iterable[str], Iterable[str], str, str) -> None
+		"""Construct a Workflow Task.
 		upstream_tasks and the `>>` operator are convenient ways to add inputs.
-		"""
-		self.name = kwargs['name']  # type: str
-		self.image = kwargs['image']  # type: str
-		self.commands = kwargs['commands']  # type: List[Dict[str, List[str]]]
-		self.inputs  = _copy_path_list(kwargs.get('inputs',  []))  # type: List[str]
-		self.outputs = _copy_path_list(kwargs.get('outputs', []))  # type: List[str]
-		self.storage_prefix = kwargs.get('storage_prefix', '')
-		self.local_prefix = kwargs.get('local_prefix', '')
 
-		assert self.name, 'Every task needs a name'
+		An output path like 'local_prefix/subdir-path/STDOUT' will capture
+		stdout and store it to 'storage_prefix/subdir-path/stdout.txt'.
+		"""
+		assert name, 'Every task needs a name'
+		assert image, 'Every task needs a Docker image name'
+		assert command, 'Every task needs a command list of tokens'
+		assert storage_prefix, 'Every task needs a storage_prefix'
+		assert internal_prefix, 'Every task needs an internal_prefix'
+
+		self.name = name
+		self.image = image
+		self.command = _copy_as_list(command)
+		self.inputs = _copy_path_list(inputs)
+		self.outputs = _copy_path_list(outputs)
+		self.storage_prefix = storage_prefix
+		self.internal_prefix = internal_prefix
 
 		for task in upstream_tasks:
 			task >> self
@@ -101,24 +117,31 @@ class Task(object):
 	def build_command(self):
 		# type: () -> Dict[str, Any]
 		"""Build a Gaia Command to run this Task."""
+		def specialize(path):
+			# type: (str) -> str
+			tail = os.path.basename(path)
+			return tail if tail in SPECIAL_PATHS else path
+
 		return dict(
-			key=self.name,  # TODO(jerry): Remove after Gaia switches to "name"
 			name=self.name,
 			image=self.image,
-			commands=self.commands,
-			inputs=_keyify(self.inputs),
-			outputs=_keyify(self.outputs),
+			command=self.command,
+			inputs=_keyify(self.inputs, specialize),
+			outputs=_keyify(self.outputs, specialize),
 			vars={})
 
 	def build_step(self):
 		# type: () -> Dict[str, Any]
 		"""Build a Gaia Step to run this Task."""
+		def rebase(path):
+			# type: (str) -> str
+			return _rebase(path, self.internal_prefix, self.storage_prefix)
+
 		return dict(
-			key=self.name,  # TODO(jerry): Remove after Gaia switches to "name"
 			name=self.name,
 			command=self.name,
-			inputs=_re_keyify(self.inputs, self.local_prefix, self.storage_prefix),
-			outputs=_re_keyify(self.outputs, self.local_prefix, self.storage_prefix))
+			inputs=_keyify(self.inputs, rebase),
+			outputs=_keyify(self.outputs, rebase))
 
 
 class Workflow(object):
@@ -145,9 +168,9 @@ class Workflow(object):
 
 	def add_task(self, task):
 		# type: (Task) -> Task
-		"""Add a task object. Return it for chaining."""
+		"""Add a Task object. It creates a workflow step. Return it for chaining."""
 		self._tasks[task.name] = task
-		self.log_info('    Added task: {}'.format(task.name))
+		self.log_info('    Added step: {}'.format(task.name))
 		return task
 
 	def build_commands(self):
@@ -169,10 +192,10 @@ class Workflow(object):
 		steps = self.build_steps()
 
 		fp.makedirs('out')
-		commands_path = os.path.join('out', 'wcm-commands.json')
-		steps_path = os.path.join('out', 'wcm-steps.json')
+		commands_path = os.path.join('out', 'workflow-commands.json')
+		steps_path = os.path.join('out', 'workflow-steps.json')
 
-		self.log_info('\nWriting {}, {}'.format(commands_path, steps_path))
+		self.log_info('\nWriting {} {}'.format(commands_path, steps_path))
 		fp.write_json_file(commands_path, commands)
 		fp.write_json_file(steps_path, steps)
 
@@ -197,11 +220,11 @@ class Workflow(object):
 		gaia = Gaia(GAIA_CONFIG)
 
 		try:
-			self.log_info('\nUploading {} tasks to Gaia for workflow {}'.format(
-				len(commands), self.name))
+			self.log_info('\nUploading {} steps to Gaia for workflow {}'.format(
+				len(steps), self.name))
 			gaia.command(self.name, commands)
 			gaia.merge(self.name, steps)
 		except ConnectionError as e:
-			print('\n*** Did you set up port forwarding for gaia-base and'
-				  ' zookeeper-prime? See runscripts/sisyphus/ssh-tunnel.sh ***\n')
+			print('\n*** Did you set up port forwarding to the gaia host? See'
+				  ' runscripts/sisyphus/ssh-tunnel.sh ***\n')
 			raise e
