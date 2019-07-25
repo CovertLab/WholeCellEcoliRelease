@@ -337,9 +337,9 @@ class RunWcm(scriptBase.ScriptBase):
 			help='A simulation description to append to the output folder name.')
 		self.define_parameter_bool(parser, 'verbose', True,
 			help='Verbose workflow builder logging')
-		parser.add_argument('-c', '--cpus', type=int, default=1,
+		parser.add_argument('-c', '--cpus', type=int, default=2,
 			help='The number of CPU processes to use in the Parca and analysis'
-				 ' steps. Default = 1.')
+				 ' steps. Default = 2.')
 		self.define_parameter_bool(parser, 'dump', False,
 			help='Dump the built workflow to JSON files for'
 				 ' review *instead* of sending them to the Gaia workflow'
@@ -364,7 +364,10 @@ class RunWcm(scriptBase.ScriptBase):
 			metavar=('VARIANT_TYPE', 'FIRST_INDEX', 'LAST_INDEX'),
 			help='''The variant type name, first index, and last index to make.
 				See models/ecoli/sim/variants/__init__.py for the variant
-				type choices. Default = wildtype 0 0''')
+				type choices and their supported index ranges, e.g.: wildtype,
+				condition, meneParams, metabolism_kinetic_objective_weight,
+				nutrientTimeSeries, and param_sensitivity.
+				Default = wildtype 0 0''')
 
 		# Simulation
 		parser.add_argument('-g', '--generations', type=int, default=1,
