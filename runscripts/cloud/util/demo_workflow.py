@@ -10,7 +10,7 @@ import argparse
 import os
 
 import wholecell.utils.filepath as fp
-from runscripts.sisyphus.util.workflow import Task, Workflow, STDOUT_PATH
+from runscripts.cloud.util.workflow import Task, Workflow, STDOUT_PATH
 
 
 DOCKER_IMAGE = 'python:2.7.16'

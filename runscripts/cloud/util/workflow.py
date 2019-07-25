@@ -19,7 +19,7 @@ from wholecell.utils import filepath as fp
 
 # Config details to pass to Gaia.
 # ASSUMES: gaia_host is reachable e.g. via an ssh tunnel set up by
-# runscripts/sisyphus/ssh-tunnel.sh.
+# runscripts/cloud/ssh-tunnel.sh.
 GAIA_CONFIG = {'gaia_host': 'localhost:24442'}
 
 STDOUT_PATH = 'STDOUT'  # special pathname that captures stdout + stderror
@@ -73,7 +73,7 @@ def _copy_path_list(value):
 def _launch_workers(worker_names):
 	# type: (List[str]) -> None
 	"""Launch Sisyphus worker nodes with the given names."""
-	path = os.path.join(fp.ROOT_PATH, 'runscripts', 'sisyphus', 'launch-workers.sh')
+	path = os.path.join(fp.ROOT_PATH, 'runscripts', 'cloud', 'launch-workers.sh')
 	subprocess.call([path] + worker_names)
 
 
@@ -226,5 +226,5 @@ class Workflow(object):
 			gaia.merge(self.name, steps)
 		except ConnectionError as e:
 			print('\n*** Did you set up port forwarding to the gaia host? See'
-				  ' runscripts/sisyphus/ssh-tunnel.sh ***\n')
+				  ' runscripts/cloud/ssh-tunnel.sh ***\n')
 			raise e

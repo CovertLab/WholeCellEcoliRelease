@@ -17,7 +17,7 @@ from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
 from wholecell.utils import constants, scriptBase
 import wholecell.utils.filepath as fp
 from runscripts.manual.analysisBase import AnalysisBase
-from runscripts.sisyphus.util.workflow import Task, Workflow
+from runscripts.cloud.util.workflow import Task, Workflow
 
 
 DOCKER_IMAGE = 'gcr.io/allen-discovery-center-mcovert/{}-wcm-code:latest'
