@@ -28,6 +28,8 @@ SPECIAL_PATHS = {  # map special pathnames to storage names
 	STDOUT_PATH: 'stdout.txt',
 	}
 
+MAX_WORKERS = 500  # don't launch more than this many worker nodes at a time
+
 
 def _rebase(path, internal_prefix, storage_prefix):
 	# type: (str, str, str) -> str
@@ -201,8 +203,10 @@ class Workflow(object):
 
 	def launch_workers(self, count):
 		# type: (int) -> None
+		"""Launch the requested number of Sisyphus worker nodes (GCE VMs)."""
 		if count <= 0:
 			return
+		count = min(count, MAX_WORKERS)
 
 		self.log_info('\nLaunching {} worker node(s).'.format(count))
 		user = os.environ['USER']
