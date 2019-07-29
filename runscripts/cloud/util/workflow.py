@@ -1,4 +1,4 @@
-"""Generic Sisyphus/Gaia workflow builder."""
+"""Generic Sisyphus/Gaia/Google Cloud workflow builder."""
 
 from __future__ import absolute_import, division, print_function
 

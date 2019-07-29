@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 """
-Create a workflow DAG of Sisyphus tasks and specifies their links and enqueue
-it to run.
+Build a workflow for the Whole Cell Model then send it to the Gaia server in
+Google Cloud.
 """
 
 from __future__ import absolute_import, division, print_function
