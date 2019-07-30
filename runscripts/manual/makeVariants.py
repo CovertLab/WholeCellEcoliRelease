@@ -47,7 +47,10 @@ class MakeVariants(scriptBase.ScriptBase):
 			metavar=('VARIANT_TYPE', 'FIRST_INDEX', 'LAST_INDEX'),
 			help='''The variant type name, first index, and last index to make.
 				See models/ecoli/sim/variants/__init__.py for the variant
-				type choices. Default = wildtype 0 0''')
+				type choices and their supported index ranges, e.g.: wildtype,
+				condition, meneParams, metabolism_kinetic_objective_weight,
+				nutrientTimeSeries, and param_sensitivity.
+				Default = wildtype 0 0''')
 
 	def run(self, args):
 		kb_directory = os.path.join(args.sim_path, 'kb')
