@@ -1,4 +1,4 @@
-"""Generic Sisyphus/Gaia workflow builder."""
+"""Generic Sisyphus/Gaia/Google Cloud workflow builder."""
 
 from __future__ import absolute_import, division, print_function
 
@@ -19,7 +19,7 @@ from wholecell.utils import filepath as fp
 
 # Config details to pass to Gaia.
 # ASSUMES: gaia_host is reachable e.g. via an ssh tunnel set up by
-# runscripts/sisyphus/ssh-tunnel.sh.
+# runscripts/cloud/ssh-tunnel.sh.
 GAIA_CONFIG = {'gaia_host': 'localhost:24442'}
 
 STDOUT_PATH = 'STDOUT'  # special pathname that captures stdout + stderror
@@ -27,6 +27,8 @@ STDOUT_PATH = 'STDOUT'  # special pathname that captures stdout + stderror
 SPECIAL_PATHS = {  # map special pathnames to storage names
 	STDOUT_PATH: 'stdout.txt',
 	}
+
+MAX_WORKERS = 500  # don't launch more than this many worker nodes at a time
 
 
 def _rebase(path, internal_prefix, storage_prefix):
@@ -73,7 +75,7 @@ def _copy_path_list(value):
 def _launch_workers(worker_names):
 	# type: (List[str]) -> None
 	"""Launch Sisyphus worker nodes with the given names."""
-	path = os.path.join(fp.ROOT_PATH, 'runscripts', 'sisyphus', 'launch-workers.sh')
+	path = os.path.join(fp.ROOT_PATH, 'runscripts', 'cloud', 'launch-workers.sh')
 	subprocess.call([path] + worker_names)
 
 
@@ -201,8 +203,10 @@ class Workflow(object):
 
 	def launch_workers(self, count):
 		# type: (int) -> None
+		"""Launch the requested number of Sisyphus worker nodes (GCE VMs)."""
 		if count <= 0:
 			return
+		count = min(count, MAX_WORKERS)
 
 		self.log_info('\nLaunching {} worker node(s).'.format(count))
 		user = os.environ['USER']
@@ -226,5 +230,5 @@ class Workflow(object):
 			gaia.merge(self.name, steps)
 		except ConnectionError as e:
 			print('\n*** Did you set up port forwarding to the gaia host? See'
-				  ' runscripts/sisyphus/ssh-tunnel.sh ***\n')
+				  ' runscripts/cloud/ssh-tunnel.sh ***\n')
 			raise e

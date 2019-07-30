@@ -91,9 +91,12 @@ class RunSimulation(scriptBase.ScriptBase):
 		parser.add_argument('-v', '--variant', nargs=3, default=['wildtype', '0', '0'],
 			metavar=('VARIANT_TYPE', 'FIRST_INDEX', 'LAST_INDEX'),
 			help='''The variant type name, first index, and last index to make
-				or require, depending on the --require_variants option. See
+				or require (depending on the --require_variants option). See
 				models/ecoli/sim/variants/__init__.py for the variant
-				type choices. Default = wildtype 0 0''')
+				type choices and their supported index ranges, e.g.: wildtype,
+				condition, meneParams, metabolism_kinetic_objective_weight,
+				nutrientTimeSeries, and param_sensitivity.
+				Default = wildtype 0 0''')
 		self.define_parameter_bool(parser, 'require_variants', False,
 			help='''true => require the sim_data variant(s) specified by the
 				--variant option to already exist; false => make the variant(s).
