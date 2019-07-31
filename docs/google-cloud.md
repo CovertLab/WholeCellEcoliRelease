@@ -66,7 +66,8 @@
 * In your web browser, bookmark the [Google Cloud Platform
 console](https://console.cloud.google.com/home/dashboard?project=allen-discovery-center-mcovert).
 * In the `☰` menu (pronounced "hamburger") in the top left corner of the Google Cloud Platform console webpage,
-pin "Compute Engine", "Logging", and "Storage" for quick access.
+pin "Compute Engine" (GCE), "Logging" (Stackdriver), and "Storage" (GCS) to the top section of this menu
+for quick access.
 * You can rearrange and hide the "cards" on this page.
 
 **Optional:** Set up a chart to display worker node CPU utilization.
@@ -137,11 +138,11 @@ page to browse the files created by our workflow runs.
 
 There are many ways to download the outputs from your workflow:
 
-* Simplest: Open the
+* **Simplest:** Open the
 [Storage — Browser](https://console.cloud.google.com/storage/browser?project=allen-discovery-center-mcovert),
 browse into the [sisyphus storage bucket](https://console.cloud.google.com/storage/browser/sisyphus?project=allen-discovery-center-mcovert)
 bucket, find your workflow files, and click on individual files to download them.
-* Most convenient: Use [gcsfuse](https://github.com/GoogleCloudPlatform/gcsfuse) to mount the storage
+* **Most convenient:** Use [gcsfuse](https://github.com/GoogleCloudPlatform/gcsfuse) to mount the storage
 bucket `sisyphus` to your local file system (or mount just its `data/$USER/` subdirectory) and find
 the files you want.
   * gcsfuse reads and writes whole files to Cloud Storage on demand. It's convenient but
@@ -153,7 +154,7 @@ the files you want.
   * For now, you'll need to use gcsfuse's `--implicit-dirs` option until Sisyphus creates stand-ins
   for directory entries. This makes gcsfuse even slower and has
   [additional side-effects](https://github.com/GoogleCloudPlatform/gcsfuse/blob/master/docs/semantics.md#implicit-directories).
-* Fastest: Use the [gsutil tool](https://cloud.google.com/storage/docs/gsutil) (it's part of the
+* **Fastest:** Use the [gsutil tool](https://cloud.google.com/storage/docs/gsutil) (it's part of the
 Cloud SDK tools you installed along with `gcloud`) to do anything you need with Cloud Storage
 buckets and files. With the `-m` option, it'll transfer lots of files in parallel, so this is the
 fastest approach.
@@ -212,6 +213,15 @@ default to `$USER`.
 
 ### Future
 
+* Document how to set up and update the Gaia, Sisyphus, RabbitMQ, and Kafka
+servers on GCE.
+  * Periodically security updates and apt-get upgrades.
+  * Occasionally pull new Docker images to the Sisyphus server disk image and
+  delete old ones.
+  * Occasionally trim journalctl.
+  * Sisyphus disk images are in an "image family" so new ones supersede older
+  ones and we can revert back if a new one doesn't work. Do the same with the
+  other server types. 
 * Test other ways to open a secure connection to the Gaia workflow server.
 * Make Sisyphus create the psuedo "directory" entries in Cloud Storage so we
 can use `gcsfuse` without `--implicit-dirs`.
