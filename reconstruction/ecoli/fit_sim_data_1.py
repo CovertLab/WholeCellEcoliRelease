@@ -40,14 +40,12 @@ TRANSLATION_EFFICIENCIES_ADJUSTMENTS = {
 RNA_EXPRESSION_ADJUSTMENTS = {
 	"EG11493_RNA[c]": 10,  # pabC, aminodeoxychorismate lyase
 	"EG12438_RNA[c]": 10,  # menH, 2-succinyl-6-hydroxy-2,4-cyclohexadiene-1-carboxylate synthetase
-	"EG10139_RNA[c]": 10,  # cdsA, CDP-diglyceride synthetase
 	"EG12298_RNA[c]": 10,  # yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition viability
 	"EG11672_RNA[c]": 10,  # atoB, acetyl-CoA acetyltransferase; This RNA is fit for the anaerobic condition viability
 	"EG10238_RNA[c]": 10,  # dnaE, DNA polymerase III subunit alpha; This RNA is fit for the sims to produce enough DNAPs for timely replication
 	}
 RNA_DEG_RATES_ADJUSTMENTS = {
 	"EG11493_RNA[c]": 2,  # pabC, aminodeoxychorismate lyase
-	"EG10139_RNA[c]": 2,  # cdsA, CDP-diglyceride synthetase
 	}
 PROTEIN_DEG_RATES_ADJUSTMENTS = {
 	"EG12298-MONOMER[p]": 0.1, # yibQ, Predicted polysaccharide deacetylase; This protein is fit for the anaerobic condition
