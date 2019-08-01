@@ -39,7 +39,7 @@ fi
 DIR="/scratch/PI/mcovert/wc_ecoli/$DIR_TO_PURGE"
 
 # Only deletes files from one month which is selected by MONTHS_AGO_TO_PURGE months prior to today
-MONTH=$(($(date +%m) - $MONTHS_AGO_TO_PURGE))
+MONTH=$((10#$(date +%m) - $MONTHS_AGO_TO_PURGE))
 YEAR=$(date +%Y)
 while [ $MONTH -lt 1 ]; do
 	MONTH=$(($MONTH + 12))
