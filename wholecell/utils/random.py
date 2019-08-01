@@ -60,6 +60,37 @@ def stochasticRound(randomState, value):
 	else:
 		return valueRavel
 
+def make_elongation_rates_flat(
+		size,
+		base,
+		amplified,
+		ceiling,
+		variable_elongation=False):
+
+	rates = np.full(
+		size,
+		base,
+		dtype=np.int64)
+
+	if variable_elongation:
+		rates[amplified] = ceiling
+
+	return rates
+
+def make_elongation_rates(
+		random,
+		size,
+		base,
+		amplified,
+		ceiling,
+		time_step,
+		variable_elongation=False):
+
+	rates = make_elongation_rates_flat(
+		size, base, amplified, ceiling, variable_elongation)
+	rates = np.min([rates, stochasticRound(random, rates * time_step)], axis=0)
+	return np.array(rates, dtype=np.int64)
+
 def randomlySelectRows(randomState, mat, prob):
 	nRndRows = randomState.stochasticRound(prob * np.shape(mat)[0])
 	return randomState.randomlySelectNRows(mat, nRndRows)

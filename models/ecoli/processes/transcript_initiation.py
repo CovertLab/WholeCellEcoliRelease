@@ -51,9 +51,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 			shape=delta_prob['shape']
 			).toarray()
 
-		self.maxRibosomeElongationRate = float(
-			sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s))
-
 		# Get DNA polymerase elongation rate (used to mask out transcription
 		# units that are expected to be replicated in the current timestep)
 		self.dnaPolyElngRate = int(

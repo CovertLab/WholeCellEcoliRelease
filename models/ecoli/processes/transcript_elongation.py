@@ -59,6 +59,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.idx_16Srrna = np.where(sim_data.process.transcription.rnaData['isRRna16S'])[0]
 		self.idx_23Srrna = np.where(sim_data.process.transcription.rnaData['isRRna23S'])[0]
 		self.idx_5Srrna = np.where(sim_data.process.transcription.rnaData['isRRna5S'])[0]
+		self.transcription = sim_data.process.transcription
 
 		# Views
 		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
@@ -69,14 +70,20 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.active_replisomes = self.uniqueMoleculesView("active_replisome")
 		self.fragmentBases = self.bulkMoleculesView(
 			[id_ + "[c]" for id_ in sim_data.moleculeGroups.fragmentNT_IDs])
+		self.variable_elongation = sim._variable_elongation_transcription
 
 
 	def calculateRequest(self):
 		# Calculate elongation rate based on the current media
 		current_media_id = self._external_states['Environment'].current_media_id
 
-		self.rnapElngRate = int(stochasticRound(self.randomState,
-			self.rnaPolymeraseElongationRateDict[current_media_id].asNumber(units.nt / units.s) * self.timeStepSec()))
+		self.rnapElongationRate = self.rnaPolymeraseElongationRateDict[current_nutrients].asNumber(units.nt / units.s)
+
+		self.elongation_rates = self.transcription_data.make_elongation_rates(
+			self.randomState,
+			self.rnapElongationRate,
+			self.timeStepSec(),
+			self.variable_elongation)
 
 		# If there are no active RNA polymerases, return immediately
 		if self.activeRnaPolys.total_counts()[0] == 0:
@@ -88,8 +95,11 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		TU_indexes, transcript_lengths = activeRnaPolys.attrs(
 			'TU_index', 'transcript_length')
 		sequences = buildSequences(
-			self.rnaSequences, TU_indexes, transcript_lengths,
-			self.rnapElngRate)
+			self.rnaSequences,
+			TU_indexes,
+			transcript_lengths,
+			self.elongation_rates)
+
 		sequenceComposition = np.bincount(
 			sequences[sequences != polymerize.PAD_VALUE], minlength = 4)
 
@@ -118,13 +128,19 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		TU_indexes, transcript_lengths, coordinates, domain_index, direction = activeRnaPolys.attrs(
 			'TU_index', 'transcript_length', 'coordinates', 'domain_index', 'direction')
 		sequences = buildSequences(
-			self.rnaSequences, TU_indexes, transcript_lengths,
-			self.rnapElngRate)
+			self.rnaSequences,
+			TU_indexes,
+			transcript_lengths,
+			self.elongation_rates)
 
 		# Polymerize transcripts based on sequences and available nucleotides
 		reactionLimit = ntpCounts.sum()
 		result = polymerize(
-			sequences, ntpCounts, reactionLimit, self.randomState)
+			sequences,
+			ntpCounts,
+			reactionLimit,
+			self.randomState,
+			self.elongation_rates[TU_indexes])
 		sequenceElongations = result.sequenceElongation
 		ntpsUsed = result.monomerUsages
 

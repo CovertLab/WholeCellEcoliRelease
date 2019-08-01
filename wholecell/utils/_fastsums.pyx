@@ -40,7 +40,9 @@ def sum_monomers_reference_implementation(sequenceMonomers, activeSequencesIndex
 	return totalMonomers
 
 def sum_monomers(
-		sequenceMonomers, np.int64_t[:] activeSequencesIndexes):
+		sequenceMonomers,
+		np.int64_t[:] monomerIndexes,
+		np.int64_t[:] activeSequencesIndexes):
 	"""
 	Sum up the total number of monomers of each type needed to continue building
 	the active sequences for the currentStep.
@@ -49,7 +51,9 @@ def sum_monomers(
 	untyped sequenceMonomers array and pass a uint8[] view of it to _sum_monomers().
 	"""
 	return _sum_monomers(
-		sequenceMonomers.view(dtype=np.uint8), activeSequencesIndexes)
+		sequenceMonomers.view(dtype=np.uint8),
+		monomerIndexes,
+		activeSequencesIndexes)
 
 # See:
 # http://cython.readthedocs.io/en/latest/src/tutorial/numpy.html
@@ -65,7 +69,8 @@ def sum_monomers(
 @cython.wraparound(False)   # --> Without boundscheck(False) this is slower!
 @cython.boundscheck(False)
 def _sum_monomers(
-		np.uint8_t[:, :] sequenceMonomers not None,
+		np.uint8_t[:, :, :] sequenceMonomers not None,
+		np.int64_t[::1] monomerIndexes not None,
 		np.int64_t[::1] activeSequencesIndexes not None):
 	cdef Index nMonomers = sequenceMonomers.shape[0]
 	cdef Index maxSequences = sequenceMonomers.shape[1]
@@ -87,7 +92,7 @@ def _sum_monomers(
 		total = 0
 		for iseq in xrange(nActiveSequences):
 			seq = activeSequencesIndexes[iseq]
-			total += sequenceMonomers[monomer, seq]
+			total += sequenceMonomers[monomer, seq, monomerIndexes[iseq]]
 		_totalMonomers[monomer] = total
 
 	return totalMonomers
