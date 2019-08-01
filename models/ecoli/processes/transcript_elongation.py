@@ -255,15 +255,10 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 			actual_seqs = 0
 			for sl, seq in izip(incomplete_sequence_lengths, incomplete_sequences):
-				# positive = seq[np.where(seq >= 0)]
-				# base_counts += np.bincount(positive[:sl], minlength = 4)
-				positive = seq[np.where(seq >= 0)[0]]
-				if positive.shape[0] > 0:
-					actual_seqs += 1
-				base_counts += np.bincount(positive[:sl], minlength = 4)
+				base_counts += np.bincount(seq[:sl], minlength = 4)
 
 			self.fragmentBases.countsInc(base_counts)
-			# self.ppi.countInc(actual_seqs)
+			self.ppi.countInc(n_total_collisions)
 
 		# Determine if transcript has reached the end of the sequence
 		terminalLengths = self.rnaLengths[TU_indexes]
