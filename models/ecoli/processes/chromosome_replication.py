@@ -118,7 +118,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		fork_coordinates = active_replisomes.attr("coordinates")
 		sequence_length = np.abs(np.repeat(fork_coordinates, 2))
 
-		rates = self.replication.make_elongation_rates(
+		self.elongation_rates = self.replication.make_elongation_rates(
 			self.base_elongation_rate,
 			self.timeStepSec())
 
@@ -126,7 +126,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			self.sequences,
 			np.tile(np.arange(4), n_active_replisomes//2),
 			sequence_length,
-			rates)
+			self.elongation_rates)
 
 		# Count number of each dNTP in sequences for the next timestep
 		sequenceComposition = np.bincount(
@@ -280,17 +280,13 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			"domain_index", "right_replichore", "coordinates")
 		sequence_length = np.abs(np.repeat(coordinates_replisome, 2))
 
-		rates = self.replication.make_elongation_rates(
-			self.base_elongation_rate,
-			self.timeStepSec())
-
 		# Build sequences to polymerize
 		sequence_indexes = np.tile(np.arange(4), n_active_replisomes // 2)
 		sequences = buildSequences(
 			self.sequences,
 			sequence_indexes,
 			sequence_length,
-			rates)
+			self.elongation_rates)
 
 		# Use polymerize algorithm to quickly calculate the number of
 		# elongations each fork catalyzes

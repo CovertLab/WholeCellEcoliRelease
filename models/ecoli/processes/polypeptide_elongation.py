@@ -40,27 +40,27 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		super(PolypeptideElongation, self).initialize(sim, sim_data)
 
 		constants = sim_data.constants
-		translation = sim_data.process.translation
+		self.translation = sim_data.process.translation
 		transcription = sim_data.process.transcription
 
 		# Load parameters
 		self.nAvogadro = constants.nAvogadro
 		self.cellDensity = constants.cellDensity
 		self.aaNames = sim_data.moleculeGroups.aaIDs
-		proteinIds = translation.monomerData['id']
-		self.proteinLengths = translation.monomerData["length"].asNumber()
-		self.proteinSequences = translation.translationSequences
-		self.aaWeightsIncorporated = translation.translationMonomerWeights
-		self.endWeight = translation.translationEndWeight
+		proteinIds = self.translation.monomerData['id']
+		self.proteinLengths = self.translation.monomerData["length"].asNumber()
+		self.proteinSequences = self.translation.translationSequences
+		self.aaWeightsIncorporated = self.translation.translationMonomerWeights
+		self.endWeight = self.translation.translationEndWeight
 		self.gtpPerElongation = constants.gtpPerTranslation
 		self.variable_elongation = sim._variable_elongation_translation
 
-		self.base_elongation_rate = constants.ribosomeElongationRateBase
-		elongation_max = constants.ribosomeElongationRateMax if self.variable_elongation else self.base_elongation_rate
+		self.base_elongation_rate = constants.ribosomeElongationRateBase.asNumber(units.aa / units.s)
+		elongation_max = constants.ribosomeElongationRateMax if self.variable_elongation else constants.ribosomeElongationRateBase
 		self.maxRibosomeElongationRate = float(elongation_max.asNumber(units.aa / units.s))
 
 		self.ribosomeElongationRate = float(sim_data.growthRateParameters.ribosomeElongationRate.asNumber(units.aa / units.s))
-		self.ribosomeElongationRateDict = translation.ribosomeElongationRateDict
+		self.ribosomeElongationRateDict = self.translation.ribosomeElongationRateDict
 
 		self.translation_aa_supply = sim_data.translationSupplyRate
 

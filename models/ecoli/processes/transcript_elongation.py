@@ -77,9 +77,9 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		# Calculate elongation rate based on the current media
 		current_media_id = self._external_states['Environment'].current_media_id
 
-		self.rnapElongationRate = self.rnaPolymeraseElongationRateDict[current_nutrients].asNumber(units.nt / units.s)
+		self.rnapElongationRate = self.rnaPolymeraseElongationRateDict[current_media_id].asNumber(units.nt / units.s)
 
-		self.elongation_rates = self.transcription_data.make_elongation_rates(
+		self.elongation_rates = self.transcription.make_elongation_rates(
 			self.randomState,
 			self.rnapElongationRate,
 			self.timeStepSec(),
@@ -246,14 +246,16 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 			# Increment counts of bases in incomplete transcripts
 			incomplete_sequences = buildSequences(
-				self.rnaSequences, TU_indexes[all_collisions],
+				self.rnaSequences,
+				TU_indexes[all_collisions],
 				np.zeros(n_total_collisions, dtype=np.int64),
-				incomplete_sequence_lengths.max())
+				np.full(n_total_collisions, incomplete_sequence_lengths.max()))
 
 			base_counts = np.zeros(4, dtype=np.int64)
 
 			for sl, seq in izip(incomplete_sequence_lengths, incomplete_sequences):
-				base_counts += np.bincount(seq[:sl], minlength = 4)
+				positive = seq[np.where(seq >= 0)]
+				base_counts += np.bincount(positive[:sl], minlength = 4)
 
 			self.fragmentBases.countsInc(base_counts)
 			self.ppi.countInc(n_total_collisions)
