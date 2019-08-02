@@ -28,8 +28,6 @@ cpdef np.ndarray[np.int8_t, ndim=2] buildSequences(
 		np.ndarray[np.int64_t, ndim=1] positions,
 		np.ndarray[np.int64_t, ndim=1] elongation_rates):
 
-	cdef int PAD_VALUE = -1
-
 	cdef int elongation_max = elongation_rates.max()
 	if np.any(positions + elongation_max > base_sequences.shape[1]):
 		raise Exception('Elongation proceeds past end of sequence!')
