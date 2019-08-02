@@ -10,7 +10,6 @@ from __future__ import absolute_import, division, print_function
 
 from copy import deepcopy
 from itertools import izip, product
-from functools import partial
 from enum import Enum
 
 import numpy as np
@@ -135,16 +134,6 @@ class UniqueObjectsContainer(object):
 
 	_fractionExtendEntries = 0.1 # fractional rate to increase number of entries in the structured array (collection)
 
-	_queryOperations = {
-		">":np.greater,
-		">=":np.greater_equal,
-		"<":np.less,
-		"<=":np.less_equal,
-		"==":np.equal,
-		"!=":np.not_equal,
-		"in":np.lib.arraysetops.in1d,
-		"not in":partial(np.lib.arraysetops.in1d, invert = True)
-		}
 
 	def __init__(self, specifications, submass_diff_names=None):
 		"""
@@ -347,101 +336,68 @@ class UniqueObjectsContainer(object):
 		obj._objectIndex = -1
 
 
-	def objects(self, access=Access.READ_ONLY, **operations):
+	def objects(self, access=Access.READ_ONLY):
 		"""
-		Return a _UniqueObjectSet proxy for all objects (molecules) that
-		satisfy an optional attribute query. Querying every object is generally
-		not what you want to do. The queried attributes must be in all the
-		collections (all molecule types). The access argument determines the
-		level of access permission the proxy has to the molecules in the
-		container.
+		Return a _UniqueObjectSet proxy for all active objects (molecules).
+		Querying every object is generally not what you want to do. The access
+		argument determines the level of access permission the proxy has to the
+		molecules in the container.
 		"""
-		if operations:
-			results = []
-
-			for collectionIndex in xrange(len(self._collections)):
-				results.append(self._queryObjects(collectionIndex, **operations))
-
-			return _UniqueObjectSet(self, np.concatenate([
-				self._collections[collectionIndex]["_globalIndex"][result]
-				for collectionIndex, result in enumerate(results)
-				]),
-				access=access)
-
-		else:
-			return _UniqueObjectSet(self,
-				np.where(self._globalReference["_entryState"] == self._entryActive)[0],
-				access=access
-				)
+		return _UniqueObjectSet(self,
+			np.where(self._globalReference["_entryState"] == self._entryActive)[0],
+			access=access
+			)
 
 
 	def objectsInCollection(self, collectionName, process_index=None,
-			access=Access.READ_ONLY, **operations):
+			access=Access.READ_ONLY):
 		"""
 		Return a _UniqueObjectSet proxy for all objects (molecules) belonging
-		to a named collection that satisfy an optional attribute query. The
-		access argument determines the level of access permission the proxy has
-		to the molecules in the container.
+		to a named collection. The access argument determines the level of
+		access permission the proxy has to the molecules in the container.
 		"""
 		# TODO(jerry): Special case the empty query?
 		collectionIndex = self._nameToIndexMapping[collectionName]
 
-		result = self._queryObjects(collectionIndex, **operations)
+		active_mask = self._find_active_entries(collectionIndex)
 
 		return _UniqueObjectSet(self,
-			self._collections[collectionIndex]["_globalIndex"][result],
+			self._collections[collectionIndex]["_globalIndex"][active_mask],
 			process_index=process_index,
 			access=access
 			)
 
 
 	def objectsInCollections(self, collectionNames, process_index=None,
-			access=Access.READ_ONLY, **operations):
-		"""Return a _UniqueObjectSet proxy for all objects (molecules)
-		belonging to the given collection names that satisfy an optional
-		attribute query. The queried attributes must be in all the named
-		collections. The access argument determines the level of access
-		permission the proxy has to the molecules in the container.
+			access=Access.READ_ONLY):
+		"""
+		Return a _UniqueObjectSet proxy for all objects (molecules) belonging
+		to one of the given collection names. The access argument determines
+		the level of access permission the proxy has to the molecules in the
+		container.
 		"""
 		collectionIndexes = [self._nameToIndexMapping[collectionName] for collectionName in collectionNames]
-		results = []
+		active_masks = []
 
 		for collectionIndex in collectionIndexes:
-			results.append(self._queryObjects(collectionIndex, **operations))
+			active_masks.append(self._find_active_entries(collectionIndex))
 
 		return _UniqueObjectSet(self,
 			np.concatenate([
 			self._collections[collectionIndex]["_globalIndex"][result]
-			for collectionIndex, result in izip(collectionIndexes, results)
-			]),
+			for collectionIndex, result in izip(collectionIndexes, active_masks)]),
 			process_index=process_index,
 			access=access
 			)
 
 
-	def _queryObjects(self, collectionIndex, **operations):
-		"""For the structured array at the given index, perform the given
-		comparison operations and return a boolean array that's True where
-		entries passed all the comparisons. `operations` is a dict
-		`{attribute_name: (comparison_operator_str, query_value)}`.
-
-		The comparison_operator_str is one of '>', '>=', '<', '<=', '==', '!=',
-		'in', 'not in'. `operations` can perform at most one comparison per
-		attribute. The matched sets are intersected together.
+	def _find_active_entries(self, collectionIndex):
 		"""
-		operations["_entryState"] = ("==", self._entryActive)
+		For the structured array at the given index, return a boolean array
+		that's True where entries are active.
+		"""
 		collection = self._collections[collectionIndex]
-
-		return reduce(
-			np.logical_and,
-			(
-				self._queryOperations[operator](
-					collection[attrName],
-					queryValue
-					)
-				for attrName, (operator, queryValue) in operations.viewitems()
-			)
-		)
+		return collection["_entryState"] == self._entryActive
 
 
 	def objectsByGlobalIndex(self, globalIndexes, access=Access.READ_ONLY):
