@@ -17,12 +17,8 @@ import numpy as np
 import zlib
 
 # TODO: object transfer between UniqueObjectsContainer instances
-# TODO: unique id for each object based on
-#	hash(time, collectionIndex, arrayIndex, containerName) at creation time
 
 ZLIB_LEVEL = 7
-
-_MAX_ID_SIZE = 40 # max length of the unique id assigned to objects
 
 Access = Enum('Access', 'READ_ONLY READ_EDIT READ_EDIT_DELETE')
 
@@ -124,16 +120,17 @@ class UniqueObjectsContainer(object):
 	#   When pickling, the data gets compressed so the impact is smaller.
 	# TODO(jerry): Use narrower index fields?
 
-	_defaultSpecification = {  # bookkeeping fields to add to every struct type
-		"_entryState":np.int8, # see state descriptions above
-		"_globalIndex":np.int64, # index in the _globalReference array (collection)
-		# "_uniqueId":"{}str".format(_MAX_ID_SIZE), # unique ID assigned to each object
+	# Bookkeeping fields to add to every struct type
+	_defaultSpecification = {
+		"_entryState": np.int8,  # See state descriptions above
+		"_globalIndex": np.int64,  # Index of object in the _globalReference array (collection)
+		"_uniqueIndex": np.int64,  # Unique index assigned to each object
 		}
 
 	_globalReferenceDtype = {
-		"_entryState":np.int8, # see state descriptions above
-		"_collectionIndex":np.int64,
-		"_objectIndex":np.int64,
+		"_entryState":np.int8,  # See state descriptions above
+		"_collectionIndex":np.int64,  # Index of collection in self._collections
+		"_objectIndex":np.int64,  # Index of object in each structured array
 		}
 
 	_fractionExtendEntries = 0.1 # fractional rate to increase number of entries in the structured array (collection)
@@ -217,6 +214,9 @@ class UniqueObjectsContainer(object):
 		self._globalReference = np.zeros(
 			1, dtype = make_dtype_spec(self._globalReferenceDtype))
 
+		# Initialize next unique index to zero
+		self._next_unique_index = 0
+
 
 	def __reduce__(self):
 		"""
@@ -251,8 +251,10 @@ class UniqueObjectsContainer(object):
 		if self.submass_diff_names_list != other.submass_diff_names_list:
 			return False
 		for (selfCollection, otherCollection) in izip(self._collections, other._collections):
-			if not np.array_equal(selfCollection, otherCollection):
-				return False
+			for attribute_name in selfCollection.dtype.names:
+				if attribute_name != "_uniqueIndex" and not np.array_equal(
+						selfCollection[attribute_name], otherCollection[attribute_name]):
+					return False
 		return True
 
 
@@ -561,18 +563,23 @@ class UniqueObjectsContainer(object):
 
 	def _add_new_objects(self, collectionName, nObjects, attributes):
 		"""
-		Adds new objects to array with the given initial attributes.
+		Adds new objects to array with the given initial attributes. All new
+		objects are given unique indexes.
 		"""
 		collectionIndex = self._nameToIndexMapping[collectionName]
 		objectIndexes, globalIndexes = self._getFreeIndexes(collectionIndex, nObjects)
 
 		collection = self._collections[collectionIndex]
 
-		# TODO: restore unique object IDs
 		# TODO(jerry): Would it be faster to copy one new entry to all rows
 		# then set the _globalIndex columns?
 		collection["_entryState"][objectIndexes] = self._entryActive
 		collection["_globalIndex"][objectIndexes] = globalIndexes
+		collection["_uniqueIndex"][objectIndexes] = np.arange(
+			self._next_unique_index, self._next_unique_index + nObjects)
+
+		# Increment value for next available unique index
+		self._next_unique_index += nObjects
 
 		for attrName, attrValue in attributes.viewitems():
 			collection[attrName][objectIndexes] = attrValue
@@ -753,10 +760,6 @@ class _UniqueObject(object):
 		self._access = access
 
 
-	# def uniqueId(self):
-	# 	return self.attr("_uniqueId")
-
-
 	def attr(self, attribute):
 		"""Return the named attribute of the unique object."""
 		entry = self._container._collections[self._collectionIndex][self._objectIndex]
@@ -894,10 +897,6 @@ class _UniqueObjectSet(object):
 	def __getitem__(self, index):
 		return _UniqueObject(self._container, self._globalIndexes[index],
 			access=self._access)
-
-
-	# def uniqueIds(self):
-	# 	return self.attr("_uniqueId")
 
 
 	def attr(self, attribute):
