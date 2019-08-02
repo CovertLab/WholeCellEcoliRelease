@@ -114,137 +114,11 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 	# Querying
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
-	def test_empty_query(self):
+	def test_query(self):
 		molecules = self.container.objectsInCollection('RNA polymerase')
 
 		self.assertEqual(len(molecules), 20)
 
-
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
-	def test_bool_query(self):
-		RNA = 'RNA polymerase'
-		molecules = self.container.objectsInCollection(RNA, boundToChromosome = ('==', False))
-
-		self.assertEqual(10, len(molecules))
-		self.assertEqual(molecules, molecules)
-
-		for molecule in molecules:
-			self.assertEqual(
-				molecule.attr('boundToChromosome'),
-				False
-				)
-
-		m1 = self.container.objectsInCollection(RNA, boundToChromosome = ('==', False))
-		self.assertIsNot(molecules, m1)
-		self.assertEqual(10, len(m1))
-		self.assertEqual(molecules, m1)
-
-		DNA = 'DNA polymerase'
-		m2 = self.container.objectsInCollection(DNA, boundToChromosome = ('==', False))
-		self.assertIsNot(molecules, m2)
-		self.assertEqual(0, len(m2))
-
-
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
-	def test_numeric_query(self):
-		RNA = 'RNA polymerase'
-		molecules = self.container.objectsInCollection(RNA, chromosomeLocation = ('>', 0))
-
-		self.assertEqual(5, len(molecules))
-
-		for molecule in molecules:
-			self.assertGreater(
-				molecule.attr('chromosomeLocation'),
-				0
-				)
-
-		m_eq = self.container.objectsInCollection(RNA, chromosomeLocation = ('==', 0))
-		self.assertEqual(15, len(m_eq))
-		self.assertNotEqual(molecules, m_eq)
-
-		m_ge = self.container.objectsInCollection(RNA, chromosomeLocation = ('>=', 0))
-		self.assertEqual(20, len(m_ge))
-		self.assertNotEqual(molecules, m_ge)
-
-		m_lt = self.container.objectsInCollection(RNA, chromosomeLocation = ('<', 0))
-		self.assertEqual(0, len(m_lt))
-		self.assertNotEqual(molecules, m_lt)
-
-		# Probe the set relations of the query results.
-		self.assertIn(molecules[1], m_ge)
-		self.assertIn(m_eq[1], m_ge)
-		self.assertNotIn(m_eq[1], molecules)
-		self.assertNotIn(molecules[1], m_eq)
-
-		(m_gt_0, m_gt_1, m_gt_2, m_gt_3, m_gt_4) = molecules  # tuple (actually iterable) unpacking
-		self.assertIn(m_gt_0, molecules)
-		self.assertNotIn(m_gt_0, m_eq)
-		self.assertIn(m_gt_0, m_ge)
-		self.assertGreater(m_gt_1.attr('chromosomeLocation'), 0)
-
-		m_gt_or_eq = molecules | m_eq
-		self.assertEqual(20, len(m_gt_or_eq))
-		self.assertEqual(m_ge, m_gt_or_eq)
-		self.assertGreaterEqual(m_gt_or_eq[3].attr('chromosomeLocation'), 0)
-		self.assertGreaterEqual(m_gt_or_eq.attr('chromosomeLocation')[4], 0)
-
-		self.assertEqual(15, len(m_lt | m_eq))
-		self.assertEqual(20, len(m_lt | m_ge))
-
-
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
-	def test_compound_query(self):
-		molecules = self.container.objectsInCollection(
-			'RNA polymerase',
-			boundToChromosome = ('!=', False),
-			chromosomeLocation = ('>', 0)
-			)
-
-		self.assertEqual(len(molecules), 5)
-
-		for molecule in molecules:
-			self.assertGreater(
-				molecule.attr('chromosomeLocation'),
-				0
-				)
-
-
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
-	def test_contains_query(self):
-		validLocations = np.array([0, 50])
-
-		molecules = self.container.objectsInCollection(
-			'RNA polymerase',
-			boundToChromosome = ("==", True),
-			chromosomeLocation = ('in', validLocations)
-			)
-
-		self.assertEqual(len(molecules), 10)
-
-		for molecule in molecules:
-			self.assertIn(
-				molecule.attr('chromosomeLocation'),
-				validLocations
-				)
-
-
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
-	def test_not_contains_query(self):
-		invalidLocations = np.array([0])
-
-		molecules = self.container.objectsInCollection(
-			'RNA polymerase',
-			boundToChromosome = ("==", True),
-			chromosomeLocation = ('not in', invalidLocations)
-			)
-
-		self.assertEqual(len(molecules), 5)
-
-		for molecule in molecules:
-			self.assertNotIn(
-				molecule.attr('chromosomeLocation'),
-				invalidLocations
-				)
 
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_merge(self):
@@ -289,7 +163,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 				)
 
 	# Object access
-
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_objects(self):
 		objectSet = self.container.objects()
@@ -298,10 +171,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 		for obj in objectSet:
 			self.assertIn(obj, objectSet)
-
-		objectSet = self.container.objects(chromosomeLocation = ('>', 0))
-
-		self.assertEqual(len(objectSet), 5)
 
 
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
@@ -315,11 +184,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		for obj in objectSet:
 			self.assertIn(obj, objectSet)
 
-		objectSet = self.container.objectsInCollection(
-			'RNA polymerase', chromosomeLocation = ('>', 0))
-
-		self.assertEqual(len(objectSet), 5)
-
 
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_objectsInCollections(self):
@@ -332,11 +196,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 		for obj in objectSet:
 			self.assertIn(obj, objectSet)
-
-		objectSet = self.container.objectsInCollections(
-			['RNA polymerase', 'DNA polymerase'], chromosomeLocation = ('==', 0))
-
-		self.assertEqual(len(objectSet), 35)
 
 
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
@@ -416,9 +275,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 			'Chocolate', 3, chromosomeLocation=2001, percent=90.0, nuts=True)
 		self.assertEqual(self.container, otherContainer)
 		npt.assert_array_equal(self.container._globalReference, otherContainer._globalReference)
-		npt.assert_array_equal(self.container._collections[0], otherContainer._collections[0])
-		npt.assert_array_equal(self.container._collections[1], otherContainer._collections[1])
-		npt.assert_array_equal(self.container._collections[2], otherContainer._collections[2])
 
 		self.container.objectsNew(
 			'Chocolate', 1, percent=80.0, chromosomeLocation=2001, nuts=False)
@@ -563,7 +419,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_objectSet_attribute_accessing(self):
 		objectSet = self.container.objects(
-			chromosomeLocation = ('>=', 0),
 			access=Access.READ_EDIT
 			)
 
