@@ -9,7 +9,10 @@ You can reach us at [AllenCenterCovertLab](mailto:allencentercovertlab@gmail.com
 
 See [docs/README.md](docs/README.md) for docs on how to set up and run the model.
 
-In short, there are two alternative ways to set up to run the model: inside a Docker container vs. in a carefully constructed `pyenv` virtual environment.
+In short, there are two alternative ways to set up to run the model: in a Docker container or in a `pyenv` Python virtual environment.
+Docker containers are easier to build and isolated from your development computer, but they run slower. (PyCharm should
+support debugging into a Docker container but we haven't tested that.) `pyenv` virtual environments take more steps to build
+and depend on your computer's OS, but are lighter weight and easier for debugging.
 
 
 ## Quick start
@@ -30,21 +33,44 @@ When running this code, prepare with these steps (the wcm-code Docker container 
    ```
 
 
-There are three ways to run the model:
+Ways to run the model:
 
-   1. Use the manual runscripts.  
-      They run each step directly, which is particularly handy to use with a
-      debugger. But you're responsible for properly sequencing the steps.
-   2. Queue up a Fireworks workflow, then run it.  
-      This will automatically run all the steps, including parameter calculation,
-      multiple cell simulations, and all the analysis plots.
-   3. Use the multi-scale agent-based framework.  
-      This runs multiple cells interactively on a simulated microscope slide.
+   1. Use the manual runscripts.
+
+      They run each step directly in-process, which is particularly handy to use with a
+      debugger. But you're responsible for properly sequencing all the steps: parameter calculation,
+      cell simulation generations, and analyses.
+      The manual runscripts work with a Docker container and also with a `pyenv` virtual environment.
+
+
+   2. Queue up a Fireworks workflow, then run it.
+
+      You configure it for the desired variants, number of generations, and other options,
+      then Fireworks will automatically run all the steps including parameter calculation,
+      simulations, and all the analysis plots.
+
+      The workflow tasks can be distributed over multiple processes or even multiple computers,
+      but they must all access a shared file system such as NFS and the (or copies of the)
+      `pyenv` virtual environment. We have not tested Fireworks with Docker containers.
+
+   3. Run on the Google Cloud Platform using Docker containers and our custom workflow software.
+
+   4. Use the multi-scale agent-based framework.
+
+      This can run several cells interactively on a simulated microscope slide.
 
 
 ## Using the manual runscripts
 
-These scripts will run the parameter calculator (ParCa), cell simulations, and analysis steps directly, without any workflow. They're handy for development, e.g. running under the PyCharm debugger. But you're responsible for running the scripts in order and for re-running the ParCa after relevant code changes.
+These scripts will:
+
+* run the parameter calculator (ParCa),
+* run cell simulations, and
+* run analysis plots
+
+All these steps run directly, in-process, without any workflow software or MongoDB. This is handy for development, e.g. running under the PyCharm debugger. But you're responsible for running the scripts in order and for re-running the ParCa after relevant code changes.
+
+You can run just the parts you want and rerun them as needed but the manual scripts don't automate dependency management. It's on you to rerun code if things change, runSim before analysis, or delete runSim output before running it again. (That last part should be improved! Also note that some analysis scripts get confused if the sim runs are more varied than expected. See [Issue #199](https://github.com/CovertLab/wcEcoli/issues/199).)
 
 These scripts have command line interfaces built on `argparse`, so you can use shorter option names as long as they're unambiguous, and also one-letter forms so you can use `--cpus 8`, or `--cpu 8`, or `-c8`.
 
@@ -62,35 +88,41 @@ To simulate one or more cell generations with optional variants:
 python runscripts/manual/runSim.py [-h] [--variant VARIANT_TYPE FIRST_INDEX LAST_INDEX] [--generations GENERATIONS] [--seed SEED] [sim_dir]
 ```
 
-To run all the analysis plots on the simulation output in a given `sim_dir`:
+To run the analysis plots on the simulation output in a given `sim_dir`
+(use the `-h` parameter to get complete help on the command line options):
 
 ```bash
-python runscripts/manual/analysisCohort.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output_prefix OUTPUT_PREFIX] [--variant_index VARIANT_INDEX] [sim_dir]
+python runscripts/manual/analysisVariant.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [sim_dir]
 
-python runscripts/manual/analysisMultigen.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output_prefix OUTPUT_PREFIX] [--variant_index VARIANT_INDEX] [--seed SEED] [sim_dir]
+python runscripts/manual/analysisCohort.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--variant_index VARIANT_INDEX] [sim_dir]
 
-python runscripts/manual/analysisSingle.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output_prefix OUTPUT_PREFIX] [--variant_index VARIANT_INDEX] [--seed SEED] [--generation GENERATION] [--daughter DAUGHTER] [sim_dir]
+python runscripts/manual/analysisMultigen.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--variant_index VARIANT_INDEX] [--seed SEED] [sim_dir]
 
-python runscripts/manual/analysisVariant.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output_prefix OUTPUT_PREFIX] [sim_dir]
+python runscripts/manual/analysisSingle.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--variant_index VARIANT_INDEX] [--seed SEED] [--generation GENERATION] [--daughter DAUGHTER] [sim_dir]
 ```
 
-NOTE: The analysis plots currently look for multigen and variant output files
-in the directories written by a Fireworks workflow, not the directories written
-by `runSim.py`.
+If you default the analysis parameters, these scripts will pick the latest simulation directory, the first variant, the first generation, and so on.
+To get _full_ analyses across all variants, generations, etc., run:
 
-If you default the parameters, the analysis scripts will pick the latest simulation directory, the first variant, the first generation, and so on.
+* `analysisVariant.py`
+* `analysisCohort.py` for each `--variant_index` you simulated
+* `analysisMultigen.py` for each combination of `--variant_index` and `--seed` you simulated
+* `analysisSingle.py` for each combination of `--variant_index`, `--seed`, and `--generation` you simulated
+
+The `--plot` (or `-p`) optional parameter lets you pick one or more specific PLOTS to run.
 The list of PLOTs can include analysis class filenames like `aaCounts` (or `aaCounts.py`)
-and analysis group TAGS like `CORE`. The default is to run the `CORE` group of plots that are
-recommended for everyday development.
+and analysis group TAGS like `CORE`. See the `__init__.py` file in each analysis class directory
+for the available analysis classes and group TAGS.
+The default is to run the `CORE` group of plots that are recommended for everyday development.
 
-Set the environment variable `DEBUG_GC=1` if you want to check for Python memory
-leaks when running the analysis plots.
-
-The `--plot` (or `-p`) optional parameter lets you pick one or more specific plots to run. For example, to run two analysis plots on simulation variant #3 and put a filename prefix "v3_" on their output files (to distinguish them from other analysis runs):
+For example, to run two analysis plots on simulation variant #3 and put a filename prefix "v3_" on their output files (to distinguish them from other analysis runs):
 
 ```bash
 python runscripts/manual/analysisCohort.py --plot compositionFitting.py figure2e.py --variant_index 3 --output_prefix v3_
 ```
+
+Set the environment variable `DEBUG_GC=1` if you want to check for Python memory
+leaks when running the analysis plots.
 
 There's another way run an individual analysis plot:
 
@@ -100,10 +132,10 @@ python models/ecoli/analysis/cohort/transcriptFrequency.py [-h] [--verbose] [-o 
 
 ## Causality
 
-After running a simulation, see the [CovertLab/causality](https://github.com/CovertLab/causality) repo for the Causality visualization tool to examine the model's causal links and simulation output correlations.
+After running a simulation, you can explore the Causality visualization tool (see [CovertLab/causality](https://github.com/CovertLab/causality)) to examine the model's causal links and simulation output correlations.
 
 
-## Running an entire Fireworks workflow
+## Running a Fireworks workflow
 
 See [wholecell/fireworks/README.md](wholecell/fireworks/README.md) for instructions to set up MongoDB as needed to run Fireworks.
 
@@ -220,6 +252,17 @@ gen 0:                 0
 gen 1:         0               1
 gen 2:     0       1       2       3
 ```
+
+
+### Google Cloud Platform
+
+You can run wcEcoli cell simulations on the Google Cloud Platform using Docker containers and our
+custom workflow software.
+
+**NOTE:** So far the documentation assumes you're part of the Covert lab and able to access our
+Allen Discovery Center project on Google Cloud Platform.
+
+See [How to run the Whole Cell Model on the Google Cloud Platform](docs/google-cloud.md).
 
 
 ## Multi-scale agent framework
