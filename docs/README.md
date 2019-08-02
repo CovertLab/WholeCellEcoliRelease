@@ -7,7 +7,7 @@ These are the docs for a variety of topics on the Whole Cell Model.
 
 There are two alternative ways to set up to run the model:
 
-1. **Docker setup (recommended):** Install the [Docker Desktop software](https://www.docker.com/products/docker-desktop) then pull our Docker container image from the GitHub Package Registry or build it locally using the `build-containers-locally.sh` or the `cloud/build.sh` shell script.
+1. **Docker setup (recommended):** Install the [Docker Desktop software](https://www.docker.com/products/docker-desktop) then pull our Docker container image from the GitHub Package Registry or build it locally using the `cloud/build-containers-locally.sh` or the `cloud/build.sh` shell script.
 
    A Docker container image takes one `docker build` command to build and is isolated from your computer's operating system, any versions of Python, binary libraries, and everything else installed on your development computer.
 

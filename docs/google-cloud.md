@@ -176,18 +176,44 @@ If the WCM pips or apt-get packages change, use the `cloud/build-runtime.sh` scr
 to rebuild the `wcm-runtime` base Docker image, then build new `wcm-code` images
 from that.
 
-This script takes 35m:40s of installing stuff plus docker I/O work. Of that, 13:56 goes into
-installing openblas, 3:09 to installing numpy, and 14:51 to installing scipy (after downloading
-it along with the other pips). So if we run this frequently enough, it would be worth splitting
-out a first base image containing the apt-get steps, openblas, numpy, and scipy from a second
-base image that contains all the other pips.
-
 By default, we're all sharing a `wcm-runtime` base Docker image, so either ensure updates are
 backwards compatible or pass a different WCM_RUNTIME name into the `cloud/build-wcm.sh` script.
 
-Also note that the Sisyphus Compute Engine disk image has a copy of the `wcm-runtime` Docker
-image to save startup time. After creating a new `wcm-runtime` Docker image, it's a good idea
-to add that to the Sisyphus disk image.
+Each Docker image layer has long hash references to its lower layer images (like a git commit
+referring to the previous commit hash) so building a new `wcm-runtime` image won't alter existing
+`wcm-code` images (unless someone gets overzealous about cleaning out images from the container registry).
+
+When a new branch needs a new `wcm-runtime` image, pick a name for the new runtime like
+`wcm-runtime:pr1234` (or maybe `wcm-runtime-pr1234`) and pass the name to the scripts:
+
+
+   ```sh
+   cloud/build-runtime.sh wcm-runtime:pr1234
+   cloud/build-wcm.sh $USER wcm-runtime:pr1234
+   python runscripts/cloud/wcm.py
+   ```
+
+or setting a workflow user ID to do a CI PR build:
+
+   ```sh
+   cloud/build-runtime.sh wcm-runtime:pr1234
+   cloud/build-wcm.sh PR1234 wcm-runtime:pr1234
+   WF_ID=PR1234 python runscripts/cloud/wcm.py
+   ```
+
+Q. After merging that PR into master, should we then build a new `wcm-runtime:latest` image,
+changing the meaning of that default name for future `wcm-code` image builds? Or enshrine a
+`:version` ID into the scripts?
+
+Optimization: The Sisyphus Compute Engine disk image has a copy of the `wcm-runtime` Docker
+image to save tens of seconds in startup time. After creating a new `wcm-runtime` Docker image,
+it's a good idea to add that to the Sisyphus disk image.
+
+Potential optimization: `cloud/build-runtime.sh` takes 36m installing stuff plus Docker I/O work.
+Of that, 14m goes into installing openblas, 3m to installing numpy, and 15m to installing scipy
+(after downloading it along with the other pips). So if we run this frequently enough, it would
+be worth splitting out a first base image containing the apt-get steps, openblas, numpy, and
+scipy from the `wcm-runtime` base image that adds all the other pips.
 
 Beware that OpenBLAS changes seem to mostly be about compatibility with various
 OS and other platform changes, and they're struggling at that. So OpenBLAS 0.3.5 works well
