@@ -251,6 +251,23 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 
 	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
+	def test_unique_index(self):
+		objectSet = self.container.objects()
+		unique_index = objectSet.attr("_uniqueIndex")
+
+		# Check that all unique index values are unique
+		self.assertEqual(len(np.unique(unique_index)), len(unique_index))
+
+		# Add new objects to container
+		self.container.objectsNew('Chocolate', 10, nuts=True, percent=95.0)
+		objectSet = self.container.objects()
+		unique_index = objectSet.attr("_uniqueIndex")
+
+		# Check that all unique index values are unique
+		self.assertEqual(len(np.unique(unique_index)), len(unique_index))
+
+
+	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_eq_method(self):
 		# Test against self
 		self.assertEqual(self.container, self.container)
