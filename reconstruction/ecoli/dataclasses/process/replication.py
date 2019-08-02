@@ -199,9 +199,9 @@ class Replication(object):
 			self.base_elongation_rate,
 			dtype=np.int64)
 
-	def make_elongation_rates(self, base, time_step):
+	def make_elongation_rates(self, replisomes, base, time_step):
 		rates = np.full(
-			self.replication_sequences.shape[0],
+			replisomes,
 			np.rint(base * time_step),
 			dtype=np.int64)
 

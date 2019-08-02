@@ -119,6 +119,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		sequence_length = np.abs(np.repeat(fork_coordinates, 2))
 
 		self.elongation_rates = self.replication.make_elongation_rates(
+			len(active_replisomes),
 			self.base_elongation_rate,
 			self.timeStepSec())
 
@@ -292,13 +293,14 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# elongations each fork catalyzes
 		reactionLimit = dNtpCounts.sum()
 
-		active_elongation_rates = self.elongation_rates[sequence_indexes]
+		# active_elongation_rates = self.elongation_rates[sequence_indexes]
 		result = polymerize(
 			sequences,
 			dNtpCounts,
 			reactionLimit,
 			self.randomState,
-			active_elongation_rates)
+			self.elongation_rates)
+			# active_elongation_rates)
 
 		sequenceElongations = result.sequenceElongation
 		dNtpsUsed = result.monomerUsages

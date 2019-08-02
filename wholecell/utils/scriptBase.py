@@ -147,21 +147,22 @@ class ScriptBase(object):
 
 	def define_parameter_bool(self, parser, name, default, help):
 		# type: (argparse.ArgumentParser, str, Any, str) -> None
-		"""Add a boolean option parameter to the parser. The CLI input can be
-		`--name`, `--no_name`, `--name true`, `--name false`, `--name 1`,
-		`--name 0`, `--name=true`, etc. The default can be True or False, and
-		changing it won't affect any of those explicit input forms. This method
-		adds the default value to the help text.
+		"""provides for both --option and --no-option, where --option != --no-option
 		"""
 		default = bool(default)
 		examples = 'true or 1' if default else 'false or 0'
 		group = parser.add_mutually_exclusive_group()
-		group.add_argument('--' + name, nargs='?', default=default,
-			const='true',  # needed for nargs='?'
-			type=str_to_bool,
-			help='({}; {}) {}'.format('bool', examples, help))
-		group.add_argument('--no_' + name, dest=name, action='store_false',
-			help='Like {}=0'.format(name))
+		underscore = re.sub(r"-", r"_", name)
+		group.add_argument(
+			'--' + name,
+			default=default,
+			dest=underscore,
+			action='store_true')
+
+		group.add_argument(
+			'--no-' + name,
+			dest=underscore,
+			action='store_false')
 
 	def define_option(self, parser, name, datatype, default, help):
 		# type: (argparse.ArgumentParser, str, Callable, Any, str) -> None

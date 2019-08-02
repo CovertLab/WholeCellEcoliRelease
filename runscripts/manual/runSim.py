@@ -70,12 +70,14 @@ class RunSimulation(scriptBase.ScriptBase):
 				unambiguous prefix.'''.format(self.description())
 
 	def define_parameters(self, parser):
+
 		def add_option(name, key, datatype, help):
 			"""Add an option with the given name and datatype to the parser using
 			DEFAULT_SIMULATION_KWARGS[key] for the default value.
 			"""
 			default = DEFAULT_SIMULATION_KWARGS[key]
 			self.define_option(parser, name, datatype, default, help)
+
 		def add_bool_option(name, key, help):
 			"""Add a boolean option parameter with the given name to the parser
 			using DEFAULT_SIMULATION_KWARGS[key] for the default value. The CLI
@@ -97,7 +99,7 @@ class RunSimulation(scriptBase.ScriptBase):
 				condition, meneParams, metabolism_kinetic_objective_weight,
 				nutrientTimeSeries, and param_sensitivity.
 				Default = wildtype 0 0''')
-		self.define_parameter_bool(parser, 'require_variants', False,
+		self.define_parameter_bool(parser, 'require-variants', False,
 			help='''true => require the sim_data variant(s) specified by the
 				--variant option to already exist; false => make the variant(s).
 				Run makeVariants.py to make sim_data variants.''')
@@ -105,53 +107,59 @@ class RunSimulation(scriptBase.ScriptBase):
 			help='Number of cell generations to run. (Single daughters only.)'
 				 ' Default = 1'
 			)
-		parser.add_argument('--total_gens', type=int,
+		parser.add_argument('--total-gens', type=int,
 			help='(int) Total number of generations to write into the'
 				 ' metadata.json file. Default = the value of --generations.')
 		parser.add_argument('-s', '--seed', type=int, default=0,
 			help='First cell simulation seed. Default = 0'
 			)
-		self.define_option(parser, 'init_sims', int, 1,
+		self.define_option(parser, 'init-sims', int, 1,
 			'Number of initial sims (seeds) per variant.')
 		parser.add_argument('-t', '--timeline', type=str, default='0 minimal',
 			help='set timeline. Default = "0 minimal". See'
 				 ' environment/condition/make_media.py, make_timeline() for'
 				 ' timeline formatting details'
 			)
-		add_option('length_sec', 'lengthSec', int,
+		add_option('length-sec', 'lengthSec', int,
 			help='The maximum simulation time, in seconds. Useful for short'
 				 ' simulations; not so useful for multiple generations.'
 				 ' Default is 3 hours'
 			)
-		add_option('timestep_safety_frac', 'timeStepSafetyFraction', float,
+		add_option('timestep-safety-frac', 'timeStepSafetyFraction', float,
 			help='Scale the time step by this factor if conditions are'
 				 ' favorable, up the the limit of the max time step'
 			)
-		add_option('timestep_max', 'maxTimeStep', float,
+		add_option('timestep-max', 'maxTimeStep', float,
 			help='the maximum time step, in seconds'
 			)
-		add_option('timestep_update_freq', 'updateTimeStepFreq', int,
+		add_option('timestep-update-freq', 'updateTimeStepFreq', int,
 			help='frequency at which the time step is updated'  # TODO: explain
 			)
-		add_bool_option('mass_distribution', 'massDistribution',
+		add_bool_option('mass-distribution', 'massDistribution',
 			help='If true, a mass coefficient is drawn from a normal distribution'
 				 ' centered on 1; otherwise it is set equal to 1'
 			)
-		add_bool_option('growth_rate_noise', 'growthRateNoise',
+		add_bool_option('growth-rate-noise', 'growthRateNoise',
 			help='If true, a growth rate coefficient is drawn from a normal'
 				 ' distribution centered on 1; otherwise it is set equal to 1'
 			)
-		add_bool_option('d_period_division', 'dPeriodDivision',
+		add_bool_option('d-period-division', 'dPeriodDivision',
 			help='If true, ends simulation once D period has occurred after'
 				 ' chromosome termination; otherwise simulation terminates once'
 				 ' a given mass has been added to the cell'
 			)
-		add_bool_option('translation_supply', 'translationSupply',
+		add_bool_option('variable-elongation-transcription', 'variable_elongation_transcription',
+			help='If true, runs various transcripts at different elongation rates'
+			)
+		add_bool_option('variable-elongation-translation', 'variable_elongation_translation',
+			help='If true, translates various transcripts at different elongation rates'
+			)
+		add_bool_option('translation-supply', 'translationSupply',
 			help='If true, the ribosome elongation rate is limited by the'
 				 ' condition specific rate of amino acid supply; otherwise the'
 				 ' elongation rate is set by condition'
 			)
-		add_bool_option('trna_charging', 'trna_charging',
+		add_bool_option('trna-charging', 'trna_charging',
 			help='if True, tRNA charging reactions are modeled and the ribosome'
 				 ' elongation rate is set by the amount of charged tRNA	present.'
 				 ' This option will override TRANSLATION_SUPPLY in the simulation.'
