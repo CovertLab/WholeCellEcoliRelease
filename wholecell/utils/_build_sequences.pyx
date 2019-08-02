@@ -43,13 +43,9 @@ cpdef np.ndarray[np.int8_t, ndim=2] buildSequences(
 	for i in range(out_rows):
 		index = indexes[i]
 		position = positions[i]
-		rate = elongation_rates[i]
 
 		for j in range(elongation_max):
-			if j < rate:
-				out[i, j] = base_sequences[index, position+j]
-			else:
-				out[i, j] = PAD_VALUE
+			out[i, j] = base_sequences[index, position+j]
 
 	return out
 
