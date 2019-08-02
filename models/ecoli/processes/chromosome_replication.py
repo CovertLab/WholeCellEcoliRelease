@@ -118,10 +118,10 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		fork_coordinates = active_replisomes.attr("coordinates")
 		sequence_length = np.abs(np.repeat(fork_coordinates, 2))
 
-		self.elongation_rates = self.replication.make_elongation_rates(
-			len(active_replisomes),
-			self.base_elongation_rate,
-			self.timeStepSec())
+		self.elongation_rates = np.full(
+			len(self.sequences),
+			np.rint(self.base_elongation_rate * self.timeStepSec()),
+			dtype=np.int64)
 
 		sequences = buildSequences(
 			self.sequences,
@@ -283,6 +283,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 		# Build sequences to polymerize
 		sequence_indexes = np.tile(np.arange(4), n_active_replisomes // 2)
+
 		sequences = buildSequences(
 			self.sequences,
 			sequence_indexes,
