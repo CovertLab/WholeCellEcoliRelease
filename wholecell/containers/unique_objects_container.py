@@ -4,6 +4,8 @@ typically molecules.
 
 The UniqueObjectsContainer uses _UniqueObject instances to present O-O proxies
 to specific molecules.
+
+SEE THE decomp2() CAUTION ABOUT PERSISTENT DATA (PICKLE) FORMAT.
 """
 
 from __future__ import absolute_import, division, print_function
@@ -35,22 +37,32 @@ class UniqueObjectsInvalidSubmassNameException(Exception):
 
 
 def decomp(specifications, compressed_collections, global_ref_count, submass_diff_names=None):
-	"""Decompress the arguments into a UniqueObjectsContainer. "decomp" is
+	raise UniqueObjectsContainerException("Can't read an old format container")
+
+def decomp2(specifications, compressed_collections, global_ref_count,
+		next_unique_index, submass_diff_names=None):
+	"""Decompress the arguments into a UniqueObjectsContainer. The name is
 	intentionally short and awkward for intended use limited to pickling. It
 	calls the constructor to set up indexes and caches, unlike `__setstate__`.
 
-	CAUTION: Future edits are expected to maintain backward compatibility with
-	stored pickled arguments (e.g. via optional args) or explicitly detach
-	(e.g. `__reduce__` to a new unpickling function.)
+	CAUTION: Changes to this class must manage forward and backward
+	compatibility of persistent data via decomp and __reduce__.
+	* For new code reading old data, make decomp either properly read and
+	upgrade old formats or fail fast on old formats.
+	* For old code reading new data, make __reduce__ format the new data so
+	old code will either read it properly or fail fast.
+	* Changes to instance structure also affect __eq__ and loadSnapshot.
 
 	The current stored format is sensitive to all the internal representation
 	details including inactive entries, bookkeeping fields, and index fields
-	which could all be reconstructed here.
+	which could all be reconstructed here with a bunch of work and a more
+	complex __eq__() method.
 
 	Args:
 		specifications (dict): dtype specs as passed to UniqueObjectsContainer()
 		compressed_collections (list[bytes]): zlib-compressed bytes of the collections ndarrays
 		global_ref_count (int): the size of the global references ndarray
+		next_unique_index (int): the container's next globally unique index
 		submass_diff_names (optional, list[strings]): list of the names of
 			submass difference attributes
 
@@ -77,6 +89,7 @@ def decomp(specifications, compressed_collections, global_ref_count, submass_dif
 				global_ref["_collectionIndex"] = collectionIndex
 				global_ref["_objectIndex"] = objectIndex
 
+	container._next_unique_index = next_unique_index
 	return container
 
 
@@ -84,7 +97,7 @@ def compress_ndarray(array):
 	return zlib.compress(array.tobytes(), ZLIB_LEVEL)
 
 def decompress_ndarray(compressed_bytes, dtype):
-	return np.frombuffer(zlib.decompress(compressed_bytes), dtype)
+	return np.frombuffer(zlib.decompress(compressed_bytes), dtype).copy()
 
 
 def make_dtype_spec(dict_of_dtype_specs):
@@ -161,12 +174,8 @@ class UniqueObjectsContainer(object):
 		self._specifications = deepcopy(specifications) # collectionName:{attributeName:type}
 		self._names = tuple(sorted(self._specifications.keys())) # sorted collection names
 
-		if submass_diff_names is not None:
-			self.submass_diff_names_list = submass_diff_names
-			self.submass_diff_names_set = frozenset(submass_diff_names)
-		else:
-			self.submass_diff_names_list = []
-			self.submass_diff_names_set = frozenset()
+		self.submass_diff_names_list = submass_diff_names or []
+		self.submass_diff_names_set = frozenset(self.submass_diff_names_list)
 
 		# List of requests
 		self._requests = []
@@ -224,26 +233,24 @@ class UniqueObjectsContainer(object):
 
 		specs = self._copy_specs()
 		compressed_collections = [compress_ndarray(col) for col in self._collections]
-		return decomp, (
+		return decomp2, (
 			specs, compressed_collections, self._globalReference.size,
-			self.submass_diff_names_list
-			)
+			self._next_unique_index, self.submass_diff_names_list)
 
 
 	def __eq__(self, other):
 		# TODO(jerry): Ignore inactive entries and index values.
-		# TODO(jerry): Don't access other's private fields.
 		if not isinstance(other, UniqueObjectsContainer):
+			return False
+		if self._next_unique_index != other._next_unique_index:
 			return False
 		if self._specifications != other._specifications:
 			return False
 		if self.submass_diff_names_list != other.submass_diff_names_list:
 			return False
 		for (selfCollection, otherCollection) in izip(self._collections, other._collections):
-			for attribute_name in selfCollection.dtype.names:
-				if attribute_name != "_uniqueIndex" and not np.array_equal(
-						selfCollection[attribute_name], otherCollection[attribute_name]):
-					return False
+			if not np.array_equal(selfCollection, otherCollection):
+				return False
 		return True
 
 
@@ -339,9 +346,8 @@ class UniqueObjectsContainer(object):
 	def objects(self, access=Access.READ_ONLY):
 		"""
 		Return a _UniqueObjectSet proxy for all active objects (molecules).
-		Querying every object is generally not what you want to do. The access
-		argument determines the level of access permission the proxy has to the
-		molecules in the container.
+		The access argument determines the level of access permission the proxy
+		has to the molecules in the container.
 		"""
 		return _UniqueObjectSet(self,
 			np.where(self._globalReference["_entryState"] == self._entryActive)[0],
@@ -356,7 +362,6 @@ class UniqueObjectsContainer(object):
 		to a named collection. The access argument determines the level of
 		access permission the proxy has to the molecules in the container.
 		"""
-		# TODO(jerry): Special case the empty query?
 		collectionIndex = self._nameToIndexMapping[collectionName]
 
 		active_mask = self._find_active_entries(collectionIndex)
@@ -492,6 +497,8 @@ class UniqueObjectsContainer(object):
 		for index, collection in enumerate(other._collections):
 			self._collections[index] = collection.copy()
 
+		self._next_unique_index = other._next_unique_index
+
 
 	def tableCreate(self, tableWriter):
 		tableWriter.writeAttributes(
@@ -528,7 +535,7 @@ class UniqueObjectsContainer(object):
 		collection = self._collections[collectionIndex]
 
 		# TODO(jerry): Would it be faster to copy one new entry to all rows
-		# then set the _globalIndex columns?
+		# then set the Index columns?
 		collection["_entryState"][objectIndexes] = self._entryActive
 		collection["_globalIndex"][objectIndexes] = globalIndexes
 		collection["_uniqueIndex"][objectIndexes] = np.arange(

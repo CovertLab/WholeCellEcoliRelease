@@ -12,9 +12,13 @@ def decomp(compressed_names, dtype, compressed_counts):
 	intentionally short and awkward for intended use limited to pickling. It
 	calls the constructor to set up indexes and caches, unlike `__setstate__`.
 
-	CAUTION: Future edits are expected to maintain backward compatibility with
-	stored pickled arguments (e.g. via optional args) or explicitly detach
-	(e.g. `__reduce__` to a new unpickling function.)
+	CAUTION: Changes to this class must manage forward and backward
+	compatibility of persistent data via decomp and __reduce__.
+	* For new code reading old data, make decomp either properly read and
+	upgrade old formats or fail fast on old formats.
+	* For old code reading new data, make __reduce__ format the new data so
+	old code will either read it properly or fail fast.
+	* Changes to instance structure also affect __eq__ and loadSnapshot.
 
 	Args:
 		compressed_names (bytes) zlib-compressed tab-separated object names

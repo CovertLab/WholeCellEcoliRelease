@@ -45,6 +45,7 @@ TEST_KB = {
 	}
 
 
+@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 class Test_UniqueObjectsContainer(unittest.TestCase):
 	def setUp(self):
 		self.container = createContainer()
@@ -62,14 +63,12 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	# Interface tests
 
 	# Adding/removing objects
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_add_molecule(self):
 		self.container.objectNew('RNA polymerase')
 
 		self.assertEqual(len(self.container.objectsInCollection('RNA polymerase')), 21)
 
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_add_molecules(self):
 		self.container.objectsNew('RNA polymerase', 20)
 
@@ -79,7 +78,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 			)
 
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_delete_molecules(self):
 		molecules = self.container.objectsInCollection(
 			'RNA polymerase', access=Access.READ_EDIT_DELETE)
@@ -112,15 +110,12 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	# TODO(jerry): Test _UniqueObjectSet.delByIndexes().
 
 
-	# Querying
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
-	def test_query(self):
+	def test_len(self):
 		molecules = self.container.objectsInCollection('RNA polymerase')
 
 		self.assertEqual(len(molecules), 20)
 
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_merge(self):
 		container = createContainer()
 		n_objects = len(container.objects())
@@ -143,7 +138,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 
 	# Attribute access
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_attribute_setting(self):
 		for molecule in self.container.objectsInCollection('RNA polymerase', access=Access.READ_EDIT):
 			molecule.attrIs(
@@ -163,7 +157,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 				)
 
 	# Object access
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_objects(self):
 		objectSet = self.container.objects()
 
@@ -173,7 +166,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 			self.assertIn(obj, objectSet)
 
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_objectsInCollection(self):
 		self.container.objectsNew('DNA polymerase', 20)
 
@@ -185,7 +177,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 			self.assertIn(obj, objectSet)
 
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_objectsInCollections(self):
 		self.container.objectsNew('DNA polymerase', 20)
 
@@ -198,7 +189,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 			self.assertIn(obj, objectSet)
 
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_counts(self):
 		self.container.objectsNew('DNA polymerase', 15)
 
@@ -213,7 +203,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 	# Internal tests
 
 	# Global references
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_global_index_mapping(self):
 		globalArray = self.container._globalReference
 
@@ -229,7 +218,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 			self.assertEqual(molecule._objectIndex, objectIndex)
 
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_global_index_removal(self):
 		globalArray = self.container._globalReference
 
@@ -250,7 +238,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		self.assertEqual(globalEntry, deletedEntry)
 
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_unique_index(self):
 		objectSet = self.container.objects()
 		unique_index = objectSet.attr("_uniqueIndex")
@@ -267,17 +254,13 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		self.assertEqual(len(np.unique(unique_index)), len(unique_index))
 
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_eq_method(self):
 		# Test against self
 		self.assertEqual(self.container, self.container)
 		self.assertNotEqual(self.container, object())
 
 		# Test against other container with different massdiff names
-		container_empty_massdiff = createContainer()
-		self.assertEqual(self.container, container_empty_massdiff)
-
-		container_empty_massdiff.submass_diff_names_list = []
+		container_empty_massdiff = createContainer(False)
 		self.assertNotEqual(self.container, container_empty_massdiff)
 
 		# Test against other, presumably identical container
@@ -310,7 +293,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		self.assertNotEqual(self.container, otherContainer)
 
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_emptyLike(self):
 		e1 = self.container.emptyLike()
 		e2 = self.container.emptyLike()
@@ -326,7 +308,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		self.assertEqual(0, len([obj for obj in e1.objectsInCollection('Chocolate')]))
 		self.assertEqual(0, len([obj for obj in e1.objectsInCollections(TEST_KB.keys())]))
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_copyContents(self):
 		self.container.objectsNew('Chocolate', 17, percent=88.8)
 		npt.assert_array_equal((17, 0, 20), self.container.counts())
@@ -348,7 +329,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 	# I/O
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_pickle(self):
 		data = cPickle.dumps(self.container)
 		container2 = cPickle.loads(data)
@@ -362,9 +342,18 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		self.assertEqual(self.container.submass_diff_names_list, container2.submass_diff_names_list)
 		npt.assert_array_equal(self.container._globalReference, container2._globalReference)
 
-		# Test on a collection with added & deleted entries.
 		self.container.objectsNew('Chocolate', 101, percent=95.0, nuts=False)
+		self.assertEqual((101,), self.container.counts(['Chocolate']))
 		self.assertNotEqual(self.container, container2)
+
+		# Test that the unpickled container is well-formed enough to equal the
+		# original container after adding objects. This is at risk when newly
+		# added container state doesn't get unpickled or compared by __eq__().
+		# This test will catch it *if* __eq__() compares state that's influenced
+		# by the newly-added state.
+		container2.objectsNew('Chocolate', 101, percent=95.0, nuts=False)
+		self.assertEqual((101,), container2.counts(['Chocolate']))
+		self.assertEqual(self.container, container2)
 
 		# Test that container with unapplied requests does not get pickled
 		self.container.add_request(
@@ -381,28 +370,28 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 		self.container._requests = []
 
-		counts = self.container.counts(['RNA polymerase', 'DNA polymerase'])
-		rna_objects = self.container.objectsInCollection('RNA polymerase')
-		self.container.objectDel(rna_objects[0])
-		npt.assert_array_equal(counts - [1, 0],
-			self.container.counts(['RNA polymerase', 'DNA polymerase']))
-
 		data = cPickle.dumps(self.container)
 		container3 = cPickle.loads(data)
 		self.assertEqual(self.container, container3)
-		self.assertEqual(self.container.objectNames(), container3.objectNames())
-		self.assertEqual(self.container._nameToIndexMapping, container3._nameToIndexMapping)
-		npt.assert_array_equal(self.container._globalReference, container3._globalReference)
 
 		# print("Pickled a UniqueObjectsContainer to {} bytes".format(len(data)))
 
-		# Test that an unpickled container is mutable as always. It's at risk
-		# because np.frombuffer(f.read()) gets an ndarray onto a readonly byte str.
-		container3.objectsNew('Chocolate', 3, percent=75.0, nuts=True)
-		self.assertEqual((104,), container3.counts(['Chocolate']))
+		names = ['RNA polymerase', 'DNA polymerase']
+		counts = self.container.counts(names)
+		rna_objects = self.container.objectsInCollection(names[0])
+		self.container.objectDel(rna_objects[0])
+		npt.assert_array_equal(counts - [1, 0], self.container.counts(names))
+
+		# Test changing an unpickled container collection. It's at risk because
+		# np.frombuffer(bytes) is readonly.
+		counts3 = container3.counts(names)
+		npt.assert_array_equal(counts, counts3)
+		rna_objects3 = container3.objectsInCollection(names[0])
+		container3.objectDel(rna_objects3[0])
+		npt.assert_array_equal(counts3 - [1, 0], container3.counts(names))
+		self.assertEqual(self.container, container3)
 
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_write_table(self):
 		"""Test writing the container to a Table."""
 		self.make_test_dir()
@@ -433,7 +422,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 			npt.assert_array_equal(expected, table_reader.readColumn(name))
 
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_objectSet_attribute_accessing(self):
 		objectSet = self.container.objects(
 			access=Access.READ_EDIT
@@ -497,7 +485,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 			(~boundToChromosome).sum()
 			)
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_read_only(self):
 		molecules = self.container.objectsInCollection(
 			'RNA polymerase', access=Access.READ_ONLY
@@ -520,7 +507,6 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 			"Can't delete molecules from read-only or read-and-edit only objects."
 			)
 
-	@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 	def test_read_edit(self):
 		molecules = self.container.objectsInCollection(
 			'RNA polymerase', access=Access.READ_EDIT
@@ -537,8 +523,9 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 
 
-def createContainer():
-	container = UniqueObjectsContainer(TEST_KB, ["massDiff_RNA"])
+def createContainer(with_massdiff=True):
+	container = UniqueObjectsContainer(TEST_KB,
+		["massDiff_RNA"] if with_massdiff else None)
 
 	container.objectsNew(
 		'RNA polymerase',
