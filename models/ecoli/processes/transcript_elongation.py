@@ -176,7 +176,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 				"domain_index", "right_replichore", "coordinates")
 
 			elongation_length = np.ceil(
-				self.rnapElongationRate * self.timeStepSec())
+				self.dnaPolyElngRate * self.timeStepSec())
 
 			for rr, coord_rep, dmn_idx in izip(right_replichore,
 					coordinates_replisome, domain_index_replisome):

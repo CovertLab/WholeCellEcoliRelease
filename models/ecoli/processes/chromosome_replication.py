@@ -74,10 +74,9 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Get placeholder value for domains without children
 		self.no_child_place_holder = sim_data.process.replication.no_child_place_holder
 
-		self.base_elongation_rate = int(
+		self.basal_elongation_rate = int(
 			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
 			units.nt / units.s)))
-		self.replication = sim_data.process.replication
 
 	def calculateRequest(self):
 		# Get total count of existing oriC's
@@ -120,7 +119,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 		self.elongation_rates = np.full(
 			len(self.sequences),
-			np.rint(self.base_elongation_rate * self.timeStepSec()),
+			np.rint(self.basal_elongation_rate * self.timeStepSec()),
 			dtype=np.int64)
 
 		sequences = buildSequences(

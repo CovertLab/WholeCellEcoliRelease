@@ -55,8 +55,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.gtpPerElongation = constants.gtpPerTranslation
 		self.variable_elongation = sim._variable_elongation_translation
 
-		self.base_elongation_rate = constants.ribosomeElongationRateBase.asNumber(units.aa / units.s)
-		elongation_max = constants.ribosomeElongationRateMax if self.variable_elongation else constants.ribosomeElongationRateBase
+		self.basal_elongation_rate = constants.ribosomeElongationRateBasal.asNumber(units.aa / units.s)
+		elongation_max = constants.ribosomeElongationRateMax if self.variable_elongation else constants.ribosomeElongationRateBasal
 		self.maxRibosomeElongationRate = float(elongation_max.asNumber(units.aa / units.s))
 
 		self.ribosomeElongationRate = float(sim_data.growthRateParameters.ribosomeElongationRate.asNumber(units.aa / units.s))
@@ -140,11 +140,11 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		current_media_id = self._external_states['Environment'].current_media_id
 
 		if self.translationSupply:
-			self.ribosomeElongationRate = self.base_elongation_rate
+			self.ribosomeElongationRate = self.basal_elongation_rate
 		else:
 			rate = self.elngRateFactor * self.ribosomeElongationRateDict[
 				current_media_id].asNumber(units.aa / units.s)
-			self.ribosomeElongationRate = np.min([self.base_elongation_rate, rate])
+			self.ribosomeElongationRate = np.min([self.basal_elongation_rate, rate])
 
 		# If there are no active ribosomes, return immediately
 		if self.activeRibosomes.total_counts()[0] == 0:

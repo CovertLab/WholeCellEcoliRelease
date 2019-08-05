@@ -212,11 +212,11 @@ class Translation(object):
 			for index in self.ribosomal_proteins.values()
 			if index >= 0], dtype=np.int64)
 
-		self.base_elongation_rate = sim_data.constants.ribosomeElongationRateBase.asNumber(units.aa / units.s)
+		self.basal_elongation_rate = sim_data.constants.ribosomeElongationRateBasal.asNumber(units.aa / units.s)
 		self.max_elongation_rate = sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s)
 		self.elongation_rates = np.full(
 			self.protein_ids.shape,
-			self.base_elongation_rate,
+			self.basal_elongation_rate,
 			dtype=np.int64)
 
 		self.elongation_rates[self.rprotein_indexes] = self.max_elongation_rate

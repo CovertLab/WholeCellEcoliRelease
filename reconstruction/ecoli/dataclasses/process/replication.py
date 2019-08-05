@@ -190,13 +190,13 @@ class Replication(object):
 
 		return relative_coordinates
 	def _build_elongation_rates(self, raw_data, sim_data):
-		self.base_elongation_rate = int(
+		self.basal_elongation_rate = int(
 			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
 			units.nt / units.s)))
 
 		self.elongation_rates = np.full(
 			self.replication_sequences.shape[0],
-			self.base_elongation_rate,
+			self.basal_elongation_rate,
 			dtype=np.int64)
 
 	def make_elongation_rates(self, replisomes, base, time_step):
