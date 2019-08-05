@@ -85,18 +85,9 @@ class RunSimulation(scriptBase.ScriptBase):
 				nutrientTimeSeries, and param_sensitivity.
 				Default = wildtype 0 0''')
 		parser.add_argument(
-			'-q', '--require-variants', type=bool, default=False,
-			help='''true => require the sim_data variant(s) specified by the
-				--variant option to already exist; false => make the variant(s).
-				Run makeVariants.py to make sim_data variants.''')
-		parser.add_argument(
 			'-g', '--generations', type=int, default=1,
 			help='Number of cell generations to run. (Single daughters only.)'
 				 ' Default = 1')
-		parser.add_argument(
-			'-z', '--total-gens', type=int,
-			help='(int) Total number of generations to write into the'
-				 ' metadata.json file. Default = the value of --generations.')
 		parser.add_argument(
 			'-s', '--seed', type=int, default=0,
 			help='First cell simulation seed. Default = 0')
