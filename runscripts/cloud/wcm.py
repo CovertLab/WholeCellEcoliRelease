@@ -318,21 +318,6 @@ class RunWcm(scriptBase.ScriptBase):
 			unambiguous prefix.'''
 
 	def define_parameters(self, parser):
-		def add_option(name, key, datatype, help):
-			"""Add an option with the given name and datatype to the parser using
-			DEFAULT_SIMULATION_KWARGS[key] for the default value.
-			"""
-			default = DEFAULT_SIMULATION_KWARGS[key]
-			self.define_option(parser, name, datatype, default, help)
-		def add_bool_option(name, key, help):
-			"""Add a boolean option parameter with the given name to the parser
-			using DEFAULT_SIMULATION_KWARGS[key] for the default value. The CLI
-			input can be `--name`, `--no_name`, `--name true`, `--name false`,
-			`--name 1`, `--name 0`, `--name=true`, etc.
-			"""
-			self.define_parameter_bool(
-				parser, name, DEFAULT_SIMULATION_KWARGS[key], help)
-
 		self.define_option(parser, 'description', str, '',
 			help='A simulation description to append to the output folder name.')
 		self.define_parameter_bool(parser, 'verbose', True,
@@ -370,44 +355,63 @@ class RunWcm(scriptBase.ScriptBase):
 				Default = wildtype 0 0''')
 
 		# Simulation
-		parser.add_argument('-g', '--generations', type=int, default=1,
+		parser.add_argument(
+			'-g', '--generations', type=int, default=1,
 			help='Number of cell generations to run. Set it to 0 to just run'
 				 ' Parca and make-variants with no sim generations or analysis.'
 				 ' Default = 1')
-		parser.add_argument('-i', '--init_sims', type=int, default=1,
+		parser.add_argument(
+			'-i', '--init_sims', type=int, default=1,
 			help='(int; 1) Number of initial sims (seeds) per variant.'
 				 ' Default = 1')
-		parser.add_argument('-t', '--timeline', type=str, default='0 minimal',
+		parser.add_argument(
+			'-l', '--timeline', type=str, default='0 minimal',
 			help='set timeline. Default = "0 minimal". See'
 				 ' environment/condition/make_media.py, make_timeline() for'
 				 ' timeline formatting details')
-		add_option('length_sec', 'lengthSec', int,
+		parser.add_argument(
+			'-t', '--length-sec', default=DEFAULT_SIMULATION_KWARGS['lengthSec'], type=int,
 			help='The maximum simulation time, in seconds. Useful for short'
 				 ' simulations; not so useful for multiple generations.'
 				 ' Default is 3 hours')
-		add_option('timestep_safety_frac', 'timeStepSafetyFraction', float,
+		parser.add_argument(
+			'-f', '--timestep-safety-frac',
+			default=DEFAULT_SIMULATION_KWARGS['timeStepSafetyFraction'], type=float,
 			help='Scale the time step by this factor if conditions are'
 				 ' favorable, up the the limit of the max time step')
-		add_option('timestep_max', 'maxTimeStep', float,
+		parser.add_argument(
+			'-x', '--timestep-max', default=DEFAULT_SIMULATION_KWARGS['maxTimeStep'], type=float,
 			help='the maximum time step, in seconds')
-		add_option('timestep_update_freq', 'updateTimeStepFreq', int,
-			help='frequency at which the time step is updated')
-		add_bool_option('mass_distribution', 'massDistribution',
+		parser.add_argument(
+			'-u', '--timestep-update-freq', default=DEFAULT_SIMULATION_KWARGS['updateTimeStepFreq'], type=int,
+			help='frequency at which the time step is updated')  # TODO: explain
+		parser.add_argument(
+			'-m', '--mass-distribution', default=DEFAULT_SIMULATION_KWARGS['massDistribution'], type=bool,
 			help='If true, a mass coefficient is drawn from a normal distribution'
 				 ' centered on 1; otherwise it is set equal to 1')
-		add_bool_option('growth_rate_noise', 'growthRateNoise',
+		parser.add_argument(
+			'-o', '--growth-rate-noise', default=DEFAULT_SIMULATION_KWARGS['growthRateNoise'], type=bool,
 			help='If true, a growth rate coefficient is drawn from a normal'
 				 ' distribution centered on 1; otherwise it is set equal to 1')
-		add_bool_option('d_period_division', 'dPeriodDivision',
+		parser.add_argument(
+			'-d', '--d-period-division', default=DEFAULT_SIMULATION_KWARGS['dPeriodDivision'], type=bool,
 			help='If true, ends simulation once D period has occurred after'
 				 ' chromosome termination; otherwise simulation terminates once'
 				 ' a given mass has been added to the cell')
-		add_bool_option('translation_supply', 'translationSupply',
+		parser.add_argument(
+			'-e', '--variable-elongation-transcription', default=DEFAULT_SIMULATION_KWARGS['variable_elongation_transcription'], type=bool,
+			help='If true, runs various transcripts at different elongation rates')
+		parser.add_argument(
+			'-a', '--variable-elongation-translation', default=DEFAULT_SIMULATION_KWARGS['variable_elongation_translation'], type=bool,
+			help='If true, translates various transcripts at different elongation rates')
+		parser.add_argument(
+			'-y', '--translation-supply', default=DEFAULT_SIMULATION_KWARGS['translationSupply'], type=bool,
 			help='If true, the ribosome elongation rate is limited by the'
 				 ' condition specific rate of amino acid supply; otherwise the'
 				 ' elongation rate is set by condition')
-		add_bool_option('trna_charging', 'trna_charging',
-			help='if true, tRNA charging reactions are modeled and the ribosome'
+		parser.add_argument(
+			'-r', '--trna-charging', default=DEFAULT_SIMULATION_KWARGS['trna_charging'], type=bool,
+			help='if True, tRNA charging reactions are modeled and the ribosome'
 				 ' elongation rate is set by the amount of charged tRNA	present.'
 				 ' This option will override TRANSLATION_SUPPLY in the simulation.')
 

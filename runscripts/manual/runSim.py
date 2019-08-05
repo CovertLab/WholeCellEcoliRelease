@@ -129,7 +129,7 @@ class RunSimulation(scriptBase.ScriptBase):
 			help='If true, a mass coefficient is drawn from a normal distribution'
 				 ' centered on 1; otherwise it is set equal to 1')
 		parser.add_argument(
-			'-w', '--growth-rate-noise', default=DEFAULT_SIMULATION_KWARGS['growthRateNoise'], type=bool,
+			'-o', '--growth-rate-noise', default=DEFAULT_SIMULATION_KWARGS['growthRateNoise'], type=bool,
 			help='If true, a growth rate coefficient is drawn from a normal'
 				 ' distribution centered on 1; otherwise it is set equal to 1')
 		parser.add_argument(
@@ -138,7 +138,7 @@ class RunSimulation(scriptBase.ScriptBase):
 				 ' chromosome termination; otherwise simulation terminates once'
 				 ' a given mass has been added to the cell')
 		parser.add_argument(
-			'-p', '--variable-elongation-transcription', default=DEFAULT_SIMULATION_KWARGS['variable_elongation_transcription'], type=bool,
+			'-e', '--variable-elongation-transcription', default=DEFAULT_SIMULATION_KWARGS['variable_elongation_transcription'], type=bool,
 			help='If true, runs various transcripts at different elongation rates')
 		parser.add_argument(
 			'-a', '--variable-elongation-translation', default=DEFAULT_SIMULATION_KWARGS['variable_elongation_translation'], type=bool,
@@ -149,7 +149,7 @@ class RunSimulation(scriptBase.ScriptBase):
 				 ' condition specific rate of amino acid supply; otherwise the'
 				 ' elongation rate is set by condition')
 		parser.add_argument(
-			'-c', '--trna-charging', default=DEFAULT_SIMULATION_KWARGS['trna_charging'], type=bool,
+			'-r', '--trna-charging', default=DEFAULT_SIMULATION_KWARGS['trna_charging'], type=bool,
 			help='if True, tRNA charging reactions are modeled and the ribosome'
 				 ' elongation rate is set by the amount of charged tRNA	present.'
 				 ' This option will override TRANSLATION_SUPPLY in the simulation.')
