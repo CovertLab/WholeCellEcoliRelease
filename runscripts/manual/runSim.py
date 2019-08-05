@@ -92,65 +92,61 @@ class RunSimulation(scriptBase.ScriptBase):
 			'-s', '--seed', type=int, default=0,
 			help='First cell simulation seed. Default = 0')
 		parser.add_argument(
-			'-n', '--init-sims', type=int, default=1,
+			'--init-sims', type=int, default=1,
 			help='Number of initial sims (seeds) per variant.')
 		parser.add_argument(
-			'-l', '--timeline', type=str, default='0 minimal',
+			'--timeline', type=str, default=DEFAULT_SIMULATION_KWARGS['timeline'],
 			help='set timeline. Default = "0 minimal". See'
 				 ' environment/condition/make_media.py, make_timeline() for'
 				 ' timeline formatting details')
 		parser.add_argument(
-			'-t', '--length-sec', default=DEFAULT_SIMULATION_KWARGS['lengthSec'], type=int,
+			'--length-sec', default=DEFAULT_SIMULATION_KWARGS['lengthSec'], type=int,
 			help='The maximum simulation time, in seconds. Useful for short'
 				 ' simulations; not so useful for multiple generations.'
 				 ' Default is 3 hours')
 		parser.add_argument(
-			'-f', '--timestep-safety-frac',
+			'--timestep-safety-frac',
 			default=DEFAULT_SIMULATION_KWARGS['timeStepSafetyFraction'], type=float,
 			help='Scale the time step by this factor if conditions are'
 				 ' favorable, up the the limit of the max time step')
 		parser.add_argument(
-			'-x', '--timestep-max', default=DEFAULT_SIMULATION_KWARGS['maxTimeStep'], type=float,
+			'--timestep-max', default=DEFAULT_SIMULATION_KWARGS['maxTimeStep'], type=float,
 			help='the maximum time step, in seconds')
 		parser.add_argument(
-			'-u', '--timestep-update-freq', default=DEFAULT_SIMULATION_KWARGS['updateTimeStepFreq'], type=int,
+			'--timestep-update-freq', default=DEFAULT_SIMULATION_KWARGS['updateTimeStepFreq'], type=int,
 			help='frequency at which the time step is updated')  # TODO: explain
 		parser.add_argument(
-			'-m', '--mass-distribution', default=DEFAULT_SIMULATION_KWARGS['massDistribution'], type=bool,
+			'--mass-distribution', default=DEFAULT_SIMULATION_KWARGS['massDistribution'], type=bool,
 			help='If true, a mass coefficient is drawn from a normal distribution'
 				 ' centered on 1; otherwise it is set equal to 1')
 		parser.add_argument(
-			'-o', '--growth-rate-noise', default=DEFAULT_SIMULATION_KWARGS['growthRateNoise'], type=bool,
+			'--growth-rate-noise', default=DEFAULT_SIMULATION_KWARGS['growthRateNoise'], type=bool,
 			help='If true, a growth rate coefficient is drawn from a normal'
 				 ' distribution centered on 1; otherwise it is set equal to 1')
 		parser.add_argument(
-			'-d', '--d-period-division', default=DEFAULT_SIMULATION_KWARGS['dPeriodDivision'], type=bool,
+			'--d-period-division', default=DEFAULT_SIMULATION_KWARGS['dPeriodDivision'], type=bool,
 			help='If true, ends simulation once D period has occurred after'
 				 ' chromosome termination; otherwise simulation terminates once'
 				 ' a given mass has been added to the cell')
 		parser.add_argument(
-			'-e', '--variable-elongation-transcription', default=DEFAULT_SIMULATION_KWARGS['variable_elongation_transcription'], type=bool,
+			'--variable-elongation-transcription', default=DEFAULT_SIMULATION_KWARGS['variable_elongation_transcription'], type=bool,
 			help='If true, runs various transcripts at different elongation rates')
 		parser.add_argument(
-			'-a', '--variable-elongation-translation', default=DEFAULT_SIMULATION_KWARGS['variable_elongation_translation'], type=bool,
+			'--variable-elongation-translation', default=DEFAULT_SIMULATION_KWARGS['variable_elongation_translation'], type=bool,
 			help='If true, translates various transcripts at different elongation rates')
 		parser.add_argument(
-			'-y', '--translation-supply', default=DEFAULT_SIMULATION_KWARGS['translationSupply'], type=bool,
+			'--translation-supply', default=DEFAULT_SIMULATION_KWARGS['translationSupply'], type=bool,
 			help='If true, the ribosome elongation rate is limited by the'
 				 ' condition specific rate of amino acid supply; otherwise the'
 				 ' elongation rate is set by condition')
 		parser.add_argument(
-			'-r', '--trna-charging', default=DEFAULT_SIMULATION_KWARGS['trna_charging'], type=bool,
+			'--trna-charging', default=DEFAULT_SIMULATION_KWARGS['trna_charging'], type=bool,
 			help='if True, tRNA charging reactions are modeled and the ribosome'
 				 ' elongation rate is set by the amount of charged tRNA	present.'
 				 ' This option will override TRANSLATION_SUPPLY in the simulation.')
 
 	def parse_args(self):
 		args = super(RunSimulation, self).parse_args()
-
-		if args.total_gens is None:
-			args.total_gens = args.generations
-
 		return args
 
 	def run(self, args):
@@ -171,7 +167,7 @@ class RunSimulation(scriptBase.ScriptBase):
 
 		# Write the metadata file.
 		cli_metadata_args = data.select_keys(vars(args),
-			('total_gens', 'timeline', 'mass_distribution', 'growth_rate_noise',
+			('timeline', 'mass_distribution', 'growth_rate_noise',
 			'd_period_division', 'translation_supply', 'trna_charging'))
 		metadata = dict(cli_metadata_args,
 			git_hash=fp.run_cmdline("git rev-parse HEAD") or '--',
@@ -196,20 +192,16 @@ class RunSimulation(scriptBase.ScriptBase):
 			variant_sim_data_modified_file = os.path.join(
 				variant_sim_data_directory, constants.SERIALIZED_SIM_DATA_MODIFIED)
 
-			if args.require_variants:
-				fp.verify_file_exists(
-					variant_sim_data_modified_file, 'Run makeVariants?')
-			else:
-				variant_metadata_directory = os.path.join(variant_directory,
-					VariantSimDataTask.OUTPUT_SUBDIR_METADATA)
-				task = VariantSimDataTask(
-					variant_function=variant_type,
-					variant_index=i,
-					input_sim_data=sim_data_file,
-					output_sim_data=variant_sim_data_modified_file,
-					variant_metadata_directory=variant_metadata_directory,
-					)
-				task.run_task({})
+			variant_metadata_directory = os.path.join(
+				variant_directory,
+				VariantSimDataTask.OUTPUT_SUBDIR_METADATA)
+			task = VariantSimDataTask(
+				variant_function=variant_type,
+				variant_index=i,
+				input_sim_data=sim_data_file,
+				output_sim_data=variant_sim_data_modified_file,
+				variant_metadata_directory=variant_metadata_directory)
+			task.run_task({})
 
 			for j in xrange(args.seed, args.seed + args.init_sims):  # init sim seeds
 				seed_directory = fp.makedirs(variant_directory, "%06d" % j)
