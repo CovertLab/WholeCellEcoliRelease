@@ -11,6 +11,8 @@ import os
 
 from runscripts.manual.analysisBase import AnalysisBase
 from wholecell.fireworks.firetasks.analysisVariant import AnalysisVariantTask
+from wholecell.fireworks.firetasks.parca import ParcaTask
+from wholecell.utils import constants
 
 
 class AnalysisVariant(AnalysisBase):
@@ -31,9 +33,12 @@ class AnalysisVariant(AnalysisBase):
 
 	def run(self, args):
 		output_dir = os.path.join(args.sim_path, self.OUTPUT_SUBDIR)
+		input_sim_data = os.path.join(args.sim_path,
+			ParcaTask.OUTPUT_SUBDIR, constants.SERIALIZED_SIM_DATA_FILENAME)
 
 		task = AnalysisVariantTask(
 			input_directory=args.sim_path,
+			input_sim_data=input_sim_data,
 			input_validation_data=args.input_validation_data,
 			output_plots_directory=output_dir,
 			metadata=args.metadata,
