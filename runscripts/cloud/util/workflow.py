@@ -1,5 +1,8 @@
 """Generic Sisyphus/Gaia/Google Cloud workflow builder."""
 
+# TODO(jerry): Use different utilities than os.path functions to construct
+#  paths to use inside the linux containers when the builder runs on Windows.
+
 from __future__ import absolute_import, division, print_function
 
 from collections import OrderedDict
@@ -24,36 +27,27 @@ GAIA_CONFIG = {'gaia_host': 'localhost:24442'}
 
 STDOUT_PATH = 'STDOUT'  # special pathname that captures stdout + stderror
 
-SPECIAL_PATHS = {  # map special pathnames to storage names
-	STDOUT_PATH: 'stdout.txt',
-	}
-
 MAX_WORKERS = 500  # don't launch more than this many worker nodes at a time
 
 
 def _rebase(path, internal_prefix, storage_prefix):
 	# type: (str, str, str) -> str
-	"""Return a path, remapping internal_prefix to storage_prefix and handling
-	special paths."""
-	head, tail = os.path.split(path)
-	if tail in SPECIAL_PATHS:
-		path = os.path.join(head, SPECIAL_PATHS[tail])
-
+	"""Return a path rebased from internal_prefix to storage_prefix."""
 	new_path = os.path.join(storage_prefix, os.path.relpath(path, internal_prefix))
 
 	assert '..' not in new_path, (
-		'''Can't rebase path "{}" that doesn't start with internal_prefix "{}"'''.format(
-			path, internal_prefix))
+		'''Can't rebase path "{}" that doesn't start with internal_prefix "{}"'''
+			.format(path, internal_prefix))
 	return new_path
 
-def _keyify(paths, fn):
+def _keyify(paths, fn=lambda path: path):
 	# type: (Iterable[str], Callable[[str], str]) -> Dict[str, str]
 	"""Map sequential keys to fn(path)."""
 	return {str(i): fn(path) for i, path in enumerate(paths)}
 
 def _copy_as_list(value):
 	# type: (Iterable[str]) -> List[str]
-	"""Copy an iterable of strings as a list."""
+	"""Copy an iterable of strings as a list. Fail fast on improper input."""
 	assert isinstance(value, Iterable) and not isinstance(value, basestring), (
 		'Expected a list, not {}'.format(repr(value)))
 	result = list(value)
@@ -65,10 +59,12 @@ def _copy_path_list(value):
 	# type: (Iterable[str]) -> List[str]
 	"""Copy an iterable of strings as a list and check that they're absolute paths
 	to catch goofs like `outputs=plot_dir` or `outputs=['out/metadata.json']`.
-	Sisyphus needs absolute paths to mount into the Docker container.
+	Sisyphus needs absolute paths to mount into the Docker container. Fail fast
+	on improper input. Handle the the STDOUT prefix '>'.
 	"""
 	result = _copy_as_list(value)
 	for path in result:
+		path = path.lstrip('>')
 		assert os.path.isabs(path), 'Expected an absolute path, not {}'.format(path)
 	return result
 
@@ -82,14 +78,16 @@ def _launch_workers(worker_names):
 class Task(object):
 	"""A workflow task builder."""
 
-	def __init__(self, upstream_tasks=(), name='', image='', command=(),
+	def __init__(self, name='', image='', command=(),
 			inputs=(), outputs=(), storage_prefix='', internal_prefix=''):
-		# type: (Iterable[Task], str, str, Iterable[str], Iterable[str], Iterable[str], str, str) -> None
+		# type: (str, str, Iterable[str], Iterable[str], Iterable[str], str, str) -> None
 		"""Construct a Workflow Task.
-		upstream_tasks and the `>>` operator are convenient ways to add inputs.
 
-		An output path like 'local_prefix/subdir-path/STDOUT' will capture
-		stdout and store it to 'storage_prefix/subdir-path/stdout.txt'.
+		input and output paths are internal to the worker container and get
+		rebased from internal_prefix to storage_prefix for the storage paths.
+
+		An output path that starts with '>' will capture a log from stdout +
+		stderr. The rest of the path will get rebased to a storage path.
 		"""
 		assert name, 'Every task needs a name'
 		assert image, 'Every task needs a Docker image name'
@@ -105,30 +103,18 @@ class Task(object):
 		self.storage_prefix = storage_prefix
 		self.internal_prefix = internal_prefix
 
-		for task in upstream_tasks:
-			task >> self
-
-	def __rshift__(self, t2):
-		# type: (Task) -> Task
-		"""Set downstream: `t1 >> t2` adds `t1`'s outputs to `t2`'s inputs.
-		Return `t2` for chaining.
-		"""
-		t2.inputs.extend(self.outputs)
-		return t2
-
 	def build_command(self):
 		# type: () -> Dict[str, Any]
 		"""Build a Gaia Command to run this Task."""
 		def specialize(path):
 			# type: (str) -> str
-			tail = os.path.basename(path)
-			return tail if tail in SPECIAL_PATHS else path
+			return STDOUT_PATH if path.startswith('>') else path
 
 		return dict(
 			name=self.name,
 			image=self.image,
 			command=self.command,
-			inputs=_keyify(self.inputs, specialize),
+			inputs=_keyify(self.inputs),
 			outputs=_keyify(self.outputs, specialize),
 			vars={})
 
@@ -137,7 +123,7 @@ class Task(object):
 		"""Build a Gaia Step to run this Task."""
 		def rebase(path):
 			# type: (str) -> str
-			return _rebase(path, self.internal_prefix, self.storage_prefix)
+			return _rebase(path.lstrip('>'), self.internal_prefix, self.storage_prefix)
 
 		return dict(
 			name=self.name,
@@ -171,6 +157,9 @@ class Workflow(object):
 	def add_task(self, task):
 		# type: (Task) -> Task
 		"""Add a Task object. It creates a workflow step. Return it for chaining."""
+		if task.name in self._tasks:
+			print('Warning: Replacing the task named "{}"'.format(task.name))
+
 		self._tasks[task.name] = task
 		self.log_info('    Added step: {}'.format(task.name))
 		return task
