@@ -176,7 +176,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		# Load one instance of sim_data to get number of parameters and ids
 		global sim_data
 		global validation_data
-		with open(os.path.join(inputDir, 'kb', constants.SERIALIZED_SIM_DATA_FILENAME), 'rb') as f:
+		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
 		with open(validationDataFile, 'rb') as f:
 			validation_data = cPickle.load(f)

@@ -27,6 +27,8 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 		filepath.makedirs(plotOutDir)
 
+		with open(simDataFile, 'rb') as f:
+			sim_data = cPickle.load(f)
 		with open(validationDataFile, 'rb') as f:
 			validation_data = cPickle.load(f)
 
@@ -34,8 +36,11 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		variants = ap.get_variants()
 
 		for variant in variants:
+			# Load modified variant sim_data
+			## Consider calculating variant difference and only loading
+			## sim_data once above for better performance.
 			with open(ap.get_variant_kb(variant), 'rb') as f:
-				sim_data = cPickle.load(f)
+				variant_sim_data = cPickle.load(f)
 
 			for sim_dir in ap.get_cells(variant=[variant]):
 				simOutDir = os.path.join(sim_dir, "simOut")

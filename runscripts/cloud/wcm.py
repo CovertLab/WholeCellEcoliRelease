@@ -271,6 +271,7 @@ class WcmWorkflow(Workflow):
 			variant_plot_dir = self.internal(AnalysisBase.OUTPUT_SUBDIR, '')
 			python_args = dict(
 				input_directory=self.internal(''),
+				input_sim_data=sim_data_file,
 				input_validation_data=validation_data_file,
 				output_plots_directory=variant_plot_dir,
 				plots_to_run=args['plot'],

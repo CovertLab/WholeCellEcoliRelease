@@ -503,6 +503,7 @@ if RUN_AGGREGATE_ANALYSIS:
 	fw_variant_analysis = Firework(
 		AnalysisVariantTask(
 			input_directory = os.path.join(INDIV_OUT_DIRECTORY),
+			input_sim_data = os.path.join(KB_DIRECTORY, filename_sim_data),
 			input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
 			output_plots_directory = VARIANT_PLOT_DIRECTORY,
 			plots_to_run = PLOTS,
