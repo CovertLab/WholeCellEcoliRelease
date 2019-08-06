@@ -25,12 +25,12 @@ def demo(worker_count=0, dump=False):
 	wf = Workflow(name)
 
 	# Build the workflow.
-	lines_filename = '/tmp/output.log'
+	lines_filename = '/tmp/lines.txt'
 	code = ("with open('" + lines_filename + "', 'w') as f:\n"
         "  for i in range(100):\n"
         "    f.write('This is line {}\\n'.format(i))\n"
         "    print 'hello', i")
-	line_task = Task((),
+	line_task = Task(
 		name='lines',
 		image=DOCKER_IMAGE,
 		outputs=[lines_filename],
@@ -39,11 +39,11 @@ def demo(worker_count=0, dump=False):
 		command=['python', '-u', '-c', code])
 	wf.add_task(line_task)
 
-	count_task = Task((line_task,),
+	count_task = Task(
 		name='count',
 		image=DOCKER_IMAGE,
-		inputs=[],  # it also gets line_task's outputs
-		outputs=[os.path.join('/tmp', 'count', STDOUT_PATH)],
+		inputs=[lines_filename],
+		outputs=['>/tmp/count.txt'],
 		storage_prefix=storage_prefix,
 		internal_prefix='/tmp',
 		command=['wc', lines_filename])
