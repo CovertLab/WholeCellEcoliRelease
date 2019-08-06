@@ -170,9 +170,9 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		self.fracActiveRnap = self.fracActiveRnapDict[current_media_id]
 		self.rnaPolymeraseElongationRate = self.rnaPolymeraseElongationRateDict[current_media_id]
-		self.elongation_rates = sim_data.process.transcription.make_elongation_rates(
+		self.elongation_rates = self.make_elongation_rates(
 			self.randomState,
-			self.rnaPolymeraseElongationRate,
+			self.rnaPolymeraseElongationRate.asNumber(units.nt / units.s),
 			self.timeStepSec(),
 			self.variable_elongation)
 
@@ -208,8 +208,10 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		# Calculate RNA polymerases to activate based on probabilities
 		self.activationProb = self._calculateActivationProb(
-			self.fracActiveRnap, self.rnaLengths,
-			self.elongation_rates, TU_synth_probs)
+			self.fracActiveRnap,
+			self.rnaLengths,
+			(units.nt / units.s) * self.elongation_rates,
+			TU_synth_probs)
 		n_activated_rnap = np.int64(
 			self.activationProb * self.inactiveRnaPolys.count())
 
@@ -324,9 +326,8 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		timestep for one transcript
 		"""
 		allTranscriptionTimes = 1. / rnaPolymeraseElongationRates * rnaLengths
-		allTranscriptionTimestepCounts = np.ceil(
-			(1. / (self.timeStepSec() * units.s) * allTranscriptionTimes).asNumber()
-			)
+		timesteps = (1. / (self.timeStepSec() * units.s) * allTranscriptionTimes).asNumber()
+		allTranscriptionTimestepCounts = np.ceil(timesteps)
 		averageTranscriptionTimestepCounts = np.dot(
 			synthProb, allTranscriptionTimestepCounts)
 		expectedTerminationRate = 1. / averageTranscriptionTimestepCounts
