@@ -12,6 +12,7 @@ import collections
 
 from wholecell.utils import units
 from wholecell.utils.polymerize import polymerize
+from wholecell.utils.random import stochasticRound
 
 MAX_TIMESTEP_LEN = 2
 
@@ -194,15 +195,10 @@ class Replication(object):
 			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
 			units.nt / units.s)))
 
-		self.elongation_rates = np.full(
-			self.replication_sequences.shape[0],
-			self.basal_elongation_rate,
-			dtype=np.int64)
-
-	def make_elongation_rates(self, replisomes, base, time_step):
+	def make_elongation_rates(self, random, replisomes, base, time_step):
 		rates = np.full(
 			replisomes,
-			np.rint(base * time_step),
+			stochasticRound(random, base * time_step),
 			dtype=np.int64)
 
 		return rates

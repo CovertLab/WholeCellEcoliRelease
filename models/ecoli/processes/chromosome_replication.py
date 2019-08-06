@@ -77,6 +77,8 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.basal_elongation_rate = int(
 			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
 			units.nt / units.s)))
+		self.make_elongation_rates = sim_data.process.replication.make_elongation_rates
+
 
 	def calculateRequest(self):
 		# Get total count of existing oriC's
@@ -117,10 +119,11 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		fork_coordinates = active_replisomes.attr("coordinates")
 		sequence_length = np.abs(np.repeat(fork_coordinates, 2))
 
-		self.elongation_rates = np.full(
+		self.elongation_rates = self.make_elongation_rates(
+			self.randomState,
 			len(self.sequences),
 			np.rint(self.basal_elongation_rate * self.timeStepSec()),
-			dtype=np.int64)
+			self.timeStepSec())
 
 		sequences = buildSequences(
 			self.sequences,

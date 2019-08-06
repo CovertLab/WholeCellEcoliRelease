@@ -40,27 +40,28 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		super(PolypeptideElongation, self).initialize(sim, sim_data)
 
 		constants = sim_data.constants
-		self.translation = sim_data.process.translation
+		translation = sim_data.process.translation
 		transcription = sim_data.process.transcription
 
 		# Load parameters
 		self.nAvogadro = constants.nAvogadro
 		self.cellDensity = constants.cellDensity
 		self.aaNames = sim_data.moleculeGroups.aaIDs
-		proteinIds = self.translation.monomerData['id']
-		self.proteinLengths = self.translation.monomerData["length"].asNumber()
-		self.proteinSequences = self.translation.translationSequences
-		self.aaWeightsIncorporated = self.translation.translationMonomerWeights
-		self.endWeight = self.translation.translationEndWeight
+		proteinIds = translation.monomerData['id']
+		self.proteinLengths = translation.monomerData["length"].asNumber()
+		self.proteinSequences = translation.translationSequences
+		self.aaWeightsIncorporated = translation.translationMonomerWeights
+		self.endWeight = translation.translationEndWeight
 		self.gtpPerElongation = constants.gtpPerTranslation
 		self.variable_elongation = sim._variable_elongation_translation
+		self.make_elongation_rates = translation.make_elongation_rates
 
 		self.basal_elongation_rate = constants.ribosomeElongationRateBasal.asNumber(units.aa / units.s)
 		elongation_max = constants.ribosomeElongationRateMax if self.variable_elongation else constants.ribosomeElongationRateBasal
 		self.maxRibosomeElongationRate = float(elongation_max.asNumber(units.aa / units.s))
 
 		self.ribosomeElongationRate = float(sim_data.growthRateParameters.ribosomeElongationRate.asNumber(units.aa / units.s))
-		self.ribosomeElongationRateDict = self.translation.ribosomeElongationRateDict
+		self.ribosomeElongationRateDict = translation.ribosomeElongationRateDict
 
 		self.translation_aa_supply = sim_data.translationSupplyRate
 
@@ -157,7 +158,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 					'proteinIndex', 'peptideLength'
 					)
 
-		self.elongation_rates = self.translation.make_elongation_rates(
+		self.elongation_rates = self.make_elongation_rates(
 			self.randomState,
 			self.ribosomeElongationRate,
 			self.timeStepSec(),
@@ -303,7 +304,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			aa_counts_for_translation,
 			10000000, # Set to a large number, the limit is now taken care of in metabolism
 			self.randomState,
-			self.elongation_rates)
+			self.elongation_rates[proteinIndexes])
 
 		sequenceElongations = result.sequenceElongation
 		aas_used = result.monomerUsages

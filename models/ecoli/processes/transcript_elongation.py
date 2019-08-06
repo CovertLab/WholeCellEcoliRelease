@@ -59,7 +59,6 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.idx_16Srrna = np.where(sim_data.process.transcription.rnaData['isRRna16S'])[0]
 		self.idx_23Srrna = np.where(sim_data.process.transcription.rnaData['isRRna23S'])[0]
 		self.idx_5Srrna = np.where(sim_data.process.transcription.rnaData['isRRna5S'])[0]
-		self.transcription = sim_data.process.transcription
 
 		# Views
 		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
@@ -71,6 +70,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.fragmentBases = self.bulkMoleculesView(
 			[id_ + "[c]" for id_ in sim_data.moleculeGroups.fragmentNT_IDs])
 		self.variable_elongation = sim._variable_elongation_transcription
+		self.make_elongation_rates = sim_data.process.transcription.make_elongation_rates
 
 
 	def calculateRequest(self):
@@ -79,7 +79,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		self.rnapElongationRate = self.rnaPolymeraseElongationRateDict[current_media_id].asNumber(units.nt / units.s)
 
-		self.elongation_rates = self.transcription.make_elongation_rates(
+		self.elongation_rates = self.make_elongation_rates(
 			self.randomState,
 			self.rnapElongationRate,
 			self.timeStepSec(),
@@ -253,7 +253,6 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 			base_counts = np.zeros(4, dtype=np.int64)
 
-			actual_seqs = 0
 			for sl, seq in izip(incomplete_sequence_lengths, incomplete_sequences):
 				base_counts += np.bincount(seq[:sl], minlength = 4)
 

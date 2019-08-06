@@ -66,6 +66,12 @@ def make_elongation_rates_flat(
 		amplified,
 		ceiling,
 		variable_elongation=False):
+	'''
+	Create an array of rates where all values are at a base rate except for a set which is at another rate.
+
+	Args:
+	    size (int) - 
+	'''
 
 	rates = np.full(
 		size,
@@ -86,9 +92,13 @@ def make_elongation_rates(
 		time_step,
 		variable_elongation=False):
 
-	rates = make_elongation_rates_flat(
-		size, base, amplified, ceiling, variable_elongation)
-	rates = np.min([rates, stochasticRound(random, rates * time_step)], axis=0)
+	rates = make_elongation_rates_flat(size, base, amplified, ceiling, variable_elongation)
+
+	if random:
+		rates = np.min([rates, stochasticRound(random, rates * time_step)], axis=0)
+	else:
+		rates = np.rint(rates)
+
 	return np.array(rates, dtype=np.int64)
 
 def randomlySelectRows(randomState, mat, prob):

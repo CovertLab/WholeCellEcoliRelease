@@ -461,10 +461,10 @@ class Transcription(object):
 			'{}[{}]'.format(rna['id'], rna['location'][0]): index
 			for index, rna in enumerate(raw_data.rnas)}
 
-		self.s30_16sRRNA = sim_data.moleculeGroups.s30_16sRRNA
-		self.s50_5sRRNA = sim_data.moleculeGroups.s50_5sRRNA
-		self.s50_23sRRNA = sim_data.moleculeGroups.s50_23sRRNA
-		self.RRNA_ids = self.s30_16sRRNA + self.s50_5sRRNA + self.s50_23sRRNA
+		s30_16sRRNA = sim_data.moleculeGroups.s30_16sRRNA
+		s50_5sRRNA = sim_data.moleculeGroups.s50_5sRRNA
+		s50_23sRRNA = sim_data.moleculeGroups.s50_23sRRNA
+		self.RRNA_ids = s30_16sRRNA + s50_5sRRNA + s50_23sRRNA
 
 		self.RRNA_indexes = [
 			self.rna_indexes[rrna_id]
