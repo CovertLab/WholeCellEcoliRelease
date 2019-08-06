@@ -98,7 +98,8 @@ class WcmWorkflow(Workflow):
 			args['workers'] = variant_count * args['init_sims']
 
 		metadata_file = self.internal('metadata', constants.JSON_METADATA_FILE)
-		metadata = select_keys(args,
+		metadata = select_keys(
+			args,
 			('generations', 'mass_distribution', 'growth_rate_noise',
 			'd_period_division', 'translation_supply', 'trna_charging'),
 			git_hash=fp.run_cmdline("git rev-parse HEAD"),
@@ -106,6 +107,7 @@ class WcmWorkflow(Workflow):
 			description=args['description'] or 'WCM',
 			time=self.timestamp,
 			variant=variant_type,
+			total_gens=args['generations'],
 			total_variants=str(variant_count))
 
 		python_args = dict(output_file=metadata_file, data=metadata)
@@ -355,12 +357,12 @@ class RunWcm(scriptBase.ScriptBase):
 
 		# Simulation
 		parser.add_argument(
-			'--generations', type=int, default=1,
+			'-g', '--generations', type=int, default=1,
 			help='Number of cell generations to run. Set it to 0 to just run'
 				 ' Parca and make-variants with no sim generations or analysis.'
 				 ' Default = 1')
 		parser.add_argument(
-			'--init_sims', type=int, default=1,
+			'-i', '--init_sims', type=int, default=1,
 			help='(int; 1) Number of initial sims (seeds) per variant.'
 				 ' Default = 1')
 		parser.add_argument(
@@ -369,7 +371,7 @@ class RunWcm(scriptBase.ScriptBase):
 				 ' environment/condition/make_media.py, make_timeline() for'
 				 ' timeline formatting details')
 		parser.add_argument(
-			'--length-sec', default=DEFAULT_SIMULATION_KWARGS['lengthSec'], type=int,
+			'-t', '--length-sec', default=DEFAULT_SIMULATION_KWARGS['lengthSec'], type=int,
 			help='The maximum simulation time, in seconds. Useful for short'
 				 ' simulations; not so useful for multiple generations.'
 				 ' Default is 3 hours')

@@ -169,7 +169,8 @@ class RunSimulation(scriptBase.ScriptBase):
 		cli_metadata_args = data.select_keys(vars(args),
 			('timeline', 'mass_distribution', 'growth_rate_noise',
 			'd_period_division', 'translation_supply', 'trna_charging'))
-		metadata = dict(cli_metadata_args,
+		metadata = dict(
+			cli_metadata_args,
 			git_hash=fp.run_cmdline("git rev-parse HEAD") or '--',
 			git_branch=fp.run_cmdline("git symbolic-ref --short HEAD") or '--',
 			description=description,
@@ -177,7 +178,7 @@ class RunSimulation(scriptBase.ScriptBase):
 			analysis_type=None,
 			variant=variant_type,
 			total_variants=str(variant_spec[2] + 1 - variant_spec[1]),
-			)
+			total_gens=args.generations)
 		metadata_dir = fp.makedirs(args.sim_path, 'metadata')
 		metadata_path = os.path.join(metadata_dir, constants.JSON_METADATA_FILE)
 		fp.write_json_file(metadata_path, metadata)
