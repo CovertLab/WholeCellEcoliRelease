@@ -74,6 +74,9 @@ def str_to_bool(s):
 		raise ValueError('Expected a bool, not %s' % s)
 	return s in {'true', '1'}
 
+def dashize(underscore):
+	return re.sub(r'_+', r'-', underscore)
+
 
 class ScriptBase(object):
 	"""Abstract base class for scripts. This defines a template where
@@ -145,27 +148,31 @@ class ScriptBase(object):
 		except argparse.ArgumentError:
 			pass  # ignore the conflict
 
-	def define_parameter_bool(self, parser, name, default, help):
+	def define_parameter_bool(self, parser, underscore, default, help):
 		# type: (argparse.ArgumentParser, str, Any, str) -> None
 		"""Add a boolean option parameter to the parser. The CLI input can be
-		`--name`, `--no_name`, `--name true`, `--name false`, `--name 1`,
-		`--name 0`, `--name=true`, etc. The default can be True or False, and
+		`--name`, or its inverse `--no_name`. The default can be True or False, and
 		changing it won't affect any of those explicit input forms. This method
 		adds the default value to the help text.
 		"""
+		name = dashize(underscore)
 		default = bool(default)
-		examples = 'true or 1' if default else 'false or 0'
 		group = parser.add_mutually_exclusive_group()
-		group.add_argument('--' + name, nargs='?', default=default,
-			const='true',  # needed for nargs='?'
-			type=str_to_bool,
-			help='({}; {}) {}'.format('bool', examples, help))
-		group.add_argument('--no_' + name, dest=name, action='store_false',
-			help='Like {}=0'.format(name))
+		group.add_argument(
+			'--' + name,
+			default=default,
+			action='store_true',
+			help='Default = {}. {}'.format(default, help))
+		group.add_argument(
+			'--no-' + name,
+			dest=underscore,
+			action='store_false',
+			help='Sets --{} to False'.format(name))
 
-	def define_option(self, parser, name, datatype, default, help):
+	def define_option(self, parser, underscore, datatype, default, help):
 		# type: (argparse.ArgumentParser, str, Callable, Any, str) -> None
 		"""Add an option with the given name and datatype to the parser."""
+		name = dashize(underscore)
 		parser.add_argument('--' + name,
 			type=datatype,
 			default=default,
@@ -200,7 +207,7 @@ class ScriptBase(object):
 		Call this in overridden define_parameters() methods as needed.
 		"""
 		int1 = int  # type: Callable
-		parser.add_argument('-v', '--variant_index', type=int1,
+		parser.add_argument('-v', '--variant-index', type=int1,
 			help='The simulation variant number (int), e.g. 1 to find a'
 				 ' subdirectory like "condition_000001".')
 
