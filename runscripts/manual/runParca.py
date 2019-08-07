@@ -46,22 +46,22 @@ class RunParca(scriptBase.ScriptBase):
 		parser.add_argument(
 			'--variable-elongation-transcription',
 			default=False,
-			type=bool,
+			action='store_true',
 			help='If true, runs various transcripts at different elongation rates')
 		parser.add_argument(
 			'--variable-elongation-translation',
 			default=False,
-			type=bool,
+			action='store_true',
 			help='If true, translates various transcripts at different elongation rates')
 		parser.add_argument(
 			'--ribosome-fitting',
 			default=True,
-			type=bool,
+			action='store_false',
 			help="Fit ribosome expression to protein synthesis demands")
 		parser.add_argument(
 			'--rnapoly-fitting',
 			default=True,
-			type=bool,
+			action='store_false',
 			help="Fit RNA polymerase expression to protein synthesis demands")
 
 	def parse_args(self):
