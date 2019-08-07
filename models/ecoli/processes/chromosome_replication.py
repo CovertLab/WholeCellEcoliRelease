@@ -122,7 +122,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.elongation_rates = self.make_elongation_rates(
 			self.randomState,
 			len(self.sequences),
-			np.rint(self.basal_elongation_rate * self.timeStepSec()),
+			self.basal_elongation_rate,
 			self.timeStepSec())
 
 		sequences = buildSequences(

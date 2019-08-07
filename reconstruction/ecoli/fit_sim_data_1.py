@@ -1312,7 +1312,7 @@ def setRibosomeCountsConstrainedByPhysiology(
 		proteinLengths,
 		elongation_rates,
 		netLossRate_protein,
-		proteinCounts)
+		proteinCounts).asNumber(units.aa / units.s)
 
 	# Minimum number of ribosomes needed
 	constraint1_ribosome30SCounts = (
@@ -1455,7 +1455,7 @@ def setRNAPCountsConstrainedByPhysiology(
 	nActiveRnapNeeded = calculateMinPolymerizingEnzymeByProductDistributionRNA(
 		rnaLengths,
 		elongation_rates,
-		rnaLossRate)
+		rnaLossRate).asNumber(units.nt / units.s)
 
 	nRnapsNeeded = nActiveRnapNeeded / sim_data.growthRateParameters.getFractionActiveRnap(doubling_time)
 
@@ -1983,7 +1983,7 @@ def calculateMinPolymerizingEnzymeByProductDistribution(
 		productLengths / elongationRates
 		* netLossRate
 		* productCounts)
-	return nPolymerizingEnzymeNeeded.asNumber(units.aa / units.s)
+	return nPolymerizingEnzymeNeeded
 
 def calculateMinPolymerizingEnzymeByProductDistributionRNA(productLengths, elongationRates, netLossRate):
 	"""
@@ -2018,9 +2018,8 @@ def calculateMinPolymerizingEnzymeByProductDistributionRNA(productLengths, elong
 
 	nPolymerizingEnzymeNeeded = units.sum(
 		productLengths / elongationRates
-		* netLossRate
-		)
-	return nPolymerizingEnzymeNeeded.asNumber(units.nt / units.s)
+		* netLossRate)
+	return nPolymerizingEnzymeNeeded
 
 def netLossRateFromDilutionAndDegradationProtein(doublingTime, degradationRates):
 	"""

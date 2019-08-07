@@ -228,7 +228,7 @@ class Test_library_performance(unittest.TestCase):
 	def test_int_dot_int(self):
 		"""Time NumPy int64 x int64 matrix dot()."""
 		N = np.random.random_integers(0, 9, size=(1000, 1000))
-		self.time_this(lambda: N.dot(N), 4.0)  # SLOW!
+		self.time_this(lambda: N.dot(N), 5.0)  # SLOW!
 
 	@noseAttrib.attr('performance')
 	def test_int_dot_floated_int(self):
