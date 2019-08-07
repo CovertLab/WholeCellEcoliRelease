@@ -14,11 +14,11 @@ from __future__ import division
 
 import warnings
 
-# import wholecell.views.view
-
 import wholecell.states.bulk_molecules
 import wholecell.states.unique_molecules
 import wholecell.states.local_environment
+from wholecell.containers.unique_objects_container import Access
+
 import numpy as np
 
 from wholecell.listeners.listener import WriteMethod
@@ -27,6 +27,8 @@ class Process(object):
 	""" Process """
 
 	_name = None
+	EDIT_ACCESS = (Access.EDIT, )
+	EDIT_DELETE_ACCESS = (Access.EDIT, Access.DELETE)
 
 	# Constructor
 	def __init__(self):

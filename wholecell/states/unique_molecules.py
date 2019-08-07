@@ -18,9 +18,7 @@ import numpy as np
 
 import wholecell.states.internal_state
 import wholecell.views.view
-from wholecell.containers.unique_objects_container import (
-	UniqueObjectsContainer, Access
-	)
+from wholecell.containers.unique_objects_container import UniqueObjectsContainer
 from wholecell.utils import units
 
 class UniqueMolecules(wholecell.states.internal_state.InternalState):
@@ -227,48 +225,39 @@ class UniqueMoleculesView(wholecell.views.view.View):
 		self._queryResult = self._state.container.objectsInCollection(
 			self._query,
 			process_index=self._processIndex,
-			access=Access.READ_ONLY
+			access=()
 			)
 
 		self._totalIs(len(self._queryResult))
 
 
-	def molecules_read_only(self):
+	def request_access(self, access):
 		"""
-		Returns a UniqueObjectSet corresponding to the given query with
-		read_only access to attributes. The process cannot edit the attributes
-		of the molecules or delete molecules with this view.
+		Requests access permissions required to edit or delete the attributes
+		of the unique molecules being viewed. Argument should be a tuple of
+		requested access permissions e.g. (Access.EDIT, Access.DELETE)
 		"""
-		return self._queryResult
+		self._queryResult.set_access_level(access=access)
 
 
-	def molecules_read_and_edit(self):
-		"""
-		Returns a UniqueObjectSet corresponding to the given query with
-		read and edit access to attributes. The process cannot delete molecules
-		with this view.
-		"""
-		return self._state.container.objectsInCollection(
-			self._query,
-			process_index=self._processIndex,
-			access=Access.READ_EDIT
-			)
+	# Wrappers for reading or manipulating queried molecules
+	def attr(self, attribute):
+		return self._queryResult.attr(attribute)
 
+	def attrs(self, *attributes):
+		return self._queryResult.attrs(*attributes)
 
-	# TODO (ggsun): deprecated alias, should be deleted
-	allMolecules = molecules_read_only
+	def attrIs(self, **attributes):
+		self._queryResult.attrIs(**attributes)
 
+	def add_submass_by_name(self, submass_name, delta_mass):
+		self._queryResult.add_submass_by_name(submass_name, delta_mass)
 
-	def molecules(self):
-		"""
-		Returns a UniqueObjectSet corresponding to the given query with full
-		read, edit, and delete access.
-		"""
-		return self._state.container.objectsInCollection(
-			self._query,
-			process_index=self._processIndex,
-			access=Access.READ_EDIT_DELETE
-			)
+	def add_submass_by_array(self, delta_mass):
+		self._queryResult.add_submass_by_array(delta_mass)
+
+	def delByIndexes(self, indexes):
+		self._queryResult.delByIndexes(indexes)
 
 
 	def moleculeNew(self, **attributes):

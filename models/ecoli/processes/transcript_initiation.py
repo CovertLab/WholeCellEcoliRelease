@@ -113,8 +113,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.inactiveRnaPolys.requestAll()
 
 		# Get attributes of promoters
-		promoters = self.promoters.molecules_read_only()
-		TU_index, bound_TF = promoters.attrs("TU_index", "bound_TF")
+		TU_index, bound_TF = self.promoters.attrs("TU_index", "bound_TF")
 
 		# Read current environment
 		current_media_id = self._external_states['Environment'].current_media_id
@@ -175,8 +174,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 	def evolveState(self):
 		# Get attributes of promoters
-		promoters = self.promoters.molecules_read_only()
-		TU_index, coordinates_promoters, domain_index_promoters, bound_TF = promoters.attrs(
+		TU_index, coordinates_promoters, domain_index_promoters, bound_TF = self.promoters.attrs(
 			"TU_index", "coordinates", "domain_index", "bound_TF")
 		
 		# Construct matrix that maps promoters to transcription units
@@ -219,9 +217,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		n_initiations = self.randomState.multinomial(
 			n_activated_rnap, self.promoter_init_probs)
 
-		# Get attributes of replisomes
-		replisomes = self.active_replisomes.molecules_read_only()
-
 		# If there are active replisomes, construct mask for promoters that are
 		# expected to be replicated in the current timestep.
 		# Assuming the replisome knocks off all RNAPs that it collides with,
@@ -230,8 +225,8 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		# 	Ideally this should be done in the reconciler.
 		collision_mask = np.zeros_like(TU_index, dtype=np.bool)
 
-		if len(replisomes) > 0:
-			domain_index_replisome, right_replichore, coordinates_replisome = replisomes.attrs(
+		if self.active_replisomes.total_counts()[0] > 0:
+			domain_index_replisome, right_replichore, coordinates_replisome = self.active_replisomes.attrs(
 				"domain_index", "right_replichore", "coordinates")
 
 			elongation_length = np.ceil(

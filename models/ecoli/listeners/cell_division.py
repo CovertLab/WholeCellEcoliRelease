@@ -98,7 +98,7 @@ class CellDivision(wholecell.listeners.listener.Listener):
 		if self.d_period_division:
 			# Get all existing full chromosomes
 			full_chromosomes = self.uniqueMoleculeContainer.objectsInCollection(
-				"fullChromosome", access=Access.READ_EDIT)
+				"fullChromosome", access=[Access.EDIT])
 
 			# If there are two or more full chromosomes,
 			if len(full_chromosomes) >= 2:

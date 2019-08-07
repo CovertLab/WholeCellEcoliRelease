@@ -91,15 +91,14 @@ class TfBinding(wholecell.processes.process.Process):
 		for view in self.active_tf_view.itervalues():
 			view.requestAll()
 
+		# Request edit access to promoter molecules
+		self.promoters.request_access(self.EDIT_ACCESS)
+
 
 	def evolveState(self):
 		# Get attributes of all promoters
-		promoters = self.promoters.molecules_read_and_edit()
-		TU_index, coordinates_promoters, domain_index_promoters, bound_TF = promoters.attrs(
+		TU_index, coordinates_promoters, domain_index_promoters, bound_TF = self.promoters.attrs(
 			"TU_index", "coordinates", "domain_index", "bound_TF")
-
-		# Get attributes of replisomes
-		replisomes = self.active_replisomes.molecules_read_only()
 
 		# If there are active replisomes, construct mask for promoters that are
 		# expected to be replicated in the current timestep. Transcription
@@ -108,8 +107,8 @@ class TfBinding(wholecell.processes.process.Process):
 		# 	Ideally this should be done in the reconciler.
 		collision_mask = np.zeros_like(coordinates_promoters, dtype=np.bool)
 
-		if len(replisomes) > 0:
-			domain_index_replisome, right_replichore, coordinates_replisome = replisomes.attrs(
+		if self.active_replisomes.total_counts()[0] > 0:
+			domain_index_replisome, right_replichore, coordinates_replisome = self.active_replisomes.attrs(
 				"domain_index", "right_replichore", "coordinates")
 
 			elongation_length = np.ceil(self.dnaPolyElngRate*self.timeStepSec())
@@ -207,10 +206,10 @@ class TfBinding(wholecell.processes.process.Process):
 		mass_diffs = delta_TF.dot(self.active_tf_masses)
 
 		# Reset bound_TF attribute of promoters
-		promoters.attrIs(bound_TF=bound_TF_new)
+		self.promoters.attrIs(bound_TF=bound_TF_new)
 
 		# Add mass_diffs array to promoter submass
-		promoters.add_submass_by_array(mass_diffs)
+		self.promoters.add_submass_by_array(mass_diffs)
 
 		# Write values to listeners
 		self.writeToListener("RnaSynthProb", "pPromoterBound", pPromotersBound)
