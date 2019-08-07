@@ -457,18 +457,7 @@ class Transcription(object):
 		return out
 	def _build_elongation_rates(self, raw_data, sim_data):
 		self.max_elongation_rate = sim_data.constants.dnaPolymeraseElongationRateMax
-		self.rna_indexes = {
-			'{}[{}]'.format(rna['id'], rna['location'][0]): index
-			for index, rna in enumerate(raw_data.rnas)}
-
-		s30_16sRRNA = sim_data.moleculeGroups.s30_16sRRNA
-		s50_5sRRNA = sim_data.moleculeGroups.s50_5sRRNA
-		s50_23sRRNA = sim_data.moleculeGroups.s50_23sRRNA
-		self.RRNA_ids = s30_16sRRNA + s50_5sRRNA + s50_23sRRNA
-
-		self.RRNA_indexes = [
-			self.rna_indexes[rrna_id]
-			for rrna_id in self.RRNA_ids]
+		self.RRNA_indexes = np.where(self.rnaData['isRRna'])[0]
 
 	def make_elongation_rates(self, random, base, time_step, variable_elongation=False):
 		return make_elongation_rates(
