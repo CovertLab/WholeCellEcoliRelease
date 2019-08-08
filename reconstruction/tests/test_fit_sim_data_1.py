@@ -104,13 +104,13 @@ class Test_fitkb1(unittest.TestCase):
 
 	@noseAttrib.attr('smalltest')
 	@noseAttrib.attr('fitkb1test')
-	def test_calculateMinPolymerizingEnzymeByProductDistribution(self):
-		productLengths = units.nt * np.array([1000, 2000, 3000])
-		elongationRate = 50 * units.nt / units.s
+	def test_calculateMinPolymerizingEnzymeByProductDistributionRNA(self):
+		productLengths = units.aa * np.array([1000, 2000, 3000])
+		elongationRates = units.aa / units.s * np.full(3, 50)
 		netLossRate = (1 / units.s) * np.array([3, 2, 1])
 		productCounts = np.array([5,1,10])
 
-		nMin = calculateMinPolymerizingEnzymeByProductDistribution(productLengths, elongationRate, netLossRate, productCounts)
+		nMin = calculateMinPolymerizingEnzymeByProductDistribution(productLengths, elongationRates, netLossRate, productCounts)
 		nMin.checkNoUnit()
 		self.assertEqual(nMin, 980)
 

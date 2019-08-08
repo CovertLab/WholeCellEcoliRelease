@@ -14,6 +14,7 @@ import numpy as np
 from wholecell.utils import units
 from wholecell.utils.unit_struct_array import UnitStructArray
 from wholecell.utils.polymerize import polymerize
+from wholecell.utils.random import make_elongation_rates
 
 RNA_SEQ_ANALYSIS = "rsem_tpm"
 KCAT_ENDO_RNASE = 0.001
@@ -29,6 +30,7 @@ class Transcription(object):
 		self._build_rna_data(raw_data, sim_data)
 		self._build_transcription(raw_data, sim_data)
 		self._build_charged_trna(raw_data, sim_data)
+		self._build_elongation_rates(raw_data, sim_data)
 
 	def _build_rna_data(self, raw_data, sim_data):
 		"""
@@ -453,3 +455,16 @@ class Transcription(object):
 		out[self._stoich_matrix_i, self._stoich_matrix_j] = self._stoich_matrix_v
 
 		return out
+	def _build_elongation_rates(self, raw_data, sim_data):
+		self.max_elongation_rate = sim_data.constants.dnaPolymeraseElongationRateMax
+		self.RRNA_indexes = np.where(self.rnaData['isRRna'])[0]
+
+	def make_elongation_rates(self, random, base, time_step, variable_elongation=False):
+		return make_elongation_rates(
+			random,
+			self.transcriptionSequences.shape[0],
+			base,
+			self.RRNA_indexes,
+			self.max_elongation_rate,
+			time_step,
+			variable_elongation)

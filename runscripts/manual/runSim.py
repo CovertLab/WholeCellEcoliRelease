@@ -79,8 +79,7 @@ class RunSimulation(scriptBase.ScriptBase):
 		def add_bool_option(name, key, help):
 			"""Add a boolean option parameter with the given name to the parser
 			using DEFAULT_SIMULATION_KWARGS[key] for the default value. The CLI
-			input can be `--name`, `--no_name`, `--name true`, `--name false`,
-			`--name 1`, `--name 0`, `--name=true`, etc.
+			input can be `--name` or `--no_name`.
 			"""
 			self.define_parameter_bool(
 				parser, name, DEFAULT_SIMULATION_KWARGS[key], help)
@@ -137,6 +136,14 @@ class RunSimulation(scriptBase.ScriptBase):
 			help='If true, a mass coefficient is drawn from a normal distribution'
 				 ' centered on 1; otherwise it is set equal to 1'
 			)
+		add_bool_option('variable_elongation_transcription', 'variable_elongation_transcription',
+			help='Use a different elongation rate for different transcripts'
+				 '(currently increases rates for RRNA)'
+			)
+		add_bool_option('variable_elongation_translation', 'variable_elongation_translation',
+			help='Use a different elongation rate for different polypeptides'
+				 '(currently increases rates for ribosomal proteins)'
+			)
 		add_bool_option('growth_rate_noise', 'growthRateNoise',
 			help='If true, a growth rate coefficient is drawn from a normal'
 				 ' distribution centered on 1; otherwise it is set equal to 1'
@@ -175,10 +182,19 @@ class RunSimulation(scriptBase.ScriptBase):
 		variant_type = args.variant[0]
 		variant_spec = (variant_type, int(args.variant[1]), int(args.variant[2]))
 
-		cli_sim_args = data.select_keys(vars(args),
-			('timeline', 'length_sec', 'timestep_safety_frac', 'timestep_max',
-			'timestep_update_freq', 'mass_distribution', 'growth_rate_noise',
-			'd_period_division', 'translation_supply', 'trna_charging'))
+		cli_sim_args = data.select_keys(vars(args), (
+			'timeline',
+			'length_sec',
+			'timestep_safety_frac',
+			'timestep_max',
+			'timestep_update_freq',
+			'mass_distribution',
+			'growth_rate_noise',
+			'd_period_division',
+			'variable_elongation_transcription',
+			'variable_elongation_translation',
+			'translation_supply',
+			'trna_charging'))
 
 		# Write the metadata file.
 		cli_metadata_args = data.select_keys(vars(args),

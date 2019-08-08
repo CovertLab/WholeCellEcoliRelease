@@ -42,12 +42,14 @@ class RunParca(scriptBase.ScriptBase):
 				 " when adjusting gene expression levels, leaving the others at"
 				 " their input levels. Do not use this for an actual simulation."
 			)
+		self.define_parameter_bool(parser, 'variable_elongation_transcription', False,
+			help="Use a variable elongation rate for transcription")
+		self.define_parameter_bool(parser, 'variable_elongation_translation', False,
+			help="Use a variable elongation rate for translation")
 		self.define_parameter_bool(parser, 'ribosome_fitting', True,
-			help="Fit ribosome expression to protein synthesis demands"
-			)
+			help="Fit ribosome expression to protein synthesis demands")
 		self.define_parameter_bool(parser, 'rnapoly_fitting', True,
-			help="Fit RNA polymerase expression to protein synthesis demands"
-			)
+			help="Fit RNA polymerase expression to protein synthesis demands")
 
 	def parse_args(self):
 		args = super(RunParca, self).parse_args()
@@ -69,6 +71,8 @@ class RunParca(scriptBase.ScriptBase):
 			output_directory=kb_directory,
 			ribosome_fitting=args.ribosome_fitting,
 			rnapoly_fitting=args.rnapoly_fitting,
+			variable_elongation_transcription=args.variable_elongation_transcription,
+			variable_elongation_translation=args.variable_elongation_translation,
 			cpus=args.cpus,
 			debug=args.debug)
 		task.run_task({})

@@ -13,6 +13,7 @@ import numpy as np
 from wholecell.utils import units
 from wholecell.utils.unit_struct_array import UnitStructArray
 from wholecell.utils.polymerize import polymerize
+from wholecell.utils.random import make_elongation_rates
 
 MAX_TIMESTEP_LEN = 2
 
@@ -23,6 +24,7 @@ class Translation(object):
 		self._buildMonomerData(raw_data, sim_data)
 		self._buildTranslation(raw_data, sim_data)
 		self._buildTranslationEfficiency(raw_data, sim_data)
+		self.elongation_rates = self._build_elongation_rates(raw_data, sim_data)
 
 	def _buildMonomerData(self, raw_data, sim_data):
 		assert all([len(protein['location']) == 1 for protein in raw_data.proteins])
@@ -191,3 +193,46 @@ class Translation(object):
 
 		self.translationEfficienciesByMonomer = np.array(trEffs)
 		self.translationEfficienciesByMonomer[np.isnan(self.translationEfficienciesByMonomer)] = np.nanmean(self.translationEfficienciesByMonomer)
+
+
+	def _build_elongation_rates(self, raw_data, sim_data):
+		self.protein_ids = self.monomerData['id']
+		self.ribosomal_protein_ids = sim_data.moleculeGroups.rProteins
+
+		self.protein_indexes = {
+			protein: index
+			for index, protein in enumerate(self.protein_ids)}
+
+		self.ribosomal_proteins = {
+			rprotein: self.protein_indexes.get(rprotein, -1)
+			for rprotein in self.ribosomal_protein_ids}
+
+		self.rprotein_indexes = np.array([
+			index
+			for index in self.ribosomal_proteins.values()
+			if index >= 0], dtype=np.int64)
+
+		self.basal_elongation_rate = sim_data.constants.ribosomeElongationRateBasal.asNumber(units.aa / units.s)
+		self.max_elongation_rate = sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s)
+		self.elongation_rates = np.full(
+			self.protein_ids.shape,
+			self.basal_elongation_rate,
+			dtype=np.int64)
+
+		self.elongation_rates[self.rprotein_indexes] = self.max_elongation_rate
+
+	def make_elongation_rates(
+			self,
+			random,
+			base,
+			time_step,
+			variable_elongation=False):
+
+		return make_elongation_rates(
+			random,
+			self.protein_ids.shape,
+			base,
+			self.rprotein_indexes,
+			self.max_elongation_rate,
+			time_step,
+			variable_elongation)

@@ -40,9 +40,6 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.replichore_lengths = sim_data.process.replication.replichore_lengths
 		self.sequences = sim_data.process.replication.replication_sequences
 		self.polymerized_dntp_weights = sim_data.process.replication.replicationMonomerWeights
-		self.dnaPolyElngRate = int(
-			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
-			units.nt / units.s)))
 		self.replication_coordinate = sim_data.process.transcription.rnaData[
 			"replicationCoordinate"]
 		self.D_period = sim_data.growthRateParameters.d_period.asNumber(
@@ -76,6 +73,12 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 		# Get placeholder value for domains without children
 		self.no_child_place_holder = sim_data.process.replication.no_child_place_holder
+
+		self.basal_elongation_rate = int(
+			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
+			units.nt / units.s)))
+		self.make_elongation_rates = sim_data.process.replication.make_elongation_rates
+
 
 	def calculateRequest(self):
 		# Get total count of existing oriC's
@@ -118,11 +121,17 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		fork_coordinates = self.active_replisomes.attr("coordinates")
 		sequence_length = np.abs(np.repeat(fork_coordinates, 2))
 
+		self.elongation_rates = self.make_elongation_rates(
+			self.randomState,
+			len(self.sequences),
+			self.basal_elongation_rate,
+			self.timeStepSec())
+
 		sequences = buildSequences(
 			self.sequences,
 			np.tile(np.arange(4), n_active_replisomes//2),
 			sequence_length,
-			self._dnaPolymeraseElongationRate())
+			self.elongation_rates)
 
 		# Count number of each dNTP in sequences for the next timestep
 		sequenceComposition = np.bincount(
@@ -272,21 +281,26 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		sequence_length = np.abs(np.repeat(coordinates_replisome, 2))
 
 		# Build sequences to polymerize
+		sequence_indexes = np.tile(np.arange(4), n_active_replisomes // 2)
+
 		sequences = buildSequences(
 			self.sequences,
-			np.tile(np.arange(4), n_active_replisomes // 2),
+			sequence_indexes,
 			sequence_length,
-			self._dnaPolymeraseElongationRate())
+			self.elongation_rates)
 
 		# Use polymerize algorithm to quickly calculate the number of
 		# elongations each fork catalyzes
 		reactionLimit = dNtpCounts.sum()
 
+		# active_elongation_rates = self.elongation_rates[sequence_indexes]
 		result = polymerize(
 			sequences,
 			dNtpCounts,
 			reactionLimit,
-			self.randomState)
+			self.randomState,
+			self.elongation_rates)
+			# active_elongation_rates)
 
 		sequenceElongations = result.sequenceElongation
 		dNtpsUsed = result.monomerUsages
@@ -504,7 +518,3 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			self.replisome_trimers.countsInc(3*replisomes_to_delete.sum())
 			self.replisome_monomers.countsInc(replisomes_to_delete.sum())
 
-
-	def _dnaPolymeraseElongationRate(self):
-		# Calculates elongation rate scaled by the time step
-		return self.dnaPolyElngRate * self.timeStepSec()

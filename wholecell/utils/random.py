@@ -60,6 +60,72 @@ def stochasticRound(randomState, value):
 	else:
 		return valueRavel
 
+def make_elongation_rates_flat(
+		size,
+		base,
+		amplified,
+		ceiling,
+		variable_elongation=False):
+	'''
+	Create an array of rates where all values are at a base rate except for a set which
+	is at another rate.
+
+	Args:
+	    size (int): size of new array of rates.
+	    base (int): unadjusted value for all rates.
+        amplified (array[int]): indexes of each rate to adjust.
+        ceiling (int): adjusted rate for amplified indexes.
+
+	Returns:
+	    rates (array[int]): new array with base and adjusted rates.
+	'''
+
+	rates = np.full(
+		size,
+		base,
+		dtype=np.int64)
+
+	if variable_elongation:
+		rates[amplified] = ceiling
+
+	return rates
+
+def make_elongation_rates(
+		random,
+		size,
+		base,
+		amplified,
+		ceiling,
+		time_step,
+		variable_elongation=False):
+	'''
+	Create an array of rates where all values are at a base rate except for a set which
+	is at another rate. Also performs a stochastic rounding of values after applying the
+	provided time step. 
+
+	Args:
+	    random (RandomState): for generating random numbers.
+	    size (int): size of new array of rates.
+	    base (int): unadjusted value for all rates.
+        amplified (array[int]): indexes of each rate to adjust.
+        ceiling (int): adjusted rate for amplified indexes.
+	    time_step (float): the current time step. 
+	    variable_elongation (bool): whether to add amplified values to the array.
+
+	Returns:
+	    rates (array[int]): new array with base and adjusted rates.
+	'''
+
+
+	rates = make_elongation_rates_flat(size, base, amplified, ceiling, variable_elongation)
+
+	if random:
+		rates = np.min([rates, stochasticRound(random, rates * time_step)], axis=0)
+	else:
+		rates = np.rint(rates)
+
+	return np.array(rates, dtype=np.int64)
+
 def randomlySelectRows(randomState, mat, prob):
 	nRndRows = randomState.stochasticRound(prob * np.shape(mat)[0])
 	return randomState.randomlySelectNRows(mat, nRndRows)

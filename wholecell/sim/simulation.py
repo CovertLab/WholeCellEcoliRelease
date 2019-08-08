@@ -46,7 +46,8 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	logToDiskEvery = 1,
 	simData = None,
 	inheritedStatePath = None,
-	)
+	variable_elongation_translation = False,
+	variable_elongation_transcription = False)
 
 def _orderedAbstractionReference(iterableOfClasses):
 	return collections.OrderedDict(

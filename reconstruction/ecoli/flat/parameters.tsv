@@ -17,7 +17,9 @@ rrneLocation	4211182	units.nt	Ecocyc	End of last gene
 rrnhLocation	228875	units.nt	Ecocyc	End of last gene
 rrndLocation	3421445	units.nt	Ecocyc	End of last gene
 rrngLocation	2724091	units.nt	Ecocyc	End of last gene
-ribosomeElongationRateMax	22	units.aa/units.s		
+ribosomeElongationRateMax	30	units.aa/units.s		
+ribosomeElongationRateBasal	22	units.aa/units.s		
+dnaPolymeraseElongationRateMax	85	units.nt/units.s		
 carbonicAnhydraseKcat	1.4e6	1/units.s	Silverman Acc Chem Res 1989
 metabolismHomeostaticRangeObjFractionHigher	0	
 metabolismInRangeObjWeight	0	

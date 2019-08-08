@@ -22,7 +22,7 @@
    * This uploads the source code from your working directory, whether or not it's checked-in or
    compiled, so consider running small-scale local tests beforehand using
    [the manual runscripts](https://github.com/CovertLab/wcEcoli#using-the-manual-runscripts).
-   You can shorten the run time via command line options like runSim's `--length_sec`.
+   You can shorten the run time via command line options like runSim's `--length-sec`.
    * This creates a Docker image named `gcr.io/allen-discovery-center-mcovert/$USER-wcm-code` in
    the project's section of Google Cloud Registry, where `$USER` is your local username.
    * It takes 1/2 minute to upload the source code and 2 minutes for the Google Cloud Build

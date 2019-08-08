@@ -729,7 +729,6 @@ def setDaughterInitialConditions(sim, sim_data):
 	elngRate = inherited_state['elng_rate']
 	elng_rate_factor = inherited_state['elng_rate_factor']
 	if sim._growthRateNoise:
-		sim.processes["PolypeptideElongation"].setElngRate = elngRate
 		sim.processes["PolypeptideElongation"].elngRateFactor = elng_rate_factor
 
 	sim.internal_states["BulkMolecules"].loadSnapshot(inherited_state['bulk_molecules'])

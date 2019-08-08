@@ -52,9 +52,14 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.aaWeightsIncorporated = translation.translationMonomerWeights
 		self.endWeight = translation.translationEndWeight
 		self.gtpPerElongation = constants.gtpPerTranslation
+		self.variable_elongation = sim._variable_elongation_translation
+		self.make_elongation_rates = translation.make_elongation_rates
 
-		self.maxRibosomeElongationRate = float(constants.ribosomeElongationRateMax.asNumber(units.aa / units.s))
+		self.basal_elongation_rate = constants.ribosomeElongationRateBasal.asNumber(units.aa / units.s)
+		elongation_max = constants.ribosomeElongationRateMax if self.variable_elongation else constants.ribosomeElongationRateBasal
+		self.maxRibosomeElongationRate = float(elongation_max.asNumber(units.aa / units.s))
 
+		self.ribosomeElongationRate = float(sim_data.growthRateParameters.ribosomeElongationRate.asNumber(units.aa / units.s))
 		self.ribosomeElongationRateDict = translation.ribosomeElongationRateDict
 
 		self.translation_aa_supply = sim_data.translationSupplyRate
@@ -119,6 +124,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.aa_count_diff = {}  # attribute to be read by metabolism
 		self.new_count_diff = {}  # update from most recent time step
 
+
 	def calculateRequest(self):
 		# Set ribosome elongation rate based on simulation medium environment and elongation rate factor
 		# which is used to create single-cell variability in growth rate
@@ -134,11 +140,11 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		current_media_id = self._external_states['Environment'].current_media_id
 
 		if self.translationSupply:
-			self.ribosomeElongationRate = np.min([self.maxRibosomeElongationRate, int(stochasticRound(self.randomState,
-				self.maxRibosomeElongationRate * self.timeStepSec()))]) # Will be set to maxRibosomeElongationRate if timeStepSec > 1.0s
+			self.ribosomeElongationRate = self.basal_elongation_rate
 		else:
-			self.ribosomeElongationRate = np.min([22, int(stochasticRound(self.randomState,
-				self.elngRateFactor * self.ribosomeElongationRateDict[current_media_id].asNumber(units.aa / units.s) * self.timeStepSec()))])
+			rate = self.elngRateFactor * self.ribosomeElongationRateDict[
+				current_media_id].asNumber(units.aa / units.s)
+			self.ribosomeElongationRate = np.min([self.basal_elongation_rate, rate])
 
 		# If there are no active ribosomes, return immediately
 		if self.active_ribosomes.total_counts()[0] == 0:
@@ -150,12 +156,17 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 					'proteinIndex', 'peptideLength'
 					)
 
+		self.elongation_rates = self.make_elongation_rates(
+			self.randomState,
+			self.ribosomeElongationRate,
+			self.timeStepSec(),
+			self.variable_elongation)
+
 		sequences = buildSequences(
 			self.proteinSequences,
 			proteinIndexes,
 			peptideLengths,
-			self.ribosomeElongationRate,
-			)
+			self.elongation_rates)
 
 		sequenceHasAA = (sequences != polymerize.PAD_VALUE)
 		aasInSequences = np.bincount(sequences[sequenceHasAA], minlength=21)
@@ -273,8 +284,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			self.proteinSequences,
 			proteinIndexes,
 			peptideLengths,
-			self.ribosomeElongationRate,
-			)
+			self.elongation_rates)
 
 		if sequences.size == 0:
 			return
@@ -293,8 +303,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			sequences,
 			aa_counts_for_translation,
 			10000000, # Set to a large number, the limit is now taken care of in metabolism
-			self.randomState
-			)
+			self.randomState,
+			self.elongation_rates[proteinIndexes])
 
 		sequenceElongations = result.sequenceElongation
 		aas_used = result.monomerUsages

@@ -327,8 +327,7 @@ class RunWcm(scriptBase.ScriptBase):
 		def add_bool_option(name, key, help):
 			"""Add a boolean option parameter with the given name to the parser
 			using DEFAULT_SIMULATION_KWARGS[key] for the default value. The CLI
-			input can be `--name`, `--no_name`, `--name true`, `--name false`,
-			`--name 1`, `--name 0`, `--name=true`, etc.
+			input can be `--name` or `--no_name`.
 			"""
 			self.define_parameter_bool(
 				parser, name, DEFAULT_SIMULATION_KWARGS[key], help)
@@ -402,6 +401,12 @@ class RunWcm(scriptBase.ScriptBase):
 			help='If true, ends simulation once D period has occurred after'
 				 ' chromosome termination; otherwise simulation terminates once'
 				 ' a given mass has been added to the cell')
+		add_bool_option('variable_elongation_transcription', 'variable_elongation_transcription',
+			help='Use a different elongation rate for different transcripts'
+				 '(currently increases rates for RRNA)')
+		add_bool_option('variable_elongation_translation', 'variable_elongation_translation',
+			help='Use a different elongation rate for different polypeptides'
+				 '(currently increases rates for ribosomal proteins)')
 		add_bool_option('translation_supply', 'translationSupply',
 			help='If true, the ribosome elongation rate is limited by the'
 				 ' condition specific rate of amino acid supply; otherwise the'

@@ -12,6 +12,7 @@ import collections
 
 from wholecell.utils import units
 from wholecell.utils.polymerize import polymerize
+from wholecell.utils.random import stochasticRound
 
 MAX_TIMESTEP_LEN = 2
 
@@ -27,6 +28,7 @@ class Replication(object):
 		self._buildGeneData(raw_data, sim_data)
 		self._buildReplication(raw_data, sim_data)
 		self._buildMotifs(raw_data, sim_data)
+		self._build_elongation_rates(raw_data, sim_data)
 
 	def _buildSequence(self, raw_data, sim_data):
 		self.genome_sequence = raw_data.genome_sequence
@@ -188,3 +190,15 @@ class Replication(object):
 		relative_coordinates[relative_coordinates < 0] += 1
 
 		return relative_coordinates
+	def _build_elongation_rates(self, raw_data, sim_data):
+		self.basal_elongation_rate = int(
+			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
+			units.nt / units.s)))
+
+	def make_elongation_rates(self, random, replisomes, base, time_step):
+		rates = np.full(
+			replisomes,
+			stochasticRound(random, base * time_step),
+			dtype=np.int64)
+
+		return rates

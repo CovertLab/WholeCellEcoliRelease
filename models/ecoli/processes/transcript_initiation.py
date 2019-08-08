@@ -40,6 +40,8 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.fracActiveRnapDict = sim_data.process.transcription.rnapFractionActiveDict
 		self.rnaLengths = sim_data.process.transcription.rnaData["length"]
 		self.rnaPolymeraseElongationRateDict = sim_data.process.transcription.rnaPolymeraseElongationRateDict
+		self.variable_elongation = sim._variable_elongation_transcription
+		self.make_elongation_rates = sim_data.process.transcription.make_elongation_rates
 
 		# Initialize matrices used to calculate synthesis probabilities
 		self.basal_prob = sim_data.process.transcription_regulation.basal_prob
@@ -50,9 +52,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 			(delta_prob['deltaI'], delta_prob['deltaJ'])),
 			shape=delta_prob['shape']
 			).toarray()
-
-		self.maxRibosomeElongationRate = float(
-			sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s))
 
 		# Get DNA polymerase elongation rate (used to mask out transcription
 		# units that are expected to be replicated in the current timestep)
@@ -170,6 +169,11 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		self.fracActiveRnap = self.fracActiveRnapDict[current_media_id]
 		self.rnaPolymeraseElongationRate = self.rnaPolymeraseElongationRateDict[current_media_id]
+		self.elongation_rates = self.make_elongation_rates(
+			self.randomState,
+			self.rnaPolymeraseElongationRate.asNumber(units.nt / units.s),
+			self.timeStepSec(),
+			self.variable_elongation)
 
 
 	def evolveState(self):
@@ -202,8 +206,10 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		# Calculate RNA polymerases to activate based on probabilities
 		self.activationProb = self._calculateActivationProb(
-			self.fracActiveRnap, self.rnaLengths,
-			self.rnaPolymeraseElongationRate, TU_synth_probs)
+			self.fracActiveRnap,
+			self.rnaLengths,
+			(units.nt / units.s) * self.elongation_rates,
+			TU_synth_probs)
 		n_activated_rnap = np.int64(
 			self.activationProb * self.inactiveRnaPolys.count())
 
@@ -301,7 +307,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 			"RnapData", "n_aborted_initiations", n_aborted_initiations)
 
 
-	def _calculateActivationProb(self, fracActiveRnap, rnaLengths, rnaPolymeraseElongationRate, synthProb):
+	def _calculateActivationProb(self, fracActiveRnap, rnaLengths, rnaPolymeraseElongationRates, synthProb):
 		"""
 		Calculate expected RNAP termination rate based on RNAP elongation rate
 		- allTranscriptionTimes: Vector of times required to transcribe each
@@ -314,10 +320,9 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		- expectedTerminationRate: Average number of terminations in one
 		timestep for one transcript
 		"""
-		allTranscriptionTimes = 1. / rnaPolymeraseElongationRate * rnaLengths
-		allTranscriptionTimestepCounts = np.ceil(
-			(1. / (self.timeStepSec() * units.s) * allTranscriptionTimes).asNumber()
-			)
+		allTranscriptionTimes = 1. / rnaPolymeraseElongationRates * rnaLengths
+		timesteps = (1. / (self.timeStepSec() * units.s) * allTranscriptionTimes).asNumber()
+		allTranscriptionTimestepCounts = np.ceil(timesteps)
 		averageTranscriptionTimestepCounts = np.dot(
 			synthProb, allTranscriptionTimestepCounts)
 		expectedTerminationRate = 1. / averageTranscriptionTimestepCounts
