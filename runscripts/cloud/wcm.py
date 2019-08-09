@@ -373,7 +373,7 @@ class RunWcm(scriptBase.ScriptBase):
 			help='Number of cell generations to run. Set it to 0 to just run'
 				 ' Parca and make-variants with no sim generations or analysis.'
 				 ' Default = 1')
-		parser.add_argument('-i', '--init_sims', type=int, default=1,
+		parser.add_argument('-i', '--init-sims', type=int, default=1,
 			help='(int; 1) Number of initial sims (seeds) per variant.'
 				 ' Default = 1')
 		parser.add_argument('-t', '--timeline', type=str, default='0 minimal',

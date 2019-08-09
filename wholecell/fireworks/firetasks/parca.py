@@ -51,8 +51,8 @@ class ParcaTask(FireTaskBase):
 				cached=False,
 				cpus=self.get('cpus', 1),
 				debug=self.get('debug', False),
-				variable_elongation_transcription=self['variable_elongation_transcription'],
-				variable_elongation_translation=self['variable_elongation_translation'],
+				variable_elongation_transcription=self.get('variable_elongation_transcription', False),
+				variable_elongation_translation=self.get('variable_elongation_translation', False),
 				disable_ribosome_capacity_fitting=not self['ribosome_fitting'],
 				disable_rnapoly_capacity_fitting=not self['rnapoly_fitting']),
 
