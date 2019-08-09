@@ -25,6 +25,35 @@ STORAGE_PREFIX_ROOT = 'sisyphus:data/'
 
 DEFAULT_VARIANT = ['wildtype', '0', '0']
 
+metadata_keys = (
+	'generations',
+	'mass_distribution',
+	'growth_rate_noise',
+	'd_period_division',
+	'variable_elongation_transcription',
+	'variable_elongation_translation',
+	'translation_supply',
+	'trna_charging')
+
+parca_keys = (
+	'ribosome_fitting',
+	'rnapoly_fitting',
+	'cpus',
+	'variable_elongation_transcription',
+	'variable_elongation_translation')
+
+sim_keys = (
+	'timeline',
+	'length_sec',
+	'timestep_safety_frac',
+	'timestep_max',
+	'timestep_update_freq',
+	'mass_distribution',
+	'growth_rate_noise',
+	'd_period_division',
+	'translation_supply',
+	'trna_charging')
+
 
 def select_keys(mapping, keys, **kwargs):
 	# type: (Mapping[str, Any], Iterable[str], **Any) -> Dict[str, Any]
@@ -98,9 +127,9 @@ class WcmWorkflow(Workflow):
 			args['workers'] = variant_count * args['init_sims']
 
 		metadata_file = self.internal('metadata', constants.JSON_METADATA_FILE)
-		metadata = select_keys(args,
-			('generations', 'mass_distribution', 'growth_rate_noise',
-			'd_period_division', 'translation_supply', 'trna_charging'),
+		metadata = select_keys(
+			args,
+			metadata_keys,
 			git_hash=fp.run_cmdline("git rev-parse HEAD"),
 			git_branch=fp.run_cmdline("git symbolic-ref --short HEAD"),
 			description=args['description'] or 'WCM',
@@ -116,8 +145,9 @@ class WcmWorkflow(Workflow):
 				# task so its worker doesn't exit while the Parca runs.
 			outputs=[metadata_file])
 
-		python_args = select_keys(args,
-			('ribosome_fitting', 'rnapoly_fitting', 'cpus'),
+		python_args = select_keys(
+			args,
+			parca_keys,
 			debug=args['debug_parca'],
 			output_directory=kb_dir)
 		parca_task = self.add_python_task('parca', python_args,
@@ -126,10 +156,7 @@ class WcmWorkflow(Workflow):
 
 		variant_analysis_inputs = [kb_dir]
 
-		sim_args = select_keys(args,
-			('timeline', 'length_sec', 'timestep_safety_frac', 'timestep_max',
-			'timestep_update_freq', 'mass_distribution', 'growth_rate_noise',
-			'd_period_division', 'translation_supply', 'trna_charging'))
+		sim_args = select_keys(args, sim_keys)
 
 		for i, subdir in fp.iter_variants(*variant_spec):
 			variant_sim_data_dir = self.internal(subdir,
