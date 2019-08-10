@@ -25,7 +25,7 @@ STORAGE_PREFIX_ROOT = 'sisyphus:data/'
 
 DEFAULT_VARIANT = ['wildtype', '0', '0']
 
-metadata_keys = (
+METADATA_KEYS = (
 	'generations',
 	'mass_distribution',
 	'growth_rate_noise',
@@ -35,14 +35,14 @@ metadata_keys = (
 	'translation_supply',
 	'trna_charging')
 
-parca_keys = (
+PARCA_KEYS = (
 	'ribosome_fitting',
 	'rnapoly_fitting',
 	'cpus',
 	'variable_elongation_transcription',
 	'variable_elongation_translation')
 
-sim_keys = (
+SIM_KEYS = (
 	'timeline',
 	'length_sec',
 	'timestep_safety_frac',
@@ -129,7 +129,7 @@ class WcmWorkflow(Workflow):
 		metadata_file = self.internal('metadata', constants.JSON_METADATA_FILE)
 		metadata = select_keys(
 			args,
-			metadata_keys,
+			METADATA_KEYS,
 			git_hash=fp.run_cmdline("git rev-parse HEAD"),
 			git_branch=fp.run_cmdline("git symbolic-ref --short HEAD"),
 			description=args['description'] or 'WCM',
@@ -147,7 +147,7 @@ class WcmWorkflow(Workflow):
 
 		python_args = select_keys(
 			args,
-			parca_keys,
+			PARCA_KEYS,
 			debug=args['debug_parca'],
 			output_directory=kb_dir)
 		parca_task = self.add_python_task('parca', python_args,
@@ -156,7 +156,7 @@ class WcmWorkflow(Workflow):
 
 		variant_analysis_inputs = [kb_dir]
 
-		sim_args = select_keys(args, sim_keys)
+		sim_args = select_keys(args, SIM_KEYS)
 
 		for i, subdir in fp.iter_variants(*variant_spec):
 			variant_sim_data_dir = self.internal(subdir,
