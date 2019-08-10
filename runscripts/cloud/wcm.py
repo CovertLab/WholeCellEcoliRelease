@@ -25,6 +25,35 @@ STORAGE_PREFIX_ROOT = 'sisyphus:data/'
 
 DEFAULT_VARIANT = ['wildtype', '0', '0']
 
+METADATA_KEYS = (
+	'generations',
+	'mass_distribution',
+	'growth_rate_noise',
+	'd_period_division',
+	'variable_elongation_transcription',
+	'variable_elongation_translation',
+	'translation_supply',
+	'trna_charging')
+
+PARCA_KEYS = (
+	'ribosome_fitting',
+	'rnapoly_fitting',
+	'cpus',
+	'variable_elongation_transcription',
+	'variable_elongation_translation')
+
+SIM_KEYS = (
+	'timeline',
+	'length_sec',
+	'timestep_safety_frac',
+	'timestep_max',
+	'timestep_update_freq',
+	'mass_distribution',
+	'growth_rate_noise',
+	'd_period_division',
+	'translation_supply',
+	'trna_charging')
+
 
 def select_keys(mapping, keys, **kwargs):
 	# type: (Mapping[str, Any], Iterable[str], **Any) -> Dict[str, Any]
@@ -98,9 +127,9 @@ class WcmWorkflow(Workflow):
 			args['workers'] = variant_count * args['init_sims']
 
 		metadata_file = self.internal('metadata', constants.JSON_METADATA_FILE)
-		metadata = select_keys(args,
-			('generations', 'mass_distribution', 'growth_rate_noise',
-			'd_period_division', 'translation_supply', 'trna_charging'),
+		metadata = select_keys(
+			args,
+			METADATA_KEYS,
 			git_hash=fp.run_cmdline("git rev-parse HEAD"),
 			git_branch=fp.run_cmdline("git symbolic-ref --short HEAD"),
 			description=args['description'] or 'WCM',
@@ -116,8 +145,9 @@ class WcmWorkflow(Workflow):
 				# task so its worker doesn't exit while the Parca runs.
 			outputs=[metadata_file])
 
-		python_args = select_keys(args,
-			('ribosome_fitting', 'rnapoly_fitting', 'cpus'),
+		python_args = select_keys(
+			args,
+			PARCA_KEYS,
 			debug=args['debug_parca'],
 			output_directory=kb_dir)
 		parca_task = self.add_python_task('parca', python_args,
@@ -126,10 +156,7 @@ class WcmWorkflow(Workflow):
 
 		variant_analysis_inputs = [kb_dir]
 
-		sim_args = select_keys(args,
-			('timeline', 'length_sec', 'timestep_safety_frac', 'timestep_max',
-			'timestep_update_freq', 'mass_distribution', 'growth_rate_noise',
-			'd_period_division', 'translation_supply', 'trna_charging'))
+		sim_args = select_keys(args, SIM_KEYS)
 
 		for i, subdir in fp.iter_variants(*variant_spec):
 			variant_sim_data_dir = self.internal(subdir,
@@ -373,7 +400,7 @@ class RunWcm(scriptBase.ScriptBase):
 			help='Number of cell generations to run. Set it to 0 to just run'
 				 ' Parca and make-variants with no sim generations or analysis.'
 				 ' Default = 1')
-		parser.add_argument('-i', '--init_sims', type=int, default=1,
+		parser.add_argument('-i', '--{}'.format(scriptBase.dashize('init_sims')), type=int, default=1,
 			help='(int; 1) Number of initial sims (seeds) per variant.'
 				 ' Default = 1')
 		parser.add_argument('-t', '--timeline', type=str, default='0 minimal',
