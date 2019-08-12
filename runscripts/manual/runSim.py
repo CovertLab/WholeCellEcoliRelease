@@ -138,11 +138,11 @@ class RunSimulation(scriptBase.ScriptBase):
 			)
 		add_bool_option('variable_elongation_transcription', 'variable_elongation_transcription',
 			help='Use a different elongation rate for different transcripts'
-				 '(currently increases rates for RRNA)'
+				 ' (currently increases rates for RRNA)'
 			)
 		add_bool_option('variable_elongation_translation', 'variable_elongation_translation',
 			help='Use a different elongation rate for different polypeptides'
-				 '(currently increases rates for ribosomal proteins)'
+				 ' (currently increases rates for ribosomal proteins)'
 			)
 		add_bool_option('growth_rate_noise', 'growthRateNoise',
 			help='If true, a growth rate coefficient is drawn from a normal'

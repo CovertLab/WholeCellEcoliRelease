@@ -25,7 +25,7 @@ from wholecell.utils import filepath as fp
 # runscripts/cloud/ssh-tunnel.sh.
 GAIA_CONFIG = {'gaia_host': 'localhost:24442'}
 
-STDOUT_PATH = 'STDOUT'  # special pathname that captures stdout + stderror
+STDOUT_PATH = '>'  # special pathname that captures stdout + stderror
 
 MAX_WORKERS = 500  # don't launch more than this many worker nodes at a time
 

@@ -18,6 +18,17 @@ STORAGE_PREFIX_ROOT = 'sisyphus:data/'
 
 
 def demo(worker_count=0, dump=False):
+	def add_task(name='', inputs=(), outputs=(), command=()):
+		task = Task(
+			name=name,
+			image=DOCKER_IMAGE,
+			inputs=inputs,
+			outputs=outputs,
+			storage_prefix=storage_prefix,
+			internal_prefix='/tmp',
+			command=command)
+		wf.add_task(task)
+
 	owner_id = os.environ['USER']
 	timestamp = fp.timestamp()
 	name = 'Demo_{}_{}'.format(owner_id, timestamp)
@@ -30,24 +41,27 @@ def demo(worker_count=0, dump=False):
         "  for i in range(100):\n"
         "    f.write('This is line {}\\n'.format(i))\n"
         "    print 'hello', i")
-	line_task = Task(
+	add_task(
 		name='lines',
-		image=DOCKER_IMAGE,
 		outputs=[lines_filename],
-		storage_prefix=storage_prefix,
-		internal_prefix='/tmp',
 		command=['python', '-u', '-c', code])
-	wf.add_task(line_task)
 
-	count_task = Task(
+	add_task(
 		name='count',
-		image=DOCKER_IMAGE,
 		inputs=[lines_filename],
-		outputs=['>/tmp/count.txt'],
-		storage_prefix=storage_prefix,
-		internal_prefix='/tmp',
+		outputs=['>/tmp/count.log'],
 		command=['wc', lines_filename])
-	wf.add_task(count_task)
+
+	add_task(
+		name='error_test',
+		inputs=[],  # test error handling by "forgetting" to download the input
+		outputs=['>/tmp/error-test.log'],
+		command=['wc', lines_filename])
+
+	add_task(
+		name='index_exception',
+		outputs=['>/tmp/index_exception.log'],
+		command=['python', '-u', '-c', "()[1]"])
 
 	# Dump or run the workflow.
 	if dump:

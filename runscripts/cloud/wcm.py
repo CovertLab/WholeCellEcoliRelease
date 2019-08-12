@@ -218,7 +218,7 @@ class WcmWorkflow(Workflow):
 							python_args['inherited_state_path'] = daughter_state_path
 							inputs += [parent_cell_sim_out_dir]
 
-						cell_id = 'Var{}_Seed{}_Gen{}_Cell{}'.format(i, j, k, l)
+						cell_id = 'Var{:03d}_Seed{:03d}_Gen{:03d}_Cell{:03d}'.format(i, j, k, l)
 						sim_task = self.add_python_task(firetask, python_args,
 							name='simulation_' + cell_id,
 							inputs=inputs,
@@ -430,10 +430,10 @@ class RunWcm(scriptBase.ScriptBase):
 				 ' a given mass has been added to the cell')
 		add_bool_option('variable_elongation_transcription', 'variable_elongation_transcription',
 			help='Use a different elongation rate for different transcripts'
-				 '(currently increases rates for RRNA)')
+				 ' (currently increases rates for RRNA)')
 		add_bool_option('variable_elongation_translation', 'variable_elongation_translation',
 			help='Use a different elongation rate for different polypeptides'
-				 '(currently increases rates for ribosomal proteins)')
+				 ' (currently increases rates for ribosomal proteins)')
 		add_bool_option('translation_supply', 'translationSupply',
 			help='If true, the ribosome elongation rate is limited by the'
 				 ' condition specific rate of amino acid supply; otherwise the'
