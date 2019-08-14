@@ -457,12 +457,21 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 
 		result = glp.glp_simplex(self._lp, self._smcp)
 
-		# If no solution within iteration limit, switch to dual method to find solution
+		# Adjust solver options for robustness
+		## If no solution within iteration limit, switch to dual method to find solution
 		if result == glp.GLP_EITLIM:
 			print('Warning: could not find solution with primal method, switching to dual')
 			self.simplex_method = SimplexMethod.DUALP
 			result = glp.glp_simplex(self._lp, self._smcp)
 			self.simplex_method = SimplexMethod.PRIMAL
+
+			## If still no solution, presolve the problem to reduce complexity
+			## (also prevents warm start)
+			if self.status_code != glp.GLP_OPT:
+				print('Warning: could not find solution with dual method, using primal with presolve')
+				self._smcp.presolve = glp.GLP_ON
+				result = glp.glp_simplex(self._lp, self._smcp)
+				self._smcp.presolve = glp.GLP_OFF
 
 		if result != 0:
 			raise RuntimeError(SIMPLEX_RETURN_CODE_TO_STRING.get(
