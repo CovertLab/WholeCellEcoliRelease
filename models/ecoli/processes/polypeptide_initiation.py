@@ -77,7 +77,7 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 			self.variable_elongation)
 
 		# ensure rates are never zero
-		self.elongation_rates = np.fmax(elongation_rates, 1)
+		self.elongation_rates = np.fmax(self.elongation_rates, 1)
 
 	def evolveState(self):
 		# Calculate number of ribosomes that could potentially be initalized based on
