@@ -56,7 +56,7 @@ Simulation parameters:
 		one daughter cell for each new generation rather than two, thus avoiding
 		an exponential increase in the number of simulations
 	TIMELINE (str, "0 minimal"): sets the timeline of events for the simulation.
-		See	wholecell/utils/make_media.py, make_timeline() for timeline
+		See wholecell/utils/make_media.py, make_timeline() for timeline
 		formatting details.
 	WC_LENGTHSEC (int, "10800"): sets the maximum simulation time in seconds, useful
 		for short simulations (default is 3 hr)

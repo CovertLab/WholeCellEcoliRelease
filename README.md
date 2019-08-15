@@ -94,11 +94,11 @@ To run the analysis plots on the simulation output in a given `sim_dir`
 ```bash
 python runscripts/manual/analysisVariant.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [sim_dir]
 
-python runscripts/manual/analysisCohort.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--variant_index VARIANT_INDEX] [sim_dir]
+python runscripts/manual/analysisCohort.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--variant-index VARIANT_INDEX] [sim_dir]
 
-python runscripts/manual/analysisMultigen.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--variant_index VARIANT_INDEX] [--seed SEED] [sim_dir]
+python runscripts/manual/analysisMultigen.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--variant-index VARIANT_INDEX] [--seed SEED] [sim_dir]
 
-python runscripts/manual/analysisSingle.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--variant_index VARIANT_INDEX] [--seed SEED] [--generation GENERATION] [--daughter DAUGHTER] [sim_dir]
+python runscripts/manual/analysisSingle.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--variant-index VARIANT_INDEX] [--seed SEED] [--generation GENERATION] [--daughter DAUGHTER] [sim_dir]
 ```
 
 If you default the analysis parameters, these scripts will pick the latest simulation directory, the first variant, the first generation, and so on.

@@ -13,7 +13,7 @@ gcloud compute \
        --project=$PROJECT \
        instances create $NAMES \
        --zone=us-west1-b \
-       --machine-type=n1-standard-2 \
+       --machine-type=n1-standard-1 \
        --subnet=default \
        --network-tier=PREMIUM \
        --maintenance-policy=MIGRATE \

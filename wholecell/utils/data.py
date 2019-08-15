@@ -4,7 +4,7 @@ Miscellaneous data structure utilities.
 
 from __future__ import absolute_import, division, print_function
 
-from typing import Iterable, Mapping
+from typing import Any, Iterable, Mapping
 
 
 def dissoc(mapping, keys):
@@ -29,7 +29,9 @@ def dissoc_strict(mapping, keys):
 		del result[key]
 	return result
 
-def select_keys(mapping, keys):
-	# type: (Mapping, Iterable) -> dict
-	"""Return a dict of the entries in mapping with the given keys."""
-	return {key: mapping[key] for key in keys}
+def select_keys(mapping, keys, **kwargs):
+	# type: (Mapping[str, Any], Iterable[str], **Any) -> Dict[str, Any]
+	"""Return a dict of the selected keys from mapping plus the kwargs."""
+	result = {key: mapping[key] for key in keys}
+	result.update(**kwargs)
+	return result

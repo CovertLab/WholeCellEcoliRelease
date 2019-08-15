@@ -42,6 +42,8 @@ class SimulationTask(FireTaskBase):
 		options["growthRateNoise"] = self.get("growth_rate_noise", DEFAULT_SIMULATION_KWARGS["growthRateNoise"])
 		options["dPeriodDivision"] = self.get("d_period_division", DEFAULT_SIMULATION_KWARGS["dPeriodDivision"])
 		options["translationSupply"] = self.get("translation_supply", DEFAULT_SIMULATION_KWARGS["translationSupply"])
+		options["variable_elongation_transcription"] = self.get("variable_elongation_transcription", DEFAULT_SIMULATION_KWARGS["variable_elongation_transcription"])
+		options["variable_elongation_translation"] = self.get("variable_elongation_translation", DEFAULT_SIMULATION_KWARGS["variable_elongation_translation"])
 		options["trna_charging"] = self.get("trna_charging", DEFAULT_SIMULATION_KWARGS["trna_charging"])
 
 		sim = EcoliSimulation(**options)

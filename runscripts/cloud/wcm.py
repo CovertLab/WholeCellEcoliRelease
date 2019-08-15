@@ -10,11 +10,10 @@ from __future__ import absolute_import, division, print_function
 import json
 import os
 import re
-from typing import Any, Dict, Iterable, Mapping
+from typing import Any, Dict, Iterable
 
 from wholecell.fireworks.firetasks import ParcaTask, VariantSimDataTask
-from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
-from wholecell.utils import constants, scriptBase
+from wholecell.utils import constants, data, scriptBase
 import wholecell.utils.filepath as fp
 from runscripts.manual.analysisBase import AnalysisBase
 from runscripts.cloud.util.workflow import Task, Workflow
@@ -22,45 +21,6 @@ from runscripts.cloud.util.workflow import Task, Workflow
 
 DOCKER_IMAGE = 'gcr.io/allen-discovery-center-mcovert/{}-wcm-code:latest'
 STORAGE_PREFIX_ROOT = 'sisyphus:data/'
-
-DEFAULT_VARIANT = ['wildtype', '0', '0']
-
-METADATA_KEYS = (
-	'generations',
-	'mass_distribution',
-	'growth_rate_noise',
-	'd_period_division',
-	'variable_elongation_transcription',
-	'variable_elongation_translation',
-	'translation_supply',
-	'trna_charging')
-
-PARCA_KEYS = (
-	'ribosome_fitting',
-	'rnapoly_fitting',
-	'cpus',
-	'variable_elongation_transcription',
-	'variable_elongation_translation')
-
-SIM_KEYS = (
-	'timeline',
-	'length_sec',
-	'timestep_safety_frac',
-	'timestep_max',
-	'timestep_update_freq',
-	'mass_distribution',
-	'growth_rate_noise',
-	'd_period_division',
-	'translation_supply',
-	'trna_charging')
-
-
-def select_keys(mapping, keys, **kwargs):
-	# type: (Mapping[str, Any], Iterable[str], **Any) -> Dict[str, Any]
-	"""Return a dict of the mapping entries with the given keys plus the kwargs."""
-	result = {key: mapping[key] for key in keys if mapping[key] is not None}
-	result.update(**kwargs)
-	return result
 
 
 class WcmWorkflow(Workflow):
@@ -127,9 +87,9 @@ class WcmWorkflow(Workflow):
 			args['workers'] = variant_count * args['init_sims']
 
 		metadata_file = self.internal('metadata', constants.JSON_METADATA_FILE)
-		metadata = select_keys(
+		metadata = data.select_keys(
 			args,
-			METADATA_KEYS,
+			scriptBase.METADATA_KEYS,
 			git_hash=fp.run_cmdline("git rev-parse HEAD"),
 			git_branch=fp.run_cmdline("git symbolic-ref --short HEAD"),
 			description=args['description'] or 'WCM',
@@ -145,9 +105,9 @@ class WcmWorkflow(Workflow):
 				# task so its worker doesn't exit while the Parca runs.
 			outputs=[metadata_file])
 
-		python_args = select_keys(
+		python_args = data.select_keys(
 			args,
-			PARCA_KEYS,
+			scriptBase.PARCA_KEYS,
 			debug=args['debug_parca'],
 			output_directory=kb_dir)
 		parca_task = self.add_python_task('parca', python_args,
@@ -156,7 +116,7 @@ class WcmWorkflow(Workflow):
 
 		variant_analysis_inputs = [kb_dir]
 
-		sim_args = select_keys(args, SIM_KEYS)
+		sim_args = data.select_keys(args, scriptBase.SIM_KEYS)
 
 		for i, subdir in fp.iter_variants(*variant_spec):
 			variant_sim_data_dir = self.internal(subdir,
@@ -181,8 +141,9 @@ class WcmWorkflow(Workflow):
 
 			this_variant_cohort_analysis_inputs = [kb_dir, variant_sim_data_dir]
 			variant_analysis_inputs.append(variant_sim_data_dir)
+			arg_seed = args['seed']
 
-			for j in xrange(args['init_sims']):  # seed
+			for j in xrange(arg_seed, arg_seed + args['init_sims']):  # init sim seeds
 				seed_dir = self.internal(subdir, '{:06d}'.format(j))
 				md_multigen = dict(md_cohort, seed=j)
 
@@ -314,7 +275,7 @@ def wc_ecoli_workflow(args):
 	# type: (Dict[str, Any]) -> WcmWorkflow
 	"""Build a workflow for wcEcoli."""
 	owner_id = os.environ.get('WF_ID', os.environ['USER'])
-	timestamp = fp.timestamp()
+	timestamp = args['timestamp']
 	description = args['description'].replace(' ', '_')
 
 	pattern = r'[-.\w]*$'
@@ -341,31 +302,21 @@ class RunWcm(scriptBase.ScriptBase):
 			path prefix. Run `cloud/build-wcm.sh $WF_ID` to build the WCM
 			container image with that name.
 
-			The command line option names are long but you can use any
-			unambiguous prefix.'''
+			(The command line option names are long but you can use any
+			unambiguous prefix.)'''
 
 	def define_parameters(self, parser):
-		def add_option(name, key, datatype, help):
-			"""Add an option with the given name and datatype to the parser using
-			DEFAULT_SIMULATION_KWARGS[key] for the default value.
-			"""
-			default = DEFAULT_SIMULATION_KWARGS[key]
-			self.define_option(parser, name, datatype, default, help)
-		def add_bool_option(name, key, help):
-			"""Add a boolean option parameter with the given name to the parser
-			using DEFAULT_SIMULATION_KWARGS[key] for the default value. The CLI
-			input can be `--name` or `--no_name`.
-			"""
-			self.define_parameter_bool(
-				parser, name, DEFAULT_SIMULATION_KWARGS[key], help)
-
 		self.define_option(parser, 'description', str, '',
 			help='A simulation description to append to the output folder name.')
+		self.define_option(parser, 'timestamp', str, fp.timestamp(),
+			help='Timestamp for this workflow. It gets combined with the $WF_ID'
+				 ' to form the workflow name. Set this if you want to upload'
+				 ' new steps for an existing workflow.')
 		self.define_parameter_bool(parser, 'verbose', True,
 			help='Verbose workflow builder logging')
-		parser.add_argument('-c', '--cpus', type=int, default=2,
+		parser.add_argument('-c', '--cpus', type=int, default=1,
 			help='The number of CPU processes to use in the Parca and analysis'
-				 ' steps. Default = 2.')
+				 ' steps. Default = 1.')
 		self.define_parameter_bool(parser, 'dump', False,
 			help='Dump the built workflow to JSON files for'
 				 ' review *instead* of sending them to the Gaia workflow'
@@ -375,75 +326,15 @@ class RunWcm(scriptBase.ScriptBase):
 			help='The number of worker nodes to launch, with a smart default.')
 
 		# Parca
-		self.define_parameter_bool(parser, 'ribosome_fitting', True,
-			help="Fit ribosome expression to protein synthesis demands")
-		self.define_parameter_bool(parser, 'rnapoly_fitting', True,
-			help="Fit RNA polymerase expression to protein synthesis demands")
-		self.define_parameter_bool(parser, 'debug_parca', False,
-			help='Make Parca calculate only one arbitrarily-chosen transcription'
-				 ' factor condition when adjusting gene expression levels, leaving'
-				 ' the other TFs at their input levels for faster Parca debugging.'
-				 ' DO NOT USE THIS FOR A MEANINGFUL SIMULATION.')
-
-		# Variant
-		parser.add_argument('-v', '--variant', nargs=3, default=DEFAULT_VARIANT,
-			metavar=('VARIANT_TYPE', 'FIRST_INDEX', 'LAST_INDEX'),
-			help='''The variant type name, first index, and last index to make.
-				See models/ecoli/sim/variants/__init__.py for the variant
-				type choices and their supported index ranges, e.g.: wildtype,
-				condition, meneParams, metabolism_kinetic_objective_weight,
-				nutrientTimeSeries, and param_sensitivity.
-				Default = wildtype 0 0''')
+		self.define_parca_options(parser)
 
 		# Simulation
-		parser.add_argument('-g', '--generations', type=int, default=1,
-			help='Number of cell generations to run. Set it to 0 to just run'
-				 ' Parca and make-variants with no sim generations or analysis.'
-				 ' Default = 1')
-		parser.add_argument('-i', '--{}'.format(scriptBase.dashize('init_sims')), type=int, default=1,
-			help='(int; 1) Number of initial sims (seeds) per variant.'
-				 ' Default = 1')
-		parser.add_argument('-t', '--timeline', type=str, default='0 minimal',
-			help='set timeline. Default = "0 minimal". See'
-				 ' environment/condition/make_media.py, make_timeline() for'
-				 ' timeline formatting details')
-		add_option('length_sec', 'lengthSec', int,
-			help='The maximum simulation time, in seconds. Useful for short'
-				 ' simulations; not so useful for multiple generations.'
-				 ' Default is 3 hours')
-		add_option('timestep_safety_frac', 'timeStepSafetyFraction', float,
-			help='Scale the time step by this factor if conditions are'
-				 ' favorable, up the the limit of the max time step')
-		add_option('timestep_max', 'maxTimeStep', float,
-			help='the maximum time step, in seconds')
-		add_option('timestep_update_freq', 'updateTimeStepFreq', int,
-			help='frequency at which the time step is updated')
-		add_bool_option('mass_distribution', 'massDistribution',
-			help='If true, a mass coefficient is drawn from a normal distribution'
-				 ' centered on 1; otherwise it is set equal to 1')
-		add_bool_option('growth_rate_noise', 'growthRateNoise',
-			help='If true, a growth rate coefficient is drawn from a normal'
-				 ' distribution centered on 1; otherwise it is set equal to 1')
-		add_bool_option('d_period_division', 'dPeriodDivision',
-			help='If true, ends simulation once D period has occurred after'
-				 ' chromosome termination; otherwise simulation terminates once'
-				 ' a given mass has been added to the cell')
-		add_bool_option('variable_elongation_transcription', 'variable_elongation_transcription',
-			help='Use a different elongation rate for different transcripts'
-				 ' (currently increases rates for RRNA)')
-		add_bool_option('variable_elongation_translation', 'variable_elongation_translation',
-			help='Use a different elongation rate for different polypeptides'
-				 ' (currently increases rates for ribosomal proteins)')
-		add_bool_option('translation_supply', 'translationSupply',
-			help='If true, the ribosome elongation rate is limited by the'
-				 ' condition specific rate of amino acid supply; otherwise the'
-				 ' elongation rate is set by condition')
-		add_bool_option('trna_charging', 'trna_charging',
-			help='if true, tRNA charging reactions are modeled and the ribosome'
-				 ' elongation rate is set by the amount of charged tRNA	present.'
-				 ' This option will override TRANSLATION_SUPPLY in the simulation.')
+		self.define_sim_loop_options(parser)
+		self.define_sim_options(parser)
 
-		# TODO(jerry): Single/dual daughters.
+		# For Parca and Sim. define_parca_options() and define_sim_options()
+		# can't both call this since ArgumentParser would raise an error.
+		self.define_elongation_options(parser)
 
 		# Analyses
 		self.define_parameter_bool(parser, 'run_analysis', True,

@@ -52,16 +52,27 @@ def demo(worker_count=0, dump=False):
 		outputs=['>/tmp/count.log'],
 		command=['wc', lines_filename])
 
+	error_test_log = '/tmp/error-test.log'
 	add_task(
 		name='error_test',
 		inputs=[],  # test error handling by "forgetting" to download the input
-		outputs=['>/tmp/error-test.log'],
+		outputs=['>' + error_test_log],
 		command=['wc', lines_filename])
 
+	exception_log = '/tmp/index_exception.log'
 	add_task(
 		name='index_exception',
-		outputs=['>/tmp/index_exception.log'],
+		outputs=['>' + exception_log],
 		command=['python', '-u', '-c', "()[1]"])
+
+	# A task that depends on error tasks to test that they don't keep retrying.
+	# This is a regression test.
+	two_logs = '/tmp/two.log'
+	add_task(
+		name='error_watcher',
+		inputs=[error_test_log, exception_log],
+		outputs=['>' + two_logs],
+		command=['cat', error_test_log, exception_log])
 
 	# Dump or run the workflow.
 	if dump:

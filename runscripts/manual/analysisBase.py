@@ -57,13 +57,13 @@ class AnalysisBase(scriptBase.ScriptBase):
 					for everyday development. Use "ACTIVE" to run all active
 					plots in this category.''')
 
-		parser.add_argument('-o', '--output_prefix', default='',
+		parser.add_argument('-o', scriptBase.dashize('--output_prefix'),
+			default='',
 			help='Prefix for all the output plot filenames.')
 
 		parser.add_argument('-c', '--cpus', type=int, default=1,
 			help='The number of CPU processes to use. The given value will be'
-				 ' limited to the available number of CPU cores. Default = 1.'
-			)
+				 ' limited to the available number of CPU cores. Default = 1.')
 
 	def parse_args(self):
 		"""Parse the command line args into an `argparse.Namespace`, including

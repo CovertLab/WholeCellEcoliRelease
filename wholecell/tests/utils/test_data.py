@@ -28,12 +28,17 @@ class Test_data(unittest.TestCase):
 			data.dissoc_strict(source, (100, 200))
 
 	def test_select_keys(self):
-		source = {i: i * 10 for i in range(5)}
-		d1 = data.select_keys(source, [1, 4])
-		self.assertEqual(d1, {1: 10, 4: 40})
+		source = {'x{}'.format(i): i * 10 for i in range(5)}
+		d1 = data.select_keys(source, ['x1', 'x4'])
+		self.assertEqual({'x1': 10, 'x4': 40}, d1)
 
+		# Expect absent keys to raise KeyError.
 		with nose.tools.assert_raises(KeyError):
-			data.select_keys(source, (2, 100))
+			data.select_keys(source, ('x2', '100'))
+
+		# Test added keys.
+		d2 = data.select_keys(source, ('x1', 'x3', 'x4'), x=-1, y=-2, x3=0)
+		self.assertEqual({'x1': 10, 'x3': 0, 'x4': 40, 'x': -1, 'y': -2}, d2)
 
 
 if __name__ == '__main__':
