@@ -257,8 +257,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		plotGreen = 0
 		plotBlue = 0
 
-		essentialGenes_rna = validation_data.essentialGenes.essentialRnas
-		for g in essentialGenes_rna:
+		essential_genes_rna = validation_data.essential_genes.essential_RNAs
+		for g in essential_genes_rna:
 			i = np.where(mRnaIdsOrdered == str(g))[0][0]
 			f = transcribedBoolOrdered[i]
 
@@ -273,15 +273,15 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		fig = plt.figure()
 		ax = plt.subplot(1, 1, 1)
-		ax.bar(xloc + width, [plotRed / float(len(essentialGenes_rna)), plotGreen / float(len(essentialGenes_rna)), plotBlue / float(len(essentialGenes_rna))], width, color = [COLOR_F0, COLOR_FSUB, COLOR_F1], edgecolor = "none")
+		ax.bar(xloc + width, [plotRed / float(len(essential_genes_rna)), plotGreen / float(len(essential_genes_rna)), plotBlue / float(len(essential_genes_rna))], width, color = [COLOR_F0, COLOR_FSUB, COLOR_F1], edgecolor = "none")
 		whitePadSparklineAxis(ax)
 		ax.spines["left"].set_position(("outward", 0))
 		ax.set_yticks([0.0, 0.2, 0.4, 0.6, 0.8])
 		ax.set_yticklabels(["0%", "20%", "40%", "60%", "80%"])
 		ax.set_ylabel("Percentage of essential genes")
 		ax.set_xticks(xloc + 1.5 * width)
-		ax.set_xticklabels(["%s / %s" % (plotRed, len(essentialGenes_rna)), "%s / %s" % (plotGreen, len(essentialGenes_rna)), "%s / %s" % (plotBlue, len(essentialGenes_rna))])
-		ax.set_xlabel("Total number of essential genes: %s" % len(essentialGenes_rna))
+		ax.set_xticklabels(["%s / %s" % (plotRed, len(essential_genes_rna)), "%s / %s" % (plotGreen, len(essential_genes_rna)), "%s / %s" % (plotBlue, len(essential_genes_rna))])
+		ax.set_xlabel("Total number of essential genes: %s" % len(essential_genes_rna))
 		plt.subplots_adjust(right = 0.9, bottom = 0.15, left = 0.2, top = 0.9)
 		exportFigure(plt, plotOutDir, "figure5E", metadata)
 

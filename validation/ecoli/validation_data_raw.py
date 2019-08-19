@@ -12,6 +12,7 @@ directly from TSV flat files.
 import os
 import csv
 from reconstruction.spreadsheets import JsonReader
+from itertools import ifilter
 
 CSV_DIALECT = csv.excel_tab
 FLAT_DIR = os.path.join(os.path.dirname(__file__), "flat")
@@ -39,5 +40,8 @@ class ValidationDataRawEcoli(object):
 		setattr(self, attrName, [])
 
 		with open(file_name, 'rU') as csvfile:
-			reader = JsonReader(csvfile, dialect = CSV_DIALECT)
+			reader = JsonReader(
+				ifilter(lambda x: x.lstrip()[0] != "#", csvfile),
+				# Strip comments
+				dialect=CSV_DIALECT)
 			setattr(self, attrName, [row for row in reader])

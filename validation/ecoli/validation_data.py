@@ -35,7 +35,7 @@ class ValidationDataEcoli(object):
 	def initialize(self, validation_data_raw, knowledge_base_raw):
 		self.protein = Protein(validation_data_raw, knowledge_base_raw)
 		self.reactionFlux = ReactionFlux(validation_data_raw, knowledge_base_raw)
-		self.essentialGenes = EssentialGenes(validation_data_raw)
+		self.essential_genes = EssentialGenes(validation_data_raw)
 		self.geneFunctions = GeneFunctions(validation_data_raw)
 		self._add_dna_footprint_sizes(validation_data_raw)
 
@@ -214,17 +214,17 @@ class EssentialGenes(object):
 	""" EssentialGenes """
 
 	def __init__(self, validation_data_raw):
-		self._loadEssentialGenes(validation_data_raw)
+		self._load_essential_genes(validation_data_raw)
 
-	def _loadEssentialGenes(self, validation_data_raw):
-		self.essentialGenes = []
-		self.essentialRnas = []
-		self.essentialProteins = []
+	def _load_essential_genes(self, validation_data_raw):
+		self.essential_genes = []
+		self.essential_RNAs = []
+		self.essential_proteins = []
 
-		for row in validation_data_raw.essentialGenes:
-			self.essentialGenes.append(row["FrameID"])
-			self.essentialRnas.append(row["rnaID"] + "[c]")
-			self.essentialProteins.append(row["proteinID"] + "[" + row["proteinLoc"] + "]")
+		for row in validation_data_raw.essential_genes:
+			self.essential_genes.append(row["FrameID"])
+			self.essential_RNAs.append(row["rnaID"] + "[c]")
+			self.essential_proteins.append(row["proteinID"] + "[" + row["proteinLoc"] + "]")
 
 class GeneFunctions(object):
 	""" GeneFunctions """

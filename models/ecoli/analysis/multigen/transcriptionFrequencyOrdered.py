@@ -36,7 +36,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		allDir = ap.get_cells()
 
 		validation_data = cPickle.load(open(validationDataFile, "rb"))
-		essentialRnas = validation_data.essentialGenes.essentialRnas
+		essential_RNAs = validation_data.essential_genes.essential_RNAs
 
 		# Get mRNA data
 		sim_data = cPickle.load(open(simDataFile, "rb"))
@@ -108,7 +108,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			if transcriptionEventsOrdered[:, i].sum() == 0:
 				v = [-1]
 
-			if mRnaIdsOrdered[i] in essentialRnas:
+			if mRnaIdsOrdered[i] in essential_RNAs:
 				alwaysTranscriptionEvents_E.append(v)
 			else:
 				alwaysTranscriptionEvents_N.append(v)
@@ -120,7 +120,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			if transcriptionEventsOrdered[:, i].sum() == 0:
 				v = [-1]
 
-			if mRnaIdsOrdered[i] in essentialRnas:
+			if mRnaIdsOrdered[i] in essential_RNAs:
 				neverTranscriptionEvents_E.append(v)
 			else:
 				neverTranscriptionEvents_N.append(v)
@@ -133,7 +133,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			if transcriptionEventsOrdered[:, i].sum() == 0:
 				v = [-1]
 
-			if mRnaIdsOrdered[i] in essentialRnas:
+			if mRnaIdsOrdered[i] in essential_RNAs:
 				sometimesTranscriptionEvents_E.append(v)
 			else:
 				sometimesTranscriptionEvents_N.append(v)
