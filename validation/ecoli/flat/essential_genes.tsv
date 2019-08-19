@@ -1,3 +1,6 @@
+# List of genes that are thought to be essential for growth in glucose minimal
+# media. This list was built from data in Baba et al., 2006. Details on how
+# this list was constructed can be found in the essential_genes.md file.
 FrameID	rnaID	proteinID	proteinLoc	gene
 "EG10068"	"EG10068_RNA"	"ARGSUCCINSYN-MONOMER"	"c"	"argG"
 "EG10117"	"EG10117_RNA"	"DAPASYN-MONOMER"	"c"	"bioA"
