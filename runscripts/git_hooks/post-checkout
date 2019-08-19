@@ -1,0 +1,7 @@
+#! /usr/bin/env bash
+# Maintain proper environment for wcm
+
+# Only if new branch is checked out
+if [ $3 -eq 1 ]; then
+    "$(git rev-parse --git-path hooks)/wcm-env-check.sh"
+fi
