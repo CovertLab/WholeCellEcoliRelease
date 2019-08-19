@@ -42,10 +42,13 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			cellCycleLengths.append((time[-1] - time[0]) / 60.)
 			generations.append(idx)
 
+		ave_length = np.mean(cellCycleLengths)
+
 		plt.scatter(generations, cellCycleLengths)
 		plt.xlabel('Generation')
 		plt.ylabel('Time (min)')
-		plt.title('Cell cycle lengths')
+		plt.title('Cell cycle lengths\nAverage: {:.1f} min'.format(ave_length))
+		plt.axhline(ave_length, color='k', linestyle='--', linewidth=1)
 		plt.xticks(generations)
 		y_min, y_max = plt.ylim()
 		plt.ylim([np.floor(y_min), np.ceil(y_max)])
