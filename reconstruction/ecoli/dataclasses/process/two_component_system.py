@@ -379,9 +379,9 @@ class TwoComponentSystem(object):
 
 		Returns:
 			moleculesNeeded (1d ndarray, ints): counts of molecules that need
-			to be consumed
+				to be consumed
 			allMoleculesChanges (1d ndarray, ints): expected changes in
-			molecule counts after timestep
+				molecule counts after timestep
 		"""
 		y_init = moleculeCounts / (cellVolume * nAvogadro)
 
@@ -402,12 +402,19 @@ class TwoComponentSystem(object):
 				t=[0, timeStepSec], Dfun=self.derivatives_jacobian
 				)
 
+		# Handle negative counts by attempting to solve again with different options
 		if np.any(y[-1, :] * (cellVolume * nAvogadro) <= -1e-3):
 			if min_time_step and timeStepSec > min_time_step:
 				# Call method again with a shorter time step until min_time_step is reached
 				return self.moleculesToNextTimeStep(
 					moleculeCounts, cellVolume, nAvogadro, timeStepSec/2,
 					solver=solver, min_time_step=min_time_step)
+			elif solver != 'LSODA':
+				# Try with different solver for better stability
+				print('Warning: switching to LSODA method in TCS')
+				return self.moleculesToNextTimeStep(
+					moleculeCounts, cellVolume, nAvogadro, timeStepSec,
+					solver='LSODA', min_time_step=min_time_step)
 			else:
 				raise Exception(
 					"Solution to ODE for two-component systems has negative values."
