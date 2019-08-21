@@ -417,13 +417,8 @@ class TwoComponentSystem(object):
 		yMolecules = y * (cellVolume * nAvogadro)
 		dYMolecules = yMolecules[-1, :] - yMolecules[0, :]
 
-		independentMoleculesCounts = dYMolecules[self.independent_molecule_indexes]
-
-		# Round conservatively
-		independentMoleculesCounts[independentMoleculesCounts < 0] = np.ceil(
-			independentMoleculesCounts[independentMoleculesCounts < 0])
-		independentMoleculesCounts[independentMoleculesCounts > 0] = np.floor(
-			independentMoleculesCounts[independentMoleculesCounts > 0])
+		# Isolate independent molecules and round conservatively via trunc
+		independentMoleculesCounts = np.trunc(dYMolecules[self.independent_molecule_indexes])
 
 		# To ensure that we have non-negative counts of phosphate, we must
 		# have the following (which can be seen from the dependency matrix)
