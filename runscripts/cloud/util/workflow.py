@@ -83,8 +83,11 @@ class Task(object):
 		# type: (str, str, Iterable[str], Iterable[str], Iterable[str], str, str) -> None
 		"""Construct a Workflow Task.
 
-		input and output paths are internal to the worker container and get
-		rebased from internal_prefix to storage_prefix for the storage paths.
+		Input and output paths are internal to the worker's Docker container.
+		Task will rebase them from internal_prefix to storage_prefix to construct
+		the corresponding storage paths. An internal path ending with '/' will
+		upload or download a directory tree, and its corresponding storage path
+		will not end with '/'.
 
 		An output path that starts with '>' will capture a log from stdout +
 		stderr. The rest of the path will get rebased to a storage path.

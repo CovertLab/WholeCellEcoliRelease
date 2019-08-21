@@ -20,7 +20,8 @@
    Notes:
 
    * This uploads the source code from your working directory, whether or not it's checked-in or
-   compiled, so consider running small-scale local tests beforehand using
+   compiled.
+   * Consider running small-scale local tests beforehand using
    [the manual runscripts](https://github.com/CovertLab/wcEcoli#using-the-manual-runscripts).
    You can shorten the run time via command line options like runSim's `--length-sec`.
    * This creates a Docker image named `gcr.io/allen-discovery-center-mcovert/$USER-wcm-code` in
@@ -46,8 +47,8 @@
    Notes:
 
    * Use the `-h` option to get help on all the command line options, e.g. how many
-   simulation generations to run, how many initial cell seeds, and a workflow
-   description.
+   `--init-sims` lineage initial seeds to run, how many simulation `--generations`
+   to run for each seed, and a workflow description.
    * Use the `--dump` option to write the workflow definition as JSON files for
    review instead of running them in Google Compute Engine. You can edit these
    files and manually upload them to the Gaia workflow server or just re-run
@@ -56,7 +57,9 @@
    use it for interactive Gaia operations in a Python terminal.
    * `wcm.py` will print the workflow's timestamped name, e.g.
    `WCM_$USER_20190725.160911`, with your local user name.
-   Watch for this workflow name in the logs. 
+   You can filter the logs for this name. 
+   * `wcm.py` also prints the workflow step names. These names are handy if you
+   want to change the code and rerun particular steps without starting all over.
 
 
 ## Watch it run
@@ -91,7 +94,7 @@ work" steps of the simulation and analysis.)
 
 * Click your web browser bookmark to open the [Google Cloud Platform
 console](https://console.cloud.google.com/home/dashboard?project=allen-discovery-center-mcovert)
-home page. The `☰` menu is a way to navigate to all the other pages.
+home page. Use the `☰` menu to navigate to all the other pages.
 
 * Open the [Compute Engine — VM instances](https://console.cloud.google.com/compute/instances?project=allen-discovery-center-mcovert&instancessize=50)
 page to see the list of running Compute Engine VM instances.
@@ -100,17 +103,18 @@ page to see the list of running Compute Engine VM instances.
    launches workers named `sisyphus-$USER-0`, `sisyphus-$USER-1`, … but (for now) they are
    not dedicated to your workflow
    * "gaia-base" is always available to manage workflows
-   * "rabbit-prime" is running a queue of workflow tasks
+   * "rabbit-prime" is running a workflow task queue
    * "zookeeper-prime" communicates control information between Gaia and worker nodes
 
 * Open the [Logging — Logs Viewer](https://console.cloud.google.com/logs/viewer?project=allen-discovery-center-mcovert)
 page to view the logs from the project's GCE VM instances.
 
    * The triangle "Run" button at the top starts streaming the logs (akin to `tail -f` following).
-   * The page has several filtering tools. A good place to start is to set the resource menu to
+   * The page has several filtering tools.
+     * A good place to start is to set the resource menu to
    `GCE VM Instance` and the log level to `Info`.
-   * Log level `Debug` will show internal workings of the Gaia and Sisyphus servers.
-   * Log severity `NOTICE` is used to make startup and shutdown events more prominent
+     * Log level `Debug` will show internal workings of the Gaia and Sisyphus servers.
+     * Log severity `NOTICE` is used to make startup and shutdown events more prominent
    than `INFO`, but Log Viewer shows them with the same icon as `INFO` entries.
    * You can also filter on your workflow name or more simply on your user name.
    * Log entries from the Gaia server have
@@ -124,39 +128,44 @@ page to view the logs from the project's GCE VM instances.
    resource type `gce_instance` and resource label instance_id = `sisyphus-$USER-$NUMBER`.
    * The logs should show all the output lines from your workflow steps and some log entries
    from Gaia and Sisyphus coordination.
+   * Each step writes a log file to the `logs/` part of the output directory. See below.
    * When it logs `WORKFLOW COMPLETE` naming your workflow, your workflow is done!
 
 * Open the [Storage — Browser](https://console.cloud.google.com/storage/browser?project=allen-discovery-center-mcovert)
 page to browse the files created by our workflow runs.
 
    * Currently the files are all within Bucket `sisyphus`, directory `data`.
-   * `wcm.py` directs its output files ito a subdirectory named for the user, the
-   date-time timestamp, and the optional workflow description.
+     * TODO: Make a separate bucket per user.
+   * `wcm.py` directs the workflow's output files to a subdirectory named
+   `sisyphus/data/$USER/$TIMESTAMP` and the optional workflow description string.
+   * The `logs/` subdirectory contains a log file for each workflow step that ran.
 
 
 ## Download the outputs
 
 There are many ways to download the outputs from your workflow:
 
-* **Simplest:** Open the
-[Storage — Browser](https://console.cloud.google.com/storage/browser?project=allen-discovery-center-mcovert),
+* **Simplest for individual files:** Open the [Google Cloud
+Storage — Browser](https://console.cloud.google.com/storage/browser?project=allen-discovery-center-mcovert),
 browse into the [sisyphus storage bucket](https://console.cloud.google.com/storage/browser/sisyphus?project=allen-discovery-center-mcovert)
 bucket, find your workflow files, and click on individual files to download them.
 * **Most convenient:** Use [gcsfuse](https://github.com/GoogleCloudPlatform/gcsfuse) to mount the storage
-bucket `sisyphus` to your local file system (or mount just its `data/$USER/` subdirectory) and find
+bucket `sisyphus` to your local file system
+(or use the `--only-dir data/$USER` option to mount just its `data/$USER/` subdirectory) and find
 the files you want.
   * gcsfuse reads and writes whole files to Cloud Storage on demand. It's convenient but
-  it has high latency.
-  * Cloud Storage does not act like a regular file system and gcsfuse cannot hide that.
-  E.g. it doesn't have directories, just file paths that may contain slashes. See the notes in
+  it has higher latency than an NFS server.
+  * Google Cloud Storage (GCS) is not a regular file system and gcsfuse can't totally hide that.
+  E.g. GCS doesn't have directories, just file paths that may contain slashes and some that end
+  with a slash. See the notes in
   [semantics.md](https://github.com/GoogleCloudPlatform/gcsfuse/blob/master/docs/semantics.md)
   for details.
-  * For now, you'll need to use gcsfuse's `--implicit-dirs` option until Sisyphus creates stand-ins
-  for directory entries. This makes gcsfuse even slower and has
-  [additional side-effects](https://github.com/GoogleCloudPlatform/gcsfuse/blob/master/docs/semantics.md#implicit-directories).
+  * (Only for workflows run before 2019-08-18, you need to use gcsfuse's `--implicit-dirs` option since
+  Sisyphus didn't create directory-like entries. implicit-dirs makes gcsfuse much slower. See
+  [additional side-effects](https://github.com/GoogleCloudPlatform/gcsfuse/blob/master/docs/semantics.md#implicit-directories).)
 * **Fastest:** Use the [gsutil tool](https://cloud.google.com/storage/docs/gsutil) (it's part of the
 Cloud SDK tools you installed along with `gcloud`) to do anything you need with Cloud Storage
-buckets and files. With the `-m` option, it'll transfer lots of files in parallel, so this is the
+buckets and files. With the `-m` option it'll transfer lots of files in parallel, so this is the
 fastest approach.
   * It can also do [gsutil -m rsync](https://cloud.google.com/storage/docs/gsutil/commands/rsync).
 * We might write a visual browser for pictures in our Cloud Storage bucket.
@@ -166,6 +175,35 @@ fastest approach.
 is a state of the art (released March 2018) video format that competes with H.265. It aims to
 produce substantially better quality/size than H.264 and VP9 and also be royalty-free.
 It does support lossless compression. It's supported by Chrome, Firefox, and Opera.
+
+
+## Debugging
+
+You can load the [Gaia Python client](https://github.com/prismofeverything/gaia) into an interactive
+Python or ipython shell to make calls such as these.
+
+**Preparation:** Run `runscripts/cloud/ssh-tunnel.sh` to tunnel a port to the Gaia server.
+
+
+```python
+from gaia.client import Gaia
+from pprint import pprint
+flow = Gaia({'gaia_host': 'localhost:24442'})
+
+# Get LOTS of status info on a workflow:
+pprint(flow.status('WCM_jerry_20190819.174900')['status'])
+
+# Expire a list of steps so they'll run again:
+flow.expire('WCM_jerry_20190819.174900', ["analysis_Var000_Seed000_Gen000_Cell000", "analysis_multigen_Var0_Seed0", "analysis_cohort_Var0", "analysis_variant"])
+
+# Halt a workflow:
+flow.halt('WCM_jerry_20190819.174900')
+```
+
+If you want to change the code, rerun `cloud/build-wcm.sh`, and expire those steps, you'll
+need to ensure that the new Docker image is ready, the existing workers shut down, and there are
+fresh new workers running that will pull the new Docker image. Use the Compute Engine page of the
+Google Cloud Console to shut down workers. (Let it delete their "disks".)
 
 
 ## Variations
@@ -241,14 +279,10 @@ default to `$USER`.
 
 * Document how to set up and update the Gaia, Sisyphus, RabbitMQ, and Kafka
 servers on GCE.
-  * Periodically security updates and apt-get upgrades.
-  * Occasionally pull new Docker images to the Sisyphus server disk image and
-  delete old ones.
-  * Occasionally trim journalctl.
+  * Periodically apply security updates and apt-get upgrades.
+  * See [How to update the Sisyphus server's disk Image](update-sisyphus-server.md).
   * Sisyphus disk images are in an "image family" so new ones supersede older
   ones and we can revert back if a new one doesn't work. Do the same with the
   other server types. 
 * Test other ways to open a secure connection to the Gaia workflow server.
-* Make Sisyphus create the psuedo "directory" entries in Cloud Storage so we
-can use `gcsfuse` without `--implicit-dirs`.
-* A web UI for the Gaia workflow server to monitor and modify workflow runs.
+* Build a web UI for the Gaia workflow server to monitor and modify workflow runs.

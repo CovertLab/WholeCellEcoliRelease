@@ -35,6 +35,7 @@ There are two alternative ways to set up to run the model:
 
 * [How to run the Whole Cell Model](run.md) (actually the top level [README](../README.md) is more informative)
 * [How to run the Whole Cell Model on the Google Cloud Platform](google-cloud.md)
+  * [How to update the Sisyphus server's disk Image](update-sisyphus-server.md)
 * [How to run the Causality visualization tool](https://github.com/CovertLab/causality)
 * [How to run multi-scale agents](../environment/README.md)
 
