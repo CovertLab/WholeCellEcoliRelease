@@ -25,9 +25,10 @@ class AnalysisSingleTask(AnalysisBase):
 		"metadata",
 		]
 	optional_params = [
-		"plots_to_run",  # absent or empty => run all active analysis plots
+		"plot",  # absent or empty => run all active analysis plots
 		"output_filename_prefix",
 		"cpus",
+		"compile",
 		]
 	MODULE_PATH = 'models.ecoli.analysis.single'
 	TAGS = models.ecoli.analysis.single.TAGS

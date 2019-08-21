@@ -39,9 +39,8 @@ class AnalysisCohort(AnalysisBase):
 			input_validation_data=args.input_validation_data,
 			output_plots_directory=output_dir,
 			metadata=args.metadata,
-			plots_to_run=args.plot,
 			output_filename_prefix=args.output_prefix,
-			cpus=args.cpus,
+			**self.select_analysis_keys(args)
 			)
 		task.run_task({})
 

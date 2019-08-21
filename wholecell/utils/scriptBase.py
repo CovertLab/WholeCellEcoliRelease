@@ -55,6 +55,11 @@ SIM_KEYS = (
 	'translation_supply',
 	'trna_charging')
 
+ANALYSIS_KEYS = (
+	'plot',
+	'cpus',
+	'compile')
+
 DEFAULT_VARIANT = ['wildtype', '0', '0']
 
 

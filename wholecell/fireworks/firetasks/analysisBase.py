@@ -10,13 +10,19 @@ import abc
 from collections import OrderedDict
 import importlib
 import multiprocessing as mp
+import os
 import sys
 import time
 import traceback
 
 from fireworks import FiretaskBase
+from PIL import Image
+from typing import List, Optional
 
 from wholecell.utils import parallelization
+
+
+SUB_DIRECTORIES = {'.png': 'low_res_plots'}
 
 
 class AnalysisBase(FiretaskBase):
@@ -40,7 +46,7 @@ class AnalysisBase(FiretaskBase):
 		MODULE_PATH = the module pathname for loading this subclass's analysis
 			plots.
 
-	Optional params include plots_to_run, output_filename_prefix, cpus.
+	Optional params include plot, output_filename_prefix, cpus.
 	"""
 
 	@abc.abstractmethod
@@ -78,12 +84,49 @@ class AnalysisBase(FiretaskBase):
 		self.expand_plot_names(plot_names, name_dict)
 		return name_dict.keys()
 
+	def compile_images(self, file_list, extension='.png'):
+		# type: (List[str], str) -> None
+		"""
+		Compiles images into a single file.
+
+		Args:
+			file_list: list of python analysis files that were run
+			extension: plot filename extension, expected sub directory
+				should be in SUB_DIRECTORIES
+
+		Notes:
+			- Only handles .png extension but other python packages should be able
+			to handle vector based outputs (.pdf or .svg)
+			- Will not handle all analysis plots produced if saved under a name
+			other than the default filename
+		"""
+
+		# Identify images to compile
+		sub_dir = SUB_DIRECTORIES.get(extension, '')
+		output_dir = os.path.join(self['output_plots_directory'], sub_dir)
+		output_bases = [self.plotter_args(f)[2] for f in file_list]
+
+		# Load images and data
+		image_files = [os.path.join(output_dir, base + extension) for base in output_bases]
+		images = [Image.open(f) for f in image_files if os.path.exists(f)]
+		if not images:
+			return
+		widths, heights = zip(*(i.size for i in images))
+
+		# Create and save compiled image
+		compiled_image = Image.new('RGB', (max(widths), sum(heights)), (255, 255, 255))
+		pos = 0
+		for image in images:
+			compiled_image.paste(image, (0, pos))
+			pos += image.size[1]
+		compiled_image.save(os.path.join(output_dir, 'compiled' + extension))
+
 	def run_task(self, fw_spec):
 		startTime = time.time()
 		print("\n{}: --- Starting {} ---".format(
 			time.ctime(startTime), type(self).__name__))
 
-		plot_names = self.get("plots_to_run", [])
+		plot_names = self.get("plot", [])
 		fileList = self.list_plot_files(plot_names)
 
 		self['output_filename_prefix'] = self.get('output_filename_prefix', '')
@@ -128,6 +171,10 @@ class AnalysisBase(FiretaskBase):
 			for f, result in results.items():
 				if not result.successful():
 					exceptionFileList.append(f)
+
+		if self.get('compile', False):
+			print("{}: Compiling images".format(time.ctime()))
+			self.compile_images(fileList)
 
 		timeTotal = time.time() - startTime
 
