@@ -159,13 +159,13 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		n_active_replisomes = self.active_replisomes.total_counts()[0]
 		n_oriC = self.oriCs.total_counts()[0]
 
-		# Get attributes of existing chromosome domains
-		domain_index_existing_domain, child_domains = self.chromosome_domains.attrs(
-			'domain_index', 'child_domains')
-
 		# If there are no origins, return immediately
 		if n_oriC == 0:
 			return
+
+		# Get attributes of existing chromosome domains
+		domain_index_existing_domain, child_domains = self.chromosome_domains.attrs(
+			'domain_index', 'child_domains')
 
 		# Get number of available replisome subunits
 		n_replisome_trimers = self.replisome_trimers.counts()

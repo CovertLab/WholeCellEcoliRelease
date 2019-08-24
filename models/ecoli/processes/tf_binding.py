@@ -96,6 +96,10 @@ class TfBinding(wholecell.processes.process.Process):
 
 
 	def evolveState(self):
+		# If there are no promoters, return immediately
+		if self.promoters.total_counts() == 0:
+			return
+
 		# Get attributes of all promoters
 		TU_index, coordinates_promoters, domain_index_promoters, bound_TF = self.promoters.attrs(
 			"TU_index", "coordinates", "domain_index", "bound_TF")

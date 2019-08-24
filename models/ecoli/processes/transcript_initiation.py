@@ -111,13 +111,13 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		# Get all inactive RNA polymerases
 		self.inactiveRnaPolys.requestAll()
 
-		# Get attributes of promoters
-		TU_index, bound_TF = self.promoters.attrs("TU_index", "bound_TF")
-
 		# Read current environment
 		current_media_id = self._external_states['Environment'].current_media_id
 
 		if self.full_chromosomes.total_counts()[0] > 0:
+			# Get attributes of promoters
+			TU_index, bound_TF = self.promoters.attrs("TU_index", "bound_TF")
+
 			# Calculate probabilities of the RNAP binding to each promoter
 			self.promoter_init_probs = (self.basal_prob[TU_index] +
 				np.multiply(self.delta_prob_matrix[TU_index, :], bound_TF).sum(axis=1))
@@ -165,7 +165,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		# If there are no chromosomes in the cell, set all probs to zero
 		else:
-			self.promoter_init_probs = np.zeros(len(TU_index))
+			self.promoter_init_probs = np.zeros(self.promoters.total_counts())
 
 		self.fracActiveRnap = self.fracActiveRnapDict[current_media_id]
 		self.rnaPolymeraseElongationRate = self.rnaPolymeraseElongationRateDict[current_media_id]
@@ -177,12 +177,18 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 
 	def evolveState(self):
+		# no synthesis if no chromosome
+		if self.full_chromosomes.total_counts()[0] == 0:
+			self.writeToListener(
+				"RnaSynthProb", "rnaSynthProb", np.zeros(self.n_TUs))
+			return
+
 		# Get attributes of promoters
 		TU_index, coordinates_promoters, domain_index_promoters, bound_TF = self.promoters.attrs(
 			"TU_index", "coordinates", "domain_index", "bound_TF")
 		
 		# Construct matrix that maps promoters to transcription units
-		n_promoters = len(TU_index)
+		n_promoters = self.promoters.total_counts()
 		TU_to_promoter = scipy.sparse.csr_matrix(
 			(np.ones(n_promoters), (TU_index, np.arange(n_promoters))),
 			shape = (self.n_TUs, n_promoters))
@@ -199,10 +205,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 				np.arange(self.n_TUs),
 				TU_synth_probs[self.shuffleIdxs],
 				TU_index)
-
-		# no synthesis if no chromosome
-		if self.full_chromosomes.total_counts()[0] == 0:
-			return
 
 		# Calculate RNA polymerases to activate based on probabilities
 		self.activationProb = self._calculateActivationProb(
