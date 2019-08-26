@@ -118,6 +118,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 					expectedDegR.append(expectedDegradationRate[i])
 					predictedDegR.append(rnaDegradationRate3[i])
 
+		if len(expectedDegR) == 0:
+			print("Skipping analysis - no RNAs synthesized during this generation")
+			return
 
 		plt.figure(figsize = (8.5, 11))
 		maxLine = 1.1 * max(max(expectedDegR), max(predictedDegR))

@@ -64,8 +64,10 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			"uniqueMoleculeCounts")[:, full_chromosome_index]
 
 		# Count critical initiation mass equivalents
-		# criticalInitiationMass[0] = criticalInitiationMass[1]
-		criticalMassEquivalents = totalMass / criticalInitiationMass
+		if np.all(criticalInitiationMass > 0):
+			criticalMassEquivalents = totalMass / criticalInitiationMass
+		else:  # Cell does not have any chromosomes
+			criticalMassEquivalents = np.zeros_like(totalMass)
 
 		# Plot stuff
 		plt.figure(figsize = (8.5, 11))
