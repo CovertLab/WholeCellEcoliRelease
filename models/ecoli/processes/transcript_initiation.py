@@ -172,7 +172,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.elongation_rates = self.make_elongation_rates(
 			self.randomState,
 			self.rnaPolymeraseElongationRate.asNumber(units.nt / units.s),
-			self.timeStepSec(),
+			1,  # want elongation rate, not lengths adjusted for time step
 			self.variable_elongation)
 
 
@@ -186,7 +186,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		# Get attributes of promoters
 		TU_index, coordinates_promoters, domain_index_promoters, bound_TF = self.promoters.attrs(
 			"TU_index", "coordinates", "domain_index", "bound_TF")
-		
+
 		# Construct matrix that maps promoters to transcription units
 		n_promoters = self.promoters.total_counts()
 		TU_to_promoter = scipy.sparse.csr_matrix(
