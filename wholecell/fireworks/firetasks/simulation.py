@@ -12,7 +12,7 @@ class SimulationTask(FireTaskBase):
 
 	_fw_name = "SimulationTask"
 	required_params = ["input_sim_data", "output_directory"]
-	optional_params = ["seed", "timeline", "length_sec", "timestep_safety_frac", "timestep_max", "timestep_update_freq", "log_to_shell", "log_to_disk_every", "mass_distribution", "growth_rate_noise", "d_period_division", "translation_supply", "trna_charging"]
+	optional_params = ["seed", "timeline", "length_sec", "timestep_safety_frac", "timestep_max", "timestep_update_freq", "log_to_shell", "log_to_disk_every", "mass_distribution", "growth_rate_noise", "d_period_division", "translation_supply", "trna_charging", "raise_on_time_limit"]
 
 	def run_task(self, fw_spec):
 
@@ -45,6 +45,7 @@ class SimulationTask(FireTaskBase):
 		options["variable_elongation_transcription"] = self.get("variable_elongation_transcription", DEFAULT_SIMULATION_KWARGS["variable_elongation_transcription"])
 		options["variable_elongation_translation"] = self.get("variable_elongation_translation", DEFAULT_SIMULATION_KWARGS["variable_elongation_translation"])
 		options["trna_charging"] = self.get("trna_charging", DEFAULT_SIMULATION_KWARGS["trna_charging"])
+		options["raise_on_time_limit"] = self.get("raise_on_time_limit", DEFAULT_SIMULATION_KWARGS["raise_on_time_limit"])
 
 		sim = EcoliSimulation(**options)
 

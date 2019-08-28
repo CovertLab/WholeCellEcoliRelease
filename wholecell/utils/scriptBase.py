@@ -53,7 +53,8 @@ SIM_KEYS = (
 	'variable_elongation_transcription',
 	'variable_elongation_translation',
 	'translation_supply',
-	'trna_charging')
+	'trna_charging',
+	'raise_on_time_limit')
 
 ANALYSIS_KEYS = (
 	'plot',
@@ -404,6 +405,9 @@ class ScriptBase(object):
 			help='if true, tRNA charging reactions are modeled and the ribosome'
 				 ' elongation rate is set by the amount of charged tRNA	present.'
 				 ' This option will override TRANSLATION_SUPPLY in the simulation.')
+		add_bool_option('raise_on_time_limit', 'raise_on_time_limit',
+			help='if true, the simulation raises an error if the time limit'
+				 ' (--length-sec) is reached before division.')
 
 
 	def parse_args(self):

@@ -47,7 +47,9 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	simData = None,
 	inheritedStatePath = None,
 	variable_elongation_translation = False,
-	variable_elongation_transcription = False)
+	variable_elongation_transcription = False,
+	raise_on_time_limit = False,
+)
 
 def _orderedAbstractionReference(iterableOfClasses):
 	return collections.OrderedDict(
@@ -222,7 +224,8 @@ class Simulation(CellSimulation):
 
 		try:
 			self.run_incremental(self._lengthSec + self.initialTime())
-			self.cellCycleComplete()
+			if not self._raise_on_time_limit:
+				self.cellCycleComplete()
 		finally:
 			self.finalize()
 
@@ -268,6 +271,9 @@ class Simulation(CellSimulation):
 				logger.finalize(self)
 
 			self._finalized = True
+
+		if self._raise_on_time_limit and not self._cellCycleComplete:
+			raise SimulationException('Simulation time limit reached without cell division')
 
 	# Calculate temporal evolution
 	def _evolveState(self):
