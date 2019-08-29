@@ -215,7 +215,7 @@ class Metabolism(wholecell.processes.process.Process):
 		# Track updated AA concentration targets with tRNA charging
 		self.use_trna_charging = sim._trna_charging
 		self.aa_targets = {}
-		self.aa_targets_not_updated = set(['L-SELENOCYSTEINE[c]', 'GLT[c]', 'LEU[c]'])
+		self.aa_targets_not_updated = set(['L-SELENOCYSTEINE[c]', 'GLT[c]'])
 		self.aa_names = sim_data.moleculeGroups.aaIDs
 		self.aas = self.bulkMoleculesView(self.aa_names)
 

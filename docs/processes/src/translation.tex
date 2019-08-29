@@ -21,8 +21,8 @@ Translation is the process by which the coding sequences of mRNA transcripts are
 
 \texttt{PolypeptideElongation} models the polymerization of amino acids into polypeptides by ribosomes using an mRNA transcript as a template, and the termination of elongation once a ribosome has reached the end of an mRNA transcript. This process is implemented assuming that tRNA charging by synthetases, ternary complex formation (GTP : EF-Tu : charged-tRNA), and ternary complex diffusion to elongating ribosomes are not rate limiting for polypeptide polymerization (unless a flag is set to use tRNA charging as described below in optional feature). Given this assumption this process directly polymerizes amino acids based on the codon sequence of the mRNA transcript. Polymerization occurs across all ribosomes simultaneously and resources are allocated to maximize the progress of all ribosomes up to the limit of the expected ribosome elongation rate in a medium, available amino acids, and available transcripts (see Algorithm \ref{polypeptide_elongation_algorithm}).
 
-\subparagraph{Optional features: tRNA charging.}
-tRNA charging can be enabled for a simulation and and is used in \texttt{PolypeptideElongation} to capture a more mechanistic view of translation.  The rate of amino acid incorporation becomes a function of the state of the cell including the codon sequence of mRNAs being translated as well as amino acid, tRNA, synthetase and ribosome concentrations.  With the assumption that charging happens sufficiently fast ($k_{cat} \approx 100$ $s^{-1}$ vs $\sim$1 s time step) and the state of the cell does not significantly change between time steps, the ratio of uncharged to charged tRNA can be adjusted until rates of tRNA charging ($v_{charging}$) and ribosome elongation ($v_{elongation}$) reach a steady state during each time step.  This is shown with ODEs for each tRNA species, $i$, shown below:
+\subparagraph{tRNA charging.}
+tRNA charging is used in \texttt{PolypeptideElongation} to capture a more mechanistic view of translation but can be optionally disabled.  The rate of amino acid incorporation becomes a function of the state of the cell including the codon sequence of mRNAs being translated as well as amino acid, tRNA, synthetase and ribosome concentrations.  With the assumption that charging happens sufficiently fast ($k_{cat} \approx 100$ $s^{-1}$ vs $\sim$1 s time step) and the state of the cell does not significantly change between time steps, the ratio of uncharged to charged tRNA can be adjusted until rates of tRNA charging ($v_{charging}$) and ribosome elongation ($v_{elongation}$) reach a steady state during each time step.  This is shown with ODEs for each tRNA species, $i$, shown below:
 \[\frac{d[tRNA_{charged,i}]}{dt} = v_{charging,i} - v_{elongation,i}\]
 \[\frac{d[tRNA_{uncharged,i}]}{dt} = -\frac{d[tRNA_{charged,i}]}{dt}\]
 Currently, the rates of charging and elongation are defined as below with the same constants for all species but could be altered to capture specific parameters for each species and additional concentrations (eg ATP).
@@ -30,10 +30,42 @@ Currently, the rates of charging and elongation are defined as below with the sa
 \[v_{elongation,i} = f_i\cdot\frac{v_{rib}\cdot[ribosome]}{1 + \sum\limits_i(f_i\cdot(\frac{k_{ta}}{[tRNA_{charged,i}]} + \frac{k_{tf}}{[tRNA_{uncharged,i}]} + \frac{[tRNA_{uncharged,i}]}{[tRNA_{charged,i}]}\cdot\frac{k_{ta}}{k_{tf}}))}\]
 Where $k_S$ is the synthetase charging rate, $K_{M,tf}$ is the Michaelis constant for free tRNA binding synthetases, $K_{M,aa}$ is the Michaelis constant for amino acids binding synthetases, $f_i$ is the fraction of codon $i$ to total codons to be elongated, $v_{rib}$ is the max ribosome elongation rate, $k_{ta}$ is the dissociation constant of charged tRNA to ribosomes and $k_{tf}$ is the dissociation constant of uncharged tRNA to ribosomes.
 
-With tRNA charging, translation will be limited by the calculated elongation rate ($v_{elongation}$) instead of the supply of amino acids to \texttt{PolypeptideElongation}.  With a variable amount of amino acids being used at each time step, the concentration of each amino acid species, $i$, in the cell can vary as shown below based on the rate of supply of amino acids ($v_{supply,i}$ which includes both synthesis and uptake and is calculated for each condition) and the rate of charging ($v_{charging,i}$) as determined above:
-\[\frac{d[AA_i]}{dt} = v_{supply,i} - v_{charging,i}\]
-This change in amino acid concentrations will update the homeostatic target in \texttt{Metabolism}.\\
+With tRNA charging, translation will be limited by the calculated elongation rate ($v_{elongation}$) instead of the supply of amino acids to \texttt{PolypeptideElongation}.  With a variable amount of amino acids being produced and used at each time step, the concentration of each amino acid species, $i$, in the cell can vary as shown below, which will update the homeostatic target in \texttt{Metabolism}:
+\[\frac{d[AA_i]}{dt} = f_{supply,i}\cdot v_{supply,i} - v_{charging,i}\]
+where $f_{supply,i}$ is a function dependent on internal amino acid concentration and the presence of external amino acids, $v_{supply,i}$ is the rate of supply of amino acids, which includes both synthesis and uptake and is calculated for each condition based on the expected doubling time, and $v_{charging,i}$ is the rate of charging as determined above.  $f_{supply,i}$ is defined as:
 
+\[f_{supply,i} = f_{base\_synthesis,i} + f_{inhibited\_synthesis,i} + f_{import,i} - f_{export,i}\]
+
+where
+\begin{align*}
+    f_{base\_synthesis,i} &= c_{1,i} \\
+    f_{inhibited\_synthesis,i} &= \frac{1}{1 + \frac{[AA_i]}{K_{I,i}}} \\
+    f_{import,i} &=
+    \begin{cases}
+        c_{2,i} & \text{if $AA_i$ in environment} \\
+        0 & \text{otherwise}
+    \end{cases} \\
+    f_{export,i} &= \frac{[AA_i]}{K_{M,i} + [AA_i]}
+\end{align*}
+
+$c_{1,i}$, $c_{2,i}$, $K_{I,i}$, and $K_{M,i}$ can be determined by defining parameters $f_I$ and $f_M$ and constraints below that represent the fraction of contributions to the supply rate at the expected amino acid concentrations when the cell is in the presence of amino acids in the environment and when amino acids are not present:
+
+\begin{align*}
+    \text{when $[AA_i] = [AA_{i,basal}]$}: \hspace{10pt} & f_{inhibited\_synthesis,i} = f_I \\
+    & f_{supply,i,basal} = 1 \\
+    \text{when $[AA_i] = [AA_{i,amino\_acid}]$}:\hspace{10pt} & f_{export,i} = f_M \\
+    & f_{supply,i,amino\_acid} = 1
+\end{align*}
+
+Solving shows that the parameters are defined as:
+\begin{align*}
+    K_{I,i} &= \frac{f_I\cdot [AA_{i,basal}]}{1 - f_I} \\
+    K_{M,i} &= \left(\frac{1}{f_M} - 1\right)\cdot [AA_{i,amino\_acid}] \\
+    c_{1,i} &= 1 - \left(f_I - \frac{[AA_{i,basal}]}{K_{M,i} + [AA_{i,basal}]}\right) \\
+    c_{2,i} &= 1 - \left(c_{1,i} + \frac{1}{1 + \frac{[AA_{i,amino\_acid}]}{K_{I,i}}} - f_M\right)
+\end{align*}
+
+\pagebreak
 \textbf{Algorithms}
 
 \begin{algorithm}[H]

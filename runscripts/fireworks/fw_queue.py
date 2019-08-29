@@ -78,7 +78,7 @@ Modeling options:
 	TRANSLATION_SUPPLY (int, "1"): if nonzero, the ribosome elongation rate is
 		limited by the condition specific rate of amino acid supply; otherwise
 		the elongation rate is set by condition
-	TRNA_CHARGING (int, "0"): if nonzero, tRNA charging reactions are modeled
+	TRNA_CHARGING (int, "1"): if nonzero, tRNA charging reactions are modeled
 		and the ribosome elongation rate is set by the amount of charged tRNA
 		present.  This option will override TRANSLATION_SUPPLY in the simulation.
 
