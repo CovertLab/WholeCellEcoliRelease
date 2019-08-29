@@ -35,10 +35,10 @@
 #    library_dirs = /usr/local/opt/openblas/lib
 #    include_dirs = /usr/local/opt/openblas/include
 #
-## Install NumPy and SciPy, linked to this OpenBLAS thanks to ~/.numpy-site.cfg:
-#   pip install numpy==1.14.6 scipy==1.0.1 --no-binary numpy,scipy --force-reinstall
+## Install NumPy linked to this OpenBLAS thanks to ~/.numpy-site.cfg:
+#   pip install numpy==1.14.6 --no-binary numpy --force-reinstall
 #
-## Install the packages listed in this file:
+## Install the packages listed in this file (SciPy will also use ~/.numpy-site.cfg):
 #   pip install -r requirements.txt --no-binary numpy,scipy
 #   pyenv rehash
 #
