@@ -35,7 +35,7 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 		# Computed, saved attributes
 		self.aaIds = sim_data.moleculeGroups.aaIDs
 		self.ntpIds = sim_data.moleculeGroups.ntpIds
-		self.uncharged_trna_ids = sim_data.process.transcription.rnaData['id'][sim_data.process.transcription.rnaData['isTRna']]
+		self.uncharged_trna_ids = sim_data.process.transcription.rnaData['id'][sim_data.process.transcription.rnaData['isTRna']].tolist()
 		self.charged_trna_ids = sim_data.process.transcription.charged_trna_names
 
 	# Allocate memory
@@ -50,19 +50,22 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 
 		self.activeRibosomeAllocated = 0
 
-		self.aaPoolSize = np.zeros(len(self.aaIds), np.float64)
-		self.aaRequestSize = np.zeros(len(self.aaIds), np.float64)
-		self.aaAllocated = np.zeros(len(self.aaIds), np.float64)
-		self.aasUsed = np.zeros(len(self.aaIds), np.float64)
+		n_aa = len(self.aaIds)
+		self.aaPoolSize = np.zeros(n_aa, np.float64)
+		self.aaRequestSize = np.zeros(n_aa, np.float64)
+		self.aaAllocated = np.zeros(n_aa, np.float64)
+		self.aasUsed = np.zeros(n_aa, np.float64)
 
-		self.fraction_trna_charged = np.zeros(len(self.uncharged_trna_ids), np.float64)
-		self.net_charged = np.zeros(len(self.uncharged_trna_ids), np.int)
+		n_uncharged_trna = len(self.uncharged_trna_ids)
+		self.fraction_trna_charged = np.zeros(n_uncharged_trna, np.float64)
+		self.net_charged = np.zeros(n_uncharged_trna, np.int)
 
 		# For transcription
-		self.ntpPoolSize = np.zeros(len(self.ntpIds), np.float64)
-		self.ntpRequestSize = np.zeros(len(self.ntpIds), np.float64)
-		self.ntpAllocated = np.zeros(len(self.ntpIds), np.float64)
-		self.ntpUsed = np.zeros(len(self.ntpIds), np.float64)
+		n_ntp = len(self.ntpIds)
+		self.ntpPoolSize = np.zeros(n_ntp, np.float64)
+		self.ntpRequestSize = np.zeros(n_ntp, np.float64)
+		self.ntpAllocated = np.zeros(n_ntp, np.float64)
+		self.ntpUsed = np.zeros(n_ntp, np.float64)
 
 	def update(self):
 		pass

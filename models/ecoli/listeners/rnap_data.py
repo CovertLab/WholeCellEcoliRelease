@@ -91,7 +91,7 @@ class RnapData(wholecell.listeners.listener.Listener):
 		tableWriter.writeAttributes(
 			rnap_indexes = list(rnap_indexes),
 			collision_indexes = list(collision_indexes),
-			rnaIds = self.rnaIds,
+			rnaIds = list(self.rnaIds),
 			subcolumns = subcolumns)
 
 

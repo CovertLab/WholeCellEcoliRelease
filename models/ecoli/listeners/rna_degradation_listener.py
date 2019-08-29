@@ -47,7 +47,7 @@ class RnaDegradationListener(wholecell.listeners.listener.Listener):
 			DiffRelativeFirstOrderDecay = self.countUnits,
 			FractEndoRRnaCounts = self.countUnits,
 			fragmentBasesDigested = self.countUnits,
-			rnaIds = self.rnaIds,
+			rnaIds = list(self.rnaIds),
 			subcolumns = subcolumns)
 
 	def tableAppend(self, tableWriter):

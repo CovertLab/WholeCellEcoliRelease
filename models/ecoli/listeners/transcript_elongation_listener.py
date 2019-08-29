@@ -40,7 +40,7 @@ class TranscriptElongationListener(wholecell.listeners.listener.Listener):
 		tableWriter.writeAttributes( # TODO: reconsider attribute names
 			countRnaSynthesized = self.countUnits,
 			countNTPsUSed = self.countUnits,
-			rnaIds = self.rnaIds,
+			rnaIds = list(self.rnaIds),
 			subcolumns = subcolumns)
 
 	def tableAppend(self, tableWriter):
