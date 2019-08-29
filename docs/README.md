@@ -13,7 +13,15 @@ There are two alternative ways to set up to run the model:
 
    You can then run the model inside the container.
    (PyCharm should support debugging into a Docker container but we haven't tested that.)
-   
+
+   If you want to run the Docker container and link your local directory to the one inside the Docker container (`<local wcEcoli>` denotes the local path to your cloned repo), use:
+
+   ```docker run --name=wcm -v <local wcEcoli>:/wcEcoli -it wcm-code```
+
+   By doing so, the output files in the Docker folder (`/wcEcoli/out`) will also be linked to a corresponding folder in your computer (`<local wcEcoli>/out`). Until the model can be run as a user other than `root`, the files will be owned by `root` user so you might need to `chmod`/`chgrp` if you have permissions issues.
+
+   **NOTE:** If you encounter memory issues while using Docker Desktop (the default allocated memory is 2GB) and the simulation processes get killed midway, click the Docker icon > Preferences > Advanced > adjust memory to 4GB.
+
    **NOTE:** Docker Desktop for Windows is not currently compatible with VirtualBox.  If you use VirtualBox, try installing the legacy [Docker Toolbox](https://github.com/docker/toolbox/releases) instead.  You may also need to adjust the memory allocated to the VirtualBox VM (named 'default') that gets created.  In VirtualBox, select the 'default' VM and under system, change the base memory from 1 GB to 4 GB. 
 
 2. **pyenv setup:** Follow [Required development tools](dev-tools.md) to install the development tools including pyenv, gcc, make, and git, then follow [Creating the "pyenv" runtime environment](create-pyenv.md) to set up the Python runtime virtual environment for the model including binary libraries and Python packages.
@@ -29,7 +37,11 @@ There are two alternative ways to set up to run the model:
    * [Creating the "pyenv" runtime environment](create-pyenv.md)
    * [Setting up to run FireWorks](../wholecell/fireworks/README.md) -- needed only to run a FireWorks workflow of cell simulations and analysis plots
    * [Set up Zookeeper and Kafka](../agent/README.md) -- needed only for multi-scale agents
-   * [Copy git hooks](../runscripts/git_hooks/README.md) -- useful to maintain an up to date environment while doing development
+
+Once done setting up the environment, copy the git hooks from the repo ([git hooks](../runscripts/git_hooks/README.md)) to your `.git` directory to maintain an up to date environment while doing development:
+```
+cp runscripts/git_hooks/*[^.md] .git/hooks/
+```
 
 ## running
 

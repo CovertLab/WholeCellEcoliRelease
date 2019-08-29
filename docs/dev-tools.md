@@ -69,8 +69,8 @@ _pyenv_ and _virtualenv_ are tools to install versions of Python and switch betw
    source ~/.bash_profile
    ```
 
-2. Set your shell login script (`.bash_profile` on Linux; `.profile` or `.bash_profile` on macOS, etc.) to initialize `pyenv` and optionally `pyenv-virtualenv` for each shell. To do this, follow the steps below or the more intricate instructions under "Add pyenv init to your shell" in [pyenv Installation](https://github.com/pyenv/pyenv#installation).
-   - Example `.profile` or `.bash_profile` lines for macOS:
+2. Set your shell login script (`~/.bash_profile` on Linux; `~/.profile` or `~/.bash_profile` on macOS, etc.) to initialize `pyenv` and optionally `pyenv-virtualenv` for each shell. To do this, follow the steps below or the more intricate instructions under "Add pyenv init to your shell" in [pyenv Installation](https://github.com/pyenv/pyenv#installation).
+   - Example `~/.profile` or `~/.bash_profile` lines for macOS:
 
    ```bash
    export PYENV_ROOT=/usr/local/var/pyenv
@@ -79,7 +79,7 @@ _pyenv_ and _virtualenv_ are tools to install versions of Python and switch betw
    ## -- Do this *before* sourcing iterm2_shell_integration
    ```
 
-   - Example `.bash_profile` lines for Stanford's "Sherlock" compute cluster, and note the `module load` command (more info at [setup_getting_started.md](https://github.com/CovertLab/ComputationalResources/blob/master/_sherlock/setup_getting_started.md), but that doc is out of date):
+   - Example `~/.bash_profile` lines for Stanford's "Sherlock" compute cluster, and note the `module load` command (more info at [setup_getting_started.md](https://github.com/CovertLab/ComputationalResources/blob/master/_sherlock/setup_getting_started.md), but that doc is out of date):
 
    ```bash
    module load wcEcoli/sherlock2
