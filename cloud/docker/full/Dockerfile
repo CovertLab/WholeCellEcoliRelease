@@ -13,7 +13,7 @@
 #
 # After building locally you can start up a new container from the image:
 #
-#     > docker run --name wcm -it wcm-full
+#     > docker run --name wcm --user "$(id -u):$(id -g)" -it --rm wcm-full
 #
 # It will start a shell where you can execute commands:
 #

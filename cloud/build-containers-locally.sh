@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Build the WCM Docker container images locally.
 #
 # ASSUMES: The current working dir is the wcEcoli/ project root.
@@ -7,8 +7,14 @@
 
 set -eu
 
+# Build with `NO_AVX2=1` on macOS to avoid the OpenBLAS 0.3.6+ fatal self-test
+# errors and runtime bad results in Docker Desktop on macOS. This workaround
+# won't help if you build an image on Linux then run it on macOS. See the Dockerfile.
+if [ $(uname -s) == Darwin ]; then NO_AVX2=1; else NO_AVX2=0; fi
+echo NO_AVX2=$NO_AVX2
+
 # Docker image #1: The Python runtime environment.
-docker build -f cloud/docker/runtime/Dockerfile -t wcm-runtime .
+docker build -f cloud/docker/runtime/Dockerfile -t wcm-runtime --build-arg NO_AVX2=$NO_AVX2 .
 
 # Docker image #2: The Whole Cell Model code on the runtime environment.
 # See this Dockerfile for usage instructions.

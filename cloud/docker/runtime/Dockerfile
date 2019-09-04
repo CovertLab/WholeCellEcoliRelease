@@ -13,26 +13,44 @@
 ARG from=python:2.7.16
 FROM ${from}
 
+# Add option `--build-arg NO_AVX2=1` to make OpenBLAS 0.3.6+ not use the AVX2
+# hardware so the image can build and run in Docker Desktop on macOS without bad
+# results and fatal self-test errors.
+# Turn this off once a Docker release has an xhyve release that fixes the bug.
+# https://github.com/xianyi/OpenBLAS/issues/2244
+# https://github.com/machyve/xhyve/issues/171
+ARG NO_AVX2=0
+
 RUN apt-get update \
     && apt-get install -y swig gfortran llvm cmake ncurses-dev \
         libreadline7 libreadline-dev nano
 
-RUN echo "alias ls='ls --color=auto'" >> ~/.bashrc
+RUN echo "alias ls='ls --color=auto'" >> ~/.bashrc \
+    && echo "alias ll='ls -l'" >> ~/.bashrc
 
-# Install openblas v0.3.5 (not the buggy v0.3.3 nor v0.3.6).
-# Future: `apt-get install libopenblas-dev` but currently that gets v0.2.19.
+# Install openblas (0.3.5 is OK; 0.3.3 is not; 0.3.6 and 0.3.7 need "NO_AVX2=1"
+# to produce correct results in macOS Docker).
+# Someday `apt-get install libopenblas-dev=0.3.7` will work.
 RUN (mkdir -p openblas && cd openblas \
-    && curl -SL https://github.com/xianyi/OpenBLAS/archive/v0.3.5.tar.gz | tar -xz \
+    && curl -SL https://github.com/xianyi/OpenBLAS/archive/v0.3.7.tar.gz | tar -xz \
     && cd OpenBLAS* \
-    && make FC=gfortran \
-    && make PREFIX=/usr install) \
+    && make "NO_AVX2=${NO_AVX2}" FC=gfortran \
+    && make "NO_AVX2=${NO_AVX2}" PREFIX=/usr install) \
     && rm -r openblas
 
 ENV OPENBLAS_NUM_THREADS=1
 
-# Install all the pips within one Docker layer and don't cache the downloads.
+# Install all the pips within one Docker layer, don't cache the downloads, link
+# numpy and scipy to the installed OpenBLAS, and enable Theano to write into
+# the data dir it uses when running as a user with no home dir.
 COPY requirements.txt /
-RUN pip install --no-cache-dir 'numpy==1.14.6' --no-binary numpy \
-    && pip install --no-cache-dir -r requirements.txt --no-binary numpy,scipy
+RUN (echo "[openblas]" \
+    && echo "libraries = openblas" \
+    && echo "library_dirs = /usr/lib" \
+    && echo "include_dirs = /usr/include") > ~/.numpy-site.cfg
+RUN (pip install --no-cache-dir --upgrade pip setuptools \
+    && pip install --no-cache-dir numpy==1.14.6 --no-binary numpy \
+    && pip install --no-cache-dir -r requirements.txt --no-binary numpy,scipy \
+    && umask 000 && mkdir -p /.theano)
 
 CMD ["/bin/bash"]

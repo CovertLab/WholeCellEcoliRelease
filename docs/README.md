@@ -14,11 +14,15 @@ There are two alternative ways to set up to run the model:
    You can then run the model inside the container.
    (PyCharm should support debugging into a Docker container but we haven't tested that.)
 
-   If you want to run the Docker container and link your local directory to the one inside the Docker container (`<local wcEcoli>` denotes the local path to your cloned repo), use:
+   You can share a local directory with the code inside the Docker container, either just the model's output directory `/wcEcoli/out` in order to preserve its output files outside the container, (here, `<local wcEcoli>` denotes the local path to your cloned repo):
 
-   ```docker run --name=wcm -v <local wcEcoli>:/wcEcoli -it wcm-code```
+   ```docker run --name=wcm -v <local wcEcoli>/out:/wcEcoli/out --user "$(id -u):$(id -g)" -it --rm wcm-code```
 
-   By doing so, the output files in the Docker folder (`/wcEcoli/out`) will also be linked to a corresponding folder in your computer (`<local wcEcoli>/out`). Until the model can be run as a user other than `root`, the files will be owned by `root` user so you might need to `chmod`/`chgrp` if you have permissions issues.
+   or share the entire `/wcEcoli` directory to also substitute the model's code inside the container with the code in your local wcEcoli directory.
+
+   ```docker run --name=wcm -v <local wcEcoli>:/wcEcoli --user "$(id -u):$(id -g)" -it --rm wcm-code```
+
+   The `--user "$(id -u):$(id -g)"` option runs the model inside the container as your user and group in the host computer so the output files will be owned by you.
 
    **NOTE:** If you encounter memory issues while using Docker Desktop (the default allocated memory is 2GB) and the simulation processes get killed midway, click the Docker icon > Preferences > Advanced > adjust memory to 4GB.
 

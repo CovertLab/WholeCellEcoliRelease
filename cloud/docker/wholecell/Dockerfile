@@ -16,11 +16,11 @@
 #
 # After building locally you can start up a new container from the image:
 #
-#     > docker run --name wholecelltest -it wcm-code
+#     > docker run --name wholecelltest --user "$(id -u):$(id -g)" -it --rm wcm-code
 #
 # or if you used build.sh or build-wcm.sh to build using Cloud Build:
 #
-#     > docker run --name wholecelltest -it gcr.io/allen-discovery-center-mcovert/$USER-wcm-code
+#     > docker run --name wholecelltest --user "$(id -u):$(id -g)" -it --rm gcr.io/allen-discovery-center-mcovert/$USER-wcm-code
 #
 # It will start a shell where you can execute commands:
 #
@@ -45,6 +45,15 @@ WORKDIR /wcEcoli
 RUN make clean compile
 ENV PYTHONPATH=/wcEcoli
 
-RUN echo 'cat cloud/docker/welcome.txt' >> $HOME/.bashrc
+# Since this build runs as root, set permissions so running the container as
+# another user will work: Theano needs to write into the data dir it uses when
+# running as a user with no home dir, and Parca needs to write into the
+# /wcEcoli/fixtures/ dir.
+RUN (umask 000 && mkdir -p /.theano /wcEcoli/fixtures)
+
+# Show a welcome message with tips on wcEcoli.
+# Copy .bashrc into / for users w/o home dirs such as `docker run --user ...`
+RUN (echo 'cat cloud/docker/welcome.txt' >> ~/.bashrc \
+    && cp ~/.bashrc /)
 
 CMD ["/bin/bash"]

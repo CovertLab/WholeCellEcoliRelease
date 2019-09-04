@@ -21,7 +21,7 @@
 ## Upgrade this virtual environment's installers:
 #   pip install --upgrade pip setuptools virtualenv virtualenvwrapper virtualenv-clone wheel
 #
-## Install OpenBLAS 0.3.5 or later using your package manager or download and
+## Install OpenBLAS 0.3.7 or later using your package manager or download and
 ## build it from source. (Earlier releases of OpenBLAS had threading bugs. So
 ## does Apple's "Accelerate" framework and Intel's Math Kernel Library, so don't
 ## use those substitutes.) See docs/create-pyenv.md for instructions if you need

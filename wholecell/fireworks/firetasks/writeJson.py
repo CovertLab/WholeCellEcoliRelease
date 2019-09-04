@@ -20,6 +20,6 @@ class WriteJsonTask(FireTaskBase):
 		output_file = self['output_file']
 		data = self['data']
 
-		output_dir = os.path.basename(output_file)
+		output_dir = os.path.dirname(output_file)
 		fp.makedirs(output_dir)
 		fp.write_json_file(output_file, data)
