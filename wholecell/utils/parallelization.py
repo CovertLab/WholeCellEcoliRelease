@@ -5,6 +5,7 @@ from __future__ import absolute_import, division, print_function
 import multiprocessing as mp
 import os
 
+from typing import Any, Callable, Dict, Iterable, List, Optional
 
 def is_macos():
 	'''Return True if this is running on macOS.'''
@@ -111,11 +112,23 @@ class InlinePool(object):
 	the main process.
 	"""
 
-	def map(self, func, iterable):
+	def map(self, func, iterable, chunksize=None):
+		# type: (Callable[..., Any], Iterable[Any], Optional[int]) -> List[Any]
 		"""Map the function over the iterable."""
 		return map(func, iterable)
 
-	# TODO(jerry): Implement apply_async() if needed.
+	def apply_async(self, func, args=(), kwds=None, callback=None):
+		# type: (Callable[..., Any], Iterable[Any], Optional[Dict[str, Any]], Optional[Callable[..., None]]) -> ApplyResult
+		"""
+		Apply the function to the args serially (not asynchronously since
+		only one process available).
+		"""
+		if kwds is None:
+			kwds = {}
+		result = func(*args, **kwds)
+		if callback:
+			callback(result)
+		return ApplyResult(result)
 
 	def close(self):
 		pass
@@ -125,3 +138,24 @@ class InlinePool(object):
 
 	def join(self):
 		pass
+
+class ApplyResult(object):
+	"""
+	A substitute for multiprocessing.ApplyResult() to return with apply_async.
+	Will get created after a successful function call so ready() and
+	successful() are always True.
+	"""
+	def __init__(self, result):
+		self._result = result
+
+	def ready(self):
+		return True
+
+	def successful(self):
+		return True
+
+	def wait(self, timeout=None):
+		pass
+
+	def get(self, timeout=None):
+		return self._result
