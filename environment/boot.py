@@ -5,9 +5,9 @@ import shutil
 
 from lens.actor.inner import Inner
 from lens.actor.boot import BootAgent
+from lens.environment.make_media import Media
 
 from models.ecoli.sim.simulation import ecoli_simulation
-from environment.condition.make_media import Media
 
 from wholecell.utils import constants
 import wholecell.utils.filepath as fp
@@ -152,7 +152,7 @@ class BootEcoli(BootAgent):
 			'ecoli': boot_ecoli}
 
 def run():
-	boot = BootEnvironment()
+	boot = BootEcoli()
 	boot.execute()
 
 if __name__ == '__main__':
