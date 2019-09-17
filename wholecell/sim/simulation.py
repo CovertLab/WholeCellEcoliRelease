@@ -434,7 +434,6 @@ class Simulation(CellSimulation):
 
 	def daughter_config(self):
 		config = {
-			'id': str(uuid.uuid1()),
 			'start_time': self.time(),
 			'volume': self.listeners['Mass'].volume * 0.5}
 
@@ -444,7 +443,9 @@ class Simulation(CellSimulation):
 			# initial seeds and further in later generations. Like for process
 			# seeds, this depends only on _seed, not on randomState so it won't
 			# vary with simulation code details.
-			daughters.append(dict(config,
+			daughters.append(dict(
+				config,
+				id=str(uuid.uuid1()),
 				inherited_state_path=path,
 				seed=37 * self._seed + 47 * i + 997))
 

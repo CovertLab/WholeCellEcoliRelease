@@ -80,10 +80,12 @@ def ecoli_boot_config(agent_config):
 	variant_type = agent_config.get('variant_type', 'wildtype')
 	variant_index = agent_config.get('variant_index', 0)
 	seed = agent_config.get('seed', 0)
+	volume = agent_config.get('volume', 1.0)
+	index = agent_config.get('index', 88)
 
 	# initialize state
 	state = {
-		'volume': 1.0,
+		'volume': volume,
 		'environment_change': {}}
 	agent_config['declare'] = state
 
@@ -92,7 +94,7 @@ def ecoli_boot_config(agent_config):
 	# TODO -- need to count number of initialized cells so that they won't over-write each other as 000000
 	cohort_id = '%06d' % 0  # analysis scripts require starting with 0
 	generation_id = 'generation_%06d' % generation
-	cell_id = '%06d' % 0    # analysis scripts require starting with 0
+	cell_id = '%06d' % index # analysis scripts require starting with 0
 
 	# make options for boot config
 	sim_out_path = fp.makedirs(working_dir, 'out')
