@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 import os
+import copy
 import shutil
 
 from lens.actor.inner import Inner
@@ -21,7 +22,31 @@ def initialize_ecoli(config):
 	Returns:
 		simulation (CellSimulation): The actual simulation which will perform the calculations.
 	'''
+
+	config = copy.deepcopy(config)
+
+	outer_id = config['outer_id']
+	sim_out_path = config['sim_out_path']
+	variant_type = config['variant_type']
+	variant_index = config['variant_index']
+
+	sim_data_fit = os.path.join(sim_out_path, 'manual', 'kb', constants.SERIALIZED_SIM_DATA_FILENAME)
+	variant_sim_data_directory = fp.makedirs(sim_out_path, 'agent', outer_id, 'kb')
+	variant_sim_data_modified_file = os.path.join(variant_sim_data_directory, constants.SERIALIZED_SIM_DATA_MODIFIED)
+
+	# copy sim_data into the experiment directory to support analysis
+	# TODO (Eran) -- revisit this copy. Re-consider where to put the parca output.
+	shutil.copy(sim_data_fit, variant_sim_data_modified_file)
+	fp.verify_file_exists(sim_data_fit, 'Run runParca?')
+
+	# Apply the variant to transform simData.cPickle
+	info, sim_data_modified = apply_variant.apply_variant(
+		sim_data_file=sim_data_fit,
+		variant_type=variant_type,
+		variant_index=variant_index)
+
 	config['initialTime'] = config.pop('time') or 0
+	config['simData'] = sim_data_modified
 	return ecoli_simulation(**config)
 
 
@@ -60,7 +85,7 @@ def ecoli_boot_config(agent_config):
 	state = {
 		'volume': 1.0,
 		'environment_change': {}}
-	agent_config['state'] = state
+	agent_config['declare'] = state
 
 	# TODO -- get actual cohort and cell ids
 	# TODO -- change analysis scripts to allow the agent_id to be used here
@@ -71,26 +96,15 @@ def ecoli_boot_config(agent_config):
 
 	# make options for boot config
 	sim_out_path = fp.makedirs(working_dir, 'out')
-	sim_data_fit = os.path.join(sim_out_path, 'manual', 'kb', constants.SERIALIZED_SIM_DATA_FILENAME)
 	output_dir = os.path.join(sim_out_path, 'agent', outer_id, cohort_id, generation_id, cell_id, 'simOut')
-	variant_sim_data_directory = fp.makedirs(sim_out_path, 'agent', outer_id, 'kb')
-	variant_sim_data_modified_file = os.path.join(variant_sim_data_directory, constants.SERIALIZED_SIM_DATA_MODIFIED)
 	metadata_dir = fp.makedirs(sim_out_path, 'agent', 'metadata')
 	metadata_path = os.path.join(metadata_dir, constants.JSON_METADATA_FILE)
 
-	# copy sim_data into the experiment directory to support analysis
-	# TODO (Eran) -- revisit this copy. Re-consider where to put the parca output.
-	shutil.copy(sim_data_fit, variant_sim_data_modified_file)
-	fp.verify_file_exists(sim_data_fit, 'Run runParca?')
-
-	# Apply the variant to transform simData.cPickle
-	info, sim_data_modified = apply_variant.apply_variant(
-		sim_data_file=sim_data_fit,
-		variant_type=variant_type,
-		variant_index=variant_index)
-
 	options = {
-		"simData":                sim_data_modified,
+		"sim_out_path":           sim_out_path,
+		"variant_type":           variant_type,
+		"variant_index":          variant_index,
+		"outer_id":               outer_id,
 		"outputDir":              output_dir,
 		"initialTime":            start_time,
 		"inheritedStatePath":     inherited_state_path,

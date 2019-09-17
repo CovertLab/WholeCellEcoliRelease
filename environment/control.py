@@ -34,7 +34,7 @@ class EcoliCommand(EnvironmentCommand):
 		self.require(args, 'number', 'working_dir')
 
 		control = EcoliControl({'kafka_config': self.kafka_config})
-		args['agent_boot'] = 'environment.boot'
+		args['agent_boot'] = ['python', '-u', '../wcEcoli/environment/boot.py']
 
 		control.lattice_experiment(args)
 		control.shutdown()

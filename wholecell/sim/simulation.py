@@ -108,7 +108,7 @@ class Simulation(CellSimulation):
 		unknownKeywords = kwargs.viewkeys() - DEFAULT_SIMULATION_KWARGS.viewkeys()
 
 		if any(unknownKeywords):
-			raise SimulationException("Unknown keyword arguments: {}".format(unknownKeywords))
+			print("Unknown keyword arguments: {}".format(unknownKeywords))
 
 		# Set time variables
 		self._simulationStep = 0
