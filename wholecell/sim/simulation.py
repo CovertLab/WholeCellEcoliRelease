@@ -13,6 +13,7 @@ import collections
 import os.path
 import shutil
 import time
+import uuid
 
 import numpy as np
 
@@ -239,6 +240,9 @@ class Simulation(CellSimulation):
 
 		# Simulate
 		while self.time() < run_until and not self._isDead:
+			if self.time() > self.initialTime() + self._lengthSec:
+				self.cellCycleComplete()
+
 			if self._cellCycleComplete:
 				self.finalize()
 				break
@@ -430,6 +434,7 @@ class Simulation(CellSimulation):
 
 	def daughter_config(self):
 		config = {
+			'id': str(uuid.uuid1()),
 			'start_time': self.time(),
 			'volume': self.listeners['Mass'].volume * 0.5}
 
