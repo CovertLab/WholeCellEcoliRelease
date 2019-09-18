@@ -14,10 +14,9 @@ import os.path
 import shutil
 import time
 import uuid
+import lens
 
 import numpy as np
-
-from agent.inner import CellSimulation
 
 from wholecell.listeners.evaluation_time import EvaluationTime
 from wholecell.utils import filepath
@@ -67,7 +66,7 @@ DEFAULT_LISTENER_CLASSES = (
 	EvaluationTime,
 	)
 
-class Simulation(CellSimulation):
+class Simulation(lens.actor.inner.Simulation):
 	""" Simulation """
 
 	# Attributes that must be set by a subclass
