@@ -81,7 +81,7 @@ def ecoli_boot_config(agent_config):
 	variant_index = agent_config.get('variant_index', 0)
 	seed = agent_config.get('seed', 0)
 	volume = agent_config.get('volume', 1.0)
-	index = agent_config.get('index', 88)
+	index = agent_config.get('index', 0)
 
 	# initialize state
 	state = {
