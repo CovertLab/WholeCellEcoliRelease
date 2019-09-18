@@ -108,7 +108,7 @@ def ecoli_boot_config(agent_config):
 		"variant_type":           variant_type,
 		"variant_index":          variant_index,
 		"outer_id":               outer_id,
-		"lengthSec":              3,
+		"lengthSec":              3*60*60,
 		"outputDir":              output_dir,
 		"initialTime":            start_time,
 		"inheritedStatePath":     inherited_state_path,
