@@ -162,7 +162,7 @@ The environment.control commands include:
 * pause - pause the simulation clock
 * shutdown - shutdown the simulation
 
-Some environment.control commands require an [agent shepherd](https://github.com/CovertLab/shepherd), including:
+Some environment.control commands require a shepherd, including:
 
 * add - ask the shepherd to spawn an agent and add it to an environment
 * remove - ask the shepherd to remove an agent
