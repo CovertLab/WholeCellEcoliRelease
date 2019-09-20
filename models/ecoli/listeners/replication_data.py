@@ -15,6 +15,8 @@ import numpy as np
 
 import wholecell.listeners.listener
 
+MAX_ACTIVE_REPLISOMES = 32
+
 class ReplicationData(wholecell.listeners.listener.Listener):
 	""" ReplicationData """
 
@@ -35,7 +37,9 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 	def allocate(self):
 		super(ReplicationData, self).allocate()
 
-		self.fork_coordinates = np.full(75, np.nan, np.float64)
+		self.fork_coordinates = np.full(MAX_ACTIVE_REPLISOMES, np.nan, np.float64)
+		self.fork_domains = np.full(MAX_ACTIVE_REPLISOMES, np.nan, np.float64)
+		self.fork_unique_index = np.full(MAX_ACTIVE_REPLISOMES, np.nan, np.float64)
 
 		self.numberOfOric = np.nan
 		self.criticalMassPerOriC = 0.
@@ -46,15 +50,23 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 
 
 	def update(self):
+		self.fork_coordinates[:] = np.nan
+		self.fork_domains[:] = np.nan
+		self.fork_unique_index[:] = np.nan
+
 		active_replisomes = self.uniqueMolecules.container.objectsInCollection('active_replisome')
 		oriCs = self.uniqueMolecules.container.objectsInCollection('originOfReplication')
 
 		self.numberOfOric = len(oriCs)
 
-		self.fork_coordinates[:] = np.nan
 		if len(active_replisomes) > 0:
-			fork_coordinates = active_replisomes.attr("coordinates")
+			fork_coordinates, fork_domains, fork_unique_index = active_replisomes.attrs(
+				"coordinates", "domain_index", "_uniqueIndex"
+				)
+
 			self.fork_coordinates[:fork_coordinates.size] = fork_coordinates
+			self.fork_domains[:fork_domains.size] = fork_domains
+			self.fork_unique_index[:fork_unique_index.size] = fork_unique_index
 
 
 	def tableCreate(self, tableWriter):
@@ -63,6 +75,8 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
 			fork_coordinates = self.fork_coordinates,
+			fork_domains = self.fork_domains,
+			fork_unique_index = self.fork_unique_index,
 			numberOfOric = self.numberOfOric,
 			criticalMassPerOriC = self.criticalMassPerOriC,
 			criticalInitiationMass = self.criticalInitiationMass,

@@ -186,15 +186,15 @@ def divideBulkMolecules(bulkMolecules, randomState):
 def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_division_results,
 		current_media_id, sim):
 	"""
-	Divides unique molecules of the mother cell to the two daughter cells. Each
-	class of unique molecules is divided in a different way.
+	Divides unique molecules of the mother cell to the two daughter cells.
+	There are currently two different "division modes" by which unique
+	molecules can be divided.
 
-	- active RNA polymerases: random binomial division
-	- active ribosome: random binomial division, but the ribosome elongation
+	- active_ribosome: random binomial division, but the ribosome elongation
 	rates of the daughter cells are set such that the two daughter cells have
 	equal translational capacities, with an optional noise.
-	- active DNA polymerases, replisomes, oriCs, full chromosomes: divided
-	based on the chromosome domain each molecule is associated to.
+	- domain_index: molecules are divided based on the chromosome domain each
+	molecule is associated to.
 	"""
 
 	# Initialize containers for daughter cells

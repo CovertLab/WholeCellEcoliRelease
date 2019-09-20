@@ -491,7 +491,8 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	# Get attributes of promoters
 	promoters = uniqueMolCntr.objectsInCollection("promoter")
 	n_promoters = len(promoters)
-	TU_index, bound_TF = promoters.attrs("TU_index", "bound_TF")
+	TU_index, bound_TF, domain_index_promoters = promoters.attrs(
+		"TU_index", "bound_TF", "domain_index")
 
 	# Construct matrix that maps promoters to transcription units
 	TU_to_promoter = scipy.sparse.csr_matrix(
@@ -596,8 +597,9 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	n_initiations = randomState.multinomial(
 		rnaPolyToActivate, init_prob_normalized)
 
-	# RNA Indices
+	# Build list of transcription unit indexes and domain indexes for RNAPs
 	TU_index_rnap = np.repeat(TU_index, n_initiations)
+	domain_index_rnap = np.repeat(domain_index_promoters, n_initiations)
 
 	# Build list of starting coordinates and transcription directions
 	starting_coordinates = replication_coordinate[TU_index_rnap]
@@ -636,6 +638,7 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	uniqueMolCntr.objectsNew(
 		'activeRnaPoly', rnaPolyToActivate,
 		TU_index=TU_index_rnap,
+		domain_index=domain_index_rnap,
 		transcript_length=updated_lengths,
 		coordinates=updated_coordinates,
 		direction=direction,

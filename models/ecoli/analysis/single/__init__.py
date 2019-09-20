@@ -10,6 +10,7 @@ ACTIVE = [
 	"centralCarbonMetabolism.py",
 	"centralCarbonMetabolismCorrelationTimeCourse.py",
 	"centralCarbonMetabolismScatter.py",
+	"chromosome_visualization.py",
 	"concentrationDeviation.py",
 	"dnaA_box_dynamics.py",
 	"dntpCounts.py",
@@ -116,11 +117,12 @@ TAGS = {
 		"twoComponentSystem.py",
 		],
 	'REPLICATION': [
+		"active_rnap_coordinates.py",
+		"chromosome_visualization.py",
 		"dnaA_box_dynamics.py",
 		"replication.py",
 		"replisome_counts.py",
 		"transient_gene_dosage.py",
-		"active_rnap_coordinates.py",
 		"replisome_rnap_collisions.py",
 		],
 	'TRANSCRIPTION': [

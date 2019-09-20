@@ -13,7 +13,7 @@ import numpy as np
 import wholecell.listeners.listener
 
 VERBOSE = False
-MAX_RNAP_COORDINATES = 10000
+MAX_ACTIVE_RNAPS = 10000
 MAX_COLLISIONS = 250
 
 class RnapData(wholecell.listeners.listener.Listener):
@@ -39,10 +39,12 @@ class RnapData(wholecell.listeners.listener.Listener):
 	def allocate(self):
 		super(RnapData, self).allocate()
 
-		# Positions of active RNAPs on the chromosome
-		# The size of this array must be larger than the maximum possible
-		# counts of active RNAPs at any timestep of the simulation.
-		self.active_rnap_coordinates = np.full(MAX_RNAP_COORDINATES, np.nan, np.float64)
+		# Positions, domain indexes, and unique indexes of active RNAPs on the
+		# chromosome. The size of these array must be larger than the maximum
+		# possible counts of active RNAPs at any timestep of the simulation.
+		self.active_rnap_coordinates = np.full(MAX_ACTIVE_RNAPS, np.nan, np.float64)
+		self.active_rnap_domain_indexes = np.full(MAX_ACTIVE_RNAPS, np.nan, np.float64)
+		self.active_rnap_unique_indexes = np.full(MAX_ACTIVE_RNAPS, np.nan, np.float64)
 
 		# Attributes broadcast by the PolypeptideElongation process
 		self.actualElongations = 0
@@ -68,22 +70,29 @@ class RnapData(wholecell.listeners.listener.Listener):
 
 	def update(self):
 		self.active_rnap_coordinates[:] = np.nan
+		self.active_rnap_domain_indexes[:] = np.nan
+		self.active_rnap_unique_indexes[:] = np.nan
 
 		active_rnaps = self.uniqueMolecules.container.objectsInCollection(
 			'activeRnaPoly')
 
 		# Read coordinates of all active RNAPs
 		if len(active_rnaps) > 0:
-			active_rnap_coordinates = active_rnaps.attr("coordinates")
-			self.active_rnap_coordinates[
-				:active_rnap_coordinates.size] = active_rnap_coordinates
+			coordinates, domain_indexes, unique_indexes = active_rnaps.attrs(
+				"coordinates", "domain_index", "_uniqueIndex")
+			self.active_rnap_coordinates[:coordinates.size] = coordinates
+			self.active_rnap_domain_indexes[:domain_indexes.size] = domain_indexes
+			self.active_rnap_unique_indexes[:unique_indexes.size] = unique_indexes
 
 
 	def tableCreate(self, tableWriter):
-		rnap_indexes = range(MAX_RNAP_COORDINATES)
+		rnap_indexes = range(MAX_ACTIVE_RNAPS)
 		collision_indexes = range(MAX_COLLISIONS)
+
 		subcolumns = {
 			'active_rnap_coordinates': 'rnap_indexes',
+			'active_rnap_unique_indexes': 'rnap_indexes',
+			'active_rnap_domain_indexes': 'rnap_indexes',
 			'rnaInitEvent': 'rnaIds',
 			'headon_collision_coordinates': 'collision_indexes',
 			'codirectional_collision_coordinates': 'collision_indexes'}
@@ -100,6 +109,8 @@ class RnapData(wholecell.listeners.listener.Listener):
 			time = self.time(),
 			simulationStep = self.simulationStep(),
 			active_rnap_coordinates=self.active_rnap_coordinates,
+			active_rnap_domain_indexes=self.active_rnap_domain_indexes,
+			active_rnap_unique_indexes=self.active_rnap_unique_indexes,
 			actualElongations = self.actualElongations,
 			didTerminate = self.didTerminate,
 			didInitialize = self.didInitialize,
