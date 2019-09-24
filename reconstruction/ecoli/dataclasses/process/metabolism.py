@@ -34,8 +34,8 @@ reverseReactionString = "{} (reverse)"
 
 # threshold (units.mmol / units.L) separates concentrations that are import constrained with
 # max flux = 0 from unconstrained molecules.
-# TODO (Eran) remove this once a transport kinetics process is operating
-IMPORT_CONSTRAINT_THRESHOLD =  0.01
+IMPORT_CONSTRAINT_THRESHOLD =  1e-5
+
 
 class Metabolism(object):
 	""" Metabolism """
@@ -793,7 +793,9 @@ class Boundary(object):
 
 		#remove molecules with low concentration
 		exchange_molecules = {self.env_to_exchange_map[mol]: conc for mol, conc in molecules.iteritems()}
-		nonzero_molecules = {molecule_id:concentration for molecule_id, concentration in exchange_molecules.items() if concentration >= 0.00001}
+		nonzero_molecules = {molecule_id:concentration
+							 for molecule_id, concentration in exchange_molecules.items()
+							 if concentration >= self.import_constraint_threshold}
 
 		for molecule_id, concentration in nonzero_molecules.iteritems():
 
