@@ -164,5 +164,6 @@ virtualenv-clone>=0.5.1
 virtualenvwrapper>=4.8.4
 wcwidth==0.1.7
 Werkzeug==0.14.1
+wholecell-lens==0.0.23
 wrapt==1.10.11
 xlrd==1.1.0

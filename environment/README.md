@@ -1,22 +1,22 @@
 # Environment
 
-Models of environments, which can be interfaced with cells via the agent module.
-Includes command line tools `environment.boot` for running environment and cell agents
-and `environment.control` for sending commands to agents.
+Provides multiscale functionality for wcEcoli with the Lens package, repo located here: [CovertLab/lens](https://github.com/CovertLab/lens)
+
+Environment models interface with cells via actors, which coordinate the messages between simulations running on separate threads.
+Includes command line tools `environment.boot`, and `environment.control` for booting of wcEcoli agents and triggering wcEcoli experiments respectively.
 
 ## Setup
 
-See the top-level [README.md](../README.md) for general setup instructions, and the
-[agent README.md](../agent/README.md) for multi-agent simulation setup.
+See the Lens top-level [README.md](https://github.com/CovertLab/Lens/blob/master/README.md) for general setup instructions.
 
 1. To run Whole Cell E.coli simulations, you need to have the sim_data files. You can generate them via the
 runFitter manual runscript. In the wcEcoli directory:
 
-    `> PYTHONPATH="$PWD" python runscripts/manual/runFitter.py`
+    `> PYTHONPATH="$PWD" python runscripts/manual/runParca.py`
 
 ## Zookeeper and Kafka
 
-2. See [agent/README.md](../agent/README.md) for instructions to set up, start, and stop your Zookeeper and Kafka servers. To recap:
+2. See [actor/README.md](https://github.com/CovertLab/Lens/blob/master/lens/actor/README.md) for instructions to set up, start, and stop your Zookeeper and Kafka servers. To recap:
 
    1. Start Zookeeper in the directory where you untarred the Kafka and Zookeeper software:
 
@@ -26,13 +26,14 @@ runFitter manual runscript. In the wcEcoli directory:
 
       `> bin/kafka-server-start.sh config/server.properties --override listeners=PLAINTEXT://127.0.0.1:9092`
 
-3. **Optional:** Start the "Lens" environment visualization server and browser window per the instructions on the [CovertLab/shepherd](https://github.com/CovertLab/shepherd) page. To recap:
+3. **Optional:** Start the "Lens" environment visualization server and browser window per the instructions on the [CovertLab/lens](https://github.com/CovertLab/lens) page. To recap:
 
-   1. Run the Lens visualization server in the root directory of the [CovertLab/shepherd](https://github.com/CovertLab/shepherd) repository:
+   1. Run the Lens visualization server in the root directory of the [CovertLab/lens](https://github.com/CovertLab/lens) repository:
 
       `> lein run -m shepherd.lens`
 
    2. Open a browser window onto [http://localhost:33332](http://localhost:33332)
+
 
 ## One Agent Per Terminal Tab (esp. for debugging)
 
@@ -52,7 +53,7 @@ agents together with others running under a shepherd.
 
 5. Now start a Cell agent in a new tab:
 
-   `> python -m environment.boot --type ecoli --id 1 --outer-id lattice`
+   `> python -m environment.boot --outer-id lattice --type ecoli --id 1`
 
    Vary the agent type and other parameters as needed. Each agent needs an `id` that's unique among the
    currently running agents.
@@ -73,7 +74,7 @@ module name and parameters on the command lines above, e.g.
    Name: cell agent
    
    Module name: environment.boot
-   Parameters: ecoli --id 40
+   Parameters: ecoli --id 1
    Python interpreter: Python 2.7 (wcEcoli2)
    Working directory: /Users/YOU/dev/wcEcoli
    ☑︎ Add content roots to PYTHONPATH
@@ -88,7 +89,7 @@ separate terminal tab or PyCharm run/debug tab.
 
 7. Finally, use another terminal tab to start the simulation running:
 
-   `> python -m environment.control run`
+   `> python -m environment.control run --id lattice`
 
    You can `pause` and `run` it whenever you want.
 
@@ -96,16 +97,16 @@ separate terminal tab or PyCharm run/debug tab.
 
    `> python -m environment.control shutdown`
 
-## Agent Shepherd
+## Agents Shepherd
 
-The usual way to start the simulation is to use the agent "Shepherd", which is a process
-that spawns agents in subprocesses (as requested via Kafka messages) so you don't have to
-launch each agent in its own terminal tab.
+The usual way to start the simulation is to use the actor "Shepherd", which is a process
+that spawns agents in separate threads (as requested via Kafka messages) so you don't have to
+launch each agents in its own terminal tab.
 Furthermore, this enables cell division wherein a cell agent process ends and two
 new ones begin.
-But to debug an agent, see the "One Agent Per Terminal Tab" instructions, above.
+To debug an agent, see the "One Agent Per Terminal Tab" instructions, [README.md](https://github.com/CovertLab/lens/README.md).
 
-Clone the [CovertLab/shepherd](https://github.com/CovertLab/shepherd) repo and run:
+Clone the [CovertLab/lens](https://github.com/CovertLab/lens) repo and run:
 
    `> lein run`
 
@@ -116,23 +117,23 @@ tab onto the shepherd repo directory and run:
 
 then open a browser window onto [http://localhost:33332/](http://localhost:33332/)
 
-Now you can start a virtual microscope experiment in a "command" terminal tab:
+Now you can start a virtual experiment:
 
-   `> python -m environment.control experiment --number 3`
+   `> python -m environment.control ecoli-experiment --type ecoli --number 3`
 
-This will send four `ADD_AGENT` messages to the shepherd: one for the _lattice environment_ agent and three for the _cell simulation_ agents. Note the `agent_id` for the lattice as you will need this for future control messages (like `run` and `shutdown`). These messages are received by the shepherd and you will see all the agents' logs in the "shepherd" tab.
+This will send four `ADD_AGENT` messages to the shepherd: one for the _lattice environment_ agent and three for the _simulation_ agents. Note the `agent_id` for the lattice as you will need this for future control messages (like `run` and `shutdown`). These messages are received by the shepherd and you will see all the agents' logs in the "shepherd" tab.
 
-You can `run`/`pause` the simulation at will:
+You can `run`/`pause` the simulation with:
 
    `> python -m environment.control run`
 
    `> python -m environment.control pause`
 
-You can add another cell agent:
+You can add new cell agents:
 
    `> python -m environment.control add`
 
-(If you're running multiple environment agents, you can specify a lattice environment agent id via the `--id` option.)
+(If you're running multiple environments, you can specify a lattice environment agent id via the `--id` option.)
 
 You can remove a cell agent using the prefix of the agent's id (you don't have to type the whole id):
 
@@ -154,7 +155,6 @@ The environment.boot commands run an agent in the current shell tab:
 
 * ecoli - an ecoli cell agent
 * lattice - a two dimensional lattice environment agent
-* chemotaxis - a chemotaxis surrogate that can move up glucose gradients within a chemotaxis_experiment
 
 The environment.control commands include:
 
@@ -162,7 +162,7 @@ The environment.control commands include:
 * pause - pause the simulation clock
 * shutdown - shutdown the simulation
 
-Some environment.control commands require an [agent shepherd](https://github.com/CovertLab/shepherd), including:
+Some environment.control commands require a shepherd, including:
 
 * add - ask the shepherd to spawn an agent and add it to an environment
 * remove - ask the shepherd to remove an agent

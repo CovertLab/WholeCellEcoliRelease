@@ -13,10 +13,10 @@ import collections
 import os.path
 import shutil
 import time
+import uuid
+import lens
 
 import numpy as np
-
-from agent.inner import CellSimulation
 
 from wholecell.listeners.evaluation_time import EvaluationTime
 from wholecell.utils import filepath
@@ -66,7 +66,7 @@ DEFAULT_LISTENER_CLASSES = (
 	EvaluationTime,
 	)
 
-class Simulation(CellSimulation):
+class Simulation(lens.actor.inner.Simulation):
 	""" Simulation """
 
 	# Attributes that must be set by a subclass
@@ -108,7 +108,7 @@ class Simulation(CellSimulation):
 		unknownKeywords = kwargs.viewkeys() - DEFAULT_SIMULATION_KWARGS.viewkeys()
 
 		if any(unknownKeywords):
-			raise SimulationException("Unknown keyword arguments: {}".format(unknownKeywords))
+			print("Unknown keyword arguments: {}".format(unknownKeywords))
 
 		# Set time variables
 		self._simulationStep = 0
@@ -239,6 +239,9 @@ class Simulation(CellSimulation):
 
 		# Simulate
 		while self.time() < run_until and not self._isDead:
+			if self.time() > self.initialTime() + self._lengthSec:
+				self.cellCycleComplete()
+
 			if self._cellCycleComplete:
 				self.finalize()
 				break
@@ -439,7 +442,9 @@ class Simulation(CellSimulation):
 			# initial seeds and further in later generations. Like for process
 			# seeds, this depends only on _seed, not on randomState so it won't
 			# vary with simulation code details.
-			daughters.append(dict(config,
+			daughters.append(dict(
+				config,
+				id=str(uuid.uuid1()),
 				inherited_state_path=path,
 				seed=37 * self._seed + 47 * i + 997))
 
