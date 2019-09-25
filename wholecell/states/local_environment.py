@@ -193,10 +193,5 @@ class EnvironmentView(EnvironmentViewBase):
 
 
 	def countsInc(self, molecule_ids, counts):
-		# self._state._environment_deltas = counts
-
 		self._state.accumulate_deltas(molecule_ids, counts)
-		#TODO (Eran) save deltas for external environment dict(zip(molecule_ids, counts))
-		#TODO (Eran) deltas size varies because of changing importExchange.  This will need to be fixed for a listener to save these
-
 		return
