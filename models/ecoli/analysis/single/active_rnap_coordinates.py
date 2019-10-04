@@ -14,6 +14,7 @@ import os
 
 from matplotlib import pyplot as plt
 from matplotlib.lines import Line2D
+from matplotlib import collections as mc
 import numpy as np
 
 from models.ecoli.analysis import singleAnalysisPlot
@@ -34,66 +35,124 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Listeners used
 		main_reader = TableReader(os.path.join(simOutDir, 'Main'))
 		replication_data_reader = TableReader(os.path.join(simOutDir, "ReplicationData"))
-		rnap_data_reader = TableReader(os.path.join(simOutDir, "RnapData"))
+		RNAP_data_reader = TableReader(os.path.join(simOutDir, "RnapData"))
 
 		# Load data
 		initial_time = main_reader.readAttribute('initialTime')
 		time = main_reader.readColumn('time') - initial_time
+
+		# Convert time unit to minutes
+		time_mins = time / 60.
+
+		# Read replisome data
 		replisome_coordinates = replication_data_reader.readColumn("fork_coordinates")
-		rnap_coordinates = rnap_data_reader.readColumn("active_rnap_coordinates")
-		headon_collision_coordinates = rnap_data_reader.readColumn(
+		replisome_unique_indexes = replication_data_reader.readColumn("fork_unique_index")
+
+		# Read RNAP data
+		RNAP_coordinates = RNAP_data_reader.readColumn("active_rnap_coordinates")
+		RNAP_unique_indexes = RNAP_data_reader.readColumn("active_rnap_unique_indexes")
+
+		def parse_coordinates(coordinates, unique_indexes):
+			"""
+			Parses coordinates array into a list of numpy arrays with two
+			columns, where each array stores the time in the first column and
+			the coordinates of a unique molecule in the second column.
+			"""
+			parsed_coordinates = []
+			coordinates_dict = {}
+			n_rows, n_columns = unique_indexes.shape
+
+			# Loop through unique_indexes array
+			for i in range(n_rows):
+				for j in range(n_columns):
+					if np.isnan(unique_indexes[i, j]):
+						continue
+
+					# If unique index is already keyed, update last timestep
+					# index and append coordinates value
+					if unique_indexes[i, j] in coordinates_dict:
+						coordinates_dict[unique_indexes[i, j]]["last_index"] = i
+						coordinates_dict[unique_indexes[i, j]]["coordinates"].append(coordinates[i, j])
+					# If unique index is first seen, initialize dictionary
+					# with first and last timestep indexes, and a list of
+					# coordinates
+					else:
+						coordinates_dict[unique_indexes[i, j]] = {
+							"first_index": i,
+							"last_index": i,
+							"coordinates": [coordinates[i, j]]
+							}
+
+			# Loop through values in dictionary
+			for v in coordinates_dict.values():
+				# Construct numpy array with time column and coordinates column
+				# for each molecule
+				parsed_coordinates.append(
+					np.column_stack((
+						time_mins[v["first_index"]:v["last_index"] + 1],
+						np.array(v["coordinates"]))))
+
+			return parsed_coordinates
+
+		parsed_replisome_coordinates = parse_coordinates(
+			replisome_coordinates, replisome_unique_indexes)
+		parsed_RNAP_coordinates = parse_coordinates(
+			RNAP_coordinates, RNAP_unique_indexes)
+
+		# Read collision data
+		headon_collision_coordinates = RNAP_data_reader.readColumn(
 			"headon_collision_coordinates")
-		codirectional_collision_coordinates = rnap_data_reader.readColumn(
+		codirectional_collision_coordinates = RNAP_data_reader.readColumn(
 			"codirectional_collision_coordinates")
 
 		# Load replichore lengths
 		replichore_lengths = sim_data.process.replication.replichore_lengths
 
 		# Plot
-		plt.figure(figsize = (20, 150))
+		plt.figure(figsize = (70, 150))
+		ax = plt.subplot2grid((1, 1), (0, 0))
+
+		# Plot a LineCollection of replisome coordinates
+		replisome_lc = mc.LineCollection(
+			parsed_replisome_coordinates, colors='k', linewidths=2)
+		ax.add_collection(replisome_lc)
+
+		# Plot a LineCollection of RNAP coordinates
+		RNAP_lc = mc.LineCollection(
+			parsed_RNAP_coordinates, colors='#888888', linewidths=0.5)
+		ax.add_collection(RNAP_lc)
 
 		# Scatter plot options for collisions
 		headon_params = {
-			"marker": "x", "markersize": 10, "linewidth": 0, "color": 'r',
-			"label": "head-on"}
+			"marker": "x", "markersize": 10, "linewidth": 0,
+			"color": "crimson", "label": "head-on"}
 		codirectional_params = {
-			"marker": "x", "markersize": 10, "linewidth": 0, "color": 'b',
-			"label": "co-directional"}
-
-		# Plot coordinates of RNAPs
-		plt.plot(time / 60., rnap_coordinates, marker='.', markersize=1,
-			linewidth=0, color='gray')
-
-		# Plot coordinates of replisomes
-		plt.plot(time / 60., replisome_coordinates, marker='.', markersize=5,
-			linewidth=0, color='k')
+			"marker": "x", "markersize": 10, "linewidth": 0,
+			"color": "darkblue", "label": "co-directional"}
 
 		# Plot coordinates of collisions between RNAPs and replisomes
-		plt.plot(time / 60., headon_collision_coordinates,
+		ax.plot(time_mins, headon_collision_coordinates,
 			**headon_params)
-		plt.plot(time / 60., codirectional_collision_coordinates,
+		ax.plot(time_mins, codirectional_collision_coordinates,
 			**codirectional_params)
 
-		plt.xticks([0, time.max() / 60])
-		plt.yticks([-replichore_lengths[1], 0, replichore_lengths[0]],
-			['-terC', 'oriC', '+terC'])
-		plt.ylim([-replichore_lengths[1], replichore_lengths[0]])
-		plt.ylabel("Position on chromosome (nt)")
-		plt.xlim([0, time.max() / 60])
-		plt.xlabel("Time (min)")
+		ax.set_xticks([0, time_mins.max()])
+		ax.set_yticks([-replichore_lengths[1], 0, replichore_lengths[0]])
+		ax.set_yticklabels(['-terC', 'oriC', '+terC'])
+		ax.set_ylim([-replichore_lengths[1], replichore_lengths[0]])
+		ax.set_ylabel("Position on chromosome (nt)")
+		ax.set_xlim([0, time_mins.max()])
+		ax.set_xlabel("Time (min)")
 
 		# Add legends for collision markers
 		legend_elements = [
 			Line2D([0], [0], **headon_params),
 			Line2D([0], [0], **codirectional_params)]
-		plt.legend(handles=legend_elements)
+		ax.legend(handles=legend_elements)
 
 		plt.tight_layout()
 
-		# Save PNG image (SVG or pdf files are not produced because the file
-		# size is too big)
-		plt.savefig(os.path.join(plotOutDir, plotOutFileName + '.png'), dpi=200)
-
+		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close('all')
 
 
