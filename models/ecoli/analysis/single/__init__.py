@@ -42,6 +42,7 @@ ACTIVE = [
 	"replication.py",
 	"replisome_counts.py",
 	"replisome_rnap_collisions.py",
+	"replisome_rnap_collisions_by_gene.py",
 	"ribosome30SCounts.py",
 	"ribosome50SCounts.py",
 	"ribosomeCapacity.py",
@@ -124,6 +125,7 @@ TAGS = {
 		"replisome_counts.py",
 		"transient_gene_dosage.py",
 		"replisome_rnap_collisions.py",
+		"replisome_rnap_collisions_by_gene.py",
 		],
 	'TRANSCRIPTION': [
 		"inter_rnap_distance.py",
