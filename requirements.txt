@@ -64,7 +64,7 @@ coverage==4.5.1
 CVXcanon==0.1.1
 cvxpy==1.0.6
 cycler==0.10.0
-Cython==0.28.4
+Cython==0.29.13
 decorator==4.3.0
 dill==0.2.8.2
 docutils==0.14
