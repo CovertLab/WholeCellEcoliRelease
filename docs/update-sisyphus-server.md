@@ -37,7 +37,7 @@ If those settings aren't right, you can go through `gcloud init` again or quickl
 
 * Launch an instance of the server
 
-      runscripts/cloud/launch-sisyphus.sh resizing
+      runscripts/cloud/launch-workers.sh resizing
 
   (We normally launch these servers with a name that starts with "sisyphus-".
   Here we use an unusual name to find it easily in the Google Cloud Console
@@ -112,14 +112,14 @@ server to view the service logs
 
 * Wait for it to be stopped, checking the Compute Engine > VM instances page
 
-* Look in the Compute Engine > Disks page for the last image name in the `sisyphus-v*` series
+* Look in the Compute Engine > Images page for the last image name in the `sisyphus-v*` series
 
-* In the GCE Disks page
+* In the Compute Engine > Disks page
   1. click on the Disk named `resizing`
   2. click `CREATE IMAGE`
   3. fill these properties into the form:
 
-         Name: sisyphus-v4             # whatever's the next version number in the series
+         Name: sisyphus-v6             # whatever's the next version number in the series
          Source: Disk
          Source disk: resizing
          Location: Multi-regional      # [change it to Regional???]
