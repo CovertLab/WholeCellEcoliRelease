@@ -41,7 +41,7 @@ cpdef mccBuildMatrices(np.ndarray[np.int64_t, ndim=2] stoichiometricMatrix):
 
 	# Collect subunit information
 	cdef np.ndarray[np.int64_t, ndim=2] usesMolecule = (stoichiometricMatrix != 0).astype(np.int64)
-	cdef const np.int64_t[:, ::1] usesMoleculeView = usesMolecule
+	cdef const np.int64_t[:, :] usesMoleculeView = usesMolecule
 	cdef int maxMoleculeTypes = np.max(np.sum(usesMolecule, 0))
 
 	cdef np.ndarray[np.int64_t, ndim=2] moleculeIndexes = np.full(
