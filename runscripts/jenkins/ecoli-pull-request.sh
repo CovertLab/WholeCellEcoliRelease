@@ -6,7 +6,12 @@ PASSWORD=$4
 set -e
 
 module load wcEcoli/sherlock2
-pyenv local wcEcoli2
+
+### -------------------------------------------------------------------
+### Edit this line to make the PR build use a new pyenv.
+### Revert to `pyenv local wcEcoli3` before merging the PR into master.
+### -------------------------------------------------------------------
+pyenv local wcEcoli3
 
 make clean
 make compile
