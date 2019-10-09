@@ -63,6 +63,7 @@ you don't have to mess with that.)
 
       sudo apt-get update
       sudo apt-get upgrade
+      sudo apt autoremove
       sudo reboot
 
   then ssh to it again and stop the service again.
@@ -78,10 +79,11 @@ server to view the service logs
 
       sudo su -l sisyphus
 
-* Clean out all Docker containers and old (or all) docker images
+* Clean out all Docker containers and old (or all) docker images, if any
 
-      docker stop $(docker ps -a -q)
-      docker rm $(docker ps -a -q)
+      docker ps -aq
+      docker stop $(docker ps -aq)
+      docker rm $(docker ps -aq)
 
 * Delete old Docker images [maybe keep the immediately previous `wcm-runtime` image]
 
