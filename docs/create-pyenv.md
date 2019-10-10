@@ -139,7 +139,8 @@ This page goes through the Python environment setup steps in more detail and wit
       include_dirs = /usr/local/opt/openblas/include
       ```
 
-5. Install NumPy linked to this OpenBLAS thanks to `~/.numpy-site.cfg`:
+5. Install NumPy linked to this OpenBLAS thanks to `~/.numpy-site.cfg`
+(It won't work to install numpy and scipy at the same time into Python 2.7.):
 
       ```bash
       cd wcEcoli
@@ -184,7 +185,10 @@ This page goes through the Python environment setup steps in more detail and wit
 
    naming the library_dirs that you set above.
 
-9. **General preface that's important to know:** The wcEcoli software expects to run with `wcEcoli/` as both the current working directory and on the `$PYTHONPATH`.
+9. Configure matplotlib.
+
+   Note: The wcEcoli software expects to run with `wcEcoli/` as both the current working directory and on the `$PYTHONPATH` to
+   make the code and `matplotlibrc` available.
 
    **Issue [#161](https://github.com/CovertLab/wcEcoli/issues/161):** The matplotlib rendering "backend" might need to be changed from what its installer configures to `agg` (which in fact is what matplotlib will pick at runtime if not configured otherwise).
 

@@ -19,6 +19,8 @@ import wholecell
 # The wcEcoli/ project root path which contains wholecell/.
 ROOT_PATH = os.path.dirname(os.path.dirname(os.path.realpath(wholecell.__file__)))
 
+MATPLOTLIBRC_FILE = os.path.join(ROOT_PATH, 'matplotlibrc')
+
 # Regex for current and previous timestamp() formats: 'YYYYMMDD.HHMMSS[.uuuuuu]'.
 TIMESTAMP_PATTERN = r'\d{8}\.\d{6}(?:\.\d{6})?'
 

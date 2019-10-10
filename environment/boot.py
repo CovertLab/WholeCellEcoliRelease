@@ -6,8 +6,6 @@ import shutil
 
 from lens.actor.inner import Inner
 from lens.actor.boot import BootAgent
-from lens.environment.make_media import Media
-from lens.environment.boot import boot_lattice
 
 from models.ecoli.sim.simulation import ecoli_simulation
 
@@ -167,7 +165,6 @@ class BootEcoli(BootAgent):
 	def __init__(self):
 		super(BootEcoli, self).__init__()
 		self.agent_types = {
-			'lattice': boot_lattice,
 			'ecoli': boot_ecoli}
 
 def run():

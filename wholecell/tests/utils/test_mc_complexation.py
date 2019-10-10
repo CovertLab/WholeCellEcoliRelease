@@ -17,10 +17,11 @@ import numpy.testing as npt
 import nose.plugins.attrib as noseAttrib
 import unittest
 
+
+@noseAttrib.attr('complexationTest')
+@noseAttrib.attr('smalltest')
 class Test_mc_complexation(unittest.TestCase):
 
-	@noseAttrib.attr('complexationTest')
-	@noseAttrib.attr('smalltest')
 	def test_mccBuildMatrices(self):
 		stoichMatrix = np.array([[-2, -1,  0,  0],
 								 [ 1,  0, -1,  0],
@@ -43,9 +44,6 @@ class Test_mc_complexation(unittest.TestCase):
 					  [ 0,  1,  2],
 					  [ 3, -1, -1]]))
 
-
-	@noseAttrib.attr('complexationTest')
-	@noseAttrib.attr('smalltest')
 	def test_mccFormComplexesWithPrebuiltMatrices(self):
 		stoichMatrix = np.array([[-2, -1,  0,  0],
 								 [ 1,  0, -1,  0],

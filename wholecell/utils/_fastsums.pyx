@@ -1,3 +1,5 @@
+# cython: language_level=3str
+
 """
 _fastsums.pyx
 
@@ -40,9 +42,9 @@ def sum_monomers_reference_implementation(sequenceMonomers, activeSequencesIndex
 	return totalMonomers
 
 def sum_monomers(
-		sequenceMonomers,
-		np.int64_t[:] monomerIndexes,
-		np.int64_t[:] activeSequencesIndexes):
+		sequenceMonomers not None,
+		const np.int64_t[::1] monomerIndexes not None,
+		const np.int64_t[::1] activeSequencesIndexes not None):
 	"""
 	Sum up the total number of monomers of each type needed to continue building
 	the active sequences for the currentStep.
@@ -68,18 +70,18 @@ def sum_monomers(
 #   Release the gil and parallelize the outer loop.
 @cython.wraparound(False)   # --> Without boundscheck(False) this is slower!
 @cython.boundscheck(False)
-def _sum_monomers(
-		np.uint8_t[:, :, :] sequenceMonomers not None,
-		np.int64_t[::1] monomerIndexes not None,
-		np.int64_t[::1] activeSequencesIndexes not None):
+cdef np.ndarray _sum_monomers(
+		const np.uint8_t[:, :, ::1] sequenceMonomers,
+		const np.int64_t[::1] monomerIndexes,
+		const np.int64_t[::1] activeSequencesIndexes):
 	cdef Index nMonomers = sequenceMonomers.shape[0]
 	cdef Index maxSequences = sequenceMonomers.shape[1]
 	cdef Index nActiveSequences = activeSequencesIndexes.shape[0]
 	cdef Int32 total = 0
 	cdef Index monomer, step, iseq, seq
 
-	# # Do the bounds-checks once before looping *if* @cython.boundscheck(False).
-	for iseq in xrange(nActiveSequences):
+	# Do the bounds-checks once before looping since @cython.boundscheck(False).
+	for iseq in range(nActiveSequences):
 		seq = activeSequencesIndexes[iseq]
 		if seq < 0 or seq >= maxSequences:
 			raise IndexError('activeSequencesIndexes[%s]=%s is out of range(%s)'
@@ -88,9 +90,9 @@ def _sum_monomers(
 	cdef np.ndarray totalMonomers = np.empty(nMonomers, dtype=np.int32)
 	cdef Int32[:] _totalMonomers = totalMonomers # a typed memoryview of totalMonomers
 
-	for monomer in xrange(nMonomers):
+	for monomer in range(nMonomers):
 		total = 0
-		for iseq in xrange(nActiveSequences):
+		for iseq in range(nActiveSequences):
 			seq = activeSequencesIndexes[iseq]
 			total += sequenceMonomers[monomer, seq, monomerIndexes[iseq]]
 		_totalMonomers[monomer] = total

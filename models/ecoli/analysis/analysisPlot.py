@@ -45,6 +45,7 @@ class AnalysisPlot(object):
 	__metaclass__ = abc.ABCMeta
 
 	def __init__(self, cpus=0):
+		mp.rc_file(fp.MATPLOTLIBRC_FILE)
 		self.cpus = parallelization.cpus(cpus)
 		self._axeses = {}
 

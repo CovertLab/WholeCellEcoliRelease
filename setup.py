@@ -27,7 +27,8 @@ import os
 # 	)
 
 build_sequences_module = cythonize(
-	os.path.join("wholecell", "utils", "_build_sequences.pyx")
+	os.path.join("wholecell", "utils", "_build_sequences.pyx"),
+	# annotate=True,
 	)
 
 setup(
@@ -37,7 +38,8 @@ setup(
 	)
 
 complexation_module = cythonize(
-	os.path.join("wholecell", "utils", "mc_complexation.pyx")
+	os.path.join("wholecell", "utils", "mc_complexation.pyx"),
+	# annotate=True,
 	)
 
 setup(
