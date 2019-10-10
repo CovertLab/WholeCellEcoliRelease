@@ -9,9 +9,9 @@ module load wcEcoli/sherlock2
 
 ### -------------------------------------------------------------------
 ### Edit this line to make the PR build use a new pyenv.
-### Revert to `pyenv local wcEcoli3` before merging the PR into master.
+### Revert to `pyenv local wcEcoli2` before merging the PR into master.
 ### -------------------------------------------------------------------
-pyenv local wcEcoli3
+pyenv local wcEcoli2
 
 make clean
 make compile
