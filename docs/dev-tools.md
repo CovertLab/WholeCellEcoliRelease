@@ -95,6 +95,24 @@ _pyenv_ and _virtualenv_ are tools to install versions of Python and switch betw
 
 3. Open a new shell so it runs the updated profile.
 
+   - On macOS, If you use normally use an account that does not have
+     write access to `/usr/local/` (this is sometimes done to protect
+     your Homebrew installation) you may see this error:
+
+     ```
+     mkdir: /usr/local/var/pyenv/shims: Permission denied
+     mkdir: /usr/local/var/pyenv/versions: Permission denied
+     ```
+
+     You may want to consider changing your `~/.bash_profile` to read:
+
+     ```bash
+     export PYENV_ROOT="$HOME/.pyenv"
+     ```
+
+     to store your pyenv environments at `~/.pyenv/` instead of at
+     `/usr/local/var/pyenv` as the above instructions do.
+
 4. You'll need to put the project on the `PYTHONPATH` when working on it. Consider adding this to your profile _or_ creating a shell alias to do it when you work on wcEcoli:
 
    ```bash
