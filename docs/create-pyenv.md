@@ -57,7 +57,9 @@ This page goes through the Python environment setup steps in more detail and wit
 
 ## Install Python
 
-1. **Sherlock only:** The step after this will install a version of Python. Skip that if it's already installed. Before installing a new version of Python on Sherlock, you might need to do these steps:
+### On Sherlock
+
+1. The step after this will install a version of Python. Skip that if it's already installed. Before installing a new version of Python on Sherlock, you might need to do these steps:
 
    ```bash
    module load readline/7.0
@@ -81,6 +83,13 @@ This page goes through the Python environment setup steps in more detail and wit
    PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.16
    ```
 
+### On macOS
+
+1. Install Python using `pyenv`:
+
+   ```bash
+   pyenv install 2.7.16 
+   ```
 
 ## Create the "wcEcoli2" python virtual environment
 
