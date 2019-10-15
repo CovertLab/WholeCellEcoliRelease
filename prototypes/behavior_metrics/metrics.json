@@ -1,0 +1,38 @@
+{
+    "proteinMass": {
+        "table": "Mass",
+        "column": "proteinMass",
+        "mode": "end_start_ratio",
+        "range": [1.9, 2.1]
+    },
+    "tRnaMass": {
+        "table": "Mass",
+        "column": "tRnaMass",
+        "mode": "end_start_ratio",
+        "range": [1.9, 2.1]
+    },
+    "rRnaMass": {
+        "table": "Mass",
+        "column": "rRnaMass",
+        "mode": "end_start_ratio",
+        "range": [1.9, 2.1]
+    },
+    "mRnaMass": {
+        "table": "Mass",
+        "column": "mRnaMass",
+        "mode": "end_start_ratio",
+        "range": [1.8, 2.1]
+    },
+    "dnaMass": {
+        "table": "Mass",
+        "column": "dnaMass",
+        "mode": "end_start_ratio",
+        "range": [1.9, 2.2]
+    },
+    "smallMoleculeMass": {
+        "table": "Mass",
+        "column": "smallMoleculeMass",
+        "mode": "end_start_ratio",
+        "range": [1.9, 2.1]
+    }
+}
