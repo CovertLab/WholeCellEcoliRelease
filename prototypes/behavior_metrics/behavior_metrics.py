@@ -28,7 +28,7 @@ class BehaviorMetrics(object):
 	"""Tests for model behavior metrics"""
 
 	def __init__(self, metrics_conf_path, sim_out_dir):
-		# type: (BehaviorMetrics, str, str)
+		# type: (str, str)
 		"""Load metrics configuration and define modes
 
 		Modes are defined by a map from mode string to the function that
@@ -57,7 +57,7 @@ class BehaviorMetrics(object):
 		self.sim_out_dir = sim_out_dir
 
 	def test_metrics(self):
-		# type: (BehaviorMetrics) -> pd.DataFrame
+		# type: () -> pd.DataFrame
 		"""Test all behavior metrics
 
 		For each metric defined in the configuration file, calls the
