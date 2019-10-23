@@ -14,6 +14,20 @@ import pandas as pd
 from wholecell.io.tablereader import TableReader
 
 
+def calc_end_start_ratio(data):
+	# type: (np.ndarray) -> float
+	"""Check the ratio of a data's end to its start
+
+	Arguments:
+		data: A 1-dimensional array of timeseries data, in
+			chronological order.
+
+	Returns:
+		The ratio end / start.
+	"""
+	return data[-1] / data[0]
+
+
 """Path from repository root to metrics configuration JSON file"""
 METRICS_CONF_PATH = "prototypes/behavior_metrics/metrics.json"
 
@@ -21,6 +35,13 @@ METRICS_CONF_PATH = "prototypes/behavior_metrics/metrics.json"
 SIM_OUT_DIR = (
 	"out/manual/wildtype_000000/000000/generation_000000/000000/simOut"
 )
+MODE_FUNC_MAP = {
+	"end_start_ratio": calc_end_start_ratio,
+	"mean": np.mean,
+	"stdev": np.std,
+	"min": np.min,
+	"max": np.max,
+}
 
 
 class BehaviorMetrics(object):
@@ -51,13 +72,6 @@ class BehaviorMetrics(object):
 		"""
 		with open(metrics_conf_path, "r") as f:
 			self.metrics_conf = json.load(f)
-		self.MODE_FUNC_MAP = {
-			"end_start_ratio": self._calc_end_start_ratio,
-			"mean": np.mean,
-			"stdev": np.std,
-			"min": np.min,
-			"max": np.max,
-		}
 		self.sim_out_dir = sim_out_dir
 
 	def test_metrics(self):
@@ -73,7 +87,7 @@ class BehaviorMetrics(object):
 			reader = TableReader(path.join(self.sim_out_dir, config["table"]))
 			data = reader.readColumn(config["column"])
 			for mode, mode_config in config["modes"].items():
-				metric_val = self.MODE_FUNC_MAP[mode](data)
+				metric_val = MODE_FUNC_MAP[mode](data)
 				expected_min, expected_max = mode_config["range"]
 				result = pd.DataFrame(
 					[[metric, mode, expected_min, expected_max, metric_val]],
@@ -90,18 +104,6 @@ class BehaviorMetrics(object):
 		)
 		return results_df
 
-	def _calc_end_start_ratio(self, data):
-		# type: (np.ndarray) -> float
-		"""Check the ratio of a data's end to its start
-
-		Arguments:
-			data: A 1-dimensional array of timeseries data, in
-				chronological order.
-
-		Returns:
-			The ratio end / start.
-		"""
-		return data[-1] / data[0]
 
 
 def main():
