@@ -5,6 +5,18 @@
         "modes": {
             "end_start_ratio": {
                 "range": [1.9, 2.1]
+            },
+            "mean": {
+                "range": [0, 0]
+            },
+            "stdev": {
+                "range": [0, 0]
+            },
+            "min": {
+                "range": [0, 0]
+            },
+            "max": {
+                "range": [0, 0]
             }
         }
     },

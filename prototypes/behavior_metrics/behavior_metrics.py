@@ -53,6 +53,10 @@ class BehaviorMetrics(object):
 			self.metrics_conf = json.load(f)
 		self.MODE_FUNC_MAP = {
 			"end_start_ratio": self._calc_end_start_ratio,
+			"mean": np.mean,
+			"stdev": np.std,
+			"min": np.min,
+			"max": np.max,
 		}
 		self.sim_out_dir = sim_out_dir
 
