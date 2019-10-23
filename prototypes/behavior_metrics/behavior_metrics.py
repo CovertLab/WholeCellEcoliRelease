@@ -75,8 +75,8 @@ class BehaviorMetrics:
 			results.append(result)
 		results_df = pd.concat(results, ignore_index=True)
 		results_df["pass"] = (
-			(results_df["expected_min"] < results_df["value"])
-			& (results_df["value"] < results_df["expected_max"])
+			(results_df["expected_min"] <= results_df["value"])
+			& (results_df["value"] <= results_df["expected_max"])
 		)
 		return results_df
 
