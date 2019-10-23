@@ -6,7 +6,6 @@
 from __future__ import absolute_import, division, print_function
 import json
 from os import path
-from typing import Tuple
 
 import numpy as np
 import pandas as pd
