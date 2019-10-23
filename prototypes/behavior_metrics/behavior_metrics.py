@@ -38,8 +38,9 @@ class BehaviorMetrics(object):
 				"metric_name": {
 					"table": "A folder in SIM_OUT_DIR"
 					"column": "A file in SIM_OUT_DIR/table/"
-					"mode": "A key from TestBehaviorMetrics.MODE_FUNC_MAP"
-					"range": [min, max]
+					"mode, a key from TestBehaviorMetrics.MODE_FUNC_MAP": {
+						"range": [min, max]
+					}
 				}
 			}
 
@@ -60,18 +61,24 @@ class BehaviorMetrics(object):
 		"""Test all behavior metrics
 
 		For each metric defined in the configuration file, calls the
-		appropriate mode function.
+		appropriate mode functions and checks that the results are
+		within expected ranges.
 		"""
 		results = []
 		for metric, config in self.metrics_conf.items():
 			reader = TableReader(path.join(self.sim_out_dir, config["table"]))
 			data = reader.readColumn(config["column"])
-			metric_val = self.MODE_FUNC_MAP[config["mode"]](data)
-			expected_min, expected_max = config["range"]
-			result = pd.DataFrame(
-				[[metric, expected_min, expected_max, metric_val]],
-				columns=["metric", "expected_min", "expected_max", "value"])
-			results.append(result)
+			for mode, mode_config in config["modes"].items():
+				metric_val = self.MODE_FUNC_MAP[mode](data)
+				expected_min, expected_max = mode_config["range"]
+				result = pd.DataFrame(
+					[[metric, mode, expected_min, expected_max, metric_val]],
+					columns=[
+						"metric", "mode", "expected_min",
+						"expected_max", "value"
+					],
+				)
+				results.append(result)
 		results_df = pd.concat(results, ignore_index=True)
 		results_df["pass"] = (
 			(results_df["expected_min"] <= results_df["value"])
@@ -96,6 +103,7 @@ class BehaviorMetrics(object):
 def main():
 	metrics = BehaviorMetrics(METRICS_CONF_PATH, SIM_OUT_DIR)
 	results = metrics.test_metrics()
+	pd.options.display.width = None
 	print(results)
 
 
