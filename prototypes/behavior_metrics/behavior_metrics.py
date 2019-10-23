@@ -52,7 +52,7 @@ class BehaviorMetrics(object):
 		with open(metrics_conf_path, "r") as f:
 			self.metrics_conf = json.load(f)
 		self.MODE_FUNC_MAP = {
-			"end_start_ratio": BehaviorMetrics._calc_end_start_ratio,
+			"end_start_ratio": self._calc_end_start_ratio,
 		}
 		self.sim_out_dir = sim_out_dir
 
@@ -80,8 +80,7 @@ class BehaviorMetrics(object):
 		)
 		return results_df
 
-	@staticmethod
-	def _calc_end_start_ratio(data):
+	def _calc_end_start_ratio(self, data):
 		# type: (np.ndarray) -> float
 		"""Check the ratio of a data's end to its start
 
