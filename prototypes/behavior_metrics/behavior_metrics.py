@@ -70,8 +70,7 @@ class BehaviorMetrics(object):
 				file
 			sim_out_dir: Path to the simulation output directory
 		"""
-		with open(metrics_conf_path, "r") as f:
-			self.metrics_conf = json.load(f)
+		self.metrics_conf_path = metrics_conf_path
 		self.sim_out_dir = sim_out_dir
 
 	def test_metrics(self):
@@ -82,8 +81,10 @@ class BehaviorMetrics(object):
 		appropriate mode functions and checks that the results are
 		within expected ranges.
 		"""
+		with open(self.metrics_conf_path, "r") as f:
+			metrics_conf = json.load(f)
 		results = []
-		for metric, config in self.metrics_conf.items():
+		for metric, config in metrics_conf.items():
 			reader = TableReader(path.join(self.sim_out_dir, config["table"]))
 			data = reader.readColumn(config["column"])
 			for mode, mode_config in config["modes"].items():
