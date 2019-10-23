@@ -24,7 +24,7 @@ SIM_OUT_DIR = (
 )
 
 
-class BehaviorMetrics:
+class BehaviorMetrics(object):
 	"""Tests for model behavior metrics"""
 
 	def __init__(self, metrics_conf_path, sim_out_dir):
