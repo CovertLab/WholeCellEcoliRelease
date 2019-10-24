@@ -6,6 +6,7 @@
 from __future__ import absolute_import, division, print_function
 import json
 from os import path
+from typing import Dict, Any
 
 import numpy as np
 import pandas as pd
@@ -35,6 +36,7 @@ METRICS_CONF_PATH = "prototypes/behavior_metrics/metrics.json"
 SIM_OUT_DIR = (
 	"out/manual/wildtype_000000/000000/generation_000000/000000/simOut"
 )
+"""Map from mode names to the functions that handle the mode"""
 MODE_FUNC_MAP = {
 	"end_start_ratio": calc_end_start_ratio,
 	"mean": np.mean,
@@ -49,21 +51,7 @@ class BehaviorMetrics(object):
 
 	def __init__(self, metrics_conf_path, sim_out_dir):
 		# type: (str, str)
-		"""Load metrics configuration and define modes
-
-		Modes are defined by a map from mode string to the function that
-		handles the mode.
-
-		Configuration file ile must be structured as follows (in JSON):
-			{
-				"metric_name": {
-					"table": "A folder in SIM_OUT_DIR"
-					"column": "A file in SIM_OUT_DIR/table/"
-					"mode, a key from TestBehaviorMetrics.MODE_FUNC_MAP": {
-						"range": [min, max]
-					}
-				}
-			}
+		"""Store metrics configuration path and simulation output dir
 
 		Arguments:
 			metrics_conf_path: Path to the metrics configuration JSON
@@ -80,6 +68,19 @@ class BehaviorMetrics(object):
 		For each metric defined in the configuration file, calls the
 		appropriate mode functions and checks that the results are
 		within expected ranges.
+
+		Returns:
+			A table of the results with columns:
+				* metric
+				* mode
+				* expected_min
+				* expected_max
+				* value
+				* pass
+			where metric and mode specify the test run. value is the
+			result of the mode computation, and value is expected to be
+			within [expected_min, expected_max]. Pass is a boolean
+			representation of whether this is true.
 		"""
 		with open(self.metrics_conf_path, "r") as f:
 			metrics_conf = json.load(f)
@@ -105,6 +106,32 @@ class BehaviorMetrics(object):
 		)
 		return results_df
 
+	def load_data_from_config(self, data_conf_json):
+		# type: (Dict[str, Any]) -> Dict[str, Any]
+		"""Load data as specified in a configuration JSON.
+
+		Arguments:
+			data_conf_json: Parsed JSON dictionary that defines any number
+				of data sources and how to load data from them.
+
+		Returns:
+			A dictionary where each key is the name of a data source and
+			each value is the loaded data for the key.
+		"""
+		loaded_data = {}
+		for source_name, source_config in data_conf_json.items():
+			reader = TableReader(
+				path.join(self.sim_out_dir, source_config["table"]))
+			if "column" in source_config:
+				data = reader.readColumn(source_config["column"])
+				loaded_data[source_name] = data
+			elif "attribute" in source_config:
+				data = reader.readAttribute(source_config["attribute"])
+				loaded_data[source_name] = data
+			else:
+				raise ValueError(
+					"{} has neither 'column' nor 'attribute'".format(source_config))
+		return loaded_data
 
 
 def main():
