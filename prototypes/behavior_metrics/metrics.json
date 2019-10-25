@@ -1,66 +1,110 @@
 {
     "proteinMass": {
-        "table": "Mass",
-        "column": "proteinMass",
+        "data": {
+            "mass": {
+                "table": "Mass",
+                "column": "proteinMass"
+            }
+        },
         "modes": {
             "end_start_ratio": {
+                "function": "end_start_ratio",
+                "args": ["mass"],
                 "range": [1.9, 2.1]
             },
             "mean": {
+                "function": "mean",
+                "args": ["mass"],
                 "range": [0, 0]
             },
             "stdev": {
+                "function": "stdev",
+                "args": ["mass"],
                 "range": [0, 0]
             },
             "min": {
+                "function": "min",
+                "args": ["mass"],
                 "range": [0, 0]
             },
             "max": {
+                "function": "max",
+                "args": ["mass"],
                 "range": [0, 0]
             }
         }
     },
     "tRnaMass": {
-        "table": "Mass",
-        "column": "tRnaMass",
+        "data": {
+            "mass": {
+                "table": "Mass",
+                "column": "tRnaMass"
+            }
+        },
         "modes": {
             "end_start_ratio": {
+                "function": "end_start_ratio",
+                "args": ["mass"],
                 "range": [1.9, 2.1]
             }
         }
     },
     "rRnaMass": {
-        "table": "Mass",
-        "column": "rRnaMass",
+        "data": {
+            "mass": {
+                "table": "Mass",
+                "column": "rRnaMass"
+            }
+        },
         "modes": {
             "end_start_ratio": {
+                "function": "end_start_ratio",
+                "args": ["mass"],
                 "range": [1.9, 2.1]
             }
         }
     },
     "mRnaMass": {
-        "table": "Mass",
-        "column": "mRnaMass",
+        "data": {
+            "mass": {
+                "table": "Mass",
+                "column": "mRnaMass"
+            }
+        },
         "modes": {
             "end_start_ratio": {
+                "function": "end_start_ratio",
+                "args": ["mass"],
                 "range": [1.9, 2.1]
             }
         }
     },
     "dnaMass": {
-        "table": "Mass",
-        "column": "dnaMass",
+        "data": {
+            "mass": {
+                "table": "Mass",
+                "column": "dnaMass"
+            }
+        },
         "modes": {
             "end_start_ratio": {
+                "function": "end_start_ratio",
+                "args": ["mass"],
                 "range": [1.9, 2.1]
             }
         }
     },
     "smallMoleculeMass": {
-        "table": "Mass",
-        "column": "smallMoleculeMass",
+        "data": {
+            "mass": {
+                "table": "Mass",
+                "column": "smallMoleculeMass"
+            }
+        },
         "modes": {
             "end_start_ratio": {
+                "function": "end_start_ratio",
+                "args": ["mass"],
                 "range": [1.9, 2.1]
             }
         }

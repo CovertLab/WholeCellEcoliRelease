@@ -36,6 +36,7 @@ METRICS_CONF_PATH = "prototypes/behavior_metrics/metrics.json"
 SIM_OUT_DIR = (
 	"out/manual/wildtype_000000/000000/generation_000000/000000/simOut"
 )
+
 """Map from mode names to the functions that handle the mode"""
 MODE_FUNC_MAP = {
 	"end_start_ratio": calc_end_start_ratio,
@@ -86,10 +87,13 @@ class BehaviorMetrics(object):
 			metrics_conf = json.load(f)
 		results = []
 		for metric, config in metrics_conf.items():
-			reader = TableReader(path.join(self.sim_out_dir, config["table"]))
-			data = reader.readColumn(config["column"])
+			data = self.load_data_from_config(config["data"])
 			for mode, mode_config in config["modes"].items():
-				metric_val = MODE_FUNC_MAP[mode](data)
+				mode_func = MODE_FUNC_MAP[mode_config["function"]]
+				func_args = [
+					data[arg_label] for arg_label in mode_config["args"]
+				]
+				metric_val = mode_func(*func_args)
 				expected_min, expected_max = mode_config["range"]
 				result = pd.DataFrame(
 					[[metric, mode, expected_min, expected_max, metric_val]],
