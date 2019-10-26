@@ -178,12 +178,12 @@ class TfBinding(wholecell.processes.process.Process):
 			n_to_bind = int(stochasticRound(
 				self.randomState, n_available_promoters*pPromoterBound))
 
+			bound_locs = np.zeros(n_available_promoters, dtype=np.bool)
 			if n_to_bind > 0:
 				# Determine randomly which DNA targets to bind based on which of
 				# the following is more limiting:
 				# number of promoter sites to bind, or number of active
 				# transcription factors
-				bound_locs = np.zeros(n_available_promoters, dtype=np.bool)
 				bound_locs[
 					self.randomState.choice(
 						n_available_promoters,
