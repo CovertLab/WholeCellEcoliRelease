@@ -306,7 +306,7 @@ class Mass(object):
 			raw_data.genome_sequence.count('T') + raw_data.genome_sequence.count('A')
 		])
 
-		dntMasses = (sim_data.getter.getMass(sim_data.moleculeGroups.polymerizedDNT_IDs) / raw_data.constants['nAvogadro']).asUnit(units.g)
+		dntMasses = (sim_data.getter.getMass(sim_data.moleculeGroups.polymerizedDNT_IDs) / sim_data.constants.nAvogadro).asUnit(units.g)
 		chromMass = units.dot(dntCounts, dntMasses)
 		return chromMass
 

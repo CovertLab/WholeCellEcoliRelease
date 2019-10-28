@@ -174,10 +174,10 @@ class Translation(object):
 				sim_data.getter.getMass(aaIDs)
 				- sim_data.getter.getMass(["WATER[c]"])
 				)
-			/ raw_data.constants['nAvogadro']
+			/ sim_data.constants.nAvogadro
 			).asNumber(units.fg)
 
-		self.translationEndWeight = (sim_data.getter.getMass(["WATER[c]"]) / raw_data.constants['nAvogadro']).asNumber(units.fg)
+		self.translationEndWeight = (sim_data.getter.getMass(["WATER[c]"]) / sim_data.constants.nAvogadro).asNumber(units.fg)
 
 	def _buildTranslationEfficiency(self, raw_data, sim_data):
 		monomerIds = [x["id"].encode("utf-8") + "[" + sim_data.getter.getLocation([x["id"]])[0][0] + "]" for x in raw_data.proteins]

@@ -108,7 +108,7 @@ class Replication(object):
 		self.replicationMonomerWeights = (
 			(sim_data.getter.getMass(sim_data.moleculeGroups.dNtpIds)
 			- sim_data.getter.getMass(["PPI[c]"]))
-			/ raw_data.constants['nAvogadro']
+			/ sim_data.constants.nAvogadro
 		)
 
 

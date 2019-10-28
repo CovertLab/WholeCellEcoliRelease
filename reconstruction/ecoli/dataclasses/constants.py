@@ -8,6 +8,11 @@ SimulationData constants
 
 from __future__ import division
 
+import scipy.constants
+
+from wholecell.utils import units
+
+
 class Constants(object):
 	""" Constants """
 
@@ -15,8 +20,7 @@ class Constants(object):
 		self._buildConstants(raw_data, sim_data)
 
 	def _buildConstants(self, raw_data, sim_data):
-		constants = raw_data.constants
-		self.__dict__.update(constants)
+		self.nAvogadro = scipy.constants.Avogadro / units.mol
 
 		parameters = raw_data.parameters
 		self.__dict__.update(parameters)

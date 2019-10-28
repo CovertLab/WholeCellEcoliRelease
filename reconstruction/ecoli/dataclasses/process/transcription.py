@@ -114,7 +114,7 @@ class Transcription(object):
 		# Load sequence data
 		sequences = [rna['seq'] for rna in raw_data.rnas]
 		maxSequenceLength = max(len(sequence) for sequence in sequences)
-		
+
 		# Load IDs of protein monomers
 		monomerIds = [rna['monomerId'] for rna in raw_data.rnas]
 
@@ -287,11 +287,11 @@ class Transcription(object):
 				sim_data.getter.getMass(sim_data.moleculeGroups.ntpIds)
 				- sim_data.getter.getMass(["PPI[c]"])
 				)
-			/ raw_data.constants['nAvogadro']
+			/ sim_data.constants.nAvogadro
 			).asNumber(units.fg)
 
 		self.transcriptionEndWeight = ((sim_data.getter.getMass(["PPI[c]"])
-            / raw_data.constants['nAvogadro']).asNumber(units.fg))
+            / sim_data.constants.nAvogadro).asNumber(units.fg))
 
 	def _build_charged_trna(self, raw_data, sim_data):
 		'''
