@@ -149,6 +149,9 @@ class Simulation(lens.actor.inner.Simulation):
 		self._finalized = False
 		self.emitter = get_emitter(self._emitter_config)['object']  # get the emitter object
 
+		self.first_processes = {cls.name() for cls in self._first_process_classes}
+		self.second_processes = {cls.name() for cls in self._second_process_classes}
+
 		for state_name, internal_state in self.internal_states.iteritems():
 			# initialize random streams
 			internal_state.seed = self._seedFromName(state_name)
@@ -258,7 +261,10 @@ class Simulation(lens.actor.inner.Simulation):
 
 			self._timeTotal += self._timeStepSec
 
-			self._evolveState()
+			self._pre_evolve_state()
+			self._evolveState(self.first_processes)
+			self._evolveState(self.second_processes)
+			self._post_evolve_state()
 
 			self.emit()
 
@@ -285,66 +291,65 @@ class Simulation(lens.actor.inner.Simulation):
 
 			self._finalized = True
 
-	# Calculate temporal evolution
-	def _evolveState(self):
-
+	def _pre_evolve_state(self):
 		self._adjustTimeStep()
 
 		# Run pre-evolveState hooks
 		for hook in self.hooks.itervalues():
 			hook.preEvolveState(self)
 
+	# Calculate temporal evolution
+	def _evolveState(self, processes):
 		# Update queries
 		# TODO: context manager/function calls for this logic?
 		for i, state in enumerate(self.internal_states.itervalues()):
 			t = time.time()
 			state.updateQueries()
-			self._evalTime.updateQueries_times[i] = time.time() - t
+			self._evalTime.updateQueries_times[i] += time.time() - t
 
 		# Calculate requests
-		for i, process in enumerate(self.processes.itervalues()):
-			t = time.time()
-			process.calculateRequest()
-			self._evalTime.calculateRequest_times[i] = time.time() - t
+		for i, (process_name, process) in enumerate(self.processes.iteritems()):
+			if process_name in processes:
+				t = time.time()
+				process.calculateRequest()
+				self._evalTime.calculateRequest_times[i] += time.time() - t
 
 		# Partition states among processes
 		for i, state in enumerate(self.internal_states.itervalues()):
 			t = time.time()
 			state.partition()
-			self._evalTime.partition_times[i] = time.time() - t
-
-		# Calculate mass of partitioned molecules
-		for state in self.internal_states.itervalues():
-			state.calculatePreEvolveStateMass()
-
-		# Update listeners
-		for listener in self.listeners.itervalues():
-			listener.updatePostRequest()
+			self._evalTime.partition_times[i] += time.time() - t
 
 		# Simulate submodels
-		for i, process in enumerate(self.processes.itervalues()):
-			t = time.time()
-			process.evolveState()
-			self._evalTime.evolveState_times[i] = time.time() - t
+		for i, (process_name, process) in enumerate(self.processes.iteritems()):
+			if process_name in processes:
+				t = time.time()
+				process.evolveState()
+				self._evalTime.evolveState_times[i] += time.time() - t
 
 		# Check that timestep length was short enough
-		for process in self.processes.itervalues():
-			if not process.wasTimeStepShortEnough():
+		for process_name, process in self.processes.iteritems():
+			if process_name in processes and not process.wasTimeStepShortEnough():
 				raise Exception("The timestep (%.3f) was too long at step %i, failed on process %s" % (self._timeStepSec, self.simulationStep(), str(process.name())))
 
 		# Merge state
 		for i, state in enumerate(self.internal_states.itervalues()):
 			t = time.time()
 			state.merge()
-			self._evalTime.merge_times[i] = time.time() - t
-
-		# Calculate mass of partitioned molecules, after evolution
-		for state in self.internal_states.itervalues():
-			state.calculatePostEvolveStateMass()
+			self._evalTime.merge_times[i] += time.time() - t
 
 		# update environment state
 		for state in self.external_states.itervalues():
 			state.update()
+
+	def _post_evolve_state(self):
+		# Calculate mass of partitioned molecules
+		for state in self.internal_states.itervalues():
+			state.calculatePreEvolveStateMass()
+
+		# Calculate mass of partitioned molecules, after evolution
+		for state in self.internal_states.itervalues():
+			state.calculatePostEvolveStateMass()
 
 		# Update listeners
 		for listener in self.listeners.itervalues():

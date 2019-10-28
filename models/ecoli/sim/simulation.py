@@ -52,8 +52,7 @@ class EcoliSimulation(Simulation):
 		LocalEnvironment,
 		)
 
-	_processClasses = (
-		Metabolism,
+	_first_process_classes = (
 		RnaDegradation,
 		TranscriptInitiation,
 		TranscriptElongation,
@@ -66,6 +65,12 @@ class EcoliSimulation(Simulation):
 		TfBinding,
 		TwoComponentSystem,
 		)
+
+	_second_process_classes = (
+		Metabolism,
+		)
+
+	_processClasses = _first_process_classes + _second_process_classes
 
 	_listenerClasses = (
 		Mass,
