@@ -17,6 +17,7 @@ import cPickle
 
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
 from models.ecoli.analysis import singleAnalysisPlot
 
 
@@ -35,53 +36,25 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile))
 
 		isMRna = sim_data.process.transcription.rnaData["isMRna"]
-		isRRna = sim_data.process.transcription.rnaData["isRRna"]
-		isTRna = sim_data.process.transcription.rnaData["isTRna"]
 		rnaIds = sim_data.process.transcription.rnaData["id"][isMRna]
 
 		expectedDegradationRate = sim_data.process.transcription.rnaData['degRate'][isMRna].asNumber()
 
-
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-
-		# Note that MoleculeIDs is replaced by objectNames
-
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
-		rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
-		rnaCountsBulk = bulkMolecules.readColumn("counts")[:, rnaIndexes]
+		rnaCountsBulk, = read_bulk_molecule_counts(simOutDir, rnaIds)
 		rnaCounts = rnaCountsBulk[1:,:]
 		rnaCountsTotal = rnaCounts.sum(axis = 0)
 
-		AllrnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in sim_data.process.transcription.rnaData["id"]], np.int)
-		AllrnaCountsBulk = bulkMolecules.readColumn("counts")[:, AllrnaIndexes]
-		AllCounts = AllrnaCountsBulk[1:,:]
-		TotalRnaDegraded = (AllCounts * sim_data.process.transcription.rnaData['degRate'].asNumber()).sum(axis = 1)
-
-
-		MrnaCounts = AllrnaCountsBulk[1:,isMRna]
-		TotalMRnaDegraded = (MrnaCounts * sim_data.process.transcription.rnaData['degRate'][isMRna].asNumber()).sum(axis = 1)
-
-		RrnaCounts = AllrnaCountsBulk[1:,isRRna]
-		TotalRRnaDegraded = (RrnaCounts * sim_data.process.transcription.rnaData['degRate'][isRRna].asNumber()).sum(axis = 1)
-
-		TrnaCounts = AllrnaCountsBulk[1:,isTRna]
-		TotalTRnaDegraded = (TrnaCounts * sim_data.process.transcription.rnaData['degRate'][isTRna].asNumber()).sum(axis = 1)
-
-
 		rnaDegradationListenerFile = TableReader(os.path.join(simOutDir, "RnaDegradationListener"))
-		time = rnaDegradationListenerFile.readColumn("time")
 		countRnaDegraded = rnaDegradationListenerFile.readColumn('countRnaDegraded')
 		rnaDegradationListenerFile.close()
 		rnaDegraded = countRnaDegraded[1:,:]
 		rnaDegradedTotal = rnaDegraded.sum(axis = 0)[isMRna]
-		rnaDegradationRate = rnaDegradedTotal / 3600. # TODO: this is not true
 
 		rnaSynthesizedListenerFile = TableReader(os.path.join(simOutDir, "TranscriptElongationListener"))
 		countRnaSynthesized = rnaSynthesizedListenerFile.readColumn('countRnaSynthesized')
 		rnaSynthesizedListenerFile.close()
 		rnaSynthesized = countRnaSynthesized[1:,:]
 		rnaSynthesizedTotal = rnaSynthesized.sum(axis = 0)[isMRna]
-		rnaSynthesizedTotalRate = rnaSynthesizedTotal / 3600.
 
 		rnaDegradationRate1 = []
 		rnaDegradationRate2 = []
@@ -135,9 +108,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 				expectedDegradationRateSubset4.append(-1)
 				rnaDegradationRate5.append(-1)
 				expectedDegradationRateSubset5.append(-1)
-
-		np.savetxt(os.path.join(plotOutDir, 'RNAdecayPredicted.txt'), rnaDegradationRate3)
-		np.savetxt(os.path.join(plotOutDir, 'RNAdecayExpected.txt'), expectedDegradationRate)
 
 		# reduction of genes
 		expectedDegR = []

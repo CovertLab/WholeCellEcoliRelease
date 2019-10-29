@@ -235,19 +235,20 @@ def main(unfit_path, fit_path, condition = 'basal'):
 
 if __name__ == '__main__':
 	# Paths
-
-	SET_D_ROOT = os.path.join('/', 'scratch', 'PI', 'mcovert', 'wc_ecoli', 'paper', 'SET_D')
+	SET_ROOT = os.path.join('/', 'scratch', 'PI', 'mcovert', 'wc_ecoli', 'paper')
 	PATH_TO_SIMDATA = os.path.join('kb', 'simData_Most_Fit.cPickle')
 	UNFIT_SOURCE = os.path.join(
-		SET_D_ROOT,
-		'20180817.001302.336012__SET_D4_4_gens_256_seeds,_unfit_ribosome_and_rna_poly_expression',
+		SET_ROOT,
+		'SET_L',
+		'20190910.155143__SET_L_4_gens_256_seeds_3_conditions_unfit_ribosome_and_rna_poly_expression',
 		PATH_TO_SIMDATA
-		)
+	)
 	FIT_SOURCE = os.path.join(
-		SET_D_ROOT,
-		'20180815.085246.549352__SET_D1_4_gens_256_seeds',
+		SET_ROOT,
+		'SET_C',
+		'20190906.151026__SET_C_4_gens_256_seeds_3_conditions_with_growth_noise_and_D_period',
 		PATH_TO_SIMDATA
-		)
+	)
 
 	for condition in ['basal', 'with_aa', 'no_oxygen']:
 		print()

@@ -71,11 +71,12 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# Load data from bulk molecules
 			bulkMoleculesReader = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 			bulkMoleculeIds = bulkMoleculesReader.readAttribute("objectNames")
+			bulkMoleculeCounts = bulkMoleculesReader.readColumn("counts")
 
 			# Get the concentration of intracellular arg
 			argId = ["ARG[c]"]
 			argIndex = np.array([bulkMoleculeIds.index(x) for x in argId])
-			argCounts = bulkMoleculesReader.readColumn("counts")[:, argIndex].reshape(-1)
+			argCounts = bulkMoleculeCounts[:, argIndex].reshape(-1)
 			argMols = 1. / nAvogadro * argCounts
 			volume = cellMass / cellDensity
 			argConcentration = argMols * 1. / volume
@@ -83,36 +84,36 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# Get the amount of active argR (that is promoter bound)
 			argRActiveId = ["CPLX0-228[c]"]
 			argRActiveIndex = np.array([bulkMoleculeIds.index(x) for x in argRActiveId])
-			argRActiveCounts = bulkMoleculesReader.readColumn("counts")[:, argRActiveIndex].reshape(-1)
+			argRActiveCounts = bulkMoleculeCounts[:, argRActiveIndex].reshape(-1)
 
 			# Get the amount of inactive argR
 			argRInactiveId = ["PC00005[c]"]
 			argRInactiveIndex = np.array([bulkMoleculeIds.index(x) for x in argRInactiveId])
-			argRInactiveCounts = bulkMoleculesReader.readColumn("counts")[:, argRInactiveIndex].reshape(-1)
+			argRInactiveCounts = bulkMoleculeCounts[:, argRInactiveIndex].reshape(-1)
 
 			# Get the amount of monomeric argR
 			argRMonomerId = ["PD00194[c]"]
 			argRMonomerIndex = np.array([bulkMoleculeIds.index(x) for x in argRMonomerId])
-			argRMonomerCounts = bulkMoleculesReader.readColumn("counts")[:, argRMonomerIndex].reshape(-1)
+			argRMonomerCounts = bulkMoleculeCounts[:, argRMonomerIndex].reshape(-1)
 
 			# Get the promoter-bound status for all regulated genes
 			tfBoundIndex = np.array([bulkMoleculeIds.index(x) for x in tfBoundIds])
-			tfBoundCounts = bulkMoleculesReader.readColumn("counts")[:, tfBoundIndex]
+			tfBoundCounts = bulkMoleculeCounts[:, tfBoundIndex]
 
 			# Get the amount of monomeric carA
 			carAProteinId = ["CARBPSYN-SMALL[c]"]
 			carAProteinIndex = np.array([bulkMoleculeIds.index(x) for x in carAProteinId])
-			carAProteinCounts = bulkMoleculesReader.readColumn("counts")[:, carAProteinIndex].reshape(-1)
+			carAProteinCounts = bulkMoleculeCounts[:, carAProteinIndex].reshape(-1)
 
 			# Get the amount of complexed carA
 			carAComplexId = ["CARBPSYN-CPLX[c]"]
 			carAComplexIndex = np.array([bulkMoleculeIds.index(x) for x in carAComplexId])
-			carAComplexCounts = bulkMoleculesReader.readColumn("counts")[:, carAComplexIndex].reshape(-1)
+			carAComplexCounts = bulkMoleculeCounts[:, carAComplexIndex].reshape(-1)
 
 			# Get the amount of carA mRNA
 			carARnaId = ["EG10134_RNA[c]"]
 			carARnaIndex = np.array([bulkMoleculeIds.index(x) for x in carARnaId])
-			carARnaCounts = bulkMoleculesReader.readColumn("counts")[:, carARnaIndex].reshape(-1)
+			carARnaCounts = bulkMoleculeCounts[:, carARnaIndex].reshape(-1)
 
 			bulkMoleculesReader.close()
 

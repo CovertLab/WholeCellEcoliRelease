@@ -15,7 +15,7 @@ from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
-	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, 
+	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile,
 		validationDataFile, metadata):
 		if not os.path.isdir(seedOutDir):
 			raise Exception, "seedOutDir does not currently \
@@ -42,14 +42,17 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		for nrows, ncols, plot_number in subplots_to_make:
 			sub = fig.add_subplot(nrows, ncols, plot_number)
 
-			sub.xaxis.set_ticks_position('none')
 			sub.tick_params(which = 'both', direction = 'out', labelsize = 6)
 
 			sub.spines['top'].set_visible(False)
 			sub.spines['right'].set_visible(False)
+			sub.spines['left'].set_position(('outward', 5))
 			if plot_number < (num_subplots + 1 - nCols):
+				sub.xaxis.set_ticks_position('none')
 				sub.spines['bottom'].set_visible(False)
 				sub.set_xticks([])
+			else:
+				sub.spines['bottom'].set_position(('outward', 5))
 
 		###################
 
@@ -62,7 +65,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		genomeLength = len(sim_data.process.replication.genome_sequence)
 
 		recruitmentColNames = sim_data.process.transcription_regulation.recruitmentColNames
-		tfs = sorted(set([x.split("__")[-1] for x in recruitmentColNames 
+		tfs = sorted(set([x.split("__")[-1] for x in recruitmentColNames
 			if x.split("__")[-1] != "alpha"]))
 		trpRIndex = [i for i, tf in enumerate(tfs) if tf == "CPLX-125"][0]
 
@@ -146,7 +149,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# Compute moving averages
 			width = 100
 
-			tfBoundCountsMA = np.array([np.convolve(tfBoundCounts[:,i], 
+			tfBoundCountsMA = np.array([np.convolve(tfBoundCounts[:,i],
 				np.ones(width) / width, mode = "same")
 					for i in range(tfBoundCounts.shape[1])]).T
 
@@ -164,17 +167,26 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# Fork Position:
 			reverseIdx = 1
 			reverseCompIdx = 3
-			reverseSequences = np.logical_or(sequenceIdx == reverseIdx, 
+			reverseSequences = np.logical_or(sequenceIdx == reverseIdx,
 				sequenceIdx == reverseCompIdx)
 			sequenceLength[reverseSequences] = -1 * sequenceLength[reverseSequences]
 
 			# Down sample dna polymerase position, every position is only plotted once here
-			unique, index, value = np.unique(sequenceLength, return_index=True, 
+			unique, index, value = np.unique(sequenceLength, return_index=True,
 				return_inverse=True)
 			m = np.zeros_like(value, dtype=bool)
 			m[index] = True
 			m = m.reshape(sequenceLength.shape)
 			sequenceLength[~m] = np.nan
+
+			dnap_times = []
+			dnap_positions = []
+			for t, pos in zip(time, sequenceLength)[::10]:
+				for p in pos[np.isfinite(pos)]:
+					dnap_times += [t]
+					dnap_positions += [p]
+			dnap_times = np.array(dnap_times)
+			dnap_positions = np.array(dnap_positions)
 
 			# Relative Rate of dNTP polymerization
 			relative_rate_dNTP_poly = (sequenceIdx != -1).sum(axis = 1) / 4
@@ -186,7 +198,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			These limits may change simulation to simulation though, 
 			so make sure to change to be more dynamic 
 			if using on a different data set.
-			'''	
+			'''
 
 			# Plot parameters:
 			plot_line_color = '#0d71b9'
@@ -196,20 +208,22 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			##############################################################
 			ax1 = plt.subplot(nRows, nCols, 1)
 			ax1.plot(time, cellMass_no_conv, color = plot_line_color)
-			ax1.plot(time[idxInit], cellMass_no_conv[idxInit],  markersize=4, 
-				linewidth=0, marker="o", color = plot_marker_color, 
+			ax1.plot(time[idxInit], cellMass_no_conv[idxInit],  markersize=4,
+				linewidth=0, marker="o", color = plot_marker_color,
 				markeredgewidth=0)
 			plt.ylabel("Cell Mass\n(fg)", fontsize = plot_font_size)
 			y_min_1, y_max_1 = 1000, 4600
 			ax1.set_ylim([y_min_1, y_max_1])
 			ax1.set_yticks([y_min_1, y_max_1])
-			##############################################################	
+			ax1.set_xlim([0, time.max()])
+			##############################################################
 			ax2 = plt.subplot(nRows, nCols, 2)
-			ax2.plot(time, sequenceLength, marker='o', markersize=.5, 
+			ax2.plot(dnap_times, dnap_positions, marker='o', markersize=.5,
 				linewidth=0, color = plot_line_color)
 			plt.ylabel("DNA polymerase\nposition", fontsize = plot_font_size)
 			ax2.set_yticks([-1 * genomeLength / 2, 0, genomeLength / 2])
 			ax2.set_yticklabels(['-terC', 'oriC', '+terC'])
+			ax2.set_xlim([0, time.max()])
 			##############################################################
 			ax3 = plt.subplot(nRows, nCols, 3)
 			ax3.plot(time, trpARnaCounts, color = plot_line_color)
@@ -218,6 +232,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			ax3.set_ylim([0, y_max_3])
 			ax3.set_yticks([0, y_max_3])
 			ax3.set_yticklabels([0, "%0.0f" % y_max_3])
+			ax3.set_xlim([0, time.max()])
 			##############################################################
 			ax4 = plt.subplot(nRows, nCols, 4)
 			ax4.plot(time, growth_rate, color = plot_line_color)
@@ -226,14 +241,16 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			y_min_4, y_max_4 = 0, 0.032
 			ax4.set_ylim([y_min_4, y_max_4])
 			ax4.set_yticks([y_min_4, y_max_4])
+			ax4.set_xlim([0, time.max()])
 			##############################################################
 			ax5 = plt.subplot(nRows, nCols, 5)
 			ax5.plot(time, relative_rate_dNTP_poly, color = plot_line_color)
-			plt.ylabel("Relative rate of\ndNTP polymerization", 
+			plt.ylabel("Relative rate of\ndNTP polymerization",
 				fontsize = plot_font_size)
 			y_min_5, y_max_5 = 0, 6.
 			ax5.set_ylim([y_min_5, y_max_5])
 			ax5.set_yticks([y_min_5, y_max_5])
+			ax5.set_xlim([0, time.max()])
 			##############################################################
 			ax6 = plt.subplot(nRows, nCols, 6)
 			ax6.plot(time, trpAProteinTotalCounts, color = plot_line_color)
@@ -241,6 +258,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			y_min_6, y_max_6 = 800, 6000.
 			ax6.set_ylim([y_min_6, y_max_6])
 			ax6.set_yticks([y_min_6,y_max_6])
+			ax6.set_xlim([0, time.max()])
 			##############################################################
 			ax7 = plt.subplot(nRows, nCols, 7)
 			ax7.plot(time, ribosomeConcentration, color = plot_line_color)
@@ -249,28 +267,31 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			y_min_7, y_max_7 = ax7.get_ylim()
 			ax7.set_yticks([y_min_7, y_max_7])
 			ax7.set_yticklabels(["%0.0f" % y_min_7, "%0.0f" % y_max_7])
+			ax7.set_xlim([0, time.max()])
 			ax7.set_xticks([0, time.max()])
 			ax7.set_xticklabels([0., np.round(time.max() / 60., decimals = 0)])
 			##############################################################
 			ax8 = plt.subplot(nRows, nCols, 8)
 			ax8.plot(time, tfBoundCountsMA, color = plot_line_color)
 			#comment out color in order to see colors per generation
-			plt.ylabel("TrpR Bound To Promoters\n(Moving Average)", 
+			plt.ylabel("TrpR Bound To Promoters\n(Moving Average)",
 				fontsize = plot_font_size)
 			y_min_8, y_max_8 = 0, 1
 			ax8.set_ylim([y_min_8, y_max_8])
 			ax8.set_yticks([y_min_8, y_max_8])
+			ax8.set_xlim([0, time.max()])
 			ax8.set_xticks([0, time.max()])
 			ax8.set_xticklabels([0., np.round(time.max() / 60., decimals = 0)])
 			##############################################################
 			ax9 = plt.subplot(nRows, nCols, 9)
-			ax9.plot(time, trpConcentration.asNumber(units.umol / units.L), 
+			ax9.plot(time, trpConcentration.asNumber(units.umol / units.L),
 				color = plot_line_color)
 			plt.ylabel("Internal TRP Conc.\n(uM)", fontsize = plot_font_size)
 			y_min_9, y_max_9 = 0, 400
 			ax9.set_ylim([y_min_9, y_max_9])
 			ax9.set_yticks([y_min_9, y_max_9])
 			ax9.set_yticklabels([y_min_9, y_max_9])
+			ax9.set_xlim([0, time.max()])
 			ax9.set_xticks([0, time.max()])
 			ax9.set_xticklabels([0., np.round(time.max() / 60., decimals = 0)])
 			##############################################################

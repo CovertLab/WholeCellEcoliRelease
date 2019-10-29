@@ -145,7 +145,10 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		plt.plot([-6, 4], [-6, 4], 'k', linewidth = 0.75)
 		plt.plot([-5, 4], [-6, 3], 'k', linewidth = 0.5)
 		plt.plot([-6, 3], [-5, 4], 'k', linewidth = 0.5)
-		plt.plot(np.log10(targetAve), np.log10(actualAve), 'o', color = "black", markersize = 8, alpha = 0.15, zorder=1, markeredgewidth = 0.0)
+		plt.plot(np.log10(targetAve[categorization != -2]), np.log10(actualAve[categorization != -2]), 'o',
+			color='b', markersize=8, alpha=0.15, zorder=1, markeredgewidth=0.0)
+		plt.plot(np.log10(targetAve[categorization == -2]), np.log10(actualAve[categorization == -2]), 'o',
+			color='k', markersize=8, alpha=0.15, zorder=1, markeredgewidth=0.0)
 		plt.xlabel("Log10(Target Flux [mmol/g/hr])")
 		plt.ylabel("Log10(Actual Flux [mmol/g/hr])")
 		plt.title("PCC = %.3f, p = %s\n(%.3f, p = %s without points at zero)" % (pearsonAll[0], pearsonAll[1], pearsonNoZeros[0], pearsonNoZeros[1]))

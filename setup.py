@@ -1,6 +1,4 @@
-from distutils.core import setup# , Extension
-# from distutils.sysconfig import get_python_inc
-
+from distutils.core import setup
 from Cython.Build import cythonize
 
 import numpy as np

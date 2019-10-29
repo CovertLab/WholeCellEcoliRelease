@@ -6,7 +6,7 @@ PASSWORD=$4
 set -e
 
 module load wcEcoli/sherlock2
-pyenv local wcEcoli2
+pyenv local wcEcoli-paper
 
 make clean
 make compile

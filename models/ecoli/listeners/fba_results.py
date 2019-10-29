@@ -47,6 +47,12 @@ class FBAResults(wholecell.listeners.listener.Listener):
 		self.metaboliteNamesFromNutrients = sorted(self.metaboliteNamesFromNutrients)
 
 
+		if self.metabolism.run_flux_sensitivity:
+			self.sensitivity_reactions = self.metabolism.kineticsConstrainedReactions + ['All enabled']
+		else:
+			self.sensitivity_reactions = []
+		self.n_rxns_sensitivity = len(self.sensitivity_reactions)
+
 	# Allocate memory
 	def allocate(self):
 		super(FBAResults, self).allocate()
@@ -68,6 +74,9 @@ class FBAResults(wholecell.listeners.listener.Listener):
 		self.deltaMetabolites = np.zeros(len(self.metaboliteNamesFromNutrients), np.float64)
 		self.targetConcentrations = np.zeros(len(self.homeostaticTargetMolecules))
 
+		self.succinate_flux_sensitivity = np.zeros(self.n_rxns_sensitivity)
+		self.isocitrate_flux_sensitivity = np.zeros(self.n_rxns_sensitivity)
+
 
 	def tableCreate(self, tableWriter):
 		tableWriter.writeAttributes(
@@ -77,6 +86,7 @@ class FBAResults(wholecell.listeners.listener.Listener):
 			homeostaticTargetMolecules = self.homeostaticTargetMolecules,
 			kineticTargetFluxNames = self.kineticTargetFluxNames,
 			metaboliteNames = self.metaboliteNamesFromNutrients,
+			sensitivity_reactions = self.sensitivity_reactions,
 			)
 
 
@@ -93,4 +103,6 @@ class FBAResults(wholecell.listeners.listener.Listener):
 			kineticObjectiveValues = self.kineticObjectiveValues,
 			deltaMetabolites = self.deltaMetabolites,
 			targetConcentrations = self.targetConcentrations,
+			succinate_flux_sensitivity = self.succinate_flux_sensitivity,
+			isocitrate_flux_sensitivity = self.isocitrate_flux_sensitivity,
 			)

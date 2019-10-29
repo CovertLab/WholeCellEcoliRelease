@@ -146,20 +146,20 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			for tfIdx, tf in enumerate(tfs):
 				monomerId = tfToMonomerId[tf]
 				monomerIdx = bulkMoleculeIds.index(monomerId)
-				monomerCounts = bulkMoleculeCounts[:, monomerIdx].reshape(-1)
+				monomerCounts = bulkMoleculeCounts[:, monomerIdx].copy()
 				if tf in tfToComplexId:
 					complexId = tfToComplexId[tf]
 					complexIdx = bulkMoleculeIds.index(complexId)
-					complexCounts = bulkMoleculeCounts[:, complexIdx].reshape(-1)
+					complexCounts = bulkMoleculeCounts[:, complexIdx].copy()
 
 					monomerCounts += (tfToComplexStoich[tf] * complexCounts)
 
 				rnaId = tfToRNAId[tf]
 				rnaIdx = bulkMoleculeIds.index(rnaId)
-				rnaCounts = bulkMoleculeCounts[:, rnaIdx].reshape(-1)
+				rnaCounts = bulkMoleculeCounts[:, rnaIdx].copy()
 
 				synthProbIdx = rnaSynthProbIds.index(rnaId)
-				synthProb = synthProbs[:, synthProbIdx].reshape(-1)
+				synthProb = synthProbs[:, synthProbIdx].copy()
 
 				# Compute moving averages
 				width = 100

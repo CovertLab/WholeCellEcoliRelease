@@ -42,6 +42,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.rnaSequences = sim_data.process.transcription.transcriptionSequences
 		self.ntWeights = sim_data.process.transcription.transcriptionMonomerWeights
 		self.endWeight = sim_data.process.transcription.transcriptionEndWeight
+		self.transcription_data = sim_data.process.transcription
 
 		# Views
 		self.activeRnaPolys = self.uniqueMoleculesView('activeRnaPoly')
@@ -49,13 +50,19 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.ntps = self.bulkMoleculesView(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
 		self.ppi = self.bulkMoleculeView('PPI[c]')
 		self.inactiveRnaPolys = self.bulkMoleculeView("APORNAP-CPLX[c]")
+		self.flat_elongation = not sim._variable_elongation_transcription
 
 	def calculateRequest(self):
 		# Calculate elongation rate based on the current nutrients
 		current_nutrients = self._external_states['Environment'].nutrients
 
-		self.rnapElngRate = int(stochasticRound(self.randomState,
-			self.rnaPolymeraseElongationRateDict[current_nutrients].asNumber(units.nt / units.s) * self.timeStepSec()))
+		self.rnapElongationRate = self.rnaPolymeraseElongationRateDict[current_nutrients].asNumber(units.nt / units.s)
+
+		self.elongation_rates = self.transcription_data.make_elongation_rates(
+			self.randomState,
+			self.rnapElongationRate,
+			self.timeStepSec(),
+			self.flat_elongation)
 
 		# Request all active RNA polymerases
 		activeRnaPolys = self.activeRnaPolys.allMolecules()
@@ -65,7 +72,12 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		# Determine total possible sequences of nucleotides that can be transcribed in this time step for each polymerase
 		rnaIndexes, transcriptLengths = activeRnaPolys.attrs('rnaIndex', 'transcriptLength')
-		sequences = buildSequences(self.rnaSequences, rnaIndexes, transcriptLengths, self.rnapElngRate)
+		sequences = buildSequences(
+			self.rnaSequences,
+			rnaIndexes,
+			transcriptLengths,
+			self.elongation_rates)
+
 		sequenceComposition = np.bincount(sequences[sequences != polymerize.PAD_VALUE], minlength = 4)
 
 		# Calculate if any nucleotides are limited and request up to the number in the sequences or number available
@@ -86,12 +98,19 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		# Determine sequences that can be elongated
 		rnaIndexes, transcriptLengths, massDiffRna = activeRnaPolys.attrs('rnaIndex', 'transcriptLength', 'massDiff_mRNA')
-		sequences = buildSequences(self.rnaSequences, rnaIndexes, transcriptLengths, self.rnapElngRate)
+		sequences = buildSequences(
+			self.rnaSequences,
+			rnaIndexes,
+			transcriptLengths,
+			self.elongation_rates)
+
 		ntpCountInSequence = np.bincount(sequences[sequences != polymerize.PAD_VALUE], minlength = 4)
 
 		# Polymerize transcripts based on sequences and available nucleotides
 		reactionLimit = ntpCounts.sum()
-		result = polymerize(sequences, ntpCounts, reactionLimit, self.randomState)
+		active_elongation_rates = self.elongation_rates[rnaIndexes]
+
+		result = polymerize(sequences, ntpCounts, reactionLimit, self.randomState, active_elongation_rates)
 		sequenceElongations = result.sequenceElongation
 		ntpsUsed = result.monomerUsages
 		nElongations = result.nReactions
@@ -123,7 +142,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.ppi.countInc(nElongations - nInitialized)
 
 		# Calculate stalls
-		expectedElongations = np.fmin(self.rnapElngRate, terminalLengths - transcriptLengths)
+		expectedElongations = np.fmin([self.elongation_rates[x] for x in rnaIndexes], terminalLengths - transcriptLengths)
 		rnapStalls = expectedElongations - sequenceElongations
 
 		# Write outputs to listeners

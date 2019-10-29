@@ -232,13 +232,13 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			]
 
 		fullReactants = [
-			"2-KETOGLUTARATE[c]",
+			"SUC[c]",
 			"L-DELTA1-PYRROLINE_5-CARBOXYLATE[c]",
 			"DADP[c]",
 		]
 
 		fullProducts = [
-			"SUC-COA[c]",
+			"FUM[c]",
 			"PRO[c]",
 			"DATP[c]",
 		]
@@ -332,13 +332,15 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 						totalFlux += flux[:, reactionIDs.index(rxn)] * direction
 
 				if firstGen:
-					ax.axhline(0, color = "#aaaaaa", linewidth = 0.25)
-					ax.axvline(SHIFT / 60, color = "#aaaaaa", linewidth = 0.25)
 					ax.set_title("%s to %s" % (reactant, product), fontsize = 4)
 					ax.tick_params(axis = "both", labelsize = 4)
 
+				if idx != 2:
+					ax.spines['bottom'].set_visible(False)
+					ax.tick_params(axis="x", labelbottom=False, bottom=False)
+
 				totalFlux = np.array([np.convolve(totalFlux, np.ones(MA_WIDTH) / MA_WIDTH, mode = "same")]).T
-				ax.plot(time / 60, totalFlux, color = "b", linewidth = 0.5)
+				ax.plot(time / 60, totalFlux, color = "b", linewidth = 2)
 
 			firstGen = False
 

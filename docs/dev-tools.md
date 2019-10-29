@@ -51,7 +51,7 @@ _pyenv_ and _virtualenv_ are tools to install versions of Python and switch betw
 
    See [pyenv Installation](https://github.com/pyenv/pyenv#installation) for various ways to install pyenv on various operating systems.
 
-   Or try these commands on Ubuntu:
+   Or try these commands on Ubuntu and skip step 2 below:
 
    ```bash
    git clone https://github.com/pyenv/pyenv.git ~/.pyenv
@@ -67,8 +67,8 @@ _pyenv_ and _virtualenv_ are tools to install versions of Python and switch betw
    source ~/.bash_profile
    ```
 
-2. Set your shell login script (`.bash_profile` on Linux; `.profile` or `.bash_profile` on macOS, etc.) to initialize `pyenv` and optionally `pyenv-virtualenv` for each shell. To do this, follow the steps below or the more intricate instructions under "Add pyenv init to your shell" in [pyenv Installation](https://github.com/pyenv/pyenv#installation).
-   - Example `.profile` or `.bash_profile` lines for macOS:
+2. Set your shell login script (`~/.bash_profile` on Linux; `~/.profile` or `~/.bash_profile` on macOS, etc.) to initialize `pyenv` and optionally `pyenv-virtualenv` for each shell. To do this, follow the steps below or the more intricate instructions under "Add pyenv init to your shell" in [pyenv Installation](https://github.com/pyenv/pyenv#installation).
+   - Example `~/.profile` or `~/.bash_profile` lines for macOS:
 
    ```bash
    export PYENV_ROOT=/usr/local/var/pyenv
@@ -77,10 +77,10 @@ _pyenv_ and _virtualenv_ are tools to install versions of Python and switch betw
    ## -- Do this *before* sourcing iterm2_shell_integration
    ```
 
-   - Example `.bash_profile` lines for a Linux server:
+   - Example `~/.bash_profile` lines for a Linux server:
 
    ```bash
-   export PYENV_ROOT="${PI_HOME}/pyenv"
+   export PYENV_ROOT="$HOME/.pyenv"
 
    if [ -d "${PYENV_ROOT}" ]; then
        export PATH="${PYENV_ROOT}/bin:${PATH}"
@@ -124,7 +124,7 @@ _pyenv_ and _virtualenv_ are tools to install versions of Python and switch betw
 
 After [building the pyenv](docs/create-pyenv.md) and cloning the repo to a local directory, you can create a project in PyCharm.
 
-* Select the project's Python interpreter: PyCharm > Preferences > Project: wcEcoli > Project Interpreter > Add > **Existing environment** > [navigate to something like `/usr/local/var/pyenv/versions/wcEcoli2/python`].
+* Select the project's Python interpreter: PyCharm > Preferences > Project: wcEcoli > Project Interpreter > Add > **Existing environment** > [navigate to something like `/usr/local/var/pyenv/versions/wcEcoli-paper/python`].
 * Set Keyboard Shortcuts: Duplicate one of the available sets (e.g. "Mac OS X 10.5+"), then make changes to suit. A great change is to set Cmd-D (or Ctrl-D) for "Edit > Find > Add Selection for Next Occurrence". [This is like `find_under_expand` in Sublime Text. Cmd-G (or Ctrl-G) works like Sublime's `find_under_expand_skip`.]
 
 [TODO] Notes on setting up code style, inspections, ...

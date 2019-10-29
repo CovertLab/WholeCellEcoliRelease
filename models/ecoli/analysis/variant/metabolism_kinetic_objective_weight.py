@@ -37,6 +37,7 @@ OUTLIER_REACTIONS = [
 	'SUCCINATE-DEHYDROGENASE-UBIQUINONE-RXN-SUC/UBIQUINONE-8//FUM/CPD-9956.31.',
 	]
 
+
 def analyze_variant((variant, ap, toya_reactions, toya_fluxes, outlier_filter)):
 	'''
 	Function to analyze the data for each variant in parallel
@@ -201,6 +202,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		ap = AnalysisPaths(inputDir, variant_plot=True)
 		variants = ap.get_variants()
 		n_variants = len(variants)
+		total_sims = ap.n_seed * ap.n_generation
 
 		if n_variants <= 1:
 			print('This plot only runs for multiple variants'.format(__name__))
@@ -262,12 +264,29 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				n_metabolites,
 				n_fluxes) = result
 
+		# Add each term of interest to an objective value to select the
+		# lambda value that maximizes the objective
+		scaled_growth_rate = growth_rates / growth_rates[0]
+		scaled_growth_rate[scaled_growth_rate > 1] = 1
+		objective = (
+			n_sims / total_sims
+			+ scaled_growth_rate
+			+ conc_correlation
+			+ (1 - n_conc_off_axis / n_metabolites)
+			+ flux_correlation
+			+ (1 - n_flux_off_axis / n_fluxes)
+			+ nonzero_flux_correlation
+			+ n_flux_above_0 / n_fluxes
+			+ correlation_coefficient
+		)
+		max_objective_index = np.argmax(objective)
+
 		tick_labels = [r'$10^{%i}$' % (np.log10(x),) if x != 0 else '0' for x in lambdas]
 		lambdas = [np.log10(x) if x != 0 else np.nanmin(np.log10(lambdas[lambdas != 0]))-1 for x in lambdas]
 
 		plt.figure(figsize = (8.5, 22))
 		plt.style.use('seaborn-deep')
-		subplots = 8
+		subplots = 9
 
 		# Growth rates
 		ax = plt.subplot(subplots, 1, 1)
@@ -281,18 +300,24 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		# Flux target comparisons
 		ax = plt.subplot(subplots, 1, 2)
 		plt.bar(lambdas, nonzero_flux_correlation, align='center')
+		for lam, val in zip(lambdas, nonzero_flux_correlation):
+			plt.text(lam, val, '{:.3f}'.format(val), ha='center')
 		plt.ylim([0, 1])
 		plt.ylabel('Kinetic target flux PCC')
 		whitePadSparklineAxis(ax, xAxis=False)
 
 		ax = plt.subplot(subplots, 1, 3)
 		plt.bar(lambdas, n_flux_above_0 / n_fluxes, align='center')
+		for lam, val in zip(lambdas, n_flux_above_0):
+			plt.text(lam, val / n_fluxes, '{:.0f}/{:.0f}'.format(val, n_fluxes), ha='center')
 		plt.ylim([0, 1])
 		plt.ylabel('Fraction of fluxes\nabove 0')
 		whitePadSparklineAxis(ax, xAxis=False)
 
 		ax = plt.subplot(subplots, 1, 4)
 		plt.bar(lambdas, n_flux_off_axis / n_fluxes, align='center')
+		for lam, val in zip(lambdas, n_flux_off_axis):
+			plt.text(lam, val / n_fluxes, '{:.0f}/{:.0f}'.format(val, n_fluxes), ha='center')
 		plt.ylim([0, 1])
 		plt.ylabel('Fraction of fluxes\noff axis (>{:.0f}%)'.format(FRAC_FLUX_OFF_AXIS*100))
 		whitePadSparklineAxis(ax, xAxis=False)
@@ -300,12 +325,16 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		# Metabolite comparisons
 		ax = plt.subplot(subplots, 1, 5)
 		plt.bar(lambdas, conc_correlation, align='center')
+		for lam, val in zip(lambdas, conc_correlation):
+			plt.text(lam, val, '{:.3f}'.format(val), ha='center')
 		plt.ylim([0, 1])
 		plt.ylabel('Concentration PCC')
 		whitePadSparklineAxis(ax, xAxis=False)
 
 		ax = plt.subplot(subplots, 1, 6)
 		plt.bar(lambdas, n_conc_off_axis / n_metabolites, align='center')
+		for lam, val in zip(lambdas, n_conc_off_axis):
+			plt.text(lam, val / n_metabolites, '{:.0f}/{:.0f}'.format(val, n_metabolites), ha='center')
 		plt.ylim([0, 1])
 		plt.ylabel('Fraction of concentrations\noff axis (>{:.0f}%)'.format(FRAC_CONC_OFF_AXIS*100))
 		whitePadSparklineAxis(ax, xAxis=False)
@@ -313,6 +342,8 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		# Toya comparison
 		ax = plt.subplot(subplots, 1, 7)
 		plt.bar(lambdas, filtered_correlation_coefficient, align='center')
+		for lam, val in zip(lambdas, filtered_correlation_coefficient):
+			plt.text(lam, val, '{:.3f}'.format(val), ha='center')
 		plt.ylim([0, 1])
 		plt.ylabel('Central carbon flux PCC')
 		whitePadSparklineAxis(ax, xAxis=False)
@@ -320,7 +351,17 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		# Viable sims
 		ax = plt.subplot(subplots, 1, 8)
 		plt.bar(lambdas, n_sims, align='center')
+		for lam, val in zip(lambdas, n_sims):
+			plt.text(lam, val, '{:.0f}'.format(val), ha='center')
 		plt.ylabel('Number of sims\nwith data')
+		whitePadSparklineAxis(ax, xAxis=False)
+
+		# Lambda objective
+		ax = plt.subplot(subplots, 1, 9)
+		plt.bar(lambdas, objective, align='center')
+		for lam, val in zip(lambdas, objective):
+			plt.text(lam, val, '{:.3f}'.format(val), ha='center')
+		plt.ylabel('Combined output objective')
 		whitePadSparklineAxis(ax)
 		plt.xticks(lambdas, tick_labels)
 

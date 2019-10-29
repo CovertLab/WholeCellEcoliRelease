@@ -62,6 +62,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Load count data for s30 proteins, rRNA, and final 30S complex
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		moleculeIds = bulkMolecules.readAttribute("objectNames")
+		bulkMoleculeCounts = bulkMolecules.readColumn("counts")
 
 		# Get indexes
 		proteinIndexes = np.array([moleculeIds.index(protein) for protein in RnaseIds], np.int)
@@ -71,10 +72,10 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Load data
 		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
 		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
-		RnaseCounts = bulkMolecules.readColumn("counts")[:, proteinIndexes]
+		RnaseCounts = bulkMoleculeCounts[:, proteinIndexes]
 
-		exoRnaseCounts = bulkMolecules.readColumn("counts")[:, exoproteinIndexes]
-		endoRnaseCounts = bulkMolecules.readColumn("counts")[:, endoproteinIndexes]
+		exoRnaseCounts = bulkMoleculeCounts[:, exoproteinIndexes]
+		endoRnaseCounts = bulkMoleculeCounts[:, endoproteinIndexes]
 		bulkMolecules.close()
 
 		rnaDegradationListenerFile = TableReader(os.path.join(simOutDir, "RnaDegradationListener"))
@@ -117,7 +118,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		moleculeIds = bulkMolecules.readAttribute("objectNames")
 		NTP_IDS = ['ATP[c]', 'CTP[c]', 'GTP[c]', 'UTP[c]']
 		ntpIndexes = np.array([moleculeIds.index(ntpId) for ntpId in NTP_IDS], np.int)
-		ntpCounts = bulkMolecules.readColumn("counts")[:, ntpIndexes]
+		ntpCounts = bulkMoleculeCounts[:, ntpIndexes]
 		bulkMolecules.close()
 
 

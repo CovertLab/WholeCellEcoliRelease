@@ -205,6 +205,8 @@ class Metabolism(wholecell.processes.process.Process):
 		if hasattr(sim_data.process.metabolism, "catalystShuffleIdxs") and sim_data.process.metabolism.catalystShuffleIdxs is not None:
 			self.shuffleCatalyzedIdxs = sim_data.process.metabolism.catalystShuffleIdxs
 
+		self.run_flux_sensitivity = getattr(sim_data.process.metabolism, 'run_flux_sensitivity', False)
+
 	def calculateRequest(self):
 		self.metabolites.requestAll()
 		self.catalysts.requestAll()
@@ -264,7 +266,7 @@ class Metabolism(wholecell.processes.process.Process):
 		self.fba.setInternalMoleculeLevels(metaboliteConcentrations.asNumber(COUNTS_UNITS / VOLUME_UNITS))
 
 		# Set external molecule levels
-		self._setExternalMoleculeLevels(externalMoleculeLevels, metaboliteConcentrations)
+		self._setExternalMoleculeLevels(self.fba, externalMoleculeLevels, metaboliteConcentrations)
 
 		# Change the ngam and polypeptide elongation energy penalty only if they are noticably different from the current value
 		ADJUSTMENT_RATIO = .01
@@ -333,6 +335,11 @@ class Metabolism(wholecell.processes.process.Process):
 		if self.use_kinetics and self.burnInComplete:
 			self.fba.setKineticTarget(self.kineticsConstrainedReactions, targets, raiseForReversible = False)
 
+		# Runs sensitivity if option is set
+		# Needs to be after all FBA problem setup but will not affect simulation
+		if self.run_flux_sensitivity:
+			self.flux_sensitivity(metaboliteConcentrations, externalMoleculeLevels, catalyzedReactionBounds, targets, coefficient)
+
 		# Solve FBA problem and update metabolite counts
 		deltaMetabolites = (1 / countsToMolar) * (COUNTS_UNITS / VOLUME_UNITS * self.fba.getOutputMoleculeLevelsChange())
 
@@ -367,12 +374,59 @@ class Metabolism(wholecell.processes.process.Process):
 		self.writeToListener("EnzymeKinetics", "targetFluxes", targets / self.timeStepSec())
 		self.writeToListener("EnzymeKinetics", "reactionConstraint", reactionConstraint[self.active_constraints_mask])
 
+	def flux_sensitivity(self, metaboliteConcentrations, externalMoleculeLevels, catalyzedReactionBounds, targets, coefficient):
+		"""
+		Sensitivity performed with flux_sensitivity variant simulations.  Disables
+		kinetic constraints one by one to determine impact on certain fluxes.
+
+		Args:
+			metaboliteConcentrations (ndarray[float] with mol/volume units):
+				concentrations for all metabolites
+			externalMoleculeLevels (ndarray[float]): limits for external
+				molecule exchanges
+			catalyzedReactionBounds (ndarray[float]): max limit for each
+				enzyme catalyzed reaction
+			targets (ndarray[float]): flux target for each reaction with a
+				kinetic constraint
+			coefficient (float with mass-time/volume units): conversion factor
+				for fluxes
+		"""
+
+		succ_rxn = 'SUCCINATE-DEHYDROGENASE-UBIQUINONE-RXN-SUC/UBIQUINONE-8//FUM/CPD-9956.31.'
+		iso_rxn = 'ISOCITDEH-RXN'
+
+		succ_flux = []
+		iso_flux = []
+		for rxn in self.kineticsConstrainedReactions:
+			fba = FluxBalanceAnalysis(**self.fbaObjectOptions)
+			fba.enableKineticTargets()
+			fba.setInternalMoleculeLevels(metaboliteConcentrations.asNumber(COUNTS_UNITS / VOLUME_UNITS))
+			self._setExternalMoleculeLevels(fba, externalMoleculeLevels, metaboliteConcentrations)
+			flux = (self.ngam * coefficient).asNumber(COUNTS_UNITS / VOLUME_UNITS)
+			fba.setReactionFluxBounds(fba._reactionID_NGAM, lowerBounds=flux, upperBounds=flux)
+			flux = self.currentPolypeptideElongationEnergy.asNumber(COUNTS_UNITS / VOLUME_UNITS)
+			fba.setReactionFluxBounds(self.fba._reactionID_polypeptideElongationEnergy, lowerBounds=flux, upperBounds=flux)
+			fba.setReactionFluxBounds(self.reactionsWithCatalystsList, upperBounds=catalyzedReactionBounds, raiseForReversible=False)
+			fba.setKineticTarget(self.kineticsConstrainedReactions, targets, raiseForReversible = False)
+			fba.disableKineticTargets(rxn)
+
+			# Fluxes of interest for each disabled constraint
+			succ_flux += [((COUNTS_UNITS / VOLUME_UNITS) * fba.getReactionFluxes(succ_rxn)[0] / coefficient).asNumber(units.mmol / units.g / units.h)]
+			iso_flux += [((COUNTS_UNITS / VOLUME_UNITS) * fba.getReactionFluxes(iso_rxn)[0] / coefficient).asNumber(units.mmol / units.g / units.h)]
+
+		# Fluxes of interest for the original simulation
+		succ_flux += [((COUNTS_UNITS / VOLUME_UNITS) * self.fba.getReactionFluxes(succ_rxn)[0] / coefficient).asNumber(units.mmol / units.g / units.h)]
+		iso_flux += [((COUNTS_UNITS / VOLUME_UNITS) * self.fba.getReactionFluxes(iso_rxn)[0] / coefficient).asNumber(units.mmol / units.g / units.h)]
+
+		self.writeToListener('FBAResults', 'succinate_flux_sensitivity', np.array(succ_flux))
+		self.writeToListener('FBAResults', 'isocitrate_flux_sensitivity', np.array(iso_flux))
+
 	# limit amino acid uptake to what is needed to meet concentration objective to prevent use as carbon source
-	def _setExternalMoleculeLevels(self, externalMoleculeLevels, metaboliteConcentrations):
+	def _setExternalMoleculeLevels(self, fba, externalMoleculeLevels, metaboliteConcentrations):
 		for aa in self.AAs:
-			if aa + "[p]" in self.fba.getExternalMoleculeIDs():
+			if aa + "[p]" in fba.getExternalMoleculeIDs():
 				idx = self.externalMoleculeIDs.index(aa + "[p]")
-			elif aa + "[c]" in self.fba.getExternalMoleculeIDs():
+			elif aa + "[c]" in fba.getExternalMoleculeIDs():
 				idx = self.externalMoleculeIDs.index(aa + "[c]")
 			else:
 				continue
@@ -384,4 +438,4 @@ class Metabolism(wholecell.processes.process.Process):
 			if externalMoleculeLevels[idx] > concDiff:
 				externalMoleculeLevels[idx] =  concDiff
 
-		self.fba.setExternalMoleculeLevels(externalMoleculeLevels)
+		fba.setExternalMoleculeLevels(externalMoleculeLevels)

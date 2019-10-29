@@ -178,7 +178,6 @@ class Protein(object):
 
 		self.schmidt2015Data = schmidt2015Data
 
-
 class ReactionFlux(object):
 	""" ReactionFlux """
 

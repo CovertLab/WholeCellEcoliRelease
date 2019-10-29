@@ -32,7 +32,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		validation_data = cPickle.load(open(validationDataFile, "rb"))
 
 		stoichMatrix = sim_data.process.equilibrium.stoichMatrix().astype(np.int64)
 		ratesFwd = sim_data.process.equilibrium.ratesFwd
@@ -41,9 +40,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / units.mol)
 		cellDensity = sim_data.constants.cellDensity.asNumber(units.g / units.L)
 
-
 		moleculeNames = sim_data.process.equilibrium.moleculeNames
-
 
 		# Load time
 		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
@@ -52,6 +49,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Calculate concentration data
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		bulkMoleculeIds = bulkMolecules.readAttribute("objectNames")
+		bulkMoleculeCounts = bulkMolecules.readColumn("counts")
 
 		mass = TableReader(os.path.join(simOutDir, "Mass"))
 		cellMass = (units.fg * mass.readColumn("cellMass")).asNumber(units.g)
@@ -70,13 +68,13 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			reactantIds = [moleculeNames[x] for x in np.where(stoichMatrix[:, idx] < 0)[0]]
 			reactantCoeffs = np.abs(stoichMatrix[stoichMatrix[:, idx] < 0, idx])
 			reactantIdxs = np.array([bulkMoleculeIds.index(x) for x in reactantIds], dtype = np.int64)
-			reactantCounts = bulkMolecules.readColumn("counts")[:, reactantIdxs]
+			reactantCounts = bulkMoleculeCounts[:, reactantIdxs]
 			reactantConcentrations = reactantCounts / (cellVolume[:, np.newaxis] * nAvogadro)
 
 			productIds = [moleculeNames[x] for x in np.where(stoichMatrix[:, idx] > 0)[0]]
 			productCoeffs = np.abs(stoichMatrix[stoichMatrix[:, idx] > 0, idx])
 			productIdxs = np.array([bulkMoleculeIds.index(x) for x in productIds], dtype = np.int64)
-			productCounts = bulkMolecules.readColumn("counts")[:, productIdxs]
+			productCounts = bulkMoleculeCounts[:, productIdxs]
 			productConcentrations = productCounts / (cellVolume[:, np.newaxis] * nAvogadro)
 
 			empiricalKd = 10**(np.sum(reactantCoeffs * np.log10(reactantConcentrations), axis = 1) - np.sum(productCoeffs * np.log10(productConcentrations), axis = 1))

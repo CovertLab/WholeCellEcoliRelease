@@ -40,16 +40,17 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		proteinIds = sim_data.process.translation.monomerData["id"]
 
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+		bulkMoleculeCounts = bulkMolecules.readColumn("counts")
 
 		moleculeIds = bulkMolecules.readAttribute("objectNames")
 
 		rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
 
-		rnaCountsBulk = bulkMolecules.readColumn("counts")[:, rnaIndexes]
+		rnaCountsBulk = bulkMoleculeCounts[:, rnaIndexes]
 
 		proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in proteinIds], np.int)
 
-		proteinCountsBulk = bulkMolecules.readColumn("counts")[:, proteinIndexes]
+		proteinCountsBulk = bulkMoleculeCounts[:, proteinIndexes]
 
 		bulkMolecules.close()
 

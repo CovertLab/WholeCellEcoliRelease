@@ -37,6 +37,10 @@ Workflow options:
 		expression is not fit to RNA synthesis demands
 	ADJUST_RNA_AND_PROTEIN_PARAMETERS (int, "1"): if nonzero, some RNA and
 		protein expression parameters will be adjusted to get expression
+	ADJUST_RNASE_EXPRESSION (int, "0"): if nonzero, adjusts the expression of all
+		RNase mRNA lower
+	DISABLE_MEASURED_PROTEIN_DEG (int, "0"): if nonzero, does not use any measured
+		protein degradation rates and defaults to the N-end rule
 
 Simulation parameters:
 	N_GENS (int, "1"): the number of generations to be simulated
@@ -137,7 +141,27 @@ PARALLEL_FITTER = bool(int(os.environ.get("PARALLEL_FITTER", "0")))
 DEBUG_FITTER = bool(int(os.environ.get("DEBUG_FITTER", "0")))
 DISABLE_RIBOSOME_CAPACITY_FITTING = bool(int(os.environ.get("DISABLE_RIBOSOME_CAPACITY_FITTING", "0")))
 DISABLE_RNAPOLY_CAPACITY_FITTING = bool(int(os.environ.get("DISABLE_RNAPOLY_CAPACITY_FITTING", "0")))
+RNAPOLY_ACTIVITY_FITTING = bool(int(os.environ.get("RNAPOLY_ACTIVITY_FITTING", "0")))
+MRNA_HALF_LIFE_FITTING = bool(int(os.environ.get("MRNA_HALF_LIFE_FITTING", "0")))
+MAX_RNAP_ACTIVITY = bool(int(os.environ.get("MAX_RNAP_ACTIVITY", "0")))
 ADJUST_RNA_AND_PROTEIN_PARAMETERS = bool(int(os.environ.get("ADJUST_RNA_AND_PROTEIN_PARAMETERS", "1")))
+ADJUST_RNASE_EXPRESSION = bool(int(os.environ.get("ADJUST_RNASE_EXPRESSION", "0")))
+DISABLE_MEASURED_PROTEIN_DEG = bool(int(os.environ.get("DISABLE_MEASURED_PROTEIN_DEG", "0")))
+VARIABLE_ELONGATION_TRANSCRIPTION = bool(int(os.environ.get("VARIABLE_ELONGATION_TRANSCRIPTION", "0")))
+VARIABLE_ELONGATION_TRANSLATION = bool(int(os.environ.get("VARIABLE_ELONGATION_TRANSLATION", "0")))
+ALTERNATE_MASS_FRACTION_PROTEIN = bool(int(os.environ.get("ALTERNATE_MASS_FRACTION_PROTEIN", "0")))
+ALTERNATE_MASS_FRACTION_RNA = bool(int(os.environ.get("ALTERNATE_MASS_FRACTION_RNA", "0")))
+ALTERNATE_MASS_FRACTION_MRNA = bool(int(os.environ.get("ALTERNATE_MASS_FRACTION_MRNA", "0")))
+ALTERNATE_R_PROTEIN_DEGRADATION = bool(int(os.environ.get("ALTERNATE_R_PROTEIN_DEGRADATION", "0")))
+ALTERNATE_RNA_SEQ = bool(int(os.environ.get("ALTERNATE_RNA_SEQ", "0")))
+ALTERNATE_RNA_HALF_LIFE = bool(int(os.environ.get("ALTERNATE_RNA_HALF_LIFE", "0")))
+ALTERNATE_TRANSLATION_EFFICIENCY = bool(int(os.environ.get("ALTERNATE_TRANSLATION_EFFICIENCY", "0")))
+ALTERNATE_RIBOSOME_ACTIVITY = bool(int(os.environ.get("ALTERNATE_RIBOSOME_ACTIVITY", "0")))
+DISABLE_RNAP_FRACTION_INCREASE = bool(int(os.environ.get("DISABLE_RNAP_FRACTION_INCREASE", "0")))
+DISABLE_RIBOSOME_ACTIVITY_FIX = bool(int(os.environ.get("DISABLE_RIBOSOME_ACTIVITY_FIX", "0")))
+SAVE_CELL_SPECS = bool(int(os.environ.get("SAVE_CELL_SPECS", "0")))
+CELL_SPECS_FILE = bool(int(os.environ.get("CELL_SPECS_FILE", "0")))
+WRITE_TRANSLATION_EFFICIENCIES = bool(int(os.environ.get("WRITE_TRANSLATION_EFFICIENCIES", "0")))
 
 if not RUN_AGGREGATE_ANALYSIS:
 	COMPRESS_OUTPUT = False
@@ -257,7 +281,27 @@ fw_fit_level_1 = Firework(
 		debug = DEBUG_FITTER,
 		disable_ribosome_capacity_fitting = DISABLE_RIBOSOME_CAPACITY_FITTING,
 		disable_rnapoly_capacity_fitting = DISABLE_RNAPOLY_CAPACITY_FITTING,
+		rnapoly_activity_fitting = RNAPOLY_ACTIVITY_FITTING,
+		mrna_half_life_fitting = MRNA_HALF_LIFE_FITTING,
+		max_rnap_activity = MAX_RNAP_ACTIVITY,
+		variable_elongation_transcription = VARIABLE_ELONGATION_TRANSCRIPTION,
+		variable_elongation_translation = VARIABLE_ELONGATION_TRANSLATION,
 		adjust_rna_and_protein_parameters = ADJUST_RNA_AND_PROTEIN_PARAMETERS,
+		adjust_rnase_expression = ADJUST_RNASE_EXPRESSION,
+		disable_measured_protein_deg = DISABLE_MEASURED_PROTEIN_DEG,
+		alternate_mass_fraction_protein = ALTERNATE_MASS_FRACTION_PROTEIN,
+		alternate_mass_fraction_rna = ALTERNATE_MASS_FRACTION_RNA,
+		alternate_mass_fraction_mrna = ALTERNATE_MASS_FRACTION_MRNA,
+		alternate_r_protein_degradation = ALTERNATE_R_PROTEIN_DEGRADATION,
+		alternate_rna_seq = ALTERNATE_RNA_SEQ,
+		alternate_rna_half_life = ALTERNATE_RNA_HALF_LIFE,
+		alternate_translation_efficiency = ALTERNATE_TRANSLATION_EFFICIENCY,
+		alternate_ribosome_activity = ALTERNATE_RIBOSOME_ACTIVITY,
+		disable_rnap_fraction_increase = DISABLE_RNAP_FRACTION_INCREASE,
+		disable_ribosome_activity_fix = DISABLE_RIBOSOME_ACTIVITY_FIX,
+		save_cell_specs = SAVE_CELL_SPECS,
+		cell_specs_file = CELL_SPECS_FILE,
+		write_translation_efficiencies = WRITE_TRANSLATION_EFFICIENCIES
 		),
 	name = fw_name,
 	spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": cpusForFitter}, "_priority":1}

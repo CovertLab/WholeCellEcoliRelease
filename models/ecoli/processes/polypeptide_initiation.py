@@ -156,6 +156,10 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 		if activationProb >= 1.0:
 			activationProb = 1
 
+		# Edge case: if fracActiveRibosome is 1 (100% active), mathematically leads to negative activationProb
+		if activationProb < 0:
+			activationProb = 1
+
 		return activationProb
 
 	def isTimeStepShortEnough(self, inputTimeStep, timeStepSafetyFraction):

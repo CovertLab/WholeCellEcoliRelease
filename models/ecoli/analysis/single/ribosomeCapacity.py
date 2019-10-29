@@ -91,38 +91,39 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		ribosomeCapacity_axis = plt.subplot(6,1,1)
 		ribosomeCapacity_axis.plot(time / 60., totalRibosomeCapacity, label="Theoretical total ribosome capacity", linewidth=2, color='b')
 		ribosomeCapacity_axis.plot(time / 60., actualElongations, label="Actual elongations", linewidth=2, color='r')
-		ribosomeCapacity_axis.set_ylabel("Amino acids polymerized")
+		ribosomeCapacity_axis.set_ylabel("Amino acids\npolymerized")
 		ribosomeCapacity_axis.legend(ncol=2)
 
 		activeRibosomeCapacity_axis = plt.subplot(6,1,2)
 		activeRibosomeCapacity_axis.plot(time / 60., activeRibosome * elongationRate, label="Theoretical active ribosome capacity", linewidth=2, color='b')
 		activeRibosomeCapacity_axis.plot(time / 60., actualElongations, label="Actual elongations", linewidth=2, color='r')
-		activeRibosomeCapacity_axis.set_ylabel("Amino acids polymerized")
+		activeRibosomeCapacity_axis.set_ylabel("Amino acids\npolymerized")
 		activeRibosomeCapacity_axis.legend(ncol=2)
 
 		inactiveRibosomeCapacity_axis = plt.subplot(6,1,3)
 		inactiveRibosomeCapacity_axis.plot(time / 60., ribosomeSubunitCounts.min(axis=1) * elongationRate, label="Theoretical inactive ribosome capacity", linewidth=2, color='b')
-		inactiveRibosomeCapacity_axis.set_ylabel("Amino acids polymerized")
+		inactiveRibosomeCapacity_axis.set_ylabel("Amino acids\npolymerized")
 		inactiveRibosomeCapacity_axis.legend(ncol=2)
 
 		fractionalCapacity_axis = plt.subplot(6,1,4)
 		fractionalCapacity_axis.plot(time / 60., actualElongations / totalRibosomeCapacity, label="Fraction of ribosome capacity used", linewidth=2, color='k')
-		fractionalCapacity_axis.set_ylabel("Fraction of ribosome capacity used")
-		fractionalCapacity_axis.set_yticks(np.arange(0., 1.05, 0.05))
+		fractionalCapacity_axis.set_ylabel("Fraction of\nribosome capacity\nused")
+		fractionalCapacity_axis.set_yticks(np.arange(0., 1.05, 0.1))
 		#fractionalCapacity_axis.get_yaxis().grid(b=True, which='major', color='b', linestyle='--')
 		fractionalCapacity_axis.grid(b=True, which='major', color='b', linestyle='--')
 
 		effectiveElongationRate_axis = plt.subplot(6,1,5)
 		effectiveElongationRate_axis.plot(time / 60., actualElongations / activeRibosome, label="Effective elongation rate", linewidth=2, color='k')
-		effectiveElongationRate_axis.set_ylabel("Effective elongation rate (aa/s/ribosome)")
+		effectiveElongationRate_axis.set_ylabel("Effective\nelongation rate\n(aa/s/ribosome)")
 
 		fractionActive_axis = plt.subplot(6,1,6)
 		fractionActive_axis.plot(time / 60., massFractionActive, label="Mass fraction active", linewidth=2, color='k')
-		fractionActive_axis.set_ylabel("Mass fraction of active ribosomes")
+		fractionActive_axis.set_ylabel("Mass fraction of\nactive ribosomes")
 		fractionActive_axis.set_yticks(np.arange(0., 1.1, 0.1))
+		fractionActive_axis.grid(b=True, which='major', color='b', linestyle='--')
 
 		# Save
-		plt.subplots_adjust(hspace = 0.5, wspace = 0.6)
+		plt.subplots_adjust(hspace = 0.5, wspace = 0.6, top = 0.95, bottom = 0.05)
 
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close("all")

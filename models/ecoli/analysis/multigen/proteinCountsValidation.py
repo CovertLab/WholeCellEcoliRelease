@@ -1,7 +1,6 @@
 """
 Compare protein counts to Schmidt 2015 data set
 
-@author: Javier	Carrera
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 12/4/2017
 """
@@ -149,14 +148,22 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		axis.spines["top"].set_visible(False)
 		axis.spines["left"].set_position(("outward", 10))
 		axis.spines["bottom"].set_position(("outward", 10))
-		axis.tick_params(right = "off")
-		axis.tick_params(top = "off")
-		axis.tick_params(which = "both", direction = "out")
+		axis.tick_params(right=False)
+		axis.tick_params(top=False)
+		axis.tick_params(which="both", direction="out")
 
 		axis.set_xlim([-0.07, maxLine])
 		axis.set_ylim([-0.07, maxLine])
 
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+
+		axis.set_yticklabels([])
+		axis.set_ylabel("")
+		axis.set_xticklabels([])
+		axis.set_xlabel("")
+
+		exportFigure(plt, plotOutDir, plotOutFileName + "_clean", metadata)
+
 		plt.close("all")
 
 

@@ -34,7 +34,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		fig.set_figwidth(15)
 		fig.set_figheight(5)
 
-		doublingTimeVariants = [44, 100, 22]
+		doublingTimeVariants = [44, 100, 25]
 
 		for varIdx in range(ap.n_variant):
 

@@ -24,7 +24,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
-from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
 from wholecell.utils.sparkline import whitePadSparklineAxis
@@ -32,7 +31,7 @@ from wholecell.utils.sparkline import whitePadSparklineAxis
 WRITE_TO_FILE = True
 SKIP_TIMESTEPS = 5
 
-def plot(proteinIds, zeroAtLeastOnce, essential, ax, axEssential, xloc, width, functionalUnitIds):
+def plot(proteinIds, zeroAtLeastOnce, essential, ax, axEssential, xloc, width, functionalUnitIds, highlight_color):
 	if not len(functionalUnitIds):
 		notAlwaysPresent = zeroAtLeastOnce.sum()
 		alwaysPresent = len(proteinIds) - notAlwaysPresent
@@ -53,7 +52,7 @@ def plot(proteinIds, zeroAtLeastOnce, essential, ax, axEssential, xloc, width, f
 	# Plot
 	bar = ax.bar(xloc + width, [alwaysPresent, notAlwaysPresent], width, color = "lightgray")
 	axEssential.bar(xloc + width, [alwaysPresent, notAlwaysPresent], width, color = "lightgray")
-	barEssential = axEssential.bar(xloc + width, [alwaysPresentEssential, notAlwaysPresentEssential], width, color = "b")
+	barEssential = axEssential.bar(xloc + width, [alwaysPresentEssential, notAlwaysPresentEssential], width, color = highlight_color)
 
 	# Format
 	for axis in [ax, axEssential]:
@@ -167,7 +166,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		subgenMonomerIdToComplexIds = {}
 		for complexId in subgenComplexIds:
 			subunitIds = sim_data.process.complexation.getMonomers(complexId)["subunitIds"]
-			isEssential = np.any([x in essentialGenes_monomers for x in subunitIds])
+			isEssential = np.any([(x in essentialGenes_monomers) and (x in subgenMonomerIds) for x in subunitIds])
 
 			if isEssential:
 				complexIndex = proteinIds.index(complexId)
@@ -186,6 +185,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		[[axMonomers, axComplexes, axTotal], [axMonomersEssential, axComplexesEssential, axTotalEssential]] = axesList
 		xloc = np.arange(2)
 		width = 0.75
+		plt.style.use('seaborn-deep')
+		highlight_color = plt.rcParams['axes.prop_cycle'].by_key()['color'][0]
 
 		# Plot subgenerational genes that don't form complexes
 		args = {"proteinIds": proteinIds,
@@ -196,6 +197,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			"xloc": xloc,
 			"width": width,
 			"functionalUnitIds": subgenMonomerOnlyIds,
+			"highlight_color": highlight_color,
 			}
 		plot(**args)
 		axMonomers.set_title("{0} monomeric\nfunctional units".format(len(subgenMonomerOnlyIds)))
@@ -221,13 +223,13 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		plt.close("all")
 
 		# Plot unlabeled version of final panel for Fig. 4E
-		fig, ax = plt.subplots(1, 1, figsize = (8.5, 11))
+		fig, ax = plt.subplots(1, 1, figsize = (5, 10))
 		notAlwaysPresent = zeroAtLeastOnce.sum()
 		alwaysPresent = len(proteinIds) - notAlwaysPresent
 		notAlwaysPresentEssential = np.logical_and(zeroAtLeastOnce, essential).sum()
 		alwaysPresentEssential = np.logical_and(np.logical_not(zeroAtLeastOnce), essential).sum()
 		barAll = ax.bar(xloc + width, [alwaysPresent, notAlwaysPresent], width, color = "lightgray")
-		barEssential = ax.bar(xloc + width, [alwaysPresentEssential, notAlwaysPresentEssential], width, color = "blue")
+		barEssential = ax.bar(xloc + width, [alwaysPresentEssential, notAlwaysPresentEssential], width, color = highlight_color)
 
 		# Format
 		whitePadSparklineAxis(ax)
@@ -237,7 +239,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		axRight = ax.twinx()
 		axRight.set_ylim(ax.get_ylim())
-		axRight.set_yticks([x[1].get_height() for x in [barAll, barEssential]])
+		axRight.set_yticks([0] + [x[1].get_height() for x in [barAll, barEssential]])
 
 		axRight.spines["left"].set_visible(False)
 		axRight.spines["top"].set_visible(False)

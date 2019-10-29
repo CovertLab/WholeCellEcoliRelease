@@ -8,9 +8,15 @@ There are two alternative ways to set up to run the model:
 
 1. **Docker setup (recommended):** Install the [Docker Desktop software](https://www.docker.com/products/docker-desktop) then launch our Docker container image from the GitHub Package Registry or build it locally using the `cloud/build-containers.sh` shell script.
 
-   You can then run the model inside the container.
+   You can then run the model inside the container and link your local directory to the one inside the Docker container (`<local wcEcoli>` denotes the local path to your cloned repo):
 
-   A container takes one `docker build` command to build and is fully isolated from your computer's operating system, any versions of Python you have, binary libraries, and everything else installed.
+   ```docker run --name=wcm -v <local wcEcoli>:/wcEcoli -it wcm-code```
+
+   By doing so, the output files in the Docker folder (`/wcEcoli/out`) will also be linked to a corresponding folder in your computer (`<local wcEcoli>/out`). The files will be owned by `root` user so you might need to `chmod`/`chgrp` if you have permissions issues.
+
+   **NOTE:** You may need to run the command `make clean compile` once inside the container before running simulations if you mount the volume from the host with the `-v` option as above.
+
+   **NOTE:** If you encounter memory issues while using Docker Desktop (the default allocated memory is 2GB) and the simulation processes get killed midway, click the Docker icon > Preferences > Advanced > adjust memory to 4GB.
 
    **NOTE:** Docker Desktop for Windows is not currently compatible with VirtualBox.  If you use VirtualBox, try installing the legacy [Docker Toolbox](https://github.com/docker/toolbox/releases) instead.  You may also need to adjust the memory allocated to the VirtualBox VM (named 'default') that gets created.  In VirtualBox, select the 'default' VM and under system, change the base memory from 1 GB to 4 GB.
 

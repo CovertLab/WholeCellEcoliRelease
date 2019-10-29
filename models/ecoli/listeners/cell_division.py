@@ -98,11 +98,9 @@ class CellDivision(wholecell.listeners.listener.Listener):
 				division_times = fullChrom.attr("division_time")
 				divide_at_time = division_times.min()
 
-				if self.time() >= divide_at_time:
+				if self.time() >= divide_at_time and not uneven_counts.any():
 					fullChrom.delByIndexes(np.where(division_times == divide_at_time)[0])
-
-					if not uneven_counts.any():
-						self._sim.cellCycleComplete()
+					self._sim.cellCycleComplete()
 		else:
 			# End simulation once the mass of an average cell is
 			# added to current cell.

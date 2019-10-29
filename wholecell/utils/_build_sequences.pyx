@@ -26,15 +26,15 @@ cpdef np.ndarray[np.int8_t, ndim=2] buildSequences(
 		np.ndarray[np.int8_t, ndim=2] base_sequences,
 		np.ndarray[np.int64_t, ndim=1] indexes,
 		np.ndarray[np.int64_t, ndim=1] positions,
-		int elng_rate
-		):
+		np.ndarray[np.int64_t, ndim=1] elongation_rates):
 
-	if np.any(positions + elng_rate > base_sequences.shape[1]):
+	cdef int elongation_max = elongation_rates.max()
+	if np.any(positions + elongation_max > base_sequences.shape[1]):
 		raise Exception('Elongation proceeds past end of sequence!')
 
 	cdef int out_rows = positions.shape[0]
 
-	cdef np.ndarray[np.int8_t, ndim=2] out = np.empty((out_rows, elng_rate), np.int8)
+	cdef np.ndarray[np.int8_t, ndim=2] out = np.empty((out_rows, elongation_max), np.int8)
 
 	cdef int i, index, position, j
 
@@ -42,7 +42,7 @@ cpdef np.ndarray[np.int8_t, ndim=2] buildSequences(
 		index = indexes[i]
 		position = positions[i]
 
-		for j in range(elng_rate):
+		for j in range(elongation_max):
 			out[i, j] = base_sequences[index, position+j]
 
 	return out
@@ -55,8 +55,7 @@ cpdef np.ndarray[np.int8_t, ndim=2] buildSequences(
 cpdef np.ndarray[np.float64_t, ndim=1] computeMassIncrease(
 		np.ndarray[np.int8_t, ndim=2] sequences,
 		np.ndarray[np.int64_t, ndim=1] elongations,
-		np.ndarray[np.float64_t, ndim=1] monomerMasses
-		):
+		np.ndarray[np.float64_t, ndim=1] monomerMasses):
 
 	cdef int out_size = sequences.shape[0]
 
@@ -67,7 +66,6 @@ cpdef np.ndarray[np.float64_t, ndim=1] computeMassIncrease(
 	for i in range(out_size):
 		for j in range(elongations[i]):
 			out[i] += monomerMasses[
-				sequences[i, j]
-				]
+				sequences[i, j]]
 
 	return out

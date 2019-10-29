@@ -56,10 +56,107 @@ class RunFitter(scriptBase.ScriptBase):
 			help= "If set, RNA polymerase expression will not be fit to protein synthesis demands."
 			)
 		parser.add_argument(
+			'--variable-elongation-transcription',
+			action='store_true',
+			help= "If set, one elongation rate will be used for transcription."
+			)
+		parser.add_argument(
+			'--variable-elongation-translation',
+			action='store_true',
+			help= "If set, one elongation rate will be used for translation"
+			)
+		parser.add_argument(
 			'--no-expression-adjustment',
 			action='store_false',
 			help= "If set, some RNA and protein expression parameters will not be adjusted."
 			)
+		parser.add_argument(
+			'--adjust-rnase-expression',
+			action='store_true',
+			help= "If set, adjusts the expression of all RNase mRNA lower."
+			)
+		parser.add_argument(
+			'--alternate-mass-fraction-mrna',
+			action='store_true',
+			help="If set, allocates smaller mass fraction for mRNA."
+		)
+		parser.add_argument(
+			'--alternate-mass-fraction-protein',
+			action='store_true',
+			help="If set, allocates larger mass fraction for protein."
+			)
+		parser.add_argument(
+			'--alternate-mass-fraction-rna',
+			action='store_true',
+			help="If set, allocates smaller mass fraction for RNA."
+		)
+		parser.add_argument(
+			'--alternate-r-protein-degradation',
+			action='store_true',
+			help= "If set, r-protein degradation will set to fast value."
+			)
+		parser.add_argument(
+			'--alternate-ribosome-activity',
+			action='store_true',
+			help="Alternate ribosome active fraction: 85 percent active. Default = 80 percent active."
+		)
+		parser.add_argument(
+			'--alternate-rna-half-life',
+			action='store_true',
+			help="If set, alternate RNA half life input will be used."
+		)
+		parser.add_argument(
+			'--alternate-rna-seq',
+			action='store_true',
+			help="If set, alternate RNA-seq (Covert 2004) input will be used."
+			)
+		parser.add_argument(
+			'--alternate-translation-efficiency',
+			action='store_true',
+			help="Alternate translation efficiency described by Mohammad et"
+				 "al. 2019. Default = described by Li et al. 2014."
+		)
+		parser.add_argument(
+			'--disable-measured-protein-deg',
+			action='store_true',
+			help="If set, does not use any measured protein degradation rates"
+			     " and defaults to the N-end rule."
+		)
+		parser.add_argument(
+			'--disable-ribosome-activity-fix',
+			action='store_true',
+			help="If set, disables ribosome activity fix."
+		)
+		parser.add_argument(
+			'--disable-rnap-fraction-increase',
+			action='store_true',
+			help="If set, disables doubling-time-dependent RNAP fraction increase."
+		)
+		parser.add_argument(
+			'--max-rnap-activity',
+			action='store_true',
+			help="If set, RNA polymerase activity will be set to 100 percent."
+		)
+		parser.add_argument(
+			'--mrna-half-life-fitting',
+			action='store_true',
+			help="If set, mRNA half lives will be fit to transcription demands."
+		)
+		parser.add_argument(
+			'--rnapoly-activity-fitting',
+			action='store_true',
+			help="If set, RNA polymerase activity will be fit to transcription demands."
+		)
+		parser.add_argument(
+			'--save-cell-specs',
+			action='store_true',
+			help="If set, saves cell specs."
+		)
+		parser.add_argument(
+			'--write-translation-efficiencies',
+			action='store_true',
+			help="If set, writes out translation efficiencies."
+		)
 
 	def parse_args(self):
 		args = super(RunFitter, self).parse_args()
@@ -75,6 +172,7 @@ class RunFitter(scriptBase.ScriptBase):
 		kb_directory = fp.makedirs(args.sim_path, "kb")
 		raw_data_file = os.path.join(kb_directory, constants.SERIALIZED_RAW_DATA)
 		sim_data_file = os.path.join(kb_directory, constants.SERIALIZED_FIT1_FILENAME)
+		cell_specs_file = os.path.join(kb_directory, constants.SERIALIZED_CELL_SPECS)
 		cached_sim_data_file = os.path.join(
 			fp.ROOT_PATH, 'cached', constants.SERIALIZED_FIT1_FILENAME)
 		most_fit_filename = os.path.join(
@@ -105,7 +203,27 @@ class RunFitter(scriptBase.ScriptBase):
 				debug=args.debug,
 				disable_ribosome_capacity_fitting=args.disable_ribosome_fitting,
 				disable_rnapoly_capacity_fitting=args.disable_rnapoly_fitting,
+				variable_elongation_transcription=args.variable_elongation_transcription,
+				variable_elongation_translation=args.variable_elongation_translation,
+				rnapoly_activity_fitting=args.rnapoly_activity_fitting,
+				mrna_half_life_fitting=args.mrna_half_life_fitting,
+				max_rnap_activity=args.max_rnap_activity,
 				adjust_rna_and_protein_parameters=args.no_expression_adjustment,
+				adjust_rnase_expression=args.adjust_rnase_expression,
+				disable_measured_protein_deg=args.disable_measured_protein_deg,
+				alternate_mass_fraction_protein=args.alternate_mass_fraction_protein,
+				alternate_mass_fraction_rna=args.alternate_mass_fraction_rna,
+				alternate_mass_fraction_mrna=args.alternate_mass_fraction_mrna,
+				alternate_r_protein_degradation=args.alternate_r_protein_degradation,
+				alternate_rna_seq=args.alternate_rna_seq,
+				alternate_rna_half_life=args.alternate_rna_half_life,
+				alternate_translation_efficiency=args.alternate_translation_efficiency,
+				alternate_ribosome_activity=args.alternate_ribosome_activity,
+				disable_rnap_fraction_increase=args.disable_rnap_fraction_increase,
+				disable_ribosome_activity_fix=args.disable_ribosome_activity_fix,
+				save_cell_specs=args.save_cell_specs,
+				cell_specs_file=cell_specs_file,
+				write_translation_efficiencies=args.write_translation_efficiencies
 				),
 
 			SymlinkTask(

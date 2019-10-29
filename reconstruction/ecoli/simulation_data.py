@@ -36,7 +36,9 @@ class SimulationDataEcoli(object):
 		# Doubling time (used in fitting)
 		self.doubling_time = None
 
-	def initialize(self, raw_data, basal_expression_condition = "M9 Glucose minus AAs"):
+	def initialize(self,
+				   raw_data,
+				   options):
 
 		self.external_state = ExternalState(raw_data, self)
 
@@ -47,7 +49,7 @@ class SimulationDataEcoli(object):
 		self.doubling_time = self.conditionToDoublingTime[self.condition]
 
 		# TODO: Check that media condition is valid
-		self.basal_expression_condition = basal_expression_condition
+		self.basal_expression_condition = options['basal_expression_condition']
 		# self.envDict, self.externalExchangeMolecules, self.nutrientExchangeMolecules, self.secretionExchangeMolecules = self._addEnvironments(raw_data)
 
 		self._addHardCodedAttributes()
@@ -59,12 +61,12 @@ class SimulationDataEcoli(object):
 		self.constants = Constants(raw_data, self)
 
 		# Growth rate dependent parameters are set first
-		self.growthRateParameters = GrowthRateParameters(raw_data, self)
-		self.mass = Mass(raw_data, self)
+		self.growthRateParameters = GrowthRateParameters(raw_data, self, options)
+		self.mass = Mass(raw_data, self, options)
 
 		# Data classes (can depend on helper functions)
 		# Data classes cannot depend on each other
-		self.process = Process(raw_data, self)
+		self.process = Process(raw_data, self, options) # alternate_rna, alternate_rna_half_life)
 		self.internal_state = InternalState(raw_data, self)
 
 		# Relations between data classes (can depend on data classes)

@@ -18,7 +18,7 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import filepath, units
-
+from wholecell.utils.sparkline import whitePadSparklineAxis
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
@@ -73,17 +73,46 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			added_volumes.append(added_volume)
 
 		plt.style.use('seaborn-deep')
+		color_cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
-		plt.figure(figsize=(5, 5))
-		plt.scatter(initial_volumes[0], added_volumes[0], s=3, label="minimal")
-		plt.scatter(initial_volumes[1], added_volumes[1], s=3, label="anaerobic")
-		plt.scatter(initial_volumes[2], added_volumes[2], s=3, label="+AA")
-		plt.xlim([0, 4])
-		plt.ylim([0, 4])
-		plt.xlabel("Birth Volume ($\mu m^3$)")
-		plt.ylabel("Added Volume ($\mu m^3$)")
-		plt.legend()
+		plt.figure(figsize=(4, 4))
+		ax = plt.subplot2grid((1, 1), (0, 0))
+
+		options = {
+			"edgecolors": color_cycle[0], "alpha": 0.2, "s": 50, "clip_on": False
+			}
+		labels = ["minimal", "anaerobic", "minimal + AA"]
+
+		ax.scatter(initial_volumes[2], added_volumes[2],
+			marker="x", label=labels[2], **options)
+		ax.scatter(initial_volumes[0], added_volumes[0],
+			facecolors="none", marker="o", label=labels[0], **options)
+		ax.scatter(initial_volumes[1], added_volumes[1],
+			facecolors="none", marker="^", label=labels[1], **options)
+
+		ax.set_xlim([0, 4])
+		ax.set_ylim([0, 4])
+		ax.set_xlabel("Birth Volume ($\mu m^3$)")
+		ax.set_ylabel("Added Volume ($\mu m^3$)")
+		ax.legend()
+
+		ax.get_yaxis().get_major_formatter().set_useOffset(False)
+		ax.get_xaxis().get_major_formatter().set_useOffset(False)
+
+		whitePadSparklineAxis(ax)
+
+		ax.tick_params(which='both', bottom=True, left=True,
+			top=False, right=False, labelbottom=True, labelleft=True)
+
+		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+
+		# Get clean version of plot
+		ax.set_xlabel("")
+		ax.set_ylabel("")
+		ax.set_yticklabels([])
+		ax.set_xticklabels([])
+		exportFigure(plt, plotOutDir, plotOutFileName + "_clean", metadata)
 
 		plt.close("all")
 

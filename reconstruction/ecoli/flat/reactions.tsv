@@ -1837,3 +1837,4 @@
 "YIAE1-RXN"	{"NADPH[c]": -1, "NADP[c]": 1, "PROTON[c]": -1, "25-DIDEHYDRO-D-GLUCONATE[c]": -1, "5-DEHYDROGLUCONATE[c]": 1}	false	["CPLX0-235"]
 "YIAE2-RXN"	{"NADPH[c]": -1, "NADP[c]": 1, "PROTON[c]": -1, "L-IDONATE[c]": 1, "CPD-377[c]": -1}	true	[]
 "glycogen-monomer-extension"	{"glycogen-monomer[c]": 1, "ADP-D-GLUCOSE[c]": -1, "ADP[c]": 1}	false	[]
+"ADCLY-RXN-SPONTANEOUS"	{"4-AMINO-4-DEOXYCHORISMATE[c]": 1, "PYRUVATE[c]": -1, "PROTON[c]": -1, "P-AMINO-BENZOATE[c]": -1}	true	[]

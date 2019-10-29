@@ -13,6 +13,7 @@ import numpy as np
 from wholecell.utils import units
 from wholecell.utils.unit_struct_array import UnitStructArray
 from wholecell.utils.polymerize import polymerize
+from wholecell.utils.random import make_elongation_rates, make_elongation_rates_flat
 
 #RNA_SEQ_ANALYSIS = "seal_rpkm"
 RNA_SEQ_ANALYSIS = "rsem_tpm"
@@ -20,14 +21,21 @@ RNA_SEQ_ANALYSIS = "rsem_tpm"
 class Transcription(object):
 	""" Transcription """
 
-	def __init__(self, raw_data, sim_data):
-		self._buildRnaData(raw_data, sim_data)
+	def __init__(self, raw_data, sim_data, options): 
+		self._buildRnaData(raw_data, sim_data, options)
 		self._buildTranscription(raw_data, sim_data)
 
-	def _buildRnaData(self, raw_data, sim_data):
+		self._build_elongation_rates(raw_data, sim_data)
+
+	def _buildRnaData(self, raw_data, sim_data, options):
 		assert all([len(rna['location']) == 1 for rna in raw_data.rnas])
 		rnaIds = ['{}[{}]'.format(rna['id'], rna['location'][0]) for rna in raw_data.rnas if len(rna['location']) == 1]
-		rnaDegRates = np.log(2) / np.array([rna['halfLife'] for rna in raw_data.rnas]) # TODO: units
+
+		# Load rna half lives
+		rna_half_life_file = "raw_data.rnas"
+		if options['alternate_rna_half_life']:
+			rna_half_life_file += "_alternate_half_lives_without_kas"
+		rnaDegRates = np.log(2) / np.array([rna['halfLife'] for rna in eval(rna_half_life_file)])  # seconds
 		rnaLens = np.array([len(rna['seq']) for rna in raw_data.rnas])
 		ntCounts = np.array([
 			(rna['seq'].count('A'), rna['seq'].count('C'),
@@ -36,9 +44,15 @@ class Transcription(object):
 			])
 
 		# Load expression from RNA-seq data
+		rna_seq_file = "raw_data.rna_seq_data"
+		if options['alternate_rna_seq']:
+			rna_seq_file += ".alternate_rna_seq"
+		else:
+			rna_seq_file += ".rnaseq_{}_mean".format(RNA_SEQ_ANALYSIS)
+
 		expression = []
 		for rna in raw_data.rnas:
-			arb_exp = [x[sim_data.basal_expression_condition] for x in eval("raw_data.rna_seq_data.rnaseq_{}_mean".format(RNA_SEQ_ANALYSIS)) if x['Gene'] == rna['geneId']]
+			arb_exp = [x[sim_data.basal_expression_condition] for x in eval(rna_seq_file) if x['Gene'] == rna['geneId']]
 			if len(arb_exp):
 				expression.append(arb_exp[0])
 			elif rna['type'] == 'mRNA' or rna['type'] == 'miscRNA':
@@ -46,7 +60,7 @@ class Transcription(object):
 			elif rna['type'] == 'rRNA' or rna['type'] == 'tRNA':
 				expression.append(0.)
 			else:
-				raise Exception('Unknonw RNA {}'.format(rna['id']))
+				raise Exception('Unknown RNA {}'.format(rna['id']))
 
 		expression = np.array(expression)
 		synthProb = expression * (
@@ -191,3 +205,37 @@ class Transcription(object):
 			).asNumber(units.fg)
 
 		self.transcriptionEndWeight = (sim_data.getter.getMass(["PPI[c]"]) / raw_data.constants['nAvogadro']).asNumber(units.fg)
+
+	def _build_elongation_rates(self, raw_data, sim_data):
+		self.max_elongation_rate = 85 ## D&B
+		self.rna_indexes = {
+			'{}[{}]'.format(rna['id'], rna['location'][0]): index
+			for index, rna in enumerate(raw_data.rnas)}
+
+		self.s30_16sRRNA = sim_data.moleculeGroups.s30_16sRRNA
+		self.s50_5sRRNA = sim_data.moleculeGroups.s50_5sRRNA
+		self.s50_23sRRNA = sim_data.moleculeGroups.s50_23sRRNA
+		self.RRNA_ids = self.s30_16sRRNA + self.s50_5sRRNA + self.s50_23sRRNA
+
+		self.RRNA_indexes = [
+			self.rna_indexes[rrna_id]
+			for rrna_id in self.RRNA_ids]
+
+	def make_elongation_rates_flat(self, base, flat_elongation=False):
+		return make_elongation_rates_flat(
+			self.transcriptionSequences.shape[0],
+			base,
+			self.RRNA_indexes,
+			self.max_elongation_rate,
+			flat_elongation)
+
+	def make_elongation_rates(self, random, base, time_step, flat_elongation=False):
+		return make_elongation_rates(
+			random,
+			self.transcriptionSequences.shape[0],
+			base,
+			self.RRNA_indexes,
+			self.max_elongation_rate,
+			time_step,
+			flat_elongation)
+

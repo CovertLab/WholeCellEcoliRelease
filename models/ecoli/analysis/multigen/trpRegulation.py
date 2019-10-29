@@ -71,11 +71,12 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# Load data from bulk molecules
 			bulkMoleculesReader = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 			bulkMoleculeIds = bulkMoleculesReader.readAttribute("objectNames")
+			bulkMoleculeCounts = bulkMoleculesReader.readColumn("counts")
 
 			# Get the concentration of intracellular trp
 			trpId = ["TRP[c]"]
 			trpIndex = np.array([bulkMoleculeIds.index(x) for x in trpId])
-			trpCounts = bulkMoleculesReader.readColumn("counts")[:, trpIndex].reshape(-1)
+			trpCounts = bulkMoleculeCounts[:, trpIndex].reshape(-1)
 			trpMols = 1. / nAvogadro * trpCounts
 			volume = cellMass / cellDensity
 			trpConcentration = trpMols * 1. / volume
@@ -83,36 +84,36 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# Get the amount of active trpR (that isn't promoter bound)
 			trpRActiveId = ["CPLX-125[c]"]
 			trpRActiveIndex = np.array([bulkMoleculeIds.index(x) for x in trpRActiveId])
-			trpRActiveCounts = bulkMoleculesReader.readColumn("counts")[:, trpRActiveIndex].reshape(-1)
+			trpRActiveCounts = bulkMoleculeCounts[:, trpRActiveIndex].reshape(-1)
 
 			# Get the amount of inactive trpR
 			trpRInactiveId = ["PC00007[c]"]
 			trpRInactiveIndex = np.array([bulkMoleculeIds.index(x) for x in trpRInactiveId])
-			trpRInactiveCounts = bulkMoleculesReader.readColumn("counts")[:, trpRInactiveIndex].reshape(-1)
+			trpRInactiveCounts = bulkMoleculeCounts[:, trpRInactiveIndex].reshape(-1)
 
 			# Get the amount of monomeric trpR
 			trpRMonomerId = ["PD00423[c]"]
 			trpRMonomerIndex = np.array([bulkMoleculeIds.index(x) for x in trpRMonomerId])
-			trpRMonomerCounts = bulkMoleculesReader.readColumn("counts")[:, trpRMonomerIndex].reshape(-1)
+			trpRMonomerCounts = bulkMoleculeCounts[:, trpRMonomerIndex].reshape(-1)
 
 			# Get the promoter-bound status for all regulated genes
 			tfBoundIndex = np.array([bulkMoleculeIds.index(x) for x in tfBoundIds])
-			tfBoundCounts = bulkMoleculesReader.readColumn("counts")[:, tfBoundIndex]
+			tfBoundCounts = bulkMoleculeCounts[:, tfBoundIndex]
 
 			# Get the amount of monomeric trpA
 			trpAProteinId = ["TRYPSYN-APROTEIN[c]"]
 			trpAProteinIndex = np.array([bulkMoleculeIds.index(x) for x in trpAProteinId])
-			trpAProteinCounts = bulkMoleculesReader.readColumn("counts")[:, trpAProteinIndex].reshape(-1)
+			trpAProteinCounts = bulkMoleculeCounts[:, trpAProteinIndex].reshape(-1)
 
 			# Get the amount of complexed trpA
 			trpABComplexId = ["TRYPSYN[c]"]
 			trpABComplexIndex = np.array([bulkMoleculeIds.index(x) for x in trpABComplexId])
-			trpABComplexCounts = bulkMoleculesReader.readColumn("counts")[:, trpABComplexIndex].reshape(-1)
+			trpABComplexCounts = bulkMoleculeCounts[:, trpABComplexIndex].reshape(-1)
 
 			# Get the amount of trpA mRNA
 			trpARnaId = ["EG11024_RNA[c]"]
 			trpARnaIndex = np.array([bulkMoleculeIds.index(x) for x in trpARnaId])
-			trpARnaCounts = bulkMoleculesReader.readColumn("counts")[:, trpARnaIndex].reshape(-1)
+			trpARnaCounts = bulkMoleculeCounts[:, trpARnaIndex].reshape(-1)
 
 			bulkMoleculesReader.close()
 

@@ -38,10 +38,6 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.sequenceLengths = sim_data.process.replication.sequence_lengths
 		self.sequences = sim_data.process.replication.replication_sequences
 		self.polymerized_dntp_weights = sim_data.process.replication.replicationMonomerWeights
-		self.dnaPolyElngRate = int(
-			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
-			units.nt / units.s))
-			)
 
 		# Create unique molecule views for dna polymerases/replication forks and origins of replication
 		self.activeDnaPoly = self.uniqueMoleculesView('dnaPolymerase')
@@ -55,6 +51,12 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 		# Create bulk molecules view for full chromosome
 		self.full_chromosome = self.bulkMoleculeView("CHROM_FULL[c]")
+
+		# TODO(Ryan): remove this and use sim_data.process.replication.elongation_rates
+		self.base_elongation_rate = int(
+			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
+			units.nt / units.s)))
+		self.elongation_rates = sim_data.process.replication.make_elongation_rates(self.base_elongation_rate)
 
 	def calculateRequest(self):
 
@@ -74,12 +76,12 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			'sequenceIdx', 'sequenceLength'
 			)
 
+		rates = np.rint(self.elongation_rates * self.timeStepSec()).astype(np.int64)
 		sequences = buildSequences(
 			self.sequences,
 			sequenceIdx,
 			sequenceLength,
-			self._dnaPolymeraseElongationRate()
-			)
+			rates)
 
 		# Count number of each dNTP in sequences for the next timestep
 		sequenceComposition = np.bincount(
@@ -192,23 +194,24 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			'sequenceIdx', 'sequenceLength', 'massDiff_DNA'
 			)
 
+		rates = np.rint(self.elongation_rates * self.timeStepSec()).astype(np.int64)
 		sequences = buildSequences(
 			self.sequences,
 			sequenceIdx,
 			sequenceLengths,
-			self._dnaPolymeraseElongationRate()
-			)
+			rates)
 
 		# Use polymerize algorithm to quickly calculate the number of
 		# elongations each "polymerase" catalyzes
 		reactionLimit = dNtpCounts.sum()
 
+		active_elongation_rates = self.elongation_rates[sequenceIdx]
 		result = polymerize(
 			sequences,
 			dNtpCounts,
 			reactionLimit,
-			self.randomState
-			)
+			self.randomState,
+			active_elongation_rates)
 
 		sequenceElongations = result.sequenceElongation
 		dNtpsUsed = result.monomerUsages
@@ -333,7 +336,3 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			# "stitched" together in the ChromosomeFormation process
 			self.partialChromosomes.countsInc(terminatedChromosomes)
 
-
-	def _dnaPolymeraseElongationRate(self):
-		# Calculates elongation rate scaled by the time step
-		return self.dnaPolyElngRate * self.timeStepSec()

@@ -1,0 +1,6 @@
+name	value	units	source	comments
+_rrna23s_mass_sub_fraction_alternate	0.536		Neidhardt pg 4	This is the fraction of RNA that is 23S rRNA
+_rrna16s_mass_sub_fraction_alternate	0.277		Neidhardt pg 4	This is the fraction of RNA that is 16S rRNA
+_rrna5s_mass_sub_fraction_alternate	0.017		Neidhardt pg 4	This is the fraction of RNA that is 5S rRNA
+_trna_mass_sub_fraction_alternate	0.149		Neidhardt pg 4	This is the fraction of RNA that is tRNA
+_mrna_mass_sub_fraction_alternate	0.02		Neidhardt pg 4	This is the fraction of RNA that is mRNA

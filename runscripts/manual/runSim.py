@@ -131,8 +131,16 @@ class RunSimulation(scriptBase.ScriptBase):
 		add_bool_option('translation_supply', 'translationSupply',
 			help='If true, the ribosome elongation rate is limited by the'
 				 ' condition specific rate of amino acid supply; otherwise the'
-				 ' elongation rate is set by condition'
-			)
+				 ' elongation rate is set by condition')
+		add_bool_option('variable_elongation_translation', 'variable_elongation_translation',
+			help='if False, all elongation rates are the same for each type.'
+				 'if True, elongation rates are faster for ribosomal proteins'
+				 ' elongation rate is set by condition')
+		add_bool_option('variable_elongation_transcription', 'variable_elongation_transcription',
+			help='if False, all elongation rates are the same for each type.'
+				 'if True, elongation rates are faster for RRNA transcripts'
+				 ' elongation rate is set by condition')
+
 
 	def parse_args(self):
 		args = super(RunSimulation, self).parse_args()
@@ -152,15 +160,27 @@ class RunSimulation(scriptBase.ScriptBase):
 		variant_type = args.variant[0]
 		variants_to_run = xrange(int(args.variant[1]), int(args.variant[2]) + 1)
 
-		cli_sim_args = data.select_keys(vars(args),
-			('length_sec', 'timestep_safety_frac', 'timestep_max',
-			'timestep_update_freq', 'mass_distribution', 'growth_rate_noise',
-			'd_period_division', 'translation_supply'))
+		cli_sim_args = data.select_keys(vars(args), (
+			'length_sec',
+			'timestep_safety_frac',
+			'timestep_max',
+			'timestep_update_freq',
+			'mass_distribution',
+			'growth_rate_noise',
+			'd_period_division',
+			'translation_supply'))
 
 		# Write the metadata file.
-		cli_metadata_args = data.select_keys(vars(args),
-			('total_gens', 'mass_distribution', 'growth_rate_noise',
-			'd_period_division', 'translation_supply'))
+
+		cli_metadata_args = data.select_keys(vars(args), (
+			'total_gens',
+			'mass_distribution',
+			'growth_rate_noise',
+			'd_period_division',
+			'translation_supply',
+			'variable_elongation_translation',
+			'variable_elongation_transcription'))
+
 		metadata = dict(cli_metadata_args,
 			git_hash=fp.run_cmdline("git rev-parse HEAD") or '--',
 			git_branch=fp.run_cmdline("git symbolic-ref --short HEAD") or '--',
@@ -168,8 +188,8 @@ class RunSimulation(scriptBase.ScriptBase):
 			time=timestamp,
 			analysis_type=None,
 			variant=variant_type,
-			total_variants=str(len(variants_to_run)),
-			)
+			total_variants=str(len(variants_to_run)))
+
 		metadata_dir = fp.makedirs(args.sim_path, 'metadata')
 		metadata_path = os.path.join(metadata_dir, constants.SERIALIZED_METADATA_FILE)
 		with open(metadata_path, "wb") as f:
@@ -229,7 +249,6 @@ class RunSimulation(scriptBase.ScriptBase):
 							**options
 							)
 					task.run_task({})
-
 
 if __name__ == '__main__':
 	script = RunSimulation()

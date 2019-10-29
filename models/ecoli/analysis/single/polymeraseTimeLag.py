@@ -77,6 +77,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Load count data for s30 proteins, rRNA, and final 30S complex
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+		bulkMoleculeCounts = bulkMolecules.readColumn("counts")
 
 		# Get indexes
 		moleculeIds = bulkMolecules.readAttribute("objectNames")
@@ -84,8 +85,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		rnaIndexes = np.array([moleculeIds.index(comp) for comp in rnaIds])
 
 		# Load data
-		ribosomeSubunitCounts = bulkMolecules.readColumn("counts")[:, ribosomeSubunitIndexes]
-		rnaCounts = bulkMolecules.readColumn("counts")[:, rnaIndexes]
+		ribosomeSubunitCounts = bulkMoleculeCounts[:, ribosomeSubunitIndexes]
+		rnaCounts = bulkMoleculeCounts[:, rnaIndexes]
 
 		bulkMolecules.close()
 

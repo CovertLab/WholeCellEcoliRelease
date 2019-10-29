@@ -24,6 +24,8 @@ class Replication(object):
 		self._buildGeneData(raw_data, sim_data)
 		self._buildReplication(raw_data, sim_data)
 
+		self._build_elongation_rates(raw_data, sim_data)
+
 	def _buildSequence(self, raw_data, sim_data):
 		self.genome_sequence = raw_data.genome_sequence
 		self.genome_length = len(self.genome_sequence)
@@ -98,3 +100,21 @@ class Replication(object):
 
 	def _reverseComplement(self, sequenceVector):
 		return (self._n_nt_types - 1) - sequenceVector
+
+	def _build_elongation_rates(self, raw_data, sim_data):
+		self.base_elongation_rate = int(
+			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
+			units.nt / units.s)))
+
+		self.elongation_rates = np.full(
+			self.replication_sequences.shape[0],
+			self.base_elongation_rate,
+			dtype=np.int64)
+
+	def make_elongation_rates(self, base):
+		rates = np.full(
+			self.replication_sequences.shape[0],
+			base,
+			dtype=np.int64)
+
+		return rates

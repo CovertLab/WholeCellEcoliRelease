@@ -92,30 +92,34 @@ def main():
 			f.write("{0}\t{1}\t{2}\n".format(i, x, y))
 
 	# Generate plot
-	fig, ax = plt.subplots(1, 1, figsize = (8.5, 11))
-	ax.scatter(x_vals, y_vals, c = "k", alpha = 0.1)
+	fig, ax = plt.subplots(1, 1, figsize=(4, 4))
+	ax.scatter(x_vals, y_vals, c = "k", alpha = 0.1, s=8)
 	ax_min = np.floor(min(ax.get_xlim()[0], ax.get_ylim()[0]))
 	ax_max = np.ceil(max(ax.get_xlim()[1], ax.get_ylim()[1]))
-	ax.plot([ax_min, ax_max], [ax_min, ax_max], "k")
-	ax.plot([ax_min, ax_max - 1], [ax_min + 1, ax_max], "k--")
-	ax.plot([ax_min + 1, ax_max], [ax_min, ax_max - 1], "k--")
+	ax.plot([ax_min, ax_max], [ax_min, ax_max], "k", linewidth=1)
+	ax.plot([ax_min, ax_max - 1], [ax_min + 1, ax_max], "k")
+	ax.plot([ax_min + 1, ax_max], [ax_min, ax_max - 1], "k")
 
 	# Highlight genes that were investigated further experimentally
-	genesTested = ["gshA", "pnp", "carA", "dcuR", "bioD", "rph"]
-	colors = ["b", "b", "b", "r", "r", "r"]
+	genesTested = ["gshA", "pnp", "carA", "cdsA", "dcuR", "bioD", "rph"]
+	colors = ["b", "b", "b", "b", "r", "r", "r"]
 	geneName2Id = makeGeneName2EcoMacId()
 	for geneId, color in zip(genesTested, colors):
 		ecomacId = geneName2Id[geneId]
 		candidateIndex = np.where(1 + np.where(candidates)[0] == ecomacId)[0][0]
-		ax.scatter(x_vals[candidateIndex], y_vals[candidateIndex], c = color)
-		ax.text(x_vals[candidateIndex], y_vals[candidateIndex], geneId)
+		ax.scatter(x_vals[candidateIndex], y_vals[candidateIndex], c=color, s=16)
+		ax.text(x_vals[candidateIndex] + 0.05, y_vals[candidateIndex] - 0.05, geneId)
 
 	# Format and save
 	ax.set_xlim([ax_min, ax_max])
 	ax.set_ylim([ax_min, ax_max])
 	ax.set_xlabel("Log10 production rate (protein/s)")
 	ax.set_ylabel("Log10 loss rate (protein/s)")
-	plt.subplots_adjust(bottom = 0.2, top = 0.8)
+	ax.spines["right"].set_visible(False)
+	ax.spines["top"].set_visible(False)
+	ax.spines["left"].set_position(("outward", 10))
+	ax.spines["bottom"].set_position(("outward", 10))
+	plt.tight_layout()
 	plt.savefig(PATH_TO_OUTPUT_PDF)
 	plt.close("all")
 	return
@@ -180,7 +184,7 @@ def computeProtein(cellMass, proteinMass, proteinLength):
 	totalProteinMass = aminoAcidMass / nAvogadro * proteinMass / cellMass # g/cell
 	proteinMass = proteinLength / nAvogadro * aminoAcidMass # g/protein
 	proteinTotalCounts = totalProteinMass / np.dot(relativeExp, proteinMass) # counts/cell
-	
+
 	# Compute counts of each protein type
 	proteomeMinCount0 = np.copy(proteome)
 	proteomeMinCount0[mask] = 0
