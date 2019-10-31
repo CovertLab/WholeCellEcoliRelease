@@ -49,6 +49,30 @@ class TestParseDataConfig(unittest.TestCase):
 		self.mock_reader.readAttribute.assert_called_with("myAttr")
 		self.assertDictEqual({"A": self.mock_attr}, data)
 
+	def test_order_operations(self):
+		# Graph where an edge A -> B means that B depends on A
+		# A -> B
+		#       \
+		#        +-> D
+		#       /
+		#      C
+		config = {
+			"A": {},
+			"B": {"args": ["A"]},
+			"C": {},
+			"D": {"args": ["B", "C"]}
+		}
+		order = BehaviorMetrics.order_operations(config)
+		indexed_order = {source: i for i, source in enumerate(order)}
+		self._assertComesBefore(indexed_order, "A", "B")
+		self._assertComesBefore(indexed_order, "B", "D")
+		self._assertComesBefore(indexed_order, "C", "D")
+		self.assertEqual(4, len(order))
+
+	def _assertComesBefore(self, indexed_order, earlier, later):
+		# type: (str, str) -> None
+		self.assertLess(indexed_order[earlier], indexed_order[later])
+
 
 if __name__ == "__main__":
 	unittest.main()

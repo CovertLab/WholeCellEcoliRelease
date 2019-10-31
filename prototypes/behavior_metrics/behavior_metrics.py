@@ -6,8 +6,9 @@
 from __future__ import absolute_import, division, print_function
 import json
 from os import path
-from typing import Dict, Any
+from typing import Dict, Any, List
 
+import networkx as nx
 import numpy as np
 import pandas as pd
 
@@ -143,6 +144,35 @@ class BehaviorMetrics(object):
 				raise ValueError(
 					"{} has neither 'column' nor 'attribute'".format(source_config))
 		return loaded_data
+
+	@staticmethod
+	def order_operations(operation_configs):
+		# type: (Dict[Dict[str, Any]]) -> List[str]
+		"""Sorts operation configs for evaluation.
+
+		Operations can take the results of other operations as input, so
+		operations must be evaluated in an order such that when any
+		operation is evaluated, its arguments have already been
+		evaluated.
+
+		Arguments:
+			operation_configs: Dictionary with operation names as keys
+				operation configurations as values.
+
+		Returns:
+			List of operation names in order of evaluation.
+		"""
+		graph = nx.DiGraph()
+		graph.add_nodes_from(operation_configs.keys())
+		for op_name, config in operation_configs.items():
+			if "args" in config:
+				deps = [
+					arg for arg in config["args"]
+					if arg in operation_configs.keys()
+				]
+				for dep in deps:
+					graph.add_edge(dep, op_name)
+		return list(nx.dag.topological_sort(graph))
 
 
 def main():
