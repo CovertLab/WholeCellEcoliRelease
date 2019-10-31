@@ -108,5 +108,26 @@
                 "range": [1.9, 2.1]
             }
         }
+    },
+    "ribosomeActiveFraction": {
+        "data": {
+            "active_counts": {
+                "table": "UniqueMoleculeCounts",
+                "column": "uniqueMoleculeCounts",
+                "subcolumn": "activeRibosome"
+            },
+            "s30_counts": {
+                "table": "BulkMolecules",
+                "column": "counts",
+                "subcolumn": "CPLX0-3953[c]"
+            },
+            "s50_counts": {
+                "table": "BulkMolecules",
+                "column": "counts",
+                "subcolumn": "CPLX0-3962[c]"
+            }
+        },
+        "modes": {
+        }
     }
 }

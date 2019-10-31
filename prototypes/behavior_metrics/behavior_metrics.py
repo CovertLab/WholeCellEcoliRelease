@@ -11,7 +11,7 @@ from typing import Dict, Any
 import numpy as np
 import pandas as pd
 
-
+from prototypes.behavior_metrics.tablereader_utils import read_subcolumn
 from wholecell.io.tablereader import TableReader
 
 
@@ -124,6 +124,13 @@ class BehaviorMetrics(object):
 		"""
 		loaded_data = {}
 		for source_name, source_config in data_conf_json.items():
+			if "subcolumn" in source_config:
+				data = read_subcolumn(
+					self.sim_out_dir, source_config["table"],
+					source_config["column"], source_config["subcolumn"]
+				)
+				loaded_data[source_name] = data
+				continue
 			reader = TableReader(
 				path.join(self.sim_out_dir, source_config["table"]))
 			if "column" in source_config:
@@ -139,6 +146,7 @@ class BehaviorMetrics(object):
 
 
 def main():
+	"""Main function that runs tests"""
 	metrics = BehaviorMetrics(METRICS_CONF_PATH, SIM_OUT_DIR)
 	results = metrics.test_metrics()
 	pd.options.display.width = None
