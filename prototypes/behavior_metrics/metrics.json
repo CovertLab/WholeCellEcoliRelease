@@ -6,7 +6,7 @@
                 "column": "proteinMass"
             }
         },
-        "modes": {
+        "operations": {
             "end_start_ratio": {
                 "function": "end_start_ratio",
                 "args": ["mass"],
@@ -41,7 +41,7 @@
                 "column": "tRnaMass"
             }
         },
-        "modes": {
+        "operations": {
             "end_start_ratio": {
                 "function": "end_start_ratio",
                 "args": ["mass"],
@@ -56,7 +56,7 @@
                 "column": "rRnaMass"
             }
         },
-        "modes": {
+        "operations": {
             "end_start_ratio": {
                 "function": "end_start_ratio",
                 "args": ["mass"],
@@ -71,7 +71,7 @@
                 "column": "mRnaMass"
             }
         },
-        "modes": {
+        "operations": {
             "end_start_ratio": {
                 "function": "end_start_ratio",
                 "args": ["mass"],
@@ -86,7 +86,7 @@
                 "column": "dnaMass"
             }
         },
-        "modes": {
+        "operations": {
             "end_start_ratio": {
                 "function": "end_start_ratio",
                 "args": ["mass"],
@@ -101,7 +101,7 @@
                 "column": "smallMoleculeMass"
             }
         },
-        "modes": {
+        "operations": {
             "end_start_ratio": {
                 "function": "end_start_ratio",
                 "args": ["mass"],
@@ -127,7 +127,20 @@
                 "subcolumn": "CPLX0-3962[c]"
             }
         },
-        "modes": {
+        "operations": {
+            "inactive_counts": {
+                "function": "add_two_arrays",
+                "args": ["s30_counts", "s50_counts"]
+            },
+            "active_fraction": {
+                "function": "calc_active_fraction",
+                "args": ["active_counts", "inactive_counts"]
+            },
+            "mean": {
+                "function": "mean",
+                "args": ["active_fraction"],
+                "range": [0, 0]
+            }
         }
     }
 }

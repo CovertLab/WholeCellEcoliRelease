@@ -30,6 +30,21 @@ def calc_end_start_ratio(data):
 	return data[-1] / data[0]
 
 
+def calc_active_fraction(active_counts, inactive_counts):
+	# type: (np.ndarray, np.ndarray) -> np.ndarray
+	"""Compute active fraction.
+
+	Arguments:
+		active_counts: Counts of active units over time.
+		inactive_counts: Counts of inactive units at the same times as
+			active_counts.
+
+	Returns:
+		At each time point, the active fraction.
+	"""
+	return active_counts / (active_counts + inactive_counts)
+
+
 """Path from repository root to metrics configuration JSON file"""
 METRICS_CONF_PATH = "prototypes/behavior_metrics/metrics.json"
 
@@ -45,6 +60,8 @@ MODE_FUNC_MAP = {
 	"stdev": np.std,
 	"min": np.min,
 	"max": np.max,
+	"add_two_arrays": np.add,
+	"calc_active_fraction": calc_active_fraction,
 }
 
 
@@ -89,21 +106,27 @@ class BehaviorMetrics(object):
 		results = []
 		for metric, config in metrics_conf.items():
 			data = self.load_data_from_config(config["data"])
-			for mode, mode_config in config["modes"].items():
-				mode_func = MODE_FUNC_MAP[mode_config["function"]]
+			ordered_ops = BehaviorMetrics.order_operations(
+				config["operations"]
+			)
+			for op in ordered_ops:
+				op_config = config["operations"][op]
+				op_func = MODE_FUNC_MAP[op_config["function"]]
 				func_args = [
-					data[arg_label] for arg_label in mode_config["args"]
+					data[arg_label] for arg_label in op_config["args"]
 				]
-				metric_val = mode_func(*func_args)
-				expected_min, expected_max = mode_config["range"]
-				result = pd.DataFrame(
-					[[metric, mode, expected_min, expected_max, metric_val]],
-					columns=[
-						"metric", "mode", "expected_min",
-						"expected_max", "value"
-					],
-				)
-				results.append(result)
+				metric_val = op_func(*func_args)
+				data[op] = metric_val
+				if "range" in op_config:
+					expected_min, expected_max = op_config["range"]
+					result = pd.DataFrame(
+						[[metric, op, expected_min, expected_max, metric_val]],
+						columns=[
+							"metric", "mode", "expected_min",
+							"expected_max", "value"
+						],
+					)
+					results.append(result)
 		results_df = pd.concat(results, ignore_index=True)
 		results_df["pass"] = (
 			(results_df["expected_min"] <= results_df["value"])
