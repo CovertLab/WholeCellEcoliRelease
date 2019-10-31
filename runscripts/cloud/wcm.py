@@ -161,11 +161,11 @@ class WcmWorkflow(Workflow):
 
 						python_args = dict(sim_args,
 							input_sim_data=variant_sim_data_modified_file,
-							output_directory=cell_sim_out_dir,
-							seed=j)
+							output_directory=cell_sim_out_dir)
 						inputs = [kb_dir, variant_sim_data_dir]
 
 						if k == 0:
+							python_args['seed'] = j
 							firetask = 'simulation'
 						else:
 							firetask = 'simulation_daughter'
@@ -177,6 +177,7 @@ class WcmWorkflow(Workflow):
 								parent_cell_sim_out_dir,
 								constants.SERIALIZED_INHERITED_STATE % (l % 2 + 1))
 							python_args['inherited_state_path'] = daughter_state_path
+							python_args['seed'] = (j + 1) * ((2 ** k - 1) + l)
 							inputs += [parent_cell_sim_out_dir]
 
 						cell_id = 'Var{:03d}_Seed{:03d}_Gen{:03d}_Cell{:03d}'.format(i, j, k, l)

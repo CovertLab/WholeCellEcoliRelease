@@ -144,11 +144,10 @@ class RunSimulation(scriptBase.ScriptBase):
 					options = dict(cli_sim_args,
 						input_sim_data=variant_sim_data_modified_file,
 						output_directory=cell_sim_out_directory,
-						seed=j,
 						)
 
 					if k == 0:
-						task = SimulationTask(**options)
+						task = SimulationTask(seed=j, **options)
 					else:
 						parent_gen_directory = os.path.join(seed_directory, "generation_%06d" % (k - 1))
 						parent_cell_directory = os.path.join(parent_gen_directory, "%06d" % (l // 2))
@@ -157,6 +156,7 @@ class RunSimulation(scriptBase.ScriptBase):
 							parent_cell_sim_out_directory,
 							constants.SERIALIZED_INHERITED_STATE % (l % 2 + 1))
 						task = SimulationDaughterTask(
+							seed=(j + 1) * ((2 ** k - 1) + l),
 							inherited_state_path=daughter_state_path,
 							**options
 							)
