@@ -248,8 +248,8 @@ class TwoComponentSystem(object):
 	def stoichMatrixMonomers(self):
 		'''
 		Builds stoichiometry matrix for monomers (complex subunits)
-		Rows: molecules (complexes and monomers) 
-		Columns: complexes 
+		Rows: molecules (complexes and monomers)
+		Columns: complexes
 		Values: monomer stoichiometry
 		'''
 		ids_complexes = self.complexToMonomer.keys()
@@ -362,17 +362,18 @@ class TwoComponentSystem(object):
 
 
 	def moleculesToNextTimeStep(self, moleculeCounts, cellVolume,
-			nAvogadro, timeStepSec, solver="LSODA", min_time_step=None):
+			nAvogadro, timeStepSec, random_state, solver="LSODA", min_time_step=None):
 		"""
 		Calculates the changes in the counts of molecules in the next timestep
 		by solving an initial value ODE problem.
 
 		Args:
 			moleculeCounts (1d ndarray, ints): current counts of molecules
-			involved in the ODE
+				involved in the ODE
 			cellVolume (float): current volume of cell
 			nAvogadro (float): Avogadro's number
 			timeStepSec (float): current length of timestep in seconds
+			random_state (RandomState object): process random state
 			solver (str): name of the ODE solver to use
 			min_time_step (int): if not None, timeStepSec will be scaled down until
 				it is below min_time_step if negative counts are encountered
@@ -407,7 +408,7 @@ class TwoComponentSystem(object):
 			if min_time_step and timeStepSec > min_time_step:
 				# Call method again with a shorter time step until min_time_step is reached
 				return self.moleculesToNextTimeStep(
-					moleculeCounts, cellVolume, nAvogadro, timeStepSec/2,
+					moleculeCounts, cellVolume, nAvogadro, timeStepSec/2, random_state,
 					solver=solver, min_time_step=min_time_step)
 			elif solver != 'LSODA':
 				# Try with different solver for better stability
@@ -424,8 +425,8 @@ class TwoComponentSystem(object):
 		yMolecules = y * (cellVolume * nAvogadro)
 		dYMolecules = yMolecules[-1, :] - yMolecules[0, :]
 
-		# Isolate independent molecules and round conservatively via trunc
-		independentMoleculesCounts = np.trunc(dYMolecules[self.independent_molecule_indexes])
+
+		independentMoleculesCounts = np.round(dYMolecules[self.independent_molecule_indexes])
 
 		# To ensure that we have non-negative counts of phosphate, we must
 		# have the following (which can be seen from the dependency matrix)
@@ -435,10 +436,49 @@ class TwoComponentSystem(object):
 			)
 
 		# Calculate changes in molecule counts for all molecules
-		allMoleculesChanges = np.dot(
-			self.dependencyMatrix, independentMoleculesCounts)
+		allMoleculesChanges = self.dependencyMatrix.dot(independentMoleculesCounts)
 
-		moleculesNeeded = np.negative(allMoleculesChanges).clip(min=0)
+		# Calculate molecules needed by assuming other molecules that would produce necessary
+		# phosphate won't be allocated
+		negative = independentMoleculesCounts.copy()
+		negative[negative > 0] = 0
+		negative[self.independentMoleculesAtpIndex] = (
+			negative[:self.independentMoleculesAtpIndex].sum()
+			+ negative[(self.independentMoleculesAtpIndex + 1):].sum()
+			)
+		moleculesNeeded = self.dependencyMatrix.dot(-negative).clip(min=0)
+		positive = independentMoleculesCounts.copy()
+		positive[positive < 0] = 0
+		moleculesNeeded += self.dependencyMatrix.dot(-positive).clip(min=0)
+
+		# Adjust molecules to prevent using more than allocated
+		iteration = 0
+		final_molecules = allMoleculesChanges + moleculeCounts
+		while np.any(final_molecules < 0):
+			stoich = self.stoichMatrix()
+			mol_idx = np.where(final_molecules < 0)[0][0]
+			rxns = stoich[mol_idx, :] < 0  # reactions that consume the molecule that has been depleted
+
+			# Get products of reactions to turn back into reactants
+			consuming_stoich = stoich[:, rxns]
+			consuming_stoich[consuming_stoich < 0] = 0  # exclude molecules that are also consumed in these reactions
+			consuming_stoich[consuming_stoich.sum(axis=1) > 1] = 0  # exclude molecules that are shared between reactions
+
+			# Weight possible reactions by how different the rounded solution is to the integrated solution
+			rxn_propensity = (allMoleculesChanges - dYMolecules).dot(consuming_stoich)
+			rxn_propensity[rxn_propensity < 0] = 0
+			rxn_propensity /= rxn_propensity.sum()
+
+			# Sample from propensities to find reaction to reverse
+			rxn = np.where(random_state.multinomial(1, rxn_propensity))[0][0]
+			allMoleculesChanges -= stoich[:, rxns][:, rxn]
+			final_molecules = allMoleculesChanges + moleculeCounts
+
+			# Prevent possibility of infinite loop - should never need to reduce each reaction more than once
+			iteration += 1
+			if iteration > stoich.shape[1]:
+				raise ValueError('Could not get positive molecule counts for {} in two_component_system'
+					.format(self.moleculeNames[mol_idx]))
 
 		return moleculesNeeded, allMoleculesChanges
 
@@ -530,8 +570,8 @@ class TwoComponentSystem(object):
 
 	def _makeDependencyMatrix(self):
 		'''
-		Builds matrix mapping linearly independent molecules (ATP, histidine kinases, 
-		response regulators, and ligand-bound histidine kinases for positively oriented 
+		Builds matrix mapping linearly independent molecules (ATP, histidine kinases,
+		response regulators, and ligand-bound histidine kinases for positively oriented
 		networks) to their dependents.
 		'''
 		dependencyMatrixI = []
