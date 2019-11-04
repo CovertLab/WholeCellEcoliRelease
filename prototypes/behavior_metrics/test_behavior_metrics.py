@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 
+"""Tests for behavior metrics"""
+
 import tempfile
 import unittest
 
 import mock
 import numpy as np
+from networkx import NetworkXUnfeasible
 
 from wholecell.io.tablereader import TableReader
 from prototypes.behavior_metrics.behavior_metrics import BehaviorMetrics
@@ -68,6 +71,20 @@ class TestParseDataConfig(unittest.TestCase):
 		self._assertComesBefore(indexed_order, "B", "D")
 		self._assertComesBefore(indexed_order, "C", "D")
 		self.assertEqual(4, len(order))
+
+	def test_order_ops_cycle(self):
+		# Graph where an edge A -> B means that B depends on A
+		# A --> B
+		# ^     |
+		# |     |
+		# +- C <+
+		config = {
+			"A": {"args": ["C"]},
+			"B": {"args": ["A"]},
+			"C": {"args": ["B"]},
+		}
+		with self.assertRaisesRegexp(NetworkXUnfeasible, "cycle"):
+			BehaviorMetrics.order_operations(config)
 
 	def _assertComesBefore(self, indexed_order, earlier, later):
 		# type: (str, str) -> None
