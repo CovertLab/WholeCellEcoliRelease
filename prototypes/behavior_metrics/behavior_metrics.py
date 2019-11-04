@@ -138,6 +138,58 @@ class BehaviorMetrics(object):
 		# type: (Dict[str, Any]) -> Dict[str, Any]
 		"""Load data as specified in a configuration JSON.
 
+		The configuration JSON should be structured as follows:
+
+		"ribosomeActiveFraction": {
+			"data": {
+				"// active_counts is an arbitrary label used to specify"
+				"// arguments to operations"
+				"active_counts": {
+					"table": "UniqueMoleculeCounts",
+					"column": "uniqueMoleculeCounts",
+					"subcolumn": "activeRibosome"
+				},
+				"s30_counts": {
+					"table": "BulkMolecules",
+					"column": "counts",
+					"subcolumn": "CPLX0-3953[c]"
+				},
+				"s50_counts": {
+					"table": "BulkMolecules",
+					"column": "counts",
+					"subcolumn": "CPLX0-3962[c]"
+				},
+				"A": {
+					"table": "BulkMolecules",
+					"// We can also read in attributes"
+					"attribute": "subcolumns"
+				},
+				"B": {
+					"table": "tRNA",
+					"// If only column specified, there should be only"
+					"// 1 subcolumn, which will be returned as a vector"
+					"column": "counts"
+				}
+			},
+			"operations": {
+				"// Operations can take any other operation as input (no cycles)"
+				"inactive_counts": {
+					"function": "sum",
+					"args": ["s30_counts", "s50_counts"]
+				},
+				"active_fraction": {
+					"function": "calc_active_fraction",
+					"args": ["active_counts", "inactive_counts"]
+				},
+				"mean": {
+					"function": "mean",
+					"args": ["active_fraction"],
+					"// Any operation with a range will have its output validated"
+					"range": [0, 0]
+				}
+			}
+		}
+
 		Arguments:
 			data_conf_json: Parsed JSON dictionary that defines any number
 				of data sources and how to load data from them.
@@ -145,6 +197,10 @@ class BehaviorMetrics(object):
 		Returns:
 			A dictionary where each key is the name of a data source and
 			each value is the loaded data for the key.
+
+		Raises:
+			NetworkXUnfeasible: If the dependency graph created by the
+			operation attributes contains any cycles.
 		"""
 		loaded_data = {}
 		for source_name, source_config in data_conf_json.items():
@@ -184,6 +240,10 @@ class BehaviorMetrics(object):
 
 		Returns:
 			List of operation names in order of evaluation.
+
+		Raises:
+			NetworkXUnfeasible: If the dependency graph created by the
+			operation attributes contains any cycles.
 		"""
 		graph = nx.DiGraph()
 		graph.add_nodes_from(operation_configs.keys())
