@@ -62,6 +62,7 @@ MODE_FUNC_MAP = {
 	"max": np.max,
 	"add_two_arrays": np.add,
 	"calc_active_fraction": calc_active_fraction,
+	"elementwise_min": np.minimum,
 }
 
 

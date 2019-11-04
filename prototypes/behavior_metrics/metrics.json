@@ -129,7 +129,7 @@
         },
         "operations": {
             "inactive_counts": {
-                "function": "add_two_arrays",
+                "function": "elementwise_min",
                 "args": ["s30_counts", "s50_counts"]
             },
             "active_fraction": {
