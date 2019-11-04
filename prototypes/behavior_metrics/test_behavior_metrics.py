@@ -2,13 +2,15 @@
 
 """Tests for behavior metrics"""
 
-import tempfile
+from __future__ import absolute_import, division, print_function
+from typing import Dict  # pylint: disable=unused-import
 import unittest
 
 import mock
 import numpy as np
 from networkx import NetworkXUnfeasible
 
+# pylint: disable=unused-import
 from wholecell.io.tablereader import TableReader
 from prototypes.behavior_metrics.behavior_metrics import BehaviorMetrics
 
@@ -86,8 +88,9 @@ class TestParseDataConfig(unittest.TestCase):
 		with self.assertRaisesRegexp(NetworkXUnfeasible, "cycle"):
 			BehaviorMetrics.order_operations(config)
 
+    # pylint: disable=invalid-name
 	def _assertComesBefore(self, indexed_order, earlier, later):
-		# type: (str, str) -> None
+		# type: (Dict[str, int], str, str) -> None
 		self.assertLess(indexed_order[earlier], indexed_order[later])
 
 

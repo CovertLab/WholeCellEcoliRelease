@@ -8,7 +8,7 @@ from __future__ import absolute_import, division, print_function
 from os import path
 from shutil import rmtree
 from tempfile import mkdtemp
-from typing import Dict, List
+from typing import Dict, List  # pylint: disable=unused-import
 import unittest
 
 import numpy as np
@@ -57,7 +57,7 @@ class TestReadSubcolumn(unittest.TestCase):
 		vals = np.random.random(5)
 		for val in vals:
 			self.tablewriter.append(**{COLUMN_NAME: val})
-		self._write_subcolumn_metadata({COLUMN_NAME: SUBCOL_NAMES[0]})
+		self._write_subcolumn_metadata({COLUMN_NAME: SUBCOL_NAMES[0:1]})
 		self.tablewriter.close()
 
 		subcol = read_subcolumn(
@@ -68,7 +68,7 @@ class TestReadSubcolumn(unittest.TestCase):
 	def test_read_sole_row(self):
 		val = np.random.random()
 		self.tablewriter.append(**{COLUMN_NAME: val})
-		self._write_subcolumn_metadata({COLUMN_NAME: SUBCOL_NAMES[0]})
+		self._write_subcolumn_metadata({COLUMN_NAME: SUBCOL_NAMES[0:1]})
 		self.tablewriter.close()
 
 		subcol = read_subcolumn(

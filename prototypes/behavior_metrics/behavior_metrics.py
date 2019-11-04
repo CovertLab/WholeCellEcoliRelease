@@ -6,7 +6,7 @@
 from __future__ import absolute_import, division, print_function
 import json
 from os import path
-from typing import Dict, Any, List
+from typing import Dict, Any, List  # pylint: disable=unused-import
 
 import networkx as nx
 import numpy as np
@@ -45,6 +45,7 @@ def calc_active_fraction(active_counts, inactive_counts):
 	return active_counts / (active_counts + inactive_counts)
 
 
+# pylint: disable=pointless-string-statement
 """Path from repository root to metrics configuration JSON file"""
 METRICS_CONF_PATH = "prototypes/behavior_metrics/metrics.json"
 
@@ -112,11 +113,8 @@ class BehaviorMetrics(object):
 			)
 			for op in ordered_ops:
 				op_config = config["operations"][op]
-				op_func = MODE_FUNC_MAP[op_config["function"]]
-				func_args = [
-					data[arg_label] for arg_label in op_config["args"]
-				]
-				metric_val = op_func(*func_args)
+				metric_val = BehaviorMetrics._calculate_operation(
+					op_config, data)
 				data[op] = metric_val
 				if "range" in op_config:
 					expected_min, expected_max = op_config["range"]
@@ -134,6 +132,15 @@ class BehaviorMetrics(object):
 			& (results_df["value"] <= results_df["expected_max"])
 		)
 		return results_df
+
+	@staticmethod
+	def _calculate_operation(op_config, data):
+		# type: (Dict[str, Any], Dict[str, Any]) -> Any
+		op_func = MODE_FUNC_MAP[op_config["function"]]
+		func_args = [
+			data[arg_label] for arg_label in op_config["args"]
+		]
+		return op_func(*func_args)
 
 	def load_data_from_config(self, data_conf_json):
 		# type: (Dict[str, Any]) -> Dict[str, Any]
@@ -256,7 +263,7 @@ class BehaviorMetrics(object):
 				]
 				for dep in deps:
 					graph.add_edge(dep, op_name)
-		return list(nx.dag.topological_sort(graph))
+		return list(nx.topological_sort(graph))
 
 
 def main():

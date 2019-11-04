@@ -7,7 +7,7 @@
 from __future__ import absolute_import, division, print_function
 from os import path
 
-import numpy as np
+import numpy as np  # pylint: disable=unused-import
 
 from wholecell.io.tablereader import TableReader
 
