@@ -9,8 +9,7 @@ Running it this way prints all timing measurements:
 
 Running it these ways prints timing measurements (and other printout) only
 for failed tests:
-	nosetests wholecell/tests/utils/test_library_performance.py
-	nosetests -a performance
+	pytest wholecell/tests/utils/test_library_performance.py
 
 Running it this way runs the iterative test that isn't automatically
 discovered as a test method:

@@ -8,7 +8,7 @@ For docs on how to run the model, see the README.md in the repository.
 
 Inside this container you can run (the -h option provides command-line help):
 
-> nosetests
+> pytest
 
 > python runscripts/manual/runParca.py [-h] [sim_dir]
 

@@ -24,7 +24,7 @@
 #
 # It will start a shell where you can execute commands:
 #
-#     # nosetests
+#     # pytest
 #
 # If this succeeds you can start running WCM code in the container, e.g.:
 #

@@ -227,7 +227,7 @@ This page goes through the Python environment setup steps in more detail and wit
 11. Run all the unit tests.
 
    ```bash
-   nosetests
+   pytest
    ```
 
    If the unit tests fail with an error message saying the loader can't load `.../pyenv/versions/.../lib/libpython2.7.a`, that means you didn't successfully `--enable-shared` when installing python. Go back to that step, run `PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.16 --force`, and repeat all the steps after it.
