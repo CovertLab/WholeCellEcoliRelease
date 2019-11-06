@@ -135,6 +135,7 @@ pymongo==3.6.1
 pyparsing==2.2.0
 pytest==4.6.5
 pytest-benchmark==3.2.2
+pytest-cov==2.8.1
 python-dateutil==2.7.3
 pytz==2018.5
 PyYAML==5.1
