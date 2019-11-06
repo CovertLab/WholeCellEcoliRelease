@@ -221,9 +221,10 @@ def divideUniqueMolecules(uniqueMolecules, randomState, chromosome_division_resu
 			daughter_elng_rates = zero_elongation_rate()
 
 			if n_molecules > 0:
-				# Read the ribosome elongation rate of the mother cell
-				polypeptide_elongation = sim.processes["PolypeptideElongation"]
-				elngRate = np.min([polypeptide_elongation.ribosomeElongationRateDict[
+
+				# Read the expected ribosome elongation rate for this environment
+				sim_data = sim.get_sim_data()
+				elngRate = np.min([sim_data.process.translation.ribosomeElongationRateDict[
 					current_media_id].asNumber(units.aa / units.s), 21.])
 
 				# If growth rate noise is set to True, multiply noise parameter

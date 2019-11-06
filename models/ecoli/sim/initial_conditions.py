@@ -17,6 +17,7 @@ from wholecell.utils import units
 from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
 
 from wholecell.sim.divide_cell import load_inherited_state
+from models.ecoli.processes.polypeptide_elongation import SteadyStateElongationModel
 
 RAND_MAX = 2**31
 
@@ -46,7 +47,8 @@ def calcInitialConditions(sim, sim_data):
 	# Must be called after unique and bulk molecules are initialized to get
 	# concentrations for ribosomes, tRNA, synthetases etc from cell volume
 	if sim._trna_charging:
-		initialize_trna_charging(sim_data, sim.internal_states, sim.processes['PolypeptideElongation'].calculate_trna_charging)
+		elongation_model = SteadyStateElongationModel(sim_data, sim.processes['PolypeptideElongation'])
+		initialize_trna_charging(sim_data, sim.internal_states, elongation_model.calculate_trna_charging)
 
 def initializeBulkMolecules(bulkMolCntr, sim_data, current_media_id, randomState, massCoeff):
 
