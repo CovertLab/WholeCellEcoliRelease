@@ -22,6 +22,9 @@ from wholecell.utils import units
 from  models.ecoli.sim.initial_conditions import determine_chromosome_state
 
 
+N_MAX_REPLISOMES = 1000  # Chosen to be big enough to have no effect
+
+
 class Test_InitialConditions(unittest.TestCase):
 	@classmethod
 	def setUpClass(cls):
@@ -46,7 +49,8 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 27. * units.min
 		tau = 90. * units.min
 		replichore_length = 2319838 * units.nt
-		oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 
 		expected_num_forks = 0
 
@@ -59,7 +63,8 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 27. * units.min
 		tau = 60. * units.min
 		replichore_length = 2319838 * units.nt
-		oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 
 		expected_num_forks = 2
 
@@ -72,7 +77,8 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 27. * units.min
 		tau = 30. * units.min
 		replichore_length = 2319838 * units.nt
-		oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 
 		# Two generations means one event from first generation and two events
 		# from the second - total of 3 events, 2 forks per event = 6 replisomes
@@ -87,7 +93,8 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 19. * units.min
 		tau = 20. * units.min
 		replichore_length = 2319838 * units.nt
-		oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 
 		# Three generations means one event from first generation, two from the
 		# second, and 4 from the third - total of 7 events,
@@ -104,7 +111,8 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 20. * units.min
 		tau = 21. * units.min
 		replichore_length = 2319838 * units.nt
-		oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 
 		# Four generations means one event from first generation, two from the
 		# second, 4 from the third, and 8 from the fourth - total of 15 events,
@@ -124,7 +132,8 @@ class Test_InitialConditions(unittest.TestCase):
 		tau = 30. * units.min
 		replichore_length = 2319838 * units.nt
 
-		oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 		fork_coordinates = replisome_state["coordinates"]
 
 		limit = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
@@ -145,7 +154,8 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 25. * units.min
 		tau = 30. * units.min
 		replichore_length = 1 * units.nt
-		oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 		fork_coordinates = replisome_state["coordinates"]
 	
 		limit = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
@@ -166,7 +176,8 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 25. * units.min
 		tau = 30. * units.min
 		replichore_length = 0 * units.nt
-		oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 		fork_coordinates = replisome_state["coordinates"]
 
 		limit = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
@@ -187,7 +198,8 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 25. * units.min
 		tau = 30. * units.min
 		replichore_length = 2319838.3 * units.nt
-		oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 		fork_coordinates = replisome_state["coordinates"]
 
 		limit = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
@@ -212,7 +224,8 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 27. * units.min
 		tau = 90. * units.min
 		replichore_length = 2319838 * units.nt
-		oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 
 		self.assertEqual(0, domain_state["domain_index"].max())
 
@@ -222,7 +235,8 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 27. * units.min
 		tau = 60. * units.min
 		replichore_length = 2319838 * units.nt
-		oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 
 		self.assertEqual(2, domain_state["domain_index"].max())
 
@@ -232,7 +246,8 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 27. * units.min
 		tau = 30. * units.min
 		replichore_length = 2319838 * units.nt
-		oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 
 		# There should be equal numbers of zeros and ones in the chromosomeIndex array (excepting the first four)
 		self.assertEqual(6, domain_state["domain_index"].max())
@@ -243,7 +258,8 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 19. * units.min
 		tau = 20. * units.min
 		replichore_length = 2319838 * units.nt
-		oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 
 		# There should be equal numbers of zeros and ones in the chromosomeIndex array (excepting the first four)
 		self.assertEqual(14, domain_state["domain_index"].max())
@@ -254,7 +270,8 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 20. * units.min
 		tau = 21. * units.min
 		replichore_length = 2319838 * units.nt
-		oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 
 		# There should be equal numbers of zeros and ones in the chromosomeIndex array (excepting the first four)
 		self.assertEqual(30, domain_state["domain_index"].max())
@@ -269,7 +286,8 @@ class Test_InitialConditions(unittest.TestCase):
 			D = 20. * units.min
 			tau = 19. * units.min
 			replichore_length = 2319838  * units.nt
-			oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+			oric_state, replisome_state, domain_state = determine_chromosome_state(
+				C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 		self.assertEqual("The D period must be shorter than the doubling time tau.", context.exception.message)
 
 
@@ -279,7 +297,8 @@ class Test_InitialConditions(unittest.TestCase):
 			D = 20. * units.min
 			tau = 60. * units.min
 			replichore_length = 2319838  * units.nt
-			oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+			oric_state, replisome_state, domain_state = determine_chromosome_state(
+				C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 		self.assertEqual("C value can't be negative.", context.exception.message)
 
 		with self.assertRaises(AssertionError) as context:
@@ -287,7 +306,8 @@ class Test_InitialConditions(unittest.TestCase):
 			D = -20. * units.min
 			tau = 60. * units.min
 			replichore_length = 2319838  * units.nt
-			oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+			oric_state, replisome_state, domain_state = determine_chromosome_state(
+				C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 		self.assertEqual("D value can't be negative.", context.exception.message)
 
 		with self.assertRaises(AssertionError) as context:
@@ -295,7 +315,8 @@ class Test_InitialConditions(unittest.TestCase):
 			D = 20. * units.min
 			tau = -60. * units.min
 			replichore_length = 2319838  * units.nt
-			oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+			oric_state, replisome_state, domain_state = determine_chromosome_state(
+				C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 		self.assertEqual("tau value can't be negative.", context.exception.message)
 
 		with self.assertRaises(AssertionError) as context:
@@ -303,7 +324,8 @@ class Test_InitialConditions(unittest.TestCase):
 			D = 20. * units.min
 			tau = 60. * units.min
 			replichore_length = -2319838  * units.nt
-			oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+			oric_state, replisome_state, domain_state = determine_chromosome_state(
+				C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 		self.assertEqual("replichore_length value can't be negative.", context.exception.message)
 
 
@@ -315,7 +337,8 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 27. * units.min
 		tau = 100. * units.min
 		replichore_length = 2319838 * units.nt
-		oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 
 		self.assertEqual(1, len(oric_state["domain_index"]))
 
@@ -324,7 +347,8 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 27. * units.min
 		tau = 90. * units.min
 		replichore_length = 2319838 * units.nt
-		oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 
 		self.assertEqual(1, len(oric_state["domain_index"]))
 
@@ -333,7 +357,8 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 27. * units.min
 		tau = 60. * units.min
 		replichore_length = 2319838 * units.nt
-		oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 
 		self.assertEqual(2, len(oric_state["domain_index"]))
 
@@ -342,7 +367,8 @@ class Test_InitialConditions(unittest.TestCase):
 		D = 27. * units.min
 		tau = 30. * units.min
 		replichore_length = 2319838 * units.nt
-		oric_state, replisome_state, domain_state = determine_chromosome_state(C, D, tau, replichore_length, -1)
+		oric_state, replisome_state, domain_state = determine_chromosome_state(
+			C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 
 		# Two generations means one event from first generation and two events
 		# from the second - total of 3 events, plus one oriC for the original
