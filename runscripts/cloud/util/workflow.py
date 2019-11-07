@@ -1,12 +1,16 @@
 """Generic Sisyphus/Gaia/Google Cloud workflow builder."""
 
-# TODO(jerry): Use different utilities than os.path functions to construct
-#  paths to use inside the linux containers when the builder runs on Windows.
+# TODO(jerry): For Windows: This code uses posixpath to construct paths to use
+#  on linux servers (and os.path for local file I/O).
+#  To finish the job, either make callers do likewise or replace os.sep with
+#  posixpath.sep in argument paths, deal with isabs(), and test out on Windows.
 
 from __future__ import absolute_import, division, print_function
 
 from collections import OrderedDict
 import os
+import posixpath
+import re
 import sys
 if os.name == 'posix' and sys.version_info[0] < 3:
 	import subprocess32 as subprocess
@@ -25,19 +29,23 @@ from wholecell.utils import filepath as fp
 # runscripts/cloud/ssh-tunnel.sh.
 GAIA_CONFIG = {'gaia_host': 'localhost:24442'}
 
-STDOUT_PATH = '>'  # special pathname that captures stdout + stderror
+STDOUT_PATH = '>'    # special path that captures stdout + stderror
+LOG_OUT_PATH = '>>'  # special path for a fuller log; written even on task failure
 
+STORAGE_ROOT_ENV_VAR = 'WORKFLOW_STORAGE_ROOT'
 MAX_WORKERS = 500  # don't launch more than this many worker nodes at a time
 
 
 def _rebase(path, internal_prefix, storage_prefix):
 	# type: (str, str, str) -> str
-	"""Return a path rebased from internal_prefix to storage_prefix."""
-	new_path = os.path.join(storage_prefix, os.path.relpath(path, internal_prefix))
+	"""Return a path rebased from internal_prefix to storage_prefix and switch
+	to "bucket:path" format for Gaia/Sisyphus."""
+	relpath = posixpath.relpath(path, internal_prefix)
+	new_path = posixpath.join(storage_prefix, relpath).replace('/', ':', 1)
 
-	# os.path.relpath removes a trailing slash if it exists.
-	if path.endswith(os.sep):
-		new_path = os.path.join(new_path, '')
+	# posixpath.relpath removes a trailing slash if it exists.
+	if path.endswith(posixpath.sep):
+		new_path = posixpath.join(new_path, '')
 
 	assert '..' not in new_path, (
 		'''Can't rebase path "{}" that doesn't start with internal_prefix "{}"'''
@@ -69,38 +77,98 @@ def _copy_path_list(value):
 	result = _copy_as_list(value)
 	for path in result:
 		path = path.lstrip('>')
-		assert os.path.isabs(path), 'Expected an absolute path, not {}'.format(path)
+		assert posixpath.isabs(path), 'Expected an absolute path, not {}'.format(path)
 	return result
 
-def _launch_workers(worker_names):
-	# type: (List[str]) -> None
+def _launch_workers(worker_names, workflow=''):
+	# type: (List[str], str) -> None
 	"""Launch Sisyphus worker nodes with the given names."""
 	path = os.path.join(fp.ROOT_PATH, 'runscripts', 'cloud', 'launch-workers.sh')
-	subprocess.call([path] + worker_names)
+	subprocess.call([path] + worker_names,
+		env=dict(os.environ, WORKFLOW=workflow))
+
+def _to_create_bucket(prefix):
+	# type: (str) -> str
+	return ('{0}'
+			' Create your own Google Cloud Storage bucket if needed. This'
+			' supports usage tracking, cleanup, and ACLs.'
+			' Pick a name like "sisyphus-{2}" [it has to be globally unique;'
+			' BEWARE that it\'s publicly visible so don\'t include login IDs,'
+			' email addresses, project names, project numbers, or personally'
+			' identifiable information (PII)], the same Region used with'
+			' Compute Engine (run `gcloud info` for info), Standard storage'
+			' class, and default access control.'
+			' Then store it in an environment variable in your shell profile'
+			' and update your current shell, e.g. `export {1}="sisyphus-{2}"`.'
+				.format(prefix, STORAGE_ROOT_ENV_VAR, os.environ['USER']))
+
+def bucket_from_path(storage_path):
+	# type: (str) -> str
+	"""Extract the bucket name (the first component) from a Google Cloud
+	Storage path such as 'sisyphus-crick', 'sisyphus-crick/', or
+	'sisyphus/data/crick'.
+	"""
+	return storage_path.split('/', 1)[0]
+
+def validate_gcs_bucket(bucket_name):
+	# type: (str) -> None
+	"""Raise an exception if the Google Cloud Storage bucket name is malformed,
+	doesn't exist, or inaccessible.
+	"""
+	pattern = r'[a-z0-9][-_a-z0-9]{1,61}[a-z0-9]$'  # no uppercase; dots require DNS approval
+	if not re.match(pattern, bucket_name):
+		raise ValueError('Storage bucket name "{}" doesn\'t match the required'
+						 ' regex pattern "{}".'.format(bucket_name, pattern))
+
+	completion = subprocess.run(
+		["gsutil", "ls", "-b", "gs://" + bucket_name],  # bucket list!
+		stdout=subprocess.PIPE,
+		stderr=subprocess.PIPE,
+		universal_newlines=True,
+		timeout=60)
+	if completion.returncode:
+		message = _to_create_bucket(
+			'Couldn\'t access the Google Cloud Storage bucket "{0}" [{1}].'
+				.format(bucket_name, completion.stderr.strip()))
+		raise ValueError(message)
+	# else completion.stdout.strip() should == 'gs://' + bucket_name + '/'
 
 
 class Task(object):
 	"""A workflow task builder."""
 
+	DEFAULT_TIMEOUT = 60 * 60  # in seconds
+
 	def __init__(self, name='', image='', command=(),
-			inputs=(), outputs=(), storage_prefix='', internal_prefix=''):
-		# type: (str, str, Iterable[str], Iterable[str], Iterable[str], str, str) -> None
+			inputs=(), outputs=(), storage_prefix='', internal_prefix='',
+			timeout=0, store_log=True):
+		# type: (str, str, Iterable[str], Iterable[str], Iterable[str], str, str, int, bool) -> None
 		"""Construct a Workflow Task.
 
-		Input and output paths are internal to the worker's Docker container.
+		The inputs and outputs are absolute paths internal to the worker's
+		Docker container.
 		Task will rebase them from internal_prefix to storage_prefix to construct
 		the corresponding storage paths. An internal path ending with '/' will
-		upload or download a directory tree, and its corresponding storage path
-		will not end with '/'.
+		upload or download a directory tree.
 
-		An output path that starts with '>' will capture a log from stdout +
-		stderr. The rest of the path will get rebased to a storage path.
+		An output path that starts with '>' will capture stdout + stderr (if the
+		task completes normally). The rest of the path will get rebased to a
+		storage path.
+
+		(An output path that starts with '>>' will capture a log of stdout +
+		stderr + other log messages like elapsed time and task exit code, for
+		for debugging, even if the task fails. Just default store_log=True to
+		save a log.)
 		"""
 		assert name, 'Every task needs a name'
 		assert image, 'Every task needs a Docker image name'
 		assert command, 'Every task needs a command list of tokens'
 		assert storage_prefix, 'Every task needs a storage_prefix'
+		assert not storage_prefix.startswith('/'), (
+			'storage_prefix must not start with "/": {}'.format(storage_prefix))
 		assert internal_prefix, 'Every task needs an internal_prefix'
+		assert posixpath.isabs(internal_prefix), (
+			'internal_prefix must be an absolute path, not {}'.format(internal_prefix))
 
 		self.name = name
 		self.image = image
@@ -109,13 +177,20 @@ class Task(object):
 		self.outputs = _copy_path_list(outputs)
 		self.storage_prefix = storage_prefix
 		self.internal_prefix = internal_prefix
+		self.timeout = timeout if timeout > 0 else self.DEFAULT_TIMEOUT
+
+		if store_log:
+			self.outputs[0:0] = [
+				LOG_OUT_PATH + posixpath.join(internal_prefix, 'logs', name + '.log')]
 
 	def build_command(self):
 		# type: () -> Dict[str, Any]
 		"""Build a Gaia Command to run this Task."""
 		def specialize(path):
 			# type: (str) -> str
-			return STDOUT_PATH if path.startswith('>') else path
+			return (LOG_OUT_PATH if path.startswith(LOG_OUT_PATH)
+					else STDOUT_PATH if path.startswith(STDOUT_PATH)
+					else path)
 
 		return dict(
 			name=self.name,
@@ -136,7 +211,8 @@ class Task(object):
 			name=self.name,
 			command=self.name,
 			inputs=_keyify(self.inputs, rebase),
-			outputs=_keyify(self.outputs, rebase))
+			outputs=_keyify(self.outputs, rebase),
+			timeout=self.timeout)
 
 
 class Workflow(object):
@@ -147,6 +223,32 @@ class Workflow(object):
 		self.name = name
 		self.verbose_logging = verbose_logging
 		self._tasks = OrderedDict()  # type: Dict[str, Task]
+
+	@classmethod
+	def storage_root(cls, cli_arg=None):
+		# type: (Optional[str]) -> str
+		"""Validate the workflow cloud storage root from the given CLI argument
+		or else an environment variable that's usually configured via shell
+		profile. If invalid, raise an exception with instructions to set it up.
+
+		BEST PRACTICE is a storage bucket per user like 'sisyphus-crick'. That
+		supports usage tracking, cleanup, and ACLs. But as a fallback, use a
+		subdirectory of the 'sisyphus' bucket, e.g. 'sisyphus/data/crick'.
+		"""
+		try:
+			root = cli_arg or os.environ[STORAGE_ROOT_ENV_VAR]
+		except KeyError:
+			message = _to_create_bucket(
+				'Environment variable ${} not found.'.format(STORAGE_ROOT_ENV_VAR))
+			raise KeyError(STORAGE_ROOT_ENV_VAR, message)
+
+		bucket = bucket_from_path(root)
+		assert bucket, _to_create_bucket(
+			'${} "{}" doesn\'t begin with a storage bucket name.'.format(
+				STORAGE_ROOT_ENV_VAR, root))
+		validate_gcs_bucket(bucket)
+
+		return root
 
 	def log_info(self, message):
 		# type: (str) -> None
@@ -193,7 +295,8 @@ class Workflow(object):
 		commands_path = os.path.join('out', 'workflow-commands.json')
 		steps_path = os.path.join('out', 'workflow-steps.json')
 
-		self.log_info('\nWriting {} {}'.format(commands_path, steps_path))
+		self.log_info('\nWorkflow {} writing {} {}'.format(
+			self.name, commands_path, steps_path))
 		fp.write_json_file(commands_path, commands)
 		fp.write_json_file(steps_path, steps)
 
@@ -205,9 +308,11 @@ class Workflow(object):
 		count = min(count, MAX_WORKERS)
 
 		self.log_info('\nLaunching {} worker node(s).'.format(count))
-		user = os.environ['USER']
-		names = ['sisyphus-{}-{}'.format(user, i) for i in range(count)]
-		_launch_workers(names)
+
+		# Convert the workflow name to valid GCE VM names.
+		sanitized = re.sub('[^-a-z0-9]', '-', self.name.lower()).replace('workflow', '')
+		names = ['sisyphus-{}-{}'.format(sanitized, i) for i in range(count)]
+		_launch_workers(names, workflow=self.name)
 
 	def send(self, worker_count=4):
 		# type: (int) -> None
