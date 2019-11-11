@@ -70,7 +70,7 @@ class WorkflowCLI(scriptBase.ScriptBase):
 		basename = type(self).__name__
 		owner_id = os.environ['USER']
 		timestamp = fp.timestamp()
-		name = '{}_{}_{}'.format(basename, owner_id, timestamp)
+		name = '{}_{}_{}'.format(owner_id, basename, timestamp)
 		self.storage_prefix = posixpath.join(
 			Workflow.storage_root(args.storage_root), basename, timestamp, '')
 		self.wf = Workflow(name)

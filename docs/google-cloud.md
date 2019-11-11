@@ -172,17 +172,19 @@ There are many ways to download the outputs from your workflow:
 
 * **Simplest for individual files:** Open the [Google Cloud
 Storage — Browser](https://console.cloud.google.com/storage/browser?project=allen-discovery-center-mcovert),
-browse into the [sisyphus storage bucket](https://console.cloud.google.com/storage/browser/sisyphus?project=allen-discovery-center-mcovert)
-bucket, find your workflow files, and click on individual files to download them.
-* **Most convenient:** Use [gcsfuse](https://github.com/GoogleCloudPlatform/gcsfuse) to mount the storage
-bucket `sisyphus` to your local file system
-(or use the `--only-dir data/$USER` option to mount just its `data/$USER/` subdirectory) and access
+browse into your Google Cloud Storage bucket ("sisyphus-crick" or whatever)
+find your workflow files, and click on individual files to download them.
+* **Most convenient:** Use [gcsfuse](https://github.com/GoogleCloudPlatform/gcsfuse) to mount your
+storage bucket to your local file system (or use the `--only-dir data/$USER` option
+to mount just a subdirectory of it) and access
 the files like local files.
+  * Example:  
+    `cd ~/dev/gcs/ && mkdir sisyphus-crick && gcsfuse sisyphus-crick sisyphus-crick`
   * gcsfuse reads and writes whole files to Cloud Storage on demand. It's convenient but
   it has higher latency than an NFS server.
   * Google Cloud Storage (GCS) is not a regular file system and gcsfuse can't totally hide that.
   E.g. GCS doesn't have directories, just file paths that may contain slashes and some that end
-  with a slash. See the notes in
+  with a slash. GCS reads and writes whole files. See the notes in
   [semantics.md](https://github.com/GoogleCloudPlatform/gcsfuse/blob/master/docs/semantics.md)
   for details.
   * (For workflows run before 2019-08-18: You need to use gcsfuse's `--implicit-dirs` option since
