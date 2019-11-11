@@ -8,10 +8,12 @@ import unittest
 
 import mock
 import numpy as np
-from networkx import NetworkXUnfeasible
 
 from wholecell.io.tablereader import TableReader
 from prototypes.behavior_metrics.behavior_metrics import BehaviorMetrics
+from prototypes.behavior_metrics.dependency_graph import (
+	InvalidDependencyGraphError
+)
 
 
 class TestParseDataConfig(unittest.TestCase):
@@ -81,12 +83,15 @@ class TestParseDataConfig(unittest.TestCase):
 			"B": {"args": ["A"]},
 			"C": {"args": ["B"]},
 		}
-		with self.assertRaisesRegexp(NetworkXUnfeasible, "cycle"):
+		with self.assertRaisesRegexp(InvalidDependencyGraphError, "cycle"):
 			BehaviorMetrics.order_operations(config)
 
 	def _assertComesBefore(self, indexed_order, earlier, later):
 		# type: (Dict[str, int], str, str) -> None
-		self.assertLess(indexed_order[earlier], indexed_order[later])
+		self.assertLess(
+			indexed_order[earlier], indexed_order[later],
+			"{} does not come before {}".format(earlier, later)
+		)
 
 
 if __name__ == "__main__":

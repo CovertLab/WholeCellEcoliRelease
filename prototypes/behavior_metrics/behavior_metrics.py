@@ -8,11 +8,11 @@ import json
 from os import path
 from typing import Dict, Any, List
 
-import networkx as nx
 import numpy as np
 import pandas as pd
 
 from prototypes.behavior_metrics.tablereader_utils import read_subcolumn
+from prototypes.behavior_metrics.dependency_graph import DependencyGraph
 from wholecell.io.tablereader import TableReader
 
 
@@ -206,7 +206,7 @@ class BehaviorMetrics(object):
 			each value is the loaded data for the key.
 
 		Raises:
-			NetworkXUnfeasible: If the dependency graph created by the
+			InvalidDependencyGraphError: If the dependency graph created by the
 			operation attributes contains any cycles.
 		"""
 		loaded_data = {}
@@ -249,11 +249,11 @@ class BehaviorMetrics(object):
 			List of operation names in order of evaluation.
 
 		Raises:
-			NetworkXUnfeasible: If the dependency graph created by the
+			InvalidDependencyGraphError: If the dependency graph created by the
 			operation attributes contains any cycles.
 		"""
-		graph = nx.DiGraph()
-		graph.add_nodes_from(operation_configs.keys())
+		graph = DependencyGraph()
+		graph.add_nodes(operation_configs.keys())
 		for op_name, config in operation_configs.items():
 			if "args" in config:
 				deps = [
@@ -261,8 +261,8 @@ class BehaviorMetrics(object):
 					if arg in operation_configs.keys()
 				]
 				for dep in deps:
-					graph.add_edge(dep, op_name)
-		return list(nx.topological_sort(graph))
+					graph.add_dep_relation(op_name, dep)
+		return graph.get_topological_ordering()
 
 
 def main():
