@@ -4,7 +4,6 @@
 """
 
 from __future__ import absolute_import, division, print_function
-import json
 from os import path
 from typing import Dict, Any, List
 
@@ -14,6 +13,7 @@ import pandas as pd
 from prototypes.behavior_metrics.tablereader_utils import read_subcolumn
 from prototypes.behavior_metrics.dependency_graph import DependencyGraph
 from wholecell.io.tablereader import TableReader
+from wholecell.utils import filepath
 
 
 def calc_end_start_ratio(data):
@@ -102,8 +102,7 @@ class BehaviorMetrics(object):
 			within [expected_min, expected_max]. Pass is a boolean
 			representation of whether this is true.
 		"""
-		with open(self.metrics_conf_path, "r") as f:
-			metrics_conf = json.load(f)
+		metrics_conf = filepath.read_json_file(self.metrics_conf_path)
 		results = []
 		for metric, config in metrics_conf.items():
 			data = self.load_data_from_config(config["data"])
