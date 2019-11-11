@@ -70,7 +70,7 @@ class BehaviorMetrics(object):
 	"""Tests for model behavior metrics"""
 
 	def __init__(self, metrics_conf_path, sim_out_dir):
-		# type: (str, str)
+		# type: (str, str) -> None
 		"""Store metrics configuration path and simulation output dir
 
 		Arguments:
@@ -233,7 +233,7 @@ class BehaviorMetrics(object):
 
 	@staticmethod
 	def order_operations(operation_configs):
-		# type: (Dict[Dict[str, Any]]) -> List[str]
+		# type: (Dict[str, Dict[str, Any]]) -> List[str]
 		"""Sorts operation configs for evaluation.
 
 		Operations can take the results of other operations as input, so
