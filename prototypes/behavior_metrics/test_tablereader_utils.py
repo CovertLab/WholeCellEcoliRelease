@@ -8,7 +8,7 @@ from __future__ import absolute_import, division, print_function
 from os import path
 from shutil import rmtree
 from tempfile import mkdtemp
-from typing import Dict, List  # pylint: disable=unused-import
+from typing import Dict, List
 import unittest
 
 import numpy as np
@@ -22,9 +22,6 @@ COLUMN_NAME = "col"
 COLUMN_2_NAME = "col2"
 SUBCOL_NAMES = ["A", "B", "C", "D", "E", "F"]
 SUBCOL_2_NAMES = ["Z", "Y", "X", "W", "V", "U"]
-
-
-# pragma pylint: disable=missing-docstring
 
 
 class TestReadSubcolumn(unittest.TestCase):

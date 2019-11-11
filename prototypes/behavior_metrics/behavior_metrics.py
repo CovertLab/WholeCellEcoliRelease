@@ -6,7 +6,7 @@
 from __future__ import absolute_import, division, print_function
 import json
 from os import path
-from typing import Dict, Any, List  # pylint: disable=unused-import
+from typing import Dict, Any, List
 
 import networkx as nx
 import numpy as np
@@ -45,7 +45,6 @@ def calc_active_fraction(active_counts, inactive_counts):
 	return active_counts / (active_counts + inactive_counts)
 
 
-# pylint: disable=pointless-string-statement
 """Path from repository root to metrics configuration JSON file"""
 METRICS_CONF_PATH = "prototypes/behavior_metrics/metrics.json"
 
