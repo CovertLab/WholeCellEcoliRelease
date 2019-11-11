@@ -14,6 +14,8 @@ A few key assumptions of the model are:
 
 # Running the simulation
 
+A port of the code in the original paper is in `ppgpp_odes.py` but additions have been made in `ppgpp_odes_modified.py` (see file docstring for list of changes).  Each file can be run with the same set of options as shown in the examples below.
+
 A basic simulation without a shift can be run with the following command, which will output a plot of concentrations as they reach steady state (`ppgpp.png`) in the `output` directory.
 ```bash
 python ppgpp_odes.py

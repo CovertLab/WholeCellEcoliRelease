@@ -1,14 +1,12 @@
 #! /usr/bin/env python
 
 '''
-Direct port of Bosdriesz from mathematica file
+Modified port of Bosdriesz from mathematica file
 Uses ppGpp kinetics to model up/down shifts in nutrients
 
-Working version of the mathematica script supplied in the supplement.
-Naming convention mostly mirrors the mathematica script for easy comparison.
-Shifts in conditions are simulated as a change in AA production rate and produce
-similar results to their paper figure although not explicitly shown in their
-mathematica file.
+Modification includes:
+- mechanistic SpoT ppGpp degradation
+- adjusted parameters
 '''
 
 from __future__ import division
@@ -55,7 +53,8 @@ params = {
 	'kRelA': 75,
 	'RelAtot': 100 / (nAvogadro * cellVolume / 1e6),
 	'kDRelA': 0.26,
-	'vSpoTSynt': 0.001,
+	'vSpoTSynt': 0.1,
+	'KISpoT': 50,
 	'kSpoTdeg': np.log(2) / 30,
 	'vInitMax': 2000,
 	'rnapF': 1,
@@ -159,7 +158,7 @@ def dcdt(c, t, params, shift=0, single_shift=False, shift_time=2000, f_aa=None):
 	rtfSolutions = r * (f_aa * tf / taa * params['krta'] / params['krt']) / numeratorRibosome
 	rtfTot = np.sum(rtfSolutions)
 	vRelA = params['kRelA'] * params['RelAtot'] / (1 + params['kDRelA'] / rtfTot)
-	vSpoTdeg = params['kSpoTdeg'] * ppGpp
+	vSpoTdeg = params['kSpoTdeg'] * ppGpp / (1 + tf.sum() / params['KISpoT'])
 
 	odesAA = vAAsynt - vtRNAchar
 	odesTAA = vtRNAchar - f_aa*vribosome
