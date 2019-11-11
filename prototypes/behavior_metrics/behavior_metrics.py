@@ -45,15 +45,15 @@ def calc_active_fraction(active_counts, inactive_counts):
 	return active_counts / (active_counts + inactive_counts)
 
 
-"""Path from repository root to metrics configuration JSON file"""
+#: Path from repository root to metrics configuration JSON file
 METRICS_CONF_PATH = "prototypes/behavior_metrics/metrics.json"
 
-"""Path to the simulation output directory from repository root"""
+#: Path to the simulation output directory from repository root
 SIM_OUT_DIR = (
 	"out/manual/wildtype_000000/000000/generation_000000/000000/simOut"
 )
 
-"""Map from mode names to the functions that handle the mode"""
+#: Map from mode names to the functions that handle the mode
 MODE_FUNC_MAP = {
 	"end_start_ratio": calc_end_start_ratio,
 	"mean": np.mean,
