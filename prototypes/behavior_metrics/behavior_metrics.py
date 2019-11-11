@@ -81,9 +81,9 @@ class BehaviorMetrics(object):
 		self.metrics_conf_path = metrics_conf_path
 		self.sim_out_dir = sim_out_dir
 
-	def test_metrics(self):
+	def calc_metrics(self):
 		# type: () -> pd.DataFrame
-		"""Test all behavior metrics
+		"""Compute all behavior metrics and determine whether in bounds
 
 		For each metric defined in the configuration file, calls the
 		appropriate mode functions and checks that the results are
@@ -268,7 +268,7 @@ class BehaviorMetrics(object):
 def main():
 	"""Main function that runs tests"""
 	metrics = BehaviorMetrics(METRICS_CONF_PATH, SIM_OUT_DIR)
-	results = metrics.test_metrics()
+	results = metrics.calc_metrics()
 	pd.options.display.width = None
 	print(results)
 
