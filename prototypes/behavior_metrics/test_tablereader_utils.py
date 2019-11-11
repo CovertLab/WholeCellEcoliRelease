@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2
 
 
 """Tests for tablereader_utils utility functions"""
