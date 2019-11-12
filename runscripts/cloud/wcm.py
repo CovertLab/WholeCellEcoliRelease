@@ -29,7 +29,7 @@ class WcmWorkflow(Workflow):
 	def __init__(self, owner_id, timestamp, verbose_logging=True,
 			description='', cli_storage_root=None):
 		# type: (str, str, bool, str, Optional[str]) -> None
-		name = 'WCM_{}_{}'.format(owner_id, timestamp)
+		name = '{}_WCM_{}'.format(owner_id, timestamp)
 		super(WcmWorkflow, self).__init__(name, verbose_logging=verbose_logging)
 
 		self.owner_id = owner_id
