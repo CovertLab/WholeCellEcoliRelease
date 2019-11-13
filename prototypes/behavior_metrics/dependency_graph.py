@@ -9,15 +9,26 @@ class InvalidDependencyGraphError(Exception):
 	pass
 
 
-class DependencyGraph(object):
-	"""Represents a dependency graph"""
+class ExplorationStatus(object):
+	#: Node has not yet been visited.
+	UNEXPLORED = 1
+	#: Node has been visited but not added to list. This means that we
+	#: have not yet finished with the node.
+	EXPLORING = 2
+	#: Node has been visited and added to list.
+	EXPLORED = 3
 
-	#: Mapping from node to that node's dependents
-	dependencies = {}  # type: Dict[str, List[str]]
+
+class DependencyGraph(object):
+	"""Represents a dependency graph
+
+	Attributes:
+		dependencies: Mapping from node to that node's dependents
+	"""
 
 	def __init__(self):
 		"""Initialize dependencies to empty dictionary"""
-		self.dependencies = dict()
+		self.dependencies = {}  # type: Dict[str, List[str]]
 
 	def add_nodes(self, nodes):
 		# type: (List[str]) -> None
@@ -32,11 +43,15 @@ class DependencyGraph(object):
 
 	def add_dep_relation(self, a, b):
 		# type: (str, str) -> None
-		"""Add an edge such that a depends on b"""
-		if a in self.dependencies:
-			self.dependencies[a].append(b)
-		else:
-			self.dependencies[a] = [b]
+		"""Add an edge such that a depends on b
+
+		If a or b does not exist yet as a node, it will be created.
+
+		Arguments:
+			a: The name of the node that depends on b
+			b: The name of the node that is depended-upon by a
+		"""
+		self.dependencies.setdefault(a, []).append(b)
 		if b not in self.dependencies:
 			self.dependencies[b] = []
 
@@ -45,33 +60,35 @@ class DependencyGraph(object):
 		"""Get a topological ordering of the nodes
 
 		Returns:
-			List of denendency names such that the dependencies can be
+			List of dependency names such that the dependencies can be
 			loaded in the order in which they appear in the list without
 			violating dependency relationships.
 
 		Raises:
 			InvalidDependencyGraphError: If the graph contains a cycle
 		"""
-		explored = {name: False for name in self.dependencies}
-		rev_ordering = []  # type: List[str]
+		explored = {
+			name: ExplorationStatus.UNEXPLORED for name in self.dependencies
+		}
+		reverse_ordering = []  # type: List[str]
 		for node in self.dependencies:
-			if not explored[node]:
-				self._topo_sort_dfs(node, explored, rev_ordering)
-		return rev_ordering
+			if explored[node] != ExplorationStatus.EXPLORED:
+				self._topo_sort_dfs(node, explored, reverse_ordering)
+		return reverse_ordering
 
-	def _topo_sort_dfs(self, node, explored, rev_ordering):
+	def _topo_sort_dfs(self, node, explored, reverse_ordering):
 		# type: (str, Dict[str, bool], List[str]) -> None
-		explored[node] = True
+		explored[node] = ExplorationStatus.EXPLORING
 		for dependency in self.dependencies[node]:
-			if not explored[dependency]:
-				self._topo_sort_dfs(dependency, explored, rev_ordering)
-			else:
-				if dependency not in rev_ordering:
-					# We have reached a node that we have already
-					# visited, but that we have not added to the
-					# ordering. Thus a call to dependency is still on
-					# the stack. This means there exists a path from
-					# dependency to node, so there is a cycle.
-					raise InvalidDependencyGraphError(
-						"Dependency graphs must not contain cycles")
-		rev_ordering.append(node)
+			if explored[dependency] == ExplorationStatus.UNEXPLORED:
+				self._topo_sort_dfs(dependency, explored, reverse_ordering)
+			elif explored[dependency] == ExplorationStatus.EXPLORING:
+				# We have reached a node that we have already
+				# visited, but that we have not added to the
+				# ordering. Thus a call to dependency is still on
+				# the stack. This means there exists a path from
+				# dependency to node, so there is a cycle.
+				raise InvalidDependencyGraphError(
+					"Dependency graphs must not contain cycles")
+		reverse_ordering.append(node)
+		explored[node] = ExplorationStatus.EXPLORED
