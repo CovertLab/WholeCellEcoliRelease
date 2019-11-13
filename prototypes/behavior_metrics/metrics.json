@@ -142,5 +142,30 @@
                 "range": [0, 0]
             }
         }
+    },
+    "rnaPolymeraseActiveFraction": {
+        "data": {
+            "active_counts": {
+                "table": "UniqueMoleculeCounts",
+                "column": "uniqueMoleculeCounts",
+                "subcolumn": "activeRnaPoly"
+            },
+           "inactive_counts": {
+                "table": "BulkMolecules",
+                "column": "counts",
+                "subcolumn": "APORNAP-CPLX[c]"
+           }
+        },
+        "operations": {
+            "active_fraction": {
+                "function": "calc_active_fraction",
+                "args": ["active_counts", "inactive_counts"]
+            },
+            "mean": {
+                "function": "mean",
+                "args": ["active_fraction"],
+                "range": [0, 0]
+            }
+        }
     }
 }
