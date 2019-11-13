@@ -211,6 +211,9 @@ class BehaviorMetrics(object):
 		"""
 		loaded_data = {}
 		for source_name, source_config in data_conf_json.items():
+			if "constant" in source_config:
+				loaded_data[source_name] = source_config["constant"]
+				continue
 			if "subcolumn" in source_config:
 				data = read_subcolumn(
 					self.sim_out_dir, source_config["table"],
