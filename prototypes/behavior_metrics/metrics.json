@@ -109,7 +109,7 @@
             }
         }
     },
-    "ribosomeActiveFraction": {
+    "ribosome": {
         "data": {
             "active_counts": {
                 "table": "UniqueMoleculeCounts",
@@ -125,7 +125,11 @@
                 "table": "BulkMolecules",
                 "column": "counts",
                 "subcolumn": "CPLX0-3962[c]"
-            }
+            },
+           "volume": {
+                "table": "Mass",
+                "column": "cellVolume"
+           }
         },
         "operations": {
             "inactive_counts": {
@@ -136,14 +140,27 @@
                 "function": "calc_active_fraction",
                 "args": ["active_counts", "inactive_counts"]
             },
-            "mean": {
+            "total_counts": {
+                "function": "add_two_arrays",
+                "args": ["inactive_counts", "active_counts"]
+            },
+            "concentration": {
+                "function": "elementwise_divide",
+                "args": ["total_counts", "volume"]
+            },
+            "mean_concentration": {
+                "function": "mean",
+                "args": ["concentration"],
+                "range": [0, 0]
+            },
+            "mean_active_fraction": {
                 "function": "mean",
                 "args": ["active_fraction"],
                 "range": [0, 0]
             }
         }
     },
-    "rnaPolymeraseActiveFraction": {
+    "rnaPolymerase": {
         "data": {
             "active_counts": {
                 "table": "UniqueMoleculeCounts",
@@ -154,6 +171,10 @@
                 "table": "BulkMolecules",
                 "column": "counts",
                 "subcolumn": "APORNAP-CPLX[c]"
+           },
+           "volume": {
+                "table": "Mass",
+                "column": "cellVolume"
            }
         },
         "operations": {
@@ -161,9 +182,22 @@
                 "function": "calc_active_fraction",
                 "args": ["active_counts", "inactive_counts"]
             },
-            "mean": {
+            "mean_active_fraction": {
                 "function": "mean",
                 "args": ["active_fraction"],
+                "range": [0, 0]
+            },
+            "total_counts": {
+                "function": "add_two_arrays",
+                "args": ["active_counts", "inactive_counts"]
+            },
+            "concentration": {
+                "function": "elementwise_divide",
+                "args": ["total_counts", "volume"]
+            },
+            "mean_concentration": {
+                "function": "mean",
+                "args": ["concentration"],
                 "range": [0, 0]
             }
         }
