@@ -201,5 +201,28 @@
                 "range": [0, 0]
             }
         }
+    },
+    "doublingTime": {
+        "data": {
+            "time": {
+                "table": "Main",
+                "column": "time"
+            },
+            "start_time": {
+                "table": "Main",
+                "attribute": "initialTime"
+            }
+        },
+        "operations": {
+            "end_time": {
+                "function": "last_elem",
+                "args": ["time"]
+            },
+            "doubling_time": {
+                "function": "scalar_subtract",
+                "args": ["end_time", "start_time"],
+                "range": [0, 0]
+            }
+        }
     }
 }
