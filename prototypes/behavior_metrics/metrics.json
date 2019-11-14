@@ -224,5 +224,61 @@
                 "range": [0, 0]
             }
         }
+    },
+    "translationElongationRate": {
+        "data": {
+            "rate": {
+                "table": "RibosomeData",
+                "column": "effectiveElongationRate"
+            }
+        },
+        "operations": {
+            "mean": {
+                "function": "mean",
+                "args": ["rate"],
+                "range": [0, 0]
+            }
+        }
+    },
+    "transcriptionElongationRate": {
+        "data": {
+            "bases": {
+                "table": "TranscriptElongationListener",
+                "column": "countNTPsUSed"
+            },
+            "time": {
+                "table": "Main",
+                "column": "time"
+            },
+            "initial_time": {
+                "table": "Main",
+                "attribute": "initialTime"
+            },
+            "slice_start": {
+                "constant": 1
+            },
+            "slice_end": {
+                "constant": null
+            }
+        },
+        "operations": {
+            "time_deltas": {
+                "function": "pairwise_diffs",
+                "args": ["time"]
+            },
+            "all_but_first_bases": {
+                "function": "slice",
+                "args": ["bases", "slice_start", "slice_end"]
+            },
+            "rate": {
+                "function": "elementwise_divide",
+                "args": ["all_but_first_bases", "time_deltas"]
+            },
+            "mean": {
+                "function": "mean",
+                "args": ["rate"],
+                "range": [0, 0]
+            }
+        }
     }
 }

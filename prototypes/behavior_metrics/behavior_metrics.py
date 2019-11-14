@@ -64,6 +64,10 @@ MODE_FUNC_MAP = {
 	"calc_active_fraction": calc_active_fraction,
 	"elementwise_min": np.minimum,
 	"elementwise_divide": np.divide,
+	"last_elem": lambda x: x[-1],
+	"scalar_subtract": lambda x, y: x - y,
+	"pairwise_diffs": lambda x: np.diff(x),
+	"slice": lambda arr, start, end: arr[start:end],
 }
 
 
