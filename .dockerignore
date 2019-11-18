@@ -30,6 +30,7 @@ coverage.xml
 nosetests.xml
 nosetests.*.xml
 .pytest_cache
+/unittests.xml
 
 # IPython notebook files #
 ##########################
