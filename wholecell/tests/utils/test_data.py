@@ -6,6 +6,8 @@ import nose.plugins.attrib as noseAttrib
 import nose.tools
 import unittest
 
+import pytest
+
 from wholecell.utils import data
 
 
@@ -24,7 +26,7 @@ class Test_data(unittest.TestCase):
 		self.assertEqual(d1, source)
 		self.assertIsNot(d1, source)
 
-		with nose.tools.assert_raises(KeyError):
+		with pytest.raises(KeyError):
 			data.dissoc_strict(source, (100, 200))
 
 	def test_select_keys(self):
@@ -33,7 +35,7 @@ class Test_data(unittest.TestCase):
 		self.assertEqual({'x1': 10, 'x4': 40}, d1)
 
 		# Expect absent keys to raise KeyError.
-		with nose.tools.assert_raises(KeyError):
+		with pytest.raises(KeyError):
 			data.select_keys(source, ('x2', '100'))
 
 		# Test added keys.

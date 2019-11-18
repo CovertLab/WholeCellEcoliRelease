@@ -12,6 +12,8 @@ import shutil
 import tempfile
 import unittest
 
+import pytest
+
 from wholecell.utils import filepath
 
 
@@ -34,9 +36,9 @@ class Test_filepath(unittest.TestCase):
 		self.assertFalse(os.path.exists(expected_path))
 
 		# Test creating a directory path.
-		with nose.tools.assert_raises(IOError):
+		with pytest.raises(IOError):
 			filepath.verify_file_exists(expected_path)
-		with nose.tools.assert_raises(IOError):
+		with pytest.raises(IOError):
 			filepath.verify_dir_exists(expected_path)
 		full_path = filepath.makedirs(self.test_dir, directories)
 		self.assertEqual(full_path, expected_path)
@@ -46,18 +48,18 @@ class Test_filepath(unittest.TestCase):
 		full_path2 = filepath.makedirs(self.test_dir, 'this', 'is', 'a/test')
 		self.assertEqual(full_path2, expected_path)
 		self.assertTrue(os.path.exists(expected_path))
-		with nose.tools.assert_raises(IOError):
+		with pytest.raises(IOError):
 			filepath.verify_file_exists(expected_path)
 		filepath.verify_dir_exists(expected_path)
 
 		# Test failure to create a directory path because a data file is there.
 		filename = 'data'
 		output_path = os.path.join(full_path, filename)
-		with nose.tools.assert_raises(IOError):
+		with pytest.raises(IOError):
 			filepath.verify_file_exists(expected_path)
 		filepath.write_file(output_path, 'hi')
 		filepath.verify_file_exists(output_path)
-		with nose.tools.assert_raises(OSError):
+		with pytest.raises(OSError):
 			filepath.makedirs(self.test_dir, directories, filename)
 
 	def test_timestamp(self):
