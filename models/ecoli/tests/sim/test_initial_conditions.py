@@ -11,7 +11,6 @@ from __future__ import division
 
 import unittest
 import warnings
-import nose.plugins.attrib as noseAttrib
 
 import numpy as np
 import cPickle
@@ -41,7 +40,6 @@ class Test_InitialConditions(unittest.TestCase):
 		pass
 
 
-	@noseAttrib.attr('replicationTest')
 	def test_num_forks(self):
 
 		# When (C + D) / tau is less than one, no replication will have started
@@ -124,7 +122,6 @@ class Test_InitialConditions(unittest.TestCase):
 		self.assertEqual(expected_num_forks, len(replisome_state["domain_index"]))
 
 
-	@noseAttrib.attr('replicationTest')
 	def test_fork_coordinates(self):
 
 		C = 70. * units.min
@@ -216,7 +213,6 @@ class Test_InitialConditions(unittest.TestCase):
 			n += 1
 
 
-	@noseAttrib.attr('replicationTest')
 	def test_maximum_domain_index(self):
 
 		# When (C + D) / tau is less than one, no replication will have started
@@ -277,7 +273,6 @@ class Test_InitialConditions(unittest.TestCase):
 		self.assertEqual(30, domain_state["domain_index"].max())
 
 
-	@noseAttrib.attr('replicationTest')
 	def test_determine_chromosome_state_inputs(self):
 
 		# The D period must be shorter than tau
@@ -329,7 +324,6 @@ class Test_InitialConditions(unittest.TestCase):
 		self.assertEqual("replichore_length value can't be negative.", context.exception.message)
 
 
-	@noseAttrib.attr('replicationTest')
 	def test_num_oriCs(self):
 
 		# When (C + D) / tau is less than one, no replication will have started

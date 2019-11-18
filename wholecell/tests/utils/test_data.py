@@ -2,8 +2,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-import nose.plugins.attrib as noseAttrib
-import nose.tools
 import unittest
 
 import pytest
@@ -11,7 +9,6 @@ import pytest
 from wholecell.utils import data
 
 
-@noseAttrib.attr('smalltest', 'data')
 class Test_data(unittest.TestCase):
 
 	def test_dissoc_and_dissoc_strict(self):

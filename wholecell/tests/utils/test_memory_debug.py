@@ -23,7 +23,6 @@ which to run the __del__() methods."
 from __future__ import absolute_import, division, print_function
 
 import gc
-import nose.plugins.attrib as noseAttrib
 import unittest
 
 from wholecell.utils import memory_debug
@@ -48,7 +47,6 @@ class TestMemoryDebugNode(object):
 
 
 class Test_memory_debug(unittest.TestCase):
-	@noseAttrib.attr('smalltest')
 	def test_memory_debug(self):
 		precount = len(gc.garbage)
 

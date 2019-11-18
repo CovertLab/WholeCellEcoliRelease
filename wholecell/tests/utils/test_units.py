@@ -1,13 +1,11 @@
 from __future__ import absolute_import, division, print_function
 
 import unittest
-import nose.plugins.attrib as noseAttrib
 import numpy as np
 
 from wholecell.utils import units
 
 
-@noseAttrib.attr('smalltest', 'units')
 class Test_units(unittest.TestCase):
 
 	def test_basics(self):

@@ -16,7 +16,6 @@ import tempfile
 
 import numpy as np
 import numpy.testing as npt
-import nose.plugins.attrib as noseAttrib
 
 from wholecell.containers.unique_objects_container import (
 	UniqueObjectsContainer, UniqueObjectsContainerException,
@@ -45,7 +44,6 @@ TEST_KB = {
 	}
 
 
-@noseAttrib.attr('smalltest', 'uniqueObjects', 'containerObject')
 class Test_UniqueObjectsContainer(unittest.TestCase):
 	def setUp(self):
 		self.container = createContainer()

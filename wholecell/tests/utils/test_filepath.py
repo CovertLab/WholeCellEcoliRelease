@@ -5,8 +5,6 @@ Test the filepath utility.
 from __future__ import absolute_import
 from __future__ import division
 
-import nose.plugins.attrib as noseAttrib
-import nose.tools
 import os
 import shutil
 import tempfile
@@ -17,7 +15,6 @@ import pytest
 from wholecell.utils import filepath
 
 
-@noseAttrib.attr('smalltest', 'filepath')
 class Test_filepath(unittest.TestCase):
 
 	def setUp(self):

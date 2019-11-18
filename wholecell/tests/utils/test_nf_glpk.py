@@ -4,7 +4,6 @@ from __future__ import absolute_import
 from __future__ import division
 
 import unittest
-import nose.plugins.attrib as noseAttrib
 
 import swiglpk as glp
 
@@ -14,7 +13,6 @@ from wholecell.utils._netflow.nf_glpk import (MessageLevel, NetworkFlowGLPK,
 
 class Test_NetworkFlowGLPK(unittest.TestCase):
 
-	@noseAttrib.attr("smalltest", "fba")
 	def test_swiglpk(self):
 		"""Test the underlying GLPK lib and its SWIG interface based on
 		the example from https://github.com/biosustain/swiglpk
@@ -74,7 +72,6 @@ class Test_NetworkFlowGLPK(unittest.TestCase):
 
 		glp.glp_delete_prob(lp)
 
-	@noseAttrib.attr("smalltest", "fba")
 	def test_nf_glpk(self):
 		"""Test the NetworkFlowGLPK interface to GLPK."""
 		nf = NetworkFlowGLPK()

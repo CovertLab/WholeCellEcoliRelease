@@ -12,7 +12,6 @@ from wholecell.utils.unit_struct_array import UnitStructArray
 from wholecell.utils.units import g, mol
 import numpy as np
 
-import nose.plugins.attrib as noseAttrib
 import unittest
 
 
@@ -23,7 +22,6 @@ class Test_unit_struct_array(unittest.TestCase):
 		self.units = {'id' : None, 'mass' : g}
 		self.us_array = UnitStructArray(self.struct_array, self.units)
 
-	@noseAttrib.attr('smalltest','unitstructarray')
 	def test_init(self):
 		with self.assertRaises(Exception) as context:
 			UnitStructArray(1., {'hello' : 'goodbye'})
@@ -38,7 +36,6 @@ class Test_unit_struct_array(unittest.TestCase):
 			UnitStructArray(self.struct_array, self.units)
 		self.assertEqual(context.exception.message, 'Struct array fields do not match unit fields!\n')
 
-	@noseAttrib.attr('smalltest','unitstructarray')
 	def test_field(self):
 		self.assertEqual(
 			self.us_array['id'].tolist(),
@@ -49,27 +46,23 @@ class Test_unit_struct_array(unittest.TestCase):
 			(self.us_array['mass'] == g * self.struct_array['mass']).all()
 			)
 
-	@noseAttrib.attr('smalltest','unitstructarray')
 	def test_fullArray(self):
 		self.assertTrue(
 			(self.us_array.fullArray() == self.struct_array).all()
 			)
 
-	@noseAttrib.attr('smalltest','unitstructarray')
 	def test_fullUnits(self):
 		self.assertEqual(
 			self.us_array.fullUnits(),
 			self.units
 			)
 
-	@noseAttrib.attr('smalltest','unitstructarray')
 	def test_getItem_slice(self):
 		self.assertEqual(
 			self.us_array[:1],
 			UnitStructArray(self.struct_array[:1], self.units)
 			)
 
-	@noseAttrib.attr('smalltest','unitstructarray')
 	def test_getItem_indicies(self):
 		index = [0,2]
 
@@ -85,7 +78,6 @@ class Test_unit_struct_array(unittest.TestCase):
 			UnitStructArray(self.struct_array[index], self.units)
 			)
 
-	@noseAttrib.attr('smalltest','unitstructarray')
 	def test_getItem_singleindex(self):
 		self.assertEqual(
 			self.us_array[0],
@@ -93,7 +85,6 @@ class Test_unit_struct_array(unittest.TestCase):
 			)
 
 
-	@noseAttrib.attr('smalltest','unitstructarray')
 	def test_setItem_quantity_with_units(self):
 		self.us_array['mass'] = g * np.array([1.,2.,3.])
 		self.assertTrue(
@@ -105,7 +96,6 @@ class Test_unit_struct_array(unittest.TestCase):
 		self.assertEqual(context.exception.message, 'Units do not match!\n')
 
 
-	@noseAttrib.attr('smalltest','unitstructarray')
 	def test_setItem_quantity_no_units(self):
 		self.us_array['id'] = ['nick', 'derek', 'john']
 
