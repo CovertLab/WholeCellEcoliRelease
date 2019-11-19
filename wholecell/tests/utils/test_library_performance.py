@@ -222,7 +222,7 @@ class Test_library_performance(unittest.TestCase):
 
 	def test_int_dot_int(self):
 		"""Time NumPy int64 x int64 matrix dot()."""
-		N = np.random.random_integers(0, 9, size=(1000, 1000))
+		N = np.random.randint(0, 10, size=(1000, 1000))
 		self.time_this(lambda: N.dot(N), 5.0)  # SLOW!
 
 	def test_int_dot_floated_int(self):
@@ -233,18 +233,18 @@ class Test_library_performance(unittest.TestCase):
 		(2) BLAS has no integer type, and
 		(3) the libraries don't parallelize integer matrix multiply.
 		"""
-		N = np.random.random_integers(0, 9, size=(1000, 1000))
+		N = np.random.randint(0, 10, size=(1000, 1000))
 		self.time_this(lambda: N.dot(N * 1.0), 0.3)
 
 	@unittest.skip('pretty much the same as test_int_dot_floated_int()')
 	def test_floated_int_dot_int(self):
 		"""Time NumPy integer x float(integer) matrix dot()."""
-		N = np.random.random_integers(0, 9, size=(1000, 1000))
+		N = np.random.randint(0, 10, size=(1000, 1000))
 		self.time_this(lambda: (N * 1.0).dot(N), 0.3)
 
 	def test_int_dot_float(self):
 		"""Time NumPy integer x float matrix dot()."""
-		N = np.random.random_integers(0, 9, size=(1000, 1000))
+		N = np.random.randint(0, 10, size=(1000, 1000))
 		M = np.random.random(size=(1000, 1000))
 		self.time_this(lambda: N.dot(M), 0.3)
 
@@ -252,14 +252,14 @@ class Test_library_performance(unittest.TestCase):
 	def test_float_dot_int(self):
 		"""Time NumPy float x integer matrix dot()."""
 		M = np.random.random(size=(1000, 1000))
-		N = np.random.random_integers(0, 9, size=(1000, 1000))
+		N = np.random.randint(0, 10, size=(1000, 1000))
 		self.time_this(lambda: M.dot(N), 0.3)
 
 	def test_int_to_float32_dot_and_back(self):
 		"""Time NumPy integer matrix converted to float32, dot(), and
 		back. This can be twice as fast as float (float64) math.
 		"""
-		N = np.random.random_integers(0, 9999, size=(1000, 1000))
+		N = np.random.randint(0, 10000, size=(1000, 1000))
 		M = np.random.random(size=(1000, 1000))
 		self.time_this(lambda: N.astype(np.float32)
 					   .dot(M.astype(np.float32)).astype(np.float32),
