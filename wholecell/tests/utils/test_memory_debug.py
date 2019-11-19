@@ -1,12 +1,12 @@
 """Test the memory_debug utility.
 
-Running it this way reveals the stdout messages about TestMemoryDebugNode IDs:
+Running it this way reveals the stdout messages about MockMemoryDebugNode IDs:
 	python -m wholecell.tests.utils.test_memory_debug
 
 In any case, you should see GC messages like:
-	gc: uncollectable <TestMemoryDebugNode 0x110118050>
-	gc: uncollectable <TestMemoryDebugNode 0x110118090>
-	gc: uncollectable <TestMemoryDebugNode 0x110118110>
+	gc: uncollectable <MockMemoryDebugNode 0x110118050>
+	gc: uncollectable <MockMemoryDebugNode 0x110118090>
+	gc: uncollectable <MockMemoryDebugNode 0x110118110>
 	gc: uncollectable <dict 0x1101124b0>
 	gc: uncollectable <dict 0x110112a28>
 
@@ -28,7 +28,7 @@ import unittest
 from wholecell.utils import memory_debug
 
 
-class TestMemoryDebugNode(object):
+class MockMemoryDebugNode(object):
 	def __init__(self, name):
 		self.name = str(name)
 		self.link = None
@@ -51,7 +51,7 @@ class Test_memory_debug(unittest.TestCase):
 		precount = len(gc.garbage)
 
 		with memory_debug.detect_leaks(enabled=True):
-			nodes = [TestMemoryDebugNode(i) for i in xrange(6)]
+			nodes = [MockMemoryDebugNode(i) for i in xrange(6)]
 
 			# N0 -> N1 -> N2 are not in a cycle and should be collectable.
 			nodes[0].link = nodes[1]
