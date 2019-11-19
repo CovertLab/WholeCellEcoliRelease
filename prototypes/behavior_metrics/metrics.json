@@ -1,67 +1,145 @@
 {
     "proteinMass": {
-        "table": "Mass",
-        "column": "proteinMass",
-        "modes": {
+        "data": {
+            "mass": {
+                "table": "Mass",
+                "column": "proteinMass"
+            }
+        },
+        "operations": {
             "end_start_ratio": {
+                "function": "end_start_ratio",
+                "args": ["mass"],
                 "range": [1.9, 2.1]
             },
             "mean": {
+                "function": "mean",
+                "args": ["mass"],
                 "range": [0, 0]
             },
             "stdev": {
+                "function": "stdev",
+                "args": ["mass"],
                 "range": [0, 0]
             },
             "min": {
+                "function": "min",
+                "args": ["mass"],
                 "range": [0, 0]
             },
             "max": {
+                "function": "max",
+                "args": ["mass"],
                 "range": [0, 0]
             }
         }
     },
     "tRnaMass": {
-        "table": "Mass",
-        "column": "tRnaMass",
-        "modes": {
+        "data": {
+            "mass": {
+                "table": "Mass",
+                "column": "tRnaMass"
+            }
+        },
+        "operations": {
             "end_start_ratio": {
+                "function": "end_start_ratio",
+                "args": ["mass"],
                 "range": [1.9, 2.1]
             }
         }
     },
     "rRnaMass": {
-        "table": "Mass",
-        "column": "rRnaMass",
-        "modes": {
+        "data": {
+            "mass": {
+                "table": "Mass",
+                "column": "rRnaMass"
+            }
+        },
+        "operations": {
             "end_start_ratio": {
+                "function": "end_start_ratio",
+                "args": ["mass"],
                 "range": [1.9, 2.1]
             }
         }
     },
     "mRnaMass": {
-        "table": "Mass",
-        "column": "mRnaMass",
-        "modes": {
+        "data": {
+            "mass": {
+                "table": "Mass",
+                "column": "mRnaMass"
+            }
+        },
+        "operations": {
             "end_start_ratio": {
+                "function": "end_start_ratio",
+                "args": ["mass"],
                 "range": [1.9, 2.1]
             }
         }
     },
     "dnaMass": {
-        "table": "Mass",
-        "column": "dnaMass",
-        "modes": {
+        "data": {
+            "mass": {
+                "table": "Mass",
+                "column": "dnaMass"
+            }
+        },
+        "operations": {
             "end_start_ratio": {
+                "function": "end_start_ratio",
+                "args": ["mass"],
                 "range": [1.9, 2.1]
             }
         }
     },
     "smallMoleculeMass": {
-        "table": "Mass",
-        "column": "smallMoleculeMass",
-        "modes": {
+        "data": {
+            "mass": {
+                "table": "Mass",
+                "column": "smallMoleculeMass"
+            }
+        },
+        "operations": {
             "end_start_ratio": {
+                "function": "end_start_ratio",
+                "args": ["mass"],
                 "range": [1.9, 2.1]
+            }
+        }
+    },
+    "ribosomeActiveFraction": {
+        "data": {
+            "active_counts": {
+                "table": "UniqueMoleculeCounts",
+                "column": "uniqueMoleculeCounts",
+                "subcolumn": "activeRibosome"
+            },
+            "s30_counts": {
+                "table": "BulkMolecules",
+                "column": "counts",
+                "subcolumn": "CPLX0-3953[c]"
+            },
+            "s50_counts": {
+                "table": "BulkMolecules",
+                "column": "counts",
+                "subcolumn": "CPLX0-3962[c]"
+            }
+        },
+        "operations": {
+            "inactive_counts": {
+                "function": "elementwise_min",
+                "args": ["s30_counts", "s50_counts"]
+            },
+            "active_fraction": {
+                "function": "calc_active_fraction",
+                "args": ["active_counts", "inactive_counts"]
+            },
+            "mean": {
+                "function": "mean",
+                "args": ["active_fraction"],
+                "range": [0, 0]
             }
         }
     }

@@ -13,6 +13,11 @@ from wholecell.utils import constants
 import wholecell.utils.filepath as fp
 from models.ecoli.sim.variants import apply_variant
 
+DEFAULT_EMITTER = {
+	'type': 'database',
+	'url': 'localhost:27017',
+	'database': 'simulations',
+	}
 
 def initialize_ecoli(config):
 	'''
@@ -80,7 +85,9 @@ def ecoli_boot_config(agent_config):
 	variant_index = agent_config.get('variant_index', 0)
 	seed = agent_config.get('seed', 0)
 	volume = agent_config.get('volume', 1.0)
-	index = agent_config.get('index', 0)
+	cell_id = agent_config.get('cell_id')
+	tagged_molecules = agent_config.get('tagged_molecules', ['CDPDIGLYSYN-MONOMER[i]']) # default tag cdsA protein
+	emitter_config = agent_config.get('emitter_config', DEFAULT_EMITTER)
 
 	# initialize state
 	state = {
@@ -88,12 +95,14 @@ def ecoli_boot_config(agent_config):
 		'environment_change': {}}
 	agent_config['declare'] = state
 
-	# TODO -- get actual cohort and cell ids
-	# TODO -- change analysis scripts to allow the agent_id to be used here
-	# TODO -- need to count number of initialized cells so that they won't over-write each other as 000000
-	cohort_id = '%06d' % 0  # analysis scripts require starting with 0
+	# TODO -- get cohort id (initial cell_id) from lineage trace
+	# TODO -- change analysis scripts to allow the cell_id to be used. analysis scripts require starting with 0
+	cohort_id = '%06d' % 0
 	generation_id = 'generation_%06d' % generation
-	cell_id = '%06d' % index # analysis scripts require starting with 0
+
+	# add experiment_id and simulation_id to emitter config (as in lattice_compartment)
+	emitter_config['experiment_id'] = outer_id
+	emitter_config['simulation_id'] = cell_id
 
 	# make options for boot config
 	sim_out_path = fp.makedirs(working_dir, 'out')
@@ -121,7 +130,9 @@ def ecoli_boot_config(agent_config):
 		"massDistribution":       True,
 		"growthRateNoise":        False,
 		"dPeriodDivision":        False,
-		"translationSupply":      True}
+		"translationSupply":      True,
+		"tagged_molecules":       tagged_molecules,
+		"emitter_config":         emitter_config}
 
 	# Write a metadata file to aid analysis plots.
 	metadata = {
@@ -149,6 +160,7 @@ def boot_ecoli(agent_id, agent_type, agent_config):
 	if 'outer_id' not in agent_config:
 		raise ValueError("--outer-id required")
 
+	agent_config['cell_id'] = agent_id
 	agent_config['boot_config'] = ecoli_boot_config(agent_config)
 
 	inner = Inner(
