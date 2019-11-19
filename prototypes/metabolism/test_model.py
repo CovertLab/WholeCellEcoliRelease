@@ -69,69 +69,69 @@ def main():
 		[0], # Biomass
 		])
 
-# metabolic_reactions = np.array([
-# 	# R1
-# 	[-1], # A
-# 	[-2], # B
-# 	[ 0], # Aext
-# 	[ 0], # biomass
-# 	])
+	# metabolic_reactions = np.array([
+	# 	# R1
+	# 	[-1], # A
+	# 	[-2], # B
+	# 	[ 0], # Aext
+	# 	[ 0], # biomass
+	# 	])
 
-# transport_rxns = np.array([
-# 	# T1
-# 	[-1], # A
-# 	[-2], # B
-# 	[ 0], # Aext
-# 	[ 0], # biomass
-# 	])
+	# transport_rxns = np.array([
+	# 	# T1
+	# 	[-1], # A
+	# 	[-2], # B
+	# 	[ 0], # Aext
+	# 	[ 0], # biomass
+	# 	])
 
-# source_reactions = np.array([
-# 	# SA  Sbiomass
-# 	[ 0,  0], # A
-# 	[ 0,  0], # B
-# 	[ 1,  0], # Aext
-# 	[ 0, -1], # biomass
-# 	])
+	# source_reactions = np.array([
+	# 	# SA  Sbiomass
+	# 	[ 0,  0], # A
+	# 	[ 0,  0], # B
+	# 	[ 1,  0], # Aext
+	# 	[ 0, -1], # biomass
+	# 	])
 
-# biomass_reaction = np.array([
-# 	[ 0], # A
-# 	[-1], # B
-# 	[ 0], # Aext
-# 	[ 1], # biomass
-# 	])
-
-
-# max_fluxes = np.array([
-# 	[np.inf], # R1
-# 	[np.inf], # T1
-# 	[np.inf], # SA
-# 	[np.inf], # Sbiomass
-# 	[np.inf], # Biomass
-# 	])
+	# biomass_reaction = np.array([
+	# 	[ 0], # A
+	# 	[-1], # B
+	# 	[ 0], # Aext
+	# 	[ 1], # biomass
+	# 	])
 
 
-# min_fluxes = np.array([
-# 	[-np.inf], # R1
-# 	[-np.inf], # T1
-# 	[-np.inf], # SA
-# 	[-np.inf], # Sbiomass
-# 	[-np.inf], # Biomass
-# 	])
+	# max_fluxes = np.array([
+	# 	[np.inf], # R1
+	# 	[np.inf], # T1
+	# 	[np.inf], # SA
+	# 	[np.inf], # Sbiomass
+	# 	[np.inf], # Biomass
+	# 	])
 
 
-# S_matrix = np.hstack((metabolic_reactions,  transport_rxns, source_reactions,  biomass_reaction))
+	# min_fluxes = np.array([
+	# 	[-np.inf], # R1
+	# 	[-np.inf], # T1
+	# 	[-np.inf], # SA
+	# 	[-np.inf], # Sbiomass
+	# 	[-np.inf], # Biomass
+	# 	])
+
+
+	# S_matrix = np.hstack((metabolic_reactions,  transport_rxns, source_reactions,  biomass_reaction))
 	S_matrix = np.hstack((metabolic_reactions, transport_rxns, source_reactions, biomass_reaction))
 
 	num_metabolites, num_reactions = S_matrix.shape
 
-# Construct the problem.
+	# Construct the problem.
 	fluxes = cvxpy.Variable(num_reactions)
 
-# One-hot vector indicating location of biomass reaction
+	# One-hot vector indicating location of biomass reaction
 	c = np.zeros((1,num_reactions))
 	c[:,-1] = 1
 
-# Maximize biomass reaction
+	# Maximize biomass reaction
 	objective = cvxpy.Maximize(c*fluxes)
 
 	constraints = [
@@ -142,13 +142,13 @@ def main():
 
 	prob = cvxpy.Problem(objective, constraints)
 
-# The optimal objective is returned by prob.solve().
+	# The optimal objective is returned by prob.solve().
 	result = prob.solve(solver=cvxpy.GUROBI)
-# The optimal value for x is stored in x.value.
+	# The optimal value for x is stored in x.value.
 	print fluxes.value
-# The optimal Lagrange multiplier for a constraint
-# is stored in constraint.dual_value.
-# print constraints[0].dual_value
+	# The optimal Lagrange multiplier for a constraint
+	# is stored in constraint.dual_value.
+	# print constraints[0].dual_value
 
 if __name__ == "__main__":
 	main()
