@@ -154,7 +154,7 @@ class Test_InitialConditions(unittest.TestCase):
 		oric_state, replisome_state, domain_state = determine_chromosome_state(
 			C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 		fork_coordinates = replisome_state["coordinates"]
-	
+
 		limit = np.floor((C.asNumber() + D.asNumber())/tau.asNumber())
 		n = 1
 		while n <= limit:
@@ -248,7 +248,7 @@ class Test_InitialConditions(unittest.TestCase):
 		# There should be equal numbers of zeros and ones in the chromosomeIndex array (excepting the first four)
 		self.assertEqual(6, domain_state["domain_index"].max())
 
-		
+
 		# When (C + D) / tau is between three and four, three replication generations will have started
 		C = 50. * units.min
 		D = 19. * units.min
@@ -276,52 +276,61 @@ class Test_InitialConditions(unittest.TestCase):
 	def test_determine_chromosome_state_inputs(self):
 
 		# The D period must be shorter than tau
-		with self.assertRaises(AssertionError) as context:
+		with self.assertRaisesRegexp(
+			AssertionError,
+			"^The D period must be shorter than the doubling time tau.$"
+		):
 			C = 50. * units.min
 			D = 20. * units.min
 			tau = 19. * units.min
-			replichore_length = 2319838  * units.nt
+			replichore_length = 2319838 * units.nt
 			oric_state, replisome_state, domain_state = determine_chromosome_state(
 				C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
-		self.assertEqual("The D period must be shorter than the doubling time tau.", context.exception.message)
-
 
 		# No inputs can have negative values
-		with self.assertRaises(AssertionError) as context:
+		with self.assertRaisesRegexp(
+			AssertionError,
+			"^C value can't be negative.$"
+		):
 			C = -50. * units.min
 			D = 20. * units.min
 			tau = 60. * units.min
-			replichore_length = 2319838  * units.nt
+			replichore_length = 2319838 * units.nt
 			oric_state, replisome_state, domain_state = determine_chromosome_state(
 				C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
-		self.assertEqual("C value can't be negative.", context.exception.message)
 
-		with self.assertRaises(AssertionError) as context:
+		with self.assertRaisesRegexp(
+			AssertionError,
+			"^D value can't be negative.$"
+		):
 			C = 50. * units.min
 			D = -20. * units.min
 			tau = 60. * units.min
-			replichore_length = 2319838  * units.nt
+			replichore_length = 2319838 * units.nt
 			oric_state, replisome_state, domain_state = determine_chromosome_state(
 				C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
-		self.assertEqual("D value can't be negative.", context.exception.message)
 
-		with self.assertRaises(AssertionError) as context:
+		with self.assertRaisesRegexp(
+			AssertionError,
+			"^tau value can't be negative.$"
+		):
 			C = 50. * units.min
 			D = 20. * units.min
 			tau = -60. * units.min
-			replichore_length = 2319838  * units.nt
+			replichore_length = 2319838 * units.nt
 			oric_state, replisome_state, domain_state = determine_chromosome_state(
 				C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
-		self.assertEqual("tau value can't be negative.", context.exception.message)
 
-		with self.assertRaises(AssertionError) as context:
+		with self.assertRaisesRegexp(
+			AssertionError,
+			"^replichore_length value can't be negative.$"
+		):
 			C = 50. * units.min
 			D = 20. * units.min
 			tau = 60. * units.min
-			replichore_length = -2319838  * units.nt
+			replichore_length = -2319838 * units.nt
 			oric_state, replisome_state, domain_state = determine_chromosome_state(
 				C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
-		self.assertEqual("replichore_length value can't be negative.", context.exception.message)
 
 
 	def test_num_oriCs(self):
