@@ -5,7 +5,7 @@ from __future__ import absolute_import, division, print_function
 from runscripts.cloud.util.workflow_cli import WorkflowCLI
 
 
-class MockWorkflow(WorkflowCLI):
+class TestWorkflow(WorkflowCLI):
 	"""A test workflow for integration and regression tests of the cloud
 	workflow software.
 
@@ -108,4 +108,4 @@ class MockWorkflow(WorkflowCLI):
 
 
 if __name__ == '__main__':
-	MockWorkflow().cli()
+	TestWorkflow().cli()
