@@ -2,7 +2,7 @@
 Test polymerize.py
 
 	cd wcEcoli
-	nosetests wholecell/tests/utils/test_polymerize.py
+	pytest wholecell/tests/utils/test_polymerize.py
 
 @author: Nick Ruggero
 @organization: Covert Lab, Department of Chemical Engineering, Stanford University
@@ -15,14 +15,11 @@ from wholecell.utils.polymerize import (buildSequences, polymerize,
 import numpy as np
 from numpy.testing import assert_equal
 
-import nose.plugins.attrib as noseAttrib
 import unittest
 
 P = polymerize.PAD_VALUE
 
 
-@noseAttrib.attr('polymerizeNew')
-@noseAttrib.attr('smalltest')
 class Test_polymerize(unittest.TestCase):
 
 	@classmethod
@@ -109,7 +106,6 @@ class Test_polymerize(unittest.TestCase):
 		# Good calls test
 		polymerize(sequences, baseAmounts, energy, np.random.RandomState(), rates)
 
-	@noseAttrib.attr('energyLimited')
 	def test_polymerize_testEnergyLimited(self):
 		sequences = np.array([
 			[0, 1, 0, 1],

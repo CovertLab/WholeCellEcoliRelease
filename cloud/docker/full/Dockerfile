@@ -17,7 +17,7 @@
 #
 # It will start a shell where you can execute commands:
 #
-#     # nosetests
+#     # pytest
 #
 # If this succeeds you should be good to go, e.g.:
 #

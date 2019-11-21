@@ -11,7 +11,6 @@ Test_BulkMolecules_partition.py
 from __future__ import division
 
 import unittest
-import nose.plugins.attrib as noseAttrib
 import cPickle
 import os
 
@@ -42,7 +41,6 @@ class Test_BulkMolecules_partition(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	@noseAttrib.attr('smalltest')
 	def test_relativeAllocation(self):
 		'''
 		Tests that relative allocation works. All partitions are of lower priority.
@@ -66,7 +64,6 @@ class Test_BulkMolecules_partition(unittest.TestCase):
 
 		self.assertEqual(countsBulkPartitioned.tolist(), countsBulkPartitioned_test.tolist())
 
-	@noseAttrib.attr('smalltest')
 	def test_absoluteAllocation(self):
 		'''
 		Tests that relative allocation works with one higher priority partition.
@@ -85,7 +82,6 @@ class Test_BulkMolecules_partition(unittest.TestCase):
 
 		self.assertEqual(countsBulkPartitioned.tolist(), countsBulkPartitioned_test.tolist())
 
-	@noseAttrib.attr('smalltest')
 	def test_absoluteAllocation_withConflict(self):
 		'''
 		Tests that if two partitions are of higher priority and conflict that partitioning still works.

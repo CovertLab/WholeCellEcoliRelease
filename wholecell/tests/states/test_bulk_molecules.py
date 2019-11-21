@@ -13,7 +13,6 @@ import unittest
 
 import numpy as np
 import numpy.testing as npt
-import nose.plugins.attrib as noseAttrib
 
 from wholecell.states.internal_state import InternalState
 from wholecell.processes.process import Process
@@ -42,7 +41,6 @@ class Test_BulkMolecules(unittest.TestCase):
 		self.moleculeView = BulkMoleculeView(self.state, self.process,
 			OBJECT_NAMES[0])
 
-	@noseAttrib.attr('smalltest', 'bulkMolecules')
 	def test_counts(self):
 		moleculesView = self.moleculesView
 		npt.assert_equal(moleculesView.counts(), [[OBJECT_COUNTS]] * 3)

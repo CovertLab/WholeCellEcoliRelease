@@ -1,12 +1,12 @@
 """Test the memory_debug utility.
 
-Running it this way reveals the stdout messages about TestMemoryDebugNode IDs:
+Running it this way reveals the stdout messages about MemoryDebugNode IDs:
 	python -m wholecell.tests.utils.test_memory_debug
 
 In any case, you should see GC messages like:
-	gc: uncollectable <TestMemoryDebugNode 0x110118050>
-	gc: uncollectable <TestMemoryDebugNode 0x110118090>
-	gc: uncollectable <TestMemoryDebugNode 0x110118110>
+	gc: uncollectable <MemoryDebugNode 0x110118050>
+	gc: uncollectable <MemoryDebugNode 0x110118090>
+	gc: uncollectable <MemoryDebugNode 0x110118110>
 	gc: uncollectable <dict 0x1101124b0>
 	gc: uncollectable <dict 0x110112a28>
 
@@ -23,13 +23,12 @@ which to run the __del__() methods."
 from __future__ import absolute_import, division, print_function
 
 import gc
-import nose.plugins.attrib as noseAttrib
 import unittest
 
 from wholecell.utils import memory_debug
 
 
-class TestMemoryDebugNode(object):
+class MemoryDebugNode(object):
 	def __init__(self, name):
 		self.name = str(name)
 		self.link = None
@@ -48,12 +47,11 @@ class TestMemoryDebugNode(object):
 
 
 class Test_memory_debug(unittest.TestCase):
-	@noseAttrib.attr('smalltest')
 	def test_memory_debug(self):
 		precount = len(gc.garbage)
 
 		with memory_debug.detect_leaks(enabled=True):
-			nodes = [TestMemoryDebugNode(i) for i in xrange(6)]
+			nodes = [MemoryDebugNode(i) for i in xrange(6)]
 
 			# N0 -> N1 -> N2 are not in a cycle and should be collectable.
 			nodes[0].link = nodes[1]

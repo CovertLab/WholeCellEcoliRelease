@@ -18,12 +18,9 @@ from reconstruction.ecoli.fit_sim_data_1 import (totalCountFromMassesAndRatios,
 import numpy as np
 from wholecell.utils import units
 
-import nose.plugins.attrib as noseAttrib
 
 class Test_fitkb1(unittest.TestCase):
 
-	@noseAttrib.attr('smalltest')
-	@noseAttrib.attr('fitkb1test')
 	def test_totalCountFromMassesAndRatios(self):
 		# Test normal call
 		totalMass = 10.
@@ -46,8 +43,6 @@ class Test_fitkb1(unittest.TestCase):
 		distribution = np.array([0.25, 0.25, 0.25])
 		self.assertRaises(AssertionError, totalCountFromMassesAndRatios, totalMass, individualMasses, distribution)
 
-	@noseAttrib.attr('smalltest')
-	@noseAttrib.attr('fitkb1test')
 	def test_proteinDistributionFrommRNA(self):
 		# Test normal call
 		distribution_mRNA = np.array([0.5, 0.25, 0.25])
@@ -74,8 +69,6 @@ class Test_fitkb1(unittest.TestCase):
 		netLossRate = (1 / units.s) * np.array([1, 2, 3])
 		self.assertRaises(AssertionError, proteinDistributionFrommRNA, distribution_mRNA, np.ones(3) / 3, netLossRate)
 
-	@noseAttrib.attr('smalltest')
-	@noseAttrib.attr('fitkb1test')
 	def test_mRNADistributionFromProtein(self):
 		# Test normal call
 		distribution_mRNA = np.array([0.5, 0.25, 0.25])
@@ -102,8 +95,6 @@ class Test_fitkb1(unittest.TestCase):
 		netLossRate = (1 / units.s) * np.array([1, 2, 3])
 		self.assertRaises(AssertionError, mRNADistributionFromProtein, distribution_mRNA, np.ones(3) / 3, netLossRate)
 
-	@noseAttrib.attr('smalltest')
-	@noseAttrib.attr('fitkb1test')
 	def test_calculateMinPolymerizingEnzymeByProductDistributionRNA(self):
 		productLengths = units.aa * np.array([1000, 2000, 3000])
 		elongationRates = units.aa / units.s * np.full(3, 50)
@@ -115,8 +106,6 @@ class Test_fitkb1(unittest.TestCase):
 		self.assertEqual(nMin, 980)
 
 
-	@noseAttrib.attr('smalltest')
-	@noseAttrib.attr('fitkb1test')
 	def test_netLossRateFromDilutionAndDegradationProtein(self):
 		doublingTime = 60 * units.min
 		degradationRates = (1 / units.s) * np.array([10, 20, 100])

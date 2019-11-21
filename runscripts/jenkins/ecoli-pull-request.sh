@@ -16,7 +16,8 @@ pyenv local wcEcoli2
 make clean
 make compile
 
-PYTHONPATH=$PWD:$PYTHONPATH nosetests --with-xunit --with-coverage --cover-package=wholecell --cover-xml
+PYTHONPATH=$PWD:$PYTHONPATH pytest --cov=wholecell --cov-report xml \
+    --junitxml=unittests.xml
 
 sh runscripts/jenkins/fireworks-config.sh $HOST $NAME $PORT $PASSWORD
 

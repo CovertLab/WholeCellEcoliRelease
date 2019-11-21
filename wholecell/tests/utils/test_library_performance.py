@@ -9,8 +9,7 @@ Running it this way prints all timing measurements:
 
 Running it these ways prints timing measurements (and other printout) only
 for failed tests:
-	nosetests wholecell/tests/utils/test_library_performance.py
-	nosetests -a performance
+	pytest wholecell/tests/utils/test_library_performance.py
 
 Running it this way runs the iterative test that isn't automatically
 discovered as a test method:
@@ -25,7 +24,6 @@ import unittest
 
 import numpy as np
 import scipy.integrate
-import nose.plugins.attrib as noseAttrib
 
 
 def clock2():
@@ -212,25 +210,21 @@ class Test_library_performance(unittest.TestCase):
 	# Sherlock 1.0 performance varies widely with number of CPUs,
 	# OPENBLAS_NUM_THREADS=... value, compute node, and BLAS library.
 	# Allow time for test framework overhead + matrix construction.
-	@noseAttrib.attr('performance')
 	def test_dot(self):
 		"""Time NumPy float64 x float64 matrix dot()."""
 		M = np.random.random(size=(1000, 1000))
 		self.time_this(lambda: M.dot(M), 0.3)
 
-	@noseAttrib.attr('performance')
 	def multitest_dot(self):
 		"""Time NumPy matrix dot() many times."""
 		for iteration in xrange(100):
 			self.test_dot()
 
-	@noseAttrib.attr('performance')
 	def test_int_dot_int(self):
 		"""Time NumPy int64 x int64 matrix dot()."""
-		N = np.random.random_integers(0, 9, size=(1000, 1000))
+		N = np.random.randint(0, 10, size=(1000, 1000))
 		self.time_this(lambda: N.dot(N), 5.0)  # SLOW!
 
-	@noseAttrib.attr('performance')
 	def test_int_dot_floated_int(self):
 		"""
 		Time converting an int64 matrix to float64 then int64 x float64
@@ -239,44 +233,39 @@ class Test_library_performance(unittest.TestCase):
 		(2) BLAS has no integer type, and
 		(3) the libraries don't parallelize integer matrix multiply.
 		"""
-		N = np.random.random_integers(0, 9, size=(1000, 1000))
+		N = np.random.randint(0, 10, size=(1000, 1000))
 		self.time_this(lambda: N.dot(N * 1.0), 0.3)
 
 	@unittest.skip('pretty much the same as test_int_dot_floated_int()')
-	@noseAttrib.attr('performance')
 	def test_floated_int_dot_int(self):
 		"""Time NumPy integer x float(integer) matrix dot()."""
-		N = np.random.random_integers(0, 9, size=(1000, 1000))
+		N = np.random.randint(0, 10, size=(1000, 1000))
 		self.time_this(lambda: (N * 1.0).dot(N), 0.3)
 
-	@noseAttrib.attr('performance')
 	def test_int_dot_float(self):
 		"""Time NumPy integer x float matrix dot()."""
-		N = np.random.random_integers(0, 9, size=(1000, 1000))
+		N = np.random.randint(0, 10, size=(1000, 1000))
 		M = np.random.random(size=(1000, 1000))
 		self.time_this(lambda: N.dot(M), 0.3)
 
 	@unittest.skip('pretty much the same as test_int_dot_float()')
-	@noseAttrib.attr('performance')
 	def test_float_dot_int(self):
 		"""Time NumPy float x integer matrix dot()."""
 		M = np.random.random(size=(1000, 1000))
-		N = np.random.random_integers(0, 9, size=(1000, 1000))
+		N = np.random.randint(0, 10, size=(1000, 1000))
 		self.time_this(lambda: M.dot(N), 0.3)
 
-	@noseAttrib.attr('performance')
 	def test_int_to_float32_dot_and_back(self):
 		"""Time NumPy integer matrix converted to float32, dot(), and
 		back. This can be twice as fast as float (float64) math.
 		"""
-		N = np.random.random_integers(0, 9999, size=(1000, 1000))
+		N = np.random.randint(0, 10000, size=(1000, 1000))
 		M = np.random.random(size=(1000, 1000))
 		self.time_this(lambda: N.astype(np.float32)
 					   .dot(M.astype(np.float32)).astype(np.float32),
 					   0.6)
 
 	# Allow time for test framework overhead + matrix construction.
-	@noseAttrib.attr('performance')
 	def test_odeint(self):
 		"""Time scipy.integrate.odeint()."""
 		y0 = np.random.random(41)

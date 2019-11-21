@@ -14,12 +14,9 @@ from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWi
 import numpy as np
 import numpy.testing as npt
 
-import nose.plugins.attrib as noseAttrib
 import unittest
 
 
-@noseAttrib.attr('complexationTest')
-@noseAttrib.attr('smalltest')
 class Test_mc_complexation(unittest.TestCase):
 
 	def test_mccBuildMatrices(self):
