@@ -62,10 +62,10 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		# Used for figure in publication
 		self.trpAIndex = np.where(proteinIds == "TRYPSYN-APROTEIN[c]")[0][0]
 
-		# Create view onto activly elongating 70S ribosomes
+		# Create view onto actively elongating 70S ribosomes
 		self.active_ribosomes = self.uniqueMoleculesView('activeRibosome')
 
-		# Create views onto 30S and 70S ribosomal subunits for termination
+		# Create views onto 30S and 50S ribosomal subunits for termination
 		self.ribosome30S = self.bulkMoleculeView(sim_data.moleculeIds.s30_fullComplex)
 		self.ribosome50S = self.bulkMoleculeView(sim_data.moleculeIds.s50_fullComplex)
 
@@ -80,40 +80,19 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.gtpUsed = 0
 		self.gtpAvailable = 0
 
-		self.ribosome30S = self.bulkMoleculeView(sim_data.moleculeIds.s30_fullComplex)
-		self.ribosome50S = self.bulkMoleculeView(sim_data.moleculeIds.s50_fullComplex)
-
-		# Simulation options
-		self.translationSupply = sim._translationSupply
-		self.use_trna_charging = sim._trna_charging
-
 		self.elngRateFactor = 1.
 
 		# Data structures for charging
 		self.aa_from_trna = transcription.aa_from_trna
-
-		# Names of molecules associated with tRNA charging
-		self.uncharged_trna_names = transcription.rnaData['id'][transcription.rnaData['isTRna']]
-		self.charged_trna_names = transcription.charged_trna_names
-		self.charging_molecule_names = transcription.charging_molecules
-		self.synthetase_names = transcription.synthetase_names
-
-		# ppGpp parameters for tRNA charging and ribosome elongation
-		self.kS = constants.synthetase_charging_rate.asNumber(1 / units.s)
-		self.KMtf = constants.Km_synthetase_uncharged_trna.asNumber(MICROMOLAR_UNITS)
-		self.KMaa = constants.Km_synthetase_amino_acid.asNumber(MICROMOLAR_UNITS)
-		self.krta = constants.Kdissociation_charged_trna_ribosome.asNumber(MICROMOLAR_UNITS)
-		self.krtf = constants.Kdissociation_uncharged_trna_ribosome.asNumber(MICROMOLAR_UNITS)
-		aa_removed_from_charging = set(['L-SELENOCYSTEINE[c]'])
 
 		# Dictionaries for homeostatic AA count updates in metabolism
 		self.aa_count_diff = {}  # attribute to be read by metabolism
 		self.new_count_diff = {}  # update from most recent time step
 
 		# Set modeling method
-		if self.use_trna_charging:
+		if sim._trna_charging:
 			self.elongation_model = SteadyStateElongationModel(sim_data, self)
-		elif self.translationSupply:
+		elif sim._translationSupply:
 			self.elongation_model = TranslationSupplyElongationModel(sim_data, self)
 		else:
 			self.elongation_model = BaseElongationModel(sim_data, self)
@@ -142,8 +121,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		# Build sequences to request appropriate amount of amino acids to
 		# polymerize for next timestep
 		proteinIndexes, peptideLengths = self.active_ribosomes.attrs(
-					'proteinIndex', 'peptideLength'
-					)
+			'proteinIndex', 'peptideLength'
+			)
 
 		self.elongation_rates = self.make_elongation_rates(
 			self.randomState,
@@ -181,7 +160,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("GrowthLimits", "gtpPoolSize", self.gtp.total_counts()[0])
 		self.writeToListener("GrowthLimits", "gtpRequestSize", gtpsHydrolyzed)
 
-		# GTP hydrolysis is carried out in Metabolism process for growth associated maintenence
+		# GTP hydrolysis is carried out in Metabolism process for growth associated maintenance
 		# THis is set here for metabolism to use
 		self.gtpRequest = gtpsHydrolyzed
 
@@ -256,7 +235,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		currElongRate = (sequenceElongations.sum() / n_active_ribosomes) / self.timeStepSec()
 		self.writeToListener("RibosomeData", "effectiveElongationRate", currElongRate)
 
-		# Update active ribosomes, terminating if neccessary
+		# Update active ribosomes, terminating if necessary
 		self.active_ribosomes.attrIs(peptideLength = updatedLengths)
 		self.active_ribosomes.add_submass_by_name("protein", added_protein_mass)
 
