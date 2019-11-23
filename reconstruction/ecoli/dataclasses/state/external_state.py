@@ -17,7 +17,6 @@ Initializes the environment using conditions and time series from raw_data.
 
 from __future__ import absolute_import, division, print_function
 
-from wholecell.utils import units
 from reconstruction.ecoli.dataclasses.state.environment import Environment
 from wholecell.utils.make_media import Media
 
@@ -29,22 +28,21 @@ class ExternalState(object):
 		self.environment = Environment(raw_data, sim_data)
 
 		# make media object
-		make_media = Media()
+		self.make_media = Media(raw_data)
 
 		# create a dictionary with all saved timelines
 		self.environment.saved_timelines = {}
 		for row in raw_data.condition.timelines_def:
 			timeline_id = row["timeline"]
 			timeline_str = row["events"]
-			new_timeline = make_media.make_timeline(timeline_str)
+			new_timeline = self.make_media.make_timeline(timeline_str)
 			self.environment.saved_timelines[timeline_id] = new_timeline
 
 		# set default current_timeline_id to None, this can be overwritten by the timelines variant
 		self.environment.current_timeline_id = None
 
 		# make a dictionary with all media conditions specified by media_recipes
-		make_media = Media()
-		self.environment.saved_media = make_media.make_saved_media()
+		self.environment.saved_media = self.make_media.make_saved_media()
 
 		# make mapping from external molecule to exchange molecule
 		self.environment.env_to_exchange_map = {
