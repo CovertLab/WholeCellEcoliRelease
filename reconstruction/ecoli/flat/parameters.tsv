@@ -33,6 +33,11 @@ Km_synthetase_uncharged_trna	1	units.umol/units.L	Bosdriesz et al. FEBS. 2015.
 Km_synthetase_amino_acid	100	units.umol/units.L	Bosdriesz et al. FEBS. 2015.
 Kdissociation_charged_trna_ribosome	1	units.umol/units.L	Bosdriesz et al. FEBS. 2015.
 Kdissociation_uncharged_trna_ribosome	500	units.umol/units.L	Bosdriesz et al. FEBS. 2015.
+KD_RelA_ribosome	0.26	units.umol/units.L	Bosdriesz et al. FEBS. 2015.
+k_RelA_ppGpp_synthesis	75	1/units.s	Bosdriesz et al. FEBS. 2015.
+k_SpoT_ppGpp_synthesis	2.6	1/units.s	Derived from Bosdriesz et al. FEBS. 2015. and Murray and Bremer. JMB. 1996.
+k_SpoT_ppGpp_degradation	0.231	units.L/units.umol/units.s	Bosdriesz et al. FEBS. 2015. (ln(2) / 30)
+KI_SpoT_ppGpp_degradation	20.0	units.umol/units.L	Empirically determined for stable ppGpp
 complexation_rate	1000.0	1/units.s	Placeholder (estimated from Neidhardt).
 fraction_supply_inhibited	0.1		Fraction of AA supply that will be inhibited at target conc. Determined empirically to support stable growth with tRNA charging. Can change with more detailed model or be fit to data.
 fraction_supply_exported	0.1		Fraction of AA supply that will be exported at target conc. Determined empirically to support stable growth with tRNA charging. Can change with more detailed model or be fit to data.

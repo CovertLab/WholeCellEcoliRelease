@@ -22,7 +22,10 @@ class MoleculeIds(object):
 			's30_fullComplex': 'CPLX0-3953[c]',
 			's50_fullComplex': 'CPLX0-3962[c]',
 			'DnaA': 'PD03831[c]',
-			'DnaA_ATP_complex': 'MONOMER0-160[c]'
+			'DnaA_ATP_complex': 'MONOMER0-160[c]',
+			'ppGpp': 'GUANOSINE-5DP-3DP[c]',
+			'RelA': 'RELA-MONOMER[c]',
+			'SpoT': 'SPOT-MONOMER[c]',
 		}
 
 		self.__dict__.update(moleculeIds)

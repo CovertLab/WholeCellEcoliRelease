@@ -50,6 +50,7 @@ RNA_DEG_RATES_ADJUSTMENTS = {
 	"EG10710_RNA[c]": 2,  # pheT, phenylalanine synthetase subunit; for tRNA charging in anaerobic condition
 	}
 PROTEIN_DEG_RATES_ADJUSTMENTS = {
+	"SPOT-MONOMER[c]": 2. / 600,  # SpoT, ppGpp phosphatase; convert from 2 min to 10 hr half life to better match expected protein counts
 	"EG12298-MONOMER[p]": 0.1, # yibQ, Predicted polysaccharide deacetylase; This protein is fit for the anaerobic condition
 	}
 

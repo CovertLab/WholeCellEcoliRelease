@@ -37,6 +37,7 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	growthRateNoise = False,
 	translationSupply = True,
 	trna_charging = True,
+	ppgpp_regulation = False,
 	timeStepSafetyFraction = 1.3,
 	maxTimeStep = 0.9,#2.0, # TODO: Reset to 2 once we update PopypeptideElongation
 	updateTimeStepFreq = 5,

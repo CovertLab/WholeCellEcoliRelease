@@ -81,6 +81,8 @@ Modeling options:
 	TRNA_CHARGING (int, "1"): if nonzero, tRNA charging reactions are modeled
 		and the ribosome elongation rate is set by the amount of charged tRNA
 		present.  This option will override TRANSLATION_SUPPLY in the simulation.
+	PPGPP_REGULATION (int, "0"): if nonzero, ppGpp concentration is determined
+		with kinetic equations
 
 Additional variables:
 	LAUNCHPAD_FILE (str, "my_launchpad.yaml"): set launchpad config file location
@@ -234,6 +236,7 @@ GROWTH_RATE_NOISE = bool(int(get_environment("GROWTH_RATE_NOISE", DEFAULT_SIMULA
 D_PERIOD_DIVISION = bool(int(get_environment("D_PERIOD_DIVISION", DEFAULT_SIMULATION_KWARGS["dPeriodDivision"])))
 TRANSLATION_SUPPLY = bool(int(get_environment("TRANSLATION_SUPPLY", DEFAULT_SIMULATION_KWARGS["translationSupply"])))
 TRNA_CHARGING = bool(int(get_environment("TRNA_CHARGING", DEFAULT_SIMULATION_KWARGS["trna_charging"])))
+PPGPP_REGULATION = bool(int(get_environment("PPGPP_REGULATION", DEFAULT_SIMULATION_KWARGS["ppgpp_regulation"])))
 RAISE_ON_TIME_LIMIT = bool(int(get_environment("RAISE_ON_TIME_LIMIT", DEFAULT_SIMULATION_KWARGS["raise_on_time_limit"])))
 N_INIT_SIMS = int(get_environment("N_INIT_SIMS", "1"))
 N_GENS = int(get_environment("N_GENS", "1"))
@@ -319,6 +322,7 @@ metadata = {
 	"d_period_division": D_PERIOD_DIVISION,
 	"translation_supply": TRANSLATION_SUPPLY,
 	"trna_charging": TRNA_CHARGING,
+	"ppgpp_regulation": PPGPP_REGULATION,
 	}
 
 metadata_path = os.path.join(METADATA_DIRECTORY, constants.JSON_METADATA_FILE)
@@ -646,6 +650,7 @@ for i in VARIANTS_TO_RUN:
 							d_period_division = D_PERIOD_DIVISION,
 							translation_supply = TRANSLATION_SUPPLY,
 							trna_charging = TRNA_CHARGING,
+							ppgpp_regulation = PPGPP_REGULATION,
 							raise_on_time_limit = RAISE_ON_TIME_LIMIT,
 							),
 						name = fw_name,
@@ -674,6 +679,7 @@ for i in VARIANTS_TO_RUN:
 							d_period_division = D_PERIOD_DIVISION,
 							translation_supply = TRANSLATION_SUPPLY,
 							trna_charging = TRNA_CHARGING,
+							ppgpp_regulation = PPGPP_REGULATION,
 							raise_on_time_limit = RAISE_ON_TIME_LIMIT,
 							),
 						name = fw_name,
