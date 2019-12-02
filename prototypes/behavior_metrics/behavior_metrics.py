@@ -5,15 +5,19 @@
 
 from __future__ import absolute_import, division, print_function
 from os import path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Union
+import re
+import importlib
 
 import numpy as np
 import pandas as pd
+from unum import Unum
 
 from prototypes.behavior_metrics.tablereader_utils import read_subcolumn
 from prototypes.behavior_metrics.dependency_graph import DependencyGraph
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import filepath
+from wholecell.utils import units
 
 
 def calc_end_start_ratio(data):
@@ -163,7 +167,7 @@ class BehaviorMetrics(object):
 				"s30_counts": {
 					"table": "BulkMolecules",
 					"column": "counts",
-					"subcolumn": "CPLX0-3953[c]"
+					"subcolumn": "CPLX0-3953[c]",
 				},
 				"s50_counts": {
 					"table": "BulkMolecules",
@@ -174,12 +178,19 @@ class BehaviorMetrics(object):
 					"table": "BulkMolecules",
 					"// We can also read in attributes"
 					"attribute": "subcolumns"
+					"// Units can be specified as strings of attributes"
+					"// of utils.units"
+					"units": "g*m/L"
 				},
 				"B": {
 					"table": "tRNA",
 					"// If only column specified, there should be only"
 					"// 1 subcolumn, which will be returned as a vector"
 					"column": "counts"
+					"// Units can also be specified by a name to import"
+					"units": {
+						"import": "model.ecoli.constants.DUMMY_UNIT"
+					}
 				}
 			},
 			"operations": {
@@ -201,6 +212,9 @@ class BehaviorMetrics(object):
 			}
 		}
 
+		Note that units are left-multiplied, so when applied to numpy
+		vectors, they will apply to the whole vector, not each element.
+
 		Arguments:
 			data_conf_json: Parsed JSON dictionary that defines any number
 				of data sources and how to load data from them.
@@ -216,27 +230,124 @@ class BehaviorMetrics(object):
 		loaded_data = {}
 		for source_name, source_config in data_conf_json.items():
 			if "constant" in source_config:
-				loaded_data[source_name] = source_config["constant"]
-				continue
-			if "subcolumn" in source_config:
+				data = source_config["constant"]
+			elif "subcolumn" in source_config:
 				data = read_subcolumn(
 					self.sim_out_dir, source_config["table"],
 					source_config["column"], source_config["subcolumn"]
 				)
-				loaded_data[source_name] = data
-				continue
-			reader = TableReader(
-				path.join(self.sim_out_dir, source_config["table"]))
-			if "column" in source_config:
-				data = reader.readColumn(source_config["column"])
-				loaded_data[source_name] = data
-			elif "attribute" in source_config:
-				data = reader.readAttribute(source_config["attribute"])
-				loaded_data[source_name] = data
+			elif "table" in source_config:
+				reader = TableReader(
+					path.join(self.sim_out_dir, source_config["table"]))
+				if "column" in source_config:
+					data = reader.readColumn(source_config["column"])
+				elif "attribute" in source_config:
+					data = reader.readAttribute(source_config["attribute"])
+				else:
+					raise ValueError(
+						"{} has neither 'column' nor 'attribute'".format(source_config))
 			else:
 				raise ValueError(
-					"{} has neither 'column' nor 'attribute'".format(source_config))
+					"{} has none of 'constant', 'subcolumn', and 'table'".format(
+						source_config))
+			if "units" in source_config:
+				parsed_units = BehaviorMetrics.parse_units(
+					source_config["units"])
+				data = parsed_units * data
+			loaded_data[source_name] = data
+
 		return loaded_data
+
+	@staticmethod
+	def parse_units(unit_def):
+		# type: (Union[str, Dict[str, Any]]) -> Unum
+		"""Get an Unum object that can stores the specified units
+
+		Arguments:
+			unit_def: A definition of a unit, either as a string or as a
+				dict. Strings are processed by get_units_str, and dicts
+				are processed by get_units_dict.
+
+		Returns:
+			An Unum object storing the specified units.
+		"""
+		if isinstance(unit_def, str) or isinstance(unit_def, unicode):
+			return BehaviorMetrics.parse_units_str(unit_def)
+		return BehaviorMetrics.parse_units_dict(unit_def)
+
+	@staticmethod
+	def parse_units_str(unit_str):
+		# type: (str) -> Unum
+		"""Get an Unum object from a unit string.
+
+		Arguments:
+			unit_str: A string specifying the unit. It is
+				interpreted as one or more names of attributes of
+				wholecell.utils.units, which may be combined only by
+				multiplication (*) or division (/). No parentheses are
+				allowed. The numeral 1 can be used to represent a
+				unitless value, e.g. in 1/g.
+
+		Returns:
+			An Unum object storing the specified units.
+		"""
+		operator_regex = "[*/]"
+		operators = re.findall(operator_regex, unit_str)
+		atoms = re.split(operator_regex, unit_str)
+		operations = zip(atoms[1:], operators)
+		total_units = BehaviorMetrics._eval_atomic_unit_str(atoms[0])
+		for atom, operator in operations:
+			unit = BehaviorMetrics._eval_atomic_unit_str(atom)
+			if operator == "*":
+				total_units *= unit
+			else:
+				total_units /= unit
+		return total_units
+
+	@staticmethod
+	def parse_units_dict(unit_dict):
+		# type: (Dict[str, Any]) -> Unum
+		"""Get an Unum object from a JSON object.
+
+		Arguments:
+			unit_dict: Dictionary representing a JSON object that
+				defines how to retrieve the unit. For now, the only
+				supported definition specifies a name to import using
+				the `import` key.
+
+		Returns:
+			An Unum object storing the specified units.
+		"""
+		if "import" in unit_dict:
+			return BehaviorMetrics._load_from_import_string(
+				unit_dict["import"])
+		else:
+			raise ValueError(
+				"The units specification {} was not recognized".format(
+					unit_dict))
+
+	@staticmethod
+	def _load_from_import_string(import_str):
+		"""Load a value from a name to import.
+
+		The parent of the specified object must be a module importable
+		by importlib.import_module.
+
+		Arguments:
+			import_str: Name to import.
+
+		Returns:
+			The imported value.
+		"""
+		split_name = import_str.split(".")
+		parent_full_name = ".".join(split_name[:-1])
+		parent = importlib.import_module(parent_full_name)
+		return getattr(parent, split_name[-1])
+
+	@staticmethod
+	def _eval_atomic_unit_str(unit_str):
+		# type: (str) -> Unum
+		return 1 if unit_str == "1" else getattr(units, unit_str)
 
 	@staticmethod
 	def order_operations(operation_configs):
