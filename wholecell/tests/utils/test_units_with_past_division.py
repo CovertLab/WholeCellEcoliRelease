@@ -2,14 +2,12 @@ from __future__ import absolute_import, print_function  # <=== NOT division!
 
 import sys
 import unittest
-import nose.plugins.attrib as noseAttrib
 
 from wholecell.utils import units
 
 PY2 = sys.version_info.major < 3
 
 
-@noseAttrib.attr('smalltest', 'units')
 class Test_units_with_past_division(unittest.TestCase):
 
 	def test_slash_div(self):

@@ -90,7 +90,6 @@ LIST_OF_DICT_FILENAMES = (
 	)
 SEQUENCE_FILE = 'sequence.fasta'
 LIST_OF_PARAMETER_FILENAMES = ("parameters.tsv", "mass_parameters.tsv")
-CONSTANTS_FILENAME = "constants.tsv"
 
 class DataStore(object):
 	def __init__(self):
@@ -106,7 +105,6 @@ class KnowledgeBaseEcoli(object):
 
 		for filename in LIST_OF_PARAMETER_FILENAMES:
 			self._load_parameters(os.path.join(FLAT_DIR, filename))
-		self._load_parameters(os.path.join(FLAT_DIR, CONSTANTS_FILENAME))
 
 		self.genome_sequence = self._load_sequence(os.path.join(FLAT_DIR, SEQUENCE_FILE))
 

@@ -16,7 +16,6 @@ import unittest
 
 import numpy as np
 import numpy.testing as npt
-import nose.plugins.attrib as noseAttrib
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.io.tablereader import TableReader
@@ -57,7 +56,6 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 
 	# Interface methods
 
-	@noseAttrib.attr('smalltest', 'bulkObjects')
 	def test_counts(self):
 		npt.assert_equal(self.container.counts(), OBJECT_COUNTS)
 
@@ -67,7 +65,6 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 			)
 
 
-	@noseAttrib.attr('smalltest', 'bulkObjects')
 	def test_countsIs(self):
 		newCounts = [10, 20.0, 30]
 		self.container.countsIs(newCounts)
@@ -80,7 +77,6 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 		npt.assert_equal(self.container.counts(OBJECT_NAMES[1:]), newCounts)
 
 
-	@noseAttrib.attr('smalltest', 'bulkObjects')
 	def test_countsInc(self):
 		incCounts = [10, 20.0, 30]
 		newCounts = self.container.counts() + incCounts
@@ -95,7 +91,6 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 		npt.assert_equal(self.container.counts(OBJECT_NAMES[1:]), newCounts)
 
 
-	@noseAttrib.attr('smalltest', 'bulkObjects')
 	def test_countsDec(self):
 		decCounts = [30, 10.0, 5]
 		newCounts = np.array(OBJECT_COUNTS) - np.array(decCounts)
@@ -110,7 +105,6 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 		npt.assert_equal(self.container.counts(OBJECT_NAMES[1:]), newCounts)
 
 
-	@noseAttrib.attr('smalltest', 'bulkObjects')
 	def test_dtype_float32(self):
 		"""A BulkObjectsContainer with dtype=np.float32 should support
 		fractional counts and deltas.
@@ -140,7 +134,6 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 		npt.assert_equal(countsView.counts(), newCounts)
 
 
-	@noseAttrib.attr('smalltest', 'bulkObjects')
 	def test_countsView_countsInc(self):
 		countsView = self.container.countsView()
 		incCounts = [10, 20.0, 30]
@@ -157,7 +150,6 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 		npt.assert_equal(countsView.counts(), newCounts)
 
 
-	@noseAttrib.attr('smalltest', 'bulkObjects')
 	def test_countsView_countsDec(self):
 		countsView = self.container.countsView()
 		decCounts = [30, 10.0, 5]
@@ -174,7 +166,6 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 		npt.assert_equal(countsView.counts(), newCounts)
 
 
-	@noseAttrib.attr('smalltest', 'bulkObjects')
 	def test_count(self):
 		npt.assert_equal(
 			self.container.count(OBJECT_NAMES[0]),
@@ -182,7 +173,6 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 			)
 
 
-	@noseAttrib.attr('smalltest', 'bulkObjects')
 	def test_countIs(self):
 		newCount = 40
 		self.container.countIs(newCount, OBJECT_NAMES[0])
@@ -190,7 +180,6 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 		npt.assert_equal(self.container.count(OBJECT_NAMES[0]), newCount)
 
 
-	@noseAttrib.attr('smalltest', 'bulkObjects')
 	def test_countInc(self):
 		incCount = 40
 		newCount = self.container.count(OBJECT_NAMES[0]) + incCount
@@ -205,7 +194,6 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 		npt.assert_equal(self.container.count(OBJECT_NAMES[0]), newCount)
 
 
-	@noseAttrib.attr('smalltest', 'bulkObjects')
 	def test_countDec(self):
 		decCount = 40
 		newCount = self.container.count(OBJECT_NAMES[0]) - decCount
@@ -220,7 +208,6 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 		npt.assert_equal(self.container.count(OBJECT_NAMES[0]), newCount)
 
 
-	@noseAttrib.attr('smalltest', 'bulkObjects')
 	def test_emptyLike(self):
 		e1 = self.container.emptyLike()
 		e2 = self.container.emptyLike()
@@ -229,7 +216,6 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 		self.assertEqual(OBJECT_NAMES, e1.objectNames())
 		npt.assert_array_equal((0, 0, 0), e1.counts())
 
-	@noseAttrib.attr('smalltest', 'bulkObjects')
 	def test_copyCounts(self):
 		npt.assert_array_equal(OBJECT_COUNTS, self.container.counts())
 
@@ -248,7 +234,6 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 
 	# Internal methods
 
-	@noseAttrib.attr('smalltest', 'bulkObjects')
 	def test_namesToIndexes(self):
 		# Test normal ordering
 		names = OBJECT_NAMES
@@ -272,7 +257,6 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 			)
 
 
-	@noseAttrib.attr('smalltest', 'bulkObjects')
 	def test_eq(self):
 		self.assertEqual(self.container, self.container)
 		self.assertNotEqual(self.container, object())
@@ -295,7 +279,6 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 
 	# I/O
 
-	@noseAttrib.attr('smalltest', 'bulkObjects')
 	def test_pickle(self):
 		# Test a float64 container.
 		container = BulkObjectsContainer(ELEMENTS, dtype=np.float64)
@@ -331,7 +314,6 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 		container4.countInc(1010, 'Einsteinium')
 		self.assertEqual(1010 + e, container4.count('Einsteinium'))
 
-	@noseAttrib.attr('smalltest', 'bulkObjects')
 	def test_cannot_pickle(self):
 		"""Try to pickle a container whose dtype has fields or a subarray."""
 		container = BulkObjectsContainer(ELEMENTS, dtype=[('a', 'f4'), ('b', 'i4')])
@@ -346,7 +328,6 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 		with self.assertRaises(TypeError):
 			cPickle.dumps(container)
 
-	@noseAttrib.attr('smalltest', 'bulkObjects')
 	def test_write_table(self):
 		"""Test writing the container to a Table."""
 		self.make_test_dir()

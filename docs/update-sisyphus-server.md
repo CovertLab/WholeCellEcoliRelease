@@ -114,7 +114,7 @@ server to view the service logs
 
 * Wait for it to be stopped, checking the Compute Engine > VM instances page
 
-* Look in the Compute Engine > Images page for the last image name in the `sisyphus-v*` series
+* Look in the Compute Engine > Images page for the last disk image name in the `sisyphus-v*` series
 
 * In the Compute Engine > Disks page
   1. click on the Disk named `resizing`

@@ -17,6 +17,7 @@ from wholecell.utils import units
 from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
 
 from wholecell.sim.divide_cell import load_inherited_state
+from models.ecoli.processes.polypeptide_elongation import SteadyStateElongationModel
 
 RAND_MAX = 2**31
 
@@ -46,7 +47,8 @@ def calcInitialConditions(sim, sim_data):
 	# Must be called after unique and bulk molecules are initialized to get
 	# concentrations for ribosomes, tRNA, synthetases etc from cell volume
 	if sim._trna_charging:
-		initialize_trna_charging(sim_data, sim.internal_states, sim.processes['PolypeptideElongation'].calculate_trna_charging)
+		elongation_model = SteadyStateElongationModel(sim_data, sim.processes['PolypeptideElongation'])
+		initialize_trna_charging(sim_data, sim.internal_states, elongation_model.calculate_trna_charging)
 
 def initializeBulkMolecules(bulkMolCntr, sim_data, current_media_id, randomState, massCoeff):
 
@@ -193,14 +195,16 @@ def initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff):
 # TODO: remove checks for zero concentrations (change to assertion)
 # TODO: move any rescaling logic to KB/fitting
 def initializeSmallMolecules(bulkMolCntr, sim_data, current_media_id, randomState, massCoeff):
-	avgCellFractionMass = sim_data.mass.getFractionMass(sim_data.conditionToDoublingTime[sim_data.condition])
+	doubling_time = sim_data.conditionToDoublingTime[sim_data.condition]
+	avgCellFractionMass = sim_data.mass.getFractionMass(doubling_time)
 
 	mass = massCoeff * (avgCellFractionMass["proteinMass"] + avgCellFractionMass["rnaMass"] + avgCellFractionMass["dnaMass"]) / sim_data.mass.avgCellToInitialCellConvFactor
 
 	concDict = sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
 		current_media_id
 		)
-	concDict.update(sim_data.mass.getBiomassAsConcentrations(sim_data.conditionToDoublingTime[sim_data.condition]))
+	concDict.update(sim_data.mass.getBiomassAsConcentrations(doubling_time))
+	concDict[sim_data.moleculeIds.ppGpp] = sim_data.growthRateParameters.getppGppConc(doubling_time)
 	moleculeIds = sorted(concDict)
 	moleculeConcentrations = (units.mol / units.L) * np.array([concDict[key].asNumber(units.mol / units.L) for key in moleculeIds])
 

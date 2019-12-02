@@ -6,4 +6,5 @@ pyenv local wcEcoli2
 make clean
 make compile
 
-PYTHONPATH=$PWD:$PYTHONPATH nosetests -a 'smalltest' --with-xunit --with-coverage --cover-package=wholecell --cover-xml
+PYTHONPATH=$PWD:$PYTHONPATH pytest --cov=wholecell --cov-report xml \
+    --junitxml=unittests.xml

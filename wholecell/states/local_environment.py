@@ -28,7 +28,6 @@ import wholecell.views.view
 from wholecell.utils import units
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 
-from wholecell.utils.make_media import Media
 
 COUNTS_UNITS = units.mmol
 VOLUME_UNITS = units.L
@@ -64,7 +63,7 @@ class LocalEnvironment(wholecell.states.external_state.ExternalState):
 		self._nAvogadro = sim_data.constants.nAvogadro
 
 		# make media object
-		make_media = Media()
+		make_media = sim_data.external_state.make_media
 
 		# if current_timeline_id is specified by a variant in sim_data, look it up in saved_timelines.
 		# else, construct the timeline given to initialize

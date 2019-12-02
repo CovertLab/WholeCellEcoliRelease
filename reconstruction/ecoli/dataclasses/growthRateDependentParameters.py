@@ -263,9 +263,7 @@ class Mass(object):
 				metaboliteIDs.append(metaboliteID)
 				metaboliteConcentrations.append(concentration)
 
-
 		# H2O: reported water content of E. coli
-
 		h2oMolWeight = self._mws["WATER[c]"].asNumber(units.g / units.mol)
 		h2oMoles = initWaterMass / h2oMolWeight
 
@@ -306,7 +304,7 @@ class Mass(object):
 			raw_data.genome_sequence.count('T') + raw_data.genome_sequence.count('A')
 		])
 
-		dntMasses = (sim_data.getter.getMass(sim_data.moleculeGroups.polymerizedDNT_IDs) / raw_data.constants['nAvogadro']).asUnit(units.g)
+		dntMasses = (sim_data.getter.getMass(sim_data.moleculeGroups.polymerizedDNT_IDs) / sim_data.constants.nAvogadro).asUnit(units.g)
 		chromMass = units.dot(dntCounts, dntMasses)
 		return chromMass
 
@@ -361,7 +359,9 @@ class GrowthRateParameters(object):
 		self.rnaPolymeraseElongationRateParams = _getFitParameters(raw_data.growthRateDependentParameters, "rnaPolymeraseElongationRate")
 		self.fractionActiveRnapParams = _getFitParameters(raw_data.growthRateDependentParameters, "fractionActiveRnap")
 		self.fractionActiveRibosomeParams = _getFitParameters(raw_data.growthRateDependentParameters, "fractionActiveRibosome")
+		self.ppGppConcentration = _getFitParameters(raw_data.growthRateDependentParameters, "ppGpp_conc")
 
+		self._per_dry_mass_to_per_volume = sim_data.constants.cellDensity * (1. - raw_data.mass_parameters['cellWaterMassFraction'])
 		self.c_period = units.min * 40.
 		self.d_period = units.min * 20.
 		self.dnaPolymeraseElongationRate = units.nt / units.s * 967.
@@ -377,6 +377,9 @@ class GrowthRateParameters(object):
 
 	def getFractionActiveRibosome(self, doubling_time):
 		return _useFitParameters(doubling_time, **self.fractionActiveRibosomeParams)
+
+	def getppGppConc(self, doubling_time):
+		return _useFitParameters(doubling_time, **self.ppGppConcentration) * self._per_dry_mass_to_per_volume
 
 	def getDnaCriticalMass(self, doubling_time):
 		return DNA_CRITICAL_MASS.get(doubling_time.asNumber(units.min), DNA_CRITICAL_MASS[44]) * units.fg

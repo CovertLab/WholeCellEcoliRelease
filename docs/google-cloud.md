@@ -1,11 +1,36 @@
 # How to run the Whole Cell Model on the Google Cloud Platform
 
+## One time setup
+
+1. [Install and log in to the Google Cloud SDK](https://github.com/CovertLab/sisyphus/blob/master/GCLOUD_SETUP.md).
+   The SDK includes the `gcloud` and `gsutil` command line programs.
+   * Afterwards, it will occasionally prompt to install updates.
+   * You can do it proactively via the command:  
+   `gcloud components update`
+2. Create your own Google Cloud Storage bucket.
+   This enables usage tracking, cleanup, and ACLs.
+   1. You can create it via the [Google Cloud Storage — Browser
+      webpage](https://console.cloud.google.com/storage/browser) or via the
+      `gsutil` command line program.
+   2. Pick a name like "sisyphus-crick".
+      [It has to be globally unique; BEWARE that it\'s publicly visible so don\'t
+      include login IDs, email addresses, project names, project numbers, or
+      personally identifiable information (PII).]
+   3. Pick the same Region used with Compute Engine (run `gcloud info` for info),
+      Standard storage class, and default access control.
+   4. Store the name in an environment variable in your shell profile and
+      update your current shell, e.g.:  
+      `export WORKFLOW_STORAGE_ROOT="sisyphus-crick"`
+   5. If you don't have access to create a storage bucket, ask a gcloud project
+      administrator. As a fallback, you can use a subdirectory of the 'sisyphus'
+      bucket, e.g. `sisyphus/data/crick`.
+
+
 ## Setup
 
-* One time setup: [Install and log in to the Google Cloud SDK](https://github.com/CovertLab/sisyphus/blob/master/GCLOUD_SETUP.md).
-* The steps below assume your current working directory is your wcEcoli git clone, e.g.:  
+* The steps below need your current working directory to be your wcEcoli git clone, e.g.:  
   `cd ~/dev/wcEcoli`
-* The Python steps assume the wcEcoli directory is on the Python path:  
+* The Python steps need the wcEcoli directory on the Python path:  
   `export PYTHONPATH=$PWD`
 
 
@@ -32,13 +57,13 @@
    analysis) didn't change since you last ran this step.
    * See "Variations" below about multiple `wcm-code` Docker images and new `wcm-runtime` base images.
 
-2. Open an ssh connection and TCP tunnel to the Gaia workflow server:
+2. Open an ssh connection and TCP tunnel to the Gaia workflow server in Google Compute Engine:
 
    ```sh
    runscripts/cloud/ssh-tunnel.sh
    ```
 
-3. Use another terminal tab to build and start the Whole Cell Model workflow:
+3. Use another terminal tab to build, upload, and start the Whole Cell Model workflow:
 
    ```sh
    python runscripts/cloud/wcm.py
@@ -50,7 +75,7 @@
    `--init-sims` lineage initial seeds to run, how many simulation `--generations`
    to run for each seed, and a workflow description.
    * Use the `--dump` option to write the workflow definition as JSON files for
-   review instead of running them in Google Compute Engine. You can edit these
+   review _instead of_ running them in Google Compute Engine. You can edit these
    files and manually upload them to the Gaia workflow server or just re-run
    `wcm.py` without `--dump`.
    * After `wcm.py` runs, you can quit the `ssh-tunnel.sh` unless you want to
@@ -147,23 +172,25 @@ There are many ways to download the outputs from your workflow:
 
 * **Simplest for individual files:** Open the [Google Cloud
 Storage — Browser](https://console.cloud.google.com/storage/browser?project=allen-discovery-center-mcovert),
-browse into the [sisyphus storage bucket](https://console.cloud.google.com/storage/browser/sisyphus?project=allen-discovery-center-mcovert)
-bucket, find your workflow files, and click on individual files to download them.
-* **Most convenient:** Use [gcsfuse](https://github.com/GoogleCloudPlatform/gcsfuse) to mount the storage
-bucket `sisyphus` to your local file system
-(or use the `--only-dir data/$USER` option to mount just its `data/$USER/` subdirectory) and find
-the files you want.
+browse into your Google Cloud Storage bucket ("sisyphus-crick" or whatever)
+find your workflow files, and click on individual files to download them.
+* **Most convenient:** Use [gcsfuse](https://github.com/GoogleCloudPlatform/gcsfuse) to mount your
+storage bucket to your local file system (or use the `--only-dir data/$USER` option
+to mount just a subdirectory of it) and access
+the files like local files.
+  * Example:  
+    `cd ~/dev/gcs/ && mkdir sisyphus-crick && gcsfuse sisyphus-crick sisyphus-crick`
   * gcsfuse reads and writes whole files to Cloud Storage on demand. It's convenient but
   it has higher latency than an NFS server.
   * Google Cloud Storage (GCS) is not a regular file system and gcsfuse can't totally hide that.
   E.g. GCS doesn't have directories, just file paths that may contain slashes and some that end
-  with a slash. See the notes in
+  with a slash. GCS reads and writes whole files. See the notes in
   [semantics.md](https://github.com/GoogleCloudPlatform/gcsfuse/blob/master/docs/semantics.md)
   for details.
-  * (Only for workflows run before 2019-08-18, you need to use gcsfuse's `--implicit-dirs` option since
+  * (For workflows run before 2019-08-18: You need to use gcsfuse's `--implicit-dirs` option since
   Sisyphus didn't create directory-like entries. implicit-dirs makes gcsfuse much slower. See
   [additional side-effects](https://github.com/GoogleCloudPlatform/gcsfuse/blob/master/docs/semantics.md#implicit-directories).)
-* **Fastest:** Use the [gsutil tool](https://cloud.google.com/storage/docs/gsutil) (it's part of the
+* **Fastest download:** Use the [gsutil tool](https://cloud.google.com/storage/docs/gsutil) (it's part of the
 Cloud SDK tools you installed along with `gcloud`) to do anything you need with Cloud Storage
 buckets and files. With the `-m` option it'll transfer lots of files in parallel, so this is the
 fastest approach.
@@ -178,6 +205,12 @@ It does support lossless compression. It's supported by Chrome, Firefox, and Ope
 
 
 ## Debugging
+
+Use the real-time Logs Viewer to watch workflows run with error messages and other
+information from the servers involved.
+BTW, the Logs Viewer supports filtering and searching.
+
+See the [outputs](#Download-the-outputs) for the `logs/` files from the steps of the workflow.
 
 You can load the [Gaia Python client](https://github.com/prismofeverything/gaia) into an interactive
 Python or ipython shell to make calls such as these.
@@ -231,7 +264,7 @@ When a new branch needs a new `wcm-runtime` image, pick a name for the new runti
    python runscripts/cloud/wcm.py
    ```
 
-or setting a workflow user ID to do a CI PR build:
+or set a "workflow user ID" in a CI PR build:
 
    ```sh
    cloud/build-runtime.sh wcm-runtime:pr1234
@@ -239,9 +272,15 @@ or setting a workflow user ID to do a CI PR build:
    WF_ID=PR1234 python runscripts/cloud/wcm.py
    ```
 
-Q. After merging that PR into master, should we then build a new `wcm-runtime:latest` image,
-changing the meaning of that default name for future `wcm-code` image builds? Or enshrine a
-`:version` ID into the scripts?
+**CAUTION:** When using a Docker image name with no :tag, Docker applies the default
+tag "`:latest`".
+**[It does not mean the "latest version"](https://vsupalov.com/docker-latest-tag/)!**
+It's just a default tag name. Pulling with the default tag or with `:latest` (same
+thing) will pull the latest image that has the tag `:latest`, as with any tag.
+It won't pull an image (more recent or not) that has a different tag.
+
+After merging that PR into master, build a new `wcm-runtime` Docker image, changing
+the default (`:latest`) image for future `wcm-code` image builds.
 
 Optimization: The Sisyphus Compute Engine disk image has a copy of the `wcm-runtime` Docker
 image to save tens of seconds in startup time. After creating a new `wcm-runtime` Docker image,

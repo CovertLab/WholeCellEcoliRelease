@@ -36,14 +36,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		# flux targets from boundary
 		self.n_boundary_constrained_reactions = len(self.metabolism.boundary_constrained_reactions)
 		self.n_all_constrained_reactions = self.n_constrained_reactions + self.n_boundary_constrained_reactions
-
-		# Get metabolite names similar to how it's done in the metabolism process
-		self.metaboliteNamesFromNutrients = set()
-		for time, media_id in sim.external_states['Environment'].current_timeline:
-			self.metaboliteNamesFromNutrients.update(
-				sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
-					media_id, sim_data.process.metabolism.nutrientsToInternalConc))
-		self.metaboliteNamesFromNutrients = sorted(self.metaboliteNamesFromNutrients)
+		self.n_metabolites = len(self.metabolism.metaboliteNamesFromNutrients)
 
 	# Allocate memory
 	# In case things are of unknown size, write them here
@@ -52,9 +45,9 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 	# to be filled later
 	def allocate(self):
 		super(EnzymeKinetics, self).allocate()
-		self.metaboliteCountsInit = np.zeros(len(self.metaboliteNamesFromNutrients), np.float64)
-		self.metaboliteCountsFinal = np.zeros(len(self.metaboliteNamesFromNutrients), np.float64)
-		self.metaboliteConcentrations = np.zeros(len(self.metaboliteNamesFromNutrients), np.float64)
+		self.metaboliteCountsInit = np.zeros(self.n_metabolites, np.float64)
+		self.metaboliteCountsFinal = np.zeros(self.n_metabolites, np.float64)
+		self.metaboliteConcentrations = np.zeros(self.n_metabolites, np.float64)
 		self.enzymeIDs = self.metabolism.kineticsEnzymesList
 		self.enzymeCountsInit = np.zeros(len(self.metabolism.kineticsEnzymesList), np.float64)
 		self.countsToMolar = np.zeros(1, np.float64)
@@ -78,7 +71,7 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 
 		tableWriter.writeAttributes(
 			enzymeIDs = self.enzymeIDs,
-			metaboliteNames = self.metaboliteNamesFromNutrients,
+			metaboliteNames = self.metabolism.metaboliteNamesFromNutrients,
 			constrainedReactions = self.metabolism.all_constrained_reactions,
 			kineticsConstrainedReactions = self.metabolism.kinetics_constrained_reactions,
 			boundaryConstrainedReactions = self.metabolism.boundary_constrained_reactions,

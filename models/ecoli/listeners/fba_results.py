@@ -34,16 +34,6 @@ class FBAResults(wholecell.listeners.listener.Listener):
 
 		self.objectiveValue = 0.0
 
-		self.metaboliteNamesFromNutrients = set()
-
-		for time, media_id in sim.external_states['Environment'].current_timeline:
-			self.metaboliteNamesFromNutrients.update(
-				sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
-					media_id, sim_data.process.metabolism.nutrientsToInternalConc
-					)
-				)
-		self.metaboliteNamesFromNutrients = sorted(self.metaboliteNamesFromNutrients)
-
 		# exchange with environment
 		self.all_external_exchange_molecules = sim_data.process.metabolism.boundary.all_external_exchange_molecules
 
@@ -65,7 +55,7 @@ class FBAResults(wholecell.listeners.listener.Listener):
 		self.reducedCosts = np.zeros(len(self.reactionIDs), np.float64)
 		self.homeostaticObjectiveValues = np.zeros(len(self.homeostaticTargetMolecules))
 		self.kineticObjectiveValues = np.zeros(len(self.kineticTargetFluxNames))
-		self.deltaMetabolites = np.zeros(len(self.metaboliteNamesFromNutrients), np.float64)
+		self.deltaMetabolites = np.zeros(len(self.metabolism.metaboliteNamesFromNutrients), np.float64)
 		self.targetConcentrations = np.zeros(len(self.homeostaticTargetMolecules))
 
 		# exchange with environment
@@ -92,7 +82,7 @@ class FBAResults(wholecell.listeners.listener.Listener):
 			outputMoleculeIDs = self.outputMoleculeIDs,
 			homeostaticTargetMolecules = self.homeostaticTargetMolecules,
 			kineticTargetFluxNames = self.kineticTargetFluxNames,
-			metaboliteNames = self.metaboliteNamesFromNutrients,
+			metaboliteNames = self.metabolism.metaboliteNamesFromNutrients,
 			all_external_exchange_molecules = self.all_external_exchange_molecules,
 			subcolumns = subcolumns)
 

@@ -7,7 +7,6 @@ import shutil
 import tempfile
 import unittest
 
-import nose.plugins.attrib as noseAttrib
 
 # def noop_decorator(fcn):
 # 	return fcn
@@ -29,7 +28,6 @@ DATA = {key: np.arange(10.0) + ord(key[0]) for key in COLUMNS}
 
 # TODO(jerry): Test structured dtypes.
 
-@noseAttrib.attr('smalltest', 'table')
 class Test_TableReader_Writer(unittest.TestCase):
 	def setUp(self):
 		self.test_dir = None

@@ -4,7 +4,7 @@ Functions for making media
 # Example use of make_media
 
 ### Create media object
-> media_obj = Media()
+> media_obj = Media(raw_data)
 
 ### Retrieve stock media
 > base_media = media_obj.stock_media['M9_GLC']
@@ -38,8 +38,6 @@ from __future__ import absolute_import, division, print_function
 
 from wholecell.utils import units
 
-# Raw data class
-from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 
 INF = float("inf")
 NEG_INF = float("-inf")
@@ -67,10 +65,7 @@ class Media(object):
 	ingredients at weights.
 	'''
 
-	def __init__(self):
-
-		raw_data = KnowledgeBaseEcoli()
-
+	def __init__(self, raw_data):
 		# get dicts from knowledge base
 		self.environment_molecules_fw = self._get_environment_molecules_fw(raw_data)
 		self.stock_media = self._get_stock_media(raw_data)

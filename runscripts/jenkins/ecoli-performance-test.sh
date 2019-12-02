@@ -6,4 +6,5 @@ make compile
 
 set -e
 
-PYTHONPATH=$PWD:$PYTHONPATH nosetests -a 'performance' --with-xunit --with-coverage --cover-package=wholecell --cover-xml
+# Running it this way prints all timing measurements:
+python -m wholecell.tests.utils.test_library_performance
