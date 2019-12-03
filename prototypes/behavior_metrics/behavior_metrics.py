@@ -8,6 +8,7 @@ from os import path
 from typing import Dict, Any, List, Union
 import re
 import importlib
+import cPickle
 
 import numpy as np
 import pandas as pd
@@ -18,6 +19,8 @@ from prototypes.behavior_metrics.dependency_graph import DependencyGraph
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import filepath
 from wholecell.utils import units
+from models.ecoli.analysis.single.centralCarbonMetabolismScatter import (
+	Plot as fluxome_plot)
 
 
 def calc_end_start_ratio(data):
@@ -57,6 +60,9 @@ SIM_OUT_DIR = (
 	"out/manual/wildtype_000000/000000/generation_000000/000000/simOut"
 )
 
+#: Path to pickle that stores validation data for correlation checks
+VALIDATION_PICKLE_PATH = "out/manual/kb/validationData.cPickle"
+
 #: Map from mode names to the functions that handle the mode
 MODE_FUNC_MAP = {
 	"end_start_ratio": calc_end_start_ratio,
@@ -70,25 +76,42 @@ MODE_FUNC_MAP = {
 	"elementwise_divide": np.divide,
 	"last_elem": lambda x: x[-1],
 	"scalar_subtract": lambda x, y: x - y,
-	"pairwise_diffs": lambda x: np.diff(x),
+	"pairwise_diffs": np.diff,
 	"slice": lambda arr, start, end: arr[start:end],
+	"adjust_toya_data": fluxome_plot.adjust_toya_data,
+	"process_simulated_fluxes": (
+		lambda filter_ids, rxn_ids, fluxes:
+		fluxome_plot.process_simulated_fluxes(
+			filter_ids, rxn_ids, fluxes
+		)[0]
+	),
+	"process_toya_data": fluxome_plot.process_toya_data,
+	"fluxome_common_ids": fluxome_plot.get_common_ids,
+	"pearson_correlation": lambda x, y: np.corrcoef(x, y)[0, 1],
+	"strip_units": lambda to_strip, unit: to_strip.asNumber(unit),
 }
 
 
 class BehaviorMetrics(object):
 	"""Tests for model behavior metrics"""
 
-	def __init__(self, metrics_conf_path, sim_out_dir):
+	def __init__(
+		self, metrics_conf_path, sim_out_dir, validation_path=None
+	):
 		# type: (str, str) -> None
-		"""Store metrics configuration path and simulation output dir
+		"""Store provided paths.
 
 		Arguments:
 			metrics_conf_path: Path to the metrics configuration JSON
-				file
-			sim_out_dir: Path to the simulation output directory
+				file.
+			sim_out_dir: Path to the simulation output directory.
+			validation_path: Path to validation data cPickle. May be
+				excluded or set to None if no validation data will be
+				used.
 		"""
 		self.metrics_conf_path = metrics_conf_path
 		self.sim_out_dir = sim_out_dir
+		self.validation_path = validation_path
 
 	def calc_metrics(self):
 		# type: () -> pd.DataFrame
@@ -112,9 +135,13 @@ class BehaviorMetrics(object):
 			representation of whether this is true.
 		"""
 		metrics_conf = filepath.read_json_file(self.metrics_conf_path)
+		pickles = {}
+		if self.validation_path:
+			with open(self.validation_path, "rb") as f:
+				pickles["validation_data"] = cPickle.load(f)
 		results = []
 		for metric, config in metrics_conf.items():
-			data = self.load_data_from_config(config["data"])
+			data = self.load_data_from_config(config["data"], pickles)
 			ordered_ops = BehaviorMetrics.order_operations(
 				config["operations"]
 			)
@@ -149,7 +176,7 @@ class BehaviorMetrics(object):
 		]
 		return op_func(*func_args)
 
-	def load_data_from_config(self, data_conf_json):
+	def load_data_from_config(self, data_conf_json, pickles={}):
 		# type: (Dict[str, Any]) -> Dict[str, Any]
 		"""Load data as specified in a configuration JSON.
 
@@ -218,6 +245,9 @@ class BehaviorMetrics(object):
 		Arguments:
 			data_conf_json: Parsed JSON dictionary that defines any number
 				of data sources and how to load data from them.
+			pickles: Dictionary of loaded pickles. Each key-value pair
+				maps the name by which the pickle is referenced in the
+				config to the loaded pickle.
 
 		Returns:
 			A dictionary where each key is the name of a data source and
@@ -236,6 +266,17 @@ class BehaviorMetrics(object):
 					self.sim_out_dir, source_config["table"],
 					source_config["column"], source_config["subcolumn"]
 				)
+			elif "import" in source_config:
+				data = BehaviorMetrics._load_from_import_string(
+					source_config["import"])
+			elif "cPickle" in source_config:
+				pickle = pickles[source_config["cPickle"]]
+				data = pickle
+				if "dotted_name" in source_config:
+					data = BehaviorMetrics._resolve_dotted_name(
+						data, source_config["dotted_name"])
+				if "dict_key" in source_config:
+					data = data[source_config["dict_key"]]
 			elif "table" in source_config:
 				reader = TableReader(
 					path.join(self.sim_out_dir, source_config["table"]))
@@ -257,6 +298,14 @@ class BehaviorMetrics(object):
 			loaded_data[source_name] = data
 
 		return loaded_data
+
+	@staticmethod
+	def _resolve_dotted_name(obj, name):
+		# type: (object, str) -> Any
+		names = name.split(".")
+		for name_part in names:
+			obj = getattr(obj, name_part)
+		return obj
 
 	@staticmethod
 	def parse_units(unit_def):
@@ -385,7 +434,8 @@ class BehaviorMetrics(object):
 
 def main():
 	"""Main function that runs tests"""
-	metrics = BehaviorMetrics(METRICS_CONF_PATH, SIM_OUT_DIR)
+	metrics = BehaviorMetrics(
+		METRICS_CONF_PATH, SIM_OUT_DIR, VALIDATION_PICKLE_PATH)
 	results = metrics.calc_metrics()
 	pd.options.display.width = None
 	print(results)

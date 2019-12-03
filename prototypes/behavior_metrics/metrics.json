@@ -280,5 +280,78 @@
                 "range": [0, 0]
             }
         }
+    },
+    "fluxomeCorrelation": {
+        "data": {
+            "FLUX_UNITS": {
+                "import": "models.ecoli.analysis.single.centralCarbonMetabolismScatter.FLUX_UNITS"
+            },
+            "sim_reaction_ids": {
+                "table": "FBAResults",
+                "attribute": "reactionIDs"
+            },
+            "sim_fluxes_unprocessed": {
+                "table": "FBAResults",
+                "column": "reactionFluxes",
+                "units": {
+                    "import": "models.ecoli.analysis.single.centralCarbonMetabolismScatter.FLUX_UNITS"
+                }
+            },
+            "toya_fluxes_unprocessed": {
+                "cPickle": "validation_data",
+                "dotted_name": "reactionFlux.toya2010fluxes",
+                "dict_key": "reactionFlux"
+            },
+            "toya_reaction_ids": {
+                "cPickle": "validation_data",
+                "dotted_name": "reactionFlux.toya2010fluxes",
+                "dict_key": "reactionID"
+            },
+            "cell_mass": {
+                "table": "Mass",
+                "column": "cellMass",
+                "units": "fg"
+            },
+            "dry_mass": {
+                "table": "Mass",
+                "column": "dryMass",
+                "units": "fg"
+            },
+            "cell_density": {
+                "constant": 1100,
+                "units": "g/L"
+            }
+        },
+        "operations": {
+            "toya_fluxes_adjusted": {
+                "function": "adjust_toya_data",
+                "args": ["toya_fluxes_unprocessed", "cell_mass", "dry_mass", "cell_density"]
+            },
+            "filter_ids": {
+                "function": "fluxome_common_ids",
+                "args": ["toya_reaction_ids", "sim_reaction_ids"]
+            },
+            "sim_fluxes": {
+                "function": "process_simulated_fluxes",
+                "args": ["filter_ids", "sim_reaction_ids", "sim_fluxes_unprocessed"]
+            },
+            "toya_fluxes": {
+                "function": "process_toya_data",
+                "args": ["filter_ids", "toya_reaction_ids", "toya_fluxes_adjusted"]
+            },
+            "sim_fluxes_unitless": {
+                "function": "strip_units",
+                "args": ["sim_fluxes", "FLUX_UNITS"]
+            },
+            "toya_fluxes_unitless": {
+                "function": "strip_units",
+                "args": ["toya_fluxes", "FLUX_UNITS"]
+            },
+            "correlation": {
+                "function": "pearson_correlation",
+                "args": ["sim_fluxes_unitless", "toya_fluxes_unitless"],
+                "range": [0, 0]
+            }
+        }
     }
 }

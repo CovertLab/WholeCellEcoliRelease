@@ -140,15 +140,14 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		reaction_ids, reaction_fluxes = Plot.load_fba_data(simOutDir)
 		toya_reactions, toya_fluxes, toya_stdevs = Plot.load_toya_data(
 			validationDataFile, simDataFile, simOutDir)
-		common_ids = [
-			rxn_id for rxn_id in toya_reactions
-			if Plot.regex_in_list(rxn_id, reaction_ids)
-		]
+		common_ids = Plot.get_common_ids(toya_reactions, reaction_ids)
 
 		sim_flux_means, sim_flux_stdevs = Plot.process_simulated_fluxes(
 			common_ids, reaction_ids, reaction_fluxes)
-		toya_flux_means, toya_flux_stdevs = Plot.process_toya_fluxes(
-			common_ids, toya_reactions, toya_fluxes, toya_stdevs)
+		toya_flux_means = Plot.process_toya_data(
+			common_ids, toya_reactions, toya_fluxes)
+		toya_flux_stdevs = Plot.process_toya_data(
+			common_ids, toya_reactions, toya_stdevs)
 
 		correlation_coefficient = np.corrcoef(
 			sim_flux_means.asNumber(FLUX_UNITS),
@@ -170,6 +169,13 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close("all")
+
+	@staticmethod
+	def get_common_ids(toya_reaction_ids, sim_reaction_ids):
+		return [
+			rxn_id for rxn_id in toya_reaction_ids
+			if Plot.regex_in_list(rxn_id, sim_reaction_ids)
+		]
 
 	@staticmethod
 	def regex_in_list(regex, lst):
@@ -219,6 +225,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			order as their associated reaction IDs in output_ids. Both
 			lists will have units FLUX_UNITS.
 		"""
+		np.set_printoptions(threshold=np.inf)
+		reaction_ids = np.array(reaction_ids)
 		means = []
 		stdevs = []
 		for output_id in output_ids:
@@ -240,43 +248,32 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		return means, stdevs
 
 	@staticmethod
-	def process_toya_fluxes(
+	def process_toya_data(
 		output_ids,  # type: Iterable[str]
 		reaction_ids,  # type: Iterable[str]
-		fluxes,  # type: Unum
-		stdevs,  # type: Unum
+		data,  # type: Unum
 	):
-		# type: (...) -> Tuple[Unum, Unum]
-		"""Filter toya fluxes and standard deviations by reaction ID
+		# type: (...) -> Unum
+		"""Filter toya fluxes or standard deviations by reaction ID
 
 		Arguments:
 			output_ids: IDs of reactions to include in the output.
 			reaction_ids: IDs of the reactions whose fluxes and standard
 				deviations are provided, in the order in which the
 				rections' values appear in fluxes and stdevs.
-			fluxes: 1-dimensional numpy array (with units FLUX_UNITS)
-				with average reaction fluxes.
-			stdevs: 1-dimensional numpy array (with units FLUX_UNITS)
-				with the standard deviations of reaction fluxes.
+			data: 1-dimensional numpy array (with units FLUX_UNITS)
+				with average reaction fluxes or standard deviations.
 
 		Returns:
-			Tuple of the reaction fluxes and standard deviations, with
-			each list in the order specified by output_ids. Both lists
-			are of units FLUX_UNITS.
+			List of data in the order specified by output_ids. List is
+			of units FLUX_UNITS.
 		"""
-		fluxes_dict = dict(zip(reaction_ids, fluxes))
-		stdevs_dict = dict(zip(reaction_ids, stdevs))
-		output_fluxes = [
-			fluxes_dict[output_id].asNumber(FLUX_UNITS)
+		data_dict = dict(zip(reaction_ids, data))
+		output_data = [
+			data_dict[output_id].asNumber(FLUX_UNITS)
 			for output_id in output_ids
 		]
-		output_stdevs = [
-			stdevs_dict[output_id].asNumber(FLUX_UNITS)
-			for output_id in output_ids
-		]
-		output_fluxes = FLUX_UNITS * np.array(output_fluxes)
-		output_stdevs = FLUX_UNITS * np.array(output_stdevs)
-		return output_fluxes, output_stdevs
+		return FLUX_UNITS * np.array(output_data)
 
 
 if __name__ == "__main__":
