@@ -75,12 +75,12 @@ class LocalEnvironment(wholecell.states.external_state.ExternalState):
 
 		self.saved_media = sim_data.external_state.environment.saved_media
 		self.current_media_id = self.current_timeline[0][1]
-		self.current_media = self.saved_media[self.current_media_id]
+		current_media = self.saved_media[self.current_media_id]
 		self._times = [t[0] for t in self.current_timeline]
 
 		# initialize molecule IDs and concentrations based on initial environment
-		self._moleculeIDs = [molecule_id for molecule_id, concentration in self.current_media.iteritems()]
-		self._concentrations = np.array([concentration for molecule_id, concentration in self.current_media.iteritems()])
+		self._moleculeIDs = [molecule_id for molecule_id, concentration in current_media.iteritems()]
+		self._concentrations = np.array([current_media[molecule_id] for molecule_id in self._moleculeIDs])
 		self._env_delta_counts = dict((molecule_id, 0) for molecule_id in self._moleculeIDs)
 
 		# create bulk container for molecule concentrations. This uses concentrations instead of counts.
@@ -98,7 +98,8 @@ class LocalEnvironment(wholecell.states.external_state.ExternalState):
 
 		if self.current_media_id != self.current_timeline[current_index][1]:
 			self.current_media_id = self.current_timeline[current_index][1]
-			self._concentrations = np.array([concentration for id, concentration in self.saved_media[self.current_media_id].iteritems()])
+			current_media = self.saved_media[self.current_media_id]
+			self._concentrations = np.array([current_media[molecule_id] for molecule_id in self._moleculeIDs])
 			self.container.countsIs(self._concentrations)
 			print('update media: {}'.format(self.current_media_id))
 
