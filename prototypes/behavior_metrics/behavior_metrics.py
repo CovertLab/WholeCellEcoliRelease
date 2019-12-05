@@ -5,10 +5,11 @@
 
 from __future__ import absolute_import, division, print_function
 from os import path
-from typing import Dict, Any, List, Union
+from typing import Dict, Any, List, Union, Iterable
 import re
 import importlib
 import cPickle
+from collections import namedtuple
 
 import numpy as np
 import pandas as pd
@@ -52,6 +53,53 @@ def calc_active_fraction(active_counts, inactive_counts):
 	return active_counts / (active_counts + inactive_counts)
 
 
+def find_limiting_metabolites(counts, names, window):
+	# type: (np.ndarray, Iterable[str], int) -> Iterable[str]
+	"""Find all metabolites that are limiting for some period of time.
+
+	A metabolite is considered limiting over a window of time if, within
+	that window, its count remains constant.
+
+	Arguments:
+		counts: Counts of the metabolites over time. Should be a matrix
+			with a column for each metabolite and a row for each time
+			point.
+		names: Names of the metabolites, in the same order as the
+			columns for the metabolites appear in counts.
+		window: Length of the window to use, in units of rows of counts.
+
+	Returns:
+		An iterable collection with the unsorted names of all
+		metabolites ever found to be limiting in counts.
+	"""
+	names = np.array(names)
+	limiting = set()
+	diff = np.diff(counts, axis=0)
+	for i in xrange(diff.shape[0] - window):
+		production_in_window = np.any(diff[i:i + window] > 0, axis=0)
+		i_unproduced_metabolites = np.where(
+			production_in_window == False)[0].astype(int)
+		if len(i_unproduced_metabolites):
+			curr_limiting = names[i_unproduced_metabolites]
+			limiting.update(curr_limiting)
+	return limiting
+
+
+def normalize_to_column(to_normalize, column_index):
+	# type: (np.ndarray) -> np.ndarray
+	"""Normalize a matrix by dividing all columns by some column.
+
+	Arguments:
+		to_normalize: The matrix to normalize.
+		column_index: The index of the column in the matrix to divide
+			by.
+
+	Returns:
+		The normalized matrix.
+	"""
+	return to_normalize / to_normalize[column_index, :]
+
+
 #: Path from repository root to metrics configuration JSON file
 METRICS_CONF_PATH = "prototypes/behavior_metrics/metrics.json"
 
@@ -89,6 +137,9 @@ MODE_FUNC_MAP = {
 	"fluxome_common_ids": fluxome_plot.get_common_ids,
 	"pearson_correlation": lambda x, y: np.corrcoef(x, y)[0, 1],
 	"strip_units": lambda to_strip, unit: to_strip.asNumber(unit),
+	"find_limiting_metabolites": find_limiting_metabolites,
+	"normalize_to_column": normalize_to_column,
+	"len": len,
 }
 
 
@@ -134,6 +185,13 @@ class BehaviorMetrics(object):
 			within [expected_min, expected_max]. Pass is a boolean
 			representation of whether this is true.
 		"""
+		Result = namedtuple(
+			"Result",
+			[
+				"metric", "mode", "expected_min", "expected_max",
+				"value", "passes"
+			],
+		)
 		metrics_conf = filepath.read_json_file(self.metrics_conf_path)
 		pickles = {}
 		if self.validation_path:
@@ -152,19 +210,23 @@ class BehaviorMetrics(object):
 				data[op] = metric_val
 				if "range" in op_config:
 					expected_min, expected_max = op_config["range"]
-					result = pd.DataFrame(
-						[[metric, op, expected_min, expected_max, metric_val]],
-						columns=[
-							"metric", "mode", "expected_min",
-							"expected_max", "value"
-						],
+					in_bounds = (
+						expected_min <= metric_val <= expected_max)
+					result = Result(
+						metric, op, expected_min, expected_max,
+						metric_val, in_bounds
 					)
 					results.append(result)
-		results_df = pd.concat(results, ignore_index=True)
-		results_df["pass"] = (
-			(results_df["expected_min"] <= results_df["value"])
-			& (results_df["value"] <= results_df["expected_max"])
-		)
+				elif "expected_set" in op_config:
+					expected = set(op_config["expected_set"])
+					matches = expected == metric_val
+					result = Result(
+						metric, op, None, None,
+						metric_val, matches
+					)
+					results.append(result)
+
+		results_df = pd.DataFrame(results)
 		return results_df
 
 	@staticmethod
