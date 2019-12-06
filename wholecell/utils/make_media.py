@@ -119,8 +119,6 @@ class Media(object):
 			recipe["added media"] = row.get("added media", None)
 			recipe["ingredients"] = row.get("ingredients", None)
 
-			# TODO -- with units placed on Infinity, it makes entries return TypeError: can't multiply sequence by non-int of type 'float'
-			# TODO -- This still works for making media, but you can't read the recipes
 			recipe["base media volume"] = row.get("base media volume", 0 * units.L)
 			recipe["added media volume"] = row.get("added media volume", 0 * units.L)
 			recipe["ingredients weight"] = row.get("ingredients weight", None)

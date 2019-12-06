@@ -57,7 +57,11 @@ class JsonReader(csv.DictReader):
 			try:
 				attribute = re.search('(.*?) \(', key).group(1)
 				value_units =  eval(re.search('\((.*?)\)',key).group(1))
-				attributeDict[attribute] = value * value_units
+				# Units do not work with lists so need to convert to ndarray
+				if isinstance(value, list):
+					attributeDict[attribute] = value_units * np.array(value)
+				else:
+					attributeDict[attribute] = value_units * value
 			except AttributeError:
 				attributeDict[key] = value
 		return attributeDict
