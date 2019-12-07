@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 
 import os
@@ -56,13 +56,11 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 		for varIdx in range(ap.n_variant):
 			variant = variants[varIdx]
-			print "variant {}".format(variant)
 			all_cells = ap.get_cells(variant=[variant])
-			print "Total cells: {}".format(len(all_cells))
 			try:
 				sim_data = cPickle.load(open(ap.get_variant_kb(variant)))
 			except Exception as e:
-				print "Couldn't load sim_data object. Exiting.", e
+				print("Couldn't load sim_data object. Exiting.", e)
 				return
 
 			num_origin_at_init = np.zeros(len(all_cells))
@@ -72,15 +70,13 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			meanRrnInitRate = np.zeros(len(all_cells))
 
 			for idx, simDir in enumerate(all_cells):
-				print "cell {} of {}".format(idx, len(all_cells))
-
 				simOutDir = os.path.join(simDir, "simOut")
 
 				try:
 					main_reader = TableReader(os.path.join(simOutDir, "Main"))
 					time = main_reader.readColumn("time")
 				except Exception as e:
-					print 'Error with data for %s: %s' % (simDir, e)
+					print('Error with data for %s: %s' % (simDir, e))
 					continue
 
 				doubling_time[idx] = time[-1] - time[0]

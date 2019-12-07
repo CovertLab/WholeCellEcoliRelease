@@ -1,12 +1,11 @@
 """
 Plot NTP counts
 
-@author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 5/8/2014
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -50,7 +49,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			plt.ylabel("Counts")
 			plt.title(NTP_IDS[idx])
 
-		print "NTPs required for cell division (nt/cell-cycle) = %d" % sum(ntpCounts[0, :])
 		plt.subplots_adjust(hspace = 0.5)
 
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
