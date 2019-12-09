@@ -16,6 +16,7 @@ sh runscripts/jenkins/fireworks-config.sh $HOST $NAME $PORT $PASSWORD
 echo y | lpad reset
 
 PYTHONPATH=$PWD DESC="No tRNA Charging" SINGLE_DAUGHTERS=1 N_GENS=8 TRNA_CHARGING=0 COMPRESS_OUTPUT=1 PLOTS=ACTIVE RAISE_ON_TIME_LIMIT=1 python runscripts/fireworks/fw_queue.py
+PYTHONPATH=$PWD DESC="ppGpp regulation" PPGPP_REGULATION=1 SINGLE_DAUGHTERS=1 N_GENS=8 COMPRESS_OUTPUT=1 PLOTS=ACTIVE RAISE_ON_TIME_LIMIT=1 python runscripts/fireworks/fw_queue.py
 PYTHONPATH=$PWD DESC="Causality Network" SINGLE_DAUGHTERS=1 N_GENS=2 BUILD_CAUSALITY_NETWORK=1 COMPRESS_OUTPUT=1 RAISE_ON_TIME_LIMIT=1 python runscripts/fireworks/fw_queue.py
 
 PYTHONPATH=$PWD rlaunch rapidfire --nlaunches 0

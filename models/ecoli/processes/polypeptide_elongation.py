@@ -576,10 +576,6 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 				spot_conc, ppgpp_conc, self.counts_to_molar, limits=limits,
 				)
 
-			self.process.writeToListener('GrowthLimits', 'ppgpp_synthesis_reactions', ppgpp_syn)
-			self.process.writeToListener('GrowthLimits', 'ppgpp_degradation_reactions', ppgpp_deg)
-			self.process.writeToListener('GrowthLimits', 'rela_conc', rela_conc.asNumber(MICROMOLAR_UNITS))
-			self.process.writeToListener('GrowthLimits', 'spot_conc', spot_conc.asNumber(MICROMOLAR_UNITS))
 			self.process.writeToListener('GrowthLimits', 'rela_syn', rela_syn)
 			self.process.writeToListener('GrowthLimits', 'spot_syn', spot_syn)
 			self.process.writeToListener('GrowthLimits', 'spot_deg', spot_deg)

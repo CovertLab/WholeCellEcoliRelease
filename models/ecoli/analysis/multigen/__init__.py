@@ -21,6 +21,7 @@ ACTIVE = [
 	"massShift.py",
 	"mene_limitations.py",
 	# "probProteinExistAndDouble.py",
+	"ppgpp_regulation.py",
 	"proteinAvgCountVsBurstSize.py",
 	"proteinCountVsFoldChange.py",
 	"proteinCountsValidation.py",
@@ -65,8 +66,11 @@ TAGS = {
 		],
 	'GROWTH': [
 		"aa_conc.py",
+		"cellCycleLength.py",
 		"charging_molecules.py",
 		"growthAffectingPolymerases.py",
+		"massFractionSummary.py",
+		"ppgpp_regulation.py",
 		],
 	'METABOLISM': [
 		"aa_conc.py",

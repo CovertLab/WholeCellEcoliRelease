@@ -41,7 +41,8 @@ def calcInitialConditions(sim, sim_data):
 	uniqueMolCntr = sim.internal_states["UniqueMolecules"].container
 
 	# Set up states
-	initializeBulkMolecules(bulkMolCntr, sim_data, sim.external_states['Environment'].current_media_id, randomState, massCoeff)
+	initializeBulkMolecules(bulkMolCntr, sim_data, sim.external_states['Environment'].current_media_id,
+		randomState, massCoeff, sim._ppgpp_regulation)
 	initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
 
 	# Must be called after unique and bulk molecules are initialized to get
@@ -50,13 +51,13 @@ def calcInitialConditions(sim, sim_data):
 		elongation_model = SteadyStateElongationModel(sim_data, sim.processes['PolypeptideElongation'])
 		initialize_trna_charging(sim_data, sim.internal_states, elongation_model.calculate_trna_charging)
 
-def initializeBulkMolecules(bulkMolCntr, sim_data, current_media_id, randomState, massCoeff):
+def initializeBulkMolecules(bulkMolCntr, sim_data, current_media_id, randomState, massCoeff, ppgpp_regulation):
 
 	# Set protein counts from expression
-	initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff)
+	initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff, ppgpp_regulation)
 
 	# Set RNA counts from expression
-	initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff)
+	initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff, ppgpp_regulation)
 
 	# Set other biomass components
 	initializeSmallMolecules(bulkMolCntr, sim_data, current_media_id, randomState, massCoeff)
@@ -131,15 +132,21 @@ def initialize_trna_charging(sim_data, states, calc_charging):
 	charged_trna.countsIs(charged_trna_counts)
 	uncharged_trna.countsIs(uncharged_trna_counts)
 
-def initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff):
+def initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff, ppgpp_regulation):
 
 	monomersView = bulkMolCntr.countsView(sim_data.process.translation.monomerData["id"])
 	monomerMass = massCoeff * sim_data.mass.getFractionMass(sim_data.conditionToDoublingTime[sim_data.condition])["proteinMass"] / sim_data.mass.avgCellToInitialCellConvFactor
 	# TODO: unify this logic with the parca so it doesn't fall out of step
 	# again (look at the calcProteinCounts function)
 
+	if ppgpp_regulation:
+		ppgpp = sim_data.growthRateParameters.getppGppConc(sim_data.conditionToDoublingTime[sim_data.condition])
+		rnaExpression = sim_data.process.transcription.expression_from_ppgpp(ppgpp)
+	else:
+		rnaExpression = sim_data.process.transcription.rnaExpression[sim_data.condition]
+
 	monomerExpression = normalize(
-		sim_data.process.transcription.rnaExpression[sim_data.condition][sim_data.relation.rnaIndexToMonomerMapping] *
+		rnaExpression[sim_data.relation.rnaIndexToMonomerMapping] *
 		sim_data.process.translation.translationEfficienciesByMonomer /
 		(np.log(2) / sim_data.conditionToDoublingTime[sim_data.condition].asNumber(units.s) + sim_data.process.translation.monomerData["degRate"].asNumber(1 / units.s))
 		)
@@ -155,12 +162,16 @@ def initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff):
 		randomState.multinomial(nMonomers, monomerExpression)
 		)
 
-def initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff):
+def initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff, ppgpp_regulation):
 
 	rnaView = bulkMolCntr.countsView(sim_data.process.transcription.rnaData["id"])
 	rnaMass = massCoeff * sim_data.mass.getFractionMass(sim_data.conditionToDoublingTime[sim_data.condition])["rnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
 
-	rnaExpression = normalize(sim_data.process.transcription.rnaExpression[sim_data.condition])
+	if ppgpp_regulation:
+		ppgpp = sim_data.growthRateParameters.getppGppConc(sim_data.conditionToDoublingTime[sim_data.condition])
+		rnaExpression = sim_data.process.transcription.expression_from_ppgpp(ppgpp)
+	else:
+		rnaExpression = normalize(sim_data.process.transcription.rnaExpression[sim_data.condition])
 
 	nRnas = countsFromMassAndExpression(
 		rnaMass.asNumber(units.g),

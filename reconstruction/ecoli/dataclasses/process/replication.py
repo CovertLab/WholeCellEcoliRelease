@@ -23,6 +23,8 @@ class Replication(object):
 
 	def __init__(self, raw_data, sim_data):
 		self._n_nt_types = len(sim_data.dNtpOrder)
+		self._c_period = sim_data.growthRateParameters.c_period.asNumber(units.min)
+		self._d_period = sim_data.growthRateParameters.d_period.asNumber(units.min)
 
 		self._buildSequence(raw_data, sim_data)
 		self._buildGeneData(raw_data, sim_data)
@@ -202,3 +204,22 @@ class Replication(object):
 			dtype=np.int64)
 
 		return rates
+
+	def get_average_copy_number(self, tau, coords):
+		"""
+		Calculates the average copy number of a gene throughout the cell cycle
+		given the location of the gene in coordinates.
+		"""
+
+		right_replichore_length = self.replichore_lengths[0]
+		left_replichore_length = self.replichore_lengths[1]
+
+		# Calculate the relative position of the gene along the chromosome
+		# from its coordinate
+		relative_pos = coords.astype(float)
+		relative_pos[coords > 0] = relative_pos[coords > 0] / right_replichore_length
+		relative_pos[coords < 0] = -relative_pos[coords < 0] / left_replichore_length
+
+		# Return the predicted average copy number
+		n_avg_copy = 2**(((1 - relative_pos) * self._c_period + self._d_period) / tau)
+		return n_avg_copy

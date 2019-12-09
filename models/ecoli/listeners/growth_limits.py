@@ -68,10 +68,6 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 		self.ntpAllocated = np.zeros(n_ntp, np.float64)
 		self.ntpUsed = np.zeros(n_ntp, np.float64)
 
-		self.ppgpp_degradation_reactions = 0
-		self.ppgpp_synthesis_reactions = 0
-		self.rela_conc = 0.
-		self.spot_conc = 0.
 		self.rela_syn = 0.
 		self.spot_syn = 0.
 		self.spot_deg = 0.
@@ -119,11 +115,7 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 			ntpRequestSize = self.ntpRequestSize,
 			ntpAllocated = self.ntpAllocated,
 			ntpUsed = self.ntpUsed,
-			ppgpp_degradation_reactions = self.ppgpp_degradation_reactions,
-			ppgpp_synthesis_reactions = self.ppgpp_synthesis_reactions,
 			rela_syn = self.rela_syn,
 			spot_syn = self.spot_syn,
 			spot_deg = self.spot_deg,
-			rela_conc = self.rela_conc,
-			spot_conc = self.spot_conc,
 			)

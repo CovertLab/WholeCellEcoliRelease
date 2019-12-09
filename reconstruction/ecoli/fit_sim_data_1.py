@@ -131,6 +131,10 @@ def fitSimData_1(
 		disable_rnapoly_capacity_fitting
 		)
 
+	# Set expression based on ppGpp regulation from basal expression
+	sim_data.process.transcription.set_ppgpp_expression(sim_data)
+	# TODO (Travis): use ppGpp expression in condition fitting below
+
 	# Modify other properties
 
 	# Re-compute Km's
@@ -220,6 +224,9 @@ def fitSimData_1(
 		print('Fitting promoter binding')
 	rVector = fitPromoterBoundProbability(sim_data, cellSpecs)
 	fitLigandConcentrations(sim_data, cellSpecs)
+
+	# Adjust ppGpp regulated expression after conditions have been fit for physiological constraints
+	sim_data.process.transcription.adjust_polymerizing_ppgpp_expression(sim_data)
 
 	for condition_label in sorted(cellSpecs):
 		condition = sim_data.conditions[condition_label]

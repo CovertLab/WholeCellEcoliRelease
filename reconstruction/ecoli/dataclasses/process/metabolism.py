@@ -458,7 +458,7 @@ class Metabolism(object):
 		'''
 		Creates structures for ppGpp reactions for use in polypeptide_elongation.
 
-		Adds the following attributes to the class:
+		Attributes set:
 			ppgpp_synthesis_reaction (str): reaction ID for ppGpp synthesis
 				(catalyzed by RelA and SpoT)
 			ppgpp_degradation_reaction (str): reaction ID for ppGpp degradation

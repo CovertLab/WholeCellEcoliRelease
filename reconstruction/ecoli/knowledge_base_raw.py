@@ -38,6 +38,8 @@ LIST_OF_DICT_FILENAMES = (
 	"modifiedFormsStoichiometry.tsv",
 	"modifiedRnas.tsv",
 	"polymerized.tsv",
+	"ppgpp_fc.tsv",
+	"ppgpp_regulation.tsv",
 	"previousBiomassFluxes.tsv",
 	"promoters.tsv",
 	"protein_half_lives.tsv",
