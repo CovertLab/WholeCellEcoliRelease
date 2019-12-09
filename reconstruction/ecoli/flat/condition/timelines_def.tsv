@@ -2,7 +2,7 @@
 "timeline"	"events"
 "000000_basal"	"0 minimal"
 "000001_cut_glucose"	"0 minimal, 1200 minimal_no_glucose"
-"000002_add_aa"	"0 minimal, 11000 minimal_plus_amino_acids"
+"000002_add_aa"	"0 minimal, 1200 minimal_plus_amino_acids"
 "000003_aa"	"0 minimal_plus_amino_acids"
 "000004_oxygen_absent"	"0 minimal_minus_oxygen"
 "000005_indole_present"	"0 minimal_plus_indole"
