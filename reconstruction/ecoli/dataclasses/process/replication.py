@@ -209,6 +209,14 @@ class Replication(object):
 		"""
 		Calculates the average copy number of a gene throughout the cell cycle
 		given the location of the gene in coordinates.
+
+		Args:
+			tau (float): expected doubling time in minutes
+			coords (int or ndarray[int]): chromosome coordinates of genes
+
+		Returns:
+			float or ndarray[float] (matches length of coords): average copy
+			number of each gene expected at a doubling time, tau
 		"""
 
 		right_replichore_length = self.replichore_lengths[0]
@@ -216,7 +224,7 @@ class Replication(object):
 
 		# Calculate the relative position of the gene along the chromosome
 		# from its coordinate
-		relative_pos = coords.astype(float)
+		relative_pos = np.array(coords, float)
 		relative_pos[coords > 0] = relative_pos[coords > 0] / right_replichore_length
 		relative_pos[coords < 0] = -relative_pos[coords < 0] / left_replichore_length
 
