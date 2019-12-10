@@ -216,11 +216,30 @@ class Task(object):
 
 
 class Workflow(object):
-	"""A workflow builder."""
+	"""A Gaia workflow builder."""
 
-	def __init__(self, name, verbose_logging=True):
-		# type: (str, bool) -> None
+	def __init__(self, name, owner_id='', verbose_logging=True):
+		# type: (str, str, bool) -> None
+		"""
+		Construct a workflow builder, ready to add Tasks.
+
+		Args:
+			name: Each workflow needs a name that's unique among all workflows
+				in the Gaia server. Standard practice is to construct a name in
+				the form `OWNER_PROGRAM_DATETIME`, e.g.
+				`crick_DemoWorkflow_20191209.133734` to aid sorting and
+				filtering workflows.
+				See filepath.timestamp() for the datetime format.
+
+			owner_id: Sets the `owner` name for this workflow to enable
+				filtering the workflow list by owner. E.g. the user name or a
+				CI build name. Defaults to the $USER environment variable.
+
+			verbose_logging: Enables verbose logging while building a workflow.
+		"""
+		self.owner_id = owner_id or os.environ['USER']
 		self.name = name
+		self.properties = {'owner': self.owner_id}
 		self.verbose_logging = verbose_logging
 		self._tasks = OrderedDict()  # type: Dict[str, Task]
 
@@ -263,6 +282,11 @@ class Workflow(object):
 		# type: (str) -> Task
 		return self._tasks[task_name]
 
+	def add_properties(self, **kwargs):
+		# type: (Any) -> None
+		"""Add more Gaia properties to the workflow, e.g. 'description'."""
+		self.properties.update(kwargs)
+
 	def add_task(self, task):
 		# type: (Task) -> Task
 		"""Add a Task object. It creates a workflow step. Return it for chaining."""
@@ -300,6 +324,8 @@ class Workflow(object):
 		fp.write_json_file(commands_path, commands)
 		fp.write_json_file(steps_path, steps)
 
+		self.log_info('Associated properties = {}'.format(self.properties))
+
 	def launch_workers(self, count):
 		# type: (int) -> None
 		"""Launch the requested number of Sisyphus worker nodes (GCE VMs)."""
@@ -321,14 +347,18 @@ class Workflow(object):
 
 		commands = self.build_commands()
 		steps = self.build_steps()
+		self.properties['requested-worker-count'] = worker_count
 
 		gaia = Gaia(GAIA_CONFIG)
 
 		try:
-			self.log_info('\nUploading {} steps to Gaia for workflow {}'.format(
-				len(steps), self.name))
-			gaia.command(self.name, commands)
-			gaia.merge(self.name, steps)
+			self.log_info('\nUploading workflow {} to Gaia with {} steps'.format(
+				self.name, len(steps)))
+			gaia.upload(
+				workflow=self.name,
+				properties=self.properties,
+				commands=commands,
+				steps=steps)
 		except ConnectionError as e:
 			print('\n*** Did you set up port forwarding to the gaia host? See'
 				  ' runscripts/cloud/ssh-tunnel.sh ***\n')

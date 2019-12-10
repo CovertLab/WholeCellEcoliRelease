@@ -30,18 +30,22 @@ class WcmWorkflow(Workflow):
 			description='', cli_storage_root=None):
 		# type: (str, str, bool, str, Optional[str]) -> None
 		name = '{}_WCM_{}'.format(owner_id, timestamp)
-		super(WcmWorkflow, self).__init__(name, verbose_logging=verbose_logging)
+		super(WcmWorkflow, self).__init__(
+			name, owner_id=owner_id, verbose_logging=verbose_logging)
 
-		self.owner_id = owner_id
 		self.timestamp = timestamp
-		self.image = DOCKER_IMAGE.format(self.owner_id)
+		self.image = DOCKER_IMAGE.format(owner_id)
 
-		subdir = self.timestamp + ('__' + description if description else '')
+		subdir = self.timestamp + (
+			'__' + _sanitize_description(description) if description else '')
 		self.storage_prefix = posixpath.join(
 			self.storage_root(cli_storage_root), 'WCM', subdir, '')
 		self.internal_prefix = posixpath.join(posixpath.sep, 'wcEcoli', 'out', 'wf')
 
 		self.log_info('\nStorage prefix: {}'.format(self.storage_prefix))
+
+		if description:
+			self.add_properties(description=description)
 
 	def internal(self, *path_elements):
 		# type: (*str) -> str
@@ -272,18 +276,25 @@ class WcmWorkflow(Workflow):
 				inputs=variant_analysis_inputs,
 				outputs=[variant_plot_dir])
 
+def _sanitize_description(description):
+	# type (str) -> str
+	"""Sanitize the description and check that it's legal in a file path."""
+	description = description.replace(' ', '_')
+
+	pattern = r'[-.\w]*$'
+	assert re.match(pattern, description), (
+		"description {!r} doesn't match the regex pattern {!r} for a file path."
+			.format(description, pattern))
+
+	return description
+
 
 def wc_ecoli_workflow(args):
 	# type: (Dict[str, Any]) -> WcmWorkflow
 	"""Build a workflow for wcEcoli."""
 	owner_id = args['id'] or os.environ.get('WF_ID', os.environ['USER'])
 	timestamp = args['timestamp']
-	description = args['description'].replace(' ', '_')
-
-	pattern = r'[-.\w]*$'
-	assert re.match(pattern, description), (
-		"description {!r} doesn't match the regex pattern {!r}.".format(
-			description, pattern))
+	description = args['description']
 
 	wf = WcmWorkflow(owner_id, timestamp, verbose_logging=args['verbose'],
 		description=description, cli_storage_root=args['storage_root'])

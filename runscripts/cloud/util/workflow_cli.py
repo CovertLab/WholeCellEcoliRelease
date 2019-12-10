@@ -73,7 +73,7 @@ class WorkflowCLI(scriptBase.ScriptBase):
 		name = '{}_{}_{}'.format(owner_id, basename, timestamp)
 		self.storage_prefix = posixpath.join(
 			Workflow.storage_root(args.storage_root), basename, timestamp, '')
-		self.wf = Workflow(name)
+		self.wf = Workflow(name, owner_id=owner_id)
 
 		self.wf.log_info('\nStorage prefix: {}'.format(self.storage_prefix))
 
