@@ -5,10 +5,11 @@ Shortcut names rd and sd are created for typing ease as well as variables for
 each process object.
 
 Use:
-	python runscripts/debug/load_sim_data.py
+	python runscripts/debug/load_sim_data.py [path to simulation output root]
 
 Requires:
 	cached/ directory in wcEcoli root with rawData.cPickle and simData.cPickle
+	if a simulation directory is not supplied
 
 Tip:
 Create an alias in your .bash_profile to easily run this by just typing lsd (or your
@@ -20,21 +21,28 @@ from __future__ import absolute_import, division, print_function
 
 import cPickle
 import os
+import sys
 
 import ipdb
 import numpy as np
 
-from wholecell.utils import constants, filepath
+from wholecell.utils import constants, filepath, units
 
 
-_unused = np  # imported just to make np available in debugging; suppress the warning
+# Imported just to make available in debugging; suppress the unused warning
+_unused = [np, units]
 
-data_dir = os.path.join(filepath.ROOT_PATH, 'cached')
+# Parse the first arg as simulation root directory, use cached sim_data as default
+if len(sys.argv) > 1:
+	data_dir = os.path.join(sys.argv[1], 'kb')
+else:
+	data_dir = os.path.join(filepath.ROOT_PATH, 'cached')
 raw_data_filename = constants.SERIALIZED_RAW_DATA
 sim_data_filename = constants.SERIALIZED_SIM_DATA_FILENAME
 
 raw_data = cPickle.load(open(os.path.join(data_dir, raw_data_filename), 'rb'))
 sim_data = cPickle.load(open(os.path.join(data_dir, sim_data_filename), 'rb'))
+print('Loaded {} from {}'.format(sim_data_filename, data_dir))
 
 # Shortcuts for easier access or tab complete
 rd = raw_data
