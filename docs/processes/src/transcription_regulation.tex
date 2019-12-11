@@ -1,6 +1,7 @@
 \documentclass[12pt]{article}
 \usepackage[ruled,vlined,noresetcount]{algorithm2e}
 \usepackage{amsmath}
+\usepackage{float}
 
 \topmargin 0.0cm
 \oddsidemargin 0.2cm
@@ -16,18 +17,21 @@
 \label{sec:transcription_reg}
 
 \subparagraph{Model implementation.}
-There are two aspects to modeling transcriptional regulation: (1) modeling the activation or inhibition of a transcription factor (e.g., by a ligand), and (2) given an active transcription factor, modeling its effect on RNA polymerase recruitment to a promoter site.  We address these topics sequentially below.
+There are two aspects to modeling transcriptional regulation: (1) modeling the activation or inhibition of a transcription factor (e.g., by a ligand), and (2) given an active transcription factor, modeling its effect on RNA polymerase recruitment to a promoter site.  The the enhanced coverage of the regulatory network - 438 regulatory interactions described by 22 transcription factors that regulate 355 genes - is a significant difference from the \emph{M. genitalium} model. To incorporate this network, regulation is represented by three different classes of transcription regulators: zero-component systems, one-component systems and two-component systems.
 
 \subparagraph{Modeling transcription factor activation.}
 We consider three classes of transcription factors based on their mechanism of activation:
 
 \begin{enumerate}
-\item \textbf{One-component systems}: transcription factors that are directly activated or inhibited by a small molecule ligand.  Examples of this class include the repressor TrpR which binds tryptophan, and the inducer AraC which binds arabinose.
+\item \textbf{Zero-component systems}: transcription factors that are considered to be active whenever they are expressed.  Examples include the Fis and Hns proteins.  These two proteins, for instance, are important in maintaining higher-order DNA structure and likely have complex feedback loops modulating their activity.  Because this complexity is not yet fully understood, we make the simplifying assumption that these proteins are always active unless they are knocked out. Zero-component systems are modeled in the \texttt{TfBinding} process in the model, which handles transcription factor binding to promoters.
 
-\item \textbf{Two-component systems}: transcription factors that are paired with a separate sensing protein that responds to an environmental stimulus (these are simple analogs to the vast, complicated signaling networks that exist in eukaryotic cells).  The sensing protein phosphorylates the cognate transcription factor in a condition-dependent fashion.  Examples include ArcA which is phosphorylated by its cognate ArcB in anaerobic conditions, and NarL which responds to the presence of nitrate when phosphorylated by its cognate sensor NarX.
+\item \textbf{One-component systems}: transcription factors that are directly activated or inhibited by a small molecule ligand.  Examples of this class include the repressor TrpR which binds tryptophan, and the inducer AraC which binds arabinose. One-component systems are modeled in the \texttt{TfBinding} and \texttt{Equilibrium} processes in the model, which handle transcription factor binding to promoters and transcription factor binding to ligands, respectively.
 
-\item \textbf{Zero-component systems}: transcription factors that are considered to be active whenever they are expressed.  Examples include the Fis and Hns proteins.  These two proteins, for instance, are important in maintaining higher-order DNA structure and likely have complex feedback loops modulating their activity.  Because this complexity is not yet fully understood, we make the simplifying assumption that these proteins are always active unless they are knocked out.
+\item \textbf{Two-component systems}: transcription factors that are paired with a separate sensing protein that responds to an environmental stimulus (these are simple analogs to the vast, complicated signaling networks that exist in eukaryotic cells).  The sensing protein phosphorylates the cognate transcription factor in a condition-dependent fashion.  Examples include ArcA which is phosphorylated by its cognate ArcB in anaerobic conditions, and NarL which responds to the presence of nitrate when phosphorylated by its cognate sensor NarX. Two-component systems are modeled in the \texttt{TfBinding}, \texttt{Equilibrium}, and \texttt{TwoComponentSystems} processes in the model, which handle transcription factor binding to promoters, transcription factor binding to ligands, and phosphotransfer reactions of signaling pathways, respectively.
 \end{enumerate}
+
+\subparagraph{Zero-component systems.}
+We assume all transcription factors of this class will bind to available promoter sites.
 
 \subparagraph{One-component systems.}
 For a transcription factor with concentration \(T\) whose activity is directly modulated by a ligand with concentration \(L\) that binds with stoichiometry \(n\), we assume that the two species achieve equilibrium on a short time scale and that the affinity of the two molecules can be described by a dissociation constant \(K_d\):
@@ -96,19 +100,27 @@ S_{bp} + T \overset{k_D}{\rightarrow} S_{b} + T_{p}
 T_{p} + H_2O \overset{k_E}{\rightarrow} T + P_i
 \end{equation}
 
-\noindent By assuming mass-action kinetics, we can represent this system mathematically using ordinary differential equations.  Ligand binding is simulated in a fashion identical to the one-component systems and the rest of the sub-model is simulated using a numerical ODE integrator (see Algorithm~\ref{two_component_systems_algorithm}).
-
-\subparagraph{Zero-component systems.}
-We assume all transcription factors of this class will bind to available promoter sites.
+\noindent Ligand binding is simulated in a fashion identical to the one-component systems. By assuming mass-action kinetics, we can represent the rest of this system mathematically using ordinary differential equations:
+\begin{align}
+    \frac{dS_f}{dt} &= -k_A \cdot S_f \cdot ATP + k_C \cdot S_{fp} \cdot T \\
+    \frac{dS_b}{dt} &= -k_B \cdot S_b \cdot ATP + k_D \cdot S_{bp} \cdot T \\
+    \frac{dT}{dt} &= -k_C \cdot S_{fp} \cdot T - k_D \cdot S_{bp} \cdot T + k_E \cdot T_p \cdot H_2O
+\end{align}
+\begin{align}
+    \frac{dS_{fp}}{dt} &= -\frac{dS_f}{dt} \\
+    \frac{dS_{bp}}{dt} &= -\frac{dS_b}{dt} \\
+    \frac{dT_p}{dt} &= -\frac{dT}{dt}
+\end{align}
+\noindent This system of equations is simulated using a numerical ODE integrator (see Algorithm~\ref{two_component_systems_algorithm}).
 
 \subparagraph{Modeling the modulation of RNA polymerase recruitment.}
-After modeling transcription factor activation, we need to model the probability that the transcription factor is bound to DNA, \(P_T\), and, when the transcription factor is DNA-bound, its effect on RNA polymerase recruitment to the promoter site, \(\Delta r\) (see Algorithm~\ref{tf_binding_algorithm}).  Recalling the notation used in the \textit{Transcription} section (Algorithm~\ref{transcript_initiation_algorithm}), we want to modulate the \(j^{th}\) entry in the \(v_\text{synth}\) vector of RNA polymerase initiation probabilities such that:
+After modeling transcription factor activation, we need to model the probability that the transcription factor is bound to DNA, \(p_T\), and, when the transcription factor is DNA-bound, its effect on RNA polymerase recruitment to the promoter site, \(\Delta r\) (see Algorithm~\ref{tf_binding_algorithm}).  Recalling the notation used in the \textit{Transcription} section (Algorithm~\ref{transcript_initiation_algorithm}), we want to modulate the \(j^{th}\) entry in the \(v_\text{synth}\) vector of RNA polymerase initiation probabilities such that:
 
 \begin{equation}
-v_{\text{synth}, j} = \alpha_j + \sum_{i} P_{T, i} \Delta r_{i j}
+v_{\text{synth}, j} = \alpha_j + \sum_{i} p_{T, i} \Delta r_{i j}
 \end{equation}
 
-\noindent where \(\alpha_j\) represents basal recruitment of RNA polymerase and the second term is dependent on transcription factor activity: the probability that the \(i^{th}\) transcription factor is DNA-bound is \(P_{T, i}\), and the recruitment effect of the \(i^{th}\) transcription factor on the \(j^{th}\) gene is \(\Delta r_{i j}\). The \(\alpha\) and \(\Delta r\) values are computed prior to simulation based on gene expression values from conditions that modulate transcription factor activity.  Values for \(P_T\) are calculated as described in Table~\ref{table:transcription_pt}.
+\noindent where \(\alpha_j\) represents basal recruitment of RNA polymerase and the second term is dependent on transcription factor activity: the probability that the \(i^{th}\) transcription factor is DNA-bound is \(p_{T, i}\), and the recruitment effect of the \(i^{th}\) transcription factor on the \(j^{th}\) gene is \(\Delta r_{i j}\). The \(\alpha\) and \(\Delta r\) values are computed prior to simulation based on gene expression values from conditions that modulate transcription factor activity.  Values for \(p_T\) are calculated as described in Table~\ref{table:transcription_pt}.
 
 
 \begin{table}[!hbt]
@@ -116,9 +128,9 @@ v_{\text{synth}, j} = \alpha_j + \sum_{i} P_{T, i} \Delta r_{i j}
 \begin{tabular}{r l}
 Transcription factor type & Promoter-bound probability \\
 \hline
-Zero-component system & \(P_T = 1\) if TF is present, \(0\) otherwise \\
-One-component system & \(P_T = (T^*) / (T^* + T)\) \\
-Two-component system & \(P_T = (T_p) / (T_p + T)\) \\
+Zero-component system & \(p_T = 1\) if TF is present, \(0\) otherwise \\
+One-component system & \(p_T = (T^*) / (T^* + T)\) \\
+Two-component system & \(p_T = (T_p) / (T_p + T)\) \\
 \end{tabular}
 \caption[Formulas used to compute the probability that a transcription factor is promoter-bound.]{Formulas used to compute the probability that a transcription factor is promoter-bound. \(T^*\) is the active form of a one-component system transcription factor, while \(T_p\) is the phosphorylated form of a two-component system transcription factor, and \(T\) is the inactive or unphosphorylated form of a transcription factor.}
 \label{table:transcription_pt}
@@ -127,30 +139,48 @@ Two-component system & \(P_T = (T_p) / (T_p + T)\) \\
 \hspace{1cm}
 
 \begin{algorithm}[H]
-\caption{Algorithm for equilibrium binding}
+\caption{Equilibrium binding}
 \label{equilibrium_binding_algorithm}
 \SetKwInOut{Input}{Input}\SetKwInOut{Result}{Result}
-\SetKwFunction{solveToSteadyState}{solveToSteadyState}
-\SetKwFunction{dot}{dot}
-  \Input{$c_m$ counts of molecules where $m = 1$ \KwTo $n_{molecules}$}
-  \Input{$S$ matrix describing reaction stoichiometries where $S[i,j]$ describes the coefficient for the $i^{th}$ molecule in the $j^{th}$ reaction}
-  \Input{$K_d^r$ dissociation constant where $r = 1$ \KwTo $n_{reactions}$}
-  \For{each ligand-binding reaction j}{
-    \textbf{1.} Dissociate all complexes in \(c\) formed by reaction \(j\) into constituent molecules\\
-    \While{True}{
-      \textbf{1.} Form complex described by \(S[:, j]\)\\
-      \If{\(\left|\frac{c_{reactant1}^{S[reactant1,j]} \cdot c_{reactant2}^{S[reactant2,j]} \cdot \ldots \cdot c_{reactantm}^{S[reactantm,j]}}{c_{complex}} - K_d\right|\) has reached a minimum\\(i.e., the ratio of reactants to products is as close as possible to the dissociation constant)\\}
-      {
-      \textbf{1.} Set reactant and product values in \(c\) to these levels\\
-      \textbf{2.} Break out of while loop
-      }
+    \Input{$c_m$ counts of molecules where $m = 1$ \KwTo $n_{molecules}$}
+    \Input{$S$ matrix describing reaction stoichiometries where $S[i,j]$ describes the coefficient for the $i^{th}$ molecule in the $j^{th}$ reaction}
+    \Input{$reactants_j$ set of indices for $c_m$ of reactant molecules that participate in the $j^{th}$ reaction}
+    \Input{$product_j$ index for $c_m$ of the product molecule formed by the $j^{th}$ reaction}
+    \Input{$f$ conversion factor to convert molecule counts to concentrations}
+    \Input{$K_{d,j}$ dissociation constant where $j = 1$ \KwTo $n_{reactions}$}
+    \textbf{1.} Dissociate all complexes in \(c\) into constituent molecules to get total reactants ($d$) since some reactants participate in multiple reactions: \\
+    \Indp
+    \SetInd{1.5em}{0em}
+    $d = c$ \\
+    \For{each ligand-binding reaction, j}{
+        \For{each molecule, i}{
+            $d_i = d_i + c_{product_j} \cdot S[i, j]$
+        }
+        $d_{product_j} = 0$
     }
-  }  
+    \Indm
+    \textbf{2.} Find the number of reactions to perform ($n_j$) to minimize the distance from $K_{d,j}$, where $r$ is a positive integer and not greater than the total products that can be formed by the reactants: \\
+    \Indp
+    \For{each ligand-binding reaction, j}{
+        $n_j = \mathop{\mathrm{argmin}}\limits_r \left| \frac{\prod\limits_{i \in \text{reactants}_j}(f\cdot (d_i - r))^{S[i,j]}}{f\cdot r} - K_{d,j} \right|$
+    }
+    \Indm
+    \textbf{3.} Update counts ($c$) based on number of reactions that will occur. Starting from the dissociated counts, reactants will decrease by the number of reactions and their stoichiometry and one product will be formed for each reaction. \\
+    \Indp
+    $c = d$ \\
+    \For{each ligand-binding reaction, j}{
+        \For{each molecule in reactants$_j$, i}{
+            $c_i = c_i - S[i, j] \cdot n_j$
+        }
+        $c_{product_j} = n_j$
+    }
+    \Indm
     \Result{Ligands are bound to or unbound from their binding partners in a fashion that maintains equilibrium.}
 \end{algorithm}
+
 \newpage
 \begin{algorithm}[H]
-\caption{Algorithm for two-component systems}
+\caption{Two-component systems}
 \label{two_component_systems_algorithm}
 \SetKwInOut{Input}{Input}
 \SetKwInOut{Result}{Result}
@@ -167,7 +197,7 @@ Two-component system & \(P_T = (T_p) / (T_p + T)\) \\
 
   \textbf{1.} Solve the ordinary differential equations describing phosphotransfer reactions to perform reactions to the next time step ($\Delta t$) using $c_m$, $k_A$, $k_B$, $k_C$, $k_D$ and $k_E$.\\
     \hspace{1cm} $\Delta c_m$ = \solveToNextTimeStep{$c_m$, $k_A$, $k_B$, $k_C$, $k_D$, $k_E$, $\Delta t$}
-    
+
     \textbf{2. } Update molecule counts.\\
     \hspace{1cm} $c_m = c_m + \Delta c_m$
 
@@ -175,7 +205,7 @@ Two-component system & \(P_T = (T_p) / (T_p + T)\) \\
 \end{algorithm}
 \vspace{1cm}
 \begin{algorithm}[H]
-\caption{Algorithm for transcription factor binding}
+\caption{Transcription factor binding}
 \label{tf_binding_algorithm}
 \SetKwInOut{Input}{Input}\SetKwInOut{Result}{Result}
 \SetKwFunction{randomChoice}{randomChoice}
@@ -185,40 +215,58 @@ Two-component system & \(P_T = (T_p) / (T_p + T)\) \\
     \Input{$t_i$ type of transcription factor (either one of two-component, one-component, or zero-component) where $i = 1$ \KwTo $n_{\text{transcription factors}}$}
     \Input{\randomChoice{} function that randomly samples elements from an array without replacement}
 
-  \For{each transcription factor}{
-    \eIf{active transcription factors are present}{
-    
+  \For{each transcription factor, i}{
+    \If{active transcription factors are present}{
+
     \textbf{1.} Compute probability \(p\) of binding the target promoter.
-    
+
     \eIf{$t_i$ is zero-component transcription factor}{
-    \-\hspace{1cm} transcription factor present $\rightarrow p = 1$\\
-    \-\hspace{1cm} transcription factor not present $\rightarrow p = 0$
+    \-\hspace{1cm} transcription factor present $\rightarrow p_T = 1$\\
+    \-\hspace{1cm} transcription factor not present $\rightarrow p_T = 0$
     }
     {
-    \-\hspace{1cm} $p = \frac{c_a^i}{c_a^i + c_i^i}$
+    \-\hspace{1cm} $p_T = \frac{c_a^i}{c_a^i + c_i^i}$
     }
-    
+
     \textbf{2.} Distribute transcription factors to gene targets.\\
-    \-\hspace{1cm} $P_i^{bound} =$ \randomChoice{from $P_i$ sample $p \cdot len(P_i)$ elements}
-    
+    \-\hspace{1cm} $P_i^{bound} =$ \randomChoice{from $P_i$ sample $p_T \cdot len(P_i)$ elements}
+
     \textbf{3.} Decrement counts of free transcription factors.
-    }
-    {
-    move on to next transcription factor
     }
     }
 
     \Result{Activated transcription factors are bound to their gene targets.}
 \end{algorithm}
 
-\vspace{1 cm}
-%\subparagraph*{Associated files}
-\textbf{Associated files}
 
-\begin{table}[h!]
- \centering
+\begin{table}[H]
+\hspace{16pt} \textbf{Associated data} \\\\
+ \label{transcription_regulation_table}
+ \begin{tabular}{p{2in} p{0.8in} p{0.9in} p{1in} c}
+ \hline
+ Parameter & Symbol & Units & Value & Reference \\
+ \hline
+Ligand::TF dissociation constant & $k_d = k_r/k_f$ & $\mu$M & [2e-15, 5e3] & See GitHub   \\
+Free HK phosphorylation rate & $k_A$ & $\mu$M/s & [1e-4, 5e2] & See GitHub  \\
+Ligand::HK phosphorylation rate & $k_B$ & $\mu$M/s & 1.7e5 & See GitHub  \\
+Phosphotransfer rate from free HK-P to TF & $k_C$ & $\mu$M/s & 1e8 & See GitHub  \\
+Phosphotransfer rate from ligand::HK-P to TF & $k_D$ & $\mu$M/s & 1e8 & See GitHub  \\
+Dephosphorylation rate of TF-P & $k_E$ & $\mu$M/s & 1e-2 & See GitHub  \\
+DNA::TF dissociation constant & $K_d$ & pM & [2e-4, 1.1e5] & See GitHub  \\
+Promoter sites & $n$ & targets per chromosome & [1, 108] & See GitHub  \\
+Fold-change gene expression & $FC$ & $log_{2}(a.u.)$ & [-10.48, 9.73] & See GitHub  \\
+
+ \hline
+\end{tabular}
+\caption[Table of parameters for transcription regulation]{Table of parameters for equilibrium binding, two-component systems, and transcription factor binding Processes. HK: histidine kinase, TF: transcription factor, HK-P: phosphorylated histidine kinase, TF-P: phosphorylated transcription factor. Note in this and future tables we reference the source code for our model, which will be freely available at GitHub as noted in the main text.}
+\end{table}
+
+
+\begin{table}[H]
+\hspace{16pt} \textbf{Associated files}
+\begin{center}
  \scriptsize
- \begin{tabular}{c c c} 
+ \begin{tabular}{c c c}
  \hline
  \texttt{wcEcoli} Path & File & Type \\
  \hline
@@ -228,40 +276,16 @@ Two-component system & \(P_T = (T_p) / (T_p + T)\) \\
 \texttt{wcEcoli/reconstruction/ecoli/dataclasses/process} & \texttt{equilibrium.py} & data \\
 \texttt{wcEcoli/reconstruction/ecoli/dataclasses/process} & \texttt{transcription\_regulation.py} & data \\
 \texttt{wcEcoli/reconstruction/ecoli/dataclasses/process} & \texttt{two\_component\_system.py} & data \\
+\texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{equilibriumReactions.tsv} & raw data \\
+\texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{foldChanges.tsv} & raw data \\
+\texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{tfIds.tsv} & raw data \\
+\texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{tfOneComponentBound.tsv} & raw data \\
+\texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{twoComponentSystems.tsv} & raw data \\
+\texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{twoComponentSystemTemplates.tsv} & raw data \\
  \hline
 \end{tabular}
+\end{center}
 \caption[Table of files for transcription regulation]{Table of files for transcription regulation.}
-\end{table}
-
-
-\subparagraph{Difference from \emph{M. genitalium} model.}
-The most significant difference from the \emph{M. genitalium} model is the enhanced coverage of the regulatory network; 438 regulatory interactions are described by 22 transcription factors that regulate 355 genes. Accordingly, regulation is represented by three different classes of transcription regulators: two-component system, one-component system and zero-component systems. While the phosphotransfer reactions of two-component signaling pathways are modeled in \texttt{TwoComponentSystems}, one-component systems (which bind directly to the transcription factor) and zero-component systems (whose presence or absence determines activity) are modeled by the \texttt{EquilibriumBinding} and \texttt{TranscriptionFactorBinding} Processes.
-
-
-%\subparagraph*{Associated data}
-\textbf{Associated data}
-
-\begin{table}[h!]
- \centering
- \label{transcription_regulation_table}
- \begin{tabular}{p{2in} p{0.8in} p{0.9in} p{1in} p{0.75in}} 
- \hline
- Parameter & Symbol & Units & Value & Reference \\
- \hline
-Ligand::TF dissociation constant & $k_d = k_r/k_f$ & $\mu$M & [2e-15, 5e3] & See Source Code   \\
-Free HK phosphorylation rate & $k_A$ & $\mu$M/s & [1e-4, 5e2] & See Source Code  \\
-Ligand::HK phosphorylation rate & $k_B$ & $\mu$M/s & 1.7e5 & See Source Code  \\
-Phosphotransfer rate from free HK-P to TF & $k_C$ & $\mu$M/s & 1e8 & See Source Code  \\
-Phosphotransfer rate from ligand::HK-P to TF & $k_D$ & $\mu$M/s & 1e8 & See Source Code  \\
-Dephosphorylation rate of TF-P & $k_E$ & $\mu$M/s & 1e-2 & See Source Code  \\
-DNA::TF dissociation constant & $K_d$ & pM & [2e-4, 1.1e5] & See Source Code  \\
-Promoter sites & $n$ & targets per chromosome & [1, 108] & See Source Code  \\
-Fold-change gene expression & $FC$ & $log_{2}(a.u.)$ & [-10.48, 9.73] & See Source Code  \\
-Gene expression profile shifts & - & shifts & 294$^{*}$ & See Source Code  \\
-
- \hline
-\end{tabular}
-\caption[Table of parameters for transcription regulation]{Table of parameters for equilibrium binding, two-component systems, and transcription factor binding Processes. HK: histidine kinase, TF: transcription factor, HK-P: phosphorylated histidine kinase, TF-P: phosphorylated transcription factor. $^{*}$We found 144 pairs of comparable shifts (see Fig. S2a). Note in this and future tables we reference the source code for our model, which will be freely available at GitHub and SimTK as noted in the main text.}
 \end{table}
 
 \newpage
@@ -269,5 +293,8 @@ Gene expression profile shifts & - & shifts & 294$^{*}$ & See Source Code  \\
 \label{sec:references}
 \bibliographystyle{plain}
 \bibliography{references}
+% Need for compiler error: I found no \citation commands---while reading file transcription_regulation.aux
+% Remove if a citation is included in this tex file
+\nocite{empty}
 
 \end{document}
