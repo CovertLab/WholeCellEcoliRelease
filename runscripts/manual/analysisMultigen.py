@@ -23,14 +23,14 @@ class AnalysisMultigen(AnalysisBase):
 		parser.add_argument('-s', '--seed', type=int, default=0,
 			help='The initial simulation number (int). The value will get'
 				 ' formatted as a subdirectory name like "000000". Default = 0.')
+		self.define_range_options(parser, 'variant', 'seed')
 
-	def parse_args(self):
-		args = super(AnalysisMultigen, self).parse_args()
+	def update_args(self, args):
+		super(AnalysisMultigen, self).update_args(args)
 
 		args.seed_str = '%06d' % (args.seed,)
 
 		args.metadata["seed"] = args.seed_str
-		return args
 
 	def run(self, args):
 		sim_path = args.sim_path

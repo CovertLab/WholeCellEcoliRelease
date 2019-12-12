@@ -75,8 +75,9 @@ class AnalysisBase(scriptBase.ScriptBase):
 		"""Select key/value pairs specific to analysis tasks"""
 		return data.select_keys(vars(args), scriptBase.ANALYSIS_KEYS)
 
-	def parse_args(self):
-		"""Parse the command line args into an `argparse.Namespace`, including
+	def update_args(self, args):
+		# type: (argparse.Namespace) -> None
+		"""Update the command line args in an `argparse.Namespace`, including
 		the `sim_dir` and `sim_path` args; sanitize args.plot; attach the
 		`args.input_validation_data` path, the `args.metadata_path` path
 		"<sim_path>/metadata/metadata.json", and the `args.metadata` dict
@@ -86,7 +87,7 @@ class AnalysisBase(scriptBase.ScriptBase):
 
 		Overrides should first call super().
 		"""
-		args = super(AnalysisBase, self).parse_args()
+		super(AnalysisBase, self).update_args(args)
 
 		if self.plot_name:
 			args.plot = [self.plot_name]
@@ -105,8 +106,6 @@ class AnalysisBase(scriptBase.ScriptBase):
 			metadata['variant_index'] = variant_index
 
 		args.cpus = parallelization.cpus(args.cpus)
-
-		return args
 
 
 class TestAnalysis(AnalysisBase):

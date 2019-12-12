@@ -28,9 +28,10 @@ class AnalysisSingle(AnalysisBase):
 		parser.add_argument('-d', '--daughter', type=int, default=0,
 			help='The daughter number (int). The value will get formatted as'
 				 ' a subdirectory name like "000000". Default = 0.')
+		self.define_range_options(parser, 'variant', 'seed', 'generation')
 
-	def parse_args(self):
-		args = super(AnalysisSingle, self).parse_args()
+	def update_args(self, args):
+		super(AnalysisSingle, self).update_args(args)
 
 		args.seed_str = '%06d' % (args.seed,)
 		args.gen_str = 'generation_%06d' % (args.generation,)
@@ -39,8 +40,6 @@ class AnalysisSingle(AnalysisBase):
 		metadata = args.metadata
 		metadata['seed'] = args.seed_str
 		metadata['gen'] = args.gen_str
-
-		return args
 
 	def run(self, args):
 		sim_path = args.sim_path

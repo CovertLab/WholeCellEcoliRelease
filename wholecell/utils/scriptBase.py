@@ -13,6 +13,7 @@ import abc
 import argparse
 import datetime
 import errno
+import itertools
 import re
 import os
 import pprint as pp
@@ -62,6 +63,14 @@ ANALYSIS_KEYS = (
 	'plot',
 	'cpus',
 	'compile')
+
+# Mapping of args that take a range and the args they will replace
+RANGE_ARGS = {
+	'variant_range': 'variant_index',
+	'generation_range': 'generation',
+	'seed_range': 'seed',
+	# TODO: add daughter_range? - might require additional logic with increasing number per generation
+	}
 
 DEFAULT_VARIANT = ['wildtype', '0', '0']
 
@@ -136,6 +145,9 @@ class ScriptBase(object):
 	# Regex to match a variant directory name. In the resulting match
 	# object, group 1 is the variant_type and group 2 is the variant_index.
 	VARIANT_DIR_PATTERN = re.compile(r'(.+)_(\d+)\Z')
+
+	def __init__(self):
+		self.range_options = []
 
 	def description(self):
 		# type: () -> str
@@ -413,6 +425,18 @@ class ScriptBase(object):
 			help='if true, the simulation raises an error if the time limit'
 				 ' (--length-sec) is reached before division.')
 
+	def define_range_options(self, parser, *range_keys):
+		# type: (argparse.ArgumentParser, *str) -> None
+		"""Adds options to the arg parser for values that can take on ranges."""
+
+		for key in range_keys:
+			option = '{}_range'.format(key)
+			upper = key.upper()
+			override = dashize('--{}'.format(RANGE_ARGS[option]))
+			parser.add_argument(dashize('--{}'.format(option)), nargs=2, default=None, type=int,
+				metavar=('START_{}'.format(upper), 'END_{}'.format(upper)),
+				help='The range of variants to run.  Will override {} option.'.format(override))
+			self.range_options.append(option)
 
 	def parse_args(self):
 		# type: () -> argparse.Namespace
@@ -420,13 +444,6 @@ class ScriptBase(object):
 		`define_parameters()` to define parameters including subclass-specific
 		parameters, use it to parse the command line into an
 		`argparse.Namespace`, and return that.
-
-		If there's a `sim_dir` arg [see define_parameter_sim_dir()], set
-		`args.sim_path`. If there's also a `variant_index` arg [see
-		define_parameter_variant_index()], set `args.variant_dir` to the
-		find_variant_dir() tuple.
-
-		When overriding, first call super().
 
 		(A `Namespace` is an object with attributes and some methods like
 		`__repr__()` and `__eq__()`. Call `vars(args)` to turn it into a dict.)
@@ -437,7 +454,20 @@ class ScriptBase(object):
 
 		self.define_parameters(parser)
 
-		args = parser.parse_args()
+		return parser.parse_args()
+
+	def update_args(self, args):
+		# type: (argparse.Namespace) -> None
+		"""
+		Update or add to parsed arguments.
+
+		If there's a `sim_dir` arg [see define_parameter_sim_dir()], set
+		`args.sim_path`. If there's also a `variant_index` arg [see
+		define_parameter_variant_index()], set `args.variant_dir` to the
+		find_variant_dir() tuple.
+
+		When overriding, first call super().
+		"""
 
 		if 'sim_dir' in args:
 			args.sim_path = find_sim_path(args.sim_dir)
@@ -446,7 +476,34 @@ class ScriptBase(object):
 				args.variant_dir = self.find_variant_dir(
 					args.sim_path, args.variant_index)
 
-		return args
+	def extract_range_args(self, args):
+		# type: (argparse.Namespace) -> List[List[int]]
+		"""
+		Extracts arguments that have been specified as ranges for other arguments.
+
+		Returns:
+			lists of possible values that each argument with a range can take,
+			ordered according to self.range_options
+		"""
+
+		range_args = []
+		for range_option in self.range_options:
+			if getattr(args, range_option):
+				start, end = getattr(args, range_option)
+				values = range(start, end+1)
+			else:
+				values = [getattr(args, RANGE_ARGS[range_option])]
+
+			range_args.append(values)
+
+		return range_args
+
+	def set_range_args(self, args, params):
+		# type: (argparse.Namespace, List[int]) -> None
+		"""Sets arguments from a combination of values from ranges."""
+
+		for range_id, param in zip(self.range_options, params):
+			setattr(args, RANGE_ARGS[range_id], param)
 
 	@abc.abstractmethod
 	def run(self, args):
@@ -461,30 +518,41 @@ class ScriptBase(object):
 		a starting message (including args.sim_path if defined) and an ending
 		message (including the elapsed run time).
 		"""
-		args = self.parse_args()
 
-		location = getattr(args, 'sim_path', '')
-		if location:
-			location = ' at ' + location
+		range_args = self.extract_range_args(self.parse_args())
+		# TODO (Travis): have option to parallelize when ranges given
+		# TODO (Travis): check or handle error if variant/seed/gen range combo does not exist
+		for params in itertools.product(*range_args):
+			# Start with original args for each iteration since update_args
+			# overwrites some args and might handle undefined values differently
+			# with different values from ranges. There is not a good way to copy
+			# the unmodified Namespace without using copy.deepcopy().
+			args = self.parse_args()
+			self.set_range_args(args, params)
+			self.update_args(args)
 
-		start_wall_sec = time.time()
-		print('{}: {}{}'.format(
-			time.ctime(start_wall_sec), self.description(), location))
-		pp.pprint({'Arguments': vars(args)})
+			location = getattr(args, 'sim_path', '')
+			if location:
+				location = ' at ' + location
 
-		start_process_sec = time.clock()
-		self.run(args)
-		end_process_sec = time.clock()
-		elapsed_process = end_process_sec - start_process_sec
+			start_wall_sec = time.time()
+			print('{}: {}{}'.format(
+				time.ctime(start_wall_sec), self.description(), location))
+			pp.pprint({'Arguments': vars(args)})
 
-		end_wall_sec = time.time()
-		elapsed_wall = end_wall_sec - start_wall_sec
-		print("{}: Elapsed time {:1.2f} sec ({}); {:1.2f} sec in process".format(
-			time.ctime(end_wall_sec),
-			elapsed_wall,
-			datetime.timedelta(seconds=elapsed_wall),
-			elapsed_process,
-			))
+			start_process_sec = time.clock()
+			self.run(args)
+			end_process_sec = time.clock()
+			elapsed_process = end_process_sec - start_process_sec
+
+			end_wall_sec = time.time()
+			elapsed_wall = end_wall_sec - start_wall_sec
+			print("{}: Elapsed time {:1.2f} sec ({}); {:1.2f} sec in process".format(
+				time.ctime(end_wall_sec),
+				elapsed_wall,
+				datetime.timedelta(seconds=elapsed_wall),
+				elapsed_process,
+				))
 
 
 class TestScript(ScriptBase):

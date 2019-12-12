@@ -18,8 +18,8 @@ from wholecell.utils import constants
 class AnalysisVariant(AnalysisBase):
 	"""Runs some or all the ACTIVE variant analysis plots for a given sim."""
 
-	def parse_args(self):
-		args = super(AnalysisVariant, self).parse_args()
+	def update_args(self, args):
+		super(AnalysisVariant, self).update_args(args)
 
 		variant_dirs = self.list_variant_dirs(args.sim_path)  # list of tuples
 		if not variant_dirs:
@@ -28,8 +28,6 @@ class AnalysisVariant(AnalysisBase):
 
 		metadata = args.metadata
 		metadata['total_variants'] = str(len(variant_dirs))
-
-		return args
 
 	def run(self, args):
 		output_dir = os.path.join(args.sim_path, self.OUTPUT_SUBDIR)
