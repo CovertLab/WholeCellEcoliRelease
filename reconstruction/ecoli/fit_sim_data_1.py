@@ -1005,48 +1005,52 @@ def setInitialRnaExpression(sim_data, expression, doubling_time):
 
 	"""
 
-	# Load from KB
+	# Load from sim_data
+	n_avogadro = sim_data.constants.nAvogadro
+	initial_conversion = sim_data.mass.avgCellToInitialCellConvFactor
+	rna_data = sim_data.process.transcription.rnaData
+	get_average_copy_number = sim_data.process.replication.get_average_copy_number
+	rna_mw = rna_data['mw']
+	rna_coord = rna_data['replicationCoordinate']
+
+	## Mask arrays for rRNAs
+	is_rRNA23S = rna_data["isRRna23S"]
+	is_rRNA16S = rna_data["isRRna16S"]
+	is_rRNA5S = rna_data["isRRna5S"]
+	is_tRNA = rna_data["isTRna"]
+	is_mRNA = rna_data["isMRna"]
 
 	## IDs
-	ids_rnas = sim_data.process.transcription.rnaData["id"] # All RNAs
-	ids_rRNA23S = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna23S"]] # 23S rRNA
-	ids_rRNA16S = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna16S"]] # 16S rRNA
-	ids_rRNA5S = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isRRna5S"]] # 5s rRNA
-	ids_mRNA = sim_data.process.transcription.rnaData["id"][sim_data.process.transcription.rnaData["isMRna"]] # mRNAs
-
-	avgCellFractionMass = sim_data.mass.getFractionMass(doubling_time)
-
-	# Mask arrays for rRNAs
-	is_rRNA23S = sim_data.process.transcription.rnaData["isRRna23S"]
-	is_rRNA16S = sim_data.process.transcription.rnaData["isRRna16S"]
-	is_rRNA5S = sim_data.process.transcription.rnaData["isRRna5S"]
+	ids_rnas = rna_data["id"]
+	ids_rRNA23S = ids_rnas[is_rRNA23S]
+	ids_rRNA16S = ids_rnas[is_rRNA16S]
+	ids_rRNA5S = ids_rnas[is_rRNA5S]
+	ids_mRNA = ids_rnas[is_mRNA]
 
 	## Mass fractions
-	totalMass_rRNA23S = avgCellFractionMass["rRna23SMass"] / sim_data.mass.avgCellToInitialCellConvFactor
-	totalMass_rRNA16S = avgCellFractionMass["rRna16SMass"] / sim_data.mass.avgCellToInitialCellConvFactor
-	totalMass_rRNA5S = avgCellFractionMass["rRna5SMass"] / sim_data.mass.avgCellToInitialCellConvFactor
-	totalMass_tRNA = avgCellFractionMass["tRnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
-	totalMass_mRNA = avgCellFractionMass["mRnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
+	avg_cell_fraction_mass = sim_data.mass.getFractionMass(doubling_time)
+	total_mass_rRNA23S = avg_cell_fraction_mass["rRna23SMass"] / initial_conversion
+	total_mass_rRNA16S = avg_cell_fraction_mass["rRna16SMass"] / initial_conversion
+	total_mass_rRNA5S = avg_cell_fraction_mass["rRna5SMass"] / initial_conversion
+	total_mass_tRNA = avg_cell_fraction_mass["tRnaMass"] / initial_conversion
+	total_mass_mRNA = avg_cell_fraction_mass["mRnaMass"] / initial_conversion
 
 	## Molecular weights
-	# individualMasses_RNA = sim_data.getter.getMass(ids_rnas) / sim_data.constants.nAvogadro
-	individualMasses_rRNA23S = sim_data.getter.getMass(ids_rRNA23S) / sim_data.constants.nAvogadro
-	individualMasses_rRNA16S = sim_data.getter.getMass(ids_rRNA16S) / sim_data.constants.nAvogadro
-	individualMasses_rRNA5S = sim_data.getter.getMass(ids_rRNA5S) / sim_data.constants.nAvogadro
-	individualMasses_tRNA = sim_data.process.transcription.rnaData["mw"][sim_data.process.transcription.rnaData["isTRna"]] / sim_data.constants.nAvogadro
-	individualMasses_mRNA = sim_data.process.transcription.rnaData["mw"][sim_data.process.transcription.rnaData["isMRna"]] / sim_data.constants.nAvogadro
+	individual_masses_rRNA23S = rna_mw[is_rRNA23S] / n_avogadro
+	individual_masses_rRNA16S = rna_mw[is_rRNA16S] / n_avogadro
+	individual_masses_rRNA5S = rna_mw[is_rRNA5S] / n_avogadro
+	individual_masses_tRNA = rna_mw[is_tRNA] / n_avogadro
+	individual_masses_mRNA = rna_mw[is_mRNA] / n_avogadro
 
-	## Molecule expression distributions
-	# Get doubling time in minutes
+	# Molecule expression distributions
 	tau = doubling_time.asNumber(units.min)
 
-	# Get replication coordinates of rRNA genes
-	coord_rRNA23S = sim_data.process.transcription.rnaData["replicationCoordinate"][is_rRNA23S]
-	coord_rRNA16S = sim_data.process.transcription.rnaData["replicationCoordinate"][is_rRNA16S]
-	coord_rRNA5S = sim_data.process.transcription.rnaData["replicationCoordinate"][is_rRNA5S]
+	## Get replication coordinates of rRNA genes
+	coord_rRNA23S = rna_coord[is_rRNA23S]
+	coord_rRNA16S = rna_coord[is_rRNA16S]
+	coord_rRNA5S = rna_coord[is_rRNA5S]
 
-	# Get average copy numbers for all rRNA genes
-	get_average_copy_number = sim_data.process.replication.get_average_copy_number
+	## Get average copy numbers for all rRNA genes
 	n_avg_copy_rRNA23S = get_average_copy_number(tau, coord_rRNA23S)
 	n_avg_copy_rRNA16S = get_average_copy_number(tau, coord_rRNA16S)
 	n_avg_copy_rRNA5S = get_average_copy_number(tau, coord_rRNA5S)
@@ -1063,67 +1067,57 @@ def setInitialRnaExpression(sim_data, expression, doubling_time):
 	trna_distribution = sim_data.mass.getTrnaDistribution(doubling_time)
 	ids_tRNA = trna_distribution['id']
 	distribution_tRNA = normalize(trna_distribution['molar_ratio_to_16SrRNA'])
-	distribution_mRNA = normalize(expression[sim_data.process.transcription.rnaData['isMRna']])
+	distribution_mRNA = normalize(expression[is_mRNA])
 
 	# Construct bulk container
-
-	rnaExpressionContainer = BulkObjectsContainer(ids_rnas, dtype = np.float64)
+	rna_expression_container = BulkObjectsContainer(ids_rnas, dtype=np.float64)
 
 	## Assign rRNA counts based on mass
-
-	totalCount_rRNA23S = totalCountFromMassesAndRatios(
-		totalMass_rRNA23S,
-		individualMasses_rRNA23S,
+	total_count_rRNA23S = totalCountFromMassesAndRatios(
+		total_mass_rRNA23S,
+		individual_masses_rRNA23S,
 		distribution_rRNA23S
 		)
-
-	totalCount_rRNA16S = totalCountFromMassesAndRatios(
-		totalMass_rRNA16S,
-		individualMasses_rRNA16S,
+	total_count_rRNA16S = totalCountFromMassesAndRatios(
+		total_mass_rRNA16S,
+		individual_masses_rRNA16S,
 		distribution_rRNA16S
 		)
-
-	totalCount_rRNA5S = totalCountFromMassesAndRatios(
-		totalMass_rRNA5S,
-		individualMasses_rRNA5S,
+	total_count_rRNA5S = totalCountFromMassesAndRatios(
+		total_mass_rRNA5S,
+		individual_masses_rRNA5S,
 		distribution_rRNA5S
 		)
 
-	totalCount_rRNA_average = sum([totalCount_rRNA23S, totalCount_rRNA16S, totalCount_rRNA5S]) / 3
+	total_count_rRNA_average = sum([total_count_rRNA23S, total_count_rRNA16S, total_count_rRNA5S]) / 3
 
-	counts_rRNA23S = totalCount_rRNA_average * distribution_rRNA23S
-	counts_rRNA16S = totalCount_rRNA_average * distribution_rRNA16S
-	counts_rRNA5S = totalCount_rRNA_average * distribution_rRNA5S
+	counts_rRNA23S = total_count_rRNA_average * distribution_rRNA23S
+	counts_rRNA16S = total_count_rRNA_average * distribution_rRNA16S
+	counts_rRNA5S = total_count_rRNA_average * distribution_rRNA5S
 
-	rnaExpressionContainer.countsIs(counts_rRNA23S, ids_rRNA23S)
-	rnaExpressionContainer.countsIs(counts_rRNA16S, ids_rRNA16S)
-	rnaExpressionContainer.countsIs(counts_rRNA5S, ids_rRNA5S)
+	rna_expression_container.countsIs(counts_rRNA23S, ids_rRNA23S)
+	rna_expression_container.countsIs(counts_rRNA16S, ids_rRNA16S)
+	rna_expression_container.countsIs(counts_rRNA5S, ids_rRNA5S)
 
 	## Assign tRNA counts based on mass and relative abundances (see Dong 1996)
-
-	totalCount_tRNA = totalCountFromMassesAndRatios(
-		totalMass_tRNA,
-		individualMasses_tRNA,
+	total_count_tRNA = totalCountFromMassesAndRatios(
+		total_mass_tRNA,
+		individual_masses_tRNA,
 		distribution_tRNA
 		)
-
-	counts_tRNA = totalCount_tRNA * distribution_tRNA
-
-	rnaExpressionContainer.countsIs(counts_tRNA, ids_tRNA)
+	counts_tRNA = total_count_tRNA * distribution_tRNA
+	rna_expression_container.countsIs(counts_tRNA, ids_tRNA)
 
 	## Assign mRNA counts based on mass and relative abundances (microarrays)
-
-	totalCount_mRNA = totalCountFromMassesAndRatios(
-		totalMass_mRNA,
-		individualMasses_mRNA,
+	total_count_mRNA = totalCountFromMassesAndRatios(
+		total_mass_mRNA,
+		individual_masses_mRNA,
 		distribution_mRNA
 		)
+	counts_mRNA = total_count_mRNA * distribution_mRNA
+	rna_expression_container.countsIs(counts_mRNA, ids_mRNA)
 
-	counts_mRNA = totalCount_mRNA * distribution_mRNA
-
-	rnaExpressionContainer.countsIs(counts_mRNA, ids_mRNA)
-
-	expression = normalize(rnaExpressionContainer.counts())
+	expression = normalize(rna_expression_container.counts())
 
 	return expression
 
