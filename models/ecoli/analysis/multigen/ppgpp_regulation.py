@@ -66,7 +66,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			np.where(rna_data['id'] == RELA_RNA)[0][0],
 			np.where(rna_data['id'] == SPOT_RNA)[0][0],
 			])
-		synthase_order = ['spoT', 'relA']
+		synthase_order = ['relA', 'spoT']
 
 		# Load simulation output
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot=True)
