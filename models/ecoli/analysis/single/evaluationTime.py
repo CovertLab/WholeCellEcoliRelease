@@ -1,20 +1,42 @@
 """
-@author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/10/2014
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 
 import numpy as np
 from matplotlib import pyplot as plt
+from matplotlib.gridspec import GridSpec
 
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
+
+
+def subplot(gs, x, y, title, labels, sort=False):
+	ax = plt.subplot(gs)
+	if sort:
+		idx = np.argsort(y[-1, :])[::-1]
+	else:
+		idx = np.arange(y.shape[1])
+
+	# Determine legends from total time
+	total_time = (y / 60).sum(axis=0)
+	legend_labels = np.array(['{} ({:.2f})'.format(name, t)
+		for name, t in zip(labels, total_time)])
+
+	# Plot
+	ax.semilogy(x, 1000 * y[:, idx])
+
+	# Formatting
+	ax.grid(True, which='major')
+	ax.set_xlabel('Simulation time (min)')
+	ax.set_ylabel('Evaluation time (ms)')
+	ax.set_title(title)
+	ax.legend(legend_labels[idx], bbox_to_anchor=(1,1), prop={'size':6})
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
@@ -26,74 +48,29 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			os.mkdir(plotOutDir)
 
 		evaluationTime = TableReader(os.path.join(simOutDir, "EvaluationTime"))
+		mainReader = TableReader(os.path.join(simOutDir, "Main"))
 
 		stateNames = evaluationTime.readAttribute("stateNames")
 		processNames = evaluationTime.readAttribute("processNames")
 
-		updateQueries_times = evaluationTime.readColumn("updateQueries_times")
-		partition_times = evaluationTime.readColumn("partition_times")
-		merge_times = evaluationTime.readColumn("merge_times")
-		calculateRequest_times = evaluationTime.readColumn("calculateRequest_times")
-		evolveState_times = evaluationTime.readColumn("evolveState_times")
+		update_queries = evaluationTime.readColumn("updateQueries_times")
+		partition = evaluationTime.readColumn("partition_times")
+		merge = evaluationTime.readColumn("merge_times")
+		calculate_request = evaluationTime.readColumn("calculateRequest_times")
+		evolve_state = evaluationTime.readColumn("evolveState_times")
 
-		evaluationTime.close()
-
-		mainReader = TableReader(os.path.join(simOutDir, "Main"))
 		initialTime = mainReader.readAttribute("initialTime")
-		time = mainReader.readColumn("time") - initialTime
-		mainReader.close()
+		time = (mainReader.readColumn("time") - initialTime) / 60  # min
 
-		plt.figure(figsize = (8.5, 11))
+		plt.figure(figsize=(10, 10))
+		gs = GridSpec(3, 2)
+		subplot(gs[0, 0], time, update_queries, 'State.updateQueries', stateNames)
+		subplot(gs[1, 0], time, partition, 'State.partition', stateNames)
+		subplot(gs[2, 0], time, merge, 'State.merge', stateNames)
+		subplot(gs[0, 1], time, calculate_request, 'Process.calculateRequest', processNames, sort=True)
+		subplot(gs[1, 1], time, evolve_state, 'Process.evolveState', processNames, sort=True)
 
-		plt.subplot(3, 2, 1)
-
-		plt.semilogy(time / 60, updateQueries_times * 1000)
-		plt.grid(True, which = "major")
-		plt.xlabel("Simulation time (min)")
-		plt.ylabel("Evaluation time (ms)")
-		plt.title("State.updateQueries")
-		plt.legend(stateNames, loc="best", bbox_to_anchor=(1,1), prop={'size':6})
-
-		plt.subplot(3, 2, 2)
-
-		idx = np.argsort(calculateRequest_times[-1, :])[::-1]
-		plt.semilogy(time / 60, calculateRequest_times[:, idx] * 1000)
-		plt.grid(True, which = "major")
-		plt.xlabel("Simulation time (min)")
-		plt.ylabel("Evaluation time (ms)")
-		plt.title("Process.calculateRequest")
-		plt.legend(np.array(processNames)[idx], loc="best", bbox_to_anchor=(1,1), prop={'size':6})
-
-		plt.subplot(3, 2, 3)
-
-		plt.semilogy(time / 60, partition_times * 1000)
-		plt.grid(True, which = "major")
-		plt.xlabel("Simulation time (min)")
-		plt.ylabel("Evaluation time (ms)")
-		plt.title("State.partition")
-		plt.legend(stateNames, loc="best", bbox_to_anchor=(1,1), prop={'size':6})
-
-		plt.subplot(3, 2, 4)
-
-		idx = np.argsort(evolveState_times[-1, :])[::-1]
-		plt.semilogy(time / 60, evolveState_times[:, idx] * 1000)
-		plt.grid(True, which = "major")
-		plt.xlabel("Simulation time (min)")
-		plt.ylabel("Evaluation time (ms)")
-		plt.title("Process.evolveState")
-		plt.legend(np.array(processNames)[idx], loc="best", bbox_to_anchor=(1,1), prop={'size':6})
-
-		plt.subplot(3, 2, 5)
-
-		plt.semilogy(time / 60, merge_times * 1000)
-		plt.grid(True, which = "major")
-		plt.xlabel("Simulation time (min)")
-		plt.ylabel("Evaluation time (ms)")
-		plt.title("State.merge")
-		plt.legend(stateNames, loc="best", bbox_to_anchor=(1,1), prop={'size':6})
-
-		plt.subplots_adjust(hspace = 0.5, top = 0.95, bottom = 0.05)
-
+		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close("all")
 
