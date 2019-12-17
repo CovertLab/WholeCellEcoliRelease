@@ -77,6 +77,36 @@ def dot(a, b, out=None):
 
 	return a_units * b_units * np.dot(a, b, out)
 
+def multiply(a, b):
+	if not isinstance(a, Unum):
+		a_units = 1
+	else:
+		a_units = getUnit(a)
+		a = a.asNumber()
+
+	if not isinstance(b, Unum):
+		b_units = 1
+	else:
+		b_units = getUnit(b)
+		b = b.asNumber()
+
+	return a_units * b_units * np.multiply(a, b)
+
+def divide(a, b):
+	if not isinstance(a, Unum):
+		a_units = 1
+	else:
+		a_units = getUnit(a)
+		a = a.asNumber()
+
+	if not isinstance(b, Unum):
+		b_units = 1
+	else:
+		b_units = getUnit(b)
+		b = b.asNumber()
+
+	return a_units / b_units * np.divide(a, b)
+
 def floor(x):
 	if not hasUnit(x):
 		raise Exception('Only works on Unum!')

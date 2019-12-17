@@ -30,6 +30,7 @@ ACTIVE = [
 	"mRnaHalfLives.py",
 	"massFractionSummary.py",
 	"massFractions.py",
+	"mass_fractions_voronoi.py",
 	"metaboliteComparison.py",
 	"metabolites.py",
 	"mrnaCounts.py",
