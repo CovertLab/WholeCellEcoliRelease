@@ -332,8 +332,6 @@ class Workflow(object):
 	def send(self, worker_count=4):
 		# type: (int) -> None
 		"""Build the workflow and send it to the Gaia server to start running."""
-		self.launch_workers(worker_count)
-
 		commands = self.build_commands()
 		steps = self.build_steps()
 		self.properties['requested-worker-count'] = worker_count
@@ -352,3 +350,6 @@ class Workflow(object):
 			print('\n*** Did you set up port forwarding to the gaia host? See'
 				  ' runscripts/cloud/ssh-tunnel.sh ***\n')
 			raise e
+
+		# Launch the workers after the successful upload.
+		self.launch_workers(worker_count)
