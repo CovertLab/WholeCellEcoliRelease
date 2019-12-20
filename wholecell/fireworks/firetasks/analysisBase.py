@@ -17,7 +17,7 @@ import traceback
 
 from fireworks import FiretaskBase
 from PIL import Image
-from typing import List, Optional
+from typing import List
 
 from wholecell.utils import parallelization
 
@@ -181,8 +181,8 @@ class AnalysisBase(FiretaskBase):
 		duration = time.strftime("%H:%M:%S", time.gmtime(timeTotal))
 		if exceptionFileList:
 			print("Completed analysis in {} with an exception in:".format(duration))
-			for file in exceptionFileList:
-				print("\t{}".format(file))
+			for f in exceptionFileList:
+				print("\t{}".format(f))
 			raise Exception("Error in analysis")
 		else:
 			print("Completed analysis in {}".format(duration))

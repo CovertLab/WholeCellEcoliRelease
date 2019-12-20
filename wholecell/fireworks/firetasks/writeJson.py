@@ -11,7 +11,7 @@ from wholecell.utils import filepath as fp
 class WriteJsonTask(FireTaskBase):
 	"""A Firetask to write a JSON file."""
 
-	_fw_name = 'JsonTask'
+	_fw_name = 'WriteJsonTask'
 	required_params = [
 		'output_file',  # e.g. 'out/manual/metadata/metadata.json'
 		'data']

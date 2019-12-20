@@ -1,6 +1,11 @@
 # One-time setup
 
-## MongoDB
+## Creating a MongoDB database on mlab
+
+**NOTE:** We've been using databases on mlab for running FireWorks on Sherlock.
+We also have MongoDB running in the Allen Center project on Google Compute
+Engine, esp. for running FireWorks and Lens there.
+
 
 1. Create an account at [mlab.com](https://mlab.com/).
 
@@ -46,9 +51,17 @@ second MongoDB Deployment by repeating steps 3-12 with a different database name
 
 ## Config files for Fireworks
 
-* Run `python wholecell/fireworks/initialize.py`
+* Run `python wholecell/fireworks/initialize.py` and enter values when prompted.
 
-* Run `lpad -l my_launchpad.yaml reset`. This will connect to the database then
+  The default values are suitable for using MongoDB on localhost or connecting to
+it on Google Compute Engine via `mongo-ssh.sh` ssh tunnel.
+The database name defaults to `$USER` so each developer has a separate
+database.
+
+  Alternatively, enter the mlab details if you're using mlab.
+
+* Run `lpad reset`. This will connect to the database then
 prompt you to choose `Y`es to confirm resetting the workflow state.
 
-* Optional: Run `lpad -l my_launchpad_2.yaml reset` and again choose `Y`es if prompted
+If you want to run more than one FireWorks workflow at a time, create more than
+one launchpad yaml file, each with a separate database name.

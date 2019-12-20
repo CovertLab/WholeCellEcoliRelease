@@ -22,6 +22,7 @@ from gaia.client import Gaia
 from requests import ConnectionError
 
 from wholecell.utils import filepath as fp
+from .. import gce_vms
 
 
 # Config details to pass to Gaia.
@@ -33,7 +34,6 @@ STDOUT_PATH = '>'    # special path that captures stdout + stderror
 LOG_OUT_PATH = '>>'  # special path for a fuller log; written even on task failure
 
 STORAGE_ROOT_ENV_VAR = 'WORKFLOW_STORAGE_ROOT'
-MAX_WORKERS = 500  # don't launch more than this many worker nodes at a time
 
 
 def _rebase(path, internal_prefix, storage_prefix):
@@ -79,13 +79,6 @@ def _copy_path_list(value):
 		path = path.lstrip('>')
 		assert posixpath.isabs(path), 'Expected an absolute path, not {}'.format(path)
 	return result
-
-def _launch_workers(worker_names, workflow=''):
-	# type: (List[str], str) -> None
-	"""Launch Sisyphus worker nodes with the given names."""
-	path = os.path.join(fp.ROOT_PATH, 'runscripts', 'cloud', 'launch-workers.sh')
-	subprocess.call([path] + worker_names,
-		env=dict(os.environ, WORKFLOW=workflow))
 
 def _to_create_bucket(prefix):
 	# type: (str) -> str
@@ -331,14 +324,10 @@ class Workflow(object):
 		"""Launch the requested number of Sisyphus worker nodes (GCE VMs)."""
 		if count <= 0:
 			return
-		count = min(count, MAX_WORKERS)
 
-		self.log_info('\nLaunching {} worker node(s).'.format(count))
-
-		# Convert the workflow name to valid GCE VM names.
-		sanitized = re.sub('[^-a-z0-9]', '-', self.name.lower()).replace('workflow', '')
-		names = ['sisyphus-{}-{}'.format(sanitized, i) for i in range(count)]
-		_launch_workers(names, workflow=self.name)
+		prefix = 'sisyphus-{}'.format(self.name)
+		names = gce_vms.make_VM_names(prefix, count=count)
+		gce_vms.launch_sisyphus_workers(names, workflow=self.name)
 
 	def send(self, worker_count=4):
 		# type: (int) -> None

@@ -10,7 +10,11 @@ import errno
 import json
 import io
 import os
-import subprocess
+import sys
+if os.name == 'posix' and sys.version_info[0] < 3:
+	import subprocess32 as subprocess
+else:
+	import subprocess
 from typing import Any, AnyStr, Generator, Iterable, Optional, Sequence, Tuple
 
 import wholecell
@@ -73,8 +77,9 @@ def run_cmd(tokens, trim=True):
 	This does not expand filename patterns or environment variables or do other
 	shell processing steps.
 
-	This sets environment variables `PATH` and (if available) `LD_LIBRARY_PATH`.
-	Sherlock needs the latter to find libcrypto.so to run `git`.
+	This passes along the shell environment because variables `PATH` and
+	`LD_LIBRARY_PATH` are needed for Sherlock to find libcrypto.so to run `git`
+	and `CLOUDSDK_PYTHON` may be needed for gcloud to run.
 
 	Args:
 		tokens: The command line as a list of string tokens.
@@ -83,11 +88,7 @@ def run_cmd(tokens, trim=True):
 	Returns:
 		The command's output string.
 	"""
-	environ = {
-		"PATH": os.environ["PATH"],
-		"LD_LIBRARY_PATH": os.environ.get("LD_LIBRARY_PATH", ""),
-		}
-	out = subprocess.Popen(tokens, stdout = subprocess.PIPE, env=environ).communicate()[0]
+	out = subprocess.Popen(tokens, stdout=subprocess.PIPE).communicate()[0]
 	if trim:
 		out = out.rstrip()
 	return out
@@ -97,9 +98,6 @@ def run_cmdline(line, trim=True):
 	"""Run a shell command-line string and return its output. This does not
 	expand filename patterns or environment variables or do other shell
 	processing steps.
-
-	This sets environment variables `PATH` and (if available) `LD_LIBRARY_PATH`.
-	Sherlock needs the latter to find libcrypto.so to run `git`.
 
 	Args:
 		line: The command line as a string.
