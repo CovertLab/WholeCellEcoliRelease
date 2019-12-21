@@ -6,25 +6,34 @@ import os
 import shutil
 import sys
 
-from fireworks import FireTaskBase, explicit_serialize
+from fireworks import FiretaskBase, explicit_serialize
+
 from reconstruction.ecoli.fit_sim_data_1 import fitSimData_1
+from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
 
 
 @explicit_serialize
-class FitSimDataTask(FireTaskBase):
+class FitSimDataTask(FiretaskBase):
 
 	_fw_name = "FitSimDataTask"
 	required_params = [
 		"cached",
 		"debug",
-		"input_data", "output_data", "cpus",
+		"input_data",
+		"output_data",
+		"cpus",
 		"disable_ribosome_capacity_fitting",
 		"disable_rnapoly_capacity_fitting",
 		]
 	optional_params = [
 		"cached_data",
 		"sim_out_dir",
+		'variable_elongation_transcription',
+		'variable_elongation_translation',
 		]
+
+	def _get_default(self, key):
+		return self.get(key, DEFAULT_SIMULATION_KWARGS[key])
 
 	def run_task(self, fw_spec):
 		print("{}: Calculating sim_data parameters".format(time.ctime()))
@@ -46,6 +55,8 @@ class FitSimDataTask(FireTaskBase):
 
 		sim_data = fitSimData_1(
 			raw_data, cpus=cpus, debug=self["debug"],
+			variable_elongation_transcription=self._get_default('variable_elongation_transcription'),
+			variable_elongation_translation=self._get_default('variable_elongation_translation'),
 			disable_ribosome_capacity_fitting=self['disable_ribosome_capacity_fitting'],
 			disable_rnapoly_capacity_fitting=self['disable_rnapoly_capacity_fitting'],
 			)

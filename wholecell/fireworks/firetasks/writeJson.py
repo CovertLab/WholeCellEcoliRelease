@@ -2,13 +2,13 @@ from __future__ import absolute_import, division, print_function
 
 import os
 
-from fireworks import FireTaskBase, explicit_serialize
+from fireworks import FiretaskBase, explicit_serialize
 
 from wholecell.utils import filepath as fp
 
 
 @explicit_serialize
-class WriteJsonTask(FireTaskBase):
+class WriteJsonTask(FiretaskBase):
 	"""A Firetask to write a JSON file."""
 
 	_fw_name = 'WriteJsonTask'

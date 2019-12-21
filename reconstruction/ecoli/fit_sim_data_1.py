@@ -95,6 +95,10 @@ def fitSimData_1(
 		debug (bool) - if True, fit only one arbitrarily-chosen transcription
 			factor in order to speed up a debug cycle (should not be used for
 			an actual simulation)
+		variable_elongation_transcription (bool) - enable variable elongation
+			for transcription
+		variable_elongation_translation (bool) - enable variable elongation for
+			translation
 		disable_ribosome_capacity_fitting (bool) - if True, ribosome expression
 			is not fit to protein synthesis demands
 		disable_rnapoly_capacity_fitting (bool) - if True, RNA polymerase

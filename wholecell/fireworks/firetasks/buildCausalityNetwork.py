@@ -8,14 +8,14 @@ import importlib
 import os
 import time
 
-from fireworks import FireTaskBase, explicit_serialize
+from fireworks import FiretaskBase, explicit_serialize
 from models.ecoli.analysis.causality_network.build_network import BuildNetwork
 from models.ecoli.analysis.causality_network.network_components import NODELIST_JSON, DYNAMICS_FILENAME
 from wholecell.utils import filepath as fp
 
 
 @explicit_serialize
-class BuildCausalityNetworkTask(FireTaskBase):
+class BuildCausalityNetworkTask(FiretaskBase):
 
 	_fw_name = "BuildCausalNetworkTask"
 	required_params = [
