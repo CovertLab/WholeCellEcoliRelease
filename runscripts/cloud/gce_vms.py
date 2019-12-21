@@ -49,23 +49,36 @@ def get_gloud_zone():
 	return get_gloud_get('compute/zone')
 
 
-def launch_GCE_VMs(instance_names, command_options=None, **metadata):
-	# type: (Iterable[str], Optional[Dict[str, Any]], **Any) -> None
-	"""Parallel-launch VMs on GCE. This function provides default options for
-	project, zone, etc. Do set at least image-family in command_options and
-	override defaults as needed."""
-	assert not isinstance(instance_names, str), (
-		'instance_names must be a collection of names')
-	instance_names = list(instance_names)[:MAX_VMS]
-	for name in instance_names:
-		assert re.match(r'[-a-z0-9]+$', name), '"{}" is not a valid GCE VM name'.format(name)
+def make_VM_names(name_prefix, base=0, count=1):
+	# type: (str, int, int) -> List[str]
+	"""Make a list of valid GCE VM names from the prefix, base index, and count."""
+	sanitized = re.sub(
+		r'[^-a-z0-9]+', '-',
+		name_prefix.lower().replace('workflow', ''))
+	names = ['{}-{}'.format(sanitized, i) for i in range(base, base + count)]
+	return names
 
-	print('\nLaunching {} Google Compute Engine VM(s).'.format(len(instance_names)))
-	if len(instance_names) <= 0:
+
+def launch_GCE_VMs(name_prefix, base=0, count=1, command_options=None, **metadata):
+	# type: (str, int, int, Optional[Dict[str, Any]], **Any) -> None
+	"""Parallel-launch VMs on GCE.
+
+	This provides default command options for `gcloud compute instances create`.
+	The caller should at least set the `image-family` option and override
+	defaults as needed.
+
+	This converts command_options and metadata to strings, then passes tokens
+	to `gcloud` avoiding quoting problems, but the metadata fields get joined
+	with commas so those keys and values must not contain commas.
+	"""
+	assert name_prefix, 'the name_prefix must not be empty'
+	assert 0 <= count < MAX_VMS, 'VM count ({}) must be in the range [0 .. {}]'.format(
+		count, MAX_VMS)
+	instance_names = make_VM_names(name_prefix, base, count)
+
+	print('Launching {} Google Compute Engine VM(s).'.format(count))
+	if count <= 0:
 		return
-
-	if not command_options:
-		command_options = {}
 
 	project = get_gloud_project()
 	options = {
@@ -81,7 +94,7 @@ def launch_GCE_VMs(instance_names, command_options=None, **metadata):
 		'service-account': SERVICE_ACCOUNT,
 		'scopes': SCOPES,
 		}
-	options.update(command_options)
+	options.update(command_options or {})
 
 	metadata_string = ','.join('{}={}'.format(k, v) for k, v in metadata.items())
 	if metadata_string:
@@ -93,48 +106,47 @@ def launch_GCE_VMs(instance_names, command_options=None, **metadata):
 	subprocess.call(cmd_tokens, env=os.environ)
 
 
-def make_VM_names(prefix, base=0, count=1):
-	# type: (str, int, int) -> List[str]
-	"""Make a list of valid GCE VM names from the prefix, base number, and count."""
-	sanitized = re.sub(r'[^-a-z0-9]+', '-', prefix.lower().replace('workflow', ''))
-	names = ['{}-{}'.format(sanitized, i) for i in range(base, base + count)]
-	return names
-
-
-def launch_sisyphus_workers(instance_names, workflow):
-	# type: (Iterable[str], str) -> None
+def launch_sisyphus_workers(name_prefix, workflow, base=0, count=1):
+	# type: (str, str, int, int) -> None
 	"""Parallel-launch Sisyphus worker VMs on GCE for the given workflow name."""
-	assert workflow, "a workflow name is required"
+	assert workflow, 'a workflow name is required'
 
 	options = {'image-family': 'sisyphus-worker'}
-	launch_GCE_VMs(instance_names, options, workflow=workflow, description='sisyphus worker')
+	launch_GCE_VMs(name_prefix, base, count, options, workflow=workflow,
+		description='sisyphus worker')
 
 
-def launch_fireworkers(instance_names, **metadata):
-	# type: (Iterable[str], **Any) -> None
+def launch_fireworkers(name_prefix, base=0, count=1, **metadata):
+	# type: (str, int, int, **Any) -> None
 	"""Parallel-launch FireWorks worker VMs on GCE."""
 	options = {'image-family': 'fireworker'}
-	launch_GCE_VMs(instance_names, options, description='fireworker', **metadata)
+	launch_GCE_VMs(name_prefix, base, count, options, description='fireworker',
+		**metadata)
 
 
 def main():
 	parser = argparse.ArgumentParser(
-		description='Launch Google Compute Engine VMs.')
-	parser.add_argument('--sisyphus', action='store_true',
+		description='Launch Google Compute Engine VMs all at once.')
+	parser.add_argument('-s', '--sisyphus', action='store_true',
 		help='Launch Sisyphus workers (rather than Fireworkers)')
 	parser.add_argument('-w', '--workflow',
-		help='the workflow name; required for --sisyphus')
-	parser.add_argument('names', nargs='+', help='the GCE VM names to launch')
+		help='the workflow name; required with --sisyphus')
+	parser.add_argument('name_prefix', metavar='NAME-PREFIX',
+		help="the GCE VM name prefix; it'll get numeric suffixes")
+	parser.add_argument('-i', '--index', type=int, default=0,
+		help='the base index number for the VM names numeric suffixes')
+	parser.add_argument('-c', '--count', type=int, default=1,
+		help='the number of VMs to launch')
 
 	args = parser.parse_args()
 
 	if args.sisyphus:
 		assert args.workflow, 'need a --workflow name to launch sisyphus workers'
-		launch_sisyphus_workers(args.names, args.workflow)
+		launch_sisyphus_workers(args.name_prefix, args.workflow, args.index, args.count)
 	else:
-		launch_fireworkers(args.names)  # TODO(jerry): optional metadata?
+		# TODO(jerry): + metadata?
+		launch_fireworkers(args.name_prefix, args.index, args.count)
 
 
 if __name__ == '__main__':
 	main()
-

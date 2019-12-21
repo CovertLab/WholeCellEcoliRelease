@@ -125,8 +125,7 @@ home page. Use the `☰` menu to navigate to all the other pages.
 page to see the list of running Compute Engine VM instances.
 
    * "sisyphus-…" VM instances are the "worker bees" that run the workflow steps; `wcm.py`
-   launches workers named `sisyphus-$USER-0`, `sisyphus-$USER-1`, … but (for now) they are
-   not dedicated to your workflow
+   launches workers named `sisyphus-$WORKFLOW-0`, `sisyphus-$WORKFLOW-1`, …
    * "gaia-base" is always available to manage workflows
    * "rabbit-prime" is running a workflow task queue
    * "zookeeper-prime" communicates control information between Gaia and worker nodes
