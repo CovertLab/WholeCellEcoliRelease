@@ -322,12 +322,8 @@ class Workflow(object):
 	def launch_workers(self, count):
 		# type: (int) -> None
 		"""Launch the requested number of Sisyphus worker nodes (GCE VMs)."""
-		if count <= 0:
-			return
-
 		prefix = 'sisyphus-{}'.format(self.name)
-		names = gce_vms.make_VM_names(prefix, count=count)
-		gce_vms.launch_sisyphus_workers(names, workflow=self.name)
+		gce_vms.launch_sisyphus_workers(prefix, count=count, workflow=self.name)
 
 	def send(self, worker_count=4):
 		# type: (int) -> None
