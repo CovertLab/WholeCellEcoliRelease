@@ -62,8 +62,9 @@ def make_VM_names(name_prefix, base=0, count=1):
 	return names
 
 
-def launch_GCE_VMs(name_prefix, base=0, count=1, command_options=None, **metadata):
-	# type: (str, int, int, Optional[Dict[str, Any]], **Any) -> None
+def launch_GCE_VMs(name_prefix, base=0, count=1, command_options=None,
+		dry_run=False, **metadata):
+	# type: (str, int, int, Optional[Dict[str, Any]], bool, **Any) -> None
 	"""Parallel-launch VM instances on GCE.
 
 	This provides default command options for `gcloud compute instances create`.
@@ -86,7 +87,11 @@ def launch_GCE_VMs(name_prefix, base=0, count=1, command_options=None, **metadat
 		count, MAX_VMS)
 	instance_names = make_VM_names(name_prefix, base, count)
 
-	print('Launching {} Google Compute Engine VM(s).'.format(count))
+	dry = 'Dry run for: ' if dry_run else ''
+	vms = ('VMs' if count <= 0
+		   else 'VM: ' + instance_names[0] if count == 1
+		   else 'VMs: {} .. {}'.format(instance_names[0], instance_names[-1]))
+	print('{}Launching {} Google Compute Engine {}'.format(dry, count, vms))
 	if count <= 0:
 		return
 
@@ -114,15 +119,16 @@ def launch_GCE_VMs(name_prefix, base=0, count=1, command_options=None, **metadat
 	cmd_tokens = ['gcloud', 'compute', 'instances', 'create'
 		] + instance_names + options_list
 
-	if verbose:
+	if dry_run or verbose:
 		pprint(cmd_tokens)
 
-	subprocess.call(cmd_tokens)  #, env=os.environ
+	if not dry_run:
+		subprocess.call(cmd_tokens)  #, env=os.environ
 
 
 def launch_sisyphus_workers(name_prefix, workflow, base=0, count=1,
-		command_options=None, **metadata):
-	# type: (str, str, int, int, Optional[Dict[str, Any]], **Any) -> None
+		command_options=None, dry_run=False, **metadata):
+	# type: (str, str, int, int, Optional[Dict[str, Any]], bool, **Any) -> None
 	"""Parallel-launch Sisyphus worker VMs on GCE for the given workflow name."""
 	assert workflow, 'a workflow name is required'
 
@@ -131,20 +137,20 @@ def launch_sisyphus_workers(name_prefix, workflow, base=0, count=1,
 		'description': 'sisyphus worker'}
 	options.update(command_options or {})
 
-	launch_GCE_VMs(name_prefix, base, count, options, workflow=workflow,
+	launch_GCE_VMs(name_prefix, base, count, options, dry_run=dry_run, workflow=workflow,
 		**metadata)
 
 
 def launch_fireworkers(name_prefix, base=0, count=1, command_options=None,
-		**metadata):
-	# type: (str, int, int, Optional[Dict[str, Any]], **Any) -> None
+		dry_run=False, **metadata):
+	# type: (str, int, int, Optional[Dict[str, Any]], bool, **Any) -> None
 	"""Parallel-launch FireWorks worker VMs on GCE."""
 	options = {
 		'image-family': 'fireworker',
 		'description': 'FireWorks worker'}
 	options.update(command_options or {})
 
-	launch_GCE_VMs(name_prefix, base, count, options, **metadata)
+	launch_GCE_VMs(name_prefix, base, count, options, dry_run=dry_run, **metadata)
 
 
 def main():
@@ -160,11 +166,14 @@ def main():
 			 ' to launch additional VMs with unique names.')
 	parser.add_argument('-c', '--count', type=int, default=1,
 		help='The number of VMs to launch (default 1).')
+	parser.add_argument('-d', '--dry-run', action='store_true', dest='dry_run',
+		help='Dry run: Print the `gcloud` command, then exit.')
 	parser.add_argument('-s', '--sisyphus', action='store_true',
 		help='Launch Sisyphus workers (rather than Fireworkers).')
 	parser.add_argument('-w', '--workflow',
 		help='The workflow name to use with --sisyphus.')
 	parser.add_argument('-m', '--metadata', metavar='KEY=VALUE', nargs='*',
+		default=[],
 		help='Custom metadata settings, e.g. "db=crick" to identify a FireWorks'
 			 ' LaunchPad MongoDB database to the workers.')
 
@@ -175,9 +184,10 @@ def main():
 	if args.sisyphus:
 		assert args.workflow, 'need a --workflow name to launch sisyphus workers'
 		launch_sisyphus_workers(args.name_prefix, args.workflow, args.base,
-			args.count, **metadata)
+			args.count, dry_run=args.dry_run, **metadata)
 	else:
-		launch_fireworkers(args.name_prefix, args.base, args.count, **metadata)
+		launch_fireworkers(args.name_prefix, args.base, args.count,
+			dry_run=args.dry_run, **metadata)
 
 
 if __name__ == '__main__':
