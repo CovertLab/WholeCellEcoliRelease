@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 """Launch Google Compute Engine VMs."""
 
+### TODO: Deprecated. Switch to the replacement module in borealis-fireworks. ###
+
+
 from __future__ import absolute_import, division, print_function
 
 import argparse
