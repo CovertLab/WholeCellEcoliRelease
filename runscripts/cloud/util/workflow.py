@@ -1,4 +1,4 @@
-"""Generic Sisyphus/Gaia/Google Cloud workflow builder."""
+"""Google Cloud workflow builder."""
 
 # TODO(jerry): For Windows: This code uses posixpath to construct paths to use
 #  on linux servers (and os.path for local file I/O).
@@ -16,7 +16,7 @@ if os.name == 'posix' and sys.version_info[0] < 3:
 	import subprocess32 as subprocess
 else:
 	import subprocess
-from typing import Any, Callable, Dict, Iterable, List, Optional
+from typing import Any, Callable, Dict, Iterable, List, Optional, Set
 
 from gaia.client import Gaia
 from requests import ConnectionError
@@ -71,8 +71,8 @@ def _copy_path_list(value):
 	# type: (Iterable[str]) -> List[str]
 	"""Copy an iterable of strings as a list and check that they're absolute paths
 	to catch goofs like `outputs=plot_dir` or `outputs=['out/metadata.json']`.
-	Sisyphus needs absolute paths to mount into the Docker container. Fail fast
-	on improper input. Handle the the STDOUT prefix '>'.
+	(The task worker needs absolute paths to mount into the Docker container.)
+	Fail fast on improper input. Handle STDOUT_PATH and LOG_OUT_PATH prefixes.
 	"""
 	result = _copy_as_list(value)
 	for path in result:
@@ -158,10 +158,10 @@ class Task(object):
 		assert command, 'Every task needs a command list of tokens'
 		assert storage_prefix, 'Every task needs a storage_prefix'
 		assert not storage_prefix.startswith('/'), (
-			'storage_prefix must not start with "/": {}'.format(storage_prefix))
+			'storage_prefix must not start with "/": "{}"'.format(storage_prefix))
 		assert internal_prefix, 'Every task needs an internal_prefix'
 		assert posixpath.isabs(internal_prefix), (
-			'internal_prefix must be an absolute path, not {}'.format(internal_prefix))
+			'internal_prefix must be an absolute path, not "{}"'.format(internal_prefix))
 
 		self.name = name
 		self.image = image
@@ -175,6 +175,9 @@ class Task(object):
 		if store_log:
 			self.outputs[0:0] = [
 				LOG_OUT_PATH + posixpath.join(internal_prefix, 'logs', name + '.log')]
+
+	def __repr__(self):
+		return 'Task{}'.format(vars(self))
 
 	def build_command(self):
 		# type: () -> Dict[str, Any]
@@ -209,7 +212,7 @@ class Task(object):
 
 
 class Workflow(object):
-	"""A Gaia workflow builder."""
+	"""A workflow builder."""
 
 	def __init__(self, name, owner_id='', verbose_logging=True):
 		# type: (str, str, bool) -> None
@@ -235,6 +238,7 @@ class Workflow(object):
 		self.properties = {'owner': self.owner_id}
 		self.verbose_logging = verbose_logging
 		self._tasks = OrderedDict()  # type: Dict[str, Task]
+		self._tasknames_by_output = {}  # type: Dict[str, str]
 
 	@classmethod
 	def storage_root(cls, cli_arg=None):
@@ -262,6 +266,9 @@ class Workflow(object):
 
 		return root
 
+	def __repr__(self):
+		return 'Workflow{}'.format(vars(self))
+
 	def log_info(self, message):
 		# type: (str) -> None
 		if self.verbose_logging:
@@ -282,28 +289,67 @@ class Workflow(object):
 
 	def add_task(self, task):
 		# type: (Task) -> Task
-		"""Add a Task object. It creates a workflow step. Return it for chaining."""
-		if task.name in self._tasks:
-			print('Warning: Replacing the task named "{}"'.format(task.name))
+		"""Add a Task object. It will create a workflow step, aka a FireWorks
+		"firework".
+		Return it for chaining.
+		Raise ValueError if there's a conflicting task name or output path.
+		"""
+		task_name = task.name
+		if task_name in self._tasks:
+			raise ValueError('''There's already a task named "{}"'''.format(
+				task_name))
 
-		self._tasks[task.name] = task
-		self.log_info('    Added step: {}'.format(task.name))
+		for output in task.outputs:
+			existing_task = self._tasknames_by_output.get(output)
+			if existing_task:
+				raise ValueError(
+					'Task "{}" cannot write to the same output "{}" that task'
+					' "{}" writes to'.format(task_name, output, existing_task))
+
+		# Checks passed. Now add the new task.
+		self._tasks[task_name] = task
+		for output in task.outputs:
+			self._tasknames_by_output[output] = task_name
+
+		self.log_info('    Added task: {}'.format(task_name))
 		return task
+
+	def task_dependencies(self, task):
+		# type: (Task) -> Set[str]
+		"""Given a Task, return a Set of the task names it depends on, i.e.
+		that write its inputs. Print a warning if there are unfulfilled inputs.
+		"""
+		# TODO(jerry): Optional optimization. Given Task links A -> B -> C,
+		#  C could depend on B without explicitly mentioning A to save time in
+		#  the workflow engine.
+		tasknames = set()
+		unfulfilled = set()
+
+		for input_path in task.inputs:
+			if input_path in self._tasknames_by_output:
+				tasknames.add(self._tasknames_by_output[input_path])
+			else:
+				unfulfilled.add(input_path)
+
+		if unfulfilled:
+			print('WARNING: Task "{}" has unfulfilled inputs "{}"'.format(
+				task.name, unfulfilled))
+		return tasknames
 
 	def build_commands(self):
 		# type: () -> List[dict]
-		"""Build this workflow's Commands."""
+		"""Build this workflow's Gaia Commands."""
 		return [task.build_command() for task in self._tasks.itervalues()]
 
 	def build_steps(self):
 		# type: () -> List[dict]
-		"""Build this workflow's Steps."""
+		"""Build this workflow's Gaia Steps."""
 		return [task.build_step() for task in self._tasks.itervalues()]
 
 	def write(self):
 		# type: () -> None
-		"""Build the workflow and write it as JSON files for debugging that can
-		be manually sent to the Gaia server.
+		"""Build the Gaia workflow spec and write it as JSON files for
+		debugging that can be manually sent to the Gaia server.
 		"""
 		commands = self.build_commands()
 		steps = self.build_steps()
@@ -321,13 +367,13 @@ class Workflow(object):
 
 	def launch_workers(self, count):
 		# type: (int) -> None
-		"""Launch the requested number of Sisyphus worker nodes (GCE VMs)."""
+		"""Launch the requested number of task worker nodes (GCE VMs)."""
 		prefix = 'sisyphus-{}'.format(self.name)
 		gce_vms.launch_sisyphus_workers(prefix, count=count, workflow=self.name)
 
 	def send(self, worker_count=4):
 		# type: (int) -> None
-		"""Build the workflow and send it to the Gaia server to start running."""
+		"""Build the Gaia workflow and send it to the server to start running."""
 		commands = self.build_commands()
 		steps = self.build_steps()
 		self.properties['requested-worker-count'] = worker_count
