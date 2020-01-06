@@ -281,6 +281,40 @@
             }
         }
     },
+    "replication_elongation_rate": {
+        "data": {
+            "fork_coors": {
+                "table": "ReplicationData",
+                "column": "fork_coordinates"
+            },
+            "first_axis_index": {
+                "constant": 0
+            }
+        },
+        "operations": {
+            "diffs": {
+                "function": "pairwise_diffs_axis",
+                "args": ["fork_coors", "first_axis_index"]
+            },
+            "flattened": {
+                "function": "ravel",
+                "args": ["diffs"]
+            },
+            "no_nan": {
+                "function": "filter_no_nan",
+                "args": ["flattened"]
+            },
+            "absolute_value": {
+                "function": "absolute",
+                "args": ["no_nan"]
+            },
+            "mean": {
+                "function": "mean",
+                "args": ["absolute_value"],
+                "range": [0, 0]
+            }
+        }
+    },
     "fluxomeCorrelation": {
         "data": {
             "FLUX_UNITS": {

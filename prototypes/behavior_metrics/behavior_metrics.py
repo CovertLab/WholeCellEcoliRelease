@@ -132,6 +132,7 @@ MODE_FUNC_MAP = {
 	"last_elem": lambda x: x[-1],
 	"scalar_subtract": lambda x, y: x - y,
 	"pairwise_diffs": np.diff,
+	"pairwise_diffs_axis": lambda a, axis: np.diff(a, axis=axis),
 	"slice": lambda arr, start, end: arr[start:end],
 	"adjust_toya_data": fluxome_plot.adjust_toya_data,
 	"process_simulated_fluxes": (
@@ -151,6 +152,9 @@ MODE_FUNC_MAP = {
 	"len": len,
 	"get_sim_wisniewski_counts": get_sim_wisniewski_counts,
 	"get_sim_schmidt_counts": get_sim_schmidt_counts,
+	"ravel": np.ravel,
+	"absolute": np.absolute,
+	"filter_no_nan": lambda a: a[~np.isnan(a)],
 }
 
 
