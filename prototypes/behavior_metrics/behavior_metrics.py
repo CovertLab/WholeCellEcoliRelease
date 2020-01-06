@@ -22,6 +22,10 @@ from wholecell.utils import filepath
 from wholecell.utils import units
 from models.ecoli.analysis.single.centralCarbonMetabolismScatter import (
 	Plot as fluxome_plot)
+from wholecell.utils.protein_counts import (
+	get_sim_wisniewski_counts,
+	get_sim_schmidt_counts,
+)
 
 
 def calc_end_start_ratio(data):
@@ -111,6 +115,9 @@ SIM_OUT_DIR = (
 #: Path to pickle that stores validation data for correlation checks
 VALIDATION_PICKLE_PATH = "out/manual/kb/validationData.cPickle"
 
+#: Path to pickle that stores pickle of data for metrics computation
+METRICS_PICKLE_PATH = "out/manual/kb/metricsData.cPickle"
+
 #: Map from mode names to the functions that handle the mode
 MODE_FUNC_MAP = {
 	"end_start_ratio": calc_end_start_ratio,
@@ -136,10 +143,14 @@ MODE_FUNC_MAP = {
 	"process_toya_data": fluxome_plot.process_toya_data,
 	"fluxome_common_ids": fluxome_plot.get_common_ids,
 	"pearson_correlation": lambda x, y: np.corrcoef(x, y)[0, 1],
+	"pearson_correlation_log10": lambda x, y: np.corrcoef(
+		np.log10(x + 1), np.log10(y + 1))[0, 1],
 	"strip_units": lambda to_strip, unit: to_strip.asNumber(unit),
 	"find_limiting_metabolites": find_limiting_metabolites,
 	"normalize_to_column": normalize_to_column,
 	"len": len,
+	"get_sim_wisniewski_counts": get_sim_wisniewski_counts,
+	"get_sim_schmidt_counts": get_sim_schmidt_counts,
 }
 
 
@@ -147,7 +158,8 @@ class BehaviorMetrics(object):
 	"""Tests for model behavior metrics"""
 
 	def __init__(
-		self, metrics_conf_path, sim_out_dir, validation_path=None
+		self, metrics_conf_path, sim_out_dir, validation_path=None,
+		metrics_pickle_path=None
 	):
 		# type: (str, str) -> None
 		"""Store provided paths.
@@ -159,10 +171,13 @@ class BehaviorMetrics(object):
 			validation_path: Path to validation data cPickle. May be
 				excluded or set to None if no validation data will be
 				used.
+			metrics_pickle_path: Path to pickle of data for metrics
+				computation.
 		"""
 		self.metrics_conf_path = metrics_conf_path
 		self.sim_out_dir = sim_out_dir
 		self.validation_path = validation_path
+		self.metrics_pickle_path = metrics_pickle_path
 
 	def calc_metrics(self):
 		# type: () -> pd.DataFrame
@@ -197,6 +212,9 @@ class BehaviorMetrics(object):
 		if self.validation_path:
 			with open(self.validation_path, "rb") as f:
 				pickles["validation_data"] = cPickle.load(f)
+		if self.metrics_pickle_path:
+			with open(self.metrics_pickle_path, "rb") as f:
+				pickles["metrics_data"] = cPickle.load(f)
 		results = []
 		for metric, config in metrics_conf.items():
 			data = self.load_data_from_config(config["data"], pickles)
@@ -497,7 +515,8 @@ class BehaviorMetrics(object):
 def main():
 	"""Main function that runs tests"""
 	metrics = BehaviorMetrics(
-		METRICS_CONF_PATH, SIM_OUT_DIR, VALIDATION_PICKLE_PATH)
+		METRICS_CONF_PATH, SIM_OUT_DIR, VALIDATION_PICKLE_PATH,
+		METRICS_PICKLE_PATH)
 	results = metrics.calc_metrics()
 	pd.options.display.width = None
 	print(results)

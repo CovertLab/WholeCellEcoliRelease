@@ -354,6 +354,58 @@
             }
         }
     },
+    "proteome_correlation": {
+        "data": {
+            "sim_monomer_ids": {
+                "cPickle": "metrics_data",
+                "dict_key": "translation_monomer_ids"
+            },
+            "wisniewski_ids": {
+                "cPickle": "validation_data",
+                "dotted_name": "protein.wisniewski2014Data",
+                "dict_key": "monomerId"
+            },
+            "schmidt_ids": {
+                "cPickle": "validation_data",
+                "dotted_name": "protein.schmidt2015Data",
+                "dict_key": "monomerId"
+            },
+            "monomer_counts": {
+                "table": "MonomerCounts",
+                "column": "monomerCounts"
+            },
+            "wisniewski_counts": {
+                "cPickle": "validation_data",
+                "dotted_name": "protein.wisniewski2014Data",
+                "dict_key": "avgCounts"
+            },
+            "schmidt_counts": {
+                "cPickle": "validation_data",
+                "dotted_name": "protein.schmidt2015Data",
+                "dict_key": "glucoseCounts"
+            }
+        },
+        "operations": {
+            "sim_wisniewski_counts": {
+                "function": "get_sim_wisniewski_counts",
+                "args": ["monomer_counts", "wisniewski_ids", "sim_monomer_ids"]
+            },
+            "sim_schmidt_counts": {
+                "function": "get_sim_schmidt_counts",
+                "args": ["monomer_counts", "schmidt_ids", "sim_monomer_ids"]
+            },
+            "wisniewski_correlation": {
+                "function": "pearson_correlation_log10",
+                "args": ["sim_wisniewski_counts", "wisniewski_counts"],
+                "range": [0, 0]
+            },
+            "schmidt_correlation": {
+                "function": "pearson_correlation_log10",
+                "args": ["sim_schmidt_counts", "schmidt_counts"],
+                "range": [0, 0]
+            }
+        }
+    },
     "limiting_metabolites": {
         "data": {
             "metabolite_counts": {
