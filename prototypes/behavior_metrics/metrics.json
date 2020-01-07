@@ -444,6 +444,59 @@
             }
         }
     },
+    "transcriptome_correlation": {
+        "data": {
+            "molecule_ids": {
+                "table": "BulkMolecules",
+                "attribute": "objectNames"
+            },
+            "all_counts": {
+                "table": "BulkMolecules",
+                "column": "counts"
+            },
+            "expected_rna_counts": {
+                "cPickle": "metrics_data",
+                "dict_key": "expected_mRNA_counts"
+            },
+            "rna_ids": {
+                "cPickle": "metrics_data",
+                "dict_key": "rna_ids"
+            },
+            "last_index": {
+                "constant": -1
+            }
+        },
+        "operations": {
+            "rna_indices": {
+                "function": "find_indices_bulk",
+                "args": ["molecule_ids", "rna_ids"]
+            },
+            "rna_counts": {
+                "function": "np_pick",
+                "args": ["all_counts", ["last_index", ["rna_indices"]]]
+            },
+            "expected_counts_sum": {
+                "function": "sum",
+                "args": ["expected_rna_counts"]
+            },
+            "counts_sum": {
+                "function": "sum",
+                "args": ["rna_counts"]
+            },
+            "expected_counts_frac": {
+                "function": "/",
+                "args": ["expected_rna_counts", "expected_counts_sum"]
+            },
+            "expected_counts_scaled": {
+                "function": "*",
+                "args": ["expected_counts_frac", "counts_sum"]
+            },
+            "correlation": {
+                "function": "pearson_correlation",
+                "args": ["rna_counts", "expected_counts_scaled"]
+            }
+        }
+    },
     "limiting_metabolites": {
         "data": {
             "metabolite_counts": {

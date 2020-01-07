@@ -104,6 +104,46 @@ def normalize_to_column(to_normalize, column_index):
 	return to_normalize / to_normalize[column_index, :]
 
 
+def find_indices_bulk(to_search, targets):
+	# type: (List[Any], Iterable[Any]) -> np.ndarray
+	"""Generate a list of the indices at which elements appear in list.
+
+	Only the first occurrence of each element is included.
+
+	Arguments:
+		to_search: List to lookup elements in
+		targets: The elements to lookup
+
+	Returns:
+		The indices.
+	"""
+	return np.array([to_search.index(elem) for elem in targets], np.int)
+
+
+def np_pick(array, pick_spec):
+	# type: (np.ndarray, List[List[int]]) -> Any
+	"""Perform numpy indexing based on a specification
+
+	Arguments:
+		array: The array to slice.
+		pick_spec: The selection specification, which should consist
+			of a list of axis specifications. Each axis specification can
+			either be an integer, to represent an index, or as a list of
+			indices.
+
+	Returns:
+		An array including the specified indices.
+	"""
+	parsed_spec = []
+	for axis_spec in pick_spec:
+		if isinstance(axis_spec, list):
+			parsed_spec.append(tuple(axis_spec))
+		else:
+			parsed_spec.append(axis_spec)
+	print(parsed_spec)
+	return array[tuple(parsed_spec)]
+
+
 #: Path from repository root to metrics configuration JSON file
 METRICS_CONF_PATH = "prototypes/behavior_metrics/metrics.json"
 
@@ -134,6 +174,7 @@ MODE_FUNC_MAP = {
 	"pairwise_diffs": np.diff,
 	"pairwise_diffs_axis": lambda a, axis: np.diff(a, axis=axis),
 	"slice": lambda arr, start, end: arr[start:end],
+	"np_pick": np_pick,
 	"adjust_toya_data": fluxome_plot.adjust_toya_data,
 	"process_simulated_fluxes": (
 		lambda filter_ids, rxn_ids, fluxes, id_map:
@@ -157,6 +198,10 @@ MODE_FUNC_MAP = {
 	"ravel": np.ravel,
 	"absolute": np.absolute,
 	"filter_no_nan": lambda a: a[~np.isnan(a)],
+	"sum": np.sum,
+	"*": lambda x, y: x * y,
+	"/": lambda x, y: x / y,
+	"find_indices_bulk": find_indices_bulk,
 }
 
 
@@ -254,11 +299,19 @@ class BehaviorMetrics(object):
 		return results_df
 
 	@staticmethod
+	def _resolve_func_arg(arg, data):
+		if isinstance(arg, list):
+			return [
+				BehaviorMetrics._resolve_func_arg(elem, data) for elem in arg]
+		else:
+			return data[arg]
+
+	@staticmethod
 	def _calculate_operation(op_config, data):
 		# type: (Dict[str, Any], Dict[str, Any]) -> Any
 		op_func = MODE_FUNC_MAP[op_config["function"]]
 		func_args = [
-			data[arg_label] for arg_label in op_config["args"]
+			BehaviorMetrics._resolve_func_arg(arg, data) for arg in op_config["args"]
 		]
 		return op_func(*func_args)
 
@@ -394,6 +447,18 @@ class BehaviorMetrics(object):
 		return obj
 
 	@staticmethod
+	def _flatten(lst):
+		# type: (List[Any]) -> List[Any]
+		"""Flatten a list"""
+		flat = []
+		for elem in lst:
+			if isinstance(elem, list):
+				flat.extend(BehaviorMetrics._flatten(elem))
+			else:
+				flat.append(elem)
+		return flat
+
+	@staticmethod
 	def parse_units(unit_def):
 		# type: (Union[str, Dict[str, Any]]) -> Unum
 		"""Get an Unum object that can stores the specified units
@@ -509,8 +574,9 @@ class BehaviorMetrics(object):
 		graph.add_nodes(operation_configs.keys())
 		for op_name, config in operation_configs.items():
 			if "args" in config:
+				args = BehaviorMetrics._flatten(config["args"])
 				deps = [
-					arg for arg in config["args"]
+					arg for arg in args
 					if arg in operation_configs.keys()
 				]
 				for dep in deps:
