@@ -136,13 +136,15 @@ MODE_FUNC_MAP = {
 	"slice": lambda arr, start, end: arr[start:end],
 	"adjust_toya_data": fluxome_plot.adjust_toya_data,
 	"process_simulated_fluxes": (
-		lambda filter_ids, rxn_ids, fluxes:
+		lambda filter_ids, rxn_ids, fluxes, id_map:
 		fluxome_plot.process_simulated_fluxes(
-			filter_ids, rxn_ids, fluxes
+			filter_ids, rxn_ids, fluxes, id_map
 		)[0]
 	),
 	"process_toya_data": fluxome_plot.process_toya_data,
 	"fluxome_common_ids": fluxome_plot.get_common_ids,
+	"fluxome_root_to_id_indices_map":
+		fluxome_plot.get_root_to_id_indices_map,
 	"pearson_correlation": lambda x, y: np.corrcoef(x, y)[0, 1],
 	"pearson_correlation_log10": lambda x, y: np.corrcoef(
 		np.log10(x + 1), np.log10(y + 1))[0, 1],

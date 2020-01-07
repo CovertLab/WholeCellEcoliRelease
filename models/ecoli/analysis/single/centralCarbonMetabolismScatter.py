@@ -9,7 +9,7 @@ from __future__ import division
 import os
 import cPickle
 import re
-from typing import List, Iterable, Tuple
+from typing import List, Iterable, Tuple, Dict
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -140,10 +140,15 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		reaction_ids, reaction_fluxes = Plot.load_fba_data(simOutDir)
 		toya_reactions, toya_fluxes, toya_stdevs = Plot.load_toya_data(
 			validationDataFile, simDataFile, simOutDir)
-		common_ids = Plot.get_common_ids(toya_reactions, reaction_ids)
+		root_to_id_indices_map = Plot.get_root_to_id_indices_map(
+			reaction_ids)
+		common_ids = Plot.get_common_ids(
+			toya_reactions, root_to_id_indices_map)
 
 		sim_flux_means, sim_flux_stdevs = Plot.process_simulated_fluxes(
-			common_ids, reaction_ids, reaction_fluxes)
+			common_ids, reaction_ids, reaction_fluxes,
+			root_to_id_indices_map
+		)
 		toya_flux_means = Plot.process_toya_data(
 			common_ids, toya_reactions, toya_fluxes)
 		toya_flux_stdevs = Plot.process_toya_data(
@@ -171,42 +176,47 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		plt.close("all")
 
 	@staticmethod
-	def get_common_ids(toya_reaction_ids, sim_reaction_ids):
-		return [
-			rxn_id for rxn_id in toya_reaction_ids
-			if Plot.regex_in_list(rxn_id, sim_reaction_ids)
-		]
+	def get_common_ids(toya_reaction_ids, root_to_id_indices_map):
+		return (
+			set(toya_reaction_ids)
+			& set(root_to_id_indices_map.keys())
+		)
 
 	@staticmethod
-	def regex_in_list(regex, lst):
-		# type: (str, List[str]) -> bool
-		"""Search a list for a regex match.
+	def get_root_to_id_indices_map(sim_reaction_ids):
+		# type: (np.ndarray) -> Dict[str, List[int]]
+		"""Get a map from ID root to indices in sim_reaction_ids
+
+		The reaction root is the portion of the ID that precedes the
+		first underscore or space.
 
 		Arguments:
-			regex: Regular expression to search for matches for.
-			lst: List to search.
+			sim_reaction_ids: Simulation reaction IDs
 
 		Returns:
-			True if and only if a match is found.
+			Map from ID root to a list of the indices in
+			sim_reaction_ids of reactions having that root.
 		"""
-		matcher = re.compile(regex)
-		for elem in lst:
-			if matcher.match(elem):
-				return True
-		return False
+		root_to_id_indices_map = dict()
+		matcher = re.compile("^([A-Za-z0-9-/.]+)")
+		for i, rxn_id in enumerate(sim_reaction_ids):
+			root = matcher.match(rxn_id).group(1)
+			root_to_id_indices_map.setdefault(root, []).append(i)
+		return root_to_id_indices_map
 
 	@staticmethod
 	def process_simulated_fluxes(
 		output_ids,  # type: Iterable[str]
 		reaction_ids,  # type: Iterable[str]
 		reaction_fluxes,  # type: Unum
+		root_to_id_indices_map,  # type: Dict[str, List[int]]
 	):
 		# type: (...) -> Tuple[Unum, Unum]
 		"""Compute means and standard deviations of flux from simulation
 
 		For a given output ID from output_ids, all reaction IDs from
-		reaction_ids that match the output ID (treating output ID as a
-		regular expression) will have their data included in that output
+		reaction_ids whose roots (before the first _ or space) match the output ID
+		will have their data included in that output
 		ID's mean and standard deviation.
 
 		Arguments:
@@ -225,15 +235,13 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			order as their associated reaction IDs in output_ids. Both
 			lists will have units FLUX_UNITS.
 		"""
-		np.set_printoptions(threshold=np.inf)
 		reaction_ids = np.array(reaction_ids)
 		means = []
 		stdevs = []
 		for output_id in output_ids:
 			time_course = []
-			for rxn_id in reaction_ids:
-				if not re.findall(output_id, rxn_id):
-					continue
+			for i_rxn_id in root_to_id_indices_map[output_id]:
+				rxn_id = reaction_ids[i_rxn_id]
 				reverse = -1 if re.findall("(reverse)", rxn_id) else 1
 				matches = reaction_fluxes[:, np.where(reaction_ids == rxn_id)]
 				if time_course:
