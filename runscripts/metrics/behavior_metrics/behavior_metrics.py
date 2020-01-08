@@ -144,7 +144,7 @@ def np_pick(array, pick_spec):
 
 
 #: Path from repository root to metrics configuration JSON file
-METRICS_CONF_PATH = "prototypes/behavior_metrics/metrics.json"
+METRICS_CONF_PATH = "runscripts/metrics/behavior_metrics/metrics.json"
 
 #: Path to the simulation output directory from repository root
 SIM_OUT_DIR = (
@@ -402,7 +402,7 @@ class BehaviorMetrics(object):
 			elif "subcolumn" in source_config:
 				reader = TableReader(
 					path.join(self.sim_out_dir, source_config["table"]))
-				data = reader.read_subcolumn(
+				data = reader.readSubcolumn(
 					source_config["column"], source_config["subcolumn"])
 			elif "import" in source_config:
 				data = BehaviorMetrics._load_from_import_string(

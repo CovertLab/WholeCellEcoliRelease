@@ -13,7 +13,8 @@ from wholecell.io.tablereader import TableReader
 from models.ecoli.analysis.single.centralCarbonMetabolismScatter import (
 	FLUX_UNITS)
 from wholecell.utils import units
-from prototypes.behavior_metrics.behavior_metrics import BehaviorMetrics
+from runscripts.metrics.behavior_metrics.behavior_metrics import (
+	BehaviorMetrics)
 from wholecell.utils.dependency_graph import (
 	InvalidDependencyGraphError
 )
@@ -35,7 +36,7 @@ class TestParseDataConfig(unittest.TestCase):
 			),
 		)
 		self.mock_tablereader = mock.patch(
-			"prototypes.behavior_metrics.behavior_metrics.TableReader",
+			"runscripts.metrics.behavior_metrics.behavior_metrics.TableReader",
 			return_value=self.mock_reader
 		).start()
 

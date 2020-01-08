@@ -8,7 +8,9 @@ import sys
 
 from fireworks import FireTaskBase, explicit_serialize
 from reconstruction.ecoli.fit_sim_data_1 import fitSimData_1
-from prototypes.behavior_metrics.metrics_pickle import gen_metrics_data_dict
+from runscripts.metrics.behavior_metrics.metrics_pickle import (
+	gen_metrics_data_dict
+)
 
 
 @explicit_serialize
