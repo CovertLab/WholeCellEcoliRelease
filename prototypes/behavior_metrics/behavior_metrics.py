@@ -15,7 +15,6 @@ import numpy as np
 import pandas as pd
 from unum import Unum
 
-from prototypes.behavior_metrics.tablereader_utils import read_subcolumn
 from wholecell.utils.dependency_graph import DependencyGraph
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import filepath
@@ -401,10 +400,10 @@ class BehaviorMetrics(object):
 			if "constant" in source_config:
 				data = source_config["constant"]
 			elif "subcolumn" in source_config:
-				data = read_subcolumn(
-					self.sim_out_dir, source_config["table"],
-					source_config["column"], source_config["subcolumn"]
-				)
+				reader = TableReader(
+					path.join(self.sim_out_dir, source_config["table"]))
+				data = reader.read_subcolumn(
+					source_config["column"], source_config["subcolumn"])
 			elif "import" in source_config:
 				data = BehaviorMetrics._load_from_import_string(
 					source_config["import"])
