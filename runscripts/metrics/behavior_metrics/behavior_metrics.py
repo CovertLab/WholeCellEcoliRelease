@@ -16,10 +16,8 @@ import numpy as np
 import pandas as pd
 from unum import Unum
 
-from models.ecoli.analysis.single.centralCarbonMetabolismScatter import (
-	Plot as fluxome_plot)
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import filepath, units
+from wholecell.utils import filepath, units, toya
 from wholecell.utils.dependency_graph import DependencyGraph
 from wholecell.utils.protein_counts import (
 	get_sim_wisniewski_counts,
@@ -193,17 +191,17 @@ MODE_FUNC_MAP = {
 	"find_limiting_metabolites": find_limiting_metabolites,
 
 	# Processing
-	"adjust_toya_data": fluxome_plot.adjust_toya_data,
+	"adjust_toya_data": toya.adjust_toya_data,
 	"process_simulated_fluxes": (
 		lambda filter_ids, rxn_ids, fluxes, id_map:
-		fluxome_plot.process_simulated_fluxes(
+		toya.process_simulated_fluxes(
 			filter_ids, rxn_ids, fluxes, id_map
 		)[0]
 	),
-	"process_toya_data": fluxome_plot.process_toya_data,
-	"fluxome_common_ids": fluxome_plot.get_common_ids,
+	"process_toya_data": toya.process_toya_data,
+	"fluxome_common_ids": toya.get_common_ids,
 	"fluxome_root_to_id_indices_map":
-		fluxome_plot.get_root_to_id_indices_map,
+		toya.get_root_to_id_indices_map,
 	"normalize_to_column": normalize_to_column,
 	"get_sim_wisniewski_counts": get_sim_wisniewski_counts,
 	"get_sim_schmidt_counts": get_sim_schmidt_counts,
