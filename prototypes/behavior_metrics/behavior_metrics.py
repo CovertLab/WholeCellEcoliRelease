@@ -16,7 +16,7 @@ import pandas as pd
 from unum import Unum
 
 from prototypes.behavior_metrics.tablereader_utils import read_subcolumn
-from prototypes.behavior_metrics.dependency_graph import DependencyGraph
+from wholecell.utils.dependency_graph import DependencyGraph
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import filepath
 from wholecell.utils import units

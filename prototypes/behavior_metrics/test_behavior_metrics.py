@@ -14,7 +14,7 @@ from models.ecoli.analysis.single.centralCarbonMetabolismScatter import (
 	FLUX_UNITS)
 from wholecell.utils import units
 from prototypes.behavior_metrics.behavior_metrics import BehaviorMetrics
-from prototypes.behavior_metrics.dependency_graph import (
+from wholecell.utils.dependency_graph import (
 	InvalidDependencyGraphError
 )
 
