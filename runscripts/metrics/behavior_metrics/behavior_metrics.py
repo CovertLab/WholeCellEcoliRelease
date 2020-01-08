@@ -137,7 +137,6 @@ def np_pick(array, pick_spec):
 			parsed_spec.append(tuple(axis_spec))
 		else:
 			parsed_spec.append(axis_spec)
-	print(parsed_spec)
 	return array[tuple(parsed_spec)]
 
 
