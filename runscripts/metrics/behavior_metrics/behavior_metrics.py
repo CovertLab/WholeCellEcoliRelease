@@ -1,26 +1,26 @@
 #!/usr/bin/env python2
 
-"""Check that model behavior metrics are within expected bounds
+"""Compute metrics for model behavior and check expected bounds
 """
 
 from __future__ import absolute_import, division, print_function
-from os import path
-from typing import Dict, Any, List, Union, Iterable
-import re
-import importlib
-import cPickle
+
 from collections import namedtuple
+import cPickle
+import importlib
+from os import path
+import re
+from typing import Dict, Any, List, Union, Iterable
 
 import numpy as np
 import pandas as pd
 from unum import Unum
 
-from wholecell.utils.dependency_graph import DependencyGraph
-from wholecell.io.tablereader import TableReader
-from wholecell.utils import filepath
-from wholecell.utils import units
 from models.ecoli.analysis.single.centralCarbonMetabolismScatter import (
 	Plot as fluxome_plot)
+from wholecell.io.tablereader import TableReader
+from wholecell.utils import filepath, units
+from wholecell.utils.dependency_graph import DependencyGraph
 from wholecell.utils.protein_counts import (
 	get_sim_wisniewski_counts,
 	get_sim_schmidt_counts,
@@ -159,21 +159,40 @@ METRICS_PICKLE_PATH = "out/manual/kb/metricsData.cPickle"
 
 #: Map from mode names to the functions that handle the mode
 MODE_FUNC_MAP = {
-	"end_start_ratio": calc_end_start_ratio,
+	# Simple Scalar-Valued Functions
 	"mean": np.mean,
 	"stdev": np.std,
 	"min": np.min,
 	"max": np.max,
+	"len": len,
+	"sum": np.sum,
+	"absolute": np.absolute,
+
+	# Simple Binary Operators
+	"*": lambda x, y: x * y,
+	"/": lambda x, y: x / y,
+	"-": lambda x, y: x - y,
+
+	# Array Operations
 	"add_two_arrays": np.add,
-	"calc_active_fraction": calc_active_fraction,
 	"elementwise_min": np.minimum,
 	"elementwise_divide": np.divide,
-	"last_elem": lambda x: x[-1],
-	"scalar_subtract": lambda x, y: x - y,
 	"pairwise_diffs": np.diff,
 	"pairwise_diffs_axis": lambda a, axis: np.diff(a, axis=axis),
 	"slice": lambda arr, start, end: arr[start:end],
 	"np_pick": np_pick,
+	"last_elem": lambda x: x[-1],
+	"ravel": np.ravel,
+
+	# Metrics
+	"end_start_ratio": calc_end_start_ratio,
+	"calc_active_fraction": calc_active_fraction,
+	"pearson_correlation": lambda x, y: np.corrcoef(x, y)[0, 1],
+	"pearson_correlation_log10": lambda x, y: np.corrcoef(
+		np.log10(x + 1), np.log10(y + 1))[0, 1],
+	"find_limiting_metabolites": find_limiting_metabolites,
+
+	# Processing
 	"adjust_toya_data": fluxome_plot.adjust_toya_data,
 	"process_simulated_fluxes": (
 		lambda filter_ids, rxn_ids, fluxes, id_map:
@@ -185,22 +204,12 @@ MODE_FUNC_MAP = {
 	"fluxome_common_ids": fluxome_plot.get_common_ids,
 	"fluxome_root_to_id_indices_map":
 		fluxome_plot.get_root_to_id_indices_map,
-	"pearson_correlation": lambda x, y: np.corrcoef(x, y)[0, 1],
-	"pearson_correlation_log10": lambda x, y: np.corrcoef(
-		np.log10(x + 1), np.log10(y + 1))[0, 1],
-	"strip_units": lambda to_strip, unit: to_strip.asNumber(unit),
-	"find_limiting_metabolites": find_limiting_metabolites,
 	"normalize_to_column": normalize_to_column,
-	"len": len,
 	"get_sim_wisniewski_counts": get_sim_wisniewski_counts,
 	"get_sim_schmidt_counts": get_sim_schmidt_counts,
-	"ravel": np.ravel,
-	"absolute": np.absolute,
 	"filter_no_nan": lambda a: a[~np.isnan(a)],
-	"sum": np.sum,
-	"*": lambda x, y: x * y,
-	"/": lambda x, y: x / y,
 	"find_indices_bulk": find_indices_bulk,
+	"strip_units": lambda to_strip, unit: to_strip.asNumber(unit),
 }
 
 
@@ -302,8 +311,7 @@ class BehaviorMetrics(object):
 		if isinstance(arg, list):
 			return [
 				BehaviorMetrics._resolve_func_arg(elem, data) for elem in arg]
-		else:
-			return data[arg]
+		return data[arg]
 
 	@staticmethod
 	def _calculate_operation(op_config, data):

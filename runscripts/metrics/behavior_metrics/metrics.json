@@ -219,7 +219,7 @@
                 "args": ["time"]
             },
             "doubling_time": {
-                "function": "scalar_subtract",
+                "function": "-",
                 "args": ["end_time", "start_time"],
                 "range": [0, 0]
             }
