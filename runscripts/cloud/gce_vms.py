@@ -140,8 +140,8 @@ def launch_sisyphus_workers(name_prefix, workflow, base=0, count=1,
 		'description': 'sisyphus worker'}
 	options.update(command_options or {})
 
-	launch_GCE_VMs(name_prefix, base, count, options, dry_run=dry_run, workflow=workflow,
-		**metadata)
+	launch_GCE_VMs(name_prefix, base, count, options, dry_run=dry_run,
+		workflow=workflow, **metadata)
 
 
 def launch_fireworkers(name_prefix, base=0, count=1, command_options=None,

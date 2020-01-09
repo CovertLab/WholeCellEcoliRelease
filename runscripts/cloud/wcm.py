@@ -10,6 +10,7 @@ from __future__ import absolute_import, division, print_function
 import json
 import os
 import posixpath
+from pprint import pprint
 import re
 from typing import Any, Dict, Iterable, Optional
 
@@ -20,7 +21,8 @@ from runscripts.manual.analysisBase import AnalysisBase
 from runscripts.cloud.util.workflow import STORAGE_ROOT_ENV_VAR, Task, Workflow
 
 
-DOCKER_IMAGE = 'gcr.io/allen-discovery-center-mcovert/{}-wcm-code:latest'
+DOCKER_IMAGE = 'gcr.io/allen-discovery-center-mcovert/{}-wcm-code'
+USE_GAIA = False
 
 
 class WcmWorkflow(Workflow):
@@ -391,9 +393,23 @@ class RunWcm(scriptBase.ScriptBase):
 	def run(self, args):
 		wf = wc_ecoli_workflow(vars(args))
 		if args.dump:
-			wf.write()
+			wf.write_for_gaia()
 		else:
-			wf.send(args.workers)
+			wf.send_to_gaia(args.workers)
+
+		if USE_GAIA:
+			if args.dump:
+				wf.write_for_gaia()
+			else:
+				wf.send_to_gaia(worker_count=args.workers)
+			return
+
+		if args.dump:
+			# TODO(jerry): Write a yaml spec file.
+			fw_wf = wf.build_workflow()
+			pprint(fw_wf)
+		else:
+			wf.send_to_lpad(worker_count=args.workers)
 
 
 if __name__ == '__main__':

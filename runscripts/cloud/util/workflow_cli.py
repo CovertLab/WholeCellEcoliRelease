@@ -7,12 +7,15 @@ from __future__ import absolute_import, division, print_function
 import argparse
 import os
 import posixpath
-from typing import Iterable
+from pprint import pprint
+from typing import Iterable, Optional
 
 import wholecell.utils.filepath as fp
 from wholecell.utils import scriptBase
 from runscripts.cloud.util.workflow import STORAGE_ROOT_ENV_VAR, Task, Workflow
 
+
+USE_GAIA = False
 
 class WorkflowCLI(scriptBase.ScriptBase):
 	"""Abstract base class for a Command Line Interface to build a workflow."""
@@ -22,8 +25,9 @@ class WorkflowCLI(scriptBase.ScriptBase):
 	DEFAULT_TIMEOUT = Task.DEFAULT_TIMEOUT  # in seconds
 
 	def __init__(self):
-		self.storage_prefix = None
-		self.wf = None
+		super(WorkflowCLI, self).__init__()
+		self.storage_prefix = ''
+		self.wf = None  # type: Optional[Workflow]
 
 	def add_task(self, name='', inputs=(), outputs=(), command=(), timeout=0):
 		# type: (str, Iterable[str], Iterable[str], Iterable[str], int) -> Task
@@ -60,10 +64,19 @@ class WorkflowCLI(scriptBase.ScriptBase):
 	def dumpOrRun(self, args):
 		# type: (argparse.Namespace) -> None
 		"""Dump or run the workflow."""
+		if USE_GAIA:
+			if args.dump:
+				self.wf.write_for_gaia()
+			else:
+				self.wf.send_to_gaia(worker_count=args.workers)
+			return
+
 		if args.dump:
-			self.wf.write()
+			# TODO(jerry): Write a yaml spec file.
+			fw_wf = self.wf.build_workflow()
+			pprint(fw_wf)
 		else:
-			self.wf.send(worker_count=args.workers)
+			self.wf.send_to_lpad(worker_count=args.workers)
 
 	def run(self, args):
 		# type: (argparse.Namespace) -> None
