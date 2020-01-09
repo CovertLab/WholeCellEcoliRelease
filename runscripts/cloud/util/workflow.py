@@ -69,8 +69,8 @@ def _copy_as_list(value):
 		assert isinstance(s, basestring), 'Expected a string, not {}'.format(s)
 	return result
 
-def _copy_path_list(value, internal_prefix):
-	# type: (Iterable[str], str) -> List[str]
+def _copy_path_list(value, internal_prefix, is_output=False):
+	# type: (Iterable[str], str, bool) -> List[str]
 	"""Copy an iterable of strings as a list and check that they're absolute
 	paths that start with `internal_prefix` to catch improper args like
 	`outputs=plot_dir` or `outputs=['out/metadata.json']`.
@@ -79,8 +79,12 @@ def _copy_path_list(value, internal_prefix):
 	"""
 	result = _copy_as_list(value)
 	for path in result:
+		assert is_output or not path.startswith('>'), (
+			'''Input paths must not start with '>', not "{}"'''.format(path))
+
 		path = path.lstrip('>')
-		assert posixpath.isabs(path), 'Expected an absolute path, not "{}"'.format(path)
+		assert posixpath.isabs(path), (
+			'Expected an absolute path, not "{}"'.format(path))
 
 		relpath = posixpath.relpath(path, internal_prefix)
 		assert '..' not in relpath, (
@@ -177,7 +181,7 @@ class Task(object):
 		self.image = image
 		self.command = _copy_as_list(command)
 		self.inputs = _copy_path_list(inputs, internal_prefix)
-		self.outputs = _copy_path_list(outputs, internal_prefix)
+		self.outputs = _copy_path_list(outputs, internal_prefix, is_output=True)
 		self.storage_prefix = storage_prefix
 		self.internal_prefix = internal_prefix
 		self.timeout = timeout if timeout > 0 else self.DEFAULT_TIMEOUT
@@ -324,16 +328,17 @@ class Workflow(object):
 				task_name))
 
 		for output_path in task.outputs:
-			existing_task = self._output_to_taskname.get(output_path)
+			real_path = output_path.lstrip('>')
+			existing_task = self._output_to_taskname.get(real_path)
 			if existing_task:
 				raise ValueError(
-					'Task "{}" cannot write to the same output "{}" that task'
-					' "{}" writes to'.format(task_name, output_path, existing_task))
+					'Task "{}" wants to write to the same output "{}" that Task'
+					' "{}" writes to'.format(task_name, real_path, existing_task))
 
 		# Checks passed. Now add the new task.
 		self._tasks[task_name] = task
 		for output_path in task.outputs:
-			self._output_to_taskname[output_path] = task_name
+			self._output_to_taskname[output_path.lstrip('>')] = task_name
 		for input_path in task.inputs:
 			self._input_to_tasknames[input_path].add(task_name)
 
@@ -356,8 +361,8 @@ class Workflow(object):
 				unfulfilled.add(input_path)
 
 		if unfulfilled:
-			print('WARNING: Task "{}" has unfulfilled inputs "{}"'.format(
-				task.name, unfulfilled))
+			print('WARNING: Task "{}" has inputs unfulfilled by the Tasks in'
+				  ' this workflow: {}'.format(task.name, sorted(unfulfilled)))
 		return dependencies
 
 	def task_dependents(self, task):
@@ -390,7 +395,7 @@ class Workflow(object):
 			return already_built
 
 		if already_built is None:
-			raise ValueError('Cyclic task dependency with "{}"'.format(task_name))
+			raise ValueError('Cyclic dependency with Task "{}"'.format(task_name))
 		built[task_name] = None
 
 		parents = []  # type: List[Firework]
