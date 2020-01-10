@@ -392,10 +392,6 @@ class RunWcm(scriptBase.ScriptBase):
 
 	def run(self, args):
 		wf = wc_ecoli_workflow(vars(args))
-		if args.dump:
-			wf.write_for_gaia()
-		else:
-			wf.send_to_gaia(args.workers)
 
 		if USE_GAIA:
 			if args.dump:
