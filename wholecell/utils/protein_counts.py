@@ -26,6 +26,7 @@ def get_simulated_validation_counts(
 	# type: (np.ndarray, np.ndarray, np.ndarray) -> np.ndarray
 	sim_ids_lst = simulation_ids.tolist()
 	validation_ids_lst = validation_ids.tolist()
-	validation_idx = [sim_ids_lst.index(x) for x in validation_ids_lst]
+	sim_id_to_index_map = {sim_id: i for i, sim_id in enumerate(sim_ids_lst)}
+	validation_idx = [sim_id_to_index_map[x] for x in validation_ids_lst]
 	avg_counts = monomer_counts.mean(axis=0)
 	return avg_counts[validation_idx]
