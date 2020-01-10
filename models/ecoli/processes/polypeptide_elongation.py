@@ -835,8 +835,9 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		# Calculate the change in metabolites and adjust to limits if provided
 		# Possible reactions are adjusted down to limits if the change in any
 		# metabolites would result in negative counts
+		max_iterations = int(n_deg_reactions + n_syn_reactions + 1)
 		old_counts = None
-		while True:
+		for it in range(max_iterations):
 			delta_metabolites = (ppgpp_reaction_stoich[:, self.synthesis_index] * n_syn_reactions
 				+ ppgpp_reaction_stoich[:, self.degradation_index] * n_deg_reactions)
 
@@ -857,5 +858,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 					n_deg_reactions -= min(limited, n_deg_reactions)
 
 				old_counts = final_counts
+		else:
+			raise ValueError('Failed to meet molecule limits with ppGpp reactions.')
 
 		return delta_metabolites, n_syn_reactions, n_deg_reactions, v_rela_syn, v_spot_syn, v_deg
