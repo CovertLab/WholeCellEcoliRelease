@@ -86,7 +86,7 @@ def find_limiting_metabolites(counts, names, window):
 
 
 def normalize_to_column(to_normalize, column_index):
-	# type: (np.ndarray) -> np.ndarray
+	# type: (np.ndarray, int) -> np.ndarray
 	"""Normalize a matrix by dividing all columns by some column.
 
 	Arguments:
