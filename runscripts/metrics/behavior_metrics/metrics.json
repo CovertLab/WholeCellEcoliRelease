@@ -425,11 +425,11 @@
         },
         "operations": {
             "sim_wisniewski_counts": {
-                "function": "get_sim_wisniewski_counts",
+                "function": "get_simulated_validation_counts",
                 "args": ["monomer_counts", "wisniewski_ids", "sim_monomer_ids"]
             },
             "sim_schmidt_counts": {
-                "function": "get_sim_schmidt_counts",
+                "function": "get_simulated_validation_counts",
                 "args": ["monomer_counts", "schmidt_ids", "sim_monomer_ids"]
             },
             "wisniewski_correlation": {

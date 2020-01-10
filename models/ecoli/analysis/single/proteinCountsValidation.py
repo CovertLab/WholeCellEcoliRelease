@@ -17,8 +17,7 @@ from scipy.stats import pearsonr
 
 from wholecell.io.tablereader import TableReader
 from wholecell.utils.protein_counts import (
-	get_sim_wisniewski_counts,
-	get_sim_schmidt_counts,
+	get_simulated_validation_counts,
 )
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
@@ -48,9 +47,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		monomer_counts_reader = TableReader(os.path.join(simOutDir, "MonomerCounts"))
 		monomer_counts = monomer_counts_reader.readColumn("monomerCounts")
 
-		sim_wisniewski_counts = get_sim_wisniewski_counts(
+		sim_wisniewski_counts = get_simulated_validation_counts(
 			monomer_counts, wisniewski_ids, sim_monomer_ids)
-		sim_schmidt_counts = get_sim_schmidt_counts(
+		sim_schmidt_counts = get_simulated_validation_counts(
 			monomer_counts, schmidt_ids, sim_monomer_ids)
 
 		wisniewski_counts = validation_data.protein.wisniewski2014Data["avgCounts"]

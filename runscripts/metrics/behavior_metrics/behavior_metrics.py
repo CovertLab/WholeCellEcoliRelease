@@ -20,8 +20,7 @@ from wholecell.io.tablereader import TableReader
 from wholecell.utils import filepath, units, toya
 from wholecell.utils.dependency_graph import DependencyGraph
 from wholecell.utils.protein_counts import (
-	get_sim_wisniewski_counts,
-	get_sim_schmidt_counts,
+	get_simulated_validation_counts,
 )
 
 
@@ -202,8 +201,7 @@ MODE_FUNC_MAP = {
 	"fluxome_root_to_id_indices_map":
 		toya.get_root_to_id_indices_map,
 	"normalize_to_column": normalize_to_column,
-	"get_sim_wisniewski_counts": get_sim_wisniewski_counts,
-	"get_sim_schmidt_counts": get_sim_schmidt_counts,
+	"get_simulated_validation_counts": get_simulated_validation_counts,
 	"filter_no_nan": lambda a: a[~np.isnan(a)],
 	"find_indices_bulk": find_indices_bulk,
 	"strip_units": lambda to_strip, unit: to_strip.asNumber(unit),
