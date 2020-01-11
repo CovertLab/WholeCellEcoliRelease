@@ -9,7 +9,7 @@ import sys
 from fireworks import FireTaskBase, explicit_serialize
 from reconstruction.ecoli.fit_sim_data_1 import fitSimData_1
 from runscripts.metrics.behavior_metrics.metrics_pickle import (
-	gen_metrics_data_dict
+	get_metrics_data_dict
 )
 
 
@@ -27,7 +27,6 @@ class FitSimDataTask(FireTaskBase):
 	]
 	optional_params = [
 		"cached_data",
-		"cached_metrics_data",
 		"sim_out_dir",
 	]
 
@@ -37,8 +36,9 @@ class FitSimDataTask(FireTaskBase):
 		if self["cached"]:
 			try:
 				shutil.copyfile(self["cached_data"], self["output_data"])
-				shutil.copyfile(
-					self["cached_metrics_data"], self["output_metrics_data"])
+				with open(self["output_data"], "rb") as f:
+					sim_data = cPickle.load(f)
+				self.save_metrics_data(sim_data)
 				mod_time = time.ctime(os.path.getctime(self["cached_data"]))
 				print("Copied sim data from cache (last modified {})".format(mod_time))
 				return
@@ -60,7 +60,10 @@ class FitSimDataTask(FireTaskBase):
 		sys.setrecursionlimit(4000)  # limit found manually
 		with open(self["output_data"], "wb") as f:
 			cPickle.dump(sim_data, f, protocol=cPickle.HIGHEST_PROTOCOL)
-		metrics_data = gen_metrics_data_dict(sim_data)
+		self.save_metrics_data(sim_data)
+
+	def save_metrics_data(self, sim_data):
+		metrics_data = get_metrics_data_dict(sim_data)
 		with open(self["output_metrics_data"], "wb") as f:
 			cPickle.dump(
 				metrics_data, f, protocol=cPickle.HIGHEST_PROTOCOL)
