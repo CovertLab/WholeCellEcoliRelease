@@ -55,13 +55,13 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 		self.fork_unique_index[:] = np.nan
 
 		active_replisomes = self.uniqueMolecules.container.objectsInCollection('active_replisome')
-		oriCs = self.uniqueMolecules.container.objectsInCollection('oriC')
+		oriCs = self.uniqueMolecules.container.objectsInCollection('originOfReplication')
 
 		self.numberOfOric = len(oriCs)
 
 		if len(active_replisomes) > 0:
 			fork_coordinates, fork_domains, fork_unique_index = active_replisomes.attrs(
-				"coordinates", "domain_index", "unique_index"
+				"coordinates", "domain_index", "_uniqueIndex"
 				)
 
 			self.fork_coordinates[:fork_coordinates.size] = fork_coordinates

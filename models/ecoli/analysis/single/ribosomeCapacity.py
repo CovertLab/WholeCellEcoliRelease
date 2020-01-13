@@ -68,7 +68,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Load counts of subunits and active ribosomes
 		(ribosome_subunit_counts, ) = read_bulk_molecule_counts(
 			simOutDir, (ribosome_subunit_ids, ))
-		active_ribosome_index = unique_molecules_reader.readAttribute("uniqueMoleculeIds").index('active_ribosome')
+		active_ribosome_index = unique_molecules_reader.readAttribute("uniqueMoleculeIds").index("activeRibosome")
 		active_ribosome_counts = unique_molecules_reader.readColumn("uniqueMoleculeCounts")[:, active_ribosome_index]
 
 		# Calculate statistics

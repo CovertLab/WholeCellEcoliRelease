@@ -61,7 +61,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		ribosome_subunit_ids = (ribosome_50s_subunits["subunitIds"].tolist() 
 			+ ribosome_30s_subunits["subunitIds"].tolist())
 		unique_molecule_ids = unique_molecule_counts.readAttribute("objectNames")
-		ribosome_idx = unique_molecule_ids.index("active_ribosome")
+		ribosome_idx = unique_molecule_ids.index("activeRibosome")
 		n_active_ribosome = unique_molecule_counts.readColumn("uniqueMoleculeCounts")[:, ribosome_idx]
 		n_active_ribosome_subunits = np.outer(n_active_ribosome, ribosome_composition_count)
 

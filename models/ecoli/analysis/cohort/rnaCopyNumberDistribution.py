@@ -57,7 +57,6 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		# Get IDs for RNA from simData
 		ids_rna = simData.process.transcription.rnaData["id"]
-		mRNA_indexes = np.where(simData.process.transcription.rnaData["isMRna"])[0]
 		n_rnas = len(ids_rna)
 
 		# Get cell density constant
@@ -67,9 +66,9 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		simOutDir = os.path.join(sim_dirs_grouped_by_gen[0][0], "simOut")
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-		# Get indices for RNAs in bulkMolecules
-		bulk_molecule_ids = bulkMolecules.readAttribute("objectNames")
-		idx_rna_bulk_molecules = [bulk_molecule_ids.index(x) for x in ids_rna]
+		# Get indices for RNA in bulkMolecules
+		molecule_ids = bulkMolecules.readAttribute("objectNames")
+		idx_rna = [molecule_ids.index(x) for x in ids_rna]
 
 		# Get mass data and calculate initial cell volume (used as standard volume
 		# when normalizing RNA counts)
@@ -81,7 +80,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		np.random.seed(21)
 
 		# Extract RNA counts from all simData
-		all_rna_counts = np.zeros((n_generation, n_seed, n_rnas), dtype=np.int)
+		rna_counts = np.zeros((n_generation, n_seed, n_rnas), dtype=np.int)
 
 		# For each generation and seed
 		for gen_idx, simDirs in enumerate(sim_dirs_grouped_by_gen):
@@ -90,9 +89,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 				# Read simData
 				simOutDir = os.path.join(simDir, "simOut")
 
-				# Get required tables
+				# Get BulkMolecule and time data
 				bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-				mRNA_counts_reader = TableReader(os.path.join(simOutDir, "mRNACounts"))
 				time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
 				# Pick out random timepoint
@@ -105,21 +103,18 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 				# Calculate cell volume
 				cell_volume = cellMass[idx_timepoint]/cell_density
 
-				# Read counts of all bulk molecules and mRNAs
+				# Read counts of all bulk molecules
 				bulkCounts = bulkMolecules.readColumn("counts")
-				mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
 
-				# Sum up counts from both readers to get total counts
-				rna_counts = bulkCounts[idx_timepoint, idx_rna_bulk_molecules]
-				rna_counts[mRNA_indexes] += mRNA_counts[idx_timepoint]
+				# Read bulkCounts at selected timepoint, and normalize
+				bulkCounts_normalized = bulkCounts[idx_timepoint, :]*(expected_initial_volume/cell_volume)
 
-				# Normalize counts and add to array
-				rna_counts = rna_counts*(expected_initial_volume/cell_volume)
-				all_rna_counts[gen_idx, seed_idx, :] = rna_counts
+				# Get RNA counts
+				rna_counts[gen_idx, seed_idx, :] = bulkCounts_normalized[idx_rna]
 
 		# Calculate statistics
-		rna_counts_mean_over_seed = all_rna_counts.mean(axis=1)
-		rna_counts_var_over_seed = all_rna_counts.var(axis=1)
+		rna_counts_mean_over_seed = rna_counts.mean(axis=1)
+		rna_counts_var_over_seed = rna_counts.var(axis=1)
 		rna_counts_std_over_seed = np.sqrt(rna_counts_var_over_seed)
 		rna_counts_mean_over_seed_gen = rna_counts_mean_over_seed.mean(axis=0)
 		rna_counts_noise_over_seed = rna_counts_var_over_seed/(rna_counts_mean_over_seed**2)
@@ -154,7 +149,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			idx_rna_sampled = mean_count_rank[rank]
 
 			# Determine histogram range based on maximum count of the specific RNA
-			max_count = all_rna_counts[:, :, idx_rna_sampled].max()
+			max_count = rna_counts[:, :, idx_rna_sampled].max()
 			if max_count < 10:
 				bins = 10
 				hist_range = (0, 10)
@@ -172,7 +167,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			# Plot histogram for each generation
 			for gen_idx in range(n_generation):
 				ax = plt.subplot(gs[i + 1, gen_idx])
-				seed_counts = all_rna_counts[gen_idx, :, idx_rna_sampled]
+				seed_counts = rna_counts[gen_idx, :, idx_rna_sampled]
 
 				# The weights rescale histogram such that all columns sum to one
 				weights = np.ones_like(seed_counts)/float(len(seed_counts))

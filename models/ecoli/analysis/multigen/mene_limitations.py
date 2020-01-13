@@ -69,12 +69,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		moleculeIds = bulkMolecules.readAttribute("objectNames")
 		enzymeComplexIndex = moleculeIds.index(enzymeComplexId)
 		enzymeMonomerIndex = moleculeIds.index(enzymeMonomerId)
+		enzymeRnaIndex = moleculeIds.index(enzymeRnaId)
 		metaboliteIndexes = [moleculeIds.index(x) for x in metaboliteIds]
-
-		mRNA_counts_reader = TableReader(
-			os.path.join(simOutDir, 'mRNACounts'))
-		all_mRNA_ids = mRNA_counts_reader.readAttribute('mRNA_ids')
-		enzymeRnaIndex = all_mRNA_ids.index(enzymeRnaId)
+		bulkMolecules.close()
 
 		time = []
 		enzymeFluxes = []
@@ -108,26 +105,26 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			moleculeCounts = bulkMolecules.readColumn("counts")
 			enzymeComplexCountsInThisGen = moleculeCounts[:, enzymeComplexIndex].tolist()
 			enzymeMonomerCounts += moleculeCounts[:, enzymeMonomerIndex].tolist()
+			enzymeRnaCounts += moleculeCounts[:, enzymeRnaIndex].tolist()
+
 			enzymeComplexCounts += enzymeComplexCountsInThisGen
 			nAvgTetramersPerGen.append(np.mean(enzymeComplexCountsInThisGen))
-
-			mRNA_counts_reader = TableReader(
-				os.path.join(simOutDir, 'mRNACounts'))
-			mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
-			enzymeRnaCounts += mRNA_counts[:, enzymeRnaIndex].tolist()
 
 			if gen == 0:
 				metaboliteCounts = moleculeCounts[:, metaboliteIndexes]
 			else:
 				metaboliteCounts = np.vstack((metaboliteCounts, moleculeCounts[:, metaboliteIndexes]))
+			bulkMolecules.close()
 
 			fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 			reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
 			reactionFluxes = np.array(fbaResults.readColumn("reactionFluxes"))
 			enzymeFluxes += reactionFluxes[:, np.where(reactionIDs == reactionId)[0][0]].tolist()
+			fbaResults.close()
 
 			rnapDataReader = TableReader(os.path.join(simOutDir, "RnapData"))
 			rnaInitEventsInThisGen = rnapDataReader.readColumn("rnaInitEvent")[:, np.where(rnaIds == enzymeRnaId)[0][0]].tolist()
+			rnapDataReader.close()
 
 			enzymeRnaInitEvent += rnaInitEventsInThisGen
 			nTranscriptionInitEventsPerGen.append(np.sum(rnaInitEventsInThisGen))

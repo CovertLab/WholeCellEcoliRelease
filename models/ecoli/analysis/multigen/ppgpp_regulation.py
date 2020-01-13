@@ -62,14 +62,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			'isRnap',
 			]
 		n_fractions = len(fractions)
-		synthase_rna_idx_all_rnas = np.array([
+		synthase_rna_idx = np.array([
 			np.where(rna_data['id'] == RELA_RNA)[0][0],
 			np.where(rna_data['id'] == SPOT_RNA)[0][0],
-			])
-		mrna_ids = rna_data['id'][rna_data['isMRna']]
-		synthase_rna_idx_mrnas = np.array([
-			np.where(mrna_ids == RELA_RNA)[0][0],
-			np.where(mrna_ids == SPOT_RNA)[0][0],
 			])
 		synthase_order = ['relA', 'spoT']
 
@@ -84,13 +79,12 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			read_data(cell_paths, 'GrowthLimits', 'spot_syn'),
 			read_data(cell_paths, 'GrowthLimits', 'spot_deg'),
 			))
-		ppgpp_count = np.hstack(itertools.chain.from_iterable([
-			read_bulk_molecule_counts(os.path.join(p, 'simOut'), [sim_data.moleculeIds.ppGpp])
+		bulk_molecules = np.vstack(itertools.chain.from_iterable([
+			read_bulk_molecule_counts(os.path.join(p, 'simOut'), [sim_data.moleculeIds.ppGpp, RELA_RNA, SPOT_RNA])
 			for p in cell_paths
 			]))
-		ppgpp_conc = ppgpp_count * counts_to_molar * 1000  # uM
-		mrna_count = read_data(cell_paths, 'mRNACounts', 'mRNA_counts')
-		synthase_counts = mrna_count[:, synthase_rna_idx_mrnas]
+		ppgpp_conc = bulk_molecules[:, 0] * counts_to_molar * 1000  # uM
+		synthase_counts = bulk_molecules[:, 1:]
 
 		extra_plots = 4  # traces in addition to fractions
 		grid_spec = GridSpec(n_fractions+extra_plots, 1)
@@ -115,7 +109,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		# Synthase probabilities
 		ax = plt.subplot(grid_spec[2, 0])
-		ax.plot(time, synth_prob[:, synthase_rna_idx_all_rnas], alpha=0.8)
+		ax.plot(time, synth_prob[:, synthase_rna_idx], alpha=0.8)
 		ax.legend(synthase_order, fontsize=8)
 		ax.set_ylabel('RNA synth prob', fontsize=10)
 		remove_axes(ax)

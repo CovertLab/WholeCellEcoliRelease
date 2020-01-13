@@ -74,11 +74,11 @@ def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, rand
 
 	# TODO (ggsun): initialize binding of transcription factors
 
-	# Initialize active RNAPs and unique molecule representations of RNAs
-	initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
+	# Activate rna polys, with fraction based on environmental conditions
+	initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
 
-	# Initialize activate ribosomes
-	initialize_translation(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
+	# Activate ribosomes, with fraction based on environmental conditions
+	initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
 
 def initialize_trna_charging(sim_data, states, calc_charging):
 	'''
@@ -110,7 +110,7 @@ def initialize_trna_charging(sim_data, states, calc_charging):
 	uncharged_trna = bulk_molecules.countsView(transcription.rnaData['id'][transcription.rnaData['isTRna']])
 	charged_trna = bulk_molecules.countsView(transcription.charged_trna_names)
 	aas = bulk_molecules.countsView(sim_data.moleculeGroups.aaIDs)
-	ribosome_counts = states['UniqueMolecules'].container.counts(['active_ribosome'])
+	ribosome_counts = states['UniqueMolecules'].container.counts(['activeRibosome'])
 
 	synthetase_conc = counts_to_molar * np.dot(aa_from_synthetase, synthetases.counts())
 	uncharged_trna_conc = counts_to_molar * np.dot(aa_from_trna, uncharged_trna.counts())
@@ -162,14 +162,8 @@ def initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff, ppg
 		randomState.multinomial(nMonomers, monomerExpression)
 		)
 
-
 def initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff, ppgpp_regulation):
-	"""
-	Initializes counts of RNAs in the bulk molecule container using RNA
-	expression data. mRNA counts are also initialized here, but is later reset
-	to zero when the representations for mRNAs are moved to the unique molecule
-	container.
-	"""
+
 	rnaView = bulkMolCntr.countsView(sim_data.process.transcription.rnaData["id"])
 	rnaMass = massCoeff * sim_data.mass.getFractionMass(sim_data.conditionToDoublingTime[sim_data.condition])["rnaMass"] / sim_data.mass.avgCellToInitialCellConvFactor
 
@@ -278,7 +272,7 @@ def initializeFullChromosome(bulkMolCntr, uniqueMolCntr, sim_data):
 	this initial chromosome is set to be zero for consistency.
 	"""
 	uniqueMolCntr.objectsNew(
-		'full_chromosome', 1,
+		"fullChromosome", 1,
 		division_time=0.0,
 		has_induced_division=True,
 		domain_index=0,
@@ -319,7 +313,7 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 
 	# Add OriC molecules with the proposed attributes
 	uniqueMolCntr.objectsNew(
-		'oriC', n_oric,
+		'originOfReplication', n_oric,
 		domain_index=oric_state["domain_index"])
 
 	# Add chromosome domain molecules with the proposed attributes
@@ -477,26 +471,21 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		)
 
 
-def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
+def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	"""
-	Activate RNA polymerases as unique molecules, and distribute them along
-	length of genes, while decreasing counts of unactivated RNA polymerases
-	(APORNAP-CPLX[c]). Also initialize unique molecule representations of fully
-	transcribed mRNAs and partially transcribed RNAs, using counts of mRNAs
-	initialized as bulk molecules, and the attributes of initialized RNA
-	polymerases. The counts of full mRNAs represented as bulk molecules are
-	reset to zero.
+	Purpose: Activates RNA polymerases as unique molecules, and distributes
+	them along length of genes, decreases counts of unactivated RNA polymerases
+	(APORNAP-CPLX[c]).
 
-	RNA polymerases are placed randomly across the length of each gene, with
-	the synthesis probabilities for each gene determining the number of RNA
-	polymerases placed at each gene.
+	Normalizes RNA poly placement per length of completed RNA, with synthesis
+	probability based on each environmental condition
 	"""
+
 	# Load parameters
 	rnaLengths = sim_data.process.transcription.rnaData['length'].asNumber()
-	rna_masses = (sim_data.process.transcription.rnaData['mw']/sim_data.constants.nAvogadro).asNumber(units.fg)
 	current_media_id = sim_data.conditions[sim_data.condition]['nutrients']
 	fracActiveRnap = sim_data.process.transcription.rnapFractionActiveDict[current_media_id]
-	inactive_RNAP_counts = bulkMolCntr.countsView(['APORNAP-CPLX[c]']).counts()[0]
+	inactiveRnaPolyCounts = bulkMolCntr.countsView(['APORNAP-CPLX[c]']).counts()[0]
 	rnaSequences = sim_data.process.transcription.transcriptionSequences
 	ntWeights = sim_data.process.transcription.transcriptionMonomerWeights
 	endWeight = sim_data.process.transcription.transcriptionEndWeight
@@ -504,7 +493,7 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	chromosome_length = replichore_lengths.sum()
 
 	# Number of rnaPoly to activate
-	n_RNAPs_to_activate = np.int64(fracActiveRnap * inactive_RNAP_counts)
+	rnaPolyToActivate = np.int64(fracActiveRnap * inactiveRnaPolyCounts)
 
 	# Parameters for rnaSynthProb
 	basal_prob = sim_data.process.transcription_regulation.basal_prob
@@ -554,9 +543,9 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	shuffleIdxs = getattr(sim_data.process.transcription, 'initiationShuffleIdxs', None)
 
 	# ID Groups
-	idx_rRNA = np.where(sim_data.process.transcription.rnaData['isRRna'])[0]
-	idx_mRNA = np.where(sim_data.process.transcription.rnaData["isMRna"])[0]
-	idx_tRNA = np.where(sim_data.process.transcription.rnaData["isTRna"])[0]
+	idx_rrna = np.where(sim_data.process.transcription.rnaData['isRRna'])[0]
+	idx_mrna = np.where(sim_data.process.transcription.rnaData["isMRna"])[0]
+	idx_trna = np.where(sim_data.process.transcription.rnaData["isTRna"])[0]
 	idx_rprotein = np.where(sim_data.process.transcription.rnaData['isRProtein'])[0]
 	idx_rnap = np.where(sim_data.process.transcription.rnaData['isRnap'])[0]
 
@@ -567,8 +556,8 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	if len(genetic_perturbations) > 0:
 		rescale_initiation_probs(
 			promoter_init_probs, TU_index,
-			genetic_perturbations["fixedSynthProbs"],
-			genetic_perturbations["fixedRnaIdxs"])
+			genetic_perturbations["fixedRnaIdxs"],
+			genetic_perturbations["fixedSynthProbs"])
 
 	# Adjust probabilities to not be negative
 	promoter_init_probs[promoter_init_probs < 0] = 0.0
@@ -580,25 +569,25 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	synthProbFractions = rnaSynthProbFractions[current_media_id]
 
 	# Create masks for different types of RNAs
-	is_mRNA = np.isin(TU_index, idx_mRNA)
-	is_tRNA = np.isin(TU_index, idx_tRNA)
-	is_rRNA = np.isin(TU_index, idx_rRNA)
+	is_mrna = np.isin(TU_index, idx_mrna)
+	is_trna = np.isin(TU_index, idx_trna)
+	is_rrna = np.isin(TU_index, idx_rrna)
 	is_rprotein = np.isin(TU_index, idx_rprotein)
 	is_rnap = np.isin(TU_index, idx_rnap)
-	is_fixed = is_tRNA | is_rRNA | is_rprotein | is_rnap
+	is_fixed = is_trna | is_rrna | is_rprotein | is_rnap
 
 	# Rescale initiation probabilities based on type of RNA
-	promoter_init_probs[is_mRNA] *= synthProbFractions["mRna"] / promoter_init_probs[is_mRNA].sum()
-	promoter_init_probs[is_tRNA] *= synthProbFractions["tRna"] / promoter_init_probs[is_tRNA].sum()
-	promoter_init_probs[is_rRNA] *= synthProbFractions["rRna"] / promoter_init_probs[is_rRNA].sum()
+	promoter_init_probs[is_mrna] *= synthProbFractions["mRna"] / promoter_init_probs[is_mrna].sum()
+	promoter_init_probs[is_trna] *= synthProbFractions["tRna"] / promoter_init_probs[is_trna].sum()
+	promoter_init_probs[is_rrna] *= synthProbFractions["rRna"] / promoter_init_probs[is_rrna].sum()
 
 	# Set fixed synthesis probabilities for RProteins and RNAPs
 	rescale_initiation_probs(
 		promoter_init_probs, TU_index,
+		np.concatenate((idx_rprotein, idx_rnap)),
 		np.concatenate((
 			rnaSynthProbRProtein[current_media_id],
-			rnaSynthProbRnaPolymerase[current_media_id])),
-		np.concatenate((idx_rprotein, idx_rnap)))
+			rnaSynthProbRnaPolymerase[current_media_id])))
 
 	assert promoter_init_probs[is_fixed].sum() < 1.0
 
@@ -611,8 +600,8 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	# Shuffle initiation rates if we're running the variant that calls this
 	if shuffleIdxs is not None:
 		rescale_initiation_probs(
-			promoter_init_probs, TU_index, TU_synth_probs[shuffleIdxs],
-			np.arange(n_TUs))
+			promoter_init_probs, TU_index, np.arange(n_TUs),
+			TU_synth_probs[shuffleIdxs])
 
 	# normalize to length of rna
 	init_prob_length_adjusted = promoter_init_probs * rnaLengths[TU_index]
@@ -621,31 +610,31 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	# Sample a multinomial distribution of synthesis probabilities to determine
 	# what RNA are initialized
 	n_initiations = randomState.multinomial(
-		n_RNAPs_to_activate, init_prob_normalized)
+		rnaPolyToActivate, init_prob_normalized)
 
-	# Build array of transcription unit indexes for partially transcribed mRNAs
-	# and domain indexes for RNAPs
-	TU_index_partial_RNAs = np.repeat(TU_index, n_initiations)
+	# Build list of transcription unit indexes and domain indexes for RNAPs
+	TU_index_rnap = np.repeat(TU_index, n_initiations)
 	domain_index_rnap = np.repeat(domain_index_promoters, n_initiations)
 
-	# Build arrays of starting coordinates and transcription directions
-	starting_coordinates = replication_coordinate[TU_index_partial_RNAs]
-	direction = transcription_direction[TU_index_partial_RNAs]
+	# Build list of starting coordinates and transcription directions
+	starting_coordinates = replication_coordinate[TU_index_rnap]
+	direction = transcription_direction[TU_index_rnap]
 
 	# Randomly advance RNAPs along the gene
 	# TODO (Eran): make sure there aren't any RNAPs at same location on same gene
 	updated_lengths = np.array(
-		randomState.rand(n_RNAPs_to_activate) * rnaLengths[TU_index_partial_RNAs],
+		randomState.rand(rnaPolyToActivate) * rnaLengths[TU_index_rnap],
 		dtype=np.int)
 
-	# Rescale boolean array of directions to an array of 1's and -1's.
-	direction_rescaled = (2 * (direction - 0.5)).astype(np.int64)
+	# Convert boolean array of directions to an array of 1's and -1's.
+	# True is converted to 1, False is converted to -1.
+	direction_converted = (2 * (direction - 0.5)).astype(np.int64)
 
-	# Compute the updated coordinates of RNAPs. Coordinates of RNAPs moving in
-	# the positive direction are increased, whereas coordinates of RNAPs moving
-	# in the negative direction are decreased.
+	# Compute the updated coordinates of RNAPs. Coordinates of RNAPs
+	# moving in the positive direction are increased, whereas coordinates
+	# of RNAPs moving in the negative direction are decreased.
 	updated_coordinates = starting_coordinates + np.multiply(
-		direction_rescaled, updated_lengths)
+		direction_converted, updated_lengths)
 
 	# Reset coordinates of RNAPs that cross the boundaries between right and
 	# left replichores
@@ -654,187 +643,88 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	updated_coordinates[
 		updated_coordinates < -replichore_lengths[1]] += chromosome_length
 
-	# Update mass
-	sequences = rnaSequences[TU_index_partial_RNAs]
-	added_mass = computeMassIncrease(sequences, updated_lengths, ntWeights)
-	added_mass[updated_lengths != 0] += endWeight  # add endWeight to all new Rna
+	# update mass
+	sequences = rnaSequences[TU_index_rnap]
+	massIncreaseRna = computeMassIncrease(sequences, updated_lengths, ntWeights)
+	massIncreaseRna[updated_lengths != 0] += endWeight  # add endWeight to all new Rna
 
-	# Masses of partial mRNAs are counted as mRNA mass as they are already
-	# functional, but the masses of other types of partial RNAs are counted as
-	# generic RNA mass.
-	added_RNA_mass = added_mass.copy()
-	added_mRNA_mass = added_mass.copy()
-
-	is_mRNA_partial_RNAs = np.isin(TU_index_partial_RNAs, idx_mRNA)
-	added_RNA_mass[is_mRNA_partial_RNAs] = 0
-	added_mRNA_mass[np.logical_not(is_mRNA_partial_RNAs)] = 0
-
-	# Add active RNAPs and get their unique indexes
-	RNAP_indexes = uniqueMolCntr.objectsNew(
-		'active_RNAP', n_RNAPs_to_activate,
+	# update molecules. Attributes include which rnas are being transcribed,
+	# and the position (length)
+	uniqueMolCntr.objectsNew(
+		'activeRnaPoly', rnaPolyToActivate,
+		TU_index=TU_index_rnap,
 		domain_index=domain_index_rnap,
-		coordinates=updated_coordinates,
-		direction=direction)
-
-	# Decrement counts of bulk inactive RNAPs
-	bulkMolCntr.countsIs(inactive_RNAP_counts - n_RNAPs_to_activate, ['APORNAP-CPLX[c]'])
-
-	# Add partially transcribed RNAs
-	uniqueMolCntr.objectsNew(
-		'RNA', n_RNAPs_to_activate,
-		TU_index=TU_index_partial_RNAs,
 		transcript_length=updated_lengths,
-		is_mRNA=is_mRNA_partial_RNAs,
-		is_full_transcript=np.zeros(n_RNAPs_to_activate, dtype=np.bool),
-		RNAP_index=RNAP_indexes,
-		massDiff_RNA=added_RNA_mass,
-		massDiff_mRNA=added_mRNA_mass)
+		coordinates=updated_coordinates,
+		direction=direction,
+		massDiff_RNA=massIncreaseRna)
 
-	# Get counts of fully transcribed mRNAs initialized as bulk molecules
-	mRNA_ids = sim_data.process.transcription.rnaData["id"][
-		sim_data.process.transcription.rnaData["isMRna"]]
-	mRNA_view = bulkMolCntr.countsView(mRNA_ids)
-	mRNA_counts = mRNA_view.counts()
-
-	# Get array of TU indexes for each full mRNA
-	TU_index_full_mRNAs = np.repeat(idx_mRNA, mRNA_counts)
-
-	# Add fully transcribed mRNAs. The RNAP_index attribute of these molecules
-	# are set to -1.
-	uniqueMolCntr.objectsNew(
-		'RNA', len(TU_index_full_mRNAs),
-		TU_index=TU_index_full_mRNAs,
-		transcript_length=rnaLengths[TU_index_full_mRNAs],
-		is_mRNA=np.ones_like(TU_index_full_mRNAs, dtype=np.bool),
-		is_full_transcript=np.ones_like(TU_index_full_mRNAs, dtype=np.bool),
-		RNAP_index=np.full(TU_index_full_mRNAs.shape, -1, dtype=np.int64),
-		massDiff_mRNA=rna_masses[TU_index_full_mRNAs])
-
-	# Reset counts of bulk mRNAs to zero
-	mRNA_view.countsIs(0)
+	bulkMolCntr.countsIs(inactiveRnaPolyCounts - rnaPolyToActivate, ['APORNAP-CPLX[c]'])
 
 
-def initialize_translation(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
+def initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	"""
-	Activate ribosomes as unique molecules, and distribute them along lengths
-	of mRNAs, while decreasing counts of unactivated ribosomal subunits (30S
-	and 50S).
+	Purpose: Activates ribosomes as unique molecules, and distributes them along length of RNA,
+	decreases counts of unactivated ribosomal subunits (ribosome30S and ribosome50S).
 
-	Ribosomes are placed randomly across the lengths of each mRNA.
+	Normalizes ribosomes placement per length of protein
 	"""
-	# Load translation parameters
+
+	# Load parameters
+	nAvogadro = sim_data.constants.nAvogadro
 	currentNutrients = sim_data.conditions[sim_data.condition]['nutrients']
 	fracActiveRibosome = sim_data.process.translation.ribosomeFractionActiveDict[currentNutrients]
+	mrnaIds = sim_data.process.translation.monomerData['rnaId']
+	proteinLengths = sim_data.process.translation.monomerData['length'].asNumber()
 	proteinSequences = sim_data.process.translation.translationSequences
-	translationEfficiencies = normalize(
-		sim_data.process.translation.translationEfficienciesByMonomer)
+	translationEfficiencies = normalize(sim_data.process.translation.translationEfficienciesByMonomer)
+	mRnas = bulkMolCntr.countsView(mrnaIds)
 	aaWeightsIncorporated = sim_data.process.translation.translationMonomerWeights
 	endWeight = sim_data.process.translation.translationEndWeight
 
-	# Get attributes of RNAs
-	all_RNAs = uniqueMolCntr.objectsInCollection('RNA')
-	TU_index_all_RNAs, length_all_RNAs, is_mRNA, unique_index_all_RNAs = all_RNAs.attrs(
-		'TU_index', 'transcript_length', 'is_mRNA', 'unique_index')
-	TU_index_mRNAs = TU_index_all_RNAs[is_mRNA]
-	length_mRNAs = length_all_RNAs[is_mRNA]
-	unique_index_mRNAs = unique_index_all_RNAs[is_mRNA]
-
-	# Get conversion matrix between transcription units and mRNA templates
-	# for each monomer
-	# TODO (ggsun): This should be modified when transcription unit structures
-	# 	are incorporated - the matrix would not be one-on-one, and the lengths
-	# 	of each transcript will affect the availabilities of mRNAs on that
-	# 	transcript.
-	all_TU_ids = sim_data.process.transcription.rnaData['id']
-	all_mRNA_ids = sim_data.process.translation.monomerData['rnaId']
-	TU_counts_to_mRNA_counts = np.zeros(
-		(len(all_mRNA_ids), len(all_TU_ids)), dtype=np.int64)
-
-	TU_id_to_index = {TU_id: i for i, TU_id in enumerate(all_TU_ids)}
-	protein_index_to_TU_index = {}
-	for i, mRNA_id in enumerate(all_mRNA_ids):
-		TU_counts_to_mRNA_counts[i, TU_id_to_index[mRNA_id]] = 1
-		protein_index_to_TU_index[i] = TU_id_to_index[mRNA_id]
-
-	# Calculate available template lengths of each mRNA
-	TU_total_length = np.zeros(len(all_TU_ids), dtype=np.int64)
-	for index, length in zip(TU_index_mRNAs, length_mRNAs):
-		TU_total_length[index] += length
-
-	mRNA_total_length = TU_counts_to_mRNA_counts.dot(TU_total_length)
-
-	# Find number of ribosomes to activate
+	#find number of ribosomes to activate
 	ribosome30S = bulkMolCntr.countsView([sim_data.moleculeIds.s30_fullComplex]).counts()[0]
 	ribosome50S = bulkMolCntr.countsView([sim_data.moleculeIds.s50_fullComplex]).counts()[0]
 	inactiveRibosomeCount = np.minimum(ribosome30S, ribosome50S)
-	n_ribosomes_to_activate = np.int64(fracActiveRibosome * inactiveRibosomeCount)
+	ribosomeToActivate = np.int64(fracActiveRibosome * inactiveRibosomeCount)
 
-	# Add total available template lengths as weights and normalize
-	protein_init_probs = normalize(mRNA_total_length*translationEfficiencies)
+	# protein synthesis probabilities
+	proteinInitProb = normalize(mRnas.counts() * translationEfficiencies)
 
-	# Sample a multinomial distribution of synthesis probabilities to determine
-	# which types of mRNAs are initialized
-	n_new_proteins = randomState.multinomial(
-		n_ribosomes_to_activate, protein_init_probs)
+	# normalize to protein length
+	probLengthAdjusted = proteinInitProb * proteinLengths
+	probNormalized = probLengthAdjusted / probLengthAdjusted.sum()
 
-	# Build attributes for active ribosomes
-	protein_indexes = np.empty(n_ribosomes_to_activate, np.int64)
-	positions_on_mRNA = np.empty(n_ribosomes_to_activate, np.int64)
-	mRNA_indexes = np.empty(n_ribosomes_to_activate, np.int64)
-	start_index = 0
-	nonzeroCount = (n_new_proteins > 0)
+	# Sample a multinomial distribution of synthesis probabilities to determine what RNA are initialized
+	nNewProteins = randomState.multinomial(ribosomeToActivate, probNormalized)
 
-	for protein_index, counts in zip(
-			np.arange(n_new_proteins.size)[nonzeroCount],
-			n_new_proteins[nonzeroCount]):
-		# Set protein index
-		protein_indexes[start_index:start_index+counts] = protein_index
+	# protein Indices
+	proteinIndices = np.empty(ribosomeToActivate, np.int64)
+	startIndex = 0
+	nonzeroCount = (nNewProteins > 0)
+	for proteinIndex, counts in izip(np.arange(nNewProteins.size)[nonzeroCount], nNewProteins[nonzeroCount]):
+		proteinIndices[startIndex:startIndex+counts] = proteinIndex
+		startIndex += counts
 
-		# Distribute ribosomes among mRNAs that produce this protein, weighted
-		# by their lengths
-		mask = (TU_index_mRNAs == protein_index_to_TU_index[protein_index])
-		lengths = length_mRNAs[mask]
-		n_ribosomes_per_RNA = randomState.multinomial(
-			counts, normalize(lengths))
+	# TODO (Eran) -- make sure there aren't any peptides at same location on same rna
+	updatedLengths = np.array(randomState.rand(ribosomeToActivate) * proteinLengths[proteinIndices], dtype=np.int)
 
-		# Get unique indexes of each mRNA
-		mRNA_indexes[start_index:start_index+counts] = np.repeat(
-			unique_index_mRNAs[mask], n_ribosomes_per_RNA)
+	# update mass
+	sequences = proteinSequences[proteinIndices]
+	massIncreaseProtein = computeMassIncrease(sequences, updatedLengths, aaWeightsIncorporated)
+	massIncreaseProtein[updatedLengths != 0] += endWeight  # add endWeight to all new Rna
 
-		# Randomly place ribosomes along the length of each mRNA
-		positions_on_mRNA[start_index:start_index+counts] = np.floor(
-			randomState.rand(counts)*np.repeat(lengths, n_ribosomes_per_RNA))
-
-		start_index += counts
-
-	# Calculate the lengths of the partial polypeptide, and rescale position on
-	# mRNA to be a multiple of three using this peptide length
-	peptide_lengths = np.floor_divide(positions_on_mRNA, 3)
-	positions_on_mRNA = 3*peptide_lengths
-
-	# Update masses of partially translated proteins
-	sequences = proteinSequences[protein_indexes]
-	mass_increase_protein = computeMassIncrease(
-		sequences, peptide_lengths, aaWeightsIncorporated)
-
-	# Add end weight
-	mass_increase_protein[peptide_lengths != 0] += endWeight
-
-	# Add active ribosomes
+	# Create active 70S ribosomes and assign their protein Indices calculated above
 	uniqueMolCntr.objectsNew(
-		'active_ribosome', n_ribosomes_to_activate,
-		protein_index=protein_indexes,
-		peptide_length=peptide_lengths,
-		mRNA_index=mRNA_indexes,
-		pos_on_mRNA=positions_on_mRNA,
-		massDiff_protein=mass_increase_protein,
+		'activeRibosome', ribosomeToActivate,
+		proteinIndex=proteinIndices,
+		peptideLength=updatedLengths,
+		massDiff_protein=massIncreaseProtein,
 		)
 
-	# Decrease counts of free 30S and 50S ribosomal subunits
-	bulkMolCntr.countsIs(ribosome30S - n_ribosomes_to_activate,
-		[sim_data.moleculeIds.s30_fullComplex])
-	bulkMolCntr.countsIs(ribosome50S - n_ribosomes_to_activate,
-		[sim_data.moleculeIds.s50_fullComplex])
+	# decrease free 30S and 50S ribosomal subunit counts
+	bulkMolCntr.countsIs(ribosome30S - ribosomeToActivate, [sim_data.moleculeIds.s30_fullComplex])
+	bulkMolCntr.countsIs(ribosome50S - ribosomeToActivate, [sim_data.moleculeIds.s50_fullComplex])
 
 
 def setDaughterInitialConditions(sim, sim_data):
@@ -854,6 +744,7 @@ def setDaughterInitialConditions(sim, sim_data):
 
 	sim._isDead = inherited_state['is_dead']
 
+	elngRate = inherited_state['elng_rate']
 	elng_rate_factor = inherited_state['elng_rate_factor']
 	if sim._growthRateNoise:
 		sim.processes["PolypeptideElongation"].elngRateFactor = elng_rate_factor
@@ -1008,15 +899,15 @@ def determine_chromosome_state(C, D, tau, replichore_length, n_max_replisomes,
 	return oric_state, replisome_state, domain_state
 
 
-def rescale_initiation_probs(init_probs, TU_index, fixed_synth_probs,
-		fixed_TU_indexes):
+def rescale_initiation_probs(init_probs, TU_index, fixed_TUs,
+		fixed_synth_probs):
 	"""
-	Rescales the initiation probabilities of each promoter such that the total
-	synthesis probabilities of certain types of RNAs are fixed to a
-	predetermined value. For instance, if there are two copies of promoters for
-	RNA A, whose synthesis probability should be fixed to 0.1, each promoter is
-	given an initiation probability of 0.05.
+	Rescales the initiation probabilities of each promoter such that the
+	total synthesis probabilities of certain types of RNAs are fixed to
+	a predetermined value. For instance, if there are two copies of
+	promoters for RNA A, whose synthesis probability should be fixed to
+	0.1, each promoter is given an initiation probability of 0.05.
 	"""
-	for rna_idx, synth_prob in izip(fixed_TU_indexes, fixed_synth_probs):
+	for rna_idx, synth_prob in izip(fixed_TUs, fixed_synth_probs):
 		fixed_rna_mask = (TU_index == rna_idx)
 		init_probs[fixed_rna_mask] = synth_prob / fixed_rna_mask.sum()

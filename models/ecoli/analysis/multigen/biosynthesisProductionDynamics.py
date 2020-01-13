@@ -131,16 +131,13 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			bulkMoleculesReader = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 			bulkMoleculeIds = bulkMoleculesReader.readAttribute("objectNames")
 			bulkMoleculeCounts = bulkMoleculesReader.readColumn("counts")
-
-			# Load data from mRNA counts listener
-			mRNA_counts_reader = TableReader(os.path.join(simOutDir, 'mRNACounts'))
-			all_mRNA_ids = mRNA_counts_reader.readAttribute('mRNA_ids')
-			mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
+			bulkMoleculesReader.close()
 
 			# Get the synthesis probability for all regulated genes
 			rnaSynthProbReader = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
 			rnaSynthProbIds = rnaSynthProbReader.readAttribute("rnaIds")
 			synthProbs = rnaSynthProbReader.readColumn("rnaSynthProb")
+			rnaSynthProbReader.close()
 
 			for tfIdx, tf in enumerate(tfs):
 				monomerId = tfToMonomerId[tf]
@@ -154,8 +151,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 					monomerCounts += (tfToComplexStoich[tf] * complexCounts)
 
 				rnaId = tfToRNAId[tf]
-				rnaIdx = all_mRNA_ids.index(rnaId)
-				rnaCounts = mRNA_counts[:, rnaIdx].copy()
+				rnaIdx = bulkMoleculeIds.index(rnaId)
+				rnaCounts = bulkMoleculeCounts[:, rnaIdx].copy()
 
 				synthProbIdx = rnaSynthProbIds.index(rnaId)
 				synthProb = synthProbs[:, synthProbIdx].copy()

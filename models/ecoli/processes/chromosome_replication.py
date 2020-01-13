@@ -52,7 +52,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.replisome_monomers = self.bulkMoleculesView(
 			sim_data.moleculeGroups.replisome_monomer_subunits)
 		self.active_replisomes = self.uniqueMoleculesView('active_replisome')
-		self.oriCs = self.uniqueMoleculesView('oriC')
+		self.oriCs = self.uniqueMoleculesView('originOfReplication')
 		self.chromosome_domains = self.uniqueMoleculesView('chromosome_domain')
 		self.active_tfs = self.bulkMoleculesView(
 			[x + "[c]" for x in sim_data.process.transcription_regulation.tf_ids])
@@ -62,7 +62,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.ppi = self.bulkMoleculeView('PPI[c]')
 
 		# Create molecules views for full chromosomes
-		self.full_chromosomes = self.uniqueMoleculesView('full_chromosome')
+		self.full_chromosomes = self.uniqueMoleculesView("fullChromosome")
 
 		# Create view for promoters and get total number of TF types
 		self.promoters = self.uniqueMoleculesView("promoter")
@@ -293,14 +293,14 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# elongations each fork catalyzes
 		reactionLimit = dNtpCounts.sum()
 
-		active_elongation_rates = self.elongation_rates[sequence_indexes]
-
+		# active_elongation_rates = self.elongation_rates[sequence_indexes]
 		result = polymerize(
 			sequences,
 			dNtpCounts,
 			reactionLimit,
 			self.randomState,
-			active_elongation_rates)
+			self.elongation_rates)
+			# active_elongation_rates)
 
 		sequenceElongations = result.sequenceElongation
 		dNtpsUsed = result.monomerUsages

@@ -62,7 +62,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Load counts of subunits and active ribosomes
 		(inactive_rnap_counts, ) = read_bulk_molecule_counts(
 			simOutDir, ([inactive_rnap_id], ))
-		active_rnap_index = unique_molecules_reader.readAttribute("uniqueMoleculeIds").index('active_RNAP')
+		active_rnap_index = unique_molecules_reader.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
 		active_rnap_counts = unique_molecules_reader.readColumn("uniqueMoleculeCounts")[:, active_rnap_index]
 
 		# Calculate statistics

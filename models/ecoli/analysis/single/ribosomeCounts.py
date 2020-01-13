@@ -35,7 +35,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# ribosomeRnaCountsBulk = bulkMolecules.readColumn("counts")[:, ribosomeRnaIndexes]
 
 		uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
-		ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index('active_ribosome')
+		ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
 
 		main_reader = TableReader(os.path.join(simOutDir, "Main"))
 		initialTime = main_reader.readAttribute("initialTime")

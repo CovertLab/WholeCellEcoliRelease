@@ -113,9 +113,6 @@ class Replication(object):
 			/ sim_data.constants.nAvogadro
 		)
 
-		# Placeholder value for "child_domains" attribute of domains without
-		# children domains
-		self.no_child_place_holder = -1
 
 	def _buildMotifs(self, raw_data, sim_data):
 		"""
@@ -136,12 +133,14 @@ class Replication(object):
 			self.motif_coordinates[motif["id"]] = self._get_motif_coordinates(
 				motif["length"], motif["sequences"])
 
+
 	def _get_complement_sequence(self, sequenceVector):
 		"""
 		Calculates the vector for a complement sequence of a DNA sequence given
 		in vector form.
 		"""
 		return (self._n_nt_types - 1) - sequenceVector
+
 
 	def _get_motif_coordinates(self, motif_length, motif_sequences):
 		"""
@@ -180,6 +179,7 @@ class Replication(object):
 
 		return motif_coordinates
 
+
 	def _get_relative_coordinates(self, coordinates):
 		"""
 		Converts an array of genomic coordinates into coordinates relative to
@@ -192,7 +192,6 @@ class Replication(object):
 		relative_coordinates[relative_coordinates < 0] += 1
 
 		return relative_coordinates
-
 	def _build_elongation_rates(self, raw_data, sim_data):
 		self.basal_elongation_rate = int(
 			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(

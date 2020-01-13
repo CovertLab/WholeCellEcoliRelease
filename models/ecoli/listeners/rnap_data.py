@@ -74,12 +74,12 @@ class RnapData(wholecell.listeners.listener.Listener):
 		self.active_rnap_unique_indexes[:] = np.nan
 
 		active_rnaps = self.uniqueMolecules.container.objectsInCollection(
-			'active_RNAP')
+			'activeRnaPoly')
 
 		# Read coordinates of all active RNAPs
 		if len(active_rnaps) > 0:
 			coordinates, domain_indexes, unique_indexes = active_rnaps.attrs(
-				"coordinates", "domain_index", "unique_index")
+				"coordinates", "domain_index", "_uniqueIndex")
 			self.active_rnap_coordinates[:coordinates.size] = coordinates
 			self.active_rnap_domain_indexes[:domain_indexes.size] = domain_indexes
 			self.active_rnap_unique_indexes[:unique_indexes.size] = unique_indexes

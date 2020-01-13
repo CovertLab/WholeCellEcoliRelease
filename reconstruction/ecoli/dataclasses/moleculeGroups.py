@@ -127,8 +127,4 @@ class MoleculeGroups(object):
 		moleculeGroups['bulkMoleculesBinomialDivision'] = bulkMoleculesBinomialDivision
 		moleculeGroups['bulkMoleculesEqualDivision'] = []
 
-		moleculeGroups['unique_molecules_active_ribosome_division'] = []
-		moleculeGroups['unique_molecules_RNA_division'] = []
-		moleculeGroups['unique_molecules_domain_index_division'] = []
-
 		self.__dict__.update(moleculeGroups)

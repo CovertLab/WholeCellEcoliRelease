@@ -74,12 +74,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			bulkMoleculeIds = bulkMoleculesReader.readAttribute("objectNames")
 			bulkMoleculeCounts = bulkMoleculesReader.readColumn("counts")
 
-			# Load data from mRNA counts listener
-			mRNA_counts_reader = TableReader(
-				os.path.join(simOutDir, 'mRNACounts'))
-			all_mRNA_ids = mRNA_counts_reader.readAttribute('mRNA_ids')
-			mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
-
 			# Load data from RnaSynthProb listener
 			rna_synth_prob_reader = TableReader(
 				os.path.join(simOutDir, "RnaSynthProb"))
@@ -124,8 +118,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			# Get the amount of trpA mRNA
 			trpARnaId = ["EG11024_RNA[c]"]
-			trpARnaIndex = np.array([all_mRNA_ids.index(x) for x in trpARnaId])
-			trpARnaCounts = mRNA_counts[:, trpARnaIndex].reshape(-1)
+			trpARnaIndex = np.array([bulkMoleculeIds.index(x) for x in trpARnaId])
+			trpARnaCounts = bulkMoleculeCounts[:, trpARnaIndex].reshape(-1)
 
 			# Compute total counts and concentration of trpA in monomeric and complexed form
 			# (we know the stoichiometry)

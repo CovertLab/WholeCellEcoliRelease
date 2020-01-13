@@ -42,7 +42,10 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		rnaIds = sim_data.process.transcription.rnaData["id"]
 		isMRna = sim_data.process.transcription.rnaData["isMRna"]
+		synthProb = sim_data.process.transcription.rnaSynthProb["basal"]
 		mRnaIndexes = np.where(isMRna)[0]
+
+		mRnaSynthProb = np.array([synthProb[x] for x in mRnaIndexes])
 		mRnaIds = np.array([rnaIds[x] for x in mRnaIndexes])
 
 		# Get whether or not mRNAs were transcribed
@@ -60,9 +63,11 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			rnaSynthProb.close()
 			simulatedSynthProbs.append(simulatedSynthProb)
 
-			mRNA_counts_reader = TableReader(
-				os.path.join(simOutDir, 'mRNACounts'))
-			moleculeCounts = mRNA_counts_reader.readColumn("mRNA_counts")
+			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+			moleculeIds = bulkMolecules.readAttribute("objectNames")
+			mRnaIndexes_bulk = np.array([moleculeIds.index(x) for x in mRnaIds])
+			moleculeCounts = bulkMolecules.readColumn("counts")[:, mRnaIndexes_bulk]
+			bulkMolecules.close()
 			moleculeCountsSumOverTime = moleculeCounts.sum(axis = 0)
 			mRnasTranscribed = np.array([x != 0 for x in moleculeCountsSumOverTime])
 			transcribedBool.append(mRnasTranscribed)
@@ -82,6 +87,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		indexingOrder = np.argsort(np.mean(simulatedSynthProbs, axis = 0))
 		transcribedBoolOrdered = np.mean(transcribedBool, axis = 0)[indexingOrder]
+		simulatedSynthProbsOrdered = np.mean(simulatedSynthProbs, axis = 0)[indexingOrder]
 		transcriptionEventsOrdered = transcriptionEvents[:, indexingOrder]
 		mRnaIdsOrdered = mRnaIds[indexingOrder]
 

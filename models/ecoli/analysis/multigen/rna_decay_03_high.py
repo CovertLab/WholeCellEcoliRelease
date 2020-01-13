@@ -85,12 +85,13 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			rnaDegradationListener = TableReader(os.path.join(simOutDir, "RnaDegradationListener"))
 			rnaDegradedCounts.append(rnaDegradationListener.readColumn('countRnaDegraded')[:, rnaIdxs])
+			rnaDegradationListener.close()
 
-			mRNA_counts_reader = TableReader(
-				os.path.join(simOutDir, 'mRNACounts'))
-			all_mRNA_ids = mRNA_counts_reader.readAttribute('mRNA_ids')
-			rnaIndexes = np.array([all_mRNA_ids.index(x) for x in rnaIds], np.int)
-			rnaCounts.append(mRNA_counts_reader.readColumn("mRNA_counts")[:, rnaIndexes])
+			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+			moleculeIds = bulkMolecules.readAttribute("objectNames")
+			rnaIndexes = np.array([moleculeIds.index(x) for x in rnaIds], np.int)
+			rnaCounts.append(bulkMolecules.readColumn("counts")[:, rnaIndexes])
+			bulkMolecules.close()
 
 		rnaDegradedCountsAveraged = []
 		rnaCountsAveraged = []

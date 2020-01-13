@@ -105,7 +105,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# Get active ribosome counts
 			uniqueMoleculeCountsDataFile = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 
-			ribosomeIndex = uniqueMoleculeCountsDataFile.readAttribute("uniqueMoleculeIds").index('active_ribosome')
+			ribosomeIndex = uniqueMoleculeCountsDataFile.readAttribute("uniqueMoleculeIds").index("activeRibosome")
 			activeRibosome = uniqueMoleculeCountsDataFile.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
 
 			uniqueMoleculeCountsDataFile.close()

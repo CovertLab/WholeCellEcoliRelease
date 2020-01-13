@@ -34,20 +34,15 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		rnapIndex = moleculeIds.index(rnapId)
 		rnapCountsBulk = bulkMoleculeCounts[:, rnapIndex]
 
-		mRNA_counts_reader = TableReader(os.path.join(simOutDir, 'mRNACounts'))
-		mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
-		mRNA_ids = mRNA_counts_reader.readAttribute('mRNA_ids')
+		RNAP_RNA_IDS = ["EG10893_RNA[c]", "EG10894_RNA[c]", "EG10895_RNA[c]", "EG10896_RNA[c]"]
+		rnapRnaIndexes = np.array([moleculeIds.index(rnapRnaId) for rnapRnaId in RNAP_RNA_IDS], np.int)
+		rnapRnaCounts = bulkMoleculeCounts[:, rnapRnaIndexes]
 
-		RNAP_RNA_IDS = [
-			"EG10893_RNA[c]", "EG10894_RNA[c]",
-			"EG10895_RNA[c]", "EG10896_RNA[c]"]
-
-		rnapRnaIndexes = np.array([mRNA_ids.index(rnapRnaId) for rnapRnaId in RNAP_RNA_IDS], np.int)
-		rnapRnaCounts = mRNA_counts[:, rnapRnaIndexes]
+		bulkMolecules.close()
 
 		uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 
-		rnapIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index('active_RNAP')
+		rnapIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
 
 		main_reader = TableReader(os.path.join(simOutDir, "Main"))
 		initialTime = main_reader.readAttribute("initialTime")

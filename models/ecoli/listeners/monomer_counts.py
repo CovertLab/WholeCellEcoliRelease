@@ -86,8 +86,8 @@ class MonomerCounts(wholecell.listeners.listener.Listener):
 		# Get indexes of all unique molecules that need to be accounted for
 		self.uniqueMolecules = sim.internal_states["UniqueMolecules"]
 		unique_molecule_ids = self.uniqueMolecules.container.objectNames()
-		self.ribosome_idx = unique_molecule_ids.index('active_ribosome')
-		self.rnap_idx = unique_molecule_ids.index('active_RNAP')
+		self.ribosome_idx = unique_molecule_ids.index("activeRibosome")
+		self.rnap_idx = unique_molecule_ids.index("activeRnaPoly")
 		self.replisome_idx = unique_molecule_ids.index("active_replisome")
 
 	def allocate(self):
