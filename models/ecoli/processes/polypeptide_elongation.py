@@ -64,7 +64,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.trpAIndex = np.where(proteinIds == "TRYPSYN-APROTEIN[c]")[0][0]
 
 		# Create view onto actively elongating 70S ribosomes
-		self.active_ribosomes = self.uniqueMoleculesView('activeRibosome')
+		self.active_ribosomes = self.uniqueMoleculesView('active_ribosome')
 
 		# Create views onto 30S and 50S ribosomal subunits for termination
 		self.ribosome30S = self.bulkMoleculeView(sim_data.moleculeIds.s30_fullComplex)
@@ -123,7 +123,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		# Build sequences to request appropriate amount of amino acids to
 		# polymerize for next timestep
 		proteinIndexes, peptideLengths = self.active_ribosomes.attrs(
-			'proteinIndex', 'peptideLength'
+			'protein_index', 'peptide_length'
 			)
 
 		self.elongation_rates = self.make_elongation_rates(
@@ -184,14 +184,14 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			return
 
 		# Build amino acids sequences for each ribosome to polymerize
-		proteinIndexes, peptideLengths = self.active_ribosomes.attrs(
-			'proteinIndex', 'peptideLength'
+		protein_indexes, peptide_lengths, positions_on_mRNA = self.active_ribosomes.attrs(
+			'protein_index', 'peptide_length', 'pos_on_mRNA'
 			)
 
 		sequences = buildSequences(
 			self.proteinSequences,
-			proteinIndexes,
-			peptideLengths,
+			protein_indexes,
+			peptide_lengths,
 			self.elongation_rates)
 
 		if sequences.size == 0:
@@ -211,45 +211,48 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			aa_counts_for_translation,
 			10000000, # Set to a large number, the limit is now taken care of in metabolism
 			self.randomState,
-			self.elongation_rates[proteinIndexes])
+			self.elongation_rates[protein_indexes])
 
-		sequenceElongations = result.sequenceElongation
+		sequence_elongations = result.sequenceElongation
 		aas_used = result.monomerUsages
 		nElongations = result.nReactions
 
 		# Update masses of ribosomes attached to polymerizing polypeptides
 		added_protein_mass = computeMassIncrease(
 			sequences,
-			sequenceElongations,
+			sequence_elongations,
 			self.aaWeightsIncorporated
 			)
 
-		updatedLengths = peptideLengths + sequenceElongations
+		updated_lengths = peptide_lengths + sequence_elongations
+		updated_positions_on_mRNA = positions_on_mRNA + 3*sequence_elongations
 
 		didInitialize = (
-			(sequenceElongations > 0) &
-			(peptideLengths == 0)
+			(sequence_elongations > 0) &
+			(peptide_lengths == 0)
 			)
 
 		added_protein_mass[didInitialize] += self.endWeight
 
 		# Write current average elongation to listener
-		currElongRate = (sequenceElongations.sum() / n_active_ribosomes) / self.timeStepSec()
+		currElongRate = (sequence_elongations.sum() / n_active_ribosomes) / self.timeStepSec()
 		self.writeToListener("RibosomeData", "effectiveElongationRate", currElongRate)
 
 		# Update active ribosomes, terminating if necessary
-		self.active_ribosomes.attrIs(peptideLength = updatedLengths)
+		self.active_ribosomes.attrIs(
+			peptide_length=updated_lengths,
+			pos_on_mRNA=updated_positions_on_mRNA)
 		self.active_ribosomes.add_submass_by_name("protein", added_protein_mass)
 
 		# Ribosomes that reach the end of their sequences are terminated and
 		# dissociated into 30S and 50S subunits. The polypeptide that they are polymerizing
 		# is converted into a protein in BulkMolecules
-		terminalLengths = self.proteinLengths[proteinIndexes]
+		terminalLengths = self.proteinLengths[protein_indexes]
 
-		didTerminate = (updatedLengths == terminalLengths)
+		didTerminate = (updated_lengths == terminalLengths)
 
 		terminatedProteins = np.bincount(
-			proteinIndexes[didTerminate],
+			protein_indexes[didTerminate],
 			minlength = self.proteinSequences.shape[0]
 			)
 
@@ -273,12 +276,12 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("RibosomeData", "aaCountInSequence", aaCountInSequence)
 		self.writeToListener("RibosomeData", "aaCounts", aa_counts_for_translation)
 
-		self.writeToListener("RibosomeData", "actualElongations", sequenceElongations.sum())
-		self.writeToListener("RibosomeData", "actualElongationHist", np.histogram(sequenceElongations, bins = np.arange(0,23))[0])
-		self.writeToListener("RibosomeData", "elongationsNonTerminatingHist", np.histogram(sequenceElongations[~didTerminate], bins=np.arange(0,23))[0])
+		self.writeToListener("RibosomeData", "actualElongations", sequence_elongations.sum())
+		self.writeToListener("RibosomeData", "actualElongationHist", np.histogram(sequence_elongations, bins = np.arange(0,23))[0])
+		self.writeToListener("RibosomeData", "elongationsNonTerminatingHist", np.histogram(sequence_elongations[~didTerminate], bins=np.arange(0,23))[0])
 
 		self.writeToListener("RibosomeData", "didTerminate", didTerminate.sum())
-		self.writeToListener("RibosomeData", "terminationLoss", (terminalLengths - peptideLengths)[didTerminate].sum())
+		self.writeToListener("RibosomeData", "terminationLoss", (terminalLengths - peptide_lengths)[didTerminate].sum())
 		self.writeToListener("RibosomeData", "numTrpATerminated", terminatedProteins[self.trpAIndex])
 
 		self.writeToListener("RibosomeData", "processElongationRate", self.ribosomeElongationRate / self.timeStepSec())

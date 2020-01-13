@@ -39,7 +39,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		if not os.path.exists(plotOutDir):
 			os.mkdir(plotOutDir)
 
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+		mRNA_counts_reader = TableReader(os.path.join(simOutDir, 'mRNACounts'))
+		mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
+		all_mRNA_ids = mRNA_counts_reader.readAttribute('mRNA_ids')
 
 		rnaIds = [
 			"EG10789_RNA[c]", "EG11556_RNA[c]", "EG12095_RNA[c]", "G1_RNA[c]", "G360_RNA[c]",
@@ -58,11 +60,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			"livJ - Branched chain amino acid ABC transporter - periplasmic binding protein",
 		]
 
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
-		rnaIndexes = np.array([moleculeIds.index(x) for x in rnaIds], np.int)
-		rnaCounts = bulkMolecules.readColumn("counts")[:, rnaIndexes]
-
-		bulkMolecules.close()
+		rnaIndexes = np.array([all_mRNA_ids.index(x) for x in rnaIds], np.int)
+		rnaCounts = mRNA_counts[:, rnaIndexes]
 
 		main_reader = TableReader(os.path.join(simOutDir, "Main"))
 		initialTime = main_reader.readAttribute("initialTime")
