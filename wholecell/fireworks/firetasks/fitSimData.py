@@ -8,6 +8,9 @@ import sys
 
 from fireworks import FireTaskBase, explicit_serialize
 from reconstruction.ecoli.fit_sim_data_1 import fitSimData_1
+from runscripts.metrics.behavior_metrics.metrics_pickle import (
+	get_metrics_data_dict
+)
 
 
 @explicit_serialize
@@ -20,11 +23,12 @@ class FitSimDataTask(FireTaskBase):
 		"input_data", "output_data", "cpus",
 		"disable_ribosome_capacity_fitting",
 		"disable_rnapoly_capacity_fitting",
-		]
+		"output_metrics_data",
+	]
 	optional_params = [
 		"cached_data",
 		"sim_out_dir",
-		]
+	]
 
 	def run_task(self, fw_spec):
 		print("{}: Calculating sim_data parameters".format(time.ctime()))
@@ -32,6 +36,9 @@ class FitSimDataTask(FireTaskBase):
 		if self["cached"]:
 			try:
 				shutil.copyfile(self["cached_data"], self["output_data"])
+				with open(self["output_data"], "rb") as f:
+					sim_data = cPickle.load(f)
+				self.save_metrics_data(sim_data)
 				mod_time = time.ctime(os.path.getctime(self["cached_data"]))
 				print("Copied sim data from cache (last modified {})".format(mod_time))
 				return
@@ -48,8 +55,15 @@ class FitSimDataTask(FireTaskBase):
 			raw_data, cpus=cpus, debug=self["debug"],
 			disable_ribosome_capacity_fitting=self['disable_ribosome_capacity_fitting'],
 			disable_rnapoly_capacity_fitting=self['disable_rnapoly_capacity_fitting'],
-			)
+		)
 
-		sys.setrecursionlimit(4000) #limit found manually
+		sys.setrecursionlimit(4000)  # limit found manually
 		with open(self["output_data"], "wb") as f:
-			cPickle.dump(sim_data, f, protocol = cPickle.HIGHEST_PROTOCOL)
+			cPickle.dump(sim_data, f, protocol=cPickle.HIGHEST_PROTOCOL)
+		self.save_metrics_data(sim_data)
+
+	def save_metrics_data(self, sim_data):
+		metrics_data = get_metrics_data_dict(sim_data)
+		with open(self["output_metrics_data"], "wb") as f:
+			cPickle.dump(
+				metrics_data, f, protocol=cPickle.HIGHEST_PROTOCOL)

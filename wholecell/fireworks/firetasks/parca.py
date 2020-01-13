@@ -36,7 +36,10 @@ class ParcaTask(FireTaskBase):
 	def run_task(self, fw_spec):
 		kb_directory = fp.makedirs(self['output_directory'])
 		raw_data_file = os.path.join(kb_directory, constants.SERIALIZED_RAW_DATA)
-		sim_data_file = os.path.join(kb_directory, constants.SERIALIZED_SIM_DATA_FILENAME)
+		sim_data_file = os.path.join(
+			kb_directory, constants.SERIALIZED_SIM_DATA_FILENAME)
+		metrics_data_file = os.path.join(
+			kb_directory, constants.SERIALIZED_METRICS_DATA_FILENAME)
 		raw_validation_data_file = os.path.join(
 			kb_directory, constants.SERIALIZED_RAW_VALIDATION_DATA)
 		validation_data_file = os.path.join(
@@ -49,6 +52,7 @@ class ParcaTask(FireTaskBase):
 			FitSimDataTask(
 				input_data=raw_data_file,
 				output_data=sim_data_file,
+				output_metrics_data=metrics_data_file,
 				cached=False,
 				cpus=self.get('cpus', 1),
 				debug=self.get('debug', False),

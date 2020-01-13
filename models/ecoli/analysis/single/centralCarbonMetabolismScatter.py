@@ -9,86 +9,140 @@ from __future__ import division
 import os
 import cPickle
 import re
+from typing import List, Iterable, Tuple, Dict
 
 import numpy as np
 from matplotlib import pyplot as plt
+from unum import Unum
 
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import units
-
+from wholecell.utils import units, toya
 from wholecell.analysis.plotting_tools import CMAP_COLORS_255
-
-from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
+from models.ecoli.processes.metabolism import (
+	COUNTS_UNITS,
+	VOLUME_UNITS,
+	TIME_UNITS,
+)
 
 FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
 
-CMAP_COLORS = [[shade/255. for shade in color] for color in CMAP_COLORS_255]
+CMAP_COLORS = [[shade / 255. for shade in color] for color in CMAP_COLORS_255]
 CMAP_OVER = [0, 1, 0.75]
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
-	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+	"""Plot fluxome data"""
+
+	@staticmethod
+	def load_toya_data(validation_data_file, sim_data_file, sim_out_dir):
+		# type: (str, str, str) -> Tuple[List[str], Unum, Unum]
+		"""Load fluxome data from 2010 validation data
+
+		Arguments:
+			validationDataFile: Path to cPickle with validation data.
+			sim_data_file: Path to cPickle with simulation data.
+			sim_out_dir: Path to simulation output directory.
+
+		Returns:
+			Tuple of reaction IDs, fluxes, and standard deviations.
+			Fluxes and standard deviations appear in the same order as
+			their associated reactions do in the reaction ID list.
+			Fluxes and standard deviations are numpy arrays with units
+			FLUX_UNITS.
+		"""
+		validation_data = cPickle.load(open(validation_data_file, "rb"))
+		sim_data = cPickle.load(open(sim_data_file, "rb"))
+		cell_density = sim_data.constants.cellDensity
+
+		mass_listener = TableReader(os.path.join(sim_out_dir, "Mass"))
+		cell_masses = mass_listener.readColumn("cellMass") * units.fg
+		dry_masses = mass_listener.readColumn("dryMass") * units.fg
+		mass_listener.close()
+
+		toya_reactions = validation_data.reactionFlux.toya2010fluxes["reactionID"]
+		toya_fluxes = toya.adjust_toya_data(
+			validation_data.reactionFlux.toya2010fluxes["reactionFlux"],
+			cell_masses,
+			dry_masses,
+			cell_density,
+		)
+		toya_stdevs = toya.adjust_toya_data(
+			validation_data.reactionFlux.toya2010fluxes["reactionFluxStdev"],
+			cell_masses,
+			dry_masses,
+			cell_density,
+		)
+		return toya_reactions, toya_fluxes, toya_stdevs
+
+	@staticmethod
+	def load_fba_data(simOutDir):
+		# type: (str) -> Tuple[np.ndarray, Unum]
+		"""Load fluxome balance analysis (FBA) data
+
+		Arguments:
+			simOutDir: Path to simulation output directory.
+
+		Returns: Tuple of reaction IDs and, in the same order, the
+			fluxes for each reaction. Fluxes array has units FLUX_UNITS.
+		"""
+		fba_results = TableReader(os.path.join(simOutDir, "FBAResults"))
+		reaction_ids = np.array(fba_results.readAttribute("reactionIDs"))
+		reaction_fluxes = FLUX_UNITS * np.array(
+			fba_results.readColumn("reactionFluxes")
+		)
+		fba_results.close()
+		return reaction_ids, reaction_fluxes
+
+	def do_plot(
+		self,
+		simOutDir,  # type: str
+		plotOutDir,  # type: str
+		plotOutFileName,  # type: str
+		simDataFile,  # type: str
+		validationDataFile,  # type: str
+		metadata
+	):
 		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
+			raise Exception(
+				"simOutDir does not currently exist as a directory")
 
 		if not os.path.exists(plotOutDir):
 			os.mkdir(plotOutDir)
 
-		validation_data = cPickle.load(open(validationDataFile, "rb"))
-		sim_data = cPickle.load(open(simDataFile, "rb"))
+		reaction_ids, reaction_fluxes = Plot.load_fba_data(simOutDir)
+		toya_reactions, toya_fluxes, toya_stdevs = Plot.load_toya_data(
+			validationDataFile, simDataFile, simOutDir)
+		root_to_id_indices_map = toya.get_root_to_id_indices_map(
+			reaction_ids)
+		common_ids = toya.get_common_ids(
+			toya_reactions, root_to_id_indices_map)
 
-		cellDensity = sim_data.constants.cellDensity
+		sim_flux_means, sim_flux_stdevs = toya.process_simulated_fluxes(
+			common_ids, reaction_ids, reaction_fluxes,
+			root_to_id_indices_map
+		)
+		toya_flux_means = toya.process_toya_data(
+			common_ids, toya_reactions, toya_fluxes)
+		toya_flux_stdevs = toya.process_toya_data(
+			common_ids, toya_reactions, toya_stdevs)
 
-		massListener = TableReader(os.path.join(simOutDir, "Mass"))
-		cellMass = massListener.readColumn("cellMass") * units.fg
-		dryMass = massListener.readColumn("dryMass") * units.fg
-		massListener.close()
-
-		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
-		reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
-		reactionFluxes = (COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS) * np.array(fbaResults.readColumn("reactionFluxes"))
-		fbaResults.close()
-
-		dryMassFracAverage = np.mean(dryMass / cellMass)
-
-		toya_reactions = validation_data.reactionFlux.toya2010fluxes["reactionID"]
-		toya_fluxes = FLUX_UNITS * np.array([(dryMassFracAverage * cellDensity * x).asNumber(FLUX_UNITS) for x in validation_data.reactionFlux.toya2010fluxes["reactionFlux"]])
-		toya_stdev = FLUX_UNITS * np.array([(dryMassFracAverage * cellDensity * x).asNumber(FLUX_UNITS) for x in validation_data.reactionFlux.toya2010fluxes["reactionFluxStdev"]])
-		toya_fluxes_dict = dict(zip(toya_reactions, toya_fluxes))
-		toya_stdev_dict = dict(zip(toya_reactions, toya_stdev))
-
-		toyaVsReactionAve = []
-		toya_order = []
-		for toyaReactionID, toyaFlux in toya_fluxes_dict.iteritems():
-			fluxTimeCourse = []
-
-			for rxn in reactionIDs:
-				if re.findall(toyaReactionID, rxn):
-					reverse = 1
-					if re.findall("(reverse)", rxn):
-						reverse = -1
-
-					if len(fluxTimeCourse):
-						fluxTimeCourse += reverse * reactionFluxes[:, np.where(reactionIDs == rxn)]
-					else:
-						fluxTimeCourse = reverse * reactionFluxes[:, np.where(reactionIDs == rxn)]
-
-			if len(fluxTimeCourse):
-				fluxAve = np.mean(fluxTimeCourse)
-				fluxStdev = np.std(fluxTimeCourse.asNumber(FLUX_UNITS))
-				toyaVsReactionAve.append((fluxAve.asNumber(FLUX_UNITS), toyaFlux.asNumber(FLUX_UNITS), fluxStdev, toya_stdev_dict[toyaReactionID].asNumber(FLUX_UNITS)))
-				toya_order.append(toyaReactionID)
-
-		toyaVsReactionAve = FLUX_UNITS * np.array(toyaVsReactionAve)
-		correlationCoefficient = np.corrcoef(toyaVsReactionAve[:,0].asNumber(FLUX_UNITS), toyaVsReactionAve[:,1].asNumber(FLUX_UNITS))[0,1]
-
+		correlation_coefficient = np.corrcoef(
+			sim_flux_means.asNumber(FLUX_UNITS),
+			toya_flux_means.asNumber(FLUX_UNITS),
+		)[0, 1]
 		plt.figure()
 
-		plt.title("Central Carbon Metabolism Flux, Pearson R = {:.2}".format(correlationCoefficient))
-		plt.errorbar(toyaVsReactionAve[:,1].asNumber(FLUX_UNITS), toyaVsReactionAve[:,0].asNumber(FLUX_UNITS), xerr = toyaVsReactionAve[:,3].asNumber(FLUX_UNITS),
-			yerr = toyaVsReactionAve[:,2].asNumber(FLUX_UNITS), fmt = "o", ecolor = "k")
+		plt.title("Central Carbon Metabolism Flux, Pearson R = {:.2}".format(
+			correlation_coefficient))
+		plt.errorbar(
+			toya_flux_means.asNumber(FLUX_UNITS),
+			sim_flux_means.asNumber(FLUX_UNITS),
+			xerr=toya_flux_stdevs.asNumber(FLUX_UNITS),
+			yerr=sim_flux_stdevs.asNumber(FLUX_UNITS),
+			fmt="o", ecolor="k"
+		)
 		plt.ylabel("Mean WCM Reaction Flux {}".format(FLUX_UNITS.strUnit()))
 		plt.xlabel("Toya 2010 Reaction Flux {}".format(FLUX_UNITS.strUnit()))
 

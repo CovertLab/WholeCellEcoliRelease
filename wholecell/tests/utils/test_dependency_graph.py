@@ -6,7 +6,7 @@
 
 import unittest
 
-from prototypes.behavior_metrics.dependency_graph import (
+from wholecell.utils.dependency_graph import (
 	DependencyGraph,
 	InvalidDependencyGraphError,
 )

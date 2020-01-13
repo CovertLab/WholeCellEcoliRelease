@@ -381,6 +381,8 @@ fw_calculate_sim_data = Firework(
 		debug = DEBUG_PARCA,
 		disable_ribosome_capacity_fitting = DISABLE_RIBOSOME_CAPACITY_FITTING,
 		disable_rnapoly_capacity_fitting = DISABLE_RNAPOLY_CAPACITY_FITTING,
+		output_metrics_data = os.path.join(
+			KB_DIRECTORY, constants.SERIALIZED_METRICS_DATA_FILENAME),
 		),
 	name = fw_name,
 	spec = {"_queueadapter": {"job_name": fw_name, "cpus_per_task": cpusForParca}, "_priority":1}
