@@ -37,48 +37,51 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		endoRnase_RnaIDs = sim_data.moleculeGroups.endoRnase_RnaIDs
 		exoRnase_RnaIDs = sim_data.moleculeGroups.exoRnase_RnaIDs
 		RNase_RnaIDS = np.concatenate((endoRnase_RnaIDs, exoRnase_RnaIDs))
-		RNase_IDS = np.concatenate((RNase_IDS, RNase_RnaIDS))
 
-		(rnapRnaCounts,) = read_bulk_molecule_counts(simOutDir, (RNase_IDS,))
+		# Load count data for mRNAs
+		mRNA_counts_reader = TableReader(os.path.join(simOutDir, 'mRNACounts'))
+		mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
+		all_mRNA_ids = mRNA_counts_reader.readAttribute('mRNA_ids')
+
+		# Get counts for RNase proteins and mRNAs
+		(RNase_counts,) = read_bulk_molecule_counts(simOutDir, (RNase_IDS,))
+		rnaIndexes = np.array([all_mRNA_ids.index(rna) for rna in RNase_RnaIDS], np.int)
+		RNase_RNA_counts = mRNA_counts[:, rnaIndexes]
 
 		main_reader = TableReader(os.path.join(simOutDir, "Main"))
 		initialTime = main_reader.readAttribute("initialTime")
 		time = main_reader.readColumn("time") - initialTime
 
+		n_subplots = 2*len(RNase_IDS)
+
 		plt.figure(figsize = (8.5, 11))
 		plt.rc('xtick', labelsize=7)
 		plt.rc('ytick', labelsize=5)
 
-		count = 0
-		count_bis = len(RNase_IDS) / 2
-		for subplotIdx in xrange(0, len(RNase_IDS)):
-			if not subplotIdx % 2:
-				rnapRnaCountsIdx = count
-				count += 1
-			if subplotIdx % 2:
-				rnapRnaCountsIdx = count_bis
-				count_bis += 1
-
+		for subplotIdx in xrange(0, n_subplots):
 			ax = plt.subplot(18, 2, 1 + subplotIdx)
 
-			plt.plot(time / 60., rnapRnaCounts[:, rnapRnaCountsIdx])
+			if not subplotIdx % 2:
+				plt.plot(time / 60., RNase_counts[:, subplotIdx // 2])
+			else:
+				plt.plot(time / 60., RNase_RNA_counts[:, subplotIdx // 2])
 
-			if not subplotIdx >= len(RNase_IDS) - 2:
+			if not subplotIdx >= n_subplots - 2:
 				frame = plt.gca()
 				for xlabel_i in frame.axes.get_xticklines():
 					xlabel_i.set_visible(True)
 				for xlabel_i in frame.axes.get_xticklabels():
 					xlabel_i.set_visible(False)
 
-			if subplotIdx >= len(RNase_IDS) - 2:
+			if subplotIdx >= n_subplots - 2:
 				plt.xlabel("Time (min)", fontsize = 7)
 
 			if not subplotIdx % 2:
 				plt.ylabel("Protein counts", fontsize = 5)
-			if subplotIdx % 2:
+				plt.title(RNase_IDS[subplotIdx // 2], fontsize=7)
+			else:
 				plt.ylabel("RNA counts", fontsize = 5)
-
-			plt.title(RNase_IDS[rnapRnaCountsIdx], fontsize = 7)
+				plt.title(RNase_RnaIDS[subplotIdx // 2], fontsize=7)
 
 			max_yticks = 4
 			yloc = plt.MaxNLocator(max_yticks)

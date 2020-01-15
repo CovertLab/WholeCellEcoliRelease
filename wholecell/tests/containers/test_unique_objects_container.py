@@ -238,7 +238,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 
 	def test_unique_index(self):
 		objectSet = self.container.objects()
-		unique_index = objectSet.attr("_uniqueIndex")
+		unique_index = objectSet.attr("unique_index")
 
 		# Check that all unique index values are unique
 		self.assertEqual(len(np.unique(unique_index)), len(unique_index))
@@ -246,7 +246,7 @@ class Test_UniqueObjectsContainer(unittest.TestCase):
 		# Add new objects to container
 		self.container.objectsNew('Chocolate', 10, nuts=True, percent=95.0)
 		objectSet = self.container.objects()
-		unique_index = objectSet.attr("_uniqueIndex")
+		unique_index = objectSet.attr("unique_index")
 
 		# Check that all unique index values are unique
 		self.assertEqual(len(np.unique(unique_index)), len(unique_index))

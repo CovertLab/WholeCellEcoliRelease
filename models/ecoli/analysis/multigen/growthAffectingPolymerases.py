@@ -101,7 +101,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			## RNAP counts and statistics ##
 			# Get active counts
 			uniqueMolecules = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
-			rnapIndex = uniqueMolecules.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
+			rnapIndex = uniqueMolecules.readAttribute("uniqueMoleculeIds").index('active_RNAP')
 			rnapCountsActive = uniqueMolecules.readColumn("uniqueMoleculeCounts")[:, rnapIndex]
 			uniqueMolecules.close()
 
@@ -123,7 +123,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# Get active ribosome counts
 			uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 
-			ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
+			ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index('active_ribosome')
 			activeRibosome = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
 
 			uniqueMoleculeCounts.close()

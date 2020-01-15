@@ -32,9 +32,10 @@ REQUIRED_COLUMNS = [
 	("EquilibriumListener", "reactionRates"),
 	("FBAResults", "reactionFluxes"),
 	("GrowthLimits", "net_charged"),
+	("Main", "time"),
 	("Mass", "cellMass"),
 	("Mass", "dryMass"),
-	("Main", "time"),
+	("mRNACounts", "mRNA_counts"),
 	("RnaSynthProb", "pPromoterBound"),
 	("RnaSynthProb", "rnaSynthProb"),
 	("RnaSynthProb", "gene_copy_number"),
@@ -94,6 +95,11 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 
 		gene_ids = sim_data.process.transcription.rnaData["geneId"]
 		indexes["Genes"] = build_index_dict(gene_ids)
+
+		mRNA_ids = sim_data.process.transcription.rnaData["id"][
+			sim_data.process.transcription.rnaData["isMRna"]
+		]
+		indexes["mRNAs"] = build_index_dict(mRNA_ids)
 
 		translated_rna_ids = sim_data.process.translation.monomerData["rnaId"]
 		indexes["TranslatedRnas"] = build_index_dict(translated_rna_ids)
@@ -233,10 +239,16 @@ def read_rna_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	"""
 	Reads dynamics data for transcript (RNA) nodes from simulation output.
 	"""
-	count_index = indexes["BulkMolecules"][node_id]
+
+	# If RNA is an mRNA, get counts from mRNA counts listener
+	if node_id in indexes["mRNAs"]:
+		counts = columns[("mRNACounts", "mRNA_counts")][:, indexes["mRNAs"][node_id]]
+	# If not, get counts from bulk molecules listener
+	else:
+		counts = columns[("BulkMolecules", "counts")][:, indexes["BulkMolecules"][node_id]]
 
 	dynamics = {
-		"counts": columns[("BulkMolecules", "counts")][:, count_index],
+		"counts": counts,
 		}
 	dynamics_units = {
 		"counts": COUNT_UNITS,

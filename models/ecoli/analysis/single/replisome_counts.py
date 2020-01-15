@@ -47,7 +47,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Load counts of DNA polymerases, active replisomes, and OriC's
 		unique_molecule_ids = [
-			"active_replisome", "originOfReplication"]
+			"active_replisome", 'oriC']
 		unique_molecule_idx = np.array([unique_molecule_counts_reader.readAttribute(
 			"uniqueMoleculeIds").index(x) for x in unique_molecule_ids])
 		unique_molecule_counts = unique_molecule_counts_reader.readColumn(

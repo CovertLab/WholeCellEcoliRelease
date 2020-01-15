@@ -35,6 +35,9 @@ def choices(array, n):
 	np.random.shuffle(indexes)
 	return indexes[:n]
 
+class DimensionException(Exception):
+	pass
+
 class polymerize(object): # Class name is lowercase because interface is function-like
 	"""
 	Polymerize the given DNA/RNA/protein sequences as far as possible within
@@ -68,6 +71,10 @@ class polymerize(object): # Class name is lowercase because interface is functio
 			randomState,
 			elongation_rates,
 			variable_elongation=False):
+
+		# Check dimensions
+		if sequences.shape[0] != len(elongation_rates):
+			raise DimensionException('Dimensions of input sequences and elongation rates do not match.')
 
 		# Gather inputs
 		self._sequences = sequences

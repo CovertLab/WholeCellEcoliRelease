@@ -75,6 +75,12 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			bulkMoleculeIds = bulkMoleculesReader.readAttribute("objectNames")
 			bulkMoleculeCounts = bulkMoleculesReader.readColumn("counts")
 
+			# Load data from mRNA counts listener
+			mRNA_counts_reader = TableReader(
+				os.path.join(simOutDir, 'mRNACounts'))
+			all_mRNA_ids = mRNA_counts_reader.readAttribute('mRNA_ids')
+			mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
+
 			# Load data from RnaSynthProb listener
 			rna_synth_prob_reader = TableReader(
 				os.path.join(simOutDir, "RnaSynthProb"))
@@ -119,8 +125,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			# Get the amount of carA mRNA
 			carARnaId = ["EG10134_RNA[c]"]
-			carARnaIndex = np.array([bulkMoleculeIds.index(x) for x in carARnaId])
-			carARnaCounts = bulkMoleculeCounts[:, carARnaIndex].reshape(-1)
+			carARnaIndex = np.array([all_mRNA_ids.index(x) for x in carARnaId])
+			carARnaCounts = mRNA_counts[:, carARnaIndex].reshape(-1)
 
 			# Compute total counts and concentration of carA in monomeric and complexed form
 			# (we know the stoichiometry)
