@@ -495,7 +495,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		# Adjust aa_supply higher if amino acid concentrations are low
 		# Improves stability of charging and mimics amino acid synthesis
 		# inhibition and export
-		# TODO (Travis: environmentView should probably handle this check
+		# TODO (Travis): environmentView should probably handle this check
 		aa_in_media = self.aa_environment.totalConcentrations() > self.process.import_threshold
 		# TODO (Travis): add to listener?
 		self.process.aa_supply *= self.aa_supply_scaling(aa_conc, aa_in_media)
@@ -524,7 +524,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 			spot_conc = self.counts_to_molar * self.spot.total_counts()[0]
 			delta_metabolites, _, _, _, _, _ = self.ppgpp_metabolite_changes(
 				updated_uncharged_trna_conc, updated_charged_trna_conc, ribosome_conc,
-				f, rela_conc, spot_conc, ppgpp_conc, self.counts_to_molar, request=True
+				f, rela_conc, spot_conc, ppgpp_conc, self.counts_to_molar, v_rib, request=True
 			)
 
 			request_ppgpp_metabolites = -delta_metabolites
@@ -561,6 +561,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		# Create ppGpp
 		## Concentrations of interest
 		if self.process.ppgpp_regulation:
+			v_rib = (nElongations * self.counts_to_molar).asNumber(MICROMOLAR_UNITS) / self.process.timeStepSec()
 			ribosome_conc = self.counts_to_molar * self.process.active_ribosomes.total_counts()[0]
 			updated_uncharged_trna_counts = self.uncharged_trna.total_counts() - net_charged
 			updated_charged_trna_counts = self.charged_trna.total_counts() + net_charged
@@ -576,7 +577,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 			limits = self.ppgpp_reaction_metabolites.counts()
 			delta_metabolites, ppgpp_syn, ppgpp_deg, rela_syn, spot_syn, spot_deg = self.ppgpp_metabolite_changes(
 				uncharged_trna_conc, charged_trna_conc,	ribosome_conc, f, rela_conc,
-				spot_conc, ppgpp_conc, self.counts_to_molar, limits=limits,
+				spot_conc, ppgpp_conc, self.counts_to_molar, v_rib, limits=limits,
 				)
 
 			self.process.writeToListener('GrowthLimits', 'rela_syn', rela_syn)
@@ -761,7 +762,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 
 	def ppgpp_metabolite_changes(self, uncharged_trna_conc, charged_trna_conc,
 			ribosome_conc, f, rela_conc, spot_conc, ppgpp_conc, counts_to_molar,
-			request=False, limits=None):
+			v_rib, request=False, limits=None):
 		'''
 		Calculates the changes in metabolite counts based on ppGpp synthesis and
 		degradation reactions.
@@ -779,6 +780,8 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 			ppgpp_conc (float with concentration units): concentration of ppGpp
 			counts_to_molar (float with concentration units): conversion factor
 				from counts to molarity
+			v_rib (float): rate of amino acid incorporation at the ribosome,
+				in units of uM/s
 			request (bool): if True, only considers reactant stoichiometry,
 				otherwise considers reactants and products. For use in
 				calculateRequest. GDP appears as both a reactant and product
@@ -806,8 +809,11 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		ppgpp_conc = ppgpp_conc.asNumber(MICROMOLAR_UNITS)
 		counts_to_micromolar = counts_to_molar.asNumber(MICROMOLAR_UNITS)
 
-		numerator_ribosome = 1 + np.sum(f * (self.krta / charged_trna_conc + uncharged_trna_conc / charged_trna_conc * self.krta / self.krtf))
-		ribosomes_bound_to_uncharged = ribosome_conc * (f * uncharged_trna_conc / charged_trna_conc * self.krta / self.krtf) / numerator_ribosome
+		numerator = 1 + charged_trna_conc / self.krta + uncharged_trna_conc / self.krtf
+		saturated_charged = charged_trna_conc / self.krta / numerator
+		saturated_uncharged = uncharged_trna_conc / self.krtf / numerator
+		fraction_a_site = f * v_rib / (saturated_charged * self.maxRibosomeElongationRate)
+		ribosomes_bound_to_uncharged = fraction_a_site * saturated_uncharged
 
 		# Handle rare cases when tRNA concentrations are 0
 		# Can result in inf and nan so assume a fraction of ribosomes
