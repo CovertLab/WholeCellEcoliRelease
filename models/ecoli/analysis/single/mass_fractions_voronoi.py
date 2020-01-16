@@ -36,7 +36,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		unique_molecule_counts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 		bulk_molecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		bulk_molecule_counts = bulk_molecules.readColumn("counts")
-		bulk_molecule_ids = bulk_molecules.readAttribute("objectNames")
+		bulk_molecule_idx = {name: i for i, name in enumerate(bulk_molecules.readAttribute("objectNames"))}
 		nAvogadro = sim_data.constants.nAvogadro
 
 		# Get the stoichiometry matrix of 50s & 30s subunits
@@ -48,9 +48,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			ribosome_30s_subunits["subunitStoich"]))
 
 		# Count 50s & 30s subunits
-		complex_indexes = bulk_molecule_ids.index(sim_data.moleculeIds.s50_fullComplex)
+		complex_indexes = bulk_molecule_idx[sim_data.moleculeIds.s50_fullComplex]
 		complex_50s_counts = bulk_molecule_counts[:, complex_indexes]
-		complex_indexes = bulk_molecule_ids.index(sim_data.moleculeIds.s30_fullComplex)
+		complex_indexes = bulk_molecule_idx[sim_data.moleculeIds.s30_fullComplex]
 		complex_30s_counts = bulk_molecule_counts[:, complex_indexes]
 
 		n_50s_subunits = np.outer(complex_50s_counts, ribosome_50s_subunits["subunitStoich"])
@@ -69,7 +69,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			# Count free rRNAs
 			rRna_ids = getattr(sim_data.moleculeGroups, str(rRna_id))
 			rRna_indexes = np.array(
-				[bulk_molecule_ids.index(rRna) for rRna in rRna_ids])
+				[bulk_molecule_idx[rRna] for rRna in rRna_ids])
 			free_rRna_counts = bulk_molecule_counts[:, rRna_indexes]
 
 			# Include the rRNAs already in active ribosomes & ribosome subunits
@@ -91,7 +91,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# lipids and polyamines
 		def find_mass_molecule_group(group_id):
 			temp_ids = getattr(sim_data.moleculeGroups, str(group_id))
-			temp_indexes = np.array([bulk_molecule_ids.index(temp) for temp in temp_ids])
+			temp_indexes = np.array([bulk_molecule_idx[temp] for temp in temp_ids])
 			temp_counts = bulk_molecule_counts[:, temp_indexes]
 			temp_mw = sim_data.getter.getMass(temp_ids)
 			return (units.dot(temp_counts, temp_mw)/nAvogadro).asNumber(units.fg)
@@ -102,7 +102,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# LPS, murein, and glycogen
 		def find_mass_single_molecule(molecule_id):
 			temp_id = getattr(sim_data.moleculeIds, str(molecule_id))
-			temp_index = bulk_molecule_ids.index(temp_id)
+			temp_index = bulk_molecule_idx[temp_id]
 			temp_counts = bulk_molecule_counts[:, temp_index]
 			temp_mw = sim_data.getter.getMass([temp_id])
 			return (units.multiply(temp_counts, temp_mw)/nAvogadro).asNumber(units.fg)

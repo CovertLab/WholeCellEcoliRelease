@@ -13,7 +13,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from wholecell.io.tablereader import TableReader
-from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from models.ecoli.analysis import singleAnalysisPlot
 
 
@@ -25,14 +25,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		if not os.path.exists(plotOutDir):
 			os.mkdir(plotOutDir)
 
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
-
-		NTP_IDS = ['ATP[c]', 'CTP[c]', 'GTP[c]', 'UTP[c]']
-		ntpIndexes = np.array([moleculeIds.index(ntpId) for ntpId in NTP_IDS], np.int)
-
-		ntpCounts = bulkMolecules.readColumn("counts")[:, ntpIndexes]
+		ntp_ids = ['ATP[c]', 'CTP[c]', 'GTP[c]', 'UTP[c]']
+		(ntpCounts,) = read_bulk_molecule_counts(simOutDir, (ntp_ids,))
 
 		main_reader = TableReader(os.path.join(simOutDir, "Main"))
 		initialTime = main_reader.readAttribute("initialTime")
@@ -47,7 +41,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			plt.plot(time / 60., ntpCounts[:, idx], linewidth = 2)
 			plt.xlabel("Time (min)")
 			plt.ylabel("Counts")
-			plt.title(NTP_IDS[idx])
+			plt.title(ntp_ids[idx])
 
 		plt.subplots_adjust(hspace = 0.5)
 

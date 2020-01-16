@@ -15,7 +15,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from wholecell.io.tablereader import TableReader
-from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from models.ecoli.analysis import singleAnalysisPlot
 
 
@@ -28,21 +28,14 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		if not os.path.exists(plotOutDir):
 			os.mkdir(plotOutDir)
 
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
-
 		sim_data = cPickle.load(open(simDataFile))
 
 		aaIDs = sim_data.moleculeGroups.aaIDs
-		aaIndexes = np.array([moleculeIds.index(aaId) for aaId in aaIDs], np.int)
-		aaCounts = bulkMolecules.readColumn("counts")[:, aaIndexes]
+		(aaCounts,) = read_bulk_molecule_counts(simOutDir, (aaIDs,))
 
 		main_reader = TableReader(os.path.join(simOutDir, "Main"))
 		initialTime = main_reader.readAttribute("initialTime")
 		time = main_reader.readColumn("time") - initialTime
-
-		bulkMolecules.close()
 
 		plt.figure(figsize = (8.5, 11))
 

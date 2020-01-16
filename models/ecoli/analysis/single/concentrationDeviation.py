@@ -17,7 +17,7 @@ import cPickle
 
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
-from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from models.ecoli.analysis import singleAnalysisPlot
 
 COLOR_CHOICES = np.array([
@@ -59,9 +59,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		time = main_reader.readColumn("time") - initialTime
 
 		# Calculate concentration data
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		bulkMoleculeIds = bulkMolecules.readAttribute("objectNames")
-
 		mass = TableReader(os.path.join(simOutDir, "Mass"))
 		cellMass = units.fg * mass.readColumn("cellMass")
 
@@ -72,13 +69,10 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		concentrationSetpoints = concentrationSetpoints[sortedConcentrationIndex]
 
 		poolIds = np.array(concIds)[sortedConcentrationIndex]
-		poolIndexes = np.array([bulkMoleculeIds.index(x) for x in poolIds])
-		poolCounts = bulkMolecules.readColumn("counts")[:, poolIndexes]
+		(poolCounts,) = read_bulk_molecule_counts(simOutDir, (poolIds,))
 		poolMols = 1/nAvogadro * poolCounts
 		volume = cellMass / cellDensity
 		poolConcentrations = poolMols * 1/volume[:,np.newaxis]
-
-		bulkMolecules.close()
 
 		# Compare
 		common_units = units.mmol / units.L

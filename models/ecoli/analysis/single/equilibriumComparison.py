@@ -49,7 +49,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Calculate concentration data
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		bulkMoleculeIds = bulkMolecules.readAttribute("objectNames")
+		bulkMoleculeIdx = {name: i for i, name in enumerate(bulkMolecules.readAttribute("objectNames"))}
 		bulkMoleculeCounts = bulkMolecules.readColumn("counts")
 
 		mass = TableReader(os.path.join(simOutDir, "Mass"))
@@ -68,13 +68,13 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 			reactantIds = [moleculeNames[x] for x in np.where(stoichMatrix[:, idx] < 0)[0]]
 			reactantCoeffs = np.abs(stoichMatrix[stoichMatrix[:, idx] < 0, idx])
-			reactantIdxs = np.array([bulkMoleculeIds.index(x) for x in reactantIds], dtype = np.int64)
+			reactantIdxs = np.array([bulkMoleculeIdx[x] for x in reactantIds], dtype = np.int64)
 			reactantCounts = bulkMoleculeCounts[:, reactantIdxs]
 			reactantConcentrations = reactantCounts / (cellVolume[:, np.newaxis] * nAvogadro)
 
 			productIds = [moleculeNames[x] for x in np.where(stoichMatrix[:, idx] > 0)[0]]
 			productCoeffs = np.abs(stoichMatrix[stoichMatrix[:, idx] > 0, idx])
-			productIdxs = np.array([bulkMoleculeIds.index(x) for x in productIds], dtype = np.int64)
+			productIdxs = np.array([bulkMoleculeIdx[x] for x in productIds], dtype = np.int64)
 			productCounts = bulkMoleculeCounts[:, productIdxs]
 			productConcentrations = productCounts / (cellVolume[:, np.newaxis] * nAvogadro)
 

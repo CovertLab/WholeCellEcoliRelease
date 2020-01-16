@@ -16,7 +16,7 @@ from matplotlib import pyplot as plt
 import cPickle
 
 from wholecell.io.tablereader import TableReader
-from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from models.ecoli.analysis import singleAnalysisPlot
 
 
@@ -39,19 +39,14 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		proteinIds = sim_data.process.translation.monomerData["id"]
 		rnaIds = sim_data.process.translation.monomerData["rnaId"]
 
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		bulkMoleculeCounts = bulkMolecules.readColumn("counts")
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
-
 		mRNA_counts_reader = TableReader(os.path.join(simOutDir, 'mRNACounts'))
 		mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
-		all_mRNA_ids = mRNA_counts_reader.readAttribute('mRNA_ids')
+		all_mRNA_idx = {rna: i for i, rna in enumerate(mRNA_counts_reader.readAttribute('mRNA_ids'))}
 
-		rnaIndexes = np.array([all_mRNA_ids.index(moleculeId) for moleculeId in rnaIds], np.int)
+		rnaIndexes = np.array([all_mRNA_idx[moleculeId] for moleculeId in rnaIds], np.int)
 		rnaCountsBulk = mRNA_counts[:, rnaIndexes]
 
-		proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in proteinIds], np.int)
-		proteinCountsBulk = bulkMoleculeCounts[:, proteinIndexes]
+		(proteinCountsBulk,) = read_bulk_molecule_counts(simOutDir, (proteinIds,))
 
 		relativeMRnaCounts = rnaCountsBulk[-1, :]
 		relativeProteinCounts = proteinCountsBulk[-1, :]

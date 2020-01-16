@@ -16,7 +16,7 @@ from matplotlib import pyplot as plt
 import cPickle
 
 from wholecell.io.tablereader import TableReader
-from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from models.ecoli.analysis import singleAnalysisPlot
 
 FONT = {
@@ -35,32 +35,18 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
+		ntp_ids = ['ATP[c]', 'CTP[c]', 'GTP[c]', 'UTP[c]']
 		endoRnaseIds = sim_data.process.rna_decay.endoRnaseIds
 		exoRnaseIds = sim_data.moleculeGroups.exoRnaseIds
 		RnaseIds = np.concatenate((endoRnaseIds, exoRnaseIds))
 
-		# Load count data for s30 proteins, rRNA, and final 30S complex
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
-		bulkMoleculeCounts = bulkMolecules.readColumn("counts")
-
-		# Get indexes
-		proteinIndexes = np.array([moleculeIds.index(protein) for protein in RnaseIds], np.int)
-		exoproteinIndexes = np.array([moleculeIds.index(protein) for protein in exoRnaseIds], np.int)
-		endoproteinIndexes = np.array([moleculeIds.index(protein) for protein in endoRnaseIds], np.int)
-
-		RnaseCounts = bulkMoleculeCounts[:, proteinIndexes]
-
-		exoRnaseCounts = bulkMoleculeCounts[:, exoproteinIndexes]
-		endoRnaseCounts = bulkMoleculeCounts[:, endoproteinIndexes]
-		bulkMolecules.close()
+		(RnaseCounts, exoRnaseCounts, endoRnaseCounts, ntpCounts) = read_bulk_molecule_counts(
+			simOutDir, (RnaseIds, exoRnaseIds, endoRnaseIds, ntp_ids))
 
 		rnaDegradationListenerFile = TableReader(os.path.join(simOutDir, "RnaDegradationListener"))
 		countRnaDegraded = rnaDegradationListenerFile.readColumn('countRnaDegraded')
-		nucleotidesFromDegradation = rnaDegradationListenerFile.readColumn('nucleotidesFromDegradation')
 		FractionActiveEndoRNases = rnaDegradationListenerFile.readColumn('FractionActiveEndoRNases')
 		DiffRelativeFirstOrderDecay = rnaDegradationListenerFile.readColumn('DiffRelativeFirstOrderDecay')
-		FractEndoRRnaCounts = rnaDegradationListenerFile.readColumn('FractEndoRRnaCounts')
 		fragmentBasesDigested = rnaDegradationListenerFile.readColumn('fragmentBasesDigested')
 		rnaDegradationListenerFile.close()
 
@@ -68,9 +54,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		countNTPsUSed = TranscriptElongationListenerFile.readColumn('countNTPsUSed')
 		countRnaSynthesized = TranscriptElongationListenerFile.readColumn('countRnaSynthesized')
 		TranscriptElongationListenerFile.close()
-
-		totalRnaseCounts = RnaseCounts.sum(axis = 1)
-		requiredRnaseTurnover = nucleotidesFromDegradation / RnaseCounts.sum(axis = 1)
 
 		totalexoRnaseCounts = exoRnaseCounts.sum(axis = 1)
 		totalendoRnaseCounts = endoRnaseCounts.sum(axis = 1)
@@ -90,15 +73,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		deltaMetabolites = fbaResults.readColumn("deltaMetabolites")
 		outputMoleculeIDs = np.array(fbaResults.readAttribute("metaboliteNames"))
 		fbaResults.close()
-
-		# Load ntps required for cell doubling
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
-		NTP_IDS = ['ATP[c]', 'CTP[c]', 'GTP[c]', 'UTP[c]']
-		ntpIndexes = np.array([moleculeIds.index(ntpId) for ntpId in NTP_IDS], np.int)
-		ntpCounts = bulkMoleculeCounts[:, ntpIndexes]
-		bulkMolecules.close()
-
 
 		# Plotting
 		plt.figure(figsize = (8.5, 11))
