@@ -459,7 +459,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 		count_diff = self._sim.processes['PolypeptideElongation'].aa_count_diff
 
-		if len(count_diff):
+		if len(self.aa_targets):
 			for aa, diff in count_diff.items():
 				if aa in self.aa_targets_not_updated:
 					continue
