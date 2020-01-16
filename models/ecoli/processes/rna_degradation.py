@@ -431,6 +431,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 			molecules to degrade for each RNA
 		"""
 		n_rnas_to_degrade = np.zeros_like(rna_counts)
+		remaining_rna_counts = rna_counts
 
 		if rna_counts.sum() != 0:
 			while n_rnas_to_degrade.sum() < n_total_rnas_to_degrade:
@@ -439,7 +440,8 @@ class RnaDegradation(wholecell.processes.process.Process):
 						n_total_rnas_to_degrade - n_rnas_to_degrade.sum(),
 						rna_deg_probs
 						),
-					rna_counts
+					remaining_rna_counts
 					)
+				remaining_rna_counts = rna_counts - n_rnas_to_degrade
 
 		return n_rnas_to_degrade
