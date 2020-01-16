@@ -137,10 +137,14 @@ class Simulation(lens.actor.inner.Simulation):
 
 	# Link states and processes
 	def _initialize(self, sim_data):
-		# self._timeStepSec = self._timeStepSec
+		# Combine all levels of processes
+		all_processes = set()
+		for processes in self._processClasses:
+			all_processes.update(processes)
+
 		self.internal_states = _orderedAbstractionReference(self._internalStateClasses)
 		self.external_states = _orderedAbstractionReference(self._externalStateClasses)
-		self.processes = _orderedAbstractionReference(self._processClasses)
+		self.processes = _orderedAbstractionReference(all_processes)
 		self.listeners = _orderedAbstractionReference(self._listenerClasses + DEFAULT_LISTENER_CLASSES)
 		self.hooks = _orderedAbstractionReference(self._hookClasses)
 		self._initLoggers()
@@ -148,9 +152,6 @@ class Simulation(lens.actor.inner.Simulation):
 		self._isDead = False
 		self._finalized = False
 		self.emitter = get_emitter(self._emitter_config)['object']  # get the emitter object
-
-		self.first_processes = {cls.name() for cls in self._first_process_classes}
-		self.second_processes = {cls.name() for cls in self._second_process_classes}
 
 		for state_name, internal_state in self.internal_states.iteritems():
 			# initialize random streams
@@ -262,8 +263,8 @@ class Simulation(lens.actor.inner.Simulation):
 			self._timeTotal += self._timeStepSec
 
 			self._pre_evolve_state()
-			self._evolveState(self.first_processes)
-			self._evolveState(self.second_processes)
+			for processes in self._processClasses:
+				self._evolveState(processes)
 			self._post_evolve_state()
 
 			self.emit()
@@ -308,8 +309,8 @@ class Simulation(lens.actor.inner.Simulation):
 			self._evalTime.updateQueries_times[i] += time.time() - t
 
 		# Calculate requests
-		for i, (process_name, process) in enumerate(self.processes.iteritems()):
-			if process_name in processes:
+		for i, process in enumerate(self.processes.itervalues()):
+			if process.__class__ in processes:
 				t = time.time()
 				process.calculateRequest()
 				self._evalTime.calculateRequest_times[i] += time.time() - t
@@ -321,8 +322,8 @@ class Simulation(lens.actor.inner.Simulation):
 			self._evalTime.partition_times[i] += time.time() - t
 
 		# Simulate submodels
-		for i, (process_name, process) in enumerate(self.processes.iteritems()):
-			if process_name in processes:
+		for i, process in enumerate(self.processes.itervalues()):
+			if process.__class__ in processes:
 				t = time.time()
 				process.evolveState()
 				self._evalTime.evolveState_times[i] += time.time() - t
