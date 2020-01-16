@@ -47,7 +47,7 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 		self.n_mRNAs = len(all_mRNA_ids)
 
 		self.TU_counts_to_mRNA_counts = np.zeros(
-			(self.n_mRNAs, self.n_TUs), dtype=np.int64)
+			(self.n_mRNAs, self.n_TUs), dtype=np.float64)
 
 		TU_id_to_index = {TU_id: i for i, TU_id in enumerate(all_TU_ids)}
 		for i, mRNA_id in enumerate(all_mRNA_ids):
@@ -157,7 +157,7 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 
 			# Get mask for mRNA molecules that produce this protein
 			mask = (TU_index_full_transcripts == self.protein_index_to_TU_index[protein_index])
-			n_mRNAs = mask.sum()
+			n_mRNAs = np.count_nonzero(mask)
 
 			# Distribute ribosomes among these mRNAs
 			n_ribosomes_per_RNA = self.randomState.multinomial(
