@@ -93,6 +93,7 @@ class Complexation(object):
 		self._stoichMatrixI = np.array(stoichMatrixI)
 		self._stoichMatrixJ = np.array(stoichMatrixJ)
 		self._stoichMatrixV = np.array(stoichMatrixV)
+		self._stoichMatrixMass = np.array(stoichMatrixMass)
 
 		self.moleculeNames = molecules
 		self.ids_complexes = [self.moleculeNames[i] for i in np.where(np.any(self.stoichMatrix() > 0, axis=1))[0]]
@@ -102,10 +103,6 @@ class Complexation(object):
 		self.subunitNames = set(subunits)
 		self.complexNames = set(complexes)
 
-		# Mass balance matrix
-		self._stoichMatrixMass = np.array(stoichMatrixMass)
-		self.balanceMatrix = self.stoichMatrix()*self.massMatrix()
-
 		# Create sparse matrix for monomer to complex stoichiometry
 		i, j, v, shape = self._buildStoichMatrixMonomers()
 		self._stoichMatrixMonomersI = i
@@ -113,10 +110,10 @@ class Complexation(object):
 		self._stoichMatrixMonomersV = v
 		self._stoichMatrixMonomersShape = shape
 
-		# Find the mass balance of each equation in the balanceMatrix
-		massBalanceArray = self.massBalance()
-
+		# Mass balance matrix
 		# All reaction mass balances should balance out to numerical zero
+		balanceMatrix = self.stoichMatrix()*self.massMatrix()
+		massBalanceArray = np.sum(balanceMatrix, axis=0)
 		assert np.max(np.absolute(massBalanceArray)) < 1e-8  # had to bump this up to 1e-8 because of flagella supercomplex
 
 	def stoichMatrix(self):
@@ -139,13 +136,6 @@ class Complexation(object):
 		out = np.zeros(shape, np.float64)
 		out[self._stoichMatrixI, self._stoichMatrixJ] = self._stoichMatrixMass
 		return out
-
-	def massBalance(self):
-		'''
-		Sum along the columns of the massBalance matrix to check for reaction
-		mass balance
-		'''
-		return np.sum(self.balanceMatrix, axis=0)
 
 	def stoichMatrixMonomers(self):
 		"""
