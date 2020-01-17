@@ -433,15 +433,14 @@ class RnaDegradation(wholecell.processes.process.Process):
 		n_rnas_to_degrade = np.zeros_like(rna_counts)
 		remaining_rna_counts = rna_counts
 
-		if rna_counts.sum() != 0:
-			while n_rnas_to_degrade.sum() < n_total_rnas_to_degrade:
-				n_rnas_to_degrade += np.fmin(
-					self.randomState.multinomial(
-						n_total_rnas_to_degrade - n_rnas_to_degrade.sum(),
-						rna_deg_probs
-						),
-					remaining_rna_counts
-					)
-				remaining_rna_counts = rna_counts - n_rnas_to_degrade
+		while n_rnas_to_degrade.sum() < n_total_rnas_to_degrade and remaining_rna_counts.sum() != 0:
+			n_rnas_to_degrade += np.fmin(
+				self.randomState.multinomial(
+					n_total_rnas_to_degrade - n_rnas_to_degrade.sum(),
+					rna_deg_probs
+					),
+				remaining_rna_counts
+				)
+			remaining_rna_counts = rna_counts - n_rnas_to_degrade
 
 		return n_rnas_to_degrade
