@@ -15,6 +15,7 @@ __all__ = [
 	]
 
 SUPPORTED_COMPRESSION_TYPES = (tw.COMPRESSION_TYPE_NONE, tw.COMPRESSION_TYPE_ZLIB)
+SUBCOLUMNS_KEY = "subcolumns"
 
 
 class TableReaderError(Exception):
@@ -242,6 +243,29 @@ class TableReader(object):
 			ndarray: A writable 0D, 1D, or 2D array.
 		'''
 		return self.readColumn2D(name, indices).squeeze()
+
+	def readSubcolumn(self, column, subcolumn_name):
+		# type: (str, str, str, str) -> np.ndarray
+		"""Read in a subcolumn from a table by name
+
+		Each column of a table is a 2D matrix. The SUBCOLUMNS_KEY attribute
+		defines a map from column name to a name for an attribute that
+		stores a list of names such that the i-th name describes the i-th
+		subcolumn.
+
+		Arguments:
+			column: Name of the column.
+			subcolumn_name: Name of the ID or object associated with the
+				desired subcolumn.
+
+		Returns:
+			The subcolumn, as a 1-dimensional array.
+		"""
+		subcol_name_map = self.readAttribute(SUBCOLUMNS_KEY)
+		subcols = self.readAttribute(subcol_name_map[column])
+		index = subcols.index(subcolumn_name)
+		return self.readColumn2D(column, [index])[:, 0]
+
 
 
 	def allAttributeNames(self):

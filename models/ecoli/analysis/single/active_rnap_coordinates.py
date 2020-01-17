@@ -152,7 +152,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		plt.tight_layout()
 
-		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+		exportFigure(plt, plotOutDir, plotOutFileName, metadata, extension='.pdf')
 		plt.close('all')
 
 

@@ -16,7 +16,7 @@ from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
 
 from wholecell.io.tablereader import TableReader
-from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from models.ecoli.analysis import singleAnalysisPlot
 
 
@@ -38,16 +38,13 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		replication_reader = TableReader(
 			os.path.join(simOutDir, "ReplicationData")
 			)
-		bulk_molecules_reader = TableReader(
-			os.path.join(simOutDir, "BulkMolecules")
-			)
 		main_reader = TableReader(
 			os.path.join(simOutDir, "Main")
 			)
 
 		# Load counts of DNA polymerases, active replisomes, and OriC's
 		unique_molecule_ids = [
-			"active_replisome", "originOfReplication"]
+			"active_replisome", 'oriC']
 		unique_molecule_idx = np.array([unique_molecule_counts_reader.readAttribute(
 			"uniqueMoleculeIds").index(x) for x in unique_molecule_ids])
 		unique_molecule_counts = unique_molecule_counts_reader.readColumn(
@@ -70,11 +67,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			)
 
 		# Load counts of replisome subunits
-		moleculeIds = bulk_molecules_reader.readAttribute("objectNames")
-		replisome_subunit_idx = np.array([moleculeIds.index(x)
-			for x in replisome_subunit_ids])
-		replisome_subunit_counts = bulk_molecules_reader.readColumn(
-			"counts")[:, replisome_subunit_idx]
+		(replisome_subunit_counts,) = read_bulk_molecule_counts(simOutDir, (replisome_subunit_ids,))
 
 		# Load time data
 		initialTime = main_reader.readAttribute("initialTime")

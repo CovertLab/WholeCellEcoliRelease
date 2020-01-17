@@ -16,7 +16,7 @@ from matplotlib import pyplot as plt
 import cPickle
 
 from wholecell.io.tablereader import TableReader
-from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from models.ecoli.analysis import singleAnalysisPlot
 
 
@@ -35,27 +35,21 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
-		rnaIds = sim_data.process.transcription.rnaData["id"][sim_data.relation.rnaIndexToMonomerMapping]
 
 		proteinIds = sim_data.process.translation.monomerData["id"]
+		rnaIds = sim_data.process.translation.monomerData["rnaId"]
 
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		bulkMoleculeCounts = bulkMolecules.readColumn("counts")
+		mRNA_counts_reader = TableReader(os.path.join(simOutDir, 'mRNACounts'))
+		mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
+		all_mRNA_idx = {rna: i for i, rna in enumerate(mRNA_counts_reader.readAttribute('mRNA_ids'))}
 
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
+		rnaIndexes = np.array([all_mRNA_idx[moleculeId] for moleculeId in rnaIds], np.int)
+		rnaCountsBulk = mRNA_counts[:, rnaIndexes]
 
-		rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
+		(proteinCountsBulk,) = read_bulk_molecule_counts(simOutDir, (proteinIds,))
 
-		rnaCountsBulk = bulkMoleculeCounts[:, rnaIndexes]
-
-		proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in proteinIds], np.int)
-
-		proteinCountsBulk = bulkMoleculeCounts[:, proteinIndexes]
-
-		bulkMolecules.close()
-
-		relativeMRnaCounts = rnaCountsBulk[-1, :] #/ rnaCountsBulk[-1, :].sum()
-		relativeProteinCounts = proteinCountsBulk[-1, :] #/ proteinCountsBulk[-1, :].sum()
+		relativeMRnaCounts = rnaCountsBulk[-1, :]
+		relativeProteinCounts = proteinCountsBulk[-1, :]
 
 		plt.figure(figsize = (8.5, 11))
 
@@ -63,8 +57,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		plt.xlabel("RNA count (at final time step)")
 		plt.ylabel("Protein count (at final time step)")
-
-		# plt.show()
 
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close("all")

@@ -26,16 +26,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		if not os.path.exists(plotOutDir):
 			os.mkdir(plotOutDir)
 
-		# bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		#
-		# moleculeIds = bulkMolecules.readAttribute("objectNames")
-		#
-		# RIBOSOME_RNA_IDS = ["RRLA-RRNA[c]", "RRSA-RRNA[c]", "RRFA-RRNA[c]"]
-		# ribosomeRnaIndexes = np.array([moleculeIds.index(rRnaId) for rRnaId in RIBOSOME_RNA_IDS], np.int)
-		# ribosomeRnaCountsBulk = bulkMolecules.readColumn("counts")[:, ribosomeRnaIndexes]
-
 		uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
-		ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRibosome")
+		ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index('active_ribosome')
 
 		main_reader = TableReader(os.path.join(simOutDir, "Main"))
 		initialTime = main_reader.readAttribute("initialTime")

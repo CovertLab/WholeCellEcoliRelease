@@ -1,5 +1,8 @@
 from __future__ import absolute_import, division, print_function
 
+# Enable segmentation and other fault handling for tracebacks
+import faulthandler; faulthandler.enable()
+
 from .initRawData import InitRawDataTask
 from .fitSimData import FitSimDataTask
 from .variantSimData import VariantSimDataTask

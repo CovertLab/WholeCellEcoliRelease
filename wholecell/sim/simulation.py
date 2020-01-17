@@ -234,6 +234,9 @@ class Simulation(lens.actor.inner.Simulation):
 		finally:
 			self.finalize()
 
+		if self._raise_on_time_limit and not self._cellCycleComplete:
+			raise SimulationException('Simulation time limit reached without cell division')
+
 	def run_incremental(self, run_until):
 		"""
 		Run the simulation for a given amount of time.
@@ -281,9 +284,6 @@ class Simulation(lens.actor.inner.Simulation):
 				logger.finalize(self)
 
 			self._finalized = True
-
-		if self._raise_on_time_limit and not self._cellCycleComplete:
-			raise SimulationException('Simulation time limit reached without cell division')
 
 	# Calculate temporal evolution
 	def _evolveState(self):

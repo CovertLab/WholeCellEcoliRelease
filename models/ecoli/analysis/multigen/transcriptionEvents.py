@@ -1,11 +1,11 @@
 """
 Plots transcription events across multiple generations
-@author: Sam Bray
+
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 2/7/2017
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
-from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from models.ecoli.analysis import multigenAnalysisPlot
 
 N_GENES_TO_PLOT = -1
@@ -37,10 +37,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		rnaIds = sim_data.process.transcription.rnaData["id"]
 		isMRna = sim_data.process.transcription.rnaData["isMRna"]
-		synthProb = sim_data.process.transcription.rnaSynthProb["basal"]
 		mRnaIndexes = np.where(isMRna)[0]
-
-		mRnaSynthProb = np.array([synthProb[x] for x in mRnaIndexes])
 		mRnaIds = np.array([rnaIds[x] for x in mRnaIndexes])
 
 		# Get whether or not mRNAs were transcribed
@@ -59,12 +56,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			rnaSynthProb.close()
 			simulatedSynthProbs.append(simulatedSynthProb)
 
-			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-			moleculeIds = bulkMolecules.readAttribute("objectNames")
-			mol_indices = {mol: i for i, mol in enumerate(moleculeIds)}
-			mRnaIndexes_bulk = np.array([mol_indices[x] for x in mRnaIds])
-			moleculeCounts = bulkMolecules.readColumn("counts")[:, mRnaIndexes_bulk]
-			bulkMolecules.close()
+			mRNA_counts_reader = TableReader(
+				os.path.join(simOutDir, 'mRNACounts'))
+			moleculeCounts = mRNA_counts_reader.readColumn("mRNA_counts")
 			moleculeCountsSumOverTime = moleculeCounts.sum(axis = 0)
 			mRnasTranscribed = np.array([x != 0 for x in moleculeCountsSumOverTime])
 			transcribedBool.append(mRnasTranscribed)
@@ -84,9 +78,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		indexingOrder = np.argsort(np.mean(simulatedSynthProbs, axis = 0))
 		transcribedBoolOrdered = np.mean(transcribedBool, axis = 0)[indexingOrder]
-		simulatedSynthProbsOrdered = np.mean(simulatedSynthProbs, axis = 0)[indexingOrder]
 		transcriptionEventsOrdered = transcriptionEvents[:, indexingOrder]
-		mRnaIdsOrdered = mRnaIds[indexingOrder]
 
 		alwaysPresentIndexes = np.where(transcribedBoolOrdered == 1.)[0]
 		neverPresentIndexes = np.where(transcribedBoolOrdered == 0.)[0]
@@ -120,13 +112,11 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		# Plot
 		blue = [0, 0, 1]
 		green = [0, 0.5, 0]
-		red = [1, 0, 0]
 
 		fig = plt.figure(figsize = (12, 8))
 		alwaysAxis = plt.subplot(2, 1, 1)
 		sometimesAxis = plt.subplot(2, 1, 2)
 
-		# alwaysAxis.set_title("Transcription initiation events", fontsize = 10)
 		alwaysAxis.eventplot(always, orientation = "horizontal", linewidths = 2., linelengths = 1., colors = [blue])
 		alwaysAxis.set_ylabel("Frequency == 1", fontsize = 12)
 		alwaysAxis.set_xlim([0, time[-1] / 3600.])
@@ -146,18 +136,10 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		sometimesAxis.set_xticks([0, time[-1] / 3600.])
 		sometimesAxis.set_xlabel("Time (hour)", fontsize = 12)
 
-
-		# neverAxis.eventplot(never, orientation = "horizontal", linewidths = 2., linelengths = 1., colors = [red])
-		# neverAxis.set_ylabel("Never present", fontsize = 10)
-		# neverAxis.set_xlabel("Time (hour)", fontsize = 10)
-		# neverAxis.set_yticks([])
-		# neverAxis.tick_params(top = False)
-		# neverAxis.set_ylim([-1, np.max([N_GENES_TO_PLOT, len(never)])])
-		# neverAxis.tick_params(which = 'both', direction = 'out', labelsize = 12)
-
 		plt.subplots_adjust(wspace = 0.4, hspace = 0, right = 0.9, bottom = 0.1, left = 0.1, top = 0.9)
 
-		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+		# Only save .png - vectorized formats (.pdf and .svg) are extremely slow
+		exportFigure(plt, plotOutDir, plotOutFileName, metadata, extension='.png', dpi=600)
 		plt.close("all")
 
 

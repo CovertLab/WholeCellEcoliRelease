@@ -1,12 +1,11 @@
 """
 Plots frequency of observing at least 1 transcript during a cell's life.
 
-@author: Heejo Choi
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 1/10/2017
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
@@ -19,7 +18,7 @@ import bokeh.io
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
-from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from models.ecoli.analysis import multigenAnalysisPlot
 
 
@@ -39,10 +38,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		rnaIds = sim_data.process.transcription.rnaData["id"]
 		isMRna = sim_data.process.transcription.rnaData["isMRna"]
-		synthProb = sim_data.process.transcription.rnaSynthProb["basal"]
 		mRnaIds = np.where(isMRna)[0]
-
-		mRnaSynthProb = np.array([synthProb[x] for x in mRnaIds])
 		mRnaNames = np.array([rnaIds[x] for x in mRnaIds])
 
 		# Get whether or not mRNAs were transcribed
@@ -56,16 +52,11 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			rnaSynthProb.close()
 			simulatedSynthProbs.append(simulatedSynthProb)
 
-			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-			moleculeIds = bulkMolecules.readAttribute("objectNames")
-			mRnaIndexes = np.array([moleculeIds.index(x) for x in mRnaNames])
-			moleculeCounts = bulkMolecules.readColumn("counts")[:, mRnaIndexes]
-			bulkMolecules.close()
-
+			mRNA_counts_reader = TableReader(
+				os.path.join(simOutDir, 'mRNACounts'))
+			moleculeCounts = mRNA_counts_reader.readColumn("mRNA_counts")
 			moleculeCountsSumOverTime = moleculeCounts.sum(axis = 0)
 			mRnasTranscribed = np.array([x != 0 for x in moleculeCountsSumOverTime])
-
-			mRnasTranscribedNames = [mRnaNames[x] for x in np.arange(mRnaNames.shape[0]) if mRnasTranscribed[x]]
 			transcribedBool.append(mRnasTranscribed)
 
 		transcribedBool = np.array(transcribedBool)

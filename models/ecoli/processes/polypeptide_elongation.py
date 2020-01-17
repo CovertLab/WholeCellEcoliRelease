@@ -64,7 +64,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.trpAIndex = np.where(proteinIds == "TRYPSYN-APROTEIN[c]")[0][0]
 
 		# Create view onto actively elongating 70S ribosomes
-		self.active_ribosomes = self.uniqueMoleculesView('activeRibosome')
+		self.active_ribosomes = self.uniqueMoleculesView('active_ribosome')
 
 		# Create views onto 30S and 50S ribosomal subunits for termination
 		self.ribosome30S = self.bulkMoleculeView(sim_data.moleculeIds.s30_fullComplex)
@@ -123,7 +123,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		# Build sequences to request appropriate amount of amino acids to
 		# polymerize for next timestep
 		proteinIndexes, peptideLengths = self.active_ribosomes.attrs(
-			'proteinIndex', 'peptideLength'
+			'protein_index', 'peptide_length'
 			)
 
 		self.elongation_rates = self.make_elongation_rates(
@@ -184,14 +184,14 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			return
 
 		# Build amino acids sequences for each ribosome to polymerize
-		proteinIndexes, peptideLengths = self.active_ribosomes.attrs(
-			'proteinIndex', 'peptideLength'
+		protein_indexes, peptide_lengths, positions_on_mRNA = self.active_ribosomes.attrs(
+			'protein_index', 'peptide_length', 'pos_on_mRNA'
 			)
 
 		sequences = buildSequences(
 			self.proteinSequences,
-			proteinIndexes,
-			peptideLengths,
+			protein_indexes,
+			peptide_lengths,
 			self.elongation_rates)
 
 		if sequences.size == 0:
@@ -211,45 +211,48 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 			aa_counts_for_translation,
 			10000000, # Set to a large number, the limit is now taken care of in metabolism
 			self.randomState,
-			self.elongation_rates[proteinIndexes])
+			self.elongation_rates[protein_indexes])
 
-		sequenceElongations = result.sequenceElongation
+		sequence_elongations = result.sequenceElongation
 		aas_used = result.monomerUsages
 		nElongations = result.nReactions
 
 		# Update masses of ribosomes attached to polymerizing polypeptides
 		added_protein_mass = computeMassIncrease(
 			sequences,
-			sequenceElongations,
+			sequence_elongations,
 			self.aaWeightsIncorporated
 			)
 
-		updatedLengths = peptideLengths + sequenceElongations
+		updated_lengths = peptide_lengths + sequence_elongations
+		updated_positions_on_mRNA = positions_on_mRNA + 3*sequence_elongations
 
 		didInitialize = (
-			(sequenceElongations > 0) &
-			(peptideLengths == 0)
+			(sequence_elongations > 0) &
+			(peptide_lengths == 0)
 			)
 
 		added_protein_mass[didInitialize] += self.endWeight
 
 		# Write current average elongation to listener
-		currElongRate = (sequenceElongations.sum() / n_active_ribosomes) / self.timeStepSec()
+		currElongRate = (sequence_elongations.sum() / n_active_ribosomes) / self.timeStepSec()
 		self.writeToListener("RibosomeData", "effectiveElongationRate", currElongRate)
 
 		# Update active ribosomes, terminating if necessary
-		self.active_ribosomes.attrIs(peptideLength = updatedLengths)
+		self.active_ribosomes.attrIs(
+			peptide_length=updated_lengths,
+			pos_on_mRNA=updated_positions_on_mRNA)
 		self.active_ribosomes.add_submass_by_name("protein", added_protein_mass)
 
 		# Ribosomes that reach the end of their sequences are terminated and
 		# dissociated into 30S and 50S subunits. The polypeptide that they are polymerizing
 		# is converted into a protein in BulkMolecules
-		terminalLengths = self.proteinLengths[proteinIndexes]
+		terminalLengths = self.proteinLengths[protein_indexes]
 
-		didTerminate = (updatedLengths == terminalLengths)
+		didTerminate = (updated_lengths == terminalLengths)
 
 		terminatedProteins = np.bincount(
-			proteinIndexes[didTerminate],
+			protein_indexes[didTerminate],
 			minlength = self.proteinSequences.shape[0]
 			)
 
@@ -273,12 +276,12 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("RibosomeData", "aaCountInSequence", aaCountInSequence)
 		self.writeToListener("RibosomeData", "aaCounts", aa_counts_for_translation)
 
-		self.writeToListener("RibosomeData", "actualElongations", sequenceElongations.sum())
-		self.writeToListener("RibosomeData", "actualElongationHist", np.histogram(sequenceElongations, bins = np.arange(0,23))[0])
-		self.writeToListener("RibosomeData", "elongationsNonTerminatingHist", np.histogram(sequenceElongations[~didTerminate], bins=np.arange(0,23))[0])
+		self.writeToListener("RibosomeData", "actualElongations", sequence_elongations.sum())
+		self.writeToListener("RibosomeData", "actualElongationHist", np.histogram(sequence_elongations, bins = np.arange(0,23))[0])
+		self.writeToListener("RibosomeData", "elongationsNonTerminatingHist", np.histogram(sequence_elongations[~didTerminate], bins=np.arange(0,23))[0])
 
 		self.writeToListener("RibosomeData", "didTerminate", didTerminate.sum())
-		self.writeToListener("RibosomeData", "terminationLoss", (terminalLengths - peptideLengths)[didTerminate].sum())
+		self.writeToListener("RibosomeData", "terminationLoss", (terminalLengths - peptide_lengths)[didTerminate].sum())
 		self.writeToListener("RibosomeData", "numTrpATerminated", terminatedProteins[self.trpAIndex])
 
 		self.writeToListener("RibosomeData", "processElongationRate", self.ribosomeElongationRate / self.timeStepSec())
@@ -492,7 +495,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		# Adjust aa_supply higher if amino acid concentrations are low
 		# Improves stability of charging and mimics amino acid synthesis
 		# inhibition and export
-		# TODO (Travis: environmentView should probably handle this check
+		# TODO (Travis): environmentView should probably handle this check
 		aa_in_media = self.aa_environment.totalConcentrations() > self.process.import_threshold
 		# TODO (Travis): add to listener?
 		self.process.aa_supply *= self.aa_supply_scaling(aa_conc, aa_in_media)
@@ -521,7 +524,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 			spot_conc = self.counts_to_molar * self.spot.total_counts()[0]
 			delta_metabolites, _, _, _, _, _ = self.ppgpp_metabolite_changes(
 				updated_uncharged_trna_conc, updated_charged_trna_conc, ribosome_conc,
-				f, rela_conc, spot_conc, ppgpp_conc, self.counts_to_molar, request=True
+				f, rela_conc, spot_conc, ppgpp_conc, self.counts_to_molar, v_rib, request=True
 			)
 
 			request_ppgpp_metabolites = -delta_metabolites
@@ -558,6 +561,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		# Create ppGpp
 		## Concentrations of interest
 		if self.process.ppgpp_regulation:
+			v_rib = (nElongations * self.counts_to_molar).asNumber(MICROMOLAR_UNITS) / self.process.timeStepSec()
 			ribosome_conc = self.counts_to_molar * self.process.active_ribosomes.total_counts()[0]
 			updated_uncharged_trna_counts = self.uncharged_trna.total_counts() - net_charged
 			updated_charged_trna_counts = self.charged_trna.total_counts() + net_charged
@@ -573,7 +577,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 			limits = self.ppgpp_reaction_metabolites.counts()
 			delta_metabolites, ppgpp_syn, ppgpp_deg, rela_syn, spot_syn, spot_deg = self.ppgpp_metabolite_changes(
 				uncharged_trna_conc, charged_trna_conc,	ribosome_conc, f, rela_conc,
-				spot_conc, ppgpp_conc, self.counts_to_molar, limits=limits,
+				spot_conc, ppgpp_conc, self.counts_to_molar, v_rib, limits=limits,
 				)
 
 			self.process.writeToListener('GrowthLimits', 'rela_syn', rela_syn)
@@ -758,7 +762,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 
 	def ppgpp_metabolite_changes(self, uncharged_trna_conc, charged_trna_conc,
 			ribosome_conc, f, rela_conc, spot_conc, ppgpp_conc, counts_to_molar,
-			request=False, limits=None):
+			v_rib, request=False, limits=None):
 		'''
 		Calculates the changes in metabolite counts based on ppGpp synthesis and
 		degradation reactions.
@@ -776,6 +780,8 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 			ppgpp_conc (float with concentration units): concentration of ppGpp
 			counts_to_molar (float with concentration units): conversion factor
 				from counts to molarity
+			v_rib (float): rate of amino acid incorporation at the ribosome,
+				in units of uM/s
 			request (bool): if True, only considers reactant stoichiometry,
 				otherwise considers reactants and products. For use in
 				calculateRequest. GDP appears as both a reactant and product
@@ -803,8 +809,11 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		ppgpp_conc = ppgpp_conc.asNumber(MICROMOLAR_UNITS)
 		counts_to_micromolar = counts_to_molar.asNumber(MICROMOLAR_UNITS)
 
-		numerator_ribosome = 1 + np.sum(f * (self.krta / charged_trna_conc + uncharged_trna_conc / charged_trna_conc * self.krta / self.krtf))
-		ribosomes_bound_to_uncharged = ribosome_conc * (f * uncharged_trna_conc / charged_trna_conc * self.krta / self.krtf) / numerator_ribosome
+		numerator = 1 + charged_trna_conc / self.krta + uncharged_trna_conc / self.krtf
+		saturated_charged = charged_trna_conc / self.krta / numerator
+		saturated_uncharged = uncharged_trna_conc / self.krtf / numerator
+		fraction_a_site = f * v_rib / (saturated_charged * self.maxRibosomeElongationRate)
+		ribosomes_bound_to_uncharged = fraction_a_site * saturated_uncharged
 
 		# Handle rare cases when tRNA concentrations are 0
 		# Can result in inf and nan so assume a fraction of ribosomes
@@ -835,8 +844,9 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		# Calculate the change in metabolites and adjust to limits if provided
 		# Possible reactions are adjusted down to limits if the change in any
 		# metabolites would result in negative counts
+		max_iterations = int(n_deg_reactions + n_syn_reactions + 1)
 		old_counts = None
-		while True:
+		for it in range(max_iterations):
 			delta_metabolites = (ppgpp_reaction_stoich[:, self.synthesis_index] * n_syn_reactions
 				+ ppgpp_reaction_stoich[:, self.degradation_index] * n_deg_reactions)
 
@@ -857,5 +867,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 					n_deg_reactions -= min(limited, n_deg_reactions)
 
 				old_counts = final_counts
+		else:
+			raise ValueError('Failed to meet molecule limits with ppGpp reactions.')
 
 		return delta_metabolites, n_syn_reactions, n_deg_reactions, v_rela_syn, v_spot_syn, v_deg

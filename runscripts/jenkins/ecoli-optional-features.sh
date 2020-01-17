@@ -19,7 +19,14 @@ PYTHONPATH=$PWD DESC="No tRNA Charging" SINGLE_DAUGHTERS=1 N_GENS=8 TRNA_CHARGIN
 PYTHONPATH=$PWD DESC="ppGpp regulation" PPGPP_REGULATION=1 SINGLE_DAUGHTERS=1 N_GENS=8 COMPRESS_OUTPUT=1 PLOTS=ACTIVE RAISE_ON_TIME_LIMIT=1 python runscripts/fireworks/fw_queue.py
 PYTHONPATH=$PWD DESC="Causality Network" SINGLE_DAUGHTERS=1 N_GENS=2 BUILD_CAUSALITY_NETWORK=1 COMPRESS_OUTPUT=1 RAISE_ON_TIME_LIMIT=1 python runscripts/fireworks/fw_queue.py
 
-PYTHONPATH=$PWD rlaunch rapidfire --nlaunches 0
+# Commented rapidfire command below produces seg fault after 2 hr and 10 min (see #764)
+# Could replace singleshot loop with rapidfire if fixed
+# Singleshot might seg fault as well for long single tasks over 2 hr and 10 min
+
+# PYTHONPATH=$PWD rlaunch rapidfire --nlaunches 0
+while [ $(lpad get_fws -s READY -d count) -ge 1 ]; do
+  PYTHONPATH=$PWD rlaunch singleshot
+done
 
 N_FAILS=$(lpad get_fws -s FIZZLED -d count)
 

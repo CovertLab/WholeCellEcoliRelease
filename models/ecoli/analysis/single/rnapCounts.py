@@ -14,7 +14,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from wholecell.io.tablereader import TableReader
-from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from models.ecoli.analysis import singleAnalysisPlot
 
 
@@ -26,23 +26,23 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		if not os.path.exists(plotOutDir):
 			os.mkdir(plotOutDir)
 
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		bulkMoleculeCounts = bulkMolecules.readColumn("counts")
+		rnapId = ["APORNAP-CPLX[c]"]
+		(rnapCountsBulk,) = read_bulk_molecule_counts(simOutDir, (rnapId,))
 
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
-		rnapId = "APORNAP-CPLX[c]"
-		rnapIndex = moleculeIds.index(rnapId)
-		rnapCountsBulk = bulkMoleculeCounts[:, rnapIndex]
+		mRNA_counts_reader = TableReader(os.path.join(simOutDir, 'mRNACounts'))
+		mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
+		mRNA_idx = {rna: i for i, rna in enumerate(mRNA_counts_reader.readAttribute('mRNA_ids'))}
 
-		RNAP_RNA_IDS = ["EG10893_RNA[c]", "EG10894_RNA[c]", "EG10895_RNA[c]", "EG10896_RNA[c]"]
-		rnapRnaIndexes = np.array([moleculeIds.index(rnapRnaId) for rnapRnaId in RNAP_RNA_IDS], np.int)
-		rnapRnaCounts = bulkMoleculeCounts[:, rnapRnaIndexes]
+		RNAP_RNA_IDS = [
+			"EG10893_RNA[c]", "EG10894_RNA[c]",
+			"EG10895_RNA[c]", "EG10896_RNA[c]"]
 
-		bulkMolecules.close()
+		rnapRnaIndexes = np.array([mRNA_idx[rnapRnaId] for rnapRnaId in RNAP_RNA_IDS], np.int)
+		rnapRnaCounts = mRNA_counts[:, rnapRnaIndexes]
 
 		uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
 
-		rnapIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index("activeRnaPoly")
+		rnapIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index('active_RNAP')
 
 		main_reader = TableReader(os.path.join(simOutDir, "Main"))
 		initialTime = main_reader.readAttribute("initialTime")

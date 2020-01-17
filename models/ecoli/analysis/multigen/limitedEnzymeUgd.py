@@ -41,19 +41,21 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		transcriptionFreq = 0.64
 		metaboliteId = "UDP-GLUCURONATE[c]"
 
-		rnaIds = sim_data.process.transcription.rnaData["id"]
-		isMRna = sim_data.process.transcription.rnaData["isMRna"]
-		mRnaIndexes = np.where(isMRna)[0]
-		mRnaIds = np.array([rnaIds[x] for x in mRnaIndexes])
-
 		simOutDir = os.path.join(allDir[0], "simOut")
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		moleculeIds = bulkMolecules.readAttribute("objectNames")
 		enzymeComplexIndex = moleculeIds.index(enzymeComplexId)
 		enzymeMonomerIndex = moleculeIds.index(enzymeMonomerId)
-		enzymeRnaIndex = moleculeIds.index(enzymeRnaId)
 		metaboliteIndex = moleculeIds.index(metaboliteId)
-		bulkMolecules.close()
+
+		mRNA_counts_reader = TableReader(
+			os.path.join(simOutDir, 'mRNACounts'))
+		all_mRNA_ids = mRNA_counts_reader.readAttribute('mRNA_ids')
+		enzymeRnaIndex = all_mRNA_ids.index(enzymeRnaId)
+
+		rnapDataReader = TableReader(os.path.join(simOutDir, "RnapData"))
+		rnap_data_rna_ids = rnapDataReader.readAttribute('rnaIds')
+		enzyme_RNA_index_rnap_data = rnap_data_rna_ids.index(enzymeRnaId)
 
 		time = []
 		enzymeFluxes = []
@@ -72,19 +74,20 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			moleculeCounts = bulkMolecules.readColumn("counts")
 			enzymeComplexCounts += moleculeCounts[:, enzymeComplexIndex].tolist()
 			enzymeMonomerCounts += moleculeCounts[:, enzymeMonomerIndex].tolist()
-			enzymeRnaCounts += moleculeCounts[:, enzymeRnaIndex].tolist()
 			metaboliteCounts += moleculeCounts[:, metaboliteIndex].tolist()
-			bulkMolecules.close()
+
+			mRNA_counts_reader = TableReader(
+				os.path.join(simOutDir, 'mRNACounts'))
+			mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
+			enzymeRnaCounts += mRNA_counts[:, enzymeRnaIndex].tolist()
 
 			fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 			reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
 			reactionFluxes = np.array(fbaResults.readColumn("reactionFluxes"))
 			enzymeFluxes += reactionFluxes[:, np.where(reactionIDs == reactionId)[0][0]].tolist()
-			fbaResults.close()
 
 			rnapDataReader = TableReader(os.path.join(simOutDir, "RnapData"))
-			enzymeRnaInitEvent += rnapDataReader.readColumn("rnaInitEvent")[:, np.where(mRnaIds == enzymeRnaId)[0][0]].tolist()
-			rnapDataReader.close()
+			enzymeRnaInitEvent += rnapDataReader.readColumn("rnaInitEvent")[:, enzyme_RNA_index_rnap_data].tolist()
 
 		time = np.array(time)
 

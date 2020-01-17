@@ -1,12 +1,11 @@
 """
 Plots frequency of observing at least 1 transcript during a cell's life.
 
-@author: Heejo Choi
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 1/31/2017
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
@@ -17,7 +16,7 @@ import matplotlib.patches as patches
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
-from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from models.ecoli.analysis import multigenAnalysisPlot
 
 N_GENES_TO_PLOT = -1
@@ -42,10 +41,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		rnaIds = sim_data.process.transcription.rnaData["id"]
 		isMRna = sim_data.process.transcription.rnaData["isMRna"]
-		synthProb = sim_data.process.transcription.rnaSynthProb["basal"]
 		mRnaIndexes = np.where(isMRna)[0]
-
-		mRnaSynthProb = np.array([synthProb[x] for x in mRnaIndexes])
 		mRnaIds = np.array([rnaIds[x] for x in mRnaIndexes])
 
 		# Get whether or not mRNAs were transcribed
@@ -63,11 +59,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			rnaSynthProb.close()
 			simulatedSynthProbs.append(simulatedSynthProb)
 
-			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-			moleculeIds = bulkMolecules.readAttribute("objectNames")
-			mRnaIndexes_bulk = np.array([moleculeIds.index(x) for x in mRnaIds])
-			moleculeCounts = bulkMolecules.readColumn("counts")[:, mRnaIndexes_bulk]
-			bulkMolecules.close()
+			mRNA_counts_reader = TableReader(
+				os.path.join(simOutDir, 'mRNACounts'))
+			moleculeCounts = mRNA_counts_reader.readColumn("mRNA_counts")
 			moleculeCountsSumOverTime = moleculeCounts.sum(axis = 0)
 			mRnasTranscribed = np.array([x != 0 for x in moleculeCountsSumOverTime])
 			transcribedBool.append(mRnasTranscribed)
@@ -87,7 +81,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		indexingOrder = np.argsort(np.mean(simulatedSynthProbs, axis = 0))
 		transcribedBoolOrdered = np.mean(transcribedBool, axis = 0)[indexingOrder]
-		simulatedSynthProbsOrdered = np.mean(simulatedSynthProbs, axis = 0)[indexingOrder]
 		transcriptionEventsOrdered = transcriptionEvents[:, indexingOrder]
 		mRnaIdsOrdered = mRnaIds[indexingOrder]
 
@@ -101,8 +94,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		# Assemble data
 		alwaysTranscriptionEvents_E = []
 		alwaysTranscriptionEvents_N = []
-		alwaysId_E = []
-		alwaysId_N = []
 		for i in alwaysPresentIndexes:
 			v = (time[transcriptionEventsOrdered[:, i]] / 3600.).tolist()
 			if transcriptionEventsOrdered[:, i].sum() == 0:
@@ -199,7 +190,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		neverAxis.text(neverAxis.get_xlim()[1] * 1.02, len(neverTranscriptionEvents_N) + len(neverTranscriptionEvents_E) * 0.5, "%s essential\ngenes" % len(neverTranscriptionEvents_E), fontsize = 10, verticalalignment = "center")
 
 		plt.subplots_adjust(wspace = 0.4, hspace = 0.4, right = 0.83, bottom = 0.05, left = 0.07, top = 0.95)
-		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+
+		# Only save .png - vectorized formats (.pdf and .svg) are extremely slow
+		exportFigure(plt, plotOutDir, plotOutFileName, metadata, extension='.png', dpi=600)
 		plt.close("all")
 
 

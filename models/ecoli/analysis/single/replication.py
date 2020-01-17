@@ -59,7 +59,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		unique_molecule_counts_reader = TableReader(
 			os.path.join(simOutDir, "UniqueMoleculeCounts"))
 		full_chromosome_index = unique_molecule_counts_reader.readAttribute(
-			"uniqueMoleculeIds").index("fullChromosome")
+			"uniqueMoleculeIds").index('full_chromosome')
 		full_chromosome_counts = unique_molecule_counts_reader.readColumn(
 			"uniqueMoleculeCounts")[:, full_chromosome_index]
 

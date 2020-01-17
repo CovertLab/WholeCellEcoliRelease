@@ -40,8 +40,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			sim_data = cPickle.load(f)
 
 		# Read from sim_data
-		rna_ids = sim_data.process.transcription.rnaData["id"].tolist()
-		rna_idx = [rna_ids.index(x + "[c]") for x in RNA_ID_LIST]
+		rna_ids = {rna: i for i, rna in enumerate(sim_data.process.transcription.rnaData["id"])}
+		rna_idx = [rna_ids[x + "[c]"] for x in RNA_ID_LIST]
 		rna_coordinates = sim_data.process.transcription.rnaData[
 			"replicationCoordinate"][rna_idx]
 

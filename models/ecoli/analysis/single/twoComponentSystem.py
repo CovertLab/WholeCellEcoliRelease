@@ -16,7 +16,7 @@ from matplotlib import pyplot as plt
 
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
-from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from models.ecoli.analysis import singleAnalysisPlot
 
 
@@ -38,16 +38,11 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			for idx, moleculeType in enumerate(moleculeTypeOrder):
 				TCS_IDS.append(str(system["molecules"][moleculeType]) + moleculeTypeLocation[idx])
 
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
-		moleculeIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in TCS_IDS], np.int)
-		moleculeCounts = bulkMolecules.readColumn("counts")[:, moleculeIndexes]
+		(moleculeCounts,) = read_bulk_molecule_counts(simOutDir, (TCS_IDS,))
 
 		main_reader = TableReader(os.path.join(simOutDir, "Main"))
 		initialTime = main_reader.readAttribute("initialTime")
 		time = main_reader.readColumn("time") - initialTime
-
-		bulkMolecules.close()
 
 		# Convert molecule counts to concentrations
 		nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / units.mol)

@@ -10,8 +10,12 @@ import mock
 import numpy as np
 
 from wholecell.io.tablereader import TableReader
-from prototypes.behavior_metrics.behavior_metrics import BehaviorMetrics
-from prototypes.behavior_metrics.dependency_graph import (
+from models.ecoli.analysis.single.centralCarbonMetabolismScatter import (
+	FLUX_UNITS)
+from wholecell.utils import units
+from runscripts.metrics.behavior_metrics.behavior_metrics import (
+	BehaviorMetrics)
+from wholecell.utils.dependency_graph import (
 	InvalidDependencyGraphError
 )
 
@@ -32,7 +36,7 @@ class TestParseDataConfig(unittest.TestCase):
 			),
 		)
 		self.mock_tablereader = mock.patch(
-			"prototypes.behavior_metrics.behavior_metrics.TableReader",
+			"runscripts.metrics.behavior_metrics.behavior_metrics.TableReader",
 			return_value=self.mock_reader
 		).start()
 
@@ -92,6 +96,33 @@ class TestParseDataConfig(unittest.TestCase):
 			indexed_order[earlier], indexed_order[later],
 			"{} does not come before {}".format(earlier, later)
 		)
+
+
+class TestUnitParsing:
+
+	def test_single_unit_str(self):
+		parsed = BehaviorMetrics.parse_units_str("L")
+		assert parsed == units.L
+
+	def test_unit_ratio_str(self):
+		parsed = BehaviorMetrics.parse_units_str("g/L")
+		assert parsed == units.g / units.L
+
+	def test_unit_prod_str(self):
+		parsed = BehaviorMetrics.parse_units_str("g*L")
+		assert parsed == units.g * units.L
+
+	def test_unit_mixed_str(self):
+		parsed = BehaviorMetrics.parse_units_str("L*fg/cm/cm/cm")
+		assert parsed == units.L * units.fg / (units.cm ** 3)
+
+	def test_unit_dict_import_constant(self):
+		to_import = (
+			"models.ecoli.analysis.single."
+			"centralCarbonMetabolismScatter.FLUX_UNITS"
+		)
+		parsed = BehaviorMetrics.parse_units_dict({"import": to_import})
+		assert parsed == FLUX_UNITS
 
 
 if __name__ == "__main__":

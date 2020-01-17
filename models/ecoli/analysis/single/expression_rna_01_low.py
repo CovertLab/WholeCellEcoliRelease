@@ -39,7 +39,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		if not os.path.exists(plotOutDir):
 			os.mkdir(plotOutDir)
 
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+		mRNA_counts_reader = TableReader(os.path.join(simOutDir, 'mRNACounts'))
+		mRNA_counts = mRNA_counts_reader.readColumn('mRNA_counts')
+		all_mRNA_idx = {rna: i for i, rna in enumerate(mRNA_counts_reader.readAttribute('mRNA_ids'))}
 
 		rnaIds = [
 			"G7355_RNA[c]", "EG11783_RNA[c]", "G7742_RNA[c]", "G6253_RNA[c]", "EG10632_RNA[c]",
@@ -58,11 +60,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			"ushA - UDP-sugar hydrolase / 5'-ribonucleotidase / 5'-deoxyribonucleotidase",
 		]
 
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
-		rnaIndexes = np.array([moleculeIds.index(x) for x in rnaIds], np.int)
-		rnaCounts = bulkMolecules.readColumn("counts")[:, rnaIndexes]
-
-		bulkMolecules.close()
+		rnaIndexes = np.array([all_mRNA_idx[x] for x in rnaIds], np.int)
+		rnaCounts = mRNA_counts[:, rnaIndexes]
 
 		main_reader = TableReader(os.path.join(simOutDir, "Main"))
 		initialTime = main_reader.readAttribute("initialTime")

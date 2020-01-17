@@ -94,6 +94,7 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		self._pre_evolve_state_mass_index = self._nProcesses
 
 		self.division_mode['active_ribosome'] = sim_data.moleculeGroups.unique_molecules_active_ribosome_division
+		self.division_mode['RNA'] = sim_data.moleculeGroups.unique_molecules_RNA_division
 		self.division_mode['domain_index'] = sim_data.moleculeGroups.unique_molecules_domain_index_division
 
 
@@ -278,10 +279,12 @@ class UniqueMoleculesView(wholecell.views.view.View):
 		Adds nMolecules objects of the same type as the queried molecule to the
 		container with the given attributes.
 		"""
-		self._state.container.add_request(
+		unique_indexes = self._state.container.add_request(
 			type="new_molecule",
 			collectionName=self._query,
 			nObjects=nMolecules,
 			process_index=self._processIndex,
 			attributes=attributes
 			)
+
+		return unique_indexes

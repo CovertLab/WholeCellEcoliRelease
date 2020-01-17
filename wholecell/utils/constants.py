@@ -12,6 +12,7 @@ SERIALIZED_RAW_DATA = "rawData.cPickle"
 SERIALIZED_RAW_VALIDATION_DATA = "rawValidationData.cPickle"
 SERIALIZED_VALIDATION_DATA = "validationData.cPickle"
 SERIALIZED_SIM_DATA_FILENAME = "simData.cPickle"
+SERIALIZED_METRICS_DATA_FILENAME = "metricsData.cPickle"
 SERIALIZED_SIM_DATA_MODIFIED = "simData_Modified.cPickle"
 SERIALIZED_INHERITED_STATE = "Daughter%d_inherited_state.cPickle"
 

@@ -29,7 +29,6 @@ ACTIVE = [
 	"proteinFoldChangeVsRnaDeg.py",
 	"proteinFoldChangeVsTranscriptionEvents.py",
 	"proteinFoldChangeVsTranslationEff.py",
-	"proteomeMassFractions.py",
 	"replication.py",
 	"ribosomeProduction.py",
 	"ribosomeUsage.py",

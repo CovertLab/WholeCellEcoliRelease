@@ -58,10 +58,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		# Get mRNA data
 		rnaIds = sim_data.process.transcription.rnaData["id"]
 		isMRna = sim_data.process.transcription.rnaData["isMRna"]
-		synthProb = sim_data.process.transcription.rnaSynthProb["basal"]
 		mRnaIndexes = np.where(isMRna)[0]
-
-		mRnaSynthProb = np.array([synthProb[x] for x in mRnaIndexes])
 		mRnaIds = np.array([rnaIds[x] for x in mRnaIndexes])
 
 		time = []
@@ -80,21 +77,17 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			rnaSynthProb = TableReader(os.path.join(simOutDir, "RnaSynthProb"))
 			simulatedSynthProb = np.mean(rnaSynthProb.readColumn("rnaSynthProb")[:, mRnaIndexes], axis = 0)
-			rnaSynthProb.close()
 			simulatedSynthProbs.append(simulatedSynthProb)
 
-			bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-			moleculeIds = bulkMolecules.readAttribute("objectNames")
-			mRnaIndexes_bulk = np.array([moleculeIds.index(x) for x in mRnaIds])
-			moleculeCounts = bulkMolecules.readColumn("counts")[:, mRnaIndexes_bulk]
-			bulkMolecules.close()
+			mRNA_counts_reader = TableReader(
+				os.path.join(simOutDir, 'mRNACounts'))
+			moleculeCounts = mRNA_counts_reader.readColumn("mRNA_counts")
 			moleculeCountsSumOverTime = moleculeCounts.sum(axis = 0)
 			mRnasTranscribed = np.array([x != 0 for x in moleculeCountsSumOverTime])
 			transcribedBool.append(mRnasTranscribed)
 
 			rnapDataReader = TableReader(os.path.join(simOutDir, "RnapData"))
 			rnaInitEvent = rnapDataReader.readColumn("rnaInitEvent")[:, mRnaIndexes]
-			rnapDataReader.close()
 
 			if gen == 0:
 				transcriptionEvents = (rnaInitEvent != 0)
