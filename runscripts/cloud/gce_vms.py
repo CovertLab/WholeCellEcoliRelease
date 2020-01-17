@@ -7,6 +7,7 @@
 from __future__ import absolute_import, division, print_function
 
 import argparse
+import errno
 import os
 from pprint import pprint
 import re
@@ -37,10 +38,29 @@ verbose = False
 
 def gcloud_get_config(section_property):
 	# type: (str) -> str
-	"""Get a "section/property" configuration property from the gcloud command
-	line tool. Raise an exception if the property is not configured.
+	"""Get a "section/property" configuration value from the gcloud command line
+	tool. Raise ValueError if the parameter is not set (maybe recoverable), or
+	OSError if `gcloud` isn't installed or doesn't know that configuration
+	parameter (which probably means the SDK needs installing or updating).
 	"""
-	return fp.run_cmd(['gcloud', 'config', 'get-value', str(section_property)])
+	try:
+		out, err = fp.run_cmd2(['gcloud', 'config', 'get-value', str(section_property)])
+		if err == '(unset)':
+			raise ValueError(
+				'The gcloud configuration value "{0}" is unset. You can set it via'
+				' `gcloud config set {0} SOME-VALUE`'.format(section_property))
+		return out
+
+	except subprocess.CalledProcessError as e:
+		if e.stderr:  # e.g. 'ERROR: (gcloud.config.get-value) Section [compute] has no property [zonE].\n'
+			raise OSError(errno.EINVAL, e.stderr.rstrip())
+		raise
+	except OSError as e:
+		raise OSError(
+			e.errno,
+			'{}: "{}" -- You might need to install the Google Cloud SDK and put its'
+			' `gcloud` command line program on your shell path. See {}'.format(
+				e.strerror, e.filename, 'https://cloud.google.com/sdk/install'))
 
 
 def gcp_project():
