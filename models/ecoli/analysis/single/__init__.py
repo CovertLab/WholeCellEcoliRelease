@@ -12,6 +12,7 @@ ACTIVE = [
 	"centralCarbonMetabolismScatter.py",
 	"chromosome_visualization.py",
 	"concentrationDeviation.py",
+	"cotranscriptional_translation.py",
 	"dnaA_box_dynamics.py",
 	"dntpCounts.py",
 	"equilibriumComparison.py",
@@ -139,6 +140,7 @@ TAGS = {
 		"tRnaCounts.py",
 		],
 	'TRANSLATION': [
+		"cotranscriptional_translation.py",
 		"growthLimits.py",
 		"mrnaVsProteinCounts.py",
 		"proteinCounts.py",

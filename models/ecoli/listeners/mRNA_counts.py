@@ -38,18 +38,23 @@ class mRNACounts(wholecell.listeners.listener.Listener):
 		super(mRNACounts, self).allocate()
 
 		self.mRNA_counts = np.zeros(len(self.mRNA_ids), dtype=np.int64)
+		self.full_mRNA_counts = np.zeros(len(self.mRNA_ids), dtype=np.int64)
+		self.partial_mRNA_counts = np.zeros(len(self.mRNA_ids), dtype=np.int64)
 
 	def update(self):
-		# Get TU_index attributes of active mRNAs
+		# Get attributes of mRNAs
 		RNAs = self.uniqueMolecules.container.objectsInCollection('RNA')
-		TU_indexes, is_active = RNAs.attrs('TU_index', 'is_active')
+		TU_indexes, is_active, is_full_transcript = RNAs.attrs(
+			'TU_index', 'is_active', 'is_full_transcript')
 
-		# Get counts of each RNA species
-		all_RNA_counts = np.bincount(
-			TU_indexes[is_active], minlength=len(self.all_RNA_ids))
-
-		# Get counts of mRNAs
-		self.mRNA_counts = all_RNA_counts[self.mRNA_indexes]
+		# Get counts of all mRNAs, full mRNAs, and partial mRNAs
+		self.mRNA_counts = np.bincount(
+			TU_indexes[is_active],
+			minlength=len(self.all_RNA_ids))[self.mRNA_indexes]
+		self.full_mRNA_counts = np.bincount(
+			TU_indexes[np.logical_and(is_active, is_full_transcript)],
+			minlength=len(self.all_RNA_ids))[self.mRNA_indexes]
+		self.partial_mRNA_counts = self.mRNA_counts - self.full_mRNA_counts
 
 	def tableCreate(self, tableWriter):
 		subcolumns = {
@@ -64,4 +69,6 @@ class mRNACounts(wholecell.listeners.listener.Listener):
 			time = self.time(),
 			simulationStep = self.simulationStep(),
 			mRNA_counts = self.mRNA_counts,
+			full_mRNA_counts = self.full_mRNA_counts,
+			partial_mRNA_counts = self.partial_mRNA_counts,
 			)
