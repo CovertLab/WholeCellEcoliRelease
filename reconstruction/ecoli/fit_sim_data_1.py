@@ -28,7 +28,6 @@ from cvxpy import Variable, Problem, Minimize, norm
 
 # Tweaks
 RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
-FRACTION_INCREASE_RIBOSOMAL_PROTEINS = 0.0  # reduce stochasticity from protein expression
 
 # Adjustments to get protein expression for certain enzymes required for metabolism
 TRANSLATION_EFFICIENCIES_ADJUSTMENTS = {
@@ -1007,7 +1006,6 @@ def setInitialRnaExpression(sim_data, expression, doubling_time):
 
 	# Load from sim_data
 	n_avogadro = sim_data.constants.nAvogadro
-	initial_conversion = sim_data.mass.avgCellToInitialCellConvFactor
 	rna_data = sim_data.process.transcription.rnaData
 	get_average_copy_number = sim_data.process.replication.get_average_copy_number
 	rna_mw = rna_data['mw']
@@ -1028,12 +1026,15 @@ def setInitialRnaExpression(sim_data, expression, doubling_time):
 	ids_mRNA = ids_rnas[is_mRNA]
 
 	## Mass fractions
-	avg_cell_fraction_mass = sim_data.mass.getFractionMass(doubling_time)
-	total_mass_rRNA23S = avg_cell_fraction_mass["rRna23SMass"] / initial_conversion
-	total_mass_rRNA16S = avg_cell_fraction_mass["rRna16SMass"] / initial_conversion
-	total_mass_rRNA5S = avg_cell_fraction_mass["rRna5SMass"] / initial_conversion
-	total_mass_tRNA = avg_cell_fraction_mass["tRnaMass"] / initial_conversion
-	total_mass_mRNA = avg_cell_fraction_mass["mRnaMass"] / initial_conversion
+	initial_rna_mass = (sim_data.mass.getFractionMass(doubling_time)['rnaMass']
+		/ sim_data.mass.avgCellToInitialCellConvFactor)
+	ppgpp = sim_data.growthRateParameters.getppGppConc(doubling_time)
+	rna_fractions = sim_data.process.transcription.get_rna_fractions(ppgpp)
+	total_mass_rRNA23S = initial_rna_mass * rna_fractions['23S']
+	total_mass_rRNA16S = initial_rna_mass * rna_fractions['16S']
+	total_mass_rRNA5S = initial_rna_mass * rna_fractions['5S']
+	total_mass_tRNA = initial_rna_mass * rna_fractions['trna']
+	total_mass_mRNA = initial_rna_mass * rna_fractions['mrna']
 
 	## Molecular weights
 	individual_masses_rRNA23S = rna_mw[is_rRNA23S] / n_avogadro
@@ -1089,7 +1090,20 @@ def setInitialRnaExpression(sim_data, expression, doubling_time):
 		distribution_rRNA5S
 		)
 
-	total_count_rRNA_average = sum([total_count_rRNA23S, total_count_rRNA16S, total_count_rRNA5S]) / 3
+	# Mass weighted average rRNA count to set rRNA subunit counts equal to each
+	# other but keep the same expected total rRNA mass
+	mass_weighting_rRNA23S = individual_masses_rRNA23S * distribution_rRNA23S
+	mass_weighting_rRNA16S = individual_masses_rRNA16S * distribution_rRNA16S
+	mass_weighting_rRNA5S = individual_masses_rRNA5S * distribution_rRNA5S
+	total_count_rRNA_average = (
+		units.sum(mass_weighting_rRNA23S * total_count_rRNA23S)
+		+ units.sum(mass_weighting_rRNA16S * total_count_rRNA16S)
+		+ units.sum(mass_weighting_rRNA5S * total_count_rRNA5S)
+		) / (
+		units.sum(mass_weighting_rRNA23S)
+		+ units.sum(mass_weighting_rRNA16S)
+		+ units.sum(mass_weighting_rRNA5S)
+		)
 
 	counts_rRNA23S = total_count_rRNA_average * distribution_rRNA23S
 	counts_rRNA16S = total_count_rRNA_average * distribution_rRNA16S
@@ -1246,11 +1260,6 @@ def setRibosomeCountsConstrainedByPhysiology(
 	(2) Measured rRNA mass fractions
 	(3) Expected ribosomal subunit counts based on RNA expression data
 
-	Requires
-	--------
-	- FRACTION_INCREASE_RIBOSOMAL_PROTEINS (float) - factor to increase number of
-	ribosomes needed (used in computing constraint (1))
-
 	Inputs
 	------
 	bulkContainer (BulkObjectsContainer object) - counts of bulk molecules
@@ -1261,6 +1270,8 @@ def setRibosomeCountsConstrainedByPhysiology(
 	--------
 	- counts of ribosomal protein subunits in bulkContainer
 	"""
+
+	active_fraction = sim_data.growthRateParameters.getFractionActiveRibosome(doubling_time)
 
 	# Get IDs and stoichiometry of ribosome subunits
 	ribosome30SSubunits = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s30_fullComplex)['subunitIds']
@@ -1290,16 +1301,16 @@ def setRibosomeCountsConstrainedByPhysiology(
 		proteinLengths,
 		elongation_rates,
 		netLossRate_protein,
-		proteinCounts).asNumber(units.aa / units.s)
+		proteinCounts).asNumber(units.aa / units.s) / active_fraction
 
 	# Minimum number of ribosomes needed
 	constraint1_ribosome30SCounts = (
 		nRibosomesNeeded * ribosome30SStoich
-		) * (1 + FRACTION_INCREASE_RIBOSOMAL_PROTEINS)
+		)
 
 	constraint1_ribosome50SCounts = (
 		nRibosomesNeeded * ribosome50SStoich
-		) * (1 + FRACTION_INCREASE_RIBOSOMAL_PROTEINS)
+		)
 
 
 	# -- CONSTRAINT 2: Measured rRNA mass fraction -- #
@@ -1326,7 +1337,6 @@ def setRibosomeCountsConstrainedByPhysiology(
 
 	# -- SET RIBOSOME FUNDAMENTAL SUBUNIT COUNTS TO MAXIMUM CONSTRAINT -- #
 	constraint_names = np.array(["Insufficient to double protein counts", "Too small for mass fraction", "Current level OK"])
-	nRibosomesNeeded = nRibosomesNeeded * (1 + FRACTION_INCREASE_RIBOSOMAL_PROTEINS)
 	rib30lims = np.array([nRibosomesNeeded, massFracPredicted_30SCount, (ribosome30SCounts / ribosome30SStoich).min()])
 	rib50lims = np.array([nRibosomesNeeded, massFracPredicted_50SCount, (ribosome50SCounts / ribosome50SStoich).min()])
 	if VERBOSE > 1:
