@@ -686,18 +686,27 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 		transcript_length=updated_lengths,
 		is_mRNA=is_mRNA_partial_RNAs,
 		is_full_transcript=np.zeros(n_RNAPs_to_activate, dtype=np.bool),
+		is_active=is_mRNA_partial_RNAs,
 		RNAP_index=RNAP_indexes,
 		massDiff_RNA=added_RNA_mass,
 		massDiff_mRNA=added_mRNA_mass)
 
-	# Get counts of fully transcribed mRNAs initialized as bulk molecules
+	# Get counts of mRNAs initialized as bulk molecules
 	mRNA_ids = sim_data.process.transcription.rnaData["id"][
 		sim_data.process.transcription.rnaData["isMRna"]]
 	mRNA_view = bulkMolCntr.countsView(mRNA_ids)
 	mRNA_counts = mRNA_view.counts()
 
+	# Subtract number of partially transcribed mRNAs that were initialized.
+	# Note: some mRNAs with high degradation rates have more partial mRNAs than
+	# the expected total number of mRNAs - for these mRNAs we simply set the
+	# initial full mRNA counts to be zero.
+	partial_mRNA_counts = np.bincount(
+		TU_index_partial_RNAs[is_mRNA_partial_RNAs], minlength=n_TUs)[idx_mRNA]
+	full_mRNA_counts = (mRNA_counts - partial_mRNA_counts).clip(min=0)
+
 	# Get array of TU indexes for each full mRNA
-	TU_index_full_mRNAs = np.repeat(idx_mRNA, mRNA_counts)
+	TU_index_full_mRNAs = np.repeat(idx_mRNA, full_mRNA_counts)
 
 	# Add fully transcribed mRNAs. The RNAP_index attribute of these molecules
 	# are set to -1.
@@ -707,6 +716,7 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 		transcript_length=rnaLengths[TU_index_full_mRNAs],
 		is_mRNA=np.ones_like(TU_index_full_mRNAs, dtype=np.bool),
 		is_full_transcript=np.ones_like(TU_index_full_mRNAs, dtype=np.bool),
+		is_active=np.ones_like(TU_index_full_mRNAs, dtype=np.bool),
 		RNAP_index=np.full(TU_index_full_mRNAs.shape, -1, dtype=np.int64),
 		massDiff_mRNA=rna_masses[TU_index_full_mRNAs])
 

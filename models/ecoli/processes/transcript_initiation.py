@@ -299,12 +299,14 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.inactive_RNAPs.countDec(n_initiations.sum())
 
 		# Add partially transcribed RNAs
+		is_mRNA = np.isin(TU_index_partial_RNAs, self.idx_mRNA)
 		self.RNAs.moleculesNew(
 			n_RNAPs_to_activate,
 			TU_index=TU_index_partial_RNAs,
 			transcript_length=np.zeros(n_RNAPs_to_activate),
-			is_mRNA=np.isin(TU_index_partial_RNAs, self.idx_mRNA),
+			is_mRNA=is_mRNA,
 			is_full_transcript=np.zeros(n_RNAPs_to_activate, dtype=np.bool),
+			is_active=is_mRNA,
 			RNAP_index=RNAP_indexes)
 
 		# Create masks for ribosomal RNAs

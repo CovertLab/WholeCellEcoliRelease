@@ -153,11 +153,11 @@ class RnaDegradation(wholecell.processes.process.Process):
 		bulk_RNA_counts[[self.rrlaIdx, self.rrfaIdx, self.rrsaIdx]] += self.activeRibosomes.total_counts()
 		bulk_RNA_counts[self.is_tRNA.astype(np.bool)] += self.charged_trna.total_counts()
 
-		TU_index, is_full_transcript = self.unique_RNAs.attrs(
-			'TU_index', 'is_full_transcript')
-		TU_index_mRNAs = TU_index[is_full_transcript]
+		TU_index, is_active, is_full_transcript = self.unique_RNAs.attrs(
+			'TU_index', 'is_active', 'is_full_transcript')
+		TU_index_active_mRNAs = TU_index[is_active]
 		unique_RNA_counts = np.bincount(
-			TU_index_mRNAs, minlength=self.n_total_RNAs)
+			TU_index_active_mRNAs, minlength=self.n_total_RNAs)
 		total_RNA_counts = bulk_RNA_counts + unique_RNA_counts
 
 		# Compute RNA concentrations
@@ -261,10 +261,15 @@ class RnaDegradation(wholecell.processes.process.Process):
 				total_RNA_counts
 				)
 
+		# Bulk RNAs (tRNAs and rRNAs) are degraded immediately. Unique RNAs
+		# (mRNAs) are immediately deactivated (becomes unable to bind
+		# ribosomes), but not degraded until transcription is finished and the
+		# mRNA becomes a full transcript to simplify the transcript elongation
+		# process.
 		n_bulk_RNAs_to_degrade = n_RNAs_to_degrade.copy()
 		n_bulk_RNAs_to_degrade[self.is_mRNA] = 0
-		self.unique_RNAs_to_degrade = n_RNAs_to_degrade.copy()
-		self.unique_RNAs_to_degrade[np.logical_not(self.is_mRNA)] = 0
+		self.n_unique_RNAs_to_deactivate = n_RNAs_to_degrade.copy()
+		self.n_unique_RNAs_to_deactivate[np.logical_not(self.is_mRNA)] = 0
 
 		self.bulk_RNAs.requestIs(n_bulk_RNAs_to_degrade)
 		self.unique_RNAs.request_access(self.EDIT_DELETE_ACCESS)
@@ -273,10 +278,19 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.fragmentBases.requestAll()
 
 		# Calculate the amount of water required for total RNA hydrolysis by
-		# endo and exonucleases. Assuming complete hydrolysis for now. Note
-		# that one additional water molecule is needed for each RNA to
-		# hydrolyze the 5' diphosphate.
-		waterForNewRnas = np.dot(n_RNAs_to_degrade, self.rna_lengths)
+		# endo and exonucleases. We first calculate the number of unique RNAs
+		# that should be degraded at this timestep.
+		self.unique_mRNAs_to_degrade = np.logical_and(
+			np.logical_not(is_active), is_full_transcript)
+		self.n_unique_RNAs_to_degrade = np.bincount(
+			TU_index[self.unique_mRNAs_to_degrade],
+			minlength=self.n_total_RNAs)
+
+		# Assuming complete hydrolysis for now. Note that one additional water
+		# molecule is needed for each RNA to hydrolyze the 5' diphosphate.
+		waterForNewRnas = np.dot(
+			n_bulk_RNAs_to_degrade + self.n_unique_RNAs_to_degrade,
+			self.rna_lengths)
 		waterForLeftOverFragments = self.fragmentBases.total_counts().sum()
 		self.h2o.requestIs(waterForNewRnas + waterForLeftOverFragments)
 		
@@ -284,7 +298,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 	def evolveState(self):
 		# Get vector of numbers of RNAs to degrade for each RNA species
 		n_degraded_bulk_RNA = self.bulk_RNAs.counts()
-		n_degraded_unique_RNA = self.unique_RNAs_to_degrade
+		n_degraded_unique_RNA = self.n_unique_RNAs_to_degrade
 		n_degraded_RNA = n_degraded_bulk_RNA + n_degraded_unique_RNA
 
 		self.writeToListener(
@@ -295,7 +309,31 @@ class RnaDegradation(wholecell.processes.process.Process):
 			np.dot(n_degraded_RNA, self.rna_lengths)
 			)
 
-		# Calculate endolytic cleavage events
+		# Degrade bulk RNAs
+		self.bulk_RNAs.countsIs(0)
+
+		# Deactivate and degrade unique RNAs
+		TU_index, is_active = self.unique_RNAs.attrs('TU_index', 'is_active')
+		n_deactivated_unique_RNA = self.n_unique_RNAs_to_deactivate
+
+		# Deactive unique RNAs
+		non_zero_deactivation = (n_deactivated_unique_RNA > 0)
+
+		for index, n_degraded in zip(
+				np.arange(n_deactivated_unique_RNA.size)[non_zero_deactivation],
+				n_deactivated_unique_RNA[non_zero_deactivation]):
+			# Get mask for active RNAs belonging to the degraded species
+			mask = np.logical_and(TU_index == index, is_active)
+
+			# Choose n_degraded indexes randomly to deactivate
+			is_active[self.randomState.choice(
+				size=n_degraded, a=np.where(mask)[0], replace=False)] = False
+
+		self.unique_RNAs.attrIs(is_active=is_active)
+
+		# Degrade full mRNAs that are inactive
+		self.unique_RNAs.delByIndexes(
+			np.where(self.unique_mRNAs_to_degrade)[0])
 
 		# Modeling assumption: Once a RNA is cleaved by an endonuclease its
 		# resulting nucleotides are lumped together as "polymerized fragments".
@@ -309,34 +347,8 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# ==>
 		# Pi-FragmentBase-PO4(-)-FragmentBase-PO4(-)-FragmentBase + PPi
 		# Note: Lack of -OH on 3' end of chain
-
 		metabolitesEndoCleavage = np.dot(
 			self.endoDegradationSMatrix, n_degraded_RNA)
-
-		# Degrade bulk RNAs
-		self.bulk_RNAs.countsIs(0)
-
-		# Degrade unique RNAs
-		TU_index, is_full_transcript = self.unique_RNAs.attrs(
-			'TU_index', 'is_full_transcript')
-		degradation_indexes = np.empty(
-			n_degraded_unique_RNA.sum(), dtype=np.int64)
-		non_zero_degradation = (n_degraded_unique_RNA > 0)
-		start_index = 0
-
-		for index, n_degraded in zip(
-				np.arange(n_degraded_unique_RNA.size)[non_zero_degradation],
-				n_degraded_unique_RNA[non_zero_degradation]):
-			# Get mask for full RNAs belonging to the degraded species
-			mask = np.logical_and(TU_index == index, is_full_transcript)
-
-			# Choose n_degraded indexes randomly to degrade
-			degradation_indexes[start_index:start_index + n_degraded] = self.randomState.choice(
-				size=n_degraded, a=np.where(mask)[0], replace=False)
-
-			start_index += n_degraded
-
-		self.unique_RNAs.delByIndexes(degradation_indexes)
 
 		# Increase polymerized fragment counts
 		self.fragmentMetabolites.countsInc(metabolitesEndoCleavage)
@@ -363,8 +375,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		n_fragment_bases_sum = n_fragment_bases.sum()
 
 		exornase_capacity = n_exoRNases.sum() * self.KcatExoRNase * (
-				units.s * self.timeStepSec()
-			)
+				units.s * self.timeStepSec())
 
 		if exornase_capacity >= n_fragment_bases_sum:
 			self.nmps.countsInc(n_fragment_bases)

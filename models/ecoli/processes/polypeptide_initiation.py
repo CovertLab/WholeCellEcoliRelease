@@ -103,14 +103,14 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 			self.ribosome50S.count().sum(),
 			])
 
-		# Get attributes of mRNAs
-		TU_index_all_RNAs, is_full_transcript, unique_index_all_RNAs = self.RNAs.attrs(
-			'TU_index', 'is_full_transcript', 'unique_index')
-		TU_index_full_transcripts = TU_index_all_RNAs[is_full_transcript]
-		unique_index_full_transcripts = unique_index_all_RNAs[is_full_transcript]
+		# Get attributes of active mRNAs
+		TU_index_RNAs, is_active, unique_index_RNAs = self.RNAs.attrs(
+			'TU_index', 'is_active', 'unique_index')
+		TU_index_active_mRNAs = TU_index_RNAs[is_active]
+		unique_index_active_mRNAs = unique_index_RNAs[is_active]
 
-		# Get counts of each full mRNA
-		TU_counts = np.bincount(TU_index_full_transcripts, minlength=self.n_TUs)
+		# Get counts of each type of active mRNA
+		TU_counts = np.bincount(TU_index_active_mRNAs, minlength=self.n_TUs)
 		mRNA_counts = self.TU_counts_to_mRNA_counts.dot(TU_counts)
 
 		# Calculate initiation probabilities for ribosomes based on mRNA counts
@@ -134,7 +134,7 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 			return
 
 		# Sample multinomial distribution to determine which mRNAs have full
-		# 70S ribosomes initalized on them
+		# 70S ribosomes initialized on them
 		n_new_proteins = self.randomState.multinomial(
 			n_ribosomes_to_activate,
 			proteinInitProb
@@ -155,8 +155,8 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 			# Set protein index
 			protein_indexes[start_index:start_index+counts] = protein_index
 
-			# Get mask for mRNA molecules that produce this protein
-			mask = (TU_index_full_transcripts == self.protein_index_to_TU_index[protein_index])
+			# Get mask for active mRNA molecules that produce this protein
+			mask = (TU_index_active_mRNAs == self.protein_index_to_TU_index[protein_index])
 			n_mRNAs = np.count_nonzero(mask)
 
 			# Distribute ribosomes among these mRNAs
@@ -165,7 +165,7 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 
 			# Get unique indexes of each mRNA
 			mRNA_indexes[start_index:start_index + counts] = np.repeat(
-				unique_index_full_transcripts[mask], n_ribosomes_per_RNA)
+				unique_index_active_mRNAs[mask], n_ribosomes_per_RNA)
 
 			start_index += counts
 
