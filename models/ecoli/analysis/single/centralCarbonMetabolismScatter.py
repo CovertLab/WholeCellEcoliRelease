@@ -8,8 +8,7 @@ from __future__ import division
 
 import os
 import cPickle
-import re
-from typing import List, Iterable, Tuple, Dict
+from typing import List, Tuple
 
 import numpy as np
 from matplotlib import pyplot as plt
