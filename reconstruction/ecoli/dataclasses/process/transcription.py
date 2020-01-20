@@ -26,6 +26,7 @@ KCAT_ENDO_RNASE = 0.001
 ESTIMATE_ENDO_RNASES = 5000
 MAX_TIMESTEP_LEN = 2  # Determines length of padding values to add to transcript sequence matrix
 PPGPP_CONC_UNITS = units.umol / units.L
+PRINT_VALUES = False  # print values for supplemental table if True
 
 
 class Transcription(object):
@@ -137,6 +138,14 @@ class Transcription(object):
 		growth_rates = np.log(2) / np.array([d['doublingTime'].asNumber(units.s)
 			for d in raw_data.growthRateDependentParameters])
 		self._ppgpp_growth_parameters = interpolate.splrep(ppgpp[::-1], growth_rates[::-1], k=1)
+
+		if PRINT_VALUES:
+			print('Supplement value (KM): {:.1f}'
+				.format(np.sqrt(self._ppgpp_km_squared)))
+			print('Supplement value (FC): [{:.2f}, {:.2f}]'
+				.format(fold_changes.min(), fold_changes.max()))
+			print('Supplement value (FC-): {:.2f}'.format(self._fit_ppgpp_fc))
+			print('Supplement value (FC+): {:.2f}'.format(average_positive_fc))
 
 	def _build_rna_data(self, raw_data, sim_data):
 		"""
