@@ -62,9 +62,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			}
 
 		fig = plt.figure()
-		fig.set_size_inches(8, 11.5)
+		fig.set_size_inches(8, 15.5)
 
-		gs = gridspec.GridSpec(4, 1)
+		gs = gridspec.GridSpec(6, 1)
 
 		# Plot counts of full/partial transcripts over time
 		ax = plt.subplot(gs[0, 0])
@@ -74,19 +74,37 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		ax.legend()
 		ax.spines['top'].set_visible(False)
 		ax.spines['right'].set_visible(False)
+		ax.set_xlabel('Time [s]')
 		ax.set_ylabel('Total Counts')
+
+		# Get top N genes with the highest average count of active partially
+		# transcribed mRNAs
+		partial_mRNA_counts_mean = partial_mRNA_counts.mean(axis=0)
+		rank = np.argsort(partial_mRNA_counts_mean)[::-1][:PLOT_TOP_N_GENES]
+		ranked_genes = [sim_data.fathom.common_names[
+			mRNA_id_to_gene_id[mRNA_ids[i]]][0] for i in rank]
+
+		ax = plt.subplot(gs[1, 0])
+		ax.bar(range(PLOT_TOP_N_GENES), partial_mRNA_counts_mean[rank])
+		ax.set_xticks(range(PLOT_TOP_N_GENES))
+		ax.set_xticklabels(ranked_genes, rotation=90)
+		ax.set_title(
+			'Genes with highest average counts of partially transcribed active transcripts')
+		ax.spines['top'].set_visible(False)
+		ax.spines['right'].set_visible(False)
+		ax.set_ylabel('Average counts of\npartially transcribed transcripts')
 
 		# Get top N genes with the highest percentage of active mRNAs that are
 		# partially transcribed (minimum 10 average total transcripts)
 		all_mRNA_counts_mean = all_mRNA_counts.mean(axis=0)
 		partial_mRNA_proportions = np.nan_to_num(
-			partial_mRNA_counts.mean(axis=0)/all_mRNA_counts_mean)
+			partial_mRNA_counts_mean/all_mRNA_counts_mean)
 		partial_mRNA_proportions[all_mRNA_counts_mean < 10] = 0
 		rank = np.argsort(partial_mRNA_proportions)[::-1][:PLOT_TOP_N_GENES]
 		ranked_genes = [sim_data.fathom.common_names[
 			mRNA_id_to_gene_id[mRNA_ids[i]]][0] for i in rank]
 
-		ax = plt.subplot(gs[1, 0])
+		ax = plt.subplot(gs[2, 0])
 		ax.bar(range(PLOT_TOP_N_GENES), partial_mRNA_proportions[rank])
 		ax.set_xticks(range(PLOT_TOP_N_GENES))
 		ax.set_xticklabels(ranked_genes, rotation=90)
@@ -98,7 +116,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Plot counts of all active ribosomes/ribosomes that are translating
 		# partially transcribed mRNAs over time
-		ax = plt.subplot(gs[2, 0])
+		ax = plt.subplot(gs[3, 0])
 		free_ribosome_counts = all_ribosome_counts - chromosome_bound_ribosome_counts
 		ax.plot(time, all_ribosome_counts.sum(axis=1), label='All ribosomes')
 		ax.plot(time, free_ribosome_counts.sum(axis=1), label='Free ribosomes')
@@ -106,7 +124,25 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		ax.legend()
 		ax.spines['top'].set_visible(False)
 		ax.spines['right'].set_visible(False)
+		ax.set_xlabel('Time [s]')
 		ax.set_ylabel('Total Counts')
+
+		# Get top N genes with the highest average counts active ribosomes that
+		# are bound to the chromosome
+		bound_ribosome_counts_mean = chromosome_bound_ribosome_counts.mean(axis=0)
+		rank = np.argsort(bound_ribosome_counts_mean)[::-1][:PLOT_TOP_N_GENES]
+		ranked_genes = [sim_data.fathom.common_names[
+			protein_id_to_gene_id[protein_ids[i]]][0] for i in rank]
+
+		ax = plt.subplot(gs[4, 0])
+		ax.bar(range(PLOT_TOP_N_GENES), bound_ribosome_counts_mean[rank])
+		ax.set_xticks(range(PLOT_TOP_N_GENES))
+		ax.set_xticklabels(ranked_genes, rotation=90)
+		ax.set_title(
+			'Genes with highest average counts of chromosome-bound ribosomes')
+		ax.spines['top'].set_visible(False)
+		ax.spines['right'].set_visible(False)
+		ax.set_ylabel('Average counts of\nchromosome-bound ribosomes')
 
 		# Get top N genes with the highest percentage of active ribosomes that
 		# are bound to the chromosome (minimum 10 average total ribosomes)
@@ -118,7 +154,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		ranked_genes = [sim_data.fathom.common_names[
 			protein_id_to_gene_id[protein_ids[i]]][0] for i in rank]
 
-		ax = plt.subplot(gs[3, 0])
+		ax = plt.subplot(gs[5, 0])
 		ax.bar(range(PLOT_TOP_N_GENES), bound_ribosome_proportions[rank])
 		ax.set_xticks(range(PLOT_TOP_N_GENES))
 		ax.set_xticklabels(ranked_genes, rotation=90)
