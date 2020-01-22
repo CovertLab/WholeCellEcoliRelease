@@ -33,12 +33,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			sim_data = cPickle.load(f)
 
 		# Listeners used
-		main_reader = TableReader(os.path.join(simOutDir, 'Main'))
 		rnap_data_reader = TableReader(os.path.join(simOutDir, "RnapData"))
 
 		# Load data
-		initial_time = main_reader.readAttribute('initialTime')
-		time = main_reader.readColumn('time') - initial_time
 		n_headon = rnap_data_reader.readColumn("n_headon_collisions")
 		n_codirectional = rnap_data_reader.readColumn("n_codirectional_collisions")
 		headon_coordinates = rnap_data_reader.readColumn(
@@ -99,9 +96,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		headon_rank = np.argsort(n_headon_per_gene)[::-1][:PLOT_TOP_N_GENES]
 
 		# Get common names of top N genes
-		codirectional_top_genes = [sim_data.fathom.common_names[gene_ids[i]][0]
+		codirectional_top_genes = [sim_data.common_names.genes[gene_ids[i]][0]
 			for i in codirectional_rank]
-		headon_top_genes = [sim_data.fathom.common_names[gene_ids[i]][0]
+		headon_top_genes = [sim_data.common_names.genes[gene_ids[i]][0]
 			for i in headon_rank]
 
 		# Plot

@@ -84,9 +84,7 @@ LIST_OF_DICT_FILENAMES = (
 	os.path.join("condition", "media", "5X_supplement_EZ.tsv"),
 	os.path.join("common_names", "genes.tsv"),
 	os.path.join("common_names", "metabolites.tsv"),
-	os.path.join("common_names", "mrna.tsv"),
-	os.path.join("common_names", "polypeptides.tsv"),
-	os.path.join("common_names", "protein-complexes.tsv"),
+	os.path.join("common_names", "proteins.tsv"),
 	os.path.join("common_names", "reactions.tsv"),
 	os.path.join("common_names", "rnas.tsv"),
 	)
