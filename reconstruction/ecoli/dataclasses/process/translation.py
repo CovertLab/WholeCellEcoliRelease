@@ -147,6 +147,7 @@ class Translation(object):
 			}
 
 		self.monomerData = UnitStructArray(monomerData, field_units)
+		self.n_monomers = len(self.monomerData)
 
 	def _buildTranslation(self, raw_data, sim_data):
 		sequences = self.monomerData["sequence"] # TODO: consider removing sequences
@@ -196,26 +197,26 @@ class Translation(object):
 
 
 	def _build_elongation_rates(self, raw_data, sim_data):
-		self.protein_ids = self.monomerData['id']
-		self.ribosomal_protein_ids = sim_data.moleculeGroups.rProteins
+		protein_ids = self.monomerData['id']
+		ribosomal_protein_ids = sim_data.moleculeGroups.rProteins
 
-		self.protein_indexes = {
+		protein_indexes = {
 			protein: index
-			for index, protein in enumerate(self.protein_ids)}
+			for index, protein in enumerate(protein_ids)}
 
-		self.ribosomal_proteins = {
-			rprotein: self.protein_indexes.get(rprotein, -1)
-			for rprotein in self.ribosomal_protein_ids}
+		ribosomal_proteins = {
+			rprotein: protein_indexes.get(rprotein, -1)
+			for rprotein in ribosomal_protein_ids}
 
 		self.rprotein_indexes = np.array([
 			index
-			for index in self.ribosomal_proteins.values()
+			for index in ribosomal_proteins.values()
 			if index >= 0], dtype=np.int64)
 
 		self.basal_elongation_rate = sim_data.constants.ribosomeElongationRateBasal.asNumber(units.aa / units.s)
 		self.max_elongation_rate = sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s)
 		self.elongation_rates = np.full(
-			self.protein_ids.shape,
+			self.n_monomers,
 			self.basal_elongation_rate,
 			dtype=np.int64)
 
@@ -230,7 +231,7 @@ class Translation(object):
 
 		return make_elongation_rates(
 			random,
-			self.protein_ids.shape,
+			self.n_monomers,
 			base,
 			self.rprotein_indexes,
 			self.max_elongation_rate,
