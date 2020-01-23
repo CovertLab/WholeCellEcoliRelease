@@ -90,7 +90,10 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 
 	def tableCreate(self, tableWriter):
 		subcolumns = {
-			'probTranslationPerTranscript': 'monomerIds'}
+			'probTranslationPerTranscript': 'monomerIds',
+			'n_ribosomes_per_transcript': 'monomerIds',
+			'n_ribosomes_on_partial_mRNA_per_transcript': 'monomerIds',
+			}
 
 		tableWriter.writeAttributes(
 			monomerIds = self.monomerIds,

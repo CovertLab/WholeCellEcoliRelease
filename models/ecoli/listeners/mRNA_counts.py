@@ -58,7 +58,10 @@ class mRNACounts(wholecell.listeners.listener.Listener):
 
 	def tableCreate(self, tableWriter):
 		subcolumns = {
-			'mRNA_counts': 'mRNA_ids'}
+			'mRNA_counts': 'mRNA_ids',
+			'full_mRNA_counts': 'mRNA_ids',
+			'partial_mRNA_counts': 'mRNA_ids',
+			}
 
 		tableWriter.writeAttributes(
 			mRNA_ids = self.mRNA_ids.tolist(),
