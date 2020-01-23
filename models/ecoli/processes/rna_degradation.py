@@ -145,19 +145,19 @@ class RnaDegradation(wholecell.processes.process.Process):
 		cell_volume = cell_mass / self.cellDensity
 		counts_to_molar = 1 / (self.nAvogadro * cell_volume)
 
-		# Get total counts of RNAs including rRNAs, charged tRNAs, and fully
-		# transcribed unique mRNAs
+		# Get total counts of RNAs including rRNAs, charged tRNAs, and active
+		# (translatable) unique mRNAs
 		bulk_RNA_counts = self.bulk_RNAs.total_counts().copy()
 		bulk_RNA_counts[self.rrsaIdx] += self.ribosome30S.total_counts()
 		bulk_RNA_counts[[self.rrlaIdx, self.rrfaIdx]] += self.ribosome50S.total_counts()
 		bulk_RNA_counts[[self.rrlaIdx, self.rrfaIdx, self.rrsaIdx]] += self.activeRibosomes.total_counts()
 		bulk_RNA_counts[self.is_tRNA.astype(np.bool)] += self.charged_trna.total_counts()
 
-		TU_index, is_active, is_full_transcript = self.unique_RNAs.attrs(
-			'TU_index', 'is_active', 'is_full_transcript')
-		TU_index_active_mRNAs = TU_index[is_active]
+		TU_index, can_translate, is_full_transcript = self.unique_RNAs.attrs(
+			'TU_index', 'can_translate', 'is_full_transcript')
+		TU_index_translatable_mRNAs = TU_index[can_translate]
 		unique_RNA_counts = np.bincount(
-			TU_index_active_mRNAs, minlength=self.n_total_RNAs)
+			TU_index_translatable_mRNAs, minlength=self.n_total_RNAs)
 		total_RNA_counts = bulk_RNA_counts + unique_RNA_counts
 
 		# Compute RNA concentrations
@@ -281,7 +281,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# endo and exonucleases. We first calculate the number of unique RNAs
 		# that should be degraded at this timestep.
 		self.unique_mRNAs_to_degrade = np.logical_and(
-			np.logical_not(is_active), is_full_transcript)
+			np.logical_not(can_translate), is_full_transcript)
 		self.n_unique_RNAs_to_degrade = np.bincount(
 			TU_index[self.unique_mRNAs_to_degrade],
 			minlength=self.n_total_RNAs)
@@ -313,7 +313,8 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.bulk_RNAs.countsIs(0)
 
 		# Deactivate and degrade unique RNAs
-		TU_index, is_active = self.unique_RNAs.attrs('TU_index', 'is_active')
+		TU_index, can_translate = self.unique_RNAs.attrs(
+			'TU_index', 'can_translate')
 		n_deactivated_unique_RNA = self.n_unique_RNAs_to_deactivate
 
 		# Deactive unique RNAs
@@ -322,14 +323,14 @@ class RnaDegradation(wholecell.processes.process.Process):
 		for index, n_degraded in zip(
 				np.arange(n_deactivated_unique_RNA.size)[non_zero_deactivation],
 				n_deactivated_unique_RNA[non_zero_deactivation]):
-			# Get mask for active RNAs belonging to the degraded species
-			mask = np.logical_and(TU_index == index, is_active)
+			# Get mask for translatable mRNAs belonging to the degraded species
+			mask = np.logical_and(TU_index == index, can_translate)
 
 			# Choose n_degraded indexes randomly to deactivate
-			is_active[self.randomState.choice(
+			can_translate[self.randomState.choice(
 				size=n_degraded, a=np.where(mask)[0], replace=False)] = False
 
-		self.unique_RNAs.attrIs(is_active=is_active)
+		self.unique_RNAs.attrIs(can_translate=can_translate)
 
 		# Degrade full mRNAs that are inactive
 		self.unique_RNAs.delByIndexes(

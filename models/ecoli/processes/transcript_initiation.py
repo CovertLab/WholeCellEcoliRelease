@@ -306,7 +306,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 			transcript_length=np.zeros(n_RNAPs_to_activate),
 			is_mRNA=is_mRNA,
 			is_full_transcript=np.zeros(n_RNAPs_to_activate, dtype=np.bool),
-			is_active=is_mRNA,
+			can_translate=is_mRNA,
 			RNAP_index=RNAP_indexes)
 
 		# Create masks for ribosomal RNAs

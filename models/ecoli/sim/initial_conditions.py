@@ -686,7 +686,7 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 		transcript_length=updated_lengths,
 		is_mRNA=is_mRNA_partial_RNAs,
 		is_full_transcript=np.zeros(n_RNAPs_to_activate, dtype=np.bool),
-		is_active=is_mRNA_partial_RNAs,
+		can_translate=is_mRNA_partial_RNAs,
 		RNAP_index=RNAP_indexes,
 		massDiff_RNA=added_RNA_mass,
 		massDiff_mRNA=added_mRNA_mass)
@@ -716,7 +716,7 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 		transcript_length=rnaLengths[TU_index_full_mRNAs],
 		is_mRNA=np.ones_like(TU_index_full_mRNAs, dtype=np.bool),
 		is_full_transcript=np.ones_like(TU_index_full_mRNAs, dtype=np.bool),
-		is_active=np.ones_like(TU_index_full_mRNAs, dtype=np.bool),
+		can_translate=np.ones_like(TU_index_full_mRNAs, dtype=np.bool),
 		RNAP_index=np.full(TU_index_full_mRNAs.shape, -1, dtype=np.int64),
 		massDiff_mRNA=rna_masses[TU_index_full_mRNAs])
 

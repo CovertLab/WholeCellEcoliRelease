@@ -137,7 +137,7 @@ class InternalState(object):
 		# transcribed. This cannot be True if 'is_mRNA' is False, since all
 		# non-mRNAs are represented as bulk molecules when they are fully
 		# transcribed.
-		# - is_active (bool): True if the 5' end of the mRNA molecule is
+		# - can_translate (bool): True if the 5' end of the mRNA molecule is
 		# available for translation. This flag is used only for mRNA molecules.
 		# - RNAP_index (64-bit int): Unique index of the RNA polymerase that is
 		# synthesizing the RNA or have synthesized the mRNA. For fully
@@ -149,7 +149,7 @@ class InternalState(object):
 			'transcript_length': 'i8',
 			'is_mRNA': '?',
 			'is_full_transcript': '?',
-			'is_active': '?',
+			'can_translate': '?',
 			'RNAP_index': 'i8',
 			}
 

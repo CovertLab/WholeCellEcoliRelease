@@ -103,11 +103,11 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 			self.ribosome50S.count().sum(),
 			])
 
-		# Get attributes of active mRNAs
-		TU_index_RNAs, is_active, unique_index_RNAs = self.RNAs.attrs(
-			'TU_index', 'is_active', 'unique_index')
-		TU_index_active_mRNAs = TU_index_RNAs[is_active]
-		unique_index_active_mRNAs = unique_index_RNAs[is_active]
+		# Get attributes of active (translatable) mRNAs
+		TU_index_RNAs, can_translate, unique_index_RNAs = self.RNAs.attrs(
+			'TU_index', 'can_translate', 'unique_index')
+		TU_index_active_mRNAs = TU_index_RNAs[can_translate]
+		unique_index_active_mRNAs = unique_index_RNAs[can_translate]
 
 		# Get counts of each type of active mRNA
 		TU_counts = np.bincount(TU_index_active_mRNAs, minlength=self.n_TUs)

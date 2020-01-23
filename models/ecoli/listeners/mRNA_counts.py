@@ -44,15 +44,15 @@ class mRNACounts(wholecell.listeners.listener.Listener):
 	def update(self):
 		# Get attributes of mRNAs
 		RNAs = self.uniqueMolecules.container.objectsInCollection('RNA')
-		TU_indexes, is_active, is_full_transcript = RNAs.attrs(
-			'TU_index', 'is_active', 'is_full_transcript')
+		TU_indexes, can_translate, is_full_transcript = RNAs.attrs(
+			'TU_index', 'can_translate', 'is_full_transcript')
 
 		# Get counts of all mRNAs, full mRNAs, and partial mRNAs
 		self.mRNA_counts = np.bincount(
-			TU_indexes[is_active],
+			TU_indexes[can_translate],
 			minlength=len(self.all_RNA_ids))[self.mRNA_indexes]
 		self.full_mRNA_counts = np.bincount(
-			TU_indexes[np.logical_and(is_active, is_full_transcript)],
+			TU_indexes[np.logical_and(can_translate, is_full_transcript)],
 			minlength=len(self.all_RNA_ids))[self.mRNA_indexes]
 		self.partial_mRNA_counts = self.mRNA_counts - self.full_mRNA_counts
 
