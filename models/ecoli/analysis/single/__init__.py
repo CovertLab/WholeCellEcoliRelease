@@ -130,6 +130,7 @@ TAGS = {
 		"replisome_rnap_collisions_by_gene.py",
 		],
 	'TRANSCRIPTION': [
+		"cotranscriptional_translation.py",
 		"inter_rnap_distance.py",
 		"mRnaHalfLives.py",
 		"mrnaCounts.py",

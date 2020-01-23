@@ -81,7 +81,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# transcribed mRNAs
 		partial_mRNA_counts_mean = partial_mRNA_counts.mean(axis=0)
 		rank = np.argsort(partial_mRNA_counts_mean)[::-1][:PLOT_TOP_N_GENES]
-		ranked_genes = [sim_data.fathom.common_names[
+		ranked_genes = [sim_data.common_names.genes[
 			mRNA_id_to_gene_id[mRNA_ids[i]]][0] for i in rank]
 
 		ax = plt.subplot(gs[1, 0])
@@ -97,15 +97,21 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Get top N genes with the highest percentage of active mRNAs that are
 		# partially transcribed (minimum 10 average total transcripts)
 		all_mRNA_counts_mean = all_mRNA_counts.mean(axis=0)
+		partial_mRNA_proportions_all_mRNAs = partial_mRNA_counts_mean.sum()/all_mRNA_counts_mean.sum()
 		partial_mRNA_proportions = np.nan_to_num(
 			partial_mRNA_counts_mean/all_mRNA_counts_mean)
 		partial_mRNA_proportions[all_mRNA_counts_mean < 10] = 0
 		rank = np.argsort(partial_mRNA_proportions)[::-1][:PLOT_TOP_N_GENES]
-		ranked_genes = [sim_data.fathom.common_names[
+		ranked_genes = [sim_data.common_names.genes[
 			mRNA_id_to_gene_id[mRNA_ids[i]]][0] for i in rank]
 
 		ax = plt.subplot(gs[2, 0])
 		ax.bar(range(PLOT_TOP_N_GENES), partial_mRNA_proportions[rank])
+		ax.axhline(
+			partial_mRNA_proportions_all_mRNAs, ls='--', lw=2, color='k',
+			label="All mRNAs: %.2f" % (partial_mRNA_proportions_all_mRNAs, )
+			)
+		ax.legend()
 		ax.set_xticks(range(PLOT_TOP_N_GENES))
 		ax.set_xticklabels(ranked_genes, rotation=90)
 		ax.set_title('Genes with highest percentage of partially transcribed active transcripts\n($\geq 10$ total transcripts)')
@@ -131,7 +137,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# are bound to the chromosome
 		bound_ribosome_counts_mean = chromosome_bound_ribosome_counts.mean(axis=0)
 		rank = np.argsort(bound_ribosome_counts_mean)[::-1][:PLOT_TOP_N_GENES]
-		ranked_genes = [sim_data.fathom.common_names[
+		ranked_genes = [sim_data.common_names.genes[
 			protein_id_to_gene_id[protein_ids[i]]][0] for i in rank]
 
 		ax = plt.subplot(gs[4, 0])
@@ -147,15 +153,22 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Get top N genes with the highest percentage of active ribosomes that
 		# are bound to the chromosome (minimum 10 average total ribosomes)
 		all_ribosome_counts_mean = all_ribosome_counts.mean(axis=0)
+		bound_ribosome_counts_mean = chromosome_bound_ribosome_counts.mean(axis=0)
+		bound_ribosome_proportions_all_ribosomes = bound_ribosome_counts_mean.sum() / all_ribosome_counts_mean.sum()
 		bound_ribosome_proportions = np.nan_to_num(
-			chromosome_bound_ribosome_counts.mean(axis=0) / all_ribosome_counts_mean)
+			bound_ribosome_counts_mean / all_ribosome_counts_mean)
 		bound_ribosome_proportions[all_ribosome_counts_mean < 10] = 0
 		rank = np.argsort(bound_ribosome_proportions)[::-1][:PLOT_TOP_N_GENES]
-		ranked_genes = [sim_data.fathom.common_names[
+		ranked_genes = [sim_data.common_names.genes[
 			protein_id_to_gene_id[protein_ids[i]]][0] for i in rank]
 
 		ax = plt.subplot(gs[5, 0])
 		ax.bar(range(PLOT_TOP_N_GENES), bound_ribosome_proportions[rank])
+		ax.axhline(
+			bound_ribosome_proportions_all_ribosomes, ls='--', lw=2, color='k',
+			label="All ribosomes: %.2f" % (bound_ribosome_proportions_all_ribosomes, )
+			)
+		ax.legend()
 		ax.set_xticks(range(PLOT_TOP_N_GENES))
 		ax.set_xticklabels(ranked_genes, rotation=90)
 		ax.set_title(
