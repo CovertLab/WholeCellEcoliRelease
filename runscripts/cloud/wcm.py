@@ -12,9 +12,21 @@ import os
 import posixpath
 from pprint import pprint
 import re
-from typing import Any, Dict, Iterable, Optional
+from typing import Any, Dict, Iterable, Optional, Type
 
-from wholecell.fireworks.firetasks import ParcaTask, VariantSimDataTask
+from fireworks import FiretaskBase
+
+from wholecell.fireworks.firetasks import (
+	ParcaTask,
+	VariantSimDataTask,
+	SimulationTask,
+	SimulationDaughterTask,
+	AnalysisVariantTask,
+	AnalysisCohortTask,
+	AnalysisSingleTask,
+	AnalysisMultiGenTask,
+	BuildCausalityNetworkTask,
+	WriteJsonTask)
 from wholecell.utils import constants, data, scriptBase
 import wholecell.utils.filepath as fp
 from runscripts.manual.analysisBase import AnalysisBase
@@ -61,15 +73,21 @@ class WcmWorkflow(Workflow):
 
 	def add_python_task(self, firetask, python_args, name='', inputs=(),
 			outputs=(), timeout=0):
-		# type: (str, Dict[str, Any], str, Iterable[str], Iterable[str], int) -> Task
+		# type: (Type[FiretaskBase], Dict[str, Any], str, Iterable[str], Iterable[str], int) -> Task
 		"""Add a Python task to the workflow and return it. Store its
-		stdout + stderr as storage_prefix/logs/name.log
+		stdout + stderr as storage_prefix/logs/name.log .
+		Turn on Python '-u' so it doesn't buffer output for long time.
 		"""
+		# TODO(jerry): An option to emit a task that runs `firetask` directly
+		#  rather than via a command line in a Docker image. That requires
+		#  running the firetask with access to the wcEcoli code and the file
+		#  system. You wouldn't do that on GCE unless there's an NFS mount for
+		#  the wcEcoli code and data.
 		return self.add_task(Task(
 			name=name,
 			image=self.image,
 			command=['python', '-u', '-m', 'wholecell.fireworks.runTask',
-					firetask, json.dumps(python_args)],
+					firetask.__name__, json.dumps(python_args)],
 			inputs=inputs,
 			outputs=outputs,
 			storage_prefix=self.storage_prefix,
@@ -108,10 +126,9 @@ class WcmWorkflow(Workflow):
 			total_gens=args['generations'])
 
 		python_args = dict(output_file=metadata_file, data=metadata)
-		metadata_task = self.add_python_task('write_json', python_args,
+		metadata_task = self.add_python_task(WriteJsonTask, python_args,
 			name='write_metadata',
-			inputs=[kb_dir],  # TODO(jerry): TEMPORARY workaround to delay this
-				# task so its worker doesn't exit while the Parca runs.
+			inputs=[],
 			outputs=[metadata_file],
 			timeout=90)
 
@@ -120,7 +137,7 @@ class WcmWorkflow(Workflow):
 			scriptBase.PARCA_KEYS,
 			debug=args['debug_parca'],
 			output_directory=kb_dir)
-		parca_task = self.add_python_task('parca', python_args,
+		parca_task = self.add_python_task(ParcaTask, python_args,
 			name='parca',
 			outputs=[kb_dir])
 
@@ -144,7 +161,7 @@ class WcmWorkflow(Workflow):
 				input_sim_data=sim_data_file,
 				output_sim_data=variant_sim_data_modified_file,
 				variant_metadata_directory=variant_metadata_dir)
-			variant_task = self.add_python_task('variant_sim_data', python_args,
+			variant_task = self.add_python_task(VariantSimDataTask, python_args,
 				name='variant_{}_{}'.format(variant_type, i),
 				inputs=[kb_dir],
 				outputs=[variant_sim_data_dir, variant_metadata_dir],
@@ -177,9 +194,9 @@ class WcmWorkflow(Workflow):
 
 						if k == 0:
 							python_args['seed'] = j
-							firetask = 'simulation'
+							firetask = SimulationTask
 						else:
-							firetask = 'simulation_daughter'
+							firetask = SimulationDaughterTask
 							parent_gen_dir = posixpath.join(
 								seed_dir, 'generation_{:06d}'.format(k - 1))
 							parent_cell_dir = posixpath.join(parent_gen_dir, '{:06d}'.format(l // 2))
@@ -210,7 +227,7 @@ class WcmWorkflow(Workflow):
 								input_validation_data=validation_data_file,
 								output_plots_directory=plot_dir,
 								metadata=md_single)
-							analysis_single_task = self.add_python_task('analysis_single',
+							analysis_single_task = self.add_python_task(AnalysisSingleTask,
 								python_args,
 								name='analysis_' + cell_id,
 								inputs=[kb_dir, variant_sim_data_dir, cell_sim_out_dir],
@@ -227,7 +244,7 @@ class WcmWorkflow(Workflow):
 								output_network_directory=cell_series_out_dir,
 								output_dynamics_directory=cell_series_out_dir,
 								metadata=md_single)
-							causality_task = self.add_python_task('build_causality_network',
+							causality_task = self.add_python_task(BuildCausalityNetworkTask,
 								python_args,
 								name='causality_' + cell_id,
 								inputs=[cell_sim_out_dir, variant_sim_data_dir],
@@ -242,7 +259,7 @@ class WcmWorkflow(Workflow):
 						input_validation_data=validation_data_file,
 						output_plots_directory=multigen_plot_dir,
 						metadata=md_multigen)
-					analysis_multigen_task = self.add_python_task('analysis_multigen',
+					analysis_multigen_task = self.add_python_task(AnalysisMultiGenTask,
 						python_args,
 						name='analysis_multigen_Var{}_Seed{}'.format(i, j),
 						inputs=this_variant_this_seed_multigen_analysis_inputs,
@@ -257,7 +274,7 @@ class WcmWorkflow(Workflow):
 					input_validation_data=validation_data_file,
 					output_plots_directory=cohort_plot_dir,
 					metadata=md_cohort)
-				analysis_cohort_task = self.add_python_task('analysis_cohort',
+				analysis_cohort_task = self.add_python_task(AnalysisCohortTask,
 					python_args,
 					name='analysis_cohort_Var{}'.format(i),
 					inputs=this_variant_cohort_analysis_inputs,
@@ -272,7 +289,7 @@ class WcmWorkflow(Workflow):
 				input_validation_data=validation_data_file,
 				output_plots_directory=variant_plot_dir,
 				metadata=metadata)
-			analysis_variant_task = self.add_python_task('analysis_variant',
+			analysis_variant_task = self.add_python_task(AnalysisVariantTask,
 				python_args,
 				name='analysis_variant',
 				inputs=variant_analysis_inputs,
