@@ -1,32 +1,18 @@
+#! /usr/bin/env python
+"""
+Compare the output of two parca runs and show any differences.
+
+Usage (SIMDIR is a path to simulation output containing a kb/ directory):
+	runscripts/debug/compareParca.py SIMDIR1 SIMDIR2
+"""
+
 from __future__ import absolute_import, division, print_function
 
-import os
-import cPickle
 from pprint import pprint
 import sys
 
-from wholecell.utils import constants
-from runscripts.reflect.object_tree import object_tree, diff_trees
+from runscripts.reflect.object_tree import diff_trees, load_fit_tree
 
-
-def load_fit_tree(out_subdir):
-	'''Load the parameter calculator's (Parca's) output as an object_tree.'''
-	# For convenience, optionally add the prefix 'out/'.
-	if not os.path.isabs(out_subdir) and not os.path.isdir(out_subdir):
-		out_subdir = os.path.join('out', out_subdir)
-
-	path = os.path.join(
-		out_subdir,
-		'kb',
-		constants.SERIALIZED_SIM_DATA_FILENAME)
-
-	with open(path, "rb") as f:
-		sim_data = cPickle.load(f)
-
-	return object_tree(sim_data)
-
-
-# Compare the output of two parca runs, optionally running the parca first.
 
 if __name__ == '__main__':
 	if len(sys.argv) < 3:
