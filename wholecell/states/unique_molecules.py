@@ -215,10 +215,10 @@ class UniqueMoleculesView(wholecell.views.view.View):
 		super(UniqueMoleculesView, self).__init__(*args, **kwargs)
 
 		self._queryResult = None # TODO: store query results with the state
+		self.cached_attributes = {}
 
 		# self._query must be the name of a unique molecule
 		assert isinstance(self._query, basestring)
-
 
 	def _updateQuery(self):
 		# TODO: generalize this logic (both here and in the state)
@@ -228,9 +228,15 @@ class UniqueMoleculesView(wholecell.views.view.View):
 			process_index=self._processIndex,
 			access=()
 			)
+		self._flush_cached_attributes()
 
 		self._totalIs(len(self._queryResult))
 
+	def _flush_cached_attributes(self):
+		"""
+		Removes all of the cached attribute arrays.
+		"""
+		self.cached_attributes = {}
 
 	def request_access(self, access):
 		"""
@@ -240,15 +246,25 @@ class UniqueMoleculesView(wholecell.views.view.View):
 		"""
 		self._queryResult.set_access_level(access=access)
 
-
 	# Wrappers for reading or manipulating queried molecules
 	def attr(self, attribute):
-		return self._queryResult.attr(attribute)
+		if attribute not in self.cached_attributes:
+			self.cached_attributes[attribute] = self._queryResult.attr(
+				attribute)
+		return self.cached_attributes[attribute]
 
 	def attrs(self, *attributes):
-		return self._queryResult.attrs(*attributes)
+		all_attrs = []
+		for attribute in attributes:
+			if attribute not in self.cached_attributes:
+				self.cached_attributes[attribute] = self._queryResult.attr(
+					attribute)
+			all_attrs.append(self.cached_attributes[attribute])
+
+		return tuple(all_attrs)
 
 	def attrIs(self, **attributes):
+		self._flush_cached_attributes()
 		self._queryResult.attrIs(**attributes)
 
 	def add_submass_by_name(self, submass_name, delta_mass):
@@ -258,27 +274,16 @@ class UniqueMoleculesView(wholecell.views.view.View):
 		self._queryResult.add_submass_by_array(delta_mass)
 
 	def delByIndexes(self, indexes):
+		self._flush_cached_attributes()
 		self._queryResult.delByIndexes(indexes)
-
-
-	def moleculeNew(self, **attributes):
-		"""
-		Adds a single object of the same type as the queried molecule to the
-		container with the given attributes.
-		"""
-		self._state.container.add_new_molecule_request(
-			self._query,
-			1,
-			process_index=self._processIndex,
-			**attributes
-			)
-
 
 	def moleculesNew(self, nMolecules, **attributes):
 		"""
 		Adds nMolecules objects of the same type as the queried molecule to the
 		container with the given attributes.
 		"""
+		self._flush_cached_attributes()
+
 		unique_indexes = self._state.container.add_request(
 			type="new_molecule",
 			collectionName=self._query,
