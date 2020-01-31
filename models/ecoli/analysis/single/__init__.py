@@ -12,6 +12,7 @@ ACTIVE = [
 	"centralCarbonMetabolismScatter.py",
 	"chromosome_visualization.py",
 	"concentrationDeviation.py",
+	"cotranscriptional_translation.py",
 	"dnaA_box_dynamics.py",
 	"dntpCounts.py",
 	"equilibriumComparison.py",
@@ -129,6 +130,7 @@ TAGS = {
 		"replisome_rnap_collisions_by_gene.py",
 		],
 	'TRANSCRIPTION': [
+		"cotranscriptional_translation.py",
 		"inter_rnap_distance.py",
 		"mRnaHalfLives.py",
 		"mrnaCounts.py",
@@ -139,6 +141,7 @@ TAGS = {
 		"tRnaCounts.py",
 		],
 	'TRANSLATION': [
+		"cotranscriptional_translation.py",
 		"growthLimits.py",
 		"mrnaVsProteinCounts.py",
 		"proteinCounts.py",

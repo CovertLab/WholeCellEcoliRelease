@@ -26,6 +26,7 @@ KCAT_ENDO_RNASE = 0.001
 ESTIMATE_ENDO_RNASES = 5000
 MAX_TIMESTEP_LEN = 2  # Determines length of padding values to add to transcript sequence matrix
 PPGPP_CONC_UNITS = units.umol / units.L
+PRINT_VALUES = False  # print values for supplemental table if True
 
 
 class Transcription(object):
@@ -58,6 +59,10 @@ class Transcription(object):
 			"""Handle empty values from raw_data as 0"""
 			val = d[k]
 			return 0 if val == '' else val
+
+		# Flag to check when ppGpp regulated expression has been set
+		# see set_ppgpp_expression()
+		self._ppgpp_expression_set = False
 
 		# Determine KM for ppGpp binding to RNAP
 		self._solve_ppgpp_km(raw_data, sim_data)
@@ -134,10 +139,21 @@ class Transcription(object):
 			for d in raw_data.growthRateDependentParameters])
 		self._ppgpp_growth_parameters = interpolate.splrep(ppgpp[::-1], growth_rates[::-1], k=1)
 
+		if PRINT_VALUES:
+			print('Supplement value (KM): {:.1f}'
+				.format(np.sqrt(self._ppgpp_km_squared)))
+			print('Supplement value (FC): [{:.2f}, {:.2f}]'
+				.format(fold_changes.min(), fold_changes.max()))
+			print('Supplement value (FC-): {:.2f}'.format(self._fit_ppgpp_fc))
+			print('Supplement value (FC+): {:.2f}'.format(average_positive_fc))
+
 	def _build_rna_data(self, raw_data, sim_data):
 		"""
 		Build RNA-associated simulation data from raw data.
 		"""
+
+		self._basal_rna_fractions = sim_data.mass.get_basal_rna_fractions()
+
 		assert all([len(rna['location']) == 1 for rna in raw_data.rnas])
 
 		# Loads RNA IDs, degradation rates, lengths, and nucleotide compositions
@@ -659,6 +675,36 @@ class Transcription(object):
 		self._ppgpp_km_squared = km
 		self.ppgpp_km = np.sqrt(km) * PPGPP_CONC_UNITS
 
+	def get_rna_fractions(self, ppgpp):
+		"""
+		Calculates expected RNA subgroup mass fractions based on ppGpp
+		concentration. If ppGpp expression has not been set yet, uses default
+		measured fractions.
+
+		Args:
+			ppgpp (float with or without mol / volume units): concentration of ppGpp,
+				if unitless, should represent the concentration of PPGPP_CONC_UNITS
+
+		Returns:
+			dict[str, float]: mass fraction for each subgroup mass, values sum to 1
+		"""
+
+		if self._ppgpp_expression_set:
+			exp = self.expression_from_ppgpp(ppgpp)
+			mass = self.rnaData['mw'] * exp
+			mass = (mass / units.sum(mass)).asNumber()
+			fractions =  {
+				'23S': mass[self.rnaData['isRRna23S']].sum(),
+				'16S': mass[self.rnaData['isRRna16S']].sum(),
+				'5S': mass[self.rnaData['isRRna5S']].sum(),
+				'trna': mass[self.rnaData['isTRna']].sum(),
+				'mrna': mass[self.rnaData['isMRna']].sum(),
+				}
+		else:
+			fractions = self._basal_rna_fractions
+
+		return fractions
+
 	def set_ppgpp_expression(self, sim_data):
 		"""
 		Called during the parca to determine expression of each gene for ppGpp
@@ -690,6 +736,8 @@ class Transcription(object):
 			/ (1 - 2**fcs * (f_ppgpp_aa - f_ppgpp_basal * (1 - f_ppgpp_aa) / (1 - f_ppgpp_basal))))
 		self.exp_free = (exp - self.exp_ppgpp*f_ppgpp_basal) / (1 - f_ppgpp_basal)
 		self.exp_free[self.exp_free < 0] = 0  # fold change is limited by KM, can't have very high positive fold changes
+
+		self._ppgpp_expression_set = True
 
 	def adjust_polymerizing_ppgpp_expression(self, sim_data):
 		"""

@@ -414,7 +414,7 @@ class TwoComponentSystem(object):
 				# Try with different solver for better stability
 				print('Warning: switching to LSODA method in TCS')
 				return self.moleculesToNextTimeStep(
-					moleculeCounts, cellVolume, nAvogadro, timeStepSec,
+					moleculeCounts, cellVolume, nAvogadro, timeStepSec, random_state,
 					solver='LSODA', min_time_step=min_time_step)
 			else:
 				raise Exception(

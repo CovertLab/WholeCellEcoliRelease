@@ -1,17 +1,21 @@
 from __future__ import absolute_import, division, print_function
 
-import unum
-import numpy as np
-import re
-import types
-import numbers
-import functools
 import collections
+import cPickle
+import functools
+import numbers
+import os
+import re
+import sys
+import types
 
+import Bio.Seq
+import numpy as np
 import sympy
 from sympy.matrices import dense
-import Bio.Seq
+import unum
 
+from wholecell.utils import constants
 import wholecell.utils.unit_struct_array
 
 NULP = 0  # float comparison tolerance, in Number of Units in the Last Place
@@ -113,6 +117,87 @@ def object_tree(obj, path='', debug=None):
 		tree['!type'] = type(obj)
 
 		return tree
+
+def size_tree(o, cutoff=0.1):
+	"""
+	Find the size of attributes in an object tree. Sizes greater than the cutoff
+	(in MB) will be returned for displaying. Sizes include all values contained
+	within an attribute (eg. a Dict will be represented by the size of all keys
+	and values in addition to the Dict size itself).
+
+	TODO: double check total size vs disk size - might be missing some types
+	"""
+
+	def return_val(total, value):
+		if total > cutoff and value:
+			return total, value
+		else:
+			return total,
+
+	def get_size(o):
+		return sys.getsizeof(o) / 2**20  # convert to MB
+
+	size = get_size(o)
+
+	# special handling of leaf to get size of defining attributes
+	if isinstance(o, unum.Unum):
+		size += size_tree(o._unit)[0]
+		size += get_size(o._value)
+		return size,
+
+	# special handling of leaf to get size of str sequence
+	elif isinstance(o, Bio.Seq.Seq):
+		size += get_size(o._data)
+		return size,
+
+	# special handling of leaf, each entry is allocated the same amount of space
+	elif isinstance(o, wholecell.utils.unit_struct_array.UnitStructArray):
+		size += size_tree(o.units)[0]
+		n_entries = len(o.struct_array)
+		if n_entries:
+			size += get_size(o.struct_array[0]) * n_entries
+		return size,
+
+	# if it is a leaf, just return the size
+	# TODO: any special handling for types that are not already accounted for above
+	elif is_leaf(o):
+		return size,
+
+	# if it is a dictionary, then get the size of keys and values
+	elif isinstance(o, collections.Mapping):
+		sizes = {}
+		total_size = size
+		for key, value in o.items():
+			subsizes = size_tree(value, cutoff)
+			entry_size = subsizes[0] + get_size(key)
+			total_size += entry_size
+			if entry_size > cutoff:
+				formatted = float('{:.2f}'.format(entry_size))
+				if len(subsizes) == 1:
+					val = formatted
+				else:
+					val = (formatted, subsizes[1])
+				sizes[key] = val
+		return return_val(total_size, sizes)
+
+	# if it is a sequence, then get the size of each element
+	elif isinstance(o, collections.Sequence):
+		sizes = []
+		total_size = size
+		for value in o:
+			subsizes = size_tree(value, cutoff)
+			total_size += subsizes[0]
+			if subsizes[0] > cutoff:
+				formatted = float('{:.2f}'.format(subsizes[0]))
+				if len(subsizes) == 1:
+					val = formatted
+				else:
+					val = (formatted, subsizes[1])
+				sizes.append(val)
+		return return_val(total_size, sizes)
+
+	else:
+		return size,
 
 def diff_trees(a, b):
 	"""
@@ -227,3 +312,19 @@ def compare_ndarrays(array1, array2):
 		return ()
 	except AssertionError as e:
 		return simplify_error_message(e.message)
+
+def load_fit_tree(out_subdir):
+	'''Load the parameter calculator's (Parca's) output as an object_tree.'''
+	# For convenience, optionally add the prefix 'out/'.
+	if not os.path.isabs(out_subdir) and not os.path.isdir(out_subdir):
+		out_subdir = os.path.join('out', out_subdir)
+
+	path = os.path.join(
+		out_subdir,
+		'kb',
+		constants.SERIALIZED_SIM_DATA_FILENAME)
+
+	with open(path, "rb") as f:
+		sim_data = cPickle.load(f)
+
+	return object_tree(sim_data)

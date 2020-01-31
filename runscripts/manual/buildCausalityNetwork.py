@@ -32,9 +32,10 @@ class BuildCausalityNetwork(AnalysisBase):
 			help='Check network sanity.')
 		parser.add_argument('-f', '--force', action='store_true',
 			help='Forces a rebuild of the causality network if set.')
+		self.define_range_options(parser, 'variant', 'seed', 'generation')
 
-	def parse_args(self):
-		args = super(BuildCausalityNetwork, self).parse_args()
+	def update_args(self, args):
+		super(BuildCausalityNetwork, self).update_args(args)
 
 		args.seed_str = '%06d' % (args.seed,)
 		args.gen_str = 'generation_%06d' % (args.generation,)

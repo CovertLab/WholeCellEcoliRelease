@@ -115,15 +115,14 @@ T_{p} + H_2O \overset{k_E}{\rightarrow} T + P_i
 
 \subparagraph{Modeling the modulation of RNA polymerase recruitment.}
 After modeling transcription factor activation, we need to model the probability that the transcription factor is bound to DNA, \(p_T\), and, when the transcription factor is DNA-bound, its effect on RNA polymerase recruitment to the promoter site, \(\Delta r\) (see Algorithm~\ref{tf_binding_algorithm}).  Recalling the notation used in the \textit{Transcription} section (Algorithm~\ref{transcript_initiation_algorithm}), we want to modulate the \(j^{th}\) entry in the \(v_\text{synth}\) vector of RNA polymerase initiation probabilities such that:
-
 \begin{equation}
 v_{\text{synth}, j} = \alpha_j + \sum_{i} p_{T, i} \Delta r_{i j}
+\label{eq:vsynth}
 \end{equation}
 
-\noindent where \(\alpha_j\) represents basal recruitment of RNA polymerase and the second term is dependent on transcription factor activity: the probability that the \(i^{th}\) transcription factor is DNA-bound is \(p_{T, i}\), and the recruitment effect of the \(i^{th}\) transcription factor on the \(j^{th}\) gene is \(\Delta r_{i j}\). The \(\alpha\) and \(\Delta r\) values are computed prior to simulation based on gene expression values from conditions that modulate transcription factor activity.  Values for \(p_T\) are calculated as described in Table~\ref{table:transcription_pt}.
+\noindent where \(\alpha_j\) represents basal recruitment of RNA polymerase and the second term is dependent on transcription factor activity: the probability that the \(i^{th}\) transcription factor is DNA-bound is \(p_{T, i}\), and the recruitment effect of the \(i^{th}\) transcription factor on the \(j^{th}\) gene is \(\Delta r_{i j}\).  The $\alpha$ values are either computed prior to the simulation or determined from the simulation ppGpp concentration as described in the section below. The \(\Delta r\) values are computed prior to simulation based on gene expression values from conditions that modulate transcription factor activity.  Values for \(p_T\) are calculated as described in Table~\ref{table:transcription_pt}.
 
-
-\begin{table}[!hbt]
+\begin{table}[H]
 \centering
 \begin{tabular}{r l}
 Transcription factor type & Promoter-bound probability \\
@@ -135,6 +134,93 @@ Two-component system & \(p_T = (T_p) / (T_p + T)\) \\
 \caption[Formulas used to compute the probability that a transcription factor is promoter-bound.]{Formulas used to compute the probability that a transcription factor is promoter-bound. \(T^*\) is the active form of a one-component system transcription factor, while \(T_p\) is the phosphorylated form of a two-component system transcription factor, and \(T\) is the inactive or unphosphorylated form of a transcription factor.}
 \label{table:transcription_pt}
 \end{table}
+
+\subparagraph{Optional feature: ppGpp regulation.}
+ppGpp regulation of gene expression can be enabled with a simulation option (\texttt{--ppgpp-regulation}).  When enabled, it is assumed that ppGpp binds to RNA polymerases and the free and bound forms of RNA polymerase have different amounts of expression for each gene.  The binding can be represented with a reversible reaction:
+\begin{equation}
+RNAP_{free} + ppGpp \rightleftharpoons RNAP_{ppGpp}
+\end{equation}
+
+\noindent To calculate the impact of ppGpp on RNA expression the following equation is used:
+\begin{equation}
+exp_j = (1-f)\cdot exp_{free, j} + f\cdot exp_{ppGpp, j}
+\label{eq:exp-ppgpp}
+\end{equation}
+
+\noindent where $exp_{free, j}$ and $exp_{ppGpp, j}$ represent the amounts of expression expected from the free and ppGpp bound RNA polymerases, respectively, and are determined prior to simulations. $f$ is the fraction of RNA polymerases that are bound to ppGpp as defined below:
+\begin{equation}
+f = \frac{RNAP_{ppGpp}}{RNAP_{total}} = \frac{C_{ppGpp}^2}{K_M^2 + C_{ppGpp}^2}
+\label{eq:f}
+\end{equation}
+
+\noindent where $C_{ppGpp}$ is the concentration of ppGpp, $K_M$ is determined prior to simulations and represents the Michaelis constant representing the concentration of ppGpp where half the RNA polymerases are bound.  There is also a Hill coefficient of 2 representing the fact that ppGpp has multiple sites of interaction with RNA polymerase \cite{sanchez2019genome}.
+
+To calculate $K_M$ of ppGpp binding to RNA polymerase, several assumptions are made.  The first is that the amount of RNA in a cell at different growth rates changes due to changes in stable RNA expression.  The second is that this change in RNA is controlled by ppGpp concentration changes which cause differential expression based on the amount of RNA polymerase that is bound.  Finally, the amount of RNA polymerase bound to ppGpp follows the relationship in Eq. \ref{eq:f}.  Using population level data for RNA mass fraction, RNA polymerase concentration and ppGpp concentration at different cell doubling times from Bremer and Dennis \cite{Bremer:1996uj} allows $K_M$ (as well as overall expression rates from free and ppGpp bound RNA polymerase) to be determined with a least squares fit based on the following relationship:
+
+\begin{gather}
+RNA_{fraction, i} = C_{RNAP, i}\cdot ((1-f_i)\cdot exp_{free} + f_i\cdot exp_{ppGpp})
+\label{eq:RNA-fit} \\
+f_i = \frac{C_{ppGpp, i}^2}{K_M^2 + C_{ppGpp, i}^2}
+\label{eq:fi}
+\end{gather}
+
+\noindent where $RNA_{fraction, i}$ is the mass fraction of the cell that is RNA, $C_{RNAP, i}$ is the cellular concentration of RNA polymerase and $C_{ppGpp, i}$ is the cellular concentration of ppGpp for each growth rate $i$.
+
+ppGpp dependent fold change data and basal expression data can be used to solve for $exp_{free, j}$ and $exp_{ppGpp, j}$ for each gene, $j$, using data from Sanchez-Vazquez \textit{et al.} \cite{sanchez2019genome}.  To ensure consistency with annotated ppGpp regulation, only genes known to be regulated by ppGpp as curated from EcoCyc \cite{karp2014ecocyc} and with consistent regulatory direction with the fold change data are regulated by ppGpp in the model.  The fold change data from Sanchez-Vazuez \textit{et al.} represents the change from an uninduced (low ppGpp) condition in rich media to a RelA induced (high ppGpp) condition.  Assuming the overexpression of RelA leads to ppGpp concentrations that are much greater than $K_M$ so that all RNA polymerases are bound to ppGpp, the fold change can be represented as:
+\begin{equation}
+FC_j = \log_2\frac{exp_{induced, j}}{exp_{uninduced, j}} = \log_2\frac{exp_{ppGpp, j}}{(1 - f_{rich})\cdot exp_{free, j} + f_{rich}\cdot exp_{ppGpp, j}}
+\label{eq:fc-ppgpp}
+\end{equation}
+
+\noindent where $FC_j$ is the measured fold change for gene $j$ and $f_{rich}$ is the fraction of RNA polymerases bound to ppGpp in rich media as determined by Eq. \ref{eq:fi} with the concentration for ppGpp in rich media.
+
+Measured RNA expression in M9 + glucose conditions (basal) provides another relationship between measured data and $exp_{free, j}$ and $exp_{ppGpp, j}$ for each gene:
+\begin{equation}
+exp_{basal, j} = (1 - f_{basal}) \cdot exp_{free, j} + f_{basal} \cdot exp_{ppGpp, j}
+\label{eq:exp-basal}
+\end{equation}
+
+\noindent where $exp_{basal, j}$ is the measured RNA expression data for each gene, $j$, and $f_{basal}$ is the fraction of RNA polymerases bound to ppGpp in basal media as determined by Eq. \ref{eq:fi} with the concentration for ppGpp in basal media.
+
+Taken together, Eq. \ref{eq:fc-ppgpp} and \ref{eq:exp-basal} can be used to solve for the unknown values $exp_{free, j}$ and $exp_{ppGpp, j}$.  This provides expression for nearly all genes but some adjustments are needed.  First, some genes do not have fold change data (transcript is too small, difference was not significant, etc) but are annotated as being regulated by ppGpp.  For those with positive regulation, the average fold change of all positively regulated genes, $FC_+$, is used.  For those with negative regulation, the fold change calculated from fitting $exp_{free}$ and $exp_{ppGpp}$ in Eq. \ref{eq:RNA-fit}, $FC_-$, is used since this mostly represents the change in rRNA and tRNA expression which is not measured in the fold change data set.  Another adjustment is needed for certain genes with high positive fold changes.  In these cases, solving the two equations results in a negative value for $exp_{free, j}$.  Since negative RNA expression is not possible, these values are truncated at 0.
+
+Expression adjustments to ribosome and RNA polymerase related genes are currently done outside the framework of ppGpp regulation in order to get the appropriate doubling time in given conditions.  To match ppGpp regulation expression levels to these expression adjustments, a least squares fit is performed to determine new expression values for the adjusted genes.  Based on Eq. \ref{eq:exp-ppgpp}, a system of equations can be set up for the expression in each of three conditions (rich, basal, anaerobic):
+\begin{gather}
+F\cdot r = e \\
+\begin{bmatrix}
+1 - f_{rich} & f_{rich} \\
+1 - f_{basal} & f_{basal} \\
+1 - f_{anaerobic} & f_{anaerobic}
+\end{bmatrix}
+\cdot
+\begin{bmatrix}
+exp_{free, j} \\
+exp_{ppGpp, j}
+\end{bmatrix}
+=
+\begin{bmatrix}
+exp_{rich, j} \\
+exp_{basal, j} \\
+exp_{anaerobic, j}
+\end{bmatrix}
+\end{gather}
+
+\noindent where $f_{rich}$, $f_{basal}$ and $f_{anaerobic}$ are the fractions of RNA polymerase bound to ppGpp in different conditions, $exp_{free, j}$ and $exp_{ppGpp, j}$ are the gene specific expression values for free and ppGpp bound RNA polymerases and $exp_{rich, j}$, $exp_{basal, j}$ and $exp_{anaerobic, j}$ are adjusted expression values for genes of interest in each of the conditions.  Solving with least squares provides the following solution:
+\begin{equation}
+\hat{r} = (F^TF)^{-1}F^Te
+\end{equation}
+
+During simulations, $\alpha_j$ in Eq. \ref{eq:vsynth} becomes dependent on ppGpp concentrations as shown with the equations below:
+\begin{equation}
+\alpha_j = \frac{exp_j\cdot loss}{n_{genes}}
+\end{equation}
+
+\noindent where $exp_j$ is defined in Eq. \ref{eq:exp-ppgpp}. $loss$ is the expected loss rate of the given transcript approximated by:
+\begin{equation}
+loss = \frac{\ln(2)}{\tau} + \frac{\ln(2)}{t_{1/2}}
+\end{equation}
+
+\noindent where $\tau$ is the expected doubling time from the current concentration of ppGpp (interpolation performed from data from Bremer and Dennis \cite{Bremer:1996uj}) and $t_{1/2}$ is the measured RNA half life.  $n_{genes}$ is the expected gene copy number which is a function of $\tau$ as determined above and the gene's position in the genome.
 
 \hspace{1cm}
 
@@ -255,6 +341,11 @@ Dephosphorylation rate of TF-P & $k_E$ & $\mu$M/s & 1e-2 & See GitHub  \\
 DNA::TF dissociation constant & $K_d$ & pM & [2e-4, 1.1e5] & See GitHub  \\
 Promoter sites & $n$ & targets per chromosome & [1, 108] & See GitHub  \\
 Fold-change gene expression & $FC$ & $log_{2}(a.u.)$ & [-10.48, 9.73] & See GitHub  \\
+ppGpp::RNAP binding Michaelis constant & $K_M$ & $\mu$M & 24.0 & \cite{Bremer:1996uj}, See GitHub \\
+ppGpp::RNAP binding Hill coefficient & h & - & 2 & Assumed \\
+Fold-change from ppGpp regulation & $FC$ & $log_{2}(a.u.)$ & [-3.11, 3.40] & \cite{sanchez2019genome} \\
+Default negative fold-change from ppGpp regulation & $FC_-$ & $log_{2}(a.u.)$ & -0.51 & \cite{Bremer:1996uj}, See GitHub \\
+Default positive fold-change from ppGpp regulation & $FC_+$ & $log_{2}(a.u.)$ & 1.16 & \cite{sanchez2019genome} \\
 
  \hline
 \end{tabular}
@@ -282,6 +373,8 @@ Fold-change gene expression & $FC$ & $log_{2}(a.u.)$ & [-10.48, 9.73] & See GitH
 \texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{tfOneComponentBound.tsv} & raw data \\
 \texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{twoComponentSystems.tsv} & raw data \\
 \texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{twoComponentSystemTemplates.tsv} & raw data \\
+\texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{ppgpp\_fc.tsv} & raw data \\
+\texttt{wcEcoli/reconstruction/ecoli/flat} & \texttt{ppgpp\_regulation.tsv} & raw data \\
  \hline
 \end{tabular}
 \end{center}
@@ -293,8 +386,5 @@ Fold-change gene expression & $FC$ & $log_{2}(a.u.)$ & [-10.48, 9.73] & See GitH
 \label{sec:references}
 \bibliographystyle{plain}
 \bibliography{references}
-% Need for compiler error: I found no \citation commands---while reading file transcription_regulation.aux
-% Remove if a citation is included in this tex file
-\nocite{empty}
 
 \end{document}

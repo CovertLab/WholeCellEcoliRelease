@@ -321,7 +321,7 @@ def divideUniqueMolecules(uniqueMolecules, randomState,
 				d2_bool = np.isin(mRNA_index, RNA_d2_indexes)
 
 				# Binomially divide ribosomes whose bound RNAs could not be
-				# found (ggsun: This happens because mRNAs degradation does
+				# found (ggsun: This happens because mRNA degradation does
 				# not abort translation of the mRNA)
 				lost_ribosome_indexes = np.where(
 					np.logical_not(np.logical_or(d1_bool, d2_bool)))[0]

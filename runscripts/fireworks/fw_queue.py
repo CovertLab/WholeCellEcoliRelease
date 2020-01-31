@@ -54,6 +54,7 @@ Workflow options:
 Simulation parameters:
 	N_GENS (int, "1"): the number of generations to be simulated
 	N_INIT_SIMS (int, "1"): the number of initial simulations
+	SEED (int, "0"): starting seed to run
 	SINGLE_DAUGHTERS (int, "1"): if nonzero, the simulation will generate only
 		one daughter cell for each new generation rather than two, thus avoiding
 		an exponential increase in the number of simulations
@@ -239,6 +240,7 @@ TRNA_CHARGING = bool(int(get_environment("TRNA_CHARGING", DEFAULT_SIMULATION_KWA
 PPGPP_REGULATION = bool(int(get_environment("PPGPP_REGULATION", DEFAULT_SIMULATION_KWARGS["ppgpp_regulation"])))
 RAISE_ON_TIME_LIMIT = bool(int(get_environment("RAISE_ON_TIME_LIMIT", DEFAULT_SIMULATION_KWARGS["raise_on_time_limit"])))
 N_INIT_SIMS = int(get_environment("N_INIT_SIMS", "1"))
+SEED = int(get_environment("SEED", "0"))
 N_GENS = int(get_environment("N_GENS", "1"))
 SINGLE_DAUGHTERS = bool(int(get_environment("SINGLE_DAUGHTERS", "1")))
 LAUNCHPAD_FILE = str(get_environment("LAUNCHPAD_FILE", "my_launchpad.yaml"))
@@ -294,7 +296,7 @@ for i in VARIANTS_TO_RUN:
 	VARIANT_METADATA_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, "metadata")
 	VARIANT_COHORT_PLOT_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, "plotOut")
 
-	for j in xrange(N_INIT_SIMS):
+	for j in xrange(SEED, SEED + N_INIT_SIMS):
 		SEED_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, "%06d" % j)
 		SEED_PLOT_DIRECTORY = filepath.makedirs(SEED_DIRECTORY, "plotOut")
 
@@ -591,7 +593,7 @@ for i in VARIANTS_TO_RUN:
 
 	fw_this_variant_this_seed_this_analysis = None
 
-	for j in xrange(N_INIT_SIMS):
+	for j in xrange(SEED, SEED + N_INIT_SIMS):
 		log_info("\tQueueing Seed {}".format(j))
 		SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
 		SEED_PLOT_DIRECTORY = os.path.join(SEED_DIRECTORY, "plotOut")

@@ -1,7 +1,7 @@
 """
 SimulationData for Ecoli
 
-Raw data processed into forms convienent for whole-cell modeling
+Raw data processed into forms convenient for whole-cell modeling
 
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
@@ -18,7 +18,7 @@ from reconstruction.ecoli.dataclasses.getterFunctions import getterFunctions
 from reconstruction.ecoli.dataclasses.moleculeGroups import MoleculeGroups
 from reconstruction.ecoli.dataclasses.moleculeIds import MoleculeIds
 from reconstruction.ecoli.dataclasses.constants import Constants
-from reconstruction.ecoli.dataclasses.getNames import GetNames
+from reconstruction.ecoli.dataclasses.common_names import CommonNames
 from reconstruction.ecoli.dataclasses.state.internal_state import InternalState
 from reconstruction.ecoli.dataclasses.state.external_state import ExternalState
 from reconstruction.ecoli.dataclasses.process.process import Process
@@ -78,8 +78,9 @@ class SimulationDataEcoli(object):
 		self.translationSaturation = True
 		#### VARIANT CODE ####
 
-		# Fathom visualization-tool related data
-		self.fathom = GetNames(raw_data, self)
+		# Mappings from element IDs to common names
+		self.common_names = CommonNames(raw_data, self)
+
 
 	def _addHardCodedAttributes(self):
 		self.molecular_weight_keys = [

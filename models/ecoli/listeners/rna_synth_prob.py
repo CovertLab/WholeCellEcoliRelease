@@ -5,7 +5,6 @@ RnaSynthProb
 
 Records RNA synthesis probabilities
 
-@author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/17/2016
 """
@@ -15,6 +14,12 @@ from __future__ import division
 import numpy as np
 
 import wholecell.listeners.listener
+
+# This number needs to be greater than the maximum number of chromosome-bound
+# transcription factors in a single timestep - currently this number is around
+# 1400 in +AA conditions.
+MAX_BOUND_TFS = 1750
+
 
 class RnaSynthProb(wholecell.listeners.listener.Listener):
 	""" RnaSynthProb """
@@ -29,6 +34,8 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 	# Construct object graph
 	def initialize(self, sim, sim_data):
 		super(RnaSynthProb, self).initialize(sim, sim_data)
+
+		self.uniqueMolecules = sim.internal_states['UniqueMolecules']
 
 		self.transcriptInitiation = sim.processes["TranscriptInitiation"]
 		self.rnaIds = sim_data.process.transcription.rnaData["id"]
@@ -52,6 +59,31 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 		# This array gets flattened at tableAppend(). Resulting array should
 		# be reshaped before use.
 		self.n_bound_TF_per_TU = np.zeros((self.n_TU, self.n_TF), np.int16)
+
+		# Properties of bound TFs
+		self.bound_TF_indexes = np.full(MAX_BOUND_TFS, np.nan, np.float64)
+		self.bound_TF_coordinates = np.full(MAX_BOUND_TFS, np.nan, np.float64)
+		self.bound_TF_domains = np.full(MAX_BOUND_TFS, np.nan, np.float64)
+
+
+	def update(self):
+		self.bound_TF_indexes[:] = np.nan
+		self.bound_TF_coordinates[:] = np.nan
+		self.bound_TF_domains[:] = np.nan
+
+		promoters = self.uniqueMolecules.container.objectsInCollection('promoter')
+
+		if len(promoters) > 0:
+			all_coordinates, all_domains, bound_TFs = promoters.attrs(
+				"coordinates", "domain_index", "bound_TF"
+				)
+
+			bound_promoter_indexes, TF_indexes = np.where(bound_TFs)
+			n_bound_TFs = len(bound_promoter_indexes)
+
+			self.bound_TF_indexes[:n_bound_TFs] = TF_indexes
+			self.bound_TF_coordinates[:n_bound_TFs] = all_coordinates[bound_promoter_indexes]
+			self.bound_TF_domains[:n_bound_TFs] = all_domains[bound_promoter_indexes]
 
 
 	def tableCreate(self, tableWriter):
@@ -79,4 +111,7 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 			nPromoterBound = self.nPromoterBound,
 			nActualBound = self.nActualBound,
 			n_bound_TF_per_TU = self.n_bound_TF_per_TU,
+			bound_TF_indexes = self.bound_TF_indexes,
+			bound_TF_coordinates = self.bound_TF_coordinates,
+			bound_TF_domains = self.bound_TF_domains,
 			)

@@ -29,6 +29,8 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 	def initialize(self, sim, sim_data):
 		super(RibosomeData, self).initialize(sim, sim_data)
 
+		self.uniqueMolecules = sim.internal_states['UniqueMolecules']
+
 		self.monomerIds = sim_data.process.translation.monomerData['id'].tolist()
 		self.nMonomers = len(self.monomerIds)
 
@@ -59,13 +61,39 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 		self.numTrpATerminated = 0.
 		self.probTranslationPerTranscript = np.zeros(self.nMonomers, np.float64)
 
+		# Attributes computed by the listener
+		self.n_ribosomes_per_transcript = np.zeros(self.nMonomers, np.int64)
+		self.n_ribosomes_on_partial_mRNA_per_transcript = np.zeros(self.nMonomers, np.int64)
 
 	def update(self):
-		pass
+		# Get attributes of RNAs and ribosomes
+		RNAs = self.uniqueMolecules.container.objectsInCollection('RNA')
+		ribosomes = self.uniqueMolecules.container.objectsInCollection(
+			'active_ribosome')
+		is_full_transcript_RNA, unique_index_RNA = RNAs.attrs(
+			'is_full_transcript', 'unique_index')
+		protein_index_ribosomes, mRNA_index_ribosomes = ribosomes.attrs(
+			'protein_index', 'mRNA_index')
+
+		# Get mask for ribosomes that are translating proteins on partially
+		# transcribed mRNAs
+		ribosomes_on_nascent_mRNA_mask = np.isin(
+			mRNA_index_ribosomes,
+			unique_index_RNA[np.logical_not(is_full_transcript_RNA)])
+
+		# Get counts of ribosomes for each type
+		self.n_ribosomes_per_transcript = np.bincount(
+			protein_index_ribosomes, minlength=self.nMonomers)
+		self.n_ribosomes_on_partial_mRNA_per_transcript = np.bincount(
+			protein_index_ribosomes[ribosomes_on_nascent_mRNA_mask],
+			minlength=self.nMonomers)
 
 	def tableCreate(self, tableWriter):
 		subcolumns = {
-			'probTranslationPerTranscript': 'monomerIds'}
+			'probTranslationPerTranscript': 'monomerIds',
+			'n_ribosomes_per_transcript': 'monomerIds',
+			'n_ribosomes_on_partial_mRNA_per_transcript': 'monomerIds',
+			}
 
 		tableWriter.writeAttributes(
 			monomerIds = self.monomerIds,
@@ -95,4 +123,6 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 			translationSupply = self.translationSupply,
 			numTrpATerminated = self.numTrpATerminated,
 			probTranslationPerTranscript = self.probTranslationPerTranscript,
+			n_ribosomes_per_transcript = self.n_ribosomes_per_transcript,
+			n_ribosomes_on_partial_mRNA_per_transcript = self.n_ribosomes_on_partial_mRNA_per_transcript,
 			)

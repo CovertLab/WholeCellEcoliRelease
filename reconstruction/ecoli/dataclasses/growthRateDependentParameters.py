@@ -143,13 +143,21 @@ class Mass(object):
 		for key, value in massFraction.iteritems():
 			D[key + "Mass"] = value * self.getAvgCellDryMass(doubling_time)
 
-		D["rRna23SMass"] = D['rnaMass'] * self._rrna23s_mass_sub_fraction
-		D["rRna16SMass"] = D['rnaMass'] * self._rrna16s_mass_sub_fraction
-		D["rRna5SMass"] = D['rnaMass'] * self._rrna5s_mass_sub_fraction
-		D["tRnaMass"] = D['rnaMass'] * self._trna_mass_sub_fraction
-		D["mRnaMass"] = D['rnaMass'] * self._mrna_mass_sub_fraction
-
 		return D
+
+	def get_basal_rna_fractions(self):
+		"""
+		Measured RNA subgroup mass fractions. Fractions should change in other
+		conditions with growth rate (see transcription.get_rna_fractions()).
+		"""
+
+		return {
+			'23S': self._rrna23s_mass_sub_fraction,
+			'16S': self._rrna16s_mass_sub_fraction,
+			'5S': self._rrna5s_mass_sub_fraction,
+			'trna': self._trna_mass_sub_fraction,
+			'mrna': self._mrna_mass_sub_fraction,
+			}
 
 	def getBiomassAsConcentrations(self, doubling_time):
 

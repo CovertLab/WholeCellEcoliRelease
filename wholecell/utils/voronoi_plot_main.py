@@ -695,8 +695,9 @@ class VoronoiMaster():
         self.i_max = i_max
         self.err_thres = err_thres
 
-    def plot(self, dic, side_length = (4, 4), custom_shape_vertices = None,
-             font_size = 8, title = None, ax_shape = None, chained = None):
+    def plot(self, dic, side_length=(4, 4), custom_shape_vertices=None,
+            font_size=8, title=None, ax_shape=None, chained=None,
+            verbose=False):
         '''
         Master function of generating layered or non-layered voronoi plot from a
         dictionary.
@@ -722,6 +723,8 @@ class VoronoiMaster():
             ax_shape: the shape of the subplot, in (nrows, ncols)
             chained: whether the new subplot should be based on the previous
                 subplot or not.
+            verbose: If true, print the magnitude of the error in the areas
+                represented by the plot
 
         Returns:
             error_all: the error in total area representation.
@@ -759,9 +762,10 @@ class VoronoiMaster():
                         polygon_value_list_new, total_value, total_area)
                     error_new = gross_error / (
                             2 * voronoi_list_new[0].canvas_obj.area)
-                    print('The error in the area representation of the whole '
-                          'voronoi diagram (%i, %i): %.4f'
-                          % (i, j, error_new,))
+                    if verbose:
+                        print('The error in the area representation of the whole '
+                              'voronoi diagram (%i, %i): %.4f'
+                              % (i, j, error_new,))
                     error_all.append(error_new)
                     voronoi_list_old = voronoi_list_new
         else:
@@ -783,8 +787,9 @@ class VoronoiMaster():
             gross_error = self._compute_error(
                 polygon_value_list, total_value, total_area)
             error_all = gross_error / (2 * voronoi_list[0].canvas_obj.area)
-            print('The error in the area representation of the whole voronoi '
-                  'diagram: %.4f' % (error_all,))
+            if verbose:
+                print('The error in the area representation of the whole'
+                      'voronoi diagram: %.4f' % (error_all,))
             plt.title(title)
 
         return error_all
