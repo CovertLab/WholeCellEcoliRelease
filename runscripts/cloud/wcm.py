@@ -117,7 +117,7 @@ class WcmWorkflow(Workflow):
 		metadata = data.select_keys(
 			args,
 			scriptBase.METADATA_KEYS,
-			git_hash="$IMAGE_GIT_HASH",  # expanded by the Docker Container shell!
+			git_hash="$IMAGE_GIT_HASH",  # $VARIABLE expanded by WriteJsonTask
 			git_branch="$IMAGE_GIT_BRANCH",
 			workflow_git_hash=fp.run_cmdline("git rev-parse HEAD"),
 			workflow_git_branch=fp.run_cmdline("git symbolic-ref --short HEAD"),
