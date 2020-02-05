@@ -299,6 +299,13 @@ class Simulation(lens.actor.inner.Simulation):
 		for hook in self.hooks.itervalues():
 			hook.preEvolveState(self)
 
+		# Reset values in evaluationTime listener
+		self._evalTime.updateQueries_times.fill(0)
+		self._evalTime.calculateRequest_times.fill(0)
+		self._evalTime.partition_times.fill(0)
+		self._evalTime.evolveState_times.fill(0)
+		self._evalTime.merge_times.fill(0)
+
 	# Calculate temporal evolution
 	def _evolveState(self, processes):
 		# Update queries
