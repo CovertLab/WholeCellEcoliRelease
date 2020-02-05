@@ -45,10 +45,8 @@ if __name__ == '__main__':
 	assert isinstance(args, dict)
 
 	print('runTask {}({})'.format(task_name, str(args)[1:-1]))
-	print(dict(
-		IMAGE_GIT_BRANCH=os.environ.get('IMAGE_GIT_BRANCH', ''),
-		IMAGE_GIT_HASH=os.environ.get('IMAGE_GIT_HASH', ''),
-		IMAGE_TIMESTAMP=os.environ.get('IMAGE_TIMESTAMP', '')))
+	print({key: os.environ.get(key, '') for key in
+		('IMAGE_GIT_BRANCH', 'IMAGE_GIT_HASH', 'IMAGE_TIMESTAMP')})
 
 	task = TASKS[task_name](**args)
 	task.run_task({})
