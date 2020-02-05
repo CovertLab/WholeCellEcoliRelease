@@ -33,6 +33,7 @@ from runscripts.manual.analysisBase import AnalysisBase
 from runscripts.cloud.util.workflow import STORAGE_ROOT_ENV_VAR, Task, Workflow
 
 
+# ':latest' -- "You keep using that word. I do not think it means what you think it means."
 DOCKER_IMAGE = 'gcr.io/allen-discovery-center-mcovert/{}-wcm-code'
 USE_GAIA = False
 
@@ -117,10 +118,13 @@ class WcmWorkflow(Workflow):
 		metadata = data.select_keys(
 			args,
 			scriptBase.METADATA_KEYS,
-			git_hash=fp.run_cmdline("git rev-parse HEAD"),
-			git_branch=fp.run_cmdline("git symbolic-ref --short HEAD"),
+			git_hash="$IMAGE_GIT_HASH",  # expanded by the Docker Container shell!
+			git_branch="$IMAGE_GIT_BRANCH",
+			workflow_git_hash=fp.run_cmdline("git rev-parse HEAD"),
+			workflow_git_branch=fp.run_cmdline("git symbolic-ref --short HEAD"),
 			description=args['description'] or 'WCM',
-			time=self.timestamp,
+			time="$IMAGE_TIMESTAMP",
+			workflow_time=self.timestamp,
 			variant=variant_type,
 			total_variants=str(variant_count),
 			total_gens=args['generations'])

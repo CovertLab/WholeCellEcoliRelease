@@ -75,5 +75,5 @@ class ParcaTask(FiretaskBase):
 		for task in tasks:
 			task.run_task(fw_spec)
 
-		print('\n\t'.join(['Wrote', metrics_data_file, raw_data_file,
+		print('Wrote: {}'.format([metrics_data_file, raw_data_file,
 			sim_data_file, raw_validation_data_file, validation_data_file]))
