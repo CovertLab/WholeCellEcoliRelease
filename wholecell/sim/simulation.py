@@ -144,7 +144,8 @@ class Simulation(lens.actor.inner.Simulation):
 
 		self.internal_states = _orderedAbstractionReference(self._internalStateClasses)
 		self.external_states = _orderedAbstractionReference(self._externalStateClasses)
-		self.processes = _orderedAbstractionReference(all_processes)
+		self.processes = _orderedAbstractionReference(sorted(all_processes, key=lambda cls: cls.name()))
+
 		self.listeners = _orderedAbstractionReference(self._listenerClasses + DEFAULT_LISTENER_CLASSES)
 		self.hooks = _orderedAbstractionReference(self._hookClasses)
 		self._initLoggers()
