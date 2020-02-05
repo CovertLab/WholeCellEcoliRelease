@@ -42,7 +42,8 @@ def makedirs(path, *paths):
 	full_path = os.path.join(path, *paths)
 
 	try:
-		os.makedirs(full_path)
+		if full_path:
+			os.makedirs(full_path)
 	except OSError as e:
 		if e.errno != errno.EEXIST or not os.path.isdir(full_path):
 			raise
