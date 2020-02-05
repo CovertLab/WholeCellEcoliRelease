@@ -42,7 +42,7 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		self.internal_states = sim.internal_states
 
-		self.processNames = list(sim.processes.keys()) + ["Unallocated"]
+		self.processNames = list(sim.processes.keys())
 
 		self.cellCycleLen = sim_data.conditionToDoublingTime[sim_data.condition].asNumber(units.s)
 
@@ -62,20 +62,14 @@ class Mass(wholecell.listeners.listener.Listener):
 			])
 
 		self.tRnaIndex = sim_data.submassNameToIndex["tRNA"]
-
 		self.mRnaIndex = sim_data.submassNameToIndex["mRNA"]
-
 		self.dnaIndex = sim_data.submassNameToIndex["DNA"]
-
 		self.proteinIndex = sim_data.submassNameToIndex["protein"]
-
 		self.waterIndex = sim_data.submassNameToIndex["water"]
 
 		self.cellDensity = sim_data.constants.cellDensity.asNumber(units.g / units.L)
 
-
 		# Set initial values
-
 		self.setInitial = False
 
 		self.dryMass = 0.0
@@ -83,7 +77,6 @@ class Mass(wholecell.listeners.listener.Listener):
 		# mother cell (divided by two) in the last time step
 
 		# Register logged quantities
-
 		self.registerLoggedQuantity(
 			"Cell mass\n(fg)",
 			"cellMass",
@@ -148,32 +141,27 @@ class Mass(wholecell.listeners.listener.Listener):
 	def update(self):
 		oldDryMass = self.dryMass
 
-		masses = sum(state.mass() for state in self.internal_states.itervalues())
+		all_submasses = sum(
+			state.mass() for state in self.internal_states.itervalues())
 
-		preEvolveMasses = masses[0, ...]
-		postEvolveMasses = masses[1, ...]
+		self.cellMass = all_submasses.sum()  # sum over all submasses
 
-		self.cellMass = postEvolveMasses.sum() # sum over all dimensions
-		submasses = postEvolveMasses.sum(axis = 0) # sum over the processes
-
-		self.waterMass = submasses[self.waterIndex]
+		self.waterMass = all_submasses[self.waterIndex]
 		self.dryMass = self.cellMass - self.waterMass
-		self.rnaMass = submasses[self.rnaIndexes].sum()
-		self.rRnaMass = submasses[self.rRnaIndexes].sum()
-		self.tRnaMass = submasses[self.tRnaIndex]
-		self.mRnaMass = submasses[self.mRnaIndex]
-		self.dnaMass = submasses[self.dnaIndex]
-		self.proteinMass = submasses[self.proteinIndex]
-		self.smallMoleculeMass = submasses[self.smallMoleculeIndexes]
+		self.rnaMass = all_submasses[self.rnaIndexes].sum()
+		self.rRnaMass = all_submasses[self.rRnaIndexes].sum()
+		self.tRnaMass = all_submasses[self.tRnaIndex]
+		self.mRnaMass = all_submasses[self.mRnaIndex]
+		self.dnaMass = all_submasses[self.dnaIndex]
+		self.proteinMass = all_submasses[self.proteinIndex]
+		self.smallMoleculeMass = all_submasses[self.smallMoleculeIndexes]
 
 		# TODO (Eran) use this volume everywhere in the codebase that is currently calculating volume
 		self.volume = self.cellMass / self.cellDensity
 
-		processInitialMass = preEvolveMasses.sum(axis = 1)
-		processFinalMass = postEvolveMasses.sum(axis = 1)
-
-		self.processMassDifferences = processFinalMass - processInitialMass
-		self.relProcessMassDifferences = np.nan_to_num(self.processMassDifferences / processInitialMass)
+		self.processMassDifferences = sum(
+			state.process_mass_diffs() for state in self.internal_states.itervalues()
+			).sum(axis=1)
 
 		if self.simulationStep() > 0:
 			self.growth = self.dryMass - oldDryMass
@@ -201,7 +189,6 @@ class Mass(wholecell.listeners.listener.Listener):
 		self.proteinMassFoldChange = self.proteinMass / self.proteinMassInitial
 		self.rnaMassFoldChange = self.rnaMass / self.rnaMassInitial
 		self.smallMoleculeFoldChange = self.smallMoleculeMass / self.smallMoleculeMassInitial
-
 
 		self.expectedMassFoldChange = np.exp(np.log(2) * (self.time() - self.timeInitial) / self.cellCycleLen)
 
@@ -237,7 +224,6 @@ class Mass(wholecell.listeners.listener.Listener):
 			proteinMass = self.proteinMass,
 			waterMass = self.waterMass,
 			processMassDifferences = self.processMassDifferences.astype(np.float64),
-			relProcessMassDifferences = self.relProcessMassDifferences.astype(np.float64),
 			smallMoleculeMass = list(self.smallMoleculeMass),
 			instantaniousGrowthRate = self.instantaniousGrowthRate,
 			cellVolume = self.volume

@@ -194,8 +194,7 @@ class Simulation(lens.actor.inner.Simulation):
 
 		# Perform initial mass calculations
 		for state in self.internal_states.itervalues():
-			state.calculatePreEvolveStateMass()
-			state.calculatePostEvolveStateMass()
+			state.calculateMass()
 
 		# Update environment state according to the current time in time series
 		for external_state in self.external_states.itervalues():
@@ -299,6 +298,10 @@ class Simulation(lens.actor.inner.Simulation):
 		for hook in self.hooks.itervalues():
 			hook.preEvolveState(self)
 
+		# Reset process mass difference arrays
+		for state in self.internal_states.itervalues():
+			state.reset_process_mass_diffs()
+
 		# Reset values in evaluationTime listener
 		self._evalTime.updateQueries_times.fill(0)
 		self._evalTime.calculateRequest_times.fill(0)
@@ -351,13 +354,9 @@ class Simulation(lens.actor.inner.Simulation):
 			state.update()
 
 	def _post_evolve_state(self):
-		# Calculate mass of partitioned molecules
+		# Calculate mass of all molecules after evolution
 		for state in self.internal_states.itervalues():
-			state.calculatePreEvolveStateMass()
-
-		# Calculate mass of partitioned molecules, after evolution
-		for state in self.internal_states.itervalues():
-			state.calculatePostEvolveStateMass()
+			state.calculateMass()
 
 		# Update listeners
 		for listener in self.listeners.itervalues():

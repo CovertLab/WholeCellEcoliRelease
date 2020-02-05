@@ -149,17 +149,6 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
 
 		self._countsAllocatedFinal[:] = self._countsAllocatedInitial
 
-	def calculatePreEvolveStateMass(self):
-		# Compute masses of partitioned molecules
-
-		if self.simulationStep() == 0:
-			self._countsUnallocated = self.container._counts
-
-		self._masses[self._preEvolveStateMassIndex, ...] = np.dot(
-			np.hstack([self._countsAllocatedInitial, self._countsUnallocated[:, np.newaxis]]).T,
-			self._moleculeMass
-			)
-
 
 	def merge(self):
 		if ASSERT_POSITIVE_COUNTS and not (self._countsAllocatedFinal >= 0).all():
@@ -179,17 +168,21 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
 			self._countsUnallocated + self._countsAllocatedFinal.sum(axis = -1)
 			)
 
+		# Add mass differences for each process
+		self._process_mass_diffs += np.dot(
+			(self._countsAllocatedFinal - self._countsAllocatedInitial).T,
+			self._moleculeMass)
 
-	def calculatePostEvolveStateMass(self):
-		# Compute masses of partitioned molecules
 
+	def calculateMass(self):
+		# Compute summed masses of all molecules
 		if self.simulationStep() == 0:
 			self._countsUnallocated = self.container._counts
 
-		self._masses[self._postEvolveStateMassIndex, ...] = np.dot(
+		self._masses = np.dot(
 			np.hstack([self._countsAllocatedFinal, self._countsUnallocated[:, np.newaxis]]).T,
 			self._moleculeMass
-			)
+			).sum(axis=0)
 
 
 	def loadSnapshot(self, container):

@@ -100,8 +100,8 @@ def initialize_trna_charging(sim_data, states, calc_charging):
 	# Calculate cell volume for concentrations
 	mass = 0
 	for state in states.values():
-		state.calculatePreEvolveStateMass()
-		mass += np.sum(state._masses)
+		state.calculateMass()
+		mass += np.sum(state.mass())
 	cell_volume = units.fg * mass / sim_data.constants.cellDensity
 	counts_to_molar = 1 / (sim_data.constants.nAvogadro * cell_volume)
 
