@@ -15,9 +15,12 @@ from wholecell.utils.fitting import normalize, countsFromMassAndExpression, mass
 from wholecell.utils.polymerize import computeMassIncrease
 from wholecell.utils import units
 from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
+from wholecell.utils.random import stochasticRound
 
-from wholecell.sim.divide_cell import load_inherited_state
 from models.ecoli.processes.polypeptide_elongation import SteadyStateElongationModel
+from wholecell.containers.unique_objects_container import Access
+from wholecell.sim.divide_cell import load_inherited_state
+
 
 RAND_MAX = 2**31
 
@@ -72,7 +75,8 @@ def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, rand
 	# Initialize unique molecules relevant to replication
 	initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data)
 
-	# TODO (ggsun): initialize binding of transcription factors
+	# Initialize bound transcription factors
+	initialize_transcription_factors(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
 
 	# Initialize active RNAPs and unique molecule representations of RNAs
 	initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
@@ -456,6 +460,8 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		all_DnaA_box_coordinates)
 
 	# Add promoters as unique molecules and set attributes
+	# Note: the bound_TF attribute is properly initialized in the function
+	# initialize_transcription_factors
 	n_promoter = len(TU_index)
 	n_tf = len(sim_data.process.transcription_regulation.tf_ids)
 
@@ -475,6 +481,118 @@ def initializeReplication(bulkMolCntr, uniqueMolCntr, sim_data):
 		domain_index=np.array(DnaA_box_domain_index),
 		DnaA_bound=np.zeros(n_DnaA_box, dtype=np.bool)
 		)
+
+
+def initialize_transcription_factors(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
+	"""
+	Initialize transcription factors that are bound to the chromosome. For each
+	type of transcription factor, this function calculates the total number of
+	transcription factors that should be bound to the chromosome using the
+	binding probabilities of each transcription factor and the number of
+	available promoter sites. The calculated number of transcription factors
+	are then distributed randomly to promoters, whose bound_TF attributes and
+	submasses are updated correspondingly.
+	"""
+	# Get transcription factor properties from sim_data
+	tf_ids = sim_data.process.transcription_regulation.tf_ids
+	tfToTfType = sim_data.process.transcription_regulation.tfToTfType
+	pPromoterBoundTF = sim_data.process.transcription_regulation.pPromoterBoundTF
+
+	# Build dict that maps TFs to transcription units they regulate
+	delta_prob = sim_data.process.transcription_regulation.delta_prob
+	TF_to_TU_idx = {}
+
+	for i, tf in enumerate(tf_ids):
+		TF_to_TU_idx[tf] = delta_prob['deltaI'][delta_prob['deltaJ'] == i]
+
+	# Get views into bulk molecule representations of transcription factors
+	active_tf_view = {}
+	inactive_tf_view = {}
+
+	for tf in tf_ids:
+		active_tf_view[tf] = bulkMolCntr.countsView([tf + "[c]"])
+
+		if tfToTfType[tf] == "1CS":
+			if tf == sim_data.process.transcription_regulation.activeToBound[tf]:
+				inactive_tf_view[tf] = bulkMolCntr.countsView([
+					sim_data.process.equilibrium.getUnbound(tf + "[c]")
+					])
+			else:
+				inactive_tf_view[tf] = bulkMolCntr.countsView([
+					sim_data.process.transcription_regulation.activeToBound[tf] + "[c]"
+					])
+		elif tfToTfType[tf] == "2CS":
+			inactive_tf_view[tf] = bulkMolCntr.countsView([
+				sim_data.process.two_component_system.activeToInactiveTF[tf + "[c]"]
+				])
+
+	# Get masses of active transcription factors
+	bulk_molecule_ids = sim_data.internal_state.bulkMolecules.bulkData["id"]
+	tf_indexes = [np.where(bulk_molecule_ids == tf_id + "[c]")[0][0]
+		for tf_id in tf_ids]
+	active_tf_masses = (sim_data.internal_state.bulkMolecules.bulkData["mass"][
+		tf_indexes] / sim_data.constants.nAvogadro).asNumber(units.fg)
+
+	# Get attributes of promoters
+	promoters = uniqueMolCntr.objectsInCollection(
+		'promoter', access=[Access.EDIT])
+	TU_index = promoters.attr("TU_index")
+
+	# Initialize bound_TF array
+	bound_TF = np.zeros((len(promoters), len(tf_ids)), dtype=np.bool)
+
+	for tf_idx, tf_id in enumerate(tf_ids):
+		# Get counts of transcription factors
+		active_tf_counts = active_tf_view[tf_id].counts()
+
+		# If there are no active transcription factors at initialization,
+		# continue to the next transcription factor
+		if active_tf_counts == 0:
+			continue
+
+		# Compute probability of binding the promoter
+		if tfToTfType[tf_id] == "0CS":
+			pPromoterBound = 1.
+		else:
+			inactive_tf_counts = inactive_tf_view[tf_id].counts()
+			pPromoterBound = pPromoterBoundTF(
+				active_tf_counts, inactive_tf_counts)
+
+		# Determine the number of available promoter sites
+		available_promoters = np.isin(TU_index, TF_to_TU_idx[tf_id])
+		n_available_promoters = available_promoters.sum()
+
+		# Calculate the number of promoters that should be bound
+		n_to_bind = int(stochasticRound(
+			randomState, n_available_promoters * pPromoterBound))
+
+		bound_locs = np.zeros(n_available_promoters, dtype=np.bool)
+		if n_to_bind > 0:
+			# Determine randomly which DNA targets to bind based on which of
+			# the following is more limiting:
+			# number of promoter sites to bind, or number of active
+			# transcription factors
+			bound_locs[
+				randomState.choice(
+					n_available_promoters,
+					size=np.min((n_to_bind, active_tf_view[tf_id].counts())),
+					replace=False)
+			] = True
+
+			# Update count of free transcription factors
+			active_tf_view[tf_id].countsDec(bound_locs.sum())
+
+			# Update bound_TF array
+			bound_TF[available_promoters, tf_idx] = bound_locs
+
+	# Calculate masses of bound TFs
+	mass_diffs = bound_TF.dot(active_tf_masses)
+
+	# Reset bound_TF attribute of promoters
+	promoters.attrIs(bound_TF=bound_TF)
+
+	# Add mass_diffs array to promoter submass
+	promoters.add_submass_by_array(mass_diffs)
 
 
 def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
