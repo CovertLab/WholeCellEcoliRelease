@@ -1,31 +1,41 @@
+"""
+A command line to invoke a WCM Firetask with the given argument dict.
+This is used to run a Firetask in a Docker container.
+"""
+
 from __future__ import absolute_import, division, print_function
 
 import sys
 import json
 
-from wholecell.fireworks.firetasks import ParcaTask
-from wholecell.fireworks.firetasks import VariantSimDataTask
-from wholecell.fireworks.firetasks import SimulationTask
-from wholecell.fireworks.firetasks import SimulationDaughterTask
-from wholecell.fireworks.firetasks import AnalysisVariantTask
-from wholecell.fireworks.firetasks import AnalysisCohortTask
-from wholecell.fireworks.firetasks import AnalysisSingleTask
-from wholecell.fireworks.firetasks import AnalysisMultiGenTask
-from wholecell.fireworks.firetasks import BuildCausalityNetworkTask
-from wholecell.fireworks.firetasks import WriteJsonTask
+from wholecell.fireworks.firetasks import (
+	ParcaTask,
+	VariantSimDataTask,
+	SimulationTask,
+	SimulationDaughterTask,
+	AnalysisVariantTask,
+	AnalysisCohortTask,
+	AnalysisSingleTask,
+	AnalysisMultiGenTask,
+	BuildCausalityNetworkTask,
+	WriteJsonTask,
+	)
 
 
-TASKS = {
-	'parca': ParcaTask,
-	'variant_sim_data': VariantSimDataTask,
-	'simulation': SimulationTask,
-	'simulation_daughter': SimulationDaughterTask,
-	'analysis_variant': AnalysisVariantTask,
-	'analysis_cohort': AnalysisCohortTask,
-	'analysis_single': AnalysisSingleTask,
-	'analysis_multigen': AnalysisMultiGenTask,
-	'build_causality_network': BuildCausalityNetworkTask,
-	'write_json': WriteJsonTask}
+FIRETASKS = (
+	ParcaTask,
+	VariantSimDataTask,
+	SimulationTask,
+	SimulationDaughterTask,
+	AnalysisVariantTask,
+	AnalysisCohortTask,
+	AnalysisSingleTask,
+	AnalysisMultiGenTask,
+	BuildCausalityNetworkTask,
+	WriteJsonTask,
+	)
+TASKS = {task.__name__: task for task in FIRETASKS}
+
 
 if __name__ == '__main__':
 	# Run the named WCM Firetask with the argument dict provided in JSON format.
