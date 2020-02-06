@@ -70,10 +70,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			enzymeKineticsReader = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
 			allTargetFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (enzymeKineticsReader.readColumn("targetFluxes").T / coefficient).T
 			allActualFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (enzymeKineticsReader.readColumn("actualFluxes").T / coefficient).T
-			reactionConstraint = enzymeKineticsReader.readColumn("reactionConstraint")
-			constrainedReactions = np.array(enzymeKineticsReader.readAttribute("constrainedReactions"))
 			kineticsConstrainedReactions = np.array(enzymeKineticsReader.readAttribute("kineticsConstrainedReactions"))
-			boundaryConstrainedReactions = np.array(enzymeKineticsReader.readAttribute("boundaryConstrainedReactions"))
 			enzymeKineticsReader.close()
 
 			allTargetFluxes = allTargetFluxes.asNumber(units.mmol / units.g / units.h)
@@ -99,13 +96,12 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		boundaryActualAve = allActualAve[n_kinetic_constrained_reactions:]
 
 		# kinetic target fluxes
-		targetFluxes = allTargetFluxes[:, :n_kinetic_constrained_reactions]
 		actualFluxes = allActualFluxes[:, :n_kinetic_constrained_reactions]
 		targetAve = allTargetAve[:n_kinetic_constrained_reactions]
 		actualAve = allActualAve[:n_kinetic_constrained_reactions]
 
 		thresholds = [2, 10]
-		categorization = np.zeros(reactionConstraint.shape[1])
+		categorization = np.zeros(n_kinetic_constrained_reactions)
 		categorization[actualAve == 0] = -2
 		categorization[actualAve == targetAve] = -1
 		for i, threshold in enumerate(thresholds):

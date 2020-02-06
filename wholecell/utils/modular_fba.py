@@ -1238,7 +1238,7 @@ class FluxBalanceAnalysis(object):
 			values[idx] = relax / self.kineticObjectiveWeight
 		return values
 
-	def setKineticTarget(self, reactionIDs, reactionTargets, raiseForReversible=True):
+	def setKineticTarget(self, reactionIDs, reactionTargets):
 		# If a single value is passed in, make a list of length 1 from it
 		if isinstance(reactionIDs, basestring):
 			reactionIDs = [reactionIDs]

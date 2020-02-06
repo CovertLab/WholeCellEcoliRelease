@@ -43,8 +43,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		sim_data = cPickle.load(open(simDataFile))
 
-		constraintIsKcatOnly = sim_data.process.metabolism.constraintIsKcatOnly
-
 		mainListener = TableReader(os.path.join(simOutDir, "Main"))
 		initialTime = mainListener.readAttribute("initialTime")
 		time = mainListener.readColumn("time") - initialTime
@@ -61,11 +59,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		enzymeKineticsReader = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
 		allTargetFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (enzymeKineticsReader.readColumn("targetFluxes").T / coefficient).T
 		allActualFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (enzymeKineticsReader.readColumn("actualFluxes").T / coefficient).T
-		reactionConstraint = enzymeKineticsReader.readColumn("reactionConstraint")
-		constrainedReactions = np.array(enzymeKineticsReader.readAttribute("constrainedReactions"))
 		kineticsConstrainedReactions = np.array(enzymeKineticsReader.readAttribute("kineticsConstrainedReactions"))
-		boundaryConstrainedReactions = np.array(enzymeKineticsReader.readAttribute("boundaryConstrainedReactions"))
-		enzymeKineticsReader.close()
+		constraint_is_kcat_only = np.array(enzymeKineticsReader.readAttribute('constraint_is_kcat_only'))
 
 		allTargetFluxes = allTargetFluxes.asNumber(units.mmol / units.g / units.h)
 		allActualFluxes = allActualFluxes.asNumber(units.mmol / units.g / units.h)
@@ -80,14 +75,12 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		boundaryActualAve = allActualAve[n_kinetic_constrained_reactions:]
 
 		# kinetic target fluxes
-		targetFluxes = allTargetFluxes[:, :n_kinetic_constrained_reactions]
 		actualFluxes = allActualFluxes[:, :n_kinetic_constrained_reactions]
 		targetAve = allTargetAve[:n_kinetic_constrained_reactions]
 		actualAve = allActualAve[:n_kinetic_constrained_reactions]
 
-		kcatOnlyReactions = np.all(constraintIsKcatOnly[reactionConstraint[BURN_IN_STEPS:,:]], axis = 0)
-		kmAndKcatReactions = ~np.any(constraintIsKcatOnly[reactionConstraint[BURN_IN_STEPS:,:]], axis = 0)
-		mixedReactions = ~(kcatOnlyReactions ^ kmAndKcatReactions)
+		kcatOnlyReactions = constraint_is_kcat_only
+		kmAndKcatReactions = ~constraint_is_kcat_only
 
 		thresholds = [2, 10]
 		categorization = np.zeros(n_kinetic_constrained_reactions)
@@ -121,11 +114,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		output.writerow(["kcat only"])
 		for reaction, target, flux, category in zip(kineticsConstrainedReactions[kcatOnlyReactions], targetAve[kcatOnlyReactions], actualAve[kcatOnlyReactions], categorization[kcatOnlyReactions]):
 			output.writerow([reaction, target, flux, category])
-
-		if np.sum(mixedReactions):
-			output.writerow(["mixed constraints"])
-			for reaction, target, flux, category in zip(kineticsConstrainedReactions[mixedReactions], targetAve[mixedReactions], actualAve[mixedReactions], categorization[mixedReactions]):
-				output.writerow([reaction, target, flux, category])
 
 		csvFile.close()
 

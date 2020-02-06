@@ -35,19 +35,12 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		if not os.path.exists(plotOutDir):
 			os.mkdir(plotOutDir)
 
-		sim_data = cPickle.load(open(simDataFile))
-
-		constraintIsKcatOnly = sim_data.process.metabolism.constraintIsKcatOnly
-		constrainedReactions = np.array(sim_data.process.metabolism.constrainedReactionList)
-
 		# read constraint data
 		enzymeKineticsReader = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
 		allTargetFluxes = enzymeKineticsReader.readColumn("targetFluxes")
 		allActualFluxes = enzymeKineticsReader.readColumn("actualFluxes")
-		reactionConstraint = enzymeKineticsReader.readColumn("reactionConstraint")
 		kineticsConstrainedReactions = np.array(enzymeKineticsReader.readAttribute("kineticsConstrainedReactions"))
-		boundaryConstrainedReactions = np.array(enzymeKineticsReader.readAttribute("boundaryConstrainedReactions"))
-		enzymeKineticsReader.close()
+		constraint_is_kcat_only = np.array(enzymeKineticsReader.readAttribute('constraint_is_kcat_only'))
 
 		# kinetic target fluxes
 		targetFluxes = allTargetFluxes[:, 0:len(kineticsConstrainedReactions)]
@@ -56,12 +49,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		targetAve = np.mean(targetFluxes[BURN_IN_STEPS:, :], axis = 0)
 		actualAve = np.mean(actualFluxes[BURN_IN_STEPS:, :], axis = 0)
 
-		relError = np.abs((actualFluxes[BURN_IN_STEPS:, :] - targetFluxes[BURN_IN_STEPS:, :]) / (targetFluxes[BURN_IN_STEPS:, :] + 1e-15))
-		aveError = np.mean(relError, axis = 0)
-
-		kcatOnlyReactions = np.all(constraintIsKcatOnly[reactionConstraint[BURN_IN_STEPS:,:]], axis = 0)
-		kmAndKcatReactions = ~np.any(constraintIsKcatOnly[reactionConstraint[BURN_IN_STEPS:,:]], axis = 0)
-		mixedReactions = ~(kcatOnlyReactions ^ kmAndKcatReactions)
+		kcatOnlyReactions = constraint_is_kcat_only
+		kmAndKcatReactions = ~constraint_is_kcat_only
 
 		kmAndKcatThresholds = [2, 10]
 		kmAndKcatCategorization = np.zeros(np.sum(kmAndKcatReactions))
@@ -80,14 +69,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		actualAve += 1e-13
 
 		plt.figure(figsize = (8, 8))
-		targetPearson = targetAve[kmAndKcatReactions]
-		actualPearson = actualAve[kmAndKcatReactions]
-		# plt.title(pearsonr(np.log10(targetPearson[actualPearson > 0]), np.log10(actualPearson[actualPearson > 0])))
 		plt.loglog(targetAve[kcatOnlyReactions][kcatOnlyCategorization == 0], actualAve[kcatOnlyReactions][kcatOnlyCategorization == 0], "og")
 		plt.loglog(targetAve[kcatOnlyReactions][kcatOnlyCategorization == 1], actualAve[kcatOnlyReactions][kcatOnlyCategorization == 1], "o")
 		plt.loglog(targetAve[kcatOnlyReactions][kcatOnlyCategorization == 2], actualAve[kcatOnlyReactions][kcatOnlyCategorization == 2], "or")
-		# plt.loglog(targetAve[kmAndKcatReactions], actualAve[kmAndKcatReactions], "o")
-		# plt.loglog(targetAve[kcatOnlyReactions], actualAve[kcatOnlyReactions], "ro")
 		plt.loglog([1e-12, 1], [1e-12, 1], '--g')
 		plt.loglog([1e-12, 1], [1e-11, 10], '--r')
 		plt.xlabel("Target Flux (dmol/L/s)")

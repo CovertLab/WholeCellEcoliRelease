@@ -10,7 +10,7 @@ def catalyst_shuffle_params(sim_data, index):
 
 	import numpy as np
 	np.random.seed(index)
-	idxs = np.arange(len(sim_data.process.metabolism.reactionCatalystsList))
+	idxs = np.arange(len(sim_data.process.metabolism.reactions_with_catalyst))
 	np.random.shuffle(idxs)
 	sim_data.process.metabolism.catalystShuffleIdxs = idxs
 
