@@ -180,6 +180,9 @@ class TwoComponentSystem(object):
 		self._populateDerivativeAndJacobian()
 		self.dependencyMatrix = self._makeDependencyMatrix()
 
+		# Molecules that are required to produce ATP with the independent stoich matrix
+		self.atp_reaction_reactant_mask = self.dependencyMatrix[:, self.independentMoleculesAtpIndex] < 0
+
 	def __getstate__(self):
 		"""Return the state to pickle, omitting derived attributes that
 		__setstate__() will recompute, esp. the ode_derivatives
@@ -428,11 +431,13 @@ class TwoComponentSystem(object):
 
 		independentMoleculesCounts = np.round(dYMolecules[self.independent_molecule_indexes])
 
+		max_atp_rxns = moleculeCounts[self.atp_reaction_reactant_mask].min()
 		# To ensure that we have non-negative counts of phosphate, we must
 		# have the following (which can be seen from the dependency matrix)
-		independentMoleculesCounts[self.independentMoleculesAtpIndex] = (
+		independentMoleculesCounts[self.independentMoleculesAtpIndex] = np.fmin(
 			independentMoleculesCounts[:self.independentMoleculesAtpIndex].sum()
-			+ independentMoleculesCounts[(self.independentMoleculesAtpIndex + 1):].sum()
+			+ independentMoleculesCounts[(self.independentMoleculesAtpIndex + 1):].sum(),
+			max_atp_rxns
 			)
 
 		# Calculate changes in molecule counts for all molecules

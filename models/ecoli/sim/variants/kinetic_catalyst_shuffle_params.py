@@ -11,10 +11,10 @@ def kinetic_catalyst_shuffle_params(sim_data, index):
 		return CONTROL_OUTPUT, sim_data
 
 	np.random.seed(index)
-	idxs = np.arange(len(sim_data.process.metabolism.reactionCatalystsList))
+	idxs = np.arange(len(sim_data.process.metabolism.reactions_with_catalyst))
 	np.random.shuffle(idxs)
-	nTargets = len(sim_data.process.metabolism.constrainedReactionList)
-	sim_data.process.metabolism.kineticTargetShuffleRxns = [sim_data.process.metabolism.reactionCatalystsList[idx] for idx in idxs[:nTargets]]
+	nTargets = len(sim_data.process.metabolism.kinetic_constraint_reactions)
+	sim_data.process.metabolism.kineticTargetShuffleRxns = [sim_data.process.metabolism.reactions_with_catalyst[idx] for idx in idxs[:nTargets]]
 
 	return dict(
 		shortName = "{}_kineticTargetShuffle".format(index),

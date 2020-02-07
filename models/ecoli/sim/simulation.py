@@ -53,19 +53,23 @@ class EcoliSimulation(Simulation):
 		)
 
 	_processClasses = (
-		Metabolism,
-		RnaDegradation,
-		TranscriptInitiation,
-		TranscriptElongation,
-		PolypeptideInitiation,
-		PolypeptideElongation,
-		ChromosomeReplication,
-		ProteinDegradation,
-		Complexation,
-		Equilibrium,
-		TfBinding,
-		TwoComponentSystem,
-		)
+		(
+			RnaDegradation,
+			TranscriptInitiation,
+			TranscriptElongation,
+			PolypeptideInitiation,
+			PolypeptideElongation,
+			ChromosomeReplication,
+			ProteinDegradation,
+			Complexation,
+			Equilibrium,
+			TfBinding,
+			TwoComponentSystem,
+		),
+		(
+			Metabolism,
+		),
+	)
 
 	_listenerClasses = (
 		Mass,

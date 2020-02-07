@@ -86,10 +86,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		# Data structures for charging
 		self.aa_from_trna = transcription.aa_from_trna
 
-		# Dictionaries for homeostatic AA count updates in metabolism
-		self.aa_count_diff = {}  # attribute to be read by metabolism
-		self.new_count_diff = {}  # update from most recent time step
-
 		# Set modeling method
 		if sim._trna_charging:
 			self.elongation_model = SteadyStateElongationModel(sim_data, self)
@@ -105,11 +101,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		# The maximum number of amino acids that can be elongated in a single timestep is set to 22 intentionally as the minimum number of padding values
 		# on the protein sequence matrix is set to 22. If timesteps longer than 1.0s are used, this feature will lead to errors in the effective ribosome
 		# elongation rate.
-
-		# Update in calculateRequest from previous evolveState since aa_count_diff is accessed in metabolism evolveState
-		# to prevent any execution order dependence
-		# TODO: use something other than a class attribute to pass this
-		self.aa_count_diff = dict(self.new_count_diff)
 
 		current_media_id = self._external_states['Environment'].current_media_id
 
@@ -170,8 +161,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.active_ribosomes.request_access(self.EDIT_DELETE_ACCESS)
 
 	def evolveState(self):
-		self.new_count_diff = {}
-
 		# Write allocation data to listener
 		self.writeToListener("GrowthLimits", "gtpAllocated", self.gtp.count())
 		self.writeToListener("GrowthLimits", "aaAllocated", self.aas.counts())
@@ -266,7 +255,8 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.ribosome50S.countInc(nTerminated)
 
 		# MODEL SPECIFIC: evolve
-		net_charged, self.new_count_diff = self.elongation_model.evolve(total_aa_counts, aas_used, nElongations, nInitialized)
+		# TODO: use something other than a class attribute to pass aa diff to metabolism
+		net_charged, self.aa_count_diff = self.elongation_model.evolve(total_aa_counts, aas_used, nElongations, nInitialized)
 
 		# Write data to listeners
 		self.writeToListener("GrowthLimits", "net_charged", net_charged)

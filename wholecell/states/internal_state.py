@@ -30,13 +30,11 @@ class InternalState(object):
 
 		# Random number stream
 		self.randomState = None  # Set at the first time step by Simulation._evolveState()
-
 		self.seed = None
 
+		# Mass arrays
 		self._masses = None
-		self._unallocatedMassIndex = 0
-		self._preEvolveStateMassIndex = 0
-		self._postEvolveStateMassIndex = 0
+		self._process_mass_diffs = None
 
 
 	# Construct state-process graph, calculate constants
@@ -46,15 +44,9 @@ class InternalState(object):
 		self._nProcesses = len(sim.processes)
 
 		# TODO: include compartment
-		self._masses = np.zeros((
-			2,
-			self._nProcesses + 1,
-			len(sim_data.submassNameToIndex),
-			), np.float64)
-
-		self._unallocatedMassIndex = self._nProcesses + 1
-		self._preEvolveStateMassIndex = 0
-		self._postEvolveStateMassIndex = 1
+		self._masses = np.zeros(len(sim_data.submassNameToIndex), np.float64)
+		self._process_mass_diffs = np.zeros(
+			(self._nProcesses, len(sim_data.submassNameToIndex)), np.float64)
 
 
 	# Allocate memory
@@ -81,17 +73,19 @@ class InternalState(object):
 		pass
 
 
-	def calculatePreEvolveStateMass(self):
-		raise NotImplementedError("Subclass must implement")
-
-
-	def calculatePostEvolveStateMass(self):
+	def calculateMass(self):
 		raise NotImplementedError("Subclass must implement")
 
 
 	# Mass calculations
 	def mass(self):
 		return self._masses
+
+	def process_mass_diffs(self):
+		return self._process_mass_diffs
+
+	def reset_process_mass_diffs(self):
+		self._process_mass_diffs.fill(0)
 
 
 	# Saving

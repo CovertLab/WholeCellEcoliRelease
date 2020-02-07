@@ -11,7 +11,7 @@ def kinetic_target_shuffle_params(sim_data, index):
 		return CONTROL_OUTPUT, sim_data
 
 	np.random.seed(index)
-	idxs = np.arange(sim_data.process.metabolism.constraintToReactionMatrixI.max() + 1)
+	idxs = np.arange(len(sim_data.process.metabolism.kinetic_constraint_reactions))
 	np.random.shuffle(idxs)
 	sim_data.process.metabolism.kineticTargetShuffleIdxs = idxs
 
