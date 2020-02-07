@@ -72,13 +72,6 @@ class Metabolism(object):
 	def _buildBiomass(self, raw_data, sim_data):
 		wildtypeIDs = set(entry["molecule id"] for entry in raw_data.biomass)
 
-		# Load the biomass function flat file as a dict
-		self.biomassFunction = {entry['molecule id']:entry['coefficient'] for entry in raw_data.biomass}
-
-		self.previousBiomassMeans = {entry['molecule id']:entry['mean flux'] for entry in raw_data.previousBiomassFluxes}
-		self.previousBiomassLog10Means = {entry['molecule id']:entry['mean log10 flux'] for entry in raw_data.previousBiomassFluxes}
-		self.previousBiomassStds = {entry['molecule id']:entry['standard deviation'] for entry in raw_data.previousBiomassFluxes}
-
 		# Create vector of metabolite target concentrations
 
 		# Since the data only covers certain metabolites, we need to rationally
