@@ -55,6 +55,7 @@ class Metabolism(object):
 			self.kinetic_objective_weight = sim_data.constants.metabolismKineticObjectiveWeightLinear
 		else:
 			self.kinetic_objective_weight = sim_data.constants.metabolismKineticObjectiveWeightQuadratic
+		self.kinetic_objective_weight_in_range = sim_data.constants.metabolism_kinetic_objective_weight_in_range
 
 		self.boundary = Boundary(raw_data, sim_data)
 
@@ -332,8 +333,8 @@ class Metabolism(object):
 				constraints
 
 		Returns:
-			(n reactions, 2): min, max kinetic constraints for each reaction
-				with kinetic constraints
+			(n reactions, 3): min, mean and max kinetic constraints for each
+				reaction with kinetic constraints
 		'''
 
 		if self._compiled_enzymes is None:
@@ -341,7 +342,7 @@ class Metabolism(object):
 				% self._enzymes, {'np': np}, {}
 				)
 		if self._compiled_saturation is None:
-			self._compiled_saturation = eval('lambda s: np.array([[np.min(v), np.max(v)] for v in %s])\n'
+			self._compiled_saturation = eval('lambda s: np.array([[np.min(v), np.mean(v), np.max(v)] for v in %s])\n'
 				% self._saturations, {'np': np}, {}
 				)
 
@@ -1020,16 +1021,13 @@ class Metabolism(object):
 			enzymes: sorted enzyme IDs for enzymes that catalyze a kinetic reaction
 			substrates: sorted substrate IDs for substrates that are needed
 				for kinetic saturation terms
-			all_kcats: (n rxns, 2) min and max kcat value for each reaction
+			all_kcats: (n rxns, 3) min, mean and max kcat value for each reaction
 			all_saturations: sympy str representation of a list of saturation
 				terms (eg. '[s[0] / (1 + s[0]), 2 / (2 + s[1])]')
 			all_enzymes: sympy str representation of enzymes for each reaction
 				(eg. '[e[0], e[2], e[1]]')
 			constraint_is_kcat_only: True if reaction only has kcat values and
 				no saturation terms
-
-		TODO (Travis):
-			Use average data for kcat in FBA targets? - need to calculate here
 		"""
 
 		# Ordered lists of constraint related IDs
@@ -1054,7 +1052,7 @@ class Metabolism(object):
 		substrate_symbols = {'s': [sp.symbols('s[{}]'.format(i)) for i in range(len(substrates))]}
 
 		# Values to return
-		all_kcats = np.zeros((len(rxns), 2))
+		all_kcats = np.zeros((len(rxns), 3))
 		all_saturations = []
 		all_enzymes = []
 		constraint_is_kcat_only = []
@@ -1082,7 +1080,7 @@ class Metabolism(object):
 				constraint_is_kcat_only.append(False)
 
 			# Save values for this constraint
-			all_kcats[i, :] = [np.min(kcats), np.max(kcats)]
+			all_kcats[i, :] = [np.min(kcats), np.mean(kcats), np.max(kcats)]
 			all_saturations.append(saturations)
 			all_enzymes.append(parse_expr(enzyme_sub[enzyme], local_dict=enzyme_symbols))
 
