@@ -19,7 +19,7 @@ from fireworks import FiretaskBase
 from PIL import Image
 from typing import List
 
-from wholecell.utils import parallelization
+from wholecell.utils import data, parallelization
 
 
 SUB_DIRECTORIES = {'.png': 'low_res_plots'}
@@ -130,6 +130,7 @@ class AnalysisBase(FiretaskBase):
 		fileList = self.list_plot_files(plot_names)
 
 		self['output_filename_prefix'] = self.get('output_filename_prefix', '')
+		self['metadata'] = data.expand_keyed_env_vars(self['metadata'])
 
 		# TODO(jerry): Restructure the code to `exec` the analyses using their
 		# command line interpreters rather than `fork` them via mp.Pool(), to
