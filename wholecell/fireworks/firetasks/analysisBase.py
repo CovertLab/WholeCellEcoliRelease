@@ -16,11 +16,17 @@ import time
 import traceback
 
 from fireworks import FiretaskBase
+import matplotlib as mpl
 from PIL import Image
-from typing import List, Optional
+from typing import List
 
 from wholecell.utils import parallelization
+import wholecell.utils.filepath as fp
 
+
+# Used to set the backend to Agg before pyplot imports in other scripts.
+# Other configuration settings can be added to the file as well.
+mpl.rc_file(fp.MATPLOTLIBRC_FILE)
 
 SUB_DIRECTORIES = {'.png': 'low_res_plots'}
 
