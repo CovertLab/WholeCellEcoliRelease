@@ -179,6 +179,9 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		# Active RNAP count should equal partial transcript count
 		assert len(RNAP_unique_index) == len(RNAP_index_partial_RNAs)
 
+		# All partial RNAs must be linked to an RNAP
+		assert (np.count_nonzero(RNAP_index_partial_RNAs == -1) == 0)
+
 		# Get mapping indexes between partial RNAs to RNAPs
 		partial_RNA_to_RNAP_mapping, RNAP_to_partial_RNA_mapping = self._get_mapping_arrays(
 			RNAP_index_partial_RNAs, RNAP_unique_index)
