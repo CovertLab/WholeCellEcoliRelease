@@ -20,6 +20,7 @@ import matplotlib as mpl
 from PIL import Image
 from typing import List
 
+from wholecell.utils import data
 from wholecell.utils import parallelization
 import wholecell.utils.filepath as fp
 
@@ -136,6 +137,7 @@ class AnalysisBase(FiretaskBase):
 		fileList = self.list_plot_files(plot_names)
 
 		self['output_filename_prefix'] = self.get('output_filename_prefix', '')
+		self['metadata'] = data.expand_keyed_env_vars(self['metadata'])
 
 		# TODO(jerry): Restructure the code to `exec` the analyses using their
 		# command line interpreters rather than `fork` them via mp.Pool(), to

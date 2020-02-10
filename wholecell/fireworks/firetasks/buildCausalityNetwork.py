@@ -12,6 +12,7 @@ from fireworks import FireTaskBase, explicit_serialize
 from models.ecoli.analysis.causality_network.build_network import BuildNetwork
 from models.ecoli.analysis.causality_network.network_components import NODELIST_JSON, DYNAMICS_FILENAME
 from wholecell.utils import filepath as fp
+from wholecell.utils import data
 
 
 @explicit_serialize
@@ -33,7 +34,7 @@ class BuildCausalityNetworkTask(FireTaskBase):
 	READER_FILE_PATH = 'models.ecoli.analysis.causality_network.read_dynamics'
 
 	def plotter_args(self):
-		self["metadata"] = dict(self["metadata"], analysis_type = "causality_network")
+		self["metadata"] = dict(self["metadata"], analysis_type="causality_network")
 
 		return (
 			self["input_results_directory"],
@@ -49,6 +50,7 @@ class BuildCausalityNetworkTask(FireTaskBase):
 		print("\n{}: --- Starting {} ---".format(
 			time.ctime(startTime), type(self).__name__))
 
+		self['metadata'] = data.expand_keyed_env_vars(self['metadata'])
 		self['node_list_file'] = os.path.join(
 			self["output_network_directory"], NODELIST_JSON)
 			# self["output_network_directory"], NODELIST_FILENAME)

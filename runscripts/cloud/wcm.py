@@ -113,17 +113,20 @@ class WcmWorkflow(Workflow):
 		if args['workers'] is None:
 			args['workers'] = variant_count * args['init_sims']
 
+		# Collect metadata. Analysis Firetasks will expand the _keyed $VARs
+		# from (Docker Image) environment variables to update the regular dict
+		# entries. Outside the Docker Image, the initial dict entries are good.
 		metadata_file = self.internal('metadata', constants.JSON_METADATA_FILE)
 		metadata = data.select_keys(
 			args,
 			scriptBase.METADATA_KEYS,
-			git_hash="$IMAGE_GIT_HASH",  # $VARIABLE expanded by WriteJsonTask
-			git_branch="$IMAGE_GIT_BRANCH",
-			workflow_git_hash=fp.run_cmdline("git rev-parse HEAD"),
-			workflow_git_branch=fp.run_cmdline("git symbolic-ref --short HEAD"),
+			git_hash=fp.run_cmdline("git rev-parse HEAD"),
+			_git_hash="$IMAGE_GIT_HASH",
+			git_branch=fp.run_cmdline("git symbolic-ref --short HEAD"),
+			_git_branch="$IMAGE_GIT_BRANCH",
 			description=args['description'] or 'WCM',
-			time="$IMAGE_TIMESTAMP",
-			workflow_time=self.timestamp,
+			time=self.timestamp,
+			_time="$IMAGE_TIMESTAMP",
 			variant=variant_type,
 			total_variants=str(variant_count),
 			total_gens=args['generations'])
