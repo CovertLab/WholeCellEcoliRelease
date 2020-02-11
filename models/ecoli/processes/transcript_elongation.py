@@ -58,7 +58,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		self.RNAs = self.uniqueMoleculesView('RNA')
 		self.bulk_RNAs = self.bulkMoleculesView(self.rnaIds)
 		self.ntps = self.bulkMoleculesView(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
-		self.ppi = self.bulkMoleculeView('PPI[c]')
+		self.ppi = self.bulkMoleculeView(sim_data.moleculeIds.ppi)
 		self.inactive_RNAPs = self.bulkMoleculeView("APORNAP-CPLX[c]")
 		self.variable_elongation = sim._variable_elongation_transcription
 		self.make_elongation_rates = sim_data.process.transcription.make_elongation_rates

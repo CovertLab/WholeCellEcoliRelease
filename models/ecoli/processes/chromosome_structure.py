@@ -34,10 +34,10 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 		self.RNA_sequences = sim_data.process.transcription.transcriptionSequences
 
 		# Load bulk molecule views
-		self.inactive_RNAPs = self.bulkMoleculeView('APORNAP-CPLX[c]')
+		self.inactive_RNAPs = self.bulkMoleculeView(sim_data.moleculeIds.rnapFull)
 		self.fragmentBases = self.bulkMoleculesView(
 			[id_ + '[c]' for id_ in sim_data.moleculeGroups.fragmentNT_IDs])
-		self.ppi = self.bulkMoleculeView('PPI[c]')
+		self.ppi = self.bulkMoleculeView(sim_data.moleculeIds.ppi)
 
 		# Load unique molecule views
 		self.active_replisomes = self.uniqueMoleculesView('active_replisome')

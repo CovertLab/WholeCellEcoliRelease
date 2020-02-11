@@ -154,11 +154,11 @@ class Metabolism(object):
 		# H: from reported pH
 		hydrogenConcentration = 10**(-ECOLI_PH)
 
-		metaboliteIDs.append("PROTON[c]")
+		metaboliteIDs.append(sim_data.moleculeIds.proton)
 		metaboliteConcentrations.append(hydrogenConcentration)
 
 		# PPI: multiple sources report 0.5 mM
-		metaboliteIDs.append("PPI[c]")
+		metaboliteIDs.append(sim_data.moleculeIds.ppi)
 		metaboliteConcentrations.append(PPI_CONCENTRATION)
 
 		metaboliteIDs.append("PI[c]")

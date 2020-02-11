@@ -614,7 +614,7 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	rna_masses = (sim_data.process.transcription.rnaData['mw']/sim_data.constants.nAvogadro).asNumber(units.fg)
 	current_media_id = sim_data.conditions[sim_data.condition]['nutrients']
 	fracActiveRnap = sim_data.process.transcription.rnapFractionActiveDict[current_media_id]
-	inactive_RNAP_counts = bulkMolCntr.countsView(['APORNAP-CPLX[c]']).counts()[0]
+	inactive_RNAP_counts = bulkMolCntr.countsView([sim_data.moleculeIds.rnapFull]).counts()[0]
 	rnaSequences = sim_data.process.transcription.transcriptionSequences
 	ntWeights = sim_data.process.transcription.transcriptionMonomerWeights
 	endWeight = sim_data.process.transcription.transcriptionEndWeight
@@ -795,7 +795,8 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 		direction=direction)
 
 	# Decrement counts of bulk inactive RNAPs
-	bulkMolCntr.countsIs(inactive_RNAP_counts - n_RNAPs_to_activate, ['APORNAP-CPLX[c]'])
+	bulkMolCntr.countsIs(inactive_RNAP_counts - n_RNAPs_to_activate,
+		[sim_data.moleculeIds.rnapFull])
 
 	# Add partially transcribed RNAs
 	uniqueMolCntr.objectsNew(

@@ -29,6 +29,9 @@ class MoleculeIds(object):
 			'ppGpp': 'GUANOSINE-5DP-3DP[c]',
 			'RelA': 'RELA-MONOMER[c]',
 			'SpoT': 'SPOT-MONOMER[c]',
+			'water': 'WATER[c]',
+			'proton': 'PROTON[c]',
+			'ppi': 'PPI[c]',
 		}
 
 		self.__dict__.update(moleculeIds)

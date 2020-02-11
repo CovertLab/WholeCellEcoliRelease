@@ -403,12 +403,12 @@ class Transcription(object):
 		self.transcriptionMonomerWeights = (
 			(
 				sim_data.getter.getMass(sim_data.moleculeGroups.ntpIds)
-				- sim_data.getter.getMass(["PPI[c]"])
+				- sim_data.getter.getMass([sim_data.moleculeIds.ppi])
 				)
 			/ sim_data.constants.nAvogadro
 			).asNumber(units.fg)
 
-		self.transcriptionEndWeight = ((sim_data.getter.getMass(["PPI[c]"])
+		self.transcriptionEndWeight = ((sim_data.getter.getMass([sim_data.moleculeIds.ppi])
             / sim_data.constants.nAvogadro).asNumber(units.fg))
 
 	def _build_charged_trna(self, raw_data, sim_data):
