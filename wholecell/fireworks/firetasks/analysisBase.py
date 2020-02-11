@@ -181,19 +181,19 @@ class AnalysisBase(FiretaskBase):
 					exceptionFileList.append(f)
 
 		if self.get('compile', False):
-			print("{}: Compiling images".format(time.ctime()))
+			print('{}: Compiling images'.format(time.ctime()))
 			self.compile_images(fileList)
 
 		timeTotal = time.time() - startTime
 
-		duration = time.strftime("%H:%M:%S", time.gmtime(timeTotal))
+		duration = time.strftime('%H:%M:%S', time.gmtime(timeTotal))
 		if exceptionFileList:
-			print("Completed analysis in {} with an exception in:".format(duration))
-			for file in exceptionFileList:
-				print("\t{}".format(file))
-			raise Exception("Error in analysis")
+			print('Completed analysis in {} with an exception in:'.format(duration))
+			for f in exceptionFileList:
+				print('\t{}'.format(f))
+			raise RuntimeError('Error in analysis plot(s): {}'.format(', '.join(exceptionFileList)))
 		else:
-			print("Completed analysis in {}".format(duration))
+			print('Completed analysis in {}'.format(duration))
 
 
 def run_plot(plot_class, args, name):
