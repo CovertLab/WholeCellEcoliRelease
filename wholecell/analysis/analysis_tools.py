@@ -84,6 +84,8 @@ def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None, transparent=Fa
 			raise ValueError('Unknown analysis_type {}'.format(analysis_type))
 
 		# Add metadata signature to the bottom of the plot
+		# Don't accidentally trigger $TeX formatting$.
+		metadata_signature = metadata_signature.replace('$', '')
 		plt.figtext(0,0, metadata_signature, size=8)
 
 	# Make folders for holding alternate types of images
