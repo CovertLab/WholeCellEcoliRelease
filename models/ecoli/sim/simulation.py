@@ -68,9 +68,11 @@ class EcoliSimulation(Simulation):
 			TwoComponentSystem,
 		),
 		(
-			Metabolism,
 			ChromosomeStructure,
 		),
+		(
+			Metabolism,
+		)
 	)
 
 	_listenerClasses = (
