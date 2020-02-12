@@ -444,12 +444,13 @@ class Workflow(object):
 			if val is not None:
 				dest[key] = val
 
-		prefix = 'fireworker-{}'.format(self.name)
+		db_name = config.get('name', DEFAULT_FIREWORKS_DATABASE)
+		prefix = 'fireworker-{}'.format(db_name)
 		options = {
 			'image-family': 'fireworker',
-			'description': 'FireWorks worker VM'}
+			'description': 'FireWorks worker VM started for {}'.format(self.name)}
 
-		metadata = {'db': config.get('name', DEFAULT_FIREWORKS_DATABASE)}
+		metadata = {'db': db_name}
 		copy_key(config, 'username', metadata)
 		copy_key(config, 'password', metadata)
 
