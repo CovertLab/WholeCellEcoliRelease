@@ -18,6 +18,7 @@ else:
 	import subprocess
 from typing import Any, Callable, Dict, Iterable, List, Optional, Set
 
+from borealis import gce
 from fireworks import FiretaskBase, Firework, LaunchPad
 from fireworks import Workflow as FwWorkflow
 from gaia.client import Gaia
@@ -26,7 +27,6 @@ import yaml
 
 from wholecell.utils import filepath as fp
 from cloud.docker_task import DockerTask
-from .. import gce_vms
 
 
 # Config details to pass to Gaia.
@@ -40,6 +40,7 @@ LOG_OUT_PATH = '>>'  # special path for a fuller log; written even on task failu
 STORAGE_ROOT_ENV_VAR = 'WORKFLOW_STORAGE_ROOT'
 
 LAUNCHPAD_FILENAME = 'my_launchpad.yaml'
+DEFAULT_FIREWORKS_DATABASE = 'default_fireworks_database'
 
 
 def _rebase_for_gaia(path, internal_prefix, storage_prefix):
@@ -431,25 +432,44 @@ class Workflow(object):
 		wf = FwWorkflow(fireworks, name=self.name, metadata=self.properties)
 		return wf
 
-	def launch_fireworkers(self, count):
-		# type: (int) -> None
+	def launch_fireworkers(self, count, config):
+		# type: (int, dict) -> None
 		"""Launch the requested number of fireworker nodes (GCE VMs)."""
-		prefix = 'fireworker-{}'.format(self.name)
-		gce_vms.launch_fireworkers(prefix, count=count, workflow=self.name)
+		def copy_key(src, key, dest):
+			# type: (dict, str, dict) -> None
+			"""Copy a keyed value from src to dest dicts unless the value is
+			absent or None.
+			"""
+			val = src.get(key)
+			if val is not None:
+				dest[key] = val
 
-	def send_to_lpad(self, lpad_filename=LAUNCHPAD_FILENAME, worker_count=4):
-		# type: (str, int) -> FwWorkflow
+		prefix = 'fireworker-{}'.format(self.name)
+		options = {
+			'image-family': 'fireworker',
+			'description': 'FireWorks worker VM'}
+
+		metadata = {'db': config.get('name', DEFAULT_FIREWORKS_DATABASE)}
+		copy_key(config, 'username', metadata)
+		copy_key(config, 'password', metadata)
+
+		engine = gce.ComputeEngine(prefix, verbose=True)
+		engine.create(count=count, command_options=options, **metadata)
+
+	def send_to_lpad(self, worker_count=4, lpad_filename=LAUNCHPAD_FILENAME):
+		# type: (int, str) -> FwWorkflow
 		"""Build this workflow for FireWorks, upload it to the given or
 		default LaunchPad, launch workers, and return the built workflow.
 		"""
 		with open(lpad_filename) as f:
-			lpad = LaunchPad(**yaml.safe_load(f))
+			config = yaml.safe_load(f)
+			lpad = LaunchPad(**config)
 
 		wf = self.build_workflow()
 		lpad.add_wf(wf)
 
 		# Launch the workers after the successful upload.
-		self.launch_fireworkers(worker_count)
+		self.launch_fireworkers(worker_count, config)
 
 		return wf
 
@@ -486,7 +506,13 @@ class Workflow(object):
 		# type: (int) -> None
 		"""Launch the requested number of sisyphus worker nodes (GCE VMs)."""
 		prefix = 'sisyphus-{}'.format(self.name)
-		gce_vms.launch_sisyphus_workers(prefix, count=count, workflow=self.name)
+		options = {
+			'image-family': 'sisyphus-worker',
+			'description': 'Sisyphus worker VM'}
+		metadata = {'workflow': self.name}
+
+		engine = gce.ComputeEngine(prefix, verbose=True)
+		engine.create(count=count, command_options=options, **metadata)
 
 	def send_to_gaia(self, worker_count=4):
 		# type: (int) -> None

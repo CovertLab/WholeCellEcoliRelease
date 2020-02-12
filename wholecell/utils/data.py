@@ -5,7 +5,7 @@ Miscellaneous data structure utilities.
 from __future__ import absolute_import, division, print_function
 
 import os
-from typing import Any, Iterable, Mapping
+from typing import Any, Dict, Iterable, Mapping
 
 from six import string_types
 
