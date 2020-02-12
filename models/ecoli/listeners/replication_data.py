@@ -45,8 +45,8 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 		self.criticalMassPerOriC = 0.
 		self.criticalInitiationMass = 0.
 
-		self.free_DnaA_boxes = 0
 		self.total_DnaA_boxes = 0
+		self.free_DnaA_boxes = 0
 
 
 	def update(self):
@@ -67,6 +67,12 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 			self.fork_coordinates[:fork_coordinates.size] = fork_coordinates
 			self.fork_domains[:fork_domains.size] = fork_domains
 			self.fork_unique_index[:fork_unique_index.size] = fork_unique_index
+
+		DnaA_boxes = self.uniqueMolecules.container.objectsInCollection('DnaA_box')
+		DnaA_box_bound = DnaA_boxes.attrs('DnaA_bound')
+
+		self.total_DnaA_boxes = len(DnaA_boxes)
+		self.free_DnaA_boxes = np.count_nonzero(np.logical_not(DnaA_box_bound))
 
 
 	def tableCreate(self, tableWriter):

@@ -138,7 +138,6 @@ def chromosomeDivision(uniqueMolecules, randomState, no_child_place_holder):
 
 	# Check that the domains are being divided correctly
 	assert np.intersect1d(d1_all_domain_indexes, d2_all_domain_indexes).size == 0
-	assert d1_all_domain_indexes.size + d2_all_domain_indexes.size == domain_index_domains.size
 
 	d1_chromosome_count = d1_domain_index_full_chroms.size
 	d2_chromosome_count = d2_domain_index_full_chroms.size
@@ -253,6 +252,9 @@ def divideUniqueMolecules(uniqueMolecules, randomState,
 				d2_RNAP_unique_indexes = np.array([], dtype=np.int64)
 			continue
 
+		if molecule_name != 'chromosome_domain':
+			assert n_molecules == n_d1 + n_d2
+
 		# Add the divided unique molecules to the daughter cell containers
 		d1_divided_attributes_dict, d2_divided_attributes_dict = get_divided_attributes(
 			molecule_set, molecule_attribute_dict, d1_bool, d2_bool)
@@ -331,6 +333,8 @@ def divideUniqueMolecules(uniqueMolecules, randomState,
 				d1_RNA_unique_indexes = np.array([], dtype=np.int64)
 				d2_RNA_unique_indexes = np.array([], dtype=np.int64)
 			continue
+
+		assert n_molecules == n_d1 + n_d2
 
 		# Add the divided unique molecules to the daughter cell containers
 		d1_divided_attributes_dict, d2_divided_attributes_dict = get_divided_attributes(

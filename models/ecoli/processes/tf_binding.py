@@ -52,15 +52,8 @@ class TfBinding(wholecell.processes.process.Process):
 		self.pPromoterBoundTF = sim_data.process.transcription_regulation.pPromoterBoundTF
 		self.tfToTfType = sim_data.process.transcription_regulation.tfToTfType
 
-		# Get DNA polymerase elongation rate (used to mask out promoters that
-		# are expected to be replicated in the current timestep)
-		self.dnaPolyElngRate = int(
-			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
-			units.nt / units.s)))
-
 		# Build views
 		self.promoters = self.uniqueMoleculesView("promoter")
-		self.active_replisomes = self.uniqueMoleculesView("active_replisome")
 		self.active_tf_view = {}
 		self.inactive_tf_view = {}
 
@@ -101,43 +94,13 @@ class TfBinding(wholecell.processes.process.Process):
 			return
 
 		# Get attributes of all promoters
-		TU_index, coordinates_promoters, domain_index_promoters, bound_TF = self.promoters.attrs(
-			"TU_index", "coordinates", "domain_index", "bound_TF")
-
-		# If there are active replisomes, construct mask for promoters that are
-		# expected to be replicated in the current timestep. Transcription
-		# factors should not bind to these promoters in this timestep.
-		# TODO (ggsun): This assumes that replisomes elongate at maximum rates.
-		# 	Ideally this should be done in the reconciler.
-		collision_mask = np.zeros_like(coordinates_promoters, dtype=np.bool)
-
-		if self.active_replisomes.total_counts()[0] > 0:
-			domain_index_replisome, right_replichore, coordinates_replisome = self.active_replisomes.attrs(
-				"domain_index", "right_replichore", "coordinates")
-
-			elongation_length = np.ceil(self.dnaPolyElngRate*self.timeStepSec())
-
-			for domain_index, rr, coord in izip(domain_index_replisome,
-					right_replichore, coordinates_replisome):
-				if rr:
-					coordinates_mask = np.logical_and(
-						coordinates_promoters >= coord,
-						coordinates_promoters <= coord + elongation_length)
-				else:
-					coordinates_mask = np.logical_and(
-						coordinates_promoters <= coord,
-						coordinates_promoters >= coord - elongation_length)
-
-				mask = np.logical_and(
-					domain_index_promoters == domain_index, coordinates_mask)
-				collision_mask[mask] = True
+		TU_index, bound_TF = self.promoters.attrs("TU_index", "bound_TF")
 
 		# Calculate number of bound TFs for each TF prior to changes
-		n_bound_TF = bound_TF[~collision_mask, :].sum(axis=0)
+		n_bound_TF = bound_TF.sum(axis=0)
 
 		# Initialize new bound_TF array
-		bound_TF_new = np.zeros_like(bound_TF, dtype=np.bool)
-		bound_TF_new[collision_mask, :] = bound_TF[collision_mask, :]
+		bound_TF_new = np.zeros_like(bound_TF)
 
 		# Create vectors for storing values
 		pPromotersBound = np.zeros(self.n_TF, dtype=np.float64)
@@ -169,10 +132,8 @@ class TfBinding(wholecell.processes.process.Process):
 					active_tf_counts, inactive_tf_counts)
 
 			# Determine the number of available promoter sites
-			available_promoters = np.logical_and(
-				np.isin(TU_index, self.TF_to_TU_idx[tf_id]),
-				~collision_mask)
-			n_available_promoters = available_promoters.sum()
+			available_promoters = np.isin(TU_index, self.TF_to_TU_idx[tf_id])
+			n_available_promoters = np.count_nonzero(available_promoters)
 
 			# Calculate the number of promoters that should be bound
 			n_to_bind = int(stochasticRound(

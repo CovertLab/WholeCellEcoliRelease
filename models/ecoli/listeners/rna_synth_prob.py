@@ -74,9 +74,11 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 		promoters = self.uniqueMolecules.container.objectsInCollection('promoter')
 
 		if len(promoters) > 0:
-			all_coordinates, all_domains, bound_TFs = promoters.attrs(
-				"coordinates", "domain_index", "bound_TF"
+			TU_indexes, all_coordinates, all_domains, bound_TFs = promoters.attrs(
+				"TU_index", "coordinates", "domain_index", "bound_TF"
 				)
+
+			self.gene_copy_number = np.bincount(TU_indexes, minlength=self.n_TU)
 
 			bound_promoter_indexes, TF_indexes = np.where(bound_TFs)
 			n_bound_TFs = len(bound_promoter_indexes)
