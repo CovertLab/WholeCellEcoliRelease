@@ -2,8 +2,8 @@
 # ssh to the MongoDB server machine and tunnel to the MongoDB server processes.
 #
 # For port forwarding, this uses an explicit local address 127.0.0.1:27017 so
-# it will fail and exit if that port is in use rather than just warning and
-# using an IPv6 address.
+# it will fail and exit if that port is in use rather than just warning about it
+# and forwarding an IPv6 address instead.
 #
 # TODO: Take an optional port argument in case the user is using local port
 # 27017 for a local MongoDB server or something.

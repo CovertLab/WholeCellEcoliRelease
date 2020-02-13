@@ -19,6 +19,7 @@ else:
 from typing import Any, Callable, Dict, Iterable, List, Optional, Set
 
 from borealis import gce
+from borealis.docker_task import DockerTask
 from fireworks import FiretaskBase, Firework, LaunchPad
 from fireworks import Workflow as FwWorkflow
 from gaia.client import Gaia
@@ -26,12 +27,11 @@ from requests import ConnectionError
 import yaml
 
 from wholecell.utils import filepath as fp
-from cloud.docker_task import DockerTask
 
 
 # Config details to pass to Gaia.
 # ASSUMES: gaia_host is reachable e.g. via an ssh tunnel set up by
-# runscripts/cloud/ssh-tunnel.sh.
+# runscripts/cloud/ssh-tunnel.sh
 GAIA_CONFIG = {'gaia_host': 'localhost:24442'}
 
 STDOUT_PATH = '>'    # special path that captures stdout + stderror
@@ -39,6 +39,8 @@ LOG_OUT_PATH = '>>'  # special path for a fuller log; written even on task failu
 
 STORAGE_ROOT_ENV_VAR = 'WORKFLOW_STORAGE_ROOT'
 
+# ASSUMES: The named LaunchPad MongoDB is reachable e.g. via an ssh tunnel set
+# up by runscripts/cloud/mongo-ssh.sh
 LAUNCHPAD_FILENAME = 'my_launchpad.yaml'
 DEFAULT_FIREWORKS_DATABASE = 'default_fireworks_database'
 
