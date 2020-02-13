@@ -53,8 +53,8 @@ def plot_data(gs, col, time, x, y, label, molecule_names):
 
 	# Plot outliers of ratio
 	means = np.mean(ratio, axis=0)
-	mean = np.mean(means)
-	std = np.std(means)
+	mean = np.mean(means[np.isfinite(means)])
+	std = np.std(means[np.isfinite(means)])
 	outliers = np.unique(
 		np.where((ratio[1:, :] > mean + std / 2) | (ratio[1:, :] < mean - std / 2))[1])
 	outliers = outliers[np.argsort(np.abs(means[outliers]))][::-1][:10]  # limit outliers to 10 with largest mean
