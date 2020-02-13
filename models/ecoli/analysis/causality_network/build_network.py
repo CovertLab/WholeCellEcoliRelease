@@ -769,6 +769,9 @@ class BuildNetwork(object):
 
 			# Loop through each element in column
 			for molecule_index, stoich in enumerate(equilibrium_stoich_matrix_column):
+				if stoich == 0:
+					continue
+
 				molecule_id = equilibrium_molecule_ids[molecule_index]
 
 				# Add Equilibrium edges
@@ -818,6 +821,9 @@ class BuildNetwork(object):
 
 			# Loop through each element in column
 			for molecule_index, stoich in enumerate(tcs_stoich_matrix_column):
+				if stoich == 0:
+					continue
+
 				molecule_id = tcs_molecule_ids[molecule_index]
 
 				if molecule_id not in monomer_ids + NONPROTEIN_MOLECULES_IN_2CS:
