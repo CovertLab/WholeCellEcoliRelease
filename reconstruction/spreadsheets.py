@@ -54,19 +54,24 @@ class JsonReader(csv.DictReader):
 				repr(e)
 				raise Exception("failed to parse json string:{}".format(raw_value))
 
-			try:
-				attribute = re.search('(.*?) \(', key).group(1)
-				value_units =  eval(re.search('\((.*?)\)',key).group(1))
-				# Units do not work with lists so need to convert to ndarray
-				if isinstance(value, list):
-					attributeDict[attribute] = value_units * np.array(value)
-				else:
-					attributeDict[attribute] = value_units * value
-			except AttributeError:
-				attributeDict[key] = value
-		return attributeDict
+			match = re.search('(.*?) \((.*?)\)', key)
+			if match:
+				# Entry includes units so need to apply parsed units to values
+				attribute = match.group(1)
+				value_units = eval(match.group(2))
 
-		# return {
-		# 	key:json.loads(value) if value else "" # catch for empty field
-		# 	for key, value in csv.DictReader.next(self).viewitems()
-		# 	}
+				# Units do not work with empty values
+				if value != '':
+					# Units do not work with lists so need to convert to ndarray
+					if isinstance(value, list):
+						value_with_units = value_units * np.array(value)
+					else:
+						value_with_units = value_units * value
+					# Normalize to catch any unit issues now instead of later
+					value = value_with_units.normalize()
+
+				attributeDict[attribute] = value
+			else:
+				attributeDict[key] = value
+
+		return attributeDict

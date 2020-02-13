@@ -323,8 +323,8 @@ class BaseElongationModel(object):
 		self.ribosomeElongationRateDict = sim_data.process.translation.ribosomeElongationRateDict
 		self.uncharged_trna_names = sim_data.process.transcription.rnaData['id'][sim_data.process.transcription.rnaData['isTRna']]
 		self.aaNames = sim_data.moleculeGroups.aaIDs
-		self.proton = self.process.bulkMoleculeView("PROTON[c]")
-		self.water = self.process.bulkMoleculeView('WATER[c]')
+		self.proton = self.process.bulkMoleculeView(sim_data.moleculeIds.proton)
+		self.water = self.process.bulkMoleculeView(sim_data.moleculeIds.water)
 
 	def elongation_rate(self, current_media_id):
 		rate = self.process.elngRateFactor * self.ribosomeElongationRateDict[

@@ -2,16 +2,6 @@
 Common code for analysis plots. The abstract base class AnalysisPlot defines a
 plot() method for scripts to call.
 
-TODO: See Issue #161 Matplotlib backend enforcement. If updating to matplotlib
-2.2.2 doesn't fix it, this class can implement a workaround but must do so
-before any code imports pyplot, which means every subclass must import this
-file before importing pyplot.
-
-TODO: Reliably load the wcEcoli/matplotlibrc file even if the working directory
-is wrong (see Issue #132). Setting the working directory could work if done
-before matplotlib loads it, and that should also fix the backend (#161),
-otherwise loading matplotlibrc here just ensures loading of other resources.
-
 TODO: Enable future warnings, esp. for matplotlib.
 
 TODO: Move the run_plot() args to instance variables?
@@ -45,7 +35,6 @@ class AnalysisPlot(object):
 	__metaclass__ = abc.ABCMeta
 
 	def __init__(self, cpus=0):
-		mp.rc_file(fp.MATPLOTLIBRC_FILE)
 		self.cpus = parallelization.cpus(cpus)
 		self._axeses = {}
 

@@ -16,11 +16,18 @@ import time
 import traceback
 
 from fireworks import FiretaskBase
+import matplotlib as mpl
 from PIL import Image
 from typing import List
 
-from wholecell.utils import data, parallelization
+from wholecell.utils import data
+from wholecell.utils import parallelization
+import wholecell.utils.filepath as fp
 
+
+# Used to set the backend to Agg before pyplot imports in other scripts.
+# Other configuration settings can be added to the file as well.
+mpl.rc_file(fp.MATPLOTLIBRC_FILE)
 
 SUB_DIRECTORIES = {'.png': 'low_res_plots'}
 
@@ -174,19 +181,19 @@ class AnalysisBase(FiretaskBase):
 					exceptionFileList.append(f)
 
 		if self.get('compile', False):
-			print("{}: Compiling images".format(time.ctime()))
+			print('{}: Compiling images'.format(time.ctime()))
 			self.compile_images(fileList)
 
 		timeTotal = time.time() - startTime
 
-		duration = time.strftime("%H:%M:%S", time.gmtime(timeTotal))
+		duration = time.strftime('%H:%M:%S', time.gmtime(timeTotal))
 		if exceptionFileList:
-			print("Completed analysis in {} with an exception in:".format(duration))
+			print('Completed analysis in {} with an exception in:'.format(duration))
 			for f in exceptionFileList:
-				print("\t{}".format(f))
-			raise Exception("Error in analysis")
+				print('\t{}'.format(f))
+			raise RuntimeError('Error in analysis plot(s): {}'.format(', '.join(exceptionFileList)))
 		else:
-			print("Completed analysis in {}".format(duration))
+			print('Completed analysis in {}'.format(duration))
 
 
 def run_plot(plot_class, args, name):

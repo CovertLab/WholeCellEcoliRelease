@@ -54,10 +54,10 @@ class ProteinDegradation(wholecell.processes.process.Process):
 			self.rawDegRate = self.rawDegRate[shuffleIdxs]
 
 		# Build metabolite IDs for S matrix
-		h2oId = ["WATER[c]"]
+		h2oId = [sim_data.moleculeIds.water]
 		metaboliteIds = sim_data.moleculeGroups.aaIDs + h2oId
 		aaIdxs = np.arange(0, len(sim_data.moleculeGroups.aaIDs))
-		h2oIdx = metaboliteIds.index('WATER[c]')
+		h2oIdx = metaboliteIds.index(sim_data.moleculeIds.water)
 
 		# Build protein IDs for S matrix
 		proteinIds = sim_data.process.translation.monomerData['id']
@@ -72,7 +72,7 @@ class ProteinDegradation(wholecell.processes.process.Process):
 
 		# Build Views
 		self.metabolites = self.bulkMoleculesView(metaboliteIds)
-		self.h2o = self.bulkMoleculeView('WATER[c]')
+		self.h2o = self.bulkMoleculeView(sim_data.moleculeIds.water)
 		self.proteins = self.bulkMoleculesView(proteinIds)
 
 		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_DEGRADATION)

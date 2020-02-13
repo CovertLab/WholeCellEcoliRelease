@@ -59,7 +59,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 		# Create bulk molecule views for polymerization reaction
 		self.dntps = self.bulkMoleculesView(sim_data.moleculeGroups.dNtpIds)
-		self.ppi = self.bulkMoleculeView('PPI[c]')
+		self.ppi = self.bulkMoleculeView(sim_data.moleculeIds.ppi)
 
 		# Create molecules views for full chromosomes
 		self.full_chromosomes = self.uniqueMoleculesView('full_chromosome')

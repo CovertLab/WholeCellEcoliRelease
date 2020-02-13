@@ -316,7 +316,7 @@ class BuildNetwork(object):
 		list, and edges connected to the transcription nodes to the edge list.
 		"""
 		ntp_ids = self.sim_data.moleculeGroups.ntpIds
-		ppi_id = "PPI[c]"
+		ppi_id = self.sim_data.moleculeIds.ppi
 		rnap_id = self.sim_data.moleculeIds.rnapFull
 
 		# Loop through all genes (in the order listed in transcription)
@@ -411,8 +411,8 @@ class BuildNetwork(object):
 		aa_ids = self.sim_data.moleculeGroups.aaIDs
 		gtp_id = "GTP[c]"
 		gdp_id = "GDP[c]"
-		water_id = "WATER[c]"
-		ppi_id = "PPI[c]"
+		water_id = self.sim_data.moleculeIds.water
+		ppi_id = self.sim_data.moleculeIds.ppi
 
 		ribosome_subunit_ids = [self.sim_data.moleculeIds.s30_fullComplex,
 			self.sim_data.moleculeIds.s50_fullComplex]

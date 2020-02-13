@@ -97,11 +97,12 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		# Build stoichiometric matrix
 		endCleavageMetaboliteIds = [id_ + "[c]" for id_ in sim_data.moleculeGroups.fragmentNT_IDs]
-		endCleavageMetaboliteIds.extend(["WATER[c]", "PPI[c]", "PROTON[c]"])
+		endCleavageMetaboliteIds.extend([sim_data.moleculeIds.water,
+			sim_data.moleculeIds.ppi, sim_data.moleculeIds.proton])
 		nmpIdxs = range(4)
-		h2oIdx = endCleavageMetaboliteIds.index("WATER[c]")
-		ppiIdx = endCleavageMetaboliteIds.index("PPI[c]")
-		hIdx = endCleavageMetaboliteIds.index("PROTON[c]")
+		h2oIdx = endCleavageMetaboliteIds.index(sim_data.moleculeIds.water)
+		ppiIdx = endCleavageMetaboliteIds.index(sim_data.moleculeIds.ppi)
+		hIdx = endCleavageMetaboliteIds.index(sim_data.moleculeIds.proton)
 		self.endoDegradationSMatrix = np.zeros((len(endCleavageMetaboliteIds), self.n_total_RNAs), np.int64)
 		self.endoDegradationSMatrix[nmpIdxs, :] = units.transpose(sim_data.process.transcription.rnaData['countsACGU']).asNumber()
 		self.endoDegradationSMatrix[h2oIdx, :] = 0
@@ -111,9 +112,9 @@ class RnaDegradation(wholecell.processes.process.Process):
 		# Build Views
 		self.bulk_RNAs = self.bulkMoleculesView(rnaIds)
 		self.unique_RNAs = self.uniqueMoleculesView('RNA')
-		self.h2o = self.bulkMoleculesView(["WATER[c]"])
+		self.h2o = self.bulkMoleculeView(sim_data.moleculeIds.water)
 		self.nmps = self.bulkMoleculesView(["AMP[c]", "CMP[c]", "GMP[c]", "UMP[c]"])
-		self.proton = self.bulkMoleculesView(["PROTON[c]"])
+		self.proton = self.bulkMoleculeView(sim_data.moleculeIds.proton)
 
 		self.fragmentMetabolites = self.bulkMoleculesView(endCleavageMetaboliteIds)
 		self.fragmentBases = self.bulkMoleculesView([id_ + "[c]" for id_ in sim_data.moleculeGroups.fragmentNT_IDs])
@@ -380,8 +381,8 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		if exornase_capacity >= n_fragment_bases_sum:
 			self.nmps.countsInc(n_fragment_bases)
-			self.h2o.countsDec(n_fragment_bases_sum)
-			self.proton.countsInc(n_fragment_bases_sum)
+			self.h2o.countDec(n_fragment_bases_sum)
+			self.proton.countInc(n_fragment_bases_sum)
 			self.fragmentBases.countsIs(0)
 
 			total_fragment_bases_digested = n_fragment_bases_sum
@@ -396,8 +397,8 @@ class RnaDegradation(wholecell.processes.process.Process):
 			total_fragment_bases_digested = n_fragment_bases_digested.sum()
 
 			self.nmps.countsInc(n_fragment_bases_digested)
-			self.h2o.countsDec(total_fragment_bases_digested)
-			self.proton.countsInc(total_fragment_bases_digested)
+			self.h2o.countDec(total_fragment_bases_digested)
+			self.proton.countInc(total_fragment_bases_digested)
 			self.fragmentBases.countsDec(n_fragment_bases_digested)
 
 		self.writeToListener("RnaDegradationListener",

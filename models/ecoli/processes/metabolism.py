@@ -145,6 +145,7 @@ class Metabolism(wholecell.processes.process.Process):
 		# Set solver and kinetic objective weight (lambda)
 		solver = sim_data.process.metabolism.solver
 		kinetic_objective_weight = sim_data.process.metabolism.kinetic_objective_weight
+		kinetic_objective_weight_in_range = sim_data.process.metabolism.kinetic_objective_weight_in_range
 
 		# Disable kinetics completely if weight is 0 or specified in file above
 		self.use_kinetics = True
@@ -161,6 +162,7 @@ class Metabolism(wholecell.processes.process.Process):
 			"objectiveType": "homeostatic_kinetics_mixed",
 			"objectiveParameters": {
 					"kineticObjectiveWeight": kinetic_objective_weight,
+					'kinetic_objective_weight_in_range': kinetic_objective_weight_in_range,
 					"reactionRateTargets": {reaction: 1 for reaction in self.all_constrained_reactions},
 					"oneSidedReactionTargets": [],
 					},
@@ -346,13 +348,15 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# add boundary targets
 		transport_targets = self.boundary.transport_fluxes.values()
-		# TODO (Travis): use lower targets
-		# lower_targets = np.concatenate((targets[:, 0], transport_targets), axis=0)
-		upper_targets = np.concatenate((targets[:, 1], transport_targets), axis=0)
+		lower_targets = np.concatenate((targets[:, 0], transport_targets), axis=0)
+		mean_targets = np.concatenate((targets[:, 1], transport_targets), axis=0)
+		upper_targets = np.concatenate((targets[:, 2], transport_targets), axis=0)
 
 		## Set kinetic targets only if kinetics is enabled
 		if self.use_kinetics and self.burnInComplete:
-			self.fba.setKineticTarget(self.all_constrained_reactions, upper_targets)
+			self.fba.setKineticTarget(
+				self.all_constrained_reactions, mean_targets,
+				lower_targets=lower_targets, upper_targets=upper_targets)
 
 		# Solve FBA problem and update metabolite counts
 		deltaMetabolites = (1 / countsToMolar) * (CONC_UNITS * self.fba.getOutputMoleculeLevelsChange())
@@ -394,7 +398,8 @@ class Metabolism(wholecell.processes.process.Process):
 		self.writeToListener("EnzymeKinetics", "metaboliteConcentrations", metaboliteConcentrations.asNumber(CONC_UNITS))
 		self.writeToListener("EnzymeKinetics", "countsToMolar", countsToMolar.asNumber(CONC_UNITS))
 		self.writeToListener("EnzymeKinetics", "actualFluxes", self.fba.getReactionFluxes(self.all_constrained_reactions) / self.timeStepSec())
-		self.writeToListener("EnzymeKinetics", "targetFluxes", upper_targets / self.timeStepSec())
+		self.writeToListener("EnzymeKinetics", "targetFluxes", mean_targets / self.timeStepSec())
+		# TODO: add lower and upper targets
 
 	# limit amino acid uptake to what is needed to meet concentration objective to prevent use as carbon source
 	def _setExternalMoleculeLevels(self, externalMoleculeLevels, metaboliteConcentrations):

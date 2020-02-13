@@ -11,6 +11,7 @@ from models.ecoli.processes.complexation import Complexation
 from models.ecoli.processes.metabolism import Metabolism
 from models.ecoli.processes.rna_degradation import RnaDegradation
 from models.ecoli.processes.chromosome_replication import ChromosomeReplication
+from models.ecoli.processes.chromosome_structure import ChromosomeStructure
 from models.ecoli.processes.polypeptide_initiation import PolypeptideInitiation
 from models.ecoli.processes.polypeptide_elongation import PolypeptideElongation
 from models.ecoli.processes.transcript_initiation import TranscriptInitiation
@@ -67,8 +68,11 @@ class EcoliSimulation(Simulation):
 			TwoComponentSystem,
 		),
 		(
-			Metabolism,
+			ChromosomeStructure,
 		),
+		(
+			Metabolism,
+		)
 	)
 
 	_listenerClasses = (

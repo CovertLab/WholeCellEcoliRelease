@@ -108,11 +108,11 @@ def process_simulated_fluxes(
 			rxn_id = reaction_ids[i_rxn_id]
 			reverse = -1 if re.findall("(reverse)", rxn_id) else 1
 			matches = reaction_fluxes[:, np.where(reaction_ids == rxn_id)]
-			if time_course:
+			if len(time_course):
 				time_course += reverse * matches
 			else:
 				time_course = reverse * matches
-		if time_course:
+		if len(time_course):
 			means.append(np.mean(time_course).asNumber(FLUX_UNITS))
 			stdevs.append(np.std(time_course.asNumber(FLUX_UNITS)))
 	means = FLUX_UNITS * np.array(means)

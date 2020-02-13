@@ -25,6 +25,7 @@ metabolismHomeostaticRangeObjFractionHigher	0
 metabolismInRangeObjWeight	0	
 metabolismKineticObjectiveWeightLinear	1e-6	
 metabolismKineticObjectiveWeightQuadratic	1e-9	
+metabolism_kinetic_objective_weight_in_range	0.01	
 secretion_penalty_coeff	1e-5	
 SensitivityAnalysisAlpha	0	
 SensitivityAnalysisKcatEndo	0	

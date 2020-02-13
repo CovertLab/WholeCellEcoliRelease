@@ -5,24 +5,23 @@ Analyze results from metabolism_kinetic_objective_weight variant
 @date: Created 6/7/18'
 '''
 
-from __future__ import division
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
+import cPickle
 import os
 import re
 
-import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
+import numpy as np
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
-from wholecell.io.tablereader import TableReader
-from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import variantAnalysisPlot
+from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS
+from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
+from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.io.tablereader import TableReader
 from wholecell.utils import filepath, parallelization, units
 from wholecell.utils.sparkline import whitePadSparklineAxis
 
-from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS
 
 MODEL_FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
 DCW_FLUX_UNITS = units.mmol / units.g / units.h
@@ -31,9 +30,9 @@ FRAC_CONC_OFF_AXIS = 0.05
 FRAC_FLUX_OFF_AXIS = 0.05
 
 OUTLIER_REACTIONS = [
-	'ISOCITDEH-RXN',
-	'SUCCINATE-DEHYDROGENASE-UBIQUINONE-RXN-SUC/UBIQUINONE-8//FUM/CPD-9956.31.',
+	# Add reaction IDs to exclude from central carbon correlation
 	]
+
 
 def analyze_variant((variant, ap, toya_reactions, toya_fluxes, outlier_filter)):
 	'''
@@ -105,7 +104,6 @@ def analyze_variant((variant, ap, toya_reactions, toya_fluxes, outlier_filter)):
 		actual_counts = bulk_reader.readColumn('counts')[:, bulk_idxs]
 		actual_conc.append(np.mean((1. / n_avogadro / volume * actual_counts.T).asNumber(COUNTS_UNITS / VOLUME_UNITS), axis=1))
 		target_conc.append(np.nanmean(fba_results_reader.readColumn('targetConcentrations')[1:, :], axis=0))
-		# actual_conc.append(np.nanmean(enzyme_kinetics_reader.readColumn('metaboliteConcentrations')[1:,:], axis=0))
 		homeostatic_objective_values.append(np.mean(np.sum(fba_results_reader.readColumn('homeostaticObjectiveValues'), axis=1)))
 
 		# Flux target comparison
@@ -157,17 +155,18 @@ def analyze_variant((variant, ap, toya_reactions, toya_fluxes, outlier_filter)):
 	# Metabolite comparison
 	actual_conc = np.mean(actual_conc, axis=0)
 	target_conc = np.mean(target_conc, axis=0)
-	conc_correlation = np.corrcoef(actual_conc, target_conc)[0, 1]
+	conc_correlation = np.corrcoef(np.log(actual_conc), np.log(target_conc))[0, 1]
 	n_conc_off_axis = np.sum(np.abs((target_conc - actual_conc) / target_conc) > FRAC_CONC_OFF_AXIS)
 
 	# Flux target comparison
-	# Nonzero includes fluxes at 0 if target is also 0
+	# Add small value (1e-6) to fluxes for correlation so not taking log of 0
 	actual_flux = np.mean(actual_flux, axis=0)
 	target_flux = np.mean(target_flux, axis=0)
-	flux_correlation = np.corrcoef(actual_flux, target_flux)[0, 1]
+	flux_correlation = np.corrcoef(np.log(actual_flux + 1e-6), np.log(target_flux + 1e-6))[0, 1]
 	n_flux_off_axis = np.sum(np.abs((target_flux - actual_flux) / target_flux) > FRAC_FLUX_OFF_AXIS)
 	mask = (actual_flux != 0)
-	nonzero_flux_correlation = np.corrcoef(actual_flux[mask], target_flux[mask])[0, 1]
+	nonzero_flux_correlation = np.corrcoef(np.log(actual_flux[mask] + 1e-6), np.log(target_flux[mask] + 1e-6))[0, 1]
+
 	n_flux_above_0 = np.sum(actual_flux > 0) + np.sum((actual_flux == 0) & (target_flux == 0))
 
 	# Toya comparison
@@ -198,6 +197,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		ap = AnalysisPaths(inputDir, variant_plot=True)
 		variants = ap.get_variants()
 		n_variants = len(variants)
+		total_sims = ap.n_seed * ap.n_generation
 
 		if n_variants <= 1:
 			print('This plot only runs for multiple variants'.format(__name__))
@@ -259,12 +259,28 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				n_metabolites,
 				n_fluxes) = result
 
+		# Add each term of interest to an objective value to select the
+		# lambda value that maximizes the objective
+		scaled_growth_rate = growth_rates / growth_rates[0]
+		scaled_growth_rate[scaled_growth_rate > 1] = 1
+		objective = (
+			n_sims / total_sims
+			+ scaled_growth_rate
+			+ conc_correlation
+			+ (1 - n_conc_off_axis / n_metabolites)
+			+ flux_correlation
+			+ (1 - n_flux_off_axis / n_fluxes)
+			+ nonzero_flux_correlation
+			+ n_flux_above_0 / n_fluxes
+			+ correlation_coefficient
+		)
+
 		tick_labels = [r'$10^{%i}$' % (np.log10(x),) if x != 0 else '0' for x in lambdas]
 		lambdas = [np.log10(x) if x != 0 else np.nanmin(np.log10(lambdas[lambdas != 0]))-1 for x in lambdas]
 
 		plt.figure(figsize = (8.5, 22))
 		plt.style.use('seaborn-deep')
-		subplots = 8
+		subplots = 9
 
 		# Growth rates
 		ax = plt.subplot(subplots, 1, 1)
@@ -278,18 +294,24 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		# Flux target comparisons
 		ax = plt.subplot(subplots, 1, 2)
 		plt.bar(lambdas, nonzero_flux_correlation, align='center')
+		for lam, val in zip(lambdas, nonzero_flux_correlation):
+			plt.text(lam, val, '{:.3f}'.format(val), ha='center')
 		plt.ylim([0, 1])
 		plt.ylabel('Kinetic target flux PCC')
 		whitePadSparklineAxis(ax, xAxis=False)
 
 		ax = plt.subplot(subplots, 1, 3)
 		plt.bar(lambdas, n_flux_above_0 / n_fluxes, align='center')
+		for lam, val in zip(lambdas, n_flux_above_0):
+			plt.text(lam, val / n_fluxes, '{:.0f}/{:.0f}'.format(val, n_fluxes), ha='center')
 		plt.ylim([0, 1])
 		plt.ylabel('Fraction of fluxes\nabove 0')
 		whitePadSparklineAxis(ax, xAxis=False)
 
 		ax = plt.subplot(subplots, 1, 4)
 		plt.bar(lambdas, n_flux_off_axis / n_fluxes, align='center')
+		for lam, val in zip(lambdas, n_flux_off_axis):
+			plt.text(lam, val / n_fluxes, '{:.0f}/{:.0f}'.format(val, n_fluxes), ha='center')
 		plt.ylim([0, 1])
 		plt.ylabel('Fraction of fluxes\noff axis (>{:.0f}%)'.format(FRAC_FLUX_OFF_AXIS*100))
 		whitePadSparklineAxis(ax, xAxis=False)
@@ -297,12 +319,16 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		# Metabolite comparisons
 		ax = plt.subplot(subplots, 1, 5)
 		plt.bar(lambdas, conc_correlation, align='center')
+		for lam, val in zip(lambdas, conc_correlation):
+			plt.text(lam, val, '{:.3f}'.format(val), ha='center')
 		plt.ylim([0, 1])
 		plt.ylabel('Concentration PCC')
 		whitePadSparklineAxis(ax, xAxis=False)
 
 		ax = plt.subplot(subplots, 1, 6)
 		plt.bar(lambdas, n_conc_off_axis / n_metabolites, align='center')
+		for lam, val in zip(lambdas, n_conc_off_axis):
+			plt.text(lam, val / n_metabolites, '{:.0f}/{:.0f}'.format(val, n_metabolites), ha='center')
 		plt.ylim([0, 1])
 		plt.ylabel('Fraction of concentrations\noff axis (>{:.0f}%)'.format(FRAC_CONC_OFF_AXIS*100))
 		whitePadSparklineAxis(ax, xAxis=False)
@@ -310,6 +336,8 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		# Toya comparison
 		ax = plt.subplot(subplots, 1, 7)
 		plt.bar(lambdas, filtered_correlation_coefficient, align='center')
+		for lam, val in zip(lambdas, filtered_correlation_coefficient):
+			plt.text(lam, val, '{:.3f}'.format(val), ha='center')
 		plt.ylim([0, 1])
 		plt.ylabel('Central carbon flux PCC')
 		whitePadSparklineAxis(ax, xAxis=False)
@@ -317,7 +345,17 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		# Viable sims
 		ax = plt.subplot(subplots, 1, 8)
 		plt.bar(lambdas, n_sims, align='center')
+		for lam, val in zip(lambdas, n_sims):
+			plt.text(lam, val, '{:.0f}'.format(val), ha='center')
 		plt.ylabel('Number of sims\nwith data')
+		whitePadSparklineAxis(ax, xAxis=False)
+
+		# Lambda objective
+		ax = plt.subplot(subplots, 1, 9)
+		plt.bar(lambdas, objective, align='center')
+		for lam, val in zip(lambdas, objective):
+			plt.text(lam, val, '{:.3f}'.format(val), ha='center')
+		plt.ylabel('Combined output objective')
 		whitePadSparklineAxis(ax)
 		plt.xticks(lambdas, tick_labels)
 
@@ -326,13 +364,18 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 
 		# Plot kinetic vs homeostatic objective values
-		plt.figure()
+		plt.figure(figsize=(3.5, 3.5))
 		ax = plt.gca()
 		ax.set_xscale("log", nonposx='clip')
 		ax.set_yscale("log", nonposy='clip')
-		plt.errorbar(homeostatic_objective_value, kinetic_objective_value, xerr=homeostatic_objective_std, yerr=kinetic_objective_std, fmt='o')
+		plt.errorbar(homeostatic_objective_value, kinetic_objective_value,
+			xerr=homeostatic_objective_std, yerr=kinetic_objective_std,
+			fmt='none', ecolor='k', alpha=0.5, linewidth=0.5)
+		plt.plot(homeostatic_objective_value, kinetic_objective_value, "ob",
+			markeredgewidth=0.1, alpha=0.9)
 		for i in range(len(lambdas)):
-			plt.text(homeostatic_objective_value[i], 0.8*kinetic_objective_value[i], i, horizontalalignment='center', verticalalignment='center')
+			plt.text(homeostatic_objective_value[i], 0.6*kinetic_objective_value[i],
+				i, horizontalalignment='center', verticalalignment='center')
 		plt.xlabel('Homeostatic Objective Value')
 		plt.ylabel('Kinetics Objective Value')
 

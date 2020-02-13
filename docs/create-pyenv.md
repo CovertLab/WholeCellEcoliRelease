@@ -202,28 +202,6 @@ This page goes through the Python environment setup steps in more detail and wit
 
    naming the library_dirs that you set above.
 
-1. Configure matplotlib.
-
-   Note: The wcEcoli software expects to run with `wcEcoli/` as both the current working directory and on the `$PYTHONPATH` to
-   make the code and `matplotlibrc` available.
-
-   **Issue [#161](https://github.com/CovertLab/wcEcoli/issues/161):** The matplotlib rendering "backend" might need to be changed from what its installer configures to `agg` (which in fact is what matplotlib will pick at runtime if not configured otherwise).
-
-   The `wcEcoli/` directory contains a `matplotlibrc` file that configures matplotlib's backend to `agg` whenever you run with this working directory.
-
-   However when running under the "Fireworks" workflow manager, Fireworks’ `rlaunch rapidfire` sets the working directory to its `launcher_.../` subdirectory instead, so the backend can fail to load.
-   (`rlaunch singleshot` does not have that problem. Our manual runscripts do not have that problem, either. We're not sure about Fireworks’ `qlaunch`.)
-
-   **Workaround:** After installing or updating `matplotlib`, test if it can import pyplot:
-
-      1. `cd` to a directory that does not have a `matplotlibrc` file, e.g. `wcEcoli/docs/`.
-      1. Run the `pyenv version` shell command to verify that the pyenv `wcEcoli2` is active. (It should be if the current directory is a subdirectory of `wcEcoli/` and if `wcEcoli/` has a `.python-version` file that was set by `pyenv local wcEcoli2`.)
-      1. Start a python shell and type `import matplotlib.pyplot`
-         * If it raised `ImportError: No module named _tkinter` or `RuntimeError: Python is not installed as a framework`, then matplotlib couldn't load its backend.  
-           The workaround is to edit the relevant `site-packages/matplotlib/mpl-data/matplotlibrc` file, probably the one in `$PYENV_ROOT/versions/wcEcoli2/lib/python2.7/`.   
-           Comment out the line `backend : TkAgg` or `backend : macosx`, then retest.
-         * If it didn't raise an error, run `matplotlib.get_backend()` and check that it returns `'agg'` or similar.
-
 1. Compile the project's native code.
 
    ```bash

@@ -53,12 +53,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 			shape=delta_prob['shape']
 			).toarray()
 
-		# Get DNA polymerase elongation rate (used to mask out transcription
-		# units that are expected to be replicated in the current timestep)
-		self.dnaPolyElngRate = int(
-			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
-			units.nt / units.s)))
-
 		# Determine changes from genetic perturbations
 		self.genetic_perturbations = {}
 		perturbations = getattr(sim_data, "genetic_perturbations", {})
@@ -82,7 +76,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.active_RNAPs = self.uniqueMoleculesView('active_RNAP')
 		self.inactive_RNAPs = self.bulkMoleculeView("APORNAP-CPLX[c]")
 		self.full_chromosomes = self.uniqueMoleculesView('full_chromosome')
-		self.active_replisomes = self.uniqueMoleculesView("active_replisome")
 		self.promoters = self.uniqueMoleculesView('promoter')
 		self.RNAs = self.uniqueMoleculesView('RNA')
 
@@ -244,41 +237,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		n_initiations = self.randomState.multinomial(
 			n_RNAPs_to_activate, self.promoter_init_probs)
 
-		# If there are active replisomes, construct mask for promoters that are
-		# expected to be replicated in the current timestep.
-		# Assuming the replisome knocks off all RNAPs that it collides with,
-		# no transcription initiation should occur for these promoters.
-		# TODO (ggsun): This assumes that replisomes elongate at maximum rates.
-		# 	Ideally this should be done in the reconciler.
-		collision_mask = np.zeros_like(TU_index, dtype=np.bool)
-
-		if self.active_replisomes.total_counts()[0] > 0:
-			domain_index_replisome, right_replichore, coordinates_replisome = self.active_replisomes.attrs(
-				"domain_index", "right_replichore", "coordinates")
-
-			elongation_length = np.ceil(
-				self.dnaPolyElngRate * self.timeStepSec())
-
-			for rr, coord, dmn_idx in izip(right_replichore,
-					coordinates_replisome, domain_index_replisome):
-				if rr:
-					coordinates_mask = np.logical_and(
-						coordinates_promoters >= coord,
-						coordinates_promoters <= coord + elongation_length)
-				else:
-					coordinates_mask = np.logical_and(
-						coordinates_promoters <= coord,
-						coordinates_promoters >= coord - elongation_length)
-
-				mask = np.logical_and(domain_index_promoters == dmn_idx,
-					coordinates_mask)
-				collision_mask[mask] = True
-
-		# Set the number of initiations for these promoters to zero.
-		n_aborted_initiations = n_initiations[collision_mask].sum()
-		n_initiations[collision_mask] = 0
-		n_RNAPs_to_activate -= n_aborted_initiations
-
 		# Build array of transcription unit indexes for partially transcribed
 		# RNAs and domain indexes for RNAPs
 		TU_index_partial_RNAs = np.repeat(TU_index, n_initiations)
@@ -334,9 +292,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		self.writeToListener("RnapData", "didInitialize", n_RNAPs_to_activate)
 		self.writeToListener("RnapData", "rnaInitEvent", TU_to_promoter.dot(n_initiations))
-
-		self.writeToListener(
-			"RnapData", "n_aborted_initiations", n_aborted_initiations)
 
 
 	def _calculateActivationProb(self, fracActiveRnap, rnaLengths, rnaPolymeraseElongationRates, synthProb):

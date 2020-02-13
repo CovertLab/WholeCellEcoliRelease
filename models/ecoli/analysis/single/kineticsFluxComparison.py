@@ -117,15 +117,30 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		csvFile.close()
 
+		# Masks for highlighting and counting certain groups
+		on_target_mask = actualAve == targetAve
+		zero_mask = (actualAve == 0) & ~on_target_mask
+		other_mask = ~on_target_mask & ~zero_mask
+
 		targetAve += 1e-6
 		actualAve += 1e-6
 
 		axes_limits = [1e-7, 1e4]
 		plt.figure(figsize = (8, 8))
 		ax = plt.axes()
-		plt.loglog(axes_limits, axes_limits, 'k')
-		plt.loglog(targetAve, actualAve, "ob", markeredgewidth = 0.25, alpha = 0.25)
-		plt.loglog(boundaryTargetAve, boundaryActualAve, "ob", c='r', markeredgewidth=0.25, alpha=0.9, label='boundary fluxes')
+		plt.loglog(axes_limits, axes_limits, 'k--')
+		plt.loglog(targetAve[on_target_mask], actualAve[on_target_mask], 'og',
+			markeredgewidth=0.25, alpha=0.25,
+			label='on target fluxes (n={})'.format(on_target_mask.sum()))
+		plt.loglog(targetAve[zero_mask], actualAve[zero_mask], 'or',
+			markeredgewidth=0.25, alpha=0.25,
+			label='zero fluxes (n={})'.format(zero_mask.sum()))
+		plt.loglog(targetAve[other_mask], actualAve[other_mask], 'ob',
+			markeredgewidth=0.25, alpha=0.25,
+			label='other fluxes (n={})'.format(other_mask.sum()))
+		if len(boundaryTargetAve):
+			plt.loglog(boundaryTargetAve, boundaryActualAve, 'ok',
+				markeredgewidth=0.25, alpha=0.9, label='boundary fluxes')
 		plt.xlabel("Target Flux (mmol/g/hr)")
 		plt.ylabel("Actual Flux (mmol/g/hr)")
 		plt.minorticks_off()
