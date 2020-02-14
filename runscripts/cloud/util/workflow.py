@@ -40,9 +40,10 @@ LOG_OUT_PATH = '>>'  # special path for a fuller log; written even on task failu
 
 STORAGE_ROOT_ENV_VAR = 'WORKFLOW_STORAGE_ROOT'
 
-# ASSUMES: The named LaunchPad MongoDB is reachable e.g. via an ssh tunnel set
-# up by runscripts/cloud/mongo-ssh.sh
-LAUNCHPAD_FILENAME = 'my_launchpad.yaml'
+# The MongoDB service must be reachable at the host:port named in the LaunchPad
+# file, either directly or via an ssh port forwarding tunnel like
+# runscripts/cloud/mongo-ssh.sh
+LAUNCHPAD_FILENAME = 'gce_my_launchpad.yaml'
 DEFAULT_FIREWORKS_DATABASE = 'default_fireworks_database'
 
 
