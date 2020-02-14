@@ -22,6 +22,7 @@ from borealis import gce
 from borealis.docker_task import DockerTask
 from fireworks import FiretaskBase, Firework, LaunchPad
 from fireworks import Workflow as FwWorkflow
+from future.utils import raise_with_traceback
 from gaia.client import Gaia
 from requests import ConnectionError
 import yaml
@@ -469,7 +470,13 @@ class Workflow(object):
 			lpad = LaunchPad(**config)
 
 		wf = self.build_workflow()
-		lpad.add_wf(wf)
+		try:
+			lpad.add_wf(wf)
+		except ValueError as e:
+			raise_with_traceback(RuntimeError(
+				'You might need to set up port forwarding to the MongoDB'
+				' server. See `runscripts/cloud/mongo-ssh.sh`.\n'
+				'Caused by: ' + str(e)))
 
 		# Launch the workers after the successful upload.
 		self.launch_fireworkers(worker_count, config)
