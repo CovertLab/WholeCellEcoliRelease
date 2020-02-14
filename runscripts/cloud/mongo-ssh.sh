@@ -1,14 +1,28 @@
 #!/usr/bin/env bash
-# ssh to the MongoDB server machine and tunnel to the MongoDB server processes.
+# ssh to the MongoDB server machine in GCE and tunnel to its MongoDB server port.
 #
-# For port forwarding, this uses an explicit local address 127.0.0.1:27017 so
-# it will fail and exit if that port is in use rather than just warning about it
-# and forwarding an IPv6 address instead.
+# Pass "bg" to run the ssh command in a background process.
 #
-# TODO: Take an optional port argument in case the user is using local port
-# 27017 for a local MongoDB server or something.
+# For port forwarding, this uses an explicit IPv4 local address 127.0.0.1 so if
+# the port is in use ssh will fail and exit rather than just warning about it
+# and using an IPv6 local address instead.
 
 set -eu
 
-gcloud compute ssh mongo-prime --zone=us-west1-b -- \
-    -o ExitOnForwardFailure=yes -L 127.0.0.1:27017:localhost:27017
+HOST=mongo-prime
+ZONE=us-west1-b
+PORT=27017
+TUNNEL=127.0.0.1:$PORT:localhost:$PORT
+
+if [ "${1-}" == bg ]
+then
+    gcloud compute ssh $HOST --zone=$ZONE -- \
+        -o ExitOnForwardFailure=yes -L $TUNNEL -nNT &
+    ssh_pid="$!"
+
+    echo "ssh port forwarding to $HOST in the background process: pid ${ssh_pid}"
+    echo "Do 'kill ${ssh_pid}' to stop it."
+else
+    gcloud compute ssh $HOST --zone=$ZONE -- \
+        -o ExitOnForwardFailure=yes -L $TUNNEL
+fi
