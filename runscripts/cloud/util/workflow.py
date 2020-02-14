@@ -458,7 +458,7 @@ class Workflow(object):
 		copy_key(config, 'username', metadata)
 		copy_key(config, 'password', metadata)
 
-		engine = gce.ComputeEngine(prefix, verbose=True)
+		engine = gce.ComputeEngine(prefix, verbose=True)  # TODO(jerry): Turn off verbose, soon
 		engine.create(count=count, command_options=options, **metadata)
 
 	def send_to_lpad(self, worker_count=4, lpad_filename=LAUNCHPAD_FILENAME):
