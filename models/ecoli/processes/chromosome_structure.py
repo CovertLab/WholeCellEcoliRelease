@@ -36,6 +36,9 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 		self.n_TUs = len(sim_data.process.transcription.rnaData)
 		self.n_TFs = len(sim_data.process.transcription_regulation.tf_ids)
 
+		# Get placeholder value for chromosome domains without children
+		self.no_child_place_holder = sim_data.process.replication.no_child_place_holder
+
 		# Load bulk molecule views
 		self.inactive_RNAPs = self.bulkMoleculeView(sim_data.moleculeIds.rnapFull)
 		self.fragmentBases = self.bulkMoleculesView(
@@ -54,21 +57,22 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 
 
 	def calculateRequest(self):
-		if self.active_replisomes.total_counts()[0] > 0:
-			# Request access to delete active RNAPs and RNAs
-			self.active_RNAPs.request_access(self.EDIT_DELETE_ACCESS)
-			self.RNAs.request_access(self.EDIT_DELETE_ACCESS)
-			self.promoters.request_access(self.EDIT_DELETE_ACCESS)
-			self.DnaA_boxes.request_access(self.EDIT_DELETE_ACCESS)
+		# Request access to delete active RNAPs, RNAs, and DNA motifs
+		self.active_RNAPs.request_access(self.EDIT_DELETE_ACCESS)
+		self.RNAs.request_access(self.EDIT_DELETE_ACCESS)
+		self.promoters.request_access(self.EDIT_DELETE_ACCESS)
+		self.DnaA_boxes.request_access(self.EDIT_DELETE_ACCESS)
 
 	def evolveState(self):
-		# If there are no active replisomes, return immediately
+		# If there are no active replisomes, set attributes to empty arrays
 		if self.active_replisomes.total_counts()[0] == 0:
-			return
+			replisome_domain_indexes = np.array([])
+			replisome_coordinates = np.array([])
+		else:
+			replisome_domain_indexes, replisome_coordinates = self.active_replisomes.attrs(
+				'domain_index', 'coordinates')
 
-		# Read unique molecule attributes
-		replisome_domain_indexes, replisome_coordinates = self.active_replisomes.attrs(
-			'domain_index', 'coordinates')
+		# Read other unique molecule attributes
 		all_chromosome_domain_indexes, child_domains = self.chromosome_domains.attrs(
 			'domain_index', 'child_domains')
 		RNAP_domain_indexes, RNAP_coordinates, RNAP_directions, RNAP_unique_indexes = self.active_RNAPs.attrs(
@@ -109,8 +113,9 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 
 				# Domain has no active replisomes
 				else:
-					# Domain has finished replicating
-					if np.all(domain_index < replisome_domain_indexes):
+					# Domain has child domains (has finished replicating)
+					if (child_domains[all_chromosome_domain_indexes == domain_index, 0]
+							!= self.no_child_place_holder):
 						# Remove all molecules on this domain
 						domain_mask = (domain_indexes == domain_index)
 					# Domain has not started replication
