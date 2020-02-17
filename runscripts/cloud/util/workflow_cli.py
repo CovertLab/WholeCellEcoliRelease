@@ -12,7 +12,8 @@ from typing import Iterable, Optional
 
 import wholecell.utils.filepath as fp
 from wholecell.utils import scriptBase
-from runscripts.cloud.util.workflow import STORAGE_ROOT_ENV_VAR, Task, Workflow
+from runscripts.cloud.util.workflow import (DEFAULT_LPAD_YAML,
+	STORAGE_ROOT_ENV_VAR, Task, Workflow)
 
 
 USE_GAIA = False
@@ -48,6 +49,10 @@ class WorkflowCLI(scriptBase.ScriptBase):
 			help='The cloud storage root for the output files, usually a GCS'
 				 ' bucket name like "sisyphus-crick". Default = ${}'
 				 ' environment variable.'.format(STORAGE_ROOT_ENV_VAR))
+		parser.add_argument('-l', dest='launchpad_filename',
+			default=DEFAULT_LPAD_YAML,
+			help='Launchpad config YAML filename (default="{}").'.format(
+				DEFAULT_LPAD_YAML))
 		parser.add_argument('-w', '--workers', type=int, default=1,
 			help='number of worker nodes to launch; default = 1')
 		parser.add_argument('--dump', action='store_true',
@@ -76,7 +81,8 @@ class WorkflowCLI(scriptBase.ScriptBase):
 			fw_wf = self.wf.build_workflow()
 			pprint(fw_wf)
 		else:
-			self.wf.send_to_lpad(worker_count=args.workers)
+			self.wf.send_to_lpad(
+				worker_count=args.workers, lpad_filename=args.launchpad_filename)
 
 	def run(self, args):
 		# type: (argparse.Namespace) -> None

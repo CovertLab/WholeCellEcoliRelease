@@ -75,7 +75,8 @@ overwrite existing files. _Or_ you can manually crib from the template files
    The database name defaults to `$USER` for a user-specific database.
    Or enter the mlab details if you're using mlab.com.
 
-   To run on GCE, you just need a launchpad.yaml file containing:
+   To run on GCE, you just need a LaunchPad YAML file (the default name is
+   `my_launchpad.yaml`) containing:
 
        host: localhost
        name: <your-username-or-another-unique-name>

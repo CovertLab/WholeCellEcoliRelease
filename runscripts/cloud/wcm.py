@@ -30,7 +30,8 @@ from wholecell.fireworks.firetasks import (
 from wholecell.utils import constants, data, scriptBase
 import wholecell.utils.filepath as fp
 from runscripts.manual.analysisBase import AnalysisBase
-from runscripts.cloud.util.workflow import STORAGE_ROOT_ENV_VAR, Task, Workflow
+from runscripts.cloud.util.workflow import (DEFAULT_LPAD_YAML,
+	STORAGE_ROOT_ENV_VAR, Task, Workflow)
 
 
 # ':latest' -- "You keep using that word. I do not think it means what you think it means."
@@ -375,6 +376,10 @@ class RunWcm(scriptBase.ScriptBase):
 				 ' review *instead* of sending them to the Gaia workflow'
 				 ' server. This is useful for testing and debugging. You can'
 				 ' upload them manually or re-run this program without `--dump`.')
+		parser.add_argument('-l', dest='launchpad_filename',
+			default=DEFAULT_LPAD_YAML,
+			help='Launchpad config YAML filename (default="{}").'.format(
+				DEFAULT_LPAD_YAML))
 		parser.add_argument('-w', '--workers', type=int,
 			help='The number of worker nodes to launch, with a smart default.')
 
@@ -433,7 +438,8 @@ class RunWcm(scriptBase.ScriptBase):
 			fw_wf = wf.build_workflow()
 			pprint(fw_wf)
 		else:
-			wf.send_to_lpad(worker_count=args.workers)
+			wf.send_to_lpad(
+				worker_count=args.workers, lpad_filename=args.launchpad_filename)
 
 
 if __name__ == '__main__':

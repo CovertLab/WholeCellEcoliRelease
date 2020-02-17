@@ -43,7 +43,7 @@ STORAGE_ROOT_ENV_VAR = 'WORKFLOW_STORAGE_ROOT'
 # The MongoDB service must be reachable at the host:port named in the LaunchPad
 # file, either directly or via an ssh port forwarding tunnel like
 # runscripts/cloud/mongo-ssh.sh
-LAUNCHPAD_FILENAME = 'gce_my_launchpad.yaml'
+DEFAULT_LPAD_YAML = 'my_launchpad.yaml'
 DEFAULT_FIREWORKS_DATABASE = 'default_fireworks_database'
 
 
@@ -461,11 +461,12 @@ class Workflow(object):
 		engine = gce.ComputeEngine(prefix, verbose=True)  # TODO(jerry): Turn off verbose, soon
 		engine.create(count=count, command_options=options, **metadata)
 
-	def send_to_lpad(self, worker_count=4, lpad_filename=LAUNCHPAD_FILENAME):
+	def send_to_lpad(self, worker_count=4, lpad_filename=DEFAULT_LPAD_YAML):
 		# type: (int, str) -> FwWorkflow
 		"""Build this workflow for FireWorks, upload it to the given or
 		default LaunchPad, launch workers, and return the built workflow.
 		"""
+		# TODO(jerry): Add an option to pass in the LaunchPad config as a dict.
 		with open(lpad_filename) as f:
 			config = yaml.safe_load(f)
 			lpad = LaunchPad(**config)
