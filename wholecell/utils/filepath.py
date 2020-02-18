@@ -89,7 +89,7 @@ def run_cmd2(tokens, trim=True, timeout=TIMEOUT):
 	Returns:
 		The command's stdout and stderr strings.
 	Raises:
-		OSError (e.g. FileNotFoundError or PermissionError),
+		OSError (e.g. FileNotFoundError [Python 3] or PermissionError),
 		  subprocess.SubprocessError (TimeoutExpired or CalledProcessError)
 	"""
 	out = subprocess.run(
