@@ -3,19 +3,41 @@ from __future__ import absolute_import, division, print_function
 import time
 import cPickle
 
-from fireworks import FireTaskBase, explicit_serialize
+from fireworks import FiretaskBase, explicit_serialize
 from models.ecoli.sim.simulation import EcoliSimulation
 from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
 
+
 @explicit_serialize
-class SimulationTask(FireTaskBase):
+class SimulationTask(FiretaskBase):
 
 	_fw_name = "SimulationTask"
-	required_params = ["input_sim_data", "output_directory"]
-	optional_params = ["seed", "timeline", "length_sec", "timestep_safety_frac", "timestep_max", "timestep_update_freq", "log_to_shell", "log_to_disk_every", "mass_distribution", "growth_rate_noise", "d_period_division", "translation_supply", "trna_charging", "ppgpp_regulation", "raise_on_time_limit"]
+	required_params = [
+		"input_sim_data",
+		"output_directory"]
+	optional_params = [
+		"seed",
+		"timeline",
+		"length_sec",
+		"timestep_safety_frac",
+		"timestep_max",
+		"timestep_update_freq",
+		"log_to_shell",
+		"log_to_disk_every",
+		"mass_distribution",
+		"growth_rate_noise",
+		"d_period_division",
+		'variable_elongation_transcription',
+		'variable_elongation_translation',
+		"translation_supply",
+		"trna_charging",
+		"ppgpp_regulation",
+		"raise_on_time_limit"]
+
+	def _get_default(self, key, default_key=''):
+		return self.get(key, DEFAULT_SIMULATION_KWARGS[default_key or key])
 
 	def run_task(self, fw_spec):
-
 		print("%s: Running simulation" % time.ctime())
 
 		# load the sim_data from the output of the parameter calculator (parca)
@@ -30,23 +52,23 @@ class SimulationTask(FireTaskBase):
 		options["logToDisk"] = True
 		options["overwriteExistingFiles"] = False
 
-		options["seed"] = int(self.get("seed", DEFAULT_SIMULATION_KWARGS["seed"]))
-		options["timeline"] = self.get("timeline", DEFAULT_SIMULATION_KWARGS["timeline"])
-		options["lengthSec"] = self.get("length_sec", DEFAULT_SIMULATION_KWARGS["lengthSec"])
-		options["timeStepSafetyFraction"] = self.get("timestep_safety_frac", DEFAULT_SIMULATION_KWARGS["timeStepSafetyFraction"])
-		options["maxTimeStep"] = self.get("timestep_max", DEFAULT_SIMULATION_KWARGS["maxTimeStep"])
-		options["updateTimeStepFreq"] = self.get("timestep_update_freq", DEFAULT_SIMULATION_KWARGS["updateTimeStepFreq"])
-		options["logToShell"] = self.get("log_to_shell", DEFAULT_SIMULATION_KWARGS["logToShell"])
-		options["logToDiskEvery"] = self.get("log_to_disk_every", DEFAULT_SIMULATION_KWARGS["logToDiskEvery"])
-		options["massDistribution"] = self.get("mass_distribution", DEFAULT_SIMULATION_KWARGS["massDistribution"])
-		options["growthRateNoise"] = self.get("growth_rate_noise", DEFAULT_SIMULATION_KWARGS["growthRateNoise"])
-		options["dPeriodDivision"] = self.get("d_period_division", DEFAULT_SIMULATION_KWARGS["dPeriodDivision"])
-		options["translationSupply"] = self.get("translation_supply", DEFAULT_SIMULATION_KWARGS["translationSupply"])
-		options["variable_elongation_transcription"] = self.get("variable_elongation_transcription", DEFAULT_SIMULATION_KWARGS["variable_elongation_transcription"])
-		options["variable_elongation_translation"] = self.get("variable_elongation_translation", DEFAULT_SIMULATION_KWARGS["variable_elongation_translation"])
-		options["trna_charging"] = self.get("trna_charging", DEFAULT_SIMULATION_KWARGS["trna_charging"])
-		options["ppgpp_regulation"] = self.get("ppgpp_regulation", DEFAULT_SIMULATION_KWARGS["ppgpp_regulation"])
-		options["raise_on_time_limit"] = self.get("raise_on_time_limit", DEFAULT_SIMULATION_KWARGS["raise_on_time_limit"])
+		options["seed"] = int(self._get_default("seed"))
+		options["timeline"] = self._get_default("timeline")
+		options["lengthSec"] = self._get_default("length_sec", "lengthSec")
+		options["timeStepSafetyFraction"] = self._get_default("timestep_safety_frac", "timeStepSafetyFraction")
+		options["maxTimeStep"] = self._get_default("timestep_max", "maxTimeStep")
+		options["updateTimeStepFreq"] = self._get_default("timestep_update_freq", "updateTimeStepFreq")
+		options["logToShell"] = self._get_default("log_to_shell", "logToShell")
+		options["logToDiskEvery"] = self._get_default("log_to_disk_every", "logToDiskEvery")
+		options["massDistribution"] = self._get_default("mass_distribution", "massDistribution")
+		options["growthRateNoise"] = self._get_default("growth_rate_noise", "growthRateNoise")
+		options["dPeriodDivision"] = self._get_default("d_period_division", "dPeriodDivision")
+		options["translationSupply"] = self._get_default("translation_supply", "translationSupply")
+		options["variable_elongation_transcription"] = self._get_default("variable_elongation_transcription")
+		options["variable_elongation_translation"] = self._get_default("variable_elongation_translation")
+		options["trna_charging"] = self._get_default("trna_charging")
+		options["ppgpp_regulation"] = self._get_default("ppgpp_regulation")
+		options["raise_on_time_limit"] = self._get_default("raise_on_time_limit")
 
 		sim = EcoliSimulation(**options)
 

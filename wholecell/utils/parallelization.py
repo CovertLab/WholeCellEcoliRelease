@@ -7,12 +7,15 @@ import os
 
 from typing import Any, Callable, Dict, Iterable, List, Optional
 
+
 def is_macos():
+	# type: () -> bool
 	'''Return True if this is running on macOS.'''
 	return os.uname()[0].lower() == 'darwin'
 
 
 def cpus(requested_num_processes=None, **kwargs):
+	# type: (Optional[int], **str) -> int
 	"""Return the usable number of worker processes via `fork` (e.g. with
 	`multiprocessing.Pool`), up to `requested_num_processes` (default: the max
 	as reported by `multiprocessing.cpu_count()`) considering macOS and SLURM
@@ -51,14 +54,14 @@ def cpus(requested_num_processes=None, **kwargs):
 		SLURM_JOB_CPUS_PER_NODE=3
 
 	Args:
-		requested_num_processes (int): the requested number of worker
+		requested_num_processes: the requested number of worker
 			processes; pass None or 0 to default to the max available
-		kwargs (Dict[str]): go ahead and pass in `advice='mac override'` to
+		kwargs: go ahead and pass in `advice='mac override'` to
 			override the safety check if you're confident that `fork`ed
 			processes parallelize OK in this caller on macOS; otherwise this
 			function will return 1 on macOS
 	Returns:
-		num_cpus (int): the usable number of worker processes via `fork` (e.g.
+		num_cpus: the usable number of worker processes via `fork` (e.g.
 			with `multiprocessing.Pool`) as limited by the hardware, macOS,
 			SLURM, and `requested_num_processes`.
 
@@ -93,6 +96,7 @@ def cpus(requested_num_processes=None, **kwargs):
 
 
 def pool(num_processes=None):
+	# type: (Optional[int]) -> mp.pool.Pool
 	"""Return an `InlinePool` if `cpus(num_processes) == 1`, else a
 	`multiprocessing.Pool(cpus(num_processes))`, as suitable for the current
 	runtime environment. See `cpus()` on figuring the number of usable

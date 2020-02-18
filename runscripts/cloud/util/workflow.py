@@ -1,4 +1,4 @@
-"""Generic Sisyphus/Gaia/Google Cloud workflow builder."""
+"""Google Cloud workflow builder."""
 
 # TODO(jerry): For Windows: This code uses posixpath to construct paths to use
 #  on linux servers (and os.path for local file I/O).
@@ -7,7 +7,7 @@
 
 from __future__ import absolute_import, division, print_function
 
-from collections import OrderedDict
+from collections import defaultdict, OrderedDict
 import os
 import posixpath
 import re
@@ -16,40 +16,47 @@ if os.name == 'posix' and sys.version_info[0] < 3:
 	import subprocess32 as subprocess
 else:
 	import subprocess
-from typing import Any, Callable, Dict, Iterable, List, Optional
+from typing import Any, Callable, Dict, Iterable, List, Optional, Set
 
+from borealis import gce
+from borealis.docker_task import DockerTask
+from fireworks import FiretaskBase, Firework, LaunchPad
+from fireworks import Workflow as FwWorkflow
+from future.utils import raise_with_traceback
 from gaia.client import Gaia
 from requests import ConnectionError
+import yaml
 
 from wholecell.utils import filepath as fp
 
 
 # Config details to pass to Gaia.
 # ASSUMES: gaia_host is reachable e.g. via an ssh tunnel set up by
-# runscripts/cloud/ssh-tunnel.sh.
+# runscripts/cloud/ssh-tunnel.sh
 GAIA_CONFIG = {'gaia_host': 'localhost:24442'}
 
 STDOUT_PATH = '>'    # special path that captures stdout + stderror
 LOG_OUT_PATH = '>>'  # special path for a fuller log; written even on task failure
 
 STORAGE_ROOT_ENV_VAR = 'WORKFLOW_STORAGE_ROOT'
-MAX_WORKERS = 500  # don't launch more than this many worker nodes at a time
+
+# The MongoDB service must be reachable at the host:port named in the LaunchPad
+# file, either directly or via an ssh port forwarding tunnel like
+# runscripts/cloud/mongo-ssh.sh
+DEFAULT_LPAD_YAML = 'my_launchpad.yaml'
+DEFAULT_FIREWORKS_DATABASE = 'default_fireworks_database'
 
 
-def _rebase(path, internal_prefix, storage_prefix):
+def _rebase_for_gaia(path, internal_prefix, storage_prefix):
 	# type: (str, str, str) -> str
 	"""Return a path rebased from internal_prefix to storage_prefix and switch
 	to "bucket:path" format for Gaia/Sisyphus."""
 	relpath = posixpath.relpath(path, internal_prefix)
 	new_path = posixpath.join(storage_prefix, relpath).replace('/', ':', 1)
 
-	# posixpath.relpath removes a trailing slash if it exists.
+	# posixpath.relpath() removes a trailing slash if it exists. Restore it.
 	if path.endswith(posixpath.sep):
 		new_path = posixpath.join(new_path, '')
-
-	assert '..' not in new_path, (
-		'''Can't rebase path "{}" that doesn't start with internal_prefix "{}"'''
-			.format(path, internal_prefix))
 	return new_path
 
 def _keyify(paths, fn=lambda path: path):
@@ -67,25 +74,28 @@ def _copy_as_list(value):
 		assert isinstance(s, basestring), 'Expected a string, not {}'.format(s)
 	return result
 
-def _copy_path_list(value):
-	# type: (Iterable[str]) -> List[str]
-	"""Copy an iterable of strings as a list and check that they're absolute paths
-	to catch goofs like `outputs=plot_dir` or `outputs=['out/metadata.json']`.
-	Sisyphus needs absolute paths to mount into the Docker container. Fail fast
-	on improper input. Handle the the STDOUT prefix '>'.
+def _copy_path_list(value, internal_prefix, is_output=False):
+	# type: (Iterable[str], str, bool) -> List[str]
+	"""Copy an iterable of strings as a list and check that they're absolute
+	paths that start with `internal_prefix` to catch improper args like
+	`outputs=plot_dir` or `outputs=['out/metadata.json']`.
+	(The task worker needs absolute paths to mount into the Docker container.)
+	Handle STDOUT_PATH and LOG_OUT_PATH prefixes.
 	"""
 	result = _copy_as_list(value)
 	for path in result:
-		path = path.lstrip('>')
-		assert posixpath.isabs(path), 'Expected an absolute path, not {}'.format(path)
-	return result
+		assert is_output or not path.startswith('>'), (
+			'''Input paths must not start with '>', not "{}"'''.format(path))
 
-def _launch_workers(worker_names, workflow=''):
-	# type: (List[str], str) -> None
-	"""Launch Sisyphus worker nodes with the given names."""
-	path = os.path.join(fp.ROOT_PATH, 'runscripts', 'cloud', 'launch-workers.sh')
-	subprocess.call([path] + worker_names,
-		env=dict(os.environ, WORKFLOW=workflow))
+		path = path.lstrip('>')
+		assert posixpath.isabs(path), (
+			'Expected an absolute path, not "{}"'.format(path))
+
+		relpath = posixpath.relpath(path, internal_prefix)
+		assert '..' not in relpath, (
+			'Expected a path that starts with the internal_prefix "{}", not "{}"'
+				.format(internal_prefix, path))
+	return result
 
 def _to_create_bucket(prefix):
 	# type: (str) -> str
@@ -146,35 +156,37 @@ class Task(object):
 		"""Construct a Workflow Task.
 
 		The inputs and outputs are absolute paths internal to the worker's
-		Docker container.
-		Task will rebase them from internal_prefix to storage_prefix to construct
-		the corresponding storage paths. An internal path ending with '/' will
-		upload or download a directory tree.
+		Docker container. The corresponding storage paths will get constructed
+		by rebasing each path from internal_prefix to storage_prefix.
 
-		An output path that starts with '>' will capture stdout + stderr (if the
-		task completes normally). The rest of the path will get rebased to a
-		storage path.
+		Each path indicates a directory tree of files to fetch or store (rather
+		than a single file) iff it ends with '/'.
 
-		(An output path that starts with '>>' will capture a log of stdout +
-		stderr + other log messages like elapsed time and task exit code, for
-		for debugging, even if the task fails. Just default store_log=True to
-		save a log.)
+		Outputs will get written to GCS if the task completes normally. An
+		output path that starts with '>' will capture stdout + stderr (if the
+		task completes normally), while the rest of the path gets rebased to
+		provide the storage path.
+
+		An output path that starts with '>>' will capture a log of stdout +
+		stderr + other log messages like elapsed time and task exit code, even
+		if the task fails. This is useful for debugging. Just set
+		store_log=True (the default) to save this log.
 		"""
 		assert name, 'Every task needs a name'
 		assert image, 'Every task needs a Docker image name'
 		assert command, 'Every task needs a command list of tokens'
 		assert storage_prefix, 'Every task needs a storage_prefix'
 		assert not storage_prefix.startswith('/'), (
-			'storage_prefix must not start with "/": {}'.format(storage_prefix))
+			'storage_prefix must not start with "/": "{}"'.format(storage_prefix))
 		assert internal_prefix, 'Every task needs an internal_prefix'
 		assert posixpath.isabs(internal_prefix), (
-			'internal_prefix must be an absolute path, not {}'.format(internal_prefix))
+			'internal_prefix must be an absolute path, not "{}"'.format(internal_prefix))
 
 		self.name = name
 		self.image = image
 		self.command = _copy_as_list(command)
-		self.inputs = _copy_path_list(inputs)
-		self.outputs = _copy_path_list(outputs)
+		self.inputs = _copy_path_list(inputs, internal_prefix)
+		self.outputs = _copy_path_list(outputs, internal_prefix, is_output=True)
 		self.storage_prefix = storage_prefix
 		self.internal_prefix = internal_prefix
 		self.timeout = timeout if timeout > 0 else self.DEFAULT_TIMEOUT
@@ -182,6 +194,22 @@ class Task(object):
 		if store_log:
 			self.outputs[0:0] = [
 				LOG_OUT_PATH + posixpath.join(internal_prefix, 'logs', name + '.log')]
+
+	def __repr__(self):
+		return 'Task{}'.format(vars(self))
+
+	def build_firetask(self):
+		# type: () -> FiretaskBase
+		"""Build a FireWorks Firetask to run this Task."""
+		return DockerTask(
+			name=self.name,
+			image=self.image,
+			command=self.command,
+			inputs=self.inputs,
+			outputs=self.outputs,
+			storage_prefix=self.storage_prefix,
+			internal_prefix=self.internal_prefix,
+			timeout=self.timeout)
 
 	def build_command(self):
 		# type: () -> Dict[str, Any]
@@ -205,7 +233,7 @@ class Task(object):
 		"""Build a Gaia Step to run this Task."""
 		def rebase(path):
 			# type: (str) -> str
-			return _rebase(path.lstrip('>'), self.internal_prefix, self.storage_prefix)
+			return _rebase_for_gaia(path.lstrip('>'), self.internal_prefix, self.storage_prefix)
 
 		return dict(
 			name=self.name,
@@ -216,7 +244,7 @@ class Task(object):
 
 
 class Workflow(object):
-	"""A Gaia workflow builder."""
+	"""A workflow builder."""
 
 	def __init__(self, name, owner_id='', verbose_logging=True):
 		# type: (str, str, bool) -> None
@@ -242,6 +270,8 @@ class Workflow(object):
 		self.properties = {'owner': self.owner_id}
 		self.verbose_logging = verbose_logging
 		self._tasks = OrderedDict()  # type: Dict[str, Task]
+		self._output_to_taskname = {}  # type: Dict[str, str]
+		self._input_to_tasknames = defaultdict(set)  # type: Dict[str, Set[str]]
 
 	@classmethod
 	def storage_root(cls, cli_arg=None):
@@ -269,6 +299,9 @@ class Workflow(object):
 
 		return root
 
+	def __repr__(self):
+		return 'Workflow{}'.format(vars(self))
+
 	def log_info(self, message):
 		# type: (str) -> None
 		if self.verbose_logging:
@@ -289,31 +322,186 @@ class Workflow(object):
 
 	def add_task(self, task):
 		# type: (Task) -> Task
-		"""Add a Task object. It creates a workflow step. Return it for chaining."""
-		if task.name in self._tasks:
-			print('Warning: Replacing the task named "{}"'.format(task.name))
+		"""Add a Task object. It will create a workflow step, aka a FireWorks
+		"firework".
+		Return it for chaining.
+		Raise ValueError if there's a conflicting task name or output path.
+		"""
+		task_name = task.name
+		if task_name in self._tasks:
+			raise ValueError('''There's already a task named "{}"'''.format(
+				task_name))
 
-		self._tasks[task.name] = task
-		self.log_info('    Added step: {}'.format(task.name))
+		for output_path in task.outputs:
+			real_path = output_path.lstrip('>')
+			existing_task = self._output_to_taskname.get(real_path)
+			if existing_task:
+				raise ValueError(
+					'Task "{}" wants to write to the same output "{}" that Task'
+					' "{}" writes to'.format(task_name, real_path, existing_task))
+
+		# Checks passed. Now add the new task.
+		self._tasks[task_name] = task
+		for output_path in task.outputs:
+			self._output_to_taskname[output_path.lstrip('>')] = task_name
+		for input_path in task.inputs:
+			self._input_to_tasknames[input_path].add(task_name)
+
+		self.log_info('    Added task: {}'.format(task_name))
 		return task
 
-	def build_commands(self):
+	def task_dependencies(self, task):
+		# type: (Task) -> Set[str]
+		"""Given a Task, return a set of the task names it depends on, i.e.
+		that write its inputs. Print a warning about any unfulfilled inputs.
+		"""
+		dependencies = set()
+		unfulfilled = set()
+
+		for input_path in task.inputs:
+			dependency = self._output_to_taskname.get(input_path)
+			if dependency:
+				dependencies.add(dependency)
+			else:
+				unfulfilled.add(input_path)
+
+		if unfulfilled:
+			print('WARNING: Task "{}" has inputs unfulfilled by the Tasks in'
+				  ' this workflow: {}'.format(task.name, sorted(unfulfilled)))
+		return dependencies
+
+	def task_dependents(self, task):
+		# type: (Task) -> Set[str]
+		"""Given a Task, return a set of the task names that depend on it, i.e.
+		that read its outputs.
+		"""
+		dependents = set()
+
+		for output_path in task.outputs:
+			dependents.update(self._input_to_tasknames[output_path])
+
+		return dependents
+
+	def _build_firework(self, task, built):
+		# type: (Task, Dict[str, Optional[Firework]]) -> Firework
+		"""Build a Firework for the given Task or return the already-built one,
+		recursively building its parent Fireworks (dependencies) as needed,
+		collecting them in topo-sorted `built` to ensure they're 1:1 and acyclic.
+		"""
+		# TODO(jerry): Optional optimization. Given Task links A -> B -> C and
+		#  A -> C, omitting lots of parent links like A -> C can speed up the
+		#  workflow engine (assuming nobody deletes tasks). Optimize down to
+		#  {the set of direct parents} - {transitive closure of their parents}?
+		#  Or safer, would it suffice to sort dependencies to begin with the
+		#  later ones in the pipeline?
+		task_name = task.name
+		already_built = built.get(task_name, False)
+		if already_built:
+			return already_built
+
+		if already_built is None:
+			raise ValueError('Cyclic dependency with Task "{}"'.format(task_name))
+		built[task_name] = None
+
+		parents = []  # type: List[Firework]
+		dependency_names = self.task_dependencies(task)
+
+		for dependency_name in dependency_names:
+			parent_task = self[dependency_name]
+			parent_firework = self._build_firework(parent_task, built)
+			parents.append(parent_firework)
+
+		firework = Firework(
+			task.build_firetask(),
+			name=task_name,
+			parents=parents)  # TODO(jerry): spec=...?
+		built[task_name] = firework
+
+		return firework
+
+	def build_fireworks(self):
+		# type: () -> List[Firework]
+		"""Build this workflow's Firework objects."""
+		built = OrderedDict()
+
+		for task in self._tasks.itervalues():
+			self._build_firework(task, built)
+
+		return built.values()
+
+	def build_workflow(self):
+		# type: () -> FwWorkflow
+		"""Build this workflow for FireWorks."""
+		fireworks = self.build_fireworks()
+		wf = FwWorkflow(fireworks, name=self.name, metadata=self.properties)
+		return wf
+
+	def launch_fireworkers(self, count, config):
+		# type: (int, dict) -> None
+		"""Launch the requested number of fireworker nodes (GCE VMs)."""
+		def copy_key(src, key, dest):
+			# type: (dict, str, dict) -> None
+			"""Copy a keyed value from src to dest dicts unless the value is
+			absent or None.
+			"""
+			val = src.get(key)
+			if val is not None:
+				dest[key] = val
+
+		db_name = config.get('name', DEFAULT_FIREWORKS_DATABASE)
+		prefix = 'fireworker-{}'.format(db_name)
+		options = {
+			'image-family': 'fireworker',
+			'description': 'FireWorks worker VM started for {}'.format(self.name)}
+
+		metadata = {'db': db_name}
+		copy_key(config, 'username', metadata)
+		copy_key(config, 'password', metadata)
+
+		engine = gce.ComputeEngine(prefix, verbose=True)  # TODO(jerry): Turn off verbose, soon
+		engine.create(count=count, command_options=options, **metadata)
+
+	def send_to_lpad(self, worker_count=4, lpad_filename=DEFAULT_LPAD_YAML):
+		# type: (int, str) -> FwWorkflow
+		"""Build this workflow for FireWorks, upload it to the given or
+		default LaunchPad, launch workers, and return the built workflow.
+		"""
+		# TODO(jerry): Add an option to pass in the LaunchPad config as a dict.
+		with open(lpad_filename) as f:
+			config = yaml.safe_load(f)
+			lpad = LaunchPad(**config)
+
+		wf = self.build_workflow()
+		try:
+			lpad.add_wf(wf)
+		except ValueError as e:
+			raise_with_traceback(RuntimeError(
+				'You might need to set up port forwarding to the MongoDB'
+				' server. See `runscripts/cloud/mongo-ssh.sh`.\n'
+				'Caused by: ' + str(e)))
+
+		# Launch the workers after the successful upload.
+		self.launch_fireworkers(worker_count, config)
+
+		return wf
+
+	def build_gaia_commands(self):
 		# type: () -> List[dict]
-		"""Build this workflow's Commands."""
+		"""Build this workflow's Gaia Commands."""
 		return [task.build_command() for task in self._tasks.itervalues()]
 
-	def build_steps(self):
+	def build_gaia_steps(self):
 		# type: () -> List[dict]
-		"""Build this workflow's Steps."""
+		"""Build this workflow's Gaia Steps."""
 		return [task.build_step() for task in self._tasks.itervalues()]
 
-	def write(self):
+	def write_for_gaia(self):
 		# type: () -> None
-		"""Build the workflow and write it as JSON files for debugging that can
-		be manually sent to the Gaia server.
+		"""Build the Gaia workflow spec and write it as JSON files for
+		debugging that can be manually sent to the Gaia server.
 		"""
-		commands = self.build_commands()
-		steps = self.build_steps()
+		commands = self.build_gaia_commands()
+		steps = self.build_gaia_steps()
 
 		fp.makedirs('out')
 		commands_path = os.path.join('out', 'workflow-commands.json')
@@ -326,27 +514,23 @@ class Workflow(object):
 
 		self.log_info('Associated properties = {}'.format(self.properties))
 
-	def launch_workers(self, count):
+	def launch_sisyphus_workers(self, count):
 		# type: (int) -> None
-		"""Launch the requested number of Sisyphus worker nodes (GCE VMs)."""
-		if count <= 0:
-			return
-		count = min(count, MAX_WORKERS)
+		"""Launch the requested number of sisyphus worker nodes (GCE VMs)."""
+		prefix = 'sisyphus-{}'.format(self.name)
+		options = {
+			'image-family': 'sisyphus-worker',
+			'description': 'Sisyphus worker VM'}
+		metadata = {'workflow': self.name}
 
-		self.log_info('\nLaunching {} worker node(s).'.format(count))
+		engine = gce.ComputeEngine(prefix, verbose=True)
+		engine.create(count=count, command_options=options, **metadata)
 
-		# Convert the workflow name to valid GCE VM names.
-		sanitized = re.sub('[^-a-z0-9]', '-', self.name.lower()).replace('workflow', '')
-		names = ['sisyphus-{}-{}'.format(sanitized, i) for i in range(count)]
-		_launch_workers(names, workflow=self.name)
-
-	def send(self, worker_count=4):
+	def send_to_gaia(self, worker_count=4):
 		# type: (int) -> None
-		"""Build the workflow and send it to the Gaia server to start running."""
-		self.launch_workers(worker_count)
-
-		commands = self.build_commands()
-		steps = self.build_steps()
+		"""Build the Gaia workflow and send it to the server to start running."""
+		commands = self.build_gaia_commands()
+		steps = self.build_gaia_steps()
 		self.properties['requested-worker-count'] = worker_count
 
 		gaia = Gaia(GAIA_CONFIG)
@@ -363,3 +547,6 @@ class Workflow(object):
 			print('\n*** Did you set up port forwarding to the gaia host? See'
 				  ' runscripts/cloud/ssh-tunnel.sh ***\n')
 			raise e
+
+		# Launch the workers after the successful upload.
+		self.launch_sisyphus_workers(worker_count)

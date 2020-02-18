@@ -3,11 +3,12 @@ from __future__ import absolute_import, division, print_function
 import cPickle
 import time
 
-from fireworks import FireTaskBase, explicit_serialize
+from fireworks import FiretaskBase, explicit_serialize
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 
+
 @explicit_serialize
-class InitRawDataTask(FireTaskBase):
+class InitRawDataTask(FiretaskBase):
 
 	_fw_name = "InitRawDataTask"
 	required_params = ["output"]

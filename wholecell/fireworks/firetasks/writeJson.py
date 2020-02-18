@@ -12,7 +12,7 @@ from wholecell.utils import data
 class WriteJsonTask(FiretaskBase):
 	"""A Firetask to write a JSON file with environment $VARIABLE expansion."""
 
-	_fw_name = 'JsonTask'
+	_fw_name = 'WriteJsonTask'
 	required_params = [
 		'output_file',  # e.g. 'out/manual/metadata/metadata.json'
 		'data']

@@ -4,13 +4,13 @@ import cPickle
 import os
 import sys
 
-from fireworks import FireTaskBase, explicit_serialize
+from fireworks import FiretaskBase, explicit_serialize
 from models.ecoli.sim.variants import apply_variant
 import wholecell.utils.filepath as fp
 
 
 @explicit_serialize
-class VariantSimDataTask(FireTaskBase):
+class VariantSimDataTask(FiretaskBase):
 
 	_fw_name = "VariantSimDataTask"
 	required_params = [
@@ -31,7 +31,10 @@ class VariantSimDataTask(FireTaskBase):
 		fp.makedirs(os.path.dirname(self["output_sim_data"]))
 		fp.makedirs(self["variant_metadata_directory"])
 
-		info, sim_data = apply_variant.apply_variant(self["input_sim_data"], self["variant_function"], self["variant_index"])
+		info, sim_data = apply_variant.apply_variant(
+			self["input_sim_data"],
+			self["variant_function"],
+			self["variant_index"])
 
 		sys.setrecursionlimit(4000)
 
