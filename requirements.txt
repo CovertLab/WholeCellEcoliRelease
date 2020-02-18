@@ -132,7 +132,7 @@ pandas==0.22.0  # pandas 0.23+ releases have backwards incompatible API changes
 parsimonious==0.8.1
 path.py==11.0.1
 pathlib==1.0.1
-pathlib2==2.3.2
+pathlib2==2.3.5
 pbr==4.1.0
 pexpect==4.6.0
 pickleshare==0.7.4
