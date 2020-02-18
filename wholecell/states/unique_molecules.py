@@ -98,14 +98,14 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		self.division_mode['domain_index'] = sim_data.moleculeGroups.unique_molecules_domain_index_division
 
 
-	def partition(self):
+	def partition(self, processes):
 		"""
 		Unique molecules are not partitioned.
 		"""
 		pass
 
 
-	def merge(self):
+	def merge(self, processes):
 		"""
 		Apply all requested changes to the container. The returned list of
 		requests is used to compute mass differences for each process.

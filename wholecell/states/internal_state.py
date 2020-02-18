@@ -65,11 +65,11 @@ class InternalState(object):
 			view._updateQuery()
 
 
-	def partition(self):
+	def partition(self, processes):
 		pass
 
 
-	def merge(self):
+	def merge(self, processes):
 		pass
 
 

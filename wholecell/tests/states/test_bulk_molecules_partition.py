@@ -53,9 +53,8 @@ class Test_BulkMolecules_partition(unittest.TestCase):
 		processPriorities = np.array([0, 0, 0])
 		countsBulkRequested = self.countsBulkRequested
 		countsBulk = self.countsBulk
-		countsBulkPartitioned = self.countsBulkPartitioned
 
-		wcBulkMolecules.calculatePartition(processPriorities, countsBulkRequested, countsBulk, countsBulkPartitioned)
+		countsBulkPartitioned = wcBulkMolecules.calculatePartition(processPriorities, countsBulkRequested, countsBulk)
 
 		countsBulkPartitioned_test = np.zeros((7, 3), dtype = float)
 		countsBulkPartitioned_test[...,0] = np.array([1., 0., 0., 0., 0., 0., 0.]).T
@@ -71,9 +70,8 @@ class Test_BulkMolecules_partition(unittest.TestCase):
 		processPriorities = np.array([0, 10, 0])
 		countsBulkRequested = self.countsBulkRequested
 		countsBulk = self.countsBulk
-		countsBulkPartitioned = self.countsBulkPartitioned
 
-		wcBulkMolecules.calculatePartition(processPriorities, countsBulkRequested, countsBulk, countsBulkPartitioned)
+		countsBulkPartitioned = wcBulkMolecules.calculatePartition(processPriorities, countsBulkRequested, countsBulk)
 
 		countsBulkPartitioned_test = np.zeros((7, 3), dtype = float)
 		countsBulkPartitioned_test[...,0] = np.array([0., 0., 0., 0., 0., 0., 0.]).T
@@ -89,9 +87,8 @@ class Test_BulkMolecules_partition(unittest.TestCase):
 		processPriorities = np.array([0, 10, 10])
 		countsBulkRequested = self.countsBulkRequested
 		countsBulk = self.countsBulk
-		countsBulkPartitioned = self.countsBulkPartitioned
 
-		wcBulkMolecules.calculatePartition(processPriorities, countsBulkRequested, countsBulk, countsBulkPartitioned)
+		countsBulkPartitioned = wcBulkMolecules.calculatePartition(processPriorities, countsBulkRequested, countsBulk)
 
 		countsBulkPartitioned_test = np.zeros((7, 3), dtype = float)
 		countsBulkPartitioned_test[...,0] = np.array([0., 0., 0., 0., 0., 0., 0.]).T

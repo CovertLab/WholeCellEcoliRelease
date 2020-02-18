@@ -329,7 +329,7 @@ class Simulation(lens.actor.inner.Simulation):
 		# Partition states among processes
 		for i, state in enumerate(self.internal_states.itervalues()):
 			t = time.time()
-			state.partition()
+			state.partition(processes)
 			self._evalTime.partition_times[i] += time.time() - t
 
 		# Simulate submodels
@@ -347,7 +347,7 @@ class Simulation(lens.actor.inner.Simulation):
 		# Merge state
 		for i, state in enumerate(self.internal_states.itervalues()):
 			t = time.time()
-			state.merge()
+			state.merge(processes)
 			self._evalTime.merge_times[i] += time.time() - t
 
 		# update environment state
