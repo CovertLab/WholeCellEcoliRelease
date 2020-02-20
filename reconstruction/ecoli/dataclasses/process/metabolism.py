@@ -83,29 +83,46 @@ class Metabolism(object):
 		# compartments according to those given in the biomass objective.  Or,
 		# if there is no compartment, assign it to the cytoplasm.
 
+		concentration_sources = ['Bennett Concentration', 'Lempp Concentration']
+		bennett_only = {
+			'ATP',  # TF binding does not solve with average concentration with Lempp
+			}
+		lempp_only = {
+			'GLT',  # Steady state concentration reached with tRNA charging is much lower than Bennett
+			}
 		metaboliteIDs = []
 		metaboliteConcentrations = []
-		metaboliteConcentrationData = dict(
-			(m["Metabolite"], m["Concentration"].asNumber(METABOLITE_CONCENTRATION_UNITS))
-			for m in raw_data.metaboliteConcentrations)
 
 		wildtypeIDtoCompartment = {
 			wildtypeID[:-3] : wildtypeID[-3:]
 			for wildtypeID in wildtypeIDs
 			} # this assumes biomass reaction components only exist in a single compartment
 
-		for metaboliteID, concentration in metaboliteConcentrationData.viewitems():
-			if metaboliteID in wildtypeIDtoCompartment:
+		for row in raw_data.metaboliteConcentrations:
+			metabolite_id = row['Metabolite']
+
+			if metabolite_id in bennett_only:
+				conc = row['Bennett Concentration'].asNumber(METABOLITE_CONCENTRATION_UNITS)
+			elif metabolite_id in lempp_only:
+				conc = row['Lempp Concentration'].asNumber(METABOLITE_CONCENTRATION_UNITS)
+			else:
+				# Use average of both sources
+				conc = np.nanmean([
+					row[source].asNumber(METABOLITE_CONCENTRATION_UNITS)
+					for source in concentration_sources
+					])
+
+			if metabolite_id in wildtypeIDtoCompartment:
 				metaboliteIDs.append(
-					metaboliteID + wildtypeIDtoCompartment[metaboliteID]
+					metabolite_id + wildtypeIDtoCompartment[metabolite_id]
 					)
 
 			else:
 				metaboliteIDs.append(
-					metaboliteID + "[c]"
+					metabolite_id + "[c]"
 					)
 
-			metaboliteConcentrations.append(concentration)
+			metaboliteConcentrations.append(conc)
 
 		# ILE/LEU: split reported concentration according to their relative abundances
 		ileRelative = ILE_FRACTION

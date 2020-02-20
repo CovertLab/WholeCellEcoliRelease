@@ -220,7 +220,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Track updated AA concentration targets with tRNA charging
 		self.aa_targets = {}
-		self.aa_targets_not_updated = set(['L-SELENOCYSTEINE[c]', 'GLT[c]'])
+		self.aa_targets_not_updated = set(['L-SELENOCYSTEINE[c]'])
 		self.aa_names = sim_data.moleculeGroups.aaIDs
 		self.aas = self.bulkMoleculesView(self.aa_names)
 
@@ -454,9 +454,6 @@ class Metabolism(wholecell.processes.process.Process):
 
 		Skips updates to certain molecules defined in self.aa_targets_not_updated:
 		- L-SELENOCYSTEINE: rare amino acid that led to high variability when updated
-		- GLT: high measured concentration that never doubled causing slow growth
-		- LEU: increase in concentration caused TF regulation to stop transcription
-		  of AA synthesis pathway genes
 
 		TODO:
 		- remove access to PolypeptideElongation class attribute (aa_count_diff)

@@ -19,6 +19,8 @@ import csv
 import os
 import time
 
+import numpy as np
+
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 from reconstruction.ecoli.fit_sim_data_1 import fitSimData_1
 from wholecell.utils import filepath, units
@@ -217,7 +219,10 @@ def save_metabolites(raw_data, sim_data, output):
 	"""
 
 	metabolites = sim_data.process.metabolism.concDict.keys()
-	bennett = [m['Metabolite'] for m in raw_data.metaboliteConcentrations]
+	bennett = [m['Metabolite'] for m in raw_data.metaboliteConcentrations
+		if not np.isnan(m['Bennett Concentration'].asNumber())]
+	lempp = [m['Metabolite'] for m in raw_data.metaboliteConcentrations
+		if not np.isnan(m['Lempp Concentration'].asNumber())]
 
 	with open(output, 'w') as f:
 		print('\nWriting metabolite info to {}'.format(output))
@@ -226,8 +231,14 @@ def save_metabolites(raw_data, sim_data, output):
 		writer.writerow(['Metabolite', 'Source'])
 
 		for m in sorted(metabolites):
+			sources = []
 			if m[:-3] in bennett:
-				source = 'Bennett et al. 2009'
+				sources.append('Bennett et al. 2009')
+			if m[:-3] in lempp:
+				sources.append('Lempp et al. 2019')
+
+			if sources:
+				source = ', '.join(sources)
 			else:
 				source = 'Biomass (EcoCyc GEM, Bremer and Dennis. 1996., and Neidhardt. 2006.)'
 			writer.writerow([m, source])

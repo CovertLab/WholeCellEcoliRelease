@@ -1,12 +1,11 @@
 """
 Plots various effects that may be limiting growth
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/18/2015
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -79,21 +78,22 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		concSetpoint = np.tile(concentrationSetpoints.asNumber(common_units),(time.size,1))
 		poolConc = poolConcentrations.asNumber(common_units)
 
-		fig = plt.figure(figsize = (15, 15))
-		rows = 13
-		cols = 12
-		idx = 0
-		for idx in range(len(poolIds)):
+		plt.figure(figsize=(15, 15))
+		n_mets = len(poolIds)
+		n_subplots = n_mets + 2  # need additional subplots for the legend
+		rows = int(np.ceil(np.sqrt(n_subplots)))
+		cols = int(np.ceil(n_subplots / rows))
+		for idx in range(n_mets):
 			ax = plt.subplot(rows, cols, idx+1)
 			deviation = 1-poolConc[:,idx]/concSetpoint[:,idx]
 			ax.plot(time / 60., deviation, linewidth=1, label="pool size", color='k')
 
 			# Highlights >15% deviation
-			flag_deviation = abs(deviation[int(deviation.shape[0] * IGNORE_FIRST_PERCENTAGE):].min())
+			flag_deviation = np.abs(deviation[int(deviation.shape[0] * IGNORE_FIRST_PERCENTAGE):]).max()
 			bbox = None
 			if flag_deviation > 0.15:
 				bbox = {'facecolor':'red', 'alpha':0.5, 'pad':1}
-			ax.set_title('{}\n{} mmol/L'.format(poolIds[idx][:-3], -1 * round_to_1(concentrationSetpoints[idx].asNumber(units.mmol / units.L))), fontsize=6, bbox=bbox)
+			ax.set_title('{}\n{:.2g} mmol/L'.format(poolIds[idx][:-3], concentrationSetpoints[idx].asNumber(units.mmol / units.L)), fontsize=6, bbox=bbox)
 
 			# Sets ticks so that they look pretty
 			ax.spines['top'].set_visible(False)
@@ -121,10 +121,10 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 			ax.set_ylim([ymin, ymax])
 			ax.set_yticks([ymin, ymax])
-			ax.set_yticklabels([str(round_to_1(deviation.min())), str(round_to_1(deviation.max()))])
+			ax.set_yticklabels(['{:.2g}'.format(ymin), '{:.2g}'.format(ymax)])
 
 		# Create legend
-		ax = plt.subplot(rows, cols,len(poolIds) + 2)
+		ax = plt.subplot(rows, cols, n_subplots)
 		ax.plot(0, 0, linewidth=1, label="1 - c/c_o", color='k')
 		if homeostaticRangeObjFractionHigher == 0:
 			ax.plot(0, 0, linewidth=1, label="Target", color=BOTH_RANGE_MARKER_COLOR)
