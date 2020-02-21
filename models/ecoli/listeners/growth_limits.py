@@ -44,11 +44,6 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 		super(GrowthLimits, self).allocate()
 
 		# For translation
-		self.gtpPoolSize = 0
-		self.gtpRequestSize = 0
-		self.gtpAllocated = 0
-		self.gtpUsed = 0
-
 		self.activeRibosomeAllocated = 0
 
 		n_aa = len(self.aaIds)
@@ -100,10 +95,6 @@ class GrowthLimits(wholecell.listeners.listener.Listener):
 		tableWriter.append(
 			time = self.time(),
 			simulationStep = self.simulationStep(),
-			gtpPoolSize = self.gtpPoolSize,
-			gtpRequestSize = self.gtpRequestSize,
-			gtpAllocated = self.gtpAllocated,
-			gtpUsed = self.gtpUsed,
 			activeRibosomeAllocated = self.activeRibosomeAllocated,
 			aaPoolSize = self.aaPoolSize,
 			aaRequestSize = self.aaRequestSize,

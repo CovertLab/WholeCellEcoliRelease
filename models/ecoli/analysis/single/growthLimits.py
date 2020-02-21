@@ -31,7 +31,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			sim_data = cPickle.load(f)
 
 		moleculeIds = sim_data.moleculeGroups.aaIDs
-		moleculeIds.append('GTP[c] (translation)')
 		moleculeIds.extend(sim_data.moleculeGroups.ntpIds)
 
 		# Listeners used
@@ -43,11 +42,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		time = main_reader.readColumn("time") - initialTime
 
 		# Translation
-		gtpPoolSize = growth_limits_reader.readColumn("gtpPoolSize")
-		gtpRequestSize = growth_limits_reader.readColumn("gtpRequestSize")
-		gtpAllocated = growth_limits_reader.readColumn("gtpAllocated")
-		gtpUsed = growth_limits_reader.readColumn("gtpUsed")
-
 		aaPoolSize = growth_limits_reader.readColumn("aaPoolSize")
 		aaRequestSize = growth_limits_reader.readColumn("aaRequestSize")
 		aaAllocated = growth_limits_reader.readColumn("aaAllocated")
@@ -62,22 +56,18 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Create aggregate
 		poolSize = np.hstack((
 			aaPoolSize,
-			gtpPoolSize.reshape(gtpPoolSize.size, 1),
 			ntpPoolSize,
 			))
 		requestSize = np.hstack((
 			aaRequestSize,
-			gtpRequestSize.reshape(gtpPoolSize.size, 1),
 			ntpRequestSize,
 			)).astype(np.int64)
 		allocated = np.hstack((
 			aaAllocated,
-			gtpAllocated.reshape(gtpPoolSize.size, 1),
 			ntpAllocated,
 			))
 		used =  np.hstack((
 			aasUsed,
-			gtpUsed.reshape(gtpPoolSize.size, 1),
 			ntpUsed,
 			))
 

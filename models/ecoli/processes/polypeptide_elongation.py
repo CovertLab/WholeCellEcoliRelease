@@ -75,11 +75,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		# Create views onto all polymerization reaction small molecules
 		self.aas = self.bulkMoleculesView(sim_data.moleculeGroups.aaIDs)
-		self.gtp = self.bulkMoleculeView("GTP[c]")
-
-		# Set for timestep calculation
-		self.gtpUsed = 0
-		self.gtpAvailable = 0
 
 		self.elngRateFactor = 1.
 
@@ -150,9 +145,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		# Request GTP for polymerization based on sequences
 		gtpsHydrolyzed = np.int64(np.ceil(self.gtpPerElongation * aa_counts_for_translation.sum()))
 
-		self.writeToListener("GrowthLimits", "gtpPoolSize", self.gtp.total_counts()[0])
-		self.writeToListener("GrowthLimits", "gtpRequestSize", gtpsHydrolyzed)
-
 		# GTP hydrolysis is carried out in Metabolism process for growth associated maintenance
 		# THis is set here for metabolism to use
 		self.gtpRequest = gtpsHydrolyzed
@@ -162,7 +154,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 	def evolveState(self):
 		# Write allocation data to listener
-		self.writeToListener("GrowthLimits", "gtpAllocated", self.gtp.count())
 		self.writeToListener("GrowthLimits", "aaAllocated", self.aas.counts())
 
 		# Get number of active ribosomes
@@ -261,7 +252,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		# Write data to listeners
 		self.writeToListener("GrowthLimits", "net_charged", net_charged)
 		self.writeToListener("GrowthLimits", "aasUsed", aas_used)
-		self.writeToListener("GrowthLimits", "gtpUsed", self.gtpUsed)
 
 		self.writeToListener("RibosomeData", "aaCountInSequence", aaCountInSequence)
 		self.writeToListener("RibosomeData", "aaCounts", aa_counts_for_translation)
@@ -277,39 +267,16 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("RibosomeData", "processElongationRate", self.ribosomeElongationRate / self.timeStepSec())
 
 	def isTimeStepShortEnough(self, inputTimeStep, timeStepSafetyFraction):
-		"""
-		Assumes GTP is the readout for failed translation with respect to the timestep.
-		"""
+		# Without an estimate on ribosome counts, require a short timestep until estimates available
+		activeRibosomes = float(self.active_ribosomes.total_counts()[0])
+		if activeRibosomes == 0:
+			return inputTimeStep <= .2
 
 		# Until more padding values are added to the protein sequence matrix, limit the maximum timestep length to 1 second
 		# Since the current upper limit on a.a's elongated by ribosomes during a single timestep is set to 22, timesteps
 		# longer than 1.0s do not lead to errors, but does slow down the ribosome elongation rate of the resulting simulation.
 		# Must be modified if timesteps longer than 1.0s are desired.
-		if inputTimeStep > 1.0:
-			return False
-
-		activeRibosomes = float(self.active_ribosomes.total_counts()[0])
-		self.gtpAvailable = float(self.gtp.total_counts()[0])
-
-		# Without an estimate on ribosome counts, require a short timestep until estimates available
-		if activeRibosomes == 0:
-			return inputTimeStep <= .2
-
-		dt = inputTimeStep * timeStepSafetyFraction
-		gtpExpectedUsage = activeRibosomes * self.ribosomeElongationRate * self.gtpPerElongation * dt
-
-		return gtpExpectedUsage < self.gtpAvailable
-
-	def wasTimeStepShortEnough(self):
-		"""
-		If translation used more than 90 percent of gtp, timeStep was too short.
-		"""
-
-		# If gtpAvailable is 0 and the timeStep is short, use the gtp produced this timeStep as the estimate
-		if self.gtpAvailable == 0 and self.timeStepSec() <= .2:
-			self.gtpAvailable = self.gtp.total_counts()[0]
-
-		return (self.gtpAvailable * .9) >= self.gtpUsed
+		return inputTimeStep <= 1.0
 
 
 class BaseElongationModel(object):
