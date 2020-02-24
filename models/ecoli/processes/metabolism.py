@@ -186,10 +186,6 @@ class Metabolism(wholecell.processes.process.Process):
 			else:
 				self.burnInComplete = True
 
-		# Values will get updated at each time point
-		self.currentNgam = 1 * CONC_UNITS
-		self.currentPolypeptideElongationEnergy = 1 * CONC_UNITS
-
 		# External molecules
 		self.externalMoleculeIDs = self.fba.getExternalMoleculeIDs()
 
@@ -287,26 +283,22 @@ class Metabolism(wholecell.processes.process.Process):
 		# TODO -- this can change external AA levels for the fba problem. Problematic for reliable control of environmental response
 		self._setExternalMoleculeLevels(externalMoleculeLevels, metaboliteConcentrations)
 
-		# Change the ngam and polypeptide elongation energy penalty only if they are noticably different from the current value
-		ADJUSTMENT_RATIO = .01
+		# Maintenance reactions
+		## Calculate new NGAM
+		flux = (self.ngam * coefficient).asNumber(CONC_UNITS)
+		self.fba.setReactionFluxBounds(
+			self.fba._reactionID_NGAM,
+			lowerBounds=flux, upperBounds=flux,
+			)
 
-		# Calculate new NGAM and update if necessary
-		self.newNgam = self.ngam * coefficient
-		ngam_diff = np.abs((self.currentNgam - self.newNgam).asNumber()) / (self.currentNgam.asNumber() + 1e-20)
-		if ngam_diff > ADJUSTMENT_RATIO:
-			self.currentNgam = self.newNgam
-			flux = (self.ngam * coefficient).asNumber(CONC_UNITS)
-			self.fba.setReactionFluxBounds(self.fba._reactionID_NGAM, lowerBounds=flux, upperBounds=flux)
-
-		# Calculate GTP usage based on how much was needed in polypeptide elongation in previous step and update if necessary
-		newPolypeptideElongationEnergy = countsToMolar * 0
-		if hasattr(self._sim.processes["PolypeptideElongation"], "gtpRequest"):
-			newPolypeptideElongationEnergy = countsToMolar * self._sim.processes["PolypeptideElongation"].gtpRequest
-		poly_diff = np.abs((self.currentPolypeptideElongationEnergy - newPolypeptideElongationEnergy).asNumber()) / (self.currentPolypeptideElongationEnergy.asNumber() + 1e-20)
-		if poly_diff > ADJUSTMENT_RATIO:
-			self.currentPolypeptideElongationEnergy = newPolypeptideElongationEnergy
-			flux = self.currentPolypeptideElongationEnergy.asNumber(CONC_UNITS)
-			self.fba.setReactionFluxBounds(self.fba._reactionID_polypeptideElongationEnergy, lowerBounds=flux, upperBounds=flux)
+		## Calculate GTP usage based on how much was needed in polypeptide
+		## elongation in previous step.
+		gtp_to_hydrolyze = self._sim.processes["PolypeptideElongation"].gtp_to_hydrolyze
+		flux = (countsToMolar * gtp_to_hydrolyze).asNumber(CONC_UNITS)
+		self.fba.setReactionFluxBounds(
+			self.fba._reactionID_polypeptideElongationEnergy,
+			lowerBounds=flux, upperBounds=flux,
+			)
 
 		# Constrain reactions based on absence of catalysts
 		## Read counts for catalysts and enzymes (catalysts with kinetics constraints)

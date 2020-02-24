@@ -1619,11 +1619,13 @@ def fitMaintenanceCosts(sim_data, bulkContainer):
 	TODO (John): Rewrite as a true function.
 	"""
 
+
 	aaCounts = sim_data.process.translation.monomerData["aaCounts"]
 	proteinCounts = bulkContainer.counts(sim_data.process.translation.monomerData["id"])
 	nAvogadro = sim_data.constants.nAvogadro
 	avgCellDryMassInit = sim_data.mass.avgCellDryMassInit
 	gtpPerTranslation = sim_data.constants.gtpPerTranslation
+	atp_per_charge = 2  # ATP -> AMP is explicitly used in charging reactions so can remove from GAM
 
 	# GTPs used for translation (recycled, not incorporated into biomass)
 	aaMmolPerGDCW = (
@@ -1637,21 +1639,21 @@ def fitMaintenanceCosts(sim_data, bulkContainer):
 		)
 
 	aasUsedOverCellCycle = units.sum(aaMmolPerGDCW)
-	gtpUsedOverCellCycleMmolPerGDCW = gtpPerTranslation * aasUsedOverCellCycle
+	explicit_mmol_maintenance_per_gdcw = (atp_per_charge + gtpPerTranslation) * aasUsedOverCellCycle
 
 	darkATP = ( # This has everything we can't account for
 		sim_data.constants.growthAssociatedMaintenance -
-		gtpUsedOverCellCycleMmolPerGDCW
+		explicit_mmol_maintenance_per_gdcw
 		)
 
-	# Assign the growth associated "dark energy" to translation
-	# TODO: Distribute it amongst growth-related processes
-	# additionalGtpPerTranslation = darkATP / aasUsedOverCellCycle
-	# additionalGtpPerTranslation.normalize()
-	# additionalGtpPerTranslation.checkNoUnit()
-	# additionalGtpPerTranslation = additionalGtpPerTranslation.asNumber()
-	#
-	# sim_data.constants.gtpPerTranslation += additionalGtpPerTranslation
+	# We do not want to create energy with growth by having a negative darkATP
+	# value. GAM measurements have some error so it's possible explicit
+	# accounting could be more accurate or the GAM value used is too low which
+	# would lead to a negative value. Easy fix is setting darkATP = 0 if this
+	# error is raised.
+	if darkATP.asNumber() < 0:
+		raise ValueError('GAM has been adjusted too low. Explicit energy accounting should not exceed GAM.'
+			' Consider setting darkATP to 0 if energy corrections are accurate.')
 
 	sim_data.constants.darkATP = darkATP
 

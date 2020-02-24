@@ -50,7 +50,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.proteinSequences = translation.translationSequences
 		self.aaWeightsIncorporated = translation.translationMonomerWeights
 		self.endWeight = translation.translationEndWeight
-		self.gtpPerElongation = constants.gtpPerTranslation
 		self.variable_elongation = sim._variable_elongation_translation
 		self.make_elongation_rates = translation.make_elongation_rates
 
@@ -89,6 +88,16 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		else:
 			self.elongation_model = BaseElongationModel(sim_data, self)
 		self.ppgpp_regulation = sim._ppgpp_regulation
+
+		# Growth associated maintenance energy requirements for elongations
+		self.gtpPerElongation = constants.gtpPerTranslation
+		## Need to account for ATP hydrolysis for charging that has been
+		## removed from measured GAM (ATP -> AMP is 2 hydrolysis reactions)
+		## if charging reactions are not explicitly modeled
+		if not sim._trna_charging:
+			self.gtpPerElongation += 2
+		## Variable for metabolism to read to consume required energy
+		self.gtp_to_hydrolyze = 0
 
 	def calculateRequest(self):
 		# Set ribosome elongation rate based on simulation medium environment and elongation rate factor
@@ -142,17 +151,13 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("GrowthLimits", "aaPoolSize", self.aas.total_counts())
 		self.writeToListener("GrowthLimits", "aaRequestSize", aa_counts_for_translation)
 
-		# Request GTP for polymerization based on sequences
-		gtpsHydrolyzed = np.int64(np.ceil(self.gtpPerElongation * aa_counts_for_translation.sum()))
-
-		# GTP hydrolysis is carried out in Metabolism process for growth associated maintenance
-		# THis is set here for metabolism to use
-		self.gtpRequest = gtpsHydrolyzed
-
 		# Request full access to active ribosome molecules
 		self.active_ribosomes.request_access(self.EDIT_DELETE_ACCESS)
 
 	def evolveState(self):
+		# Set value to 0 for metabolism in case of early return
+		self.gtp_to_hydrolyze = 0
+
 		# Write allocation data to listener
 		self.writeToListener("GrowthLimits", "aaAllocated", self.aas.counts())
 
@@ -248,6 +253,10 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		# MODEL SPECIFIC: evolve
 		# TODO: use something other than a class attribute to pass aa diff to metabolism
 		net_charged, self.aa_count_diff = self.elongation_model.evolve(total_aa_counts, aas_used, nElongations, nInitialized)
+
+		# GTP hydrolysis is carried out in Metabolism process for growth
+		# associated maintenance. This is set here for metabolism to use.
+		self.gtp_to_hydrolyze = self.gtpPerElongation * nElongations
 
 		# Write data to listeners
 		self.writeToListener("GrowthLimits", "net_charged", net_charged)
