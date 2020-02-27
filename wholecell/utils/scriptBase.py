@@ -18,6 +18,7 @@ import re
 import os
 import pprint as pp
 import time
+import traceback
 from typing import Any, Callable, Iterable, List, Optional, Tuple
 
 import wholecell.utils.filepath as fp
@@ -546,7 +547,8 @@ class ScriptBase(object):
 				self.run(args)
 			except Exception as e:
 				# Handle exceptions after completion if running multiple params
-				if range_args:
+				if range_args and max([len(a) for a in range_args]) > 1:
+					traceback.print_exc()
 					exceptions.append((params, e))
 				else:
 					raise
