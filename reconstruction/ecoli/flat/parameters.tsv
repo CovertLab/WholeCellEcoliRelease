@@ -26,7 +26,7 @@ metabolismInRangeObjWeight	0
 metabolismKineticObjectiveWeightLinear	1e-6	
 metabolismKineticObjectiveWeightQuadratic	1e-9	
 metabolism_kinetic_objective_weight_in_range	0.01	
-secretion_penalty_coeff	1e-5	
+secretion_penalty_coeff	1e-3		Use variant metabolism_secretion_penalty to optimize
 SensitivityAnalysisAlpha	0	
 SensitivityAnalysisKcatEndo	0	
 synthetase_charging_rate	100	1/units.s	Bosdriesz et al. FEBS. 2015.

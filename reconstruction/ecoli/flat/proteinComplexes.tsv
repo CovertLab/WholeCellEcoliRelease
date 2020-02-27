@@ -312,7 +312,7 @@
 "ClpAXP"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1107747.474, 0.0, 0.0, 0.0, 0.0]	["c"]	"CPLX0-3108_RXN"	"CPLX0-3108"
 "chromate reductase"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 40741.228, 0.0, 0.0, 0.0, 0.0]	["c"]	"CPLX0-3121_RXN"	"CPLX0-3121"
 "quinol monooxygenase"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 23056.86, 0.0, 0.0, 0.0, 0.0]	["c"]	"CPLX0-3141_RXN"	"CPLX0-3141"
-"N-succinyl-L-diaminopimelate desuccinylase"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 165024.388, 0.0, 0.0, 0.0, 0.0]	["c"]	"CPLX0-3161_RXN"	"CPLX0-3161"
+"N-succinyl-L-diaminopimelate desuccinylase"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 82512.194, 0.0, 0.0, 0.0, 0.0]	["c"]	"CPLX0-3161_RXN"	"CPLX0-3161"
 "tetrahydrodipicolinate succinylase"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 59776.361999999994, 0.0, 0.0, 0.0, 0.0]	["c"]	"CPLX0-3181_RXN"	"CPLX0-3181"
 "murein DD-endopeptidase, penicillin-insensitive"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 60279.695999999996, 0.0, 0.0, 0.0, 0.0]	["p"]	"CPLX0-3201_RXN"	"CPLX0-3201"
 "pyridoxine 5'-phosphate synthase"	""	[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 211010.88799999998, 0.0, 0.0, 0.0, 0.0]	["c"]	"CPLX0-321_RXN"	"CPLX0-321"

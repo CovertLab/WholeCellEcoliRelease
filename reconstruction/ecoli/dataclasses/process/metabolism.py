@@ -56,6 +56,7 @@ class Metabolism(object):
 		else:
 			self.kinetic_objective_weight = sim_data.constants.metabolismKineticObjectiveWeightQuadratic
 		self.kinetic_objective_weight_in_range = sim_data.constants.metabolism_kinetic_objective_weight_in_range
+		self.secretion_penalty_coeff = sim_data.constants.secretion_penalty_coeff
 
 		self.boundary = Boundary(raw_data, sim_data)
 

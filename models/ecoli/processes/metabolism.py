@@ -167,7 +167,7 @@ class Metabolism(wholecell.processes.process.Process):
 					"oneSidedReactionTargets": [],
 					},
 			"moleculeMasses": moleculeMasses,
-			"secretionPenaltyCoeff": sim_data.constants.secretion_penalty_coeff, # The "inconvenient constant"--limit secretion (e.g., of CO2)
+			"secretionPenaltyCoeff": sim_data.process.metabolism.secretion_penalty_coeff, # The "inconvenient constant"--limit secretion (e.g., of CO2)
 			"solver": solver,
 			"maintenanceCostGAM": energyCostPerWetMass.asNumber(COUNTS_UNITS / MASS_UNITS),
 			"maintenanceReaction": sim_data.process.metabolism.maintenanceReaction,
