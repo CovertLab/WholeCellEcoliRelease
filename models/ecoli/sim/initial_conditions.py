@@ -42,9 +42,10 @@ def calcInitialConditions(sim, sim_data):
 
 	bulkMolCntr = sim.internal_states['BulkMolecules'].container
 	uniqueMolCntr = sim.internal_states["UniqueMolecules"].container
+	media_id = sim.external_states['Environment'].current_media_id
 
 	# Set up states
-	initializeBulkMolecules(bulkMolCntr, sim_data, sim.external_states['Environment'].current_media_id,
+	initializeBulkMolecules(bulkMolCntr, sim_data, media_id,
 		randomState, massCoeff, sim._ppgpp_regulation)
 	initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
 
@@ -53,6 +54,11 @@ def calcInitialConditions(sim, sim_data):
 	if sim._trna_charging:
 		elongation_model = SteadyStateElongationModel(sim_data, sim.processes['PolypeptideElongation'])
 		initialize_trna_charging(sim_data, sim.internal_states, elongation_model.calculate_trna_charging)
+
+	# Adjust small molecule concentrations again after other mass adjustments
+	# for more stable metabolism solution at beginning of sims
+	set_small_molecule_counts(bulkMolCntr, sim_data, media_id, massCoeff,
+		cell_mass=calculate_cell_mass(sim.internal_states))
 
 def initializeBulkMolecules(bulkMolCntr, sim_data, current_media_id, randomState, massCoeff, ppgpp_regulation):
 
@@ -63,7 +69,7 @@ def initializeBulkMolecules(bulkMolCntr, sim_data, current_media_id, randomState
 	initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff, ppgpp_regulation)
 
 	# Set other biomass components
-	initializeSmallMolecules(bulkMolCntr, sim_data, current_media_id, randomState, massCoeff)
+	set_small_molecule_counts(bulkMolCntr, sim_data, current_media_id, massCoeff)
 
 	# Form complexes
 	initializeComplexation(bulkMolCntr, sim_data, randomState)
@@ -84,6 +90,24 @@ def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, rand
 	# Initialize activate ribosomes
 	initialize_translation(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
 
+def calculate_cell_mass(states):
+	"""
+	Determines the total cell mass from the currently initialized states.
+
+	Args:
+		states (dict with internal_state objects as values): internal states of sim
+
+	Returns:
+		float with mass units: total mass of the current cell state
+	"""
+
+	mass = 0
+	for state in states.values():
+		state.calculateMass()
+		mass += np.sum(state.mass())
+
+	return units.fg * mass
+
 def initialize_trna_charging(sim_data, states, calc_charging):
 	'''
 	Initializes charged tRNA from uncharged tRNA and amino acids
@@ -98,11 +122,7 @@ def initialize_trna_charging(sim_data, states, calc_charging):
 	'''
 
 	# Calculate cell volume for concentrations
-	mass = 0
-	for state in states.values():
-		state.calculateMass()
-		mass += np.sum(state.mass())
-	cell_volume = units.fg * mass / sim_data.constants.cellDensity
+	cell_volume = calculate_cell_mass(states) / sim_data.constants.cellDensity
 	counts_to_molar = 1 / (sim_data.constants.nAvogadro * cell_volume)
 
 	# Get molecule views and concentrations
@@ -215,11 +235,8 @@ def initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff, ppgpp_regulatio
 
 # TODO: remove checks for zero concentrations (change to assertion)
 # TODO: move any rescaling logic to KB/fitting
-def initializeSmallMolecules(bulkMolCntr, sim_data, current_media_id, randomState, massCoeff):
+def set_small_molecule_counts(bulkMolCntr, sim_data, current_media_id, massCoeff, cell_mass=None):
 	doubling_time = sim_data.conditionToDoublingTime[sim_data.condition]
-	avgCellFractionMass = sim_data.mass.getFractionMass(doubling_time)
-
-	mass = massCoeff * (avgCellFractionMass["proteinMass"] + avgCellFractionMass["rnaMass"] + avgCellFractionMass["dnaMass"]) / sim_data.mass.avgCellToInitialCellConvFactor
 
 	concDict = sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
 		current_media_id
@@ -229,8 +246,20 @@ def initializeSmallMolecules(bulkMolCntr, sim_data, current_media_id, randomStat
 	moleculeIds = sorted(concDict)
 	moleculeConcentrations = (units.mol / units.L) * np.array([concDict[key].asNumber(units.mol / units.L) for key in moleculeIds])
 
+	if cell_mass is None:
+		avgCellFractionMass = sim_data.mass.getFractionMass(doubling_time)
+		other_dry_mass = (massCoeff * (avgCellFractionMass["proteinMass"]
+			+ avgCellFractionMass["rnaMass"] + avgCellFractionMass["dnaMass"])
+			/ sim_data.mass.avgCellToInitialCellConvFactor)
+	else:
+		small_molecule_mass = 0 * units.fg
+		for mol in concDict:
+			small_molecule_mass += (bulkMolCntr.count(mol)
+				* sim_data.getter.getMass([mol])[0] / sim_data.constants.nAvogadro)
+		other_dry_mass = cell_mass - small_molecule_mass
+
 	massesToAdd, countsToAdd = masses_and_counts_for_homeostatic_target(
-		mass,
+		other_dry_mass,
 		moleculeConcentrations,
 		sim_data.getter.getMass(moleculeIds),
 		sim_data.constants.cellDensity,
