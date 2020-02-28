@@ -252,8 +252,12 @@ def divideUniqueMolecules(uniqueMolecules, randomState,
 				d2_RNAP_unique_indexes = np.array([], dtype=np.int64)
 			continue
 
+		# Only the chromosome domains that physically exist are handed down to
+		# daughter cells
 		if molecule_name != 'chromosome_domain':
 			assert n_molecules == n_d1 + n_d2
+
+		assert np.count_nonzero(np.logical_and(d1_bool, d2_bool)) == 0
 
 		# Add the divided unique molecules to the daughter cell containers
 		d1_divided_attributes_dict, d2_divided_attributes_dict = get_divided_attributes(
@@ -336,6 +340,7 @@ def divideUniqueMolecules(uniqueMolecules, randomState,
 			continue
 
 		assert n_molecules == n_d1 + n_d2
+		assert np.count_nonzero(np.logical_and(d1_bool, d2_bool)) == 0
 
 		# Add the divided unique molecules to the daughter cell containers
 		d1_divided_attributes_dict, d2_divided_attributes_dict = get_divided_attributes(
@@ -424,6 +429,7 @@ def divideUniqueMolecules(uniqueMolecules, randomState,
 			continue
 
 		assert n_molecules == n_d1 + n_d2
+		assert np.count_nonzero(np.logical_and(d1_bool, d2_bool)) == 0
 
 		# Add the divided unique molecules to the daughter cell containers
 		d1_divided_attributes_dict, d2_divided_attributes_dict = get_divided_attributes(
