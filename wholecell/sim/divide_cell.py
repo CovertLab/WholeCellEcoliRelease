@@ -237,8 +237,8 @@ def divideUniqueMolecules(uniqueMolecules, randomState,
 			d1_bool = np.isin(domain_index, d1_all_domain_indexes)
 			d2_bool = np.isin(domain_index, d2_all_domain_indexes)
 
-			n_d1 = d1_bool.sum()
-			n_d2 = d2_bool.sum()
+			n_d1 = np.count_nonzero(d1_bool)
+			n_d2 = np.count_nonzero(d2_bool)
 
 			if molecule_name == 'active_RNAP':
 				# If molecule is RNA polymerase, save data for future use
@@ -295,16 +295,17 @@ def divideUniqueMolecules(uniqueMolecules, randomState,
 
 			# Divide full transcripts binomially
 			full_transcript_indexes = np.where(is_full_transcript)[0]
-			n_full_d1 = randomState.binomial(
-				is_full_transcript.sum(), p=BINOMIAL_COEFF)
-			full_d1_indexes = randomState.choice(
-				full_transcript_indexes, size=n_full_d1,
-				replace=False)
-			full_d2_indexes = np.setdiff1d(full_transcript_indexes,
-				full_d1_indexes)
+			if len(full_transcript_indexes) > 0:
+				n_full_d1 = randomState.binomial(
+					np.count_nonzero(is_full_transcript), p=BINOMIAL_COEFF)
+				full_d1_indexes = randomState.choice(
+					full_transcript_indexes, size=n_full_d1,
+					replace=False)
+				full_d2_indexes = np.setdiff1d(full_transcript_indexes,
+					full_d1_indexes)
 
-			d1_bool[full_d1_indexes] = True
-			d2_bool[full_d2_indexes] = True
+				d1_bool[full_d1_indexes] = True
+				d2_bool[full_d2_indexes] = True
 
 			# Divide partial transcripts based on how their associated
 			# RNAPs were divided
@@ -321,8 +322,8 @@ def divideUniqueMolecules(uniqueMolecules, randomState,
 			d1_bool[partial_d1_indexes] = True
 			d2_bool[partial_d2_indexes] = True
 
-			n_d1 = d1_bool.sum()
-			n_d2 = d2_bool.sum()
+			n_d1 = np.count_nonzero(d1_bool)
+			n_d2 = np.count_nonzero(d2_bool)
 
 			if molecule_name == 'RNA':
 				# Save data for future use (active ribosome division)
@@ -395,25 +396,30 @@ def divideUniqueMolecules(uniqueMolecules, randomState,
 			d1_bool = np.isin(mRNA_index, d1_RNA_unique_indexes)
 			d2_bool = np.isin(mRNA_index, d2_RNA_unique_indexes)
 
-			# Binomially divide ribosomes whose bound RNAs could not be
-			# found (ggsun: This happens because mRNA degradation does
-			# not abort translation of the mRNA)
-			lost_ribosome_indexes = np.where(
-				np.logical_not(np.logical_or(d1_bool, d2_bool)))[0]
-			n_lost_ribosomes = lost_ribosome_indexes.size
-			n_lost_d1 = randomState.binomial(
-				n_lost_ribosomes, p=BINOMIAL_COEFF)
+			# Binomially divide indexes of mRNAs that are degraded but still
+			# has bound ribosomes. Note (ggsun): This happens because mRNA
+			# degradation does not abort ongoing translation of the mRNA
+			degraded_mRNA_indexes = np.unique(mRNA_index[
+				np.logical_not(np.logical_or(d1_bool, d2_bool))])
+			n_degraded_mRNA = len(degraded_mRNA_indexes)
 
-			lost_d1_indexes = randomState.choice(
-				lost_ribosome_indexes, size=n_lost_d1, replace=False)
-			lost_d2_indexes = np.setdiff1d(
-				lost_ribosome_indexes, lost_d1_indexes)
+			if n_degraded_mRNA > 0:
+				n_degraded_mRNA_d1 = randomState.binomial(
+					n_degraded_mRNA, p=BINOMIAL_COEFF)
+				degraded_mRNA_indexes_d1 = randomState.choice(
+					degraded_mRNA_indexes, size=n_degraded_mRNA_d1, replace=False)
+				degraded_mRNA_indexes_d2 = np.setdiff1d(
+					degraded_mRNA_indexes, degraded_mRNA_indexes_d1)
 
-			d1_bool[lost_d1_indexes] = True
-			d2_bool[lost_d2_indexes] = True
+				# Divide "lost" ribosomes based on how these mRNAs were divided
+				lost_ribosomes_d1 = np.isin(mRNA_index, degraded_mRNA_indexes_d1)
+				lost_ribosomes_d2 = np.isin(mRNA_index, degraded_mRNA_indexes_d2)
 
-			n_d1 = d1_bool.sum()
-			n_d2 = d2_bool.sum()
+				d1_bool[lost_ribosomes_d1] = True
+				d2_bool[lost_ribosomes_d2] = True
+
+			n_d1 = np.count_nonzero(d1_bool)
+			n_d2 = np.count_nonzero(d2_bool)
 		else:
 			continue
 
