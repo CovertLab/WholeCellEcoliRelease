@@ -74,6 +74,17 @@ class EvaluationTime(wholecell.listeners.listener.Listener):
 		self.evolveState_total = 0
 
 
+	def reset_evaluation_time(self):
+		"""
+		Reset evaluation time vectors for processes and states.
+		"""
+		self.updateQueries_times.fill(0)
+		self.calculateRequest_times.fill(0)
+		self.partition_times.fill(0)
+		self.evolveState_times.fill(0)
+		self.merge_times.fill(0)
+
+
 	def update(self):
 		self.updateQueries_total = self.updateQueries_times.sum()
 		self.partition_total = self.partition_times.sum()

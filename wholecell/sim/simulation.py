@@ -304,11 +304,7 @@ class Simulation(lens.actor.inner.Simulation):
 			state.reset_process_mass_diffs()
 
 		# Reset values in evaluationTime listener
-		self._evalTime.updateQueries_times.fill(0)
-		self._evalTime.calculateRequest_times.fill(0)
-		self._evalTime.partition_times.fill(0)
-		self._evalTime.evolveState_times.fill(0)
-		self._evalTime.merge_times.fill(0)
+		self._evalTime.reset_evaluation_time()
 
 	# Calculate temporal evolution
 	def _evolveState(self, processes):
