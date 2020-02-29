@@ -5,12 +5,13 @@ EvaluationTime
 
 Large-scale, low-overhead evaluation time tracker for process/state operations.
 
-@author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/10/2014
 """
 
 from __future__ import division
+
+import time
 
 import numpy as np
 
@@ -29,98 +30,141 @@ class EvaluationTime(wholecell.listeners.listener.Listener):
 	# Construct object graph
 	def initialize(self, sim, sim_data):
 		super(EvaluationTime, self).initialize(sim, sim_data)
+		# Clock time
+		self.clock_time = None
 
-		self.stateNames = sim.internal_states.keys()
-		self.processNames = sim.processes.keys()
+		self.state_names = sim.internal_states.keys()
+		self.process_names = sim.processes.keys()
+		self.listener_names = sim.listeners.keys()
+		self.logger_names = sim.loggers.keys()
 
-		self.nStates = len(sim.internal_states)
-		self.nProcesses = len(sim.processes)
+		self.n_states = len(sim.internal_states)
+		self.n_processes = len(sim.processes)
+		self.n_listeners = len(sim.listeners)
+		self.n_loggers = len(sim.loggers)
 
 		# State evaluation times
-		self.updateQueries_times = None
+		self.update_queries_times = None
 		self.partition_times = None
 		self.merge_times = None
-
-		self.updateQueries_total = None
+		self.calculate_mass_times = None
+		self.update_queries_total = None
 		self.partition_total = None
 		self.merge_total = None
+		self.calculate_mass_total = None
 
 		# Process evaluation times
-		self.calculateRequest_times = None
-		self.evolveState_times = None
+		self.calculate_request_times = None
+		self.evolve_state_times = None
+		self.calculate_request_total = None
+		self.evolve_state_total = None
 
-		self.calculateRequest_total = None
-		self.evolveState_total = None
+		# Listener evaluation times
+		self.update_times = None
+		self.update_total = None
+
+		# Logger evaluation times
+		self.append_times = None
+		self.append_total = None
 
 
 	# Allocate memory
 	def allocate(self):
 		super(EvaluationTime, self).allocate()
 
-		# State evaluation times
-		self.updateQueries_times = np.zeros(self.nStates, np.float64)
-		self.partition_times = np.zeros_like(self.updateQueries_times)
-		self.merge_times = np.zeros_like(self.updateQueries_times)
+		# Clock time
+		self.clock_time = 0
 
-		self.updateQueries_total = 0
+		# State evaluation times
+		self.update_queries_times = np.zeros(self.n_states, np.float64)
+		self.partition_times = np.zeros_like(self.update_queries_times)
+		self.merge_times = np.zeros_like(self.update_queries_times)
+		self.calculate_mass_times = np.zeros_like(self.update_queries_times)
+		self.update_queries_total = 0
 		self.partition_total = 0
 		self.merge_total = 0
+		self.calculate_mass_total = 0
 
 		# Process evaluation times
-		self.calculateRequest_times = np.zeros(self.nProcesses, np.float64)
-		self.evolveState_times = np.zeros_like(self.calculateRequest_times)
+		self.calculate_request_times = np.zeros(self.n_processes, np.float64)
+		self.evolve_state_times = np.zeros_like(self.calculate_request_times)
+		self.calculate_request_total = 0
+		self.evolve_state_total = 0
 
-		self.calculateRequest_total = 0
-		self.evolveState_total = 0
+		# Listener evaluation times
+		self.update_times = np.zeros(self.n_listeners, np.float64)
+		self.update_total = 0
+
+		# Logger evaluation times
+		self.append_times = np.zeros(self.n_loggers, np.float64)
+		self.append_total = 0
 
 
-	def reset_evaluation_time(self):
+	def reset_evaluation_times(self):
 		"""
-		Reset evaluation time vectors for processes and states.
+		Reset evaluation time vectors of process and state methods that are
+		run for each tier in the process hierarchy to zero.
 		"""
-		self.updateQueries_times.fill(0)
-		self.calculateRequest_times.fill(0)
+		self.update_queries_times.fill(0)
 		self.partition_times.fill(0)
-		self.evolveState_times.fill(0)
 		self.merge_times.fill(0)
+
+		self.calculate_request_times.fill(0)
+		self.evolve_state_times.fill(0)
 
 
 	def update(self):
-		self.updateQueries_total = self.updateQueries_times.sum()
+		self.clock_time = time.time()
+
+		self.update_queries_total = self.update_queries_times.sum()
 		self.partition_total = self.partition_times.sum()
 		self.merge_total = self.merge_times.sum()
+		self.calculate_mass_total = self.calculate_mass_times.sum()
 
-		self.calculateRequest_total = self.calculateRequest_times.sum()
-		self.evolveState_total = self.evolveState_times.sum()
+		self.calculate_request_total = self.calculate_request_times.sum()
+		self.evolve_state_total = self.evolve_state_times.sum()
+
+		self.update_total = self.update_times.sum()
+
+		self.append_total = self.append_times.sum()
 
 
 	def tableCreate(self, tableWriter):
 		# Handle the edge case of a simulation with no processes
-		if self.nProcesses == 0:
+		if self.n_processes == 0:
 			return
 
 		tableWriter.writeAttributes(
-			stateNames = self.stateNames,
-			processNames = self.processNames
+			state_names = self.state_names,
+			process_names = self.process_names,
+			listener_names = self.listener_names,
+			logger_names = self.logger_names,
 			)
 
 
 	def tableAppend(self, tableWriter):
 		# Handle the edge case of a simulation with no processes
-		if self.nProcesses == 0:
+		if self.n_processes == 0:
 			return
 
 		tableWriter.append(
 			time = self.time(),
 			simulationStep = self.simulationStep(),
-			updateQueries_times = self.updateQueries_times,
+			clock_time=self.clock_time,
+			update_queries_times = self.update_queries_times,
 			partition_times = self.partition_times,
 			merge_times = self.merge_times,
-			calculateRequest_times = self.calculateRequest_times,
-			evolveState_times = self.evolveState_times,
-			updateQueries_total = self.updateQueries_total,
+			calculate_mass_times = self.calculate_mass_times,
+			calculate_request_times = self.calculate_request_times,
+			evolve_state_times = self.evolve_state_times,
+			update_times = self.update_times,
+			append_times = self.append_times,
+			update_queries_total = self.update_queries_total,
 			partition_total = self.partition_total,
 			merge_total = self.merge_total,
-			calculateRequest_total = self.calculateRequest_total,
-			evolveState_total = self.evolveState_total,
+			calculate_mass_total = self.calculate_mass_total,
+			calculate_request_total = self.calculate_request_total,
+			evolve_state_total = self.evolve_state_total,
+			update_total = self.update_total,
+			append_total = self.append_total,
 			)
