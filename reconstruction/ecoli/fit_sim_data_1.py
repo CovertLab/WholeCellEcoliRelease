@@ -42,6 +42,7 @@ RNA_EXPRESSION_ADJUSTMENTS = {
 	"EG12298_RNA[c]": 10,  # yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition viability
 	"EG11672_RNA[c]": 10,  # atoB, acetyl-CoA acetyltransferase; This RNA is fit for the anaerobic condition viability
 	"EG10238_RNA[c]": 10,  # dnaE, DNA polymerase III subunit alpha; This RNA is fit for the sims to produce enough DNAPs for timely replication
+	"EG10808_RNA[c]": 2,  # pyrE, orotate phosphoribosyltransferase; Needed for UTP synthesis, transcriptional regulation by UTP is not included in the model
 	}
 RNA_DEG_RATES_ADJUSTMENTS = {
 	"EG11493_RNA[c]": 2,  # pabC, aminodeoxychorismate lyase
