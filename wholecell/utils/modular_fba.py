@@ -276,7 +276,7 @@ class FluxBalanceAnalysis(object):
 
 		elif self.objectiveType == "kinetic_only":
 			if "reactionRateTargets" in objectiveParameters:
-				rateObjective = objectiveParameters["reactionRateTargets"]
+				rateObjective = objectiveParameters["reactionRateTargets"].copy()
 			else:
 				raise FBAError("When using homeostatic_kinetics_mixed objective, a reactionRateTargets dict of reactionName:target rate must be provided in objectiveParameters.")
 
@@ -295,7 +295,7 @@ class FluxBalanceAnalysis(object):
 
 			# Set up kinetic objective
 			if "reactionRateTargets" in objectiveParameters:
-				rateObjective = objectiveParameters["reactionRateTargets"]
+				rateObjective = objectiveParameters["reactionRateTargets"].copy()
 			else:
 				raise FBAError("When using homeostatic_kinetics_mixed objective, a reactionRateTargets dict of reactionName:target rate must be provided in objectiveParameters.")
 
