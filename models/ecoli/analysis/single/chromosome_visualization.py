@@ -111,14 +111,13 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			fork_status[:elongating_timesteps[0], i] = NOT_INITIATED
 			fork_status[(elongating_timesteps[-1] + 1):, i] = HAS_TERMINATED
 
-		# Crop out full columns of NaNs and replace NaNs to zeros for RNAP data
+		# Replace NaNs to zeros for RNAP data
 		rnap_isnan = np.isnan(rnap_coordinates)
-		n_nan_columns = (rnap_isnan.sum(axis=0) == n_timesteps).sum()
 
-		rnap_status = np.logical_not(rnap_isnan[:, :-n_nan_columns])
-		rnap_coordinates = np.nan_to_num(rnap_coordinates[:, :-n_nan_columns])
-		rnap_domain_indexes = np.nan_to_num(rnap_domain_indexes[:, :-n_nan_columns])
-		rnap_unique_indexes = np.nan_to_num(rnap_unique_indexes[:, :-n_nan_columns])
+		rnap_status = np.logical_not(rnap_isnan)
+		rnap_coordinates = np.nan_to_num(rnap_coordinates)
+		rnap_domain_indexes = np.nan_to_num(rnap_domain_indexes)
+		rnap_unique_indexes = np.nan_to_num(rnap_unique_indexes)
 
 		# Build array for quick indexing into the identical RNAP molecule that
 		# shares the same unique ID in the next timestep.

@@ -157,12 +157,10 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 			'RnapData', 'n_codirectional_collisions', n_codirectional_collisions)
 		self.writeToListener(
 			'RnapData', 'headon_collision_coordinates',
-			RNAP_coordinates[RNAP_headon_collision_mask],
-			writeMethod=WriteMethod.fill)
+			RNAP_coordinates[RNAP_headon_collision_mask])
 		self.writeToListener(
 			'RnapData', 'codirectional_collision_coordinates',
-			RNAP_coordinates[RNAP_codirectional_collision_mask],
-			writeMethod=WriteMethod.fill)
+			RNAP_coordinates[RNAP_codirectional_collision_mask])
 
 		# Get mask for RNAs that are transcribed from removed RNAPs
 		RNA_collision_mask = np.isin(

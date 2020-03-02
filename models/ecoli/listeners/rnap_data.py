@@ -13,8 +13,6 @@ import numpy as np
 import wholecell.listeners.listener
 
 VERBOSE = False
-MAX_ACTIVE_RNAPS = 10000
-MAX_COLLISIONS = 250
 
 class RnapData(wholecell.listeners.listener.Listener):
 	""" RnapData """
@@ -39,13 +37,6 @@ class RnapData(wholecell.listeners.listener.Listener):
 	def allocate(self):
 		super(RnapData, self).allocate()
 
-		# Positions, domain indexes, and unique indexes of active RNAPs on the
-		# chromosome. The size of these array must be larger than the maximum
-		# possible counts of active RNAPs at any timestep of the simulation.
-		self.active_rnap_coordinates = np.full(MAX_ACTIVE_RNAPS, np.nan, np.float64)
-		self.active_rnap_domain_indexes = np.full(MAX_ACTIVE_RNAPS, np.nan, np.float64)
-		self.active_rnap_unique_indexes = np.full(MAX_ACTIVE_RNAPS, np.nan, np.float64)
-
 		# Attributes broadcast by the PolypeptideElongation process
 		self.actualElongations = 0
 		self.didTerminate = 0
@@ -58,20 +49,15 @@ class RnapData(wholecell.listeners.listener.Listener):
 		self.n_headon_collisions = 0
 		self.n_codirectional_collisions = 0
 
-		# Locations of collisions on the chromosome
-		# The size of these arrays must be larger than the maximum possible
-		# numbers of collisions that can occur for each type in a single
-		# timestep. Currently for +AA conditions the maximum values are around
-		# 50 and 125, respectively.
-		self.headon_collision_coordinates = np.full(MAX_COLLISIONS, np.nan, np.float64)
-		self.codirectional_collision_coordinates = np.full(MAX_COLLISIONS, np.nan, np.float64)
+		# Entries with variable lengths
+		self.active_rnap_coordinates = np.array([], np.int64)
+		self.active_rnap_domain_indexes = np.array([], np.int32)
+		self.active_rnap_unique_indexes = np.array([], np.int64)
+		self.headon_collision_coordinates = np.array([], np.int64)
+		self.codirectional_collision_coordinates = np.array([], np.int64)
 
 
 	def update(self):
-		self.active_rnap_coordinates[:] = np.nan
-		self.active_rnap_domain_indexes[:] = np.nan
-		self.active_rnap_unique_indexes[:] = np.nan
-
 		active_rnaps = self.uniqueMolecules.container.objectsInCollection(
 			'active_RNAP')
 
@@ -79,28 +65,31 @@ class RnapData(wholecell.listeners.listener.Listener):
 		if len(active_rnaps) > 0:
 			coordinates, domain_indexes, unique_indexes = active_rnaps.attrs(
 				"coordinates", "domain_index", "unique_index")
-			self.active_rnap_coordinates[:coordinates.size] = coordinates
-			self.active_rnap_domain_indexes[:domain_indexes.size] = domain_indexes
-			self.active_rnap_unique_indexes[:unique_indexes.size] = unique_indexes
+			self.active_rnap_coordinates = coordinates
+			self.active_rnap_domain_indexes = domain_indexes
+			self.active_rnap_unique_indexes = unique_indexes
+		else:
+			self.active_rnap_coordinates = np.array([])
+			self.active_rnap_domain_indexes = np.array([])
+			self.active_rnap_unique_indexes = np.array([])
 
 
 	def tableCreate(self, tableWriter):
-		rnap_indexes = range(MAX_ACTIVE_RNAPS)
-		collision_indexes = range(MAX_COLLISIONS)
-
 		subcolumns = {
-			'active_rnap_coordinates': 'rnap_indexes',
-			'active_rnap_unique_indexes': 'rnap_indexes',
-			'active_rnap_domain_indexes': 'rnap_indexes',
 			'rnaInitEvent': 'rnaIds',
-			'headon_collision_coordinates': 'collision_indexes',
-			'codirectional_collision_coordinates': 'collision_indexes'}
+			}
 
 		tableWriter.writeAttributes(
-			rnap_indexes = list(rnap_indexes),
-			collision_indexes = list(collision_indexes),
 			rnaIds = list(self.rnaIds),
 			subcolumns = subcolumns)
+
+		tableWriter.set_variable_length_columns(
+			'active_rnap_coordinates',
+			'active_rnap_domain_indexes',
+			'active_rnap_unique_indexes',
+			'headon_collision_coordinates',
+			'codirectional_collision_coordinates',
+			)
 
 
 	def tableAppend(self, tableWriter):

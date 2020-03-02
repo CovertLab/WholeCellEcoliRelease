@@ -17,7 +17,8 @@ import numpy.testing as npt
 # __builtins__.setdefault('profile', noop_decorator)
 
 from wholecell.utils import filepath
-from wholecell.io.tablereader import TableReader, DoesNotExistError
+from wholecell.io.tablereader import (TableReader, DoesNotExistError,
+	VariableLengthColumnError)
 from wholecell.io.tablewriter import (BLOCK_BYTES_GOAL,
 	TableWriter, MissingFieldError, TableExistsError, UnrecognizedFieldError,
 	VariableEntrySizeError, AttributeAlreadyExistsError, AttributeTypeError,
@@ -31,6 +32,7 @@ DATA = {key: np.arange(10.0) + ord(key[0]) for key in COLUMNS}
 TABLE_NAME = "table"
 COLUMN_NAME = "col"
 COLUMN_2_NAME = "col2"
+VARIABLE_LENGTH_COLUMN_NAME = "vcol"
 SUBCOL_NAMES = ["A", "B", "C", "D", "E", "F"]
 SUBCOL_2_NAMES = ["Z", "Y", "X", "W", "V", "U"]
 
@@ -364,6 +366,76 @@ class Test_TableReader_Writer(unittest.TestCase):
 		actual_floats = reader.readColumn2D('ManyFloats')
 		npt.assert_array_equal(np.vstack(rows * [ints]), actual_ints)
 		npt.assert_array_equal(np.vstack(rows * [floats]), actual_floats)
+
+	def test_variable_length_columns(self):
+		'''Test variable-length columns.'''
+		self.make_test_dir()
+
+		# --- Write ---
+		writer = TableWriter(self.table_path)
+		writer.set_variable_length_columns(VARIABLE_LENGTH_COLUMN_NAME)
+		writer.append(**{VARIABLE_LENGTH_COLUMN_NAME: np.arange(1, dtype=np.int32)})
+		writer.append(**{VARIABLE_LENGTH_COLUMN_NAME: np.arange(2)})
+		writer.append(**{VARIABLE_LENGTH_COLUMN_NAME: []})
+		writer.close()
+
+		# --- Read ---
+		reader = TableReader(self.table_path)
+		variable_column = reader.readColumn(VARIABLE_LENGTH_COLUMN_NAME)
+
+		npt.assert_array_equal(
+			np.array([[0, np.nan], [0, 1], [np.nan, np.nan]]),
+			variable_column)
+
+		# Subcolumns cannot be accessed for variable-length columns
+		with self.assertRaises(VariableLengthColumnError):
+			reader.readColumn(VARIABLE_LENGTH_COLUMN_NAME, indices=1)
+
+	def test_long_variable_length_columns(self):
+		'''Test long variable-length columns that span multiple blocks.'''
+		self.make_test_dir()
+
+		rows = []
+		row_lengths = []
+		while len(rows) == 0 or np.concatenate(rows).nbytes < 10*BLOCK_BYTES_GOAL:
+			row_length = np.random.randint(5, 100)
+			rows.append(np.arange(row_length))
+			row_lengths.append(row_length)
+
+		# --- Write ---
+		writer = TableWriter(self.table_path)
+		writer.set_variable_length_columns(VARIABLE_LENGTH_COLUMN_NAME)
+		for row in rows:
+			writer.append(**{VARIABLE_LENGTH_COLUMN_NAME: row})
+		writer.close()
+
+		# --- Read ---
+		reader = TableReader(self.table_path)
+		variable_column = reader.readColumn(VARIABLE_LENGTH_COLUMN_NAME)
+
+		actual_column = np.full((len(rows), np.array(row_lengths).max()), np.nan)
+		for i, row in enumerate(rows):
+			actual_column[i, :row_lengths[i]] = row
+
+		npt.assert_array_equal(actual_column, variable_column)
+
+	def test_empty_variable_length_columns(self):
+		'''Test variable-length columns with empty rows.'''
+		self.make_test_dir()
+
+		# --- Write ---
+		writer = TableWriter(self.table_path)
+		writer.set_variable_length_columns(VARIABLE_LENGTH_COLUMN_NAME)
+		for i in range(1000):
+			writer.append(
+				**{VARIABLE_LENGTH_COLUMN_NAME: np.array([])})
+		writer.close()
+
+		# --- Read ---
+		reader = TableReader(self.table_path)
+		variable_column = reader.readColumn(VARIABLE_LENGTH_COLUMN_NAME)
+
+		npt.assert_array_equal(np.zeros((1000, 0)), variable_column)
 
 	def test_path_clash(self):
 		'''Test two TableWriters trying to write to the same directory.'''

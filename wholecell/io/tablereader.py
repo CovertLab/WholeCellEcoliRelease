@@ -40,17 +40,33 @@ class DoesNotExistError(TableReaderError):
 	pass
 
 
+class VariableLengthColumnError(TableReaderError):
+	"""
+	An error raised when the user tries to access subcolumns of a variable
+	length column.
+	"""
+	pass
+
+
 class _ColumnHeader(object):
 	'''Column header info read from a Column file's first chunk.'''
 	def __init__(self, chunk):
-		if chunk.getname() != tw.COLUMN_CHUNK_TYPE:
+		chunk_name = chunk.getname()
+		if chunk_name != tw.COLUMN_CHUNK_TYPE and chunk_name != tw.VARIABLE_COLUMN_CHUNK_TYPE:
 			raise VersionError('Not a supported Column file format/version')
 
-		header_struct = chunk.read(tw.COLUMN_STRUCT.size)
-		(self.bytes_per_entry,
-		self.elements_per_entry,
-		self.entries_per_block,
-		self.compression_type) = tw.COLUMN_STRUCT.unpack(header_struct)
+		self.variable_length = chunk_name == tw.VARIABLE_COLUMN_CHUNK_TYPE
+
+		if self.variable_length:
+			header_struct = chunk.read(tw.VARIABLE_COLUMN_STRUCT.size)
+			(self.compression_type, ) = tw.VARIABLE_COLUMN_STRUCT.unpack(header_struct)
+
+		else:
+			header_struct = chunk.read(tw.COLUMN_STRUCT.size)
+			(self.bytes_per_entry,
+			self.elements_per_entry,
+			self.entries_per_block,
+			self.compression_type) = tw.COLUMN_STRUCT.unpack(header_struct)
 
 		if self.compression_type not in SUPPORTED_COMPRESSION_TYPES:
 			raise VersionError('Unsupported Column compression type {}'.format(
@@ -125,9 +141,11 @@ class TableReader(object):
 	def readColumn2D(self, name, indices=None):
 		"""
 		Load a full column (all rows). Each row entry is a 1-D NumPy array of
-		subcolumns, so the result is a 2-D array row x subcolumn. This method
-		can optionally read just a vertical slice of all those arrays -- the
-		subcolumns at the given `indices`.
+		subcolumns, so the result is a 2-D array row x subcolumn. In the case
+		of fixed-length columns, this method can optionally read just a
+		vertical slice of all those arrays -- the subcolumns at the given
+		`indices`. For variable-length columns, np.nan is used as a filler
+		value for the empty entries of each row.
 
 		The current approach collects up the compressed blocks, allocates the
 		result array, then unpacks entries into it, keeping each decompressed
@@ -141,7 +159,8 @@ class TableReader(object):
 		Parameters:
 			name (str): The name of the column.
 			indices (ndarray[int]): The subcolumn indices to select from each
-				entry, or None to read in all data.
+				entry, or None to read in all data. Specifying this argument
+				for variable-length columns will throw an error.
 
 				If provided, this can give a performance boost for columns that
 				are wide and tall.
@@ -168,22 +187,34 @@ class TableReader(object):
 		def decomp(raw_block):
 			'''Decompress and unpack a raw block to an ndarray.'''
 			data = decompressor(raw_block)
-			entries = np.frombuffer(data, header.dtype).reshape(
-				-1, header.elements_per_entry)
-			if indices is not None:
-				entries = entries[:, indices]
+
+			if variable_length:
+				entries = np.frombuffer(data, header.dtype)
+			else:
+				entries = np.frombuffer(data, header.dtype).reshape(
+					-1, header.elements_per_entry)
+				if indices is not None:
+					entries = entries[:, indices]
+
 			return entries
 
 		if name not in self._columnNames:
 			raise DoesNotExistError("No such column: {}".format(name))
 
 		entry_blocks = []
+		row_size_blocks = []
 
 		# Read the header and read, decompress, and unpack all the blocks.
 		with open(os.path.join(self._path, name), 'rb') as dataFile:
 			chunk = Chunk(dataFile, align=False)
 			header = _ColumnHeader(chunk)
+			variable_length = header.variable_length
 			chunk.close()
+
+			if variable_length and indices is not None:
+				raise VariableLengthColumnError(
+					'Attempted to access subcolumns of a variable-length column {}.'.format(name))
+
 			decompressor = (
 				zlib.decompress if header.compression_type == tw.COMPRESSION_TYPE_ZLIB
 				else lambda data_bytes: data_bytes)
@@ -195,30 +226,67 @@ class TableReader(object):
 					break
 
 				if chunk.getname() == tw.BLOCK_CHUNK_TYPE:
-					raw = chunk.read()
-					if len(raw) != chunk.getsize():
+					raw_entry = chunk.read()
+					if len(raw_entry) != chunk.getsize():
 						raise EOFError('Data block cut short {}/{}'.format(
-							len(raw), chunk.getsize()))
-					entry_blocks.append(raw)
+							len(raw_entry), chunk.getsize()))
+					entry_blocks.append(raw_entry)
+
+				elif chunk.getname() == tw.ROW_SIZE_CHUNK_TYPE:
+					row_sizes = chunk.read()
+					if len(row_sizes) != chunk.getsize():
+						raise EOFError('Row sizes block cut short {}/{}'.format(
+							len(row_sizes), chunk.getsize()))
+					row_size_blocks.append(row_sizes)
 
 				chunk.close()  # skips to the next chunk
 
-		# Decompress the last block to get its shape, then allocate the result.
-		raw = None  # release the block ref
-		last_entries = decomp(entry_blocks.pop())
-		last_num_rows = last_entries.shape[0]
-		num_rows = len(entry_blocks) * header.entries_per_block + last_num_rows
-		num_subcolumns = header.elements_per_entry if indices is None else len(indices)
-		result = np.zeros((num_rows, num_subcolumns), header.dtype)
+		if variable_length and len(entry_blocks) != len(row_size_blocks):
+			raise EOFError('Number of entry blocks ({}) does not match number of row size blocks ({}).'.format(
+				len(entry_blocks), len(row_size_blocks)))
 
-		row = 0
-		for raw in entry_blocks:
-			entries = decomp(raw)
-			additional_rows = entries.shape[0]
-			result[row : (row + additional_rows)] = entries
-			row += additional_rows
+		raw_entry = None  # release the block ref
 
-		result[row : (row + last_num_rows)] = last_entries
+		# Variable-length columns
+		if variable_length:
+			# Concatenate row sizes array
+			row_sizes_list = [
+				np.frombuffer(block, tw.ROW_SIZE_CHUNK_DTYPE)
+				for block in row_size_blocks]
+			all_row_sizes = np.concatenate(row_sizes_list)
+
+			# Initialize results array to NaNs
+			result = np.full((len(all_row_sizes), all_row_sizes.max()), np.nan)
+
+			row = 0
+			for raw_entry, row_sizes in zip(entry_blocks, row_sizes_list):
+				entries = decomp(raw_entry)
+				entry_idx = 0
+
+				# Fill each row with the length given by values in row_sizes
+				for row_size in row_sizes:
+					result[row, :row_size] = entries[entry_idx : (entry_idx + row_size)]
+					entry_idx += row_size
+					row += 1
+
+		# Constant-length columns
+		else:
+			# Decompress the last block to get its shape, then allocate the result.
+			last_entries = decomp(entry_blocks.pop())
+			last_num_rows = last_entries.shape[0]
+			num_rows = len(entry_blocks) * header.entries_per_block + last_num_rows
+			num_subcolumns = header.elements_per_entry if indices is None else len(indices)
+			result = np.zeros((num_rows, num_subcolumns), header.dtype)
+
+			row = 0
+			for raw_entry in entry_blocks:
+				entries = decomp(raw_entry)
+				additional_rows = entries.shape[0]
+				result[row : (row + additional_rows)] = entries
+				row += additional_rows
+
+			result[row : (row + last_num_rows)] = last_entries
+
 		return result
 
 
@@ -244,6 +312,7 @@ class TableReader(object):
 		'''
 		return self.readColumn2D(name, indices).squeeze()
 
+
 	def readSubcolumn(self, column, subcolumn_name):
 		# type: (str, str, str, str) -> np.ndarray
 		"""Read in a subcolumn from a table by name
@@ -265,7 +334,6 @@ class TableReader(object):
 		subcols = self.readAttribute(subcol_name_map[column])
 		index = subcols.index(subcolumn_name)
 		return self.readColumn2D(column, [index])[:, 0]
-
 
 
 	def allAttributeNames(self):

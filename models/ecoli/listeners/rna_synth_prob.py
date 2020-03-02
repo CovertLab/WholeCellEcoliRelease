@@ -15,11 +15,6 @@ import numpy as np
 
 import wholecell.listeners.listener
 
-# This number needs to be greater than the maximum number of chromosome-bound
-# transcription factors in a single timestep - currently this number is around
-# 1400 in +AA conditions.
-MAX_BOUND_TFS = 1750
-
 
 class RnaSynthProb(wholecell.listeners.listener.Listener):
 	""" RnaSynthProb """
@@ -61,16 +56,12 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 		self.n_bound_TF_per_TU = np.zeros((self.n_TU, self.n_TF), np.int16)
 
 		# Properties of bound TFs
-		self.bound_TF_indexes = np.full(MAX_BOUND_TFS, np.nan, np.float64)
-		self.bound_TF_coordinates = np.full(MAX_BOUND_TFS, np.nan, np.float64)
-		self.bound_TF_domains = np.full(MAX_BOUND_TFS, np.nan, np.float64)
+		self.bound_TF_indexes = np.array([], np.int64)
+		self.bound_TF_coordinates = np.array([], np.int64)
+		self.bound_TF_domains = np.array([], np.int64)
 
 
 	def update(self):
-		self.bound_TF_indexes[:] = np.nan
-		self.bound_TF_coordinates[:] = np.nan
-		self.bound_TF_domains[:] = np.nan
-
 		promoters = self.uniqueMolecules.container.objectsInCollection('promoter')
 
 		if len(promoters) > 0:
@@ -81,11 +72,14 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 			self.gene_copy_number = np.bincount(TU_indexes, minlength=self.n_TU)
 
 			bound_promoter_indexes, TF_indexes = np.where(bound_TFs)
-			n_bound_TFs = len(bound_promoter_indexes)
 
-			self.bound_TF_indexes[:n_bound_TFs] = TF_indexes
-			self.bound_TF_coordinates[:n_bound_TFs] = all_coordinates[bound_promoter_indexes]
-			self.bound_TF_domains[:n_bound_TFs] = all_domains[bound_promoter_indexes]
+			self.bound_TF_indexes = TF_indexes
+			self.bound_TF_coordinates = all_coordinates[bound_promoter_indexes]
+			self.bound_TF_domains = all_domains[bound_promoter_indexes]
+		else:
+			self.bound_TF_indexes = np.array([])
+			self.bound_TF_coordinates = np.array([])
+			self.bound_TF_domains = np.array([])
 
 
 	def tableCreate(self, tableWriter):
@@ -101,6 +95,12 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 			rnaIds = list(self.rnaIds),
 			tf_ids = list(self.tf_ids),
 			subcolumns = subcolumns)
+
+		tableWriter.set_variable_length_columns(
+			'bound_TF_indexes',
+			'bound_TF_coordinates',
+			'bound_TF_domains',
+			)
 
 
 	def tableAppend(self, tableWriter):
