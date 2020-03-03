@@ -32,6 +32,8 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 	def initialize(self, sim, sim_data):
 		super(ChromosomeReplication, self).initialize(sim, sim_data)
 
+		self.max_time_step = sim_data.process.replication.max_time_step
+
 		# Load parameters
 		self.criticalInitiationMass = sim_data.growthRateParameters.getDnaCriticalMass(
 			sim_data.conditionToDoublingTime[sim_data.condition])
@@ -383,3 +385,5 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			self.replisome_trimers.countsInc(3*replisomes_to_delete.sum())
 			self.replisome_monomers.countsInc(replisomes_to_delete.sum())
 
+	def isTimeStepShortEnough(self, inputTimeStep, timeStepSafetyFraction):
+		return inputTimeStep <= self.max_time_step

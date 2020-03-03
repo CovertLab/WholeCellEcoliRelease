@@ -10,17 +10,22 @@ from __future__ import division
 
 import numpy as np
 
+from wholecell.sim.simulation import MAX_TIME_STEP
 from wholecell.utils import units
 from wholecell.utils.unit_struct_array import UnitStructArray
 from wholecell.utils.polymerize import polymerize
 from wholecell.utils.random import make_elongation_rates
 
-MAX_TIMESTEP_LEN = 2
+
+PROCESS_MAX_TIME_STEP = 2.
+
 
 class Translation(object):
 	""" Translation """
 
 	def __init__(self, raw_data, sim_data):
+		self.max_time_step = min(MAX_TIME_STEP, PROCESS_MAX_TIME_STEP)
+
 		self._buildMonomerData(raw_data, sim_data)
 		self._buildTranslation(raw_data, sim_data)
 		self._buildTranslationEfficiency(raw_data, sim_data)
@@ -154,7 +159,7 @@ class Translation(object):
 
 		maxLen = np.int64(
 			self.monomerData["length"].asNumber().max()
-			+ MAX_TIMESTEP_LEN * sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s)
+			+ self.max_time_step * sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s)
 			)
 
 		self.translationSequences = np.empty((sequences.shape[0], maxLen), np.int8)

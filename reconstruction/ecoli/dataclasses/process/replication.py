@@ -10,11 +10,14 @@ from __future__ import division
 import numpy as np
 import collections
 
+from wholecell.sim.simulation import MAX_TIME_STEP
 from wholecell.utils import units
 from wholecell.utils.polymerize import polymerize
 from wholecell.utils.random import stochasticRound
 
-MAX_TIMESTEP_LEN = 2
+
+PROCESS_MAX_TIME_STEP = 2.
+
 
 class Replication(object):
 	"""
@@ -22,6 +25,8 @@ class Replication(object):
 	"""
 
 	def __init__(self, raw_data, sim_data):
+		self.max_time_step = min(MAX_TIME_STEP, PROCESS_MAX_TIME_STEP)
+
 		self._n_nt_types = len(sim_data.dNtpOrder)
 		self._c_period = sim_data.growthRateParameters.c_period.asNumber(units.min)
 		self._d_period = sim_data.growthRateParameters.d_period.asNumber(units.min)
@@ -95,7 +100,7 @@ class Replication(object):
 		# Determine size of the matrix used by polymerize function
 		maxLen = np.int64(
 			self.replichore_lengths.max()
-			+ MAX_TIMESTEP_LEN * sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(units.nt / units.s)
+			+ self.max_time_step * sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(units.nt / units.s)
 		)
 
 		self.replication_sequences = np.empty((4, maxLen), np.int8)

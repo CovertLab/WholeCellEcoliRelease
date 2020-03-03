@@ -14,6 +14,7 @@ import numpy as np
 from scipy import interpolate
 import sympy as sp
 
+from wholecell.sim.simulation import MAX_TIME_STEP
 from wholecell.utils import units
 from wholecell.utils.fitting import normalize
 from wholecell.utils.unit_struct_array import UnitStructArray
@@ -21,10 +22,10 @@ from wholecell.utils.polymerize import polymerize
 from wholecell.utils.random import make_elongation_rates
 
 
+PROCESS_MAX_TIME_STEP = 2.
 RNA_SEQ_ANALYSIS = "rsem_tpm"
 KCAT_ENDO_RNASE = 0.001
 ESTIMATE_ENDO_RNASES = 5000
-MAX_TIMESTEP_LEN = 2  # Determines length of padding values to add to transcript sequence matrix
 PPGPP_CONC_UNITS = units.umol / units.L
 PRINT_VALUES = False  # print values for supplemental table if True
 
@@ -35,6 +36,8 @@ class Transcription(object):
 	"""
 
 	def __init__(self, raw_data, sim_data):
+		self.max_time_step = min(MAX_TIME_STEP, PROCESS_MAX_TIME_STEP)
+
 		self._build_ppgpp_regulation(raw_data, sim_data)
 		self._build_rna_data(raw_data, sim_data)
 		self._build_transcription(raw_data, sim_data)
@@ -387,7 +390,7 @@ class Transcription(object):
 		# Construct transcription sequence matrix
 		maxLen = np.int64(
 			self.rnaData["length"].asNumber().max()
-			+ MAX_TIMESTEP_LEN * sim_data.growthRateParameters.rnaPolymeraseElongationRate.asNumber(units.nt/units.s)
+			+ self.max_time_step * sim_data.growthRateParameters.rnaPolymeraseElongationRate.asNumber(units.nt/units.s)
 			)
 
 		self.transcriptionSequences = np.empty((sequences.shape[0], maxLen), np.int8)

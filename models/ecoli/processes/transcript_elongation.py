@@ -35,6 +35,8 @@ class TranscriptElongation(wholecell.processes.process.Process):
 	def initialize(self, sim, sim_data):
 		super(TranscriptElongation, self).initialize(sim, sim_data)
 
+		self.max_time_step = sim_data.process.transcription.max_time_step
+
 		# Load parameters
 		self.rnaPolymeraseElongationRateDict = sim_data.process.transcription.rnaPolymeraseElongationRateDict
 		self.rnaIds = sim_data.process.transcription.rnaData['id']
@@ -306,3 +308,6 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		argsort_idx = np.empty(n, dtype=np.int64)
 		argsort_idx[idx] = np.arange(n)
 		return argsort_idx
+
+	def isTimeStepShortEnough(self, inputTimeStep, timeStepSafetyFraction):
+		return inputTimeStep <= self.max_time_step

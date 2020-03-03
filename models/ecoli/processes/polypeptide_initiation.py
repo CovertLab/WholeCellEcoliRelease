@@ -232,11 +232,3 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
 			activationProb = 1
 
 		return activationProb
-
-	def isTimeStepShortEnough(self, inputTimeStep, timeStepSafetyFraction):
-		# Return false if timestep is longer than 1.7s. Timesteps longer than
-		# 1.8s will lower the fraction of activated ribosomes.
-		if inputTimeStep > 1.7:
-			return False
-		else:
-			return True
