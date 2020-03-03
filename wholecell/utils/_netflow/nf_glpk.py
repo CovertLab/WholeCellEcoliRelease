@@ -299,26 +299,29 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 			upperBound (float) - upper bound for flow (None if unchanged)
 		"""
 
+		reset_bounds = False
 		idx = self._getVar(flow)
-		if lowerBound is not None:
+		if lowerBound is not None and self._lb[flow] != lowerBound:
 			self._lb[flow] = lowerBound
-		if upperBound is not None:
+			reset_bounds = True
+		if upperBound is not None and self._ub[flow] != upperBound:
 			self._ub[flow] = upperBound
+			reset_bounds = True
 
-		self._set_col_bounds(
-			1 + idx,				# GLPK does 1 indexing
-			self._lb[flow],
-			self._ub[flow],
-			)
-
-		self._solved = False
+		if reset_bounds:
+			self._set_col_bounds(
+				1 + idx,  # GLPK does 1 indexing
+				self._lb[flow],
+				self._ub[flow],
+				)
+			self._solved = False
 
 	def setFlowObjectiveCoeff(self, flow, coefficient):
 		idx = self._getVar(flow)
 		self._objective[flow] = coefficient
 		glp.glp_set_obj_coef(
 			self._lp,
-			1 + idx,				# GLPK does 1 indexing
+			1 + idx,  # GLPK does 1 indexing
 			coefficient
 			)
 

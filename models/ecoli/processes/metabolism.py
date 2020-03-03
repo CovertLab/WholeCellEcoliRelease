@@ -120,8 +120,6 @@ class Metabolism(wholecell.processes.process.Process):
 		shape = (catalysisMatrixI.max() + 1, catalysisMatrixJ.max() + 1)
 		self.catalysisMatrix = csr_matrix((catalysisMatrixV, (catalysisMatrixI, catalysisMatrixJ)), shape = shape)
 
-		self.catalyzedReactionBoundsPrev = np.inf * np.ones(len(self.reactions_with_catalyst))
-
 		# Function to compute reaction targets based on kinetic parameters and molecule concentrations
 		self.getKineticConstraints = sim_data.process.metabolism.getKineticConstraints
 
@@ -310,13 +308,8 @@ class Metabolism(wholecell.processes.process.Process):
 		catalyzedReactionBounds[rxnPresence == 0] = 0
 		if self.shuffleCatalyzedIdxs is not None:
 			catalyzedReactionBounds = catalyzedReactionBounds[self.shuffleCatalyzedIdxs]
-
-		## Only update reaction limits that are different from previous time step
-		updateIdxs = np.where(catalyzedReactionBounds != self.catalyzedReactionBoundsPrev)[0]
-		updateRxns = [self.reactions_with_catalyst[idx] for idx in updateIdxs]
-		updateVals = catalyzedReactionBounds[updateIdxs]
-		self.fba.setReactionFluxBounds(updateRxns, upperBounds=updateVals, raiseForReversible=False)
-		self.catalyzedReactionBoundsPrev = catalyzedReactionBounds
+		self.fba.setReactionFluxBounds(self.reactions_with_catalyst,
+			upperBounds=catalyzedReactionBounds, raiseForReversible=False)
 
 		# Constrain reactions based on kinetic values
 		kineticsEnzymesCountsInit = self.kineticsEnzymes.counts()
