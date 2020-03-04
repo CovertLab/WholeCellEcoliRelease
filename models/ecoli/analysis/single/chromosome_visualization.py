@@ -79,6 +79,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		rnap_coordinates = rnap_data_reader.readColumn("active_rnap_coordinates")
 		rnap_domain_indexes = rnap_data_reader.readColumn("active_rnap_domain_indexes")
 		rnap_unique_indexes = rnap_data_reader.readColumn("active_rnap_unique_indexes")
+		rnap_n_bound_ribosomes = rnap_data_reader.readColumn("active_rnap_n_bound_ribosomes")
 
 		# Load bound TF attributes
 		bound_TF_coordinates = rna_synth_prob_reader.readColumn("bound_TF_coordinates")
@@ -93,7 +94,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# replisome. The status array is set to the appropriate flag values
 		# depending on the status of the corresponding replisome (column)
 		# at the given timestep (row).
-		fork_coordinates_parsed = np.zeros((n_timesteps, n_unique_replisomes))
+		fork_coordinates_parsed = np.zeros((n_timesteps, n_unique_replisomes), dtype=np.int64)
 		fork_status = np.zeros((n_timesteps, n_unique_replisomes), dtype=np.int64)
 		fork_domain_indexes_parsed = np.zeros(n_unique_replisomes, dtype=np.int64)
 
@@ -115,9 +116,10 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		rnap_isnan = np.isnan(rnap_coordinates)
 
 		rnap_status = np.logical_not(rnap_isnan)
-		rnap_coordinates = np.nan_to_num(rnap_coordinates)
-		rnap_domain_indexes = np.nan_to_num(rnap_domain_indexes)
-		rnap_unique_indexes = np.nan_to_num(rnap_unique_indexes)
+		rnap_coordinates = np.nan_to_num(rnap_coordinates).astype(np.int64)
+		rnap_domain_indexes = np.nan_to_num(rnap_domain_indexes).astype(np.int64)
+		rnap_unique_indexes = np.nan_to_num(rnap_unique_indexes).astype(np.int64)
+		rnap_n_bound_ribosomes = np.nan_to_num(rnap_n_bound_ribosomes).astype(np.int64)
 
 		# Build array for quick indexing into the identical RNAP molecule that
 		# shares the same unique ID in the next timestep.
@@ -186,6 +188,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 				"coordinates": rnap_coordinates.tolist(),
 				"domain_indexes": rnap_domain_indexes.tolist(),
 				"flag_last_timestep": LAST_TIMESTEP,
+				"n_bound_ribosomes": rnap_n_bound_ribosomes.tolist(),
 				"next_indexes": rnap_next_indexes.tolist(),
 				"status": rnap_status.tolist(),
 				},
