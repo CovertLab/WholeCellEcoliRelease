@@ -14,6 +14,7 @@ from .param_sensitivity import param_sensitivity
 from .rna_deg_rate_shuffle_params import rna_deg_rate_shuffle_params
 from .rrna_orientation import rrna_orientation
 from .tf_activity import tf_activity
+from .time_step import time_step
 from .timelines import timelines
 from .transcription_initiation_shuffle_params import transcription_initiation_shuffle_params
 from .translation_efficiencies_shuffle_params import translation_efficiencies_shuffle_params
@@ -35,6 +36,7 @@ nameToFunctionMapping = {
 	"rna_deg_rate_shuffle_params": rna_deg_rate_shuffle_params,
 	"rrna_orientation": rrna_orientation,
 	"tf_activity": tf_activity,
+	"time_step": time_step,
 	"timelines": timelines,
 	"transcription_initiation_shuffle_params": transcription_initiation_shuffle_params,
 	"translation_efficiencies_shuffle_params": translation_efficiencies_shuffle_params,
