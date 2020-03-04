@@ -37,23 +37,39 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		n_total_collisions = rnap_data_reader.readColumn("n_total_collisions")
 		n_headon_collisions = rnap_data_reader.readColumn("n_headon_collisions")
 		n_codirectional_collisions = rnap_data_reader.readColumn("n_codirectional_collisions")
+		n_removed_ribosomes = rnap_data_reader.readColumn("n_removed_ribosomes")
+
+		# Get cumulative sums
+		n_total_collisions_cumulative = np.cumsum(n_total_collisions)
+		n_headon_collisions_cumulative = np.cumsum(n_headon_collisions)
+		n_codirectional_collisions_cumulative = np.cumsum(n_codirectional_collisions)
+		n_removed_ribosomes_cumulative = np.cumsum(n_removed_ribosomes)
 
 		# Plot
 		plt.figure(figsize = (8.5, 11))
 
-		ax = plt.subplot(3, 1, 1)
-		ax.plot(time / 60., np.cumsum(n_total_collisions))
-		ax.set_title("All collisions")
+		ax = plt.subplot(4, 1, 1)
+		ax.plot(time / 60., n_total_collisions_cumulative)
+		ax.set_title("All collisions (Total {})".format(
+			n_total_collisions_cumulative[-1]))
 		ax.set_ylabel("Cumulative Counts")
 
-		ax = plt.subplot(3, 1, 2)
-		ax.plot(time / 60., np.cumsum(n_headon_collisions))
-		ax.set_title("Head-on collisions")
+		ax = plt.subplot(4, 1, 2)
+		ax.plot(time / 60., n_headon_collisions_cumulative)
+		ax.set_title("Head-on collisions (Total {})".format(
+			n_headon_collisions_cumulative[-1]))
 		ax.set_ylabel("Cumulative Counts")
 
-		ax = plt.subplot(3, 1, 3)
-		ax.plot(time / 60., np.cumsum(n_codirectional_collisions))
-		ax.set_title("Co-directional collisions")
+		ax = plt.subplot(4, 1, 3)
+		ax.plot(time / 60., n_codirectional_collisions_cumulative)
+		ax.set_title("Co-directional collisions (Total {})".format(
+			n_codirectional_collisions_cumulative[-1]))
+		ax.set_ylabel("Cumulative Counts")
+
+		ax = plt.subplot(4, 1, 4)
+		ax.plot(time / 60., n_removed_ribosomes_cumulative)
+		ax.set_title("Removed ribosomes (Total {})".format(
+			n_removed_ribosomes_cumulative[-1]))
 		ax.set_ylabel("Cumulative Counts")
 		ax.set_xlabel("Time (min)")
 

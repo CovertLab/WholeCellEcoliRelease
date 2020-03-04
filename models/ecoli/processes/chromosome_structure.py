@@ -33,8 +33,11 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 
 		# Load parameters
 		self.RNA_sequences = sim_data.process.transcription.transcriptionSequences
+		self.protein_sequences = sim_data.process.translation.translationSequences
 		self.n_TUs = len(sim_data.process.transcription.rnaData)
 		self.n_TFs = len(sim_data.process.transcription_regulation.tf_ids)
+		self.n_amino_acids = len(sim_data.moleculeGroups.aaIDs)
+		self.n_fragment_bases = len(sim_data.moleculeGroups.fragmentNT_IDs)
 
 		# Get placeholder value for chromosome domains without children
 		self.no_child_place_holder = sim_data.process.replication.no_child_place_holder
@@ -46,22 +49,31 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 		self.ppi = self.bulkMoleculeView(sim_data.moleculeIds.ppi)
 		self.active_tfs = self.bulkMoleculesView(
 			[x + "[c]" for x in sim_data.process.transcription_regulation.tf_ids])
+		self.ribosome_30S_subunit = self.bulkMoleculeView(sim_data.moleculeIds.s30_fullComplex)
+		self.ribosome_50S_subunit = self.bulkMoleculeView(sim_data.moleculeIds.s50_fullComplex)
+		self.amino_acids = self.bulkMoleculesView(sim_data.moleculeGroups.aaIDs)
+		self.water = self.bulkMoleculeView(sim_data.moleculeIds.water)
 
 		# Load unique molecule views
 		self.active_replisomes = self.uniqueMoleculesView('active_replisome')
 		self.chromosome_domains = self.uniqueMoleculesView('chromosome_domain')
 		self.active_RNAPs = self.uniqueMoleculesView('active_RNAP')
 		self.RNAs = self.uniqueMoleculesView('RNA')
+		self.active_ribosomes = self.uniqueMoleculesView('active_ribosome')
 		self.promoters = self.uniqueMoleculesView('promoter')
 		self.DnaA_boxes = self.uniqueMoleculesView('DnaA_box')
 
 
 	def calculateRequest(self):
-		# Request access to delete active RNAPs, RNAs, and DNA motifs
+		# Request access to delete active RNAPs, RNAs, ribosomes, and DNA motifs
 		self.active_RNAPs.request_access(self.EDIT_DELETE_ACCESS)
 		self.RNAs.request_access(self.EDIT_DELETE_ACCESS)
+		self.active_ribosomes.request_access(self.EDIT_DELETE_ACCESS)
 		self.promoters.request_access(self.EDIT_DELETE_ACCESS)
 		self.DnaA_boxes.request_access(self.EDIT_DELETE_ACCESS)
+
+		# Request water to degrade polypeptides from removed ribosomes
+		self.water.requestAll()
 
 	def evolveState(self):
 		# If there are no active replisomes, set attributes to empty arrays
@@ -77,8 +89,11 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 			'domain_index', 'child_domains')
 		RNAP_domain_indexes, RNAP_coordinates, RNAP_directions, RNAP_unique_indexes = self.active_RNAPs.attrs(
 			'domain_index', 'coordinates', 'direction', 'unique_index')
-		RNA_TU_indexes, transcript_lengths, RNA_RNAP_indexes = self.RNAs.attrs(
-			'TU_index', 'transcript_length', 'RNAP_index')
+		RNA_TU_indexes, transcript_lengths, RNA_RNAP_indexes, RNA_unique_indexes = self.RNAs.attrs(
+			'TU_index', 'transcript_length', 'RNAP_index', 'unique_index')
+		ribosome_protein_indexes, ribosome_peptide_lengths, ribosome_mRNA_indexes = self.active_ribosomes.attrs(
+			'protein_index', 'peptide_length', 'mRNA_index')
+
 		promoter_TU_indexes, promoter_domain_indexes, promoter_coordinates, promoter_bound_TFs = self.promoters.attrs(
 			'TU_index', 'domain_index', 'coordinates', 'bound_TF')
 		DnaA_box_domain_indexes, DnaA_box_coordinates, DnaA_box_bound = self.DnaA_boxes.attrs(
@@ -163,37 +178,80 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 			RNAP_coordinates[RNAP_codirectional_collision_mask])
 
 		# Get mask for RNAs that are transcribed from removed RNAPs
-		RNA_collision_mask = np.isin(
+		removed_RNAs_mask = np.isin(
 			RNA_RNAP_indexes, RNAP_unique_indexes[removed_RNAPs_mask])
 
 		# Remove RNAPs and RNAs that have collided with replisomes
 		if n_total_collisions > 0:
 			self.active_RNAPs.delByIndexes(np.where(removed_RNAPs_mask)[0])
-			self.RNAs.delByIndexes(np.where(RNA_collision_mask)[0])
+			self.RNAs.delByIndexes(np.where(removed_RNAs_mask)[0])
 
 			# Increment counts of inactive RNAPs
 			self.inactive_RNAPs.countInc(n_total_collisions)
 
 			# Get sequences of incomplete transcripts
 			incomplete_sequence_lengths = transcript_lengths[
-				RNA_collision_mask]
+				removed_RNAs_mask]
 			n_initiated_sequences = np.count_nonzero(incomplete_sequence_lengths)
 
 			if n_initiated_sequences > 0:
 				incomplete_sequences = buildSequences(
 					self.RNA_sequences,
-					RNA_TU_indexes[RNA_collision_mask],
+					RNA_TU_indexes[removed_RNAs_mask],
 					np.zeros(n_total_collisions, dtype=np.int64),
 					np.full(n_total_collisions, incomplete_sequence_lengths.max()))
 
-				base_counts = np.zeros(4, dtype=np.int64)
+				base_counts = np.zeros(self.n_fragment_bases, dtype=np.int64)
 
 				for sl, seq in zip(incomplete_sequence_lengths, incomplete_sequences):
-					base_counts += np.bincount(seq[:sl], minlength=4)
+					base_counts += np.bincount(seq[:sl], minlength=self.n_fragment_bases)
 
 				# Increment counts of fragment NTPs and phosphates
 				self.fragmentBases.countsInc(base_counts)
 				self.ppi.countInc(n_initiated_sequences)
+
+		# Get mask for ribosomes that are bound to removed mRNA molecules
+		removed_ribosomes_mask = np.isin(
+			ribosome_mRNA_indexes, RNA_unique_indexes[removed_RNAs_mask])
+		n_removed_ribosomes = np.count_nonzero(removed_ribosomes_mask)
+
+		# Remove ribosomes that are bound to removed mRNA molecules
+		if n_removed_ribosomes > 0:
+			self.active_ribosomes.delByIndexes(
+				np.where(removed_ribosomes_mask)[0])
+
+			# Increment counts of inactive ribosomal subunits
+			self.ribosome_30S_subunit.countInc(n_removed_ribosomes)
+			self.ribosome_50S_subunit.countInc(n_removed_ribosomes)
+
+			# Get amino acid sequences of incomplete polypeptides
+			incomplete_sequence_lengths = ribosome_peptide_lengths[
+				removed_ribosomes_mask]
+			n_initiated_sequences = np.count_nonzero(incomplete_sequence_lengths)
+
+			if n_initiated_sequences > 0:
+				incomplete_sequences = buildSequences(
+					self.protein_sequences,
+					ribosome_protein_indexes[removed_ribosomes_mask],
+					np.zeros(n_removed_ribosomes, dtype=np.int64),
+					np.full(n_removed_ribosomes, incomplete_sequence_lengths.max()))
+
+				amino_acid_counts = np.zeros(
+					self.n_amino_acids, dtype=np.int64)
+
+				for sl, seq in zip(incomplete_sequence_lengths, incomplete_sequences):
+					amino_acid_counts += np.bincount(
+						seq[:sl], minlength=self.n_amino_acids)
+
+				# Increment counts of free amino acids and decrease counts of
+				# free water molecules
+				self.amino_acids.countsInc(amino_acid_counts)
+				self.water.countDec(
+					incomplete_sequence_lengths.sum() - n_initiated_sequences)
+
+		# Write to listener
+		self.writeToListener(
+			'RnapData', 'n_removed_ribosomes', n_removed_ribosomes)
 
 
 		def get_replicated_motif_attributes(old_coordinates, old_domain_indexes):

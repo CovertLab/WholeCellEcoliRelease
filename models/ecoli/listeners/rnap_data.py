@@ -48,6 +48,7 @@ class RnapData(wholecell.listeners.listener.Listener):
 		self.n_total_collisions = 0
 		self.n_headon_collisions = 0
 		self.n_codirectional_collisions = 0
+		self.n_removed_ribosomes = 0
 
 		# Entries with variable lengths
 		self.active_rnap_coordinates = np.array([], np.int64)
@@ -107,6 +108,7 @@ class RnapData(wholecell.listeners.listener.Listener):
 			n_total_collisions=self.n_total_collisions,
 			n_headon_collisions=self.n_headon_collisions,
 			n_codirectional_collisions=self.n_codirectional_collisions,
+			n_removed_ribosomes=self.n_removed_ribosomes,
 			headon_collision_coordinates=self.headon_collision_coordinates,
 			codirectional_collision_coordinates=self.codirectional_collision_coordinates,
 			)
