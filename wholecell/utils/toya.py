@@ -41,10 +41,10 @@ def adjust_toya_data(data, cell_masses, dry_masses, cell_density):
 
 
 def get_common_ids(toya_reaction_ids, root_to_id_indices_map):
-	return (
+	return list(sorted((
 		set(toya_reaction_ids)
 		& set(root_to_id_indices_map.keys())
-	)
+	)))
 
 
 def get_root_to_id_indices_map(sim_reaction_ids):
