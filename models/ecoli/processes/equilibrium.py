@@ -69,8 +69,8 @@ class Equilibrium(wholecell.processes.process.Process):
 		# what we have (decrease reaction fluxes so that they make use of what
 		# we have, but not more). Reduces at least one reaction every iteration
 		# so the max number of iterations is the number of reactions that were
-		# originally expected to occur.
-		max_iterations = int(np.abs(rxnFluxes).sum())
+		# originally expected to occur + 1 to reach the break statement.
+		max_iterations = int(np.abs(rxnFluxes).sum()) + 1
 		for it in range(max_iterations):
 			# Check if any metabolites will have negative counts with current reactions
 			negative_metabolite_idxs = np.where(np.dot(self.stoichMatrix, rxnFluxes) + moleculeCounts < 0)[0]
