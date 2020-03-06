@@ -118,7 +118,9 @@ class TfBinding(wholecell.processes.process.Process):
 			active_tf_view.countInc(bound_tf_counts)
 
 			# Get counts of transcription factors
-			active_tf_counts = active_tf_view.total_counts()
+			# countInc() above increases count() but not total_counts() value
+			# so need to add freed TFs to the total active
+			active_tf_counts = active_tf_view.total_counts() + bound_tf_counts
 			n_available_active_tfs = active_tf_view.count()
 
 			# If there are no active transcription factors to work with,
