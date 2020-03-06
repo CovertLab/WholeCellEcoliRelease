@@ -63,21 +63,31 @@ class Equilibrium(wholecell.processes.process.Process):
 	def evolveState(self):
 		# Get counts of molecules allocated to this process
 		moleculeCounts = self.molecules.counts()
-
-		# If we didn't get allocated all the molecules we need, make do with what we have
-		# (decrease reaction fluxes so that they make use of what we have, but not more)
 		rxnFluxes = self.rxnFluxes.copy()
-		insufficientMetaboliteIdxs = np.where(self.req > moleculeCounts)[0]
-		for insufficientMetaboliteIdx in insufficientMetaboliteIdxs:
-			rxnPosIdxs = np.where(np.logical_and(self.stoichMatrix[insufficientMetaboliteIdx, :] != 0, rxnFluxes > 0))[0]
-			rxnNegIdxs = np.where(np.logical_and(self.stoichMatrix[insufficientMetaboliteIdx, :] != 0, rxnFluxes < 0))[0]
-			while(np.dot(self.stoichMatrix, rxnFluxes)[insufficientMetaboliteIdx] + moleculeCounts[insufficientMetaboliteIdx] < 0):
-				rxnFluxes[rxnPosIdxs] -= 1
-				rxnFluxes[rxnNegIdxs] += 1
-				rxnFluxes[rxnPosIdxs] = np.fmax(0, rxnFluxes[rxnPosIdxs])
-				rxnFluxes[rxnNegIdxs] = np.fmin(0, rxnFluxes[rxnNegIdxs])
 
-		assert(np.all(moleculeCounts + np.dot(self.stoichMatrix, rxnFluxes) >= 0))
+		# If we didn't get allocated all the molecules we need, make do with
+		# what we have (decrease reaction fluxes so that they make use of what
+		# we have, but not more). Reduces at least one reaction every iteration
+		# so the max number of iterations is the number of reactions that were
+		# originally expected to occur.
+		max_iterations = int(np.abs(rxnFluxes).sum())
+		for it in range(max_iterations):
+			# Check if any metabolites will have negative counts with current reactions
+			negative_metabolite_idxs = np.where(np.dot(self.stoichMatrix, rxnFluxes) + moleculeCounts < 0)[0]
+			if len(negative_metabolite_idxs) == 0:
+				break
+
+			# Reduce reactions that consume metabolites with negative counts
+			limited_rxn_stoich = self.stoichMatrix[negative_metabolite_idxs, :]
+			fwd_rxn_idxs = np.where(np.logical_and(limited_rxn_stoich < 0, rxnFluxes > 0))[1]
+			rev_rxn_idxs = np.where(np.logical_and(limited_rxn_stoich > 0, rxnFluxes < 0))[1]
+			rxnFluxes[fwd_rxn_idxs] -= 1
+			rxnFluxes[rev_rxn_idxs] += 1
+			rxnFluxes[fwd_rxn_idxs] = np.fmax(0, rxnFluxes[fwd_rxn_idxs])
+			rxnFluxes[rev_rxn_idxs] = np.fmin(0, rxnFluxes[rev_rxn_idxs])
+		else:
+			raise ValueError('Could not get positive counts in equilibrium with'
+				' allocated molecules.')
 
 		# Increment changes in molecule counts
 		deltaMolecules = np.dot(self.stoichMatrix, rxnFluxes)
