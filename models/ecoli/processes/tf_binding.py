@@ -12,9 +12,10 @@ Bind transcription factors to DNA
 import numpy as np
 
 import wholecell.processes.process
+from wholecell.utils.constants import REQUEST_PRIORITY_TF_BINDING
 from wholecell.utils.random import stochasticRound
 from wholecell.utils import units
-from itertools import izip
+
 
 class TfBinding(wholecell.processes.process.Process):
 	""" TfBinding """
@@ -52,7 +53,8 @@ class TfBinding(wholecell.processes.process.Process):
 		self.pPromoterBoundTF = sim_data.process.transcription_regulation.pPromoterBoundTF
 		self.tfToTfType = sim_data.process.transcription_regulation.tfToTfType
 
-		# Build views
+		# Build views with low request priority to requestAll
+		self.bulkMoleculesRequestPriorityIs(REQUEST_PRIORITY_TF_BINDING)
 		self.promoters = self.uniqueMoleculesView("promoter")
 		self.active_tf_view = {}
 		self.inactive_tf_view = {}
@@ -109,19 +111,20 @@ class TfBinding(wholecell.processes.process.Process):
 		n_bound_TF_per_TU = np.zeros((self.n_TU, self.n_TF), dtype=np.int16)
 
 		for tf_idx, tf_id in enumerate(self.tf_ids):
-			# Get counts of transcription factors
-			active_tf_counts = self.active_tf_view[tf_id].count()
+			# Free all DNA-bound transcription factors into free active
+			# transcription factors
+			active_tf_view = self.active_tf_view[tf_id]
 			bound_tf_counts = n_bound_TF[tf_idx]
+			active_tf_view.countInc(bound_tf_counts)
+
+			# Get counts of transcription factors
+			active_tf_counts = active_tf_view.total_counts()
+			n_available_active_tfs = active_tf_view.count()
 
 			# If there are no active transcription factors to work with,
 			# continue to the next transcription factor
-			if active_tf_counts + bound_tf_counts == 0:
+			if n_available_active_tfs == 0:
 				continue
-
-			# Free all DNA-bound transcription factors into free active
-			# transcription factors
-			self.active_tf_view[tf_id].countInc(bound_tf_counts)
-			active_tf_counts += bound_tf_counts
 
 			# Compute probability of binding the promoter
 			if self.tfToTfType[tf_id] == "0CS":
@@ -136,8 +139,9 @@ class TfBinding(wholecell.processes.process.Process):
 			n_available_promoters = np.count_nonzero(available_promoters)
 
 			# Calculate the number of promoters that should be bound
-			n_to_bind = int(stochasticRound(
-				self.randomState, n_available_promoters*pPromoterBound))
+			n_to_bind = int(min(stochasticRound(
+				self.randomState, n_available_promoters*pPromoterBound),
+				n_available_active_tfs))
 
 			bound_locs = np.zeros(n_available_promoters, dtype=np.bool)
 			if n_to_bind > 0:
@@ -148,12 +152,12 @@ class TfBinding(wholecell.processes.process.Process):
 				bound_locs[
 					self.randomState.choice(
 						n_available_promoters,
-						size=np.min((n_to_bind, self.active_tf_view[tf_id].count())),
+						size=n_to_bind,
 						replace=False)
 					] = True
 
 				# Update count of free transcription factors
-				self.active_tf_view[tf_id].countDec(bound_locs.sum())
+				active_tf_view.countDec(bound_locs.sum())
 
 				# Update bound_TF array
 				bound_TF_new[available_promoters, tf_idx] = bound_locs
