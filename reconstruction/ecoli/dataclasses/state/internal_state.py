@@ -315,6 +315,37 @@ class InternalState(object):
 			'promoter'
 			)
 
+		# Add chromosomal segments
+		# Chromosomal segments are segments of DNA that are topologically
+		# constrained, such that the changes in the linking number of the
+		# segment do not spread beyond its boundaries. For a relaxed DNA double
+		# helix, the linking number is proportional to the length of the
+		# chromosomal segment. Currently only active RNA polymerases and
+		# replisomes serve as segment boundaries. Its attributes are given as:
+		# - boundary_molecule_indexes (pair of 64-bit ints): Unique indexes
+		# of molecules at the boundaries of the chromosomal segment
+		# - boundary_coordinates (pair of 64-bit ints): Coordinates of the
+		# boundaries of the chromosomal segment
+		# - domain_index (32-bit int): Domain index of the chromosome domain
+		# that the segment belongs to.
+		# - linking_number (64-bit float): Linking number of the chromosomal
+		# segment.
+		chromosomal_segment_mass = (units.g / units.mol) * np.zeros_like(RNAP_mass)
+		chromosomal_segment_attributes = {
+			'boundary_molecule_indexes': ('i8', 2),
+			'boundary_coordinates': ('i8', 2),
+			'domain_index': 'i4',
+			'linking_number': 'f8',
+			}
+
+		self.uniqueMolecules.addToUniqueState('chromosomal_segment',
+			chromosomal_segment_attributes, chromosomal_segment_mass)
+
+		# Chromosomal segments are divided based on their domain index
+		sim_data.moleculeGroups.unique_molecules_domain_index_division.append(
+			'chromosomal_segment'
+			)
+
 		# Add DnaA boxes
 		# DnaA boxes are 9-base sequence motifs on the DNA that bind to the
 		# protein DnaA. Except for DnaA boxes close to the origin, these boxes
