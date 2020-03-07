@@ -135,7 +135,9 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
 			self._countsAllocatedInitial[:, process_indexes] = calculatePartition(
 				self._processPriorities[process_indexes],
 				counts_requested,
-				self.container._counts)
+				self.container._counts,
+				self.randomState,
+				)
 		else:
 			# No need to partition if there is only one process
 			self._countsAllocatedInitial[:, process_indexes[0]] = np.fmin(
@@ -253,8 +255,7 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
 			)
 
 
-def calculatePartition(processPriorities, countsRequested, counts):
-	# TODO: reduce the arrays to elements where counts != 0
+def calculatePartition(processPriorities, countsRequested, counts, random_state):
 	partitioned_counts = np.zeros_like(countsRequested)
 	counts = counts.copy()
 
@@ -263,25 +264,29 @@ def calculatePartition(processPriorities, countsRequested, counts):
 	for priorityLevel in priorityLevels:
 		processHasPriority = (priorityLevel == processPriorities)
 
-		requests = countsRequested[:, processHasPriority]
+		requests = countsRequested[:, processHasPriority].copy()
 
-		totalRequests = requests.sum(axis = 1)
-		totalRequestIsNonzero = (totalRequests > 0)
+		totalRequests = requests.sum(axis=1)
+		excess_request_mask = (totalRequests > counts)
 
-		fractionalRequests = np.zeros(requests.shape, np.float64)
-		fractionalRequests[totalRequestIsNonzero, :] = (
-			requests[totalRequestIsNonzero, :]
-			/ totalRequests[totalRequestIsNonzero, np.newaxis]
+		# Get fractional request for molecules that have excess request
+		# compared to available counts
+		fractional_requests = (
+			requests[excess_request_mask, :] * counts[excess_request_mask, np.newaxis]
+			/ totalRequests[excess_request_mask, np.newaxis]
 			)
 
-		allocations = np.fmin(
-			requests,
-			counts[:, np.newaxis] * fractionalRequests
-			).astype(np.int64)
+		# Distribute fractional counts to ensure full allocation of excess
+		# request molecules
+		remainders = fractional_requests % 1
+		for idx, remainder in enumerate(remainders):
+			count = int(np.round(remainder.sum()))
+			fractional_requests[idx, :] += random_state.multinomial(count, remainder)
+		requests[excess_request_mask, :] = fractional_requests
 
+		allocations = requests.astype(np.int64)
 		partitioned_counts[:, processHasPriority] = allocations
-
-		counts -= allocations.sum(axis = 1)
+		counts -= allocations.sum(axis=1)
 
 	return partitioned_counts
 

@@ -11,11 +11,10 @@ Test_BulkMolecules_partition.py
 from __future__ import division
 
 import unittest
-import cPickle
-import os
 
 import numpy as np
 import wholecell.states.bulk_molecules as wcBulkMolecules
+
 
 class Test_BulkMolecules_partition(unittest.TestCase):
 
@@ -36,8 +35,6 @@ class Test_BulkMolecules_partition(unittest.TestCase):
 		self.countsBulk = np.array([10.,2.,5.,7.,20.,3.,7.])
 		self.countsBulkPartitioned = np.zeros((7, 3), dtype = float)
 
-		self.countsBulkPartitioned = np.zeros((7, 3), dtype = float)
-
 	def tearDown(self):
 		pass
 
@@ -50,15 +47,17 @@ class Test_BulkMolecules_partition(unittest.TestCase):
 		# countsBulk = # speces x # compartments
 		# countsBulkPartitioned = # species x # compartments x # partitions
 
+		random_state = np.random.RandomState(0)
 		processPriorities = np.array([0, 0, 0])
 		countsBulkRequested = self.countsBulkRequested
 		countsBulk = self.countsBulk
 
-		countsBulkPartitioned = wcBulkMolecules.calculatePartition(processPriorities, countsBulkRequested, countsBulk)
+		countsBulkPartitioned = wcBulkMolecules.calculatePartition(
+			processPriorities, countsBulkRequested, countsBulk, random_state)
 
 		countsBulkPartitioned_test = np.zeros((7, 3), dtype = float)
 		countsBulkPartitioned_test[...,0] = np.array([1., 0., 0., 0., 0., 0., 0.]).T
-		countsBulkPartitioned_test[...,1] = np.array([1., 1., 2., 2., 0., 0., 0.]).T
+		countsBulkPartitioned_test[...,1] = np.array([2., 2., 2., 2., 0., 0., 0.]).T
 		countsBulkPartitioned_test[...,2] = np.array([7., 0., 3., 1., 2., 0., 2.]).T
 
 		self.assertEqual(countsBulkPartitioned.tolist(), countsBulkPartitioned_test.tolist())
@@ -67,14 +66,16 @@ class Test_BulkMolecules_partition(unittest.TestCase):
 		'''
 		Tests that relative allocation works with one higher priority partition.
 		'''
+		random_state = np.random.RandomState(0)
 		processPriorities = np.array([0, 10, 0])
 		countsBulkRequested = self.countsBulkRequested
 		countsBulk = self.countsBulk
 
-		countsBulkPartitioned = wcBulkMolecules.calculatePartition(processPriorities, countsBulkRequested, countsBulk)
+		countsBulkPartitioned = wcBulkMolecules.calculatePartition(
+			processPriorities, countsBulkRequested, countsBulk, random_state)
 
 		countsBulkPartitioned_test = np.zeros((7, 3), dtype = float)
-		countsBulkPartitioned_test[...,0] = np.array([0., 0., 0., 0., 0., 0., 0.]).T
+		countsBulkPartitioned_test[...,0] = np.array([1., 0., 0., 0., 0., 0., 0.]).T
 		countsBulkPartitioned_test[...,1] = np.array([5., 2., 2., 2., 0., 0., 0.]).T
 		countsBulkPartitioned_test[...,2] = np.array([4., 0., 3., 1., 2., 0., 2.]).T
 
@@ -84,15 +85,17 @@ class Test_BulkMolecules_partition(unittest.TestCase):
 		'''
 		Tests that if two partitions are of higher priority and conflict that partitioning still works.
 		'''
+		random_state = np.random.RandomState(0)
 		processPriorities = np.array([0, 10, 10])
 		countsBulkRequested = self.countsBulkRequested
 		countsBulk = self.countsBulk
 
-		countsBulkPartitioned = wcBulkMolecules.calculatePartition(processPriorities, countsBulkRequested, countsBulk)
+		countsBulkPartitioned = wcBulkMolecules.calculatePartition(
+			processPriorities, countsBulkRequested, countsBulk, random_state)
 
 		countsBulkPartitioned_test = np.zeros((7, 3), dtype = float)
 		countsBulkPartitioned_test[...,0] = np.array([0., 0., 0., 0., 0., 0., 0.]).T
-		countsBulkPartitioned_test[...,1] = np.array([2., 1., 2., 2., 0., 0., 0.]).T
+		countsBulkPartitioned_test[...,1] = np.array([2., 2., 2., 2., 0., 0., 0.]).T
 		countsBulkPartitioned_test[...,2] = np.array([8., 0., 3., 1., 2., 0., 2.]).T
 
 		self.assertEqual(countsBulkPartitioned.tolist(), countsBulkPartitioned_test.tolist())
