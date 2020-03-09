@@ -15,7 +15,6 @@ import numpy as np
 
 import wholecell.processes.process
 from wholecell.utils.polymerize import buildSequences
-from wholecell.listeners.listener import WriteMethod
 
 
 class ChromosomeStructure(wholecell.processes.process.Process):

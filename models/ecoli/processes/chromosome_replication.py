@@ -373,7 +373,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 				self.full_chromosomes.moleculesNew(
 					n_new_chromosomes,
 					division_time=[self.time() + self.D_period]*n_new_chromosomes,
-					has_induced_division=[False] * n_new_chromosomes,
+					has_triggered_division=[False] * n_new_chromosomes,
 					domain_index=domain_index_new_full_chroms)
 
 				# Reset domain index of existing chromosomes that have finished

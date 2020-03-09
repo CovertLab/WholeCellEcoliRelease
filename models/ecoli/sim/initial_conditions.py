@@ -313,7 +313,7 @@ def initializeFullChromosome(bulkMolCntr, uniqueMolCntr, sim_data):
 	uniqueMolCntr.objectsNew(
 		'full_chromosome', 1,
 		division_time=0.0,
-		has_induced_division=True,
+		has_triggered_division=True,
 		domain_index=0,
 		)
 

@@ -194,7 +194,7 @@ class InternalState(object):
 		# One full chromosome molecule is added when chromosome replication is
 		# complete, and sets cell division to happen after a length of time
 		# specified by the D period (if D_PERIOD_DIVISION is set to True).
-		# The 'has_induced_division' attribute is initially set to False, and
+		# The 'has_triggered_division' attribute is initially set to False, and
 		# is reset to True when division_time was reached and the cell has
 		# divided. The 'domain_index' keeps track of the index of the oldest
 		# chromosome domain that is part of the full chromosome.
@@ -202,7 +202,7 @@ class InternalState(object):
 			stateFunctions.createMassesByCompartments(raw_data.full_chromosome))
 		fullChromosomeAttributes = {
 			'division_time': 'f8',
-			'has_induced_division': '?',
+			'has_triggered_division': '?',
 			'domain_index': 'i4',
 			}
 
