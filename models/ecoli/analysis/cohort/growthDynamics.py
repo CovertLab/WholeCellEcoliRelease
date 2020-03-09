@@ -122,9 +122,9 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		ax0.xaxis.set_visible(False)
 		#ax0.axvline(x=44*2+22., linewidth=3, color='gray', alpha = 0.5)
 
-		current_timeline_id = sim_data.external_state.environment.current_timeline_id
+		current_timeline_id = sim_data.external_state.current_timeline_id
 		try:
-			T_ADD_AA = sim_data.external_state.environment.saved_timelines[current_timeline_id][1][0] / 60.
+			T_ADD_AA = sim_data.external_state.saved_timelines[current_timeline_id][1][0] / 60.
 		except Exception as e:
 			print "saved_timelines does not have correct dimensions for this analysis. Exiting.", e
 			return
@@ -268,8 +268,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		# ax0.xaxis.set_visible(False)
 		#ax0.axvline(x=44*2+22., linewidth=3, color='gray', alpha = 0.5)
 
-		current_timeline_id = sim_data.external_state.environment.current_timeline_id
-		T_ADD_AA = sim_data.external_state.environment.saved_timelines[current_timeline_id][1][0] / 60.
+		current_timeline_id = sim_data.external_state.current_timeline_id
+		T_ADD_AA = sim_data.external_state.saved_timelines[current_timeline_id][1][0] / 60.
 		axes_list = [ax3, ax4]
 		for a in axes_list:
 			shift_time = T_ADD_AA

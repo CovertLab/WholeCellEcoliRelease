@@ -35,7 +35,7 @@ class FBAResults(wholecell.listeners.listener.Listener):
 		self.objectiveValue = 0.0
 
 		# exchange with environment
-		self.all_external_exchange_molecules = sim_data.process.metabolism.boundary.all_external_exchange_molecules
+		self.all_external_exchange_molecules = sim_data.external_state.all_external_exchange_molecules
 
 	# Allocate memory
 	def allocate(self):

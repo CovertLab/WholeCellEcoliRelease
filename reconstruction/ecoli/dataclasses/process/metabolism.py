@@ -38,10 +38,6 @@ REVERSE_TAG = ' (reverse)'
 REVERSE_REACTION_ID = '{{}}{}'.format(REVERSE_TAG)
 ENZYME_REACTION_ID = '{}__{}'
 
-# threshold (units.mmol / units.L) separates concentrations that are import constrained with
-# max flux = 0 from unconstrained molecules.
-IMPORT_CONSTRAINT_THRESHOLD =  1e-5
-
 VERBOSE = False
 
 
@@ -57,8 +53,6 @@ class Metabolism(object):
 			self.kinetic_objective_weight = sim_data.constants.metabolismKineticObjectiveWeightQuadratic
 		self.kinetic_objective_weight_in_range = sim_data.constants.metabolism_kinetic_objective_weight_in_range
 		self.secretion_penalty_coeff = sim_data.constants.secretion_penalty_coeff
-
-		self.boundary = Boundary(raw_data, sim_data)
 
 		# make a list of transport reactions
 		transport_reactions_raw = raw_data.transport_reactions
@@ -197,7 +191,7 @@ class Metabolism(object):
 			METABOLITE_CONCENTRATION_UNITS * np.array(metaboliteConcentrations)
 			)),
 			raw_data.equilibriumReactions,
-			self.boundary.exchange_data_dict,
+			sim_data.external_state.exchange_dict,
 		)
 		self.concDict = self.concentrationUpdates.concentrationsBasedOnNutrients("minimal")
 		self.nutrientsToInternalConc = {}
@@ -1181,16 +1175,8 @@ class ConcentrationUpdates(object):
 		"""
 
 		exchange_fluxes = {}
-
-		all_unconstrained = exchange_data['importUnconstrainedExchangeMolecules']
-		all_constrained = exchange_data['importConstrainedExchangeMolecules']
-
-		for media in all_unconstrained:
-			fluxes = set(all_unconstrained[media])
-			fluxes.update([molecule
-				for molecule, conc in all_constrained[media].items()
-				if conc.asNumber() > 0])
-			exchange_fluxes[media] = fluxes
+		for media, env in exchange_data.items():
+			exchange_fluxes[media] = {mol for mol, conc in env.items() if conc > 0}
 
 		return exchange_fluxes
 
@@ -1209,199 +1195,3 @@ class ConcentrationUpdates(object):
 		for moleculeName, scaleFactor in self.moleculeScaleFactors.iteritems():
 			moleculeSetAmounts[moleculeName] = scaleFactor * concDict[moleculeName] * self.units
 		return moleculeSetAmounts
-
-
-class Boundary(object):
-	'''
-	Boundary provides an interface between metabolism and the environment.
-	This class builds exchange_data_dict, with keys for the five categories
-	of external molecules that set up the FBA problem space (see _getExchangeDataDict for a description).
-	'''
-	def __init__(self, raw_data, sim_data):
-
-		self.import_constraint_threshold = IMPORT_CONSTRAINT_THRESHOLD
-		self.env_to_exchange_map = sim_data.external_state.environment.env_to_exchange_map
-
-		self.all_external_exchange_molecules = self._getAllExternalExchangeMolecules(raw_data)
-		self.secretion_exchange_molecules = self._getSecretionExchangeMolecules(raw_data)
-		self.exchange_data_dict = self._getExchangeDataDict(sim_data)
-
-	def _getAllExternalExchangeMolecules(self, raw_data):
-		'''
-		Returns:
-			list[str]: all external exchange molecules
-		'''
-		externalExchangeData = []
-		# initiate all molecules with 0 concentrations
-		for row in raw_data.condition.environment_molecules:
-			externalExchangeData.append(row["molecule id"] + row["exchange molecule location"])
-
-		return externalExchangeData
-
-	def _getSecretionExchangeMolecules(self, raw_data):
-		'''
-		Returns:
-			set[str]: all secretion exchange molecules
-		'''
-		secretionExchangeMolecules = []
-		for secretion in raw_data.secretions:
-			if secretion["lower bound"] and secretion["upper bound"]:
-				# "non-growth associated maintenance", not included in our metabolic model
-				continue
-			else:
-				secretionExchangeMolecules.append(secretion["molecule id"])
-
-		return set(secretionExchangeMolecules)
-
-	def _getExchangeDataDict(self, sim_data):
-		'''
-		Returns:
-			dict[str, Any]: keys are the five exchange_data variables with the following keys:
-				externalExchangeMolecules (dict[str, set[str]]): for each media ID key,
-					all exchange molecules (with location tag), includes both import
-					and secretion exchanged molecules
-				importExchangeMolecules (dict[str, set[str]]): for each media ID key,
-					molecules (with location tag) that can be imported from the
-					environment into the cell
-				importConstrainedExchangeMolecules (dict[str, dict[str, float with mol/mass/time units]]):
-					for each media ID key, constrained molecules (with location tag)
-					with upper bound flux constraints
-				importUnconstrainedExchangeMolecules (dict[str, set[str]]): for each media ID key,
-					exchange molecules (with location tag) that do not have an upper bound on their flux
-				secretionExchangeMolecules (set[str]): molecules (with location tag)
-					that can be secreted by the cell into the environment
-		'''
-
-		saved_media = sim_data.external_state.environment.saved_media
-
-		externalExchangeMolecules = {}
-		importExchangeMolecules = {}
-		importConstrainedExchangeMolecules = {}
-		importUnconstrainedExchangeMolecules = {}
-		secretionExchangeMolecules = self.secretion_exchange_molecules
-
-		for environment_name, molecules in saved_media.iteritems():
-			exchange_data = self.exchangeDataFromConcentrations(molecules)
-
-			externalExchangeMolecules[environment_name] = exchange_data['externalExchangeMolecules']
-			importExchangeMolecules[environment_name] = exchange_data['importExchangeMolecules']
-			importConstrainedExchangeMolecules[environment_name] = exchange_data['importConstrainedExchangeMolecules']
-			importUnconstrainedExchangeMolecules[environment_name] = exchange_data['importUnconstrainedExchangeMolecules']
-
-		return {
-			"externalExchangeMolecules": externalExchangeMolecules,
-			"importExchangeMolecules": importExchangeMolecules,
-			"importConstrainedExchangeMolecules": importConstrainedExchangeMolecules,
-			"importUnconstrainedExchangeMolecules": importUnconstrainedExchangeMolecules,
-			"secretionExchangeMolecules": secretionExchangeMolecules,
-		}
-
-	def exchangeDataFromConcentrations(self, molecules):
-		# type: (Dict[str, float]) -> Dict[str, Any]
-		'''
-		Update importExchangeMolecules for FBA based on current nutrient concentrations.
-		This provides a simple type of transport to accommodate changing nutrient
-		concentrations in the environment. Transport is modeled as a binary switch:
-		When there is a high concentrations of environment nutrients, transporters
-		are unconstrained and nutrients are transported as needed by metabolism.
-		When concentrations fall below the threshold, that nutrient's transport
-		is constrained to max flux of 0.
-
-		Args:
-			molecules: external molecules (no location tag) with external concentration,
-				concentration can be inf
-
-		Returns dict with the following keys:
-			externalExchangeMolecules (set[str]): all exchange molecules (with
-				location tag), includes both import and secretion exchanged molecules
-			importExchangeMolecules (set[str]): molecules (with location tag) that
-				can be imported from the environment into the cell
-			importConstrainedExchangeMolecules (dict[str, float with mol/mass/time units]):
-				constrained molecules (with location tag) with upper bound flux constraints
-			importUnconstrainedExchangeMolecules (set[str]): exchange molecules
-				(with location tag) that do not have an upper bound on their flux
-			secretionExchangeMolecules (set[str]): molecules (with location tag)
-				that can be secreted by the cell into the environment
-		'''
-
-		externalExchangeMolecules = set()
-		importExchangeMolecules = set()
-		secretionExchangeMolecules = self.secretion_exchange_molecules
-
-		glc_id = 'GLC[p]'
-		oxygen_id = 'OXYGEN-MOLECULE[p]'
-
-		exchange_molecules = {self.env_to_exchange_map[mol]: conc for mol, conc in molecules.iteritems()}
-
-		# Unconstrained uptake if greater than import threshold
-		importUnconstrainedExchangeMolecules = {molecule_id
-			for molecule_id, concentration in exchange_molecules.items()
-			if concentration >= self.import_constraint_threshold}
-		importExchangeMolecules.update(importUnconstrainedExchangeMolecules)
-		externalExchangeMolecules.update(importUnconstrainedExchangeMolecules)
-
-		# Constrain molecules below import threshold at 0
-		importConstrainedExchangeMolecules = {molecule_id: 0. * (units.mmol / units.g / units.h)
-			for molecule_id, concentration in exchange_molecules.items()
-			if concentration < self.import_constraint_threshold}
-
-		# Limit glucose uptake if present depending on the presence of oxygen
-		if glc_id in importUnconstrainedExchangeMolecules:
-			if oxygen_id in importUnconstrainedExchangeMolecules:
-				importConstrainedExchangeMolecules[glc_id] = 20. * (units.mmol / units.g / units.h)
-			else:
-				importConstrainedExchangeMolecules[glc_id] = 100. * (units.mmol / units.g / units.h)
-			importUnconstrainedExchangeMolecules.remove(glc_id)
-
-		externalExchangeMolecules.update(secretionExchangeMolecules)
-
-		return {
-			"externalExchangeMolecules": externalExchangeMolecules,
-			"importExchangeMolecules": importExchangeMolecules,
-			"importConstrainedExchangeMolecules": importConstrainedExchangeMolecules,
-			"importUnconstrainedExchangeMolecules": importUnconstrainedExchangeMolecules,
-			"secretionExchangeMolecules": secretionExchangeMolecules,
-		}
-
-	def exchangeDataFromMedia(self, media_label):
-		'''
-		Returns:
-			dict: exchange_data for a media_label saved in exchange_data_dict.
-		'''
-
-		externalExchangeMolecules = self.exchange_data_dict['externalExchangeMolecules'][media_label]
-		importExchangeMolecules = self.exchange_data_dict['importExchangeMolecules'][media_label]
-		importConstrainedExchangeMolecules = self.exchange_data_dict['importConstrainedExchangeMolecules'][media_label]
-		importUnconstrainedExchangeMolecules = self.exchange_data_dict['importUnconstrainedExchangeMolecules'][media_label]
-		secretionExchangeMolecules = self.exchange_data_dict['secretionExchangeMolecules']
-
-		return {
-			"externalExchangeMolecules": externalExchangeMolecules,
-			"importExchangeMolecules": importExchangeMolecules,
-			"importConstrainedExchangeMolecules": importConstrainedExchangeMolecules,
-			"importUnconstrainedExchangeMolecules": importUnconstrainedExchangeMolecules,
-			"secretionExchangeMolecules": secretionExchangeMolecules,
-		}
-
-	def getImportConstraints(self, exchange_data):
-		'''
-		Returns:
-			import_constraint (list[bool]): the indices of all importConstrainedExchangeMolecules
-				in self.all_external_exchange_molecules are true, the rest as false.
-			import_exchange (list[bool]): the indices of all importExchangeMolecules
-				in self.all_external_exchange_molecules are true, the rest as false.
-		'''
-
-		# molecules from all_external_exchange_molecules set to 'true' if they are current importExchangeMolecules.
-		import_exchange = [
-			molecule_id in exchange_data['importExchangeMolecules']
-			for molecule_id in self.all_external_exchange_molecules
-			]
-
-		# molecules from all_external_exchange_molecules set to 'true' if they are current importConstrainedExchangeMolecules.
-		import_constraint = [
-			molecule_id in exchange_data['importConstrainedExchangeMolecules']
-			for molecule_id in self.all_external_exchange_molecules
-			]
-
-		return import_exchange, import_constraint

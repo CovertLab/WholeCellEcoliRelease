@@ -18,21 +18,20 @@ External state that represents environmental molecules and conditions.
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
-import wholecell.states.external_state
-import wholecell.views.view
-
-from wholecell.utils import units
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
+import wholecell.states.external_state
+from wholecell.utils import units
 
 
 COUNTS_UNITS = units.mmol
 VOLUME_UNITS = units.L
 
 ASSERT_POSITIVE_CONCENTRATIONS = True
+
 
 class NegativeConcentrationError(Exception):
 	pass
@@ -42,54 +41,52 @@ class LocalEnvironment(wholecell.states.external_state.ExternalState):
 	_name = 'Environment'
 
 	def __init__(self, *args, **kwargs):
+		super(LocalEnvironment, self).__init__(*args, **kwargs)
+
 		self.container = None
 		self._moleculeIDs = None
-		self._concentrations = None
-
 		self._env_delta_counts = None
-
-		super(LocalEnvironment, self).__init__(*args, **kwargs)
 
 	def initialize(self, sim, sim_data, timeline):
 		super(LocalEnvironment, self).initialize(sim, sim_data, timeline)
 
-		self._processIDs = sim.processes.keys()
-
 		# load target transport reactions from compartment
 		boundary_reactions = sim._boundary_reactions
 		self.transport_fluxes = {reaction: 0.0 for reaction in boundary_reactions}
-
-		# load constants
-		self._nAvogadro = sim_data.constants.nAvogadro
 
 		# make media object
 		make_media = sim_data.external_state.make_media
 
 		# if current_timeline_id is specified by a variant in sim_data, look it up in saved_timelines.
 		# else, construct the timeline given to initialize
-		if sim_data.external_state.environment.current_timeline_id:
-			self.current_timeline = sim_data.external_state.environment.saved_timelines[
-				sim_data.external_state.environment.current_timeline_id]
+		if sim_data.external_state.current_timeline_id:
+			self.current_timeline = sim_data.external_state.saved_timelines[
+				sim_data.external_state.current_timeline_id]
 		else:
 			self.current_timeline = make_media.make_timeline(timeline)
 
-		self.saved_media = sim_data.external_state.environment.saved_media
+		self.saved_media = sim_data.external_state.saved_media
 		self.current_media_id = self.current_timeline[0][1]
 		current_media = self.saved_media[self.current_media_id]
 		self._times = [t[0] for t in self.current_timeline]
 
 		# initialize molecule IDs and concentrations based on initial environment
 		self._moleculeIDs = [molecule_id for molecule_id, concentration in current_media.iteritems()]
-		self._concentrations = np.array([current_media[molecule_id] for molecule_id in self._moleculeIDs])
+		concentrations = np.array([current_media[molecule_id] for molecule_id in self._moleculeIDs])
 		self._env_delta_counts = dict((molecule_id, 0) for molecule_id in self._moleculeIDs)
 
 		# create bulk container for molecule concentrations. This uses concentrations instead of counts.
 		self.container = BulkObjectsContainer(self._moleculeIDs, dtype=np.float64)
-		self.container.countsIs(self._concentrations)
+		self.container.countsIs(concentrations)
 
 		# set the maximum length for a media_id saved to the listener, this is used for padding
 		self._media_id_max_length = 25
 
+		# Setup for exchange to environment
+		self._get_import_constraints = sim_data.external_state.get_import_constraints
+		self._exchange_data_from_concentrations = sim_data.external_state.exchange_data_from_concentrations
+		self.exchange_to_env_map = sim_data.external_state.exchange_to_env_map
+		self.import_constraint_threshold = sim_data.external_state.import_constraint_threshold
 
 	def update(self):
 		'''update self.current_media_id based on self.current_timeline and self.time'''
@@ -99,23 +96,22 @@ class LocalEnvironment(wholecell.states.external_state.ExternalState):
 		if self.current_media_id != self.current_timeline[current_index][1]:
 			self.current_media_id = self.current_timeline[current_index][1]
 			current_media = self.saved_media[self.current_media_id]
-			self._concentrations = np.array([current_media[molecule_id] for molecule_id in self._moleculeIDs])
-			self.container.countsIs(self._concentrations)
+			concentrations = np.array([current_media[molecule_id] for molecule_id in self._moleculeIDs])
+			self.container.countsIs(concentrations)
 			print('update media: {}'.format(self.current_media_id))
 
-		if ASSERT_POSITIVE_CONCENTRATIONS and (self._concentrations < 0).any():
+		if ASSERT_POSITIVE_CONCENTRATIONS and (self.container.counts() < 0).any():
 			raise NegativeConcentrationError(
-					"Negative environment concentration(s) in self._concentrations:\n"
-					+ "\n".join("{}".format(self._moleculeIDs[molIndex])
-					for molIndex in np.where(self._concentrations < 0)[0]))
+				"Negative environment concentration(s):\n"
+				+ "\n".join("{}".format(self._moleculeIDs[molIndex])
+				for molIndex in np.where(self.container.counts() < 0)[0]))
 
 	## Functions for multi-scaling interface
 	def set_local_environment(self, update):
 		# apply environment's concentrations
-		concentrations = update['concentrations']
 		self._env_delta_counts = dict.fromkeys(self._env_delta_counts, 0)
-		for idx, molecule_id in enumerate(self._moleculeIDs):
-			self._concentrations[idx] = concentrations[molecule_id]
+		concentrations = np.array([update['concentrations'][molecule_id] for molecule_id in self._moleculeIDs])
+		self.container.countsIs(concentrations)
 
 		# media_id passed from external overwrites the default timeline
 		# TODO (eran) -- fix this so that the current_timeline does not need to be re-written
@@ -129,8 +125,30 @@ class LocalEnvironment(wholecell.states.external_state.ExternalState):
 		return self._env_delta_counts
 
 	def accumulate_deltas(self, molecule_ids, counts):
+		# TODO: use _env_delta_counts to update?
 		for molecule_id, count in zip(molecule_ids, counts):
 			self._env_delta_counts[molecule_id] += count
+
+	def get_exchange_data(self):
+		current_concentrations = dict(zip(self._moleculeIDs, self.container.counts()))
+		return self._exchange_data_from_concentrations(current_concentrations)
+
+	def get_import_constraints(self, exchange_data):
+		return self._get_import_constraints(exchange_data)
+
+	def molecule_exchange(self, exchange_molecules, counts):
+		'''
+		Convert exchange molecules to environmental molecules using mapping
+		and updates deltas in the environment.
+
+		Args:
+			exchange_molecules (tuple[str]): internal molecule ID that exchanges
+				with the environment
+			counts (np.ndarray[int]): change in counts for all exchange molecules
+		'''
+
+		molecule_ids = [self.exchange_to_env_map[m] for m in exchange_molecules]
+		self.accumulate_deltas(molecule_ids, counts)
 
 	def tableCreate(self, tableWriter):
 		self.container.tableCreate(tableWriter)
@@ -141,10 +159,11 @@ class LocalEnvironment(wholecell.states.external_state.ExternalState):
 	def tableAppend(self, tableWriter):
 		tableWriter.append(
 			media_id = self.current_media_id.ljust(self._media_id_max_length),
-			media_concentrations = self._concentrations,
+			media_concentrations = self.container.counts(),
 			)
 
-class EnvironmentViewBase(object):
+
+class EnvironmentView(object):
 	_stateID = 'Environment'
 
 	def __init__(self, state, process, query): # weight, priority, coupling id, option to not evaluate the query
@@ -153,45 +172,15 @@ class EnvironmentViewBase(object):
 		self._processId = process.name()
 		self._processIndex = process._processIndex
 		self._query = query
-		self._concentrations = np.zeros(self._dataSize(), np.float64) # number of objects that satisfy the query
 
-
-	# Interface to State
-	def _updateQuery(self):
-		self._totalIs(self._state.container._counts[self._containerIndexes])
-
-
-	def _totalIs(self, value):
-		self._concentrations[:] = value
-
-
-	def _countsInc(self, counts):
-		return
-
-
-	# Interface to Process
-	def _totalConcentrations(self):
-		return np.array(self._state._concentrations)[self._containerIndexes].copy()
-
-
-
-class EnvironmentView(EnvironmentViewBase):
-	def __init__(self, *args, **kwargs):
-		super(EnvironmentView, self).__init__(*args, **kwargs)
-
-		# State references
 		assert len(set(self._query)) == len(self._query), "Environment views cannot contain duplicate entries"
 		self._containerIndexes = self._state.container._namesToIndexes(self._query)
-
 
 	def _dataSize(self):
 		return len(self._query)
 
-
 	def totalConcentrations(self):
-		return self._totalConcentrations()
+		return self._state.container.counts()[self._containerIndexes]
 
-
-	def countsInc(self, molecule_ids, counts):
-		self._state.accumulate_deltas(molecule_ids, counts)
-		return
+	def import_present(self):
+		return self.totalConcentrations() > self._state.import_constraint_threshold

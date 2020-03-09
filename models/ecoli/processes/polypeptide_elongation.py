@@ -41,7 +41,6 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		constants = sim_data.constants
 		translation = sim_data.process.translation
 		transcription = sim_data.process.transcription
-		metabolism = sim_data.process.metabolism
 
 		self.max_time_step = translation.max_time_step
 
@@ -59,7 +58,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 
 		# Amino acid supply calculations
 		self.translation_aa_supply = sim_data.translationSupplyRate
-		self.import_threshold = metabolism.boundary.import_constraint_threshold
+		self.import_threshold = sim_data.external_state.import_constraint_threshold
 
 		# Used for figure in publication
 		self.trpAIndex = np.where(proteinIds == "TRYPSYN-APROTEIN[c]")[0][0]
@@ -401,7 +400,6 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		# Amino acid supply calculations
 		self.aa_supply_scaling = metabolism.aa_supply_scaling
 		self.aa_environment = self.process.environmentView([aa[:-3] for aa in self.aaNames])
-		self.import_threshold = metabolism.boundary.import_constraint_threshold
 
 	def request(self, aasInSequences):
 		# Conversion from counts to molarity
@@ -454,8 +452,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		# Adjust aa_supply higher if amino acid concentrations are low
 		# Improves stability of charging and mimics amino acid synthesis
 		# inhibition and export
-		# TODO (Travis): environmentView should probably handle this check
-		aa_in_media = self.aa_environment.totalConcentrations() > self.process.import_threshold
+		aa_in_media = self.aa_environment.import_present()
 		# TODO (Travis): add to listener?
 		self.process.aa_supply *= self.aa_supply_scaling(aa_conc, aa_in_media)
 

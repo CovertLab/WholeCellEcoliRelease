@@ -3,7 +3,7 @@ Timelines variant for simulations with changing media at certain times
 
 Modifies:
 	sim_data.condition
-	sim_data.external_state.environment.current_timeline_id
+	sim_data.external_state.current_timeline_id
 
 Expected variant indices (dependent on sorted order from reconstruction/ecoli/flat/condition/timelines_def.tsv):
 	0-26
@@ -13,10 +13,10 @@ from __future__ import absolute_import, division, print_function
 
 
 def timelines(sim_data, index):
-	saved_timelines = sim_data.external_state.environment.saved_timelines
+	saved_timelines = sim_data.external_state.saved_timelines
 	timeline_ids = sorted(saved_timelines)
 	current_timeline_id = timeline_ids[index]
-	sim_data.external_state.environment.current_timeline_id = current_timeline_id
+	sim_data.external_state.current_timeline_id = current_timeline_id
 
 	# Get possible condition from starting nutrients for proper initialization
 	# Not guaranteed to map to any condition or could map to multiple conditions
