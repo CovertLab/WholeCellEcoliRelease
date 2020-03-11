@@ -59,6 +59,7 @@ class Metabolism(wholecell.processes.process.Process):
 		self.nAvogadro = constants.nAvogadro
 		self.cellDensity = constants.cellDensity
 		self.ngam = constants.nonGrowthAssociatedMaintenance
+		energyCostPerWetMass = constants.darkATP * mass.cellDryMassFraction
 
 		self.exchangeConstraints = metabolism.exchangeConstraints
 
@@ -78,33 +79,34 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# go through all media in the timeline and add to metaboliteNames
 		self.metaboliteNamesFromNutrients = set()
+		exchange_molecules = set()
 		if self.include_ppgpp:
 			self.metaboliteNamesFromNutrients.add(self.ppgpp_id)
 		for time, media_id in environment.current_timeline:
 			self.metaboliteNamesFromNutrients.update(
 				metabolism.concentrationUpdates.concentrationsBasedOnNutrients(media_id)
 				)
-		self.metaboliteNamesFromNutrients = sorted(self.metaboliteNamesFromNutrients)
+			exchanges = sim_data.external_state.exchange_data_from_media(media_id)
+			exchange_molecules.update(exchanges['externalExchangeMolecules'])
+		self.metaboliteNamesFromNutrients = list(sorted(self.metaboliteNamesFromNutrients))
+		exchange_molecules = list(sorted(exchange_molecules))
+		moleculeMasses = dict(zip(exchange_molecules,
+			sim_data.getter.getMass(exchange_molecules).asNumber(MASS_UNITS / COUNTS_UNITS)))
 
 		concDict = metabolism.concentrationUpdates.concentrationsBasedOnNutrients(
 			environment.current_media_id
 			)
 		doubling_time = sim_data.conditionToDoublingTime[sim_data.condition]
-		self.concModificationsBasedOnCondition = self.getBiomassAsConcentrations(
+		concModificationsBasedOnCondition = self.getBiomassAsConcentrations(
 			doubling_time
 			)
-		concDict.update(self.concModificationsBasedOnCondition)
+		concDict.update(concModificationsBasedOnCondition)
 
 		if self.include_ppgpp:
 			concDict[self.ppgpp_id] = self.getppGppConc(doubling_time)
 
 		self.homeostaticObjective = dict((key, concDict[key].asNumber(CONC_UNITS)) for key in concDict)
 
-		# Load initial mass
-		energyCostPerWetMass = constants.darkATP * mass.cellDryMassFraction
-		exchange_molecules = list(sorted(environment.get_exchange_data()['externalExchangeMolecules']))
-		moleculeMasses = dict(zip(exchange_molecules,
-			sim_data.getter.getMass(exchange_molecules).asNumber(MASS_UNITS / COUNTS_UNITS)))
 
 		# Data structures to compute reaction bounds based on enzyme presence/absence
 		self.catalyst_ids = metabolism.catalyst_ids
@@ -182,9 +184,6 @@ class Metabolism(wholecell.processes.process.Process):
 			else:
 				self.burnInComplete = True
 
-		# External molecules
-		self.externalMoleculeIDs = self.fba.getExternalMoleculeIDs()
-
 		## Construct views
 		# views on metabolism bulk molecules
 		self.metaboliteNames = self.fba.getOutputMoleculeIDs()
@@ -241,21 +240,22 @@ class Metabolism(wholecell.processes.process.Process):
 		assert set(environment.transport_fluxes.keys()).issubset(self.all_constrained_reactions)
 
 		doubling_time = self.nutrientToDoublingTime.get(current_media_id, self.nutrientToDoublingTime["minimal"])
-		self.concModificationsBasedOnCondition = self.getBiomassAsConcentrations(doubling_time)
+		concModificationsBasedOnCondition = self.getBiomassAsConcentrations(doubling_time)
 
 		if self.use_trna_charging:
-			self.concModificationsBasedOnCondition.update(self.update_amino_acid_targets(countsToMolar))
+			concModificationsBasedOnCondition.update(self.update_amino_acid_targets(countsToMolar))
 		if self.include_ppgpp:
-			self.concModificationsBasedOnCondition[self.ppgpp_id] = self.getppGppConc(doubling_time)
+			concModificationsBasedOnCondition[self.ppgpp_id] = self.getppGppConc(doubling_time)
 
 		# Set external molecule levels
+		external_exchange_molecule_ids = self.fba.getExternalMoleculeIDs()
 		externalMoleculeLevels, newObjective = self.exchangeConstraints(
-			self.externalMoleculeIDs,
+			external_exchange_molecule_ids,
 			coefficient,
 			CONC_UNITS,
 			current_media_id,
 			exchange_data,
-			self.concModificationsBasedOnCondition,
+			concModificationsBasedOnCondition,
 			)
 
 		if newObjective != None and newObjective != self.homeostaticObjective:
@@ -355,7 +355,6 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# update environmental nutrient counts
 		delta_nutrients = ((1 / countsToMolar) * exchange_fluxes).asNumber().astype(int)
-		external_exchange_molecule_ids = self.fba.getExternalMoleculeIDs()
 		environment.molecule_exchange(external_exchange_molecule_ids, delta_nutrients)
 
 		import_exchange, import_constraint = environment.get_import_constraints(exchange_data)
@@ -384,11 +383,12 @@ class Metabolism(wholecell.processes.process.Process):
 
 	# limit amino acid uptake to what is needed to meet concentration objective to prevent use as carbon source
 	def _setExternalMoleculeLevels(self, externalMoleculeLevels, metaboliteConcentrations):
+		external_exchange_molecule_ids = self.fba.getExternalMoleculeIDs()
 		for aa in self.aa_names_no_location:
-			if aa + "[p]" in self.fba.getExternalMoleculeIDs():
-				idx = self.externalMoleculeIDs.index(aa + "[p]")
-			elif aa + "[c]" in self.fba.getExternalMoleculeIDs():
-				idx = self.externalMoleculeIDs.index(aa + "[c]")
+			if aa + "[p]" in external_exchange_molecule_ids:
+				idx = external_exchange_molecule_ids.index(aa + "[p]")
+			elif aa + "[c]" in external_exchange_molecule_ids:
+				idx = external_exchange_molecule_ids.index(aa + "[c]")
 			else:
 				continue
 
