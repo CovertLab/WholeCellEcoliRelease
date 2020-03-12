@@ -306,7 +306,6 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		terminal_lengths = self.replichore_lengths[
 			np.logical_not(right_replichore).astype(np.int64)]
 		terminated_replisomes = (np.abs(updated_coordinates) == terminal_lengths)
-		import ipdb; ipdb.set_trace()
 
 		# If any forks were terminated,
 		if terminated_replisomes.sum() > 0:

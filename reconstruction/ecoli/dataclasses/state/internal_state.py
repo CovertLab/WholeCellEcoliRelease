@@ -341,10 +341,11 @@ class InternalState(object):
 		self.uniqueMolecules.addToUniqueState('chromosomal_segment',
 			chromosomal_segment_attributes, chromosomal_segment_mass)
 
-		# Chromosomal segments are divided based on their domain index
-		sim_data.moleculeGroups.unique_molecules_domain_index_division.append(
-			'chromosomal_segment'
-			)
+		# Chromosomal segments are divided based on their domain indexes, but
+		# division occurs after all chromosome-bound molecules are divided to
+		# properly reset the boundary_molecule_indexes attribute
+		sim_data.moleculeGroups.unique_molecules_chromosomal_segment_division.append(
+			'chromosomal_segment')
 
 		# Add DnaA boxes
 		# DnaA boxes are 9-base sequence motifs on the DNA that bind to the

@@ -23,3 +23,6 @@ class ChromosomeStructure(object):
 		"""
 		for parameter in raw_data.dna_supercoiling:
 			self.__setattr__(parameter['name'], parameter['value'])
+
+		# Unique index used for dummy molecule at terC
+		self.terC_dummy_molecule_index = -1

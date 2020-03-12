@@ -33,6 +33,7 @@ class SimulationTask(FiretaskBase):
 		"translation_supply",
 		"trna_charging",
 		"ppgpp_regulation",
+		"superhelical_density",
 		"raise_on_time_limit"]
 
 	def _get_default(self, key, default_key=''):
@@ -70,6 +71,7 @@ class SimulationTask(FiretaskBase):
 		options["variable_elongation_translation"] = self._get_default("variable_elongation_translation")
 		options["trna_charging"] = self._get_default("trna_charging")
 		options["ppgpp_regulation"] = self._get_default("ppgpp_regulation")
+		options["superhelical_density"] = self._get_default("superhelical_density")
 		options["raise_on_time_limit"] = self._get_default("raise_on_time_limit")
 
 		sim = EcoliSimulation(**options)

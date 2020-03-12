@@ -86,6 +86,8 @@ Modeling options:
 		present.  This option will override TRANSLATION_SUPPLY in the simulation.
 	PPGPP_REGULATION (int, "0"): if nonzero, ppGpp concentration is determined
 		with kinetic equations
+	SUPERHELICAL_DENSITY (int, "0"): if nonzero, dynamically compute
+		superhelical densities of each DNA fragment
 
 Additional variables:
 	LAUNCHPAD_FILE (str, "my_launchpad.yaml"): set launchpad config file location
@@ -249,6 +251,7 @@ D_PERIOD_DIVISION = bool(int(get_environment("D_PERIOD_DIVISION", DEFAULT_SIMULA
 TRANSLATION_SUPPLY = bool(int(get_environment("TRANSLATION_SUPPLY", DEFAULT_SIMULATION_KWARGS["translationSupply"])))
 TRNA_CHARGING = bool(int(get_environment("TRNA_CHARGING", DEFAULT_SIMULATION_KWARGS["trna_charging"])))
 PPGPP_REGULATION = bool(int(get_environment("PPGPP_REGULATION", DEFAULT_SIMULATION_KWARGS["ppgpp_regulation"])))
+SUPERHELICAL_DENSITY = bool(int(get_environment("SUPERHELICAL_DENSITY", DEFAULT_SIMULATION_KWARGS["superhelical_density"])))
 RAISE_ON_TIME_LIMIT = bool(int(get_environment("RAISE_ON_TIME_LIMIT", DEFAULT_SIMULATION_KWARGS["raise_on_time_limit"])))
 N_INIT_SIMS = int(get_environment("N_INIT_SIMS", "1"))
 SEED = int(get_environment("SEED", "0"))
@@ -336,6 +339,7 @@ metadata = {
 	"translation_supply": TRANSLATION_SUPPLY,
 	"trna_charging": TRNA_CHARGING,
 	"ppgpp_regulation": PPGPP_REGULATION,
+	"superhelical_density": SUPERHELICAL_DENSITY,
 	}
 
 metadata_path = os.path.join(METADATA_DIRECTORY, constants.JSON_METADATA_FILE)
@@ -690,6 +694,7 @@ for i in VARIANTS_TO_RUN:
 							translation_supply = TRANSLATION_SUPPLY,
 							trna_charging = TRNA_CHARGING,
 							ppgpp_regulation = PPGPP_REGULATION,
+							superhelical_density = SUPERHELICAL_DENSITY,
 							raise_on_time_limit = RAISE_ON_TIME_LIMIT,
 							),
 						name = fw_name,
@@ -720,6 +725,7 @@ for i in VARIANTS_TO_RUN:
 							translation_supply = TRANSLATION_SUPPLY,
 							trna_charging = TRNA_CHARGING,
 							ppgpp_regulation = PPGPP_REGULATION,
+							superhelical_density = SUPERHELICAL_DENSITY,
 							raise_on_time_limit = RAISE_ON_TIME_LIMIT,
 							),
 						name = fw_name,
