@@ -45,25 +45,32 @@ class Metabolism(object):
 	""" Metabolism """
 
 	def __init__(self, raw_data, sim_data):
-		# set solver and kinetic objective weight
-		self.solver = "glpk-linear"
-		if "linear" in self.solver:
-			self.kinetic_objective_weight = sim_data.constants.metabolismKineticObjectiveWeightLinear
-		else:
-			self.kinetic_objective_weight = sim_data.constants.metabolismKineticObjectiveWeightQuadratic
-		self.kinetic_objective_weight_in_range = sim_data.constants.metabolism_kinetic_objective_weight_in_range
-		self.secretion_penalty_coeff = sim_data.constants.secretion_penalty_coeff
-
-		# make a list of transport reactions
-		transport_reactions_raw = raw_data.transport_reactions
-		self.transport_reactions = []
-		for transport_reaction in transport_reactions_raw:
-			reaction_id = transport_reaction.get('reaction id')
-			self.transport_reactions.append(reaction_id)
-
+		self._set_solver_values(sim_data.constants)
 		self._buildBiomass(raw_data, sim_data)
 		self._buildMetabolism(raw_data, sim_data)
 		self._build_ppgpp_reactions(raw_data, sim_data)
+		self._build_transport_reactions(raw_data, sim_data)
+
+	def _set_solver_values(self, constants):
+		"""
+		Sets values to be used in the FBA solver.
+
+		Attributes set:
+			solver (str): solver ID, should match a value in modular_fba.py
+			kinetic_objective_weight (float): weighting for the kinetic objective,
+				1-weighting for the homeostatic objective
+			kinetic_objective_weight_in_range (float): weighting for deviations
+				from the kinetic target within min and max ranges
+			secretion_penalty_coeff (float): penalty on secretion fluxes
+		"""
+
+		self.solver = "glpk-linear"
+		if "linear" in self.solver:
+			self.kinetic_objective_weight = constants.metabolismKineticObjectiveWeightLinear
+		else:
+			self.kinetic_objective_weight = constants.metabolismKineticObjectiveWeightQuadratic
+		self.kinetic_objective_weight_in_range = constants.metabolism_kinetic_objective_weight_in_range
+		self.secretion_penalty_coeff = constants.secretion_penalty_coeff
 
 	def _buildBiomass(self, raw_data, sim_data):
 		wildtypeIDs = set(entry["molecule id"] for entry in raw_data.biomass)
@@ -323,6 +330,28 @@ class Metabolism(object):
 		# new_index is number of metabolites, j+1 is number of reactions
 		self.ppgpp_reaction_stoich = np.zeros((new_index, j+1), dtype=np.int32)
 		self.ppgpp_reaction_stoich[rxn_i, rxn_j] = rxn_v
+
+	def _build_transport_reactions(self, raw_data, sim_data):
+		"""
+		Creates list of transport reactions that are included in the
+		reaction network.
+
+		Attributes set:
+			transport_reactions (List[str]): transport reaction IDs in the
+				metabolic network (includes reverse reactions and reactions
+				with kinetic constraints)
+		"""
+
+		rxn_mapping = {}
+		for rxn in self.reactionStoich:
+			basename = rxn.split('__')[0].split(' (reverse)')[0]
+			rxn_mapping[basename] = rxn_mapping.get(basename, []) + [rxn]
+
+		self.transport_reactions = [
+			rxn
+			for row in raw_data.transport_reactions
+			for rxn in rxn_mapping.get(row['reaction id'], [])
+			]
 
 	def getKineticConstraints(self, enzymes, substrates):
 		# type: (np.ndarray[float], np.ndarray[float]) -> np.ndarray[float]
