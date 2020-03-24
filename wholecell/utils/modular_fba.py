@@ -374,9 +374,9 @@ class FluxBalanceAnalysis(object):
 
 
 	def _initObjectiveEquivalents(self,
-								objective,
-								pseudoFluxFormat=None,
-								objectiveEquivFormat=_generatedID_moleculeEquivalents):
+			objective,
+			pseudoFluxFormat=None,
+			objectiveEquivFormat=None):
 		"""Create pseudo-reactions that convert molecules into their fractional
 		objective equivalents.  The objectiveType determines how these
 		fractions are used."""
@@ -389,11 +389,7 @@ class FluxBalanceAnalysis(object):
 
 		for moleculeID in sorted(objective):
 			coeff = objective[moleculeID]
-			if coeff == 0:
-				raise FBAError("Invalid objective coefficient - must be non-zero")
-
 			pseudoFluxID = pseudoFluxFormat.format(moleculeID)
-
 			objectiveEquivID = objectiveEquivFormat.format(moleculeID)
 
 			self._solver.setFlowMaterialCoeff(
@@ -1170,7 +1166,7 @@ class FluxBalanceAnalysis(object):
 			if molecule_id not in self._outputMoleculeIDs:
 				raise FBAError(
 					"This function only allows for modification of setpoint values, " +
-					"not adding new ones. %s is an unrecognized molecule" % moleculeID
+					"not adding new ones. %s is an unrecognized molecule" % molecule_id
 					)
 
 			pseudo_flux_id = self._generatedID_moleculesToEquivalents.format(molecule_id)

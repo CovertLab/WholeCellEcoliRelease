@@ -80,8 +80,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Read data from listeners
 		enzymeKinetics = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
 		metabolite_names = enzymeKinetics.readAttribute('metaboliteNames')
-		initial_conc = enzymeKinetics.readColumn("metaboliteConcentrations")[1:, :]
+		initial_counts = enzymeKinetics.readColumn("metaboliteCountsInit")[1:, :]
 		counts_to_molar = enzymeKinetics.readColumn('countsToMolar')[1:].reshape(-1, 1)
+		initial_conc = counts_to_molar * initial_counts
 
 		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 		target_conc = fbaResults.readColumn("targetConcentrations")[1:,:]

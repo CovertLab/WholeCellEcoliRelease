@@ -30,7 +30,7 @@ class FBAResults(wholecell.listeners.listener.Listener):
 	def initialize(self, sim, sim_data):
 		super(FBAResults, self).initialize(sim, sim_data)
 
-		self.metabolism = sim.processes["Metabolism"]
+		self.metabolism = sim.processes["Metabolism"].model
 
 		self.objectiveValue = 0.0
 

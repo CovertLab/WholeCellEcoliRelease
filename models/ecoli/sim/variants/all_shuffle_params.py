@@ -27,12 +27,6 @@ def all_shuffle_params(sim_data, index):
 	np.random.shuffle(idxs_monomerDegRates)
 	sim_data.process.translation.monomerDegRateShuffleIdxs = idxs_monomerDegRates
 
-	# Shuffle kinetic catalysts
-	idxs_kineticCatalysts = np.arange(len(sim_data.process.metabolism.reactions_with_catalyst))
-	np.random.shuffle(idxs_kineticCatalysts)
-	nTargets = len(sim_data.process.metabolism.kinetic_constraint_reactions)
-	sim_data.process.metabolism.kineticTargetShuffleRxns = [sim_data.process.metabolism.reactions_with_catalyst[idx] for idx in idxs_kineticCatalysts[:nTargets]]
-
 	return dict(
 		shortName = "{}_allShuffle".format(index),
 		desc = "Simulation of shuffled parameters for all parameters implemented for shuffling (transcription initiation, translation efficiencies, monomer deg rates, metabolism kinetics shuffled with all reactions that have a catalyst) with seed {}.".format(index)
