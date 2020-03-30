@@ -75,15 +75,9 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 		self.water.requestAll()
 
 	def evolveState(self):
-		# If there are no active replisomes, set attributes to empty arrays
-		if self.active_replisomes.total_counts()[0] == 0:
-			replisome_domain_indexes = np.array([])
-			replisome_coordinates = np.array([])
-		else:
-			replisome_domain_indexes, replisome_coordinates = self.active_replisomes.attrs(
-				'domain_index', 'coordinates')
-
-		# Read other unique molecule attributes
+		# Read unique molecule attributes
+		replisome_domain_indexes, replisome_coordinates = self.active_replisomes.attrs(
+			'domain_index', 'coordinates')
 		all_chromosome_domain_indexes, child_domains = self.chromosome_domains.attrs(
 			'domain_index', 'child_domains')
 		RNAP_domain_indexes, RNAP_coordinates, RNAP_directions, RNAP_unique_indexes = self.active_RNAPs.attrs(

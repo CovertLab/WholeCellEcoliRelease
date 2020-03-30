@@ -67,39 +67,30 @@ class RnapData(wholecell.listeners.listener.Listener):
 		active_ribosomes = self.uniqueMolecules.container.objectsInCollection('active_ribosome')
 
 		# Read coordinates of all active RNAPs
-		if len(active_rnaps) > 0:
-			coordinates, domain_indexes, RNAP_unique_indexes = active_rnaps.attrs(
-				"coordinates", "domain_index", "unique_index")
-			self.active_rnap_coordinates = coordinates
-			self.active_rnap_domain_indexes = domain_indexes
-			self.active_rnap_unique_indexes = RNAP_unique_indexes
+		coordinates, domain_indexes, RNAP_unique_indexes = active_rnaps.attrs(
+			"coordinates", "domain_index", "unique_index")
+		self.active_rnap_coordinates = coordinates
+		self.active_rnap_domain_indexes = domain_indexes
+		self.active_rnap_unique_indexes = RNAP_unique_indexes
 
-			RNA_RNAP_index, is_full_transcript, RNA_unique_indexes = RNAs.attrs(
-				'RNAP_index', 'is_full_transcript', 'unique_index')
-			is_partial_transcript = np.logical_not(is_full_transcript)
-			partial_RNA_RNAP_indexes = RNA_RNAP_index[is_partial_transcript]
-			partial_RNA_unique_indexes = RNA_unique_indexes[is_partial_transcript]
+		RNA_RNAP_index, is_full_transcript, RNA_unique_indexes = RNAs.attrs(
+			'RNAP_index', 'is_full_transcript', 'unique_index')
+		is_partial_transcript = np.logical_not(is_full_transcript)
+		partial_RNA_RNAP_indexes = RNA_RNAP_index[is_partial_transcript]
+		partial_RNA_unique_indexes = RNA_unique_indexes[is_partial_transcript]
 
-			if len(active_ribosomes) > 0:
-				ribosome_RNA_index = active_ribosomes.attr('mRNA_index')
-			else:
-				ribosome_RNA_index = np.array([])
+		ribosome_RNA_index = active_ribosomes.attr('mRNA_index')
 
-			RNA_index_counts = dict(
-				zip(*np.unique(ribosome_RNA_index, return_counts=True)))
+		RNA_index_counts = dict(
+			zip(*np.unique(ribosome_RNA_index, return_counts=True)))
 
-			partial_RNA_to_RNAP_mapping, _ = get_mapping_arrays(
-				partial_RNA_RNAP_indexes, RNAP_unique_indexes)
+		partial_RNA_to_RNAP_mapping, _ = get_mapping_arrays(
+			partial_RNA_RNAP_indexes, RNAP_unique_indexes)
 
-			self.active_rnap_n_bound_ribosomes = np.array(
-				[RNA_index_counts.get(partial_RNA_unique_indexes[i], 0)
-					for i in partial_RNA_to_RNAP_mapping])
+		self.active_rnap_n_bound_ribosomes = np.array(
+			[RNA_index_counts.get(partial_RNA_unique_indexes[i], 0)
+				for i in partial_RNA_to_RNAP_mapping])
 
-		else:
-			self.active_rnap_coordinates = np.array([])
-			self.active_rnap_domain_indexes = np.array([])
-			self.active_rnap_unique_indexes = np.array([])
-			self.active_rnap_n_bound_ribosomes = np.array([])
 
 
 	def tableCreate(self, tableWriter):

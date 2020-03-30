@@ -53,18 +53,8 @@ class ReplicationData(wholecell.listeners.listener.Listener):
 
 		self.numberOfOric = len(oriCs)
 
-		if len(active_replisomes) > 0:
-			fork_coordinates, fork_domains, fork_unique_index = active_replisomes.attrs(
-				"coordinates", "domain_index", "unique_index"
-				)
-
-			self.fork_coordinates = fork_coordinates
-			self.fork_domains = fork_domains
-			self.fork_unique_index = fork_unique_index
-		else:
-			self.fork_coordinates = np.array([])
-			self.fork_domains = np.array([])
-			self.fork_unique_index = np.array([])
+		self.fork_coordinates, self.fork_domains, self.fork_unique_index = active_replisomes.attrs(
+			"coordinates", "domain_index", "unique_index")
 
 		DnaA_boxes = self.uniqueMolecules.container.objectsInCollection('DnaA_box')
 		DnaA_box_bound = DnaA_boxes.attrs('DnaA_bound')

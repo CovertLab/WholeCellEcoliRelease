@@ -63,23 +63,17 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 
 	def update(self):
 		promoters = self.uniqueMolecules.container.objectsInCollection('promoter')
+		TU_indexes, all_coordinates, all_domains, bound_TFs = promoters.attrs(
+			"TU_index", "coordinates", "domain_index", "bound_TF"
+			)
 
-		if len(promoters) > 0:
-			TU_indexes, all_coordinates, all_domains, bound_TFs = promoters.attrs(
-				"TU_index", "coordinates", "domain_index", "bound_TF"
-				)
+		self.gene_copy_number = np.bincount(TU_indexes, minlength=self.n_TU)
 
-			self.gene_copy_number = np.bincount(TU_indexes, minlength=self.n_TU)
+		bound_promoter_indexes, TF_indexes = np.where(bound_TFs)
 
-			bound_promoter_indexes, TF_indexes = np.where(bound_TFs)
-
-			self.bound_TF_indexes = TF_indexes
-			self.bound_TF_coordinates = all_coordinates[bound_promoter_indexes]
-			self.bound_TF_domains = all_domains[bound_promoter_indexes]
-		else:
-			self.bound_TF_indexes = np.array([])
-			self.bound_TF_coordinates = np.array([])
-			self.bound_TF_domains = np.array([])
+		self.bound_TF_indexes = TF_indexes
+		self.bound_TF_coordinates = all_coordinates[bound_promoter_indexes]
+		self.bound_TF_domains = all_domains[bound_promoter_indexes]
 
 
 	def tableCreate(self, tableWriter):
