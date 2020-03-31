@@ -864,6 +864,11 @@ class _UniqueObjectSet(object):
 		self._process_index = process_index
 		self._access = access
 
+		collection_indexes = self._container._globalReference["_collectionIndex"][self._globalIndexes]
+		self._object_indexes = self._container._globalReference["_objectIndex"][self._globalIndexes]
+		self._unique_collection_indexes, self._inverse_collection_index_array = np.unique(
+			collection_indexes, return_inverse = True)
+
 
 	def __contains__(self, uniqueObject):
 		if not self._container is uniqueObject._container:
@@ -927,29 +932,23 @@ class _UniqueObjectSet(object):
 			raise UniqueObjectsContainerException("Object set is empty")
 
 		container = self._container
-		globalReference = container._globalReference
 
-		if (globalReference["_entryState"][self._globalIndexes] == container._entryInactive).any():
+		if (container._globalReference["_entryState"][self._globalIndexes]
+				== container._entryInactive).any():
 			raise UniqueObjectsContainerException("One or more object was deleted from the set")
 
-		# TODO: cache these properties? should be static
-		collectionIndexes = globalReference["_collectionIndex"][self._globalIndexes]
-		objectIndexes = globalReference["_objectIndex"][self._globalIndexes]
+		attribute_dtype = container._collections[
+			self._unique_collection_indexes[0]].dtype[attribute]
 
-		uniqueColIndexes, inverse = np.unique(collectionIndexes, return_inverse = True)
+		values = np.zeros(self._globalIndexes.size, dtype = attribute_dtype)
 
-		attributeDtype = container._collections[uniqueColIndexes[0]].dtype[attribute]
+		for idx, collection_index in enumerate(self._unique_collection_indexes):
+			global_obj_indexes = np.where(
+				self._inverse_collection_index_array == idx)
+			object_indexes_in_collection = self._object_indexes[global_obj_indexes]
 
-		values = np.zeros(
-			self._globalIndexes.size,
-			dtype = attributeDtype
-			)
-
-		for idx, collectionIndex in enumerate(uniqueColIndexes):
-			globalObjIndexes = np.where(inverse == idx)
-			objectIndexesInCollection = objectIndexes[globalObjIndexes]
-
-			values[globalObjIndexes] = container._collections[collectionIndex][attribute][objectIndexesInCollection]
+			values[global_obj_indexes] = container._collections[
+				collection_index][attribute][object_indexes_in_collection]
 
 		return values
 
@@ -975,37 +974,30 @@ class _UniqueObjectSet(object):
 			raise UniqueObjectsContainerException("Object set is empty")
 
 		container = self._container
-		globalReference = container._globalReference
 
-		if (globalReference["_entryState"][self._globalIndexes] == container._entryInactive).any():
+		if (container._globalReference["_entryState"][self._globalIndexes]
+				== container._entryInactive).any():
 			raise UniqueObjectsContainerException("One or more object was deleted from the set")
 
-		# TODO: cache these properties? should be static
-		collectionIndexes = globalReference["_collectionIndex"][self._globalIndexes]
-		objectIndexes = globalReference["_objectIndex"][self._globalIndexes]
-
-		uniqueColIndexes, inverse = np.unique(collectionIndexes, return_inverse = True)
-
 		if len(attributes) == 0:
-			attributes = container._collections[uniqueColIndexes[0]].dtype.names
+			attributes = container._collections[
+				self._unique_collection_indexes[0]].dtype.names
 
 		attributes = list(attributes)
 
-		attributeDtypes = [
-			(attribute, container._collections[uniqueColIndexes[0]].dtype[attribute])
-			for attribute in attributes
-			]
+		attribute_dtypes = [
+			(attribute, container._collections[self._unique_collection_indexes[0]].dtype[attribute])
+			for attribute in attributes]
 
-		values = np.zeros(
-			self._globalIndexes.size,
-			dtype = attributeDtypes
-			)
+		values = np.zeros(self._globalIndexes.size, dtype = attribute_dtypes)
 
-		for idx, collectionIndex in enumerate(uniqueColIndexes):
-			globalObjIndexes = np.where(inverse == idx)
-			objectIndexesInCollection = objectIndexes[globalObjIndexes]
+		for idx, collection_index in enumerate(self._unique_collection_indexes):
+			global_obj_indexes = np.where(
+				self._inverse_collection_index_array == idx)
+			object_indexes_in_collection = self._object_indexes[global_obj_indexes]
 
-			values[globalObjIndexes] = container._collections[collectionIndex][attributes][objectIndexesInCollection]
+			values[global_obj_indexes] = container._collections[
+				collection_index][attributes][object_indexes_in_collection]
 
 		return values
 
