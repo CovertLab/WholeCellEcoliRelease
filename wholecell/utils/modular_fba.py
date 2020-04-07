@@ -1379,7 +1379,8 @@ class FluxBalanceAnalysis(object):
 					' initialized to be kinetic targets. {} is not set up for it.'
 					.format(reactionID))
 
-			if upper < mean or mean < lower:
+			if ((upper < mean and not np.isclose(upper, mean))
+					or (mean < lower and not np.isclose(mean, lower))):
 				raise FBAError('Incorrect ordering of kinetic targets: {} {} {}.'
 					' Must have lower <= mean <= upper'.format(lower, mean, upper))
 
