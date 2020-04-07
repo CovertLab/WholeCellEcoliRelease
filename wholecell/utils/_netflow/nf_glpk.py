@@ -368,6 +368,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 
 	def getObjectiveValue(self):
 		"""The current value of the objective function."""
+		self._solve()
 		return glp.glp_get_obj_val(self._lp)
 
 	def getSMatrix(self):

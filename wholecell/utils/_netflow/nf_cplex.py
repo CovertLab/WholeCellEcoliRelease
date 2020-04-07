@@ -153,6 +153,7 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 		return np.array(self._model.solution.get_reduced_costs(flows))
 
 	def getObjectiveValue(self):
+		self._solve()
 		return self._model.solution.get_objective_value()
 
 	def getSMatrix(self):
