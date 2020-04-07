@@ -43,4 +43,4 @@ cp out/2*/kb/simData.cPickle.bz2 /scratch/PI/mcovert/wc_ecoli/cached/
 bunzip2 -f /scratch/PI/mcovert/wc_ecoli/cached/simData.cPickle.bz2
 chmod 444 /scratch/PI/mcovert/wc_ecoli/cached/simData.cPickle
 
-mv out/2* /scratch/PI/mcovert/wc_ecoli/daily_build/
+runscripts/jenkins/save_output.sh out/ /scratch/PI/mcovert/wc_ecoli/daily_build/

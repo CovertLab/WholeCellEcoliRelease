@@ -36,4 +36,4 @@ fi
 
 test $N_FAILS = 0
 
-mv out/2* /scratch/PI/mcovert/wc_ecoli/with_aa/
+runscripts/jenkins/save_output.sh out/ /scratch/PI/mcovert/wc_ecoli/with_aa/
