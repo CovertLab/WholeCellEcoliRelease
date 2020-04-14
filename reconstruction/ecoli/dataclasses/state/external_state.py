@@ -142,12 +142,8 @@ class ExternalState(object):
 		importExchangeMolecules.update(importUnconstrainedExchangeMolecules)
 		externalExchangeMolecules.update(importUnconstrainedExchangeMolecules)
 
-		# Constrain molecules below import threshold at 0
-		importConstrainedExchangeMolecules = {molecule_id: 0. * (units.mmol / units.g / units.h)
-			for molecule_id, concentration in exchange_molecules.items()
-			if concentration < self.import_constraint_threshold}
-
 		# Limit glucose uptake if present depending on the presence of oxygen
+		importConstrainedExchangeMolecules = {}
 		if glc_id in importUnconstrainedExchangeMolecules:
 			if oxygen_id in importUnconstrainedExchangeMolecules:
 				importConstrainedExchangeMolecules[glc_id] = 20. * (units.mmol / units.g / units.h)
