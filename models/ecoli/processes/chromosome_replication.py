@@ -304,7 +304,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Determine if any forks have reached the end of their sequences. If
 		# so, delete the replisomes and domains that were terminated.
 		terminal_lengths = self.replichore_lengths[
-			np.tile(np.arange(2), n_active_replisomes // 2)]
+			np.logical_not(right_replichore).astype(np.int64)]
 		terminated_replisomes = (np.abs(updated_coordinates) == terminal_lengths)
 		import ipdb; ipdb.set_trace()
 
