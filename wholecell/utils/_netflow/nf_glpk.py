@@ -102,7 +102,7 @@ def _toDoubleArray(array):
 class NetworkFlowGLPK(NetworkFlowProblemBase):
 	def __init__(self, quadratic_objective=False):
 		if quadratic_objective:
-			raise Exception('Quadratic objective not supported for GLPK')
+			raise ValueError('Quadratic objective not supported for GLPK')
 
 		self._lp = glp.glp_create_prob()
 		self._smcp = glp.glp_smcp()  # simplex solver control parameters
@@ -247,6 +247,8 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 	def _getVar(self, flow):
 		if flow in self._flows:
 			idx = self._flows[flow]
+		elif self._eqConstBuilt:
+			raise ValueError('Equality constraints already built. Unable to add new flow: "{}".'.format(flow))
 		else:
 			self._add_cols(1)
 			idx = len(self._flows)
@@ -265,9 +267,9 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 	def setFlowMaterialCoeff(self, flow, material, coefficient):
 		if self._eqConstBuilt:
 			if material not in self._materialIdxLookup:
-				raise Exception("Invalid material")
+				raise ValueError("Invalid material: {}".format(material))
 			if flow not in self._flows:
-				raise Exception("Invalid flow")
+				raise ValueError("Invalid flow: {}".format(flow))
 
 			length = len(self._flow_locations[material])
 			flow_loc = self._flow_locations[material][self._flows[flow]]
@@ -336,7 +338,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 
 	def getShadowPrices(self, materials):
 		if not self._eqConstBuilt:
-			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing dual values.")
+			raise RuntimeError("Equality constraints not yet built. Finish construction of the problem before accessing dual values.")
 
 		self._solve()
 
@@ -348,7 +350,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 
 	def getReducedCosts(self, fluxNames):
 		if not self._eqConstBuilt:
-			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing dual values.")
+			raise RuntimeError("Equality constraints not yet built. Finish construction of the problem before accessing dual values.")
 
 		self._solve()
 
@@ -365,7 +367,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 
 	def getSMatrix(self):
 		if not self._eqConstBuilt:
-			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing S matrix.")
+			raise RuntimeError("Equality constraints not yet built. Finish construction of the problem before accessing S matrix.")
 		A = np.zeros((len(self._materialCoeffs), len(self._flows)))
 		for materialIdx, material in enumerate(sorted(self._materialCoeffs)):
 			coeffs = self._coeff_arrays[material]
@@ -375,12 +377,12 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 
 	def getFlowNames(self):
 		if not self._eqConstBuilt:
-			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing flow names.")
+			raise RuntimeError("Equality constraints not yet built. Finish construction of the problem before accessing flow names.")
 		return sorted(self._flows, key=self._flows.__getitem__)
 
 	def getMaterialNames(self):
 		if not self._eqConstBuilt:
-			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing material names.")
+			raise RuntimeError("Equality constraints not yet built. Finish construction of the problem before accessing material names.")
 		return sorted(self._materialIdxLookup, key=self._materialIdxLookup.__getitem__)
 
 	def getUpperBounds(self):
@@ -394,7 +396,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 
 	def buildEqConst(self):
 		if self._eqConstBuilt:
-			raise Exception("Equality constraints already built.")
+			raise RuntimeError("Equality constraints already built.")
 		n_coeffs = len(self._materialCoeffs)
 		n_flows = len(self._flows)
 

@@ -48,6 +48,8 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 	def _getVar(self, flow):
 		if flow in self._flows:
 			idx = self._flows[flow]
+		elif self._eqConstBuilt:
+			raise ValueError('Equality constraints already built. Unable to add new flow: "{}".'.format(flow))
 		else:
 			self._model.variables.add(obj=[0])
 			idx = len(self._flows)
@@ -63,11 +65,11 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 		if self._eqConstBuilt:
 			materialIdx = self._materialIdxLookup.get(material, None)
 			if materialIdx is None:
-				raise Exception("Invalid material")
+				raise ValueError("Invalid material: {}".format(material))
 
 			flowIdx = self._flows.get(flow, None)
 			if flowIdx is None:
-				raise Exception("Invalid flow")
+				raise ValueError("Invalid flow: {}".format(flow))
 
 			coeffs, flowIdxs = zip(*self._materialCoeffs[material])
 			coeffs = list(coeffs)
@@ -135,7 +137,7 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 	def getShadowPrices(self, materials):
 		# reduced cost of row
 		if not self._eqConstBuilt:
-			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing dual values.")
+			raise RuntimeError("Equality constraints not yet built. Finish construction of the problem before accessing dual values.")
 
 		self._solve()
 
@@ -145,7 +147,7 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 	def getReducedCosts(self, fluxNames):
 		# reduced cost of col
 		if not self._eqConstBuilt:
-			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing dual values.")
+			raise RuntimeError("Equality constraints not yet built. Finish construction of the problem before accessing dual values.")
 
 		self._solve()
 
@@ -158,7 +160,7 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 
 	def getSMatrix(self):
 		if not self._eqConstBuilt:
-			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing S matrix.")
+			raise RuntimeError("Equality constraints not yet built. Finish construction of the problem before accessing S matrix.")
 		A = np.zeros((len(self._materialCoeffs), len(self._flows)))
 		self._materialIdxLookup = {}
 		for materialIdx, (material, pairs) in enumerate(sorted(self._materialCoeffs.viewitems())):
@@ -169,12 +171,12 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 
 	def getFlowNames(self):
 		if not self._eqConstBuilt:
-			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing flow names.")
+			raise RuntimeError("Equality constraints not yet built. Finish construction of the problem before accessing flow names.")
 		return sorted(self._flows, key=self._flows.__getitem__)
 
 	def getMaterialNames(self):
 		if not self._eqConstBuilt:
-			raise Exception("Equality constraints not yet built. Finish construction of the problem before accessing material names.")
+			raise RuntimeError("Equality constraints not yet built. Finish construction of the problem before accessing material names.")
 		return sorted(self._materialIdxLookup, key=self._materialIdxLookup.__getitem__)
 
 	def getUpperBounds(self):
@@ -188,7 +190,7 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 
 	def buildEqConst(self):
 		if self._eqConstBuilt:
-			raise Exception("Equality constraints already built.")
+			raise RuntimeError("Equality constraints already built.")
 
 		nMaterials = len(self._materialCoeffs)
 		nFlows = len(self._flows)
