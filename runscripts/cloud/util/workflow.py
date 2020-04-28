@@ -84,8 +84,12 @@ def _copy_path_list(value, internal_prefix, is_output=False):
 	"""
 	result = _copy_as_list(value)
 	for path in result:
-		assert is_output or not path.startswith('>'), (
-			'''Input paths must not start with '>', not "{}"'''.format(path))
+		if path.startswith('>'):
+			assert is_output, (
+				'''Input paths must not start with '>': "{}"'''.format(path))
+
+			assert os.path.basename(path), (
+				'A capture path must name a file, not a directory: "{}"'.format(path))
 
 		path = path.lstrip('>')
 		assert posixpath.isabs(path), (
