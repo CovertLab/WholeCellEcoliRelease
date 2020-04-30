@@ -56,6 +56,7 @@ ACTIVE = [
 	"rnapCapacity.py",
 	"rnapCounts.py",
 	"rnaseCounts.py",
+	"superhelical_density.py",
 	"transient_gene_dosage.py",
 	"trna_charging.py",
 	"tRnaCounts.py",
@@ -148,6 +149,7 @@ TAGS = {
 		"rnaSynthesisProbabilities.py",
 		"rnapCapacity.py",
 		"rnapCounts.py",
+		"superhelical_density.py",
 		"tRnaCounts.py",
 		],
 	'TRANSLATION': [
