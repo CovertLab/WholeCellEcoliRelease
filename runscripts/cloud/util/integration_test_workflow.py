@@ -98,7 +98,7 @@ class TestWorkflow(WorkflowCLI):
 		# test a timeout
 		code = (
 			"from time import sleep\n"
-			"for i in range(100):\n"
+			"for i in range(1, 100):\n"
 			"  sleep(1)\n"
 			"  print('{:3} seconds'.format(i))")
 		self.add_task(
