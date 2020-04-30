@@ -518,9 +518,9 @@ def buildCombinedConditionCellSpecifications(
 
 	Notes
 	-----
-	- TODO - include TFs in the no_oxygen condition
-	- TODO - determine how to handle fold changes if multiple TFs change the
-	same gene (currently, an exception is raised)
+	- TODO - determine how to handle fold changes when multiple TFs change the
+	same gene because multiplying both fold changes together might not be
+	appropriate
 	"""
 
 	fcData = {}
@@ -532,12 +532,9 @@ def buildCombinedConditionCellSpecifications(
 		# Get expression from fold changes for each TF in the given condition
 		conditionValue = sim_data.conditions[conditionKey]
 		for tf in sim_data.conditionActiveTfs[conditionKey]:
-			for gene in sim_data.tfToFC[tf]:
-				if gene in fcData:
-					# fcData[gene] *= sim_data.tfToFC[tf][gene]
-					raise Exception("Check this implementation: multiple genes regulated")
-				else:
-					fcData[gene] = sim_data.tfToFC[tf][gene]
+			for gene, fc in sim_data.tfToFC[tf].items():
+				fcData[gene] = fcData.get(gene, 1) * fc
+
 		expression = expressionFromConditionAndFoldChange(
 			sim_data.process.transcription.rnaData["id"],
 			sim_data.process.transcription.rnaExpression["basal"],
