@@ -5,6 +5,8 @@ import copy
 import shutil
 
 from vivarium.compartment.process import Process
+from vivarium.compartment.composition import process_in_compartment
+
 
 from models.ecoli.sim.simulation import ecoli_simulation
 from wholecell.utils import constants
@@ -12,13 +14,10 @@ import wholecell.utils.filepath as fp
 from models.ecoli.sim.variants import apply_variant
 
 
-
 DEFAULT_EMITTER = {
 	'type': 'database',
-	'url': 'localhost:27017',
-	'database': 'simulations',
-	}
-
+	'host': 'localhost:27017',
+	'database': 'simulations'}
 
 
 def initialize_ecoli(config):
@@ -50,7 +49,7 @@ def initialize_ecoli(config):
 		variant_type=variant_type,
 		variant_index=variant_index)
 
-	config['initialTime'] = config.pop('time') or 0
+	config['initialTime'] = config.pop('time') if config.get('time') else 0
 	config['simData'] = sim_data_modified
 	return ecoli_simulation(**config)
 
@@ -177,27 +176,42 @@ class wcEcoliAgent(Process):
 		super(wcEcoliAgent, self).__init__(ports, initial_parameters)
 
 	def default_settings(self):
-		default_state = {}
+		default_state = {
+			'boundary': {
+				'local_environment': {},
+				'exchange': {},
+				'volume': 1.0,
+				'division': []}}
+
+		schema = {
+			'boundary': {
+				# 'local_environment': {'updater': 'set'},
+				'exchange': {'updater': 'set'},
+				'volume': {'updater': 'set'},
+				'division': {'updater': 'set'}}}
 
 		return {
-			'state': default_state}
+			'state': default_state,
+			'schema': schema}
 
 	def next_update(self, timestep, states):
-		self.ecoli_simulation.external_states['Environment'].set_local_environment(
-			states['local_environment'])
+		boundary = states['boundary']
+		# self.ecoli_simulation.external_states['Environment'].set_local_environment(
+		# 	boundary['local_environment'])
 		self.ecoli_simulation.run_for(timestep)
 		update = self.ecoli_simulation.generate_inner_update()
 
-		return update
+		return {'boundary': update}
 
 
 
 def run():
 	wcecoli = wcEcoliAgent({'agent_id': 'X'})
+	compartment = process_in_compartment(wcecoli)
 
-	import ipdb;
-	ipdb.set_trace()
-
+	print(compartment.current_state())
+	compartment.update(5)
+	print(compartment.current_state())
 
 if __name__ == '__main__':
 	run()
