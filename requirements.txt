@@ -89,7 +89,6 @@ funcsigs==1.0.2
 functools32==3.2.3.post2
 future==0.16.0
 futures==3.2.0
-gaia==0.0.9
 gnureadline==6.3.8
 google-api-core==1.16.0
 google-auth==1.11.0

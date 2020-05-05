@@ -17,7 +17,7 @@ from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
 @explicit_serialize
 class ParcaTask(FiretaskBase):
 	"""A complete Parameter Calculator Firetask. It makes its output directory
-	and writes everything into it, to fit into a Gaia/Sisyphus workflow.
+	and writes everything into it, to fit into a cloud workflow.
 	"""
 
 	_fw_name = 'ParcaTask'
