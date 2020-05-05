@@ -14,8 +14,7 @@ import os.path
 import shutil
 import time
 import uuid
-import lens
-from lens.actor.emitter import get_emitter
+from vivarium.compartment.emitter import get_emitter
 
 import numpy as np
 
@@ -70,7 +69,7 @@ DEFAULT_LISTENER_CLASSES = (
 	EvaluationTime,
 	)
 
-class Simulation(lens.actor.inner.Simulation):
+class Simulation():
 	""" Simulation """
 
 	# Attributes that must be set by a subclass
@@ -267,6 +266,9 @@ class Simulation(lens.actor.inner.Simulation):
 			self._post_evolve_state()
 
 			self.emit()
+
+	def run_for(self, run_for):
+		self.run_incremental(self.time() + run_for)
 
 	def finalize(self):
 		"""
@@ -480,7 +482,7 @@ class Simulation(lens.actor.inner.Simulation):
 		return {
 			'volume': self.listeners['Mass'].volume,
 			'division': self.daughter_config(),
-			'environment_change': self.external_states['Environment'].get_environment_change()}
+			'exchange': self.external_states['Environment'].get_environment_change()}
 
 	def divide(self):
 		self.cellCycleComplete()

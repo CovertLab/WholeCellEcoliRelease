@@ -4,7 +4,7 @@ import os
 import copy
 import shutil
 
-from vivarium.actor.process import Process
+from vivarium.compartment.process import Process
 
 from models.ecoli.sim.simulation import ecoli_simulation
 from wholecell.utils import constants
@@ -106,6 +106,7 @@ def ecoli_boot_config(agent_config):
 
 	# make options for boot config
 	sim_out_path = fp.makedirs(working_dir, 'out')
+
 	output_dir = os.path.join(sim_out_path, 'agent', outer_id, cohort_id, generation_id, cell_id, 'simOut')
 	metadata_dir = fp.makedirs(sim_out_path, 'agent', 'metadata')
 	metadata_path = os.path.join(metadata_dir, constants.JSON_METADATA_FILE)
@@ -153,11 +154,25 @@ def ecoli_boot_config(agent_config):
 
 
 class wcEcoliAgent(Process):
+	defaults = {
+		'agent_id': 0,
+		'agent_config': {}}
+
 	def __init__(self, initial_parameters={}):
+		self.agent_id = initial_parameters.get('agent_id', self.defaults['agent_id'])
+		self.agent_config = initial_parameters.get('agent_config', self.defaults['agent_config'])
+		self.agent_config['cell_id'] = self.agent_id
+
+		self.ecoli_config = ecoli_boot_config(self.agent_config)
+		self.ecoli_simulation = initialize_ecoli(self.ecoli_config)
+		self.sim_data = self.ecoli_simulation._simData
 
 		ports = {
-			'internal': [],
-			'external': []}
+			'boundary': [
+				'local_environment',
+				'exchange',
+				'volume',
+				'division']}
 
 		super(wcEcoliAgent, self).__init__(ports, initial_parameters)
 
@@ -168,16 +183,17 @@ class wcEcoliAgent(Process):
 			'state': default_state}
 
 	def next_update(self, timestep, states):
-
-		update = {}
+		self.ecoli_simulation.external_states['Environment'].set_local_environment(
+			states['local_environment'])
+		self.ecoli_simulation.run_for(timestep)
+		update = self.ecoli_simulation.generate_inner_update()
 
 		return update
 
 
 
-
 def run():
-	wcecoli = wcEcoliAgent()
+	wcecoli = wcEcoliAgent({'agent_id': 'X'})
 
 	import ipdb;
 	ipdb.set_trace()
