@@ -1,18 +1,11 @@
 from __future__ import absolute_import, division, print_function
 
+import copy
 import time
 import uuid
 
-from lens.environment.control import ShepherdControl, EnvironmentCommand
+from vivarium.environment.control import ShepherdControl, EnvironmentCommand
 from wholecell.utils import filepath
-
-
-class EcoliControl(ShepherdControl):
-	"""Send messages to actors in the system to control execution."""
-
-	def __init__(self, agent_config):
-		super(EcoliControl, self).__init__(agent_config)
-
 
 class EcoliCommand(EnvironmentCommand):
 	"""
@@ -33,10 +26,32 @@ class EcoliCommand(EnvironmentCommand):
 	def ecoli_experiment(self, args):
 		self.require(args, 'number', 'working_dir')
 
-		control = EcoliControl({'kafka_config': self.kafka_config})
-		args['agent_boot'] = ['python', '-u', '../wcEcoli/environment/boot.py']
+		# define experiment: environment type and agent type
+		experiment_id = 'lattice_experiment'
+		environment_type = 'lattice'
+		agents = {
+			'ecoli': 1}
 
-		control.lattice_experiment(args)
+		# overwrite default environment config
+		lattice_config = {
+			'name': 'lattice_experiment',
+			'description': (
+				'wcecoli in lattice environment')}
+
+		actor_config = copy.deepcopy(self.actor_config)
+		actor_config['boot'] = ['python', '-u', '../wcEcoli/environment/boot.py']
+
+		exp_config = {
+			'default_experiment_id': experiment_id,
+			'lattice_config': lattice_config,
+			'environment_type': environment_type,
+			'actor_config': actor_config,
+			'agents': agents}
+
+		control = ShepherdControl({'kafka_config': self.get_kafka_config()})
+		# args['agent_boot'] = ['python', '-u', '../wcEcoli/environment/boot.py']
+
+		control.init_experiment(args, exp_config)
 		control.shutdown()
 
 	def add_arguments(self, parser):

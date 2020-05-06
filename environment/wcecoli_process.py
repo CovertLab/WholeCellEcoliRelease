@@ -154,13 +154,14 @@ def ecoli_boot_config(agent_config):
 
 class wcEcoliAgent(Process):
 	defaults = {
-		'agent_id': 0,
+		'agent_id': 'X',
 		'agent_config': {}}
 
 	def __init__(self, initial_parameters={}):
 		self.agent_id = initial_parameters.get('agent_id', self.defaults['agent_id'])
 		self.agent_config = initial_parameters.get('agent_config', self.defaults['agent_config'])
 		self.agent_config['cell_id'] = self.agent_id
+		self.agent_config['working_dir'] = '../wcEcoli'
 
 		self.ecoli_config = ecoli_boot_config(self.agent_config)
 		self.ecoli_simulation = initialize_ecoli(self.ecoli_config)
@@ -190,9 +191,13 @@ class wcEcoliAgent(Process):
 				'volume': {'updater': 'set'},
 				'division': {'updater': 'set'}}}
 
+		emitter_keys = {}
+
 		return {
+			'time_step': 5.0,
 			'state': default_state,
-			'schema': schema}
+			'schema': schema,
+			'emitter_keys': emitter_keys}
 
 	def next_update(self, timestep, states):
 		boundary = states['boundary']
@@ -206,7 +211,10 @@ class wcEcoliAgent(Process):
 
 
 def run():
-	wcecoli = wcEcoliAgent({'agent_id': 'X'})
+	wcecoli = wcEcoliAgent({
+		'agent_id': 'W',
+		'agent_config': {
+			'working_dir': '../wcEcoli'}})
 	compartment = process_in_compartment(wcecoli)
 
 	print(compartment.current_state())
