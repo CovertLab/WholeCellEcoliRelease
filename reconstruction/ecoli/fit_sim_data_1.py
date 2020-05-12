@@ -1470,6 +1470,9 @@ def setRNAPCountsConstrainedByPhysiology(
 		print('rnap actual count: {}'.format((rnapCounts / rnapStoich).min()))
 		print('rnap counts set to: {}'.format(rnapLims[np.where(rnapLims.max() == rnapLims)[0]][0]))
 
+	if np.any(minRnapSubunitCounts < 0):
+		raise ValueError('RNAP protein counts must be positive.')
+
 	bulkContainer.countsIs(minRnapSubunitCounts, rnapIds)
 
 def fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km=None):

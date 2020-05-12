@@ -416,13 +416,13 @@ def _getFitParameters(list_of_dicts, key):
 	y = y[idx_order]
 
 	# Generate fit
-	parameters = interpolate.splrep(x, y)
-	if np.sum(np.absolute(interpolate.splev(x, parameters) - y)) / y.size > 1.:
+	cs = interpolate.CubicSpline(x, y, bc_type='natural')
+	if np.sum(np.absolute(cs(x) - y)) / y.size > 1.:
 		raise Exception("Fitting {} with 3d spline, residuals are huge!".format(key))
 
-	return {'parameters' : parameters, 'x_units' : x_units, 'y_units' : y_units, 'dtype' : y.dtype}
+	return {'function': cs, 'x_units': x_units, 'y_units': y_units, 'dtype': y.dtype}
 
-def _useFitParameters(x_new, parameters, x_units, y_units, dtype):
+def _useFitParameters(x_new, function, x_units, y_units, dtype):
 	# Convert to same unit base
 	if units.hasUnit(x_units):
 		x_new = x_new.asNumber(x_units)
@@ -430,7 +430,7 @@ def _useFitParameters(x_new, parameters, x_units, y_units, dtype):
 		raise Exception("New x value has units but fit does not!")
 
 	# Calculate new interpolated y value
-	y_new = interpolate.splev(x_new, parameters)
+	y_new = function(x_new)
 
 	# If value should be an integer (i.e. an elongation rate)
 	# round to the nearest integer
