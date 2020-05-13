@@ -10,6 +10,7 @@
 #
 # Add option `--build-arg from=ABC` to build from a different base image but
 # DO NOT USE an alpine base since the simulation math comes out different!
+# See https://pythonspeed.com/articles/alpine-docker-python/ for more reasons.
 ARG from=python:2.7.16
 FROM ${from}
 

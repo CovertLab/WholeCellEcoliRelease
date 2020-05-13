@@ -19,7 +19,7 @@ class WorkflowCLI(scriptBase.ScriptBase):
 	"""Abstract base class for a Command Line Interface to build a workflow."""
 
 	# Subclasses can override these:
-	DOCKER_IMAGE = 'python:2.7.16'
+	DOCKER_IMAGE = 'python:3.8.2'
 	DEFAULT_TIMEOUT = Task.DEFAULT_TIMEOUT  # in seconds
 
 	def __init__(self):
