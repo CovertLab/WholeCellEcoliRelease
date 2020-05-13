@@ -14,7 +14,6 @@ from wholecell.utils import units
 import unum
 
 DNA_CRITICAL_MASS = {100: 600, 44: 975} # units of fg
-FRACTION_INCREASE_RNAP_PROTEINS = {100: 0, 44: 0.05}
 
 class Mass(object):
 	""" Mass """
@@ -391,9 +390,6 @@ class GrowthRateParameters(object):
 
 	def getDnaCriticalMass(self, doubling_time):
 		return DNA_CRITICAL_MASS.get(doubling_time.asNumber(units.min), DNA_CRITICAL_MASS[44]) * units.fg
-
-	def getFractionIncreaseRnapProteins(self, doubling_time):
-		return FRACTION_INCREASE_RNAP_PROTEINS.get(doubling_time.asNumber(units.min), FRACTION_INCREASE_RNAP_PROTEINS[44])
 
 def _getFitParameters(list_of_dicts, key):
 	# Load rows of data

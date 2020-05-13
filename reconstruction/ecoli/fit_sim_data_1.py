@@ -1377,11 +1377,6 @@ def setRNAPCountsConstrainedByPhysiology(
 	(2) Expected RNAP subunit counts based on (mRNA) distribution recorded in
 		bulkContainer
 
-	Requires
-	--------
-	- the return value from getFractionIncreaseRnapProteins(doubling_time),
-	described in growthRateDependentParameters.py
-
 	Inputs
 	------
 	- bulkContainer (BulkObjectsContainer object) - counts of bulk molecules
@@ -1450,14 +1445,9 @@ def setRNAPCountsConstrainedByPhysiology(
 	nRnapsNeeded = nActiveRnapNeeded / sim_data.growthRateParameters.getFractionActiveRnap(doubling_time)
 
 	# Convert nRnapsNeeded to the number of RNA polymerase subunits required
-	# Note: The return value from getFractionIncreaseRnapProteins() is
-	# determined in growthRateDependentParameters.py
 	rnapIds = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.rnapFull)['subunitIds']
 	rnapStoich = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.rnapFull)['subunitStoich']
-
-	minRnapSubunitCounts = (
-		nRnapsNeeded * rnapStoich # Subunit stoichiometry
-		) * (1 + sim_data.growthRateParameters.getFractionIncreaseRnapProteins(doubling_time))
+	minRnapSubunitCounts = nRnapsNeeded * rnapStoich
 
 	# -- CONSTRAINT 2: Expected RNAP subunit counts based on distribution -- #
 	rnapCounts = bulkContainer.counts(rnapIds)
