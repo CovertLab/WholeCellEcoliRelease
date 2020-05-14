@@ -59,7 +59,7 @@ class TwoComponentSystem(wholecell.processes.process.Process):
 		# by the scipy ODE suite.
 		self.molecules_required, self.all_molecule_changes = self.moleculesToNextTimeStep(
 			moleculeCounts, self.cellVolume, self.nAvogadro,
-			self.timeStepSec(), self.randomState, solver="BDF",
+			self.timeStepSec(), self.randomState, method="LSODA",
 			)
 
 		# Request counts of molecules needed
@@ -80,7 +80,7 @@ class TwoComponentSystem(wholecell.processes.process.Process):
 
 			_, self.all_molecule_changes = self.moleculesToNextTimeStep(
 				moleculeCounts, self.cellVolume, self.nAvogadro,
-				10000, self.randomState, solver="BDF", min_time_step=self.timeStepSec(),
+				10000, self.randomState, method="BDF", min_time_step=self.timeStepSec(),
 				)
 
 		# Increment changes in molecule counts
