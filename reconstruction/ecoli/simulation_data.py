@@ -132,6 +132,10 @@ class SimulationDataEcoli(object):
 		self.tfToDirection = {}
 		notFound = []
 		for row in raw_data.foldChanges:
+			# Skip fold changes that do not agree with curation
+			if np.abs(row['Regulation_direct']) > 2:
+				continue
+
 			tf = abbrToActiveId[row["TF"].encode("utf-8")][0]
 			try:
 				target = abbrToRnaId[row["Target"].encode("utf-8")]

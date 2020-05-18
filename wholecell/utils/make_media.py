@@ -157,16 +157,16 @@ class Media(object):
 			base_vol += added_vol
 
 		if ingredient_ids:
-			added_weight = recipe.get("ingredients weight", None)
-			added_counts = recipe.get("ingredients counts", None)
+			added_weight = recipe.get("ingredients weight", [])
+			added_counts = recipe.get("ingredients counts", [])
 			added_vol = recipe.get("ingredients volume")  # the row is a list with units.L, even an empty list is read.
 			ingredients = {ingred_id: {} for ingred_id in ingredient_ids}
 			for index, ingred_id in enumerate(ingredient_ids):
-				if added_weight:
+				if len(added_weight):
 					ingredients[ingred_id]['weight'] = added_weight[index]
-				if added_counts:
+				if len(added_counts):
 					ingredients[ingred_id]['counts'] = added_counts[index]
-				if added_vol:
+				if len(added_vol):
 					ingredients[ingred_id]['volume'] = added_vol[index]
 				else:
 					ingredients[ingred_id]['volume'] = 0 * units.L

@@ -57,14 +57,14 @@ def derivatives_jacobian(jacobian_matrix, jit=True):
 	"""Build an optimized derivatives ODE Jacobian function(y, t)."""
 	return build_function('y, t', _matrix_to_array(jacobian_matrix), jit)
 
-def derivatives_with_rates(matrix, jit=True):
+def rates(matrix, jit=True):
 	# type: (Matrix, bool) -> Callable
-	"""Build an optimized derivatives ODE function(y, t, kf, kr)."""
-	return build_function('y, t, kf, kr',
+	"""Build an optimized rates function(t, y, kf, kr)."""
+	return build_function('t, y, kf, kr',
 		_matrix_to_array(matrix) + '.reshape(-1)', jit)
 
-def derivatives_jacobian_with_rates(jacobian_matrix, jit=True):
+def rates_jacobian(jacobian_matrix, jit=True):
 	# type: (Matrix, bool) -> Callable
-	"""Build an optimized derivatives ODE Jacobian function(y, t, kf, kr)."""
-	return build_function('y, t, kf, kr',
+	"""Build an optimized rates Jacobian function(t, y, kf, kr)."""
+	return build_function('t, y, kf, kr',
 		_matrix_to_array(jacobian_matrix), jit)

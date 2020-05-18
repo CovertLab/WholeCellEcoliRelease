@@ -14,7 +14,6 @@ from wholecell.utils import units
 import unum
 
 DNA_CRITICAL_MASS = {100: 600, 44: 975} # units of fg
-FRACTION_INCREASE_RNAP_PROTEINS = {100: 0, 44: 0.05}
 
 class Mass(object):
 	""" Mass """
@@ -392,9 +391,6 @@ class GrowthRateParameters(object):
 	def getDnaCriticalMass(self, doubling_time):
 		return DNA_CRITICAL_MASS.get(doubling_time.asNumber(units.min), DNA_CRITICAL_MASS[44]) * units.fg
 
-	def getFractionIncreaseRnapProteins(self, doubling_time):
-		return FRACTION_INCREASE_RNAP_PROTEINS.get(doubling_time.asNumber(units.min), FRACTION_INCREASE_RNAP_PROTEINS[44])
-
 def _getFitParameters(list_of_dicts, key):
 	# Load rows of data
 	x = _loadRow('doublingTime', list_of_dicts)
@@ -416,13 +412,13 @@ def _getFitParameters(list_of_dicts, key):
 	y = y[idx_order]
 
 	# Generate fit
-	parameters = interpolate.splrep(x, y)
-	if np.sum(np.absolute(interpolate.splev(x, parameters) - y)) / y.size > 1.:
+	cs = interpolate.CubicSpline(x, y, bc_type='natural')
+	if np.sum(np.absolute(cs(x) - y)) / y.size > 1.:
 		raise Exception("Fitting {} with 3d spline, residuals are huge!".format(key))
 
-	return {'parameters' : parameters, 'x_units' : x_units, 'y_units' : y_units, 'dtype' : y.dtype}
+	return {'function': cs, 'x_units': x_units, 'y_units': y_units, 'dtype': y.dtype}
 
-def _useFitParameters(x_new, parameters, x_units, y_units, dtype):
+def _useFitParameters(x_new, function, x_units, y_units, dtype):
 	# Convert to same unit base
 	if units.hasUnit(x_units):
 		x_new = x_new.asNumber(x_units)
@@ -430,7 +426,7 @@ def _useFitParameters(x_new, parameters, x_units, y_units, dtype):
 		raise Exception("New x value has units but fit does not!")
 
 	# Calculate new interpolated y value
-	y_new = interpolate.splev(x_new, parameters)
+	y_new = function(x_new)
 
 	# If value should be an integer (i.e. an elongation rate)
 	# round to the nearest integer

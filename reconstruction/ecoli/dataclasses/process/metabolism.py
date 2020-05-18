@@ -232,6 +232,15 @@ class Metabolism(object):
 		self._compiled_enzymes = None
 		self._compiled_saturation = None
 
+		# TODO: move this to a sim_data analysis script
+		if VERBOSE:
+			print('\nSummary of included metabolism kinetics:')
+			print('Reactions with kinetics: {}'.format(len(self.kinetic_constraint_reactions)))
+			print('Enzymes with kinetics: {}'.format(len(self.kinetic_constraint_enzymes)))
+			print('Metabolites in kinetics: {}'.format(len(self.kinetic_constraint_substrates)))
+			print('Number of kcat values: {}'.format(len([k for c in constraints.values() for k in c['kcat']])))
+			print('Number of saturation terms: {}'.format(len([s for c in constraints.values() for s in c['saturation']])))
+
 		# Verify no substrates with unknown concentrations have been added
 		unknown = {m for m in self.kinetic_constraint_substrates
 			if m not in known_metabolites}

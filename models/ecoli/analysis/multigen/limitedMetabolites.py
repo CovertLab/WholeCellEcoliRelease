@@ -34,27 +34,31 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 		allDir = ap.get_cells()
 
-		sim_data = cPickle.load(open(simDataFile, "rb"))
-		metaboliteNames = np.array(sorted(sim_data.process.metabolism.concDict.keys()))
-		nMetabolites = len(metaboliteNames)
-
 		fig, axesList = plt.subplots(3)
 		fig.set_size_inches(11, 11)
 
 		histo = np.zeros(4)
-		limitedCounts = np.zeros(len(metaboliteNames))
 
 		ax2 = axesList[2]
+		metaboliteNames = None
 		for simDir in allDir:
 			simOutDir = os.path.join(simDir, "simOut")
 
+			# Listeners used
 			enzymeKineticsData = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
+			main_reader = TableReader(os.path.join(simOutDir, "Main"))
+
+			# Get names of metabolites and set up to track limited generations
+			# in the first sim analyzed
+			if metaboliteNames is None:
+				metaboliteNames = np.array(enzymeKineticsData.readAttribute("metaboliteNames"))
+				nMetabolites = len(metaboliteNames)
+				limitedCounts = np.zeros(len(metaboliteNames))
+
 			metaboliteCounts = enzymeKineticsData.readColumn("metaboliteCountsFinal")
 			normalizedCounts = metaboliteCounts / metaboliteCounts[1, :]
-			enzymeKineticsData.close()
 
 			# Read time info from the listener
-			main_reader = TableReader(os.path.join(simOutDir, "Main"))
 			initialTime = main_reader.readAttribute("initialTime")
 			time = main_reader.readColumn("time")
 
@@ -82,49 +86,23 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		ax0 = axesList[0]
 		labels = np.arange(len(histo))
-		ax0.bar(labels - 0.5, histo, 1)
+		ax0.bar(labels, histo, align='center')
 		ax0.set_xticks(labels)
 		ax0.set_xlabel("Number of limited metabolites")
 		ax0.set_ylabel("Number of generations")
 
 		ax1 = axesList[1]
-		ax1.bar(np.arange(len(np.where(limitedCounts > 0)[0])) - 0.4, limitedCounts[limitedCounts > 0])
+		ax1.bar(np.arange(len(np.where(limitedCounts > 0)[0])), limitedCounts[limitedCounts > 0], align='center')
 		ax1.set_xticks(np.arange(len(np.where(limitedCounts > 0)[0])))
-		ax1.set_xticklabels(metaboliteNames[limitedCounts > 0], fontsize = 6)
+		ax1.set_xticklabels(metaboliteNames[limitedCounts > 0],
+			fontsize=6, ha='right', rotation=10)
 		ax1.set_xlabel("Metabolite Limited")
 		ax1.set_ylabel("Number of genreations")
 
+		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName,metadata)
 		plt.close("all")
 
-def getMassData(simDir, massNames):
-	simOutDir = os.path.join(simDir, "simOut")
-	time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-	mass = TableReader(os.path.join(simOutDir, "Mass"))
-
-	massFractionData = np.zeros((len(massNames),time.size))
-
-	for idx, massType in enumerate(massNames):
-		massFractionData[idx,:] = mass.readColumn(massNames[idx])
-
-	if len(massNames) == 1:
-		massFractionData = massFractionData.reshape(-1)
-
-	return time, massFractionData
-
-def get_new_ylim(axis, new_min, new_max):
-	ymin = axis.get_ylim()[0]
-	ymax = axis.get_ylim()[1]
-
-	if new_min < ymin:
-		ymin = new_min
-	if new_max > ymax:
-		ymax = new_max
-
-	return [ymin, ymax]
-
-def removeNanReshape(a):
-	return a[np.logical_not(np.isnan(a))]
 
 if __name__ == "__main__":
 	Plot().cli()

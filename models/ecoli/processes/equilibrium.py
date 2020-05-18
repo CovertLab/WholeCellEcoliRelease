@@ -54,7 +54,8 @@ class Equilibrium(wholecell.processes.process.Process):
 		cellVolume = cellMass / self.cellDensity
 
 		# Solve ODEs to steady state
-		self.rxnFluxes, self.req = self.fluxesAndMoleculesToSS(moleculeCounts, cellVolume, self.nAvogadro)
+		self.rxnFluxes, self.req = self.fluxesAndMoleculesToSS(
+			moleculeCounts, cellVolume, self.nAvogadro, self.randomState)
 
 		# Request counts of molecules needed
 		self.molecules.requestIs(self.req)
