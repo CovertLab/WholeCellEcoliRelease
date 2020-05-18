@@ -393,7 +393,7 @@ class TwoComponentSystem(object):
 
 		sol = scipy.integrate.solve_ivp(
 			self.derivatives, [0, timeStepSec], y_init,
-			method=method, t_eval=[0, timeStepSec], atol=1e-7,
+			method=method, t_eval=[0, timeStepSec], atol=1e-8,
 			jac=self.derivatives_jacobian
 			)
 		y = sol.y.T
