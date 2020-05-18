@@ -123,9 +123,8 @@ This page goes through the Python environment setup steps in more detail and wit
       ```bash
       brew install gcc  # if you don't have a gfortran compiler
       cd <the directory containing your git projects>
-      git clone https://github.com/xianyi/OpenBLAS
-      cd OpenBLAS
-      git checkout v0.3.5
+      curl -SL https://github.com/xianyi/OpenBLAS/archive/v0.3.9.tar.gz | tar -xz
+      cd OpenBLAS-0.3.9
       make FC=gfortran
       sudo make PREFIX=/opt/OpenBLAS install  # <-- pick another PREFIX dir if you don't/can't sudo
       cd ..
@@ -135,14 +134,14 @@ This page goes through the Python environment setup steps in more detail and wit
    your old assembler is incompatible with the Fortran compiler. Figure out how to update the assembler
    or else install OpenBLAS 0.3.4 and suffer its threading bugs and inconsistent results.
    
-   **Note:** OpenBLAS 0.3.7 (as installed by brew install openblas) works fine on macOS, but not inside
+   **Note:** OpenBLAS 0.3.6+ works fine on macOS but not inside
    Docker on macOS unless you compile it with option `NO_AVX2=1`.
 
 1. Create `~/.numpy-site.cfg` pointing to _your OpenBLAS installation directory._
 
    (If you want, you can download [site.cfg.example](https://github.com/numpy/numpy/blob/master/site.cfg.example) to your local file `~/.numpy-site.cfg` to start from their example configuration choices and documentation.)
 
-   (Brew installs OpenBLAS in `/usr/local/opt/openblas/`. Building it from source as above, you installed it in `/opt/OpenBLAS/`. On Sherlock, it's in `$PI_HOME/downloads-sherlock2/compiled/openblas/lib`.)
+   (Brew installs OpenBLAS in `/usr/local/opt/openblas/`. If you compiled it from source as above, you installed it in the PREFIX directory, e.g. `/opt/OpenBLAS/`. On Sherlock, it's installed in `$PI_HOME/downloads-sherlock2/compiled/openblas/lib`.)
 
       ```
       [openblas]
@@ -216,7 +215,8 @@ This page goes through the Python environment setup steps in more detail and wit
    pytest
    ```
 
-   If the unit tests fail with an error message saying the loader can't load `.../pyenv/versions/.../lib/libpython2.7.a`, that means you didn't successfully `--enable-shared` when installing python. Go back to that step, run `PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.16 --force`, and repeat all the steps after it.
+   If the unit tests fail with an error message saying the loader can't load `.../pyenv/versions/.../lib/libpython2.7.a`, that means you'll need to `--enable-shared` when installing python. Go back to that step, run `PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.16 --force`, then delete and recreate the virtualenv `wcEcoli2` with the new Python 2.7.16 and the pips.
+   You needn't reinstall OpenBLAS.
 
 
 ## Sherlock SCRATCH directory setup
