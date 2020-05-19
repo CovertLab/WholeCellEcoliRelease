@@ -1,7 +1,6 @@
 """
 SimulationData mass data
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 03/13/2015
 """
@@ -10,10 +9,14 @@ from __future__ import division
 
 import numpy as np
 from scipy import interpolate
-from wholecell.utils import units
 import unum
 
-DNA_CRITICAL_MASS = {100: 600, 44: 975} # units of fg
+from wholecell.utils import units
+
+
+NORMAL_CRITICAL_MASS = 975 * units.fg
+SLOW_GROWTH_FACTOR = 1.2  # adjustment for smaller cells
+
 
 class Mass(object):
 	""" Mass """
@@ -106,6 +109,26 @@ class Mass(object):
 		doubling_time = self._clipTau_d(doubling_time)
 		avgCellDryMass = units.fg * float(interpolate.splev(doubling_time.asNumber(units.min), self._dryMassParams))
 		return avgCellDryMass
+
+	def get_dna_critical_mass(self, doubling_time):
+		# type: (units.Unum) -> units.Unum
+		"""
+		Returns the critical mass for replication initiation.  Faster growing
+		cells maintain a consistent initiation mass but slower growing cells
+		are smaller and will never reach this mass so it needs to be adjusted
+		lower for them.
+
+		Args:
+			doubling_time (float with time units): expected doubling time of cell
+
+		Returns:
+			critical_mass (float with mass units): critical mass for DNA
+				replication initiation
+		"""
+
+		mass = self.getAvgCellDryMass(doubling_time) / self.cellDryMassFraction
+		critical_mass = min(mass * SLOW_GROWTH_FACTOR, NORMAL_CRITICAL_MASS)
+		return critical_mass
 
 	# Set mass fractions based on growth rate
 	def getMassFraction(self, doubling_time):
@@ -387,9 +410,6 @@ class GrowthRateParameters(object):
 
 	def getppGppConc(self, doubling_time):
 		return _useFitParameters(doubling_time, **self.ppGppConcentration) * self._per_dry_mass_to_per_volume
-
-	def getDnaCriticalMass(self, doubling_time):
-		return DNA_CRITICAL_MASS.get(doubling_time.asNumber(units.min), DNA_CRITICAL_MASS[44]) * units.fg
 
 def _getFitParameters(list_of_dicts, key):
 	# Load rows of data
