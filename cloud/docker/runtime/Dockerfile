@@ -10,6 +10,7 @@
 #
 # Add option `--build-arg from=ABC` to build from a different base image but
 # DO NOT USE an alpine base since the simulation math comes out different!
+# See https://pythonspeed.com/articles/alpine-docker-python/ for more reasons.
 ARG from=python:2.7.16
 FROM ${from}
 
@@ -28,11 +29,11 @@ RUN apt-get update \
 RUN echo "alias ls='ls --color=auto'" >> ~/.bashrc \
     && echo "alias ll='ls -l'" >> ~/.bashrc
 
-# Install openblas (0.3.5 is OK; 0.3.3 is not; 0.3.6 and 0.3.7 need "NO_AVX2=1"
-# to produce correct results in macOS Docker).
-# Someday `apt-get install libopenblas-dev=0.3.7` will work.
+# Install openblas (0.3.5 is OK; 0.3.3 is not; 0.3.6+ need "NO_AVX2=1"
+# in macOS Docker to produce correct results).
+# Someday `apt-get install libopenblas-dev=...` will work.
 RUN (mkdir -p openblas && cd openblas \
-    && curl -SL https://github.com/xianyi/OpenBLAS/archive/v0.3.7.tar.gz | tar -xz \
+    && curl -SL https://github.com/xianyi/OpenBLAS/archive/v0.3.9.tar.gz | tar -xz \
     && cd OpenBLAS* \
     && make "NO_AVX2=${NO_AVX2}" FC=gfortran \
     && make "NO_AVX2=${NO_AVX2}" PREFIX=/usr install) \

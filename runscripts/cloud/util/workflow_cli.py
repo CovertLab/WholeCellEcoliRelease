@@ -7,7 +7,6 @@ from __future__ import absolute_import, division, print_function
 import argparse
 import os
 import posixpath
-from pprint import pprint
 from typing import Iterable, Optional
 
 import wholecell.utils.filepath as fp
@@ -16,13 +15,11 @@ from runscripts.cloud.util.workflow import (DEFAULT_LPAD_YAML,
 	STORAGE_ROOT_ENV_VAR, Task, Workflow)
 
 
-USE_GAIA = False
-
 class WorkflowCLI(scriptBase.ScriptBase):
 	"""Abstract base class for a Command Line Interface to build a workflow."""
 
 	# Subclasses can override these:
-	DOCKER_IMAGE = 'python:2.7.16'
+	DOCKER_IMAGE = 'python:3.8.3'
 	DEFAULT_TIMEOUT = Task.DEFAULT_TIMEOUT  # in seconds
 
 	def __init__(self):
@@ -56,10 +53,9 @@ class WorkflowCLI(scriptBase.ScriptBase):
 		parser.add_argument('-w', '--workers', type=int, default=1,
 			help='number of worker nodes to launch; default = 1')
 		parser.add_argument('--dump', action='store_true',
-			help='Dump the built workflow to JSON files for your review *instead* of'
-				 ' sending them to the Gaia workflow server. This is useful for'
-				 ' testing and debugging. You can upload them manually or re-run'
-				 ' this program without `--dump`.')
+			help='Dump the built workflow to a YAML file for review *instead*'
+				 ' of sending it to the launchpad DB server. This is useful'
+				 ' for testing and debugging.')
 
 	def build(self, args):
 		# type: (argparse.Namespace) -> None
@@ -69,17 +65,8 @@ class WorkflowCLI(scriptBase.ScriptBase):
 	def dumpOrRun(self, args):
 		# type: (argparse.Namespace) -> None
 		"""Dump or run the workflow."""
-		if USE_GAIA:
-			if args.dump:
-				self.wf.write_for_gaia()
-			else:
-				self.wf.send_to_gaia(worker_count=args.workers)
-			return
-
 		if args.dump:
-			# TODO(jerry): Write a yaml spec file.
-			fw_wf = self.wf.build_workflow()
-			pprint(fw_wf)
+			self.wf.write()
 		else:
 			self.wf.send_to_lpad(
 				worker_count=args.workers, lpad_filename=args.launchpad_filename)

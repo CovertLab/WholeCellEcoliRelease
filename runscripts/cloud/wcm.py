@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 """
-Build a workflow for the Whole Cell Model then send it to the Gaia server in
-Google Cloud.
+Build a workflow for the Whole Cell Model then send it to the workflow server.
 """
 
 from __future__ import absolute_import, division, print_function
@@ -10,7 +9,6 @@ from __future__ import absolute_import, division, print_function
 import json
 import os
 import posixpath
-from pprint import pprint
 import re
 from typing import Any, Dict, Iterable, Optional, Type
 
@@ -36,7 +34,6 @@ from runscripts.cloud.util.workflow import (DEFAULT_LPAD_YAML,
 
 # ':latest' -- "You keep using that word. I do not think it means what you think it means."
 DOCKER_IMAGE = 'gcr.io/allen-discovery-center-mcovert/{}-wcm-code'
-USE_GAIA = False
 
 
 class WcmWorkflow(Workflow):
@@ -100,7 +97,7 @@ class WcmWorkflow(Workflow):
 		# type: (Dict[str, Any]) -> None
 
 		# Joining with '' gets a path that ends with the path separator, which
-		# tells Sisyphus to pull or push an entire directory tree.
+		# tells DockerTask to fetch or store an entire directory tree.
 		kb_dir = self.internal(ParcaTask.OUTPUT_SUBDIR, '')
 		sim_data_file = posixpath.join(kb_dir, constants.SERIALIZED_SIM_DATA_FILENAME)
 		validation_data_file = posixpath.join(kb_dir, constants.SERIALIZED_VALIDATION_DATA)
@@ -247,9 +244,10 @@ class WcmWorkflow(Workflow):
 
 						if args['build_causality_network']:
 							cell_series_out_dir = posixpath.join(cell_dir, 'seriesOut', '')
-							# NOTE: This could reuse the Causality network over the variant. For
-							# Sisyphus it'd take moving that work from BuildCausalityNetworkTask
-							# to VariantSimDataTask, but it wouldn't save much space and time.
+							# NOTE: This could reuse the Causality network over the variant. To do
+							# it in a cloud workflow we'd have to move that work from
+							# BuildCausalityNetworkTask to VariantSimDataTask, and it wouldn't save
+							# much space or time.
 							python_args = dict(
 								input_results_directory=cell_sim_out_dir,
 								input_sim_data=variant_sim_data_modified_file,
@@ -372,10 +370,9 @@ class RunWcm(scriptBase.ScriptBase):
 			help='The number of CPU processes to use in the Parca and analysis'
 				 ' steps. Default = 1.')
 		self.define_parameter_bool(parser, 'dump', False,
-			help='Dump the built workflow to JSON files for'
-				 ' review *instead* of sending them to the Gaia workflow'
-				 ' server. This is useful for testing and debugging. You can'
-				 ' upload them manually or re-run this program without `--dump`.')
+			help='Dump the built workflow to a YAML file for review *instead*'
+				 ' of sending it to the launchpad DB server. This is useful'
+				 ' for testing and debugging.')
 		parser.add_argument('-l', dest='launchpad_filename',
 			default=DEFAULT_LPAD_YAML,
 			help='Launchpad config YAML filename (default="{}").'.format(
@@ -426,17 +423,8 @@ class RunWcm(scriptBase.ScriptBase):
 	def run(self, args):
 		wf = wc_ecoli_workflow(vars(args))
 
-		if USE_GAIA:
-			if args.dump:
-				wf.write_for_gaia()
-			else:
-				wf.send_to_gaia(worker_count=args.workers)
-			return
-
 		if args.dump:
-			# TODO(jerry): Write a yaml spec file.
-			fw_wf = wf.build_workflow()
-			pprint(fw_wf)
+			wf.write()
 		else:
 			wf.send_to_lpad(
 				worker_count=args.workers, lpad_filename=args.launchpad_filename)

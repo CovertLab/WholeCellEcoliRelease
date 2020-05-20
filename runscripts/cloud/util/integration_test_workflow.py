@@ -7,7 +7,7 @@ from runscripts.cloud.util.workflow_cli import WorkflowCLI
 
 class TestWorkflow(WorkflowCLI):
 	"""A test workflow for integration and regression tests of the cloud
-	workflow software.
+	workflow software, which runs workflow tasks in Docker containers.
 
 	The run will never reach "WORKFLOW COMPLETE" since some tasks intentionally
 	fail and another task will never run for lack of inputs from failed tasks.
@@ -57,12 +57,11 @@ class TestWorkflow(WorkflowCLI):
 			inputs=[error_no_such_file_out, index_error_out],
 			command=['cat', error_no_such_file_out, index_error_out])
 
-		# This task writes files into an output dir to test the file ownership
-		# of files created by the process inside the Docker container, not by
-		# the Sisyphus worker (which creates files and directories explicitly
-		# named in task `inputs` and `outputs`).
-		# Expected:  The text files on the worker server have ordinary user and
-		# group ownership, not root, so the worker can delete them without error.
+		# This Task writes files into an output dir to test access from inside
+		# the Container to an output dir created by the Fireworker outside the
+		# Container and vice versa.
+		# Expected:  The Fireworker can read and delete the Task's output files
+		# without error.
 		output_dir = '/tmp/output/dir/'
 		code = (
 			"for i in range(4):\n"
@@ -76,17 +75,16 @@ class TestWorkflow(WorkflowCLI):
 			outputs=(output_dir,),
 			command=['python', '-u', '-c', code])
 
-		# Download and append to a file written by a previous Task to test file
-		# permissions, e.g. it's not owned by root so the task can overwrite it.
-		# It wouldn't fit Gaia's functional data flow model to output a file
-		# back to storage with an input's filename since that means ambiguous
-		# responsibility for which task creates it. This test skirts that by
-		# printing the appended file and uploading stdout to prove that it
-		# succeeded.
+		# Download and append to a file written by a previous Task to test that
+		# the Task has write access to its input files, e.g. they're not owned
+		# by root. Writing the file back to GCS with the same name would make
+		# it ambiguous which Task is responsible for writing it, which doesn't
+		# fit the functional WF data flow model. Skirt that by printing the
+		# appended file to stdout and uploading stdout to demonstrate success.
 		code = (
 			"fn = '" + output_dir + "1.txt'\n"
 			"with open(fn, 'a') as f:\n"
-			"  f.write('This is still file 1\\n')\n"
+			"  f.write('Appended to file 1\\n')\n"
 			"with open(fn, 'r') as f:\n"
 			"  print(f.read())\n")
 		self.add_task(
