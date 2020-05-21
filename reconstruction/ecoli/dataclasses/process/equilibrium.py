@@ -303,7 +303,7 @@ class Equilibrium(object):
 	def derivatives_jacobian(self, t, y):
 		return self._stoichMatrix.dot(self._rates_jacobian(t, y, self.ratesFwd, self.ratesRev))
 
-	def fluxesAndMoleculesToSS(self, moleculeCounts, cellVolume, nAvogadro, random_state, time_limit=1e20):
+	def fluxesAndMoleculesToSS(self, moleculeCounts, cellVolume, nAvogadro, random_state, time_limit=1e20, max_iter=100):
 		y_init = moleculeCounts / (cellVolume * nAvogadro)
 
 		# Note: odeint has issues solving with a long time step so need to use solve_ivp
@@ -314,17 +314,25 @@ class Equilibrium(object):
 		y = sol.y.T
 
 		if np.any(y[-1, :] * (cellVolume * nAvogadro) <= -1):
-			raise Exception, "Have negative values -- probably due to numerical instability"
+			raise ValueError('Have negative values at equilibrium steady state -- probably due to numerical instability.')
 		if np.linalg.norm(self.derivatives(0, y[-1, :]), np.inf) * (cellVolume * nAvogadro) > 1:
-			raise Exception, "Didn't reach steady state"
+			raise RuntimeError('Did not reach steady state for equilibrium.')
 		y[y < 0] = 0
 		yMolecules = y * (cellVolume * nAvogadro)
 
+		# Pick rounded solution that does not cause negative counts
 		dYMolecules = yMolecules[-1, :] - yMolecules[0, :]
-		rxnFluxes = stochasticRound(random_state, np.dot(self.metsToRxnFluxes, dYMolecules))
+		for i in range(max_iter):
+			rxnFluxes = stochasticRound(random_state, np.dot(self.metsToRxnFluxes, dYMolecules))
+			if np.all(moleculeCounts + self._stoichMatrix.dot(rxnFluxes) >= 0):
+				break
+		else:
+			raise ValueError('Negative counts in equilibrium steady state.')
+
 		rxnFluxesN = -1. * (rxnFluxes < 0) * rxnFluxes
 		rxnFluxesP =  1. * (rxnFluxes > 0) * rxnFluxes
 		moleculesNeeded = np.dot(self.Rp, rxnFluxesP) + np.dot(self.Pp, rxnFluxesN)
+
 		return rxnFluxes, moleculesNeeded
 
 	def getMonomers(self, cplxId):
