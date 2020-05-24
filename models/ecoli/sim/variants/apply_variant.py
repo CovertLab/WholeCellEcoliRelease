@@ -13,7 +13,7 @@ def apply_variant(sim_data_file, variant_type, variant_index):
 	"""
 
 	if variant_type not in nameToFunctionMapping:
-		raise Exception, "%s is not a valid variant function!" % variant_type
+		raise Exception("%s is not a valid variant function!" % variant_type)
 
 	print("{}: Creating sim_data for Variant: {}, Index: {}".format(
 		time.ctime(), variant_type, variant_index))

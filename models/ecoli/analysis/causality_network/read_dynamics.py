@@ -51,7 +51,8 @@ def get_safe_name(s):
 class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 	def do_plot(self, simOutDir, seriesOutDir, dynamicsFileName, simDataFile, nodeListFile, metadata):
 		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
+			raise Exception(
+				"simOutDir does not currently exist as a directory")
 
 		filepath.makedirs(seriesOutDir)
 

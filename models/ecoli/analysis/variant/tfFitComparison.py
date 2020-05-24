@@ -21,7 +21,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			return
 
 		if not os.path.isdir(inputDir):
-			raise Exception, "inputDir does not currently exist as a directory"
+			raise Exception("inputDir does not currently exist as a directory")
 
 		ap = AnalysisPaths(inputDir, variant_plot = True)
 		variants = sorted(ap._path_data['variant'].tolist()) # Sorry for accessing private data

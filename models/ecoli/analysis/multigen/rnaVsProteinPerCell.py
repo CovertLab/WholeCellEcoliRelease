@@ -44,7 +44,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		HIGHLIGHT_GENES = False
 
 		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
+			raise Exception(
+				"seedOutDir does not currently exist as a directory")
 
 		if not os.path.exists(plotOutDir):
 			os.mkdir(plotOutDir)

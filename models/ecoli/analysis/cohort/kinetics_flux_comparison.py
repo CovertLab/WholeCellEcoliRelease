@@ -31,7 +31,8 @@ BURN_IN_TIME = 1
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		if not os.path.isdir(variantDir):
-			raise Exception, "variantDir does not currently exist as a directory"
+			raise Exception(
+				"variantDir does not currently exist as a directory")
 
 		if not os.path.exists(plotOutDir):
 			os.mkdir(plotOutDir)

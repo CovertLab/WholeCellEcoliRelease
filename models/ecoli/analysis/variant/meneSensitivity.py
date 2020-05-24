@@ -31,7 +31,7 @@ MARKERSIZE = 1
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		if not os.path.isdir(inputDir):
-			raise Exception, "inputDir does not currently exist as a directory"
+			raise Exception("inputDir does not currently exist as a directory")
 		if not os.path.exists(plotOutDir):
 			os.mkdir(plotOutDir)
 

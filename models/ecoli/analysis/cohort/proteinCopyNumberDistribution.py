@@ -31,7 +31,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		# Check if the given variant directory exists
 		if not os.path.isdir(variantDir):
-			raise Exception, "variantDir does not currently exist as a directory."
+			raise Exception(
+				"variantDir does not currently exist as a directory.")
 
 		# Make plotOut directory if none exists
 		makedirs(plotOutDir)

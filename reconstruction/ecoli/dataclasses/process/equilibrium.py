@@ -44,7 +44,10 @@ class Equilibrium(object):
 		complexationReactionIds = set([x["id"] for x in raw_data.complexationReactions])
 
 		if equilibriumReactionIds.intersection(complexationReactionIds) != set():
-			raise Exception, "The following reaction ids are specified in equilibriumReactions and complexationReactions: %s" % (equilibriumReactionIds.intersection(complexationReactionIds))
+			raise Exception(
+				"The following reaction ids are specified in equilibriumReactions and complexationReactions: %s" % (
+					equilibriumReactionIds.intersection(
+						complexationReactionIds)))
 
 		# Remove complexes that are currently not simulated
 		FORBIDDEN_MOLECULES = {
@@ -247,7 +250,8 @@ class Equilibrium(object):
 			try:
 				firstNonZeroIdx = np.where(np.abs(metsToRxnFluxes[:, colIdx]) > EPS)[0][0]
 			except IndexError:
-				raise Exception, "Column %d of S matrix not linearly independent!" % colIdx
+				raise Exception(
+					"Column %d of S matrix not linearly independent!" % colIdx)
 			metsToRxnFluxes[:firstNonZeroIdx, colIdx] = 0
 			metsToRxnFluxes[(firstNonZeroIdx + 1):, colIdx] = 0
 
@@ -347,7 +351,8 @@ class Equilibrium(object):
 	def getMetabolite(self, cplxId):
 		D = self.getMonomers(cplxId)
 		if len(D["subunitIds"]) > 2:
-			raise Exception, "Calling this function only makes sense for reactions with 2 reactants"
+			raise Exception(
+				"Calling this function only makes sense for reactions with 2 reactants")
 		for subunit in D["subunitIds"]:
 			if subunit in self.metaboliteSet:
 				return subunit
@@ -355,7 +360,8 @@ class Equilibrium(object):
 	def getMetaboliteCoeff(self, cplxId):
 		D = self.getMonomers(cplxId)
 		if len(D["subunitIds"]) > 2:
-			raise Exception, "Calling this function only makes sense for reactions with 2 reactants"
+			raise Exception(
+				"Calling this function only makes sense for reactions with 2 reactants")
 		for subunit, stoich in zip(D["subunitIds"], D["subunitStoich"]):
 			if subunit in self.metaboliteSet:
 				return stoich
@@ -363,7 +369,8 @@ class Equilibrium(object):
 	def getUnbound(self, cplxId):
 		D = self.getMonomers(cplxId)
 		if len(D["subunitIds"]) > 2:
-			raise Exception, "Calling this function only makes sense for reactions with 2 reactants"
+			raise Exception(
+				"Calling this function only makes sense for reactions with 2 reactants")
 		for subunit in D["subunitIds"]:
 			if subunit not in self.metaboliteSet:
 				return subunit

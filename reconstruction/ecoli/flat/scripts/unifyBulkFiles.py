@@ -61,7 +61,7 @@ for metabolite in metaboliteData:
 		metabolite['mw'] = [0.] * len(molecular_weight_order)
 		metabolite['mw'][molecular_weight_order['water']] = metabolite['mw7.2']
 	else:
-		raise Exception, 'Messed up masses!'
+		raise Exception('Messed up masses!')
 	metabolite.pop('mediaConc')
 	metabolite.pop('maxExchange')
 write_tsv(join(FLAT_DIR,'metabolites.tsv'), metaboliteData)

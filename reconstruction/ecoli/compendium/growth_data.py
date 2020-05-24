@@ -65,7 +65,8 @@ class GrowthData(object):
 
 	def dnaMass(self, tau_d):
 		if tau_d < self.D_PERIOD:
-			raise Exception, "Can't have doubling time shorter than cytokinesis time!"
+			raise Exception(
+				"Can't have doubling time shorter than cytokinesis time!")
 
 		# TODO: If you really care, this should be a loop.
 		# It is optimized to run quickly over the range of T_d

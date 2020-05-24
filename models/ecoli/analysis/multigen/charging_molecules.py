@@ -90,7 +90,8 @@ def post_plot_formatting(ax, division_times, y_label, draw_horizontal=None, y_li
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		if not os.path.isdir(seedOutDir):
-			raise Exception, 'seedOutDir does not currently exist as a directory'
+			raise Exception(
+				'seedOutDir does not currently exist as a directory')
 
 		filepath.makedirs(plotOutDir)
 

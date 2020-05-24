@@ -17,15 +17,15 @@ def randCounts(randomState, counts, N):
 	if counts.shape == ():
 		counts = counts.reshape(1)
 	if np.any(counts < 0) or counts.dtype != np.dtype(np.int):
-		raise Exception, "counts must contain positive integers."
+		raise Exception("counts must contain positive integers.")
 	if N < 0:
-		raise Exception, "N must be positive."
+		raise Exception("N must be positive.")
 
 	cumsumCounts = np.cumsum(counts)
 	positiveSelect = True
 
 	if N > cumsumCounts[-1]:
-		raise Exception, "N must be at most the total available counts."
+		raise Exception("N must be at most the total available counts.")
 
 	if N == cumsumCounts[-1]:
 		return counts

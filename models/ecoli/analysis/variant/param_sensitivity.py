@@ -166,7 +166,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			return
 
 		if not os.path.isdir(inputDir):
-			raise Exception, 'inputDir does not currently exist as a directory'
+			raise Exception('inputDir does not currently exist as a directory')
 
 		filepath.makedirs(plotOutDir)
 

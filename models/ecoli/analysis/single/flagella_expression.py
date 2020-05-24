@@ -95,7 +95,8 @@ flagella_proteins = {
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		if not os.path.isdir(simOutDir):
-			raise Exception, 'simOutDir does not currently exist as a directory'
+			raise Exception(
+				'simOutDir does not currently exist as a directory')
 
 		filepath.makedirs(plotOutDir)
 
