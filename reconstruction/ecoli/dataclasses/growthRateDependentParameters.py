@@ -5,7 +5,7 @@ SimulationData mass data
 @date: Created 03/13/2015
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 from scipy import interpolate

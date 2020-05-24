@@ -12,6 +12,8 @@ Expected variant indices (dependent on FACTORS):
 	0 (low expression) - 8 (high expression)
 """
 
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
 
 FACTORS = [0.1, 0.125, 0.25, 0.5, 1, 2., 4., 8., 10.]

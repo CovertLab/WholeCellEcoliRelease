@@ -8,8 +8,8 @@ significant parameters for each output difference measure.
 @date: Created 5/17/19
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
+
 from future_builtins import zip
 
 import cPickle
@@ -162,7 +162,7 @@ def headers(labels, name):
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		if metadata.get('variant', '') != 'param_sensitivity':
-			print 'This plot only runs for the param_sensitivity variant.'
+			print('This plot only runs for the param_sensitivity variant.')
 			return
 
 		if not os.path.isdir(inputDir):

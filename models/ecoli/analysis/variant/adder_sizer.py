@@ -1,5 +1,4 @@
-from __future__ import absolute_import
-
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -31,7 +30,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		ap = AnalysisPaths(inputDir, variant_plot = True)
 
 		if ap.n_generation == 1:
-			print "Need more data to create addedMass"
+			print("Need more data to create addedMass")
 			return
 
 		allScatter = plt.figure()
@@ -81,7 +80,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 					initial_masses = np.hstack((initial_masses, cellMass[0]))
 					final_masses = np.hstack((final_masses, cellMass[-1]))
 				except Exception as e:
-					print e
+					print(e)
 					fail+=1
 
 			added_masses = final_masses - initial_masses

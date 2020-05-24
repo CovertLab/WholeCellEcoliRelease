@@ -5,8 +5,7 @@ Plot of charged tRNA
 @date: Created 8/2/18
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 

@@ -4,7 +4,7 @@
 @date: Created 11/13/2017
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
@@ -31,7 +31,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			avgProteinCounts_forAllCells = rnaVsProteinPerCell["protein"]
 			avgProteinCounts_perCell = avgProteinCounts_forAllCells / float(32)
 		else:
-			print "Requires rnaVsProteinPerCell.cPickle from rnaVsProteinPerCell.py"
+			print("Requires rnaVsProteinPerCell.cPickle from rnaVsProteinPerCell.py")
 			return
 
 		# Check if cache from figure5B_E_F_G.py exist
@@ -40,7 +40,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			colors = figure5B_data["colors"]
 			mrnaIds = figure5B_data["id"].tolist()
 		else:
-			print "Requires figure5B.pickle from figure5B_E_F_G.py"
+			print("Requires figure5B.pickle from figure5B_E_F_G.py")
 			return
 
 		# Check if cache functionalUnits.py exist
@@ -49,7 +49,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			minProteinCounts = functionalUnits_data["minProteinCounts"]
 			monomersInManyComplexes_dict = functionalUnits_data["monomersInvolvedInManyComplexes_dict"]
 		else:
-			print "Requires functionalUnits.cPickle from functionalUnits.py"
+			print("Requires functionalUnits.cPickle from functionalUnits.py")
 			return
 
 		# Check if cache ratioFinalToInitialCountMultigen.pickle from figure5_c.py (cohort analysis) exists
@@ -57,7 +57,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		if os.path.exists(os.path.join(cohortPlotOutDir, "ratioFinalToInitialCountMultigen.pickle")):
 			ratioFinalToInitialCountMultigen = cPickle.load(open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "rb"))
 		else:
-			print "Requires ratioFinalToInitialCountMultigen.pickle from figure5_c.py"
+			print("Requires ratioFinalToInitialCountMultigen.pickle from figure5_c.py")
 			return
 
 		# Load sim data

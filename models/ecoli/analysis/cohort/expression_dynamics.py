@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 from itertools import izip
@@ -40,7 +40,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		# Check if basal sim
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		if sim_data.condition != "basal":
-			print "Skipping - plot only runs for basal sim."
+			print("Skipping - plot only runs for basal sim.")
 			return
 
 		# Get all cells
@@ -48,7 +48,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		allDir = ap.get_cells(seed=[0], generation = GENS)
 		n_gens = GENS.size
 		if len(allDir) < n_gens:
-			print "Skipping - particular seed and/or gens were not simulated."
+			print("Skipping - particular seed and/or gens were not simulated.")
 			return
 
 		# Get all ids reqiured
@@ -91,7 +91,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			protein_idx = protein_index_of_interest[4]
 			protein_idx_burst = protein_index_of_interest_burst[2]
 		except Exception as exc:
-			print "Error: %s" % exc
+			print("Error: %s" % exc)
 			return
 
 		fig, axesList = plt.subplots(ncols = 2, nrows = 2, sharex = True)

@@ -6,7 +6,7 @@ Plots fraction of mRNAs transcribed (out of all genes to be transcribed) for all
 @date: Created 6/29/2016
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
@@ -49,7 +49,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		ap = AnalysisPaths(variantDir, cohort_plot = True)
 
 		if ap.n_generation == 1:
-			print "Only runs for 2 or more cells."
+			print("Only runs for 2 or more cells.")
 			return
 
 		second_half_cells = ap.get_cells(generation=range(ap.n_generation//2,ap.n_generation))

@@ -5,7 +5,8 @@ in E. coli.
 """
 
 # Imports
-from __future__ import division, print_function, absolute_import
+from __future__ import absolute_import, division, print_function
+
 import os
 import numpy as np
 import matplotlib.pyplot as plt

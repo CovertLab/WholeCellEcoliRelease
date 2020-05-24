@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -17,7 +17,7 @@ CLOSE_TO_DOUBLE = 0.1
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		print "DISABLED"
+		print("DISABLED")
 		return
 
 		if not os.path.isdir(seedOutDir):

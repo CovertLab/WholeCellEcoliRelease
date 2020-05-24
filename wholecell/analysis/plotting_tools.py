@@ -5,6 +5,8 @@ Reusable plotting functions and tools
 @date: Created 11/06/2015
 """
 
+from __future__ import absolute_import, division, print_function
+
 import matplotlib.pyplot as plt
 from scipy import stats
 

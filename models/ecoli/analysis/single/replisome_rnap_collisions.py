@@ -6,8 +6,7 @@ each timestep.
 @date: Created 4/2/2019
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 

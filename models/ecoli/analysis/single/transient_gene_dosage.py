@@ -6,8 +6,7 @@ probabilities of RNAs.
 @date: Created 9/11/18
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import cPickle
 from matplotlib import pyplot as plt

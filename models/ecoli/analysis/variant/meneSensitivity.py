@@ -6,8 +6,7 @@ Plot to assess sensitivity of menE behavior to model parameters.
 @date: Created 12/1/17
 """
 
-from __future__ import absolute_import
-
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
@@ -39,7 +38,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		# Get cells
 		ap = AnalysisPaths(inputDir, variant_plot = True)
 		if ap.n_variant != 9:
-			print "This plot expects all variants of mene_params"
+			print("This plot expects all variants of mene_params")
 			return
 
 		# Get constants from wildtype variant

@@ -11,8 +11,7 @@ Usage example:
 @date: Created 9/28/18
 '''
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 import sys

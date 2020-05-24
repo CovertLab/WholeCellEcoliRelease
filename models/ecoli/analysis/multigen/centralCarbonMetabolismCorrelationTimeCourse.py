@@ -4,8 +4,7 @@
 @date: Created 4/29/2016
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle

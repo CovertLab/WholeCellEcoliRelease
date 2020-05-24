@@ -5,7 +5,7 @@ Central carbon metabolism comparison to Toya et al
 @date: Created 4/3/17
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle

@@ -5,6 +5,8 @@ fraction complete for second set of replication forks)
 Output: time series of svg images to folder svg
 '''
 
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
 import os
 import csv

@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
@@ -126,7 +126,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		try:
 			T_ADD_AA = sim_data.external_state.saved_timelines[current_timeline_id][1][0] / 60.
 		except Exception as e:
-			print "saved_timelines does not have correct dimensions for this analysis. Exiting.", e
+			print("saved_timelines does not have correct dimensions for this analysis. Exiting.", e)
 			return
 		axes_list = [ax0, ax1, ax2]#, ax3, ax4]
 		for a in axes_list:

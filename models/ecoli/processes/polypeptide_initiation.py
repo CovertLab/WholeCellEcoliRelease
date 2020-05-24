@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 PolypeptideInitiation
 
@@ -8,7 +7,7 @@ Polypeptide initiation sub-model.
 @date: Created 4/30/14
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 

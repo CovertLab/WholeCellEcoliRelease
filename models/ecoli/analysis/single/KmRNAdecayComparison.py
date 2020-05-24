@@ -5,8 +5,7 @@ Plots counts of rna degraded and the resulting free NMPs
 @date: Created 1/15/2015 - Updated 8/10/2015
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -52,7 +51,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			plt.xlabel("Km First Order Decay (Log10, M)", fontsize = 14)
 			plt.ylabel("Km Non-linear Decay (Log10, M)", fontsize = 14)
 			plt.title("Relative error = %.2f%%" % Error, fontsize = 16)
-			# print np.corrcoef(KmFirstOrderDecay, KmNonLinearDecay)[0,1]
+			# print(np.corrcoef(KmFirstOrderDecay, KmNonLinearDecay)[0,1])
 
 
 		if sim_data.constants.EndoRNaseCooperation:

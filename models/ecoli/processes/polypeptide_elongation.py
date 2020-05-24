@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 PolypeptideElongation
 
@@ -12,7 +10,7 @@ TODO:
 @date: Created 4/30/14
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 from itertools import izip
 

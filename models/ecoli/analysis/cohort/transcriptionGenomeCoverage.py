@@ -6,7 +6,7 @@ Plots fraction of mRNAs transcribed (out of all genes to be transcribed) for all
 @date: Created 6/29/2016
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle

@@ -17,7 +17,7 @@ EG10544_RNA[c]	97.5	lpp		Murein lipoprotein
 @date: Created 10/29/2015
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 

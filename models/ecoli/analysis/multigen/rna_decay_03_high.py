@@ -17,7 +17,7 @@ EG10544_RNA[c]	97.5	lpp		Murein lipoprotein
 @date: Created 10/29/2015
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -123,7 +123,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			except ValueError:
 				# TODO: Come up with a better/more descriptive error message
 				# This is to handle errors that occurs when running short simulations
-				print "Skipping subplot %d because not enough data" % subplotIdx
+				print("Skipping subplot %d because not enough data" % (subplotIdx,))
 				continue
 
 			plt.scatter(

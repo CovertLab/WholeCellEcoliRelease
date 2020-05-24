@@ -3,6 +3,8 @@ Subclasses of DictWriter and DictReader that parse plaintext as JSON strings,
 allowing for basic type parsing and fields that are dictionaries or lists.
 """
 
+from __future__ import absolute_import, division, print_function
+
 import csv
 import json
 import re

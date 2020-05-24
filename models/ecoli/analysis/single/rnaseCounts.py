@@ -6,7 +6,7 @@ Plot RNAse counts
 @date: Created 1/14/2015
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 

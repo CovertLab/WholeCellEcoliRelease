@@ -5,8 +5,7 @@ Plots the counts of active replisomes and their subunits over time.
 @date: Created 7/30/2018
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle

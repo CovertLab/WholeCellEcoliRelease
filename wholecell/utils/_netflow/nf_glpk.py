@@ -26,8 +26,7 @@ environment, losing state info.
 
 # TODO(Jerry): Check that integer arguments are in range so GLPK won't exit?
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 from collections import defaultdict
 from enum import Enum

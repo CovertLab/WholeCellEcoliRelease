@@ -13,8 +13,7 @@ on a per amino acid basis with a sum from all relevant species.
 TODO: add amino acids and other metabolites involved in charging reactions
 '''
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import cPickle
 import os

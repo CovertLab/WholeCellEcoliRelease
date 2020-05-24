@@ -7,7 +7,7 @@ Multiple generations of the same variant will be plotted together
 @date: Created 6/7/16
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 
 import os

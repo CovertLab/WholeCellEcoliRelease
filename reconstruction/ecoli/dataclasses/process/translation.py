@@ -6,7 +6,7 @@ SimulationData for translation process
 @date: Created 03/09/2015
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 

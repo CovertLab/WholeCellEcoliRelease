@@ -7,8 +7,7 @@ for regulated genes that are involved in AA biosynthesis
 @date: Created 6/17/2016
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 

@@ -5,6 +5,8 @@ goes through all reactions in reaction.tsv and compares substrate and product id
 
 '''
 
+from __future__ import absolute_import, division, print_function
+
 import os
 import re
 import csv

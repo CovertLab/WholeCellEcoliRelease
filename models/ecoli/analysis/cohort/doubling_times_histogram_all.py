@@ -12,7 +12,7 @@ standardize the output across sets of simulations.
 
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
@@ -60,7 +60,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		n_gens = analysis_paths.n_generation
 
 		if n_gens - 1 < FIRST_GENERATION:
-			print 'Not enough generations to plot.'
+			print('Not enough generations to plot.')
 			return
 
 		sim_dirs = analysis_paths.get_cells(

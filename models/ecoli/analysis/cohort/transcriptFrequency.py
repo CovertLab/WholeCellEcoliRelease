@@ -7,7 +7,7 @@ one copy of transcript) at the 4th generation across 32 seeds.
 @date: Created 3/27/2017
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
@@ -39,7 +39,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		allDir = ap.get_cells(generation = [3])
 
 		if len(allDir) <= 1:
-			print "Skipping -- transcriptFrequency only runs for multiple seeds"
+			print("Skipping -- transcriptFrequency only runs for multiple seeds")
 			return
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))

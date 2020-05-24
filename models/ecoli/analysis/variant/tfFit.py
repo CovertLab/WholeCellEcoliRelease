@@ -1,5 +1,4 @@
-from __future__ import absolute_import
-
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -27,7 +26,7 @@ NUMERICAL_ZERO = 1e-12
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		if metadata["variant"] != "tf_activity":
-			print "This plot only runs for the 'tf_activity' variant."
+			print("This plot only runs for the 'tf_activity' variant.")
 			return
 
 		if not os.path.isdir(inputDir):

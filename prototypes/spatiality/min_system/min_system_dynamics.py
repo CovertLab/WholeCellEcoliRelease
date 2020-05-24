@@ -8,8 +8,8 @@ contains MinD-ATP and MinE-MinD-ATP.
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
-from __future__ import absolute_import, print_function
-# from __future__ import division
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
 from scipy.ndimage import convolve
 
@@ -85,16 +85,16 @@ dx = length / bins_x
 edges_template = np.pad(np.zeros((bins_y-2, bins_x-2)), (1, 1), 'constant', constant_values=(1, 1))
 
 # indices for the membrane, specifying contact sites along the body of the cylinder, and the caps.
-cap_pos1 = bins_y/2 - 1
-cap_pos2 = bins_y/2 + bins_x - 2
+cap_pos1 = bins_y//2 - 1
+cap_pos2 = bins_y//2 + bins_x - 2
 
-top_membrane = [(i, 0) for i in range(1, bins_y/2)]
+top_membrane = [(i, 0) for i in range(1, bins_y//2)]
 top_membrane.extend([(0, i) for i in range(bins_x)])
-top_membrane.extend([(i, -1) for i in range(1, bins_y/2)])
+top_membrane.extend([(i, -1) for i in range(1, bins_y//2)])
 
-bottom_membrane = [(i, 0) for i in range(bins_y/2, bins_y-1)]
+bottom_membrane = [(i, 0) for i in range(bins_y//2, bins_y-1)]
 bottom_membrane.extend([(-1, i) for i in range(bins_x)])
-bottom_membrane.extend([(i, -1) for i in range(bins_y/2, bins_y-1)])
+bottom_membrane.extend([(i, -1) for i in range(bins_y//2, bins_y-1)])
 
 
 def run_step(cytoplasm, membrane):

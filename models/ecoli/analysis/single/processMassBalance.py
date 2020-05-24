@@ -4,8 +4,7 @@
 @date: Created 6/27/2014
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import cPickle
 from itertools import izip

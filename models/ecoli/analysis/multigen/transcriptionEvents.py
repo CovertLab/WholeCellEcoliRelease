@@ -46,7 +46,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		simulatedSynthProbs = []
 		transcriptionEvents = []
 		for gen, simDir in enumerate(allDir):
-			# print gen
+			# print(gen)
 			simOutDir = os.path.join(simDir, "simOut")
 
 			time += TableReader(os.path.join(simOutDir, "Main")).readColumn("time").tolist()

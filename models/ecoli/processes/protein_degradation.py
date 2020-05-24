@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 ProteinDegradation
 
@@ -14,7 +12,7 @@ TODO:
 @date: Created 5/16/2013
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 

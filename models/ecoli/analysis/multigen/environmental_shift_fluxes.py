@@ -5,7 +5,7 @@ Plot fluxes for metabolic map figure during a shift
 @date: Created 2/13/17
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle

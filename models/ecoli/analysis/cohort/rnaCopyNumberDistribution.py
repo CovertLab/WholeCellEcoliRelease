@@ -6,8 +6,7 @@ multiple-seed simulations.
 @date: Created 5/21/2018
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
@@ -44,7 +43,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		# If the simulation does not have multiple seeds, skip analysis
 		if n_seed <= 1:
-			print "Skipping -- rnaCopyNumberDistribution only runs for simulations with multiple seeds."
+			print("Skipping -- rnaCopyNumberDistribution only runs for simulations with multiple seeds.")
 			return
 
 		# Group simulations by generation

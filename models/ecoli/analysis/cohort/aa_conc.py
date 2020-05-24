@@ -5,8 +5,7 @@ Comparison of average amino acid concentrations to expected concentrations
 @date: Created 4/26/19
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import cPickle
 import os

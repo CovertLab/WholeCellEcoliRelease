@@ -5,8 +5,7 @@ Plot for dynamics of DnaA proteins binding to DnaA boxes across the chromosome
 @date: Created 6/18/19
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import cPickle
 import os

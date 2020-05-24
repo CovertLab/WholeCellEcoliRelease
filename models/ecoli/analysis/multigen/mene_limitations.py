@@ -3,7 +3,7 @@
 @date: Created 2/12/2017
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
@@ -54,7 +54,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		# Get all cells
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 		if 0 not in ap._path_data["seed"]:
-			print "Skipping -- figure5D only runs for seed 0"
+			print("Skipping -- figure5D only runs for seed 0")
 			return
 
 		allDir = ap.get_cells(seed = [0])

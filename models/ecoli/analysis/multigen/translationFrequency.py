@@ -6,7 +6,7 @@ Plots frequency of observing at least 1 protein.
 @date: Created 1/11/2017
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 

@@ -4,8 +4,7 @@
 @date: Created 8/8/2014
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
@@ -47,7 +46,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		fbaResults.close()
 
 		if GLUCOSE_ID not in externalMoleculeIDs:
-			print "This plot only runs when glucose is the carbon source."
+			print("This plot only runs when glucose is the carbon source.")
 			return
 
 		glucoseIdx = np.where(externalMoleculeIDs == GLUCOSE_ID)[0][0]

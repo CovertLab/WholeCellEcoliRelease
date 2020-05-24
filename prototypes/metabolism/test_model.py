@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
 import cvxpy
 
@@ -145,10 +147,10 @@ def main():
 	# The optimal objective is returned by prob.solve().
 	result = prob.solve(solver=cvxpy.GUROBI)
 	# The optimal value for x is stored in x.value.
-	print fluxes.value
+	print(fluxes.value)
 	# The optimal Lagrange multiplier for a constraint
 	# is stored in constraint.dual_value.
-	# print constraints[0].dual_value
+	# print(constraints[0].dual_value)
 
 if __name__ == "__main__":
 	main()

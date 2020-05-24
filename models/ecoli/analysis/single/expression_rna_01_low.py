@@ -19,7 +19,7 @@ EG11060_RNA[c]	0.24	ushA	UDP-sugar hydrolase / 5'-ribonucleotidase / 5'-deoxyrib
 @date: Created 10/29/2015
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 

@@ -5,8 +5,7 @@ Time series and histogram of amino acid concentrations
 @date: Created 4/17/19
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import cPickle
 import os

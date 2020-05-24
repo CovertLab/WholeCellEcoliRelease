@@ -6,8 +6,7 @@ Compare fluxes in simulation to target fluxes
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
@@ -119,7 +118,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			if rxn[0] not in excluded:
 				siteStr += "&rnids=%s" % rxn[0]
 			rxns.append(rxn[0])
-		# print siteStr
+		# print(siteStr)
 
 		csvFile = open(os.path.join(plotOutDir, plotOutFileName + ".tsv"), "wb")
 		output = csv.writer(csvFile, delimiter = "\t")

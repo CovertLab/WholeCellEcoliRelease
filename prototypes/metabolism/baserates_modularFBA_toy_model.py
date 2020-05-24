@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
 
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
@@ -95,8 +97,8 @@ for enzymeID in enzymeConcentrations:
 		biomassRatesDict['('+enzymeID + ',' + enzyme2ID+')'] = rate
 
 
-print "Wildtype flux is {}.".format(unconstrainedFlux)
+print("Wildtype flux is {}.".format(unconstrainedFlux))
 for enzyme in sorted(biomassRatesDict):
 	rate = biomassRatesDict[enzyme]
 	if np.abs(rate - unconstrainedFlux) > 1e-4:
-		print "{} affects growth, when knocked out the biomass reaction flux is {}.".format(enzyme, rate)
+		print("{} affects growth, when knocked out the biomass reaction flux is {}.".format(enzyme, rate))
