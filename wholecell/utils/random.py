@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 random.py
 
@@ -100,19 +98,20 @@ def make_elongation_rates(
 		ceiling,
 		time_step,
 		variable_elongation=False):
+	# type: (np.random.RandomState, int, int, np.ndarray[int], int, float, bool) -> np.ndarray[np.int64]
 	'''
 	Create an array of rates where all values are at a base rate except for a set which
 	is at another rate. Also performs a stochastic rounding of values after applying the
 	provided time step. 
 
 	Args:
-	    random (RandomState): for generating random numbers.
-	    size (int): size of new array of rates.
-	    base (int): unadjusted value for all rates.
-        amplified (array[int]): indexes of each rate to adjust.
-        ceiling (int): adjusted rate for amplified indexes.
-	    time_step (float): the current time step. 
-	    variable_elongation (bool): whether to add amplified values to the array.
+		random (RandomState): for generating random numbers.
+		size (int): size of new array of rates.
+		base (int): unadjusted value for all rates.
+		amplified (array[int]): indexes of each rate to adjust.
+		ceiling (int): adjusted rate for amplified indexes.
+		time_step (float): the current time step.
+		variable_elongation (bool): whether to add amplified values to the array.
 
 	Returns:
 	    array[int]: new array with lengths to extend for base and adjusted

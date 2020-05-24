@@ -596,7 +596,7 @@ class RayClass(object):
         for edge_canvas in canvas_obj.edges:
             result, intersect_point = self.ray_intersect_with_edge(edge_canvas)
             intersect_TF_list.append(result)
-            if result == True: 
+            if result:
                 if len(intersect_point) == 2:
                     if len(intersect_coordinates) == 0:
                         intersect_coordinates = intersect_point
@@ -654,7 +654,7 @@ class RayClass(object):
                 result, intersect_point = self.ray_intersect_with_edge(
                     edge_canvas)
                 intersect_TF_list.append(result)
-                if result == True :
+                if result:
                     if len(intersect_point) == 2 :
                         if len(intersect_coordinates) == 0:
                             intersect_coordinates = intersect_point

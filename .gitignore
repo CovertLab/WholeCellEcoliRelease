@@ -138,7 +138,6 @@ reconstruction/ecoli/dataclasses/process/two_component_system_odes_fitter.py
 
 # Gradle:
 .idea/gradle.xml
-.idea/libraries
 
 # Mongo Explorer plugin:
 .idea/mongoSettings.xml
