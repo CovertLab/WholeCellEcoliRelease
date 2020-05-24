@@ -32,17 +32,17 @@ transportLimits = {
 }
 
 reactionEnzymes = {
-	"R1":"E1",	
-	"R2a":"E2a",	
-	"R2b":"E2b",	
-	"R3":"E3",	
-	"R4":"E4",	
-	"R5":"E5",	
-	"R6":"E6",	
-	"R7":"E7",	
-	"R8a":"E8a",	
-	"R8b":"E8b",	
-	"Rres":"Eres",	
+	"R1":"E1",
+	"R2a":"E2a",
+	"R2b":"E2b",
+	"R3":"E3",
+	"R4":"E4",
+	"R5":"E5",
+	"R6":"E6",
+	"R7":"E7",
+	"R8a":"E8a",
+	"R8b":"E8b",
+	"Rres":"Eres",
 }
 
 enzymeConcentrations = {

@@ -297,9 +297,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 				for rxn in rxnStoich:
 					if reactant in rxnStoich[rxn] and product in rxnStoich[rxn]:
-						if rxnStoich[rxn][reactant] < 0 and rxnStoich[rxn][product] > 0:
+						if rxnStoich[rxn][reactant] < 0 < rxnStoich[rxn][product]:
 							direction = 1
-						elif rxnStoich[rxn][reactant] > 0 and rxnStoich[rxn][product] < 0:
+						elif rxnStoich[rxn][reactant] > 0 > rxnStoich[rxn][product]:
 							direction = -1
 						else:
 							continue
@@ -322,9 +322,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 				for rxn in rxnStoich:
 					if reactant in rxnStoich[rxn] and product in rxnStoich[rxn]:
-						if rxnStoich[rxn][reactant] < 0 and rxnStoich[rxn][product] > 0:
+						if rxnStoich[rxn][reactant] < 0 < rxnStoich[rxn][product]:
 							direction = 1
-						elif rxnStoich[rxn][reactant] > 0 and rxnStoich[rxn][product] < 0:
+						elif rxnStoich[rxn][reactant] > 0 > rxnStoich[rxn][product]:
 							direction = -1
 						else:
 							continue

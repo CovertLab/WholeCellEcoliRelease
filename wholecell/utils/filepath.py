@@ -15,7 +15,7 @@ if os.name == 'posix' and sys.version_info[0] < 3:
 	import subprocess32 as subprocess
 else:
 	import subprocess
-from typing import Any, AnyStr, Generator, Iterable, Optional, Sequence, Tuple
+from typing import Any, AnyStr, Generator, Optional, Sequence, Tuple
 
 import wholecell
 

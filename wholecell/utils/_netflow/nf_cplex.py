@@ -13,6 +13,7 @@ from collections import defaultdict
 # NOTE: This file assumes callers catch the ImportError if IBM CPLEX is not
 # installed. To use it, install the CPLEX binary library from IBM (it's
 # free for students) and do `pip install cplex>=12.8.0.0`.
+# noinspection PyPackageRequirements
 import cplex
 import numpy as np
 from scipy.sparse import coo_matrix

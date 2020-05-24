@@ -1,4 +1,4 @@
-import numpy as np
+from __future__ import absolute_import, division, print_function
 
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
 
@@ -125,4 +125,4 @@ errors_dict = dict(zip(enzymeKcats, errors))
 kcat_adjustments = {enzymeID: error / enzymeConcentrations[enzymeID] for enzymeID, error in errors_dict.iteritems()}
 
 for enzymeID, error in kcat_adjustments.iteritems():
-	print "{} kcat error is {}.".format(enzymeID, error)
+	print("{} kcat error is {}.".format(enzymeID, error))

@@ -739,11 +739,11 @@ class UniqueObjectsContainer(object):
 		return sorted_requests
 
 
-def copy_if_ndarray(object):
+def copy_if_ndarray(obj):
 	"""Copy an ndarray object or return any other type of object as is.
 	Prevent making a view instead of a copy.  # <-- TODO(jerry): Explain.
 	"""
-	return object.copy() if isinstance(object, np.ndarray) else object
+	return obj.copy() if isinstance(obj, np.ndarray) else obj
 
 
 class _UniqueObject(object):

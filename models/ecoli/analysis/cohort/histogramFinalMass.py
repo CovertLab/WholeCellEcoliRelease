@@ -1,4 +1,4 @@
-from __future__ import division, absolute_import
+from __future__ import division, absolute_import, print_function
 
 from matplotlib import pyplot as plt
 import numpy as np
@@ -7,7 +7,7 @@ import os
 from models.ecoli.analysis import cohortAnalysisPlot
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
-from wholecell.io.tablereader import TableReader
+from wholecell.io.tablereader import TableReader, TableReaderError
 from wholecell.utils import filepath
 
 
@@ -38,11 +38,12 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			gen_final_masses = []
 
 			for simDir in gen_cells:
-				try:
-					simOutDir = os.path.join(simDir, "simOut")
+				simOutDir = os.path.join(simDir, "simOut")
+				mass_path = os.path.join(simOutDir, "Mass")
 
+				try:
 					# Listeners used
-					mass_reader = TableReader(os.path.join(simOutDir, "Mass"))
+					mass_reader = TableReader(mass_path)
 
 					# Load data
 					cellMass = mass_reader.readColumn("cellMass")
@@ -50,8 +51,10 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 					# Get final mass
 					gen_final_masses.append(cellMass[-1] / 1000.)
 
-				except Exception:
+				except (TableReaderError, EnvironmentError) as e:
 					# Skip sims that were not able to complete division
+					print("Couldn't read the Table {}; maybe the cell didn't finish division; skipping this sim: {!r}"
+						.format(mass_path, e))
 					continue
 
 			all_final_masses.append(np.array(gen_final_masses))

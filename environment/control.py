@@ -1,10 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
-import time
-import uuid
-
 from lens.environment.control import ShepherdControl, EnvironmentCommand
-from wholecell.utils import filepath
 
 
 class EcoliControl(ShepherdControl):

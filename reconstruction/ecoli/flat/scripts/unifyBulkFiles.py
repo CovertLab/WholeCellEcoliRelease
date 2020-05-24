@@ -1,11 +1,14 @@
 '''
 Unify files that are used to create bulkMolecules state
 '''
-import numpy as np
-from os.path import isfile, join
+from __future__ import absolute_import, division, print_function
+
+from os.path import join
 import csv
 import collections
 from reconstruction.spreadsheets import JsonReader, JsonWriter
+
+
 CSV_DIALECT = csv.excel_tab
 FLAT_DIR = '/home/users/nruggero/Repos/wcEcoli/reconstruction/ecoli/flat'
 

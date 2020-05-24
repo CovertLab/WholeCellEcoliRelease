@@ -67,6 +67,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		plt.suptitle("Central Carbon Metabolism Reaction Flux vs. Toya 2010 Measured Fluxes", fontsize=22)
 
+		idx = -1
 		for idx, fluxName in enumerate(toya_reactions):
 			reactionTimeCourse = net_flux(fluxName, reactionIDs, reactionFluxes).asNumber(FLUX_UNITS).squeeze()
 			if reactionTimeCourse[BURN_IN_TIMESTEPS:].any():

@@ -11,7 +11,7 @@ def findDirectories(directory):
 	return onlyDirs
 
 def findFiles(directory,typeFile):
-	if os.path.isdir(directory) == False: return []
+	if not os.path.isdir(directory): return []
 	allFiles = os.listdir(directory)
 	onlyFiles = []
 	for f in allFiles:	

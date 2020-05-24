@@ -1,5 +1,5 @@
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 import re
@@ -88,7 +88,7 @@ for line in open(_LP_FILE):
 			compound_id = match.group()
 
 	else:
-		stoich_raw = re.findall("([+-][0-9.]*) (r[0-9]+[ab\_e]*)", line)
+		stoich_raw = re.findall("([+-][0-9.]*) (r[0-9]+[ab_e]*)", line)
 
 		if not stoich_raw:
 			continue
@@ -219,7 +219,7 @@ with open(_FBA_FILE) as fba_file:
 					})
 
 			else:
-				print "could not parse line:", line.strip()
+				print("could not parse line:", line.strip())
 
 # Write a table of biomass components:
 # group name, metabolite name, coeff

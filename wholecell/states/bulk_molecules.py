@@ -8,8 +8,7 @@ State which represents for a class of molecules the bulk copy numbers.
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 from itertools import izip
 
@@ -55,7 +54,7 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
 
 		self._processIDs = sim.processes.keys()
 		self._processID_to_index = {
-			id: idx for idx, id in enumerate(self._processIDs)}
+			id_: idx for idx, id_ in enumerate(self._processIDs)}
 
 		# Load constants
 		self._moleculeIDs = sim_data.internal_state.bulkMolecules.bulkData['id']

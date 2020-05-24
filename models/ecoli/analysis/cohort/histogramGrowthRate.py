@@ -1,4 +1,4 @@
-from __future__ import division, absolute_import
+from __future__ import division, absolute_import, print_function
 
 from matplotlib import pyplot as plt
 import numpy as np
@@ -7,7 +7,7 @@ import os
 from models.ecoli.analysis import cohortAnalysisPlot
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
-from wholecell.io.tablereader import TableReader
+from wholecell.io.tablereader import TableReader, TableReaderError
 from wholecell.utils import filepath
 from wholecell.utils import units
 
@@ -39,11 +39,12 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			gen_growth_rates = []
 
 			for simDir in gen_cells:
-				try:
-					simOutDir = os.path.join(simDir, "simOut")
+				simOutDir = os.path.join(simDir, "simOut")
+				main_path = os.path.join(simOutDir, "Main")
 
+				try:
 					# Listeners used
-					main_reader = TableReader(os.path.join(simOutDir, "Main"))
+					main_reader = TableReader(main_path)
 
 					# Load data
 					time = main_reader.readColumn("time")
@@ -53,8 +54,10 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 					doubling_time = (time[-1] - initialTime) * units.s
 					averageGrowthRate = np.log(2) / doubling_time.asNumber(units.min)
 					gen_growth_rates.append(averageGrowthRate)
-				except Exception:
+				except (TableReaderError, EnvironmentError) as e:
 					# Skip sims that were not able to complete division
+					print("Couldn't read the Table {}; maybe the cell didn't finish division; skipping this sim: {!r}"
+						.format(main_path, e))
 					continue
 
 			all_growth_rates.append(np.array(gen_growth_rates))

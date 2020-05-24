@@ -10,7 +10,7 @@ Special random number generators.  Most are holdovers from the original port.
 @date: Created 6/2/2014
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
@@ -66,18 +66,20 @@ def make_elongation_rates_flat(
 		amplified,
 		ceiling,
 		variable_elongation=False):
+	# type: (int, int, np.ndarray[int], int, bool) -> np.ndarray[int]
 	'''
 	Create an array of rates where all values are at a base rate except for a set which
 	is at another rate.
 
-	Args:
-	    size (int): size of new array of rates.
-	    base (int): unadjusted value for all rates.
-        amplified (array[int]): indexes of each rate to adjust.
-        ceiling (int): adjusted rate for amplified indexes.
+	Arguments:
+		size: size of new array of rates.
+		base: unadjusted value for all rates.
+		amplified: indexes of each rate to adjust.
+		ceiling: adjusted rate for amplified indexes.
+		variable_elongation: words go here.
 
 	Returns:
-	    rates (array[int]): new array with base and adjusted rates.
+	    rates: new array with base and adjusted rates.
 	'''
 
 	rates = np.full(

@@ -10,8 +10,6 @@ ATPhydrolyzedUsageListener
 
 from __future__ import division
 
-import numpy as np
-
 import wholecell.listeners.listener
 
 class ATPhydrolyzedUsageListener(wholecell.listeners.listener.Listener):

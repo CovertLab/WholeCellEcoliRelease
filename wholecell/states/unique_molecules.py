@@ -76,10 +76,10 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 
 		molecule_id_to_mass = {}
 		uniqueMoleculeMasses = sim_data.internal_state.uniqueMolecules.uniqueMoleculeMasses
-		for (id, mass) in izip(
+		for (id_, mass) in izip(
 			uniqueMoleculeMasses["id"], uniqueMoleculeMasses["mass"]
 			):
-			molecule_id_to_mass[id] = (mass/sim_data.constants.nAvogadro).asNumber(units.fg)
+			molecule_id_to_mass[id_] = (mass/sim_data.constants.nAvogadro).asNumber(units.fg)
 
 		self._molecule_masses = np.array(
 			[molecule_id_to_mass[x] for x in self._molecule_ids]

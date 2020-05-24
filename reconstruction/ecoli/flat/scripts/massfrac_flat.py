@@ -1,19 +1,17 @@
+from __future__ import absolute_import, division, print_function
 
 import os
-import re
 import csv
 import sys
 
-import numpy as np
-
-from reconstruction.ecoli.knowledge_base import KnowledgeBaseEcoli
+from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 from reconstruction.spreadsheets import JsonWriter
 
 OUTPUT_DIR = sys.argv[1]
 
 DIALECT = csv.excel_tab
 
-kb = KnowledgeBaseEcoli(False)
+kb = KnowledgeBaseEcoli()
 
 drymass = kb._cellDryMassCompositionData
 

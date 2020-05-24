@@ -283,7 +283,7 @@ def read_metabolite_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	"""
 	try:
 		count_index = indexes["BulkMolecules"][node_id]
-	except Exception:
+	except (KeyError, IndexError):
 		return  # Metabolite not being modeled
 	counts = columns[("BulkMolecules", "counts")][:, count_index]
 	concentration = (((1 / sim_data.constants.nAvogadro) * counts)/(units.L * volume)).asNumber(units.mmol/units.L)
@@ -373,7 +373,7 @@ def read_equilibrium_dynamics(sim_data, node, node_id, columns, indexes, volume)
 	# TODO (ggsun): Fluxes for 2CS reactions are not being listened to.
 	try:
 		reaction_idx = indexes["EquilibriumReactions"][node_id]
-	except Exception:
+	except (KeyError, IndexError):
 		return  # 2CS reaction
 
 	dynamics = {

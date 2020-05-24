@@ -14,7 +14,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
-import parsimony
+from . import parsimony
 
 # TODO: replace some of the uglier structures with collections.namedtuple classes
 

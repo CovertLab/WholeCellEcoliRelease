@@ -19,7 +19,7 @@ import os
 import pprint as pp
 import time
 import traceback
-from typing import Any, Callable, Iterable, List, Optional, Tuple
+from typing import Any, Callable, Iterable, List, Optional, Sized, Tuple
 
 import wholecell.utils.filepath as fp
 from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
@@ -478,7 +478,7 @@ class ScriptBase(object):
 					args.sim_path, args.variant_index)
 
 	def extract_range_args(self, args):
-		# type: (argparse.Namespace) -> List[Iterable[int]]
+		# type: (argparse.Namespace) -> List[Sized[int]]
 		"""
 		Extracts arguments that have been specified as ranges for other arguments.
 

@@ -130,8 +130,7 @@ internalMoleculeLevels = moleculeCountsInit
 
 # Perform simulation
 nTimesteps = 15
-moleculeCounts = []
-moleculeCounts.append(internalMoleculeLevels)
+moleculeCounts = [internalMoleculeLevels]
 
 foods = ["ATP"]
 foodUnit = 2

@@ -16,7 +16,7 @@ import matplotlib.patches as patches
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
-from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
+from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
 
 N_GENES_TO_PLOT = -1

@@ -8,7 +8,6 @@ Plot of flagella protein expression
 from __future__ import absolute_import
 from __future__ import division
 
-import cPickle
 import os
 
 from matplotlib import pyplot as plt

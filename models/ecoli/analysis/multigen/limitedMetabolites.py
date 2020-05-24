@@ -9,7 +9,6 @@ Produces histograms of frequency that production of a metabolite is limited (at 
 from __future__ import absolute_import, division
 
 import os
-import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt

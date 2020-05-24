@@ -4,7 +4,7 @@
 Aggregate data from Javi's repo to compare to foldChanges.tsv included in wcm.
 """
 
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function
 
 import argparse
 import csv
@@ -125,7 +125,7 @@ def load_wcm(attempt_match):
 	return data
 
 def load_shifts():
-	# type: () -> Dict[Tuple[str], Dict[str, int]]
+	# type: () -> Dict[Tuple[str, str], Dict[str, int]]
 	"""
 	Load TF regulation information for each shift.
 
@@ -233,7 +233,7 @@ def replace_uncertain_entries(data):
 		writer.writeheader()
 
 		# Check each fold change and update if needed
-		for line in raw_data[1:]:
+		for line in raw_data[1:]:  # type: List[str]
 			tf = line[0].strip('#" ')
 			gene = line[1].strip()
 			direction = int(line[5])

@@ -88,7 +88,7 @@ def plotSplom(arrayOfdataArrays, nameArray="", stdArrays=None, labels=None, fig=
 
 			if plotCorrCoef:
 				corr_coef, pValue = stats.pearsonr(arrayOfdataArrays[colNum-1], arrayOfdataArrays[rowNum-1])
-				plt.title("R = %.4f" % (corr_coef))
+				plt.title("R = %.4f" % (corr_coef,))
 		plottingIndex += 1
 
 	return fig

@@ -14,7 +14,7 @@ class NetworkFlowProblemBase(object):
 	def setFlowMaterialCoeff(self, flow, material, coefficient):
 		raise NotImplementedError()
 
-	def setFlowBounds(selfs, flow, ub=None, lb=None):
+	def setFlowBounds(self, flow, ub=None, lb=None):
 		raise NotImplementedError()
 
 	def setFlowObjectiveCoeff(self, flow, coefficient):

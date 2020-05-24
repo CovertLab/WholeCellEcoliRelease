@@ -208,11 +208,11 @@ def measure_block_subranges(array, table_name='', column_name=''):
 	print('measure_block_subranges {}/{}'.format(table_name, column_name))
 	rows, columns = array.shape
 	rows_log2 = int(np.log2(rows))
-	max = 2 ** rows_log2
-	power_of_2_array = array[:max, :]  # limited to 2**max rows for this test
+	max_ = 2 ** rows_log2
+	power_of_2_array = array[:max_, :]  # limited to 2**max rows for this test
 	for power in xrange(0, rows_log2 + 1):
 		rows_per_block = 2 ** power
-		data = power_of_2_array.reshape(max // rows_per_block, -1)
+		data = power_of_2_array.reshape(max_ // rows_per_block, -1)
 		measure_block(data)
 	return power_of_2_array
 

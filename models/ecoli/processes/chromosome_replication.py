@@ -8,7 +8,6 @@ Submodel for chromosome replication
 from __future__ import division
 
 import numpy as np
-from itertools import izip
 
 import wholecell.processes.process
 from wholecell.utils.polymerize import (buildSequences, polymerize,

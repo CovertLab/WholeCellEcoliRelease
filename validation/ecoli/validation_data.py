@@ -7,10 +7,9 @@ Raw data processed into forms convienent for validation and analysis
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 11/30/2015
 """
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
-import collections
 from unum import Unum
 
 # Raw data class

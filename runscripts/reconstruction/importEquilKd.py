@@ -12,13 +12,10 @@ import os
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
-from matplotlib import pyplot as plt
-
-import wholecell.utils.constants
-from wholecell.io.tablereader import TableReader
 
 import csv
-from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
+from typing import Any, Dict
+
 
 CSV_DIALECT = csv.excel_tab
 DATA_FILE = os.path.join("validation","ecoli","flat","conformationTF.tsv")
@@ -39,10 +36,13 @@ with open(REACTION_FILE, "rU") as infile:
 		quoteDialect = CSV_DIALECT
 		quoteDialect.quotechar = "'"
 		quoteDialect.quoting = csv.QUOTE_NONNUMERIC
-		writer = csv.DictWriter(outfile, fieldnames = reader.fieldnames, dialect = quoteDialect)
-		writer.fieldnames.append("original reverse rate")
+
+		fieldnames = list(reader.fieldnames)
+		fieldnames.append("original reverse rate")
+		writer = csv.DictWriter(outfile, fieldnames=fieldnames, dialect=quoteDialect)
 		writer.writeheader()
-		for row in reader:
+
+		for row in reader:  # type: Dict[str, Any]
 			row["dir"] = float(row["dir"])
 			row["forward rate"] = float(row["forward rate"])
 			row["reverse rate"] = float(row["reverse rate"])

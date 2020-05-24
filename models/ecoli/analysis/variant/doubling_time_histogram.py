@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 
 import os
@@ -7,7 +7,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
-from wholecell.io.tablereader import TableReader
+from wholecell.io.tablereader import TableReader, TableReaderError
 
 from wholecell.utils.sparkline import whitePadSparklineAxis
 from wholecell.analysis.analysis_tools import exportFigure
@@ -27,7 +27,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		ap = AnalysisPaths(inputDir, variant_plot = True)
 
 		if ap.n_generation == 1:
-			print "Need more data to create plot"
+			print("Need more data to create plot")
 			return
 
 		fig = plt.figure()
@@ -50,9 +50,6 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			else:
 				continue
 
-			initial_masses = np.zeros(0)
-			final_masses = np.zeros(0)
-
 			all_cells = ap.get_cells(generation=[2,3], variant=[varIdx])
 			if len(all_cells) == 0:
 				continue
@@ -62,8 +59,9 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				try:
 					simOutDir = os.path.join(simDir, "simOut")
 					time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-				except Exception as e:
-					print 'Error reading data for %s; %s' % (simDir, e)
+				except (TableReaderError, EnvironmentError) as e:
+					print('Error reading data for %s; %s' % (simDir, e))
+					raise
 
 				doublingTimes[idx] = (time[-1] - time[0]) / 60.
 

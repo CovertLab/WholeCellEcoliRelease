@@ -6,7 +6,6 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 import cPickle
-import scipy.stats
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader

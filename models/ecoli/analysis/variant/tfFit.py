@@ -98,10 +98,10 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				target_idx = rna_ids.index(tfTarget + "[c]")
 				regulating_tf_idxs = delta_prob['deltaJ'][delta_prob['deltaI'] == target_idx]
 
-				for i in regulating_tf_idxs:
+				for j in regulating_tf_idxs:
 					if tfTarget not in targetToTfType:
 						targetToTfType[tfTarget] = []
-					targetToTfType[tfTarget].append(sim_data.process.transcription_regulation.tfToTfType[tf_ids[i]])
+					targetToTfType[tfTarget].append(sim_data.process.transcription_regulation.tfToTfType[tf_ids[j]])
 
 				expectedSynthProb.append(sim_data.process.transcription.rnaSynthProb[tf + "__" + tfStatus][target_idx])
 				simulatedSynthProb.append(tfTargetSynthProb[5:].mean())

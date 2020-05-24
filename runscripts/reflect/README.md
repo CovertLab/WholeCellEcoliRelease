@@ -47,7 +47,7 @@ sim_tree = o.object_tree(sim_data, 'sim_data', 'CALLABLE')
 
 besides building the `sim_tree` dictionary, will print out all instance variables that contain callables:
 
-```python
+```
 sim_data.process.two_component_system.derivatives: <function derivatives at 0x11f9771b8>
 sim_data.process.two_component_system.derivativesJacobian: <function derivativesJacobian at 0x11f977230>
 sim_data.process.two_component_system.derivativesParca: <function derivatives at 0x11f977488>

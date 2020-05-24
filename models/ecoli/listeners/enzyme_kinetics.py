@@ -13,8 +13,7 @@ from __future__ import division
 import numpy as np
 
 import wholecell.listeners.listener
-from wholecell.utils.fitting import normalize
-from wholecell.utils import units
+
 
 class EnzymeKinetics(wholecell.listeners.listener.Listener):
 	""" EnzymeKinetics """

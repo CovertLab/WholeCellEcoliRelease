@@ -9,7 +9,6 @@ Plots limited enzyme fluxes, protein counts, and transcription initiation events
 from __future__ import absolute_import
 
 import os
-import cPickle
 
 import numpy as np
 import matplotlib.pyplot as plt

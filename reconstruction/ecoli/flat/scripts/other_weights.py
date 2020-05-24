@@ -7,10 +7,11 @@ called to update various molecular weights
 
 should be idempotent (i.e. no change if called more than once)
 """
+from __future__ import absolute_import, division, print_function
 
 import os
 from functools import partial
-from collections import Counter, OrderedDict
+from collections import OrderedDict
 
 import numpy as np
 

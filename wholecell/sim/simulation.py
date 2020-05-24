@@ -445,7 +445,7 @@ class Simulation(lens.actor.inner.Simulation):
 			candidateTimeStep = minTimeStep + (maxTimeStep - minTimeStep) / 2.
 		else:
 			raise SimulationException("Timestep adjustment did not converge,"
-				" last attempt was %f" % (candidateTimeStep))
+				" last attempt was %f" % (candidateTimeStep,))
 
 		return candidateTimeStep
 

@@ -11,7 +11,6 @@ from __future__ import absolute_import
 import os
 import cPickle
 
-import numpy as np
 from matplotlib import pyplot as plt
 
 from wholecell.io.tablereader import TableReader

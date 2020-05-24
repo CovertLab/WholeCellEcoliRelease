@@ -78,8 +78,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			try:
 				degRateToPlot = np.hstack((degRateToPlot, np.ones(ratioFinalToInitialCountMultigen[:,mask].size) * degRate))
 			except Exception as e:
-				print e
-				import ipdb; ipdb.set_trace()
+				# print e
+				# import ipdb; ipdb.set_trace()
+				raise
 			ratioToPlot = np.hstack((ratioToPlot, ratioFinalToInitialCountMultigen[:,mask].flatten()))
 
 		real_values_mask = np.logical_not(np.logical_or(np.isnan(ratioToPlot), np.isinf(ratioToPlot)))

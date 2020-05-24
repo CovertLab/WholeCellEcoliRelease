@@ -40,7 +40,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		"""Load fluxome data from 2010 validation data
 
 		Arguments:
-			validationDataFile: Path to cPickle with validation data.
+			validation_data_file: Path to cPickle with validation data.
 			sim_data_file: Path to cPickle with simulation data.
 			sim_out_dir: Path to simulation output directory.
 

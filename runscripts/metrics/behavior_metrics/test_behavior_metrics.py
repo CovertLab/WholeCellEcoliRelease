@@ -98,7 +98,7 @@ class TestParseDataConfig(unittest.TestCase):
 		)
 
 
-class TestUnitParsing:
+class TestUnitParsing(unittest.TestCase):
 
 	def test_single_unit_str(self):
 		parsed = BehaviorMetrics.parse_units_str("L")
