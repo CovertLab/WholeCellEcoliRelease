@@ -27,13 +27,6 @@ from models.ecoli.analysis import cohortAnalysisPlot
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(variantDir):
-			raise Exception(
-				"variantDir does not currently exist as a directory")
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Get all cells
 		ap = AnalysisPaths(variantDir, cohort_plot = True)
 		allDir = ap.get_cells()

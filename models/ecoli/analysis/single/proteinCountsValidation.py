@@ -15,27 +15,15 @@ from matplotlib import pyplot as plt
 from scipy.stats import pearsonr
 
 from wholecell.io.tablereader import TableReader
-from wholecell.utils.protein_counts import (
-	get_simulated_validation_counts,
-)
+from wholecell.utils.protein_counts import get_simulated_validation_counts
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
-	def do_plot(
-		self, simOutDir, plotOutDir, plotOutFileName, simDataFile,
-		validationDataFile, metadata
-	):
-		if not os.path.isdir(simOutDir):
-			raise Exception(
-				"simOutDir does not currently exist as a directory"
-			)
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
+	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile,
+			validationDataFile, metadata):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		validation_data = cPickle.load(open(validationDataFile, "rb"))
 

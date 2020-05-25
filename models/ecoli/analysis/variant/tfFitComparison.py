@@ -20,9 +20,6 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			print("This plot only runs for the 'tf_activity' variant.")
 			return
 
-		if not os.path.isdir(inputDir):
-			raise Exception("inputDir does not currently exist as a directory")
-
 		ap = AnalysisPaths(inputDir, variant_plot = True)
 		variants = sorted(ap._path_data['variant'].tolist()) # Sorry for accessing private data
 
@@ -33,9 +30,6 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			return
 
 		all_cells = sorted(ap.get_cells(variant = variants, seed = [0], generation = [0]))
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
 
 		expectedProbBound = [[], [], []]
 		simulatedProbBound = [[], [], []]

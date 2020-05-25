@@ -16,9 +16,10 @@ import cPickle
 import scipy.stats
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
+from models.ecoli.analysis import variantAnalysisPlot
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
-from models.ecoli.analysis import variantAnalysisPlot
+from wholecell.utils import filepath
 
 NUMERICAL_ZERO = 1e-12
 
@@ -28,9 +29,6 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		if metadata["variant"] != "tf_activity":
 			print("This plot only runs for the 'tf_activity' variant.")
 			return
-
-		if not os.path.isdir(inputDir):
-			raise Exception("inputDir does not currently exist as a directory")
 
 		ap = AnalysisPaths(inputDir, variant_plot = True)
 		variants = sorted(ap._path_data['variant'].tolist()) # Sorry for accessing private data
@@ -42,9 +40,6 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			return
 
 		all_cells = sorted(ap.get_cells(variant = variants, seed = [0], generation = [0]))
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
 
 		expectedProbBound = []
 		simulatedProbBound = []
@@ -150,8 +145,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			tools = tools1)
 		s1.scatter("x", "y", source = source1)
 
-		if not os.path.exists(os.path.join(plotOutDir, "html_plots")):
-			os.makedirs(os.path.join(plotOutDir, "html_plots"))
+		filepath.makedirs(plotOutDir, "html_plots")
 		bokeh.io.output_file(os.path.join(plotOutDir, "html_plots", plotOutFileName + "__probBound" + ".html"), title = plotOutFileName, autosave = False)
 		bokeh.io.save(s1)
 

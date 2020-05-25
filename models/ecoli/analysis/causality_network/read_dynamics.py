@@ -15,7 +15,6 @@ import hashlib
 
 from models.ecoli.analysis import causalityNetworkAnalysis
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import filepath
 from wholecell.utils import units
 
 from models.ecoli.analysis.causality_network.network_components import (
@@ -50,12 +49,6 @@ def get_safe_name(s):
 
 class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 	def do_plot(self, simOutDir, seriesOutDir, dynamicsFileName, simDataFile, nodeListFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception(
-				"simOutDir does not currently exist as a directory")
-
-		filepath.makedirs(seriesOutDir)
-
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
 

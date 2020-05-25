@@ -7,8 +7,6 @@ Plots counts of rna degraded and the resulting free NMPs
 
 from __future__ import absolute_import, division, print_function
 
-import os
-
 import numpy as np
 from matplotlib import pyplot as plt
 import cPickle
@@ -20,13 +18,6 @@ from models.ecoli.analysis import singleAnalysisPlot
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception(
-				"simOutDir does not currently exist as a directory")
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 

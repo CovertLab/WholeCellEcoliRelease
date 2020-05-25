@@ -22,12 +22,6 @@ NUM_SKIP_TIMESTEPS_AT_GEN_CHANGE = 1
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception(
-				"seedOutDir does not currently exist as a directory")
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 

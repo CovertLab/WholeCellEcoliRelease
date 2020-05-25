@@ -12,6 +12,10 @@ from . import tablewriter as tw
 
 __all__ = [
 	"TableReader",
+	"TableReaderError",
+	"VersionError",
+	"DoesNotExistError",
+	"VariableLengthColumnError",
 	]
 
 SUPPORTED_COMPRESSION_TYPES = (tw.COMPRESSION_TYPE_NONE, tw.COMPRESSION_TYPE_ZLIB)

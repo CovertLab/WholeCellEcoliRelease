@@ -11,17 +11,13 @@ from bokeh.models import (HoverTool, BoxZoomTool, LassoSelectTool, PanTool,
 	WheelZoomTool, ResizeTool, UndoTool, RedoTool)
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
-from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import variantAnalysisPlot
+from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.utils import filepath
 
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(inputDir):
-			raise Exception("inputDir does not currently exist as a directory")
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		ap = AnalysisPaths(inputDir, variant_plot = True)
 		variants = sorted(ap._path_data['variant'].tolist()) # Sorry for accessing private data
 		variant = variants[0]
@@ -90,8 +86,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 		plot.scatter("x", "y", source = source)
 
-		if not os.path.exists(os.path.join(plotOutDir, "html_plots")):
-			os.makedirs(os.path.join(plotOutDir, "html_plots"))
+		filepath.makedirs(plotOutDir, "html_plots")
 		bokeh.io.output_file(os.path.join(plotOutDir, "html_plots", plotOutFileName + "__probBound" + ".html"), title = plotOutFileName, autosave = False)
 		bokeh.io.save(plot)
 		bokeh.io.curstate().reset()

@@ -18,13 +18,6 @@ from models.ecoli.analysis import singleAnalysisPlot
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception(
-				"simOutDir does not currently exist as a directory")
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		ntp_ids = ['ATP[c]', 'CTP[c]', 'GTP[c]', 'UTP[c]']
 		(ntpCounts,) = read_bulk_molecule_counts(simOutDir, (ntp_ids,))
 

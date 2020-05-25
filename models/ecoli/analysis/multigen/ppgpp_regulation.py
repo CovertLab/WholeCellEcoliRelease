@@ -19,7 +19,6 @@ from models.ecoli.analysis import multigenAnalysisPlot
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import filepath
 
 
 RELA_RNA = 'EG10835_RNA[c]'
@@ -45,11 +44,6 @@ def remove_axes(ax, show_xaxis=False):
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception('seedOutDir does not currently exist as a directory')
-
-		filepath.makedirs(plotOutDir)
-
 		# sim_data values
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)

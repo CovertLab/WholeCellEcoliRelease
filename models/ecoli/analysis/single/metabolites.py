@@ -19,6 +19,7 @@ from bokeh.models import HoverTool
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.plotting_tools import COLORS_LARGE
 from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.utils import filepath
 from models.ecoli.analysis import singleAnalysisPlot
 
 
@@ -27,13 +28,6 @@ PLOT_BOKEH = False
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception(
-				"simOutDir does not currently exist as a directory")
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		with open(simDataFile) as f:
 			sim_data = cPickle.load(f)
 		aa_ids = sim_data.moleculeGroups.aaIDs
@@ -92,8 +86,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		if not PLOT_BOKEH:
 			return
 
-		if not os.path.exists(os.path.join(plotOutDir, "html_plots")):
-			os.makedirs(os.path.join(plotOutDir, "html_plots"))
+		filepath.makedirs(plotOutDir, "html_plots")
 		bokeh.io.output_file(os.path.join(plotOutDir, "html_plots", plotOutFileName + ".html"), title = plotOutFileName, autosave = False)
 
 		nTimesteps = time.shape[0]

@@ -21,7 +21,6 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from models.ecoli.sim.variants.metabolism_secretion_penalty import SECRETION_PENALTY
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import filepath
 
 
 def remove_border(ax):
@@ -55,11 +54,6 @@ def plot_fluxes(gs, col, selected, x_vals, fluxes, labels):
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(inputDir):
-			raise Exception('inputDir does not currently exist as a directory')
-
-		filepath.makedirs(plotOutDir)
-
 		ap = AnalysisPaths(inputDir, variant_plot=True)
 		variants = ap.get_variants()
 		n_variants = len(variants)

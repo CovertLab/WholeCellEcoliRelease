@@ -27,13 +27,6 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		return
 
-		if not os.path.isdir(seedOutDir):
-			raise Exception(
-				"seedOutDir does not currently exist as a directory")
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Get all ids reqiured
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		ids_complexation = sim_data.process.complexation.moleculeNames # Complexe of proteins, and protein monomers

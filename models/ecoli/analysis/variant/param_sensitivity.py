@@ -33,7 +33,7 @@ from reconstruction.ecoli.simulation_data import SimulationDataEcoli
 from validation.ecoli.validation_data import ValidationDataEcoli
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import filepath, parallelization, sparkline, units
+from wholecell.utils import parallelization, sparkline, units
 
 
 CONTROL_VARIANT = 0  # variant number for control simulation
@@ -164,11 +164,6 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		if metadata.get('variant', '') != 'param_sensitivity':
 			print('This plot only runs for the param_sensitivity variant.')
 			return
-
-		if not os.path.isdir(inputDir):
-			raise Exception('inputDir does not currently exist as a directory')
-
-		filepath.makedirs(plotOutDir)
 
 		global ap
 		ap = AnalysisPaths(inputDir, variant_plot=True)
