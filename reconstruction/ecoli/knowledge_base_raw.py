@@ -45,6 +45,7 @@ LIST_OF_DICT_FILENAMES = (
 	"proteinComplexes.tsv",
 	"proteins.tsv",
 	"reactions.tsv",
+	"relative_metabolite_concentrations.tsv",
 	"rnas.tsv",
 	"secretions.tsv",
 	"sequence_motifs.tsv",

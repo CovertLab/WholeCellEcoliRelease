@@ -35,6 +35,9 @@ class getterFunctions(object):
 		assert isinstance(ids, list) or isinstance(ids, np.ndarray)
 		return [self._locationDict[x] for x in ids]
 
+	def check_valid_molecule(self, mol_id):
+		return mol_id in self._all_mass and mol_id in self._locationDict
+
 	def _buildAllMasses(self, raw_data, sim_data):
 		all_mass = {}
 		all_mass.update({x['id']: np.sum(x['mw']) for x in raw_data.rnas})

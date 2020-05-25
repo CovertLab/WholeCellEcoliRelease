@@ -28,13 +28,11 @@ from wholecell.utils import units
 
 
 PPI_CONCENTRATION = 0.5e-3  # M, multiple sources
-ILE_LEU_CONCENTRATION = 3.03e-4  # M, Bennett et al. 2009
-ILE_FRACTION = 0.360  # the fraction of iso/leucine that is isoleucine; computed from our monomer data
 ECOLI_PH = 7.2
 MICROMOLAR_UNITS = units.umol / units.L
 METABOLITE_CONCENTRATION_UNITS = units.mol / units.L
 
-USE_ALL_CONSTRAINTS = False # False will remove defined constraints from objective
+USE_ALL_CONSTRAINTS = False  # False will remove defined constraints from objective
 
 REVERSE_TAG = ' (reverse)'
 REVERSE_REACTION_ID = '{{}}{}'.format(REVERSE_TAG)
@@ -87,12 +85,21 @@ class Metabolism(object):
 		# compartments according to those given in the biomass objective.  Or,
 		# if there is no compartment, assign it to the cytoplasm.
 
-		concentration_sources = ['Bennett Concentration', 'Lempp Concentration']
-		bennett_only = {
-			'ATP',  # TF binding does not solve with average concentration with Lempp
-			}
-		lempp_only = {
-			'GLT',  # Steady state concentration reached with tRNA charging is much lower than Bennett
+		concentration_sources = [
+			'Park Concentration',
+			'Lempp Concentration',
+			'Kochanowski Concentration',
+			]
+		excluded = {
+			'Park Concentration': {
+				'GLT',  # Steady state concentration reached with tRNA charging is much lower than Park
+				},
+			'Lempp Concentration': {
+				'ATP',  # TF binding does not solve with average concentration
+				},
+			'Kochanowski Concentration': {
+				'ATP',  # TF binding does not solve with average concentration
+				},
 			}
 		metaboliteIDs = []
 		metaboliteConcentrations = []
@@ -104,23 +111,30 @@ class Metabolism(object):
 
 		for row in raw_data.metaboliteConcentrations:
 			metabolite_id = row['Metabolite']
+			if not sim_data.getter.check_valid_molecule(metabolite_id):
+				if VERBOSE:
+					print('Metabolite concentration for unknown molecule: {}'
+						.format(metabolite_id))
+				continue
 
-			if metabolite_id in bennett_only:
-				conc = row['Bennett Concentration'].asNumber(METABOLITE_CONCENTRATION_UNITS)
-			elif metabolite_id in lempp_only:
-				conc = row['Lempp Concentration'].asNumber(METABOLITE_CONCENTRATION_UNITS)
-			else:
-				# Use average of both sources
-				conc = np.nanmean([
-					row[source].asNumber(METABOLITE_CONCENTRATION_UNITS)
-					for source in concentration_sources
-					])
+			# Use average of both sources
+			# TODO (Travis): geometric mean?
+			conc = np.nanmean([
+				row[source].asNumber(METABOLITE_CONCENTRATION_UNITS)
+				for source in concentration_sources
+				if metabolite_id not in excluded.get(source, set())
+				])
+
+			# Check that a value was in the datasets being used
+			if not np.isfinite(conc):
+				if VERBOSE:
+					print('No concentration in active datasets for {}'.format(metabolite_id))
+				continue
 
 			if metabolite_id in wildtypeIDtoCompartment:
 				metaboliteIDs.append(
 					metabolite_id + wildtypeIDtoCompartment[metabolite_id]
 					)
-
 			else:
 				metaboliteIDs.append(
 					metabolite_id + "[c]"
@@ -128,30 +142,13 @@ class Metabolism(object):
 
 			metaboliteConcentrations.append(conc)
 
-		# ILE/LEU: split reported concentration according to their relative abundances
-		ileRelative = ILE_FRACTION
-		leuRelative = 1 - ileRelative
-
-		metaboliteIDs.append("ILE[c]")
-		metaboliteConcentrations.append(ileRelative * ILE_LEU_CONCENTRATION)
-
-		metaboliteIDs.append("LEU[c]")
-		metaboliteConcentrations.append(leuRelative * ILE_LEU_CONCENTRATION)
-
-		# CYS/SEC/GLY: concentration based on other amino acids
+		# CYS/SEL: concentration based on other amino acids
 		aaConcentrations = []
-
 		for aaIndex, aaID in enumerate(sim_data.amino_acid_1_to_3_ordered.values()):
 			if aaID in metaboliteIDs:
 				metIndex = metaboliteIDs.index(aaID)
 				aaConcentrations.append(metaboliteConcentrations[metIndex])
-
 		aaSmallestConc = min(aaConcentrations)
-
-		metaboliteIDs.append("GLY[c]")
-		metaboliteConcentrations.append(
-			metaboliteConcentrations[metaboliteIDs.index("L-ALPHA-ALANINE[c]")]
-			)
 
 		metaboliteIDs.append("CYS[c]")
 		metaboliteConcentrations.append(aaSmallestConc)
@@ -161,12 +158,10 @@ class Metabolism(object):
 
 		# DGTP: set to smallest of all other DNTP concentrations
 		dntpConcentrations = []
-
 		for dntpIndex, dntpID in enumerate(sim_data.moleculeGroups.dNtpIds):
 			if dntpID in metaboliteIDs:
 				metIndex = metaboliteIDs.index(dntpID)
 				dntpConcentrations.append(metaboliteConcentrations[metIndex])
-
 		dntpSmallestConc = min(dntpConcentrations)
 
 		metaboliteIDs.append("DGTP[c]")
@@ -185,20 +180,43 @@ class Metabolism(object):
 		metaboliteIDs.append("PI[c]")
 		metaboliteConcentrations.append(PPI_CONCENTRATION)
 
-		# Add byproducts with no annotated concentration to force recycling
-		metaboliteIDs.append("UMP[c]")
-		metaboliteConcentrations.append(2.40e-5)
-
 		# include metabolites that are part of biomass
 		for key, value in sim_data.mass.getBiomassAsConcentrations(sim_data.doubling_time).iteritems():
 			metaboliteIDs.append(key)
 			metaboliteConcentrations.append(value.asNumber(METABOLITE_CONCENTRATION_UNITS))
 
+		# Load relative metabolite changes
+		relative_changes = {}
+		for row in raw_data.relative_metabolite_concentrations:
+			met = row['Metabolite']
+			met_id = met + wildtypeIDtoCompartment.get(met, '[c]')
+
+			# AA concentrations are determined through charging
+			if met_id in sim_data.moleculeGroups.aaIDs:
+				continue
+
+			# Get relative metabolite change in each media condition
+			for col, value in row.items():
+				# Skip the ID column and minimal column (only has values of 1)
+				# or skip invalid values
+				if col == 'Metabolite' or col == 'minimal' or not np.isfinite(value):
+					continue
+
+				if col not in relative_changes:
+					relative_changes[col] = {}
+				relative_changes[col][met_id] = value
+
 		# save concentrations as class variables
+		unique_ids, counts = np.unique(metaboliteIDs, return_counts=True)
+		if np.any(counts > 1):
+			raise ValueError('Multiple concentrations for metabolite(s): {}'.format(', '.join(unique_ids[counts > 1])))
+
+		# TODO (Travis): only pass raw_data and sim_data and create functions to load absolute and relative concentrations
 		self.concentrationUpdates = ConcentrationUpdates(dict(zip(
 			metaboliteIDs,
 			METABOLITE_CONCENTRATION_UNITS * np.array(metaboliteConcentrations)
 			)),
+			relative_changes,
 			raw_data.equilibriumReactions,
 			sim_data.external_state.exchange_dict,
 		)
@@ -1147,10 +1165,11 @@ class Metabolism(object):
 
 # Class used to update metabolite concentrations based on the current nutrient conditions
 class ConcentrationUpdates(object):
-	def __init__(self, concDict, equilibriumReactions, exchange_data_dict):
+	def __init__(self, concDict, relative_changes, equilibriumReactions, exchange_data_dict):
 		self.units = units.getUnit(concDict.values()[0])
 		self.defaultConcentrationsDict = dict((key, concDict[key].asNumber(self.units)) for key in concDict)
 		self.exchange_fluxes = self._exchange_flux_present(exchange_data_dict)
+		self.relative_changes = relative_changes
 
 		# factor of internal amino acid increase if amino acids present in nutrients
 		self.moleculeScaleFactors = {
@@ -1197,6 +1216,13 @@ class ConcentrationUpdates(object):
 			if conversion_units:
 				conversion_to_no_units = conversion_units.asUnit(self.units)
 
+			# Adjust for measured concentration changes in different media
+			if media_id in self.relative_changes:
+				for mol_id, conc_change in self.relative_changes[media_id].items():
+					if mol_id in concDict:
+						concDict[mol_id]  *= conc_change
+
+			# Adjust for concentration changes based on presence in media
 			exchanges = self.exchange_fluxes[media_id]
 			for moleculeName, setAmount in self.moleculeSetAmounts.iteritems():
 				if ((moleculeName in exchanges and (moleculeName[:-3] + "[c]" not in self.moleculeScaleFactors or moleculeName == "L-SELENOCYSTEINE[c]"))
