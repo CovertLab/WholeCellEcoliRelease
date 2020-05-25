@@ -83,12 +83,21 @@ class Metabolism(object):
 		# compartments according to those given in the biomass objective.  Or,
 		# if there is no compartment, assign it to the cytoplasm.
 
-		concentration_sources = ['Park Concentration', 'Lempp Concentration']
-		park_only = {
-			'ATP',  # TF binding does not solve with average concentration with Lempp
-			}
-		lempp_only = {
-			'GLT',  # Steady state concentration reached with tRNA charging is much lower than Park
+		concentration_sources = [
+			'Park Concentration',
+			'Lempp Concentration',
+			'Kochanowski Concentration',
+			]
+		excluded = {
+			'Park Concentration': {
+				'GLT',  # Steady state concentration reached with tRNA charging is much lower than Park
+				},
+			'Lempp Concentration': {
+				'ATP',  # TF binding does not solve with average concentration
+				},
+			'Kochanowski Concentration': {
+				'ATP',  # TF binding does not solve with average concentration
+				},
 			}
 		metaboliteIDs = []
 		metaboliteConcentrations = []
@@ -106,22 +115,19 @@ class Metabolism(object):
 						.format(metabolite_id))
 				continue
 
-			if metabolite_id in park_only:
-				conc = row['Park Concentration'].asNumber(METABOLITE_CONCENTRATION_UNITS)
-			elif metabolite_id in lempp_only:
-				conc = row['Lempp Concentration'].asNumber(METABOLITE_CONCENTRATION_UNITS)
-			else:
-				# Use average of both sources
-				conc = np.nanmean([
-					row[source].asNumber(METABOLITE_CONCENTRATION_UNITS)
-					for source in concentration_sources
-					])
+			# Use average of both sources
+			# TODO (Travis): geometric mean?
+			conc = np.nanmean([
+				row[source].asNumber(METABOLITE_CONCENTRATION_UNITS)
+				for source in concentration_sources
+				if metabolite_id not in excluded.get(source, set())
+				])
 
-				# Check that a value was in the datasets being used
-				if not np.isfinite(conc):
-					if VERBOSE:
-						print('No concentration in active datasets for {}'.format(metabolite_id))
-					continue
+			# Check that a value was in the datasets being used
+			if not np.isfinite(conc):
+				if VERBOSE:
+					print('No concentration in active datasets for {}'.format(metabolite_id))
+				continue
 
 			if metabolite_id in wildtypeIDtoCompartment:
 				metaboliteIDs.append(
@@ -177,15 +183,38 @@ class Metabolism(object):
 			metaboliteIDs.append(key)
 			metaboliteConcentrations.append(value.asNumber(METABOLITE_CONCENTRATION_UNITS))
 
+		# Load relative metabolite changes
+		relative_changes = {}
+		for row in raw_data.relative_metabolite_concentrations:
+			met = row['Metabolite']
+			met_id = met + wildtypeIDtoCompartment.get(met, '[c]')
+
+			# AA concentrations are determined through charging
+			if met_id in sim_data.moleculeGroups.aaIDs:
+				continue
+
+			# Get relative metabolite change in each media condition
+			for col, value in row.items():
+				# Skip the ID column and minimal column (only has values of 1)
+				# or skip invalid values
+				if col == 'Metabolite' or col == 'minimal' or not np.isfinite(value):
+					continue
+
+				if col not in relative_changes:
+					relative_changes[col] = {}
+				relative_changes[col][met_id] = value
+
 		# save concentrations as class variables
 		unique_ids, counts = np.unique(metaboliteIDs, return_counts=True)
 		if np.any(counts > 1):
 			raise ValueError('Multiple concentrations for metabolite(s): {}'.format(', '.join(unique_ids[counts > 1])))
 
+		# TODO (Travis): only pass raw_data and sim_data and create functions to load absolute and relative concentrations
 		self.concentrationUpdates = ConcentrationUpdates(dict(zip(
 			metaboliteIDs,
 			METABOLITE_CONCENTRATION_UNITS * np.array(metaboliteConcentrations)
 			)),
+			relative_changes,
 			raw_data.equilibriumReactions,
 			sim_data.external_state.exchange_dict,
 		)
@@ -1134,10 +1163,11 @@ class Metabolism(object):
 
 # Class used to update metabolite concentrations based on the current nutrient conditions
 class ConcentrationUpdates(object):
-	def __init__(self, concDict, equilibriumReactions, exchange_data_dict):
+	def __init__(self, concDict, relative_changes, equilibriumReactions, exchange_data_dict):
 		self.units = units.getUnit(concDict.values()[0])
 		self.defaultConcentrationsDict = dict((key, concDict[key].asNumber(self.units)) for key in concDict)
 		self.exchange_fluxes = self._exchange_flux_present(exchange_data_dict)
+		self.relative_changes = relative_changes
 
 		# factor of internal amino acid increase if amino acids present in nutrients
 		self.moleculeScaleFactors = {
@@ -1184,6 +1214,13 @@ class ConcentrationUpdates(object):
 			if conversion_units:
 				conversion_to_no_units = conversion_units.asUnit(self.units)
 
+			# Adjust for measured concentration changes in different media
+			if media_id in self.relative_changes:
+				for mol_id, conc_change in self.relative_changes[media_id].items():
+					if mol_id in concDict:
+						concDict[mol_id]  *= conc_change
+
+			# Adjust for concentration changes based on presence in media
 			exchanges = self.exchange_fluxes[media_id]
 			for moleculeName, setAmount in self.moleculeSetAmounts.iteritems():
 				if ((moleculeName in exchanges and (moleculeName[:-3] + "[c]" not in self.moleculeScaleFactors or moleculeName == "L-SELENOCYSTEINE[c]"))
