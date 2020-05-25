@@ -19,7 +19,9 @@ def array_to_list(value):
 	return value
 
 
-class JsonWriter(csv.DictWriter):
+class JsonWriter(csv.DictWriter, object):
+	# [Python 2 DictWriter is an old-style class so mix in `object` to get a
+	# new-style class that supports `super()`.]
 	def __init__(self, *args, **kwargs):
 		super(JsonWriter, self).__init__(
 			quotechar = "'", quoting = csv.QUOTE_MINIMAL, lineterminator="\n", *args, **kwargs
@@ -32,7 +34,7 @@ class JsonWriter(csv.DictWriter):
 			})
 
 
-class JsonReader(csv.DictReader):
+class JsonReader(csv.DictReader, object):
 	def __init__(self, *args, **kwargs):
 		super(JsonReader, self).__init__(
 			quotechar = "'", quoting = csv.QUOTE_MINIMAL, *args, **kwargs

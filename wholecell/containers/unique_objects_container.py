@@ -539,12 +539,9 @@ class UniqueObjectsContainer(object):
 
 
 	def tableAppend(self, tableWriter):
-		tableWriter.append(
-			**dict(
-				zip(self._names, self._collections)
-				+ [("_globalReference", self._globalReference)]
-				) # TODO: consider caching this dict
-			)
+		row = dict(zip(self._names, self._collections))  # TODO: cache this?
+		row["_globalReference"] = self._globalReference
+		tableWriter.append(**row)
 
 
 	def add_request(self, **fields):
