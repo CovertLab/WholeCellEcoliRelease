@@ -43,7 +43,7 @@ sim_data = None  # type: Optional[SimulationDataEcoli]
 validation_data = None  # type: Optional[ValidationDataEcoli]
 
 
-def analyze_variant((variant, total_params)):
+def analyze_variant(args):
 	# type: (Tuple[int, int]) -> np.ndarray[np.float]
 	'''
 	Method to map each variant to for parallel analysis.
@@ -67,6 +67,7 @@ def analyze_variant((variant, total_params)):
 			average flux correlation for each parameter when decreased
 	'''
 
+	variant, total_params = args
 	if variant == 0:
 		increase_indices = None
 		decrease_indices = None

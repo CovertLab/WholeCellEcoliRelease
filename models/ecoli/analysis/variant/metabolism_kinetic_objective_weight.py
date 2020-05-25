@@ -13,6 +13,7 @@ import re
 
 from matplotlib import pyplot as plt
 import numpy as np
+from typing import List, Tuple
 
 from models.ecoli.analysis import variantAnalysisPlot
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS
@@ -34,7 +35,8 @@ OUTLIER_REACTIONS = [
 	]
 
 
-def analyze_variant((variant, ap, toya_reactions, toya_fluxes, outlier_filter)):
+def analyze_variant(args):
+	# type: (Tuple[int, AnalysisPaths, List[str], np.ndarray[float], List[bool]]) -> tuple
 	'''
 	Function to analyze the data for each variant in parallel
 
@@ -46,6 +48,7 @@ def analyze_variant((variant, ap, toya_reactions, toya_fluxes, outlier_filter)):
 		outlier_filter (list of bool) - True if associated Toya reaction should be excluded
 	'''
 
+	variant, ap, toya_reactions, toya_fluxes, outlier_filter = args
 	n_sims = 0
 
 	# Load sim_data attributes for the given variant
