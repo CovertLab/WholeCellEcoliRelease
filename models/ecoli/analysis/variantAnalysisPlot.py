@@ -8,6 +8,7 @@ from models.ecoli.analysis import analysisPlot
 from runscripts.manual import analysisVariant
 
 
+# noinspection PyAbstractClass
 class VariantAnalysisPlot(analysisPlot.AnalysisPlot):
 	"""Abstract base class for Variant analysis plots."""
 

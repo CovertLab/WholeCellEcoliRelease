@@ -15,6 +15,7 @@ from typing import Any, Dict
 from wholecell.utils import constants, data, scriptBase, parallelization, filepath
 
 
+# noinspection PyAbstractClass
 class AnalysisBase(scriptBase.ScriptBase):
 	"""Abstract base class for scripts that manually run analysis plots in an
 	existing sim_dir: Defines a `sim_dir` command line parameter and sets some

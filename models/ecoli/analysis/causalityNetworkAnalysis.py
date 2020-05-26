@@ -8,6 +8,7 @@ from models.ecoli.analysis import analysisPlot
 from runscripts.manual import buildCausalityNetwork
 
 
+# noinspection PyAbstractClass
 class CausalityNetworkAnalysis(analysisPlot.AnalysisPlot):
 	"""Abstract base class for causality network analysis scripts."""
 

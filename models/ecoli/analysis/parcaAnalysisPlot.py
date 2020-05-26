@@ -9,6 +9,7 @@ from models.ecoli.analysis import analysisPlot
 from runscripts.manual import analysisParca
 
 
+# noinspection PyAbstractClass
 class ParcaAnalysisPlot(analysisPlot.AnalysisPlot):
 	"""Abstract base class for Parca analysis plots."""
 

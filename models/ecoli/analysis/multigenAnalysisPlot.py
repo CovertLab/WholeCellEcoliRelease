@@ -8,6 +8,7 @@ from models.ecoli.analysis import analysisPlot
 from runscripts.manual import analysisMultigen
 
 
+# noinspection PyAbstractClass
 class MultigenAnalysisPlot(analysisPlot.AnalysisPlot):
 	"""Abstract base class for Multigen analysis plots."""
 

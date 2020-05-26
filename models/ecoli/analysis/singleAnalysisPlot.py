@@ -8,6 +8,7 @@ from models.ecoli.analysis import analysisPlot
 from runscripts.manual import analysisSingle
 
 
+# noinspection PyAbstractClass
 class SingleAnalysisPlot(analysisPlot.AnalysisPlot):
 	"""Abstract base class for Single analysis plots."""
 

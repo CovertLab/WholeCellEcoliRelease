@@ -8,6 +8,7 @@ from models.ecoli.analysis import analysisPlot
 from runscripts.manual import analysisCohort
 
 
+# noinspection PyAbstractClass
 class CohortAnalysisPlot(analysisPlot.AnalysisPlot):
 	"""Abstract base class for Cohort analysis plots."""
 
