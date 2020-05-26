@@ -141,7 +141,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		dryMass = (self.readFromListener("Mass", "dryMass") * units.fg)
 		translation_supply_rate = self.translation_aa_supply[current_media_id] * self.elngRateFactor
 		mol_aas_supplied = translation_supply_rate * dryMass * self.timeStepSec() * units.s
-		self.aa_supply = units.convertNoUnitToNumber(mol_aas_supplied * self.nAvogadro)
+		self.aa_supply = units.strip_empty_units(mol_aas_supplied * self.nAvogadro)
 		self.writeToListener("RibosomeData", "translationSupply", translation_supply_rate.asNumber())
 
 		# MODEL SPECIFIC: Calculate AA request

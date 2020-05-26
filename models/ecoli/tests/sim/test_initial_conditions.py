@@ -137,7 +137,7 @@ class Test_InitialConditions(unittest.TestCase):
 		n = 1
 		while n <= limit:
 			ratio = (1 - ((n*tau - D)/(C)))
-			ratio = units.convertNoUnitToNumber(ratio)
+			ratio = units.strip_empty_units(ratio)
 			expected_coordinates = np.floor(
 				ratio * (replichore_length.asNumber()))
 			self.assertEqual(expected_coordinates,
@@ -159,7 +159,7 @@ class Test_InitialConditions(unittest.TestCase):
 		n = 1
 		while n <= limit:
 			ratio = (1 - ((n*tau - D)/(C)))
-			ratio = units.convertNoUnitToNumber(ratio)
+			ratio = units.strip_empty_units(ratio)
 			expected_coordinates = np.floor(
 				ratio * (replichore_length.asNumber()))
 			self.assertEqual(expected_coordinates,
@@ -181,7 +181,7 @@ class Test_InitialConditions(unittest.TestCase):
 		n = 1
 		while n <= limit:
 			ratio = (1 - ((n*tau - D)/(C)))
-			ratio = units.convertNoUnitToNumber(ratio)
+			ratio = units.strip_empty_units(ratio)
 			expected_coordinates = np.floor(
 				ratio * (replichore_length.asNumber()))
 			self.assertEqual(expected_coordinates,
@@ -203,7 +203,7 @@ class Test_InitialConditions(unittest.TestCase):
 		n = 1
 		while n <= limit:
 			ratio = (1 - ((n*tau - D)/(C)))
-			ratio = units.convertNoUnitToNumber(ratio)
+			ratio = units.strip_empty_units(ratio)
 			expected_coordinates = np.floor(
 				ratio * (replichore_length.asNumber()))
 			self.assertEqual(expected_coordinates,

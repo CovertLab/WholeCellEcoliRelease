@@ -1116,7 +1116,7 @@ def determine_chromosome_state(C, D, tau, replichore_length, n_max_replisomes,
 		# Determine at which location (base) of the chromosome the replication
 		# forks should be initialized to
 		rel_location = 1.0 - (((round_idx + 1.0)*tau - D)/C)
-		rel_location = units.convertNoUnitToNumber(rel_location)
+		rel_location = units.strip_empty_units(rel_location)
 		fork_location = np.floor(rel_location*(
 			replichore_length.asNumber(units.nt)))
 
