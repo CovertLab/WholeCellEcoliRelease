@@ -80,6 +80,16 @@ def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None, transparent=Fa
 				str(metadata["description"])
 				])
 
+		elif analysis_type == 'parca':
+			# Format metadata signature for parca figure
+			metadata_signature = "_".join([
+				str(metadata["time"][:13]),
+				"Githash",
+				str(metadata["git_hash"])[:10],
+				"Desc",
+				str(metadata["description"])
+				])
+
 		else:
 			raise ValueError('Unknown analysis_type {}'.format(analysis_type))
 

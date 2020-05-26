@@ -1,0 +1,133 @@
+"""
+Compare metabolite concentrations from different datasets.
+
+@organization: Covert Lab, Department of Bioengineering, Stanford University
+@date: Created 5/22/20
+"""
+
+from __future__ import absolute_import, division, print_function
+
+import cPickle
+import os
+
+from matplotlib import pyplot as plt
+from matplotlib import gridspec
+import numpy as np
+from scipy import stats
+
+from models.ecoli.analysis import parcaAnalysisPlot
+from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.utils import constants, units
+
+
+CONC_UNITS = units.mmol / units.L
+INDEX_KEY = 'index'
+CONC_KEY = 'conc'
+
+
+class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
+	def do_plot(self, input_dir, plot_out_dir, plot_out_filename, sim_data_file, validation_data_file, metadata):
+		with open(os.path.join(input_dir, constants.SERIALIZED_RAW_DATA), 'rb') as f:
+			raw_data = cPickle.load(f)
+		with open(sim_data_file, 'rb') as f:
+			sim_data = cPickle.load(f)
+
+		# Extract raw concentrations
+		concentrations = {}
+		metabolites = []
+		index = 0
+		for row in raw_data.metaboliteConcentrations:
+			metabolites.append(row['Metabolite'])
+			for source, conc in row.items():
+				if source == 'Metabolite':
+					continue
+
+				conc = conc.asNumber(CONC_UNITS)
+				if np.isfinite(conc):
+					if source not in concentrations:
+						concentrations[source] = {
+							INDEX_KEY: [],
+							CONC_KEY: [],
+							}
+					concentrations[source][INDEX_KEY].append(index)
+					concentrations[source][CONC_KEY].append(conc)
+			index += 1
+
+		# Extract sim_data concentrations
+		model_conc = np.array([
+			sim_data.process.metabolism.concDict[met + '[c]'].asNumber(CONC_UNITS)
+			for met in metabolites
+			])
+
+		# Sort to determine x position
+		sorted_idx = np.argsort(model_conc)[::-1]
+		sorted_mapping = {idx: i for i, idx in enumerate(sorted_idx)}
+		x = list(range(len(metabolites)))
+
+		# Create plot
+		plt.figure(figsize=(15, 10))
+
+		## Plot raw sources
+		for source, data in concentrations.items():
+			new_idx = [sorted_mapping[i] for i in data[INDEX_KEY]]
+			plt.semilogy(new_idx, data[CONC_KEY], 'o', alpha=0.5, markersize=4,
+				markeredgewidth=0, label=source)
+
+		## Plot wholecell concentration
+		plt.semilogy(x, model_conc[sorted_idx],
+			'_k', alpha=0.8, label='WCM')
+
+		## Draw reference lines
+		for pos in x[::5]:
+			plt.axvline(pos - 0.5, color='k', alpha=0.2, linewidth=0.5)
+
+		## Formatting
+		plt.xticks(x, np.array(metabolites)[sorted_idx], rotation=45, ha='right', size=6)
+		plt.ylabel('Concentration (mM)')
+		plt.legend()
+
+		## Save figure
+		plt.tight_layout()
+		exportFigure(plt, plot_out_dir, plot_out_filename, metadata)
+		plt.close('all')
+
+		# Compare sources against each other
+		plt.figure(figsize=(10, 10))
+		concentrations['WCM'] = {}
+		concentrations['WCM'][INDEX_KEY] = x
+		concentrations['WCM'][CONC_KEY] = model_conc.tolist()
+		sources = sorted(concentrations.keys())
+		n_sources = len(sources)
+
+		## Subplot for each comparison
+		gs = gridspec.GridSpec(n_sources, n_sources)
+		for i, source1 in enumerate(sources):
+			for j, source2 in enumerate(sources):
+				# Extract common concentrations
+				idx1 = set(concentrations[source1][INDEX_KEY])
+				idx2 = set(concentrations[source2][INDEX_KEY])
+				conc1 = [c for c, idx in zip(concentrations[source1][CONC_KEY], concentrations[source1][INDEX_KEY]) if idx in idx2]
+				conc2 = [c for c, idx in zip(concentrations[source2][CONC_KEY], concentrations[source2][INDEX_KEY]) if idx in idx1]
+				conc_range = [np.min([conc1, conc2]), np.max([conc1, conc2])]
+				r, p = stats.pearsonr(np.log(conc1), np.log(conc2))
+
+				# Plot data
+				plt.subplot(gs[j, i])
+				plt.loglog(conc1, conc2, 'o', alpha=0.5)
+				plt.loglog(conc_range, conc_range, 'k--')
+				plt.title(r'$R^2$={:.2f}, p={:.1g}'.format(r, p), fontsize=8)
+
+				# Only show axis labels on edge
+				if j == n_sources - 1:
+					plt.xlabel(source1 + '\n(mM)', fontsize=8)
+				if i == 0:
+					plt.ylabel(source2 + '\n(mM)', fontsize=8)
+
+		## Save figure
+		plt.tight_layout()
+		exportFigure(plt, plot_out_dir, plot_out_filename + '_sources', metadata)
+		plt.close('all')
+
+
+if __name__ == "__main__":
+	Plot().cli()

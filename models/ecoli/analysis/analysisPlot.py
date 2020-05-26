@@ -14,6 +14,8 @@ SingleAnalysisPlot subclasses), etc.
 from __future__ import absolute_import, division, print_function
 
 import abc
+import os
+
 import matplotlib as mp
 from matplotlib import pyplot as plt
 from wholecell.utils import memory_debug, parallelization
@@ -99,7 +101,11 @@ class AnalysisPlot(object):
 	def plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile,
 			validationDataFile, metadata):
 		"""Public method to set up, make a plot, and cleanup."""
-		fp.makedirs(plotOutDir)  # TODO(jerry): don't repeat this in 132 do_plot() methods
+		# TODO(jerry): don't repeat these in 132 do_plot() methods
+		if not os.path.isdir(inputDir):
+			raise RuntimeError('Input directory ({}) does not currently exist.'
+				.format(inputDir))
+		fp.makedirs(plotOutDir)
 
 		with memory_debug.detect_leaks(), mp.rc_context():
 			self.do_plot(inputDir, plotOutDir, plotOutFileName, simDataFile,
