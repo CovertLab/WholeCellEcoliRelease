@@ -152,10 +152,9 @@ def getUnit(value):
 def hasUnit(value):
 	return isinstance(value, Unum)
 
-def convertNoUnitToNumber(value):
-	if not hasUnit(value):
-		raise Exception("Only works on Unum!")
-
-	value.normalize()
-	value.checkNoUnit()
-	return value.asNumber()
+def strip_empty_units(value):
+	if hasUnit(value):
+		value.normalize()
+		value.checkNoUnit()
+		value = value.asNumber()
+	return value

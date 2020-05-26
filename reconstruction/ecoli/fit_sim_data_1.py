@@ -1151,7 +1151,7 @@ def totalCountIdDistributionProtein(sim_data, expression, doubling_time):
 
 	Returns
 	--------
-	- total_count_protein (float with empty units) - total number of proteins
+	- total_count_protein (float) - total number of proteins
 	- ids_protein (array of str) - name of each protein with location tag
 	- distribution_protein (array of floats) - distribution for each protein,
 	normalized to 1
@@ -1196,7 +1196,7 @@ def totalCountIdDistributionRNA(sim_data, expression, doubling_time):
 
 	Returns
 	--------
-	- total_count_RNA (float with empty units) - total number of RNAs
+	- total_count_RNA (float) - total number of RNAs
 	- ids_rnas (array of str) - name of each RNA with location tag
 	- distribution_RNA (array of floats) - distribution for each RNA,
 	normalized to 1
@@ -1846,17 +1846,12 @@ def totalCountFromMassesAndRatios(totalMass, individualMasses, distribution):
 
 	Returns
 	--------
-	- float with dimensionless units of the total counts (does not need to be
-	a whole number)
-
-	Notes
-	-----
-	- TODO (Travis) - test includes case with no units although use case here
-	and documentation is only with units
+	- counts (float): total counts (does not need to be a whole number)
 	"""
 
 	assert np.allclose(np.sum(distribution), 1)
-	return 1 / units.dot(individualMasses, distribution) * totalMass
+	counts = 1 / units.dot(individualMasses, distribution) * totalMass
+	return units.strip_empty_units(counts)
 
 def proteinDistributionFrommRNA(distribution_mRNA, translation_efficiencies, netLossRate):
 	"""

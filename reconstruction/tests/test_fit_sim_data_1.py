@@ -34,7 +34,7 @@ class Test_fitkb1(unittest.TestCase):
 		individualMasses = units.fg * np.array([0.1, 0.2, 0.1])
 		distribution = np.array([0.5, 0.25, 0.25])
 		count = totalCountFromMassesAndRatios(totalMass, individualMasses, distribution)
-		count.checkNoUnit()
+		self.assertFalse(units.hasUnit(count))
 		self.assertEqual(count, 80.)
 
 		# Test assertion in function
