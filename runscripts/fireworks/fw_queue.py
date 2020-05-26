@@ -108,10 +108,12 @@ InitRawValidationData (fw_raw_validation_data)
 InitValidationData (fw_validation_data)
 * CompressRawValidationData if COMPRESS_OUTPUT
 * CompressRawData if COMPRESS_OUTPUT
+* AnalysisParca if RUN_AGGREGATE_ANALYSIS
 
 FitSimData (fw_calculate_sim_data)
 * CompressRawData if COMPRESS_OUTPUT
 * VariantSimData * VARIANTS_TO_RUN
+* AnalysisParca if RUN_AGGREGATE_ANALYSIS
 
 VariantSimData (fw_this_variant_sim_data)
 * CompressFitSimData if COMPRESS_OUTPUT
@@ -124,6 +126,10 @@ Simulation/SimulationDaughter (fw_this_variant_this_gen_this_sim)
 * AnalysisVariant if RUN_AGGREGATE_ANALYSIS and GEN == N_GENS - 1
 * AnalysisMultiGen if RUN_AGGREGATE_ANALYSIS and GEN == N_GENS - 1
 * BuildCausalityNetwork if BUILD_CAUSALITY_NETWORK
+
+AnalysisParca (fw_parca_analysis)
+* CompressFitSimData if COMPRESS_OUTPUT
+* CompressValidationData if COMPRESS_OUTPUT
 
 AnalysisSingle (fw_this_variant_this_gen_this_sim_analysis)
 * CompressVariantSimData if COMPRESS_OUTPUT
@@ -179,6 +185,7 @@ from wholecell.fireworks.firetasks import FitSimDataTask
 from wholecell.fireworks.firetasks import VariantSimDataTask
 from wholecell.fireworks.firetasks import SimulationTask
 from wholecell.fireworks.firetasks import SimulationDaughterTask
+from wholecell.fireworks.firetasks import AnalysisParcaTask
 from wholecell.fireworks.firetasks import AnalysisVariantTask
 from wholecell.fireworks.firetasks import AnalysisCohortTask
 from wholecell.fireworks.firetasks import AnalysisSingleTask
@@ -508,8 +515,30 @@ if COMPRESS_OUTPUT:
 # Variant analysis
 VARIANT_PLOT_DIRECTORY = os.path.join(INDIV_OUT_DIRECTORY, "plotOut")
 fw_variant_analysis = None
+fw_parca_analysis = None
 
 if RUN_AGGREGATE_ANALYSIS:
+	fw_name = "AnalysisParcaTask"
+	fw_parca_analysis = Firework(
+		AnalysisParcaTask(
+			input_directory = KB_DIRECTORY,
+			input_sim_data = os.path.join(KB_DIRECTORY, filename_sim_data),
+			input_validation_data = os.path.join(KB_DIRECTORY, filename_validation_data),
+			output_plots_directory = os.path.join(INDIV_OUT_DIRECTORY, constants.KB_PLOT_OUTPUT_DIR),
+			plot = PLOTS,
+			cpus = analysis_cpus,
+			metadata = metadata,
+			),
+		name = fw_name,
+		spec = {"_queueadapter": dict(analysis_q_cpus, job_name=fw_name), "_priority":5}
+		)
+	wf_fws.append(fw_parca_analysis)
+	wf_links[fw_calculate_sim_data].append(fw_parca_analysis)
+	wf_links[fw_validation_data].append(fw_parca_analysis)
+	if COMPRESS_OUTPUT:
+		wf_links[fw_parca_analysis].append(fw_sim_data_1_compression)
+		wf_links[fw_parca_analysis].append(fw_validation_data_compression)
+
 	fw_name = "AnalysisVariantTask"
 	fw_variant_analysis = Firework(
 		AnalysisVariantTask(

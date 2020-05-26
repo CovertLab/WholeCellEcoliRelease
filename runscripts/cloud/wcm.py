@@ -19,6 +19,7 @@ from wholecell.fireworks.firetasks import (
 	VariantSimDataTask,
 	SimulationTask,
 	SimulationDaughterTask,
+	AnalysisParcaTask,
 	AnalysisVariantTask,
 	AnalysisCohortTask,
 	AnalysisSingleTask,
@@ -149,6 +150,21 @@ class WcmWorkflow(Workflow):
 		parca_task = self.add_python_task(ParcaTask, python_args,
 			name='parca',
 			outputs=[kb_dir])
+
+		if run_analysis:
+			parca_plot_dir = self.internal(constants.KB_PLOT_OUTPUT_DIR, '')
+			python_args = data.select_keys(
+				args, scriptBase.ANALYSIS_KEYS,
+				input_directory=kb_dir,
+				input_sim_data=sim_data_file,
+				input_validation_data=validation_data_file,
+				output_plots_directory=parca_plot_dir,
+				metadata=metadata)
+			analysis_parca_task = self.add_python_task(AnalysisParcaTask,
+				python_args,
+				name='analysis_parca',
+				inputs=[kb_dir],
+				outputs=[parca_plot_dir])
 
 		variant_analysis_inputs = [kb_dir]
 

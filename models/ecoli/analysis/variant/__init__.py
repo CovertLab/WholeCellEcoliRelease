@@ -14,7 +14,6 @@ ACTIVE = [
 	"metabolism_secretion_penalty.py",
 	"tfFit.py",
 	"tfFitComparison.py",
-	"tfTarget.py",
 	"time_step.py",
 ]
 

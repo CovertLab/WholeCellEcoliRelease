@@ -16,6 +16,10 @@ SERIALIZED_METRICS_DATA_FILENAME = "metricsData.cPickle"
 SERIALIZED_SIM_DATA_MODIFIED = "simData_Modified.cPickle"
 SERIALIZED_INHERITED_STATE = "Daughter%d_inherited_state.cPickle"
 
+# Workflow directories
+# TODO: add 'plotOut', 'kb', etc.
+KB_PLOT_OUTPUT_DIR = 'kb_plot_out'
+
 JSON_METADATA_FILE = 'metadata.json'
 
 REQUEST_PRIORITY_DEGRADATION = 10
