@@ -5,9 +5,10 @@ SimulationData moleculeGroups
 @date: Created 02/13/2015
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 from reconstruction.ecoli.dataclasses.state.stateFunctions import createIdsWithCompartments
+
 
 class MoleculeGroups(object):
 	"""

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 RnapData
 
@@ -6,7 +5,7 @@ RnapData
 @date: Created 6/18/15
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 

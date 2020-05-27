@@ -19,12 +19,6 @@ FONT_SIZE=9
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(inputDir):
-			raise Exception, "variantDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		ap = AnalysisPaths(inputDir, variant_plot = True)
 
 		fig = plt.figure()

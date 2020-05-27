@@ -3,8 +3,7 @@ Base class for netflow interfaces with different solver backends.
 All functions required for implementation with modular_fba.py are listed.
 '''
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 
 class NetworkFlowProblemBase(object):
@@ -14,7 +13,7 @@ class NetworkFlowProblemBase(object):
 	def setFlowMaterialCoeff(self, flow, material, coefficient):
 		raise NotImplementedError()
 
-	def setFlowBounds(selfs, flow, ub=None, lb=None):
+	def setFlowBounds(self, flow, ub=None, lb=None):
 		raise NotImplementedError()
 
 	def setFlowObjectiveCoeff(self, flow, coefficient):

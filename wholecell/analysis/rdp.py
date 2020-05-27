@@ -1,5 +1,5 @@
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
@@ -144,8 +144,8 @@ def rdp(points, threshold):
 
 	(n_points, n_dims) = points.shape
 
-	if (n_dims > n_points):
-		print 'Number of dimensions appears to be greater than the number of elements; input may be transposed'
+	if n_dims > n_points:
+		print('Number of dimensions appears to be greater than the number of elements; input may be transposed')
 
 	# We work with squared distances to avoid calculating square roots, which is computationally expensive
 	squared_threshold = np.square(threshold)

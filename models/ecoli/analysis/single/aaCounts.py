@@ -6,12 +6,11 @@ Plot amino acid counts
 @date: Created 5/8/2014
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
 
-import numpy as np
 from matplotlib import pyplot as plt
 
 from wholecell.io.tablereader import TableReader
@@ -21,13 +20,6 @@ from models.ecoli.analysis import singleAnalysisPlot
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception(
-				'simOutDir "{}" does not currently exist as a directory'.format(simOutDir))
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		sim_data = cPickle.load(open(simDataFile))
 
 		aaIDs = sim_data.moleculeGroups.aaIDs

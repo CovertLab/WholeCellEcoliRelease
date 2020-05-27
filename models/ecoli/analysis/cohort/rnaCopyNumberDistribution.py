@@ -6,8 +6,7 @@ multiple-seed simulations.
 @date: Created 5/21/2018
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
@@ -21,7 +20,6 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
 from wholecell.analysis.analysis_tools import exportFigure
-from wholecell.utils.filepath import makedirs
 from models.ecoli.analysis import cohortAnalysisPlot
 
 # Number of RNAs sampled for Plot 1
@@ -30,13 +28,6 @@ RNA_SAMPLE_COUNT = 10
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		# Check if the given variant directory exists
-		if not os.path.isdir(variantDir):
-			raise Exception, "variantDir does not currently exist as a directory."
-
-		# Make plotOut directory if none exists
-		makedirs(plotOutDir)
-
 		# Get paths for all cell simulations in each seed
 		ap = AnalysisPaths(variantDir, cohort_plot = True)
 		n_seed = ap.n_seed
@@ -44,7 +35,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		# If the simulation does not have multiple seeds, skip analysis
 		if n_seed <= 1:
-			print "Skipping -- rnaCopyNumberDistribution only runs for simulations with multiple seeds."
+			print("Skipping -- rnaCopyNumberDistribution only runs for simulations with multiple seeds.")
 			return
 
 		# Group simulations by generation

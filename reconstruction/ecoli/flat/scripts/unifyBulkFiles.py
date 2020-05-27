@@ -1,11 +1,14 @@
 '''
 Unify files that are used to create bulkMolecules state
 '''
-import numpy as np
-from os.path import isfile, join
+from __future__ import absolute_import, division, print_function
+
+from os.path import join
 import csv
 import collections
 from reconstruction.spreadsheets import JsonReader, JsonWriter
+
+
 CSV_DIALECT = csv.excel_tab
 FLAT_DIR = '/home/users/nruggero/Repos/wcEcoli/reconstruction/ecoli/flat'
 
@@ -58,7 +61,7 @@ for metabolite in metaboliteData:
 		metabolite['mw'] = [0.] * len(molecular_weight_order)
 		metabolite['mw'][molecular_weight_order['water']] = metabolite['mw7.2']
 	else:
-		raise Exception, 'Messed up masses!'
+		raise Exception('Messed up masses!')
 	metabolite.pop('mediaConc')
 	metabolite.pop('maxExchange')
 write_tsv(join(FLAT_DIR,'metabolites.tsv'), metaboliteData)

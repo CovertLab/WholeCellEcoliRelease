@@ -1,5 +1,4 @@
-from __future__ import absolute_import
-
+from __future__ import absolute_import, division, print_function
 
 import os
 from matplotlib import pyplot as plt
@@ -33,9 +32,6 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 					"DNA\nmass"
 					]
 
-		if not os.path.isdir(inputDir):
-			raise Exception, "inputDir does not currently exist as a directory"
-
 		ap = AnalysisPaths(inputDir, variant_plot = True)
 		all_cells = ap.get_cells()
 
@@ -43,9 +39,6 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		idToColor = {}
 		for idx, (cell_id, color) in enumerate(itertools.izip(all_cells, itertools.cycle(COLORS_LARGE))):
 			idToColor[idx] = color
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
 
 		fig, axesList = plt.subplots(len(massNames), sharex = True)
 

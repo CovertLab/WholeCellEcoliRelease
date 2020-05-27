@@ -5,9 +5,7 @@ Plots environment nutrient concentrations
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 '''
 
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 import math
@@ -33,12 +31,6 @@ XLIMIT = False #2000
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, 'simOutDir does not currently exist as a directory'
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Load masses
 		mass = TableReader(os.path.join(simOutDir, 'Mass'))
 		protein = mass.readColumn('proteinMass')

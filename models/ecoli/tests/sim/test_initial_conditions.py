@@ -10,11 +10,8 @@ Tests the initial conditions code of the model.
 from __future__ import division
 
 import unittest
-import warnings
 
 import numpy as np
-import cPickle
-import os
 
 from wholecell.utils import units
 

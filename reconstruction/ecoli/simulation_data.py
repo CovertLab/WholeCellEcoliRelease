@@ -6,7 +6,7 @@ Raw data processed into forms convenient for whole-cell modeling
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function
 
 import collections
 
@@ -190,7 +190,8 @@ class SimulationDataEcoli(object):
 				continue
 			nutrientLabel = self.conditions[condition]["nutrients"]
 			if nutrientLabel in self.nutrientToDoublingTime and self.conditionToDoublingTime[condition] != self.nutrientToDoublingTime[nutrientLabel]:
-				raise Exception, "Multiple doubling times correspond to the same media conditions"
+				raise Exception(
+					"Multiple doubling times correspond to the same media conditions")
 			self.nutrientToDoublingTime[nutrientLabel] = self.conditionToDoublingTime[condition]
 
 		# Populate conditions and conditionToDboulingTime for active and inactive TF conditions

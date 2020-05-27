@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 PolypeptideElongation
 
@@ -12,7 +10,7 @@ TODO:
 @date: Created 4/30/14
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 from itertools import izip
 
@@ -387,7 +385,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		self.KMaa = constants.Km_synthetase_amino_acid.asNumber(MICROMOLAR_UNITS)
 		self.krta = constants.Kdissociation_charged_trna_ribosome.asNumber(MICROMOLAR_UNITS)
 		self.krtf = constants.Kdissociation_uncharged_trna_ribosome.asNumber(MICROMOLAR_UNITS)
-		aa_removed_from_charging = set(['L-SELENOCYSTEINE[c]'])
+		aa_removed_from_charging = {'L-SELENOCYSTEINE[c]'}
 		self.aa_charging_mask = np.array([aa not in aa_removed_from_charging for aa in self.aaNames])
 
 		# ppGpp parameters

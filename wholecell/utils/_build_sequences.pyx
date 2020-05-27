@@ -10,7 +10,7 @@ Builds the matrices used for the polymerize function.
 @date: Created 5/23/14
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 cimport numpy as np

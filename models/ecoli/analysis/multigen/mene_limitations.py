@@ -3,7 +3,7 @@
 @date: Created 2/12/2017
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
@@ -39,12 +39,6 @@ def unbold(lines):
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		enzymeComplexId = "MENE-CPLX[c]"
 		enzymeMonomerId = "O-SUCCINYLBENZOATE-COA-LIG-MONOMER[c]"
 		enzymeRnaId = "EG12437_RNA[c]"
@@ -54,7 +48,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		# Get all cells
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 		if 0 not in ap._path_data["seed"]:
-			print "Skipping -- figure5D only runs for seed 0"
+			print("Skipping -- figure5D only runs for seed 0")
 			return
 
 		allDir = ap.get_cells(seed = [0])
@@ -135,7 +129,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		time = np.array(time)
 
 		coefficient = (units.fg * np.array(dryMass)) / (units.fg * np.array(cellMass)) * cellDensity * (timeStepSec * units.s)
-		enzymeFluxes = (((COUNTS_UNITS / VOLUME_UNITS) * enzymeFluxes) / coefficient).asNumber(units.mmol / units.g / units.h)
+		enzymeFluxes = (((COUNTS_UNITS // VOLUME_UNITS) * enzymeFluxes) / coefficient).asNumber(units.mmol / units.g / units.h)
 
 		averages = []
 		indices = [np.where(time == x)[0][0] for x in generationTicks]

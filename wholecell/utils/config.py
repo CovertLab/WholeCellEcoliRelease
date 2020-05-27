@@ -6,6 +6,8 @@ config.py
 Stores configuration information
 '''
 
+from __future__ import absolute_import, division, print_function
+
 import os
 import json
 
@@ -20,7 +22,7 @@ globals().update(defaultConfig)
 userConfigPath = os.path.join('user', 'user_config.cfg')
 
 if not os.path.exists(userConfigPath):
-	print "Creating blank user configuration file at {}".format(userConfigPath)
+	print("Creating blank user configuration file at {}".format(userConfigPath))
 	with open(userConfigPath, 'w') as configFile:
 		json.dump({}, configFile)
 

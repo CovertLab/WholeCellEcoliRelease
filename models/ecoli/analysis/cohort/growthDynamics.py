@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
@@ -24,12 +24,6 @@ def mm2inch(value):
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(variantDir):
-			raise Exception, "variantDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		oriC = sim_data.constants.oriCCenter.asNumber()
 		terC = sim_data.constants.terCCenter.asNumber()
@@ -126,7 +120,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		try:
 			T_ADD_AA = sim_data.external_state.saved_timelines[current_timeline_id][1][0] / 60.
 		except Exception as e:
-			print "saved_timelines does not have correct dimensions for this analysis. Exiting.", e
+			print("saved_timelines does not have correct dimensions for this analysis. Exiting.", e)
 			return
 		axes_list = [ax0, ax1, ax2]#, ax3, ax4]
 		for a in axes_list:

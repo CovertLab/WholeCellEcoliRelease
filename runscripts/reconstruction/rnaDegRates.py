@@ -4,7 +4,7 @@
 # Requires 2 files in validation/ecoli/flat: geneIDs.tsv and moffitt2016_mrna_deg_rates.tsv
 # Outputs rnaDegRates.pdf plot to directory that script is run from
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -12,9 +12,6 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
-
-import wholecell.utils.constants
-from wholecell.io.tablereader import TableReader
 
 import csv
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
@@ -78,9 +75,9 @@ plt.ylabel("RNA decay rate from paper (Moffitt et al. 2016) [1/min]")
 
 plt.savefig("rnaDegRates.pdf")
 
-# print "no match in data:"
+# print("no match in data:")
 # count = 0
 # for gene, rate in paperRates.items():
 # 	if rate == 0:
-# 		print gene
+# 		print(gene)
 # 		count += 1

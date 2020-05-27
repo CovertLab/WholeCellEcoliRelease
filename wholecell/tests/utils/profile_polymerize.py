@@ -20,6 +20,7 @@ kernprof doesn't support that.
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 10/10/2016
 """
+from __future__ import absolute_import, division, print_function
 
 import __builtin__
 import sys
@@ -43,7 +44,7 @@ PAD_VALUE = polymerize.PAD_VALUE
 
 # Wrap with kernprof profiling decorator - will throw an error if we call this
 # script using the vanilla python interpreter.
-if not __builtin__.__dict__.has_key('profile'):
+if 'profile' not in __builtin__.__dict__:
 	raise Exception(
 		'kernprof @profile decorator not available.  This script should be '
 		+ 'invoked via kernprof -lv.  If invoked correctly and this error '
@@ -134,10 +135,11 @@ def _simpleProfile():
 	nSequences, length = sequences.shape
 	nMonomers = monomerLimits.size
 	sequenceLengths = (sequences != PAD_VALUE).sum(axis = 1)
+	elongation_rates = []  # TODO: What to use here?
 
 	t = time.time()
 	sequenceElongation, monomerUsages, nReactions = polymerize(
-		sequences, monomerLimits, reactionLimit, randomState)
+		sequences, monomerLimits, reactionLimit, randomState, elongation_rates)
 	evalTime = time.time() - t
 
 	assert (sequenceElongation <= sequenceLengths+1).all()
@@ -145,7 +147,7 @@ def _simpleProfile():
 	assert nReactions <= reactionLimit
 	assert nReactions == monomerUsages.sum()
 
-	print """
+	print("""
 Polymerize function report:
 
 For {} sequences of {} different monomers elongating by at most {}:
@@ -168,7 +170,7 @@ For {} sequences of {} different monomers elongating by at most {}:
 		nReactions/reactionLimit,
 		(sequenceElongation == sequenceLengths).sum()/nSequences,
 		sequenceElongation.sum()/sequenceLengths.sum()
-		)
+		))
 
 
 def _fullProfile():
@@ -180,15 +182,16 @@ def _fullProfile():
 	pr = cProfile.Profile()
 	pr.enable()
 
+	elongation_rates = []  # TODO: What to use here?
 	sequenceElongation, monomerUsages, nReactions = polymerize(
-		sequences, monomerLimits, reactionLimit, randomState)
+		sequences, monomerLimits, reactionLimit, randomState, elongation_rates)
 
 	pr.disable()
 	s = StringIO.StringIO()
 	sortby = 'cumulative'
 	ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
 	ps.print_stats()
-	print s.getvalue()
+	print(s.getvalue())
 
 
 if __name__ == "__main__":

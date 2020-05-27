@@ -22,6 +22,8 @@ import sympy as sp
 from sympy.parsing.sympy_parser import parse_expr
 
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
+# NOTE: Importing SimulationDataEcoli would make a circular reference.
+#from reconstruction.ecoli.simulation_data import SimulationDataEcoli
 from wholecell.utils import units
 
 
@@ -534,14 +536,14 @@ class Metabolism(object):
 
 	@staticmethod
 	def extract_reactions(raw_data, sim_data):
-		# type: (KnowledgeBaseEcoli, SimulationDataEcoli) -> (Dict[str, Dict[str, int]], List[str], Dict[str, List[str]])
+		# type: (KnowledgeBaseEcoli, Any) -> (Dict[str, Dict[str, int]], List[str], Dict[str, List[str]])
 		"""
 		Extracts reaction data from raw_data to build metabolism reaction
 		network with stoichiometry, reversibility and enzyme catalysts.
 
 		Args:
 			raw_data: knowledge base data
-			sim_data: simulation data
+			sim_data (SimulationDataEcoli): simulation data
 
 		Returns:
 			reaction_stoich: {reaction ID: {metabolite ID with location tag: stoichiometry}}
@@ -709,7 +711,7 @@ class Metabolism(object):
 
 	@staticmethod
 	def _construct_default_saturation_equation(mets, kms, kis, known_mets):
-		# type: (List[str], List[float], List[float]) -> str
+		# type: (List[str], List[float], List[float], List[str]) -> str
 		"""
 		Args:
 			mets: metabolite IDs with location tag for KM and KI
@@ -882,13 +884,13 @@ class Metabolism(object):
 	@staticmethod
 	def extract_kinetic_constraints(raw_data, sim_data, stoich=None,
 			catalysts=None, known_metabolites=None):
-		# type: (KnowledgeBaseEcoli, SimulationDataEcoli, Optional[Dict[str, Dict[str, int]]], Optional[Dict[str, List[str]]], Optional[Set[str]]) -> Dict[(str, str), Dict[str, List[Any]]]
+		# type: (KnowledgeBaseEcoli, Any, Optional[Dict[str, Dict[str, int]]], Optional[Dict[str, List[str]]], Optional[Set[str]]) -> Dict[(str, str), Dict[str, List[Any]]]
 		"""
 		Load and parse kinetic constraint information from raw_data
 
 		Args:
 			raw_data: knowledge base data
-			sim_data: simulation data
+			sim_data (SimulationDataEcoli): simulation data
 			stoich: {reaction ID: {metabolite ID with location tag: stoichiometry}}
 				stoichiometry of metabolites for each reaction, if None, data
 				is loaded from raw_data and sim_data

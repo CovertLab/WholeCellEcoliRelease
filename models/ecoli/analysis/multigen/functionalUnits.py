@@ -4,7 +4,7 @@
 @date: Created 11/8/2017
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
@@ -36,12 +36,6 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		return
 
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Check if cache from rnaVsProteinPerCell.py exists
 		if os.path.exists(os.path.join(plotOutDir, "rnaVsProteinPerCell_alltimesteps.cPickle")):
 			rnaVsProteinPerCell = cPickle.load(open(os.path.join(plotOutDir, "rnaVsProteinPerCell_alltimesteps.cPickle"), "rb"))
@@ -55,7 +49,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			for key in monomersInManyComplexes_dict.keys():
 				monomersInManyComplexes_dict[key] = {}
 		else:
-			print "Requires rnaVsProteinPerCell.cPickle from rnaVsProteinPerCell.py"
+			print("Requires rnaVsProteinPerCell.cPickle from rnaVsProteinPerCell.py")
 			return
 
 		# Check if cache from figure5B_E_F_G.py exist
@@ -64,7 +58,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			colors = figure5B_data["colors"]
 			mrnaIds = figure5B_data["id"].tolist()
 		else:
-			print "Requires figure5B.pickle from figure5B_E_F_G.py"
+			print("Requires figure5B.pickle from figure5B_E_F_G.py")
 			return
 
 		# Get all cells
@@ -104,7 +98,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		minProteinCounts = np.ones(rnaIds.shape[0], np.float64) * np.inf
 
 		for i, simDir in enumerate(allDir):
-			print i
+			print(i)
 			simOutDir = os.path.join(simDir, "simOut")
 
 			# Account for bulk molecules

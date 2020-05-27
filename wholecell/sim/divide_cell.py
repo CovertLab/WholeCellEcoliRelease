@@ -8,11 +8,9 @@ import numpy as np
 import os
 import cPickle
 from copy import deepcopy
-from itertools import izip
 
 from wholecell.utils.constants import SERIALIZED_INHERITED_STATE
 from wholecell.utils import filepath
-from wholecell.utils import units
 
 BINOMIAL_COEFF = 0.5
 

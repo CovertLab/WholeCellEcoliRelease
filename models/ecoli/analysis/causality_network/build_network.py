@@ -66,6 +66,7 @@ import re
 import os
 import json
 from itertools import izip
+from typing import Union
 
 from models.ecoli.analysis.causality_network.network_components import (
 	Node, Edge,
@@ -335,6 +336,7 @@ class BuildNetwork(object):
 			gene_name, gene_synonyms = self.common_names.genes.get(
 				gene_id, (gene_id, [gene_id]))
 
+			rna_synonyms = []  # TODO(jerry): what default value to use?
 			if is_mrna:
 				rna_name = gene_name + " mRNA"
 				if isinstance(gene_synonyms, list):
@@ -970,14 +972,10 @@ class BuildNetwork(object):
 
 
 	def _append_edge(self, type_, src, dst, stoichiometry=""):
+		# type: (str, str, str, Union[None, str, int]) -> None
 		"""
 		Helper function for appending new nodes to the network.
 		"""
 		edge = Edge(type_)
-		attr = {
-			'src_id': src,
-			'dst_id': dst,
-			'stoichiometry': stoichiometry,
-			}
-		edge.read_attributes(**attr)
+		edge.read_attributes(src_id=src, dst_id=dst, stoichiometry=stoichiometry)
 		self.edge_list.append(edge)

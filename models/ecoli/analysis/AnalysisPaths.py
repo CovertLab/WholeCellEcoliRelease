@@ -3,13 +3,13 @@ AnalysisPaths: object for easily accessing file paths to simulations based on
 variants, seeds, and generation.
 '''
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 from os import listdir
 from os.path import isdir, join
 from re import match, findall
 from itertools import chain
+from typing import List, Optional
 import numpy as np
 
 from wholecell.utils import constants
@@ -154,17 +154,23 @@ class AnalysisPaths(object):
 		return sorted(np.unique(self._path_data["variant"]))
 
 	def _get_generations(self, directory):
-		generation_files = [join(directory, f) for f in listdir(directory) if isdir(join(directory, f)) and "generation" in f]
-		generations = [None] * len(generation_files)
+		# type: (str) -> List[Optional[List[str]]]
+		generation_files = [
+			join(directory, f) for f in listdir(directory)
+			if isdir(join(directory, f)) and "generation" in f]  # type: List[str]
+		generations = [None] * len(generation_files)  # type: List[Optional[List[str]]]
 		for gen_file in generation_files:
 			generations[int(gen_file[gen_file.rfind('_') + 1:])] = self._get_individuals(gen_file)
 		return generations
 
 	def _get_individuals(self, directory):
-		individual_files = [join(directory, f) for f in listdir(directory) if isdir(join(directory, f))]
-		individuals = [None] * len(individual_files)
+		# type: (str) -> List[Optional[str]]
+		individual_files = [
+			join(directory, f) for f in listdir(directory)
+			if isdir(join(directory, f))]  # type: List[str]
+		individuals = [None] * len(individual_files)  # type: List[Optional[str]]
 		for ind_file in individual_files:
-			individuals[int(ind_file[ind_file.rfind('/')+1:])] = ind_file
+			individuals[int(ind_file[ind_file.rfind('/') + 1:])] = ind_file
 		return individuals
 
 	def _set_match(self, field, value):

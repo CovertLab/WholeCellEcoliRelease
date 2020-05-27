@@ -13,8 +13,7 @@ on a per amino acid basis with a sum from all relevant species.
 TODO: add amino acids and other metabolites involved in charging reactions
 '''
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import cPickle
 import os
@@ -29,8 +28,8 @@ from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
 from wholecell.analysis.plotting_tools import COLORS_SMALL
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import filepath
 from wholecell.utils.sparkline import whitePadSparklineAxis
+
 
 SECONDARY_COLOR = 'g'
 
@@ -90,11 +89,6 @@ def post_plot_formatting(ax, division_times, y_label, draw_horizontal=None, y_li
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, 'seedOutDir does not currently exist as a directory'
-
-		filepath.makedirs(plotOutDir)
-
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
 

@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 import argparse
 import os
 import subprocess
@@ -11,7 +13,7 @@ def findDirectories(directory):
 	return onlyDirs
 
 def findFiles(directory,typeFile):
-	if os.path.isdir(directory) == False: return []
+	if not os.path.isdir(directory): return []
 	allFiles = os.listdir(directory)
 	onlyFiles = []
 	for f in allFiles:	

@@ -8,7 +8,6 @@ Two component system sub-model
 
 """
 from __future__ import absolute_import, division, print_function
-import numpy as np
 
 import wholecell.processes.process
 from wholecell.utils import units

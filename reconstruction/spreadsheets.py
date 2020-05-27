@@ -3,6 +3,8 @@ Subclasses of DictWriter and DictReader that parse plaintext as JSON strings,
 allowing for basic type parsing and fields that are dictionaries or lists.
 """
 
+from __future__ import absolute_import, division, print_function
+
 import csv
 import json
 import re
@@ -17,28 +19,30 @@ def array_to_list(value):
 	return value
 
 
-class JsonWriter(csv.DictWriter):
+class JsonWriter(csv.DictWriter, object):
+	# [Python 2 DictWriter is an old-style class so mix in `object` to get a
+	# new-style class that supports `super()`.]
 	def __init__(self, *args, **kwargs):
-		csv.DictWriter.__init__(
-			self, quotechar = "'", quoting = csv.QUOTE_MINIMAL, lineterminator="\n", *args, **kwargs
+		super(JsonWriter, self).__init__(
+			quotechar = "'", quoting = csv.QUOTE_MINIMAL, lineterminator="\n", *args, **kwargs
 			)
 
 	def _dict_to_list(self, rowdict):
-		return csv.DictWriter._dict_to_list(self, {
+		return super(JsonWriter, self)._dict_to_list({
 			key:json.dumps(array_to_list(value))
 			for key, value in rowdict.viewitems()
 			})
 
 
-class JsonReader(csv.DictReader):
+class JsonReader(csv.DictReader, object):
 	def __init__(self, *args, **kwargs):
-		csv.DictReader.__init__(
-			self, quotechar = "'", quoting = csv.QUOTE_MINIMAL, *args, **kwargs
+		super(JsonReader, self).__init__(
+			quotechar = "'", quoting = csv.QUOTE_MINIMAL, *args, **kwargs
 			)
 
 		# This is a hack to strip extra quotes from the field names
 		# Not proud of it, but it works.
-		self.fieldnames # called for side effect
+		_ = self.fieldnames # called for side effect
 
 		self._fieldnames = [
 			fieldname.strip('"') for fieldname in self._fieldnames
@@ -46,7 +50,7 @@ class JsonReader(csv.DictReader):
 
 	def next(self):
 		attributeDict = {}
-		for key, raw_value in csv.DictReader.next(self).viewitems():
+		for key, raw_value in super(JsonReader, self).next().viewitems():
 			try:
 				value = json.loads(raw_value) if raw_value else ""
 
@@ -57,6 +61,7 @@ class JsonReader(csv.DictReader):
 			match = re.search('(.*?) \((.*?)\)', key)
 			if match:
 				# Entry includes units so need to apply parsed units to values
+				_ = units  # don't warn about `units`; it's imported for eval()
 				attribute = match.group(1)
 				value_units = eval(match.group(2))
 

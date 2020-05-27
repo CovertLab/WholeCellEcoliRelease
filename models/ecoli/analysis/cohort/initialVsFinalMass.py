@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -13,12 +13,6 @@ from models.ecoli.analysis import cohortAnalysisPlot
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(variantDir):
-			raise Exception, "variantDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Get all cells in each seed
 		ap = AnalysisPaths(variantDir, cohort_plot = True)
 
@@ -59,7 +53,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 
 		axesList[-1].set_xlabel("Initial mass (pg)")
-		axesList[ap.n_generation / 2].set_ylabel("Final mass (pg)")
+		axesList[ap.n_generation // 2].set_ylabel("Final mass (pg)")
 
 		plt.subplots_adjust(hspace = 0.2, wspace = 0.5)
 

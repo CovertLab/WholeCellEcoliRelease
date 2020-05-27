@@ -6,8 +6,7 @@ test_bulk_molecules.py
 @data: Created 4/23/2018
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import unittest
 

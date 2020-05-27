@@ -6,7 +6,7 @@ SimulationData for translation process
 @date: Created 03/09/2015
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
@@ -29,7 +29,7 @@ class Translation(object):
 		self._buildMonomerData(raw_data, sim_data)
 		self._buildTranslation(raw_data, sim_data)
 		self._buildTranslationEfficiency(raw_data, sim_data)
-		self.elongation_rates = self._build_elongation_rates(raw_data, sim_data)
+		self._build_elongation_rates(raw_data, sim_data)
 
 	def _buildMonomerData(self, raw_data, sim_data):
 		assert all([len(protein['location']) == 1 for protein in raw_data.proteins])

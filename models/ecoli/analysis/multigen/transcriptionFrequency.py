@@ -17,19 +17,14 @@ from bokeh.models import HoverTool
 import bokeh.io
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
-from wholecell.io.tablereader import TableReader
-from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from models.ecoli.analysis import multigenAnalysisPlot
+from wholecell.io.tablereader import TableReader
+from wholecell.analysis.analysis_tools import exportFigure
+from wholecell.utils import filepath
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Get all cells
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 		allDir = ap.get_cells()
@@ -83,8 +78,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		exportFigure(plt, plotOutDir, plotOutFileName + "__histogram", metadata)
 		plt.close("all")
 
-		if not os.path.exists(os.path.join(plotOutDir, "html_plots")):
-			os.makedirs(os.path.join(plotOutDir, "html_plots"))
+		filepath.makedirs(plotOutDir, "html_plots")
 		hover = HoverTool(tooltips = [("ID", "@ID")])
 		plot = figure(x_axis_label = "log10 (transcript synthesis probability)", y_axis_label = "Frequency of observing at least 1 transcript", width = 800, height = 800, tools = [hover, "box_zoom", "pan", "wheel_zoom", "resize", "tap", "save", "reset"])
 		source = ColumnDataSource(data = dict(x = np.log10(np.mean(simulatedSynthProbs, axis = 0)), y = np.mean(transcribedBool, axis = 0), ID = mRnaNames))

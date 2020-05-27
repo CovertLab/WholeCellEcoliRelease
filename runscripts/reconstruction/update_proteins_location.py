@@ -1,9 +1,12 @@
+from __future__ import absolute_import, division, print_function
+
 import csv
 import os
 import yaml
 import json
-import numpy as np
+
 from reconstruction.spreadsheets import JsonReader
+
 
 CSV_DIALECT = csv.excel_tab
 

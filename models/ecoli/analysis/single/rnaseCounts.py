@@ -6,7 +6,7 @@ Plot RNAse counts
 @date: Created 1/14/2015
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -22,12 +22,6 @@ from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
 		endoRnaseIds = sim_data.process.rna_decay.endoRnaseIds

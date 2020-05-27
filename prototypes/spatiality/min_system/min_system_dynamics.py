@@ -8,8 +8,8 @@ contains MinD-ATP and MinE-MinD-ATP.
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
-from __future__ import absolute_import, print_function
-# from __future__ import division
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
 from scipy.ndimage import convolve
 
@@ -85,16 +85,16 @@ dx = length / bins_x
 edges_template = np.pad(np.zeros((bins_y-2, bins_x-2)), (1, 1), 'constant', constant_values=(1, 1))
 
 # indices for the membrane, specifying contact sites along the body of the cylinder, and the caps.
-cap_pos1 = bins_y/2 - 1
-cap_pos2 = bins_y/2 + bins_x - 2
+cap_pos1 = bins_y//2 - 1
+cap_pos2 = bins_y//2 + bins_x - 2
 
-top_membrane = [(i, 0) for i in range(1, bins_y/2)]
+top_membrane = [(i, 0) for i in range(1, bins_y//2)]
 top_membrane.extend([(0, i) for i in range(bins_x)])
-top_membrane.extend([(i, -1) for i in range(1, bins_y/2)])
+top_membrane.extend([(i, -1) for i in range(1, bins_y//2)])
 
-bottom_membrane = [(i, 0) for i in range(bins_y/2, bins_y-1)]
+bottom_membrane = [(i, 0) for i in range(bins_y//2, bins_y-1)]
 bottom_membrane.extend([(-1, i) for i in range(bins_x)])
-bottom_membrane.extend([(i, -1) for i in range(bins_y/2, bins_y-1)])
+bottom_membrane.extend([(i, -1) for i in range(bins_y//2, bins_y-1)])
 
 
 def run_step(cytoplasm, membrane):
@@ -210,29 +210,29 @@ def animate_step(DT_m, EDT_m, MinDD_c, MinDT_c, MinE_c, time):
 def save_plot(cytoplasm_out, membrane_out):
 	fig, axes = plt.subplots(N_PLOT, 6, figsize=(8,0.5*N_PLOT))
 
-	for slice in xrange(N_PLOT):
-		axes[slice, 0].text(0.5, 0.5, str(slice*PLOT_STEP_SIZE*DT)+'s')
+	for a_slice in xrange(N_PLOT):
+		axes[a_slice, 0].text(0.5, 0.5, str(a_slice*PLOT_STEP_SIZE*DT)+'s')
 
 		# plot cytoplasm
-		axes[slice, 1].imshow(cytoplasm_out[index['MinD-ATP[c]'],:, :, slice], cmap='YlGnBu', aspect="auto")
-		axes[slice, 2].imshow(cytoplasm_out[index['MinD-ADP[c]'],:, :, slice], cmap='YlGnBu', aspect="auto")
-		axes[slice, 3].imshow(cytoplasm_out[index['MinE[c]'],:, :, slice], cmap='YlOrRd', aspect="auto")
+		axes[a_slice, 1].imshow(cytoplasm_out[index['MinD-ATP[c]'],:, :, a_slice], cmap='YlGnBu', aspect="auto")
+		axes[a_slice, 2].imshow(cytoplasm_out[index['MinD-ADP[c]'],:, :, a_slice], cmap='YlGnBu', aspect="auto")
+		axes[a_slice, 3].imshow(cytoplasm_out[index['MinE[c]'],:, :, a_slice], cmap='YlOrRd', aspect="auto")
 
 		# plot membrane
-		axes[slice, 4].plot(membrane_out[index['MinD-ATP[m]'],:, slice].T)
-		axes[slice, 5].plot(membrane_out[index['MinE-MinD-ATP[m]'],:, slice].T)
+		axes[a_slice, 4].plot(membrane_out[index['MinD-ATP[m]'],:, a_slice].T)
+		axes[a_slice, 5].plot(membrane_out[index['MinE-MinD-ATP[m]'],:, a_slice].T)
 
 		# add vertical lines for cap location
-		axes[slice, 4].axvline(x=cap_pos1, linestyle='--', linewidth=1, color='k')
-		axes[slice, 4].axvline(x=cap_pos2, linestyle='--', linewidth=1, color='k')
-		axes[slice, 5].axvline(x=cap_pos1, linestyle='--', linewidth=1, color='k')
-		axes[slice, 5].axvline(x=cap_pos2, linestyle='--', linewidth=1, color='k')
+		axes[a_slice, 4].axvline(x=cap_pos1, linestyle='--', linewidth=1, color='k')
+		axes[a_slice, 4].axvline(x=cap_pos2, linestyle='--', linewidth=1, color='k')
+		axes[a_slice, 5].axvline(x=cap_pos1, linestyle='--', linewidth=1, color='k')
+		axes[a_slice, 5].axvline(x=cap_pos2, linestyle='--', linewidth=1, color='k')
 
-		axes[slice, 0].axis('off')
+		axes[a_slice, 0].axis('off')
 
 		for x in range(1,6):
-			axes[slice, x].set_xticks([])
-			axes[slice, x].set_yticks([])
+			axes[a_slice, x].set_xticks([])
+			axes[a_slice, x].set_yticks([])
 
 	axes[0, 1].set_title('[MinD:ATP] cytoplasm', fontsize=6)
 	axes[0, 2].set_title('[MinD:ADP] cytoplasm', fontsize=6)

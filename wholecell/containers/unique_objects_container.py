@@ -539,12 +539,9 @@ class UniqueObjectsContainer(object):
 
 
 	def tableAppend(self, tableWriter):
-		tableWriter.append(
-			**dict(
-				zip(self._names, self._collections)
-				+ [("_globalReference", self._globalReference)]
-				) # TODO: consider caching this dict
-			)
+		row = dict(zip(self._names, self._collections))  # TODO: cache this?
+		row["_globalReference"] = self._globalReference
+		tableWriter.append(**row)
 
 
 	def add_request(self, **fields):
@@ -739,11 +736,11 @@ class UniqueObjectsContainer(object):
 		return sorted_requests
 
 
-def copy_if_ndarray(object):
+def copy_if_ndarray(obj):
 	"""Copy an ndarray object or return any other type of object as is.
 	Prevent making a view instead of a copy.  # <-- TODO(jerry): Explain.
 	"""
-	return object.copy() if isinstance(object, np.ndarray) else object
+	return obj.copy() if isinstance(obj, np.ndarray) else obj
 
 
 class _UniqueObject(object):

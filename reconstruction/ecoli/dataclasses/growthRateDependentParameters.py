@@ -5,7 +5,7 @@ SimulationData mass data
 @date: Created 03/13/2015
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 from scipy import interpolate
@@ -313,7 +313,8 @@ class Mass(object):
 		CD_PERIOD = C_PERIOD + D_PERIOD
 
 		if doubling_time < D_PERIOD:
-			raise Exception, "Can't have doubling time shorter than cytokinesis time!"
+			raise Exception(
+				"Can't have doubling time shorter than cytokinesis time!")
 
 		doubling_time_unit = units.getUnit(doubling_time)
 
@@ -466,7 +467,8 @@ def _loadTableIntoObjectGivenDoublingTime(obj, list_of_dicts):
 	table_keys = list_of_dicts[0].keys()
 
 	if 'doublingTime' not in table_keys:
-		raise Exception, 'This data has no doubling time column but it is supposed to be growth rate dependent!'
+		raise Exception(
+			'This data has no doubling time column but it is supposed to be growth rate dependent!')
 	else:
 		table_keys.pop(table_keys.index('doublingTime'))
 

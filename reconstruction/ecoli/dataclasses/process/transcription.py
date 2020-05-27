@@ -8,7 +8,7 @@ TODO: add mapping of tRNA to charged tRNA if allowing more than one modified for
 TODO: handle ppGpp and DksA-ppGpp regulation separately
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 from scipy import interpolate

@@ -6,8 +6,7 @@ Plot mRNA counts
 @date: Created 5/27/2014
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -25,12 +24,6 @@ from models.ecoli.analysis import singleAnalysisPlot
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Get the names of rnas from the KB
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))

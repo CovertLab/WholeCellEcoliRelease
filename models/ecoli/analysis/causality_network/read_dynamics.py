@@ -15,7 +15,6 @@ import hashlib
 
 from models.ecoli.analysis import causalityNetworkAnalysis
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import filepath
 from wholecell.utils import units
 
 from models.ecoli.analysis.causality_network.network_components import (
@@ -50,11 +49,6 @@ def get_safe_name(s):
 
 class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 	def do_plot(self, simOutDir, seriesOutDir, dynamicsFileName, simDataFile, nodeListFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
-
-		filepath.makedirs(seriesOutDir)
-
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
 
@@ -283,7 +277,7 @@ def read_metabolite_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	"""
 	try:
 		count_index = indexes["BulkMolecules"][node_id]
-	except Exception:
+	except (KeyError, IndexError):
 		return  # Metabolite not being modeled
 	counts = columns[("BulkMolecules", "counts")][:, count_index]
 	concentration = (((1 / sim_data.constants.nAvogadro) * counts)/(units.L * volume)).asNumber(units.mmol/units.L)
@@ -373,7 +367,7 @@ def read_equilibrium_dynamics(sim_data, node, node_id, columns, indexes, volume)
 	# TODO (ggsun): Fluxes for 2CS reactions are not being listened to.
 	try:
 		reaction_idx = indexes["EquilibriumReactions"][node_id]
-	except Exception:
+	except (KeyError, IndexError):
 		return  # 2CS reaction
 
 	dynamics = {

@@ -13,13 +13,14 @@ import re
 
 from matplotlib import pyplot as plt
 import numpy as np
+from typing import List, Tuple
 
 from models.ecoli.analysis import variantAnalysisPlot
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import filepath, parallelization, units
+from wholecell.utils import parallelization, units
 from wholecell.utils.sparkline import whitePadSparklineAxis
 
 
@@ -34,7 +35,8 @@ OUTLIER_REACTIONS = [
 	]
 
 
-def analyze_variant((variant, ap, toya_reactions, toya_fluxes, outlier_filter)):
+def analyze_variant(args):
+	# type: (Tuple[int, AnalysisPaths, List[str], np.ndarray[float], List[bool]]) -> tuple
 	'''
 	Function to analyze the data for each variant in parallel
 
@@ -46,6 +48,7 @@ def analyze_variant((variant, ap, toya_reactions, toya_fluxes, outlier_filter)):
 		outlier_filter (list of bool) - True if associated Toya reaction should be excluded
 	'''
 
+	variant, ap, toya_reactions, toya_fluxes, outlier_filter = args
 	n_sims = 0
 
 	# Load sim_data attributes for the given variant
@@ -191,9 +194,6 @@ def analyze_variant((variant, ap, toya_reactions, toya_fluxes, outlier_filter)):
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(inputDir):
-			raise Exception, 'inputDir does not currently exist as a directory'
-
 		ap = AnalysisPaths(inputDir, variant_plot=True)
 		variants = ap.get_variants()
 		n_variants = len(variants)
@@ -202,8 +202,6 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		if n_variants <= 1:
 			print('This plot only runs for multiple variants'.format(__name__))
 			return
-
-		filepath.makedirs(plotOutDir)
 
 		# Load validation data
 		validation_data = cPickle.load(open(validationDataFile, 'rb'))

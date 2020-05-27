@@ -440,7 +440,7 @@ class FluxBalanceAnalysis(object):
 		# Load parameters
 		leadingMoleculeID = objectiveParameters["leading molecule ID"]
 
-		if not objective.has_key(leadingMoleculeID):
+		if leadingMoleculeID not in objective:
 			raise FBAError("flexFBA leading molecule must be in the objective")
 
 		fractionalDifferenceWeight = objectiveParameters["gamma"]

@@ -5,6 +5,8 @@ Reusable plotting functions and tools
 @date: Created 11/06/2015
 """
 
+from __future__ import absolute_import, division, print_function
+
 import matplotlib.pyplot as plt
 from scipy import stats
 
@@ -88,7 +90,7 @@ def plotSplom(arrayOfdataArrays, nameArray="", stdArrays=None, labels=None, fig=
 
 			if plotCorrCoef:
 				corr_coef, pValue = stats.pearsonr(arrayOfdataArrays[colNum-1], arrayOfdataArrays[rowNum-1])
-				plt.title("R = %.4f" % (corr_coef))
+				plt.title("R = %.4f" % (corr_coef,))
 		plottingIndex += 1
 
 	return fig

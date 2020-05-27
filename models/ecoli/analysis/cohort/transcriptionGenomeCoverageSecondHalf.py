@@ -6,7 +6,7 @@ Plots fraction of mRNAs transcribed (out of all genes to be transcribed) for all
 @date: Created 6/29/2016
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
@@ -23,12 +23,6 @@ from models.ecoli.analysis import cohortAnalysisPlot
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		return
-
-		if not os.path.isdir(variantDir):
-			raise Exception, "variantDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
 
 		# Get IDs of mRNAs
 		sim_data = cPickle.load(open(simDataFile, "rb"))
@@ -49,7 +43,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		ap = AnalysisPaths(variantDir, cohort_plot = True)
 
 		if ap.n_generation == 1:
-			print "Only runs for 2 or more cells."
+			print("Only runs for 2 or more cells.")
 			return
 
 		second_half_cells = ap.get_cells(generation=range(ap.n_generation//2,ap.n_generation))

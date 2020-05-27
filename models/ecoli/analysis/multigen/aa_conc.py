@@ -5,8 +5,7 @@ Time series and histogram of amino acid concentrations
 @date: Created 4/17/19
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import cPickle
 import os
@@ -19,17 +18,11 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import filepath
 from wholecell.utils import units
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, 'seedOutDir does not currently exist as a directory'
-
-		filepath.makedirs(plotOutDir)
-
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
 

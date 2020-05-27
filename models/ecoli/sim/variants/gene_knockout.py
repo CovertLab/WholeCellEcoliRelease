@@ -11,6 +11,8 @@ Expected variant indices (depends on length of sim_data.process.transcription.rn
 	1-4558: gene index to knockout
 """
 
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
 
 CONTROL_OUTPUT = dict(

@@ -6,7 +6,7 @@ Plots average RNA counts per cell vs average protein counts per cell.
 @date: Created 11/1/2017
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
@@ -43,19 +43,13 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		HIGHLIGHT_GENES = False
 
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Check if cache from figure5B_E_F_G.py exist
 		if os.path.exists(os.path.join(plotOutDir, "figure5B.pickle")):
 			figure5B_data = cPickle.load(open(os.path.join(plotOutDir, "figure5B.pickle"), "rb"))
 			colors = figure5B_data["colors"]
 			mrnaIds = figure5B_data["id"].tolist()
 		else:
-			print "Requires figure5B.pickle from figure5B_E_F_G.py"
+			print("Requires figure5B.pickle from figure5B_E_F_G.py")
 			return
 
 		# Get all cells

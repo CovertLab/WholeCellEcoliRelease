@@ -58,6 +58,7 @@ def all_vars(obj):
 	instead to get its defining state.
 	"""
 	if hasattr(obj, '__getstate__'):
+		# noinspection PyCallingNonCallable
 		return obj.__getstate__()
 
 	attrs = getattr(obj, '__dict__', {})
@@ -302,7 +303,7 @@ def compare_ndarrays(array1, array2):
 			# This handles float tolerance but not NaN and Inf.
 			np.testing.assert_array_almost_equal_nulp(array1, array2, nulp=NULP)
 			return ()
-		except AssertionError as e:
+		except AssertionError as _:
 			# return elide(array1), elide(array2), simplify_error_message(e.message)
 			pass  # try again, below
 

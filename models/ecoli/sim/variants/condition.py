@@ -10,6 +10,8 @@ Expected variant indices (dependent on sorted order of sim_data.conditionActiveT
 	1: anaerobic
 	2: with amino acids
 """
+from __future__ import absolute_import, division, print_function
+
 
 def condition(sim_data, index):
 	condition_labels = sorted(sim_data.conditionActiveTfs)

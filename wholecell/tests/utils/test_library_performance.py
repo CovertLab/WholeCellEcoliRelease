@@ -16,7 +16,7 @@ discovered as a test method:
 	python -m unittest -v wholecell.tests.utils.test_library_performance.Test_library_performance.multitest_dot
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import resource
 import time

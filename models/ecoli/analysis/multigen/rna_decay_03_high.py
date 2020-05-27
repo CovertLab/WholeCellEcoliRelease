@@ -17,7 +17,7 @@ EG10544_RNA[c]	97.5	lpp		Murein lipoprotein
 @date: Created 10/29/2015
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -34,12 +34,6 @@ from models.ecoli.analysis import multigenAnalysisPlot
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		allRnaIds = sim_data.process.transcription.rnaData["id"].tolist()
 
@@ -123,7 +117,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			except ValueError:
 				# TODO: Come up with a better/more descriptive error message
 				# This is to handle errors that occurs when running short simulations
-				print "Skipping subplot %d because not enough data" % subplotIdx
+				print("Skipping subplot %d because not enough data" % (subplotIdx,))
 				continue
 
 			plt.scatter(

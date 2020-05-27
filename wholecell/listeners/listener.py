@@ -6,6 +6,8 @@ Listener
 @date: Created 5/10/2014
 """
 
+from __future__ import absolute_import, division, print_function
+
 from enum import Enum
 
 class Listener(object):
@@ -22,7 +24,7 @@ class Listener(object):
 
 		self._external_states = sim.external_states
 
-		if self._sim.loggers.has_key("Shell"):
+		if "Shell" in self._sim.loggers:
 			self._shellLogger = self._sim.loggers["Shell"]
 
 		else:

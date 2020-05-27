@@ -1,6 +1,8 @@
 # Toy model of jFBA using a simplified metabolic network from Fig. 4 and Table 1 of M. Covert's 2001 paper
 # Implemented using modular_FBA
 
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
 import matplotlib.pyplot as plt
@@ -130,8 +132,7 @@ internalMoleculeLevels = moleculeCountsInit
 
 # Perform simulation
 nTimesteps = 15
-moleculeCounts = []
-moleculeCounts.append(internalMoleculeLevels)
+moleculeCounts = [internalMoleculeLevels]
 
 foods = ["ATP"]
 foodUnit = 2

@@ -1,5 +1,6 @@
 """Tools for working with dependency graphs"""
 
+from __future__ import absolute_import, division, print_function
 
 from typing import List, Dict, Iterable
 
@@ -31,13 +32,12 @@ class DependencyGraph(object):
 		self.dependencies = {}  # type: Dict[str, List[str]]
 
 	def add_nodes(self, nodes):
-		# type: (List[str]) -> None
+		# type: (Iterable[str]) -> None
 		"""Add nodes with no dependencies
 
 		Arguments:
 			nodes: Nodes to add
 		"""
-		# type: (Iterable[str]) -> None
 		for node in nodes:
 			self.dependencies[node] = []
 

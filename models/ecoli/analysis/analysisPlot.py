@@ -6,9 +6,8 @@ TODO: Enable future warnings, esp. for matplotlib.
 
 TODO: Move the run_plot() args to instance variables?
 
-TODO: Other shared code to simplify the subclasses, e.g. make plotOutDir,
-check that `os.path.isdir(simOutDir)`, instantiate an AnalysisPaths (except for
-SingleAnalysisPlot subclasses), etc.
+TODO: Other shared code to simplify the subclasses, e.g. instantiate an
+AnalysisPaths (except for SingleAnalysisPlot subclasses), etc.
 """
 
 from __future__ import absolute_import, division, print_function
@@ -101,7 +100,6 @@ class AnalysisPlot(object):
 	def plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile,
 			validationDataFile, metadata):
 		"""Public method to set up, make a plot, and cleanup."""
-		# TODO(jerry): don't repeat these in 132 do_plot() methods
 		if not os.path.isdir(inputDir):
 			raise RuntimeError('Input directory ({}) does not currently exist.'
 				.format(inputDir))

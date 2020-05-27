@@ -5,10 +5,9 @@ Submodel for chromosome replication
 @date: Created 5/12/2014
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
-from itertools import izip
 
 import wholecell.processes.process
 from wholecell.utils.polymerize import (buildSequences, polymerize,

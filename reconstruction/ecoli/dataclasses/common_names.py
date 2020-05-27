@@ -30,8 +30,8 @@ class CommonNames(object):
 				continue
 
 			label_names = {}
-			file = getattr(raw_data.common_names, label)
-			for row in file:
+			file_ = getattr(raw_data.common_names, label)
+			for row in file_:
 				label_names[row['Object ID']] = (
 					row['Primary Name'],
 					row['Synonyms'][1:-1].split(', '))

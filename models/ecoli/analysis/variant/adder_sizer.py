@@ -1,5 +1,4 @@
-from __future__ import absolute_import
-
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -22,16 +21,10 @@ trim = 0.05
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(inputDir):
-			raise Exception, "variantDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		ap = AnalysisPaths(inputDir, variant_plot = True)
 
 		if ap.n_generation == 1:
-			print "Need more data to create addedMass"
+			print("Need more data to create addedMass")
 			return
 
 		allScatter = plt.figure()
@@ -81,7 +74,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 					initial_masses = np.hstack((initial_masses, cellMass[0]))
 					final_masses = np.hstack((final_masses, cellMass[-1]))
 				except Exception as e:
-					print e
+					print(e)
 					fail+=1
 
 			added_masses = final_masses - initial_masses

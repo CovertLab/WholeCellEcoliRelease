@@ -6,8 +6,7 @@ Plots counts of rna degraded and the resulting free NMPs
 @date: Created 1/15/2015 - Updated 8/10/2015
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -26,12 +25,6 @@ FONT = {
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 

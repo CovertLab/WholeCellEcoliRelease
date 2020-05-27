@@ -6,8 +6,7 @@ probabilities of RNAs.
 @date: Created 9/11/18
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import cPickle
 from matplotlib import pyplot as plt
@@ -19,7 +18,7 @@ import os
 from models.ecoli.analysis import singleAnalysisPlot
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import filepath
+
 
 RNA_ID_LIST = ['RRFA-RRNA', 'RRLA-RRNA', 'RRSA-RRNA', # rRNAs
 	'alaU-tRNA', # tRNA
@@ -31,11 +30,6 @@ RNA_ID_LIST = ['RRFA-RRNA', 'RRLA-RRNA', 'RRSA-RRNA', # rRNAs
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, 'simOutDir does not currently exist as a directory'
-
-		filepath.makedirs(plotOutDir)
-
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
 

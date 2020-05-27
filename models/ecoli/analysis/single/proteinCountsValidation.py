@@ -5,8 +5,7 @@ Compare protein counts to Wisniewski 2014 and Schmidt 2015 data sets
 @date: Created 12/3/2015
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
@@ -16,27 +15,15 @@ from matplotlib import pyplot as plt
 from scipy.stats import pearsonr
 
 from wholecell.io.tablereader import TableReader
-from wholecell.utils.protein_counts import (
-	get_simulated_validation_counts,
-)
+from wholecell.utils.protein_counts import get_simulated_validation_counts
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
-	def do_plot(
-		self, simOutDir, plotOutDir, plotOutFileName, simDataFile,
-		validationDataFile, metadata
-	):
-		if not os.path.isdir(simOutDir):
-			raise Exception(
-				"simOutDir does not currently exist as a directory"
-			)
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
+	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile,
+			validationDataFile, metadata):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		validation_data = cPickle.load(open(validationDataFile, "rb"))
 

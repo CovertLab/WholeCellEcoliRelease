@@ -5,6 +5,8 @@ fraction complete for second set of replication forks)
 Output: time series of svg images to folder svg
 '''
 
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
 import os
 import csv
@@ -21,13 +23,13 @@ def boilerplate_end(h):
 
 def svg_draw(h, count, frac1, frac2):
 	if frac1 < 0 or frac1 >= 1:
-		raise Exception, "frac1 is out of bounds"
+		raise Exception("frac1 is out of bounds")
 	if frac2 < 0 or frac2 >= 0.5:
-		raise Exception, "frac2 is out of bounds"
+		raise Exception("frac2 is out of bounds")
 	if frac2 > frac1:
-		raise Exception, "frac1 must be greater than frac2"
+		raise Exception("frac1 must be greater than frac2")
 	if count <= 0 or count > 2:
-		raise Exception, "count must be 1 or 2"
+		raise Exception("count must be 1 or 2")
 	xVal = 0.
 	yVal1 = 0.
 	useOuter = 0

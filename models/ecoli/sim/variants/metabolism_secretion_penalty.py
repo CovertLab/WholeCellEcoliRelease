@@ -10,6 +10,8 @@ Expected variant indices (dependent on SECRETION_PENALTY):
 	0 (no penalty) - 9 (high penalty)
 """
 
+from __future__ import absolute_import, division, print_function
+
 SECRETION_PENALTY = [0, 1e-5, 1e-4, 5e-4, 1e-3, 2e-3, 5e-3, 0.01, 0.02, 0.05]
 
 

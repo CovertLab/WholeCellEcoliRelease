@@ -9,6 +9,8 @@ Test polymerize.py
 @date: Created 1/22/2013
 """
 
+from __future__ import absolute_import, division, print_function
+
 from wholecell.utils.polymerize import (buildSequences, polymerize,
 	computeMassIncrease, sum_monomers, sum_monomers_reference_implementation)
 

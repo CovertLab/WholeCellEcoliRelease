@@ -6,7 +6,7 @@ Plot empirical Kd's (from the simulation) and their expected value (from the sim
 @date: Created 8/24/15
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -24,12 +24,6 @@ IGNORE_FIRST_PERCENTAGE = 0.1
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 

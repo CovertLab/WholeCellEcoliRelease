@@ -8,7 +8,7 @@ from __future__ import absolute_import, division, print_function
 
 import os
 
-from model import simulate
+from .model import simulate
 
 OUTDIR = os.path.join(
 	os.path.split(__file__)[0],

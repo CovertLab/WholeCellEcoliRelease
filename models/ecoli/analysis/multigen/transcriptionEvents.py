@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
-from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
+from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
 
 N_GENES_TO_PLOT = -1
@@ -23,12 +23,6 @@ N_GENES_TO_PLOT = -1
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Get all cells
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 		allDir = ap.get_cells()
@@ -46,7 +40,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		simulatedSynthProbs = []
 		transcriptionEvents = []
 		for gen, simDir in enumerate(allDir):
-			# print gen
+			# print(gen)
 			simOutDir = os.path.join(simDir, "simOut")
 
 			time += TableReader(os.path.join(simOutDir, "Main")).readColumn("time").tolist()

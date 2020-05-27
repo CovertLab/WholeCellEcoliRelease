@@ -1,8 +1,12 @@
+from __future__ import absolute_import, division, print_function
+
 import os
 import csv
 import re
 import yaml
 import json
+from typing import Dict, List
+
 from reconstruction.spreadsheets import JsonReader
 
 
@@ -10,7 +14,6 @@ CSV_DIALECT = csv.excel_tab
 REACTIONS_FILE = os.path.join("reconstruction", "ecoli", "flat", "reactions.tsv")
 ECOCYC_DUMP = os.path.join("reconstruction", "ecoli", "flat", "ecocyc_20_1_gem.json")
 
-REACTIONS_FILE = os.path.join("reconstruction", "ecoli", "flat", "reactions.tsv")
 NEW_REACTIONS_FILE = os.path.join("reconstruction", "ecoli", "flat", "reactions_new.tsv")
 
 
@@ -41,32 +44,34 @@ def truncateNameRxnTrail(name):
 def truncateNameRxnStart(name):
 	if name.startswith("TRANS-RXN"):
 		return None
-	R = re.search("(RXN0?\-[0-9]*)[\-\[]", name)
-	if R != None:
+	R = re.search("(RXN0?-[0-9]*)[\-\[]", name)
+	if R is not None:
 		return R.groups()[0]
 	return None
 
 def truncateNameRxnTrans(name):
-	R = re.search("(TRANS\-RXN0?\-[0-9]*)[\-\[A-Z]", name)
-	if R != None:
+	R = re.search("(TRANS-RXN0?-[0-9]*)[\-\[A-Z]", name)
+	if R is not None:
 		return R.groups()[0]
 	return None
 
 
 def addFilteredEntries(rxnNamesEnzymes):
-	D = {}
+	# type: (Dict[str, List[str]]) -> None
+	d = {}
+	def add_enzymes(name):
+		# type: (str) -> None
+		if name is not None:
+			d[name] = enzymes
+
 	for rxnName, enzymes in rxnNamesEnzymes.iteritems():
 		if rxnName.endswith("-RXN"):
 			continue
-		if truncateNameRxnTrail(rxnName) != None:
-			D[truncateNameRxnTrail(rxnName)] = enzymes
-		if truncateNameRxnStart(rxnName) != None:
-			D[truncateNameRxnStart(rxnName)] = enzymes
-		if truncateNameRxnTrans(rxnName) != None:
-			D[truncateNameRxnTrans(rxnName)] = enzymes
+		add_enzymes(truncateNameRxnTrail(rxnName))
+		add_enzymes(truncateNameRxnStart(rxnName))
+		add_enzymes(truncateNameRxnTrans(rxnName))
 
-
-	rxnNamesEnzymes.update(D)
+	rxnNamesEnzymes.update(d)
 
 reactionIds = getReactionIds()
 reactionStoich = getReactionStoich()
@@ -74,7 +79,9 @@ reactionReversibility = getReactionReversibility()
 
 jsonData = yaml.safe_load(open(ECOCYC_DUMP, "r"))
 
-rxnNamesEnzymes = dict([(x["name"], x["annotation"]["enzymes"]) for x in jsonData["reactions"] if "enzymes" in x["annotation"]])
+rxnNamesEnzymes = {
+	x["name"]: x["annotation"]["enzymes"]
+	for x in jsonData["reactions"] if "enzymes" in x["annotation"]}  # type: Dict[str, List[str]]
 
 addFilteredEntries(rxnNamesEnzymes)
 
@@ -114,7 +121,7 @@ for reactionId in reactionIds:
 	else:
 		notFoundList.append(reactionId)
 
-	if enzymeList != None and len(enzymeList) == 0:
+	if enzymeList is not None and len(enzymeList) == 0:
 		emptyEnzymeList.append(reactionId)
 
 
@@ -133,6 +140,7 @@ for reactionId in reactionIds:
 			json.dumps(enzymeList),
 			)
 		)
-	except:
+	except Exception:
 		import ipdb; ipdb.set_trace()
+		raise
 h.close()

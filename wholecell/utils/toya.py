@@ -1,8 +1,12 @@
 """Utilities for working with TOYA data"""
+from __future__ import absolute_import, division, print_function
 
 import re
 
 import numpy as np
+from typing import Dict, Iterable, List, Tuple
+
+from unum import Unum
 
 from models.ecoli.processes.metabolism import (
 	COUNTS_UNITS,
@@ -74,7 +78,7 @@ def process_simulated_fluxes(
 	reaction_ids,  # type: Iterable[str]
 	reaction_fluxes,  # type: Unum
 	root_to_id_indices_map,  # type: Dict[str, List[int]]
-):
+	):
 	# type: (...) -> Tuple[Unum, Unum]
 	"""Compute means and standard deviations of flux from simulation
 
@@ -92,6 +96,7 @@ def process_simulated_fluxes(
 			order specified by reaction_ids) and each row is a time
 			point. Should have units FLUX_UNITS and be a numpy
 			matrix.
+		root_to_id_indices_map: words go here
 
 	Returns:
 		Tuple of the lists of mean fluxes and standard deviations for each

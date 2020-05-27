@@ -12,12 +12,13 @@ from wholecell.utils import filepath
 
 __all__ = [
 	"TableWriter",
-	# "TableWriterError",
-	# "MissingFieldError",
-	# "UnrecognizedFieldError",
-	# "AttributeAlreadyExistsError",
-	# "AttributeTypeError",
-	# "VariableEntrySizeError",
+	"TableWriterError",
+	"MissingFieldError",
+	"UnrecognizedFieldError",
+	"AttributeAlreadyExistsError",
+	"AttributeTypeError",
+	"VariableEntrySizeError",
+	"TableExistsError",
 	]
 
 

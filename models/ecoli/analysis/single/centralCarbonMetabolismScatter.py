@@ -3,12 +3,11 @@
 @date: Created 4/29/2016
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -40,7 +39,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		"""Load fluxome data from 2010 validation data
 
 		Arguments:
-			validationDataFile: Path to cPickle with validation data.
+			validation_data_file: Path to cPickle with validation data.
 			sim_data_file: Path to cPickle with simulation data.
 			sim_out_dir: Path to simulation output directory.
 
@@ -95,21 +94,14 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		return reaction_ids, reaction_fluxes
 
 	def do_plot(
-		self,
-		simOutDir,  # type: str
-		plotOutDir,  # type: str
-		plotOutFileName,  # type: str
-		simDataFile,  # type: str
-		validationDataFile,  # type: str
-		metadata
-	):
-		if not os.path.isdir(simOutDir):
-			raise Exception(
-				"simOutDir does not currently exist as a directory")
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
+			self,
+			simOutDir,  # type: str
+			plotOutDir,  # type: str
+			plotOutFileName,  # type: str
+			simDataFile,  # type: str
+			validationDataFile,  # type: str
+			metadata  # type: Optional[dict]
+		):  # type: (...) -> None
 		reaction_ids, reaction_fluxes = Plot.load_fba_data(simOutDir)
 		toya_reactions, toya_fluxes, toya_stdevs = Plot.load_toya_data(
 			validationDataFile, simDataFile, simOutDir)

@@ -159,7 +159,7 @@ def lempp_concentrations():
 			met_id = line[id_col]
 			try:
 				conc = np.array(line[start_conc_col:end_conc_col], float).mean()
-			except ValueError as e:
+			except ValueError as _:
 				# Concentration data does not exist ('-')
 				continue
 

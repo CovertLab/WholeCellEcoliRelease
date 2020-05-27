@@ -3,7 +3,7 @@
 @date: Created 1/19/2017
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 import numpy as np
@@ -30,11 +30,6 @@ def seriesScrubber(series, factor):
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		ap = AnalysisPaths(seedOutDir, cohort_plot = True)
 
 		# Get all cells

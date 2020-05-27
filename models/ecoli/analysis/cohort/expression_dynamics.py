@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 from itertools import izip
@@ -31,16 +31,10 @@ def align_yaxis(ax1, v1, ax2, v2):
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Check if basal sim
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		if sim_data.condition != "basal":
-			print "Skipping - plot only runs for basal sim."
+			print("Skipping - plot only runs for basal sim.")
 			return
 
 		# Get all cells
@@ -48,7 +42,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		allDir = ap.get_cells(seed=[0], generation = GENS)
 		n_gens = GENS.size
 		if len(allDir) < n_gens:
-			print "Skipping - particular seed and/or gens were not simulated."
+			print("Skipping - particular seed and/or gens were not simulated.")
 			return
 
 		# Get all ids reqiured
@@ -91,7 +85,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			protein_idx = protein_index_of_interest[4]
 			protein_idx_burst = protein_index_of_interest_burst[2]
 		except Exception as exc:
-			print "Error: %s" % exc
+			print("Error: %s" % exc)
 			return
 
 		fig, axesList = plt.subplots(ncols = 2, nrows = 2, sharex = True)

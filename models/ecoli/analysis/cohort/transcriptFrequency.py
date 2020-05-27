@@ -7,7 +7,7 @@ one copy of transcript) at the 4th generation across 32 seeds.
 @date: Created 3/27/2017
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
@@ -28,18 +28,12 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		return
 
-		if not os.path.isdir(variantDir):
-			raise Exception, "variantDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Get all cells in each seed
 		ap = AnalysisPaths(variantDir, cohort_plot = True)
 		allDir = ap.get_cells(generation = [3])
 
 		if len(allDir) <= 1:
-			print "Skipping -- transcriptFrequency only runs for multiple seeds"
+			print("Skipping -- transcriptFrequency only runs for multiple seeds")
 			return
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))

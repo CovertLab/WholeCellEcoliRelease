@@ -12,12 +12,6 @@ from models.ecoli.analysis import singleAnalysisPlot
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, 'simOutDir does not currently exist as a directory'
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Exchange flux
 		main_reader = TableReader(os.path.join(simOutDir, 'Main'))
 		initial_time = main_reader.readAttribute('initialTime')

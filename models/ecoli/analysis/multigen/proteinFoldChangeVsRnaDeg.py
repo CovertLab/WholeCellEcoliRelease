@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle
@@ -16,13 +16,6 @@ from models.ecoli.analysis import multigenAnalysisPlot
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
-
 		# rnaDegradationListenerFile = TableReader(os.path.join(simOutDir, "RnaDegradationListener"))
 		# countRnaDegraded = rnaDegradationListenerFile.readColumn('countRnaDegraded')
 
@@ -78,8 +71,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			try:
 				degRateToPlot = np.hstack((degRateToPlot, np.ones(ratioFinalToInitialCountMultigen[:,mask].size) * degRate))
 			except Exception as e:
-				print e
-				import ipdb; ipdb.set_trace()
+				# print(e)
+				# import ipdb; ipdb.set_trace()
+				raise
 			ratioToPlot = np.hstack((ratioToPlot, ratioFinalToInitialCountMultigen[:,mask].flatten()))
 
 		real_values_mask = np.logical_not(np.logical_or(np.isnan(ratioToPlot), np.isinf(ratioToPlot)))

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Metabolism
 
@@ -14,7 +12,7 @@ TODO:
 @date: Created 4/2/2013
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 from scipy.sparse import csr_matrix

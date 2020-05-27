@@ -173,7 +173,7 @@ scipy==1.0.1
 scs==2.0.2
 simplegeneric==0.8.1
 singledispatch==3.4.0.3
-six==1.11.0
+six==1.15.0
 statistics==1.0.3.5
 stevedore==1.30.1
 stochastic-arrow==0.2.0

@@ -64,7 +64,7 @@ import numpy as np
 import math as math
 from scipy.spatial import distance_matrix
 from scipy.spatial import ConvexHull
-from matplotlib.patches import Circle, Wedge, Polygon
+from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
 import matplotlib.pyplot as plt
 
@@ -203,7 +203,7 @@ class PolygonClass(object):
         formed by adjacent corners and the point. If a point is within canvas,
         the sum of the angle should be 2*pi.
         """
-        def _point_is_on_corner_of_canvas(self, p):
+        def _point_is_on_corner_of_canvas(p):
             """
             Check if a point is one of the corner of the canvas.
             """
@@ -211,7 +211,7 @@ class PolygonClass(object):
             result = len(np.nonzero(a[:, 0] * a[:, 1])[0]) == 1
             return result
 
-        if _point_is_on_corner_of_canvas(self, p):
+        if _point_is_on_corner_of_canvas(p):
             result = True
 
         else:
@@ -596,7 +596,7 @@ class RayClass(object):
         for edge_canvas in canvas_obj.edges:
             result, intersect_point = self.ray_intersect_with_edge(edge_canvas)
             intersect_TF_list.append(result)
-            if result == True: 
+            if result:
                 if len(intersect_point) == 2:
                     if len(intersect_coordinates) == 0:
                         intersect_coordinates = intersect_point
@@ -654,7 +654,7 @@ class RayClass(object):
                 result, intersect_point = self.ray_intersect_with_edge(
                     edge_canvas)
                 intersect_TF_list.append(result)
-                if result == True :
+                if result:
                     if len(intersect_point) == 2 :
                         if len(intersect_coordinates) == 0:
                             intersect_coordinates = intersect_point
@@ -690,7 +690,7 @@ class RayClass(object):
         self.edge = edge
         return
 
-class VoronoiMaster():
+class VoronoiMaster(object):
     def __init__(self, i_max = 75, err_thres = 1E-6):
         self.i_max = i_max
         self.err_thres = err_thres
@@ -1558,7 +1558,7 @@ class VoronoiMaster():
         Only the ipoints that (1) belong to the lower convex hull and
         (2) locate within canvas will be kept.
         """
-        com_dualsites = (dual_sites).mean(axis = 0)
+        com_dualsites = dual_sites.mean(axis = 0)
         simplices_prune = simplices
         ipoints = np.array([])
         prune_list = []

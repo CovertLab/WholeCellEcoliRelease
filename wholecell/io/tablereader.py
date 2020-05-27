@@ -12,6 +12,10 @@ from . import tablewriter as tw
 
 __all__ = [
 	"TableReader",
+	"TableReaderError",
+	"VersionError",
+	"DoesNotExistError",
+	"VariableLengthColumnError",
 	]
 
 SUPPORTED_COMPRESSION_TYPES = (tw.COMPRESSION_TYPE_NONE, tw.COMPRESSION_TYPE_ZLIB)
@@ -314,7 +318,7 @@ class TableReader(object):
 
 
 	def readSubcolumn(self, column, subcolumn_name):
-		# type: (str, str, str, str) -> np.ndarray
+		# type: (str, str) -> np.ndarray
 		"""Read in a subcolumn from a table by name
 
 		Each column of a table is a 2D matrix. The SUBCOLUMNS_KEY attribute

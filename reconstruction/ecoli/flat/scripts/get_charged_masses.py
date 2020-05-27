@@ -7,8 +7,8 @@ Notes:
 reactions are mass balanced
 '''
 
-import cPickle
-import csv
+from __future__ import absolute_import, division, print_function
+
 import os
 
 import numpy as np
@@ -60,7 +60,7 @@ with open(output_filename, 'w') as out:
 					if reactant in mol_names:
 						mass += mws[np.where(mol_names == reactant)[0][0]].asNumber()
 					else:
-						print 'could not get mass for %s' % (reactant)
+						print('could not get mass for %s' % (reactant,))
 				for product in products:
 					if product == ctrna:
 						continue
@@ -68,7 +68,7 @@ with open(output_filename, 'w') as out:
 					if product in mol_names:
 						mass -= mws[np.where(mol_names == product)[0][0]].asNumber()
 					else:
-						print 'could not get mass for %s' % (product)
+						print('could not get mass for %s' % (product,))
 
 				writer.writerow({
 					'id': ctrna[:-3],
