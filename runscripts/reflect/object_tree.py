@@ -11,6 +11,7 @@ import types
 
 import Bio.Seq
 import numpy as np
+import scipy.interpolate
 import sympy
 from sympy.matrices import dense
 import unum
@@ -18,9 +19,15 @@ import unum
 from wholecell.utils import constants
 import wholecell.utils.unit_struct_array
 
+
 NULP = 0  # float comparison tolerance, in Number of Units in the Last Place
 
-leaf_types = (
+# Objects with a list of attributes to compare
+SPECIAL_OBJECTS = {
+	scipy.interpolate._cubic.CubicSpline: ['x', 'c', 'axis'],
+	}
+
+LEAF_TYPES = (
 	unum.Unum,
 	Bio.Seq.Seq,
 	sympy.Basic,
@@ -30,8 +37,8 @@ leaf_types = (
 	dense.MutableDenseMatrix,
 	wholecell.utils.unit_struct_array.UnitStructArray)
 
-
 WHITESPACE = re.compile(r'\s+')
+
 
 class Repr(object):
 	'''A Repr has the given repr() string without quotes and != any other value.'''
@@ -65,7 +72,7 @@ def all_vars(obj):
 	attrs.update({key: getattr(obj, key) for key in getattr(obj, '__slots__', ())})
 	return attrs
 
-def is_leaf(value, leaves=leaf_types):
+def is_leaf(value, leaves=LEAF_TYPES):
 	"""
 	Predicate to determine if we have reached the end of how deep we want to traverse
 	through the object tree.
@@ -90,7 +97,7 @@ def object_tree(obj, path='', debug=None):
 	translation of a pickled object.
 
 	Args:
-		obj (object): The object to inspect. 
+		obj (object): The object to inspect.
 		path (optional str): The root path of this object tree. This will be built upon
 	        for each child of the current object found and reported in a value is
 	        provided for `debug`.
@@ -158,6 +165,22 @@ def size_tree(o, cutoff=0.1):
 		if n_entries:
 			size += get_size(o.struct_array[0]) * n_entries
 		return size,
+
+	# if a special object, check predefined attributes for equality
+	elif type(o) in SPECIAL_OBJECTS:
+		sizes = {}
+		attrs = SPECIAL_OBJECTS[type(o)]
+		for attr in attrs:
+			subsizes = size_tree(getattr(o, attr), cutoff)
+			size += subsizes[0]
+			if subsizes[0] > cutoff:
+				formatted = float('{:.2f}'.format(subsizes[0]))
+				if len(subsizes) == 1:
+					val = formatted
+				else:
+					val = (formatted, subsizes[1])
+				sizes[attr] = val
+		return return_val(size, sizes)
 
 	# if it is a leaf, just return the size
 	# TODO: any special handling for types that are not already accounted for above
@@ -231,6 +254,16 @@ def diff_trees(a, b):
 	elif isinstance(a, unum.Unum):
 		a0, b0 = a.matchUnits(b)
 		return diff_trees(a0.asNumber(), b0.asNumber())
+
+	# if a special object, check predefined attributes for equality
+	elif type(a) in SPECIAL_OBJECTS:
+		diff = {}
+		attrs = SPECIAL_OBJECTS[type(a)]
+		for attr in attrs:
+			subdiff = diff_trees(getattr(a, attr), getattr(b, attr))
+			if subdiff:
+				diff[attr] = subdiff
+		return diff
 
 	# if they are leafs (including strings) use python equality comparison
 	elif is_leaf(a):
