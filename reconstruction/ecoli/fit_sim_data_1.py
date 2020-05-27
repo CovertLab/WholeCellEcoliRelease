@@ -1756,8 +1756,6 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 		complexation_result = system.evolve(time_step, complexationMoleculeCounts)
 
 		updatedCompMoleculeCounts = complexation_result['outcome']
-		complexationEvents = complexation_result['occurrences']
-
 		complexationMoleculesView.countsIs(updatedCompMoleculeCounts)
 
 		metDiffs = np.inf * np.ones_like(metabolitesView.counts())
@@ -1774,11 +1772,14 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 				)
 
 			# Find reaction fluxes from equilibrium process
+			# Do not use jit to avoid compiling time (especially when running
+			# in parallel since sim_data needs to be pickled and reconstructed
+			# each time)
 			rxnFluxes, _ = sim_data.process.equilibrium.fluxesAndMoleculesToSS(
 				equilibriumMoleculesView.counts(),
 				cellVolume.asNumber(units.L),
 				sim_data.constants.nAvogadro.asNumber(1 / units.mol),
-				random_state,
+				random_state, jit=False,
 				)
 			equilibriumMoleculesView.countsInc(
 				np.dot(sim_data.process.equilibrium.stoichMatrix().astype(np.int64), rxnFluxes)

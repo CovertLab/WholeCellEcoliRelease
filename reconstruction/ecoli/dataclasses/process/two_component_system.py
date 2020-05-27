@@ -294,8 +294,8 @@ class TwoComponentSystem(object):
 		self._stoich_matrix = self.stoichMatrix()  # Matrix is small and can be cached for derivatives
 
 		# WORKAROUND: Avoid Numba LoweringError JIT-compiling these functions:
-		self.derivatives_parca = build_ode.derivatives(self.derivativesParcaSymbolic, jit=False)
-		self.derivatives_parca_jacobian = build_ode.derivatives_jacobian(self.derivativesParcaJacobianSymbolic, jit=False)
+		self.derivatives_parca = build_ode.derivatives(self.derivativesParcaSymbolic)[0]
+		self.derivatives_parca_jacobian = build_ode.derivatives_jacobian(self.derivativesParcaJacobianSymbolic)[0]
 
 
 	def _make_y_dy(self):
@@ -367,7 +367,8 @@ class TwoComponentSystem(object):
 
 
 	def moleculesToNextTimeStep(self, moleculeCounts, cellVolume,
-			nAvogadro, timeStepSec, random_state, method="LSODA", min_time_step=None):
+			nAvogadro, timeStepSec, random_state, method="LSODA",
+			min_time_step=None, jit=True):
 		"""
 		Calculates the changes in the counts of molecules in the next timestep
 		by solving an initial value ODE problem.
@@ -382,6 +383,8 @@ class TwoComponentSystem(object):
 			method (str): name of the ODE method to use
 			min_time_step (int): if not None, timeStepSec will be scaled down until
 				it is below min_time_step if negative counts are encountered
+			jit (bool): if True, use the jit compiled version of derivatives
+				functions
 
 		Returns:
 			moleculesNeeded (1d ndarray, ints): counts of molecules that need
@@ -391,10 +394,20 @@ class TwoComponentSystem(object):
 		"""
 		y_init = moleculeCounts / (cellVolume * nAvogadro)
 
+		# In this version of SciPy, solve_ivp does not support args so need to
+		# select the derivatives functions to use. Could be simplified to single
+		# functions that take a jit argument from solve_ivp in the future.
+		if jit:
+			derivatives = self.derivatives_jit
+			derivatives_jacobian = self.derivatives_jacobian_jit
+		else:
+			derivatives = self.derivatives
+			derivatives_jacobian = self.derivatives_jacobian
+
 		sol = scipy.integrate.solve_ivp(
-			self.derivatives, [0, timeStepSec], y_init,
+			derivatives, [0, timeStepSec], y_init,
 			method=method, t_eval=[0, timeStepSec], atol=1e-8,
-			jac=self.derivatives_jacobian
+			jac=derivatives_jacobian
 			)
 		y = sol.y.T
 
@@ -404,13 +417,13 @@ class TwoComponentSystem(object):
 				# Call method again with a shorter time step until min_time_step is reached
 				return self.moleculesToNextTimeStep(
 					moleculeCounts, cellVolume, nAvogadro, timeStepSec/2, random_state,
-					method=method, min_time_step=min_time_step)
+					method=method, min_time_step=min_time_step, jit=jit)
 			elif method != 'LSODA':
 				# Try with different method for better stability
 				print('Warning: switching to LSODA method in TCS')
 				return self.moleculesToNextTimeStep(
 					moleculeCounts, cellVolume, nAvogadro, timeStepSec, random_state,
-					method='LSODA', min_time_step=min_time_step)
+					method='LSODA', min_time_step=min_time_step, jit=jit)
 			else:
 				raise Exception(
 					"Solution to ODE for two-component systems has negative values."
@@ -419,7 +432,6 @@ class TwoComponentSystem(object):
 		y[y < 0] = 0
 		yMolecules = y * (cellVolume * nAvogadro)
 		dYMolecules = yMolecules[-1, :] - yMolecules[0, :]
-
 
 		independentMoleculesCounts = np.round(dYMolecules[self.independent_molecule_indexes])
 
@@ -622,11 +634,25 @@ class TwoComponentSystem(object):
 		Calculate derivatives from stoichiometry and rates with argument order
 		for solve_ivp.
 		"""
-		return self._stoich_matrix.dot(self._rates(y, t))
+		return self._stoich_matrix.dot(self._rates[0](y, t))
 
 	def derivatives_jacobian(self, t, y):
 		"""
 		Calculate the jacobian of derivatives from stoichiometry and rates
 		with argument order for solve_ivp.
 		"""
-		return self._stoich_matrix.dot(self._rates_jacobian(y, t))
+		return self._stoich_matrix.dot(self._rates_jacobian[0](y, t))
+
+	def derivatives_jit(self, t, y):
+		"""
+		Calculate derivatives from stoichiometry and rates with argument order
+		for solve_ivp.
+		"""
+		return self._stoich_matrix.dot(self._rates[1](y, t))
+
+	def derivatives_jacobian_jit(self, t, y):
+		"""
+		Calculate the jacobian of derivatives from stoichiometry and rates
+		with argument order for solve_ivp.
+		"""
+		return self._stoich_matrix.dot(self._rates_jacobian[1](y, t))
