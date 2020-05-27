@@ -44,7 +44,7 @@ PAD_VALUE = polymerize.PAD_VALUE
 
 # Wrap with kernprof profiling decorator - will throw an error if we call this
 # script using the vanilla python interpreter.
-if not __builtin__.__dict__.has_key('profile'):
+if 'profile' not in __builtin__.__dict__:
 	raise Exception(
 		'kernprof @profile decorator not available.  This script should be '
 		+ 'invoked via kernprof -lv.  If invoked correctly and this error '
