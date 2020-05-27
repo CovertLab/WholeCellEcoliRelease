@@ -53,7 +53,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 
 		axesList[-1].set_xlabel("Initial mass (pg)")
-		axesList[ap.n_generation / 2].set_ylabel("Final mass (pg)")
+		axesList[ap.n_generation // 2].set_ylabel("Final mass (pg)")
 
 		plt.subplots_adjust(hspace = 0.2, wspace = 0.5)
 

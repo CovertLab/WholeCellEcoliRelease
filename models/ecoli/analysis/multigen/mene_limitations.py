@@ -129,7 +129,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		time = np.array(time)
 
 		coefficient = (units.fg * np.array(dryMass)) / (units.fg * np.array(cellMass)) * cellDensity * (timeStepSec * units.s)
-		enzymeFluxes = (((COUNTS_UNITS / VOLUME_UNITS) * enzymeFluxes) / coefficient).asNumber(units.mmol / units.g / units.h)
+		enzymeFluxes = (((COUNTS_UNITS // VOLUME_UNITS) * enzymeFluxes) / coefficient).asNumber(units.mmol / units.g / units.h)
 
 		averages = []
 		indices = [np.where(time == x)[0][0] for x in generationTicks]
