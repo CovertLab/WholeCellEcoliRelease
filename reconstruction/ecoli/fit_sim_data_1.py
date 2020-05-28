@@ -7,23 +7,22 @@ TODO: functionalize so that values are not both set and returned from some metho
 
 from __future__ import absolute_import, division, print_function
 
-import multiprocessing as mp
-import numpy as np
-import os
-import scipy.optimize
 import cPickle
 from itertools import izip
+import os
+import multiprocessing as mp
+import traceback
+from typing import Any, Callable, Dict, List, Tuple
 
 from arrow import StochasticSystem
-
-from wholecell.containers.bulk_objects_container import BulkObjectsContainer
-from reconstruction.ecoli.simulation_data import SimulationDataEcoli
-
-from wholecell.utils import filepath, parallelization
-from wholecell.utils import units
-from wholecell.utils.fitting import normalize, masses_and_counts_for_homeostatic_target
-
 from cvxpy import Variable, Problem, Minimize, norm
+import numpy as np
+import scipy.optimize
+
+from reconstruction.ecoli.simulation_data import SimulationDataEcoli
+from wholecell.containers.bulk_objects_container import BulkObjectsContainer
+from wholecell.utils import filepath, parallelization, units
+from wholecell.utils.fitting import normalize, masses_and_counts_for_homeostatic_target
 
 
 # Tweaks
@@ -76,6 +75,7 @@ COUNTS_UNITS = units.dmol
 VOLUME_UNITS = units.L
 MASS_UNITS = units.g
 TIME_UNITS = units.s
+
 
 def fitSimData_1(
 		raw_data,
@@ -156,29 +156,11 @@ def fitSimData_1(
 	# See Issue #392.
 	cpus = parallelization.cpus(cpus, advice='mac override')
 
-	if cpus > 1:
-		print("Starting {} Parca processes".format(cpus))
-		pool = mp.Pool(processes = cpus)
-		conds = sorted(sim_data.tfToActiveInactiveConds)
-		results = [
-			pool.apply_async(
-				buildTfConditionCellSpecifications,
-				(sim_data, tf, disable_ribosome_capacity_fitting, disable_rnapoly_capacity_fitting)
-				)
-			for tf in conds
-			]
-		pool.close()
-		pool.join()
-		for result in results:
-			assert(result.successful())
-			cellSpecs.update(result.get())
-		pool = None
-		print("End parallel processing")
-	else:
-		for tf in sorted(sim_data.tfToActiveInactiveConds):
-			cellSpecs.update(buildTfConditionCellSpecifications(
-				sim_data, tf, disable_ribosome_capacity_fitting, disable_rnapoly_capacity_fitting
-				))
+	# Apply updates to cellSpecs from buildTfConditionCellSpecifications for each TF condition
+	conditions = list(sorted(sim_data.tfToActiveInactiveConds))
+	args = [(sim_data, tf, disable_ribosome_capacity_fitting, disable_rnapoly_capacity_fitting)
+		for tf in conditions]
+	apply_updates(buildTfConditionCellSpecifications, args, conditions, cellSpecs, cpus)
 
 	for conditionKey in cellSpecs:
 		if conditionKey == "basal":
@@ -204,20 +186,11 @@ def fitSimData_1(
 	sim_data.process.translation.ribosomeElongationRateDict = {}
 	sim_data.process.translation.ribosomeFractionActiveDict = {}
 
-	if cpus > 1:
-		print("Starting {} Parca processes".format(cpus))
-		pool = mp.Pool(processes = cpus)
-		results = [pool.apply_async(fitCondition, (sim_data, cellSpecs[condition], condition)) for condition in sorted(cellSpecs)]
-		pool.close()
-		pool.join()
-		for result in results:
-			assert(result.successful())
-			cellSpecs.update(result.get())
-		pool = None
-		print("End parallel processing")
-	else:
-		for condition in sorted(cellSpecs):
-			cellSpecs.update(fitCondition(sim_data, cellSpecs[condition], condition))
+	# Apply updates from fitCondition to cellSpecs for each fit condition
+	conditions = list(sorted(cellSpecs))
+	args = [(sim_data, cellSpecs[condition], condition)
+		for condition in conditions]
+	apply_updates(fitCondition, args, conditions, cellSpecs, cpus)
 
 	for condition_label in sorted(cellSpecs):
 		nutrients = sim_data.conditions[condition_label]["nutrients"]
@@ -297,6 +270,54 @@ def fitSimData_1(
 
 	return sim_data
 
+def apply_updates(func, args, labels, dest, cpus):
+	# type: (Callable[..., dict], List[tuple], List[str], dict, int) -> None
+	"""
+	Use multiprocessing (if cpus > 1) to apply args to a function to get
+	dictionary updates for a destination dictionary.
+
+	Args:
+		func: function to call with args
+		args: list of args to apply to func
+		labels: label for each set of args for exception information
+		dest: destination dictionary that will be updated with results
+			from each function call
+		cpus: number of cpus to use
+	"""
+
+	if cpus > 1:
+		print("Starting {} Parca processes".format(cpus))
+
+		# Apply args to func
+		pool = mp.Pool(processes=cpus)
+		results = {
+			label: pool.apply_async(func, a)
+			for label, a in zip(labels, args)
+			}
+		pool.close()
+		pool.join()
+
+		# Check results from function calls and update dest
+		failed = []
+		for label, result in results.items():
+			if result.successful():
+				dest.update(result.get())
+			else:
+				try:
+					result.get()
+				except Exception as e:
+					traceback.print_exc()
+					failed.append(label)
+
+		# Cleanup
+		if failed:
+			raise RuntimeError('Error(s) raised while using multiple processes for {}'
+				.format(', '.join(failed)))
+		pool = None
+		print("End parallel processing")
+	else:
+		for a in args:
+			dest.update(func(*a))
 
 def buildBasalCellSpecifications(
 		sim_data,
@@ -382,6 +403,7 @@ def buildBasalCellSpecifications(
 
 	return cellSpecs
 
+@parallelization.full_traceback
 def buildTfConditionCellSpecifications(
 		sim_data,
 		tf,
@@ -674,6 +696,7 @@ def expressionConverge(
 
 	return expression, synthProb, avgCellDryMassInit, fitAvgSolubleTargetMolMass, bulkContainer, concDict
 
+@parallelization.full_traceback
 def fitCondition(sim_data, spec, condition):
 	"""
 	Takes a given condition and returns the predicted bulk average, bulk deviation,
