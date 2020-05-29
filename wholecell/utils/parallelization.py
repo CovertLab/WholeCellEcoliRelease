@@ -26,8 +26,9 @@ def full_traceback(func):
 		try:
 			return func(*args, **kwargs)
 		except Exception as e:
-			msg = "{}\n\nOriginal {}".format(e, traceback.format_exc())
-			raise type(e)(msg)
+			msg = '{} in wrapped function {}\n\nOriginal {}'.format(
+				type(e).__name__, func.__name__, traceback.format_exc())
+			raise RuntimeError(msg)
 	return wrapper if sys.version_info[0] < 3 else func
 
 def is_macos():

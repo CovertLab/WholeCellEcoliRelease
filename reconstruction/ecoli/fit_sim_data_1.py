@@ -311,7 +311,7 @@ def apply_updates(func, args, labels, dest, cpus):
 
 		# Cleanup
 		if failed:
-			raise RuntimeError('Error(s) raised while using multiple processes for {}'
+			raise RuntimeError('Error(s) raised for {} while using multiple processes'
 				.format(', '.join(failed)))
 		pool = None
 		print("End parallel processing")
