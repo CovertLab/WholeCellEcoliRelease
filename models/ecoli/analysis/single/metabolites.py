@@ -63,9 +63,19 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Plot everything but amino acids
 		ax = plt.subplot(2, 1, 1)
 		ax.set_prop_cycle('color', colors)
-		plt.plot(time, normalizedCounts[:, ~aa_mask & highlighted])
-		plt.plot(time, normalizedCounts[:, ~aa_mask & ~highlighted])
-		plt.legend(metaboliteNames[~aa_mask & highlighted], fontsize=8)
+
+		## Plot and label metabolites that are different from the mean
+		mask = ~aa_mask & highlighted
+		if np.any(mask):
+			plt.plot(time, normalizedCounts[:, mask])
+			plt.legend(metaboliteNames[mask], fontsize=8)
+
+		## Plot the rest of the metabolites that are not amino acids
+		mask = ~aa_mask & ~highlighted
+		if np.any(mask):
+			plt.plot(time, normalizedCounts[:, mask])
+
+		## Formatting
 		plt.xlabel("Time (min)")
 		plt.ylabel("Metabolite fold change")
 		plt.title('All metabolites (excluding amino acids)')
