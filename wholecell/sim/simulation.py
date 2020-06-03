@@ -33,6 +33,7 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	seed = 0,
 	lengthSec = 3*60*60, # 3 hours max
 	initialTime = 0.,
+	jit = True,
 	massDistribution = True,
 	dPeriodDivision = False,
 	growthRateNoise = False,

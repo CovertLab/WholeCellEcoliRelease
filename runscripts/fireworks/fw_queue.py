@@ -67,6 +67,8 @@ Simulation parameters:
 	TIMESTEP_SAFETY_FRAC (float, "1.3"): increases the time step by this factor
 		if conditions are favorable; up the the limit of the max time step
 	TIMESTEP_UPDATE_FREQ (int, "5"): frequency at which the time step is updated
+	JIT (int, "1"): if nonzero, jit compiled functions are used for certain
+		processes, otherwise only uses lambda functions
 
 Modeling options:
 	MASS_DISTRIBUTION (int, "1"): if nonzero, a mass coefficient is drawn from
@@ -239,6 +241,7 @@ WC_LENGTHSEC = int(get_environment("WC_LENGTHSEC", DEFAULT_SIMULATION_KWARGS["le
 TIMESTEP_SAFETY_FRAC = float(get_environment("TIMESTEP_SAFETY_FRAC", DEFAULT_SIMULATION_KWARGS["timeStepSafetyFraction"]))
 TIMESTEP_MAX = float(get_environment("TIMESTEP_MAX", DEFAULT_SIMULATION_KWARGS["maxTimeStep"]))
 TIMESTEP_UPDATE_FREQ = int(get_environment("TIMESTEP_UPDATE_FREQ", DEFAULT_SIMULATION_KWARGS["updateTimeStepFreq"]))
+JIT = bool(int(get_environment("JIT", DEFAULT_SIMULATION_KWARGS["jit"])))
 MASS_DISTRIBUTION = bool(int(get_environment("MASS_DISTRIBUTION", DEFAULT_SIMULATION_KWARGS["massDistribution"])))
 GROWTH_RATE_NOISE = bool(int(get_environment("GROWTH_RATE_NOISE", DEFAULT_SIMULATION_KWARGS["growthRateNoise"])))
 D_PERIOD_DIVISION = bool(int(get_environment("D_PERIOD_DIVISION", DEFAULT_SIMULATION_KWARGS["dPeriodDivision"])))
@@ -679,6 +682,7 @@ for i in VARIANTS_TO_RUN:
 							timestep_safety_frac = TIMESTEP_SAFETY_FRAC,
 							timestep_max = TIMESTEP_MAX,
 							timestep_update_freq = TIMESTEP_UPDATE_FREQ,
+							jit=JIT,
 							mass_distribution = MASS_DISTRIBUTION,
 							growth_rate_noise = GROWTH_RATE_NOISE,
 							d_period_division = D_PERIOD_DIVISION,
@@ -708,6 +712,7 @@ for i in VARIANTS_TO_RUN:
 							timestep_safety_frac = TIMESTEP_SAFETY_FRAC,
 							timestep_max = TIMESTEP_MAX,
 							timestep_update_freq = TIMESTEP_UPDATE_FREQ,
+							jit=JIT,
 							mass_distribution = MASS_DISTRIBUTION,
 							growth_rate_noise = GROWTH_RATE_NOISE,
 							d_period_division = D_PERIOD_DIVISION,
