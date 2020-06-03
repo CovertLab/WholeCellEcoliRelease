@@ -64,7 +64,7 @@ def make_elongation_rates_flat(
 		amplified,
 		ceiling,
 		variable_elongation=False):
-	# type: (int, int, np.ndarray[int], int, bool) -> np.ndarray[int]
+	# type: (int, int, np.ndarray, int, bool) -> np.ndarray
 	'''
 	Create an array of rates where all values are at a base rate except for a set which
 	is at another rate.
@@ -98,7 +98,7 @@ def make_elongation_rates(
 		ceiling,
 		time_step,
 		variable_elongation=False):
-	# type: (np.random.RandomState, int, int, np.ndarray[int], int, float, bool) -> np.ndarray[np.int64]
+	# type: (np.random.RandomState, int, int, np.ndarray, int, float, bool) -> np.ndarray
 	'''
 	Create an array of rates where all values are at a base rate except for a set which
 	is at another rate. Also performs a stochastic rounding of values after applying the

@@ -40,6 +40,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		for idx, (cell_id, color) in enumerate(itertools.izip(all_cells, itertools.cycle(COLORS_LARGE))):
 			idToColor[idx] = color
 
+		# noinspection PyTypeChecker
 		fig, axesList = plt.subplots(len(massNames), sharex = True)
 
 		currentMaxTime = 0

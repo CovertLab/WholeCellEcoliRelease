@@ -94,6 +94,8 @@ def rdp(points, threshold):
 
 	General pattern of usage:
 
+	>>> x = np.arange(5.0)
+	>>> y = x * 10
 	>>> points = np.column_stack([x, y])
 
 	>>> keep = rdp(points, threshold)

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 FBAResults
 
@@ -10,7 +8,7 @@ Records dynamics of FBA output.
 @date: Created 6/24/2014
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 

@@ -40,6 +40,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 					"DNA\nmass frac."
 					]
 
+		# noinspection PyTypeChecker
 		fig, axesList = plt.subplots(len(massNames), sharex = True)
 
 		for simDir in firstCellLineage:

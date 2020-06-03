@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Disk
 
@@ -12,7 +10,7 @@ Logs whole-cell simulations and metadata to disk.
 @date: Created 6/3/2013
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 import time

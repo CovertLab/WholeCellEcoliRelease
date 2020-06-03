@@ -5,6 +5,7 @@ import os
 import json
 import numpy as np
 import struct
+from typing import Any, Dict
 import zlib
 
 from wholecell.utils import filepath
@@ -510,7 +511,7 @@ class TableWriter(object):
 		self._columns = None
 		self._variable_length_columns = set()
 
-		self._attributes = {}
+		self._attributes = {}  # type: Dict[str, Any]
 		self._attributes_filename = os.path.join(path, FILE_ATTRIBUTES)
 
 		if (os.path.exists(self._attributes_filename)
@@ -591,7 +592,8 @@ class TableWriter(object):
 		'Main' at the end of each generation.]
 		"""
 
-		sanitized = {}  # check before modifying self._attributes
+		# check before modifying self._attributes
+		sanitized = {}  # type: Dict[str, Any]
 
 		for name, value in namesAndValues.viewitems():
 			if name in self._attributes:
@@ -618,7 +620,7 @@ class TableWriter(object):
 
 
 	def set_variable_length_columns(self, *column_names):
-		# type: (*str) -> None
+		# type: (str) -> None
 		"""
 		Sets the names of columns that should have entries with variable
 		lengths. This must be set before any values are appended to the column.

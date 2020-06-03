@@ -23,7 +23,7 @@ from matplotlib import pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 import numpy as np
 from scipy import special, stats
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 from models.ecoli.analysis import variantAnalysisPlot
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
@@ -44,7 +44,7 @@ validation_data = None  # type: Optional[ValidationDataEcoli]
 
 
 def analyze_variant(args):
-	# type: (Tuple[int, int]) -> np.ndarray[np.float]
+	# type: (Tuple[int, int]) -> np.ndarray
 	'''
 	Method to map each variant to for parallel analysis.
 
@@ -66,6 +66,9 @@ def analyze_variant(args):
 			average flux correlation for each parameter when increased
 			average flux correlation for each parameter when decreased
 	'''
+	assert ap is not None
+	assert sim_data is not None
+	assert validation_data is not None
 
 	variant, total_params = args
 	if variant == 0:
@@ -115,7 +118,7 @@ def analyze_variant(args):
 		# Extract fluxes in Toya data set from simulation output
 		model_fluxes = np.zeros_like(toya_fluxes)
 		for i, toya_reaction in enumerate(toya_reactions):
-			flux_time_course = []
+			flux_time_course = []  # type: List[np.ndarray]
 
 			for rxn in reaction_ids:
 				if re.findall(toya_reaction, rxn):
@@ -347,7 +350,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 		## Save figure
 		plt.tight_layout()
-		exportFigure(plt, plotOutDir, '{}_individual'.format(plotOutFileName, metadata))
+		exportFigure(plt, plotOutDir, '{}_individual'.format(plotOutFileName))
 		plt.close('all')
 
 		# Save z scores to tsv

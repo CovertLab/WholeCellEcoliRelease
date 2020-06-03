@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 ATPhydrolyzedUsageListener
 
@@ -8,7 +6,7 @@ ATPhydrolyzedUsageListener
 @date: Created 3/4/15
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import wholecell.listeners.listener
 

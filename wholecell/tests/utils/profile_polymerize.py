@@ -58,22 +58,26 @@ polymerize.__iter__ = lambda self: iter((self.sequenceElongation, self.monomerUs
 # Wrap methods in line-profiling decorator
 # TODO (John): write an introspection utility to facilitate decoration
 
-polymerize.__init__ = profile(polymerize.__init__)
+# noinspection PyUnresolvedReferences
+def setup_profiler():
+	polymerize.__init__ = profile(polymerize.__init__)
 
-polymerize._setup = profile(polymerize._setup)
-polymerize._sanitize_inputs = profile(polymerize._sanitize_inputs)
-polymerize._gather_input_dimensions = profile(polymerize._gather_input_dimensions)
-polymerize._gather_sequence_data = profile(polymerize._gather_sequence_data)
-polymerize._prepare_running_values = profile(polymerize._prepare_running_values)
-polymerize._prepare_outputs = profile(polymerize._prepare_outputs)
+	polymerize._setup = profile(polymerize._setup)
+	polymerize._sanitize_inputs = profile(polymerize._sanitize_inputs)
+	polymerize._gather_input_dimensions = profile(polymerize._gather_input_dimensions)
+	polymerize._gather_sequence_data = profile(polymerize._gather_sequence_data)
+	polymerize._prepare_running_values = profile(polymerize._prepare_running_values)
+	polymerize._prepare_outputs = profile(polymerize._prepare_outputs)
 
-polymerize._elongate = profile(polymerize._elongate)
-polymerize._elongate_to_limit = profile(polymerize._elongate_to_limit)
-polymerize._finalize_resource_limited_elongations = profile(polymerize._finalize_resource_limited_elongations)
-polymerize._update_elongation_resource_demands = profile(polymerize._update_elongation_resource_demands)
+	polymerize._elongate = profile(polymerize._elongate)
+	polymerize._elongate_to_limit = profile(polymerize._elongate_to_limit)
+	polymerize._finalize_resource_limited_elongations = profile(polymerize._finalize_resource_limited_elongations)
+	polymerize._update_elongation_resource_demands = profile(polymerize._update_elongation_resource_demands)
 
-polymerize._finalize = profile(polymerize._finalize)
-polymerize._clamp_elongation_to_sequence_length = profile(polymerize._clamp_elongation_to_sequence_length)
+	polymerize._finalize = profile(polymerize._finalize)
+	polymerize._clamp_elongation_to_sequence_length = profile(polymerize._clamp_elongation_to_sequence_length)
+
+setup_profiler()
 
 def _setupRealExample():
 	# Test data pulled from an actual sim at an early time point.

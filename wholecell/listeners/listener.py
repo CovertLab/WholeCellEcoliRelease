@@ -11,9 +11,9 @@ from __future__ import absolute_import, division, print_function
 from enum import Enum
 
 class Listener(object):
-	_name = None
+	_name = 'Listener'
 
-	def __init__(self):
+	def __init__(self, *args, **kwargs):
 		pass
 
 	# Construct state-process graph, calculate constants

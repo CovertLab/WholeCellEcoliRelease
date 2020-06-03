@@ -7,7 +7,7 @@ Tests the initial conditions code of the model.
 @date: Created 7/23/2015
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import unittest
 

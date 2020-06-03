@@ -35,6 +35,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 					"DNA\nmass"
 					]
 
+		# noinspection PyTypeChecker
 		fig, axesList = plt.subplots(len(massNames), sharex = True)
 
 		for simDir in allDir:

@@ -52,7 +52,7 @@ for attr_name in candidates:
 
 		outfile = open(os.path.join(OUTPUT_DIR, attr_name.lstrip("_")) + ".tsv", "w")
 
-		writer = JsonWriter(outfile, fieldnames, dialect = DIALECT)
+		writer = JsonWriter(outfile, fieldnames)
 
 		writer.writeheader()
 

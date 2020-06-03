@@ -60,6 +60,9 @@ plt.close("all")
 
 """
 from __future__ import absolute_import, division, print_function
+
+from typing import Iterable, List, Optional, Union
+
 import numpy as np
 import math as math
 from scipy.spatial import distance_matrix
@@ -425,7 +428,7 @@ class LineClass(object):
             """
             This function finds the intersection points of a line with an edge.
             """
-            [P1, P2] = edge_canvas
+            # [P1, P2] = edge_canvas
             [[x1, y1],[x2, y2]] = edge_canvas
             # convert to ax + by = c, dx + ey = f
             a = (y2 - y1)
@@ -857,19 +860,17 @@ class VoronoiMaster(object):
                                    total_area * element[1] / total_value)
         return gross_error
 
-    def _find_total(self, dct):
+    def _find_total(self, val):
+        # type: (Union[int, float, dict]) -> float
         '''
-        Find the total value within a nested dictionary.
+        Find the total value within a number or nestable dictionary.
         '''
-        total = 0
-        if isinstance(dct, float) or isinstance(dct, int):
-            total += dct
+        total = 0.0
+        if isinstance(val, (float, int)):
+            total += val
         else:
-            for value in dct.values():
-                if isinstance(value, float) or isinstance(value, int):
-                    total += value
-                if isinstance(value, dict):
-                    total += self._find_total(value)
+            for value in val.values():
+                total += self._find_total(value)
         return total
 
     def _compute_boundaries(self, dic,
@@ -899,8 +900,8 @@ class VoronoiMaster(object):
             voronoi_out, error_0 = self._voronoi_main_function(
                 labels, values, canvas_obj)
         voronoi_list = [voronoi_out]
-        polygon_value_list = [[] for _ in dic]
-        label_site_list = [[] for _ in dic]
+        polygon_value_list = [[] for _ in dic]  # type: List[Iterable]
+        label_site_list = [[] for _ in dic]  # type: List[Iterable]
 
         for i, value in enumerate(dic.values()):
             if isinstance(value, float) or isinstance(value, int):
@@ -1097,11 +1098,11 @@ class VoronoiMaster(object):
             # points(ipoints) in normal space
             ipoints, simplices_prune = self._prune_and_convert_to_ipoints(
                 dual_sites, simplices, canvas_obj)
-            
+
             # 4. compute the ray objects of each ipoints
             ray_obj_all = self._find_multiple_positive_ray(
                 sites, ipoints, simplices_prune)
-            
+
             # 5. compute the coordinate of each polygon
             polygons_all = self._divide_polygons(
                 sites, canvas_obj, (ray_obj_all, simplices_prune, ipoints))  
@@ -1244,7 +1245,7 @@ class VoronoiMaster(object):
 
             # 3. group the corners, edges, intersection points that are on the
             # same side as each site and form the coordinates of each polygon.
-            polygons_all = [[] for _ in range(3)]
+            polygons_all = [None for _ in range(3)]  # type: List[Optional[PolygonClass]]
             indices = np.arange(3)
             for i in range(3):
                 ab_corners_temp = above_below_corners[:,indices != i]
@@ -1279,7 +1280,7 @@ class VoronoiMaster(object):
             # 1. for all the intersection points, we first determine whether
             # each site and each corners are above or below each ray.
             ab_corners_table = [[] for _ in range(n_ipoints)]
-            ab_sites_table = [[] for _ in range(n_ipoints)]
+            ab_sites_table = [None for _ in range(n_ipoints)]  # type: List[Optional[np.ndarray]]
             for i in range(n_ipoints):
                 if ray_obj_all[i]:
                     # 1-1. convert each ray to a_r1*x + b_r1*y + c_r1 = 0
@@ -1309,7 +1310,7 @@ class VoronoiMaster(object):
 
             # 2. by referring to the ab_corners_table and ab_sites_table
             # find the coordinates of each polygon.
-            polygons_all = [[] for _ in range(n_sites)]
+            polygons_all = [None for _ in range(n_sites)]
             corner_polygon_all = [[] for _ in range(n_sites)]
             indices = np.arange(3)
             for k in range(n_sites):

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 GrowthLimits
 
@@ -8,7 +6,7 @@ GrowthLimits
 @date: Created 6/25/15
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 

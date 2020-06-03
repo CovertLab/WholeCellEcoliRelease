@@ -12,7 +12,7 @@ from __future__ import absolute_import, division, print_function
 
 
 class SimulationHook(object):
-	_name = None
+	_name = 'SimulationHook'
 
 	def __init__(self):
 		pass

@@ -4,10 +4,11 @@ from __future__ import absolute_import, division, print_function
 import os
 import re
 
-from itertools import izip
 from collections import defaultdict
+from itertools import izip
+from typing import Any, Dict, List
 
-from reconstruction.spreadsheets import JsonWriter, JsonReader
+from reconstruction.spreadsheets import JsonWriter, read_tsv
 
 import numpy as np
 
@@ -71,7 +72,7 @@ for line in open(_LPLOG_FILE):
 started_constraints = False
 compound_id = None
 
-reaction_stoich = defaultdict(dict)
+reaction_stoich = defaultdict(dict)  # type: Dict[str, Dict[str, int]]
 
 for line in open(_LP_FILE):
 	if not started_constraints:
@@ -108,7 +109,9 @@ for line in open(_LP_FILE):
 			reaction_dict = reaction_stoich[reaction_id]
 
 			if compound_id in reaction_dict:
-				assert reaction_dict[compound_id] == stoich, "{}[{}]: {} != {}".format(reaction_id, compound_id, reaction_dict[compound_id], stoich)
+				assert reaction_dict[compound_id] == stoich, (
+					"{}[{}]: {} != {}".format(
+						reaction_id, compound_id, reaction_dict[compound_id], stoich))
 
 			else:
 				reaction_dict[compound_id] = stoich
@@ -135,7 +138,6 @@ with open(os.path.join("reconstruction", "ecoli", "flat", "reactions.tsv"), "w")
 	writer = JsonWriter(
 		outfile,
 		["reaction id", "stoichiometry", "is reversible"],
-		dialect = "excel-tab"
 		)
 
 	writer.writeheader()
@@ -151,7 +153,7 @@ with open(os.path.join("reconstruction", "ecoli", "flat", "reactions.tsv"), "w")
 
 current_group = None
 
-data = {}
+data = {}  # type: Dict[str, List[Any]]
 
 with open(_FBA_FILE) as fba_file:
 	for line in fba_file:
@@ -228,7 +230,6 @@ with open(os.path.join("reconstruction", "ecoli", "flat", "biomass.tsv"), "w") a
 	writer = JsonWriter(
 		outfile,
 		["group id", "molecule id", "coefficient"],
-		dialect = "excel-tab"
 		)
 
 	writer.writeheader()
@@ -267,11 +268,12 @@ biomassCoeffs = {
 
 biomassIDs = {mid[:-3] for mid in biomassCoeffs.viewkeys()}
 
-with open(os.path.join("reconstruction", "ecoli", "flat", "metabolites.tsv")) as massFile:
-	for entry in JsonReader(massFile, dialect = "excel-tab"):
-		if entry["id"] in biomassIDs:
-			for c in entry["location"]:
-				masses[entry["id"] + "[{}]".format(c)] = entry["mw7.2"]
+filename = os.path.join("reconstruction", "ecoli", "flat", "metabolites.tsv")
+rows = read_tsv(filename)
+for entry in rows:
+	if entry["id"] in biomassIDs:
+		for c in entry["location"]:
+			masses[entry["id"] + "[{}]".format(c)] = entry["mw7.2"]
 
 for outName, groupName in _MASS_CATEGORIES.viewitems():
 	moleculeIDs = {
@@ -299,7 +301,6 @@ for outName, groupName in _MASS_CATEGORIES.viewitems():
 		writer = JsonWriter(
 			outfile,
 			["metaboliteId", "massFraction"],
-			dialect = "excel-tab"
 			)
 
 		writer.writeheader()
@@ -313,7 +314,6 @@ for section_name in ("nutrients", "secretions"):
 		writer = JsonWriter(
 			outfile,
 			["molecule id", "lower bound", "upper bound"],
-			dialect = "excel-tab"
 			)
 
 		writer.writeheader()

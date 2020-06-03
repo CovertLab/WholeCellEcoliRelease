@@ -10,7 +10,7 @@ import cPickle
 import importlib
 from os import path
 import re
-from typing import Any, Dict, List, Iterable, Text, Union
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Text, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -60,7 +60,7 @@ def calc_active_fraction(active_counts, inactive_counts):
 
 
 def find_limiting_metabolites(counts, names, window):
-	# type: (np.ndarray, Iterable[str], int) -> Iterable[str]
+	# type: (np.ndarray, Sequence[str], int) -> Iterable[str]
 	"""Find all metabolites that are limiting for some period of time.
 
 	A metabolite is considered limiting over a window of time if, within
@@ -78,7 +78,6 @@ def find_limiting_metabolites(counts, names, window):
 		An iterable collection with the unsorted names of all
 		metabolites ever found to be limiting in counts.
 	"""
-	names = np.array(names)
 	limiting = set()
 	diff = np.diff(counts, axis=0)
 	for i in xrange(diff.shape[0] - window):
@@ -123,7 +122,7 @@ def find_indices_bulk(to_search, targets):
 
 
 def np_pick(array, pick_spec):
-	# type: (np.ndarray, List[List[int]]) -> Any
+	# type: (np.ndarray, Iterable[Union[List[int], int]]) -> Any
 	"""Perform numpy indexing based on a specification
 
 	Arguments:
@@ -134,9 +133,9 @@ def np_pick(array, pick_spec):
 			indices.
 
 	Returns:
-		An array including the specified indices.
+		The given array indexed by the specified indices.
 	"""
-	parsed_spec = []
+	parsed_spec = []  # type: List[Union[Tuple[int, ...], int]]
 	for axis_spec in pick_spec:
 		if isinstance(axis_spec, list):
 			parsed_spec.append(tuple(axis_spec))
@@ -316,15 +315,15 @@ class BehaviorMetrics(object):
 
 	@staticmethod
 	def _calculate_operation(op_config, data):
-		# type: (Dict[str, Any], Dict[str, Any]) -> Any
+		# type: (Dict[str, Any], Dict[String, Any]) -> Any
 		op_func = MODE_FUNC_MAP[op_config["function"]]
 		func_args = [
 			BehaviorMetrics._resolve_func_arg(arg, data) for arg in op_config["args"]
 		]
 		return op_func(*func_args)
 
-	def load_data_from_config(self, data_conf_json, pickles={}):
-		# type: (Dict[String, Any], dict) -> Dict[String, Any]
+	def load_data_from_config(self, data_conf_json, pickles=None):
+		# type: (Dict[String, Any], Optional[dict]) -> Dict[String, Any]
 		"""Load data as specified in a configuration JSON.
 
 		The configuration JSON should be structured as follows:
@@ -404,6 +403,8 @@ class BehaviorMetrics(object):
 			InvalidDependencyGraphError: If the dependency graph created by the
 			operation attributes contains any cycles.
 		"""
+		if pickles is None:
+			pickles = {}
 		loaded_data = {}
 		for source_name, source_config in data_conf_json.items():
 			if "constant" in source_config:
@@ -559,7 +560,7 @@ class BehaviorMetrics(object):
 
 	@staticmethod
 	def order_operations(operation_configs):
-		# type: (Dict[String, Dict[String, Any]]) -> List[String]
+		# type: (Dict[String, Dict[String, Any]]) -> Sequence[String]
 		"""Sorts operation configs for evaluation.
 
 		Operations can take the results of other operations as input, so

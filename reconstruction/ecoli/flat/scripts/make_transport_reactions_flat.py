@@ -10,7 +10,9 @@ from __future__ import absolute_import, division, print_function
 import os
 import re
 import csv
-from reconstruction.spreadsheets import JsonReader
+from typing import Dict
+
+from reconstruction.spreadsheets import read_tsv
 
 TSV_DIALECT = csv.excel_tab
 
@@ -19,31 +21,29 @@ OUT_FILE = os.path.join("out", "transport_reactions.tsv")
 
 # make list of transport reactions
 transport_reactions = []
-with open(REACTIONS_FILE, 'rU') as tsvfile:
-	reader = JsonReader(tsvfile, dialect=TSV_DIALECT)
-	for row in reader:
-		reaction_id = row["reaction id"]
-		stoichiometry = row["stoichiometry"]
+for row in read_tsv(REACTIONS_FILE):
+	reaction_id = row["reaction id"]  # type: str
+	stoichiometry = row["stoichiometry"]  # type: Dict[str, int]
 
-		# get substrates and products
-		substrates = [mol_id for mol_id, coeff in stoichiometry.iteritems() if coeff < 0]
-		products = [mol_id for mol_id, coeff in stoichiometry.iteritems() if coeff > 0]
-		substrates_no_loc = [re.sub("[[@*&?].*[]@*&?]", "", mol_id) for mol_id in substrates]
-		products_no_loc = [re.sub("[[@*&?].*[]@*&?]", "", mol_id) for mol_id in products]
+	# get substrates and products
+	substrates = [mol_id for mol_id, coeff in stoichiometry.iteritems() if coeff < 0]
+	products = [mol_id for mol_id, coeff in stoichiometry.iteritems() if coeff > 0]
+	substrates_no_loc = [re.sub("[[@*&?].*[]@*&?]", "", mol_id) for mol_id in substrates]
+	products_no_loc = [re.sub("[[@*&?].*[]@*&?]", "", mol_id) for mol_id in products]
 
-		overlap_no_loc = set(substrates_no_loc) & set(products_no_loc)
+	overlap_no_loc = set(substrates_no_loc) & set(products_no_loc)
 
-		# if overlap between substrate and product names with no location:
-		for mol_id in list(overlap_no_loc):
-			sub = [mol for mol in substrates if mol_id in mol]
-			prod = [mol for mol in products if mol_id in mol]
-			overlap = set(sub) & set(prod)
+	# if overlap between substrate and product names with no location:
+	for mol_id in list(overlap_no_loc):
+		sub = [mol for mol in substrates if mol_id in mol]
+		prod = [mol for mol in products if mol_id in mol]
+		overlap = set(sub) & set(prod)
 
-			# if there is no overlap between those substrates and products with locations included
-			if len(overlap) == 0:
-				# print('sub ' + str(sub))
-				# print('prod ' + str(prod))
-				transport_reactions.append(reaction_id.encode('ascii','ignore'))
+		# if there is no overlap between those substrates and products with locations included
+		if len(overlap) == 0:
+			# print('sub ' + str(sub))
+			# print('prod ' + str(prod))
+			transport_reactions.append(reaction_id.encode('ascii','ignore'))
 
 # sort reactions to save them in ordered list
 transport_reactions = list(set(transport_reactions))

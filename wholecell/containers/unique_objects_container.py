@@ -13,6 +13,7 @@ from __future__ import absolute_import, division, print_function
 from copy import deepcopy
 from itertools import izip, product
 from enum import Enum
+from typing import cast
 
 import numpy as np
 import zlib
@@ -279,7 +280,7 @@ class UniqueObjectsContainer(object):
 
 			newArray = np.append(
 				array,
-				np.zeros(nNewEntries, dtype = array.dtype)
+				np.zeros(cast(int, nNewEntries), dtype = array.dtype)
 				)
 
 			freeIndexes = np.concatenate((

@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 import os
 import shutil
 import tempfile
-from typing import List, Dict
+from typing import List, Dict, Union
 import unittest
 
 import numpy as np
@@ -582,13 +582,13 @@ class TestReadSubcolumn(unittest.TestCase):
 				named by the i-th element of the list.
 		"""
 		subcolumns_key = {
-			col_name: str(i) for i, col_name in
-			enumerate(subcolumns_labels.keys())
-		}
+			col_name: str(i)
+			for i, col_name in enumerate(subcolumns_labels.keys())
+			}  # type: Dict[str, str]
 		attributes = {
-			str(i): lst for i, lst in
-			enumerate(subcolumns_labels.values())
-		}
+			str(i): lst
+			for i, lst in enumerate(subcolumns_labels.values())
+			}  # type: Dict[str, Union[List[str], Dict[str, str]]]
 		attributes["subcolumns"] = subcolumns_key
 		self.tablewriter.writeAttributes(**attributes)
 

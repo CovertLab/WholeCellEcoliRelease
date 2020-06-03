@@ -138,7 +138,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		plt.ylabel("Actual Flux (mmol/g/hr)")
 		plt.minorticks_off()
 		whitePadSparklineAxis(ax)
+		# noinspection PyTypeChecker
 		ax.set_ylim(axes_limits)
+		# noinspection PyTypeChecker
 		ax.set_xlim(axes_limits)
 		ax.set_yticks(axes_limits)
 		ax.set_xticks(axes_limits)

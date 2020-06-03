@@ -1,13 +1,12 @@
 from __future__ import absolute_import, division, print_function
 
 import os
-from reconstruction.spreadsheets import JsonReader
-import csv
 import yaml
 import json
 import numpy as np
 
-CSV_DIALECT = csv.excel_tab
+from reconstruction.spreadsheets import read_tsv
+
 
 METABOLITE_MASS_FILE = os.path.join("reconstruction", "ecoli", "flat", "metabolites.tsv")
 MONOMER_MASS_FILE = os.path.join("reconstruction", "ecoli", "flat", "proteins.tsv")
@@ -35,36 +34,30 @@ REACTION_ID_BLACKLIST = [
 ]
 
 def getMetaboliteMasses():
-	reader = JsonReader(open(METABOLITE_MASS_FILE, "r"), dialect = CSV_DIALECT)
-	data = [row for row in reader]
-	D = dict([(x["id"].encode("utf-8"), np.array([0, 0, 0, 0, 0, 0, 0, x["mw7.2"], 0, 0, 0])) for x in data])
-	reader = JsonReader(open(WATER_MASS_FILE, "r"), dialect = CSV_DIALECT)
-	data = [row for row in reader]
-	E = dict([(x["id"].encode("utf-8"), np.array([0, 0, 0, 0, 0, 0, 0, 0, x["mw7.2"], 0, 0])) for x in data])
+	data = read_tsv(METABOLITE_MASS_FILE)
+	D = dict([(x["id"], np.array([0, 0, 0, 0, 0, 0, 0, x["mw7.2"], 0, 0, 0])) for x in data])
+	data = read_tsv(WATER_MASS_FILE)
+	E = dict([(x["id"], np.array([0, 0, 0, 0, 0, 0, 0, 0, x["mw7.2"], 0, 0])) for x in data])
 	return dict(D, **E)
 
 def getMonomerMasses():
-	reader = JsonReader(open(MONOMER_MASS_FILE, "r"), dialect = CSV_DIALECT)
-	data = [row for row in reader]
-	D = dict([(x["id"].encode("utf-8"), np.array(x["mw"])) for x in data])
+	data = read_tsv(MONOMER_MASS_FILE)
+	D = dict([(x["id"], np.array(x["mw"])) for x in data])
 	return D
 
 def getRnaMasses():
-	reader = JsonReader(open(RNA_MASS_FILE, "r"), dialect = CSV_DIALECT)
-	data = [row for row in reader]
-	D = dict([(x["id"].encode("utf-8"), np.array(x["mw"])) for x in data])
+	data = read_tsv(RNA_MASS_FILE)
+	D = dict([(x["id"], np.array(x["mw"])) for x in data])
 	return D
 
 def getNames():
-	reader = JsonReader(open(EXISTING_PROTEIN_COMPLEX_FILE, "r"), dialect = CSV_DIALECT)
-	data = [row for row in reader]
-	D = dict([(x["id"].encode("utf-8"), x["name"].encode("utf-8")) for x in data])
+	data = read_tsv(EXISTING_PROTEIN_COMPLEX_FILE)
+	D = dict([(x["id"], x["name"]) for x in data])
 	return D
 
 def getEquilibriumBindingRates():
-	reader = JsonReader(open(EXISTING_EQUILIBRIUM_REACTION_FILE, "r"), dialect = CSV_DIALECT)
-	data = [row for row in reader]
-	D = dict((x["id"].encode("utf-8"), (x["forward rate"], x["reverse rate"])) for x in data)
+	data = read_tsv(EXISTING_EQUILIBRIUM_REACTION_FILE)
+	D = dict((x["id"], (x["forward rate"], x["reverse rate"])) for x in data)
 	return D
 
 def getLocations(reactionData):
@@ -80,9 +73,8 @@ def getLocations(reactionData):
 	return D
 
 def getMonomerLocationsFromOurData():
-	reader = JsonReader(open(MONOMER_MASS_FILE, "r"), dialect = CSV_DIALECT)
-	data = [row for row in reader]
-	D = dict([(x["id"].encode("utf-8"), x["location"][0].encode("utf-8")) for x in data])
+	data = read_tsv(MONOMER_MASS_FILE)
+	D = dict([(x["id"], x["location"][0]) for x in data])
 	return D
 
 def removeBlaclistedReactions(reactionData):

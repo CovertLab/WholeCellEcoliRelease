@@ -7,9 +7,10 @@ TODO: raise/warn if physiological metabolite concentration targets appear to be 
 from __future__ import absolute_import, division, print_function
 
 from itertools import izip
-import scipy.sparse
+from typing import cast
 
 import numpy as np
+import scipy.sparse
 
 from wholecell.utils.fitting import normalize, countsFromMassAndExpression, masses_and_counts_for_homeostatic_target
 from wholecell.utils.polymerize import computeMassIncrease
@@ -833,7 +834,7 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 		TU_index=TU_index_partial_RNAs,
 		transcript_length=updated_lengths,
 		is_mRNA=is_mRNA_partial_RNAs,
-		is_full_transcript=np.zeros(n_RNAPs_to_activate, dtype=np.bool),
+		is_full_transcript=np.zeros(cast(int, n_RNAPs_to_activate), dtype=np.bool),
 		can_translate=is_mRNA_partial_RNAs,
 		RNAP_index=RNAP_indexes,
 		massDiff_RNA=added_RNA_mass,

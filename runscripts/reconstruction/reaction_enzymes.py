@@ -1,16 +1,14 @@
 from __future__ import absolute_import, division, print_function
 
 import os
-import csv
 import re
 import yaml
 import json
 from typing import Dict, List
 
-from reconstruction.spreadsheets import JsonReader
+from reconstruction.spreadsheets import read_tsv
 
 
-CSV_DIALECT = csv.excel_tab
 REACTIONS_FILE = os.path.join("reconstruction", "ecoli", "flat", "reactions.tsv")
 ECOCYC_DUMP = os.path.join("reconstruction", "ecoli", "flat", "ecocyc_20_1_gem.json")
 
@@ -19,20 +17,17 @@ NEW_REACTIONS_FILE = os.path.join("reconstruction", "ecoli", "flat", "reactions_
 
 
 def getReactionIds():
-	reader = JsonReader(open(REACTIONS_FILE, "r"), dialect = CSV_DIALECT)
-	data = [row for row in reader]
-	L = sorted(x["reaction id"].encode("utf-8") for x in data)
+	data = read_tsv(REACTIONS_FILE)
+	L = sorted(x["reaction id"] for x in data)
 	return L
 
 def getReactionStoich():
-	reader = JsonReader(open(REACTIONS_FILE, "r"), dialect = CSV_DIALECT)
-	data = [row for row in reader]
+	data = read_tsv(REACTIONS_FILE)
 	D = dict((x["reaction id"], x["stoichiometry"]) for x in data)
 	return D
 
 def getReactionReversibility():
-	reader = JsonReader(open(REACTIONS_FILE, "r"), dialect = CSV_DIALECT)
-	data = [row for row in reader]
+	data = read_tsv(REACTIONS_FILE)
 	D = dict((x["reaction id"], x["is reversible"]) for x in data)
 	return D
 
@@ -58,7 +53,7 @@ def truncateNameRxnTrans(name):
 
 def addFilteredEntries(rxnNamesEnzymes):
 	# type: (Dict[str, List[str]]) -> None
-	d = {}
+	d = {}  # type: Dict[str, List[str]]
 	def add_enzymes(name):
 		# type: (str) -> None
 		if name is not None:

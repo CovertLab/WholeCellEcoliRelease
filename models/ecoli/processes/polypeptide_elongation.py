@@ -722,12 +722,12 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		degradation reactions.
 
 		Args:
-			uncharged_trna_conc (array[float] with concentration units):
+			uncharged_trna_conc (np.array[float] with concentration units):
 				concentration of uncharged tRNA associated with each amino acid
-			charged_trna_conc (array[float] with concentration units):
+			charged_trna_conc (np.array[float] with concentration units):
 				concentration of charged tRNA associated with each amino acid
 			ribosome_conc (float with concentration units): concentration of active ribosomes
-			f (array of floats): fraction of each amino acid to be incorporated
+			f (np.array[float]): fraction of each amino acid to be incorporated
 				to total amino acids incorporated
 			rela_conc (float with concentration units): concentration of RelA
 			spot_conc (float with concentration units): concentration of SpoT
@@ -741,12 +741,12 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 				calculateRequest. GDP appears as both a reactant and product
 				and the request can be off the actual use if not handled in this
 				manner.
-			limits (array[float]): counts of molecules that are available to prevent
+			limits (np.array[float]): counts of molecules that are available to prevent
 				negative total counts as a result of delta_metabolites.
 				If None, no limits are placed on molecule changes.
 
 		Returns:
-			delta_metabolites (array[int]): the change in counts of each metabolite
+			delta_metabolites (np.array[int]): the change in counts of each metabolite
 				involved in ppGpp reactions
 			n_syn_reactions (int): the number of ppGpp synthesis reactions
 			n_deg_reactions (int): the number of ppGpp degradation reactions

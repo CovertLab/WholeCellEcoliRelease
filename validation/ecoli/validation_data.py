@@ -25,6 +25,13 @@ from reconstruction.ecoli.dataclasses.process.process import Process
 from reconstruction.ecoli.dataclasses.growthRateDependentParameters import Mass, GrowthRateParameters
 from reconstruction.ecoli.dataclasses.relation import Relation
 
+__all__ = [
+	'KnowledgeBaseEcoli', 'getterFunctions', 'MoleculeGroups', 'MoleculeIds',
+	'Constants', 'InternalState', 'Process', 'Mass', 'GrowthRateParameters',
+	'Relation', 'ValidationDataEcoli', 'Protein', 'ReactionFlux',
+	'EssentialGenes', 'GeneFunctions']
+
+
 class ValidationDataEcoli(object):
 	""" ValidationDataEcoli """
 
@@ -175,7 +182,7 @@ class Protein(object):
 		monomerIds = [self.geneIdToMonomerId[x] for x in geneIds]
 
 		glucoseCounts = [x["Glucose"] for x in dataset]
-		
+
 		nEntries = len(geneIds)
 
 		schmidt2015Data = np.zeros(

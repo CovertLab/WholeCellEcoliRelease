@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Process
 
@@ -10,7 +8,7 @@ Process submodel base class. Defines interface that processes expose to the simu
 @date: Created 4/2/2013
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import warnings
 
@@ -26,7 +24,7 @@ from wholecell.listeners.listener import WriteMethod
 class Process(object):
 	""" Process """
 
-	_name = None
+	_name = 'Process'
 	EDIT_ACCESS = (Access.EDIT, )
 	EDIT_DELETE_ACCESS = (Access.EDIT, Access.DELETE)
 

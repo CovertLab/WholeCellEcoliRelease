@@ -256,7 +256,7 @@ class EnzymeKinetics(object):
 		"""
 		# Check if all needed metabolite and enzyme concentrations are given
 		if not self.inputsChecked:
-			knownConstraints, unusableConstraints, unknownVals = self.checkKnownSubstratesAndEnzymes(metaboliteConcentrationsDict, enzymeConcentrationsDict, removeUnknowns=False)
+			knownConstraints, unusableConstraints, unknownVals = self.checkKnownSubstratesAndEnzymes(metaboliteConcentrationsDict, enzymeConcentrationsDict, enzymeNames={}, removeUnknowns=False)
 			if len(unusableConstraints) > 0:
 				raise Exception("Unable to compute kinetic rate for these reactions: {}\n. Missing values for: {}".format(unusableConstraints.keys(), unknownVals))
 
@@ -284,7 +284,7 @@ class EnzymeKinetics(object):
 		"""
 		# Check if all needed metabolite and enzyme concentrations are given
 		if not self.inputsChecked:
-			knownConstraints, unusableConstraints, unknownVals = self.checkKnownSubstratesAndEnzymes(metaboliteConcentrationsDict, enzymeConcentrationsDict, removeUnknowns=False)
+			knownConstraints, unusableConstraints, unknownVals = self.checkKnownSubstratesAndEnzymes(metaboliteConcentrationsDict, enzymeConcentrationsDict, enzymeNames={}, removeUnknowns=False)
 			if len(unusableConstraints) > 0:
 				raise Exception("Unable to compute kinetic rate for these reactions: {}\n. Missing values for: {}".format(unusableConstraints.keys(), unknownVals))
 

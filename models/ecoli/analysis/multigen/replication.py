@@ -24,6 +24,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		# Get all cells
 		allDir = ap.get_cells()
 
+		# noinspection PyTypeChecker
 		fig, axesList = plt.subplots(6, sharex = True)
 		fig.set_size_inches(11, 11)
 		for simDir in allDir:

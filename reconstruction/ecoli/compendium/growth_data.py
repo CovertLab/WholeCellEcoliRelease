@@ -26,10 +26,13 @@ class GrowthData(object):
 		self.TRNA_MASS_SUB_FRACTION = 0.146 # This is the fraction of RNA that is tRNA
 		self.MRNA_MASS_SUB_FRACTION = 0.041 # This is the fraction of RNA that is mRNA
 
-		self.dryMassParams, _ = curve_fit(exp2, self.tau_d, self._dryMass, p0 = (0, 0, 0, 0))
-		self.proteinMassParams, _ = curve_fit(exp2, self.tau_d, self._proteinMass, p0 = (0, 0, 0, 0))
-		self.rnaMassParams, _ = curve_fit(exp2, self.tau_d, self._rnaMass, p0 = (0, 0, 0, 0))
-		self.dnaMassParams, _ = curve_fit(exp2, self.tau_d, self._dnaMass, p0 = (0, 0, 0, 0))
+		# The type stub (just in PyCharm?) is wrong about curve_fit's arg p0.
+		# noinspection PyTypeChecker
+		p0 = (0, 0, 0, 0)  # type: float
+		self.dryMassParams, _ = curve_fit(exp2, self.tau_d, self._dryMass, p0=p0)
+		self.proteinMassParams, _ = curve_fit(exp2, self.tau_d, self._proteinMass, p0=p0)
+		self.rnaMassParams, _ = curve_fit(exp2, self.tau_d, self._rnaMass, p0=p0)
+		self.dnaMassParams, _ = curve_fit(exp2, self.tau_d, self._dnaMass, p0=p0)
 
 		self.chromMass = self._chromMass(kb)
 

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 External State
 
@@ -14,10 +12,10 @@ from __future__ import absolute_import, division, print_function
 class ExternalState(object):
 	""" External State """
 
-	_name = None
+	_name = 'ExternalState'
 
 	# Constructor
-	def __init__(self):
+	def __init__(self, *args, **kwargs):
 		# Reference to sim
 		self._sim = None
 

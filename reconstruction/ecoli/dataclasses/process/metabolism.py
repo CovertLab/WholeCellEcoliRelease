@@ -15,14 +15,14 @@ from __future__ import absolute_import, division, print_function
 
 from copy import copy
 import re
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, cast, Dict, Iterable, List, Optional, Set, Tuple, Union
 
 import numpy as np
 import sympy as sp
 from sympy.parsing.sympy_parser import parse_expr
 
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
-# NOTE: Importing SimulationDataEcoli would make a circular reference.
+# NOTE: Importing SimulationDataEcoli would make a circular reference so use Any.
 #from reconstruction.ecoli.simulation_data import SimulationDataEcoli
 from wholecell.utils import units
 
@@ -383,7 +383,7 @@ class Metabolism(object):
 			]
 
 	def getKineticConstraints(self, enzymes, substrates):
-		# type: (np.ndarray[float], np.ndarray[float]) -> np.ndarray[float]
+		# type: (np.ndarray, np.ndarray) -> np.ndarray
 		'''
 		Allows for dynamic code generation for kinetic constraint calculation
 		for use in Metabolism process. Inputs should be unitless but the order
@@ -536,7 +536,7 @@ class Metabolism(object):
 
 	@staticmethod
 	def extract_reactions(raw_data, sim_data):
-		# type: (KnowledgeBaseEcoli, Any) -> (Dict[str, Dict[str, int]], List[str], Dict[str, List[str]])
+		# type: (KnowledgeBaseEcoli, Any) -> Tuple[Dict[str, Dict[str, int]], List[str], Dict[str, List[str]]]
 		"""
 		Extracts reaction data from raw_data to build metabolism reaction
 		network with stoichiometry, reversibility and enzyme catalysts.
@@ -561,7 +561,7 @@ class Metabolism(object):
 		reaction_catalysts = {}
 
 		# Load and parse reaction information from raw_data
-		for reaction in raw_data.reactions:
+		for reaction in cast(Any, raw_data).reactions:
 			reaction_id = reaction["reaction id"]
 			stoich = reaction["stoichiometry"]
 			reversible = reaction["is reversible"]
@@ -670,17 +670,17 @@ class Metabolism(object):
 			reverse = direction == 'reverse'
 		else:
 			s = {k[:-3]: v for k, v in stoich.get(rxn, {}).items()}
-			direction = np.unique(np.sign([
+			direction_ = np.unique(np.sign([
 				s.get(class_mets.get(m, m), 0) for m in mets]))
-			if len(direction) == 0 and not reverse_rxn_exists:
+			if len(direction_) == 0 and not reverse_rxn_exists:
 				reverse = False
-			elif len(direction) != 1 or direction[0] == 0:
+			elif len(direction_) != 1 or direction_[0] == 0:
 				if VERBOSE:
 					print('Conflicting directionality: {} {} {}'.format(
-						rxn, mets, direction))
+						rxn, mets, direction_))
 				return None
 			else:
-				reverse = direction[0] > 0
+				reverse = direction_[0] > 0
 
 		# Verify a reverse reaction exists in the model
 		if reverse:
@@ -694,8 +694,8 @@ class Metabolism(object):
 		return rxn
 
 	@staticmethod
-	def temperature_adjusted_kcat(kcat, temp):
-		# type: (units.Unum, float) -> np.ndarray[float]
+	def temperature_adjusted_kcat(kcat, temp=''):
+		# type: (units.Unum, Union[float, str]) -> np.ndarray
 		"""
 		Args:
 			kcat: enzyme turnover number(s) (1 / time)
@@ -705,13 +705,13 @@ class Metabolism(object):
 			temperature adjusted kcat values, in units of 1/s
 		"""
 
-		if temp == '':
+		if isinstance(temp, str):
 			temp = 25
 		return 2**((37. - temp) / 10.) * kcat.asNumber(1 / units.s)
 
 	@staticmethod
 	def _construct_default_saturation_equation(mets, kms, kis, known_mets):
-		# type: (List[str], List[float], List[float], List[str]) -> str
+		# type: (List[str], List[float], List[float], Iterable[str]) -> str
 		"""
 		Args:
 			mets: metabolite IDs with location tag for KM and KI
@@ -761,7 +761,7 @@ class Metabolism(object):
 
 	@staticmethod
 	def _extract_custom_constraint(constraint, reactant_tags, product_tags, known_mets):
-		# type: (Dict[str, Any], Dict[str, str], Dict[str, str], Set[str]) -> (Optional[np.ndarray[float]], List[str])
+		# type: (Dict[str, Any], Dict[str, str], Dict[str, str], Set[str]) -> Tuple[Optional[np.ndarray], List[str]]
 		"""
 		Args:
 			constraint: values defining a kinetic constraint with key:
@@ -884,7 +884,7 @@ class Metabolism(object):
 	@staticmethod
 	def extract_kinetic_constraints(raw_data, sim_data, stoich=None,
 			catalysts=None, known_metabolites=None):
-		# type: (KnowledgeBaseEcoli, Any, Optional[Dict[str, Dict[str, int]]], Optional[Dict[str, List[str]]], Optional[Set[str]]) -> Dict[(str, str), Dict[str, List[Any]]]
+		# type: (KnowledgeBaseEcoli, Any, Optional[Dict[str, Dict[str, int]]], Optional[Dict[str, List[str]]], Optional[Set[str]]) -> Dict[Tuple[str, str], Dict[str, List[Any]]]
 		"""
 		Load and parse kinetic constraint information from raw_data
 
@@ -917,11 +917,10 @@ class Metabolism(object):
 			if catalysts is None:
 				catalysts = loaded_catalysts
 
-		if known_metabolites is None:
-			known_metabolites = set()
+		known_metabolites_ = set() if known_metabolites is None else known_metabolites
 
-		constraints = {}
-		for constraint in raw_data.metabolism_kinetics:
+		constraints = {}  # type: Dict[Tuple[str, str], Dict[str, list]]
+		for constraint in cast(Any, raw_data).metabolism_kinetics:
 			rxn = constraint['reactionID']
 			enzyme = constraint['enzymeID']
 			metabolites = constraint['substrateIDs']
@@ -948,7 +947,7 @@ class Metabolism(object):
 			reactant_tags = {k[:-3]: k for k, v in stoich[matched_rxn].items() if v < 0}
 			product_tags = {k[:-3]: k for k, v in stoich[matched_rxn].items() if v > 0}
 			mets_with_tag = [
-				reactant_tags.get(met, product_tags.get(met, None))
+				reactant_tags.get(met, product_tags.get(met, ''))
 				for met in metabolites
 				if met in reactant_tags or met in product_tags
 			]
@@ -961,7 +960,7 @@ class Metabolism(object):
 			# Extract kcat and saturation parameters
 			if constraint['rateEquationType'] == 'custom':
 				kcats, saturation = Metabolism._extract_custom_constraint(
-					constraint, reactant_tags, product_tags, known_metabolites)
+					constraint, reactant_tags, product_tags, known_metabolites_)
 				if kcats is None:
 					continue
 			else:
@@ -975,13 +974,13 @@ class Metabolism(object):
 
 					saturation = [
 						Metabolism._construct_default_saturation_equation(
-							[m], [km], [], known_metabolites)
+							[m], [km], [], known_metabolites_)
 						for m, km in zip(mets_with_tag, kms)
 					]
 				else:
 					saturation = [
 						Metabolism._construct_default_saturation_equation(
-							mets_with_tag, kms, kis, known_metabolites)
+							mets_with_tag, kms, kis, known_metabolites_)
 					]
 
 				saturation = [s for s in saturation if s != '1']
@@ -997,7 +996,7 @@ class Metabolism(object):
 
 	@staticmethod
 	def _replace_enzyme_reactions(constraints, stoich, rxn_catalysts, reversible_rxns):
-		# type: (Dict[(str, str), Dict[str, List[Any]]], Dict[str, Dict[str, int]], Dict[str, List[str]], List[str]) -> (Dict[str, Any], Dict[str, Dict[str, int]], Dict[str, List[str]], List[str])
+		# type: (Dict[Tuple[str, str], Dict[str, List[Any]]], Dict[str, Dict[str, int]], Dict[str, List[str]], List[str]) -> Tuple[Dict[str, Any], Dict[str, Dict[str, int]], Dict[str, List[str]], List[str]]
 		"""
 		Modifies reaction IDs in data structures to duplicate reactions with
 		kinetic constraints and multiple enzymes.
@@ -1068,13 +1067,14 @@ class Metabolism(object):
 			else:
 				new_rxn = rxn
 
+			# noinspection PyTypeChecker
 			new_constraints[new_rxn] = dict(constraints[(rxn, enzyme)], enzyme=enzyme)
 
 		return new_constraints, stoich, rxn_catalysts, reversible_rxns
 
 	@staticmethod
 	def _lambdify_constraints(constraints):
-		# type: (Dict[str, Any]) -> (List[str], List[str], List[str], np.ndarray[float], str, str, np.ndarray[bool])
+		# type: (Dict[str, Any]) -> Tuple[List[str], List[str], List[str], np.ndarray, str, str, np.ndarray]
 		"""
 		Creates str representations of kinetic terms to be used to create
 		kinetic constraints that are returned with getKineticConstraints().

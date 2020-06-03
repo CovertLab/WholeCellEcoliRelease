@@ -26,7 +26,7 @@ import time
 import urllib
 
 import numpy as np
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
 
 
 # Directories
@@ -200,7 +200,7 @@ def park_concentrations():
 	return kegg_to_ecocyc(met_conc)
 
 def load_kochanowski(filename):
-	# type: (str) -> (Dict[str, np.ndarray[float]], np.ndarray[str])
+	# type: (str) -> Tuple[Dict[str, np.ndarray], np.ndarray]
 	"""
 	Load Kochanowski data (absolute or relative).
 

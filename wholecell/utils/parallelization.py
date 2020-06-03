@@ -8,7 +8,7 @@ import os
 import sys
 import traceback
 
-from typing import Any, Callable, Dict, Iterable, List, Optional
+from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 
 
 def full_traceback(func):
@@ -119,7 +119,7 @@ def cpus(requested_num_processes=None, **kwargs):
 
 
 def pool(num_processes=None):
-	# type: (Optional[int]) -> mp.pool.Pool
+	# type: (Optional[int]) -> Union[mp.pool.Pool, InlinePool]
 	"""Return an `InlinePool` if `cpus(num_processes) == 1`, else a
 	`multiprocessing.Pool(cpus(num_processes))`, as suitable for the current
 	runtime environment. See `cpus()` on figuring the number of usable

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 TranscriptElongation
 
@@ -13,7 +11,7 @@ TODO:
 @date: Created 4/26/14
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 

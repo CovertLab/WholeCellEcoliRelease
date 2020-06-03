@@ -27,6 +27,7 @@ class Test_unit_struct_array(unittest.TestCase):
 			Exception,
 			'^UnitStructArray must be initialized with a numpy array!\n$',
 		):
+			# noinspection PyTypeChecker
 			UnitStructArray(1., {'hello': 'goodbye'})
 
 		with self.assertRaisesRegexp(
@@ -34,6 +35,7 @@ class Test_unit_struct_array(unittest.TestCase):
 			'^UnitStructArray must be initialized with a dict storing '
 			'units!\n$',
 		):
+			# noinspection PyTypeChecker
 			UnitStructArray(self.struct_array, 'foo')
 
 		with self.assertRaisesRegexp(

@@ -9,6 +9,7 @@ from __future__ import absolute_import, division, print_function
 class NetworkFlowProblemBase(object):
 	_maximize = True
 	quadratic_objective = False
+	inf = float('inf')
 
 	def setFlowMaterialCoeff(self, flow, material, coefficient):
 		raise NotImplementedError()
@@ -57,3 +58,6 @@ class NetworkFlowProblemBase(object):
 
 	def maximizeObjective(self, doMax):
 		self._maximize = doMax
+
+	def _solve(self):
+		raise NotImplementedError()

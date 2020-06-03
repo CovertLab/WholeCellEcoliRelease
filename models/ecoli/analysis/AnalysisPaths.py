@@ -9,7 +9,7 @@ from os import listdir
 from os.path import isdir, join
 from re import match, findall
 from itertools import chain
-from typing import List, Optional
+from typing import List
 import numpy as np
 
 from wholecell.utils import constants
@@ -154,21 +154,21 @@ class AnalysisPaths(object):
 		return sorted(np.unique(self._path_data["variant"]))
 
 	def _get_generations(self, directory):
-		# type: (str) -> List[Optional[List[str]]]
+		# type: (str) -> List[List[str]]
 		generation_files = [
 			join(directory, f) for f in listdir(directory)
 			if isdir(join(directory, f)) and "generation" in f]  # type: List[str]
-		generations = [None] * len(generation_files)  # type: List[Optional[List[str]]]
+		generations = [[] for _ in generation_files]  # type: List[List[str]]
 		for gen_file in generation_files:
 			generations[int(gen_file[gen_file.rfind('_') + 1:])] = self._get_individuals(gen_file)
 		return generations
 
 	def _get_individuals(self, directory):
-		# type: (str) -> List[Optional[str]]
+		# type: (str) -> List[str]
 		individual_files = [
 			join(directory, f) for f in listdir(directory)
 			if isdir(join(directory, f))]  # type: List[str]
-		individuals = [None] * len(individual_files)  # type: List[Optional[str]]
+		individuals = [''] * len(individual_files)  # type: List[str]
 		for ind_file in individual_files:
 			individuals[int(ind_file[ind_file.rfind('/') + 1:])] = ind_file
 		return individuals

@@ -88,6 +88,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			print("Error: %s" % exc)
 			return
 
+		# noinspection PyTypeChecker
 		fig, axesList = plt.subplots(ncols = 2, nrows = 2, sharex = True)
 		expProtein_axis = axesList[0,0]
 		expRna_axis = axesList[1,0]

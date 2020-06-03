@@ -10,8 +10,9 @@ from __future__ import absolute_import, division, print_function
 import argparse
 import os
 import sys
+from typing import Any, Dict, Optional
 
-from typing import Any, Dict
+from models.ecoli.analysis.analysisPlot import AnalysisPlot
 from wholecell.utils import constants, data, scriptBase, parallelization, filepath
 
 
@@ -27,13 +28,15 @@ class AnalysisBase(scriptBase.ScriptBase):
 	OUTPUT_SUBDIR = 'plotOut'  # recommended
 
 	def __init__(self, analysis_plotter=None):
-		"""Instantiate with an optional AnalysisPlot to run (this only uses its
-		filename, not the instance), otherwise run all ACTIVE AnalysisPlots in
-		the subclass' category.
+		# type: (Optional[AnalysisPlot]) -> None
+		"""Instantiate with an optional specific AnalysisPlot to run (this only
+		uses its filename, not the instance), otherwise add the -p option to
+		name the plots in the subclass' category to run, defaulting to the CORE
+		list.
 		"""
 		super(AnalysisBase, self).__init__()
 
-		self.plot_name = None
+		self.plot_name = ''  # falsy => add_argument('-p')
 		if analysis_plotter:
 			module = sys.modules[type(analysis_plotter).__module__]
 			self.plot_name = os.path.basename(module.__file__)
@@ -113,7 +116,8 @@ class TestAnalysis(AnalysisBase):
 	"""To test out the command line parser."""
 
 	def __init__(self):
-		super(TestAnalysis, self).__init__(analysis_plotter=self)
+		self.plot = AnalysisPlot()
+		super(TestAnalysis, self).__init__(analysis_plotter=self.plot)
 
 	def run(self, analysis_args):
 		print("[TEST] Analysis args:", analysis_args)

@@ -9,10 +9,9 @@ from __future__ import absolute_import, division, print_function
 
 import os
 import csv
-from reconstruction.spreadsheets import JsonReader
 import json
-from itertools import ifilter
 
+from reconstruction.spreadsheets import read_tsv
 from wholecell.utils import units  # used by eval()
 
 CSV_DIALECT = csv.excel_tab
@@ -117,11 +116,8 @@ class KnowledgeBaseEcoli(object):
 		attrName = file_name.split(os.path.sep)[-1].split(".")[0]
 		setattr(path, attrName, [])
 
-		with open(file_name, 'rU') as csvfile:
-			reader = JsonReader(
-				ifilter(lambda x: x.lstrip()[0] != "#", csvfile), # Strip comments
-				dialect = CSV_DIALECT)
-			setattr(path, attrName, [row for row in reader])
+		rows = read_tsv(file_name)
+		setattr(path, attrName, rows)
 
 	def _load_sequence(self, file_path):
 		from Bio import SeqIO

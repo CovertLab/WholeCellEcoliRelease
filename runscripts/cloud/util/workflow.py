@@ -13,9 +13,11 @@ import posixpath
 import re
 import sys
 if os.name == 'posix' and sys.version_info[0] < 3:
-	import subprocess32 as subprocess
+	import subprocess32 as subprocess2
+	subprocess = subprocess2
 else:
-	import subprocess
+	import subprocess as subprocess3
+	subprocess = subprocess3
 from typing import Any, Callable, Dict, Iterable, List, Optional, Set
 
 from borealis import gce
@@ -378,7 +380,7 @@ class Workflow(object):
 	def build_fireworks(self):
 		# type: () -> List[Firework]
 		"""Build all the FireWorks `Firework` objects for the workflow."""
-		built = OrderedDict()
+		built = OrderedDict()  # type: Dict[str, Firework]
 
 		for task in self._tasks.itervalues():
 			self._build_firework(task, built)

@@ -6,7 +6,7 @@ Plot usage statistics of ribosomes
 @date: Created 10/18/2017
 """
 
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, print_function
 
 import os
 import cPickle

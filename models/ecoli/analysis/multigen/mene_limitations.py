@@ -253,8 +253,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 					simOutDir, (enzymeIds, metaboliteIds[:1], reactantIds))
 
 				fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
-				reactionIDs = np.array(fbaResults.readAttribute("reactionIDs")).tolist()
-				reactionIndexes = [reactionIDs.index(x) for x in reactionIds]
+				reactionIDs_ = np.array(fbaResults.readAttribute("reactionIDs")).tolist()  # type: list
+				reactionIndexes = [reactionIDs_.index(x) for x in reactionIds]
 				reactionFluxes = np.array(fbaResults.readColumn("reactionFluxes"))
 				enzymeFluxes = reactionFluxes[:, reactionIndexes]
 				fbaResults.close()

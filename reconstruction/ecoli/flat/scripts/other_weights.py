@@ -10,17 +10,15 @@ should be idempotent (i.e. no change if called more than once)
 from __future__ import absolute_import, division, print_function
 
 import os
-from functools import partial
 from collections import OrderedDict
 
 import numpy as np
 
-from reconstruction import spreadsheets
+from reconstruction.spreadsheets import JsonWriter, JsonReader, read_tsv
 
 def flip_dict(dct):
 	return {value:key for key, value in dct.viewitems()}
 
-DIALECT = "excel-tab"
 KEY = "id"
 
 FLAT_DIR = os.path.join("reconstruction", "ecoli", "flat")
@@ -214,9 +212,6 @@ N_MW = len(MW_KEYS)
 
 COMPARTMENTS = ["n", "j", "w", "c", "e", "m", "o", "p", "l", "i"] # TODO: also to flat file
 
-JsonReader = partial(spreadsheets.JsonReader, dialect = DIALECT)
-JsonWriter = partial(spreadsheets.JsonWriter, dialect = DIALECT)
-
 def load_ids(id_file):
 	return [s.strip() for s in open(id_file) if s.strip()]
 
@@ -238,8 +233,8 @@ ntp_ids = load_ids(NTPS_FILE)
 dntp_ids = load_ids(DNTPS_FILE)
 aa_ids = load_ids(AAS_FILE)
 
-met = lod_to_dod(JsonReader(open(MET_FILE)), KEY)
-water = lod_to_dod(JsonReader(open(WATER_FILE)), KEY)
+met = lod_to_dod(read_tsv(MET_FILE), KEY)
+water = lod_to_dod(read_tsv(WATER_FILE), KEY)
 
 # RNA: NTP - diphosphate = polymerized nucleotide (consistent w/ process)
 # DNA: same as RNA

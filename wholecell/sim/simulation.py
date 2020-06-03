@@ -13,8 +13,7 @@ import os.path
 import shutil
 import time
 import uuid
-import lens
-from lens.actor.emitter import get_emitter
+from typing import Callable, Sequence, Tuple
 
 import numpy as np
 
@@ -23,6 +22,9 @@ from wholecell.utils import filepath
 
 import wholecell.loggers.shell
 import wholecell.loggers.disk
+
+import lens
+from lens.actor.emitter import get_emitter
 
 MAX_TIME_STEP = 2.
 DEFAULT_SIMULATION_KWARGS = dict(
@@ -81,10 +83,10 @@ class Simulation(lens.actor.inner.Simulation):
 		)
 
 	# Attributes that may be optionally overwritten by a subclass
-	_listenerClasses = ()
-	_hookClasses = ()
+	_listenerClasses = ()  # type: Tuple[Callable, ...]
+	_hookClasses = ()  # type: Sequence[Callable]
 	_timeStepSec = MAX_TIME_STEP
-	_shellColumnHeaders = ("Time (s)",)
+	_shellColumnHeaders = ("Time (s)",)  # type: Sequence[str]
 
 	# Constructors
 	def __init__(self, **kwargs):
@@ -97,9 +99,8 @@ class Simulation(lens.actor.inner.Simulation):
 		for listenerClass in DEFAULT_LISTENER_CLASSES:
 			if listenerClass in self._listenerClasses:
 				raise SimulationException("The {} listener is included by"
-					+ " default in the Simulation class.".format(
-						listenerClass.name())
-					)
+					" default in the Simulation class.".format(
+					listenerClass.name()))
 
 		# Set instance attributes
 		for attrName, value in DEFAULT_SIMULATION_KWARGS.viewitems():

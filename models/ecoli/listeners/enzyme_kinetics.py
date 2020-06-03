@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 EnzymeKinetics
 
@@ -8,7 +6,7 @@ EnzymeKinetics listener. Tracks information about enzyme kinetics.
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
@@ -48,8 +46,8 @@ class EnzymeKinetics(wholecell.listeners.listener.Listener):
 		self.enzymeCountsInit = np.zeros(len(self.metabolism.kinetic_constraint_enzymes), np.float64)
 		self.countsToMolar = np.zeros(1, np.float64)
 		self.targetFluxes = np.zeros(self.n_constrained_reactions, np.float64)
-                self.targetFluxesUpper = np.zeros(self.n_constrained_reactions, np.float64)
-                self.targetFluxesLower = np.zeros(self.n_constrained_reactions, np.float64)
+		self.targetFluxesUpper = np.zeros(self.n_constrained_reactions, np.float64)
+		self.targetFluxesLower = np.zeros(self.n_constrained_reactions, np.float64)
 		self.actualFluxes = np.zeros(self.n_constrained_reactions, np.float64)
 
 	def update(self):

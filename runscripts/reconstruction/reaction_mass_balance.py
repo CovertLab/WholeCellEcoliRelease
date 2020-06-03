@@ -1,12 +1,14 @@
 from __future__ import absolute_import, division, print_function
 
+from typing import Any
+
 THRESHOLD = 1e-9
 
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 
 import numpy as np
 
-kb = KnowledgeBaseEcoli()
+kb = KnowledgeBaseEcoli()  # type: Any  # "KnowledgeBaseEcoli" has no attribute "process" et al
 
 S = kb.process.metabolism.stoichMatrix()
 

@@ -88,17 +88,27 @@ enzymeKcats = {
 	"Eres":.2,
 }
 
-def checkErrors(targetFluxes, fixedReactionNames=["v_biomass"], reactionStoichiometry=toyModelReactionStoichWithBiomass, transportLimits=transportLimits):
+def checkErrors(
+		targetFluxes,
+		fixedReactionNames=None,
+		reactionStoichiometry=None,
+		transportLimits_=None):
+	if fixedReactionNames is None:
+		fixedReactionNames = ["v_biomass"]
+	if reactionStoichiometry is None:
+		reactionStoichiometry = toyModelReactionStoichWithBiomass
+	if transportLimits_ is None:
+		transportLimits_ = transportLimits
+
 	fba_moma = FluxBalanceAnalysis(
 		reactionStoich=reactionStoichiometry,
-		externalExchangedMolecules=transportLimits.keys(),
+		externalExchangedMolecules=transportLimits_.keys(),
 		objective=targetFluxes,
 		objectiveType="moma",
 		objectiveParameters={"fixedReactionNames":fixedReactionNames, "normalizeFluxes":True},
-		solver="glpk",
-	)
+		solver="glpk")
 	exchangeMolecules = fba_moma.getExternalMoleculeIDs()
-	fba_moma.setExternalMoleculeLevels([transportLimits[molID] for molID in exchangeMolecules])
+	fba_moma.setExternalMoleculeLevels([transportLimits_[molID] for molID in exchangeMolecules])
 	return fba_moma.errorFluxes(), fba_moma.errorAdjustedReactionFluxes()
 
 fba = FluxBalanceAnalysis(

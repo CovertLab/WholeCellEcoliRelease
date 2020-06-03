@@ -11,7 +11,7 @@ import csv
 import os
 
 import numpy as np
-from typing import Dict, List, Tuple
+from typing import Any, Dict, Iterable, List, Tuple
 
 from reconstruction.spreadsheets import JsonWriter
 
@@ -25,11 +25,11 @@ OUTPUT_FILE = os.path.join(FILE_LOCATION, 'updated_fold_changes.tsv')
 
 
 def load_file(filename):
-	# type: (str) -> List[str]
+	# type: (str) -> List[List[str]]
 	"""Load a tsv file."""
 
 	with open(filename) as f:
-		reader = csv.reader(f, delimiter='\t')
+		reader = csv.reader(f, delimiter='\t')  # type: Iterable
 		return list(reader)
 
 def load_src(attempt_match):
@@ -50,7 +50,7 @@ def load_src(attempt_match):
 	shifts = load_shifts()
 
 	# Extract fold changes from data
-	data = {}
+	data = {}  # type: Dict[str, Dict[str, List[float]]]
 	for line in raw_data:
 		# Columns of interest
 		condition = (line[4], line[5])
@@ -72,8 +72,8 @@ def load_src(attempt_match):
 			if attempt_match:
 				fcs = np.abs(fcs)  # Bad!! - ignores annotated condition comparison regulation direction
 			tf_data[gene] = {
-				'mean': np.mean(fcs),
-				'std': np.std(fcs, ddof=1),
+				'mean': float(np.mean(fcs)),
+				'std': float(np.std(fcs, ddof=1)),
 				}
 		processed_data[tf] = tf_data
 
@@ -96,7 +96,7 @@ def load_wcm(attempt_match):
 	raw_data = load_file(WCM_FILE)[1:]
 
 	# Extract mean and std from data
-	data = {}
+	data = {}  # type: Dict[str, Dict[str, Dict[str, Any]]]
 	for line in raw_data:
 		if line[0].startswith('#'):
 			continue
@@ -109,7 +109,7 @@ def load_wcm(attempt_match):
 		if attempt_match:
 			sign = 1
 		else:
-			sign = np.sign(float(line[5]))
+			sign = int(np.sign(float(line[5])))
 
 		uncertain = float(line[5]) > 2
 
@@ -141,7 +141,7 @@ def load_shifts():
 	for line in load_file(SHIFTS_FILE):
 		condition = (line[1], line[2])
 
-		gene_dir = {genes[np.abs(int(v))]: np.sign(int(v)) for v in line[12:26] if v != '0'}
+		gene_dir = {genes[np.abs(int(v))]: int(np.sign(int(v))) for v in line[12:26] if v != '0'}
 		shifts[condition] = gene_dir
 
 	return shifts
@@ -229,7 +229,7 @@ def replace_uncertain_entries(data):
 	headers = raw_data[0]
 
 	with open(OUTPUT_FILE, 'w') as f:
-		writer = JsonWriter(f, headers, dialect=csv.excel_tab)
+		writer = JsonWriter(f, headers)
 		writer.writeheader()
 
 		# Check each fold change and update if needed
@@ -243,16 +243,16 @@ def replace_uncertain_entries(data):
 				entry = data.get(tf, {}).get(gene, {})
 				mean = entry.get('mean', 0)
 				std = entry.get('std', 0)
-				new_direction = np.sign(mean)
+				new_direction = int(np.sign(mean))
 				if new_direction * direction < 0:  # both have opposite signs
 					line[2] = '{:.2f}'.format(np.abs(mean))
 					line[3] = '{:.2f}'.format(std)
 					line[5] = '{:.0f}'.format(new_direction)
 
 			# Write updated lines to file
-			line = [tf, gene, float(line[2]), float(line[3]), float(line[4]),
+			row = [tf, gene, float(line[2]), float(line[3]), float(line[4]),
 				int(line[5]), int(line[6]), int(line[7]), float(line[8])]
-			d = {header: value for header, value in zip(headers, line)}
+			d = {header: value for header, value in zip(headers, row)}
 			writer.writerow(d)
 
 def parse_args():

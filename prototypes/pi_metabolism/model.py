@@ -169,6 +169,7 @@ def simulate(
 
 	# Plot
 
+	# noinspection PyTypeChecker
 	(fig, axes) = plt.subplots(
 		figsize = (10, 5),
 		ncols = 2,

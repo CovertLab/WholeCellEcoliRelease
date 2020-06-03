@@ -93,15 +93,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		fba_results.close()
 		return reaction_ids, reaction_fluxes
 
-	def do_plot(
-			self,
-			simOutDir,  # type: str
-			plotOutDir,  # type: str
-			plotOutFileName,  # type: str
-			simDataFile,  # type: str
-			validationDataFile,  # type: str
-			metadata  # type: Optional[dict]
-		):  # type: (...) -> None
+	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile,
+			validationDataFile, metadata):
+		# type: (str, str, str, str, str, Optional[dict]) -> None
 		reaction_ids, reaction_fluxes = Plot.load_fba_data(simOutDir)
 		toya_reactions, toya_fluxes, toya_stdevs = Plot.load_toya_data(
 			validationDataFile, simDataFile, simOutDir)

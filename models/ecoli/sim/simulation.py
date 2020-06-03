@@ -104,7 +104,7 @@ class EcoliSimulation(Simulation):
 	_divideCellFunction = divide_cell
 
 	_logToShell = True
-	_shellColumnHeaders = [
+	_shellColumnHeaders = (
 		"Time (s)",
 		"Dry mass (fg)",
 		"Dry mass fold change",
@@ -112,7 +112,7 @@ class EcoliSimulation(Simulation):
 		"RNA fold change",
 		"Small mol fold change",
 		"Expected fold change"
-		]
+		)
 
 	_logToDisk = False
 

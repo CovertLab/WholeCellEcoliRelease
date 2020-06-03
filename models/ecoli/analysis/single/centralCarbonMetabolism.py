@@ -83,7 +83,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		ax = plt.subplot(8,4, idx+2)
 		ax.plot(0, 0, linewidth=2, label="Zero flux after initial {} time steps".format(BURN_IN_TIMESTEPS), color=NO_FLUX_COLOR)
-		ax.plot(0, 0, linewidth=2, label="Nonzero flux".format(BURN_IN_TIMESTEPS), color=WITH_FLUX_COLOR)
+		ax.plot(0, 0, linewidth=2, label="Nonzero flux", color=WITH_FLUX_COLOR)
 		ax.plot(0, 0, linewidth=1, label="Toya 2010 observed flux", color=AVERAGE_COLOR)
 		ax.plot(0, 0, linewidth=1, label="Toya 2010 observed flux - opposite sign", color=AVERAGE_COLOR_OPPOSITE_SIGN)
 		ax.legend(loc = 10)

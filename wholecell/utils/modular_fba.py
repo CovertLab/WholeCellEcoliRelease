@@ -7,9 +7,12 @@
 from __future__ import absolute_import, division, print_function
 
 from itertools import izip
+from typing import Dict, Type
 import warnings
 
 import numpy as np
+
+from wholecell.utils._netflow._base import NetworkFlowProblemBase
 
 NUMERICAL_ZERO = 1e-20
 
@@ -30,7 +33,7 @@ QUADRATIC = {
 	S_GLPK: False,
 	}
 
-SOLVERS = {}
+SOLVERS = {}  # type: Dict[str, Type[NetworkFlowProblemBase]]
 try:
 	from ._netflow.nf_cplex import NetworkFlowCPLEX
 except ImportError:
@@ -83,6 +86,7 @@ class SolverUnavailableError(FBAError):
 # Classes
 
 
+# noinspection PyArgumentList
 class FluxBalanceAnalysis(object):
 	""" FluxBalanceAnalysis
 	Solver for various FBA implementations.

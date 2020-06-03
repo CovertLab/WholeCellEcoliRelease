@@ -25,7 +25,7 @@ OUTPUT_FILE = "TFoutput.tsv"
 reactionDict = {}
 with open(DATA_FILE, "rU") as csvfile:
 	reader = csv.DictReader(csvfile, dialect = CSV_DIALECT)
-	for row in reader:
+	for row in reader:  # type: Dict[str, Any]
 		if row["<Kd> (uM)"] != '' and row["<Kd> (uM)"] != '?':
 			for reaction in row["EcoCyc ID reaction (metabolite vs. TF)"].split(", "):
 				reactionDict[reaction] = float(row["<Kd> (uM)"]) / 10**6
@@ -37,18 +37,18 @@ with open(REACTION_FILE, "rU") as infile:
 		quoteDialect.quotechar = "'"
 		quoteDialect.quoting = csv.QUOTE_NONNUMERIC
 
-		fieldnames = list(reader.fieldnames)
+		fieldnames = list(reader.fieldnames or [])
 		fieldnames.append("original reverse rate")
 		writer = csv.DictWriter(outfile, fieldnames=fieldnames, dialect=quoteDialect)
 		writer.writeheader()
 
-		for row in reader:  # type: Dict[str, Any]
-			row["dir"] = float(row["dir"])
-			row["forward rate"] = float(row["forward rate"])
-			row["reverse rate"] = float(row["reverse rate"])
-			row["stoichiometry"] = np.array(row["stoichiometry"])
-			if row["id"] in reactionDict.keys():
-				row["reverse rate"] = reactionDict[row["id"]]
-			row["original reverse rate"] = row["reverse rate"]
+		for row1 in reader:  # type: Dict[str, Any]
+			row1["dir"] = float(row1["dir"])
+			row1["forward rate"] = float(row1["forward rate"])
+			row1["reverse rate"] = float(row1["reverse rate"])
+			row1["stoichiometry"] = np.array(row1["stoichiometry"])
+			if row1["id"] in reactionDict.keys():
+				row1["reverse rate"] = reactionDict[row1["id"]]
+			row1["original reverse rate"] = row1["reverse rate"]
 
-			writer.writerow(row)
+			writer.writerow(row1)

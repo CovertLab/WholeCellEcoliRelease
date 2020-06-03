@@ -9,7 +9,6 @@ import unittest
 import mock
 import numpy as np
 
-from wholecell.io.tablereader import TableReader
 from models.ecoli.analysis.single.centralCarbonMetabolismScatter import (
 	FLUX_UNITS)
 from wholecell.utils import units

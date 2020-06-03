@@ -1,4 +1,4 @@
-from __future__ import division, absolute_import, print_function
+from __future__ import absolute_import, division, print_function
 
 from matplotlib import pyplot as plt
 import numpy as np
@@ -22,6 +22,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			if n_cells > max_cells_in_gen:
 				max_cells_in_gen = n_cells
 
+		# noinspection PyTypeChecker
 		fig, axesList = plt.subplots(ap.n_generation,
 			sharey=True, sharex=True, figsize=(6, 3*ap.n_generation))
 

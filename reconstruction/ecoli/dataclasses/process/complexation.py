@@ -6,7 +6,7 @@ SimulationData for the Complexation process
 @date: Created 01/23/2015
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 from wholecell.utils import units

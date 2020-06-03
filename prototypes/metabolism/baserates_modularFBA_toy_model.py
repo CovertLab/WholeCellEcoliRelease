@@ -6,7 +6,7 @@ from wholecell.utils.modular_fba import FluxBalanceAnalysis
 
 KCAT_MAX = 1.4e6
 
-toyModelReactionStoich = {
+TOY_MODEL_REACTION_STOICH = {
 	"R1": {"A":-1, "ATP":-1, "B":1},
 	"R2a": {"B":-1, "ATP":2, "NADH":2, "C":1},
 	"R2b": {"C":-1, "ATP":-2, "NADH":-2, "B":1},
@@ -20,11 +20,11 @@ toyModelReactionStoich = {
 	"Rres": {"NADH":-1, "O2":-1, "ATP":1},
 }
 
-biomassReactionStoich = {
+BIOMASS_REACTION_STOICH = {
 	"v_biomass": {"C":1, "F":1, "H":1, "ATP":10}
 }
 
-transportLimits = {
+TRANSPORT_LIMITS = {
 	"A": 21.,
 	"F": 5.0,
 	"D": -12.0,
@@ -33,7 +33,7 @@ transportLimits = {
 	"O2": 15.0,
 }
 
-reactionEnzymes = {
+REACTION_ENZYMES = {
 	"R1":"E1",
 	"R2a":"E2a",
 	"R2b":"E2b",
@@ -47,7 +47,7 @@ reactionEnzymes = {
 	"Rres":"Eres",
 }
 
-enzymeConcentrations = {
+ENZYME_CONCENTRATIONS = {
 	"E1":10.0,
 	"E2a":10.0,
 	"E2b":10.0,
@@ -62,14 +62,29 @@ enzymeConcentrations = {
 }
 
 
-def testModel(toyModelReactionStoich=toyModelReactionStoich, biomassReactionStoich=biomassReactionStoich, transportLimits=transportLimits, reactionEnzymes=reactionEnzymes, enzymeConcentrations=enzymeConcentrations):
+def testModel(
+		toyModelReactionStoich=None,
+		biomassReactionStoich=None,
+		transportLimits=None,
+		reactionEnzymes=None,
+		enzymeConcentrations=None):
+	if toyModelReactionStoich is None:
+		toyModelReactionStoich = TOY_MODEL_REACTION_STOICH
+	if biomassReactionStoich is None:
+		biomassReactionStoich = BIOMASS_REACTION_STOICH
+	if transportLimits is None:
+		transportLimits = TRANSPORT_LIMITS
+	if reactionEnzymes is None:
+		reactionEnzymes = REACTION_ENZYMES
+	if enzymeConcentrations is None:
+		enzymeConcentrations = ENZYME_CONCENTRATIONS
+
 	fba = FluxBalanceAnalysis(
 		reactionStoich=toyModelReactionStoich,
 		externalExchangedMolecules=transportLimits.keys(),
 		objective=biomassReactionStoich["v_biomass"],
 		objectiveType="standard",
-		solver="glpk",
-	)
+		solver="glpk")
 	exchangeMolecules = fba.getExternalMoleculeIDs()
 	fba.setExternalMoleculeLevels([transportLimits[molID] for molID in exchangeMolecules])
 
@@ -84,12 +99,12 @@ def testModel(toyModelReactionStoich=toyModelReactionStoich, biomassReactionStoi
 unconstrainedFlux = testModel()
 
 biomassRatesDict = {}
-for enzymeID in enzymeConcentrations:
-	testConcentrations = enzymeConcentrations.copy()
+for enzymeID in ENZYME_CONCENTRATIONS:
+	testConcentrations = ENZYME_CONCENTRATIONS.copy()
 	testConcentrations[enzymeID] = 0.
 	rate = testModel(enzymeConcentrations=testConcentrations)
 	biomassRatesDict[enzymeID] = rate
-	for enzyme2ID in enzymeConcentrations:
+	for enzyme2ID in ENZYME_CONCENTRATIONS:
 		if enzymeID == enzyme2ID or '('+enzyme2ID + ',' + enzymeID+')' in biomassRatesDict:
 			continue
 		testConcentrations[enzyme2ID] = 0.

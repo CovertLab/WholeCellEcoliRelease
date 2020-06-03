@@ -167,6 +167,7 @@ class AnalysisBase(FiretaskBase):
 				results[f] = pool.apply_async(run_plot, args=(mod.Plot, args, f))
 			else:
 				print("{}: Running {}".format(time.ctime(), f))
+				# noinspection PyBroadException
 				try:
 					mod.Plot.main(*args)
 				except Exception:

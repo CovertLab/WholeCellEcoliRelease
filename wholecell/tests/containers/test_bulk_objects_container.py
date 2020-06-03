@@ -12,6 +12,7 @@ import cPickle
 import os
 import shutil
 import tempfile
+from typing import Iterable
 import unittest
 
 import numpy as np
@@ -324,8 +325,13 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 		with self.assertRaises(ValueError):
 			cPickle.dumps(container)
 
-		container = BulkObjectsContainer([OBJECT_NAMES, OBJECT_NAMES], dtype='f8')
 		with self.assertRaises(TypeError):
+			# Suppress PyCharm's type check then test that the bad arg type
+			# gets caught at run time -- currently by BOC's dumps() method.
+			# Why doesn't mypy catch this bad type?
+			# noinspection PyTypeChecker
+			bad_names = [OBJECT_NAMES, OBJECT_NAMES]  # type: Iterable[str]
+			container = BulkObjectsContainer(bad_names, dtype='f8')
 			cPickle.dumps(container)
 
 	def test_write_table(self):

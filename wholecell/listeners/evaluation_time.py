@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 EvaluationTime
 
@@ -9,7 +7,7 @@ Large-scale, low-overhead evaluation time tracker for process/state operations.
 @date: Created 6/10/2014
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import time
 

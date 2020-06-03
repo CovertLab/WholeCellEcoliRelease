@@ -29,6 +29,7 @@ class WorkflowCLI(scriptBase.ScriptBase):
 
 	def add_task(self, name='', inputs=(), outputs=(), command=(), timeout=0):
 		# type: (str, Iterable[str], Iterable[str], Iterable[str], int) -> Task
+		assert self.wf, 'Need to construct the Workflow first.'
 		task = Task(
 			name=name,
 			image=self.DOCKER_IMAGE,
@@ -65,6 +66,7 @@ class WorkflowCLI(scriptBase.ScriptBase):
 	def dumpOrRun(self, args):
 		# type: (argparse.Namespace) -> None
 		"""Dump or run the workflow."""
+		assert self.wf, 'Need to construct the Workflow first.'
 		if args.dump:
 			self.wf.write()
 		else:
