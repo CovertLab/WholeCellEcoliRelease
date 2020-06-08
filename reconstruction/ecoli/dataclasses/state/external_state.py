@@ -35,9 +35,11 @@ class ExternalState(object):
 		# make media object
 		self.make_media = Media(raw_data)
 
+		self.carbon_sources = sim_data.moleculeGroups.carbon_sources
 		self._initialize_environment(raw_data)
 		self.all_external_exchange_molecules = self._get_all_external_exchange_molecules(raw_data)
 		self.secretion_exchange_molecules = self._get_secretion_exchange_molecules(raw_data)
+
 
 	def _get_all_external_exchange_molecules(self, raw_data):
 		'''
@@ -130,7 +132,6 @@ class ExternalState(object):
 		importExchangeMolecules = set()
 		secretionExchangeMolecules = self.secretion_exchange_molecules
 
-		glc_id = 'GLC[p]'
 		oxygen_id = 'OXYGEN-MOLECULE[p]'
 
 		exchange_molecules = {self.env_to_exchange_map[mol]: conc for mol, conc in molecules.iteritems()}
@@ -142,14 +143,16 @@ class ExternalState(object):
 		importExchangeMolecules.update(importUnconstrainedExchangeMolecules)
 		externalExchangeMolecules.update(importUnconstrainedExchangeMolecules)
 
-		# Limit glucose uptake if present depending on the presence of oxygen
+		# TODO: functionalize limits based on concentrations of transporters and environment
+		# Limit carbon uptake if present depending on the presence of oxygen
 		importConstrainedExchangeMolecules = {}
-		if glc_id in importUnconstrainedExchangeMolecules:
-			if oxygen_id in importUnconstrainedExchangeMolecules:
-				importConstrainedExchangeMolecules[glc_id] = 20. * (units.mmol / units.g / units.h)
-			else:
-				importConstrainedExchangeMolecules[glc_id] = 100. * (units.mmol / units.g / units.h)
-			importUnconstrainedExchangeMolecules.remove(glc_id)
+		for carbon_source_id in self.carbon_sources:
+			if carbon_source_id in importUnconstrainedExchangeMolecules:
+				if oxygen_id in importUnconstrainedExchangeMolecules:
+					importConstrainedExchangeMolecules[carbon_source_id] = 20. * (units.mmol / units.g / units.h)
+				else:
+					importConstrainedExchangeMolecules[carbon_source_id] = 100. * (units.mmol / units.g / units.h)
+				importUnconstrainedExchangeMolecules.remove(carbon_source_id)
 
 		externalExchangeMolecules.update(secretionExchangeMolecules)
 

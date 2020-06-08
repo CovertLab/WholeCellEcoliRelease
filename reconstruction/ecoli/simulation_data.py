@@ -37,18 +37,12 @@ class SimulationDataEcoli(object):
 		self.doubling_time = None
 
 	def initialize(self, raw_data, basal_expression_condition = "M9 Glucose minus AAs"):
-
-		self.external_state = ExternalState(raw_data, self)
-
 		self._addConditionData(raw_data)
-
 		self.condition = "basal"
-
 		self.doubling_time = self.conditionToDoublingTime[self.condition]
 
 		# TODO: Check that media condition is valid
 		self.basal_expression_condition = basal_expression_condition
-		# self.envDict, self.externalExchangeMolecules, self.nutrientExchangeMolecules, self.secretionExchangeMolecules = self._addEnvironments(raw_data)
 
 		self._addHardCodedAttributes()
 
@@ -64,6 +58,7 @@ class SimulationDataEcoli(object):
 
 		# Data classes (can depend on helper functions)
 		# Data classes cannot depend on each other
+		self.external_state = ExternalState(raw_data, self)
 		self.process = Process(raw_data, self)
 		self.internal_state = InternalState(raw_data, self)
 
@@ -72,10 +67,6 @@ class SimulationDataEcoli(object):
 		self.relation = Relation(raw_data, self)
 
 		self.translationSupplyRate = {}
-
-		#### VARIANT CODE ####
-		self.translationSaturation = True
-		#### VARIANT CODE ####
 
 		# Mappings from element IDs to common names
 		self.common_names = CommonNames(raw_data, self)
@@ -175,8 +166,10 @@ class SimulationDataEcoli(object):
 		self.conditions = {}
 		self.conditionToDoublingTime = {}
 		self.conditionActiveTfs = {}
+		self.ordered_conditions = []  # order for variant to run
 		for row in raw_data.condition.condition_defs:
 			condition = row["condition"].encode("utf-8")
+			self.ordered_conditions.append(condition)
 			self.conditions[condition] = {}
 			self.conditions[condition]["nutrients"] = row["nutrients"].encode("utf-8")
 			self.conditions[condition]["perturbations"] = row["genotype perturbations"]

@@ -23,7 +23,7 @@ dnaPolymeraseElongationRateMax	85	units.nt/units.s
 carbonicAnhydraseKcat	1.4e6	1/units.s	Silverman Acc Chem Res 1989
 metabolismHomeostaticRangeObjFractionHigher	0	
 metabolismInRangeObjWeight	0	
-metabolismKineticObjectiveWeightLinear	1e-6	
+metabolismKineticObjectiveWeightLinear	1e-7	
 metabolismKineticObjectiveWeightQuadratic	1e-9	
 metabolism_kinetic_objective_weight_in_range	0.01	
 secretion_penalty_coeff	1e-3		Use variant metabolism_secretion_penalty to optimize

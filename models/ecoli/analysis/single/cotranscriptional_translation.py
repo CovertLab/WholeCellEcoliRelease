@@ -147,8 +147,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			'Validation of partially transcribed transcript proportions with expected values')
 		ax.spines['top'].set_visible(False)
 		ax.spines['right'].set_visible(False)
-		ax.set_xlim([0, 1])
-		ax.set_ylim([0, 1])
+		ax.set_xlim([0, 0.4])
+		ax.set_ylim([0, 0.4])
 		ax.set_xlabel('Expected proportions of partially transcribed transcripts')
 		ax.set_ylabel('Observed proportions of partially transcribed transcripts')
 

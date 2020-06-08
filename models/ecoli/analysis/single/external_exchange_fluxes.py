@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
+import cPickle
 import os
 
 import numpy as np
@@ -12,6 +13,10 @@ from models.ecoli.analysis import singleAnalysisPlot
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+		with open(simDataFile) as f:
+			sim_data = cPickle.load(f)
+		carbon_sources = sim_data.moleculeGroups.carbon_sources
+
 		# Exchange flux
 		main_reader = TableReader(os.path.join(simOutDir, 'Main'))
 		initial_time = main_reader.readAttribute('initialTime')
@@ -32,11 +37,27 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		plt.figure(figsize=(8.5, 11))
 
 		## Plot fluxes for specific molecules of interest
-		molecule_ids = ['GLC[p]', 'OXYGEN-MOLECULE[p]', 'CARBON-DIOXIDE[p]']
+		molecule_ids = ['OXYGEN-MOLECULE[p]', 'CARBON-DIOXIDE[p]']
 		n_molecules = len(molecule_ids)
-		rows = n_molecules + 2  # 2 for export/import
+		rows = n_molecules + 3  # 2 for export/import and 1 for carbon sources
 		cols = 1
 
+		# Plot carbon sources
+		ax = plt.subplot(rows, cols, 1)
+		for carbon_source in carbon_sources:
+			if carbon_source not in ex_molecules:
+				continue
+
+			molecule_flux = -ex_flux[:, ex_molecules.index(carbon_source)]
+			if np.any(molecule_flux > 0):
+				ax.plot(time, molecule_flux, label=carbon_source)
+		ylim = ax.get_ylim()
+		ax.set_ylim(max(0, ylim[0]), ylim[1])
+		ax.set_ylabel('Carbon source import\n(mmol/gDCW/hr)')
+		ax.tick_params(labelsize=8, which='both', direction='out')
+		ax.legend()
+
+		# Plot other uptake of interest
 		for index, molecule in enumerate(molecule_ids):
 			if molecule not in ex_molecules:
 				continue
@@ -50,7 +71,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			else:
 				direction = 'Export'
 
-			ax = plt.subplot(rows, cols, index + 1)
+			ax = plt.subplot(rows, cols, index + 2)
 			ax.plot(time, molecule_flux)
 
 			y_range = np.min([
@@ -72,8 +93,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			ax.tick_params(labelsize=8, which='both', direction='out')
 
 		## Plot all fluxes
-		ax_export = plt.subplot(rows, cols, n_molecules + 1)
-		ax_import = plt.subplot(rows, cols, n_molecules + 2)
+		ax_export = plt.subplot(rows, cols, n_molecules + 2)
+		ax_import = plt.subplot(rows, cols, n_molecules + 3)
 		for mol, mean, flux in sorted(zip(ex_molecules, mean_fluxes, ex_flux.T),
 				key=lambda v: v[1]):
 			# Adjust for directionality

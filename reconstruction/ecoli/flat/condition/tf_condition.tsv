@@ -1,3 +1,5 @@
+# TODO: add multiple nutrients (eg succinate and fumarate for DcuR and succinate, acetate, anaerobic, etc for Crp and CreB)
+# TODO: add CreB 2CS
 "TF"	"active TF"	"active nutrients"	"active genotype perturbations"	"inactive nutrients"	"inactive genotype perturbations"	"TF type"
 "trpR"	"CPLX-125"	"minimal_plus_amino_acids"	{}	"minimal"	{}	"1CS"
 "argR"	"CPLX0-228"	"minimal_plus_amino_acids"	{}	"minimal"	{}	"1CS"
@@ -21,3 +23,4 @@
 "basR"	"PHOSPHO-BASR"	"minimal_plus_ferric"	{}	"minimal"	{}	"2CS"
 "dcuR"	"PHOSPHO-DCUR"	"minimal_succinate"	{}	"minimal"	{}	"2CS"
 "narL"	"PHOSPHO-NARL"	"minimal_plus_nitrate"	{}	"minimal"	{}	"2CS"
+"crp"	"CPLX0-226"	"minimal_acetate"	{}	"minimal"	{}	"1CS"

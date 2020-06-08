@@ -26,14 +26,13 @@ from wholecell.utils.fitting import normalize, masses_and_counts_for_homeostatic
 
 
 # Tweaks
-RNA_POLY_MRNA_DEG_RATE_PER_S = np.log(2) / 30. # half-life of 30 seconds
-
 # Adjustments to get protein expression for certain enzymes required for metabolism
 TRANSLATION_EFFICIENCIES_ADJUSTMENTS = {
 	"ADCLY-MONOMER[c]": 5,  # pabC, aminodeoxychorismate lyase
 	"EG12438-MONOMER[c]": 5,  # menH, 2-succinyl-6-hydroxy-2,4-cyclohexadiene-1-carboxylate synthetase
 	"EG12298-MONOMER[p]": 5,  # yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition viability
 	"ACETYL-COA-ACETYLTRANSFER-MONOMER[c]": 5,  # atoB; This RNA is fit for the anaerobic condition viability
+	"LIPIDADISACCHARIDESYNTH-MONOMER[c]": 5,  # lpxB, lipid A disaccharide synthase; needed for growth (CPD0-939) in acetate condition
 	}
 RNA_EXPRESSION_ADJUSTMENTS = {
 	"EG11493_RNA[c]": 10,  # pabC, aminodeoxychorismate lyase
@@ -41,6 +40,11 @@ RNA_EXPRESSION_ADJUSTMENTS = {
 	"EG12298_RNA[c]": 10,  # yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition viability
 	"EG11672_RNA[c]": 10,  # atoB, acetyl-CoA acetyltransferase; This RNA is fit for the anaerobic condition viability
 	"EG10238_RNA[c]": 10,  # dnaE, DNA polymerase III subunit alpha; This RNA is fit for the sims to produce enough DNAPs for timely replication
+	"EG10582_RNA[c]": 10,  # metB, O-succinylhomoserine lyase; needed for growth (HOMO-CYS, SAM, MET) in acetate condition
+	"G7091_RNA[c]": 10,  # ugd, UDP-glucose 6-dehydrogenase; needed for growth (UDP-GLUCURONATE) in acetate condition
+	"EG10546_RNA[c]": 10,  # lpxB, lipid A disaccharide synthase; needed for growth (CPD0-939) in acetate condition
+	"G7423_RNA[c]": 10,  # ispD, 2-C-methyl-D-erythritol 4-phosphate cytidylyltransferase; needed for growth (UNDECAPRENYL-DIPHOSPHATE, CPD-12261, CPD-9956) in acetate condition
+	"EG12437_RNA[c]": 10,  # menE, o-succinylbenzoate-CoA ligase; needed for growth (REDUCED-MENAQUINONE, CPD-12115) in acetate condition
 	"EG10808_RNA[c]": 2,  # pyrE, orotate phosphoribosyltransferase; Needed for UTP synthesis, transcriptional regulation by UTP is not included in the model
 	}
 RNA_DEG_RATES_ADJUSTMENTS = {
@@ -49,6 +53,7 @@ RNA_DEG_RATES_ADJUSTMENTS = {
 	"EG10710_RNA[c]": 2,  # pheT, phenylalanine synthetase subunit; for tRNA charging in anaerobic condition
 	}
 PROTEIN_DEG_RATES_ADJUSTMENTS = {
+	"ADENYLATECYC-MONOMER[c]": 2. / 600,  # CyaA, adenylate cyclase; convert from 2 min to 10 hr half life to get expression in acetate condition (required for cAMP)
 	"SPOT-MONOMER[c]": 2. / 600,  # SpoT, ppGpp phosphatase; convert from 2 min to 10 hr half life to better match expected protein counts
 	"EG12298-MONOMER[p]": 0.1, # yibQ, Predicted polysaccharide deacetylase; This protein is fit for the anaerobic condition
 	}
@@ -116,9 +121,6 @@ def fitSimData_1(
 		print("Warning: Running the Parca in debug mode - not all conditions will be fit")
 		key = sim_data.tfToActiveInactiveConds.keys()[0]
 		sim_data.tfToActiveInactiveConds = {key: sim_data.tfToActiveInactiveConds[key]}
-
-	# Increase RNA poly mRNA deg rates
-	setRnaPolymeraseCodingRnaDegradationRates(sim_data)
 
 	# Make adjustments for metabolic enzymes
 	setTranslationEfficiencies(sim_data)
@@ -793,36 +795,6 @@ def calculateTranslationSupply(sim_data, doubling_time, bulkContainer, avgCellDr
 	return translation_aa_supply
 
 # Sub-fitting functions
-
-def setRnaPolymeraseCodingRnaDegradationRates(sim_data):
-	"""
-	Increase the degradation rates for the RNA polymerase mRNAs.  This is done to increase the
-	rate of	mRNA synthesis and overall reduce the stochasticity in RNA polymerase subunit
-	expression, which would otherwise constrain transcription.
-
-	Requires
-	--------
-	- RNA_POLY_MRNA_DEG_RATE_PER_S (float) - the new first-order degradation rate,
-	in units of per second
-
-	Modifies
-	--------
-	- Degradation rates of RNA polymerase subunit mRNAs.
-
-	Notes
-	-----
-	- Incorporating transcription unit structure would facilitate co-expression of the subunits
-	but might not address the fundamental stochasticity issue.
-	- MD - The structure of this function deviates from the following functions that set values based on an adjustment
-	maybe think about how adjustments should be incorporated?
-	"""
-
-	rnaPolySubunits = sim_data.process.complexation.getMonomers("APORNAP-CPLX[c]")["subunitIds"] # APORNAP-CPLX[c] is the RNA polymerase complex
-	subunitIndexes = np.array([np.where(sim_data.process.translation.monomerData["id"] == id_)[0].item() for id_ in rnaPolySubunits]) # there has to be a better way...
-	mRNA_indexes = sim_data.relation.rnaIndexToMonomerMapping[subunitIndexes]
-
-	# Modifies
-	sim_data.process.transcription.rnaData.struct_array["degRate"][mRNA_indexes] = RNA_POLY_MRNA_DEG_RATE_PER_S
 
 def setTranslationEfficiencies(sim_data):
 	"""

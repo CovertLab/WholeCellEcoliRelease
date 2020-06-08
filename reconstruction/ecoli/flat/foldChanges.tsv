@@ -351,7 +351,7 @@
 "crp"	"fucR"	1.01	0.24	NaN	1	252	108	1e-09
 "crp"	"tdcA"	1.29	1.49	NaN	1	252	108	1e-09
 "crp"	"fis"	0.67	0.23	NaN	2	252	108	1e-09
-"crp"	"crp"	1.84	0.82	NaN	3	252	108	1e-09
+#"crp"	"crp"	1.84	0.82	NaN	3	252	108	1e-09
 "crp"	"ompR"	0.54	0.0	NaN	2	252	108	1e-09
 "crp"	"malT"	1.36	0.62	NaN	1	252	108	1e-09
 "crp"	"glpR"	0.16	0.0	NaN	1	252	108	1e-09
@@ -439,7 +439,7 @@
 "crp"	"ilvB"	1.33	0.65	NaN	1	252	108	1e-09
 "crp"	"bglF"	0.69	0.06	NaN	1	252	108	1e-09
 "crp"	"trxA"	0.3	0.18	NaN	-1	252	108	1e-09
-"crp"	"cyaA"	1.03	0.24	NaN	-1	252	108	1e-09
+# disabled because of negative feedback in acetate - cyaA -> cAMP -> cAMP-crp # "crp"	"cyaA"	1.03	0.24	NaN	-1	252	108	1e-09
 "crp"	"udp"	0.83	0.47	NaN	3	252	108	1e-09
 "crp"	"malG"	0.67	0.2	NaN	1	252	108	1e-09
 "crp"	"malE"	1.41	0.61	NaN	1	252	108	1e-09
