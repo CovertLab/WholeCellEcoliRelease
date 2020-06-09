@@ -9,7 +9,7 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
+from six.moves import cPickle
 
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.analysis.analysis_tools import read_bulk_molecule_counts

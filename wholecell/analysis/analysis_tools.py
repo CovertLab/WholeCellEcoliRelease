@@ -5,6 +5,7 @@ Analysis script toolbox functions
 from __future__ import absolute_import, division, print_function
 
 import os
+from typing import Text
 
 import numpy as np
 
@@ -15,6 +16,9 @@ LOW_RES_DIR = 'low_res_plots'
 SVG_DIR = 'svg_plots'
 HTML_DIR = 'html_plots'
 LOW_RES_DPI = 120
+
+ANY_STRING = (bytes, str, Text)
+
 
 def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None, transparent=False,
         dpi=LOW_RES_DPI, extension=None):
@@ -152,7 +156,7 @@ def read_bulk_molecule_counts(sim_out_dir, mol_names):
 
 	# Check for string instead of array since it will cause mol_indices lookup to fail
 	for names in mol_names:
-		if isinstance(names, basestring):
+		if isinstance(names, ANY_STRING):
 			raise Exception('mol_names must be a tuple of arrays not strings like {}'.format(names))
 
 	bulk_reader = TableReader(os.path.join(sim_out_dir, 'BulkMolecules'))

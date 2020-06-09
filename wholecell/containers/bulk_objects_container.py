@@ -95,7 +95,7 @@ class BulkObjectsContainer(object):
 	TODO (John): Give methods more standard names (e.g. set, get, add).
 	TODO (John): Move methods and attributes from mixedCase to under_scores.
 	TODO (John): Get rid of single/group distinction in methods/views, and
-		instead check input types against basestring to decide what sort of
+		instead check input types against str to decide what sort of
 		output to return.
 	TODO (John): Use something more generic than 'counts' to reflect the fact
 		that non-integer data types are permissible.

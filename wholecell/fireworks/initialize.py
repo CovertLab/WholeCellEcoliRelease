@@ -4,6 +4,8 @@ from __future__ import absolute_import, division, print_function
 
 import os
 
+from six.moves import input
+
 import wholecell.utils.filepath as fp
 
 
@@ -19,7 +21,7 @@ def default_input(prompt, default):
 	Returns str response from user or default if no input
 	'''
 
-	response = raw_input("{} (default: {}): ".format(prompt, default))
+	response = input("{} (default: {}): ".format(prompt, default))
 	if response == "":
 		print("  Using default: {}".format(default))
 		response = default

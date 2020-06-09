@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 import os
 from itertools import izip
-import cPickle
+from six.moves import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -256,7 +256,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		expRna_axis.set_xticks(time_eachGen / 60.)
 		burstRna_axis.set_xticks(time_eachGen / 60.)
-		xlabel = GENS.tolist()
+		xlabel = GENS.tolist()  # type: list
 		xlabel.append(GENS[-1] + 1)
 		expRna_axis.set_xticklabels(xlabel)
 		burstRna_axis.set_xticklabels(xlabel)

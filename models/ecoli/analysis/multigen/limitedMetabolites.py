@@ -17,6 +17,7 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
+from six.moves import range
 
 WINDOW = 50
 
@@ -59,7 +60,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			diff = np.diff(normalizedCounts, axis = 0)
 			limited = []
-			for i in xrange(diff.shape[0] - WINDOW):
+			for i in range(diff.shape[0] - WINDOW):
 				currentStepLimited = np.where(np.any(diff[i:i + WINDOW] > 0, axis = 0) == False)[0].astype(int)
 				metaboliteLimited[i, currentStepLimited] = 1
 				limited = np.append(limited, currentStepLimited).astype(int)
@@ -70,7 +71,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			histo[nLimited] += 1
 			limitedCounts[limited] += 1
 
-			ax2.plot(time / 60, metaboliteLimited * range(metaboliteLimited.shape[1]))
+			ax2.plot(time / 60, metaboliteLimited * list(range(metaboliteLimited.shape[1])))
 			ax2.axvline(initialTime / 60, color = "r", linestyle = "--")
 
 		ax2.set_xlim([0, max(time) / 60])

@@ -18,7 +18,7 @@ if os.name == 'posix' and sys.version_info[0] < 3:
 else:
 	import subprocess as subprocess3
 	subprocess = subprocess3
-from typing import Any, Callable, Dict, Iterable, List, Optional, Set
+from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Text
 
 from borealis import gce
 from borealis.docker_task import DockerTask
@@ -41,6 +41,8 @@ STORAGE_ROOT_ENV_VAR = 'WORKFLOW_STORAGE_ROOT'
 DEFAULT_LPAD_YAML = 'my_launchpad.yaml'
 DEFAULT_FIREWORKS_DATABASE = 'default_fireworks_database'
 
+ANY_STRING = (bytes, str, Text)
+
 
 def _keyify(paths, fn=lambda path: path):
 	# type: (Iterable[str], Callable[[str], str]) -> Dict[str, str]
@@ -50,11 +52,12 @@ def _keyify(paths, fn=lambda path: path):
 def _copy_as_list(value):
 	# type: (Iterable[str]) -> List[str]
 	"""Copy an iterable of strings as a list. Fail fast on improper input."""
-	assert isinstance(value, Iterable) and not isinstance(value, basestring), (
-		'Expected a list, not {}'.format(repr(value)))
+
+	assert isinstance(value, Iterable) and not isinstance(value, ANY_STRING), (
+		'Expected a list, not {!r}'.format(value))
 	result = list(value)
 	for s in result:
-		assert isinstance(s, basestring), 'Expected a string, not {}'.format(s)
+		assert isinstance(s, ANY_STRING), 'Expected a string, not {!r}'.format(s)
 	return result
 
 def _copy_path_list(value, internal_prefix, is_output=False):

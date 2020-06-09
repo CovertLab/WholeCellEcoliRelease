@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 # Enable segmentation and other fault handling for tracebacks
+# noinspection PyCompatibility
 import faulthandler; faulthandler.enable()
 
 from .initRawData import InitRawDataTask

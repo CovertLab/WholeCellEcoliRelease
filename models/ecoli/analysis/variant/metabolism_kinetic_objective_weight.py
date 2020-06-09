@@ -7,13 +7,13 @@ Analyze results from metabolism_kinetic_objective_weight variant
 
 from __future__ import absolute_import, division, print_function
 
-import cPickle
 import os
 import re
+from typing import Dict, List, Sequence, Tuple
 
 from matplotlib import pyplot as plt
 import numpy as np
-from typing import Dict, List, Sequence, Tuple
+from six.moves import cPickle, range
 
 from models.ecoli.analysis import variantAnalysisPlot
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS

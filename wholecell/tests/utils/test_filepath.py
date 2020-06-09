@@ -12,6 +12,7 @@ import unittest
 import pytest
 
 from wholecell.utils import filepath
+from six.moves import range
 
 
 class Test_filepath(unittest.TestCase):
@@ -68,7 +69,7 @@ class Test_filepath(unittest.TestCase):
 
 	def test_json_files(self):
 		"""Test read_json_file(), write_json_file."""
-		expected = {'a': range(10), 'b': 14.5, 'c': None}
+		expected = {'a': list(range(10)), 'b': 14.5, 'c': None}
 		output_path = os.path.join(self.test_dir, 'abc.json')
 		filepath.write_json_file(output_path, expected)
 		actual = filepath.read_json_file(output_path)

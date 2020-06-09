@@ -9,7 +9,7 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 
-import cPickle
+from six.moves import cPickle
 from models.ecoli.analysis import multigenAnalysisPlot
 
 CLOSE_TO_DOUBLE = 0.1

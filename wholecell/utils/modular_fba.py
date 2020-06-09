@@ -11,6 +11,7 @@ from typing import Dict, Type
 import warnings
 
 import numpy as np
+import six
 
 from wholecell.utils._netflow._base import NetworkFlowProblemBase
 
@@ -421,7 +422,7 @@ class FluxBalanceAnalysis(object):
 		the standard objective, all molecules must be created/destroyed in
 		prescribed ratios."""
 
-		for moleculeID in objective.viewkeys():
+		for moleculeID in objective:
 			objectiveEquivID = self._generatedID_moleculeEquivalents + moleculeID
 
 			self._solver.setFlowMaterialCoeff(
@@ -467,7 +468,7 @@ class FluxBalanceAnalysis(object):
 			)
 
 		# Create fraction and biomass outputs
-		for moleculeID in objective.viewkeys():
+		for moleculeID in objective:
 			fractionID = self._generatedID_moleculeEquivalents + moleculeID
 
 			# Biomass out
@@ -496,7 +497,7 @@ class FluxBalanceAnalysis(object):
 		# Create fraction differences (leading - other), used in objective and constraints
 		leadingMoleculeToFractionID = self._generatedID_moleculesToEquivalents + leadingMoleculeID
 
-		for moleculeID in objective.viewkeys():
+		for moleculeID in objective:
 			if moleculeID == leadingMoleculeID:
 				continue
 
@@ -531,7 +532,7 @@ class FluxBalanceAnalysis(object):
 
 		# Create biomass differences (fraction - biomass), used in constraints
 
-		for moleculeID in objective.viewkeys():
+		for moleculeID in objective:
 			fractionDifferenceBiomassID = self._generatedID_fractionalDifferenceBiomass + moleculeID
 
 			moleculeToFractionID = self._generatedID_moleculesToEquivalents + moleculeID
@@ -1108,7 +1109,7 @@ class FluxBalanceAnalysis(object):
 				reverse reaction since net flux bounds might not be set
 		'''
 
-		if isinstance(reactionIDs, basestring):
+		if isinstance(reactionIDs, six.string_types):
 			reactionIDs = [reactionIDs]
 			lowerBounds = [lowerBounds]
 			upperBounds = [upperBounds]
@@ -1363,7 +1364,7 @@ class FluxBalanceAnalysis(object):
 
 			return targets
 
-		if isinstance(reactionIDs, basestring):
+		if isinstance(reactionIDs, six.string_types):
 			reactionIDs = [reactionIDs]
 		mean_targets = validate_targets(mean_targets, reactionIDs)
 		lower_targets = validate_targets(lower_targets, reactionIDs, default=mean_targets)
@@ -1417,7 +1418,7 @@ class FluxBalanceAnalysis(object):
 
 	def enableKineticTargets(self, reactionIDs=None):
 		# If a single value is passed in, make a list of length 1 from it
-		if isinstance(reactionIDs, basestring):
+		if isinstance(reactionIDs, six.string_types):
 			reactionIDs = [reactionIDs]
 
 		# If no reactions specified, enable all kinetic reactions
@@ -1430,7 +1431,7 @@ class FluxBalanceAnalysis(object):
 
 	def disableKineticTargets(self, reactionIDs=None):
 		# If a single value is passed in, make a list of length 1 from it
-		if isinstance(reactionIDs, basestring):
+		if isinstance(reactionIDs, six.string_types):
 			reactionIDs = [reactionIDs]
 
 		# If no reactions specified, disable all kinetic reactions

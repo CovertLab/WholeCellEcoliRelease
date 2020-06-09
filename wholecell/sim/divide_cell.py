@@ -6,7 +6,7 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 import os
-import cPickle
+from six.moves import cPickle
 from copy import deepcopy
 
 from wholecell.utils.constants import SERIALIZED_INHERITED_STATE
@@ -517,7 +517,7 @@ def get_divided_attributes(
 	d1_divided_attributes_dict = {}
 	d2_divided_attributes_dict = {}
 
-	for molecule_attribute in molecule_attribute_dict.iterkeys():
+	for molecule_attribute in molecule_attribute_dict:
 		d1_divided_attributes_dict[molecule_attribute] = (
 			molecule_set.attr(molecule_attribute)[d1_bool]
 		)

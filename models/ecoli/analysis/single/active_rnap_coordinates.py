@@ -8,13 +8,13 @@ time.
 
 from __future__ import absolute_import, division, print_function
 
-import cPickle
 import os
 
 from matplotlib import pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib import collections as mc
 import numpy as np
+from six.moves import cPickle, range
 
 from models.ecoli.analysis import singleAnalysisPlot
 from wholecell.analysis.analysis_tools import exportFigure

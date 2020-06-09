@@ -31,6 +31,7 @@ import wholecell.utils.filepath as fp
 from runscripts.manual.analysisBase import AnalysisBase
 from runscripts.cloud.util.workflow import (DEFAULT_LPAD_YAML,
 	STORAGE_ROOT_ENV_VAR, Task, Workflow)
+from six.moves import range
 
 
 # ':latest' -- "You keep using that word. I do not think it means what you think it means."
@@ -196,13 +197,13 @@ class WcmWorkflow(Workflow):
 			variant_analysis_inputs.append(variant_sim_data_dir)
 			arg_seed = args['seed']
 
-			for j in xrange(arg_seed, arg_seed + args['init_sims']):  # init sim seeds
+			for j in range(arg_seed, arg_seed + args['init_sims']):  # init sim seeds
 				seed_dir = self.internal(subdir, '{:06d}'.format(j))
 				md_multigen = dict(md_cohort, seed=j)
 
 				this_variant_this_seed_multigen_analysis_inputs = [kb_dir, variant_sim_data_dir]
 
-				for k in xrange(args['generations']):
+				for k in range(args['generations']):
 					gen_dir = posixpath.join(seed_dir, "generation_{:06d}".format(k))
 					md_single = dict(md_multigen, gen=k)
 

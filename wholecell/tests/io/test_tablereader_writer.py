@@ -23,6 +23,7 @@ from wholecell.io.tablewriter import (BLOCK_BYTES_GOAL,
 	TableWriter, MissingFieldError, TableExistsError, UnrecognizedFieldError,
 	VariableEntrySizeError, AttributeAlreadyExistsError, AttributeTypeError,
 	V2_DIR_COLUMNS)
+from six.moves import range
 
 
 COLUMNS = 'x y z theta'.split()
@@ -236,7 +237,7 @@ class Test_TableReader_Writer(unittest.TestCase):
 		float value conversion.
 		'''
 		self.make_test_dir()
-		d0 = {key: 19 for key in DATA.iterkeys()}
+		d0 = {key: 19 for key in DATA}
 		d2 = {key: value.reshape(2, -1) for key, value in DATA.iteritems()}
 		d3 = {key: value[2:] for key, value in DATA.iteritems()}
 
@@ -356,7 +357,7 @@ class Test_TableReader_Writer(unittest.TestCase):
 
 		# --- Write ---
 		writer = TableWriter(self.table_path)
-		for _ in xrange(rows):
+		for _ in range(rows):
 			writer.append(**d0)
 		writer.close()
 

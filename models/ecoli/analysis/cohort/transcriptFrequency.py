@@ -10,10 +10,10 @@ one copy of transcript) at the 4th generation across 32 seeds.
 from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
 
 import numpy as np
 import matplotlib.pyplot as plt
+from six.moves import cPickle, range
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
@@ -96,7 +96,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		whitePadSparklineAxis(scatterAxis)
 
 		N, bins, patches = histAxis.hist(hadTranscribedFrequency, bins = N_SEEDS + 1, orientation = 'horizontal')
-		for i in xrange(1, len(patches) - 1):
+		for i in range(1, len(patches) - 1):
 			plt.setp(patches[i], facecolor = "none", edgecolor = "g")
 		plt.setp(patches[0], facecolor = "none", edgecolor = "r")
 		plt.setp(patches[-1], facecolor = "none", edgecolor = "b")

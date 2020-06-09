@@ -61,7 +61,7 @@ class Translation(object):
 
 			counts = []
 
-			for aa in sim_data.amino_acid_1_to_3_ordered.viewkeys():
+			for aa in sim_data.amino_acid_1_to_3_ordered:
 				counts.append(
 					sequence.count(aa)
 					)

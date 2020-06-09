@@ -18,6 +18,7 @@ import sympy as sp
 from wholecell.utils import build_ode
 from wholecell.utils import data
 from wholecell.utils import units
+from six.moves import range
 
 
 class TwoComponentSystem(object):
@@ -301,11 +302,11 @@ class TwoComponentSystem(object):
 	def _make_y_dy(self):
 		S = self.stoichMatrix()
 
-		yStrings = ["y[%d]" % x for x in xrange(S.shape[0])]
+		yStrings = ["y[%d]" % x for x in range(S.shape[0])]
 		y = sp.symbols(yStrings)
 
 		rates = []
-		for colIdx in xrange(S.shape[1]):
+		for colIdx in range(S.shape[1]):
 			negIdxs = np.where(S[:, colIdx] < 0)[0]
 			posIdxs = np.where(S[:, colIdx] > 0)[0]
 

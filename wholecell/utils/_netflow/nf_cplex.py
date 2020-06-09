@@ -17,6 +17,7 @@ from collections import defaultdict
 import cplex
 import numpy as np
 from scipy.sparse import coo_matrix
+import six
 
 from ._base import NetworkFlowProblemBase
 
@@ -127,7 +128,7 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 		return self._objective[flow]
 
 	def getFlowRates(self, flows):
-		if isinstance(flows, basestring):
+		if isinstance(flows, six.string_types):
 			flows = (flows,)
 
 		self._solve()

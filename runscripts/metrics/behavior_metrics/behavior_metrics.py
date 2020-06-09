@@ -6,7 +6,6 @@
 from __future__ import absolute_import, division, print_function
 
 from collections import namedtuple
-import cPickle
 import importlib
 from os import path
 import re
@@ -15,6 +14,7 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Text, Tuple, U
 import numpy as np
 import pandas as pd
 from unum import Unum
+from six.moves import cPickle, range
 
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import filepath, units, toya
@@ -80,7 +80,7 @@ def find_limiting_metabolites(counts, names, window):
 	"""
 	limiting = set()
 	diff = np.diff(counts, axis=0)
-	for i in xrange(diff.shape[0] - window):
+	for i in range(diff.shape[0] - window):
 		production_in_window = np.any(diff[i:i + window] > 0, axis=0)
 		i_unproduced_metabolites = np.where(
 			production_in_window == False)[0].astype(int)

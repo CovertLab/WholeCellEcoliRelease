@@ -178,7 +178,7 @@ with open(_FBA_FILE) as fba_file:
 			if split[0].endswith(":"): # section heading
 				current_section = split[0][:-1]
 
-				assert current_section not in data.viewkeys()
+				assert current_section not in data
 
 				data[current_section] = []
 
@@ -266,7 +266,7 @@ biomassCoeffs = {
 	for entry in data["biomass"]
 	}
 
-biomassIDs = {mid[:-3] for mid in biomassCoeffs.viewkeys()}
+biomassIDs = {mid[:-3] for mid in biomassCoeffs}
 
 filename = os.path.join("reconstruction", "ecoli", "flat", "metabolites.tsv")
 rows = read_tsv(filename)

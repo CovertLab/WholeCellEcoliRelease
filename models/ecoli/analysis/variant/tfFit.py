@@ -12,7 +12,7 @@ from bokeh.models import (HoverTool, BoxZoomTool, LassoSelectTool, PanTool,
 from bokeh.models import CustomJS
 from bokeh.models.widgets import Button
 
-import cPickle
+from six.moves import cPickle
 import scipy.stats
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths

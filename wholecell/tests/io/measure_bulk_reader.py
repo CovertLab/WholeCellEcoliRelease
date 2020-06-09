@@ -21,6 +21,7 @@ import numpy as np
 from typing import Callable, List
 
 from wholecell.io.tablereader import TableReader
+from six.moves import range
 
 ITERS = 10
 BLOCK_SIZE = 5000  # roughly number of proteins or RNA
@@ -147,12 +148,12 @@ def test_performance(sim_out_dir):
 		'counts', indices)
 
 	## Large block
-	indices = np.array(range(BLOCK_SIZE))
+	indices = np.array(list(range(BLOCK_SIZE)))
 	test_functions(two_functions, 'Block indices into', bulk_molecules,
 		'counts', indices)
 
 	## 2 Large blocks
-	indices = np.array(range(BLOCK_SIZE) + range(n_mols)[-BLOCK_SIZE:])
+	indices = np.array(list(range(BLOCK_SIZE)) + list(range(n_mols))[-BLOCK_SIZE:])
 	test_functions(two_functions, 'Two blocks of indices into', bulk_molecules,
 		'counts', indices)
 
@@ -162,14 +163,14 @@ def test_performance(sim_out_dir):
 		'counts', indices)
 
 	## Random reads
-	indices = np.array(range(n_mols))
+	indices = np.array(list(range(n_mols)))
 	np.random.shuffle(indices)
 	indices = indices[:BLOCK_SIZE]
 	test_functions(two_functions, 'Random indices into', bulk_molecules,
 		'counts', indices)
 
 	## All indices, same large column as most of these tests
-	indices = np.array(range(n_mols))
+	indices = np.array(list(range(n_mols)))
 	test_functions(three_functions, 'All indices into', bulk_molecules,
 		'counts', indices)
 
@@ -178,7 +179,7 @@ def test_performance(sim_out_dir):
 	# the atpRequested table. Check after timing; beforehand could preload the
 	# disk cache.
 	n_processes = len(bulk_molecules.readAttribute('processNames'))
-	indices = np.array(range(n_processes))
+	indices = np.array(list(range(n_processes)))
 	a = test_functions(three_functions, 'All indices, narrow column', bulk_molecules,
 		'atpRequested', indices)
 	if a.shape[1] != n_processes:

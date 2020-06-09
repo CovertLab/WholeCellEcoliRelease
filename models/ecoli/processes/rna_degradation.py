@@ -50,6 +50,7 @@ import numpy as np
 import wholecell.processes.process
 from wholecell.utils.constants import REQUEST_PRIORITY_DEGRADATION
 from wholecell.utils import units
+from six.moves import range
 
 class RnaDegradation(wholecell.processes.process.Process):
 	""" RnaDegradation """
@@ -99,7 +100,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		endCleavageMetaboliteIds = [id_ + "[c]" for id_ in sim_data.moleculeGroups.fragmentNT_IDs]
 		endCleavageMetaboliteIds.extend([sim_data.moleculeIds.water,
 			sim_data.moleculeIds.ppi, sim_data.moleculeIds.proton])
-		nmpIdxs = range(4)
+		nmpIdxs = list(range(4))
 		h2oIdx = endCleavageMetaboliteIds.index(sim_data.moleculeIds.water)
 		ppiIdx = endCleavageMetaboliteIds.index(sim_data.moleculeIds.ppi)
 		hIdx = endCleavageMetaboliteIds.index(sim_data.moleculeIds.proton)

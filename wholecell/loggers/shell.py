@@ -19,6 +19,7 @@ import numpy as np
 from itertools import izip
 
 import wholecell.loggers.logger
+from six.moves import range
 
 SPACER = "  "
 
@@ -94,7 +95,7 @@ class Shell(wholecell.loggers.logger.Logger):
 
 		# Rearrange the header lines
 		headerLines = []
-		for headerLineIndex in xrange(max(len(lines) for lines in columnHeaderLines)):
+		for headerLineIndex in range(max(len(lines) for lines in columnHeaderLines)):
 			line = []
 			for lines in columnHeaderLines:
 				if len(lines) > headerLineIndex:
@@ -145,7 +146,7 @@ class Shell(wholecell.loggers.logger.Logger):
 		if self.nLines % self.headerFreq == 0:
 			self.printHeaders()
 
-		for iColumn in xrange(len(self.columns)):
+		for iColumn in range(len(self.columns)):
 			column = self.columns[iColumn]
 
 			if iColumn > 0:

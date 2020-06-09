@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 
-import cPickle
+from six.moves import cPickle
 
 from wholecell.utils import units
 

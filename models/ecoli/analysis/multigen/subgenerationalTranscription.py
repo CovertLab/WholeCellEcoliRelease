@@ -9,10 +9,10 @@ Plots Figure 5B.
 from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
 
 import numpy as np
 import matplotlib.pyplot as plt
+from six.moves import cPickle, range
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
@@ -152,7 +152,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		whitePadSparklineAxis(scatterAxis)
 
 		N, bins, patches = histAxis.hist(transcribedBoolOrdered, bins = len(allDir) + 1, orientation = 'horizontal')
-		for i in xrange(1, len(patches) - 1):
+		for i in range(1, len(patches) - 1):
 			plt.setp(patches[i], facecolor = "none", edgecolor = COLOR_FSUB)
 		plt.setp(patches[0], facecolor = "none", edgecolor = COLOR_F0)
 		plt.setp(patches[-1], facecolor = "none", edgecolor = COLOR_F1)

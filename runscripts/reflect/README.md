@@ -17,7 +17,7 @@ import runscripts.reflect.object_tree as o
 Then, get the object you wish to examine. In our case we are going to take a look at `sim_data`:
 
 ```python
-import cPickle
+from six.moves import cPickle
 sim_data = cPickle.load(open('out/manual/kb/simData.cPickle', "rb"))
 ```
 

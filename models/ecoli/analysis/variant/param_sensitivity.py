@@ -10,10 +10,8 @@ significant parameters for each output difference measure.
 
 from __future__ import absolute_import, division, print_function
 
-from future_builtins import zip
-
-import cPickle
 import csv
+from functools import reduce
 from multiprocessing import Pool
 import operator
 import os
@@ -23,6 +21,7 @@ from matplotlib import pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 import numpy as np
 from scipy import special, stats
+from six.moves import cPickle, range, zip
 from typing import List, Optional, Tuple
 
 from models.ecoli.analysis import variantAnalysisPlot
@@ -272,7 +271,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			## Plot data
 			ax = plt.subplot(n_outputs, 2, 2*i + 1)
 			plt.yscale('symlog', linthreshold=0.01)
-			plt.bar(range(total_params), z_diff[sorted_idx])
+			plt.bar(list(range(total_params)), z_diff[sorted_idx])
 			plt.axhline(n_stds , color='k', linestyle='--')
 			plt.axhline(-n_stds, color='k', linestyle='--')
 
@@ -292,8 +291,8 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			## Plot data
 			ax = plt.subplot(n_outputs, 2, 2*i + 2)
 			plt.yscale('symlog', linthreshold=0.01)
-			plt.bar(range(total_params), z_increase[sorted_idx], color='g')
-			plt.bar(range(total_params), z_decrease[sorted_idx], color='r')
+			plt.bar(list(range(total_params)), z_increase[sorted_idx], color='g')
+			plt.bar(list(range(total_params)), z_decrease[sorted_idx], color='r')
 			plt.axhline(n_stds , color='k', linestyle='--')
 			plt.axhline(-n_stds, color='k', linestyle='--')
 

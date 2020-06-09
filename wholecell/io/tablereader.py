@@ -5,6 +5,7 @@ from chunk import Chunk
 import os
 import json
 import numpy as np
+from typing import Any, Callable, Iterable, List, Text, Tuple, Union
 import zlib
 
 from wholecell.utils import filepath
@@ -55,6 +56,7 @@ class VariableLengthColumnError(TableReaderError):
 class _ColumnHeader(object):
 	'''Column header info read from a Column file's first chunk.'''
 	def __init__(self, chunk):
+		# type: (Chunk) -> None
 		chunk_name = chunk.getname()
 		if chunk_name != tw.COLUMN_CHUNK_TYPE and chunk_name != tw.VARIABLE_COLUMN_CHUNK_TYPE:
 			raise VersionError('Not a supported Column file format/version')
@@ -79,8 +81,9 @@ class _ColumnHeader(object):
 		descr_json = chunk.read()
 		descr = json.loads(descr_json)
 
-		if isinstance(descr, basestring):
-			self.dtype = str(descr)  # really the dtype.descr
+		if isinstance(descr, (str, Text)):
+			# really the dtype.descr
+			self.dtype = str(descr)  # type: Union[str, List[Tuple[str, str]]]
 		else:
 			# numpy requires list-of-tuples-of-strings
 			# TODO(jerry): Support triples?
@@ -103,6 +106,7 @@ class TableReader(object):
 	"""
 
 	def __init__(self, path):
+		# type: (str) -> None
 		self._path = path
 
 		# Read the table's attributes file
@@ -125,16 +129,22 @@ class TableReader(object):
 		# List the column file names. Ignore the 'attributes.json' file.
 		self._columnNames = {p for p in os.listdir(path) if '.json' not in p}
 
+	@property
+	def path(self):
+		# type: () -> str
+		return self._path
+
 
 	def readAttribute(self, name):
+		# type: (str) -> Any
 		"""
 		Return an attribute value.
 
 		Parameters:
-			name (str): The attribute name.
+			name: The attribute name.
 
 		Returns:
-			value (any): The attribute value, JSON-deserialized from a string.
+			value: The attribute value, JSON-deserialized from a string.
 		"""
 
 		if name not in self._attributes:
@@ -143,6 +153,7 @@ class TableReader(object):
 
 
 	def readColumn2D(self, name, indices=None):
+		# type: (str, Any) -> np.ndarray
 		"""
 		Load a full column (all rows). Each row entry is a 1-D NumPy array of
 		subcolumns, so the result is a 2-D array row x subcolumn. In the case
@@ -161,9 +172,10 @@ class TableReader(object):
 		and their performance measurements.
 
 		Parameters:
-			name (str): The name of the column.
-			indices (ndarray[int]): The subcolumn indices to select from each
-				entry, or None to read in all data. Specifying this argument
+			name: The name of the column.
+			indices: The subcolumn indices to select from each entry. This can
+				be any value that works to index an ndarray along 1 dimension,
+				or None for all the data. Specifying this argument
 				for variable-length columns will throw an error.
 
 				If provided, this can give a performance boost for columns that
@@ -189,23 +201,24 @@ class TableReader(object):
 			smaller table like BulkMolecules/atpRequested.
 		"""
 		def decomp(raw_block):
+			# type: (bytes) -> np.ndarray
 			'''Decompress and unpack a raw block to an ndarray.'''
 			data = decompressor(raw_block)
 
 			if variable_length:
-				entries = np.frombuffer(data, header.dtype)
+				entries_ = np.frombuffer(data, header.dtype)
 			else:
-				entries = np.frombuffer(data, header.dtype).reshape(
+				entries_ = np.frombuffer(data, header.dtype).reshape(
 					-1, header.elements_per_entry)
 				if indices is not None:
-					entries = entries[:, indices]
+					entries_ = entries_[:, indices]
 
-			return entries
+			return entries_
 
 		if name not in self._columnNames:
 			raise DoesNotExistError("No such column: {}".format(name))
 
-		entry_blocks = []
+		entry_blocks = []  # type: List[bytes]
 		row_size_blocks = []
 
 		# Read the header and read, decompress, and unpack all the blocks.
@@ -219,9 +232,10 @@ class TableReader(object):
 				raise VariableLengthColumnError(
 					'Attempted to access subcolumns of a variable-length column {}.'.format(name))
 
-			decompressor = (
-				zlib.decompress if header.compression_type == tw.COMPRESSION_TYPE_ZLIB
-				else lambda data_bytes: data_bytes)
+			if header.compression_type == tw.COMPRESSION_TYPE_ZLIB:
+				decompressor = lambda data_bytes: zlib.decompress(data_bytes)  # type: Callable[[bytes], bytes]
+			else:
+				decompressor = lambda data_bytes: data_bytes
 
 			while True:
 				try:
@@ -249,26 +263,26 @@ class TableReader(object):
 			raise EOFError('Number of entry blocks ({}) does not match number of row size blocks ({}).'.format(
 				len(entry_blocks), len(row_size_blocks)))
 
-		raw_entry = None  # release the block ref
+		del raw_entry  # release the block ref
 
 		# Variable-length columns
 		if variable_length:
 			# Concatenate row sizes array
 			row_sizes_list = [
 				np.frombuffer(block, tw.ROW_SIZE_CHUNK_DTYPE)
-				for block in row_size_blocks]
+				for block in row_size_blocks]  # type: List[Iterable[int]]
 			all_row_sizes = np.concatenate(row_sizes_list)
 
 			# Initialize results array to NaNs
 			result = np.full((len(all_row_sizes), all_row_sizes.max()), np.nan)
 
 			row = 0
-			for raw_entry, row_sizes in zip(entry_blocks, row_sizes_list):
+			for raw_entry, row_sizes_ in zip(entry_blocks, row_sizes_list):
 				entries = decomp(raw_entry)
 				entry_idx = 0
 
-				# Fill each row with the length given by values in row_sizes
-				for row_size in row_sizes:
+				# Fill each row with the length given by values in row_sizes_
+				for row_size in row_sizes_:
 					result[row, :row_size] = entries[entry_idx : (entry_idx + row_size)]
 					entry_idx += row_size
 					row += 1
@@ -295,6 +309,7 @@ class TableReader(object):
 
 
 	def readColumn(self, name, indices=None):
+		# type: (str, Any) -> np.ndarray
 		'''
 		Read a column via readColumn2D() then squeeze() the resulting
 		NumPy array into a 0D, 1D, or 2D array, depending on the number
@@ -307,8 +322,8 @@ class TableReader(object):
 		n rows x m subcolumns => 2D.
 
 		Args:
-			name (str): the column name.
-			indices (ndarray[int]): The subcolumn indices to select from each
+			name: the column name.
+			indices: The subcolumn indices to select from each
 				entry, or None to read in all data. See readColumn2D().
 
 		Returns:
@@ -351,7 +366,7 @@ class TableReader(object):
 		"""
 		Returns a list of ordinary (client-provided) attribute names.
 		"""
-		names = [k for k in self._attributes.iterkeys() if not k.startswith('_')]
+		names = [key for key in self._attributes if not key.startswith('_')]
 		return names
 
 

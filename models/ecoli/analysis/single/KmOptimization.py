@@ -5,7 +5,7 @@
 
 from __future__ import absolute_import, division, print_function
 
-import cPickle
+from six.moves import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt

@@ -17,6 +17,7 @@ from wholecell.io.tablereader import TableReader
 from wholecell.utils.sparkline import whitePadSparklineAxis
 from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from models.ecoli.analysis import singleAnalysisPlot
+from six.moves import range
 
 
 def plot_data(gs, col, time, x, y, label, molecule_names):
@@ -39,8 +40,8 @@ def plot_data(gs, col, time, x, y, label, molecule_names):
 	ylim = ax.get_ylim()
 	ax.set_ylim(ylim[0] - 0.1, ylim[1])
 	ax.set_xlim(xlim[0] - 0.1, xlim[1])
-	ax.set_yticks(range(-6, int(ylim[1]) + 1, 2))
-	ax.set_xticks(range(-6, int(xlim[1]) + 1, 2))
+	ax.set_yticks(list(range(-6, int(ylim[1]) + 1, 2)))
+	ax.set_xticks(list(range(-6, int(xlim[1]) + 1, 2)))
 	ax.tick_params(axis='both', which='major', labelsize=6)
 
 	# Plot ratio of actual concentration to target concentration

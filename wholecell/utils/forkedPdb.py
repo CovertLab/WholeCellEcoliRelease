@@ -14,7 +14,7 @@ class ForkedPdb(Pdb):
 	"""
 	def set_trace(self, frame = None):
 		_stdin = sys.stdin
-		sys.stdin = file("/dev/stdin")
+		sys.stdin = open("/dev/stdin")
 		if frame is None:
 			frame = sys._getframe().f_back
 		Pdb("Linux").set_trace(frame)

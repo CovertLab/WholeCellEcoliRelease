@@ -16,7 +16,7 @@ Outputs:
 from __future__ import absolute_import, division, print_function
 
 import argparse
-import cPickle
+from six.moves import cPickle
 import csv
 import os
 import time

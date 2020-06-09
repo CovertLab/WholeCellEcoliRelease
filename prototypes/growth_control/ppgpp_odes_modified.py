@@ -21,6 +21,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 from scipy.integrate import odeint
 from scipy.integrate import ode
+from six.moves import range
 
 
 file_location = os.path.dirname(os.path.realpath(__file__))
@@ -31,8 +32,8 @@ nAvogadro = 6e23
 proteinContent = 15e8
 
 # indices for concentrations
-aa_indices = range(nAA)
-ta_indices = range(nAA, 2 * nAA)
+aa_indices = list(range(nAA))
+ta_indices = list(range(nAA, 2 * nAA))
 ppgpp_index = ta_indices[-1] + 1
 r_index = ppgpp_index + 1
 

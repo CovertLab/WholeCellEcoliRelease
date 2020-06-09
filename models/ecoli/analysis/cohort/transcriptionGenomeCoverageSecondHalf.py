@@ -9,10 +9,10 @@ Plots fraction of mRNAs transcribed (out of all genes to be transcribed) for all
 from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
 
 import numpy as np
 import matplotlib.pyplot as plt
+from six.moves import cPickle, range
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader

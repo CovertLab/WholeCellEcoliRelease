@@ -7,9 +7,11 @@
 from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
+
 import numpy as np
 import matplotlib.pyplot as plt
+from six.moves import cPickle, range
+
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
@@ -202,7 +204,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		# plot monomers that are not involved in complexes or involved in only 1 complex
 		monomersInManyComplexes_index = [ids_translation.index(x) for x in monomersInManyComplexes_id]
-		A = [x for x in xrange(len(ids_translation)) if x not in monomersInManyComplexes_index]
+		A = [x for x in range(len(ids_translation)) if x not in monomersInManyComplexes_index]
 		for i in A:
 			color = colors[mrnaIds.index(rnaIds[i])]
 			ax0.loglog(avgProteinCounts_perCell[i], minProteinCounts[i], alpha = 0.5, color = color,lw = 0., marker = ".")

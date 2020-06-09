@@ -9,6 +9,7 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader, TableReaderError
 from wholecell.utils import units
+from six.moves import range
 
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):

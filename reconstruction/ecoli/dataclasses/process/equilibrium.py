@@ -14,6 +14,7 @@ import sympy as sp
 
 from wholecell.utils import build_ode, data, units
 from wholecell.utils.random import stochasticRound
+from six.moves import range
 
 
 class EquilibriumError(Exception):
@@ -246,7 +247,7 @@ class Equilibrium(object):
 		metsToRxnFluxes = self.stoichMatrix().copy()
 
 		metsToRxnFluxes[(np.abs(metsToRxnFluxes) > EPS).sum(axis = 1) > 1, : ] = 0
-		for colIdx in xrange(metsToRxnFluxes.shape[1]):
+		for colIdx in range(metsToRxnFluxes.shape[1]):
 			try:
 				firstNonZeroIdx = np.where(np.abs(metsToRxnFluxes[:, colIdx]) > EPS)[0][0]
 			except IndexError:
@@ -264,16 +265,16 @@ class Equilibrium(object):
 		'''
 		S = self.stoichMatrix()
 
-		yStrings = ["y[%d]" % x for x in xrange(S.shape[0])]
-		ratesFwdStrings = ["kf[%d]" % x for x in xrange(S.shape[0])]
-		ratesRevStrings = ["kr[%d]" % x for x in xrange(S.shape[0])]
+		yStrings = ["y[%d]" % x for x in range(S.shape[0])]
+		ratesFwdStrings = ["kf[%d]" % x for x in range(S.shape[0])]
+		ratesRevStrings = ["kr[%d]" % x for x in range(S.shape[0])]
 		y = sp.symbols(yStrings)
 		ratesFwd = sp.symbols(ratesFwdStrings)
 		ratesRev = sp.symbols(ratesRevStrings)
 
 		rates = []
 
-		for colIdx in xrange(S.shape[1]):
+		for colIdx in range(S.shape[1]):
 			negIdxs = np.where(S[:, colIdx] < 0)[0]
 			posIdxs = np.where(S[:, colIdx] > 0)[0]
 

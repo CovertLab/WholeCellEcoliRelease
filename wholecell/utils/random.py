@@ -11,6 +11,7 @@ Special random number generators.  Most are holdovers from the original port.
 from __future__ import absolute_import, division, print_function
 
 import numpy as np
+from six.moves import range
 
 def randCounts(randomState, counts, N):
 	counts = np.array(counts)
@@ -35,7 +36,7 @@ def randCounts(randomState, counts, N):
 
 	selectedCounts = np.zeros(np.shape(counts))
 
-	for i in xrange(N):
+	for i in range(N):
 		idx = np.ravel(np.where(randomState.randi(cumsumCounts[-1]) + 1 <= cumsumCounts))[0]
 		selectedCounts[idx] += 1
 		cumsumCounts[idx:] -= 1

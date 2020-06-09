@@ -6,7 +6,7 @@
 from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
+from six.moves import cPickle
 from typing import List, Optional, Tuple
 
 import numpy as np

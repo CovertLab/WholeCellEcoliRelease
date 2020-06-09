@@ -196,6 +196,7 @@ from wholecell.fireworks.firetasks import BuildCausalityNetworkTask
 from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
 from wholecell.utils import constants
 from wholecell.utils import filepath
+from six.moves import range
 
 
 def get_environment(variable, default):
@@ -232,7 +233,7 @@ LAST_VARIANT_INDEX = int(get_environment("LAST_VARIANT_INDEX", "0"))
 
 # This variable gets iterated over in multiple places
 # So be careful if you change it to xrange
-VARIANTS_TO_RUN = range(FIRST_VARIANT_INDEX, LAST_VARIANT_INDEX + 1)
+VARIANTS_TO_RUN = list(range(FIRST_VARIANT_INDEX, LAST_VARIANT_INDEX + 1))
 
 ### Set other simulation parameters
 
@@ -306,14 +307,14 @@ for i in VARIANTS_TO_RUN:
 	VARIANT_METADATA_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, "metadata")
 	VARIANT_COHORT_PLOT_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, "plotOut")
 
-	for j in xrange(SEED, SEED + N_INIT_SIMS):
+	for j in range(SEED, SEED + N_INIT_SIMS):
 		SEED_DIRECTORY = filepath.makedirs(VARIANT_DIRECTORY, "%06d" % j)
 		SEED_PLOT_DIRECTORY = filepath.makedirs(SEED_DIRECTORY, "plotOut")
 
-		for k in xrange(N_GENS):
+		for k in range(N_GENS):
 			GEN_DIRECTORY = filepath.makedirs(SEED_DIRECTORY, "generation_%06d" % k)
 
-			for l in (xrange(2**k) if not SINGLE_DAUGHTERS else [0]):
+			for l in (range(2**k) if not SINGLE_DAUGHTERS else [0]):
 				CELL_DIRECTORY = filepath.makedirs(GEN_DIRECTORY, "%06d" % l)
 				CELL_SIM_OUT_DIRECTORY = filepath.makedirs(CELL_DIRECTORY, "simOut")
 				CELL_PLOT_OUT_DIRECTORY = filepath.makedirs(CELL_DIRECTORY, "plotOut")
@@ -626,7 +627,7 @@ for i in VARIANTS_TO_RUN:
 
 	fw_this_variant_this_seed_this_analysis = None
 
-	for j in xrange(SEED, SEED + N_INIT_SIMS):
+	for j in range(SEED, SEED + N_INIT_SIMS):
 		log_info("\tQueueing Seed {}".format(j))
 		SEED_DIRECTORY = os.path.join(VARIANT_DIRECTORY, "%06d" % j)
 		SEED_PLOT_DIRECTORY = os.path.join(SEED_DIRECTORY, "plotOut")
@@ -654,12 +655,12 @@ for i in VARIANTS_TO_RUN:
 
 		sims_this_seed = collections.defaultdict(list)
 
-		for k in xrange(N_GENS):
+		for k in range(N_GENS):
 			log_info("\t\tQueueing Gen %02d." % (k,))
 			GEN_DIRECTORY = os.path.join(SEED_DIRECTORY, "generation_%06d" % k)
 			md_single = dict(md_multigen, gen = k)
 
-			for l in (xrange(2**k) if not SINGLE_DAUGHTERS else [0]):
+			for l in (range(2**k) if not SINGLE_DAUGHTERS else [0]):
 
 				log_info("\t\t\tQueueing Cell {}".format(l))
 				CELL_DIRECTORY = os.path.join(GEN_DIRECTORY, "%06d" % l)

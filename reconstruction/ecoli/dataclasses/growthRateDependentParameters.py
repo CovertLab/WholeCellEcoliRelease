@@ -14,6 +14,7 @@ from scipy import interpolate, stats
 import unum
 
 from wholecell.utils import units
+from six.moves import range
 
 
 NORMAL_CRITICAL_MASS = 975 * units.fg

@@ -15,6 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from . import parsimony
+from six.moves import range
 
 # TODO: replace some of the uglier structures with collections.namedtuple classes
 
@@ -269,7 +270,7 @@ def main():
 			np.bool
 			)
 
-		for iteration in xrange(1, MAX_ITERATIONS+1):
+		for iteration in range(1, MAX_ITERATIONS+1):
 			sd = call_if_callable(search_directions)
 
 			(

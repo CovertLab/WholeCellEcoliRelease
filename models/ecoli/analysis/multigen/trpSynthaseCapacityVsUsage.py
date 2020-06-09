@@ -11,7 +11,7 @@ from __future__ import absolute_import, division, print_function
 import os
 
 from matplotlib import pyplot as plt
-import cPickle
+from six.moves import cPickle
 
 from wholecell.io.tablereader import TableReader
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths

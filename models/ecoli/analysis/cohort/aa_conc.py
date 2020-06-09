@@ -7,11 +7,11 @@ Comparison of average amino acid concentrations to expected concentrations
 
 from __future__ import absolute_import, division, print_function
 
-import cPickle
 import os
 
 from matplotlib import pyplot as plt
 import numpy as np
+from six.moves import cPickle, range
 
 from models.ecoli.analysis import cohortAnalysisPlot
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
@@ -69,7 +69,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		n_row = 6
 		n_col = 4
-		for idx in xrange(len(aa_ids)):
+		for idx in range(len(aa_ids)):
 			ave_conc = aa_conc[:, idx].mean()
 			plt.subplot(n_row, n_col, idx + 1)
 			plt.hist(aa_conc[:, idx])

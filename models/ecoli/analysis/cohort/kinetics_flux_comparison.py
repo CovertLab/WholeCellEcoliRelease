@@ -8,12 +8,12 @@ Compare fluxes in simulation to target fluxes
 from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
 import csv
 
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.stats import pearsonr
+from six.moves import cPickle, range
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
@@ -139,8 +139,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		ylim = ax.get_ylim()
 		ax.set_ylim(ylim[0] - 0.5, ylim[1])
 		ax.set_xlim(xlim[0] - 0.5, xlim[1])
-		ax.set_yticks(range(-6, int(ylim[1]) + 1, 2))
-		ax.set_xticks(range(-6, int(xlim[1]) + 1, 2))
+		ax.set_yticks(list(range(-6, int(ylim[1]) + 1, 2)))
+		ax.set_xticks(list(range(-6, int(xlim[1]) + 1, 2)))
 		ax.legend()
 
 		exportFigure(plt, plotOutDir, plotOutFileName)

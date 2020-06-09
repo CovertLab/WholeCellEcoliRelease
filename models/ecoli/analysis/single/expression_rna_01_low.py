@@ -29,6 +29,7 @@ from matplotlib import pyplot as plt
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
+from six.moves import range
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
@@ -63,7 +64,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		plt.figure(figsize = (8.5, 11))
 
-		for subplotIdx in xrange(1, 10):
+		for subplotIdx in range(1, 10):
 
 			plt.subplot(3, 3, subplotIdx)
 

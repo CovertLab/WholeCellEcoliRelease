@@ -7,7 +7,7 @@ Plots ribosome capacity
 
 from __future__ import absolute_import, division, print_function
 
-import cPickle
+from six.moves import cPickle
 
 from matplotlib import pyplot as plt
 import numpy as np

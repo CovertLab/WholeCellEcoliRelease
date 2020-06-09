@@ -23,6 +23,7 @@ from typing import Any, Callable, Iterable, List, Optional, Tuple
 
 import wholecell.utils.filepath as fp
 from wholecell.sim.simulation import DEFAULT_SIMULATION_KWARGS
+from six.moves import range
 
 
 METADATA_KEYS = (
@@ -495,7 +496,7 @@ class ScriptBase(object):
 		for range_option in self.range_options:
 			if getattr(args, range_option):
 				start, end = getattr(args, range_option)
-				values = range(start, end+1)
+				values = list(range(start, end+1))
 			else:
 				values = [getattr(args, RANGE_ARGS[range_option])]
 

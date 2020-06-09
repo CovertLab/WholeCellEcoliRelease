@@ -70,6 +70,7 @@ from scipy.spatial import ConvexHull
 from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
 import matplotlib.pyplot as plt
+from six.moves import range
 
 
 COLORS_256 = [

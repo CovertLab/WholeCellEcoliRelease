@@ -133,7 +133,7 @@ class Media(object):
 		'''make all the media recipes in self.recipes'''
 
 		self.saved_media = {}
-		for new_media_id in self.recipes.iterkeys():
+		for new_media_id in self.recipes:
 			new_media = self.make_recipe(new_media_id)
 			self.saved_media[new_media_id] = new_media
 

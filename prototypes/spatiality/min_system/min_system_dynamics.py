@@ -14,6 +14,7 @@ import numpy as np
 from scipy.ndimage import convolve
 
 import matplotlib
+from six.moves import range
 
 ANIMATE = True
 SAVE_PLOT = True
@@ -210,7 +211,7 @@ def animate_step(DT_m, EDT_m, MinDD_c, MinDT_c, MinE_c, time):
 def save_plot(cytoplasm_out, membrane_out):
 	fig, axes = plt.subplots(N_PLOT, 6, figsize=(8,0.5*N_PLOT))
 
-	for a_slice in xrange(N_PLOT):
+	for a_slice in range(N_PLOT):
 		axes[a_slice, 0].text(0.5, 0.5, str(a_slice*PLOT_STEP_SIZE*DT)+'s')
 
 		# plot cytoplasm

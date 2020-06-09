@@ -1,17 +1,18 @@
 from __future__ import absolute_import, division, print_function
 
 import collections
-import cPickle
 import functools
 import numbers
 import os
 import re
 import sys
 import types
+from typing import Text
 
 import Bio.Seq
 import numpy as np
 import scipy.interpolate
+from six.moves import cPickle, range
 import sympy
 from sympy.matrices import dense
 import unum
@@ -38,6 +39,7 @@ LEAF_TYPES = (
 	wholecell.utils.unit_struct_array.UnitStructArray)
 
 WHITESPACE = re.compile(r'\s+')
+ANY_STRING = (bytes, str, Text)
 
 
 class Repr(object):
@@ -78,7 +80,7 @@ def is_leaf(value, leaves=LEAF_TYPES):
 	through the object tree.
 	"""
 	if isinstance(value, (collections.Mapping, collections.Sequence)):
-		return isinstance(value, basestring)
+		return isinstance(value, ANY_STRING)
 	return (callable(value)                 # it's callable
 			or isinstance(value, leaves)    # it's an instance of a declared leaf type
 			or not has_python_vars(value))  # an object without Python instance variables
@@ -289,7 +291,7 @@ def diff_trees(a, b):
 			a = list(a) + (len(b) - len(a)) * [Repr('--')]
 
 		diff = []
-		for index in xrange(len(a)):
+		for index in range(len(a)):
 			subdiff = diff_trees(a[index], b[index])
 			if subdiff:
 				diff.append(subdiff)

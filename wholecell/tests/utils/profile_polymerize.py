@@ -22,7 +22,7 @@ kernprof doesn't support that.
 """
 from __future__ import absolute_import, division, print_function
 
-import __builtin__
+from six.moves import builtins
 import sys
 import os
 import time
@@ -44,7 +44,7 @@ PAD_VALUE = polymerize.PAD_VALUE
 
 # Wrap with kernprof profiling decorator - will throw an error if we call this
 # script using the vanilla python interpreter.
-if 'profile' not in __builtin__.__dict__:
+if 'profile' not in builtins.__dict__:
 	raise Exception(
 		'kernprof @profile decorator not available.  This script should be '
 		+ 'invoked via kernprof -lv.  If invoked correctly and this error '

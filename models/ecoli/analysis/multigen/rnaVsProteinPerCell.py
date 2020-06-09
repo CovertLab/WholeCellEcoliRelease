@@ -9,10 +9,10 @@ Plots average RNA counts per cell vs average protein counts per cell.
 from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
 
 import numpy as np
 import matplotlib.pyplot as plt
+from six.moves import cPickle, range
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
@@ -185,7 +185,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		# plot monomers that are not involved in complexes or involved in only 1 complex
 		monomersInvolvedInManyComplexes_index = [ids_translation.index(x) for x in monomersInvolvedInManyComplexes_id]
-		A = [x for x in xrange(len(ids_translation)) if x not in monomersInvolvedInManyComplexes_index]
+		A = [x for x in range(len(ids_translation)) if x not in monomersInvolvedInManyComplexes_index]
 		for i in A:
 			color = colors[mrnaIds.index(rnaIds[i])]
 			ax.loglog(avgRnaCounts_perCell[i], avgProteinCounts_perCell[i], alpha = 0.5, marker = ".", lw = 0., color = color)

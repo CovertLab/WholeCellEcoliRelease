@@ -12,7 +12,7 @@ import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
+from six.moves import cPickle
 
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts

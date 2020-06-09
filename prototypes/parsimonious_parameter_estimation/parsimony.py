@@ -5,6 +5,7 @@ Functions related to finding 'unit parsimonious perturbation vectors'.
 from __future__ import absolute_import, division, print_function
 
 import numpy as np
+from six.moves import range
 
 def construct_parsimony_objects(
 		perturbed_parameter_directions,
@@ -114,10 +115,10 @@ def _nonredundant_directions(vectors, opposites_are_redundant = False):
 
 	vectors = vectors / np.sqrt(np.sum(np.square(vectors), 1))[:, None]
 
-	for i in xrange(n_vectors):
+	for i in range(n_vectors):
 		vector_i = vectors[i, :]
 
-		for j in xrange(i+1, n_vectors):
+		for j in range(i+1, n_vectors):
 			if is_nonredundant[j]:
 				vector_j = vectors[j, :]
 

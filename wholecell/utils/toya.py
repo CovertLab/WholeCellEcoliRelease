@@ -103,8 +103,8 @@ def process_simulated_fluxes(
 		lists will have units FLUX_UNITS.
 	"""
 	reaction_ids = np.array(reaction_ids)
-	means = []  # type: List[Unum]
-	stdevs = []  # type: List[Unum]
+	means = []  # type: List[np.ndarray]
+	stdevs = []  # type: List[np.ndarray]
 	for output_id in output_ids:
 		time_course = []  # type: List[Unum]
 		for i_rxn_id in root_to_id_indices_map[output_id]:

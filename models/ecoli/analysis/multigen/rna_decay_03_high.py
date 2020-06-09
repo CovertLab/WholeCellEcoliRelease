@@ -22,8 +22,8 @@ from __future__ import absolute_import, division, print_function
 import os
 
 import numpy as np
-import cPickle
 from matplotlib import pyplot as plt
+from six.moves import cPickle, range
 
 from wholecell.io.tablereader import TableReader
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
@@ -91,12 +91,12 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		for dt, rnaDegradedCount, rnaCount in zip(dts, rnaDegradedCounts, rnaCounts):
 			tmpArray = np.nan * np.ones_like(rnaDegradedCount)
-			for colIdx in xrange(tmpArray.shape[1]):
+			for colIdx in range(tmpArray.shape[1]):
 				tmpArray[:, colIdx] = np.convolve(rnaDegradedCount[:, colIdx] / dt, np.ones(N) / N, mode = "same")
 			rnaDegradedCountsAveraged.append(tmpArray[N:-1*N, :])
 
 			tmpArray = np.nan * np.ones_like(rnaCount)
-			for colIdx in xrange(tmpArray.shape[1]):
+			for colIdx in range(tmpArray.shape[1]):
 				tmpArray[:, colIdx] = np.convolve(rnaCount[:, colIdx], np.ones(N) / N, mode = "same")
 			rnaCountsAveraged.append(tmpArray[N:-1*N, :])
 
@@ -105,7 +105,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		plt.figure(figsize = (8.5, 11))
 
-		for subplotIdx in xrange(1, 10):
+		for subplotIdx in range(1, 10):
 
 			plt.subplot(3, 3, subplotIdx)
 

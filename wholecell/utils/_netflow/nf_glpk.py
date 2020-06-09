@@ -30,11 +30,14 @@ from __future__ import absolute_import, division, print_function
 
 from collections import defaultdict
 from enum import Enum
+
 import numpy as np
 from scipy.sparse import coo_matrix
+import six
 import swiglpk as glp
 
 from ._base import NetworkFlowProblemBase
+from six.moves import range
 
 class MessageLevel(Enum):
 	OFF = glp.GLP_MSG_OFF  # no output
@@ -324,7 +327,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		return self._objective[flow]
 
 	def getFlowRates(self, flows):
-		if isinstance(flows, basestring):
+		if isinstance(flows, six.string_types):
 			flows = (flows,)
 
 		self._solve()
@@ -414,7 +417,7 @@ class NetworkFlowGLPK(NetworkFlowProblemBase):
 		data = _toDoubleArray(A_coo.data)
 		n_elems = len(A_coo.row)
 
-		for row in xrange(1, self._n_eq_constraints + 1):
+		for row in range(1, self._n_eq_constraints + 1):
 			glp.glp_set_row_bnds(self._lp, row, glp.GLP_FX, 0.0, 0.0)
 		glp.glp_load_matrix(self._lp, n_elems, rowIdxs, colIdxs, data)
 

@@ -21,6 +21,7 @@ import wholecell.processes.process
 from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease
 from wholecell.utils.random import stochasticRound
 from wholecell.utils import units
+from six.moves import range
 
 MICROMOLAR_UNITS = units.umol / units.L
 

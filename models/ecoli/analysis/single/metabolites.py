@@ -7,7 +7,7 @@ Shows fold change of metabolites over the course of the simulation
 
 from __future__ import absolute_import, division, print_function
 
-import cPickle
+from six.moves import cPickle
 import os
 
 import numpy as np

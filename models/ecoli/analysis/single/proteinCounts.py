@@ -12,7 +12,7 @@ import os
 import numpy as np
 from scipy.stats import pearsonr
 from matplotlib import pyplot as plt
-import cPickle
+from six.moves import cPickle
 
 from wholecell.io.tablereader import TableReader
 from wholecell.utils.fitting import normalize

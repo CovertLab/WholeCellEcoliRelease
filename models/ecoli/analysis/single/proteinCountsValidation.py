@@ -8,7 +8,7 @@ Compare protein counts to Wisniewski 2014 and Schmidt 2015 data sets
 from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
+from six.moves import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt

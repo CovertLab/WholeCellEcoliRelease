@@ -8,7 +8,7 @@ test_bulk_objects_container.py
 
 from __future__ import absolute_import, division, print_function
 
-import cPickle
+from six.moves import cPickle
 import os
 import shutil
 import tempfile

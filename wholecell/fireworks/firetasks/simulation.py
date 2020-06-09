@@ -1,7 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 import time
-import cPickle
+from six.moves import cPickle
 
 from fireworks import FiretaskBase, explicit_serialize
 from models.ecoli.sim.simulation import EcoliSimulation

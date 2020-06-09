@@ -24,6 +24,7 @@ import unittest
 
 import numpy as np
 import scipy.integrate
+from six.moves import range
 
 
 def clock2():
@@ -217,7 +218,7 @@ class Test_library_performance(unittest.TestCase):
 
 	def multitest_dot(self):
 		"""Time NumPy matrix dot() many times."""
-		for iteration in xrange(100):
+		for iteration in range(100):
 			self.test_dot()
 
 	def test_int_dot_int(self):

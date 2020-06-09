@@ -44,11 +44,14 @@ Conclusions 2018-11-15:
 
 from __future__ import absolute_import, division, print_function
 
-import numpy as np
+from functools import reduce
 import os
 import sys
 from time import clock
 import zlib
+
+import numpy as np
+from six.moves import range
 
 from wholecell.io.tablereader import TableReader
 
@@ -109,7 +112,7 @@ def decompress_list_block(bytestrings):
 
 def ndarray_to_bytestrings(nd):
 	'''Export a 2D NumPy array to a list of bytestrings.'''
-	return [nd[i, :].tobytes() for i in xrange(nd.shape[0])]
+	return [nd[i, :].tobytes() for i in range(nd.shape[0])]
 
 def sum_len(bytestrings):
 	'''Return the total length in a list of bytestrings.'''
@@ -182,7 +185,7 @@ def measure_block(array):
 		print('zlib {:<3d} {:9d} {:9d} {:8d} {:8.4f} {:6.1f}% {:6.1f}%'.format(*tup))
 
 def measure_tables(basepath, table_columns):
-	for table, columns in table_columns.iterkeys():
+	for table, columns in table_columns:
 		reader = TableReader(os.path.join(basepath, table))
 		for column in columns:
 			array = reader.readColumn2D(column)
@@ -210,7 +213,7 @@ def measure_block_subranges(array, table_name='', column_name=''):
 	rows_log2 = int(np.log2(rows))
 	max_ = 2 ** rows_log2
 	power_of_2_array = array[:max_, :]  # limited to 2**max rows for this test
-	for power in xrange(0, rows_log2 + 1):
+	for power in range(0, rows_log2 + 1):
 		rows_per_block = 2 ** power
 		data = power_of_2_array.reshape(max_ // rows_per_block, -1)
 		measure_block(data)

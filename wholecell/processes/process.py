@@ -96,7 +96,7 @@ class Process(object):
 	# TODO: consider an object-oriented interface to reading/writing to listeners
 	# that way, processes would use object handles instead of strings
 	def writeToListener(self, listenerName, attributeName, value, writeMethod = WriteMethod.update):
-		if listenerName not in self._sim.listeners.viewkeys():
+		if listenerName not in self._sim.listeners:
 			warnings.warn("The {} process attempted to write {} to the {} listener, but there is no listener with that name.".format(
 				self._name,
 				attributeName,
@@ -146,7 +146,7 @@ class Process(object):
 
 
 	def readFromListener(self, listenerName, attributeName):
-		if listenerName not in self._sim.listeners.viewkeys():
+		if listenerName not in self._sim.listeners:
 			raise Exception("The {} process attempted to read {} from the {} listener, but there is no listener with that name.".format(
 				self._name,
 				attributeName,
