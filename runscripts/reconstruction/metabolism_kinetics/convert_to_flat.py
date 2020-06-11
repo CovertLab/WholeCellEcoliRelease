@@ -44,7 +44,7 @@ if __name__ == '__main__':
 	with open(INPUT_FILE) as f:
 		print('Reading from {}'.format(f.name))
 		reader = csv.reader(f, delimiter='\t', quotechar="'")
-		header = reader.next()  # type: List[str]
+		header = next(reader)  # type: List[str]
 
 		n_cols = header.index(LAST_COLUMN) + 1  # number of columns to keep
 		enzyme_col = header.index(ENZYME_COLUMN)

@@ -24,6 +24,7 @@ from wholecell.utils import units
 from wholecell.utils.random import stochasticRound
 from wholecell.utils.constants import REQUEST_PRIORITY_METABOLISM
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
+from six.moves import zip
 
 
 COUNTS_UNITS = units.mmol

@@ -15,9 +15,10 @@ from collections import OrderedDict
 import numpy as np
 
 from reconstruction.spreadsheets import JsonWriter, JsonReader, read_tsv
+import six
 
 def flip_dict(dct):
-	return {value:key for key, value in dct.viewitems()}
+	return {value:key for key, value in six.viewitems(dct)}
 
 KEY = "id"
 
@@ -200,8 +201,8 @@ DISABLED = { # complexes we don't form for modeling reasons
 	}
 
 IGNORED = (
-	SUBUNIT_PROENZYME.viewkeys()
-	| MODIFIED_FORM.viewkeys()
+	six.viewkeys(SUBUNIT_PROENZYME)
+	| six.viewkeys(MODIFIED_FORM)
 	| NONSPECIFIC_METABOLITES
 	| UNIDENTIFIED_GENE
 	| MISC_OR_UNEXPLAINED
@@ -334,13 +335,13 @@ poly.append({
 species_weights = {}
 
 met_index = MW_KEYS.index("metabolite")
-for key, value in met.viewitems():
+for key, value in six.viewitems(met):
 	w = np.zeros(N_MW)
 	w[met_index] = value["mw7.2"]
 	species_weights[key] = np.array(w)
 
 water_index = MW_KEYS.index("water")
-for key, value in water.viewitems():
+for key, value in six.viewitems(water):
 	w = np.zeros(N_MW)
 	w[water_index] = value["mw7.2"]
 	species_weights[key] = np.array(value["mw7.2"])
@@ -368,7 +369,7 @@ with open(RNA_FILE, "r") as f:
 
 	rna_data = lod_to_dod(reader, KEY)
 
-for rna_id, rna_entry in rna_data.viewitems():
+for rna_id, rna_entry in six.viewitems(rna_data):
 	new_weight = ntp_terminal_weight + np.dot(ntp_weights, rna_entry["ntCount"])
 
 	mw = rna_entry["mw"]
@@ -398,7 +399,7 @@ with open(PROT_FILE, "r") as f:
 
 prot_loc = {}
 
-for prot_id, prot_entry in prot_data.viewitems():
+for prot_id, prot_entry in six.viewitems(prot_data):
 	aa_counts = np.zeros(aa_weights.size, np.int64)
 	for c in prot_entry["seq"]:
 		aa_counts[AA_SYM_ORDER[c]] += 1
@@ -441,19 +442,19 @@ bad_rxns = set()
 while comp_rxns:
 	to_remove = set()
 
-	for comp_rxn_id, comp_rxn in comp_rxns.viewitems():
+	for comp_rxn_id, comp_rxn in six.viewitems(comp_rxns):
 		stoich = {s["molecule"]:s["coeff"] for s in comp_rxn["stoichiometry"]}
 
-		subunits = set(mid for mid, c in stoich.viewitems() if c < 0)
+		subunits = set(mid for mid, c in six.viewitems(stoich) if c < 0)
 
-		(comp_id,) = [mid for mid, c in stoich.viewitems() if c > 0]
+		(comp_id,) = [mid for mid, c in six.viewitems(stoich) if c > 0]
 
 		if (subunits & IGNORED) or comp_id in IGNORED:
 			bad_rxns.add(comp_rxn_id)
 			to_remove.add(comp_rxn_id)
 			continue
 
-		if subunits <= set(species_weights.viewkeys()):
+		if subunits <= set(six.viewkeys(species_weights)):
 			weight = np.zeros(N_MW)
 			for subunit in subunits:
 				weight += -stoich[subunit] * species_weights[subunit]
@@ -495,9 +496,9 @@ while comp_rxns:
 	if len(to_remove) == 0:
 		unrecognized_subunits = {
 			s["molecule"]
-			for comp_rxn in comp_rxns.viewvalues()
+			for comp_rxn in six.viewvalues(comp_rxns)
 			for s in comp_rxn["stoichiometry"]
-			} - species_weights.viewkeys() - comp_data.viewkeys()
+			} - six.viewkeys(species_weights) - six.viewkeys(comp_data)
 
 		raise Exception("{} unrecognized subunits: {}".format(len(unrecognized_subunits), "\n".join(unrecognized_subunits)))
 

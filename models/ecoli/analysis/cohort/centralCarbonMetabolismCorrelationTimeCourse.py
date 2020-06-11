@@ -85,7 +85,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 				plt.xlabel("Time (min)")
 				plt.ylabel("Pearson R")
 
-		plt.legend(line_instances.values(), ["Seed {}".format(x) for x in line_instances.keys()], loc="best")
+		plt.legend(list(line_instances.values()), ["Seed {}".format(x) for x in line_instances.keys()], loc="best")
 
 		plt.subplots_adjust(hspace = 0.2, wspace = 0.5)
 		exportFigure(plt, plotOutDir, plotOutFileName,metadata)

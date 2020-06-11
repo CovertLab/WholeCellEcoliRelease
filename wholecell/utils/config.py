@@ -10,6 +10,7 @@ from __future__ import absolute_import, division, print_function
 
 import os
 import json
+import six
 
 defaultConfig = json.load(
 	open(os.path.join('wholecell', 'utils', 'default_config.cfg'))
@@ -28,7 +29,7 @@ if not os.path.exists(userConfigPath):
 
 userConfig = json.load(open(userConfigPath))
 
-unknownOptions = userConfig.viewkeys() - defaultConfig.keys()
+unknownOptions = six.viewkeys(userConfig) - six.viewkeys(defaultConfig)
 
 if unknownOptions:
 	raise Exception("Unknown configuration options defined in {}: {}".format(

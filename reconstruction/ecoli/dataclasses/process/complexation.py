@@ -10,7 +10,8 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 from wholecell.utils import units
-from six.moves import range
+from six.moves import range, zip
+
 
 class ComplexationError(Exception):
 	pass
@@ -154,7 +155,7 @@ class Complexation(object):
 		coefficient of one.
 		'''
 		info = self._moleculeRecursiveSearch(cplxId, self.stoichMatrix(), self.moleculeNames)
-		return {'subunitIds': np.array(info.keys()), 'subunitStoich': np.array(info.values())}
+		return {'subunitIds': np.array(list(info.keys())), 'subunitStoich': np.array(list(info.values()))}
 
 	def _buildStoichMatrixMonomers(self):
 		"""

@@ -22,6 +22,7 @@ from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import parallelization, units
 from wholecell.utils.sparkline import whitePadSparklineAxis
+from six.moves import zip
 
 
 MODEL_FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
@@ -228,13 +229,13 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 		# Pull information from sim data and listeners in parallel
 		pool = parallelization.pool(num_processes=self.cpus)
-		args = zip(
+		args = list(zip(
 			variants,
 			[ap] * n_variants,
 			[toya_reactions] * n_variants,
 			[toya_fluxes] * n_variants,
 			[outlier_filter] * n_variants
-			)
+			))
 		results = pool.map(analyze_variant, args)
 		pool.close()
 		pool.join()

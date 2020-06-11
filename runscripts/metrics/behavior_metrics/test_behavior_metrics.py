@@ -8,6 +8,7 @@ import unittest
 
 import mock
 import numpy as np
+import six
 
 from models.ecoli.analysis.single.centralCarbonMetabolismScatter import (
 	FLUX_UNITS)
@@ -86,7 +87,7 @@ class TestParseDataConfig(unittest.TestCase):
 			"B": {"args": ["A"]},
 			"C": {"args": ["B"]},
 		}
-		with self.assertRaisesRegexp(InvalidDependencyGraphError, "cycle"):
+		with six.assertRaisesRegex(self, InvalidDependencyGraphError, "cycle"):
 			BehaviorMetrics.order_operations(config)
 
 	def _assertComesBefore(self, indexed_order, earlier, later):

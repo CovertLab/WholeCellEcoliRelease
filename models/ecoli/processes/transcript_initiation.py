@@ -17,10 +17,11 @@ import numpy as np
 import scipy.sparse
 from typing import cast
 
+from six.moves import zip
+
 import wholecell.processes.process
 from wholecell.utils import units
 
-from itertools import izip
 
 class TranscriptInitiation(wholecell.processes.process.Process):
 	""" TranscriptInitiation """
@@ -63,8 +64,8 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 					if rna_data['id'] in sim_data.genetic_perturbations]
 
 			self.genetic_perturbations = {
-				'fixedRnaIdxs': map(lambda pair: pair[0], probability_indexes),
-				'fixedSynthProbs': map(lambda pair: pair[1], probability_indexes)
+				'fixedRnaIdxs': [pair[0] for pair in probability_indexes],
+				'fixedSynthProbs': [pair[1] for pair in probability_indexes]
 				}
 
 		# If initiationShuffleIdxs does not exist, set value to None
@@ -343,6 +344,6 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		promoters for RNA A, whose synthesis probability should be fixed to
 		0.1, each promoter is given an initiation probability of 0.05.
 		"""
-		for idx, synth_prob in izip(fixed_indexes, fixed_synth_probs):
+		for idx, synth_prob in zip(fixed_indexes, fixed_synth_probs):
 			fixed_mask = (TU_index == idx)
 			self.promoter_init_probs[fixed_mask] = synth_prob / fixed_mask.sum()

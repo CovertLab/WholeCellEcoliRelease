@@ -37,6 +37,7 @@ Example:
 from __future__ import absolute_import, division, print_function
 
 from wholecell.utils import units
+import six
 
 
 INF = float("inf")
@@ -176,7 +177,7 @@ class Media(object):
 			new_media = base_media
 
 		# remove concentration units, setting at CONC_UNITS
-		unitless_new_media = {mol: conc.asNumber(CONC_UNITS) for mol, conc in new_media.iteritems()}
+		unitless_new_media = {mol: conc.asNumber(CONC_UNITS) for mol, conc in six.viewitems(new_media)}
 
 		return unitless_new_media
 
@@ -193,12 +194,12 @@ class Media(object):
 		'''
 
 		# intialize new_media
-		new_media = {mol_id: 0.0 * CONC_UNITS for mol_id, conc in base_media.iteritems()}
+		new_media = {mol_id: 0.0 * CONC_UNITS for mol_id, conc in six.viewitems(base_media)}
 
 		# get new_media volume
 		new_volume = base_media_volume + mix_media_volume
 
-		for mol_id, base_conc in base_media.iteritems():
+		for mol_id, base_conc in six.viewitems(base_media):
 			mix_conc = mix_media[mol_id]
 
 			if base_conc.asNumber() == INF or mix_conc.asNumber() == INF:
@@ -235,16 +236,16 @@ class Media(object):
 		'''
 
 		# intialize new_media
-		new_media = {mol_id: 0.0 * CONC_UNITS for mol_id, conc in base_media.iteritems()}
+		new_media = {mol_id: 0.0 * CONC_UNITS for mol_id, conc in six.viewitems(base_media)}
 
 		# get new_media volume
 		ingredients_volume = 0 * VOLUME_UNITS
-		for quantities in ingredients.itervalues():
+		for quantities in six.viewvalues(ingredients):
 			ingredients_volume += quantities['volume']
 		new_volume = base_media_volume + ingredients_volume
 
 		# get new_media concentrations from mixing ingredients
-		for mol_id, base_conc in base_media.iteritems():
+		for mol_id, base_conc in six.viewitems(base_media):
 
 			if mol_id in ingredients:
 				base_counts = base_conc * base_media_volume

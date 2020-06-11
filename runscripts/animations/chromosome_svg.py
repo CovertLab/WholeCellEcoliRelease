@@ -83,7 +83,7 @@ def write_svg(dirname, idx, count, frac1, frac2):
 def main():
 	folder = os.path.dirname(__file__)
 	reader = csv.reader(open(os.path.join(folder, "repAnimation.tsv"), "r"), delimiter="\t")
-	reader.next()
+	next(reader)
 	for line in reader:
 		write_svg(os.path.join(folder, "svg"), float(line[0]), float(line[1]), float(line[2]), float(line[3]))
 

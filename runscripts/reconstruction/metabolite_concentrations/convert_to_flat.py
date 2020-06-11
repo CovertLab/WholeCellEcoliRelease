@@ -23,7 +23,7 @@ import csv
 import os
 import sys
 import time
-import urllib
+from six.moves.urllib import request
 
 import numpy as np
 from typing import Any, Dict, Tuple
@@ -150,7 +150,7 @@ def lempp_concentrations():
 		reader = csv.reader(f, delimiter='\t')
 
 		start_conc_col = reader.next().index('intracellular concentrations (\xc2\xb5M)')
-		reader.next()  # discard line
+		next(reader)  # discard line
 		n_conc = np.sum([t.startswith('t0') for t in reader.next()[start_conc_col:]])
 		end_conc_col = start_conc_col + n_conc
 		id_col = reader.next().index('KEGG')
@@ -182,8 +182,8 @@ def park_concentrations():
 	with open(PARK_INPUT) as f:
 		reader = csv.reader(f, delimiter='\t')
 
-		reader.next()  # discard line
-		headers = reader.next()
+		next(reader)  # discard line
+		headers = next(reader)
 		id_col = headers.index('KEGG ID')
 		conc_col = headers.index('E. coli')
 
@@ -191,7 +191,7 @@ def park_concentrations():
 			met_id = line[id_col]
 			try:
 				conc = float(line[conc_col])
-			except ValueError as e:
+			except ValueError as _:
 				# Concentration data does not exist ('-')
 				continue
 
@@ -216,7 +216,7 @@ def load_kochanowski(filename):
 	with open(filename) as f:
 		reader = csv.reader(f, delimiter='\t')
 
-		reader.next()  # discard line
+		next(reader)  # discard line
 		headers = reader.next()[1:]
 		valid_conditions = np.array([h in KOCHANOWSKI_MEDIA for h in headers])
 		condition_headers = np.array([KOCHANOWSKI_MEDIA.get(h) for h in headers])[valid_conditions]
@@ -265,13 +265,13 @@ def kegg_to_ecocyc(data):
 		new_data: new dictionary with EcoCyc IDs
 	"""
 
-	kegg_ids = data.keys()
+	kegg_ids = list(data.keys())
 	mapping = {}
 	id_type = 'Kegg:'
 	url = 'https://websvc.biocyc.org/ECOLI/foreignid?ids='
 	ids = ','.join(['{}{}'.format(id_type, i) for i in kegg_ids])
 
-	u = urllib.urlopen(url + ids)
+	u = request.urlopen(url + ids)
 	reader = csv.reader(u, delimiter='\t')
 
 	for line in reader:

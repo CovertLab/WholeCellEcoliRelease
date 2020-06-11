@@ -12,6 +12,7 @@ import os
 
 import numpy as np
 from matplotlib import pyplot as plt
+import six
 from six.moves import cPickle, range
 
 from wholecell.io.tablereader import TableReader
@@ -38,7 +39,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		rna_ids = rna_synth_prob_reader.readAttribute("rnaIds")
 
 		argRIndex = tf_ids.index("CPLX0-228")
-		target_ids = sim_data.tfToFC["CPLX0-228"].keys()
+		target_ids = six.viewkeys(sim_data.tfToFC["CPLX0-228"])
 		target_idx = np.array(
 			[rna_ids.index(target_id + "[c]") for target_id in target_ids])
 

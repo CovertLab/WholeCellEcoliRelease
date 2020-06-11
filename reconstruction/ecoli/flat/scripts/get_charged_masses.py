@@ -17,6 +17,7 @@ import numpy as np
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 from reconstruction.ecoli.simulation_data import SimulationDataEcoli
 from reconstruction.spreadsheets import JsonWriter
+from six.moves import zip
 
 # file paths
 file_loc = os.path.dirname(__file__)

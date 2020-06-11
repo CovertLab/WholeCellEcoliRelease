@@ -15,13 +15,14 @@ from __future__ import absolute_import, division, print_function
 
 import os
 import sys
-import time
-
-import numpy as np
 from typing import Callable, List
 
-from wholecell.io.tablereader import TableReader
+import numpy as np
 from six.moves import range
+
+from wholecell.io.tablereader import TableReader
+from wholecell.utils.py3 import monotonic_seconds
+
 
 ITERS = 10
 BLOCK_SIZE = 5000  # roughly number of proteins or RNA
@@ -39,10 +40,10 @@ def test_method(method, text):
 	'''
 
 	counts = np.array([])
-	start = time.time()
+	start = monotonic_seconds()
 	for i in range(ITERS):
 		counts = method()
-	end = time.time()
+	end = monotonic_seconds()
 
 	print('\t{}: {:.3f} s'.format(text, end - start))
 

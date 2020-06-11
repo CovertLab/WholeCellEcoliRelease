@@ -20,6 +20,7 @@ from models.ecoli.analysis import variantAnalysisPlot
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.utils import filepath
+from six.moves import zip
 
 NUMERICAL_ZERO = 1e-12
 

@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 from wholecell.utils.sparkline import whitePadSparklineAxis
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
+from six.moves import zip
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
@@ -141,7 +142,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		nSubG = len(subgenerational_monomerIds)
 		nSubGMonomers = len(subG_noncomplex_indices)
 		nSubGMonomersInComplexes = nSubG - nSubGMonomers
-		nSubGComplexes = len(complexMinCounts_dict.keys())
+		nSubGComplexes = len(complexMinCounts_dict)
 		nSubGFunctionalUnits = nSubGMonomers + nSubGComplexes
 
 		text = "%s total subgenerational genes" % nSubG

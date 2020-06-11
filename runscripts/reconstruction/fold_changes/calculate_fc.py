@@ -14,6 +14,7 @@ import numpy as np
 from typing import Any, Dict, Iterable, List, Tuple
 
 from reconstruction.spreadsheets import JsonWriter
+from six.moves import zip
 
 
 FILE_LOCATION = os.path.dirname(os.path.realpath(__file__))

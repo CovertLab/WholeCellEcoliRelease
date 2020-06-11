@@ -21,6 +21,7 @@ from typing import Any, Dict
 
 from wholecell.utils import units
 from wholecell.utils.make_media import Media
+import six
 
 
 # threshold (units.mmol / units.L) separates concentrations that are import constrained with
@@ -90,14 +91,14 @@ class ExternalState(object):
 			mol["molecule id"]: mol["molecule id"] + mol["exchange molecule location"]
 			for mol_index, mol in enumerate(raw_data.condition.environment_molecules)
 			}
-		self.exchange_to_env_map = {v: k for k, v in self.env_to_exchange_map.viewitems()}
+		self.exchange_to_env_map = {v: k for k, v in six.viewitems(self.env_to_exchange_map)}
 
 		# make dict with exchange molecules for all saved environments, using env_to_exchange_map
 		self.exchange_dict = {}
-		for media, concentrations in self.saved_media.iteritems():
+		for media, concentrations in six.viewitems(self.saved_media):
 			self.exchange_dict[media] = {
 				self.env_to_exchange_map[mol]: conc
-				for mol, conc in concentrations.iteritems()
+				for mol, conc in six.viewitems(concentrations)
 				}
 
 	def exchange_data_from_concentrations(self, molecules):
@@ -134,7 +135,7 @@ class ExternalState(object):
 
 		oxygen_id = 'OXYGEN-MOLECULE[p]'
 
-		exchange_molecules = {self.env_to_exchange_map[mol]: conc for mol, conc in molecules.iteritems()}
+		exchange_molecules = {self.env_to_exchange_map[mol]: conc for mol, conc in six.viewitems(molecules)}
 
 		# Unconstrained uptake if greater than import threshold
 		importUnconstrainedExchangeMolecules = {molecule_id

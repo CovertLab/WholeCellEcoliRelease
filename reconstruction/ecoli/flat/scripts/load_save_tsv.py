@@ -8,7 +8,7 @@ def load_tsv(file_name):
 
 def write_tsv(list_of_dicts, file_name):
 	with open(file_name, "w") as outfile:
-		fieldnames = list_of_dicts[0].keys()
+		fieldnames = list(list_of_dicts[0].keys())
 		writer = JsonWriter(outfile, fieldnames)
 		writer.writeheader()
 		writer.writerows(list_of_dicts)

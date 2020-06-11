@@ -9,6 +9,7 @@ import sys
 import traceback
 
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
+from six.moves import map
 
 
 def full_traceback(func):
@@ -142,7 +143,7 @@ class InlinePool(object):
 	def map(self, func, iterable, chunksize=None):
 		# type: (Callable[..., Any], Iterable[Any], Optional[int]) -> List[Any]
 		"""Map the function over the iterable."""
-		return map(func, iterable)
+		return list(map(func, iterable))
 
 	def apply_async(self, func, args=(), kwds=None, callback=None):
 		# type: (Callable[..., Any], Iterable[Any], Optional[Dict[str, Any]], Optional[Callable[..., None]]) -> ApplyResult

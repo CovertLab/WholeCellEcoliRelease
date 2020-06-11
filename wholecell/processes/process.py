@@ -49,7 +49,7 @@ class Process(object):
 	def initialize(self, sim, sim_data):
 		self._sim = sim
 
-		self._processIndex = sim.processes.keys().index(self._name)
+		self._processIndex = list(sim.processes.keys()).index(self._name)
 
 		self._internal_states = sim.internal_states
 		self._external_states = sim.external_states

@@ -12,16 +12,15 @@ TODO:
 
 from __future__ import absolute_import, division, print_function
 
-from itertools import izip
 
 import numpy as np
 from scipy.integrate import odeint
+from six.moves import range, zip
 
 import wholecell.processes.process
 from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease
 from wholecell.utils.random import stochasticRound
 from wholecell.utils import units
-from six.moves import range
 
 MICROMOLAR_UNITS = units.umol / units.L
 
@@ -691,7 +690,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		f_trna[~np.isfinite(f_trna)] = 0
 
 		trna_counts = np.zeros(f_trna.shape, np.int64)
-		for count, row in izip(n_aa, self.process.aa_from_trna):
+		for count, row in zip(n_aa, self.process.aa_from_trna):
 			idx = (row == 1)
 			frac = f_trna[idx]
 

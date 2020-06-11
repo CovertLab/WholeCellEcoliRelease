@@ -18,11 +18,12 @@ if os.name == 'posix' and sys.version_info[0] < 3:
 else:
 	import subprocess as subprocess3
 	subprocess = subprocess3
-from typing import Any, Generator, Optional, Sequence, Text, Tuple, Union
+from typing import Any, Generator, Optional, Sequence, Tuple
 
 import six
 
 import wholecell
+from wholecell.utils.py3 import String
 
 
 TIMEOUT = 60  # seconds
@@ -34,8 +35,6 @@ MATPLOTLIBRC_FILE = os.path.join(ROOT_PATH, 'matplotlibrc')
 
 # Regex for current and previous timestamp() formats: 'YYYYMMDD.HHMMSS[.uuuuuu]'.
 TIMESTAMP_PATTERN = r'\d{8}\.\d{6}(?:\.\d{6})?'
-
-String = Union[str, Text]
 
 def makedirs(path, *paths):
 	# type: (str, str) -> str

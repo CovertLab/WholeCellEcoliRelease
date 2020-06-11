@@ -13,6 +13,7 @@ from bokeh.models import (HoverTool, BoxZoomTool, LassoSelectTool, PanTool,
 from models.ecoli.analysis import parcaAnalysisPlot
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.utils import filepath
+from six.moves import zip
 
 
 class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):

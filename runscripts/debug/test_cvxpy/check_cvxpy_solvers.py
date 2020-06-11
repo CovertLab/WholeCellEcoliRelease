@@ -13,10 +13,11 @@ Results for solver options:
 from __future__ import absolute_import, division, print_function
 
 import os
-import time
 
 from cvxpy import Variable, Problem, Minimize, norm
 import numpy as np
+
+from wholecell.utils.py3 import monotonic_seconds
 
 
 solvers = ['GLPK', 'ECOS', 'SCS', 'OSQP']
@@ -39,7 +40,7 @@ def test_solver(problem, output, solver):
 		solver (str): solver method to use
 	'''
 
-	start = time.time()
+	start = monotonic_seconds()
 
 	try:
 		problem.solve(solver=solver)
@@ -47,7 +48,7 @@ def test_solver(problem, output, solver):
 		print('\nSolving with {} failed: {}'.format(solver, e))
 		return
 
-	print('\n{} solved in {:.2f} s'.format(solver, time.time() - start))
+	print('\n{} solved in {:.2f} s'.format(solver, monotonic_seconds() - start))
 
 	sol = np.array(output.value).reshape(-1)
 

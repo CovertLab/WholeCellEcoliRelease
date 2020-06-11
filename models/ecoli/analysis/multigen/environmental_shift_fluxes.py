@@ -21,6 +21,7 @@ from wholecell.utils.sparkline import whitePadSparklineAxis
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
+from six.moves import zip
 
 START = 8300
 SHIFT = 11000

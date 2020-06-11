@@ -19,6 +19,7 @@ from wholecell.io.tablereader import TableReader
 from wholecell.utils.sparkline import whitePadSparklineAxis
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
+import six
 
 PLOT_GENES_OF_INTEREST = False
 PLOT_DENOMINATOR_N_EACH_FREQ_GROUP = False
@@ -296,7 +297,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		geneFunctions = validation_data.geneFunctions.geneFunctions
 		unknown = {"r": 0, "g": 0, "b": 0}
 		resistance = {"r": 0, "g": 0, "b": 0}
-		for frameID, function_ in geneFunctions.iteritems():
+		for frameID, function_ in six.viewitems(geneFunctions):
 			if function_ in ["Unknown function", "Unclear/under-characterized"]:
 				i = np.where([frameID in x for x in mRnaIdsOrdered])[0][0]
 				f = transcribedBoolOrdered[i]

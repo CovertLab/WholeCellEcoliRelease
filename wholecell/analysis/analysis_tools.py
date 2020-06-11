@@ -5,19 +5,17 @@ Analysis script toolbox functions
 from __future__ import absolute_import, division, print_function
 
 import os
-from typing import Text
 
 import numpy as np
 
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import filepath
+from wholecell.utils.py3 import ANY_STRING
 
 LOW_RES_DIR = 'low_res_plots'
 SVG_DIR = 'svg_plots'
 HTML_DIR = 'html_plots'
 LOW_RES_DPI = 120
-
-ANY_STRING = (bytes, str, Text)
 
 
 def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None, transparent=False,

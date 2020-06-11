@@ -63,7 +63,7 @@ def number_params(sim_data):
 	n_protein_deg_rates = len(sim_data.process.translation.monomerData['degRate'])
 	n_translation_efficiencies = len(sim_data.process.translation.translationEfficienciesByMonomer)
 	n_synth_prob = len(sim_data.process.transcription.rnaSynthProb
-		[sim_data.process.transcription.rnaSynthProb.keys()[0]])
+		[list(sim_data.process.transcription.rnaSynthProb.keys())[0]])
 
 	return n_rna_deg_rates, n_protein_deg_rates, n_translation_efficiencies, n_synth_prob
 

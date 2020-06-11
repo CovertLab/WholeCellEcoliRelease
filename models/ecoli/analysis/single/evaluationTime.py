@@ -14,6 +14,7 @@ from matplotlib.gridspec import GridSpec
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
+from six.moves import zip
 
 
 def subplot(gs, x, y, title, labels, sort=False):

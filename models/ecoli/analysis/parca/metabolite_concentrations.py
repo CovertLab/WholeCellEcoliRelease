@@ -19,6 +19,7 @@ from six.moves import cPickle, range
 from models.ecoli.analysis import parcaAnalysisPlot
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.utils import constants, units
+from six.moves import zip
 
 
 CONC_UNITS = units.mmol / units.L

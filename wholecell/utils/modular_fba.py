@@ -6,12 +6,13 @@
 
 from __future__ import absolute_import, division, print_function
 
-from itertools import izip
+
 from typing import Dict, Type
 import warnings
 
 import numpy as np
 import six
+from six.moves import zip
 
 from wholecell.utils._netflow._base import NetworkFlowProblemBase
 
@@ -332,7 +333,7 @@ class FluxBalanceAnalysis(object):
 
 		for reactionID in sorted(reactionStoich):
 			stoichiometry = reactionStoich[reactionID]
-			for moleculeID, stoichCoeff in stoichiometry.viewitems():
+			for moleculeID, stoichCoeff in six.viewitems(stoichiometry):
 				self._solver.setFlowMaterialCoeff(
 					reactionID,
 					moleculeID,
@@ -458,7 +459,7 @@ class FluxBalanceAnalysis(object):
 		if biomassSatisfactionWeight < 0:
 			raise FBAError("flexFBA beta parameter must be nonnegative")
 
-		if any(coeff < 0 for coeff in objective.viewvalues()):
+		if any(coeff < 0 for coeff in six.viewvalues(objective)):
 			warnings.warn("flexFBA is not designed to use negative biomass coefficients")
 
 		# Add biomass to objective
@@ -562,7 +563,7 @@ class FluxBalanceAnalysis(object):
 		to minimize the distance between the current metabolite level and some
 		target level, as defined in the objective."""
 
-		if any(coeff < 0 for coeff in objective.viewvalues()):
+		if any(coeff < 0 for coeff in six.viewvalues(objective)):
 			raise FBAError("Homeostatic FBA is not designed to use negative biomass coefficients")
 
 		self._homeostaticTargetMolecules.update(set(objective.keys()))
@@ -701,7 +702,7 @@ class FluxBalanceAnalysis(object):
 			upperBound = 1,
 			)
 
-		for reactionID, expectedFlux in objective.iteritems():
+		for reactionID, expectedFlux in six.viewitems(objective):
 			if expectedFlux < 0:
 				raise FBAError("Target flux for reaction {} is negative. Kinetic targets must be positive - set the value for the (reverse) reaction if a negative flux is desired.".format(reactionID))
 
@@ -1005,7 +1006,7 @@ class FluxBalanceAnalysis(object):
 			-1
 			)
 
-		for moleculeID, stoichCoeff in maintenanceReaction.viewitems():
+		for moleculeID, stoichCoeff in six.viewitems(maintenanceReaction):
 			self._solver.setFlowMaterialCoeff(
 				self._reactionID_GAM,
 				moleculeID,
@@ -1048,7 +1049,7 @@ class FluxBalanceAnalysis(object):
 		levels_array = np.empty(len(self._externalMoleculeIDs))
 		levels_array[:] = levels
 
-		for moleculeID, level in izip(self._externalMoleculeIDs, levels_array):
+		for moleculeID, level in zip(self._externalMoleculeIDs, levels_array):
 			flowID = self._generatedID_externalExchange + moleculeID
 
 			if level < 0:
@@ -1076,7 +1077,7 @@ class FluxBalanceAnalysis(object):
 		if (levels_array < 0).any():
 			raise InvalidBoundaryError("Negative molecule levels not allowed")
 
-		for moleculeID, level in izip(self._internalMoleculeIDs, levels_array):
+		for moleculeID, level in zip(self._internalMoleculeIDs, levels_array):
 			flowID = self._generatedID_internalExchange + moleculeID
 
 			if self._forceInternalExchange:
@@ -1191,8 +1192,8 @@ class FluxBalanceAnalysis(object):
 		change = np.zeros(len(self._outputMoleculeIDs))
 
 		for i, stoich in enumerate(self._outputMoleculeCoeffs):
-			flowRates = self._solver.getFlowRates(stoich.viewkeys())
-			coeffs = stoich.values()
+			flowRates = self._solver.getFlowRates(six.viewkeys(stoich))
+			coeffs = list(stoich.values())
 			change[i] = np.dot(flowRates, coeffs)
 
 		return -change
@@ -1316,7 +1317,7 @@ class FluxBalanceAnalysis(object):
 				]
 			unity_ids = [i + rxn for rxn in reactionIDs for i in generated_ids]
 
-		fluxes = {rxn: flux for rxn, flux in izip(unity_ids, self.getReactionFluxes(unity_ids))}
+		fluxes = {rxn: flux for rxn, flux in zip(unity_ids, self.getReactionFluxes(unity_ids))}
 
 		for idx, reactionID in enumerate(reactionIDs):
 			if reactionID not in self._active_kinetic_targets:
@@ -1350,7 +1351,7 @@ class FluxBalanceAnalysis(object):
 			if targets is None:
 				return default
 
-			if not (isinstance(targets, list) or isinstance(targets, np.ndarray)):
+			if not (isinstance(targets, (list, np.ndarray))):
 				targets = [targets]
 
 			if (np.array(targets) < 0).any():
@@ -1371,7 +1372,7 @@ class FluxBalanceAnalysis(object):
 		upper_targets = validate_targets(upper_targets, reactionIDs, default=mean_targets)
 
 		# Change the objective normalization
-		for reactionID, mean, lower, upper in izip(reactionIDs, mean_targets, lower_targets, upper_targets):
+		for reactionID, mean, lower, upper in zip(reactionIDs, mean_targets, lower_targets, upper_targets):
 			if reactionID not in self._kineticTargetFluxes:
 				raise FBAError('Kinetic targets can only be set for reactions'
 					' initialized to be kinetic targets. {} is not set up for it.'

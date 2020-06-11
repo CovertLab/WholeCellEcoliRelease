@@ -18,6 +18,7 @@ from models.ecoli.analysis import singleAnalysisPlot
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
+from six.moves import zip
 
 
 PLOT_TOP_N_GENES = 30

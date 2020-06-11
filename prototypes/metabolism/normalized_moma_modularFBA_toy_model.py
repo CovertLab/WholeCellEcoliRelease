@@ -1,6 +1,8 @@
 from __future__ import absolute_import, division, print_function
 
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
+import six
+from six.moves import zip
 
 KCAT_MAX = 1.4e6
 
@@ -102,7 +104,7 @@ def checkErrors(
 
 	fba_moma = FluxBalanceAnalysis(
 		reactionStoich=reactionStoichiometry,
-		externalExchangedMolecules=transportLimits_.keys(),
+		externalExchangedMolecules=list(transportLimits_.keys()),
 		objective=targetFluxes,
 		objectiveType="moma",
 		objectiveParameters={"fixedReactionNames":fixedReactionNames, "normalizeFluxes":True},
@@ -113,7 +115,7 @@ def checkErrors(
 
 fba = FluxBalanceAnalysis(
 	reactionStoich=toyModelReactionStoich,
-	externalExchangedMolecules=transportLimits.keys(),
+	externalExchangedMolecules=list(transportLimits.keys()),
 	objective=biomassReactionStoich["v_biomass"],
 	objectiveType="standard",
 	solver="glpk",
@@ -124,7 +126,7 @@ wildtypeBiomassFlux = fba.getBiomassReactionFlux()
 
 # Adjust kcats
 targetFluxes = {}
-for reactionID, enzymeID in reactionEnzymes.iteritems():
+for reactionID, enzymeID in six.viewitems(reactionEnzymes):
 	targetFluxes[reactionID] = enzymeConcentrations[enzymeID] * enzymeKcats[enzymeID]
 targetFluxes["v_biomass"] = wildtypeBiomassFlux
 
@@ -132,7 +134,7 @@ errors, rates = checkErrors(targetFluxes)
 
 errors_dict = dict(zip(enzymeKcats, errors))
 
-kcat_adjustments = {enzymeID: error / enzymeConcentrations[enzymeID] for enzymeID, error in errors_dict.iteritems()}
+kcat_adjustments = {enzymeID: error / enzymeConcentrations[enzymeID] for enzymeID, error in six.viewitems(errors_dict)}
 
-for enzymeID, error in kcat_adjustments.iteritems():
+for enzymeID, error in six.viewitems(kcat_adjustments):
 	print("{} kcat error is {}.".format(enzymeID, error))

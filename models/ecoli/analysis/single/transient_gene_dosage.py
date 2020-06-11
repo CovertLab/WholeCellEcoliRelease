@@ -8,12 +8,13 @@ probabilities of RNAs.
 
 from __future__ import absolute_import, division, print_function
 
-from six.moves import cPickle
+
+import os
+
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
-from itertools import izip
-import os
+from six.moves import cPickle, zip
 
 from models.ecoli.analysis import singleAnalysisPlot
 from wholecell.analysis.analysis_tools import exportFigure
@@ -67,7 +68,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		fig.set_size_inches(8, 3 * n_plots)
 		gs = gridspec.GridSpec(n_plots, 1)
 
-		for i, (rna_id, rna_pos) in enumerate(izip(RNA_ID_LIST, relative_positions)):
+		for i, (rna_id, rna_pos) in enumerate(zip(RNA_ID_LIST, relative_positions)):
 			ax1 = plt.subplot(gs[i, 0])
 			ax1.set_ylabel("Transcription probability")
 			ax1.plot(time, synth_probs[:, i], label="Transcription probability")

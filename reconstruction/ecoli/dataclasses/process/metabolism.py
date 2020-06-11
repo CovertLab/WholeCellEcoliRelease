@@ -25,7 +25,8 @@ from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 # NOTE: Importing SimulationDataEcoli would make a circular reference so use Any.
 #from reconstruction.ecoli.simulation_data import SimulationDataEcoli
 from wholecell.utils import units
-from six.moves import range
+import six
+from six.moves import range, zip
 
 
 PPI_CONCENTRATION = 0.5e-3  # M, multiple sources
@@ -190,7 +191,7 @@ class Metabolism(object):
 		metaboliteConcentrations.append(PPI_CONCENTRATION)
 
 		# include metabolites that are part of biomass
-		for key, value in sim_data.mass.getBiomassAsConcentrations(sim_data.doubling_time).iteritems():
+		for key, value in six.viewitems(sim_data.mass.getBiomassAsConcentrations(sim_data.doubling_time)):
 			metaboliteIDs.append(key)
 			metaboliteConcentrations.append(value.asNumber(METABOLITE_CONCENTRATION_UNITS))
 
@@ -607,7 +608,7 @@ class Metabolism(object):
 				reverse_reaction_id = REVERSE_REACTION_ID.format(reaction_id)
 				reaction_stoich[reverse_reaction_id] = {
 					moleculeID:-stoichCoeff
-					for moleculeID, stoichCoeff in reaction_stoich[reaction_id].viewitems()
+					for moleculeID, stoichCoeff in six.viewitems(reaction_stoich[reaction_id])
 					}
 
 				reversible_reactions.append(reaction_id)
@@ -1183,7 +1184,7 @@ class Metabolism(object):
 # Class used to update metabolite concentrations based on the current nutrient conditions
 class ConcentrationUpdates(object):
 	def __init__(self, concDict, relative_changes, equilibriumReactions, exchange_data_dict):
-		self.units = units.getUnit(concDict.values()[0])
+		self.units = units.getUnit(list(concDict.values())[0])
 		self.defaultConcentrationsDict = dict((key, concDict[key].asNumber(self.units)) for key in concDict)
 		self.exchange_fluxes = self._exchange_flux_present(exchange_data_dict)
 		self.relative_changes = relative_changes
@@ -1241,7 +1242,7 @@ class ConcentrationUpdates(object):
 
 			# Adjust for concentration changes based on presence in media
 			exchanges = self.exchange_fluxes[media_id]
-			for moleculeName, setAmount in self.moleculeSetAmounts.iteritems():
+			for moleculeName, setAmount in six.viewitems(self.moleculeSetAmounts):
 				if ((moleculeName in exchanges and (moleculeName[:-3] + "[c]" not in self.moleculeScaleFactors or moleculeName == "L-SELENOCYSTEINE[c]"))
 						or (moleculeName in self.moleculeScaleFactors and moleculeName[:-3] + "[p]" in exchanges)):
 					if conversion_units:
@@ -1287,6 +1288,6 @@ class ConcentrationUpdates(object):
 			moleculeSetAmounts[moleculeName + "[p]"] = amountToSet * self.units
 			moleculeSetAmounts[moleculeName + "[c]"] = amountToSet * self.units
 
-		for moleculeName, scaleFactor in self.moleculeScaleFactors.iteritems():
+		for moleculeName, scaleFactor in six.viewitems(self.moleculeScaleFactors):
 			moleculeSetAmounts[moleculeName] = scaleFactor * concDict[moleculeName] * self.units
 		return moleculeSetAmounts

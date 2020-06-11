@@ -8,13 +8,13 @@ from __future__ import absolute_import, division, print_function
 
 import csv
 import io
-from itertools import ifilterfalse
 import json
 import re
 import numpy as np
 from typing import Any, cast, Dict, Sequence, Text
 
 import six
+from six.moves import filterfalse
 
 from wholecell.utils import units
 
@@ -41,7 +41,7 @@ def read_tsv(filename):
 	mode = 'rb' if six.PY2 else 'r'
 	encoding = None if six.PY2 else 'utf-8'
 	with io.open(filename, mode=mode, encoding=encoding) as fh:
-		reader = JsonReader(ifilterfalse(comment_line, fh), dialect=CSV_DIALECT)
+		reader = JsonReader(filterfalse(comment_line, fh), dialect=CSV_DIALECT)
 		return list(reader)
 
 
@@ -65,7 +65,7 @@ class JsonWriter(csv.DictWriter, object):
 	def _dict_to_list(self, rowdict):
 		return super(JsonWriter, self)._dict_to_list({
 			key:json.dumps(array_to_list(value))
-			for key, value in rowdict.viewitems()
+			for key, value in six.viewitems(rowdict)
 			})
 
 
@@ -88,7 +88,7 @@ class JsonReader(csv.DictReader, object):
 	def next(self):
 		# type: () -> Dict[str, Any]
 		attributeDict = {}  # type: Dict[Text, Any]
-		for key_, raw_value_ in super(JsonReader, self).next().viewitems():
+		for key_, raw_value_ in six.viewitems(super(JsonReader, self).next()):
 			# NOTE: Decoding UTF-8 bytes would be safer between DictReader and
 			# its csv.reader as in csv32, but this is much simpler.
 			if six.PY2:
@@ -105,7 +105,7 @@ class JsonReader(csv.DictReader, object):
 				repr(e)
 				raise Exception("failed to parse json string:{}".format(raw_value))
 
-			match = re.search('(.*?) \((.*?)\)', key)
+			match = re.search(r'(.*?) \((.*?)\)', key)
 			if match:
 				# Entry includes units so need to apply parsed units to values
 				_ = units  # don't warn about `units`; it's imported for eval()

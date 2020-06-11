@@ -13,12 +13,14 @@ from __future__ import absolute_import, division, print_function
 import numpy as np
 import scipy
 import re
+
+import six
 import sympy as sp
 
 from wholecell.utils import build_ode
 from wholecell.utils import data
 from wholecell.utils import units
-from six.moves import range
+from six.moves import range, zip
 
 
 class TwoComponentSystem(object):
@@ -256,7 +258,7 @@ class TwoComponentSystem(object):
 		Columns: complexes
 		Values: monomer stoichiometry
 		'''
-		ids_complexes = self.complexToMonomer.keys()
+		ids_complexes = six.viewkeys(self.complexToMonomer)
 		stoichMatrixMonomersI = []
 		stoichMatrixMonomersJ = []
 		stoichMatrixMonomersV = []
@@ -558,9 +560,11 @@ class TwoComponentSystem(object):
 
 		info = self.complexToMonomer
 		if cplxId in info:
-			out = {'subunitIds' : info[cplxId].keys(), 'subunitStoich' : info[cplxId].values()}
+			out = {
+				'subunitIds': list(info[cplxId].keys()),
+				'subunitStoich': list(info[cplxId].values())}
 		else:
-			out = {'subunitIds' : cplxId, 'subunitStoich' : 1}
+			out = {'subunitIds': cplxId, 'subunitStoich': 1}
 		return out
 
 

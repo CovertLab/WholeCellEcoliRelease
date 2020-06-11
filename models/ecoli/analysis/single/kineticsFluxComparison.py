@@ -28,6 +28,7 @@ from wholecell.analysis.plotting_tools import COLORS_LARGE
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
+from six.moves import zip
 
 BURN_IN_STEPS = 20
 

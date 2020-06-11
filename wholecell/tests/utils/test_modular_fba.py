@@ -11,6 +11,7 @@ from __future__ import absolute_import, division, print_function
 import unittest
 
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
+from six.moves import zip
 
 
 # TODO: test all solvers

@@ -7,17 +7,18 @@ import os
 import re
 import sys
 import types
-from typing import Text
 
 import Bio.Seq
 import numpy as np
 import scipy.interpolate
+import six
 from six.moves import cPickle, range
 import sympy
 from sympy.matrices import dense
 import unum
 
 from wholecell.utils import constants
+from wholecell.utils.py3 import ANY_STRING
 import wholecell.utils.unit_struct_array
 
 
@@ -39,7 +40,6 @@ LEAF_TYPES = (
 	wholecell.utils.unit_struct_array.UnitStructArray)
 
 WHITESPACE = re.compile(r'\s+')
-ANY_STRING = (bytes, str, Text)
 
 
 class Repr(object):
@@ -117,13 +117,13 @@ def object_tree(obj, path='', debug=None):
 		return obj
 	elif isinstance(obj, collections.Mapping):
 		return {key: object_tree(value, "{}['{}']".format(path, key), debug)
-			for (key, value) in obj.iteritems()}
+			for (key, value) in six.viewitems(obj)}
 	elif isinstance(obj, collections.Sequence):
 		return [object_tree(subobj, "{}[{}]".format(path, index), debug) for index, subobj in enumerate(obj)]
 	else:
 		attrs = all_vars(obj)
 		tree = {key: object_tree(value, "{}.{}".format(path, key), debug)
-				for (key, value) in attrs.iteritems()}
+				for (key, value) in six.viewitems(attrs)}
 		tree['!type'] = type(obj)
 
 		return tree

@@ -15,6 +15,7 @@ import numpy as np
 
 import wholecell.processes.process
 from wholecell.utils.polymerize import buildSequences
+from six.moves import zip
 
 
 class ChromosomeStructure(wholecell.processes.process.Process):

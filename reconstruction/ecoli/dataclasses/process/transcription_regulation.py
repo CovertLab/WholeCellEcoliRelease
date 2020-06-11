@@ -16,7 +16,7 @@ class TranscriptionRegulation(object):
 		self._buildLookups(raw_data, sim_data)
 
 		# Store list of transcription factor IDs
-		self.tf_ids = sim_data.tfToActiveInactiveConds.keys()
+		self.tf_ids = list(sim_data.tfToActiveInactiveConds.keys())
 
 		# Build dictionary mapping transcription factors to their Kds
 		self.tfKd = {}

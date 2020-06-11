@@ -47,7 +47,7 @@ with open(REACTION_FILE, "rU") as infile:
 			row1["forward rate"] = float(row1["forward rate"])
 			row1["reverse rate"] = float(row1["reverse rate"])
 			row1["stoichiometry"] = np.array(row1["stoichiometry"])
-			if row1["id"] in reactionDict.keys():
+			if row1["id"] in reactionDict:
 				row1["reverse rate"] = reactionDict[row1["id"]]
 			row1["original reverse rate"] = row1["reverse rate"]
 

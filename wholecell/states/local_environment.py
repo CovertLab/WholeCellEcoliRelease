@@ -25,6 +25,8 @@ import numpy as np
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 import wholecell.states.external_state
 from wholecell.utils import units
+import six
+from six.moves import zip
 
 
 COUNTS_UNITS = units.mmol
@@ -71,7 +73,7 @@ class LocalEnvironment(wholecell.states.external_state.ExternalState):
 		self._times = [t[0] for t in self.current_timeline]
 
 		# initialize molecule IDs and concentrations based on initial environment
-		self._moleculeIDs = [molecule_id for molecule_id, concentration in current_media.iteritems()]
+		self._moleculeIDs = [molecule_id for molecule_id, concentration in six.viewitems(current_media)]
 		concentrations = np.array([current_media[molecule_id] for molecule_id in self._moleculeIDs])
 		self._env_delta_counts = dict((molecule_id, 0) for molecule_id in self._moleculeIDs)
 

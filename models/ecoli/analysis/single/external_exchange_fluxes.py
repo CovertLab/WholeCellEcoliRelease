@@ -9,6 +9,7 @@ from matplotlib import pyplot as plt
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
+from six.moves import zip
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):

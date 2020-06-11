@@ -1,14 +1,15 @@
 from __future__ import absolute_import, division, print_function
 
-import subprocess
 import os
 import argparse
+
+import wholecell.utils.filepath as fp
 
 
 def findDirectories(directory):
 	allFiles = os.listdir(directory)
 	onlyDirs = []
-	for f in allFiles:	
+	for f in allFiles:
 		temp = os.path.join(directory,f)
 		if os.path.isdir(temp): onlyDirs.append(temp) 
 	return onlyDirs
@@ -17,7 +18,7 @@ def findFiles(directory,typeFile):
 	if not os.path.isdir(directory): return []
 	allFiles = os.listdir(directory)
 	onlyFiles = []
-	for f in allFiles:	
+	for f in allFiles:
 		temp = os.path.join(directory,f)
 		if os.path.isfile(temp):
 			if typeFile in f:
@@ -47,7 +48,7 @@ def main(out_directory):
 					for idx,pdfPlot in enumerate(allPdfPlots):
 						plotName = pdfPlot[:-4]
 						print('{}/{} Converting {} to {}'.format(idx, len(allPdfPlots), plotName + ".pdf", plotName + ".svg"))
-						subprocess.call(
+						fp.run_cmd(
 								[
 									"inkscape",
 									"-l",
@@ -57,7 +58,7 @@ def main(out_directory):
 							)
 
 						print('Creating low resolution {}'.format(plotName + ".png"))
-						subprocess.call(
+						fp.run_cmd(
 								[
 									"inkscape",
 									"--export-png",
@@ -68,7 +69,7 @@ def main(out_directory):
 							)
 
 						print('Moving {} to {}'.format(plotName + ".pdf", "pdf_plots"))
-						subprocess.call(
+						fp.run_cmd(
 								[
 									"mv",
 									os.path.join(plotDir, plotName + ".pdf"),

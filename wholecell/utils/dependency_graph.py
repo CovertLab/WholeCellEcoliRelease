@@ -2,13 +2,9 @@
 
 from __future__ import absolute_import, division, print_function
 
-from typing import List, Dict, Iterable, Text, Union
+from typing import List, Dict, Iterable
 
-
-# A type alias for Python 2 str or unicode; Python 3 str (not bytes).
-# After porting to Python 3, we can use plain `str`.
-# Note: Unions don't work with `isinstance()`.
-String = Union[str, Text]
+from wholecell.utils.py3 import String
 
 
 class InvalidDependencyGraphError(Exception):

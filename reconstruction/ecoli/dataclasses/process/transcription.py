@@ -21,6 +21,7 @@ from wholecell.utils.fitting import normalize
 from wholecell.utils.unit_struct_array import UnitStructArray
 from wholecell.utils.polymerize import polymerize
 from wholecell.utils.random import make_elongation_rates
+from six.moves import zip
 
 
 PROCESS_MAX_TIME_STEP = 2.

@@ -7,12 +7,11 @@ Plot rna synthesis probabilities
 
 from __future__ import absolute_import, division, print_function
 
-from six.moves import cPickle
 import os
-from itertools import izip
 
 from matplotlib import pyplot as plt
 import numpy as np
+from six.moves import cPickle, zip
 
 from models.ecoli.analysis import singleAnalysisPlot
 from wholecell.analysis.analysis_tools import exportFigure
@@ -75,7 +74,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			"rRNA\n(sum of %s rRNAs)" % n_rrnas,
 			]
 
-		for index, (title, synth_prob, avg_synth_prob, mass) in enumerate(izip(
+		for index, (title, synth_prob, avg_synth_prob, mass) in enumerate(zip(
 				subplot_titles, synth_probs, avg_synth_probs, normalized_mass)):
 
 			ax1 = plt.subplot(3, 1, index + 1)

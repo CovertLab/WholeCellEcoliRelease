@@ -16,12 +16,14 @@ import abc
 import os
 
 import matplotlib as mp
+import six
+
 from matplotlib import pyplot as plt
 from wholecell.utils import memory_debug, parallelization
 from wholecell.utils import filepath as fp
 
 
-class AnalysisPlot(object):
+class AnalysisPlot(six.with_metaclass(abc.ABCMeta, object)):
 	"""Abstract Base Class for analysis plots.
 
 	Each analysis class must override do_plot().
@@ -33,7 +35,6 @@ class AnalysisPlot(object):
 	Inputs:
 		cpus: allotted number of CPU cores; default (0) => all available cores
 	"""
-	__metaclass__ = abc.ABCMeta
 
 	def __init__(self, cpus=0):
 		self.cpus = parallelization.cpus(cpus)

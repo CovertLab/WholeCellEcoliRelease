@@ -47,13 +47,13 @@ from __future__ import absolute_import, division, print_function
 from functools import reduce
 import os
 import sys
-from time import clock
 import zlib
 
 import numpy as np
 from six.moves import range
 
 from wholecell.io.tablereader import TableReader
+from wholecell.utils.py3 import process_time_seconds
 
 
 CHUNK_HEADER_SIZE = 8
@@ -62,10 +62,9 @@ FLUSH_SUFFIX = b'\x00\x00\xff\xff'
 
 def timeit(f):
 	'''Time the execution of f(). Return (seconds, f())'''
-	c = clock
-	start = c()
+	start = process_time_seconds()
 	result = f()
-	end = c()
+	end = process_time_seconds()
 	return end - start, result
 
 def compress_list_incremental(bytestrings, level=6, wbits=15, flush_each=False):

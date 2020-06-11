@@ -6,6 +6,7 @@ import sys
 
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 from reconstruction.spreadsheets import JsonWriter
+import six
 
 OUTPUT_DIR = sys.argv[1]
 
@@ -35,7 +36,7 @@ with open(os.path.join(OUTPUT_DIR, "dryMassComposition.tsv"), "w") as outfile:
 			key:entry[key] for key in keys
 			})
 
-for kb_name, file_name in fraction_names.viewitems():
+for kb_name, file_name in six.viewitems(fraction_names):
 	array = getattr(kb, "_cell{}FractionData".format(kb_name))
 	keys = array.dtype.names
 

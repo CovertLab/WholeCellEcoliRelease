@@ -17,13 +17,14 @@ import argparse
 import csv
 import multiprocessing as mp
 import os
-import time
 
 from matplotlib import pyplot as plt
 import numpy as np
 from scipy.integrate import odeint
 from scipy.integrate import ode
-from six.moves import range
+from six.moves import range, zip
+
+from wholecell.utils.py3 import monotonic_seconds
 
 
 file_location = os.path.dirname(os.path.realpath(__file__))
@@ -321,7 +322,7 @@ def parse():
 
 
 if __name__ == '__main__':
-	start = time.time()
+	start = monotonic_seconds()
 
 	args = parse()
 
@@ -375,4 +376,4 @@ if __name__ == '__main__':
 		output_file = os.path.join(file_location, 'output', args.output)
 		simulate(args, params, output_file)
 
-	print('Completed in {:.1f} min'.format((time.time() - start) / 60))
+	print('Completed in {:.1f} min'.format((monotonic_seconds() - start) / 60))

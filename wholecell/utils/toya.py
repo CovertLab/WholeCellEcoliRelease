@@ -13,6 +13,7 @@ from models.ecoli.processes.metabolism import (
 	VOLUME_UNITS,
 	TIME_UNITS,
 )
+from six.moves import zip
 
 FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
 

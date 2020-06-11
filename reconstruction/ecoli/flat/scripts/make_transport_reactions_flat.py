@@ -13,6 +13,7 @@ import csv
 from typing import Dict
 
 from reconstruction.spreadsheets import read_tsv
+import six
 
 TSV_DIALECT = csv.excel_tab
 
@@ -26,8 +27,8 @@ for row in read_tsv(REACTIONS_FILE):
 	stoichiometry = row["stoichiometry"]  # type: Dict[str, int]
 
 	# get substrates and products
-	substrates = [mol_id for mol_id, coeff in stoichiometry.iteritems() if coeff < 0]
-	products = [mol_id for mol_id, coeff in stoichiometry.iteritems() if coeff > 0]
+	substrates = [mol_id for mol_id, coeff in six.viewitems(stoichiometry) if coeff < 0]
+	products = [mol_id for mol_id, coeff in six.viewitems(stoichiometry) if coeff > 0]
 	substrates_no_loc = [re.sub("[[@*&?].*[]@*&?]", "", mol_id) for mol_id in substrates]
 	products_no_loc = [re.sub("[[@*&?].*[]@*&?]", "", mol_id) for mol_id in products]
 

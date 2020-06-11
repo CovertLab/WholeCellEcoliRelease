@@ -20,6 +20,7 @@ from scipy.sparse import coo_matrix
 import six
 
 from ._base import NetworkFlowProblemBase
+from six.moves import zip
 
 
 class NetworkFlowCPLEX(NetworkFlowProblemBase):
@@ -73,13 +74,13 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 			if flowIdx is None:
 				raise ValueError("Invalid flow: {}".format(flow))
 
-			coeffs, flowIdxs = zip(*self._materialCoeffs[material])
+			coeffs, flowIdxs = list(zip(*self._materialCoeffs[material]))
 			coeffs = list(coeffs)
 			flowLoc = flowIdxs.index(flowIdx)
 			coeffs[flowLoc] = coefficient
-			self._materialCoeffs[material] = zip(coeffs, flowIdxs)
+			self._materialCoeffs[material] = list(zip(coeffs, flowIdxs))
 
-			self._model.linear_constraints.set_coefficients(zip([materialIdx], [flowIdx], [coefficient]))
+			self._model.linear_constraints.set_coefficients(list(zip([materialIdx], [flowIdx], [coefficient])))
 		else:
 			idx = self._getVar(flow)
 			self._materialCoeffs[material].append((coefficient, idx))
@@ -165,7 +166,7 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 			raise RuntimeError("Equality constraints not yet built. Finish construction of the problem before accessing S matrix.")
 		A = np.zeros((len(self._materialCoeffs), len(self._flows)))
 		self._materialIdxLookup = {}
-		for materialIdx, (material, pairs) in enumerate(sorted(self._materialCoeffs.viewitems())):
+		for materialIdx, (material, pairs) in enumerate(sorted(six.viewitems(self._materialCoeffs))):
 			self._materialIdxLookup[material] = materialIdx
 			for pair in pairs:
 				A[materialIdx, pair[1]] = pair[0]
@@ -200,7 +201,7 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 
 		# avoid creating duplicate constraints
 		self._materialIdxLookup = {}
-		for materialIdx, (material, pairs) in enumerate(sorted(self._materialCoeffs.viewitems())):
+		for materialIdx, (material, pairs) in enumerate(sorted(six.viewitems(self._materialCoeffs))):
 			self._materialIdxLookup[material] = materialIdx
 			for pair in pairs:
 				A[materialIdx, pair[1]] = pair[0]
@@ -211,7 +212,7 @@ class NetworkFlowCPLEX(NetworkFlowProblemBase):
 
 		# set solver constraints
 		self._model.linear_constraints.add(rhs=np.zeros(nMaterials), senses='E'*nMaterials)
-		self._model.linear_constraints.set_coefficients(zip(row.tolist(), col.tolist(), data.tolist()))
+		self._model.linear_constraints.set_coefficients(list(zip(row.tolist(), col.tolist(), data.tolist())))
 
 		self._eqConstBuilt = True
 

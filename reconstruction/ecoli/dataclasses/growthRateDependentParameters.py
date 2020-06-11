@@ -15,6 +15,8 @@ import unum
 
 from wholecell.utils import units
 from six.moves import range
+import six
+from six.moves import zip
 
 
 NORMAL_CRITICAL_MASS = 975 * units.fg
@@ -171,18 +173,18 @@ class Mass(object):
 		D["solublePool"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._solublePoolMassFractionParams))
 		D["inorganicIon"] = float(interpolate.splev(doubling_time.asNumber(units.min), self._inorganicIonMassFractionParams))
 
-		total = np.sum([y for x,y in D.iteritems()])
-		for key, value in D.iteritems():
+		total = np.sum([y for y in six.viewvalues(D)])
+		for key, value in six.viewitems(D):
 			if key != 'dna':
 				D[key] = value / total
-		assert np.absolute(np.sum([x for x in D.itervalues()]) - 1.) < 1e-3
+		assert np.absolute(np.sum([x for x in six.viewvalues(D)]) - 1.) < 1e-3
 		return D
 
 
 	def getFractionMass(self, doubling_time):
 		D = {}
 		massFraction = self.getMassFraction(doubling_time)
-		for key, value in massFraction.iteritems():
+		for key, value in six.viewitems(massFraction):
 			D[key + "Mass"] = value * self.getAvgCellDryMass(doubling_time)
 
 		return D
@@ -484,7 +486,7 @@ def _loadRow(key, list_of_dicts):
 		return np.array([x[key] for x in list_of_dicts])
 
 def _loadTableIntoObjectGivenDoublingTime(obj, list_of_dicts):
-	table_keys = list_of_dicts[0].keys()
+	table_keys = list(list_of_dicts[0].keys())
 
 	if 'doublingTime' not in table_keys:
 		raise Exception(

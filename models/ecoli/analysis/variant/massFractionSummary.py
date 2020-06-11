@@ -1,8 +1,10 @@
 from __future__ import absolute_import, division, print_function
 
 import os
-from matplotlib import pyplot as plt
 import itertools
+
+from matplotlib import pyplot as plt
+from six.moves import zip
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
@@ -37,7 +39,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 		# Build a mapping from variant id to color
 		idToColor = {}
-		for idx, (cell_id, color) in enumerate(itertools.izip(all_cells, itertools.cycle(COLORS_LARGE))):
+		for idx, (cell_id, color) in enumerate(zip(all_cells, itertools.cycle(COLORS_LARGE))):
 			idToColor[idx] = color
 
 		# noinspection PyTypeChecker

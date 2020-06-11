@@ -26,6 +26,7 @@ import numpy as np
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 from reconstruction.ecoli.fit_sim_data_1 import fitSimData_1
 from wholecell.utils import filepath
+from six.moves import zip
 
 
 FILE_LOCATION = os.path.dirname(os.path.realpath(__file__))
@@ -220,7 +221,7 @@ def save_metabolites(raw_data, sim_data, output):
 		output (str): path to tsv file with list of implemented genes
 	"""
 
-	metabolites = sim_data.process.metabolism.concDict.keys()
+	metabolites = list(sim_data.process.metabolism.concDict.keys())
 	bennett = [m['Metabolite'] for m in raw_data.metaboliteConcentrations
 		if not np.isnan(m['Bennett Concentration'].asNumber())]
 	lempp = [m['Metabolite'] for m in raw_data.metaboliteConcentrations

@@ -7,6 +7,7 @@ import json
 from typing import Dict, List
 
 from reconstruction.spreadsheets import read_tsv
+import six
 
 
 REACTIONS_FILE = os.path.join("reconstruction", "ecoli", "flat", "reactions.tsv")
@@ -59,7 +60,7 @@ def addFilteredEntries(rxnNamesEnzymes):
 		if name is not None:
 			d[name] = enzymes
 
-	for rxnName, enzymes in rxnNamesEnzymes.iteritems():
+	for rxnName, enzymes in six.viewitems(rxnNamesEnzymes):
 		if rxnName.endswith("-RXN"):
 			continue
 		add_enzymes(truncateNameRxnTrail(rxnName))

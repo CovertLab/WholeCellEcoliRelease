@@ -12,13 +12,14 @@ import os
 import posixpath
 import re
 import sys
+import six
 if os.name == 'posix' and sys.version_info[0] < 3:
 	import subprocess32 as subprocess2
 	subprocess = subprocess2
 else:
 	import subprocess as subprocess3
 	subprocess = subprocess3
-from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Text
+from typing import Any, Callable, Dict, Iterable, List, Optional, Set
 
 from borealis import gce
 from borealis.docker_task import DockerTask
@@ -28,6 +29,7 @@ from future.utils import raise_with_traceback
 import ruamel.yaml as yaml
 
 from wholecell.utils import filepath as fp
+from wholecell.utils.py3 import ANY_STRING
 
 
 STDOUT_PATH = '>'    # special path that captures stdout + stderror
@@ -40,8 +42,6 @@ STORAGE_ROOT_ENV_VAR = 'WORKFLOW_STORAGE_ROOT'
 # runscripts/cloud/mongo-ssh.sh
 DEFAULT_LPAD_YAML = 'my_launchpad.yaml'
 DEFAULT_FIREWORKS_DATABASE = 'default_fireworks_database'
-
-ANY_STRING = (bytes, str, Text)
 
 
 def _keyify(paths, fn=lambda path: path):
@@ -385,10 +385,10 @@ class Workflow(object):
 		"""Build all the FireWorks `Firework` objects for the workflow."""
 		built = OrderedDict()  # type: Dict[str, Firework]
 
-		for task in self._tasks.itervalues():
+		for task in six.viewvalues(self._tasks):
 			self._build_firework(task, built)
 
-		return built.values()
+		return list(built.values())
 
 	def build_workflow(self):
 		# type: () -> FwWorkflow

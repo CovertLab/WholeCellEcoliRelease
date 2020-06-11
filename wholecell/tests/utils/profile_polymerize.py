@@ -22,15 +22,16 @@ kernprof doesn't support that.
 """
 from __future__ import absolute_import, division, print_function
 
-from six.moves import builtins
 import sys
 import os
-import time
 import cProfile
 import pstats
-import StringIO
 
 import numpy as np
+from six.moves import builtins, StringIO
+
+from wholecell.utils.py3 import monotonic_seconds
+
 
 # EXPECTS: The current working directory is "wcEcoli/".
 # Put that on the sys path in place of this script's directory so
@@ -141,10 +142,10 @@ def _simpleProfile():
 	sequenceLengths = (sequences != PAD_VALUE).sum(axis = 1)
 	elongation_rates = []  # TODO: What to use here?
 
-	t = time.time()
+	t = monotonic_seconds()
 	sequenceElongation, monomerUsages, nReactions = polymerize(
 		sequences, monomerLimits, reactionLimit, randomState, elongation_rates)
-	evalTime = time.time() - t
+	eval_sec = monotonic_seconds() - t
 
 	assert (sequenceElongation <= sequenceLengths+1).all()
 	assert (monomerUsages <= monomerLimits).all()
@@ -167,7 +168,7 @@ For {} sequences of {} different monomers elongating by at most {}:
 		nSequences,
 		nMonomers,
 		length,
-		evalTime * 1000,
+		eval_sec * 1000,
 		nReactions,
 		sequenceElongation.mean(),
 		monomerUsages.sum()/monomerLimits.sum(),
@@ -191,7 +192,7 @@ def _fullProfile():
 		sequences, monomerLimits, reactionLimit, randomState, elongation_rates)
 
 	pr.disable()
-	s = StringIO.StringIO()
+	s = StringIO()
 	sortby = 'cumulative'
 	ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
 	ps.print_stats()

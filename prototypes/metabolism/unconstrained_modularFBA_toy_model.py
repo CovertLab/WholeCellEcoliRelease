@@ -32,7 +32,7 @@ transportLimits = {
 
 fba = FluxBalanceAnalysis(
 	reactionStoich=toyModelReactionStoich,
-	externalExchangedMolecules=transportLimits.keys(),
+	externalExchangedMolecules=list(transportLimits.keys()),
 	objective=biomassReactionStoich["v_biomass"],
 	objectiveType="standard",
 	solver="glpk",

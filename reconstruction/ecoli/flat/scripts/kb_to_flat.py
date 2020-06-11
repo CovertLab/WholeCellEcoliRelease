@@ -48,7 +48,7 @@ for attr_name in candidates:
 	try:
 		attr = getattr(kb, attr_name)
 
-		fieldnames = attr[0].keys()
+		fieldnames = list(attr[0].keys())
 
 		outfile = open(os.path.join(OUTPUT_DIR, attr_name.lstrip("_")) + ".tsv", "w")
 

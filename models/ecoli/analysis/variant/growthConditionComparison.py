@@ -82,7 +82,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 			timeStepSec = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
 
-			if variant in rnaToProteinDict.keys():
+			if variant in rnaToProteinDict:
 				rnaToProteinDict[variant] = np.append(rnaToProteinDict[variant], rnaNT / (proteinAA / 100))
 				dnaToProteinDict[variant] = np.append(dnaToProteinDict[variant], chromEquivalents / (proteinAA / 10**9))
 				elngRateDict[variant] = np.append(elngRateDict[variant], (actualElongations / activeRibosome / timeStepSec)[3:])
@@ -101,7 +101,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		stableRnaFraction = []
 		doublingPerHour = []
 
-		for key in rnaToProteinDict.keys():
+		for key in rnaToProteinDict:
 			rnaToProtein += [rnaToProteinDict[key]]
 			dnaToProtein += [dnaToProteinDict[key]]
 			elngRate += [elngRateDict[key]]

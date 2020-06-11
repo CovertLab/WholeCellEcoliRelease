@@ -11,6 +11,7 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 import itertools
+from six.moves import zip
 
 from wholecell.io.tablereader import TableReader
 
@@ -42,7 +43,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Build a mapping from reaction to color
 		idToColor = {}
-		for reactionID, color in itertools.izip(reactionIDs, itertools.cycle(COLORS_LARGE)):
+		for reactionID, color in zip(reactionIDs, itertools.cycle(COLORS_LARGE)):
 			idToColor[reactionID] = color
 
 		plt.figure(figsize = (17, 11))

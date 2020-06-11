@@ -6,6 +6,7 @@
 from __future__ import absolute_import, division, print_function
 
 import unittest
+import six
 
 from wholecell.utils.dependency_graph import (
 	DependencyGraph,
@@ -98,7 +99,7 @@ class TestDependencyGraph(unittest.TestCase):
 		dg.add_dep_relation("B", "C")
 		dg.add_dep_relation("C", "A")
 
-		with self.assertRaisesRegexp(
+		with six.assertRaisesRegex(self,
 			InvalidDependencyGraphError, "cycle"
 		):
 			dg.get_topological_ordering()

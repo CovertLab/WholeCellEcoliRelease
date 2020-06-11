@@ -50,7 +50,7 @@ import numpy as np
 import wholecell.processes.process
 from wholecell.utils.constants import REQUEST_PRIORITY_DEGRADATION
 from wholecell.utils import units
-from six.moves import range
+from six.moves import range, zip
 
 class RnaDegradation(wholecell.processes.process.Process):
 	""" RnaDegradation """

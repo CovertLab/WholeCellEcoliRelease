@@ -13,6 +13,7 @@ import math
 import numpy as np
 from matplotlib import pyplot as plt
 import itertools
+from six.moves import zip
 
 from wholecell.io.tablereader import TableReader
 
@@ -93,12 +94,12 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Build a mapping from nutrient_name to color
 		id_to_color = {}
-		for nutrient_name, color in itertools.izip(nutrient_names, itertools.cycle(COLORS_LARGE)):
+		for nutrient_name, color in zip(nutrient_names, itertools.cycle(COLORS_LARGE)):
 			id_to_color[nutrient_name] = color
 
 		# Build a mapping from reaction_id to color
 		rxn_id_to_color = {}
-		for reaction_id, color in itertools.izip(reaction_ids, itertools.cycle(COLORS_LARGE)):
+		for reaction_id, color in zip(reaction_ids, itertools.cycle(COLORS_LARGE)):
 			rxn_id_to_color[reaction_id] = color
 
 		fig = plt.figure(figsize=(30, 30))

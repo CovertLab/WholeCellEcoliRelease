@@ -23,6 +23,8 @@ from wholecell.analysis.analysis_tools import exportFigure
 
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
 from models.ecoli.analysis import multigenAnalysisPlot
+import six
+from six.moves import zip
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
@@ -88,7 +90,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 					modelFluxes[toyaReaction].append(np.mean(fluxTimeCourse).asNumber(units.mmol / units.g / units.h))
 
 		toyaVsReactionAve = []
-		for rxn, toyaFlux in toyaFluxesDict.iteritems():
+		for rxn, toyaFlux in six.viewitems(toyaFluxesDict):
 			if rxn in modelFluxes:
 				toyaVsReactionAve.append((np.mean(modelFluxes[rxn]), toyaFlux.asNumber(units.mmol / units.g / units.h), np.std(modelFluxes[rxn]), toyaStdevDict[rxn].asNumber(units.mmol / units.g / units.h)))
 

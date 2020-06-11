@@ -2,27 +2,16 @@ from __future__ import absolute_import, division, print_function
 
 import argparse
 import os
-import subprocess
+import shutil
 
 
 def findDirectories(directory):
 	allFiles = os.listdir(directory)
 	onlyDirs = []
-	for f in allFiles:	
+	for f in allFiles:
 		temp = os.path.join(directory,f)
 		if os.path.isdir(temp): onlyDirs.append(temp) 
 	return onlyDirs
-
-def findFiles(directory,typeFile):
-	if not os.path.isdir(directory): return []
-	allFiles = os.listdir(directory)
-	onlyFiles = []
-	for f in allFiles:	
-		temp = os.path.join(directory,f)
-		if os.path.isfile(temp):
-			if typeFile in f:
-				onlyFiles.append(f) 
-	return onlyFiles
 
 def main(out_dir):
 	print('ONLY WORKS ON OLD FORMAT SIMULATIONS!')
@@ -55,11 +44,7 @@ def main(out_dir):
 	print('ONLY WORKS ON OLD FORMAT SIMULATIONS!')
 
 	for idx in to_delete:
-		subprocess.call([
-			"rm",
-			"-fr",
-			allSimulations[idx]
-		])
+		shutil.rmtree(allSimulations[idx])
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()

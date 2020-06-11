@@ -8,6 +8,7 @@ from matplotlib import pyplot as plt
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
+from six.moves import zip
 
 
 COLORS_256 = [ # From colorbrewer2.org, qualitative 8-class set 1

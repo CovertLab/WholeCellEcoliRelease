@@ -8,21 +8,24 @@ from __future__ import absolute_import, division, print_function
 
 import abc
 from collections import OrderedDict
+import datetime
 import importlib
 import multiprocessing as mp
 import os
 import sys
 import time
 import traceback
+from typing import List
 
 from fireworks import FiretaskBase
 import matplotlib as mpl
 from PIL import Image
-from typing import List
+from six.moves import zip
 
 from wholecell.utils import data
 from wholecell.utils import parallelization
 import wholecell.utils.filepath as fp
+from wholecell.utils.py3 import monotonic_seconds
 
 
 # Used to set the backend to Agg before pyplot imports in other scripts.
@@ -89,7 +92,7 @@ class AnalysisBase(FiretaskBase):
 			plot_names = ['CORE']
 		name_dict = OrderedDict()
 		self.expand_plot_names(plot_names, name_dict)
-		return name_dict.keys()
+		return list(name_dict.keys())
 
 	def compile_images(self, file_list, extension='.png'):
 		# type: (List[str], str) -> None
@@ -118,7 +121,7 @@ class AnalysisBase(FiretaskBase):
 		images = [Image.open(f) for f in image_files if os.path.exists(f)]
 		if not images:
 			return
-		widths, heights = zip(*(i.size for i in images))
+		widths, heights = list(zip(*(i.size for i in images)))
 
 		# Create and save compiled image
 		compiled_image = Image.new('RGB', (max(widths), sum(heights)), (255, 255, 255))
@@ -129,9 +132,9 @@ class AnalysisBase(FiretaskBase):
 		compiled_image.save(os.path.join(output_dir, 'compiled' + extension))
 
 	def run_task(self, fw_spec):
-		startTime = time.time()
+		start_real_sec = monotonic_seconds()
 		print("\n{}: --- Starting {} ---".format(
-			time.ctime(startTime), type(self).__name__))
+			time.ctime(), type(self).__name__))
 
 		plot_names = self.get("plot", [])
 		fileList = self.list_plot_files(plot_names)
@@ -185,9 +188,9 @@ class AnalysisBase(FiretaskBase):
 			print('{}: Compiling images'.format(time.ctime()))
 			self.compile_images(fileList)
 
-		timeTotal = time.time() - startTime
+		elapsed_real_sec = monotonic_seconds() - start_real_sec
 
-		duration = time.strftime('%H:%M:%S', time.gmtime(timeTotal))
+		duration = datetime.timedelta(seconds=elapsed_real_sec)
 		if exceptionFileList:
 			print('Completed analysis in {} with an exception in:'.format(duration))
 			for f in exceptionFileList:

@@ -1,16 +1,17 @@
 
 from __future__ import absolute_import, division, print_function
 
+from collections import defaultdict
 import os
 import re
-
-from collections import defaultdict
-from itertools import izip
 from typing import Any, Dict, List
+
+import numpy as np
+import six
+from six.moves import zip
 
 from reconstruction.spreadsheets import JsonWriter, read_tsv
 
-import numpy as np
 
 _DIR = os.path.join("reconstruction", "ecoli", "flat", "metabolism")
 _FBA_FILE = os.path.join(_DIR, "ecocyc-full-biomass.fba") # biomass stoich, nutrients, secretions
@@ -125,9 +126,9 @@ for line in open(_LP_FILE):
 reaction_stoich = {
 	reaction_id_to_name[reaction_id]: {
 		compound_id_to_name[compound_id]:coeff
-		for compound_id, coeff in stoich.viewitems()
+		for compound_id, coeff in six.viewitems(stoich)
 		}
-	for reaction_id, stoich in reaction_stoich.viewitems()
+	for reaction_id, stoich in six.viewitems(reaction_stoich)
 	if len(stoich) > 1
 	}
 
@@ -142,7 +143,7 @@ with open(os.path.join("reconstruction", "ecoli", "flat", "reactions.tsv"), "w")
 
 	writer.writeheader()
 
-	for reaction_id, stoich in reaction_stoich.viewitems():
+	for reaction_id, stoich in six.viewitems(reaction_stoich):
 		writer.writerow({
 			"reaction id":reaction_id,
 			"stoichiometry":stoich,
@@ -275,7 +276,7 @@ for entry in rows:
 		for c in entry["location"]:
 			masses[entry["id"] + "[{}]".format(c)] = entry["mw7.2"]
 
-for outName, groupName in _MASS_CATEGORIES.viewitems():
+for outName, groupName in six.viewitems(_MASS_CATEGORIES):
 	moleculeIDs = {
 		entry["molecule id"]
 		for entry in data["biomass"]
@@ -294,7 +295,7 @@ for outName, groupName in _MASS_CATEGORIES.viewitems():
 
 	out = [
 		{"metaboliteId":mid, "massFraction":frac}
-		for mid, frac in izip(moleculeIDs, fractions)
+		for mid, frac in zip(moleculeIDs, fractions)
 		]
 
 	with open(os.path.join("reconstruction", "ecoli", "flat", "massFractions", outName + "Fractions.tsv"), "w") as outfile:

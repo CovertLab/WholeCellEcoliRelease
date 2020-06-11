@@ -70,7 +70,7 @@ from scipy.spatial import ConvexHull
 from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
 import matplotlib.pyplot as plt
-from six.moves import range
+from six.moves import range, zip
 
 
 COLORS_256 = [
@@ -501,6 +501,7 @@ class RayClass(object):
         self.c_r = (tangent[0]*origin[1] - tangent[1]*origin[0])
         self.main_sites = main_sites
         self.adjunct_site = adjunct_site
+        self.index_ip = -10000
 
     def is_on_ray(self, p):
         """
@@ -905,7 +906,7 @@ class VoronoiMaster(object):
         label_site_list = [[] for _ in dic]  # type: List[Iterable]
 
         for i, value in enumerate(dic.values()):
-            if isinstance(value, float) or isinstance(value, int):
+            if isinstance(value, (float, int)):
                 polygon_value_list[i] = (voronoi_out.polygons[i], values[i])
                 label_site_list[i] = (labels[i], voronoi_out.sites[i])
 

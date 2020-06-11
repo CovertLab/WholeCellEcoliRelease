@@ -79,7 +79,7 @@ class MoleculeGroups(object):
 			'replisome_monomer_subunits': ['CPLX0-3621[c]', 'EG10239-MONOMER[c]',
 				'EG11500-MONOMER[c]', 'EG11412-MONOMER[c]'],
 
-			'aaIDs': sim_data.amino_acid_1_to_3_ordered.values(),
+			'aaIDs': list(sim_data.amino_acid_1_to_3_ordered.values()),
 			'fragmentNT_IDs': [x['id'].replace('Polymerized','Fragment')
 				for x in raw_data.polymerized if x['is_ntp'] and not x['is_end']],
 
