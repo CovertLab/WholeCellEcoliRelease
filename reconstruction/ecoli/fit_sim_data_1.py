@@ -32,7 +32,6 @@ TRANSLATION_EFFICIENCIES_ADJUSTMENTS = {
 	"EG12438-MONOMER[c]": 5,  # menH, 2-succinyl-6-hydroxy-2,4-cyclohexadiene-1-carboxylate synthetase
 	"EG12298-MONOMER[p]": 5,  # yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition viability
 	"ACETYL-COA-ACETYLTRANSFER-MONOMER[c]": 5,  # atoB; This RNA is fit for the anaerobic condition viability
-	"LIPIDADISACCHARIDESYNTH-MONOMER[c]": 5,  # lpxB, lipid A disaccharide synthase; needed for growth (CPD0-939) in acetate condition
 	}
 RNA_EXPRESSION_ADJUSTMENTS = {
 	"EG11493_RNA[c]": 10,  # pabC, aminodeoxychorismate lyase
@@ -40,11 +39,7 @@ RNA_EXPRESSION_ADJUSTMENTS = {
 	"EG12298_RNA[c]": 10,  # yibQ, Predicted polysaccharide deacetylase; This RNA is fit for the anaerobic condition viability
 	"EG11672_RNA[c]": 10,  # atoB, acetyl-CoA acetyltransferase; This RNA is fit for the anaerobic condition viability
 	"EG10238_RNA[c]": 10,  # dnaE, DNA polymerase III subunit alpha; This RNA is fit for the sims to produce enough DNAPs for timely replication
-	"EG10582_RNA[c]": 10,  # metB, O-succinylhomoserine lyase; needed for growth (HOMO-CYS, SAM, MET) in acetate condition
-	"G7091_RNA[c]": 10,  # ugd, UDP-glucose 6-dehydrogenase; needed for growth (UDP-GLUCURONATE) in acetate condition
-	"EG10546_RNA[c]": 10,  # lpxB, lipid A disaccharide synthase; needed for growth (CPD0-939) in acetate condition
-	"G7423_RNA[c]": 10,  # ispD, 2-C-methyl-D-erythritol 4-phosphate cytidylyltransferase; needed for growth (UNDECAPRENYL-DIPHOSPHATE, CPD-12261, CPD-9956) in acetate condition
-	"EG12437_RNA[c]": 10,  # menE, o-succinylbenzoate-CoA ligase; needed for growth (REDUCED-MENAQUINONE, CPD-12115) in acetate condition
+	"EG11673_RNA[c]": 10,  # folB, dihydroneopterin aldolase; needed for growth (METHYLENE-THF) in acetate condition
 	"EG10808_RNA[c]": 2,  # pyrE, orotate phosphoribosyltransferase; Needed for UTP synthesis, transcriptional regulation by UTP is not included in the model
 	}
 RNA_DEG_RATES_ADJUSTMENTS = {
@@ -550,13 +545,13 @@ def buildCombinedConditionCellSpecifications(
 	appropriate
 	"""
 
-	fcData = {}
 	for conditionKey in sim_data.conditionActiveTfs:
 		# Skip adjustments if 'basal' condition
 		if conditionKey == "basal":
 			continue
 
 		# Get expression from fold changes for each TF in the given condition
+		fcData = {}
 		conditionValue = sim_data.conditions[conditionKey]
 		for tf in sim_data.conditionActiveTfs[conditionKey]:
 			for gene, fc in sim_data.tfToFC[tf].items():
