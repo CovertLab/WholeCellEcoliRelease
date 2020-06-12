@@ -249,6 +249,8 @@ def divideUniqueMolecules(uniqueMolecules, randomState,
 				# If molecule is RNA polymerase, save data for future use
 				d1_RNAP_unique_indexes = np.array([], dtype=np.int64)
 				d2_RNAP_unique_indexes = np.array([], dtype=np.int64)
+				d1_RNAP_unique_indexes_new = np.array([], dtype=np.int64)
+				d2_RNAP_unique_indexes_new = np.array([], dtype=np.int64)
 			continue
 
 		# Only the chromosome domains that physically exist are handed down to
@@ -277,7 +279,7 @@ def divideUniqueMolecules(uniqueMolecules, randomState,
 	if any(v is None for v in [d1_RNAP_unique_indexes, d2_RNAP_unique_indexes,
 			d1_RNAP_unique_indexes_new, d2_RNAP_unique_indexes_new]):
 		raise UniqueMoleculeDivisionError(
-			'Active RNAPs must be divided and it new unique indexes be known before dividing RNAs.')
+			'Active RNAPs must be divided and new unique indexes be known before dividing RNAs.')
 
 	# Divide molecules with division mode "RNA"
 	for molecule_name in uniqueMolecules.division_mode['RNA']:
