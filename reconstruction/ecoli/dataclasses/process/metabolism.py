@@ -439,31 +439,26 @@ class Metabolism(object):
 
 		return capacity * saturation
 
-	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits, currentNutrients, exchange_data, concModificationsBasedOnCondition = None):
+	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits, currentNutrients, unconstrained, constrained, concModificationsBasedOnCondition = None):
 		"""
 		Called during Metabolism process
 		Returns the homeostatic objective concentrations based on the current nutrients
 		Returns levels for external molecules available to exchange based on the current nutrients
 		"""
 
-		unconstrained_exchange_molecules = exchange_data["importUnconstrainedExchangeMolecules"]
-		constrained_exchange_molecules = exchange_data["importConstrainedExchangeMolecules"]
-
 		newObjective = self.concentrationUpdates.concentrationsBasedOnNutrients(
 			media_id=currentNutrients, conversion_units=targetUnits)
 		if concModificationsBasedOnCondition is not None:
-			conversion = targetUnits.asUnit(self.concentrationUpdates.units)
-			newObjective.update({k: (v / conversion).asNumber()
-				for k, v in concModificationsBasedOnCondition.items()})
+			newObjective.update(concModificationsBasedOnCondition)
 
 		externalMoleculeLevels = np.zeros(len(exchangeIDs), np.float64)
 
 		for index, moleculeID in enumerate(exchangeIDs):
-			if moleculeID in unconstrained_exchange_molecules:
+			if moleculeID in unconstrained:
 				externalMoleculeLevels[index] = np.inf
-			elif moleculeID in constrained_exchange_molecules:
+			elif moleculeID in constrained:
 				externalMoleculeLevels[index] = (
-					constrained_exchange_molecules[moleculeID] * coefficient
+					constrained[moleculeID] * coefficient
 					).asNumber(targetUnits)
 			else:
 				externalMoleculeLevels[index] = 0.
