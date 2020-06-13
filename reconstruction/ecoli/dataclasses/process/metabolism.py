@@ -31,7 +31,8 @@ from six.moves import range, zip
 
 PPI_CONCENTRATION = 0.5e-3  # M, multiple sources
 ECOLI_PH = 7.2
-MICROMOLAR_UNITS = units.umol / units.L
+KINETIC_CONSTRAINT_CONC_UNITS = units.umol / units.L
+K_CAT_UNITS = 1 / units.s
 METABOLITE_CONCENTRATION_UNITS = units.mol / units.L
 
 USE_ALL_CONSTRAINTS = False  # False will remove defined constraints from objective
@@ -401,7 +402,7 @@ class Metabolism(object):
 			]
 
 	def getKineticConstraints(self, enzymes, substrates):
-		# type: (np.ndarray, np.ndarray) -> np.ndarray
+		# type: (units.Unum, units.Unum) -> units.Unum
 		'''
 		Allows for dynamic code generation for kinetic constraint calculation
 		for use in Metabolism process. Inputs should be unitless but the order
@@ -416,28 +417,31 @@ class Metabolism(object):
 
 		Args:
 			enzymes: concentrations of enzymes associated with kinetic
-				constraints
+				constraints (mol / volume units)
 			substrates: concentrations of substrates associated with kinetic
-				constraints
+				constraints (mol / volume units)
 
 		Returns:
 			(n reactions, 3): min, mean and max kinetic constraints for each
-				reaction with kinetic constraints
+				reaction with kinetic constraints (mol / volume / time units)
 		'''
-
 
 		if self._compiled_enzymes is None:
 			self._compiled_enzymes = eval('lambda e: {}'.format(self._enzymes))
 		if self._compiled_saturation is None:
 			self._compiled_saturation = eval('lambda s: {}'.format(self._saturations))
 
-		capacity = np.array(self._compiled_enzymes(enzymes))[:, None] * self._kcats
+		# Strip units from args
+		enzs = enzymes.asNumber(KINETIC_CONSTRAINT_CONC_UNITS)
+		subs = substrates.asNumber(KINETIC_CONSTRAINT_CONC_UNITS)
+
+		capacity = np.array(self._compiled_enzymes(enzs))[:, None] * self._kcats
 		saturation = np.array([
 			[min(v), sum(v) / len(v), max(v)]
-			for v in self._compiled_saturation(substrates)
+			for v in self._compiled_saturation(subs)
 			])
 
-		return capacity * saturation
+		return KINETIC_CONSTRAINT_CONC_UNITS * K_CAT_UNITS * capacity * saturation
 
 	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits, currentNutrients, unconstrained, constrained, concModificationsBasedOnCondition = None):
 		"""
@@ -720,7 +724,7 @@ class Metabolism(object):
 
 		if isinstance(temp, str):
 			temp = 25
-		return 2**((37. - temp) / 10.) * kcat.asNumber(1 / units.s)
+		return 2**((37. - temp) / 10.) * kcat.asNumber(K_CAT_UNITS)
 
 	@staticmethod
 	def _construct_default_saturation_equation(mets, kms, kis, known_mets):
@@ -938,8 +942,8 @@ class Metabolism(object):
 			enzyme = constraint['enzymeID']
 			metabolites = constraint['substrateIDs']
 			direction = constraint['direction']
-			kms = list(constraint['kM'].asNumber(MICROMOLAR_UNITS))
-			kis = list(constraint['kI'].asNumber(MICROMOLAR_UNITS))
+			kms = list(constraint['kM'].asNumber(KINETIC_CONSTRAINT_CONC_UNITS))
+			kis = list(constraint['kI'].asNumber(KINETIC_CONSTRAINT_CONC_UNITS))
 			n_reactants = len(metabolites) - len(kis)
 			matched_rxn = Metabolism.match_reaction(stoich, catalysts, rxn, enzyme,
 				metabolites[:n_reactants], direction)

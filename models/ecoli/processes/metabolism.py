@@ -505,6 +505,7 @@ class FluxBalanceAnalysisModel(object):
 
 	def set_reaction_targets(self, kinetic_enzyme_counts,
 			kinetic_substrate_counts, counts_to_molar, time_step):
+		# type: (np.ndarray, np.ndarray, units.Unum, units.Unum) -> Tuple[np.ndarray, np.ndarray, np.ndarray]
 		"""
 		Set reaction targets for constrained reactions in the FBA object.
 
@@ -513,27 +514,21 @@ class FluxBalanceAnalysisModel(object):
 				kinetic constraints
 			kinetic_substrate_counts (np.ndarray[int]): counts of substrates used
 				in kinetic constraints
-			counts_to_molar (Unum): conversion from counts to molar (counts/volume units)
-			time_step (Unum): current time step (time units)
+			counts_to_molar: conversion from counts to molar (float with counts/volume units)
+			time_step: current time step (float with time units)
 
 		Returns:
 			mean_targets (np.ndarray[float]): mean target for each constrained reaction
+			upper_targets (np.ndarray[float]): upper target limit for each constrained reaction
+			lower_targets (np.ndarray[float]): lower target limit for each constrained reaction
 		"""
 
 		if self.use_kinetics:
-			# Unit basis for kinetic constraints
-			# TODO: handle unit conversion in get_kinetic_constraints function?
-			constraint_conc_units = units.umol / units.L
-			constraint_time_units = units.s
-
 			enzyme_conc = counts_to_molar * kinetic_enzyme_counts
 			substrate_conc = counts_to_molar * kinetic_substrate_counts
 
 			## Set target fluxes for reactions based on their most relaxed constraint
-			reaction_targets = (constraint_conc_units / constraint_time_units) * self.get_kinetic_constraints(
-				enzyme_conc.asNumber(constraint_conc_units),
-				substrate_conc.asNumber(constraint_conc_units),
-				)
+			reaction_targets = self.get_kinetic_constraints(enzyme_conc, substrate_conc)
 
 			## Calculate reaction flux target for current time step
 			targets = (time_step * reaction_targets).asNumber(CONC_UNITS)[
@@ -543,11 +538,13 @@ class FluxBalanceAnalysisModel(object):
 			upper_targets = targets[:, 2]
 
 			## Set kinetic targets only if kinetics is enabled
-			self.fba.set_scaled_kinetic_objective(time_step.asNumber(constraint_time_units))
+			self.fba.set_scaled_kinetic_objective(time_step.asNumber(units.s))
 			self.fba.setKineticTarget(
 				self.kinetics_constrained_reactions, mean_targets,
 				lower_targets=lower_targets, upper_targets=upper_targets)
 		else:
+			lower_targets = np.zeros(len(self.kinetics_constrained_reactions))
 			mean_targets = np.zeros(len(self.kinetics_constrained_reactions))
+			upper_targets = np.zeros(len(self.kinetics_constrained_reactions))
 
 		return mean_targets, upper_targets, lower_targets
