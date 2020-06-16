@@ -4,9 +4,10 @@ import os
 import csv
 import sys
 
-from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
-from reconstruction.spreadsheets import JsonWriter
 import six
+
+from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
+from reconstruction.spreadsheets import tsv_writer
 
 OUTPUT_DIR = sys.argv[1]
 
@@ -26,25 +27,20 @@ fraction_names = {
 	}
 
 keys = drymass.dtype.names
-with open(os.path.join(OUTPUT_DIR, "dryMassComposition.tsv"), "w") as outfile:
-	writer = JsonWriter(outfile, keys)
-
-	writer.writeheader()
-
+filename = os.path.join(OUTPUT_DIR, "dryMassComposition.tsv")
+with tsv_writer(filename, keys) as writer:
 	for entry in drymass:
 		writer.writerow({
 			key:entry[key] for key in keys
 			})
 
-for kb_name, file_name in six.viewitems(fraction_names):
+for kb_name, file_prefix in six.viewitems(fraction_names):
 	array = getattr(kb, "_cell{}FractionData".format(kb_name))
 	keys = array.dtype.names
 
-	with open(os.path.join(OUTPUT_DIR, "massFractions", "{}Fractions.tsv".format(file_name)), "w") as outfile:
-		writer = JsonWriter(outfile, keys)
-
-		writer.writeheader()
-
+	filename = os.path.join(
+		OUTPUT_DIR, "massFractions", "{}Fractions.tsv".format(file_prefix))
+	with tsv_writer(filename, keys) as writer:
 		for entry in array:
 			writer.writerow({
 				key:entry[key] for key in keys

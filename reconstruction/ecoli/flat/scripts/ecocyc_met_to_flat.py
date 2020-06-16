@@ -10,7 +10,7 @@ import numpy as np
 import six
 from six.moves import zip
 
-from reconstruction.spreadsheets import JsonWriter, read_tsv
+from reconstruction.spreadsheets import read_tsv, tsv_writer
 
 
 _DIR = os.path.join("reconstruction", "ecoli", "flat", "metabolism")
@@ -135,14 +135,8 @@ reaction_stoich = {
 # Write a table of true reactions:
 # reaction name, stoich, is_reversible
 
-with open(os.path.join("reconstruction", "ecoli", "flat", "reactions.tsv"), "w") as outfile:
-	writer = JsonWriter(
-		outfile,
-		["reaction id", "stoichiometry", "is reversible"],
-		)
-
-	writer.writeheader()
-
+filename = os.path.join("reconstruction", "ecoli", "flat", "reactions.tsv")
+with tsv_writer(filename, ["reaction id", "stoichiometry", "is reversible"]) as writer:
 	for reaction_id, stoich in six.viewitems(reaction_stoich):
 		writer.writerow({
 			"reaction id":reaction_id,
@@ -227,13 +221,8 @@ with open(_FBA_FILE) as fba_file:
 # Write a table of biomass components:
 # group name, metabolite name, coeff
 
-with open(os.path.join("reconstruction", "ecoli", "flat", "biomass.tsv"), "w") as outfile:
-	writer = JsonWriter(
-		outfile,
-		["group id", "molecule id", "coefficient"],
-		)
-
-	writer.writeheader()
+filename = os.path.join("reconstruction", "ecoli", "flat", "biomass.tsv")
+with tsv_writer(filename, ["group id", "molecule id", "coefficient"]) as writer:
 	writer.writerows(data["biomass"])
 
 # Writer the tables for the mass fractions:
@@ -298,24 +287,16 @@ for outName, groupName in six.viewitems(_MASS_CATEGORIES):
 		for mid, frac in zip(moleculeIDs, fractions)
 		]
 
-	with open(os.path.join("reconstruction", "ecoli", "flat", "massFractions", outName + "Fractions.tsv"), "w") as outfile:
-		writer = JsonWriter(
-			outfile,
-			["metaboliteId", "massFraction"],
-			)
-
-		writer.writeheader()
+	filename = os.path.join(
+		"reconstruction", "ecoli", "flat", "massFractions", outName + "Fractions.tsv")
+	with tsv_writer(filename, ["metaboliteId", "massFraction"]) as writer:
 		writer.writerows(out)
 
 
 # Write a table of exchanges and constraints:
 # metabolite name, is_ngam, lb, ub
 for section_name in ("nutrients", "secretions"):
-	with open(os.path.join("reconstruction", "ecoli", "flat", section_name + ".tsv"), "w") as outfile:
-		writer = JsonWriter(
-			outfile,
-			["molecule id", "lower bound", "upper bound"],
-			)
-
-		writer.writeheader()
+	filename = os.path.join(
+		"reconstruction", "ecoli", "flat", section_name + ".tsv")
+	with tsv_writer(filename, ["molecule id", "lower bound", "upper bound"]) as writer:
 		writer.writerows(data[section_name])

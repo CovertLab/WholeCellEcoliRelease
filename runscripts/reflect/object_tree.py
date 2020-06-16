@@ -225,10 +225,17 @@ def size_tree(o, cutoff=0.1):
 	else:
 		return size,
 
+def _are_instances_of(a, b, a_type):
+	"""
+	Return True if `a` and `b` are both instances of the given type (or tuple
+	of types).
+	"""
+	return isinstance(a, a_type) and isinstance(b, a_type)
+
 def diff_trees(a, b):
 	"""
 	Find the differences between two trees or leaf nodes a and b. Return a
-	falsely value if the inputs match OR a truthy value that explains or
+	falsey value if the inputs match OR a truthy value that explains or
 	summarizes their differences, where each point in the tree where the inputs
 	differ will be a tuple (a's value, b's value, optional description).
 
@@ -239,9 +246,16 @@ def diff_trees(a, b):
 	This operation is symmetrical.
 	"""
 
+	# treat str and Python 2 unicode as the same leaf type
+	# ditto for int and Python 2 long
+	if (_are_instances_of(a, b, six.string_types)
+			or _are_instances_of(a, b, six.integer_types)):
+		if a != b:
+			return elide(a), elide(b)
+
 	# if they aren't they same type, they are clearly different. Also this lets us
 	# safely assume throughout the rest of the function that a and b are the same type
-	if type(a) != type(b):
+	elif type(a) != type(b):
 		return elide(a, max_len=400), elide(b, max_len=400)
 
 	# if they are floats, handle various kinds of values

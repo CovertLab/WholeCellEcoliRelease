@@ -13,11 +13,11 @@ import os
 from typing import Any
 
 import numpy as np
+from six.moves import zip
 
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 from reconstruction.ecoli.simulation_data import SimulationDataEcoli
-from reconstruction.spreadsheets import JsonWriter
-from six.moves import zip
+from reconstruction.spreadsheets import tsv_writer
 
 # file paths
 file_loc = os.path.dirname(__file__)
@@ -32,9 +32,7 @@ sim_data = SimulationDataEcoli()
 sim_data.initialize(raw_data)
 
 # determine masses and write to output file
-with open(output_filename, 'w') as out:
-	writer = JsonWriter(out, ["id", "mw7.2", "location"])
-
+with tsv_writer(output_filename, ["id", "mw7.2", "location"]) as writer:
 	trnas = sim_data.process.transcription.rnaData['id'][sim_data.process.transcription.rnaData['isTRna']]
 	charged = [x['modifiedForms'] for x in raw_data.rnas if x['id']+'[c]' in trnas]
 	filtered_charged = []

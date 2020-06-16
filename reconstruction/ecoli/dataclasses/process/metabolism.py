@@ -591,7 +591,7 @@ class Metabolism(object):
 			catalysts_for_this_rxn = []
 			for catalyst in reaction["catalyzed by"]:
 				try:
-					catalysts_with_loc = (catalyst + "[" + sim_data.getter.getLocation([catalyst])[0][0] + "]").encode("utf-8")
+					catalysts_with_loc = catalyst + sim_data.getter.get_location_tag(catalyst)
 					catalysts_for_this_rxn.append(catalysts_with_loc)
 				# If we don't have the catalyst in our reconstruction, drop it
 				except KeyError:
@@ -1282,7 +1282,7 @@ class ConcentrationUpdates(object):
 			if len(reaction["stoichiometry"]) != 3:
 				continue
 
-			moleculeName = [x["molecule"].encode("utf-8") for x in reaction["stoichiometry"] if x["type"] == "metabolite"][0]
+			moleculeName = [x["molecule"] for x in reaction["stoichiometry"] if x["type"] == "metabolite"][0]
 			amountToSet = 1e-4
 			moleculeSetAmounts[moleculeName + "[p]"] = amountToSet * self.units
 			moleculeSetAmounts[moleculeName + "[c]"] = amountToSet * self.units

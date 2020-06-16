@@ -106,12 +106,13 @@ class SimulationDataEcoli(object):
 
 
 	def _addConditionData(self, raw_data):
-		abbrToActiveId = dict([(x["TF"].encode("utf-8"), x["activeId"].encode("utf-8").split(", ")) for x in raw_data.tfIds if len(x["activeId"]) > 0])
-		geneIdToRnaId = dict([(x["id"].encode("utf-8"), x["rnaId"].encode("utf-8")) for x in raw_data.genes])
-		abbrToRnaId = dict(
-			[(x["symbol"].encode("utf-8"), x["rnaId"].encode("utf-8")) for x in raw_data.genes] +
-			[(x["name"].encode("utf-8"), geneIdToRnaId[x["geneId"].encode("utf-8")]) for x in raw_data.translationEfficiency if x["geneId"] != "#N/A"]
-			)
+		abbrToActiveId = {x["TF"]: x["activeId"].split(", ") for x in raw_data.tfIds if len(x["activeId"]) > 0}
+		geneIdToRnaId = {x["id"]: x["rnaId"] for x in raw_data.genes}
+		abbrToRnaId = {x["symbol"]: x["rnaId"] for x in raw_data.genes}
+		abbrToRnaId.update({
+			x["name"]: geneIdToRnaId[x["geneId"]]
+			for x in raw_data.translationEfficiency
+			if x["geneId"] != "#N/A"})
 
 		self.tfToFC = {}
 		self.tfToDirection = {}
@@ -121,11 +122,11 @@ class SimulationDataEcoli(object):
 			if np.abs(row['Regulation_direct']) > 2:
 				continue
 
-			tf = abbrToActiveId[row["TF"].encode("utf-8")][0]
+			tf = abbrToActiveId[row["TF"]][0]
 			try:
-				target = abbrToRnaId[row["Target"].encode("utf-8")]
+				target = abbrToRnaId[row["Target"]]
 			except KeyError:
-				notFound.append(row["Target"].encode("utf-8"))
+				notFound.append(row["Target"])
 				continue
 			if tf not in self.tfToFC:
 				self.tfToFC[tf] = {}
@@ -146,11 +147,11 @@ class SimulationDataEcoli(object):
 
 		self.tfToActiveInactiveConds = {}
 		for row in raw_data.condition.tf_condition:
-			tf = row["active TF"].encode("utf-8")
+			tf = row["active TF"]
 			activeGenotype = row["active genotype perturbations"]
-			activeNutrients = row["active nutrients"].encode("utf-8")
+			activeNutrients = row["active nutrients"]
 			inactiveGenotype = row["inactive genotype perturbations"]
-			inactiveNutrients = row["inactive nutrients"].encode("utf-8")
+			inactiveNutrients = row["inactive nutrients"]
 
 			if tf not in self.tfToActiveInactiveConds:
 				self.tfToActiveInactiveConds[tf] = {}
@@ -168,10 +169,10 @@ class SimulationDataEcoli(object):
 		self.conditionActiveTfs = {}
 		self.ordered_conditions = []  # order for variant to run
 		for row in raw_data.condition.condition_defs:
-			condition = row["condition"].encode("utf-8")
+			condition = row["condition"]
 			self.ordered_conditions.append(condition)
 			self.conditions[condition] = {}
-			self.conditions[condition]["nutrients"] = row["nutrients"].encode("utf-8")
+			self.conditions[condition]["nutrients"] = row["nutrients"]
 			self.conditions[condition]["perturbations"] = row["genotype perturbations"]
 			self.conditionToDoublingTime[condition] = row['doubling time']
 			self.conditionActiveTfs[condition] = row['active TFs']
