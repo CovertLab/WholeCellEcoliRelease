@@ -5,10 +5,8 @@ Plot of flagella protein expression
 @date: Created 8/2/18
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
-import cPickle
 import os
 
 from matplotlib import pyplot as plt
@@ -18,8 +16,8 @@ from models.ecoli.analysis import singleAnalysisPlot
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import filepath
 from wholecell.analysis.plotting_tools import CMAP_COLORS_255
+
 
 CMAP_COLORS = [[shade/255. for shade in color] for color in CMAP_COLORS_255]
 CMAP_OVER = [0, 1, 0.75]
@@ -96,11 +94,6 @@ flagella_proteins = {
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, 'simOutDir does not currently exist as a directory'
-
-		filepath.makedirs(plotOutDir)
-
 		# Listeners used
 		main_reader = TableReader(os.path.join(simOutDir, 'Main'))
 

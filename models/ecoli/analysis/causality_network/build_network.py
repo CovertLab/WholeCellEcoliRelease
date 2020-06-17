@@ -60,12 +60,14 @@ which assigns that node dynamics from listener output:
 """
 from __future__ import absolute_import, division, print_function
 
-import cPickle
 import numpy as np
 import re
 import os
 import json
-from itertools import izip
+
+from typing import Union
+import six
+from six.moves import cPickle, zip
 
 from models.ecoli.analysis.causality_network.network_components import (
 	Node, Edge,
@@ -320,7 +322,7 @@ class BuildNetwork(object):
 		rnap_id = self.sim_data.moleculeIds.rnapFull
 
 		# Loop through all genes (in the order listed in transcription)
-		for rna_id, gene_id, is_mrna in izip(
+		for rna_id, gene_id, is_mrna in zip(
 				self.sim_data.process.transcription.rnaData["id"],
 				self.sim_data.process.transcription.rnaData["geneId"],
 				self.sim_data.process.transcription.rnaData["isMRna"]):
@@ -335,6 +337,7 @@ class BuildNetwork(object):
 			gene_name, gene_synonyms = self.common_names.genes.get(
 				gene_id, (gene_id, [gene_id]))
 
+			rna_synonyms = []  # TODO(jerry): what default value to use?
 			if is_mrna:
 				rna_name = gene_name + " mRNA"
 				if isinstance(gene_synonyms, list):
@@ -419,13 +422,13 @@ class BuildNetwork(object):
 
 		# Construct dictionary to get corrensponding gene IDs from RNA IDs
 		rna_id_to_gene_id = {}
-		for rna_id, gene_id in izip(
+		for rna_id, gene_id in zip(
 				self.sim_data.process.transcription.rnaData["id"],
 				self.sim_data.process.transcription.rnaData["geneId"]):
 			rna_id_to_gene_id[rna_id] = gene_id
 
 		# Loop through all translatable genes
-		for monomer_id, rna_id in izip(
+		for monomer_id, rna_id in zip(
 				self.sim_data.process.translation.monomerData["id"],
 				self.sim_data.process.translation.monomerData["rnaId"]):
 
@@ -542,7 +545,7 @@ class BuildNetwork(object):
 			stoich_coeffs = stoich_vector[molecule_indices]
 
 			# Loop through all proteins participating in the reaction
-			for molecule_index, stoich in izip(molecule_indices, stoich_coeffs):
+			for molecule_index, stoich in zip(molecule_indices, stoich_coeffs):
 				# Add complexation edges
 				# Note: the direction of the edge is determined by the sign of the
 				# stoichiometric coefficient.
@@ -598,7 +601,7 @@ class BuildNetwork(object):
 		metabolite_ids = []
 
 		# Loop through all reactions
-		for reaction_id, stoich_dict in reaction_stoich.iteritems():
+		for reaction_id, stoich_dict in six.viewitems(reaction_stoich):
 
 			node_type = 'Metabolism'
 
@@ -912,7 +915,7 @@ class BuildNetwork(object):
 		# Build dict that maps RNA IDs to gene IDs
 		rna_id_to_gene_id = {}
 
-		for rna_id, gene_id in izip(
+		for rna_id, gene_id in zip(
 				self.sim_data.process.replication.geneData["rnaId"],
 				self.sim_data.process.replication.geneData["name"]):
 			rna_id_to_gene_id[rna_id + "[c]"] = gene_id
@@ -970,14 +973,10 @@ class BuildNetwork(object):
 
 
 	def _append_edge(self, type_, src, dst, stoichiometry=""):
+		# type: (str, str, str, Union[None, str, int]) -> None
 		"""
 		Helper function for appending new nodes to the network.
 		"""
 		edge = Edge(type_)
-		attr = {
-			'src_id': src,
-			'dst_id': dst,
-			'stoichiometry': stoichiometry,
-			}
-		edge.read_attributes(**attr)
+		edge.read_attributes(src_id=src, dst_id=dst, stoichiometry=stoichiometry)
 		self.edge_list.append(edge)

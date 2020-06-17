@@ -11,6 +11,7 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 import itertools
+from six.moves import zip
 
 from wholecell.io.tablereader import TableReader
 
@@ -31,12 +32,6 @@ MOVING_AVE_WINDOW_SIZE = 200
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 		fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 		reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
@@ -48,7 +43,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Build a mapping from reaction to color
 		idToColor = {}
-		for reactionID, color in itertools.izip(reactionIDs, itertools.cycle(COLORS_LARGE)):
+		for reactionID, color in zip(reactionIDs, itertools.cycle(COLORS_LARGE)):
 			idToColor[reactionID] = color
 
 		plt.figure(figsize = (17, 11))

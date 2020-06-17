@@ -8,12 +8,10 @@ significant parameters for each output difference measure.
 @date: Created 5/17/19
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from future_builtins import zip
+from __future__ import absolute_import, division, print_function
 
-import cPickle
 import csv
+from functools import reduce
 from multiprocessing import Pool
 import operator
 import os
@@ -23,20 +21,29 @@ from matplotlib import pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 import numpy as np
 from scipy import special, stats
+from six.moves import cPickle, range, zip
+from typing import List, Optional, Tuple
 
 from models.ecoli.analysis import variantAnalysisPlot
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from models.ecoli.processes.metabolism import COUNTS_UNITS, MASS_UNITS, TIME_UNITS, VOLUME_UNITS
 from models.ecoli.sim.variants.param_sensitivity import number_params, split_indices
+from reconstruction.ecoli.simulation_data import SimulationDataEcoli
+from validation.ecoli.validation_data import ValidationDataEcoli
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import constants, filepath, parallelization, sparkline, units
+from wholecell.utils import parallelization, sparkline, units
 
 
 CONTROL_VARIANT = 0  # variant number for control simulation
 
+ap = None  # type: Optional[AnalysisPaths]
+sim_data = None  # type: Optional[SimulationDataEcoli]
+validation_data = None  # type: Optional[ValidationDataEcoli]
 
-def analyze_variant((variant, total_params)):
+
+def analyze_variant(args):
+	# type: (Tuple[int, int]) -> np.ndarray
 	'''
 	Method to map each variant to for parallel analysis.
 
@@ -46,8 +53,8 @@ def analyze_variant((variant, total_params)):
 		ap (AnalysisPaths object)
 
 	Args:
-		variant (int): variant index
-		total_params (int): total number of parameters that are changed
+		(variant, total_params): variant index;
+			total number of parameters that are changed
 
 	Returns:
 		ndarray[float]: 2D array of results with each row corresponding to value below:
@@ -58,7 +65,11 @@ def analyze_variant((variant, total_params)):
 			average flux correlation for each parameter when increased
 			average flux correlation for each parameter when decreased
 	'''
+	assert ap is not None
+	assert sim_data is not None
+	assert validation_data is not None
 
+	variant, total_params = args
 	if variant == 0:
 		increase_indices = None
 		decrease_indices = None
@@ -106,7 +117,7 @@ def analyze_variant((variant, total_params)):
 		# Extract fluxes in Toya data set from simulation output
 		model_fluxes = np.zeros_like(toya_fluxes)
 		for i, toya_reaction in enumerate(toya_reactions):
-			flux_time_course = []
+			flux_time_course = []  # type: List[np.ndarray]
 
 			for rxn in reaction_ids:
 				if re.findall(toya_reaction, rxn):
@@ -154,13 +165,8 @@ def headers(labels, name):
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		if metadata.get('variant', '') != 'param_sensitivity':
-			print 'This plot only runs for the param_sensitivity variant.'
+			print('This plot only runs for the param_sensitivity variant.')
 			return
-
-		if not os.path.isdir(inputDir):
-			raise Exception, 'inputDir does not currently exist as a directory'
-
-		filepath.makedirs(plotOutDir)
 
 		global ap
 		ap = AnalysisPaths(inputDir, variant_plot=True)
@@ -182,7 +188,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			validation_data = cPickle.load(f)
 
 		# sim_data information
-		total_params = np.sum(number_params(sim_data))
+		total_params = sum(number_params(sim_data))
 		rna_to_gene = {gene['rnaId']: gene['symbol'] for gene in sim_data.process.replication.geneData}
 		monomer_to_gene = {gene['monomerId']: gene['symbol'] for gene in sim_data.process.replication.geneData}
 		rna_ids = sim_data.process.transcription.rnaData['id']
@@ -265,7 +271,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			## Plot data
 			ax = plt.subplot(n_outputs, 2, 2*i + 1)
 			plt.yscale('symlog', linthreshold=0.01)
-			plt.bar(range(total_params), z_diff[sorted_idx])
+			plt.bar(list(range(total_params)), z_diff[sorted_idx])
 			plt.axhline(n_stds , color='k', linestyle='--')
 			plt.axhline(-n_stds, color='k', linestyle='--')
 
@@ -285,8 +291,8 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			## Plot data
 			ax = plt.subplot(n_outputs, 2, 2*i + 2)
 			plt.yscale('symlog', linthreshold=0.01)
-			plt.bar(range(total_params), z_increase[sorted_idx], color='g')
-			plt.bar(range(total_params), z_decrease[sorted_idx], color='r')
+			plt.bar(list(range(total_params)), z_increase[sorted_idx], color='g')
+			plt.bar(list(range(total_params)), z_decrease[sorted_idx], color='r')
 			plt.axhline(n_stds , color='k', linestyle='--')
 			plt.axhline(-n_stds, color='k', linestyle='--')
 
@@ -343,7 +349,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 		## Save figure
 		plt.tight_layout()
-		exportFigure(plt, plotOutDir, '{}_individual'.format(plotOutFileName, metadata))
+		exportFigure(plt, plotOutDir, '{}_individual'.format(plotOutFileName))
 		plt.close('all')
 
 		# Save z scores to tsv

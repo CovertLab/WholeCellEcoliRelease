@@ -6,7 +6,7 @@ Plot RNA polymerase counts and counts of mRNA precursors
 @date: Created 5/8/2014
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -16,16 +16,11 @@ from matplotlib import pyplot as plt
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from models.ecoli.analysis import singleAnalysisPlot
+from six.moves import range
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		rnapId = ["APORNAP-CPLX[c]"]
 		(rnapCountsBulk,) = read_bulk_molecule_counts(simOutDir, (rnapId,))
 
@@ -61,7 +56,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		plt.ylabel("Protein Counts")
 		plt.title("RNA Polymerase")
 
-		for subplotIdx in xrange(2, 6):
+		for subplotIdx in range(2, 6):
 			rnapRnaCountsIdx = subplotIdx - 2
 
 			plt.subplot(5, 1, subplotIdx)

@@ -6,23 +6,21 @@ multiple-seed simulations.
 @date: Created 4/20/2018
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
-from itertools import izip, cycle
+from itertools import cycle
+from six.moves import cPickle, range, zip
 
+from models.ecoli.analysis import cohortAnalysisPlot
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import units
 from wholecell.analysis.analysis_tools import exportFigure
-from wholecell.utils.filepath import makedirs
-from models.ecoli.analysis import cohortAnalysisPlot
+from wholecell.utils import units
 
 # Number of proteins sampled for Plot 1
 PROTEIN_SAMPLE_COUNT = 10
@@ -30,13 +28,6 @@ PROTEIN_SAMPLE_COUNT = 10
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		# Check if the given variant directory exists
-		if not os.path.isdir(variantDir):
-			raise Exception, "variantDir does not currently exist as a directory."
-
-		# Make plotOut directory if none exists
-		makedirs(plotOutDir)
-
 		# Get paths for all cell simulations in each seed
 		ap = AnalysisPaths(variantDir, cohort_plot = True)
 		n_seed = ap.n_seed
@@ -44,7 +35,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		# If the simulation does not have multiple seeds, skip analysis
 		if n_seed <= 1:
-			print "Skipping -- proteinCopyNumberDistribution only runs for simulations with multiple seeds."
+			print("Skipping -- proteinCopyNumberDistribution only runs for simulations with multiple seeds.")
 			return
 
 		# Divide simulations by generation number
@@ -153,7 +144,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 			# Plot histogram for each generation
 			for gen_idx in range(n_generation):
-				ax = plt.subplot(gs[i + 1, gen_idx])
+				ax = self.subplot(gs[i + 1, gen_idx])
 				seed_counts = protein_counts[gen_idx, :, idx_sampled_protein]
 
 				# The weights rescale histogram such that all columns sum to one
@@ -178,7 +169,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 			# Go back and reset y axis upper limit
 			for gen_idx in range(n_generation):
-				ax = plt.subplot(gs[i + 1, gen_idx])
+				ax = self.subplot(gs[i + 1, gen_idx])
 				ax.set_ylim([0, 1.1*max_bin_prob])
 
 		fig.tight_layout()
@@ -229,7 +220,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		ylim_plot3 = [1e-5, 1e3]
 
 		# Plot for each generation
-		for (gen_idx, color) in izip(range(n_generation), cycle('bmyk')):
+		for (gen_idx, color) in zip(range(n_generation), cycle('bmyk')):
 			ax = plt.subplot(gs[gen_idx, 0])
 			ax.scatter(protein_counts_mean_over_seed[gen_idx, :], protein_counts_noise_over_seed[gen_idx, :], s=10, color=color, marker='o', lw=0)
 			ax.set_xlabel(r"Mean protein count ($\mu$)")
@@ -243,7 +234,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		# Compare plots between first and last generations
 		ax = plt.subplot(gs[-1, 0])
-		for (gen_idx, color) in izip([0, n_generation - 1], ['b', 'k']):
+		for (gen_idx, color) in zip([0, n_generation - 1], ['b', 'k']):
 			ax.scatter(protein_counts_mean_over_seed[gen_idx, :], protein_counts_noise_over_seed[gen_idx, :],
 				s=10, alpha=0.3, color=color, marker='o', label="Generation %d" % (gen_idx,), lw=0)
 

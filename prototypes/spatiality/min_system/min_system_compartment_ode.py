@@ -5,7 +5,7 @@ Min system modeled by compartmentalized ODEs/toast-slice model
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 '''
 
-from __future__ import absolute_import, print_function, division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,6 +13,7 @@ from scipy.integrate import odeint
 
 from wholecell.utils import units
 from wholecell.utils import spatial_tool
+from six.moves import range
 
 
 # From colorbrewer2.org, qualitative 8-class set 1
@@ -35,7 +36,7 @@ CHANGE_SIZE = False
 NUCLEOID = False
 SAVE_PLOT = True
 
-class MinODEMaster():
+class MinODEMaster(object):
     def __init__(self, n, l_0):
         '''
         Args:
@@ -148,7 +149,6 @@ class MinODEMaster():
             extra_min_d: extra number of MinD that should be distributed
             extra_min_e: extra number of MinE that should be distributed
             l: cell length
-            nucleoid: the presence or absence of nucleoid
 
         Returns:
             y_extra: Stochastically distributed new MinD and MinE

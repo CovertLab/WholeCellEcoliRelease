@@ -110,6 +110,8 @@ reconstruction/ecoli/dataclasses/process/two_component_system_odes_fitter.py
 *.hdf
 *.tar.gz
 /build/
+/.pytype/
+/.mypy_cache/
 
 # PyCharm files #
 #################
@@ -138,7 +140,6 @@ reconstruction/ecoli/dataclasses/process/two_component_system_odes_fitter.py
 
 # Gradle:
 .idea/gradle.xml
-.idea/libraries
 
 # Mongo Explorer plugin:
 .idea/mongoSettings.xml

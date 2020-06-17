@@ -13,12 +13,14 @@ Prints a very brief summary of a whole-cell simulation to standard output
 from __future__ import absolute_import, division, print_function
 
 import datetime
-import time
 import sys
 import numpy as np
-from itertools import izip
+
+from six.moves import range, zip
 
 import wholecell.loggers.logger
+from wholecell.utils.py3 import monotonic_seconds
+
 
 SPACER = "  "
 
@@ -40,7 +42,7 @@ class Shell(wholecell.loggers.logger.Logger):
 		self._headerBoundary = None
 
 		self.nLines = -1
-		self.startTime = time.time()
+		self.startTime = monotonic_seconds()
 		self.startSimTime = 0
 
 
@@ -61,7 +63,7 @@ class Shell(wholecell.loggers.logger.Logger):
 
 		# Collect Metadata
 		self.nLines = -1
-		self.startTime = time.time()
+		self.startTime = monotonic_seconds()
 		self.startSimTime = sim.time()
 
 		# Print initial state
@@ -89,12 +91,12 @@ class Shell(wholecell.loggers.logger.Logger):
 		# Update the cell size to be at least the header width
 		cellSizes = [
 			max(cellSize, max(len(line) for line in lines))
-			for cellSize, lines in izip(cellSizes, columnHeaderLines)
+			for cellSize, lines in zip(cellSizes, columnHeaderLines)
 			]
 
 		# Rearrange the header lines
 		headerLines = []
-		for headerLineIndex in xrange(max(len(lines) for lines in columnHeaderLines)):
+		for headerLineIndex in range(max(len(lines) for lines in columnHeaderLines)):
 			line = []
 			for lines in columnHeaderLines:
 				if len(lines) > headerLineIndex:
@@ -111,7 +113,7 @@ class Shell(wholecell.loggers.logger.Logger):
 
 		for headers in headerLines:
 			string = []
-			for columnIndex, (columnSize, columnHeader) in enumerate(izip(cellSizes, headers)):
+			for columnIndex, (columnSize, columnHeader) in enumerate(zip(cellSizes, headers)):
 				if columnIndex > 0:
 					string.append(SPACER)
 
@@ -132,7 +134,7 @@ class Shell(wholecell.loggers.logger.Logger):
 
 		# Update cell sizes
 
-		for columnSpec, cellSize in izip(self.columns, cellSizes):
+		for columnSpec, cellSize in zip(self.columns, cellSizes):
 			columnSpec["length"] = cellSize
 
 
@@ -145,7 +147,7 @@ class Shell(wholecell.loggers.logger.Logger):
 		if self.nLines % self.headerFreq == 0:
 			self.printHeaders()
 
-		for iColumn in xrange(len(self.columns)):
+		for iColumn in range(len(self.columns)):
 			column = self.columns[iColumn]
 
 			if iColumn > 0:
@@ -183,7 +185,7 @@ class Shell(wholecell.loggers.logger.Logger):
 
 		simTime = sim.time()
 		simLength = simTime - self.startSimTime
-		runtime = time.time() - self.startTime
+		runtime = monotonic_seconds() - self.startTime
 
 		sys.stdout.write(" - Sim length: {}\n".format(hms(simLength)))
 		sys.stdout.write(" - Sim end time: {}\n".format(hms(simTime)))

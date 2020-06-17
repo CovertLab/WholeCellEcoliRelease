@@ -5,20 +5,17 @@
 # Outputs TFoutput.tsv to directory that script is run from
 # Need to replace ' with " in file after script runs
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
-from matplotlib import pyplot as plt
-
-import wholecell.utils.constants
-from wholecell.io.tablereader import TableReader
 
 import csv
-from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
+from typing import Any, Dict
+
 
 CSV_DIALECT = csv.excel_tab
 DATA_FILE = os.path.join("validation","ecoli","flat","conformationTF.tsv")
@@ -28,7 +25,7 @@ OUTPUT_FILE = "TFoutput.tsv"
 reactionDict = {}
 with open(DATA_FILE, "rU") as csvfile:
 	reader = csv.DictReader(csvfile, dialect = CSV_DIALECT)
-	for row in reader:
+	for row in reader:  # type: Dict[str, Any]
 		if row["<Kd> (uM)"] != '' and row["<Kd> (uM)"] != '?':
 			for reaction in row["EcoCyc ID reaction (metabolite vs. TF)"].split(", "):
 				reactionDict[reaction] = float(row["<Kd> (uM)"]) / 10**6
@@ -39,16 +36,19 @@ with open(REACTION_FILE, "rU") as infile:
 		quoteDialect = CSV_DIALECT
 		quoteDialect.quotechar = "'"
 		quoteDialect.quoting = csv.QUOTE_NONNUMERIC
-		writer = csv.DictWriter(outfile, fieldnames = reader.fieldnames, dialect = quoteDialect)
-		writer.fieldnames.append("original reverse rate")
-		writer.writeheader()
-		for row in reader:
-			row["dir"] = float(row["dir"])
-			row["forward rate"] = float(row["forward rate"])
-			row["reverse rate"] = float(row["reverse rate"])
-			row["stoichiometry"] = np.array(row["stoichiometry"])
-			if row["id"] in reactionDict.keys():
-				row["reverse rate"] = reactionDict[row["id"]]
-			row["original reverse rate"] = row["reverse rate"]
 
-			writer.writerow(row)
+		fieldnames = list(reader.fieldnames or [])
+		fieldnames.append("original reverse rate")
+		writer = csv.DictWriter(outfile, fieldnames=fieldnames, dialect=quoteDialect)
+		writer.writeheader()
+
+		for row1 in reader:  # type: Dict[str, Any]
+			row1["dir"] = float(row1["dir"])
+			row1["forward rate"] = float(row1["forward rate"])
+			row1["reverse rate"] = float(row1["reverse rate"])
+			row1["stoichiometry"] = np.array(row1["stoichiometry"])
+			if row1["id"] in reactionDict:
+				row1["reverse rate"] = reactionDict[row1["id"]]
+			row1["original reverse rate"] = row1["reverse rate"]
+
+			writer.writerow(row1)

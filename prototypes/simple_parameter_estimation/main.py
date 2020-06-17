@@ -11,15 +11,11 @@ TODO: shrink color bars, better ticks
 
 '''
 
-# Imports
-
-# Future features
 from __future__ import absolute_import, division, print_function
 
-# Built-ins
 import os
+from typing import Any
 
-# Third-party
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -175,7 +171,8 @@ def imshow_percentile(array, bottom, top, **kwargs):
 	Plot an array as an image, choosing upper and lower limits using
 	pecentiles.
 	'''
-	(vmin, vmax) = np.percentile(array, [bottom, top])
+	q = [bottom, top]  # type: Any
+	(vmin, vmax) = np.percentile(array, q)
 
 	plt.imshow(array, vmin = vmin, vmax = vmax, **kwargs)
 

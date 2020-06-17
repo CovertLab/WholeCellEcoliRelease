@@ -7,14 +7,14 @@ Multiple generations of the same variant will be plotted together
 @date: Created 6/7/16
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 
 import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
+from six.moves import cPickle
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
@@ -27,14 +27,8 @@ PROTEIN_MW = 110.0
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(inputDir):
-			raise Exception, "inputDir does not currently exist as a directory"
-
 		ap = AnalysisPaths(inputDir, variant_plot = True)
 		all_cells = ap.get_cells()
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
 
 		rnaToProteinDict = {}
 		dnaToProteinDict = {}
@@ -88,7 +82,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 			timeStepSec = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")
 
-			if variant in rnaToProteinDict.keys():
+			if variant in rnaToProteinDict:
 				rnaToProteinDict[variant] = np.append(rnaToProteinDict[variant], rnaNT / (proteinAA / 100))
 				dnaToProteinDict[variant] = np.append(dnaToProteinDict[variant], chromEquivalents / (proteinAA / 10**9))
 				elngRateDict[variant] = np.append(elngRateDict[variant], (actualElongations / activeRibosome / timeStepSec)[3:])
@@ -107,7 +101,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		stableRnaFraction = []
 		doublingPerHour = []
 
-		for key in rnaToProteinDict.keys():
+		for key in rnaToProteinDict:
 			rnaToProtein += [rnaToProteinDict[key]]
 			dnaToProtein += [dnaToProteinDict[key]]
 			elngRate += [elngRateDict[key]]

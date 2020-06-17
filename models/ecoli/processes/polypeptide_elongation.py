@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 PolypeptideElongation
 
@@ -12,12 +10,12 @@ TODO:
 @date: Created 4/30/14
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
-from itertools import izip
 
 import numpy as np
 from scipy.integrate import odeint
+from six.moves import range, zip
 
 import wholecell.processes.process
 from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease
@@ -141,7 +139,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		dryMass = (self.readFromListener("Mass", "dryMass") * units.fg)
 		translation_supply_rate = self.translation_aa_supply[current_media_id] * self.elngRateFactor
 		mol_aas_supplied = translation_supply_rate * dryMass * self.timeStepSec() * units.s
-		self.aa_supply = units.convertNoUnitToNumber(mol_aas_supplied * self.nAvogadro)
+		self.aa_supply = units.strip_empty_units(mol_aas_supplied * self.nAvogadro)
 		self.writeToListener("RibosomeData", "translationSupply", translation_supply_rate.asNumber())
 
 		# MODEL SPECIFIC: Calculate AA request
@@ -387,7 +385,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		self.KMaa = constants.Km_synthetase_amino_acid.asNumber(MICROMOLAR_UNITS)
 		self.krta = constants.Kdissociation_charged_trna_ribosome.asNumber(MICROMOLAR_UNITS)
 		self.krtf = constants.Kdissociation_uncharged_trna_ribosome.asNumber(MICROMOLAR_UNITS)
-		aa_removed_from_charging = set(['L-SELENOCYSTEINE[c]'])
+		aa_removed_from_charging = {'L-SELENOCYSTEINE[c]'}
 		self.aa_charging_mask = np.array([aa not in aa_removed_from_charging for aa in self.aaNames])
 
 		# ppGpp parameters
@@ -692,7 +690,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		f_trna[~np.isfinite(f_trna)] = 0
 
 		trna_counts = np.zeros(f_trna.shape, np.int64)
-		for count, row in izip(n_aa, self.process.aa_from_trna):
+		for count, row in zip(n_aa, self.process.aa_from_trna):
 			idx = (row == 1)
 			frac = f_trna[idx]
 
@@ -724,12 +722,12 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		degradation reactions.
 
 		Args:
-			uncharged_trna_conc (array[float] with concentration units):
+			uncharged_trna_conc (np.array[float] with concentration units):
 				concentration of uncharged tRNA associated with each amino acid
-			charged_trna_conc (array[float] with concentration units):
+			charged_trna_conc (np.array[float] with concentration units):
 				concentration of charged tRNA associated with each amino acid
 			ribosome_conc (float with concentration units): concentration of active ribosomes
-			f (array of floats): fraction of each amino acid to be incorporated
+			f (np.array[float]): fraction of each amino acid to be incorporated
 				to total amino acids incorporated
 			rela_conc (float with concentration units): concentration of RelA
 			spot_conc (float with concentration units): concentration of SpoT
@@ -743,12 +741,12 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 				calculateRequest. GDP appears as both a reactant and product
 				and the request can be off the actual use if not handled in this
 				manner.
-			limits (array[float]): counts of molecules that are available to prevent
+			limits (np.array[float]): counts of molecules that are available to prevent
 				negative total counts as a result of delta_metabolites.
 				If None, no limits are placed on molecule changes.
 
 		Returns:
-			delta_metabolites (array[int]): the change in counts of each metabolite
+			delta_metabolites (np.array[int]): the change in counts of each metabolite
 				involved in ppGpp reactions
 			n_syn_reactions (int): the number of ppGpp synthesis reactions
 			n_deg_reactions (int): the number of ppGpp degradation reactions

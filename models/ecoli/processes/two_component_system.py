@@ -8,7 +8,6 @@ Two component system sub-model
 
 """
 from __future__ import absolute_import, division, print_function
-import numpy as np
 
 import wholecell.processes.process
 from wholecell.utils import units
@@ -29,6 +28,9 @@ class TwoComponentSystem(wholecell.processes.process.Process):
 	# Construct object graph
 	def initialize(self, sim, sim_data):
 		super(TwoComponentSystem, self).initialize(sim, sim_data)
+
+		# Simulation options
+		self.jit = sim._jit
 
 		# Get constants
 		self.nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / units.mmol)
@@ -59,7 +61,7 @@ class TwoComponentSystem(wholecell.processes.process.Process):
 		# by the scipy ODE suite.
 		self.molecules_required, self.all_molecule_changes = self.moleculesToNextTimeStep(
 			moleculeCounts, self.cellVolume, self.nAvogadro,
-			self.timeStepSec(), self.randomState, solver="BDF",
+			self.timeStepSec(), self.randomState, method="LSODA", jit=self.jit,
 			)
 
 		# Request counts of molecules needed
@@ -80,7 +82,8 @@ class TwoComponentSystem(wholecell.processes.process.Process):
 
 			_, self.all_molecule_changes = self.moleculesToNextTimeStep(
 				moleculeCounts, self.cellVolume, self.nAvogadro,
-				10000, self.randomState, solver="BDF", min_time_step=self.timeStepSec(),
+				10000, self.randomState, method="BDF", min_time_step=self.timeStepSec(),
+				jit=self.jit,
 				)
 
 		# Increment changes in molecule counts

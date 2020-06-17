@@ -6,11 +6,9 @@ Compare fluxes in simulation to target fluxes
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -19,22 +17,18 @@ from bokeh.plotting import figure, ColumnDataSource
 from bokeh.models import (HoverTool, BoxZoomTool, LassoSelectTool, PanTool,
 	WheelZoomTool, ResizeTool, UndoTool, RedoTool)
 
+from models.ecoli.analysis import singleAnalysisPlot
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.plotting_tools import COLORS_LARGE
 from wholecell.analysis.analysis_tools import exportFigure
-from models.ecoli.analysis import singleAnalysisPlot
+from wholecell.utils import filepath
+
 
 BURN_IN_STEPS = 20
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# read constraint data
 		enzymeKineticsReader = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))
 		allTargetFluxes = enzymeKineticsReader.readColumn("targetFluxes")
@@ -193,8 +187,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 			p2.line(x, y, line_color = colors[m % len(colors)], source = source)
 
-		if not os.path.exists(os.path.join(plotOutDir, "html_plots")):
-			os.makedirs(os.path.join(plotOutDir, "html_plots"))
+		filepath.makedirs(plotOutDir, "html_plots")
 
 		p = bokeh.io.vplot(p1, p2)
 		bokeh.io.output_file(os.path.join(plotOutDir, "html_plots", plotOutFileName + ".html"), title=plotOutFileName, autosave=False)

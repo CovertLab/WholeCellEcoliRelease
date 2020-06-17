@@ -4,10 +4,9 @@ SimulationData state associated data
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 from wholecell.utils import units
-from wholecell.utils.unit_struct_array import UnitStructArray
 
 from reconstruction.ecoli.dataclasses.state.bulkMolecules import BulkMolecules
 from reconstruction.ecoli.dataclasses.state.uniqueMolecules import UniqueMolecules
@@ -242,11 +241,11 @@ class InternalState(object):
 		monomer_ids = sim_data.moleculeGroups.replisome_monomer_subunits
 
 		trimer_mass = [self.bulkMolecules.bulkData['mass'][
-			self.bulkMolecules.bulkData['id'] == id].asNumber(units.g/units.mol)
-			for id in trimer_ids]
+			self.bulkMolecules.bulkData['id'] == id_].asNumber(units.g/units.mol)
+			for id_ in trimer_ids]
 		monomer_mass = [self.bulkMolecules.bulkData['mass'][
-			self.bulkMolecules.bulkData['id'] == id].asNumber(units.g/units.mol)
-			for id in monomer_ids]
+			self.bulkMolecules.bulkData['id'] == id_].asNumber(units.g/units.mol)
+			for id_ in monomer_ids]
 
 		replisomeMass = (units.g/units.mol) * (
 				3*np.sum(trimer_mass, axis=0) + np.sum(monomer_mass, axis=0))

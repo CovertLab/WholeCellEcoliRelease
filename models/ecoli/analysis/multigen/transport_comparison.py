@@ -1,6 +1,6 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
-import cPickle
+from six.moves import cPickle
 import os
 
 from matplotlib import pyplot as plt
@@ -9,15 +9,13 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
+from six.moves import zip
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
+		return
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
 
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
@@ -40,7 +38,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 
 
-			import ipdb; ipdb.set_trace()
+			# import ipdb; ipdb.set_trace()
 
 			# Listeners used
 			main_reader = TableReader(os.path.join(simOutDir, 'Main'))

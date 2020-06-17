@@ -1,4 +1,4 @@
-import numpy as np
+from __future__ import absolute_import, division, print_function
 
 from wholecell.utils.modular_fba import FluxBalanceAnalysis
 
@@ -32,7 +32,7 @@ transportLimits = {
 
 fba = FluxBalanceAnalysis(
 	reactionStoich=toyModelReactionStoich,
-	externalExchangedMolecules=transportLimits.keys(),
+	externalExchangedMolecules=list(transportLimits.keys()),
 	objective=biomassReactionStoich["v_biomass"],
 	objectiveType="standard",
 	solver="glpk",
@@ -44,4 +44,4 @@ fba.setExternalMoleculeLevels([transportLimits[molID] for molID in exchangeMolec
 
 biomassReactionFlux = fba.getBiomassReactionFlux()[0]
 
-print biomassReactionFlux
+print(biomassReactionFlux)

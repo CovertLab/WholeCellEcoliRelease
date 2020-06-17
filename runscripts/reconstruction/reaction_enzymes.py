@@ -1,35 +1,34 @@
+from __future__ import absolute_import, division, print_function
+
 import os
-import csv
 import re
 import yaml
 import json
-from reconstruction.spreadsheets import JsonReader
+from typing import Dict, List
+
+from reconstruction.spreadsheets import read_tsv
+import six
 
 
-CSV_DIALECT = csv.excel_tab
 REACTIONS_FILE = os.path.join("reconstruction", "ecoli", "flat", "reactions.tsv")
 ECOCYC_DUMP = os.path.join("reconstruction", "ecoli", "flat", "ecocyc_20_1_gem.json")
 
-REACTIONS_FILE = os.path.join("reconstruction", "ecoli", "flat", "reactions.tsv")
 NEW_REACTIONS_FILE = os.path.join("reconstruction", "ecoli", "flat", "reactions_new.tsv")
 
 
 
 def getReactionIds():
-	reader = JsonReader(open(REACTIONS_FILE, "r"), dialect = CSV_DIALECT)
-	data = [row for row in reader]
-	L = sorted(x["reaction id"].encode("utf-8") for x in data)
+	data = read_tsv(REACTIONS_FILE)
+	L = sorted(x["reaction id"] for x in data)
 	return L
 
 def getReactionStoich():
-	reader = JsonReader(open(REACTIONS_FILE, "r"), dialect = CSV_DIALECT)
-	data = [row for row in reader]
+	data = read_tsv(REACTIONS_FILE)
 	D = dict((x["reaction id"], x["stoichiometry"]) for x in data)
 	return D
 
 def getReactionReversibility():
-	reader = JsonReader(open(REACTIONS_FILE, "r"), dialect = CSV_DIALECT)
-	data = [row for row in reader]
+	data = read_tsv(REACTIONS_FILE)
 	D = dict((x["reaction id"], x["is reversible"]) for x in data)
 	return D
 
@@ -41,32 +40,34 @@ def truncateNameRxnTrail(name):
 def truncateNameRxnStart(name):
 	if name.startswith("TRANS-RXN"):
 		return None
-	R = re.search("(RXN0?\-[0-9]*)[\-\[]", name)
-	if R != None:
+	R = re.search("(RXN0?-[0-9]*)[\-\[]", name)
+	if R is not None:
 		return R.groups()[0]
 	return None
 
 def truncateNameRxnTrans(name):
-	R = re.search("(TRANS\-RXN0?\-[0-9]*)[\-\[A-Z]", name)
-	if R != None:
+	R = re.search("(TRANS-RXN0?-[0-9]*)[\-\[A-Z]", name)
+	if R is not None:
 		return R.groups()[0]
 	return None
 
 
 def addFilteredEntries(rxnNamesEnzymes):
-	D = {}
-	for rxnName, enzymes in rxnNamesEnzymes.iteritems():
+	# type: (Dict[str, List[str]]) -> None
+	d = {}  # type: Dict[str, List[str]]
+	def add_enzymes(name):
+		# type: (str) -> None
+		if name is not None:
+			d[name] = enzymes
+
+	for rxnName, enzymes in six.viewitems(rxnNamesEnzymes):
 		if rxnName.endswith("-RXN"):
 			continue
-		if truncateNameRxnTrail(rxnName) != None:
-			D[truncateNameRxnTrail(rxnName)] = enzymes
-		if truncateNameRxnStart(rxnName) != None:
-			D[truncateNameRxnStart(rxnName)] = enzymes
-		if truncateNameRxnTrans(rxnName) != None:
-			D[truncateNameRxnTrans(rxnName)] = enzymes
+		add_enzymes(truncateNameRxnTrail(rxnName))
+		add_enzymes(truncateNameRxnStart(rxnName))
+		add_enzymes(truncateNameRxnTrans(rxnName))
 
-
-	rxnNamesEnzymes.update(D)
+	rxnNamesEnzymes.update(d)
 
 reactionIds = getReactionIds()
 reactionStoich = getReactionStoich()
@@ -74,7 +75,9 @@ reactionReversibility = getReactionReversibility()
 
 jsonData = yaml.safe_load(open(ECOCYC_DUMP, "r"))
 
-rxnNamesEnzymes = dict([(x["name"], x["annotation"]["enzymes"]) for x in jsonData["reactions"] if "enzymes" in x["annotation"]])
+rxnNamesEnzymes = {
+	x["name"]: x["annotation"]["enzymes"]
+	for x in jsonData["reactions"] if "enzymes" in x["annotation"]}  # type: Dict[str, List[str]]
 
 addFilteredEntries(rxnNamesEnzymes)
 
@@ -114,7 +117,7 @@ for reactionId in reactionIds:
 	else:
 		notFoundList.append(reactionId)
 
-	if enzymeList != None and len(enzymeList) == 0:
+	if enzymeList is not None and len(enzymeList) == 0:
 		emptyEnzymeList.append(reactionId)
 
 
@@ -133,6 +136,7 @@ for reactionId in reactionIds:
 			json.dumps(enzymeList),
 			)
 		)
-	except:
+	except Exception:
 		import ipdb; ipdb.set_trace()
+		raise
 h.close()

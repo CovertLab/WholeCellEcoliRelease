@@ -14,17 +14,18 @@ TODO:
 @date: Created 5/23/14
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
 from ._build_sequences import buildSequences, computeMassIncrease
 from ._fastsums import sum_monomers, sum_monomers_reference_implementation
+from six.moves import range
 
-# Reexport _build_sequences functions. (Declaring this avoids
-# "unused import statement" warnings.)
-__all__ = ['polymerize', 'buildSequences', 'computeMassIncrease']
+# Reexport these Cython functions. Declaring them avoids
+# "unused import statement" warnings.
+__all__ = ['polymerize', 'buildSequences', 'computeMassIncrease',
+	'sum_monomers_reference_implementation']
 
 def sample_array(array):
 	samples = np.random.random(array.shape)
@@ -134,7 +135,7 @@ class polymerize(object): # Class name is lowercase because interface is functio
 		self._sequenceMonomers = np.empty(
 			(self._nMonomers, self._nSequences, self._sequenceLength),
 			dtype = np.bool)
-		for monomerIndex in xrange(self._nMonomers):
+		for monomerIndex in range(self._nMonomers):
 			self._sequenceMonomers[monomerIndex, ...] = (
 				self._sequences == monomerIndex)
 

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 ProteinDegradation
 
@@ -14,7 +12,7 @@ TODO:
 @date: Created 5/16/2013
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
@@ -49,7 +47,7 @@ class ProteinDegradation(wholecell.processes.process.Process):
 		self.rawDegRate = sim_data.process.translation.monomerData['degRate'].asNumber(1 / units.s)
 
 		shuffleIdxs = None
-		if hasattr(sim_data.process.translation, "monomerDegRateShuffleIdxs") and sim_data.process.translation.monomerDegRateShuffleIdxs != None:
+		if hasattr(sim_data.process.translation, "monomerDegRateShuffleIdxs") and sim_data.process.translation.monomerDegRateShuffleIdxs is not None:
 			shuffleIdxs = sim_data.process.translation.monomerDegRateShuffleIdxs
 			self.rawDegRate = self.rawDegRate[shuffleIdxs]
 

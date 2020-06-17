@@ -10,14 +10,13 @@ Abstract class which defines the interface loggers expose to the simulation
 @date: Created 3/28/2013
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import abc
+import six
 
-class Logger(object):
+class Logger(six.with_metaclass(abc.ABCMeta, object)):
 	""" Logger """
-	
-	__metaclass__ = abc.ABCMeta
 
 	@abc.abstractmethod
 	def initialize(self, sim):

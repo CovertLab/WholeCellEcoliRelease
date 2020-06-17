@@ -5,16 +5,15 @@ Compare fluxes in simulation to target fluxes
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
 import csv
 
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.stats import pearsonr
+from six.moves import cPickle, range
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
@@ -24,6 +23,7 @@ from wholecell.utils.sparkline import whitePadSparklineAxis
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import cohortAnalysisPlot
+from six.moves import zip
 
 # ignore data from metabolism burnin period
 BURN_IN_TIME = 1
@@ -31,12 +31,6 @@ BURN_IN_TIME = 1
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(variantDir):
-			raise Exception, "variantDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Get all cells
 		ap = AnalysisPaths(variantDir, cohort_plot = True)
 		allDir = ap.get_cells()
@@ -146,8 +140,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		ylim = ax.get_ylim()
 		ax.set_ylim(ylim[0] - 0.5, ylim[1])
 		ax.set_xlim(xlim[0] - 0.5, xlim[1])
-		ax.set_yticks(range(-6, int(ylim[1]) + 1, 2))
-		ax.set_xticks(range(-6, int(xlim[1]) + 1, 2))
+		ax.set_yticks(list(range(-6, int(ylim[1]) + 1, 2)))
+		ax.set_xticks(list(range(-6, int(xlim[1]) + 1, 2)))
 		ax.legend()
 
 		exportFigure(plt, plotOutDir, plotOutFileName)

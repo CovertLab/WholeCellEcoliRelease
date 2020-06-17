@@ -9,12 +9,11 @@ directly from TSV flat files.
 @date: Created 11/30/2015
 """
 
-import os
-import csv
-from reconstruction.spreadsheets import JsonReader
-from itertools import ifilter
+from __future__ import absolute_import, division, print_function
 
-CSV_DIALECT = csv.excel_tab
+import os
+from reconstruction.spreadsheets import read_tsv
+
 FLAT_DIR = os.path.join(os.path.dirname(__file__), "flat")
 LIST_OF_DICT_FILENAMES = (
 	"taniguichi2010_table_6.tsv",
@@ -31,7 +30,7 @@ class ValidationDataRawEcoli(object):
 	""" ValidationDataRawEcoli """
 
 	def __init__(self):
-		# Load raw data from TSV files
+		"""Load raw data from TSV files"""
 		for filename in LIST_OF_DICT_FILENAMES:
 			self._load_tsv(os.path.join(FLAT_DIR, filename))
 
@@ -39,9 +38,5 @@ class ValidationDataRawEcoli(object):
 		attrName = file_name.split(os.path.sep)[-1].split(".")[0]
 		setattr(self, attrName, [])
 
-		with open(file_name, 'rU') as csvfile:
-			reader = JsonReader(
-				ifilter(lambda x: x.lstrip()[0] != "#", csvfile),
-				# Strip comments
-				dialect=CSV_DIALECT)
-			setattr(self, attrName, [row for row in reader])
+		rows = read_tsv(file_name)
+		setattr(self, attrName, rows)

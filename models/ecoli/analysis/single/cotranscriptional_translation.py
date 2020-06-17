@@ -7,28 +7,25 @@ Patterns of co-transcriptional translation in the E. coli WCM
 
 from __future__ import absolute_import, division, print_function
 
-import cPickle
 import os
 
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
+from six.moves import cPickle, range
 
 from models.ecoli.analysis import singleAnalysisPlot
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import filepath, units
+from wholecell.utils import units
+from six.moves import zip
+
 
 PLOT_TOP_N_GENES = 30
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, 'simOutDir does not currently exist as a directory'
-
-		filepath.makedirs(plotOutDir)
-
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
 
@@ -85,8 +82,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			mRNA_id_to_gene_id[mRNA_ids[i]]][0] for i in rank]
 
 		ax = plt.subplot(gs[1, 0])
-		ax.bar(range(PLOT_TOP_N_GENES), partial_mRNA_counts_mean[rank])
-		ax.set_xticks(range(PLOT_TOP_N_GENES))
+		ax.bar(list(range(PLOT_TOP_N_GENES)), partial_mRNA_counts_mean[rank])
+		ax.set_xticks(list(range(PLOT_TOP_N_GENES)))
 		ax.set_xticklabels(ranked_genes, rotation=90)
 		ax.set_title(
 			'Genes with highest average counts of partially transcribed active transcripts')
@@ -106,13 +103,13 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			mRNA_id_to_gene_id[mRNA_ids[i]]][0] for i in rank]
 
 		ax = plt.subplot(gs[2, 0])
-		ax.bar(range(PLOT_TOP_N_GENES), partial_mRNA_proportions[rank])
+		ax.bar(list(range(PLOT_TOP_N_GENES)), partial_mRNA_proportions[rank])
 		ax.axhline(
 			partial_mRNA_proportions_all_mRNAs, ls='--', lw=2, color='k',
 			label="All mRNAs: %.2f" % (partial_mRNA_proportions_all_mRNAs, )
 			)
 		ax.legend()
-		ax.set_xticks(range(PLOT_TOP_N_GENES))
+		ax.set_xticks(list(range(PLOT_TOP_N_GENES)))
 		ax.set_xticklabels(ranked_genes, rotation=90)
 		ax.set_title('Genes with highest proportions of partially transcribed active transcripts\n($\geq 10$ total transcripts)')
 		ax.spines['top'].set_visible(False)
@@ -151,8 +148,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			'Validation of partially transcribed transcript proportions with expected values')
 		ax.spines['top'].set_visible(False)
 		ax.spines['right'].set_visible(False)
-		ax.set_xlim([0, 1])
-		ax.set_ylim([0, 1])
+		ax.set_xlim([0, 0.4])
+		ax.set_ylim([0, 0.4])
 		ax.set_xlabel('Expected proportions of partially transcribed transcripts')
 		ax.set_ylabel('Observed proportions of partially transcribed transcripts')
 
@@ -177,8 +174,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			protein_id_to_gene_id[protein_ids[i]]][0] for i in rank]
 
 		ax = plt.subplot(gs[6, 0])
-		ax.bar(range(PLOT_TOP_N_GENES), bound_ribosome_counts_mean[rank])
-		ax.set_xticks(range(PLOT_TOP_N_GENES))
+		ax.bar(list(range(PLOT_TOP_N_GENES)), bound_ribosome_counts_mean[rank])
+		ax.set_xticks(list(range(PLOT_TOP_N_GENES)))
 		ax.set_xticklabels(ranked_genes, rotation=90)
 		ax.set_title(
 			'Genes with highest average counts of chromosome-bound ribosomes')
@@ -199,13 +196,13 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			protein_id_to_gene_id[protein_ids[i]]][0] for i in rank]
 
 		ax = plt.subplot(gs[7, 0])
-		ax.bar(range(PLOT_TOP_N_GENES), bound_ribosome_proportions[rank])
+		ax.bar(list(range(PLOT_TOP_N_GENES)), bound_ribosome_proportions[rank])
 		ax.axhline(
 			bound_ribosome_proportions_all_ribosomes, ls='--', lw=2, color='k',
 			label="All ribosomes: %.2f" % (bound_ribosome_proportions_all_ribosomes, )
 			)
 		ax.legend()
-		ax.set_xticks(range(PLOT_TOP_N_GENES))
+		ax.set_xticks(list(range(PLOT_TOP_N_GENES)))
 		ax.set_xticklabels(ranked_genes, rotation=90)
 		ax.set_title(
 			'Genes with highest proportions of chromosome-bound ribosomes\n($\geq 10$ total ribosomes)')

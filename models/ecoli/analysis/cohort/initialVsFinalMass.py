@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -9,16 +9,11 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import cohortAnalysisPlot
+from six.moves import range
 
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(variantDir):
-			raise Exception, "variantDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Get all cells in each seed
 		ap = AnalysisPaths(variantDir, cohort_plot = True)
 
@@ -28,6 +23,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			if n_cells > max_cells_in_gen:
 				max_cells_in_gen = n_cells
 
+		# noinspection PyTypeChecker
 		fig, axesList = plt.subplots(ap.n_generation, sharey = True, sharex = True,
 			subplot_kw={'aspect': 0.4, 'adjustable': 'box'})
 
@@ -59,7 +55,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 
 		axesList[-1].set_xlabel("Initial mass (pg)")
-		axesList[ap.n_generation / 2].set_ylabel("Final mass (pg)")
+		axesList[ap.n_generation // 2].set_ylabel("Final mass (pg)")
 
 		plt.subplots_adjust(hspace = 0.2, wspace = 0.5)
 

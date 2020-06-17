@@ -13,11 +13,14 @@ from __future__ import absolute_import, division, print_function
 import numpy as np
 import scipy
 import re
+
+import six
 import sympy as sp
 
 from wholecell.utils import build_ode
 from wholecell.utils import data
 from wholecell.utils import units
+from six.moves import range, zip
 
 
 class TwoComponentSystem(object):
@@ -189,11 +192,11 @@ class TwoComponentSystem(object):
 		that don't pickle.
 		"""
 		return data.dissoc_strict(self.__dict__, (
-			'derivativesSymbolic', 'derivativesJacobianSymbolic',
+			'symbolic_rates', 'symbolic_rates_jacobian',
 			'derivativesParcaSymbolic', 'derivativesParcaJacobianSymbolic',
-			'derivatives', 'derivatives_jacobian',
+			'_rates', '_rates_jacobian',
 			'derivatives_parca', 'derivatives_parca_jacobian',
-			'dependencyMatrix'))
+			'dependencyMatrix', '_stoich_matrix'))
 
 	def __setstate__(self, state):
 		"""Restore instance attributes, recomputing some of them."""
@@ -255,7 +258,7 @@ class TwoComponentSystem(object):
 		Columns: complexes
 		Values: monomer stoichiometry
 		'''
-		ids_complexes = self.complexToMonomer.keys()
+		ids_complexes = six.viewkeys(self.complexToMonomer)
 		stoichMatrixMonomersI = []
 		stoichMatrixMonomersJ = []
 		stoichMatrixMonomersV = []
@@ -289,44 +292,45 @@ class TwoComponentSystem(object):
 		self._makeDerivative()
 		self._makeDerivativeParca()
 
-		self.derivatives = build_ode.derivatives(self.derivativesSymbolic)
-		self.derivatives_jacobian = build_ode.derivatives_jacobian(self.derivativesJacobianSymbolic)
-
-		# TODO(jerry): Also JIT-compile derivatives_flipped() and derivatives_jacobian_flipped()?
+		self._rates = build_ode.derivatives(self.symbolic_rates)
+		self._rates_jacobian = build_ode.derivatives_jacobian(self.symbolic_rates_jacobian)
+		self._stoich_matrix = self.stoichMatrix()  # Matrix is small and can be cached for derivatives
 
 		# WORKAROUND: Avoid Numba LoweringError JIT-compiling these functions:
-		self.derivatives_parca = build_ode.derivatives(self.derivativesParcaSymbolic, jit=False)
-		self.derivatives_parca_jacobian = build_ode.derivatives_jacobian(self.derivativesParcaJacobianSymbolic, jit=False)
+		self.derivatives_parca = build_ode.derivatives(self.derivativesParcaSymbolic)[0]
+		self.derivatives_parca_jacobian = build_ode.derivatives_jacobian(self.derivativesParcaJacobianSymbolic)[0]
 
 
 	def _make_y_dy(self):
 		S = self.stoichMatrix()
 
-		yStrings = ["y[%d]" % x for x in xrange(S.shape[0])]
+		yStrings = ["y[%d]" % x for x in range(S.shape[0])]
 		y = sp.symbols(yStrings)
-		dy = [sp.symbol.S.Zero] * S.shape[0]
 
-		for colIdx in xrange(S.shape[1]):
+		rates = []
+		for colIdx in range(S.shape[1]):
 			negIdxs = np.where(S[:, colIdx] < 0)[0]
 			posIdxs = np.where(S[:, colIdx] > 0)[0]
 
 			reactantFlux = self.ratesFwd[colIdx]
 			for negIdx in negIdxs:
-				reactantFlux *= (y[negIdx] ** (-1 * S[negIdx, colIdx]))
+				stoich = -S[negIdx, colIdx]
+				if stoich == 1:
+					reactantFlux *= y[negIdx]
+				else:
+					reactantFlux *= y[negIdx]**stoich
 
 			productFlux = self.ratesRev[colIdx]
 			for posIdx in posIdxs:
-				productFlux *=  (y[posIdx] ** ( 1 * S[posIdx, colIdx]))
+				stoich = S[posIdx, colIdx]
+				if stoich == 1:
+					productFlux *= y[posIdx]
+				else:
+					productFlux *= y[posIdx]**stoich
 
-			fluxForNegIdxs = (-1. * reactantFlux) + (1. * productFlux)
-			fluxForPosIdxs = ( 1. * reactantFlux) - (1. * productFlux)
+			rates.append(reactantFlux - productFlux)
 
-			for thisIdx in negIdxs:
-				dy[thisIdx] += fluxForNegIdxs
-			for thisIdx in posIdxs:
-				dy[thisIdx] += fluxForPosIdxs
-
-		return y, dy
+		return y, rates
 
 
 	def _makeDerivative(self):
@@ -334,13 +338,13 @@ class TwoComponentSystem(object):
 		Creates symbolic representation of the ordinary differential equations
 		and the Jacobian. Used during simulations.
 		'''
-		y, dy = self._make_y_dy()
+		y, rates = self._make_y_dy()
 
-		dy = sp.Matrix(dy)
-		J = dy.jacobian(y)
+		rates = sp.Matrix(rates)
+		J = rates.jacobian(y)
 
-		self.derivativesJacobianSymbolic = J
-		self.derivativesSymbolic = dy
+		self.symbolic_rates = rates
+		self.symbolic_rates_jacobian = J
 
 
 	def _makeDerivativeParca(self):
@@ -349,7 +353,8 @@ class TwoComponentSystem(object):
 		and the Jacobian assuming ATP, ADP, Pi, water and protons are at
 		steady state. Used in the parca.
 		'''
-		y, dy = self._make_y_dy()
+		y, rates = self._make_y_dy()
+		dy = self.stoichMatrix().dot(rates)
 
 		# Metabolism will keep these molecules at steady state
 		constantMolecules = ["ATP[c]", "ADP[c]", "PI[c]", "WATER[c]", "PROTON[c]"]
@@ -365,7 +370,8 @@ class TwoComponentSystem(object):
 
 
 	def moleculesToNextTimeStep(self, moleculeCounts, cellVolume,
-			nAvogadro, timeStepSec, random_state, solver="LSODA", min_time_step=None):
+			nAvogadro, timeStepSec, random_state, method="LSODA",
+			min_time_step=None, jit=True):
 		"""
 		Calculates the changes in the counts of molecules in the next timestep
 		by solving an initial value ODE problem.
@@ -377,9 +383,11 @@ class TwoComponentSystem(object):
 			nAvogadro (float): Avogadro's number
 			timeStepSec (float): current length of timestep in seconds
 			random_state (RandomState object): process random state
-			solver (str): name of the ODE solver to use
+			method (str): name of the ODE method to use
 			min_time_step (int): if not None, timeStepSec will be scaled down until
 				it is below min_time_step if negative counts are encountered
+			jit (bool): if True, use the jit compiled version of derivatives
+				functions
 
 		Returns:
 			moleculesNeeded (1d ndarray, ints): counts of molecules that need
@@ -389,22 +397,22 @@ class TwoComponentSystem(object):
 		"""
 		y_init = moleculeCounts / (cellVolume * nAvogadro)
 
-		if solver == "BDF":
-			# Note: solve_ivp requires the order of arguments (t and y) for the
-			# derivative and jacobian functions to be flipped relative to the
-			# requirements of odeint. Wrapper functions were used to do this
-			# without changing the original functions.
-			sol = scipy.integrate.solve_ivp(
-				self.derivatives_flipped, [0, timeStepSec], y_init,
-				method="BDF", t_eval=[0, timeStepSec],
-				jac=self.derivatives_jacobian_flipped
-				)
-			y = sol.y.T
+		# In this version of SciPy, solve_ivp does not support args so need to
+		# select the derivatives functions to use. Could be simplified to single
+		# functions that take a jit argument from solve_ivp in the future.
+		if jit:
+			derivatives = self.derivatives_jit
+			derivatives_jacobian = self.derivatives_jacobian_jit
 		else:
-			y = scipy.integrate.odeint(
-				self.derivatives, y_init,
-				t=[0, timeStepSec], Dfun=self.derivatives_jacobian
-				)
+			derivatives = self.derivatives
+			derivatives_jacobian = self.derivatives_jacobian
+
+		sol = scipy.integrate.solve_ivp(
+			derivatives, [0, timeStepSec], y_init,
+			method=method, t_eval=[0, timeStepSec], atol=1e-8,
+			jac=derivatives_jacobian
+			)
+		y = sol.y.T
 
 		# Handle negative counts by attempting to solve again with different options
 		if np.any(y[-1, :] * (cellVolume * nAvogadro) <= -1e-3):
@@ -412,13 +420,13 @@ class TwoComponentSystem(object):
 				# Call method again with a shorter time step until min_time_step is reached
 				return self.moleculesToNextTimeStep(
 					moleculeCounts, cellVolume, nAvogadro, timeStepSec/2, random_state,
-					solver=solver, min_time_step=min_time_step)
-			elif solver != 'LSODA':
-				# Try with different solver for better stability
+					method=method, min_time_step=min_time_step, jit=jit)
+			elif method != 'LSODA':
+				# Try with different method for better stability
 				print('Warning: switching to LSODA method in TCS')
 				return self.moleculesToNextTimeStep(
 					moleculeCounts, cellVolume, nAvogadro, timeStepSec, random_state,
-					solver='LSODA', min_time_step=min_time_step)
+					method='LSODA', min_time_step=min_time_step, jit=jit)
 			else:
 				raise Exception(
 					"Solution to ODE for two-component systems has negative values."
@@ -427,7 +435,6 @@ class TwoComponentSystem(object):
 		y[y < 0] = 0
 		yMolecules = y * (cellVolume * nAvogadro)
 		dYMolecules = yMolecules[-1, :] - yMolecules[0, :]
-
 
 		independentMoleculesCounts = np.round(dYMolecules[self.independent_molecule_indexes])
 
@@ -553,9 +560,11 @@ class TwoComponentSystem(object):
 
 		info = self.complexToMonomer
 		if cplxId in info:
-			out = {'subunitIds' : info[cplxId].keys(), 'subunitStoich' : info[cplxId].values()}
+			out = {
+				'subunitIds': list(info[cplxId].keys()),
+				'subunitStoich': list(info[cplxId].values())}
 		else:
-			out = {'subunitIds' : cplxId, 'subunitStoich' : 1}
+			out = {'subunitIds': cplxId, 'subunitStoich': 1}
 		return out
 
 
@@ -625,18 +634,30 @@ class TwoComponentSystem(object):
 		out[dependencyMatrixI, dependencyMatrixJ] = dependencyMatrixV
 		return out
 
+	def derivatives(self, t, y):
+		"""
+		Calculate derivatives from stoichiometry and rates with argument order
+		for solve_ivp.
+		"""
+		return self._stoich_matrix.dot(self._rates[0](y, t))
 
-	def derivatives_flipped(self, t, y):
+	def derivatives_jacobian(self, t, y):
 		"""
-		Wrapper function to flip the order of arguments of the derivative
-		function given as an argument to solve_ivp.
+		Calculate the jacobian of derivatives from stoichiometry and rates
+		with argument order for solve_ivp.
 		"""
-		return self.derivatives(y, t)
+		return self._stoich_matrix.dot(self._rates_jacobian[0](y, t))
 
+	def derivatives_jit(self, t, y):
+		"""
+		Calculate derivatives from stoichiometry and rates with argument order
+		for solve_ivp.
+		"""
+		return self._stoich_matrix.dot(self._rates[1](y, t))
 
-	def derivatives_jacobian_flipped(self, t, y):
+	def derivatives_jacobian_jit(self, t, y):
 		"""
-		Wrapper function to flip the order of arguments of the Jacobian
-		function given as an argument to solve_ivp.
+		Calculate the jacobian of derivatives from stoichiometry and rates
+		with argument order for solve_ivp.
 		"""
-		return self.derivatives_jacobian(y, t)
+		return self._stoich_matrix.dot(self._rates_jacobian[1](y, t))

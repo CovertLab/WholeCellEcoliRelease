@@ -12,13 +12,13 @@ standardize the output across sets of simulations.
 
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
+from six.moves import cPickle, range
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
@@ -49,22 +49,16 @@ TARGET_LINE_STYLE = dict(
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(variantDir):
-			raise Exception, "variantDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		analysis_paths = AnalysisPaths(variantDir, cohort_plot = True)
 
 		n_gens = analysis_paths.n_generation
 
 		if n_gens - 1 < FIRST_GENERATION:
-			print 'Not enough generations to plot.'
+			print('Not enough generations to plot.')
 			return
 
 		sim_dirs = analysis_paths.get_cells(
-			generation = range(FIRST_GENERATION, n_gens)
+			generation = list(range(FIRST_GENERATION, n_gens))
 			)
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))

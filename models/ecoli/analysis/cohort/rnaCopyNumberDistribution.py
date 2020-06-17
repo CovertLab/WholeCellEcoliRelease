@@ -6,22 +6,20 @@ multiple-seed simulations.
 @date: Created 5/21/2018
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
-from itertools import izip, cycle
+from itertools import cycle
+from six.moves import cPickle, range, zip
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
 from wholecell.analysis.analysis_tools import exportFigure
-from wholecell.utils.filepath import makedirs
 from models.ecoli.analysis import cohortAnalysisPlot
 
 # Number of RNAs sampled for Plot 1
@@ -30,13 +28,6 @@ RNA_SAMPLE_COUNT = 10
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		# Check if the given variant directory exists
-		if not os.path.isdir(variantDir):
-			raise Exception, "variantDir does not currently exist as a directory."
-
-		# Make plotOut directory if none exists
-		makedirs(plotOutDir)
-
 		# Get paths for all cell simulations in each seed
 		ap = AnalysisPaths(variantDir, cohort_plot = True)
 		n_seed = ap.n_seed
@@ -44,7 +35,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		# If the simulation does not have multiple seeds, skip analysis
 		if n_seed <= 1:
-			print "Skipping -- rnaCopyNumberDistribution only runs for simulations with multiple seeds."
+			print("Skipping -- rnaCopyNumberDistribution only runs for simulations with multiple seeds.")
 			return
 
 		# Group simulations by generation
@@ -134,7 +125,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		# 1-1: Plot histogram of average RNA counts for each generation
 		for gen_idx in range(n_generation):
-			ax = plt.subplot(gs[0, gen_idx])
+			ax = self.subplot(gs[0, gen_idx])
 			mean_counts = rna_counts_mean_over_seed[gen_idx, :]
 			ax.hist(mean_counts, bins=np.logspace(-3, 6, 19))
 			ax.set_title("Generation %d"%(gen_idx,))
@@ -171,7 +162,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 			# Plot histogram for each generation
 			for gen_idx in range(n_generation):
-				ax = plt.subplot(gs[i + 1, gen_idx])
+				ax = self.subplot(gs[i + 1, gen_idx])
 				seed_counts = all_rna_counts[gen_idx, :, idx_rna_sampled]
 
 				# The weights rescale histogram such that all columns sum to one
@@ -196,7 +187,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 			# Go back and reset y axis upper limit
 			for gen_idx in range(n_generation):
-				ax = plt.subplot(gs[i + 1, gen_idx])
+				ax = self.subplot(gs[i + 1, gen_idx])
 				ax.set_ylim([0, 1.1*max_bin_prob])
 
 		fig.tight_layout()
@@ -247,7 +238,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		ylim_plot3 = [1e-3, 1e4]
 
 		# Plot for each generation
-		for (gen_idx, color) in izip(range(n_generation), cycle('bmyk')):
+		for (gen_idx, color) in zip(range(n_generation), cycle('bmyk')):
 			ax = plt.subplot(gs[gen_idx, 0])
 			ax.scatter(rna_counts_mean_over_seed[gen_idx, :], rna_counts_noise_over_seed[gen_idx, :], s=10, color=color, marker='o', lw=0)
 			ax.set_xlabel(r"Mean RNA count ($\mu$)")
@@ -261,7 +252,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		# Compare plots between first and last generations
 		ax = plt.subplot(gs[-1, 0])
-		for (gen_idx, color) in izip([0, n_generation - 1], ['b', 'k']):
+		for (gen_idx, color) in zip([0, n_generation - 1], ['b', 'k']):
 			ax.scatter(rna_counts_mean_over_seed[gen_idx, :], rna_counts_noise_over_seed[gen_idx, :],
 				s=10, alpha=0.3, color=color, marker='o', label="Generation %d" % (gen_idx,), lw=0)
 

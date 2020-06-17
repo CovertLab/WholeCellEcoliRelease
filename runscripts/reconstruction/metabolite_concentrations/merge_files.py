@@ -15,7 +15,9 @@ import os
 import sys
 import time
 
-from typing import Dict, List
+from typing import Dict, List, Tuple
+
+from wholecell.utils.py3 import String
 
 
 FILE_LOCATION = os.path.realpath(os.path.dirname(__file__))
@@ -23,7 +25,7 @@ OUTPUT_FILE = os.path.join(FILE_LOCATION, 'metabolite_concentrations.tsv')
 
 
 def load_conc(filename):
-	# type: (str) -> (str, Dict[str, float])
+	# type: (str) -> Tuple[str, Dict[str, String]]
 	"""
 	Load concentration data from a tsv file.  First column should be metabolite
 	ID and second column should be concentration.  Does not handle more than
@@ -37,13 +39,13 @@ def load_conc(filename):
 		conc: metabolite ID to concentration
 	"""
 
-	conc = {}
+	conc = {}  # type: Dict[str, String]
 	with open(filename) as f:
 		reader = csv.reader(f, delimiter='\t')
 
-		headers = reader.next()
+		headers = next(reader)
 		while headers[0].startswith('#'):
-			headers = reader.next()
+			headers = next(reader)
 		label = headers[1]
 
 		for line in reader:
@@ -55,7 +57,7 @@ def load_conc(filename):
 	return label, conc
 
 def save_conc(conc):
-	# type: (List[(str, Dict[str, float])]) -> None
+	# type: (List[Tuple[str, Dict[str, String]]]) -> None
 	"""
 	Save combined concentration data with blank entries for metabolites with
 	unknown concentrations.
@@ -72,7 +74,7 @@ def save_conc(conc):
 		writer.writerow(['# Created with {} on {}'.format(' '.join(sys.argv), time.ctime())])
 		writer.writerow(headers)
 		for m in sorted(mets):
-			writer.writerow(['"{}"'.format(m)] + [c[1].get(m, 'NaN') for c in conc])
+			writer.writerow([u'"{}"'.format(m)] + [c[1].get(m, 'NaN') for c in conc])
 
 
 if __name__ == '__main__':

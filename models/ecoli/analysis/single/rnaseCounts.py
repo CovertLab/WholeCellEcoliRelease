@@ -6,13 +6,13 @@ Plot RNAse counts
 @date: Created 1/14/2015
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
+from six.moves import cPickle, range
 
 from wholecell.io.tablereader import TableReader
 from models.ecoli.analysis import singleAnalysisPlot
@@ -22,12 +22,6 @@ from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
 		endoRnaseIds = sim_data.process.rna_decay.endoRnaseIds
@@ -58,7 +52,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		plt.rc('xtick', labelsize=7)
 		plt.rc('ytick', labelsize=5)
 
-		for subplotIdx in xrange(0, n_subplots):
+		for subplotIdx in range(0, n_subplots):
 			ax = plt.subplot(18, 2, 1 + subplotIdx)
 
 			if not subplotIdx % 2:

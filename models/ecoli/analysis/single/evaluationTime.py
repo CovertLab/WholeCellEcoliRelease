@@ -14,6 +14,7 @@ from matplotlib.gridspec import GridSpec
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
+from six.moves import zip
 
 
 def subplot(gs, x, y, title, labels, sort=False):
@@ -42,12 +43,6 @@ def subplot(gs, x, y, title, labels, sort=False):
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		evaluationTime = TableReader(os.path.join(simOutDir, "EvaluationTime"))
 		mainReader = TableReader(os.path.join(simOutDir, "Main"))
 

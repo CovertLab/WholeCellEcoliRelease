@@ -7,15 +7,17 @@ Notes:
 reactions are mass balanced
 '''
 
-import cPickle
-import csv
+from __future__ import absolute_import, division, print_function
+
 import os
+from typing import Any
 
 import numpy as np
 
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 from reconstruction.ecoli.simulation_data import SimulationDataEcoli
 from reconstruction.spreadsheets import JsonWriter
+from six.moves import zip
 
 # file paths
 file_loc = os.path.dirname(__file__)
@@ -25,13 +27,13 @@ output_filename = os.path.join(file_loc, 'charged_data.tsv')
 np.set_printoptions(suppress = True)
 
 # get raw and sim data
-raw_data = KnowledgeBaseEcoli()
+raw_data = KnowledgeBaseEcoli()  # type: Any
 sim_data = SimulationDataEcoli()
 sim_data.initialize(raw_data)
 
 # determine masses and write to output file
 with open(output_filename, 'w') as out:
-	writer = JsonWriter(out, ["id", "mw7.2", "location"], dialect = "excel-tab")
+	writer = JsonWriter(out, ["id", "mw7.2", "location"])
 
 	trnas = sim_data.process.transcription.rnaData['id'][sim_data.process.transcription.rnaData['isTRna']]
 	charged = [x['modifiedForms'] for x in raw_data.rnas if x['id']+'[c]' in trnas]
@@ -60,7 +62,7 @@ with open(output_filename, 'w') as out:
 					if reactant in mol_names:
 						mass += mws[np.where(mol_names == reactant)[0][0]].asNumber()
 					else:
-						print 'could not get mass for %s' % (reactant)
+						print('could not get mass for %s' % (reactant,))
 				for product in products:
 					if product == ctrna:
 						continue
@@ -68,7 +70,7 @@ with open(output_filename, 'w') as out:
 					if product in mol_names:
 						mass -= mws[np.where(mol_names == product)[0][0]].asNumber()
 					else:
-						print 'could not get mass for %s' % (product)
+						print('could not get mass for %s' % (product,))
 
 				writer.writerow({
 					'id': ctrna[:-3],

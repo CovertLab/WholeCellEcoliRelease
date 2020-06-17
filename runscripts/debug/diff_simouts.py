@@ -42,11 +42,11 @@ def is_repr(value):
 	'''Returns True if the value is a Repr object.'''
 	return isinstance(value, Repr)
 
-def elide(value, max=100):
+def elide(value, max_=100):
 	'''Return a value with the same repr but elided if it'd be longer than max.'''
 	repr_ = repr(value)
-	if len(repr_) > max:
-		return Repr(repr_[:max] + '...')
+	if len(repr_) > max_:
+		return Repr(repr_[:max_] + '...')
 	return value
 
 def compare_arrays(array1, array2):

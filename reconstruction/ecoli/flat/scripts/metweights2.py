@@ -1,12 +1,13 @@
+from __future__ import absolute_import, division, print_function
 
 import os
 import re
-
-import numpy as np
+from typing import Dict
 
 from Bio.Data.IUPACData import atom_weights
 
 from reconstruction.spreadsheets import JsonWriter
+import six
 
 # Constants
 
@@ -25,13 +26,13 @@ OUTPUT_WATER = os.path.join("reconstruction", "ecoli", "flat", "water.tsv")
 
 no_formula = set()
 atoms = set()
-formulas = {}
+formulas = {}  # type: Dict[str, Dict[str, int]]
 
 for line in open(SOURCE):
 	molecule_name, formula_string = line.strip().split(DELIMITER)
 
 	if formula_string:
-		formula = {}
+		formula = {}  # type: Dict[str, int]
 		for atom_name, count_string in re.findall(REGEX, formula_string):
 			atoms.add(atom_name)
 
@@ -48,22 +49,22 @@ for line in open(SOURCE):
 		no_formula.add(molecule_name)
 
 weights = {
-	molecule_name:sum(count * round(atom_weights[atom_name], NDIGITS) for atom_name, count in formula.viewitems())
-	for molecule_name, formula in formulas.viewitems()
+	molecule_name:sum(count * round(atom_weights[atom_name], NDIGITS) for atom_name, count in six.viewitems(formula))
+	for molecule_name, formula in six.viewitems(formulas)
 	}
 
 # Add misc. species
-for molecule_name, stoich in ADDED_SPECIES.viewitems():
+for molecule_name, stoich in six.viewitems(ADDED_SPECIES):
 	assert molecule_name not in weights
 	weights[molecule_name] = sum(
-		coeff * weights[mol] for mol, coeff in stoich.viewitems()
+		coeff * weights[mol] for mol, coeff in six.viewitems(stoich)
 		)
 
 # Write out metabolites
 with open(OUTPUT_METS, "w") as out:
-	writer = JsonWriter(out, ["id", "mw7.2", "location"], dialect = "excel-tab")
+	writer = JsonWriter(out, ["id", "mw7.2", "location"])
 	writer.writeheader()
-	for molecule_name, weight in weights.viewitems():
+	for molecule_name, weight in six.viewitems(weights):
 		if molecule_name == "WATER":
 			continue
 
@@ -75,9 +76,9 @@ with open(OUTPUT_METS, "w") as out:
 
 # Write out water
 with open(OUTPUT_WATER, "w") as out:
-	writer = JsonWriter(out, ["id", "mw7.2", "location"], dialect = "excel-tab")
+	writer = JsonWriter(out, ["id", "mw7.2", "location"])
 	writer.writeheader()
-	for molecule_name, weight in weights.viewitems():
+	for molecule_name, weight in six.viewitems(weights):
 		if molecule_name != "WATER":
 			continue
 

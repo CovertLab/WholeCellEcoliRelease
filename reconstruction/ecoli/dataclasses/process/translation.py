@@ -6,9 +6,10 @@ SimulationData for translation process
 @date: Created 03/09/2015
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
+import six
 
 from wholecell.sim.simulation import MAX_TIME_STEP
 from wholecell.utils import units
@@ -29,7 +30,7 @@ class Translation(object):
 		self._buildMonomerData(raw_data, sim_data)
 		self._buildTranslation(raw_data, sim_data)
 		self._buildTranslationEfficiency(raw_data, sim_data)
-		self.elongation_rates = self._build_elongation_rates(raw_data, sim_data)
+		self._build_elongation_rates(raw_data, sim_data)
 
 	def _buildMonomerData(self, raw_data, sim_data):
 		assert all([len(protein['location']) == 1 for protein in raw_data.proteins])
@@ -61,7 +62,7 @@ class Translation(object):
 
 			counts = []
 
-			for aa in sim_data.amino_acid_1_to_3_ordered.viewkeys():
+			for aa in sim_data.amino_acid_1_to_3_ordered:
 				counts.append(
 					sequence.count(aa)
 					)
@@ -165,7 +166,7 @@ class Translation(object):
 		self.translationSequences = np.empty((sequences.shape[0], maxLen), np.int8)
 		self.translationSequences.fill(polymerize.PAD_VALUE)
 
-		aaIDs_singleLetter = sim_data.amino_acid_1_to_3_ordered.keys()
+		aaIDs_singleLetter = six.viewkeys(sim_data.amino_acid_1_to_3_ordered)
 
 		aaMapping = {aa:i for i, aa in enumerate(aaIDs_singleLetter)}
 
@@ -173,7 +174,7 @@ class Translation(object):
 			for j, letter in enumerate(sequence):
 				self.translationSequences[i, j] = aaMapping[letter]
 
-		aaIDs = sim_data.amino_acid_1_to_3_ordered.values()
+		aaIDs = list(sim_data.amino_acid_1_to_3_ordered.values())
 
 		self.translationMonomerWeights = (
 			(

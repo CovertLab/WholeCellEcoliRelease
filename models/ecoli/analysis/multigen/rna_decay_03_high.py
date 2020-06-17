@@ -17,29 +17,24 @@ EG10544_RNA[c]	97.5	lpp		Murein lipoprotein
 @date: Created 10/29/2015
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 
 import numpy as np
-import cPickle
 from matplotlib import pyplot as plt
+from six.moves import cPickle, range
 
 from wholecell.io.tablereader import TableReader
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.utils import units
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
+from six.moves import zip
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		allRnaIds = sim_data.process.transcription.rnaData["id"].tolist()
 
@@ -97,12 +92,12 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		for dt, rnaDegradedCount, rnaCount in zip(dts, rnaDegradedCounts, rnaCounts):
 			tmpArray = np.nan * np.ones_like(rnaDegradedCount)
-			for colIdx in xrange(tmpArray.shape[1]):
+			for colIdx in range(tmpArray.shape[1]):
 				tmpArray[:, colIdx] = np.convolve(rnaDegradedCount[:, colIdx] / dt, np.ones(N) / N, mode = "same")
 			rnaDegradedCountsAveraged.append(tmpArray[N:-1*N, :])
 
 			tmpArray = np.nan * np.ones_like(rnaCount)
-			for colIdx in xrange(tmpArray.shape[1]):
+			for colIdx in range(tmpArray.shape[1]):
 				tmpArray[:, colIdx] = np.convolve(rnaCount[:, colIdx], np.ones(N) / N, mode = "same")
 			rnaCountsAveraged.append(tmpArray[N:-1*N, :])
 
@@ -111,7 +106,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		plt.figure(figsize = (8.5, 11))
 
-		for subplotIdx in xrange(1, 10):
+		for subplotIdx in range(1, 10):
 
 			plt.subplot(3, 3, subplotIdx)
 
@@ -123,7 +118,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			except ValueError:
 				# TODO: Come up with a better/more descriptive error message
 				# This is to handle errors that occurs when running short simulations
-				print "Skipping subplot %d because not enough data" % subplotIdx
+				print("Skipping subplot %d because not enough data" % (subplotIdx,))
 				continue
 
 			plt.scatter(

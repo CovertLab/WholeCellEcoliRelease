@@ -1,10 +1,11 @@
-#!/usr/bin/env python
-
 '''
 Utility functions for generating sparkline plots
 '''
 
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
+
 
 def whitePadSparklineAxis(axis, xAxis=True, secondary=False):
 	axis.spines["right"].set_visible(secondary)

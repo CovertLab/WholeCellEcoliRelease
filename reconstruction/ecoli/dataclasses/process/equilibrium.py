@@ -9,11 +9,12 @@ fluxesAndMoleculesToSS()
 from __future__ import absolute_import, division, print_function
 
 import numpy as np
+from scipy import integrate
 import sympy as sp
 
-from wholecell.utils import build_ode
-from wholecell.utils import data
-from wholecell.utils import units
+from wholecell.utils import build_ode, data, units
+from wholecell.utils.random import stochasticRound
+from six.moves import range, zip
 
 
 class EquilibriumError(Exception):
@@ -44,7 +45,10 @@ class Equilibrium(object):
 		complexationReactionIds = set([x["id"] for x in raw_data.complexationReactions])
 
 		if equilibriumReactionIds.intersection(complexationReactionIds) != set():
-			raise Exception, "The following reaction ids are specified in equilibriumReactions and complexationReactions: %s" % (equilibriumReactionIds.intersection(complexationReactionIds))
+			raise Exception(
+				"The following reaction ids are specified in equilibriumReactions and complexationReactions: %s" % (
+					equilibriumReactionIds.intersection(
+						complexationReactionIds)))
 
 		# Remove complexes that are currently not simulated
 		FORBIDDEN_MOLECULES = {
@@ -134,22 +138,18 @@ class Equilibrium(object):
 
 		# Build matrices
 		self._populateDerivativeAndJacobian()
-		self._complexIdxs = np.where(np.any(self.stoichMatrix() > 0, axis=1))[0]
-		self._monomerIdxs = [np.where(x < 0)[0] for x in self.stoichMatrix().T]
-		self._rxnNonZeroIdxs = [np.where(x != 0)[0] for x in self.stoichMatrix().T]
 		self._stoichMatrix = self.stoichMatrix()
-		self._stoichMatrixMonomers = self.stoichMatrixMonomers()
 
 	def __getstate__(self):
 		"""Return the state to pickle, omitting derived attributes that
-		__setstate__() will recompute, esp. those like the ode_derivatives
+		__setstate__() will recompute, esp. those like the rates for ODEs
 		that don't pickle.
 		"""
 		return data.dissoc_strict(self.__dict__, (
 			'_stoichMatrix',
 			'Rp', 'Pp', 'metsToRxnFluxes',
-			'derivativesSymbolic', 'derivativesJacobianSymbolic',
-			'derivatives', 'derivativesJacobian'))
+			'symbolic_rates', 'symbolic_rates_jacobian',
+			'_rates', '_rates_jacobian'))
 
 	def __setstate__(self, state):
 		"""Restore instance attributes, recomputing some of them."""
@@ -226,11 +226,11 @@ class Equilibrium(object):
 	def _populateDerivativeAndJacobian(self):
 		'''Compile callable functions for computing the derivative and the Jacobian.'''
 		self._makeMatrices()
-		self._makeDerivative()
+		self._make_rates()
 
-		self.derivatives = build_ode.derivatives_with_rates(self.derivativesSymbolic)
-		self.derivativesJacobian = build_ode.derivatives_jacobian_with_rates(
-			self.derivativesJacobianSymbolic)
+		self._rates = build_ode.rates(self.symbolic_rates)
+		self._rates_jacobian = build_ode.rates_jacobian(
+			self.symbolic_rates_jacobian)
 
 	def _makeMatrices(self):
 		'''
@@ -247,91 +247,115 @@ class Equilibrium(object):
 		metsToRxnFluxes = self.stoichMatrix().copy()
 
 		metsToRxnFluxes[(np.abs(metsToRxnFluxes) > EPS).sum(axis = 1) > 1, : ] = 0
-		for colIdx in xrange(metsToRxnFluxes.shape[1]):
+		for colIdx in range(metsToRxnFluxes.shape[1]):
 			try:
 				firstNonZeroIdx = np.where(np.abs(metsToRxnFluxes[:, colIdx]) > EPS)[0][0]
 			except IndexError:
-				raise Exception, "Column %d of S matrix not linearly independent!" % colIdx
+				raise Exception(
+					"Column %d of S matrix not linearly independent!" % colIdx)
 			metsToRxnFluxes[:firstNonZeroIdx, colIdx] = 0
 			metsToRxnFluxes[(firstNonZeroIdx + 1):, colIdx] = 0
 
 		self.metsToRxnFluxes = metsToRxnFluxes.T
 
-	def _makeDerivative(self):
+	def _make_rates(self):
 		'''
-		Creates symbolic representation of the ordinary differential equations and the Jacobian.
-		Used during simulations.
+		Creates symbolic representation of the rates for ordinary differential
+		equations and the Jacobian. Used during simulations.
 		'''
 		S = self.stoichMatrix()
 
-		yStrings = ["y[%d]" % x for x in xrange(S.shape[0])]
-		ratesFwdStrings = ["kf[%d]" % x for x in xrange(S.shape[0])]
-		ratesRevStrings = ["kr[%d]" % x for x in xrange(S.shape[0])]
+		yStrings = ["y[%d]" % x for x in range(S.shape[0])]
+		ratesFwdStrings = ["kf[%d]" % x for x in range(S.shape[0])]
+		ratesRevStrings = ["kr[%d]" % x for x in range(S.shape[0])]
 		y = sp.symbols(yStrings)
 		ratesFwd = sp.symbols(ratesFwdStrings)
 		ratesRev = sp.symbols(ratesRevStrings)
-		dy = [sp.symbol.S.Zero] * S.shape[0]
 
-		for colIdx in xrange(S.shape[1]):
+		rates = []
+
+		for colIdx in range(S.shape[1]):
 			negIdxs = np.where(S[:, colIdx] < 0)[0]
 			posIdxs = np.where(S[:, colIdx] > 0)[0]
 
 			reactantFlux = ratesFwd[colIdx]
 			for negIdx in negIdxs:
-				reactantFlux *= (y[negIdx] ** (-1 * S[negIdx, colIdx]))
+				stoich = -S[negIdx, colIdx]
+				if stoich == 1:
+					reactantFlux *= y[negIdx]
+				else:
+					reactantFlux *= y[negIdx]**stoich
 
 			productFlux = ratesRev[colIdx]
 			for posIdx in posIdxs:
-				productFlux *=  (y[posIdx] ** ( 1 * S[posIdx, colIdx]))
+				stoich = S[posIdx, colIdx]
+				if stoich == 1:
+					productFlux *= y[posIdx]
+				else:
+					productFlux *= y[posIdx]**stoich
 
-			fluxForNegIdxs = (-1. * reactantFlux) + (1. * productFlux)
-			fluxForPosIdxs = ( 1. * reactantFlux) - (1. * productFlux)
+			rates.append(reactantFlux - productFlux)
 
-			for thisIdx in negIdxs:
-				dy[thisIdx] += fluxForNegIdxs
-			for thisIdx in posIdxs:
-				dy[thisIdx] += fluxForPosIdxs
-
-		dy = sp.Matrix(dy)
+		dy = sp.Matrix(rates)
 		J = dy.jacobian(y)
 
-		self.derivativesJacobianSymbolic = J
-		self.derivativesSymbolic = dy
+		self.symbolic_rates = dy
+		self.symbolic_rates_jacobian = J
 
-	def fluxesAndMoleculesToSS(self, moleculeCounts, cellVolume, nAvogadro):
-		'''
-		Calculate change in molecule counts and flux through reactions until steady state.
-		'''
-		dYMolecules = np.zeros_like(moleculeCounts)
-		monomersTotal = moleculeCounts + np.dot(self._stoichMatrixMonomers, -1. * moleculeCounts[self._complexIdxs])
-		countsToMolarLog = -1. * (np.log10(cellVolume) + np.log10(nAvogadro))
-		for colIdx in xrange(self._stoichMatrix.shape[1]):
-			dYMolecules[self._rxnNonZeroIdxs[colIdx]] = (self._solveSS(
-				monomersTotal,
-				self._stoichMatrix[:, colIdx],
-				np.log10(self.ratesRev[colIdx]) - np.log10(self.ratesFwd[colIdx]),
-				countsToMolarLog,
-				self._monomerIdxs[colIdx],
-				self._rxnNonZeroIdxs[colIdx],
-				) - moleculeCounts[self._rxnNonZeroIdxs[colIdx]])
+	def derivatives(self, t, y):
+		return self._stoichMatrix.dot(self._rates[0](t, y, self.ratesFwd, self.ratesRev))
 
-		rxnFluxes = np.round(np.dot(self.metsToRxnFluxes, dYMolecules))
+	def derivatives_jacobian(self, t, y):
+		return self._stoichMatrix.dot(self._rates_jacobian[0](t, y, self.ratesFwd, self.ratesRev))
+
+	def derivatives_jit(self, t, y):
+		return self._stoichMatrix.dot(self._rates[1](t, y, self.ratesFwd, self.ratesRev))
+
+	def derivatives_jacobian_jit(self, t, y):
+		return self._stoichMatrix.dot(self._rates_jacobian[1](t, y, self.ratesFwd, self.ratesRev))
+
+	def fluxesAndMoleculesToSS(self, moleculeCounts, cellVolume, nAvogadro,
+			random_state, time_limit=1e20, max_iter=100, jit=True):
+		y_init = moleculeCounts / (cellVolume * nAvogadro)
+
+		# In this version of SciPy, solve_ivp does not support args so need to
+		# select the derivatives functions to use. Could be simplified to single
+		# functions that take a jit argument from solve_ivp in the future.
+		if jit:
+			derivatives = self.derivatives_jit
+			derivatives_jacobian = self.derivatives_jacobian_jit
+		else:
+			derivatives = self.derivatives
+			derivatives_jacobian = self.derivatives_jacobian
+
+		# Note: odeint has issues solving with a long time step so need to use solve_ivp
+		sol = integrate.solve_ivp(
+			derivatives, [0, time_limit], y_init,
+			method="LSODA", t_eval=[0, time_limit],
+			jac=derivatives_jacobian)
+		y = sol.y.T
+
+		if np.any(y[-1, :] * (cellVolume * nAvogadro) <= -1):
+			raise ValueError('Have negative values at equilibrium steady state -- probably due to numerical instability.')
+		if np.linalg.norm(derivatives(0, y[-1, :]), np.inf) * (cellVolume * nAvogadro) > 1:
+			raise RuntimeError('Did not reach steady state for equilibrium.')
+		y[y < 0] = 0
+		yMolecules = y * (cellVolume * nAvogadro)
+
+		# Pick rounded solution that does not cause negative counts
+		dYMolecules = yMolecules[-1, :] - yMolecules[0, :]
+		for i in range(max_iter):
+			rxnFluxes = stochasticRound(random_state, np.dot(self.metsToRxnFluxes, dYMolecules))
+			if np.all(moleculeCounts + self._stoichMatrix.dot(rxnFluxes) >= 0):
+				break
+		else:
+			raise ValueError('Negative counts in equilibrium steady state.')
+
 		rxnFluxesN = -1. * (rxnFluxes < 0) * rxnFluxes
 		rxnFluxesP =  1. * (rxnFluxes > 0) * rxnFluxes
 		moleculesNeeded = np.dot(self.Rp, rxnFluxesP) + np.dot(self.Pp, rxnFluxesN)
+
 		return rxnFluxes, moleculesNeeded
-
-
-	def _solveSS(self, x, S, kdLog, countsToMolarLog, monomerIdxs, nonZeroIdxs):
-		rxnFlux = 0.
-		maxIters = int(np.ceil(np.min(-x[monomerIdxs] / S[monomerIdxs])))
-
-		if maxIters > 0:
-			allAttempts = (np.arange(1, maxIters + 1).reshape(1, -1) * S[nonZeroIdxs].reshape(-1, 1) + np.ones(maxIters).reshape(1, -1) * x[nonZeroIdxs].reshape(-1, 1))
-			h = np.argmin(np.abs(np.sum(-1 * np.ones(maxIters).reshape(1, -1) * S[nonZeroIdxs].reshape(-1, 1) * (countsToMolarLog + np.log10(allAttempts)), axis = 0) - kdLog))
-			rxnFlux = (h + 1)
-
-		return x[nonZeroIdxs] + rxnFlux * S[nonZeroIdxs]
 
 	def getMonomers(self, cplxId):
 		'''
@@ -340,12 +364,13 @@ class Equilibrium(object):
 		coefficient of one.
 		'''
 		info = self._moleculeRecursiveSearch(cplxId, self._stoichMatrix, self.moleculeNames)
-		return {'subunitIds': np.array(info.keys()), 'subunitStoich': np.array(info.values())}
+		return {'subunitIds': np.array(list(info.keys())), 'subunitStoich': np.array(list(info.values()))}
 
 	def getMetabolite(self, cplxId):
 		D = self.getMonomers(cplxId)
 		if len(D["subunitIds"]) > 2:
-			raise Exception, "Calling this function only makes sense for reactions with 2 reactants"
+			raise Exception(
+				"Calling this function only makes sense for reactions with 2 reactants")
 		for subunit in D["subunitIds"]:
 			if subunit in self.metaboliteSet:
 				return subunit
@@ -353,7 +378,8 @@ class Equilibrium(object):
 	def getMetaboliteCoeff(self, cplxId):
 		D = self.getMonomers(cplxId)
 		if len(D["subunitIds"]) > 2:
-			raise Exception, "Calling this function only makes sense for reactions with 2 reactants"
+			raise Exception(
+				"Calling this function only makes sense for reactions with 2 reactants")
 		for subunit, stoich in zip(D["subunitIds"], D["subunitStoich"]):
 			if subunit in self.metaboliteSet:
 				return stoich
@@ -361,7 +387,8 @@ class Equilibrium(object):
 	def getUnbound(self, cplxId):
 		D = self.getMonomers(cplxId)
 		if len(D["subunitIds"]) > 2:
-			raise Exception, "Calling this function only makes sense for reactions with 2 reactants"
+			raise Exception(
+				"Calling this function only makes sense for reactions with 2 reactants")
 		for subunit in D["subunitIds"]:
 			if subunit not in self.metaboliteSet:
 				return subunit

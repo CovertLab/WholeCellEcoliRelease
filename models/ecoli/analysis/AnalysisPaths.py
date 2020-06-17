@@ -3,13 +3,13 @@ AnalysisPaths: object for easily accessing file paths to simulations based on
 variants, seeds, and generation.
 '''
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 from os import listdir
 from os.path import isdir, join
 from re import match, findall
 from itertools import chain
+from typing import cast, Iterable, List, Optional, Union
 import numpy as np
 
 from wholecell.utils import constants
@@ -32,9 +32,10 @@ class AnalysisPaths(object):
 	'''
 
 	def __init__(self, out_dir, variant_plot = False, multi_gen_plot = False, cohort_plot = False):
+		# type: (str, bool, bool, bool) -> None
 		assert sum((variant_plot, multi_gen_plot, cohort_plot)) == 1, "Must specify exactly one plot type!"
 
-		generation_dirs = []
+		generation_dirs = []  # type: List[str]
 		if variant_plot:
 			# Final all variant files
 			all_dirs = listdir(out_dir)
@@ -126,6 +127,7 @@ class AnalysisPaths(object):
 		self.n_seed = len(set(seeds))
 
 	def get_cells(self, variant = None, seed = None, generation = None):
+		# type: (Optional[Iterable[Union[int, str]]], Optional[Iterable[int]], Optional[Iterable[int]]) -> np.ndarray
 		"""Returns file paths for all the simulated cells."""
 		# TODO: Rename this to get_cell_paths()?
 		if variant is None:
@@ -146,29 +148,38 @@ class AnalysisPaths(object):
 		return self._path_data['path'][np.logical_and.reduce((variantBool, seedBool, generationBool))]
 
 	def get_variant_kb(self, variant):
+		# type: (Union[int, str]) -> str
 		kb_path = np.unique(self._path_data['variantkb'][np.where(self._path_data["variant"] == variant)])
 		assert kb_path.size == 1
 		return kb_path[0]
 
 	def get_variants(self):
+		# type: () -> List[Union[int, str]]
 		return sorted(np.unique(self._path_data["variant"]))
 
 	def _get_generations(self, directory):
-		generation_files = [join(directory, f) for f in listdir(directory) if isdir(join(directory, f)) and "generation" in f]
-		generations = [None] * len(generation_files)
+		# type: (str) -> List[List[str]]
+		generation_files = [
+			join(directory, f) for f in listdir(directory)
+			if isdir(join(directory, f)) and "generation" in f]  # type: List[str]
+		generations = [[] for _ in generation_files]  # type: List[List[str]]
 		for gen_file in generation_files:
 			generations[int(gen_file[gen_file.rfind('_') + 1:])] = self._get_individuals(gen_file)
 		return generations
 
 	def _get_individuals(self, directory):
-		individual_files = [join(directory, f) for f in listdir(directory) if isdir(join(directory, f))]
-		individuals = [None] * len(individual_files)
+		# type: (str) -> List[str]
+		individual_files = [
+			join(directory, f) for f in listdir(directory)
+			if isdir(join(directory, f))]  # type: List[str]
+		individuals = [''] * len(individual_files)  # type: List[str]
 		for ind_file in individual_files:
-			individuals[int(ind_file[ind_file.rfind('/')+1:])] = ind_file
+			individuals[int(ind_file[ind_file.rfind('/') + 1:])] = ind_file
 		return individuals
 
 	def _set_match(self, field, value):
+		# type: (str, Iterable[Union[int, str]]) -> np.ndarray
 		union = np.zeros(self._path_data[field].size)
 		for x in value:
-			union = np.logical_or(self._path_data[field] == x, union)
+			union = cast(np.ndarray, np.logical_or(self._path_data[field] == x, union))
 		return union

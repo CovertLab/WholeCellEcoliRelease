@@ -12,10 +12,13 @@ import os
 import posixpath
 import re
 import sys
+import six
 if os.name == 'posix' and sys.version_info[0] < 3:
-	import subprocess32 as subprocess
+	import subprocess32 as subprocess2
+	subprocess = subprocess2
 else:
-	import subprocess
+	import subprocess as subprocess3
+	subprocess = subprocess3
 from typing import Any, Callable, Dict, Iterable, List, Optional, Set
 
 from borealis import gce
@@ -23,17 +26,11 @@ from borealis.docker_task import DockerTask
 from fireworks import FiretaskBase, Firework, LaunchPad
 from fireworks import Workflow as FwWorkflow
 from future.utils import raise_with_traceback
-from gaia.client import Gaia
-from requests import ConnectionError
-import yaml
+import ruamel.yaml as yaml
 
 from wholecell.utils import filepath as fp
+from wholecell.utils.py3 import ANY_STRING
 
-
-# Config details to pass to Gaia.
-# ASSUMES: gaia_host is reachable e.g. via an ssh tunnel set up by
-# runscripts/cloud/ssh-tunnel.sh
-GAIA_CONFIG = {'gaia_host': 'localhost:24442'}
 
 STDOUT_PATH = '>'    # special path that captures stdout + stderror
 LOG_OUT_PATH = '>>'  # special path for a fuller log; written even on task failure
@@ -47,18 +44,6 @@ DEFAULT_LPAD_YAML = 'my_launchpad.yaml'
 DEFAULT_FIREWORKS_DATABASE = 'default_fireworks_database'
 
 
-def _rebase_for_gaia(path, internal_prefix, storage_prefix):
-	# type: (str, str, str) -> str
-	"""Return a path rebased from internal_prefix to storage_prefix and switch
-	to "bucket:path" format for Gaia/Sisyphus."""
-	relpath = posixpath.relpath(path, internal_prefix)
-	new_path = posixpath.join(storage_prefix, relpath).replace('/', ':', 1)
-
-	# posixpath.relpath() removes a trailing slash if it exists. Restore it.
-	if path.endswith(posixpath.sep):
-		new_path = posixpath.join(new_path, '')
-	return new_path
-
 def _keyify(paths, fn=lambda path: path):
 	# type: (Iterable[str], Callable[[str], str]) -> Dict[str, str]
 	"""Map sequential keys to fn(path)."""
@@ -67,11 +52,12 @@ def _keyify(paths, fn=lambda path: path):
 def _copy_as_list(value):
 	# type: (Iterable[str]) -> List[str]
 	"""Copy an iterable of strings as a list. Fail fast on improper input."""
-	assert isinstance(value, Iterable) and not isinstance(value, basestring), (
-		'Expected a list, not {}'.format(repr(value)))
+
+	assert isinstance(value, Iterable) and not isinstance(value, ANY_STRING), (
+		'Expected a list, not {!r}'.format(value))
 	result = list(value)
 	for s in result:
-		assert isinstance(s, basestring), 'Expected a string, not {}'.format(s)
+		assert isinstance(s, ANY_STRING), 'Expected a string, not {!r}'.format(s)
 	return result
 
 def _copy_path_list(value, internal_prefix, is_output=False):
@@ -104,16 +90,19 @@ def _copy_path_list(value, internal_prefix, is_output=False):
 def _to_create_bucket(prefix):
 	# type: (str) -> str
 	return ('{0}'
-			' Create your own Google Cloud Storage bucket if needed. This'
-			' supports usage tracking, cleanup, and ACLs.'
-			' Pick a name like "sisyphus-{2}" [it has to be globally unique;'
-			' BEWARE that it\'s publicly visible so don\'t include login IDs,'
-			' email addresses, project names, project numbers, or personally'
-			' identifiable information (PII)], the same Region used with'
+			' Create your own Google Cloud Storage bucket if needed. This aids'
+			' usage tracking, cleanup, and ACLs.'
+			' Pick a name like "sisyphus-{2}", the same Region used with'
 			' Compute Engine (run `gcloud info` for info), Standard storage'
-			' class, and default access control.'
-			' Then store it in an environment variable in your shell profile'
-			' and update your current shell, e.g. `export {1}="sisyphus-{2}"`.'
+			' class, and default access control. The name has to be globally'
+			' unique across EVERY GCS PROJECT IN THE WORLD so we\'re using'
+			' "sisyphus-" as a distinguishing prefix.'
+			' BEWARE that the name is publicly visible so don\'t include login'
+			' IDs, email addresses, project names, project numbers, or'
+			' personally identifiable information (PII).'
+			' Then store the bucket name in an environment variable in your'
+			' shell profile and update your current shell, e.g.'
+			' `export {1}="sisyphus-{2}"`.'
 				.format(prefix, STORAGE_ROOT_ENV_VAR, os.environ['USER']))
 
 def bucket_from_path(storage_path):
@@ -215,37 +204,6 @@ class Task(object):
 			internal_prefix=self.internal_prefix,
 			timeout=self.timeout)
 
-	def build_command(self):
-		# type: () -> Dict[str, Any]
-		"""Build a Gaia Command to run this Task."""
-		def specialize(path):
-			# type: (str) -> str
-			return (LOG_OUT_PATH if path.startswith(LOG_OUT_PATH)
-					else STDOUT_PATH if path.startswith(STDOUT_PATH)
-					else path)
-
-		return dict(
-			name=self.name,
-			image=self.image,
-			command=self.command,
-			inputs=_keyify(self.inputs),
-			outputs=_keyify(self.outputs, specialize),
-			vars={})
-
-	def build_step(self):
-		# type: () -> Dict[str, Any]
-		"""Build a Gaia Step to run this Task."""
-		def rebase(path):
-			# type: (str) -> str
-			return _rebase_for_gaia(path.lstrip('>'), self.internal_prefix, self.storage_prefix)
-
-		return dict(
-			name=self.name,
-			command=self.name,
-			inputs=_keyify(self.inputs, rebase),
-			outputs=_keyify(self.outputs, rebase),
-			timeout=self.timeout)
-
 
 class Workflow(object):
 	"""A workflow builder."""
@@ -256,8 +214,7 @@ class Workflow(object):
 		Construct a workflow builder, ready to add Tasks.
 
 		Args:
-			name: Each workflow needs a name that's unique among all workflows
-				in the Gaia server. Standard practice is to construct a name in
+			name: Standard practice is to construct a name in
 				the form `OWNER_PROGRAM_DATETIME`, e.g.
 				`crick_DemoWorkflow_20191209.133734` to aid sorting and
 				filtering workflows.
@@ -321,7 +278,7 @@ class Workflow(object):
 
 	def add_properties(self, **kwargs):
 		# type: (Any) -> None
-		"""Add more Gaia properties to the workflow, e.g. 'description'."""
+		"""Add more properties to the workflow, e.g. 'description'."""
 		self.properties.update(kwargs)
 
 	def add_task(self, task):
@@ -425,17 +382,17 @@ class Workflow(object):
 
 	def build_fireworks(self):
 		# type: () -> List[Firework]
-		"""Build this workflow's Firework objects."""
-		built = OrderedDict()
+		"""Build all the FireWorks `Firework` objects for the workflow."""
+		built = OrderedDict()  # type: Dict[str, Firework]
 
-		for task in self._tasks.itervalues():
+		for task in six.viewvalues(self._tasks):
 			self._build_firework(task, built)
 
-		return built.values()
+		return list(built.values())
 
 	def build_workflow(self):
 		# type: () -> FwWorkflow
-		"""Build this workflow for FireWorks."""
+		"""Build the FireWorks `Workflow` object."""
 		fireworks = self.build_fireworks()
 		wf = FwWorkflow(fireworks, name=self.name, metadata=self.properties)
 		return wf
@@ -462,7 +419,7 @@ class Workflow(object):
 		copy_key(config, 'username', metadata)
 		copy_key(config, 'password', metadata)
 
-		engine = gce.ComputeEngine(prefix, verbose=True)  # TODO(jerry): Turn off verbose, soon
+		engine = gce.ComputeEngine(prefix)
 		engine.create(count=count, command_options=options, **metadata)
 
 	def send_to_lpad(self, worker_count=4, lpad_filename=DEFAULT_LPAD_YAML):
@@ -489,68 +446,14 @@ class Workflow(object):
 
 		return wf
 
-	def build_gaia_commands(self):
-		# type: () -> List[dict]
-		"""Build this workflow's Gaia Commands."""
-		return [task.build_command() for task in self._tasks.itervalues()]
-
-	def build_gaia_steps(self):
-		# type: () -> List[dict]
-		"""Build this workflow's Gaia Steps."""
-		return [task.build_step() for task in self._tasks.itervalues()]
-
-	def write_for_gaia(self):
+	def write(self):
 		# type: () -> None
-		"""Build the Gaia workflow spec and write it as JSON files for
-		debugging that can be manually sent to the Gaia server.
-		"""
-		commands = self.build_gaia_commands()
-		steps = self.build_gaia_steps()
-
+		"""Write this workflow as a YAML file for FireWorks."""
 		fp.makedirs('out')
-		commands_path = os.path.join('out', 'workflow-commands.json')
-		steps_path = os.path.join('out', 'workflow-steps.json')
+		filename = os.path.join('out', 'workflow-{}.yaml'.format(self.name))
+		self.log_info('\nWriting workflow {}'.format(filename))
 
-		self.log_info('\nWorkflow {} writing {} {}'.format(
-			self.name, commands_path, steps_path))
-		fp.write_json_file(commands_path, commands)
-		fp.write_json_file(steps_path, steps)
+		fw_wf = self.build_workflow()
 
-		self.log_info('Associated properties = {}'.format(self.properties))
-
-	def launch_sisyphus_workers(self, count):
-		# type: (int) -> None
-		"""Launch the requested number of sisyphus worker nodes (GCE VMs)."""
-		prefix = 'sisyphus-{}'.format(self.name)
-		options = {
-			'image-family': 'sisyphus-worker',
-			'description': 'Sisyphus worker VM'}
-		metadata = {'workflow': self.name}
-
-		engine = gce.ComputeEngine(prefix, verbose=True)
-		engine.create(count=count, command_options=options, **metadata)
-
-	def send_to_gaia(self, worker_count=4):
-		# type: (int) -> None
-		"""Build the Gaia workflow and send it to the server to start running."""
-		commands = self.build_gaia_commands()
-		steps = self.build_gaia_steps()
-		self.properties['requested-worker-count'] = worker_count
-
-		gaia = Gaia(GAIA_CONFIG)
-
-		try:
-			self.log_info('\nUploading workflow {} to Gaia with {} steps'.format(
-				self.name, len(steps)))
-			gaia.upload(
-				workflow=self.name,
-				properties=self.properties,
-				commands=commands,
-				steps=steps)
-		except ConnectionError as e:
-			print('\n*** Did you set up port forwarding to the gaia host? See'
-				  ' runscripts/cloud/ssh-tunnel.sh ***\n')
-			raise e
-
-		# Launch the workers after the successful upload.
-		self.launch_sisyphus_workers(worker_count)
+		with open(filename, 'w') as f:
+			yaml.safe_dump(fw_wf.to_dict(), f)

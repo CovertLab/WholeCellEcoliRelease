@@ -2,11 +2,35 @@
 
 from __future__ import absolute_import, division, print_function
 
+import functools
 import multiprocessing as mp
 import os
+import sys
+import traceback
 
-from typing import Any, Callable, Dict, Iterable, List, Optional
+from typing import Any, Callable, Dict, Iterable, List, Optional, Union
+from six.moves import map
 
+
+def full_traceback(func):
+	# type: (Callable) -> Callable
+	"""
+	Decorator to use on a function used for multiprocessing tasks
+	(eg apply_async) in order to capture the full stack trace for any errors
+	that arise during execution.
+
+	NOTE: no longer needed in python3 as the traceback is properly handled
+	"""
+
+	@functools.wraps(func)
+	def wrapper(*args, **kwargs):
+		try:
+			return func(*args, **kwargs)
+		except Exception as e:
+			msg = '{} in wrapped function {}\n\nOriginal {}'.format(
+				type(e).__name__, func.__name__, traceback.format_exc())
+			raise RuntimeError(msg)
+	return wrapper if sys.version_info[0] < 3 else func
 
 def is_macos():
 	# type: () -> bool
@@ -96,7 +120,7 @@ def cpus(requested_num_processes=None, **kwargs):
 
 
 def pool(num_processes=None):
-	# type: (Optional[int]) -> mp.pool.Pool
+	# type: (Optional[int]) -> Union[mp.pool.Pool, InlinePool]
 	"""Return an `InlinePool` if `cpus(num_processes) == 1`, else a
 	`multiprocessing.Pool(cpus(num_processes))`, as suitable for the current
 	runtime environment. See `cpus()` on figuring the number of usable
@@ -119,7 +143,7 @@ class InlinePool(object):
 	def map(self, func, iterable, chunksize=None):
 		# type: (Callable[..., Any], Iterable[Any], Optional[int]) -> List[Any]
 		"""Map the function over the iterable."""
-		return map(func, iterable)
+		return list(map(func, iterable))
 
 	def apply_async(self, func, args=(), kwds=None, callback=None):
 		# type: (Callable[..., Any], Iterable[Any], Optional[Dict[str, Any]], Optional[Callable[..., None]]) -> ApplyResult

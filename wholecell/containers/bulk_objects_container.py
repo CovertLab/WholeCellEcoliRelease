@@ -2,6 +2,7 @@
 from __future__ import absolute_import, division, print_function
 
 import numpy as np
+from typing import Any, cast, Iterable
 import zlib
 
 ZLIB_LEVEL = 7
@@ -31,7 +32,9 @@ def decomp(compressed_names, dtype, compressed_counts):
 	container.countsIs(counts_array)
 	return container
 
-decomp.__safe_for_unpickling__ = True
+
+# So mypy won't complain that the Callable has no such attribute.
+cast(Any, decomp).__safe_for_unpickling__ = True
 
 
 class BulkObjectsContainer(object):
@@ -92,7 +95,7 @@ class BulkObjectsContainer(object):
 	TODO (John): Give methods more standard names (e.g. set, get, add).
 	TODO (John): Move methods and attributes from mixedCase to under_scores.
 	TODO (John): Get rid of single/group distinction in methods/views, and
-		instead check input types against basestring to decide what sort of
+		instead check input types against str to decide what sort of
 		output to return.
 	TODO (John): Use something more generic than 'counts' to reflect the fact
 		that non-integer data types are permissible.
@@ -100,6 +103,7 @@ class BulkObjectsContainer(object):
 	"""
 
 	def __init__(self, objectNames, dtype = np.int64):
+		# type: (Iterable[str], Any) -> None
 		# Copy the object names into a tuple to ensure they are ordered and
 		# immutable
 		self._objectNames = tuple(objectNames)

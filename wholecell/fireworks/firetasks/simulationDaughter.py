@@ -1,7 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 import time
-import cPickle
+from six.moves import cPickle
 
 from fireworks import FiretaskBase, explicit_serialize
 from models.ecoli.sim.simulation import EcoliDaughterSimulation
@@ -25,6 +25,7 @@ class SimulationDaughterTask(FiretaskBase):
 		"timestep_update_freq",
 		"log_to_shell",
 		"log_to_disk_every",
+		"jit",
 		"mass_distribution",
 		"growth_rate_noise",
 		"d_period_division",
@@ -62,6 +63,7 @@ class SimulationDaughterTask(FiretaskBase):
 		options["updateTimeStepFreq"] = self._get_default("timestep_update_freq", "updateTimeStepFreq")
 		options["logToShell"] = self._get_default("log_to_shell", "logToShell")
 		options["logToDiskEvery"] = self._get_default("log_to_disk_every", "logToDiskEvery")
+		options["jit"] = self._get_default("jit")
 		options["massDistribution"] = self._get_default("mass_distribution", "massDistribution")
 		options["growthRateNoise"] = self._get_default("growth_rate_noise", "growthRateNoise")
 		options["dPeriodDivision"] = self._get_default("d_period_division", "dPeriodDivision")

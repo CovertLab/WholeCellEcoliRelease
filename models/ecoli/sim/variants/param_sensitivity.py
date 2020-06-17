@@ -27,9 +27,13 @@ Expected variant indices:
 	1+: random set of parameters is adjusted
 '''
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
+from typing import Tuple
+
+from reconstruction.ecoli.simulation_data import SimulationDataEcoli
+
 
 # Factor to scale each parameter by
 # Increasing params will be *SCALE_FACTOR, decreasing will be /SCALE_FACTOR
@@ -40,6 +44,7 @@ SPLIT = 10
 
 
 def number_params(sim_data):
+	# type: (SimulationDataEcoli) -> Tuple[int, int, int, int]
 	'''
 	Determines the number of parameters for each class of parameter that will
 	be adjusted.
@@ -58,7 +63,7 @@ def number_params(sim_data):
 	n_protein_deg_rates = len(sim_data.process.translation.monomerData['degRate'])
 	n_translation_efficiencies = len(sim_data.process.translation.translationEfficienciesByMonomer)
 	n_synth_prob = len(sim_data.process.transcription.rnaSynthProb
-		[sim_data.process.transcription.rnaSynthProb.keys()[0]])
+		[list(sim_data.process.transcription.rnaSynthProb.keys())[0]])
 
 	return n_rna_deg_rates, n_protein_deg_rates, n_translation_efficiencies, n_synth_prob
 
@@ -79,7 +84,7 @@ def split_indices(sim_data, seed, split=SPLIT):
 		ndarray[int]: indices into total parameter array to decrease parameter value
 	'''
 
-	total_params = np.sum(number_params(sim_data))
+	total_params = sum(number_params(sim_data))
 	param_split = total_params // split
 
 	# Determine indices to change

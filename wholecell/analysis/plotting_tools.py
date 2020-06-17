@@ -5,8 +5,11 @@ Reusable plotting functions and tools
 @date: Created 11/06/2015
 """
 
+from __future__ import absolute_import, division, print_function
+
 import matplotlib.pyplot as plt
 from scipy import stats
+from six.moves import range
 
 
 COLORS_LARGE = ["#000000", "#FFFF00", "#1CE6FF", "#FF34FF", "#FF4A46", "#008941", "#006FA6", "#A30059",
@@ -74,8 +77,8 @@ def plotSplom(arrayOfdataArrays, nameArray="", stdArrays=None, labels=None, fig=
 
 	num_entries = len(arrayOfdataArrays)
 	plottingIndex = 1
-	for rowNum in xrange(1,num_entries+1):
-		for colNum in xrange(1,num_entries+1):
+	for rowNum in range(1,num_entries+1):
+		for colNum in range(1,num_entries+1):
 			if colNum < plottingIndex:
 				continue
 			plt.subplot(num_entries,num_entries,num_entries*(rowNum-1)+(colNum))
@@ -88,7 +91,7 @@ def plotSplom(arrayOfdataArrays, nameArray="", stdArrays=None, labels=None, fig=
 
 			if plotCorrCoef:
 				corr_coef, pValue = stats.pearsonr(arrayOfdataArrays[colNum-1], arrayOfdataArrays[rowNum-1])
-				plt.title("R = %.4f" % (corr_coef))
+				plt.title("R = %.4f" % (corr_coef,))
 		plottingIndex += 1
 
 	return fig

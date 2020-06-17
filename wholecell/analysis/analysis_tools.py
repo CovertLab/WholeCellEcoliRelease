@@ -2,17 +2,21 @@
 Analysis script toolbox functions
 """
 
+from __future__ import absolute_import, division, print_function
+
 import os
 
 import numpy as np
 
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import filepath
+from wholecell.utils.py3 import ANY_STRING
 
 LOW_RES_DIR = 'low_res_plots'
 SVG_DIR = 'svg_plots'
 HTML_DIR = 'html_plots'
 LOW_RES_DPI = 120
+
 
 def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None, transparent=False,
         dpi=LOW_RES_DPI, extension=None):
@@ -80,6 +84,16 @@ def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None, transparent=Fa
 				str(metadata["description"])
 				])
 
+		elif analysis_type == 'parca':
+			# Format metadata signature for parca figure
+			metadata_signature = "_".join([
+				str(metadata["time"][:13]),
+				"Githash",
+				str(metadata["git_hash"])[:10],
+				"Desc",
+				str(metadata["description"])
+				])
+
 		else:
 			raise ValueError('Unknown analysis_type {}'.format(analysis_type))
 
@@ -140,7 +154,7 @@ def read_bulk_molecule_counts(sim_out_dir, mol_names):
 
 	# Check for string instead of array since it will cause mol_indices lookup to fail
 	for names in mol_names:
-		if isinstance(names, basestring):
+		if isinstance(names, ANY_STRING):
 			raise Exception('mol_names must be a tuple of arrays not strings like {}'.format(names))
 
 	bulk_reader = TableReader(os.path.join(sim_out_dir, 'BulkMolecules'))

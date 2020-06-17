@@ -1,29 +1,22 @@
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
+from six.moves import cPickle, range
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.analysis.analysis_tools import read_bulk_molecule_counts
 from wholecell.utils import units
-import cPickle
 from models.ecoli.analysis import multigenAnalysisPlot
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
 		# Get first cell from each generation
@@ -293,6 +286,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 				y_lim = [processElongationRate[100:].min(), processElongationRate[100:].max()]
 			else:
 				y_lim = get_new_ylim(ax12, processElongationRate[100:].min(), processElongationRate[100:].max())
+			if y_lim[0] == y_lim[1]:
+				y_lim[0] -= .011  # avoid matplotlib bottom==top singularity warning
+				y_lim[1] += .011
 			ax12.set_ylim(y_lim)
 			ax12.set_ylabel("Process ribosome\nelongation rate\n(aa/s)")
 

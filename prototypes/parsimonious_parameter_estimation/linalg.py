@@ -5,6 +5,7 @@ Linear algebra-related functions.
 from __future__ import absolute_import, division, print_function
 
 import numpy as np
+from six.moves import range
 
 def approximate_gradient(f, x, dx):
 	'''
@@ -19,7 +20,7 @@ def approximate_gradient(f, x, dx):
 	if np.isscalar(dx):
 		dx = dx * np.ones(n, np.float64)
 
-	for i in xrange(n):
+	for i in range(n):
 		xu = x.copy()
 		xd = x.copy()
 
@@ -40,7 +41,7 @@ def approximate_gradient_adaptive(f, x, dx_initial, iteration_limit = 100, thres
 
 	squared_threshold = threshold * threshold
 
-	for i in xrange(iteration_limit):
+	for i in range(iteration_limit):
 		gradient = approximate_gradient(f, x, dx)
 
 		if old_gradient is not None and np.sum(np.square(gradient - old_gradient)) < squared_threshold:

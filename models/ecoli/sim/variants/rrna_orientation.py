@@ -8,6 +8,9 @@ Expected variant indices:
 	0: control
 	1: reverse orientation of all rRNA genes
 """
+
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
 from wholecell.utils import units
 

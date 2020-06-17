@@ -1,17 +1,16 @@
-from __future__ import absolute_import
-
+from __future__ import absolute_import, division, print_function
 
 import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
-import scipy.stats
+from six.moves import cPickle
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import variantAnalysisPlot
+from six.moves import zip
 
 NUMERICAL_ZERO = 1e-12
 
@@ -19,11 +18,8 @@ NUMERICAL_ZERO = 1e-12
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		if metadata["variant"] != "tf_activity":
-			print "This plot only runs for the 'tf_activity' variant."
+			print("This plot only runs for the 'tf_activity' variant.")
 			return
-
-		if not os.path.isdir(inputDir):
-			raise Exception, "inputDir does not currently exist as a directory"
 
 		ap = AnalysisPaths(inputDir, variant_plot = True)
 		variants = sorted(ap._path_data['variant'].tolist()) # Sorry for accessing private data
@@ -35,9 +31,6 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			return
 
 		all_cells = sorted(ap.get_cells(variant = variants, seed = [0], generation = [0]))
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
 
 		expectedProbBound = [[], [], []]
 		simulatedProbBound = [[], [], []]

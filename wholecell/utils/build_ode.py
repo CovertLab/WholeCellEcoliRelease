@@ -7,13 +7,15 @@ from __future__ import absolute_import, division, print_function
 import numpy as np
 from numba import njit
 from sympy import Matrix
-from typing import Callable
+from typing import Callable, Tuple
 
 
-def build_function(arguments, expression, jit=True):
-	# type: (str, str, bool) -> Callable
+def build_functions(arguments, expression):
+	# type: (str, str) -> Tuple[Callable, Callable]
 	"""Build a function from its arguments and source code expression, give it
 	access to `Numpy as np`, and set up Numba to JIT-compile it on demand.
+	There will be overhead to compile the first time the jit version is called
+	so two functions are returned and can be selected for optimal performance.
 
 	Numba will optimize expressions like 1.0*y[2]**1.0 while compiling it
 	to machine code.
@@ -21,19 +23,17 @@ def build_function(arguments, expression, jit=True):
 	Args:
 		arguments (str): comma-separated lambda argument names
 		expression (str): expression to compile
-		jit (bool): whether to JIT-compile the function; this option is just to
-			work around Numba compiler bugs
 
 	Returns:
+		a lambda function(arguments)
 		a Numba Dispatcher function(arguments)
 	"""
 	f = eval('lambda {}: {}'.format(arguments, expression), {'np': np}, {})
 
-	if jit:
-		# Too bad cache=True doesn't work with string source code.
-		f_jit = njit(f, error_model='numpy')
-		return f_jit
-	return f
+	# Too bad cache=True doesn't work with string source code.
+	f_jit = njit(f, error_model='numpy')
+
+	return f, f_jit
 
 
 # TODO(jerry): Surely we can extract the argument array of "Matrix([...])" via
@@ -46,25 +46,25 @@ def _matrix_to_array(matrix):
 	return 'np.array({})'.format(matrix_string[7:-1])
 
 
-def derivatives(matrix, jit=True):
-	# type: (Matrix, bool) -> Callable
+def derivatives(matrix):
+	# type: (Matrix) -> Tuple[Callable, Callable]
 	"""Build an optimized derivatives ODE function(y, t)."""
-	return build_function('y, t',
-		_matrix_to_array(matrix) + '.reshape(-1)', jit)
+	return build_functions('y, t',
+		_matrix_to_array(matrix) + '.reshape(-1)')
 
-def derivatives_jacobian(jacobian_matrix, jit=True):
-	# type: (Matrix, bool) -> Callable
+def derivatives_jacobian(jacobian_matrix):
+	# type: (Matrix) -> Tuple[Callable, Callable]
 	"""Build an optimized derivatives ODE Jacobian function(y, t)."""
-	return build_function('y, t', _matrix_to_array(jacobian_matrix), jit)
+	return build_functions('y, t', _matrix_to_array(jacobian_matrix))
 
-def derivatives_with_rates(matrix, jit=True):
-	# type: (Matrix, bool) -> Callable
-	"""Build an optimized derivatives ODE function(y, t, kf, kr)."""
-	return build_function('y, t, kf, kr',
-		_matrix_to_array(matrix) + '.reshape(-1)', jit)
+def rates(matrix):
+	# type: (Matrix) -> Tuple[Callable, Callable]
+	"""Build an optimized rates function(t, y, kf, kr)."""
+	return build_functions('t, y, kf, kr',
+		_matrix_to_array(matrix) + '.reshape(-1)')
 
-def derivatives_jacobian_with_rates(jacobian_matrix, jit=True):
-	# type: (Matrix, bool) -> Callable
-	"""Build an optimized derivatives ODE Jacobian function(y, t, kf, kr)."""
-	return build_function('y, t, kf, kr',
-		_matrix_to_array(jacobian_matrix), jit)
+def rates_jacobian(jacobian_matrix):
+	# type: (Matrix) -> Tuple[Callable, Callable]
+	"""Build an optimized rates Jacobian function(t, y, kf, kr)."""
+	return build_functions('t, y, kf, kr',
+		_matrix_to_array(jacobian_matrix))

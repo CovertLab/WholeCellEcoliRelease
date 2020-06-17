@@ -5,9 +5,10 @@ SimulationData moleculeGroups
 @date: Created 02/13/2015
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 from reconstruction.ecoli.dataclasses.state.stateFunctions import createIdsWithCompartments
+
 
 class MoleculeGroups(object):
 	"""
@@ -60,8 +61,8 @@ class MoleculeGroups(object):
 				'RRFD-RRNA[c]', 'RRFE-RRNA[c]', 'RRFG-RRNA[c]', 'RRFH-RRNA[c]'],
 
 			'lipids': ['CPD-8260[c]', 'CPD-12819[c]', 'CPD-12824[c]'],
-			'polyamines': ['GAMMA-GLUTAMYL-PUTRESCINE[c]', 'PUTRESCINE[c]', 
-				'GLUTATHIONYLSPERMIDINE[c]', 'SPERMIDINE[c]', 
+			'polyamines': ['GAMMA-GLUTAMYL-PUTRESCINE[c]', 'PUTRESCINE[c]',
+				'GLUTATHIONYLSPERMIDINE[c]', 'SPERMIDINE[c]',
 				'N1-ACETYLSPERMINE[c]', 'SPERMINE[c]'],
 			'dna_structural_proteins': ['PD00347[c]', 'PD00348[c]', 'PC00027[c]',
 										'PD00196[c]', 'CPLX0-7705[c]',
@@ -78,7 +79,7 @@ class MoleculeGroups(object):
 			'replisome_monomer_subunits': ['CPLX0-3621[c]', 'EG10239-MONOMER[c]',
 				'EG11500-MONOMER[c]', 'EG11412-MONOMER[c]'],
 
-			'aaIDs': sim_data.amino_acid_1_to_3_ordered.values(),
+			'aaIDs': list(sim_data.amino_acid_1_to_3_ordered.values()),
 			'fragmentNT_IDs': [x['id'].replace('Polymerized','Fragment')
 				for x in raw_data.polymerized if x['is_ntp'] and not x['is_end']],
 
@@ -114,6 +115,8 @@ class MoleculeGroups(object):
 				'EG10907-MONOMER[c]', 'EG11508-MONOMER[c]', 'EG10908-MONOMER[c]',
 				'EG10906-MONOMER[c]', 'EG10910-MONOMER[c]', 'EG10902-MONOMER[c]',
 				'EG10917-MONOMER[c]', 'EG10913-MONOMER[c]'],
+
+			'carbon_sources': ['GLC[p]', 'ACET[p]', 'SUC[p]'],
 		}
 
 		bulkMoleculesBinomialDivision = createIdsWithCompartments(raw_data.metabolites)

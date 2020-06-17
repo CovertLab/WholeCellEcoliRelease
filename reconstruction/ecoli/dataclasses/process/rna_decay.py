@@ -6,10 +6,9 @@ SimulationData for rna decay process
 @date: Created 08/18/2015
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 from wholecell.utils import units
-from wholecell.utils.unit_struct_array import UnitStructArray
 import numpy as np
 import theano.tensor as T
 import theano

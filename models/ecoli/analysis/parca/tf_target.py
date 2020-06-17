@@ -1,6 +1,6 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
-import cPickle
+from six.moves import cPickle
 import os
 
 import numpy as np
@@ -10,22 +10,16 @@ from bokeh.plotting import figure, ColumnDataSource
 from bokeh.models import (HoverTool, BoxZoomTool, LassoSelectTool, PanTool,
 	WheelZoomTool, ResizeTool, UndoTool, RedoTool)
 
-from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
+from models.ecoli.analysis import parcaAnalysisPlot
 from wholecell.analysis.analysis_tools import exportFigure
-from models.ecoli.analysis import variantAnalysisPlot
+from wholecell.utils import filepath
+from six.moves import zip
 
 
-class Plot(variantAnalysisPlot.VariantAnalysisPlot):
-	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(inputDir):
-			raise Exception, "inputDir does not currently exist as a directory"
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
-		ap = AnalysisPaths(inputDir, variant_plot = True)
-		variants = sorted(ap._path_data['variant'].tolist()) # Sorry for accessing private data
-		variant = variants[0]
-		sim_data = cPickle.load(open(ap.get_variant_kb(variant), "rb"))
+class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
+	def do_plot(self, input_dir, plot_out_dir, plot_out_filename, sim_data_file, validation_data_file, metadata):
+		with open(sim_data_file, 'rb') as f:
+			sim_data = cPickle.load(f)
 
 		targetToFC = {}
 		targetToFCTF = {}
@@ -80,7 +74,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		ax.set_xlabel(xlabel)
 		ax.set_ylabel(ylabel)
 
-		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+		exportFigure(plt, plot_out_dir, plot_out_filename, metadata)
 		plt.close("all")
 
 		source = ColumnDataSource(data = dict(x = x, y = y[sortedIdxs], targetId = targetIds, tfId = tfs, condition = conditions))
@@ -90,9 +84,9 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 		plot.scatter("x", "y", source = source)
 
-		if not os.path.exists(os.path.join(plotOutDir, "html_plots")):
-			os.makedirs(os.path.join(plotOutDir, "html_plots"))
-		bokeh.io.output_file(os.path.join(plotOutDir, "html_plots", plotOutFileName + "__probBound" + ".html"), title = plotOutFileName, autosave = False)
+		html_dir = filepath.makedirs(plot_out_dir, 'html_plots')
+		html_file = os.path.join(html_dir, plot_out_filename + "__probBound.html")
+		bokeh.io.output_file(html_file, title=plot_out_filename, autosave=False)
 		bokeh.io.save(plot)
 		bokeh.io.curstate().reset()
 

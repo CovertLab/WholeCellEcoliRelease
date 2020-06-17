@@ -4,6 +4,7 @@ tool.
 """
 from __future__ import absolute_import, division, print_function
 
+import datetime
 import importlib
 import os
 import time
@@ -13,6 +14,7 @@ from models.ecoli.analysis.causality_network.build_network import BuildNetwork
 from models.ecoli.analysis.causality_network.network_components import NODELIST_JSON, DYNAMICS_FILENAME
 from wholecell.utils import filepath as fp
 from wholecell.utils import data
+from wholecell.utils.py3 import monotonic_seconds
 
 
 @explicit_serialize
@@ -46,9 +48,9 @@ class BuildCausalityNetworkTask(FiretaskBase):
 			)
 
 	def run_task(self, fw_spec):
-		startTime = time.time()
+		start_real_sec = monotonic_seconds()
 		print("\n{}: --- Starting {} ---".format(
-			time.ctime(startTime), type(self).__name__))
+			time.ctime(), type(self).__name__))
 
 		self['metadata'] = data.expand_keyed_env_vars(self['metadata'])
 		self['node_list_file'] = os.path.join(
@@ -75,9 +77,9 @@ class BuildCausalityNetworkTask(FiretaskBase):
 			.format(time.ctime()))
 		mod.Plot.main(*args)
 
-		timeTotal = time.time() - startTime
+		elapsed_real_sec = monotonic_seconds() - start_real_sec
 
-		duration = time.strftime("%H:%M:%S", time.gmtime(timeTotal))
+		duration = datetime.timedelta(seconds=elapsed_real_sec)
 		print("{}: Completed building causality network in {}".format(
 			time.ctime(), duration)
 			)

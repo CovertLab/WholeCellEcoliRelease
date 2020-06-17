@@ -8,12 +8,11 @@ cannot be modeled at this time.
 @date: Created 5/8/2014
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
-import numpy as np
 
 class SimulationHook(object):
-	_name = None
+	_name = 'SimulationHook'
 
 	def __init__(self):
 		pass

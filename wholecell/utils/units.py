@@ -12,6 +12,7 @@ from __future__ import absolute_import, division, print_function
 
 import scipy.constants
 import numpy as np
+from unum.units import dmol, fg, g, h, J, K, L, min, mol, mmol, umol, s  # satisfy mypy
 from unum.units import *
 from unum import Unum
 
@@ -46,9 +47,8 @@ Unum.__bool__ = Unum.__nonzero__ = __bool__
 # #244 workaround: Monkey patch Unum if it still has the broken implementation.
 # The test also ensures this only patches it once.
 # For some reason, `is` won't work here.
-
-# Turn off for now, see https://github.com/CovertLab/wcEcoli/issues/433
-if Unum.__truediv__ == Unum.__div__ and False:
+# See also https://github.com/CovertLab/wcEcoli/issues/433
+if Unum.__truediv__ == Unum.__div__:
 	Unum.__truediv__ = __truediv__
 	Unum.__rtruediv__ = __rtruediv__
 
@@ -153,10 +153,9 @@ def getUnit(value):
 def hasUnit(value):
 	return isinstance(value, Unum)
 
-def convertNoUnitToNumber(value):
-	if not hasUnit(value):
-		raise Exception("Only works on Unum!")
-
-	value.normalize()
-	value.checkNoUnit()
-	return value.asNumber()
+def strip_empty_units(value):
+	if hasUnit(value):
+		value.normalize()
+		value.checkNoUnit()
+		value = value.asNumber()
+	return value

@@ -11,13 +11,19 @@ import json
 import io
 import os
 import sys
+from six.moves import range
 if os.name == 'posix' and sys.version_info[0] < 3:
-	import subprocess32 as subprocess
+	import subprocess32 as subprocess2
+	subprocess = subprocess2
 else:
-	import subprocess
-from typing import Any, AnyStr, Generator, Iterable, Optional, Sequence, Tuple
+	import subprocess as subprocess3
+	subprocess = subprocess3
+from typing import Any, Generator, Optional, Sequence, Tuple
+
+import six
 
 import wholecell
+from wholecell.utils.py3 import String
 
 
 TIMEOUT = 60  # seconds
@@ -31,7 +37,7 @@ MATPLOTLIBRC_FILE = os.path.join(ROOT_PATH, 'matplotlibrc')
 TIMESTAMP_PATTERN = r'\d{8}\.\d{6}(?:\.\d{6})?'
 
 def makedirs(path, *paths):
-	# type: (str, *str) -> str
+	# type: (str, str) -> str
 	"""Join one or more path components, make that directory path (using the
 	default mode 0o0777), and return the full path.
 
@@ -133,10 +139,10 @@ def run_cmdline(line, trim=True, timeout=TIMEOUT):
 		return None
 
 def write_file(filename, content):
-	# type: (str, AnyStr) -> None
-	"""Write string `content` as a text file."""
-	with open(filename, "w") as f:
-		f.write(content)
+	# type: (str, String) -> None
+	"""Write text string `content` as a utf-8 text file."""
+	with io.open(filename, 'w', encoding='utf-8') as f:
+		f.write(six.text_type(content))
 
 def write_json_file(filename, obj, indent=4):
 	# type: (str, Any, int) -> None
@@ -144,7 +150,7 @@ def write_json_file(filename, obj, indent=4):
 	# Indentation puts a newline after each ',' so suppress the space there.
 	message = json.dumps(obj, ensure_ascii=False, indent=indent,
 		separators=(',', ': '), sort_keys=True) + '\n'
-	write_file(filename, message.encode('utf-8'))
+	write_file(filename, message)
 
 def read_json_file(filename):
 	# type: (str) -> Any
@@ -156,5 +162,5 @@ def iter_variants(variant_type, first_index, last_index):
 	# type: (str, int, int) -> Generator[Tuple[int, str], None, None]
 	"""Generate Variant subdirs (index, name) over [first .. last] inclusive."""
 	# TODO(jerry): Return a list instead of generating items?
-	for i in xrange(first_index, last_index + 1):
+	for i in range(first_index, last_index + 1):
 		yield i, os.path.join('{}_{:06d}'.format(variant_type, i))

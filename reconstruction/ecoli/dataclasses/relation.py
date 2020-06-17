@@ -6,14 +6,10 @@ SimulationData relation functions
 @date: Created 03/10/2015
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
-import re
 import numpy as np
 
-# Unit imports
-from wholecell.utils import units
-from wholecell.utils.unit_struct_array import UnitStructArray
 
 class Relation(object):
 	""" Relation """

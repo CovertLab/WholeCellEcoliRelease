@@ -1,4 +1,4 @@
-from __future__ import division, absolute_import
+from __future__ import absolute_import, division, print_function
 
 from matplotlib import pyplot as plt
 import numpy as np
@@ -7,17 +7,12 @@ import os
 from models.ecoli.analysis import cohortAnalysisPlot
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
-from wholecell.io.tablereader import TableReader
-from wholecell.utils import filepath
+from wholecell.io.tablereader import TableReader, TableReaderError
+from six.moves import range
 
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(variantDir):
-			raise Exception, "variantDir does not currently exist as a directory"
-
-		filepath.makedirs(plotOutDir)
-
 		# Get all cells in each seed
 		ap = AnalysisPaths(variantDir, cohort_plot=True)
 
@@ -28,6 +23,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			if n_cells > max_cells_in_gen:
 				max_cells_in_gen = n_cells
 
+		# noinspection PyTypeChecker
 		fig, axesList = plt.subplots(ap.n_generation,
 			sharex=True, sharey=True, figsize=(6, 3*ap.n_generation))
 
@@ -38,11 +34,12 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			gen_doubling_times = []
 
 			for simDir in gen_cells:
-				try:
-					simOutDir = os.path.join(simDir, "simOut")
+				simOutDir = os.path.join(simDir, "simOut")
+				main_path = os.path.join(simOutDir, "Main")
 
+				try:
 					# Listeners used
-					main_reader = TableReader(os.path.join(simOutDir, "Main"))
+					main_reader = TableReader(main_path)
 
 					# Load data
 					time = main_reader.readColumn("time")
@@ -50,8 +47,10 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 					# Get doubling time
 					gen_doubling_times.append((time[-1] - initial_time) / 60.)
-				except Exception:
+				except (TableReaderError, EnvironmentError) as e:
 					# Skip sims that were not able to complete division
+					print("Couldn't read the Table {}; maybe the cell didn't finish division; skipping this sim: {!r}"
+						.format(main_path, e))
 					continue
 
 			all_doubling_times.append(np.array(gen_doubling_times))

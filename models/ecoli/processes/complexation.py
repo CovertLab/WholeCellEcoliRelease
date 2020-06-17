@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Complexation
 
@@ -14,7 +12,7 @@ TODO:
 @date: Created 4/4/2013
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 from arrow import StochasticSystem

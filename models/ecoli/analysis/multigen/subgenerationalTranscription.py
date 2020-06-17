@@ -6,19 +6,20 @@ Plots Figure 5B.
 @date: Created 2/12/2017
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
 
 import numpy as np
 import matplotlib.pyplot as plt
+from six.moves import cPickle, range
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils.sparkline import whitePadSparklineAxis
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import multigenAnalysisPlot
+import six
 
 PLOT_GENES_OF_INTEREST = False
 PLOT_DENOMINATOR_N_EACH_FREQ_GROUP = False
@@ -35,21 +36,15 @@ def remove_xaxis(axis):
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Get all cells
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 		if 0 not in ap._path_data["seed"]:
-			print "Skipping -- figure5B only runs for seed 0"
+			print("Skipping -- figure5B only runs for seed 0")
 			return
 		allDir = ap.get_cells(seed = [0])
 
 		if len(allDir) <= 1:
-			print "Skipping -- figure5B only runs for multigen"
+			print("Skipping -- figure5B only runs for multigen")
 			return
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))
@@ -158,7 +153,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		whitePadSparklineAxis(scatterAxis)
 
 		N, bins, patches = histAxis.hist(transcribedBoolOrdered, bins = len(allDir) + 1, orientation = 'horizontal')
-		for i in xrange(1, len(patches) - 1):
+		for i in range(1, len(patches) - 1):
 			plt.setp(patches[i], facecolor = "none", edgecolor = COLOR_FSUB)
 		plt.setp(patches[0], facecolor = "none", edgecolor = COLOR_F0)
 		plt.setp(patches[-1], facecolor = "none", edgecolor = COLOR_F1)
@@ -302,7 +297,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		geneFunctions = validation_data.geneFunctions.geneFunctions
 		unknown = {"r": 0, "g": 0, "b": 0}
 		resistance = {"r": 0, "g": 0, "b": 0}
-		for frameID, function_ in geneFunctions.iteritems():
+		for frameID, function_ in six.viewitems(geneFunctions):
 			if function_ in ["Unknown function", "Unclear/under-characterized"]:
 				i = np.where([frameID in x for x in mRnaIdsOrdered])[0][0]
 				f = transcribedBoolOrdered[i]

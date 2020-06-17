@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 EvaluationTime
 
@@ -9,13 +7,13 @@ Large-scale, low-overhead evaluation time tracker for process/state operations.
 @date: Created 6/10/2014
 """
 
-from __future__ import division
-
-import time
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
 import wholecell.listeners.listener
+from wholecell.utils.py3 import monotonic_seconds
+
 
 class EvaluationTime(wholecell.listeners.listener.Listener):
 	""" EvaluationTime """
@@ -33,10 +31,10 @@ class EvaluationTime(wholecell.listeners.listener.Listener):
 		# Clock time
 		self.clock_time = None
 
-		self.state_names = sim.internal_states.keys()
-		self.process_names = sim.processes.keys()
-		self.listener_names = sim.listeners.keys()
-		self.logger_names = sim.loggers.keys()
+		self.state_names = list(sim.internal_states.keys())
+		self.process_names = list(sim.processes.keys())
+		self.listener_names = list(sim.listeners.keys())
+		self.logger_names = list(sim.loggers.keys())
 
 		self.n_states = len(sim.internal_states)
 		self.n_processes = len(sim.processes)
@@ -114,7 +112,7 @@ class EvaluationTime(wholecell.listeners.listener.Listener):
 
 
 	def update(self):
-		self.clock_time = time.time()
+		self.clock_time = monotonic_seconds()
 
 		self.update_queries_total = self.update_queries_times.sum()
 		self.partition_total = self.partition_times.sum()

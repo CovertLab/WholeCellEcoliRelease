@@ -6,14 +6,14 @@ Plot trp regulation
 @date: Created 6/17/2016
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
+import six
+from six.moves import cPickle, range
 
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
@@ -23,12 +23,6 @@ from models.ecoli.analysis import singleAnalysisPlot
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		nAvogadro = sim_data.constants.nAvogadro
@@ -58,7 +52,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Get indexes of trpR and its target RNAs
 		trpRIndex = tf_ids.index("CPLX-125")
-		target_ids = sim_data.tfToFC["CPLX-125"].keys()
+		target_ids = six.viewkeys(sim_data.tfToFC["CPLX-125"])
 		target_idx = np.array(
 			[rna_idx[target_id + "[c]"] for target_id in target_ids])
 

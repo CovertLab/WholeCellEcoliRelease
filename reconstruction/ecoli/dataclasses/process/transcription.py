@@ -8,11 +8,12 @@ TODO: add mapping of tRNA to charged tRNA if allowing more than one modified for
 TODO: handle ppGpp and DksA-ppGpp regulation separately
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 from scipy import interpolate
 import sympy as sp
+from typing import cast
 
 from wholecell.sim.simulation import MAX_TIME_STEP
 from wholecell.utils import units
@@ -20,6 +21,7 @@ from wholecell.utils.fitting import normalize
 from wholecell.utils.unit_struct_array import UnitStructArray
 from wholecell.utils.polymerize import polymerize
 from wholecell.utils.random import make_elongation_rates
+from six.moves import zip
 
 
 PROCESS_MAX_TIME_STEP = 2.
@@ -843,7 +845,8 @@ class Transcription(object):
 		ppgpp = ppgpp.asNumber(PPGPP_CONC_UNITS)
 		f_ppgpp = self.fraction_rnap_bound_ppgpp(ppgpp)
 
-		growth = max(interpolate.splev(ppgpp, self._ppgpp_growth_parameters), 0)
+		y = interpolate.splev(ppgpp, self._ppgpp_growth_parameters)
+		growth = max(cast(float, y), 0.0)
 		tau = np.log(2) / growth / 60
 		loss = growth + self.rnaData['degRate'].asNumber(1 / units.s)
 

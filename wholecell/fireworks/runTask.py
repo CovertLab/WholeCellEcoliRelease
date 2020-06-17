@@ -7,12 +7,16 @@ from __future__ import absolute_import, division, print_function
 
 import sys
 import json
+from typing import Sequence, Type
+
+from fireworks import FiretaskBase
 
 from wholecell.fireworks.firetasks import (
 	ParcaTask,
 	VariantSimDataTask,
 	SimulationTask,
 	SimulationDaughterTask,
+	AnalysisParcaTask,
 	AnalysisVariantTask,
 	AnalysisCohortTask,
 	AnalysisSingleTask,
@@ -27,13 +31,14 @@ FIRETASKS = (
 	VariantSimDataTask,
 	SimulationTask,
 	SimulationDaughterTask,
+	AnalysisParcaTask,
 	AnalysisVariantTask,
 	AnalysisCohortTask,
 	AnalysisSingleTask,
 	AnalysisMultiGenTask,
 	BuildCausalityNetworkTask,
 	WriteJsonTask,
-	)
+	)  # type: Sequence[Type[FiretaskBase]]
 TASKS = {task.__name__: task for task in FIRETASKS}
 
 

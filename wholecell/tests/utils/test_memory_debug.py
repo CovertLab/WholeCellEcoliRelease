@@ -26,6 +26,7 @@ import gc
 import unittest
 
 from wholecell.utils import memory_debug
+from six.moves import range
 
 
 class MemoryDebugNode(object):
@@ -51,7 +52,7 @@ class Test_memory_debug(unittest.TestCase):
 		precount = len(gc.garbage)
 
 		with memory_debug.detect_leaks(enabled=True):
-			nodes = [MemoryDebugNode(i) for i in xrange(6)]
+			nodes = [MemoryDebugNode(i) for i in range(6)]
 
 			# N0 -> N1 -> N2 are not in a cycle and should be collectable.
 			nodes[0].link = nodes[1]

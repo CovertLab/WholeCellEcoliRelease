@@ -1,9 +1,13 @@
+from __future__ import absolute_import, division, print_function
+
 import csv
+import io
 import os
 import yaml
 import json
-import numpy as np
-from reconstruction.spreadsheets import JsonReader
+
+from reconstruction.spreadsheets import read_tsv
+
 
 CSV_DIALECT = csv.excel_tab
 
@@ -14,9 +18,8 @@ MONOMER_COMPARISON_FILE = os.path.join("reconstruction", "ecoli", "flat", "prote
 ECOCYC_DUMP = os.path.join("reconstruction", "ecoli", "flat", "eco_wc_test_fun.json")
 
 def getMonomerLocationsFromOurData():
-	reader = JsonReader(open(EXISTING_MONOMER_FILE, "r"), dialect = CSV_DIALECT)
-	data = [row for row in reader]
-	D = dict([(x["id"].encode("utf-8"), (x["location"][0].encode("utf-8"), x["comments"].encode("utf-8"))) for x in data])
+	data = read_tsv(EXISTING_MONOMER_FILE)
+	D = dict([(x["id"], (x["location"][0], x["comments"])) for x in data])
 	return D
 
 def getMonomerLocationsFromEcocyc(reactionData):
@@ -47,14 +50,14 @@ def getLocationDifferences(ourLocations, ecocycLocations):
 
 
 
-jsonData = yaml.safe_load(open(ECOCYC_DUMP, "r"))
+jsonData = yaml.safe_load(io.open(ECOCYC_DUMP, "r"))
 
 ourLocations = getMonomerLocationsFromOurData()
 ecocycLocations = getMonomerLocationsFromEcocyc(jsonData["complexations"])
 locationDifferences, notFoundInEcocyc = getLocationDifferences(ourLocations, ecocycLocations)
 
 
-h = open(MONOMER_COMPARISON_FILE, "w")
+h = io.open(MONOMER_COMPARISON_FILE, "w")
 h.write('"id"\t"ourLocation"\t"comments"\t"ecocycLocations"\n')
 
 for monomer in locationDifferences:
@@ -67,11 +70,10 @@ for monomer in locationDifferences:
 	)
 h.close()
 
-h = open(NEW_MONOMER_FILE, "w")
+h = io.open(NEW_MONOMER_FILE, "w", encoding='utf-8')
 h.write('"aaCount"\t"name"\t"seq"\t"comments"\t"codingRnaSeq"\t"mw"\t"location"\t"rnaId"\t"id"\t"geneId"\n')
 
-reader = JsonReader(open(EXISTING_MONOMER_FILE, "r"), dialect = CSV_DIALECT)
-data = [row for row in reader]
+data = read_tsv(EXISTING_MONOMER_FILE)
 
 for monomer in data:
 	h.write('%s\t%s\t"%s"\t"%s"\t"%s"\t%s\t["%s"]\t"%s"\t"%s"\t"%s"\n' % (
@@ -81,7 +83,7 @@ for monomer in data:
 		"Location information from Ecocyc dump." if monomer["id"] in locationDifferences else monomer["comments"],
 		monomer["codingRnaSeq"],
 		monomer["mw"],
-		locationDifferences[monomer["id"]] if monomer["id"] in locationDifferences else monomer["location"][0].encode("utf-8"),
+		locationDifferences[monomer["id"]] if monomer["id"] in locationDifferences else monomer["location"][0],
 		monomer["rnaId"],
 		monomer["id"],
 		monomer["geneId"],

@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -8,6 +8,8 @@ from matplotlib import pyplot as plt
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import singleAnalysisPlot
+from six.moves import zip
+
 
 COLORS_256 = [ # From colorbrewer2.org, qualitative 8-class set 1
 	[228,26,28],
@@ -28,55 +30,48 @@ COLORS = [
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		mass = TableReader(os.path.join(simOutDir, "Mass"))
+		main_reader = TableReader(os.path.join(simOutDir, "Main"))
 
-		# cell = mass.readColumn("cellMass")
-		# cellDry = mass.readColumn("dryMass")
+		cell = mass.readColumn("dryMass")
 		protein = mass.readColumn("proteinMass")
-		# rna = mass.readColumn("rnaMass")
 		tRna = mass.readColumn("tRnaMass")
 		rRna = mass.readColumn("rRnaMass")
 		mRna = mass.readColumn("mRnaMass")
 		dna = mass.readColumn("dnaMass")
 		smallMolecules = mass.readColumn("smallMoleculeMass")
 
-		main_reader = TableReader(os.path.join(simOutDir, "Main"))
 		initialTime = main_reader.readAttribute("initialTime")
-		t = main_reader.readColumn("time") - initialTime
-
+		t = (main_reader.readColumn("time") - initialTime) / 60.
 
 		masses = np.vstack([
-			protein/protein[0],
-			rRna/rRna[0],
-			tRna/tRna[0],
-			mRna/mRna[0],
-			dna/dna[0],
-			smallMolecules/smallMolecules[0],
+			protein,
+			rRna,
+			tRna,
+			mRna,
+			dna,
+			smallMolecules,
 			]).T
+		fractions = (masses / cell[:, None]).mean(axis=0)
 
-		massLabels = ["Protein", "rRNA", "tRNA", "mRNA", "DNA", "Small Mol.s"]
+		mass_labels = ["Protein", "rRNA", "tRNA", "mRNA", "DNA", "Small Mol.s"]
+		legend = [
+			'{} ({:.3f})'.format(label, fraction)
+			for label, fraction in zip(mass_labels, fractions)
+			] + ['Total dry mass']
 
 		plt.figure(figsize = (8.5, 11))
-
-		# plt.rc('axes', color_cycle=COLORS)
 		plt.gca().set_prop_cycle('color', COLORS)
 
-		plt.plot(t / 60., masses, linewidth = 2)
+		plt.plot(t, masses / masses[0, :], linewidth=2)
+		plt.plot(t, cell / cell[0], color='k', linestyle=':')
+
+		plt.title("Biomass components (average fraction of total dry mass in parentheses)")
 		plt.xlabel("Time (min)")
 		plt.ylabel("Mass (normalized by t = 0 min)")
-		plt.title("Biomass components")
-		#plt.axis([0, 60, 0.5, 2.5])
+		plt.legend(legend, loc="best")
 
-		plt.legend(massLabels, loc = "best")
-
-		# plt.show()
-
+		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close("all")
 

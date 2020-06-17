@@ -3,14 +3,14 @@
 @date: Created 2/12/2017
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
 
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+from six.moves import cPickle, range
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
@@ -39,12 +39,6 @@ def unbold(lines):
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		enzymeComplexId = "MENE-CPLX[c]"
 		enzymeMonomerId = "O-SUCCINYLBENZOATE-COA-LIG-MONOMER[c]"
 		enzymeRnaId = "EG12437_RNA[c]"
@@ -54,7 +48,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		# Get all cells
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 		if 0 not in ap._path_data["seed"]:
-			print "Skipping -- figure5D only runs for seed 0"
+			print("Skipping -- figure5D only runs for seed 0")
 			return
 
 		allDir = ap.get_cells(seed = [0])
@@ -135,7 +129,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		time = np.array(time)
 
 		coefficient = (units.fg * np.array(dryMass)) / (units.fg * np.array(cellMass)) * cellDensity * (timeStepSec * units.s)
-		enzymeFluxes = (((COUNTS_UNITS / VOLUME_UNITS) * enzymeFluxes) / coefficient).asNumber(units.mmol / units.g / units.h)
+		enzymeFluxes = (((COUNTS_UNITS // VOLUME_UNITS) * enzymeFluxes) / coefficient).asNumber(units.mmol / units.g / units.h)
 
 		averages = []
 		indices = [np.where(time == x)[0][0] for x in generationTicks]
@@ -210,7 +204,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		axesList = [rnaInitAxis, rnaAxis, monomerAxis, complexAxis, fluxAxis, metAxis]
 		for axis in axesList:
 			axis.tick_params(labelsize = LABELSIZE)
-			for i in xrange(len(patchStart)):
+			for i in range(len(patchStart)):
 				width = time[patchEnd[i]] / 3600. - time[patchStart[i]] / 3600.
 				if width <= 0.1:
 					continue
@@ -259,15 +253,15 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 					simOutDir, (enzymeIds, metaboliteIds[:1], reactantIds))
 
 				fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
-				reactionIDs = np.array(fbaResults.readAttribute("reactionIDs")).tolist()
-				reactionIndexes = [reactionIDs.index(x) for x in reactionIds]
+				reactionIDs_ = np.array(fbaResults.readAttribute("reactionIDs")).tolist()  # type: list
+				reactionIndexes = [reactionIDs_.index(x) for x in reactionIds]
 				reactionFluxes = np.array(fbaResults.readColumn("reactionFluxes"))
 				enzymeFluxes = reactionFluxes[:, reactionIndexes]
 				fbaResults.close()
 
 				coefficient = (units.fg * np.array(dryMass)) / (units.fg * np.array(cellMass)) * cellDensity * (units.s * timeStepSec)
 
-				for i, row in enumerate(xrange(0, 2 * len(enzymeIds), 2)):
+				for i, row in enumerate(range(0, 2 * len(enzymeIds), 2)):
 					countAxis = axesList[row]
 					fluxAxis = axesList[row + 1]
 					plotFlux = (((COUNTS_UNITS / VOLUME_UNITS) * enzymeFluxes[:, i]) / coefficient).asNumber(units.mmol / units.g / units.h)
@@ -287,7 +281,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			axesList[-1].set_ylabel(ylabels[-1], rotation = 0)
 
 			for axis in axesList:
-				for i in xrange(len(patchStart)):
+				for i in range(len(patchStart)):
 					width = time[patchEnd[i]] / 3600. - time[patchStart[i]] / 3600.
 					if width <= 0.1:
 						continue

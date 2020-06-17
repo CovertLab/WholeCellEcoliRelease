@@ -1,4 +1,4 @@
-"EcoCycID"	"GeneName"	"Glucose"	"LB"	"Glycerol + AA"	"Acetate"	"Fumarate"	"Glucosamine"	"Glycerol"	"Pyruvate"	"Chemostat µ=0.5"	"Chemostat µ=0.35"	"Chemostat µ=0.20"	"Chemostat µ=0.12"	"Stationary phase 1 day"	"Stationary phase 3 days"	"Osmotic-stress glucose"	"42C glucose"	"pH6 glucose"	"Xylose"	"Mannose"	"Galactose "	"Succinate"	"Fructose"
+"EcoCycID"	"GeneName"	"Glucose"	"LB"	"Glycerol + AA"	"Acetate"	"Fumarate"	"Glucosamine"	"Glycerol"	"Pyruvate"	"Chemostat Âµ=0.5"	"Chemostat Âµ=0.35"	"Chemostat Âµ=0.20"	"Chemostat Âµ=0.12"	"Stationary phase 1 day"	"Stationary phase 3 days"	"Osmotic-stress glucose"	"42C glucose"	"pH6 glucose"	"Xylose"	"Mannose"	"Galactose "	"Succinate"	"Fructose"
 "EG10001"	"alr"	15	15	13	17	7	12	7	13	14	9	9	8	6	6	25	9	26	16	7	8	9	12
 "EG10011"	"yaaA"	803	1105	907	432	519	747	599	570	462	366	290	183	107	89	535	674	541	738	651	387	538	835
 "EG10012"	"cydC"	77	159	109	52	74	103	103	103	136	114	99	103	36	77	68	137	54	70	70	47	62	110

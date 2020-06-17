@@ -6,28 +6,23 @@ Plot two component system counts
 @date: Created 5/20/2016
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
+from six.moves import cPickle, range
 
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
 from wholecell.analysis.analysis_tools import exportFigure, read_bulk_molecule_counts
 from models.ecoli.analysis import singleAnalysisPlot
+from six.moves import zip
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		TCS_IDS = []
@@ -69,13 +64,13 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		new_RR = True
 
 
-		for idx in xrange(len(sim_data.moleculeGroups.twoComponentSystems)):
+		for idx in range(len(sim_data.moleculeGroups.twoComponentSystems)):
 			grid_loc = idx + 1 + (cols*(num_subentries + 1))*( idx / cols)
 			current_RR = str(sim_data.moleculeGroups.twoComponentSystems[idx]["molecules"]["RR"])
 			if RR_phosphorylation[current_RR].size == 1:
 				new_RR = True
 
-			for subentryIdx in xrange(len(moleculeTypeOrder)):
+			for subentryIdx in range(len(moleculeTypeOrder)):
 				if new_RR:
 					if moleculeTypeOrder[subentryIdx] == "RR":
 						RR[:] = moleculeCounts[:, (idx * num_subentries) + subentryIdx] / (cellVolume * nAvogadro)

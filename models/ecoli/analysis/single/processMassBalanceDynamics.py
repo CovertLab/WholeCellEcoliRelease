@@ -1,12 +1,10 @@
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
-import cPickle
-from itertools import izip
 import os
 
 from matplotlib import pyplot as plt
 import numpy as np
+from six.moves import cPickle, zip
 
 from models.ecoli.analysis import singleAnalysisPlot
 from wholecell.analysis.analysis_tools import exportFigure
@@ -18,12 +16,6 @@ THRESHOLD = 1e-13  # roughly, the mass of an electron
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
 
@@ -47,7 +39,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		conversion = 1e15 / sim_data.constants.nAvogadro.asNumber(1 / units.mol)
 		metabolism_mass_imported = np.zeros(delta_metabolites.shape[0])
-		for mol, flux in izip(metabolites, delta_metabolites.T):
+		for mol, flux in zip(metabolites, delta_metabolites.T):
 			mol_mass = sim_data.getter.getMass([mol])[0].asNumber(units.g / units.mol)
 			metabolism_mass_imported += mol_mass * conversion * flux
 

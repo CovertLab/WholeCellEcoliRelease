@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 random.py
 
@@ -10,24 +8,25 @@ Special random number generators.  Most are holdovers from the original port.
 @date: Created 6/2/2014
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
+from six.moves import range
 
 def randCounts(randomState, counts, N):
 	counts = np.array(counts)
 	if counts.shape == ():
 		counts = counts.reshape(1)
 	if np.any(counts < 0) or counts.dtype != np.dtype(np.int):
-		raise Exception, "counts must contain positive integers."
+		raise Exception("counts must contain positive integers.")
 	if N < 0:
-		raise Exception, "N must be positive."
+		raise Exception("N must be positive.")
 
 	cumsumCounts = np.cumsum(counts)
 	positiveSelect = True
 
 	if N > cumsumCounts[-1]:
-		raise Exception, "N must be at most the total available counts."
+		raise Exception("N must be at most the total available counts.")
 
 	if N == cumsumCounts[-1]:
 		return counts
@@ -37,7 +36,7 @@ def randCounts(randomState, counts, N):
 
 	selectedCounts = np.zeros(np.shape(counts))
 
-	for i in xrange(N):
+	for i in range(N):
 		idx = np.ravel(np.where(randomState.randi(cumsumCounts[-1]) + 1 <= cumsumCounts))[0]
 		selectedCounts[idx] += 1
 		cumsumCounts[idx:] -= 1
@@ -66,18 +65,20 @@ def make_elongation_rates_flat(
 		amplified,
 		ceiling,
 		variable_elongation=False):
+	# type: (int, int, np.ndarray, int, bool) -> np.ndarray
 	'''
 	Create an array of rates where all values are at a base rate except for a set which
 	is at another rate.
 
-	Args:
-	    size (int): size of new array of rates.
-	    base (int): unadjusted value for all rates.
-        amplified (array[int]): indexes of each rate to adjust.
-        ceiling (int): adjusted rate for amplified indexes.
+	Arguments:
+		size: size of new array of rates.
+		base: unadjusted value for all rates.
+		amplified: indexes of each rate to adjust.
+		ceiling: adjusted rate for amplified indexes.
+		variable_elongation: words go here.
 
 	Returns:
-	    rates (array[int]): new array with base and adjusted rates.
+	    rates: new array with base and adjusted rates.
 	'''
 
 	rates = np.full(
@@ -98,19 +99,20 @@ def make_elongation_rates(
 		ceiling,
 		time_step,
 		variable_elongation=False):
+	# type: (np.random.RandomState, int, int, np.ndarray, int, float, bool) -> np.ndarray
 	'''
 	Create an array of rates where all values are at a base rate except for a set which
 	is at another rate. Also performs a stochastic rounding of values after applying the
 	provided time step. 
 
 	Args:
-	    random (RandomState): for generating random numbers.
-	    size (int): size of new array of rates.
-	    base (int): unadjusted value for all rates.
-        amplified (array[int]): indexes of each rate to adjust.
-        ceiling (int): adjusted rate for amplified indexes.
-	    time_step (float): the current time step. 
-	    variable_elongation (bool): whether to add amplified values to the array.
+		random (RandomState): for generating random numbers.
+		size (int): size of new array of rates.
+		base (int): unadjusted value for all rates.
+		amplified (array[int]): indexes of each rate to adjust.
+		ceiling (int): adjusted rate for amplified indexes.
+		time_step (float): the current time step.
+		variable_elongation (bool): whether to add amplified values to the array.
 
 	Returns:
 	    array[int]: new array with lengths to extend for base and adjusted

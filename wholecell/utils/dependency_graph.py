@@ -1,7 +1,10 @@
 """Tools for working with dependency graphs"""
 
+from __future__ import absolute_import, division, print_function
 
 from typing import List, Dict, Iterable
+
+from wholecell.utils.py3 import String
 
 
 class InvalidDependencyGraphError(Exception):
@@ -28,21 +31,20 @@ class DependencyGraph(object):
 
 	def __init__(self):
 		"""Initialize dependencies to empty dictionary"""
-		self.dependencies = {}  # type: Dict[str, List[str]]
+		self.dependencies = {}  # type: Dict[String, List[String]]
 
 	def add_nodes(self, nodes):
-		# type: (List[str]) -> None
+		# type: (Iterable[String]) -> None
 		"""Add nodes with no dependencies
 
 		Arguments:
 			nodes: Nodes to add
 		"""
-		# type: (Iterable[str]) -> None
 		for node in nodes:
 			self.dependencies[node] = []
 
 	def add_dep_relation(self, a, b):
-		# type: (str, str) -> None
+		# type: (String, String) -> None
 		"""Add an edge such that a depends on b
 
 		If a or b does not exist yet as a node, it will be created.
@@ -56,7 +58,7 @@ class DependencyGraph(object):
 			self.dependencies[b] = []
 
 	def get_topological_ordering(self):
-		# type: () -> List[str]
+		# type: () -> List[String]
 		"""Get a topological ordering of the nodes
 
 		Returns:
@@ -70,14 +72,14 @@ class DependencyGraph(object):
 		explored = {
 			name: ExplorationStatus.UNEXPLORED for name in self.dependencies
 		}
-		reverse_ordering = []  # type: List[str]
+		reverse_ordering = []  # type: List[String]
 		for node in self.dependencies:
 			if explored[node] != ExplorationStatus.EXPLORED:
 				self._topo_sort_dfs(node, explored, reverse_ordering)
 		return reverse_ordering
 
 	def _topo_sort_dfs(self, node, explored, reverse_ordering):
-		# type: (str, Dict[str, bool], List[str]) -> None
+		# type: (String, Dict[String, int], List[String]) -> None
 		explored[node] = ExplorationStatus.EXPLORING
 		for dependency in self.dependencies[node]:
 			if explored[dependency] == ExplorationStatus.UNEXPLORED:

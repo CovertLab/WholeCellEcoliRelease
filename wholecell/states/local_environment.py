@@ -20,11 +20,15 @@ External state that represents environmental molecules and conditions.
 
 from __future__ import absolute_import, division, print_function
 
+from typing import Dict, Set, Tuple
+
 import numpy as np
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 import wholecell.states.external_state
 from wholecell.utils import units
+import six
+from six.moves import zip
 
 
 COUNTS_UNITS = units.mmol
@@ -71,7 +75,7 @@ class LocalEnvironment(wholecell.states.external_state.ExternalState):
 		self._times = [t[0] for t in self.current_timeline]
 
 		# initialize molecule IDs and concentrations based on initial environment
-		self._moleculeIDs = [molecule_id for molecule_id, concentration in current_media.iteritems()]
+		self._moleculeIDs = [molecule_id for molecule_id, concentration in six.viewitems(current_media)]
 		concentrations = np.array([current_media[molecule_id] for molecule_id in self._moleculeIDs])
 		self._env_delta_counts = dict((molecule_id, 0) for molecule_id in self._moleculeIDs)
 
@@ -83,7 +87,6 @@ class LocalEnvironment(wholecell.states.external_state.ExternalState):
 		self._media_id_max_length = 25
 
 		# Setup for exchange to environment
-		self._get_import_constraints = sim_data.external_state.get_import_constraints
 		self._exchange_data_from_concentrations = sim_data.external_state.exchange_data_from_concentrations
 		self.exchange_to_env_map = sim_data.external_state.exchange_to_env_map
 		self.import_constraint_threshold = sim_data.external_state.import_constraint_threshold
@@ -130,11 +133,12 @@ class LocalEnvironment(wholecell.states.external_state.ExternalState):
 			self._env_delta_counts[molecule_id] += count
 
 	def get_exchange_data(self):
+		# type: () -> Tuple[Set[str], Dict[str, units.Unum]]
 		current_concentrations = dict(zip(self._moleculeIDs, self.container.counts()))
-		return self._exchange_data_from_concentrations(current_concentrations)
-
-	def get_import_constraints(self, exchange_data):
-		return self._get_import_constraints(exchange_data)
+		exchange_data = self._exchange_data_from_concentrations(current_concentrations)
+		unconstrained = exchange_data['importUnconstrainedExchangeMolecules']
+		constrained = exchange_data['importConstrainedExchangeMolecules']
+		return unconstrained, constrained
 
 	def molecule_exchange(self, exchange_molecules, counts):
 		'''

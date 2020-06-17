@@ -6,6 +6,10 @@ Classes for the Nodes and Edges of a causality network.
 """
 from __future__ import absolute_import, division, print_function
 
+from typing import Optional, Union
+import six
+
+
 # Filenames
 NODELIST_FILENAME = "causality_network_node_list.tsv"
 EDGELIST_FILENAME = "causality_network_edge_list.tsv"
@@ -134,7 +138,7 @@ class Node(object):
 		associated with the node.
 		"""
 		# Iterate through all dynamics variables associated with the node
-		for dynamics_name, dynamics_data in self.dynamics.iteritems():
+		for dynamics_name, dynamics_data in six.viewitems(self.dynamics):
 			unit = self.dynamics_units.get(dynamics_name, "")
 
 			# Format dynamics string depending on data type
@@ -157,7 +161,7 @@ class Node(object):
 
 	def dynamics_dict(self):
 		all_dynamics = []
-		for name, data in self.dynamics.iteritems():
+		for name, data in six.viewitems(self.dynamics):
 			unit = self.dynamics_units.get(name, "")
 			dynamics = {
 				'units': unit,
@@ -188,7 +192,7 @@ class Node(object):
 			'constants': self.constants,
 			'url': self.url,
 			'location': self.location}
-		
+
 
 	def _format_dynamics_string(self, dynamics, datatype):
 		"""
@@ -229,6 +233,7 @@ class Edge(object):
 	"""
 
 	def __init__(self, process):
+		# type: (str) -> None
 		"""
 		Initializes instance variables. Edge type must be given as arguments.
 
@@ -240,10 +245,10 @@ class Edge(object):
 			stoichiometry: (Only for metabolism edges) Stoichiometric
 				coefficient of reaction-metabolite pair, integer, e.g. 1
 		"""
-		self.process = process
-		self.src_id = None
-		self.dst_id = None
-		self.stoichiometry = None
+		self.process = process  # type: str
+		self.src_id = None  # type: Optional[str]
+		self.dst_id = None  # type: Optional[str]
+		self.stoichiometry = None  # type: Union[None, str, int]
 
 	def get_src_id(self):
 		"""
@@ -264,6 +269,8 @@ class Edge(object):
 		return self.process
 
 	def read_attributes(self, src_id, dst_id, stoichiometry=""):
+		# type: (str, str, Union[None, str, int]) -> None
+		# TODO(jerry): A narrower type for stoichiometry?
 		"""
 		Sets the remaining attribute variables of the node. Argument can be
 		in the form of a single dictionary with names of each argument names as

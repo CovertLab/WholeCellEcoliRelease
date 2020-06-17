@@ -5,10 +5,9 @@ Submodel for chromosome replication
 @date: Created 5/12/2014
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
-from itertools import izip
 
 import wholecell.processes.process
 from wholecell.utils.polymerize import (buildSequences, polymerize,
@@ -35,9 +34,9 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.max_time_step = sim_data.process.replication.max_time_step
 
 		# Load parameters
-		self.criticalInitiationMass = sim_data.growthRateParameters.getDnaCriticalMass(
+		self.get_dna_critical_mass = sim_data.mass.get_dna_critical_mass
+		self.criticalInitiationMass = self.get_dna_critical_mass(
 			sim_data.conditionToDoublingTime[sim_data.condition])
-		self.getDnaCriticalMass = sim_data.growthRateParameters.getDnaCriticalMass
 		self.nutrientToDoublingTime = sim_data.nutrientToDoublingTime
 		self.replichore_lengths = sim_data.process.replication.replichore_lengths
 		self.sequences = sim_data.process.replication.replication_sequences
@@ -86,7 +85,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 		# Get critical initiation mass for current simulation environment
 		current_media_id = self._external_states['Environment'].current_media_id
-		self.criticalInitiationMass = self.getDnaCriticalMass(
+		self.criticalInitiationMass = self.get_dna_critical_mass(
 			self.nutrientToDoublingTime[current_media_id])
 
 		# Calculate mass per origin of replication, and compare to critical

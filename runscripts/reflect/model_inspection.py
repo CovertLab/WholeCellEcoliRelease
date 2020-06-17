@@ -13,8 +13,10 @@ Outputs:
 		kinetic_constraints.tsv: metabolic reaction kinetic constraints
 """
 
+from __future__ import absolute_import, division, print_function
+
 import argparse
-import cPickle
+from six.moves import cPickle
 import csv
 import os
 import time
@@ -23,7 +25,8 @@ import numpy as np
 
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 from reconstruction.ecoli.fit_sim_data_1 import fitSimData_1
-from wholecell.utils import filepath, units
+from wholecell.utils import filepath
+from six.moves import zip
 
 
 FILE_LOCATION = os.path.dirname(os.path.realpath(__file__))
@@ -205,7 +208,7 @@ def save_genes(raw_data, sim_data, output):
 				writer.writerow([gene, monomerToRna[monomer], monomer, ', '.join(processes)])
 				monomers_added.add(monomer)
 
-	print 'Number of genes: {}'.format(len(monomers_added))
+	print('Number of genes: {}'.format(len(monomers_added)))
 
 def save_metabolites(raw_data, sim_data, output):
 	"""
@@ -218,7 +221,7 @@ def save_metabolites(raw_data, sim_data, output):
 		output (str): path to tsv file with list of implemented genes
 	"""
 
-	metabolites = sim_data.process.metabolism.concDict.keys()
+	metabolites = list(sim_data.process.metabolism.concDict.keys())
 	bennett = [m['Metabolite'] for m in raw_data.metaboliteConcentrations
 		if not np.isnan(m['Bennett Concentration'].asNumber())]
 	lempp = [m['Metabolite'] for m in raw_data.metaboliteConcentrations
@@ -243,7 +246,7 @@ def save_metabolites(raw_data, sim_data, output):
 				source = 'Biomass (EcoCyc GEM, Bremer and Dennis. 1996., and Neidhardt. 2006.)'
 			writer.writerow([m, source])
 
-	print 'Number of metabolites: {}'.format(len(metabolites))
+	print('Number of metabolites: {}'.format(len(metabolites)))
 
 def save_kinetics(raw_data, sim_data, output):
 	"""
@@ -269,7 +272,7 @@ def save_kinetics(raw_data, sim_data, output):
 		for (rxn, enz), c in sorted(kinetic_constraints.items(), key=lambda d: d[0][0]):
 			writer.writerow([rxn, enz, c['kcat'], c['saturation']])
 
-	print 'Number of kinetic constraints: {}'.format(len(kinetic_constraints))
+	print('Number of kinetic constraints: {}'.format(len(kinetic_constraints)))
 
 def parse_args():
 	"""

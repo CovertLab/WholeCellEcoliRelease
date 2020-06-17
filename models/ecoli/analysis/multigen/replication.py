@@ -1,7 +1,7 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
+from six.moves import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -16,12 +16,6 @@ CRITICAL_N = [1, 2, 4, 8]
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		genomeLength = len(sim_data.process.replication.genome_sequence)
 
@@ -30,6 +24,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		# Get all cells
 		allDir = ap.get_cells()
 
+		# noinspection PyTypeChecker
 		fig, axesList = plt.subplots(6, sharex = True)
 		fig.set_size_inches(11, 11)
 		for simDir in allDir:

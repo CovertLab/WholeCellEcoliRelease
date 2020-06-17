@@ -4,11 +4,10 @@
 @date: Created 4/29/2016
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
+from six.moves import cPickle
 import re
 
 import numpy as np
@@ -33,12 +32,6 @@ AVERAGE_COLOR_OPPOSITE_SIGN = 'red'
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		validation_data = cPickle.load(open(validationDataFile, "rb"))
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
@@ -67,6 +60,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		plt.suptitle("Central Carbon Metabolism Reaction Flux vs. Toya 2010 Measured Fluxes", fontsize=22)
 
+		idx = -1
 		for idx, fluxName in enumerate(toya_reactions):
 			reactionTimeCourse = net_flux(fluxName, reactionIDs, reactionFluxes).asNumber(FLUX_UNITS).squeeze()
 			if reactionTimeCourse[BURN_IN_TIMESTEPS:].any():
@@ -89,7 +83,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		ax = plt.subplot(8,4, idx+2)
 		ax.plot(0, 0, linewidth=2, label="Zero flux after initial {} time steps".format(BURN_IN_TIMESTEPS), color=NO_FLUX_COLOR)
-		ax.plot(0, 0, linewidth=2, label="Nonzero flux".format(BURN_IN_TIMESTEPS), color=WITH_FLUX_COLOR)
+		ax.plot(0, 0, linewidth=2, label="Nonzero flux", color=WITH_FLUX_COLOR)
 		ax.plot(0, 0, linewidth=1, label="Toya 2010 observed flux", color=AVERAGE_COLOR)
 		ax.plot(0, 0, linewidth=1, label="Toya 2010 observed flux - opposite sign", color=AVERAGE_COLOR_OPPOSITE_SIGN)
 		ax.legend(loc = 10)

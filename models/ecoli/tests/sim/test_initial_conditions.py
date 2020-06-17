@@ -7,14 +7,12 @@ Tests the initial conditions code of the model.
 @date: Created 7/23/2015
 """
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import unittest
-import warnings
 
 import numpy as np
-import cPickle
-import os
+import six
 
 from wholecell.utils import units
 
@@ -137,7 +135,7 @@ class Test_InitialConditions(unittest.TestCase):
 		n = 1
 		while n <= limit:
 			ratio = (1 - ((n*tau - D)/(C)))
-			ratio = units.convertNoUnitToNumber(ratio)
+			ratio = units.strip_empty_units(ratio)
 			expected_coordinates = np.floor(
 				ratio * (replichore_length.asNumber()))
 			self.assertEqual(expected_coordinates,
@@ -159,7 +157,7 @@ class Test_InitialConditions(unittest.TestCase):
 		n = 1
 		while n <= limit:
 			ratio = (1 - ((n*tau - D)/(C)))
-			ratio = units.convertNoUnitToNumber(ratio)
+			ratio = units.strip_empty_units(ratio)
 			expected_coordinates = np.floor(
 				ratio * (replichore_length.asNumber()))
 			self.assertEqual(expected_coordinates,
@@ -181,7 +179,7 @@ class Test_InitialConditions(unittest.TestCase):
 		n = 1
 		while n <= limit:
 			ratio = (1 - ((n*tau - D)/(C)))
-			ratio = units.convertNoUnitToNumber(ratio)
+			ratio = units.strip_empty_units(ratio)
 			expected_coordinates = np.floor(
 				ratio * (replichore_length.asNumber()))
 			self.assertEqual(expected_coordinates,
@@ -203,7 +201,7 @@ class Test_InitialConditions(unittest.TestCase):
 		n = 1
 		while n <= limit:
 			ratio = (1 - ((n*tau - D)/(C)))
-			ratio = units.convertNoUnitToNumber(ratio)
+			ratio = units.strip_empty_units(ratio)
 			expected_coordinates = np.floor(
 				ratio * (replichore_length.asNumber()))
 			self.assertEqual(expected_coordinates,
@@ -276,7 +274,7 @@ class Test_InitialConditions(unittest.TestCase):
 	def test_determine_chromosome_state_inputs(self):
 
 		# The D period must be shorter than tau
-		with self.assertRaisesRegexp(
+		with six.assertRaisesRegex(self,
 			AssertionError,
 			"^The D period must be shorter than the doubling time tau.$"
 		):
@@ -288,7 +286,7 @@ class Test_InitialConditions(unittest.TestCase):
 				C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 
 		# No inputs can have negative values
-		with self.assertRaisesRegexp(
+		with six.assertRaisesRegex(self,
 			AssertionError,
 			"^C value can't be negative.$"
 		):
@@ -299,7 +297,7 @@ class Test_InitialConditions(unittest.TestCase):
 			oric_state, replisome_state, domain_state = determine_chromosome_state(
 				C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 
-		with self.assertRaisesRegexp(
+		with six.assertRaisesRegex(self,
 			AssertionError,
 			"^D value can't be negative.$"
 		):
@@ -310,7 +308,7 @@ class Test_InitialConditions(unittest.TestCase):
 			oric_state, replisome_state, domain_state = determine_chromosome_state(
 				C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 
-		with self.assertRaisesRegexp(
+		with six.assertRaisesRegex(self,
 			AssertionError,
 			"^tau value can't be negative.$"
 		):
@@ -321,7 +319,7 @@ class Test_InitialConditions(unittest.TestCase):
 			oric_state, replisome_state, domain_state = determine_chromosome_state(
 				C, D, tau, replichore_length, N_MAX_REPLISOMES, -1)
 
-		with self.assertRaisesRegexp(
+		with six.assertRaisesRegex(self,
 			AssertionError,
 			"^replichore_length value can't be negative.$"
 		):

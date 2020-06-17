@@ -1,3 +1,6 @@
+from __future__ import absolute_import, division, print_function
+
+# noinspection PyUnresolvedReferences
 from distutils.core import setup# , Extension
 # from distutils.sysconfig import get_python_inc
 

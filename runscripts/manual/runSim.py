@@ -26,6 +26,7 @@ from typing import Tuple
 from wholecell.fireworks.firetasks import SimulationDaughterTask, SimulationTask, VariantSimDataTask
 from wholecell.utils import constants, data, scriptBase
 import wholecell.utils.filepath as fp
+from six.moves import range
 
 
 SIM_DIR_PATTERN = r'({})__(.+)'.format(fp.TIMESTAMP_PATTERN)
@@ -128,10 +129,10 @@ class RunSimulation(scriptBase.ScriptBase):
 					)
 				task.run_task({})
 
-			for j in xrange(args.seed, args.seed + args.init_sims):  # init sim seeds
+			for j in range(args.seed, args.seed + args.init_sims):  # init sim seeds
 				seed_directory = fp.makedirs(variant_directory, "%06d" % j)
 
-				for k in xrange(args.generations):  # generation number k
+				for k in range(args.generations):  # generation number k
 					gen_directory = fp.makedirs(seed_directory, "generation_%06d" % k)
 
 					# l is the daughter number among all of this generation's cells,

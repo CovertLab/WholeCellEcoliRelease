@@ -4,6 +4,7 @@ from __future__ import absolute_import, division, print_function
 import numpy as np
 
 import matplotlib.pyplot as plt
+from six.moves import range
 
 # Biological constants (basic)
 
@@ -96,7 +97,7 @@ def simulate(
 	conc_atp_accumulated_error = bootstrap_value*stepsize * ATP_PER_TRANSLATION
 	conc_aa_accumulated_error = bootstrap_value*stepsize * AA_RELATIVE_ABUNDANCE
 
-	for i in xrange(timepoints):
+	for i in range(timepoints):
 		# Compute concentrations
 
 		if i == 0:
@@ -169,6 +170,7 @@ def simulate(
 
 	# Plot
 
+	# noinspection PyTypeChecker
 	(fig, axes) = plt.subplots(
 		figsize = (10, 5),
 		ncols = 2,

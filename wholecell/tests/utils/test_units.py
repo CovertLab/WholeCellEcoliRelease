@@ -30,10 +30,8 @@ class Test_units(unittest.TestCase):
 		x = 1 * units.s
 		y = 100 * units.s
 		quotient = (x / y).asNumber()
-		
-		# TODO: Fix this test once we are using future division with units
-		# self.assertEqual(0.01, quotient)
-		self.assertEqual(0, quotient)
+
+		self.assertEqual(0.01, quotient)
 
 	def test_truediv(self):
 		"""Test __truediv__."""
@@ -41,9 +39,7 @@ class Test_units(unittest.TestCase):
 		y = 100 * units.s
 		quotient = x.__truediv__(y).asNumber()
 
-		# TODO: Fix this test once we are using future division with units
-		# self.assertEqual(0.01, quotient)
-		self.assertEqual(0, quotient)
+		self.assertEqual(0.01, quotient)
 
 	def test_div_int(self):
 		"""Test __div__ with ints."""
@@ -103,9 +99,7 @@ class Test_units(unittest.TestCase):
 		y = 100 * units.s
 		quotient = (x / y).asNumber()   # __rtruediv__
 
-		# TODO: Fix this test once we are using future division with units
-		# self.assertEqual(0.01, quotient)
-		self.assertEqual(0, quotient)
+		self.assertEqual(0.01, quotient)
 
 		d = np.array([1, 2, 3])
 		d2 = 2 / d
@@ -114,9 +108,8 @@ class Test_units(unittest.TestCase):
 		a1 = 2 / (1 / units.s * d)      # __rtruediv__
 		a2 = 2 / (units.s * d)          # __rtruediv__
 
-		# TODO: Fix these assertions once we are using future division with units
-		# np.testing.assert_array_equal(e1, e2)
-		# np.testing.assert_array_equal(e1, a1)
-		# np.testing.assert_array_equal(d2, a2.asNumber())
+		np.testing.assert_array_equal(e1, e2)
+		np.testing.assert_array_equal(e1, a1)
+		np.testing.assert_array_equal(d2, a2.asNumber())
 
 	# TODO(jerry): Test the array functions.

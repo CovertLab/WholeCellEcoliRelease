@@ -5,29 +5,21 @@ Plot rna synthesis probabilities
 @date: Created 9/9/2016
 """
 
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
-import cPickle
 import os
-from itertools import izip
 
 from matplotlib import pyplot as plt
 import numpy as np
+from six.moves import cPickle, zip
 
 from models.ecoli.analysis import singleAnalysisPlot
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import filepath
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, 'simOutDir does not currently exist as a directory'
-
-		filepath.makedirs(plotOutDir)
-
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
 
@@ -82,7 +74,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			"rRNA\n(sum of %s rRNAs)" % n_rrnas,
 			]
 
-		for index, (title, synth_prob, avg_synth_prob, mass) in enumerate(izip(
+		for index, (title, synth_prob, avg_synth_prob, mass) in enumerate(zip(
 				subplot_titles, synth_probs, avg_synth_probs, normalized_mass)):
 
 			ax1 = plt.subplot(3, 1, index + 1)

@@ -1,21 +1,20 @@
+from __future__ import absolute_import, division, print_function
 
 import os
-import re
 import csv
 import sys
 
-import numpy as np
-
-from reconstruction.ecoli.knowledge_base import KnowledgeBaseEcoli
+from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 from reconstruction.spreadsheets import JsonWriter
+import six
 
 OUTPUT_DIR = sys.argv[1]
 
 DIALECT = csv.excel_tab
 
-kb = KnowledgeBaseEcoli(False)
+kb = KnowledgeBaseEcoli()
 
-drymass = kb._cellDryMassCompositionData
+drymass = getattr(kb, '_cellDryMassCompositionData')
 
 fraction_names = {
 	"Glycogen":"glycogen",
@@ -28,7 +27,7 @@ fraction_names = {
 
 keys = drymass.dtype.names
 with open(os.path.join(OUTPUT_DIR, "dryMassComposition.tsv"), "w") as outfile:
-	writer = JsonWriter(outfile, keys, dialect = DIALECT)
+	writer = JsonWriter(outfile, keys)
 
 	writer.writeheader()
 
@@ -37,12 +36,12 @@ with open(os.path.join(OUTPUT_DIR, "dryMassComposition.tsv"), "w") as outfile:
 			key:entry[key] for key in keys
 			})
 
-for kb_name, file_name in fraction_names.viewitems():
+for kb_name, file_name in six.viewitems(fraction_names):
 	array = getattr(kb, "_cell{}FractionData".format(kb_name))
 	keys = array.dtype.names
 
 	with open(os.path.join(OUTPUT_DIR, "massFractions", "{}Fractions.tsv".format(file_name)), "w") as outfile:
-		writer = JsonWriter(outfile, keys, dialect = DIALECT)
+		writer = JsonWriter(outfile, keys)
 
 		writer.writeheader()
 

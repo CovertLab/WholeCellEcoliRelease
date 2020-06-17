@@ -1,11 +1,10 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
-from itertools import izip
-import cPickle
 
 import numpy as np
 from matplotlib import pyplot as plt
+from six.moves import cPickle, zip
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
@@ -13,6 +12,7 @@ from wholecell.utils.sparkline import whitePadSparklineAxis
 from wholecell.analysis.rdp import rdp
 from wholecell.analysis.analysis_tools import exportFigure
 from models.ecoli.analysis import cohortAnalysisPlot
+
 
 GENS = np.arange(3, 9)
 
@@ -31,16 +31,10 @@ def align_yaxis(ax1, v1, ax2, v2):
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
-
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
 		# Check if basal sim
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		if sim_data.condition != "basal":
-			print "Skipping - plot only runs for basal sim."
+			print("Skipping - plot only runs for basal sim.")
 			return
 
 		# Get all cells
@@ -48,7 +42,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		allDir = ap.get_cells(seed=[0], generation = GENS)
 		n_gens = GENS.size
 		if len(allDir) < n_gens:
-			print "Skipping - particular seed and/or gens were not simulated."
+			print("Skipping - particular seed and/or gens were not simulated.")
 			return
 
 		# Get all ids reqiured
@@ -91,9 +85,10 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			protein_idx = protein_index_of_interest[4]
 			protein_idx_burst = protein_index_of_interest_burst[2]
 		except Exception as exc:
-			print "Error: %s" % exc
+			print("Error: %s" % exc)
 			return
 
+		# noinspection PyTypeChecker
 		fig, axesList = plt.subplots(ncols = 2, nrows = 2, sharex = True)
 		expProtein_axis = axesList[0,0]
 		expRna_axis = axesList[1,0]
@@ -212,7 +207,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 				(time_minutes.max() - time_minutes.min()) * n_gens
 				)
 
-			for (ax, c, lc, cm, cs) in izip(axes, counts, line_color, count_min, count_scale):
+			for (ax, c, lc, cm, cs) in zip(axes, counts, line_color, count_min, count_scale):
 				rescaled_counts = (c.astype(np.float64) - cm)/cs
 
 				# Roughly rescale the data into the plotted dimensions for
@@ -261,7 +256,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		expRna_axis.set_xticks(time_eachGen / 60.)
 		burstRna_axis.set_xticks(time_eachGen / 60.)
-		xlabel = GENS.tolist()
+		xlabel = GENS.tolist()  # type: list
 		xlabel.append(GENS[-1] + 1)
 		expRna_axis.set_xticklabels(xlabel)
 		burstRna_axis.set_xticklabels(xlabel)

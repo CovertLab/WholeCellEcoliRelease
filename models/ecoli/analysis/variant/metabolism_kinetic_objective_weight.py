@@ -7,20 +7,22 @@ Analyze results from metabolism_kinetic_objective_weight variant
 
 from __future__ import absolute_import, division, print_function
 
-import cPickle
 import os
 import re
+from typing import Dict, List, Sequence, Tuple
 
 from matplotlib import pyplot as plt
 import numpy as np
+from six.moves import cPickle, range
 
 from models.ecoli.analysis import variantAnalysisPlot
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import filepath, parallelization, units
+from wholecell.utils import parallelization, units
 from wholecell.utils.sparkline import whitePadSparklineAxis
+from six.moves import zip
 
 
 MODEL_FLUX_UNITS = COUNTS_UNITS / VOLUME_UNITS / TIME_UNITS
@@ -31,10 +33,11 @@ FRAC_FLUX_OFF_AXIS = 0.05
 
 OUTLIER_REACTIONS = [
 	# Add reaction IDs to exclude from central carbon correlation
-	]
+	]  # type: Sequence
 
 
-def analyze_variant((variant, ap, toya_reactions, toya_fluxes, outlier_filter)):
+def analyze_variant(args):
+	# type: (Tuple[int, AnalysisPaths, List[str], np.ndarray, List[bool]]) -> tuple
 	'''
 	Function to analyze the data for each variant in parallel
 
@@ -46,6 +49,7 @@ def analyze_variant((variant, ap, toya_reactions, toya_fluxes, outlier_filter)):
 		outlier_filter (list of bool) - True if associated Toya reaction should be excluded
 	'''
 
+	variant, ap, toya_reactions, toya_fluxes, outlier_filter = args
 	n_sims = 0
 
 	# Load sim_data attributes for the given variant
@@ -62,7 +66,7 @@ def analyze_variant((variant, ap, toya_reactions, toya_fluxes, outlier_filter)):
 	kinetic_objective_values = []
 	actual_flux = []
 	target_flux = []
-	toya_model_fluxes = {}
+	toya_model_fluxes = {}  # type: Dict[str, List[np.ndarray]]
 	for rxn in toya_reactions:
 		toya_model_fluxes[rxn] = []
 
@@ -130,7 +134,7 @@ def analyze_variant((variant, ap, toya_reactions, toya_fluxes, outlier_filter)):
 		reaction_fluxes = (reaction_fluxes / dcw_to_volume).asNumber(DCW_FLUX_UNITS).T
 
 		for toya_reaction_id in toya_reactions:
-			flux_time_course = []
+			flux_time_course = []  # type: List[np.ndarray]
 
 			for rxn in reaction_ids:
 				if re.findall(toya_reaction_id, rxn):
@@ -191,19 +195,14 @@ def analyze_variant((variant, ap, toya_reactions, toya_fluxes, outlier_filter)):
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(inputDir):
-			raise Exception, 'inputDir does not currently exist as a directory'
-
 		ap = AnalysisPaths(inputDir, variant_plot=True)
 		variants = ap.get_variants()
 		n_variants = len(variants)
 		total_sims = ap.n_seed * ap.n_generation
 
 		if n_variants <= 1:
-			print('This plot only runs for multiple variants'.format(__name__))
+			print('This plot {} only runs for multiple variants'.format(__name__))
 			return
-
-		filepath.makedirs(plotOutDir)
 
 		# Load validation data
 		validation_data = cPickle.load(open(validationDataFile, 'rb'))
@@ -230,13 +229,13 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 		# Pull information from sim data and listeners in parallel
 		pool = parallelization.pool(num_processes=self.cpus)
-		args = zip(
+		args = list(zip(
 			variants,
 			[ap] * n_variants,
 			[toya_reactions] * n_variants,
 			[toya_fluxes] * n_variants,
 			[outlier_filter] * n_variants
-			)
+			))
 		results = pool.map(analyze_variant, args)
 		pool.close()
 		pool.join()
@@ -275,7 +274,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			+ correlation_coefficient
 		)
 
-		tick_labels = [r'$10^{%i}$' % (np.log10(x),) if x != 0 else '0' for x in lambdas]
+		tick_labels = [r'$10^{%i}$' % np.log10(x) if x != 0 else '0' for x in lambdas]
 		lambdas = [np.log10(x) if x != 0 else np.nanmin(np.log10(lambdas[lambdas != 0]))-1 for x in lambdas]
 
 		plt.figure(figsize = (8.5, 22))

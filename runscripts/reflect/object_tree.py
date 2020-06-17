@@ -1,7 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
 import collections
-import cPickle
 import functools
 import numbers
 import os
@@ -11,16 +10,26 @@ import types
 
 import Bio.Seq
 import numpy as np
+import scipy.interpolate
+import six
+from six.moves import cPickle, range
 import sympy
 from sympy.matrices import dense
 import unum
 
 from wholecell.utils import constants
+from wholecell.utils.py3 import ANY_STRING
 import wholecell.utils.unit_struct_array
+
 
 NULP = 0  # float comparison tolerance, in Number of Units in the Last Place
 
-leaf_types = (
+# Objects with a list of attributes to compare
+SPECIAL_OBJECTS = {
+	scipy.interpolate._cubic.CubicSpline: ['x', 'c', 'axis'],
+	}
+
+LEAF_TYPES = (
 	unum.Unum,
 	Bio.Seq.Seq,
 	sympy.Basic,
@@ -30,8 +39,8 @@ leaf_types = (
 	dense.MutableDenseMatrix,
 	wholecell.utils.unit_struct_array.UnitStructArray)
 
-
 WHITESPACE = re.compile(r'\s+')
+
 
 class Repr(object):
 	'''A Repr has the given repr() string without quotes and != any other value.'''
@@ -58,19 +67,20 @@ def all_vars(obj):
 	instead to get its defining state.
 	"""
 	if hasattr(obj, '__getstate__'):
+		# noinspection PyCallingNonCallable
 		return obj.__getstate__()
 
 	attrs = getattr(obj, '__dict__', {})
 	attrs.update({key: getattr(obj, key) for key in getattr(obj, '__slots__', ())})
 	return attrs
 
-def is_leaf(value, leaves=leaf_types):
+def is_leaf(value, leaves=LEAF_TYPES):
 	"""
 	Predicate to determine if we have reached the end of how deep we want to traverse
 	through the object tree.
 	"""
 	if isinstance(value, (collections.Mapping, collections.Sequence)):
-		return isinstance(value, basestring)
+		return isinstance(value, ANY_STRING)
 	return (callable(value)                 # it's callable
 			or isinstance(value, leaves)    # it's an instance of a declared leaf type
 			or not has_python_vars(value))  # an object without Python instance variables
@@ -89,7 +99,7 @@ def object_tree(obj, path='', debug=None):
 	translation of a pickled object.
 
 	Args:
-		obj (object): The object to inspect. 
+		obj (object): The object to inspect.
 		path (optional str): The root path of this object tree. This will be built upon
 	        for each child of the current object found and reported in a value is
 	        provided for `debug`.
@@ -107,13 +117,13 @@ def object_tree(obj, path='', debug=None):
 		return obj
 	elif isinstance(obj, collections.Mapping):
 		return {key: object_tree(value, "{}['{}']".format(path, key), debug)
-			for (key, value) in obj.iteritems()}
+			for (key, value) in six.viewitems(obj)}
 	elif isinstance(obj, collections.Sequence):
 		return [object_tree(subobj, "{}[{}]".format(path, index), debug) for index, subobj in enumerate(obj)]
 	else:
 		attrs = all_vars(obj)
 		tree = {key: object_tree(value, "{}.{}".format(path, key), debug)
-				for (key, value) in attrs.iteritems()}
+				for (key, value) in six.viewitems(attrs)}
 		tree['!type'] = type(obj)
 
 		return tree
@@ -157,6 +167,22 @@ def size_tree(o, cutoff=0.1):
 		if n_entries:
 			size += get_size(o.struct_array[0]) * n_entries
 		return size,
+
+	# if a special object, check predefined attributes for equality
+	elif type(o) in SPECIAL_OBJECTS:
+		sizes = {}
+		attrs = SPECIAL_OBJECTS[type(o)]
+		for attr in attrs:
+			subsizes = size_tree(getattr(o, attr), cutoff)
+			size += subsizes[0]
+			if subsizes[0] > cutoff:
+				formatted = float('{:.2f}'.format(subsizes[0]))
+				if len(subsizes) == 1:
+					val = formatted
+				else:
+					val = (formatted, subsizes[1])
+				sizes[attr] = val
+		return return_val(size, sizes)
 
 	# if it is a leaf, just return the size
 	# TODO: any special handling for types that are not already accounted for above
@@ -231,6 +257,16 @@ def diff_trees(a, b):
 		a0, b0 = a.matchUnits(b)
 		return diff_trees(a0.asNumber(), b0.asNumber())
 
+	# if a special object, check predefined attributes for equality
+	elif type(a) in SPECIAL_OBJECTS:
+		diff = {}
+		attrs = SPECIAL_OBJECTS[type(a)]
+		for attr in attrs:
+			subdiff = diff_trees(getattr(a, attr), getattr(b, attr))
+			if subdiff:
+				diff[attr] = subdiff
+		return diff
+
 	# if they are leafs (including strings) use python equality comparison
 	elif is_leaf(a):
 		if a != b:
@@ -255,7 +291,7 @@ def diff_trees(a, b):
 			a = list(a) + (len(b) - len(a)) * [Repr('--')]
 
 		diff = []
-		for index in xrange(len(a)):
+		for index in range(len(a)):
 			subdiff = diff_trees(a[index], b[index])
 			if subdiff:
 				diff.append(subdiff)
@@ -302,7 +338,7 @@ def compare_ndarrays(array1, array2):
 			# This handles float tolerance but not NaN and Inf.
 			np.testing.assert_array_almost_equal_nulp(array1, array2, nulp=NULP)
 			return ()
-		except AssertionError as e:
+		except AssertionError as _:
 			# return elide(array1), elide(array2), simplify_error_message(e.message)
 			pass  # try again, below
 

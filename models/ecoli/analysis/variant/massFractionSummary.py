@@ -1,9 +1,10 @@
-from __future__ import absolute_import
-
+from __future__ import absolute_import, division, print_function
 
 import os
-from matplotlib import pyplot as plt
 import itertools
+
+from matplotlib import pyplot as plt
+from six.moves import zip
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
@@ -33,20 +34,15 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 					"DNA\nmass"
 					]
 
-		if not os.path.isdir(inputDir):
-			raise Exception, "inputDir does not currently exist as a directory"
-
 		ap = AnalysisPaths(inputDir, variant_plot = True)
 		all_cells = ap.get_cells()
 
 		# Build a mapping from variant id to color
 		idToColor = {}
-		for idx, (cell_id, color) in enumerate(itertools.izip(all_cells, itertools.cycle(COLORS_LARGE))):
+		for idx, (cell_id, color) in enumerate(zip(all_cells, itertools.cycle(COLORS_LARGE))):
 			idToColor[idx] = color
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
-
+		# noinspection PyTypeChecker
 		fig, axesList = plt.subplots(len(massNames), sharex = True)
 
 		currentMaxTime = 0
