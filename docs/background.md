@@ -3,6 +3,8 @@
 
 ## Important source code and data locations
 
+![wcEcoli flowchart](wcEcoli_flowchart.png)
+
 ### Knowledgebase/parameters
 Files to generate the `sim_data` object that contains all parameters needed to run simulations.
 * `reconstruction/ecoli/...`
