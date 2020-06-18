@@ -20,8 +20,9 @@ from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
 from six.moves import zip
 
-
-PLOT_TOP_N_GENES = 30
+PLOT_TOP_N_GENES = 30  # Number of genes to be plotted in panes 2, 3, 6, and 7
+MEMBRANE_COMPARTMENT_IDS = ['w', 'm', 'o', 'p', 'i']
+LABEL_TOP_N_GENES = 10  # Number of genes to be labeled in pane 8
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
@@ -46,22 +47,59 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		chromosome_bound_ribosome_counts = ribosome_reader.readColumn(
 			'n_ribosomes_on_partial_mRNA_per_transcript')
 
-		# Load mappings from mRNA, protein ids to gene ids
+		# Load mappings between mRNA, protein, and gene ids
 		mRNA_id_to_gene_id = {
 			mRNA_id: gene_id for (mRNA_id, gene_id)
 			in zip(sim_data.process.transcription.rnaData['id'],
 				sim_data.process.transcription.rnaData['geneId'])
 			}
-		protein_id_to_gene_id = {
-			protein_id: mRNA_id_to_gene_id[mRNA_id] for (protein_id, mRNA_id)
+		protein_id_to_mRNA_id = {
+			protein_id: mRNA_id for (protein_id, mRNA_id)
 			in zip(sim_data.process.translation.monomerData['id'],
 				sim_data.process.translation.monomerData['rnaId'])
 			}
+		protein_id_to_gene_id = {
+			protein_id: mRNA_id_to_gene_id[mRNA_id] for (protein_id, mRNA_id)
+			in protein_id_to_mRNA_id.items()
+			}
 
+		# Load mapping from protein id to genomic coordinates
+		rna_id_to_coordinates = {
+			rna_id: coordinates for (rna_id, coordinates)
+			in zip(sim_data.process.transcription.rnaData['id'],
+				sim_data.process.transcription.rnaData['replicationCoordinate'])
+			}
+		protein_id_to_coordinates = {
+			protein_id: rna_id_to_coordinates[rna_id] for (protein_id, rna_id)
+			in protein_id_to_mRNA_id.items()
+			}
+
+		# Get mask and genomic coordinates of membrane-bound proteins
+		membrane_protein_mask = np.array(
+			[x[-2] in MEMBRANE_COMPARTMENT_IDS for x in protein_ids])
+		membrane_protein_ids = [
+			p for i, p in enumerate(protein_ids) if membrane_protein_mask[i] == True]
+		membrane_protein_coordinates = [
+			protein_id_to_coordinates[p] for p in membrane_protein_ids]
+
+		# Convert genomic coordinates to x, y coordinates
+		right_replichore_length, left_replichore_length = sim_data.process.replication.replichore_lengths
+		membrane_protein_x = []
+		membrane_protein_y = []
+
+		for coordinates in membrane_protein_coordinates:
+			theta = np.pi * coordinates/(right_replichore_length if coordinates >= 0 else left_replichore_length)
+			membrane_protein_x.append(np.sin(theta))
+			membrane_protein_y.append(np.cos(theta))
+
+		membrane_protein_x = np.array(membrane_protein_x)
+		membrane_protein_y = np.array(membrane_protein_y)
+
+		# Plot
 		fig = plt.figure()
-		fig.set_size_inches(8, 28)
+		fig.set_size_inches(8, 35)
 
-		gs = gridspec.GridSpec(8, 1)
+		gs = gridspec.GridSpec(10, 1)
 
 		# Plot counts of full/partial transcripts over time
 		ax = plt.subplot(gs[0, 0])
@@ -210,6 +248,57 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		ax.spines['right'].set_visible(False)
 		ax.set_ylim([0, 1])
 		ax.set_ylabel('Proportions of\nchromosome-bound ribosomes')
+
+		# Plot locations of genes that are likely to be involved in transertion
+		# (Produces membrane-bound proteins and has ribosomes bound to
+		# partially transcribed transcripts)
+		ax = plt.subplot(gs[8:10, 0])
+		circle = plt.Circle((0, 0), 1, fill=False, linewidth=0.5)
+		ax.add_artist(circle)
+
+		# Size of circle is proportional to average number of chromosome-bound
+		# ribosomes throughout simulation
+		ax.scatter(membrane_protein_x, membrane_protein_y,
+			s=10*bound_ribosome_counts_mean[membrane_protein_mask], zorder=10)
+
+		# Add markers for oriC and terC
+		oriC_marker = plt.Line2D([0, 0], [0.99, 1.01], color='k', linewidth=0.5)
+		terC_marker = plt.Line2D([0, 0], [-0.99, -1.01], color='k', linewidth=0.5)
+		ax.add_artist(oriC_marker)
+		ax.add_artist(terC_marker)
+		ax.text(0, 1.05, 'oriC', ha='center', va='center')
+		ax.text(0, -1.05, 'terC', ha='center', va='center')
+
+		# Add labels for significant genes
+		top_gene_indexes = np.argsort(
+			bound_ribosome_counts_mean[membrane_protein_mask]
+			)[::-1][:LABEL_TOP_N_GENES]
+
+		for i in top_gene_indexes:
+			gene_name = sim_data.common_names.genes[
+				protein_id_to_gene_id[membrane_protein_ids[i]]][0]
+			ribosome_count = bound_ribosome_counts_mean[membrane_protein_mask][i]
+			x = membrane_protein_x[i]
+			y = membrane_protein_y[i]
+			if x < 0:
+				ax.text(x - 0.05, y, '%s (%.1f)'%(gene_name, ribosome_count),
+					ha='right', va='center')
+			else:
+				ax.text(x + 0.05, y, '%s (%.1f)'%(gene_name, ribosome_count),
+					ha='left', va='center')
+
+		# Add legend to center of circle
+		ax.text(
+			0, 0,
+			'Gene name (Average # of chromosome-bound ribosomes)\nTotal: %.1f'%(
+				bound_ribosome_counts_mean[membrane_protein_mask].sum()),
+			ha='center', va='center')
+		ax.set_title(
+			'Chromosomal location of genes likely to be involved in transertion')
+		ax.axis('off')
+		ax.set_aspect(1)
+		ax.set_xlim([-1.1, 1.1])
+		ax.set_ylim([-1.1, 1.1])
 
 		fig.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
