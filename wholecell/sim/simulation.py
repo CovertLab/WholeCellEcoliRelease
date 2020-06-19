@@ -57,6 +57,15 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	raise_on_time_limit = False,
 	tagged_molecules = [],
 	emitter_config = {},
+	to_report = {
+		# List of molecule names
+		'bulk_molecules': [],
+		'unique_molecules': [],
+		# Tuple of (listener_name, listener_attribute) such that the
+		# desired value is
+		# self.listeners[listener_name].listener_attribute
+		'listeners': [],
+	},
 )
 
 def _orderedAbstractionReference(iterableOfClasses):
@@ -486,7 +495,24 @@ class Simulation():
 		return {
 			'volume': self.listeners['Mass'].volume,
 			'division': self.daughter_config(),
-			'exchange': self.external_states['Environment'].get_environment_change()}
+			'exchange': self.external_states[
+				'Environment'
+			].get_environment_change(),
+			'bulk_molecules_report': {
+				mol:
+				self.internal_states['BulkMolecules'].container.count(mol)
+				for mol in self._to_report['bulk_molecules']
+			},
+			'unique_molecules_report': {
+				mol:
+				self.internal_states['UniqueMolecules'].container.count(mol)
+				for mol in self._to_report['unique_molecules']
+			},
+			'listeners_report': {
+				(listener, attr): getattr(self.listeners[listener], attr)
+				for listener, attr in self._to_report['listeners']
+			},
+		}
 
 	def divide(self):
 		self.cellCycleComplete()

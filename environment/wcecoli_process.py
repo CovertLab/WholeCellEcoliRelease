@@ -4,8 +4,9 @@ import os
 import copy
 import shutil
 
-from vivarium.compartment.process import Process
-from vivarium.compartment.composition import process_in_compartment
+from vivarium.core.process import Process
+from vivarium.core.composition import process_in_experiment
+from vivarium.library.dict_utils import deep_merge
 
 
 from models.ecoli.sim.simulation import ecoli_simulation
@@ -34,10 +35,14 @@ def initialize_ecoli(config):
 	sim_out_path = config['sim_out_path']
 	variant_type = config['variant_type']
 	variant_index = config['variant_index']
+	cell_id = config['cell_id']
 
-	sim_data_fit = os.path.join(sim_out_path, 'manual', 'kb', constants.SERIALIZED_SIM_DATA_FILENAME)
-	variant_sim_data_directory = fp.makedirs(sim_out_path, 'agent', outer_id, 'kb')
-	variant_sim_data_modified_file = os.path.join(variant_sim_data_directory, constants.SERIALIZED_SIM_DATA_MODIFIED)
+	sim_data_fit = os.path.join(
+		sim_out_path, 'manual', 'kb', constants.SERIALIZED_SIM_DATA_FILENAME)
+	variant_sim_data_directory = fp.makedirs(
+		sim_out_path, 'agent', outer_id, 'kb', cell_id)
+	variant_sim_data_modified_file = os.path.join(
+		variant_sim_data_directory, constants.SERIALIZED_SIM_DATA_MODIFIED)
 
 	# copy sim_data into the experiment directory to support analysis
 	shutil.copy(sim_data_fit, variant_sim_data_modified_file)
@@ -87,6 +92,14 @@ def ecoli_boot_config(agent_config):
 	cell_id = agent_config.get('cell_id')
 	tagged_molecules = agent_config.get('tagged_molecules', ['CDPDIGLYSYN-MONOMER[i]']) # default tag cdsA protein
 	emitter_config = agent_config.get('emitter_config', DEFAULT_EMITTER)
+	to_report = agent_config.get(
+		'to_report',
+		{
+			'bulk_molecules': [],
+			'unique_molecules': [],
+			'listeners': [],
+		}
+	)
 
 	# initialize state
 	state = {
@@ -132,7 +145,10 @@ def ecoli_boot_config(agent_config):
 		"dPeriodDivision":        False,
 		"translationSupply":      True,
 		"tagged_molecules":       tagged_molecules,
-		"emitter_config":         emitter_config}
+		"to_report":              to_report,
+		"emitter_config":         emitter_config,
+		"cell_id":                cell_id,
+	}
 
 	# Write a metadata file to aid analysis plots.
 	metadata = {
@@ -155,11 +171,22 @@ def ecoli_boot_config(agent_config):
 class wcEcoliAgent(Process):
 	defaults = {
 		'agent_id': 'X',
-		'agent_config': {}}
+		'agent_config': {},
+		'time_step': 5.0,  # 60 for big experiments
+		'unique_molecules_to_report': [],
+		'bulk_molecules_to_report': [],
+		'listeners_to_report': [],
+	}
 
-	def __init__(self, initial_parameters={}):
-		self.agent_id = initial_parameters.get('agent_id', self.defaults['agent_id'])
-		self.agent_config = initial_parameters.get('agent_config', self.defaults['agent_config'])
+	def __init__(self, initial_parameters=None):
+		if initial_parameters is None:
+			initial_parameters = {}
+
+		parameters = copy.deepcopy(self.defaults)
+		deep_merge(parameters, initial_parameters)
+
+		self.agent_id = parameters['agent_id']
+		self.agent_config = parameters['agent_config']
 		self.agent_config['cell_id'] = self.agent_id
 		self.agent_config['working_dir'] = '../wcEcoli'
 
@@ -167,59 +194,132 @@ class wcEcoliAgent(Process):
 		self.ecoli_simulation = initialize_ecoli(self.ecoli_config)
 		self.sim_data = self.ecoli_simulation._simData
 
+		environment = self.ecoli_simulation.external_states['Environment']
+		media_molecules = set()
+		for molecules in environment.saved_media.values():
+			media_molecules |= set(molecules)
+		self.all_exchange_molecules = list(media_molecules)
+
+		ports_schema = self._ports_schema_from_params(
+			parameters, self.all_exchange_molecules
+		)
 		ports = {
-			'boundary': [
-				'local_environment',
-				'exchange',
-				'volume',
-				'division']}
+			port: variables_dict.keys()
+			for port, variables_dict in ports_schema.items()
+		}
 
-		super(wcEcoliAgent, self).__init__(ports, initial_parameters)
+		super(wcEcoliAgent, self).__init__(ports, parameters)
 
-	def default_settings(self):
-		default_state = {
-			'boundary': {
-				'local_environment': {},
-				'exchange': {},
-				'volume': 1.0,
-				'division': []}}
+	def ports_schema(self):
+		return self._ports_schema_from_params(
+			self.parameters, self.all_exchange_molecules)
+
+	def _ports_schema_from_params(
+		self, parameters, all_exchange_molecules
+	):
+		ports = [
+			'bulk_molecules_report',
+			'unique_molecules_report',
+			'listeners_report',
+			'global',
+			'external',
+			'exchange',
+		]
 
 		schema = {
-			'boundary': {
-				# 'local_environment': {'updater': 'set'},
-				'exchange': {'updater': 'set'},
-				'volume': {'updater': 'set'},
-				'division': {'updater': 'set'}}}
+			port: {} for port in ports
+		}
 
-		emitter_keys = {}
+		# local_environment
+		schema['external'] = {
+			molecule: {
+				'_default': 0.0,
+				'_emit': True,
+				'_updater': 'set',
+			}
+			for molecule in all_exchange_molecules
+		}
 
-		return {
-			'time_step': 5.0,
-			'state': default_state,
-			'schema': schema,
-			'emitter_keys': emitter_keys}
+		# exchange
+		schema['exchange'] = {
+			molecule: {
+				'_default': 0.0,
+			}
+			for molecule in all_exchange_molecules
+		}
+
+		# bulk_molecules_report
+		schema['bulk_molecules_report'] = {
+			mol: {
+				'_default': None,
+				'_emit': True,
+				'_updater': 'set',
+			}
+			for mol in parameters['bulk_molecules_to_report']
+		}
+
+		# unique_molecules_report
+		schema['unique_molecules_report'] = {
+			mol: {
+				'_default': None,
+				'_emit': True,
+				'_updater': 'set',
+			}
+			for mol in parameters['unique_molecules_to_report']
+		}
+
+		# listeners_report
+		schema['listeners_report'] = {
+			(listener, attr): {
+				'_default': None,
+				'_emit': True,
+				'_updater': 'set',
+			}
+			for listener, attr in parameters['listeners_to_report']
+		}
+
+		# global
+		schema['global'] = {
+			'mass': {
+				# TODO: units
+				'_default': 0.0,
+				'_emit': True,
+				'_updater': 'set',
+			},
+			'volume': {
+				'_default': 0.0,
+				'_emit': True,
+				'_updater': 'set',
+			},
+			'media_id': {
+				'_default': 'minimal',
+				'_emit': True,
+				'_updater': 'set',
+			},
+			'division': {
+				'_default': [],
+				'_updater': 'set',
+			}
+		}
+		return schema
 
 	def next_update(self, timestep, states):
-		boundary = states['boundary']
-		# self.ecoli_simulation.external_states['Environment'].set_local_environment(
-		# 	boundary['local_environment'])
+		media_id = states['global']['media_id']
+		local_environment = {
+			'concentrations': states['external'],
+			'media_id': media_id,
+		}
+		self.ecoli_simulation.external_states['Environment'].set_local_environment(
+			local_environment)
 		self.ecoli_simulation.run_for(timestep)
 		update = self.ecoli_simulation.generate_inner_update()
-
-		return {'boundary': update}
-
-
-
-def run():
-	wcecoli = wcEcoliAgent({
-		'agent_id': 'W',
-		'agent_config': {
-			'working_dir': '../wcEcoli'}})
-	compartment = process_in_compartment(wcecoli)
-
-	print(compartment.current_state())
-	compartment.update(5)
-	print(compartment.current_state())
-
-if __name__ == '__main__':
-	run()
+		return {
+			'global': {
+				'volume': update['volume'],
+				'division': update['division'],
+			},
+			'exchange': update['exchange'],
+			'unique_molecules_report': update['unique_molecules_report'],
+			'bulk_molecules_report': update['bulk_molecules_report'],
+			'listeners_report': update['listeners_report'],
+		}
