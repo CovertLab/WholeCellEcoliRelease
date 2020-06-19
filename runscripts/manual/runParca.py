@@ -13,7 +13,7 @@ from __future__ import absolute_import, division, print_function
 import os
 
 from wholecell.fireworks.firetasks import ParcaTask
-from wholecell.utils import data, parallelization, scriptBase
+from wholecell.utils import constants, data, parallelization, scriptBase
 from wholecell.utils import filepath as fp
 
 
@@ -42,14 +42,28 @@ class RunParca(scriptBase.ScriptBase):
 		args = super(RunParca, self).parse_args()
 		args.cpus = parallelization.cpus(args.cpus)
 
+		args.time = fp.timestamp()
+		args.description = args.sim_outdir.replace(' ', '_')
+
 		if args.timestamp:
-			args.sim_outdir = fp.timestamp() + '__' + args.sim_outdir.replace(' ', '_')
+			args.sim_outdir = args.time + '__' + args.description
 
 		args.sim_path = fp.makedirs(fp.ROOT_PATH, "out", args.sim_outdir)
 		return args
 
 	def run(self, args):
 		kb_directory = os.path.join(args.sim_path, ParcaTask.OUTPUT_SUBDIR)
+
+		# Write the metadata file.
+		metadata = {
+			'git_hash': fp.run_cmdline("git rev-parse HEAD") or '--',
+			'git_branch': fp.run_cmdline("git symbolic-ref --short HEAD") or '--',
+			'description': args.description,
+			'time': args.time,
+		}
+		metadata_dir = fp.makedirs(args.sim_path, 'metadata')
+		metadata_path = os.path.join(metadata_dir, constants.JSON_METADATA_FILE)
+		fp.write_json_file(metadata_path, metadata)
 
 		if args.debug_parca:
 			print('DEBUG Parca')
