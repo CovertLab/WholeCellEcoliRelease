@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
-from lens.environment.control import ShepherdControl, EnvironmentCommand
+from vivarium.actor.control import ShepherdControl, EnvironmentCommand
 
 
 class EcoliControl(ShepherdControl):

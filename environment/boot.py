@@ -4,8 +4,8 @@ import os
 import copy
 import shutil
 
-from lens.actor.inner import Inner
-from lens.actor.boot import BootAgent
+from vivarium.actor.inner import Inner
+from vivarium.actor.boot import BootAgent
 
 from models.ecoli.sim.simulation import ecoli_simulation
 
