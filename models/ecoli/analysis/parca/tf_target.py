@@ -3,12 +3,12 @@ from __future__ import absolute_import, division, print_function
 from six.moves import cPickle
 import os
 
-import numpy as np
-from matplotlib import pyplot as plt
 import bokeh.io
+import bokeh.io.state
+from bokeh.models import HoverTool
 from bokeh.plotting import figure, ColumnDataSource
-from bokeh.models import (HoverTool, BoxZoomTool, LassoSelectTool, PanTool,
-	WheelZoomTool, ResizeTool, UndoTool, RedoTool)
+from matplotlib import pyplot as plt
+import numpy as np
 
 from models.ecoli.analysis import parcaAnalysisPlot
 from wholecell.analysis.analysis_tools import exportFigure
@@ -77,18 +77,18 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		exportFigure(plt, plot_out_dir, plot_out_filename, metadata)
 		plt.close("all")
 
-		source = ColumnDataSource(data = dict(x = x, y = y[sortedIdxs], targetId = targetIds, tfId = tfs, condition = conditions))
+		source = ColumnDataSource(data=dict(x=x, y=y[sortedIdxs], targetId=targetIds, tfId=tfs, condition=conditions))
 		hover = HoverTool(tooltips = [("target", "@targetId"), ("TF", "@tfId"), ("condition", "@condition")])
-		tools = [hover, BoxZoomTool(), LassoSelectTool(), PanTool(), WheelZoomTool(), ResizeTool(),	UndoTool(),	RedoTool(), "reset"]
-		plot = figure(x_axis_label = xlabel, y_axis_label = ylabel, width = 800, height = 500, tools = tools)
+		tools = [hover, 'box_zoom', 'lasso_select', 'pan', 'wheel_zoom', 'undo', 'redo', 'reset']
+		plot = figure(x_axis_label=xlabel, y_axis_label=ylabel, width=800, height=500, tools=tools)
 
-		plot.scatter("x", "y", source = source)
+		plot.scatter("x", "y", source=source)
 
 		html_dir = filepath.makedirs(plot_out_dir, 'html_plots')
 		html_file = os.path.join(html_dir, plot_out_filename + "__probBound.html")
-		bokeh.io.output_file(html_file, title=plot_out_filename, autosave=False)
+		bokeh.io.output_file(html_file, title=plot_out_filename)
 		bokeh.io.save(plot)
-		bokeh.io.curstate().reset()
+		bokeh.io.state.curstate().reset()
 
 
 if __name__ == "__main__":
