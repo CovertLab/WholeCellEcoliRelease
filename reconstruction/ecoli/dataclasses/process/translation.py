@@ -187,9 +187,16 @@ class Translation(object):
 		self.translationEndWeight = (sim_data.getter.getMass([sim_data.moleculeIds.water]) / sim_data.constants.nAvogadro).asNumber(units.fg)
 
 	def _buildTranslationEfficiency(self, raw_data, sim_data):
-		monomerIds = [x["id"].encode("utf-8") + "[" + sim_data.getter.getLocation([x["id"]])[0][0] + "]" for x in raw_data.proteins]
-		monomerIdToGeneId = dict([(x["id"].encode("utf-8") + "[" + sim_data.getter.getLocation([x["id"]])[0][0] + "]", x["geneId"].encode("utf-8")) for x in raw_data.proteins])
-		geneIdToTrEff = dict([(x["geneId"].encode("utf-8"), x["translationEfficiency"]) for x in raw_data.translationEfficiency if type(x["translationEfficiency"]) == float])
+		monomerIds = [
+			x["id"] + sim_data.getter.get_location_tag(x["id"])
+			for x in raw_data.proteins]
+		monomerIdToGeneId = {
+			x["id"] + sim_data.getter.get_location_tag(x["id"]): x["geneId"]
+			for x in raw_data.proteins}
+		geneIdToTrEff = {
+			x["geneId"]: x["translationEfficiency"]
+			for x in raw_data.translationEfficiency
+			if type(x["translationEfficiency"]) == float}
 		trEffs = []
 		for monomerId in monomerIds:
 			geneId = monomerIdToGeneId[monomerId]

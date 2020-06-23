@@ -107,7 +107,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		## Commented code is used when PLOT_GENES_OF_INTEREST is True
 		# raw_data = cPickle.load(open("out/SET_A_000000/rawData.cPickle", "rb"))
-		# geneIdToGeneSymbol = dict([(x["id"].encode("utf-8"), x["symbol"].encode("utf-8")) for x in raw_data.genes])
+		# geneIdToGeneSymbol = {x["id"]: x["symbol"] for x in raw_data.genes}
 		# geneSymbolsOrdered = [geneIdToGeneSymbol[x] for x in geneIdsOrdered]
 		# cPickle.dump({"geneId": geneIdsOrdered, "geneSymbol": geneSymbolsOrdered}, open(os.path.join(plotOutDir, "figure5B_genes.pickle"), "wb"))
 

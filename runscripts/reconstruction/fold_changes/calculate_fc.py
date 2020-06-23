@@ -9,12 +9,12 @@ from __future__ import absolute_import, division, print_function
 import argparse
 import csv
 import os
-
-import numpy as np
 from typing import Any, Dict, Iterable, List, Tuple
 
-from reconstruction.spreadsheets import JsonWriter
+import numpy as np
 from six.moves import zip
+
+from reconstruction.spreadsheets import tsv_writer
 
 
 FILE_LOCATION = os.path.dirname(os.path.realpath(__file__))
@@ -229,10 +229,7 @@ def replace_uncertain_entries(data):
 	raw_data = load_file(WCM_FILE)
 	headers = raw_data[0]
 
-	with open(OUTPUT_FILE, 'w') as f:
-		writer = JsonWriter(f, headers)
-		writer.writeheader()
-
+	with tsv_writer(OUTPUT_FILE, headers) as writer:
 		# Check each fold change and update if needed
 		for line in raw_data[1:]:  # type: List[str]
 			tf = line[0].strip('#" ')

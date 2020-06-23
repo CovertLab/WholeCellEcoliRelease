@@ -66,7 +66,10 @@ class Protein(object):
 		utilFunctions = getterFunctions(knowledge_base_raw, None)
 
 		# Build and save a dict from gene ID to monomerId
-		self.geneIdToMonomerId = dict([(x["id"].encode("utf-8"), x["monomerId"].encode("utf-8") + "[" + utilFunctions.getLocation([x["monomerId"].encode("utf-8")])[0][0] + "]") for x in knowledge_base_raw.genes if x["type"] == "mRNA"])
+		self.geneIdToMonomerId = {
+			x["id"]: x["monomerId"] + utilFunctions.get_location_tag(x["monomerId"])
+			for x in knowledge_base_raw.genes
+			if x["type"] == "mRNA"}
 
 		# Build and save a dict from gene symbol to corresponding monomerId
 		self.geneSymbolToMonomerId = {}
@@ -131,7 +134,6 @@ class Protein(object):
 			])
 
 		for idx, row in enumerate(houser_dataset):
-			
 			if row["gene_symbol"] in self.geneSymbolToMonomerId:
 				self.houser2015counts[idx]["monomerId"] = self.geneSymbolToMonomerId[row["gene_symbol"]]
 			self.houser2015counts[idx]["gene_symbol"] = row["gene_symbol"]
@@ -157,7 +159,7 @@ class Protein(object):
 		rep2 = np.array([x["rep2"] for x in dataset])
 		rep3 = np.array([x["rep3"] for x in dataset])
 		avg = np.mean((rep1, rep2, rep3), axis = 0)
-		geneIds = [x["EcoCycID"].encode("utf-8") for x in dataset]
+		geneIds = [x["EcoCycID"] for x in dataset]
 
 		monomerIds = [self.geneIdToMonomerId[x] for x in geneIds]
 		nEntries = len(geneIds)
@@ -178,7 +180,7 @@ class Protein(object):
 	def _loadSchmidt2015Counts(self, validation_data_raw):
 		dataset = validation_data_raw.schmidt2015_javier_table
 
-		geneIds = [x["EcoCycID"].encode("utf-8") for x in dataset]
+		geneIds = [x["EcoCycID"] for x in dataset]
 		monomerIds = [self.geneIdToMonomerId[x] for x in geneIds]
 
 		glucoseCounts = [x["Glucose"] for x in dataset]

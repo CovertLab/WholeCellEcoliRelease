@@ -5,9 +5,9 @@ import re
 from typing import Dict
 
 from Bio.Data.IUPACData import atom_weights
-
-from reconstruction.spreadsheets import JsonWriter
 import six
+
+from reconstruction.spreadsheets import tsv_writer
 
 # Constants
 
@@ -61,9 +61,7 @@ for molecule_name, stoich in six.viewitems(ADDED_SPECIES):
 		)
 
 # Write out metabolites
-with open(OUTPUT_METS, "w") as out:
-	writer = JsonWriter(out, ["id", "mw7.2", "location"])
-	writer.writeheader()
+with tsv_writer(OUTPUT_METS, ["id", "mw7.2", "location"]) as writer:
 	for molecule_name, weight in six.viewitems(weights):
 		if molecule_name == "WATER":
 			continue
@@ -75,9 +73,7 @@ with open(OUTPUT_METS, "w") as out:
 			})
 
 # Write out water
-with open(OUTPUT_WATER, "w") as out:
-	writer = JsonWriter(out, ["id", "mw7.2", "location"])
-	writer.writeheader()
+with tsv_writer(OUTPUT_WATER, ["id", "mw7.2", "location"]) as writer:
 	for molecule_name, weight in six.viewitems(weights):
 		if molecule_name != "WATER":
 			continue

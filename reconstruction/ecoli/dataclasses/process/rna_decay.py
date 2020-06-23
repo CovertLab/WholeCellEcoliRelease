@@ -20,7 +20,7 @@ class RnaDecay(object):
 		self._buildRnaDecayData(raw_data, sim_data)
 
 	def _buildRnaDecayData(self, raw_data, sim_data):
-		self.endoRnaseIds = [x["endoRnase"].encode("utf-8") for x in raw_data.endoRnases]
+		self.endoRnaseIds = [x["endoRnase"] for x in raw_data.endoRnases]
 		self.kcats = (1 / units.s) * np.array([x["kcat"].asNumber(1 / units.s) for x in raw_data.endoRnases])
 		self.StatsFit = {
 				'LossKm': 0.,
