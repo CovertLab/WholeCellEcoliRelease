@@ -132,7 +132,7 @@ def ecoli_boot_config(agent_config):
 		"outputDir":              output_dir,
 		"initialTime":            start_time,
 		"inheritedStatePath":     inherited_state_path,
-		"logToDisk":              True,
+		"logToDisk":              False,  # We're using Vivarium instead
 		"overwriteExistingFiles": True,
 		"seed":                   seed,
 		"timeStepSafetyFraction": 1.3,
