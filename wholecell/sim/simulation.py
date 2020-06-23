@@ -164,7 +164,8 @@ class Simulation():
 		self._cellCycleComplete = False
 		self._isDead = False
 		self._finalized = False
-		self.emitter = get_emitter(self._emitter_config)['object']  # get the emitter object
+		self.emitter = None
+		# TODO: self.emitter = get_emitter(self._emitter_config)['object']  # get the emitter object
 
 		for state_name, internal_state in six.viewitems(self.internal_states):
 			# initialize random streams
@@ -521,7 +522,7 @@ class Simulation():
 		return self.daughter_config()
 
 	def emit(self):
-		if self._tagged_molecules:
+		if self.emitter and self._tagged_molecules:
 			counts = self.internal_states['BulkMolecules'].container.counts(self._tagged_molecules)
 			cell_data = {mol_id: count for mol_id, count in zip(self._tagged_molecules, counts)}
 			emit_config = {

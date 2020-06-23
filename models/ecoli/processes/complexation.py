@@ -36,7 +36,7 @@ class Complexation(wholecell.processes.process.Process):
 	def initialize(self, sim, sim_data):
 		super(Complexation, self).initialize(sim, sim_data)
 
-		# Create matrices and vectors that describe reaction stoichiometries 
+		# Create matrices and vectors that describe reaction stoichiometries
 		self.stoichMatrix = sim_data.process.complexation.stoichMatrix().astype(np.int64)
 
 		# semi-quantitative rate constants
@@ -44,7 +44,7 @@ class Complexation(wholecell.processes.process.Process):
 
 		# build stochastic system simulation
 		seed = self.randomState.randint(RAND_MAX)
-		self.system = StochasticSystem(self.stoichMatrix.T, self.rates, random_seed=seed)
+		self.system = StochasticSystem(self.stoichMatrix.T, random_seed=seed)
 
 		# Build views
 		moleculeNames = sim_data.process.complexation.moleculeNames
@@ -54,7 +54,8 @@ class Complexation(wholecell.processes.process.Process):
 	def calculateRequest(self):
 		moleculeCounts = self.molecules.total_counts()
 
-		result = self.system.evolve(self._sim.timeStepSec(), moleculeCounts)
+		result = self.system.evolve(
+			self._sim.timeStepSec(), moleculeCounts, self.rates)
 		updatedMoleculeCounts = result['outcome']
 
 		self.molecules.requestIs(np.fmax(moleculeCounts - updatedMoleculeCounts, 0))
@@ -63,7 +64,8 @@ class Complexation(wholecell.processes.process.Process):
 	def evolveState(self):
 		moleculeCounts = self.molecules.counts()
 
-		result = self.system.evolve(self._sim.timeStepSec(), moleculeCounts)
+		result = self.system.evolve(
+			self._sim.timeStepSec(), moleculeCounts, self.rates)
 		updatedMoleculeCounts = result['outcome']
 		events = result['occurrences']
 

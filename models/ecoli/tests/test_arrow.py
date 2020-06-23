@@ -18,8 +18,9 @@ class TestArrow(unittest.TestCase):
 
 		rates = np.array([3, 1, 1]) * 0.01
 
-		arrow = StochasticSystem(stoichiometric_matrix, rates)
-		result = arrow.evolve(1.0, np.array([50, 20, 30, 40], np.int64))
+		arrow = StochasticSystem(stoichiometric_matrix)
+		result = arrow.evolve(
+			1.0, np.array([50, 20, 30, 40], np.int64), rates)
 		pprint(result)
 
 		self.assertEqual(stoichiometric_matrix.shape[0], arrow.obsidian.reactions_count())

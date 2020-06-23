@@ -47,7 +47,7 @@ def parse_timestamp_description(sim_path):
 		description = match.group(2).replace('_', ' ')
 	else:
 		timestamp = fp.timestamp()
-		description = 'a manual run'
+		description = sim_dir
 
 	return timestamp, description
 
