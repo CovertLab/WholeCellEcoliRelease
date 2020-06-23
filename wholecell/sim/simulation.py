@@ -23,7 +23,6 @@ from wholecell.utils.py3 import monotonic_seconds
 import wholecell.loggers.shell
 import wholecell.loggers.disk
 
-from vivarium.core.emitter import get_emitter
 from six.moves import range
 import six
 from six.moves import zip
@@ -56,7 +55,6 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	variable_elongation_transcription = False,
 	raise_on_time_limit = False,
 	tagged_molecules = [],
-	emitter_config = {},
 	to_report = {
 		# List of molecule names
 		'bulk_molecules': [],
@@ -165,8 +163,6 @@ class Simulation():
 		self._cellCycleComplete = False
 		self._isDead = False
 		self._finalized = False
-		self.emitter = None
-		# TODO: self.emitter = get_emitter(self._emitter_config)['object']  # get the emitter object
 
 		for state_name, internal_state in six.viewitems(self.internal_states):
 			# initialize random streams
@@ -279,8 +275,6 @@ class Simulation():
 			for processes in self._processClasses:
 				self._evolveState(processes)
 			self._post_evolve_state()
-
-			self.emit()
 
 	def run_for(self, run_for):
 		self.run_incremental(self.time() + run_for)
@@ -521,17 +515,3 @@ class Simulation():
 		self.finalize()
 
 		return self.daughter_config()
-
-	def emit(self):
-		if self.emitter and self._tagged_molecules:
-			counts = self.internal_states['BulkMolecules'].container.counts(self._tagged_molecules)
-			cell_data = {mol_id: count for mol_id, count in zip(self._tagged_molecules, counts)}
-			emit_config = {
-				'table': 'history',
-				'data': {
-					'type': 'compartment',
-					'time': self.time(),
-					'cell': cell_data}
-				}
-
-			self.emitter.emit(emit_config)
