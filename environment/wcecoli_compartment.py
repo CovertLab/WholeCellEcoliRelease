@@ -4,26 +4,31 @@ import copy
 
 from vivarium.core.experiment import Compartment
 from wcecoli_process import wcEcoliAgent
+from wcecoli_meta_division import WcEcoliMetaDivision
 
 
 class WcEcoliCell(Compartment):
 
 	defaults = {
 		'boundary_path': ('boundary',),
+		'agents_path': ('..', '..', 'agents'),
 	}
 
 	def __init__(self, config=None):
 		if config is None:
 			config = {}
-		self.config = self.defaults
+		self.config = copy.deepcopy(self.defaults)
 		self.config.update(config)
 
-	def generate_processes(self, config=None):
-		if config is None:
-			config = {}
+	def generate_processes(self, config):
 		wcecoli_process = wcEcoliAgent(config)
+		meta_division = WcEcoliMetaDivision({
+			'agent_id': config['agent_id'],
+			'compartment': self,
+		})
 		return {
 			'wcecoli': wcecoli_process,
+			'meta_division': meta_division,
 		}
 
 	def generate_topology(self, config=None):
@@ -44,5 +49,9 @@ class WcEcoliCell(Compartment):
 					boundary_path + ('external',)
 				),
 				'exchange': boundary_path + ('exchange',),
-			}
+			},
+			'meta_division': {
+				'global': boundary_path,
+				'cells': self.config['agents_path'],
+			},
 		}
