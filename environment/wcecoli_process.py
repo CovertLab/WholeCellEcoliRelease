@@ -7,6 +7,7 @@ import shutil
 from vivarium.core.process import Process
 from vivarium.core.composition import process_in_experiment
 from vivarium.library.dict_utils import deep_merge
+from vivarium.library.units import units
 
 
 from models.ecoli.sim.simulation import ecoli_simulation
@@ -281,8 +282,7 @@ class wcEcoliAgent(Process):
 		# global
 		schema['global'] = {
 			'mass': {
-				# TODO: units
-				'_default': 0.0,
+				'_default': 0.0 * units.fg,
 				'_emit': True,
 				'_updater': 'set',
 			},
