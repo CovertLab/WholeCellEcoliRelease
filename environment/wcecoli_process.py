@@ -9,7 +9,6 @@ from vivarium.core.composition import process_in_experiment
 from vivarium.library.dict_utils import deep_merge
 from vivarium.library.units import units
 
-
 from models.ecoli.sim.simulation import ecoli_simulation
 from wholecell.utils import constants
 import wholecell.utils.filepath as fp
@@ -172,11 +171,21 @@ def ecoli_boot_config(agent_config):
 class wcEcoliAgent(Process):
 	defaults = {
 		'agent_id': 'X',
-		'agent_config': {},
+		'agent_config': {
+			'to_report': {
+				'listeners': [
+					('Mass', 'cellMass'),
+					('Mass', 'cellDensity'),
+					('Mass', 'volume'),
+				],
+				'unique_molecules': [],
+				'bulk_molecules': [],
+			},
+		},
 		'time_step': 5.0,  # 60 for big experiments
-		'unique_molecules_to_report': [],
-		'bulk_molecules_to_report': [],
-		'listeners_to_report': [],
+		# Must match units used by wcEcoli
+		'mass_units': units.fg,
+		'density_units': units.g / units.L,
 	}
 
 	def __init__(self, initial_parameters=None):
@@ -185,6 +194,10 @@ class wcEcoliAgent(Process):
 
 		parameters = copy.deepcopy(self.defaults)
 		deep_merge(parameters, initial_parameters)
+
+		self.mass_units = parameters['mass_units']
+		self.density_units = parameters['density_units']
+		self.volume_units = self.mass_units / self.density_units
 
 		self.agent_id = parameters['agent_id']
 		self.agent_config = parameters['agent_config']
@@ -256,7 +269,8 @@ class wcEcoliAgent(Process):
 				'_emit': True,
 				'_updater': 'set',
 			}
-			for mol in parameters['bulk_molecules_to_report']
+			for mol
+			in parameters['agent_config']['to_report']['bulk_molecules']
 		}
 
 		# unique_molecules_report
@@ -266,7 +280,8 @@ class wcEcoliAgent(Process):
 				'_emit': True,
 				'_updater': 'set',
 			}
-			for mol in parameters['unique_molecules_to_report']
+			for mol
+			in parameters['agent_config']['to_report']['unique_molecules']
 		}
 
 		# listeners_report
@@ -276,18 +291,24 @@ class wcEcoliAgent(Process):
 				'_emit': True,
 				'_updater': 'set',
 			}
-			for listener, attr in parameters['listeners_to_report']
+			for listener, attr
+			in parameters['agent_config']['to_report']['listeners']
 		}
 
 		# global
 		schema['global'] = {
 			'mass': {
-				'_default': 0.0 * units.fg,
+				'_default': 0.0 * self.mass_units,
 				'_emit': True,
 				'_updater': 'set',
 			},
 			'volume': {
-				'_default': 0.0,
+				'_default': 0.0 * self.volume_units,
+				'_emit': True,
+				'_updater': 'set',
+			},
+			'density': {
+				'_default': 1.0 * self.density_units,
 				'_emit': True,
 				'_updater': 'set',
 			},
@@ -313,13 +334,25 @@ class wcEcoliAgent(Process):
 			local_environment)
 		self.ecoli_simulation.run_for(timestep)
 		update = self.ecoli_simulation.generate_inner_update()
+		listeners_report = update['listeners_report']
 		return {
 			'global': {
-				'volume': update['volume'],
+				'volume': (
+					listeners_report[('Mass', 'volume')]
+					* self.volume_units
+				),
+				'mass': (
+					listeners_report[('Mass', 'cellMass')]
+					* self.mass_units
+				),
+				'density': (
+					listeners_report[('Mass', 'cellDensity')]
+					* self.density_units
+				),
 				'division': update['division'],
 			},
 			'exchange': update['exchange'],
 			'unique_molecules_report': update['unique_molecules_report'],
 			'bulk_molecules_report': update['bulk_molecules_report'],
-			'listeners_report': update['listeners_report'],
+			'listeners_report': listeners_report,
 		}
