@@ -66,6 +66,7 @@ DEFAULT_SIMULATION_KWARGS = dict(
 		# self.listeners[listener_name].listener_attribute
 		'listeners': [],
 	},
+	cell_id = None,
 )
 
 def _orderedAbstractionReference(iterableOfClasses):
