@@ -1,0 +1,82 @@
+## How to set up a Python runtime environment for the Whole Cell Model.
+## (See docs/create-pyenv.md for more details, esp. for Sherlock.)
+## (See docs/dev-tools.md for prerequisites such as installing command line
+## tools, additional SDK headers, and add pyenv init to your shell.)
+#
+## Install these packages using your local package manager such as homebrew on macOS:
+#   brew install pyenv pyenv-virtualenv pyenv-virtualenvwrapper
+#   brew install glpk openssl readline swig suite-sparse xz
+#
+## Install OpenBLAS 0.3.7 or later using your package manager or download and
+## build it from source. (Releases of OpenBLAS before 0.3.7 had threading bugs,
+## as do Apple's "Accelerate" framework and Intel's Math Kernel Library, so don't
+## use those.) See docs/create-pyenv.md for instructions if you need
+## to download and build OpenBLAS.
+#
+## Install the required version of Python via pyenv, and remember to enable it as
+## a shared library:
+#   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.8.2
+#
+## Create the "wcEcoli3" python virtual environment based on that Python version,
+## and select it for your project directory:
+#   cd ~/dev/wcEcoli
+#   pyenv virtualenv 3.8.2 wcEcoli3 && pyenv local wcEcoli3
+#
+## Upgrade this virtual environment's installers:
+#   pip install --upgrade pip setuptools virtualenv virtualenvwrapper virtualenv-clone wheel
+#
+## Create ~/.numpy-site.cfg pointing to your openblas installation.
+## (Brew installs openblas in /usr/local/opt/openblas/. If you built from source,
+## you might've installed it in /opt/OpenBLAS/.)
+#    [openblas]
+#    libraries = openblas
+#    library_dirs = /usr/local/opt/openblas/lib
+#    include_dirs = /usr/local/opt/openblas/include
+#
+## Install the packages listed in this file (NumPy and SciPy will use
+## ~/.numpy-site.cfg to find openblas):
+#   pip install -r py3_requirements.txt && pyenv rehash
+#
+## Configure the installed matplotlib per the instructions in docs/create-pyenv.md
+
+--no-binary numpy,scipy
+
+pip
+setuptools
+virtualenv
+virtualenv-clone
+virtualenvwrapper
+wheel
+
+numpy
+scipy
+
+biopython
+bokeh==1.4.0
+borealis-fireworks
+confluent-kafka
+cvxpy
+Cython
+Equation
+FireWorks
+future
+ipdb
+ipython
+line-profiler
+llvmlite
+matplotlib
+mock
+numba
+pandas
+Pillow
+pymongo
+pytest
+PyYAML
+ruamel.yaml
+six
+stochastic-arrow
+swiglpk
+sympy
+Theano
+Unum
+wholecell-vivarium

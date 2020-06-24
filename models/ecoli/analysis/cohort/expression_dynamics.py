@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 import os
+from typing import cast
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -50,7 +51,6 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		# Pre-allocate variables. Rows = Generations, Cols = Monomers
 		n_monomers = sim_data.process.translation.monomerData['id'].size
-		n_sims = ap.n_generation
 
 		# Load simData from first simulation
 		simOutDir = os.path.join(allDir[0], "simOut")
@@ -59,10 +59,10 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		transcriptionIdx = np.array([moleculeIds.index(x) for x in ids_transcription])
 
 		ratioFinalToInitialCountMultigen = np.zeros((n_gens, n_monomers), dtype = np.float)
-		initiationEventsPerMonomerMultigen = np.zeros((n_sims, n_monomers), dtype = np.int)
 
 		# protein_index_of_interest_full = np.zeros((n_gens, n_monomers), dtype = np.bool)
 
+		time = np.arange(0)
 		for gen_idx, simDir in enumerate(allDir):
 			simOutDir = os.path.join(simDir, "simOut")
 
@@ -121,13 +121,14 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		fig.set_figwidth(fig_width)
 		fig.set_figheight(fig_height)
-		firstLine = True
-		firstLineInit = None
-		firstLineInitRna = None
-		firstLineInit_burst = None
-		firstLineInitRna_burst = None
+		# firstLine = True
+		# firstLineInit = None
+		# firstLineInitRna = None
+		# firstLineInit_burst = None
+		# firstLineInitRna_burst = None
 
 		time_eachGen = []
+		startTime = 0
 		for gen_idx, simDir in enumerate(allDir):
 			simOutDir = os.path.join(simDir, "simOut")
 			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
@@ -146,12 +147,12 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			proteinMonomerCounts = monomerCounts.readColumn("monomerCounts")
 			rnaMonomerCounts = bulkCounts[:, transcriptionIdx]
 
-			if firstLine:
-				firstLineInit = float(proteinMonomerCounts[:, protein_idx][0])
-				firstLineInitRna = float(rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx][0])
-				firstLineInit_burst = float(proteinMonomerCounts[:, protein_idx_burst][0])
-				firstLineInitRna_burst = float(rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx_burst][0])
-				firstLine = False
+			# if firstLine:
+			# 	firstLineInit = float(proteinMonomerCounts[:, protein_idx][0])
+			# 	firstLineInitRna = float(rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx][0])
+			# 	firstLineInit_burst = float(proteinMonomerCounts[:, protein_idx_burst][0])
+			# 	firstLineInitRna_burst = float(rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx_burst][0])
+			# 	firstLine = False
 
 			LINEWIDTH = 1
 
@@ -256,7 +257,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		expRna_axis.set_xticks(time_eachGen / 60.)
 		burstRna_axis.set_xticks(time_eachGen / 60.)
-		xlabel = GENS.tolist()  # type: list
+		xlabel = cast('List[int]', GENS.tolist())
 		xlabel.append(GENS[-1] + 1)
 		expRna_axis.set_xticklabels(xlabel)
 		burstRna_axis.set_xticklabels(xlabel)

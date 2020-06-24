@@ -15,7 +15,7 @@ from collections import OrderedDict
 import numpy as np
 import six
 
-from reconstruction.spreadsheets import JsonReader, read_tsv, tsv_writer
+from reconstruction.spreadsheets import read_tsv, tsv_reader, tsv_writer
 
 def flip_dict(dct):
 	return {value:key for key, value in six.viewitems(dct)}
@@ -349,8 +349,7 @@ for key, value in six.viewitems(water):
 del met
 del water
 
-with open(POLY_FILE, "r") as f:
-	reader = JsonReader(f)
+with tsv_reader(POLY_FILE) as reader:
 	fieldnames = reader.fieldnames
 	assert fieldnames
 
@@ -361,8 +360,7 @@ del poly
 
 # update RNAs
 
-with open(RNA_FILE, "r") as f:
-	reader = JsonReader(f)
+with tsv_reader(RNA_FILE) as reader:
 	fieldnames = reader.fieldnames
 	assert fieldnames
 
@@ -387,8 +385,7 @@ del rna_data
 
 # update proteins
 
-with open(PROT_FILE, "r") as f:
-	reader = JsonReader(f)
+with tsv_reader(PROT_FILE) as reader:
 	fieldnames = reader.fieldnames
 	assert fieldnames
 
@@ -422,15 +419,13 @@ del prot_data
 
 # update complexes
 
-with open(COMP_FILE, "r") as f:
-	reader = JsonReader(f)
+with tsv_reader(COMP_FILE) as reader:
 	fieldnames = reader.fieldnames
 	assert fieldnames
 
 	comp_data = lod_to_dod(reader, KEY)
 
-with open(COMP_RXN_FILE, "r") as f:
-	reader = JsonReader(f)
+with tsv_reader(COMP_RXN_FILE) as reader:
 	comp_rxns = lod_to_dod(reader, KEY)
 
 bad_rxns = set()
@@ -503,16 +498,13 @@ with tsv_writer(COMP_FILE, fieldnames) as writer:
 
 # a sane person would not structure code this way
 
-with open(COMP_RXN_FILE, "r") as f:
-	reader = JsonReader(f)
+with tsv_reader(COMP_RXN_FILE) as reader:
 	rxn_fieldnames = reader.fieldnames
 	assert rxn_fieldnames
 
 	comp_rxns = lod_to_dod(reader, KEY)
 
-with open(EQUI_RXNS_FILE, "r") as f:
-	reader = JsonReader(f)
-
+with tsv_reader(EQUI_RXNS_FILE) as reader:
 	fn = reader.fieldnames
 	assert fn
 	equi_rxns = lod_to_dod(reader, KEY)

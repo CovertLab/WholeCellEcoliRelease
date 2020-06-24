@@ -10,8 +10,8 @@ significant parameters for each output difference measure.
 
 from __future__ import absolute_import, division, print_function
 
-import csv
 from functools import reduce
+import io
 from multiprocessing import Pool
 import operator
 import os
@@ -30,6 +30,7 @@ from models.ecoli.processes.metabolism import COUNTS_UNITS, MASS_UNITS, TIME_UNI
 from models.ecoli.sim.variants.param_sensitivity import number_params, split_indices
 from reconstruction.ecoli.simulation_data import SimulationDataEcoli
 from validation.ecoli.validation_data import ValidationDataEcoli
+from wholecell.io import tsv
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import parallelization, sparkline, units
@@ -353,8 +354,8 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		plt.close('all')
 
 		# Save z scores to tsv
-		with open(os.path.join(plotOutDir, '{}.tsv'.format(plotOutFileName)), 'w') as f:
-			writer = csv.writer(f, delimiter='\t')
+		with io.open(os.path.join(plotOutDir, '{}.tsv'.format(plotOutFileName)), 'wb') as f:
+			writer = tsv.writer(f)
 
 			writer.writerow(
 				['Parameter']

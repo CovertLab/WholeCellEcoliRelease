@@ -7,42 +7,42 @@
 #   brew install pyenv pyenv-virtualenv pyenv-virtualenvwrapper
 #   brew install glpk openssl readline swig suite-sparse xz
 #
-## Install the required version of Python via pyenv, and remember to enable it as
-## a shared library:
-#   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.16
-#
-## Create the "wcEcoli2" python virtual environment and select it for your project
-## directory:
-#   cd ~/dev/wcEcoli
-#   pyenv local 2.7.16
-#   pyenv virtualenv wcEcoli2
-#   pyenv local wcEcoli2
-#
-## Upgrade this virtual environment's installers:
-#   pip install --upgrade pip setuptools virtualenv virtualenvwrapper virtualenv-clone wheel
-#
 ## Install OpenBLAS 0.3.7 or later using your package manager or download and
 ## build it from source. (Earlier releases of OpenBLAS had threading bugs. So
 ## does Apple's "Accelerate" framework and Intel's Math Kernel Library, so don't
 ## use those substitutes.) See docs/create-pyenv.md for instructions if you need
 ## to download and build OpenBLAS.
 #
+## Install the required version of Python via pyenv, and remember to enable it as
+## a shared library:
+#   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 2.7.16
+#
+## Create the "wcEcoli2" python virtual environment based on that Python version,
+## and select it for your project directory:
+#   cd ~/dev/wcEcoli
+#   pyenv virtualenv 2.7.16 wcEcoli2 && pyenv local wcEcoli2
+#
+## Upgrade this virtual environment's installers:
+#   pip install --upgrade pip setuptools virtualenv virtualenvwrapper virtualenv-clone wheel
+#
 ## Create ~/.numpy-site.cfg pointing to your openblas installation.
-## (Brew installs openblas in /usr/local/opt/openblas/. Building it from source,
+## (Brew installs openblas in /usr/local/opt/openblas/. If you built it from source,
 ## you might've installed it in /opt/OpenBLAS/.)
 #    [openblas]
 #    libraries = openblas
 #    library_dirs = /usr/local/opt/openblas/lib
 #    include_dirs = /usr/local/opt/openblas/include
 #
-## Install NumPy linked to this OpenBLAS thanks to ~/.numpy-site.cfg:
-#   pip install numpy==1.14.6 --no-binary numpy --force-reinstall
+## Install NumPy (NumPy will use ~/.numpy-site.cfg to find openblas):
+#   pip install numpy==1.14.6 --no-binary numpy
 #
-## Install the packages listed in this file (SciPy will also use ~/.numpy-site.cfg):
-#   pip install -r requirements.txt --no-binary numpy,scipy
-#   pyenv rehash
+## Install the packages listed in this file (NumPy and SciPy will use
+## ~/.numpy-site.cfg to find openblas):
+#   pip install -r requirements.txt && pyenv rehash
 #
 ## Configure the installed matplotlib per the instructions in docs/create-pyenv.md
+
+--no-binary numpy,scipy
 
 appdirs==1.4.3
 appnope==0.1.0

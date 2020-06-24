@@ -7,9 +7,8 @@ Compare fluxes in simulation to target fluxes
 
 from __future__ import absolute_import, division, print_function
 
+import io
 import os
-from six.moves import cPickle
-import csv
 import re
 
 import bokeh.io
@@ -19,16 +18,16 @@ from bokeh.models import HoverTool
 from bokeh.plotting import figure, ColumnDataSource
 from matplotlib import pyplot as plt
 import numpy as np
+from six.moves import cPickle, zip
 
 from models.ecoli.analysis import singleAnalysisPlot
 from models.ecoli.processes.metabolism import COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.analysis.plotting_tools import COLORS_LARGE
 from wholecell.io.tablereader import TableReader
+from wholecell.io import tsv
 from wholecell.utils import filepath, units
 from wholecell.utils.sparkline import whitePadSparklineAxis
-
-from six.moves import zip
 
 
 BURN_IN_STEPS = 20
@@ -36,7 +35,7 @@ BURN_IN_STEPS = 20
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		sim_data = cPickle.load(open(simDataFile))
+		sim_data = cPickle.load(open(simDataFile, 'rb'))
 
 		mainListener = TableReader(os.path.join(simOutDir, "Main"))
 		initialTime = mainListener.readAttribute("initialTime")
@@ -99,8 +98,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 				rxns.append(rxn[0])
 		# print(siteStr)
 
-		csvFile = open(os.path.join(plotOutDir, plotOutFileName + ".tsv"), "wb")
-		output = csv.writer(csvFile, delimiter = "\t")
+		csvFile = io.open(os.path.join(plotOutDir, plotOutFileName + ".tsv"), "wb")
+		output = tsv.writer(csvFile)
 		output.writerow(["ecocyc link:", siteStr])
 		output.writerow(["Km and kcat", "Target", "Actual", "Category"])
 		for reaction, target, flux, category in zip(kineticsConstrainedReactions[kmAndKcatReactions], targetAve[kmAndKcatReactions], actualAve[kmAndKcatReactions], categorization[kmAndKcatReactions]):

@@ -57,7 +57,7 @@ for attr_name in candidates:
 	except Exception as e:
 		# report_file.write("failed to write {} with exception {}\n".format(
 		# 	attr_name,
-		# 	e.message
+		# 	e.args[0]
 		# 	))
 		raise
 

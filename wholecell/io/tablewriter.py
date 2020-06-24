@@ -220,7 +220,7 @@ class _Column(object):
 
 
 	def _get_dtype_descr(self):
-		# type: () -> str
+		# type: () -> bytes
 		"""
 		Get the description of the column data type in JSON format.
 		"""
@@ -228,7 +228,7 @@ class _Column(object):
 		descr = self._dtype.descr
 		if len(descr) == 1 and descr[0][0] == "":
 			descr = descr[0][1]
-		descr_json = json.dumps(descr, separators=(',', ':'))
+		descr_json = json.dumps(descr, separators=(',', ':')).encode('utf-8')
 
 		return descr_json
 

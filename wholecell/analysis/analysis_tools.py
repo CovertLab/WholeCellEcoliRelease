@@ -5,6 +5,7 @@ Analysis script toolbox functions
 from __future__ import absolute_import, division, print_function
 
 import os
+from typing import Iterator, Sequence, Tuple, Union
 
 import numpy as np
 
@@ -117,15 +118,16 @@ def exportFigure(plt, plotOutDir, plotOutFileName, metadata=None, transparent=Fa
 		plt.savefig(os.path.join(plotOutDir, LOW_RES_DIR, plotOutFileName + '.png'), dpi=dpi, transparent=transparent)
 
 def read_bulk_molecule_counts(sim_out_dir, mol_names):
+	# type: (str, Union[Tuple[Sequence[str], ...], Sequence[str]]) -> Iterator[np.ndarray]
 	'''
 	Reads a subset of molecule counts from BulkMolecules using the indexing method
 	of readColumn. Should only be called once per simulation being analyzed with
 	all molecules of interest.
 
 	Args:
-		sim_out_dir (str): path to the directory with simulation output data
-		mol_names (list-like or tuple of list-like): lists of strings containing
-			names of molecules to read the counts for. A single array will be
+		sim_out_dir: path to the directory with simulation output data
+		mol_names: tuple of list-likes of strings or a list-like of strings
+			that name molecules to read the counts for. A single array will be
 			converted to a tuple for processing.
 
 	Returns:
@@ -148,14 +150,14 @@ def read_bulk_molecule_counts(sim_out_dir, mol_names):
 	is used for those tables.
 	'''
 
-	# Convert an array to tuple to ensure correct dimensions
+	# Wrap an array in a tuple to ensure correct dimensions
 	if not isinstance(mol_names, tuple):
 		mol_names = (mol_names,)
 
 	# Check for string instead of array since it will cause mol_indices lookup to fail
 	for names in mol_names:
 		if isinstance(names, ANY_STRING):
-			raise Exception('mol_names must be a tuple of arrays not strings like {}'.format(names))
+			raise Exception('mol_names tuple must contain arrays not strings like {!r}'.format(names))
 
 	bulk_reader = TableReader(os.path.join(sim_out_dir, 'BulkMolecules'))
 

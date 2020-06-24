@@ -8,7 +8,7 @@ Compare metabolite concentrations from different datasets.
 from __future__ import absolute_import, division, print_function
 
 import os
-from typing import Dict, List
+from typing import cast, Dict, List
 
 from matplotlib import pyplot as plt
 from matplotlib import gridspec
@@ -97,7 +97,7 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		plt.figure(figsize=(10, 10))
 		concentrations['WCM'] = {}
 		concentrations['WCM'][INDEX_KEY] = x
-		concentrations['WCM'][CONC_KEY] = model_conc.tolist()
+		concentrations['WCM'][CONC_KEY] = cast(list, model_conc.tolist())
 		sources = sorted(concentrations.keys())
 		n_sources = len(sources)
 

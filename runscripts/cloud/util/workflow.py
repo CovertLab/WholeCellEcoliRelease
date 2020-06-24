@@ -14,6 +14,7 @@ import re
 import sys
 import six
 if os.name == 'posix' and sys.version_info[0] < 3:
+	# noinspection PyPackageRequirements
 	import subprocess32 as subprocess2
 	subprocess = subprocess2
 else:

@@ -268,7 +268,7 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 		npt.assert_equal(self.container.counts(), newContainer.counts())
 
 		container2 = BulkObjectsContainer(tuple('abcdefghijklmnopqrstuvwxyz'))
-		self.assertNotEquals(self.container, container2)  # different names and shape
+		assert self.container != container2  # different names and shape
 
 		# __eq__() tests the counts. The dtypes may differ.
 		newContainer.countsIs(7 + 9876 * np.arange(len(OBJECT_NAMES)))

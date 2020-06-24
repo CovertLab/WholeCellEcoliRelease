@@ -6,6 +6,7 @@
 from __future__ import absolute_import, division, print_function
 
 import os
+from typing import cast
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -253,7 +254,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 					simOutDir, (enzymeIds, metaboliteIds[:1], reactantIds))
 
 				fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
-				reactionIDs_ = np.array(fbaResults.readAttribute("reactionIDs")).tolist()  # type: list
+				reactionIDs_ = cast(list, np.array(fbaResults.readAttribute("reactionIDs")).tolist())
 				reactionIndexes = [reactionIDs_.index(x) for x in reactionIds]
 				reactionFluxes = np.array(fbaResults.readColumn("reactionFluxes"))
 				enzymeFluxes = reactionFluxes[:, reactionIndexes]

@@ -7,39 +7,41 @@
 
 from __future__ import absolute_import, division, print_function
 
+import csv
+import io
 import os
+from typing import Any, Dict
 
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 
-import csv
-from typing import Any, Dict
+from wholecell.io import tsv
 
 
-CSV_DIALECT = csv.excel_tab
 DATA_FILE = os.path.join("validation","ecoli","flat","conformationTF.tsv")
 REACTION_FILE = os.path.join("reconstruction","ecoli","flat","equilibriumReactions.tsv")
 OUTPUT_FILE = "TFoutput.tsv"
 
 reactionDict = {}
-with open(DATA_FILE, "rU") as csvfile:
-	reader = csv.DictReader(csvfile, dialect = CSV_DIALECT)
+with io.open(DATA_FILE, "rb") as csvfile:
+	reader = tsv.dict_reader(csvfile)
 	for row in reader:  # type: Dict[str, Any]
 		if row["<Kd> (uM)"] != '' and row["<Kd> (uM)"] != '?':
 			for reaction in row["EcoCyc ID reaction (metabolite vs. TF)"].split(", "):
 				reactionDict[reaction] = float(row["<Kd> (uM)"]) / 10**6
 
-with open(REACTION_FILE, "rU") as infile:
-	with open(OUTPUT_FILE, "w") as outfile:
-		reader = csv.DictReader(infile, dialect = CSV_DIALECT)
-		quoteDialect = CSV_DIALECT
-		quoteDialect.quotechar = "'"
-		quoteDialect.quoting = csv.QUOTE_NONNUMERIC
 
+class QuoteDialect(csv.excel_tab):
+	quotechar = "'"
+	quoting = csv.QUOTE_NONNUMERIC
+
+with io.open(REACTION_FILE, "rb") as infile:
+	with io.open(OUTPUT_FILE, "wb") as outfile:
+		reader = tsv.dict_reader(infile)
 		fieldnames = list(reader.fieldnames or [])
 		fieldnames.append("original reverse rate")
-		writer = csv.DictWriter(outfile, fieldnames=fieldnames, dialect=quoteDialect)
+		writer = tsv.dict_writer(outfile, fieldnames=fieldnames, dialect=QuoteDialect)
 		writer.writeheader()
 
 		for row1 in reader:  # type: Dict[str, Any]

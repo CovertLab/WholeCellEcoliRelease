@@ -868,7 +868,7 @@ class Metabolism(object):
 		new_equation = equation.replace(capacity_str, '1')
 
 		## Tokenize equation to terms and symbols
-		parsed_variables = re.findall('\w*', new_equation)[:-1]  # Remove trailing empty match
+		parsed_variables = re.findall(r'\w*', new_equation)[:-1]  # Remove trailing empty match
 		## Ensure valid input of known variables or a float term
 		for v in parsed_variables:
 			if not (v == '' or v in custom_subs):
@@ -879,7 +879,7 @@ class Metabolism(object):
 						print('Unknown value encountered in custom equation {}: {}'
 							.format(equation, v))
 					return kcats, []
-		parsed_symbols = re.findall('\W', new_equation)
+		parsed_symbols = re.findall(r'\W', new_equation)
 		tokenized_equation = np.array(parsed_variables)
 		symbol_idx_mask = tokenized_equation == ''
 

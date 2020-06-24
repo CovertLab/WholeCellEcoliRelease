@@ -24,7 +24,6 @@ import wholecell.loggers.shell
 import wholecell.loggers.disk
 
 import vivarium
-from vivarium.core.emitter import get_emitter
 from six.moves import range
 import six
 from six.moves import zip
@@ -157,7 +156,7 @@ class Simulation(vivarium.actor.inner.Simulation):
 		self._isDead = False
 		self._finalized = False
 		self.emitter = None
-		# TODO: self.emitter = get_emitter(self._emitter_config)['object']  # get the emitter object
+		# TODO: self.emitter = vivarium.core.emitter.get_emitter(self._emitter_config)['object']
 
 		for state_name, internal_state in six.viewitems(self.internal_states):
 			# initialize random streams

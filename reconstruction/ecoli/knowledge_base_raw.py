@@ -7,14 +7,15 @@ directly from CSV flat files.
 """
 from __future__ import absolute_import, division, print_function
 
+import io
 import os
-import csv
 import json
 
 from reconstruction.spreadsheets import read_tsv
+from wholecell.io import tsv
 from wholecell.utils import units  # used by eval()
 
-CSV_DIALECT = csv.excel_tab
+
 FLAT_DIR = os.path.join(os.path.dirname(__file__), "flat")
 LIST_OF_DICT_FILENAMES = (
 	"biomass.tsv",
@@ -130,8 +131,8 @@ class KnowledgeBaseEcoli(object):
 		attrName = file_path.split(os.path.sep)[-1].split(".")[0]
 		paramDict = {}
 
-		with open(file_path, "rU") as csvfile:
-			reader = csv.DictReader(csvfile, dialect = CSV_DIALECT)
+		with io.open(file_path, "rb") as csvfile:
+			reader = tsv.dict_reader(csvfile)
 
 			for row in reader:
 				value = json.loads(row['value'])

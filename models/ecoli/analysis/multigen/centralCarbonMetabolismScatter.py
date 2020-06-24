@@ -45,7 +45,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		toyaFluxesDict = dict(zip(toyaReactions, toyaFluxes))
 		toyaStdevDict = dict(zip(toyaReactions, toyaStdev))
 
-		sim_data = cPickle.load(open(simDataFile))
+		sim_data = cPickle.load(open(simDataFile, 'rb'))
 		cellDensity = sim_data.constants.cellDensity
 
 		modelFluxes = {}

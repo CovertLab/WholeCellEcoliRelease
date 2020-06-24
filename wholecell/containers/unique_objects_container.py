@@ -258,7 +258,7 @@ class UniqueObjectsContainer(object):
 
 
 	def __ne__(self, other):
-		# assertNotEquals() calls `!=`.
+		# Needed for assertNotEqual().
 		return not (self == other)
 
 
