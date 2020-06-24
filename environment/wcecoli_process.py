@@ -15,12 +15,6 @@ import wholecell.utils.filepath as fp
 from models.ecoli.sim.variants import apply_variant
 
 
-DEFAULT_EMITTER = {
-	'type': 'database',
-	'host': 'localhost:27017',
-	'database': 'simulations'}
-
-
 def initialize_ecoli(config):
 	'''
 	Args:
@@ -91,7 +85,6 @@ def ecoli_boot_config(agent_config):
 	volume = agent_config.get('volume', 1.0)
 	cell_id = agent_config.get('cell_id')
 	tagged_molecules = agent_config.get('tagged_molecules', ['CDPDIGLYSYN-MONOMER[i]']) # default tag cdsA protein
-	emitter_config = agent_config.get('emitter_config', DEFAULT_EMITTER)
 	to_report = agent_config.get(
 		'to_report',
 		{
@@ -111,10 +104,6 @@ def ecoli_boot_config(agent_config):
 	# TODO -- change analysis scripts to allow the cell_id to be used. analysis scripts require starting with 0
 	cohort_id = '%06d' % 0
 	generation_id = 'generation_%06d' % generation
-
-	# add experiment_id and simulation_id to emitter config (as in lattice_compartment)
-	emitter_config['experiment_id'] = outer_id
-	emitter_config['simulation_id'] = cell_id
 
 	# make options for boot config
 	sim_out_path = fp.makedirs(working_dir, 'out')
@@ -146,7 +135,6 @@ def ecoli_boot_config(agent_config):
 		"translationSupply":      True,
 		"tagged_molecules":       tagged_molecules,
 		"to_report":              to_report,
-		"emitter_config":         emitter_config,
 		"cell_id":                cell_id,
 	}
 
