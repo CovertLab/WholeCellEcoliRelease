@@ -167,7 +167,7 @@ class Protein(object):
 		wisniewski2014Data = np.zeros(
 			nEntries,
 			dtype = [
-				('monomerId', 'a50'),
+				('monomerId', 'U50'),
 				('avgCounts', 'f8'),
 				]
 			)
@@ -190,7 +190,7 @@ class Protein(object):
 		schmidt2015Data = np.zeros(
 			nEntries,
 			dtype = [
-				('monomerId', 'a50'),
+				('monomerId', 'U50'),
 				('glucoseCounts', 'f8')
 			])
 

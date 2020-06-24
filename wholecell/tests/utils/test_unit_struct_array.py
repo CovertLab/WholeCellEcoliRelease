@@ -19,7 +19,7 @@ import unittest
 class Test_unit_struct_array(unittest.TestCase):
 
 	def setUp(self):
-		self.struct_array = np.zeros(3, dtype = [('id','a10'),('mass',np.float64)])
+		self.struct_array = np.zeros(3, dtype = [('id','U10'),('mass',np.float64)])
 		self.units = {'id' : None, 'mass' : g}
 		self.us_array = UnitStructArray(self.struct_array, self.units)
 
@@ -112,17 +112,9 @@ class Test_unit_struct_array(unittest.TestCase):
 		names = ['mo', 'jo', 'risin']
 		self.us_array['id'] = names
 
-		assert (self.us_array['id'] == np.array(names, dtype='a10')).all()
+		assert (self.us_array['id'] == np.array(names, dtype='U10')).all()
 
-		if six.PY2:
-			assert (self.us_array['id'] == np.array(names)).all()
-		else:
-			# CAUTION: In Python 3, numpy fields of type 'a' (or 'S') return a
-			# bytes string which never equals a str string.
-			# FURTHERMORE: This comparison returns a bool rather than an
-			# ndarray of bool (because the element types differ?), so it has no
-			# .all() method.
-			assert self.us_array['id'] != np.array(names)
+		assert (self.us_array['id'] == np.array(names)).all()
 
 		with six.assertRaisesRegex(self,
 			Exception,

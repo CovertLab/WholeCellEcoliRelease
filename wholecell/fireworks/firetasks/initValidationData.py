@@ -19,12 +19,12 @@ class InitValidationDataTask(FiretaskBase):
 	def run_task(self, fw_spec):
 		print("{}: Initializing Validation Data".format(time.ctime()))
 
-		raw_validation_data = cPickle.load(open(self["validation_data_input"], "rb"))
-		knowledge_base_raw = cPickle.load(open(self["knowledge_base_raw"], "rb"))
+		with open(self["validation_data_input"], "rb") as data:
+			raw_validation_data = cPickle.load(data)
+		with open(self["knowledge_base_raw"], "rb") as raw:
+			knowledge_base_raw = cPickle.load(raw)
 		validation_data = ValidationDataEcoli()
 		validation_data.initialize(raw_validation_data, knowledge_base_raw)
-		cPickle.dump(
-			validation_data,
-			open(self["output_data"], "wb"),
-			protocol = cPickle.HIGHEST_PROTOCOL
-			)
+
+		with open(self["output_data"], "wb") as fh:
+			cPickle.dump(validation_data, fh, protocol=cPickle.HIGHEST_PROTOCOL)

@@ -20,8 +20,5 @@ class InitRawValidationDataTask(FiretaskBase):
 
 		print("%s: Saving validation_data_raw" % (time.ctime()))
 
-		cPickle.dump(
-			validation_data_raw,
-			open(self["output"], "wb"),
-			protocol = cPickle.HIGHEST_PROTOCOL
-			)
+		with open(self["output"], "wb") as fh:
+			cPickle.dump(validation_data_raw, fh, protocol=cPickle.HIGHEST_PROTOCOL)

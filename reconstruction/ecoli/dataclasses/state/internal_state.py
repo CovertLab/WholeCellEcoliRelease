@@ -346,7 +346,7 @@ class InternalState(object):
 
 	def _buildCompartments(self, raw_data, sim_data):
 		compartmentData = np.empty(len(raw_data.compartments),
-			dtype = [('id','a20'),('compartmentAbbreviation', 'a1')])
+			dtype = [('id','U20'),('compartmentAbbreviation', 'U1')])
 
 		compartmentData['id'] = [x['id'] for x in raw_data.compartments]
 		compartmentData['compartmentAbbreviation'] = [x['abbrev'] for x in raw_data.compartments]

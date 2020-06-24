@@ -124,13 +124,13 @@ class Translation(object):
 		monomerData = np.zeros(
 			size,
 			dtype = [
-				('id', 'a50'),
-				('rnaId', 'a50'),
+				('id', 'U50'),
+				('rnaId', 'U50'),
 				('degRate', 'f8'),
 				('length', 'i8'),
 				('aaCounts', '{}i8'.format(nAAs)),
 				('mw', 'f8'),
-				('sequence', 'a{}'.format(maxSequenceLength)),
+				('sequence', 'U{}'.format(maxSequenceLength)),
 				]
 			)
 

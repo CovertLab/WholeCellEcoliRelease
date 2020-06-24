@@ -317,7 +317,7 @@ class Test_BulkObjectsContainer(unittest.TestCase):
 
 	def test_cannot_pickle(self):
 		"""Try to pickle a container whose dtype has fields or a subarray."""
-		container = BulkObjectsContainer(ELEMENTS, dtype=[('a', 'f4'), ('b', 'i4')])
+		container = BulkObjectsContainer(ELEMENTS, dtype=[('U', 'f4'), ('b', 'i4')])
 		with self.assertRaises(ValueError):
 			cPickle.dumps(container)
 

@@ -360,7 +360,7 @@ class TwoComponentSystem(object):
 		constantMolecules = ["ATP[c]", "ADP[c]", "PI[c]", "WATER[c]", "PROTON[c]"]
 		for molecule in constantMolecules:
 			moleculeIdx = np.where(self.moleculeNames == molecule)[0][0]
-			dy[moleculeIdx] = sp.symbol.S.Zero
+			dy[moleculeIdx] = sp.S.Zero
 
 		dy = sp.Matrix(dy)
 		J = dy.jacobian(y)
