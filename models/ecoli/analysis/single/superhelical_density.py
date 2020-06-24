@@ -7,7 +7,7 @@ Plots heatmap of superhelical densities across the chromosome over time
 
 from __future__ import absolute_import, division, print_function
 
-import cPickle
+from six.moves import cPickle
 import os
 
 from matplotlib import pyplot as plt
@@ -17,7 +17,6 @@ import numpy as np
 from models.ecoli.analysis import singleAnalysisPlot
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.io.tablereader import TableReader
-from wholecell.utils import filepath
 
 # For the full heatmap plot, superhelical densities are downsampled by
 # averaging across a fixed number of base pairs, to bring down the size of the
@@ -55,15 +54,10 @@ def add_colorbar_subplot(ax, fig, heatmap):
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception('simOutDir does not currently exist as a directory')
-
-		filepath.makedirs(plotOutDir)
-
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
 
-		if 'superhelical_density' not in metadata or not metadata['superhelical_density']:
+		if not metadata.get('superhelical_density'):
 			print('Sim option to calculate superhelical densities was not set.')
 			return
 

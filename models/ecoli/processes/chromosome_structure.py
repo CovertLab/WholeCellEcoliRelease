@@ -291,7 +291,7 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 	
 			# Delete all existing chromosomal segments
 			self.chromosomal_segments.delByIndexes(
-				np.arange(self.chromosomal_segments.total_counts()))
+				np.arange(self.chromosomal_segments.total_counts()[0]))
 	
 			# Add new chromosomal segments
 			n_segments = len(all_new_linking_numbers)
