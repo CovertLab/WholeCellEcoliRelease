@@ -63,6 +63,10 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
 
+		if 'superhelical_density' not in metadata or not metadata['superhelical_density']:
+			print('Sim option to calculate superhelical densities was not set.')
+			return
+
 		# Load parameters
 		replichore_lengths = sim_data.process.replication.replichore_lengths
 		min_coordinates = -replichore_lengths[1]
