@@ -15,15 +15,16 @@ from lattice_experiment import SECRETS_PATH
 OUT_DIR = 'out'
 
 
-def plot(experiment_id):
-	with open (SECRETS_PATH, 'r') as f:
+def plot(args):
+	# Connect to mongoDB Atlas Database
+	with open(SECRETS_PATH, 'r') as f:
 		secrets = json.load(f)
 	emitter_config = get_atlas_database_emitter_config(
 		**secrets['database'])
 	uri = emitter_config['host']
 	client = MongoClient(uri)
-	query = {'experiment_id': experiment_id}
 
+	# Retrieve experiment data
 	config_collection = client[
 		emitter_config['database']
 	].configuration
@@ -32,14 +33,14 @@ def plot(experiment_id):
 	].history
 
 	environment_config = config_collection.find_one({
-		'experiment_id': experiment_id,
+		'experiment_id': args.experiment_id,
 		'type': 'environment_config',
 	})
 
 	unique_time_objs = history_collection.aggregate([
 		{
 			'$match': {
-				'experiment_id': experiment_id
+				'experiment_id': args.experiment_id
 			}
 		}, {
 			'$group': {
@@ -66,38 +67,75 @@ def plot(experiment_id):
 	}).sort('time')
 	data = list(data_cursor)
 
-	# Plot snapshots
-	agents = {
-		timepoint['time']: timepoint['agents'] for timepoint in data}
-	fields = {
-		timepoint['time']: timepoint['fields'] for timepoint in data}
-	snapshots_data = {
-		'agents': agents,
-		'fields': fields,
-		'config': environment_config,
-	}
-	out_dir = os.path.join(OUT_DIR, experiment_id)
-	os.makedirs(out_dir)
-	plot_config = {
-		'out_dir': out_dir,
-		'filename': 'snapshot',
-	}
-	plot_snapshots(snapshots_data, plot_config)
+	# Create plots
+	out_dir = os.path.join(OUT_DIR, args.experiment_id)
+	if os.path.exists(out_dir):
+		if not args.force:
+			raise IOError('Directory {} already exists'.format(out_dir))
+	else:
+		os.makedirs(out_dir)
 
-	# Plot Emitted Values
-	plot_settings = {
-		'agents_key': 'agents',
-	}
+	if args.snapshots:
+		agents = {
+			timepoint['time']: timepoint['agents'] for timepoint in data
+			if timepoint['time'] != 0
+		}
+		fields = {
+			timepoint['time']: timepoint['fields'] for timepoint in data
+			if timepoint['time'] != 0
+		}
+		snapshots_data = {
+			'agents': agents,
+			'fields': fields,
+			'config': environment_config,
+		}
+		plot_config = {
+			'out_dir': out_dir,
+			'filename': 'snapshot',
+		}
+		plot_snapshots(snapshots_data, plot_config)
+
+	if args.timeseries:
+		plot_settings = {
+			'agents_key': 'agents',
+			'title_size': 10,
+		}
+		dict_data = {
+			timepoint['time']: timepoint for timepoint in data
+			if timepoint['time'] != 0
+		}
+		plot_agents_multigen(dict_data, plot_settings, out_dir)
 
 
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument(
-		"experiment_id",
-		help="Experiment ID as recorded in the database"
+		'experiment_id',
+		help='Experiment ID as recorded in the database',
+	)
+	parser.add_argument(
+		'--snapshots', '-s',
+		action='store_true',
+		default=False,
+		help='Plot snapshots',
+	)
+	parser.add_argument(
+		'--timeseries', '-t',
+		action='store_true',
+		default=False,
+		help='Generate line plot for each variable over time',
+	)
+	parser.add_argument(
+		'--force', '-f',
+		action='store_true',
+		default=False,
+		help=(
+			'Write plots even if output directory already exists. This '
+			+ 'could overwrite your existing plots'
+		),
 	)
 	args = parser.parse_args()
-	plot(args.experiment_id)
+	plot(args)
 
 
 if __name__ == '__main__':
