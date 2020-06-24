@@ -5,6 +5,7 @@ import copy
 from vivarium.core.experiment import Compartment
 from wcecoli_process import wcEcoliAgent
 from wcecoli_meta_division import WcEcoliMetaDivision
+from wcecoli_derive_globals import WcEcoliDeriveGlobals
 
 
 class WcEcoliCell(Compartment):
@@ -26,9 +27,11 @@ class WcEcoliCell(Compartment):
 			'agent_id': config['agent_id'],
 			'compartment': self,
 		})
+		derive_globals = WcEcoliDeriveGlobals()
 		return {
 			'wcecoli': wcecoli_process,
 			'meta_division': meta_division,
+			'derive_globals': derive_globals
 		}
 
 	def generate_topology(self, config=None):
@@ -53,5 +56,8 @@ class WcEcoliCell(Compartment):
 			'meta_division': {
 				'global': boundary_path,
 				'cells': self.config['agents_path'],
+			},
+			'derive_globals': {
+				'global': boundary_path,
 			},
 		}
