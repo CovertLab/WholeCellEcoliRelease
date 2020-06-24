@@ -383,10 +383,11 @@ class FluxBalanceAnalysisModel(object):
 				IDs as keys and concentrations as values
 		"""
 
-		if doubling_time not in self._biomass_concentrations:
-			self._biomass_concentrations[doubling_time] = self._getBiomassAsConcentrations(doubling_time)
+		minutes = doubling_time.asNumber(units.min)  # hashable
+		if minutes not in self._biomass_concentrations:
+			self._biomass_concentrations[minutes] = self._getBiomassAsConcentrations(doubling_time)
 
-		return self._biomass_concentrations[doubling_time]
+		return self._biomass_concentrations[minutes]
 
 	def update_external_molecule_levels(self, objective,
 			metabolite_concentrations, external_molecule_levels):
