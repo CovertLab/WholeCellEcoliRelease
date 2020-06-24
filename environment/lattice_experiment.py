@@ -1,5 +1,8 @@
 from __future__ import absolute_import, division, print_function
 
+import json
+from urllib import quote_plus
+
 from vivarium.core.composition import (
 	make_agents,
 	make_experiment_from_compartment_dicts,
@@ -20,11 +23,53 @@ N_WCECOLI_AGENTS = 1  # Works at 50
 BOUNDS = (50, 50)
 N_BINS = (20, 20)
 OUT_DIR = 'out/agent'
-SAVE_OUTPUT = True
-SIMULATION_TIME = 60 * 60
+SAVE_OUTPUT = False
+SIMULATION_TIME = 20
+DEFAULT_EMITTER_CONFIG = {
+	'type': 'database',
+	'host': 'localhost:27017',
+	'database': 'simulations',
+}
+SECRETS_PATH = 'environment/secrets.json'
+ENVIRONMENT_CONFIG_KEYS = ['bounds', 'size', 'agents']
+
+
+def get_atlas_database_emitter_config(
+	username, password, cluster_subdomain, database
+):
+	username = quote_plus(username)
+	password = quote_plus(password)
+	database = quote_plus(database)
+
+	uri = (
+		"mongodb+srv://{}:{}@{}.mongodb.net/"
+		+ "?retryWrites=true&w=majority"
+	).format(username, password, cluster_subdomain)
+	return {
+		'type': 'database',
+		'host': uri,
+		'database': database,
+	}
+
+
+def emit_environment_config(environment_config, emitter):
+	config = {
+        'bounds': environment_config['multibody']['bounds'],
+		'type': 'environment_config',
+	}
+	emitter.emit({
+		'data': config,
+		'table': 'configuration',
+	})
 
 
 def main():
+	with open(SECRETS_PATH, 'r') as f:
+		secrets = json.load(f)
+	emitter_config = get_atlas_database_emitter_config(
+		**secrets['database'])
+	# To use a timeseries emitter, uncomment the line below
+	# emitter_config = {'type': 'timeseries'}
 	agent = wcEcoliAgent({})
 	external_states = agent.ecoli_simulation.external_states
 	# Assert agent has media_id MEDIA_ID
@@ -62,10 +107,11 @@ def main():
 	environment = Lattice(environment_config)
 	environment_dict = environment.generate()
 
-	emitter_dict = {'type': 'timeseries'}
 	initial_state = {}
 	experiment = make_experiment_from_compartment_dicts(
-		environment_dict, agents_dict, emitter_dict, initial_state)
+		environment_dict, agents_dict, emitter_config, initial_state)
+	print('Experiment ID:', experiment.experiment_id)
+	emit_environment_config(environment_config, experiment.emitter)
 	settings = {
 		'timestep': 1.0,
 		'total_time': SIMULATION_TIME,
