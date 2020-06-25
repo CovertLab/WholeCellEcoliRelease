@@ -200,7 +200,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 			"TU_index", "coordinates", "domain_index", "bound_TF")
 
 		# Construct matrix that maps promoters to transcription units
-		n_promoters = int(self.promoters.total_counts())
+		n_promoters = int(self.promoters.total_counts())  # a shape must contain ints, not arrays
 		TU_to_promoter = scipy.sparse.csr_matrix(
 			(np.ones(n_promoters), (TU_index, np.arange(n_promoters))),
 			shape = (self.n_TUs, n_promoters))
