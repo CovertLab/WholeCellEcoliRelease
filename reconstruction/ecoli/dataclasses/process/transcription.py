@@ -254,12 +254,16 @@ class Transcription(object):
 		genome_length = len(raw_data.genome_sequence)
 
 		def get_relative_coordinates(coordinates):
-			relative_coordinates = ((coordinates - terc_coordinate)
-				% genome_length + terc_coordinate - oric_coordinate
-				)
-
-			if relative_coordinates < 0:
-				relative_coordinates += 1
+			"""
+			Returns the genomic coordinates of a given gene coordinate relative
+			to the origin of replication.
+			"""
+			if coordinates < terc_coordinate:
+				relative_coordinates = genome_length - oric_coordinate + coordinates
+			elif coordinates < oric_coordinate:
+				relative_coordinates = coordinates - oric_coordinate + 1
+			else:
+				relative_coordinates = coordinates - oric_coordinate
 
 			return relative_coordinates
 

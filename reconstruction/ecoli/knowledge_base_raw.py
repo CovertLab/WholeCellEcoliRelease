@@ -22,6 +22,7 @@ LIST_OF_DICT_FILENAMES = (
 	"compartments.tsv",
 	"complexationReactions.tsv",
 	"disabledKineticReactions.tsv",
+	"dna_supercoiling.tsv",
 	"dryMassComposition.tsv",
 	"endoRnases.tsv",
 	"equilibriumReactions.tsv",

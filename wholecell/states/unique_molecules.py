@@ -97,6 +97,7 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		self.division_mode['active_ribosome'] = sim_data.moleculeGroups.unique_molecules_active_ribosome_division
 		self.division_mode['RNA'] = sim_data.moleculeGroups.unique_molecules_RNA_division
 		self.division_mode['domain_index'] = sim_data.moleculeGroups.unique_molecules_domain_index_division
+		self.division_mode['chromosomal_segment'] = sim_data.moleculeGroups.unique_molecules_chromosomal_segment_division
 
 
 	def partition(self, processes):

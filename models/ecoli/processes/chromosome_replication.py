@@ -304,7 +304,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Determine if any forks have reached the end of their sequences. If
 		# so, delete the replisomes and domains that were terminated.
 		terminal_lengths = self.replichore_lengths[
-			np.tile(np.arange(2), n_active_replisomes // 2)]
+			np.logical_not(right_replichore).astype(np.int64)]
 		terminated_replisomes = (np.abs(updated_coordinates) == terminal_lengths)
 
 		# If any forks were terminated,
@@ -317,9 +317,8 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 				"domain_index", "child_domains")
 			domain_index_full_chroms = self.full_chromosomes.attr("domain_index")
 
-			# Initialize array of replisomes and domains that should be deleted
+			# Initialize array of replisomes that should be deleted
 			replisomes_to_delete = np.zeros_like(domain_index_replisome, dtype=np.bool)
-			domains_to_delete = np.zeros_like(domain_index_domains, dtype=np.bool)
 
 			# Count number of new full chromosomes that should be created
 			n_new_chromosomes = 0
@@ -342,15 +341,12 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 						replisomes_to_delete,
 						terminated_domain_matching_replisomes)
 
-					domain_matching_domains = (
+					domain_mask = (
 						domain_index_domains == terminated_domain_index)
-					domains_to_delete = np.logical_or(
-						domains_to_delete,
-						domain_matching_domains)
 
 					# Get child domains of deleted domain
 					child_domains_this_domain = child_domains[
-						np.where(domain_matching_domains)[0][0], :]
+						np.where(domain_mask)[0][0], :]
 
 					# Modify domain index of one existing full chromosome to
 					# index of first child domain

@@ -48,7 +48,8 @@ def calcInitialConditions(sim, sim_data):
 	# Set up states
 	initializeBulkMolecules(bulkMolCntr, sim_data, media_id,
 		randomState, massCoeff, sim._ppgpp_regulation)
-	initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
+	initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data,
+		randomState, sim._superhelical_density)
 
 	# Must be called after unique and bulk molecules are initialized to get
 	# concentrations for ribosomes, tRNA, synthetases etc from cell volume
@@ -75,7 +76,7 @@ def initializeBulkMolecules(bulkMolCntr, sim_data, current_media_id, randomState
 	# Form complexes
 	initializeComplexation(bulkMolCntr, sim_data, randomState)
 
-def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
+def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, randomState, superhelical_density):
 	# Initialize counts of full chromosomes
 	initializeFullChromosome(bulkMolCntr, uniqueMolCntr, sim_data)
 
@@ -87,6 +88,10 @@ def initializeUniqueMoleculesFromBulk(bulkMolCntr, uniqueMolCntr, sim_data, rand
 
 	# Initialize active RNAPs and unique molecule representations of RNAs
 	initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
+
+	# Initialize linking numbers of chromosomal segments
+	if superhelical_density:
+		initialize_chromosomal_segments(uniqueMolCntr, sim_data)
 
 	# Initialize activate ribosomes
 	initialize_translation(bulkMolCntr, uniqueMolCntr, sim_data, randomState)
@@ -871,6 +876,162 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 
 	# Reset counts of bulk mRNAs to zero
 	mRNA_view.countsIs(0)
+
+
+def initialize_chromosomal_segments(uniqueMolCntr, sim_data):
+	"""
+	Initialize unique molecule representations of chromosomal segments. All
+	chromosomal segments are assumed to be at their relaxed states upon
+	initialization.
+	"""
+	# Load parameters
+	relaxed_DNA_base_pairs_per_turn = sim_data.process.chromosome_structure.relaxed_DNA_base_pairs_per_turn
+	terC_index = sim_data.process.chromosome_structure.terC_dummy_molecule_index
+	replichore_lengths = sim_data.process.replication.replichore_lengths
+	min_coordinates = -replichore_lengths[1]
+	max_coordinates = replichore_lengths[0]
+
+	# Get attributes of replisomes, active RNAPs, chromosome domains, full
+	# chromosomes, and oriCs
+	replisomes = uniqueMolCntr.objectsInCollection('active_replisome')
+	if len(replisomes) > 0:
+		replisome_coordinates, replisome_domain_indexes, replisome_unique_indexes = replisomes.attrs(
+			'coordinates', 'domain_index', 'unique_index')
+	else:
+		replisome_coordinates = np.array([])
+		replisome_domain_indexes = np.array([])
+		replisome_unique_indexes = np.array([])
+
+	active_RNAPs = uniqueMolCntr.objectsInCollection('active_RNAP')
+	active_RNAP_coordinates, active_RNAP_domain_indexes, active_RNAP_unique_indexes = active_RNAPs.attrs(
+		'coordinates', 'domain_index', 'unique_index')
+
+	chromosome_domains = uniqueMolCntr.objectsInCollection('chromosome_domain')
+	chromosome_domain_domain_indexes, child_domains = chromosome_domains.attrs(
+		'domain_index', 'child_domains')
+
+	full_chromosomes = uniqueMolCntr.objectsInCollection('full_chromosome')
+	full_chromosome_domain_indexes = full_chromosomes.attr('domain_index')
+
+	oriCs = uniqueMolCntr.objectsInCollection('oriC')
+	origin_domain_indexes = oriCs.attr('domain_index')
+
+	# Initialize chromosomal segment attributes
+	all_boundary_molecule_indexes = np.empty((0, 2), dtype=np.int64)
+	all_boundary_coordinates = np.empty((0, 2), dtype=np.int64)
+	all_segment_domain_indexes = np.array([], dtype=np.int32)
+	all_linking_numbers = np.array([], dtype=np.float64)
+
+
+	def get_chromosomal_segment_attributes(coordinates, unique_indexes,
+			spans_oriC, spans_terC):
+		"""
+		Returns the attributes of all chromosomal segments from a continuous
+		stretch of DNA, given the coordinates and unique indexes of all
+		boundary molecules.
+		"""
+		coordinates_argsort = np.argsort(coordinates)
+		coordinates_sorted = coordinates[coordinates_argsort]
+		unique_indexes_sorted = unique_indexes[coordinates_argsort]
+
+		# Add dummy molecule at terC if domain spans terC
+		if spans_terC:
+			coordinates_sorted = np.insert(
+				coordinates_sorted, [0, len(coordinates_sorted)],
+				[min_coordinates, max_coordinates])
+			unique_indexes_sorted = np.insert(
+				unique_indexes_sorted, [0, len(unique_indexes_sorted)],
+				terC_index)
+
+		boundary_molecule_indexes = np.hstack((
+			unique_indexes_sorted[:-1][:, np.newaxis],
+			unique_indexes_sorted[1:][:, np.newaxis]))
+		boundary_coordinates = np.hstack((
+			coordinates_sorted[:-1][:, np.newaxis],
+			coordinates_sorted[1:][:, np.newaxis]))
+
+		# Remove segment that spans oriC if the domain does not span oriC
+		if not spans_oriC:
+			oriC_segment_index = np.where(
+				np.sign(boundary_coordinates).sum(axis=1) == 0)[0]
+			assert len(oriC_segment_index) == 1
+
+			boundary_molecule_indexes = np.delete(boundary_molecule_indexes,
+				oriC_segment_index, 0)
+			boundary_coordinates = np.delete(boundary_coordinates,
+				oriC_segment_index, 0)
+
+		# Assumes all segments are at their relaxed state at initialization
+		linking_numbers = (
+			boundary_coordinates[:, 1] - boundary_coordinates[:, 0]
+			) / relaxed_DNA_base_pairs_per_turn
+
+		return boundary_molecule_indexes, boundary_coordinates, linking_numbers
+
+
+	# Loop through each domain index
+	for domain_index in chromosome_domain_domain_indexes:
+		domain_spans_oriC = (domain_index in origin_domain_indexes)
+		domain_spans_terC = (domain_index in full_chromosome_domain_indexes)
+
+		# Get coordinates and indexes of all RNAPs on this domain
+		RNAP_domain_mask = (active_RNAP_domain_indexes == domain_index)
+		molecule_coordinates_this_domain = active_RNAP_coordinates[RNAP_domain_mask]
+		molecule_indexes_this_domain = active_RNAP_unique_indexes[RNAP_domain_mask]
+
+		# Append coordinates and indexes of replisomes on this domain, if any
+		if not domain_spans_oriC:
+			replisome_domain_mask = (replisome_domain_indexes == domain_index)
+			molecule_coordinates_this_domain = np.concatenate((
+				molecule_coordinates_this_domain,
+				replisome_coordinates[replisome_domain_mask]))
+			molecule_indexes_this_domain = np.concatenate((
+				molecule_indexes_this_domain,
+				replisome_unique_indexes[replisome_domain_mask]
+				))
+
+		# Append coordinates and indexes of parent domain replisomes, if any
+		if not domain_spans_terC:
+			parent_domain_index = chromosome_domain_domain_indexes[
+				np.where(child_domains == domain_index)[0][0]]
+			replisome_parent_domain_mask = (replisome_domain_indexes == parent_domain_index)
+			molecule_coordinates_this_domain = np.concatenate((
+				molecule_coordinates_this_domain,
+				replisome_coordinates[replisome_parent_domain_mask]))
+			molecule_indexes_this_domain = np.concatenate((
+				molecule_indexes_this_domain,
+				replisome_unique_indexes[replisome_parent_domain_mask]
+				))
+
+		# Get attributes of chromosomal segments on this domain
+		boundary_molecule_indexes_this_domain, boundary_coordinates_this_domain, linking_numbers_this_domain = get_chromosomal_segment_attributes(
+			molecule_coordinates_this_domain, molecule_indexes_this_domain,
+			domain_spans_oriC, domain_spans_terC)
+
+		# Append to existing array of attributes
+		all_boundary_molecule_indexes = np.vstack([
+			all_boundary_molecule_indexes, boundary_molecule_indexes_this_domain])
+		all_boundary_coordinates = np.vstack((
+			all_boundary_coordinates, boundary_coordinates_this_domain))
+		all_segment_domain_indexes = np.concatenate((
+			all_segment_domain_indexes,
+			np.full(len(linking_numbers_this_domain), domain_index,
+				dtype=np.int32)))
+		all_linking_numbers = np.concatenate((
+			all_linking_numbers, linking_numbers_this_domain))
+
+	# Confirm total counts of all segments
+	n_segments = len(all_linking_numbers)
+	assert n_segments == len(active_RNAPs) + 1.5*len(replisomes) + 1
+
+	# Add chromosomal segments
+	uniqueMolCntr.objectsNew(
+		'chromosomal_segment', n_segments,
+		boundary_molecule_indexes=all_boundary_molecule_indexes,
+		boundary_coordinates=all_boundary_coordinates,
+		domain_index=all_segment_domain_indexes,
+		linking_number=all_linking_numbers,
+		)
 
 
 def initialize_translation(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
