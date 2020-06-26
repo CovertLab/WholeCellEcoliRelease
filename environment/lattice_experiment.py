@@ -33,18 +33,7 @@ DEFAULT_SIMULATION_TIME = 60 * 60 * 1.5  # 1.5 hr
 TAGGED_MOLECULES_PATH = 'environment/tagged_molecules.csv'
 
 
-def simulate(args):
-	if args.atlas:
-		with open(SECRETS_PATH, 'r') as f:
-			secrets = json.load(f)
-		emitter_config = get_atlas_database_emitter_config(
-			**secrets['database'])
-	else:
-		emitter_config = {
-			'type': 'database',
-			'host': 'localhost:{}'.format(args.port),
-			'database': args.database_name,
-		}
+def simulate(emitter_config, simulation_time):
 	agent = wcEcoliAgent({})
 	external_states = agent.ecoli_simulation.external_states
 	# TODO: Assert agent has media_id MEDIA_ID
@@ -101,10 +90,11 @@ def simulate(args):
 	emit_environment_config(environment_config, experiment.emitter)
 	settings = {
 		'timestep': 1.0,
-		'total_time': args.simulation_time,
+		'total_time': simulation_time,
 		'return_raw_data': True,
 	}
 	simulate_experiment(experiment, settings)
+	return experiment.emitter
 
 
 def main():
@@ -140,7 +130,20 @@ def main():
 		help='Number of seconds to simulate.',
 	)
 	args = parser.parse_args()
-	simulate(args)
+	if args.atlas:
+		with open(SECRETS_PATH, 'r') as f:
+			secrets = json.load(f)
+		emitter_config = get_atlas_database_emitter_config(
+			**secrets['database'])
+	else:
+		emitter_config = {
+			'type': 'database',
+			'host': '{}:{}'.format(args.host, args.port),
+			'database': args.database_name,
+		}
+	_ = simulate(emitter_config, args.simulation_time)
+
+
 
 
 if __name__ == '__main__':
