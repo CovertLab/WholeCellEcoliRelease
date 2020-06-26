@@ -259,7 +259,7 @@ class wcEcoliAgent(Process):
 		else:
 			schema['bulk_molecules_report'] = {
 				mol: {
-					'_default': None,
+					'_default': 0.0,
 					'_emit': True,
 					'_updater': 'set',
 				}
@@ -279,7 +279,7 @@ class wcEcoliAgent(Process):
 		else:
 			schema['unique_molecules_report'] = {
 				mol: {
-					'_default': None,
+					'_default': 0.0,
 					'_emit': True,
 					'_updater': 'set',
 				}
@@ -298,8 +298,8 @@ class wcEcoliAgent(Process):
 			}
 		else:
 			schema['listeners_report'] = {
-				(listener, attr): {
-					'_default': None,
+				'-'.join((listener, attr)): {
+					'_default': 0.0,
 					'_emit': True,
 					'_updater': 'set',
 				}
@@ -364,5 +364,8 @@ class wcEcoliAgent(Process):
 			'exchange': update['exchange'],
 			'unique_molecules_report': update['unique_molecules_report'],
 			'bulk_molecules_report': update['bulk_molecules_report'],
-			'listeners_report': listeners_report,
+			'listeners_report': {
+				'-'.join(key): value
+				for key, value in listeners_report.items()
+			},
 		}
