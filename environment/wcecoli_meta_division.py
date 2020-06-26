@@ -32,7 +32,7 @@ class WcEcoliMetaDivision(Deriver):
 			'cells': ['*'],
 		}
 
-		super(WcEcoliMetaDivision, self).__init__(ports, parameters)
+		super(WcEcoliMetaDivision, self).__init__(parameters)
 
 	def ports_schema(self):
 		return {

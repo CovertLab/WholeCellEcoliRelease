@@ -207,7 +207,7 @@ class wcEcoliAgent(Process):
 			for port, variables_dict in ports_schema.items()
 		}
 
-		super(wcEcoliAgent, self).__init__(ports, parameters)
+		super(wcEcoliAgent, self).__init__(parameters)
 
 	def ports_schema(self):
 		return self._ports_schema_from_params(
@@ -248,37 +248,64 @@ class wcEcoliAgent(Process):
 		}
 
 		# bulk_molecules_report
-		schema['bulk_molecules_report'] = {
-			mol: {
-				'_default': None,
+		if (
+			parameters['agent_config']['to_report']['bulk_molecules']
+		) == []:
+			schema['bulk_molecules_report'] = {
+				'_default': {},
 				'_emit': True,
 				'_updater': 'set',
 			}
-			for mol
-			in parameters['agent_config']['to_report']['bulk_molecules']
-		}
+		else:
+			schema['bulk_molecules_report'] = {
+				mol: {
+					'_default': None,
+					'_emit': True,
+					'_updater': 'set',
+				}
+				for mol
+				in parameters['agent_config']['to_report']['bulk_molecules']
+			}
 
 		# unique_molecules_report
-		schema['unique_molecules_report'] = {
-			mol: {
-				'_default': None,
+		if (
+			parameters['agent_config']['to_report']['unique_molecules']
+		) == []:
+			schema['unique_molecules_report'] = {
+				'_default': {},
 				'_emit': True,
 				'_updater': 'set',
 			}
-			for mol
-			in parameters['agent_config']['to_report']['unique_molecules']
-		}
+		else:
+			schema['unique_molecules_report'] = {
+				mol: {
+					'_default': None,
+					'_emit': True,
+					'_updater': 'set',
+				}
+				for mol
+				in parameters['agent_config']['to_report']['unique_molecules']
+			}
 
 		# listeners_report
-		schema['listeners_report'] = {
-			(listener, attr): {
-				'_default': None,
+		if (
+			parameters['agent_config']['to_report']['listeners']
+		) == []:
+			schema['listeners_report'] = {
+				'_default': {},
 				'_emit': True,
 				'_updater': 'set',
 			}
-			for listener, attr
-			in parameters['agent_config']['to_report']['listeners']
-		}
+		else:
+			schema['listeners_report'] = {
+				(listener, attr): {
+					'_default': None,
+					'_emit': True,
+					'_updater': 'set',
+				}
+				for listener, attr
+				in parameters['agent_config']['to_report']['listeners']
+			}
 
 		# global
 		schema['global'] = {
