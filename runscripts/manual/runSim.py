@@ -21,6 +21,7 @@ from __future__ import absolute_import, division, print_function
 
 import re
 import os
+import sys
 from typing import Tuple
 
 from wholecell.fireworks.firetasks import SimulationDaughterTask, SimulationTask, VariantSimDataTask
@@ -96,6 +97,7 @@ class RunSimulation(scriptBase.ScriptBase):
 			git_branch=fp.run_cmdline("git symbolic-ref --short HEAD") or '--',
 			description=description,
 			time=timestamp,
+			python=sys.version.splitlines()[0],
 			analysis_type=None,
 			variant=variant_type,
 			total_variants=str(variant_spec[2] + 1 - variant_spec[1]),
