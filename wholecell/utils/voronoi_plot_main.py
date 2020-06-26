@@ -61,7 +61,7 @@ plt.close("all")
 """
 from __future__ import absolute_import, division, print_function
 
-from typing import Iterable, List, Optional, Union
+from typing import cast, Iterable, List, Optional, Union
 
 import numpy as np
 import math as math
@@ -263,7 +263,7 @@ class PolygonClass(object):
             min_dist_list.append(_find_min_dist_to_edge(site, edge))
         distance_border = min(min_dist_list)
         return distance_border
-            
+
 class VoronoiClass(object):
     def __init__(self, polygons, sites, weights, values, canvas_obj):
         '''
@@ -300,7 +300,7 @@ class VoronoiClass(object):
                     self.move_me[i] = False
 
         try:
-            self.site_causing_disp = np.argmax(self.sites_area_ratio)
+            self.site_causing_disp = cast(int, np.argmax(self.sites_area_ratio))
             self.move_me[self.site_causing_disp] = False
 
         except ValueError:
@@ -734,6 +734,7 @@ class VoronoiMaster(object):
         Returns:
             error_all: the error in total area representation.
         '''
+        voronoi_list_old = []
         if ax_shape is not None:
             error_all = []
             nrows, ncols = ax_shape
@@ -1237,7 +1238,7 @@ class VoronoiMaster(object):
             # intersection point of each ray with canvas
             for i in range(3):
                 ray_obj_all[i].find_ray_intersect_with_canvas(canvas_obj)
-            
+
             # 2. determine if each site and each corner is above or below each
             # ray by calculating Ax+By+C >0 or <0 (AB table = above/below table)
             above_below_corners = (np.dot(canvas_obj.xy, coefficient_matrix) 
@@ -1281,8 +1282,8 @@ class VoronoiMaster(object):
 
             # 1. for all the intersection points, we first determine whether
             # each site and each corners are above or below each ray.
-            ab_corners_table = [[] for _ in range(n_ipoints)]
-            ab_sites_table = [None for _ in range(n_ipoints)]  # type: List[Optional[np.ndarray]]
+            ab_corners_table = [np.arange(0) for _ in range(n_ipoints)]
+            ab_sites_table = [np.arange(0) for _ in range(n_ipoints)]
             for i in range(n_ipoints):
                 if ray_obj_all[i]:
                     # 1-1. convert each ray to a_r1*x + b_r1*y + c_r1 = 0
@@ -1303,7 +1304,7 @@ class VoronoiMaster(object):
                     for j in range(3):
                         ray_obj_all[i][j].find_ray_intersect_with_canvas_and_ipoints(
                             canvas_obj, ipoints, simplices_prune)
-                    
+
                     # 1-3. calculate Ax+By+C >0 or <0 (AB table = above/below table)
                     ab_corners_table[i] = (np.dot(canvas_obj.xy, coefficient_matrix) 
                         + np.tile(c_r_matrix, (n_corners, 1)) >= 0)
@@ -1313,7 +1314,7 @@ class VoronoiMaster(object):
             # 2. by referring to the ab_corners_table and ab_sites_table
             # find the coordinates of each polygon.
             polygons_all = [None for _ in range(n_sites)]
-            corner_polygon_all = [[] for _ in range(n_sites)]
+            corner_polygon_all = [np.arange(0) for _ in range(n_sites)]
             indices = np.arange(3)
             for k in range(n_sites):
                 iP_index_required = np.where(
@@ -1413,7 +1414,7 @@ class VoronoiMaster(object):
         x_col = sites[:, 0].reshape((-1, 1))
         y_col = sites[:, 1].reshape((-1, 1))
         det, x_int, y_int = _compute_determinant(x_col, y_col, weights)
-        
+
         while det == 0:
             sites = canvas_obj.random_points_in_canvas(3)
             x_col = sites[:, 0].reshape((-1, 1))

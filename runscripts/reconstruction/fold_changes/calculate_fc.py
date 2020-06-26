@@ -7,7 +7,7 @@ Aggregate data from Javi's repo to compare to foldChanges.tsv included in wcm.
 from __future__ import absolute_import, division, print_function
 
 import argparse
-import csv
+import io
 import os
 from typing import Any, Dict, Iterable, List, Tuple
 
@@ -15,6 +15,7 @@ import numpy as np
 from six.moves import zip
 
 from reconstruction.spreadsheets import tsv_writer
+from wholecell.io import tsv
 
 
 FILE_LOCATION = os.path.dirname(os.path.realpath(__file__))
@@ -29,8 +30,8 @@ def load_file(filename):
 	# type: (str) -> List[List[str]]
 	"""Load a tsv file."""
 
-	with open(filename) as f:
-		reader = csv.reader(f, delimiter='\t')  # type: Iterable
+	with io.open(filename, 'rb') as f:
+		reader = tsv.reader(f)  # type: Iterable
 		return list(reader)
 
 def load_src(attempt_match):

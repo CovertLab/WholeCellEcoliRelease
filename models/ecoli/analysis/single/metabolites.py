@@ -12,23 +12,16 @@ import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import bokeh.io
-from bokeh.plotting import figure, ColumnDataSource
-from bokeh.models import HoverTool
 
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.plotting_tools import COLORS_LARGE
 from wholecell.analysis.analysis_tools import exportFigure
-from wholecell.utils import filepath
 from models.ecoli.analysis import singleAnalysisPlot
-
-
-PLOT_BOKEH = False
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		with open(simDataFile) as f:
+		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
 		aa_ids = sim_data.moleculeGroups.aaIDs
 
@@ -92,31 +85,6 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close("all")
-
-		if not PLOT_BOKEH:
-			return
-
-		filepath.makedirs(plotOutDir, "html_plots")
-		bokeh.io.output_file(os.path.join(plotOutDir, "html_plots", plotOutFileName + ".html"), title = plotOutFileName, autosave = False)
-
-		nTimesteps = time.shape[0]
-		nMolecules = normalizedCounts.shape[1]
-		freq = 100
-		x_a = time[::freq]
-
-		plot = figure(x_axis_label = "Time(s)", y_axis_label = "Metabolite Fold Change", width = 800, height = 800)
-		for m in np.arange(nMolecules):
-			y = normalizedCounts[:, m]
-			y_a = y[::freq]
-			metaboliteName = np.repeat(metaboliteNames[m], x_a.shape)
-			source = ColumnDataSource(data = dict(x = x_a, y = y_a, ID = metaboliteName))
-			circle = plot.circle("x", "y", alpha = 0, source = source)
-			plot.add_tools(HoverTool(tooltips = [("ID", "@ID")], renderers = [circle]))
-			plot.line(time, y, line_color = colors[m % len(colors)])
-
-		bokeh.io.output_file(os.path.join(plotOutDir, "html_plots", plotOutFileName + ".html"), title = plotOutFileName, autosave = False)
-		bokeh.io.save(plot)
-		bokeh.io.curstate().reset()
 
 
 if __name__ == "__main__":

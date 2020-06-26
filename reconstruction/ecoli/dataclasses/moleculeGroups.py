@@ -133,5 +133,6 @@ class MoleculeGroups(object):
 		moleculeGroups['unique_molecules_active_ribosome_division'] = []
 		moleculeGroups['unique_molecules_RNA_division'] = []
 		moleculeGroups['unique_molecules_domain_index_division'] = []
+		moleculeGroups['unique_molecules_chromosomal_segment_division'] = []
 
 		self.__dict__.update(moleculeGroups)

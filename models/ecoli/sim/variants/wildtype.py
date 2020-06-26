@@ -19,4 +19,5 @@ CONTROL_OUTPUT = dict(
 
 
 def wildtype(sim_data, index):
+	_ = index
 	return CONTROL_OUTPUT, sim_data

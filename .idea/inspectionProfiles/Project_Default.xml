@@ -27,7 +27,13 @@
     <inspection_tool class="PyProtectedMemberInspection" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
     <inspection_tool class="PyRedundantParenthesesInspection" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
     <inspection_tool class="PyShadowingBuiltinsInspection" enabled="true" level="WEAK WARNING" enabled_by_default="false">
-      <scope name="NOT pyi files" level="WEAK WARNING" enabled="true" />
+      <scope name="NOT pyi files" level="WEAK WARNING" enabled="true">
+        <option name="ignoredNames">
+          <list>
+            <option value="help" />
+          </list>
+        </option>
+      </scope>
     </inspection_tool>
     <inspection_tool class="PyShadowingNamesInspection" enabled="true" level="WEAK WARNING" enabled_by_default="false">
       <scope name="NOT pyi files" level="WEAK WARNING" enabled="true" />

@@ -39,7 +39,9 @@ METADATA_KEYS = (
 	'variable_elongation_translation',
 	'translation_supply',
 	'trna_charging',
-	'ppgpp_regulation')
+	'ppgpp_regulation',
+	'superhelical_density',
+	)
 
 PARCA_KEYS = (
 	'ribosome_fitting',
@@ -63,6 +65,7 @@ SIM_KEYS = (
 	'translation_supply',
 	'trna_charging',
 	'ppgpp_regulation',
+	'superhelical_density',
 	'raise_on_time_limit')
 
 ANALYSIS_KEYS = (
@@ -429,6 +432,8 @@ class ScriptBase(six.with_metaclass(abc.ABCMeta, object)):
 				 ' This option will override TRANSLATION_SUPPLY in the simulation.')
 		add_bool_option('ppgpp_regulation', 'ppgpp_regulation',
 			help='if true, ppGpp concentration is determined with kinetic equations.')
+		add_bool_option('superhelical_density', 'superhelical_density',
+			help='if true, dynamically calculate superhelical densities of each DNA segment')
 		add_bool_option('raise_on_time_limit', 'raise_on_time_limit',
 			help='if true, the simulation raises an error if the time limit'
 				 ' (--length-sec) is reached before division.')

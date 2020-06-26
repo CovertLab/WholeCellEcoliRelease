@@ -25,7 +25,7 @@ MEAN_RNA_COUNT_THRESHOLD = 3
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		# Get the expected degradation rates from KB
-		sim_data = cPickle.load(open(simDataFile))
+		sim_data = cPickle.load(open(simDataFile, 'rb'))
 		mRNA_ids = sim_data.process.transcription.rnaData['id']
 		isMRna = sim_data.process.transcription.rnaData["isMRna"]
 		expected_degradation_rate_constants = np.array(

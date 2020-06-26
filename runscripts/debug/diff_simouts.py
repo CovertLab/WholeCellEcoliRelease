@@ -64,7 +64,7 @@ def compare_arrays(array1, array2):
 		np.testing.assert_array_equal(array1, array2)
 		return ''
 	except AssertionError as e:
-		return elide(Repr(WHITESPACE.sub(' ', e.message).strip()))
+		return elide(Repr(WHITESPACE.sub(' ', e.args[0]).strip()))
 
 def open_table(simout_dir, subdir):
 	'''Try to open a Table in the given simOut/subdir.

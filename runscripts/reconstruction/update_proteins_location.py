@@ -9,8 +9,6 @@ import json
 from reconstruction.spreadsheets import read_tsv
 
 
-CSV_DIALECT = csv.excel_tab
-
 EXISTING_MONOMER_FILE = os.path.join("reconstruction", "ecoli", "flat", "proteins.tsv")
 NEW_MONOMER_FILE = os.path.join("reconstruction", "ecoli", "flat", "proteins_new.tsv")
 MONOMER_COMPARISON_FILE = os.path.join("reconstruction", "ecoli", "flat", "proteins_location_comparison.tsv")

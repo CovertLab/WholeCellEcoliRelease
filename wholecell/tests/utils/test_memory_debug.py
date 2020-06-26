@@ -18,15 +18,22 @@ to be uncollectable, including objects not necessarily in the cycle but
 reachable only from it. Python doesn't collect such cycles automatically
 because, in general, it isn't possible for Python to guess a safe order in
 which to run the __del__() methods."
+
+Per https://docs.python.org/3/library/gc.html, "Changed in version 3.4:
+Following PEP 442, objects with a __del__() method don't end up in gc.garbage
+anymore."
 """
 
 from __future__ import absolute_import, division, print_function
 
 import gc
+import sys
 import unittest
 
 from wholecell.utils import memory_debug
 from six.moves import range
+
+PEP442 = sys.version_info[:2] >= (3, 4)
 
 
 class MemoryDebugNode(object):
@@ -67,14 +74,18 @@ class Test_memory_debug(unittest.TestCase):
 			print("Test_memory_debug dropping refs."
 				  " This should log __del__() on {}.".format(nodes[:3]))
 			uncollectable = str(nodes[3:])  # don't retain the Nodes
-			nodes = []
+			nodes[:] = []
 
-			print(("Test_memory_debug GC'ing. {} and some of their dicts"
-				   " should log as uncollectable.").format(uncollectable))
-			# Why is Node5's dict collectable?
+			if PEP442:
+				print("Test_memory_debug GC'ing.")
+			else:
+				print(("Test_memory_debug GC'ing. {} and some of their dicts"
+					   " should log as uncollectable.").format(uncollectable))
+				# Why is Node5's dict collectable?
 
 		# gc.garbage holds Node3 .. Node5.
-		self.assertEqual(precount + 3, len(gc.garbage),
+		added_count = 0 if PEP442 else 3
+		assert len(gc.garbage) == precount + added_count, (
 			'Uncollectable: {}'.format(gc.garbage))
 
 

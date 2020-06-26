@@ -41,6 +41,7 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	translationSupply = True,
 	trna_charging = True,
 	ppgpp_regulation = False,
+	superhelical_density = False,
 	timeStepSafetyFraction = 1.3,
 	maxTimeStep = MAX_TIME_STEP,
 	updateTimeStepFreq = 5,

@@ -2,15 +2,12 @@ from __future__ import absolute_import, division, print_function
 
 import os
 
-import numpy as np
-from matplotlib import pyplot as plt
 import bokeh.io
-from bokeh.io import vplot
+import bokeh.io.state
+from bokeh.models import HoverTool, Panel, Tabs
 from bokeh.plotting import figure, ColumnDataSource
-from bokeh.models import (HoverTool, BoxZoomTool, LassoSelectTool, PanTool,
-	WheelZoomTool, ResizeTool, UndoTool, RedoTool)
-from bokeh.models import CustomJS
-from bokeh.models.widgets import Button
+from matplotlib import pyplot as plt
+import numpy as np
 
 from six.moves import cPickle
 import scipy.stats
@@ -21,6 +18,7 @@ from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.utils import filepath
 from six.moves import zip
+
 
 NUMERICAL_ZERO = 1e-12
 
@@ -134,39 +132,53 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 		plt.close("all")
 
-		# Probability bound - hover for ID
-		source1 = ColumnDataSource(data = dict(x = np.log10(expectedProbBound), y = np.log10(simulatedProbBound), ID = targetId, condition = targetCondition))
-		hover1 = HoverTool(tooltips = [("ID", "@ID"), ("condition", "@condition")])
-		tools1 = [hover1, BoxZoomTool(), LassoSelectTool(), PanTool(), WheelZoomTool(), ResizeTool(),	UndoTool(),	RedoTool(), "reset"]
-		s1 = figure(
-			x_axis_label = "log10(Expected probability bound)",
-			y_axis_label = "log10(Simulated probability bound)",
-			width = 800,
-			height = 500,
-			tools = tools1)
-		s1.scatter("x", "y", source = source1)
+		# Tools for all plots
 
-		filepath.makedirs(plotOutDir, "html_plots")
-		bokeh.io.output_file(os.path.join(plotOutDir, "html_plots", plotOutFileName + "__probBound" + ".html"), title = plotOutFileName, autosave = False)
+		# Probability bound - hover for ID
+		source1 = ColumnDataSource(data=dict(
+			x=np.log10(expectedProbBound),
+			y=np.log10(simulatedProbBound),
+			ID=targetId,
+			condition=targetCondition,
+			))
+		hover1 = HoverTool(tooltips=[("ID", "@ID"), ("condition", "@condition")])
+		tools1 = [hover1, 'box_zoom', 'lasso_select', 'pan', 'wheel_zoom', 'undo', 'redo', 'reset']
+		s1 = figure(
+			x_axis_label="log10(Expected probability bound)",
+			y_axis_label="log10(Simulated probability bound)",
+			width=800,
+			height=800,
+			tools=tools1,
+			)
+		s1.scatter("x", "y", source=source1)
+
+		html_dir = filepath.makedirs(plotOutDir, "html_plots")
+		bokeh.io.output_file(os.path.join(html_dir, plotOutFileName + "__probBound" + ".html"), title=plotOutFileName)
 		bokeh.io.save(s1)
 
 		# Synthesis probability - hover for ID
-		source2 = ColumnDataSource(data = dict(x = np.log10(expectedSynthProb), y = np.log10(simulatedSynthProb), ID = targetId, condition = targetCondition))
-		hover2 = HoverTool(tooltips = [("ID", "@ID"), ("condition", "@condition")])
-		tools2 = [hover2, BoxZoomTool(), LassoSelectTool(), PanTool(), WheelZoomTool(), ResizeTool(),	UndoTool(),	RedoTool(), "reset"]
+		source2 = ColumnDataSource(data=dict(
+			x=np.log10(expectedSynthProb),
+			y=np.log10(simulatedSynthProb),
+			ID=targetId,
+			condition=targetCondition,
+			))
+		hover2 = HoverTool(tooltips=[("ID", "@ID"), ("condition", "@condition")])
+		tools2 = [hover2, 'box_zoom', 'lasso_select', 'pan', 'wheel_zoom', 'undo', 'redo', 'reset']
 		s2 = figure(
-			x_axis_label = "log10(Expected synthesis probability)",
-			y_axis_label = "log10(Simulated synthesis probability)",
-			width = 800,
-			height = 500,
-			tools = tools2)
-		s2.scatter("x", "y", source = source2)
+			x_axis_label="log10(Expected synthesis probability)",
+			y_axis_label="log10(Simulated synthesis probability)",
+			width=800,
+			height=800,
+			tools=tools2,
+			)
+		s2.scatter("x", "y", source=source2)
 
-		bokeh.io.output_file(os.path.join(plotOutDir, "html_plots", plotOutFileName + "__synthProb" + ".html"), title = plotOutFileName, autosave = False)
+		bokeh.io.output_file(os.path.join(html_dir, plotOutFileName + "__synthProb" + ".html"), title=plotOutFileName)
 		bokeh.io.save(s2)
 
 		# Synthesis probability - filter targets by TF type
-		bokeh.io.output_file(os.path.join(plotOutDir, "html_plots", plotOutFileName + "__synthProb__interactive" + ".html"), title = plotOutFileName, autosave = False)
+		bokeh.io.output_file(os.path.join(html_dir, plotOutFileName + "__synthProb__interactive" + ".html"), title=plotOutFileName)
 
 		tfTypes = []
 		for i in targetId:
@@ -185,11 +197,11 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 
 		x0 = np.copy(expectedSynthProb)
-		x0[np.where(tfTypes != "0CS")]= np.nan
+		x0[np.where(tfTypes != "0CS")] = np.nan
 		x1 = np.copy(expectedSynthProb)
-		x1[np.where(tfTypes != "1CS")]= np.nan
+		x1[np.where(tfTypes != "1CS")] = np.nan
 		x2 = np.copy(expectedSynthProb)
-		x2[np.where(tfTypes != "2CS")]= np.nan
+		x2[np.where(tfTypes != "2CS")] = np.nan
 		x01 = np.copy(expectedSynthProb)
 		x01[np.where(tfTypes != "0CS_1CS")] = np.nan
 		x02 = np.copy(expectedSynthProb)
@@ -210,44 +222,47 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		y12 = np.copy(simulatedSynthProb)
 		x12[np.where(tfTypes != "1CS_2CS")] = np.nan
 
-		source_all = ColumnDataSource(data = dict(x = np.log10(expectedSynthProb), y = np.log10(simulatedSynthProb), ID = targetId, condition = targetCondition))
-		source_tf = ColumnDataSource(data = dict(x0 = np.log10(x0), y0 = np.log10(y0), x1 = np.log10(x1), y1 = np.log10(y1), x2 = np.log10(x2), y2 = np.log10(y2), x01 = np.log10(x01), y01 = np.log10(y01), x02 = np.log10(x02), y02 = np.log10(y02), x12 = np.log10(x12), y12 = np.log10(y12),x123 = np.log10(expectedSynthProb), y123 = np.log10(simulatedSynthProb),ID = targetId, condition = targetCondition))
-		hover3 = HoverTool(tooltips = [("ID", "@ID"), ("condition", "@condition")])
-		tools3 = [hover3, BoxZoomTool(), LassoSelectTool(), PanTool(), WheelZoomTool(), ResizeTool(),	UndoTool(),	RedoTool(), "reset"]
+		axis_min = np.floor(min(
+			np.log10(expectedSynthProb)[np.isfinite(np.log10(expectedSynthProb))].min(),
+			np.log10(simulatedSynthProb)[np.isfinite(np.log10(simulatedSynthProb))].min()))
+		axis_max = np.ceil(max(
+			np.log10(expectedSynthProb).max(),
+			np.log10(simulatedSynthProb).max()))
+		hover3 = HoverTool(tooltips=[("ID", "@ID"), ("condition", "@condition")])
+		tools3 = [hover3, 'box_zoom', 'lasso_select', 'pan', 'wheel_zoom', 'undo', 'redo', 'reset']
 
-		axis_max = np.ceil(np.log10(expectedSynthProb).max())
-		for i in np.sort(expectedSynthProb):
-			if i > 0:
-				break
-		axis_min = np.floor(np.log10(i))
-		s3 = figure(
-			x_axis_label = "log10(Expected synthesis probability)",
-			y_axis_label = "log10(Simulated synthesis probability)",
-			plot_width=800, plot_height=500,
-			x_range = (axis_min, axis_max),
-			y_range = (axis_min, axis_max),
-			tools = tools3,
-			)
-		s3.scatter("x", "y", source = source_all)
-		callback = CustomJS(args = dict(source_all = source_all, source_tf = source_tf), code =
-			"""
-			var data_all = source_all.get('data');
-			var data_tf = source_tf.get('data');
-			data_all['x'] = data_tf['x' + cb_obj.get("name")];
-			data_all['y'] = data_tf['y' + cb_obj.get("name")];
-			source_all.trigger('change');
-			""")
+		tabs = []
+		data = [
+			(expectedSynthProb, simulatedSynthProb, 'All'),
+			(x0, y0, '0CS'),
+			(x1, y1, '1CS'),
+			(x2, y2, '2CS'),
+			(x01, y01, '0CS and 1CS'),
+			(x02, y02, '0CS and 2CS'),
+			(x12, y12, '1CS and 2CS'),
+			]
+		for x, y, title in data:
+			fig = figure(
+				x_axis_label="log10(Expected synthesis probability)",
+				y_axis_label="log10(Simulated synthesis probability)",
+				plot_width=800,
+				plot_height=800,
+				x_range=(axis_min, axis_max),
+				y_range=(axis_min, axis_max),
+				tools=tools3,
+				)
+			source = ColumnDataSource(data=dict(
+				x=np.log10(x),
+				y=np.log10(y),
+				ID=targetId,
+				condition=targetCondition,
+				))
+			fig.scatter('x', 'y', source=source)
+			tabs.append(Panel(child=fig, title=title))
 
-		toggle0 = Button(label = "0CS", callback = callback, name = "0")
-		toggle1 = Button(label = "1CS", callback = callback, name = "1")
-		toggle2 = Button(label = "2CS", callback = callback, name = "2")
-		toggle3 = Button(label = "0CS and 1CS", callback = callback, name = "01")
-		toggle4 = Button(label = "0CS and 2CS", callback = callback, name = "02")
-		toggle5 = Button(label = "1CS and 2CS", callback = callback, name = "12")
-		toggle6 = Button(label = "All", callback = callback, name = "123")
-		layout = vplot(toggle0, toggle1, toggle2, toggle3, toggle4, toggle5, toggle6, s3)
-		bokeh.io.save(layout)
-		bokeh.io.curstate().reset()
+		tab_plot = Tabs(tabs=tabs)
+		bokeh.io.save(tab_plot)
+		bokeh.io.state.curstate().reset()
 
 
 if __name__ == "__main__":

@@ -131,6 +131,10 @@ class AnalysisBase(FiretaskBase):
 			pos += image.size[1]
 		compiled_image.save(os.path.join(output_dir, 'compiled' + extension))
 
+		for image in images:
+			image.close()
+		compiled_image.close()
+
 	def run_task(self, fw_spec):
 		start_real_sec = monotonic_seconds()
 		print("\n{}: --- Starting {} ---".format(

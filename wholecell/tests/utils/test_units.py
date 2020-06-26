@@ -1,6 +1,8 @@
 from __future__ import absolute_import, division, print_function
 
 import unittest
+import six
+
 import numpy as np
 
 from wholecell.utils import units
@@ -43,6 +45,8 @@ class Test_units(unittest.TestCase):
 
 	def test_div_int(self):
 		"""Test __div__ with ints."""
+		if not six.PY2:
+			return  # PY3 has no __div__
 		x = 1 * units.s
 		y = 100 * units.s
 		quotient = x.__div__(y).asNumber()
@@ -50,6 +54,8 @@ class Test_units(unittest.TestCase):
 
 	def test_div_float(self):
 		"""Test __div__ with float and int."""
+		if not six.PY2:
+			return  # PY3 has no __div__
 		x = 1.0 * units.s
 		y = 100 * units.s
 		quotient = x.__div__(y).asNumber()

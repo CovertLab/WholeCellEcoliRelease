@@ -109,11 +109,20 @@ class Test_unit_struct_array(unittest.TestCase):
 
 
 	def test_setItem_quantity_no_units(self):
-		self.us_array['id'] = ['nick', 'derek', 'john']
+		names = ['mo', 'jo', 'risin']
+		self.us_array['id'] = names
 
-		self.assertTrue(
-			(self.us_array['id'] == np.array(['nick', 'derek', 'john'])).all()
-		)
+		assert (self.us_array['id'] == np.array(names, dtype='a10')).all()
+
+		if six.PY2:
+			assert (self.us_array['id'] == np.array(names)).all()
+		else:
+			# CAUTION: In Python 3, numpy fields of type 'a' (or 'S') return a
+			# bytes string which never equals a str string.
+			# FURTHERMORE: This comparison returns a bool rather than an
+			# ndarray of bool (because the element types differ?), so it has no
+			# .all() method.
+			assert self.us_array['id'] != np.array(names)
 
 		with six.assertRaisesRegex(self,
 			Exception,

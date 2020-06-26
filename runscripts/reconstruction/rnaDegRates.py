@@ -6,7 +6,7 @@
 
 from __future__ import absolute_import, division, print_function
 
-import csv
+import io
 import os
 from typing import Any, Dict, Union
 
@@ -16,21 +16,21 @@ matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
+from wholecell.io import tsv
 
-CSV_DIALECT = csv.excel_tab
 GENE_IDS = os.path.join("validation","ecoli","flat","geneIDs.tsv")
 DEG_RATES = os.path.join("validation","ecoli","flat","moffitt2016_mrna_deg_rates.tsv")
 
 geneDict = {}
-with open(GENE_IDS, "rU") as csvfile:
-	reader = csv.DictReader(csvfile, dialect = CSV_DIALECT)
+with io.open(GENE_IDS, "rb") as csvfile:
+	reader = tsv.dict_reader(csvfile)
 	for row in reader:
 		genes = row["Names"].replace("\"","").replace("(","").replace(")","").split(" ")
 		geneDict[row["FrameID"]] = genes
 
 rateDict = {}
-with open(DEG_RATES, "rU") as csvfile:
-	reader = csv.DictReader(csvfile, dialect = CSV_DIALECT)
+with io.open(DEG_RATES, "rb") as csvfile:
+	reader = tsv.dict_reader(csvfile)
 	for row in reader:
 		if row["Sample"] == "WT -kas replicate 1" and row["Rate"] != "":
 			rateDict[row["Name"]] = float(row["Rate"])

@@ -44,7 +44,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			sim_dirs_grouped_by_gen.append(ap.get_cells(generation = [gen_idx]))
 
 		# Load simDataFile
-		simData = cPickle.load(open(simDataFile))
+		simData = cPickle.load(open(simDataFile, 'rb'))
 
 		# Get IDs for RNA from simData
 		ids_rna = simData.process.transcription.rnaData["id"]

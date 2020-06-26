@@ -10,13 +10,14 @@ Usage with paths to tsv files to merge:
 
 from __future__ import absolute_import, division, print_function
 
-import csv
+import io
 import os
 import sys
 import time
 
 from typing import Dict, List, Tuple
 
+from wholecell.io import tsv
 from wholecell.utils.py3 import String
 
 
@@ -40,8 +41,8 @@ def load_conc(filename):
 	"""
 
 	conc = {}  # type: Dict[str, String]
-	with open(filename) as f:
-		reader = csv.reader(f, delimiter='\t')
+	with io.open(filename, 'rb') as f:
+		reader = tsv.reader(f)
 
 		headers = next(reader)
 		while headers[0].startswith('#'):
@@ -69,8 +70,8 @@ def save_conc(conc):
 	mets = {m for c in conc for m in c[1]}
 	headers = ['"Metabolite"'] + ['"{}"'.format(c[0]) for c in conc]
 
-	with open(OUTPUT_FILE, 'w') as f:
-		writer = csv.writer(f, delimiter='\t', quotechar="'", lineterminator='\n')
+	with io.open(OUTPUT_FILE, 'wb') as f:
+		writer = tsv.writer(f, quotechar="'", lineterminator='\n')
 		writer.writerow(['# Created with {} on {}'.format(' '.join(sys.argv), time.ctime())])
 		writer.writerow(headers)
 		for m in sorted(mets):
@@ -81,5 +82,5 @@ if __name__ == '__main__':
 	if len(sys.argv) < 3:
 		raise ValueError('Expecting two or more files to merge. {} [TSV1 TSV2 ...]'.format(sys.argv[0]))
 
-	conc = [load_conc(f) for f in sys.argv[1:]]
-	save_conc(conc)
+	conc_ = [load_conc(f) for f in sys.argv[1:]]
+	save_conc(conc_)

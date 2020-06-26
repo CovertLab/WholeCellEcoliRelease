@@ -44,6 +44,7 @@ process_time_seconds = getattr(time, "process_time", time.time)  # type: Callabl
 ANY_STRING = (bytes, str, Text)
 
 #: A type alias for Python 2 str or unicode; Python 3 str (not bytes), for use
-#: in type hints. [`isinstance()` doesn't accept Unions so use a tuple there.]
+#: in type hints. [`isinstance()` doesn't accept Unions so use a tuple there
+#: like `ANY_STRING` or `six.string_types`.]
 #: After dropping Python 2, this can become `str`.
 String = Union[str, Text]

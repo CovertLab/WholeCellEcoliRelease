@@ -2,6 +2,8 @@
 
 from __future__ import absolute_import, division, print_function
 
+from typing import cast, List
+
 import numpy as np
 
 
@@ -22,8 +24,8 @@ def get_simulated_validation_counts(
 		The simulated counts of the monomers that appear in the
 		validation data, in the same order as in the validation data.
 	"""
-	sim_ids_lst = simulation_ids.tolist()
-	validation_ids_lst = validation_ids.tolist()
+	sim_ids_lst = cast(List[str], simulation_ids.tolist())
+	validation_ids_lst = cast(List[str], validation_ids.tolist())
 	sim_id_to_index_map = {sim_id: i for i, sim_id in enumerate(sim_ids_lst)}
 	validation_idx = [sim_id_to_index_map[x] for x in validation_ids_lst]
 	avg_counts = monomer_counts.mean(axis=0)

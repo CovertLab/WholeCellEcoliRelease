@@ -12,7 +12,7 @@ Modification includes:
 from __future__ import absolute_import, division, print_function
 
 import argparse
-import csv
+import io
 import multiprocessing as mp
 import os
 
@@ -22,6 +22,7 @@ from scipy.integrate import odeint
 from scipy.integrate import ode
 from six.moves import range, zip
 
+from wholecell.io import tsv
 from wholecell.utils.py3 import monotonic_seconds
 
 
@@ -339,8 +340,8 @@ if __name__ == '__main__':
 		baseline = simulate(args, params, os.path.join(output_dir, args.output))
 
 		# Perform sensitivity for each parameter in params
-		with open(os.path.join(output_dir, '{}.tsv'.format(args.output)), 'w') as f:
-			writer = csv.writer(f, delimiter='\t')
+		with io.open(os.path.join(output_dir, '{}.tsv'.format(args.output)), 'wb') as f:
+			writer = tsv.writer(f)
 			writer.writerow(['Parameter', 'Factor', 'ppGpp', 'Ribosomes', 'Elongation Rate',
 				'Average AA', 'Average tRNA'] + ['AA_{}'.format(i) for i in range(nAA)]
 				+ ['tRNA_{}'.format(i) for i in range(nAA)])

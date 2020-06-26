@@ -13,6 +13,7 @@ import os
 import sys
 from six.moves import range
 if os.name == 'posix' and sys.version_info[0] < 3:
+	# noinspection PyPackageRequirements
 	import subprocess32 as subprocess2
 	subprocess = subprocess2
 else:

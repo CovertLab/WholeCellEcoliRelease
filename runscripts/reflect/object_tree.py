@@ -336,7 +336,7 @@ def compare_floats(f1, f2):
 		np.testing.assert_array_almost_equal_nulp(f1, f2, nulp=NULP)
 		return 0.0
 	except AssertionError:
-		# FWIW, the error.message tells the NULP difference.
+		# FWIW, the string error.args[0] tells the NULP difference.
 		return f1, f2
 
 def compare_ndarrays(array1, array2):
@@ -353,7 +353,7 @@ def compare_ndarrays(array1, array2):
 			np.testing.assert_array_almost_equal_nulp(array1, array2, nulp=NULP)
 			return ()
 		except AssertionError as _:
-			# return elide(array1), elide(array2), simplify_error_message(e.message)
+			# return elide(array1), elide(array2), simplify_error_message(e.args[0])
 			pass  # try again, below
 
 	try:
@@ -361,7 +361,7 @@ def compare_ndarrays(array1, array2):
 		np.testing.assert_array_equal(array1, array2)
 		return ()
 	except AssertionError as e:
-		return simplify_error_message(e.message)
+		return simplify_error_message(e.args[0])
 
 def load_fit_tree(out_subdir):
 	'''Load the parameter calculator's (Parca's) output as an object_tree.'''

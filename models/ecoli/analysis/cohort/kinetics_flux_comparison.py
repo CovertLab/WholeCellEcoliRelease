@@ -7,8 +7,8 @@ Compare fluxes in simulation to target fluxes
 
 from __future__ import absolute_import, division, print_function
 
+import io
 import os
-import csv
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -17,6 +17,7 @@ from six.moves import cPickle, range
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
+from wholecell.io import tsv
 from wholecell.utils import units
 from wholecell.utils.sparkline import whitePadSparklineAxis
 
@@ -104,8 +105,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		categorization[actualAve == targetAve] = -1
 
 		# write data for each reaction to a file
-		csvFile = open(os.path.join(plotOutDir, plotOutFileName + ".tsv"), "wb")
-		output = csv.writer(csvFile, delimiter = "\t")
+		csvFile = io.open(os.path.join(plotOutDir, plotOutFileName + ".tsv"), "wb")
+		output = tsv.writer(csvFile)
 		output.writerow(["Km and kcat", "Target", "Actual", "Category"])
 		for reaction, target, flux, category in zip(kineticsConstrainedReactions[kmAndKcatReactions], targetAve[kmAndKcatReactions], actualAve[kmAndKcatReactions], categorization[kmAndKcatReactions]):
 			output.writerow([reaction, target, flux, category])

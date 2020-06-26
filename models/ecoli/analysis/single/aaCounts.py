@@ -20,7 +20,7 @@ from models.ecoli.analysis import singleAnalysisPlot
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		sim_data = cPickle.load(open(simDataFile))
+		sim_data = cPickle.load(open(simDataFile, 'rb'))
 
 		aaIDs = sim_data.moleculeGroups.aaIDs
 		(aaCounts,) = read_bulk_molecule_counts(simOutDir, (aaIDs,))

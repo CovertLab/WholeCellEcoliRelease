@@ -10,11 +10,12 @@ from __future__ import absolute_import, division, print_function
 import os
 from six.moves import cPickle
 
-import numpy as np
-import matplotlib.pyplot as plt
-from bokeh.plotting import figure, ColumnDataSource
-from bokeh.models import HoverTool
 import bokeh.io
+import bokeh.io.state
+from bokeh.models import HoverTool
+from bokeh.plotting import figure, ColumnDataSource
+import matplotlib.pyplot as plt
+import numpy as np
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from models.ecoli.analysis import multigenAnalysisPlot
@@ -78,15 +79,26 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		exportFigure(plt, plotOutDir, plotOutFileName + "__histogram", metadata)
 		plt.close("all")
 
-		filepath.makedirs(plotOutDir, "html_plots")
 		hover = HoverTool(tooltips = [("ID", "@ID")])
-		plot = figure(x_axis_label = "log10 (transcript synthesis probability)", y_axis_label = "Frequency of observing at least 1 transcript", width = 800, height = 800, tools = [hover, "box_zoom", "pan", "wheel_zoom", "resize", "tap", "save", "reset"])
-		source = ColumnDataSource(data = dict(x = np.log10(np.mean(simulatedSynthProbs, axis = 0)), y = np.mean(transcribedBool, axis = 0), ID = mRnaNames))
+		tools = [hover, "box_zoom", "pan", "wheel_zoom", "tap", "save", "reset"]
+		plot = figure(
+			x_axis_label="log10 (transcript synthesis probability)",
+			y_axis_label="Frequency of observing at least 1 transcript",
+			width=800,
+			height=800,
+			tools=tools,
+			)
+		source = ColumnDataSource(data=dict(
+			x=np.log10(np.mean(simulatedSynthProbs, axis=0)),
+			y=np.mean(transcribedBool, axis=0),
+			ID=mRnaNames,
+			))
 		plot.scatter("x", "y", source = source)
 
-		bokeh.io.output_file(os.path.join(plotOutDir, "html_plots", plotOutFileName + ".html"), title = plotOutFileName, autosave = False)
+		html_dir = filepath.makedirs(plotOutDir, "html_plots")
+		bokeh.io.output_file(os.path.join(html_dir, plotOutFileName + ".html"), title=plotOutFileName)
 		bokeh.io.save(plot)
-		bokeh.io.curstate().reset()
+		bokeh.io.state.curstate().reset()
 
 
 if __name__ == "__main__":
