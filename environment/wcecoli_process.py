@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 import os
 import copy
 import shutil
+import sys
 
 from vivarium.core.process import Process
 from vivarium.library.dict_utils import deep_merge
@@ -159,6 +160,7 @@ def ecoli_boot_config(agent_config):
 		"git_branch":         fp.run_cmdline("git symbolic-ref --short HEAD"),
 		"description":        "an Ecoli Cell Agent",
 		"time":               fp.timestamp(),
+		"python":             sys.version.splitlines()[0],
 		"total_gens":         0,  # not known in advance for multi-scale sims
 		"analysis_type":      None,
 		"variant":            variant_type,

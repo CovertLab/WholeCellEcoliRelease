@@ -7,9 +7,10 @@ environment using Vivarium.
 from __future__ import absolute_import, division, print_function
 
 import argparse
-import csv
 import json
+import os
 
+from wholecell.io import tsv
 from vivarium.core.composition import (
 	make_agents,
 	make_experiment_from_compartment_dicts,
@@ -26,17 +27,14 @@ from environment.wcecoli_process import wcEcoliAgent
 from environment.wcecoli_compartment import WcEcoliCell
 
 
-MEDIA_IDS = ["minimal", "minimal_minus_oxygen",
-		"minimal_plus_amino_acids"]
 MEDIA_ID = "minimal"
-N_WCECOLI_AGENTS = 1  # Works at 50
 BOUNDS = (50, 50)
 N_BINS = (20, 20)
-DEFAULT_SIMULATION_TIME = 60 * 60 * 1.5  # 1.5 hr
-TAGGED_MOLECULES_PATH = 'environment/tagged_molecules.csv'
+TAGGED_MOLECULES_PATH = os.path.join(
+	os.path.dirname(__file__), 'tagged_molecules.csv')
 
 
-def simulate(emitter_config, simulation_time):
+def simulate(emitter_config, simulation_time, num_cells):
 	'''Run the simulation
 
 	Arguments:
@@ -44,6 +42,7 @@ def simulate(emitter_config, simulation_time):
 			specifies how the simulation data is reported, e.g. to a
 			database.
 		simulation_time: Seconds of time to simulate.
+		num_cells: Number of cells to initialize simulation with.
 
 	Returns:
 		vivarium.core.emitter.Emitter: An emitter from which the
@@ -53,16 +52,15 @@ def simulate(emitter_config, simulation_time):
 	'''
 	agent = wcEcoliAgent({})
 	external_states = agent.ecoli_simulation.external_states
-	# TODO: Assert agent has media_id MEDIA_ID
 	recipe = external_states['Environment'].saved_media[MEDIA_ID]
 
-	with open(TAGGED_MOLECULES_PATH, 'r') as f:
-		reader = csv.reader(f)
+	with open(TAGGED_MOLECULES_PATH, 'rb') as f:
+		reader = tsv.reader(f, delimiter=',')
 		tagged_molecules = [
 			molecule for _, molecule in reader
 		]
 	compartment = WcEcoliCell()
-	agent_ids = ['wcecoli_{}'.format(i) for i in range(N_WCECOLI_AGENTS)]
+	agent_ids = ['wcecoli_{}'.format(i) for i in range(num_cells)]
 	process_config = {
 		'agent_config': {
 			'to_report': {
@@ -148,9 +146,15 @@ def main():
 	)
 	parser.add_argument(
 		'--simulation_time', '-s',
-		default=DEFAULT_SIMULATION_TIME,
+		default=60 * 60 * 1.5,  # 1.5 hr
 		type=int,
 		help='Number of seconds to simulate.',
+	)
+	parser.add_argument(
+		'--num_cells', '-n',
+		default=1,
+		type=int,
+		help='Number of cells to create at start of simulation.',
 	)
 	args = parser.parse_args()
 	if args.atlas:
@@ -164,7 +168,7 @@ def main():
 			'host': '{}:{}'.format(args.host, args.port),
 			'database': args.database_name,
 		}
-	_ = simulate(emitter_config, args.simulation_time)
+	_ = simulate(emitter_config, args.simulation_time, args.num_cells)
 
 
 if __name__ == '__main__':
