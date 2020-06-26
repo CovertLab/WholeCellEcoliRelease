@@ -91,7 +91,7 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		cols = 5
 		gs = gridspec.GridSpec(int(np.ceil(n_plots / cols)), cols)
 
-		for i, ((fun, key), data) in enumerate(sorted(interpolation_functions.items())):
+		for i, ((fun, key), data) in enumerate(interpolation_functions.items()):
 			ax = plt.subplot(gs[i // cols, i % cols])
 
 			# Get interpolation values and handle units
