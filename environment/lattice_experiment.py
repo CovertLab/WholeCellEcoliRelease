@@ -1,5 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
+import argparse
+import csv
 import json
 from urllib import quote_plus
 
@@ -11,6 +13,11 @@ from vivarium.core.composition import (
 )
 from vivarium.compartments.lattice import Lattice
 from vivarium.plots.multibody_physics import plot_snapshots
+from vivarium.core.emitter import (
+	get_atlas_database_emitter_config,
+	emit_environment_config,
+	SECRETS_PATH,
+)
 
 from wcecoli_process import wcEcoliAgent
 from wcecoli_compartment import WcEcoliCell
@@ -19,65 +26,45 @@ from wcecoli_compartment import WcEcoliCell
 MEDIA_IDS = ["minimal", "minimal_minus_oxygen",
 		"minimal_plus_amino_acids"]
 MEDIA_ID = "minimal"
-N_WCECOLI_AGENTS = 1  # Works at 50
+N_WCECOLI_AGENTS = 3  # Works at 50
 BOUNDS = (50, 50)
 N_BINS = (20, 20)
-OUT_DIR = 'out/agent'
-SAVE_OUTPUT = False
-SIMULATION_TIME = 20
-DEFAULT_EMITTER_CONFIG = {
-	'type': 'database',
-	'host': 'localhost:27017',
-	'database': 'simulations',
-}
-SECRETS_PATH = 'environment/secrets.json'
-ENVIRONMENT_CONFIG_KEYS = ['bounds', 'size', 'agents']
+DEFAULT_SIMULATION_TIME = 60 * 60 * 1.5  # 1.5 hr
+TAGGED_MOLECULES_PATH = 'environment/tagged_molecules.csv'
 
 
-def get_atlas_database_emitter_config(
-	username, password, cluster_subdomain, database
-):
-	username = quote_plus(username)
-	password = quote_plus(password)
-	database = quote_plus(database)
-
-	uri = (
-		"mongodb+srv://{}:{}@{}.mongodb.net/"
-		+ "?retryWrites=true&w=majority"
-	).format(username, password, cluster_subdomain)
-	return {
-		'type': 'database',
-		'host': uri,
-		'database': database,
-	}
-
-
-def emit_environment_config(environment_config, emitter):
-	config = {
-        'bounds': environment_config['multibody']['bounds'],
-		'type': 'environment_config',
-	}
-	emitter.emit({
-		'data': config,
-		'table': 'configuration',
-	})
-
-
-def main():
-	with open(SECRETS_PATH, 'r') as f:
-		secrets = json.load(f)
-	emitter_config = get_atlas_database_emitter_config(
-		**secrets['database'])
-	# To use a timeseries emitter, uncomment the line below
-	# emitter_config = {'type': 'timeseries'}
+def simulate(args):
+	if args.atlas:
+		with open(SECRETS_PATH, 'r') as f:
+			secrets = json.load(f)
+		emitter_config = get_atlas_database_emitter_config(
+			**secrets['database'])
+	else:
+		emitter_config = {
+			'type': 'database',
+			'host': 'localhost:{}'.format(args.port),
+			'database': args.database_name,
+		}
 	agent = wcEcoliAgent({})
 	external_states = agent.ecoli_simulation.external_states
-	# Assert agent has media_id MEDIA_ID
+	# TODO: Assert agent has media_id MEDIA_ID
 	recipe = external_states['Environment'].saved_media[MEDIA_ID]
 
+	with open(TAGGED_MOLECULES_PATH, 'r') as f:
+		reader = csv.reader(f)
+		tagged_molecules = [
+			molecule for _, molecule in reader
+		]
 	compartment = WcEcoliCell()
 	agent_ids = ['wcecoli_{}'.format(i) for i in range(N_WCECOLI_AGENTS)]
-	agents_dict = make_agents(agent_ids, compartment)
+	process_config = {
+		'agent_config': {
+			'to_report': {
+				'bulk_molecules': tagged_molecules,
+			},
+		},
+	}
+	agents_dict = make_agents(agent_ids, compartment, process_config)
 
 	environment_config = {
 		'multibody': {
@@ -89,7 +76,7 @@ def main():
 			'bounds': BOUNDS,
 			'n_bins': N_BINS,
 			'molecules': recipe.keys(),
-            'depth': 10000.0,  # Deep to avoid depleting local molecules
+			'depth': 10000.0,  # Deep to avoid depleting local molecules
 			'diffusion': 5,  # 10x faster than the default 5e-1
 			'gradient': {
 				'type': 'linear',
@@ -114,33 +101,46 @@ def main():
 	emit_environment_config(environment_config, experiment.emitter)
 	settings = {
 		'timestep': 1.0,
-		'total_time': SIMULATION_TIME,
+		'total_time': args.simulation_time,
 		'return_raw_data': True,
 	}
-	data = simulate_experiment(experiment, settings)
+	simulate_experiment(experiment, settings)
 
-	if SAVE_OUTPUT:
-		# Plot snapshots
-		agents = {
-			time: time_data['agents'] for time, time_data in data.items()}
-		fields = {
-			time: time_data['fields'] for time, time_data in data.items()}
-		snapshots_data = {
-			'agents': agents,
-			'fields': fields,
-			'config': environment_config['multibody'],
-		}
-		plot_config = {
-			'out_dir': OUT_DIR,
-			'filename': 'snapshot',
-		}
-		plot_snapshots(snapshots_data, plot_config)
 
-		# Plot Emitted Values
-		plot_settings = {
-			'agents_key': 'agents',
-		}
-		plot_agents_multigen(data, plot_settings, OUT_DIR, 'simulation')
+def main():
+	parser = argparse.ArgumentParser()
+	parser.add_argument(
+		'--atlas', '-a',
+		action='store_true',
+		default=False,
+		help=(
+			'Read data from an mongoDB Atlas instead of a local mongoDB. '
+			'Credentials, cluster subdomain, and database name should be '
+			'specified in {}.'.format(SECRETS_PATH)
+		)
+	)
+	parser.add_argument(
+		'--port', '-p',
+		default=27017,
+		type=int,
+		help='Port at which to access local mongoDB instance.',
+	)
+	parser.add_argument(
+		'--database_name', '-d',
+		default='simulations',
+		type=str,
+		help=(
+			'Name of database on local mongoDB instance to read from.'
+		)
+	)
+	parser.add_argument(
+		'--simulation_time', '-s',
+		default=DEFAULT_SIMULATION_TIME,
+		type=int,
+		help='Number of seconds to simulate.',
+	)
+	args = parser.parse_args()
+	simulate(args)
 
 
 if __name__ == '__main__':
