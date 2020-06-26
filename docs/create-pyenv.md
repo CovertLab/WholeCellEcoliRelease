@@ -19,6 +19,11 @@ This page goes through the Python environment setup steps in more detail and wit
 
 **Prerequisites:** Install the software tools as described in [dev-tools](dev-tools.md). That page covers installing pyenv and pyenv-virtualenv, initializing them in your shell profile, installing a C compiler, and more.
 
+**NOTE**: While it is possible to create a virtual environment with
+`virtualenv` or `venv` instead of using `pyenv`, make sure you store
+this environment *outside* the `wcEcoli/` root. Otherwise it will be
+wrecked when you run `make clean`.
+
 **Sherlock:** Sherlock is the Stanford scientific computing cluster. Outside the Covert lab, just skip our Sherlock notes. Inside the lab, look in `$PI_HOME/downloads/` and `$PI_HOME/installation_notes/` for downloaded software packages and notes on recompiling them as needed to install new packages or new versions for the team.
 
 
@@ -88,7 +93,7 @@ This page goes through the Python environment setup steps in more detail and wit
 1. Install Python using `pyenv`:
 
    ```bash
-   pyenv install 2.7.16 
+   pyenv install 2.7.16
    ```
 
 ## Create the "wcEcoli2" python virtual environment
@@ -133,7 +138,7 @@ This page goes through the Python environment setup steps in more detail and wit
    **Note:** If you get an `instruction not found` error while installing OpenBLAS, that probably means
    your old assembler is incompatible with the Fortran compiler. Figure out how to update the assembler
    or else install OpenBLAS 0.3.4 and suffer its threading bugs and inconsistent results.
-   
+
    **Note:** OpenBLAS 0.3.6+ works fine on macOS but not inside
    Docker on macOS unless you compile it with option `NO_AVX2=1`.
 
