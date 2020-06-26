@@ -285,8 +285,8 @@ class VoronoiClass(object):
         facilitate the process of optimizing the voronoi diagram. This is part
         of the speed-up heuristic.
         """
-        self.sites_area_ratio = [[] for _ in range(self.n_sites)]
-        self.move_me = [True for _ in range(self.n_sites)]
+        self.sites_area_ratio = [-np.inf] * self.n_sites
+        self.move_me = [True] * self.n_sites
         for i in range(self.n_sites):
             if not self.polygons[i]: #rescue the sites
                 self.sites[i, :] = self.canvas_obj.random_points_in_canvas(1)
