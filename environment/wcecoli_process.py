@@ -173,7 +173,6 @@ class wcEcoliAgent(Process):
 		'time_step': 5.0,  # 60 for big experiments
 		# Must match units used by wcEcoli
 		'mass_units': units.fg,
-		'density_units': units.g / units.L,
 	}
 
 	def __init__(self, initial_parameters=None):
@@ -184,8 +183,6 @@ class wcEcoliAgent(Process):
 		deep_merge(parameters, initial_parameters)
 
 		self.mass_units = parameters['mass_units']
-		self.density_units = parameters['density_units']
-		self.volume_units = self.mass_units / self.density_units
 
 		self.agent_id = parameters['agent_id']
 		self.agent_config = parameters['agent_config']
@@ -291,12 +288,12 @@ class wcEcoliAgent(Process):
 				'_updater': 'set',
 			},
 			'volume': {
-				'_default': 0.0 * self.volume_units,
+				'_default': 0.0,
 				'_emit': True,
 				'_updater': 'set',
 			},
 			'density': {
-				'_default': 1.0 * self.density_units,
+				'_default': 1.0,
 				'_emit': True,
 				'_updater': 'set',
 			},
@@ -327,7 +324,6 @@ class wcEcoliAgent(Process):
 			'global': {
 				'volume': (
 					listeners_report[('Mass', 'volume')]
-					* self.volume_units
 				),
 				'mass': (
 					listeners_report[('Mass', 'cellMass')]
@@ -335,7 +331,6 @@ class wcEcoliAgent(Process):
 				),
 				'density': (
 					listeners_report[('Mass', 'cellDensity')]
-					* self.density_units
 				),
 				'division': update['division'],
 			},

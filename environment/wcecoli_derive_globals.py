@@ -18,8 +18,6 @@ class WcEcoliDeriveGlobals(Deriver):
 
 	defaults = {
 		'width': 1,  # um
-		'volume_units': units.fL,
-		'length_units': units.um,  # Same as width units
 	}
 
 	def __init__(self, initial_parameters=None):
@@ -28,9 +26,7 @@ class WcEcoliDeriveGlobals(Deriver):
 		parameters = copy.deepcopy(self.defaults)
 		deep_merge(parameters, initial_parameters)
 
-		self.volume_units = parameters['volume_units']
-		self.length_units = parameters['length_units']
-		self.width = parameters['width'] * self.length_units
+		self.width = parameters['width']
 
 		ports = {
 			'global': [
@@ -44,15 +40,15 @@ class WcEcoliDeriveGlobals(Deriver):
 		parameters = {}
 		parameters.update(initial_parameters)
 
-		super(WcEcoliDeriveGlobals, self).__init__(ports, parameters)
+		super(WcEcoliDeriveGlobals, self).__init__(parameters)
 
 	def ports_schema(self):
 		default_state = {
 			'global': {
-				'volume': 0.0 * self.volume_units,
+				'volume': 0.0,
 				'width': self.width,
-				'length': 0.0 * self.length_units,
-				'surface_area': 0.0 * self.length_units ** 2,
+				'length': 0.0,
+				'surface_area': 0.0,
 			}
 		}
 
@@ -75,7 +71,7 @@ class WcEcoliDeriveGlobals(Deriver):
 		width = states['global']['width']
 		volume = states['global']['volume']
 
-		length = length_from_volume(volume.magnitude, width)
+		length = length_from_volume(volume, width)
 		surface_area = surface_area_from_length(length, width)
 
 		return {
