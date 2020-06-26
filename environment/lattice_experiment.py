@@ -116,6 +116,12 @@ def main():
 		help='Port at which to access local mongoDB instance.',
 	)
 	parser.add_argument(
+		'--host', '-o',
+		default='localhost',
+		type=str,
+		help='Host at which to access local mongoDB instance.',
+	)
+	parser.add_argument(
 		'--database_name', '-d',
 		default='simulations',
 		type=str,
