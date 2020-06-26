@@ -1,32 +1,35 @@
+'''Simulate a colony of E. coli
+
+Each E. coli cell is modeled with wcEcoli. They are placed into a shared
+environment using Vivarium.
+'''
+
 from __future__ import absolute_import, division, print_function
 
 import argparse
 import csv
 import json
-from urllib import quote_plus
 
 from vivarium.core.composition import (
 	make_agents,
 	make_experiment_from_compartment_dicts,
 	simulate_experiment,
-	plot_agents_multigen,
 )
 from vivarium.compartments.lattice import Lattice
-from vivarium.plots.multibody_physics import plot_snapshots
 from vivarium.core.emitter import (
 	get_atlas_database_emitter_config,
 	emit_environment_config,
 	SECRETS_PATH,
 )
 
-from wcecoli_process import wcEcoliAgent
-from wcecoli_compartment import WcEcoliCell
+from environment.wcecoli_process import wcEcoliAgent
+from environment.wcecoli_compartment import WcEcoliCell
 
 
 MEDIA_IDS = ["minimal", "minimal_minus_oxygen",
 		"minimal_plus_amino_acids"]
 MEDIA_ID = "minimal"
-N_WCECOLI_AGENTS = 3  # Works at 50
+N_WCECOLI_AGENTS = 1  # Works at 50
 BOUNDS = (50, 50)
 N_BINS = (20, 20)
 DEFAULT_SIMULATION_TIME = 60 * 60 * 1.5  # 1.5 hr
@@ -34,6 +37,20 @@ TAGGED_MOLECULES_PATH = 'environment/tagged_molecules.csv'
 
 
 def simulate(emitter_config, simulation_time):
+	'''Run the simulation
+
+	Arguments:
+		emitter_config: See the Vivarium docs for details. This
+			specifies how the simulation data is reported, e.g. to a
+			database.
+		simulation_time: Seconds of time to simulate.
+
+	Returns:
+		vivarium.core.emitter.Emitter: An emitter from which the
+		simulation data can be extracted. If you choose to emit to a
+		database, you can ignore the returned emitter as the data is
+		sent automatically.
+	'''
 	agent = wcEcoliAgent({})
 	external_states = agent.ecoli_simulation.external_states
 	# TODO: Assert agent has media_id MEDIA_ID
@@ -148,8 +165,6 @@ def main():
 			'database': args.database_name,
 		}
 	_ = simulate(emitter_config, args.simulation_time)
-
-
 
 
 if __name__ == '__main__':

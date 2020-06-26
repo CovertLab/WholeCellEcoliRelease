@@ -3,7 +3,6 @@ from __future__ import absolute_import, division, print_function
 import copy
 
 from vivarium.core.process import Deriver
-from vivarium.library.units import units
 from vivarium.library.dict_utils import deep_merge
 from vivarium.processes.derive_globals import (
 	length_from_volume,
@@ -11,42 +10,39 @@ from vivarium.processes.derive_globals import (
 )
 
 
-class WcEcoliDeriveGlobals(Deriver):
-	"""
-	Process for deriving volume, mmol_to_counts, and shape from the cell mass
-	"""
+class WcEcoliDeriveShape(Deriver):
 
 	defaults = {
 		'width': 1,  # um
 	}
 
 	def __init__(self, initial_parameters=None):
+		# type: (dict)
+		'''Derives cell length and surface area from width and volume.
+
+		Ports:
+
+		* **global**: Should be given the agent's boundary store.
+
+		Arguments:
+			initial_parameters (dict): A dictionary that can contain the
+				follwing configuration options:
+
+				* **width** (:py:class:`float`): Width of the cell in
+				  microns
+		'''
 		if initial_parameters is None:
 			initial_parameters = {}
 		parameters = copy.deepcopy(self.defaults)
 		deep_merge(parameters, initial_parameters)
 
-		self.width = parameters['width']
-
-		ports = {
-			'global': [
-				'volume',
-				'width',
-				'length',
-				'surface_area',
-			],
-		}
-
-		parameters = {}
-		parameters.update(initial_parameters)
-
-		super(WcEcoliDeriveGlobals, self).__init__(parameters)
+		super(WcEcoliDeriveShape, self).__init__(parameters)
 
 	def ports_schema(self):
 		default_state = {
 			'global': {
 				'volume': 0.0,
-				'width': self.width,
+				'width': self.parameters['width'],
 				'length': 0.0,
 				'surface_area': 0.0,
 			}

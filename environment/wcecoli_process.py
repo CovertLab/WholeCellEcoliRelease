@@ -5,20 +5,25 @@ import copy
 import shutil
 
 from vivarium.core.process import Process
-from vivarium.core.composition import process_in_experiment
 from vivarium.library.dict_utils import deep_merge
 from vivarium.library.units import units
 
 from models.ecoli.sim.simulation import ecoli_simulation
+from models.ecoli.sim.variants import apply_variant
 from wholecell.utils import constants
 import wholecell.utils.filepath as fp
-from models.ecoli.sim.variants import apply_variant
 
 
 def initialize_ecoli(config):
-	'''
+	'''Create a Simulation object
+
+	Instantiates an initial or daughter EcoliSimulation, and returns it.
+	Copies the simData file to a new directory for the instantiated
+	agent at: ``out/agent/outer_id/kb/agent_id``.
+
 	Args:
 		config (dict): options for initializing a simulation
+
 	Returns:
 		simulation (CellSimulation): The actual simulation which will perform the calculations.
 	'''
@@ -43,7 +48,7 @@ def initialize_ecoli(config):
 	fp.verify_file_exists(sim_data_fit, 'Run runParca?')
 
 	# Apply the variant to transform simData.cPickle
-	info, sim_data_modified = apply_variant.apply_variant(
+	_, sim_data_modified = apply_variant.apply_variant(
 		sim_data_file=sim_data_fit,
 		variant_type=variant_type,
 		variant_index=variant_index)
@@ -52,23 +57,32 @@ def initialize_ecoli(config):
 	config['simData'] = sim_data_modified
 	return ecoli_simulation(**config)
 
-def ecoli_boot_config(agent_config):
-	'''
-	Instantiates an initial or daughter EcoliSimulation, passes it to a new	`Inner` agent.
-	Makes a simOut directory for the simulation in an embedded format:
 
-		out/manual/experiment_id/cohort_id/generation_id/cell_id/simOut
+def ecoli_boot_config(agent_config):
+	'''Generate a configuration for :py:func:`intialize_ecoli`
+
+	Makes a simOut directory for the simulation at:
+	``out/manual/experiment_id/cohort_id/generation_id/cell_id/simOut``
 
 	`agent_config` fields:
-		* generation (optional, the cell generation number)
-		* outer_id (id of outer environmental agent -- the experiment)
-		* working_dir (optional, wcEcoli path containing the sim path out/manual/)
-		* files (optional) list of data files:
-			files[0] -- inherited_state_path to make a daughter cell
-		* start_time (optional)
-		* variant_type (optional)
-		* variant_index (optional)
-		* seed (optional)
+
+	* generation (optional, the cell generation number)
+	* outer_id (id of outer environmental agent -- the experiment)
+	* working_dir (optional, wcEcoli path containing the sim path out/manual/)
+	* files (optional) list of data files:
+		files[0] -- inherited_state_path to make a daughter cell
+	* start_time (optional)
+	* variant_type (optional)
+	* variant_index (optional)
+	* seed (optional)
+	* to_report (optional): A dictionary specifying lists of bulk
+	  molecules, unique molecules, and listener attributes to include in
+	  updates. The ``bulk_molecules`` key should be mapped to a list of
+	  bulk molecule names. The ``unique_molecules`` key should similarly
+	  be mapped to a list of unique molecule names. The ``listeners``
+	  key should be mapped to a list of tuples, each of which contains
+	  as the first element the name of the listener and as the second
+	  key the attribute of that listener with the value to report.
 
 	Returns:
 		options (dict): simulation arguments for ecoli
@@ -84,7 +98,6 @@ def ecoli_boot_config(agent_config):
 	seed = agent_config.get('seed', 0)
 	volume = agent_config.get('volume', 1.0)
 	cell_id = agent_config.get('cell_id')
-	tagged_molecules = agent_config.get('tagged_molecules', ['CDPDIGLYSYN-MONOMER[i]']) # default tag cdsA protein
 	to_report = agent_config.get(
 		'to_report',
 		{
@@ -97,18 +110,21 @@ def ecoli_boot_config(agent_config):
 	# initialize state
 	state = {
 		'volume': volume,
-		'environment_change': {}}
+		'environment_change': {},
+	}
 	agent_config['declare'] = state
 
 	# TODO -- get cohort id (initial cell_id) from lineage trace
-	# TODO -- change analysis scripts to allow the cell_id to be used. analysis scripts require starting with 0
 	cohort_id = '%06d' % 0
 	generation_id = 'generation_%06d' % generation
 
 	# make options for boot config
 	sim_out_path = fp.makedirs(working_dir, 'out')
 
-	output_dir = os.path.join(sim_out_path, 'agent', outer_id, cohort_id, generation_id, cell_id, 'simOut')
+	output_dir = os.path.join(
+		sim_out_path, 'agent', outer_id, cohort_id, generation_id, cell_id,
+		'simOut'
+	)
 	metadata_dir = fp.makedirs(sim_out_path, 'agent', 'metadata')
 	metadata_path = os.path.join(metadata_dir, constants.JSON_METADATA_FILE)
 
@@ -133,7 +149,6 @@ def ecoli_boot_config(agent_config):
 		"growthRateNoise":        False,
 		"dPeriodDivision":        False,
 		"translationSupply":      True,
-		"tagged_molecules":       tagged_molecules,
 		"to_report":              to_report,
 		"cell_id":                cell_id,
 	}
@@ -171,18 +186,64 @@ class wcEcoliAgent(Process):
 			},
 		},
 		'time_step': 5.0,  # 60 for big experiments
-		# Must match units used by wcEcoli
-		'mass_units': units.fg,
 	}
+	# Must match units used by wcEcoli
+	mass_units = units.fg
 
 	def __init__(self, initial_parameters=None):
+		'''Process that internally runs a wcEcoli simulation
+
+		This process wraps a wcEcoli simulation, passing it information
+		about the environment and returning its updates. It also reports
+		parts of the internal state of the wcEcoli simulation.
+
+		.. WARNING:: If you specify listeners to report, you MUST
+			include the following tuples:
+
+			* ``('Mass', 'cellMass')``
+			* ``('Mass', 'cellDensity')``
+			* ``('Mass', 'volume')``
+
+			These listeners are used by this process to update the
+			``globals`` port.
+
+		Ports:
+
+		* **bulk_molecules_report**: Holds a variable for each bulk
+		  molecule to be reported from wcEcoli. This variable will be
+		  updated to hold the current count of the molecule from
+		  wcEcoli. Should be mapped to the agent's boundary.
+		* **unique_molecules_report**: Holds a variable for each unique
+		  molecule to be reported from wcEcoli. This variable will be
+		  updated to hold the current count of the molecule from
+		  wcEcoli. Should be mapped to the agent's boundary.
+		* **listeners_report**: Holds a variable for each listener
+		  attribute to be reported from wcEcoli. For a listener
+		  ``listen`` with attribute ``attr``, the value of
+		  ``listen.attr`` will be reported as the value of the variable
+		  ``listen-attr``. Should be mapped to the agent's boundary.
+		* **global**: Should be mapped to the agent's boundary.
+		* **external**: Should be updated by other processes to contain
+		  the local molecule concentrations around this agent.
+		* **exchange**: Will reflect the flux of molecules into or out
+		  of the cell.
+
+		Arguments:
+			initial_parameters (dict): Accepts the following
+				configuration keys:
+
+				* **agent_id** (:py:class:`str`): Uniquely identifies
+				  this agent within the Vivarium model.
+				* **agent_config** (:py:class:`dict`): Configuration
+				  options that will be passed to
+				  :py:func:`ecoli_boot_config` when generating the
+				  wcEcoli object.
+		'''
 		if initial_parameters is None:
 			initial_parameters = {}
 
 		parameters = copy.deepcopy(self.defaults)
 		deep_merge(parameters, initial_parameters)
-
-		self.mass_units = parameters['mass_units']
 
 		self.agent_id = parameters['agent_id']
 		self.agent_config = parameters['agent_config']
@@ -191,21 +252,13 @@ class wcEcoliAgent(Process):
 
 		self.ecoli_config = ecoli_boot_config(self.agent_config)
 		self.ecoli_simulation = initialize_ecoli(self.ecoli_config)
-		self.sim_data = self.ecoli_simulation._simData
+		self.sim_data = self.ecoli_simulation.get_sim_data()
 
 		environment = self.ecoli_simulation.external_states['Environment']
 		media_molecules = set()
 		for molecules in environment.saved_media.values():
 			media_molecules |= set(molecules)
 		self.all_exchange_molecules = list(media_molecules)
-
-		ports_schema = self._ports_schema_from_params(
-			parameters, self.all_exchange_molecules
-		)
-		ports = {
-			port: variables_dict.keys()
-			for port, variables_dict in ports_schema.items()
-		}
 
 		super(wcEcoliAgent, self).__init__(parameters)
 

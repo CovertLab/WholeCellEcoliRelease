@@ -3,9 +3,10 @@ from __future__ import absolute_import, division, print_function
 import copy
 
 from vivarium.core.experiment import Compartment
-from wcecoli_process import wcEcoliAgent
-from wcecoli_meta_division import WcEcoliMetaDivision
-from wcecoli_derive_globals import WcEcoliDeriveGlobals
+
+from environment.wcecoli_process import wcEcoliAgent
+from environment.wcecoli_meta_division import WcEcoliMetaDivision
+from environment.wcecoli_derive_shape import WcEcoliDeriveShape
 
 
 class WcEcoliCell(Compartment):
@@ -27,11 +28,11 @@ class WcEcoliCell(Compartment):
 			'agent_id': config['agent_id'],
 			'compartment': self,
 		})
-		derive_globals = WcEcoliDeriveGlobals()
+		derive_shape = WcEcoliDeriveShape()
 		return {
 			'wcecoli': wcecoli_process,
 			'meta_division': meta_division,
-			'derive_globals': derive_globals
+			'derive_shape': derive_shape,
 		}
 
 	def generate_topology(self, config=None):
@@ -57,7 +58,7 @@ class WcEcoliCell(Compartment):
 				'global': boundary_path,
 				'cells': self.config['agents_path'],
 			},
-			'derive_globals': {
+			'derive_shape': {
 				'global': boundary_path,
 			},
 		}

@@ -15,6 +15,44 @@ class WcEcoliMetaDivision(Deriver):
 	}
 
 	def __init__(self, initial_parameters):
+		'''Implement division for wcEcoli simulations
+
+		When wcEcoli triggers division internally, it passes through its
+		update a list of 2 paths to states for the daughter cells. The
+		:py:class:`wcecoli_process.wcEcoliAgent` process stores this in
+		the ``division`` variable of the ``global`` port, which is
+		associated with the same store as the ``global`` port for this
+		process. When this deriver runs then, it uses these paths to
+		instantiate new wcEcoliAgent processes and uses the ``_divide``
+		operation to trigger the division in the hierarchy.
+
+		Ports:
+
+		* ``global``: The store with the ``division`` variable.
+		* ``cells``: The store that contains the roots of each agent's
+		  subtree in the hierarchy. Typically, the store is called
+		  ``agents``.
+
+		Arguments:
+			initial_parameters(dict): Accepts the following
+				configuration keys:
+
+				* **id_function**: Function that generates a unique
+				  identifier for the agents generated upon
+				  division.
+				* **compartment**
+				  (:py:class:`vivarium.core.experiment.Compartment`):
+				  The compartment object that will generate the agents.
+				* **daughter_path** (:py:class:`str`): Hierarchy path to
+				  the store where the agents will be created, relative
+				  to the store associated with the``cells`` port.
+				* **agent_id** (:py:class:`str`): The identifier for the
+				  mother agent.
+
+				Unlike many other processes, this configuration
+				dictionary MUST be provided and MUST specify
+				``compartment`` and ``agent_id``.
+		'''
 		# must provide a compartment to generate new daughters
 		assert 'compartment' in initial_parameters
 		# must provide an agent ID
@@ -26,11 +64,6 @@ class WcEcoliMetaDivision(Deriver):
 		self.compartment = parameters['compartment']
 		self.daughter_path = parameters['daughter_path']
 		self.agent_id = parameters['agent_id']
-
-		ports = {
-			'global': ['division'],
-			'cells': ['*'],
-		}
 
 		super(WcEcoliMetaDivision, self).__init__(parameters)
 
