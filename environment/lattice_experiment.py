@@ -7,6 +7,7 @@ environment using Vivarium.
 from __future__ import absolute_import, division, print_function
 
 import argparse
+import io
 import json
 import os
 
@@ -54,7 +55,7 @@ def simulate(emitter_config, simulation_time, num_cells):
 	external_states = agent.ecoli_simulation.external_states
 	recipe = external_states['Environment'].saved_media[MEDIA_ID]
 
-	with open(TAGGED_MOLECULES_PATH, 'rb') as f:
+	with io.open(TAGGED_MOLECULES_PATH, 'rb') as f:
 		reader = tsv.reader(f, delimiter=',')
 		tagged_molecules = [
 			molecule for _, molecule in reader

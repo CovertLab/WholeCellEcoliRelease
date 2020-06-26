@@ -55,15 +55,14 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	variable_elongation_translation = False,
 	variable_elongation_transcription = False,
 	raise_on_time_limit = False,
-	tagged_molecules = [],
 	to_report = {
-		# List of molecule names
-		'bulk_molecules': None,
-		'unique_molecules': None,
-		# Tuple of (listener_name, listener_attribute) such that the
+		# Iterable of molecule names
+		'bulk_molecules': (),
+		'unique_molecules': (),
+		# Tuples of (listener_name, listener_attribute) such that the
 		# desired value is
 		# self.listeners[listener_name].listener_attribute
-		'listeners': None,
+		'listeners': (),
 	},
 	cell_id = None,
 )
@@ -120,12 +119,6 @@ class Simulation():
 				value = kwargs[attrName]
 
 			setattr(self, "_" + attrName, value)
-
-		# To avoid having mutable defaults, we use None as the default
-		# and swap out the None for [] here
-		for report_type in self._to_report:
-			if self._to_report[report_type] is None:
-				self._to_report[report_type] = []
 
 		unknownKeywords = six.viewkeys(kwargs) - six.viewkeys(DEFAULT_SIMULATION_KWARGS)
 

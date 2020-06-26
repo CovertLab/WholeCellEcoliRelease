@@ -4,6 +4,7 @@
 from __future__ import absolute_import, division, print_function
 
 import argparse
+import io
 import os
 
 import numpy as np
@@ -84,7 +85,7 @@ def save_flat_timeseries(
 	timeseries data, one row per timepoint, in increasing order of time.
 	'''
 	rows = np.transpose(list(timeseries.values())).tolist()
-	with open(os.path.join(out_dir, filename), 'wb') as f:
+	with io.open(os.path.join(out_dir, filename), 'wb') as f:
 		writer = tsv.writer(f, delimiter=',')
 		writer.writerow(timeseries.keys())
 		writer.writerows(rows)
