@@ -78,7 +78,8 @@ def find_limiting_metabolites(counts, names, window):
 		i_unproduced_metabolites = np.where(
 			production_in_window == False)[0].astype(int)
 		if len(i_unproduced_metabolites):
-			curr_limiting = names[i_unproduced_metabolites]
+			curr_limiting = [
+				names[i] for i in i_unproduced_metabolites]
 			limiting.update(curr_limiting)
 	return limiting
 
