@@ -37,6 +37,10 @@
 ## ~/.numpy-site.cfg to find openblas):
 #   pip install -r py3_requirements.txt && pyenv rehash
 #
+## NOTE: If it fails with `ModuleNotFoundError: No module named 'numpy'`, then do:
+##    pip install numpy --no-binary numpy
+##    pip install -r py3_requirements.txt && pyenv rehash
+#
 ## Configure the installed matplotlib per the instructions in docs/create-pyenv.md
 
 --no-binary numpy,scipy
