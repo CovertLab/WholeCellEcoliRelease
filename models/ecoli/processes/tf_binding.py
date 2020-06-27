@@ -93,7 +93,7 @@ class TfBinding(wholecell.processes.process.Process):
 
 	def evolveState(self):
 		# If there are no promoters, return immediately
-		if self.promoters.total_counts() == 0:
+		if self.promoters.total_count() == 0:
 			return
 
 		# Get attributes of all promoters

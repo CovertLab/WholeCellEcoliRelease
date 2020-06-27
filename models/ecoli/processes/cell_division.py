@@ -67,7 +67,7 @@ class CellDivision(wholecell.processes.process.Process):
 		# chromosome if the chromosome has already induced division to avoid
 		# double counting.
 		if self.d_period_division:
-			if self.full_chromosomes.total_counts() >= 2:
+			if self.full_chromosomes.total_count() >= 2:
 				# Extract attributes from existing full chromosomes
 				division_time, has_triggered_division = self.full_chromosomes.attrs(
 					"division_time", "has_triggered_division"

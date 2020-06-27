@@ -76,7 +76,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 			self.variable_elongation)
 
 		# If there are no active RNA polymerases, return immediately
-		if self.active_RNAPs.total_counts()[0] == 0:
+		if self.active_RNAPs.total_count() == 0:
 			return
 
 		# Determine total possible sequences of nucleotides that can be
@@ -117,7 +117,7 @@ class TranscriptElongation(wholecell.processes.process.Process):
 		ntpCounts = self.ntps.counts()
 		self.writeToListener("GrowthLimits", "ntpAllocated", ntpCounts)
 
-		if self.active_RNAPs.total_counts()[0] == 0:
+		if self.active_RNAPs.total_count() == 0:
 			return
 
 		# Get attributes from existing RNAs

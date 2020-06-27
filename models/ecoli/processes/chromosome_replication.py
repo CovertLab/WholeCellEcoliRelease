@@ -74,7 +74,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 
 	def calculateRequest(self):
 		# Get total count of existing oriC's
-		n_oric = self.oriCs.total_counts()[0]
+		n_oric = self.oriCs.total_count()
 
 		# If there are no origins, return immediately
 		if n_oric == 0:
@@ -105,7 +105,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 			self.chromosome_domains.request_access(self.EDIT_ACCESS)
 
 		# If there are no active forks return
-		n_active_replisomes = self.active_replisomes.total_counts()[0]
+		n_active_replisomes = self.active_replisomes.total_count()
 		if n_active_replisomes == 0:
 			return
 
@@ -145,8 +145,8 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 	def evolveState(self):
 		## Module 1: Replication initiation
 		# Get number of existing replisomes and oriCs
-		n_active_replisomes = self.active_replisomes.total_counts()[0]
-		n_oriC = self.oriCs.total_counts()[0]
+		n_active_replisomes = self.active_replisomes.total_count()
+		n_oriC = self.oriCs.total_count()
 
 		# If there are no origins, return immediately
 		if n_oriC == 0:
