@@ -15,12 +15,12 @@
 #
 ## Install the required version of Python via pyenv, and remember to enable it as
 ## a shared library:
-#   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.8.2
+#   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.8.3
 #
 ## Create the "wcEcoli3" python virtual environment based on that Python version,
 ## and select it for your project directory:
 #   cd ~/dev/wcEcoli
-#   pyenv virtualenv 3.8.2 wcEcoli3 && pyenv local wcEcoli3
+#   pyenv virtualenv 3.8.3 wcEcoli3 && pyenv local wcEcoli3
 #
 ## Upgrade this virtual environment's installers:
 #   pip install --upgrade pip setuptools virtualenv virtualenvwrapper virtualenv-clone wheel
