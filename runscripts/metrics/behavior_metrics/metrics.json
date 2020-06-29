@@ -10,27 +10,27 @@
             "end_start_ratio": {
                 "function": "end_start_ratio",
                 "args": ["mass"],
-                "range": [1.9, 2.1]
+                "range": [2.1134, 2.1135]
             },
             "mean": {
                 "function": "mean",
                 "args": ["mass"],
-                "range": [0, 0]
+                "range": [241.33, 241.34]
             },
             "stdev": {
                 "function": "stdev",
                 "args": ["mass"],
-                "range": [0, 0]
+                "range": [51.859, 51.86]
             },
             "min": {
                 "function": "min",
                 "args": ["mass"],
-                "range": [0, 0]
+                "range": [162.16, 162.17]
             },
             "max": {
                 "function": "max",
                 "args": ["mass"],
-                "range": [0, 0]
+                "range": [342.72, 342.73]
             }
         }
     },
@@ -45,7 +45,7 @@
             "end_start_ratio": {
                 "function": "end_start_ratio",
                 "args": ["mass"],
-                "range": [1.9, 2.1]
+                "range": [2.2824, 2.2825]
             }
         }
     },
@@ -60,7 +60,7 @@
             "end_start_ratio": {
                 "function": "end_start_ratio",
                 "args": ["mass"],
-                "range": [1.9, 2.1]
+                "range": [2.2515, 2.2516]
             }
         }
     },
@@ -75,7 +75,7 @@
             "end_start_ratio": {
                 "function": "end_start_ratio",
                 "args": ["mass"],
-                "range": [1.9, 2.1]
+                "range": [2.4329, 2.433]
             }
         }
     },
@@ -90,7 +90,7 @@
             "end_start_ratio": {
                 "function": "end_start_ratio",
                 "args": ["mass"],
-                "range": [1.9, 2.1]
+                "range": [1.9815, 1.9816]
             }
         }
     },
@@ -105,7 +105,7 @@
             "end_start_ratio": {
                 "function": "end_start_ratio",
                 "args": ["mass"],
-                "range": [1.9, 2.1]
+                "range": [2.0782, 2.0783]
             }
         }
     },
@@ -114,7 +114,7 @@
             "active_counts": {
                 "table": "UniqueMoleculeCounts",
                 "column": "uniqueMoleculeCounts",
-                "subcolumn": "activeRibosome"
+                "subcolumn": "active_ribosome"
             },
             "s30_counts": {
                 "table": "BulkMolecules",
@@ -151,12 +151,12 @@
             "mean_concentration": {
                 "function": "mean",
                 "args": ["concentration"],
-                "range": [0, 0]
+                "range": [16186, 16187]
             },
             "mean_active_fraction": {
                 "function": "mean",
                 "args": ["active_fraction"],
-                "range": [0, 0]
+                "range": [0.8677, 0.867702]
             }
         }
     },
@@ -165,7 +165,7 @@
             "active_counts": {
                 "table": "UniqueMoleculeCounts",
                 "column": "uniqueMoleculeCounts",
-                "subcolumn": "activeRnaPoly"
+                "subcolumn": "active_RNAP"
             },
            "inactive_counts": {
                 "table": "BulkMolecules",
@@ -185,7 +185,7 @@
             "mean_active_fraction": {
                 "function": "mean",
                 "args": ["active_fraction"],
-                "range": [0, 0]
+                "range": [0.24678, 0.24679]
             },
             "total_counts": {
                 "function": "add_two_arrays",
@@ -198,7 +198,7 @@
             "mean_concentration": {
                 "function": "mean",
                 "args": ["concentration"],
-                "range": [0, 0]
+                "range": [3294.6, 3294.7]
             }
         }
     },
@@ -221,7 +221,7 @@
             "doubling_time": {
                 "function": "-",
                 "args": ["end_time", "start_time"],
-                "range": [0, 0]
+                "range": [2910, 2920]
             }
         }
     },
@@ -236,7 +236,7 @@
             "mean": {
                 "function": "mean",
                 "args": ["rate"],
-                "range": [0, 0]
+                "range": [15.793, 15.794]
             }
         }
     },
@@ -277,7 +277,7 @@
             "mean": {
                 "function": "mean",
                 "args": ["rate"],
-                "range": [0, 0]
+                "range": [59155, 59156]
             }
         }
     },
@@ -311,7 +311,7 @@
             "mean": {
                 "function": "mean",
                 "args": ["absolute_value"],
-                "range": [0, 0]
+                "range": [1932.4, 1932.5]
             }
         }
     },
@@ -388,7 +388,7 @@
             "correlation": {
                 "function": "pearson_correlation",
                 "args": ["sim_fluxes_unitless", "toya_fluxes_unitless"],
-                "range": [0, 0]
+                "range": [0.63497, 0.63498]
             }
         }
     },
@@ -435,12 +435,12 @@
             "wisniewski_correlation": {
                 "function": "pearson_correlation_log10",
                 "args": ["sim_wisniewski_counts", "wisniewski_counts"],
-                "range": [0, 0]
+                "range": [0.61569, 0.6157]
             },
             "schmidt_correlation": {
                 "function": "pearson_correlation_log10",
                 "args": ["sim_schmidt_counts", "schmidt_counts"],
-                "range": [0, 0]
+                "range": [0.75000, 0.75001]
             }
         }
     },
@@ -522,12 +522,12 @@
             "limiting_metabolites": {
                 "function": "find_limiting_metabolites",
                 "args": ["normalized_counts", "metabolite_names", "WINDOW"],
-                "expected_set": []
+                "expected_set": ["GLT[c]", "VAL[c]"]
             },
             "num_limiting_metabolites": {
                 "function": "len",
                 "args": ["limiting_metabolites"],
-                "range": [0, 0]
+                "range": [2, 2]
             }
         }
     }
