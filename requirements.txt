@@ -158,7 +158,7 @@ pycparser==2.19
 Pygments==2.2.0
 pylint==1.9.2
 pymongo==3.6.1
-pymunk==5.5.0
+pymunk==5.6.0
 pyparsing==2.2.0
 pytest==4.6.5
 pytest-benchmark==3.2.2
@@ -199,7 +199,7 @@ virtualenvwrapper>=4.8.4
 wcwidth==0.1.7
 websocket-client==0.57.0
 Werkzeug==0.15.3
-wholecell-vivarium==0.0.51
+wholecell-vivarium==0.0.52
 wrapt==1.10.11
 xlrd==1.1.0
 zipp==0.6.0

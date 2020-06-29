@@ -23,7 +23,6 @@ from wholecell.utils.py3 import monotonic_seconds
 import wholecell.loggers.shell
 import wholecell.loggers.disk
 
-import vivarium
 from six.moves import range
 import six
 from six.moves import zip
@@ -56,8 +55,16 @@ DEFAULT_SIMULATION_KWARGS = dict(
 	variable_elongation_translation = False,
 	variable_elongation_transcription = False,
 	raise_on_time_limit = False,
-	tagged_molecules = [],
-	emitter_config = {},
+	to_report = {
+		# Iterable of molecule names
+		'bulk_molecules': (),
+		'unique_molecules': (),
+		# Tuples of (listener_name, listener_attribute) such that the
+		# desired value is
+		# self.listeners[listener_name].listener_attribute
+		'listeners': (),
+	},
+	cell_id = None,
 )
 
 def _orderedAbstractionReference(iterableOfClasses):
@@ -75,7 +82,7 @@ DEFAULT_LISTENER_CLASSES = (
 	EvaluationTime,
 	)
 
-class Simulation(vivarium.actor.inner.Simulation):
+class Simulation():
 	""" Simulation """
 
 	# Attributes that must be set by a subclass
@@ -156,8 +163,6 @@ class Simulation(vivarium.actor.inner.Simulation):
 		self._cellCycleComplete = False
 		self._isDead = False
 		self._finalized = False
-		self.emitter = None
-		# TODO: self.emitter = vivarium.core.emitter.get_emitter(self._emitter_config)['object']
 
 		for state_name, internal_state in six.viewitems(self.internal_states):
 			# initialize random streams
@@ -271,7 +276,8 @@ class Simulation(vivarium.actor.inner.Simulation):
 				self._evolveState(processes)
 			self._post_evolve_state()
 
-			self.emit()
+	def run_for(self, run_for):
+		self.run_incremental(self.time() + run_for)
 
 	def finalize(self):
 		"""
@@ -485,24 +491,27 @@ class Simulation(vivarium.actor.inner.Simulation):
 		return {
 			'volume': self.listeners['Mass'].volume,
 			'division': self.daughter_config(),
-			'environment_change': self.external_states['Environment'].get_environment_change()}
+			'exchange': self.external_states[
+				'Environment'
+			].get_environment_change(),
+			'bulk_molecules_report': {
+				mol:
+				self.internal_states['BulkMolecules'].container.count(mol)
+				for mol in self._to_report['bulk_molecules']
+			},
+			'unique_molecules_report': {
+				mol:
+				self.internal_states['UniqueMolecules'].container.count(mol)
+				for mol in self._to_report['unique_molecules']
+			},
+			'listeners_report': {
+				(listener, attr): getattr(self.listeners[listener], attr)
+				for listener, attr in self._to_report['listeners']
+			},
+		}
 
 	def divide(self):
 		self.cellCycleComplete()
 		self.finalize()
 
 		return self.daughter_config()
-
-	def emit(self):
-		if self.emitter and self._tagged_molecules:
-			counts = self.internal_states['BulkMolecules'].container.counts(self._tagged_molecules)
-			cell_data = {mol_id: count for mol_id, count in zip(self._tagged_molecules, counts)}
-			emit_config = {
-				'table': 'history',
-				'data': {
-					'type': 'compartment',
-					'time': self.time(),
-					'cell': cell_data}
-				}
-
-			self.emitter.emit(emit_config)
