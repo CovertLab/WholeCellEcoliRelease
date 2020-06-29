@@ -7,6 +7,12 @@ from vivarium.core.process import Deriver
 from vivarium.library.dict_utils import deep_merge
 
 
+def divide_empty_list(state):
+	'''Assign each daughter variable an empty list
+	'''
+	return [[], []]
+
+
 class WcEcoliMetaDivision(Deriver):
 
 	defaults = {
@@ -73,6 +79,7 @@ class WcEcoliMetaDivision(Deriver):
 				'division': {
 					'_default': [],
 					'_updater': 'set',
+					'_divider': divide_empty_list,
 				},
 			},
 			'cells': {
@@ -89,6 +96,7 @@ class WcEcoliMetaDivision(Deriver):
 
 		for daughter_config in daughter_configs:
 			daughter_id = daughter_config['id']
+			assert daughter_id != self.agent_id
 			compartment = self.compartment.generate({
 				'agent_id': daughter_id,
 				'start_time': daughter_config['start_time'],
