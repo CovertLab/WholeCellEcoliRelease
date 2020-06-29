@@ -35,7 +35,7 @@ TAGGED_MOLECULES_PATH = os.path.join(
 	os.path.dirname(__file__), 'tagged_molecules.csv')
 
 
-def simulate(emitter_config, simulation_time, num_cells):
+def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 	'''Run the simulation
 
 	Arguments:
@@ -44,6 +44,10 @@ def simulate(emitter_config, simulation_time, num_cells):
 			database.
 		simulation_time: Seconds of time to simulate.
 		num_cells: Number of cells to initialize simulation with.
+		length_sec: Seconds before we force division to occur. This
+			should be left at its default for simulations. It is useful
+			to set it to some small value (e.g. 20 seconds) for testing
+			or debugging.
 
 	Returns:
 		vivarium.core.emitter.Emitter: An emitter from which the
@@ -60,8 +64,6 @@ def simulate(emitter_config, simulation_time, num_cells):
 		tagged_molecules = [
 			molecule for _, molecule in reader
 		]
-	compartment = WcEcoliCell()
-	agent_ids = ['wcecoli_{}'.format(i) for i in range(num_cells)]
 	process_config = {
 		'agent_config': {
 			'to_report': {
@@ -69,6 +71,10 @@ def simulate(emitter_config, simulation_time, num_cells):
 			},
 		},
 	}
+	if length_sec is not None:
+		process_config['agent_config']['lengthSec'] = length_sec
+	compartment = WcEcoliCell(process_config)
+	agent_ids = ['wcecoli_{}'.format(i) for i in range(num_cells)]
 	agents_dict = make_agents(agent_ids, compartment, process_config)
 
 	environment_config = {

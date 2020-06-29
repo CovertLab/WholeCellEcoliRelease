@@ -91,6 +91,7 @@ def ecoli_boot_config(agent_config):
 	generation = agent_config.get('generation', 0)
 	working_dir = agent_config.get('working_dir', os.getcwd())
 	outer_id = agent_config.get('outer_id', 'lattice_000000')
+	length_sec = agent_config.get('lengthSec', 3*60*60)
 	start_time = agent_config.get('start_time', 0)
 	files = agent_config.get('files', [])
 	inherited_state_path = files[0] if files else None
@@ -134,7 +135,7 @@ def ecoli_boot_config(agent_config):
 		"variant_type":           variant_type,
 		"variant_index":          variant_index,
 		"outer_id":               outer_id,
-		"lengthSec":              3*60*60,
+		"lengthSec":              length_sec,
 		"outputDir":              output_dir,
 		"initialTime":            start_time,
 		"inheritedStatePath":     inherited_state_path,

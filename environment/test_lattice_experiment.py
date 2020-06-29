@@ -20,10 +20,15 @@ from environment.lattice_experiment import simulate
 #: Location of the reference data
 REFERENCE_DATA_PATH = os.path.join(
 	os.path.dirname(__file__), 'reference_data.csv')
+#: File to write simulation data to
+OUTPUT_DATA_PATH = os.path.join(
+	os.path.dirname(__file__), 'test_output.csv')
 #: Length of simulation to run for both generation and checking
-DURATION = 20
+DURATION = 50
 #: Number of cells with which to initialize simulation
-NUM_CELLS = 3
+NUM_CELLS = 2
+#: Seconds in a cell cycle before forcibly triggering division
+SECONDS_TO_DIVISION = 15
 
 
 def process_path_timeseries_for_csv(path_ts):
@@ -84,10 +89,14 @@ def save_flat_timeseries(
 	The heading will be the key, and the rows will contain the
 	timeseries data, one row per timepoint, in increasing order of time.
 	'''
-	rows = np.transpose(list(timeseries.values())).tolist()
+	n_rows = max([len(val) for val in timeseries.values()])
+	rows = [{} for _ in range(n_rows)]
+	for key, val in timeseries.items():
+		for i, elem in enumerate(val):
+			rows[i][key] = elem
 	with io.open(os.path.join(out_dir, filename), 'wb') as f:
-		writer = tsv.writer(f, delimiter=',')
-		writer.writerow(timeseries.keys())
+		writer = tsv.dict_writer(f, timeseries.keys(), delimiter=',')
+		writer.writeheader()
 		writer.writerows(rows)
 
 
@@ -102,7 +111,8 @@ def run_simulation():
 	emitter_config = {
 		'type': 'timeseries'
 	}
-	emitter = simulate(emitter_config, DURATION, NUM_CELLS)
+	emitter = simulate(
+		emitter_config, DURATION, NUM_CELLS, SECONDS_TO_DIVISION)
 	path_ts = emitter.get_path_timeseries()
 	processed_ts = process_path_timeseries_for_csv(path_ts)
 	return processed_ts
@@ -123,11 +133,19 @@ def main():
 		help='Check that model behavior matches {}.'.format(REFERENCE_DATA_PATH),
 	)
 	args = parser.parse_args()
-	processed_ts = run_simulation()
 	assert args.check != args.generate
+	processed_ts = run_simulation()
+	save_flat_timeseries(
+		processed_ts,
+		out_dir=os.path.dirname(OUTPUT_DATA_PATH),
+		filename=os.path.basename(OUTPUT_DATA_PATH),
+	)
 	if args.check:
 		reference_ts = load_timeseries(REFERENCE_DATA_PATH)
-		assert_timeseries_close(processed_ts, reference_ts)
+		# We load simulation data from the file so that all
+		# transformations by CSV reader/writer are applied
+		simulation_ts = load_timeseries(OUTPUT_DATA_PATH)
+		assert_timeseries_close(simulation_ts, reference_ts)
 	if args.generate:
 		save_flat_timeseries(processed_ts)
 
