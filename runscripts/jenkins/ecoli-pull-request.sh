@@ -11,7 +11,7 @@ module load wcEcoli/sherlock2
 ### Edit this line to make the PR build use another pyenv like wcEcoli2-staging.
 ### Revert it to `wcEcoli2` before merging the PR into master.
 ### -------------------------------------------------------------------
-WCECOLI_PYENV=wcEcoli2
+WCECOLI_PYENV=wcEcoli2-staging
 pyenv local ${WCECOLI_PYENV}
 
 make clean compile
