@@ -31,6 +31,7 @@ NUM_CELLS = 2
 SECONDS_TO_DIVISION = 15
 
 
+# TODO: Replace this with Vivarium import
 def process_path_timeseries_for_csv(path_ts):
 	# type: (dict) -> dict
 	'''Prepare path timeseries data for writing to CSV
@@ -77,6 +78,7 @@ def process_path_timeseries_for_csv(path_ts):
 	return str_keys
 
 
+# TODO: Replace this with Vivarium import
 def save_flat_timeseries(
 	timeseries,
 	out_dir=os.path.dirname(REFERENCE_DATA_PATH),

@@ -299,6 +299,7 @@ class wcEcoliAgent(Process):
 		schema['exchange'] = {
 			molecule: {
 				'_default': 0.0,
+				'_updater': 'set',
 			}
 			for molecule in all_exchange_molecules
 		}
