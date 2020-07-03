@@ -7,6 +7,11 @@ Modifies:
 
 Expected variant indices:
 	0: wildtype
+	1: wildtype  # no changes
+	*: wildtype  # no changes
+
+Running runSim.py with `-v wildtype 0 1` gives two variants with identical output.
+This is useful for testing repeatability.
 """
 
 from __future__ import absolute_import, division, print_function
