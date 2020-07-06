@@ -24,12 +24,9 @@
 ## Upgrade this virtual environment's installers:
 #   pip install --upgrade pip setuptools virtualenv virtualenvwrapper virtualenv-clone wheel
 #
-## Install the packages listed in this file:
+## Install numpy (if it's the first time) then all the packages listed in this file:
+#   pip install numpy
 #   pip install -r py3_requirements.txt && pyenv rehash
-#
-## NOTE: If it fails with `ModuleNotFoundError: No module named 'numpy'`, then do:
-##    pip install numpy
-##    pip install -r py3_requirements.txt && pyenv rehash
 #
 ## Configure the installed matplotlib per the instructions in docs/create-pyenv.md
 
