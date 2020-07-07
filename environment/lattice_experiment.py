@@ -14,7 +14,7 @@ import os
 from wholecell.io import tsv
 from vivarium.core.composition import (
 	make_agents,
-	make_experiment_from_compartment_dicts,
+	agent_environment_experiment,
 	simulate_experiment,
 )
 from vivarium.compartments.lattice import Lattice
@@ -73,43 +73,47 @@ def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 	}
 	if length_sec is not None:
 		process_config['agent_config']['lengthSec'] = length_sec
-	compartment = WcEcoliCell(process_config)
 	agent_ids = ['wcecoli_{}'.format(i) for i in range(num_cells)]
-	agents_dict = make_agents(agent_ids, compartment, process_config)
 
+	initial_state = {}
+	settings = {
+		'emitter': emitter_config,
+	}
+	agents_config = {
+		'type': WcEcoliCell,
+		'ids': agent_ids,
+		'config': process_config,
+	}
 	environment_config = {
-		'multibody': {
-			'bounds': BOUNDS,
-			'size': BOUNDS,
-			'agents': agents_dict,
-		},
-		'diffusion': {
-			'bounds': BOUNDS,
-			'n_bins': N_BINS,
-			'molecules': recipe.keys(),
-			'depth': 10000.0,  # Deep to avoid depleting local molecules
-			'diffusion': 5,  # 10x faster than the default 5e-1
-			'gradient': {
-				'type': 'linear',
-				'molecules': {
-					molecule: {
-						'center': (0, 0),
-						'base': concentration,
-						'slope': 0,
-					}
-					for molecule, concentration in recipe.items()
+		'type': Lattice,
+		'config': {
+			'multibody': {
+				'bounds': BOUNDS,
+			},
+			'diffusion': {
+				'bounds': BOUNDS,
+				'n_bins': N_BINS,
+				'molecules': recipe.keys(),
+				'depth': 10000.0,  # Deep to avoid depleting local molecules
+				'diffusion': 5,  # 10x faster than the default 5e-1
+				'gradient': {
+					'type': 'linear',
+					'molecules': {
+						molecule: {
+							'center': (0, 0),
+							'base': concentration,
+							'slope': 0,
+						}
+						for molecule, concentration in recipe.items()
+					},
 				},
 			},
 		},
 	}
-	environment = Lattice(environment_config)
-	environment_dict = environment.generate()
-
-	initial_state = {}
-	experiment = make_experiment_from_compartment_dicts(
-		environment_dict, agents_dict, emitter_config, initial_state)
+	experiment = agent_environment_experiment(
+		agents_config, environment_config, initial_state, settings)
 	print('Experiment ID:', experiment.experiment_id)
-	emit_environment_config(environment_config, experiment.emitter)
+	emit_environment_config(environment_config['config'], experiment.emitter)
 	settings = {
 		'timestep': 1.0,
 		'total_time': simulation_time,

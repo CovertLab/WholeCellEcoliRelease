@@ -147,7 +147,13 @@ def main():
 		# We load simulation data from the file so that all
 		# transformations by CSV reader/writer are applied
 		simulation_ts = load_timeseries(OUTPUT_DATA_PATH)
-		assert_timeseries_close(simulation_ts, reference_ts)
+		assert_timeseries_close(
+			simulation_ts, reference_ts,
+			tolerances={
+				'agents,wcecoli_0,boundary,bulk_molecules_report,BCCP-MONOMER[c]':
+					9,
+			},
+		)
 	if args.generate:
 		save_flat_timeseries(processed_ts)
 
