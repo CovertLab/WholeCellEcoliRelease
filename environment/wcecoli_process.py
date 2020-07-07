@@ -142,15 +142,6 @@ def ecoli_boot_config(agent_config):
 		"logToDisk":              False,  # We're using Vivarium instead
 		"overwriteExistingFiles": True,
 		"seed":                   seed,
-		"timeStepSafetyFraction": 1.3,
-		"maxTimeStep":            0.9,
-		"updateTimeStepFreq":     5,
-		"logToShell":             True,
-		"logToDiskEvery":         1,
-		"massDistribution":       True,
-		"growthRateNoise":        False,
-		"dPeriodDivision":        False,
-		"translationSupply":      True,
 		"to_report":              to_report,
 		"cell_id":                cell_id,
 	}
@@ -165,10 +156,11 @@ def ecoli_boot_config(agent_config):
 		"total_gens":         0,  # not known in advance for multi-scale sims
 		"analysis_type":      None,
 		"variant":            variant_type,
-		"mass_distribution":  options['massDistribution'],
-		"growth_rate_noise":  options['growthRateNoise'],
-		"d_period_division":  options['dPeriodDivision'],
-		"translation_supply": options['translationSupply']}
+		"mass_distribution":  options.get('massDistribution'),
+		"growth_rate_noise":  options.get('growthRateNoise'),
+		"d_period_division":  options.get('dPeriodDivision'),
+		"translation_supply": options.get('translationSupply'),
+    }
 	fp.write_json_file(metadata_path, metadata)
 
 	return options
