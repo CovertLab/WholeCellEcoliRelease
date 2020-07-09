@@ -63,6 +63,7 @@ pandas==1.0.5
 Pillow==7.2.0
 pymongo==3.10.1
 pytest==5.4.3
+pytest-cov==2.10.0
 PyYAML==5.3.1
 ruamel.yaml==0.16.10
 six==1.15.0
@@ -85,6 +86,7 @@ cffi==1.14.0
 chardet==3.0.4
 click==7.1.2
 cobra==0.18.1
+coverage==5.2
 cycler==0.10.0
 decorator==4.4.2
 depinfo==1.5.3
