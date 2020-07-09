@@ -1,5 +1,8 @@
 from __future__ import absolute_import, division, print_function
 
+import setuptools  # before importing distutils; https://setuptools.readthedocs.io/en/latest/history.html#v48-0-0
+_ = setuptools
+
 # noinspection PyUnresolvedReferences
 from distutils.core import setup# , Extension
 # from distutils.sysconfig import get_python_inc

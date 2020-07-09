@@ -113,7 +113,7 @@ def dict_reader(f, fieldnames=None, **kwargs):
 	return tsv_dict_reader
 
 def dict_writer(f, fieldnames, dialect='excel', **kwargs):
-	# type: (IO[bytes], List[str], DIALECT, **Any) -> csv.DictWriter
+	# type: (IO[bytes], Iterable[str], DIALECT, **Any) -> csv.DictWriter
 	"""Open a csv DictWriter(), handling Python 2/3 Unicode I/O compatibility (by
 	replacing its csv writer with a tsv.writer) and defaulting to TAB delimiters.
 
