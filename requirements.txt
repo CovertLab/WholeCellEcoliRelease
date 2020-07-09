@@ -39,8 +39,6 @@
 ## Install the packages listed in this file (NumPy and SciPy will use
 ## ~/.numpy-site.cfg to find openblas):
 #   pip install -r requirements.txt && pyenv rehash
-#
-## Configure the installed matplotlib per the instructions in docs/create-pyenv.md
 
 --no-binary numpy,scipy
 

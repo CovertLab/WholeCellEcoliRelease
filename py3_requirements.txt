@@ -27,8 +27,6 @@
 ## Install numpy (if it's the first time) then all the packages listed in this file:
 #   pip install numpy==1.19.0
 #   pip install -r py3_requirements.txt && pyenv rehash
-#
-## Configure the installed matplotlib per the instructions in docs/create-pyenv.md
 
 # Installers
 pip>=20.1.1
