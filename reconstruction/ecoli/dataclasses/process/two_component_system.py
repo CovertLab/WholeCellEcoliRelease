@@ -152,13 +152,13 @@ class TwoComponentSystem(object):
 		self._stoichMatrixJ = np.array(stoichMatrixJ)
 		self._stoichMatrixV = np.array(stoichMatrixV)
 
-		self.moleculeNames = np.array(molecules)
-		self.moleculeTypes = np.array(moleculeTypes)
+		self.moleculeNames = np.array(molecules, dtype='U')
+		self.moleculeTypes = np.array(moleculeTypes, dtype='U')
 		self.rxnIds = rxnIds
 		self.ratesFwd = np.array(ratesFwd)
 		self.ratesRev = np.array(ratesRev)
 
-		self.independentMolecules = np.array(independentMolecules)
+		self.independentMolecules = np.array(independentMolecules, dtype='U')
 		self.independent_molecule_indexes = np.array(independent_molecule_indexes)
 		self.independentToDependentMolecules = independentToDependentMolecules
 
@@ -360,7 +360,7 @@ class TwoComponentSystem(object):
 		constantMolecules = ["ATP[c]", "ADP[c]", "PI[c]", "WATER[c]", "PROTON[c]"]
 		for molecule in constantMolecules:
 			moleculeIdx = np.where(self.moleculeNames == molecule)[0][0]
-			dy[moleculeIdx] = sp.symbol.S.Zero
+			dy[moleculeIdx] = sp.S.Zero
 
 		dy = sp.Matrix(dy)
 		J = dy.jacobian(y)

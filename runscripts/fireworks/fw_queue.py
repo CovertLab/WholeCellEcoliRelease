@@ -178,6 +178,7 @@ from __future__ import absolute_import, division, print_function
 
 import collections
 import os
+import sys
 
 import yaml
 from fireworks import Firework, LaunchPad, Workflow, ScriptTask
@@ -329,6 +330,7 @@ metadata = {
 	"git_branch": filepath.run_cmdline("git symbolic-ref --short HEAD"),
 	"description": os.environ.get("DESC", ""),
 	"time": SUBMISSION_TIME,
+	"python": sys.version.splitlines()[0],
 	"total_gens": N_GENS,
 	"analysis_type": None,
 	"variant": VARIANT,

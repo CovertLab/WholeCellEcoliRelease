@@ -308,7 +308,7 @@ class Transcription(object):
 		rnaData = np.zeros(
 			n_rnas,
 			dtype = [
-				('id', 'a50'),
+				('id', 'U50'),
 				('degRate', 'f8'),
 				('length', 'i8'),
 				('countsACGU', '4i8'),
@@ -322,8 +322,8 @@ class Transcription(object):
 				('isRRna5S', 'bool'),
 				('isRProtein', 'bool'),
 				('isRnap',	'bool'),
-				('sequence', 'a{}'.format(maxSequenceLength)),
-				('geneId', 'a50'),
+				('sequence', 'U{}'.format(maxSequenceLength)),
+				('geneId', 'U50'),
 				('KmEndoRNase', 'f8'),
 				('replicationCoordinate', 'int64'),
 				('direction', 'bool'),

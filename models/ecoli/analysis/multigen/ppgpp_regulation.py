@@ -26,13 +26,14 @@ SPOT_RNA = 'EG10966_RNA[c]'
 
 
 def read_data(cell_paths, table, column):
-	def data_generator(cell_paths, table, column):
-		for sim_dir in cell_paths:
-			sim_out_dir = os.path.join(sim_dir, 'simOut')
-			reader = TableReader(os.path.join(sim_out_dir, table))
-			yield reader.readColumn2D(column)
+	sim_columns = []
 
-	return np.vstack(data_generator(cell_paths, table, column))
+	for sim_dir in cell_paths:
+		sim_out_dir = os.path.join(sim_dir, 'simOut')
+		reader = TableReader(os.path.join(sim_out_dir, table))
+		sim_columns.append(reader.readColumn2D(column))
+
+	return np.vstack(sim_columns)
 
 def remove_axes(ax, show_xaxis=False):
 	ax.spines['right'].set_visible(False)
@@ -78,10 +79,12 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			read_data(cell_paths, 'GrowthLimits', 'spot_syn'),
 			read_data(cell_paths, 'GrowthLimits', 'spot_deg'),
 			))
-		ppgpp_count = np.hstack(itertools.chain.from_iterable([
-			read_bulk_molecule_counts(os.path.join(p, 'simOut'), [sim_data.moleculeIds.ppGpp])
-			for p in cell_paths
-			]))
+		cell_count_iters = [
+			read_bulk_molecule_counts(
+				os.path.join(p, 'simOut'), [sim_data.moleculeIds.ppGpp])
+			for p in cell_paths]
+		ppgpp_count = np.hstack(list(itertools.chain.from_iterable(cell_count_iters)))
+		del cell_count_iters
 		ppgpp_conc = ppgpp_count * counts_to_molar * 1000  # uM
 		mrna_count = read_data(cell_paths, 'mRNACounts', 'mRNA_counts')
 		synthase_counts = mrna_count[:, synthase_rna_idx_mrnas]

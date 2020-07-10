@@ -87,11 +87,11 @@ class AnalysisPaths(object):
 			generation_dirs = list(chain.from_iterable(self._get_generations(out_dir)))
 
 		self._path_data = np.zeros(len(generation_dirs), dtype=[
-			("path", "a500"),
+			("path", "U500"),
 			("variant", "i8"),
 			("seed", "i8"),
 			("generation", "i8"),
-			("variantkb", "a500")
+			("variantkb", "U500")
 			])
 
 		generations = []

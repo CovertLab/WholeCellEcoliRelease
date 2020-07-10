@@ -166,8 +166,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		chromosome_data = {
 			"metadata": metadata,
 			"time": [round(t, 2) for t in time],
-			"right_replichore_len": replichore_lengths[0],
-			"left_replichore_len": replichore_lengths[1],
+			"right_replichore_len": int(replichore_lengths[0]),  # json now fails on np.int64
+			"left_replichore_len": int(replichore_lengths[1]),
 			"gene_names": gene_names,
 			"gene_start_coordinates": gene_start_coordinates.tolist(),
 			"gene_end_coordinates": gene_end_coordinates.tolist(),

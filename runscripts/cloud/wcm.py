@@ -10,6 +10,7 @@ import json
 import os
 import posixpath
 import re
+import sys
 from typing import Any, Dict, Iterable, Optional, Type
 
 from fireworks import FiretaskBase
@@ -132,6 +133,7 @@ class WcmWorkflow(Workflow):
 			description=args['description'] or 'WCM',
 			time=self.timestamp,
 			_time="$IMAGE_TIMESTAMP",
+			python=sys.version.splitlines()[0],
 			variant=variant_type,
 			total_variants=str(variant_count),
 			total_gens=args['generations'])

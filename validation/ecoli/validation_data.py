@@ -86,7 +86,7 @@ class Protein(object):
 	def _loadTaniguchi2010Counts(self, validation_data_raw):
 		# Load taniguichi Xie Science 2010 dataset
 		taniguichi_dataset = validation_data_raw.taniguichi2010_table_6
-		self.taniguichi2010counts = np.zeros(len(taniguichi_dataset), dtype=[('monomerId', '|S100'), ('gene_symbol', '|S10'), ('b_number', '|S10'), ('counts_ave', np.float32), ('gamma_shape_parameter', np.float32), ('gamma_scale_parameter', np.float32)])
+		self.taniguichi2010counts = np.zeros(len(taniguichi_dataset), dtype=[('monomerId', 'U100'), ('gene_symbol', 'U10'), ('b_number', 'U10'), ('counts_ave', np.float32), ('gamma_shape_parameter', np.float32), ('gamma_scale_parameter', np.float32)])
 		for idx, row in enumerate(taniguichi_dataset):
 			self.taniguichi2010counts[idx]["gene_symbol"] = row["Gene_Name"]
 			self.taniguichi2010counts[idx]["b_number"] = row["B_Number"]
@@ -101,8 +101,8 @@ class Protein(object):
 		# Load Houser Wilke PLoSCB 2015 dataset
 		houser_dataset = validation_data_raw.houser2015_javier_table
 		self.houser2015counts = np.zeros(len(houser_dataset), dtype=[
-			('monomerId', '|S100'),
-			('gene_symbol', '|S10'),
+			('monomerId', 'U100'),
+			('gene_symbol', 'U10'),
 			('counts_ave_exponential', np.float32),
 			('sample16_t3', np.float32),
 			('sample17_t4', np.float32),
@@ -167,7 +167,7 @@ class Protein(object):
 		wisniewski2014Data = np.zeros(
 			nEntries,
 			dtype = [
-				('monomerId', 'a50'),
+				('monomerId', 'U50'),
 				('avgCounts', 'f8'),
 				]
 			)
@@ -190,7 +190,7 @@ class Protein(object):
 		schmidt2015Data = np.zeros(
 			nEntries,
 			dtype = [
-				('monomerId', 'a50'),
+				('monomerId', 'U50'),
 				('glucoseCounts', 'f8')
 			])
 
@@ -212,7 +212,7 @@ class ReactionFlux(object):
 	def _loadToya2010Fluxes(self, validation_data_raw):
 		# Load Toya 2010 Biotech Prog central carbon metabolism C13 flux dataset
 		toya_dataset = validation_data_raw.toya_2010_central_carbon_fluxes
-		self.toya2010fluxes = np.zeros(len(toya_dataset), dtype=[('reactionID', '|S100'), ('reactionFlux', Unum), ('reactionFluxStdev', Unum)])
+		self.toya2010fluxes = np.zeros(len(toya_dataset), dtype=[('reactionID', 'U100'), ('reactionFlux', Unum), ('reactionFluxStdev', Unum)])
 		for idx, row in enumerate(toya_dataset):
 			self.toya2010fluxes[idx]["reactionID"] = row["reactionID"]
 			self.toya2010fluxes[idx]["reactionFlux"] = row["flux"]

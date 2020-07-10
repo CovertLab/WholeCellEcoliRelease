@@ -15,3 +15,7 @@ echo "port: $PORT" >> my_launchpad.yaml
 echo "strm_lvl: INFO" >> my_launchpad.yaml
 echo "user_indices: []" >> my_launchpad.yaml
 echo "wf_user_indices: []" >> my_launchpad.yaml
+
+# So pymongo 3.9.0+ will work with older MongoDB servers:
+echo "mongoclient_kwargs:" >> my_launchpad.yaml
+echo "  retryWrites: false" >> my_launchpad.yaml

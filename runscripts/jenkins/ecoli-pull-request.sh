@@ -5,7 +5,7 @@ PASSWORD=$4
 
 set -e
 
-module load wcEcoli/sherlock2
+module load wcEcoli/python3
 
 ### -------------------------------------------------------------------
 ### Edit this line to make the PR build use another pyenv like wcEcoli2-staging.
