@@ -12,7 +12,7 @@ import numpy as np
 import six
 
 from wholecell.sim.simulation import MAX_TIME_STEP
-from wholecell.utils import units
+from wholecell.utils import data, units
 from wholecell.utils.unit_struct_array import UnitStructArray
 from wholecell.utils.polymerize import polymerize
 from wholecell.utils.random import make_elongation_rates
@@ -31,6 +31,28 @@ class Translation(object):
 		self._buildTranslation(raw_data, sim_data)
 		self._buildTranslationEfficiency(raw_data, sim_data)
 		self._build_elongation_rates(raw_data, sim_data)
+
+	def __getstate__(self):
+		"""Return the state to pickle with translationSequences removed and
+		only storing data from translationSequences with pad values stripped.
+		"""
+
+		state = data.dissoc_strict(self.__dict__, ('translationSequences',))
+		state['sequences'] = np.array([
+			seq[seq != polymerize.PAD_VALUE]
+			for seq in self.translationSequences], dtype=object)
+		state['sequence_shape'] = self.translationSequences.shape
+		return state
+
+	def __setstate__(self, state):
+		"""Restore translationSequences and remove processed versions of the data."""
+		sequences = state.pop('sequences')
+		sequence_shape = state.pop('sequence_shape')
+		self.__dict__.update(state)
+
+		self.translationSequences = np.full(sequence_shape, polymerize.PAD_VALUE, dtype=np.int8)
+		for i, seq in enumerate(sequences):
+			self.translationSequences[i, :len(seq)] = seq
 
 	def _buildMonomerData(self, raw_data, sim_data):
 		assert all([len(protein['location']) == 1 for protein in raw_data.proteins])
@@ -55,7 +77,6 @@ class Translation(object):
 
 		lengths = []
 		aaCounts = []
-		sequences = []
 
 		for protein in raw_data.proteins:
 			sequence = protein['seq']
@@ -69,9 +90,6 @@ class Translation(object):
 
 			lengths.append(len(sequence))
 			aaCounts.append(counts)
-			sequences.append(sequence)
-
-		maxSequenceLength = max(len(seq) for seq in sequences)
 
 		mws = np.array([protein['mw'] for protein in raw_data.proteins]).sum(axis = 1)
 
@@ -121,16 +139,17 @@ class Translation(object):
 			else:
 				degRate[i] = slowRate
 
+		id_length = max(len(id_) for id_ in ids)
+		rna_id_length = max(len(id_) for id_ in rnaIds)
 		monomerData = np.zeros(
 			size,
 			dtype = [
-				('id', 'U50'),
-				('rnaId', 'U50'),
+				('id', 'U{}'.format(id_length)),
+				('rnaId', 'U{}'.format(rna_id_length)),
 				('degRate', 'f8'),
 				('length', 'i8'),
 				('aaCounts', '{}i8'.format(nAAs)),
 				('mw', 'f8'),
-				('sequence', 'U{}'.format(maxSequenceLength)),
 				]
 			)
 
@@ -140,7 +159,6 @@ class Translation(object):
 		monomerData['length'] = lengths
 		monomerData['aaCounts'] = aaCounts
 		monomerData['mw'] = mws
-		monomerData['sequence'] = sequences
 
 		field_units = {
 			'id'		:	None,
@@ -149,27 +167,22 @@ class Translation(object):
 			'length'	:	units.aa,
 			'aaCounts'	:	units.aa,
 			'mw'		:	units.g / units.mol,
-			'sequence'  :   None
 			}
 
 		self.monomerData = UnitStructArray(monomerData, field_units)
 		self.n_monomers = len(self.monomerData)
 
 	def _buildTranslation(self, raw_data, sim_data):
-		sequences = self.monomerData["sequence"] # TODO: consider removing sequences
+		sequences = np.array([protein['seq'] for protein in raw_data.proteins])
 
 		maxLen = np.int64(
 			self.monomerData["length"].asNumber().max()
 			+ self.max_time_step * sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s)
 			)
 
-		self.translationSequences = np.empty((sequences.shape[0], maxLen), np.int8)
-		self.translationSequences.fill(polymerize.PAD_VALUE)
-
+		self.translationSequences = np.full((sequences.shape[0], maxLen), polymerize.PAD_VALUE, dtype=np.int8)
 		aaIDs_singleLetter = six.viewkeys(sim_data.amino_acid_1_to_3_ordered)
-
 		aaMapping = {aa:i for i, aa in enumerate(aaIDs_singleLetter)}
-
 		for i, sequence in enumerate(sequences):
 			for j, letter in enumerate(sequence):
 				self.translationSequences[i, j] = aaMapping[letter]

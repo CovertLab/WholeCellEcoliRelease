@@ -51,17 +51,27 @@ class Replication(object):
 		Build gene-associated simulation data from raw data.
 		"""
 
+		def extract_data(raw, key):
+			data = [row[key] for row in raw]
+			dtype = 'U{}'.format(max(len(d) for d in data if d is not None))
+			return data, dtype
+
+		names, name_dtype = extract_data(raw_data.genes, 'id')
+		symbols, symbol_dtype = extract_data(raw_data.genes, 'symbol')
+		rna_ids, rna_dtype = extract_data(raw_data.genes, 'rnaId')
+		monomer_ids, monomer_dtype = extract_data(raw_data.genes, 'monomerId')
+
 		self.geneData = np.zeros(
 			len(raw_data.genes),
-			dtype=[('name', 'U50'),
-				('symbol', 'U7'),
-				('rnaId', 'U50'),
-				('monomerId', 'U50')])
+			dtype=[('name', name_dtype),
+				('symbol', symbol_dtype),
+				('rnaId', rna_dtype),
+				('monomerId', monomer_dtype)])
 
-		self.geneData['name'] = [x['id'] for x in raw_data.genes]
-		self.geneData['symbol'] = [x['symbol'] for x in raw_data.genes]
-		self.geneData['rnaId'] = [x['rnaId'] for x in raw_data.genes]
-		self.geneData['monomerId'] = [x['monomerId'] for x in raw_data.genes]
+		self.geneData['name'] = names
+		self.geneData['symbol'] = symbols
+		self.geneData['rnaId'] = rna_ids
+		self.geneData['monomerId'] = monomer_ids
 
 	def _buildReplication(self, raw_data, sim_data):
 		"""
