@@ -19,6 +19,7 @@ class WcEcoliMetaDivision(Deriver):
 		'daughter_path': tuple(),
 		'id_function': lambda: str(uuid.uuid1()),
 	}
+	name = 'wcEcoliMetaDivision'
 
 	def __init__(self, initial_parameters):
 		'''Implement division for wcEcoli simulations

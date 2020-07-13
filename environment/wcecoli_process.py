@@ -184,6 +184,7 @@ class wcEcoliAgent(Process):
 	}
 	# Must match units used by wcEcoli
 	mass_units = units.fg
+	name = 'wcEcoliAgent'
 
 	def __init__(self, initial_parameters=None):
 		'''Process that internally runs a wcEcoli simulation

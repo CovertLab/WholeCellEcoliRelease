@@ -15,6 +15,7 @@ class WcEcoliDeriveShape(Deriver):
 	defaults = {
 		'width': 1,  # um
 	}
+	name= "wcEcoliDeriveShape"
 
 	def __init__(self, initial_parameters=None):
 		# type: (dict)

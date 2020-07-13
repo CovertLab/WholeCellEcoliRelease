@@ -2,14 +2,14 @@ from __future__ import absolute_import, division, print_function
 
 import copy
 
-from vivarium.core.experiment import Compartment
+from vivarium.core.process import Generator
 
 from environment.wcecoli_process import wcEcoliAgent
 from environment.wcecoli_meta_division import WcEcoliMetaDivision
 from environment.wcecoli_derive_shape import WcEcoliDeriveShape
 
 
-class WcEcoliCell(Compartment):
+class WcEcoliCell(Generator):
 
 	defaults = {
 		'boundary_path': ('boundary',),
