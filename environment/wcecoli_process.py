@@ -160,7 +160,7 @@ def ecoli_boot_config(agent_config):
 		"growth_rate_noise":  options.get('growthRateNoise'),
 		"d_period_division":  options.get('dPeriodDivision'),
 		"translation_supply": options.get('translationSupply'),
-    }
+	}
 	fp.write_json_file(metadata_path, metadata)
 
 	return options
@@ -293,6 +293,7 @@ class wcEcoliAgent(Process):
 			molecule: {
 				'_default': 0.0,
 				'_updater': 'set',
+				'_emit': True,
 			}
 			for molecule in all_exchange_molecules
 		}
