@@ -167,6 +167,12 @@ def main():
 		type=int,
 		help='Number of cells to create at start of simulation.',
 	)
+	parser.add_argument(
+		'--length_sec', '-l',
+		default=-1,
+		type=int,
+		help='Seconds until cell division is forced.',
+	)
 	args = parser.parse_args()
 	if args.atlas:
 		with open(SECRETS_PATH, 'r') as f:
@@ -179,7 +185,13 @@ def main():
 			'host': '{}:{}'.format(args.host, args.port),
 			'database': args.database_name,
 		}
-	_ = simulate(emitter_config, args.simulation_time, args.num_cells)
+	length_sec = args.length_sec if args.length_sec >= 0 else None
+	_ = simulate(
+		emitter_config,
+		args.simulation_time,
+		args.num_cells,
+		length_sec
+	)
 
 
 if __name__ == '__main__':
