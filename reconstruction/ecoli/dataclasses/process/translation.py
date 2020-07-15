@@ -236,7 +236,7 @@ class Translation(object):
 
 		self.rprotein_indexes = np.array([
 			index
-			for index in ribosomal_proteins.values()
+			for index in sorted(ribosomal_proteins.values())
 			if index >= 0], dtype=np.int64)
 
 		self.basal_elongation_rate = sim_data.constants.ribosomeElongationRateBasal.asNumber(units.aa / units.s)
