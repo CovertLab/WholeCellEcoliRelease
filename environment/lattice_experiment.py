@@ -93,7 +93,7 @@ def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 			'diffusion': {
 				'bounds': BOUNDS,
 				'n_bins': N_BINS,
-				'molecules': recipe.keys(),
+				'molecules': list(recipe.keys()),
 				'depth': 10000.0,  # Deep to avoid depleting local molecules
 				'diffusion': 5,  # 10x faster than the default 5e-1
 				'gradient': {
