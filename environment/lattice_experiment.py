@@ -62,7 +62,7 @@ def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 	with io.open(TAGGED_MOLECULES_PATH, 'rb') as f:
 		reader = tsv.reader(f, delimiter=',')
 		tagged_molecules = [
-			molecule for _, molecule in reader
+			molecule for _, _, molecule in reader
 		]
 	process_config = {
 		'agent_config': {
