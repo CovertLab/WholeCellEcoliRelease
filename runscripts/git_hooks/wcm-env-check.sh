@@ -10,7 +10,8 @@ make compile
 
 if [ -e requirements.txt ]; then
     echo -e "\nRequirements diff (requirements.txt vs current pips):"
-    diff <(sed 's/ *#.*//;s/^ *--.*//;/^$/d' requirements.txt | sort --ignore-case) <(pip freeze 2>/dev/null) -yB --suppress-common-lines
+    diff <(sed 's/ *#.*//;s/^ *--.*//;/^$/d' requirements.txt | sort --ignore-case) \
+      <(pip freeze 2>/dev/null | sort --ignore-case) -yB --suppress-common-lines
 fi
 
 # Exit normally so git rebase works even if diff finds a diff (error exit code)

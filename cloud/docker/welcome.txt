@@ -14,7 +14,9 @@ Inside this container you can run (the -h option provides command-line help):
 
 > python runscripts/manual/runSim.py [-h] [--variant VARIANT_TYPE FIRST_INDEX LAST_INDEX] [--generations GENERATIONS] [--seed SEED] [sim_dir]
 
->python runscripts/manual/analysisCohort.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output-prefix OUTPUT_PREFIX] [--variant-index VARIANT_INDEX] [sim_dir]
+> python runscripts/manual/analysisParca.py [-h] [--verbose] [-p PLOT [PLOT ...]] [-o OUTPUT_PREFIX] [-c CPUS] [--compile | --no-compile] [sim_dir]
+
+> python runscripts/manual/analysisCohort.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output-prefix OUTPUT_PREFIX] [--variant-index VARIANT_INDEX] [sim_dir]
 
 > python runscripts/manual/analysisMultigen.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output-prefix OUTPUT_PREFIX] [--variant-index VARIANT_INDEX] [--seed SEED] [sim_dir]
 
@@ -22,3 +24,4 @@ Inside this container you can run (the -h option provides command-line help):
 
 > python runscripts/manual/analysisVariant.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output-prefix OUTPUT_PREFIX] [sim_dir]
 
+> python runscripts/manual/buildCausalityNetwork.py [-h] [--show] [sim_dir]

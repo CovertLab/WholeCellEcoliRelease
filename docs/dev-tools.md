@@ -149,7 +149,27 @@ After [building the pyenv](docs/create-pyenv.md) and cloning the repo to a local
 * Select the project's Python interpreter: PyCharm > Preferences > Project: wcEcoli > Project Interpreter > Add > **Existing environment** > [navigate to something like `/usr/local/var/pyenv/versions/wcEcoli2/python`].
 * Set Keyboard Shortcuts: Duplicate one of the available sets (e.g. "Mac OS X 10.5+"), then make changes to suit. A great change is to set Cmd-D (or Ctrl-D) for "Edit > Find > Add Selection for Next Occurrence". [This is like `find_under_expand` in Sublime Text. Cmd-G (or Ctrl-G) works like Sublime's `find_under_expand_skip`.]
 
-[TODO] Notes on setting up code style, inspections, ...
+[TODO] Tips on setting up and using the debugger...
+
+#### Special package names
+
+PyCharm's inspector gives false-positive error messages like:
+
+> "Package containing module 'Bio' is not listed in project requirements"
+
+because it assumes imported module names (`Bio`) match their PyPI package names
+(`biopython`) except for a specific list of exceptions. The built-in exceptions
+list doesn't include `stochastic-arrow`, `biopython`, etc., but we can add them.
+
+**The fix:** Each time you install a PyCharm release, run this shell command
+then restart PyCharm:  
+[NOTE: So far, this script only works on macOS and maybe only for PyCharm Pro
+as installed by JetBrains Toolbox. To support other installations, we need to
+enhance the script for where `python.jar` or `python-ce.jar` gets installed.]
+
+    runscripts/tools/augment-pycharm-package-list.sh
+
+See [You Track issue #PY-27985](https://youtrack.jetbrains.com/issue/PY-27985).
 
 
 ### Great PyCharm features to know

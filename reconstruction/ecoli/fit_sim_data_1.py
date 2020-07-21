@@ -3227,7 +3227,7 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 	needToUpdate = False
 	fixturesDir = filepath.makedirs(filepath.ROOT_PATH, "fixtures", "endo_km")
 	# Numpy 'U' fields make these files incompatible with older code, so change
-	# the filename. No need to make files compatible between Python 2 & 3l we'd
+	# the filename. No need to make files compatible between Python 2 & 3; we'd
 	# have to set the same protocol version and set Python 3-only args like
 	# encoding='latin1'.
 	km_filepath = os.path.join(fixturesDir, 'km{}.cPickle'.format(sys.version_info[0]))

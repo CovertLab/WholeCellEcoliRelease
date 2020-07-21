@@ -1,5 +1,6 @@
 # A temporary copy to upload to Cloud Build. Don't .dockerignore it.
 /cloud/docker/runtime/requirements.txt
+/cloud/docker/runtime/py3_requirements.txt
 
 # Compiled source #
 ###################

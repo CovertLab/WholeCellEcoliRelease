@@ -11,7 +11,7 @@
 #   pyenv shell 3.8.3
 #   pyenv virtualenv mypy
 #   pyenv shell mypy
-#   pip install mypy
+#   pip install mypy==0.770
 #   pyenv shell --unset
 
 PYTHON_EXECUTABLE="$(pyenv which python)"

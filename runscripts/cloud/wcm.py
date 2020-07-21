@@ -13,6 +13,7 @@ import re
 import sys
 from typing import Any, Dict, Iterable, Optional, Type
 
+from borealis.util import gcp
 from fireworks import FiretaskBase
 
 from wholecell.fireworks.firetasks import (
@@ -36,7 +37,7 @@ from six.moves import range
 
 
 # ':latest' -- "You keep using that word. I do not think it means what you think it means."
-DOCKER_IMAGE = 'gcr.io/allen-discovery-center-mcovert/{}-wcm-code'
+DOCKER_IMAGE = 'gcr.io/{}/{}-wcm-code'
 
 
 class WcmWorkflow(Workflow):
@@ -50,7 +51,7 @@ class WcmWorkflow(Workflow):
 			name, owner_id=owner_id, verbose_logging=verbose_logging)
 
 		self.timestamp = timestamp
-		self.image = DOCKER_IMAGE.format(owner_id)
+		self.image = DOCKER_IMAGE.format(gcp.project(), owner_id)
 
 		subdir = self.timestamp + (
 			'__' + _sanitize_description(description) if description else '')
