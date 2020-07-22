@@ -8,17 +8,16 @@ set -e
 module load wcEcoli/python3
 
 ### -------------------------------------------------------------------
-### Edit this line to make the PR build use another pyenv like wcEcoli2-staging.
-### Revert it to `wcEcoli2` before merging the PR into master.
+### Edit this line to make the PR build use another pyenv like wcEcoli3-staging.
+### Revert it to `wcEcoli3` before merging the PR into master.
 ### -------------------------------------------------------------------
-WCECOLI_PYENV=wcEcoli2
-pyenv local ${WCECOLI_PYENV}
+pyenv local wcEcoli3
 
 make clean compile
 
 # Get mypy type checker warnings now but defer failing on its error detections.
 set +e
-(export PYENV_VERSION="mypy:${WCECOLI_PYENV}"; echo ---Running mypy---; mypy --py2)
+runscripts/debug/mypy.sh
 MYPY_FAILED=$?
 set -e
 

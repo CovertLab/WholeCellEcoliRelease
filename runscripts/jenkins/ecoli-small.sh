@@ -1,13 +1,11 @@
 set -e
 
-module load wcEcoli/sherlock2
-
-WCECOLI_PYENV=wcEcoli2
-pyenv local ${WCECOLI_PYENV}
+module load wcEcoli/python3
+pyenv local wcEcoli3
 
 make clean compile
 
 PYTHONPATH=$PWD:$PYTHONPATH pytest --cov=wholecell --cov-report xml \
     --junitxml=unittests.xml
 
-(export PYENV_VERSION="mypy:${WCECOLI_PYENV}"; echo ---Running mypy---; mypy --py2)
+runscripts/debug/mypy.sh

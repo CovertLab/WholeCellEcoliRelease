@@ -7,8 +7,8 @@ set -e
 
 runscripts/jenkins/purge.sh with_aa 10
 
-module load wcEcoli/sherlock2
-pyenv local wcEcoli2
+module load wcEcoli/python3
+pyenv local wcEcoli3
 
 make clean
 make compile

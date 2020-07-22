@@ -63,13 +63,13 @@ ENV OPENBLAS_NUM_THREADS=1
 # no home dir. (That happens because DockerTask runs tasks inside the Docker
 # container with the uid:gid of the user outside the container to get
 # read/write/delete access to the tasks's output files.)
-COPY py3_requirements.txt /
+COPY requirements.txt /
 RUN (b1="" \
     && if [ -f ~/.numpy-site.cfg ] ; then b1="--no-binary=numpy,scipy"; fi \
     && echo "Installing pips with $b1" \
     && pip install --no-cache-dir --upgrade pip setuptools wheel \
     && pip install --no-cache-dir numpy==1.19.0 $b1 \
-    && pip install --no-cache-dir -r py3_requirements.txt $b1 \
+    && pip install --no-cache-dir -r requirements.txt $b1 \
     && umask 000 && mkdir -p /.theano)
 
 CMD ["/bin/bash"]
