@@ -8,7 +8,7 @@
       <excludeFolder url="file://$MODULE_DIR$/out" />
       <excludeFolder url="file://$MODULE_DIR$/runscripts/metabolism/homeostaticFBA_modularFBA_toy_model/svg_plots" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 2.7 (wcEcoli2)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.8 (wcEcoli3)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PackageRequirementsSettings">
