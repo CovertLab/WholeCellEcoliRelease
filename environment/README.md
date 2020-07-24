@@ -1,5 +1,10 @@
 # Environment
 
+***NOTE: This document might be obsolete.***
+
+<hr>
+
+
 Provides multiscale functionality for wcEcoli with the Lens package, repo located here: [CovertLab/lens](https://github.com/CovertLab/lens)
 
 Environment models interface with cells via actors, which coordinate the messages between simulations running on separate threads.
@@ -75,7 +80,7 @@ module name and parameters on the command lines above, e.g.
    
    Module name: environment.boot
    Parameters: ecoli --id 1
-   Python interpreter: Python 2.7 (wcEcoli2)
+   Python interpreter: Python 3.8.3 (wcEcoli3)
    Working directory: /Users/YOU/dev/wcEcoli
    ☑︎ Add content roots to PYTHONPATH
    ☑︎ Add source roots to PYTHONPATH

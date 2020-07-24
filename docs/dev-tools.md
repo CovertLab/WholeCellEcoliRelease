@@ -3,23 +3,20 @@
 This page explains how to install the needed development tools. You won't have to revisit this very often.
 
 
-### First requirement: A package manager
+## First requirement: A package manager
 
 **macOS:** You'll need the [Homebrew](https://brew.sh/) package manager to install software tools and libraries.
 See the [Homebrew website](https://brew.sh/) about supported releases of macOS and how to install Homebrew.
-There is a substitute for Homebrew on older releases of macOS but you might still run into SDK API
-incompatibilities. We can't help you there short of suggesting that you update to the current
-release of macOS.
 
-**Linux:** You'll need to use `apt` or another package manager.
+**Linux:** You'll need `apt` or `snap` or another package manager.
 
-**Windows:** _We have not tested our software on Windows._ You could run our software within a Linux
-virtual machine or go it alone on Windows. We won't be able to help you there.
+**Windows:** _We have not tested the Whole Cell Model on Windows._ You could run it within a Linux
+virtual machine or blaze the trail on Windows.
 
 
 ## Required tools: gcc, make, git
 
-### For macOS
+### On macOS
 
 You'll need Xcode's command line tools including the C compiler, make, and git.
 
@@ -30,21 +27,31 @@ xcode-select --install
 ```
 
 
-### For Ubuntu
+### On Ubuntu
 
 ```bash
 sudo apt install -y gcc make build-essential wget curl llvm
 ```
 
-For Sherlock, the needed tools are already installed.
+### On Sherlock
 
-For other OSs, you'll need at least **gcc**, **git**, and **make**.
+The needed tools are already installed.
+Look in `$PI_HOME/downloads/`, `$PI_HOME/installation_notes/`, and `$PI_HOME/modules/`.
+
+
+### On other OSs
+
+You'll need at least `gcc`, `git`, and `make`.
+Probably `cmake` and `llvm` as well.
 
 
 
 ## Required tools: pyenv and virtualenv
 
-_pyenv_ and _virtualenv_ are tools to install versions of Python and switch between virtual environments. A virtual environment contains an installation of Python and additional libraries. Separate projects should use separate virtual environments so they won't clash over these requirements.
+`pyenv` and `virtualenv` are tools to install versions of Python and switch
+between virtual environments, each with its own selection of Python and libraries.
+Separate projects should use separate virtual environments to avoid clashes over
+required libraries and library versions.
 
 1. Install `pyenv`, `pyenv-virtualenv`, `pyenv-virtualenvwrapper` using your local package manager, e.g. [homebrew](https://brew.sh/) on macOS. E.g.
    ```bash
@@ -69,20 +76,21 @@ _pyenv_ and _virtualenv_ are tools to install versions of Python and switch betw
    source ~/.bash_profile
    ```
 
-2. Set your shell login script (`~/.bash_profile` on Linux; `~/.profile` or `~/.bash_profile` on macOS, etc.) to initialize `pyenv` and optionally `pyenv-virtualenv` for each shell. To do this, follow the steps below or the more intricate instructions under "Add pyenv init to your shell" in [pyenv Installation](https://github.com/pyenv/pyenv#installation).
+1. Set your shell login script (`~/.bash_profile` on Linux; `~/.profile` or `~/.bash_profile` on macOS, etc.) to initialize `pyenv` and optionally `pyenv-virtualenv` for each shell. To do this, follow the steps below or the more intricate instructions under "Add pyenv init to your shell" in [pyenv Installation](https://github.com/pyenv/pyenv#installation).
+
    - Example `~/.profile` or `~/.bash_profile` lines for macOS:
 
    ```bash
    export PYENV_ROOT=/usr/local/var/pyenv
    if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
    if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -)"; fi
-   ## -- Do this *before* sourcing iterm2_shell_integration
+   ## ^^^ Do this before sourcing iterm2_shell_integration
    ```
 
-   - Example `~/.bash_profile` lines for Stanford's "Sherlock" compute cluster, and note the `module load` command (more info at [setup_getting_started.md](https://github.com/CovertLab/ComputationalResources/blob/master/_sherlock/setup_getting_started.md), but that doc is out of date):
+   - Example `~/.bash_profile` lines for Sherlock:
 
    ```bash
-   module load wcEcoli/sherlock2
+   module load wcEcoli/python3
 
    export PYENV_ROOT="${PI_HOME}/pyenv"
 
@@ -93,7 +101,7 @@ _pyenv_ and _virtualenv_ are tools to install versions of Python and switch betw
    fi
    ```
 
-3. Open a new shell so it runs the updated profile.
+1. Open a new shell so it runs the updated profile.
 
    - On macOS, If you use normally use an account that does not have
      write access to `/usr/local/` (this is sometimes done to protect
@@ -104,28 +112,26 @@ _pyenv_ and _virtualenv_ are tools to install versions of Python and switch betw
      mkdir: /usr/local/var/pyenv/versions: Permission denied
      ```
 
-     You may want to consider changing your `~/.bash_profile` to read:
+     In that case, change the `PYENV_ROOT` setting in your shell profile and
+     open a new shell:
 
      ```bash
      export PYENV_ROOT="$HOME/.pyenv"
      ```
 
-     to store your pyenv environments at `~/.pyenv/` instead of at
-     `/usr/local/var/pyenv` as the above instructions do.
-
-4. You'll need to put the project on the `PYTHONPATH` when working on it. Consider adding this to your profile _or_ creating a shell alias to do it when you work on wcEcoli:
+1. You'll need to put the project on the `PYTHONPATH` when working on it. Consider adding this to your profile _or_ creating a shell alias to do it when you work on wcEcoli:
 
    ```bash
    export PYTHONPATH="$HOME/wcEcoli:$PYTHONPATH"
    ```
 
-5. **NOTE:** if you have a `~/.local/` directory, paths might not work properly with `pyenv` and you might receive error messages. ([TODO] What error messages? Delete the directory?)
+1. **NOTE:** if you have a `~/.local/` directory, paths might not work properly with `pyenv` and you might receive error messages. ([TODO] What error messages? Delete the directory?)
 
 
-## Additional requirements for macOS Mojave
+### Additional requirements for macOS Mojave and later
 
 **macOS Mojave (10.14+):**
-  * **Update FUSE before upgrading to macOS Mojave** if you have FUSE.
+  * **If you have FUSE installed, update it before upgrading to macOS Mojave.**
   * After upgrading to Mojave, run `xcode-select --install` again.
   * On Mojave, follow the "you will also need to install the additional SDK headers" instructions on [https://github.com/pyenv/pyenv/wiki/Common-build-problems](https://github.com/pyenv/pyenv/wiki/Common-build-problems). In short:
 
@@ -136,7 +142,7 @@ _pyenv_ and _virtualenv_ are tools to install versions of Python and switch betw
 
 ## Recommended tools
 
-  * [PyCharm](https://www.jetbrains.com/pycharm/) or PyCharm Pro -- a very productive Integrated Development Environment (IDE)
+  * [PyCharm](https://www.jetbrains.com/pycharm/) or PyCharm Pro -- a very productive Integrated Development Environment (IDE). PyCharm Professional Edition is free for students and academic staff members.
   * [Sublime Text 3](https://www.sublimetext.com/) -- a slick code editor with many speed features
   * [GitHub Desktop app](https://desktop.github.com/) -- greases the skids for common git operations and lets you compose commit messages while reviewing the edits
   * [iTerm2](https://www.iterm2.com/) for macOS -- much more helpful than the stock Terminal app
@@ -145,9 +151,34 @@ _pyenv_ and _virtualenv_ are tools to install versions of Python and switch betw
 ### PyCharm setup
 
 After [building the pyenv](docs/create-pyenv.md) and cloning the repo to a local directory, you can create a project in PyCharm.
+wcEcoli has a project in source control.
 
-* Select the project's Python interpreter: PyCharm > Preferences > Project: wcEcoli > Project Interpreter > Add > **Existing environment** > [navigate to something like `/usr/local/var/pyenv/versions/wcEcoli2/python`].
-* Set Keyboard Shortcuts: Duplicate one of the available sets (e.g. "Mac OS X 10.5+"), then make changes to suit. A great change is to set Cmd-D (or Ctrl-D) for "Edit > Find > Add Selection for Next Occurrence". [This is like `find_under_expand` in Sublime Text. Cmd-G (or Ctrl-G) works like Sublime's `find_under_expand_skip`.]
+* _Be sure to select the project's Python interpreter so PyCharm understands the version
+of Python and its installed libraries._ This enables code completion, usage documentation
+in context, visual debugging, warnings about code problems, click-through to library
+source code, etc.
+
+  PyCharm >  
+  Preferences >  
+  Project: wcEcoli >  
+  Project Interpreter >  
+  gear ⚙️ >  
+  Add... >  
+  Virtualenv Environment >  
+  Existing environment >  
+  Interpreter >  
+  [run `pyenv which python` in a shell to find the python location, something
+  like `/usr/local/var/pyenv/versions/wcEcoli3/python`, and paste that path into
+  the text box or navigate there].
+
+* Set Keyboard Shortcuts: Duplicate a keymap (e.g. "Mac OS X 10.5+"), then make changes to suit.
+
+  Recommended:
+
+  * `Cmd-D` (or Ctrl-D) "Edit > Find > Add Selection for Next Occurrence".  
+    This is like `find_under_expand` in Sublime Text. Cmd-G (or Ctrl-G) works like Sublime's `find_under_expand_skip`.
+  * `Cmd-[` and `Cmd-]`: Navigate Back and Forward, like in a web browser.
+  * `F2`: Next Bookmark, `Shift-F2`: Previous Bookmark, `Cmd-F2`: Toggle Bookmarks.
 
 [TODO] Tips on setting up and using the debugger...
 
@@ -161,10 +192,11 @@ because it assumes imported module names (`Bio`) match their PyPI package names
 (`biopython`) except for a specific list of exceptions. The built-in exceptions
 list doesn't include `stochastic-arrow`, `biopython`, etc., but we can add them.
 
-**The fix:** Each time you install a PyCharm release, run this shell command
+**The fix:** Each time you install a PyCharm release, run the following shell command,
 then restart PyCharm:  
-[NOTE: So far, this script only works on macOS and maybe only for PyCharm Pro
-as installed by JetBrains Toolbox. To support other installations, we need to
+
+> [NOTE: So far, this script only works on macOS and maybe only for PyCharm Pro
+installed by JetBrains Toolbox. To support other installations, we need to
 enhance the script for where `python.jar` or `python-ce.jar` gets installed.]
 
     runscripts/tools/augment-pycharm-package-list.sh

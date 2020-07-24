@@ -7,18 +7,11 @@ _These guidelines are condensed from the PEP8 and Google style guides here, alon
 * See our [March 12, 2018 meeting slides](https://docs.google.com/presentation/d/1pf6GQmMwbUoeASmNk1bmjYZ-PteJ0tSFH0v6P6vd5eE/edit#slide=id.g313d94100c_0_55) with notes on the tradeoffs between alternatives.
 
 ## Note: Python 2 and 3 compatibility
-Since Python 2 end-of-life is Jan. 1, 2020, the project is transitioning to Python 3. **Code additions and changes should remain compatible with Python 2 and also be compatible with Python 3 to an increasing degree.**
+The project has transitioned to Python 3.
 
-* Until we finish the transition, use syntax and features that are compatible with both Python 2 + 3. We'll use the conversion tools to do the bulk of the conversion work, but do make edits compatible. Easy cases:
-  *  `raise Exception, args` → `raise Exception(args)`
-  *  `except TypeError, ZeroDivisionError:` → `except Exception as variable:`
-  *  `` `i` `` → `repr(i)`
-  *  `a <> b` → `a != b`
-  *  `a_dict.has_key(k)` → `k in a_dict`
-  *  `apply(f, args)` → `f(*args)`
-
-* Put `from __future__ import absolute_import, division, print_function` in each source file after making and testing any needed adaptations.
-* See [Python 2.7 → 3.7 slides](https://docs.google.com/presentation/d/1xwVHjpQsRTGLdaIpPDNjKPQFtp7mBNfn7oTWK4Kct30/edit?usp=sharing) and [TODO] wiki pages.
+We have not yet removed Python 2 compatibility elements such as
+`from __future__ import absolute_import, division, print_function`
+and uses of the `six` compatibility library.
 
 
 # Style Guides
@@ -381,17 +374,15 @@ list of ints, returning an int
 ## Tools
 
 [PyCharm](https://www.jetbrains.com/help/pycharm/type-hinting-in-product.html) checks types interactively
-while you edit. You don't need any other tools to check types. See
+while you edit. You can also run a particular kind of inspection (such as "Type checker")
+or all inspection types on a single file or any source directory. See
 [Python Type Checking (Guide)](https://realpython.com/python-type-checking/).
 
-[mypy](https://github.com/python/mypy/) and [pytype](https://github.com/google/pytype) are
-batch programs to check types, esp. useful in Continuous Integration builds. pytype runs in Python 2 or 3,
-while mypy only runs in Python 3 whether it's checking Python 2 or Python 3 code. pytype goes
-further with type inference (reducing the number of type hints to write) and it does other code
-checks at the same time.
+[mypy](https://github.com/python/mypy/) is a batch program to check types. We run it in
+Continuous Integration. Code changes must run cleanly to pass the `ecoli-pull-request`
+and the `ecoli-small` CI tests. To run it:
 
-pytype has features to generate types as `.pyi` stub files and to merge them into the Python
-source code. You need to review the tool's output and re-run pytype to ensure the types are correct.
+    runscripts/debug/mypy.sh
 
 [PyAnnotate](https://github.com/dropbox/pyannotate) (Py2.7) and
 [MonkeyType](https://github.com/Instagram/MonkeyType) (Py3) will observe types at runtime and

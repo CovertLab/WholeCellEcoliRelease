@@ -52,6 +52,7 @@ Scripts used as entry points for executing workflows or performing analysis.
     * `debug/`: scripts useful for debugging issues like output differences and inspecting `sim_data`
     * `cloud/wcm.py`: used to make Docker fireworks workflows to run locally or on Google compute engine
     * `fireworks/fw_queue.py`: used to make fireworks workflows to run locally or on Sherlock
+    * `tools/`: development tools
 
 ## Analysis
 
