@@ -27,8 +27,6 @@ OUTPUT_DATA_PATH = os.path.join(
 DURATION = 50
 #: Number of cells with which to initialize simulation
 NUM_CELLS = 2
-#: Seconds in a cell cycle before forcibly triggering division
-SECONDS_TO_DIVISION = 15
 
 
 # TODO: Replace this with Vivarium import
@@ -114,7 +112,7 @@ def run_simulation():
 		'type': 'timeseries'
 	}
 	emitter = simulate(
-		emitter_config, DURATION, NUM_CELLS, SECONDS_TO_DIVISION)
+		emitter_config, DURATION, NUM_CELLS)
 	path_ts = emitter.get_path_timeseries()
 	processed_ts = process_path_timeseries_for_csv(path_ts)
 	return processed_ts
