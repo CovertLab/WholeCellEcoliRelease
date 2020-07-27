@@ -70,7 +70,7 @@ six==1.15.0
 stochastic-arrow==0.4.1
 swiglpk==4.65.1
 sympy==1.6.1
-Theano==1.0.4
+Theano==1.0.5
 Unum==4.1.4
 wholecell-vivarium==0.0.52
 
