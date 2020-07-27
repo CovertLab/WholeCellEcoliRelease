@@ -25,7 +25,11 @@ from vivarium.core.emitter import (
 )
 
 from environment.wcecoli_process import wcEcoliAgent
-from environment.wcecoli_compartment import WcEcoliCell
+from environment.wcecoli_compartment import (
+    ANTIBIOTIC_KEY,
+    INITIAL_EXTERNAL_ANTIBIOTIC,
+    WcEcoliCell,
+)
 
 
 MEDIA_ID = "minimal"
@@ -58,6 +62,7 @@ def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 	agent = wcEcoliAgent({})
 	external_states = agent.ecoli_simulation.external_states
 	recipe = external_states['Environment'].saved_media[MEDIA_ID]
+	recipe[ANTIBIOTIC_KEY] = INITIAL_EXTERNAL_ANTIBIOTIC
 
 	with io.open(TAGGED_MOLECULES_PATH, 'rb') as f:
 		reader = tsv.reader(f, delimiter=',')
@@ -94,8 +99,8 @@ def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 				'bounds': BOUNDS,
 				'n_bins': N_BINS,
 				'molecules': list(recipe.keys()),
-				'depth': 10000.0,  # Deep to avoid depleting local molecules
-				'diffusion': 5,  # 10x faster than the default 5e-1
+				'depth': 1000,  # Deep to avoid depleting local molecules
+				'diffusion': 5e-1,
 				'gradient': {
 					'type': 'linear',
 					'molecules': {
@@ -120,6 +125,7 @@ def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 		'return_raw_data': True,
 	}
 	simulate_experiment(experiment, settings)
+	print('Experiment ID:', experiment.experiment_id)
 	return experiment.emitter
 
 

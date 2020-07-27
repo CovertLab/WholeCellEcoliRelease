@@ -5,6 +5,7 @@ import copy
 import shutil
 import sys
 
+import numpy as np
 from vivarium.core.process import Process
 from vivarium.library.dict_utils import deep_merge
 from vivarium.library.units import units
@@ -180,10 +181,11 @@ class wcEcoliAgent(Process):
 				'bulk_molecules': [],
 			},
 		},
-		'time_step': 5.0,  # 60 for big experiments
 	}
 	# Must match units used by wcEcoli
 	mass_units = units.fg
+	density_units = units.g / units.L
+	volume_units = units.fL
 	name = 'wcEcoliAgent'
 
 	def __init__(self, initial_parameters=None):
@@ -258,6 +260,9 @@ class wcEcoliAgent(Process):
 
 		super(wcEcoliAgent, self).__init__(parameters)
 
+	def local_timestep(self):
+		return self.ecoli_simulation.timeStepSec()
+
 	def ports_schema(self):
 		return self._ports_schema_from_params(
 			self.parameters, self.all_exchange_molecules)
@@ -271,7 +276,8 @@ class wcEcoliAgent(Process):
 			'listeners_report',
 			'global',
 			'external',
-			'exchange',
+			'fields',
+			'dimensions',
 		]
 
 		schema = {
@@ -283,16 +289,14 @@ class wcEcoliAgent(Process):
 			molecule: {
 				'_default': 0.0,
 				'_emit': True,
-				'_updater': 'set',
 			}
 			for molecule in all_exchange_molecules
 		}
 
-		# exchange
-		schema['exchange'] = {
+		# fields
+		schema['fields'] = {
 			molecule: {
-				'_default': 0.0,
-				'_updater': 'set',
+				'_default': np.ones((1, 1)),
 				'_emit': True,
 			}
 			for molecule in all_exchange_molecules
@@ -366,12 +370,12 @@ class wcEcoliAgent(Process):
 				'_updater': 'set',
 			},
 			'volume': {
-				'_default': 0.0,
+				'_default': 0.0 * self.volume_units,
 				'_emit': True,
 				'_updater': 'set',
 			},
 			'density': {
-				'_default': 1.0,
+				'_default': 1100 * self.density_units,
 				'_emit': True,
 				'_updater': 'set',
 			},
@@ -383,7 +387,23 @@ class wcEcoliAgent(Process):
 			'division': {
 				'_default': [],
 				'_updater': 'set',
-			}
+			},
+			'location': {
+				'_default': [0.5, 0.5],
+			},
+		}
+
+		# diensions
+		schema['dimensions'] = {
+			'bounds': {
+				'_default': [1, 1],
+			},
+			'n_bins': {
+				'_default': [1, 1],
+			},
+			'depth': {
+				'_default': 1,
+			},
 		}
 		return schema
 
@@ -400,19 +420,45 @@ class wcEcoliAgent(Process):
 		listeners_report = update['listeners_report']
 		return {
 			'global': {
-				'volume': (
-					listeners_report[('Mass', 'volume')]
-				),
-				'mass': (
-					listeners_report[('Mass', 'cellMass')]
-					* self.mass_units
-				),
-				'density': (
-					listeners_report[('Mass', 'cellDensity')]
-				),
-				'division': update['division'],
+				'volume': {
+					'_value': (
+						listeners_report[('Mass', 'volume')]
+						* self.volume_units
+					),
+					'_updater': 'set',
+				},
+				'mass': {
+					'_value': (
+						listeners_report[('Mass', 'cellMass')]
+						* self.mass_units
+					),
+					'_updater': 'set',
+				},
+				'density': {
+					'_value': (
+						listeners_report[('Mass', 'cellDensity')]
+						* self.density_units
+					),
+					'_updater': 'set',
+				},
+				'division': {
+					'_value': update['division'],
+					'_updater': 'set',
+				},
 			},
-			'exchange': update['exchange'],
+			'fields': {
+				molecule: {
+					'_value': exchange,
+					'_updater': {
+						'updater': 'update_field_with_exchange',
+						'port_mapping': {
+							'global': 'global',
+							'dimensions': 'dimensions',
+						},
+					},
+				}
+				for molecule, exchange in update['exchange'].items()
+			},
 			'unique_molecules_report': update['unique_molecules_report'],
 			'bulk_molecules_report': update['bulk_molecules_report'],
 			'listeners_report': {
