@@ -59,19 +59,16 @@ class Replication(object):
 		names, name_dtype = extract_data(raw_data.genes, 'id')
 		symbols, symbol_dtype = extract_data(raw_data.genes, 'symbol')
 		rna_ids, rna_dtype = extract_data(raw_data.genes, 'rnaId')
-		monomer_ids, monomer_dtype = extract_data(raw_data.genes, 'monomerId')
 
 		self.geneData = np.zeros(
 			len(raw_data.genes),
 			dtype=[('name', name_dtype),
 				('symbol', symbol_dtype),
-				('rnaId', rna_dtype),
-				('monomerId', monomer_dtype)])
+				('rnaId', rna_dtype)])
 
 		self.geneData['name'] = names
 		self.geneData['symbol'] = symbols
 		self.geneData['rnaId'] = rna_ids
-		self.geneData['monomerId'] = monomer_ids
 
 	def _buildReplication(self, raw_data, sim_data):
 		"""

@@ -67,16 +67,17 @@ class Protein(object):
 
 		# Build and save a dict from gene ID to monomerId
 		self.geneIdToMonomerId = {
-			x["id"]: x["monomerId"] + utilFunctions.get_location_tag(x["monomerId"])
-			for x in knowledge_base_raw.genes
+			x["geneId"]: x["monomerId"] + utilFunctions.get_location_tag(x["monomerId"])
+			for x in knowledge_base_raw.rnas
 			if x["type"] == "mRNA"}
 
 		# Build and save a dict from gene symbol to corresponding monomerId
 		self.geneSymbolToMonomerId = {}
-		for entry in knowledge_base_raw.genes:
-			symbol = entry["symbol"]
-			monomerId = entry["monomerId"]
-			self.geneSymbolToMonomerId[symbol] = monomerId
+		gene_id_to_symbol = {
+			gene["id"]: gene["symbol"] for gene in knowledge_base_raw.genes}
+
+		for gene_id, monomer_id in self.geneIdToMonomerId.items():
+			self.geneSymbolToMonomerId[gene_id_to_symbol[gene_id]] = monomer_id
 
 		self._loadTaniguchi2010Counts(validation_data_raw)
 		self._loadHouser2015Counts(validation_data_raw)

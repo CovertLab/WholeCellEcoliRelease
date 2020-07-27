@@ -183,17 +183,41 @@ class Transcription(object):
 
 		assert all([len(rna['location']) == 1 for rna in raw_data.rnas])
 
-		# Loads RNA IDs, degradation rates, lengths, and nucleotide compositions
+		# Loads RNA IDs, lengths, and nucleotide compositions
 		rnaIds = ['{}[{}]'.format(rna['id'], rna['location'][0])
             for rna in raw_data.rnas]
-		rnaDegRates = np.log(2) / np.array([rna['halfLife'] for rna in raw_data.rnas]) # TODO: units
 		rnaLens = np.array([len(rna['seq']) for rna in raw_data.rnas])
-
 		ntCounts = np.array([
 			(rna['seq'].count('A'), rna['seq'].count('C'),
 			rna['seq'].count('G'), rna['seq'].count('U'))
 			for rna in raw_data.rnas
 			])
+
+		# Load set of mRNA ids
+		mRNA_ids = set([rna['id'] for rna in raw_data.rnas if rna['type'] == 'mRNA'])
+
+		# Load RNA half lives
+		rna_id_to_half_life = {}
+		reported_mRNA_half_lives = []
+
+		for rna in raw_data.rna_half_lives:
+			rna_id_to_half_life[rna['id']] = rna['half_life']
+
+			if rna['id'] in mRNA_ids:
+				reported_mRNA_half_lives.append(rna['half_life'])
+
+		# Calculate average reported half lives of mRNAs
+		average_mRNA_half_lives = np.array(reported_mRNA_half_lives).mean()
+
+		# Get half life of each RNA - if the half life is not given, use the
+		# average reported half life of mRNAs
+		# TODO (ggsun): Handle units correctly
+		half_lives = np.array([
+			rna_id_to_half_life.get(rna['id'], average_mRNA_half_lives)
+			for rna in raw_data.rnas])
+
+		# Convert to degradation rates
+		rna_deg_rates = np.log(2) / half_lives
 
 		# Load RNA expression from RNA-seq data
 		expression = []
@@ -219,12 +243,12 @@ class Transcription(object):
 		# Calculate synthesis probabilities from expression and normalize
 		synthProb = expression*(
 			np.log(2) / sim_data.doubling_time.asNumber(units.s)
-			+ rnaDegRates
+			+ rna_deg_rates
 			)
 		synthProb /= synthProb.sum()
 
 		# Calculate EndoRNase Km values
-		Km = (KCAT_ENDO_RNASE*ESTIMATE_ENDO_RNASES/rnaDegRates) - expression
+		Km = (KCAT_ENDO_RNASE*ESTIMATE_ENDO_RNASES/rna_deg_rates) - expression
 
 		# Load molecular weights and gene IDs
 		mws = np.array([rna['mw'] for rna in raw_data.rnas]).sum(axis = 1)
@@ -341,7 +365,7 @@ class Transcription(object):
 			)
 
 		rnaData['id'] = rnaIds
-		rnaData['degRate'] = rnaDegRates
+		rnaData['degRate'] = rna_deg_rates
 		rnaData['length'] = rnaLens
 		rnaData['countsACGU'] = ntCounts
 		rnaData['mw'] = mws
