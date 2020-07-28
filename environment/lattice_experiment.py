@@ -26,9 +26,9 @@ from vivarium.core.emitter import (
 
 from environment.wcecoli_process import wcEcoliAgent
 from environment.wcecoli_compartment import (
-    ANTIBIOTIC_KEY,
-    INITIAL_EXTERNAL_ANTIBIOTIC,
-    WcEcoliCell,
+	ANTIBIOTIC_KEY,
+	INITIAL_EXTERNAL_ANTIBIOTIC,
+	WcEcoliCell,
 )
 
 
@@ -116,7 +116,11 @@ def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 		},
 	}
 	experiment = agent_environment_experiment(
-		agents_config, environment_config, initial_state, settings)
+		agents_config,
+		environment_config,
+		initial_state,
+		settings=settings,
+	)
 	print('Experiment ID:', experiment.experiment_id)
 	emit_environment_config(environment_config['config'], experiment.emitter)
 	settings = {
