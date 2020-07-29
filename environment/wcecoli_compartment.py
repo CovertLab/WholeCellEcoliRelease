@@ -32,7 +32,7 @@ class WcEcoliCell(Generator):
 			'intial_external_antibiotic': INITIAL_EXTERNAL_ANTIBIOTIC,
 			'pump_kcat': 1e-3,
 			'pump_key': 'TRANS-CPLX-201[s]',
-            'antibiotic_key': ANTIBIOTIC_KEY,
+			'antibiotic_key': ANTIBIOTIC_KEY,
 		},
 		'death': {
 			'detectors': {
@@ -42,9 +42,9 @@ class WcEcoliCell(Generator):
 				},
 			},
 			'targets': [
-                'wcecoli', 'meta_division', 'death',
-                'antibiotic_transport'
-            ],
+				'wcecoli', 'meta_division', 'death',
+				'antibiotic_transport'
+			],
 		},
 		'derive_shape': {},
 		'cell_environment_diffusion': {
@@ -64,6 +64,7 @@ class WcEcoliCell(Generator):
 				'porin': 5e-10,
 			},
 		},
+		'derive_colony_shape': {},
 	}
 
 	def generate_processes(self, config):
@@ -104,7 +105,7 @@ class WcEcoliCell(Generator):
 				'external': (
 					boundary_path + ('external',)
 				),
-                # Don't apply cell's exchange to avoid breaking FBA
+				# Don't apply cell's exchange to avoid breaking FBA
 				'fields': boundary_path + ('wcecoli_fields_null',),
 				'dimensions': config['dimensions_path'],
 			},
@@ -118,7 +119,7 @@ class WcEcoliCell(Generator):
 			'death': {
 				'global': boundary_path,
 				'internal': boundary_path + ('cytoplasm',),
-                'processes': tuple(),
+				'processes': tuple(),
 			},
 			'antibiotic_transport': {
 				'internal': boundary_path + ('cytoplasm',),
