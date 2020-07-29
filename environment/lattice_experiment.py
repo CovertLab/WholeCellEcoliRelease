@@ -81,11 +81,6 @@ def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 	agent_ids = ['wcecoli_{}'.format(i) for i in range(num_cells)]
 
 	initial_state = {}
-	initial_agent_state = {
-		'boundary': {
-			'location': [0.5 * bound for bound in BOUNDS]
-		}
-	}
 	settings = {
 		'emitter': emitter_config,
 	}
@@ -118,14 +113,15 @@ def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 					},
 				},
 			},
-			'colony_shape_deriver': {},
+			'colony_shape_deriver': {
+				'bounds': BOUNDS,
+            },
 		},
 	}
 	experiment = agent_environment_experiment(
 		agents_config,
 		environment_config,
 		initial_state,
-        initial_agent_state=initial_agent_state,
 		settings=settings,
 	)
 	print('Experiment ID:', experiment.experiment_id)
