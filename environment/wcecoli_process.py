@@ -297,7 +297,6 @@ class wcEcoliAgent(Process):
 		schema['fields'] = {
 			molecule: {
 				'_default': np.ones((1, 1)),
-				'_emit': True,
 			}
 			for molecule in all_exchange_molecules
 		}
