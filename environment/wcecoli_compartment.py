@@ -8,6 +8,8 @@ from vivarium.processes.antibiotic_transport import AntibioticTransport
 from vivarium.processes.diffusion_cell_environment import (
 	CellEnvironmentDiffusion,
 )
+from vivarium.processes.derive_concentrations import (
+	DeriveConcentrations)
 
 from environment.wcecoli_process import wcEcoliAgent
 from environment.wcecoli_meta_division import WcEcoliMetaDivision
@@ -17,6 +19,8 @@ from environment.wcecoli_derive_shape import WcEcoliDeriveShape
 INITIAL_INTERNAL_ANTIBIOTIC = 0
 INITIAL_EXTERNAL_ANTIBIOTIC = 1
 ANTIBIOTIC_KEY = 'rifampicin'
+PUMP_KEY = 'TRANS-CPLX-201[s]'
+PORIN_KEY = 'porin'
 
 
 class WcEcoliCell(Generator):
@@ -30,14 +34,14 @@ class WcEcoliCell(Generator):
 			'initial_pump': 0.0,
 			'initial_internal_antibiotic': INITIAL_INTERNAL_ANTIBIOTIC,
 			'intial_external_antibiotic': INITIAL_EXTERNAL_ANTIBIOTIC,
-			'pump_kcat': 1e-3,
-			'pump_key': 'TRANS-CPLX-201[s]',
+			'pump_kcat': 1,
+			'pump_key': PUMP_KEY,
 			'antibiotic_key': ANTIBIOTIC_KEY,
 		},
 		'death': {
 			'detectors': {
 				'antibiotic': {
-					'antibiotic_threshold': 0.35,
+					'antibiotic_threshold': 0.86,
 					'antibiotic_key': ANTIBIOTIC_KEY,
 				},
 			},
@@ -50,7 +54,7 @@ class WcEcoliCell(Generator):
 		'cell_environment_diffusion': {
 			'default_state': {
 				'membrane': {
-					'porin': 1e-7,
+					PORIN_KEY: 1e-7,
 				},
 				'external': {
 					ANTIBIOTIC_KEY: INITIAL_EXTERNAL_ANTIBIOTIC,
@@ -61,10 +65,22 @@ class WcEcoliCell(Generator):
 			},
 			'molecules_to_diffuse': [ANTIBIOTIC_KEY],
 			'permeabilities': {
-				'porin': 5e-10,
+				PORIN_KEY: 1e-11,
 			},
 		},
 		'derive_colony_shape': {},
+		'derive_concentrations': {
+			'concentration_keys': [PUMP_KEY],
+		},
+        '_schema': {
+            'cell_environment_diffusion': {
+                'membrane': {
+                    PORIN_KEY: {
+                        '_divider': 'set',
+                    },
+                },
+            },
+        },
 	}
 
 	def generate_processes(self, config):
@@ -79,7 +95,10 @@ class WcEcoliCell(Generator):
 			config['antibiotic_transport'])
 		cell_environment_diffusion = CellEnvironmentDiffusion(
 			config['cell_environment_diffusion'])
+		derive_concentrations = DeriveConcentrations(
+			config['derive_concentrations'])
 		return {
+			'derive_concentrations': derive_concentrations,
 			'wcecoli': wcecoli_process,
 			'meta_division': meta_division,
 			'derive_shape': derive_shape,
@@ -91,6 +110,13 @@ class WcEcoliCell(Generator):
 	def generate_topology(self, config=None):
 		boundary_path = config['boundary_path']
 		return {
+			'derive_concentrations': {
+				'global': boundary_path,
+				'counts': boundary_path + ('bulk_molecules_report',),
+				'concentrations': (
+					boundary_path + ('bulk_molecule_concentrations',)
+				),
+			},
 			'wcecoli': {
 				'bulk_molecules_report': (
 					boundary_path + ('bulk_molecules_report',)
@@ -124,7 +150,9 @@ class WcEcoliCell(Generator):
 			'antibiotic_transport': {
 				'internal': boundary_path + ('cytoplasm',),
 				'external': boundary_path + ('external',),
-				'pump_port': boundary_path + ('bulk_molecules_report',),
+				'pump_port': (
+					boundary_path + ('bulk_molecule_concentrations',)
+				),
 				'fields': config['fields_path'],
 				'fluxes': boundary_path + ('fluxes',),
 				'global': boundary_path,
