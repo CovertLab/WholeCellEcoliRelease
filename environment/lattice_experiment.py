@@ -37,6 +37,7 @@ BOUNDS = (50, 50)
 N_BINS = (20, 20)
 TAGGED_MOLECULES_PATH = os.path.join(
 	os.path.dirname(__file__), 'tagged_molecules.csv')
+NUM_EMISSIONS = 100
 
 
 def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
@@ -83,6 +84,7 @@ def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 	initial_state = {}
 	settings = {
 		'emitter': emitter_config,
+		'emit_step': max(simulation_time // NUM_EMISSIONS, 1)
 	}
 	agents_config = {
 		'type': WcEcoliCell,
@@ -115,7 +117,7 @@ def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 			},
 			'colony_shape_deriver': {
 				'bounds': BOUNDS,
-            },
+			},
 		},
 	}
 	experiment = agent_environment_experiment(
