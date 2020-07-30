@@ -11,9 +11,8 @@ import io
 import json
 import os
 
-from wholecell.io import tsv
+import numpy as np
 from vivarium.core.composition import (
-	make_agents,
 	agent_environment_experiment,
 	simulate_experiment,
 )
@@ -23,7 +22,10 @@ from vivarium.core.emitter import (
 	emit_environment_config,
 	SECRETS_PATH,
 )
+from vivarium.processes.diffusion_field import make_gradient
+from vivarium.library.lattice_utils import get_bin_site
 
+from wholecell.io import tsv
 from environment.wcecoli_process import wcEcoliAgent
 from environment.wcecoli_compartment import (
 	ANTIBIOTIC_KEY,
@@ -38,6 +40,94 @@ N_BINS = (20, 20)
 TAGGED_MOLECULES_PATH = os.path.join(
 	os.path.dirname(__file__), 'tagged_molecules.csv')
 NUM_EMISSIONS = 100
+
+
+def get_timeline(n_bins, size, pulses):
+	'''Get a timeline for antibiotic pulses.
+
+	Arguments:
+		n_bins (list): Number of bins in x and y directions.
+		size (list): Size of environment in x and y directions.
+		pulses (list): List of tuples, each of which describes a pulse.
+			Each tuple has the form
+			(start_time, duration, center, concentration) where center
+			is a 2-tuple that specifies coordinates for the pulse.
+	Returns:
+		list: A timeline that implements the described pulses.
+	'''
+	timeline = []
+	get_empty_field = lambda: make_gradient(
+		{
+			'type': 'uniform',
+			'molecules': {
+				ANTIBIOTIC_KEY: '0',
+			},
+		},
+		n_bins,
+		size,
+	)[ANTIBIOTIC_KEY]
+	for start_time, duration, center, concentration in pulses:
+		center_row, center_col = get_bin_site(center, n_bins, size)
+		start_field = get_empty_field()
+		start_field[center_row, center_col] = concentration
+		timeline.append((
+			start_time,
+			{('fields', ANTIBIOTIC_KEY): start_field},
+		))
+		end_field = get_empty_field()
+		timeline.append((
+			start_time + duration,
+			{('fields', ANTIBIOTIC_KEY): end_field},
+		))
+	return timeline
+
+
+class TestGetTimeline:
+
+	def assert_timelines_equal(self, timeline, expected_timeline):
+		assert len(timeline) == len(expected_timeline)
+		for (actual_time, actual), (expected_time, expected) in zip(
+			timeline, expected_timeline
+		):
+			assert actual_time == expected_time
+			assert (
+				actual[('fields', ANTIBIOTIC_KEY)].tolist()
+				== expected[('fields', ANTIBIOTIC_KEY)].tolist()
+			)
+			assert len(actual) == len(expected)
+
+	def test_one_pulse_one_bin(self):
+		timeline = get_timeline(
+			(1, 1), (1, 1), [(1, 1, (0.5, 0.5), 1)])
+		expected_timeline = [
+			(1, {('fields', ANTIBIOTIC_KEY): np.ones((1, 1))}),
+			(2, {('fields', ANTIBIOTIC_KEY): np.zeros((1, 1))}),
+		]
+		assert timeline == expected_timeline
+
+	def test_selects_correct_bin(self):
+		timeline = get_timeline(
+			(2, 2), (1, 1), [(1, 1, (0.75, 0.25), 1)])
+		expected_timeline = [
+			(1, {('fields', ANTIBIOTIC_KEY):
+				np.array([[0, 0], [1, 0]])}),
+			(2, {('fields', ANTIBIOTIC_KEY): np.zeros((2, 2))}),
+		]
+		self.assert_timelines_equal(timeline, expected_timeline)
+
+	def test_two_pulses(self):
+		timeline = get_timeline(
+			(1, 1),
+			(1, 1),
+			[(1, 1, (0.5, 0.5), 1), (4, 2, (0.75, 0.25), 2)],
+		)
+		expected_timeline = [
+			(1, {('fields', ANTIBIOTIC_KEY): np.ones((1, 1))}),
+			(2, {('fields', ANTIBIOTIC_KEY): np.zeros((1, 1))}),
+			(4, {('fields', ANTIBIOTIC_KEY): np.full((1, 1), 2)}),
+			(6, {('fields', ANTIBIOTIC_KEY): np.zeros((1, 1))}),
+		]
+		self.assert_timelines_equal(timeline, expected_timeline)
 
 
 def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
