@@ -222,15 +222,12 @@ class Transcription(object):
 		# Load RNA expression from RNA-seq data
 		expression = []
 
+		seq_data = {x['Gene']: x[sim_data.basal_expression_condition] for x in getattr(raw_data.rna_seq_data, f'rnaseq_{RNA_SEQ_ANALYSIS}_mean')}
 		for rna in raw_data.rnas:
-			arb_exp = [x[sim_data.basal_expression_condition]
-                for x in eval("raw_data.rna_seq_data.rnaseq_{}_mean".format(RNA_SEQ_ANALYSIS))
-                if x['Gene'] == rna['geneId']]
-
 			# If sequencing data is not found for rRNA or tRNA, initialize
             # expression to zero. For other RNA types, raise exception.
-			if len(arb_exp) > 0:
-				expression.append(arb_exp[0])
+			if rna['geneId'] in seq_data:
+				expression.append(seq_data[rna['geneId']])
 			elif rna['type'] == 'mRNA' or rna['type'] == 'miscRNA':
 				raise Exception('No RNA-seq data found for {}'.format(rna['id']))
 			elif rna['type'] == 'rRNA' or rna['type'] == 'tRNA':
@@ -417,7 +414,6 @@ class Transcription(object):
 		self.rnaSynthProb["basal"] = synthProb / synthProb.sum()
 
 		self.rnaData = UnitStructArray(rnaData, field_units)
-
 
 	def _build_transcription(self, raw_data, sim_data):
 		"""

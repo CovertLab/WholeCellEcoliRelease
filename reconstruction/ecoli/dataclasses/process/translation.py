@@ -59,20 +59,16 @@ class Translation(object):
 		ids = ['{}[{}]'.format(protein['id'], protein['location'][0]) for protein in raw_data.proteins]
 
 		rnaIds = []
-
+		rna_locations = {rna['id']: rna['location'] for rna in raw_data.rnas}
 		for protein in raw_data.proteins:
 			rnaId = protein['rnaId']
 
-			rnaLocation = None
-			for rna in raw_data.rnas:
-				if rna['id'] == rnaId:
-					assert len(rna['location']) == 1
-					rnaLocation = rna['location'][0]
-					break
+			locations = rna_locations.get(rnaId, [])
+			assert len(locations) == 1
 
 			rnaIds.append('{}[{}]'.format(
 				rnaId,
-				rnaLocation
+				locations[0]
 				))
 
 		lengths = []
@@ -220,7 +216,6 @@ class Translation(object):
 
 		self.translationEfficienciesByMonomer = np.array(trEffs)
 		self.translationEfficienciesByMonomer[np.isnan(self.translationEfficienciesByMonomer)] = np.nanmean(self.translationEfficienciesByMonomer)
-
 
 	def _build_elongation_rates(self, raw_data, sim_data):
 		protein_ids = self.monomerData['id']
