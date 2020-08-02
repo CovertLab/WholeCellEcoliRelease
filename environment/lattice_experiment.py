@@ -166,6 +166,7 @@ def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 				'bulk_molecules': tagged_molecules,
 			},
 		},
+		'_parallel': True,
 	}
 	if length_sec is not None:
 		process_config['agent_config']['lengthSec'] = length_sec
@@ -224,6 +225,7 @@ def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 		'return_raw_data': True,
 	}
 	simulate_experiment(experiment, settings)
+	experiment.end()
 	print('Experiment ID:', experiment.experiment_id)
 	return experiment.emitter
 

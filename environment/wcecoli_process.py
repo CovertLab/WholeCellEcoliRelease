@@ -260,6 +260,18 @@ class wcEcoliAgent(Process):
 
 		super(wcEcoliAgent, self).__init__(parameters)
 
+	def __getstate__(self):
+		time = self.ecoli_simulation.time()
+		if time != 0:
+			raise RuntimeError(
+				'wcEcoliAgent.ecoli_simulation must be at time 0 to '
+				'pickle, but simulation is at time {}'.format(time)
+			)
+		return self.parameters
+
+	def __setstate__(self, state):
+		self.__init__(state)
+
 	def local_timestep(self):
 		return self.ecoli_simulation.timeStepSec()
 
