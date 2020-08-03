@@ -181,6 +181,7 @@ class wcEcoliAgent(Process):
 				'bulk_molecules': [],
 			},
 		},
+		'update_fields': True,
 	}
 	# Must match units used by wcEcoli
 	mass_units = units.fg
@@ -288,9 +289,10 @@ class wcEcoliAgent(Process):
 			'listeners_report',
 			'global',
 			'external',
-			'fields',
 			'dimensions',
 		]
+		if self.parameters['update_fields']:
+			ports.append('fields')
 
 		schema = {
 			port: {} for port in ports
@@ -306,12 +308,13 @@ class wcEcoliAgent(Process):
 		}
 
 		# fields
-		schema['fields'] = {
-			molecule: {
-				'_default': np.ones((1, 1)),
+		if self.parameters['update_fields']:
+			schema['fields'] = {
+				molecule: {
+					'_default': np.ones((1, 1)),
+				}
+				for molecule in all_exchange_molecules
 			}
-			for molecule in all_exchange_molecules
-		}
 
 		# bulk_molecules_report
 		if (
@@ -429,7 +432,7 @@ class wcEcoliAgent(Process):
 		self.ecoli_simulation.run_for(timestep)
 		update = self.ecoli_simulation.generate_inner_update()
 		listeners_report = update['listeners_report']
-		return {
+		update = {
 			'global': {
 				'volume': {
 					'_value': (
@@ -457,7 +460,15 @@ class wcEcoliAgent(Process):
 					'_updater': 'set',
 				},
 			},
-			'fields': {
+			'unique_molecules_report': update['unique_molecules_report'],
+			'bulk_molecules_report': update['bulk_molecules_report'],
+			'listeners_report': {
+				'-'.join(key): value
+				for key, value in listeners_report.items()
+			},
+		}
+		if self.parameters['update_fields']:
+			update['fields'] = {
 				molecule: {
 					'_value': exchange,
 					'_updater': {
@@ -469,11 +480,5 @@ class wcEcoliAgent(Process):
 					},
 				}
 				for molecule, exchange in update['exchange'].items()
-			},
-			'unique_molecules_report': update['unique_molecules_report'],
-			'bulk_molecules_report': update['bulk_molecules_report'],
-			'listeners_report': {
-				'-'.join(key): value
-				for key, value in listeners_report.items()
-			},
-		}
+			}
+		return update

@@ -133,8 +133,6 @@ class WcEcoliCell(Generator):
 				'external': (
 					boundary_path + ('external',)
 				),
-				# Don't apply cell's exchange to avoid breaking FBA
-				'fields': boundary_path + ('wcecoli_fields_null',),
 				'dimensions': config['dimensions_path'],
 			},
 			'meta_division': {

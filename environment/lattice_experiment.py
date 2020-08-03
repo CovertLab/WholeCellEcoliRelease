@@ -167,6 +167,7 @@ def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 			},
 		},
 		'_parallel': True,
+		'update_fields': False,
 	}
 	if length_sec is not None:
 		process_config['agent_config']['lengthSec'] = length_sec
