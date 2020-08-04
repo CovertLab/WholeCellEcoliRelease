@@ -155,7 +155,9 @@ class Metabolism(wholecell.processes.process.Process):
 			kinetic_substrate_counts, counts_to_molar, time_step)
 
 		# Solve FBA problem and update states
+		n_retries = 3
 		fba = self.model.fba
+		fba.solve(n_retries)
 
 		## Internal molecule changes
 		delta_metabolites = (1 / counts_to_molar) * (CONC_UNITS * fba.getOutputMoleculeLevelsChange())
