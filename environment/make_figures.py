@@ -5,9 +5,12 @@ For usage information, run:
 '''
 import argparse
 import os
+import sys
 
 from vivarium.analysis.analyze import Analyzer
 from vivarium.plots.multibody_physics import plot_tags, plot_snapshots
+
+import wholecell.utils.filepath as fp
 
 
 TAG_PATH_NAME_MAP = {
@@ -20,6 +23,19 @@ OUT_DIR = os.path.join('environment', 'figs')
 FILE_EXTENSION = 'eps'
 FIG_2_EXPERIMENT_ID = '20200805.012237'
 FIG_3_EXPERIMENT_ID = '20200805.012237'
+METADATA_FILE = 'metadata.json'
+
+
+def get_metadata():
+	metadata = {
+		'git_hash': fp.run_cmdline('git rev-parse HEAD'),
+		'git_branch': fp.run_cmdline('git symbolic-ref --short HEAD'),
+		'time': fp.timestamp(),
+		'python': sys.version.splitlines()[0],
+		'fig2_id': FIG_2_EXPERIMENT_ID,
+		'fig3_id': FIG_3_EXPERIMENT_ID,
+	}
+	return metadata
 
 
 def make_fig2(data, environment_config):
@@ -52,17 +68,20 @@ def main():
 	'''Generate all figures.'''
 	if not os.path.exists(OUT_DIR):
 		os.makedirs(OUT_DIR)
+	fp.write_json_file(os.path.join(
+		OUT_DIR, METADATA_FILE), get_metadata())
 	parser = argparse.ArgumentParser()
 	Analyzer.add_connection_args(parser)
 	args = parser.parse_args()
 
-	data_2, environment_config_2 = Analyzer.get_data(
+	data, environment_config = Analyzer.get_data(
 		args, FIG_2_EXPERIMENT_ID)
-	make_fig2(data_2, environment_config_2)
+	make_fig2(data, environment_config)
 
-	data_3, environment_config_3 = Analyzer.get_data(
-		args, FIG_3_EXPERIMENT_ID)
-	make_fig3(data_3, environment_config_3)
+	if FIG_2_EXPERIMENT_ID != FIG_3_EXPERIMENT_ID:
+		data, environment_config = Analyzer.get_data(
+			args, FIG_3_EXPERIMENT_ID)
+	make_fig3(data, environment_config)
 
 
 if __name__ == '__main__':
