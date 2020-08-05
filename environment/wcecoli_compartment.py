@@ -69,7 +69,7 @@ class WcEcoliCell(Generator):
 			},
 		},
 		'derive_colony_shape': {
-			'alpha': 0.5,
+			'alpha': 0.2,
 		},
 		'derive_concentrations': {
 			'concentration_keys': [PUMP_KEY],
