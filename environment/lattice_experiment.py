@@ -42,7 +42,7 @@ TAGGED_MOLECULES_PATH = os.path.join(
 NUM_EMISSIONS = 100
 
 
-def get_timeline(n_bins, size, pulses):
+def get_timeline(n_bins, size, pulses, end_time):
 	'''Get a timeline for antibiotic pulses.
 
 	Arguments:
@@ -52,6 +52,7 @@ def get_timeline(n_bins, size, pulses):
 			Each tuple has the form
 			(start_time, duration, center, concentration) where center
 			is a 2-tuple that specifies coordinates for the pulse.
+		end_time (int): The length of the experiment
 	Returns:
 		list: A timeline that implements the described pulses.
 	'''
@@ -79,6 +80,7 @@ def get_timeline(n_bins, size, pulses):
 			start_time + duration,
 			{('fields', ANTIBIOTIC_KEY): end_field},
 		))
+	timeline.append((end_time, {}))
 	return timeline
 
 
@@ -90,28 +92,33 @@ class TestGetTimeline:
 			timeline, expected_timeline
 		):
 			assert actual_time == expected_time
-			assert (
-				actual[('fields', ANTIBIOTIC_KEY)].tolist()
-				== expected[('fields', ANTIBIOTIC_KEY)].tolist()
-			)
+			if expected == {}:
+				assert actual == expected
+			else:
+				assert (
+					actual[('fields', ANTIBIOTIC_KEY)].tolist()
+					== expected[('fields', ANTIBIOTIC_KEY)].tolist()
+				)
 			assert len(actual) == len(expected)
 
 	def test_one_pulse_one_bin(self):
 		timeline = get_timeline(
-			(1, 1), (1, 1), [(1, 1, (0.5, 0.5), 1)])
+			(1, 1), (1, 1), [(1, 1, (0.5, 0.5), 1)], 5)
 		expected_timeline = [
 			(1, {('fields', ANTIBIOTIC_KEY): np.ones((1, 1))}),
 			(2, {('fields', ANTIBIOTIC_KEY): np.zeros((1, 1))}),
+			(5, {}),
 		]
 		assert timeline == expected_timeline
 
 	def test_selects_correct_bin(self):
 		timeline = get_timeline(
-			(2, 2), (1, 1), [(1, 1, (0.75, 0.25), 1)])
+			(2, 2), (1, 1), [(1, 1, (0.75, 0.25), 1)], 5)
 		expected_timeline = [
 			(1, {('fields', ANTIBIOTIC_KEY):
 				np.array([[0, 0], [1, 0]])}),
 			(2, {('fields', ANTIBIOTIC_KEY): np.zeros((2, 2))}),
+			(5, {}),
 		]
 		self.assert_timelines_equal(timeline, expected_timeline)
 
@@ -120,12 +127,14 @@ class TestGetTimeline:
 			(1, 1),
 			(1, 1),
 			[(1, 1, (0.5, 0.5), 1), (4, 2, (0.75, 0.25), 2)],
+			10,
 		)
 		expected_timeline = [
 			(1, {('fields', ANTIBIOTIC_KEY): np.ones((1, 1))}),
 			(2, {('fields', ANTIBIOTIC_KEY): np.zeros((1, 1))}),
 			(4, {('fields', ANTIBIOTIC_KEY): np.full((1, 1), 2)}),
 			(6, {('fields', ANTIBIOTIC_KEY): np.zeros((1, 1))}),
+			(10, {}),
 		]
 		self.assert_timelines_equal(timeline, expected_timeline)
 
