@@ -10,6 +10,7 @@ from vivarium.processes.diffusion_cell_environment import (
 )
 from vivarium.processes.derive_concentrations import (
 	DeriveConcentrations)
+from vivarium.processes.timeline import TimelineProcess
 
 from environment.wcecoli_process import wcEcoliAgent
 from environment.wcecoli_meta_division import WcEcoliMetaDivision
@@ -17,7 +18,7 @@ from environment.wcecoli_derive_shape import WcEcoliDeriveShape
 
 
 INITIAL_INTERNAL_ANTIBIOTIC = 0
-INITIAL_EXTERNAL_ANTIBIOTIC = 1
+INITIAL_EXTERNAL_ANTIBIOTIC = 0
 ANTIBIOTIC_KEY = 'rifampicin'
 PUMP_KEY = 'TRANS-CPLX-201[s]'
 PORIN_KEY = 'porin'
@@ -41,7 +42,7 @@ class WcEcoliCell(Generator):
 		'death': {
 			'detectors': {
 				'antibiotic': {
-					'antibiotic_threshold': 0.86,
+					'antibiotic_threshold': 0.25,
 					'antibiotic_key': ANTIBIOTIC_KEY,
 				},
 			},
@@ -74,15 +75,16 @@ class WcEcoliCell(Generator):
 		'derive_concentrations': {
 			'concentration_keys': [PUMP_KEY],
 		},
-        '_schema': {
-            'cell_environment_diffusion': {
-                'membrane': {
-                    PORIN_KEY: {
-                        '_divider': 'set',
-                    },
-                },
-            },
-        },
+		'timeline': {},
+		'_schema': {
+			'cell_environment_diffusion': {
+				'membrane': {
+					PORIN_KEY: {
+						'_divider': 'set',
+					},
+				},
+			},
+		},
 	}
 
 	def generate_processes(self, config):
@@ -99,6 +101,7 @@ class WcEcoliCell(Generator):
 			config['cell_environment_diffusion'])
 		derive_concentrations = DeriveConcentrations(
 			config['derive_concentrations'])
+		timeline = TimelineProcess(config['timeline'])
 		return {
 			'derive_concentrations': derive_concentrations,
 			'wcecoli': wcecoli_process,
@@ -107,11 +110,12 @@ class WcEcoliCell(Generator):
 			'death': death,
 			'antibiotic_transport': antibiotic_transport,
 			'cell_environment_diffusion': cell_environment_diffusion,
+			'timeline': timeline,
 		}
 
 	def generate_topology(self, config=None):
 		boundary_path = config['boundary_path']
-		return {
+		topology = {
 			'derive_concentrations': {
 				'global': boundary_path,
 				'counts': boundary_path + ('bulk_molecules_report',),
@@ -166,4 +170,11 @@ class WcEcoliCell(Generator):
 				'global': boundary_path,
 				'dimensions': config['dimensions_path'],
 			},
+			'timeline': {
+				'global': boundary_path,
+			},
 		}
+		if len(config['timeline']['timeline']) > 1:
+			# Then we change the fields
+			topology['timeline']['fields'] = config['fields_path']
+		return topology

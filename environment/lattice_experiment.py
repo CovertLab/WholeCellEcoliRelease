@@ -169,6 +169,16 @@ def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 		tagged_molecules = [
 			molecule for _, _, molecule in reader
 		]
+	antibiotic_pulse = (
+		simulation_time * 0.5,
+		simulation_time * 0.25,
+		[0.5 * bound for bound in BOUNDS],
+		1000,
+	)
+	timeline_config = {
+		'timeline': get_timeline(
+			N_BINS, BOUNDS, [antibiotic_pulse], simulation_time),
+	}
 	process_config = {
 		'agent_config': {
 			'to_report': {
@@ -177,6 +187,7 @@ def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 		},
 		'_parallel': True,
 		'update_fields': False,
+		'timeline': timeline_config,
 	}
 	if length_sec is not None:
 		process_config['agent_config']['lengthSec'] = length_sec
@@ -231,8 +242,8 @@ def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 	emit_environment_config(environment_config['config'], experiment.emitter)
 	settings = {
 		'timestep': 1.0,
-		'total_time': simulation_time,
 		'return_raw_data': True,
+		'timeline': timeline_config,
 	}
 	simulate_experiment(experiment, settings)
 	experiment.end()
