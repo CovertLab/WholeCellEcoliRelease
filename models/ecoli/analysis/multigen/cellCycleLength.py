@@ -19,38 +19,38 @@ from models.ecoli.analysis import multigenAnalysisPlot
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
-	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
+    def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+        if not os.path.isdir(seedOutDir):
+            raise Exception, "seedOutDir does not currently exist as a directory"
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
+        if not os.path.exists(plotOutDir):
+            os.mkdir(plotOutDir)
 
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
+        ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
-		# Get all cells
-		allDir = ap.get_cells()
+        # Get all cells
+        allDir = ap.get_cells()
 
-		cellCycleLengths = []
-		generations = []
-		for idx, simDir in enumerate(allDir):
-			simOutDir = os.path.join(simDir, "simOut")
-			initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+        cellCycleLengths = []
+        generations = []
+        for idx, simDir in enumerate(allDir):
+            simOutDir = os.path.join(simDir, "simOut")
+            initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+            time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
-			cellCycleLengths.append((time[-1] - time[0]) / 60. / 60.)
-			generations.append(idx)
+            cellCycleLengths.append((time[-1] - time[0]) / 60. / 60.)
+            generations.append(idx)
 
-		plt.scatter(generations, cellCycleLengths)
-		plt.xlabel('Generation')
-		plt.ylabel('Time (hr)')
-		plt.title('Cell cycle lengths')
-		plt.xticks(generations)
+        plt.scatter(generations, cellCycleLengths)
+        plt.xlabel('Generation')
+        plt.ylabel('Time (hr)')
+        plt.title('Cell cycle lengths')
+        plt.xticks(generations)
 
-		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+        exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 
-		plt.close("all")
+        plt.close("all")
 
 
 if __name__ == "__main__":
-	Plot().cli()
+    Plot().cli()

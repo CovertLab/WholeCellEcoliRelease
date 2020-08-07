@@ -44,145 +44,145 @@ GENES_RIBO = ["rpsM", "rpsQ", "rpsU", "rpsO", "rpsJ", "rpsD", "rpsL", "rpsE",
               "rplT", "rplB", "rplE", "rplS", "rplD", "rplL", "rplC"]
 
 SYNONYMS = {
-	'rapA': 'hepA',
-	'thiB': 'tbpA',
-	'yacF': 'zapD',
-	'skp': 'hlpA',
-	'yaeJ': 'arfB',
-	'insX': 'ykgN',
-	'ykgT': 'yagP',
-	'yagV': 'ecpE',
-	'yagW': 'ecpD',
-	'yagX': 'ecpC',
-	'matC': 'ecpB',
-	'matB': 'ecpA',
-	'matA': 'ecpR',
-	'ybaZ': 'atl',
-	'kefA': 'mscK',
-	'chiX': 'micM',
-	'selU': 'ybbB',
-	'ylbA': 'allE',
-	'exoD': 'ybcC',
-	'peaD': 'ybcD',
-	'quuD': 'ybcQ',
-	'nohD': 'nohB',
-	'ybeB': 'rsfS',
-	'chiQ': 'ybfN',
-	'ybhT': 'acrZ',
-	'ybhO': 'clsB',
-	'ybjK': 'rcdA',
-	'ymdC': 'clsC',
-	'opgC': 'mdoC',
-	'opgG': 'mdoG',
-	'opgH': 'mdoH',
-	'ycfQ': 'comR',
-	'cohE': 'ymfK',
-	'croE': 'ymfT',
-	'beeE': 'ymfO',
-	'jayE': 'ymfP',
-	'stfP': 'ycfK',
-	'tfaP': 'ymfS',
-	'ycgE': 'bluR',
-	'ycgF': 'bluF',
-	'ychM': 'dauA',
-	# 'insZ': ['ychG_1', 'ychG_2'],
-	'ycjZ': 'pgrR',
-	'isrA': 'mcaS',
-	'ydaC': 'rcbA',
-	'ralR': 'lar',
-	'opgD': 'mdoD',
-	# 'insP': ['yncK_1', 'yncK_2'],
-	'insQ': 'ydcM',
-	'prr': 'patD',
-	'yncA': 'mnaT',
-	'yneO': 'ydeK',
-	'stfQ': 'ydfN',
-	'nohQ': 'nohA',
-	'quuQ': 'ydfT',
-	'intK': 'ydfW',
-	'ydfC': 'rzpQ',
-	'dgsA': 'mlc',
-	'dtpA': 'tppB',
-	'ydiI': 'menI',
-	'cdgR': 'ydiV',
-	'yeaZ': 'tsaB',
-	'adrB': 'yoaD',
-	'yebN': 'mntP',
-	'ryeB': 'sdsR',
-	'hiuH': 'yedX',
-	'yeeU': 'cbeA',
-	'cld': 'wzzB',
-	'rfc': 'wbbH',
-	# 'yehH': ['molR_1', 'molR_2', 'molR_3'],
-	'preB': 'preT',
-	'rhmD': 'yfaW',
-	'yfcM': 'epmC',
-	'gtrA': 'hemA',
-	'gtrB': 'yfdH',
-	'gtrS': 'yfdI',
-	'oweS': 'yfdO',
-	'yfiD': 'grcA',
-	'yfiQ': 'pka',
-	# 'yfjV': ['ypjM_3', 'ypjM_2', 'ypjM_1'],
-	# 'ygaD': ['pncC', 'nrdF'],
-	'ygbF': 'cas2',
-	'ygbT': 'cas1',
-	'ygcB': 'cas3',
-	'csdL': 'tcdA',
-	'ygfU': 'uacT',
-	'ygfX': 'cptA',
-	'ygfY': 'cptB',
-	'yggG': 'loiP',
-	'gpr': 'yghZ',
-	'plsY': 'ygiH',
-	'ygjD': 'tsaD',
-	'yrbA': 'ibaG',
-	'yhbJ': 'rapZ',
-	'rimN': 'tsaC',
-	'yhhK': 'panZ',
-	'yhiQ': 'rsmJ',
-	'yhiR': 'rlmJ',
-	'yiaQ': 'sgbH',
-	'yiaR': 'sgbU',
-	'yiaS': 'sgbE',
-	'yibD': 'waaH',
-	'yibB': 'htrL',
-	'rfaF': 'waaF',
-	'rfaC': 'waaC',
-	'rfaL': 'waaL',
-	'rfaZ': 'waaZ',
-	'rfaY': 'waaY',
-	'rfaJ': 'waaJ',
-	'rfaI': 'waaI',
-	'rfaB': 'waaB',
-	'rfaS': 'waaS',
-	'rfaP': 'waaP',
-	'rfaG': 'waaG',
-	'rfaQ': 'waaQ',
-	'yijP': 'eptC',
-	'yjbD': 'pagB',
-	'qorA': 'qor',
-	'dsbD': 'dipZ',
-	'yjeK': 'epmB',
-	'yjeA': 'epmA',
-	'yjeP': 'mscM',
-	'yjeE': 'tsaE',
-	'qorB': 'ytfG',
-	'ytfM': 'tamA',
-	'ytfN': 'tamB',
-	'yjgF': 'ridA',
-	'yjgI': 'bdcA',
-	'yjgJ': 'bdcR',
-	'yjgB': 'ahr',
-	'qseD': 'hypT',
-	'opgB': 'mdoB',
+    'rapA': 'hepA',
+    'thiB': 'tbpA',
+    'yacF': 'zapD',
+    'skp': 'hlpA',
+    'yaeJ': 'arfB',
+    'insX': 'ykgN',
+    'ykgT': 'yagP',
+    'yagV': 'ecpE',
+    'yagW': 'ecpD',
+    'yagX': 'ecpC',
+    'matC': 'ecpB',
+    'matB': 'ecpA',
+    'matA': 'ecpR',
+    'ybaZ': 'atl',
+    'kefA': 'mscK',
+    'chiX': 'micM',
+    'selU': 'ybbB',
+    'ylbA': 'allE',
+    'exoD': 'ybcC',
+    'peaD': 'ybcD',
+    'quuD': 'ybcQ',
+    'nohD': 'nohB',
+    'ybeB': 'rsfS',
+    'chiQ': 'ybfN',
+    'ybhT': 'acrZ',
+    'ybhO': 'clsB',
+    'ybjK': 'rcdA',
+    'ymdC': 'clsC',
+    'opgC': 'mdoC',
+    'opgG': 'mdoG',
+    'opgH': 'mdoH',
+    'ycfQ': 'comR',
+    'cohE': 'ymfK',
+    'croE': 'ymfT',
+    'beeE': 'ymfO',
+    'jayE': 'ymfP',
+    'stfP': 'ycfK',
+    'tfaP': 'ymfS',
+    'ycgE': 'bluR',
+    'ycgF': 'bluF',
+    'ychM': 'dauA',
+    # 'insZ': ['ychG_1', 'ychG_2'],
+    'ycjZ': 'pgrR',
+    'isrA': 'mcaS',
+    'ydaC': 'rcbA',
+    'ralR': 'lar',
+    'opgD': 'mdoD',
+    # 'insP': ['yncK_1', 'yncK_2'],
+    'insQ': 'ydcM',
+    'prr': 'patD',
+    'yncA': 'mnaT',
+    'yneO': 'ydeK',
+    'stfQ': 'ydfN',
+    'nohQ': 'nohA',
+    'quuQ': 'ydfT',
+    'intK': 'ydfW',
+    'ydfC': 'rzpQ',
+    'dgsA': 'mlc',
+    'dtpA': 'tppB',
+    'ydiI': 'menI',
+    'cdgR': 'ydiV',
+    'yeaZ': 'tsaB',
+    'adrB': 'yoaD',
+    'yebN': 'mntP',
+    'ryeB': 'sdsR',
+    'hiuH': 'yedX',
+    'yeeU': 'cbeA',
+    'cld': 'wzzB',
+    'rfc': 'wbbH',
+    # 'yehH': ['molR_1', 'molR_2', 'molR_3'],
+    'preB': 'preT',
+    'rhmD': 'yfaW',
+    'yfcM': 'epmC',
+    'gtrA': 'hemA',
+    'gtrB': 'yfdH',
+    'gtrS': 'yfdI',
+    'oweS': 'yfdO',
+    'yfiD': 'grcA',
+    'yfiQ': 'pka',
+    # 'yfjV': ['ypjM_3', 'ypjM_2', 'ypjM_1'],
+    # 'ygaD': ['pncC', 'nrdF'],
+    'ygbF': 'cas2',
+    'ygbT': 'cas1',
+    'ygcB': 'cas3',
+    'csdL': 'tcdA',
+    'ygfU': 'uacT',
+    'ygfX': 'cptA',
+    'ygfY': 'cptB',
+    'yggG': 'loiP',
+    'gpr': 'yghZ',
+    'plsY': 'ygiH',
+    'ygjD': 'tsaD',
+    'yrbA': 'ibaG',
+    'yhbJ': 'rapZ',
+    'rimN': 'tsaC',
+    'yhhK': 'panZ',
+    'yhiQ': 'rsmJ',
+    'yhiR': 'rlmJ',
+    'yiaQ': 'sgbH',
+    'yiaR': 'sgbU',
+    'yiaS': 'sgbE',
+    'yibD': 'waaH',
+    'yibB': 'htrL',
+    'rfaF': 'waaF',
+    'rfaC': 'waaC',
+    'rfaL': 'waaL',
+    'rfaZ': 'waaZ',
+    'rfaY': 'waaY',
+    'rfaJ': 'waaJ',
+    'rfaI': 'waaI',
+    'rfaB': 'waaB',
+    'rfaS': 'waaS',
+    'rfaP': 'waaP',
+    'rfaG': 'waaG',
+    'rfaQ': 'waaQ',
+    'yijP': 'eptC',
+    'yjbD': 'pagB',
+    'qorA': 'qor',
+    'dsbD': 'dipZ',
+    'yjeK': 'epmB',
+    'yjeA': 'epmA',
+    'yjeP': 'mscM',
+    'yjeE': 'tsaE',
+    'qorB': 'ytfG',
+    'ytfM': 'tamA',
+    'ytfN': 'tamB',
+    'yjgF': 'ridA',
+    'yjgI': 'bdcA',
+    'yjgJ': 'bdcR',
+    'yjgB': 'ahr',
+    'qseD': 'hypT',
+    'opgB': 'mdoB',
 }
 
 def openfile(filename):
-	with open(filename, "r") as f:
-		reader = csv.reader(f, delimiter="\t")
-		data = np.array([line for line in reader])
-	return data
+    with open(filename, "r") as f:
+        reader = csv.reader(f, delimiter="\t")
+        data = np.array([line for line in reader])
+    return data
 
 # Describe paths
 root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -210,9 +210,9 @@ gene_ids_moffitt_2016 = moffitt_2016[r1_indexes, 1]
 decay_rate_moffitt_2016_raw = np.zeros([len(gene_ids_moffitt_2016), 2])
 
 for i, (i_r1, i_r2) in enumerate(zip(r1_indexes, r2_indexes)):
-	assert moffitt_2016[i_r1, 1] == moffitt_2016[i_r2, 1]
-	decay_rate_moffitt_2016_raw[i, 0] = moffitt_2016[i_r1, -2] if moffitt_2016[i_r1, -2] != '' else np.nan
-	decay_rate_moffitt_2016_raw[i, 1] = moffitt_2016[i_r2, -2] if moffitt_2016[i_r2, -2] != '' else np.nan
+    assert moffitt_2016[i_r1, 1] == moffitt_2016[i_r2, 1]
+    decay_rate_moffitt_2016_raw[i, 0] = moffitt_2016[i_r1, -2] if moffitt_2016[i_r1, -2] != '' else np.nan
+    decay_rate_moffitt_2016_raw[i, 1] = moffitt_2016[i_r2, -2] if moffitt_2016[i_r2, -2] != '' else np.nan
 
 decay_rate_moffitt_2016 = np.nanmean(decay_rate_moffitt_2016_raw, axis=1)
 half_lives_moffitt_2016 = np.log(2) / decay_rate_moffitt_2016
@@ -226,106 +226,106 @@ half_lives_bernstein_2002 = np.array([float(x) if x != '' else np.nan for x in h
 synonyms_raw = openfile(synonyms_file)
 synonyms = np.full([synonyms_raw.shape[0] -1, 23], None)
 for i, row in enumerate(synonyms_raw[1:]):
-	names = [x[1: -1] for x in row[1][1: -1].split(" ")]
-	for j, name in enumerate(names):
-		synonyms[i, j] = name
+    names = [x[1: -1] for x in row[1][1: -1].split(" ")]
+    for j, name in enumerate(names):
+        synonyms[i, j] = name
 
 replace = {
-	"insL": "insL-1",
-	"insB": "insB-1",
-	"insA": "insA-1",
-	"ykfN": "b4626",
-	"insI": "insI-1",
-	"insH": "insH-1",
-	"ykgS": "b4688",
-	# "ptwF": "b4629", # discontinued
-	# "ykgT": "b4695", # discontinued
-	"ykgP": "b4630",
-	"insE": "insE-1",
-	"insF": "insF-1",
-	"insC": "insC-1",
-	"ylbI": "b4632",
-	"selU": "b0503",
-	"xisD": "b4633",
-	"exoD": "b0539",
-	"peaD": "b4508",
-	"nohD": "b0560",
-	"aaaD": "b4634",
-	# "pauD": "b4635", # discontinued
-	"sokE": "b4700",
-	"ybfI": "b4636",
-	"efeU": "efeU_1",
-	"oweE": "b4692",
-	"aaaE": "b4693",
-	"ymiB": "b4672",
-	"ttcC": "b4638",
-	"insP": "yncK_1",
-	"rzoQ": "b4689",
-	"yeeH": "b4639",
-	"yoeG": "b4640",
-	"yoeH": "b4641",
-	"yoeD": "b4642",
-	"pawZ": "b4643",
-	"ypjI": "b4644",
-	"psaA": "b4645",
-	"yrdF": "b4697",
-	"yrdE": "b4646",
-	"mokA": "b4647",
-	"ysaC": "b4648",
-	"ysaD": "b4649",
-	"yibS": "b4650",
-	"yibW": "b4651",
-	"yibU": "b4652",
-	"yicT": "b4653",
-	"istR": "istR-1",
-	"yjdQ": "b4654",
-	"yjhY": "b4656",
-	"yjhZ": "b4657",
+    "insL": "insL-1",
+    "insB": "insB-1",
+    "insA": "insA-1",
+    "ykfN": "b4626",
+    "insI": "insI-1",
+    "insH": "insH-1",
+    "ykgS": "b4688",
+    # "ptwF": "b4629", # discontinued
+    # "ykgT": "b4695", # discontinued
+    "ykgP": "b4630",
+    "insE": "insE-1",
+    "insF": "insF-1",
+    "insC": "insC-1",
+    "ylbI": "b4632",
+    "selU": "b0503",
+    "xisD": "b4633",
+    "exoD": "b0539",
+    "peaD": "b4508",
+    "nohD": "b0560",
+    "aaaD": "b4634",
+    # "pauD": "b4635", # discontinued
+    "sokE": "b4700",
+    "ybfI": "b4636",
+    "efeU": "efeU_1",
+    "oweE": "b4692",
+    "aaaE": "b4693",
+    "ymiB": "b4672",
+    "ttcC": "b4638",
+    "insP": "yncK_1",
+    "rzoQ": "b4689",
+    "yeeH": "b4639",
+    "yoeG": "b4640",
+    "yoeH": "b4641",
+    "yoeD": "b4642",
+    "pawZ": "b4643",
+    "ypjI": "b4644",
+    "psaA": "b4645",
+    "yrdF": "b4697",
+    "yrdE": "b4646",
+    "mokA": "b4647",
+    "ysaC": "b4648",
+    "ysaD": "b4649",
+    "yibS": "b4650",
+    "yibW": "b4651",
+    "yibU": "b4652",
+    "yicT": "b4653",
+    "istR": "istR-1",
+    "yjdQ": "b4654",
+    "yjhY": "b4656",
+    "yjhZ": "b4657",
 }
 
 for i, gene_id in enumerate(gene_ids_moffitt_2016):
-	if gene_id in gene_ids_bernstein_2002:
-		continue
+    if gene_id in gene_ids_bernstein_2002:
+        continue
 
-	if gene_id in replace:
-		gene_id = replace.get(gene_id)
+    if gene_id in replace:
+        gene_id = replace.get(gene_id)
 
-	if gene_id in synonyms:
-		for synonym in synonyms[np.where(synonyms == gene_id)[0][0]]:
-			if synonym in gene_ids_bernstein_2002:
-				gene_ids_moffitt_2016[i] = synonym
-				break
+    if gene_id in synonyms:
+        for synonym in synonyms[np.where(synonyms == gene_id)[0][0]]:
+            if synonym in gene_ids_bernstein_2002:
+                gene_ids_moffitt_2016[i] = synonym
+                break
 
 gene_ids = list(set(gene_ids_moffitt_2016).intersection(set(gene_ids_bernstein_2002)))
 
 # Compare datasets
 fig, ax = plt.subplots(1, 1, figsize=(5, 5))
 for gene_id in gene_ids:
-	moffitt_2016_val = half_lives_moffitt_2016[np.where(gene_ids_moffitt_2016 == gene_id)[0][0]]
-	bernstein_2002_val = half_lives_bernstein_2002[np.where(gene_ids_bernstein_2002 == gene_id)[0][0]]
+    moffitt_2016_val = half_lives_moffitt_2016[np.where(gene_ids_moffitt_2016 == gene_id)[0][0]]
+    bernstein_2002_val = half_lives_bernstein_2002[np.where(gene_ids_bernstein_2002 == gene_id)[0][0]]
 
-	if np.isnan(moffitt_2016_val) or np.isnan(bernstein_2002_val):
-		continue
+    if np.isnan(moffitt_2016_val) or np.isnan(bernstein_2002_val):
+        continue
 
-	if gene_id in GENES_RNAP:
-		ax.plot(np.log10(moffitt_2016_val), np.log10(bernstein_2002_val),
-		        color=COLOR_HIGHLIGHT, marker="o", markersize=10)
-		print(gene_id)
-	elif gene_id in GENES_RIBO:
-		ax.plot(np.log10(moffitt_2016_val), np.log10(bernstein_2002_val),
-		        color="tab:blue", marker="o", markersize=10)
-	else:
-		if PLOT_ALL_GENES:
-			ax.plot(np.log10(moffitt_2016_val), np.log10(bernstein_2002_val),
-			        color="tab:green", marker="o", alpha=0.2, markersize=10)
-		else:
-			pass
+    if gene_id in GENES_RNAP:
+        ax.plot(np.log10(moffitt_2016_val), np.log10(bernstein_2002_val),
+                color=COLOR_HIGHLIGHT, marker="o", markersize=10)
+        print(gene_id)
+    elif gene_id in GENES_RIBO:
+        ax.plot(np.log10(moffitt_2016_val), np.log10(bernstein_2002_val),
+                color="tab:blue", marker="o", markersize=10)
+    else:
+        if PLOT_ALL_GENES:
+            ax.plot(np.log10(moffitt_2016_val), np.log10(bernstein_2002_val),
+                    color="tab:green", marker="o", alpha=0.2, markersize=10)
+        else:
+            pass
 
 range_min = np.floor(min(ax.get_xlim()[0], ax.get_ylim()[0]) * 10)/10.
 range_max = np.ceil(max(ax.get_xlim()[1], ax.get_ylim()[1]) * 10)/10.
 ax.plot(
-		[range_min, range_max],
-		[range_min, range_max], "k")
+        [range_min, range_max],
+        [range_min, range_max], "k")
 ax.set_xlim(range_min, range_max)
 ax.set_ylim(range_min, range_max)
 ax.set_xticks([range_min, range_max])
@@ -343,10 +343,10 @@ ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
 ax.set_xlabel("log10 Moffitt et al. 2016 (min)")
 ax.set_ylabel("log10 Bernstein et al. 2002 (min)")
 plt.legend(
-	handles=[
-		mlines.Line2D([], [], color="tab:red", linewidth=0., marker=".", label="RNA polymerase"),
-		mlines.Line2D([], [], color="tab:blue", linewidth=0., marker=".", label="Ribosome")],
-	loc="best")
+    handles=[
+        mlines.Line2D([], [], color="tab:red", linewidth=0., marker=".", label="RNA polymerase"),
+        mlines.Line2D([], [], color="tab:blue", linewidth=0., marker=".", label="Ribosome")],
+    loc="best")
 plt.subplots_adjust(left=0.25, bottom=0.25, right=0.75, top=0.75)
 plt.savefig(output_plot_file.format("", "pdf"))
 plt.close("all")
@@ -368,24 +368,23 @@ half_lives_moffitt_2016_avg = np.nanmean(half_lives_moffitt_2016_sec[gene_types_
 out = ['"id"\t"halfLife"']
 
 for row in rnas[1:, :]:
-	gene_id = row[-2]
-	rna_id = row[-3]
-	rna_type = row[3]
+    gene_id = row[-2]
+    rna_id = row[-3]
+    rna_type = row[3]
 
-	if rna_type == "mRNA":
-		gene_name = eg_to_name.get(gene_id)
+    if rna_type == "mRNA":
+        gene_name = eg_to_name.get(gene_id)
 
-		if gene_name not in gene_ids or np.isnan(half_lives_moffitt_2016_sec[np.where(gene_ids_moffitt_2016 == gene_name)[0][0]]):
-			# Assign average half life for missing half lives
-			half_life = half_lives_moffitt_2016_avg
-		else:
-			half_life = half_lives_moffitt_2016_sec[np.where(gene_ids_moffitt_2016 == gene_name)[0][0]]
-	else:
-		half_life = row[0]
+        if gene_name not in gene_ids or np.isnan(half_lives_moffitt_2016_sec[np.where(gene_ids_moffitt_2016 == gene_name)[0][0]]):
+            # Assign average half life for missing half lives
+            half_life = half_lives_moffitt_2016_avg
+        else:
+            half_life = half_lives_moffitt_2016_sec[np.where(gene_ids_moffitt_2016 == gene_name)[0][0]]
+    else:
+        half_life = row[0]
 
-	out.append('"{}"\t{}'.format(rna_id, half_life))
+    out.append('"{}"\t{}'.format(rna_id, half_life))
 
 # Save output
 with open(output_data_file, "w") as f:
-	f.write("\n".join(out))
-
+    f.write("\n".join(out))

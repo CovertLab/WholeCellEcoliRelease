@@ -25,52 +25,52 @@ from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWi
 RAND_MAX = 2**32
 
 class Complexation(wholecell.processes.process.Process):
-	""" Complexation """
+    """ Complexation """
 
-	_name = "Complexation"
+    _name = "Complexation"
 
-	# Constructor
-	def __init__(self):
+    # Constructor
+    def __init__(self):
 
-		super(Complexation, self).__init__()
+        super(Complexation, self).__init__()
 
-	# Construct object graph
-	def initialize(self, sim, sim_data):
-		super(Complexation, self).initialize(sim, sim_data)
+    # Construct object graph
+    def initialize(self, sim, sim_data):
+        super(Complexation, self).initialize(sim, sim_data)
 
-		# Create matrices and vectors that describe reaction stoichiometries 
-		self.stoichMatrix = sim_data.process.complexation.stoichMatrix().astype(np.int64, order = "F")
+        # Create matrices and vectors that describe reaction stoichiometries
+        self.stoichMatrix = sim_data.process.complexation.stoichMatrix().astype(np.int64, order = "F")
 
-		self.prebuiltMatrices = mccBuildMatrices(self.stoichMatrix)
+        self.prebuiltMatrices = mccBuildMatrices(self.stoichMatrix)
 
-		# Build views
-		moleculeNames = sim_data.process.complexation.moleculeNames
-		self.molecules = self.bulkMoleculesView(moleculeNames)
-
-
-	def calculateRequest(self):
-		moleculeCounts = self.molecules.total()
-
-		# Macromolecule complexes are requested
-		updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
-			moleculeCounts,
-			self.randomState.randint(RAND_MAX),
-			self.stoichMatrix,
-			*self.prebuiltMatrices
-			)
-
-		self.molecules.requestIs(np.fmax(moleculeCounts - updatedMoleculeCounts, 0))
+        # Build views
+        moleculeNames = sim_data.process.complexation.moleculeNames
+        self.molecules = self.bulkMoleculesView(moleculeNames)
 
 
-	def evolveState(self):
-		moleculeCounts = self.molecules.counts()
+    def calculateRequest(self):
+        moleculeCounts = self.molecules.total()
 
-		# Macromolecule complexes are formed from their subunits
-		updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
-			moleculeCounts,
-			self.randomState.randint(RAND_MAX),
-			self.stoichMatrix,
-			*self.prebuiltMatrices
-			)
+        # Macromolecule complexes are requested
+        updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
+            moleculeCounts,
+            self.randomState.randint(RAND_MAX),
+            self.stoichMatrix,
+            *self.prebuiltMatrices
+            )
 
-		self.molecules.countsIs(updatedMoleculeCounts)
+        self.molecules.requestIs(np.fmax(moleculeCounts - updatedMoleculeCounts, 0))
+
+
+    def evolveState(self):
+        moleculeCounts = self.molecules.counts()
+
+        # Macromolecule complexes are formed from their subunits
+        updatedMoleculeCounts = mccFormComplexesWithPrebuiltMatrices(
+            moleculeCounts,
+            self.randomState.randint(RAND_MAX),
+            self.stoichMatrix,
+            *self.prebuiltMatrices
+            )
+
+        self.molecules.countsIs(updatedMoleculeCounts)

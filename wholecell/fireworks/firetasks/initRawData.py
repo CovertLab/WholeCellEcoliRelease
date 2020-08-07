@@ -7,15 +7,15 @@ from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 @explicit_serialize
 class InitRawDataTask(FireTaskBase):
 
-	_fw_name = "InitRawDataTask"
-	required_params = ["output"]
+    _fw_name = "InitRawDataTask"
+    required_params = ["output"]
 
-	def run_task(self, fw_spec):
-		print "%s: Instantiating raw_data" % (time.ctime(),)
+    def run_task(self, fw_spec):
+        print "%s: Instantiating raw_data" % (time.ctime(),)
 
-		raw_data = KnowledgeBaseEcoli()
+        raw_data = KnowledgeBaseEcoli()
 
-		print "%s: Saving raw_data" % (time.ctime(),)
+        print "%s: Saving raw_data" % (time.ctime(),)
 
-		with open(self["output"], "wb") as f:
-			cPickle.dump(raw_data, f, protocol = cPickle.HIGHEST_PROTOCOL)
+        with open(self["output"], "wb") as f:
+            cPickle.dump(raw_data, f, protocol = cPickle.HIGHEST_PROTOCOL)

@@ -27,143 +27,143 @@ FIRST_GENERATION = 2
 FIGSIZE = (4, 4)
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
-	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if metadata["variant"] != "condition":
-			print('This analysis only runs for the "condition" variant.')
-			return
+    def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+        if metadata["variant"] != "condition":
+            print('This analysis only runs for the "condition" variant.')
+            return
 
-		if not os.path.isdir(inputDir):
-			raise Exception, 'inputDir does not currently exist as a directory'
+        if not os.path.isdir(inputDir):
+            raise Exception, 'inputDir does not currently exist as a directory'
 
-		filepath.makedirs(plotOutDir)
+        filepath.makedirs(plotOutDir)
 
-		ap = AnalysisPaths(inputDir, variant_plot=True)
-		n_gens = ap.n_generation
-		variants = ap.get_variants()
+        ap = AnalysisPaths(inputDir, variant_plot=True)
+        n_gens = ap.n_generation
+        variants = ap.get_variants()
 
-		if n_gens - 1 < FIRST_GENERATION:
-			print('Not enough generations to plot.')
-			return
+        if n_gens - 1 < FIRST_GENERATION:
+            print('Not enough generations to plot.')
+            return
 
-		all_growth_rates = []
-		all_rna_to_protein_ratios = []
+        all_growth_rates = []
+        all_rna_to_protein_ratios = []
 
-		for variant in variants:
-			doubling_times = np.zeros(0)
-			variant_rna_to_protein_ratios = np.zeros(0)
-			
-			all_cells = ap.get_cells(
-				variant=[variant],
-				generation=range(FIRST_GENERATION, n_gens))
+        for variant in variants:
+            doubling_times = np.zeros(0)
+            variant_rna_to_protein_ratios = np.zeros(0)
 
-			if len(all_cells) == 0:
-				continue
+            all_cells = ap.get_cells(
+                variant=[variant],
+                generation=range(FIRST_GENERATION, n_gens))
 
-			for simDir in all_cells:
-				try:
-					simOutDir = os.path.join(simDir, "simOut")
-					mass = TableReader(os.path.join(simOutDir, "Mass"))
-					rna_mass = mass.readColumn("rnaMass")
-					protein_mass = mass.readColumn("proteinMass")
+            if len(all_cells) == 0:
+                continue
 
-					time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+            for simDir in all_cells:
+                try:
+                    simOutDir = os.path.join(simDir, "simOut")
+                    mass = TableReader(os.path.join(simOutDir, "Mass"))
+                    rna_mass = mass.readColumn("rnaMass")
+                    protein_mass = mass.readColumn("proteinMass")
 
-					doubling_times = np.hstack(
-						(doubling_times, (time[-1] - time[0])/3600.)
-						)
-					
-					variant_rna_to_protein_ratios = np.hstack(
-						(variant_rna_to_protein_ratios, rna_mass.mean()/protein_mass.mean())
-						)
-				except:
-					continue
+                    time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
-			variant_growth_rates = np.log(2)/doubling_times
+                    doubling_times = np.hstack(
+                        (doubling_times, (time[-1] - time[0])/3600.)
+                        )
 
-			all_growth_rates.append(variant_growth_rates)
-			all_rna_to_protein_ratios.append(variant_rna_to_protein_ratios)
+                    variant_rna_to_protein_ratios = np.hstack(
+                        (variant_rna_to_protein_ratios, rna_mass.mean()/protein_mass.mean())
+                        )
+                except:
+                    continue
 
-		# Get errorbar plot
-		plt.figure(figsize=FIGSIZE)
+            variant_growth_rates = np.log(2)/doubling_times
 
-		plt.style.use('seaborn-deep')
-		color_cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
-		marker_styles = ['o', '^', 'x']
-		labels = ['basal', 'anaerobic', '+AA']
+            all_growth_rates.append(variant_growth_rates)
+            all_rna_to_protein_ratios.append(variant_rna_to_protein_ratios)
 
-		ax = plt.subplot2grid((1, 1), (0, 0))
+        # Get errorbar plot
+        plt.figure(figsize=FIGSIZE)
 
-		for i in range(3):
-			ax.errorbar(
-				all_growth_rates[i].mean(),
-				all_rna_to_protein_ratios[i].mean(),
-				yerr=all_rna_to_protein_ratios[i].std(), color=color_cycle[0],
-				mec=color_cycle[0], marker=marker_styles[i], markersize=8,
-				mfc='white', linewidth=1, capsize=2, label=labels[i])
+        plt.style.use('seaborn-deep')
+        color_cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
+        marker_styles = ['o', '^', 'x']
+        labels = ['basal', 'anaerobic', '+AA']
 
-		# Add linear plot proposed in Scott et al. (2010)
-		x_linear = np.linspace(0.05, 1.95, 100)
-		y_linear = x_linear/4.5 + 0.087
-		ax.plot(x_linear, y_linear, linewidth=2, color=color_cycle[2])
+        ax = plt.subplot2grid((1, 1), (0, 0))
 
-		ax.set_xlim([0, 2])
-		ax.set_ylim([0, 0.7])
-		ax.get_yaxis().get_major_formatter().set_useOffset(False)
-		ax.get_xaxis().get_major_formatter().set_useOffset(False)
+        for i in range(3):
+            ax.errorbar(
+                all_growth_rates[i].mean(),
+                all_rna_to_protein_ratios[i].mean(),
+                yerr=all_rna_to_protein_ratios[i].std(), color=color_cycle[0],
+                mec=color_cycle[0], marker=marker_styles[i], markersize=8,
+                mfc='white', linewidth=1, capsize=2, label=labels[i])
 
-		whitePadSparklineAxis(ax)
+        # Add linear plot proposed in Scott et al. (2010)
+        x_linear = np.linspace(0.05, 1.95, 100)
+        y_linear = x_linear/4.5 + 0.087
+        ax.plot(x_linear, y_linear, linewidth=2, color=color_cycle[2])
 
-		ax.tick_params(which='both', bottom=True, left=True,
-			top=False, right=False, labelbottom=True, labelleft=True)
+        ax.set_xlim([0, 2])
+        ax.set_ylim([0, 0.7])
+        ax.get_yaxis().get_major_formatter().set_useOffset(False)
+        ax.get_xaxis().get_major_formatter().set_useOffset(False)
 
-		ax.set_xlabel("Growth rate $\lambda$ (hour$^{-1}$)")
-		ax.set_ylabel("RNA/protein mass ratio")
-		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+        whitePadSparklineAxis(ax)
 
-		# Get clean version of errorbar plot
-		ax.set_xlabel("")
-		ax.set_ylabel("")
-		ax.set_yticklabels([])
-		ax.set_xticklabels([])
-		exportFigure(plt, plotOutDir, plotOutFileName + "_clean", metadata)
+        ax.tick_params(which='both', bottom=True, left=True,
+            top=False, right=False, labelbottom=True, labelleft=True)
 
-		plt.close("all")
+        ax.set_xlabel("Growth rate $\lambda$ (hour$^{-1}$)")
+        ax.set_ylabel("RNA/protein mass ratio")
+        exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 
-		# Get scatter version of plot
-		plt.figure(figsize=FIGSIZE)
-		ax = plt.subplot2grid((1, 1), (0, 0))
+        # Get clean version of errorbar plot
+        ax.set_xlabel("")
+        ax.set_ylabel("")
+        ax.set_yticklabels([])
+        ax.set_xticklabels([])
+        exportFigure(plt, plotOutDir, plotOutFileName + "_clean", metadata)
 
-		options = {
-			"edgecolors": color_cycle[0], "alpha": 0.25, "s": 20
-			}
+        plt.close("all")
 
-		ax.scatter(
-			all_growth_rates[0], all_rna_to_protein_ratios[0],
-			facecolors="none", marker="o", label=labels[0], **options)
-		ax.scatter(
-			all_growth_rates[1], all_rna_to_protein_ratios[1],
-			facecolors="none", marker="^", label=labels[1], **options)
-		ax.scatter(
-			all_growth_rates[2], all_rna_to_protein_ratios[2],
-			marker="x", label=labels[2], **options)
+        # Get scatter version of plot
+        plt.figure(figsize=FIGSIZE)
+        ax = plt.subplot2grid((1, 1), (0, 0))
 
-		x_linear = np.linspace(0.05, 2.45, 100)
-		y_linear = x_linear/4.5 + 0.087
-		ax.plot(x_linear, y_linear, linewidth=2, color=color_cycle[2])
+        options = {
+            "edgecolors": color_cycle[0], "alpha": 0.25, "s": 20
+            }
 
-		ax.set_xlim([0, 2.5])
-		ax.set_ylim([0, 0.8])
-		ax.get_yaxis().get_major_formatter().set_useOffset(False)
-		ax.get_xaxis().get_major_formatter().set_useOffset(False)
+        ax.scatter(
+            all_growth_rates[0], all_rna_to_protein_ratios[0],
+            facecolors="none", marker="o", label=labels[0], **options)
+        ax.scatter(
+            all_growth_rates[1], all_rna_to_protein_ratios[1],
+            facecolors="none", marker="^", label=labels[1], **options)
+        ax.scatter(
+            all_growth_rates[2], all_rna_to_protein_ratios[2],
+            marker="x", label=labels[2], **options)
 
-		whitePadSparklineAxis(ax)
+        x_linear = np.linspace(0.05, 2.45, 100)
+        y_linear = x_linear/4.5 + 0.087
+        ax.plot(x_linear, y_linear, linewidth=2, color=color_cycle[2])
 
-		ax.tick_params(which='both', bottom=True, left=True,
-			top=False, right=False, labelbottom=True, labelleft=True)
+        ax.set_xlim([0, 2.5])
+        ax.set_ylim([0, 0.8])
+        ax.get_yaxis().get_major_formatter().set_useOffset(False)
+        ax.get_xaxis().get_major_formatter().set_useOffset(False)
 
-		ax.set_xlabel("Growth rate $\lambda$ (hour$^{-1}$)")
-		ax.set_ylabel("RNA/protein mass ratio")
-		exportFigure(plt, plotOutDir, plotOutFileName + "_scatter", metadata)
+        whitePadSparklineAxis(ax)
+
+        ax.tick_params(which='both', bottom=True, left=True,
+            top=False, right=False, labelbottom=True, labelleft=True)
+
+        ax.set_xlabel("Growth rate $\lambda$ (hour$^{-1}$)")
+        ax.set_ylabel("RNA/protein mass ratio")
+        exportFigure(plt, plotOutDir, plotOutFileName + "_scatter", metadata)
 
 if __name__ == "__main__":
-	Plot().cli()
+    Plot().cli()

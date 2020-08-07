@@ -21,61 +21,61 @@ BURN_IN = 10
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
-	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
+    def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+        if not os.path.isdir(simOutDir):
+            raise Exception, "simOutDir does not currently exist as a directory"
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
+        if not os.path.exists(plotOutDir):
+            os.mkdir(plotOutDir)
 
-		sim_data = cPickle.load(open(simDataFile, "r"))
-		trpIdx = sim_data.moleculeGroups.aaIDs.index("TRP[c]")
+        sim_data = cPickle.load(open(simDataFile, "r"))
+        trpIdx = sim_data.moleculeGroups.aaIDs.index("TRP[c]")
 
-		growthLimits = TableReader(os.path.join(simOutDir, "GrowthLimits"))
+        growthLimits = TableReader(os.path.join(simOutDir, "GrowthLimits"))
 
-		trpRequests = growthLimits.readColumn("aaRequestSize")[BURN_IN:, trpIdx]
+        trpRequests = growthLimits.readColumn("aaRequestSize")[BURN_IN:, trpIdx]
 
-		growthLimits.close()
+        growthLimits.close()
 
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+        bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
+        moleculeIds = bulkMolecules.readAttribute("objectNames")
 
-		trpSynIdx = moleculeIds.index("TRYPSYN[c]")
+        trpSynIdx = moleculeIds.index("TRYPSYN[c]")
 
-		trpSynCounts = bulkMolecules.readColumn("counts")[BURN_IN:, trpSynIdx]
+        trpSynCounts = bulkMolecules.readColumn("counts")[BURN_IN:, trpSynIdx]
 
-		bulkMolecules.close()
+        bulkMolecules.close()
 
-		trpSynKcat = 2**( (37. - 25.) / 10.) * 4.1 # From PMID 6402362 (kcat of 4.1/s measured at 25 C)
+        trpSynKcat = 2**( (37. - 25.) / 10.) * 4.1 # From PMID 6402362 (kcat of 4.1/s measured at 25 C)
 
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")[BURN_IN:] - initialTime
-		timeStep = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")[BURN_IN:]
+        initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+        time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")[BURN_IN:] - initialTime
+        timeStep = TableReader(os.path.join(simOutDir, "Main")).readColumn("timeStepSec")[BURN_IN:]
 
 
-		trpSynMaxCapacity = trpSynKcat * trpSynCounts * timeStep
+        trpSynMaxCapacity = trpSynKcat * trpSynCounts * timeStep
 
-		plt.figure(figsize = (8.5, 11))
+        plt.figure(figsize = (8.5, 11))
 
-		plt.subplot(3, 1, 1)
+        plt.subplot(3, 1, 1)
 
-		plt.plot(time / 60., trpSynMaxCapacity, linewidth = 2)
-		plt.ylabel("Tryptophan Synthase Max Capacity")
+        plt.plot(time / 60., trpSynMaxCapacity, linewidth = 2)
+        plt.ylabel("Tryptophan Synthase Max Capacity")
 
-		plt.subplot(3, 1, 2)
+        plt.subplot(3, 1, 2)
 
-		plt.plot(time / 60., trpRequests, linewidth = 2)
-		plt.ylabel("TRP requested by translation")
+        plt.plot(time / 60., trpRequests, linewidth = 2)
+        plt.ylabel("TRP requested by translation")
 
-		plt.subplot(3, 1, 3)
+        plt.subplot(3, 1, 3)
 
-		plt.plot(time / 60., trpSynMaxCapacity / trpRequests, linewidth = 2)
-		plt.xlabel("Time (min)")
-		plt.ylabel("(Max capacity) / (Request)")
+        plt.plot(time / 60., trpSynMaxCapacity / trpRequests, linewidth = 2)
+        plt.xlabel("Time (min)")
+        plt.ylabel("(Max capacity) / (Request)")
 
-		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
-		plt.close("all")
+        exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+        plt.close("all")
 
 if __name__ == "__main__":
-	Plot().cli()
+    Plot().cli()

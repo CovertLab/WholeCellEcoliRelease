@@ -21,35 +21,35 @@ from wholecell.utils import filepath
 
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
-	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(variantDir):
-			raise Exception, 'variantDir does not currently exist as a directory'
+    def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+        if not os.path.isdir(variantDir):
+            raise Exception, 'variantDir does not currently exist as a directory'
 
-		filepath.makedirs(plotOutDir)
+        filepath.makedirs(plotOutDir)
 
-		with open(simDataFile, 'rb') as f:
-			sim_data = cPickle.load(f)
-		with open(validationDataFile, 'rb') as f:
-			validation_data = cPickle.load(f)
+        with open(simDataFile, 'rb') as f:
+            sim_data = cPickle.load(f)
+        with open(validationDataFile, 'rb') as f:
+            validation_data = cPickle.load(f)
 
-		ap = AnalysisPaths(variantDir, cohort_plot=True)
+        ap = AnalysisPaths(variantDir, cohort_plot=True)
 
-		for sim_dir in ap.get_cells():
-			simOutDir = os.path.join(sim_dir, 'simOut')
+        for sim_dir in ap.get_cells():
+            simOutDir = os.path.join(sim_dir, 'simOut')
 
-			# Listeners used
-			main_reader = TableReader(os.path.join(simOutDir, 'Main'))
+            # Listeners used
+            main_reader = TableReader(os.path.join(simOutDir, 'Main'))
 
-			# Load data
-			time = main_reader.readColumn('time')
+            # Load data
+            time = main_reader.readColumn('time')
 
-		plt.figure()
+        plt.figure()
 
-		### Create Plot ###
+        ### Create Plot ###
 
-		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
-		plt.close('all')
+        exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+        plt.close('all')
 
 
 if __name__ == '__main__':
-	Plot().cli()
+    Plot().cli()

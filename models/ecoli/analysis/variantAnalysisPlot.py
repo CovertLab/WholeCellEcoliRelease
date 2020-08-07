@@ -10,9 +10,9 @@ from runscripts.manual import analysisVariant
 
 
 class VariantAnalysisPlot(analysisPlot.AnalysisPlot):
-	"""Abstract base class for Variant analysis plots."""
+    """Abstract base class for Variant analysis plots."""
 
-	def cli(self):
-		"""Run the command line for this AnalysisPlot subclass."""
-		script = analysisVariant.AnalysisVariant(analysis_plotter=self)
-		script.cli()
+    def cli(self):
+        """Run the command line for this AnalysisPlot subclass."""
+        script = analysisVariant.AnalysisVariant(analysis_plotter=self)
+        script.cli()

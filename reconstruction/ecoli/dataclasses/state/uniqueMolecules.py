@@ -18,25 +18,25 @@ from reconstruction.ecoli.dataclasses.state.stateFunctions import addToStateComm
 
 
 class UniqueMolecules(object):
-	""" UniqueMolecules """
+    """ UniqueMolecules """
 
-	def __init__(self, raw_data, sim_data):
-		self.uniqueMoleculeDefinitions = collections.OrderedDict()
+    def __init__(self, raw_data, sim_data):
+        self.uniqueMoleculeDefinitions = collections.OrderedDict()
 
-		uniqueMoleculeMasses = np.zeros(0,
-				dtype = [
-						("id", "a50"),
-						("mass", "{}f8".format(len(sim_data.molecular_weight_order))),
-						]
-			)
-		field_units = {
-			"id" : None,
-			"mass" : units.g / units.mol
-			}
+        uniqueMoleculeMasses = np.zeros(0,
+                dtype = [
+                        ("id", "a50"),
+                        ("mass", "{}f8".format(len(sim_data.molecular_weight_order))),
+                        ]
+            )
+        field_units = {
+            "id" : None,
+            "mass" : units.g / units.mol
+            }
 
-		self.uniqueMoleculeMasses = UnitStructArray(uniqueMoleculeMasses, field_units)
+        self.uniqueMoleculeMasses = UnitStructArray(uniqueMoleculeMasses, field_units)
 
-	def addToUniqueState(self, uniqueId, attributeDef, mass):
-		self.uniqueMoleculeDefinitions.update({uniqueId : attributeDef})
+    def addToUniqueState(self, uniqueId, attributeDef, mass):
+        self.uniqueMoleculeDefinitions.update({uniqueId : attributeDef})
 
-		self.uniqueMoleculeMasses = addToStateCommon(self.uniqueMoleculeMasses, [uniqueId], mass)
+        self.uniqueMoleculeMasses = addToStateCommon(self.uniqueMoleculeMasses, [uniqueId], mass)

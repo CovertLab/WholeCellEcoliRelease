@@ -11,60 +11,60 @@ from models.ecoli.analysis import multigenAnalysisPlot
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
-	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
+    def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+        if not os.path.isdir(seedOutDir):
+            raise Exception, "seedOutDir does not currently exist as a directory"
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
+        if not os.path.exists(plotOutDir):
+            os.mkdir(plotOutDir)
 
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
+        ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 
-		# Get all cells
-		allDir = ap.get_cells()
+        # Get all cells
+        allDir = ap.get_cells()
 
-		massNames = [
-					"dryMass",
-					"proteinMass",
-					#"tRnaMass",
-					"rRnaMass",
-					'mRnaMass',
-					"dnaMass"
-					]
+        massNames = [
+                    "dryMass",
+                    "proteinMass",
+                    #"tRnaMass",
+                    "rRnaMass",
+                    'mRnaMass',
+                    "dnaMass"
+                    ]
 
-		cleanNames = [
-					"Dry\nmass",
-					"Protein\nmass",
-					#"tRNA\nmass",
-					"rRNA\nmass",
-					"mRNA\nmass",
-					"DNA\nmass"
-					]
+        cleanNames = [
+                    "Dry\nmass",
+                    "Protein\nmass",
+                    #"tRNA\nmass",
+                    "rRNA\nmass",
+                    "mRNA\nmass",
+                    "DNA\nmass"
+                    ]
 
-		fig, axesList = plt.subplots(len(massNames), sharex = True)
+        fig, axesList = plt.subplots(len(massNames), sharex = True)
 
-		for simDir in allDir:
-			simOutDir = os.path.join(simDir, "simOut")
-			time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
-			mass = TableReader(os.path.join(simOutDir, "Mass"))
+        for simDir in allDir:
+            simOutDir = os.path.join(simDir, "simOut")
+            time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
+            mass = TableReader(os.path.join(simOutDir, "Mass"))
 
-			for idx, massType in enumerate(massNames):
-				massToPlot = mass.readColumn(massNames[idx])
-				axesList[idx].plot(time / 60. / 60., massToPlot, linewidth = 2)
+            for idx, massType in enumerate(massNames):
+                massToPlot = mass.readColumn(massNames[idx])
+                axesList[idx].plot(time / 60. / 60., massToPlot, linewidth = 2)
 
-				axesList[idx].set_ylabel(cleanNames[idx] + " (fg)")
+                axesList[idx].set_ylabel(cleanNames[idx] + " (fg)")
 
-		for axes in axesList:
-			axes.get_ylim()
-			axes.set_yticks(list(axes.get_ylim()))
+        for axes in axesList:
+            axes.get_ylim()
+            axes.set_yticks(list(axes.get_ylim()))
 
-		axesList[0].set_title("Cell mass fractions")
-		axesList[len(massNames) - 1].set_xlabel("Time (hr)")
+        axesList[0].set_title("Cell mass fractions")
+        axesList[len(massNames) - 1].set_xlabel("Time (hr)")
 
-		plt.subplots_adjust(hspace = 0.2, wspace = 0.5)
-		exportFigure(plt, plotOutDir, plotOutFileName,metadata)
-		plt.close("all")
+        plt.subplots_adjust(hspace = 0.2, wspace = 0.5)
+        exportFigure(plt, plotOutDir, plotOutFileName,metadata)
+        plt.close("all")
 
 
 if __name__ == "__main__":
-	Plot().cli()
+    Plot().cli()

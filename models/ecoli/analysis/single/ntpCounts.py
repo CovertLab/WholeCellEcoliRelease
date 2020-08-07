@@ -19,43 +19,43 @@ from models.ecoli.analysis import singleAnalysisPlot
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
-	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
+    def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+        if not os.path.isdir(simOutDir):
+            raise Exception, "simOutDir does not currently exist as a directory"
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
+        if not os.path.exists(plotOutDir):
+            os.mkdir(plotOutDir)
 
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+        bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
+        moleculeIds = bulkMolecules.readAttribute("objectNames")
 
-		NTP_IDS = ['ATP[c]', 'CTP[c]', 'GTP[c]', 'UTP[c]']
-		ntpIndexes = np.array([moleculeIds.index(ntpId) for ntpId in NTP_IDS], np.int)
+        NTP_IDS = ['ATP[c]', 'CTP[c]', 'GTP[c]', 'UTP[c]']
+        ntpIndexes = np.array([moleculeIds.index(ntpId) for ntpId in NTP_IDS], np.int)
 
-		ntpCounts = bulkMolecules.readColumn("counts")[:, ntpIndexes]
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+        ntpCounts = bulkMolecules.readColumn("counts")[:, ntpIndexes]
+        initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+        time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
-		bulkMolecules.close()
+        bulkMolecules.close()
 
-		plt.figure(figsize = (8.5, 11))
+        plt.figure(figsize = (8.5, 11))
 
-		for idx in xrange(4):
+        for idx in xrange(4):
 
-			plt.subplot(2, 2, idx + 1)
+            plt.subplot(2, 2, idx + 1)
 
-			plt.plot(time / 60., ntpCounts[:, idx], linewidth = 2)
-			plt.xlabel("Time (min)")
-			plt.ylabel("Counts")
-			plt.title(NTP_IDS[idx])
+            plt.plot(time / 60., ntpCounts[:, idx], linewidth = 2)
+            plt.xlabel("Time (min)")
+            plt.ylabel("Counts")
+            plt.title(NTP_IDS[idx])
 
-		print "NTPs required for cell division (nt/cell-cycle) = %d" % sum(ntpCounts[0, :])
-		plt.subplots_adjust(hspace = 0.5)
+        print "NTPs required for cell division (nt/cell-cycle) = %d" % sum(ntpCounts[0, :])
+        plt.subplots_adjust(hspace = 0.5)
 
-		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
-		plt.close("all")
+        exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+        plt.close("all")
 
 
 if __name__ == "__main__":
-	Plot().cli()
+    Plot().cli()

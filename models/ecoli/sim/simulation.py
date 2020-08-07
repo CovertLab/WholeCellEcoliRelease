@@ -46,64 +46,64 @@ from wholecell.sim.divide_cell import divide_cell
 from models.ecoli.sim.initial_conditions import setDaughterInitialConditions
 
 class EcoliSimulation(Simulation):
-	_internalStateClasses = (
-		BulkMolecules,
-		UniqueMolecules,
-		)
+    _internalStateClasses = (
+        BulkMolecules,
+        UniqueMolecules,
+        )
 
-	_externalStateClasses = (
-		Environment,
-		)
+    _externalStateClasses = (
+        Environment,
+        )
 
-	_processClasses = (
-		Metabolism,
-		RnaDegradation,
-		TranscriptInitiation,
-		TranscriptElongation,
-		PolypeptideInitiation,
-		PolypeptideElongation,
-		ChromosomeReplication,
-		ProteinDegradation,
-		Complexation,
-		ChromosomeFormation,
-		Equilibrium,
-		TfBinding,
-		TwoComponentSystem,
-		)
+    _processClasses = (
+        Metabolism,
+        RnaDegradation,
+        TranscriptInitiation,
+        TranscriptElongation,
+        PolypeptideInitiation,
+        PolypeptideElongation,
+        ChromosomeReplication,
+        ProteinDegradation,
+        Complexation,
+        ChromosomeFormation,
+        Equilibrium,
+        TfBinding,
+        TwoComponentSystem,
+        )
 
-	_listenerClasses = (
-		Mass,
-		ReplicationData,
-		RibosomeData,
-		UniqueMoleculeCounts,
-		FBAResults,
-		RnaDegradationListener,
-		TranscriptElongationListener,
-		RnapData,
-		EnzymeKinetics,
-		GrowthLimits,
-		CellDivision,
-		RnaSynthProb,
-		)
+    _listenerClasses = (
+        Mass,
+        ReplicationData,
+        RibosomeData,
+        UniqueMoleculeCounts,
+        FBAResults,
+        RnaDegradationListener,
+        TranscriptElongationListener,
+        RnapData,
+        EnzymeKinetics,
+        GrowthLimits,
+        CellDivision,
+        RnaSynthProb,
+        )
 
-	_hookClasses = ()
+    _hookClasses = ()
 
-	_initialConditionsFunction = calcInitialConditions
+    _initialConditionsFunction = calcInitialConditions
 
-	_divideCellFunction = divide_cell
+    _divideCellFunction = divide_cell
 
-	_logToShell = True
-	_shellColumnHeaders = [
-		"Time (s)",
-		"Dry mass (fg)",
-		"Dry mass fold change",
-		"Protein fold change",
-		"RNA fold change",
-		"Small mol fold change",
-		"Expected fold change"
-		]
+    _logToShell = True
+    _shellColumnHeaders = [
+        "Time (s)",
+        "Dry mass (fg)",
+        "Dry mass fold change",
+        "Protein fold change",
+        "RNA fold change",
+        "Small mol fold change",
+        "Expected fold change"
+        ]
 
-	_logToDisk = False
+    _logToDisk = False
 
 class EcoliDaughterSimulation(EcoliSimulation):
-	_initialConditionsFunction = setDaughterInitialConditions
+    _initialConditionsFunction = setDaughterInitialConditions

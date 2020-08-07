@@ -24,51 +24,51 @@ from models.ecoli.analysis import singleAnalysisPlot
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
-	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
+    def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+        if not os.path.isdir(simOutDir):
+            raise Exception, "simOutDir does not currently exist as a directory"
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
+        if not os.path.exists(plotOutDir):
+            os.mkdir(plotOutDir)
 
-		# Get the names of rnas from the KB
+        # Get the names of rnas from the KB
 
-		sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = cPickle.load(open(simDataFile, "rb"))
 
-		rnaIds = sim_data.process.transcription.rnaData["id"][sim_data.relation.rnaIndexToMonomerMapping]
+        rnaIds = sim_data.process.transcription.rnaData["id"][sim_data.relation.rnaIndexToMonomerMapping]
 
-		proteinIds = sim_data.process.translation.monomerData["id"]
+        proteinIds = sim_data.process.translation.monomerData["id"]
 
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
-		bulkMoleculeCounts = bulkMolecules.readColumn("counts")
+        bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+        bulkMoleculeCounts = bulkMolecules.readColumn("counts")
 
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
+        moleculeIds = bulkMolecules.readAttribute("objectNames")
 
-		rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
+        rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
 
-		rnaCountsBulk = bulkMoleculeCounts[:, rnaIndexes]
+        rnaCountsBulk = bulkMoleculeCounts[:, rnaIndexes]
 
-		proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in proteinIds], np.int)
+        proteinIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in proteinIds], np.int)
 
-		proteinCountsBulk = bulkMoleculeCounts[:, proteinIndexes]
+        proteinCountsBulk = bulkMoleculeCounts[:, proteinIndexes]
 
-		bulkMolecules.close()
+        bulkMolecules.close()
 
-		relativeMRnaCounts = rnaCountsBulk[-1, :] #/ rnaCountsBulk[-1, :].sum()
-		relativeProteinCounts = proteinCountsBulk[-1, :] #/ proteinCountsBulk[-1, :].sum()
+        relativeMRnaCounts = rnaCountsBulk[-1, :] #/ rnaCountsBulk[-1, :].sum()
+        relativeProteinCounts = proteinCountsBulk[-1, :] #/ proteinCountsBulk[-1, :].sum()
 
-		plt.figure(figsize = (8.5, 11))
+        plt.figure(figsize = (8.5, 11))
 
-		plt.plot(relativeMRnaCounts, relativeProteinCounts, 'o', markeredgecolor = 'k', markerfacecolor = 'none')
+        plt.plot(relativeMRnaCounts, relativeProteinCounts, 'o', markeredgecolor = 'k', markerfacecolor = 'none')
 
-		plt.xlabel("RNA count (at final time step)")
-		plt.ylabel("Protein count (at final time step)")
+        plt.xlabel("RNA count (at final time step)")
+        plt.ylabel("Protein count (at final time step)")
 
-		# plt.show()
+        # plt.show()
 
-		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
-		plt.close("all")
+        exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+        plt.close("all")
 
 
 if __name__ == "__main__":
-	Plot().cli()
+    Plot().cli()

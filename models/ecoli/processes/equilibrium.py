@@ -17,68 +17,68 @@ import wholecell.processes.process
 
 
 class Equilibrium(wholecell.processes.process.Process):
-	""" Equilibrium """
+    """ Equilibrium """
 
-	_name = "Equilibrium"
+    _name = "Equilibrium"
 
-	# Constructor
-	def __init__(self):
+    # Constructor
+    def __init__(self):
 
-		super(Equilibrium, self).__init__()
-
-
-	# Construct object graph
-	def initialize(self, sim, sim_data):
-		super(Equilibrium, self).initialize(sim, sim_data)
-
-		# Get constants
-		self.nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / units.mol)
-		self.cellDensity = sim_data.constants.cellDensity.asNumber(units.g / units.L)
-
-		# Create matrix and method
-		self.stoichMatrix = sim_data.process.equilibrium.stoichMatrix().astype(np.int64)
-		self.fluxesAndMoleculesToSS = sim_data.process.equilibrium.fluxesAndMoleculesToSS
-
-		# Build views
-		moleculeNames = sim_data.process.equilibrium.moleculeNames
-		self.molecules = self.bulkMoleculesView(moleculeNames)
+        super(Equilibrium, self).__init__()
 
 
-	def calculateRequest(self):
-		# Get molecule counts
-		moleculeCounts = self.molecules.total()
+    # Construct object graph
+    def initialize(self, sim, sim_data):
+        super(Equilibrium, self).initialize(sim, sim_data)
 
-		# Get cell mass and volume
-		cellMass = (self.readFromListener("Mass", "cellMass") * units.fg).asNumber(units.g)
-		cellVolume = cellMass / self.cellDensity
+        # Get constants
+        self.nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / units.mol)
+        self.cellDensity = sim_data.constants.cellDensity.asNumber(units.g / units.L)
 
-		# Solve ODEs to steady state
-		self.rxnFluxes, self.req = self.fluxesAndMoleculesToSS(moleculeCounts, cellVolume, self.nAvogadro)
+        # Create matrix and method
+        self.stoichMatrix = sim_data.process.equilibrium.stoichMatrix().astype(np.int64)
+        self.fluxesAndMoleculesToSS = sim_data.process.equilibrium.fluxesAndMoleculesToSS
 
-		# Request counts of molecules needed
-		self.molecules.requestIs(self.req)
+        # Build views
+        moleculeNames = sim_data.process.equilibrium.moleculeNames
+        self.molecules = self.bulkMoleculesView(moleculeNames)
 
 
-	def evolveState(self):
-		# Get counts of molecules allocated to this process
-		moleculeCounts = self.molecules.counts()
+    def calculateRequest(self):
+        # Get molecule counts
+        moleculeCounts = self.molecules.total()
 
-		# If we didn't get allocated all the molecules we need, make do with what we have
-		# (decrease reaction fluxes so that they make use of what we have, but not more)
-		rxnFluxes = self.rxnFluxes.copy()
-		insufficientMetaboliteIdxs = np.where(self.req > moleculeCounts)[0]
-		for insufficientMetaboliteIdx in insufficientMetaboliteIdxs:
-			rxnPosIdxs = np.where(np.logical_and(self.stoichMatrix[insufficientMetaboliteIdx, :] != 0, rxnFluxes > 0))[0]
-			rxnNegIdxs = np.where(np.logical_and(self.stoichMatrix[insufficientMetaboliteIdx, :] != 0, rxnFluxes < 0))[0]
-			while(np.dot(self.stoichMatrix, rxnFluxes)[insufficientMetaboliteIdx] + moleculeCounts[insufficientMetaboliteIdx] < 0):
-				rxnFluxes[rxnPosIdxs] -= 1
-				rxnFluxes[rxnNegIdxs] += 1
-				rxnFluxes[rxnPosIdxs] = np.fmax(0, rxnFluxes[rxnPosIdxs])
-				rxnFluxes[rxnNegIdxs] = np.fmin(0, rxnFluxes[rxnNegIdxs])
+        # Get cell mass and volume
+        cellMass = (self.readFromListener("Mass", "cellMass") * units.fg).asNumber(units.g)
+        cellVolume = cellMass / self.cellDensity
 
-		assert(np.all(moleculeCounts + np.dot(self.stoichMatrix, rxnFluxes) >= 0))
+        # Solve ODEs to steady state
+        self.rxnFluxes, self.req = self.fluxesAndMoleculesToSS(moleculeCounts, cellVolume, self.nAvogadro)
 
-		# Increment changes in molecule counts
-		self.molecules.countsInc(
-			np.dot(self.stoichMatrix, rxnFluxes)
-			)
+        # Request counts of molecules needed
+        self.molecules.requestIs(self.req)
+
+
+    def evolveState(self):
+        # Get counts of molecules allocated to this process
+        moleculeCounts = self.molecules.counts()
+
+        # If we didn't get allocated all the molecules we need, make do with what we have
+        # (decrease reaction fluxes so that they make use of what we have, but not more)
+        rxnFluxes = self.rxnFluxes.copy()
+        insufficientMetaboliteIdxs = np.where(self.req > moleculeCounts)[0]
+        for insufficientMetaboliteIdx in insufficientMetaboliteIdxs:
+            rxnPosIdxs = np.where(np.logical_and(self.stoichMatrix[insufficientMetaboliteIdx, :] != 0, rxnFluxes > 0))[0]
+            rxnNegIdxs = np.where(np.logical_and(self.stoichMatrix[insufficientMetaboliteIdx, :] != 0, rxnFluxes < 0))[0]
+            while(np.dot(self.stoichMatrix, rxnFluxes)[insufficientMetaboliteIdx] + moleculeCounts[insufficientMetaboliteIdx] < 0):
+                rxnFluxes[rxnPosIdxs] -= 1
+                rxnFluxes[rxnNegIdxs] += 1
+                rxnFluxes[rxnPosIdxs] = np.fmax(0, rxnFluxes[rxnPosIdxs])
+                rxnFluxes[rxnNegIdxs] = np.fmin(0, rxnFluxes[rxnNegIdxs])
+
+        assert(np.all(moleculeCounts + np.dot(self.stoichMatrix, rxnFluxes) >= 0))
+
+        # Increment changes in molecule counts
+        self.molecules.countsInc(
+            np.dot(self.stoichMatrix, rxnFluxes)
+            )

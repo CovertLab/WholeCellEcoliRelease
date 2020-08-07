@@ -20,21 +20,21 @@ import nose.plugins.attrib as noseAttrib
 
 class Test_KnowledgeBase(unittest.TestCase):
 
-	@classmethod
-	def setUpClass(cls):
-		pass
+    @classmethod
+    def setUpClass(cls):
+        pass
 
-	@classmethod
-	def tearDownClass(cls):
-		pass
+    @classmethod
+    def tearDownClass(cls):
+        pass
 
-	def setUp(self):
-		self.kb = kb = cPickle.load(
-			open(os.path.join(
-				wholecell.utils.constants.SERIALIZED_KB_DIR,
-				wholecell.utils.constants.SERIALIZED_KB_FIT_FILENAME
-				), "rb")
-			)
+    def setUp(self):
+        self.kb = kb = cPickle.load(
+            open(os.path.join(
+                wholecell.utils.constants.SERIALIZED_KB_DIR,
+                wholecell.utils.constants.SERIALIZED_KB_FIT_FILENAME
+                ), "rb")
+            )
 
-	def tearDown(self):
-		pass
+    def tearDown(self):
+        pass

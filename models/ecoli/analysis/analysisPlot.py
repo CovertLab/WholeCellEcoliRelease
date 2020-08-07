@@ -30,33 +30,33 @@ from wholecell.utils import memory_debug
 
 
 class AnalysisPlot(object):
-	"""Abstract Base Class for analysis plots.
+    """Abstract Base Class for analysis plots.
 
-	Each analysis class must override do_plot().
+    Each analysis class must override do_plot().
 
-	Call main() to run an analysis plot for a Firetask.
+    Call main() to run an analysis plot for a Firetask.
 
-	Use the environment variable 'DEBUG_GC' to enable memory leak debugging.
-	"""
-	__metaclass__ = abc.ABCMeta
+    Use the environment variable 'DEBUG_GC' to enable memory leak debugging.
+    """
+    __metaclass__ = abc.ABCMeta
 
-	@abc.abstractmethod
-	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile,
-			validationDataFile, metadata):
-		"""Inner method that each analysis class must override."""
-		raise NotImplementedError("AnalysisPlot subclass must implement do_plot()")
+    @abc.abstractmethod
+    def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile,
+            validationDataFile, metadata):
+        """Inner method that each analysis class must override."""
+        raise NotImplementedError("AnalysisPlot subclass must implement do_plot()")
 
-	def plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile,
-			validationDataFile, metadata):
-		"""Public method to set up, make a plot, and cleanup."""
-		with memory_debug.detect_leaks(), mp.rc_context():
-			self.do_plot(inputDir, plotOutDir, plotOutFileName, simDataFile,
-				validationDataFile, metadata)
+    def plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile,
+            validationDataFile, metadata):
+        """Public method to set up, make a plot, and cleanup."""
+        with memory_debug.detect_leaks(), mp.rc_context():
+            self.do_plot(inputDir, plotOutDir, plotOutFileName, simDataFile,
+                validationDataFile, metadata)
 
-	@classmethod
-	def main(cls, inputDir, plotOutDir, plotOutFileName, simDataFile,
-			validationDataFile=None, metadata=None):
-		"""Run an analysis plot for a Firetask."""
-		instance = cls()
-		instance.plot(inputDir, plotOutDir, plotOutFileName, simDataFile,
-			validationDataFile, metadata)
+    @classmethod
+    def main(cls, inputDir, plotOutDir, plotOutFileName, simDataFile,
+            validationDataFile=None, metadata=None):
+        """Run an analysis plot for a Firetask."""
+        instance = cls()
+        instance.plot(inputDir, plotOutDir, plotOutFileName, simDataFile,
+            validationDataFile, metadata)

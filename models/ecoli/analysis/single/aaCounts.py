@@ -20,44 +20,44 @@ from models.ecoli.analysis import singleAnalysisPlot
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
-	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
+    def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+        if not os.path.isdir(simOutDir):
+            raise Exception, "simOutDir does not currently exist as a directory"
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
+        if not os.path.exists(plotOutDir):
+            os.mkdir(plotOutDir)
 
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+        bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
+        moleculeIds = bulkMolecules.readAttribute("objectNames")
 
-		sim_data = cPickle.load(open(simDataFile))
+        sim_data = cPickle.load(open(simDataFile))
 
-		aaIDs = sim_data.moleculeGroups.aaIDs
-		aaIndexes = np.array([moleculeIds.index(aaId) for aaId in aaIDs], np.int)
-		aaCounts = bulkMolecules.readColumn("counts")[:, aaIndexes]
+        aaIDs = sim_data.moleculeGroups.aaIDs
+        aaIndexes = np.array([moleculeIds.index(aaId) for aaId in aaIDs], np.int)
+        aaCounts = bulkMolecules.readColumn("counts")[:, aaIndexes]
 
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+        initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+        time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
-		bulkMolecules.close()
+        bulkMolecules.close()
 
-		plt.figure(figsize = (8.5, 11))
+        plt.figure(figsize = (8.5, 11))
 
-		for idx in xrange(21):
+        for idx in xrange(21):
 
-			plt.subplot(6, 4, idx + 1)
+            plt.subplot(6, 4, idx + 1)
 
-			plt.plot(time / 60., aaCounts[:, idx], linewidth = 2)
-			plt.xlabel("Time (min)")
-			plt.ylabel("Counts")
-			plt.title(aaIDs[idx])
+            plt.plot(time / 60., aaCounts[:, idx], linewidth = 2)
+            plt.xlabel("Time (min)")
+            plt.ylabel("Counts")
+            plt.title(aaIDs[idx])
 
-		plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
+        plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
 
-		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
-		plt.close("all")
+        exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+        plt.close("all")
 
 
 if __name__ == "__main__":
-	Plot().cli()
+    Plot().cli()

@@ -27,28 +27,28 @@ OUTPUT_FILE = "TFoutput.tsv"
 
 reactionDict = {}
 with open(DATA_FILE, "rU") as csvfile:
-	reader = csv.DictReader(csvfile, dialect = CSV_DIALECT)
-	for row in reader:
-		if row["<Kd> (uM)"] != '' and row["<Kd> (uM)"] != '?':
-			for reaction in row["EcoCyc ID reaction (metabolite vs. TF)"].split(", "):
-				reactionDict[reaction] = float(row["<Kd> (uM)"]) / 10**6
+    reader = csv.DictReader(csvfile, dialect = CSV_DIALECT)
+    for row in reader:
+        if row["<Kd> (uM)"] != '' and row["<Kd> (uM)"] != '?':
+            for reaction in row["EcoCyc ID reaction (metabolite vs. TF)"].split(", "):
+                reactionDict[reaction] = float(row["<Kd> (uM)"]) / 10**6
 
 with open(REACTION_FILE, "rU") as infile:
-	with open(OUTPUT_FILE, "w") as outfile:
-		reader = csv.DictReader(infile, dialect = CSV_DIALECT)
-		quoteDialect = CSV_DIALECT
-		quoteDialect.quotechar = "'"
-		quoteDialect.quoting = csv.QUOTE_NONNUMERIC
-		writer = csv.DictWriter(outfile, fieldnames = reader.fieldnames, dialect = quoteDialect)
-		writer.fieldnames.append("original reverse rate")
-		writer.writeheader()
-		for row in reader:
-			row["dir"] = float(row["dir"])
-			row["forward rate"] = float(row["forward rate"])
-			row["reverse rate"] = float(row["reverse rate"])
-			row["stoichiometry"] = np.array(row["stoichiometry"])
-			if row["id"] in reactionDict.keys():
-				row["reverse rate"] = reactionDict[row["id"]]
-			row["original reverse rate"] = row["reverse rate"]
+    with open(OUTPUT_FILE, "w") as outfile:
+        reader = csv.DictReader(infile, dialect = CSV_DIALECT)
+        quoteDialect = CSV_DIALECT
+        quoteDialect.quotechar = "'"
+        quoteDialect.quoting = csv.QUOTE_NONNUMERIC
+        writer = csv.DictWriter(outfile, fieldnames = reader.fieldnames, dialect = quoteDialect)
+        writer.fieldnames.append("original reverse rate")
+        writer.writeheader()
+        for row in reader:
+            row["dir"] = float(row["dir"])
+            row["forward rate"] = float(row["forward rate"])
+            row["reverse rate"] = float(row["reverse rate"])
+            row["stoichiometry"] = np.array(row["stoichiometry"])
+            if row["id"] in reactionDict.keys():
+                row["reverse rate"] = reactionDict[row["id"]]
+            row["original reverse rate"] = row["reverse rate"]
 
-			writer.writerow(row)
+            writer.writerow(row)

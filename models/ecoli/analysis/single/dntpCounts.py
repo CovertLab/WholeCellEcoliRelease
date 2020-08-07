@@ -20,45 +20,45 @@ from models.ecoli.analysis import singleAnalysisPlot
 
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
-	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
+    def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+        if not os.path.isdir(simOutDir):
+            raise Exception, "simOutDir does not currently exist as a directory"
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
+        if not os.path.exists(plotOutDir):
+            os.mkdir(plotOutDir)
 
-		sim_data = cPickle.load(open(simDataFile))
+        sim_data = cPickle.load(open(simDataFile))
 
-		dntpIDs = sim_data.moleculeGroups.dNtpIds
+        dntpIDs = sim_data.moleculeGroups.dNtpIds
 
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+        bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
+        moleculeIds = bulkMolecules.readAttribute("objectNames")
 
-		dntpIndexes = np.array([moleculeIds.index(dntpId) for dntpId in dntpIDs], np.int)
-		dntpCounts = bulkMolecules.readColumn("counts")[:, dntpIndexes]
+        dntpIndexes = np.array([moleculeIds.index(dntpId) for dntpId in dntpIDs], np.int)
+        dntpCounts = bulkMolecules.readColumn("counts")[:, dntpIndexes]
 
-		initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
-		time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
+        initialTime = TableReader(os.path.join(simOutDir, "Main")).readAttribute("initialTime")
+        time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time") - initialTime
 
-		bulkMolecules.close()
+        bulkMolecules.close()
 
-		plt.figure(figsize = (8.5, 11))
+        plt.figure(figsize = (8.5, 11))
 
-		for idx in xrange(4):
+        for idx in xrange(4):
 
-			plt.subplot(2, 2, idx + 1)
+            plt.subplot(2, 2, idx + 1)
 
-			plt.plot(time / 60., dntpCounts[:, idx], linewidth = 2)
-			plt.xlabel("Time (min)")
-			plt.ylabel("Counts")
-			plt.title(dntpIDs[idx])
+            plt.plot(time / 60., dntpCounts[:, idx], linewidth = 2)
+            plt.xlabel("Time (min)")
+            plt.ylabel("Counts")
+            plt.title(dntpIDs[idx])
 
-		plt.subplots_adjust(hspace = 0.5)
+        plt.subplots_adjust(hspace = 0.5)
 
-		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
-		plt.close("all")
+        exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+        plt.close("all")
 
 
 if __name__ == "__main__":
-	Plot().cli()
+    Plot().cli()

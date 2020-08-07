@@ -34,10 +34,10 @@ import matplotlib.pyplot as plt
 COLOR_HIGHLIGHT = "tab:orange"
 
 def open_file(filename, delimiter):
-	with open(filename, "r") as f:
-		reader = csv.reader(f, delimiter=delimiter)
-		data = np.array([x for x in reader])
-	return data
+    with open(filename, "r") as f:
+        reader = csv.reader(f, delimiter=delimiter)
+        data = np.array([x for x in reader])
+    return data
 
 # Describe paths
 root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -45,13 +45,13 @@ this_dir = os.path.dirname(os.path.abspath(__file__))
 mohammad_data_file = os.path.join(this_dir, "SRR7759814_pass.fastq.gz_genelist.csv")
 li_data_file = os.path.join(this_dir, "li_table_s4.tsv")
 wcm_data_file = os.path.join(
-	root_dir, "reconstruction", "ecoli", "flat", "rna_seq_data", "rnaseq_seal_rpkm_mean.tsv")
+    root_dir, "reconstruction", "ecoli", "flat", "rna_seq_data", "rnaseq_seal_rpkm_mean.tsv")
 wcm_genes_file = os.path.join(
-	root_dir, "reconstruction", "ecoli", "flat", "genes.tsv")
+    root_dir, "reconstruction", "ecoli", "flat", "genes.tsv")
 ribosome_genes_file = os.path.join(this_dir, "ribosome_genes.tsv")
 output_plot = os.path.join(this_dir, "compare_translation_efficiency{}.pdf")
 output_file = os.path.join(
-	root_dir, "reconstruction", "ecoli", "flat", "translationEfficiency_alternate.tsv")
+    root_dir, "reconstruction", "ecoli", "flat", "translationEfficiency_alternate.tsv")
 
 # Identify genes of interest to highlight
 rnap_genes = ["rpoA", "rpoB", "rpoC"]
@@ -94,43 +94,43 @@ wcm_genes = [egnumber_to_name.get(x) for x in wcm_genes_egnumber]
 
 # Compute translation efficiency by scaling Mohammad et al. 2019 by this study or Li et al. 2014
 def derive_translation_efficiency(ribosome_density_genes, ribosome_density, rna_genes, rna):
-	derived_genes = []
-	derived_translation_efficiency = []
-	for gene, ribosome_density_value in zip(ribosome_density_genes, ribosome_density):
-		if gene not in rna_genes:
-			continue
+    derived_genes = []
+    derived_translation_efficiency = []
+    for gene, ribosome_density_value in zip(ribosome_density_genes, ribosome_density):
+        if gene not in rna_genes:
+            continue
 
-		rna_value = rna[rna_genes.index(gene)]
-		if rna_value == 0:
-			continue
-		derived_genes.append(gene)
-		derived_translation_efficiency.append(ribosome_density_value / rna_value)
-	derived_translation_efficiency = np.array(derived_translation_efficiency)
-	return derived_genes, derived_translation_efficiency
+        rna_value = rna[rna_genes.index(gene)]
+        if rna_value == 0:
+            continue
+        derived_genes.append(gene)
+        derived_translation_efficiency.append(ribosome_density_value / rna_value)
+    derived_translation_efficiency = np.array(derived_translation_efficiency)
+    return derived_genes, derived_translation_efficiency
 
 derived_with_this_study_genes, derived_with_this_study_translation_efficiency = derive_translation_efficiency(
-	mohammad_genes, mohammad_ribosome_density, wcm_genes, wcm_rna)
+    mohammad_genes, mohammad_ribosome_density, wcm_genes, wcm_rna)
 derived_with_li_genes, derived_with_li_translation_efficiency = derive_translation_efficiency(
-	mohammad_genes, mohammad_ribosome_density, li_genes.tolist(), li_mrna)
+    mohammad_genes, mohammad_ribosome_density, li_genes.tolist(), li_mrna)
 
 
 # Analyze
 def plot(ax, x_genes, x_data, y_genes, y_data):
-	for x_gene, x_value in zip(x_genes, x_data):
-		if x_gene not in y_genes:
-			continue
+    for x_gene, x_value in zip(x_genes, x_data):
+        if x_gene not in y_genes:
+            continue
 
-		y_value = y_data[y_genes.index(x_gene)]
+        y_value = y_data[y_genes.index(x_gene)]
 
-		color = COLOR_HIGHLIGHT if x_gene in rnap_genes else "tab:blue" if x_gene in ribosome_genes else "none"
-		if color == "none":
-			continue
-		ax.scatter(
-			np.log10(x_value),
-			np.log10(y_value),
-			s=90, c=color)
-			# , edgecolors="tab:blue" if color is "none" else color)
-	return
+        color = COLOR_HIGHLIGHT if x_gene in rnap_genes else "tab:blue" if x_gene in ribosome_genes else "none"
+        if color == "none":
+            continue
+        ax.scatter(
+            np.log10(x_value),
+            np.log10(y_value),
+            s=90, c=color)
+            # , edgecolors="tab:blue" if color is "none" else color)
+    return
 
 
 fig, ax = plt.subplots(1, 1, figsize=(5, 5))
@@ -141,8 +141,8 @@ range_max = np.ceil(max(ax.get_xlim()[1], ax.get_ylim()[1]) * 10)/10.
 ax.set_xlim([range_min, range_max])
 ax.set_ylim([range_min, range_max])
 ax.plot(
-		[range_min, range_max],
-		[range_min, range_max], "k")
+        [range_min, range_max],
+        [range_min, range_max], "k")
 ax.set_xticks([range_min, range_max])
 ax.set_yticks([range_min, range_max])
 ax.set_xticklabels([])
@@ -165,13 +165,13 @@ plt.close("all")
 # Write alternate translation efficiency
 out = ['"geneId"\t"name"\t"translationEfficiency"']
 for gene, value in zip(derived_with_li_genes, derived_with_li_translation_efficiency):
-	if value > 10:
-		continue
-	egnumber = name_to_egnumber.get(gene)
-	if egnumber is None:
-		continue
+    if value > 10:
+        continue
+    egnumber = name_to_egnumber.get(gene)
+    if egnumber is None:
+        continue
 
-	out.append('"{}"\t"{}"\t{}'.format(egnumber, gene, value))
+    out.append('"{}"\t"{}"\t{}'.format(egnumber, gene, value))
 
 with open(output_file, "w") as f:
-	f.write("\n".join(out))
+    f.write("\n".join(out))

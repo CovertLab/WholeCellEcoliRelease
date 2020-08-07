@@ -21,39 +21,39 @@ from wholecell.utils import filepath
 
 
 class Plot(variantAnalysisPlot.VariantAnalysisPlot):
-	def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(inputDir):
-			raise Exception, 'inputDir does not currently exist as a directory'
+    def do_plot(self, inputDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+        if not os.path.isdir(inputDir):
+            raise Exception, 'inputDir does not currently exist as a directory'
 
-		filepath.makedirs(plotOutDir)
+        filepath.makedirs(plotOutDir)
 
-		with open(validationDataFile, 'rb') as f:
-			validation_data = cPickle.load(f)
+        with open(validationDataFile, 'rb') as f:
+            validation_data = cPickle.load(f)
 
-		ap = AnalysisPaths(inputDir, variant_plot=True)
-		variants = ap.get_variants()
+        ap = AnalysisPaths(inputDir, variant_plot=True)
+        variants = ap.get_variants()
 
-		for variant in variants:
-			with open(ap.get_variant_kb(variant), 'rb') as f:
-				sim_data = cPickle.load(f)
+        for variant in variants:
+            with open(ap.get_variant_kb(variant), 'rb') as f:
+                sim_data = cPickle.load(f)
 
-			for sim_dir in ap.get_cells(variant=[variant]):
-				simOutDir = os.path.join(sim_dir, "simOut")
+            for sim_dir in ap.get_cells(variant=[variant]):
+                simOutDir = os.path.join(sim_dir, "simOut")
 
-				# Listeners used
-				main_reader = TableReader(os.path.join(simOutDir, 'Main'))
+                # Listeners used
+                main_reader = TableReader(os.path.join(simOutDir, 'Main'))
 
-				# Load data
-				time = main_reader.readColumn('time')
+                # Load data
+                time = main_reader.readColumn('time')
 
-		plt.figure()
+        plt.figure()
 
-		### Create Plot ###
+        ### Create Plot ###
 
-		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+        exportFigure(plt, plotOutDir, plotOutFileName, metadata)
 
-		plt.close('all')
+        plt.close('all')
 
 
 if __name__ == "__main__":
-	Plot().cli()
+    Plot().cli()

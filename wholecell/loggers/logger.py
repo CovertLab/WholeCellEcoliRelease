@@ -15,21 +15,21 @@ from __future__ import division
 import abc
 
 class Logger(object):
-	""" Logger """
-	
-	__metaclass__ = abc.ABCMeta
+    """ Logger """
 
-	@abc.abstractmethod
-	def initialize(self, sim):
-		""" initialize -- called at beginning of simulation """
-		return
+    __metaclass__ = abc.ABCMeta
 
-	@abc.abstractmethod
-	def append(self, sim):
-		""" append -- called at each iteration of simulation """
-		return
+    @abc.abstractmethod
+    def initialize(self, sim):
+        """ initialize -- called at beginning of simulation """
+        return
 
-	@abc.abstractmethod
-	def finalize(self, sim):
-		""" finalize -- called at end of simulation """
-		return
+    @abc.abstractmethod
+    def append(self, sim):
+        """ append -- called at each iteration of simulation """
+        return
+
+    @abc.abstractmethod
+    def finalize(self, sim):
+        """ finalize -- called at end of simulation """
+        return

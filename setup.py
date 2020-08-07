@@ -11,47 +11,47 @@ import os
 # numpyIncDir = os.path.join(os.path.dirname(np.__file__), "core", "include", "numpy")
 
 # polymerize_module = Extension(
-# 	name = "wholecell.utils._polymerize",
-# 	sources = ["wholecell/utils/polymerize.c"],
-# 	include_dirs = [pythonIncDir, numpyIncDir],
-# 	libraries = ["gsl", "gslcblas"],
-# 	extra_compile_args = ["-fPIC"]
-# 	)
+#     name = "wholecell.utils._polymerize",
+#     sources = ["wholecell/utils/polymerize.c"],
+#     include_dirs = [pythonIncDir, numpyIncDir],
+#     libraries = ["gsl", "gslcblas"],
+#     extra_compile_args = ["-fPIC"]
+#     )
 
 # setup(name = "Polymerize",
-# 	version = "0.0.1",
-# 	description = "Polymerize module",
-# 	ext_modules = [polymerize_module]
-# 	)
+#     version = "0.0.1",
+#     description = "Polymerize module",
+#     ext_modules = [polymerize_module]
+#     )
 
 build_sequences_module = cythonize(
-	os.path.join("wholecell", "utils", "_build_sequences.pyx")
-	)
+    os.path.join("wholecell", "utils", "_build_sequences.pyx")
+    )
 
 setup(
-	name = "Build sequences",
-	ext_modules = build_sequences_module,
-	include_dirs = [np.get_include()]
-	)
+    name = "Build sequences",
+    ext_modules = build_sequences_module,
+    include_dirs = [np.get_include()]
+    )
 
 complexation_module = cythonize(
-	os.path.join("wholecell", "utils", "mc_complexation.pyx")
-	)
+    os.path.join("wholecell", "utils", "mc_complexation.pyx")
+    )
 
 setup(
-	name = "Monte-carlo complexation",
-	ext_modules = complexation_module,
-	include_dirs = [np.get_include()]
-	)
+    name = "Monte-carlo complexation",
+    ext_modules = complexation_module,
+    include_dirs = [np.get_include()]
+    )
 
 fast_polymerize_sums_module = cythonize(
-	os.path.join("wholecell", "utils", "_fastsums.pyx"),
-	#compiler_directives = {'linetrace': True},
-	# annotate=True, # emit an html file with annotated C code
-	)
+    os.path.join("wholecell", "utils", "_fastsums.pyx"),
+    #compiler_directives = {'linetrace': True},
+    # annotate=True, # emit an html file with annotated C code
+    )
 
 setup(
-	name = "Fast polymerize sums",
-	ext_modules = fast_polymerize_sums_module,
-	include_dirs = [np.get_include()]
-	)
+    name = "Fast polymerize sums",
+    ext_modules = fast_polymerize_sums_module,
+    include_dirs = [np.get_include()]
+    )

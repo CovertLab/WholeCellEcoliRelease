@@ -11,171 +11,171 @@ import numpy as np
 
 
 class BulkObjectsContainer(object):
-	'''
-	BulkObjectsContainer
+    '''
+    BulkObjectsContainer
 
-	A wrapper around a NumPy array that tracks the "bulk" counts of objects.
-	Bulk objects are those which have no identity beyond their names.
-	'''
+    A wrapper around a NumPy array that tracks the "bulk" counts of objects.
+    Bulk objects are those which have no identity beyond their names.
+    '''
 
-	def __init__(self, objectNames, dtype = np.int64):
-		self._objectNames = list(objectNames)
+    def __init__(self, objectNames, dtype = np.int64):
+        self._objectNames = list(objectNames)
 
-		self._nObjects = len(self._objectNames)
+        self._nObjects = len(self._objectNames)
 
-		self._objectIndex = {objectName:index for index, objectName in enumerate(self._objectNames)}
+        self._objectIndex = {objectName:index for index, objectName in enumerate(self._objectNames)}
 
-		self._counts = np.zeros(len(self._objectNames), dtype)
-
-
-	def counts(self, names = None):
-		if names is None:
-			return self._counts.copy()
-
-		else:
-			return self._counts[self._namesToIndexes(names)]
+        self._counts = np.zeros(len(self._objectNames), dtype)
 
 
-	def countsIs(self, values, names = None):
-		if names is None:
-			self._counts[:] = values
+    def counts(self, names = None):
+        if names is None:
+            return self._counts.copy()
 
-		else:
-			self._counts[self._namesToIndexes(names)] = values
-
-
-	def countsInc(self, values, names = None):
-		values = np.asarray(values, dtype=self._counts.dtype)
-		if names is None:
-			self._counts[:] += values
-
-		else:
-			self._counts[self._namesToIndexes(names)] += values
+        else:
+            return self._counts[self._namesToIndexes(names)]
 
 
-	def countsDec(self, values, names = None): # TODO: raise exception if > max?
-		values = np.asarray(values, dtype=self._counts.dtype)
-		if names is None:
-			self._counts[:] -= values
+    def countsIs(self, values, names = None):
+        if names is None:
+            self._counts[:] = values
 
-		else:
-			self._counts[self._namesToIndexes(names)] -= values
-
-
-	def countsView(self, names = None):
-		if names is None:
-			return _BulkObjectsView(self, np.arange(self._nObjects))
-
-		else:
-			return _BulkObjectsView(self, self._namesToIndexes(names))
+        else:
+            self._counts[self._namesToIndexes(names)] = values
 
 
-	def count(self, name):
-		return self._counts[self._objectIndex[name]]
+    def countsInc(self, values, names = None):
+        values = np.asarray(values, dtype=self._counts.dtype)
+        if names is None:
+            self._counts[:] += values
+
+        else:
+            self._counts[self._namesToIndexes(names)] += values
 
 
-	def countIs(self, value, name):
-		self._counts[self._objectIndex[name]] = value
+    def countsDec(self, values, names = None): # TODO: raise exception if > max?
+        values = np.asarray(values, dtype=self._counts.dtype)
+        if names is None:
+            self._counts[:] -= values
+
+        else:
+            self._counts[self._namesToIndexes(names)] -= values
 
 
-	def countInc(self, value, name):
-		self._counts[self._objectIndex[name]] += value
+    def countsView(self, names = None):
+        if names is None:
+            return _BulkObjectsView(self, np.arange(self._nObjects))
+
+        else:
+            return _BulkObjectsView(self, self._namesToIndexes(names))
 
 
-	def countDec(self, value, name):
-		self._counts[self._objectIndex[name]] -= value
+    def count(self, name):
+        return self._counts[self._objectIndex[name]]
 
 
-	def countView(self, name):
-		return _BulkObjectView(self, self._objectIndex[name])
-
-	def objectNames(self):
-		return tuple(self._objectNames)
-
-	def emptyLike(self):
-		names = self.objectNames()
-		new_copy = BulkObjectsContainer(names)
-		return new_copy
-
-	def _namesToIndexes(self, names):
-		return np.array([self._objectIndex[name] for name in names])
+    def countIs(self, value, name):
+        self._counts[self._objectIndex[name]] = value
 
 
-	def __eq__(self, other):
-		return (self._counts == other._counts).all()
+    def countInc(self, value, name):
+        self._counts[self._objectIndex[name]] += value
 
 
-	def tableCreate(self, tableWriter):
-		tableWriter.writeAttributes(
-			objectNames = self._objectNames
-			)
+    def countDec(self, value, name):
+        self._counts[self._objectIndex[name]] -= value
 
 
-	def tableAppend(self, tableWriter):
-		tableWriter.append(
-			counts = self._counts
-			)
+    def countView(self, name):
+        return _BulkObjectView(self, self._objectIndex[name])
+
+    def objectNames(self):
+        return tuple(self._objectNames)
+
+    def emptyLike(self):
+        names = self.objectNames()
+        new_copy = BulkObjectsContainer(names)
+        return new_copy
+
+    def _namesToIndexes(self, names):
+        return np.array([self._objectIndex[name] for name in names])
 
 
-	def tableLoad(self, tableReader, tableIndex):
-		assert self._objectNames == tableReader.readAttribute("objectNames")
+    def __eq__(self, other):
+        return (self._counts == other._counts).all()
 
-		self._counts = tableReader.readRow(tableIndex)["counts"]
+
+    def tableCreate(self, tableWriter):
+        tableWriter.writeAttributes(
+            objectNames = self._objectNames
+            )
+
+
+    def tableAppend(self, tableWriter):
+        tableWriter.append(
+            counts = self._counts
+            )
+
+
+    def tableLoad(self, tableReader, tableIndex):
+        assert self._objectNames == tableReader.readAttribute("objectNames")
+
+        self._counts = tableReader.readRow(tableIndex)["counts"]
 
 
 class _BulkObjectsView(object):
-	'''
-	_BulkObjectsView
+    '''
+    _BulkObjectsView
 
-	An accessor for a subset of objects in a BulkObjectsContainer.
-	'''
+    An accessor for a subset of objects in a BulkObjectsContainer.
+    '''
 
-	def __init__(self, container, indexes):
-		self._container = container
-		self._indexes = indexes
-
-
-	def counts(self):
-		return self._container._counts[self._indexes]
+    def __init__(self, container, indexes):
+        self._container = container
+        self._indexes = indexes
 
 
-	def countsIs(self, values):
-		self._container._counts[self._indexes] = values
+    def counts(self):
+        return self._container._counts[self._indexes]
 
 
-	def countsInc(self, values):
-		values = np.asarray(values, dtype=self._container._counts.dtype)
-		self._container._counts[self._indexes] += values
+    def countsIs(self, values):
+        self._container._counts[self._indexes] = values
 
 
-	def countsDec(self, values):
-		values = np.asarray(values, dtype=self._container._counts.dtype)
-		self._container._counts[self._indexes] -= values
+    def countsInc(self, values):
+        values = np.asarray(values, dtype=self._container._counts.dtype)
+        self._container._counts[self._indexes] += values
+
+
+    def countsDec(self, values):
+        values = np.asarray(values, dtype=self._container._counts.dtype)
+        self._container._counts[self._indexes] -= values
 
 
 class _BulkObjectView(object):
-	'''
-	_BulkObjectView
+    '''
+    _BulkObjectView
 
-	An accessor for a single object in a BulkObjectsContainer.
-	'''
+    An accessor for a single object in a BulkObjectsContainer.
+    '''
 
-	def __init__(self, container, index):
-		self._container = container
-		self._index = index
-
-
-	def count(self):
-		return self._container._counts[self._index]
+    def __init__(self, container, index):
+        self._container = container
+        self._index = index
 
 
-	def countIs(self, values):
-		self._container._counts[self._index] = values
+    def count(self):
+        return self._container._counts[self._index]
 
 
-	def countInc(self, values):
-		self._container._counts[self._index] += values
+    def countIs(self, values):
+        self._container._counts[self._index] = values
 
 
-	def countDec(self, values):
-		self._container._counts[self._index] -= values
+    def countInc(self, values):
+        self._container._counts[self._index] += values
+
+
+    def countDec(self, values):
+        self._container._counts[self._index] -= values

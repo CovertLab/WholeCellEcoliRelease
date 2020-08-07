@@ -13,105 +13,104 @@ from __future__ import division
 import numpy as np
 
 class InternalState(object):
-	""" Internal State """
+    """ Internal State """
 
-	_name = None
+    _name = None
 
-	# Constructor
-	def __init__(self):
-		# Constants
-		self._nProcesses = None
+    # Constructor
+    def __init__(self):
+        # Constants
+        self._nProcesses = None
 
-		# Reference to sim
-		self._sim = None
+        # Reference to sim
+        self._sim = None
 
-		# References to views
-		self._views = []
+        # References to views
+        self._views = []
 
-		# Random number stream
-		self.randomState = None
+        # Random number stream
+        self.randomState = None
 
-		self.seed = None
-
-
-	# Construct state-process graph, calculate constants
-	def initialize(self, sim, sim_data):
-		self._sim = sim
-
-		self._nProcesses = len(sim.processes)
-
-		# TODO: include compartment
-		self._masses = np.zeros((
-			2,
-			self._nProcesses + 1,
-			len(sim_data.submassNameToIndex),
-			), np.float64)
-
-		self._unallocatedMassIndex = self._nProcesses + 1
-		self._preEvolveStateMassIndex = 0
-		self._postEvolveStateMassIndex = 1
+        self.seed = None
 
 
-	# Allocate memory
-	def allocate(self):
-		pass
+    # Construct state-process graph, calculate constants
+    def initialize(self, sim, sim_data):
+        self._sim = sim
+
+        self._nProcesses = len(sim.processes)
+
+        # TODO: include compartment
+        self._masses = np.zeros((
+            2,
+            self._nProcesses + 1,
+            len(sim_data.submassNameToIndex),
+            ), np.float64)
+
+        self._unallocatedMassIndex = self._nProcesses + 1
+        self._preEvolveStateMassIndex = 0
+        self._postEvolveStateMassIndex = 1
 
 
-	# Views
-	def viewAdd(self, view):
-		self._views.append(view)
+    # Allocate memory
+    def allocate(self):
+        pass
 
 
-	# Partitioning
-	def updateQueries(self):
-		for view in self._views:
-			view._updateQuery()
+    # Views
+    def viewAdd(self, view):
+        self._views.append(view)
 
 
-	def partition(self):
-		pass
+    # Partitioning
+    def updateQueries(self):
+        for view in self._views:
+            view._updateQuery()
 
 
-	def merge(self):
-		pass
+    def partition(self):
+        pass
 
 
-	def calculatePreEvolveStateMass(self):
-		raise NotImplementedError("Subclass must implement")
+    def merge(self):
+        pass
 
 
-	def calculatePostEvolveStateMass(self):
-		raise NotImplementedError("Subclass must implement")
+    def calculatePreEvolveStateMass(self):
+        raise NotImplementedError("Subclass must implement")
 
 
-	# Mass calculations
-	def mass(self):
-		return self._masses
+    def calculatePostEvolveStateMass(self):
+        raise NotImplementedError("Subclass must implement")
 
 
-	# Saving and loading
-
-	def tableCreate(self, tableWriter):
-		pass
-
-
-	def tableAppend(self, tableWriter):
-		pass
+    # Mass calculations
+    def mass(self):
+        return self._masses
 
 
-	def tableLoad(self, tableReader, tableIndex):
-		pass
+    # Saving and loading
+
+    def tableCreate(self, tableWriter):
+        pass
 
 
-	# Basic accessors
+    def tableAppend(self, tableWriter):
+        pass
 
-	def time(self):
-		return self._sim.time()
 
-	def simulationStep(self):
-		return self._sim.simulationStep()
+    def tableLoad(self, tableReader, tableIndex):
+        pass
 
-	@classmethod
-	def name(cls):
-		return cls._name
 
+    # Basic accessors
+
+    def time(self):
+        return self._sim.time()
+
+    def simulationStep(self):
+        return self._sim.simulationStep()
+
+    @classmethod
+    def name(cls):
+        return cls._name

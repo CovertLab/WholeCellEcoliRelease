@@ -23,57 +23,57 @@ from models.ecoli.analysis import singleAnalysisPlot
 # TODO: account for complexation
 
 class Plot(singleAnalysisPlot.SingleAnalysisPlot):
-	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(simOutDir):
-			raise Exception, "simOutDir does not currently exist as a directory"
+    def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+        if not os.path.isdir(simOutDir):
+            raise Exception, "simOutDir does not currently exist as a directory"
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
+        if not os.path.exists(plotOutDir):
+            os.mkdir(plotOutDir)
 
-		# Get the names of rnas from the KB
+        # Get the names of rnas from the KB
 
-		sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = cPickle.load(open(simDataFile, "rb"))
 
-		isMRna = sim_data.process.transcription.rnaData["isMRna"]
+        isMRna = sim_data.process.transcription.rnaData["isMRna"]
 
-		rnaIds = sim_data.process.transcription.rnaData["id"][isMRna]
+        rnaIds = sim_data.process.transcription.rnaData["id"][isMRna]
 
-		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
+        bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 
-		moleculeIds = bulkMolecules.readAttribute("objectNames")
+        moleculeIds = bulkMolecules.readAttribute("objectNames")
 
-		rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
+        rnaIndexes = np.array([moleculeIds.index(moleculeId) for moleculeId in rnaIds], np.int)
 
-		rnaCountsBulk = bulkMolecules.readColumn("counts")[:, rnaIndexes]
+        rnaCountsBulk = bulkMolecules.readColumn("counts")[:, rnaIndexes]
 
-		# avgCounts = rnaCountsBulk.mean(0)
+        # avgCounts = rnaCountsBulk.mean(0)
 
-		# relativeCounts = avgCounts / avgCounts.sum()
+        # relativeCounts = avgCounts / avgCounts.sum()
 
-		# relativeCounts = rnaCountsBulk[-1, :] / rnaCountsBulk[-1, :].sum()
+        # relativeCounts = rnaCountsBulk[-1, :] / rnaCountsBulk[-1, :].sum()
 
-		bulkMolecules.close()
+        bulkMolecules.close()
 
-		plt.figure(figsize = (8.5, 11))
+        plt.figure(figsize = (8.5, 11))
 
-		counts = rnaCountsBulk[-1, :]
+        counts = rnaCountsBulk[-1, :]
 
-		expectedCountsArbitrary = sim_data.process.transcription.rnaExpression[sim_data.condition][isMRna]
+        expectedCountsArbitrary = sim_data.process.transcription.rnaExpression[sim_data.condition][isMRna]
 
-		expectedCounts = expectedCountsArbitrary/expectedCountsArbitrary.sum() * counts.sum()
+        expectedCounts = expectedCountsArbitrary/expectedCountsArbitrary.sum() * counts.sum()
 
-		maxLine = 1.1 * max(expectedCounts.max(), counts.max())
-		plt.plot([0, maxLine], [0, maxLine], '--r')
-		plt.plot(expectedCounts, counts, 'o', markeredgecolor = 'k', markerfacecolor = 'none')
+        maxLine = 1.1 * max(expectedCounts.max(), counts.max())
+        plt.plot([0, maxLine], [0, maxLine], '--r')
+        plt.plot(expectedCounts, counts, 'o', markeredgecolor = 'k', markerfacecolor = 'none')
 
-		plt.xlabel("Expected RNA count (scaled to total)")
-		plt.ylabel("Actual RNA count (at final time step)")
+        plt.xlabel("Expected RNA count (scaled to total)")
+        plt.ylabel("Actual RNA count (at final time step)")
 
-		# plt.show()
+        # plt.show()
 
-		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
-		plt.close("all")
+        exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+        plt.close("all")
 
 
 if __name__ == "__main__":
-	Plot().cli()
+    Plot().cli()

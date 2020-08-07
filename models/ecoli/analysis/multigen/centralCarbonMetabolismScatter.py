@@ -26,96 +26,96 @@ from models.ecoli.analysis import multigenAnalysisPlot
 
 
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
-	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-		if not os.path.isdir(seedOutDir):
-			raise Exception, "seedOutDir does not currently exist as a directory"
+    def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
+        if not os.path.isdir(seedOutDir):
+            raise Exception, "seedOutDir does not currently exist as a directory"
 
-		if not os.path.exists(plotOutDir):
-			os.mkdir(plotOutDir)
+        if not os.path.exists(plotOutDir):
+            os.mkdir(plotOutDir)
 
-		# Get all cells
-		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-		allDir = ap.get_cells()
-		# allDir = ap.get_cells(generation = [0, 1, 2])
+        # Get all cells
+        ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
+        allDir = ap.get_cells()
+        # allDir = ap.get_cells(generation = [0, 1, 2])
 
-		sim_data = cPickle.load(open(simDataFile, "rb"))
-		metaboliteNames = np.array(sorted(sim_data.process.metabolism.concDict.keys()))
-		nMetabolites = len(metaboliteNames)
+        sim_data = cPickle.load(open(simDataFile, "rb"))
+        metaboliteNames = np.array(sorted(sim_data.process.metabolism.concDict.keys()))
+        nMetabolites = len(metaboliteNames)
 
-		validation_data = cPickle.load(open(validationDataFile, "rb"))
-		toyaReactions = validation_data.reactionFlux.toya2010fluxes["reactionID"]
-		toyaFluxes = validation_data.reactionFlux.toya2010fluxes["reactionFlux"]
-		toyaStdev = validation_data.reactionFlux.toya2010fluxes["reactionFluxStdev"]
-		toyaFluxesDict = dict(zip(toyaReactions, toyaFluxes))
-		toyaStdevDict = dict(zip(toyaReactions, toyaStdev))
+        validation_data = cPickle.load(open(validationDataFile, "rb"))
+        toyaReactions = validation_data.reactionFlux.toya2010fluxes["reactionID"]
+        toyaFluxes = validation_data.reactionFlux.toya2010fluxes["reactionFlux"]
+        toyaStdev = validation_data.reactionFlux.toya2010fluxes["reactionFluxStdev"]
+        toyaFluxesDict = dict(zip(toyaReactions, toyaFluxes))
+        toyaStdevDict = dict(zip(toyaReactions, toyaStdev))
 
-		sim_data = cPickle.load(open(simDataFile))
-		cellDensity = sim_data.constants.cellDensity
+        sim_data = cPickle.load(open(simDataFile))
+        cellDensity = sim_data.constants.cellDensity
 
-		modelFluxes = {}
-		toyaOrder = []
-		for rxn in toyaReactions:
-			modelFluxes[rxn] = []
-			toyaOrder.append(rxn)
+        modelFluxes = {}
+        toyaOrder = []
+        for rxn in toyaReactions:
+            modelFluxes[rxn] = []
+            toyaOrder.append(rxn)
 
-		for simDir in allDir:
-			simOutDir = os.path.join(simDir, "simOut")
+        for simDir in allDir:
+            simOutDir = os.path.join(simDir, "simOut")
 
-			mainListener = TableReader(os.path.join(simOutDir, "Main"))
-			timeStepSec = mainListener.readColumn("timeStepSec")
-			mainListener.close()
+            mainListener = TableReader(os.path.join(simOutDir, "Main"))
+            timeStepSec = mainListener.readColumn("timeStepSec")
+            mainListener.close()
 
-			massListener = TableReader(os.path.join(simOutDir, "Mass"))
-			cellMass = massListener.readColumn("cellMass")
-			dryMass = massListener.readColumn("dryMass")
-			massListener.close()
+            massListener = TableReader(os.path.join(simOutDir, "Mass"))
+            cellMass = massListener.readColumn("cellMass")
+            dryMass = massListener.readColumn("dryMass")
+            massListener.close()
 
-			coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(MASS_UNITS / VOLUME_UNITS)
+            coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(MASS_UNITS / VOLUME_UNITS)
 
-			fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
-			reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
-			reactionFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (fbaResults.readColumn("reactionFluxes").T / coefficient).T
-			fbaResults.close()
+            fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
+            reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))
+            reactionFluxes = (COUNTS_UNITS / MASS_UNITS / TIME_UNITS) * (fbaResults.readColumn("reactionFluxes").T / coefficient).T
+            fbaResults.close()
 
-			for toyaReaction in toyaReactions:
-				fluxTimeCourse = []
+            for toyaReaction in toyaReactions:
+                fluxTimeCourse = []
 
-				for rxn in reactionIDs:
-					if re.findall(toyaReaction, rxn):
-						reverse = 1
-						if re.findall("(reverse)", rxn):
-							reverse = -1
+                for rxn in reactionIDs:
+                    if re.findall(toyaReaction, rxn):
+                        reverse = 1
+                        if re.findall("(reverse)", rxn):
+                            reverse = -1
 
-						if len(fluxTimeCourse):
-							fluxTimeCourse += reverse * reactionFluxes[:, np.where(reactionIDs == rxn)]
-						else:
-							fluxTimeCourse = reverse * reactionFluxes[:, np.where(reactionIDs == rxn)]
+                        if len(fluxTimeCourse):
+                            fluxTimeCourse += reverse * reactionFluxes[:, np.where(reactionIDs == rxn)]
+                        else:
+                            fluxTimeCourse = reverse * reactionFluxes[:, np.where(reactionIDs == rxn)]
 
-				if len(fluxTimeCourse):
-					modelFluxes[toyaReaction].append(np.mean(fluxTimeCourse).asNumber(units.mmol / units.g / units.h))
+                if len(fluxTimeCourse):
+                    modelFluxes[toyaReaction].append(np.mean(fluxTimeCourse).asNumber(units.mmol / units.g / units.h))
 
-		toyaVsReactionAve = []
-		for rxn, toyaFlux in toyaFluxesDict.iteritems():
-			if rxn in modelFluxes:
-				toyaVsReactionAve.append((np.mean(modelFluxes[rxn]), toyaFlux.asNumber(units.mmol / units.g / units.h), np.std(modelFluxes[rxn]), toyaStdevDict[rxn].asNumber(units.mmol / units.g / units.h)))
+        toyaVsReactionAve = []
+        for rxn, toyaFlux in toyaFluxesDict.iteritems():
+            if rxn in modelFluxes:
+                toyaVsReactionAve.append((np.mean(modelFluxes[rxn]), toyaFlux.asNumber(units.mmol / units.g / units.h), np.std(modelFluxes[rxn]), toyaStdevDict[rxn].asNumber(units.mmol / units.g / units.h)))
 
-		toyaVsReactionAve = np.array(toyaVsReactionAve)
-		correlationCoefficient = np.corrcoef(toyaVsReactionAve[:,0], toyaVsReactionAve[:,1])[0,1]
+        toyaVsReactionAve = np.array(toyaVsReactionAve)
+        correlationCoefficient = np.corrcoef(toyaVsReactionAve[:,0], toyaVsReactionAve[:,1])[0,1]
 
-		plt.figure(figsize = (8, 8))
-		plt.title("Central Carbon Metabolism Flux, Pearson R = {:.2}".format(correlationCoefficient))
-		plt.errorbar(toyaVsReactionAve[:,1], toyaVsReactionAve[:,0], xerr = toyaVsReactionAve[:,3], yerr = toyaVsReactionAve[:,2], fmt = "o", ecolor = "k")
-		ylim = plt.ylim()
-		plt.plot([ylim[0], ylim[1]], [ylim[0], ylim[1]], color = "k")
-		plt.xlabel("Toya 2010 Reaction Flux [mmol/g/hr]")
-		plt.ylabel("Mean WCM Reaction Flux [mmol/g/hr]")
-		ax = plt.axes()
-		ax.set_ylim(plt.xlim())
-		whitePadSparklineAxis(plt.axes())
+        plt.figure(figsize = (8, 8))
+        plt.title("Central Carbon Metabolism Flux, Pearson R = {:.2}".format(correlationCoefficient))
+        plt.errorbar(toyaVsReactionAve[:,1], toyaVsReactionAve[:,0], xerr = toyaVsReactionAve[:,3], yerr = toyaVsReactionAve[:,2], fmt = "o", ecolor = "k")
+        ylim = plt.ylim()
+        plt.plot([ylim[0], ylim[1]], [ylim[0], ylim[1]], color = "k")
+        plt.xlabel("Toya 2010 Reaction Flux [mmol/g/hr]")
+        plt.ylabel("Mean WCM Reaction Flux [mmol/g/hr]")
+        ax = plt.axes()
+        ax.set_ylim(plt.xlim())
+        whitePadSparklineAxis(plt.axes())
 
-		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
-		plt.close("all")
+        exportFigure(plt, plotOutDir, plotOutFileName, metadata)
+        plt.close("all")
 
 
 if __name__ == "__main__":
-	Plot().cli()
+    Plot().cli()

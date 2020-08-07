@@ -13,54 +13,53 @@ from __future__ import division
 import numpy as np
 
 class ExternalState(object):
-	""" External State """
+    """ External State """
 
-	_name = None
+    _name = None
 
-	# Constructor
-	def __init__(self):
-		# Reference to sim
-		self._sim = None
+    # Constructor
+    def __init__(self):
+        # Reference to sim
+        self._sim = None
 
-		# Random number stream
-		self.randomState = None
+        # Random number stream
+        self.randomState = None
 
-		self.seed = None
-
-
-	# Construct state-process graph, calculate constants
-	def initialize(self, sim, sim_data):
-		self._sim = sim
+        self.seed = None
 
 
-	# Allocate memory
-	def allocate(self):
-		pass
+    # Construct state-process graph, calculate constants
+    def initialize(self, sim, sim_data):
+        self._sim = sim
 
 
-	# Saving and loading
-
-	def tableCreate(self, tableWriter):
-		pass
-
-
-	def tableAppend(self, tableWriter):
-		pass
+    # Allocate memory
+    def allocate(self):
+        pass
 
 
-	def tableLoad(self, tableReader, tableIndex):
-		pass
+    # Saving and loading
+
+    def tableCreate(self, tableWriter):
+        pass
 
 
-	# Basic accessors
+    def tableAppend(self, tableWriter):
+        pass
 
-	def time(self):
-		return self._sim.time()
 
-	def simulationStep(self):
-		return self._sim.simulationStep()
+    def tableLoad(self, tableReader, tableIndex):
+        pass
 
-	@classmethod
-	def name(cls):
-		return cls._name
 
+    # Basic accessors
+
+    def time(self):
+        return self._sim.time()
+
+    def simulationStep(self):
+        return self._sim.simulationStep()
+
+    @classmethod
+    def name(cls):
+        return cls._name

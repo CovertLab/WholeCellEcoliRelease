@@ -16,19 +16,19 @@ from wholecell.utils.unit_struct_array import UnitStructArray
 from reconstruction.ecoli.dataclasses.state.stateFunctions import addToStateCommon
 
 class Environment(object):
-	""" Environment """
+    """ Environment """
 
-	def __init__(self, raw_data, sim_data):
-		environmentData = np.zeros(
-			0,
-			dtype = [
-				("id", "a50"),
-				]
-			)
+    def __init__(self, raw_data, sim_data):
+        environmentData = np.zeros(
+            0,
+            dtype = [
+                ("id", "a50"),
+                ]
+            )
 
-		# Add units to values
-		field_units = {
-			"id"		:	None,
-			}
+        # Add units to values
+        field_units = {
+            "id"        :    None,
+            }
 
-		self.environmentData = UnitStructArray(environmentData, field_units)
+        self.environmentData = UnitStructArray(environmentData, field_units)
