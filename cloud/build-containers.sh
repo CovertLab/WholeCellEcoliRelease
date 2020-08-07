@@ -2,8 +2,6 @@
 # Build the WCM Docker container images locally.
 #
 # ASSUMES: The current working dir is the wcEcoli/ project root.
-#
-# Add the `docker build` option `--build-arg from=ABC` to name a different "FROM" image.
 
 set -eu
 

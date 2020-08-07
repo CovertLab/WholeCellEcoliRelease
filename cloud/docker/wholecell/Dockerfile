@@ -10,7 +10,7 @@
 #
 # After building locally you can start up a new container from the image:
 #
-#     > docker run --name wholecelltest -it wcm-code
+#     > docker run --name wcm-test -it --rm wcm-code
 #
 # It will start a shell where you can execute commands:
 #
@@ -19,6 +19,8 @@
 # If this succeeds you can start running WCM code in the container, e.g.:
 #
 #     # python runscripts/manual/runFitter.py
+#     # python runscripts/manual/runSim.py
+#     # python runscripts/manual/analysisSingle.py
 
 ARG from=wcm-runtime:latest
 FROM ${from}
@@ -34,6 +36,10 @@ WORKDIR /wcEcoli
 
 RUN make clean compile
 ENV PYTHONPATH=/wcEcoli
+
+# Expand permissions to allow running the Fitter as a user ID from the Docker host.
+RUN umask 000 && rm -rf fixtures && mkdir fixtures \
+	&& chmod a+rwx reconstruction/ecoli/dataclasses/process
 
 RUN echo 'cat cloud/docker/welcome.txt' >> $HOME/.bashrc
 

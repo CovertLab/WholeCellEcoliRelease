@@ -2,25 +2,23 @@
 
 See the top level [README](../README.md) for general instructions and [README](README.md) for details on setup and running.
 
-[TODO] Describe the different ways to run the model and their tradeoffs. Reevaluate the doc organization. What to copy from "Computational Resources"?
 
-
-## Fireworks
+## FireWorks
 
 See [Setting up to run FireWorks](wholecell/fireworks/README.md) for setup to run a FireWorks workflow of cell simulations and analysis plots.
 
 
 ## Using the Manual Runscripts
 
-[TODO] Rewrite this. Meanwhile, see the top level [README](../README.md).
+See the top level [README](../README.md) for more details.
 
-You can accomplish largely the same thing that running via Fireworks does by running:
+You can accomplish largely the same thing as a FireWorks run via:
 
 1. `runFitter.py` -- creates the `kb/*` sim data files for the control case
 2. `runSim.py` -- creates the modified modified sim data files for requested variants and runs the sims
 3. `analysisCohort.py`, `analysisMultigen.py`, `analysisSingle.py`, `analysisVariant.py` -- runs the plots
 
-Except:
+In comparison:
 
 * It runs directly without FireWorks or MongoDB.
 * You can run it in a debugger.

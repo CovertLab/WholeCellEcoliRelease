@@ -6,27 +6,68 @@ These are the docs for a variety of topics on the Whole Cell Model.
 
 There are two alternative ways to set up to run the model:
 
-1. **Docker setup (recommended):** Install the [Docker Desktop software](https://www.docker.com/products/docker-desktop) then launch our Docker container image from the GitHub Package Registry or build it locally using the `cloud/build-containers.sh` shell script.
+1. **Docker Container:** Install the
+   [Docker Desktop software](https://www.docker.com/products/docker-desktop),
+   build a Docker Image, then run the Docker Image as a Container.
 
-   You can then run the model inside the container and link your local directory to the one inside the Docker container (`<local wcEcoli>` denotes the local path to your cloned repo):
+   Build the wcEcoli Docker Image this way:
 
-   ```docker run --name=wcm -v <local wcEcoli>:/wcEcoli -it wcm-code```
+   ```shell script
+   cd $YOUR_CODE_PROJECTS_DIR/wcEcoli  # or wherever you cloned the wcEcoli project to
+   cloud/build-containers.sh
+   ```
 
-   By doing so, the output files in the Docker folder (`/wcEcoli/out`) will also be linked to a corresponding folder in your computer (`<local wcEcoli>/out`). The files will be owned by `root` user so you might need to `chmod`/`chgrp` if you have permissions issues.
+   You can then run the wcEcoli model inside the Container like this:
 
-   **NOTE:** You may need to run the command `make clean compile` once inside the container before running simulations if you mount the volume from the host with the `-v` option as above.
+   ```shell script
+   docker run --name=wcm -it --rm wcm-code
+   ```
+
+   The `-it` option starts an interactive shell.
+   Alternatively, you can supply a shell command to run.
+
+   Another useful option is `--rm`, which asks Docker to remove the Container on
+   exit so you don't have to remember to delete old Containers.
+
+   You can mount your local directory `wcEcoli/out/` into the Container to preserve the
+   program's output files when the Container exits:
+
+   ```shell script
+   docker run --name=wcm -v $PWD/out:/wcEcoli/out -it wcm-code
+   ```
+
+   In this case, the output files will be owned by root. You can fix
+   that by adding the option `--user "$(id -u):$(id -g)"` to run the process
+   inside the Container as your user and group from the host computer so the
+   output files will be owned by you, but that adds complications. E.g.
+   the process inside the Container won't have a user profile and won't own the
+   `wcEcoli/` directory.
 
    **NOTE:** If you encounter memory issues while using Docker Desktop (the default allocated memory is 2GB) and the simulation processes get killed midway, click the Docker icon > Preferences > Advanced > adjust memory to 4GB.
 
    **NOTE:** Docker Desktop for Windows is not currently compatible with VirtualBox.  If you use VirtualBox, try installing the legacy [Docker Toolbox](https://github.com/docker/toolbox/releases) instead.  You may also need to adjust the memory allocated to the VirtualBox VM (named 'default') that gets created.  In VirtualBox, select the 'default' VM and under system, change the base memory from 1 GB to 4 GB.
 
-2. **pyenv setup:** Follow [Required development tools](dev-tools.md) to install the development tools including pyenv, gcc, make, and git, then follow [Creating the "pyenv" runtime environment](create-pyenv.md) to set up the Python runtime virtual environment for the model including binary libraries and Python packages.
+   Inside the Container you can then run commands like these:
 
-   You can then run the model with this version of Python under `pyenv`.
-   
-   If you have Anaconda installed, you might have to take it off the `$PATH` temporarily to run the Whole Cell Model.
+   ```shell script
+   python runscripts/manual/runFitter.py
+   python runscripts/manual/runSim.py
+   python runscripts/manual/analysisSingle.py
+   ```
 
-   This approach takes many careful steps that vary depending on your operating system. It will run ≈1 dB faster than inside a container.
+   **Tip:** Eventually, you'll want to delete the Docker Image. Refer to the
+   commands `docker image prune`, `docker image ls`, and `docker image rm`.
+
+2. **Python virtual environment:** Follow [Required development tools](dev-tools.md) to install the development tools including pyenv, gcc, make, and git, then follow [Creating the "pyenv" runtime environment](create-pyenv.md) to set up the Python runtime virtual environment for the model including binary libraries and Python packages.
+
+   You can then run wcEcoli in this Python virtualenv.
+
+   This approach takes many careful steps that vary depending on your operating
+   system but it will run noticeably faster than inside a Docker Container.
+   The native libraries and compilers will not be isolated from the rest of your
+   computer but the virtualenv will be isolated from other Python environments.
+   However if you have Anaconda installed, you might have to
+   take it off the `$PATH` temporarily to run Python in this virtualenv.
 
    * [Required development tools](dev-tools.md) -- installation and tips
    * [Creating the "pyenv" runtime environment](create-pyenv.md)
@@ -43,9 +84,11 @@ There are two alternative ways to set up to run the model:
 
 ## relevant papers
 
-* [A Whole-Cell Computational Model Predicts Phenotype from Genotype](https://www.cell.com/cell/abstract/S0092-8674(12)00776-3)
+* [Simultaneous cross-evaluation of heterogeneous E. coli datasets via mechanistic simulation](https://science.sciencemag.org/content/369/6502/eaav3751.full), _Science_, 24 July 2020
+* [A Whole-Cell Computational Model Predicts Phenotype from Genotype](https://www.cell.com/cell/abstract/S0092-8674(12)00776-3), _Cell_, July 20, 2012
 
 ## dissertations
+* _Computational Simulations of Whole Cells: Strategies for Framework Design and Model Parameterization_, John Mason
 * _Development and Application of Whole-Cell Computational Models for Science and Engineering_, Jonathan Ross Karr
 * _Toward a Whole-Cell Model of Escherichia coli_, Derek Macklin
 * _Towards a Whole-Cell Model of Growth Rate and Cell Size Control in Escherichia coli_, Nicholas Ruggero

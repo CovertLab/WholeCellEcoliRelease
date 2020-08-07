@@ -92,6 +92,7 @@ FW.json
 #################
 reconstruction/ecoli/dataclasses/process/equilibrium_odes.py
 reconstruction/ecoli/dataclasses/process/two_component_system_odes.py
+reconstruction/ecoli/dataclasses/process/two_component_system_odes_parca.py
 reconstruction/ecoli/dataclasses/process/two_component_system_odes_fitter.py
 
 # Sublime Files #

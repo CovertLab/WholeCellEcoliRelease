@@ -23,7 +23,7 @@
 #   pyenv local wcEcoli-paper
 #
 ## Upgrade this virtual environment's installers:
-#   pip install --upgrade pip setuptools virtualenv virtualenvwrapper virtualenv-clone wheel
+#   pip install pip==20.1.1 setuptools==44.1.1 virtualenv==16.4.1 virtualenv-clone==0.5.1 virtualenvwrapper==4.8.4 wheel==0.34.2
 #
 ## Install OpenBLAS 0.3.5 or later using your package manager or download and
 ## build it from source. (Earlier releases of OpenBLAS had threading bugs. So
@@ -40,11 +40,10 @@
 #    include_dirs = /usr/local/opt/openblas/include
 #
 ## Install NumPy linked to this OpenBLAS thanks to ~/.numpy-site.cfg:
-#   pip install numpy==1.14.6 --no-binary numpy --force-reinstall
+#   pip install numpy==1.14.6 --no-binary numpy
 #
 ## Install the packages listed in this file (SciPy will also use ~/.numpy-site.cfg):
-#   CVXOPT_BUILD_GLPK=1 pip install -r requirements.txt --no-binary numpy,scipy
-#   pyenv rehash
+#   CVXOPT_BUILD_GLPK=1 pip install -r requirements.txt --no-binary numpy,scipy,cvxopt; pyenv rehash
 #
 ## Configure the installed matplotlib per the instructions in docs/create-pyenv.md
 
@@ -117,13 +116,13 @@ packaging==17.1
 pandas==0.22.0  # pandas 0.23+ releases have backwards incompatible API changes
 path.py==11.0.1
 pathlib==1.0.1
-pathlib2==2.3.2
+pathlib2==2.3.3
 pbr==4.1.0
 pexpect==4.6.0
 pickleshare==0.7.4
 pluggy==0.6.0
 prompt-toolkit==1.0.15
-psutil==5.6.6
+psutil==5.4.6
 ptyprocess==0.6.0
 py==1.5.4
 py-cpuinfo==4.0.0
@@ -158,9 +157,9 @@ traitlets==4.3.2
 typing==3.6.6
 Unum==4.1.4
 urllib3==1.24.2
-virtualenv>=16.4.1
-virtualenv-clone>=0.5.1
-virtualenvwrapper>=4.8.4
+virtualenv==16.4.1
+virtualenv-clone==0.5.1
+virtualenvwrapper==4.8.4
 wcwidth==0.1.7
 Werkzeug==0.15.3
 wrapt==1.10.11

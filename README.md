@@ -7,9 +7,9 @@ You can reach us at [AllenCenterCovertLab](mailto:allencentercovertlab@gmail.com
 
 ## Setup
 
-See [docs/README.md](docs/README.md) for docs on how to set up and run the model.
+See [docs/README.md](docs/README.md) for more info on setting up and running the model.
 
-In short, there are two alternative ways to set up to run the model: inside a Docker container vs. in a carefully constructed `pyenv` virtual environment.
+In short, there are two alternative setups to run the model: inside a Docker container vs. in a manually constructed `pyenv` virtual environment.
 
 
 ## Quick start
@@ -20,7 +20,7 @@ When running this code, prepare with these steps (the wcm-code Docker container 
 2. Set the `$PYTHONPATH`:
 
    ```bash
-   export PYTHONPATH="$PWD:$PYTHONPATH"
+   export PYTHONPATH="$PWD"
    ```
 
 3. In the `wcEcoli` directory, compile the Cython code:
@@ -33,24 +33,25 @@ When running this code, prepare with these steps (the wcm-code Docker container 
 There are two ways to run the model:
 
    1. Use the manual runscripts.
-   2. Queue up a Fireworks workflow, then run it.
+   2. Queue up a FireWorks workflow, then run it.
 
 
 ## Using the manual runscripts
 
-These scripts will run the parameter calculator (misnamed "fitter"; it does not do machine learning), simulation, and analysis steps directly, without any workflow. They're handy for development, e.g. running under the PyCharm debugger. But when you use them, you're responsible for running the scripts in order and for re-running the parameter calculator after relevant code changes.
+These scripts will run the parameter calculator (misnamed "fitter"; it does not do machine learning), simulation, and analysis steps directly, without any workflow. They're handy for development, e.g. running under the PyCharm debugger. But you're responsible for running the steps in order and for re-running the relevant steps after changes.
+Or you can delete the output directory and run the steps from the beginning.
 
 These scripts have command line interfaces built on Python's `argparse`, so you can use argparse features like shorter option names as long as they're unambiguous. Many options also have one-letter forms like `-c8` as short for `--cpus 8`.
 
 **NOTE:** _Use the `-h` or `--help` switch to get complete, up-to-date documentation on the command line options._ Below are just _some_ of the command line options.
 
 
-To run all the parameter calculation steps:
+To run the parameter calculator (ParCa), which is needed to prepare input data for the simulation:
 ```bash
 python runscripts/manual/runFitter.py [-h] [--cpus CPUS] [sim_outdir]
 ```
 
-To do a simple simulation run:
+To simulate one or more cell generations with optional variants:
 
 ```bash
 python runscripts/manual/runSim.py [-h] [--variant VARIANT_TYPE FIRST_INDEX LAST_INDEX] [--generations GENERATIONS] [--seed SEED] [sim_dir]
@@ -59,41 +60,44 @@ python runscripts/manual/runSim.py [-h] [--variant VARIANT_TYPE FIRST_INDEX LAST
 To run all the analysis plots on the simulation output in a given `sim_dir`:
 
 ```bash
-python runscripts/manual/analysisCohort.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output_prefix OUTPUT_PREFIX] [--variant_index VARIANT_INDEX] [sim_dir]
+python runscripts/manual/analysisVariant.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [sim_dir]
 
-python runscripts/manual/analysisMultigen.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output_prefix OUTPUT_PREFIX] [--variant_index VARIANT_INDEX] [--seed SEED] [sim_dir]
+python runscripts/manual/analysisCohort.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--variant_index VARIANT_INDEX] [sim_dir]
 
-python runscripts/manual/analysisSingle.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output_prefix OUTPUT_PREFIX] [--variant_index VARIANT_INDEX] [--seed SEED] [--generation GENERATION] [--daughter DAUGHTER] [sim_dir]
+python runscripts/manual/analysisMultigen.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--variant_index VARIANT_INDEX] [--seed SEED] [sim_dir]
 
-python runscripts/manual/analysisVariant.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--output_prefix OUTPUT_PREFIX] [sim_dir]
+python runscripts/manual/analysisSingle.py [-h] [--plot PLOT [PLOT ...]] [--cpus CPUS] [--variant_index VARIANT_INDEX] [--seed SEED] [--generation GENERATION] [--daughter DAUGHTER] [sim_dir]
 ```
 
-If you default the parameters, the script will pick the latest simulation directory, the first variant, the first generation simulation, and so on.
+If you default the parameters, an analysis script will pick the latest simulation directory, the first variant, the first generation simulation, and so on.
+
+To get the full set of plot outputs after running multiple variants, seeds, and/or
+generations, run:
+* `analysisVariant` once;
+* `analysisCohort` on each variant;
+* `analysisMultigen` on each combination of variant × seed;
+* `analysisSingle` on each combination of variant × seed × generation.
 
 Set the environment variable `DEBUG_GC=1` to check for Python memory leaks in the analysis scripts.
 
-The `--plot` (or `-p`) optional parameter lets you pick one or more specific plots to run. For example, to run two analysis scripts on simulation variant #3 and put a filename prefix "v3_" on their output files (to distinguish them from other analysis runs):
+The `--plot` (or `-p`) optional parameter lets you run one or more specific scripts from a category. For example, to run two analysis scripts on simulation variant #3 and put a filename prefix "v3_" on their output files (to distinguish them from other analysis runs):
 
 ```bash
 python runscripts/manual/analysisCohort.py --plot compositionFitting.py figure2e.py --variant_index 3 --output_prefix v3_
 ```
 
-You can also run an individual analysis script directly:
 
-```bash
-python models/ecoli/analysis/cohort/transcriptFrequency.py [-h] [--verbose] [-o OUTPUT_PREFIX] [-v VARIANT_INDEX] [sim_dir]
-```
+## Running an entire FireWorks workflow
 
+See [wholecell/fireworks/README.md](wholecell/fireworks/README.md) for instructions to set up MongoDB to run FireWorks.
 
-## Running an entire Fireworks workflow
-
-See [wholecell/fireworks/README.md](wholecell/fireworks/README.md) for instructions to set up MongoDB et al to run Fireworks.
-
-The command line program `fw_queue.py` queues up a Fireworks workflow including parameter calculations, the simulation itself, and lots of analysis plots.
+The command line program `fw_queue.py` queues up a FireWorks workflow (using the
+MongoDB server configuration info in `my_launchpad.yaml`) including parameter
+calculations, the simulation itself, and the full set of analysis plots.
 
 The `fw_queue.py` source code begins with documentation on its many options. Below are a few usage examples.
 
-But first, note that you can reset the Fireworks queue (if needed) via:
+But first, note that you can reset the FireWorks queue (if needed) via:
 
 ```bash
 lpad reset
@@ -101,7 +105,7 @@ lpad reset
 
 ### Single simulation
 
-To queue up a single simulation in Fireworks, including parameter calculations and analysis plots:
+To queue up a single simulation in FireWorks, including parameter calculations and analysis plots:
 
 ```bash
 DESC="Example run of a single simulation." python runscripts/fw_queue.py
@@ -139,7 +143,7 @@ To queue a simulation that switches between environments, use the "nutrient_time
 DESC="Example run of nutrient shifts." VARIANT="nutrient_time_series" FIRST_VARIANT_INDEX=1 LAST_VARIANT_INDEX=1 python runscripts/fw_queue.py
 ```
 
-### Using an interactive session to run a Fireworks workflow
+### Using an interactive session to run a FireWorks workflow
 
 After queuing your simulation(s), to run them in an interactive session, run:
 
@@ -149,7 +153,7 @@ rlaunch rapidfire
 
 You probably only want to do this if you're running/debugging a single simulation.
 
-### Using the SLURM workload scheduler on Linux to run a Fireworks workflow
+### Using the SLURM workload scheduler on Linux to run a FireWorks workflow
 
 To run simulations using the cluster (you'll probably want to do this if you're running more than one simulation and/or more than one generation), run:
 

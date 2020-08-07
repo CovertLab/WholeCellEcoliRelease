@@ -44,9 +44,7 @@ cached
 
 # Fixtures #
 ############
-fixtures/sim/*
-fixtures/kb/*
-fixtures/test/*
+/fixtures/
 
 # C extensions #
 ################
