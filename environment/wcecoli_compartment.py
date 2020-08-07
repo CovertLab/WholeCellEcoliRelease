@@ -42,7 +42,7 @@ class WcEcoliCell(Generator):
 		'death': {
 			'detectors': {
 				'antibiotic': {
-					'antibiotic_threshold': 0.25,
+					'antibiotic_threshold': 0.86,
 					'antibiotic_key': ANTIBIOTIC_KEY,
 				},
 			},
