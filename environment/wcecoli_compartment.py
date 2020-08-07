@@ -69,9 +69,6 @@ class WcEcoliCell(Generator):
 				PORIN_KEY: 1e-11,
 			},
 		},
-		'derive_colony_shape': {
-			'alpha': 0.2,
-		},
 		'derive_concentrations': {
 			'concentration_keys': [PUMP_KEY],
 		},

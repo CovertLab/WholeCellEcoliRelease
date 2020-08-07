@@ -229,6 +229,7 @@ def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 			},
 			'colony_shape_deriver': {
 				'bounds': BOUNDS,
+                'alpha': 0.2,
 			},
 		},
 	}
