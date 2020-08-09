@@ -12,7 +12,7 @@ import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
+import pickle
 
 
 from wholecell.io.tablereader import TableReader
@@ -30,7 +30,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
         bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
         moleculeIds = bulkMolecules.readAttribute("objectNames")
 
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
 
         endoRnaseIds = sim_data.process.rna_decay.endoRnaseIds
         exoRnaseIds = sim_data.moleculeGroups.exoRnaseIds

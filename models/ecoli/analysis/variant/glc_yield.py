@@ -7,7 +7,7 @@ Glucose mass yield distributions.
 
 from __future__ import absolute_import, division, print_function
 
-import cPickle
+import pickle
 import os
 
 from matplotlib import pyplot as plt
@@ -63,7 +63,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
             return
 
         with open(os.path.join(inputDir, 'kb', constants.SERIALIZED_FIT1_FILENAME), 'rb') as f:
-            sim_data = cPickle.load(f)
+            sim_data = pickle.load(f)
 
         all_yields = []
         for variant in variants:

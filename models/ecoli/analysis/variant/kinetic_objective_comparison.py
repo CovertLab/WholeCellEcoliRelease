@@ -6,7 +6,7 @@ Violin plots to compare predicted k_cats of the new list of disabled constraints
 
 from __future__ import absolute_import, division, print_function
 
-import cPickle
+import pickle
 import os
 
 from matplotlib import pyplot as plt
@@ -122,7 +122,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
         # Load sim_data
         with open(os.path.join(inputDir, 'kb', constants.SERIALIZED_FIT1_FILENAME), 'rb') as f:
-            sim_data = cPickle.load(f)
+            sim_data = pickle.load(f)
 
         # get reactions from sim_data
         reactionCatalysts = sim_data.process.metabolism.reactionCatalysts

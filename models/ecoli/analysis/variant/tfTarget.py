@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-import cPickle
+import pickle
 import os
 
 import numpy as np
@@ -25,7 +25,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
         ap = AnalysisPaths(inputDir, variant_plot = True)
         variants = sorted(ap._path_data['variant'].tolist()) # Sorry for accessing private data
         variant = variants[0]
-        sim_data = cPickle.load(open(ap.get_variant_kb(variant), "rb"))
+        sim_data = pickle.load(open(ap.get_variant_kb(variant), "rb"))
 
         targetToFC = {}
         targetToFCTF = {}

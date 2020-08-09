@@ -19,7 +19,7 @@ Notes:
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
@@ -82,7 +82,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
         allDir = ap.get_cells()
 
         # Load sim data
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         rnaIds = sim_data.process.transcription.rnaData["id"]
         geneIds = sim_data.process.transcription.rnaData["geneId"]
 
@@ -154,7 +154,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
         ## Identify essential functional units
         # Load validation data
-        validation_data = cPickle.load(open(validationDataFile, "rb"))
+        validation_data = pickle.load(open(validationDataFile, "rb"))
         essentialGenes_genes = validation_data.essentialGenes.essentialGenes
         essentialGenes_monomers = validation_data.essentialGenes.essentialProteins
 

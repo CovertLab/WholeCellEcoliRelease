@@ -12,7 +12,7 @@ import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
+import pickle
 
 from wholecell.io.tablereader import TableReader
 from wholecell.utils.sparkline import sparklineAxis, setAxisMaxMinY
@@ -33,7 +33,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
             os.mkdir(plotOutDir)
 
         # Load data from KB
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         proteinIds = sim_data.moleculeGroups.s30_proteins
         rnaIds = [sim_data.process.translation.monomerData['rnaId'][np.where(sim_data.process.translation.monomerData['id'] == pid)[0][0]] for pid in proteinIds]
         rRnaIds = sim_data.moleculeGroups.s30_16sRRNA

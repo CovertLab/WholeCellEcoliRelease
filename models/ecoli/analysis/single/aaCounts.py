@@ -9,7 +9,7 @@ Plot amino acid counts
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -31,7 +31,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
         moleculeIds = bulkMolecules.readAttribute("objectNames")
 
-        sim_data = cPickle.load(open(simDataFile))
+        sim_data = pickle.load(open(simDataFile))
 
         aaIDs = sim_data.moleculeGroups.aaIDs
         aaIndexes = np.array([moleculeIds.index(aaId) for aaId in aaIDs], np.int)

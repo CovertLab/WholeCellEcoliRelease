@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -20,7 +20,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
             os.mkdir(plotOutDir)
 
         # Amino acid IDs
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         aaIDs = sim_data.moleculeGroups.aaIDs
 
         # Amino acid exchanges fluxes

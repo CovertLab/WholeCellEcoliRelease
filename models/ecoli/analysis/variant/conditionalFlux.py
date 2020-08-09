@@ -13,7 +13,7 @@ import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
+import pickle
 import bokeh.io
 from bokeh.plotting import figure, ColumnDataSource
 from bokeh.models import (HoverTool, BoxZoomTool, LassoSelectTool, PanTool,
@@ -50,7 +50,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
         #Puts you into the specific simulation's data.  Pull fluxes from here  #TODO LEARN HOW TO PULL FLUXES FROM LISTENER FILE (see kineticsflux comparison)
         for variant, simDir in zip(variants, all_cells):
-            sim_data = cPickle.load(open(ap.get_variant_kb(variant), "rb"))
+            sim_data = pickle.load(open(ap.get_variant_kb(variant), "rb"))
             simOutDir = os.path.join(simDir, "simOut")
 
             #crafting area

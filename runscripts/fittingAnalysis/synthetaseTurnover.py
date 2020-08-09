@@ -6,7 +6,7 @@ justAnalyzeFitKb.py
 Creates plots base don unfit and most-fit KB's for fitting analysis
 """
 
-import cPickle
+import pickle
 import os
 import argparse
 
@@ -21,8 +21,8 @@ def main(plotOutDir, plotOutFileName, kbDirectory):
     unfitKbFileName = os.path.join(kbDirectory, wholecell.utils.constants.SERIALIZED_KB_UNFIT_FILENAME)
     mostfitKbFileName = os.path.join(kbDirectory, wholecell.utils.constants.SERIALIZED_KB_MOST_FIT_FILENAME)
 
-    unfitKb = cPickle.load(open(unfitKbFileName, "rb"))
-    mostfitKb = cPickle.load(open(mostfitKbFileName, "rb"))
+    unfitKb = pickle.load(open(unfitKbFileName, "rb"))
+    mostfitKb = pickle.load(open(mostfitKbFileName, "rb"))
 
     # Load parameters
     measured_synthetase_rates = unfitKb.trna_synthetase_rates

@@ -7,7 +7,7 @@
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -28,7 +28,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
             os.mkdir(plotOutDir)
 
         ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
 
         T_ADD_AA = None
         T_CUT_AA = None

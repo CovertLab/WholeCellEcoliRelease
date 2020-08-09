@@ -14,7 +14,7 @@ import warnings
 import nose.plugins.attrib as noseAttrib
 
 import numpy as np
-import cPickle
+import pickle
 import os
 
 from wholecell.utils import units

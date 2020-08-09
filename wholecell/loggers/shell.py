@@ -15,7 +15,7 @@ from __future__ import division
 import time
 import sys
 import numpy as np
-from itertools import izip
+
 
 import wholecell.loggers.logger
 
@@ -83,7 +83,7 @@ class Shell(wholecell.loggers.logger.Logger):
         # Update the cell size to be at least the header width
         cellSizes = [
             max(cellSize, max(len(line) for line in lines))
-            for cellSize, lines in izip(cellSizes, columnHeaderLines)
+            for cellSize, lines in zip(cellSizes, columnHeaderLines)
             ]
 
         # Rearrange the header lines
@@ -105,7 +105,7 @@ class Shell(wholecell.loggers.logger.Logger):
 
         for headers in headerLines:
             string = []
-            for columnIndex, (columnSize, columnHeader) in enumerate(izip(cellSizes, headers)):
+            for columnIndex, (columnSize, columnHeader) in enumerate(zip(cellSizes, headers)):
                 if columnIndex > 0:
                     string.append(SPACER)
 
@@ -126,7 +126,7 @@ class Shell(wholecell.loggers.logger.Logger):
 
         # Update cell sizes
 
-        for columnSpec, cellSize in izip(self.columns, cellSizes):
+        for columnSpec, cellSize in zip(self.columns, cellSizes):
             columnSpec["length"] = cellSize
 
 

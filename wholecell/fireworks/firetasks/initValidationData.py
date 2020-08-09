@@ -1,4 +1,4 @@
-import cPickle
+import pickle
 import time
 
 from fireworks import FireTaskBase, explicit_serialize
@@ -14,12 +14,12 @@ class InitValidationDataTask(FireTaskBase):
 
         print "%s: Initializing Validation Data" % (time.ctime())
 
-        raw_validation_data = cPickle.load(open(self["validation_data_input"], "rb"))
-        knowledge_base_raw = cPickle.load(open(self["knowledge_base_raw"], "rb"))
+        raw_validation_data = pickle.load(open(self["validation_data_input"], "rb"))
+        knowledge_base_raw = pickle.load(open(self["knowledge_base_raw"], "rb"))
         validation_data = ValidationDataEcoli()
         validation_data.initialize(raw_validation_data, knowledge_base_raw)
-        cPickle.dump(
+        pickle.dump(
             validation_data,
             open(self["output_data"], "wb"),
-            protocol = cPickle.HIGHEST_PROTOCOL
+            protocol = pickle.HIGHEST_PROTOCOL
             )

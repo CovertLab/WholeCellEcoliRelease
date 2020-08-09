@@ -11,7 +11,7 @@ from __future__ import division
 import unittest
 import warnings
 
-import cPickle
+import pickle
 import os
 
 import wholecell.utils.constants
@@ -29,7 +29,7 @@ class Test_KnowledgeBase(unittest.TestCase):
         pass
 
     def setUp(self):
-        self.kb = kb = cPickle.load(
+        self.kb = kb = pickle.load(
             open(os.path.join(
                 wholecell.utils.constants.SERIALIZED_KB_DIR,
                 wholecell.utils.constants.SERIALIZED_KB_FIT_FILENAME

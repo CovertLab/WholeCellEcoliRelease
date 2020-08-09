@@ -9,7 +9,7 @@ Plot NTP counts
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -27,7 +27,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
         if not os.path.exists(plotOutDir):
             os.mkdir(plotOutDir)
 
-        sim_data = cPickle.load(open(simDataFile))
+        sim_data = pickle.load(open(simDataFile))
 
         dntpIDs = sim_data.moleculeGroups.dNtpIds
 

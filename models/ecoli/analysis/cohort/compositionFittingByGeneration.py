@@ -9,7 +9,7 @@ import matplotlib.gridspec as gridspec
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
-import cPickle
+import pickle
 
 from wholecell.analysis.analysis_tools import exportFigure
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
@@ -22,11 +22,11 @@ DOWN_SAMPLE = 100
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
     def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-        print "Disabled. Calls fitter with doubling_time argument which is deprecated."
+        print("Disabled. Calls fitter with doubling_time argument which is deprecated.")
         return
 
         if not os.path.isdir(variantDir):
-            raise Exception, "variantDir does not currently exist as a directory"
+            raise Exception("variantDir does not currently exist as a directory")
 
         if not os.path.exists(plotOutDir):
             os.mkdir(plotOutDir)
@@ -41,7 +41,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
         fig.set_size_inches(10 * n_gen,12)
         outer_grid = gridspec.GridSpec(1, n_gen)
 
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         expectedProtein, expectedRna, expectedDryMassInit = getExpectedComposition(sim_data.doubling_time)
 
         for gen in range(n_gen):
@@ -153,7 +153,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
             try:
                 doublingTimeViolin_axis.violinplot(dataset = downSampleDoublingTime, widths=width, showmeans=True, positions = positions)
             except Exception as e:
-                print e
+                print(e)
                 doublingTimeViolin_axis.plot(time / 60., doublingTime.asNumber(units.min))
             doublingTimeViolin_axis.set_title("Instantanious doubling time (min) for\ngeneration {} of cells (n={})".format(gen, len(generationCells)), fontsize=FONT_SIZE)
 
@@ -164,7 +164,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
             try:
                 rnaFractionViolin_axis.violinplot(downSampleRnaFraction, widths=width, showmeans=True, positions = positions)
             except Exception as e:
-                print e
+                print(e)
                 rnaFractionViolin_axis.plot(time / 60., rnaFraction)
             rnaFractionViolin_axis.set_title("Rna dry mass fraction for\ngeneration {} of cells (n={})".format(gen, len(generationCells)), fontsize=FONT_SIZE)
 
@@ -175,7 +175,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
             try:
                 proteinFractionViolin_axis.violinplot(downSampleProteinFraction, widths=width, showmeans=True, positions = positions)
             except Exception as e:
-                print e
+                print(e)
                 proteinFractionViolin_axis.plot(time / 60., proteinFraction)
             proteinFractionViolin_axis.set_title("Protein dry mass fraction for\ngeneration {} of cells (n={})".format(gen, len(generationCells)), fontsize=FONT_SIZE)
 

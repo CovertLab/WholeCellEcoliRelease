@@ -12,12 +12,12 @@ import numpy as np
 import os
 import csv
 import scipy.optimize
-import cPickle
+import pickle
 
 import wholecell
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
-from reconstruction.ecoli.simulation_data import SimulationDataEcoli
 from wholecell.utils.mc_complexation import mccBuildMatrices, mccFormComplexesWithPrebuiltMatrices
+from reconstruction.ecoli.simulation_data import SimulationDataEcoli
 
 from wholecell.utils import filepath, parallelization, units
 from unum import uarray
@@ -181,7 +181,7 @@ def fitSimData_1(
 
     if options['cpus'] > 1:
         cpus = min(options['cpus'], parallelization.cpus())
-        print "Start parallel processing with %i processes" % (cpus,)
+        print("Start parallel processing with %i processes" % (cpus,))
         pool = Pool(processes = cpus)
         conds = sorted(sim_data.tfToActiveInactiveConds)
         results = [
@@ -195,7 +195,7 @@ def fitSimData_1(
             assert(result.successful())
             cellSpecs.update(result.get())
         pool = None
-        print "End parallel processing"
+        print("End parallel processing")
     else:
         for tf in sorted(sim_data.tfToActiveInactiveConds):
             cellSpecs.update(buildTfConditionCellSpecifications(
@@ -226,7 +226,7 @@ def fitSimData_1(
 
     if options['cpus'] > 1:
         cpus = options['cpus']
-        print "Start parallel processing with %i processes" % (cpus,)
+        print("Start parallel processing with %i processes" % (cpus,))
         pool = Pool(processes = cpus)
         results = [pool.apply_async(fitCondition, (sim_data, cellSpecs[condition], condition, options)) for condition in sorted(cellSpecs)]
         pool.close()
@@ -235,7 +235,7 @@ def fitSimData_1(
             assert(result.successful())
             cellSpecs.update(result.get())
         pool = None
-        print "End parallel processing"
+        print("End parallel processing")
     else:
         for condition in sorted(cellSpecs):
             cellSpecs.update(fitCondition(sim_data, cellSpecs[condition], condition, options))
@@ -252,7 +252,7 @@ def fitSimData_1(
         nutrients = condition["nutrients"]
 
         if VERBOSE > 0:
-            print "Updating mass in condition {}".format(condition_label)
+            print("Updating mass in condition {}".format(condition_label))
         spec = cellSpecs[condition_label]
 
         concDict = sim_data.process.metabolism.concentrationUpdates.concentrationsBasedOnNutrients(nutrients)
@@ -263,7 +263,7 @@ def fitSimData_1(
             )
 
         if VERBOSE > 0:
-            print str(spec["avgCellDryMassInit"]) + " to " + str(avgCellDryMassInit)
+            print(str(spec["avgCellDryMassInit"]) + " to " + str(avgCellDryMassInit))
 
         spec["avgCellDryMassInit"] = avgCellDryMassInit
         spec["fitAvgSolublePoolMass"] = fitAvgSolublePoolMass
@@ -785,7 +785,7 @@ def fitCondition(sim_data, spec, condition, options):
     """
 
     if VERBOSE > 0:
-        print "Fitting condition {}".format(condition)
+        print("Fitting condition {}".format(condition))
 
     # Find bulk and protein distributions
     bulkAverageContainer, bulkDeviationContainer, proteinMonomerAverageContainer, proteinMonomerDeviationContainer = calculateBulkDistributions(
@@ -1396,12 +1396,12 @@ def setRibosomeCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_t
     rib30lims = np.array([nRibosomesNeeded, massFracPredicted_30SCount, (ribosome30SCounts / ribosome30SStoich).min()])
     rib50lims = np.array([nRibosomesNeeded, massFracPredicted_50SCount, (ribosome50SCounts / ribosome50SStoich).min()])
     if VERBOSE > 1:
-        print '30S limit: {}'.format(constraint_names[np.where(rib30lims.max() == rib30lims)[0]][-1])
-        print '30S actual count: {}'.format((ribosome30SCounts / ribosome30SStoich).min())
-        print '30S count set to: {}'.format(rib30lims[np.where(rib30lims.max() == rib30lims)[0]][-1])
-        print '50S limit: {}'.format(constraint_names[np.where(rib50lims.max() == rib50lims)[0]][-1])
-        print '50S actual count: {}'.format((ribosome50SCounts / ribosome50SStoich).min())
-        print '50S count set to: {}'.format(rib50lims[np.where(rib50lims.max() == rib50lims)[0]][-1])
+        print('30S limit: {}'.format(constraint_names[np.where(rib30lims.max() == rib30lims)[0]][-1]))
+        print('30S actual count: {}'.format((ribosome30SCounts / ribosome30SStoich).min()))
+        print('30S count set to: {}'.format(rib30lims[np.where(rib30lims.max() == rib30lims)[0]][-1]))
+        print('50S limit: {}'.format(constraint_names[np.where(rib50lims.max() == rib50lims)[0]][-1]))
+        print('50S actual count: {}'.format((ribosome50SCounts / ribosome50SStoich).min()))
+        print('50S count set to: {}'.format(rib50lims[np.where(rib50lims.max() == rib50lims)[0]][-1]))
 
     bulkContainer.countsIs(
         np.fmax(np.fmax(ribosome30SCounts, constraint1_ribosome30SCounts), constraint2_ribosome30SCounts),
@@ -1558,9 +1558,9 @@ def setRNAPCountsConstrainedByPhysiology(sim_data, bulkContainer, doubling_time,
     constraint_names = np.array(["Current level OK", "Insufficient to double RNA distribution"])
     rnapLims = np.array([(rnapCounts / rnapStoich).min(), (minRnapSubunitCounts / rnapStoich).min()])
     if VERBOSE > 1:
-        print 'rnap limit: {}'.format(constraint_names[np.where(rnapLims.max() == rnapLims)[0]][0])
-        print 'rnap actual count: {}'.format((rnapCounts / rnapStoich).min())
-        print 'rnap counts set to: {}'.format(rnapLims[np.where(rnapLims.max() == rnapLims)[0]][0])
+        print('rnap limit: {}'.format(constraint_names[np.where(rnapLims.max() == rnapLims)[0]][0]))
+        print('rnap actual count: {}'.format((rnapCounts / rnapStoich).min()))
+        print('rnap counts set to: {}'.format(rnapLims[np.where(rnapLims.max() == rnapLims)[0]][0]))
 
     bulkContainer.countsIs(minRnapSubunitCounts, rnapIds)
 
@@ -1932,12 +1932,12 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
     proteinMonomerCounts = np.empty((N_SEEDS, proteinView.counts().size), np.int64)
 
     if VERBOSE > 1:
-        print "Bulk distribution seed:"
+        print("Bulk distribution seed:")
 
     # Instantiate cells to find average copy numbers of macromolecules
     for seed in xrange(N_SEEDS):
         if VERBOSE > 1:
-            print seed
+            print(seed)
         randomState = np.random.RandomState(seed)
 
         allMoleculesView.countsIs(0)
@@ -2004,7 +2004,7 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 
             nIters += 1
             if nIters > 100:
-                raise Exception, "Equilibrium reactions are not converging!"
+                raise Exception("Equilibrium reactions are not converging!")
 
         allMoleculeCounts[seed, :] = allMoleculesView.counts()
 
@@ -2968,7 +2968,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
         prob_r.solve(solver = "ECOS")
 
         if prob_r.status != "optimal":
-            raise Exception, "Solver could not find optimal value"
+            raise Exception("Solver could not find optimal value")
 
         # Get optimal value of R
         r = np.array(R.value).reshape(-1)
@@ -3019,7 +3019,7 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
         prob_p.solve(solver = "ECOS")
 
         if prob_p.status != "optimal":
-            raise Exception, "Solver could not find optimal value"
+            raise Exception("Solver could not find optimal value")
 
         # Get optimal value of P
         p = np.array(P.value).reshape(-1)
@@ -3184,7 +3184,7 @@ def calculatePromoterBoundProbability(sim_data, cellSpecs):
     return pPromoterBound
 
 def calculateRnapRecruitment(sim_data, r):
-    # TODO: Not really a good function name - calculation is not done here
+    # TODO: Not really a good function name -- calculation is not done here
     """
     Constructs a matrix (H) from values of r which can be multiplied with the
     TF-RNA binding probability to compute RNAP recruitment probabilities for
@@ -3195,6 +3195,7 @@ def calculateRnapRecruitment(sim_data, r):
     - r: Fit parameters on how the recruitment of a TF affects the expression
     of a gene. High (positive) values of r indicate that the TF binding
     increases the probability that the gene is expressed.
+    转录因子对基因的作用, 作用于 hV
 
     Modifies
     --------
@@ -3233,6 +3234,7 @@ def calculateRnapRecruitment(sim_data, r):
             hJ.append(colNames.index(colName))
             hV.append(r[colNames.index(colName)])
 
+            # 只有 11 种? 哪 11 种 @Hwrn: ?
             stateMasses.append([0.]*6 + [tf["mass_g/mol"]] + [0.]*4)
 
         # Add alpha column for each RNA
@@ -3359,14 +3361,14 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
     denominator = np.power(np.sum(rnaCounts / (1 / countsToMolar * Kmcounts).asNumber()),2)
     numerator = (1 / countsToMolar * totalEndoRnaseCapacity).asNumber() * (denominator - (rnaCounts / (1 / countsToMolar * Kmcounts).asNumber()))
     gDerivative = np.abs(KmQuadratic * (1 - (numerator / denominator)))
-    if VERBOSE: print "Max derivative (counts) = %f" % max(gDerivative)
+    if VERBOSE: print("Max derivative (counts) = %f" % max(gDerivative))
 
     # Compute derivative g(Km) in concentrations:
     KmQuadratic = 1 / np.power(Kmcounts, 2)
     denominator = np.power(np.sum(rnaConc.asNumber() / Kmcounts),2)
     numerator = (totalEndoRnaseCapacity).asNumber() * (denominator - (rnaConc.asNumber() / Kmcounts))
     gDerivative = np.abs(KmQuadratic * (1 - (numerator / denominator)))
-    if VERBOSE: print "Max derivative (concentration) = %f" % max(gDerivative)
+    if VERBOSE: print("Max derivative (concentration) = %f" % max(gDerivative))
 
 
     # Sensitivity analysis: alpha (regularization term)
@@ -3376,7 +3378,7 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 
     for alpha in Alphas:
 
-        if VERBOSE: print 'Alpha = %f' % alpha
+        if VERBOSE: print('Alpha = %f' % alpha)
 
         LossFunction, Rneg, R, LossFunctionP, R_aux, L_aux, Lp_aux, Jacob, Jacob_aux = sim_data.process.rna_decay.kmLossFunction(
                 (totalEndoRnaseCapacity).asNumber(units.mol / units.L / units.s),
@@ -3398,7 +3400,7 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 
     for kcat in kcatEndo:
 
-        if VERBOSE: print 'Kcat = %f' % kcat
+        if VERBOSE: print('Kcat = %f' % kcat)
 
         totalEndoRNcap = units.sum(endoRNaseConc * kcat)
         LossFunction, Rneg, R, LossFunctionP, R_aux, L_aux, Lp_aux, Jacob, Jacob_aux = sim_data.process.rna_decay.kmLossFunction(
@@ -3431,8 +3433,8 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
             "endo_km"
             )
 
-    if os.path.exists(os.path.join(fixturesDir, "km.cPickle")):
-        KmcountsCached = cPickle.load(open(os.path.join(fixturesDir, "km.cPickle"), "rb"))
+    if os.path.exists(os.path.join(fixturesDir, "km.pickle")):
+        KmcountsCached = pickle.load(open(os.path.join(fixturesDir, "km.pickle"), "rb"))
         if np.sum(np.abs(R_aux(KmcountsCached))) > 1e-15:
             needToUpdate = True
     else:
@@ -3447,27 +3449,27 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
         totalEndoRnaseCapacity = units.sum(endoRNaseConc * kcatEndoRNase)
         Kmcounts = (( 1 / degradationRates * totalEndoRnaseCapacity ) - rnaConc).asNumber()
 
-        if VERBOSE: print "Running non-linear optimization"
+        if VERBOSE: print("Running non-linear optimization")
         KmCooperativeModel = scipy.optimize.fsolve(LossFunction, Kmcounts, fprime = LossFunctionP)
-        cPickle.dump(KmCooperativeModel, open(os.path.join(fixturesDir, "km.cPickle"), "w"))
+        pickle.dump(KmCooperativeModel, open(os.path.join(fixturesDir, "km.pickle"), "w"))
     else:
-        if VERBOSE: print "Not running non-linear optimization--using cached result"
+        if VERBOSE: print("Not running non-linear optimization--using cached result")
         KmCooperativeModel = KmcountsCached
 
     if VERBOSE > 1:
-        print "Loss function (Km inital) = %f" % np.sum(np.abs(LossFunction(Kmcounts)))
-        print "Loss function (optimized Km) = %f" % np.sum(np.abs(LossFunction(KmCooperativeModel)))
+        print("Loss function (Km inital) = %f" % np.sum(np.abs(LossFunction(Kmcounts))))
+        print("Loss function (optimized Km) = %f" % np.sum(np.abs(LossFunction(KmCooperativeModel))))
 
-        print "Negative km ratio = %f" % np.sum(np.abs(Rneg(KmCooperativeModel)))
+        print("Negative km ratio = %f" % np.sum(np.abs(Rneg(KmCooperativeModel))))
 
-        print "Residuals (Km initial) = %f" % np.sum(np.abs(R(Kmcounts)))
-        print "Residuals optimized = %f" % np.sum(np.abs(R(KmCooperativeModel)))
+        print("Residuals (Km initial) = %f" % np.sum(np.abs(R(Kmcounts))))
+        print("Residuals optimized = %f" % np.sum(np.abs(R(KmCooperativeModel))))
 
-        print "EndoR residuals (Km initial) = %f" % np.sum(np.abs(isEndoRnase * R(Kmcounts)))
-        print "EndoR residuals optimized = %f" % np.sum(np.abs(isEndoRnase * R(KmCooperativeModel)))
+        print("EndoR residuals (Km initial) = %f" % np.sum(np.abs(isEndoRnase * R(Kmcounts))))
+        print("EndoR residuals optimized = %f" % np.sum(np.abs(isEndoRnase * R(KmCooperativeModel))))
 
-        print "Residuals (scaled by Kdeg * RNAcounts) Km initial = %f" % np.sum(np.abs(R_aux(Kmcounts)))
-        print "Residuals (scaled by Kdeg * RNAcounts) optimized = %f" % np.sum(np.abs(R_aux(KmCooperativeModel)))
+        print("Residuals (scaled by Kdeg * RNAcounts) Km initial = %f" % np.sum(np.abs(R_aux(Kmcounts))))
+        print("Residuals (scaled by Kdeg * RNAcounts) optimized = %f" % np.sum(np.abs(R_aux(KmCooperativeModel))))
 
 
     # Evaluate Jacobian around solutions (Kmcounts and KmCooperativeModel)
@@ -3481,8 +3483,8 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 
     # Convergence is guaranteed if g'(Km) <= K < 1
     if VERBOSE:
-        print "Convergence (Jacobian) = %.0f%% (<K> = %.5f)" % (len(Gkm[Gkm < 1.]) / float(len(Gkm)) * 100., np.mean(Gkm))
-        print "Convergence (Jacobian_aux) = %.0f%% (<K> = %.5f)" % (len(Gkm_aux[Gkm_aux < 1.]) / float(len(Gkm_aux)) * 100., np.mean(Gkm_aux[Gkm_aux < 1.]))
+        print("Convergence (Jacobian) = %.0f%% (<K> = %.5f)" % (len(Gkm[Gkm < 1.]) / float(len(Gkm)) * 100., np.mean(Gkm)))
+        print("Convergence (Jacobian_aux) = %.0f%% (<K> = %.5f)" % (len(Gkm_aux[Gkm_aux < 1.]) / float(len(Gkm_aux)) * 100., np.mean(Gkm_aux[Gkm_aux < 1.])))
 
     # Save statistics KM optimization
     sim_data.process.rna_decay.StatsFit['LossKm'] = np.sum(np.abs(LossFunction(Kmcounts)))

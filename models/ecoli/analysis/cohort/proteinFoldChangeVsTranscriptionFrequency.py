@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 
-import cPickle
+import pickle
 
 from wholecell.utils import units
 FROM_CACHE = False
@@ -35,7 +35,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
             os.mkdir(plotOutDir)
 
         # Get all ids reqiured
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         ids_complexation = sim_data.process.complexation.moleculeNames # Complexe of proteins, and protein monomers
         ids_complexation_complexes = sim_data.process.complexation.ids_complexes # Only complexes
         ids_equilibrium = sim_data.process.equilibrium.moleculeNames # Complexes of proteins + small molecules, small molecules, protein monomers
@@ -145,18 +145,18 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
                 monomerCountInitialMultigen[gen_idx,:] = proteinMonomerCounts[0,:]
                 cellMassInitialMultigen[gen_idx] = cellMassInitial
 
-            cPickle.dump(monomerExistMultigen, open(os.path.join(plotOutDir,"monomerExistMultigen.pickle"), "wb"))
-            cPickle.dump(ratioFinalToInitialCountMultigen, open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "wb"))
-            cPickle.dump(initiationEventsPerMonomerMultigen, open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "wb"))
-            cPickle.dump(monomerCountInitialMultigen, open(os.path.join(plotOutDir,"monomerCountInitialMultigen.pickle"), "wb"))
-            cPickle.dump(cellMassInitialMultigen, open(os.path.join(plotOutDir,"cellMassInitialMultigen.pickle"), "wb"))
+            pickle.dump(monomerExistMultigen, open(os.path.join(plotOutDir,"monomerExistMultigen.pickle"), "wb"))
+            pickle.dump(ratioFinalToInitialCountMultigen, open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "wb"))
+            pickle.dump(initiationEventsPerMonomerMultigen, open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "wb"))
+            pickle.dump(monomerCountInitialMultigen, open(os.path.join(plotOutDir,"monomerCountInitialMultigen.pickle"), "wb"))
+            pickle.dump(cellMassInitialMultigen, open(os.path.join(plotOutDir,"cellMassInitialMultigen.pickle"), "wb"))
 
 
-        monomerExistMultigen = cPickle.load(open(os.path.join(plotOutDir,"monomerExistMultigen.pickle"), "rb"))
-        ratioFinalToInitialCountMultigen = cPickle.load(open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "rb"))
-        initiationEventsPerMonomerMultigen = cPickle.load(open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "rb"))
-        monomerCountInitialMultigen = cPickle.load(open(os.path.join(plotOutDir,"monomerCountInitialMultigen.pickle"), "rb"))
-        cellMassInitialMultigen = cPickle.load(open(os.path.join(plotOutDir,"cellMassInitialMultigen.pickle"), "rb"))
+        monomerExistMultigen = pickle.load(open(os.path.join(plotOutDir,"monomerExistMultigen.pickle"), "rb"))
+        ratioFinalToInitialCountMultigen = pickle.load(open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "rb"))
+        initiationEventsPerMonomerMultigen = pickle.load(open(os.path.join(plotOutDir,"initiationEventsPerMonomerMultigen.pickle"), "rb"))
+        monomerCountInitialMultigen = pickle.load(open(os.path.join(plotOutDir,"monomerCountInitialMultigen.pickle"), "rb"))
+        cellMassInitialMultigen = pickle.load(open(os.path.join(plotOutDir,"cellMassInitialMultigen.pickle"), "rb"))
         cellMassInitialMultigen = units.fg * cellMassInitialMultigen
 
         existFractionPerMonomer = monomerExistMultigen.mean(axis=0)

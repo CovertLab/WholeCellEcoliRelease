@@ -9,7 +9,7 @@ Plots fraction of mRNAs transcribed (out of all genes to be transcribed) for all
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -31,7 +31,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
             os.mkdir(plotOutDir)
 
         # Get IDs of mRNAs
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         rnaIds = sim_data.process.transcription.rnaData["id"]
         isMRna = sim_data.process.transcription.rnaData["isMRna"]
         basalExpression = sim_data.process.transcription.rnaExpression["basal"]

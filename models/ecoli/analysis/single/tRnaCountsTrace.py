@@ -9,7 +9,7 @@ Plot tRNA counts
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -30,7 +30,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
         time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
 
         # Get tRNA IDs and counts
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         isTRna = sim_data.process.transcription.rnaData["isTRna"]
         rnaIds = sim_data.process.transcription.rnaData["id"][isTRna]
         bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))

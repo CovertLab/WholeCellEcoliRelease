@@ -1,7 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
+import pickle
 from pprint import pprint
 import sys
 
@@ -21,7 +21,7 @@ def load_fit_tree(out_subdir):
         constants.SERIALIZED_SIM_DATA_FILENAME)
 
     with open(path, "rb") as f:
-        sim_data = cPickle.load(f)
+        sim_data = pickle.load(f)
 
     return object_tree(sim_data)
 

@@ -7,7 +7,7 @@ from __future__ import absolute_import
 
 import os
 import numpy as np
-import cPickle
+import pickle
 from matplotlib import pyplot as plt
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader

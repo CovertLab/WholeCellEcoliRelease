@@ -1,24 +1,28 @@
+# -*- coding: utf-8 -*-
 """
-SimulationData for transcription process
-
-@author: Nick Ruggero
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 03/06/2015
+    @author: Nick Ruggero
+    @organization: Covert Lab, Department of Bioengineering, Stanford University
+    @date: Created 03/06/2015
+    Date: 2020-08-07 23:06:41
+    LastEditors: Hwrn
+    LastEditTime: 2020-08-08 20:35:05
+    FilePath: /WholeCellEcoliRelease/reconstruction/ecoli/dataclasses/process/transcription.py
+    Description:
+        SimulationData for transcription process
+    TODO:
 """
-
-from __future__ import division
 
 import numpy as np
 
 from wholecell.utils import units
 from wholecell.utils.unit_struct_array import UnitStructArray
 from wholecell.utils.polymerize import polymerize
-from wholecell.utils.random import make_elongation_rates, make_elongation_rates_flat
+from wholecell.utils.biorandom import make_elongation_rates, make_elongation_rates_flat
 
 #RNA_SEQ_ANALYSIS = "seal_rpkm"
 RNA_SEQ_ANALYSIS = "rsem_tpm"
 
-class Transcription(object):
+class Transcription:
     """ Transcription """
 
     def __init__(self, raw_data, sim_data, options):
@@ -29,19 +33,23 @@ class Transcription(object):
 
     def _buildRnaData(self, raw_data, sim_data, options):
         assert all([len(rna['location']) == 1 for rna in raw_data.rnas])
-        rnaIds = ['{}[{}]'.format(rna['id'], rna['location'][0]) for rna in raw_data.rnas if len(rna['location']) == 1]
+        # @hwrn: 此处为什么要 assert ?
+        # @hwrn: len(rnas) == len(rnaIds) ?
+        rnaIds = ['{}[{}]'.format(rna['id'], rna['location'][0]) for rna in raw_data.rnas]  # if len(rna['location']) == 1]
 
-        # Load rna half lives
+        # 加载 RNA 半衰期 Load rna half lives
         rna_half_life_file = "raw_data.rnas"
         if options['alternate_rna_half_life']:
             rna_half_life_file += "_alternate_half_lives_without_kas"
+        # np.array rnaDegRates: $\frac{\ln2}{t_{\frac{1}{2}}}$
         rnaDegRates = np.log(2) / np.array([rna['halfLife'] for rna in eval(rna_half_life_file)])  # seconds
         rnaLens = np.array([len(rna['seq']) for rna in raw_data.rnas])
+        # 计算所需的核苷酸单体?
         ntCounts = np.array([
             (rna['seq'].count('A'), rna['seq'].count('C'),
-                rna['seq'].count('G'), rna['seq'].count('U'))
+             rna['seq'].count('G'), rna['seq'].count('U'))
             for rna in raw_data.rnas
-            ])
+        ])
 
         # Load expression from RNA-seq data
         rna_seq_file = "raw_data.rna_seq_data"
@@ -148,26 +156,26 @@ class Transcription(object):
         rnaData['KmEndoRNase'] = Km
 
         field_units = {
-            'id'            :    None,
-            # 'synthProb'     :    None,
-            # 'expression'    :    None,
-            'degRate'        :    1 / units.s,
-            'length'        :    units.nt,
-            'countsACGU'    :    units.nt,
-            'mw'            :    units.g / units.mol,
-            'isMRna'        :    None,
-            'isMiscRna'        :    None,
-            'isRRna'        :    None,
-            'isTRna'        :    None,
-            'isRRna23S'        :    None,
-            'isRRna16S'        :    None,
-            'isRRna5S'        :    None,
-            'isRProtein'    :    None,
-            'isRnap'        :    None,
-            'sequence'        :   None,
-            'geneId'        :    None,
-            'KmEndoRNase'    :    units.mol / units.L,
-            }
+            'id'            : None,
+            # 'synthProb'     : None,
+            # 'expression'    : None,
+            'degRate'       : 1 / units.s,
+            'length'        : units.nt,
+            'countsACGU'    : units.nt,
+            'mw'            : units.g / units.mol,
+            'isMRna'        : None,
+            'isMiscRna'     : None,
+            'isRRna'        : None,
+            'isTRna'        : None,
+            'isRRna23S'     : None,
+            'isRRna16S'     : None,
+            'isRRna5S'      : None,
+            'isRProtein'    : None,
+            'isRnap'        : None,
+            'sequence'      : None,
+            'geneId'        : None,
+            'KmEndoRNase'   : units.mol / units.L,
+        }
 
         self.rnaExpression = {}
         self.rnaSynthProb = {}

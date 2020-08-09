@@ -76,7 +76,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
                     initial_masses = np.hstack((initial_masses, cellMass[0]))
                     final_masses = np.hstack((final_masses, cellMass[-1]))
                 except Exception as e:
-                    print e
+                    print(e)
                     fail+=1
 
             added_masses = final_masses - initial_masses

@@ -13,7 +13,7 @@ import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
+import pickle
 
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
@@ -32,7 +32,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
         # Get the names of rnas from the KB
 
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
 
         isTRna = sim_data.process.transcription.rnaData["isTRna"]
 

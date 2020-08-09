@@ -12,7 +12,7 @@ import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
+import pickle
 from scipy.stats import pearsonr
 
 from wholecell.io.tablereader import TableReader
@@ -30,8 +30,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
             os.mkdir(plotOutDir)
 
 
-        sim_data = cPickle.load(open(simDataFile, "rb"))
-        validation_data = cPickle.load(open(validationDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
+        validation_data = pickle.load(open(validationDataFile, "rb"))
 
         ids_complexation = sim_data.process.complexation.moleculeNames
         ids_complexation_complexes = sim_data.process.complexation.ids_complexes

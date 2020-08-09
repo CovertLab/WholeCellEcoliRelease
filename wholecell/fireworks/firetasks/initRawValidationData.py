@@ -1,4 +1,4 @@
-import cPickle
+import pickle
 import time
 
 from fireworks import FireTaskBase, explicit_serialize
@@ -17,8 +17,8 @@ class InitRawValidationDataTask(FireTaskBase):
 
         print "%s: Saving validation_data_raw" % (time.ctime())
 
-        cPickle.dump(
+        pickle.dump(
             validation_data_raw,
             open(self["output"], "wb"),
-            protocol = cPickle.HIGHEST_PROTOCOL
+            protocol = pickle.HIGHEST_PROTOCOL
             )

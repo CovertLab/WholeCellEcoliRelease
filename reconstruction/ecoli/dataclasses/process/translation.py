@@ -13,7 +13,7 @@ import numpy as np
 from wholecell.utils import units
 from wholecell.utils.unit_struct_array import UnitStructArray
 from wholecell.utils.polymerize import polymerize
-from wholecell.utils.random import make_elongation_rates, make_elongation_rates_flat
+from wholecell.utils.biorandom import make_elongation_rates, make_elongation_rates_flat
 
 class Translation(object):
     """ Translation """

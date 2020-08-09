@@ -9,7 +9,7 @@ from __future__ import absolute_import
 from __future__ import division
 
 import os
-import cPickle
+import pickle
 import csv
 
 import numpy as np
@@ -41,7 +41,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
         ap = AnalysisPaths(variantDir, cohort_plot = True)
         allDir = ap.get_cells()
 
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
 
         constraintIsKcatOnly = sim_data.process.metabolism.constraintIsKcatOnly
 

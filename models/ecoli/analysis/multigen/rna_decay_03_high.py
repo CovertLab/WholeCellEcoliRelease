@@ -22,7 +22,7 @@ from __future__ import absolute_import
 import os
 
 import numpy as np
-import cPickle
+import pickle
 from matplotlib import pyplot as plt
 
 from wholecell.io.tablereader import TableReader
@@ -40,7 +40,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
         if not os.path.exists(plotOutDir):
             os.mkdir(plotOutDir)
 
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         allRnaIds = sim_data.process.transcription.rnaData["id"].tolist()
 
         rnaIds = [

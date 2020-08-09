@@ -7,7 +7,7 @@
 from __future__ import absolute_import, division
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -36,7 +36,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
             raise Exception, "simOutDir does not currently exist as a directory"
 
         # Load data from KB
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
 
         if not os.path.exists(plotOutDir):
             os.mkdir(plotOutDir)
@@ -60,7 +60,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
             width = 1
 
-            sim_data = cPickle.load(open(simDataFile, "rb"))
+            sim_data = pickle.load(open(simDataFile, "rb"))
 
             LossKm = sim_data.process.rna_decay.StatsFit['LossKm']
             LossKmOpt = sim_data.process.rna_decay.StatsFit['LossKmOpt']

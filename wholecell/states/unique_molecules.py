@@ -11,7 +11,7 @@ creates and manages the structured arrays in memory.
 
 from __future__ import division
 
-from itertools import izip
+
 import collections
 from copy import deepcopy
 
@@ -179,7 +179,7 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 
         submassDiffNames = self._submassNameToProperty.values() # TODO: cache
 
-        for moleculeId, moleculeMasses in izip(self._moleculeIds, self._moleculeMasses):
+        for moleculeId, moleculeMasses in zip(self._moleculeIds, self._moleculeMasses):
             molecules = self.container.objectsInCollection(moleculeId)
 
             if len(molecules) == 0:

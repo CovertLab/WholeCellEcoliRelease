@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 import numpy as np
 from matplotlib import pyplot as plt
 from multiprocessing import Pool
@@ -120,7 +120,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
             print("Total cells: {}".format(n_sims))
 
             try:
-                sim_data = cPickle.load(open(ap.get_variant_kb(variant)))
+                sim_data = pickle.load(open(ap.get_variant_kb(variant)))
 
                 global is_rRNA
                 is_rRNA = sim_data.process.transcription.rnaData["isRRna"]

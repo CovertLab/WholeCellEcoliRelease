@@ -15,7 +15,7 @@ TODO:
 
 from __future__ import division
 
-from itertools import izip
+
 
 import numpy as np
 import copy
@@ -23,7 +23,7 @@ import re
 
 import wholecell.processes.process
 from wholecell.utils.polymerize import buildSequences, polymerize, computeMassIncrease
-from wholecell.utils.random import stochasticRound
+from wholecell.utils.biorandom import stochasticRound
 from wholecell.utils import units
 
 

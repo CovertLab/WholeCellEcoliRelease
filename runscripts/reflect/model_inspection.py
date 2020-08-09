@@ -14,7 +14,7 @@ Outputs:
 """
 
 import argparse
-import cPickle
+import pickle
 import csv
 import os
 import time
@@ -35,13 +35,13 @@ def load_raw_data(path):
     Loads raw_data from an existing file, otherwise loads from flat files.
 
     Args:
-        path (str): path to raw_data cPickle file to load
+        path (str): path to raw_data pickle file to load
     """
 
     if os.path.exists(path):
         print('Loading raw_data from {}...'.format(path))
         with open(path, 'rb') as f:
-            raw_data = cPickle.load(f)
+            raw_data = pickle.load(f)
     else:
         print('Loading raw_data from flat files...')
         raw_data = KnowledgeBaseEcoli()
@@ -53,14 +53,14 @@ def load_sim_data(path, raw_data):
     Loads sim_data from an existing file, otherwise recalculates it.
 
     Args:
-        path (str): path to sim_data cPickle file to load
+        path (str): path to sim_data pickle file to load
         raw_data (KnowledgeBaseEcoli object): raw data for simulations
     """
 
     if os.path.exists(path):
         print('Loading sim_data from {}...'.format(path))
         with open(path, 'rb') as f:
-            sim_data = cPickle.load(f)
+            sim_data = pickle.load(f)
     else:
         print('Calculating sim_data...')
         sim_data = fitSimData_1(raw_data)
@@ -280,9 +280,9 @@ def parse_args():
         ' included genes, metabolites and kinetic constraints in the model')
 
     parser.add_argument('-r', '--raw-data', default='',
-        help='Path to raw_data cPickle object to load, recalculates raw_data if not specified')
+        help='Path to raw_data pickle object to load, recalculates raw_data if not specified')
     parser.add_argument('-s', '--sim-data', default='',
-        help='Path to sim_data cPickle object to load, recalculates sim_data if not specified')
+        help='Path to sim_data pickle object to load, recalculates sim_data if not specified')
     parser.add_argument('-o', '--output', default=default_output_dir,
         help='Directory path to save tsv files (default: {})'.format(default_output_dir))
 

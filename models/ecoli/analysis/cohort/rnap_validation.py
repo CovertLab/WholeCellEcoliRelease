@@ -16,7 +16,7 @@ There are hard-coded validation values:
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 import numpy as np
 from scipy import interpolate
 from multiprocessing import Pool
@@ -89,7 +89,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
         sim_dirs = analysis_paths.get_cells(
             generation=range(FIRST_GENERATION, n_gens), seed = range(8))
 
-        sim_data = cPickle.load(open(simDataFile, 'rb'))
+        sim_data = pickle.load(open(simDataFile, 'rb'))
 
         global rnap_id
         rnap_id = sim_data.moleculeIds.rnapFull

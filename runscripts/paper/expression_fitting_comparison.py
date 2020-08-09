@@ -11,7 +11,7 @@ modified to reevaluate this script on new data.
 
 from __future__ import absolute_import, division, print_function
 
-import cPickle
+import pickle
 import os
 import csv
 
@@ -52,8 +52,8 @@ PRINTED_DIVIDER_SIZE = 79
 def main(unfit_path, fit_path, condition = 'basal'):
     # Load sim data (parameters)
 
-    unfit_parameters = cPickle.load(open(UNFIT_SOURCE))
-    fit_parameters = cPickle.load(open(FIT_SOURCE))
+    unfit_parameters = pickle.load(open(UNFIT_SOURCE))
+    fit_parameters = pickle.load(open(FIT_SOURCE))
 
     # Extract data and parse names
 
@@ -236,7 +236,7 @@ def main(unfit_path, fit_path, condition = 'basal'):
 if __name__ == '__main__':
     # Paths
     SET_ROOT = os.path.join('/', 'scratch', 'PI', 'mcovert', 'wc_ecoli', 'paper')
-    PATH_TO_SIMDATA = os.path.join('kb', 'simData_Most_Fit.cPickle')
+    PATH_TO_SIMDATA = os.path.join('kb', 'simData_Most_Fit.pickle')
     UNFIT_SOURCE = os.path.join(
         SET_ROOT,
         'SET_L',

@@ -13,7 +13,7 @@ Bind transcription factors to DNA
 import numpy as np
 
 import wholecell.processes.process
-from wholecell.utils.random import stochasticRound
+from wholecell.utils.biorandom import stochasticRound
 
 
 class TfBinding(wholecell.processes.process.Process):

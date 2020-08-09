@@ -9,7 +9,7 @@ Produces histograms of frequency that production of a metabolite is limited (at 
 from __future__ import absolute_import, division
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -34,7 +34,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
         ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
         allDir = ap.get_cells()
 
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         metaboliteNames = np.array(sorted(sim_data.process.metabolism.concDict.keys()))
         nMetabolites = len(metaboliteNames)
 

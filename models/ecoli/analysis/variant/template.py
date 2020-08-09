@@ -8,7 +8,7 @@ Template for variant analysis plots
 from __future__ import absolute_import
 from __future__ import division
 
-import cPickle
+import pickle
 from matplotlib import pyplot as plt
 import numpy as np
 import os
@@ -28,14 +28,14 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
         filepath.makedirs(plotOutDir)
 
         with open(validationDataFile, 'rb') as f:
-            validation_data = cPickle.load(f)
+            validation_data = pickle.load(f)
 
         ap = AnalysisPaths(inputDir, variant_plot=True)
         variants = ap.get_variants()
 
         for variant in variants:
             with open(ap.get_variant_kb(variant), 'rb') as f:
-                sim_data = cPickle.load(f)
+                sim_data = pickle.load(f)
 
             for sim_dir in ap.get_cells(variant=[variant]):
                 simOutDir = os.path.join(sim_dir, "simOut")

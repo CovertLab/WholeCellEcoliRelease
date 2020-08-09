@@ -7,7 +7,7 @@
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -38,7 +38,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
         if not os.path.exists(plotOutDir):
             os.mkdir(plotOutDir)
 
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
 
         time = TableReader(os.path.join(simOutDir, "Main")).readColumn("time")
         fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
@@ -51,7 +51,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
         # Build a mapping from reaction to color
         idToColor = {}
-        for reactionID, color in itertools.izip(reactionIDs, itertools.cycle(COLORS_LARGE)):
+        for reactionID, color in itertools.zip(reactionIDs, itertools.cycle(COLORS_LARGE)):
             idToColor[reactionID] = color
 
         plt.figure(figsize = (17, 11))

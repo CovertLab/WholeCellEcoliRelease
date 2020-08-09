@@ -7,7 +7,7 @@ variant kinetic_constraints_factorial_experiments.
 
 from __future__ import absolute_import, division, print_function
 
-import cPickle
+import pickle
 import os
 
 import matplotlib.pyplot as plt
@@ -60,12 +60,12 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
         # Load sim_data
         with open(os.path.join(inputDir, 'kb', constants.SERIALIZED_FIT1_FILENAME), 'rb') as f:
-            sim_data = cPickle.load(f)
+            sim_data = pickle.load(f)
         cell_density = sim_data.constants.cellDensity.asNumber(MASS_UNITS / VOLUME_UNITS)
 
         # Load validation_data
         with open(validationDataFile, "rb") as f:
-            validation_data = cPickle.load(f)
+            validation_data = pickle.load(f)
         toyaReactions = validation_data.reactionFlux.toya2010fluxes["reactionID"]
         toyaFluxes = validation_data.reactionFlux.toya2010fluxes["reactionFlux"]
         toyaStdev = validation_data.reactionFlux.toya2010fluxes["reactionFluxStdev"]

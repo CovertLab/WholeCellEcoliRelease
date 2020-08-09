@@ -8,7 +8,7 @@ from __future__ import absolute_import
 from __future__ import division
 
 import os
-import cPickle
+import pickle
 import re
 
 import numpy as np
@@ -39,8 +39,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
         if not os.path.exists(plotOutDir):
             os.mkdir(plotOutDir)
 
-        validation_data = cPickle.load(open(validationDataFile, "rb"))
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        validation_data = pickle.load(open(validationDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
 
         cellDensity = sim_data.constants.cellDensity
 

@@ -8,11 +8,6 @@ State which represents for a class of molecules the bulk copy numbers.
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from itertools import izip
-
 import numpy as np
 
 import wholecell.states.internal_state
@@ -107,7 +102,7 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
                         self._processIDs[processIndex],
                         self._countsRequested[molIndex, processIndex]
                         )
-                    for molIndex, processIndex in izip(*np.where(self._countsRequested < 0))
+                    for molIndex, processIndex in zip(*np.where(self._countsRequested < 0))
                     )
                 )
 
@@ -124,7 +119,7 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
                         self._processIDs[processIndex],
                         self._countsAllocatedInitial[molIndex, processIndex]
                         )
-                    for molIndex, processIndex in izip(*np.where(self._countsAllocatedInitial < 0))
+                    for molIndex, processIndex in zip(*np.where(self._countsAllocatedInitial < 0))
                     )
                 )
 
@@ -167,7 +162,7 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
                         self._processIDs[processIndex],
                         self._countsAllocatedFinal[molIndex, processIndex]
                         )
-                    for molIndex, processIndex in izip(*np.where(self._countsAllocatedFinal < 0))
+                    for molIndex, processIndex in zip(*np.where(self._countsAllocatedFinal < 0))
                     )
                 )
 

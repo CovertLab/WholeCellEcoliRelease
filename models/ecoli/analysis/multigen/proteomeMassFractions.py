@@ -9,7 +9,7 @@ Plot normalized mass fractions of proteome for each protein monomer
 from __future__ import absolute_import, division
 
 import os
-import cPickle
+import pickle
 import sys
 
 import numpy as np
@@ -36,7 +36,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
         allDirs = ap.get_cells()
 
         # Load data from KB
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         nAvogadro = sim_data.constants.nAvogadro
 
         ids_complexation = sim_data.process.complexation.moleculeNames

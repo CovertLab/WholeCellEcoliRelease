@@ -4,7 +4,7 @@ from __future__ import division
 import os
 import re
 
-from itertools import izip
+
 from collections import defaultdict
 
 from reconstruction.spreadsheets import JsonWriter, JsonReader
@@ -292,7 +292,7 @@ for outName, groupName in _MASS_CATEGORIES.viewitems():
 
     out = [
         {"metaboliteId":mid, "massFraction":frac}
-        for mid, frac in izip(moleculeIDs, fractions)
+        for mid, frac in zip(moleculeIDs, fractions)
         ]
 
     with open(os.path.join("reconstruction", "ecoli", "flat", "massFractions", outName + "Fractions.tsv"), "w") as outfile:

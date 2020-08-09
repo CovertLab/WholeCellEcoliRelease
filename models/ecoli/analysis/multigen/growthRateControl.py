@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -34,7 +34,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
         for gen_idx in range(ap.n_generation):
             firstCellLineage.append(ap.get_cells(generation = [gen_idx])[0])
 
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         max_elongationRate = 21. # TODO: Fix this
         elongationRate = float(sim_data.growthRateParameters.ribosomeElongationRate.asNumber(units.aa / units.s))
 

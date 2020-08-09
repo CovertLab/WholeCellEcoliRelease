@@ -12,7 +12,7 @@ from __future__ import division
 import os
 
 from matplotlib import pyplot as plt
-import cPickle
+import pickle
 
 from wholecell.io.tablereader import TableReader
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
@@ -35,7 +35,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
         allDirs = ap.get_cells()
 
         # Load data from KB
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         trpIdx = sim_data.moleculeGroups.aaIDs.index("TRP[c]")
 
         plt.figure(figsize = (8.5, 11))

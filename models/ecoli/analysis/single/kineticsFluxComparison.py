@@ -10,7 +10,7 @@ from __future__ import absolute_import
 from __future__ import division
 
 import os
-import cPickle
+import pickle
 import csv
 import re
 
@@ -41,7 +41,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
         if not os.path.exists(plotOutDir):
             os.mkdir(plotOutDir)
 
-        sim_data = cPickle.load(open(simDataFile))
+        sim_data = pickle.load(open(simDataFile))
 
         constraintIsKcatOnly = sim_data.process.metabolism.constraintIsKcatOnly
 

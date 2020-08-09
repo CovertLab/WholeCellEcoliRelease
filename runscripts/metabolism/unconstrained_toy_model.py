@@ -187,4 +187,4 @@ prob = cvxpy.Problem(objective, constraints)
 # The optimal objective is returned by prob.solve().
 result = prob.solve(solver=cvxpy.GUROBI)
 
-print fluxes.value
+print(fluxes.value)

@@ -17,7 +17,7 @@ from __future__ import absolute_import
 
 import numpy as np
 import os
-import cPickle
+import pickle
 import wholecell
 from wholecell.utils import filepath
 from wholecell.utils import units
@@ -288,22 +288,22 @@ class TwoComponentSystem(object):
         if not os.path.exists(odeFitterFile):
             needToCreate = True
 
-        if os.path.exists(os.path.join(fixturesDir, "S.cPickle")):
-            S = cPickle.load(open(os.path.join(fixturesDir, "S.cPickle"), "rb"))
+        if os.path.exists(os.path.join(fixturesDir, "S.pickle")):
+            S = pickle.load(open(os.path.join(fixturesDir, "S.pickle"), "rb"))
             if not np.all(S == self.stoichMatrix()):
                 needToCreate = True
         else:
             needToCreate = True
 
-        if os.path.exists(os.path.join(fixturesDir, "ratesFwd.cPickle")):
-            ratesFwd =  cPickle.load(open(os.path.join(fixturesDir, "ratesFwd.cPickle"), "rb"))
+        if os.path.exists(os.path.join(fixturesDir, "ratesFwd.pickle")):
+            ratesFwd =  pickle.load(open(os.path.join(fixturesDir, "ratesFwd.pickle"), "rb"))
             if not np.all(ratesFwd == self.ratesFwd):
                 needToCreate = True
         else:
             needToCreate = True
 
-        if os.path.exists(os.path.join(fixturesDir, "ratesRev.cPickle")):
-            ratesRev =  cPickle.load(open(os.path.join(fixturesDir, "ratesRev.cPickle"), "rb"))
+        if os.path.exists(os.path.join(fixturesDir, "ratesRev.pickle")):
+            ratesRev =  pickle.load(open(os.path.join(fixturesDir, "ratesRev.pickle"), "rb"))
             if not np.all(ratesRev == self.ratesRev):
                 needToCreate = True
         else:
@@ -320,9 +320,9 @@ class TwoComponentSystem(object):
             self.derivativesJacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes.derivativesJacobian
             self.derivativesFitter = reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter.derivatives
             self.derivativesFitterJacobian = reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter.derivativesJacobian
-            cPickle.dump(self.stoichMatrix(), open(os.path.join(fixturesDir, "S.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
-            cPickle.dump(self.ratesFwd, open(os.path.join(fixturesDir, "ratesFwd.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
-            cPickle.dump(self.ratesRev, open(os.path.join(fixturesDir, "ratesRev.cPickle"), "wb"), protocol = cPickle.HIGHEST_PROTOCOL)
+            pickle.dump(self.stoichMatrix(), open(os.path.join(fixturesDir, "S.pickle"), "wb"), protocol = pickle.HIGHEST_PROTOCOL)
+            pickle.dump(self.ratesFwd, open(os.path.join(fixturesDir, "ratesFwd.pickle"), "wb"), protocol = pickle.HIGHEST_PROTOCOL)
+            pickle.dump(self.ratesRev, open(os.path.join(fixturesDir, "ratesRev.pickle"), "wb"), protocol = pickle.HIGHEST_PROTOCOL)
         else:
             import reconstruction.ecoli.dataclasses.process.two_component_system_odes
             import reconstruction.ecoli.dataclasses.process.two_component_system_odes_fitter

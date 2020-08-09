@@ -9,7 +9,7 @@ Plots average RNA counts per cell vs average protein counts per cell.
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -52,7 +52,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
         # Check if cache from figure5B_E_F_G.py exist
         if os.path.exists(os.path.join(plotOutDir, "figure5B.pickle")):
-            figure5B_data = cPickle.load(open(os.path.join(plotOutDir, "figure5B.pickle"), "rb"))
+            figure5B_data = pickle.load(open(os.path.join(plotOutDir, "figure5B.pickle"), "rb"))
             colors = figure5B_data["colors"]
             mrnaIds = figure5B_data["id"].tolist()
         else:
@@ -60,7 +60,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
             return
 
         # Check if cache exists
-        if os.path.exists(os.path.join(plotOutDir, "%s.cPickle" % plotOutFileName)):
+        if os.path.exists(os.path.join(plotOutDir, "%s.pickle" % plotOutFileName)):
             USE_CACHE = True
 
         # Get all cells
@@ -68,7 +68,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
         allDir = ap.get_cells()
 
         # Load sim data
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         rnaIds = sim_data.process.transcription.rnaData["id"][sim_data.relation.rnaIndexToMonomerMapping] # orders rna IDs to match monomer IDs
 
         # Make views for monomers
@@ -172,11 +172,11 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
             # Cache
             D = {"rna": avgRnaCounts_forAllCells, "protein": avgProteinCounts_forAllCells, "monomersInManyComplexes": monomersInvolvedInManyComplexes_dict}
-            cPickle.dump(D, open(os.path.join(plotOutDir, "%s.cPickle" % plotOutFileName), "wb"))
+            pickle.dump(D, open(os.path.join(plotOutDir, "%s.pickle" % plotOutFileName), "wb"))
 
         else:
             # Using cached data
-            D = cPickle.load(open(os.path.join(plotOutDir, "%s.cPickle" % plotOutFileName), "rb"))
+            D = pickle.load(open(os.path.join(plotOutDir, "%s.pickle" % plotOutFileName), "rb"))
             avgRnaCounts_forAllCells = D["rna"]
             avgProteinCounts_forAllCells = D["protein"]
             monomersInvolvedInManyComplexes_dict = D["monomersInManyComplexes"]

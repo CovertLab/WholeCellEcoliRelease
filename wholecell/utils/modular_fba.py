@@ -7,7 +7,7 @@
 from __future__ import absolute_import
 from __future__ import division
 
-from itertools import izip
+
 import warnings
 
 import numpy as np
@@ -952,7 +952,7 @@ class FluxBalanceAnalysis(object):
         levels_array = np.empty(len(self._externalMoleculeIDs))
         levels_array[:] = levels
 
-        for moleculeID, level in izip(self._externalMoleculeIDs, levels_array):
+        for moleculeID, level in zip(self._externalMoleculeIDs, levels_array):
             flowID = self._generatedID_externalExchange.format(moleculeID)
 
             if level < 0:
@@ -980,7 +980,7 @@ class FluxBalanceAnalysis(object):
         if (levels_array < 0).any():
             raise InvalidBoundaryError("Negative molecule levels not allowed")
 
-        for moleculeID, level in izip(self._internalMoleculeIDs, levels_array):
+        for moleculeID, level in zip(self._internalMoleculeIDs, levels_array):
             flowID = self._generatedID_internalExchange.format(moleculeID)
 
             if self._forceInternalExchange:
@@ -1229,7 +1229,7 @@ class FluxBalanceAnalysis(object):
             raise FBAError("Rate targets cannot be negative. {} were provided with targets of {}".format(np.array(reactionIDs)[np.array(reactionTargets) < 0], np.array(reactionTargets)[np.array(reactionTargets) < 0]))
 
         # Change the objective normalization
-        for reactionID, reactionTarget in izip(reactionIDs,reactionTargets):
+        for reactionID, reactionTarget in zip(reactionIDs,reactionTargets):
             if reactionID not in self._kineticTargetFluxes:
                 raise FBAError("Kinetic targets can only be set for reactions initialized to be kinetic targets. {} is not set up for it.".format(reactionID))
 

@@ -11,7 +11,7 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.utils import units
-import cPickle
+import pickle
 from models.ecoli.analysis import multigenAnalysisPlot
 
 
@@ -30,7 +30,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
         for gen_idx in range(ap.n_generation):
             firstCellLineage.append(ap.get_cells(generation = [gen_idx])[0])
 
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
 
         ## Get expected doubling time ##
         expected_doubling_time = sim_data.doubling_time

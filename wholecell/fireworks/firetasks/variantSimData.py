@@ -1,4 +1,4 @@
-import cPickle
+import pickle
 import time
 import os
 import sys
@@ -23,7 +23,7 @@ class VariantSimDataTask(FireTaskBase):
 
         print "%s: Creating variant sim_data (Variant: %s Index: %d)" % (time.ctime(), self["variant_function"], self["variant_index"])
 
-        sim_data = cPickle.load(open(self["input_sim_data"], "rb"))
+        sim_data = pickle.load(open(self["input_sim_data"], "rb"))
 
         info, sim_data = nameToFunctionMapping[self["variant_function"]](sim_data, self["variant_index"])
 
@@ -31,10 +31,10 @@ class VariantSimDataTask(FireTaskBase):
 
         sys.setrecursionlimit(4000)
 
-        cPickle.dump(
+        pickle.dump(
             sim_data,
             open(self["output_sim_data"], "wb"),
-            protocol = cPickle.HIGHEST_PROTOCOL
+            protocol = pickle.HIGHEST_PROTOCOL
             )
 
         with open(os.path.join(self["variant_metadata_directory"], "short_name"), "w") as h:

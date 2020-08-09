@@ -12,7 +12,7 @@ import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
+import pickle
 
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
@@ -28,7 +28,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
             os.mkdir(plotOutDir)
 
         # Load data from KB
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         nAvogadro = sim_data.constants.nAvogadro
         moleculeIds = sim_data.moleculeGroups.aaIDs
         moleculeIds.append('GTP[c] (translation)')

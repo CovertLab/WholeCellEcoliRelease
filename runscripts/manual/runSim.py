@@ -12,7 +12,7 @@ Set PYTHONPATH when running this.
 
 from __future__ import absolute_import, division, print_function
 
-import cPickle
+import pickle
 import re
 import os
 from typing import Tuple
@@ -59,7 +59,7 @@ class RunSimulation(scriptBase.ScriptBase):
                 If the sim_path ends with a dir like
                 "20190704.101500__Latest_sim_run", this will get the
                 timestamp and description from the path to write into
-                metadata.cPickle.
+                metadata.pickle.
                 The command line option names are long but you can use any
                 unambiguous prefix.'''.format(self.description())
 
@@ -94,7 +94,7 @@ class RunSimulation(scriptBase.ScriptBase):
             )
         parser.add_argument('--total_gens', type=int,
             help='(int) Total number of generations to write into the'
-                 ' metadata.cPickle file. Default = the value of --generations.')
+                 ' metadata.pickle file. Default = the value of --generations.')
         parser.add_argument('-s', '--seed', type=int, default=0,
             help='First cell simulation seed. Default = 0'
             )
@@ -152,7 +152,7 @@ class RunSimulation(scriptBase.ScriptBase):
 
     def run(self, args):
         kb_directory = os.path.join(args.sim_path, 'kb')
-        sim_data_file = os.path.join(kb_directory, 'simData_Fit_1.cPickle')
+        sim_data_file = os.path.join(kb_directory, 'simData_Fit_1.pickle')
         fp.verify_file_exists(sim_data_file, 'Run runFitter?')
 
         timestamp, description = parse_timestamp_description(args.sim_path)
@@ -193,7 +193,7 @@ class RunSimulation(scriptBase.ScriptBase):
         metadata_dir = fp.makedirs(args.sim_path, 'metadata')
         metadata_path = os.path.join(metadata_dir, constants.SERIALIZED_METADATA_FILE)
         with open(metadata_path, "wb") as f:
-            cPickle.dump(metadata, f, cPickle.HIGHEST_PROTOCOL)
+            pickle.dump(metadata, f, pickle.HIGHEST_PROTOCOL)
 
         # args.sim_path is called INDIV_OUT_DIRECTORY in fw_queue.
         for i in variants_to_run:

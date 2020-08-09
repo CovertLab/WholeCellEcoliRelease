@@ -10,7 +10,7 @@ from __future__ import absolute_import
 from __future__ import division
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -35,7 +35,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
         if not os.path.exists(plotOutDir):
             os.mkdir(plotOutDir)
 
-        sim_data = cPickle.load(open(simDataFile))
+        sim_data = pickle.load(open(simDataFile))
 
         constraintIsKcatOnly = sim_data.process.metabolism.constraintIsKcatOnly
         constrainedReactions = np.array(sim_data.process.metabolism.constrainedReactionList)

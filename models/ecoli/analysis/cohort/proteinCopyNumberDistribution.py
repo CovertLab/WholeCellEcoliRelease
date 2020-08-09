@@ -10,12 +10,12 @@ from __future__ import absolute_import
 from __future__ import division
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.gridspec as gridspec
-from itertools import izip, cycle
+, cycle
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
@@ -53,7 +53,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
             sim_dirs_grouped_by_gen.append(ap.get_cells(generation = [gen_idx]))
 
         # Load simDataFile
-        sim_data = cPickle.load(open(simDataFile))
+        sim_data = pickle.load(open(simDataFile))
 
         # Get IDs for complex of proteins and constituent protein monomers,
         # and IDs for only the complexed proteins
@@ -303,7 +303,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
         ylim_plot3 = [1e-5, 1e3]
 
         # Plot for each generation
-        for (gen_idx, color) in izip(range(n_generation), cycle('bmyk')):
+        for (gen_idx, color) in zip(range(n_generation), cycle('bmyk')):
             ax = plt.subplot(gs[gen_idx, 0])
             ax.scatter(protein_counts_mean_over_seed[gen_idx, :], protein_counts_noise_over_seed[gen_idx, :], s=10, color=color, marker='o', lw=0)
             ax.set_xlabel(r"Mean protein count ($\mu$)")
@@ -317,7 +317,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
         # Compare plots between first and last generations
         ax = plt.subplot(gs[-1, 0])
-        for (gen_idx, color) in izip([0, n_generation - 1], ['b', 'k']):
+        for (gen_idx, color) in zip([0, n_generation - 1], ['b', 'k']):
             ax.scatter(protein_counts_mean_over_seed[gen_idx, :], protein_counts_noise_over_seed[gen_idx, :],
                 s=10, alpha=0.3, color=color, marker='o', label="Generation %d" % (gen_idx,), lw=0)
 

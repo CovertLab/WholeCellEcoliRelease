@@ -10,7 +10,7 @@ from __future__ import absolute_import
 from __future__ import division
 
 import collections
-import cPickle
+import pickle
 import time
 
 import numpy as np
@@ -113,7 +113,7 @@ class Simulation(object):
         filepath.makedirs(self._outputDir)
 
         # Load KB
-        sim_data = cPickle.load(open(self._simDataLocation, "rb"))
+        sim_data = pickle.load(open(self._simDataLocation, "rb"))
 
         # Initialize simulation from fit KB
         self._initialize(sim_data)

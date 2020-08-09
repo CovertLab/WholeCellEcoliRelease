@@ -13,7 +13,7 @@ from bokeh.models import (HoverTool, BoxZoomTool, LassoSelectTool, PanTool,
 from bokeh.models import CustomJS
 from bokeh.models.widgets import Button
 
-import cPickle
+import pickle
 import scipy.stats
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
@@ -56,7 +56,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
         targetToTfType = {}
 
         for variant, simDir in zip(variants, all_cells):
-            sim_data = cPickle.load(open(ap.get_variant_kb(variant), "rb"))
+            sim_data = pickle.load(open(ap.get_variant_kb(variant), "rb"))
 
             shape = sim_data.process.transcription_regulation.recruitmentData["shape"]
             hI = sim_data.process.transcription_regulation.recruitmentData["hI"]

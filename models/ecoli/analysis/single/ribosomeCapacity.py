@@ -12,7 +12,7 @@ import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
+import pickle
 
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
@@ -33,7 +33,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
             os.mkdir(plotOutDir)
 
         # Load data from KB
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         nAvogadro = sim_data.constants.nAvogadro
         ribosomeSubunitIds = []
         ribosomeSubunitIds.append(sim_data.moleculeIds.s50_fullComplex)

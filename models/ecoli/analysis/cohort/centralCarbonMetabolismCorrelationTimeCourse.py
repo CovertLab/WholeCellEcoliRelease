@@ -7,7 +7,7 @@
 from __future__ import absolute_import, division
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -37,8 +37,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
         # Get all cells in each seed
         ap = AnalysisPaths(variantDir, cohort_plot = True)
 
-        validation_data = cPickle.load(open(validationDataFile, "rb"))
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        validation_data = pickle.load(open(validationDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
 
         cellDensity = sim_data.constants.cellDensity
 

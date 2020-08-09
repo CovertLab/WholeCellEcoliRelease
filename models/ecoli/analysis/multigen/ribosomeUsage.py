@@ -9,7 +9,7 @@ Plot usage statistics of ribosomes
 from __future__ import absolute_import, division
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -39,8 +39,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
         for gen_idx in range(ap.n_generation):
             firstCellLineage.append(ap.get_cells(generation = [gen_idx])[0])
 
-        # Get sim data from cPickle file
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        # Get sim data from pickle file
+        sim_data = pickle.load(open(simDataFile, "rb"))
 
         # Create new figure and set size
         fig = plt.figure()

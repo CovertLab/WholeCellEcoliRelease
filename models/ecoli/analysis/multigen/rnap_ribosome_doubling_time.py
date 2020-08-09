@@ -10,7 +10,7 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 from wholecell.utils import units
-import cPickle
+import pickle
 from models.ecoli.analysis import multigenAnalysisPlot
 
 
@@ -23,7 +23,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
             os.mkdir(plotOutDir)
 
         ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         rnap_id = sim_data.moleculeIds.rnapFull
         rnap_subunit_ids = sim_data.moleculeGroups.rnapIds
         ribosome_30s_id = sim_data.moleculeIds.s30_fullComplex

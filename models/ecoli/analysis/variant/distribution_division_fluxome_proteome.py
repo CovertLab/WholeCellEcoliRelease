@@ -3,7 +3,7 @@ from __future__ import absolute_import
 
 import os
 import re
-import cPickle
+import pickle
 import time
 
 import numpy as np
@@ -30,7 +30,7 @@ def getPCCProteome((variant, ap, monomerIds, schmidtCounts)):
     try:
         simDir = ap.get_cells(variant = [variant])[0]
 
-        sim_data = cPickle.load(open(ap.get_variant_kb(variant), "rb"))
+        sim_data = pickle.load(open(ap.get_variant_kb(variant), "rb"))
 
         ids_complexation = sim_data.process.complexation.moleculeNames
         ids_complexation_complexes = sim_data.process.complexation.ids_complexes
@@ -82,7 +82,7 @@ def getPCCProteome((variant, ap, monomerIds, schmidtCounts)):
 
         return pcc, pval
     except Exception as e:
-        print e
+        print(e)
         return np.nan, np.nan
 
 
@@ -91,7 +91,7 @@ def getPCCFluxome((variant, ap, toyaReactions, toyaFluxesDict, toyaStdevDict)):
     try:
         simDir = ap.get_cells(variant = [variant])[0]
 
-        sim_data = cPickle.load(open(ap.get_variant_kb(variant), "rb"))
+        sim_data = pickle.load(open(ap.get_variant_kb(variant), "rb"))
         cellDensity = sim_data.constants.cellDensity
 
         simOutDir = os.path.join(simDir, "simOut")
@@ -140,7 +140,7 @@ def getPCCFluxome((variant, ap, toyaReactions, toyaFluxesDict, toyaStdevDict)):
 
         return pcc, pval
     except Exception as e:
-        print e
+        print(e)
         return np.nan, np.nan
 
 def getDivisionTime((variant, ap)):
@@ -154,7 +154,7 @@ def getDivisionTime((variant, ap)):
 
         return (time_column.max() - initialTime) / 60.
     except Exception as e:
-        print e
+        print(e)
         return np.nan
 
 def getInitialMass((variant, ap)):
@@ -167,7 +167,7 @@ def getInitialMass((variant, ap)):
         cellDry = mass.readColumn("dryMass")
         return cellDry[0]
     except Exception as e:
-        print e
+        print(e)
         return np.nan
 
 def getFinalMass((variant, ap)):
@@ -180,7 +180,7 @@ def getFinalMass((variant, ap)):
         cellDry = mass.readColumn("dryMass")
         return cellDry[-1]
     except Exception as e:
-        print e
+        print(e)
         return np.nan
 
 
@@ -197,7 +197,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
             os.mkdir(plotOutDir)
 
         print "Loading validation data"
-        validation_data = cPickle.load(open(validationDataFile, "rb"))
+        validation_data = pickle.load(open(validationDataFile, "rb"))
 
         schmidtCounts = validation_data.protein.schmidt2015Data["glucoseCounts"]
 
@@ -221,7 +221,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
         args = zip(range(ap.n_variant), [ap] * ap.n_variant)
         divisionResult = pool.map(getDivisionTime, args)
         stop = time.time()
-        cPickle.dump(divisionResult, open(os.path.join(plotOutDir, plotOutFileName + "_division.cPickle"), "w"))
+        pickle.dump(divisionResult, open(os.path.join(plotOutDir, plotOutFileName + "_division.pickle"), "w"))
         print "%d seconds:\tTo get simulation time data (to compute division time) -- completed" % (stop - start)
 
         # Get initial mass
@@ -229,7 +229,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
         args = zip(range(ap.n_variant), [ap] * ap.n_variant)
         initialMassResult = pool.map(getInitialMass, args)
         stop = time.time()
-        cPickle.dump(initialMassResult, open(os.path.join(plotOutDir, plotOutFileName + "_initialMass.cPickle"), "w"))
+        pickle.dump(initialMassResult, open(os.path.join(plotOutDir, plotOutFileName + "_initialMass.pickle"), "w"))
         print "%d seconds:\tTo get initial mass data -- completed" % (stop - start)
 
         # Get final mass
@@ -237,7 +237,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
         args = zip(range(ap.n_variant), [ap] * ap.n_variant)
         finalMassResult = pool.map(getFinalMass, args)
         stop = time.time()
-        cPickle.dump(finalMassResult, open(os.path.join(plotOutDir, plotOutFileName + "_finalMass.cPickle"), "w"))
+        pickle.dump(finalMassResult, open(os.path.join(plotOutDir, plotOutFileName + "_finalMass.pickle"), "w"))
         print "%d seconds:\tTo get final mass data -- completed" % (stop - start)
 
         # Get fluxome correlation
@@ -245,7 +245,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
         args = zip(range(ap.n_variant), [ap] * ap.n_variant, [toyaReactions] * ap.n_variant, [toyaFluxesDict] * ap.n_variant, [toyaStdevDict] * ap.n_variant)
         fluxomeResult = pool.map(getPCCFluxome, args)
         stop = time.time()
-        cPickle.dump(fluxomeResult, open(os.path.join(plotOutDir, plotOutFileName + "_fluxome.cPickle"), "w"))
+        pickle.dump(fluxomeResult, open(os.path.join(plotOutDir, plotOutFileName + "_fluxome.pickle"), "w"))
         print "%d seconds:\tTo get fluxome correlation -- completed" % (stop - start)
 
         # Get proteome correlation
@@ -253,7 +253,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
         args = zip(range(ap.n_variant), [ap] * ap.n_variant, [validation_data.protein.schmidt2015Data["monomerId"].tolist()] * ap.n_variant, [schmidtCounts] * ap.n_variant)
         proteomeResult = pool.map(getPCCProteome, args)
         stop = time.time()
-        cPickle.dump(proteomeResult, open(os.path.join(plotOutDir, plotOutFileName + "_proteome.cPickle"), "w"))
+        pickle.dump(proteomeResult, open(os.path.join(plotOutDir, plotOutFileName + "_proteome.pickle"), "w"))
         print "%d seconds:\tTo get proteome correlation -- completed" % (stop - start)
 
         pool.close()

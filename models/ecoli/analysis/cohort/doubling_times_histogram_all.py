@@ -15,7 +15,7 @@ standardize the output across sets of simulations.
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -60,7 +60,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
             generation = range(FIRST_GENERATION, n_gens)
             )
 
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
 
         doubling_times_minutes = []
 

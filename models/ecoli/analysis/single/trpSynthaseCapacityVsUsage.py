@@ -9,7 +9,7 @@ Plot enzymatic capacity of tryptophan synthase vs amount of tryptophan needed by
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 
 from matplotlib import pyplot as plt
 
@@ -28,7 +28,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
         if not os.path.exists(plotOutDir):
             os.mkdir(plotOutDir)
 
-        sim_data = cPickle.load(open(simDataFile, "r"))
+        sim_data = pickle.load(open(simDataFile, "r"))
         trpIdx = sim_data.moleculeGroups.aaIDs.index("TRP[c]")
 
         growthLimits = TableReader(os.path.join(simOutDir, "GrowthLimits"))

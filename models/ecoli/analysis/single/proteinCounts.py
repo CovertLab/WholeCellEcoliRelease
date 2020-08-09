@@ -14,7 +14,7 @@ import os
 import numpy as np
 from scipy.stats import pearsonr
 from matplotlib import pyplot as plt
-import cPickle
+import pickle
 
 from wholecell.io.tablereader import TableReader
 from wholecell.utils.fitting import normalize
@@ -36,7 +36,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
         # Get the names of proteins from the KB
 
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
 
         ids_complexation = sim_data.process.complexation.moleculeNames
         ids_complexation_complexes = sim_data.process.complexation.ids_complexes

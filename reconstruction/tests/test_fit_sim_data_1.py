@@ -11,7 +11,7 @@ from __future__ import division
 import unittest
 import warnings
 
-import cPickle
+import pickle
 import os
 
 import wholecell.utils.constants

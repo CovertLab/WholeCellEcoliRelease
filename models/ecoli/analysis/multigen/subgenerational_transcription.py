@@ -9,7 +9,7 @@ Generates plots related to the subgenerational transcription of genes.
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -47,8 +47,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
             print "Skipping - this plot only runs for multigen sims"
             return
 
-        sim_data = cPickle.load(open(simDataFile, "rb"))
-        validation_data = cPickle.load(open(validationDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
+        validation_data = pickle.load(open(validationDataFile, "rb"))
 
         # Get mRNA data
         rnaIds = sim_data.process.transcription.rnaData["id"]

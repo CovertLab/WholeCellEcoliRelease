@@ -5,7 +5,7 @@ import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
+import pickle
 import scipy.stats
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
@@ -46,7 +46,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
         for variant, simDir in zip(variants, all_cells):
 
-            sim_data = cPickle.load(open(ap.get_variant_kb(variant), "rb"))
+            sim_data = pickle.load(open(ap.get_variant_kb(variant), "rb"))
             tfList = ["basal (no TF)"] + sorted(sim_data.tfToActiveInactiveConds)
             simOutDir = os.path.join(simDir, "simOut")
             tf = tfList[(variant + 1) // 2]

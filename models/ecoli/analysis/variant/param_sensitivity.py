@@ -12,7 +12,7 @@ from __future__ import absolute_import
 from __future__ import division
 from future_builtins import zip
 
-import cPickle
+import pickle
 import csv
 from multiprocessing import Pool
 import operator
@@ -177,9 +177,9 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
         global sim_data
         global validation_data
         with open(os.path.join(inputDir, 'kb', constants.SERIALIZED_FIT1_FILENAME), 'rb') as f:
-            sim_data = cPickle.load(f)
+            sim_data = pickle.load(f)
         with open(validationDataFile, 'rb') as f:
-            validation_data = cPickle.load(f)
+            validation_data = pickle.load(f)
 
         # sim_data information
         total_params = np.sum(number_params(sim_data))

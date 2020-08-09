@@ -9,7 +9,7 @@ Plots frequency of observing at least 1 transcript during a cell's life.
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -36,7 +36,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
         allDir = ap.get_cells()
 
         # Get mRNA data
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         rnaIds = sim_data.process.transcription.rnaData["id"]
         isMRna = sim_data.process.transcription.rnaData["isMRna"]
         synthProb = sim_data.process.transcription.rnaSynthProb["basal"]

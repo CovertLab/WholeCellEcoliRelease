@@ -9,7 +9,7 @@ Plots frequency of observing at least 1 transcript during a cell's life.
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -36,11 +36,11 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
         ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
         allDir = ap.get_cells()
 
-        validation_data = cPickle.load(open(validationDataFile, "rb"))
+        validation_data = pickle.load(open(validationDataFile, "rb"))
         essentialRnas = validation_data.essentialGenes.essentialRnas
 
         # Get mRNA data
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         rnaIds = sim_data.process.transcription.rnaData["id"]
         isMRna = sim_data.process.transcription.rnaData["isMRna"]
         synthProb = sim_data.process.transcription.rnaSynthProb["basal"]
@@ -140,7 +140,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
                 else:
                     sometimesTranscriptionEvents_N.append(v)
 
-            cPickle.dump({
+            pickle.dump({
                 "time": time,
                 "always_E": alwaysTranscriptionEvents_E,
                 "always_N": alwaysTranscriptionEvents_N,
@@ -154,7 +154,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
                 }, open(os.path.join(plotOutDir, "transcriptionEvents.pickle"), "wb"))
 
         if USE_CACHE:
-            D = cPickle.load(open(os.path.join(plotOutDir, "transcriptionEvents.pickle"), "r"))
+            D = pickle.load(open(os.path.join(plotOutDir, "transcriptionEvents.pickle"), "r"))
             time = D["time"]
             alwaysTranscriptionEvents_E = D["always_E"]
             alwaysTranscriptionEvents_N = D["always_N"]

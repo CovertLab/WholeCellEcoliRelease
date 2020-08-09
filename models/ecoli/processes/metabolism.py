@@ -22,7 +22,7 @@ from scipy.sparse import csr_matrix
 import wholecell.processes.process
 from wholecell.utils import units
 
-from wholecell.utils.random import stochasticRound
+from wholecell.utils.biorandom import stochasticRound
 from wholecell.utils.constants import REQUEST_PRIORITY_METABOLISM
 
 from wholecell.utils.modular_fba import FluxBalanceAnalysis

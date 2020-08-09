@@ -48,7 +48,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
                 doublingTimes.append( (time.max() - initialTime) / 60. )
             except Exception as e:
-                print e
+                print(e)
                 continue
 
         doublingTimes = np.array(doublingTimes)

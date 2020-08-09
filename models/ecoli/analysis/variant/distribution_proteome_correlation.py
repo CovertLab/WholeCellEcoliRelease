@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -29,7 +29,7 @@ def getPCC((variant, ap, monomerIds, schmidtCounts)):
     try:
         simDir = ap.get_cells(variant = [variant])[0]
 
-        sim_data = cPickle.load(open(ap.get_variant_kb(variant), "rb"))
+        sim_data = pickle.load(open(ap.get_variant_kb(variant), "rb"))
 
         ids_complexation = sim_data.process.complexation.moleculeNames
         ids_complexation_complexes = sim_data.process.complexation.ids_complexes
@@ -82,7 +82,7 @@ def getPCC((variant, ap, monomerIds, schmidtCounts)):
         return pcc, pval
 
     except Exception as e:
-        print e
+        print(e)
         return np.nan, np.nan
 
 
@@ -98,7 +98,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
         if not os.path.exists(plotOutDir):
             os.mkdir(plotOutDir)
 
-        validation_data = cPickle.load(open(validationDataFile, "rb"))
+        validation_data = pickle.load(open(validationDataFile, "rb"))
         schmidtCounts = validation_data.protein.schmidt2015Data["glucoseCounts"]
 
         ap = AnalysisPaths(inputDir, variant_plot = True)
@@ -107,10 +107,10 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
         pool = Pool(processes=parallelization.plotter_cpus())
         args = zip(range(ap.n_variant), [ap] * ap.n_variant, [validation_data.protein.schmidt2015Data["monomerId"].tolist()] * ap.n_variant, [schmidtCounts] * ap.n_variant)
         result = pool.map(getPCC, args)
-        # cPickle.dump(result, open("pcc_results.cPickle", "w"), cPickle.HIGHEST_PROTOCOL)
+        # pickle.dump(result, open("pcc_results.pickle", "w"), pickle.HIGHEST_PROTOCOL)
         pool.close()
         pool.join()
-        # result = cPickle.load(open("pcc_results.cPickle", "r"))
+        # result = pickle.load(open("pcc_results.pickle", "r"))
         controlPcc, controlPvalue = result[0]
         pccs, pvals = zip(*result[1:])
         pccs = np.array(pccs)

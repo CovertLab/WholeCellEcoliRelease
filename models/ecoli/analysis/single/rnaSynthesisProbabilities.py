@@ -12,7 +12,7 @@ from __future__ import division
 import os
 
 import numpy as np
-import cPickle
+import pickle
 from matplotlib import pyplot as plt
 
 from wholecell.io.tablereader import TableReader
@@ -28,7 +28,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
         if not os.path.exists(plotOutDir):
             os.mkdir(plotOutDir)
 
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         isMRna = sim_data.process.transcription.rnaData["isMRna"]
         isRRna = sim_data.process.transcription.rnaData["isRRna"]
         isTRna = sim_data.process.transcription.rnaData["isTRna"]

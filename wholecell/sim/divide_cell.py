@@ -6,9 +6,9 @@ from __future__ import division
 
 import numpy as np
 import os
-import cPickle
+import pickle
 from copy import deepcopy
-from itertools import izip
+
 
 from wholecell.io.tablewriter import TableWriter
 from wholecell.utils import filepath
@@ -64,10 +64,10 @@ def divide_cell(sim):
     elif sim._isDead:
         isDead = True
 
-    with open(os.path.join(sim._outputDir, "Daughter1", "IsDead.cPickle"), 'wb') as f:
-        cPickle.dump(isDead, f)
-    with open(os.path.join(sim._outputDir, "Daughter2", "IsDead.cPickle"), 'wb') as f:
-        cPickle.dump(isDead, f)
+    with open(os.path.join(sim._outputDir, "Daughter1", "IsDead.pickle"), 'wb') as f:
+        pickle.dump(isDead, f)
+    with open(os.path.join(sim._outputDir, "Daughter2", "IsDead.pickle"), 'wb') as f:
+        pickle.dump(isDead, f)
 
     if isDead:
         # Cell is dead - set daughter cell containers to empty values
@@ -101,14 +101,14 @@ def divide_cell(sim):
     saveContainer(d2_uniqueMolCntr, os.path.join(
         sim._outputDir, "Daughter2", "UniqueMolecules"))
 
-    with open(os.path.join(sim._outputDir, "Daughter1", "ElngRate.cPickle"), 'wb') as f:
-        cPickle.dump(daughter_elng_rates["d1_elng_rate"], f)
-    with open(os.path.join(sim._outputDir, "Daughter2", "ElngRate.cPickle"), 'wb') as f:
-        cPickle.dump(daughter_elng_rates["d2_elng_rate"], f)
-    with open(os.path.join(sim._outputDir, "Daughter1", "elng_rate_factor.cPickle"), 'wb') as f:
-        cPickle.dump(daughter_elng_rates["d1_elng_rate_factor"], f)
-    with open(os.path.join(sim._outputDir, "Daughter2", "elng_rate_factor.cPickle"), 'wb') as f:
-        cPickle.dump(daughter_elng_rates["d2_elng_rate_factor"], f)
+    with open(os.path.join(sim._outputDir, "Daughter1", "ElngRate.pickle"), 'wb') as f:
+        pickle.dump(daughter_elng_rates["d1_elng_rate"], f)
+    with open(os.path.join(sim._outputDir, "Daughter2", "ElngRate.pickle"), 'wb') as f:
+        pickle.dump(daughter_elng_rates["d2_elng_rate"], f)
+    with open(os.path.join(sim._outputDir, "Daughter1", "elng_rate_factor.pickle"), 'wb') as f:
+        pickle.dump(daughter_elng_rates["d1_elng_rate_factor"], f)
+    with open(os.path.join(sim._outputDir, "Daughter2", "elng_rate_factor.pickle"), 'wb') as f:
+        pickle.dump(daughter_elng_rates["d2_elng_rate_factor"], f)
 
     # Save daughter cell initial time steps
     saveTime(sim.time(), os.path.join(sim._outputDir, "Daughter1", "Time"),
@@ -464,7 +464,7 @@ def resetChromosomeIndex(oldChromosomeIndex, chromosomeCount):
     zero. Returns the new index array.
     """
     newChromosomeIndex = np.zeros_like(oldChromosomeIndex, dtype=np.int)
-    for newIndex, oldIndex in izip(np.arange(chromosomeCount), np.unique(oldChromosomeIndex)):
+    for newIndex, oldIndex in zip(np.arange(chromosomeCount), np.unique(oldChromosomeIndex)):
         indexMatch = (oldChromosomeIndex == oldIndex)
         newChromosomeIndex[indexMatch] = newIndex
 

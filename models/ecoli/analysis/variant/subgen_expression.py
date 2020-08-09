@@ -8,7 +8,7 @@ Plot to assess sensitivity of pabB behavior to model parameters.
 from __future__ import absolute_import, division, print_function
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -46,7 +46,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
             return
 
         # Get constants from wildtype variant
-        sim_data = cPickle.load(open(ap.get_variant_kb(4), "rb")) # 4 is the wildtype variant
+        sim_data = pickle.load(open(ap.get_variant_kb(4), "rb")) # 4 is the wildtype variant
         cellDensity = sim_data.constants.cellDensity
         nAvogadro = sim_data.constants.nAvogadro
         metabolite_target = sim_data.process.metabolism.concDict[METABOLITE_ID]

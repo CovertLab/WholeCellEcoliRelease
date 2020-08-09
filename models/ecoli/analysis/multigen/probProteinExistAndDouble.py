@@ -9,7 +9,7 @@ from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.analysis.analysis_tools import exportFigure
 
-import cPickle
+import pickle
 from models.ecoli.analysis import multigenAnalysisPlot
 
 CLOSE_TO_DOUBLE = 0.1
@@ -27,7 +27,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
             os.mkdir(plotOutDir)
 
         # Get all ids reqiured
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         ids_complexation = sim_data.process.complexation.moleculeNames # Complexe of proteins, and protein monomers
         ids_complexation_complexes = sim_data.process.complexation.ids_complexes # Only complexes
         ids_equilibrium = sim_data.process.equilibrium.moleculeNames # Complexes of proteins + small molecules, small molecules, protein monomers

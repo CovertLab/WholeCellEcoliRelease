@@ -41,7 +41,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
         # Build a mapping from variant id to color
         idToColor = {}
-        for idx, (cell_id, color) in enumerate(itertools.izip(all_cells, itertools.cycle(COLORS_LARGE))):
+        for idx, (cell_id, color) in enumerate(itertools.zip(all_cells, itertools.cycle(COLORS_LARGE))):
             idToColor[idx] = color
 
         if not os.path.exists(plotOutDir):

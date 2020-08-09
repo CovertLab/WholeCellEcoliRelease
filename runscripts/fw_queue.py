@@ -98,7 +98,7 @@ from wholecell.utils import filepath
 import yaml
 import os
 import collections
-import cPickle
+import pickle
 
 
 #### Initial setup ###
@@ -222,7 +222,7 @@ for key, value in metadata.iteritems():
     filepath.write_file(os.path.join(METADATA_DIRECTORY, key), value)
 
 with open(os.path.join(METADATA_DIRECTORY, constants.SERIALIZED_METADATA_FILE), "wb") as f:
-    cPickle.dump(metadata, f, cPickle.HIGHEST_PROTOCOL)
+    pickle.dump(metadata, f, pickle.HIGHEST_PROTOCOL)
 
 #### Create workflow
 

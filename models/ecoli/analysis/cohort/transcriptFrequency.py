@@ -10,7 +10,7 @@ one copy of transcript) at the 4th generation across 32 seeds.
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -42,7 +42,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
             print "Skipping -- transcriptFrequency only runs for multiple seeds"
             return
 
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
 
         # Get mRNA data
         rnaIds = sim_data.process.transcription.rnaData["id"]

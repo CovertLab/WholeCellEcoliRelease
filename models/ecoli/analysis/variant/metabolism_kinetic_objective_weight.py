@@ -14,7 +14,7 @@ import re
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
+import pickle
 from multiprocessing import Pool
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
@@ -53,7 +53,7 @@ def analyze_variant((variant, ap, toya_reactions, toya_fluxes, outlier_filter)):
     n_sims = 0
 
     # Load sim_data attributes for the given variant
-    sim_data = cPickle.load(open(ap.get_variant_kb(variant), 'rb'))
+    sim_data = pickle.load(open(ap.get_variant_kb(variant), 'rb'))
     cell_density = sim_data.constants.cellDensity
     n_avogadro = sim_data.constants.nAvogadro
     lambdas = sim_data.process.metabolism.kinetic_objective_weight
@@ -211,7 +211,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
         filepath.makedirs(plotOutDir)
 
         # Load validation data
-        validation_data = cPickle.load(open(validationDataFile, 'rb'))
+        validation_data = pickle.load(open(validationDataFile, 'rb'))
         toya_reactions = validation_data.reactionFlux.toya2010fluxes['reactionID']
         toya_fluxes = np.array([x.asNumber(DCW_FLUX_UNITS) for x in validation_data.reactionFlux.toya2010fluxes['reactionFlux']])
         outlier_filter = [False if rxn in OUTLIER_REACTIONS else True for rxn in toya_reactions]

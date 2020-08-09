@@ -1,18 +1,20 @@
-#!/usr/bin/env python
-
+# -*- coding: utf-8 -*-
 """
-Internal State
-
-State variable base class. Defines the interface states expose to the simulation and processes.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
+    @organization: Covert Lab, Department of Bioengineering, Stanford University
+    Date: 2020-08-07 23:06:41
+    LastEditors: Hwrn
+    LastEditTime: 2020-08-07 23:23:35
+    FilePath: /WholeCellEcoliRelease/wholecell/states/internal_state.py
+    Description:
+        Internal State
+        State variable base class. Defines the interface states expose to the simulation and processes.
+        状态变量基类. 定义面向模拟和进程的接口.
+    TODO:
 """
-
-from __future__ import division
 
 import numpy as np
 
-class InternalState(object):
+class InternalState:
     """ Internal State """
 
     _name = None
@@ -34,8 +36,8 @@ class InternalState(object):
         self.seed = None
 
 
-    # Construct state-process graph, calculate constants
     def initialize(self, sim, sim_data):
+        """Construct state-process graph, calculate constants"""
         self._sim = sim
 
         self._nProcesses = len(sim.processes)
@@ -52,13 +54,13 @@ class InternalState(object):
         self._postEvolveStateMassIndex = 1
 
 
-    # Allocate memory
     def allocate(self):
+        """Allocate memory"""
         pass
 
 
-    # Views
     def viewAdd(self, view):
+        """Views"""
         self._views.append(view)
 
 
@@ -84,8 +86,8 @@ class InternalState(object):
         raise NotImplementedError("Subclass must implement")
 
 
-    # Mass calculations
     def mass(self):
+        """Mass calculations"""
         return self._masses
 
 

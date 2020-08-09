@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -78,7 +78,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
             print("Total cells: {}".format(len(all_cells)))
 
             try:
-                sim_data = cPickle.load(open(ap.get_variant_kb(variant)))
+                sim_data = pickle.load(open(ap.get_variant_kb(variant)))
             except Exception as e:
                 print "Couldn't load sim_data object. Exiting.", e
                 return

@@ -8,7 +8,7 @@ conditions, to compare with experimental data in Wallden et al.
 
 from __future__ import absolute_import, print_function, division
 
-import cPickle
+import pickle
 from matplotlib import pyplot as plt
 import numpy as np
 import os
@@ -41,7 +41,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
         for variant in variants:
             with open(ap.get_variant_kb(variant), 'rb') as f:
-                sim_data = cPickle.load(f)
+                sim_data = pickle.load(f)
 
             cell_density = sim_data.constants.cellDensity
 

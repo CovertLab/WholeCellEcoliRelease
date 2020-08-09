@@ -10,7 +10,7 @@ from __future__ import absolute_import
 from __future__ import division
 
 import os
-import cPickle
+import pickle
 import csv
 import re
 
@@ -47,7 +47,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
         allDir = ap.get_cells()
         # allDir = ap.get_cells(generation = [0, 1, 2])
 
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
 
         targetFluxList = []
         actualFluxList = []

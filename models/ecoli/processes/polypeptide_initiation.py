@@ -104,7 +104,7 @@ class PolypeptideInitiation(wholecell.processes.process.Process):
         proteinIndexes = np.empty(ribosomeToActivate, np.int64)
         nonzeroCount = (nNewProteins > 0)
         startIndex = 0
-        for proteinIndex, counts in itertools.izip(
+        for proteinIndex, counts in itertools.zip(
                 np.arange(nNewProteins.size)[nonzeroCount],
                 nNewProteins[nonzeroCount],
                 ):

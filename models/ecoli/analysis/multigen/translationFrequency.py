@@ -9,7 +9,7 @@ Plots frequency of observing at least 1 protein.
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -33,7 +33,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
         ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
         allDir = ap.get_cells()
 
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         tcsComplexToMonomers = sim_data.process.two_component_system.complexToMonomer
         ids_complexation = sim_data.process.complexation.moleculeNames
         ids_complexation_complexes = sim_data.process.complexation.ids_complexes

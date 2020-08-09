@@ -9,7 +9,7 @@ import matplotlib.gridspec as gridspec
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
-import cPickle
+import pickle
 
 from wholecell.analysis.analysis_tools import exportFigure
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
@@ -22,11 +22,11 @@ DOWN_SAMPLE = 100
 
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
     def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
-        print "Disabled. Calls fitter with doubling_time argument which is deprecated."
+        print("Disabled. Calls fitter with doubling_time argument which is deprecated.")
         return
 
         if not os.path.isdir(variantDir):
-            raise Exception, "variantDir does not currently exist as a directory"
+            raise Exception("variantDir does not currently exist as a directory")
 
         if not os.path.exists(plotOutDir):
             os.mkdir(plotOutDir)
@@ -50,7 +50,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
         proteinFractionViolin_axis = plt.subplot(gs[2, 1:])
 
 
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         expectedProtein, expectedRna, expectedDryMassInit = getExpectedComposition(sim_data.doubling_time)
 
         maxTime = getMaxTime(allCells)

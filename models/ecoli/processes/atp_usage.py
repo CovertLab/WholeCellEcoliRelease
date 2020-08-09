@@ -23,7 +23,7 @@ import numpy as np
 
 import wholecell.processes.process
 from wholecell.utils.constants import REQUEST_PRIORITY_ATP_USAGE
-from wholecell.utils.random import stochasticRound
+from wholecell.utils.biorandom import stochasticRound
 from wholecell.utils import units
 
 VERBOSE = False

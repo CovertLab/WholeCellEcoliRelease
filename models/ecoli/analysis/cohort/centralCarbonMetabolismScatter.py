@@ -8,7 +8,7 @@ Central carbon metabolism comparison to Toya et al
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 import re
 
 import numpy as np
@@ -37,14 +37,14 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
         ap = AnalysisPaths(variantDir, cohort_plot = True)
         allDir = ap.get_cells()
 
-        validation_data = cPickle.load(open(validationDataFile, "rb"))
+        validation_data = pickle.load(open(validationDataFile, "rb"))
         toyaReactions = validation_data.reactionFlux.toya2010fluxes["reactionID"]
         toyaFluxes = validation_data.reactionFlux.toya2010fluxes["reactionFlux"]
         toyaStdev = validation_data.reactionFlux.toya2010fluxes["reactionFluxStdev"]
         toyaFluxesDict = dict(zip(toyaReactions, toyaFluxes))
         toyaStdevDict = dict(zip(toyaReactions, toyaStdev))
 
-        sim_data = cPickle.load(open(simDataFile))
+        sim_data = pickle.load(open(simDataFile))
         cellDensity = sim_data.constants.cellDensity
 
         modelFluxes = {}

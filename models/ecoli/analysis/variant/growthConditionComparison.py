@@ -14,7 +14,7 @@ import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import cPickle
+import pickle
 
 from models.ecoli.analysis.AnalysisPaths import AnalysisPaths
 from wholecell.io.tablereader import TableReader
@@ -43,7 +43,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
         doublingPerHourDict = {}
 
         variantSimDataFile = ap.get_variant_kb(ap.get_variants()[0])
-        sim_data = cPickle.load(open(variantSimDataFile, "rb"))
+        sim_data = pickle.load(open(variantSimDataFile, "rb"))
         nAvogadro = sim_data.constants.nAvogadro.asNumber()
         chromMass = (sim_data.getter.getMass(['CHROM_FULL[c]'])[0] / sim_data.constants.nAvogadro).asNumber()
 

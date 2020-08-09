@@ -8,7 +8,7 @@ Plots transcription events across multiple generations
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -35,7 +35,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
         allDir = ap.get_cells()
 
         # Get mRNA data
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         rnaIds = sim_data.process.transcription.rnaData["id"]
         isMRna = sim_data.process.transcription.rnaData["isMRna"]
         synthProb = sim_data.process.transcription.rnaSynthProb["basal"]
@@ -118,7 +118,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
                     v = [-1]
                 sometimes.append(v)
 
-            cPickle.dump({
+            pickle.dump({
                 "time": time,
                 "transcriptionFrequency": transcribedBoolOrdered,
                 "colors": colors,
@@ -129,7 +129,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
                 }, open(os.path.join(plotOutDir, "transcriptionEvents2.pickle"), "wb"))
 
         if USE_CACHE:
-            D = cPickle.load(open(os.path.join(plotOutDir, "transcriptionEvents2.pickle"), "r"))
+            D = pickle.load(open(os.path.join(plotOutDir, "transcriptionEvents2.pickle"), "r"))
             time = D["time"]
             transcribedBoolOrdered = D["transcriptionFrequency"]
             colors = D["colors"]

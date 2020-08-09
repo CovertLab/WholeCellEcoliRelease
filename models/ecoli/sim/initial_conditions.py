@@ -10,12 +10,12 @@ TODO:
 
 from __future__ import division
 
-from itertools import izip
+
 import scipy.sparse
 
 import numpy as np
 import os
-import cPickle
+import pickle
 
 from wholecell.containers.bulk_objects_container import BulkObjectsContainer
 from wholecell.utils.fitting import normalize, countsFromMassAndExpression, calcProteinCounts, masses_and_counts_for_homeostatic_target
@@ -328,7 +328,7 @@ def initializeRNApolymerase(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
     rnaIndices = np.empty(rnaPolyToActivate, np.int64)
     startIndex = 0
     nonzeroCount = (nNewRnas > 0)
-    for rnaIndex, counts in izip(np.arange(nNewRnas.size)[nonzeroCount], nNewRnas[nonzeroCount]):
+    for rnaIndex, counts in zip(np.arange(nNewRnas.size)[nonzeroCount], nNewRnas[nonzeroCount]):
         rnaIndices[startIndex:startIndex+counts] = rnaIndex
         startIndex += counts
 
@@ -390,7 +390,7 @@ def initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
     proteinIndices = np.empty(ribosomeToActivate, np.int64)
     startIndex = 0
     nonzeroCount = (nNewProteins > 0)
-    for proteinIndex, counts in izip(np.arange(nNewProteins.size)[nonzeroCount], nNewProteins[nonzeroCount]):
+    for proteinIndex, counts in zip(np.arange(nNewProteins.size)[nonzeroCount], nNewProteins[nonzeroCount]):
         proteinIndices[startIndex:startIndex+counts] = proteinIndex
         startIndex += counts
 
@@ -417,11 +417,11 @@ def initializeRibosomes(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 
 def setDaughterInitialConditions(sim, sim_data):
     assert sim._inheritedStatePath != None
-    isDead = cPickle.load(open(os.path.join(sim._inheritedStatePath, "IsDead.cPickle"), "rb"))
+    isDead = pickle.load(open(os.path.join(sim._inheritedStatePath, "IsDead.pickle"), "rb"))
     sim._isDead = isDead
 
-    elngRate = cPickle.load(open(os.path.join(sim._inheritedStatePath, "ElngRate.cPickle"), "rb"))
-    elng_rate_factor = cPickle.load(open(os.path.join(sim._inheritedStatePath, "elng_rate_factor.cPickle"), "rb"))
+    elngRate = pickle.load(open(os.path.join(sim._inheritedStatePath, "ElngRate.pickle"), "rb"))
+    elng_rate_factor = pickle.load(open(os.path.join(sim._inheritedStatePath, "elng_rate_factor.pickle"), "rb"))
     if sim._growthRateNoise:
         sim.processes["PolypeptideElongation"].setElngRate = elngRate
         sim.processes["PolypeptideElongation"].elngRateFactor = elng_rate_factor

@@ -3,7 +3,7 @@ from __future__ import absolute_import
 
 import os
 import re
-import cPickle
+import pickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -32,7 +32,7 @@ def getPCC((variant, ap, toyaReactions, toyaFluxesDict, toyaStdevDict)):
 
         simDir = ap.get_cells(variant = [variant])[0]
 
-        sim_data = cPickle.load(open(ap.get_variant_kb(variant), "rb"))
+        sim_data = pickle.load(open(ap.get_variant_kb(variant), "rb"))
         cellDensity = sim_data.constants.cellDensity
 
         simOutDir = os.path.join(simDir, "simOut")
@@ -82,7 +82,7 @@ def getPCC((variant, ap, toyaReactions, toyaFluxesDict, toyaStdevDict)):
         return pcc, pval
 
     except Exception as e:
-        print e
+        print(e)
         return np.nan, np.nan
 
 
@@ -98,7 +98,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
         if not os.path.exists(plotOutDir):
             os.mkdir(plotOutDir)
 
-        validation_data = cPickle.load(open(validationDataFile, "rb"))
+        validation_data = pickle.load(open(validationDataFile, "rb"))
         toyaReactions = validation_data.reactionFlux.toya2010fluxes["reactionID"]
         toyaFluxes = validation_data.reactionFlux.toya2010fluxes["reactionFlux"]
         toyaStdev = validation_data.reactionFlux.toya2010fluxes["reactionFluxStdev"]
@@ -110,10 +110,10 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
         pool = Pool(processes=parallelization.plotter_cpus())
         args = zip(range(ap.n_variant), [ap] * ap.n_variant, [toyaReactions] * ap.n_variant, [toyaFluxesDict] * ap.n_variant, [toyaStdevDict] * ap.n_variant)
         result = pool.map(getPCC, args)
-        cPickle.dump(result, open("pcc_results_fluxome.cPickle", "w"), cPickle.HIGHEST_PROTOCOL)
+        pickle.dump(result, open("pcc_results_fluxome.pickle", "w"), pickle.HIGHEST_PROTOCOL)
         pool.close()
         pool.join()
-        result = cPickle.load(open("pcc_results_fluxome.cPickle", "r"))
+        result = pickle.load(open("pcc_results_fluxome.pickle", "r"))
         controlPcc, controlPvalue = result[0]
         pccs, pvals = zip(*result[1:])
         pccs = np.array(pccs)

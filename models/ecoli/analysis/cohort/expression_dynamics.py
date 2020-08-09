@@ -1,8 +1,8 @@
 from __future__ import absolute_import
 
 import os
-from itertools import izip
-import cPickle
+
+import pickle
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -32,7 +32,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
             os.mkdir(plotOutDir)
 
         # Check if basal sim
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         if sim_data.condition != "basal":
             print "Skipping - plot only runs for basal sim."
             return
@@ -96,14 +96,14 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
                     ribosomeIdx = np.array([moleculeIds.index(x) for x in ribosome_subunit_ids])
                     rnapIdx = np.array([moleculeIds.index(x) for x in rnap_subunit_ids])
 
-                    cPickle.dump(complexationIdx, open(os.path.join(plotOutDir,"complexationIdx.pickle"), "wb"))
-                    cPickle.dump(complexation_complexesIdx, open(os.path.join(plotOutDir,"complexation_complexesIdx.pickle"), "wb"))
-                    cPickle.dump(equilibriumIdx, open(os.path.join(plotOutDir,"equilibriumIdx.pickle"), "wb"))
-                    cPickle.dump(equilibrium_complexesIdx, open(os.path.join(plotOutDir,"equilibrium_complexesIdx.pickle"), "wb"))
-                    cPickle.dump(translationIdx, open(os.path.join(plotOutDir,"translationIdx.pickle"), "wb"))
-                    cPickle.dump(transcriptionIdx, open(os.path.join(plotOutDir,"transcriptionIdx.pickle"), "wb"))
-                    cPickle.dump(ribosomeIdx, open(os.path.join(plotOutDir,"ribosomeIdx.pickle"), "wb"))
-                    cPickle.dump(rnapIdx, open(os.path.join(plotOutDir,"rnapIdx.pickle"), "wb"))
+                    pickle.dump(complexationIdx, open(os.path.join(plotOutDir,"complexationIdx.pickle"), "wb"))
+                    pickle.dump(complexation_complexesIdx, open(os.path.join(plotOutDir,"complexation_complexesIdx.pickle"), "wb"))
+                    pickle.dump(equilibriumIdx, open(os.path.join(plotOutDir,"equilibriumIdx.pickle"), "wb"))
+                    pickle.dump(equilibrium_complexesIdx, open(os.path.join(plotOutDir,"equilibrium_complexesIdx.pickle"), "wb"))
+                    pickle.dump(translationIdx, open(os.path.join(plotOutDir,"translationIdx.pickle"), "wb"))
+                    pickle.dump(transcriptionIdx, open(os.path.join(plotOutDir,"transcriptionIdx.pickle"), "wb"))
+                    pickle.dump(ribosomeIdx, open(os.path.join(plotOutDir,"ribosomeIdx.pickle"), "wb"))
+                    pickle.dump(rnapIdx, open(os.path.join(plotOutDir,"rnapIdx.pickle"), "wb"))
 
                     first_build = False
 
@@ -136,17 +136,17 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
                 ratioFinalToInitialCount = (proteinMonomerCounts[-1,:] + 1) / (proteinMonomerCounts[0,:].astype(np.float) + 1)
                 ratioFinalToInitialCountMultigen[gen_idx, :] = ratioFinalToInitialCount
 
-            cPickle.dump(ratioFinalToInitialCountMultigen, open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "wb"))
+            pickle.dump(ratioFinalToInitialCountMultigen, open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "wb"))
 
-        ratioFinalToInitialCountMultigen = cPickle.load(open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "rb"))
-        complexationIdx = cPickle.load(open(os.path.join(plotOutDir,"complexationIdx.pickle"), "rb"))
-        complexation_complexesIdx = cPickle.load(open(os.path.join(plotOutDir,"complexation_complexesIdx.pickle"), "rb"))
-        equilibriumIdx = cPickle.load(open(os.path.join(plotOutDir,"equilibriumIdx.pickle"), "rb"))
-        equilibrium_complexesIdx = cPickle.load(open(os.path.join(plotOutDir,"equilibrium_complexesIdx.pickle"), "rb"))
-        translationIdx = cPickle.load(open(os.path.join(plotOutDir,"translationIdx.pickle"), "rb"))
-        transcriptionIdx = cPickle.load(open(os.path.join(plotOutDir,"transcriptionIdx.pickle"), "rb"))
-        ribosomeIdx = cPickle.load(open(os.path.join(plotOutDir,"ribosomeIdx.pickle"), "rb"))
-        rnapIdx = cPickle.load(open(os.path.join(plotOutDir,"rnapIdx.pickle"), "rb"))
+        ratioFinalToInitialCountMultigen = pickle.load(open(os.path.join(plotOutDir,"ratioFinalToInitialCountMultigen.pickle"), "rb"))
+        complexationIdx = pickle.load(open(os.path.join(plotOutDir,"complexationIdx.pickle"), "rb"))
+        complexation_complexesIdx = pickle.load(open(os.path.join(plotOutDir,"complexation_complexesIdx.pickle"), "rb"))
+        equilibriumIdx = pickle.load(open(os.path.join(plotOutDir,"equilibriumIdx.pickle"), "rb"))
+        equilibrium_complexesIdx = pickle.load(open(os.path.join(plotOutDir,"equilibrium_complexesIdx.pickle"), "rb"))
+        translationIdx = pickle.load(open(os.path.join(plotOutDir,"translationIdx.pickle"), "rb"))
+        transcriptionIdx = pickle.load(open(os.path.join(plotOutDir,"transcriptionIdx.pickle"), "rb"))
+        ribosomeIdx = pickle.load(open(os.path.join(plotOutDir,"ribosomeIdx.pickle"), "rb"))
+        rnapIdx = pickle.load(open(os.path.join(plotOutDir,"rnapIdx.pickle"), "rb"))
 
         protein_index_of_interest = np.where(np.logical_and(ratioFinalToInitialCountMultigen > 1.6, ratioFinalToInitialCountMultigen < 2.4).all(axis = 0))[0]
         first_gen_flat = ratioFinalToInitialCountMultigen[0,:] < 1.1
@@ -276,7 +276,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
                 (time_minutes.max() - time_minutes.min()) * n_gens
                 )
 
-            for i, (ax, c, lc, cm, cs) in enumerate(izip(axes, counts, line_color, count_min, count_scale)):
+            for i, (ax, c, lc, cm, cs) in enumerate(zip(axes, counts, line_color, count_min, count_scale)):
                 rescaled_counts = (c.astype(np.float64) - cm)/cs
 
                 # Roughly rescale the data into the plotted dimensions for

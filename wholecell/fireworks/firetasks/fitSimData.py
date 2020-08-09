@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from __future__ import division
 
-import cPickle
+import pickle
 import time
 import os
 import shutil
@@ -12,6 +12,7 @@ from reconstruction.ecoli.fit_sim_data_1 import fitSimData_1
 from reconstruction.ecoli.fit_sim_data_2 import fitSimData_2
 
 @explicit_serialize
+# 注册 FW, 使软件可以找到他
 class FitSimDataTask(FireTaskBase):
 
     _fw_name = "FitSimDataTask"
@@ -47,14 +48,14 @@ class FitSimDataTask(FireTaskBase):
 
     def run_task(self, fw_spec):
 
-        print "%s: Creating/Fitting sim_data (Level %d)" % (time.ctime(), self["fit_level"])
+        print("%s: Creating/Fitting sim_data (Level %d)" % (time.ctime(), self["fit_level"]))
 
         if self["fit_level"] == 1:
             if self["cached"]:
                 try:
                     shutil.copyfile(self["cached_data"], self["output_data"])
                     mod_time = time.ctime(os.path.getctime(self["cached_data"]))
-                    print "Copied sim data from cache (modified %s)" % (mod_time,)
+                    print("Copied sim data from cache (modified %s)" % (mod_time,))
                     return
                 except Exception as exc:
                     print ("Warning: could not copy cached sim data due to"
@@ -65,7 +66,7 @@ class FitSimDataTask(FireTaskBase):
                        " ensure there are enough cpus_per_task allocated" % (self["cpus"],))
 
             with open(self["input_data"], "rb") as f:
-                raw_data = cPickle.load(f)
+                raw_data = pickle.load(f)
 
             options = dict(
                 cpus=self["cpus"],
@@ -98,18 +99,18 @@ class FitSimDataTask(FireTaskBase):
 
             sys.setrecursionlimit(4000) #limit found manually
             with open(self["output_data"], "wb") as f:
-                cPickle.dump(sim_data, f, protocol = cPickle.HIGHEST_PROTOCOL)
+                pickle.dump(sim_data, f, protocol = pickle.HIGHEST_PROTOCOL)
 
             if self["save_cell_specs"]:
                 with open(self["cell_specs_file"], "wb") as f:
-                    cPickle.dump(cell_specs, f, protocol = cPickle.HIGHEST_PROTOCOL)
+                    pickle.dump(cell_specs, f, protocol = pickle.HIGHEST_PROTOCOL)
 
         # TODO: Get rid of this if not used
         if self["fit_level"] == 2:
             with open(self["input_data"], "rb") as f:
-                sim_data = cPickle.load(f)
+                sim_data = pickle.load(f)
 
             fitSimData_2(sim_data, self["sim_out_dir"])
 
             with open(self["output_data"], "wb") as f:
-                cPickle.dump(sim_data, f, protocol = cPickle.HIGHEST_PROTOCOL)
+                pickle.dump(sim_data, f, protocol = pickle.HIGHEST_PROTOCOL)

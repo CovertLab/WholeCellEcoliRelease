@@ -8,7 +8,7 @@ Only runs with two variants (old degradation rates and new degradation rates).
 
 from __future__ import absolute_import, division, print_function
 
-import cPickle
+import pickle
 import os
 
 import matplotlib.pyplot as plt
@@ -43,9 +43,9 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
         filepath.makedirs(plotOutDir)
 
         with open(os.path.join(inputDir, 'kb', constants.SERIALIZED_FIT1_FILENAME), 'rb') as f:
-            sim_data = cPickle.load(f)
+            sim_data = pickle.load(f)
         with open(validationDataFile, 'rb') as f:
-            validation_data = cPickle.load(f)
+            validation_data = pickle.load(f)
 
         ap = AnalysisPaths(inputDir, variant_plot=True)
         variants = ap.get_variants()

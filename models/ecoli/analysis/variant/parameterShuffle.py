@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-import cPickle
+import pickle
 
 import os
 
@@ -64,7 +64,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
         wt = np.array(data_raw.row_values(1), dtype = float)[dataIndices]
 
         # Load failures
-        failures = cPickle.load(open(os.path.join(plotOutDir, "failed_variants.cPickle"), "rb"))
+        failures = pickle.load(open(os.path.join(plotOutDir, "failed_variants.pickle"), "rb"))
         flag1 = 0  # failure
         flag2 = 0  # 3-hour upper limit
         flag3 = 0  # final dry mass < 750

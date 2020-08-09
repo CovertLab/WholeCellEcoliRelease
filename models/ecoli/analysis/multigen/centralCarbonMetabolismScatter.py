@@ -9,7 +9,7 @@ Central carbon metabolism comparison to Toya et al for figure 3c
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 import re
 
 import numpy as np
@@ -38,18 +38,18 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
         allDir = ap.get_cells()
         # allDir = ap.get_cells(generation = [0, 1, 2])
 
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
         metaboliteNames = np.array(sorted(sim_data.process.metabolism.concDict.keys()))
         nMetabolites = len(metaboliteNames)
 
-        validation_data = cPickle.load(open(validationDataFile, "rb"))
+        validation_data = pickle.load(open(validationDataFile, "rb"))
         toyaReactions = validation_data.reactionFlux.toya2010fluxes["reactionID"]
         toyaFluxes = validation_data.reactionFlux.toya2010fluxes["reactionFlux"]
         toyaStdev = validation_data.reactionFlux.toya2010fluxes["reactionFluxStdev"]
         toyaFluxesDict = dict(zip(toyaReactions, toyaFluxes))
         toyaStdevDict = dict(zip(toyaReactions, toyaStdev))
 
-        sim_data = cPickle.load(open(simDataFile))
+        sim_data = pickle.load(open(simDataFile))
         cellDensity = sim_data.constants.cellDensity
 
         modelFluxes = {}

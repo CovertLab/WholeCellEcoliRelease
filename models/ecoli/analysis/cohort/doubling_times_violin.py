@@ -15,7 +15,7 @@ standardize the output across sets of simulations.
 from __future__ import absolute_import
 
 import os
-import cPickle
+import pickle
 
 from matplotlib import pyplot as plt
 
@@ -39,7 +39,7 @@ FIGSIZE = (2.5, 5)
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
     def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
         if not os.path.isdir(variantDir):
-            raise Exception, "variantDir does not currently exist as a directory"
+            raise Exception("variantDir does not currently exist as a directory")
 
         if not os.path.exists(plotOutDir):
             os.mkdir(plotOutDir)
@@ -49,13 +49,13 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
         n_gens = analysis_paths.n_generation
 
         if n_gens - 1 < FIRST_GENERATION:
-            print 'Not enough generations to plot.'
+            print('Not enough generations to plot.')
             return
 
         sim_dirs = analysis_paths.get_cells(
             generation = range(FIRST_GENERATION, n_gens), seed = range(8))
 
-        sim_data = cPickle.load(open(simDataFile, "rb"))
+        sim_data = pickle.load(open(simDataFile, "rb"))
 
         doubling_times_minutes = []
 
@@ -109,7 +109,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
                 raise Exception(message)
 
             else:
-                print message
+                print(message)
 
         if not len(doubling_times_minutes):
             print('Skipping plot due to no viable sims.')

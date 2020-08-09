@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from xlrd import open_workbook
 import numpy as np
 import matplotlib.pyplot as plt
-import cPickle
+import pickle
 
 import os
 
@@ -58,7 +58,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 
         # Load failures
-        failures = cPickle.load(open(os.path.join(plotOutDir, "failed_variants.cPickle"), "rb"))
+        failures = pickle.load(open(os.path.join(plotOutDir, "failed_variants.pickle"), "rb"))
         flag1 = 0  # failure
         flag2 = 0  # 3-hour upper limit
         flag3 = 0  # final dry mass < 750
