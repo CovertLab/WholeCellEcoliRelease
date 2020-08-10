@@ -20,7 +20,7 @@ TAG_PATH_NAME_MAP = {
 	): 'AcrAB-TolC',
 }
 OUT_DIR = os.path.join('environment', 'figs')
-FILE_EXTENSION = 'eps'
+FILE_EXTENSION = 'pdf'
 FIG_2_EXPERIMENT_ID = '20200806.170126'
 FIG_3_EXPERIMENT_ID = '20200806.170126'
 METADATA_FILE = 'metadata.json'
