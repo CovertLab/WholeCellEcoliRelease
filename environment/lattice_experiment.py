@@ -23,7 +23,6 @@ from vivarium.core.emitter import (
 	SECRETS_PATH,
 )
 from vivarium.processes.diffusion_field import make_gradient
-from vivarium.library.lattice_utils import get_bin_site
 
 from wholecell.io import tsv
 from environment.wcecoli_process import wcEcoliAgent
@@ -34,16 +33,16 @@ from environment.wcecoli_compartment import (
 )
 
 
-MEDIA_ID = 'minimal'
-# Indexes into simData.ordered_conditions:
-# ['basal', 'no_oxygen', 'with_aa', 'acetate', 'succinate']
-CONDITION_VARIANT_INDEX = 0
+MINIMAL_MEDIA_ID = 'minimal'
+AA_MEDIA_ID = 'minimal_plus_amino_acids'
+#: From simData.ordered_conditions
+CONDITION_VARIANTS = [
+	'basal', 'no_oxygen', 'with_aa', 'acetate', 'succinate']
 BOUNDS = (50, 50)
 N_BINS = (20, 20)
 TAGGED_MOLECULES_PATH = os.path.join(
 	os.path.dirname(__file__), 'tagged_molecules.csv')
 NUM_EMISSIONS = 100
-PULSE_CONCENTRATION = 1
 
 
 def get_timeline(n_bins, size, pulses, end_time):
@@ -139,7 +138,10 @@ class TestGetTimeline:
 		self.assert_timelines_equal(timeline, expected_timeline)
 
 
-def simulate(emitter_config, simulation_time, num_cells):
+def simulate(
+	emitter_config, simulation_time, num_cells, pulse_concentration,
+	add_aa, antibiotic_threshold,
+):
 	'''Run the simulation
 
 	Arguments:
@@ -148,6 +150,12 @@ def simulate(emitter_config, simulation_time, num_cells):
 			database.
 		simulation_time: Seconds of time to simulate.
 		num_cells: Number of cells to initialize simulation with.
+		pulse_concentration: Concentration of antibiotic to provide
+			during pulse.
+		add_aa: Whether to add amino acids to the media and use the
+			with_aa wcEcoli variant.
+		antibiotic_threshold: The maximum internal concentration of
+			antibiotic cells can survive.
 
 	Returns:
 		vivarium.core.emitter.Emitter: An emitter from which the
@@ -157,7 +165,10 @@ def simulate(emitter_config, simulation_time, num_cells):
 	'''
 	agent = wcEcoliAgent({})
 	external_states = agent.ecoli_simulation.external_states
-	recipe = external_states['Environment'].saved_media[MEDIA_ID]
+	media_id = AA_MEDIA_ID if add_aa else MINIMAL_MEDIA_ID
+	variant_name = 'with_aa' if add_aa else 'basal'
+	variant_index = CONDITION_VARIANTS.index(variant_name)
+	recipe = external_states['Environment'].saved_media[media_id]
 	recipe[ANTIBIOTIC_KEY] = INITIAL_EXTERNAL_ANTIBIOTIC
 
 	with io.open(TAGGED_MOLECULES_PATH, 'rb') as f:
@@ -168,7 +179,7 @@ def simulate(emitter_config, simulation_time, num_cells):
 	antibiotic_pulse = (
 		simulation_time * 0.5,
 		simulation_time * 0.25,
-		PULSE_CONCENTRATION,
+		pulse_concentration,
 	)
 	timeline_config = {
 		'timeline': get_timeline(
@@ -179,13 +190,20 @@ def simulate(emitter_config, simulation_time, num_cells):
 			'to_report': {
 				'bulk_molecules': tagged_molecules,
 			},
-            'media_id': MEDIA_ID,
-            'variant_type': 'condition',
-            'variant_index': CONDITION_VARIANT_INDEX,
+			'media_id': media_id,
+			'variant_type': 'condition',
+			'variant_index': variant_index,
 		},
 		'_parallel': True,
 		'update_fields': False,
 		'timeline': timeline_config,
+		'death': {
+			'detectors': {
+				'antibiotic': {
+					'antibiotic_threshold': antibiotic_threshold,
+				},
+			},
+		},
 	}
 	agent_ids = ['wcecoli_{}'.format(i) for i in range(num_cells)]
 
@@ -292,6 +310,23 @@ def main():
 		type=int,
 		help='Number of cells to create at start of simulation.',
 	)
+	parser.add_argument(
+		'--pulse_concentration',
+		default=1,
+		type=float,
+		help='Antibiotic concentration to provide in pulse.'
+	)
+	parser.add_argument(
+		'--add_aa',
+		action='store_true',
+		help='Use media with amino acids and the corresponding variant.'
+	)
+	parser.add_argument(
+		'--antibiotic_threshold',
+		type=float,
+		default=0.86,
+		help='Internal antibiotic concentration past which cells die.',
+	)
 	args = parser.parse_args()
 	if args.atlas:
 		with open(SECRETS_PATH, 'r') as f:
@@ -307,7 +342,10 @@ def main():
 	_ = simulate(
 		emitter_config,
 		args.simulation_time,
-		args.num_cells
+		args.num_cells,
+		args.pulse_concentration,
+		args.add_aa,
+		args.antibiotic_threshold,
 	)
 
 
