@@ -109,6 +109,7 @@ def ecoli_boot_config(agent_config):
 			'listeners': [],
 		}
 	)
+	media_id = agent_config.get('media_id', 'minimal')
 
 	# initialize state
 	state = {
@@ -145,6 +146,7 @@ def ecoli_boot_config(agent_config):
 		"seed":                   seed,
 		"to_report":              to_report,
 		"cell_id":                cell_id,
+		"timeline":               "0 {}".format(media_id),
 	}
 
 	# Write a metadata file to aid analysis plots.
@@ -180,6 +182,9 @@ class wcEcoliAgent(Process):
 				'unique_molecules': [],
 				'bulk_molecules': [],
 			},
+			'media_id': 'minimal',
+			'variant_type': 'condition',
+			'variant_index': 0,
 		},
 		'update_fields': True,
 	}
@@ -262,7 +267,10 @@ class wcEcoliAgent(Process):
 		super(wcEcoliAgent, self).__init__(parameters)
 
 	def __getstate__(self):
-		time = self.ecoli_simulation.time()
+		time = (
+			self.ecoli_simulation.time()
+			- self.ecoli_simulation.initialTime()
+		)
 		if time != 0:
 			raise RuntimeError(
 				'wcEcoliAgent.ecoli_simulation must be at time 0 to '
@@ -394,7 +402,7 @@ class wcEcoliAgent(Process):
 				'_updater': 'set',
 			},
 			'media_id': {
-				'_default': 'minimal',
+				'_default': parameters['agent_config']['media_id'],
 				'_emit': True,
 				'_updater': 'set',
 			},

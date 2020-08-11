@@ -34,7 +34,10 @@ from environment.wcecoli_compartment import (
 )
 
 
-MEDIA_ID = "minimal"
+MEDIA_ID = 'minimal'
+# Indexes into simData.ordered_conditions:
+# ['basal', 'no_oxygen', 'with_aa', 'acetate', 'succinate']
+CONDITION_VARIANT_INDEX = 0
 BOUNDS = (50, 50)
 N_BINS = (20, 20)
 TAGGED_MOLECULES_PATH = os.path.join(
@@ -180,6 +183,9 @@ def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 			'to_report': {
 				'bulk_molecules': tagged_molecules,
 			},
+            'media_id': MEDIA_ID,
+            'variant_type': 'condition',
+            'variant_index': CONDITION_VARIANT_INDEX,
 		},
 		'_parallel': True,
 		'update_fields': False,
@@ -225,7 +231,7 @@ def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 			},
 			'colony_shape_deriver': {
 				'bounds': BOUNDS,
-                'alpha': 0.2,
+				'alpha': 0.2,
 			},
 		},
 	}
