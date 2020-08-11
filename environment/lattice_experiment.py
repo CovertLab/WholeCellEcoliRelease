@@ -139,7 +139,7 @@ class TestGetTimeline:
 		self.assert_timelines_equal(timeline, expected_timeline)
 
 
-def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
+def simulate(emitter_config, simulation_time, num_cells):
 	'''Run the simulation
 
 	Arguments:
@@ -148,10 +148,6 @@ def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 			database.
 		simulation_time: Seconds of time to simulate.
 		num_cells: Number of cells to initialize simulation with.
-		length_sec: Seconds before we force division to occur. This
-			should be left at its default for simulations. It is useful
-			to set it to some small value (e.g. 20 seconds) for testing
-			or debugging.
 
 	Returns:
 		vivarium.core.emitter.Emitter: An emitter from which the
@@ -191,8 +187,6 @@ def simulate(emitter_config, simulation_time, num_cells, length_sec=None):
 		'update_fields': False,
 		'timeline': timeline_config,
 	}
-	if length_sec is not None:
-		process_config['agent_config']['lengthSec'] = length_sec
 	agent_ids = ['wcecoli_{}'.format(i) for i in range(num_cells)]
 
 	initial_state = {}
@@ -298,12 +292,6 @@ def main():
 		type=int,
 		help='Number of cells to create at start of simulation.',
 	)
-	parser.add_argument(
-		'--length_sec', '-l',
-		default=-1,
-		type=int,
-		help='Seconds until cell division is forced.',
-	)
 	args = parser.parse_args()
 	if args.atlas:
 		with open(SECRETS_PATH, 'r') as f:
@@ -316,12 +304,10 @@ def main():
 			'host': '{}:{}'.format(args.host, args.port),
 			'database': args.database_name,
 		}
-	length_sec = args.length_sec if args.length_sec >= 0 else None
 	_ = simulate(
 		emitter_config,
 		args.simulation_time,
-		args.num_cells,
-		length_sec
+		args.num_cells
 	)
 
 
