@@ -35,6 +35,7 @@ from environment.wcecoli_compartment import (
 
 MINIMAL_MEDIA_ID = 'minimal'
 AA_MEDIA_ID = 'minimal_plus_amino_acids'
+ANAEROBIC_MEDIA_ID = 'minimal_minus_oxygen'
 #: From simData.ordered_conditions
 CONDITION_VARIANTS = [
 	'basal', 'no_oxygen', 'with_aa', 'acetate', 'succinate']
@@ -140,7 +141,7 @@ class TestGetTimeline:
 
 def simulate(
 	emitter_config, simulation_time, num_cells, pulse_concentration,
-	add_aa, antibiotic_threshold,
+	add_aa, anaerobic, antibiotic_threshold,
 ):
 	'''Run the simulation
 
@@ -154,6 +155,7 @@ def simulate(
 			during pulse.
 		add_aa: Whether to add amino acids to the media and use the
 			with_aa wcEcoli variant.
+		anaerobic: Whether to run an aerobic variant in anaerobic media.
 		antibiotic_threshold: The maximum internal concentration of
 			antibiotic cells can survive.
 
@@ -165,8 +167,18 @@ def simulate(
 	'''
 	agent = wcEcoliAgent({})
 	external_states = agent.ecoli_simulation.external_states
-	media_id = AA_MEDIA_ID if add_aa else MINIMAL_MEDIA_ID
-	variant_name = 'with_aa' if add_aa else 'basal'
+	if add_aa and anaerobic:
+		raise ValueError(
+			'At most one of add_aa and anaerobic may be True.')
+	elif add_aa:
+		media_id = AA_MEDIA_ID
+		variant_name = 'with_aa'
+	elif anaerobic:
+		media_id = ANAEROBIC_MEDIA_ID
+		variant_name = 'no_oxygen'
+	else:
+		media_id = MINIMAL_MEDIA_ID
+		variant = 'basal'
 	variant_index = CONDITION_VARIANTS.index(variant_name)
 	recipe = external_states['Environment'].saved_media[media_id]
 	recipe[ANTIBIOTIC_KEY] = INITIAL_EXTERNAL_ANTIBIOTIC
@@ -322,6 +334,11 @@ def main():
 		help='Use media with amino acids and the corresponding variant.'
 	)
 	parser.add_argument(
+		'--anaerobic',
+		action='store_true',
+		help='Use anaerobic media and variant.'
+	)
+	parser.add_argument(
 		'--antibiotic_threshold',
 		type=float,
 		default=0.86,
@@ -345,6 +362,7 @@ def main():
 		args.num_cells,
 		args.pulse_concentration,
 		args.add_aa,
+		args.anaerobic,
 		args.antibiotic_threshold,
 	)
 
