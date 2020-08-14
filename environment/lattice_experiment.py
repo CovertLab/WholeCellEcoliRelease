@@ -178,7 +178,7 @@ def simulate(
 		variant_name = 'no_oxygen'
 	else:
 		media_id = MINIMAL_MEDIA_ID
-		variant = 'basal'
+		variant_name = 'basal'
 	variant_index = CONDITION_VARIANTS.index(variant_name)
 	recipe = external_states['Environment'].saved_media[media_id]
 	recipe[ANTIBIOTIC_KEY] = INITIAL_EXTERNAL_ANTIBIOTIC
