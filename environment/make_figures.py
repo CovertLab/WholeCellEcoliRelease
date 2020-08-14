@@ -58,7 +58,7 @@ def make_fig3(data, environment_config):
 	plot_config = {
 		'out_dir': OUT_DIR,
 		'filename': 'fig3.{}'.format(FILE_EXTENSION),
-		'include_fields': ['rifampicin'],
+		'include_fields': ['nitrocefin'],
 		'field_label_size': 36,
 	}
 	plot_snapshots(snapshots_data, plot_config)

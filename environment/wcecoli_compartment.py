@@ -1,12 +1,11 @@
 from __future__ import absolute_import, division, print_function
 
-import copy
-
 from vivarium.core.process import Generator
+from vivarium.library.units import units
 from vivarium.processes.death import DeathFreezeState
 from vivarium.processes.antibiotic_transport import AntibioticTransport
-from vivarium.processes.diffusion_cell_environment import (
-	CellEnvironmentDiffusion,
+from vivarium.processes.diffusion_cell_environment_ficks import (
+	CellEnvironmentDiffusionFicks,
 )
 from vivarium.processes.derive_concentrations import (
 	DeriveConcentrations)
@@ -19,7 +18,7 @@ from environment.wcecoli_derive_shape import WcEcoliDeriveShape
 
 INITIAL_INTERNAL_ANTIBIOTIC = 0
 INITIAL_EXTERNAL_ANTIBIOTIC = 0
-ANTIBIOTIC_KEY = 'rifampicin'
+ANTIBIOTIC_KEY = 'nitrocefin'
 PUMP_KEY = 'TRANS-CPLX-201[s]'
 PORIN_KEY = 'porin'
 
@@ -35,14 +34,24 @@ class WcEcoliCell(Generator):
 			'initial_pump': 0.0,
 			'initial_internal_antibiotic': INITIAL_INTERNAL_ANTIBIOTIC,
 			'intial_external_antibiotic': INITIAL_EXTERNAL_ANTIBIOTIC,
-			'pump_kcat': 1,
+			# Reported in (Nagano & Nikaido, 2009)
+			'pump_kcat': 1e1,  # Units: 1/s
+			# Reported in (Nagano & Nikaido, 2009)
+			'pump_km': 4.95e-3,  # Units: mM
 			'pump_key': PUMP_KEY,
 			'antibiotic_key': ANTIBIOTIC_KEY,
 		},
 		'death': {
 			'detectors': {
 				'antibiotic': {
-					'antibiotic_threshold': 0.86,
+					# (Kojima & Nikaido, 2013) reports values of 0.36
+					# and 1.7 micro-molar for other beta-lactams
+					# (benzylpenicillin and ampicillin), so we use 1 as
+					# an estimate. Also note that (Nagano & Nikaido,
+					# 2009) reports a value of 0.5 micro-molar for
+					# nitrocefin from a reference, but we were unable to
+					# find where the reference reports the value.
+					'antibiotic_threshold': 1e-3,  # Units: mM
 					'antibiotic_key': ANTIBIOTIC_KEY,
 				},
 			},
@@ -54,9 +63,6 @@ class WcEcoliCell(Generator):
 		'derive_shape': {},
 		'cell_environment_diffusion': {
 			'default_state': {
-				'membrane': {
-					PORIN_KEY: 1e-7,
-				},
 				'external': {
 					ANTIBIOTIC_KEY: INITIAL_EXTERNAL_ANTIBIOTIC,
 				},
@@ -65,23 +71,18 @@ class WcEcoliCell(Generator):
 				},
 			},
 			'molecules_to_diffuse': [ANTIBIOTIC_KEY],
-			'permeabilities': {
-				PORIN_KEY: 1e-11,
-			},
+			# (Nagano & Nikaido, 2009) reports that their mutant strain,
+			# RAM121, has 10-fold faster influx of nitrocefin with a
+			# permeability of 0.2e-5 cm/s, so wildtype has a
+			# permeability of 0.2e-6 cm/s.
+			'permeability': 0.2e-6 * units.cm / units.sec,
+			# From (Nagano & Nikaido, 2009)
+			'surface_area_mass_ratio': 132 * units.cm**2 / units.mg,
 		},
 		'derive_concentrations': {
 			'concentration_keys': [PUMP_KEY],
 		},
 		'timeline': {},
-		'_schema': {
-			'cell_environment_diffusion': {
-				'membrane': {
-					PORIN_KEY: {
-						'_divider': 'set',
-					},
-				},
-			},
-		},
 	}
 
 	def generate_processes(self, config):
@@ -94,7 +95,7 @@ class WcEcoliCell(Generator):
 		death = DeathFreezeState(config['death'])
 		antibiotic_transport = AntibioticTransport(
 			config['antibiotic_transport'])
-		cell_environment_diffusion = CellEnvironmentDiffusion(
+		cell_environment_diffusion = CellEnvironmentDiffusionFicks(
 			config['cell_environment_diffusion'])
 		derive_concentrations = DeriveConcentrations(
 			config['derive_concentrations'])
@@ -160,7 +161,6 @@ class WcEcoliCell(Generator):
 				'dimensions': config['dimensions_path'],
 			},
 			'cell_environment_diffusion': {
-				'membrane': boundary_path + ('membrane',),
 				'internal': boundary_path + ('cytoplasm',),
 				'external': boundary_path + ('external',),
 				'fields': config['fields_path'],

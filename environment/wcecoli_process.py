@@ -175,6 +175,7 @@ class wcEcoliAgent(Process):
 		'agent_config': {
 			'to_report': {
 				'listeners': [
+					('Mass', 'dryMass'),
 					('Mass', 'cellMass'),
 					('Mass', 'cellDensity'),
 					('Mass', 'volume'),
@@ -386,6 +387,11 @@ class wcEcoliAgent(Process):
 
 		# global
 		schema['global'] = {
+			'dry_mass': {
+				'_default': 0.0 * self.mass_units,
+				'_emit': True,
+				'_updater': 'set',
+			},
 			'mass': {
 				'_default': 0.0 * self.mass_units,
 				'_emit': True,
@@ -452,6 +458,13 @@ class wcEcoliAgent(Process):
 				'mass': {
 					'_value': (
 						listeners_report[('Mass', 'cellMass')]
+						* self.mass_units
+					),
+					'_updater': 'set',
+				},
+				'dry_mass': {
+					'_value': (
+						listeners_report[('Mass', 'dryMass')]
 						* self.mass_units
 					),
 					'_updater': 'set',

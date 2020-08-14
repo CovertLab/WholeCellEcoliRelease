@@ -15,7 +15,7 @@ TIMESERIES_CONFIG = {
 	],
 }
 SNAPSHOTS_CONFIG = {
-	'include_fields': ['rifampicin'],
+	'include_fields': ['nitrocefin'],
 }
 
 
