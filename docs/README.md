@@ -73,7 +73,8 @@ There are two alternative ways to set up to run the model:
 
 ## relevant papers
 
-* [A Whole-Cell Computational Model Predicts Phenotype from Genotype](https://www.cell.com/cell/abstract/S0092-8674(12)00776-3)
+* [Simultaneous cross-evaluation of heterogeneous _E. coli_ datasets via mechanistic simulation](https://science.sciencemag.org/content/369/6502/eaav3751.full), _Science_, 24 July 2020
+* [A Whole-Cell Computational Model Predicts Phenotype from Genotype](https://www.cell.com/cell/abstract/S0092-8674(12)00776-3), _Cell_, July 20, 2012
 
 ## dissertations
 * _Computational Simulations of Whole Cells: Strategies for Framework Design and Model Parameterization_, John Mason
