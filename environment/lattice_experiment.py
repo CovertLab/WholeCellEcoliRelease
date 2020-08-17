@@ -190,7 +190,7 @@ def simulate(
 		]
 	antibiotic_pulse = (
 		simulation_time * 0.5,
-		simulation_time * 0.25,
+		simulation_time * 0.5,
 		pulse_concentration,
 	)
 	timeline_config = {
