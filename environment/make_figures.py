@@ -114,6 +114,10 @@ def main():
 	data, _ = Analyzer.get_data(args, FIG_6_EXPERIMENT_ID)
 	make_fig6(data)
 
+	if FIG_6_EXPERIMENT_ID != FIG_7_EXPERIMENT_ID:
+		data, _ = Analyzer.get_data(args, FIG_7_EXPERIMENT_ID)
+	make_fig7(data)
+
 
 if __name__ == '__main__':
 	main()
