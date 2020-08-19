@@ -44,6 +44,7 @@ class SimulationDataEcoli(object):
 		# TODO: Check that media condition is valid
 		self.basal_expression_condition = basal_expression_condition
 
+		self._add_molecular_weight_keys(raw_data)
 		self._addHardCodedAttributes()
 
 		# Helper functions (have no dependencies)
@@ -74,27 +75,14 @@ class SimulationDataEcoli(object):
 		self.common_names = CommonNames(raw_data, self)
 
 
+	def _add_molecular_weight_keys(self, raw_data):
+		self.submass_name_to_index = {
+			mw_key["submass_name"]: mw_key["index"]
+			for mw_key in raw_data.molecular_weight_keys
+			}
+
+
 	def _addHardCodedAttributes(self):
-		self.molecular_weight_keys = [
-			'23srRNA',
-			'16srRNA',
-			'5srRNA',
-			'tRNA',
-			'mRNA',
-			'miscRNA',
-			'protein',
-			'metabolite',
-			'water',
-			'DNA',
-			'RNA' # nonspecific RNA
-			]  # TODO (ggsun): use raw flat file to build these
-
-		self.molecular_weight_order = collections.OrderedDict([
-			(key, index) for index, key in enumerate(self.molecular_weight_keys)
-			])
-
-		self.submassNameToIndex = self.molecular_weight_order
-
 		self.amino_acid_1_to_3_ordered = collections.OrderedDict((
 			("A", "L-ALPHA-ALANINE[c]"), ("R", "ARG[c]"), ("N", "ASN[c]"), ("D", "L-ASPARTATE[c]"),
 			("C", "CYS[c]"), ("E", "GLT[c]"), ("Q", "GLN[c]"), ("G", "GLY[c]"),

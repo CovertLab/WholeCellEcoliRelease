@@ -35,7 +35,10 @@ class InternalState(object):
 		# Set metabolites
 		metaboliteIds = stateFunctions.createIdsWithCompartments(raw_data.metabolites)
 		metaboliteMasses = (units.g/units.mol) * (
-			stateFunctions.createMetaboliteMassesByCompartments(raw_data.metabolites, 7, 11))  # TODO (ggsun): don't use hard-coded indexes here
+			stateFunctions.createMetaboliteMassesByCompartments(
+				raw_data.metabolites, sim_data.submass_name_to_index['metabolite'],
+				len(sim_data.submass_name_to_index)
+				))
 
 		self.bulkMolecules.addToBulkState(metaboliteIds, metaboliteMasses)
 		sim_data.moleculeGroups.bulk_molecules_binomial_division.extend(metaboliteIds)
@@ -43,7 +46,10 @@ class InternalState(object):
 		# Set water
 		waterIds = stateFunctions.createIdsWithCompartments(raw_data.water)
 		waterMasses = (units.g/units.mol) * (
-			stateFunctions.createMetaboliteMassesByCompartments(raw_data.water, 8, 11))
+			stateFunctions.createMetaboliteMassesByCompartments(
+				raw_data.water, sim_data.submass_name_to_index['water'],
+				len(sim_data.submass_name_to_index)
+				))
 
 		self.bulkMolecules.addToBulkState(waterIds, waterMasses)
 		sim_data.moleculeGroups.bulk_molecules_binomial_division.extend(
@@ -62,19 +68,10 @@ class InternalState(object):
 				rna_ids.append('{}[{}]'.format(rna['id'], loc))
 
 				# Get submass index based on RNA type
-				rna_type = rna['type']
-				if rna_type == 'rRNA':
-					if rna["id"].startswith("RRL"):
-						rna_type = '23srRNA'
-					elif rna["id"].startswith("RRS"):
-						rna_type = '16srRNA'
-					elif rna["id"].startswith("RRF"):
-						rna_type = '5srRNA'
-
-				submass_index = sim_data.submassNameToIndex[rna_type]
+				submass_index = sim_data.submass_name_to_index[rna['type']]
 
 				# Build mass array
-				rna_mass = [0.]*len(sim_data.submassNameToIndex)
+				rna_mass = [0.]*len(sim_data.submass_name_to_index)
 				rna_mass[submass_index] = mw
 
 				rna_masses.append(rna_mass)

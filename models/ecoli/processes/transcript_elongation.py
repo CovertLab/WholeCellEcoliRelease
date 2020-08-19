@@ -200,18 +200,18 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		# Update added submasses of RNAs. Masses of partial mRNAs are counted
 		# as mRNA mass as they are already functional, but the masses of other
-		# types of partial RNAs are counted as generic RNA mass.
-		added_RNA_mass_all_RNAs = np.zeros_like(
+		# types of partial RNAs are counted as nonspecific RNA mass.
+		added_nsRNA_mass_all_RNAs = np.zeros_like(
 			TU_index_all_RNAs, dtype=np.float64)
 		added_mRNA_mass_all_RNAs = np.zeros_like(
 			TU_index_all_RNAs, dtype=np.float64)
 
-		added_RNA_mass_all_RNAs[is_partial_transcript] = np.multiply(
+		added_nsRNA_mass_all_RNAs[is_partial_transcript] = np.multiply(
 			added_mass, np.logical_not(is_mRNA_partial_RNAs))
 		added_mRNA_mass_all_RNAs[is_partial_transcript] = np.multiply(
 			added_mass, is_mRNA_partial_RNAs)
 
-		self.RNAs.add_submass_by_name("RNA", added_RNA_mass_all_RNAs)
+		self.RNAs.add_submass_by_name("nonspecific_RNA", added_nsRNA_mass_all_RNAs)
 		self.RNAs.add_submass_by_name("mRNA", added_mRNA_mass_all_RNAs)
 
 		# Determine if transcript has reached the end of the sequence

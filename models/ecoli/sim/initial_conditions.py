@@ -842,7 +842,7 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 		is_full_transcript=np.zeros(cast(int, n_RNAPs_to_activate), dtype=np.bool),
 		can_translate=is_mRNA_partial_RNAs,
 		RNAP_index=RNAP_indexes,
-		massDiff_RNA=added_RNA_mass,
+		massDiff_nonspecific_RNA=added_RNA_mass,
 		massDiff_mRNA=added_mRNA_mass)
 
 	# Get counts of mRNAs initialized as bulk molecules

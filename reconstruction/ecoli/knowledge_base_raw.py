@@ -36,6 +36,7 @@ LIST_OF_DICT_FILENAMES = (
 	"modificationReactions.tsv",
 	"modifiedForms.tsv",
 	"modifiedFormsStoichiometry.tsv",
+	"molecular_weight_keys.tsv",
 	"polymerized.tsv",
 	"ppgpp_fc.tsv",
 	"ppgpp_regulation.tsv",

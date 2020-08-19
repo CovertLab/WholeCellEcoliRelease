@@ -43,7 +43,7 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
 
 		self._processIDs = None
 		self._processID_to_index = {}
-		self._submassNameToIndex = None
+		self._submass_name_to_index = None
 		self._processPriorities = None
 		self.division_mode = {}
 
@@ -60,7 +60,7 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
 
 		self._moleculeMass = sim_data.internal_state.bulkMolecules.bulkData['mass'].asNumber(units.fg / units.mol) / sim_data.constants.nAvogadro.asNumber(1 / units.mol)
 
-		self._submassNameToIndex = sim_data.submassNameToIndex
+		self._submass_name_to_index = sim_data.submass_name_to_index
 
 		# Create the container for molecule counts
 		self.container = BulkObjectsContainer(self._moleculeIDs)
