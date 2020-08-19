@@ -71,8 +71,8 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
 
 		# Set up ids for division into daughter cells
 		self.division_mode = {}
-		self.division_mode['binomial'] = sim_data.moleculeGroups.bulkMoleculesBinomialDivision
-		self.division_mode['equally'] = sim_data.moleculeGroups.bulkMoleculesEqualDivision
+		self.division_mode['binomial'] = sim_data.moleculeGroups.bulk_molecules_binomial_division
+		self.division_mode['equally'] = sim_data.moleculeGroups.bulk_molecules_equal_division
 
 	def processRequestPriorityIs(self, processIndex, priorityLevel):
 		self._processPriorities[processIndex] = priorityLevel

@@ -47,16 +47,18 @@ class SimulationDataEcoli(object):
 		self._addHardCodedAttributes()
 
 		# Helper functions (have no dependencies)
-		self.getter = getterFunctions(raw_data, self)
 		self.moleculeGroups = MoleculeGroups(raw_data, self)
 		self.moleculeIds = MoleculeIds(raw_data, self)
 		self.constants = Constants(raw_data, self)
+
+		# Getter functions (can depend on helper functions)
+		self.getter = getterFunctions(raw_data, self)
 
 		# Growth rate dependent parameters are set first
 		self.growthRateParameters = GrowthRateParameters(raw_data, self)
 		self.mass = Mass(raw_data, self)
 
-		# Data classes (can depend on helper functions)
+		# Data classes (can depend on helper and getter functions)
 		# Data classes cannot depend on each other
 		self.external_state = ExternalState(raw_data, self)
 		self.process = Process(raw_data, self)
@@ -85,7 +87,7 @@ class SimulationDataEcoli(object):
 			'water',
 			'DNA',
 			'RNA' # nonspecific RNA
-			]
+			]  # TODO (ggsun): use raw flat file to build these
 
 		self.molecular_weight_order = collections.OrderedDict([
 			(key, index) for index, key in enumerate(self.molecular_weight_keys)

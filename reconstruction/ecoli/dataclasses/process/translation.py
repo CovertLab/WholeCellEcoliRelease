@@ -58,18 +58,16 @@ class Translation(object):
 		assert all([len(protein['location']) == 1 for protein in raw_data.proteins])
 		ids = ['{}[{}]'.format(protein['id'], protein['location'][0]) for protein in raw_data.proteins]
 
-		rnaIds = []
-		rna_locations = {rna['id']: rna['location'] for rna in raw_data.rnas}
-		for protein in raw_data.proteins:
-			rnaId = protein['rnaId']
+		# Get RNA IDs with compartments
+		rna_ids = [protein['rnaId'] for protein in raw_data.proteins]
+		compartments = sim_data.getter.getLocation(rna_ids)
 
-			locations = rna_locations.get(rnaId, [])
-			assert len(locations) == 1
+		# All RNAs should have single compartment tags
+		assert np.all(np.array([len(loc) for loc in compartments]) == 1)
 
-			rnaIds.append('{}[{}]'.format(
-				rnaId,
-				locations[0]
-				))
+		rna_ids_with_compartments = [
+			'{}[{}]'.format(rna_id, loc[0])
+			for (rna_id, loc) in zip(rna_ids, compartments)]
 
 		lengths = []
 		aaCounts = []
@@ -89,7 +87,7 @@ class Translation(object):
 
 		mws = np.array([protein['mw'] for protein in raw_data.proteins]).sum(axis = 1)
 
-		size = len(rnaIds)
+		size = len(rna_ids_with_compartments)
 
 		nAAs = len(aaCounts[0])
 
@@ -136,7 +134,7 @@ class Translation(object):
 				degRate[i] = slowRate
 
 		id_length = max(len(id_) for id_ in ids)
-		rna_id_length = max(len(id_) for id_ in rnaIds)
+		rna_id_length = max(len(id_) for id_ in rna_ids_with_compartments)
 		monomerData = np.zeros(
 			size,
 			dtype = [
@@ -150,7 +148,7 @@ class Translation(object):
 			)
 
 		monomerData['id'] = ids
-		monomerData['rnaId'] = rnaIds
+		monomerData['rnaId'] = rna_ids_with_compartments
 		monomerData['degRate'] = degRate
 		monomerData['length'] = lengths
 		monomerData['aaCounts'] = aaCounts

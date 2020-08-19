@@ -178,20 +178,15 @@ class Transcription(object):
 		"""
 		Build RNA-associated simulation data from raw data.
 		"""
-
 		self._basal_rna_fractions = sim_data.mass.get_basal_rna_fractions()
 
-		assert all([len(rna['location']) == 1 for rna in raw_data.rnas])
+		# Load RNA IDs with compartment tags
+		rna_ids = [rna['id'] for rna in raw_data.rnas]
+		compartments = sim_data.getter.getLocation(rna_ids)
 
-		# Loads RNA IDs, lengths, and nucleotide compositions
-		rnaIds = ['{}[{}]'.format(rna['id'], rna['location'][0])
-            for rna in raw_data.rnas]
-		rnaLens = np.array([len(rna['seq']) for rna in raw_data.rnas])
-		ntCounts = np.array([
-			(rna['seq'].count('A'), rna['seq'].count('C'),
-			rna['seq'].count('G'), rna['seq'].count('U'))
-			for rna in raw_data.rnas
-			])
+		rna_ids_with_compartments = [
+			f'{rna_id}[{loc[0]}]' for (rna_id, loc)
+			in zip(rna_ids, compartments)]
 
 		# Load set of mRNA ids
 		mRNA_ids = set([rna['id'] for rna in raw_data.rnas if rna['type'] == 'mRNA'])
@@ -221,38 +216,44 @@ class Transcription(object):
 
 		# Load RNA expression from RNA-seq data
 		expression = []
+		rna_id_to_gene_id = {
+			gene['rnaId']: gene['id'] for gene in raw_data.genes}
 
-		seq_data = {x['Gene']: x[sim_data.basal_expression_condition] for x in getattr(raw_data.rna_seq_data, f'rnaseq_{RNA_SEQ_ANALYSIS}_mean')}
+		seq_data = {
+			x['Gene']: x[sim_data.basal_expression_condition]
+			for x in getattr(raw_data.rna_seq_data, f'rnaseq_{RNA_SEQ_ANALYSIS}_mean')}
+
 		for rna in raw_data.rnas:
+			gene_id = rna_id_to_gene_id[rna['id']]
 			# If sequencing data is not found for rRNA or tRNA, initialize
             # expression to zero. For other RNA types, raise exception.
-			if rna['geneId'] in seq_data:
-				expression.append(seq_data[rna['geneId']])
+			if gene_id in seq_data:
+				expression.append(seq_data[gene_id])
 			elif rna['type'] == 'mRNA' or rna['type'] == 'miscRNA':
-				raise Exception('No RNA-seq data found for {}'.format(rna['id']))
+				raise Exception(f'No RNA-seq data found for {rna["id"]}')
 			elif rna['type'] == 'rRNA' or rna['type'] == 'tRNA':
 				expression.append(0.)
 			else:
-				raise Exception('Unknown RNA {}'.format(rna['id']))
+				raise Exception(f'Unknown RNA {rna["id"]}')
 
 		expression = np.array(expression)
 
 		# Calculate synthesis probabilities from expression and normalize
-		synthProb = expression*(
+		synth_prob = expression*(
 			np.log(2) / sim_data.doubling_time.asNumber(units.s)
 			+ rna_deg_rates
 			)
-		synthProb /= synthProb.sum()
+		synth_prob /= synth_prob.sum()
 
 		# Calculate EndoRNase Km values
 		Km = (KCAT_ENDO_RNASE*ESTIMATE_ENDO_RNASES/rna_deg_rates) - expression
 
-		# Load molecular weights and gene IDs
-		mws = np.array([rna['mw'] for rna in raw_data.rnas]).sum(axis = 1)
-		geneIds = np.array([rna['geneId'] for rna in raw_data.rnas])
+		# Load gene IDs
+		gene_ids = np.array(
+			[rna_id_to_gene_id[rna['id']] for rna in raw_data.rnas])
 
 		# Construct boolean arrays and index arrays for each rRNA type
-		n_rnas = len(rnaIds)
+		n_rnas = len(rna_ids_with_compartments)
 		is_23S = np.zeros(n_rnas, dtype = np.bool)
 		is_16S = np.zeros(n_rnas, dtype = np.bool)
 		is_5S = np.zeros(n_rnas, dtype = np.bool)
@@ -278,16 +279,32 @@ class Transcription(object):
 		idx_5S = np.array(idx_5S)
 
 		# Load IDs of protein monomers
-		monomerIds = [rna['monomerId'] for rna in raw_data.rnas]
+		monomer_ids = [rna['monomerId'] for rna in raw_data.rnas]
+
+		# Load RNA sequences and molecular weights from getter functions
+		rna_seqs = sim_data.getter.get_rna_sequence(rna_ids)
+		mws = sim_data.getter.getMass(rna_ids).asNumber(units.g/units.mol)
+
+		# Calculate lengths and nt counts from sequence
+		rna_lengths = np.array([len(seq) for seq in rna_seqs])
+
+		# Get RNA nucleotide compositions
+		ntp_abbreviations = [ntp_id[0] for ntp_id in sim_data.moleculeGroups.ntpIds]
+		nt_counts = []
+		for seq in rna_seqs:
+			nt_counts.append(
+				[seq.count(letter) for letter in ntp_abbreviations])
+		nt_counts = np.array(nt_counts)
 
 		# Get index of gene corresponding to each RNA
-		gene_index = {gene["rnaId"]: i
+		rna_id_to_gene_index = {gene["rnaId"]: i
 			for i, gene in enumerate(raw_data.genes)}
 
 		# Get list of coordinates and directions for each gene
 		coordinate_list = [gene["coordinate"] for gene in raw_data.genes]
 		direction_list = [gene["direction"] for gene in raw_data.genes]
 
+		# Get coordinates of oriC and terC
 		oric_coordinate = raw_data.parameters['oriCCenter'].asNumber()
 		terc_coordinate = raw_data.parameters['terCCenter'].asNumber()
 		genome_length = len(raw_data.genome_sequence)
@@ -306,14 +323,14 @@ class Transcription(object):
 
 			return relative_coordinates
 
-		# Location of transcription initiation relative to origin
+		# Get location of transcription initiation relative to origin
 		replicationCoordinate = [
-			get_relative_coordinates(coordinate_list[gene_index[rna["id"]]])
+			get_relative_coordinates(coordinate_list[rna_id_to_gene_index[rna["id"]]])
 			for rna in raw_data.rnas]
 
-		# Direction of transcription
+		# Get direction of transcription
 		direction = [
-			(direction_list[gene_index[rna["id"]]] == "+")
+			(direction_list[rna_id_to_gene_index[rna["id"]]] == "+")
 			for rna in raw_data.rnas]
 
 		# Set the lengths, nucleotide counts, molecular weights, and sequences
@@ -323,20 +340,20 @@ class Transcription(object):
 		# complexation reactions that form ribosomes. In reality, all of these
 		# genes produce rRNA molecules with slightly different sequences and
 		# molecular weights.
-		rnaLens[idx_23S] = rnaLens[idx_23S[0]]
-		rnaLens[idx_16S] = rnaLens[idx_16S[0]]
-		rnaLens[idx_5S] = rnaLens[idx_5S[0]]
+		rna_lengths[idx_23S] = rna_lengths[idx_23S[0]]
+		rna_lengths[idx_16S] = rna_lengths[idx_16S[0]]
+		rna_lengths[idx_5S] = rna_lengths[idx_5S[0]]
 
-		ntCounts[idx_23S, :] = ntCounts[idx_23S[0], :]
-		ntCounts[idx_16S, :] = ntCounts[idx_16S[0], :]
-		ntCounts[idx_5S, :] = ntCounts[idx_5S[0], :]
+		nt_counts[idx_23S, :] = nt_counts[idx_23S[0], :]
+		nt_counts[idx_16S, :] = nt_counts[idx_16S[0], :]
+		nt_counts[idx_5S, :] = nt_counts[idx_5S[0], :]
 
 		mws[idx_23S] = mws[idx_23S[0]]
 		mws[idx_16S] = mws[idx_16S[0]]
 		mws[idx_5S] = mws[idx_5S[0]]
 
-		id_length = max(len(id_) for id_ in rnaIds)
-		gene_id_length = max(len(id_) for id_ in geneIds)
+		id_length = max(len(id_) for id_ in rna_ids_with_compartments)
+		gene_id_length = max(len(id_) for id_ in gene_ids)
 		rnaData = np.zeros(
 			n_rnas,
 			dtype = [
@@ -361,10 +378,10 @@ class Transcription(object):
 				]
 			)
 
-		rnaData['id'] = rnaIds
+		rnaData['id'] = rna_ids_with_compartments
 		rnaData['degRate'] = rna_deg_rates
-		rnaData['length'] = rnaLens
-		rnaData['countsACGU'] = ntCounts
+		rnaData['length'] = rna_lengths
+		rnaData['countsACGU'] = nt_counts
 		rnaData['mw'] = mws
 		rnaData['isMRna'] = [rna["type"] == "mRNA" for rna in raw_data.rnas]
 		rnaData['isMiscRna'] = [rna["type"] == "miscRNA" for rna in raw_data.rnas]
@@ -372,14 +389,14 @@ class Transcription(object):
 		rnaData['isTRna'] = [rna["type"] == "tRNA" for rna in raw_data.rnas]
 		rnaData['isRProtein'] = [
             "{}[c]".format(x) in sim_data.moleculeGroups.rProteins
-            for x in monomerIds]
+            for x in monomer_ids]
 		rnaData['isRnap'] = [
             "{}[c]".format(x) in sim_data.moleculeGroups.rnapIds
-            for x in monomerIds]
+            for x in monomer_ids]
 		rnaData['isRRna23S'] = is_23S
 		rnaData['isRRna16S'] = is_16S
 		rnaData['isRRna5S'] = is_5S
-		rnaData['geneId'] = geneIds
+		rnaData['geneId'] = gene_ids
 		rnaData['KmEndoRNase'] = Km
 		rnaData['replicationCoordinate'] = replicationCoordinate
 		rnaData['direction'] = direction
@@ -411,7 +428,7 @@ class Transcription(object):
 		# Set basal expression and synthesis probabilities - conditional values
         # are set in the parca.
 		self.rnaExpression["basal"] = expression / expression.sum()
-		self.rnaSynthProb["basal"] = synthProb / synthProb.sum()
+		self.rnaSynthProb["basal"] = synth_prob / synth_prob.sum()
 
 		self.rnaData = UnitStructArray(rnaData, field_units)
 
@@ -419,15 +436,15 @@ class Transcription(object):
 		"""
 		Build transcription-associated simulation data from raw data.
 		"""
-
 		# Load sequence data
-		sequences = np.array([rna['seq'] for rna in raw_data.rnas])
+		rna_seqs = np.array(sim_data.getter.get_rna_sequence(
+			[rna['id'] for rna in raw_data.rnas]))
 
 		rrna_types = ['isRRna23S', 'isRRna16S', 'isRRna5S']
 		for rrna in rrna_types:
 			rrna_idx = np.where(self.rnaData[rrna])[0]
 			for idx in rrna_idx[1:]:
-				sequences[idx] = sequences[rrna_idx[0]]
+				rna_seqs[idx] = rna_seqs[rrna_idx[0]]
 
 		# Construct transcription sequence matrix
 		maxLen = np.int64(
@@ -435,9 +452,9 @@ class Transcription(object):
 			+ self.max_time_step * sim_data.growthRateParameters.rnaPolymeraseElongationRate.asNumber(units.nt/units.s)
 			)
 
-		self.transcriptionSequences = np.full((sequences.shape[0], maxLen), polymerize.PAD_VALUE, dtype=np.int8)
+		self.transcriptionSequences = np.full((rna_seqs.shape[0], maxLen), polymerize.PAD_VALUE, dtype=np.int8)
 		ntMapping = {ntpId: i for i, ntpId in enumerate(["A", "C", "G", "U"])}
-		for i, sequence in enumerate(sequences):
+		for i, sequence in enumerate(rna_seqs):
 			for j, letter in enumerate(sequence):
 				self.transcriptionSequences[i, j] = ntMapping[letter]
 

@@ -62,14 +62,16 @@ class Protein(object):
 	""" Protein """
 
 	def __init__(self, validation_data_raw, knowledge_base_raw):
-
-		utilFunctions = getterFunctions(knowledge_base_raw, None)
-
 		# Build and save a dict from gene ID to monomerId
+		rna_id_to_gene_id = {
+			gene['rnaId']: gene['id'] for gene in knowledge_base_raw.genes}
+		protein_id_to_location = {
+			protein['id']: protein['location'][0] for protein in knowledge_base_raw.proteins}
+
 		self.geneIdToMonomerId = {
-			x["geneId"]: x["monomerId"] + utilFunctions.get_location_tag(x["monomerId"])
-			for x in knowledge_base_raw.rnas
-			if x["type"] == "mRNA"}
+			rna_id_to_gene_id[rna['id']]: '{}[{}]'.format(rna['monomerId'], protein_id_to_location[rna['monomerId']])
+			for rna in knowledge_base_raw.rnas
+			if rna["type"] == "mRNA"}
 
 		# Build and save a dict from gene symbol to corresponding monomerId
 		self.geneSymbolToMonomerId = {}
@@ -205,9 +207,6 @@ class ReactionFlux(object):
 	""" ReactionFlux """
 
 	def __init__(self, validation_data_raw, knowledge_base_raw):
-
-		utilFunctions = getterFunctions(knowledge_base_raw, None)
-
 		self._loadToya2010Fluxes(validation_data_raw)
 
 	def _loadToya2010Fluxes(self, validation_data_raw):
