@@ -11,6 +11,7 @@ from vivarium.analysis.analyze import Analyzer
 from vivarium.plots.multibody_physics import plot_tags, plot_snapshots
 from vivarium.analysis.expression_survival_dotplot import (
 	plot_expression_survival)
+from vivarium.core.composition import plot_agents_multigen
 
 import wholecell.utils.filepath as fp
 
@@ -30,6 +31,7 @@ FIG_3_EXPERIMENT_ID = FIG_2_EXPERIMENT_ID
 FIG_4A_EXPERIMENT_ID = FIG_2_EXPERIMENT_ID
 FIG_4B_EXPERIMENT_ID = '20200812.213614'
 FIG_6_EXPERIMENT_ID = '20200817.224609'
+FIG_7_EXPERIMENT_ID = FIG_6_EXPERIMENT_ID
 FIG_6_TIME_RANGE = (0.5, 1)
 METADATA_FILE = 'metadata.json'
 
@@ -81,8 +83,14 @@ def make_fig6(data):
 		FIG_6_TIME_RANGE,
 	)
 	fig.savefig(os.path.join(
-		OUT_DIR, 'expression_survival.{}'.format(FILE_EXTENSION)))
+		OUT_DIR, 'fig6.{}'.format(FILE_EXTENSION)))
 
+def make_fig7(data):
+	settings = {
+		'include_paths': [PUMP_PATH],
+	}
+	plot_agents_multigen(
+		data, settings, OUT_DIR, 'fig7.{}'.format(FILE_EXTENSION))
 
 def main():
 	'''Generate all figures.'''
