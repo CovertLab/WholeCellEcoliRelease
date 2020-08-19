@@ -263,7 +263,7 @@ rows = read_tsv(filename)
 for entry in rows:
 	if entry["id"] in biomassIDs:
 		for c in entry["location"]:
-			masses[entry["id"] + "[{}]".format(c)] = entry["mw7.2"]
+			masses[entry["id"] + "[{}]".format(c)] = entry["mw"]
 
 for outName, groupName in six.viewitems(_MASS_CATEGORIES):
 	moleculeIDs = {

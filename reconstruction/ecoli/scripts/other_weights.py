@@ -244,10 +244,10 @@ water = lod_to_dod(read_tsv(WATER_FILE), KEY)
 poly = []
 ntp_weights = np.zeros(len(NTP_ORDER))
 
-ppi_weight = met["PPI"]["mw7.2"]
+ppi_weight = met["PPI"]["mw"]
 rna_index = MW_KEYS.index("RNA")
 for ntp_id in ntp_ids:
-	weight = met[ntp_id]["mw7.2"] - ppi_weight
+	weight = met[ntp_id]["mw"] - ppi_weight
 
 	mw = np.zeros(N_MW)
 	mw[rna_index] = weight
@@ -268,7 +268,7 @@ for ntp_id in ntp_ids:
 dna_index = MW_KEYS.index("DNA")
 for dntp_id in dntp_ids:
 	mw = np.zeros(N_MW)
-	mw[dna_index] = met[dntp_id]["mw7.2"] - ppi_weight
+	mw[dna_index] = met[dntp_id]["mw"] - ppi_weight
 
 	poly_id = "polymerized {}".format(dntp_id)
 	poly.append({
@@ -297,10 +297,10 @@ poly.append({
 
 aa_weights = np.zeros(len(AA_ORDER))
 
-water_weight = water["WATER"]["mw7.2"]
+water_weight = water["WATER"]["mw"]
 protein_index = MW_KEYS.index("protein")
 for aa_id in aa_ids:
-	weight = met[aa_id]["mw7.2"] - water_weight
+	weight = met[aa_id]["mw"] - water_weight
 
 	mw = np.zeros(N_MW)
 	mw[protein_index] = weight
@@ -337,14 +337,14 @@ species_weights = {}
 met_index = MW_KEYS.index("metabolite")
 for key, value in six.viewitems(met):
 	w = np.zeros(N_MW)
-	w[met_index] = value["mw7.2"]
+	w[met_index] = value["mw"]
 	species_weights[key] = np.array(w)
 
 water_index = MW_KEYS.index("water")
 for key, value in six.viewitems(water):
 	w = np.zeros(N_MW)
-	w[water_index] = value["mw7.2"]
-	species_weights[key] = np.array(value["mw7.2"])
+	w[water_index] = value["mw"]
+	species_weights[key] = np.array(value["mw"])
 
 del met
 del water

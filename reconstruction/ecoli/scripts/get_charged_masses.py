@@ -1,5 +1,5 @@
 '''
-Print id, mw7.2, location for charged tRNAs to add to modifiedForms.tsv
+Print id, mw, location for charged tRNAs to add to modifiedForms.tsv
 Output file is charged_data.tsv in the same directory as the script
 
 Notes:
@@ -32,7 +32,7 @@ sim_data = SimulationDataEcoli()
 sim_data.initialize(raw_data)
 
 # determine masses and write to output file
-with tsv_writer(output_filename, ["id", "mw7.2", "location"]) as writer:
+with tsv_writer(output_filename, ["id", "mw", "location"]) as writer:
 	trnas = sim_data.process.transcription.rnaData['id'][sim_data.process.transcription.rnaData['isTRna']]
 	charged = [x['modifiedForms'] for x in raw_data.rnas if x['id']+'[c]' in trnas]
 	filtered_charged = []
@@ -72,6 +72,6 @@ with tsv_writer(output_filename, ["id", "mw7.2", "location"]) as writer:
 
 				writer.writerow({
 					'id': ctrna[:-3],
-					'mw7.2': mass,
+					'mw': mass,
 					'location': [ctrna[-2]],
 					})

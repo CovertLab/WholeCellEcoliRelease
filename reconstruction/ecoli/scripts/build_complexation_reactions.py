@@ -35,9 +35,9 @@ REACTION_ID_BLACKLIST = [
 
 def getMetaboliteMasses():
 	data = read_tsv(METABOLITE_MASS_FILE)
-	D = dict([(x["id"], np.array([0, 0, 0, 0, 0, 0, 0, x["mw7.2"], 0, 0, 0])) for x in data])
+	D = dict([(x["id"], np.array([0, 0, 0, 0, 0, 0, 0, x["mw"], 0, 0, 0])) for x in data])
 	data = read_tsv(WATER_MASS_FILE)
-	E = dict([(x["id"], np.array([0, 0, 0, 0, 0, 0, 0, 0, x["mw7.2"], 0, 0])) for x in data])
+	E = dict([(x["id"], np.array([0, 0, 0, 0, 0, 0, 0, 0, x["mw"], 0, 0])) for x in data])
 	return dict(D, **E)
 
 def getMonomerMasses():

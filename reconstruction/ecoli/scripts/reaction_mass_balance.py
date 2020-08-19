@@ -24,7 +24,7 @@ sorting = np.argsort(np.abs(reactionNetMass))[::-1]
 
 print("-"*79)
 
-moleculeMass = dict([(x['id'],x['mw7.2']) for x in kb._metabolites])
+moleculeMass = dict([(x['id'],x['mw']) for x in kb._metabolites])
 moleculeFormula = dict([(x['id'],x['formula7.2']) for x in kb._metabolites])
 
 i = 0

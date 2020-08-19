@@ -96,10 +96,10 @@ class getterFunctions(object):
 		all_mass.update(self._build_rna_masses(raw_data, sim_data))
 		all_mass.update({x['id']: np.sum(x['mw']) for x in raw_data.proteins})
 		all_mass.update({x['id']: np.sum(x['mw']) for x in raw_data.proteinComplexes})
-		all_mass.update({x['id']: np.sum(x['mw7.2']) for x in raw_data.metabolites})
-		all_mass.update({x['id']: np.sum(x['mw7.2']) for x in raw_data.modifiedForms})
+		all_mass.update({x['id']: np.sum(x['mw']) for x in raw_data.metabolites})
+		all_mass.update({x['id']: np.sum(x['mw']) for x in raw_data.modifiedForms})
 		all_mass.update({x['id']: np.sum(x['mw']) for x in raw_data.polymerized})
-		all_mass.update({x['id']: np.sum(x['mw7.2']) for x in raw_data.water})
+		all_mass.update({x['id']: np.sum(x['mw']) for x in raw_data.water})
 		all_mass.update({x['id']: np.sum(x['mw']) for x in raw_data.full_chromosome})
 
 		self._all_mass = all_mass
@@ -123,7 +123,7 @@ class getterFunctions(object):
 
 		# Calculate molecular weights
 		metabolite_id_to_mw = {
-			f'{met["id"]}[c]': met['mw7.2'] for met in raw_data.metabolites
+			f'{met["id"]}[c]': met['mw'] for met in raw_data.metabolites
 			}
 		ppi_mw = metabolite_id_to_mw[sim_data.moleculeIds.ppi]
 		polymerized_ntp_mws = np.array(
