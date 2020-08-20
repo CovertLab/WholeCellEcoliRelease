@@ -9,12 +9,23 @@ You can reach us at [AllenCenterCovertLab](mailto:allencentercovertlab@gmail.com
 
 See [docs/README.md](docs/README.md) for more info on setting up and running the model.
 
-In short, there are two alternative setups to run the model: inside a Docker container vs. in a manually constructed `pyenv` virtual environment.
-
+In short, there are two alternative setups to run the model: inside a Docker container vs. in a manually constructed `pyenv` virtual environment.  With Docker, you can start running a simulation with three commands:
+1.  Pull the Docker image:
+    ```shell script
+    docker pull docker.pkg.github.com/covertlab/wholecellecolirelease/wcm-full:latest
+    ```
+1. Run the Docker container:
+    ```shell script
+    docker run --name=wcm -it --rm docker.pkg.github.com/covertlab/wholecellecolirelease/wcm-full
+    ```
+1. Inside the container, run the model:
+    ```shell script
+    python runscripts/manual/runSim.py
+    ```
 
 ## Quick start
 
-When running this code, prepare with these steps (the wcm-code Docker container already prepares this for you):
+When running this code, prepare with these steps (the wcm-full Docker container already prepares this for you):
 
 1. `cd` to the top level of your `wcEcoli` directory.
 2. Set the `$PYTHONPATH`:
@@ -46,7 +57,7 @@ These scripts have command line interfaces built on Python's `argparse`, so you 
 **NOTE:** _Use the `-h` or `--help` switch to get complete, up-to-date documentation on the command line options._ Below are just _some_ of the command line options.
 
 
-To run the parameter calculator (ParCa), which is needed to prepare input data for the simulation:
+To run the parameter calculator (ParCa), which is needed to prepare input data for the simulation (this step has already been run when building the wcm-full Docker image and can be skipped if running a container from that image):
 ```bash
 python runscripts/manual/runFitter.py [-h] [--cpus CPUS] [sim_outdir]
 ```

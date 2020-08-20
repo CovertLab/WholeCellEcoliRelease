@@ -17,21 +17,21 @@
 # Add option `--build-arg from=ABC` to build from a different base image but
 # DO NOT USE an alpine base since the simulation math comes out different!
 # See https://pythonspeed.com/articles/alpine-docker-python/ for more reasons.
-ARG from=python:2.7.16
+ARG from=python:2.7.16-stretch
 FROM ${from}
 
 # Option `--build-arg NO_AVX2=1` controls OpenBLAS' use of AVX2 instructions:
 #
-# * NO_AVX2=1 is needed to build or run properly in Docker-for-Mac due to a
+# * NO_AVX2=1 is needed to build properly in Docker-for-Mac due to a
 #   Docker bug.
 # * NO_AVX2=0 reportedly runs 20-30% faster BLAS if you're sure it'll only
-#   build and run in Docker-for-Linux, but this only saves ~7% in a cell sim.
+#   build in Docker-for-Linux, but this only saves ~7% in a cell sim.
 #
 # Docker-for-Mac bug:
 # https://github.com/xianyi/OpenBLAS/issues/2244
 # https://github.com/docker/for-mac/issues/4576
 # https://github.com/machyve/xhyve/issues/171
-ARG NO_AVX2=1
+ARG NO_AVX2=0
 ENV NO_AVX2="$NO_AVX2"
 
 RUN apt-get update \

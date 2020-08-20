@@ -7,20 +7,18 @@ These are the docs for a variety of topics on the Whole Cell Model.
 There are two alternative ways to set up to run the model:
 
 1. **Docker Container:** Install the
-   [Docker Desktop software](https://www.docker.com/products/docker-desktop),
-   build a Docker Image, then run the Docker Image as a Container.
+   [Docker Desktop software](https://www.docker.com/products/docker-desktop)
+   and run the Docker Image as a Container.
 
-   Build the wcEcoli Docker Image this way:
-
+   Pull the full docker image from the package registry in this repo:
    ```shell script
-   cd $YOUR_CODE_PROJECTS_DIR/wcEcoli  # or wherever you cloned the wcEcoli project to
-   cloud/build-containers.sh
+   docker pull docker.pkg.github.com/covertlab/wholecellecolirelease/wcm-full:latest
    ```
 
    You can then run the wcEcoli model inside the Container like this:
 
    ```shell script
-   docker run --name=wcm -it --rm wcm-code
+   docker run --name=wcm -it --rm docker.pkg.github.com/covertlab/wholecellecolirelease/wcm-full
    ```
 
    The `-it` option starts an interactive shell.
@@ -30,10 +28,11 @@ There are two alternative ways to set up to run the model:
    exit so you don't have to remember to delete old Containers.
 
    You can mount your local directory `wcEcoli/out/` into the Container to preserve the
-   program's output files when the Container exits:
+   program's output files when the Container exits - just be sure to provide a full path
+   to `out/` (eg. `$PWD/out`), not just a relative path from your current directory:
 
    ```shell script
-   docker run --name=wcm -v $PWD/out:/wcEcoli/out -it wcm-code
+   docker run --name=wcm -v $PWD/out:/wcEcoli/out -it docker.pkg.github.com/covertlab/wholecellecolirelease/wcm-full
    ```
 
    In this case, the output files will be owned by root. You can fix
@@ -45,7 +44,7 @@ There are two alternative ways to set up to run the model:
 
    **NOTE:** If you encounter memory issues while using Docker Desktop (the default allocated memory is 2GB) and the simulation processes get killed midway, click the Docker icon > Preferences > Advanced > adjust memory to 4GB.
 
-   **NOTE:** Docker Desktop for Windows is not currently compatible with VirtualBox.  If you use VirtualBox, try installing the legacy [Docker Toolbox](https://github.com/docker/toolbox/releases) instead.  You may also need to adjust the memory allocated to the VirtualBox VM (named 'default') that gets created.  In VirtualBox, select the 'default' VM and under system, change the base memory from 1 GB to 4 GB.
+   **NOTE:** When setting up Docker Desktop for Windows, it is best to [use the WSL2 backend](https://docs.docker.com/docker-for-windows/wsl/). If not, you might run into compatability issues when trying to run Docker, especially if you have VirtualBox installed, which could require using the legacy [Docker Toolbox](https://github.com/docker/toolbox/releases).
 
    Inside the Container you can then run commands like these:
 
@@ -57,6 +56,13 @@ There are two alternative ways to set up to run the model:
 
    **Tip:** Eventually, you'll want to delete the Docker Image. Refer to the
    commands `docker image prune`, `docker image ls`, and `docker image rm`.
+
+   **Tip:** You can build your own Docker image instead of the one provided using these steps:
+
+   ```shell script
+   cd $YOUR_CODE_PROJECTS_DIR/wcEcoli  # or wherever you cloned the wcEcoli project to
+   cloud/build-containers.sh
+   ```
 
 2. **Python virtual environment:** Follow [Required development tools](dev-tools.md) to install the development tools including pyenv, gcc, make, and git, then follow [Creating the "pyenv" runtime environment](create-pyenv.md) to set up the Python runtime virtual environment for the model including binary libraries and Python packages.
 

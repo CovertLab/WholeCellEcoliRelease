@@ -41,6 +41,9 @@ ENV PYTHONPATH=/wcEcoli
 RUN umask 000 && rm -rf fixtures && mkdir fixtures \
 	&& chmod a+rwx reconstruction/ecoli/dataclasses/process
 
-RUN echo 'cat cloud/docker/welcome.txt' >> $HOME/.bashrc
+# Show a welcome message with tips on wcEcoli.
+# Copy .bashrc into / for users w/o home dirs such as `docker run --user ...`
+RUN (echo 'cat cloud/docker/welcome.txt' >> ~/.bashrc \
+    && cp ~/.bashrc /)
 
 CMD ["/bin/bash"]
