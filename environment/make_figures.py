@@ -8,6 +8,7 @@ import os
 import sys
 
 from vivarium.analysis.analyze import Analyzer
+from vivarium.plots.colonies import plot_metric_across_experiments
 from vivarium.plots.multibody_physics import plot_tags, plot_snapshots
 from vivarium.analysis.expression_survival_dotplot import (
 	plot_expression_survival)
@@ -24,12 +25,21 @@ TAG_PATH_NAME_MAP = {
 		'boundary', 'bulk_molecules_report', 'TRANS-CPLX-201[s]'
 	): 'AcrAB-TolC',
 }
+COLONY_MASS_PATH = ('mass',)
 OUT_DIR = os.path.join('environment', 'figs')
 FILE_EXTENSION = 'pdf'
 FIG_2_EXPERIMENT_ID = '20200820.202016'
 FIG_3_EXPERIMENT_ID = FIG_2_EXPERIMENT_ID
 FIG_4A_EXPERIMENT_ID = FIG_2_EXPERIMENT_ID
 FIG_4B_EXPERIMENT_ID = '20200820.235622'
+FIG_4_5_EXPERIMENT_IDS = {
+    '0.002 mM': '20200818.174841',
+    '0.011 mM': '20200818.215147',
+    '0.0155 mM': '20200819.151444',
+    '0.01775 mM': '20200819.175108',
+    '0.018875 mM': '20200819.203802',
+    '0.02 mM': '20200817.224609',
+}
 FIG_6_EXPERIMENT_ID = '20200817.224609'
 FIG_7_EXPERIMENT_ID = FIG_6_EXPERIMENT_ID
 FIG_6_TIME_RANGE = (0.5, 1)
@@ -75,6 +85,17 @@ def make_fig3(data, environment_config):
 		'field_label_size': 48,
 	}
 	plot_snapshots(snapshots_data, plot_config)
+
+
+def make_fig4_5(data_dict):
+    path_ts_dict = {
+        key: Analyzer.format_data_for_colony_metrics(value)
+        for key, value in data_dict.items()
+    }
+    fig = plot_metric_across_experiments(
+        path_ts_dict, COLONY_MASS_PATH, ylabel='Colony Mass (mg)')
+    fig.savefig(os.path.join(
+        OUT_DIR, 'fig4_5.{}'.format(FILE_EXTENSION)))
 
 
 def make_fig6(data):
