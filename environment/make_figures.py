@@ -59,7 +59,7 @@ def make_fig2(data, environment_config):
 		'tagged_molecules': TAG_PATH_NAME_MAP.keys(),
 		'filename': 'fig2.{}'.format(FILE_EXTENSION),
 		'tag_path_name_map': TAG_PATH_NAME_MAP,
-		'tag_label_size': 36,
+		'tag_label_size': 48,
 	}
 	plot_tags(tags_data, plot_config)
 
@@ -72,7 +72,7 @@ def make_fig3(data, environment_config):
 		'out_dir': OUT_DIR,
 		'filename': 'fig3.{}'.format(FILE_EXTENSION),
 		'include_fields': ['nitrocefin'],
-		'field_label_size': 36,
+		'field_label_size': 48,
 	}
 	plot_snapshots(snapshots_data, plot_config)
 
