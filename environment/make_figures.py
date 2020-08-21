@@ -33,12 +33,12 @@ FIG_3_EXPERIMENT_ID = FIG_2_EXPERIMENT_ID
 FIG_4A_EXPERIMENT_ID = FIG_2_EXPERIMENT_ID
 FIG_4B_EXPERIMENT_ID = '20200820.235622'
 FIG_4_5_EXPERIMENT_IDS = {
-    '0.002 mM': '20200818.174841',
-    '0.011 mM': '20200818.215147',
-    '0.0155 mM': '20200819.151444',
-    '0.01775 mM': '20200819.175108',
-    '0.018875 mM': '20200819.203802',
-    '0.02 mM': '20200817.224609',
+	'0.002 mM': '20200818.174841',
+	'0.011 mM': '20200818.215147',
+	'0.0155 mM': '20200819.151444',
+	'0.01775 mM': '20200819.175108',
+	'0.018875 mM': '20200819.203802',
+	'0.02 mM': '20200817.224609',
 }
 FIG_6_EXPERIMENT_ID = '20200817.224609'
 FIG_7_EXPERIMENT_ID = FIG_6_EXPERIMENT_ID
@@ -74,13 +74,12 @@ def make_fig2(data, environment_config):
 	plot_tags(tags_data, plot_config)
 
 
-def make_fig3(data, environment_config):
-	'''Figure shows heterogeneous GLC uptake by across environment.'''
+def make_snapshots_figure(data, environment_config, name):
 	snapshots_data = Analyzer.format_data_for_snapshots(
 		data, environment_config)
 	plot_config = {
 		'out_dir': OUT_DIR,
-		'filename': 'fig3.{}'.format(FILE_EXTENSION),
+		'filename': '{}.{}'.format(name, FILE_EXTENSION),
 		'include_fields': ['nitrocefin'],
 		'field_label_size': 48,
 	}
@@ -88,14 +87,14 @@ def make_fig3(data, environment_config):
 
 
 def make_fig4_5(data_dict):
-    path_ts_dict = {
-        key: Analyzer.format_data_for_colony_metrics(value)
-        for key, value in data_dict.items()
-    }
-    fig = plot_metric_across_experiments(
-        path_ts_dict, COLONY_MASS_PATH, ylabel='Colony Mass (mg)')
-    fig.savefig(os.path.join(
-        OUT_DIR, 'fig4_5.{}'.format(FILE_EXTENSION)))
+	path_ts_dict = {
+		key: Analyzer.format_data_for_colony_metrics(value)
+		for key, value in data_dict.items()
+	}
+	fig = plot_metric_across_experiments(
+		path_ts_dict, COLONY_MASS_PATH, ylabel='Colony Mass (mg)')
+	fig.savefig(os.path.join(
+		OUT_DIR, 'fig4_5.{}'.format(FILE_EXTENSION)))
 
 
 def make_fig6(data):
@@ -111,12 +110,12 @@ def make_fig6(data):
 def make_fig7(data):
 	settings = {
 		'include_paths': [PUMP_PATH],
-        'titles_map': {
-            PUMP_PATH: 'AcrAB-TolC Concentration',
-        },
-        'ylabels_map': {
-            PUMP_PATH: 'Concentration (mM)',
-        },
+		'titles_map': {
+			PUMP_PATH: 'AcrAB-TolC Concentration',
+		},
+		'ylabels_map': {
+			PUMP_PATH: 'Concentration (mM)',
+		},
 	}
 	plot_agents_multigen(
 		data, settings, OUT_DIR, 'fig7.{}'.format(FILE_EXTENSION))
@@ -139,7 +138,22 @@ def main():
 	if FIG_2_EXPERIMENT_ID != FIG_3_EXPERIMENT_ID:
 		data, environment_config = Analyzer.get_data(
 			args, FIG_3_EXPERIMENT_ID)
-	make_fig3(data, environment_config)
+	make_snapshots_figure(data, environment_config, 'fig3')
+
+	if FIG_4A_EXPERIMENT_ID != FIG_3_EXPERIMENT_ID:
+		data, environment_config = Analyzer.get_data(
+			args, FIG_4A_EXPERIMENT_ID)
+	make_snapshots_figure(data, environment_config, 'fig4a')
+
+	data, environment_config = Analyzer.get_data(
+		args, FIG_4B_EXPERIMENT_ID)
+	make_snapshots_figure(data, environment_config, 'fig4b')
+
+	data_dict = dict()
+	for key, exp_id in FIG_4_5_EXPERIMENT_IDS.items():
+		exp_data, _ = Analyzer.get_data(args, exp_id)
+		data_dict[key] = exp_data
+	make_fig4_5(data_dict)
 
 	data, _ = Analyzer.get_data(args, FIG_6_EXPERIMENT_ID)
 	make_fig6(data)
