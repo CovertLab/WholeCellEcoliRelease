@@ -111,6 +111,12 @@ def make_fig6(data):
 def make_fig7(data):
 	settings = {
 		'include_paths': [PUMP_PATH],
+        'titles_map': {
+            PUMP_PATH: 'AcrAB-TolC Concentration',
+        },
+        'ylabels_map': {
+            PUMP_PATH: 'Concentration (mM)',
+        },
 	}
 	plot_agents_multigen(
 		data, settings, OUT_DIR, 'fig7.{}'.format(FILE_EXTENSION))
