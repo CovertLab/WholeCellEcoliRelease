@@ -79,11 +79,13 @@ def make_fig3(data, environment_config):
 
 def make_fig6(data):
 	fig = plot_expression_survival(
-		data, PUMP_PATH, 'AcrAB-TolC Concentration (mmol/L)',
+		data, PUMP_PATH,
+		'Average AcrAB-TolC Concentration (mmol/L) Over Cell Lifetime',
 		FIG_6_TIME_RANGE,
 	)
 	fig.savefig(os.path.join(
 		OUT_DIR, 'fig6.{}'.format(FILE_EXTENSION)))
+
 
 def make_fig7(data):
 	settings = {
@@ -91,6 +93,7 @@ def make_fig7(data):
 	}
 	plot_agents_multigen(
 		data, settings, OUT_DIR, 'fig7.{}'.format(FILE_EXTENSION))
+
 
 def main():
 	'''Generate all figures.'''
