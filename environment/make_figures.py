@@ -86,6 +86,21 @@ def make_snapshots_figure(data, environment_config, name):
 	plot_snapshots(snapshots_data, plot_config)
 
 
+def make_fig4c(basal_data, anaerobic_data):
+	data_dict = {
+		'basal': basal_data,
+		'anaerobic': anaerobic_data,
+	}
+	path_ts_dict = {
+		key: Analyzer.format_data_for_colony_metrics(value)
+		for key, value in data_dict.items()
+	}
+	fig = plot_metric_across_experiments(
+		path_ts_dict, COLONY_MASS_PATH, ylabel='Colony Mass (mg)')
+	fig.savefig(os.path.join(
+		OUT_DIR, 'fig4c.{}'.format(FILE_EXTENSION)))
+
+
 def make_fig4_5(data_dict):
 	path_ts_dict = {
 		key: Analyzer.format_data_for_colony_metrics(value)
@@ -143,17 +158,22 @@ def main():
 	if FIG_4A_EXPERIMENT_ID != FIG_3_EXPERIMENT_ID:
 		data, environment_config = Analyzer.get_data(
 			args, FIG_4A_EXPERIMENT_ID)
+	data_4a = data
 	make_snapshots_figure(data, environment_config, 'fig4a')
 
 	data, environment_config = Analyzer.get_data(
 		args, FIG_4B_EXPERIMENT_ID)
 	make_snapshots_figure(data, environment_config, 'fig4b')
 
+	make_fig4c(data_4a, data)
+	del data_4a
+
 	data_dict = dict()
 	for key, exp_id in FIG_4_5_EXPERIMENT_IDS.items():
 		exp_data, _ = Analyzer.get_data(args, exp_id)
 		data_dict[key] = exp_data
 	make_fig4_5(data_dict)
+	del data_dict
 
 	data, _ = Analyzer.get_data(args, FIG_6_EXPERIMENT_ID)
 	make_fig6(data)
