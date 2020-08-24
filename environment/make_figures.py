@@ -10,7 +10,7 @@ import sys
 from vivarium.analysis.analyze import Analyzer
 from vivarium.plots.colonies import plot_metric_across_experiments
 from vivarium.plots.multibody_physics import plot_tags, plot_snapshots
-from vivarium.analysis.expression_survival_dotplot import (
+from vivarium.plot.expression_survival_dotplot import (
 	plot_expression_survival)
 from vivarium.core.composition import plot_agents_multigen
 
@@ -29,7 +29,7 @@ COLONY_MASS_PATH = ('mass',)
 OUT_DIR = os.path.join('environment', 'figs')
 FILE_EXTENSION = 'pdf'
 FIG_2_EXPERIMENT_ID = '20200820.202016'
-FIG_3_EXPERIMENT_ID = FIG_2_EXPERIMENT_ID
+FIG_3_EXPERIMENT_ID = '20200824.165625'
 FIG_4A_EXPERIMENT_ID = FIG_2_EXPERIMENT_ID
 FIG_4B_EXPERIMENT_ID = '20200820.235622'
 FIG_4_5_EXPERIMENT_IDS = {
@@ -38,6 +38,8 @@ FIG_4_5_EXPERIMENT_IDS = {
 	'0.018875 mM': '20200819.203802',
 	'0.02 mM': '20200817.224609',
 	'0.025 mM': '20200821.172829',
+	'0.026 mM': '20200824.141256',
+	'0.0275 mM': '20200823.195457',
 	'0.03 mM': '20200821.142922',
 }
 FIG_6_EXPERIMENT_ID = '20200817.224609'
@@ -56,7 +58,9 @@ def get_metadata():
 		'fig3_id': FIG_3_EXPERIMENT_ID,
 		'fig4a_id': FIG_4A_EXPERIMENT_ID,
 		'fig4b_id': FIG_4B_EXPERIMENT_ID,
-		'fig6': FIG_6_EXPERIMENT_ID,
+		'fig4_5_ids': FIG_4_5_EXPERIMENT_IDS,
+		'fig6_id': FIG_6_EXPERIMENT_ID,
+		'fig7_id': FIG_7_EXPERIMENT_ID,
 	}
 	return metadata
 
@@ -75,13 +79,13 @@ def make_fig2(data, environment_config):
 	plot_tags(tags_data, plot_config)
 
 
-def make_snapshots_figure(data, environment_config, name):
+def make_snapshots_figure(data, environment_config, name, fields):
 	snapshots_data = Analyzer.format_data_for_snapshots(
 		data, environment_config)
 	plot_config = {
 		'out_dir': OUT_DIR,
 		'filename': '{}.{}'.format(name, FILE_EXTENSION),
-		'include_fields': ['nitrocefin'],
+		'include_fields': fields,
 		'tag_label_size': 54,
 		'default_font_size': 54,
 	}
@@ -152,23 +156,25 @@ def main():
 		args, FIG_2_EXPERIMENT_ID)
 	make_fig2(data, environment_config)
 
-	if FIG_2_EXPERIMENT_ID != FIG_3_EXPERIMENT_ID:
-		data, environment_config = Analyzer.get_data(
-			args, FIG_3_EXPERIMENT_ID)
-	make_snapshots_figure(data, environment_config, 'fig3')
-
-	if FIG_4A_EXPERIMENT_ID != FIG_3_EXPERIMENT_ID:
+	if FIG_4A_EXPERIMENT_ID != FIG_2_EXPERIMENT_ID:
 		data, environment_config = Analyzer.get_data(
 			args, FIG_4A_EXPERIMENT_ID)
 	data_4a = data
-	make_snapshots_figure(data, environment_config, 'fig4a')
+	make_snapshots_figure(
+		data, environment_config, 'fig4a', ['nitrocefin'])
 
 	data, environment_config = Analyzer.get_data(
 		args, FIG_4B_EXPERIMENT_ID)
-	make_snapshots_figure(data, environment_config, 'fig4b')
+	make_snapshots_figure(
+		data, environment_config, 'fig4b', ['nitrocefin'])
 
 	make_fig4c(data_4a, data)
 	del data_4a
+
+	if FIG_2_EXPERIMENT_ID != FIG_4B_EXPERIMENT_ID:
+		data, environment_config = Analyzer.get_data(
+			args, FIG_3_EXPERIMENT_ID)
+	make_snapshots_figure(data, environment_config, 'fig3', ['GLC'])
 
 	data_dict = dict()
 	for key, exp_id in FIG_4_5_EXPERIMENT_IDS.items():
