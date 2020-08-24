@@ -2,7 +2,7 @@
 
 For usage information, execute:
 
-    python analysis.py -h
+	python analysis.py -h
 '''
 
 from vivarium.analysis.analyze import Analyzer
@@ -16,6 +16,12 @@ TIMESERIES_CONFIG = {
 }
 SNAPSHOTS_CONFIG = {
 	'include_fields': ['nitrocefin', 'GLC'],
+	'field_label_size': 54,
+	'default_font_size': 54,
+}
+TAGS_CONFIG = {
+	'tag_label_size': 54,
+	'default_font_size': 54,
 }
 
 
@@ -28,4 +34,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+	main()
