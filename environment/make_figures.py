@@ -10,7 +10,7 @@ import sys
 from vivarium.analysis.analyze import Analyzer
 from vivarium.plots.colonies import plot_metric_across_experiments
 from vivarium.plots.multibody_physics import plot_tags, plot_snapshots
-from vivarium.plot.expression_survival_dotplot import (
+from vivarium.plots.expression_survival_dotplot import (
 	plot_expression_survival)
 from vivarium.core.composition import plot_agents_multigen
 
