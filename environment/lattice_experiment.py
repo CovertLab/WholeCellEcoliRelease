@@ -349,8 +349,7 @@ def main():
 	)
 	parser.add_argument(
 		'--update_fields',
-		type=bool,
-		default=False,
+		action='store_true',
 		help='Let wcEcoli update the environment fields.',
 	)
 	args = parser.parse_args()
