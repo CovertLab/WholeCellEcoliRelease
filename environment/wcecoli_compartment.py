@@ -35,6 +35,7 @@ class WcEcoliCell(Generator):
 		'agents_path': ('..', '..', 'agents'),
 		'fields_path': ('..', '..', 'fields'),
 		'dimensions_path': ('..', '..', 'dimensions'),
+		'update_fields': True,
 		'antibiotic_transport': {
 			'initial_pump': 0.0,
 			'initial_internal_antibiotic': INITIAL_INTERNAL_ANTIBIOTIC,
@@ -215,4 +216,6 @@ class WcEcoliCell(Generator):
 		if len(config['timeline']['timeline']) > 1:
 			# Then we change the fields
 			topology['timeline']['fields'] = config['fields_path']
+		if config['update_fields']:
+			topology['wcecoli']['fields'] = config['fields_path']
 		return topology

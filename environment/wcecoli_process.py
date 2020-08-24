@@ -444,8 +444,8 @@ class wcEcoliAgent(Process):
 		self.ecoli_simulation.external_states['Environment'].set_local_environment(
 			local_environment)
 		self.ecoli_simulation.run_for(timestep)
-		update = self.ecoli_simulation.generate_inner_update()
-		listeners_report = update['listeners_report']
+		inner_update = self.ecoli_simulation.generate_inner_update()
+		listeners_report = inner_update['listeners_report']
 		update = {
 			'global': {
 				'volume': {
@@ -477,12 +477,12 @@ class wcEcoliAgent(Process):
 					'_updater': 'set',
 				},
 				'division': {
-					'_value': update['division'],
+					'_value': inner_update['division'],
 					'_updater': 'set',
 				},
 			},
-			'unique_molecules_report': update['unique_molecules_report'],
-			'bulk_molecules_report': update['bulk_molecules_report'],
+			'unique_molecules_report': inner_update['unique_molecules_report'],
+			'bulk_molecules_report': inner_update['bulk_molecules_report'],
 			'listeners_report': {
 				'-'.join(key): value
 				for key, value in listeners_report.items()
@@ -500,6 +500,6 @@ class wcEcoliAgent(Process):
 						},
 					},
 				}
-				for molecule, exchange in update['exchange'].items()
+				for molecule, exchange in inner_update['exchange'].items()
 			}
 		return update
