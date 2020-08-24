@@ -141,7 +141,7 @@ class TestGetTimeline:
 
 def simulate(
 	emitter_config, simulation_time, num_cells, pulse_concentration,
-	add_aa, anaerobic, antibiotic_threshold,
+	add_aa, anaerobic, antibiotic_threshold, update_fields,
 ):
 	'''Run the simulation
 
@@ -158,6 +158,9 @@ def simulate(
 		anaerobic: Whether to run an aerobic variant in anaerobic media.
 		antibiotic_threshold: The maximum internal concentration of
 			antibiotic cells can survive.
+		update_fields: Whether to let wcEcoli update environmental
+			fields. This often needs to be set to False to avoid
+			breaking FBA.
 
 	Returns:
 		vivarium.core.emitter.Emitter: An emitter from which the
@@ -207,7 +210,7 @@ def simulate(
 			'variant_index': variant_index,
 		},
 		'_parallel': True,
-		'update_fields': False,
+		'update_fields': update_fields,
 		'timeline': timeline_config,
 		'death': {
 			'detectors': {
@@ -344,6 +347,12 @@ def main():
 		default=0.86,
 		help='Internal antibiotic concentration past which cells die.',
 	)
+	parser.add_argument(
+		'--update_fields',
+		type=bool,
+		default=False,
+		help='Let wcEcoli update the environment fields.',
+	)
 	args = parser.parse_args()
 	if args.atlas:
 		with open(SECRETS_PATH, 'r') as f:
@@ -364,6 +373,7 @@ def main():
 		args.add_aa,
 		args.anaerobic,
 		args.antibiotic_threshold,
+		args.update_fields,
 	)
 
 
