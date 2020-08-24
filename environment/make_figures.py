@@ -86,7 +86,7 @@ def make_snapshots_figure(data, environment_config, name, fields):
 		'out_dir': OUT_DIR,
 		'filename': '{}.{}'.format(name, FILE_EXTENSION),
 		'include_fields': fields,
-		'tag_label_size': 54,
+		'field_label_size': 54,
 		'default_font_size': 54,
 	}
 	plot_snapshots(snapshots_data, plot_config)
