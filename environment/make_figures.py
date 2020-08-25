@@ -28,11 +28,11 @@ TAG_PATH_NAME_MAP = {
 COLONY_MASS_PATH = ('mass',)
 OUT_DIR = os.path.join('environment', 'figs')
 FILE_EXTENSION = 'pdf'
-FIG_2_EXPERIMENT_ID = '20200820.202016'
-FIG_3_EXPERIMENT_ID = '20200824.165625'
-FIG_4A_EXPERIMENT_ID = FIG_2_EXPERIMENT_ID
-FIG_4B_EXPERIMENT_ID = '20200820.235622'
-FIG_4_5_EXPERIMENT_IDS = {
+EXPRESSION_HETEROGENEITY_ID = '20200820.202016'
+ENVIRO_HETEROGENEITY_ID = '20200824.165625'
+GROWTH_BASAL_ID = EXPRESSION_HETEROGENEITY_ID
+GROWTH_ANAEROBIC_ID = '20200820.235622'
+THRESHOLD_SCAN_IDS = {
 	'0.002 mM': '20200818.174841',
 	'0.01775 mM': '20200819.175108',
 	'0.018875 mM': '20200819.203802',
@@ -42,36 +42,37 @@ FIG_4_5_EXPERIMENT_IDS = {
 	'0.0275 mM': '20200823.195457',
 	'0.03 mM': '20200821.142922',
 }
-FIG_6_EXPERIMENT_ID = '20200817.224609'
-FIG_7_EXPERIMENT_ID = FIG_6_EXPERIMENT_ID
-FIG_6_TIME_RANGE = (0.5, 1)
+EXPRESSION_SURVIVAL_ID = '20200817.224609'
+PUMP_TIMESERIES_ID = EXPRESSION_SURVIVAL_ID
+EXPRESSION_SURVIVAL_TIME_RANGE = (0.5, 1)
 METADATA_FILE = 'metadata.json'
 
 
 def get_metadata():
+	'''Get information on which experiments and code were used.'''
 	metadata = {
 		'git_hash': fp.run_cmdline('git rev-parse HEAD'),
 		'git_branch': fp.run_cmdline('git symbolic-ref --short HEAD'),
 		'time': fp.timestamp(),
 		'python': sys.version.splitlines()[0],
-		'fig2_id': FIG_2_EXPERIMENT_ID,
-		'fig3_id': FIG_3_EXPERIMENT_ID,
-		'fig4a_id': FIG_4A_EXPERIMENT_ID,
-		'fig4b_id': FIG_4B_EXPERIMENT_ID,
-		'fig4_5_ids': FIG_4_5_EXPERIMENT_IDS,
-		'fig6_id': FIG_6_EXPERIMENT_ID,
-		'fig7_id': FIG_7_EXPERIMENT_ID,
+		'expression_heterogeneity_id': EXPRESSION_HETEROGENEITY_ID,
+		'enviro_heterogeneity_id': ENVIRO_HETEROGENEITY_ID,
+		'growth_basal_id': GROWTH_BASAL_ID,
+		'growth_anaerobic_id': GROWTH_ANAEROBIC_ID,
+		'threshold_scan_ids': THRESHOLD_SCAN_IDS,
+		'expression_survival_id': EXPRESSION_SURVIVAL_ID,
+		'pump_timeseries_id': PUMP_TIMESERIES_ID,
 	}
 	return metadata
 
 
-def make_fig2(data, environment_config):
+def make_expression_heterogeneity_fig(data, environment_config):
 	'''Figure shows heterogeneous expression within wcEcoli agents.'''
 	tags_data = Analyzer.format_data_for_tags(data, environment_config)
 	plot_config = {
 		'out_dir': OUT_DIR,
 		'tagged_molecules': TAG_PATH_NAME_MAP.keys(),
-		'filename': 'fig2.{}'.format(FILE_EXTENSION),
+		'filename': 'expression_heterogeneity.{}'.format(FILE_EXTENSION),
 		'tag_path_name_map': TAG_PATH_NAME_MAP,
 		'tag_label_size': 48,
 		'default_font_size': 48,
@@ -80,6 +81,14 @@ def make_fig2(data, environment_config):
 
 
 def make_snapshots_figure(data, environment_config, name, fields):
+	'''Make a figure of snapshots
+
+	Parameters:
+		data (dict): The experiment data.
+		environment_config (dict): Environment parameters.
+		name (str): Name of the output file (excluding file extension).
+		fields (list): List of the names of fields to include.
+	'''
 	snapshots_data = Analyzer.format_data_for_snapshots(
 		data, environment_config)
 	plot_config = {
@@ -92,7 +101,8 @@ def make_snapshots_figure(data, environment_config, name, fields):
 	plot_snapshots(snapshots_data, plot_config)
 
 
-def make_fig4c(basal_data, anaerobic_data):
+def make_growth_fig(basal_data, anaerobic_data):
+	'''Make plot of colony mass of basal and anaerobic colonies.'''
 	data_dict = {
 		'basal': basal_data,
 		'anaerobic': anaerobic_data,
@@ -104,10 +114,11 @@ def make_fig4c(basal_data, anaerobic_data):
 	fig = plot_metric_across_experiments(
 		path_ts_dict, COLONY_MASS_PATH, ylabel='Colony Mass (mg)')
 	fig.savefig(os.path.join(
-		OUT_DIR, 'fig4c.{}'.format(FILE_EXTENSION)))
+		OUT_DIR, 'growth.{}'.format(FILE_EXTENSION)))
 
 
-def make_fig4_5(data_dict):
+def make_threshold_scan_fig(data_dict):
+	'''Plot colony mass curves with various antibiotic thresholds.'''
 	path_ts_dict = {
 		key: Analyzer.format_data_for_colony_metrics(value)
 		for key, value in data_dict.items()
@@ -115,20 +126,22 @@ def make_fig4_5(data_dict):
 	fig = plot_metric_across_experiments(
 		path_ts_dict, COLONY_MASS_PATH, ylabel='Colony Mass (mg)')
 	fig.savefig(os.path.join(
-		OUT_DIR, 'fig4_5.{}'.format(FILE_EXTENSION)))
+		OUT_DIR, 'threshold_scan.{}'.format(FILE_EXTENSION)))
 
 
-def make_fig6(data):
+def make_expression_survival_fig(data):
+	'''Make expression-survival dotplot figure.'''
 	fig = plot_expression_survival(
 		data, PUMP_PATH,
 		'Average AcrAB-TolC Concentration (mmol/L) Over Cell Lifetime',
-		FIG_6_TIME_RANGE,
+		EXPRESSION_SURVIVAL_TIME_RANGE,
 	)
 	fig.savefig(os.path.join(
-		OUT_DIR, 'fig6.{}'.format(FILE_EXTENSION)))
+		OUT_DIR, 'expression_survival.{}'.format(FILE_EXTENSION)))
 
 
-def make_fig7(data):
+def make_pump_timeseries_fig(data):
+	'''Plot AcrAB-TolC concentrations over time for all agents.'''
 	settings = {
 		'include_paths': [PUMP_PATH],
 		'titles_map': {
@@ -139,7 +152,7 @@ def make_fig7(data):
 		},
 	}
 	plot_agents_multigen(
-		data, settings, OUT_DIR, 'fig7.{}'.format(FILE_EXTENSION))
+		data, settings, OUT_DIR, 'pump_timeseries.{}'.format(FILE_EXTENSION))
 
 
 def main():
@@ -153,42 +166,43 @@ def main():
 	args = parser.parse_args()
 
 	data, environment_config = Analyzer.get_data(
-		args, FIG_2_EXPERIMENT_ID)
-	make_fig2(data, environment_config)
+		args, EXPRESSION_HETEROGENEITY_ID)
+	make_expression_heterogeneity_fig(data, environment_config)
 
-	if FIG_4A_EXPERIMENT_ID != FIG_2_EXPERIMENT_ID:
+	if GROWTH_BASAL_ID != EXPRESSION_HETEROGENEITY_ID:
 		data, environment_config = Analyzer.get_data(
-			args, FIG_4A_EXPERIMENT_ID)
-	data_4a = data
+			args, GROWTH_BASAL_ID)
+	data_growth_basal = data
 	make_snapshots_figure(
-		data, environment_config, 'fig4a', ['nitrocefin'])
+		data, environment_config, 'growth_basal', ['nitrocefin'])
 
 	data, environment_config = Analyzer.get_data(
-		args, FIG_4B_EXPERIMENT_ID)
+		args, GROWTH_ANAEROBIC_ID)
 	make_snapshots_figure(
-		data, environment_config, 'fig4b', ['nitrocefin'])
+		data, environment_config, 'growth_anaerobic', ['nitrocefin'])
 
-	make_fig4c(data_4a, data)
-	del data_4a
+	make_growth_fig(data_growth_basal, data)
+	del data_growth_basal
 
-	if FIG_2_EXPERIMENT_ID != FIG_4B_EXPERIMENT_ID:
+	if ENVIRO_HETEROGENEITY_ID != GROWTH_ANAEROBIC_ID:
 		data, environment_config = Analyzer.get_data(
-			args, FIG_3_EXPERIMENT_ID)
-	make_snapshots_figure(data, environment_config, 'fig3', ['GLC'])
+			args, ENVIRO_HETEROGENEITY_ID)
+	make_snapshots_figure(
+		data, environment_config, 'enviro_heterogeneity', ['GLC'])
 
 	data_dict = dict()
-	for key, exp_id in FIG_4_5_EXPERIMENT_IDS.items():
+	for key, exp_id in THRESHOLD_SCAN_IDS.items():
 		exp_data, _ = Analyzer.get_data(args, exp_id)
 		data_dict[key] = exp_data
-	make_fig4_5(data_dict)
+	make_threshold_scan_fig(data_dict)
 	del data_dict
 
-	data, _ = Analyzer.get_data(args, FIG_6_EXPERIMENT_ID)
-	make_fig6(data)
+	data, _ = Analyzer.get_data(args, EXPRESSION_SURVIVAL_ID)
+	make_expression_survival_fig(data)
 
-	if FIG_6_EXPERIMENT_ID != FIG_7_EXPERIMENT_ID:
-		data, _ = Analyzer.get_data(args, FIG_7_EXPERIMENT_ID)
-	make_fig7(data)
+	if EXPRESSION_SURVIVAL_ID != PUMP_TIMESERIES_ID:
+		data, _ = Analyzer.get_data(args, PUMP_TIMESERIES_ID)
+	make_pump_timeseries_fig(data)
 
 
 if __name__ == '__main__':
