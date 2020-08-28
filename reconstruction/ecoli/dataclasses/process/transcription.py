@@ -282,7 +282,7 @@ class Transcription(object):
 		monomer_ids = [rna['monomerId'] for rna in raw_data.rnas]
 
 		# Load RNA sequences and molecular weights from getter functions
-		rna_seqs = sim_data.getter.get_rna_sequence(rna_ids)
+		rna_seqs = sim_data.getter.get_sequence(rna_ids)
 		mws = sim_data.getter.getMass(rna_ids).asNumber(units.g/units.mol)
 
 		# Calculate lengths and nt counts from sequence
@@ -437,8 +437,8 @@ class Transcription(object):
 		Build transcription-associated simulation data from raw data.
 		"""
 		# Load sequence data
-		rna_seqs = np.array(sim_data.getter.get_rna_sequence(
-			[rna['id'] for rna in raw_data.rnas]))
+		rna_seqs = sim_data.getter.get_sequence(
+			[rna['id'] for rna in raw_data.rnas])
 
 		rrna_types = ['isRRna23S', 'isRRna16S', 'isRRna5S']
 		for rrna in rrna_types:
@@ -452,7 +452,7 @@ class Transcription(object):
 			+ self.max_time_step * sim_data.growthRateParameters.rnaPolymeraseElongationRate.asNumber(units.nt/units.s)
 			)
 
-		self.transcriptionSequences = np.full((rna_seqs.shape[0], maxLen), polymerize.PAD_VALUE, dtype=np.int8)
+		self.transcriptionSequences = np.full((len(rna_seqs), maxLen), polymerize.PAD_VALUE, dtype=np.int8)
 		ntMapping = {ntpId: i for i, ntpId in enumerate(["A", "C", "G", "U"])}
 		for i, sequence in enumerate(rna_seqs):
 			for j, letter in enumerate(sequence):

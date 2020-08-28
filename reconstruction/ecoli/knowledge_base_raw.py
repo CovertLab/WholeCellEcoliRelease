@@ -43,6 +43,7 @@ LIST_OF_DICT_FILENAMES = (
 	"protein_half_lives.tsv",
 	"proteinComplexes.tsv",
 	"proteins.tsv",
+	"proteins_old.tsv",
 	"reactions.tsv",
 	"relative_metabolite_concentrations.tsv",
 	"rna_half_lives.tsv",

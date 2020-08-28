@@ -55,41 +55,25 @@ class InternalState(object):
 		sim_data.moleculeGroups.bulk_molecules_binomial_division.extend(
 			waterIds)
 
-		# Set RNA
-		# Initialize lists of RNA ids and masses
-		rna_ids = []
-		rna_masses = []
-
-		# Loop through each RNA species and associated compartments
-		for rna in raw_data.rnas:
-			mw = sim_data.getter.getMass([rna['id']]).asNumber(units.g/units.mol)[0]
-
-			for loc in sim_data.getter.getLocation([rna['id']])[0]:
-				rna_ids.append('{}[{}]'.format(rna['id'], loc))
-
-				# Get submass index based on RNA type
-				submass_index = sim_data.submass_name_to_index[rna['type']]
-
-				# Build mass array
-				rna_mass = [0.]*len(sim_data.submass_name_to_index)
-				rna_mass[submass_index] = mw
-
-				rna_masses.append(rna_mass)
-
-		rna_masses = (units.g/units.mol) * np.array(rna_masses)
+		# Set RNAs
+		rna_ids, rna_masses = self._build_bulk_molecule_specs(
+			sim_data, [rna['id'] for rna in raw_data.rnas],
+			[sim_data.submass_name_to_index[rna['type']] for rna in raw_data.rnas]
+			)
 
 		self.bulkMolecules.addToBulkState(rna_ids, rna_masses)
 		sim_data.moleculeGroups.bulk_molecules_binomial_division.extend(
 			rna_ids)
 
 		# Set proteins
-		proteinIds = stateFunctions.createIdsWithCompartments(raw_data.proteins)
-		proteinMasses = (units.g/units.mol) * (
-			stateFunctions.createMassesByCompartments(raw_data.proteins))
+		protein_ids, protein_masses = self._build_bulk_molecule_specs(
+			sim_data, [protein['id'] for protein in raw_data.proteins],
+			[sim_data.submass_name_to_index['protein']]*len(raw_data.proteins)
+			)
 
-		self.bulkMolecules.addToBulkState(proteinIds, proteinMasses)
+		self.bulkMolecules.addToBulkState(protein_ids, protein_masses)
 		sim_data.moleculeGroups.bulk_molecules_binomial_division.extend(
-			proteinIds)
+			protein_ids)
 
 		# Set complexes
 		complexIds = stateFunctions.createIdsWithCompartments(raw_data.proteinComplexes)
@@ -124,6 +108,41 @@ class InternalState(object):
 			stateFunctions.createMassesByCompartments(fragments))
 
 		self.bulkMolecules.addToBulkState(fragmentsIds, fragmentsMasses)
+
+
+	def _build_bulk_molecule_specs(self, sim_data, molecule_ids, submass_indexes):
+		"""
+		Builds a list of molecule IDs with compartment tags and a corresponding
+		array of molecular masses to add to the bulk state. Can only be used
+		for molecules whose mass belongs to a single submass type.
+		Args:
+			molecule_ids (List[str]): List of molecule IDs w/o compartment tags
+			submass_indexes (List[int]): List of submass indexes
+		Returns:
+			molecule_ids_with_compartments (List[str]): List of molecule IDs
+				with compartment tags
+			masses (np.ndarray): Array of molecular masses divided into
+				submasses
+		"""
+		molecule_ids_with_compartments = []
+		masses = []
+
+		# Loop through each RNA species and associated compartments
+		for molecule_id, submass_index in zip(molecule_ids, submass_indexes):
+			mw = sim_data.getter.getMass([molecule_id]).asNumber(units.g / units.mol)[0]
+
+			for loc in sim_data.getter.getLocation([molecule_id])[0]:
+				molecule_ids_with_compartments.append('{}[{}]'.format(molecule_id, loc))
+
+				# Build mass array
+				mass = [0.] * len(sim_data.submass_name_to_index)
+				mass[submass_index] = mw
+
+				masses.append(mass)
+
+		masses = (units.g / units.mol) * np.array(masses)
+
+		return molecule_ids_with_compartments, masses
 
 
 	def _buildUniqueMolecules(self, raw_data, sim_data):
