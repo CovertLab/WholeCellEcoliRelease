@@ -5,8 +5,7 @@
 **NOTE:** We've been using databases on mlab.com for running FireWorks on Sherlock.
 We also have MongoDB running in the Allen Center project on Google Compute
 Engine. With that server, just pick a unique database `name` such as your username,
-skip over these mlab steps, and create the launchpad config file (down below).
-
+skip over these mlab steps, and create the launchpad config file (see below).
 
 1. Create an account at [mlab.com](https://mlab.com/).
 
@@ -55,6 +54,19 @@ database user password.
 13. Optional: If you want to be able to run two workflows at the same time, make a
 second MongoDB Deployment by repeating the new-deplohment steps above with a
 different database name such as `wc_ecoli_2`.
+
+
+**NOTE:** If you get this error message connecting to an older MongoDB server
+(such as on `mlab.com`) with the pymongo library 3.9.0+ that wcEcoli uses in Python 3:
+
+> pymongo.errors.OperationFailure: This MongoDB deployment does not support retryable writes. Please add retryWrites=false to your connection string.
+
+the fix is to add these lines to your `my_launchpad.yaml` file:
+
+```
+mongoclient_kwargs:
+  retryWrites: false
+```
 
 
 ## Launchpad config YAML files for Fireworks

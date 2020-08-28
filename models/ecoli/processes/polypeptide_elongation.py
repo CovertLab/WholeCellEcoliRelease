@@ -111,7 +111,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.ribosomeElongationRate = self.elongation_model.elongation_rate(current_media_id)
 
 		# If there are no active ribosomes, return immediately
-		if self.active_ribosomes.total_counts()[0] == 0:
+		if self.active_ribosomes.total_count() == 0:
 			return
 
 		# Build sequences to request appropriate amount of amino acids to
@@ -161,7 +161,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.writeToListener("GrowthLimits", "aaAllocated", self.aas.counts())
 
 		# Get number of active ribosomes
-		n_active_ribosomes = self.active_ribosomes.total_counts()[0]
+		n_active_ribosomes = self.active_ribosomes.total_count()
 		self.writeToListener("GrowthLimits", "activeRibosomeAllocated", n_active_ribosomes)
 
 		if n_active_ribosomes == 0:
@@ -410,7 +410,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		aa_counts = self.process.aas.total_counts()
 		uncharged_trna_counts = np.dot(self.process.aa_from_trna, self.uncharged_trna.total_counts())
 		charged_trna_counts = np.dot(self.process.aa_from_trna, self.charged_trna.total_counts())
-		ribosome_counts = self.process.active_ribosomes.total_counts()[0]
+		ribosome_counts = self.process.active_ribosomes.total_count()
 
 		# Get concentration
 		f = aasInSequences / aasInSequences.sum()
@@ -473,9 +473,9 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 			total_trna_conc = self.counts_to_molar * (uncharged_trna_counts + charged_trna_counts)
 			updated_charged_trna_conc = total_trna_conc * fraction_charged
 			updated_uncharged_trna_conc = total_trna_conc - updated_charged_trna_conc
-			ppgpp_conc = self.counts_to_molar * self.ppgpp.total_counts()[0]
-			rela_conc = self.counts_to_molar * self.rela.total_counts()[0]
-			spot_conc = self.counts_to_molar * self.spot.total_counts()[0]
+			ppgpp_conc = self.counts_to_molar * self.ppgpp.total_count()
+			rela_conc = self.counts_to_molar * self.rela.total_count()
+			spot_conc = self.counts_to_molar * self.spot.total_count()
 			delta_metabolites, _, _, _, _, _ = self.ppgpp_metabolite_changes(
 				updated_uncharged_trna_conc, updated_charged_trna_conc, ribosome_conc,
 				f, rela_conc, spot_conc, ppgpp_conc, self.counts_to_molar, v_rib, request=True
@@ -516,16 +516,16 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		## Concentrations of interest
 		if self.process.ppgpp_regulation:
 			v_rib = (nElongations * self.counts_to_molar).asNumber(MICROMOLAR_UNITS) / self.process.timeStepSec()
-			ribosome_conc = self.counts_to_molar * self.process.active_ribosomes.total_counts()[0]
+			ribosome_conc = self.counts_to_molar * self.process.active_ribosomes.total_count()
 			updated_uncharged_trna_counts = self.uncharged_trna.total_counts() - net_charged
 			updated_charged_trna_counts = self.charged_trna.total_counts() + net_charged
 			uncharged_trna_conc = self.counts_to_molar * np.dot(
 				self.process.aa_from_trna, updated_uncharged_trna_counts)
 			charged_trna_conc = self.counts_to_molar * np.dot(
 				self.process.aa_from_trna, updated_charged_trna_counts)
-			ppgpp_conc = self.counts_to_molar * self.ppgpp.total_counts()[0]
-			rela_conc = self.counts_to_molar * self.rela.total_counts()[0]
-			spot_conc = self.counts_to_molar * self.spot.total_counts()[0]
+			ppgpp_conc = self.counts_to_molar * self.ppgpp.total_count()
+			rela_conc = self.counts_to_molar * self.rela.total_count()
+			spot_conc = self.counts_to_molar * self.spot.total_count()
 
 			f = aas_used / aas_used.sum()
 			limits = self.ppgpp_reaction_metabolites.counts()

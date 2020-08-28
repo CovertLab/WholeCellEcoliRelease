@@ -11,6 +11,7 @@ Set PYTHONPATH when running this.
 from __future__ import absolute_import, division, print_function
 
 import os
+import sys
 
 from wholecell.fireworks.firetasks import ParcaTask
 from wholecell.utils import constants, data, parallelization, scriptBase
@@ -60,6 +61,7 @@ class RunParca(scriptBase.ScriptBase):
 			'git_branch': fp.run_cmdline("git symbolic-ref --short HEAD") or '--',
 			'description': args.description,
 			'time': args.time,
+			'python': sys.version.splitlines()[0],
 		}
 		metadata_dir = fp.makedirs(args.sim_path, 'metadata')
 		metadata_path = os.path.join(metadata_dir, constants.JSON_METADATA_FILE)

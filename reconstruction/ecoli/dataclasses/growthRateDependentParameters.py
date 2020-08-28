@@ -395,7 +395,13 @@ class Mass(object):
 			interpolate.interp1d(self._trna_growth_rates.asNumber(1/units.h), self._trna_ratio_to_16SrRNA_by_growth_rate[:,i])
 			for i in range(self._trna_ratio_to_16SrRNA_by_growth_rate.shape[1])]
 
-		abundance = np.zeros(len(self._trna_ids), dtype = [('id','U50'),('molar_ratio_to_16SrRNA', np.float64)])
+		id_length = max(len(id_) for id_ in self._trna_ids)
+		abundance = np.zeros(
+			len(self._trna_ids),
+			dtype=[
+				('id','U{}'.format(id_length)),
+				('molar_ratio_to_16SrRNA', np.float64),
+			])
 		abundance['id'] = self._trna_ids
 		abundance['molar_ratio_to_16SrRNA'] = [x(growth_rate) for x in trna_abundance_interpolation_functions]
 		return abundance

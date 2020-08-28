@@ -47,7 +47,9 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			m = m.reshape(fork_coordinates.shape)
 			fork_coordinates[~m] = np.nan
 
-			axesList[0].plot(time, fork_coordinates, marker=',', markersize=1, linewidth=0)
+			# Skip plot if there are no replication forks in this generation
+			if fork_coordinates.shape[1] > 0:
+				axesList[0].plot(time, fork_coordinates, marker=',', markersize=1, linewidth=0)
 			axesList[0].set_xlim([0, time.max()])
 			axesList[0].set_yticks([-1 * genomeLength / 2, 0, genomeLength / 2])
 			axesList[0].set_yticklabels(['-terC', 'oriC', '+terC'])

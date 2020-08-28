@@ -5,8 +5,8 @@ PASSWORD=$4
 
 set -e
 
-module load wcEcoli/sherlock2
-pyenv local wcEcoli2
+module load wcEcoli/python3
+pyenv local wcEcoli3
 export PYTHONPATH=$PWD
 
 make clean

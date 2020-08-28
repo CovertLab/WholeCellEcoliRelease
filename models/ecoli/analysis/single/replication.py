@@ -67,7 +67,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		plt.figure(figsize = (8.5, 11))
 
 		ax = plt.subplot(7,1,1)
-		ax.plot(time / 60., fork_coordinates, marker='.', markersize=1, linewidth=0)
+		# Skip if there are no replication forks
+		if fork_coordinates.shape[1] > 0:
+			ax.plot(time / 60., fork_coordinates, marker='.', markersize=1, linewidth=0)
 		ax.set_xticks([0, time.max() / 60])
 		ax.set_yticks([-1 * genomeLength / 2, 0, genomeLength / 2])
 		ax.set_yticklabels(['-terC', 'oriC', '+terC'])

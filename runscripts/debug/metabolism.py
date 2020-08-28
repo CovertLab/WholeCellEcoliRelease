@@ -150,6 +150,10 @@ class MetabolismDebug(scriptBase.ScriptBase):
 			counts_to_molar, self.time_step_sizes[timestep],
 			)
 
+		# Solve multiple times (if needed) for robustness
+		n_retries = 3
+		model.fba.solve(n_retries)
+
 	def validation(self, n_steps):
 		# type: (int) -> None
 		"""

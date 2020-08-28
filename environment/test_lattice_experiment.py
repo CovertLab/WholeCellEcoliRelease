@@ -7,7 +7,6 @@ import argparse
 import io
 import os
 
-import numpy as np
 from vivarium.core.composition import (
 	load_timeseries,
 	assert_timeseries_close

@@ -19,7 +19,7 @@ class WcEcoliDeriveShape(Deriver):
 	name = "wcEcoliDeriveShape"
 
 	def __init__(self, initial_parameters=None):
-		# type: (dict)
+		# type: (dict) -> None
 		'''Derives cell length and surface area from width and volume.
 
 		Ports:

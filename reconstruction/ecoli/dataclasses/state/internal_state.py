@@ -35,23 +35,52 @@ class InternalState(object):
 		# Set metabolites
 		metaboliteIds = stateFunctions.createIdsWithCompartments(raw_data.metabolites)
 		metaboliteMasses = (units.g/units.mol) * (
-			stateFunctions.createMetaboliteMassesByCompartments(raw_data.metabolites, 7, 11))
+			stateFunctions.createMetaboliteMassesByCompartments(
+				raw_data.metabolites, sim_data.submass_name_to_index['metabolite'],
+				len(sim_data.submass_name_to_index)
+				))
 
 		self.bulkMolecules.addToBulkState(metaboliteIds, metaboliteMasses)
+		sim_data.moleculeGroups.bulk_molecules_binomial_division.extend(metaboliteIds)
 
 		# Set water
 		waterIds = stateFunctions.createIdsWithCompartments(raw_data.water)
 		waterMasses = (units.g/units.mol) * (
-			stateFunctions.createMetaboliteMassesByCompartments(raw_data.water, 8, 11))
+			stateFunctions.createMetaboliteMassesByCompartments(
+				raw_data.water, sim_data.submass_name_to_index['water'],
+				len(sim_data.submass_name_to_index)
+				))
 
 		self.bulkMolecules.addToBulkState(waterIds, waterMasses)
+		sim_data.moleculeGroups.bulk_molecules_binomial_division.extend(
+			waterIds)
 
 		# Set RNA
-		rnaIds = stateFunctions.createIdsWithCompartments(raw_data.rnas)
-		rnaMasses = (units.g/units.mol) * (
-			stateFunctions.createMassesByCompartments(raw_data.rnas))
+		# Initialize lists of RNA ids and masses
+		rna_ids = []
+		rna_masses = []
 
-		self.bulkMolecules.addToBulkState(rnaIds, rnaMasses)
+		# Loop through each RNA species and associated compartments
+		for rna in raw_data.rnas:
+			mw = sim_data.getter.getMass([rna['id']]).asNumber(units.g/units.mol)[0]
+
+			for loc in sim_data.getter.getLocation([rna['id']])[0]:
+				rna_ids.append('{}[{}]'.format(rna['id'], loc))
+
+				# Get submass index based on RNA type
+				submass_index = sim_data.submass_name_to_index[rna['type']]
+
+				# Build mass array
+				rna_mass = [0.]*len(sim_data.submass_name_to_index)
+				rna_mass[submass_index] = mw
+
+				rna_masses.append(rna_mass)
+
+		rna_masses = (units.g/units.mol) * np.array(rna_masses)
+
+		self.bulkMolecules.addToBulkState(rna_ids, rna_masses)
+		sim_data.moleculeGroups.bulk_molecules_binomial_division.extend(
+			rna_ids)
 
 		# Set proteins
 		proteinIds = stateFunctions.createIdsWithCompartments(raw_data.proteins)
@@ -59,6 +88,8 @@ class InternalState(object):
 			stateFunctions.createMassesByCompartments(raw_data.proteins))
 
 		self.bulkMolecules.addToBulkState(proteinIds, proteinMasses)
+		sim_data.moleculeGroups.bulk_molecules_binomial_division.extend(
+			proteinIds)
 
 		# Set complexes
 		complexIds = stateFunctions.createIdsWithCompartments(raw_data.proteinComplexes)
@@ -66,6 +97,8 @@ class InternalState(object):
 			stateFunctions.createMassesByCompartments(raw_data.proteinComplexes))
 
 		self.bulkMolecules.addToBulkState(complexIds, complexMasses)
+		sim_data.moleculeGroups.bulk_molecules_binomial_division.extend(
+			complexIds)
 
 		# Set modified forms
 		modifiedFormIds = stateFunctions.createIdsWithCompartments(raw_data.modifiedForms)
@@ -73,6 +106,8 @@ class InternalState(object):
 			stateFunctions.createModifiedFormMassesByCompartments(raw_data.modifiedForms))
 
 		self.bulkMolecules.addToBulkState(modifiedFormIds, modifiedFormMasses)
+		sim_data.moleculeGroups.bulk_molecules_binomial_division.extend(
+			modifiedFormIds)
 
 		# Set fragments
 		fragments = []

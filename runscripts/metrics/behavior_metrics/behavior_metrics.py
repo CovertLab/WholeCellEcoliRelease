@@ -297,6 +297,7 @@ class BehaviorMetrics(object):
 					)
 					results.append(result)
 
+		results = sorted(results)
 		results_df = pd.DataFrame(results)
 		return results_df
 

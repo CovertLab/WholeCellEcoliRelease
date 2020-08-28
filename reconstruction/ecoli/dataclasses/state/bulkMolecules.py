@@ -23,7 +23,7 @@ class BulkMolecules(object):
 			0,
 			dtype = [
 				("id", "U50"),
-				("mass", "{}f8".format(len(sim_data.molecular_weight_order))),
+				("mass", "{}f8".format(len(sim_data.submass_name_to_index))),
 				]
 			)
 

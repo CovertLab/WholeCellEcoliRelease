@@ -21,7 +21,7 @@ class MoleculeGroups(object):
 
 	def _buildMoleculeGroups(self, raw_data, sim_data):
 		moleculeGroups = {
-			'ntpIds': ["ATP[c]","CTP[c]","GTP[c]","UTP[c]"],
+			'ntpIds': ["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"],
 			'dNtpIds': ["DATP[c]", "DCTP[c]", "DGTP[c]", "TTP[c]"],
 			'rnapIds': ['RPOB-MONOMER[c]', 'RPOC-MONOMER[c]', 'EG10893-MONOMER[c]'],
 
@@ -119,16 +119,10 @@ class MoleculeGroups(object):
 			'carbon_sources': ['GLC[p]', 'ACET[p]', 'SUC[p]'],
 		}
 
-		bulkMoleculesBinomialDivision = createIdsWithCompartments(raw_data.metabolites)
-
-		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments(raw_data.rnas))
-		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments(raw_data.proteins))
-		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments(raw_data.proteinComplexes))
-		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments(raw_data.modifiedForms))
-		bulkMoleculesBinomialDivision.extend(createIdsWithCompartments(raw_data.water))
-
-		moleculeGroups['bulkMoleculesBinomialDivision'] = bulkMoleculesBinomialDivision
-		moleculeGroups['bulkMoleculesEqualDivision'] = []
+		# Initialize molecule groups for how molecules are split between two
+		# daughter cells at cell division (populated later by InternalState)
+		moleculeGroups['bulk_molecules_binomial_division'] = []
+		moleculeGroups['bulk_molecules_equal_division'] = []
 
 		moleculeGroups['unique_molecules_active_ribosome_division'] = []
 		moleculeGroups['unique_molecules_RNA_division'] = []

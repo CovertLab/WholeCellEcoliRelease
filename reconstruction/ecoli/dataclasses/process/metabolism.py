@@ -311,7 +311,6 @@ class Metabolism(object):
 		# Properties for FBA reconstruction
 		self.reactionStoich = reactionStoich
 		self.maintenanceReaction = {"ATP[c]": -1, "WATER[c]": -1, "ADP[c]": +1, "PI[c]": +1, "PROTON[c]": +1,}
-		self.reversibleReactions = reversibleReactions
 
 		# Properties for catalysis matrix (to set hard bounds)
 		self.reactionCatalysts = catalysts
@@ -391,7 +390,7 @@ class Metabolism(object):
 		"""
 
 		rxn_mapping = {}
-		for rxn in self.reactionStoich:
+		for rxn in sorted(self.reactionStoich):
 			basename = rxn.split('__')[0].split(' (reverse)')[0]
 			rxn_mapping[basename] = rxn_mapping.get(basename, []) + [rxn]
 
@@ -617,14 +616,15 @@ class Metabolism(object):
 		return reaction_stoich, reversible_reactions, reaction_catalysts
 
 	@staticmethod
-	def match_reaction(stoich, catalysts, rxn, enz, mets, direction=None):
-		# type: (Dict[str, Dict[str, int]], Dict[str, List[str]], str, str, List[str], Optional[str]) -> Optional[str]
+	def match_reaction(stoich, catalysts, rxn_to_match, enz, mets, direction=None):
+		# type: (Dict[str, Dict[str, int]], Dict[str, List[str]], str, str, List[str], Optional[str]) -> List[str]
 		"""
-		Matches a given reaction (rxn) to reactions that exist in stoich given
-		that enz is known to catalyze the reaction and mets are reactants in
-		the reaction.  Can perform a fuzzy reaction match since rxn just needs
-		to be part of the actual reaction name to match specific instances of a
-		reaction (eg. rxn="ALCOHOL-DEHYDROG-GENERIC-RXN" can match
+		Matches a given reaction (rxn_to_match) to reactions that exist in
+		stoich given that enz is known to catalyze the reaction and mets are
+		reactants in the reaction. Can perform a fuzzy reaction match since
+		rxn_to_match just needs to be part of the actual reaction name to match
+		specific instances of a reaction.
+		(eg. rxn_to_match="ALCOHOL-DEHYDROG-GENERIC-RXN" can match
 		"ALCOHOL-DEHYDROG-GENERIC-RXN-ETOH/NAD//ACETALD/NADH/PROTON.30.").
 
 		Args:
@@ -633,14 +633,13 @@ class Metabolism(object):
 			catalysts: {reaction ID: enzyme IDs with location tag}
 				enzyme catalysts for each reaction with known catalysts,
 				likely a subset of reactions in stoich
-			rxn: reaction ID from kinetics to match to existing reactions
+			rxn_to_match: reaction ID from kinetics to match to existing reactions
 			enz: enzyme ID with location tag
 			mets: metabolite IDs with no location tag from kinetics
 			direction: reaction directionality, 'forward' or 'reverse' or None
 
 		Returns:
-			rxn: matched reaction ID to reaction in stoich with reverse tag
-				if in the reverse direction, returns None if no match
+			rxn_matches: matched reaction IDs in stoich
 		"""
 
 		# Mapping to handle instances of metabolite classes in kinetics
@@ -659,56 +658,62 @@ class Metabolism(object):
 		# Match full reaction name from partial reaction in kinetics. Must
 		# also match metabolites since there can be multiple reaction instances.
 		match = False
-		if rxn not in stoich:
+		match_candidates = []
+		if rxn_to_match in stoich:
+			match_candidates.append(rxn_to_match)
+		else:
 			for long_rxn, long_mets in stoich.items():
-				if rxn in long_rxn and not long_rxn.endswith(REVERSE_TAG):
+				if rxn_to_match in long_rxn and not long_rxn.endswith(REVERSE_TAG):
 					match = True
 					stripped_enzs = {e[:-3] for e in catalysts.get(long_rxn, [])}
 					stripped_mets = {m[:-3] for m in long_mets}
 					if (np.all([class_mets.get(m, m) in stripped_mets for m in mets])
 							and enz in stripped_enzs):
-						# TODO: check if other reactions match instead of breaking on first
-						rxn = long_rxn
-						break
-			else:
-				if VERBOSE:
-					if match:
-						print('Partial reaction match: {} {} {} {} {}'.format(
-							rxn, enz, stripped_enzs, mets, stripped_mets))
-					else:
-						print('No reaction match: {}'.format(rxn))
-				return None
+						match_candidates.append(long_rxn)
+
+		if len(match_candidates) == 0:
+			if VERBOSE:
+				if match:
+					print('Partial reaction match: {} {} {} {} {}'.format(
+						rxn_to_match, enz, stripped_enzs, mets, stripped_mets))
+				else:
+					print('No reaction match: {}'.format(rxn_to_match))
 
 		# Determine direction of kinetic reaction from annotation or
 		# metabolite stoichiometry.
-		reverse_rxn = REVERSE_REACTION_ID.format(rxn)
-		reverse_rxn_exists = reverse_rxn in stoich
-		if direction:
-			reverse = direction == 'reverse'
-		else:
-			s = {k[:-3]: v for k, v in stoich.get(rxn, {}).items()}
-			direction_ = np.unique(np.sign([
-				s.get(class_mets.get(m, m), 0) for m in mets]))
-			if len(direction_) == 0 and not reverse_rxn_exists:
-				reverse = False
-			elif len(direction_) != 1 or direction_[0] == 0:
-				if VERBOSE:
-					print('Conflicting directionality: {} {} {}'.format(
-						rxn, mets, direction_))
-				return None
+		rxn_matches = []
+		for rxn in match_candidates:
+			reverse_rxn = REVERSE_REACTION_ID.format(rxn)
+			reverse_rxn_exists = reverse_rxn in stoich
+			if direction:
+				reverse = direction == 'reverse'
 			else:
-				reverse = direction_[0] > 0
+				s = {k[:-3]: v for k, v in stoich.get(rxn, {}).items()}
+				direction_ = np.unique(np.sign([
+					s.get(class_mets.get(m, m), 0) for m in mets]))
+				if len(direction_) == 0 and not reverse_rxn_exists:
+					reverse = False
+				elif len(direction_) != 1 or direction_[0] == 0:
+					if VERBOSE:
+						print('Conflicting directionality: {} {} {}'.format(
+							rxn, mets, direction_))
+					continue
+				else:
+					reverse = direction_[0] > 0
 
-		# Verify a reverse reaction exists in the model
-		if reverse:
-			if reverse_rxn_exists:
-				rxn = reverse_rxn
-			else:
-				if VERBOSE:
-					print('No reverse reaction: {} {}'.format(rxn, mets))
-				return None
+			# Verify a reverse reaction exists in the model
+			if reverse:
+				if reverse_rxn_exists:
+					rxn_matches.append(reverse_rxn)
+					continue
+				else:
+					if VERBOSE:
+						print('No reverse reaction: {} {}'.format(rxn, mets))
+					continue
 
-		return rxn
+			rxn_matches.append(rxn)
+
+		return sorted(rxn_matches)
 
 	@staticmethod
 	def temperature_adjusted_kcat(kcat, temp=''):
@@ -945,69 +950,66 @@ class Metabolism(object):
 			kms = list(constraint['kM'].asNumber(KINETIC_CONSTRAINT_CONC_UNITS))
 			kis = list(constraint['kI'].asNumber(KINETIC_CONSTRAINT_CONC_UNITS))
 			n_reactants = len(metabolites) - len(kis)
-			matched_rxn = Metabolism.match_reaction(stoich, catalysts, rxn, enzyme,
+			matched_rxns = Metabolism.match_reaction(stoich, catalysts, rxn, enzyme,
 				metabolites[:n_reactants], direction)
-			if matched_rxn is None:
-				continue
 
-			# Ensure enzyme catalyzes reaction in model
-			enzymes_tag_conversion = {e[:-3]: e for e in catalysts.get(matched_rxn, [])}
-			if enzyme not in enzymes_tag_conversion:
-				if VERBOSE:
-					print('{} does not catalyze {}'.format(enzyme, matched_rxn))
-				continue
-			else:
-				enzyme = enzymes_tag_conversion[enzyme]
-
-			# Update metabolites with a location tag from the reaction
-			# First look in reactants but some products can inhibit
-			reactant_tags = {k[:-3]: k for k, v in stoich[matched_rxn].items() if v < 0}
-			product_tags = {k[:-3]: k for k, v in stoich[matched_rxn].items() if v > 0}
-			mets_with_tag = [
-				reactant_tags.get(met, product_tags.get(met, ''))
-				for met in metabolites
-				if met in reactant_tags or met in product_tags
-			]
-			if len(mets_with_tag) != len(metabolites):
-				# Warn if verbose but no continue since we can still use kcat
-				if VERBOSE:
-					print('Could not match all metabolites: {} {}'.format(
-						metabolites, mets_with_tag))
-
-			# Extract kcat and saturation parameters
-			if constraint['rateEquationType'] == 'custom':
-				kcats, saturation = Metabolism._extract_custom_constraint(
-					constraint, reactant_tags, product_tags, known_metabolites_)
-				if kcats is None:
+			for matched_rxn in matched_rxns:
+				# Ensure enzyme catalyzes reaction in model
+				enzymes_tag_conversion = {e[:-3]: e for e in catalysts.get(matched_rxn, [])}
+				if enzyme not in enzymes_tag_conversion:
+					if VERBOSE:
+						print('{} does not catalyze {}'.format(enzyme, matched_rxn))
 					continue
-			else:
-				kcats = Metabolism.temperature_adjusted_kcat(constraint['kcat'], constraint['Temp'])
-				if len(kcats) > 1:
-					if len(kcats) != len(kms) or len(kms) != len(mets_with_tag):
-						if VERBOSE:
-							print('Could not align kcats and kms: {} {} {} {}'.format(
-								rxn, kcats, kms, mets_with_tag))
+
+				# Update metabolites with a location tag from the reaction
+				# First look in reactants but some products can inhibit
+				reactant_tags = {k[:-3]: k for k, v in stoich[matched_rxn].items() if v < 0}
+				product_tags = {k[:-3]: k for k, v in stoich[matched_rxn].items() if v > 0}
+				mets_with_tag = [
+					reactant_tags.get(met, product_tags.get(met, ''))
+					for met in metabolites
+					if met in reactant_tags or met in product_tags
+				]
+				if len(mets_with_tag) != len(metabolites):
+					# Warn if verbose but no continue since we can still use kcat
+					if VERBOSE:
+						print('Could not match all metabolites: {} {}'.format(
+							metabolites, mets_with_tag))
+
+				# Extract kcat and saturation parameters
+				if constraint['rateEquationType'] == 'custom':
+					kcats, saturation = Metabolism._extract_custom_constraint(
+						constraint, reactant_tags, product_tags, known_metabolites_)
+					if kcats is None:
 						continue
-
-					saturation = [
-						Metabolism._construct_default_saturation_equation(
-							[m], [km], [], known_metabolites_)
-						for m, km in zip(mets_with_tag, kms)
-					]
 				else:
-					saturation = [
-						Metabolism._construct_default_saturation_equation(
-							mets_with_tag, kms, kis, known_metabolites_)
-					]
+					kcats = Metabolism.temperature_adjusted_kcat(constraint['kcat'], constraint['Temp'])
+					if len(kcats) > 1:
+						if len(kcats) != len(kms) or len(kms) != len(mets_with_tag):
+							if VERBOSE:
+								print('Could not align kcats and kms: {} {} {} {}'.format(
+									rxn, kcats, kms, mets_with_tag))
+							continue
 
-				saturation = [s for s in saturation if s != '1']
+						saturation = [
+							Metabolism._construct_default_saturation_equation(
+								[m], [km], [], known_metabolites_)
+							for m, km in zip(mets_with_tag, kms)
+						]
+					else:
+						saturation = [
+							Metabolism._construct_default_saturation_equation(
+								mets_with_tag, kms, kis, known_metabolites_)
+						]
 
-			# Add new kcats and saturation terms for the enzymatic reaction
-			key = (matched_rxn, enzyme)
-			entries = constraints.get(key, {})
-			entries['kcat'] = entries.get('kcat', []) + list(kcats)
-			entries['saturation'] = entries.get('saturation', []) + saturation
-			constraints[key] = entries
+					saturation = [s for s in saturation if s != '1']
+
+				# Add new kcats and saturation terms for the enzymatic reaction
+				key = (matched_rxn, enzymes_tag_conversion[enzyme])
+				entries = constraints.get(key, {})
+				entries['kcat'] = entries.get('kcat', []) + list(kcats)
+				entries['saturation'] = entries.get('saturation', []) + saturation
+				constraints[key] = entries
 
 		return constraints
 

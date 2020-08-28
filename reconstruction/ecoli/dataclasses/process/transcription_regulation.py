@@ -16,7 +16,7 @@ class TranscriptionRegulation(object):
 		self._buildLookups(raw_data)
 
 		# Store list of transcription factor IDs
-		self.tf_ids = list(sim_data.tfToActiveInactiveConds.keys())
+		self.tf_ids = list(sorted(sim_data.tfToActiveInactiveConds.keys()))
 
 		# Build dictionary mapping transcription factors to their Kds
 		self.tfKd = {}
@@ -32,7 +32,7 @@ class TranscriptionRegulation(object):
 		# Build dictionary mapping RNA targets to its regulators
 		self.targetTf = {}
 
-		for tf in sim_data.tfToFC:
+		for tf in sorted(sim_data.tfToFC):
 			targets = sim_data.tfToFC[tf]
 			targetsToRemove = []
 
@@ -76,7 +76,7 @@ class TranscriptionRegulation(object):
 		Builds dictionaries for mapping transcription factor abbreviations to
 		their RNA IDs, and to their active form.
 		"""
-		geneIdToRnaId = {x["geneId"]: x["id"] for x in raw_data.rnas}
+		geneIdToRnaId = {x["id"]: x["rnaId"] for x in raw_data.genes}
 
 		self.abbrToRnaId = {}
 		for lookupInfo in raw_data.tfIds:

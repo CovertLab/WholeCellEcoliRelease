@@ -347,6 +347,8 @@ def compare_ndarrays(array1, array2):
 	TODO(jerry): Allow tolerance for float elements of structured arrays and
 	  handle NaN and Inf values.
 	'''
+
+	object_dtype = np.dtype(object)
 	if issubclass(array1.dtype.type, np.floating):
 		try:
 			# This handles float tolerance but not NaN and Inf.
@@ -355,6 +357,15 @@ def compare_ndarrays(array1, array2):
 		except AssertionError as _:
 			# return elide(array1), elide(array2), simplify_error_message(e.args[0])
 			pass  # try again, below
+	# Handle ragged arrays created with an object dtype
+	elif array1.dtype == object_dtype and array2.dtype == object_dtype:
+		try:
+			assert array1.shape == array2.shape
+			for sub1, sub2 in zip(array1, array2):
+				np.testing.assert_equal(sub1, sub2)
+			return ()
+		except AssertionError as e:
+			return simplify_error_message(e.args[0])
 
 	try:
 		# This handles non-float dtypes, also NaN and Inf, but no tolerance.

@@ -41,7 +41,7 @@ class CellDivision(wholecell.processes.process.Process):
 			# an approximation for length)
 			self.expectedDryMassIncreaseDict = sim_data.expectedDryMassIncreaseDict
 			self.internal_states = sim.internal_states
-			self.water_index = sim_data.submassNameToIndex["water"]
+			self.water_index = sim_data.submass_name_to_index["water"]
 
 			if sim._massDistribution:
 				self.division_mass_multiplier = sim.randomState.normal(loc=1.0, scale=0.1)
@@ -67,7 +67,7 @@ class CellDivision(wholecell.processes.process.Process):
 		# chromosome if the chromosome has already induced division to avoid
 		# double counting.
 		if self.d_period_division:
-			if self.full_chromosomes.total_counts() >= 2:
+			if self.full_chromosomes.total_count() >= 2:
 				# Extract attributes from existing full chromosomes
 				division_time, has_triggered_division = self.full_chromosomes.attrs(
 					"division_time", "has_triggered_division"

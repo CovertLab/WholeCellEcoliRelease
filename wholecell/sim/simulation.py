@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Simulation
 
@@ -8,6 +6,7 @@ Simulation
 
 from __future__ import absolute_import, division, print_function
 
+import binascii
 import collections
 import os.path
 import shutil
@@ -25,7 +24,6 @@ import wholecell.loggers.disk
 
 from six.moves import range
 import six
-from six.moves import zip
 
 MAX_TIME_STEP = 2.
 DEFAULT_SIMULATION_KWARGS = dict(
@@ -386,7 +384,7 @@ class Simulation():
 
 
 	def _seedFromName(self, name):
-		return np.uint32((self._seed + hash(name)) % np.iinfo(np.uint64).max)
+		return binascii.crc32(name.encode('utf-8'), self._seed) & 0xffffffff
 
 
 	def initialTime(self):

@@ -10,6 +10,7 @@ Files to generate the `sim_data` object that contains all parameters needed to r
 * `reconstruction/ecoli/...`
     * `flat/`: raw data files
     * `dataclasses/`: classes for organizing data related to processes and states
+    * `scripts/`: scripts for processing data sources to `*.tsv` files in `reconstruction/ecoli/flat/`
     * `knowledge_base_raw.py`: script to load raw data
     * `simulation_data.py`: class of the `sim_data` object
     * `fit_sim_data_1.py`: script to calculate parameters from raw data to produce the `sim_data` object required for simulations
@@ -44,13 +45,14 @@ This data will only be accessed during analysis and not during simulations.
     * `build*.sh`: scripts to run Docker builds
 
 ### Runscripts
-Scripts used as entry points for executing workflows, performing analysis or generating/cleaning data.
+Scripts used as entry points for executing workflows or performing analysis.
 * `runscripts/...`
-    * `reconstruction/`: scripts for processing data sources to `*.tsv` files in `reconstruction/ecoli/flat/`
     * `jenkins/`: scripts to test codebase through continuous integration (CI)
     * `manual/`: scripts for running portions of workflows interactively
+    * `debug/`: scripts useful for debugging issues like output differences and inspecting `sim_data`
     * `cloud/wcm.py`: used to make Docker fireworks workflows to run locally or on Google compute engine
     * `fireworks/fw_queue.py`: used to make fireworks workflows to run locally or on Sherlock
+    * `tools/`: development tools
 
 ## Analysis
 
@@ -103,25 +105,24 @@ The sections below provide step by step guides for adding different components t
 ### New raw data
 Raw data should always be annotated with the source and process used to generate it for reproducibility.  The best way is to include it in the file as noted below and described in the PR that incorporates the data into the repo.  Adding several data files and scripts to a runscript directory could also use a README.md if desired to point to sources and describe how to run the scripts/what output to expect.
 1. Add a raw data file to [reconstruction/ecoli/flat/](https://github.com/CovertLab/wcEcoli/tree/master/reconstruction/ecoli/flat). Data is stored in a `.tsv` file format with special formatting handling to allow units (specified in parentheses in column headers), lists, dictionaries and comments (lines starting with `#`).
-1. Annotate where the data came from in a comment at the top of the file (URL for the data source and/or script used for processing original data - [see example](https://github.com/CovertLab/wcEcoli/blob/master/reconstruction/ecoli/flat/metabolism_kinetics.tsv)). If a script was required, add it to [runscripts/reconstruction](https://github.com/CovertLab/wcEcoli/tree/master/runscripts/reconstruction).
+1. Annotate where the data came from in a comment at the top of the file (URL for the data source and/or script used for processing original data - [see example](https://github.com/CovertLab/wcEcoli/blob/master/reconstruction/ecoli/flat/metabolism_kinetics.tsv)). If a script was required, add it to [reconstruction/ecoli/scripts](https://github.com/CovertLab/wcEcoli/tree/master/reconstruction/ecoli/scripts).
 1. Add the filename to `LIST_OF_DICT_FILENAMES` in [knowledge_base_raw.py](https://github.com/CovertLab/wcEcoli/blob/master/reconstruction/ecoli/knowledge_base_raw.py). This will cause the data to be loaded into the class when an instance of `KnowledgeBaseEcoli` is created.
 1. Access, process and store the data in the appropriate reconstruction class (eg [processes](https://github.com/CovertLab/wcEcoli/tree/master/reconstruction/ecoli/dataclasses/process) or [states](https://github.com/CovertLab/wcEcoli/tree/master/reconstruction/ecoli/dataclasses/state)) by accessing the `raw_data` attribute for the file (eg. `raw_data.new_file` for a file named `new_file.tsv`)
 
-**NOTE:** if there are issues loading the new file, try saving it using `JsonWriter` from [reconstruction/spreadsheets.py](https://github.com/CovertLab/wcEcoli/blob/master/reconstruction/spreadsheets.py) to ensure proper formatting that can be read by `JsonReader`:
+**NOTE:** if there are issues loading the new file, try saving it using `tsv_writer` from [reconstruction/spreadsheets.py](https://github.com/CovertLab/wcEcoli/blob/master/reconstruction/spreadsheets.py) to ensure proper formatting that can be read by `tsv_reader` or `JsonReader`:
 ```python
-from reconstruction.spreadsheets import JsonWriter
+from reconstruction.spreadsheets import tsv_writer
 
-headers = ['a', 'b']
-with open('output.tsv', 'w') as f:
-    writer = JsonWriter(f, headers)
-    writer.writeheader()
+filename = 'output.tsv'
+fieldnames = ['a', 'b']
+with tsv_writer(filename, fieldnames) as writer:
     writer.writerow({'a': 1, 'b': 2})  # write as many rows of data as needed
 ```
 
 ### New validation data
 The steps to add validation data are very similar to that described in `New raw data` above but an important distinction to make between raw data and validation data is that validation data will not be used to calculate parameters or be used in simulations at all.  Validation data is only used to compare simulation results in analysis plots.  Additional information about file formatting and annotating in `New raw data` should also be considered here.
 1. Add a validation data file to [validation/ecoli/flat/](https://github.com/CovertLab/wcEcoli/tree/master/validation/ecoli/flat).
-1. Annotate where the data came from in a comment at the top of the file (URL for the data source and/or script used for processing original data - [see example](https://github.com/CovertLab/wcEcoli/blob/master/reconstruction/ecoli/flat/metabolism_kinetics.tsv)). If a script was required, add it to [runscripts/reconstruction](https://github.com/CovertLab/wcEcoli/tree/master/runscripts/reconstruction).
+1. Annotate where the data came from in a comment at the top of the file (URL for the data source and/or script used for processing original data - [see example](https://github.com/CovertLab/wcEcoli/blob/master/reconstruction/ecoli/flat/metabolism_kinetics.tsv)). If a script was required, add it to [reconstruction/ecoli/scripts](https://github.com/CovertLab/wcEcoli/tree/master/reconstruction/ecoli/scripts).
 1. Add the filename to `LIST_OF_DICT_FILENAMES` in [validation_data_raw.py](https://github.com/CovertLab/wcEcoli/blob/master/validation/ecoli/validation_data_raw.py). This will cause the data to be loaded into the class when an instance of `ValidationDataRawEcoli` is created.
 1. Access, process and store the data as an attribute in the appropriate class (or create a new class) in [validation_data.py](https://github.com/CovertLab/wcEcoli/blob/master/validation/ecoli/validation_data.py) by accessing the `validation_data_raw` attribute for the file (eg. `validation_data_raw.new_file` for a file named `new_file.tsv`)
 

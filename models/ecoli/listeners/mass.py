@@ -46,25 +46,17 @@ class Mass(wholecell.listeners.listener.Listener):
 		self.cellCycleLen = sim_data.conditionToDoublingTime[sim_data.condition].asNumber(units.s)
 
 		self.rnaIndexes = np.array([
-			sim_data.submassNameToIndex[name]
-			for name in ["23srRNA", "16srRNA", "5srRNA", "tRNA", "mRNA", "miscRNA", "RNA"]
+			sim_data.submass_name_to_index[name]
+			for name in ["rRNA", "tRNA", "mRNA", "miscRNA", "nonspecific_RNA"]
 			])
 
-		self.rRnaIndexes = np.array([
-			sim_data.submassNameToIndex[name]
-			for name in ["23srRNA", "16srRNA", "5srRNA"]
-			])
-
-		self.smallMoleculeIndexes = np.array([
-			sim_data.submassNameToIndex[name]
-			for name in ["metabolite"]
-			])
-
-		self.tRnaIndex = sim_data.submassNameToIndex["tRNA"]
-		self.mRnaIndex = sim_data.submassNameToIndex["mRNA"]
-		self.dnaIndex = sim_data.submassNameToIndex["DNA"]
-		self.proteinIndex = sim_data.submassNameToIndex["protein"]
-		self.waterIndex = sim_data.submassNameToIndex["water"]
+		self.rRnaIndex = sim_data.submass_name_to_index["rRNA"]
+		self.smallMoleculeIndex = sim_data.submass_name_to_index["metabolite"]
+		self.tRnaIndex = sim_data.submass_name_to_index["tRNA"]
+		self.mRnaIndex = sim_data.submass_name_to_index["mRNA"]
+		self.dnaIndex = sim_data.submass_name_to_index["DNA"]
+		self.proteinIndex = sim_data.submass_name_to_index["protein"]
+		self.waterIndex = sim_data.submass_name_to_index["water"]
 
 		self.cellDensity = sim_data.constants.cellDensity.asNumber(units.g / units.L)
 
@@ -148,12 +140,12 @@ class Mass(wholecell.listeners.listener.Listener):
 		self.waterMass = all_submasses[self.waterIndex]
 		self.dryMass = self.cellMass - self.waterMass
 		self.rnaMass = all_submasses[self.rnaIndexes].sum()
-		self.rRnaMass = all_submasses[self.rRnaIndexes].sum()
+		self.rRnaMass = all_submasses[self.rRnaIndex]
 		self.tRnaMass = all_submasses[self.tRnaIndex]
 		self.mRnaMass = all_submasses[self.mRnaIndex]
 		self.dnaMass = all_submasses[self.dnaIndex]
 		self.proteinMass = all_submasses[self.proteinIndex]
-		self.smallMoleculeMass = all_submasses[self.smallMoleculeIndexes]
+		self.smallMoleculeMass = all_submasses[self.smallMoleculeIndex]
 
 		# TODO (Eran) use this volume everywhere in the codebase that is currently calculating volume
 		self.volume = self.cellMass / self.cellDensity
@@ -204,7 +196,7 @@ class Mass(wholecell.listeners.listener.Listener):
 			water_units = self.massUnits,
 			nucleoid_units = self.massUnits,
 			processNames = self.processNames,
-			smallMoleculeMass = list(self.smallMoleculeMass),
+			smallMoleculeMass = self.smallMoleculeMass,
 			subcolumns = {})
 
 
@@ -223,7 +215,7 @@ class Mass(wholecell.listeners.listener.Listener):
 			proteinMass = self.proteinMass,
 			waterMass = self.waterMass,
 			processMassDifferences = self.processMassDifferences.astype(np.float64),
-			smallMoleculeMass = list(self.smallMoleculeMass),
+			smallMoleculeMass = self.smallMoleculeMass,
 			instantaniousGrowthRate = self.instantaniousGrowthRate,
 			cellVolume = self.volume
 			)

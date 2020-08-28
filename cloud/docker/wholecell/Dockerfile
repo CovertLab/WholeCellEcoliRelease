@@ -4,9 +4,7 @@
 #
 # To build this image locally from the wcEcoli/ project root directory:
 #
-#     > docker build -f cloud/docker/wholecell/Dockerfile -t wcm-code .
-#
-# (Add option `--build-arg from=ABC` to build from a different base image.)
+#     > docker build -f cloud/docker/wholecell/Dockerfile -t ${USER}-wcm-code --build-arg from=${USER}-wcm-runtime .
 #
 # (If you want to build container image #3 on top of the locally-built base,
 # you'll have to edit that Dockerfile or upload this image.)
@@ -16,11 +14,13 @@
 #
 # After building locally you can start up a new container from the image:
 #
-#     > docker run --name wholecelltest --user "$(id -u):$(id -g)" -it --rm wcm-code
+#     > docker run --name wholecelltest --user "$(id -u):$(id -g)" -it --rm ${USER}-wcm-code
 #
 # or if you used build.sh or build-wcm.sh to build using Cloud Build:
 #
-#     > docker run --name wholecelltest --user "$(id -u):$(id -g)" -it --rm gcr.io/allen-discovery-center-mcovert/$USER-wcm-code
+#     > PROJECT="$(gcloud config get-value core/project)"
+#     > TAG="gcr.io/${PROJECT}/${USER}-wcm-code"
+#     > docker run --name wholecelltest --user "$(id -u):$(id -g)" -it --rm "${TAG}"
 #
 # It will start a shell where you can execute commands:
 #

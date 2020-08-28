@@ -41,7 +41,7 @@ RNA_EXPRESSION_ADJUSTMENTS = {
 	"EG11672_RNA[c]": 10,  # atoB, acetyl-CoA acetyltransferase; This RNA is fit for the anaerobic condition viability
 	"EG10238_RNA[c]": 10,  # dnaE, DNA polymerase III subunit alpha; This RNA is fit for the sims to produce enough DNAPs for timely replication
 	"EG11673_RNA[c]": 10,  # folB, dihydroneopterin aldolase; needed for growth (METHYLENE-THF) in acetate condition
-	"EG10808_RNA[c]": 2,  # pyrE, orotate phosphoribosyltransferase; Needed for UTP synthesis, transcriptional regulation by UTP is not included in the model
+	"EG10808_RNA[c]": 4,  # pyrE, orotate phosphoribosyltransferase; Needed for UTP synthesis, transcriptional regulation by UTP is not included in the model
 	}
 RNA_DEG_RATES_ADJUSTMENTS = {
 	"EG11493_RNA[c]": 2,  # pabC, aminodeoxychorismate lyase
@@ -2710,25 +2710,19 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		# from existing values of P in matrix G are close to fit values.
 		R = Variable(G.shape[1])  # Vector of r's and alpha's
 
-		# Objective: minimize difference between k and G*R
-		# TODO(jerry): Change `G*R` to `G @ R` to fix deprecation warnings,
-		#  after dropping support for Python 2.
+		# Objective: minimize difference between k and G @ R
 		objective_r = Minimize(
-			norm(G*(PROMOTER_SCALING*R) - PROMOTER_SCALING*k, PROMOTER_NORM_TYPE)
-			)
+			norm(G @ (PROMOTER_SCALING * R) - PROMOTER_SCALING * k, PROMOTER_NORM_TYPE))
 
 		# Optimization constraints
-		# 1) 0 <= Z*R <= 1 : Assuming P = 1 for all TFs, all possible
+		# 1) 0 <= Z @ R <= 1 : Assuming P = 1 for all TFs, all possible
 		# combinations of TFs should yield a valid transcription probability
 		# value between zero and one.
-		# 2) T*R >= 0 : Values of r for positive regulation should be positive,
+		# 2) T @ R >= 0 : Values of r for positive regulation should be positive,
 		# and values of r for negative regulation should be negative.
-		# TODO(jerry): Change `Z*R` and `T*R` to `Z @ R` and `T @ R` to fix
-		#  deprecation warnings, after dropping support for Python 2.
 		constraint_r = [
-			0 <= Z*(PROMOTER_SCALING*R), Z*(PROMOTER_SCALING*R) <= PROMOTER_SCALING*1,
-			T*(PROMOTER_SCALING*R) >= 0
-			]
+			0 <= Z @ (PROMOTER_SCALING * R), Z @ (PROMOTER_SCALING * R) <= PROMOTER_SCALING,
+			T @ (PROMOTER_SCALING * R) >= 0]
 
 		# Solve optimization problem
 		prob_r = Problem(objective_r, constraint_r)
@@ -2765,31 +2759,25 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		Drhs[D != 1] = 0
 
 		# Objective: minimize difference between k (fit RNAP initiation
-		# probabilities) and H*P (computed initiation probabilities) while
+		# probabilities) and H @ P (computed initiation probabilities) while
 		# also minimizing deviation of P from the original value calculated
 		# from mean TF and ligand concentrations
-		# TODO(jerry): Change `H*P` to `H @ P` to fix a deprecation warning,
-		#  after dropping support for Python 2.
 		objective_p = Minimize(
-			norm(H*(PROMOTER_SCALING*P) - PROMOTER_SCALING*k, PROMOTER_NORM_TYPE)
-			+ PROMOTER_REG_COEFF*norm(P - pInit0, PROMOTER_NORM_TYPE)
-			)
+			norm(H @ (PROMOTER_SCALING * P) - PROMOTER_SCALING * k, PROMOTER_NORM_TYPE)
+			+ PROMOTER_REG_COEFF * norm(P - pInit0, PROMOTER_NORM_TYPE))
 
 		# Constraints
 		# 1) 0 <= P <= 1 : All DNA-bound probabilities should be between zero
 		# and one.
-		# 2) D*P == Drhs : Values of P that correspond to alpha's and fixed TFs
+		# 2) D @ P == Drhs : Values of P that correspond to alpha's and fixed TFs
 		# should not change.
-		# 3) pdiff*P >= 0.1 : There must be at least a difference of 0.1
+		# 3) pdiff @ P >= 0.1 : There must be at least a difference of 0.1
 		# between binding probabilities of a TF in conditions TF__active and
 		# TF__inactive
-		# TODO(jerry): Change `*` to `@` in `np.diag(D) *` and `pdiff @` to fix
-		#  deprecation warnings, after dropping support for Python 2.
 		constraint_p = [
-			0 <= PROMOTER_SCALING*P, PROMOTER_SCALING*P <= PROMOTER_SCALING*1,
-			np.diag(D)*(PROMOTER_SCALING*P) == PROMOTER_SCALING*Drhs,
-			pdiff*(PROMOTER_SCALING*P) >= PROMOTER_SCALING*PROMOTER_PDIFF_THRESHOLD
-			]
+			0 <= PROMOTER_SCALING * P, PROMOTER_SCALING * P <= PROMOTER_SCALING,
+			np.diag(D) @ (PROMOTER_SCALING * P) == PROMOTER_SCALING * Drhs,
+			pdiff @ (PROMOTER_SCALING * P) >= PROMOTER_SCALING * PROMOTER_PDIFF_THRESHOLD]
 
 		# Solve optimization problem
 		prob_p = Problem(objective_p, constraint_p)
@@ -3227,7 +3215,7 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 	needToUpdate = False
 	fixturesDir = filepath.makedirs(filepath.ROOT_PATH, "fixtures", "endo_km")
 	# Numpy 'U' fields make these files incompatible with older code, so change
-	# the filename. No need to make files compatible between Python 2 & 3l we'd
+	# the filename. No need to make files compatible between Python 2 & 3; we'd
 	# have to set the same protocol version and set Python 3-only args like
 	# encoding='latin1'.
 	km_filepath = os.path.join(fixturesDir, 'km{}.cPickle'.format(sys.version_info[0]))
