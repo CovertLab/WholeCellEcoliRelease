@@ -90,25 +90,11 @@ class Translation(object):
 		mws = sim_data.getter.getMass(protein_ids).asNumber(units.g/units.mol)
 
 		# Calculate degradation rates based on N-rule
-		# TODO: citation
 		deg_rate_units = 1 / units.s
-		fastRate = (np.log(2) / (2*units.min)).asNumber(deg_rate_units)
-		slowRate = (np.log(2) / (10*60*units.min)).asNumber(deg_rate_units)
-
-		fastAAs = ["R", "K", "F", "L", "W", "Y"]
-		slowAAs = ["H", "I", "D", "E", "N", "Q", "C", "A", "S", "T", "G", "V", "M"]
-		noDataAAs = ["P", "U"]
-
-		NruleDegRate = {}
-		NruleDegRate.update(
-			(fastAA, fastRate) for fastAA in fastAAs
-			)
-		NruleDegRate.update(
-			(slowAA, slowRate) for slowAA in slowAAs
-			)
-		NruleDegRate.update(
-			(noDataAA, slowRate) for noDataAA in noDataAAs
-			) # Assumed slow rate because of no data
+		n_end_rule_deg_rates = {
+			row['aa_abbreviation']: (np.log(2)/(row['half life'])).asNumber(deg_rate_units)
+			for row in raw_data.protein_half_lives_n_end_rule}
+		slow_deg_rate = min(n_end_rule_deg_rates.values())
 
 		# Build list of ribosomal proteins
 		# Give all ribosomal proteins the slowAA rule
@@ -119,17 +105,17 @@ class Translation(object):
 		# Get degradation rates from measured protein half lives
 		measured_deg_rates = {
 			p['id']: (np.log(2) / p['half life']).asNumber(deg_rate_units)
-			for p in raw_data.protein_half_lives
+			for p in raw_data.protein_half_lives_measured
 			}
 
 		degRate = np.zeros(len(raw_data.proteins))
-		for i,m in enumerate(raw_data.proteins):
-			if m['id'] in measured_deg_rates:
-				degRate[i] = measured_deg_rates[m['id']]
-			elif m['id'] not in ribosomalProteins:
-				degRate[i] = NruleDegRate[m['seq'][0]]
+		for i, protein in enumerate(raw_data.proteins):
+			if protein['id'] in measured_deg_rates:
+				degRate[i] = measured_deg_rates[protein['id']]
+			elif protein['id'] not in ribosomalProteins:
+				degRate[i] = n_end_rule_deg_rates[protein['seq'][0]]
 			else:
-				degRate[i] = slowRate
+				degRate[i] = slow_deg_rate
 
 		max_protein_id_length = max(
 			len(protein_id) for protein_id in protein_ids_with_compartments)

@@ -114,7 +114,7 @@ class InternalState(object):
 		"""
 		Builds a list of molecule IDs with compartment tags and a corresponding
 		array of molecular masses to add to the bulk state. Can only be used
-		for molecules whose mass belongs to a single submass type.
+		for molecules whose entire mass falls into a single submass type.
 		Args:
 			molecule_ids (List[str]): List of molecule IDs w/o compartment tags
 			submass_indexes (List[int]): List of submass indexes
@@ -127,7 +127,7 @@ class InternalState(object):
 		molecule_ids_with_compartments = []
 		masses = []
 
-		# Loop through each RNA species and associated compartments
+		# Loop through each molecule species and associated compartments
 		for molecule_id, submass_index in zip(molecule_ids, submass_indexes):
 			mw = sim_data.getter.getMass([molecule_id]).asNumber(units.g / units.mol)[0]
 
@@ -140,7 +140,7 @@ class InternalState(object):
 
 				masses.append(mass)
 
-		masses = (units.g / units.mol) * np.array(masses)
+		masses = (units.g/units.mol) * np.array(masses)
 
 		return molecule_ids_with_compartments, masses
 

@@ -1,0 +1,9 @@
+# Measured half lives, other proteins follow N-end rule in protein_half_lives_n_end_rule.tsv
+"id"	"half life (units.min)"	"comments"
+"DCUR-MONOMER"	108	"DcuR"
+"DETHIOBIOTIN-SYN-MONOMER"	324	"BioD"
+"EG10863-MONOMER"	36	"Rph"
+"CARBPSYN-SMALL"	846	"CarA"
+"EG10743-MONOMER"	972	"Pnp"
+"GLUTCYSLIG-MONOMER"	2382	"GshA"
+"CDPDIGLYSYN-MONOMER"	600	"CdsA, unable to measure exactly but measured as longer than expected 2 min from N-end rule so default to 10 hr from N-end rule"

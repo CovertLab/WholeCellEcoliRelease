@@ -190,7 +190,7 @@ class getterFunctions(object):
 			rna['id']: ['c'] for rna in raw_data.rnas
 			})
 
-		# Proteins localize to the one compartment specified in raw data for
+		# Proteins localize to the single compartment specified in raw data for
 		# each protein
 		locationDict.update({
 			protein['id']: [protein['location']] for protein in raw_data.proteins
