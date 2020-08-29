@@ -160,14 +160,7 @@ class Metabolism(wholecell.processes.process.Process):
 		fba.solve(n_retries)
 
 		## Internal molecule changes
-		try:
-			# Sometimes this call needs to be run a second time to
-			# succeed
-			change = fba.getOutputMoleculeLevelsChange()
-		except RuntimeError:
-			change = fba.getOutputMoleculeLevelsChange()
-		delta_metabolites = (1 / counts_to_molar) * (
-			CONC_UNITS * change)
+		delta_metabolites = (1 / counts_to_molar) * (CONC_UNITS * fba.getOutputMoleculeLevelsChange())
 		metabolite_counts_final = np.fmax(stochasticRound(
 			self.randomState,
 			metabolite_counts_init + delta_metabolites.asNumber()
