@@ -23,9 +23,14 @@ REFERENCE_DATA_PATH = os.path.join(
 OUTPUT_DATA_PATH = os.path.join(
 	os.path.dirname(__file__), 'test_output.csv')
 #: Length of simulation to run for both generation and checking
-DURATION = 50
+DURATION = 1300
 #: Number of cells with which to initialize simulation
-NUM_CELLS = 2
+NUM_CELLS = 1
+PULSE_CONCENTRATION = 0
+ADD_AA = True
+ANAEROBIC = False
+ANTIBIOTIC_THRESHOLD = 0.02
+UPDATE_FIELDS = False
 
 
 # TODO: Replace this with Vivarium import
@@ -111,7 +116,9 @@ def run_simulation():
 		'type': 'timeseries'
 	}
 	emitter = simulate(
-		emitter_config, DURATION, NUM_CELLS)
+		emitter_config, DURATION, NUM_CELLS, PULSE_CONCENTRATION,
+		ADD_AA, ANAEROBIC, ANTIBIOTIC_THRESHOLD, UPDATE_FIELDS,
+	)
 	path_ts = emitter.get_path_timeseries()
 	processed_ts = process_path_timeseries_for_csv(path_ts)
 	return processed_ts
@@ -148,6 +155,20 @@ def main():
 			simulation_ts, reference_ts,
 			tolerances={
 				'agents,wcecoli_0,boundary,bulk_molecules_report,BCCP-MONOMER[c]':
+					900,
+				'agents,wcecoli_0,boundary,bulk_molecules_report,G7602-MONOMER[c]':
+					9,
+				'agents,wcecoli_0,boundary,bulk_molecules_report,G7763-MONOMER[c]':
+					9,
+				'agents,wcecoli_0,boundary,bulk_molecules_report,EG11162-MONOMER[c]':
+					50,
+				'agents,wcecoli_0,boundary,bulk_molecules_report,EG11256-MONOMER[c]':
+					500,
+				'agents,wcecoli_0,boundary,dry_mass': 9,
+				'agents,wcecoli_0,boundary,mass': 9,
+				'agents,wcecoli_0,boundary,bulk_molecules_report,G7602-MONOMER[c]':
+					99,
+				'agents,wcecoli_0,boundary,bulk_molecules_report,PD03585[c]':
 					9,
 			},
 		)
