@@ -39,6 +39,10 @@ wheel>=0.34.2
 # Direct dependendencies, frozen at the latest version 2020-07-08, except bokeh is
 # frozen at the latest version that's compatible with Python 2.
 #
+# confluent-kafka is for wholecell-vivarium.
+# dnspython is for pymongo to access server clusters.
+# pytest-cov is for `pytest --cov`.
+#
 # TODO: Periodically unfreeze, update, test, and refreeze.
 numpy==1.19.0
 scipy==1.5.1
@@ -49,6 +53,7 @@ borealis-fireworks==0.6.6
 confluent-kafka==1.4.2
 cvxpy==1.1.3
 Cython==0.29.21
+dnspython==2.0.0
 Equation==1.2.1
 FireWorks==1.9.6
 future==0.18.2

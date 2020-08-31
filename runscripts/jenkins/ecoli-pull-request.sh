@@ -39,6 +39,8 @@ if [ $N_FAILS -gt 0 ]; then
   mv out/2* /scratch/PI/mcovert/wc_ecoli/failed/
 fi
 
+git status | head -1
+
 test $N_FAILS = 0 -a $MYPY_FAILED = 0
 
 rm -fr out/*
