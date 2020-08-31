@@ -610,7 +610,7 @@ def initialize_transcription_factors(bulkMolCntr, uniqueMolCntr, sim_data, rando
 			bound_locs[
 				randomState.choice(
 					n_available_promoters,
-					size=np.min((n_to_bind, active_tf_view[tf_id].counts())),
+					size=min(n_to_bind, active_tf_view[tf_id].counts()[0]),
 					replace=False)
 			] = True
 
