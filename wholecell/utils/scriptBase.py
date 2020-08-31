@@ -66,7 +66,9 @@ SIM_KEYS = (
 	'trna_charging',
 	'ppgpp_regulation',
 	'superhelical_density',
-	'raise_on_time_limit')
+	'raise_on_time_limit',
+	'log_to_shell',
+	)
 
 ANALYSIS_KEYS = (
 	'plot',
@@ -437,6 +439,8 @@ class ScriptBase(six.with_metaclass(abc.ABCMeta, object)):
 		add_bool_option('raise_on_time_limit', 'raise_on_time_limit',
 			help='if true, the simulation raises an error if the time limit'
 				 ' (--length-sec) is reached before division.')
+		add_bool_option('log_to_shell', 'logToShell',
+			help='if true, logs output to the shell')
 
 	def define_range_options(self, parser, *range_keys):
 		# type: (argparse.ArgumentParser, *str) -> None
