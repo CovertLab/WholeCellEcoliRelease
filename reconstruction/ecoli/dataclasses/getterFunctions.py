@@ -11,7 +11,6 @@ import itertools
 import re
 from typing import List, Union
 
-from Bio.Alphabet import IUPAC
 from Bio.Seq import Seq
 import numpy as np
 
@@ -95,7 +94,7 @@ class getterFunctions(object):
 		in raw_data.
 		"""
 		for protein in raw_data.proteins:
-			self._sequences[protein['id']] = Seq(protein['seq'], IUPAC.protein)
+			self._sequences[protein['id']] = Seq(protein['seq'])
 
 	def _build_all_masses(self, raw_data, sim_data):
 		"""

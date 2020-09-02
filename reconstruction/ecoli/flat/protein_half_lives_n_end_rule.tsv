@@ -1,5 +1,5 @@
 # Half lives of protein monomers are determined by the identity of their amino-terminal residues. Slow degradation is assumed for P and U. (Tobias et al, 1986)
-"aa_abbreviation"	"aa_id"	"half life (units.min)"
+"aa_code"	"aa_id"	"half life (units.min)"
 "A"	"L-ALPHA-ALANINE[c]"	600
 "R"	"ARG[c]"	2
 "N"	"ASN[c]"	600

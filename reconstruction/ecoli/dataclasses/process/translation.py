@@ -58,6 +58,7 @@ class Translation(object):
 		# Get protein IDs with compartments
 		protein_ids = [protein['id'] for protein in raw_data.proteins]
 		protein_compartments = sim_data.getter.getLocation(protein_ids)
+		assert all([len(loc) == 1 for loc in protein_compartments])
 		protein_ids_with_compartments = [
 			f'{protein_id}[{loc[0]}]' for (protein_id, loc)
 			in zip(protein_ids, protein_compartments)
@@ -73,7 +74,7 @@ class Translation(object):
 			monomer_id_to_rna_id[protein['id']]
 			for protein in raw_data.proteins]
 		rna_compartments = sim_data.getter.getLocation(rna_ids)
-
+		assert all([len(loc) == 1 for loc in rna_compartments])
 		rna_ids_with_compartments = [
 			f'{rna_id}[{loc[0]}]'
 			for (rna_id, loc) in zip(rna_ids, rna_compartments)]
@@ -92,7 +93,7 @@ class Translation(object):
 		# Calculate degradation rates based on N-rule
 		deg_rate_units = 1 / units.s
 		n_end_rule_deg_rates = {
-			row['aa_abbreviation']: (np.log(2)/(row['half life'])).asNumber(deg_rate_units)
+			row['aa_code']: (np.log(2)/(row['half life'])).asNumber(deg_rate_units)
 			for row in raw_data.protein_half_lives_n_end_rule}
 		slow_deg_rate = min(n_end_rule_deg_rates.values())
 
