@@ -3229,7 +3229,7 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 		# R_aux calculates the difference of the degradation rate based on these
 		# Km values and the expected rate so this sum seems like a reliable test of
 		# whether the cache fits current input data.
-		if np.sum(np.abs(R_aux(KmcountsCached))) > 1e-15:
+		if Kmcounts.shape != KmcountsCached.shape or np.sum(np.abs(R_aux(KmcountsCached))) > 1e-15:
 			needToUpdate = True
 	else:
 		needToUpdate = True
