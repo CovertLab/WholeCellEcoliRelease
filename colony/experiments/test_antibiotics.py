@@ -1,4 +1,4 @@
-'''Test script for the Lattice Experiment of an E. coli colony
+'''Test script for the Antibiotics Experiment of an E. coli colony
 '''
 
 from __future__ import absolute_import, division, print_function
@@ -11,14 +11,19 @@ from vivarium.core.composition import (
 	load_timeseries,
 	assert_timeseries_close
 )
+from vivarium.library.timeseries import (
+	process_path_timeseries_for_csv,
+	save_flat_timeseries,
+)
 from wholecell.io import tsv
 
-from environment.lattice_experiment import simulate
+from colony.experiments.antibiotics import simulate
+from colony.reference_data.constants import REFERENCE_DATA_PATH
 
 
 #: Location of the reference data
-REFERENCE_DATA_PATH = os.path.join(
-	os.path.dirname(__file__), 'reference_data.csv')
+REFERENCE_DATA_FILE = os.path.join(
+	REFERENCE_DATA_PATH, 'antibiotics.csv')
 #: File to write simulation data to
 OUTPUT_DATA_PATH = os.path.join(
 	os.path.dirname(__file__), 'test_output.csv')
@@ -31,77 +36,6 @@ ADD_AA = True
 ANAEROBIC = False
 ANTIBIOTIC_THRESHOLD = 0.02
 UPDATE_FIELDS = False
-
-
-# TODO: Replace this with Vivarium import
-def process_path_timeseries_for_csv(path_ts):
-	# type: (dict) -> dict
-	'''Prepare path timeseries data for writing to CSV
-
-	Processing Steps:
-
-	1. Convert any dictionary keys that are tuples to strings by joining
-	   the tuple elements with ``-``.
-	2. Remove from the timeseries any data where each timepoint is not
-	   numeric. For example, we remove data where each timepoint is a
-	   matrix or a string.
-
-	.. note:: We assume that across timepoints for the same variable,
-		the data types are the same.
-
-	Returns:
-		dict: A timeseries that can be saved to a CSV with
-		:py:func:`save_flat_timeseries`.
-	'''
-	# Convert tuple keys to strings
-	str_keys = dict()
-	for key, value in path_ts.items():
-		try:
-			iter(key)
-			if not isinstance(key, str):
-				key = ",".join(key)
-		except TypeError:
-			pass
-		str_keys[key] = value
-
-	remove_keys = [
-		# Remove matrices
-		key for key, val in str_keys.items()
-		if isinstance(val[0], list)
-	]
-	# Remove keys with non-numeric data
-	for key, val in str_keys.items():
-		try:
-			float(val[0])
-		except (ValueError, TypeError):
-			remove_keys.append(key)
-	for key in set(remove_keys):
-		del str_keys[key]
-	return str_keys
-
-
-# TODO: Replace this with Vivarium import
-def save_flat_timeseries(
-	timeseries,
-	out_dir=os.path.dirname(REFERENCE_DATA_PATH),
-	filename=os.path.basename(REFERENCE_DATA_PATH),
-):
-	# type: (dict, str, str) -> None
-	'''Save a flattened timeseries to a CSV file
-
-	The CSV file will have one column for each key in the timeseries.
-	The heading will be the key, and the rows will contain the
-	timeseries data, one row per timepoint, in increasing order of time.
-	'''
-	n_rows = max([len(val) for val in timeseries.values()])
-	rows = [{} for _ in range(n_rows)]
-	for key, val in timeseries.items():
-		for i, elem in enumerate(val):
-			rows[i][key] = elem
-	with io.open(os.path.join(out_dir, filename), 'wb') as f:
-		writer = tsv.dict_writer(f, timeseries.keys(), delimiter=',')
-		writer.writeheader()
-		writer.writerows(rows)
 
 
 def run_simulation():
@@ -130,13 +64,14 @@ def main():
 		'--generate', '-g',
 		action='store_true',
 		default=False,
-		help='Save reference data to {}.'.format(REFERENCE_DATA_PATH),
+		help='Save reference data to {}.'.format(REFERENCE_DATA_FILE),
 	)
 	parser.add_argument(
 		'--check', '-c',
 		action='store_true',
 		default=False,
-		help='Check that model behavior matches {}.'.format(REFERENCE_DATA_PATH),
+		help='Check that model behavior matches {}.'.format(
+            REFERENCE_DATA_FILE),
 	)
 	args = parser.parse_args()
 	assert args.check != args.generate
@@ -147,7 +82,7 @@ def main():
 		filename=os.path.basename(OUTPUT_DATA_PATH),
 	)
 	if args.check:
-		reference_ts = load_timeseries(REFERENCE_DATA_PATH)
+		reference_ts = load_timeseries(REFERENCE_DATA_FILE)
 		# We load simulation data from the file so that all
 		# transformations by CSV reader/writer are applied
 		simulation_ts = load_timeseries(OUTPUT_DATA_PATH)
@@ -173,7 +108,11 @@ def main():
 			},
 		)
 	if args.generate:
-		save_flat_timeseries(processed_ts)
+		save_flat_timeseries(
+			processed_ts,
+			os.path.dirname(OUTPUT_DATA_PATH),
+			os.path.basename(OUTPUT_DATA_PATH),
+		)
 
 
 if __name__ == '__main__':

@@ -14,6 +14,7 @@ from models.ecoli.sim.simulation import ecoli_simulation
 from models.ecoli.sim.variants import apply_variant
 from wholecell.utils import constants
 import wholecell.utils.filepath as fp
+from colony.constants import WCECOLI_ROOT
 
 
 def initialize_ecoli(config):
@@ -169,7 +170,7 @@ def ecoli_boot_config(agent_config):
 	return options
 
 
-class wcEcoliAgent(Process):
+class WcEcoli(Process):
 	defaults = {
 		'agent_id': 'X',
 		'agent_config': {
@@ -193,7 +194,7 @@ class wcEcoliAgent(Process):
 	mass_units = units.fg
 	density_units = units.g / units.L
 	volume_units = units.fL
-	name = 'wcEcoliAgent'
+	name = 'WcEcoli'
 
 	def __init__(self, initial_parameters=None):
 		'''Process that internally runs a wcEcoli simulation
@@ -253,7 +254,7 @@ class wcEcoliAgent(Process):
 		self.agent_id = parameters['agent_id']
 		self.agent_config = parameters['agent_config']
 		self.agent_config['cell_id'] = self.agent_id
-		self.agent_config['working_dir'] = '../wcEcoli'
+		self.agent_config['working_dir'] = WCECOLI_ROOT
 
 		self.ecoli_config = ecoli_boot_config(self.agent_config)
 		self.ecoli_simulation = initialize_ecoli(self.ecoli_config)
@@ -265,7 +266,7 @@ class wcEcoliAgent(Process):
 			media_molecules |= set(molecules)
 		self.all_exchange_molecules = list(media_molecules)
 
-		super(wcEcoliAgent, self).__init__(parameters)
+		super(WcEcoli, self).__init__(parameters)
 
 	def __getstate__(self):
 		time = (
@@ -274,7 +275,7 @@ class wcEcoliAgent(Process):
 		)
 		if time != 0:
 			raise RuntimeError(
-				'wcEcoliAgent.ecoli_simulation must be at time 0 to '
+				'WcEcoli.ecoli_simulation must be at time 0 to '
 				'pickle, but simulation is at time {}'.format(time)
 			)
 		return self.parameters

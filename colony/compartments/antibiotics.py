@@ -12,10 +12,10 @@ from vivarium.processes.derive_concentrations import (
 from vivarium.processes.derive_globals import DeriveGlobals
 from vivarium.processes.timeline import TimelineProcess
 
-from environment.antibiotic_hydrolysis import AntibioticHydrolysis
-from environment.wcecoli_process import wcEcoliAgent
-from environment.wcecoli_meta_division import WcEcoliMetaDivision
-from environment.wcecoli_derive_shape import WcEcoliDeriveShape
+from colony.processes.antibiotic_hydrolysis import AntibioticHydrolysis
+from colony.processes.wcecoli import WcEcoli
+from colony.processes.wcecoli_meta_division import WcEcoliMetaDivision
+from colony.processes.wcecoli_derive_shape import WcEcoliDeriveShape
 
 
 INITIAL_INTERNAL_ANTIBIOTIC = 0
@@ -28,7 +28,7 @@ PERIPLASM_FRACTION = 0.3
 BETA_LACTAMASE_KEY = 'EG10040-MONOMER[p]'
 
 
-class WcEcoliCell(Generator):
+class AntibioticsCell(Generator):
 
 	defaults = {
 		'boundary_path': ('boundary',),
@@ -110,7 +110,7 @@ class WcEcoliCell(Generator):
 	}
 
 	def generate_processes(self, config):
-		wcecoli_process = wcEcoliAgent(config)
+		wcecoli_process = WcEcoli(config)
 		meta_division = WcEcoliMetaDivision({
 			'agent_id': config['agent_id'],
 			'compartment': self,

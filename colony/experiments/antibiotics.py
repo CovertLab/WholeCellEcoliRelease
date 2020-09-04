@@ -25,11 +25,11 @@ from vivarium.core.emitter import (
 from vivarium.processes.diffusion_field import make_gradient
 
 from wholecell.io import tsv
-from environment.wcecoli_process import wcEcoliAgent
-from environment.wcecoli_compartment import (
+from colony.processes.wcecoli import WcEcoli
+from colony.compartments.antibiotics import (
 	ANTIBIOTIC_KEY,
 	INITIAL_EXTERNAL_ANTIBIOTIC,
-	WcEcoliCell,
+	AntibioticsCell,
 )
 
 
@@ -42,7 +42,7 @@ CONDITION_VARIANTS = [
 BOUNDS = (50, 50)
 N_BINS = (20, 20)
 TAGGED_MOLECULES_PATH = os.path.join(
-	os.path.dirname(__file__), 'tagged_molecules.csv')
+	os.path.dirname(__file__), 'antibiotics_tagged_molecules.csv')
 NUM_EMISSIONS = 100
 
 
@@ -168,7 +168,7 @@ def simulate(
 		database, you can ignore the returned emitter as the data is
 		sent automatically.
 	'''
-	agent = wcEcoliAgent({})
+	agent = WcEcoli({})
 	external_states = agent.ecoli_simulation.external_states
 	if add_aa and anaerobic:
 		raise ValueError(
@@ -228,7 +228,7 @@ def simulate(
 		'emit_step': max(simulation_time // NUM_EMISSIONS, 1)
 	}
 	agents_config = {
-		'type': WcEcoliCell,
+		'type': AntibioticsCell,
 		'ids': agent_ids,
 		'config': process_config,
 	}
