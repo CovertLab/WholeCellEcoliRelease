@@ -99,7 +99,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		aa_from_synthetase = transcription.aa_from_synthetase.T
 		aa_from_trna = transcription.aa_from_trna.T
 
-		aa_ids = sim_data.moleculeGroups.aaIDs
+		aa_ids = sim_data.moleculeGroups.amino_acids
 		n_aas = len(aa_ids)
 
 		mol_ids = sim_data.moleculeIds

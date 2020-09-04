@@ -72,7 +72,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.bulkMonomers = self.bulkMoleculesView(proteinIds)
 
 		# Create views onto all polymerization reaction small molecules
-		self.aas = self.bulkMoleculesView(sim_data.moleculeGroups.aaIDs)
+		self.aas = self.bulkMoleculesView(sim_data.moleculeGroups.amino_acids)
 
 		self.elngRateFactor = 1.
 
@@ -288,7 +288,7 @@ class BaseElongationModel(object):
 		self.basal_elongation_rate = sim_data.constants.ribosomeElongationRateBasal.asNumber(units.aa / units.s)
 		self.ribosomeElongationRateDict = sim_data.process.translation.ribosomeElongationRateDict
 		self.uncharged_trna_names = sim_data.process.transcription.rnaData['id'][sim_data.process.transcription.rnaData['isTRna']]
-		self.aaNames = sim_data.moleculeGroups.aaIDs
+		self.aaNames = sim_data.moleculeGroups.amino_acids
 		self.proton = self.process.bulkMoleculeView(sim_data.moleculeIds.proton)
 		self.water = self.process.bulkMoleculeView(sim_data.moleculeIds.water)
 

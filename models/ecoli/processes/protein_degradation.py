@@ -53,8 +53,8 @@ class ProteinDegradation(wholecell.processes.process.Process):
 
 		# Build metabolite IDs for S matrix
 		h2oId = [sim_data.moleculeIds.water]
-		metaboliteIds = sim_data.moleculeGroups.aaIDs + h2oId
-		aaIdxs = np.arange(0, len(sim_data.moleculeGroups.aaIDs))
+		metaboliteIds = sim_data.moleculeGroups.amino_acids + h2oId
+		aaIdxs = np.arange(0, len(sim_data.moleculeGroups.amino_acids))
 		h2oIdx = metaboliteIds.index(sim_data.moleculeIds.water)
 
 		# Build protein IDs for S matrix

@@ -28,7 +28,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		allDir = ap.get_cells()
 
 		# Constants
-		aa_c_ids = sim_data.moleculeGroups.aaIDs
+		aa_c_ids = sim_data.moleculeGroups.amino_acids
 		aa_p_ids = [aa_id.replace("[c]", "[p]") for aa_id in aa_c_ids]
 
 

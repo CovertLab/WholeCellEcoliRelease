@@ -39,5 +39,4 @@ class UniqueMolecules(object):
 
 	def addToUniqueState(self, uniqueId, attributeDef, mass):
 		self.uniqueMoleculeDefinitions.update({uniqueId : attributeDef})
-
 		self.uniqueMoleculeMasses = addToStateCommon(self.uniqueMoleculeMasses, [uniqueId], mass)

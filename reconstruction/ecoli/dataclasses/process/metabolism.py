@@ -155,7 +155,7 @@ class Metabolism(object):
 
 		# CYS/SEL: concentration based on other amino acids
 		aaConcentrations = []
-		for aaIndex, aaID in enumerate(sim_data.amino_acid_1_to_3_ordered.values()):
+		for aaIndex, aaID in enumerate(sim_data.amino_acid_code_to_id_ordered.values()):
 			if aaID in metaboliteIDs:
 				metIndex = metaboliteIDs.index(aaID)
 				aaConcentrations.append(metaboliteConcentrations[metIndex])
@@ -169,7 +169,7 @@ class Metabolism(object):
 
 		# DGTP: set to smallest of all other DNTP concentrations
 		dntpConcentrations = []
-		for dntpIndex, dntpID in enumerate(sim_data.moleculeGroups.dNtpIds):
+		for dntpIndex, dntpID in enumerate(sim_data.moleculeGroups.dntps):
 			if dntpID in metaboliteIDs:
 				metIndex = metaboliteIDs.index(dntpID)
 				dntpConcentrations.append(metaboliteConcentrations[metIndex])
@@ -203,7 +203,7 @@ class Metabolism(object):
 			met_id = met + wildtypeIDtoCompartment.get(met, '[c]')
 
 			# AA concentrations are determined through charging
-			if met_id in sim_data.moleculeGroups.aaIDs:
+			if met_id in sim_data.moleculeGroups.amino_acids:
 				continue
 
 			# Get relative metabolite change in each media condition
@@ -497,7 +497,7 @@ class Metabolism(object):
 			Better handling of concentration assumption
 		"""
 
-		aa_ids = sim_data.moleculeGroups.aaIDs
+		aa_ids = sim_data.moleculeGroups.amino_acids
 		conc = self.concentrationUpdates.concentrationsBasedOnNutrients
 
 		aa_conc_basal = np.array([

@@ -32,6 +32,7 @@ class MoleculeIds(object):
 			'water': 'WATER[c]',
 			'proton': 'PROTON[c]',
 			'ppi': 'PPI[c]',
+			'full_chromosome': 'CHROM_FULL[c]'
 		}
 
 		self.__dict__.update(moleculeIds)

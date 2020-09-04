@@ -74,7 +74,7 @@ class Metabolism(wholecell.processes.process.Process):
 		# Track updated AA concentration targets with tRNA charging
 		self.aa_targets = {}
 		self.aa_targets_not_updated = {'L-SELENOCYSTEINE[c]'}
-		self.aa_names = sim_data.moleculeGroups.aaIDs
+		self.aa_names = sim_data.moleculeGroups.amino_acids
 
 		# Construct views
 		self.metabolites = self.bulkMoleculesView(self.model.metaboliteNamesFromNutrients)
@@ -369,7 +369,7 @@ class FluxBalanceAnalysisModel(object):
 		self.fba = FluxBalanceAnalysis(**fba_options)
 
 		self.metabolite_names = {met: i for i, met in enumerate(self.fba.getOutputMoleculeIDs())}
-		self.aa_names_no_location = [x[:-3] for x in sorted(sim_data.amino_acid_1_to_3_ordered.values())]
+		self.aa_names_no_location = [x[:-3] for x in sorted(sim_data.amino_acid_code_to_id_ordered.values())]
 
 	def getBiomassAsConcentrations(self, doubling_time):
 		"""

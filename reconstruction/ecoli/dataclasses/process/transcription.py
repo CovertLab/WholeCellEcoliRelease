@@ -289,7 +289,7 @@ class Transcription(object):
 		rna_lengths = np.array([len(seq) for seq in rna_seqs])
 
 		# Get RNA nucleotide compositions
-		ntp_abbreviations = [ntp_id[0] for ntp_id in sim_data.moleculeGroups.ntpIds]
+		ntp_abbreviations = [ntp_id[0] for ntp_id in sim_data.moleculeGroups.ntps]
 		nt_counts = []
 		for seq in rna_seqs:
 			nt_counts.append(
@@ -461,7 +461,7 @@ class Transcription(object):
 		# Calculate weights of transcript nucleotide monomers
 		self.transcriptionMonomerWeights = (
 			(
-				sim_data.getter.getMass(sim_data.moleculeGroups.ntpIds)
+				sim_data.getter.getMass(sim_data.moleculeGroups.ntps)
 				- sim_data.getter.getMass([sim_data.moleculeIds.ppi])
 				)
 			/ sim_data.constants.nAvogadro
@@ -505,7 +505,7 @@ class Transcription(object):
 			'RNA0-305[c]': 'ILE',
 			'RNA0-306[c]': 'MET',
 			}
-		aa_names = sim_data.moleculeGroups.aaIDs
+		aa_names = sim_data.moleculeGroups.amino_acids
 		aa_indices = {aa: i for i, aa in enumerate(aa_names)}
 		trna_indices = {trna: i for i, trna in enumerate(trna_names)}
 		self.aa_from_trna = np.zeros((len(aa_names), len(trna_names)))

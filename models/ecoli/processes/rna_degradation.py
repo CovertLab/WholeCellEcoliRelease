@@ -97,9 +97,10 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.rna_lengths = sim_data.process.transcription.rnaData['length'].asNumber()
 
 		# Build stoichiometric matrix
-		endCleavageMetaboliteIds = [id_ + "[c]" for id_ in sim_data.moleculeGroups.fragmentNT_IDs]
-		endCleavageMetaboliteIds.extend([sim_data.moleculeIds.water,
-			sim_data.moleculeIds.ppi, sim_data.moleculeIds.proton])
+		polymerized_ntp_ids = sim_data.moleculeGroups.polymerized_ntps
+		endCleavageMetaboliteIds = polymerized_ntp_ids + [
+			sim_data.moleculeIds.water, sim_data.moleculeIds.ppi,
+			sim_data.moleculeIds.proton]
 		nmpIdxs = list(range(4))
 		h2oIdx = endCleavageMetaboliteIds.index(sim_data.moleculeIds.water)
 		ppiIdx = endCleavageMetaboliteIds.index(sim_data.moleculeIds.ppi)
@@ -118,7 +119,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.proton = self.bulkMoleculeView(sim_data.moleculeIds.proton)
 
 		self.fragmentMetabolites = self.bulkMoleculesView(endCleavageMetaboliteIds)
-		self.fragmentBases = self.bulkMoleculesView([id_ + "[c]" for id_ in sim_data.moleculeGroups.fragmentNT_IDs])
+		self.fragmentBases = self.bulkMoleculesView(polymerized_ntp_ids)
 
 		self.ribosome30S = self.bulkMoleculeView(sim_data.moleculeIds.s30_fullComplex)
 		self.ribosome50S = self.bulkMoleculeView(sim_data.moleculeIds.s50_fullComplex)

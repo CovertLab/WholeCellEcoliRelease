@@ -83,7 +83,7 @@ class SimulationDataEcoli(object):
 
 
 	def _addHardCodedAttributes(self):
-		self.amino_acid_1_to_3_ordered = collections.OrderedDict((
+		self.amino_acid_code_to_id_ordered = collections.OrderedDict((
 			("A", "L-ALPHA-ALANINE[c]"), ("R", "ARG[c]"), ("N", "ASN[c]"), ("D", "L-ASPARTATE[c]"),
 			("C", "CYS[c]"), ("E", "GLT[c]"), ("Q", "GLN[c]"), ("G", "GLY[c]"),
 			("H", "HIS[c]"), ("I", "ILE[c]"), ("L", "LEU[c]"), ("K", "LYS[c]"),
@@ -92,7 +92,13 @@ class SimulationDataEcoli(object):
 			("V", "VAL[c]")
 			))
 
-		self.dNtpOrder = ["A", "C", "G", "T"]
+		self.ntp_code_to_id_ordered = collections.OrderedDict((
+			("A", "ATP[c]"), ("C", "CTP[c]"), ("G", "GTP[c]"), ("U", "UTP[c]")
+			))
+
+		self.dntp_code_to_id_ordered = collections.OrderedDict((
+			("A", "DATP[c]"), ("C", "DCTP[c]"), ("G", "DGTP[c]"), ("T", "TTP[c]")
+			))
 
 
 	def _addConditionData(self, raw_data):

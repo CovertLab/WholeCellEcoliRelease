@@ -97,7 +97,10 @@ class Mass(object):
 		self._solublePoolMassFractionParams = self._getFitParameters(raw_data.dryMassComposition, 'solublePoolMassFraction')
 		self._inorganicIonMassFractionParams = self._getFitParameters(raw_data.dryMassComposition, 'inorganicIonMassFraction')
 
-		self.chromosomeSequenceMass = self._chromosomeSequenceMass(raw_data, sim_data)
+		self.chromosomeSequenceMass = (
+			sim_data.getter.getMass([sim_data.moleculeIds.full_chromosome])[0]
+				/ sim_data.constants.nAvogadro
+			).asUnit(units.g)
 
 	def _getFitParameters(self, dryMassComposition, massFractionName):
 		massFraction = np.array([float(x[massFractionName]) for x in dryMassComposition])
@@ -348,18 +351,6 @@ class Mass(object):
 			2 * (np.maximum(0. * doubling_time_unit, CD_PERIOD - 2 * doubling_time) / C_PERIOD) +
 			4 * (np.maximum(0. * doubling_time_unit, CD_PERIOD - 4 * doubling_time) / C_PERIOD)
 			)
-
-	def _chromosomeSequenceMass(self, raw_data, sim_data):
-		dntCounts = np.array([
-			raw_data.genome_sequence.count('A') + raw_data.genome_sequence.count('T'),
-			raw_data.genome_sequence.count('C') + raw_data.genome_sequence.count('G'),
-			raw_data.genome_sequence.count('G') + raw_data.genome_sequence.count('C'),
-			raw_data.genome_sequence.count('T') + raw_data.genome_sequence.count('A')
-		])
-
-		dntMasses = (sim_data.getter.getMass(sim_data.moleculeGroups.polymerizedDNT_IDs) / sim_data.constants.nAvogadro).asUnit(units.g)
-		chromMass = units.dot(dntCounts, dntMasses)
-		return chromMass
 
 	def _clipTau_d(self, doubling_time):
 		# Clip values to be in the range that we have data for

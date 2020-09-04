@@ -15,7 +15,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		# Amino acid IDs
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		aaIDs = sim_data.moleculeGroups.aaIDs
+		aaIDs = sim_data.moleculeGroups.amino_acids
 
 		# Amino acid exchanges fluxes
 		main_reader = TableReader(os.path.join(simOutDir, "Main"))

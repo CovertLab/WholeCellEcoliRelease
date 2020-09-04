@@ -27,7 +27,7 @@ class Replication(object):
 	def __init__(self, raw_data, sim_data):
 		self.max_time_step = min(MAX_TIME_STEP, PROCESS_MAX_TIME_STEP)
 
-		self._n_nt_types = len(sim_data.dNtpOrder)
+		self._n_nt_types = len(sim_data.dntp_code_to_id_ordered)
 		self._c_period = sim_data.growthRateParameters.c_period.asNumber(units.min)
 		self._d_period = sim_data.growthRateParameters.d_period.asNumber(units.min)
 
@@ -76,8 +76,9 @@ class Replication(object):
 		"""
 		# Map ATGC to 8 bit integers
 		numerical_sequence = np.empty(self.genome_length, np.int8)
-		ntMapping = collections.OrderedDict([(ntpId, i) for i, ntpId in enumerate(sim_data.dNtpOrder)])
-		for i,letter in enumerate(raw_data.genome_sequence):
+		ntMapping = collections.OrderedDict(
+			[(ntp_code, i) for i, ntp_code in enumerate(sim_data.dntp_code_to_id_ordered.keys())])
+		for i, letter in enumerate(raw_data.genome_sequence):
 			numerical_sequence[i] = ntMapping[letter] # Build genome sequence as small integers
 
 		# Create 4 possible polymerization sequences
@@ -120,7 +121,7 @@ class Replication(object):
 
 		# Get polymerized nucleotide weights
 		self.replicationMonomerWeights = (
-			(sim_data.getter.getMass(sim_data.moleculeGroups.dNtpIds)
+			(sim_data.getter.getMass(sim_data.moleculeGroups.dntps)
 			- sim_data.getter.getMass([sim_data.moleculeIds.ppi]))
 			/ sim_data.constants.nAvogadro
 		)

@@ -317,7 +317,7 @@ class BuildNetwork(object):
 		Add transcription process nodes and transcript state nodes to the node
 		list, and edges connected to the transcription nodes to the edge list.
 		"""
-		ntp_ids = self.sim_data.moleculeGroups.ntpIds
+		ntp_ids = self.sim_data.moleculeGroups.ntps
 		ppi_id = self.sim_data.moleculeIds.ppi
 		rnap_id = self.sim_data.moleculeIds.rnapFull
 
@@ -411,7 +411,7 @@ class BuildNetwork(object):
 		list.
 		"""
 		# Create nodes for amino acids
-		aa_ids = self.sim_data.moleculeGroups.aaIDs
+		aa_ids = self.sim_data.moleculeGroups.amino_acids
 		gtp_id = "GTP[c]"
 		gdp_id = "GDP[c]"
 		water_id = self.sim_data.moleculeIds.water

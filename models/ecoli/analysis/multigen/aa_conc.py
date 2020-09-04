@@ -26,7 +26,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
 
-		aa_ids = sim_data.moleculeGroups.aaIDs
+		aa_ids = sim_data.moleculeGroups.amino_acids
 		targets = np.array([sim_data.process.metabolism.concDict[key].asNumber(units.mmol / units.L) for key in aa_ids])
 
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot=True)

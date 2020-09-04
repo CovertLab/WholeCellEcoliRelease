@@ -83,9 +83,9 @@ class Translation(object):
 		protein_seqs = sim_data.getter.get_sequence(protein_ids)
 		lengths = [len(seq) for seq in protein_seqs]
 		aa_counts = [
-			[seq.count(aa) for aa in sim_data.amino_acid_1_to_3_ordered.keys()]
+			[seq.count(aa) for aa in sim_data.amino_acid_code_to_id_ordered.keys()]
 			for seq in protein_seqs]
-		n_amino_acids = len(sim_data.amino_acid_1_to_3_ordered)
+		n_amino_acids = len(sim_data.amino_acid_code_to_id_ordered)
 
 		# Get molecular weights
 		mws = sim_data.getter.getMass(protein_ids).asNumber(units.g/units.mol)
@@ -163,13 +163,13 @@ class Translation(object):
 			)
 
 		self.translationSequences = np.full((len(sequences), max_len), polymerize.PAD_VALUE, dtype=np.int8)
-		aa_ids_single_letter = six.viewkeys(sim_data.amino_acid_1_to_3_ordered)
+		aa_ids_single_letter = six.viewkeys(sim_data.amino_acid_code_to_id_ordered)
 		aaMapping = {aa: i for i, aa in enumerate(aa_ids_single_letter)}
 		for i, sequence in enumerate(sequences):
 			for j, letter in enumerate(sequence):
 				self.translationSequences[i, j] = aaMapping[letter]
 
-		aaIDs = list(sim_data.amino_acid_1_to_3_ordered.values())
+		aaIDs = list(sim_data.amino_acid_code_to_id_ordered.values())
 
 		self.translationMonomerWeights = (
 			(

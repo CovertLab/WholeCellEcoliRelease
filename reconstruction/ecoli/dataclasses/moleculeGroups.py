@@ -7,7 +7,7 @@ SimulationData moleculeGroups
 
 from __future__ import absolute_import, division, print_function
 
-from reconstruction.ecoli.dataclasses.state.stateFunctions import createIdsWithCompartments
+POLYMERIZED_FRAGMENT_PREFIX = 'polymerized_'
 
 
 class MoleculeGroups(object):
@@ -20,17 +20,25 @@ class MoleculeGroups(object):
 		self._buildMoleculeGroups(raw_data, sim_data)
 
 	def _buildMoleculeGroups(self, raw_data, sim_data):
-		moleculeGroups = {
-			'ntpIds': ["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"],
-			'dNtpIds': ["DATP[c]", "DCTP[c]", "DGTP[c]", "TTP[c]"],
-			'rnapIds': ['RPOB-MONOMER[c]', 'RPOC-MONOMER[c]', 'EG10893-MONOMER[c]'],
+		aa_ids = list(sim_data.amino_acid_code_to_id_ordered.values())
+		ntp_ids = list(sim_data.ntp_code_to_id_ordered.values())
+		dntp_ids = list(sim_data.dntp_code_to_id_ordered.values())
+		polymerized_aa_ids = [
+			POLYMERIZED_FRAGMENT_PREFIX + aa_id for aa_id in aa_ids]
+		polymerized_ntp_ids = [
+			POLYMERIZED_FRAGMENT_PREFIX + ntp_id for ntp_id in ntp_ids]
+		polymerized_dntp_ids = [
+			POLYMERIZED_FRAGMENT_PREFIX + dntp_id for dntp_id in dntp_ids]
 
-			'polymerizedAA_IDs': [x['id'] for x in raw_data.polymerized
-				if x['is_aa'] and not x['is_end']], # TODO: end weight
-			'polymerizedNT_IDs': [x['id'] for x in raw_data.polymerized
-				if x['is_ntp'] and not x['is_end']], # TODO: end weight
-			'polymerizedDNT_IDs': [x['id'] for x in raw_data.polymerized
-				if x['is_dntp'] and not x['is_end']], # TODO: end weight
+		moleculeGroups = {
+			'amino_acids': aa_ids,
+			'ntps': ntp_ids,
+			'dntps': dntp_ids,
+
+			'polymerized_amino_acids': polymerized_aa_ids,
+			'polymerized_ntps': polymerized_ntp_ids,
+			'polymerized_dntps': polymerized_dntp_ids,
+			'polymerized_subunits': polymerized_aa_ids + polymerized_ntp_ids + polymerized_dntp_ids,
 
 			's30_proteins':	['EG10912-MONOMER[c]', 'EG10916-MONOMER[c]',
 				'EG10906-MONOMER[c]', 'EG10914-MONOMER[c]', 'EG10909-MONOMER[c]',
@@ -72,16 +80,13 @@ class MoleculeGroups(object):
 										'CPLX0-7696[c]', 'CPLX0-7698[c]', 'CPLX0-7697[c]', 'CPLX0-2561[c]',
 										'EG11191-MONOMER[c]', 'CPLX0-7922[c]',
 										'EG12855-MONOMER[c]', 'CPLX0-7789[c]',],
+
 			# TODO: 'EG10245-MONOMER[c]' (DNAP III subunit tau) should be added
 			# to the list of trimer subunits once frame-shifting proteins are
 			# produced.
 			'replisome_trimer_subunits': ['CPLX0-2361[c]', 'CPLX0-3761[c]'],
 			'replisome_monomer_subunits': ['CPLX0-3621[c]', 'EG10239-MONOMER[c]',
 				'EG11500-MONOMER[c]', 'EG11412-MONOMER[c]'],
-
-			'aaIDs': list(sim_data.amino_acid_1_to_3_ordered.values()),
-			'fragmentNT_IDs': [x['id'].replace('Polymerized','Fragment')
-				for x in raw_data.polymerized if x['is_ntp'] and not x['is_end']],
 
 			'exoRnaseIds': ['EG11620-MONOMER[c]', 'G7175-MONOMER[c]',
 				'EG10858-MONOMER[c]', 'EG10863-MONOMER[c]', 'EG11259-MONOMER[c]',
@@ -95,6 +100,9 @@ class MoleculeGroups(object):
 				'EG10858_RNA[c]', 'EG10863_RNA[c]', 'EG11259_RNA[c]',
 				'EG11547_RNA[c]', 'EG10746_RNA[c]', 'G7842_RNA[c]',
 				'EG10743_RNA[c]'],
+
+			'rnapIds': ['RPOB-MONOMER[c]', 'RPOC-MONOMER[c]',
+				'EG10893-MONOMER[c]'],
 
 			'rProteins': ['EG10872-MONOMER[c]', 'EG10879-MONOMER[c]',
 				'EG11232-MONOMER[c]', 'EG10877-MONOMER[c]', 'EG10876-MONOMER[c]',
