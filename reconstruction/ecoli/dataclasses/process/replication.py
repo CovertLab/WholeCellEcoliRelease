@@ -28,16 +28,16 @@ class Replication(object):
 		self.max_time_step = min(MAX_TIME_STEP, PROCESS_MAX_TIME_STEP)
 
 		self._n_nt_types = len(sim_data.dntp_code_to_id_ordered)
-		self._c_period = sim_data.growthRateParameters.c_period.asNumber(units.min)
-		self._d_period = sim_data.growthRateParameters.d_period.asNumber(units.min)
+		self._c_period = sim_data.growth_rate_parameters.c_period.asNumber(units.min)
+		self._d_period = sim_data.growth_rate_parameters.d_period.asNumber(units.min)
 
-		self._buildSequence(raw_data, sim_data)
-		self._buildGeneData(raw_data, sim_data)
-		self._buildReplication(raw_data, sim_data)
-		self._buildMotifs(raw_data, sim_data)
+		self._build_sequence(raw_data, sim_data)
+		self._build_gene_data(raw_data, sim_data)
+		self._build_replication(raw_data, sim_data)
+		self._build_motifs(raw_data, sim_data)
 		self._build_elongation_rates(raw_data, sim_data)
 
-	def _buildSequence(self, raw_data, sim_data):
+	def _build_sequence(self, raw_data, sim_data):
 		self.genome_sequence = raw_data.genome_sequence
 		self.genome_sequence_rc = self.genome_sequence.reverse_complement()
 		self.genome_length = len(self.genome_sequence)
@@ -46,7 +46,7 @@ class Replication(object):
 		self.genome_G_count = self.genome_sequence.count("G")
 		self.genome_C_count = self.genome_sequence.count("C")
 
-	def _buildGeneData(self, raw_data, sim_data):
+	def _build_gene_data(self, raw_data, sim_data):
 		"""
 		Build gene-associated simulation data from raw data.
 		"""
@@ -58,19 +58,19 @@ class Replication(object):
 
 		names, name_dtype = extract_data(raw_data.genes, 'id')
 		symbols, symbol_dtype = extract_data(raw_data.genes, 'symbol')
-		rna_ids, rna_dtype = extract_data(raw_data.genes, 'rnaId')
+		rna_ids, rna_dtype = extract_data(raw_data.genes, 'rna_id')
 
-		self.geneData = np.zeros(
+		self.gene_data = np.zeros(
 			len(raw_data.genes),
 			dtype=[('name', name_dtype),
 				('symbol', symbol_dtype),
-				('rnaId', rna_dtype)])
+				('rna_id', rna_dtype)])
 
-		self.geneData['name'] = names
-		self.geneData['symbol'] = symbols
-		self.geneData['rnaId'] = rna_ids
+		self.gene_data['name'] = names
+		self.gene_data['symbol'] = symbols
+		self.gene_data['rna_id'] = rna_ids
 
-	def _buildReplication(self, raw_data, sim_data):
+	def _build_replication(self, raw_data, sim_data):
 		"""
 		Build replication-associated simulation data from raw data.
 		"""
@@ -108,7 +108,7 @@ class Replication(object):
 		# Determine size of the matrix used by polymerize function
 		maxLen = np.int64(
 			self.replichore_lengths.max()
-			+ self.max_time_step * sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(units.nt / units.s)
+			+ self.max_time_step * sim_data.growth_rate_parameters.replisome_elongation_rate.asNumber(units.nt / units.s)
 		)
 
 		self.replication_sequences = np.empty((4, maxLen), np.int8)
@@ -120,17 +120,17 @@ class Replication(object):
 		self.replication_sequences[3, :self.reverse_complement_sequence.size] = self.reverse_complement_sequence
 
 		# Get polymerized nucleotide weights
-		self.replicationMonomerWeights = (
-			(sim_data.getter.getMass(sim_data.moleculeGroups.dntps)
-			- sim_data.getter.getMass([sim_data.moleculeIds.ppi]))
-			/ sim_data.constants.nAvogadro
+		self.replication_monomer_weights = (
+			(sim_data.getter.get_mass(sim_data.molecule_groups.dntps)
+			- sim_data.getter.get_mass([sim_data.molecule_ids.ppi]))
+			/ sim_data.constants.n_Avogadro
 		)
 
 		# Placeholder value for "child_domains" attribute of domains without
 		# children domains
 		self.no_child_place_holder = -1
 
-	def _buildMotifs(self, raw_data, sim_data):
+	def _build_motifs(self, raw_data, sim_data):
 		"""
 		Build simulation data associated with sequence motifs from raw_data.
 		Coordinates of all motifs are calculated based on the given sequences
@@ -208,7 +208,7 @@ class Replication(object):
 
 	def _build_elongation_rates(self, raw_data, sim_data):
 		self.basal_elongation_rate = int(
-			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
+			round(sim_data.growth_rate_parameters.replisome_elongation_rate.asNumber(
 			units.nt / units.s)))
 
 	def make_elongation_rates(self, random, replisomes, base, time_step):

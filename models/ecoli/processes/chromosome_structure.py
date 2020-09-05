@@ -32,12 +32,12 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 		super(ChromosomeStructure, self).initialize(sim, sim_data)
 
 		# Load parameters
-		self.RNA_sequences = sim_data.process.transcription.transcriptionSequences
-		self.protein_sequences = sim_data.process.translation.translationSequences
-		self.n_TUs = len(sim_data.process.transcription.rnaData)
+		self.RNA_sequences = sim_data.process.transcription.transcription_sequences
+		self.protein_sequences = sim_data.process.translation.translation_sequences
+		self.n_TUs = len(sim_data.process.transcription.rna_data)
 		self.n_TFs = len(sim_data.process.transcription_regulation.tf_ids)
-		self.n_amino_acids = len(sim_data.moleculeGroups.amino_acids)
-		self.n_fragment_bases = len(sim_data.moleculeGroups.polymerized_ntps)
+		self.n_amino_acids = len(sim_data.molecule_groups.amino_acids)
+		self.n_fragment_bases = len(sim_data.molecule_groups.polymerized_ntps)
 		replichore_lengths = sim_data.process.replication.replichore_lengths
 		self.min_coordinates = -replichore_lengths[1]
 		self.max_coordinates = replichore_lengths[0]
@@ -51,15 +51,15 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 		self.no_child_place_holder = sim_data.process.replication.no_child_place_holder
 
 		# Load bulk molecule views
-		self.inactive_RNAPs = self.bulkMoleculeView(sim_data.moleculeIds.rnapFull)
-		self.fragmentBases = self.bulkMoleculesView(sim_data.moleculeGroups.polymerized_ntps)
-		self.ppi = self.bulkMoleculeView(sim_data.moleculeIds.ppi)
+		self.inactive_RNAPs = self.bulkMoleculeView(sim_data.molecule_ids.full_RNAP)
+		self.fragmentBases = self.bulkMoleculesView(sim_data.molecule_groups.polymerized_ntps)
+		self.ppi = self.bulkMoleculeView(sim_data.molecule_ids.ppi)
 		self.active_tfs = self.bulkMoleculesView(
 			[x + "[c]" for x in sim_data.process.transcription_regulation.tf_ids])
-		self.ribosome_30S_subunit = self.bulkMoleculeView(sim_data.moleculeIds.s30_fullComplex)
-		self.ribosome_50S_subunit = self.bulkMoleculeView(sim_data.moleculeIds.s50_fullComplex)
-		self.amino_acids = self.bulkMoleculesView(sim_data.moleculeGroups.amino_acids)
-		self.water = self.bulkMoleculeView(sim_data.moleculeIds.water)
+		self.ribosome_30S_subunit = self.bulkMoleculeView(sim_data.molecule_ids.s30_full_complex)
+		self.ribosome_50S_subunit = self.bulkMoleculeView(sim_data.molecule_ids.s50_full_complex)
+		self.amino_acids = self.bulkMoleculesView(sim_data.molecule_groups.amino_acids)
+		self.water = self.bulkMoleculeView(sim_data.molecule_ids.water)
 
 		# Load unique molecule views
 		self.active_replisomes = self.uniqueMoleculesView('active_replisome')

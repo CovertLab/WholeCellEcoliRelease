@@ -26,7 +26,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		validation_data = cPickle.load(open(validationDataFile, "rb"))
 
-		ids_translation = sim_data.process.translation.monomerData["id"].tolist()
+		ids_translation = sim_data.process.translation.monomer_data["id"].tolist()
 		schmidt_idx = [ids_translation.index(x) for x in validation_data.protein.schmidt2015Data["monomerId"].tolist()]
 
 		schmidt_counts = validation_data.protein.schmidt2015Data["glucoseCounts"]

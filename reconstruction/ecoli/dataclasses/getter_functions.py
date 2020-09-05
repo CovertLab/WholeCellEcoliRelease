@@ -14,10 +14,10 @@ from typing import List, Union
 from Bio.Seq import Seq
 import numpy as np
 
-from reconstruction.ecoli.dataclasses.moleculeGroups import POLYMERIZED_FRAGMENT_PREFIX
+from reconstruction.ecoli.dataclasses.molecule_groups import POLYMERIZED_FRAGMENT_PREFIX
 from wholecell.utils import units
 
-class getterFunctions(object):
+class GetterFunctions(object):
 	""" getterFunctions """
 
 	def __init__(self, raw_data, sim_data):
@@ -30,12 +30,12 @@ class getterFunctions(object):
 		assert isinstance(ids, (list, np.ndarray))
 		return [self._sequences[mol_id] for mol_id in ids]
 
-	def getMass(self, ids):
+	def get_mass(self, ids):
 		assert isinstance(ids, (list, np.ndarray))
 		masses = [self._all_mass[self._location_tag.sub('', i)] for i in ids]
 		return self._mass_units * np.array(masses)
 
-	def getLocation(self, ids):
+	def get_location(self, ids):
 		# type: (Union[List[str], np.ndarray]) -> List[str]
 		assert isinstance(ids, (list, np.ndarray))
 		return [self._locationDict[x] for x in ids]
@@ -62,7 +62,7 @@ class getterFunctions(object):
 		the transcription start sites and lengths of the corresponding gene.
 		"""
 		# Get index of gene corresponding to each RNA
-		rna_id_to_gene_index = {gene["rnaId"]: i
+		rna_id_to_gene_index = {gene['rna_id']: i
 			for i, gene in enumerate(raw_data.genes)}
 
 		# Get RNA lengths from gene data
@@ -114,7 +114,7 @@ class getterFunctions(object):
 		self._all_mass.update(self._build_full_chromosome_mass(raw_data, sim_data))
 		self._all_mass.update(
 			{x['id']: np.sum(x['mw'])
-				for x in itertools.chain(raw_data.proteinComplexes, raw_data.modifiedForms)}
+				for x in itertools.chain(raw_data.protein_complexes, raw_data.modified_forms)}
 			)
 
 		self._mass_units = units.g / units.mol
@@ -146,11 +146,11 @@ class getterFunctions(object):
 				})
 
 		add_subunit_masses(
-			sim_data.moleculeGroups.ntps, sim_data.moleculeIds.ppi)
+			sim_data.molecule_groups.ntps, sim_data.molecule_ids.ppi)
 		add_subunit_masses(
-			sim_data.moleculeGroups.dntps, sim_data.moleculeIds.ppi)
+			sim_data.molecule_groups.dntps, sim_data.molecule_ids.ppi)
 		add_subunit_masses(
-			sim_data.moleculeGroups.amino_acids, sim_data.moleculeIds.water)
+			sim_data.molecule_groups.amino_acids, sim_data.molecule_ids.water)
 
 		return polymerized_subunit_masses
 
@@ -169,9 +169,9 @@ class getterFunctions(object):
 		nt_counts = np.array(nt_counts)
 
 		# Calculate molecular weights
-		ppi_mw = self._all_mass[sim_data.moleculeIds.ppi[:-3]]
+		ppi_mw = self._all_mass[sim_data.molecule_ids.ppi[:-3]]
 		polymerized_ntp_mws = np.array([
-			self._all_mass[met_id[:-3]] for met_id in sim_data.moleculeGroups.polymerized_ntps
+			self._all_mass[met_id[:-3]] for met_id in sim_data.molecule_groups.polymerized_ntps
 			])
 
 		mws = nt_counts.dot(polymerized_ntp_mws) + ppi_mw  # Add end weight
@@ -194,9 +194,9 @@ class getterFunctions(object):
 		aa_counts = np.array(aa_counts)
 
 		# Calculate molecular weights
-		water_mw = self._all_mass[sim_data.moleculeIds.water[:-3]]
+		water_mw = self._all_mass[sim_data.molecule_ids.water[:-3]]
 		polymerized_aa_mws = np.array(
-			[self._all_mass[met_id[:-3]] for met_id in sim_data.moleculeGroups.polymerized_amino_acids]
+			[self._all_mass[met_id[:-3]] for met_id in sim_data.molecule_groups.polymerized_amino_acids]
 			)
 		mws = aa_counts.dot(polymerized_aa_mws) + water_mw  # Add end weight
 
@@ -220,27 +220,27 @@ class getterFunctions(object):
 
 		# Calculate molecular weight
 		polymerized_dntp_mws = np.array([
-			self._all_mass[met_id[:-3]] for met_id in sim_data.moleculeGroups.polymerized_dntps
+			self._all_mass[met_id[:-3]] for met_id in sim_data.molecule_groups.polymerized_dntps
 			])
 		mw = np.dot(
 			forward_strand_nt_counts + reverse_strand_nt_counts,
 			polymerized_dntp_mws)
 
-		return {sim_data.moleculeIds.full_chromosome[:-3]: mw}
+		return {sim_data.molecule_ids.full_chromosome[:-3]: mw}
 
 	def _build_locations(self, raw_data, sim_data):
 		locationDict = {
 			item["id"]: list(item["location"])
 			for item in itertools.chain(
-				raw_data.proteinComplexes,
-				raw_data.modifiedForms)}
+				raw_data.protein_complexes,
+				raw_data.modified_forms)}
 
 		# RNAs and full chromosomes only localize to the cytosol
 		locationDict.update({
 			rna['id']: ['c'] for rna in raw_data.rnas
 			})
 		locationDict.update({
-			sim_data.moleculeIds.full_chromosome[:-3]: ['c']
+			sim_data.molecule_ids.full_chromosome[:-3]: ['c']
 			})
 
 		# Proteins localize to the single compartment specified in raw data for
@@ -257,7 +257,7 @@ class getterFunctions(object):
 			})
 		locationDict.update({
 			subunit_id[:-3]: all_compartments
-			for subunit_id in sim_data.moleculeGroups.polymerized_subunits
+			for subunit_id in sim_data.molecule_groups.polymerized_subunits
 			})
 
 		# Proteins localize to the single compartment specified in raw data for

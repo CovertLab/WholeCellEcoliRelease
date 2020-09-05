@@ -22,8 +22,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
 		if sim_data.constants.EndoRNaseCooperation:
-			KmFirstOrderDecay = sim_data.process.rna_decay.KmFirstOrderDecay
-			KmNonLinearDecay = (sim_data.process.transcription.rnaData["KmEndoRNase"].asNumber())
+			KmFirstOrderDecay = sim_data.process.rna_decay.Km_first_order_decay
+			KmNonLinearDecay = (sim_data.process.transcription.rna_data['Km_endoRNase'].asNumber())
 
 			# Compute deviation
 			Error = np.average(np.abs(KmFirstOrderDecay
@@ -48,7 +48,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		if sim_data.constants.EndoRNaseCooperation:
 			plt.subplot(3,1,2)
-			GprimeKm = sim_data.process.rna_decay.KmConvergence
+			GprimeKm = sim_data.process.rna_decay.Km_convergence
 			FprimeKm = np.log10(1 - GprimeKm[GprimeKm < 1])
 			plt.hist(FprimeKm)
 
@@ -62,10 +62,10 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# TODO: does this ever get set and should it be a variant analysis plot?
 		if sim_data.constants.SensitivityAnalysisKcatEndo:
 			cellDensity = sim_data.constants.cellDensity
-			cellVolume = sim_data.mass.avgCellDryMassInit / cellDensity / sim_data.mass.cellDryMassFraction
-			countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
+			cellVolume = sim_data.mass.avg_cell_dry_mass_init / cellDensity / sim_data.mass.cell_dry_mass_fraction
+			countsToMolar = 1 / (sim_data.constants.n_Avogadro * cellVolume)
 
-			rnaIds = sim_data.process.transcription.rnaData["id"]
+			rnaIds = sim_data.process.transcription.rna_data["id"]
 			(rna_counts_bulk,) = read_bulk_molecule_counts(simOutDir, rnaIds)
 			RNAcounts = rna_counts_bulk[-1, :]
 
@@ -80,10 +80,10 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			Kcats = []
 			Km = []
 
-			for kcat in sim_data.process.rna_decay.SensitivityAnalysisKcat:
-				KMcounts = 1 / countsToMolar.asNumber() * sim_data.process.rna_decay.SensitivityAnalysisKcat[kcat]
-				ResIni = sim_data.process.rna_decay.SensitivityAnalysisKcat_ResIni[kcat]
-				ResOpt = sim_data.process.rna_decay.SensitivityAnalysisKcat_ResOpt[kcat]
+			for kcat in sim_data.process.rna_decay.sensitivity_analysis_kcat:
+				KMcounts = 1 / countsToMolar.asNumber() * sim_data.process.rna_decay.sensitivity_analysis_kcat[kcat]
+				ResIni = sim_data.process.rna_decay.sensitivity_analysis_kcat_res_ini[kcat]
+				ResOpt = sim_data.process.rna_decay.sensitivity_analysis_kcat_res_opt[kcat]
 
 				if ResIni > ResOpt * ConvergenceFactor:
 					Kcats = np.append(Kcats, kcat)

@@ -190,10 +190,10 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 		# sim_data information
 		total_params = sum(number_params(sim_data))
-		rna_to_gene = {gene['rnaId']: gene['symbol'] for gene in sim_data.process.replication.geneData}
-		monomer_to_gene = {gene['monomerId']: gene['symbol'] for gene in sim_data.process.replication.geneData}
-		rna_ids = sim_data.process.transcription.rnaData['id']
-		monomer_ids = sim_data.process.translation.monomerData['id']
+		rna_to_gene = {gene['rna_id']: gene['symbol'] for gene in sim_data.process.replication.gene_data}
+		monomer_to_gene = {gene['monomer_id']: gene['symbol'] for gene in sim_data.process.replication.gene_data}
+		rna_ids = sim_data.process.transcription.rna_data['id']
+		monomer_ids = sim_data.process.translation.monomer_data['id']
 
 		# IDs must match order from param_indices() from param_sensitivity.py variant
 		param_ids = np.array(

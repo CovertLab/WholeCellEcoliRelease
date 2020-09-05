@@ -32,7 +32,7 @@ ACTIVE = [
 	"kineticsFluxComparisonKcatOnly.py",
 	"mRnaHalfLives.py",
 	"massFractionSummary.py",
-	"massFractions.py",
+	"mass_fractions.py",
 	"mass_fractions_voronoi.py",
 	"metaboliteComparison.py",
 	"metabolites.py",

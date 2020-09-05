@@ -284,7 +284,7 @@ class BuildNetwork(object):
 		Add gene state nodes to the node list.
 		"""
 		# Loop through all genes (in the order listed in transcription)
-		for gene_id in self.sim_data.process.transcription.rnaData["geneId"]:
+		for gene_id in self.sim_data.process.transcription.rna_data['gene_id']:
 			
 			# Initialize a single gene node
 			gene_node = Node()
@@ -317,15 +317,15 @@ class BuildNetwork(object):
 		Add transcription process nodes and transcript state nodes to the node
 		list, and edges connected to the transcription nodes to the edge list.
 		"""
-		ntp_ids = self.sim_data.moleculeGroups.ntps
-		ppi_id = self.sim_data.moleculeIds.ppi
-		rnap_id = self.sim_data.moleculeIds.rnapFull
+		ntp_ids = self.sim_data.molecule_groups.ntps
+		ppi_id = self.sim_data.molecule_ids.ppi
+		rnap_id = self.sim_data.molecule_ids.full_RNAP
 
 		# Loop through all genes (in the order listed in transcription)
 		for rna_id, gene_id, is_mrna in zip(
-				self.sim_data.process.transcription.rnaData["id"],
-				self.sim_data.process.transcription.rnaData["geneId"],
-				self.sim_data.process.transcription.rnaData["isMRna"]):
+				self.sim_data.process.transcription.rna_data["id"],
+				self.sim_data.process.transcription.rna_data['gene_id'],
+				self.sim_data.process.transcription.rna_data['is_mRNA']):
 
 			# Initialize a single transcript node
 			rna_node = Node()
@@ -411,26 +411,26 @@ class BuildNetwork(object):
 		list.
 		"""
 		# Create nodes for amino acids
-		aa_ids = self.sim_data.moleculeGroups.amino_acids
+		aa_ids = self.sim_data.molecule_groups.amino_acids
 		gtp_id = "GTP[c]"
 		gdp_id = "GDP[c]"
-		water_id = self.sim_data.moleculeIds.water
-		ppi_id = self.sim_data.moleculeIds.ppi
+		water_id = self.sim_data.molecule_ids.water
+		ppi_id = self.sim_data.molecule_ids.ppi
 
-		ribosome_subunit_ids = [self.sim_data.moleculeIds.s30_fullComplex,
-			self.sim_data.moleculeIds.s50_fullComplex]
+		ribosome_subunit_ids = [self.sim_data.molecule_ids.s30_full_complex,
+			self.sim_data.molecule_ids.s50_full_complex]
 
 		# Construct dictionary to get corrensponding gene IDs from RNA IDs
 		rna_id_to_gene_id = {}
 		for rna_id, gene_id in zip(
-				self.sim_data.process.transcription.rnaData["id"],
-				self.sim_data.process.transcription.rnaData["geneId"]):
+				self.sim_data.process.transcription.rna_data["id"],
+				self.sim_data.process.transcription.rna_data['gene_id']):
 			rna_id_to_gene_id[rna_id] = gene_id
 
 		# Loop through all translatable genes
 		for monomer_id, rna_id in zip(
-				self.sim_data.process.translation.monomerData["id"],
-				self.sim_data.process.translation.monomerData["rnaId"]):
+				self.sim_data.process.translation.monomer_data["id"],
+				self.sim_data.process.translation.monomer_data['rna_id']):
 
 			gene_id = rna_id_to_gene_id[rna_id]
 
@@ -517,8 +517,8 @@ class BuildNetwork(object):
 		complex_ids = self.sim_data.process.complexation.ids_complexes + EQUILIBRIUM_COMPLEXES_IN_COMPLEXATION
 		reaction_ids = self.sim_data.process.complexation.ids_reactions
 
-		molecule_ids = self.sim_data.process.complexation.moleculeNames
-		stoich_matrix = self.sim_data.process.complexation.stoichMatrix()
+		molecule_ids = self.sim_data.process.complexation.molecule_names
+		stoich_matrix = self.sim_data.process.complexation.stoich_matrix()
 
 		# Loop through all complexation reactions
 		for reaction_index, reaction_id in enumerate(reaction_ids):
@@ -589,10 +589,10 @@ class BuildNetwork(object):
 		Note: forward and reverse reactions are represented as separate nodes.
 		"""
 		# Get all reaction stoichiometry from sim_data
-		reaction_stoich = self.sim_data.process.metabolism.reactionStoich
+		reaction_stoich = self.sim_data.process.metabolism.reaction_stoich
 
 		# Get reaction to catalyst dict from sim_data
-		reaction_catalysts = self.sim_data.process.metabolism.reactionCatalysts
+		reaction_catalysts = self.sim_data.process.metabolism.reaction_catalysts
 
 		# get transport reactions and remove from metabolism
 		transport_reactions = set(self.sim_data.process.metabolism.transport_reactions)
@@ -662,7 +662,7 @@ class BuildNetwork(object):
 		# Add specific charging reactions
 		# TODO (Travis): add charged/uncharged tRNA as RNA not metabolites?
 		transcription = self.sim_data.process.transcription
-		uncharged_trnas = transcription.rnaData['id'][transcription.rnaData['isTRna']]
+		uncharged_trnas = transcription.rna_data['id'][transcription.rna_data['is_tRNA']]
 		charging_stoich = transcription.charging_stoich_matrix().T
 		charging_molecules = np.array(transcription.charging_molecules)
 		synthetases = np.array(transcription.synthetase_names)
@@ -737,9 +737,9 @@ class BuildNetwork(object):
 		equilibrium nodes to the edge list.
 		"""
 		# Get equilibrium-specific data from sim_data
-		equilibrium_molecule_ids = self.sim_data.process.equilibrium.moleculeNames
-		equilibrium_reaction_ids = self.sim_data.process.equilibrium.rxnIds
-		equilibrium_stoich_matrix = self.sim_data.process.equilibrium.stoichMatrix()
+		equilibrium_molecule_ids = self.sim_data.process.equilibrium.molecule_names
+		equilibrium_reaction_ids = self.sim_data.process.equilibrium.rxn_ids
+		equilibrium_stoich_matrix = self.sim_data.process.equilibrium.stoich_matrix()
 
 		# Get IDs of complexes that were already added
 		complexation_complex_ids = self.sim_data.process.complexation.ids_complexes
@@ -788,16 +788,16 @@ class BuildNetwork(object):
 						stoich)
 
 		# Get 2CS-specific data from sim_data
-		tcs_molecule_ids = self.sim_data.process.two_component_system.moleculeNames
-		tcs_reaction_ids = self.sim_data.process.two_component_system.rxnIds
-		tcs_stoich_matrix = self.sim_data.process.two_component_system.stoichMatrix()
+		tcs_molecule_ids = self.sim_data.process.two_component_system.molecule_names
+		tcs_reaction_ids = self.sim_data.process.two_component_system.rxn_ids
+		tcs_stoich_matrix = self.sim_data.process.two_component_system.stoich_matrix()
 
 		# Initialize list of complex IDs in 2CS
 		# TODO (ggsun): add this to sim_data
 		tcs_complex_ids = []
 
 		# Get lists of monomers that were already added
-		monomer_ids = list(self.sim_data.process.translation.monomerData["id"])
+		monomer_ids = list(self.sim_data.process.translation.monomer_data["id"])
 
 		# Loop through each 2CS reaction
 		for reaction_index, reaction_id in enumerate(tcs_reaction_ids):
@@ -899,7 +899,7 @@ class BuildNetwork(object):
 		"""
 		# Get list of transcription factor IDs and transcription unit IDs
 		tf_ids = self.sim_data.process.transcription_regulation.tf_ids
-		rna_ids = self.sim_data.process.transcription.rnaData["id"]
+		rna_ids = self.sim_data.process.transcription.rna_data["id"]
 
 		# Get delta_prob matrix from sim_data
 		delta_prob = self.sim_data.process.transcription_regulation.delta_prob
@@ -916,8 +916,8 @@ class BuildNetwork(object):
 		rna_id_to_gene_id = {}
 
 		for rna_id, gene_id in zip(
-				self.sim_data.process.replication.geneData["rnaId"],
-				self.sim_data.process.replication.geneData["name"]):
+				self.sim_data.process.replication.gene_data['rna_id'],
+				self.sim_data.process.replication.gene_data["name"]):
 			rna_id_to_gene_id[rna_id + "[c]"] = gene_id
 
 		# Loop through all TFs

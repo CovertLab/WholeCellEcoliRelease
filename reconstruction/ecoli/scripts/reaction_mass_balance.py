@@ -10,9 +10,9 @@ import numpy as np
 
 kb = KnowledgeBaseEcoli()  # type: Any  # "KnowledgeBaseEcoli" has no attribute "process" et al
 
-S = kb.process.metabolism.stoichMatrix()
+S = kb.process.metabolism.stoich_matrix()
 
-masses = kb.getter.getMass(kb.process.metabolism.moleculeNames)
+masses = kb.getter.get_mass(kb.process.metabolism.molecule_names)
 
 reactionNetMass = np.dot(S.T, masses.asNumber())
 

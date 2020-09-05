@@ -28,11 +28,11 @@ WATER_FILE = os.path.join(FLAT_DIR, "water.tsv")
 POLY_FILE = os.path.join(FLAT_DIR, "polymerized.tsv")
 PROT_FILE = os.path.join(FLAT_DIR, "proteins.tsv")
 RNA_FILE = os.path.join(FLAT_DIR, "rnas.tsv")
-COMP_FILE = os.path.join(FLAT_DIR, "proteinComplexes.tsv")
+COMP_FILE = os.path.join(FLAT_DIR, "protein_complexes.tsv")
 COMP_RXN_FILE = os.path.join(FLAT_DIR, "complexationReactions_large.tsv")
-EQUI_RXNS_FILE = os.path.join(FLAT_DIR, "equilibriumReactions.tsv")
+EQUI_RXNS_FILE = os.path.join(FLAT_DIR, "equilibrium_reactions.tsv")
 
-COMP_RXN_OUT = os.path.join(FLAT_DIR, "complexationReactions.tsv") # this is used in sim, other is used to generate
+COMP_RXN_OUT = os.path.join(FLAT_DIR, "complexation_reactions.tsv") # this is used in sim, other is used to generate
 
 ID_DIR = os.path.join(FLAT_DIR, "ids")
 NTPS_FILE = os.path.join(ID_DIR, "ntps.txt")

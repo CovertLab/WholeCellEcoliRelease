@@ -33,9 +33,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		relativeCounts = avgCounts / avgCounts.sum()
 
 		expectedCountsArbitrary = normalize(
-			sim_data.process.transcription.rnaExpression[sim_data.condition][sim_data.relation.rnaIndexToMonomerMapping] *
-			sim_data.process.translation.translationEfficienciesByMonomer /
-			(np.log(2) / sim_data.doubling_time.asNumber(units.s) + sim_data.process.translation.monomerData["degRate"].asNumber(1 / units.s))
+			sim_data.process.transcription.rna_expression[sim_data.condition][sim_data.relation.rna_index_to_monomer_mapping] *
+			sim_data.process.translation.translation_efficiencies_by_monomer /
+			(np.log(2) / sim_data.doubling_time.asNumber(units.s) + sim_data.process.translation.monomer_data['deg_rate'].asNumber(1 / units.s))
 			)
 
 		expectedCountsRelative = expectedCountsArbitrary / expectedCountsArbitrary.sum()

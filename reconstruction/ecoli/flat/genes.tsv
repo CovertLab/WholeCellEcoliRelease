@@ -1,4 +1,4 @@
-"id"	"symbol"	"coordinate"	"direction"	"length"	"rnaId"
+"id"	"symbol"	"coordinate"	"direction"	"length"	"rna_id"
 "EG10001"	"alr"	4263804	"+"	1080	"EG10001_RNA"
 "EG10002"	"modB"	795084	"+"	690	"EG10002_RNA"
 "EG10003"	"cysZ"	2529484	"+"	762	"EG10003_RNA"

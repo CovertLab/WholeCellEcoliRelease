@@ -82,31 +82,31 @@ def save_genes(raw_data, sim_data, output):
 		output (str): path to tsv file with list of implemented genes
 	"""
 
-	validMonomers = sim_data.process.translation.monomerData['id']
+	validMonomers = sim_data.process.translation.monomer_data['id']
 
 	monomers = []
 
 	##### Metabolism #####
 	metMonomers = [
 		x for x in sim_data.process.metabolism.catalyst_ids
-		if x not in sim_data.process.complexation.complexNames
-		and x not in sim_data.process.equilibrium.complexNameToRxnIdx
+		if x not in sim_data.process.complexation.complex_names
+		and x not in sim_data.process.equilibrium.complex_name_to_rxn_idx
 		]
 	metComplexes = [
 		x for x in sim_data.process.metabolism.catalyst_ids
-		if x in sim_data.process.complexation.complexNames
-		or x in sim_data.process.equilibrium.complexNameToRxnIdx
+		if x in sim_data.process.complexation.complex_names
+		or x in sim_data.process.equilibrium.complex_name_to_rxn_idx
 		]
 
 	assert len(metMonomers) + len(metComplexes) == len(sim_data.process.metabolism.catalyst_ids)
 
 	for metComplex in metComplexes:
-		if metComplex in sim_data.process.complexation.complexNames:
-			metMonomers += sim_data.process.complexation.getMonomers(metComplex)['subunitIds'].tolist()
-		elif metComplex in sim_data.process.equilibrium.complexNameToRxnIdx:
-			for subunit in sim_data.process.equilibrium.getMonomers(metComplex)['subunitIds'].tolist():
-				if subunit in sim_data.process.complexation.complexNames:
-					metMonomers += sim_data.process.complexation.getMonomers(subunit)['subunitIds'].tolist()
+		if metComplex in sim_data.process.complexation.complex_names:
+			metMonomers += sim_data.process.complexation.get_monomers(metComplex)['subunitIds'].tolist()
+		elif metComplex in sim_data.process.equilibrium.complex_name_to_rxn_idx:
+			for subunit in sim_data.process.equilibrium.get_monomers(metComplex)['subunitIds'].tolist():
+				if subunit in sim_data.process.complexation.complex_names:
+					metMonomers += sim_data.process.complexation.get_monomers(subunit)['subunitIds'].tolist()
 				elif subunit in validMonomers:
 					metMonomers += [subunit]
 		else:
@@ -116,55 +116,55 @@ def save_genes(raw_data, sim_data, output):
 
 	##### Translation #####
 	translationMonomers = []
-	translationMonomers += sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s30_fullComplex)['subunitIds'].tolist()
-	translationMonomers += sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s50_fullComplex)['subunitIds'].tolist()
+	translationMonomers += sim_data.process.complexation.get_monomers(sim_data.molecule_ids.s30_full_complex)['subunitIds'].tolist()
+	translationMonomers += sim_data.process.complexation.get_monomers(sim_data.molecule_ids.s50_full_complex)['subunitIds'].tolist()
 
 	monomers += translationMonomers
 
 	##### Transcription #####
 	transcriptionMonomers = []
-	transcriptionMonomers += sim_data.process.complexation.getMonomers(sim_data.moleculeIds.rnapFull)['subunitIds'].tolist()
+	transcriptionMonomers += sim_data.process.complexation.get_monomers(sim_data.molecule_ids.full_RNAP)['subunitIds'].tolist()
 
 	monomers += transcriptionMonomers
 
 	##### RNA Decay #####
 	rnaDecayMonomers = []
-	rnaDecayMonomers += sim_data.process.rna_decay.endoRnaseIds
-	rnaDecayMonomers += sim_data.moleculeGroups.exoRnaseIds
+	rnaDecayMonomers += sim_data.process.rna_decay.endoRNase_ids
+	rnaDecayMonomers += sim_data.molecule_groups.exoRNases
 
 	monomers += rnaDecayMonomers
 
 	##### Transcriptional Regulation #####
 	tfMonomers = []
-	tfIds = [x + '[c]' for x in sim_data.process.transcription_regulation.tfToTfType]
+	tfIds = [x + '[c]' for x in sim_data.process.transcription_regulation.tf_to_tf_type]
 	tfComplexes = [
 		x for x in tfIds
-		if x in sim_data.process.complexation.complexNames
-		or x in sim_data.process.equilibrium.complexNameToRxnIdx
-		or x in sim_data.process.two_component_system.complexToMonomer
+		if x in sim_data.process.complexation.complex_names
+		or x in sim_data.process.equilibrium.complex_name_to_rxn_idx
+		or x in sim_data.process.two_component_system.complex_to_monomer
 		]
 	tfMonomers += [
 		x for x in tfIds
-		if x not in sim_data.process.complexation.complexNames
-		and x not in sim_data.process.equilibrium.complexNameToRxnIdx
-		and x not in sim_data.process.two_component_system.complexToMonomer
+		if x not in sim_data.process.complexation.complex_names
+		and x not in sim_data.process.equilibrium.complex_name_to_rxn_idx
+		and x not in sim_data.process.two_component_system.complex_to_monomer
 		]
 
 	assert len(tfMonomers) + len(tfComplexes) == len(tfIds)
 
 	for tfComplex in tfComplexes:
-		if tfComplex in sim_data.process.complexation.complexNames:
-			tfMonomers += sim_data.process.complexation.getMonomers(tfComplex)['subunitIds'].tolist()
-		elif tfComplex in sim_data.process.equilibrium.complexNameToRxnIdx:
-			for subunit in sim_data.process.equilibrium.getMonomers(tfComplex)['subunitIds'].tolist():
-				if subunit in sim_data.process.complexation.complexNames:
-					tfMonomers += sim_data.process.complexation.getMonomers(subunit)['subunitIds'].tolist()
+		if tfComplex in sim_data.process.complexation.complex_names:
+			tfMonomers += sim_data.process.complexation.get_monomers(tfComplex)['subunitIds'].tolist()
+		elif tfComplex in sim_data.process.equilibrium.complex_name_to_rxn_idx:
+			for subunit in sim_data.process.equilibrium.get_monomers(tfComplex)['subunitIds'].tolist():
+				if subunit in sim_data.process.complexation.complex_names:
+					tfMonomers += sim_data.process.complexation.get_monomers(subunit)['subunitIds'].tolist()
 				elif subunit in validMonomers:
 					tfMonomers += [subunit]
-		elif tfComplex in sim_data.process.two_component_system.complexToMonomer:
-			for subunit in sim_data.process.two_component_system.complexToMonomer[tfComplex]:
-				if subunit in sim_data.process.complexation.complexNames:
-					tfMonomers += sim_data.process.complexation.getMonomers(subunit)['subunitIds'].tolist()
+		elif tfComplex in sim_data.process.two_component_system.complex_to_monomer:
+			for subunit in sim_data.process.two_component_system.complex_to_monomer[tfComplex]:
+				if subunit in sim_data.process.complexation.complex_names:
+					tfMonomers += sim_data.process.complexation.get_monomers(subunit)['subunitIds'].tolist()
 				elif subunit in validMonomers:
 					tfMonomers += [subunit]
 		else:
@@ -175,8 +175,8 @@ def save_genes(raw_data, sim_data, output):
 	monomers = set([x for x in monomers if x in validMonomers])
 
 	# Get gene names for each monomer implemented
-	rnaIdToSymbol = {x['rnaId']: x['symbol'] for x in raw_data.genes}
-	monomerToRna = {x['id'][:-3]: x['rnaId'][:-3] for x in sim_data.process.translation.monomerData}
+	rnaIdToSymbol = {x['rna_id']: x['symbol'] for x in raw_data.genes}
+	monomerToRna = {x['id'][:-3]: x['rna_id'][:-3] for x in sim_data.process.translation.monomer_data}
 	geneNames = [rnaIdToSymbol[monomerToRna[monomer[:-3]]] for monomer in monomers]
 
 	# Save data to output tsv file
@@ -221,10 +221,10 @@ def save_metabolites(raw_data, sim_data, output):
 		output (str): path to tsv file with list of implemented genes
 	"""
 
-	metabolites = list(sim_data.process.metabolism.concDict.keys())
-	bennett = [m['Metabolite'] for m in raw_data.metaboliteConcentrations
+	metabolites = list(sim_data.process.metabolism.conc_dict.keys())
+	bennett = [m['Metabolite'] for m in raw_data.metabolite_concentrations
 		if not np.isnan(m['Bennett Concentration'].asNumber())]
-	lempp = [m['Metabolite'] for m in raw_data.metaboliteConcentrations
+	lempp = [m['Metabolite'] for m in raw_data.metabolite_concentrations
 		if not np.isnan(m['Lempp Concentration'].asNumber())]
 
 	with io.open(output, 'wb') as f:

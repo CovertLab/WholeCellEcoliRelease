@@ -47,10 +47,10 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			return
 
 		# Get all ids reqiured
-		ids_transcription = sim_data.process.transcription.rnaData["id"].tolist()
+		ids_transcription = sim_data.process.transcription.rna_data["id"].tolist()
 
 		# Pre-allocate variables. Rows = Generations, Cols = Monomers
-		n_monomers = sim_data.process.translation.monomerData['id'].size
+		n_monomers = sim_data.process.translation.monomer_data['id'].size
 
 		# Load simData from first simulation
 		simOutDir = os.path.join(allDir[0], "simOut")
@@ -170,8 +170,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			counts = (
 				proteinMonomerCounts[:, protein_idx],
 				proteinMonomerCounts[:, protein_idx_burst],
-				rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx],
-				rnaMonomerCounts[:, sim_data.relation.rnaIndexToMonomerMapping][:,protein_idx_burst]
+				rnaMonomerCounts[:, sim_data.relation.rna_index_to_monomer_mapping][:, protein_idx],
+				rnaMonomerCounts[:, sim_data.relation.rna_index_to_monomer_mapping][:, protein_idx_burst]
 				)
 			line_color = (
 				EXP_COLOR,
@@ -230,8 +230,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			# expProteinFold_axis.plot(time_minutes, proteinMonomerCounts[:, protein_idx] / firstLineInit, alpha = 0.,color = "red")
 			# burstProteinFold_axis.plot(time_minutes, proteinMonomerCounts[:, protein_idx_burst] / firstLineInit_burst, alpha = 0., color="red")
 
-		expProtein_axis.set_title("Exponential dynamics: {}".format(sim_data.process.translation.monomerData['id'][protein_idx][:-3]), fontsize=9)
-		burstProtein_axis.set_title("Sub-generational dynamics: {}".format(sim_data.process.translation.monomerData['id'][protein_idx_burst][:-3]), fontsize=9)
+		expProtein_axis.set_title("Exponential dynamics: {}".format(sim_data.process.translation.monomer_data['id'][protein_idx][:-3]), fontsize=9)
+		burstProtein_axis.set_title("Sub-generational dynamics: {}".format(sim_data.process.translation.monomer_data['id'][protein_idx_burst][:-3]), fontsize=9)
 		expProtein_axis.set_ylabel("Protein\ncount", rotation=0, fontsize=9)
 		expRna_axis.set_ylabel("mRNA\ncount", rotation=0, fontsize=9)
 

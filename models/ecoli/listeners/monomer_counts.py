@@ -29,34 +29,34 @@ class MonomerCounts(wholecell.listeners.listener.Listener):
 		bulk_molecule_ids = self.bulkMolecules.container.objectNames()
 
 		# Get IDs of molecules involved in complexation and equilibrium
-		complexation_molecule_ids = sim_data.process.complexation.moleculeNames
+		complexation_molecule_ids = sim_data.process.complexation.molecule_names
 		complexation_complex_ids = sim_data.process.complexation.ids_complexes
-		equilibrium_molecule_ids = sim_data.process.equilibrium.moleculeNames
+		equilibrium_molecule_ids = sim_data.process.equilibrium.molecule_names
 		equilibrium_complex_ids = sim_data.process.equilibrium.ids_complexes
-		self.monomer_ids = sim_data.process.translation.monomerData["id"].tolist()
+		self.monomer_ids = sim_data.process.translation.monomer_data["id"].tolist()
 
 		# Get IDs of ribosome subunits
-		ribosome_50s_subunits = sim_data.process.complexation.getMonomers(
-			sim_data.moleculeIds.s50_fullComplex)
-		ribosome_30s_subunits = sim_data.process.complexation.getMonomers(
-			sim_data.moleculeIds.s30_fullComplex)
+		ribosome_50s_subunits = sim_data.process.complexation.get_monomers(
+			sim_data.molecule_ids.s50_full_complex)
+		ribosome_30s_subunits = sim_data.process.complexation.get_monomers(
+			sim_data.molecule_ids.s30_full_complex)
 		ribosome_subunit_ids = (ribosome_50s_subunits["subunitIds"].tolist() +
 			ribosome_30s_subunits["subunitIds"].tolist())
 
 		# Get IDs of RNA polymerase subunits
-		rnap_subunits = sim_data.process.complexation.getMonomers(
-			sim_data.moleculeIds.rnapFull)
+		rnap_subunits = sim_data.process.complexation.get_monomers(
+			sim_data.molecule_ids.full_RNAP)
 		rnap_subunit_ids = rnap_subunits["subunitIds"].tolist()
 
 		# Get IDs of replisome subunits
-		replisome_trimer_subunits = sim_data.moleculeGroups.replisome_trimer_subunits
-		replisome_monomer_subunits = sim_data.moleculeGroups.replisome_monomer_subunits
+		replisome_trimer_subunits = sim_data.molecule_groups.replisome_trimer_subunits
+		replisome_monomer_subunits = sim_data.molecule_groups.replisome_monomer_subunits
 		replisome_subunit_ids = replisome_trimer_subunits + replisome_monomer_subunits
 
 		# Get stoichiometric matrices for complexation, equilibrium, and the
 		# assembly of unique molecules
-		self.complexation_stoich = sim_data.process.complexation.stoichMatrixMonomers()
-		self.equilibrium_stoich = sim_data.process.equilibrium.stoichMatrixMonomers()
+		self.complexation_stoich = sim_data.process.complexation.stoich_matrix_monomers()
+		self.equilibrium_stoich = sim_data.process.equilibrium.stoich_matrix_monomers()
 		self.ribosome_stoich = np.hstack(
 			(ribosome_50s_subunits["subunitStoich"],
 			ribosome_30s_subunits["subunitStoich"]))

@@ -13,7 +13,7 @@ def transcription_initiation_shuffle_params(sim_data, index):
 		return CONTROL_OUTPUT, sim_data
 
 	np.random.seed(index)
-	idxs = np.arange(sim_data.process.transcription.rnaData.struct_array.shape[0])
+	idxs = np.arange(sim_data.process.transcription.rna_data.struct_array.shape[0])
 	np.random.shuffle(idxs)
 	sim_data.process.transcription.initiationShuffleIdxs = idxs
 

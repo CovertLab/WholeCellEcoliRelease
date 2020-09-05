@@ -22,8 +22,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		# Get the names of rnas from the KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		isTRna = sim_data.process.transcription.rnaData["isTRna"]
-		rnaIds = sim_data.process.transcription.rnaData["id"][isTRna]
+		isTRna = sim_data.process.transcription.rna_data['is_tRNA']
+		rnaIds = sim_data.process.transcription.rna_data["id"][isTRna]
 		charged_trna_ids = sim_data.process.transcription.charged_trna_names
 
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
@@ -39,7 +39,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		plt.figure(figsize = (8.5, 11))
 
 		counts = rna_counts[-1, :]
-		expectedCountsArbitrary = sim_data.process.transcription.rnaExpression[sim_data.condition][isTRna]
+		expectedCountsArbitrary = sim_data.process.transcription.rna_expression[sim_data.condition][isTRna]
 		expectedCounts = expectedCountsArbitrary/expectedCountsArbitrary.sum() * counts.sum()
 
 		maxLine = 1.1 * max(expectedCounts.max(), counts.max())

@@ -35,10 +35,10 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			sim_data = cPickle.load(f)
 
 		# Read from sim_data
-		rna_ids = {rna: i for i, rna in enumerate(sim_data.process.transcription.rnaData["id"])}
+		rna_ids = {rna: i for i, rna in enumerate(sim_data.process.transcription.rna_data["id"])}
 		rna_idx = [rna_ids[x + "[c]"] for x in RNA_ID_LIST]
-		rna_coordinates = sim_data.process.transcription.rnaData[
-			"replicationCoordinate"][rna_idx]
+		rna_coordinates = sim_data.process.transcription.rna_data[
+			"replication_coordinate"][rna_idx]
 
 		forward_sequence_length = sim_data.process.replication.replichore_lengths[0]
 		reverse_sequence_length = sim_data.process.replication.replichore_lengths[1]
@@ -47,7 +47,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			if x > 0 else float(-x)/reverse_sequence_length
 			for x in rna_coordinates])
 
-		all_parca_synth_probs = sim_data.process.transcription.rnaSynthProb[sim_data.condition]
+		all_parca_synth_probs = sim_data.process.transcription.rna_synth_prob[sim_data.condition]
 
 		# Listeners used
 		main_reader = TableReader(os.path.join(simOutDir, 'Main'))

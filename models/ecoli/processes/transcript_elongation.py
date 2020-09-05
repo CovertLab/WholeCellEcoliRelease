@@ -36,28 +36,28 @@ class TranscriptElongation(wholecell.processes.process.Process):
 
 		# Load parameters
 		self.rnaPolymeraseElongationRateDict = sim_data.process.transcription.rnaPolymeraseElongationRateDict
-		self.rnaIds = sim_data.process.transcription.rnaData['id']
-		self.rnaLengths = sim_data.process.transcription.rnaData["length"].asNumber()
-		self.rnaSequences = sim_data.process.transcription.transcriptionSequences
-		self.ntWeights = sim_data.process.transcription.transcriptionMonomerWeights
-		self.endWeight = sim_data.process.transcription.transcriptionEndWeight
+		self.rnaIds = sim_data.process.transcription.rna_data['id']
+		self.rnaLengths = sim_data.process.transcription.rna_data["length"].asNumber()
+		self.rnaSequences = sim_data.process.transcription.transcription_sequences
+		self.ntWeights = sim_data.process.transcription.transcription_monomer_weights
+		self.endWeight = sim_data.process.transcription.transcription_end_weight
 		self.replichore_lengths = sim_data.process.replication.replichore_lengths
 		self.chromosome_length = self.replichore_lengths.sum()
 
 		# ID Groups of rRNAs
-		self.idx_16S_rRNA = np.where(sim_data.process.transcription.rnaData['isRRna16S'])[0]
-		self.idx_23S_rRNA = np.where(sim_data.process.transcription.rnaData['isRRna23S'])[0]
-		self.idx_5S_rRNA = np.where(sim_data.process.transcription.rnaData['isRRna5S'])[0]
+		self.idx_16S_rRNA = np.where(sim_data.process.transcription.rna_data['is_16S_rRNA'])[0]
+		self.idx_23S_rRNA = np.where(sim_data.process.transcription.rna_data['is_23S_rRNA'])[0]
+		self.idx_5S_rRNA = np.where(sim_data.process.transcription.rna_data['is_5S_rRNA'])[0]
 
 		# Mask for mRNAs
-		self.is_mRNA = sim_data.process.transcription.rnaData['isMRna']
+		self.is_mRNA = sim_data.process.transcription.rna_data['is_mRNA']
 
 		# Views
 		self.active_RNAPs = self.uniqueMoleculesView('active_RNAP')
 		self.RNAs = self.uniqueMoleculesView('RNA')
 		self.bulk_RNAs = self.bulkMoleculesView(self.rnaIds)
 		self.ntps = self.bulkMoleculesView(["ATP[c]", "CTP[c]", "GTP[c]", "UTP[c]"])
-		self.ppi = self.bulkMoleculeView(sim_data.moleculeIds.ppi)
+		self.ppi = self.bulkMoleculeView(sim_data.molecule_ids.ppi)
 		self.inactive_RNAPs = self.bulkMoleculeView("APORNAP-CPLX[c]")
 		self.variable_elongation = sim._variable_elongation_transcription
 		self.make_elongation_rates = sim_data.process.transcription.make_elongation_rates

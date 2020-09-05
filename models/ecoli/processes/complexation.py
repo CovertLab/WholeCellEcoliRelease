@@ -37,7 +37,7 @@ class Complexation(wholecell.processes.process.Process):
 		super(Complexation, self).initialize(sim, sim_data)
 
 		# Create matrices and vectors that describe reaction stoichiometries
-		self.stoichMatrix = sim_data.process.complexation.stoichMatrix().astype(np.int64)
+		self.stoichMatrix = sim_data.process.complexation.stoich_matrix().astype(np.int64)
 
 		# semi-quantitative rate constants
 		self.rates = sim_data.process.complexation.rates
@@ -47,7 +47,7 @@ class Complexation(wholecell.processes.process.Process):
 		self.system = StochasticSystem(self.stoichMatrix.T, random_seed=seed)
 
 		# Build views
-		moleculeNames = sim_data.process.complexation.moleculeNames
+		moleculeNames = sim_data.process.complexation.molecule_names
 		self.molecules = self.bulkMoleculesView(moleculeNames)
 
 

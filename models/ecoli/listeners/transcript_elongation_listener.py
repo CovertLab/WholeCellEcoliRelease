@@ -26,9 +26,9 @@ class TranscriptElongationListener(wholecell.listeners.listener.Listener):
 	def initialize(self, sim, sim_data):
 		super(TranscriptElongationListener, self).initialize(sim, sim_data)
 
-		self.countRnaSynthesized = np.zeros(sim_data.process.transcription.rnaData.fullArray().size, np.int64)
+		self.countRnaSynthesized = np.zeros(sim_data.process.transcription.rna_data.fullArray().size, np.int64)
 		self.countNTPsUSed = 0
-		self.rnaIds = sim_data.process.transcription.rnaData['id']
+		self.rnaIds = sim_data.process.transcription.rna_data['id']
 
 
 	def tableCreate(self, tableWriter):

@@ -23,7 +23,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
-		aa_ids = sim_data.moleculeGroups.amino_acids
+		aa_ids = sim_data.molecule_groups.amino_acids
 
 		# Listeners used
 		enzymeKineticsdata = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))

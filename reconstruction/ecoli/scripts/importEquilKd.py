@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-# Generates a tsv output file to replace equilibriumReactions.tsv with updated Kd values
-# Requires 2 files: validation/ecoli/flat/conformationTF.tsv and reconstruction/ecoli/flat/equilibriumReactions.tsv
+# Generates a tsv output file to replace equilibrium_reactions.tsv with updated Kd values
+# Requires 2 files: validation/ecoli/flat/conformationTF.tsv and reconstruction/ecoli/flat/equilibrium_reactions.tsv
 # Outputs TFoutput.tsv to directory that script is run from
 # Need to replace ' with " in file after script runs
 
@@ -20,7 +20,7 @@ from wholecell.io import tsv
 
 
 DATA_FILE = os.path.join("validation","ecoli","flat","conformationTF.tsv")
-REACTION_FILE = os.path.join("reconstruction","ecoli","flat","equilibriumReactions.tsv")
+REACTION_FILE = os.path.join("reconstruction","ecoli","flat","equilibrium_reactions.tsv")
 OUTPUT_FILE = "TFoutput.tsv"
 
 reactionDict = {}

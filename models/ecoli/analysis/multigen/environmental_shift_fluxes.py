@@ -37,7 +37,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		allDir = ap.get_cells()
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		rxnStoich = sim_data.process.metabolism.reactionStoich
+		rxnStoich = sim_data.process.metabolism.reaction_stoich
 
 		reactants = [
 			"GLC[p]",

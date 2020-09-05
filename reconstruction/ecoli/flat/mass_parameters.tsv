@@ -1,6 +1,6 @@
 name	value	units	source	comments
-avgCellCellCycleProgress	0.44		Neidhardt page 9	
-cellWaterMassFraction	0.7		Neidhardt pg 4	Water is 70% of the mass of the cell
+avg_cell_cell_cycle_progress	0.44		Neidhardt page 9
+cell_water_mass_fraction	0.7		Neidhardt pg 4	Water is 70% of the mass of the cell
 _rrna23s_mass_sub_fraction	0.525		Neidhardt pg 4	This is the fraction of RNA that is 23S rRNA
 _rrna16s_mass_sub_fraction	0.271		Neidhardt pg 4	This is the fraction of RNA that is 16S rRNA
 _rrna5s_mass_sub_fraction	0.017		Neidhardt pg 4	This is the fraction of RNA that is 5S rRNA

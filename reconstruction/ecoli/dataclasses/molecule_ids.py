@@ -17,10 +17,10 @@ class MoleculeIds(object):
 		self._buildMoleculeIds()
 
 	def _buildMoleculeIds(self):
-		moleculeIds = {
-			'rnapFull':	'APORNAP-CPLX[c]',
-			's30_fullComplex': 'CPLX0-3953[c]',
-			's50_fullComplex': 'CPLX0-3962[c]',
+		molecule_ids = {
+			'full_RNAP': 'APORNAP-CPLX[c]',
+			's30_full_complex': 'CPLX0-3953[c]',
+			's50_full_complex': 'CPLX0-3962[c]',
 			'DnaA': 'PD03831[c]',
 			'DnaA_ATP_complex': 'MONOMER0-160[c]',
 			'LPS': 'CPD0-939[c]',
@@ -35,4 +35,4 @@ class MoleculeIds(object):
 			'full_chromosome': 'CHROM_FULL[c]'
 		}
 
-		self.__dict__.update(moleculeIds)
+		self.__dict__.update(molecule_ids)

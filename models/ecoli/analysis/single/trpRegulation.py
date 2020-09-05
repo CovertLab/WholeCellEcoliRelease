@@ -25,7 +25,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		nAvogadro = sim_data.constants.nAvogadro
+		nAvogadro = sim_data.constants.n_Avogadro
 		cellDensity = sim_data.constants.cellDensity
 
 		# Load time
@@ -52,7 +52,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Get indexes of trpR and its target RNAs
 		trpRIndex = tf_ids.index("CPLX-125")
-		target_ids = six.viewkeys(sim_data.tfToFC["CPLX-125"])
+		target_ids = six.viewkeys(sim_data.tf_to_fold_change["CPLX-125"])
 		target_idx = np.array(
 			[rna_idx[target_id + "[c]"] for target_id in target_ids])
 
@@ -81,14 +81,14 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		trpAProteinTotalCounts = trpAProteinCounts + 2 * trpABComplexCounts
 
 		# Compute the trpA mass in the cell
-		trpAMw = sim_data.getter.getMass(trpAProteinId)
+		trpAMw = sim_data.getter.get_mass(trpAProteinId)
 		trpAMass = 1. / nAvogadro * trpAProteinTotalCounts * trpAMw
 
 		# Compute the proteome mass fraction
 		proteomeMassFraction = trpAMass.asNumber(units.fg) / proteinMass.asNumber(units.fg)
 
 		# Get the synthesis probability for all regulated genes
-		synthProbIds = [target + "[c]" for target in sim_data.tfToFC["CPLX-125"].keys()]
+		synthProbIds = [target + "[c]" for target in sim_data.tf_to_fold_change["CPLX-125"].keys()]
 		synthProbIndex = np.array([rna_idx[x] for x in synthProbIds])
 		synthProbs = rna_synth_prob_reader.readColumn("rnaSynthProb")[:, synthProbIndex]
 

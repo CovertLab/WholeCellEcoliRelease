@@ -38,7 +38,7 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		concentrations = {}  # type: Dict[str, Dict[str, List]]
 		metabolites = []
 		index = 0
-		for row in raw_data.metaboliteConcentrations:
+		for row in raw_data.metabolite_concentrations:
 			metabolites.append(row['Metabolite'])
 			for source, conc in row.items():
 				if source == 'Metabolite':
@@ -57,7 +57,7 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 
 		# Extract sim_data concentrations
 		model_conc = np.array([
-			sim_data.process.metabolism.concDict[met + '[c]'].asNumber(CONC_UNITS)
+			sim_data.process.metabolism.conc_dict[met + '[c]'].asNumber(CONC_UNITS)
 			for met in metabolites
 			])
 

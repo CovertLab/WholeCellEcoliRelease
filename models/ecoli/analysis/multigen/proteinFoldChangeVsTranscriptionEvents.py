@@ -25,7 +25,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		allDir = ap.get_cells()
 
 		# Pre-allocate variables. Rows = Generations, Cols = Monomers
-		n_monomers = sim_data.process.translation.monomerData['id'].size
+		n_monomers = sim_data.process.translation.monomer_data['id'].size
 		n_sims = ap.n_generation
 
 		ratioFinalToInitialCountMultigen = np.zeros((n_sims, n_monomers), dtype = np.float)
@@ -47,7 +47,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			initiationEventsPerRna = rnapData.readColumn("rnaInitEvent").sum(axis = 0)
 
 			# Map transcription initiation events to monomers
-			initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.rnaIndexToMonomerMapping]
+			initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.rna_index_to_monomer_mapping]
 
 			# Log data
 			ratioFinalToInitialCount[np.logical_and(ratioFinalToInitialCount == 1., proteinMonomerCounts[0,:] == 0)] = np.nan

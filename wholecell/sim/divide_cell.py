@@ -201,7 +201,7 @@ def divideUniqueMolecules(uniqueMolecules, randomState,
 	d1_unique_molecules_container = uniqueMolecules.container.emptyLike()
 	d2_unique_molecules_container = uniqueMolecules.container.emptyLike()
 
-	uniqueMoleculesToDivide = deepcopy(uniqueMolecules.uniqueMoleculeDefinitions)
+	uniqueMoleculesToDivide = deepcopy(uniqueMolecules.unique_molecule_definitions)
 
 	# Get indexes of chromosome domains assigned to each daughter
 	d1_all_domain_indexes = chromosome_division_results['d1_all_domain_indexes']

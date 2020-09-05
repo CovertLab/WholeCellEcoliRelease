@@ -23,8 +23,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
 
-		moleculeIds = sim_data.moleculeGroups.amino_acids
-		moleculeIds.extend(sim_data.moleculeGroups.ntps)
+		moleculeIds = sim_data.molecule_groups.amino_acids
+		moleculeIds.extend(sim_data.molecule_groups.ntps)
 
 		# Listeners used
 		main_reader = TableReader(os.path.join(simOutDir, 'Main'))

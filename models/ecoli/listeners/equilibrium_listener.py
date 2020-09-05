@@ -29,7 +29,7 @@ class EquilibriumListener(wholecell.listeners.listener.Listener):
 		super(EquilibriumListener, self).initialize(sim, sim_data)
 
 		self.complexIDs = sim_data.process.equilibrium.ids_complexes
-		self.reactionIDs = sim_data.process.equilibrium.rxnIds
+		self.reactionIDs = sim_data.process.equilibrium.rxn_ids
 
 
 	# Allocate memory

@@ -43,7 +43,7 @@ class Mass(wholecell.listeners.listener.Listener):
 
 		self.processNames = list(sim.processes.keys())
 
-		self.cellCycleLen = sim_data.conditionToDoublingTime[sim_data.condition].asNumber(units.s)
+		self.cellCycleLen = sim_data.condition_to_doubling_time[sim_data.condition].asNumber(units.s)
 
 		self.rnaIndexes = np.array([
 			sim_data.submass_name_to_index[name]

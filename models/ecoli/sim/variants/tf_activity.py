@@ -26,13 +26,13 @@ CONTROL_OUTPUT = dict(
 
 
 def tf_activity(sim_data, index):
-	nNutrientTimeSeries = len(sim_data.tfToActiveInactiveConds)
+	nNutrientTimeSeries = len(sim_data.tf_to_active_inactive_conditions)
 	nTfActivityTimeSeries = (2 * nNutrientTimeSeries + 1)
 
 	if index % nTfActivityTimeSeries == 0:
 		return CONTROL_OUTPUT, sim_data
 
-	tfList = ["basal (no TF)"] + sorted(sim_data.tfToActiveInactiveConds)
+	tfList = ["basal (no TF)"] + sorted(sim_data.tf_to_active_inactive_conditions)
 	tf = tfList[(index + 1) // 2]
 	if index % 2 == 1:
 		tfStatus = "active"
@@ -45,13 +45,13 @@ def tf_activity(sim_data, index):
 	sim_data.external_state.saved_timelines[sim_data.external_state.environment.current_timeline_id] = []
 	sim_data.external_state.saved_timelines[sim_data.external_state.environment.current_timeline_id].append((
 		0.0,
-		sim_data.tfToActiveInactiveConds[tf][tfStatus + " nutrients"]
+		sim_data.tf_to_active_inactive_conditions[tf][tfStatus + " nutrients"]
 		))
 
 	sim_data.genetic_perturbations = {}
 	for rnaId in sim_data.conditions[sim_data.condition]["perturbations"]:
-		rnaIdx = np.where(sim_data.process.transcription.rnaData["id"] == rnaId)[0]
-		sim_data.genetic_perturbations[rnaId] = sim_data.process.transcription.rnaSynthProb[sim_data.condition][rnaIdx]
+		rnaIdx = np.where(sim_data.process.transcription.rna_data["id"] == rnaId)[0]
+		sim_data.genetic_perturbations[rnaId] = sim_data.process.transcription.rna_synth_prob[sim_data.condition][rnaIdx]
 
 	return dict(
 		shortName = "{}_phenotype".format(tf + "__" + tfStatus),

@@ -29,34 +29,33 @@ class Mass(object):
 	def __init__(self, raw_data, sim_data):
 		self._doubling_time = sim_data.doubling_time
 
-		self._buildConstants(raw_data, sim_data)
-		self._buildSubMasses(raw_data, sim_data)
-		self._buildCDPeriod(raw_data, sim_data)
+		self._build_constants(raw_data, sim_data)
+		self._build_submasses(raw_data, sim_data)
+		self._build_CD_periods(raw_data, sim_data)
 
-		self.avgCellDryMass = self.getAvgCellDryMass(self._doubling_time)
-		self.massFraction = self.getMassFraction(self._doubling_time)
-		self.avgCellSubMass = self.getFractionMass(self._doubling_time)
+		self.avg_cell_dry_mass = self.get_avg_cell_dry_mass(self._doubling_time)
+		self.mass_fractions = self.get_mass_fractions(self._doubling_time)
+		self.avg_cell_component_masses = self.get_component_masses(self._doubling_time)
 
-		self._buildDependentConstants()
-
-		self._buildTrnaData(raw_data, sim_data)
+		self._build_dependent_constants()
+		self._build_trna_data(raw_data, sim_data)
 
 	## Setup constants
-	def _buildConstants(self, raw_data, sim_data):
+	def _build_constants(self, raw_data, sim_data):
 		mass_parameters = raw_data.mass_parameters
 		self.__dict__.update(mass_parameters)
 
-		self.cellDryMassFraction = 1. - self.cellWaterMassFraction
-		self.avgCellToInitialCellConvFactor = np.exp(np.log(2) * self.avgCellCellCycleProgress)
+		self.cell_dry_mass_fraction = 1. - self.cell_water_mass_fraction
+		self.avg_cell_to_initial_cell_conversion_factor = np.exp(np.log(2) * self.avg_cell_cell_cycle_progress)
 
 		self._cellDensity = sim_data.constants.cellDensity
 
-		self._glycogenFractions = raw_data.massFractions.glycogenFractions
-		self._mureinFractions = raw_data.massFractions.mureinFractions
-		self._LPSFractions = raw_data.massFractions.LPSFractions
-		self._lipidFractions = raw_data.massFractions.lipidFractions
-		self._ionFractions = raw_data.massFractions.ionFractions
-		self._solubleFractions = raw_data.massFractions.solubleFractions
+		self._glycogenFractions = raw_data.mass_fractions.glycogen_fractions
+		self._mureinFractions = raw_data.mass_fractions.murein_fractions
+		self._LPSFractions = raw_data.mass_fractions.LPS_fractions
+		self._lipidFractions = raw_data.mass_fractions.lipid_fractions
+		self._ionFractions = raw_data.mass_fractions.ion_fractions
+		self._solubleFractions = raw_data.mass_fractions.soluble_fractions
 
 		metIds = (
 			[x["metaboliteId"] for x in self._glycogenFractions] +
@@ -67,39 +66,39 @@ class Mass(object):
 			[x["metaboliteId"] for x in self._solubleFractions] +
 			["WATER[c]"]
 			)
-		mws = sim_data.getter.getMass(metIds)
+		mws = sim_data.getter.get_mass(metIds)
 		self._mws = dict(zip(metIds, mws))
 
-		self._metTargetIds = [x["Metabolite"] + "[c]" for x in raw_data.metaboliteConcentrations]
+		self._metTargetIds = [x["Metabolite"] + "[c]" for x in raw_data.metabolite_concentrations]
 
-	def _buildDependentConstants(self):
-		self.avgCellDryMassInit = self.avgCellDryMass / self.avgCellToInitialCellConvFactor
-		avgCellWaterMass = (self.avgCellDryMass / self.cellDryMassFraction) * self.cellWaterMassFraction
-		self.avgCellWaterMassInit = avgCellWaterMass / self.avgCellToInitialCellConvFactor
+	def _build_dependent_constants(self):
+		self.avg_cell_dry_mass_init = self.avg_cell_dry_mass / self.avg_cell_to_initial_cell_conversion_factor
+		avgCellWaterMass = (self.avg_cell_dry_mass / self.cell_dry_mass_fraction) * self.cell_water_mass_fraction
+		self.avg_cell_water_mass_init = avgCellWaterMass / self.avg_cell_to_initial_cell_conversion_factor
 
 	# Setup sub-masses
-	def _buildSubMasses(self, raw_data, sim_data):
-		self._doubling_time_vector = units.min * np.array([float(x['doublingTime'].asNumber(units.min)) for x in raw_data.dryMassComposition])
+	def _build_submasses(self, raw_data, sim_data):
+		self._doubling_time_vector = units.min * np.array([float(x['doublingTime'].asNumber(units.min)) for x in raw_data.dry_mass_composition])
 
 		dryMass = np.array([
 			float(x['averageDryMass'].asNumber(units.fg))
-			for x in raw_data.dryMassComposition
+			for x in raw_data.dry_mass_composition
 			])
 		self._dryMassParams = linear_regression(
 			self._doubling_time_vector.asNumber(units.min), 1. / dryMass)
 
-		self._proteinMassFractionParams = self._getFitParameters(raw_data.dryMassComposition, 'proteinMassFraction')
-		self._rnaMassFractionParams = self._getFitParameters(raw_data.dryMassComposition, 'rnaMassFraction')
-		self._lipidMassFractionParams = self._getFitParameters(raw_data.dryMassComposition, 'lipidMassFraction')
-		self._lpsMassFractionParams = self._getFitParameters(raw_data.dryMassComposition, 'lpsMassFraction')
-		self._mureinMassFractionParams = self._getFitParameters(raw_data.dryMassComposition, 'mureinMassFraction')
-		self._glycogenMassFractionParams = self._getFitParameters(raw_data.dryMassComposition, 'glycogenMassFraction')
-		self._solublePoolMassFractionParams = self._getFitParameters(raw_data.dryMassComposition, 'solublePoolMassFraction')
-		self._inorganicIonMassFractionParams = self._getFitParameters(raw_data.dryMassComposition, 'inorganicIonMassFraction')
+		self._proteinMassFractionParams = self._getFitParameters(raw_data.dry_mass_composition, 'proteinMassFraction')
+		self._rnaMassFractionParams = self._getFitParameters(raw_data.dry_mass_composition, 'rnaMassFraction')
+		self._lipidMassFractionParams = self._getFitParameters(raw_data.dry_mass_composition, 'lipidMassFraction')
+		self._lpsMassFractionParams = self._getFitParameters(raw_data.dry_mass_composition, 'lpsMassFraction')
+		self._mureinMassFractionParams = self._getFitParameters(raw_data.dry_mass_composition, 'mureinMassFraction')
+		self._glycogenMassFractionParams = self._getFitParameters(raw_data.dry_mass_composition, 'glycogenMassFraction')
+		self._solublePoolMassFractionParams = self._getFitParameters(raw_data.dry_mass_composition, 'solublePoolMassFraction')
+		self._inorganicIonMassFractionParams = self._getFitParameters(raw_data.dry_mass_composition, 'inorganicIonMassFraction')
 
-		self.chromosomeSequenceMass = (
-			sim_data.getter.getMass([sim_data.moleculeIds.full_chromosome])[0]
-				/ sim_data.constants.nAvogadro
+		self.chromosome_sequence_mass = (
+			sim_data.getter.get_mass([sim_data.molecule_ids.full_chromosome])[0]
+				/ sim_data.constants.n_Avogadro
 			).asUnit(units.g)
 
 	def _getFitParameters(self, dryMassComposition, massFractionName):
@@ -111,12 +110,12 @@ class Mass(object):
 			raise Exception("Fitting {} with double exponential, residuals are huge!".format(massFractionName))
 		return massParams
 
-	def _buildCDPeriod(self, raw_data, sim_data):
-		self.c_period = sim_data.growthRateParameters.c_period
-		self.d_period = sim_data.growthRateParameters.d_period
+	def _build_CD_periods(self, raw_data, sim_data):
+		self.c_period = sim_data.growth_rate_parameters.c_period
+		self.d_period = sim_data.growth_rate_parameters.d_period
 
 	# Set based on growth rate avgCellDryMass
-	def getAvgCellDryMass(self, doubling_time):
+	def get_avg_cell_dry_mass(self, doubling_time):
 		# type: (units.Unum) -> units.Unum
 		"""
 		Gets the dry mass for an average cell at the given doubling time.
@@ -151,17 +150,17 @@ class Mass(object):
 				replication initiation
 		"""
 
-		mass = self.getAvgCellDryMass(doubling_time) / self.cellDryMassFraction
+		mass = self.get_avg_cell_dry_mass(doubling_time) / self.cell_dry_mass_fraction
 		critical_mass = min(mass * SLOW_GROWTH_FACTOR, NORMAL_CRITICAL_MASS)
 		return critical_mass
 
 	# Set mass fractions based on growth rate
-	def getMassFraction(self, doubling_time):
+	def get_mass_fractions(self, doubling_time):
 		if type(doubling_time) != unum.Unum:
 			raise Exception("Doubling time was not set!")
 
 		D = {}
-		dnaMassFraction = self._calculateGrowthRateDependentDnaMass(doubling_time) / self.getAvgCellDryMass(doubling_time)
+		dnaMassFraction = self._calculateGrowthRateDependentDnaMass(doubling_time) / self.get_avg_cell_dry_mass(doubling_time)
 		dnaMassFraction.normalize()
 		dnaMassFraction.checkNoUnit()
 		D["dna"] = dnaMassFraction.asNumber()
@@ -184,11 +183,11 @@ class Mass(object):
 		return D
 
 
-	def getFractionMass(self, doubling_time):
+	def get_component_masses(self, doubling_time):
 		D = {}
-		massFraction = self.getMassFraction(doubling_time)
+		massFraction = self.get_mass_fractions(doubling_time)
 		for key, value in six.viewitems(massFraction):
-			D[key + "Mass"] = value * self.getAvgCellDryMass(doubling_time)
+			D[key + "Mass"] = value * self.get_avg_cell_dry_mass(doubling_time)
 
 		return D
 
@@ -208,8 +207,8 @@ class Mass(object):
 
 	def getBiomassAsConcentrations(self, doubling_time):
 
-		avgCellDryMassInit = self.getAvgCellDryMass(doubling_time) / self.avgCellToInitialCellConvFactor
-		avgCellWaterMassInit = (avgCellDryMassInit / self.cellDryMassFraction) * self.cellWaterMassFraction
+		avgCellDryMassInit = self.get_avg_cell_dry_mass(doubling_time) / self.avg_cell_to_initial_cell_conversion_factor
+		avgCellWaterMassInit = (avgCellDryMassInit / self.cell_dry_mass_fraction) * self.cell_water_mass_fraction
 
 		initWaterMass = avgCellWaterMassInit.asNumber(units.g)
 		initDryMass = avgCellDryMassInit.asNumber(units.g)
@@ -218,7 +217,7 @@ class Mass(object):
 
 		initCellVolume = initCellMass / self._cellDensity.asNumber(units.g / units.L) # L
 
-		massFraction = self.getMassFraction(doubling_time)
+		massFraction = self.get_mass_fractions(doubling_time)
 
 		metaboliteIDs = []
 		metaboliteConcentrations = []
@@ -346,11 +345,11 @@ class Mass(object):
 		# TODO: If you really care, this should be a loop.
 		# It is optimized to run quickly over the range of T_d
 		# and C and D periods that we have.
-		return self.chromosomeSequenceMass * (1 +
-			1 * (np.maximum(0. * doubling_time_unit, CD_PERIOD - doubling_time) / C_PERIOD) +
-			2 * (np.maximum(0. * doubling_time_unit, CD_PERIOD - 2 * doubling_time) / C_PERIOD) +
-			4 * (np.maximum(0. * doubling_time_unit, CD_PERIOD - 4 * doubling_time) / C_PERIOD)
-			)
+		return self.chromosome_sequence_mass * (1 +
+												1 * (np.maximum(0. * doubling_time_unit, CD_PERIOD - doubling_time) / C_PERIOD) +
+												2 * (np.maximum(0. * doubling_time_unit, CD_PERIOD - 2 * doubling_time) / C_PERIOD) +
+												4 * (np.maximum(0. * doubling_time_unit, CD_PERIOD - 4 * doubling_time) / C_PERIOD)
+												)
 
 	def _clipTau_d(self, doubling_time):
 		# Clip values to be in the range that we have data for
@@ -364,19 +363,19 @@ class Mass(object):
 				doubling_time = min(self._doubling_time_vector)
 		return doubling_time
 
-	def _buildTrnaData(self, raw_data, sim_data):
-		growth_rate_unit = units.getUnit(raw_data.trnaData.trna_growth_rates[0]['growth rate'])
+	def _build_trna_data(self, raw_data, sim_data):
+		growth_rate_unit = units.getUnit(raw_data.trna_data.trna_growth_rates[0]['growth rate'])
 
-		self._trna_growth_rates = growth_rate_unit * np.array([x['growth rate'].asNumber() for x in raw_data.trnaData.trna_growth_rates])
+		self._trna_growth_rates = growth_rate_unit * np.array([x['growth rate'].asNumber() for x in raw_data.trna_data.trna_growth_rates])
 
 		trna_ratio_to_16SrRNA_by_growth_rate = []
 		for gr in self._trna_growth_rates: # This is a little crazy...
-			trna_ratio_to_16SrRNA_by_growth_rate.append([x['ratio to 16SrRNA'] for x in getattr(raw_data.trnaData, "trna_ratio_to_16SrRNA_" + str(gr.asNumber()).replace('.','p'))])
+			trna_ratio_to_16SrRNA_by_growth_rate.append([x['ratio to 16SrRNA'] for x in getattr(raw_data.trna_data, "trna_ratio_to_16SrRNA_" + str(gr.asNumber()).replace('.','p'))])
 		self._trna_ratio_to_16SrRNA_by_growth_rate = np.array(trna_ratio_to_16SrRNA_by_growth_rate)
 
-		self._trna_ids = [x['rna id'] for x in raw_data.trnaData.trna_ratio_to_16SrRNA_0p4]
+		self._trna_ids = [x['rna id'] for x in raw_data.trna_data.trna_ratio_to_16SrRNA_0p4]
 
-	def getTrnaDistribution(self, doubling_time):
+	def get_trna_distribution(self, doubling_time):
 		assert type(doubling_time) == unum.Unum
 		assert type(doubling_time.asNumber()) == float
 		growth_rate = 1 / doubling_time
@@ -404,34 +403,34 @@ class GrowthRateParameters(object):
 
 	def __init__(self, raw_data, sim_data):
 		self._doubling_time = sim_data.doubling_time
-		_loadTableIntoObjectGivenDoublingTime(self, raw_data.growthRateDependentParameters)
-		self.ribosomeElongationRateParams = _getFitParameters(raw_data.growthRateDependentParameters, "ribosomeElongationRate")
-		self.rnaPolymeraseElongationRateParams = _getFitParameters(raw_data.growthRateDependentParameters, "rnaPolymeraseElongationRate")
-		self.fractionActiveRnapParams = _getFitParameters(raw_data.growthRateDependentParameters, "fractionActiveRnap")
-		self.fractionActiveRibosomeParams = _getFitParameters(raw_data.growthRateDependentParameters, "fractionActiveRibosome")
-		self.ppGppConcentration = _getFitParameters(raw_data.growthRateDependentParameters, "ppGpp_conc")
+		_loadTableIntoObjectGivenDoublingTime(self, raw_data.growth_rate_dependent_parameters)
+		self.ribosome_elongation_rate_params = _get_fit_parameters(raw_data.growth_rate_dependent_parameters, "ribosomeElongationRate")
+		self.RNAP_elongation_rate_params = _get_fit_parameters(raw_data.growth_rate_dependent_parameters, "rnaPolymeraseElongationRate")
+		self.RNAP_active_fraction_params = _get_fit_parameters(raw_data.growth_rate_dependent_parameters, "fractionActiveRnap")
+		self.ribosome_active_fraction_params = _get_fit_parameters(raw_data.growth_rate_dependent_parameters, "fractionActiveRibosome")
+		self.ppGpp_concentration = _get_fit_parameters(raw_data.growth_rate_dependent_parameters, "ppGpp_conc")
 
-		self._per_dry_mass_to_per_volume = sim_data.constants.cellDensity * (1. - raw_data.mass_parameters['cellWaterMassFraction'])
+		self._per_dry_mass_to_per_volume = sim_data.constants.cellDensity * (1. - raw_data.mass_parameters['cell_water_mass_fraction'])
 		self.c_period = units.min * 40.
 		self.d_period = units.min * 20.
-		self.dnaPolymeraseElongationRate = units.nt / units.s * 967.
+		self.replisome_elongation_rate = units.nt / units.s * 967.
 
-	def getRibosomeElongationRate(self, doubling_time):
-		return _useFitParameters(doubling_time, **self.ribosomeElongationRateParams)
+	def get_ribosome_elongation_rate(self, doubling_time):
+		return _useFitParameters(doubling_time, **self.ribosome_elongation_rate_params)
 
-	def getRnapElongationRate(self, doubling_time):
-		return _useFitParameters(doubling_time, **self.rnaPolymeraseElongationRateParams)
+	def get_rnap_elongation_rate(self, doubling_time):
+		return _useFitParameters(doubling_time, **self.RNAP_elongation_rate_params)
 
-	def getFractionActiveRnap(self, doubling_time):
-		return _useFitParameters(doubling_time, **self.fractionActiveRnapParams)
+	def get_fraction_active_rnap(self, doubling_time):
+		return _useFitParameters(doubling_time, **self.RNAP_active_fraction_params)
 
-	def getFractionActiveRibosome(self, doubling_time):
-		return _useFitParameters(doubling_time, **self.fractionActiveRibosomeParams)
+	def get_fraction_active_ribosome(self, doubling_time):
+		return _useFitParameters(doubling_time, **self.ribosome_active_fraction_params)
 
-	def getppGppConc(self, doubling_time):
-		return _useFitParameters(doubling_time, **self.ppGppConcentration) * self._per_dry_mass_to_per_volume
+	def get_ppGpp_conc(self, doubling_time):
+		return _useFitParameters(doubling_time, **self.ppGpp_concentration) * self._per_dry_mass_to_per_volume
 
-def _getFitParameters(list_of_dicts, key):
+def _get_fit_parameters(list_of_dicts, key):
 	# Load rows of data
 	x = _loadRow('doublingTime', list_of_dicts)
 	y = _loadRow(key, list_of_dicts)
@@ -492,7 +491,7 @@ def _loadTableIntoObjectGivenDoublingTime(obj, list_of_dicts):
 		table_keys.pop(table_keys.index('doublingTime'))
 
 	for key in table_keys:
-		fitParameters = _getFitParameters(list_of_dicts, key)
+		fitParameters = _get_fit_parameters(list_of_dicts, key)
 		attrValue = _useFitParameters(obj._doubling_time, **fitParameters)
 		setattr(obj, key, attrValue)
 

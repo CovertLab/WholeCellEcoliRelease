@@ -36,29 +36,29 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		# Load parameters
 		self.get_dna_critical_mass = sim_data.mass.get_dna_critical_mass
 		self.criticalInitiationMass = self.get_dna_critical_mass(
-			sim_data.conditionToDoublingTime[sim_data.condition])
-		self.nutrientToDoublingTime = sim_data.nutrientToDoublingTime
+			sim_data.condition_to_doubling_time[sim_data.condition])
+		self.nutrientToDoublingTime = sim_data.nutrient_to_doubling_time
 		self.replichore_lengths = sim_data.process.replication.replichore_lengths
 		self.sequences = sim_data.process.replication.replication_sequences
-		self.polymerized_dntp_weights = sim_data.process.replication.replicationMonomerWeights
-		self.replication_coordinate = sim_data.process.transcription.rnaData[
-			"replicationCoordinate"]
-		self.D_period = sim_data.growthRateParameters.d_period.asNumber(
+		self.polymerized_dntp_weights = sim_data.process.replication.replication_monomer_weights
+		self.replication_coordinate = sim_data.process.transcription.rna_data[
+			"replication_coordinate"]
+		self.D_period = sim_data.growth_rate_parameters.d_period.asNumber(
 			units.s)
 
 		# Create molecule views for replisome subunits, active replisomes,
 		# origins of replication, chromosome domains, and free active TFs
 		self.replisome_trimers = self.bulkMoleculesView(
-			sim_data.moleculeGroups.replisome_trimer_subunits)
+			sim_data.molecule_groups.replisome_trimer_subunits)
 		self.replisome_monomers = self.bulkMoleculesView(
-			sim_data.moleculeGroups.replisome_monomer_subunits)
+			sim_data.molecule_groups.replisome_monomer_subunits)
 		self.active_replisomes = self.uniqueMoleculesView('active_replisome')
 		self.oriCs = self.uniqueMoleculesView('oriC')
 		self.chromosome_domains = self.uniqueMoleculesView('chromosome_domain')
 
 		# Create bulk molecule views for polymerization reaction
-		self.dntps = self.bulkMoleculesView(sim_data.moleculeGroups.dntps)
-		self.ppi = self.bulkMoleculeView(sim_data.moleculeIds.ppi)
+		self.dntps = self.bulkMoleculesView(sim_data.molecule_groups.dntps)
+		self.ppi = self.bulkMoleculeView(sim_data.molecule_ids.ppi)
 
 		# Create molecules views for full chromosomes
 		self.full_chromosomes = self.uniqueMoleculesView('full_chromosome')
@@ -67,7 +67,7 @@ class ChromosomeReplication(wholecell.processes.process.Process):
 		self.no_child_place_holder = sim_data.process.replication.no_child_place_holder
 
 		self.basal_elongation_rate = int(
-			round(sim_data.growthRateParameters.dnaPolymeraseElongationRate.asNumber(
+			round(sim_data.growth_rate_parameters.replisome_elongation_rate.asNumber(
 			units.nt / units.s)))
 		self.make_elongation_rates = sim_data.process.replication.make_elongation_rates
 

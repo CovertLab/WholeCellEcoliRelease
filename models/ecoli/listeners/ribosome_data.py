@@ -30,7 +30,7 @@ class RibosomeData(wholecell.listeners.listener.Listener):
 
 		self.uniqueMolecules = sim.internal_states['UniqueMolecules']
 
-		self.monomerIds = sim_data.process.translation.monomerData['id'].tolist()
+		self.monomerIds = sim_data.process.translation.monomer_data['id'].tolist()
 		self.nMonomers = len(self.monomerIds)
 
 

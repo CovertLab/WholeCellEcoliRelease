@@ -27,7 +27,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		validation_data = cPickle.load(open(validationDataFile, "rb"))
 
-		sim_monomer_ids = sim_data.process.translation.monomerData["id"]
+		sim_monomer_ids = sim_data.process.translation.monomer_data["id"]
 		wisniewski_ids = validation_data.protein.wisniewski2014Data["monomerId"]
 		schmidt_ids = validation_data.protein.schmidt2015Data["monomerId"]
 

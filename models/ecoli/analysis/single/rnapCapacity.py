@@ -35,7 +35,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		rnap_reader = TableReader(os.path.join(simOutDir, "RnapData"))
 
 		# Get ID and mass of inactive (bulk) RNAP
-		inactive_rnap_id = sim_data.moleculeIds.rnapFull
+		inactive_rnap_id = sim_data.molecule_ids.full_RNAP
 
 		# Read time data
 		initial_time = main_reader.readAttribute("initialTime")

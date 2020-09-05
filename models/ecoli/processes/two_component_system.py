@@ -33,14 +33,14 @@ class TwoComponentSystem(wholecell.processes.process.Process):
 		self.jit = sim._jit
 
 		# Get constants
-		self.nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / units.mmol)
+		self.nAvogadro = sim_data.constants.n_Avogadro.asNumber(1 / units.mmol)
 		self.cellDensity = sim_data.constants.cellDensity.asNumber(units.g / units.L)
 
 		# Create method
-		self.moleculesToNextTimeStep = sim_data.process.two_component_system.moleculesToNextTimeStep
+		self.moleculesToNextTimeStep = sim_data.process.two_component_system.molecules_to_next_time_step
 
 		# Build views
-		self.moleculeNames = sim_data.process.two_component_system.moleculeNames
+		self.moleculeNames = sim_data.process.two_component_system.molecule_names
 		self.molecules = self.bulkMoleculesView(self.moleculeNames)
 
 		# Set priority to a lower value (but greater priority than metabolism)

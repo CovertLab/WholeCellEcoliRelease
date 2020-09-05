@@ -11,7 +11,7 @@ from reconstruction.spreadsheets import tsv_writer
 
 # Constants
 
-SOURCE = os.path.join("reconstruction", "ecoli", "flat", "metabolism", "ecocyc-compound-formulas.dat")
+SOURCE = os.path.join("reconstruction", "ecoli", "flat", "metabolism", "ecocyc_compound_formulas.dat")
 DELIMITER = "$"
 REGEX = "([A-Z][a-z]?)([0-9]*)"
 NDIGITS = 3 # number of decimals in atomic weights

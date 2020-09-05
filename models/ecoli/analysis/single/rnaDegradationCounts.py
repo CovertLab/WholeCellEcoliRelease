@@ -29,8 +29,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
 		ntp_ids = ['ATP[c]', 'CTP[c]', 'GTP[c]', 'UTP[c]']
-		endoRnaseIds = sim_data.process.rna_decay.endoRnaseIds
-		exoRnaseIds = sim_data.moleculeGroups.exoRnaseIds
+		endoRnaseIds = sim_data.process.rna_decay.endoRNase_ids
+		exoRnaseIds = sim_data.molecule_groups.exoRNases
 		RnaseIds = np.concatenate((endoRnaseIds, exoRnaseIds))
 
 		(RnaseCounts, exoRnaseCounts, endoRnaseCounts, ntpCounts) = read_bulk_molecule_counts(

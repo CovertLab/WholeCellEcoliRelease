@@ -69,14 +69,14 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			doublingTime = 1 / growthRate * np.log(2)
 
 			# Get ids for 30S and 50S subunits
-			proteinIds30S = sim_data.moleculeGroups.s30_proteins
-			rRnaIds30S = sim_data.moleculeGroups.s30_16sRRNA
-			complexIds30S = [sim_data.moleculeIds.s30_fullComplex]
+			proteinIds30S = sim_data.molecule_groups.s30_proteins
+			rRnaIds30S = sim_data.molecule_groups.s30_16s_rRNA
+			complexIds30S = [sim_data.molecule_ids.s30_full_complex]
 
-			proteinIds50S = sim_data.moleculeGroups.s50_proteins
-			rRnaIds50S = sim_data.moleculeGroups.s50_23sRRNA
-			rRnaIds50S.extend(sim_data.moleculeGroups.s50_5sRRNA)
-			complexIds50S = [sim_data.moleculeIds.s50_fullComplex]
+			proteinIds50S = sim_data.molecule_groups.s50_proteins
+			rRnaIds50S = sim_data.molecule_groups.s50_23s_rRNA
+			rRnaIds50S.extend(sim_data.molecule_groups.s50_5s_rRNA)
+			complexIds50S = [sim_data.molecule_ids.s50_full_complex]
 
 			rnapId = ["APORNAP-CPLX[c]"]
 
@@ -146,7 +146,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			## Calculate statistics involving ribosomes and RNAP ##
 			ratioRNAPtoRibosome = totalRnap.astype(np.float) / ribosomeCounts.astype(np.float)
-			ribosomeConcentration = ((1 / sim_data.constants.nAvogadro) * ribosomeCounts) / ((1.0 / sim_data.constants.cellDensity) * (units.fg * cellMass))
+			ribosomeConcentration = ((1 / sim_data.constants.n_Avogadro) * ribosomeCounts) / ((1.0 / sim_data.constants.cellDensity) * (units.fg * cellMass))
 
 			averageRibosomeElongationRate = ribosomeDataFile.readColumn("effectiveElongationRate")
 			processElongationRate = ribosomeDataFile.readColumn("processElongationRate")
@@ -190,7 +190,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			# Plot RNAP active fraction
 			ax2.plot(time.asNumber(units.min), fractionRnapActive)
-			ax2.plot(time.asNumber(units.min), sim_data.growthRateParameters.fractionActiveRnap * np.ones(time.asNumber().size), linestyle='--')
+			ax2.plot(time.asNumber(units.min), sim_data.growth_rate_parameters.fractionActiveRnap * np.ones(time.asNumber().size), linestyle='--')
 			ax2.axvline(x = time.asNumber(units.min).max(), linewidth=2, color='k', linestyle='--')
 			ax2.set_ylabel("Fraction active\nRNAP")
 

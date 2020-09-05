@@ -57,7 +57,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		cellDensity = sim_data.constants.cellDensity
 
-		rnaIds = sim_data.process.transcription.rnaData["id"]
+		rnaIds = sim_data.process.transcription.rna_data["id"]
 
 		simOutDir = os.path.join(allDir[0], "simOut")
 		bulkMolecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))

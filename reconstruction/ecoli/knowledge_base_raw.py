@@ -20,27 +20,27 @@ FLAT_DIR = os.path.join(os.path.dirname(__file__), "flat")
 LIST_OF_DICT_FILENAMES = (
 	"biomass.tsv",
 	"compartments.tsv",
-	"complexationReactions.tsv",
-	"disabledKineticReactions.tsv",
+	"complexation_reactions.tsv",
+	"disabled_kinetic_reactions.tsv",
 	"dna_supercoiling.tsv",
-	"dryMassComposition.tsv",
-	"endoRnases.tsv",
-	"equilibriumReactions.tsv",
-	"foldChanges.tsv",
+	"dry_mass_composition.tsv",
+	"endoRNases.tsv",
+	"equilibrium_reactions.tsv",
+	"fold_changes.tsv",
 	"genes.tsv",
-	"growthRateDependentParameters.tsv",
+	"growth_rate_dependent_parameters.tsv",
 	"metabolism_kinetics.tsv",
 	"metabolites.tsv",
-	"metaboliteConcentrations.tsv",
-	"modificationReactions.tsv",
-	"modifiedForms.tsv",
-	"modifiedFormsStoichiometry.tsv",
+	"metabolite_concentrations.tsv",
+	"modification_reactions.tsv",
+	"modified_forms.tsv",
+	"modified_forms_stoichiometry.tsv",
 	"molecular_weight_keys.tsv",
 	"ppgpp_fc.tsv",
 	"ppgpp_regulation.tsv",
 	"protein_half_lives_measured.tsv",
 	"protein_half_lives_n_end_rule.tsv",
-	"proteinComplexes.tsv",
+	"protein_complexes.tsv",
 	"proteins.tsv",
 	"reactions.tsv",
 	"relative_metabolite_concentrations.tsv",
@@ -48,24 +48,24 @@ LIST_OF_DICT_FILENAMES = (
 	"rnas.tsv",
 	"secretions.tsv",
 	"sequence_motifs.tsv",
-	"tfIds.tsv",
-	"tfOneComponentBound.tsv",
-	"translationEfficiency.tsv",
+	"transcription_factors.tsv",
+	"tf_one_component_bound.tsv",
+	"translation_efficiency.tsv",
 	"transport_reactions.tsv",
-	"twoComponentSystems.tsv",
-	"twoComponentSystemTemplates.tsv",
-	os.path.join("massFractions", "glycogenFractions.tsv"),
-	os.path.join("massFractions", "ionFractions.tsv"),
-	os.path.join("massFractions", "LPSFractions.tsv"),
-	os.path.join("massFractions", "lipidFractions.tsv"),
-	os.path.join("massFractions", "mureinFractions.tsv"),
-	os.path.join("massFractions", "solubleFractions.tsv"),
-	os.path.join("trnaData","trna_ratio_to_16SrRNA_0p4.tsv"),
-	os.path.join("trnaData","trna_ratio_to_16SrRNA_0p7.tsv"),
-	os.path.join("trnaData","trna_ratio_to_16SrRNA_1p6.tsv"),
-	os.path.join("trnaData","trna_ratio_to_16SrRNA_1p07.tsv"),
-	os.path.join("trnaData","trna_ratio_to_16SrRNA_2p5.tsv"),
-	os.path.join("trnaData","trna_growth_rates.tsv"),
+	"two_component_systems.tsv",
+	"two_component_system_templates.tsv",
+	os.path.join("mass_fractions", "glycogen_fractions.tsv"),
+	os.path.join("mass_fractions", "ion_fractions.tsv"),
+	os.path.join("mass_fractions", "LPS_fractions.tsv"),
+	os.path.join("mass_fractions", "lipid_fractions.tsv"),
+	os.path.join("mass_fractions", "murein_fractions.tsv"),
+	os.path.join("mass_fractions", "soluble_fractions.tsv"),
+	os.path.join("trna_data","trna_ratio_to_16SrRNA_0p4.tsv"),
+	os.path.join("trna_data","trna_ratio_to_16SrRNA_0p7.tsv"),
+	os.path.join("trna_data","trna_ratio_to_16SrRNA_1p6.tsv"),
+	os.path.join("trna_data","trna_ratio_to_16SrRNA_1p07.tsv"),
+	os.path.join("trna_data","trna_ratio_to_16SrRNA_2p5.tsv"),
+	os.path.join("trna_data","trna_growth_rates.tsv"),
 	os.path.join("rna_seq_data","rnaseq_rsem_tpm_mean.tsv"),
 	os.path.join("rna_seq_data","rnaseq_rsem_tpm_std.tsv"),
 	os.path.join("rna_seq_data","rnaseq_seal_rpkm_mean.tsv"),
@@ -106,15 +106,15 @@ class KnowledgeBaseEcoli(object):
 
 	def _load_tsv(self, dir_name, file_name):
 		path = self
-		for subPath in file_name[len(dir_name) + 1 : ].split(os.path.sep)[:-1]:
-			if not hasattr(path, subPath):
-				setattr(path, subPath, DataStore())
-			path = getattr(path, subPath)
-		attrName = file_name.split(os.path.sep)[-1].split(".")[0]
-		setattr(path, attrName, [])
+		for sub_path in file_name[len(dir_name) + 1 : ].split(os.path.sep)[:-1]:
+			if not hasattr(path, sub_path):
+				setattr(path, sub_path, DataStore())
+			path = getattr(path, sub_path)
+		attr_name = file_name.split(os.path.sep)[-1].split(".")[0]
+		setattr(path, attr_name, [])
 
 		rows = read_tsv(file_name)
-		setattr(path, attrName, rows)
+		setattr(path, attr_name, rows)
 
 	def _load_sequence(self, file_path):
 		from Bio import SeqIO
@@ -124,8 +124,8 @@ class KnowledgeBaseEcoli(object):
 				return record.seq
 
 	def _load_parameters(self, file_path):
-		attrName = file_path.split(os.path.sep)[-1].split(".")[0]
-		paramDict = {}
+		attr_name = file_path.split(os.path.sep)[-1].split(".")[0]
+		param_dict = {}
 
 		with io.open(file_path, "rb") as csvfile:
 			reader = tsv.dict_reader(csvfile)
@@ -139,6 +139,6 @@ class KnowledgeBaseEcoli(object):
 					unit = eval(row['units'])   # risky!
 					unit = units.getUnit(unit)  # strip
 					value = value * unit
-				paramDict[row['name']] = value
+				param_dict[row['name']] = value
 
-		setattr(self, attrName, paramDict)
+		setattr(self, attr_name, param_dict)

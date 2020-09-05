@@ -25,7 +25,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		allDir = ap.get_cells()
 
 		# Pre-allocate variables. Rows = Generations, Cols = Monomers
-		n_monomers = sim_data.process.translation.monomerData['id'].size
+		n_monomers = sim_data.process.translation.monomer_data['id'].size
 		n_sims = ap.n_generation
 
 		monomerExistMultigen = np.zeros((n_sims, n_monomers), dtype = np.bool)
@@ -52,7 +52,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			initiationEventsPerRna = rnapData.readColumn("rnaInitEvent").sum(axis = 0)
 
 			# Map transcription initiation events to monomers
-			initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.rnaIndexToMonomerMapping]
+			initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.rna_index_to_monomer_mapping]
 
 			# Log data
 			monomerExistMultigen[gen_idx,:] = monomerExist
@@ -64,7 +64,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		averageFoldChangePerMonomer = ratioFinalToInitialCountMultigen.mean(axis=0)
 		averageInitiationEventsPerMonomer = initiationEventsPerMonomerMultigen.mean(axis=0)
 
-		translationEff = sim_data.process.translation.translationEfficienciesByMonomer
+		translationEff = sim_data.process.translation.translation_efficiencies_by_monomer
 
 		# import ipdb; ipdb.set_trace()
 		# uniqueBurstSizes = np.unique(initiationEventsPerMonomerMultigen)

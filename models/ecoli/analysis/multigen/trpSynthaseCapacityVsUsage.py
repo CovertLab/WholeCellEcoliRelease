@@ -29,7 +29,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		trpIdx = sim_data.moleculeGroups.amino_acids.index("TRP[c]")
+		trpIdx = sim_data.molecule_groups.amino_acids.index("TRP[c]")
 
 		plt.figure(figsize = (8.5, 11))
 

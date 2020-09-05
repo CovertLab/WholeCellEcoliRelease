@@ -27,14 +27,14 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
-		stoichMatrix = sim_data.process.equilibrium.stoichMatrix().astype(np.int64)
-		ratesFwd = sim_data.process.equilibrium.ratesFwd
-		ratesRev = sim_data.process.equilibrium.ratesRev
+		stoichMatrix = sim_data.process.equilibrium.stoich_matrix().astype(np.int64)
+		ratesFwd = sim_data.process.equilibrium.rates_fwd
+		ratesRev = sim_data.process.equilibrium.rates_rev
 
-		nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / units.mol)
+		nAvogadro = sim_data.constants.n_Avogadro.asNumber(1 / units.mol)
 		cellDensity = sim_data.constants.cellDensity.asNumber(units.g / units.L)
 
-		moleculeNames = sim_data.process.equilibrium.moleculeNames
+		moleculeNames = sim_data.process.equilibrium.molecule_names
 
 		# Load time
 		main_reader = TableReader(os.path.join(simOutDir, "Main"))

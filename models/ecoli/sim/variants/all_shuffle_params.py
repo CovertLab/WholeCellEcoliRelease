@@ -15,17 +15,17 @@ def all_shuffle_params(sim_data, index):
 	np.random.seed(index)
 
 	# Shuffle transcription initiation
-	idxs_transcriptionInitiation = np.arange(sim_data.process.transcription.rnaData.struct_array.shape[0])
+	idxs_transcriptionInitiation = np.arange(sim_data.process.transcription.rna_data.struct_array.shape[0])
 	np.random.shuffle(idxs_transcriptionInitiation)
 	sim_data.process.transcription.initiationShuffleIdxs = idxs_transcriptionInitiation
 
 	# Shuffle translation efficiencies
-	idxs_translationEfficiencies = np.arange(sim_data.process.translation.translationEfficienciesByMonomer.shape[0])
+	idxs_translationEfficiencies = np.arange(sim_data.process.translation.translation_efficiencies_by_monomer.shape[0])
 	np.random.shuffle(idxs_translationEfficiencies)
 	sim_data.process.translation.translationEfficienciesShuffleIdxs = idxs_translationEfficiencies
 
 	# Shuffle monomer deg rates
-	idxs_monomerDegRates = np.arange(len(sim_data.process.translation.monomerData["degRate"]))
+	idxs_monomerDegRates = np.arange(len(sim_data.process.translation.monomer_data['deg_rate']))
 	np.random.shuffle(idxs_monomerDegRates)
 	sim_data.process.translation.monomerDegRateShuffleIdxs = idxs_monomerDegRates
 

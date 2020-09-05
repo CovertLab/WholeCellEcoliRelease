@@ -29,7 +29,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		moleculeTypeOrder = ["HK", "PHOSPHO-HK", "LIGAND", "HK-LIGAND", "PHOSPHO-HK-LIGAND", "RR", "PHOSPHO-RR"]
 		moleculeTypeLocation = ["[i]", "[i]", "[p]", "[i]", "[i]", "[c]", "[c]"]
 		moleculeTypeColor = ["b", "b", "orange", "g", "g", "r", "r"]
-		for system in sim_data.moleculeGroups.twoComponentSystems:
+		for system in sim_data.molecule_groups.twoComponentSystems:
 			for idx, moleculeType in enumerate(moleculeTypeOrder):
 				TCS_IDS.append(str(system["molecules"][moleculeType]) + moleculeTypeLocation[idx])
 
@@ -40,7 +40,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		time = main_reader.readColumn("time") - initialTime
 
 		# Convert molecule counts to concentrations
-		nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / units.mol)
+		nAvogadro = sim_data.constants.n_Avogadro.asNumber(1 / units.mol)
 		cellDensity = sim_data.constants.cellDensity.asNumber(units.g / units.L)
 		mass = TableReader(os.path.join(simOutDir, "Mass"))
 		cellMass = (units.fg * mass.readColumn("cellMass")).asNumber(units.g)
@@ -52,7 +52,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		plt.figure(figsize = (8.5, 11))
 
-		RRs = [str(x["molecules"]["RR"]) for x in sim_data.moleculeGroups.twoComponentSystems]
+		RRs = [str(x["molecules"]["RR"]) for x in sim_data.molecule_groups.twoComponentSystems]
 		RRs_unique = []
 		for x in RRs:
 			if x not in RRs_unique:
@@ -64,9 +64,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		new_RR = True
 
 
-		for idx in range(len(sim_data.moleculeGroups.twoComponentSystems)):
+		for idx in range(len(sim_data.molecule_groups.twoComponentSystems)):
 			grid_loc = idx + 1 + (cols*(num_subentries + 1))*( idx / cols)
-			current_RR = str(sim_data.moleculeGroups.twoComponentSystems[idx]["molecules"]["RR"])
+			current_RR = str(sim_data.molecule_groups.twoComponentSystems[idx]["molecules"]["RR"])
 			if RR_phosphorylation[current_RR].size == 1:
 				new_RR = True
 

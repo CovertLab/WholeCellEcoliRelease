@@ -18,10 +18,10 @@ from __future__ import absolute_import, division, print_function
 class CommonNames(object):
 	""" GetNames """
 
-	def __init__(self, raw_data, sim_data):
-		self._getNamesDict(raw_data, sim_data)
+	def __init__(self, raw_data):
+		self._build_names_dict(raw_data)
 
-	def _getNamesDict(self, raw_data, sim_data):
+	def _build_names_dict(self, raw_data):
 		# create dictionaries of common names
 		names = {}
 

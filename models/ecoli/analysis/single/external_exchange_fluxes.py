@@ -16,7 +16,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
-		carbon_sources = sim_data.moleculeGroups.carbon_sources
+		carbon_sources = sim_data.molecule_groups.carbon_sources
 
 		# Exchange flux
 		main_reader = TableReader(os.path.join(simOutDir, 'Main'))

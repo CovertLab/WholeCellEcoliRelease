@@ -37,12 +37,12 @@ class Equilibrium(object):
 		stoichMatrixV = []
 
 		stoichMatrixMass = []
-		self.metaboliteSet = set()
-		self.complexNameToRxnIdx = {}
+		self.metabolite_set = set()
+		self.complex_name_to_rxn_idx = {}
 
 		# Make sure reactions are not duplicated in complexationReactions and equilibriumReactions
-		equilibriumReactionIds = set([x["id"] for x in raw_data.equilibriumReactions])
-		complexationReactionIds = set([x["id"] for x in raw_data.complexationReactions])
+		equilibriumReactionIds = set([x["id"] for x in raw_data.equilibrium_reactions])
+		complexationReactionIds = set([x["id"] for x in raw_data.complexation_reactions])
 
 		if equilibriumReactionIds.intersection(complexationReactionIds) != set():
 			raise Exception(
@@ -56,20 +56,20 @@ class Equilibrium(object):
 			}
 
 		# Remove reactions that we know won't occur (e.g., don't do computations on metabolites that have zero counts)
-		MOLECULES_THAT_WILL_EXIST_IN_SIMULATION = [m["Metabolite"] for m in raw_data.metaboliteConcentrations] + ["LEU", "S-ADENOSYLMETHIONINE", "ARABINOSE", "4FE-4S"] + [l["molecules"]["LIGAND"] for l in raw_data.twoComponentSystems]
+		MOLECULES_THAT_WILL_EXIST_IN_SIMULATION = [m["Metabolite"] for m in raw_data.metabolite_concentrations] + ["LEU", "S-ADENOSYLMETHIONINE", "ARABINOSE", "4FE-4S"] + [l["molecules"]["LIGAND"] for l in raw_data.two_component_systems]
 
 		deleteReactions = []
-		for reactionIndex, reaction in enumerate(raw_data.equilibriumReactions):
+		for reactionIndex, reaction in enumerate(raw_data.equilibrium_reactions):
 			for molecule in reaction["stoichiometry"]:
 				if molecule["molecule"] in FORBIDDEN_MOLECULES or (molecule["type"] == "metabolite" and molecule["molecule"] not in MOLECULES_THAT_WILL_EXIST_IN_SIMULATION):
 					deleteReactions.append(reactionIndex)
 					break
 
 		for reactionIndex in deleteReactions[::-1]:
-			del raw_data.equilibriumReactions[reactionIndex]
+			del raw_data.equilibrium_reactions[reactionIndex]
 
 		# Build stoichiometry matrix
-		for reactionIndex, reaction in enumerate(raw_data.equilibriumReactions):
+		for reactionIndex, reaction in enumerate(raw_data.equilibrium_reactions):
 			assert reaction["process"] == "equilibrium"
 			assert reaction["dir"] == 1
 
@@ -83,7 +83,7 @@ class Equilibrium(object):
 						molecule["molecule"].upper(),
 						molecule["location"]
 						)
-					self.metaboliteSet.add(moleculeName)
+					self.metabolite_set.add(moleculeName)
 
 				else:
 					moleculeName = "{}[{}]".format(
@@ -109,10 +109,10 @@ class Equilibrium(object):
 
 				if coefficient > 0:
 					assert molecule["type"] == "proteincomplex"
-					self.complexNameToRxnIdx[moleculeName] = reactionIndex
+					self.complex_name_to_rxn_idx[moleculeName] = reactionIndex
 
 				# Find molecular mass
-				molecularMass = sim_data.getter.getMass([moleculeName]).asNumber(units.g / units.mol)[0]
+				molecularMass = sim_data.getter.get_mass([moleculeName]).asNumber(units.g / units.mol)[0]
 				stoichMatrixMass.append(molecularMass)
 
 		# TODO(jerry): Move the rest to a subroutine for __init__ and __setstate__?
@@ -120,25 +120,25 @@ class Equilibrium(object):
 		self._stoichMatrixJ = np.array(stoichMatrixJ)
 		self._stoichMatrixV = np.array(stoichMatrixV)
 
-		self.moleculeNames = molecules
-		self.ids_complexes = [self.moleculeNames[i] for i in np.where(np.any(self.stoichMatrix() > 0, axis=1))[0]]
-		self.rxnIds = rxnIds
-		self.ratesFwd = np.array(ratesFwd)
-		self.ratesRev = np.array(ratesRev)
+		self.molecule_names = molecules
+		self.ids_complexes = [self.molecule_names[i] for i in np.where(np.any(self.stoich_matrix() > 0, axis=1))[0]]
+		self.rxn_ids = rxnIds
+		self.rates_fwd = np.array(ratesFwd)
+		self.rates_rev = np.array(ratesRev)
 
 		# Mass balance matrix
 		self._stoichMatrixMass = np.array(stoichMatrixMass)
-		self.balanceMatrix = self.stoichMatrix()*self.massMatrix()
+		self.balance_matrix = self.stoich_matrix() * self.mass_matrix()
 
 		# Find the mass balance of each equation in the balanceMatrix
-		massBalanceArray = self.massBalance()
+		massBalanceArray = self.mass_balance()
 
 		# The stoichometric matrix should balance out to numerical zero.
 		assert np.max(np.absolute(massBalanceArray)) < 1e-9
 
 		# Build matrices
 		self._populateDerivativeAndJacobian()
-		self._stoichMatrix = self.stoichMatrix()
+		self._stoichMatrix = self.stoich_matrix()
 
 	def __getstate__(self):
 		"""Return the state to pickle, omitting derived attributes that
@@ -147,17 +147,17 @@ class Equilibrium(object):
 		"""
 		return data.dissoc_strict(self.__dict__, (
 			'_stoichMatrix',
-			'Rp', 'Pp', 'metsToRxnFluxes',
+			'Rp', 'Pp', 'mets_to_rxn_fluxes',
 			'symbolic_rates', 'symbolic_rates_jacobian',
 			'_rates', '_rates_jacobian'))
 
 	def __setstate__(self, state):
 		"""Restore instance attributes, recomputing some of them."""
 		self.__dict__.update(state)
-		self._stoichMatrix = self.stoichMatrix()
+		self._stoichMatrix = self.stoich_matrix()
 		self._populateDerivativeAndJacobian()
 
-	def stoichMatrix(self):
+	def stoich_matrix(self):
 		'''
 		Builds stoichiometry matrix
 		Rows: molecules
@@ -169,7 +169,7 @@ class Equilibrium(object):
 		out[self._stoichMatrixI, self._stoichMatrixJ] = self._stoichMatrixV
 		return out
 
-	def massMatrix(self):
+	def mass_matrix(self):
 		'''
 		Builds stoichiometry mass matrix
 		Rows: molecules
@@ -181,14 +181,14 @@ class Equilibrium(object):
 		out[self._stoichMatrixI, self._stoichMatrixJ] = self._stoichMatrixMass
 		return out
 
-	def massBalance(self):
+	def mass_balance(self):
 		'''
 		Sum along the columns of the massBalance matrix to check for reaction
 		mass balance
 		'''
-		return np.sum(self.balanceMatrix, axis=0)
+		return np.sum(self.balance_matrix, axis=0)
 
-	def stoichMatrixMonomers(self):
+	def stoich_matrix_monomers(self):
 		"""
 		Builds a stoichiometric matrix where each column is a reaction that
 		forms a complex directly from its constituent monomers. Since some
@@ -201,15 +201,15 @@ class Equilibrium(object):
 		stoichMatrixMonomersV = []
 
 		for colIdx, id_complex in enumerate(self.ids_complexes):
-			D = self.getMonomers(id_complex)
+			D = self.get_monomers(id_complex)
 
-			rowIdx = self.moleculeNames.index(id_complex)
+			rowIdx = self.molecule_names.index(id_complex)
 			stoichMatrixMonomersI.append(rowIdx)
 			stoichMatrixMonomersJ.append(colIdx)
 			stoichMatrixMonomersV.append(1.)
 
 			for subunitId, subunitStoich in zip(D["subunitIds"], D["subunitStoich"]):
-				rowIdx = self.moleculeNames.index(subunitId)
+				rowIdx = self.molecule_names.index(subunitId)
 				stoichMatrixMonomersI.append(rowIdx)
 				stoichMatrixMonomersJ.append(colIdx)
 				stoichMatrixMonomersV.append(-1. * subunitStoich)
@@ -238,32 +238,32 @@ class Equilibrium(object):
 		'''
 		EPS = 1e-9
 
-		S = self.stoichMatrix()
+		S = self.stoich_matrix()
 		Rp = -1. * (S < -1 * EPS) * S
 		Pp =  1. * (S >  1 * EPS) * S
 		self.Rp = Rp
 		self.Pp = Pp
 
-		metsToRxnFluxes = self.stoichMatrix().copy()
+		mets_to_rxn_fluxes = self.stoich_matrix().copy()
 
-		metsToRxnFluxes[(np.abs(metsToRxnFluxes) > EPS).sum(axis = 1) > 1, : ] = 0
-		for colIdx in range(metsToRxnFluxes.shape[1]):
+		mets_to_rxn_fluxes[(np.abs(mets_to_rxn_fluxes) > EPS).sum(axis = 1) > 1, : ] = 0
+		for colIdx in range(mets_to_rxn_fluxes.shape[1]):
 			try:
-				firstNonZeroIdx = np.where(np.abs(metsToRxnFluxes[:, colIdx]) > EPS)[0][0]
+				firstNonZeroIdx = np.where(np.abs(mets_to_rxn_fluxes[:, colIdx]) > EPS)[0][0]
 			except IndexError:
 				raise Exception(
 					"Column %d of S matrix not linearly independent!" % colIdx)
-			metsToRxnFluxes[:firstNonZeroIdx, colIdx] = 0
-			metsToRxnFluxes[(firstNonZeroIdx + 1):, colIdx] = 0
+			mets_to_rxn_fluxes[:firstNonZeroIdx, colIdx] = 0
+			mets_to_rxn_fluxes[(firstNonZeroIdx + 1):, colIdx] = 0
 
-		self.metsToRxnFluxes = metsToRxnFluxes.T
+		self.mets_to_rxn_fluxes = mets_to_rxn_fluxes.T
 
 	def _make_rates(self):
 		'''
 		Creates symbolic representation of the rates for ordinary differential
 		equations and the Jacobian. Used during simulations.
 		'''
-		S = self.stoichMatrix()
+		S = self.stoich_matrix()
 
 		yStrings = ["y[%d]" % x for x in range(S.shape[0])]
 		ratesFwdStrings = ["kf[%d]" % x for x in range(S.shape[0])]
@@ -303,18 +303,18 @@ class Equilibrium(object):
 		self.symbolic_rates_jacobian = J
 
 	def derivatives(self, t, y):
-		return self._stoichMatrix.dot(self._rates[0](t, y, self.ratesFwd, self.ratesRev))
+		return self._stoichMatrix.dot(self._rates[0](t, y, self.rates_fwd, self.rates_rev))
 
 	def derivatives_jacobian(self, t, y):
-		return self._stoichMatrix.dot(self._rates_jacobian[0](t, y, self.ratesFwd, self.ratesRev))
+		return self._stoichMatrix.dot(self._rates_jacobian[0](t, y, self.rates_fwd, self.rates_rev))
 
 	def derivatives_jit(self, t, y):
-		return self._stoichMatrix.dot(self._rates[1](t, y, self.ratesFwd, self.ratesRev))
+		return self._stoichMatrix.dot(self._rates[1](t, y, self.rates_fwd, self.rates_rev))
 
 	def derivatives_jacobian_jit(self, t, y):
-		return self._stoichMatrix.dot(self._rates_jacobian[1](t, y, self.ratesFwd, self.ratesRev))
+		return self._stoichMatrix.dot(self._rates_jacobian[1](t, y, self.rates_fwd, self.rates_rev))
 
-	def fluxesAndMoleculesToSS(self, moleculeCounts, cellVolume, nAvogadro,
+	def fluxes_and_molecules_to_SS(self, moleculeCounts, cellVolume, nAvogadro,
 			random_state, time_limit=1e20, max_iter=100, jit=True):
 		y_init = moleculeCounts / (cellVolume * nAvogadro)
 
@@ -345,7 +345,7 @@ class Equilibrium(object):
 		# Pick rounded solution that does not cause negative counts
 		dYMolecules = yMolecules[-1, :] - yMolecules[0, :]
 		for i in range(max_iter):
-			rxnFluxes = stochasticRound(random_state, np.dot(self.metsToRxnFluxes, dYMolecules))
+			rxnFluxes = stochasticRound(random_state, np.dot(self.mets_to_rxn_fluxes, dYMolecules))
 			if np.all(moleculeCounts + self._stoichMatrix.dot(rxnFluxes) >= 0):
 				break
 		else:
@@ -357,57 +357,57 @@ class Equilibrium(object):
 
 		return rxnFluxes, moleculesNeeded
 
-	def getMonomers(self, cplxId):
+	def get_monomers(self, cplxId):
 		'''
 		Returns subunits for a complex (or any ID passed). If the ID passed is
 		already a monomer returns the monomer ID again with a stoichiometric
 		coefficient of one.
 		'''
-		info = self._moleculeRecursiveSearch(cplxId, self._stoichMatrix, self.moleculeNames)
+		info = self._moleculeRecursiveSearch(cplxId, self._stoichMatrix, self.molecule_names)
 		return {'subunitIds': np.array(list(info.keys())), 'subunitStoich': np.array(list(info.values()))}
 
-	def getMetabolite(self, cplxId):
-		D = self.getMonomers(cplxId)
+	def get_metabolite(self, cplxId):
+		D = self.get_monomers(cplxId)
 		if len(D["subunitIds"]) > 2:
 			raise Exception(
 				"Calling this function only makes sense for reactions with 2 reactants")
 		for subunit in D["subunitIds"]:
-			if subunit in self.metaboliteSet:
+			if subunit in self.metabolite_set:
 				return subunit
 
-	def getMetaboliteCoeff(self, cplxId):
-		D = self.getMonomers(cplxId)
+	def get_metabolite_coeff(self, cplxId):
+		D = self.get_monomers(cplxId)
 		if len(D["subunitIds"]) > 2:
 			raise Exception(
 				"Calling this function only makes sense for reactions with 2 reactants")
 		for subunit, stoich in zip(D["subunitIds"], D["subunitStoich"]):
-			if subunit in self.metaboliteSet:
+			if subunit in self.metabolite_set:
 				return stoich
 
-	def getUnbound(self, cplxId):
-		D = self.getMonomers(cplxId)
+	def get_unbound(self, cplxId):
+		D = self.get_monomers(cplxId)
 		if len(D["subunitIds"]) > 2:
 			raise Exception(
 				"Calling this function only makes sense for reactions with 2 reactants")
 		for subunit in D["subunitIds"]:
-			if subunit not in self.metaboliteSet:
+			if subunit not in self.metabolite_set:
 				return subunit
 
-	def getFwdRate(self, cplxId):
-		rxnIdx = self.complexNameToRxnIdx[cplxId]
-		return self.ratesFwd[rxnIdx]
+	def get_fwd_rate(self, cplxId):
+		rxnIdx = self.complex_name_to_rxn_idx[cplxId]
+		return self.rates_fwd[rxnIdx]
 
-	def getRevRate(self, cplxId):
-		rxnIdx = self.complexNameToRxnIdx[cplxId]
-		return self.ratesRev[rxnIdx]
+	def get_rev_rate(self, cplxId):
+		rxnIdx = self.complex_name_to_rxn_idx[cplxId]
+		return self.rates_rev[rxnIdx]
 
-	def setFwdRate(self, cplxId, rate):
-		rxnIdx = self.complexNameToRxnIdx[cplxId]
-		self.ratesFwd[rxnIdx] = rate
+	def set_fwd_rate(self, cplxId, rate):
+		rxnIdx = self.complex_name_to_rxn_idx[cplxId]
+		self.rates_fwd[rxnIdx] = rate
 
-	def setRevRate(self, cplxId, rate):
-		rxnIdx = self.complexNameToRxnIdx[cplxId]
-		self.ratesRev[rxnIdx] = rate
+	def set_rev_rate(self, cplxId, rate):
+		rxnIdx = self.complex_name_to_rxn_idx[cplxId]
+		self.rates_rev[rxnIdx] = rate
 
 	def _findRow(self, product, speciesList):
 		try:

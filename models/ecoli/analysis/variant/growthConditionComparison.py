@@ -38,8 +38,8 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 		variantSimDataFile = ap.get_variant_kb(ap.get_variants()[0])
 		sim_data = cPickle.load(open(variantSimDataFile, "rb"))
-		nAvogadro = sim_data.constants.nAvogadro.asNumber()
-		chromMass = (sim_data.getter.getMass([sim_data.moleculeIds.full_chromosome])[0] / sim_data.constants.nAvogadro).asNumber()
+		nAvogadro = sim_data.constants.n_Avogadro.asNumber()
+		chromMass = (sim_data.getter.get_mass([sim_data.molecule_ids.full_chromosome])[0] / sim_data.constants.n_Avogadro).asNumber()
 
 		for simDir in all_cells:
 			simOutDir = os.path.join(simDir, "simOut")
@@ -67,8 +67,8 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 			transcriptDataFile = TableReader(os.path.join(simOutDir, "TranscriptElongationListener"))
 			rnaSynth = transcriptDataFile.readColumn("countRnaSynthesized")
-			isTRna = sim_data.process.transcription.rnaData["isTRna"]
-			isRRna = sim_data.process.transcription.rnaData["isRRna"]
+			isTRna = sim_data.process.transcription.rna_data['is_tRNA']
+			isRRna = sim_data.process.transcription.rna_data['is_rRNA']
 			stableRnaSynth = np.sum(rnaSynth[:,isTRna], axis=1) + np.sum(rnaSynth[:,isRRna], axis=1)
 			totalRnaSynth = np.sum(rnaSynth, axis=1).astype(float)
 			rnaFraction = stableRnaSynth / totalRnaSynth

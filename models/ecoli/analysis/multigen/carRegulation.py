@@ -30,7 +30,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		nAvogadro = sim_data.constants.nAvogadro
+		nAvogadro = sim_data.constants.n_Avogadro
 		cellDensity = sim_data.constants.cellDensity
 
 		simOutDir = os.path.join(allDirs[0], "simOut")
@@ -39,7 +39,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		rna_ids = rna_synth_prob_reader.readAttribute("rnaIds")
 
 		argRIndex = tf_ids.index("CPLX0-228")
-		target_ids = six.viewkeys(sim_data.tfToFC["CPLX0-228"])
+		target_ids = six.viewkeys(sim_data.tf_to_fold_change["CPLX0-228"])
 		target_idx = np.array(
 			[rna_ids.index(target_id + "[c]") for target_id in target_ids])
 
@@ -133,7 +133,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			carARnaConcentration = carARnaMols * 1. / volume
 
 			# Compute the carA mass in the cell
-			carAMw = sim_data.getter.getMass(carAProteinId)
+			carAMw = sim_data.getter.get_mass(carAProteinId)
 			carAMass = 1. / nAvogadro * carAProteinTotalCounts * carAMw
 
 			# Compute the proteome mass fraction

@@ -44,7 +44,7 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		self._pre_evolve_state_mass_index = None
 		self._requests = []
 
-		self.uniqueMoleculeDefinitions = None
+		self.unique_molecule_definitions = None
 		self.division_mode = {}
 
 
@@ -52,8 +52,8 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		super(UniqueMolecules, self).initialize(sim, sim_data)
 
 		# Used to store information for cell division
-		self.uniqueMoleculeDefinitions = deepcopy(
-			sim_data.internal_state.uniqueMolecules.uniqueMoleculeDefinitions)
+		self.unique_molecule_definitions = deepcopy(
+			sim_data.internal_state.unique_molecule.unique_molecule_definitions)
 
 		# Add the submass difference attributes for processes to operate
 		defaultMassAttributes = {}
@@ -66,21 +66,21 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 			self._submass_diff_names.append(massDiffPropertyName)
 			self._submass_diff_name_to_index[massDiffPropertyName] = index
 
-		for molDef in six.viewvalues(self.uniqueMoleculeDefinitions):
+		for molDef in six.viewvalues(self.unique_molecule_definitions):
 			molDef.update(defaultMassAttributes)
 
 		self.container = UniqueObjectsContainer(
-			self.uniqueMoleculeDefinitions, submass_diff_names=self._submass_diff_names)
+			self.unique_molecule_definitions, submass_diff_names=self._submass_diff_names)
 
 		# Get ordered list of molecule ids and masses
-		self._molecule_ids = tuple(sorted(self.uniqueMoleculeDefinitions.keys()))
+		self._molecule_ids = tuple(sorted(self.unique_molecule_definitions.keys()))
 
 		molecule_id_to_mass = {}
-		uniqueMoleculeMasses = sim_data.internal_state.uniqueMolecules.uniqueMoleculeMasses
+		uniqueMoleculeMasses = sim_data.internal_state.unique_molecule.unique_molecule_masses
 		for (id_, mass) in zip(
 			uniqueMoleculeMasses["id"], uniqueMoleculeMasses["mass"]
 			):
-			molecule_id_to_mass[id_] = (mass/sim_data.constants.nAvogadro).asNumber(units.fg)
+			molecule_id_to_mass[id_] = (mass/sim_data.constants.n_Avogadro).asNumber(units.fg)
 
 		self._molecule_masses = np.array(
 			[molecule_id_to_mass[x] for x in self._molecule_ids]
@@ -94,10 +94,10 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		# of the masses array
 		self._pre_evolve_state_mass_index = self._nProcesses
 
-		self.division_mode['active_ribosome'] = sim_data.moleculeGroups.unique_molecules_active_ribosome_division
-		self.division_mode['RNA'] = sim_data.moleculeGroups.unique_molecules_RNA_division
-		self.division_mode['domain_index'] = sim_data.moleculeGroups.unique_molecules_domain_index_division
-		self.division_mode['chromosomal_segment'] = sim_data.moleculeGroups.unique_molecules_chromosomal_segment_division
+		self.division_mode['active_ribosome'] = sim_data.molecule_groups.unique_molecules_active_ribosome_division
+		self.division_mode['RNA'] = sim_data.molecule_groups.unique_molecules_RNA_division
+		self.division_mode['domain_index'] = sim_data.molecule_groups.unique_molecules_domain_index_division
+		self.division_mode['chromosomal_segment'] = sim_data.molecule_groups.unique_molecules_chromosomal_segment_division
 
 
 	def partition(self, processes):

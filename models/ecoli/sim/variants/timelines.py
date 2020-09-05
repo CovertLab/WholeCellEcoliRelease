@@ -21,7 +21,7 @@ def timelines(sim_data, index):
 	# Get possible condition from starting nutrients for proper initialization
 	# Not guaranteed to map to any condition or could map to multiple conditions
 	nutrients = saved_timelines[current_timeline_id][0][1]
-	conditions = [cond for cond in sim_data.conditionActiveTfs
+	conditions = [cond for cond in sim_data.condition_active_tfs
 		if sim_data.conditions[cond]['nutrients'] == nutrients]
 	if len(conditions) == 1:
 		sim_data.condition = conditions[0]

@@ -12,11 +12,11 @@ METABOLITE_MASS_FILE = os.path.join("reconstruction", "ecoli", "flat", "metaboli
 MONOMER_MASS_FILE = os.path.join("reconstruction", "ecoli", "flat", "proteins.tsv")
 RNA_MASS_FILE = os.path.join("reconstruction", "ecoli", "flat", "rnas.tsv")
 WATER_MASS_FILE = os.path.join("reconstruction", "ecoli", "flat", "water.tsv")
-EXISTING_PROTEIN_COMPLEX_FILE = os.path.join("reconstruction", "ecoli", "flat", "proteinComplexes.tsv")
+EXISTING_PROTEIN_COMPLEX_FILE = os.path.join("reconstruction", "ecoli", "flat", "protein_complexes.tsv")
 NEW_PROTEIN_COMPLEX_FILE = os.path.join("reconstruction", "ecoli", "flat", "proteinComplexes_new.tsv")
 NEW_COMPLEXATION_REACTION_FILE = os.path.join("reconstruction", "ecoli", "flat", "complexationReactions_new.tsv")
 NEW_EQUILIBRIUM_REACTION_FILE = os.path.join("reconstruction", "ecoli", "flat", "equilibriumReactions_new.tsv")
-EXISTING_EQUILIBRIUM_REACTION_FILE = os.path.join("reconstruction", "ecoli", "flat", "equilibriumReactions.tsv")
+EXISTING_EQUILIBRIUM_REACTION_FILE = os.path.join("reconstruction", "ecoli", "flat", "equilibrium_reactions.tsv")
 
 ECOCYC_DUMP = os.path.join("reconstruction", "ecoli", "flat", "eco_wc_test_fun.json")
 

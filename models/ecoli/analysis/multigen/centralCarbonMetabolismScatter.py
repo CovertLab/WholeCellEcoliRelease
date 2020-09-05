@@ -35,7 +35,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		# allDir = ap.get_cells(generation = [0, 1, 2])
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		metaboliteNames = np.array(sorted(sim_data.process.metabolism.concDict.keys()))
+		metaboliteNames = np.array(sorted(sim_data.process.metabolism.conc_dict.keys()))
 		nMetabolites = len(metaboliteNames)
 
 		validation_data = cPickle.load(open(validationDataFile, "rb"))

@@ -27,7 +27,7 @@ fraction_names = {
 	}
 
 keys = drymass.dtype.names
-filename = os.path.join(OUTPUT_DIR, "dryMassComposition.tsv")
+filename = os.path.join(OUTPUT_DIR, "dry_mass_composition.tsv")
 with tsv_writer(filename, keys) as writer:
 	for entry in drymass:
 		writer.writerow({
@@ -39,7 +39,7 @@ for kb_name, file_prefix in six.viewitems(fraction_names):
 	keys = array.dtype.names
 
 	filename = os.path.join(
-		OUTPUT_DIR, "massFractions", "{}Fractions.tsv".format(file_prefix))
+		OUTPUT_DIR, "mass_fractions", "{}Fractions.tsv".format(file_prefix))
 	with tsv_writer(filename, keys) as writer:
 		for entry in array:
 			writer.writerow({

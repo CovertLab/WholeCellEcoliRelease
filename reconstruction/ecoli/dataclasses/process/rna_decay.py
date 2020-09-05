@@ -20,9 +20,9 @@ class RnaDecay(object):
 		self._buildRnaDecayData(raw_data, sim_data)
 
 	def _buildRnaDecayData(self, raw_data, sim_data):
-		self.endoRnaseIds = [x["endoRnase"] for x in raw_data.endoRnases]
-		self.kcats = (1 / units.s) * np.array([x["kcat"].asNumber(1 / units.s) for x in raw_data.endoRnases])
-		self.StatsFit = {
+		self.endoRNase_ids = [x["endoRnase"] for x in raw_data.endoRNases]
+		self.kcats = (1 / units.s) * np.array([x["kcat"].asNumber(1 / units.s) for x in raw_data.endoRNases])
+		self.stats_fit = {
 				'LossKm': 0.,
 				'LossKmOpt': 0.,
 				'RnegKmOpt': 0.,
@@ -35,22 +35,22 @@ class RnaDecay(object):
 			}
 
 		# store Residuals re-scaled (sensitivity analysis "alpha")
-		self.SensitivityAnalysisAlphaResidual = {}
-		self.SensitivityAnalysisAlphaRegulariNeg = {}
+		self.sensitivity_analysis_alpha_residual = {}
+		self.sensitivity_analysis_alpha_regular_i_neg = {}
 
 		# store Km's and Residuals re-scaled (sensitivity analysis "kcat EndoRNases")
-		self.SensitivityAnalysisKcat = {}
-		self.SensitivityAnalysisKcat_ResIni = {}
-		self.SensitivityAnalysisKcat_ResOpt = {}
+		self.sensitivity_analysis_kcat = {}
+		self.sensitivity_analysis_kcat_res_ini = {}
+		self.sensitivity_analysis_kcat_res_opt = {}
 
 		# store Km's from first-order RNA decay
-		self.KmFirstOrderDecay = []
+		self.Km_first_order_decay = []
 
 		# store convergence of non-linear Km's (G(km))
-		self.KmConvergence = []
+		self.Km_convergence = []
 
 
-	def kmLossFunction(self, vMax, rnaConc, kDeg, isEndoRnase, alpha):
+	def km_loss_function(self, vMax, rnaConc, kDeg, isEndoRnase, alpha):
 		'''
 		Generates the functions used for estimating the per-RNA affinities (Michaelis-Menten
 		constants) to the endoRNAses.

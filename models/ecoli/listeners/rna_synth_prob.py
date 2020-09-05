@@ -31,7 +31,7 @@ class RnaSynthProb(wholecell.listeners.listener.Listener):
 		self.uniqueMolecules = sim.internal_states['UniqueMolecules']
 
 		self.transcriptInitiation = sim.processes["TranscriptInitiation"]
-		self.rnaIds = sim_data.process.transcription.rnaData["id"]
+		self.rnaIds = sim_data.process.transcription.rna_data["id"]
 		self.n_TU = len(self.rnaIds)
 
 		self.tf_ids = sim_data.process.transcription_regulation.tf_ids

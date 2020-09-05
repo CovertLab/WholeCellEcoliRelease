@@ -36,16 +36,16 @@ class Equilibrium(wholecell.processes.process.Process):
 		self.jit = sim._jit
 
 		# Get constants
-		self.nAvogadro = sim_data.constants.nAvogadro.asNumber(1 / units.mol)
+		self.nAvogadro = sim_data.constants.n_Avogadro.asNumber(1 / units.mol)
 		self.cellDensity = sim_data.constants.cellDensity.asNumber(units.g / units.L)
 
 		# Create matrix and method
-		self.stoichMatrix = sim_data.process.equilibrium.stoichMatrix().astype(np.int64)
-		self.fluxesAndMoleculesToSS = sim_data.process.equilibrium.fluxesAndMoleculesToSS
+		self.stoichMatrix = sim_data.process.equilibrium.stoich_matrix().astype(np.int64)
+		self.fluxesAndMoleculesToSS = sim_data.process.equilibrium.fluxes_and_molecules_to_SS
 		self.product_indices = [idx for idx in np.where(np.any(self.stoichMatrix > 0, axis=1))[0]]
 
 		# Build views
-		moleculeNames = sim_data.process.equilibrium.moleculeNames
+		moleculeNames = sim_data.process.equilibrium.molecule_names
 		self.molecules = self.bulkMoleculesView(moleculeNames)
 
 

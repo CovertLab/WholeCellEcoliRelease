@@ -12,7 +12,7 @@ class GrowthData(object):
 	def __init__(self, kb):
 		self.tau_d = np.array(kb.cellDryMassComposition["doublingTime"].asNumber(units.min))
 
-		avgToBeginningConvFactor = kb.avgCellToInitialCellConvFactor
+		avgToBeginningConvFactor = kb.avg_cell_to_initial_cell_conversion_factor
 		self._dryMass = np.array([148., 258., 433., 641., 865.]) / avgToBeginningConvFactor # TOKB
 		self._proteinMass = self._dryMass * kb.cellDryMassComposition["proteinMassFraction"]
 		self._rnaMass = self._dryMass * kb.cellDryMassComposition["rnaMassFraction"]
@@ -48,7 +48,7 @@ class GrowthData(object):
 			kb.genome_T_count + kb.genome_A_count
 		])
 
-		dntMasses = (kb.getMass(kb.moleculeGroups.polymerizedDNT_IDs) / kb.nAvogadro).asUnit(units.g)
+		dntMasses = (kb.get_mass(kb.molecule_groups.polymerizedDNT_IDs) / kb.n_Avogadro).asUnit(units.g)
 
 		chromMass = units.dot(dntCounts, dntMasses)
 		return chromMass

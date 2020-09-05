@@ -38,7 +38,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		# Load parameters
 		self.fracActiveRnapDict = sim_data.process.transcription.rnapFractionActiveDict
-		self.rnaLengths = sim_data.process.transcription.rnaData["length"]
+		self.rnaLengths = sim_data.process.transcription.rna_data["length"]
 		self.rnaPolymeraseElongationRateDict = sim_data.process.transcription.rnaPolymeraseElongationRateDict
 		self.variable_elongation = sim._variable_elongation_transcription
 		self.make_elongation_rates = sim_data.process.transcription.make_elongation_rates
@@ -60,7 +60,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		if len(perturbations) > 0:
 			probability_indexes = [
 				(index, sim_data.genetic_perturbations[rna_data['id']])
-					for index, rna_data in enumerate(sim_data.process.transcription.rnaData)
+					for index, rna_data in enumerate(sim_data.process.transcription.rna_data)
 					if rna_data['id'] in sim_data.genetic_perturbations]
 
 			self.genetic_perturbations = {
@@ -80,14 +80,14 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.RNAs = self.uniqueMoleculesView('RNA')
 
 		# ID Groups
-		self.idx_16SrRNA = np.where(sim_data.process.transcription.rnaData['isRRna16S'])[0]
-		self.idx_23SrRNA = np.where(sim_data.process.transcription.rnaData['isRRna23S'])[0]
-		self.idx_5SrRNA = np.where(sim_data.process.transcription.rnaData['isRRna5S'])[0]
-		self.idx_rRNA = np.where(sim_data.process.transcription.rnaData['isRRna'])[0]
-		self.idx_mRNA = np.where(sim_data.process.transcription.rnaData["isMRna"])[0]
-		self.idx_tRNA = np.where(sim_data.process.transcription.rnaData["isTRna"])[0]
-		self.idx_rprotein = np.where(sim_data.process.transcription.rnaData['isRProtein'])[0]
-		self.idx_rnap = np.where(sim_data.process.transcription.rnaData['isRnap'])[0]
+		self.idx_16SrRNA = np.where(sim_data.process.transcription.rna_data['is_16S_rRNA'])[0]
+		self.idx_23SrRNA = np.where(sim_data.process.transcription.rna_data['is_23S_rRNA'])[0]
+		self.idx_5SrRNA = np.where(sim_data.process.transcription.rna_data['is_5S_rRNA'])[0]
+		self.idx_rRNA = np.where(sim_data.process.transcription.rna_data['is_rRNA'])[0]
+		self.idx_mRNA = np.where(sim_data.process.transcription.rna_data['is_mRNA'])[0]
+		self.idx_tRNA = np.where(sim_data.process.transcription.rna_data['is_tRNA'])[0]
+		self.idx_rprotein = np.where(sim_data.process.transcription.rna_data['is_ribosomal_protein'])[0]
+		self.idx_rnap = np.where(sim_data.process.transcription.rna_data['is_RNAP'])[0]
 
 		# Synthesis probabilities for different categories of genes
 		self.rnaSynthProbFractions = sim_data.process.transcription.rnaSynthProbFraction
@@ -95,15 +95,15 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 		self.rnaSynthProbRnaPolymerase = sim_data.process.transcription.rnaSynthProbRnaPolymerase
 
 		# Coordinates and transcription directions of transcription units
-		self.replication_coordinate = sim_data.process.transcription.rnaData[
-			"replicationCoordinate"]
-		self.transcription_direction = sim_data.process.transcription.rnaData[
+		self.replication_coordinate = sim_data.process.transcription.rna_data[
+			"replication_coordinate"]
+		self.transcription_direction = sim_data.process.transcription.rna_data[
 			"direction"]
 
 		# ppGpp control related
-		self.n_avogadro = sim_data.constants.nAvogadro
+		self.n_avogadro = sim_data.constants.n_Avogadro
 		self.cell_density = sim_data.constants.cellDensity
-		self.ppgpp = self.bulkMoleculeView(sim_data.moleculeIds.ppGpp)
+		self.ppgpp = self.bulkMoleculeView(sim_data.molecule_ids.ppGpp)
 		self.synth_prob = sim_data.process.transcription.synth_prob_from_ppgpp
 		self.copy_number = sim_data.process.replication.get_average_copy_number
 		self.ppgpp_regulation = sim._ppgpp_regulation

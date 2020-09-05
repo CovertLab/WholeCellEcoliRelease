@@ -47,8 +47,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		simData = cPickle.load(open(simDataFile, 'rb'))
 
 		# Get IDs for RNA from simData
-		ids_rna = simData.process.transcription.rnaData["id"]
-		mRNA_indexes = np.where(simData.process.transcription.rnaData["isMRna"])[0]
+		ids_rna = simData.process.transcription.rna_data["id"]
+		mRNA_indexes = np.where(simData.process.transcription.rna_data['is_mRNA'])[0]
 		n_rnas = len(ids_rna)
 
 		# Get cell density constant

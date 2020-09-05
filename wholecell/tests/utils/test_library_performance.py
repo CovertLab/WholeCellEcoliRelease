@@ -151,7 +151,7 @@ def derivatives(y, t):
 		[-100000000.0*y[37]*y[40] + 0.01*y[39]*y[8]]]).reshape(-1)
 
 # Ditto.
-def derivativesJacobian(y, t):
+def derivatives_jacobian(y, t):
 	return np.array([
 		[-100000000.0*y[6], 0, 0, 500.0*y[4], 500.0*y[3], 0, -100000000.0*y[0], 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -272,7 +272,7 @@ class Test_library_performance(unittest.TestCase):
 
 		def odeint():
 			y = scipy.integrate.odeint(
-				derivatives, y0, t=[0, 1e6], Dfun=derivativesJacobian,
+				derivatives, y0, t=[0, 1e6], Dfun=derivatives_jacobian,
 				mxstep=10000)
 		self.time_this(odeint, 0.4)
 

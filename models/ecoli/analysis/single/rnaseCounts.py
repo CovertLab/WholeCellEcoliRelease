@@ -24,12 +24,12 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
-		endoRnaseIds = sim_data.process.rna_decay.endoRnaseIds
-		exoRnaseIds = sim_data.moleculeGroups.exoRnaseIds
+		endoRnaseIds = sim_data.process.rna_decay.endoRNase_ids
+		exoRnaseIds = sim_data.molecule_groups.exoRNases
 		RNase_IDS = np.concatenate((endoRnaseIds, exoRnaseIds))
 
-		endoRnase_RnaIDs = sim_data.moleculeGroups.endoRnase_RnaIDs
-		exoRnase_RnaIDs = sim_data.moleculeGroups.exoRnase_RnaIDs
+		endoRnase_RnaIDs = sim_data.molecule_groups.endoRNase_rnas
+		exoRnase_RnaIDs = sim_data.molecule_groups.exoRNase_rnas
 		RNase_RnaIDS = np.concatenate((endoRnase_RnaIDs, exoRnase_RnaIDs))
 
 		# Load count data for mRNAs

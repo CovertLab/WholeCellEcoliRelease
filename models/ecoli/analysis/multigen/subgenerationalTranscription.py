@@ -51,8 +51,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		validation_data = cPickle.load(open(validationDataFile, "rb"))
 
 		# Get mRNA data
-		rnaIds = sim_data.process.transcription.rnaData["id"]
-		isMRna = sim_data.process.transcription.rnaData["isMRna"]
+		rnaIds = sim_data.process.transcription.rna_data["id"]
+		isMRna = sim_data.process.transcription.rna_data['is_mRNA']
 		mRnaIndexes = np.where(isMRna)[0]
 		mRnaIds = np.array([rnaIds[x] for x in mRnaIndexes])
 
@@ -102,8 +102,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		simulatedSynthProbsOrdered = np.mean(simulatedSynthProbs, axis = 0)[indexingOrder]
 		transcriptionEventsOrdered = transcriptionEvents[:, indexingOrder]
 		mRnaIdsOrdered = mRnaIds[indexingOrder]
-		transcriptionIndex = sim_data.process.transcription.rnaData["id"].tolist()
-		geneIdsOrdered = [sim_data.process.transcription.rnaData["geneId"][transcriptionIndex.index(x)] for x in mRnaIdsOrdered]
+		transcriptionIndex = sim_data.process.transcription.rna_data["id"].tolist()
+		geneIdsOrdered = [sim_data.process.transcription.rna_data['gene_id'][transcriptionIndex.index(x)] for x in mRnaIdsOrdered]
 
 		## Commented code is used when PLOT_GENES_OF_INTEREST is True
 		# raw_data = cPickle.load(open("out/SET_A_000000/rawData.cPickle", "rb"))

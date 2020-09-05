@@ -26,8 +26,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
 
-		aa_ids = sim_data.moleculeGroups.amino_acids
-		targets = np.array([sim_data.process.metabolism.concDict[key].asNumber(units.mmol / units.L) for key in aa_ids])
+		aa_ids = sim_data.molecule_groups.amino_acids
+		targets = np.array([sim_data.process.metabolism.conc_dict[key].asNumber(units.mmol / units.L) for key in aa_ids])
 
 		ap = AnalysisPaths(variantDir, cohort_plot=True)
 

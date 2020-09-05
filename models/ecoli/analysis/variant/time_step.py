@@ -52,10 +52,10 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
-		inactive_rnap_id = [sim_data.moleculeIds.rnapFull]
+		inactive_rnap_id = [sim_data.molecule_ids.full_RNAP]
 		ribosome_subunit_ids = [
-			sim_data.moleculeIds.s50_fullComplex,
-			sim_data.moleculeIds.s30_fullComplex,
+			sim_data.molecule_ids.s50_full_complex,
+			sim_data.molecule_ids.s30_full_complex,
 			]
 
 		all_time_steps = np.zeros(n_variants)

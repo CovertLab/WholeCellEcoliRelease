@@ -53,7 +53,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 			delta_prob = sim_data.process.transcription_regulation.delta_prob
 
-			tfList = ["basal (no TF)"] + sorted(sim_data.tfToActiveInactiveConds)
+			tfList = ["basal (no TF)"] + sorted(sim_data.tf_to_active_inactive_conditions)
 			simOutDir = os.path.join(simDir, "simOut")
 			tf = tfList[(variant + 1) // 2]
 
@@ -70,7 +70,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			gene_copy_number = rna_synth_prob_reader.readColumn("gene_copy_number")
 
 			tf_idx = tf_ids.index(tf)
-			tf_targets = sim_data.tfToFC[tf]
+			tf_targets = sim_data.tf_to_fold_change[tf]
 			tf_target_indexes = np.array([
 				rna_ids.index(tf_target + "[c]") for tf_target in tf_targets])
 
@@ -78,7 +78,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 			tfTargetSynthProbAll = rna_synth_prob_reader.readColumn("rnaSynthProb")[:, tf_target_indexes]
 			tf_target_gene_copies_all = gene_copy_number[:, tf_target_indexes]
 
-			for i, tfTarget in enumerate(sorted(sim_data.tfToFC[tf])):
+			for i, tfTarget in enumerate(sorted(sim_data.tf_to_fold_change[tf])):
 				tfTargetBoundCounts = tfTargetBoundCountsAll[:, i].reshape(-1)
 				tf_target_copies = tf_target_gene_copies_all[:, i].reshape(-1)
 
@@ -94,9 +94,9 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 				for j in regulating_tf_idxs:
 					if tfTarget not in targetToTfType:
 						targetToTfType[tfTarget] = []
-					targetToTfType[tfTarget].append(sim_data.process.transcription_regulation.tfToTfType[tf_ids[j]])
+					targetToTfType[tfTarget].append(sim_data.process.transcription_regulation.tf_to_tf_type[tf_ids[j]])
 
-				expectedSynthProb.append(sim_data.process.transcription.rnaSynthProb[tf + "__" + tfStatus][target_idx])
+				expectedSynthProb.append(sim_data.process.transcription.rna_synth_prob[tf + "__" + tfStatus][target_idx])
 				simulatedSynthProb.append(tfTargetSynthProb[5:].mean())
 
 				targetId.append(tfTarget)

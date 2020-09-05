@@ -13,7 +13,7 @@ def translation_efficiencies_shuffle_params(sim_data, index):
 		return CONTROL_OUTPUT, sim_data
 
 	np.random.seed(index)
-	idxs = np.arange(sim_data.process.translation.translationEfficienciesByMonomer.shape[0])
+	idxs = np.arange(sim_data.process.translation.translation_efficiencies_by_monomer.shape[0])
 	np.random.shuffle(idxs)
 	sim_data.process.translation.translationEfficienciesShuffleIdxs = idxs
 

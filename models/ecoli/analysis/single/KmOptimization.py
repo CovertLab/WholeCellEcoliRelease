@@ -23,21 +23,21 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		if sim_data.constants.EndoRNaseCooperation:
 			width = 1
 
-			LossKm = sim_data.process.rna_decay.StatsFit['LossKm']
-			LossKmOpt = sim_data.process.rna_decay.StatsFit['LossKmOpt']
-			RnegKmOpt = sim_data.process.rna_decay.StatsFit['RnegKmOpt']
-			ResKm = sim_data.process.rna_decay.StatsFit['ResKm']
-			ResKmOpt = sim_data.process.rna_decay.StatsFit['ResKmOpt']
-			ResEndoRNKm = sim_data.process.rna_decay.StatsFit['ResEndoRNKm']
-			ResEndoRNKmOpt = sim_data.process.rna_decay.StatsFit['ResEndoRNKmOpt']
-			ResScaledKm = sim_data.process.rna_decay.StatsFit['ResScaledKm']
-			ResScaledKmOpt = sim_data.process.rna_decay.StatsFit['ResScaledKmOpt']
+			LossKm = sim_data.process.rna_decay.stats_fit['LossKm']
+			LossKmOpt = sim_data.process.rna_decay.stats_fit['LossKmOpt']
+			RnegKmOpt = sim_data.process.rna_decay.stats_fit['RnegKmOpt']
+			ResKm = sim_data.process.rna_decay.stats_fit['ResKm']
+			ResKmOpt = sim_data.process.rna_decay.stats_fit['ResKmOpt']
+			ResEndoRNKm = sim_data.process.rna_decay.stats_fit['ResEndoRNKm']
+			ResEndoRNKmOpt = sim_data.process.rna_decay.stats_fit['ResEndoRNKmOpt']
+			ResScaledKm = sim_data.process.rna_decay.stats_fit['ResScaledKm']
+			ResScaledKmOpt = sim_data.process.rna_decay.stats_fit['ResScaledKmOpt']
 
 			StatsFit = []
 			ScoreNames = []
 
 			# Sensitivity analysis alpha
-			Residuals = sim_data.process.rna_decay.SensitivityAnalysisAlphaResidual
+			Residuals = sim_data.process.rna_decay.sensitivity_analysis_alpha_residual
 
 			for alpha in sorted(Residuals):
 				ScoreNames.append('Residuals rescaled, alpha = ' + str(alpha))
@@ -68,13 +68,13 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			axes.set_yticks(index+width/2)
 			axes.set_yticklabels(ScoreNames)
 
-			rnaDegRates = sim_data.process.transcription.rnaData['degRate']
+			rnaDegRates = sim_data.process.transcription.rna_data['deg_rate']
 
 			cellDensity = sim_data.constants.cellDensity
-			cellVolume = sim_data.mass.avgCellDryMassInit / cellDensity / sim_data.mass.cellDryMassFraction
-			countsToMolar = 1 / (sim_data.constants.nAvogadro * cellVolume)
+			cellVolume = sim_data.mass.avg_cell_dry_mass_init / cellDensity / sim_data.mass.cell_dry_mass_fraction
+			countsToMolar = 1 / (sim_data.constants.n_Avogadro * cellVolume)
 
-			rnaIds = sim_data.process.transcription.rnaData["id"]
+			rnaIds = sim_data.process.transcription.rna_data["id"]
 			(rnaCountsBulk,) = read_bulk_molecule_counts(simOutDir, rnaIds)
 			rnaCountsInitial = rnaCountsBulk[-1, :]
 			rnaConcInitial = countsToMolar * rnaCountsInitial

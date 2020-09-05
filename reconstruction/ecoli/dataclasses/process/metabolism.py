@@ -57,8 +57,8 @@ class Metabolism(object):
 
 	def __init__(self, raw_data, sim_data):
 		self._set_solver_values(sim_data.constants)
-		self._buildBiomass(raw_data, sim_data)
-		self._buildMetabolism(raw_data, sim_data)
+		self._build_biomass(raw_data, sim_data)
+		self._build_metabolism(raw_data, sim_data)
 		self._build_ppgpp_reactions(raw_data, sim_data)
 		self._build_transport_reactions(raw_data, sim_data)
 
@@ -83,7 +83,7 @@ class Metabolism(object):
 		self.kinetic_objective_weight_in_range = constants.metabolism_kinetic_objective_weight_in_range
 		self.secretion_penalty_coeff = constants.secretion_penalty_coeff
 
-	def _buildBiomass(self, raw_data, sim_data):
+	def _build_biomass(self, raw_data, sim_data):
 		wildtypeIDs = set(entry["molecule id"] for entry in raw_data.biomass)
 
 		# Create vector of metabolite target concentrations
@@ -120,7 +120,7 @@ class Metabolism(object):
 			for wildtypeID in wildtypeIDs
 			} # this assumes biomass reaction components only exist in a single compartment
 
-		for row in raw_data.metaboliteConcentrations:
+		for row in raw_data.metabolite_concentrations:
 			metabolite_id = row['Metabolite']
 			if not sim_data.getter.check_valid_molecule(metabolite_id):
 				if VERBOSE:
@@ -169,7 +169,7 @@ class Metabolism(object):
 
 		# DGTP: set to smallest of all other DNTP concentrations
 		dntpConcentrations = []
-		for dntpIndex, dntpID in enumerate(sim_data.moleculeGroups.dntps):
+		for dntpIndex, dntpID in enumerate(sim_data.molecule_groups.dntps):
 			if dntpID in metaboliteIDs:
 				metIndex = metaboliteIDs.index(dntpID)
 				dntpConcentrations.append(metaboliteConcentrations[metIndex])
@@ -181,11 +181,11 @@ class Metabolism(object):
 		# H: from reported pH
 		hydrogenConcentration = 10**(-ECOLI_PH)
 
-		metaboliteIDs.append(sim_data.moleculeIds.proton)
+		metaboliteIDs.append(sim_data.molecule_ids.proton)
 		metaboliteConcentrations.append(hydrogenConcentration)
 
 		# PPI: multiple sources report 0.5 mM
-		metaboliteIDs.append(sim_data.moleculeIds.ppi)
+		metaboliteIDs.append(sim_data.molecule_ids.ppi)
 		metaboliteConcentrations.append(PPI_CONCENTRATION)
 
 		metaboliteIDs.append("PI[c]")
@@ -203,7 +203,7 @@ class Metabolism(object):
 			met_id = met + wildtypeIDtoCompartment.get(met, '[c]')
 
 			# AA concentrations are determined through charging
-			if met_id in sim_data.moleculeGroups.amino_acids:
+			if met_id in sim_data.molecule_groups.amino_acids:
 				continue
 
 			# Get relative metabolite change in each media condition
@@ -231,19 +231,19 @@ class Metabolism(object):
 			raise ValueError('Multiple concentrations for metabolite(s): {}'.format(', '.join(unique_ids[counts > 1])))
 
 		# TODO (Travis): only pass raw_data and sim_data and create functions to load absolute and relative concentrations
-		self.concentrationUpdates = ConcentrationUpdates(dict(zip(
+		self.concentration_updates = ConcentrationUpdates(dict(zip(
 			metaboliteIDs,
 			METABOLITE_CONCENTRATION_UNITS * np.array(metaboliteConcentrations)
 			)),
 			relative_changes,
-			raw_data.equilibriumReactions,
+			raw_data.equilibrium_reactions,
 			sim_data.external_state.exchange_dict,
 		)
-		self.concDict = self.concentrationUpdates.concentrationsBasedOnNutrients("minimal")
-		self.nutrientsToInternalConc = {}
-		self.nutrientsToInternalConc["minimal"] = self.concDict.copy()
+		self.conc_dict = self.concentration_updates.concentrations_based_on_nutrients("minimal")
+		self.nutrients_to_internal_conc = {}
+		self.nutrients_to_internal_conc["minimal"] = self.conc_dict.copy()
 
-	def _buildMetabolism(self, raw_data, sim_data):
+	def _build_metabolism(self, raw_data, sim_data):
 		"""
 		Build the matrices/vectors for metabolism (FBA)
 		Reads in and stores reaction and kinetic constraint information
@@ -253,7 +253,7 @@ class Metabolism(object):
 			) = self.extract_reactions(raw_data, sim_data)
 
 		# Load kinetic reaction constraints from raw_data
-		known_metabolites = set(self.concDict)
+		known_metabolites = set(self.conc_dict)
 		raw_constraints = self.extract_kinetic_constraints(raw_data, sim_data,
 			stoich=reactionStoich, catalysts=catalysts,
 			known_metabolites=known_metabolites)
@@ -309,21 +309,21 @@ class Metabolism(object):
 		catalysisMatrixV = np.array(catalysisMatrixV)
 
 		# Properties for FBA reconstruction
-		self.reactionStoich = reactionStoich
-		self.maintenanceReaction = {"ATP[c]": -1, "WATER[c]": -1, "ADP[c]": +1, "PI[c]": +1, "PROTON[c]": +1,}
+		self.reaction_stoich = reactionStoich
+		self.maintenance_reaction = {"ATP[c]": -1, "WATER[c]": -1, "ADP[c]": +1, "PI[c]": +1, "PROTON[c]": +1, }
 
 		# Properties for catalysis matrix (to set hard bounds)
-		self.reactionCatalysts = catalysts
+		self.reaction_catalysts = catalysts
 		self.catalyst_ids = catalyst_ids
 		self.reactions_with_catalyst = reactions_with_catalyst
-		self.catalysisMatrixI = catalysisMatrixI
-		self.catalysisMatrixJ = catalysisMatrixJ
-		self.catalysisMatrixV = catalysisMatrixV
+		self.catalysis_matrix_I = catalysisMatrixI
+		self.catalysis_matrix_J = catalysisMatrixJ
+		self.catalysis_matrix_V = catalysisMatrixV
 
 		# Properties for setting flux targets
-		self.useAllConstraints = USE_ALL_CONSTRAINTS
-		self.constraintsToDisable = [rxn["disabled reaction"]
-			for rxn in raw_data.disabledKineticReactions]
+		self.use_all_constraints = USE_ALL_CONSTRAINTS
+		self.constraints_to_disable = [rxn["disabled reaction"]
+			for rxn in raw_data.disabled_kinetic_reactions]
 
 	def _build_ppgpp_reactions(self, raw_data, sim_data):
 		'''
@@ -361,7 +361,7 @@ class Metabolism(object):
 
 		# Record sparse indices in the matrix
 		for j, rxn in enumerate(self.ppgpp_reaction_names):
-			for met, stoich in self.reactionStoich[rxn].items():
+			for met, stoich in self.reaction_stoich[rxn].items():
 				idx = metabolite_indices.get(met, new_index)
 
 				if idx == new_index:
@@ -390,7 +390,7 @@ class Metabolism(object):
 		"""
 
 		rxn_mapping = {}
-		for rxn in sorted(self.reactionStoich):
+		for rxn in sorted(self.reaction_stoich):
 			basename = rxn.split('__')[0].split(' (reverse)')[0]
 			rxn_mapping[basename] = rxn_mapping.get(basename, []) + [rxn]
 
@@ -400,7 +400,7 @@ class Metabolism(object):
 			for rxn in rxn_mapping.get(row['reaction id'], [])
 			]
 
-	def getKineticConstraints(self, enzymes, substrates):
+	def get_kinetic_constraints(self, enzymes, substrates):
 		# type: (units.Unum, units.Unum) -> units.Unum
 		'''
 		Allows for dynamic code generation for kinetic constraint calculation
@@ -442,14 +442,14 @@ class Metabolism(object):
 
 		return KINETIC_CONSTRAINT_CONC_UNITS * K_CAT_UNITS * capacity * saturation
 
-	def exchangeConstraints(self, exchangeIDs, coefficient, targetUnits, currentNutrients, unconstrained, constrained, concModificationsBasedOnCondition = None):
+	def exchange_constraints(self, exchangeIDs, coefficient, targetUnits, currentNutrients, unconstrained, constrained, concModificationsBasedOnCondition = None):
 		"""
 		Called during Metabolism process
 		Returns the homeostatic objective concentrations based on the current nutrients
 		Returns levels for external molecules available to exchange based on the current nutrients
 		"""
 
-		newObjective = self.concentrationUpdates.concentrationsBasedOnNutrients(
+		newObjective = self.concentration_updates.concentrations_based_on_nutrients(
 			media_id=currentNutrients, conversion_units=targetUnits)
 		if concModificationsBasedOnCondition is not None:
 			newObjective.update(concModificationsBasedOnCondition)
@@ -497,8 +497,8 @@ class Metabolism(object):
 			Better handling of concentration assumption
 		"""
 
-		aa_ids = sim_data.moleculeGroups.amino_acids
-		conc = self.concentrationUpdates.concentrationsBasedOnNutrients
+		aa_ids = sim_data.molecule_groups.amino_acids
+		conc = self.concentration_updates.concentrations_based_on_nutrients
 
 		aa_conc_basal = np.array([
 			conc('minimal')[aa].asNumber(METABOLITE_CONCENTRATION_UNITS)
@@ -1186,12 +1186,12 @@ class Metabolism(object):
 class ConcentrationUpdates(object):
 	def __init__(self, concDict, relative_changes, equilibriumReactions, exchange_data_dict):
 		self.units = units.getUnit(list(concDict.values())[0])
-		self.defaultConcentrationsDict = dict((key, concDict[key].asNumber(self.units)) for key in concDict)
+		self.default_concentrations_dict = dict((key, concDict[key].asNumber(self.units)) for key in concDict)
 		self.exchange_fluxes = self._exchange_flux_present(exchange_data_dict)
 		self.relative_changes = relative_changes
 
 		# factor of internal amino acid increase if amino acids present in nutrients
-		self.moleculeScaleFactors = {
+		self.molecule_scale_factors = {
 			"L-ALPHA-ALANINE[c]": 2.,
 			"ARG[c]": 2.,
 			"ASN[c]": 2.,
@@ -1215,16 +1215,16 @@ class ConcentrationUpdates(object):
 			"VAL[c]": 2.,
 		}
 
-		self.moleculeSetAmounts = self._addMoleculeAmounts(equilibriumReactions, self.defaultConcentrationsDict)
+		self.molecule_set_amounts = self._add_molecule_amounts(equilibriumReactions, self.default_concentrations_dict)
 
 	# return adjustments to concDict based on nutrient conditions
-	def concentrationsBasedOnNutrients(self, media_id=None, conversion_units=None):
+	def concentrations_based_on_nutrients(self, media_id=None, conversion_units=None):
 		if conversion_units:
 			conversion = self.units.asNumber(conversion_units)
 		else:
 			conversion = self.units
 
-		concentrationsDict = self.defaultConcentrationsDict.copy()
+		concentrationsDict = self.default_concentrations_dict.copy()
 
 		metaboliteTargetIds = sorted(concentrationsDict.keys())
 		concentrations = conversion * np.array([concentrationsDict[k] for k in metaboliteTargetIds])
@@ -1243,9 +1243,9 @@ class ConcentrationUpdates(object):
 
 			# Adjust for concentration changes based on presence in media
 			exchanges = self.exchange_fluxes[media_id]
-			for moleculeName, setAmount in six.viewitems(self.moleculeSetAmounts):
-				if ((moleculeName in exchanges and (moleculeName[:-3] + "[c]" not in self.moleculeScaleFactors or moleculeName == "L-SELENOCYSTEINE[c]"))
-						or (moleculeName in self.moleculeScaleFactors and moleculeName[:-3] + "[p]" in exchanges)):
+			for moleculeName, setAmount in six.viewitems(self.molecule_set_amounts):
+				if ((moleculeName in exchanges and (moleculeName[:-3] + "[c]" not in self.molecule_scale_factors or moleculeName == "L-SELENOCYSTEINE[c]"))
+						or (moleculeName in self.molecule_scale_factors and moleculeName[:-3] + "[p]" in exchanges)):
 					if conversion_units:
 						setAmount = (setAmount / conversion_to_no_units).asNumber()
 					concDict[moleculeName] = setAmount
@@ -1277,7 +1277,7 @@ class ConcentrationUpdates(object):
 
 		return exchange_fluxes
 
-	def _addMoleculeAmounts(self, equilibriumReactions, concDict):
+	def _add_molecule_amounts(self, equilibriumReactions, concDict):
 		moleculeSetAmounts = {}
 		for reaction in equilibriumReactions:
 			# We only want to do this for species with standard Michaelis-Menten kinetics initially
@@ -1289,6 +1289,6 @@ class ConcentrationUpdates(object):
 			moleculeSetAmounts[moleculeName + "[p]"] = amountToSet * self.units
 			moleculeSetAmounts[moleculeName + "[c]"] = amountToSet * self.units
 
-		for moleculeName, scaleFactor in six.viewitems(self.moleculeScaleFactors):
+		for moleculeName, scaleFactor in six.viewitems(self.molecule_scale_factors):
 			moleculeSetAmounts[moleculeName] = scaleFactor * concDict[moleculeName] * self.units
 		return moleculeSetAmounts

@@ -30,7 +30,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			sim_data = cPickle.load(f)
 
 		# Load data from KB
-		nAvogadro = sim_data.constants.nAvogadro
+		nAvogadro = sim_data.constants.n_Avogadro
 
 		# Listeners used
 		unique_molecules_reader = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
@@ -39,12 +39,12 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Get IDs of ribosome subunits
 		ribosome_subunit_ids = [
-			sim_data.moleculeIds.s50_fullComplex,
-			sim_data.moleculeIds.s30_fullComplex,
+			sim_data.molecule_ids.s50_full_complex,
+			sim_data.molecule_ids.s30_full_complex,
 			]
 
 		# Get masses of full ribosomes and subunits
-		ribosome_subunit_masses = sim_data.getter.getMass(ribosome_subunit_ids)
+		ribosome_subunit_masses = sim_data.getter.get_mass(ribosome_subunit_ids)
 		full_ribosome_mass = units.sum(ribosome_subunit_masses)
 
 		# Read time data

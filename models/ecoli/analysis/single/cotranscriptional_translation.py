@@ -50,13 +50,13 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Load mappings between mRNA, protein, and gene ids
 		mRNA_id_to_gene_id = {
 			mRNA_id: gene_id for (mRNA_id, gene_id)
-			in zip(sim_data.process.transcription.rnaData['id'],
-				sim_data.process.transcription.rnaData['geneId'])
+			in zip(sim_data.process.transcription.rna_data['id'],
+				sim_data.process.transcription.rna_data['gene_id'])
 			}
 		protein_id_to_mRNA_id = {
 			protein_id: mRNA_id for (protein_id, mRNA_id)
-			in zip(sim_data.process.translation.monomerData['id'],
-				sim_data.process.translation.monomerData['rnaId'])
+			in zip(sim_data.process.translation.monomer_data['id'],
+				sim_data.process.translation.monomer_data['rna_id'])
 			}
 		protein_id_to_gene_id = {
 			protein_id: mRNA_id_to_gene_id[mRNA_id] for (protein_id, mRNA_id)
@@ -66,8 +66,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Load mapping from protein id to genomic coordinates
 		rna_id_to_coordinates = {
 			rna_id: coordinates for (rna_id, coordinates)
-			in zip(sim_data.process.transcription.rnaData['id'],
-				sim_data.process.transcription.rnaData['replicationCoordinate'])
+			in zip(sim_data.process.transcription.rna_data['id'],
+				sim_data.process.transcription.rna_data['replication_coordinate'])
 			}
 		protein_id_to_coordinates = {
 			protein_id: rna_id_to_coordinates[rna_id] for (protein_id, rna_id)
@@ -163,9 +163,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# proportions of partially transcribed transcripts can be estimated by
 		# taking an integral of this distribution function from 0 to T, where T
 		# is the length of time required to produce a full transcript.
-		is_mRNA = sim_data.process.transcription.rnaData['isMRna']
-		mRNA_lengths = sim_data.process.transcription.rnaData['length'][is_mRNA].asNumber(units.nt)
-		mRNA_deg_rates = sim_data.process.transcription.rnaData['degRate'][is_mRNA].asNumber(1/units.s)
+		is_mRNA = sim_data.process.transcription.rna_data['is_mRNA']
+		mRNA_lengths = sim_data.process.transcription.rna_data['length'][is_mRNA].asNumber(units.nt)
+		mRNA_deg_rates = sim_data.process.transcription.rna_data['deg_rate'][is_mRNA].asNumber(1 / units.s)
 		nutrients = sim_data.conditions[sim_data.condition]["nutrients"]
 		elongation_rate = sim_data.process.transcription.rnaPolymeraseElongationRateDict[
 			nutrients].asNumber(units.nt/units.s)

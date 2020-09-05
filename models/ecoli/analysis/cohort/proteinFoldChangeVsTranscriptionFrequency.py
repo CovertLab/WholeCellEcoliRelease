@@ -29,19 +29,19 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		# Get all ids reqiured
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		ids_complexation = sim_data.process.complexation.moleculeNames # Complexe of proteins, and protein monomers
+		ids_complexation = sim_data.process.complexation.molecule_names # Complexe of proteins, and protein monomers
 		ids_complexation_complexes = sim_data.process.complexation.ids_complexes # Only complexes
-		ids_equilibrium = sim_data.process.equilibrium.moleculeNames # Complexes of proteins + small molecules, small molecules, protein monomers
+		ids_equilibrium = sim_data.process.equilibrium.molecule_names # Complexes of proteins + small molecules, small molecules, protein monomers
 		ids_equilibrium_complexes = sim_data.process.equilibrium.ids_complexes # Only complexes
-		ids_translation = sim_data.process.translation.monomerData["id"].tolist() # Only protein monomers
+		ids_translation = sim_data.process.translation.monomer_data["id"].tolist() # Only protein monomers
 
 		# ids_ribosome =
-		data_50s = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s50_fullComplex)
-		data_30s = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.s30_fullComplex)
+		data_50s = sim_data.process.complexation.get_monomers(sim_data.molecule_ids.s50_full_complex)
+		data_30s = sim_data.process.complexation.get_monomers(sim_data.molecule_ids.s30_full_complex)
 		ribosome_subunit_ids = data_50s["subunitIds"].tolist() + data_30s["subunitIds"].tolist()
 		ribosome_subunit_stoich = np.hstack((data_50s["subunitStoich"],data_30s["subunitStoich"]))
 
-		data_rnap = sim_data.process.complexation.getMonomers(sim_data.moleculeIds.rnapFull)
+		data_rnap = sim_data.process.complexation.get_monomers(sim_data.molecule_ids.full_RNAP)
 		rnap_subunit_ids = data_rnap["subunitIds"].tolist()
 		rnap_subunit_stoich = data_rnap["subunitStoich"]
 
@@ -52,7 +52,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		first_build = True
 
 		# Pre-allocate variables. Rows = Generations, Cols = Monomers
-		n_monomers = sim_data.process.translation.monomerData['id'].size
+		n_monomers = sim_data.process.translation.monomer_data['id'].size
 		n_sims = ap.n_generation
 
 		monomerExistMultigen = np.zeros((n_sims, n_monomers), dtype = np.bool)
@@ -86,10 +86,10 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			bulkMolecules.close()
 
 			# Dissociate protein-protein complexes
-			bulkCounts[:, complexationIdx] += np.dot(sim_data.process.complexation.stoichMatrixMonomers(), bulkCounts[:, complexation_complexesIdx].transpose() * -1).transpose()
+			bulkCounts[:, complexationIdx] += np.dot(sim_data.process.complexation.stoich_matrix_monomers(), bulkCounts[:, complexation_complexesIdx].transpose() * -1).transpose()
 
 			# Dissociate protein-small molecule complexes
-			bulkCounts[:, equilibriumIdx] += np.dot(sim_data.process.equilibrium.stoichMatrixMonomers(), bulkCounts[:, equilibrium_complexesIdx].transpose() * -1).transpose()
+			bulkCounts[:, equilibriumIdx] += np.dot(sim_data.process.equilibrium.stoich_matrix_monomers(), bulkCounts[:, equilibrium_complexesIdx].transpose() * -1).transpose()
 
 			# Load unique molecule data for RNAP and ribosomes
 			uniqueMoleculeCounts = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))
@@ -122,7 +122,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			initiationEventsPerRna = rnapData.readColumn("rnaInitEvent").sum(axis = 0)
 
 			# Map transcription initiation events to monomers
-			initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.rnaIndexToMonomerMapping]
+			initiationEventsPerMonomer = initiationEventsPerRna[sim_data.relation.rna_index_to_monomer_mapping]
 
 			# Load cell mass
 			cellMassInitial = TableReader(os.path.join(simOutDir, "Mass")).readColumn("cellMass")[0]
@@ -143,8 +143,8 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		averageInitiationEventsPerMonomer = np.tile(averageInitiationEventsPerMonomer, (6,1))
 
 
-		mws = sim_data.getter.getMass(sim_data.process.translation.monomerData['id'])
-		monomerInitialMasses = (mws * monomerCountInitialMultigen / sim_data.constants.nAvogadro)
+		mws = sim_data.getter.get_mass(sim_data.process.translation.monomer_data['id'])
+		monomerInitialMasses = (mws * monomerCountInitialMultigen / sim_data.constants.n_Avogadro)
 
 		# np.tile(cellMassInitialMultigen.asNumber().reshape((1,10)), (n_monomers,1))
 

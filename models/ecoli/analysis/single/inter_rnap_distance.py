@@ -68,7 +68,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Get RNAP footprint size from validation data
 		RNAP_footprint_size = validation_data.dna_footprint_sizes[
-			sim_data.moleculeIds.rnapFull].asNumber(units.nt)
+			sim_data.molecule_ids.full_RNAP].asNumber(units.nt)
 
 		# Mark genes with RNAPs that are too close to each other
 		n_too_close = (avg_inter_rnap_distance[:SAMPLE_SIZE] < RNAP_footprint_size).sum()

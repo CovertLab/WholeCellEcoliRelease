@@ -31,11 +31,11 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		# Get IDs of mRNAs
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		rnaIds = sim_data.process.transcription.rnaData["id"]
-		isMRna = sim_data.process.transcription.rnaData["isMRna"]
-		degRate = sim_data.process.transcription.rnaData["degRate"]
-		basalExpression = sim_data.process.transcription.rnaExpression["basal"]
-		synthProb = sim_data.process.transcription.rnaSynthProb["basal"]
+		rnaIds = sim_data.process.transcription.rna_data["id"]
+		isMRna = sim_data.process.transcription.rna_data['is_mRNA']
+		degRate = sim_data.process.transcription.rna_data['deg_rate']
+		basalExpression = sim_data.process.transcription.rna_expression["basal"]
+		synthProb = sim_data.process.transcription.rna_synth_prob["basal"]
 		mRnaIds = np.where(isMRna)[0]
 
 		mRnaBasalExpression = np.array([basalExpression[x] for x in mRnaIds])

@@ -42,7 +42,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		nAvogadro = sim_data.constants.nAvogadro
+		nAvogadro = sim_data.constants.n_Avogadro
 		cellDensity = sim_data.constants.cellDensity
 		homeostaticRangeObjFractionHigher = sim_data.constants.metabolismHomeostaticRangeObjFractionHigher
 
@@ -55,8 +55,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		mass = TableReader(os.path.join(simOutDir, "Mass"))
 		cellMass = units.fg * mass.readColumn("cellMass")
 
-		concIds = sorted(sim_data.process.metabolism.concDict)
-		concPools = units.mol / units.L * np.array([sim_data.process.metabolism.concDict[key].asNumber(units.mol / units.L) for key in concIds])
+		concIds = sorted(sim_data.process.metabolism.conc_dict)
+		concPools = units.mol / units.L * np.array([sim_data.process.metabolism.conc_dict[key].asNumber(units.mol / units.L) for key in concIds])
 		concentrationSetpoints = concPools
 		sortedConcentrationIndex = concentrationSetpoints.asNumber().argsort()[::-1]
 		concentrationSetpoints = concentrationSetpoints[sortedConcentrationIndex]

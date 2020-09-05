@@ -48,20 +48,20 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		# sim_data values
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
-		rna_data = sim_data.process.transcription.rnaData
+		rna_data = sim_data.process.transcription.rna_data
 		fractions = [
-			'isRRna',
-			'isTRna',
-			'isMRna',
-			'isRProtein',
-			'isRnap',
+			'is_rRNA',
+			'is_tRNA',
+			'is_mRNA',
+			'is_ribosomal_protein',
+			'is_RNAP',
 			]
 		n_fractions = len(fractions)
 		synthase_rna_idx_all_rnas = np.array([
 			np.where(rna_data['id'] == RELA_RNA)[0][0],
 			np.where(rna_data['id'] == SPOT_RNA)[0][0],
 			])
-		mrna_ids = rna_data['id'][rna_data['isMRna']]
+		mrna_ids = rna_data['id'][rna_data['is_mRNA']]
 		synthase_rna_idx_mrnas = np.array([
 			np.where(mrna_ids == RELA_RNA)[0][0],
 			np.where(mrna_ids == SPOT_RNA)[0][0],
@@ -81,7 +81,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			))
 		cell_count_iters = [
 			read_bulk_molecule_counts(
-				os.path.join(p, 'simOut'), [sim_data.moleculeIds.ppGpp])
+				os.path.join(p, 'simOut'), [sim_data.molecule_ids.ppGpp])
 			for p in cell_paths]
 		ppgpp_count = np.hstack(list(itertools.chain.from_iterable(cell_count_iters)))
 		del cell_count_iters

@@ -73,13 +73,13 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			## Ribosome counts and statistics ##
 
 			# Get ids for 30S and 50S subunits
-			complexIds30S = [sim_data.moleculeIds.s30_fullComplex]
-			complexIds50S = [sim_data.moleculeIds.s50_fullComplex]
+			complexIds30S = [sim_data.molecule_ids.s30_full_complex]
+			complexIds50S = [sim_data.molecule_ids.s50_full_complex]
 
 			# Get molecular weights for 30S and 50S subunits, and add these two for 70S
-			nAvogadro = sim_data.constants.nAvogadro
-			mw30S = sim_data.getter.getMass(complexIds30S)
-			mw50S = sim_data.getter.getMass(complexIds50S)
+			nAvogadro = sim_data.constants.n_Avogadro
+			mw30S = sim_data.getter.get_mass(complexIds30S)
+			mw50S = sim_data.getter.get_mass(complexIds50S)
 			mw70S = mw30S + mw50S
 
 			# Get indexes for 30S and 50S subunits based on ids

@@ -16,17 +16,17 @@ from unum import Unum
 from reconstruction.ecoli.knowledge_base_raw import KnowledgeBaseEcoli
 
 # Data classes
-from reconstruction.ecoli.dataclasses.getterFunctions import getterFunctions
-from reconstruction.ecoli.dataclasses.moleculeGroups import MoleculeGroups
-from reconstruction.ecoli.dataclasses.moleculeIds import MoleculeIds
+from reconstruction.ecoli.dataclasses.getter_functions import GetterFunctions
+from reconstruction.ecoli.dataclasses.molecule_groups import MoleculeGroups
+from reconstruction.ecoli.dataclasses.molecule_ids import MoleculeIds
 from reconstruction.ecoli.dataclasses.constants import Constants
 from reconstruction.ecoli.dataclasses.state.internal_state import InternalState
 from reconstruction.ecoli.dataclasses.process.process import Process
-from reconstruction.ecoli.dataclasses.growthRateDependentParameters import Mass, GrowthRateParameters
+from reconstruction.ecoli.dataclasses.growth_rate_dependent_parameters import Mass, GrowthRateParameters
 from reconstruction.ecoli.dataclasses.relation import Relation
 
 __all__ = [
-	'KnowledgeBaseEcoli', 'getterFunctions', 'MoleculeGroups', 'MoleculeIds',
+	'KnowledgeBaseEcoli', 'GetterFunctions', 'MoleculeGroups', 'MoleculeIds',
 	'Constants', 'InternalState', 'Process', 'Mass', 'GrowthRateParameters',
 	'Relation', 'ValidationDataEcoli', 'Protein', 'ReactionFlux',
 	'EssentialGenes', 'GeneFunctions']
@@ -64,12 +64,12 @@ class Protein(object):
 	def __init__(self, validation_data_raw, knowledge_base_raw):
 		# Build and save a dict from gene ID to monomerId
 		rna_id_to_gene_id = {
-			gene['rnaId']: gene['id'] for gene in knowledge_base_raw.genes}
+			gene['rna_id']: gene['id'] for gene in knowledge_base_raw.genes}
 		protein_id_to_location = {
 			protein['id']: protein['location'][0] for protein in knowledge_base_raw.proteins}
 
 		self.geneIdToMonomerId = {
-			rna_id_to_gene_id[rna['id']]: '{}[{}]'.format(rna['monomerId'], protein_id_to_location[rna['monomerId']])
+			rna_id_to_gene_id[rna['id']]: '{}[{}]'.format(rna['monomer_id'], protein_id_to_location[rna['monomer_id']])
 			for rna in knowledge_base_raw.rnas
 			if rna["type"] == "mRNA"}
 

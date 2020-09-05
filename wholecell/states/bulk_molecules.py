@@ -56,9 +56,9 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
 			id_: idx for idx, id_ in enumerate(self._processIDs)}
 
 		# Load constants
-		self._moleculeIDs = sim_data.internal_state.bulkMolecules.bulkData['id']
+		self._moleculeIDs = sim_data.internal_state.bulk_molecules.bulk_data['id']
 
-		self._moleculeMass = sim_data.internal_state.bulkMolecules.bulkData['mass'].asNumber(units.fg / units.mol) / sim_data.constants.nAvogadro.asNumber(1 / units.mol)
+		self._moleculeMass = sim_data.internal_state.bulk_molecules.bulk_data['mass'].asNumber(units.fg / units.mol) / sim_data.constants.n_Avogadro.asNumber(1 / units.mol)
 
 		self._submass_name_to_index = sim_data.submass_name_to_index
 
@@ -71,8 +71,8 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
 
 		# Set up ids for division into daughter cells
 		self.division_mode = {}
-		self.division_mode['binomial'] = sim_data.moleculeGroups.bulk_molecules_binomial_division
-		self.division_mode['equally'] = sim_data.moleculeGroups.bulk_molecules_equal_division
+		self.division_mode['binomial'] = sim_data.molecule_groups.bulk_molecules_binomial_division
+		self.division_mode['equally'] = sim_data.molecule_groups.bulk_molecules_equal_division
 
 	def processRequestPriorityIs(self, processIndex, priorityLevel):
 		self._processPriorities[processIndex] = priorityLevel

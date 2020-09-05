@@ -82,7 +82,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index('active_ribosome')
 			ribosomeCounts = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
 			uniqueMoleculeCounts.close()
-			ribosomeConcentration = ((1 / sim_data.constants.nAvogadro) * ribosomeCounts) / ((1.0 / sim_data.constants.cellDensity) * (units.fg * cellMass))
+			ribosomeConcentration = ((1 / sim_data.constants.n_Avogadro) * ribosomeCounts) / ((1.0 / sim_data.constants.cellDensity) * (units.fg * cellMass))
 			ribosomeConcentration = ribosomeConcentration.asNumber(units.umol / units.L)
 			ax2.plot(time / 60., ribosomeConcentration, color = color, alpha = alpha, linewidth=2)
 			ax2.set_ylim([18., 28.])

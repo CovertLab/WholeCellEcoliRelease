@@ -37,42 +37,42 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 			raw_data = cPickle.load(f)
 		with open(sim_data_file, 'rb') as f:
 			sim_data = cPickle.load(f)
-		growth = sim_data.growthRateParameters
+		growth = sim_data.growth_rate_parameters
 		mass = sim_data.mass
 
 		# Mapping of functions that perform interpolation to raw data
 		interpolation_functions = {
-			(growth.getFractionActiveRibosome, None):
-				get_raw(raw_data.growthRateDependentParameters, 'doublingTime',
+			(growth.get_fraction_active_ribosome, None):
+				get_raw(raw_data.growth_rate_dependent_parameters, 'doublingTime',
 					'fractionActiveRibosome'),
-			(growth.getFractionActiveRnap, None):
-				get_raw(raw_data.growthRateDependentParameters, 'doublingTime',
+			(growth.get_fraction_active_rnap, None):
+				get_raw(raw_data.growth_rate_dependent_parameters, 'doublingTime',
 					'fractionActiveRnap'),
-			(growth.getppGppConc, None):
-				get_raw(raw_data.growthRateDependentParameters, 'doublingTime',
+			(growth.get_ppGpp_conc, None):
+				get_raw(raw_data.growth_rate_dependent_parameters, 'doublingTime',
 					'ppGpp_conc', factor=growth._per_dry_mass_to_per_volume),
-			(growth.getRibosomeElongationRate, None):
-				get_raw(raw_data.growthRateDependentParameters, 'doublingTime',
+			(growth.get_ribosome_elongation_rate, None):
+				get_raw(raw_data.growth_rate_dependent_parameters, 'doublingTime',
 					'ribosomeElongationRate'),
-			(growth.getRnapElongationRate, None):
-				get_raw(raw_data.growthRateDependentParameters, 'doublingTime',
+			(growth.get_rnap_elongation_rate, None):
+				get_raw(raw_data.growth_rate_dependent_parameters, 'doublingTime',
 					'rnaPolymeraseElongationRate'),
 			(mass.get_dna_critical_mass, None): None,
-			(mass.getAvgCellDryMass, None):
-				get_raw(raw_data.dryMassComposition, 'doublingTime',
+			(mass.get_avg_cell_dry_mass, None):
+				get_raw(raw_data.dry_mass_composition, 'doublingTime',
 					'averageDryMass'),
 			}
 
 		# Interpolation functions that return values in a dictionary
 		interpolation_functions.update({
-			(mass.getMassFraction, fraction):
-				get_raw(raw_data.dryMassComposition, 'doublingTime',
+			(mass.get_mass_fractions, fraction):
+				get_raw(raw_data.dry_mass_composition, 'doublingTime',
 					'{}MassFraction'.format(fraction))
-			for fraction in mass.getMassFraction(45*units.min)
+			for fraction in mass.get_mass_fractions(45 * units.min)
 			})
 		interpolation_functions.update({
-			(mass.getFractionMass, fraction): None
-			for fraction in mass.getFractionMass(45*units.min)
+			(mass.get_component_masses, fraction): None
+			for fraction in mass.get_component_masses(45 * units.min)
 			})
 
 		# TODO: handle getTrnaDistribution and all 86 outputs from 'molar_ratio_to_16SrRNA'
@@ -81,7 +81,7 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		# Doubling times to show on plot (extended range including all conditions)
 		doubling_times = np.unique([
 			dt.asNumber(units.min)
-			for dt in sim_data.conditionToDoublingTime.values()
+			for dt in sim_data.condition_to_doubling_time.values()
 			])
 		doubling_time_range = np.arange(0.5 * doubling_times.min(), 1.2 * doubling_times.max())
 

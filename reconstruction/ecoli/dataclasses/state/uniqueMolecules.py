@@ -1,7 +1,6 @@
 """
 SimulationData for unique molecules state
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 02/19/2015
 """
@@ -22,7 +21,7 @@ class UniqueMolecules(object):
 	""" UniqueMolecules """
 
 	def __init__(self, raw_data, sim_data):
-		self.uniqueMoleculeDefinitions = collections.OrderedDict()
+		self.unique_molecule_definitions = collections.OrderedDict()
 
 		uniqueMoleculeMasses = np.zeros(0,
 				dtype = [
@@ -35,8 +34,8 @@ class UniqueMolecules(object):
 			"mass" : units.g / units.mol
 			}
 
-		self.uniqueMoleculeMasses = UnitStructArray(uniqueMoleculeMasses, field_units)
+		self.unique_molecule_masses = UnitStructArray(uniqueMoleculeMasses, field_units)
 
-	def addToUniqueState(self, uniqueId, attributeDef, mass):
-		self.uniqueMoleculeDefinitions.update({uniqueId : attributeDef})
-		self.uniqueMoleculeMasses = addToStateCommon(self.uniqueMoleculeMasses, [uniqueId], mass)
+	def add_to_unique_state(self, uniqueId, attributeDef, mass):
+		self.unique_molecule_definitions.update({uniqueId : attributeDef})
+		self.unique_molecule_masses = addToStateCommon(self.unique_molecule_masses, [uniqueId], mass)

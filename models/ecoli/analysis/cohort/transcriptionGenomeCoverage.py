@@ -26,9 +26,9 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		# Get IDs of mRNAs
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		rnaIds = sim_data.process.transcription.rnaData["id"]
-		isMRna = sim_data.process.transcription.rnaData["isMRna"]
-		basalExpression = sim_data.process.transcription.rnaExpression["basal"]
+		rnaIds = sim_data.process.transcription.rna_data["id"]
+		isMRna = sim_data.process.transcription.rna_data['is_mRNA']
+		basalExpression = sim_data.process.transcription.rna_expression["basal"]
 		mRnaIds = np.where(isMRna)[0]
 
 		mRnaBasalExpression = np.array([basalExpression[x] for x in mRnaIds])

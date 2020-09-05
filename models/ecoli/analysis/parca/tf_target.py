@@ -24,12 +24,12 @@ class Plot(parcaAnalysisPlot.ParcaAnalysisPlot):
 		targetToFC = {}
 		targetToFCTF = {}
 
-		for tf in sim_data.tfToActiveInactiveConds:
-			for target in sim_data.tfToFC[tf]:
+		for tf in sim_data.tf_to_active_inactive_conditions:
+			for target in sim_data.tf_to_fold_change[tf]:
 				if target not in targetToFC:
 					targetToFC[target] = []
 					targetToFCTF[target] = []
-				targetToFC[target].append(np.log2(sim_data.tfToFC[tf][target]))
+				targetToFC[target].append(np.log2(sim_data.tf_to_fold_change[tf][target]))
 				targetToFCTF[target].append(tf)
 
 		for target in targetToFC:

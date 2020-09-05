@@ -23,7 +23,7 @@ CONTROL_OUTPUT = dict(
 def gene_knockout(sim_data, index):
 	# Knocks-out genes in order
 
-	nGenes = sim_data.process.transcription.rnaData.fullArray().size
+	nGenes = sim_data.process.transcription.rna_data.fullArray().size
 	nConditions = nGenes + 1
 
 	if index % nConditions == 0:
@@ -34,20 +34,20 @@ def gene_knockout(sim_data, index):
 	factor = 0  # Knockout expression
 	recruitment_mask = np.array([i == geneIndex
 		for i in sim_data.process.transcription_regulation.delta_prob['deltaI']])
-	for synth_prob in sim_data.process.transcription.rnaSynthProb.values():
+	for synth_prob in sim_data.process.transcription.rna_synth_prob.values():
 		synth_prob[geneIndex] *= factor
-	for exp in sim_data.process.transcription.rnaExpression.values():
+	for exp in sim_data.process.transcription.rna_expression.values():
 		exp[geneIndex] *= factor
 	sim_data.process.transcription_regulation.basal_prob[geneIndex] *= factor
 	sim_data.process.transcription_regulation.delta_prob['deltaV'][recruitment_mask] *= factor
 
 	# Renormalize parameters
-	for synth_prob in sim_data.process.transcription.rnaSynthProb.values():
+	for synth_prob in sim_data.process.transcription.rna_synth_prob.values():
 		synth_prob /= synth_prob.sum()
-	for exp in sim_data.process.transcription.rnaExpression.values():
+	for exp in sim_data.process.transcription.rna_expression.values():
 		exp /= exp.sum()
 
-	geneID = sim_data.process.transcription.rnaData["id"][geneIndex]
+	geneID = sim_data.process.transcription.rna_data["id"][geneIndex]
 
 	return dict(
 		shortName = "{}_KO".format(geneID),

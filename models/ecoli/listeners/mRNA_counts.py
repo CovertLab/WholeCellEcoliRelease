@@ -29,9 +29,9 @@ class mRNACounts(wholecell.listeners.listener.Listener):
 		self.uniqueMolecules = sim.internal_states['UniqueMolecules']
 
 		# Get IDs and indexes of all mRNAs
-		self.all_RNA_ids = sim_data.process.transcription.rnaData['id']
+		self.all_RNA_ids = sim_data.process.transcription.rna_data['id']
 		self.mRNA_indexes = np.where(
-			sim_data.process.transcription.rnaData['isMRna'])[0]
+			sim_data.process.transcription.rna_data['is_mRNA'])[0]
 		self.mRNA_ids = self.all_RNA_ids[self.mRNA_indexes]
 
 	def allocate(self):

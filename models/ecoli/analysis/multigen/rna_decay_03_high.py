@@ -36,7 +36,7 @@ from six.moves import zip
 class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 	def do_plot(self, seedOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		allRnaIds = sim_data.process.transcription.rnaData["id"].tolist()
+		allRnaIds = sim_data.process.transcription.rna_data["id"].tolist()
 
 		rnaIds = [
 			"EG10367_RNA[c]", "EG11036_RNA[c]", "EG50002_RNA[c]", "EG10671_RNA[c]", "EG50003_RNA[c]",
@@ -56,7 +56,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		]
 
 		rnaIdxs = [allRnaIds.index(x) for x in rnaIds]
-		degRates = sim_data.process.transcription.rnaData["degRate"][rnaIdxs]
+		degRates = sim_data.process.transcription.rna_data['deg_rate'][rnaIdxs]
 
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 

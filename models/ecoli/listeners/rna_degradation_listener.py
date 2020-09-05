@@ -26,13 +26,13 @@ class RnaDegradationListener(wholecell.listeners.listener.Listener):
 	def initialize(self, sim, sim_data):
 		super(RnaDegradationListener, self).initialize(sim, sim_data)
 
-		self.countRnaDegraded = np.zeros(sim_data.process.transcription.rnaData.fullArray().size, np.int64)
+		self.countRnaDegraded = np.zeros(sim_data.process.transcription.rna_data.fullArray().size, np.int64)
 		self.nucleotidesFromDegradation = 0
 		self.FractionActiveEndoRNases = 0.
 		self.DiffRelativeFirstOrderDecay = 0.
 		self.FractEndoRRnaCounts = 0.
 		self.fragmentBasesDigested = 0
-		self.rnaIds = sim_data.process.transcription.rnaData['id']
+		self.rnaIds = sim_data.process.transcription.rna_data['id']
 
 	def tableCreate(self, tableWriter):
 		subcolumns = {

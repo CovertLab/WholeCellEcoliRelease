@@ -39,10 +39,10 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
 		# Get mRNA data
-		rnaIds = sim_data.process.transcription.rnaData["id"]
-		isMRna = sim_data.process.transcription.rnaData["isMRna"]
+		rnaIds = sim_data.process.transcription.rna_data["id"]
+		isMRna = sim_data.process.transcription.rna_data['is_mRNA']
 		mRnaIndexes = np.where(isMRna)[0]
-		synthProb = sim_data.process.transcription.rnaSynthProb["basal"]
+		synthProb = sim_data.process.transcription.rna_synth_prob["basal"]
 
 		mRnaSynthProb = np.array([synthProb[x] for x in mRnaIndexes])
 		mRnaIds = np.array([rnaIds[x] for x in mRnaIndexes])

@@ -29,7 +29,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		nAvogadro = sim_data.constants.nAvogadro
+		nAvogadro = sim_data.constants.n_Avogadro
 		cellDensity = sim_data.constants.cellDensity
 
 		# Get list of TF and transcription unit IDs from first simOut directory
@@ -102,7 +102,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			tyrAProteinTotalCounts = tyrAProteinCounts + 2 * tyrAComplexCounts
 
 			# Compute the tyrA mass in the cell
-			tyrAMw = sim_data.getter.getMass(tyrAProteinId)
+			tyrAMw = sim_data.getter.get_mass(tyrAProteinId)
 			tyrAMass = 1. / nAvogadro * tyrAProteinTotalCounts * tyrAMw
 
 			# Compute the proteome mass fraction

@@ -40,7 +40,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		# Get constants from wildtype variant
 		sim_data = cPickle.load(open(ap.get_variant_kb(4), "rb")) # 4 is the wildtype variant
 		cellDensity = sim_data.constants.cellDensity
-		nAvogadro = sim_data.constants.nAvogadro
+		nAvogadro = sim_data.constants.n_Avogadro
 
 		# Initialize variables
 		enzymeId = "MENE-CPLX[c]"

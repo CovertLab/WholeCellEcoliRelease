@@ -19,13 +19,13 @@ def get_metrics_data_dict(sim_data):
 	Returns:
 		Dictionary suitable for serializing as metrics data pickle.
 	"""
-	is_mRNA = sim_data.process.transcription.rnaData["isMRna"]
+	is_mRNA = sim_data.process.transcription.rna_data['is_mRNA']
 	metrics_data = {
 		"translation_monomer_ids":
-			sim_data.process.translation.monomerData["id"],
+			sim_data.process.translation.monomer_data["id"],
 		"rna_ids":
-			sim_data.process.transcription.rnaData["id"][is_mRNA],
+			sim_data.process.transcription.rna_data["id"][is_mRNA],
 		"expected_mRNA_counts":
-			sim_data.process.transcription.rnaExpression[sim_data.condition][is_mRNA],
+			sim_data.process.transcription.rna_expression[sim_data.condition][is_mRNA],
 	}
 	return metrics_data

@@ -92,7 +92,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 				transcriptDataFile = TableReader(os.path.join(simOutDir, "TranscriptElongationListener"))
 				rnaSynth = transcriptDataFile.readColumn("countRnaSynthesized")
-				isRRna = sim_data.process.transcription.rnaData["isRRna"]
+				isRRna = sim_data.process.transcription.rna_data['is_rRNA']
 				meanRrnInitRate[idx] = (rnaSynth[:, isRRna].sum(axis=1) / timeStepSec).mean() * 60. / 3
 
 			sim_rna_mass_per_cell[varIdx] = meanRnaMass.mean()

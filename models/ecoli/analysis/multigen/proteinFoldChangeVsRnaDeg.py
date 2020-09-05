@@ -28,7 +28,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		allDir = ap.get_cells()
 
 		# Pre-allocate variables. Rows = Generations, Cols = Monomers
-		n_monomers = sim_data.process.translation.monomerData['id'].size
+		n_monomers = sim_data.process.translation.monomer_data['id'].size
 		n_sims = ap.n_generation
 
 		ratioFinalToInitialCountMultigen = np.zeros((n_sims, n_monomers), dtype = np.float)
@@ -59,8 +59,8 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			# initiationEventsPerMonomerMultigen[gen_idx,:] = initiationEventsPerMonomer
 
 		# uniqueBurstSizes = np.unique(initiationEventsPerMonomerMultigen)
-		degradationRates = sim_data.process.transcription.rnaData['degRate'].asNumber(1/units.s)
-		degradationRatesByMonomer = degradationRates[sim_data.relation.rnaIndexToMonomerMapping]
+		degradationRates = sim_data.process.transcription.rna_data['deg_rate'].asNumber(1 / units.s)
+		degradationRatesByMonomer = degradationRates[sim_data.relation.rna_index_to_monomer_mapping]
 		uniqueDegRate = np.unique(degradationRatesByMonomer)
 
 		# burstSizeToPlot = np.zeros(0)

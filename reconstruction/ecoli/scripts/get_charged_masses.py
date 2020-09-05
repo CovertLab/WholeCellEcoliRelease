@@ -1,5 +1,5 @@
 '''
-Print id, mw, location for charged tRNAs to add to modifiedForms.tsv
+Print id, mw, location for charged tRNAs to add to modified_forms.tsv
 Output file is charged_data.tsv in the same directory as the script
 
 Notes:
@@ -33,8 +33,8 @@ sim_data.initialize(raw_data)
 
 # determine masses and write to output file
 with tsv_writer(output_filename, ["id", "mw", "location"]) as writer:
-	trnas = sim_data.process.transcription.rnaData['id'][sim_data.process.transcription.rnaData['isTRna']]
-	charged = [x['modifiedForms'] for x in raw_data.rnas if x['id']+'[c]' in trnas]
+	trnas = sim_data.process.transcription.rna_data['id'][sim_data.process.transcription.rna_data['is_tRNA']]
+	charged = [x['modified_forms'] for x in raw_data.rnas if x['id']+'[c]' in trnas]
 	filtered_charged = []
 	for c1 in charged:
 		for c2 in c1:
@@ -42,9 +42,9 @@ with tsv_writer(output_filename, ["id", "mw", "location"]) as writer:
 				continue
 			filtered_charged += [c2 + '[c]']
 
-	mol_names = sim_data.internal_state.bulkMolecules.bulkData['id']
-	mws = sim_data.internal_state.bulkMolecules.bulkData['mass']
-	for rxn in raw_data.modificationReactions:
+	mol_names = sim_data.internal_state.bulk_molecules.bulk_data['id']
+	mws = sim_data.internal_state.bulk_molecules.bulk_data['mass']
+	for rxn in raw_data.modification_reactions:
 		reactants = []
 		products = []
 		for mol in rxn['stoichiometry']:

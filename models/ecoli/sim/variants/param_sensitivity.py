@@ -5,9 +5,9 @@ of parameters by a factor of 5 and decreases one tenth by 1/5 with 80% held cons
 Useful with variant analysis script param_sensitivity.py.
 
 Modifies sim_data params:
-	sim_data.process.transcription.rnaData['degRate']
-	sim_data.process.translation.monomerData['degRate']
-	sim_data.process.translation.translationEfficienciesByMonomer
+	sim_data.process.transcription.rnaData['deg_rate']
+	sim_data.process.translation.monomerData['deg_rate']
+	sim_data.process.translation.translation_efficiencies_by_monomer
 	sim_data.process.transcription.rnaSynthProb: not actually used in sims
 	sim_data.process.transcription.rnaExpression: used in initial_conditions
 	sim_data.process.transcription_regulation.recruitmentData['hV']: used in initial_conditions and sims
@@ -59,11 +59,11 @@ def number_params(sim_data):
 		int: number of synthesis probabilities
 	'''
 
-	n_rna_deg_rates = len(sim_data.process.transcription.rnaData['degRate'])
-	n_protein_deg_rates = len(sim_data.process.translation.monomerData['degRate'])
-	n_translation_efficiencies = len(sim_data.process.translation.translationEfficienciesByMonomer)
-	n_synth_prob = len(sim_data.process.transcription.rnaSynthProb
-		[list(sim_data.process.transcription.rnaSynthProb.keys())[0]])
+	n_rna_deg_rates = len(sim_data.process.transcription.rna_data['deg_rate'])
+	n_protein_deg_rates = len(sim_data.process.translation.monomer_data['deg_rate'])
+	n_translation_efficiencies = len(sim_data.process.translation.translation_efficiencies_by_monomer)
+	n_synth_prob = len(sim_data.process.transcription.rna_synth_prob
+		[list(sim_data.process.transcription.rna_synth_prob.keys())[0]])
 
 	return n_rna_deg_rates, n_protein_deg_rates, n_translation_efficiencies, n_synth_prob
 
@@ -147,12 +147,12 @@ def modify_params(sim_data, indices, factor):
 	synth_prob_set = set(synth_prob_indices)
 	recruitment_mask = np.array([i in synth_prob_set for i in sim_data.process.transcription_regulation.delta_prob['deltaI']])
 
-	sim_data.process.transcription.rnaData.struct_array['degRate'][rna_deg_indices] *= factor
-	sim_data.process.translation.monomerData.struct_array['degRate'][protein_deg_indices] *= factor
-	sim_data.process.translation.translationEfficienciesByMonomer[trans_eff_indices] *= factor
-	for synth_prob in sim_data.process.transcription.rnaSynthProb.values():
+	sim_data.process.transcription.rna_data.struct_array['deg_rate'][rna_deg_indices] *= factor
+	sim_data.process.translation.monomer_data.struct_array['deg_rate'][protein_deg_indices] *= factor
+	sim_data.process.translation.translation_efficiencies_by_monomer[trans_eff_indices] *= factor
+	for synth_prob in sim_data.process.transcription.rna_synth_prob.values():
 		synth_prob[synth_prob_indices] *= factor
-	for exp in sim_data.process.transcription.rnaExpression.values():
+	for exp in sim_data.process.transcription.rna_expression.values():
 		exp[synth_prob_indices] *= factor
 	sim_data.process.transcription_regulation.basal_prob[synth_prob_indices] *= factor
 	sim_data.process.transcription_regulation.delta_prob['deltaV'][recruitment_mask] *= factor
@@ -191,9 +191,9 @@ def param_sensitivity(sim_data, index):
 	modify_params(sim_data, decrease_indices, 1 / SCALE_FACTOR)
 
 	# Renormalize parameters
-	for synth_prob in sim_data.process.transcription.rnaSynthProb.values():
+	for synth_prob in sim_data.process.transcription.rna_synth_prob.values():
 		synth_prob /= synth_prob.sum()
-	for exp in sim_data.process.transcription.rnaExpression.values():
+	for exp in sim_data.process.transcription.rna_expression.values():
 		exp /= exp.sum()
 
 	return dict(
