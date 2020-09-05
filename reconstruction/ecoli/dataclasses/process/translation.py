@@ -1,7 +1,6 @@
 """
 SimulationData for translation process
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 03/09/2015
 """

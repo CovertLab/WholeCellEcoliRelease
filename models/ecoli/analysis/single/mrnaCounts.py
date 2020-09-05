@@ -1,7 +1,6 @@
 """
 Plot mRNA counts
 
-@author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 5/27/2014
 """

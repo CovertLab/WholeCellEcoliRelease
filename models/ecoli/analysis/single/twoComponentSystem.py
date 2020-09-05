@@ -1,7 +1,6 @@
 """
 Plot two component system counts
 
-@author: Heejo Choi
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 5/20/2016
 """

@@ -1,7 +1,6 @@
 """
 SimulationData for rna decay process
 
-@author: Javier Carrera
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 08/18/2015
 """

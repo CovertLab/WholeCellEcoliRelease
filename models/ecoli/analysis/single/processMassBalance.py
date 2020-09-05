@@ -1,5 +1,4 @@
 """
-@author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/27/2014
 """

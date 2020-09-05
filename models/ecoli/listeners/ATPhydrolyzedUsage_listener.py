@@ -1,7 +1,6 @@
 """
 ATPhydrolyzedUsageListener
 
-@author: Javier Carrera
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 3/4/15
 """

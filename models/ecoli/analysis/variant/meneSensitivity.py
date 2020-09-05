@@ -1,7 +1,6 @@
 """
 Plot to assess sensitivity of menE behavior to model parameters.
 
-@author: Heejo Choi
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 12/1/17
 """

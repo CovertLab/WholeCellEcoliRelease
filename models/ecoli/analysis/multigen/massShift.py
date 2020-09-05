@@ -1,5 +1,4 @@
 """
-@author: Heejo Choi
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 1/19/2017
 """

@@ -7,7 +7,6 @@ TODO:
 - protein complexes
 - add protease functionality
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 5/16/2013
 """

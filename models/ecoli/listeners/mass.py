@@ -3,7 +3,6 @@ Mass
 
 Mass listener. Represents the total cellular mass.
 
-@author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 3/29/2013
 """

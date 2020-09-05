@@ -3,7 +3,6 @@ Units
 
 Defines/registers custom units for Pint
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 8/14/2014
 """

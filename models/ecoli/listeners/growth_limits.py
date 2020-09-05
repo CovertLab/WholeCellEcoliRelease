@@ -1,7 +1,6 @@
 """
 GrowthLimits
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/25/15
 """

@@ -1,7 +1,6 @@
 """
 Plot upper and lower flux targets
 
-@author: Sophie Landon
 @organization: University of Bristol
 @date: Created 14/5/2020
 """

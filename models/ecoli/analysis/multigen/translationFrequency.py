@@ -1,7 +1,6 @@
 """
 Plots frequency of observing at least 1 protein.
 
-@author: Heejo Choi
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 1/11/2017
 """

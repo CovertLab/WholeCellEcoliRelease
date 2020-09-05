@@ -1,7 +1,6 @@
 """
 UniqueMoleculeCounts
 
-@author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/10/2014
 """

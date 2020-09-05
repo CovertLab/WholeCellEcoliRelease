@@ -4,7 +4,6 @@ Plots all reduced cost and shadow prices on separate subplots
 Identifies outliers for each and plots those on separate subplots
 
 @date: Created 2/6/2018
-@author: Travis Horst
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 '''
 

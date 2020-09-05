@@ -2,7 +2,6 @@
 Plots transcript frequency (ie. frequency of observing at least 
 one copy of transcript) at the 4th generation across 32 seeds.
 
-@author: Heejo Choi
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 3/27/2017
 """

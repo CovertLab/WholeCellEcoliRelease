@@ -7,7 +7,6 @@ TODO:
 - allow for shuffling when appropriate (maybe in another process)
 - handle protein complex dissociation
 
-@author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 4/4/2013
 """

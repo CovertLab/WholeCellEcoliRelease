@@ -19,7 +19,6 @@ possible to set its error_hook -- if SWIG can pass in a native function
 pointer and use setjmp/longjmp, and the hook has to reallocate the GLPK
 environment, losing state info.
 
-@author: Jerry Morrison
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 3/26/2018
 """

@@ -3,7 +3,6 @@ ValidationData for Ecoli
 
 Raw data processed into forms convienent for validation and analysis
 
-@author: Morgan Paull
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 11/30/2015
 """

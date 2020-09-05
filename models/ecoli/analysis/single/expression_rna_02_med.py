@@ -14,7 +14,6 @@ EG10539_RNA[c]	5.3	livJ	Branched chain amino acid ABC transporter - periplasmic 
 
 (sorted from sim_data.transcription.process.rnaData, mrna only, elements in range -125:-115)
 
-@author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 10/29/2015
 """

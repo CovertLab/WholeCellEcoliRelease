@@ -3,9 +3,7 @@ Disk
 
 Logs whole-cell simulations and metadata to disk.
 
-@author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
-@author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/3/2013
 """

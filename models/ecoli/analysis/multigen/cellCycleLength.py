@@ -1,7 +1,6 @@
 """
 Plots cell cycle lengths for all generations.
 
-@author: Heejo Choi
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 9/24/2015
 """

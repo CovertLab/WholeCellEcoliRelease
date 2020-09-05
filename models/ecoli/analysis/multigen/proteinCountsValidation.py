@@ -1,7 +1,6 @@
 """
 Compare protein counts to Schmidt 2015 data set
 
-@author: Javier	Carrera
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 12/4/2017
 """

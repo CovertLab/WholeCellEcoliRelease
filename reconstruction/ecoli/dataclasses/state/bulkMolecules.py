@@ -1,7 +1,6 @@
 """
 SimulationData for bulk molecules state
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 02/13/2015
 """

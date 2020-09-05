@@ -3,7 +3,6 @@ Equilibrium
 
 Equilibrium binding sub-model
 
-@author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 8/21/2015
 """

@@ -14,7 +14,6 @@ EG11060_RNA[c]	0.24	ushA	UDP-sugar hydrolase / 5'-ribonucleotidase / 5'-deoxyrib
 
 (sorted from sim_data.transcription.process.rnaData, mrna only, elements in range -1505:-1495)
 
-@author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 10/29/2015
 """

@@ -1,7 +1,6 @@
 """
 Test fitkb1.py
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 9/23/2014
 """

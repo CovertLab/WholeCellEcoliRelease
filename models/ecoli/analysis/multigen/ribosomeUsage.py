@@ -1,7 +1,6 @@
 """
 Plot usage statistics of ribosomes
 
-@author: Gwanggyu Sun
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 10/18/2017
 """

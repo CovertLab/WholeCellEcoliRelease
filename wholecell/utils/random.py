@@ -3,7 +3,6 @@ random.py
 
 Special random number generators.  Most are holdovers from the original port.
 
-@author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/2/2014
 """

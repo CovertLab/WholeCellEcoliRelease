@@ -1,7 +1,6 @@
 """
 Test unit_struct_array.py
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Chemical Engineering, Stanford University
 @date: Created 8/14/2014
 """

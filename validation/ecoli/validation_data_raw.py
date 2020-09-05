@@ -4,7 +4,6 @@ ValidationDataRawEcoli
 Raw validation data for Ecoli. Contains raw data processed
 directly from TSV flat files.
 
-@author: Morgan Paull
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 11/30/2015
 """

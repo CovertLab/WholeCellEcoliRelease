@@ -12,7 +12,6 @@ EG12179_RNA[c]	46.2	cspE	Transcription antiterminator and regulator of RNA stabi
 EG10321_RNA[c]	53.2	fliC	Flagellin
 EG10544_RNA[c]	97.5	lpp		Murein lipoprotein
 
-@author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 10/29/2015
 """

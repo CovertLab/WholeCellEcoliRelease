@@ -1,7 +1,6 @@
 '''
 test_unique_objects_container.py
 
-@author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @data: Created 2/27/2014
 '''

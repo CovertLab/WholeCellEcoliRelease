@@ -7,7 +7,6 @@ TODO:
 - option to call a reduced form of metabolism (assume optimal)
 - handle oneSidedReaction constraints
 
-@author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 4/2/2013
 """

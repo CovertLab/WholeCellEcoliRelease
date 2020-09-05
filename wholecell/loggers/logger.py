@@ -5,7 +5,6 @@ Logger
 
 Abstract class which defines the interface loggers expose to the simulation
 
-@author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 3/28/2013
 """

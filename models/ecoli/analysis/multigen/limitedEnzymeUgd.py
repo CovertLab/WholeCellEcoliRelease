@@ -1,7 +1,6 @@
 """
 Plots limited enzyme fluxes, protein counts, and transcription initiation events.
 
-@author: Heejo Choi
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 2/3/2017
 """

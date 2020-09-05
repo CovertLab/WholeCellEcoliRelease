@@ -1,5 +1,4 @@
 """
-@author: Morgan Paull
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 4/29/2016
 """

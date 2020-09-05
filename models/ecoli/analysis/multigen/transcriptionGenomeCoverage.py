@@ -1,7 +1,6 @@
 """
 Plots fraction of mRNAs transcribed (out of all genes to be transcribed) for all generations.
 
-@author: Heejo Choi
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/24/2016
 """

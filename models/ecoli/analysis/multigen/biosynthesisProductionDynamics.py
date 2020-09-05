@@ -2,7 +2,6 @@
 Plot the protein and RNA levels, as well as synthesis probabilities,
 for regulated genes that are involved in AA biosynthesis
 
-@author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 6/17/2016
 """

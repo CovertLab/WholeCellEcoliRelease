@@ -1,7 +1,6 @@
 """
 SimulationData relation functions
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 03/10/2015
 """

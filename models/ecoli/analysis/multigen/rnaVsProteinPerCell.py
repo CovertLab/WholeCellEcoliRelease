@@ -1,7 +1,6 @@
 """
 Plots average RNA counts per cell vs average protein counts per cell.
 
-@author: Heejo Choi
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 11/1/2017
 """

@@ -1,7 +1,6 @@
 """
 Test_BulkMolecules_partition.py
 
-@author: Nick Ruggero, John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 10/17/2013
 """

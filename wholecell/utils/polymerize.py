@@ -9,7 +9,6 @@ profile. It @profile-decorates polymerize().
 TODO:
 - document algorithm/corner cases (should already exist somewhere...)
 
-@author: John Mason
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 5/23/14
 """

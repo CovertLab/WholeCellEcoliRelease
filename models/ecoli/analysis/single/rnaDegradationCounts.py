@@ -1,7 +1,6 @@
 """
 Plots counts of rna degraded and the resulting free NMPs
 
-@author: Javier Carrera
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 1/15/2015 - Updated 8/10/2015
 """

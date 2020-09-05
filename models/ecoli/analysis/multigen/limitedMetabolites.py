@@ -2,7 +2,6 @@
 Produces histograms of frequency that production of a metabolite is limited (at least 50 time steps set by WINDOW)
 
 @date: Created 1/12/2017
-@author: Travis Horst
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 

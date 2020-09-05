@@ -4,7 +4,6 @@ Test polymerize.py
 	cd wcEcoli
 	pytest wholecell/tests/utils/test_polymerize.py
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Chemical Engineering, Stanford University
 @date: Created 1/22/2013
 """

@@ -5,7 +5,6 @@ Shell
 
 Prints a very brief summary of a whole-cell simulation to standard output
 
-@author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 3/29/2013
 """

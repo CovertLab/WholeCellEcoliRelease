@@ -1,7 +1,6 @@
 """
 Test polymerize_new.py
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Chemical Engineering, Stanford University
 @date: Created 6/23/2014
 """

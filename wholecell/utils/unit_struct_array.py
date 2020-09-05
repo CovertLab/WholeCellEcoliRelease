@@ -4,7 +4,6 @@ UnitStructArray
 Wraps Numpy struct arrays using Pint units. Will assure that correct units are
 being used while loading constants.
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 4/31/2014
 """

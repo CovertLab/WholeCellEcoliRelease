@@ -1,7 +1,6 @@
 """
 Plot empirical Kd's (from the simulation) and their expected value (from the sim_data)
 
-@author: Derek Macklin
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 8/24/15
 """

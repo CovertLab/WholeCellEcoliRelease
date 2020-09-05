@@ -1,7 +1,6 @@
 """
 SimulationData constants
 
-@author: Nick Ruggero
 @organization: Covert Lab, Department of Bioengineering, Stanford University
 @date: Created 03/9/2015
 """
