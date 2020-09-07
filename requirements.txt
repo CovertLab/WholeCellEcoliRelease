@@ -72,7 +72,7 @@ swiglpk==4.65.1
 sympy==1.6.1
 Theano==1.0.5
 Unum==4.1.4
-wholecell-vivarium==0.0.53
+wholecell-vivarium==0.0.54
 
 ## The following requirements were added by pip freeze:
 alphashape-1.1.0
