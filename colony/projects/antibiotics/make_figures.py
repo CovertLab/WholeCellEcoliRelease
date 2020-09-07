@@ -15,6 +15,7 @@ from vivarium.plots.expression_survival_dotplot import (
 from vivarium.core.composition import plot_agents_multigen
 
 import wholecell.utils.filepath as fp
+from colony.constants import OUT_DIR
 
 
 PUMP_PATH = (
@@ -26,7 +27,7 @@ TAG_PATH_NAME_MAP = {
 	): 'AcrAB-TolC',
 }
 COLONY_MASS_PATH = ('mass',)
-OUT_DIR = os.path.join('environment', 'figs')
+FIG_OUT_DIR = os.path.join(OUT_DIR, 'figs')
 FILE_EXTENSION = 'pdf'
 EXPRESSION_HETEROGENEITY_ID = '20200820.202016'
 ENVIRO_HETEROGENEITY_ID = '20200824.165625'
@@ -70,7 +71,7 @@ def make_expression_heterogeneity_fig(data, environment_config):
 	'''Figure shows heterogeneous expression within wcEcoli agents.'''
 	tags_data = Analyzer.format_data_for_tags(data, environment_config)
 	plot_config = {
-		'out_dir': OUT_DIR,
+		'out_dir': FIG_OUT_DIR,
 		'tagged_molecules': TAG_PATH_NAME_MAP.keys(),
 		'filename': 'expression_heterogeneity.{}'.format(FILE_EXTENSION),
 		'tag_path_name_map': TAG_PATH_NAME_MAP,
@@ -92,7 +93,7 @@ def make_snapshots_figure(data, environment_config, name, fields):
 	snapshots_data = Analyzer.format_data_for_snapshots(
 		data, environment_config)
 	plot_config = {
-		'out_dir': OUT_DIR,
+		'out_dir': FIG_OUT_DIR,
 		'filename': '{}.{}'.format(name, FILE_EXTENSION),
 		'include_fields': fields,
 		'field_label_size': 54,
@@ -114,7 +115,7 @@ def make_growth_fig(basal_data, anaerobic_data):
 	fig = plot_metric_across_experiments(
 		path_ts_dict, COLONY_MASS_PATH, ylabel='Colony Mass (mg)')
 	fig.savefig(os.path.join(
-		OUT_DIR, 'growth.{}'.format(FILE_EXTENSION)))
+		FIG_OUT_DIR, 'growth.{}'.format(FILE_EXTENSION)))
 
 
 def make_threshold_scan_fig(data_dict):
@@ -126,7 +127,7 @@ def make_threshold_scan_fig(data_dict):
 	fig = plot_metric_across_experiments(
 		path_ts_dict, COLONY_MASS_PATH, ylabel='Colony Mass (mg)')
 	fig.savefig(os.path.join(
-		OUT_DIR, 'threshold_scan.{}'.format(FILE_EXTENSION)))
+		FIG_OUT_DIR, 'threshold_scan.{}'.format(FILE_EXTENSION)))
 
 
 def make_expression_survival_fig(data):
@@ -137,7 +138,7 @@ def make_expression_survival_fig(data):
 		EXPRESSION_SURVIVAL_TIME_RANGE,
 	)
 	fig.savefig(os.path.join(
-		OUT_DIR, 'expression_survival.{}'.format(FILE_EXTENSION)))
+		FIG_OUT_DIR, 'expression_survival.{}'.format(FILE_EXTENSION)))
 
 
 def make_pump_timeseries_fig(data):
@@ -152,15 +153,15 @@ def make_pump_timeseries_fig(data):
 		},
 	}
 	plot_agents_multigen(
-		data, settings, OUT_DIR, 'pump_timeseries.{}'.format(FILE_EXTENSION))
+		data, settings, FIG_OUT_DIR, 'pump_timeseries.{}'.format(FILE_EXTENSION))
 
 
 def main():
 	'''Generate all figures.'''
-	if not os.path.exists(OUT_DIR):
-		os.makedirs(OUT_DIR)
+	if not os.path.exists(FIG_OUT_DIR):
+		os.makedirs(FIG_OUT_DIR)
 	fp.write_json_file(os.path.join(
-		OUT_DIR, METADATA_FILE), get_metadata())
+		FIG_OUT_DIR, METADATA_FILE), get_metadata())
 	parser = argparse.ArgumentParser()
 	Analyzer.add_connection_args(parser)
 	args = parser.parse_args()

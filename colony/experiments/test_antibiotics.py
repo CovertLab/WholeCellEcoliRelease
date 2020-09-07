@@ -18,7 +18,7 @@ from vivarium.library.timeseries import (
 from wholecell.io import tsv
 
 from colony.experiments.antibiotics import simulate
-from colony.reference_data.constants import REFERENCE_DATA_PATH
+from colony.constants import REFERENCE_DATA_PATH
 
 
 #: Location of the reference data
