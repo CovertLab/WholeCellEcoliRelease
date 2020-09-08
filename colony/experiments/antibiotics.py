@@ -46,7 +46,7 @@ TAGGED_MOLECULES_PATH = os.path.join(
 NUM_EMISSIONS = 100
 
 
-def get_timeline(n_bins, size, pulses, end_time):
+def get_antibiotics_timeline(n_bins, size, pulses, end_time):
 	'''Get a timeline for antibiotic pulses.
 
 	Arguments:
@@ -103,7 +103,7 @@ class TestGetTimeline:
 			assert len(actual) == len(expected)
 
 	def test_one_pulse_one_bin(self):
-		timeline = get_timeline(
+		timeline = get_antibiotics_timeline(
 			(1, 1), (1, 1), [(1, 1, 1)], 5)
 		expected_timeline = [
 			(1, {('fields', ANTIBIOTIC_KEY): np.ones((1, 1))}),
@@ -113,7 +113,7 @@ class TestGetTimeline:
 		assert timeline == expected_timeline
 
 	def test_selects_correct_bin(self):
-		timeline = get_timeline(
+		timeline = get_antibiotics_timeline(
 			(2, 2), (1, 1), [(1, 1, 1)], 5)
 		expected_timeline = [
 			(1, {('fields', ANTIBIOTIC_KEY): np.ones((2, 2))}),
@@ -123,7 +123,7 @@ class TestGetTimeline:
 		self.assert_timelines_equal(timeline, expected_timeline)
 
 	def test_two_pulses(self):
-		timeline = get_timeline(
+		timeline = get_antibiotics_timeline(
 			(1, 1),
 			(1, 1),
 			[(1, 1, 1), (4, 2, 2)],
@@ -197,7 +197,7 @@ def simulate(
 		pulse_concentration,
 	)
 	timeline_config = {
-		'timeline': get_timeline(
+		'timeline': get_antibiotics_timeline(
 			N_BINS, BOUNDS, [antibiotic_pulse], simulation_time),
 	}
 	process_config = {
