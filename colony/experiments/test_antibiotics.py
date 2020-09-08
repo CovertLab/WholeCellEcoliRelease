@@ -19,6 +19,7 @@ from wholecell.io import tsv
 
 from colony.experiments.antibiotics import simulate
 from colony.constants import REFERENCE_DATA_PATH
+from colony.constants import OUT_DIR
 
 
 #: Location of the reference data
@@ -26,7 +27,7 @@ REFERENCE_DATA_FILE = os.path.join(
 	REFERENCE_DATA_PATH, 'antibiotics.csv')
 #: File to write simulation data to
 OUTPUT_DATA_PATH = os.path.join(
-	os.path.dirname(__file__), 'test_output.csv')
+	OUT_DIR, 'antibiotics_test_output.csv')
 #: Length of simulation to run for both generation and checking
 DURATION = 1300
 #: Number of cells with which to initialize simulation
