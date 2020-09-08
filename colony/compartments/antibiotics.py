@@ -29,6 +29,13 @@ BETA_LACTAMASE_KEY = 'EG10040-MONOMER[p]'
 
 
 class AntibioticsCell(Generator):
+	'''Integrate antibiotic resistance and susceptibility with wcEcoli
+
+	Integrates the WcEcoli process, which wraps the wcEcoli model, with
+	processes to model antibiotic susceptibility (diffusion-based
+	import and death) and resistance (hydrolysis and transport-based
+	efflux). Also includes derivers.
+	'''
 
 	defaults = {
 		'boundary_path': ('boundary',),
