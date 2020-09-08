@@ -260,6 +260,10 @@ class WcEcoli(Process):
 		self.ecoli_simulation = initialize_ecoli(self.ecoli_config)
 		self.sim_data = self.ecoli_simulation.get_sim_data()
 
+		self.parameters['density'] = (
+			self.sim_data.constants.cellDensity.asNumber()
+		) * self.density_units
+
 		environment = self.ecoli_simulation.external_states['Environment']
 		media_molecules = set()
 		for molecules in environment.saved_media.values():
@@ -404,7 +408,7 @@ class WcEcoli(Process):
 				'_updater': 'set',
 			},
 			'density': {
-				'_default': 1100 * self.density_units,
+				'_default': parameters['density'],
 				'_emit': True,
 				'_updater': 'set',
 			},
