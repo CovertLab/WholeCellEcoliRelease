@@ -37,7 +37,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		metabolites = fba_results.readAttribute('outputMoleculeIDs')
 		delta_metabolites = fba_results.readColumn('deltaMetabolites')
 
-		conversion = 1e15 / sim_data.constants.n_Avogadro.asNumber(1 / units.mol)
+		conversion = 1e15 / sim_data.constants.n_avogadro.asNumber(1 / units.mol)
 		metabolism_mass_imported = np.zeros(delta_metabolites.shape[0])
 		for mol, flux in zip(metabolites, delta_metabolites.T):
 			mol_mass = sim_data.getter.get_mass([mol])[0].asNumber(units.g / units.mol)

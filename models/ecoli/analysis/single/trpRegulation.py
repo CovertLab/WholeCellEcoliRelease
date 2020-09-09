@@ -24,7 +24,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 	def do_plot(self, simOutDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		nAvogadro = sim_data.constants.n_Avogadro
+		nAvogadro = sim_data.constants.n_avogadro
 		cellDensity = sim_data.constants.cellDensity
 
 		# Load time

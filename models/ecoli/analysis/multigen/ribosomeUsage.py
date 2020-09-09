@@ -76,7 +76,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			complexIds50S = [sim_data.molecule_ids.s50_full_complex]
 
 			# Get molecular weights for 30S and 50S subunits, and add these two for 70S
-			nAvogadro = sim_data.constants.n_Avogadro
+			nAvogadro = sim_data.constants.n_avogadro
 			mw30S = sim_data.getter.get_mass(complexIds30S)
 			mw50S = sim_data.getter.get_mass(complexIds50S)
 			mw70S = mw30S + mw50S

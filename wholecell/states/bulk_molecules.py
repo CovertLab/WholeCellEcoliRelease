@@ -58,7 +58,7 @@ class BulkMolecules(wholecell.states.internal_state.InternalState):
 		# Load constants
 		self._moleculeIDs = sim_data.internal_state.bulk_molecules.bulk_data['id']
 
-		self._moleculeMass = sim_data.internal_state.bulk_molecules.bulk_data['mass'].asNumber(units.fg / units.mol) / sim_data.constants.n_Avogadro.asNumber(1 / units.mol)
+		self._moleculeMass = sim_data.internal_state.bulk_molecules.bulk_data['mass'].asNumber(units.fg / units.mol) / sim_data.constants.n_avogadro.asNumber(1 / units.mol)
 
 		self._submass_name_to_index = sim_data.submass_name_to_index
 

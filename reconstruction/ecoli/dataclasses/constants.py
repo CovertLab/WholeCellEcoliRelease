@@ -19,7 +19,7 @@ class Constants(object):
 		self._build_constants(raw_data)
 
 	def _build_constants(self, raw_data, ):
-		self.n_Avogadro = scipy.constants.Avogadro / units.mol
+		self.n_avogadro = scipy.constants.Avogadro / units.mol
 
 		parameters = raw_data.parameters
 		self.__dict__.update(parameters)

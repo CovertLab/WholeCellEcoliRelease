@@ -30,7 +30,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			sim_data = cPickle.load(f)
 
 		# Load data from KB
-		nAvogadro = sim_data.constants.n_Avogadro
+		nAvogadro = sim_data.constants.n_avogadro
 
 		# Listeners used
 		unique_molecules_reader = TableReader(os.path.join(simOutDir, "UniqueMoleculeCounts"))

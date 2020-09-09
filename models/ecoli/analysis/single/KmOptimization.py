@@ -72,7 +72,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 			cellDensity = sim_data.constants.cellDensity
 			cellVolume = sim_data.mass.avg_cell_dry_mass_init / cellDensity / sim_data.mass.cell_dry_mass_fraction
-			countsToMolar = 1 / (sim_data.constants.n_Avogadro * cellVolume)
+			countsToMolar = 1 / (sim_data.constants.n_avogadro * cellVolume)
 
 			rnaIds = sim_data.process.transcription.rna_data["id"]
 			(rnaCountsBulk,) = read_bulk_molecule_counts(simOutDir, rnaIds)

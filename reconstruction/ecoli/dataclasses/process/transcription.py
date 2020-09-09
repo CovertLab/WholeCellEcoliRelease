@@ -463,11 +463,11 @@ class Transcription(object):
 				sim_data.getter.get_mass(sim_data.molecule_groups.ntps)
 				- sim_data.getter.get_mass([sim_data.molecule_ids.ppi])
 				)
-			/ sim_data.constants.n_Avogadro
+			/ sim_data.constants.n_avogadro
 			).asNumber(units.fg)
 
 		self.transcription_end_weight = ((sim_data.getter.get_mass([sim_data.molecule_ids.ppi])
-			/ sim_data.constants.n_Avogadro).asNumber(units.fg))
+			/ sim_data.constants.n_avogadro).asNumber(units.fg))
 
 	def _build_charged_trna(self, raw_data, sim_data):
 		'''

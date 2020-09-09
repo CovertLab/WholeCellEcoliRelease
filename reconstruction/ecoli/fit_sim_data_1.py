@@ -773,7 +773,7 @@ def calculateTranslationSupply(sim_data, doubling_time, bulkContainer, avgCellDr
 
 	aaCounts = sim_data.process.translation.monomer_data['aa_counts'] # the counts of each amino acid required for each protein
 	proteinCounts = bulkContainer.counts(sim_data.process.translation.monomer_data["id"]) # the counts of all proteins
-	nAvogadro = sim_data.constants.n_Avogadro
+	nAvogadro = sim_data.constants.n_avogadro
 
 	molAAPerGDCW = (
 			units.sum(
@@ -953,7 +953,7 @@ def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict, doubling_t
 		targetMoleculeConcentrations,
 		molecular_weights,
 		sim_data.constants.cellDensity,
-		sim_data.constants.n_Avogadro
+		sim_data.constants.n_avogadro
 		)
 
 	bulkMolCntr.countsIs(
@@ -1001,7 +1001,7 @@ def setInitialRnaExpression(sim_data, expression, doubling_time):
 	"""
 
 	# Load from sim_data
-	n_avogadro = sim_data.constants.n_Avogadro
+	n_avogadro = sim_data.constants.n_avogadro
 	rna_data = sim_data.process.transcription.rna_data
 	get_average_copy_number = sim_data.process.replication.get_average_copy_number
 	rna_mw = rna_data['mw']
@@ -1153,7 +1153,7 @@ def totalCountIdDistributionProtein(sim_data, expression, doubling_time):
 
 	ids_protein = sim_data.process.translation.monomer_data["id"]
 	total_mass_protein = sim_data.mass.get_component_masses(doubling_time)["proteinMass"] / sim_data.mass.avg_cell_to_initial_cell_conversion_factor
-	individual_masses_protein = sim_data.process.translation.monomer_data["mw"] / sim_data.constants.n_Avogadro
+	individual_masses_protein = sim_data.process.translation.monomer_data["mw"] / sim_data.constants.n_avogadro
 	distribution_transcripts_by_protein = normalize(expression[sim_data.relation.rna_index_to_monomer_mapping])
 	translation_efficiencies_by_protein = normalize(sim_data.process.translation.translation_efficiencies_by_monomer)
 
@@ -1198,7 +1198,7 @@ def totalCountIdDistributionRNA(sim_data, expression, doubling_time):
 
 	ids_rnas = sim_data.process.transcription.rna_data["id"]
 	total_mass_RNA = sim_data.mass.get_component_masses(doubling_time)["rnaMass"] / sim_data.mass.avg_cell_to_initial_cell_conversion_factor
-	individual_masses_RNA = sim_data.process.transcription.rna_data["mw"] / sim_data.constants.n_Avogadro
+	individual_masses_RNA = sim_data.process.transcription.rna_data["mw"] / sim_data.constants.n_avogadro
 
 	distribution_RNA = normalize(expression)
 
@@ -1406,7 +1406,7 @@ def setRNAPCountsConstrainedByPhysiology(
 		# Get constants to compute countsToMolar factor
 		cellDensity = sim_data.constants.cellDensity
 		cellVolume = avgCellDryMassInit / cellDensity / sim_data.mass.cell_dry_mass_fraction
-		countsToMolar = 1 / (sim_data.constants.n_Avogadro * cellVolume)
+		countsToMolar = 1 / (sim_data.constants.n_avogadro * cellVolume)
 
 		# Gompute input arguments for netLossRateFromDilutionAndDegradationRNA()
 		rnaConc = countsToMolar * bulkContainer.counts(sim_data.process.transcription.rna_data['id'])
@@ -1532,7 +1532,7 @@ def fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km
 	# Set number of RNAs based on expression we just set
 	nRnas = totalCountFromMassesAndRatios(
 		totalMass_RNA,
-		sim_data.process.transcription.rna_data["mw"] / sim_data.constants.n_Avogadro,
+		sim_data.process.transcription.rna_data["mw"] / sim_data.constants.n_avogadro,
 		expression
 		)
 
@@ -1550,7 +1550,7 @@ def fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km
 		cellDensity = sim_data.constants.cellDensity
 		dryMassFraction = sim_data.mass.cell_dry_mass_fraction
 		cellVolume = avgCellDryMassInit / cellDensity / dryMassFraction
-		countsToMolar = 1 / (sim_data.constants.n_Avogadro * cellVolume)
+		countsToMolar = 1 / (sim_data.constants.n_avogadro * cellVolume)
 
 		endoRNaseConc = countsToMolar * bulkContainer.counts(sim_data.process.rna_decay.endoRNase_ids)
 		kcatEndoRNase = sim_data.process.rna_decay.kcats
@@ -1607,7 +1607,7 @@ def fitMaintenanceCosts(sim_data, bulkContainer):
 
 	aaCounts = sim_data.process.translation.monomer_data['aa_counts']
 	proteinCounts = bulkContainer.counts(sim_data.process.translation.monomer_data["id"])
-	nAvogadro = sim_data.constants.n_Avogadro
+	nAvogadro = sim_data.constants.n_avogadro
 	avgCellDryMassInit = sim_data.mass.avg_cell_dry_mass_init
 	gtpPerTranslation = sim_data.constants.gtpPerTranslation
 	atp_per_charge = 2  # ATP -> AMP is explicitly used in charging reactions so can remove from GAM
@@ -1759,7 +1759,7 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 		# Iterate processes until metabolites converge to a steady-state
 		while np.linalg.norm(metDiffs, np.inf) > 1:
 			random_state = np.random.RandomState(seed)
-			metCounts = conc_metabolites * cellVolume * sim_data.constants.n_Avogadro
+			metCounts = conc_metabolites * cellVolume * sim_data.constants.n_avogadro
 			metCounts.normalize()
 			metCounts.checkNoUnit()
 			metabolitesView.countsIs(
@@ -1773,7 +1773,7 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 			rxnFluxes, _ = sim_data.process.equilibrium.fluxes_and_molecules_to_SS(
 				equilibriumMoleculesView.counts(),
 				cellVolume.asNumber(units.L),
-				sim_data.constants.n_Avogadro.asNumber(1 / units.mol),
+				sim_data.constants.n_avogadro.asNumber(1 / units.mol),
 				random_state, jit=False,
 				)
 			equilibriumMoleculesView.countsInc(
@@ -1785,7 +1785,7 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 			_, moleculeCountChanges = sim_data.process.two_component_system.molecules_to_ss(
 				twoComponentSystemMoleculesView.counts(),
 				cellVolume.asNumber(units.L),
-				sim_data.constants.n_Avogadro.asNumber(1 / units.mmol),
+				sim_data.constants.n_avogadro.asNumber(1 / units.mmol),
 				1e6,
 				)
 			twoComponentSystemMoleculesView.countsInc(moleculeCountChanges)
@@ -2859,12 +2859,12 @@ def fitLigandConcentrations(sim_data, cellSpecs):
 		# TF is active and inactive
 		activeCellVolume = (cellSpecs[activeKey]["avgCellDryMassInit"] /
 			cellDensity / sim_data.mass.cell_dry_mass_fraction)
-		activeCountsToMolar = 1/(sim_data.constants.n_Avogadro * activeCellVolume)
+		activeCountsToMolar = 1/(sim_data.constants.n_avogadro * activeCellVolume)
 		activeSignalConc = ((activeCountsToMolar * cellSpecs[activeKey]["bulkAverageContainer"].count(metabolite))
 			.asNumber(units.mol/units.L))
 		inactiveCellVolume = (cellSpecs[inactiveKey]["avgCellDryMassInit"] /
 			cellDensity / sim_data.mass.cell_dry_mass_fraction)
-		inactiveCountsToMolar = 1/(sim_data.constants.n_Avogadro * inactiveCellVolume)
+		inactiveCountsToMolar = 1/(sim_data.constants.n_avogadro * inactiveCellVolume)
 		inactiveSignalConc = ((inactiveCountsToMolar * cellSpecs[inactiveKey]["bulkAverageContainer"].count(metabolite))
 			.asNumber(units.mol/units.L))
 
@@ -2930,7 +2930,7 @@ def calculatePromoterBoundProbability(sim_data, cellSpecs):
 		pPromoterBound[conditionKey] = {}
 
 		cellVolume = cellSpecs[conditionKey]["avgCellDryMassInit"]/cellDensity/sim_data.mass.cell_dry_mass_fraction
-		countsToMolar = 1/(sim_data.constants.n_Avogadro * cellVolume)
+		countsToMolar = 1/(sim_data.constants.n_avogadro * cellVolume)
 
 		for tf in sorted(sim_data.tf_to_active_inactive_conditions):
 			tfType = sim_data.process.transcription_regulation.tf_to_tf_type[tf]
@@ -3121,7 +3121,7 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 
 	cellDensity = sim_data.constants.cellDensity
 	cellVolume = sim_data.mass.avg_cell_dry_mass_init / cellDensity / sim_data.mass.cell_dry_mass_fraction
-	countsToMolar = 1 / (sim_data.constants.n_Avogadro * cellVolume)
+	countsToMolar = 1 / (sim_data.constants.n_avogadro * cellVolume)
 
 	degradationRates = sim_data.process.transcription.rna_data['deg_rate']
 	endoRNaseConc = countsToMolar * bulkContainer.counts(sim_data.process.rna_decay.endoRNase_ids)

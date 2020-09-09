@@ -144,7 +144,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 
 		mws = sim_data.getter.get_mass(sim_data.process.translation.monomer_data['id'])
-		monomerInitialMasses = (mws * monomerCountInitialMultigen / sim_data.constants.n_Avogadro)
+		monomerInitialMasses = (mws * monomerCountInitialMultigen / sim_data.constants.n_avogadro)
 
 		# np.tile(cellMassInitialMultigen.asNumber().reshape((1,10)), (n_monomers,1))
 

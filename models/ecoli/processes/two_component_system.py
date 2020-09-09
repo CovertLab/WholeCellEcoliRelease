@@ -33,7 +33,7 @@ class TwoComponentSystem(wholecell.processes.process.Process):
 		self.jit = sim._jit
 
 		# Get constants
-		self.nAvogadro = sim_data.constants.n_Avogadro.asNumber(1 / units.mmol)
+		self.nAvogadro = sim_data.constants.n_avogadro.asNumber(1 / units.mmol)
 		self.cellDensity = sim_data.constants.cellDensity.asNumber(units.g / units.L)
 
 		# Create method

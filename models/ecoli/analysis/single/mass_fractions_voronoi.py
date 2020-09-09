@@ -30,7 +30,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		bulk_molecules = TableReader(os.path.join(simOutDir, "BulkMolecules"))
 		bulk_molecule_counts = bulk_molecules.readColumn("counts")
 		bulk_molecule_idx = {name: i for i, name in enumerate(bulk_molecules.readAttribute("objectNames"))}
-		nAvogadro = sim_data.constants.n_Avogadro
+		nAvogadro = sim_data.constants.n_avogadro
 
 		# lipids and polyamines
 		def find_mass_molecule_group(group_id):

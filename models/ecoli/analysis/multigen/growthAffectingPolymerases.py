@@ -146,7 +146,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 			## Calculate statistics involving ribosomes and RNAP ##
 			ratioRNAPtoRibosome = totalRnap.astype(np.float) / ribosomeCounts.astype(np.float)
-			ribosomeConcentration = ((1 / sim_data.constants.n_Avogadro) * ribosomeCounts) / ((1.0 / sim_data.constants.cellDensity) * (units.fg * cellMass))
+			ribosomeConcentration = ((1 / sim_data.constants.n_avogadro) * ribosomeCounts) / ((1.0 / sim_data.constants.cellDensity) * (units.fg * cellMass))
 
 			averageRibosomeElongationRate = ribosomeDataFile.readColumn("effectiveElongationRate")
 			processElongationRate = ribosomeDataFile.readColumn("processElongationRate")

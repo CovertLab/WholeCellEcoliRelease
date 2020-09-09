@@ -123,7 +123,7 @@ class Replication(object):
 		self.replication_monomer_weights = (
 			(sim_data.getter.get_mass(sim_data.molecule_groups.dntps)
 			- sim_data.getter.get_mass([sim_data.molecule_ids.ppi]))
-			/ sim_data.constants.n_Avogadro
+			/ sim_data.constants.n_avogadro
 		)
 
 		# Placeholder value for "child_domains" attribute of domains without

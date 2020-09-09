@@ -257,7 +257,7 @@ def read_protein_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	"""
 	count_index = indexes["BulkMolecules"][node_id]
 	counts = columns[("BulkMolecules", "counts")][:, count_index]
-	concentration = (((1 / sim_data.constants.n_Avogadro) * counts) / (units.L * volume)).asNumber(units.mmol / units.L)
+	concentration = (((1 / sim_data.constants.n_avogadro) * counts) / (units.L * volume)).asNumber(units.mmol / units.L)
 
 	dynamics = {
 		'counts': counts,
@@ -280,7 +280,7 @@ def read_metabolite_dynamics(sim_data, node, node_id, columns, indexes, volume):
 	except (KeyError, IndexError):
 		return  # Metabolite not being modeled
 	counts = columns[("BulkMolecules", "counts")][:, count_index]
-	concentration = (((1 / sim_data.constants.n_Avogadro) * counts) / (units.L * volume)).asNumber(units.mmol / units.L)
+	concentration = (((1 / sim_data.constants.n_avogadro) * counts) / (units.L * volume)).asNumber(units.mmol / units.L)
 
 	dynamics = {
 		'counts': counts,

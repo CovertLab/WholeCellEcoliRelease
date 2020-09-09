@@ -136,7 +136,7 @@ def calcProteinTotalCounts(sim_data, monomerMass, monomerExpression):
 		monomerMass.asNumber(units.g),
 		sim_data.process.translation.monomer_data["mw"].asNumber(units.g / units.mol),
 		monomerExpression,
-		sim_data.constants.n_Avogadro.asNumber(1 / units.mol)
+		sim_data.constants.n_avogadro.asNumber(1 / units.mol)
 		)
 
 def calcProteinDistribution(sim_data):

@@ -47,7 +47,7 @@ class TfBinding(wholecell.processes.process.Process):
 		self.n_TU = delta_prob['shape'][0]
 
 		# Get constants
-		self.nAvogadro = sim_data.constants.n_Avogadro
+		self.nAvogadro = sim_data.constants.n_avogadro
 		self.cellDensity = sim_data.constants.cellDensity
 
 		# Create dictionaries and method

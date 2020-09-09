@@ -67,7 +67,7 @@ class Metabolism(wholecell.processes.process.Process):
 
 		# Save constants
 		constants = sim_data.constants
-		self.nAvogadro = constants.n_Avogadro
+		self.nAvogadro = constants.n_avogadro
 		self.cellDensity = constants.cellDensity
 
 		# Track updated AA concentration targets with tRNA charging

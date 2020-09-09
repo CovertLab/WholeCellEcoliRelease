@@ -30,7 +30,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		ratesFwd = sim_data.process.equilibrium.rates_fwd
 		ratesRev = sim_data.process.equilibrium.rates_rev
 
-		nAvogadro = sim_data.constants.n_Avogadro.asNumber(1 / units.mol)
+		nAvogadro = sim_data.constants.n_avogadro.asNumber(1 / units.mol)
 		cellDensity = sim_data.constants.cellDensity.asNumber(units.g / units.L)
 
 		moleculeNames = sim_data.process.equilibrium.molecule_names

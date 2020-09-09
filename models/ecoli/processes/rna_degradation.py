@@ -69,7 +69,7 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.n_total_RNAs = len(rnaIds)
 
 		# Load constants
-		self.nAvogadro = sim_data.constants.n_Avogadro
+		self.nAvogadro = sim_data.constants.n_avogadro
 		self.cellDensity = sim_data.constants.cellDensity
 
 		# Load RNase kinetic data

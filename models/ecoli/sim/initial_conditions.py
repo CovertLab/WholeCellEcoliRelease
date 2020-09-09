@@ -129,7 +129,7 @@ def initialize_trna_charging(sim_data, states, calc_charging):
 
 	# Calculate cell volume for concentrations
 	cell_volume = calculate_cell_mass(states) / sim_data.constants.cellDensity
-	counts_to_molar = 1 / (sim_data.constants.n_Avogadro * cell_volume)
+	counts_to_molar = 1 / (sim_data.constants.n_avogadro * cell_volume)
 
 	# Get molecule views and concentrations
 	transcription = sim_data.process.transcription
@@ -185,7 +185,7 @@ def initializeProteinMonomers(bulkMolCntr, sim_data, randomState, massCoeff, ppg
 		monomerMass.asNumber(units.g),
 		sim_data.process.translation.monomer_data["mw"].asNumber(units.g / units.mol),
 		monomerExpression,
-		sim_data.constants.n_Avogadro.asNumber(1 / units.mol)
+		sim_data.constants.n_avogadro.asNumber(1 / units.mol)
 		)
 
 	monomersView.countsIs(
@@ -213,7 +213,7 @@ def initializeRNA(bulkMolCntr, sim_data, randomState, massCoeff, ppgpp_regulatio
 		rnaMass.asNumber(units.g),
 		sim_data.process.transcription.rna_data["mw"].asNumber(units.g / units.mol),
 		rnaExpression,
-		sim_data.constants.n_Avogadro.asNumber(1 / units.mol)
+		sim_data.constants.n_avogadro.asNumber(1 / units.mol)
 		)
 
 	# ID Groups of rRNAs
@@ -261,7 +261,7 @@ def set_small_molecule_counts(bulkMolCntr, sim_data, current_media_id, massCoeff
 		small_molecule_mass = 0 * units.fg
 		for mol in concDict:
 			small_molecule_mass += (bulkMolCntr.count(mol)
-									* sim_data.getter.get_mass([mol])[0] / sim_data.constants.n_Avogadro)
+									* sim_data.getter.get_mass([mol])[0] / sim_data.constants.n_avogadro)
 		other_dry_mass = cell_mass - small_molecule_mass
 
 	massesToAdd, countsToAdd = masses_and_counts_for_homeostatic_target(
@@ -269,7 +269,7 @@ def set_small_molecule_counts(bulkMolCntr, sim_data, current_media_id, massCoeff
 		moleculeConcentrations,
 		sim_data.getter.get_mass(moleculeIds),
 		sim_data.constants.cellDensity,
-		sim_data.constants.n_Avogadro
+		sim_data.constants.n_avogadro
 		)
 
 	bulkMolCntr.countsIs(
@@ -566,7 +566,7 @@ def initialize_transcription_factors(bulkMolCntr, uniqueMolCntr, sim_data, rando
 	tf_indexes = [np.where(bulk_molecule_ids == tf_id + "[c]")[0][0]
 		for tf_id in tf_ids]
 	active_tf_masses = (sim_data.internal_state.bulk_molecules.bulk_data["mass"][
-		tf_indexes] / sim_data.constants.n_Avogadro).asNumber(units.fg)
+		tf_indexes] / sim_data.constants.n_avogadro).asNumber(units.fg)
 
 	# Get attributes of promoters
 	promoters = uniqueMolCntr.objectsInCollection(
@@ -646,7 +646,7 @@ def initialize_transcription(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	"""
 	# Load parameters
 	rnaLengths = sim_data.process.transcription.rna_data['length'].asNumber()
-	rna_masses = (sim_data.process.transcription.rna_data['mw'] / sim_data.constants.n_Avogadro).asNumber(units.fg)
+	rna_masses = (sim_data.process.transcription.rna_data['mw'] / sim_data.constants.n_avogadro).asNumber(units.fg)
 	current_media_id = sim_data.conditions[sim_data.condition]['nutrients']
 	fracActiveRnap = sim_data.process.transcription.rnapFractionActiveDict[current_media_id]
 	inactive_RNAP_counts = bulkMolCntr.countsView([sim_data.molecule_ids.full_RNAP]).counts()[0]

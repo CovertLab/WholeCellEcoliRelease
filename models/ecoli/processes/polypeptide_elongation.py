@@ -43,7 +43,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.max_time_step = translation.max_time_step
 
 		# Load parameters
-		self.n_Avogadro = constants.n_Avogadro
+		self.n_avogadro = constants.n_avogadro
 		proteinIds = translation.monomer_data['id']
 		self.proteinLengths = translation.monomer_data["length"].asNumber()
 		self.proteinSequences = translation.translation_sequences
@@ -139,7 +139,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		dryMass = (self.readFromListener("Mass", "dryMass") * units.fg)
 		translation_supply_rate = self.translation_aa_supply[current_media_id] * self.elngRateFactor
 		mol_aas_supplied = translation_supply_rate * dryMass * self.timeStepSec() * units.s
-		self.aa_supply = units.strip_empty_units(mol_aas_supplied * self.n_Avogadro)
+		self.aa_supply = units.strip_empty_units(mol_aas_supplied * self.n_avogadro)
 		self.writeToListener("RibosomeData", "translationSupply", translation_supply_rate.asNumber())
 
 		# MODEL SPECIFIC: Calculate AA request
@@ -403,7 +403,7 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		# Conversion from counts to molarity
 		cell_mass = self.process.readFromListener("Mass", "cellMass") * units.fg
 		cell_volume = cell_mass / self.cellDensity
-		self.counts_to_molar = 1 / (self.process.n_Avogadro * cell_volume)
+		self.counts_to_molar = 1 / (self.process.n_avogadro * cell_volume)
 
 		# Get counts and convert synthetase and tRNA to a per AA basis
 		synthetase_counts = np.dot(self.aa_from_synthetase, self.synthetases.total_counts())

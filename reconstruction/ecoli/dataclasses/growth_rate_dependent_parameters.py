@@ -98,7 +98,7 @@ class Mass(object):
 
 		self.chromosome_sequence_mass = (
 			sim_data.getter.get_mass([sim_data.molecule_ids.full_chromosome])[0]
-				/ sim_data.constants.n_Avogadro
+				/ sim_data.constants.n_avogadro
 			).asUnit(units.g)
 
 	def _getFitParameters(self, dryMassComposition, massFractionName):

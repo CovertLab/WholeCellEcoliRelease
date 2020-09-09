@@ -39,7 +39,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		time = main_reader.readColumn("time") - initialTime
 
 		# Convert molecule counts to concentrations
-		nAvogadro = sim_data.constants.n_Avogadro.asNumber(1 / units.mol)
+		nAvogadro = sim_data.constants.n_avogadro.asNumber(1 / units.mol)
 		cellDensity = sim_data.constants.cellDensity.asNumber(units.g / units.L)
 		mass = TableReader(os.path.join(simOutDir, "Mass"))
 		cellMass = (units.fg * mass.readColumn("cellMass")).asNumber(units.g)

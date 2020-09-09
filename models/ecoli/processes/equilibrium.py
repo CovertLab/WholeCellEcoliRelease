@@ -35,7 +35,7 @@ class Equilibrium(wholecell.processes.process.Process):
 		self.jit = sim._jit
 
 		# Get constants
-		self.nAvogadro = sim_data.constants.n_Avogadro.asNumber(1 / units.mol)
+		self.nAvogadro = sim_data.constants.n_avogadro.asNumber(1 / units.mol)
 		self.cellDensity = sim_data.constants.cellDensity.asNumber(units.g / units.L)
 
 		# Create matrix and method
