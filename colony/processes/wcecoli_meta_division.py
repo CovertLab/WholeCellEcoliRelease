@@ -19,18 +19,19 @@ class WcEcoliMetaDivision(Deriver):
 		'daughter_path': tuple(),
 		'id_function': lambda: str(uuid.uuid1()),
 	}
+	name = 'wcEcoliMetaDivision'
 
 	def __init__(self, initial_parameters):
 		'''Implement division for wcEcoli simulations
 
-		When wcEcoli triggers division internally, it passes through its
-		update a list of 2 paths to states for the daughter cells. The
-		:py:class:`wcecoli_process.wcEcoliAgent` process stores this in
-		the ``division`` variable of the ``global`` port, which is
-		associated with the same store as the ``global`` port for this
-		process. When this deriver runs then, it uses these paths to
-		instantiate new wcEcoliAgent processes and uses the ``_divide``
-		operation to trigger the division in the hierarchy.
+        When wcEcoli triggers division internally, it passes through its
+        update a list of 2 paths to states for the daughter cells. The
+        :py:class:`colony.processes.wcecoli.WcEcoli` process stores this
+        in the ``division`` variable of the ``global`` port, which is
+        associated with the same store as the ``global`` port for this
+        process. When this deriver runs then, it uses these paths to
+        instantiate new WcEcoli processes and uses the ``_divide``
+        operation to trigger the division in the hierarchy.
 
 		Ports:
 

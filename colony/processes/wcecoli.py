@@ -5,6 +5,7 @@ import copy
 import shutil
 import sys
 
+import numpy as np
 from vivarium.core.process import Process
 from vivarium.library.dict_utils import deep_merge
 from vivarium.library.units import units
@@ -13,6 +14,7 @@ from models.ecoli.sim.simulation import ecoli_simulation
 from models.ecoli.sim.variants import apply_variant
 from wholecell.utils import constants
 import wholecell.utils.filepath as fp
+from colony.constants import WCECOLI_ROOT
 
 
 def initialize_ecoli(config):
@@ -108,6 +110,7 @@ def ecoli_boot_config(agent_config):
 			'listeners': [],
 		}
 	)
+	media_id = agent_config.get('media_id', 'minimal')
 
 	# initialize state
 	state = {
@@ -142,17 +145,9 @@ def ecoli_boot_config(agent_config):
 		"logToDisk":              False,  # We're using Vivarium instead
 		"overwriteExistingFiles": True,
 		"seed":                   seed,
-		"timeStepSafetyFraction": 1.3,
-		"maxTimeStep":            0.9,
-		"updateTimeStepFreq":     5,
-		"logToShell":             True,
-		"logToDiskEvery":         1,
-		"massDistribution":       True,
-		"growthRateNoise":        False,
-		"dPeriodDivision":        False,
-		"translationSupply":      True,
 		"to_report":              to_report,
 		"cell_id":                cell_id,
+		"timeline":               "0 {}".format(media_id),
 	}
 
 	# Write a metadata file to aid analysis plots.
@@ -165,21 +160,23 @@ def ecoli_boot_config(agent_config):
 		"total_gens":         0,  # not known in advance for multi-scale sims
 		"analysis_type":      None,
 		"variant":            variant_type,
-		"mass_distribution":  options['massDistribution'],
-		"growth_rate_noise":  options['growthRateNoise'],
-		"d_period_division":  options['dPeriodDivision'],
-		"translation_supply": options['translationSupply']}
+		"mass_distribution":  options.get('massDistribution'),
+		"growth_rate_noise":  options.get('growthRateNoise'),
+		"d_period_division":  options.get('dPeriodDivision'),
+		"translation_supply": options.get('translationSupply'),
+	}
 	fp.write_json_file(metadata_path, metadata)
 
 	return options
 
 
-class wcEcoliAgent(Process):
+class WcEcoli(Process):
 	defaults = {
 		'agent_id': 'X',
 		'agent_config': {
 			'to_report': {
 				'listeners': [
+					('Mass', 'dryMass'),
 					('Mass', 'cellMass'),
 					('Mass', 'cellDensity'),
 					('Mass', 'volume'),
@@ -187,11 +184,17 @@ class wcEcoliAgent(Process):
 				'unique_molecules': [],
 				'bulk_molecules': [],
 			},
+			'media_id': 'minimal',
+			'variant_type': 'condition',
+			'variant_index': 0,
 		},
-		'time_step': 5.0,  # 60 for big experiments
+		'update_fields': True,
 	}
 	# Must match units used by wcEcoli
 	mass_units = units.fg
+	density_units = units.g / units.L
+	volume_units = units.fL
+	name = 'WcEcoli'
 
 	def __init__(self, initial_parameters=None):
 		'''Process that internally runs a wcEcoli simulation
@@ -251,11 +254,15 @@ class wcEcoliAgent(Process):
 		self.agent_id = parameters['agent_id']
 		self.agent_config = parameters['agent_config']
 		self.agent_config['cell_id'] = self.agent_id
-		self.agent_config['working_dir'] = '../wcEcoli'
+		self.agent_config['working_dir'] = WCECOLI_ROOT
 
 		self.ecoli_config = ecoli_boot_config(self.agent_config)
 		self.ecoli_simulation = initialize_ecoli(self.ecoli_config)
 		self.sim_data = self.ecoli_simulation.get_sim_data()
+
+		self.parameters['density'] = (
+			self.sim_data.constants.cellDensity.asNumber()
+		) * self.density_units
 
 		environment = self.ecoli_simulation.external_states['Environment']
 		media_molecules = set()
@@ -263,7 +270,25 @@ class wcEcoliAgent(Process):
 			media_molecules |= set(molecules)
 		self.all_exchange_molecules = list(media_molecules)
 
-		super(wcEcoliAgent, self).__init__(parameters)
+		super(WcEcoli, self).__init__(parameters)
+
+	def __getstate__(self):
+		time = (
+			self.ecoli_simulation.time()
+			- self.ecoli_simulation.initialTime()
+		)
+		if time != 0:
+			raise RuntimeError(
+				'WcEcoli.ecoli_simulation must be at time 0 to '
+				'pickle, but simulation is at time {}'.format(time)
+			)
+		return self.parameters
+
+	def __setstate__(self, state):
+		self.__init__(state)
+
+	def local_timestep(self):
+		return self.ecoli_simulation.timeStepSec()
 
 	def ports_schema(self):
 		return self._ports_schema_from_params(
@@ -278,8 +303,10 @@ class wcEcoliAgent(Process):
 			'listeners_report',
 			'global',
 			'external',
-			'exchange',
+			'dimensions',
 		]
+		if self.parameters['update_fields']:
+			ports.append('fields')
 
 		schema = {
 			port: {} for port in ports
@@ -290,18 +317,18 @@ class wcEcoliAgent(Process):
 			molecule: {
 				'_default': 0.0,
 				'_emit': True,
-				'_updater': 'set',
 			}
 			for molecule in all_exchange_molecules
 		}
 
-		# exchange
-		schema['exchange'] = {
-			molecule: {
-				'_default': 0.0,
+		# fields
+		if self.parameters['update_fields']:
+			schema['fields'] = {
+				molecule: {
+					'_default': np.ones((1, 1)),
+				}
+				for molecule in all_exchange_molecules
 			}
-			for molecule in all_exchange_molecules
-		}
 
 		# bulk_molecules_report
 		if (
@@ -365,30 +392,51 @@ class wcEcoliAgent(Process):
 
 		# global
 		schema['global'] = {
+			'dry_mass': {
+				'_default': 0.0 * self.mass_units,
+				'_emit': True,
+				'_updater': 'set',
+			},
 			'mass': {
 				'_default': 0.0 * self.mass_units,
 				'_emit': True,
 				'_updater': 'set',
 			},
 			'volume': {
-				'_default': 0.0,
+				'_default': 0.0 * self.volume_units,
 				'_emit': True,
 				'_updater': 'set',
 			},
 			'density': {
-				'_default': 1.0,
+				'_default': parameters['density'],
 				'_emit': True,
 				'_updater': 'set',
 			},
 			'media_id': {
-				'_default': 'minimal',
+				'_default': parameters['agent_config']['media_id'],
 				'_emit': True,
 				'_updater': 'set',
 			},
 			'division': {
 				'_default': [],
 				'_updater': 'set',
-			}
+			},
+			'location': {
+				'_default': [0.5, 0.5],
+			},
+		}
+
+		# diensions
+		schema['dimensions'] = {
+			'bounds': {
+				'_default': [1, 1],
+			},
+			'n_bins': {
+				'_default': [1, 1],
+			},
+			'depth': {
+				'_default': 1,
+			},
 		}
 		return schema
 
@@ -401,27 +449,62 @@ class wcEcoliAgent(Process):
 		self.ecoli_simulation.external_states['Environment'].set_local_environment(
 			local_environment)
 		self.ecoli_simulation.run_for(timestep)
-		update = self.ecoli_simulation.generate_inner_update()
-		listeners_report = update['listeners_report']
-		return {
+		inner_update = self.ecoli_simulation.generate_inner_update()
+		listeners_report = inner_update['listeners_report']
+		update = {
 			'global': {
-				'volume': (
-					listeners_report[('Mass', 'volume')]
-				),
-				'mass': (
-					listeners_report[('Mass', 'cellMass')]
-					* self.mass_units
-				),
-				'density': (
-					listeners_report[('Mass', 'cellDensity')]
-				),
-				'division': update['division'],
+				'volume': {
+					'_value': (
+						listeners_report[('Mass', 'volume')]
+						* self.volume_units
+					),
+					'_updater': 'set',
+				},
+				'mass': {
+					'_value': (
+						listeners_report[('Mass', 'cellMass')]
+						* self.mass_units
+					),
+					'_updater': 'set',
+				},
+				'dry_mass': {
+					'_value': (
+						listeners_report[('Mass', 'dryMass')]
+						* self.mass_units
+					),
+					'_updater': 'set',
+				},
+				'density': {
+					'_value': (
+						listeners_report[('Mass', 'cellDensity')]
+						* self.density_units
+					),
+					'_updater': 'set',
+				},
+				'division': {
+					'_value': inner_update['division'],
+					'_updater': 'set',
+				},
 			},
-			'exchange': update['exchange'],
-			'unique_molecules_report': update['unique_molecules_report'],
-			'bulk_molecules_report': update['bulk_molecules_report'],
+			'unique_molecules_report': inner_update['unique_molecules_report'],
+			'bulk_molecules_report': inner_update['bulk_molecules_report'],
 			'listeners_report': {
 				'-'.join(key): value
 				for key, value in listeners_report.items()
 			},
 		}
+		if self.parameters['update_fields']:
+			update['fields'] = {
+				molecule: {
+					'_value': exchange,
+					'_updater': {
+						'updater': 'update_field_with_exchange',
+						'port_mapping': {
+							'global': 'global',
+							'dimensions': 'dimensions',
+						},
+					},
+				}
+				for molecule, exchange in inner_update['exchange'].items()
+			}
+		return update

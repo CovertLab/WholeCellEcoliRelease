@@ -4,6 +4,7 @@ import copy
 
 from vivarium.core.process import Deriver
 from vivarium.library.dict_utils import deep_merge
+from vivarium.library.units import units
 from vivarium.processes.derive_globals import (
 	length_from_volume,
 	surface_area_from_length,
@@ -15,6 +16,7 @@ class WcEcoliDeriveShape(Deriver):
 	defaults = {
 		'width': 1,  # um
 	}
+	name = "wcEcoliDeriveShape"
 
 	def __init__(self, initial_parameters=None):
 		# type: (dict) -> None
@@ -41,7 +43,7 @@ class WcEcoliDeriveShape(Deriver):
 	def ports_schema(self):
 		default_state = {
 			'global': {
-				'volume': 0.0,
+				'volume': 0.0 * units.fL,
 				'width': self.parameters['width'],
 				'length': 0.0,
 				'surface_area': 0.0,
@@ -67,7 +69,7 @@ class WcEcoliDeriveShape(Deriver):
 		width = states['global']['width']
 		volume = states['global']['volume']
 
-		length = length_from_volume(volume, width)
+		length = length_from_volume(volume.magnitude, width)
 		surface_area = surface_area_from_length(length, width)
 
 		return {

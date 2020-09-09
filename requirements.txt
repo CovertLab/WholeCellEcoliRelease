@@ -72,14 +72,15 @@ pytest-cov==2.10.0
 PyYAML==5.3.1
 ruamel.yaml==0.16.10
 six==1.15.0
-stochastic-arrow==0.4.1
+stochastic-arrow==0.4.3
 swiglpk==4.65.1
 sympy==1.6.1
 Theano==1.0.5
 Unum==4.1.4
-wholecell-vivarium==0.0.52
+wholecell-vivarium==0.0.54
 
 ## The following requirements were added by pip freeze:
+alphashape==1.1.0
 appdirs==1.4.4
 appnope==0.1.0
 Arpeggio==1.9.2
@@ -90,6 +91,7 @@ certifi==2020.6.20
 cffi==1.14.0
 chardet==3.0.4
 click==7.1.2
+click-log==0.3.2
 cobra==0.18.1
 coverage==5.2
 cycler==0.10.0
@@ -151,6 +153,7 @@ requests==2.24.0
 rsa==4.6
 ruamel.yaml.clib==0.2.0
 scs==2.1.2
+shapely==1.7.1
 stevedore==2.0.1
 subprocess32==3.5.4
 tabulate==0.8.7
