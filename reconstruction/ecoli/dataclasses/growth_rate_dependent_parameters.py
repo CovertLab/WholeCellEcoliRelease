@@ -48,7 +48,7 @@ class Mass(object):
 		self.cell_dry_mass_fraction = 1. - self.cell_water_mass_fraction
 		self.avg_cell_to_initial_cell_conversion_factor = np.exp(np.log(2) * self.avg_cell_cell_cycle_progress)
 
-		self._cellDensity = sim_data.constants.cellDensity
+		self._cellDensity = sim_data.constants.cell_density
 
 		self._glycogenFractions = raw_data.mass_fractions.glycogen_fractions
 		self._mureinFractions = raw_data.mass_fractions.murein_fractions
@@ -410,7 +410,7 @@ class GrowthRateParameters(object):
 		self.ribosome_active_fraction_params = _get_fit_parameters(raw_data.growth_rate_dependent_parameters, "fractionActiveRibosome")
 		self.ppGpp_concentration = _get_fit_parameters(raw_data.growth_rate_dependent_parameters, "ppGpp_conc")
 
-		self._per_dry_mass_to_per_volume = sim_data.constants.cellDensity * (1. - raw_data.mass_parameters['cell_water_mass_fraction'])
+		self._per_dry_mass_to_per_volume = sim_data.constants.cell_density * (1. - raw_data.mass_parameters['cell_water_mass_fraction'])
 		self.c_period = units.min * 40.
 		self.d_period = units.min * 20.
 		self.replisome_elongation_rate = units.nt / units.s * 967.

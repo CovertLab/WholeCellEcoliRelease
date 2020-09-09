@@ -158,7 +158,7 @@ class Translation(object):
 
 		max_len = np.int64(
 			self.monomer_data["length"].asNumber().max()
-			+ self.max_time_step * sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s)
+			+ self.max_time_step * sim_data.constants.ribosome_elongation_rate_max.asNumber(units.aa / units.s)
 			)
 
 		self.translation_sequences = np.full((len(sequences), max_len), polymerize.PAD_VALUE, dtype=np.int8)
@@ -230,8 +230,8 @@ class Translation(object):
 			for index in sorted(ribosomal_proteins.values())
 			if index >= 0], dtype=np.int64)
 
-		self.basal_elongation_rate = sim_data.constants.ribosomeElongationRateBasal.asNumber(units.aa / units.s)
-		self.max_elongation_rate = sim_data.constants.ribosomeElongationRateMax.asNumber(units.aa / units.s)
+		self.basal_elongation_rate = sim_data.constants.ribosome_elongation_rate_basal.asNumber(units.aa / units.s)
+		self.max_elongation_rate = sim_data.constants.ribosome_elongation_rate_max.asNumber(units.aa / units.s)
 		self.elongation_rates = np.full(
 			self.n_monomers,
 			self.basal_elongation_rate,

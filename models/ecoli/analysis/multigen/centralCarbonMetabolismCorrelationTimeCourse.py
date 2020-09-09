@@ -29,7 +29,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		validation_data = cPickle.load(open(validationDataFile, "rb"))
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
-		cellDensity = sim_data.constants.cellDensity
+		cellDensity = sim_data.constants.cell_density
 
 		ap = AnalysisPaths(seedOutDir, multi_gen_plot = True)
 

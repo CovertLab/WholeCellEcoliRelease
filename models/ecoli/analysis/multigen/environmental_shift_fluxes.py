@@ -261,7 +261,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			dryMass = massListener.readColumn("dryMass")
 			massListener.close()
 
-			coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(MASS_UNITS / VOLUME_UNITS) # units - g/L
+			coefficient = dryMass / cellMass * sim_data.constants.cell_density.asNumber(MASS_UNITS / VOLUME_UNITS) # units - g/L
 
 			fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 			reactionIDs = fbaResults.readAttribute("reactionIDs")

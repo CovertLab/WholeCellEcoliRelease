@@ -121,7 +121,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			massDataFile.close()
 
 			# Calculate cell volume
-			cellVolume = (1.0 / sim_data.constants.cellDensity) * (units.fg * cellMass)
+			cellVolume = (1.0 / sim_data.constants.cell_density) * (units.fg * cellMass)
 
 			# Calculate molecule counts and molar fraction of active ribosomes
 			counts30S = complexCounts30S

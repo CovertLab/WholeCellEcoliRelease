@@ -43,8 +43,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		nAvogadro = sim_data.constants.n_avogadro
-		cellDensity = sim_data.constants.cellDensity
-		homeostaticRangeObjFractionHigher = sim_data.constants.metabolismHomeostaticRangeObjFractionHigher
+		cellDensity = sim_data.constants.cell_density
+		homeostaticRangeObjFractionHigher = sim_data.constants.metabolism_homeostatic_range_obj_fraction_higher
 
 		# Load time
 		main_reader = TableReader(os.path.join(simOutDir, "Main"))

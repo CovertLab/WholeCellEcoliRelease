@@ -34,7 +34,7 @@ class TwoComponentSystem(wholecell.processes.process.Process):
 
 		# Get constants
 		self.nAvogadro = sim_data.constants.n_avogadro.asNumber(1 / units.mmol)
-		self.cellDensity = sim_data.constants.cellDensity.asNumber(units.g / units.L)
+		self.cellDensity = sim_data.constants.cell_density.asNumber(units.g / units.L)
 
 		# Create method
 		self.moleculesToNextTimeStep = sim_data.process.two_component_system.molecules_to_next_time_step

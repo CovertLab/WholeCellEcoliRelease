@@ -70,12 +70,12 @@ class RnaDegradation(wholecell.processes.process.Process):
 
 		# Load constants
 		self.nAvogadro = sim_data.constants.n_avogadro
-		self.cellDensity = sim_data.constants.cellDensity
+		self.cellDensity = sim_data.constants.cell_density
 
 		# Load RNase kinetic data
 		endoRnaseIds = sim_data.process.rna_decay.endoRNase_ids
 		exoRnaseIds = sim_data.molecule_groups.exoRNases
-		self.KcatExoRNase = sim_data.constants.KcatExoRNase
+		self.KcatExoRNase = sim_data.constants.kcat_exoRNase
 		self.KcatEndoRNases = sim_data.process.rna_decay.kcats
 
 		# Load information about charged tRNA
@@ -136,10 +136,10 @@ class RnaDegradation(wholecell.processes.process.Process):
 		self.Km = sim_data.process.transcription.rna_data['Km_endoRNase']
 
 		# If set to True, assume cooperation in endoRNase activity
-		self.EndoRNaseCoop = sim_data.constants.EndoRNaseCooperation
+		self.EndoRNaseCoop = sim_data.constants.endoRNase_cooperation
 
 		# If set to False, assume RNAs degrade simply by first-order kinetics
-		self.EndoRNaseFunc = sim_data.constants.EndoRNaseFunction
+		self.EndoRNaseFunc = sim_data.constants.endoRNase_function
 
 
 	def calculateRequest(self):

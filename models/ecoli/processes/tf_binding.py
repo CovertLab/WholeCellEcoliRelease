@@ -48,7 +48,7 @@ class TfBinding(wholecell.processes.process.Process):
 
 		# Get constants
 		self.nAvogadro = sim_data.constants.n_avogadro
-		self.cellDensity = sim_data.constants.cellDensity
+		self.cellDensity = sim_data.constants.cell_density
 
 		# Create dictionaries and method
 		self.pPromoterBoundTF = sim_data.process.transcription_regulation.p_promoter_bound_tf

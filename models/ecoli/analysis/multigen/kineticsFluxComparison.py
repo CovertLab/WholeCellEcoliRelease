@@ -58,7 +58,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			dryMass = massListener.readColumn("dryMass")
 			massListener.close()
 
-			coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(MASS_UNITS / VOLUME_UNITS)
+			coefficient = dryMass / cellMass * sim_data.constants.cell_density.asNumber(MASS_UNITS / VOLUME_UNITS)
 
 			# read constraint data
 			enzymeKineticsReader = TableReader(os.path.join(simOutDir, "EnzymeKinetics"))

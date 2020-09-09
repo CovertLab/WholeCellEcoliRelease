@@ -52,7 +52,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		n_rnas = len(ids_rna)
 
 		# Get cell density constant
-		cell_density = simData.constants.cellDensity
+		cell_density = simData.constants.cell_density
 
 		# Load simData from first simulation to extract indices
 		simOutDir = os.path.join(sim_dirs_grouped_by_gen[0][0], "simOut")

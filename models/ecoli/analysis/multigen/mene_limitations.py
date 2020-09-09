@@ -55,7 +55,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		allDir = ap.get_cells(seed = [0])
 
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		cellDensity = sim_data.constants.cellDensity
+		cellDensity = sim_data.constants.cell_density
 
 		rnaIds = sim_data.process.transcription.rna_data["id"]
 

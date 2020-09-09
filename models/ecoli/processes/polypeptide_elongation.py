@@ -89,7 +89,7 @@ class PolypeptideElongation(wholecell.processes.process.Process):
 		self.ppgpp_regulation = sim._ppgpp_regulation
 
 		# Growth associated maintenance energy requirements for elongations
-		self.gtpPerElongation = constants.gtpPerTranslation
+		self.gtpPerElongation = constants.gtp_per_translation
 		## Need to account for ATP hydrolysis for charging that has been
 		## removed from measured GAM (ATP -> AMP is 2 hydrolysis reactions)
 		## if charging reactions are not explicitly modeled
@@ -285,7 +285,7 @@ class BaseElongationModel(object):
 	"""
 	def __init__(self, sim_data, process):
 		self.process = process
-		self.basal_elongation_rate = sim_data.constants.ribosomeElongationRateBasal.asNumber(units.aa / units.s)
+		self.basal_elongation_rate = sim_data.constants.ribosome_elongation_rate_basal.asNumber(units.aa / units.s)
 		self.ribosomeElongationRateDict = sim_data.process.translation.ribosomeElongationRateDict
 		self.uncharged_trna_names = sim_data.process.transcription.rna_data['id'][sim_data.process.transcription.rna_data['is_tRNA']]
 		self.aaNames = sim_data.molecule_groups.amino_acids
@@ -350,8 +350,8 @@ class SteadyStateElongationModel(TranslationSupplyElongationModel):
 		molecule_ids = sim_data.molecule_ids
 
 		# Cell parameters
-		self.cellDensity = constants.cellDensity
-		elongation_max = constants.ribosomeElongationRateMax if self.process.variable_elongation else constants.ribosomeElongationRateBasal
+		self.cellDensity = constants.cell_density
+		elongation_max = constants.ribosome_elongation_rate_max if self.process.variable_elongation else constants.ribosome_elongation_rate_basal
 		self.maxRibosomeElongationRate = float(elongation_max.asNumber(units.aa / units.s))
 
 		# Data structures for charging

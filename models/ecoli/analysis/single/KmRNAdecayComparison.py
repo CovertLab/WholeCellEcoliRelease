@@ -21,7 +21,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
-		if sim_data.constants.EndoRNaseCooperation:
+		if sim_data.constants.endoRNase_cooperation:
 			KmFirstOrderDecay = sim_data.process.rna_decay.Km_first_order_decay
 			KmNonLinearDecay = (sim_data.process.transcription.rna_data['Km_endoRNase'].asNumber())
 
@@ -46,7 +46,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			# print(np.corrcoef(KmFirstOrderDecay, KmNonLinearDecay)[0,1])
 
 
-		if sim_data.constants.EndoRNaseCooperation:
+		if sim_data.constants.endoRNase_cooperation:
 			plt.subplot(3,1,2)
 			GprimeKm = sim_data.process.rna_decay.Km_convergence
 			FprimeKm = np.log10(1 - GprimeKm[GprimeKm < 1])
@@ -60,8 +60,8 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Sensitivity analysis kcatEndoRNases
 		# TODO: does this ever get set and should it be a variant analysis plot?
-		if sim_data.constants.SensitivityAnalysisKcatEndo:
-			cellDensity = sim_data.constants.cellDensity
+		if sim_data.constants.sensitivity_analysis_kcat_endo:
+			cellDensity = sim_data.constants.cell_density
 			cellVolume = sim_data.mass.avg_cell_dry_mass_init / cellDensity / sim_data.mass.cell_dry_mass_fraction
 			countsToMolar = 1 / (sim_data.constants.n_avogadro * cellVolume)
 

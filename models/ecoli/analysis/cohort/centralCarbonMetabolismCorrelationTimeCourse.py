@@ -33,7 +33,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		validation_data = cPickle.load(open(validationDataFile, "rb"))
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
-		cellDensity = sim_data.constants.cellDensity
+		cellDensity = sim_data.constants.cell_density
 
 		seed_color = {}
 		line_instances = {}

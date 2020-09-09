@@ -25,7 +25,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		nAvogadro = sim_data.constants.n_avogadro
-		cellDensity = sim_data.constants.cellDensity
+		cellDensity = sim_data.constants.cell_density
 
 		# Load time
 		main_reader = TableReader(os.path.join(simOutDir, "Main"))

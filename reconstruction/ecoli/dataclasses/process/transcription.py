@@ -159,7 +159,7 @@ class Transcription(object):
 		self.ppgpp_fold_changes = fold_changes
 
 		# Predict growth rate from ppGpp level
-		per_dry_mass_to_per_volume = sim_data.constants.cellDensity * sim_data.mass.cell_dry_mass_fraction
+		per_dry_mass_to_per_volume = sim_data.constants.cell_density * sim_data.mass.cell_dry_mass_fraction
 		ppgpp = np.array([(d['ppGpp_conc'] * per_dry_mass_to_per_volume).asNumber(PPGPP_CONC_UNITS)
 			for d in raw_data.growth_rate_dependent_parameters])
 		growth_rates = np.log(2) / np.array([d['doublingTime'].asNumber(units.s)
@@ -304,8 +304,8 @@ class Transcription(object):
 		direction_list = [gene["direction"] for gene in raw_data.genes]
 
 		# Get coordinates of oriC and terC
-		oric_coordinate = raw_data.parameters['oriCCenter'].asNumber()
-		terc_coordinate = raw_data.parameters['terCCenter'].asNumber()
+		oric_coordinate = sim_data.constants.oriC_center.asNumber()
+		terc_coordinate = sim_data.constants.terC_center.asNumber()
 		genome_length = len(raw_data.genome_sequence)
 
 		def get_relative_coordinates(coordinates):
@@ -633,7 +633,7 @@ class Transcription(object):
 		return out
 
 	def _build_elongation_rates(self, raw_data, sim_data):
-		self.max_elongation_rate = sim_data.constants.dnaPolymeraseElongationRateMax
+		self.max_elongation_rate = sim_data.constants.RNAP_elongation_rate_max
 		self.rRNA_indexes = np.where(self.rna_data['is_rRNA'])[0]
 
 	def make_elongation_rates(self, random, base, time_step, variable_elongation=False):
@@ -666,7 +666,7 @@ class Transcription(object):
 		"""
 
 		# Data for different doubling times (100, 60, 40, 30, 24 min)
-		per_dry_mass_to_per_volume = sim_data.constants.cellDensity * sim_data.mass.cell_dry_mass_fraction
+		per_dry_mass_to_per_volume = sim_data.constants.cell_density * sim_data.mass.cell_dry_mass_fraction
 		ppgpp = np.array(
 			[(d['ppGpp_conc'] * per_dry_mass_to_per_volume).asNumber(PPGPP_CONC_UNITS)
 			for d in raw_data.growth_rate_dependent_parameters])**2

@@ -45,7 +45,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 
 		# Load simDataFile and get constants
 		sim_data = cPickle.load(open(simDataFile, 'rb'))
-		cell_density = sim_data.constants.cellDensity
+		cell_density = sim_data.constants.cell_density
 		ids_translation = sim_data.process.translation.monomer_data["id"]
 		n_proteins = len(ids_translation)
 

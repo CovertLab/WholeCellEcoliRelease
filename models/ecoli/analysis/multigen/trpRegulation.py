@@ -30,7 +30,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 		nAvogadro = sim_data.constants.n_avogadro
-		cellDensity = sim_data.constants.cellDensity
+		cellDensity = sim_data.constants.cell_density
 
 		# Get list of TF and transcription unit IDs from first simOut directory
 		simOutDir = os.path.join(allDirs[0], "simOut")

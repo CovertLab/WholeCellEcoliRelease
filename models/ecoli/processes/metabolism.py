@@ -68,7 +68,7 @@ class Metabolism(wholecell.processes.process.Process):
 		# Save constants
 		constants = sim_data.constants
 		self.nAvogadro = constants.n_avogadro
-		self.cellDensity = constants.cellDensity
+		self.cellDensity = constants.cell_density
 
 		# Track updated AA concentration targets with tRNA charging
 		self.aa_targets = {}
@@ -268,7 +268,7 @@ class FluxBalanceAnalysisModel(object):
 		mass = sim_data.mass
 
 		# Load constants
-		self.ngam = constants.nonGrowthAssociatedMaintenance
+		self.ngam = constants.non_growth_associated_maintenance
 		gam = constants.darkATP * mass.cell_dry_mass_fraction
 
 		self.exchange_constraints = metabolism.exchange_constraints

@@ -127,7 +127,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		yloc = plt.MaxNLocator(max_yticks); ax.yaxis.set_major_locator(yloc)
 
 		# compute active ExoRNase capacity (%)
-		ActiveExoRNcapacity = fragmentBasesDigested.astype(float) / (totalexoRnaseCounts * sim_data.constants.KcatExoRNase.asNumber()) * 100
+		ActiveExoRNcapacity = fragmentBasesDigested.astype(float) / (totalexoRnaseCounts * sim_data.constants.kcat_exoRNase.asNumber()) * 100
 
 		ax = plt.subplot(n_rows, n_cols, 11)
 		plt.plot(time / 60., ActiveExoRNcapacity)

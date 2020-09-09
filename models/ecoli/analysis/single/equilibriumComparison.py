@@ -31,7 +31,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		ratesRev = sim_data.process.equilibrium.rates_rev
 
 		nAvogadro = sim_data.constants.n_avogadro.asNumber(1 / units.mol)
-		cellDensity = sim_data.constants.cellDensity.asNumber(units.g / units.L)
+		cellDensity = sim_data.constants.cell_density.asNumber(units.g / units.L)
 
 		moleculeNames = sim_data.process.equilibrium.molecule_names
 

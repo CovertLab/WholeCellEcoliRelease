@@ -54,7 +54,7 @@ def analyze_variant(args):
 
 	# Load sim_data attributes for the given variant
 	sim_data = cPickle.load(open(ap.get_variant_kb(variant), 'rb'))
-	cell_density = sim_data.constants.cellDensity
+	cell_density = sim_data.constants.cell_density
 	n_avogadro = sim_data.constants.n_avogadro
 	lambdas = sim_data.process.metabolism.kinetic_objective_weight
 

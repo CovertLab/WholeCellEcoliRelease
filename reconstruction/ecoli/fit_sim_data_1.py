@@ -140,7 +140,7 @@ def fitSimData_1(
 	# Modify other properties
 
 	# Re-compute Km's
-	if sim_data.constants.EndoRNaseCooperation:
+	if sim_data.constants.endoRNase_cooperation:
 		sim_data.process.transcription.rna_data['Km_endoRNase'] = setKmCooperativeEndoRNonLinearRNAdecay(sim_data, cellSpecs["basal"]["bulkContainer"])
 
 	## Calculate and set maintenance values
@@ -952,7 +952,7 @@ def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict, doubling_t
 		non_small_molecule_initial_cell_mass,
 		targetMoleculeConcentrations,
 		molecular_weights,
-		sim_data.constants.cellDensity,
+		sim_data.constants.cell_density,
 		sim_data.constants.n_avogadro
 		)
 
@@ -1404,7 +1404,7 @@ def setRNAPCountsConstrainedByPhysiology(
 		)
 	else:
 		# Get constants to compute countsToMolar factor
-		cellDensity = sim_data.constants.cellDensity
+		cellDensity = sim_data.constants.cell_density
 		cellVolume = avgCellDryMassInit / cellDensity / sim_data.mass.cell_dry_mass_fraction
 		countsToMolar = 1 / (sim_data.constants.n_avogadro * cellVolume)
 
@@ -1547,7 +1547,7 @@ def fitExpression(sim_data, bulkContainer, doubling_time, avgCellDryMassInit, Km
 		)
 	else:
 		# Get constants to compute countsToMolar factor
-		cellDensity = sim_data.constants.cellDensity
+		cellDensity = sim_data.constants.cell_density
 		dryMassFraction = sim_data.mass.cell_dry_mass_fraction
 		cellVolume = avgCellDryMassInit / cellDensity / dryMassFraction
 		countsToMolar = 1 / (sim_data.constants.n_avogadro * cellVolume)
@@ -1609,7 +1609,7 @@ def fitMaintenanceCosts(sim_data, bulkContainer):
 	proteinCounts = bulkContainer.counts(sim_data.process.translation.monomer_data["id"])
 	nAvogadro = sim_data.constants.n_avogadro
 	avgCellDryMassInit = sim_data.mass.avg_cell_dry_mass_init
-	gtpPerTranslation = sim_data.constants.gtpPerTranslation
+	gtpPerTranslation = sim_data.constants.gtp_per_translation
 	atp_per_charge = 2  # ATP -> AMP is explicitly used in charging reactions so can remove from GAM
 
 	# GTPs used for translation (recycled, not incorporated into biomass)
@@ -1627,7 +1627,7 @@ def fitMaintenanceCosts(sim_data, bulkContainer):
 	explicit_mmol_maintenance_per_gdcw = (atp_per_charge + gtpPerTranslation) * aasUsedOverCellCycle
 
 	darkATP = ( # This has everything we can't account for
-		sim_data.constants.growthAssociatedMaintenance -
+		sim_data.constants.growth_associated_maintenance -
 		explicit_mmol_maintenance_per_gdcw
 		)
 
@@ -1691,7 +1691,7 @@ def calculateBulkDistributions(sim_data, expression, concDict, avgCellDryMassIni
 	# equilibriumDerivativesJacobian = sim_data.process.equilibrium.derivativesJacobian
 
 	# Data for metabolites
-	cellDensity = sim_data.constants.cellDensity
+	cellDensity = sim_data.constants.cell_density
 	cellVolume = avgCellDryMassInit / cellDensity / sim_data.mass.cell_dry_mass_fraction
 
 	# Construct bulk container
@@ -2828,7 +2828,7 @@ def fitLigandConcentrations(sim_data, cellSpecs):
 	- Set concentrations of metabolites that are ligands in 1CS
 	- kd's of equilibrium reactions in 1CS
 	"""
-	cellDensity = sim_data.constants.cellDensity
+	cellDensity = sim_data.constants.cell_density
 	pPromoterBound = sim_data.pPromoterBound
 
 	for tf in sorted(sim_data.tf_to_active_inactive_conditions):
@@ -2924,7 +2924,7 @@ def calculatePromoterBoundProbability(sim_data, cellSpecs):
 	"""
 
 	pPromoterBound = {}  # Initialize return value
-	cellDensity = sim_data.constants.cellDensity
+	cellDensity = sim_data.constants.cell_density
 
 	for conditionKey in sorted(cellSpecs):
 		pPromoterBound[conditionKey] = {}
@@ -3119,7 +3119,7 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 	TODO (John): Determine what part (if any) of the 'linear' parameter fitting should be retained.
 	"""
 
-	cellDensity = sim_data.constants.cellDensity
+	cellDensity = sim_data.constants.cell_density
 	cellVolume = sim_data.mass.avg_cell_dry_mass_init / cellDensity / sim_data.mass.cell_dry_mass_fraction
 	countsToMolar = 1 / (sim_data.constants.n_avogadro * cellVolume)
 
@@ -3159,7 +3159,7 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 
 	# Sensitivity analysis: alpha (regularization term)
 	Alphas = []
-	if sim_data.constants.SensitivityAnalysisAlpha:
+	if sim_data.constants.sensitivity_analysis_alpha:
 		Alphas = [0.0001, 0.001, 0.01, 0.1, 1, 10]
 
 	for alpha in Alphas:
@@ -3181,7 +3181,7 @@ def setKmCooperativeEndoRNonLinearRNAdecay(sim_data, bulkContainer):
 
 	# Sensitivity analysis: kcatEndoRNase
 	kcatEndo = []
-	if sim_data.constants.SensitivityAnalysisKcatEndo:
+	if sim_data.constants.sensitivity_analysis_kcat_endo:
 		kcatEndo = [0.0001, 0.001, 0.01, 0.1, 1, 10]
 
 	for kcat in kcatEndo:

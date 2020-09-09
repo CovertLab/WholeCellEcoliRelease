@@ -84,7 +84,7 @@ def analyze_variant(args):
 	increase_params_flux_correlation = np.zeros(total_params)
 	decrease_params_flux_correlation = np.zeros(total_params)
 
-	cell_density = sim_data.constants.cellDensity
+	cell_density = sim_data.constants.cell_density
 	flux_units = units.mmol / units.g / units.h
 
 	# Validation data

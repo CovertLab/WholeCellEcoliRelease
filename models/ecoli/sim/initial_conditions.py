@@ -128,7 +128,7 @@ def initialize_trna_charging(sim_data, states, calc_charging):
 	'''
 
 	# Calculate cell volume for concentrations
-	cell_volume = calculate_cell_mass(states) / sim_data.constants.cellDensity
+	cell_volume = calculate_cell_mass(states) / sim_data.constants.cell_density
 	counts_to_molar = 1 / (sim_data.constants.n_avogadro * cell_volume)
 
 	# Get molecule views and concentrations
@@ -268,7 +268,7 @@ def set_small_molecule_counts(bulkMolCntr, sim_data, current_media_id, massCoeff
 		other_dry_mass,
 		moleculeConcentrations,
 		sim_data.getter.get_mass(moleculeIds),
-		sim_data.constants.cellDensity,
+		sim_data.constants.cell_density,
 		sim_data.constants.n_avogadro
 		)
 

@@ -28,7 +28,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		validation_data = cPickle.load(open(validationDataFile, "rb"))
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
-		cellDensity = sim_data.constants.cellDensity
+		cellDensity = sim_data.constants.cell_density
 
 		main_reader = TableReader(os.path.join(simOutDir, "Main"))
 		initialTime = main_reader.readAttribute("initialTime")

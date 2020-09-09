@@ -41,7 +41,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		toyaStdevDict = dict(zip(toyaReactions, toyaStdev))
 
 		sim_data = cPickle.load(open(simDataFile, 'rb'))
-		cellDensity = sim_data.constants.cellDensity
+		cellDensity = sim_data.constants.cell_density
 
 		modelFluxes = {}
 		toyaOrder = []

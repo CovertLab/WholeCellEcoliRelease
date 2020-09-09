@@ -45,7 +45,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 		toyaStdevDict = dict(zip(toyaReactions, toyaStdev))
 
 		sim_data = cPickle.load(open(simDataFile, 'rb'))
-		cellDensity = sim_data.constants.cellDensity
+		cellDensity = sim_data.constants.cell_density
 
 		modelFluxes = {}
 		toyaOrder = []
@@ -64,7 +64,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			dryMass = massListener.readColumn("dryMass")
 			massListener.close()
 
-			coefficient = dryMass / cellMass * sim_data.constants.cellDensity.asNumber(MASS_UNITS / VOLUME_UNITS)
+			coefficient = dryMass / cellMass * sim_data.constants.cell_density.asNumber(MASS_UNITS / VOLUME_UNITS)
 
 			fbaResults = TableReader(os.path.join(simOutDir, "FBAResults"))
 			reactionIDs = np.array(fbaResults.readAttribute("reactionIDs"))

@@ -61,7 +61,7 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 		# Convert units of metabolic fluxes in listener to mmol/gCDW/h
 		conversion_coeffs = (
 			columns[("Mass", "dryMass")] / columns[("Mass", "cellMass")]
-			* sim_data.constants.cellDensity.asNumber(MASS_UNITS / VOLUME_UNITS)
+			* sim_data.constants.cell_density.asNumber(MASS_UNITS / VOLUME_UNITS)
 			)
 
 		columns[("FBAResults", "reactionFluxesConverted")] = (
@@ -116,7 +116,7 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 		indexes["Charging"] = build_index_dict(trna_ids)
 
 		# Cache cell volume array (used for calculating concentrations)
-		volume = ((1.0 / sim_data.constants.cellDensity) * (
+		volume = ((1.0 / sim_data.constants.cell_density) * (
 			units.fg * columns[("Mass", "cellMass")])).asNumber(units.L)
 
 		with open(nodeListFile, 'r') as node_file:
@@ -196,7 +196,7 @@ def read_global_dynamics(sim_data, node, node_id, columns, indexes, volume):
 			}
 
 	elif node_id == "cell_volume":
-		cell_volume = ((1.0 / sim_data.constants.cellDensity) * (
+		cell_volume = ((1.0 / sim_data.constants.cell_density) * (
 					units.fg * cell_mass)).asNumber(units.L)
 		dynamics = {
 			'volume': cell_volume,

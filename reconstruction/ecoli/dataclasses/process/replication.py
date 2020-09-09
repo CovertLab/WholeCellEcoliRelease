@@ -82,8 +82,8 @@ class Replication(object):
 			numerical_sequence[i] = ntMapping[letter] # Build genome sequence as small integers
 
 		# Create 4 possible polymerization sequences
-		oric_coordinate = raw_data.parameters['oriCCenter'].asNumber()
-		terc_coordinate = raw_data.parameters['terCCenter'].asNumber()
+		oric_coordinate = sim_data.constants.oriC_center.asNumber()
+		terc_coordinate = sim_data.constants.terC_center.asNumber()
 
 		# Forward sequence includes oriC
 		self.forward_sequence = numerical_sequence[
@@ -137,8 +137,8 @@ class Replication(object):
 		of the genome and the motifs.
 		"""
 		# Get coordinates of oriC's and terC's
-		self.oric_coordinates = raw_data.parameters['oriCCenter'].asNumber()
-		self.terc_coordinates = raw_data.parameters['terCCenter'].asNumber()
+		self.oric_coordinates = sim_data.constants.oriC_center.asNumber()
+		self.terc_coordinates = sim_data.constants.terC_center.asNumber()
 
 		# Initialize dictionary of motif coordinates
 		self.motif_coordinates = dict()

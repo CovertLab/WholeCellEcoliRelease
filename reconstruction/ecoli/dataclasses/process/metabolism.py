@@ -77,9 +77,9 @@ class Metabolism(object):
 
 		self.solver = "glpk-linear"
 		if "linear" in self.solver:
-			self.kinetic_objective_weight = constants.metabolismKineticObjectiveWeightLinear
+			self.kinetic_objective_weight = constants.metabolism_kinetic_objective_weight_linear
 		else:
-			self.kinetic_objective_weight = constants.metabolismKineticObjectiveWeightQuadratic
+			self.kinetic_objective_weight = constants.metabolism_kinetic_objective_weight_quadratic
 		self.kinetic_objective_weight_in_range = constants.metabolism_kinetic_objective_weight_in_range
 		self.secretion_penalty_coeff = constants.secretion_penalty_coeff
 

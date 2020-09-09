@@ -1,44 +1,33 @@
-name	value	units	source	comments
-gtpPerTranslation	4.2	
-oriCCenter	3923882	units.nt	Ecocyc
-terCCenter	1607192	units.nt	Ecocyc
-cellDensity	1100	units.g/units.L	Baldwin et al.	from Baldwin WW, Myer R, Powell N, Anderson E, Koch AL. Buoyant density of Escherichia coli is determined solely by the osmolarity of the culture medium. Arch Microbiol. 1995 Aug164(2):155-7 p.156 fig.3 & fig.2 (retrieved from Bionumbers)
-growthAssociatedMaintenance	59.81	units.mmol / units.g	Feist
-nonGrowthAssociatedMaintenance	8.39	units.mmol / units.g / units.h	Feist
-KcatExoRNase	50	1/units.s
-KcatEndoRNaseFullRNA	0.1	1/units.s
-KcatEndoRNasesFullRNA	[0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]	1/units.s
-EndoRNaseFunction	1	
-EndoRNaseCooperation	1	
-rrncLocation	3944842	units.nt	Ecocyc	End of last gene
-rrnaLocation	4038659	units.nt	Ecocyc	End of last gene
-rrnbLocation	4169729	units.nt	Ecocyc	End of last gene
-rrneLocation	4211182	units.nt	Ecocyc	End of last gene
-rrnhLocation	228875	units.nt	Ecocyc	End of last gene
-rrndLocation	3421445	units.nt	Ecocyc	End of last gene
-rrngLocation	2724091	units.nt	Ecocyc	End of last gene
-ribosomeElongationRateMax	30	units.aa/units.s		
-ribosomeElongationRateBasal	22	units.aa/units.s		
-dnaPolymeraseElongationRateMax	85	units.nt/units.s		
-carbonicAnhydraseKcat	1.4e6	1/units.s	Silverman Acc Chem Res 1989
-metabolismHomeostaticRangeObjFractionHigher	0	
-metabolismInRangeObjWeight	0	
-metabolismKineticObjectiveWeightLinear	1e-7	
-metabolismKineticObjectiveWeightQuadratic	1e-9	
-metabolism_kinetic_objective_weight_in_range	0.01	
-secretion_penalty_coeff	1e-3		Use variant metabolism_secretion_penalty to optimize
-SensitivityAnalysisAlpha	0	
-SensitivityAnalysisKcatEndo	0	
-synthetase_charging_rate	100	1/units.s	Bosdriesz et al. FEBS. 2015.
-Km_synthetase_uncharged_trna	1	units.umol/units.L	Bosdriesz et al. FEBS. 2015.
-Km_synthetase_amino_acid	100	units.umol/units.L	Bosdriesz et al. FEBS. 2015.
-Kdissociation_charged_trna_ribosome	1	units.umol/units.L	Bosdriesz et al. FEBS. 2015.
-Kdissociation_uncharged_trna_ribosome	500	units.umol/units.L	Bosdriesz et al. FEBS. 2015.
-KD_RelA_ribosome	0.26	units.umol/units.L	Bosdriesz et al. FEBS. 2015.
-k_RelA_ppGpp_synthesis	75	1/units.s	Bosdriesz et al. FEBS. 2015.
-k_SpoT_ppGpp_synthesis	2.6	1/units.s	Derived from Murray and Bremer. JMB. 1996.
-k_SpoT_ppGpp_degradation	0.23	units.L/units.umol/units.s	Derived from Murray and Bremer. JMB. 1996.
-KI_SpoT_ppGpp_degradation	20.0	units.umol/units.L	Empirically determined for stable ppGpp
-complexation_rate	1000.0	1/units.s	Placeholder (estimated from Neidhardt).
-fraction_supply_inhibited	0.01		Fraction of AA supply that will be inhibited at target conc. Determined empirically to support stable growth with tRNA charging. Can change with more detailed model or be fit to data.
-fraction_supply_exported	0.1		Fraction of AA supply that will be exported at target conc. Determined empirically to support stable growth with tRNA charging. Can change with more detailed model or be fit to data.
+"name"	"value"	"units"	"source"	"comments"
+"gtp_per_translation"	4.2			
+"oriC_center"	3923882	"units.nt"	"Ecocyc"
+"terC_center"	1607192	"units.nt"	"Ecocyc"	
+"cell_density"	1100	"units.g/units.L"	"Baldwin et al."	"from Baldwin WW, Myer R, Powell N, Anderson E, Koch AL. Buoyant density of Escherichia coli is determined solely by the osmolarity of the culture medium. Arch Microbiol. 1995 Aug164(2):155-7 p.156 fig.3 & fig.2 (retrieved from Bionumbers)"
+"growth_associated_maintenance"	59.81	"units.mmol / units.g"	"Feist"	
+"non_growth_associated_maintenance"	8.39	"units.mmol / units.g / units.h"	"Feist"	
+"kcat_exoRNase"	50	"1/units.s"		
+"endoRNase_function"	1			
+"endoRNase_cooperation"	1			
+"ribosome_elongation_rate_max"	30	"units.aa/units.s"		
+"ribosome_elongation_rate_basal"	22	"units.aa/units.s"		
+"RNAP_elongation_rate_max"	85	"units.nt/units.s"		
+"metabolism_homeostatic_range_obj_fraction_higher"	0			
+"metabolism_kinetic_objective_weight_linear"	1E-07			
+"metabolism_kinetic_objective_weight_quadratic"	1E-09			
+"metabolism_kinetic_objective_weight_in_range"	0.01			
+"secretion_penalty_coeff"	0.001		"Use variant metabolism_secretion_penalty to optimize"	
+"sensitivity_analysis_alpha"	0			
+"sensitivity_analysis_kcat_endo"	0			
+"synthetase_charging_rate"	100	"1/units.s"	"Bosdriesz et al. FEBS. 2015."	
+"Km_synthetase_uncharged_trna"	1	"units.umol/units.L"	"Bosdriesz et al. FEBS. 2015."	
+"Km_synthetase_amino_acid"	100	"units.umol/units.L"	"Bosdriesz et al. FEBS. 2015."	
+"Kdissociation_charged_trna_ribosome"	1	"units.umol/units.L"	"Bosdriesz et al. FEBS. 2015."	
+"Kdissociation_uncharged_trna_ribosome"	500	"units.umol/units.L"	"Bosdriesz et al. FEBS. 2015."	
+"KD_RelA_ribosome"	0.26	"units.umol/units.L"	"Bosdriesz et al. FEBS. 2015."	
+"k_RelA_ppGpp_synthesis"	75	"1/units.s"	"Bosdriesz et al. FEBS. 2015."	
+"k_SpoT_ppGpp_synthesis"	2.6	"1/units.s"	"Derived from Murray and Bremer. JMB. 1996."	
+"k_SpoT_ppGpp_degradation"	0.23	"units.L/units.umol/units.s"	"Derived from Murray and Bremer. JMB. 1996."	
+"KI_SpoT_ppGpp_degradation"	20	"units.umol/units.L"	"Empirically determined for stable ppGpp"	
+"complexation_rate"	1000	"1/units.s"	"Placeholder (estimated from Neidhardt)."	
+"fraction_supply_inhibited"	0.01		"Fraction of AA supply that will be inhibited at target conc. Determined empirically to support stable growth with tRNA charging. Can change with more detailed model or be fit to data."	
+"fraction_supply_exported"	0.1		"Fraction of AA supply that will be exported at target conc. Determined empirically to support stable growth with tRNA charging. Can change with more detailed model or be fit to data."	

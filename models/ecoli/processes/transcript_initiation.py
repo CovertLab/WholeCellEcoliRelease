@@ -102,7 +102,7 @@ class TranscriptInitiation(wholecell.processes.process.Process):
 
 		# ppGpp control related
 		self.n_avogadro = sim_data.constants.n_avogadro
-		self.cell_density = sim_data.constants.cellDensity
+		self.cell_density = sim_data.constants.cell_density
 		self.ppgpp = self.bulkMoleculeView(sim_data.molecule_ids.ppGpp)
 		self.synth_prob = sim_data.process.transcription.synth_prob_from_ppgpp
 		self.copy_number = sim_data.process.replication.get_average_copy_number

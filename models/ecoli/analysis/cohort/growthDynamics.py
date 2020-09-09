@@ -25,8 +25,8 @@ def mm2inch(value):
 class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 	def do_plot(self, variantDir, plotOutDir, plotOutFileName, simDataFile, validationDataFile, metadata):
 		sim_data = cPickle.load(open(simDataFile, "rb"))
-		oriC = sim_data.constants.oriCCenter.asNumber()
-		terC = sim_data.constants.terCCenter.asNumber()
+		oriC = sim_data.constants.oriC_center.asNumber()
+		terC = sim_data.constants.terC_center.asNumber()
 		genomeLength = len(sim_data.process.replication.genome_sequence)
 
 
@@ -82,7 +82,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 			ribosomeIndex = uniqueMoleculeCounts.readAttribute("uniqueMoleculeIds").index('active_ribosome')
 			ribosomeCounts = uniqueMoleculeCounts.readColumn("uniqueMoleculeCounts")[:, ribosomeIndex]
 			uniqueMoleculeCounts.close()
-			ribosomeConcentration = ((1 / sim_data.constants.n_avogadro) * ribosomeCounts) / ((1.0 / sim_data.constants.cellDensity) * (units.fg * cellMass))
+			ribosomeConcentration = ((1 / sim_data.constants.n_avogadro) * ribosomeCounts) / ((1.0 / sim_data.constants.cell_density) * (units.fg * cellMass))
 			ribosomeConcentration = ribosomeConcentration.asNumber(units.umol / units.L)
 			ax2.plot(time / 60., ribosomeConcentration, color = color, alpha = alpha, linewidth=2)
 			ax2.set_ylim([18., 28.])

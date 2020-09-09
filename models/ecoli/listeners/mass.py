@@ -57,7 +57,7 @@ class Mass(wholecell.listeners.listener.Listener):
 		self.proteinIndex = sim_data.submass_name_to_index["protein"]
 		self.waterIndex = sim_data.submass_name_to_index["water"]
 
-		self.cellDensity = sim_data.constants.cellDensity.asNumber(units.g / units.L)
+		self.cellDensity = sim_data.constants.cell_density.asNumber(units.g / units.L)
 
 		# Set initial values
 		self.setInitial = False

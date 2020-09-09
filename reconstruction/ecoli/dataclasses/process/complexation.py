@@ -89,7 +89,7 @@ class Complexation(object):
 
 		self.rates = np.full(
 			(len(raw_data.complexation_reactions),),
-			raw_data.parameters['complexation_rate'].asNumber())
+			sim_data.constants.complexation_rate.asNumber(1/units.s))
 
 		self._stoich_matrix_I = np.array(stoichMatrixI)
 		self._stoich_matrix_J = np.array(stoichMatrixJ)

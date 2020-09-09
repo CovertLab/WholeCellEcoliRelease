@@ -20,7 +20,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		# Load data from KB
 		sim_data = cPickle.load(open(simDataFile, "rb"))
 
-		if sim_data.constants.EndoRNaseCooperation:
+		if sim_data.constants.endoRNase_cooperation:
 			width = 1
 
 			LossKm = sim_data.process.rna_decay.stats_fit['LossKm']
@@ -70,7 +70,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 			rnaDegRates = sim_data.process.transcription.rna_data['deg_rate']
 
-			cellDensity = sim_data.constants.cellDensity
+			cellDensity = sim_data.constants.cell_density
 			cellVolume = sim_data.mass.avg_cell_dry_mass_init / cellDensity / sim_data.mass.cell_dry_mass_fraction
 			countsToMolar = 1 / (sim_data.constants.n_avogadro * cellVolume)
 
