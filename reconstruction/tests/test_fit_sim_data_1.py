@@ -1,8 +1,5 @@
 """
 Test fitkb1.py
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 9/23/2014
 """
 
 from __future__ import absolute_import, division, print_function

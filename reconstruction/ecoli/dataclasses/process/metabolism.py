@@ -6,9 +6,6 @@ TODO:
 - implement L1-norm minimization for AA concentrations
 - find concentration for PI[c]
 - add (d)NTP byproduct concentrations
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 03/06/2015
 """
 
 from __future__ import absolute_import, division, print_function

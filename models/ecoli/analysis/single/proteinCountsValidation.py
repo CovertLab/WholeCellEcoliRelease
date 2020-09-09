@@ -1,8 +1,5 @@
 """
 Compare protein counts to Wisniewski 2014 and Schmidt 2015 data sets
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 12/3/2015
 """
 
 from __future__ import absolute_import, division, print_function

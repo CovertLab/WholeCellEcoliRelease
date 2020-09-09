@@ -1,7 +1,6 @@
 """
 test_superhelical_density.py
 
-@organization: Covert Lab, Department of Bioengineering, Stanford University
 @data: Created 4/28/2020
 """
 from __future__ import absolute_import, division, print_function

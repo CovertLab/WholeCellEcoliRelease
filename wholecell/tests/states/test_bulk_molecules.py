@@ -1,7 +1,6 @@
 """
 test_bulk_molecules.py
 
-@organization: Covert Lab, Department of Bioengineering, Stanford University
 @data: Created 4/23/2018
 """
 

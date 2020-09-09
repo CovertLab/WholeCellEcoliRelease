@@ -1,8 +1,5 @@
 """
 Plots Figure 5B.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 2/12/2017
 """
 
 from __future__ import absolute_import, division, print_function

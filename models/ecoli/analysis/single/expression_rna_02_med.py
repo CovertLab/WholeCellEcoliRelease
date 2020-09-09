@@ -13,9 +13,6 @@ EG10104_RNA[c]	5.2	atpG	ATP synthase F1 complex - gamma subunit
 EG10539_RNA[c]	5.3	livJ	Branched chain amino acid ABC transporter - periplasmic binding protein
 
 (sorted from sim_data.transcription.process.rnaData, mrna only, elements in range -125:-115)
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 10/29/2015
 """
 
 from __future__ import absolute_import, division, print_function

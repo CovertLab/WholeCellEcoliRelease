@@ -15,7 +15,6 @@ External state that represents environmental molecules and conditions.
 	Functions:
 		- update(): updates current_media_id according to saved_timelines
 
-@organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
 from __future__ import absolute_import, division, print_function

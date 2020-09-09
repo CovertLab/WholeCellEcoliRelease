@@ -1,8 +1,5 @@
 """
 Plot upper and lower flux targets
-
-@organization: University of Bristol
-@date: Created 14/5/2020
 """
 
 from __future__ import absolute_import, division, print_function

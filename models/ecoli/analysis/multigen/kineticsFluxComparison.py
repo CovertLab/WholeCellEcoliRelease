@@ -1,8 +1,5 @@
 """
 Compare fluxes in simulation to target fluxes
-
-@date: Created 12/15/16
-@organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
 from __future__ import absolute_import, division, print_function

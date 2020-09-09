@@ -1,8 +1,5 @@
 """
 Comparison of average amino acid concentrations to expected concentrations
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 4/26/19
 """
 
 from __future__ import absolute_import, division, print_function

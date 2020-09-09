@@ -6,9 +6,6 @@ Metabolism sub-model. Encodes molecular simulation of microbial metabolism using
 TODO:
 - option to call a reduced form of metabolism (assume optimal)
 - handle oneSidedReaction constraints
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 4/2/2013
 """
 
 from __future__ import absolute_import, division, print_function

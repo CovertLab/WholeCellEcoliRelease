@@ -1,8 +1,5 @@
 """
 Test polymerize_new.py
-
-@organization: Covert Lab, Department of Chemical Engineering, Stanford University
-@date: Created 6/23/2014
 """
 
 from __future__ import absolute_import, division, print_function

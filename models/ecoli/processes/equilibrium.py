@@ -2,9 +2,6 @@
 Equilibrium
 
 Equilibrium binding sub-model
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 8/21/2015
 """
 
 from __future__ import absolute_import, division, print_function

@@ -1,9 +1,6 @@
 """
 Generates a .json file containing the dynamic locations of molecules bound to
 the chromosome.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 2/2/19
 """
 
 from __future__ import absolute_import, division, print_function

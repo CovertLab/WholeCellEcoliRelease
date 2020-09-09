@@ -3,9 +3,6 @@ Two component system
 
 Two component system sub-model
 
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/3/2016
-
 """
 from __future__ import absolute_import, division, print_function
 

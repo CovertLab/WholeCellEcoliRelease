@@ -6,9 +6,6 @@ Protein degradation sub-model. Encodes molecular simulation of protein degradati
 TODO:
 - protein complexes
 - add protease functionality
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/16/2013
 """
 
 from __future__ import absolute_import, division, print_function

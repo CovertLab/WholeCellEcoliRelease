@@ -2,9 +2,6 @@
 """
 Reads dynamics data for each of the nodes of a causality network from a single
 simulation.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/26/2018
 """
 from __future__ import absolute_import, division, print_function
 

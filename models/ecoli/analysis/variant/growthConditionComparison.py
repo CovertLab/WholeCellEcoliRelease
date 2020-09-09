@@ -1,9 +1,6 @@
 """
 Plot to compare cell properties across different growth conditions similar to Dennis and Bremer. 1996. Fig 2
 Multiple generations of the same variant will be plotted together
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/7/16
 """
 
 from __future__ import absolute_import, division, print_function

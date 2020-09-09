@@ -1,8 +1,5 @@
 """
 SimulationData for the ChromosomeStructure process
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 03/10/2020
 """
 
 from __future__ import division, print_function, absolute_import

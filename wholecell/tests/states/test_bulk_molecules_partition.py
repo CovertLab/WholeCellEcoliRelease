@@ -1,8 +1,5 @@
 """
 Test_BulkMolecules_partition.py
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 10/17/2013
 """
 
 from __future__ import absolute_import, division, print_function

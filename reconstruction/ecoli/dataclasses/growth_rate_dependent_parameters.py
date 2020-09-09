@@ -1,8 +1,5 @@
 """
 SimulationData mass data
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 03/13/2015
 """
 
 from __future__ import absolute_import, division, print_function

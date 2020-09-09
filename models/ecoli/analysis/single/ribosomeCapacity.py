@@ -1,8 +1,5 @@
 """
 Plots ribosome capacity
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 11/20/2014
 """
 
 from __future__ import absolute_import, division, print_function

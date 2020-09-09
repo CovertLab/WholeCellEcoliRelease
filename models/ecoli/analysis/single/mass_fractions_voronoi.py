@@ -1,8 +1,5 @@
 """
 Plot the Voronoi diagram of mass fractions
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 09/27/2019
 """
 
 from __future__ import absolute_import, division, print_function

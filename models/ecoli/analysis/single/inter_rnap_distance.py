@@ -2,9 +2,6 @@
 Computes the average distance between transcribing RNA polymerases for each
 gene (transcription unit), and compares the distance to the known size of the
 molecular footprint of RNAP.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/25/19
 """
 
 from __future__ import absolute_import, division, print_function

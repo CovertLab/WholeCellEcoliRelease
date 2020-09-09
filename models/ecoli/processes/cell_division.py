@@ -2,9 +2,6 @@
 CellDivision process
 
 - Flags the cell for division when a preset division criterion has been met
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 3/6/2020
 """
 
 from __future__ import absolute_import, division, print_function

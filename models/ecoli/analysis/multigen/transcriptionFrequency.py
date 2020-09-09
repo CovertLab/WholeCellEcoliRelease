@@ -1,8 +1,5 @@
 """
 Plots frequency of observing at least 1 transcript during a cell's life.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 1/10/2017
 """
 
 from __future__ import absolute_import, division, print_function

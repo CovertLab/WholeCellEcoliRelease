@@ -12,7 +12,6 @@ Initializes the environment using conditions and time series from raw_data.
 	- saved_media: a dictionary of all media, each entry
 		itself a dictionary molecules (keys) and their concentrations (values).
 
-@organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
 from __future__ import absolute_import, division, print_function

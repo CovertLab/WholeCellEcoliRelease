@@ -1,8 +1,5 @@
 """
 Plot RNAse counts
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 1/14/2015
 """
 
 from __future__ import absolute_import, division, print_function

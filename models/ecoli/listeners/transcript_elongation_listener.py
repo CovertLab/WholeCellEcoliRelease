@@ -1,8 +1,5 @@
 """
 TranscriptElongationListener
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 1/15/15
 """
 
 from __future__ import absolute_import, division, print_function

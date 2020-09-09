@@ -1,8 +1,5 @@
 """
 Central carbon metabolism comparison to Toya et al
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 4/3/17
 """
 
 from __future__ import absolute_import, division, print_function

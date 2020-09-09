@@ -2,9 +2,6 @@
 TfBinding
 
 Bind transcription factors to DNA
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/14/16
 """
 
 from __future__ import absolute_import, division, print_function

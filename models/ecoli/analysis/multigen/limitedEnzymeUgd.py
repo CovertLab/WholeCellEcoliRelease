@@ -1,8 +1,5 @@
 """
 Plots limited enzyme fluxes, protein counts, and transcription initiation events.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 2/3/2017
 """
 
 from __future__ import absolute_import, division, print_function

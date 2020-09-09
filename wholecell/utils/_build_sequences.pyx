@@ -4,9 +4,6 @@
 _build_sequences.pyx
 
 Builds the matrices used for the polymerize function.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/23/14
 """
 
 from __future__ import absolute_import, division, print_function

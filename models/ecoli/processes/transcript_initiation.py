@@ -6,9 +6,6 @@ Transcription initiation sub-model.
 TODO:
 - use transcription units instead of single genes
 - match sigma factors to promoters
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 4/26/14
 """
 
 from __future__ import absolute_import, division, print_function

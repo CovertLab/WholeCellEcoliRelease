@@ -5,9 +5,6 @@ Translation elongation sub-model.
 
 TODO:
 - see the initiation process for more TODOs
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 4/30/14
 """
 
 from __future__ import absolute_import, division, print_function

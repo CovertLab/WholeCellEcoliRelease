@@ -2,9 +2,6 @@
 Functions that may be useful for future investigation in spatial model.
 Some of the functions contain default values specific to E coli. Please read
 before you use. References for the numbers are included in each function.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 12/09/2019
 """
 
 from __future__ import absolute_import, division, print_function

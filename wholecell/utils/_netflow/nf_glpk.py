@@ -18,9 +18,6 @@ CAUTION: GLPK will exit the process on error, so do pre-checks. It's
 possible to set its error_hook -- if SWIG can pass in a native function
 pointer and use setjmp/longjmp, and the hook has to reallocate the GLPK
 environment, losing state info.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 3/26/2018
 """
 
 # TODO(Jerry): Check that integer arguments are in range so GLPK won't exit?

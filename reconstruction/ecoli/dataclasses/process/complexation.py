@@ -1,8 +1,5 @@
 """
 SimulationData for the Complexation process
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 01/23/2015
 """
 
 from __future__ import absolute_import, division, print_function

@@ -5,7 +5,6 @@ BulkMolecules.py
 
 State which represents for a class of molecules the bulk copy numbers.
 
-@organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
 from __future__ import absolute_import, division, print_function

@@ -2,9 +2,6 @@
 """
 Test_InitialConditions.py
 Tests the initial conditions code of the model.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 7/23/2015
 """
 
 from __future__ import absolute_import, division, print_function

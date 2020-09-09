@@ -1,7 +1,6 @@
 """
 SimulationData for transcription regulation
 
-@organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
 from __future__ import absolute_import, division, print_function

@@ -1,8 +1,5 @@
 """
 Shows fold change of metabolites over the course of the simulation
-
-@date: Created 8/25/2016
-@organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
 from __future__ import absolute_import, division, print_function

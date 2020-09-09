@@ -2,9 +2,6 @@
 random.py
 
 Special random number generators.  Most are holdovers from the original port.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/2/2014
 """
 
 from __future__ import absolute_import, division, print_function

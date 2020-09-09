@@ -1,8 +1,3 @@
-"""
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 11/8/2017
-"""
-
 from __future__ import absolute_import, division, print_function
 
 import os

@@ -1,8 +1,5 @@
 """
 Compare metabolite concentrations to target concentrations in FBA objective
-
-@date: Created 2/6/18
-@organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
 from __future__ import absolute_import, division, print_function

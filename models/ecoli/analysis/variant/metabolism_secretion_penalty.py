@@ -2,9 +2,6 @@
 Analysis for metabolism_secretion_penalty variant to show impact of secretion
 penalty on growth, flux correlation and exchanges.
 
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 2/25/20
-
 TODO: read and plot central carbon validation correlation
 """
 

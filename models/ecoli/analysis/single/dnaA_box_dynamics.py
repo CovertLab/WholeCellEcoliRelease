@@ -1,8 +1,5 @@
 """
 Plot for dynamics of DnaA proteins binding to DnaA boxes across the chromosome
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/18/19
 """
 
 from __future__ import absolute_import, division, print_function

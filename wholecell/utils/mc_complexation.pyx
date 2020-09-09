@@ -7,9 +7,6 @@ Forms subunits into complexes using random complexation reaction sampling.
 
 TODO:
 - document algorithm (not terribly complicated)
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/17/14
 """
 
 from __future__ import absolute_import, division, print_function

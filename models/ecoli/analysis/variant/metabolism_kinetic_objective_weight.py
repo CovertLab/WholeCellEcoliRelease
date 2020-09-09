@@ -1,8 +1,5 @@
 '''
 Analyze results from metabolism_kinetic_objective_weight variant
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/7/18'
 '''
 
 from __future__ import absolute_import, division, print_function

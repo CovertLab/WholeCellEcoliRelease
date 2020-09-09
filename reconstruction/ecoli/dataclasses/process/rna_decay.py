@@ -1,8 +1,5 @@
 """
 SimulationData for rna decay process
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 08/18/2015
 """
 
 from __future__ import absolute_import, division, print_function

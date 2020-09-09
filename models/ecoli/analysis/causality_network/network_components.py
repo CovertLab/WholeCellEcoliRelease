@@ -1,8 +1,5 @@
 """
 Classes for the Nodes and Edges of a causality network.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 9/28/2018
 """
 from __future__ import absolute_import, division, print_function
 

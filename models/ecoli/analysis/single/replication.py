@@ -1,8 +1,5 @@
 """
 Plots simulation outputs relevant to DNA replication
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/17/2015
 """
 
 from __future__ import absolute_import, division, print_function

@@ -1,9 +1,6 @@
 """
 Analysis plot to check the effects of transient gene dosage on transcription
 probabilities of RNAs.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 9/11/18
 """
 
 from __future__ import absolute_import, division, print_function

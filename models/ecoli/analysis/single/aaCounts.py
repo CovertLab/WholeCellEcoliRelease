@@ -1,8 +1,5 @@
 """
 Plot amino acid counts
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/8/2014
 """
 
 from __future__ import absolute_import, division, print_function

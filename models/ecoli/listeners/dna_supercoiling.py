@@ -1,8 +1,5 @@
 """
 DnaSupercoiling listener
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 4/10/20
 """
 
 from __future__ import division, absolute_import, print_function

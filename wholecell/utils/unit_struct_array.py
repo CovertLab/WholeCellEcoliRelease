@@ -3,9 +3,6 @@ UnitStructArray
 
 Wraps Numpy struct arrays using Pint units. Will assure that correct units are
 being used while loading constants.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 4/31/2014
 """
 
 from __future__ import absolute_import, division, print_function

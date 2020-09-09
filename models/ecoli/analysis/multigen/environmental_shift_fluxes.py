@@ -1,8 +1,5 @@
 """
 Plot fluxes for metabolic map figure during a shift
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 2/13/17
 """
 
 from __future__ import absolute_import, division, print_function

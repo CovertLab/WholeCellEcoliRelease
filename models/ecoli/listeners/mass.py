@@ -2,9 +2,6 @@
 Mass
 
 Mass listener. Represents the total cellular mass.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 3/29/2013
 """
 
 # TODO: generalize this logic for use with a generic simulation

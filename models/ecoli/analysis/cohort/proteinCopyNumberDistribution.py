@@ -1,9 +1,6 @@
 """
 Plots the histograms of the copy number of each protein at each generation for
 multiple-seed simulations.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 4/20/2018
 """
 
 from __future__ import absolute_import, division, print_function

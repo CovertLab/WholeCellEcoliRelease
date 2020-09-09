@@ -7,9 +7,6 @@ are possible causes for changes to the ribosomal elongation rate if the rate is
 specified by tRNA charging in the simulation. tRNA and synthetases are shown
 on a per amino acid basis with a sum from all relevant species.
 
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 9/20/18
-
 TODO: add amino acids and other metabolites involved in charging reactions
 '''
 

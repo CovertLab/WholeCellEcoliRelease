@@ -1,9 +1,6 @@
 """
 Submodel for RNA degradation.
 
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 1/26/2015 - Updated 22/3/2017
-
 Mathematical formulation:
 
 dr/dt = Kb - Kd * r

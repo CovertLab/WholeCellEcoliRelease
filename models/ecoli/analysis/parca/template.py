@@ -1,8 +1,5 @@
 """
 Template for parca analysis plots
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/22/20
 """
 
 from __future__ import absolute_import, division, print_function

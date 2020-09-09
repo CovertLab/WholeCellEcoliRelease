@@ -2,9 +2,6 @@
 PolypeptideInitiation
 
 Polypeptide initiation sub-model.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 4/30/14
 """
 
 from __future__ import absolute_import, division, print_function

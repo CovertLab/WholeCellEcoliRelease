@@ -1,8 +1,5 @@
 """
 Plots for interpolation functions.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/8/20
 """
 
 from __future__ import absolute_import, division, print_function

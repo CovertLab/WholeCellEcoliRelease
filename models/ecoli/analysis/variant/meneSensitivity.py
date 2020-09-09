@@ -1,8 +1,5 @@
 """
 Plot to assess sensitivity of menE behavior to model parameters.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 12/1/17
 """
 
 from __future__ import absolute_import, division, print_function

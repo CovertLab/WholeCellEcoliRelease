@@ -1,8 +1,5 @@
 """
 Plot two component system counts
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/20/2016
 """
 
 from __future__ import absolute_import, division, print_function

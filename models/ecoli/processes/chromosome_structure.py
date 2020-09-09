@@ -4,9 +4,6 @@ ChromosomeStructure process
 - Resolve collisions between molecules and replication forks on the chromosome.
 - Remove and replicate promoters and motifs that are traversed by replisomes.
 - Reset the boundaries and linking numbers of chromosomal segments.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 2/7/2020
 """
 
 from __future__ import absolute_import, division, print_function

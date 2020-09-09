@@ -53,10 +53,6 @@ node list is read, nodes of the new type will be passed into the new function,
 which assigns that node dynamics from listener output:
 
 	node.read_dynamics(dynamics, dynamics_units)
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/26/2018
-
 """
 from __future__ import absolute_import, division, print_function
 

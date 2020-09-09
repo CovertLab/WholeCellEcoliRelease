@@ -1,8 +1,5 @@
 """
 Plots various effects that may be limiting growth
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/18/2015
 """
 
 from __future__ import absolute_import, division, print_function

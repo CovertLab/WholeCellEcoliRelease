@@ -1,10 +1,5 @@
 #!/usr/bin/env python
 
-"""
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 7/19/2013
-"""
-
 from __future__ import absolute_import, division, print_function
 
 import unittest

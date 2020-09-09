@@ -1,8 +1,5 @@
 """
 Plot first-order rate constants of mRNAs, observed vs expected.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 1/30/2015
 """
 
 from __future__ import absolute_import, division, print_function

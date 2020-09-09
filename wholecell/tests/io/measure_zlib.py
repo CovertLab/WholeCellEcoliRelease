@@ -37,9 +37,6 @@ Conclusions 2018-11-15:
 	  the compressor costs output size and compression time but it's needed if
 	  the receiver needs to decompress a message without waiting for later
 	  messages. Negative WBITS (compression window size) saves 6 bytes.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 2018-11-12
 '''
 
 from __future__ import absolute_import, division, print_function

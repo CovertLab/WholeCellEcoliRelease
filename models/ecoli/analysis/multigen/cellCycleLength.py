@@ -1,8 +1,5 @@
 """
 Plots cell cycle lengths for all generations.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 9/24/2015
 """
 
 from __future__ import absolute_import, division, print_function

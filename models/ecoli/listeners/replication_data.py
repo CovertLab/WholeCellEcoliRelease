@@ -2,9 +2,6 @@
 ReplicationData
 
 Replication listener. Records dynamics related to replication.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/13/2014
 """
 
 from __future__ import absolute_import, division, print_function

@@ -4,9 +4,6 @@
 Shell
 
 Prints a very brief summary of a whole-cell simulation to standard output
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 3/29/2013
 """
 
 from __future__ import absolute_import, division, print_function

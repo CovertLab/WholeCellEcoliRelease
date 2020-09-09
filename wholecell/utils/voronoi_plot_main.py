@@ -1,9 +1,6 @@
 """
 Plot voronoi diagram
 
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 09/27/2019
-
 Algorithm Reference: A. Nocaj and U. Brandes, "Computing voronoi Treemaps:
 Faster, Simpler, and Resolution-independent, Computer Graphics Forum,
 vol. 31, no. 31, pp. 855-864, 2012. Available: 10.1111/j.1467-8659.2012.03078.x.

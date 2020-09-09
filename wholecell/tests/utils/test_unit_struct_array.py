@@ -1,8 +1,5 @@
 """
 Test unit_struct_array.py
-
-@organization: Covert Lab, Department of Chemical Engineering, Stanford University
-@date: Created 8/14/2014
 """
 
 from __future__ import absolute_import, division, print_function

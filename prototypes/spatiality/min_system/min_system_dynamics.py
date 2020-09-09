@@ -5,7 +5,6 @@ The cytoplasm is modeled as a 2-dimensional field that contains three types of m
 The membrane is a 1-dimensional field that wraps from the midpoint of one cap to the midpoint of the other cap. It
 contains MinD-ATP and MinE-MinD-ATP.
 
-@organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
 from __future__ import absolute_import, division, print_function

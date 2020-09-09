@@ -2,9 +2,6 @@
 FBAResults
 
 Records dynamics of FBA output.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/24/2014
 """
 
 from __future__ import absolute_import, division, print_function

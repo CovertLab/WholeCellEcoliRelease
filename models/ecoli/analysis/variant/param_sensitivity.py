@@ -3,9 +3,6 @@ Analyzes parameters sensitivity from running variant param_sensitivity.
 Outputs two plots showing sorted z score for each parameter's effect
 on each output measure and individual parameter values for the most
 significant parameters for each output difference measure.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/17/19
 """
 
 from __future__ import absolute_import, division, print_function

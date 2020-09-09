@@ -1,9 +1,6 @@
 """
 Analysis for time_step variant to show impact of a maximum time step limit
 for processes.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 3/2/20
 """
 
 from __future__ import absolute_import, division, print_function

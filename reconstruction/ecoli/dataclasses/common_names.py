@@ -10,7 +10,6 @@ Ecocyc provided the columns 'Object ID' and 'Synonyms'; entries in
 'Primary Name' were mostly taken from the first entry in synonyms, but in some
 cases they were selected by hand.
 
-@organization: Covert Lab, Department of Bioengineering, Stanford University
 """
 
 from __future__ import absolute_import, division, print_function

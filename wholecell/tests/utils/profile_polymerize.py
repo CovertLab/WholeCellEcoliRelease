@@ -15,9 +15,6 @@ fails. So keep polymerize.py's directory off the sys.path.
 
 The normal solution is to cd to wcEcoli then run "python -m <module>" but
 kernprof doesn't support that.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 10/10/2016
 """
 from __future__ import absolute_import, division, print_function
 

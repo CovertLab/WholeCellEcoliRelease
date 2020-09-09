@@ -1,9 +1,6 @@
 '''
 NetworkFlow interface to the CPLEX solver package. This package supports both
 linear and quadratic objectives.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/14/2018
 '''
 
 from __future__ import absolute_import, division, print_function

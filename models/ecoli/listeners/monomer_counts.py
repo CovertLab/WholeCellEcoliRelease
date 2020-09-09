@@ -1,8 +1,5 @@
 """
 MonomerCounts Listener
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 8/15/2018
 """
 
 from __future__ import absolute_import, division, print_function

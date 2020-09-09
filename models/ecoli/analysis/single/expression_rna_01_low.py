@@ -13,9 +13,6 @@ EG10780_RNA[c]	0.24	pspE	Thiosulfate sulfurtransferase
 EG11060_RNA[c]	0.24	ushA	UDP-sugar hydrolase / 5'-ribonucleotidase / 5'-deoxyribonucleotidase
 
 (sorted from sim_data.transcription.process.rnaData, mrna only, elements in range -1505:-1495)
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 10/29/2015
 """
 
 from __future__ import absolute_import, division, print_function

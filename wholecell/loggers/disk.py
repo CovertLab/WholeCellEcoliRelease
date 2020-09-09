@@ -2,10 +2,6 @@
 Disk
 
 Logs whole-cell simulations and metadata to disk.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 6/3/2013
 """
 
 from __future__ import absolute_import, division, print_function

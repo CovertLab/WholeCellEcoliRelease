@@ -1,9 +1,6 @@
 """
 Plots the histograms of the copy number of each RNA at each generation for
 multiple-seed simulations.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/21/2018
 """
 
 from __future__ import absolute_import, division, print_function

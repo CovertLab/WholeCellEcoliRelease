@@ -1,8 +1,5 @@
 """
 Plot empirical Kd's (from the simulation) and their expected value (from the sim_data)
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 8/24/15
 """
 
 from __future__ import absolute_import, division, print_function

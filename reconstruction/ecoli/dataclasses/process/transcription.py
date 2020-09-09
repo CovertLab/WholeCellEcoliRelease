@@ -1,9 +1,6 @@
 """
 SimulationData for transcription process
 
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 03/06/2015
-
 TODO: add mapping of tRNA to charged tRNA if allowing more than one modified form of tRNA and separate mappings for tRNA and charged tRNA to AA
 TODO: handle ppGpp and DksA-ppGpp regulation separately
 """

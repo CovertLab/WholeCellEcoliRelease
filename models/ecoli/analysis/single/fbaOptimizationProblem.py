@@ -2,9 +2,6 @@
 Shows shadow prices and reduced costs for the FBA objective
 Plots all reduced cost and shadow prices on separate subplots
 Identifies outliers for each and plots those on separate subplots
-
-@date: Created 2/6/2018
-@organization: Covert Lab, Department of Bioengineering, Stanford University
 '''
 
 from __future__ import absolute_import, division, print_function

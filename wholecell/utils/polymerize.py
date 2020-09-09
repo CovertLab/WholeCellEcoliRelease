@@ -8,9 +8,6 @@ profile. It @profile-decorates polymerize().
 
 TODO:
 - document algorithm/corner cases (should already exist somewhere...)
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 5/23/14
 """
 
 from __future__ import absolute_import, division, print_function

@@ -1,8 +1,5 @@
 """
 Plots the counts of active replisomes and their subunits over time.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 7/30/2018
 """
 
 from __future__ import absolute_import, division, print_function

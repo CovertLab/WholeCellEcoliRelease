@@ -1,8 +1,5 @@
 """
 Plot usage statistics of ribosomes
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 10/18/2017
 """
 
 from __future__ import absolute_import, division, print_function

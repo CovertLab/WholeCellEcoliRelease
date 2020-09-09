@@ -1,8 +1,5 @@
 """
 SimulationData for unique molecules state
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 02/19/2015
 """
 
 from __future__ import absolute_import, division, print_function

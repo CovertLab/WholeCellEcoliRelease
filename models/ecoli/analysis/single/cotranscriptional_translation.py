@@ -1,8 +1,5 @@
 '''
 Patterns of co-transcriptional translation in the E. coli WCM
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 1/17/20
 '''
 
 from __future__ import absolute_import, division, print_function

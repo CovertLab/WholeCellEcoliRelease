@@ -1,8 +1,5 @@
 """
 Plots counts of 50S rRNA, associated proteins, and complexes
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 9/8/2014
 """
 
 from __future__ import absolute_import, division, print_function

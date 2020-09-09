@@ -1,8 +1,5 @@
 """
 Plots average RNA counts per cell vs average protein counts per cell.
-
-@organization: Covert Lab, Department of Bioengineering, Stanford University
-@date: Created 11/1/2017
 """
 
 from __future__ import absolute_import, division, print_function
