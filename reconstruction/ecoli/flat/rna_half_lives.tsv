@@ -1,5 +1,5 @@
-# Source: Bernstein et al., PNAS (2002), Units: seconds
-"id"	"half_life"
+# Source: Bernstein et al., PNAS (2002)
+"id"	"half_life (units.s)"
 "EG10002_RNA"	564
 "EG10003_RNA"	198
 "EG10004_RNA"	144

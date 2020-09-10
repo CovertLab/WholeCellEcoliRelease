@@ -206,9 +206,8 @@ class Transcription(object):
 
 		# Get half life of each RNA - if the half life is not given, use the
 		# average reported half life of mRNAs
-		# TODO (ggsun): Handle units correctly
 		half_lives = np.array([
-			rna_id_to_half_life.get(rna['id'], average_mRNA_half_lives)
+			rna_id_to_half_life.get(rna['id'], average_mRNA_half_lives).asNumber(units.s)
 			for rna in raw_data.rnas])
 
 		# Convert to degradation rates
