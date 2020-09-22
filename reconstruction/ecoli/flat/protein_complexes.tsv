@@ -1,4 +1,4 @@
-"name"	"comments"	"mw"	"location"	"reactionId"	"id"
+"name"	"_comments"	"mw"	"location"	"reactionId"	"id"
 "1-phosphofructokinase"		[0.0, 0.0, 0.0, 0.0, 0.0, 67499.574, 0.0, 0.0, 0.0]	["c"]	"1-PFK_RXN"	"1-PFK"
 "2-oxoglutarate dehydrogenase complex"		[0.0, 0.0, 0.0, 0.0, 0.0, 2417969.644, 0.0, 0.0, 0.0]	["i"]	"2OXOGLUTARATEDEH-CPLX_RXN"	"2OXOGLUTARATEDEH-CPLX"
 "3-isopropylmalate dehydrogenase"		[0.0, 0.0, 0.0, 0.0, 0.0, 79008.170, 0.0, 0.0, 0.0]	["c"]	"3-ISOPROPYLMALDEHYDROG-CPLX_RXN"	"3-ISOPROPYLMALDEHYDROG-CPLX"

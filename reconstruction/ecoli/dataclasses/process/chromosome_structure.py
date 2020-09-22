@@ -18,8 +18,8 @@ class ChromosomeStructure(object):
 		"""
 		Load parameters used for DNA supercoiling from raw_data.
 		"""
-		for parameter in raw_data.dna_supercoiling:
-			self.__setattr__(parameter['name'], parameter['value'])
+		for name, value in raw_data.dna_supercoiling.items():
+			self.__setattr__(name, value)
 
 		# Unique index used for dummy molecule at terC
 		self.terC_dummy_molecule_index = -1

@@ -1,5 +1,5 @@
 # Measured half lives, other proteins follow N-end rule in protein_half_lives_n_end_rule.tsv
-"id"	"half life (units.min)"	"comments"
+"id"	"half life (units.min)"	"_comments"
 "DCUR-MONOMER"	108	"DcuR"
 "DETHIOBIOTIN-SYN-MONOMER"	324	"BioD"
 "EG10863-MONOMER"	36	"Rph"

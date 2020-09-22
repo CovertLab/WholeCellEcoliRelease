@@ -21,7 +21,6 @@ LIST_OF_DICT_FILENAMES = (
 	"compartments.tsv",
 	"complexation_reactions.tsv",
 	"disabled_kinetic_reactions.tsv",
-	"dna_supercoiling.tsv",
 	"dry_mass_composition.tsv",
 	"endoRNases.tsv",
 	"equilibrium_reactions.tsv",
@@ -84,7 +83,11 @@ LIST_OF_DICT_FILENAMES = (
 	os.path.join("common_names", "rnas.tsv"),
 	)
 SEQUENCE_FILE = 'sequence.fasta'
-LIST_OF_PARAMETER_FILENAMES = ("parameters.tsv", "mass_parameters.tsv")
+LIST_OF_PARAMETER_FILENAMES = (
+	"parameters.tsv",
+	"mass_parameters.tsv",
+	"dna_supercoiling.tsv"
+	)
 
 class DataStore(object):
 	def __init__(self):

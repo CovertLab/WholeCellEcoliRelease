@@ -1,4 +1,4 @@
-"name"	"value"	"units"	"source"	"comments"
+"name"	"value"	"units"	"_source"	"_comments"
 "gtp_per_translation"	4.2			
 "oriC_center"	3923882	"units.nt"	"Ecocyc"
 "terC_center"	1607192	"units.nt"	"Ecocyc"	

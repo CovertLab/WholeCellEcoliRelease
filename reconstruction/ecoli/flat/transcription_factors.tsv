@@ -1,4 +1,4 @@
-"TF"	"geneId"	"oneComponentId"	"twoComponentId"	"nonMetaboliteBindingId"	"activeId"	"notes"
+"TF"	"geneId"	"oneComponentId"	"twoComponentId"	"nonMetaboliteBindingId"	"activeId"	"_notes"
 "nhaR"	"EG11078"	"MONOMER0-46"			"MONOMER0-46"	
 "caiF"	"G6088"	"CPLX0-8062"			"CPLX0-8062"	
 "araC"	"EG10054"	"CPLX-172, PC00003"			"CPLX-172, PC00003"	"Monomer is an inactive conformation - Dimer and Dimer+metabolite are active"

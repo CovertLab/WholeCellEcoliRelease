@@ -20,6 +20,11 @@ INPUT_DATA = b'''"id"\t"ourLocation"\t"\xE2\x82\xAC:xyz"\t"mass (units.g)"
 "G6660-MONOMER"\t["c"]\t"Location information from Lopez Campistrous 2005."\t98.6
 2.71828\t["c"]\t"Location from \xe2\x8a\x972011."\t12
 '''
+INPUT_DATA_WITH_PRIVATE_FIELD = b'''"id"\t"ourLocation"\t"_\xE2\x82\xAC:xyz"\t"mass (units.g)"
+"G6660-MONOMER"\t["c"]\t"Location information from Lopez Campistrous 2005."\t98.6
+2.71828\t["c"]\t"Location from \xe2\x8a\x972011."\t12
+'''
+NONPRIVATE_FIELD_NAMES = ['id', 'ourLocation', 'mass']
 
 
 class Test_Spreadsheets(unittest.TestCase):
@@ -40,6 +45,22 @@ class Test_Spreadsheets(unittest.TestCase):
 			u'\u20ac:xyz': b'Location from \xe2\x8a\x972011.'.decode('utf-8'),
 			'mass': 12 * units.g}
 		assert set(l[0].keys()) == set(UNITLESS_FIELD_NAMES)
+
+	def test_json_reader_with_private_field(self):
+		byte_stream = BytesIO(INPUT_DATA_WITH_PRIVATE_FIELD)
+		read_stream = byte_stream if six.PY2 else TextIOWrapper(byte_stream)
+		reader = JsonReader(read_stream)
+		l = list(reader)
+		assert len(l) == 2
+		assert l[0] == {
+			'id': 'G6660-MONOMER',
+			'ourLocation': ["c"],
+			'mass': 98.6 * units.g}
+		assert l[1] == {
+			'id': 2.71828,
+			'ourLocation': ["c"],
+			'mass': 12 * units.g}
+		assert set(l[0].keys()) == set(NONPRIVATE_FIELD_NAMES)
 
 	def test_tsv_reader(self):
 		with tsv_reader(JAVIER_TABLE) as reader:
