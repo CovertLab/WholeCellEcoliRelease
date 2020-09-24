@@ -8,26 +8,28 @@ Usage (SIMDIR is a path to simulation output containing a kb/ directory):
 
 from __future__ import absolute_import, division, print_function
 
-from pprint import pprint
+import argparse
 import sys
 
-from runscripts.reflect.object_tree import diff_trees, load_fit_tree
+from runscripts.reflect.object_tree import diff_trees, load_fit_tree, pprint_diffs
 
 
 if __name__ == '__main__':
-	if len(sys.argv) < 3:
-		print('''Usage: {} SIMDIR1 SIMDIR2
-Compare the Parca output between the two out/ sim-dirs and print a summary of
-the differences.'''.format(sys.argv[0]))
-		exit(2)
+	parser = argparse.ArgumentParser(
+		description="Compare the Parca output between the two out/ sim-dirs and"
+					" print a summary and count of the differences.")
+	parser.add_argument('-c', '--count', action='store_true',
+		help="Print just the diff line count, skipping the detailed diff lines.")
+	parser.add_argument('sim_dir', nargs=2,
+		help="The two out/ sim-dirs to compare.")
 
-	dir1 = sys.argv[1]
-	dir2 = sys.argv[2]
+	args = parser.parse_args()
+	dir1, dir2 = args.sim_dir
 
-	once = load_fit_tree(dir1)
-	twice = load_fit_tree(dir2)
+	tree1 = load_fit_tree(dir1)
+	tree2 = load_fit_tree(dir2)
 
-	diffs = diff_trees(once, twice)
-	pprint(diffs, width=160)
+	diffs = diff_trees(tree1, tree2)
+	pprint_diffs(diffs, print_diff_lines=not args.count)
 
-	exit(3 if diffs else 0)
+	sys.exit(3 if diffs else 0)

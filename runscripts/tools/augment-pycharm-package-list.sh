@@ -23,9 +23,9 @@ patch_packages() {  # Patch the $FILE_TO_PATCH list inside the $1/$2 jar file.
     if [ -e "$2" ]; then
       echo Checking PyCharm python*.jar file "$2"...
 
-      unzip "$2" $FILE_TO_PATCH
+      unzip -o "$2" $FILE_TO_PATCH
 
-      if grep --quiet wholecell-vivarium $FILE_TO_PATCH; then
+      if grep --quiet vivarium_cell $FILE_TO_PATCH; then
         echo "$2" // $FILE_TO_PATCH was already patched
       else
         echo Patching "$2" // $FILE_TO_PATCH
@@ -33,7 +33,8 @@ patch_packages() {  # Patch the $FILE_TO_PATCH list inside the $1/$2 jar file.
 arrow stochastic-arrow
 Bio biopython
 borealis borealis-fireworks
-vivarium wholecell-vivarium" >> $FILE_TO_PATCH
+vivarium vivarium-core
+vivarium_cell vivarium-cell" >> $FILE_TO_PATCH
         zip python.jar $FILE_TO_PATCH
         echo "===Remember to restart PyCharm==="
       fi

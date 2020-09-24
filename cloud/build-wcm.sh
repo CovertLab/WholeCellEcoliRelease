@@ -1,11 +1,11 @@
 #!/bin/sh
-# Use Google Cloud Build servers to build a personalized wcm-code Docker
-# image and store it in the Google Container Registry.
+# Use Google Cloud Build servers to build a personalized "${ID}-wcm-code" Docker
+# Image and store it in the Google Container Registry.
 #
 # COMMAND LINE ARGUMENTS:
-#   ARG1: Distinguishing ID prefix for the "wcm-code" tag; defaults to "$USER";
-#     can identify a PR build, nightly build, git hash, ...
-#   ARG2: Docker tag for the wcm-runtime image in GCR to build FROM; defaults to
+#   ARG1: Distinguishing ID prefix for the "wcm-code" Docker Image tag;
+#     defaults to "${USER}".
+#   ARG2: Docker tag for the wcm-runtime Image in GCR to build FROM; defaults to
 #     "${ID}-wcm-runtime".
 #     The named Docker image must already exist in the GCR project.
 #

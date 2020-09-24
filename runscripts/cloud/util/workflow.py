@@ -414,7 +414,7 @@ class Workflow(object):
 		prefix = 'fireworker-{}'.format(db_name)
 		options = {
 			'image-family': 'fireworker',
-			'description': 'FireWorks worker VM started for {}'.format(self.name)}
+			'description': 'FireWorks worker VM for user/ID {}'.format(self.name)}
 
 		metadata = {'db': db_name}
 		copy_key(config, 'username', metadata)
@@ -432,6 +432,18 @@ class Workflow(object):
 		with open(lpad_filename) as f:
 			config = yaml.safe_load(f)
 			lpad = LaunchPad(**config)
+
+		if lpad.uri_mode:
+			raise ValueError(
+				"The launchpad yaml file '{}' uses URI mode, which makes its"
+				" 'name', 'username', and 'password' fields unusable. Please fix"
+				" that, and prefer a GCE MongoDB server which shouldn't need URI"
+				" mode.".format(lpad_filename))
+		if not config.get('name', 'OK'):
+			raise ValueError(
+				"The launchpad yaml file '{}' has a bad 'name' field like `null`."
+				" An absent 'name' field would be OK; defaulting to '{}'."
+					.format(lpad_filename, DEFAULT_FIREWORKS_DATABASE))
 
 		wf = self.build_workflow()
 		try:

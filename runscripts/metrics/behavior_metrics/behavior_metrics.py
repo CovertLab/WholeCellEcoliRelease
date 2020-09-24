@@ -139,18 +139,22 @@ def np_pick(array, pick_spec):
 
 
 #: Path from repository root to metrics configuration JSON file
-METRICS_CONF_PATH = "runscripts/metrics/behavior_metrics/metrics.json"
+METRICS_CONF_PATH = path.join(
+	"runscripts", "metrics", "behavior_metrics", "metrics.json")
+
+#: Path to the output directory
+OUTPUT_PATH = path.join("out", "manual")
 
 #: Path to the simulation output directory from repository root
-SIM_OUT_DIR = (
-	"out/manual/wildtype_000000/000000/generation_000000/000000/simOut"
-)
+SIM_OUT_DIR = path.join(
+	OUTPUT_PATH, "wildtype_000000", "000000", "generation_000000", "000000",
+	"simOut")
 
 #: Path to pickle that stores validation data for correlation checks
-VALIDATION_PICKLE_PATH = "out/manual/kb/validationData.cPickle"
+VALIDATION_PICKLE_PATH = path.join(OUTPUT_PATH, "kb", "validationData.cPickle")
 
 #: Path to pickle that stores pickle of data for metrics computation
-METRICS_PICKLE_PATH = "out/manual/kb/metricsData.cPickle"
+METRICS_PICKLE_PATH = path.join(OUTPUT_PATH, "kb", "metricsData.cPickle")
 
 #: Map from mode names to the functions that handle the mode
 MODE_FUNC_MAP = {

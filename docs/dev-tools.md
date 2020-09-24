@@ -22,21 +22,23 @@ You'll need Xcode's command line tools including the C compiler, make, and git.
 
 Run this shell command to install _or update_ the command line tools:
 
-```bash
+```shell script
 xcode-select --install
 ```
 
 
 ### On Ubuntu
 
-```bash
+```shell script
 sudo apt install -y gcc make build-essential wget curl llvm
 ```
 
 ### On Sherlock
 
-The needed tools are already installed.
+The needed tools are already installed for the group.
 Look in `$PI_HOME/downloads/`, `$PI_HOME/installation_notes/`, and `$PI_HOME/modules/`.
+
+* Just add to your shell login script as described below.
 
 
 ### On other OSs
@@ -53,8 +55,11 @@ between virtual environments, each with its own selection of Python and librarie
 Separate projects should use separate virtual environments to avoid clashes over
 required libraries and library versions.
 
-1. Install `pyenv`, `pyenv-virtualenv`, `pyenv-virtualenvwrapper` using your local package manager, e.g. [homebrew](https://brew.sh/) on macOS. E.g.
-   ```bash
+1. Install `pyenv`, `pyenv-virtualenv`, `pyenv-virtualenvwrapper` using your local
+   package manager, e.g. [homebrew](https://brew.sh/) on macOS.
+   **\[It's already installed on Sherlock. Skip to the next step.]** E.g.
+
+   ```shell script
    brew install pyenv pyenv-virtualenv pyenv-virtualenvwrapper
    ```
 
@@ -62,7 +67,7 @@ required libraries and library versions.
 
    Or try these commands on Ubuntu:
 
-   ```bash
+   ```shell script
    git clone https://github.com/pyenv/pyenv.git ~/.pyenv
    echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bash_profile
    echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bash_profile
@@ -80,26 +85,32 @@ required libraries and library versions.
 
    - Example `~/.profile` or `~/.bash_profile` lines for macOS:
 
-   ```bash
-   export PYENV_ROOT=/usr/local/var/pyenv
-   if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
-   if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -)"; fi
-   ## ^^^ Do this before sourcing iterm2_shell_integration
-   ```
+     ```shell script
+     export PYENV_ROOT=/usr/local/var/pyenv
+     if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
+     if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -)"; fi
+     ## ^^^ Do this before sourcing iterm2_shell_integration
+     ```
 
    - Example `~/.bash_profile` lines for Sherlock:
 
-   ```bash
-   module load wcEcoli/python3
+     ```shell script
+     ##### Add group-wide path settings #####
+     if [ -f "${PI_HOME}/etc/bash_profile" ]; then
+         . "${PI_HOME}/etc/bash_profile"
+     fi
 
-   export PYENV_ROOT="${PI_HOME}/pyenv"
+     module load git/2.27.0 git-lfs/2.11.
+     module load wcEcoli/python3
 
-   if [ -d "${PYENV_ROOT}" ]; then
-       export PATH="${PYENV_ROOT}/bin:${PATH}"
-       eval "$(pyenv init -)"
-       eval "$(pyenv virtualenv-init -)"
-   fi
-   ```
+     export PYENV_ROOT="${PI_HOME}/pyenv"
+
+     if [ -d "${PYENV_ROOT}" ]; then
+         export PATH="${PYENV_ROOT}/bin:${PATH}"
+         eval "$(pyenv init -)"
+         eval "$(pyenv virtualenv-init -)"
+     fi
+     ```
 
 1. Open a new shell so it runs the updated profile.
 
@@ -115,14 +126,20 @@ required libraries and library versions.
      In that case, change the `PYENV_ROOT` setting in your shell profile and
      open a new shell:
 
-     ```bash
+     ```shell script
      export PYENV_ROOT="$HOME/.pyenv"
      ```
 
-1. You'll need to put the project on the `PYTHONPATH` when working on it. Consider adding this to your profile _or_ creating a shell alias to do it when you work on wcEcoli:
+1. You'll need to put the project source code root on the `PYTHONPATH` when working on it. Consider adding this to your profile:
 
-   ```bash
-   export PYTHONPATH="$HOME/wcEcoli:$PYTHONPATH"
+   ```shell script
+   export PYTHONPATH="$HOME/wcEcoli"
+   ```
+
+   _or_ create a shell alias and run it when you work on wcEcoli:
+
+   ```shell script
+   alias ppath='export PYTHONPATH=$PWD'
    ```
 
 1. **NOTE:** if you have a `~/.local/` directory, paths might not work properly with `pyenv` and you might receive error messages. ([TODO] What error messages? Delete the directory?)
@@ -135,7 +152,7 @@ required libraries and library versions.
   * After upgrading to Mojave, run `xcode-select --install` again.
   * On Mojave, follow the "you will also need to install the additional SDK headers" instructions on [https://github.com/pyenv/pyenv/wiki/Common-build-problems](https://github.com/pyenv/pyenv/wiki/Common-build-problems). In short:
 
-   ```bash
+   ```shell script
    sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
    ```
 
@@ -153,10 +170,10 @@ required libraries and library versions.
 After [building the pyenv](docs/create-pyenv.md) and cloning the repo to a local directory, you can create a project in PyCharm.
 wcEcoli has a project in source control.
 
-* _Be sure to select the project's Python interpreter so PyCharm understands the version
-of Python and its installed libraries._ This enables code completion, usage documentation
+* **Be sure to select the project's Python interpreter so PyCharm understands the version
+of Python and its installed libraries.** This enables code completion, usage documentation
 in context, visual debugging, warnings about code problems, click-through to library
-source code, etc.
+source code, and many other features for working with Python code.
 
   PyCharm >  
   Preferences >  
@@ -180,9 +197,10 @@ source code, etc.
   * `Cmd-[` and `Cmd-]`: Navigate Back and Forward, like in a web browser.
   * `F2`: Next Bookmark, `Shift-F2`: Previous Bookmark, `Cmd-F2`: Toggle Bookmarks.
 
-[TODO] Tips on setting up and using the debugger...
+See [this PyCharm debugger tutorial video](https://youtu.be/QJtWxm12Eo0) or
+[this PyCharm debugger tutorial webpage](https://www.jetbrains.com/help/pycharm/debugging-your-first-python-application.html).
 
-#### Special package names
+#### Mismatched package names
 
 PyCharm's inspector gives false-positive error messages like:
 
@@ -195,8 +213,9 @@ list doesn't include `stochastic-arrow`, `biopython`, etc., but we can add them.
 **The fix:** Each time you install a PyCharm release, run the following shell command,
 then restart PyCharm:  
 
-> [NOTE: So far, this script only works on macOS and maybe only for PyCharm Pro
-installed by JetBrains Toolbox. To support other installations, we need to
+> \[NOTE: So far, this script only works on macOS and maybe only for PyCharm Pro
+installed by JetBrains Toolbox. It won't work with snap-installed PyCharm since
+snap installs on a readonly file system. To support other installations,
 enhance the script for where `python.jar` or `python-ce.jar` gets installed.]
 
     runscripts/tools/augment-pycharm-package-list.sh

@@ -16,13 +16,16 @@ See the `-h` command line usage help.
 
 from __future__ import absolute_import, division, print_function
 
+import argparse
 import numpy as np
 import os
 import os.path as op
-from pprint import pprint
 import re
 import sys
 
+from typing import Any, cast
+
+from runscripts.reflect.object_tree import pprint_diffs
 from wholecell.io.tablereader import TableReader, VersionError
 
 
@@ -128,6 +131,8 @@ def diff_subdirs(subdir, simout_dir1, simout_dir2):
 	attribute_names2 = set(table2.attributeNames())
 
 	for key in attribute_names1 | attribute_names2:
+		if subdir == 'Main' and key in ('startTime', 'endTime'):
+			continue  # the timestamps differ as a matter of course
 		v1 = table1.readAttribute(key) if key in attribute_names1 else Repr('<absent value>')
 		v2 = table2.readAttribute(key) if key in attribute_names2 else Repr('<absent value>')
 		if v1 != v2:
@@ -166,11 +171,13 @@ def diff_simout(simout_dir1, simout_dir2):
 
 	return diffs
 
-def cmd_diff_simout(simout_dir1, simout_dir2):
+def cmd_diff_simout(simout_dir1, simout_dir2, *, print_diff_lines=True):
 	'''Command line diff simout_dir2 against reference simout_dir1, with
 	messages and returning an exit status code.
 	'''
 	if simout_dir1 == simout_dir2:
+		# Since this doesn't compare abspaths you can work around it for testing
+		# with alternate path strings to the same directory.
 		return "diff_simouts: Don't diff a simOut directory against itself"
 
 	print('Comparing: {}\n'.format((simout_dir1, simout_dir2)))
@@ -181,26 +188,22 @@ def cmd_diff_simout(simout_dir1, simout_dir2):
 		return 'diff_simouts: No simOut directory 2: {}'.format(simout_dir2)
 
 	diffs = diff_simout(simout_dir1, simout_dir2)
+	pprint_diffs(diffs, print_diff_lines=print_diff_lines)
 
-	if diffs:
-		pprint(diffs)
-		return 1
-	else:
-		print('The simOut dirs match')
-		return 0
+	return 1 if diffs else 0
 
 
 if __name__ == '__main__':
-	if len(sys.argv) == 2 and sys.argv[1] in {'-h', '--help'}:
-		print('''Usage:  diff_simouts <simOut1> <simOut2>
-Diff two Whole Cell Model simOut directories
+	parser = argparse.ArgumentParser(
+		formatter_class=cast(Any, argparse.RawDescriptionHelpFormatter),
+		description='''Diff two Whole Cell Model simOut directories.
 
 The output is a dict with keys like:
 
 	* 'Main/': a subdir; present if there's a message about absent subdirs or
 	  subdirs that don't contain Tables
-	* 'Main@startTime': a Table attribute
-	* 'RnaDegradationListener/DiffRelativeFirstOrderDecay': a Table column
+	* 'Main@lengthSec': a Table attribute
+	* 'Main/timeStepSec': a Table column
 
 The dict values are tuples of the corresponding simOut values or special
 messages like:
@@ -209,12 +212,13 @@ messages like:
 	* <absent column>: an absent column
 	* <absent value>: an absent attribute value
 	* Arrays are not equal (mismatch 21.6859279402%)...: A NumPy Testing
-	  message summarizing the differences between two arrays
-''')
-		sys.exit()
+	  message summarizing the differences between two arrays''')
+	parser.add_argument('-c', '--count', action='store_true',
+		help="Print just the diff line count, skipping the detailed diff lines.")
+	parser.add_argument('simOut', nargs=2,
+		help="The two simOut directory paths to compare.")
 
-	if len(sys.argv) < 3:
-		sys.exit('diff_simouts: Need 2 simOut directory arguments')
+	args = parser.parse_args()
 
-	exit_status = cmd_diff_simout(sys.argv[1], sys.argv[2])
+	exit_status = cmd_diff_simout(*args.simOut, print_diff_lines=not args.count)
 	sys.exit(exit_status)

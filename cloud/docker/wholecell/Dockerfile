@@ -14,13 +14,13 @@
 #
 # After building locally you can start up a new container from the image:
 #
-#     > docker run --name wholecelltest --user "$(id -u):$(id -g)" -it --rm ${USER}-wcm-code
+#     > docker run --name wholecelltest -it --rm ${USER}-wcm-code
 #
 # or if you used build.sh or build-wcm.sh to build using Cloud Build:
 #
 #     > PROJECT="$(gcloud config get-value core/project)"
 #     > TAG="gcr.io/${PROJECT}/${USER}-wcm-code"
-#     > docker run --name wholecelltest --user "$(id -u):$(id -g)" -it --rm "${TAG}"
+#     > docker run --name wholecelltest -it --rm "${TAG}"
 #
 # It will start a shell where you can execute commands:
 #

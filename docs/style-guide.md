@@ -230,7 +230,7 @@ Programming tips:
 
 See https://google.github.io/styleguide/pyguide.html
 
-* Use pylint. [And/or PyCharm inspections.]
+* Use pylint and/or PyCharm inspections.
 * Import packages and modules only, not names from modules.
 * Use full pathnames to import a module; no relative imports to help prevent importing a package twice.
 * Avoid global variables.

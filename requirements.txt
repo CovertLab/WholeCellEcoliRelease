@@ -8,24 +8,29 @@
 #   brew install glpk openssl readline swig suite-sparse xz
 #
 ## Whole Cell Model requires OpenBLAS 0.3.7+ or equivalent. Installing numpy and
-## scipy binary wheels now provides a suitable OpenBLAS by default.
-## (OpenBLAS before 0.3.7 had threading bugs. So does Apple's "Accelerate"
-## framework. We haven't tested recent releases of Intel Math Kernel Library.)
+## scipy binary wheels now embed a recent enough OpenBLAS release by default.
+##
+## If OpenBLAS uses multiple threads, it will produce slightly different results
+## and usually runs significantly slower, esp. when called from multiple
+## processes. See wholecell/tests/utils/test_openblas_threads.py .
+## To fix that, set the environment variable:
+#   export OPENBLAS_NUM_THREADS=1
 #
 ## Install the required version of Python via pyenv, and remember to enable it as
 ## a shared library:
-#   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.8.3
+#   PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.8.5
 #
 ## Create the "wcEcoli3" python virtual environment based on that Python version,
 ## and select it for your project directory:
 #   cd ~/dev/wcEcoli
-#   pyenv virtualenv 3.8.3 wcEcoli3 && pyenv local wcEcoli3
+#   pyenv virtualenv 3.8.5 wcEcoli3 && pyenv local wcEcoli3
 #
 ## Upgrade this virtual environment's installers:
 #   pip install --upgrade pip setuptools virtualenv virtualenvwrapper virtualenv-clone wheel
 #
-## Install numpy (if it's the first time) then all the packages listed in this file:
-#   pip install numpy==1.19.0
+## Install numpy (if it's the first time) then all the packages listed in this file (see
+## docs/create-pyenv.md about whether to add `--no-binary numpy,scipy` to these steps):
+#   pip install numpy==1.19.2
 #   pip install -r requirements.txt && pyenv rehash
 
 # Installers
@@ -44,8 +49,8 @@ wheel>=0.34.2
 # pytest-cov is for `pytest --cov`.
 #
 # TODO: Periodically unfreeze, update, test, and refreeze.
-numpy==1.19.0
-scipy==1.5.1
+numpy==1.19.2
+scipy==1.5.2
 
 biopython==1.77
 bokeh==1.4.0

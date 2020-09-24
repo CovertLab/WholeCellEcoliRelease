@@ -81,8 +81,8 @@ def verify_dir_exists(dir_path, message=''):
 		raise IOError(errno.ENOENT,
 			'Missing dir "{}".  {}'.format(dir_path, message))
 
-def run_cmd2(tokens, trim=True, timeout=TIMEOUT):
-	# type: (Sequence[str], bool, Optional[int]) -> Tuple[str, str]
+def run_cmd2(tokens, trim=True, timeout=TIMEOUT, env=None):
+	# type: (Sequence[str], bool, Optional[int], Optional[dict]) -> Tuple[str, str]
 	"""Run a shell command-line (in token list form) and return a tuple
 	containing its (stdout, stderr).
 	This does not expand filename patterns or environment variables or do other
@@ -93,6 +93,8 @@ def run_cmd2(tokens, trim=True, timeout=TIMEOUT):
 		trim: Whether to trim off trailing whitespace. This is useful
 			because the outputs usually end with a newline.
 		timeout: timeout in seconds; None for no timeout.
+		env: optional environment variables for the new process to use instead
+			of inheriting the current process' environment.
 	Returns:
 		The command's stdout and stderr strings.
 	Raises:
@@ -104,6 +106,7 @@ def run_cmd2(tokens, trim=True, timeout=TIMEOUT):
 		stdout=subprocess.PIPE,
 		stderr=subprocess.PIPE,
 		check=True,
+		env=env,
 		universal_newlines=True,
 		timeout=timeout)
 	if trim:
@@ -111,12 +114,12 @@ def run_cmd2(tokens, trim=True, timeout=TIMEOUT):
 	return out.stdout, out.stderr
 
 
-def run_cmd(tokens, trim=True, timeout=TIMEOUT):
-	# type: (Sequence[str], bool, Optional[int]) -> str
+def run_cmd(tokens, trim=True, timeout=TIMEOUT, env=None):
+	# type: (Sequence[str], bool, Optional[int], Optional[dict]) -> str
 	"""Run a shell command-line (in token list form) and return its stdout.
 	See run_cmd2().
 	"""
-	return run_cmd2(tokens, trim=trim, timeout=timeout)[0]
+	return run_cmd2(tokens, trim=trim, timeout=timeout, env=env)[0]
 
 
 def run_cmdline(line, trim=True, timeout=TIMEOUT):
