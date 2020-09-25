@@ -2,20 +2,20 @@ from __future__ import absolute_import, division, print_function
 
 from vivarium.core.process import Generator
 from vivarium.library.units import units
-from vivarium.processes.death import DeathFreezeState
-from vivarium.processes.antibiotic_transport import AntibioticTransport
-from vivarium.processes.diffusion_cell_environment_ficks import (
-	CellEnvironmentDiffusionFicks,
-)
 from vivarium.processes.derive_concentrations import (
 	DeriveConcentrations)
-from vivarium.processes.derive_globals import DeriveGlobals
 from vivarium.processes.timeline import TimelineProcess
+from vivarium_cell.processes.antibiotic_transport import AntibioticTransport
+from vivarium_cell.processes.death import DeathFreezeState
+from vivarium_cell.processes.derive_globals import DeriveGlobals
+from vivarium_cell.processes.diffusion_cell_environment_ficks import (
+	CellEnvironmentDiffusionFicks,
+)
 
 from colony.processes.antibiotic_hydrolysis import AntibioticHydrolysis
 from colony.processes.wcecoli import WcEcoli
-from colony.processes.wcecoli_meta_division import WcEcoliMetaDivision
 from colony.processes.wcecoli_derive_shape import WcEcoliDeriveShape
+from colony.processes.wcecoli_meta_division import WcEcoliMetaDivision
 
 
 INITIAL_INTERNAL_ANTIBIOTIC = 0

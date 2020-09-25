@@ -7,15 +7,15 @@ import argparse
 import os
 import sys
 
-from vivarium.analysis.analyze import Analyzer
-from vivarium.plots.colonies import plot_metric_across_experiments
-from vivarium.plots.multibody_physics import plot_tags, plot_snapshots
-from vivarium.plots.expression_survival_dotplot import (
-	plot_expression_survival)
 from vivarium.core.composition import plot_agents_multigen
+from vivarium_cell.analysis.analyze import Analyzer
+from vivarium_cell.plots.colonies import plot_metric_across_experiments
+from vivarium_cell.plots.multibody_physics import plot_tags, plot_snapshots
+from vivarium_cell.plots.expression_survival_dotplot import (
+	plot_expression_survival)
 
-import wholecell.utils.filepath as fp
 from colony.constants import OUT_DIR
+import wholecell.utils.filepath as fp
 
 
 PUMP_PATH = (

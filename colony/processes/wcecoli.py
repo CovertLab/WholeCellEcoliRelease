@@ -1,7 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
-import os
 import copy
+import os
 import shutil
 import sys
 
@@ -10,11 +10,11 @@ from vivarium.core.process import Process
 from vivarium.library.dict_utils import deep_merge
 from vivarium.library.units import units
 
+from colony.constants import WCECOLI_ROOT
 from models.ecoli.sim.simulation import ecoli_simulation
 from models.ecoli.sim.variants import apply_variant
 from wholecell.utils import constants
 import wholecell.utils.filepath as fp
-from colony.constants import WCECOLI_ROOT
 
 
 def initialize_ecoli(config):
@@ -260,8 +260,8 @@ class WcEcoli(Process):
 		self.ecoli_simulation = initialize_ecoli(self.ecoli_config)
 		self.sim_data = self.ecoli_simulation.get_sim_data()
 
-		self.parameters['density'] = (
-			self.sim_data.constants.cellDensity.asNumber()
+		parameters['density'] = (
+			self.sim_data.constants.cell_density.asNumber()
 		) * self.density_units
 
 		environment = self.ecoli_simulation.external_states['Environment']

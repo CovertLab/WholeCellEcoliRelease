@@ -12,17 +12,18 @@ import json
 import os
 
 import numpy as np
+from typing import List, Tuple
 from vivarium.core.composition import (
 	agent_environment_experiment,
 	simulate_experiment,
 )
-from vivarium.compartments.lattice import Lattice
 from vivarium.core.emitter import (
 	get_atlas_database_emitter_config,
 	emit_environment_config,
 	SECRETS_PATH,
 )
-from vivarium.processes.diffusion_field import make_gradient
+from vivarium_cell.composites.lattice import Lattice
+from vivarium_cell.processes.diffusion_field import make_gradient
 
 from wholecell.io import tsv
 from colony.processes.wcecoli import WcEcoli
@@ -46,16 +47,21 @@ TAGGED_MOLECULES_PATH = os.path.join(
 NUM_EMISSIONS = 100
 
 
-def get_antibiotics_timeline(n_bins, size, pulses, end_time):
+def get_antibiotics_timeline(
+	n_bins,  # type: Tuple[int, int]
+	size,  # type: Tuple[int, int]
+	pulses,  # type: List[Tuple[int, int, float]]
+	end_time,  # type: int
+):
 	'''Get a timeline for antibiotic pulses.
 
 	Arguments:
-		n_bins (list): Number of bins in x and y directions.
-		size (list): Size of environment in x and y directions.
-		pulses (list): List of tuples, each of which describes a pulse.
+		n_bins: Number of bins in x and y directions.
+		size: Size of environment in x and y directions.
+		pulses: List of tuples, each of which describes a pulse.
 			Each tuple has the form (start_time, duration,
 			concentration).
-		end_time (int): The length of the experiment
+		end_time: The length of the experiment
 	Returns:
 		list: A timeline that implements the described pulses.
 	'''

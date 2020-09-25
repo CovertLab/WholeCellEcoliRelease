@@ -5,7 +5,7 @@ import copy
 from vivarium.core.process import Deriver
 from vivarium.library.dict_utils import deep_merge
 from vivarium.library.units import units
-from vivarium.processes.derive_globals import (
+from vivarium_cell.processes.derive_globals import (
 	length_from_volume,
 	surface_area_from_length,
 )

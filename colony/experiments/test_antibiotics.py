@@ -4,7 +4,6 @@
 from __future__ import absolute_import, division, print_function
 
 import argparse
-import io
 import os
 
 from vivarium.core.composition import (
@@ -15,7 +14,6 @@ from vivarium.library.timeseries import (
 	process_path_timeseries_for_csv,
 	save_flat_timeseries,
 )
-from wholecell.io import tsv
 
 from colony.experiments.antibiotics import simulate
 from colony.constants import REFERENCE_DATA_PATH
@@ -93,7 +91,7 @@ def main():
 				'agents,wcecoli_0,boundary,bulk_molecules_report,BCCP-MONOMER[c]':
 					900,
 				'agents,wcecoli_0,boundary,bulk_molecules_report,G7602-MONOMER[c]':
-					9,
+					99,
 				'agents,wcecoli_0,boundary,bulk_molecules_report,G7763-MONOMER[c]':
 					9,
 				'agents,wcecoli_0,boundary,bulk_molecules_report,EG11162-MONOMER[c]':
@@ -102,8 +100,6 @@ def main():
 					500,
 				'agents,wcecoli_0,boundary,dry_mass': 9,
 				'agents,wcecoli_0,boundary,mass': 9,
-				'agents,wcecoli_0,boundary,bulk_molecules_report,G7602-MONOMER[c]':
-					99,
 				'agents,wcecoli_0,boundary,bulk_molecules_report,PD03585[c]':
 					9,
 			},

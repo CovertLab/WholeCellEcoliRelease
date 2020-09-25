@@ -4,7 +4,7 @@ import copy
 
 from vivarium.library.units import units
 from vivarium.library.dict_utils import deep_merge, deep_merge_check
-from vivarium.processes.convenience_kinetics import ConvenienceKinetics
+from vivarium_cell.processes.convenience_kinetics import ConvenienceKinetics
 
 
 class AntibioticHydrolysis(ConvenienceKinetics):

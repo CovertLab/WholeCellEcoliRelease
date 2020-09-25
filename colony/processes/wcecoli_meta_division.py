@@ -1,7 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
-import uuid
 import copy
+import uuid
 
 from vivarium.core.process import Deriver
 from vivarium.library.dict_utils import deep_merge
