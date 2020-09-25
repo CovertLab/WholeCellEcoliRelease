@@ -90,6 +90,9 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 			x: self._molecule_ids.index(x) for x in self._molecule_ids
 			}
 
+		# Load compartments information for mass calculation
+		self._compartment_abbrev_to_index = sim_data.compartment_abbrev_to_index
+
 		# Total mass of molecules before evolveState goes into the last row
 		# of the masses array
 		self._pre_evolve_state_mass_index = self._nProcesses
@@ -162,6 +165,7 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 		basal mass and the added submasses of each molecule.
 		"""
 		masses = np.zeros_like(self._masses)
+		compartment_masses = np.zeros_like(self._compartment_masses)
 
 		for moleculeId, moleculeMasses in zip(
 				self._molecule_ids, self._molecule_masses):
@@ -175,13 +179,20 @@ class UniqueMolecules(wholecell.states.internal_state.InternalState):
 			# Add basal masses of the molecule
 			masses += moleculeMasses * n_molecules
 
+			# TODO: include other compartments for unique molecules
+			compartment_masses[self._compartment_abbrev_to_index['c'],
+				:] += moleculeMasses * n_molecules
+
 			# Add additional submasses of the molecule
 			massDiffs = molecules.attrsAsStructArray(*self._submass_diff_names).view(
 				(np.float64, len(self._submass_diff_names))
 				)
 			masses += massDiffs.sum(axis=0)
+			compartment_masses[self._compartment_abbrev_to_index['c'],
+				:] += massDiffs.sum(axis=0)
 
 		self._masses = masses
+		self._compartment_masses = compartment_masses
 
 
 	def loadSnapshot(self, container):

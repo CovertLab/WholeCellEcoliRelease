@@ -54,6 +54,18 @@ class Mass(wholecell.listeners.listener.Listener):
 		self.proteinIndex = sim_data.submass_name_to_index["protein"]
 		self.waterIndex = sim_data.submass_name_to_index["water"]
 
+		self.nucleoid_index = sim_data.compartment_id_to_index["CCO-BAC-NUCLEOID"]
+		self.projection_index = sim_data.compartment_id_to_index["CCO-CELL-PROJECTION"]
+		self.cell_wall_index = sim_data.compartment_id_to_index["CCO-CW-BAC-NEG"]
+		self.cytosol_index = sim_data.compartment_id_to_index["CCO-CYTOSOL"]
+		self.extracellular_index = sim_data.compartment_id_to_index["CCO-EXTRACELLULAR"]
+		self.membrane_index = sim_data.compartment_id_to_index["CCO-MEMBRANE"]
+		self.outer_membrane_index = sim_data.compartment_id_to_index["CCO-OUTER-MEM"]
+		self.periplasm_index = sim_data.compartment_id_to_index["CCO-PERI-BAC"]
+		self.pilus_index = sim_data.compartment_id_to_index["CCO-PILUS"]
+		self.inner_membrane_index = sim_data.compartment_id_to_index["CCO-PM-BAC-NEG"]
+		self.flagellum_index = sim_data.compartment_id_to_index["CCO-FLAGELLUM"]
+
 		self.cellDensity = sim_data.constants.cell_density.asNumber(units.g / units.L)
 
 		# Set initial values
@@ -131,6 +143,10 @@ class Mass(wholecell.listeners.listener.Listener):
 		all_submasses = sum(
 			state.mass() for state in six.viewvalues(self.internal_states))
 
+		compartment_submasses = sum(
+			state.compartment_mass() for state in six.viewvalues(
+			self.internal_states))
+
 		self.cellMass = all_submasses.sum()  # sum over all submasses
 
 		self.waterMass = all_submasses[self.waterIndex]
@@ -142,6 +158,18 @@ class Mass(wholecell.listeners.listener.Listener):
 		self.dnaMass = all_submasses[self.dnaIndex]
 		self.proteinMass = all_submasses[self.proteinIndex]
 		self.smallMoleculeMass = all_submasses[self.smallMoleculeIndex]
+
+		self.nucleoid_mass = compartment_submasses[self.nucleoid_index, :].sum()
+		self.projection_mass = compartment_submasses[self.projection_index, :].sum()
+		self.cell_wall_mass = compartment_submasses[self.cell_wall_index, :].sum()
+		self.cytosol_mass = compartment_submasses[self.cytosol_index, :].sum()
+		self.extracellular_mass = compartment_submasses[self.extracellular_index, :].sum()
+		self.membrane_mass = compartment_submasses[self.membrane_index, :].sum()
+		self.outer_membrane_mass = compartment_submasses[self.outer_membrane_index, :].sum()
+		self.periplasm_mass = compartment_submasses[self.periplasm_index, :].sum()
+		self.pilus_mass = compartment_submasses[self.pilus_index, :].sum()
+		self.inner_membrane_mass = compartment_submasses[self.inner_membrane_index, :].sum()
+		self.flagellum_mass = compartment_submasses[self.flagellum_index, :].sum()
 
 		# TODO (Eran) use this volume everywhere in the codebase that is currently calculating volume
 		self.volume = self.cellMass / self.cellDensity
@@ -210,6 +238,17 @@ class Mass(wholecell.listeners.listener.Listener):
 			dnaMass = self.dnaMass,
 			proteinMass = self.proteinMass,
 			waterMass = self.waterMass,
+			nucleoid_mass = self.nucleoid_mass,
+			projection_mass = self.projection_mass,
+			cell_wall_mass = self.cell_wall_mass,
+			cytosol_mass = self.cytosol_mass,
+			extracellular_mass = self.extracellular_mass,
+			membrane_mass = self.membrane_mass,
+			outer_membrane_mass = self.outer_membrane_mass,
+			periplasm_mass = self.periplasm_mass,
+			pilus_mass = self.pilus_mass,
+			inner_membrane_mass = self.inner_membrane_mass,
+			flagellum = self.flagellum_mass,
 			processMassDifferences = self.processMassDifferences.astype(np.float64),
 			smallMoleculeMass = self.smallMoleculeMass,
 			instantaniousGrowthRate = self.instantaniousGrowthRate,

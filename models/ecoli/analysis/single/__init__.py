@@ -14,6 +14,7 @@ ACTIVE = [
 	"centralCarbonMetabolismScatter.py",
 	"chromosome_visualization.py",
 	"concentrationDeviation.py",
+	"compartment_mass_fraction_summary.py",
 	"cotranscriptional_translation.py",
 	"dnaA_box_dynamics.py",
 	"dntpCounts.py",
@@ -68,6 +69,7 @@ TAGS = {
 	'ACTIVE': ACTIVE,   # all active analyses in this category
 	'CORE': [           # the default list to run in development
 		"aaCounts.py",
+		"compartment_mass_fraction_summary.py",
 		"dntpCounts.py",
 		"evaluationTime.py",
 		"external_exchange_fluxes.py",

@@ -40,8 +40,11 @@ class InternalState(object):
 
 		self._nProcesses = len(sim.processes)
 
-		# TODO: include compartment
 		self._masses = np.zeros(len(sim_data.submass_name_to_index), np.float64)
+		self._compartment_masses = np.zeros(
+			(len(sim_data.compartment_abbrev_to_index),
+			 len(sim_data.submass_name_to_index)
+			 ), np.float64)
 		self._process_mass_diffs = np.zeros(
 			(self._nProcesses, len(sim_data.submass_name_to_index)), np.float64)
 
@@ -77,6 +80,10 @@ class InternalState(object):
 	# Mass calculations
 	def mass(self):
 		return self._masses
+
+	# Mass calculations by compartment
+	def compartment_mass(self):
+		return self._compartment_masses
 
 	def process_mass_diffs(self):
 		return self._process_mass_diffs

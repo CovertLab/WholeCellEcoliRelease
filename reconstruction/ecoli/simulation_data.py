@@ -44,6 +44,7 @@ class SimulationDataEcoli(object):
 		self.basal_expression_condition = basal_expression_condition
 
 		self._add_molecular_weight_keys(raw_data)
+		self._add_compartment_keys(raw_data)
 		self._add_hard_coded_attributes()
 
 		# General helper functions (have no dependencies)
@@ -79,6 +80,17 @@ class SimulationDataEcoli(object):
 			mw_key["submass_name"]: mw_key["index"]
 			for mw_key in raw_data.molecular_weight_keys
 			}
+
+
+	def _add_compartment_keys(self, raw_data):
+		self.compartment_abbrev_to_index = {
+			compartment["abbrev"]: i
+			for i, compartment in enumerate(raw_data.compartments)
+		}
+		self.compartment_id_to_index = {
+			compartment["id"]: i
+			for i,compartment in enumerate(raw_data.compartments)
+		}
 
 
 	def _add_hard_coded_attributes(self):
