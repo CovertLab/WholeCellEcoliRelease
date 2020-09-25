@@ -53,7 +53,7 @@ class Translation(object):
 	def _build_monomer_data(self, raw_data, sim_data):
 		# Get protein IDs with compartments
 		protein_ids = [protein['id'] for protein in raw_data.proteins]
-		protein_compartments = sim_data.getter.get_location(protein_ids)
+		protein_compartments = sim_data.getter.get_locations(protein_ids)
 		assert all([len(loc) == 1 for loc in protein_compartments])
 		protein_ids_with_compartments = [
 			f'{protein_id}[{loc[0]}]' for (protein_id, loc)
@@ -69,14 +69,14 @@ class Translation(object):
 		rna_ids = [
 			monomer_id_to_rna_id[protein['id']]
 			for protein in raw_data.proteins]
-		rna_compartments = sim_data.getter.get_location(rna_ids)
+		rna_compartments = sim_data.getter.get_locations(rna_ids)
 		assert all([len(loc) == 1 for loc in rna_compartments])
 		rna_ids_with_compartments = [
 			f'{rna_id}[{loc[0]}]'
 			for (rna_id, loc) in zip(rna_ids, rna_compartments)]
 
 		# Get lengths and amino acids counts of each protein
-		protein_seqs = sim_data.getter.get_sequence(protein_ids)
+		protein_seqs = sim_data.getter.get_sequences(protein_ids)
 		lengths = [len(seq) for seq in protein_seqs]
 		aa_counts = [
 			[seq.count(aa) for aa in sim_data.amino_acid_code_to_id_ordered.keys()]
@@ -84,7 +84,7 @@ class Translation(object):
 		n_amino_acids = len(sim_data.amino_acid_code_to_id_ordered)
 
 		# Get molecular weights
-		mws = sim_data.getter.get_mass(protein_ids).asNumber(units.g / units.mol)
+		mws = sim_data.getter.get_masses(protein_ids).asNumber(units.g / units.mol)
 
 		# Calculate degradation rates based on N-rule
 		deg_rate_units = 1 / units.s
@@ -150,7 +150,7 @@ class Translation(object):
 		self.n_monomers = len(self.monomer_data)
 
 	def _build_translation(self, raw_data, sim_data):
-		sequences = sim_data.getter.get_sequence(
+		sequences = sim_data.getter.get_sequences(
 			[protein['id'] for protein in raw_data.proteins])
 
 		max_len = np.int64(
@@ -169,12 +169,12 @@ class Translation(object):
 
 		self.translation_monomer_weights = (
 			(
-				sim_data.getter.get_mass(aaIDs)
-				- sim_data.getter.get_mass([sim_data.molecule_ids.water])
+				sim_data.getter.get_masses(aaIDs)
+				- sim_data.getter.get_masses([sim_data.molecule_ids.water])
 				)
 			/ sim_data.constants.n_avogadro
 			).asNumber(units.fg)
-		self.translation_end_weight = (sim_data.getter.get_mass([sim_data.molecule_ids.water]) / sim_data.constants.n_avogadro).asNumber(units.fg)
+		self.translation_end_weight = (sim_data.getter.get_masses([sim_data.molecule_ids.water]) / sim_data.constants.n_avogadro).asNumber(units.fg)
 
 	def _build_translation_efficiency(self, raw_data, sim_data):
 		monomer_ids = [protein["id"] for protein in raw_data.proteins]

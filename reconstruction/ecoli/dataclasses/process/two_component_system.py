@@ -144,7 +144,7 @@ class TwoComponentSystem(object):
 								)
 
 					# Find molecular mass
-					molecularMass = sim_data.getter.get_mass([moleculeName]).asNumber(units.g / units.mol)[0]
+					molecularMass = sim_data.getter.get_mass(moleculeName).asNumber(units.g / units.mol)
 					stoichMatrixMass.append(molecularMass)
 
 		# TODO(jerry): Move most of the rest to a subroutine for __init__ and __setstate__?

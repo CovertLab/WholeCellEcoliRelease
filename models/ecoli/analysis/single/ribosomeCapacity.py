@@ -41,7 +41,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			]
 
 		# Get masses of full ribosomes and subunits
-		ribosome_subunit_masses = sim_data.getter.get_mass(ribosome_subunit_ids)
+		ribosome_subunit_masses = sim_data.getter.get_masses(ribosome_subunit_ids)
 		full_ribosome_mass = units.sum(ribosome_subunit_masses)
 
 		# Read time data

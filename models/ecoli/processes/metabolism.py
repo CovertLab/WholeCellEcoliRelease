@@ -291,7 +291,7 @@ class FluxBalanceAnalysisModel(object):
 		self.metaboliteNamesFromNutrients = list(sorted(metaboliteNamesFromNutrients))
 		exchange_molecules = list(sorted(exchange_molecules))
 		molecule_masses = dict(zip(exchange_molecules,
-			sim_data.getter.get_mass(exchange_molecules).asNumber(MASS_UNITS / COUNTS_UNITS)))
+			sim_data.getter.get_masses(exchange_molecules).asNumber(MASS_UNITS / COUNTS_UNITS)))
 
 		# Setup homeostatic objective concentration targets
 		## Determine concentrations based on starting environment

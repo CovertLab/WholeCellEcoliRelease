@@ -118,8 +118,8 @@ class Replication(object):
 
 		# Get polymerized nucleotide weights
 		self.replication_monomer_weights = (
-			(sim_data.getter.get_mass(sim_data.molecule_groups.dntps)
-			- sim_data.getter.get_mass([sim_data.molecule_ids.ppi]))
+			(sim_data.getter.get_masses(sim_data.molecule_groups.dntps)
+			- sim_data.getter.get_masses([sim_data.molecule_ids.ppi]))
 			/ sim_data.constants.n_avogadro
 		)
 

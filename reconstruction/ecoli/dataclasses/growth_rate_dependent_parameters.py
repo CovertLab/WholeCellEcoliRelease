@@ -63,7 +63,7 @@ class Mass(object):
 			[x["metaboliteId"] for x in self._solubleFractions] +
 			["WATER[c]"]
 			)
-		mws = sim_data.getter.get_mass(metIds)
+		mws = sim_data.getter.get_masses(metIds)
 		self._mws = dict(zip(metIds, mws))
 
 		self._metTargetIds = [x["Metabolite"] + "[c]" for x in raw_data.metabolite_concentrations]
@@ -94,7 +94,7 @@ class Mass(object):
 		self._inorganicIonMassFractionParams = self._getFitParameters(raw_data.dry_mass_composition, 'inorganicIonMassFraction')
 
 		self.chromosome_sequence_mass = (
-			sim_data.getter.get_mass([sim_data.molecule_ids.full_chromosome])[0]
+			sim_data.getter.get_mass(sim_data.molecule_ids.full_chromosome)
 				/ sim_data.constants.n_avogadro
 			).asUnit(units.g)
 

@@ -31,44 +31,29 @@ class InternalState(object):
 		Add data (IDs and mass) for all classes of bulk molecules.
 		"""
 		# Set metabolites
-		metabolite_index = sim_data.submass_name_to_index['metabolite']
-		water_index = sim_data.submass_name_to_index['water']
 		metabolite_ids, metabolite_masses = self._build_bulk_molecule_specs(
-			sim_data, [met['id'] for met in raw_data.metabolites],
-			[metabolite_index if met['id'] != 'WATER' else water_index
-				for met in raw_data.metabolites]
-			)
-
+			sim_data, [met['id'] for met in raw_data.metabolites])
 		self.bulk_molecules.add_to_bulk_state(metabolite_ids, metabolite_masses)
 		sim_data.molecule_groups.bulk_molecules_binomial_division.extend(
 			metabolite_ids)
 
 		# Set RNAs
 		rna_ids, rna_masses = self._build_bulk_molecule_specs(
-			sim_data, [rna['id'] for rna in raw_data.rnas],
-			[sim_data.submass_name_to_index[rna['type']] for rna in raw_data.rnas]
-			)
-
+			sim_data, [rna['id'] for rna in raw_data.rnas])
 		self.bulk_molecules.add_to_bulk_state(rna_ids, rna_masses)
 		sim_data.molecule_groups.bulk_molecules_binomial_division.extend(
 			rna_ids)
 
 		# Set RNA subunits (used to represent masses of RNA fragments)
 		rna_subunit_ids, rna_subunit_masses = self._build_bulk_molecule_specs(
-			sim_data, [subunit_id[:-3] for subunit_id in sim_data.molecule_groups.polymerized_ntps],
-			[sim_data.submass_name_to_index['nonspecific_RNA']]*len(sim_data.molecule_groups.polymerized_ntps)
-			)
-
+			sim_data, [subunit_id[:-3] for subunit_id in sim_data.molecule_groups.polymerized_ntps])
 		self.bulk_molecules.add_to_bulk_state(rna_subunit_ids, rna_subunit_masses)
 		sim_data.molecule_groups.bulk_molecules_binomial_division.extend(
 			rna_subunit_ids)
 
 		# Set proteins
 		protein_ids, protein_masses = self._build_bulk_molecule_specs(
-			sim_data, [protein['id'] for protein in raw_data.proteins],
-			[sim_data.submass_name_to_index['protein']]*len(raw_data.proteins)
-			)
-
+			sim_data, [protein['id'] for protein in raw_data.proteins])
 		self.bulk_molecules.add_to_bulk_state(protein_ids, protein_masses)
 		sim_data.molecule_groups.bulk_molecules_binomial_division.extend(
 			protein_ids)
@@ -92,14 +77,12 @@ class InternalState(object):
 			modifiedFormIds)
 
 
-	def _build_bulk_molecule_specs(self, sim_data, molecule_ids, submass_indexes):
+	def _build_bulk_molecule_specs(self, sim_data, molecule_ids):
 		"""
 		Builds a list of molecule IDs with compartment tags and a corresponding
-		array of molecular masses to add to the bulk state. Can only be used
-		for molecules whose entire mass falls into a single submass type.
+		array of molecular masses to add to the bulk state.
 		Args:
 			molecule_ids (List[str]): List of molecule IDs w/o compartment tags
-			submass_indexes (List[int]): List of submass indexes
 		Returns:
 			molecule_ids_with_compartments (List[str]): List of molecule IDs
 				with compartment tags
@@ -110,17 +93,12 @@ class InternalState(object):
 		masses = []
 
 		# Loop through each molecule species and associated compartments
-		for molecule_id, submass_index in zip(molecule_ids, submass_indexes):
-			mw = sim_data.getter.get_mass([molecule_id]).asNumber(units.g / units.mol)[0]
+		for molecule_id in molecule_ids:
+			mw = sim_data.getter.get_submass_array(molecule_id).asNumber(units.g/units.mol)
 
-			for loc in sim_data.getter.get_location([molecule_id])[0]:
+			for loc in sim_data.getter.get_location(molecule_id):
 				molecule_ids_with_compartments.append('{}[{}]'.format(molecule_id, loc))
-
-				# Build mass array
-				mass = [0.] * len(sim_data.submass_name_to_index)
-				mass[submass_index] = mw
-
-				masses.append(mass)
+				masses.append(mw)
 
 		masses = (units.g/units.mol) * np.array(masses)
 
@@ -239,7 +217,7 @@ class InternalState(object):
 		full_chromosome_mass = (units.g/units.mol) * np.zeros_like(RNAP_mass)
 		full_chromosome_mass[
 			sim_data.submass_name_to_index['DNA']
-			] = sim_data.getter.get_mass([sim_data.molecule_ids.full_chromosome])[0]
+			] = sim_data.getter.get_mass(sim_data.molecule_ids.full_chromosome)
 		full_chromosome_attributes = {
 			'division_time': 'f8',
 			'has_triggered_division': '?',

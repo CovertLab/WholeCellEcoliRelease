@@ -128,7 +128,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			trpARnaConcentration = trpARnaMols * 1. / volume
 
 			# Compute the trpA mass in the cell
-			trpAMw = sim_data.getter.get_mass(trpAProteinId)
+			trpAMw = sim_data.getter.get_masses(trpAProteinId)
 			trpAMass = 1. / nAvogadro * trpAProteinTotalCounts * trpAMw
 
 			# Compute the proteome mass fraction

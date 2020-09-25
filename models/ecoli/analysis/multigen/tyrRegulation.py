@@ -98,7 +98,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			tyrAProteinTotalCounts = tyrAProteinCounts + 2 * tyrAComplexCounts
 
 			# Compute the tyrA mass in the cell
-			tyrAMw = sim_data.getter.get_mass(tyrAProteinId)
+			tyrAMw = sim_data.getter.get_masses(tyrAProteinId)
 			tyrAMass = 1. / nAvogadro * tyrAProteinTotalCounts * tyrAMw
 
 			# Compute the proteome mass fraction

@@ -46,7 +46,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		growth = GROWTH_UNITS * mass.readColumn("growth") / timeStepSec
 		mass.close()
 
-		glucoseMW = sim_data.getter.get_mass([GLUCOSE_ID])[0]
+		glucoseMW = sim_data.getter.get_mass(GLUCOSE_ID)
 
 		glucoseMassFlux = glucoseFlux * glucoseMW * cellDryMass
 

@@ -261,13 +261,13 @@ def set_small_molecule_counts(bulkMolCntr, sim_data, current_media_id, massCoeff
 		small_molecule_mass = 0 * units.fg
 		for mol in concDict:
 			small_molecule_mass += (bulkMolCntr.count(mol)
-									* sim_data.getter.get_mass([mol])[0] / sim_data.constants.n_avogadro)
+									* sim_data.getter.get_mass(mol) / sim_data.constants.n_avogadro)
 		other_dry_mass = cell_mass - small_molecule_mass
 
 	massesToAdd, countsToAdd = masses_and_counts_for_homeostatic_target(
 		other_dry_mass,
 		moleculeConcentrations,
-		sim_data.getter.get_mass(moleculeIds),
+		sim_data.getter.get_masses(moleculeIds),
 		sim_data.constants.cell_density,
 		sim_data.constants.n_avogadro
 		)

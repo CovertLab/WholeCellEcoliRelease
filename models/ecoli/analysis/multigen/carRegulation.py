@@ -129,7 +129,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 			carARnaConcentration = carARnaMols * 1. / volume
 
 			# Compute the carA mass in the cell
-			carAMw = sim_data.getter.get_mass(carAProteinId)
+			carAMw = sim_data.getter.get_masses(carAProteinId)
 			carAMass = 1. / nAvogadro * carAProteinTotalCounts * carAMw
 
 			# Compute the proteome mass fraction

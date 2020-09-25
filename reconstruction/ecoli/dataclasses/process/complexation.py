@@ -81,7 +81,7 @@ class Complexation(object):
 					complexes.append(moleculeName)
 
 				# Find molecular mass of the molecule and add to mass matrix
-				molecularMass = sim_data.getter.get_mass([moleculeName]).asNumber(units.g / units.mol)[0]
+				molecularMass = sim_data.getter.get_mass(moleculeName).asNumber(units.g / units.mol)
 				stoichMatrixMass.append(molecularMass)
 
 		self.rates = np.full(

@@ -34,7 +34,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			temp_ids = getattr(sim_data.molecule_groups, str(group_id))
 			temp_indexes = np.array([bulk_molecule_idx[temp] for temp in temp_ids])
 			temp_counts = bulk_molecule_counts[:, temp_indexes]
-			temp_mw = sim_data.getter.get_mass(temp_ids)
+			temp_mw = sim_data.getter.get_masses(temp_ids)
 			return (units.dot(temp_counts, temp_mw)/nAvogadro).asNumber(units.fg)
 
 		lipid = find_mass_molecule_group('lipids')
@@ -45,7 +45,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			temp_id = getattr(sim_data.molecule_ids, str(molecule_id))
 			temp_index = bulk_molecule_idx[temp_id]
 			temp_counts = bulk_molecule_counts[:, temp_index]
-			temp_mw = sim_data.getter.get_mass([temp_id])
+			temp_mw = sim_data.getter.get_mass(temp_id)
 			return (units.multiply(temp_counts, temp_mw)/nAvogadro).asNumber(units.fg)
 
 		lps = find_mass_single_molecule('LPS')

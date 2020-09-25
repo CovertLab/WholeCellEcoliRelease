@@ -946,7 +946,7 @@ def rescaleMassForSolubleMetabolites(sim_data, bulkMolCntr, concDict, doubling_t
 
 	assert np.all(targetMoleculeConcentrations.asNumber(molar_units) > 0), 'Homeostatic dFBA objective requires non-zero (positive) concentrations'
 
-	molecular_weights = sim_data.getter.get_mass(targetMoleculeIds)
+	molecular_weights = sim_data.getter.get_masses(targetMoleculeIds)
 
 	massesToAdd, countsToAdd = masses_and_counts_for_homeostatic_target(
 		non_small_molecule_initial_cell_mass,
@@ -3024,7 +3024,7 @@ def calculateRnapRecruitment(sim_data, r):
 				continue
 
 			tfsWithData.append(
-				{"id": tf, "mass_g/mol": sim_data.getter.get_mass([tf]).asNumber(units.g / units.mol)}
+				{"id": tf, "mass_g/mol": sim_data.getter.get_masses([tf]).asNumber(units.g / units.mol)}
 				)
 
 		# Add one column for each TF that regulates the RNA

@@ -12,7 +12,7 @@ kb = KnowledgeBaseEcoli()  # type: Any  # "KnowledgeBaseEcoli" has no attribute 
 
 S = kb.process.metabolism.stoich_matrix()
 
-masses = kb.getter.get_mass(kb.process.metabolism.molecule_names)
+masses = kb.getter.get_masses(kb.process.metabolism.molecule_names)
 
 reactionNetMass = np.dot(S.T, masses.asNumber())
 

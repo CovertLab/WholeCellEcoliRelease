@@ -143,7 +143,7 @@ class Plot(cohortAnalysisPlot.CohortAnalysisPlot):
 		averageInitiationEventsPerMonomer = np.tile(averageInitiationEventsPerMonomer, (6,1))
 
 
-		mws = sim_data.getter.get_mass(sim_data.process.translation.monomer_data['id'])
+		mws = sim_data.getter.get_masses(sim_data.process.translation.monomer_data['id'])
 		monomerInitialMasses = (mws * monomerCountInitialMultigen / sim_data.constants.n_avogadro)
 
 		# np.tile(cellMassInitialMultigen.asNumber().reshape((1,10)), (n_monomers,1))

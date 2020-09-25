@@ -43,7 +43,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		pairsOfForks = np.logical_not(np.isnan(fork_coordinates)).sum(axis = 1)/2
 
 		# Count chromosome equivalents
-		chromMass = (sim_data.getter.get_mass([sim_data.molecule_ids.full_chromosome])[0] / sim_data.constants.n_avogadro).asNumber(units.fg)
+		chromMass = (sim_data.getter.get_mass(sim_data.molecule_ids.full_chromosome) / sim_data.constants.n_avogadro).asNumber(units.fg)
 		chromEquivalents = dnaMass / chromMass
 
 		# Count full chromosomes

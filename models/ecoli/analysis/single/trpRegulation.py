@@ -77,7 +77,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		trpAProteinTotalCounts = trpAProteinCounts + 2 * trpABComplexCounts
 
 		# Compute the trpA mass in the cell
-		trpAMw = sim_data.getter.get_mass(trpAProteinId)
+		trpAMw = sim_data.getter.get_masses(trpAProteinId)
 		trpAMass = 1. / nAvogadro * trpAProteinTotalCounts * trpAMw
 
 		# Compute the proteome mass fraction

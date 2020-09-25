@@ -35,7 +35,7 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 		variantSimDataFile = ap.get_variant_kb(ap.get_variants()[0])
 		sim_data = cPickle.load(open(variantSimDataFile, "rb"))
 		nAvogadro = sim_data.constants.n_avogadro.asNumber()
-		chromMass = (sim_data.getter.get_mass([sim_data.molecule_ids.full_chromosome])[0] / sim_data.constants.n_avogadro).asNumber()
+		chromMass = (sim_data.getter.get_mass(sim_data.molecule_ids.full_chromosome) / sim_data.constants.n_avogadro).asNumber()
 
 		for simDir in all_cells:
 			simOutDir = os.path.join(simDir, "simOut")

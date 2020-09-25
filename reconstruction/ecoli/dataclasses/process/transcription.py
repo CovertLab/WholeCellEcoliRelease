@@ -179,7 +179,7 @@ class Transcription(object):
 
 		# Load RNA IDs with compartment tags
 		rna_ids = [rna['id'] for rna in raw_data.rnas]
-		compartments = sim_data.getter.get_location(rna_ids)
+		compartments = sim_data.getter.get_locations(rna_ids)
 
 		rna_ids_with_compartments = [
 			f'{rna_id}[{loc[0]}]' for (rna_id, loc)
@@ -278,8 +278,8 @@ class Transcription(object):
 		monomer_ids = [rna['monomer_id'] for rna in raw_data.rnas]
 
 		# Load RNA sequences and molecular weights from getter functions
-		rna_seqs = sim_data.getter.get_sequence(rna_ids)
-		mws = sim_data.getter.get_mass(rna_ids).asNumber(units.g / units.mol)
+		rna_seqs = sim_data.getter.get_sequences(rna_ids)
+		mws = sim_data.getter.get_masses(rna_ids).asNumber(units.g / units.mol)
 
 		# Calculate lengths and nt counts from sequence
 		rna_lengths = np.array([len(seq) for seq in rna_seqs])
@@ -433,7 +433,7 @@ class Transcription(object):
 		Build transcription-associated simulation data from raw data.
 		"""
 		# Load sequence data
-		rna_seqs = sim_data.getter.get_sequence(
+		rna_seqs = sim_data.getter.get_sequences(
 			[rna['id'] for rna in raw_data.rnas])
 
 		rrna_types = ['is_23S_rRNA', 'is_16S_rRNA', 'is_5S_rRNA']
@@ -457,13 +457,13 @@ class Transcription(object):
 		# Calculate weights of transcript nucleotide monomers
 		self.transcription_monomer_weights = (
 			(
-				sim_data.getter.get_mass(sim_data.molecule_groups.ntps)
-				- sim_data.getter.get_mass([sim_data.molecule_ids.ppi])
+				sim_data.getter.get_masses(sim_data.molecule_groups.ntps)
+				- sim_data.getter.get_masses([sim_data.molecule_ids.ppi])
 				)
 			/ sim_data.constants.n_avogadro
 			).asNumber(units.fg)
 
-		self.transcription_end_weight = ((sim_data.getter.get_mass([sim_data.molecule_ids.ppi])
+		self.transcription_end_weight = ((sim_data.getter.get_masses([sim_data.molecule_ids.ppi])
 			/ sim_data.constants.n_avogadro).asNumber(units.fg))
 
 	def _build_charged_trna(self, raw_data, sim_data):
@@ -485,7 +485,7 @@ class Transcription(object):
 				if 'FMET' in trna or 'modified' in trna:
 					continue
 
-				assert('c' in sim_data.getter.get_location([trna])[0])
+				assert('c' in sim_data.getter.get_location(trna))
 				filtered_charged_trna += [trna + '[c]']
 
 		self.charged_trna_names = filtered_charged_trna
@@ -516,7 +516,7 @@ class Transcription(object):
 			elif aa == 'RNA':
 				aa = trna_dict[trna]
 
-			assert('c' in sim_data.getter.get_location([aa])[0])
+			assert('c' in sim_data.getter.get_location(aa))
 			aa += '[c]'
 			if aa in aa_names:
 				aa_idx = aa_indices[aa]
