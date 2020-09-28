@@ -814,7 +814,6 @@ for i in VARIANTS_TO_RUN:
 						BuildCausalityNetworkTask(
 							input_results_directory = CELL_SIM_OUT_DIRECTORY,
 							input_sim_data = os.path.join(VARIANT_SIM_DATA_DIRECTORY, filename_sim_data_modified),
-							output_network_directory = VARIANT_SIM_DATA_DIRECTORY,
 							output_dynamics_directory = CELL_SERIES_OUT_DIRECTORY,
 							metadata = md_single,
 							),

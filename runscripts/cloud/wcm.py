@@ -112,6 +112,7 @@ class WcmWorkflow(Workflow):
 		variant_count = variant_spec[2] + 1 - variant_spec[1]
 
 		run_analysis = args['run_analysis'] and args['generations'] > 0
+		cell_series_out_dir = ''
 
 		if args['workers'] is None:
 			args['workers'] = variant_count * args['init_sims']
@@ -262,16 +263,11 @@ class WcmWorkflow(Workflow):
 								inputs=[kb_dir, variant_sim_data_dir, cell_sim_out_dir],
 								outputs=[plot_dir])
 
-						if args['build_causality_network']:
+						if args['build_causality_network'] and not cell_series_out_dir:
 							cell_series_out_dir = posixpath.join(cell_dir, 'seriesOut', '')
-							# NOTE: This could reuse the Causality network over the variant. To do
-							# it in a cloud workflow we'd have to move that work from
-							# BuildCausalityNetworkTask to VariantSimDataTask, and it wouldn't save
-							# much space or time.
 							python_args = dict(
 								input_results_directory=cell_sim_out_dir,
 								input_sim_data=variant_sim_data_modified_file,
-								output_network_directory=cell_series_out_dir,
 								output_dynamics_directory=cell_series_out_dir,
 								metadata=md_single)
 							causality_task = self.add_python_task(BuildCausalityNetworkTask,
@@ -426,7 +422,7 @@ class RunWcm(scriptBase.ScriptBase):
 		self.define_parameter_bool(parser, 'compile', False,
 			'Compiles output images into one file (only for .png).')
 		self.define_parameter_bool(parser, 'build_causality_network', False,
-			help="Build the Causality network files for each sim generation.")
+			help="Build the Causality network files for one sim generation.")
 
 		super(RunWcm, self).define_parameters(parser)
 

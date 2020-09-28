@@ -7,10 +7,11 @@ Run with '-h' for command line help.
 from __future__ import absolute_import, division, print_function
 
 import os
+import subprocess
 
 from runscripts.manual.analysisBase import AnalysisBase
 from wholecell.fireworks.firetasks.buildCausalityNetwork import BuildCausalityNetworkTask
-from wholecell.utils import constants, filepath
+from wholecell.utils import constants
 
 
 CAUSALITY_ENV_VAR = 'CAUSALITY_SERVER'
@@ -33,8 +34,6 @@ class BuildCausalityNetwork(AnalysisBase):
 				 ' a subdirectory name like "000000". Default = 0.')
 		parser.add_argument('--check_sanity', action='store_true',
 			help='Check network sanity.')
-		parser.add_argument('-f', '--force', action='store_true',
-			help='Forces a rebuild of the causality network if set.')
 		parser.add_argument('--show', action='store_true',
 			help='If set, attempts to show the causality visualization after'
 			' processing data.')
@@ -64,33 +63,32 @@ class BuildCausalityNetwork(AnalysisBase):
 		input_dir = os.path.join(input_variant_directory, dirs, 'simOut')
 		sim_data_modified = os.path.join(input_variant_directory, 'kb',
 			constants.SERIALIZED_SIM_DATA_MODIFIED)
-		network_output_dir = os.path.join(input_variant_directory, 'kb')
 		dynamics_output_dir = os.path.join(input_variant_directory, dirs, 'seriesOut')
 
 		task = BuildCausalityNetworkTask(
 			input_results_directory=input_dir,
 			input_sim_data=sim_data_modified,
-			output_network_directory=network_output_dir,
 			output_dynamics_directory=dynamics_output_dir,
 			check_sanity=args.check_sanity,
-			metadata=args.metadata,
-			force_update=args.force)
+			metadata=args.metadata)
 		task.run_task({})
 
-		server_script = os.environ.get(CAUSALITY_ENV_VAR, '')
-		if args.show and os.path.exists(server_script):
+		# Optionally show the causality visualization.
+		server_dir = os.environ.get(CAUSALITY_ENV_VAR, os.path.join('..', 'causality'))
+		server_app = os.path.join('site', 'server.py')
+		server_path = os.path.join(server_dir, server_app)
+		if args.show and os.path.isfile(server_path):
 			# See #890 if running command fails due to differences in pyenv
 			# versions - might need to cd to repo and activate pyenv
-			cmd = 'python {} {} {}'.format(
-				server_script, network_output_dir, dynamics_output_dir)
-			print('Serving causality site with command:\n{}\n\nCtrl+c to exit.'
-				.format(cmd))
-			filepath.run_cmdline(cmd, timeout=None)
+			cmd = ['python', server_path, dynamics_output_dir]
+			print(f'\nServing the Causality site via the command:\n  {cmd}\n'
+				  f'Ctrl+C to exit.\n')
+			subprocess.run(cmd)
 		else:
-			print('\nNOTE: Use the --show flag and have ${0} set to your local'
-				' path to site/server.py in the causality repo (eg. run'
-				' `export {0}=~/path/to/causality/site/server.py` with your'
-				' path) to automatically open the viewer for this data.\n'
+			print('\nNOTE: Use the --show flag to automatically open the'
+				' Casuality viewer on this data. You\'ll first need to'
+				' `export {0}=~/path/to/causality` project unless the default'
+				' (../causality) is good.\n'
 				.format(CAUSALITY_ENV_VAR))
 
 

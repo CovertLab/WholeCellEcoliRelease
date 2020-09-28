@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Reads dynamics data for each of the nodes of a causality network from a single
 simulation.
@@ -9,18 +8,17 @@ from six.moves import cPickle
 import os
 import json
 import hashlib
+from typing import Any, Tuple
+import zipfile
 
-from models.ecoli.analysis import causalityNetworkAnalysis
 from wholecell.io.tablereader import TableReader
 from wholecell.utils import units
 
 from models.ecoli.analysis.causality_network.network_components import (
-	Node, COUNT_UNITS, PROB_UNITS
-	)
+	EDGELIST_JSON, Node, NODELIST_JSON, COUNT_UNITS, PROB_UNITS)
 from models.ecoli.analysis.causality_network.build_network import NODE_ID_SUFFIX
 from models.ecoli.processes.metabolism import (
-	COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS
-	)
+	COUNTS_UNITS, VOLUME_UNITS, TIME_UNITS, MASS_UNITS)
 
 REQUIRED_COLUMNS = [
 	("BulkMolecules", "counts"),
@@ -44,8 +42,13 @@ def get_safe_name(s):
 	fname = str(int(hashlib.sha256(s.encode('utf-8')).hexdigest(), 16) % 10 **16)
 	return fname
 
-class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
-	def do_plot(self, simOutDir, seriesOutDir, dynamicsFileName, simDataFile, nodeListFile, metadata):
+def compact_json(obj, ensure_ascii=False, separators=(',', ':'), **kwargs):
+	# type: (Any, bool, Tuple[str, str], **Any) -> str
+	"""Convert obj into compact JSON form."""
+	return json.dumps(obj, ensure_ascii=ensure_ascii, separators=separators, **kwargs)
+
+def convert_dynamics(simOutDir, seriesOutDir, simDataFile, node_list, edge_list):
+		"""Convert the sim's dynamics data to a Causality seriesOut.zip file."""
 		with open(simDataFile, 'rb') as f:
 			sim_data = cPickle.load(f)
 
@@ -116,9 +119,6 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 		volume = ((1.0 / sim_data.constants.cell_density) * (
 			units.fg * columns[("Mass", "cellMass")])).asNumber(units.L)
 
-		with open(nodeListFile, 'r') as node_file:
-			node_dicts = json.load(node_file)
-
 		def dynamics_mapping(dynamics, safe):
 			return [{
 				'index': index,
@@ -138,22 +138,30 @@ class Plot(causalityNetworkAnalysis.CausalityNetworkAnalysis):
 				reader(sim_data, node, node.node_id, columns, indexes, volume)
 			return node
 
-		nodes = [build_dynamics(node_dict) for node_dict in node_dicts]
+		nodes = [build_dynamics(node_dict) for node_dict in node_list]
 		nodes.append(time_node(columns))
 
-		for node in nodes:
-			dynamics_path = get_safe_name(node.node_id)
-			dynamics = node.dynamics_dict()
-			dynamics_json = json.dumps(dynamics)
+		# ZIP_BZIP2 saves 14% bytes vs. ZIP_DEFLATED but takes  +70 secs.
+		# ZIP_LZMA  saves 19% bytes vs. ZIP_DEFLATED but takes +260 sec.
+		# compresslevel=9 saves very little space.
+		zip_name = os.path.join(seriesOutDir, 'seriesOut.zip')
+		with zipfile.ZipFile(zip_name, 'w', compression=zipfile.ZIP_DEFLATED, allowZip64=False) as zf:
+			for node in nodes:
+				if node.node_id in name_mapping:
+					# Skip duplicates. Why are there duplicates? --check_sanity finds them.
+					continue
 
-			with open(os.path.join(seriesOutDir, dynamics_path + '.json'), 'w') as dynamics_file:
-				dynamics_file.write(dynamics_json)
+				dynamics_path = get_safe_name(node.node_id)
+				dynamics = node.dynamics_dict()
+				dynamics_json = compact_json(dynamics)
 
-			name_mapping[node.node_id] = dynamics_mapping(dynamics, dynamics_path)
+				zf.writestr(os.path.join('series', dynamics_path + '.json'), dynamics_json)
 
-		root = os.path.dirname(nodeListFile)
-		with open(os.path.join(root, 'series.json'), 'w') as series_file:
-			series_file.write(json.dumps(name_mapping))
+				name_mapping[node.node_id] = dynamics_mapping(dynamics, dynamics_path)
+
+			zf.writestr('series.json', compact_json(name_mapping))
+			zf.writestr(NODELIST_JSON, compact_json(node_list))
+			zf.writestr(EDGELIST_JSON, compact_json(edge_list))
 
 
 def time_node(columns):
@@ -430,7 +438,3 @@ TYPE_TO_READER_FUNCTION = {
 	"Regulation": read_regulation_dynamics,
 	"Charging": read_charging_dynamics,
 	}
-
-
-if __name__ == '__main__':
-	Plot().cli()

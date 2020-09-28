@@ -56,6 +56,7 @@ which assigns that node dynamics from listener output:
 """
 from __future__ import absolute_import, division, print_function
 
+from collections import Counter
 import numpy as np
 import re
 import os
@@ -117,14 +118,16 @@ NONPROTEIN_MOLECULES_IN_2CS = ["ATP[c]", "ADP[c]", "WATER[c]", "PI[c]",
 COMPARTMENTS = {
 	"n": "nucleoid",
 	"j": "projection",
-	"w": "negative",
+	"w": "cell wall",
 	"c": "cytoplasm",
 	"e": "extracellular",
 	"m": "membrane",
 	"o": "outer membrane",
 	"p": "periplasm",
 	"l": "pilus",
-	"i": "inner membrane"}
+	"i": "inner membrane",
+	"s": "flagellum",
+	}
 
 def molecule_compartment(molecule):
 	match = re.match(r'.+\[(.)\]$', molecule)
@@ -172,6 +175,12 @@ class BuildNetwork(object):
 		# self._write_files()
 
 
+	def build_nodes_and_edges(self):
+		"""Build the network and return the node and edge lists."""
+		self._build_network()
+		return self._node_list(), self._edge_list()
+
+
 	def _build_network(self):
 		"""
 		Add nodes and edges to the node/edge lists, and check for network
@@ -192,6 +201,21 @@ class BuildNetwork(object):
 		# Check for network sanity (optional)
 		if self.check_sanity:
 			self._find_duplicate_nodes()
+
+
+	def _node_list(self):
+		return [node.to_dict() for node in self.node_list]
+
+
+	def _edge_list(self):
+		def edge_dict(edge):
+			return {
+				'src_node_id': edge.src_id,
+				'dst_node_id': edge.dst_id,
+				'stoichiometry': edge.stoichiometry,
+				'process': edge.process}
+
+		return [edge_dict(edge) for edge in self.edge_list]
 
 
 	def _write_files(self):
@@ -222,31 +246,20 @@ class BuildNetwork(object):
 
 
 	def _write_json(self):
-		"""
-		Write node and edge lists as json files.
-		"""
-
-		nodes = [node.to_dict() for node in self.node_list]
+		"""Write node and edge lists as json files."""
+		nodes = self._node_list()
 		node_json = json.dumps(nodes)
 		node_path = os.path.join(self.output_dir, NODELIST_JSON)
 		print('writing {} nodes to node file {}'.format(len(nodes), node_path))
 		with open(node_path, 'w') as node_file:
 			node_file.write(node_json)
 
-		def edge_dict(edge):
-			return {
-				'src_node_id': edge.src_id,
-				'dst_node_id': edge.dst_id,
-				'stoichiometry': edge.stoichiometry,
-				'process': edge.process}
-
-		edges = [edge_dict(edge) for edge in self.edge_list]
+		edges = self._edge_list()
 		edge_json = json.dumps(edges)
 		edge_path = os.path.join(self.output_dir, EDGELIST_JSON)
 		print('writing {} edges to edge file {}'.format(len(edges), edge_path))
 		with open(edge_path, 'w') as edge_file:
 			edge_file.write(edge_json)
-
 
 	def _add_global_nodes(self):
 		"""
@@ -281,7 +294,7 @@ class BuildNetwork(object):
 		"""
 		# Loop through all genes (in the order listed in transcription)
 		for gene_id in self.sim_data.process.transcription.rna_data['gene_id']:
-			
+
 			# Initialize a single gene node
 			gene_node = Node()
 
@@ -663,6 +676,7 @@ class BuildNetwork(object):
 		charging_molecules = np.array(transcription.charging_molecules)
 		synthetases = np.array(transcription.synthetase_names)
 		trna_to_synthetase = transcription.aa_from_trna.T.dot(transcription.aa_from_synthetase)
+
 		for stoich, trna, synth_idx in zip(charging_stoich, uncharged_trnas, trna_to_synthetase):
 			rxn = '{} net charging'.format(trna[:-3])
 
@@ -686,7 +700,7 @@ class BuildNetwork(object):
 			mol_idx = np.where(stoich != 0)[0]
 			for mol, direction in zip(charging_molecules[mol_idx], stoich[mol_idx]):
 				# Add metabolites that were not encountered
-				if mol not in metabolite_ids:
+				if mol != trna and mol not in metabolite_ids:
 					metabolite_ids.append(mol)
 
 				# Add Charging edges
@@ -953,18 +967,12 @@ class BuildNetwork(object):
 		"""
 		Identify nodes that have duplicate IDs.
 		"""
-		node_ids = []
-
-		# Loop through all nodes in the node_list
-		for node in self.node_list:
-			# Get ID of the node
-			node_ids.append(node.get_node_id())
-
-		duplicate_ids = set([x for x in node_ids if node_ids.count(x) > 1])
+		counters = Counter([node.get_node_id() for node in self.node_list])
+		duplicate_ids = {node_id for node_id in counters if counters[node_id] > 1}
 
 		# Print duplicate node IDs that were found
 		if len(duplicate_ids) > 0:
-			raise Exception("%d node IDs were found to be duplicate: %s"
+			raise ValueError("%d node IDs have duplicates: %s"
 				% (len(duplicate_ids), duplicate_ids))
 
 
