@@ -1,5 +1,5 @@
 '''
-Print id, mw, location for charged tRNAs to add to modified_forms.tsv
+Print id, mw, location for charged tRNAs to add to modified_proteins.tsv
 Output file is charged_data.tsv in the same directory as the script
 
 Notes:

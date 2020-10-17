@@ -96,7 +96,7 @@ class Plot(multigenAnalysisPlot.MultigenAnalysisPlot):
 
 				transporters = []
 				if 'catalyzed by' in reaction:
-					transporters_no_compartment = reaction['catalyzed by']
+					transporters_no_compartment = reaction['catalyzed_by']
 
 					# get transporter's compartment
 					transporters = []

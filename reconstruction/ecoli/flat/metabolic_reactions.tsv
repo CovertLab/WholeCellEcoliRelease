@@ -1,4 +1,5 @@
-"reaction id"	"stoichiometry"	"is reversible"	"catalyzed by"
+# Note: Reactions listed in metabolic_reactions_removed.tsv are removed from simulation data.
+"id"	"stoichiometry"	"is_reversible"	"catalyzed_by"
 "1.1.1.127-RXN"	{"NADH[c]": 1, "PROTON[c]": 1, "2-DEHYDRO-3-DEOXY-D-GLUCONATE[c]": -1, "CPD-343[c]": 1, "NAD[c]": -1}	true	["KDUD-MONOMER"]
 "1.1.1.215-RXN"	{"NADPH[c]": -1, "GLUCONATE[c]": 1, "CPD-377[c]": -1, "PROTON[c]": -1, "NADP[c]": 1}	false	["CPLX0-235"]
 "1.1.1.262-RXN"	{"NADH[c]": 1, "PROTON[c]": 1, "2-AMINO-3-OXO-4-PHOSPHONOOXYBUTYRATE[c]": 1, "NAD[c]": -1, "4-PHOSPHONOOXY-THREONINE[c]": -1}	false	["CPLX0-7847"]
@@ -338,7 +339,7 @@
 "ATP-PYROPHOSPHATASE-RXN"	{"WATER[c]": -1, "PPI[c]": 1, "PROTON[c]": 1, "ATP[c]": -1, "AMP[c]": 1}	false	["G6468-MONOMER", "CPLX0-7692"]
 "ATPPHOSPHORIBOSYLTRANS-RXN"	{"PRPP[c]": 1, "PPI[c]": -1, "PROTON[c]": 1, "ATP[c]": 1, "PHOSPHORIBOSYL-ATP[c]": -1}	true	["CPLX0-7614"]
 "ATPSYN-RXN[CCO-OUT-CCO-IN]-ATP/PROTON/WATER//ADP/Pi/PROTON.48."	{"WATER[c]": -1, "PROTON[c]": -3, "ATP[c]": -1, "PI[c]": 1, "ADP[c]": 1, "PROTON[p]": 4}	true	["ATPSYN-CPLX"]
-#"ATPSYN-RXN[CCO-PM-BAC-NEG]-ATP/PROTON/WATER//ADP/Pi/PROTON.48."	{"PI[c]": 1, "ADP[c]": 1, "PROTON[c]": -3, "ATP[c]": -1, "WATER[c]": -1, "PROTON[p]": 4}	true	["ATPSYN-CPLX"]
+"ATPSYN-RXN[CCO-PM-BAC-NEG]-ATP/PROTON/WATER//ADP/Pi/PROTON.48."	{"PI[c]": 1, "ADP[c]": 1, "PROTON[c]": -3, "ATP[c]": -1, "WATER[c]": -1, "PROTON[p]": 4}	true	["ATPSYN-CPLX"]
 "BADH-RXN"	{"NADH[c]": 1, "NAD[c]": -1, "BETAINE[c]": 1, "PROTON[c]": 2, "BETAINE_ALDEHYDE[c]": -1, "WATER[c]": -1}	false	["BADH-CPLX"]
 "BETA-PHOSPHOGLUCOMUTASE-RXN"	{"CPD-448[c]": 1, "GLC-6-P[c]": -1}	true	["G6655-MONOMER"]
 "BETAGALACTOSID-RXN"	{"WATER[c]": -1, "Alpha-lactose[c]": -1, "GLC[c]": 1, "GALACTOSE[c]": 1}	false	["BETAGALACTOSID-CPLX"]
@@ -660,7 +661,7 @@
 "LYSDECARBOX-RXN"	{"LYS[c]": -1, "PROTON[c]": -1, "CADAVERINE[c]": 1, "CARBON-DIOXIDE[c]": 1}	false	["LDC2-CPLX", "LYSDECARBOX-CPLX"]
 "LYSINE--TRNA-LIGASE-RXN-LYS/LYS-tRNAs/ATP/PROTON//Charged-LYS-tRNAs/AMP/PPI.52."	{"LYS[c]": -1, "Charged-LYS-tRNAs[c]": 1, "PPI[c]": 1, "ATP[c]": -1, "AMP[c]": 1, "LYS-tRNAs[c]": -1}	false	["LYSS-CPLX", "LYSU-CPLX"]
 "LYSOPHOSPHOLIPASE-RXN[CCO-PERI-BAC]-2-Lysophosphatidylcholines/WATER//Carboxylates/L-1-GLYCERO-PHOSPHORYLCHOLINE/PROTON.98."	{"WATER[p]": -1, "Carboxylates[p]": 1, "2-Lysophosphatidylcholines[p]": -1, "PROTON[p]": 1, "L-1-GLYCERO-PHOSPHORYLCHOLINE[p]": 1}	false	["CPLX0-7630"]
-#"LYSOPHOSPHOLIPASE-RXN[CCO-UNKNOWN-SPACE]-2-Lysophosphatidylcholines/WATER//Carboxylates/L-1-GLYCERO-PHOSPHORYLCHOLINE/PROTON.103."	{"WATER[2]": -1, "Carboxylates[2]": 1, "2-Lysophosphatidylcholines[2]": -1, "PROTON[2]": 1, "L-1-GLYCERO-PHOSPHORYLCHOLINE[2]": 1}	false	["CPLX0-7630"]
+"LYSOPHOSPHOLIPASE-RXN[CCO-UNKNOWN-SPACE]-2-Lysophosphatidylcholines/WATER//Carboxylates/L-1-GLYCERO-PHOSPHORYLCHOLINE/PROTON.103."	{"WATER[2]": -1, "Carboxylates[2]": 1, "2-Lysophosphatidylcholines[2]": -1, "PROTON[2]": 1, "L-1-GLYCERO-PHOSPHORYLCHOLINE[2]": 1}	false	["CPLX0-7630"]
 "LYXISOM-RXN"	{"L-LYXOSE[c]": -1, "L-XYLULOSE[c]": 1}	true	["CPLX0-7652"]
 "LYXK-RXN"	{"PROTON[c]": 1, "L-XYLULOSE-5-P[c]": 1, "L-XYLULOSE[c]": -1, "ATP[c]": -1, "ADP[c]": 1}	false	["LYXK-CPLX"]
 "MALATE-DEH-RXN"	{"OXALACETIC_ACID[c]": 1, "NADH[c]": 1, "PROTON[c]": 1, "MAL[c]": -1, "NAD[c]": -1}	true	["MALATE-DEHASE"]
@@ -1255,7 +1256,7 @@
 "RXN0-5187[CCO-PERI-BAC]-FMN/WATER//RIBOFLAVIN/Pi.39."	{"PI[p]": 1, "WATER[p]": -1, "RIBOFLAVIN[p]": 1, "FMN[p]": -1}	false	["ALKAPHOSPHA-CPLX"]
 "RXN0-5190[CCI-PERI-BAC-GN]-Peptidoglycan-dimer//NAcMur-Peptide-NAcGlc-Undecaprenols/GlcNAc-1-6-anhydro-MurNAc-pentapeptide.113."	{"NAcMur-Peptide-NAcGlc-Undecaprenols[p]": 1, "GLUTATHIONE[p]": -1, "GlcNAc-1-6-anhydro-MurNAc-pentapeptide[p]": 1}	true	["G7410-MONOMER", "G6622-MONOMER"]
 "RXN0-5190[CCO-CYTOSOL]-Peptidoglycan-dimer//NAcMur-Peptide-NAcGlc-Undecaprenols/GlcNAc-1-6-anhydro-MurNAc-pentapeptide.109."	{"NAcMur-Peptide-NAcGlc-Undecaprenols[c]": -1, "GlcNAc-1-6-anhydro-MurNAc-pentapeptide[c]": -1, "Peptidoglycan-dimer[c]": 1}	true	["G7457-MONOMER", "G7533-MONOMER", "EG11373-MONOMER"]
-#"RXN0-5190[CCO-UNKNOWN-SPACE]-Peptidoglycan-dimer//NAcMur-Peptide-NAcGlc-Undecaprenols/GlcNAc-1-6-anhydro-MurNAc-pentapeptide.115."	{"Peptidoglycan-dimer[?]": -1, "NAcMur-Peptide-NAcGlc-Undecaprenols[?]": 1, "GlcNAc-1-6-anhydro-MurNAc-pentapeptide[?]": 1}	true	["EG10950-MONOMER", "EG10246-MONOMER"]
+"RXN0-5190[CCO-UNKNOWN-SPACE]-Peptidoglycan-dimer//NAcMur-Peptide-NAcGlc-Undecaprenols/GlcNAc-1-6-anhydro-MurNAc-pentapeptide.115."	{"Peptidoglycan-dimer[?]": -1, "NAcMur-Peptide-NAcGlc-Undecaprenols[?]": 1, "GlcNAc-1-6-anhydro-MurNAc-pentapeptide[?]": 1}	true	["EG10950-MONOMER", "EG10246-MONOMER"]
 "RXN0-5192"	{"LYS[c]": -1, "CPD0-1032[c]": 1}	true	["G7836-MONOMER"]
 "RXN0-5199"	{"PI[c]": 1, "GUANOSINE[c]": 1, "GUANINE[c]": -1, "RIBOSE-1P[c]": -1}	true	["XANTHOSINEPHOSPHORY-CPLX", "DEOD-CPLX"]
 "RXN0-5200"	{"2-Aminobutyrate[c]": 1, "2-OXOBUTANOATE[c]": -1, "Aminated-Amine-Donors[c]": -1, "Deaminated-Amine-Donors[c]": 1}	true	["VALINE-PYRUVATE-AMINOTRANSFER-MONOMER"]

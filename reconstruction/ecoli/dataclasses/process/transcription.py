@@ -535,23 +535,14 @@ class Transcription(object):
 		synthetase_mapping_aa = []
 		synthetase_mapping_syn = []
 
+		# Get IDs of charging reactions that should be removed
+		removed_reaction_ids = {
+			rxn['id'] for rxn in raw_data.rna_modification_reactions_removed}
+
 		# Create stoichiometry matrix for charging reactions
-		for reaction in raw_data.modification_reactions:
-			# Skip reactions from modificationReactions that don't have both an uncharged and charged tRNA
-			no_charged_trna_in_reaction = True
-			no_trna_in_reaction = True
-			for mol in [molecule['molecule'] + '[' + molecule['location'] + ']' for molecule in reaction['stoichiometry']]:
-				if mol in self.charged_trna_names:
-					no_charged_trna_in_reaction = False
-
-				if mol in trna_names:
-					no_trna_in_reaction = False
-
-			if no_charged_trna_in_reaction or no_trna_in_reaction:
+		for reaction in raw_data.rna_modification_reactions:
+			if reaction['id'] in removed_reaction_ids:
 				continue
-
-			assert reaction['process'] == 'rna'
-			assert reaction['dir'] == 1
 
 			# Get uncharged tRNA name for the given reaction
 			trna = None
@@ -595,7 +586,7 @@ class Transcription(object):
 			assert aa_idx is not None
 
 			# Create mapping for synthetases catalyzing charging
-			for synthetase in reaction['catBy']:
+			for synthetase in reaction['catalyzed_by']:
 				synthetase = '{}[{}]'.format(synthetase, molecule['location'])
 
 				if synthetase not in synthetase_names:

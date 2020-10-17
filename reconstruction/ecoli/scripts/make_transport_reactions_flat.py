@@ -21,7 +21,7 @@ from wholecell.io import tsv
 
 TSV_DIALECT = csv.excel_tab
 
-REACTIONS_FILE = os.path.join("reconstruction", "ecoli", "flat", "reactions.tsv")
+REACTIONS_FILE = os.path.join("reconstruction", "ecoli", "flat", "metabolic_reactions.tsv")
 OUT_FILE = os.path.join("out", "transport_reactions.tsv")
 
 # make list of transport reactions

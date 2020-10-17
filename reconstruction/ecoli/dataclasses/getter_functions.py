@@ -14,6 +14,14 @@ import numpy as np
 from reconstruction.ecoli.dataclasses.molecule_groups import POLYMERIZED_FRAGMENT_PREFIX
 from wholecell.utils import units
 
+
+class UnknownMolecularWeightError(Exception):
+	pass
+
+class UnknownModifiedRnaError(Exception):
+	pass
+
+
 class GetterFunctions(object):
 	""" getterFunctions """
 
@@ -166,9 +174,12 @@ class GetterFunctions(object):
 		self._all_submass_arrays.update(self._build_rna_masses(raw_data, sim_data))
 		self._all_submass_arrays.update(self._build_protein_masses(raw_data, sim_data))
 		self._all_submass_arrays.update(self._build_full_chromosome_mass(raw_data, sim_data))
+
+		# These updates can be dependent on the masses calculated above
+		self._all_submass_arrays.update(self._build_modified_rna_masses(raw_data, sim_data))
 		self._all_submass_arrays.update(
-			{x['id']: np.array(x['mw'])
-				for x in itertools.chain(raw_data.protein_complexes, raw_data.modified_forms)}
+			{x['id']: np.array(x['mw']) for x in itertools.chain(
+				raw_data.protein_complexes, raw_data.modified_proteins)}
 			)
 
 		self._mass_units = units.g / units.mol
@@ -288,25 +299,81 @@ class GetterFunctions(object):
 
 		return {sim_data.molecule_ids.full_chromosome[:-3]: self._build_submass_array(mw, 'DNA')}
 
+	def _build_modified_rna_masses(self, raw_data, sim_data):
+		"""
+		Builds dictionary of molecular weights of modified RNAs keyed with
+		the molecule IDs. Molecular weights are calculated from the
+		stoichiometries of the modification reactions.
+		"""
+		modified_rna_masses = {}
+
+		# Get all modified form IDs from RNA data
+		all_modified_rna_ids = {
+			modified_rna_id for rna in raw_data.rnas
+			for modified_rna_id in rna['modified_forms']}
+
+		# Get IDs of modification reactions that should be removed
+		removed_rna_modification_reaction_ids = {
+			rxn['id'] for rxn in raw_data.rna_modification_reactions_removed
+			}
+
+		# Loop through each modification reaction
+		for rxn in raw_data.rna_modification_reactions:
+			if rxn['id'] in removed_rna_modification_reaction_ids:
+				continue
+
+			# Find molecule IDs whose masses are unknown
+			unknown_mol_ids = [
+				x['molecule'] for x in rxn['stoichiometry']
+				if x['molecule'] not in self._all_submass_arrays]
+			# The only molecule whose mass is unknown should be the modified
+			# RNA molecule
+			if len(unknown_mol_ids) != 1:
+				raise UnknownMolecularWeightError(
+					'RNA modification reaction %s has two or more reactants or products with unknown molecular weights: %s' % (rxn['id'], unknown_mol_ids))
+
+			# All modified RNAs must be assigned to a specific RNA
+			modified_rna_id = unknown_mol_ids[0]
+			if modified_rna_id not in all_modified_rna_ids:
+				raise UnknownModifiedRnaError(
+					'The modified RNA molecule %s was not assigned to any RNAs.' % (modified_rna_id, ))
+
+			# Calculate mw of the modified RNA from the stoichiometry
+			mw_sum = np.zeros(self._n_submass_indexes)
+			for entry in rxn['stoichiometry']:
+				if entry['molecule'] == modified_rna_id:
+					modified_rna_coeff = entry['coeff']
+				else:
+					mw_sum += entry['coeff']*self._all_submass_arrays[entry['molecule']]
+
+			modified_rna_masses[modified_rna_id] = -mw_sum/modified_rna_coeff
+
+		return modified_rna_masses
+
 	def _build_locations(self, raw_data, sim_data):
 		locationDict = {
 			item["id"]: list(item["location"])
-			for item in itertools.chain(
-				raw_data.protein_complexes,
-				raw_data.modified_forms)}
+			for item in raw_data.protein_complexes}
 
-		# RNAs and full chromosomes only localize to the cytosol
+		# RNAs, modified RNAs, and full chromosomes only localize to the
+		# cytosol
 		locationDict.update({
 			rna['id']: ['c'] for rna in raw_data.rnas
+			})
+		locationDict.update({
+			modified_rna_id: ['c'] for rna in raw_data.rnas
+			for modified_rna_id in rna['modified_forms']
+			if modified_rna_id in self._all_submass_arrays
 			})
 		locationDict.update({
 			sim_data.molecule_ids.full_chromosome[:-3]: ['c']
 			})
 
-		# Proteins localize to the single compartment specified in raw data for
-		# each protein
+		# Proteins and modified proteins localize to the single compartment
+		# specified in raw data for each protein
 		locationDict.update({
-			protein['id']: [protein['location']] for protein in raw_data.proteins
+			protein['id']: [protein['location']] for protein
+			in itertools.chain(raw_data.proteins, raw_data.modified_proteins)
 			})
 
 		# Metabolites and polymerized subunits can localize to all compartments
@@ -318,12 +385,6 @@ class GetterFunctions(object):
 		locationDict.update({
 			subunit_id[:-3]: all_compartments
 			for subunit_id in sim_data.molecule_groups.polymerized_subunits
-			})
-
-		# Proteins localize to the single compartment specified in raw data for
-		# each protein
-		locationDict.update({
-			protein['id']: [protein['location']] for protein in raw_data.proteins
 			})
 
 		self._locationDict = locationDict

@@ -73,8 +73,8 @@ class TwoComponentSystem(object):
 
 				if reactionName not in rxnIds:
 					rxnIds.append(reactionName)
-					ratesFwd.append(reactionTemplate[reaction]["forward rate"])
-					ratesRev.append(reactionTemplate[reaction]["reverse rate"])
+					ratesFwd.append(reactionTemplate[reaction]["forward_rate"])
+					ratesRev.append(reactionTemplate[reaction]["reverse_rate"])
 					reactionIndex = len(rxnIds) - 1
 
 				else:
@@ -164,7 +164,7 @@ class TwoComponentSystem(object):
 
 		self.independent_molecules_atp_index = np.where(self.independent_molecules == "ATP[c]")[0][0]
 
-		self.complex_to_monomer = self._buildComplexToMonomer(raw_data.modified_forms_stoichiometry, self.molecule_names)
+		self.complex_to_monomer = self._buildComplexToMonomer(raw_data.modified_proteins, self.molecule_names)
 
 		# Mass balance matrix
 		self._stoich_matrix_mass = np.array(stoichMatrixMass)
@@ -210,10 +210,10 @@ class TwoComponentSystem(object):
 		'''
 		D = {}
 		for row in modifiedFormsMonomers:
-			if str(row["complexID"]) in tcsMolecules:
-				D[str(row["complexID"])] = {}
+			if str(row["id"]) in tcsMolecules:
+				D[str(row["id"])] = {}
 				for subunit in row["subunits"]:
-					D[str(row["complexID"])][str(subunit["monomer"])] = float(subunit["stoichiometry"])
+					D[str(row["id"])][str(subunit["monomer"])] = float(subunit["stoichiometry"])
 
 		return D
 

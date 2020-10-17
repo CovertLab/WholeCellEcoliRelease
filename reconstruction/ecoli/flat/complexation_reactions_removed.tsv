@@ -1,0 +1,3 @@
+"id"	"_comments"
+"CPLX0-3922_RXN"	"Removed to prevent the reaction from depleting DNA helicase (CPLX0-3621[c]), an essential subunit of the replisome"
+"CPLX-8029_RXN"	"Removed to prevent the reaction from depleting thiazole synthase (CPLX0-3949[c]), an enzyme required for synthesis of thiazole"

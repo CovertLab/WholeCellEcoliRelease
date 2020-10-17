@@ -26,25 +26,20 @@ class Complexation(object):
 		stoichMatrixV = []  # Stoichiometric coefficients
 		stoichMatrixMass = []  # Molecular masses of molecules in stoichMatrixI
 
-		# Remove complexes containing molecules that are currently not simulated
-		FORBIDDEN_MOLECULES = {
-			"modified-charged-selC-tRNA",  # molecule does not exist
-			}
+		# Get IDs of reactions that should be removed
+		removed_reaction_ids = {
+			rxn['id'] for rxn in raw_data.complexation_reactions_removed}
 
-		deleteReactions = []
-		for reactionIndex, reaction in enumerate(raw_data.complexation_reactions):
-			for molecule in reaction["stoichiometry"]:
-				if molecule["molecule"] in FORBIDDEN_MOLECULES:
-					deleteReactions.append(reactionIndex)
-					break
-
-		for reactionIndex in deleteReactions[::-1]:
-			del raw_data.complexation_reactions[reactionIndex]
+		self.ids_reactions = []
+		reaction_index = 0
 
 		# Build stoichiometric matrix from given complexation reactions
-		for reactionIndex, reaction in enumerate(raw_data.complexation_reactions):
-			assert reaction["process"] == "complexation"
-			assert reaction["dir"] == 1
+		for reaction in raw_data.complexation_reactions:
+			# Skip removed reactions
+			if reaction['id'] in removed_reaction_ids:
+				continue
+
+			self.ids_reactions.append(reaction['id'])
 
 			for molecule in reaction["stoichiometry"]:
 				if molecule["type"] == "metabolite":
@@ -60,15 +55,15 @@ class Complexation(object):
 
 				if moleculeName not in molecules:
 					molecules.append(moleculeName)
-					moleculeIndex = len(molecules) - 1
+					molecule_index = len(molecules) - 1
 				else:
-					moleculeIndex = molecules.index(moleculeName)
+					molecule_index = molecules.index(moleculeName)
 
 				coefficient = molecule["coeff"]
 				assert (coefficient % 1) == 0
 
-				stoichMatrixI.append(moleculeIndex)
-				stoichMatrixJ.append(reactionIndex)
+				stoichMatrixI.append(molecule_index)
+				stoichMatrixJ.append(reaction_index)
 				stoichMatrixV.append(coefficient)
 
 				# Classify molecule into subunit or complex depending on sign
@@ -84,8 +79,9 @@ class Complexation(object):
 				molecularMass = sim_data.getter.get_mass(moleculeName).asNumber(units.g / units.mol)
 				stoichMatrixMass.append(molecularMass)
 
-		self.rates = np.full(
-			(len(raw_data.complexation_reactions),),
+			reaction_index += 1
+
+		self.rates = np.full((reaction_index, ),
 			sim_data.constants.complexation_rate.asNumber(1/units.s))
 
 		self._stoich_matrix_I = np.array(stoichMatrixI)
@@ -95,7 +91,6 @@ class Complexation(object):
 
 		self.molecule_names = molecules
 		self.ids_complexes = [self.molecule_names[i] for i in np.where(np.any(self.stoich_matrix() > 0, axis=1))[0]]
-		self.ids_reactions = [stoich_dict['id'] for stoich_dict in raw_data.complexation_reactions]
 
 		# Remove duplicate names in subunits and complexes
 		self.subunit_names = set(subunits)

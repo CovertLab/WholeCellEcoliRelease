@@ -9,8 +9,8 @@ from wholecell.utils import units
 
 from reconstruction.ecoli.dataclasses.state.bulkMolecules import BulkMolecules
 from reconstruction.ecoli.dataclasses.state.uniqueMolecules import UniqueMolecules
-from reconstruction.ecoli.dataclasses.state import stateFunctions
 
+import itertools
 import numpy as np
 
 class InternalState(object):
@@ -30,51 +30,24 @@ class InternalState(object):
 		"""
 		Add data (IDs and mass) for all classes of bulk molecules.
 		"""
-		# Set metabolites
-		metabolite_ids, metabolite_masses = self._build_bulk_molecule_specs(
-			sim_data, [met['id'] for met in raw_data.metabolites])
-		self.bulk_molecules.add_to_bulk_state(metabolite_ids, metabolite_masses)
+		all_bulk_molecule_ids = itertools.chain(
+			[met['id'] for met in raw_data.metabolites],  # Metabolites
+			[rna['id'] for rna in raw_data.rnas],  # RNAs
+			[subunit_id[:-3] for subunit_id in
+				sim_data.molecule_groups.polymerized_ntps],  # RNA fragments
+			[protein['id'] for protein in raw_data.proteins],  # Proteins
+			[protein_complex['id'] for protein_complex in raw_data.protein_complexes],  # Protein complexes
+			[protein['id'] for protein in raw_data.modified_proteins],  # Modified proteins
+			[modified_rna_id for rna in raw_data.rnas
+				for modified_rna_id in rna['modified_forms']
+				if sim_data.getter.check_valid_molecule(modified_rna_id)],  # Modified RNAs
+			)
+		all_bulk_molecule_ids_with_compartments, all_bulk_molecule_masses = self._build_bulk_molecule_specs(
+			sim_data, all_bulk_molecule_ids)
+		self.bulk_molecules.add_to_bulk_state(
+			all_bulk_molecule_ids_with_compartments, all_bulk_molecule_masses)
 		sim_data.molecule_groups.bulk_molecules_binomial_division.extend(
-			metabolite_ids)
-
-		# Set RNAs
-		rna_ids, rna_masses = self._build_bulk_molecule_specs(
-			sim_data, [rna['id'] for rna in raw_data.rnas])
-		self.bulk_molecules.add_to_bulk_state(rna_ids, rna_masses)
-		sim_data.molecule_groups.bulk_molecules_binomial_division.extend(
-			rna_ids)
-
-		# Set RNA subunits (used to represent masses of RNA fragments)
-		rna_subunit_ids, rna_subunit_masses = self._build_bulk_molecule_specs(
-			sim_data, [subunit_id[:-3] for subunit_id in sim_data.molecule_groups.polymerized_ntps])
-		self.bulk_molecules.add_to_bulk_state(rna_subunit_ids, rna_subunit_masses)
-		sim_data.molecule_groups.bulk_molecules_binomial_division.extend(
-			rna_subunit_ids)
-
-		# Set proteins
-		protein_ids, protein_masses = self._build_bulk_molecule_specs(
-			sim_data, [protein['id'] for protein in raw_data.proteins])
-		self.bulk_molecules.add_to_bulk_state(protein_ids, protein_masses)
-		sim_data.molecule_groups.bulk_molecules_binomial_division.extend(
-			protein_ids)
-
-		# Set complexes
-		complexIds = stateFunctions.createIdsWithCompartments(raw_data.protein_complexes)
-		complexMasses = (units.g/units.mol) * (
-			stateFunctions.createMassesByCompartments(raw_data.protein_complexes))
-
-		self.bulk_molecules.add_to_bulk_state(complexIds, complexMasses)
-		sim_data.molecule_groups.bulk_molecules_binomial_division.extend(
-			complexIds)
-
-		# Set modified forms
-		modifiedFormIds = stateFunctions.createIdsWithCompartments(raw_data.modified_forms)
-		modifiedFormMasses = (units.g/units.mol) * (
-			stateFunctions.createModifiedFormMassesByCompartments(raw_data.modified_forms))
-
-		self.bulk_molecules.add_to_bulk_state(modifiedFormIds, modifiedFormMasses)
-		sim_data.molecule_groups.bulk_molecules_binomial_division.extend(
-			modifiedFormIds)
+			all_bulk_molecule_ids_with_compartments)
 
 
 	def _build_bulk_molecule_specs(self, sim_data, molecule_ids):

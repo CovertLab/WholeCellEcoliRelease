@@ -135,7 +135,7 @@ reaction_stoich = {
 # Write a table of true reactions:
 # reaction name, stoich, is_reversible
 
-filename = os.path.join("reconstruction", "ecoli", "flat", "reactions.tsv")
+filename = os.path.join("reconstruction", "ecoli", "flat", "metabolic_reactions.tsv")
 with tsv_writer(filename, ["reaction id", "stoichiometry", "is reversible"]) as writer:
 	for reaction_id, stoich in six.viewitems(reaction_stoich):
 		writer.writerow({

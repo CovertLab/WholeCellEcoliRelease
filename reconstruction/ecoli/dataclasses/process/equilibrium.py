@@ -40,7 +40,8 @@ class Equilibrium(object):
 		self.metabolite_set = set()
 		self.complex_name_to_rxn_idx = {}
 
-		# Make sure reactions are not duplicated in complexationReactions and equilibriumReactions
+		# Make sure reactions are not duplicated in complexationReactions and
+		# equilibriumReactions
 		equilibriumReactionIds = set([x["id"] for x in raw_data.equilibrium_reactions])
 		complexationReactionIds = set([x["id"] for x in raw_data.complexation_reactions])
 
@@ -50,31 +51,38 @@ class Equilibrium(object):
 					equilibriumReactionIds.intersection(
 						complexationReactionIds)))
 
+		# Initialize IDs of reactions that should be removed
+		removed_reaction_ids = {
+			rxn['id'] for rxn in raw_data.equilibrium_reactions_removed}
+
 		# Remove complexes that are currently not simulated
 		FORBIDDEN_MOLECULES = {
 			"modified-charged-selC-tRNA", # molecule does not exist
 			}
 
-		# Remove reactions that we know won't occur (e.g., don't do computations on metabolites that have zero counts)
-		MOLECULES_THAT_WILL_EXIST_IN_SIMULATION = [m["Metabolite"] for m in raw_data.metabolite_concentrations] + ["LEU", "S-ADENOSYLMETHIONINE", "ARABINOSE", "4FE-4S"] + [l["molecules"]["LIGAND"] for l in raw_data.two_component_systems]
+		# Remove reactions that we know won't occur (e.g., don't do
+		# computations on metabolites that have zero counts)
+		# TODO (ggsun): check if this list is accurate
+		MOLECULES_THAT_WILL_EXIST_IN_SIMULATION = [
+			m["Metabolite"] for m in raw_data.metabolite_concentrations] + [
+			"LEU", "S-ADENOSYLMETHIONINE", "ARABINOSE", "4FE-4S"] + [
+			l["molecules"]["LIGAND"] for l in raw_data.two_component_systems]
 
-		deleteReactions = []
-		for reactionIndex, reaction in enumerate(raw_data.equilibrium_reactions):
+		for reaction in raw_data.equilibrium_reactions:
 			for molecule in reaction["stoichiometry"]:
 				if molecule["molecule"] in FORBIDDEN_MOLECULES or (molecule["type"] == "metabolite" and molecule["molecule"] not in MOLECULES_THAT_WILL_EXIST_IN_SIMULATION):
-					deleteReactions.append(reactionIndex)
+					removed_reaction_ids.add(reaction['id'])
 					break
 
-		for reactionIndex in deleteReactions[::-1]:
-			del raw_data.equilibrium_reactions[reactionIndex]
+		reaction_index = 0
 
 		# Build stoichiometry matrix
-		for reactionIndex, reaction in enumerate(raw_data.equilibrium_reactions):
-			assert reaction["process"] == "equilibrium"
-			assert reaction["dir"] == 1
+		for reaction in raw_data.equilibrium_reactions:
+			if reaction['id'] in removed_reaction_ids:
+				continue
 
-			ratesFwd.append(reaction["forward rate"])
-			ratesRev.append(reaction["reverse rate"])
+			ratesFwd.append(reaction["forward_rate"])
+			ratesRev.append(reaction["reverse_rate"])
 			rxnIds.append(reaction["id"])
 
 			for molecule in reaction["stoichiometry"]:
@@ -93,27 +101,29 @@ class Equilibrium(object):
 
 				if moleculeName not in molecules:
 					molecules.append(moleculeName)
-					moleculeIndex = len(molecules) - 1
+					molecule_index = len(molecules) - 1
 
 				else:
-					moleculeIndex = molecules.index(moleculeName)
+					molecule_index = molecules.index(moleculeName)
 
 				coefficient = molecule["coeff"]
 
 				assert coefficient % 1 == 0
 
 				# Store indices for the row and column, and molecule coefficient for building the stoichiometry matrix
-				stoichMatrixI.append(moleculeIndex)
-				stoichMatrixJ.append(reactionIndex)
+				stoichMatrixI.append(molecule_index)
+				stoichMatrixJ.append(reaction_index)
 				stoichMatrixV.append(coefficient)
 
 				if coefficient > 0:
 					assert molecule["type"] == "proteincomplex"
-					self.complex_name_to_rxn_idx[moleculeName] = reactionIndex
+					self.complex_name_to_rxn_idx[moleculeName] = reaction_index
 
 				# Find molecular mass
 				molecularMass = sim_data.getter.get_mass(moleculeName).asNumber(units.g / units.mol)
 				stoichMatrixMass.append(molecularMass)
+
+			reaction_index += 1
 
 		# TODO(jerry): Move the rest to a subroutine for __init__ and __setstate__?
 		self._stoichMatrixI = np.array(stoichMatrixI)

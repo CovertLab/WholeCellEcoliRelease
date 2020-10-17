@@ -10,7 +10,7 @@ from reconstruction.spreadsheets import read_tsv
 import six
 
 
-REACTIONS_FILE = os.path.join("reconstruction", "ecoli", "flat", "reactions.tsv")
+REACTIONS_FILE = os.path.join("reconstruction", "ecoli", "flat", "metabolic_reactions.tsv")
 ECOCYC_DUMP = os.path.join("reconstruction", "ecoli", "flat", "ecocyc_20_1_gem.json")
 
 NEW_REACTIONS_FILE = os.path.join("reconstruction", "ecoli", "flat", "reactions_new.tsv")
