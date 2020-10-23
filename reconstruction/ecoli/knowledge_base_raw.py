@@ -52,7 +52,6 @@ LIST_OF_DICT_FILENAMES = (
 	"transcription_factors.tsv",
 	"tf_one_component_bound.tsv",
 	"translation_efficiency.tsv",
-	"transport_reactions.tsv",
 	"two_component_systems.tsv",
 	"two_component_system_templates.tsv",
 	os.path.join("mass_fractions", "glycogen_fractions.tsv"),

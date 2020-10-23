@@ -246,19 +246,19 @@ class Metabolism(object):
 		Reads in and stores reaction and kinetic constraint information
 		"""
 
-		(reactionStoich, reversibleReactions, catalysts
+		(reaction_stoich, reversible_reactions, catalysts
 			) = self.extract_reactions(raw_data, sim_data)
 
 		# Load kinetic reaction constraints from raw_data
 		known_metabolites = set(self.conc_dict)
 		raw_constraints = self.extract_kinetic_constraints(raw_data, sim_data,
-			stoich=reactionStoich, catalysts=catalysts,
+			stoich=reaction_stoich, catalysts=catalysts,
 			known_metabolites=known_metabolites)
 
 		# Make modifications from kinetics data
-		(constraints, reactionStoich, catalysts, reversibleReactions
+		(constraints, reaction_stoich, catalysts, reversible_reactions
 			) = self._replace_enzyme_reactions(
-			raw_constraints, reactionStoich, catalysts, reversibleReactions)
+			raw_constraints, reaction_stoich, catalysts, reversible_reactions)
 
 		# Create symbolic kinetic equations
 		(self.kinetic_constraint_reactions, self.kinetic_constraint_enzymes,
@@ -306,7 +306,7 @@ class Metabolism(object):
 		catalysisMatrixV = np.array(catalysisMatrixV)
 
 		# Properties for FBA reconstruction
-		self.reaction_stoich = reactionStoich
+		self.reaction_stoich = reaction_stoich
 		self.maintenance_reaction = {"ATP[c]": -1, "WATER[c]": -1, "ADP[c]": +1, "PI[c]": +1, "PROTON[c]": +1, }
 
 		# Properties for catalysis matrix (to set hard bounds)
@@ -385,17 +385,11 @@ class Metabolism(object):
 				metabolic network (includes reverse reactions and reactions
 				with kinetic constraints)
 		"""
+		transport_reactions = [
+			rxn_id for rxn_id, stoich in self.reaction_stoich.items()
+			if self._is_transport_rxn(stoich)]
 
-		rxn_mapping = {}
-		for rxn in sorted(self.reaction_stoich):
-			basename = rxn.split('__')[0].split(' (reverse)')[0]
-			rxn_mapping[basename] = rxn_mapping.get(basename, []) + [rxn]
-
-		self.transport_reactions = [
-			rxn
-			for row in raw_data.transport_reactions
-			for rxn in rxn_mapping.get(row['id'], [])
-			]
+		self.transport_reactions = transport_reactions
 
 	def get_kinetic_constraints(self, enzymes, substrates):
 		# type: (units.Unum, units.Unum) -> units.Unum
@@ -611,7 +605,7 @@ class Metabolism(object):
 			if reversible:
 				reverse_reaction_id = REVERSE_REACTION_ID.format(reaction_id)
 				reaction_stoich[reverse_reaction_id] = {
-					moleculeID:-stoichCoeff
+					moleculeID: -stoichCoeff
 					for moleculeID, stoichCoeff in six.viewitems(reaction_stoich[reaction_id])
 					}
 
@@ -1186,6 +1180,63 @@ class Metabolism(object):
 		constraint_is_kcat_only = np.array(constraint_is_kcat_only)
 
 		return rxns, enzymes, substrates, all_kcats, all_saturations, all_enzymes, constraint_is_kcat_only
+
+	def _is_transport_rxn(self, stoich):
+		# type: (Dict[str, int]) -> bool
+		"""
+		Determines if the metabolic reaction with a given stoichiometry is a
+		transport reactions that transports metabolites between different
+		compartments. A metabolic reaction is considered to be a transport
+		reaction if the substrate set and the product share the same metabolite
+		tagged into different compartments.
+
+		Args:
+			stoich: Stoichiometry of the metabolic reaction
+				{
+				metabolite ID (str): stoichiometric coefficient (int)
+				}
+
+		Returns:
+			is_transport_rxn (bool): True if the reaction with the given
+			stoichiometry is a transport reaction
+		"""
+		is_transport_rxn = False
+
+		# Get IDs of all substrates and products
+		substrates, products = [], []
+		for mol_id, coeff in stoich.items():
+			if coeff < 0:
+				substrates.append(mol_id)
+			else:
+				products.append(mol_id)
+
+		# Get mapping from IDs to IDs without compartments
+		substrates_tagged_to_no_tag = {
+			mol_id: re.sub("\[.*\]", "", mol_id) for mol_id in substrates}
+		products_tagged_to_no_tag = {
+			mol_id: re.sub("\[.*\]", "", mol_id) for mol_id in products}
+
+		overlap_no_tag = (
+			set(substrates_tagged_to_no_tag.values())
+			& set(products_tagged_to_no_tag.values()))
+
+		for mol_id_no_tag in list(overlap_no_tag):
+			substrates_tagged = [
+				mol_tagged for mol_tagged in substrates
+				if substrates_tagged_to_no_tag[mol_tagged] == mol_id_no_tag]
+			products_tagged = [
+				mol_tagged for mol_tagged in products
+				if products_tagged_to_no_tag[mol_tagged] == mol_id_no_tag]
+
+			overlap_tagged = set(substrates_tagged) & set(products_tagged)
+
+			# Tag reaction as a transport reaction if there is no overlap
+			# between those substrates and products with locations included
+			if len(overlap_tagged) == 0:
+				is_transport_rxn = True
+				break
+
+		return is_transport_rxn
 
 
 # Class used to update metabolite concentrations based on the current nutrient conditions
