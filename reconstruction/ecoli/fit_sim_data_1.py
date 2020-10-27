@@ -7,6 +7,7 @@ TODO: functionalize so that values are not both set and returned from some metho
 
 from __future__ import absolute_import, division, print_function
 
+import itertools
 import os
 import multiprocessing as mp
 import sys
@@ -2331,49 +2332,47 @@ def fitPromoterBoundProbability(sim_data, cellSpecs):
 		correspond to combinations in the rows.
 		"""
 
-		combinationIdxToColIdxs = {
-			0: [0], 1: [0, 1], 2: [0, 2], 3: [0, 1, 2],
-			4: [0, 3], 5: [0, 1, 3], 6: [0, 2, 3], 7: [0, 1, 2, 3],
-			8: [0, 4], 9: [0, 1, 4], 10: [0, 2, 4], 11: [0, 1, 2, 4],
-			12: [0, 3, 4], 13: [0, 1, 3, 4], 14: [0, 2, 3, 4], 15: [0, 1, 2, 3, 4],
-			}
+		zI, zJ, zV = [], [], []
+		row_idx = 0
 
-		zI, zJ, zV, rowNames = [], [], [], []
-
-		for rnaId in sim_data.process.transcription.rna_data["id"]:
-			rnaIdNoLoc = rnaId[:-3]  # Remove compartment ID from RNA ID
+		for rna_id in sim_data.process.transcription.rna_data["id"]:
+			rna_id_no_loc = rna_id[:-3]  # Remove compartment ID from RNA ID
 
 			# Get list of TFs that regulate this RNA
-			tfs = sim_data.process.transcription_regulation.target_tf.get(rnaIdNoLoc, [])
-			tfsWithData = []
+			tfs = sim_data.process.transcription_regulation.target_tf.get(rna_id_no_loc, [])
+			tfs_with_data = []
 
 			# Get column index of the RNA's alpha column
-			colIdxs = [colNames.index(rnaIdNoLoc + "__alpha")]
+			col_idxs = [colNames.index(rna_id_no_loc + "__alpha")]
 
 			# Take only those TFs with active/inactive conditions data
 			for tf in tfs:
 				if tf not in sim_data.tf_to_active_inactive_conditions:
 					continue
 
-				tfsWithData.append(tf)
+				tfs_with_data.append(tf)
 
 				# Get column index of the RNA-TF pair
-				colIdxs.append(colNames.index(rnaIdNoLoc + "__" + tf))
+				col_idxs.append(colNames.index(rna_id_no_loc + "__" + tf))
 
-			nTfs = len(tfsWithData)
+			n_tfs = len(tfs_with_data)
 
 			# For all possible combinations of TFs
-			for combinationIdx in range(2**nTfs):
-				# Add a row for each combination
-				rowName = rnaIdNoLoc + "__%d" % combinationIdx
-				rowNames.append(rowName)
-
-				# Set matrix value to one if the TF specified by the column is
-				# present in the combination of TFs specified by the row
-				for colIdx in combinationIdxToColIdxs[combinationIdx]:
-					zI.append(rowNames.index(rowName))
-					zJ.append(colIdxs[colIdx])
+			for n_combinations in range(n_tfs + 1):
+				for combination in itertools.combinations(range(1, n_tfs + 1), n_combinations):
+					# Always include alpha column
+					zI.append(row_idx)
+					zJ.append(col_idxs[0])
 					zV.append(1)
+
+					# Set matrix value to one if the TF specified by the column is
+					# present in the combination of TFs specified by the row
+					for col_idx in combination:
+						zI.append(row_idx)
+						zJ.append(col_idxs[col_idx])
+						zV.append(1)
+
+					row_idx += 1
 
 		# Build matrix Z
 		zI, zJ, zV = np.array(zI), np.array(zJ), np.array(zV)
