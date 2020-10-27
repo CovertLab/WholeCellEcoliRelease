@@ -58,6 +58,7 @@ ACTIVE = [
 	"rnapCounts.py",
 	"rnaseCounts.py",
 	"superhelical_density.py",
+	"surface_area_comparison.py",
 	"transient_gene_dosage.py",
 	"trna_charging.py",
 	"tRnaCounts.py",
