@@ -262,7 +262,7 @@ class ScriptBase(six.with_metaclass(abc.ABCMeta, object)):
 		parser.add_argument(*names,
 			type=datatype,
 			default=default,
-			help='({}; {!r}) {}'.format(datatype.__name__, default, help)
+			help='({}; default {!r}) {}'.format(datatype.__name__, default, help)
 			)
 
 	def define_parameter_sim_dir(self, parser):
@@ -362,6 +362,9 @@ class ScriptBase(six.with_metaclass(abc.ABCMeta, object)):
 				type choices and their supported index ranges, e.g.: wildtype,
 				condition, meneParams, metabolism_kinetic_objective_weight,
 				nutrientTimeSeries, and param_sensitivity.
+				The meaning of the index values depends on the variant type. With
+				wildtype, every index does the same thing, so it's a way to test
+				that the simulation is repeatable.
 				Default = ''' + ' '.join(DEFAULT_VARIANT))
 		if manual_script:
 			self.define_parameter_bool(parser, 'require_variants', False,
@@ -371,17 +374,22 @@ class ScriptBase(six.with_metaclass(abc.ABCMeta, object)):
 
 		# Simulation
 		parser.add_argument('-g', '--generations', type=int, default=1,
-			help='Number of cell sim generations to run. (Single daughters only.)'
-				 ' Default = 1')
+			help='Number of cell sim generations to run per variant. (Single'
+				 ' daughters only.) Default = 1')
 		if manual_script:
 			parser.add_argument(dashize('--total_gens'), type=int,
 				help='(int) Total number of generations to write into the'
 					 ' metadata.json file. Default = the value of --generations.')
 		parser.add_argument('-s', '--seed', type=int, default=0,
-			help="First cell lineage's simulation seed. Default = 0")
+			help="Simulation seed for the first generation of the first cell"
+				 " lineage of every variant. The lineages (--init-sims) get"
+				 " sequentially increasing seed numbers. The generations"
+				 " (--generations) get seeds computed from the lineage seed and"
+				 " the generation number. Default = 0")
 
 		self.define_option(parser, 'init_sims', int, 1, flag='i',
-			help='Number of initial sims (lineage seeds) per variant.')
+			help='Number of initial sims (cell lineages) per variant. The'
+				 ' lineages get sequential seeds starting with the --seed value.')
 
 	def define_sim_options(self, parser):
 		# type: (argparse.ArgumentParser) -> None

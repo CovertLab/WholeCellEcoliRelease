@@ -17,11 +17,16 @@ class TestWorkflow(WorkflowCLI):
 
 	def build(self, args):
 		"""Build the workflow."""
+		# `print()` tests that a blank line in the console output doesn't cause
+		# a confusing Logs Viewer message like this:
+		# {"python_logger":"dockerfiretask.lines","message":""}
 		lines_filename = '/tmp/lines.txt'
 		code = (
 			"with open('" + lines_filename + "', 'w') as f:\n"
 			"  for i in range(10):\n"
 			"    f.write('This is line {}\\n'.format(i))\n"
+			"    if i == 4:\n"
+			"        print()\n"
 			"    print('line {}'.format(i))")
 		self.add_task(
 			name='lines',
