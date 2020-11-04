@@ -333,9 +333,11 @@ class ChromosomeStructure(wholecell.processes.process.Process):
 				self.fragmentBases.countsInc(base_counts)
 				self.ppi.countInc(n_initiated_sequences)
 
-		# Get mask for ribosomes that are bound to removed mRNA molecules
-		removed_ribosomes_mask = np.isin(
-			ribosome_mRNA_indexes, RNA_unique_indexes[removed_RNAs_mask])
+		# Get mask for ribosomes that are bound to nonexisting mRNAs
+		remaining_RNA_unique_indexes = RNA_unique_indexes[
+			np.logical_not(removed_RNAs_mask)]
+		removed_ribosomes_mask = np.logical_not(np.isin(
+			ribosome_mRNA_indexes, remaining_RNA_unique_indexes))
 		n_removed_ribosomes = np.count_nonzero(removed_ribosomes_mask)
 
 		# Remove ribosomes that are bound to removed mRNA molecules
