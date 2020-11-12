@@ -1,0 +1,3 @@
+Data downloaded as test data for NCA from Chang et al. Fast network component analysis (FastNCA) for gene regulatory network reconstruction from microarray data. Bioinformatics. 2008.
+subnet1_top.tsv: network topology (genes x TFs) to constrain A matrix, downloaded from https://www.eee.hku.hk/~cqchang/subnet1_top.xls
+subnet1_data.tsv: expression data (genes x samples) used as E matrix, downloaded from https://www.eee.hku.hk/~cqchang/subnet1_data.xls
