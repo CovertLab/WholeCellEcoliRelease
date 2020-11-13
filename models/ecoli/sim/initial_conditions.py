@@ -1046,6 +1046,7 @@ def initialize_translation(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 	currentNutrients = sim_data.conditions[sim_data.condition]['nutrients']
 	fracActiveRibosome = sim_data.process.translation.ribosomeFractionActiveDict[currentNutrients]
 	proteinSequences = sim_data.process.translation.translation_sequences
+	protein_lengths = sim_data.process.translation.monomer_data['length'].asNumber()
 	translationEfficiencies = normalize(
 		sim_data.process.translation.translation_efficiencies_by_monomer)
 	aaWeightsIncorporated = sim_data.process.translation.translation_monomer_weights
@@ -1121,9 +1122,16 @@ def initialize_translation(bulkMolCntr, uniqueMolCntr, sim_data, randomState):
 		mRNA_indexes[start_index:start_index+counts] = np.repeat(
 			unique_index_mRNAs[mask], n_ribosomes_per_RNA)
 
-		# Randomly place ribosomes along the length of each mRNA
+		# Get full length of this polypeptide
+		peptide_full_length = protein_lengths[protein_index]
+
+		# Randomly place ribosomes along the length of each mRNA, capped by the
+		# mRNA length expected from the full polypeptide length to prevent
+		# ribosomes from overshooting full peptide lengths
 		positions_on_mRNA[start_index:start_index+counts] = np.floor(
-			randomState.rand(counts)*np.repeat(lengths, n_ribosomes_per_RNA))
+			randomState.rand(counts)
+			* np.repeat(np.minimum(lengths, peptide_full_length*3), n_ribosomes_per_RNA)
+			)
 
 		start_index += counts
 
