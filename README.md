@@ -9,7 +9,14 @@ You can reach us at [AllenCenterCovertLab](mailto:allencentercovertlab@gmail.com
 
 See [docs/README.md](docs/README.md) for more info on setting up and running the model.
 
-In short, there are two alternative setups to run the model: inside a Docker container vs. in a manually constructed `pyenv` virtual environment.  With Docker, you can start running a simulation with three commands:
+In short, there are two alternative setups to run the model: inside a Docker container vs. in a manually constructed `pyenv` virtual environment.  With Docker, you can start running a simulation with these steps:
+1. Create a [github personal access token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) with at least the `read:packages` permission selected.
+1. Place the token in `github_personal_access_token.txt`.
+1. Log in to `docker.pkg.github.com`:
+    ```bash
+    cat github_personal_access_token.txt | docker login https://docker.pkg.github.com -u USERNAME --password-stdin
+    ```
+    You should see an output message like `Login Succeeded`
 1.  Pull the Docker image:
     ```shell script
     docker pull docker.pkg.github.com/covertlab/wholecellecolirelease/wcm-full:latest
@@ -22,6 +29,7 @@ In short, there are two alternative setups to run the model: inside a Docker con
     ```shell script
     python runscripts/manual/runSim.py
     ```
+
 
 ## Quick start
 
