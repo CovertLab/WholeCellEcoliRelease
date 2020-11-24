@@ -1,11 +1,6 @@
 set -e
 
-module load wcEcoli/python3
-pyenv local wcEcoli3
+source runscripts/jenkins/setup-environment.sh
 
-make clean compile
-
-PYTHONPATH=$PWD:$PYTHONPATH pytest --cov=wholecell --cov-report xml \
-    --junitxml=unittests.xml
-
+pytest --cov=wholecell --cov-report xml --junitxml=unittests.xml
 runscripts/debug/mypy.sh

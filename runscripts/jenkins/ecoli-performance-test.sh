@@ -1,8 +1,4 @@
-module load wcEcoli/python3
-pyenv local wcEcoli3
-
-make clean
-make compile
+source runscripts/jenkins/setup-environment.sh
 
 set -e
 

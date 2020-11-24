@@ -7,20 +7,15 @@ set -e
 
 runscripts/jenkins/purge.sh anaerobic 10
 
-module load wcEcoli/python3
-pyenv local wcEcoli3
-
-make clean
-make compile
-
+source runscripts/jenkins/setup-environment.sh
 sh runscripts/jenkins/fireworks-config.sh $HOST $NAME $PORT $PASSWORD
 
 echo y | lpad reset
 
-PYTHONPATH=$PWD DESC="Anaerobic." VARIANT="condition" FIRST_VARIANT_INDEX=1 LAST_VARIANT_INDEX=1 SINGLE_DAUGHTERS=1 N_GENS=8 MASS_DISTRIBUTION=0 COMPRESS_OUTPUT=1 PLOTS=ACTIVE RAISE_ON_TIME_LIMIT=1 python runscripts/fireworks/fw_queue.py
+DESC="Anaerobic." VARIANT="condition" FIRST_VARIANT_INDEX=1 LAST_VARIANT_INDEX=1 SINGLE_DAUGHTERS=1 N_GENS=8 MASS_DISTRIBUTION=0 COMPRESS_OUTPUT=1 PLOTS=ACTIVE RAISE_ON_TIME_LIMIT=1 python runscripts/fireworks/fw_queue.py
 
 while [ $(lpad get_fws -s READY -d count) -ge 1 ]; do
-  PYTHONPATH=$PWD rlaunch singleshot
+  rlaunch singleshot
 done
 
 N_FAILS=$(lpad get_fws -s FIZZLED -d count)
