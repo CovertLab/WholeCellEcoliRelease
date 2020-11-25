@@ -38,9 +38,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		cell = mass.readColumn("cellMass")
 
-		nucleoid = mass.readColumn("nucleoid_mass")
 		projection = mass.readColumn("projection_mass")
-		cell_wall = mass.readColumn("cell_wall_mass")
 		cytosol = mass.readColumn("cytosol_mass")
 		extracellular = mass.readColumn("extracellular_mass")
 		membrane = mass.readColumn("membrane_mass")
@@ -54,9 +52,7 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 		t = (main_reader.readColumn("time") - initialTime) / 60.
 
 		masses = np.vstack([
-			nucleoid,
 			projection,
-			cell_wall,
 			cytosol,
 			extracellular,
 			membrane,
@@ -68,9 +64,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 			]).T
 		fractions = (masses / cell[:, None]).mean(axis=0)
 
-		mass_labels = ["Nucleoid", "Projection", "Cell Wall", "Cytosol",
-					   "Extracellular", "Membrane", "Outer Membrane",
-					   "Periplasm", "Pilus", "Inner Membrane","Flagellum"]
+		mass_labels = ["Projection", "Cytosol", "Extracellular", "Membrane",
+			"Outer Membrane", "Periplasm", "Pilus", "Inner Membrane",
+			"Flagellum"]
 		legend = [
 			'{} ({:.3e})'.format(label, fraction)
 			for label, fraction in zip(mass_labels, fractions)

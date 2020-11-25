@@ -62,7 +62,7 @@ class Protein(object):
 		rna_id_to_gene_id = {
 			gene['rna_id']: gene['id'] for gene in knowledge_base_raw.genes}
 		protein_id_to_location = {
-			protein['id']: protein['location'][0] for protein in knowledge_base_raw.proteins}
+			protein['id']: protein['compartment'][0] for protein in knowledge_base_raw.proteins}
 
 		self.geneIdToMonomerId = {
 			rna_id_to_gene_id[rna['id']]: '{}[{}]'.format(rna['monomer_id'], protein_id_to_location[rna['monomer_id']])

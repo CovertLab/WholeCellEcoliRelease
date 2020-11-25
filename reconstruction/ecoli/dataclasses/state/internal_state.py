@@ -21,27 +21,17 @@ class InternalState(object):
 		self.bulk_molecules = BulkMolecules(raw_data, sim_data)
 		self.unique_molecule = UniqueMolecules(raw_data, sim_data)
 
-		self._build_bulk_molecules(raw_data, sim_data)
+		self._build_bulk_molecules(sim_data)
 		self._build_unique_molecules(sim_data)
 		self._build_compartments(raw_data, sim_data)
 
 
-	def _build_bulk_molecules(self, raw_data, sim_data):
+	def _build_bulk_molecules(self, sim_data):
 		"""
 		Add data (IDs and mass) for all classes of bulk molecules.
 		"""
-		all_bulk_molecule_ids = itertools.chain(
-			[met['id'] for met in raw_data.metabolites],  # Metabolites
-			[rna['id'] for rna in raw_data.rnas],  # RNAs
-			[subunit_id[:-3] for subunit_id in
-				sim_data.molecule_groups.polymerized_ntps],  # RNA fragments
-			[protein['id'] for protein in raw_data.proteins],  # Proteins
-			[protein_complex['id'] for protein_complex in raw_data.protein_complexes],  # Protein complexes
-			[protein['id'] for protein in raw_data.modified_proteins],  # Modified proteins
-			[modified_rna_id for rna in raw_data.rnas
-				for modified_rna_id in rna['modified_forms']
-				if sim_data.getter.check_valid_molecule(modified_rna_id)],  # Modified RNAs
-			)
+		all_bulk_molecule_ids = sim_data.getter.get_all_valid_molecules()
+
 		all_bulk_molecule_ids_with_compartments, all_bulk_molecule_masses = self._build_bulk_molecule_specs(
 			sim_data, all_bulk_molecule_ids)
 		self.bulk_molecules.add_to_bulk_state(
@@ -69,7 +59,7 @@ class InternalState(object):
 		for molecule_id in molecule_ids:
 			mw = sim_data.getter.get_submass_array(molecule_id).asNumber(units.g/units.mol)
 
-			for loc in sim_data.getter.get_location(molecule_id):
+			for loc in sim_data.getter.get_compartment(molecule_id):
 				molecule_ids_with_compartments.append('{}[{}]'.format(molecule_id, loc))
 				masses.append(mw)
 

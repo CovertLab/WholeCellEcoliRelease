@@ -96,7 +96,7 @@ class Equilibrium(object):
 				else:
 					moleculeName = "{}[{}]".format(
 						molecule["molecule"],
-						molecule["location"]
+						sim_data.getter.get_compartment(molecule["molecule"])[0]
 						)
 
 				if moleculeName not in molecules:

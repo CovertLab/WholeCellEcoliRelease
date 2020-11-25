@@ -590,7 +590,7 @@ class Metabolism(object):
 			catalysts_for_this_rxn = []
 			for catalyst in reaction["catalyzed_by"]:
 				try:
-					catalysts_with_loc = catalyst + sim_data.getter.get_location_tag(catalyst)
+					catalysts_with_loc = catalyst + sim_data.getter.get_compartment_tag(catalyst)
 					catalysts_for_this_rxn.append(catalysts_with_loc)
 				# If we don't have the catalyst in our reconstruction, drop it
 				except KeyError:

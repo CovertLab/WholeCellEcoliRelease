@@ -1,4 +1,4 @@
-"id"	"subunits"	"mw"	"location"
+"id"	"subunits"	"mw"	"compartment"
 "PHOSPHO-ARCA"	[{"monomer": "ARCA-MONOMER[c]", "stoichiometry": 1}, {"monomer": "PI[c]", "stoichiometry": 1}]	[0.0, 0.0, 0.0, 0.0, 0.0, 27282.049, 77.963, 0.0, 0.0]	"c"
 "PHOSPHO-ARCB-CPLX"	[{"monomer": "ARCB-MONOMER[i]", "stoichiometry": 2}, {"monomer": "PI[c]", "stoichiometry": 1}]	[0.0, 0.0, 0.0, 0.0, 0.0, 175899.976, 77.963, 0.0, 0.0]	"i"
 "PHOSPHO-BAER"	[{"monomer": "BAER-MONOMER[c]", "stoichiometry": 1}, {"monomer": "PI[c]", "stoichiometry": 1}]	[0.0, 0.0, 0.0, 0.0, 0.0, 27651.011, 77.963, 0.0, 0.0]	"c"

@@ -53,7 +53,7 @@ class Translation(object):
 	def _build_monomer_data(self, raw_data, sim_data):
 		# Get protein IDs with compartments
 		protein_ids = [protein['id'] for protein in raw_data.proteins]
-		protein_compartments = sim_data.getter.get_locations(protein_ids)
+		protein_compartments = sim_data.getter.get_compartments(protein_ids)
 		assert all([len(loc) == 1 for loc in protein_compartments])
 		protein_ids_with_compartments = [
 			f'{protein_id}[{loc[0]}]' for (protein_id, loc)
@@ -69,7 +69,7 @@ class Translation(object):
 		rna_ids = [
 			monomer_id_to_rna_id[protein['id']]
 			for protein in raw_data.proteins]
-		rna_compartments = sim_data.getter.get_locations(rna_ids)
+		rna_compartments = sim_data.getter.get_compartments(rna_ids)
 		assert all([len(loc) == 1 for loc in rna_compartments])
 		rna_ids_with_compartments = [
 			f'{rna_id}[{loc[0]}]'

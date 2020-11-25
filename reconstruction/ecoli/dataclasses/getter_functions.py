@@ -21,6 +21,9 @@ class UnknownMolecularWeightError(Exception):
 class UnknownModifiedRnaError(Exception):
 	pass
 
+class InvalidProteinComplexError(Exception):
+	pass
+
 
 class GetterFunctions(object):
 	""" getterFunctions """
@@ -31,7 +34,7 @@ class GetterFunctions(object):
 
 		self._build_sequences(raw_data)
 		self._build_all_masses(raw_data, sim_data)
-		self._build_locations(raw_data, sim_data)
+		self._build_compartments(raw_data, sim_data)
 
 	def get_sequences(self, ids):
 		# type: (Union[List[str], np.ndarray]) -> List[str]
@@ -47,7 +50,7 @@ class GetterFunctions(object):
 		Return the total mass of the molecule with a given ID.
 		"""
 		assert isinstance(mol_id, str)
-		return self._mass_units * self._all_total_masses[self._location_tag.sub('', mol_id)]
+		return self._mass_units * self._all_total_masses[self._compartment_tag.sub('', mol_id)]
 
 	def get_masses(self, mol_ids):
 		# type: (Union[List, np.ndarray]) -> Any
@@ -56,7 +59,7 @@ class GetterFunctions(object):
 		"""
 		assert isinstance(mol_ids, (list, np.ndarray))
 		masses = [
-			self._all_total_masses[self._location_tag.sub('', mol_id)]
+			self._all_total_masses[self._compartment_tag.sub('', mol_id)]
 			for mol_id in mol_ids]
 		return self._mass_units * np.array(masses)
 
@@ -66,35 +69,48 @@ class GetterFunctions(object):
 		Return the submass array of the molecule with a given ID.
 		"""
 		assert isinstance(mol_id, str)
-		return self._mass_units * self._all_submass_arrays[self._location_tag.sub('', mol_id)]
+		return self._mass_units * self._all_submass_arrays[self._compartment_tag.sub('', mol_id)]
 
-	def get_location(self, mol_id):
+	def get_compartment(self, mol_id):
 		# type: (str) -> List[List[str]]
 		"""
-		Returns the list of one-letter codes for the locations that the
+		Returns the list of one-letter codes for the compartments that the
 		molecule with the given ID can exist in.
 		"""
 		assert isinstance(mol_id, str)
-		return self._locationDict[mol_id]
+		return self._all_compartments[mol_id]
 
-	def get_locations(self, ids):
+	def get_compartments(self, ids):
 		# type: (Union[List[str], np.ndarray]) -> List[List[str]]
 		"""
-		Returns a list of the list of one-letter codes for the locations that
-		each of the molecules with the given IDs can exist in.
+		Returns a list of the list of one-letter codes for the compartments
+		that each of the molecules with the given IDs can exist in.
 		"""
 		assert isinstance(ids, (list, np.ndarray))
-		return [self._locationDict[x] for x in ids]
+		return [self._all_compartments[x] for x in ids]
 
-	def get_location_tag(self, id_):
+	def get_compartment_tag(self, id_):
 		# type: (str) -> str
 		"""
-		Look up a location id and return a location suffix tag like '[c]'.
+		Look up a molecule id and return a compartment suffix tag like '[c]'.
 		"""
-		return f'[{self._locationDict[id_][0]}]'
+		return f'[{self._all_compartments[id_][0]}]'
 
 	def check_valid_molecule(self, mol_id):
-		return mol_id in self._all_submass_arrays and mol_id in self._locationDict
+		# type: (str) -> bool
+		"""
+		Returns True if the molecule with the given ID is a valid molecule (has
+		both a submass array and a compartment tag).
+		"""
+		return mol_id in self._all_submass_arrays and mol_id in self._all_compartments
+
+	def get_all_valid_molecules(self):
+		# type: () -> list
+		"""
+		Returns a list of all molecule IDs with assigned submass arrays and
+		compartments.
+		"""
+		return list(self._all_submass_arrays.keys() & self._all_compartments.keys())
 
 	def _build_sequences(self, raw_data):
 		"""
@@ -176,14 +192,14 @@ class GetterFunctions(object):
 		self._all_submass_arrays.update(self._build_full_chromosome_mass(raw_data, sim_data))
 
 		# These updates can be dependent on the masses calculated above
-		self._all_submass_arrays.update(self._build_modified_rna_masses(raw_data, sim_data))
+		self._all_submass_arrays.update(self._build_modified_rna_masses(raw_data))
+		self._all_submass_arrays.update(self._build_protein_complex_masses(raw_data))
 		self._all_submass_arrays.update(
-			{x['id']: np.array(x['mw']) for x in itertools.chain(
-				raw_data.protein_complexes, raw_data.modified_proteins)}
+			{x['id']: np.array(x['mw']) for x in raw_data.modified_proteins}
 			)
 
 		self._mass_units = units.g / units.mol
-		self._location_tag = re.compile(r'\[[a-z]\]')
+		self._compartment_tag = re.compile(r'\[[a-z]\]')
 
 		# Build dictionary of total masses of each molecule
 		self._all_total_masses = {
@@ -299,7 +315,7 @@ class GetterFunctions(object):
 
 		return {sim_data.molecule_ids.full_chromosome[:-3]: self._build_submass_array(mw, 'DNA')}
 
-	def _build_modified_rna_masses(self, raw_data, sim_data):
+	def _build_modified_rna_masses(self, raw_data):
 		"""
 		Builds dictionary of molecular weights of modified RNAs keyed with
 		the molecule IDs. Molecular weights are calculated from the
@@ -350,41 +366,220 @@ class GetterFunctions(object):
 
 		return modified_rna_masses
 
-	def _build_locations(self, raw_data, sim_data):
-		locationDict = {
-			item["id"]: list(item["location"])
-			for item in raw_data.protein_complexes}
+	def _build_protein_complex_masses(self, raw_data):
+		"""
+		Builds dictionary of molecular weights of protein complexes keyed with
+		the molecule IDs. Molecular weights are calculated from the
+		stoichiometries of the complexation/equilibrium reactions. For
+		complexes whose subunits are also complexes, the molecular weights are
+		calculated recursively.
+		"""
+		protein_complex_masses = {}
+
+		# Get IDs of complexation/equilibrium reactions that should be removed
+		removed_reaction_ids = {
+			rxn['id'] for rxn in itertools.chain(
+				raw_data.complexation_reactions_removed,
+				raw_data.equilibrium_reactions_removed)
+			}
+
+		# Build mapping from complex ID to its subunit stoichiometry
+		complex_id_to_stoich = {}
+
+		for rxn in itertools.chain(
+				raw_data.complexation_reactions, raw_data.equilibrium_reactions):
+			# Skip removed reactions
+			if rxn['id'] in removed_reaction_ids:
+				continue
+
+			# Get the ID of the complex and the stoichiometry of subunits
+			complex_ids = []
+			subunit_stoich = {}
+
+			for mol in rxn['stoichiometry']:
+				if mol['coeff'] == 1:
+					complex_ids.append(mol['molecule'])
+				elif mol['coeff'] < 0:
+					subunit_stoich.update({mol['molecule']: -mol['coeff']})
+
+				# Each molecule should either be a complex with the coefficient
+				# 1 or a subunit with a negative coefficient
+				else:
+					raise InvalidProteinComplexError(
+						'Reaction %s contains an invalid molecule %s with stoichiometric coefficient %.1f.'
+						% (rxn['id'], mol['molecule'], mol['coeff']))
+
+			# Each reaction should only produce a single protein complex
+			if len(complex_ids) != 1:
+				raise InvalidProteinComplexError(
+					'Reaction %s does not produce a single protein complex.'
+					% (rxn['id'], ))
+
+			complex_id_to_stoich[complex_ids[0]] = subunit_stoich
+
+		def get_mw(mol_id):
+			"""
+			Recursive function that returns the molecular weight given a
+			molecule ID.
+			"""
+			# Look for molecule ID in existing dictionaries, and return
+			# molecular weight array if found
+			if mol_id in self._all_submass_arrays:
+				return self._all_submass_arrays[mol_id]
+			elif mol_id in protein_complex_masses:
+				return protein_complex_masses[mol_id]
+
+			# If molecule ID does not exist, recursively add up the molecular
+			# weights of the molecule's subunits
+			else:
+				# Each complex molecule should have a corresponding subunit
+				# stoichiometry
+				if mol_id not in complex_id_to_stoich:
+					raise InvalidProteinComplexError(
+						'Complex %s is not being produced by any copmlexation or equilibrium reaction.'
+						% (mol_id, )
+						)
+				mw_sum = np.zeros(self._n_submass_indexes)
+
+				for subunit_id, coeff in complex_id_to_stoich[mol_id].items():
+					mw_sum += coeff * get_mw(subunit_id)
+
+				return mw_sum
+
+		# Get molecular weights of each protein complex
+		for complex_id in complex_id_to_stoich.keys():
+			protein_complex_masses.update({complex_id: get_mw(complex_id)})
+
+		return protein_complex_masses
+
+	def _build_compartments(self, raw_data, sim_data):
+		self._all_compartments = {}
+		all_compartments = [comp['abbrev'] for comp in raw_data.compartments]
 
 		# RNAs, modified RNAs, and full chromosomes only localize to the
 		# cytosol
-		locationDict.update({
+		self._all_compartments.update({
 			rna['id']: ['c'] for rna in raw_data.rnas
 			})
-		locationDict.update({
+		self._all_compartments.update({
 			modified_rna_id: ['c'] for rna in raw_data.rnas
 			for modified_rna_id in rna['modified_forms']
 			if modified_rna_id in self._all_submass_arrays
 			})
-		locationDict.update({
+		self._all_compartments.update({
 			sim_data.molecule_ids.full_chromosome[:-3]: ['c']
 			})
 
 		# Proteins and modified proteins localize to the single compartment
 		# specified in raw data for each protein
-		locationDict.update({
-			protein['id']: [protein['location']] for protein
+		self._all_compartments.update({
+			protein['id']: [protein['compartment']] for protein
 			in itertools.chain(raw_data.proteins, raw_data.modified_proteins)
 			})
 
 		# Metabolites and polymerized subunits can localize to all compartments
 		# being modeled
-		all_compartments = [comp['abbrev'] for comp in raw_data.compartments]
-		locationDict.update({
+		self._all_compartments.update({
 			met['id']: all_compartments for met in raw_data.metabolites
 			})
-		locationDict.update({
+		self._all_compartments.update({
 			subunit_id[:-3]: all_compartments
 			for subunit_id in sim_data.molecule_groups.polymerized_subunits
 			})
 
-		self._locationDict = locationDict
+		# Sort compartment abbreviations based on complexation priority: when
+		# a molecule in a compartment with a higher complexation priority
+		# forms a complex with a molecule in a compartment with low priority,
+		# the complex is assigned to the higher-priority compartment.
+		complexation_priorities = np.array([
+			comp['complexation_priority'] for comp in raw_data.compartments])
+		all_compartments_sorted = [
+			all_compartments[i] for i in np.argsort(complexation_priorities)]
+
+		# Protein complexes are localized based on the compartments of their
+		# subunits
+		self._all_compartments.update(
+			self._build_protein_complex_compartments(raw_data, all_compartments_sorted))
+
+
+	def _build_protein_complex_compartments(self, raw_data, all_compartments_sorted):
+		"""
+		Builds dictionary of compartment tags for protein complexes keyed with
+		the molecule IDs. Each complex is assigned to the compartment that
+		contains a subunit of the complex and has the highest complexation
+		priority. Compartment tags of subunits that are also protein complexes
+		are determined recursively. Compartments of metabolite subunits are not
+		considered since metabolites are assigned to all compartments that are
+		being modeled.
+		"""
+		protein_complex_compartments = {}
+		metabolite_ids = {met['id'] for met in raw_data.metabolites}
+
+		# Get IDs of complexation/equilibrium reactions that should be removed
+		removed_reaction_ids = {
+			rxn['id'] for rxn in itertools.chain(
+				raw_data.complexation_reactions_removed,
+				raw_data.equilibrium_reactions_removed)
+			}
+
+		# Build mapping from complex ID to its subunit IDs
+		complex_id_to_subunit_ids = {}
+
+		for rxn in itertools.chain(
+				raw_data.complexation_reactions,
+				raw_data.equilibrium_reactions):
+			# Skip removed reactions
+			if rxn['id'] in removed_reaction_ids:
+				continue
+
+			# Get the ID of the complex and the stoichiometry of subunits
+			complex_id = None
+			subunit_ids = []
+
+			for mol in rxn['stoichiometry']:
+				if mol['coeff'] == 1:
+					complex_id = mol['molecule']
+				elif mol['coeff'] < 0:
+					subunit_ids.append(mol['molecule'])
+
+			complex_id_to_subunit_ids[complex_id] = subunit_ids
+
+		def get_compartment(mol_id):
+			"""
+			Recursive function that returns a compartment tag given a molecule ID.
+			"""
+			# Look for molecule ID in existing dictionaries, and return
+			# compartment tag if found
+			if mol_id in self._all_compartments:
+				return self._all_compartments[mol_id]
+			elif mol_id in protein_complex_compartments:
+				return protein_complex_compartments[mol_id]
+
+			# If molecule ID does not exist, return the subunit compartment
+			# with the highest priority
+			else:
+				all_subunit_compartments = []
+				for subunit_id in complex_id_to_subunit_ids[mol_id]:
+					# Skip metabolites (can exist in all compartments)
+					if subunit_id in metabolite_ids:
+						continue
+					else:
+						all_subunit_compartments.extend(get_compartment(subunit_id))
+
+				if len(all_subunit_compartments) == 0:
+					raise InvalidProteinComplexError(
+						'Complex %s is composed of only metabolites.'
+						% (mol_id,)
+						)
+
+				# Return compartment with highest complexation priority
+				for loc in all_compartments_sorted:
+					if loc in all_subunit_compartments:
+						return [loc]
+
+		# Get compartments of each protein complex
+		for complex_id in complex_id_to_subunit_ids.keys():
+			protein_complex_compartments.update(
+				{complex_id: get_compartment(complex_id)})
+
+		return protein_complex_compartments

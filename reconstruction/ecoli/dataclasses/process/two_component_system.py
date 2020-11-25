@@ -86,7 +86,7 @@ class TwoComponentSystem(object):
 					if molecule["molecule"] in system["molecules"]:
 						moleculeName = "{}[{}]".format(
 							system["molecules"][molecule["molecule"]],
-							molecule["location"]
+							sim_data.getter.get_compartment(system["molecules"][molecule["molecule"]])[0]
 							)
 
 					# Build name for common molecules (ATP, ADP, PI, WATER, PROTON)

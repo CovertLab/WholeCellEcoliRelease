@@ -179,7 +179,7 @@ class Transcription(object):
 
 		# Load RNA IDs with compartment tags
 		rna_ids = [rna['id'] for rna in raw_data.rnas]
-		compartments = sim_data.getter.get_locations(rna_ids)
+		compartments = sim_data.getter.get_compartments(rna_ids)
 
 		rna_ids_with_compartments = [
 			f'{rna_id}[{loc[0]}]' for (rna_id, loc)
@@ -485,7 +485,7 @@ class Transcription(object):
 				if 'FMET' in trna or 'modified' in trna:
 					continue
 
-				assert('c' in sim_data.getter.get_location(trna))
+				assert('c' in sim_data.getter.get_compartment(trna))
 				filtered_charged_trna += [trna + '[c]']
 
 		self.charged_trna_names = filtered_charged_trna
@@ -516,7 +516,7 @@ class Transcription(object):
 			elif aa == 'RNA':
 				aa = trna_dict[trna]
 
-			assert('c' in sim_data.getter.get_location(aa))
+			assert('c' in sim_data.getter.get_compartment(aa))
 			aa += '[c]'
 			if aa in aa_names:
 				aa_idx = aa_indices[aa]
