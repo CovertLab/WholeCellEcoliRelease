@@ -42,18 +42,13 @@ def makedirs(path, *paths):
 	"""Join one or more path components, make that directory path (using the
 	default mode 0o0777), and return the full path.
 
-	Raise OSError if it can't achieve the result (e.g. the containing directory
-	is readonly or the path contains a file); not if the directory already
-	exists.
+	Raise FileExistsError if there's a file (not a directory) with that path.
+	No exception if the directory already exists.
 	"""
 	full_path = os.path.join(path, *paths)
 
-	try:
-		if full_path:
-			os.makedirs(full_path)
-	except OSError as e:
-		if e.errno != errno.EEXIST or not os.path.isdir(full_path):
-			raise
+	if full_path:
+		os.makedirs(full_path, exist_ok=True)
 
 	return full_path
 

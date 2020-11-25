@@ -4,12 +4,9 @@
 Build a workflow for the Whole Cell Model then send it to the workflow server.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import json
 import os
-import posixpath
-import re
+import posixpath as pp
 import sys
 from typing import Any, Dict, Iterable, Optional, Type
 
@@ -33,7 +30,6 @@ import wholecell.utils.filepath as fp
 from runscripts.manual.analysisBase import AnalysisBase
 from runscripts.cloud.util.workflow import (DEFAULT_LPAD_YAML,
 	STORAGE_ROOT_ENV_VAR, Task, Workflow)
-from six.moves import range
 
 
 # ':latest' -- "You keep using that word. I do not think it means what you think it means."
@@ -47,32 +43,35 @@ class WcmWorkflow(Workflow):
 			description='', cli_storage_root=None):
 		# type: (str, str, bool, str, Optional[str]) -> None
 		name = '{}_WCM_{}'.format(owner_id, timestamp)
-		super(WcmWorkflow, self).__init__(
-			name, owner_id=owner_id, verbose_logging=verbose_logging)
+
+		super().__init__(
+			name,
+			owner_id=owner_id,
+			verbose_logging=verbose_logging,
+			description=description)
 
 		self.timestamp = timestamp
 		self.image = DOCKER_IMAGE.format(gcp.project(), owner_id)
 
-		subdir = self.timestamp + (
-			'__' + _sanitize_description(description) if description else '')
-		self.storage_prefix = posixpath.join(
+		subdir = Workflow.timestamped_description(timestamp, description)
+		self.storage_prefix = pp.join(
 			self.storage_root(cli_storage_root), 'WCM', subdir, '')
-		self.internal_prefix = posixpath.join(posixpath.sep, 'wcEcoli', 'out', 'wf')
+		self.internal_prefix = pp.join(pp.sep, 'wcEcoli', 'out', 'wf', '')
 
-		self.log_info('\nStorage prefix: {}'.format(self.storage_prefix))
-
-		if description:
-			self.add_properties(description=description)
+		self.log_info(
+			f'\nWorkflow: {name}\n'
+			f'Storage prefix: {self.storage_prefix}\n'
+			f'Docker internal path prefix: {self.internal_prefix}\n')
 
 	def internal(self, *path_elements):
 		# type: (*str) -> str
-		"""Construct a file path that's internal to the task's container."""
-		return posixpath.join(self.internal_prefix, *path_elements)
+		"""Construct a docker container internal file path."""
+		return pp.join(self.internal_prefix, *path_elements)
 
 	def remote(self, *path_elements):
 		# type: (*str) -> str
 		"""Construct a remote GCS storage path within the bucket."""
-		return posixpath.join(self.storage_prefix, *path_elements)
+		return pp.join(self.storage_prefix, *path_elements)
 
 	def add_python_task(self, firetask, python_args, name='', inputs=(),
 			outputs=(), timeout=0):
@@ -97,14 +96,15 @@ class WcmWorkflow(Workflow):
 			internal_prefix=self.internal_prefix,
 			timeout=timeout))
 
+	# noinspection PyUnusedLocal
 	def build(self, args):
 		# type: (Dict[str, Any]) -> None
 
 		# Joining with '' gets a path that ends with the path separator, which
 		# tells DockerTask to fetch or store an entire directory tree.
 		kb_dir = self.internal(ParcaTask.OUTPUT_SUBDIR, '')
-		sim_data_file = posixpath.join(kb_dir, constants.SERIALIZED_SIM_DATA_FILENAME)
-		validation_data_file = posixpath.join(kb_dir, constants.SERIALIZED_VALIDATION_DATA)
+		sim_data_file = pp.join(kb_dir, constants.SERIALIZED_SIM_DATA_FILENAME)
+		validation_data_file = pp.join(kb_dir, constants.SERIALIZED_VALIDATION_DATA)
 
 		variant_arg = args['variant']
 		variant_spec = (variant_arg[0], int(variant_arg[1]), int(variant_arg[2]))
@@ -140,21 +140,24 @@ class WcmWorkflow(Workflow):
 			total_variants=str(variant_count),
 			total_gens=args['generations'])
 
-		python_args = dict(output_file=metadata_file, data=metadata)
+		python_args = dict(output_file=metadata_file, data=metadata)  # type: Dict[str, Any]
 		metadata_task = self.add_python_task(WriteJsonTask, python_args,
 			name='write_metadata',
 			inputs=[],
 			outputs=[metadata_file],
 			timeout=90)
 
-		python_args = data.select_keys(
-			args,
-			scriptBase.PARCA_KEYS,
-			debug=args['debug_parca'],
-			output_directory=kb_dir)
-		parca_task = self.add_python_task(ParcaTask, python_args,
-			name='parca',
-			outputs=[kb_dir])
+		if args['run_parca']:
+			python_args = data.select_keys(
+				args,
+				scriptBase.PARCA_KEYS,
+				debug=args['debug_parca'],
+				output_directory=kb_dir)
+			parca_task = self.add_python_task(ParcaTask, python_args,
+				name='parca',
+				outputs=[kb_dir])
+		else:
+			print('    (Skipping the Parca step per the --no-run-parca option.)')
 
 		if run_analysis:
 			parca_plot_dir = self.internal(constants.KB_PLOT_OUTPUT_DIR, '')
@@ -180,10 +183,11 @@ class WcmWorkflow(Workflow):
 				VariantSimDataTask.OUTPUT_SUBDIR_KB, '')
 			variant_metadata_dir = self.internal(subdir,
 				VariantSimDataTask.OUTPUT_SUBDIR_METADATA, '')
-			variant_sim_data_modified_file = posixpath.join(
+			variant_sim_data_modified_file = pp.join(
 				variant_sim_data_dir, constants.SERIALIZED_SIM_DATA_MODIFIED)
 			md_cohort = dict(metadata, variant_function=variant_type,
 				variant_index=i)
+			variant_analysis_inputs.append(variant_metadata_dir)
 
 			python_args = dict(
 				variant_function=variant_type,
@@ -208,14 +212,14 @@ class WcmWorkflow(Workflow):
 				this_variant_this_seed_multigen_analysis_inputs = [kb_dir, variant_sim_data_dir]
 
 				for k in range(args['generations']):
-					gen_dir = posixpath.join(seed_dir, "generation_{:06d}".format(k))
+					gen_dir = pp.join(seed_dir, "generation_{:06d}".format(k))
 					md_single = dict(md_multigen, gen=k)
 
 					# l is the daughter number among all of this generation's cells.
 					# l in [0] for single daughters; l in range(2**k) for dual daughters.
 					for l in [0]:
-						cell_dir = posixpath.join(gen_dir, '{:06d}'.format(l))
-						cell_sim_out_dir = posixpath.join(cell_dir, 'simOut', '')
+						cell_dir = pp.join(gen_dir, '{:06d}'.format(l))
+						cell_sim_out_dir = pp.join(cell_dir, 'simOut', '')
 
 						python_args = dict(sim_args,
 							input_sim_data=variant_sim_data_modified_file,
@@ -227,11 +231,11 @@ class WcmWorkflow(Workflow):
 							firetask = SimulationTask
 						else:
 							firetask = SimulationDaughterTask
-							parent_gen_dir = posixpath.join(
+							parent_gen_dir = pp.join(
 								seed_dir, 'generation_{:06d}'.format(k - 1))
-							parent_cell_dir = posixpath.join(parent_gen_dir, '{:06d}'.format(l // 2))
-							parent_cell_sim_out_dir = posixpath.join(parent_cell_dir, 'simOut', '')
-							daughter_state_path = posixpath.join(
+							parent_cell_dir = pp.join(parent_gen_dir, '{:06d}'.format(l // 2))
+							parent_cell_sim_out_dir = pp.join(parent_cell_dir, 'simOut', '')
+							daughter_state_path = pp.join(
 								parent_cell_sim_out_dir,
 								constants.SERIALIZED_INHERITED_STATE % (l % 2 + 1))
 							python_args['inherited_state_path'] = daughter_state_path
@@ -249,7 +253,7 @@ class WcmWorkflow(Workflow):
 						this_variant_this_seed_multigen_analysis_inputs.append(cell_sim_out_dir)
 
 						if run_analysis:
-							plot_dir = posixpath.join(cell_dir, AnalysisBase.OUTPUT_SUBDIR, '')
+							plot_dir = pp.join(cell_dir, AnalysisBase.OUTPUT_SUBDIR, '')
 							python_args = data.select_keys(
 								args, scriptBase.ANALYSIS_KEYS,
 								input_results_directory=cell_sim_out_dir,
@@ -264,7 +268,7 @@ class WcmWorkflow(Workflow):
 								outputs=[plot_dir])
 
 						if args['build_causality_network'] and not cell_series_out_dir:
-							cell_series_out_dir = posixpath.join(cell_dir, 'seriesOut', '')
+							cell_series_out_dir = pp.join(cell_dir, 'seriesOut', '')
 							python_args = dict(
 								input_results_directory=cell_sim_out_dir,
 								input_sim_data=variant_sim_data_modified_file,
@@ -277,7 +281,7 @@ class WcmWorkflow(Workflow):
 								outputs=[cell_series_out_dir])
 
 				if run_analysis:
-					multigen_plot_dir = posixpath.join(seed_dir, AnalysisBase.OUTPUT_SUBDIR, '')
+					multigen_plot_dir = pp.join(seed_dir, AnalysisBase.OUTPUT_SUBDIR, '')
 					python_args = data.select_keys(
 						args, scriptBase.ANALYSIS_KEYS,
 						input_seed_directory=seed_dir,
@@ -320,18 +324,6 @@ class WcmWorkflow(Workflow):
 				name='analysis_variant',
 				inputs=variant_analysis_inputs,
 				outputs=[variant_plot_dir])
-
-def _sanitize_description(description):
-	# type (str) -> str
-	"""Sanitize the description and check that it's legal in a file path."""
-	description = description.replace(' ', '_')
-
-	pattern = r'[-.\w]*$'
-	assert re.match(pattern, description), (
-		"description {!r} doesn't match the regex pattern {!r} for a file path."
-			.format(description, pattern))
-
-	return description
 
 
 def wc_ecoli_workflow(args):
@@ -397,7 +389,7 @@ class RunWcm(scriptBase.ScriptBase):
 			help='The number of worker nodes to launch, with a smart default.')
 
 		# Parca
-		self.define_parca_options(parser)
+		self.define_parca_options(parser, run_parca_option=True)
 
 		# Simulation
 		self.define_sim_loop_options(parser)
@@ -424,10 +416,10 @@ class RunWcm(scriptBase.ScriptBase):
 		self.define_parameter_bool(parser, 'build_causality_network', False,
 			help="Build the Causality network files for one sim generation.")
 
-		super(RunWcm, self).define_parameters(parser)
+		super().define_parameters(parser)
 
 	def parse_args(self):
-		args = super(RunWcm, self).parse_args()
+		args = super().parse_args()
 		args.cpus = max(args.cpus, 1)
 
 		assert args.generations >= 0

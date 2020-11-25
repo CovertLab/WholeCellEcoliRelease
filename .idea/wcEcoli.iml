@@ -7,6 +7,7 @@
       <excludeFolder url="file://$MODULE_DIR$/docs" />
       <excludeFolder url="file://$MODULE_DIR$/out" />
       <excludeFolder url="file://$MODULE_DIR$/runscripts/metabolism/homeostaticFBA_modularFBA_toy_model/svg_plots" />
+      <excludeFolder url="file://$MODULE_DIR$/user" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.8 (wcEcoli3)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

@@ -223,7 +223,8 @@ page to view the logs from the project's GCE VM instances.
      * Log level `Debug` will include the detail workings of the workers
      and their Firetask console output lines.
      * You can filter the log to your worker nodes via an advanced filter like
-     `resource.labels.instance_id:"fireworker-USER-"`, inserting your `$USER` name.
+     `resource.labels.instance_id:"fireworker-USER-"` or to a single node like
+     `resource.labels.instance_id="fireworker-USER-2"`, inserting your `$USER` name.
    * Each firetask writes a log file to the `logs/` part of the output directory. See below.
 
 * Open the [Storage — Browser](https://console.cloud.google.com/storage/browser)
@@ -237,7 +238,7 @@ page to browse the files created by the workflow.
 
 ## Download the outputs
 
-Ways to download the outputs from your workflow:
+### Ways to download the workflow outputs
 
 * **Simplest for individual files:** Open the [Google Cloud
 Storage — Browser](https://console.cloud.google.com/storage/browser),
@@ -249,6 +250,7 @@ to mount just a subdirectory of it) and access
 the files like local files.
   * Example:  
     `cd ~/dev/gcs/ && mkdir sisyphus-crick && gcsfuse sisyphus-crick sisyphus-crick`
+  * Note the **gcsfuse setup** instructions below.
   * gcsfuse can't completely hide the fact that Google Cloud Storage (GCS) is not a
   regular file system.
   E.g. GCS doesn't have directories, just file paths that may contain slashes and may end with
@@ -272,6 +274,31 @@ compress them as as video using a lossless or "visually lossless" codec such as
 to save on storage and transfer anywhere.
 
 
+### gcsfuse setup
+
+See their [docs to install it](https://github.com/GoogleCloudPlatform/gcsfuse/blob/master/docs/installing.md).
+
+Authenticating with **gcsfuse** requires a credentials key file for a Google Cloud
+_service account._ We use the `fireworker` service account since it can not only access
+Google Cloud Storage, it has the Logs permissions needed to run a fireworker, in case
+you want to do that locally.
+
+Run these shell commands to get a credentials key file `fireworker.json`:
+
+```shell script
+export GOOGLE_APPLICATION_CREDENTIALS=$HOME/bin/fireworker.json
+gcloud iam service-accounts keys create $GOOGLE_APPLICATION_CREDENTIALS --iam-account=fireworker@allen-discovery-center-mcovert.iam.gserviceaccount.com
+chmod 400 $GOOGLE_APPLICATION_CREDENTIALS  # owner-only since it contains a private key
+# Now add that "export" line to your shell .profile or .bash_profile file.
+```
+
+(_Alternatively_ you can get the credentials key file from the Google Cloud Console's
+IAM-Service Accounts section: Click on the "fireworker" service account,
+click `ADD KEY` > `Create new key` > `JSON` > `CREATE`, and put the downloaded file at
+`$HOME/bin/fireworker.json`. As above: `chmod` it, export/set
+`$GOOGLE_APPLICATION_CREDENTIALS`, and add that "export" line to your shell profile.)
+
+
 ## Debugging
 
 Use the [Logs Viewer](https://console.cloud.google.com/logs/query) to watch workflows
@@ -279,6 +306,17 @@ run with error messages and other information from the servers involved.
 The Logs Viewer supports filtering and searching.
 
 See the [outputs](#Download-the-outputs) for the `logs/` files from the workflow firetasks.
+To help with debugging, each firetask logs its task specification, console output, and
+details on how it ended, e.g. by timeout. If you rerun firetasks (e.g.
+`lpad rerun_fws -i 10,12`), each run will write a separate log file.
+
+After mounting the GCS storage bucket via **gcsfuse** or downloading its `logs/` files,
+you can quickly check on completed firetask runs:
+
+```shell script
+grep TASK: logs/*   # see which ones were SUCCESSFUL and which ones FAILED
+grep FAILED logs/*  # see which ones FAILED
+```
 
 Use FireWorks `lpad` commands to view the state of your Firetasks. See
 [Borealis: How to run a workflow](https://github.com/CovertLab/borealis#how-to-run-a-workflow).
@@ -311,9 +349,6 @@ tag "`:latest`".
 It's just a default tag name. Pulling with the default tag or with `:latest` (same
 thing) will pull the latest image that has the tag `:latest`, as with any tag.
 It won't pull any image that has a different tag.
-
-**Optimization:** The `fireworker` Compute Engine disk image has a copy of a `wcm-runtime` Docker
-image to save tens of seconds in startup time. It's useful to update this now and then.
 
 
 ### Multiple `wcm-code` Docker images

@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import absolute_import, division, print_function
-
 from runscripts.cloud.util.workflow_cli import WorkflowCLI
 
 
@@ -20,7 +18,7 @@ class TestWorkflow(WorkflowCLI):
 		# `print()` tests that a blank line in the console output doesn't cause
 		# a confusing Logs Viewer message like this:
 		# {"python_logger":"dockerfiretask.lines","message":""}
-		lines_filename = '/tmp/lines.txt'
+		lines_filename = self.internal('lines.txt')
 		code = (
 			"with open('" + lines_filename + "', 'w') as f:\n"
 			"  for i in range(10):\n"
@@ -40,7 +38,7 @@ class TestWorkflow(WorkflowCLI):
 
 		# Expected:  "wc: /tmp/lines.txt: No such file or directory"
 		# because this task spec didn't request the input file.
-		error_no_such_file_out = '/tmp/expected_no_such_file.txt'
+		error_no_such_file_out = self.internal('expected_no_such_file.txt')
 		self.add_task(
 			name='expected_no_such_file',
 			inputs=[],
@@ -48,7 +46,7 @@ class TestWorkflow(WorkflowCLI):
 			command=['wc', lines_filename])
 
 		# Expected:  "IndexError: tuple index out of range"
-		index_error_out = '/tmp/expected_index_out_of_range.txt'
+		index_error_out = self.internal('expected_index_out_of_range.txt')
 		self.add_task(
 			name='expected_index_out_of_range',
 			outputs=['>' + index_error_out],
@@ -67,7 +65,7 @@ class TestWorkflow(WorkflowCLI):
 		# Container and vice versa.
 		# Expected:  The Fireworker can read and delete the Task's output files
 		# without error.
-		output_dir = '/tmp/output/dir/'
+		output_dir = self.internal('output/dir/')
 		code = (
 			"for i in range(4):\n"
 			"  name = '" + output_dir + "{}.txt'.format(i)\n"
@@ -95,7 +93,7 @@ class TestWorkflow(WorkflowCLI):
 		self.add_task(
 			name='overwrite',
 			inputs=(output_dir,),
-			outputs=['>/tmp/overwrite.txt'],
+			outputs=['>' + self.internal('overwrite.txt')],
 			command=['python', '-u', '-c', code])
 
 		# test a timeout

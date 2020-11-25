@@ -6,12 +6,11 @@
 #
 # ASSUMES: The current working directory is your wcEcoli git directory.
 #
-# ASSUMES: You have a `mypy` virtualenv created using Python 3.5+:
-#   pyenv install 3.8.3
-#   pyenv shell 3.8.3
-#   pyenv virtualenv mypy
+# ASSUMES: You have a `mypy` virtualenv created using Python 3.9.0:
+#   pyenv install 3.9.0
+#   pyenv virtualenv 3.9.0 mypy
 #   pyenv shell mypy
-#   pip install mypy==0.770
+#   pip install --upgrade pip mypy==0.790
 #   pyenv shell --unset
 
 PYTHON_EXECUTABLE="$(pyenv which python)"

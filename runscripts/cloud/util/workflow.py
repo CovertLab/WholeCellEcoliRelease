@@ -5,21 +5,11 @@
 #  To finish the job, either make callers do likewise or replace os.sep with
 #  posixpath.sep in argument paths, deal with isabs(), and test out on Windows.
 
-from __future__ import absolute_import, division, print_function
-
 from collections import defaultdict, OrderedDict
 import os
 import posixpath
 import re
-import sys
-import six
-if os.name == 'posix' and sys.version_info[0] < 3:
-	# noinspection PyPackageRequirements
-	import subprocess32 as subprocess2
-	subprocess = subprocess2
-else:
-	import subprocess as subprocess3
-	subprocess = subprocess3
+import subprocess
 from typing import Any, Callable, Dict, Iterable, List, Optional, Set
 
 from borealis import gce
@@ -55,7 +45,7 @@ def _copy_as_list(value):
 	"""Copy an iterable of strings as a list. Fail fast on improper input."""
 
 	assert isinstance(value, Iterable) and not isinstance(value, ANY_STRING), (
-		'Expected a list, not {!r}'.format(value))
+		'Expected a list-like Iterable, not {!r}'.format(value))
 	result = list(value)
 	for s in result:
 		assert isinstance(s, ANY_STRING), 'Expected a string, not {!r}'.format(s)
@@ -209,8 +199,8 @@ class Task(object):
 class Workflow(object):
 	"""A workflow builder."""
 
-	def __init__(self, name, owner_id='', verbose_logging=True):
-		# type: (str, str, bool) -> None
+	def __init__(self, name, owner_id='', verbose_logging=True, description=''):
+		# type: (str, str, bool, str) -> None
 		"""
 		Construct a workflow builder, ready to add Tasks.
 
@@ -226,6 +216,10 @@ class Workflow(object):
 				CI build name. Defaults to the $USER environment variable.
 
 			verbose_logging: Enables verbose logging while building a workflow.
+
+			description: Optional description for this workflow. This gets stored
+				in a FireWorks property and also used in the timestamp part of
+				the GCS storage path (spaces replaced with underscores).
 		"""
 		self.owner_id = owner_id or os.environ['USER']
 		self.name = name
@@ -234,6 +228,29 @@ class Workflow(object):
 		self._tasks = OrderedDict()  # type: Dict[str, Task]
 		self._output_to_taskname = {}  # type: Dict[str, str]
 		self._input_to_tasknames = defaultdict(set)  # type: Dict[str, Set[str]]
+
+		if description:
+			self.add_properties(description=description)
+
+	@classmethod
+	def sanitize_description(cls, description):
+		# type (str) -> str
+		"""Sanitize the description and check that it's legal in a file path."""
+		description = description.replace(' ', '_')
+
+		pattern = r'[-.\w]*$'
+		assert re.match(pattern, description), (
+			"description {!r} doesn't match the regex pattern {!r} for a file path."
+				.format(description, pattern))
+
+		return description
+
+	@classmethod
+	def timestamped_description(cls, timestamp, description=''):
+		# type (str, str) -> str
+		"""Construct a timestamped workflow description subdirectory name."""
+		return timestamp + (
+			'__' + cls.sanitize_description(description) if description else '')
 
 	@classmethod
 	def storage_root(cls, cli_arg=None):
@@ -284,9 +301,8 @@ class Workflow(object):
 
 	def add_task(self, task):
 		# type: (Task) -> Task
-		"""Add a Task object. It will create a workflow step, aka a FireWorks
-		"firework".
-		Return it for chaining.
+		"""Add a Task object. It will create a FireWorks "Firework" that runs a
+		single "Firetask". Return it for chaining.
 		Raise ValueError if there's a conflicting task name or output path.
 		"""
 		task_name = task.name
@@ -328,8 +344,10 @@ class Workflow(object):
 				unfulfilled.add(input_path)
 
 		if unfulfilled:
-			print('WARNING: Task "{}" has inputs unfulfilled by the Tasks in'
-				  ' this workflow: {}'.format(task.name, sorted(unfulfilled)))
+			print(f'\nWARNING: Task {task.name} has inputs unfulfilled by the'
+				  f' Tasks in this workflow:')
+			for input_path in sorted(unfulfilled):
+				print(f'    {input_path}')
 		return dependencies
 
 	def task_dependents(self, task):
@@ -386,7 +404,7 @@ class Workflow(object):
 		"""Build all the FireWorks `Firework` objects for the workflow."""
 		built = OrderedDict()  # type: Dict[str, Firework]
 
-		for task in six.viewvalues(self._tasks):
+		for task in self._tasks.values():
 			self._build_firework(task, built)
 
 		return list(built.values())
@@ -464,7 +482,7 @@ class Workflow(object):
 		"""Write this workflow as a YAML file for FireWorks."""
 		fp.makedirs('out')
 		filename = os.path.join('out', 'workflow-{}.yaml'.format(self.name))
-		self.log_info('\nWriting workflow {}'.format(filename))
+		self.log_info('\nWriting workflow to {}'.format(filename))
 
 		fw_wf = self.build_workflow()
 

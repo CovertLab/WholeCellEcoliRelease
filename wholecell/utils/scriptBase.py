@@ -32,6 +32,8 @@ from wholecell.utils.py3 import monotonic_seconds, process_time_seconds
 METADATA_KEYS = (
 	'timeline',
 	'generations',
+	'seed',
+	'init_sims',
 	'mass_distribution',
 	'growth_rate_noise',
 	'd_period_division',
@@ -197,7 +199,7 @@ class ScriptBase(six.with_metaclass(abc.ABCMeta, object)):
 	def define_parameters(self, parser):
 		# type: (argparse.ArgumentParser) -> None
 		"""Define command line parameters. This base method defines a --verbose
-		flag. Overrides should call super.
+		flag if it isn't already defined. Overrides should call super.
 
 		Examples include positional arguments
 			`parser.add_argument('variant', nargs='?',
@@ -335,9 +337,20 @@ class ScriptBase(six.with_metaclass(abc.ABCMeta, object)):
 				 ' (currently increases rates for ribosomal proteins).'
 				 ' Usually set this consistently between runParca and runSim.')
 
-	def define_parca_options(self, parser):
-		# type: (argparse.ArgumentParser) -> None
+	def define_parca_options(self, parser, run_parca_option=False):
+		# type: (argparse.ArgumentParser, bool) -> None
 		"""Define Parca task options EXCEPT the elongation options."""
+
+		if run_parca_option:
+			self.define_parameter_bool(parser, 'run_parca', True,
+				help='Run the Parca. The alternative, --no-run-parca, is useful'
+					 ' to run more cell sims without rerunning the Parca.'
+					 ' For that to work, the CLI args must specify the'
+					 ' --timestamp and the same --description, --id, and'
+					 ' --storage-root as a previous workflow that ran the Parca'
+					 ' in order to locate its storage path. --no-run-parca makes'
+					 ' other Parca CLI options irrelevant (the options below,'
+					 ' through --no-debug-parca).')
 
 		self.define_parameter_bool(parser, 'ribosome_fitting', True,
 			help="Fit ribosome expression to protein synthesis demands.")

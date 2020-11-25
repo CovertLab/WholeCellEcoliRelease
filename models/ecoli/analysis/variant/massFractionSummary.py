@@ -47,8 +47,9 @@ class Plot(variantAnalysisPlot.VariantAnalysisPlot):
 
 		currentMaxTime = 0
 		for cellIdx, simDir in enumerate(all_cells):
-			with open(os.path.join(simDir[:-32],'metadata','short_name')) as f:
-				variant_name = [line for line in f][0]
+			variant_dir = os.path.join(simDir, '..', '..', '..')
+			with open(os.path.join(variant_dir, 'metadata', 'short_name')) as f:
+				variant_name = list(f)[0]
 
 			simOutDir = os.path.join(simDir, "simOut")
 

@@ -4,6 +4,8 @@
 /docs
 /user
 /stubs
+/.mypy_cache
+/.benchmarks
 
 # Compiled source #
 ###################
@@ -46,9 +48,7 @@ cached
 
 # Fixtures #
 ############
-fixtures/sim/*
-fixtures/kb/*
-fixtures/test/*
+/fixtures/
 
 # C extensions #
 ################
