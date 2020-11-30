@@ -110,7 +110,7 @@ class GetterFunctions(object):
 		Returns a list of all molecule IDs with assigned submass arrays and
 		compartments.
 		"""
-		return list(self._all_submass_arrays.keys() & self._all_compartments.keys())
+		return sorted(self._all_submass_arrays.keys() & self._all_compartments.keys())
 
 	def _build_sequences(self, raw_data):
 		"""
