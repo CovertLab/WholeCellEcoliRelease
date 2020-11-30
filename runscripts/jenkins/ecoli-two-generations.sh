@@ -12,11 +12,7 @@ echo y | lpad reset
 
 DESC="2 generations completion test." SINGLE_DAUGHTERS=1 N_GENS=2 MASS_DISTRIBUTION=0 COMPRESS_OUTPUT=1 RAISE_ON_TIME_LIMIT=1 python runscripts/fireworks/fw_queue.py
 
-rlaunch rapidfire --nlaunches 0
-
-N_FAILS=$(lpad get_fws -s FIZZLED -d count)
-
-test $N_FAILS = 0
+bash runscripts/jenkins/run-fireworks.sh
 
 rm -fr out/*
 
@@ -26,6 +22,6 @@ echo y | lpad reset
 
 DESC="2 generations completion test." WC_ANALYZE_FAST=1 SINGLE_DAUGHTERS=1 N_GENS=2 PARALLEL_PARCA=1 PLOTS=ACTIVE RAISE_ON_TIME_LIMIT=1 python runscripts/fireworks/fw_queue.py
 
-rlaunch rapidfire --nlaunches 0
+bash runscripts/jenkins/run-fireworks.sh
 
 rm -fr out/*

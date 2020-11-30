@@ -14,16 +14,6 @@ echo y | lpad reset
 
 DESC="Anaerobic." VARIANT="condition" FIRST_VARIANT_INDEX=1 LAST_VARIANT_INDEX=1 SINGLE_DAUGHTERS=1 N_GENS=8 MASS_DISTRIBUTION=0 COMPRESS_OUTPUT=1 PLOTS=ACTIVE RAISE_ON_TIME_LIMIT=1 python runscripts/fireworks/fw_queue.py
 
-while [ $(lpad get_fws -s READY -d count) -ge 1 ]; do
-  rlaunch singleshot
-done
-
-N_FAILS=$(lpad get_fws -s FIZZLED -d count)
-
-if [ $N_FAILS -gt 0 ]; then
-  mv out/2* /scratch/PI/mcovert/wc_ecoli/failed/
-fi
-
-test $N_FAILS = 0
+bash runscripts/jenkins/run-fireworks.sh
 
 runscripts/jenkins/save_output.sh out/ /scratch/PI/mcovert/wc_ecoli/anaerobic/
