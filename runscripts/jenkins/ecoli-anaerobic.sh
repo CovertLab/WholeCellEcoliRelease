@@ -5,8 +5,6 @@ PASSWORD=$4
 
 set -e
 
-runscripts/jenkins/purge.sh anaerobic 10
-
 source runscripts/jenkins/setup-environment.sh
 sh runscripts/jenkins/fireworks-config.sh $HOST $NAME $PORT $PASSWORD
 
