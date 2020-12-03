@@ -1,8 +1,3 @@
-HOST=$1
-NAME=$2
-PORT=$3
-PASSWORD=$4
-
 set -e
 
 ### ---------------------------------------------------------------------------
@@ -11,7 +6,7 @@ set -e
 ### merging the PR into master to prevent changing it for other Jenkins builds.
 ### ---------------------------------------------------------------------------
 source runscripts/jenkins/setup-environment.sh
-sh runscripts/jenkins/fireworks-config.sh $HOST $NAME $PORT $PASSWORD
+sh runscripts/jenkins/fireworks-config.sh "pr$EXECUTOR_NUMBER"
 
 echo y | lpad reset
 

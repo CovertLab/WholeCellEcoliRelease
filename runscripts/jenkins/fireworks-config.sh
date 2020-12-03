@@ -1,21 +1,34 @@
-HOST=$1
-NAME=$2
-PORT=$3
-PASSWORD=$4
+#! /usr/bin/env sh
 
-set -e
+# Create a new launchpad to allow fireworks to access a database to run a workflow.
+# $WC_MONGO_USER, $WC_MONGO_PW, $WC_MONGO_CLUSTER should be set by Jenkins.
+# Passing in a new database name as the first arg to this script will create
+# a new database in the cluster for easy expansion for new Jenkins jobs.
+# Be sure not to reuse a database name for another job or else jobs may wipe
+# other workflows.
 
-mkdir -p /scratch/PI/mcovert/jenkins/fireworks/logs/launchpad
-echo "logdir: /scratch/PI/mcovert/jenkins/fireworks/logs/launchpad" >> my_launchpad.yaml
-echo "host: $HOST" >> my_launchpad.yaml
-echo "name: $NAME" >> my_launchpad.yaml
-echo "username: fireworks" >> my_launchpad.yaml
-echo "password: $PASSWORD" >> my_launchpad.yaml
-echo "port: $PORT" >> my_launchpad.yaml
-echo "strm_lvl: INFO" >> my_launchpad.yaml
-echo "user_indices: []" >> my_launchpad.yaml
-echo "wf_user_indices: []" >> my_launchpad.yaml
+set -eu
 
-# So pymongo 3.9.0+ will work with older MongoDB servers:
-echo "mongoclient_kwargs:" >> my_launchpad.yaml
-echo "  retryWrites: false" >> my_launchpad.yaml
+WC_MONGO_DB=$1
+LOG_DIR="/scratch/PI/mcovert/jenkins/fireworks/logs/launchpad"
+
+mkdir -p $LOG_DIR
+{
+  echo "authsource: admin"
+  echo "host: mongodb+srv://${WC_MONGO_USER}:${WC_MONGO_PW}@${WC_MONGO_CLUSTER}/${WC_MONGO_DB}?retryWrites=true&w=majority"
+  echo "logdir: $LOG_DIR"
+  echo "mongoclient_kwargs: {}"
+  echo "name: null"
+  echo "password: null"
+  echo "port: null"
+  echo "ssl: false"
+  echo "ssl_ca_certs: null"
+  echo "ssl_certfile: null"
+  echo "ssl_keyfile: null"
+  echo "ssl_pem_passphrase: null"
+  echo "strm_lvl: INFO"
+  echo "uri_mode: true"
+  echo "user_indices: []"
+  echo "username: null"
+  echo "wf_user_indices: []"
+} > my_launchpad.yaml
