@@ -123,34 +123,52 @@ class SimulationDataEcoli(object):
 
 		self.tf_to_fold_change = {}
 		self.tf_to_direction = {}
-		notFound = []
-		for row in raw_data.fold_changes:
-			# Skip fold changes that do not agree with curation
-			if np.abs(row['Regulation_direct']) > 2:
-				continue
 
-			tf = abbrToActiveId[row["TF"]][0]
-			try:
-				target = abbrToRnaId[row["Target"]]
-			except KeyError:
-				notFound.append(row["Target"])
-				continue
-			if tf not in self.tf_to_fold_change:
-				self.tf_to_fold_change[tf] = {}
-				self.tf_to_direction[tf] = {}
-			FC = row["F_avg"]
-			if row["Regulation_direct"] < 0:
-				FC *= -1.
-				self.tf_to_direction[tf][target] = -1
-			else:
-				self.tf_to_direction[tf][target] = 1
-			FC = 2**FC
-			self.tf_to_fold_change[tf][target] = FC
+		for fc_file in ['fold_changes', 'fold_changes_nca']:
+			gene_not_found = set()
+			tf_not_found = set()
+			for row in getattr(raw_data, fc_file):
+				# Skip fold changes that do not agree with curation
+				if row['Regulation_direct'] != '' and row['Regulation_direct'] > 2:
+					continue
 
-		if VERBOSE:
-			print("The following target genes listed in fold_changes.tsv have no corresponding entry in genes.tsv:")
-			for item in notFound:
-				print(item)
+				# Skip autoregulation
+				if row['TF'] == row['Target']:
+					continue
+
+				try:
+					tf = abbrToActiveId[row['TF']][0]
+				except KeyError:
+					tf_not_found.add(row['TF'])
+					continue
+
+				try:
+					target = abbrToRnaId[row['Target']]
+				except KeyError:
+					gene_not_found.add(row['Target'])
+					continue
+
+				if tf not in self.tf_to_fold_change:
+					self.tf_to_fold_change[tf] = {}
+					self.tf_to_direction[tf] = {}
+
+				FC = row['log2 FC mean']
+				self.tf_to_direction[tf][target] = np.sign(FC)
+				self.tf_to_fold_change[tf][target] = 2**FC
+
+			if VERBOSE:
+				if gene_not_found:
+					print(f'The following target genes listed in {fc_file}.tsv'
+						' have no corresponding entry in genes.tsv:')
+					for item in gene_not_found:
+						print(item)
+
+				if tf_not_found:
+					print('The following transcription factors listed in'
+						f' {fc_file}.tsv have no corresponding active entry in'
+						' transcription_factors.tsv:')
+					for tf in tf_not_found:
+						print(tf)
 
 		self.tf_to_active_inactive_conditions = {}
 		for row in raw_data.condition.tf_condition:

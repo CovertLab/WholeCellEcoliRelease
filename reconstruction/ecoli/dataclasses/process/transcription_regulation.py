@@ -17,17 +17,6 @@ class TranscriptionRegulation(object):
 		# Store list of transcription factor IDs
 		self.tf_ids = list(sorted(sim_data.tf_to_active_inactive_conditions.keys()))
 
-		# Build dictionary mapping transcription factors to their Kds
-		self.tf_Kd = {}
-
-		mRNASet = {
-			x["id"]
-			for x in raw_data.rnas
-			if x["type"] not in ("rRNA", "tRNA")}
-
-		for D in raw_data.fold_changes:
-			self.tf_Kd[self.abbr_to_active_id[D["TF"]][0]] = D["kd"]
-
 		# Build dictionary mapping RNA targets to its regulators
 		self.target_tf = {}
 
@@ -36,10 +25,6 @@ class TranscriptionRegulation(object):
 			targetsToRemove = []
 
 			for target in targets:
-				if target not in mRNASet:
-					targetsToRemove.append(target)
-					continue
-
 				if target not in self.target_tf:
 					self.target_tf[target] = []
 

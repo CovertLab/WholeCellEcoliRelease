@@ -2110,7 +2110,10 @@ def expressionFromConditionAndFoldChange(rnaIds, basalExpression, condPerturbati
 		rnaIdxs.append(np.where(rnaIds == key)[0][0])
 		fcs.append(value)
 	for key in sorted(tfFCs):
-		rnaIdxs.append(np.where(rnaIds == key + "[c]")[0][0])
+		compartment_key = key + "[c]"
+		if compartment_key in condPerturbations:
+			continue
+		rnaIdxs.append(np.where(rnaIds == compartment_key)[0][0])
 		fcs.append(tfFCs[key])
 
 	# Sort fold changes and indices for the bool array indexing to work properly

@@ -1078,7 +1078,7 @@ def save_fold_changes(
         writer = csv.writer(f, delimiter='\t', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
 
         # Write header
-        header = ['TF', 'Target', 'F_avg', 'F_sd', 'F_corrected', 'Regulation_direct', 'PS', 'PS_corrected', 'kd (units.mol/units.L)']
+        header = ['TF', 'Target', 'log2 FC mean', 'log2 FC std', 'Regulation_direct']
         writer.writerow(header)
 
         # Write row for each regulatory interaction

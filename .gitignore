@@ -36,6 +36,7 @@ nosetests.*.xml
 ################
 /out
 /colony/out
+reconstruction/ecoli/scripts/nca/out/
 
 # Cached sim data #
 ###################
@@ -111,9 +112,9 @@ reconstruction/ecoli/dataclasses/process/two_component_system_odes_fitter.py
 *.hdf
 *.tar.gz
 /build/
-/.pytype/
 /.mypy_cache/
 secrets.*
+reconstruction/ecoli/scripts/nca/data/regulon-db/*.tsv
 
 # PyCharm files #
 #################
