@@ -81,8 +81,9 @@ class Plot(singleAnalysisPlot.SingleAnalysisPlot):
 
 		# Add values to each bar
 		for i, v in enumerate(avg_inter_rnap_distance[:SAMPLE_SIZE]):
-			plt.text(v - 1, i, "{0:.1f}".format(v), color='white', fontsize=5,
-				horizontalalignment='right', verticalalignment='center')
+			if np.isfinite(v):
+				plt.text(v - 1, i, "{0:.1f}".format(v), color='white', fontsize=5,
+					horizontalalignment='right', verticalalignment='center')
 
 		plt.tight_layout()
 		exportFigure(plt, plotOutDir, plotOutFileName, metadata)
