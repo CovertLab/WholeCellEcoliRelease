@@ -28,6 +28,7 @@ LIST_OF_DICT_FILENAMES = (
 	"equilibrium_reactions_removed.tsv",
 	"fold_changes.tsv",
 	"fold_changes_nca.tsv",
+	"fold_changes_removed.tsv",
 	"genes.tsv",
 	"growth_rate_dependent_parameters.tsv",
 	"metabolic_reactions.tsv",
