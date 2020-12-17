@@ -267,8 +267,8 @@ class ScriptBase(six.with_metaclass(abc.ABCMeta, object)):
 			help='({}; default {!r}) {}'.format(datatype.__name__, default, help)
 			)
 
-	def define_parameter_sim_dir(self, parser):
-		# type: (argparse.ArgumentParser) -> None
+	def define_parameter_sim_dir(self, parser, default=None):
+		# type: (argparse.ArgumentParser, Optional[Any]) -> None
 		"""Add a `sim_dir` parameter to the command line parser. parse_args()
 		will then use `args.sim_dir` to add `args.sim_path`.
 
@@ -279,6 +279,7 @@ class ScriptBase(six.with_metaclass(abc.ABCMeta, object)):
 		Call this in overridden define_parameters() methods as needed.
 		"""
 		parser.add_argument('sim_dir', nargs='?',
+			default=default,
 			help='''The simulation "out/" subdirectory to read from (optionally
 				starting with "out/"), or an absolute directory name, or
 				default to the "out/" subdirectory name that starts with
